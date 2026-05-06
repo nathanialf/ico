@@ -631,7 +631,8 @@ segments:
       - [0x09B938, c, cod/09B938]            # func_0019B938: 4-insn lwc1
       - [0x09B948, asm, cod/09B948]
       - [0x09DBA8, c,   cod/09DBA8]            # func_0019DBA8
-      - [0x09DBC8, asm, cod/09DBC8]
+      - [0x09DBC8, c,   cod/09DBC8]            # func_0019DBC8: func_00133510() passthrough
+      - [0x09DBE4, asm, cod/09DBE4]
       - [0x09E1A0, c,   cod/09E1A0]            # func_0019E1A0
       - [0x09E1C0, asm, cod/09E1C0]
       - [0x09E2D0, c,   cod/09E2D0]            # func_0019E2D0
@@ -1068,6 +1069,8 @@ segments:
       - [0x151E4C, asm, cod/151E4C]
       - [0x151EB8, c,   cod/151EB8]            # func_00251EB8: return p[0] + p[1] - p[2]
       - [0x151ED0, asm, cod/151ED0]
+      - [0x154F08, c,   cod/154F08]            # func_00254F08: func_002560D8(3)
+      - [0x154F24, asm, cod/154F24]
       - [0x158C68, c,   cod/158C68]            # func_00258C68: return &D_0071C640
       - [0x158C74, asm, cod/158C74]
       - [0x158CC0, c,   cod/158CC0]            # func_00258CC0: return &D_0071E900
@@ -1085,6 +1088,10 @@ segments:
       - [0x16BEE0, c,   cod/16BEE0]
       - [0x16BEE8, c,   cod/16BEE8]
       - [0x16BEF0, asm, cod/16BEF0]
+      - [0x16CF10, c,   cod/16CF10]            # func_0026CF10: func_0026A330() passthrough
+      - [0x16CF2C, asm, cod/16CF2C]
+      - [0x16D538, c,   cod/16D538]            # func_0026D538: func_00245678() passthrough
+      - [0x16D554, asm, cod/16D554]
       - [0x16F5E0, textbin, cod/16F5E0]
       - [0x174700, data, cod/174700]
       - [0x453700, rodata, cod/453700]
