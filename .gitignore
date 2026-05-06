@@ -115,3 +115,4 @@ config/undefined_funcs_auto.us.txt
 CLAUDE.md
 .claude/
 decomp/RUN_LOG.md
+.cache/

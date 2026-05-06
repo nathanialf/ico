@@ -13,9 +13,15 @@ from __future__ import annotations
 
 import argparse
 import glob
+import os
+import pickle
 import re
 import sys
 from dataclasses import dataclass
+from pathlib import Path
+
+CACHE_PATH = Path(__file__).resolve().parent.parent / ".cache" / "find_leaves.pkl"
+CACHE_VERSION = 1
 
 # /* hex hex HEX */ <whitespace> -- spimdisasm address/vram/rawbytes prefix
 ADDR_PREFIX_RE = re.compile(r"^\s*/\*\s+[0-9a-fA-F]+\s+[0-9a-fA-F]+\s+[0-9A-Fa-f]+\s+\*/[ \t]*")
@@ -152,6 +158,54 @@ def shape_match(mnemonics: list[str], shape: list[str]) -> bool:
     return True
 
 
+def load_funcs(paths: list[str], rebuild: bool = False) -> list[Func]:
+    """Parse all paths, with a pickle cache keyed on (path, mtime).
+
+    Each .s file's funcs are stored under its path. On every call:
+    - For each path, if the cache has an entry whose mtime matches the
+      current file's mtime, reuse the parsed funcs.
+    - Otherwise re-parse and update the cache entry.
+    Stale entries (paths no longer in the glob) are dropped.
+    """
+    cache: dict[str, tuple[float, list[Func]]] = {}
+    if not rebuild and CACHE_PATH.exists():
+        try:
+            with CACHE_PATH.open("rb") as f:
+                version, cache = pickle.load(f)
+            if version != CACHE_VERSION:
+                cache = {}
+        except Exception:
+            cache = {}
+
+    keep = set(paths)
+    cache = {k: v for k, v in cache.items() if k in keep}
+
+    all_funcs: list[Func] = []
+    dirty = False
+    for p in paths:
+        try:
+            mtime = os.path.getmtime(p)
+        except OSError:
+            continue
+        entry = cache.get(p)
+        if entry is None or entry[0] != mtime:
+            funcs = parse_file(p)
+            cache[p] = (mtime, funcs)
+            dirty = True
+        else:
+            funcs = entry[1]
+        all_funcs.extend(funcs)
+
+    if dirty:
+        CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        tmp = CACHE_PATH.with_suffix(CACHE_PATH.suffix + ".tmp")
+        with tmp.open("wb") as f:
+            pickle.dump((CACHE_VERSION, cache), f, protocol=pickle.HIGHEST_PROTOCOL)
+        tmp.replace(CACHE_PATH)
+
+    return all_funcs
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         description="Find matchable leaf functions in splat asm.",
@@ -168,6 +222,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--has-vu", action="store_true", help="require a VU reg/mnemonic")
     ap.add_argument("--brief", action="store_true", help="print just function names")
     ap.add_argument("--list-files", action="store_true", help="include path:line")
+    ap.add_argument("--rebuild-cache", action="store_true",
+                    help="ignore cache and re-parse all .s files")
     args = ap.parse_args(argv)
 
     size_lo, size_hi = (0, sys.maxsize)
@@ -187,34 +243,35 @@ def main(argv: list[str] | None = None) -> int:
         print(f"no files matched: {args.path}", file=sys.stderr)
         return 1
 
-    matched = 0
-    for p in paths:
-        for fn in parse_file(p):
-            if not (size_lo <= fn.size <= size_hi):
-                continue
-            if not (insn_lo <= len(fn.insns) <= insn_hi):
-                continue
-            if args.jal and not (jal_lo <= fn.jal_count() <= jal_hi):
-                continue
-            if args.no_vu and fn.has_vu():
-                continue
-            if args.has_vu and not fn.has_vu():
-                continue
-            if shape and not shape_match(fn.mnemonics, shape):
-                continue
-            if contains_re and not any(contains_re.search(s) for s in fn.insns):
-                continue
+    funcs = load_funcs(paths, rebuild=args.rebuild_cache)
 
-            matched += 1
-            if args.brief:
-                print(fn.name)
-                continue
-            parts = [fn.name, f"0x{fn.size:X}"]
-            if args.list_files:
-                parts.append(f"{fn.path}:{fn.line}")
-            for ins in fn.insns:
-                parts.append(ins)
-            print(" | ".join(parts))
+    matched = 0
+    for fn in funcs:
+        if not (size_lo <= fn.size <= size_hi):
+            continue
+        if not (insn_lo <= len(fn.insns) <= insn_hi):
+            continue
+        if args.jal and not (jal_lo <= fn.jal_count() <= jal_hi):
+            continue
+        if args.no_vu and fn.has_vu():
+            continue
+        if args.has_vu and not fn.has_vu():
+            continue
+        if shape and not shape_match(fn.mnemonics, shape):
+            continue
+        if contains_re and not any(contains_re.search(s) for s in fn.insns):
+            continue
+
+        matched += 1
+        if args.brief:
+            print(fn.name)
+            continue
+        parts = [fn.name, f"0x{fn.size:X}"]
+        if args.list_files:
+            parts.append(f"{fn.path}:{fn.line}")
+        for ins in fn.insns:
+            parts.append(ins)
+        print(" | ".join(parts))
 
     print(f"# {matched} match(es)", file=sys.stderr)
     return 0 if matched else 2
