@@ -1004,6 +1004,8 @@ segments:
       - [0x13EFB8, asm, cod/13EFB8]
       - [0x13F070, c,   cod/13F070]            # func_0023F070
       - [0x13F07C, asm, cod/13F07C]
+      - [0x13F160, c,   cod/13F160]            # func_0023F160: init struct: [0]=0, [4]=0, [8]=0x3F, [C]=0; return p+0x10
+      - [0x13F17C, asm, cod/13F17C]
       - [0x140B60, c,   cod/140B60]            # func_00240B60: D_00633B98 = 0
       - [0x140B68, c,   cod/140B68]            # func_00240B68: return D_00633B98
       - [0x140B70, asm, cod/140B70]
