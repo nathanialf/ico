@@ -463,6 +463,8 @@ segments:
       - [0x09E51C, asm, cod/09E51C]
       - [0x09F4E0, c,   cod/09F4E0]
       - [0x09F4E8, asm, cod/09F4E8]
+      - [0x0A0010, c,   cod/0A0010]            # func_001A0010: 3-store with constant 1
+      - [0x0A0024, asm, cod/0A0024]
       - [0x0A0028, c,   cod/0A0028]            # func_001A0028
       - [0x0A0034, asm, cod/0A0034]
       - [0x0A0038, c,   cod/0A0038]            # func_001A0038: D_00632864 = val
