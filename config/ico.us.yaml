@@ -683,6 +683,8 @@ segments:
       - [0x0AEA68, asm, cod/0AEA68]
       - [0x0AFB90, c,   cod/0AFB90]
       - [0x0AFB98, asm, cod/0AFB98]
+      - [0x0B0A38, c,   cod/0B0A38]            # func_001B0A38: init 5 globals to 0
+      - [0x0B0A54, asm, cod/0B0A54]
       - [0x0B4FC0, c,   cod/0B4FC0]            # func_001B4FC0: return -1
       - [0x0B4FC8, asm, cod/0B4FC8]
       - [0x0B5610, c,   cod/0B5610]            # func_001B5610: return -1
@@ -840,6 +842,8 @@ segments:
       - [0x0FAA58, asm, cod/0FAA58]
       - [0x0FAAA8, c,   cod/0FAAA8]            # func_001FAAA8: return D_006337B0 (float)
       - [0x0FAAB0, asm, cod/0FAAB0]
+      - [0x0FB4A8, c,   cod/0FB4A8]            # func_001FB4A8: init 5 sdata: 0; 0x80 x4
+      - [0x0FB4C4, asm, cod/0FB4C4]
       - [0x0FBB40, c,   cod/0FBB40]            # func_001FBB40: return D_00633F70
       - [0x0FBB48, asm, cod/0FBB48]
       - [0x0FC2D0, c,   cod/0FC2D0]            # func_001FC2D0
