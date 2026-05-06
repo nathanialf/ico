@@ -290,6 +290,8 @@ segments:
       - [0x00D088, asm, cod/00D088]
       - [0x00D180, c,   cod/00D180]
       - [0x00D198, asm, cod/00D198]
+      - [0x00DDB8, c,   cod/00DDB8]            # func_0010DDB8: quaternion mul
+      - [0x00DDF4, asm, cod/00DDF4]
       - [0x00E928, c,   cod/00E928]            # func_0010E928: dot product 4-component
       - [0x00E950, asm, cod/00E950]
       - [0x00ECD8, c,   cod/00ECD8]
@@ -323,8 +325,11 @@ segments:
       - [0x0180C0, c,   cod/0180C0]            # func_001180C0: mat-vec mul
       - [0x0180E0, c,   cod/0180E0]            # func_001180E0: mat-vec divide-by-w
       - [0x01810C, asm, cod/01810C]
+      - [0x018110, c,   cod/018110]            # func_00118110: 4x4 transpose
+      - [0x01815C, asm, cod/01815C]
       - [0x018160, c,   cod/018160]            # func_00118160: transpose 3x3
-      - [0x018190, asm, cod/018190]
+      - [0x018190, c,   cod/018190]            # func_00118190: affine inverse 3x3+pos
+      - [0x0181DC, asm, cod/0181DC]
       - [0x0182F0, c,   cod/0182F0]            # func_001182F0: vec normalize xyz
       - [0x01831C, asm, cod/01831C]
       - [0x018320, c,   cod/018320]            # func_00118320: weighted dot product
@@ -350,6 +355,8 @@ segments:
       - [0x0184B8, c,   cod/0184B8]            # func_001184B8: lerp xyz
       - [0x0184E0, c,   cod/0184E0]            # func_001184E0: length xyz
       - [0x01850C, asm, cod/01850C]
+      - [0x018510, c,   cod/018510]            # func_00118510: distance xyz
+      - [0x018544, asm, cod/018544]
       - [0x018548, c,   cod/018548]            # func_00118548: distance xy
       - [0x018574, asm, cod/018574]
       - [0x018578, c,   cod/018578]            # func_00118578: distance xz
@@ -685,6 +692,8 @@ segments:
       - [0x0C8E54, asm, cod/0C8E54]
       - [0x0C8E58, c,   cod/0C8E58]            # func_001C8E58: length squared (xz)
       - [0x0C8E74, asm, cod/0C8E74]
+      - [0x0C8E78, c,   cod/0C8E78]            # func_001C8E78: store sub + rsqrt distance
+      - [0x0C8EAC, asm, cod/0C8EAC]
       - [0x0C8EB0, c,   cod/0C8EB0]            # func_001C8EB0: vec scale-add
       - [0x0C8ED4, asm, cod/0C8ED4]
       - [0x0C8ED8, c,   cod/0C8ED8]            # func_001C8ED8: vec scale xz
