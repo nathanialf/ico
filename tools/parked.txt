@@ -52,3 +52,16 @@ func_00191D08  # daddu/or — return 0 with sdata side effects
 
 # ---- la-macro-64-bit, separate lui+addiu vs lui+lw %lo split variant.
 func_00244738  # la-macro-64-bit (lui+addiu vs lui+lw %lo split)
+
+# ---- la-macro 64-bit (cluster of array index helpers via constant stride).
+# Original: lui $vN, %hi(SYM); addiu $vN, %lo(SYM); ... addu $vN, $vN, $aN
+# ee-gcc:   lui $vN, %hi(SYM); daddiu $vN, %lo(SYM); ... daddu (64-bit)
+# Same scheduling difference as func_00105278.
+func_0010DAA0  # la-macro-64-bit (D_00660A40 stride 16)
+func_0010DAB8  # la-macro-64-bit (D_00660A30 stride 16)
+func_0012FE08  # la-macro-64-bit + mult (D_006812D0 stride 0x2E8)
+func_0012FE20  # la-macro-64-bit + mult (D_006812D0)
+func_0012FE60  # la-macro-64-bit + mult (D_00681538)
+func_0013B748  # la-macro-64-bit (D_002811C0 stride 0x200)
+func_0013B760  # la-macro-64-bit (D_002811C0 stride 0x200, +0x4)
+func_0014B358  # la-macro-64-bit (D_002924B0 stride 4, return float)
