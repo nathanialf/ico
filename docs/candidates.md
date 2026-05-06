@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-06 21:32:55 UTC
+- Generated: 2026-05-06 21:51:10 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions listed in `tools/parked.txt` are excluded
-- Functions: 4710 total in `asm/cod/*.s`, 16 parked, 4694 considered
+- Functions: 4710 total in `asm/cod/*.s`, 24 parked, 4686 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -103,13 +103,11 @@ _33 total in this bucket; showing top 33._
 <a id="leaf-6-0x18"></a>
 ## 6-insn / 0x18 leaf, no jal, no VU (sub-deref + store)
 
-_36 total in this bucket; showing top 36._
+_28 total in this bucket; showing top 28._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
 | `func_00101A88` | 0x18 | 6 | 0 |  | `mfc0 lui and ei` | asm/cod/000C90.s:1209 |
-| `func_0010DAA0` | 0x18 | 6 | 0 |  | `lw lui addiu sll` | asm/cod/00D198.s:743 |
-| `func_0010DAB8` | 0x18 | 6 | 0 |  | `lw lui addiu sll` | asm/cod/00D198.s:755 |
 | `func_0013D3D8` | 0x18 | 6 | 0 |  | `bnez nop j nop` | asm/cod/03D0A0.s:271 |
 | `func_0014BDD8` | 0x18 | 6 | 0 |  | `addiu addiu movn ori` | asm/cod/04BDD4.s:18 |
 | `func_0015D470` | 0x18 | 6 | 0 |  | `lw lw lw addiu` | asm/cod/054CC8.s:10271 |
@@ -125,11 +123,6 @@ _36 total in this bucket; showing top 36._
 | `func_0025CCE0` | 0x18 | 6 | 0 |  | `daddu daddu daddu daddu` | asm/cod/158CEC.s:4983 |
 | `func_0025CE78` | 0x18 | 6 | 0 |  | `daddu daddu daddu daddu` | asm/cod/158CEC.s:5131 |
 | `func_001C8B48` | 0x18 | 6 | 0 |  | `lwc1 nop nop div.s` | asm/cod/0C2F20.s:6869 |
-| `func_0012FE08` | 0x18 | 6 | 0 |  | `addiu lui mult addiu` | asm/cod/02FD4C.s:80 |
-| `func_0012FE20` | 0x18 | 6 | 0 |  | `addiu lui mult addiu` | asm/cod/02FD4C.s:91 |
-| `func_0012FE60` | 0x18 | 6 | 0 |  | `addiu lui mult addiu` | asm/cod/02FD4C.s:117 |
-| `func_0013B748` | 0x18 | 6 | 0 |  | `lui sll addiu addu` | asm/cod/03A21C.s:1660 |
-| `func_0013B760` | 0x18 | 6 | 0 |  | `lui sll addiu addu` | asm/cod/03A21C.s:1671 |
 | `func_001B0A68` | 0x18 | 6 | 0 |  | `lui addiu ori daddu` | asm/cod/0B0A54.s:27 |
 | `func_001B0A80` | 0x18 | 6 | 0 |  | `lui addiu ori daddu` | asm/cod/0B0A54.s:38 |
 | `func_001B0A98` | 0x18 | 6 | 0 |  | `lui addiu ori daddu` | asm/cod/0B0A54.s:49 |
@@ -142,19 +135,17 @@ _36 total in this bucket; showing top 36._
 | `func_00258C78` | 0x18 | 6 | 0 |  | `addiu lui mult addiu` | asm/cod/158C74.s:18 |
 | `func_00258C90` | 0x18 | 6 | 0 |  | `lui sll addiu addu` | asm/cod/158C74.s:29 |
 | `func_00258CA8` | 0x18 | 6 | 0 |  | `lui sll addiu addu` | asm/cod/158C74.s:40 |
-| `func_0014B358` | 0x18 | 6 | 0 |  | `lui sll addiu addu` | asm/cod/04B358.s:13 |
 
 <a id="leaf-7-0x1C"></a>
 ## 7-insn / 0x1C leaf, no jal, no VU (accessor + multiplier/branch)
 
-_34 total in this bucket; showing top 34._
+_33 total in this bucket; showing top 33._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
 | `func_0010D408` | 0x1C | 7 | 0 |  | `lw lui addiu sll` | asm/cod/00D198.s:205 |
 | `func_0010D428` | 0x1C | 7 | 0 |  | `lw lui addiu daddu` | asm/cod/00D198.s:219 |
 | `func_0011BF40` | 0x1C | 7 | 0 |  | `lw lw lb daddu` | asm/cod/018AB4.s:4024 |
-| `func_0013C598` | 0x1C | 7 | 0 |  | `lw sw beqz sw` | asm/cod/03BB80.s:849 |
 | `func_0015F208` | 0x1C | 7 | 0 |  | `lw lw lwu dsll32` | asm/cod/05EF50.s:233 |
 | `func_001882B0` | 0x1C | 7 | 0 |  | `lw bne nop j` | asm/cod/088228.s:63 |
 | `func_0019DB50` | 0x1C | 7 | 0 |  | `lw daddu slt movn` | asm/cod/09B948.s:2555 |
@@ -263,7 +254,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4521 unmatched functions are not in any shape bucket above._
+_4522 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 

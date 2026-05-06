@@ -406,6 +406,8 @@ segments:
       - [0x03BB70, c,   cod/03BB70]
       - [0x03BB78, c,   cod/03BB78]
       - [0x03BB80, asm, cod/03BB80]
+      - [0x03C598, c,   cod/03C598]            # func_0013C598: linked-list head insert
+      - [0x03C5B4, asm, cod/03C5B4]
       - [0x03CC60, c,   cod/03CC60]            # func_0013CC60: zero 2 halfwords
       - [0x03CC6C, asm, cod/03CC6C]
       - [0x03CD70, c,   cod/03CD70]            # func_0013CD70: *p = 0 (byte)
