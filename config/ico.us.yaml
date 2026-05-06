@@ -802,6 +802,8 @@ segments:
       - [0x0E97F8, c, cod/0E97F8]            # func_001E97F8: 4-insn lw
       - [0x0E9808, c,   cod/0E9808]
       - [0x0E9810, asm, cod/0E9810]
+      - [0x0EA228, c,   cod/0EA228]            # func_001EA228: set short field, copy short field, return 1
+      - [0x0EA248, c,   cod/0EA248]            # func_001EA248: copy 2 shorts via sub2
       - [0x0EA268, c,   cod/0EA268]            # func_001EA268
       - [0x0EA278, asm, cod/0EA278]
       - [0x0EAE70, c,   cod/0EAE70]            # func_001EAE70: get-and-clear arr[idx]
