@@ -92,6 +92,11 @@ segments:
     subalign: null
     subsegments:
       - [0x000000, asm, cod/000000]
+      - [0x000BA8, c,   cod/000BA8]            # func_00100BA8: sync wrapper -> func_001002C0
+      - [0x000BC8, c,   cod/000BC8]            # func_00100BC8: sync wrapper -> func_001002D0
+      - [0x000BE8, c,   cod/000BE8]            # func_00100BE8: sync wrapper -> func_001002E0
+      - [0x000C08, c,   cod/000C08]            # func_00100C08: sync wrapper -> func_001002F0
+      - [0x000C28, asm, cod/000C28]
       - [0x004A38, c,   cod/004A38]
       - [0x004A48, asm, cod/004A48]
       - [0x005258, c,   cod/005258]
