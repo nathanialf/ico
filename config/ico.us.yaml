@@ -166,6 +166,8 @@ segments:
       - [0x03FF88, asm, cod/03FF88]
       - [0x040B70, c,   cod/040B70]            # func_00140B70: D_00633CC0 = val
       - [0x040B78, asm, cod/040B78]
+      - [0x041020, c,   cod/041020]            # func_00141020: return short at sub_2C[idx]+0x3C
+      - [0x041034, asm, cod/041034]
       - [0x041038, c,   cod/041038]            # func_00141038: return *(short*)(*(char**)(self+0x2C)+0x3C)
       - [0x041044, asm, cod/041044]
       - [0x041128, c,   cod/041128]
