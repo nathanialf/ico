@@ -95,6 +95,8 @@ segments:
       - [0x005258, c,   cod/005258]            # func_00105258: ++D_00631B40
       - [0x005268, c,   cod/005268]            # func_00105268: --D_00631B40
       - [0x005278, asm, cod/005278]
+      - [0x00A2E0, c,   cod/00A2E0]            # func_0010A2E0: self->sub_15C->flag_4D0 = 1
+      - [0x00A2F0, asm, cod/00A2F0]
       - [0x16F5E0, textbin, cod/16F5E0]        # .vutext (VU code, kept as raw bytes)
       - [0x174700, data, cod/174700]     # .data
       - [0x453700, rodata, cod/453700]   # .rodata
