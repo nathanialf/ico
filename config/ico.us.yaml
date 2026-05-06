@@ -204,13 +204,27 @@ segments:
       - [0x08CF60, asm, cod/08CF60]
       - [0x08CFF0, c,   cod/08CFF0]            # func_0018CFF0: D_00632744 = 0
       - [0x08CFF8, asm, cod/08CFF8]
+      - [0x0902C8, c, cod/0902C8]            # func_001902C8: 4-insn sb_zero
+      - [0x0902D8, asm, cod/0902D8]
+      - [0x0903A8, c,   cod/0903A8]            # func_001903A8: return *(uchar)(sub->800 + 0xC0)
+      - [0x0903B8, asm, cod/0903B8]
+      - [0x090638, c, cod/090638]            # func_00190638: 4-insn sb_zero
+      - [0x090648, c,   cod/090648]            # func_00190648: return *(float)(sub->800 + 0xC8)
+      - [0x090658, asm, cod/090658]
+      - [0x090698, c, cod/090698]            # func_00190698: 4-insn sb_zero
+      - [0x0906A8, c, cod/0906A8]            # func_001906A8: 4-insn lbu
+      - [0x0906B8, asm, cod/0906B8]
       - [0x092088, c,   cod/092088]            # func_00192088: D_00632780 = 0
       - [0x092090, c,   cod/092090]            # func_00192090: return D_00632780
       - [0x092098, asm, cod/092098]
+      - [0x093860, c, cod/093860]            # func_00193860: 4-insn sb_zero
+      - [0x093870, asm, cod/093870]
       - [0x097330, c,   cod/097330]
       - [0x097338, asm, cod/097338]
       - [0x098430, c,   cod/098430]
       - [0x098438, asm, cod/098438]
+      - [0x09B938, c, cod/09B938]            # func_0019B938: 4-insn lwc1
+      - [0x09B948, asm, cod/09B948]
       - [0x09F4E0, c,   cod/09F4E0]
       - [0x09F4E8, asm, cod/09F4E8]
       - [0x0A0038, c,   cod/0A0038]            # func_001A0038: D_00632864 = val
@@ -236,11 +250,27 @@ segments:
       - [0x0B7288, c,   cod/0B7288]            # func_001B7288: D_00633164 = val
       - [0x0B7290, c,   cod/0B7290]            # func_001B7290: D_0063315C = val
       - [0x0B7298, asm, cod/0B7298]
+      - [0x0BA5C0, c, cod/0BA5C0]            # func_001BA5C0: 4-insn lw
+      - [0x0BA5D0, asm, cod/0BA5D0]
       - [0x0BBE48, c,   cod/0BBE48]
       - [0x0BBE50, asm, cod/0BBE50]
+      - [0x0BBFD0, c, cod/0BBFD0]            # func_001BBFD0: 4-insn lwc1
+      - [0x0BBFE0, asm, cod/0BBFE0]
+      - [0x0BC088, c, cod/0BC088]            # func_001BC088: 4-insn lw
+      - [0x0BC098, asm, cod/0BC098]
+      - [0x0C05A8, c, cod/0C05A8]            # func_001C05A8: 4-insn lw
+      - [0x0C05B8, asm, cod/0C05B8]
+      - [0x0C0690, c, cod/0C0690]            # func_001C0690: 4-insn lw
+      - [0x0C06A0, asm, cod/0C06A0]
       - [0x0C0850, c,   cod/0C0850]
       - [0x0C0858, c,   cod/0C0858]
       - [0x0C0860, asm, cod/0C0860]
+      - [0x0C0AD8, c, cod/0C0AD8]            # func_001C0AD8: 4-insn lh
+      - [0x0C0AE8, asm, cod/0C0AE8]
+      - [0x0C0D50, c, cod/0C0D50]            # func_001C0D50: 4-insn lh
+      - [0x0C0D60, asm, cod/0C0D60]
+      - [0x0C2EB8, c, cod/0C2EB8]            # func_001C2EB8: 4-insn swc1
+      - [0x0C2EC8, asm, cod/0C2EC8]
       - [0x0C9328, c,   cod/0C9328]
       - [0x0C9330, c,   cod/0C9330]
       - [0x0C9338, asm, cod/0C9338]
@@ -250,15 +280,22 @@ segments:
       - [0x0CBD88, asm, cod/0CBD88]
       - [0x0CE760, c,   cod/0CE760]
       - [0x0CE768, asm, cod/0CE768]
+      - [0x0CEBB0, c, cod/0CEBB0]            # func_001CEBB0: 4-insn lw
+      - [0x0CEBC0, asm, cod/0CEBC0]
+      - [0x0CEBF0, c, cod/0CEBF0]            # func_001CEBF0: 4-insn swc1
+      - [0x0CEC00, asm, cod/0CEC00]
       - [0x0D03E0, c,   cod/0D03E0]            # func_001D03E0: D_006333D8 = 0
       - [0x0D03E8, asm, cod/0D03E8]
       - [0x0D1AD0, c,   cod/0D1AD0]
       - [0x0D1AD8, asm, cod/0D1AD8]
       - [0x0D1CF8, c,   cod/0D1CF8]
       - [0x0D1D00, asm, cod/0D1D00]
+      - [0x0D3D70, c, cod/0D3D70]            # func_001D3D70: 4-insn lw
+      - [0x0D3D80, asm, cod/0D3D80]
       - [0x0E8F28, c,   cod/0E8F28]
       - [0x0E8F30, c,   cod/0E8F30]
       - [0x0E8F38, asm, cod/0E8F38]
+      - [0x0E97F8, c, cod/0E97F8]            # func_001E97F8: 4-insn lw
       - [0x0E9808, c,   cod/0E9808]
       - [0x0E9810, asm, cod/0E9810]
       - [0x0EF980, c,   cod/0EF980]
@@ -273,7 +310,12 @@ segments:
       - [0x0F0F90, c,   cod/0F0F90]            # func_001F0F90: D_0063370C = 0
       - [0x0F0F98, asm, cod/0F0F98]
       - [0x0F2140, c,   cod/0F2140]
-      - [0x0F2148, asm, cod/0F2148]
+      - [0x0F2148, c, cod/0F2148]            # func_001F2148: 4-insn lw
+      - [0x0F2158, asm, cod/0F2158]
+      - [0x0F40C8, c, cod/0F40C8]            # func_001F40C8: 4-insn lw
+      - [0x0F40D8, asm, cod/0F40D8]
+      - [0x0F6A90, c, cod/0F6A90]            # func_001F6A90: 4-insn swc1
+      - [0x0F6AA0, asm, cod/0F6AA0]
       - [0x0F6CA0, c,   cod/0F6CA0]            # func_001F6CA0: D_00633780 = val
       - [0x0F6CA8, c,   cod/0F6CA8]            # func_001F6CA8: return D_00633780
       - [0x0F6CB0, asm, cod/0F6CB0]
