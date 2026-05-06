@@ -56,10 +56,28 @@ else
     TARGET_ASM="${asms[0]}"
 fi
 
-# Compile.
-MIPS_PREFIX="${MIPS_PREFIX:-mips64r5900el-ps2-elf-}"
-CC="${CC:-${MIPS_PREFIX}gcc}"
-OBJDUMP="${OBJDUMP:-${MIPS_PREFIX}objdump}"
+# Compile with the project's matching compiler. ee-gcc 2.96 from
+# tools/cc/ee-gcc2.96 if present (fetched by tools/setup.sh), else fall back
+# to ee-prefix on PATH, else mips-linux-gnu-gcc (only useful for asm sanity
+# checks — it won't match game C since the codegen differs).
+EEGCC="$ROOT/tools/cc/ee-gcc2.96/bin/gcc"
+if [[ -z "${CC:-}" ]]; then
+    if [[ -x "$EEGCC" ]] && "$EEGCC" --version >/dev/null 2>&1; then
+        CC="$EEGCC"
+    elif command -v mips64r5900el-ps2-elf-gcc >/dev/null 2>&1; then
+        CC="mips64r5900el-ps2-elf-gcc"
+    else
+        CC="mips-linux-gnu-gcc"
+    fi
+fi
+# objdump for disassembly: prefer EE-aware, fall back to system mips
+if [[ -z "${OBJDUMP:-}" ]]; then
+    if command -v mips64r5900el-ps2-elf-objdump >/dev/null 2>&1; then
+        OBJDUMP="mips64r5900el-ps2-elf-objdump"
+    else
+        OBJDUMP="mips-linux-gnu-objdump"
+    fi
+fi
 CFLAGS="${CFLAGS:--c -G 0 -O2 -mips3 -EL -fno-builtin -nostdinc -Iinclude}"
 
 OBJ="build/quick_diff/$NAME.o"
