@@ -161,6 +161,7 @@ segments:
       - [0x03BB70, c,   cod/03BB70]
       - [0x03BB78, c,   cod/03BB78]
       - [0x03BB80, asm, cod/03BB80]
+      - [0x03D0A0, asm, cod/03D0A0]
       - [0x03FF80, c,   cod/03FF80]
       - [0x03FF88, asm, cod/03FF88]
       - [0x040B70, c,   cod/040B70]            # func_00140B70: D_00633CC0 = val
@@ -185,8 +186,12 @@ segments:
       - [0x04BDF8, asm, cod/04BDF8]
       - [0x0547A0, c,   cod/0547A0]            # func_001547A0: return &D_006AAB40
       - [0x0547AC, asm, cod/0547AC]
+      - [0x0547B0, c,   cod/0547B0]            # func_001547B0: return 0x18
+      - [0x0547B8, asm, cod/0547B8]
       - [0x05EE68, c,   cod/05EE68]            # func_0015EE68: *(int*)(*(char**)(self+0x164)+0x180) = val
       - [0x05EE74, asm, cod/05EE74]
+      - [0x0654D8, c,   cod/0654D8]            # func_001654D8: return 1
+      - [0x0654E0, asm, cod/0654E0]
       - [0x078928, c,   cod/078928]
       - [0x078930, asm, cod/078930]
       - [0x07E328, c,   cod/07E328]            # func_0017E328: D_00633D40 = 0
@@ -233,6 +238,8 @@ segments:
       - [0x093870, asm, cod/093870]
       - [0x0939C8, c,   cod/0939C8]            # func_001939C8: return &D_006D0D40
       - [0x0939D4, asm, cod/0939D4]
+      - [0x0939D8, c,   cod/0939D8]            # func_001939D8: return 0x287D
+      - [0x0939E0, asm, cod/0939E0]
       - [0x097330, c,   cod/097330]
       - [0x097338, asm, cod/097338]
       - [0x098430, c,   cod/098430]
@@ -252,12 +259,19 @@ segments:
       - [0x0A9F28, asm, cod/0A9F28]
       - [0x0AA258, c,   cod/0AA258]
       - [0x0AA260, asm, cod/0AA260]
+      - [0x0AA4E8, c,   cod/0AA4E8]            # func_001AA4E8: return -1
+      - [0x0AA4F0, asm, cod/0AA4F0]
       - [0x0AA5B8, c,   cod/0AA5B8]
       - [0x0AA5C0, asm, cod/0AA5C0]
       - [0x0AD740, c,   cod/0AD740]
       - [0x0AD748, asm, cod/0AD748]
+      - [0x0AEA68, asm, cod/0AEA68]
       - [0x0AFB90, c,   cod/0AFB90]
       - [0x0AFB98, asm, cod/0AFB98]
+      - [0x0B4FC0, c,   cod/0B4FC0]            # func_001B4FC0: return -1
+      - [0x0B4FC8, asm, cod/0B4FC8]
+      - [0x0B5610, c,   cod/0B5610]            # func_001B5610: return -1
+      - [0x0B5618, asm, cod/0B5618]
       - [0x0B7040, c,   cod/0B7040]            # func_001B7040: return D_00633150
       - [0x0B7048, asm, cod/0B7048]
       - [0x0B7280, c,   cod/0B7280]            # func_001B7280: return D_00633158
