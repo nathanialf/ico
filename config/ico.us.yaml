@@ -382,6 +382,10 @@ segments:
       - [0x068A3C, asm, cod/068A3C]
       - [0x078928, c,   cod/078928]
       - [0x078930, asm, cod/078930]
+      - [0x079040, c,   cod/079040]            # func_00179040: empty 0x30 frame
+      - [0x07904C, asm, cod/07904C]
+      - [0x079050, c,   cod/079050]            # func_00179050: empty 0x30 frame
+      - [0x07905C, asm, cod/07905C]
       - [0x07E328, c,   cod/07E328]            # func_0017E328: D_00633D40 = 0
       - [0x07E330, asm, cod/07E330]
       - [0x07E600, c,   cod/07E600]            # func_0017E600
