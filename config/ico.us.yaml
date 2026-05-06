@@ -107,7 +107,11 @@ segments:
       - [0x00A018, c,   cod/00A018]
       - [0x00A028, c,   cod/00A028]
       - [0x00A038, c,   cod/00A038]
-      - [0x00A048, asm, cod/00A048]
+      - [0x00A048, c,   cod/00A048]            # func_0010A048: wrapper -> func_00168A80(sub->5F8)
+      - [0x00A068, c,   cod/00A068]            # func_0010A068: wrapper -> func_00168A80(sub->5F4)
+      - [0x00A088, c,   cod/00A088]            # func_0010A088: wrapper -> func_00168A80(sub->5EC)
+      - [0x00A0A8, c,   cod/00A0A8]            # func_0010A0A8: wrapper -> func_00168A80(sub->5F0)
+      - [0x00A0C8, asm, cod/00A0C8]
       - [0x00A2E0, c,   cod/00A2E0]
       - [0x00A2F0, c,   cod/00A2F0]
       - [0x00A300, c,   cod/00A300]
