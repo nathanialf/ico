@@ -218,6 +218,71 @@ upstream a spim heuristic patch.
   splat. Run `make setup` after distclean before `make`, otherwise the
   build fails with "No rule to make target 'config/ico.us.ld'".
 
+## VU0 inline asm — `$ACC`, `$Q`, `$R`, `.set noreorder`
+
+VU0 macro instructions in inline `__asm__` need EE-specific syntax that
+mips-linux-gnu-as 2.x accepts:
+
+- **Special VU0 registers** carry a `$` prefix in inline asm even though
+  splat's per-function .s files emit them bare (`ACC`, `Q`, `R`). Use
+  `$ACC`, `$Q`, `$R` in C inline asm or the assembler reports `invalid
+  operands`. (Splat's segment-level .s is what `make` consumes; that
+  one already uses `$ACC`. The matchings/ files are reference-only.)
+- **mfc1 → qmtc2.ni** has a load-delay slot. With default `.set
+  reorder` the assembler inserts a `nop` between them. Original ICO
+  code does NOT have the nop, so wrap that pair with `.set noreorder`
+  / `.set reorder`. Keep the wrap *minimal* — wrap the mfc1/qmtc2 pair
+  only. If you put `.set noreorder` over the whole asm block, the
+  trailing `sqc2`/`sd` won't be reordered into the gcc-emitted `j $31`
+  delay slot, leaving an extra `nop` at end-of-function.
+- **Pattern that matches "store in jr delay slot":** drop the trailing
+  `nop` from your inline asm and let the gcc-emitted `j $31` reorder
+  the previous instruction into its delay slot. With the inline asm in
+  reorder mode, gas does the right thing.
+
+Example (vec scale with float arg, jr-delay-slot store):
+
+```c
+void f(void *dst, void *src, float k) {
+    __asm__ __volatile__(
+        "lqc2 $vf4, 0($a1)\n\t"
+        ".set noreorder\n\t"            // wrap only the mfc1/qmtc2 pair
+        "mfc1 $t0, $f12\n\t"
+        "qmtc2.ni $t0, $vf5\n\t"
+        ".set reorder\n\t"
+        "vmulx.xyzw $vf6, $vf4, $vf5x\n\t"
+        "sqc2 $vf6, 0($a0)"             // no trailing nop — let gas reorder
+        : : : "memory"
+    );
+}
+```
+
+## Force store ordering with an `__asm__` memory barrier
+
+ee-gcc 2.96's scheduler likes to reorder back-to-back stores by offset
+to coalesce them, which can flip the C source order:
+
+```c
+*(int *)(p + 0x9C) = 0;   // emits as 9C, 98, A0
+*(int *)(p + 0x98) = 0;
+*(int *)(p + 0xA0) = 0;
+```
+
+To pin the order to source order *and* still let the third store fall
+into a `jr` delay slot, mark the first two as `volatile` and insert an
+`__asm__` memory barrier between the second and third:
+
+```c
+*(volatile int *)(p + 0x9C) = 0;
+*(volatile int *)(p + 0x98) = 0;
+__asm__ __volatile__("" : : "r"(p) : "memory");
+*(int *)(p + 0xA0) = 0;          // free to land in jr delay slot
+```
+
+Pure `volatile` on all three pins the order but blocks delay-slot fill.
+Pure non-volatile lets the scheduler reorder. The barrier is the
+combination that matches.
+
 ## Compiler identification — provisional
 
 `splat create_config` defaulted to `compiler: EEGCC` for ICO. Quick
