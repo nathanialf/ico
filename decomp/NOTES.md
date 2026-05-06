@@ -151,6 +151,34 @@ ee-gcc 2.96 also needs `-B $EEGCC_LIB` to locate its bundled `cc1`,
 and `-S` to skip its own ancient `as` (which doesn't grok modern flags
 like `-G`). Re-assemble the .s with `mips-linux-gnu-as`.
 
+## Splat delay-slot mis-identification
+
+spimdisasm 1.40.3 (used by splat 0.40.0) sometimes splits a `jr $ra`
+delay slot off as a separate "function" when the delay-slot
+instruction looks like a plausible function entry (uses an argument
+register `$a0`-`$a3` as input, etc.).
+
+Example: `func_00190430` ends with `jr $ra; sw $a1, 0x0($v1)`. spim
+declares two functions:
+
+- `func_00190430` (size 0xC): the 3 instructions ending at `jr`.
+- `func_0019043C` (size 0x4): the orphan `sw $a1, 0x0($v1)`.
+
+Symptom: claiming `func_00190430` as `c` and writing the natural C
+produces a 4-instruction (16-byte) `.text`. The asm subseg covering
+0x9043C still emits the orphan `sw`, and the linker concatenates them
+— pushing the next real function 4 bytes too high.
+
+For now: avoid claiming functions whose per-function `.s` ends at `jr`
+*without* the delay slot; check
+`asm/matchings/<name>/<func>.s` size against the function's actual
+end before claiming. Functions where spim correctly captured the
+delay slot (e.g. `func_0010A2E0` with `nonmatching ..., 0x10`) match
+fine.
+
+Long-term fix: hand-edit splat output to merge orphan delay slots, or
+upstream a spim heuristic patch.
+
 ## Linker quirks
 
 ## Linker quirks
