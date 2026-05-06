@@ -282,6 +282,8 @@ segments:
       - [0x00D198, asm, cod/00D198]
       - [0x00ECD8, c,   cod/00ECD8]
       - [0x00ECE0, asm, cod/00ECE0]
+      - [0x00F5B8, c,   cod/00F5B8]            # func_0010F5B8
+      - [0x00F5D4, asm, cod/00F5D4]
       - [0x0118B0, c,   cod/0118B0]
       - [0x0118B8, asm, cod/0118B8]
       - [0x011940, c,   cod/011940]
@@ -298,6 +300,8 @@ segments:
       - [0x022C88, asm, cod/022C88]
       - [0x028708, c,   cod/028708]            # func_00128708: D_00631D54 = val
       - [0x028710, asm, cod/028710]
+      - [0x02FD30, c,   cod/02FD30]            # func_0012FD30
+      - [0x02FD4C, asm, cod/02FD4C]
       - [0x02FFE8, c,   cod/02FFE8]            # func_0012FFE8: return D_00633C60
       - [0x02FFF0, asm, cod/02FFF0]
       - [0x033448, c,   cod/033448]            # func_00133448: return D_00631F64
@@ -310,6 +314,8 @@ segments:
       - [0x036094, asm, cod/036094]
       - [0x037EE8, c,   cod/037EE8]
       - [0x037EF0, asm, cod/037EF0]
+      - [0x03A200, c,   cod/03A200]            # func_0013A200
+      - [0x03A21C, asm, cod/03A21C]
       - [0x03B868, c,   cod/03B868]            # func_0013B868: D_00633C90 = 0
       - [0x03B870, c,   cod/03B870]            # func_0013B870: return D_00633C90
       - [0x03B878, asm, cod/03B878]
@@ -319,6 +325,8 @@ segments:
       - [0x03CD70, c,   cod/03CD70]            # func_0013CD70: *p = 0 (byte)
       - [0x03CD78, asm, cod/03CD78]
       - [0x03D0A0, asm, cod/03D0A0]
+      - [0x03D928, c,   cod/03D928]            # func_0013D928
+      - [0x03D944, asm, cod/03D944]
       - [0x03F808, c,   cod/03F808]            # func_0013F808: sw_zero +0x18
       - [0x03F810, asm, cod/03F810]
       - [0x03F990, c,   cod/03F990]            # func_0013F990: sw_zero +0x0
@@ -388,8 +396,14 @@ segments:
       - [0x07904C, asm, cod/07904C]
       - [0x079050, c,   cod/079050]            # func_00179050: empty 0x30 frame
       - [0x07905C, asm, cod/07905C]
+      - [0x07A9B8, c,   cod/07A9B8]            # func_0017A9B8
+      - [0x07A9D4, asm, cod/07A9D4]
+      - [0x07E188, c,   cod/07E188]            # func_0017E188
+      - [0x07E1A4, asm, cod/07E1A4]
       - [0x07E328, c,   cod/07E328]            # func_0017E328: D_00633D40 = 0
       - [0x07E330, asm, cod/07E330]
+      - [0x07E5E0, c,   cod/07E5E0]            # func_0017E5E0
+      - [0x07E5FC, asm, cod/07E5FC]
       - [0x07E600, c,   cod/07E600]            # func_0017E600
       - [0x07E620, asm, cod/07E620]
       - [0x07E920, c,   cod/07E920]            # func_0017E920
@@ -761,6 +775,12 @@ segments:
       - [0x140B70, asm, cod/140B70]
       - [0x141C38, c,   cod/141C38]            # func_00241C38: return &D_005506A0
       - [0x141C44, asm, cod/141C44]
+      - [0x1436C8, c,   cod/1436C8]            # func_002436C8
+      - [0x1436E4, asm, cod/1436E4]
+      - [0x1485C0, c,   cod/1485C0]            # func_002485C0
+      - [0x1485DC, asm, cod/1485DC]
+      - [0x148790, c,   cod/148790]            # func_00248790
+      - [0x1487AC, asm, cod/1487AC]
       - [0x14B3E8, c,   cod/14B3E8]            # func_0024B3E8: syscall 0x74
       - [0x14B3F8, asm, cod/14B3F8]
       - [0x14B448, c,   cod/14B448]            # func_0024B448: syscall 0x55
