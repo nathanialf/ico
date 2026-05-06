@@ -811,6 +811,8 @@ segments:
       - [0x0EA278, asm, cod/0EA278]
       - [0x0EAE70, c,   cod/0EAE70]            # func_001EAE70: get-and-clear arr[idx]
       - [0x0EAE90, asm, cod/0EAE90]
+      - [0x0EB9F0, c,   cod/0EB9F0]            # func_001EB9F0: zero 8 sdata vars (with barriers for order)
+      - [0x0EBA14, asm, cod/0EBA14]
       - [0x0EF980, c,   cod/0EF980]
       - [0x0EF988, c,   cod/0EF988]
       - [0x0EF990, c,   cod/0EF990]            # func_001EF990: D_006336AC = val
