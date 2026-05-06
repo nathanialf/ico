@@ -828,6 +828,8 @@ segments:
       - [0x14B88C, asm, cod/14B88C]
       - [0x14B8C8, c,   cod/14B8C8]            # func_0024B8C8: return &D_00717758
       - [0x14B8D4, asm, cod/14B8D4]
+      - [0x151BD0, c,   cod/151BD0]            # func_00251BD0
+      - [0x151BE4, asm, cod/151BE4]
       - [0x151C08, c,   cod/151C08]            # func_00251C08: return *(int*)*(char**)(self+0x40)
       - [0x151C14, asm, cod/151C14]
       - [0x151C18, c,   cod/151C18]            # func_00251C18
