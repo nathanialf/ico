@@ -161,6 +161,8 @@ segments:
       - [0x03BB70, c,   cod/03BB70]
       - [0x03BB78, c,   cod/03BB78]
       - [0x03BB80, asm, cod/03BB80]
+      - [0x03CD70, c,   cod/03CD70]            # func_0013CD70: *p = 0 (byte)
+      - [0x03CD78, asm, cod/03CD78]
       - [0x03D0A0, asm, cod/03D0A0]
       - [0x03FF80, c,   cod/03FF80]
       - [0x03FF88, asm, cod/03FF88]
