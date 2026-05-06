@@ -38,7 +38,7 @@ from find_leaves import Func, load_funcs  # noqa: E402
 REPO = _HERE.parent
 DEFAULT_GLOB = "asm/cod/*.s"
 DEFAULT_OUT = REPO / "docs" / "candidates.md"
-PARKED_PATH = _HERE / "parked.txt"
+TOUGH_NUTS_DIR = REPO / "tough_nuts"
 
 # ---------------------------------------------------------------------------
 # Categories
@@ -176,13 +176,13 @@ def _render_table(funcs: list[Func]) -> list[str]:
 
 
 def _load_parked() -> set[str]:
-    if not PARKED_PATH.exists():
-        return set()
+    """Enumerate parked function names from `tough_nuts/<func>/` subdirs."""
     parked: set[str] = set()
-    for raw in PARKED_PATH.read_text(encoding="utf-8", errors="replace").splitlines():
-        line = raw.split("#", 1)[0].strip()
-        if line:
-            parked.add(line)
+    if not TOUGH_NUTS_DIR.is_dir():
+        return parked
+    for entry in TOUGH_NUTS_DIR.iterdir():
+        if entry.is_dir() and entry.name.startswith("func_"):
+            parked.add(entry.name)
     return parked
 
 
@@ -196,7 +196,7 @@ def build_report(funcs: list[Func], parked: set[str], top: int) -> str:
     lines.append("- Generated: " + now)
     lines.append("- Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)")
     lines.append("- Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)")
-    lines.append("- Filter: functions listed in `tools/parked.txt` are excluded")
+    lines.append("- Filter: functions registered under `tough_nuts/<func>/` are excluded")
     lines.append(
         "- Functions: {tot} total in `{glob}`, {parked} parked, {pool} considered".format(
             tot=len(funcs),

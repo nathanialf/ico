@@ -20,16 +20,13 @@ if [[ "$1" == "--once" ]]; then
 
     # Lowest permuter score per parked function. Decomp-permuter writes
     # candidates to lib/decomp-permuter/runs/<func>/output-<score>-<n>/.
-    # Lower score = better; 0 = matched.
-    if [[ -f tools/parked.txt && -d lib/decomp-permuter/runs ]]; then
-        echo "Permuter scores (parked):"
+    # Lower score = better; 0 = matched. Source of truth for parked
+    # functions is tough_nuts/<func>/ (one subdir per parked function).
+    if [[ -d tough_nuts && -d lib/decomp-permuter/runs ]]; then
+        echo "Permuter scores (tough_nuts):"
         {
             printf "func\tbest_score\tcand_count\n"
-            while IFS= read -r line; do
-                # Strip comments and whitespace; skip blank lines.
-                func="${line%%#*}"
-                func="${func#"${func%%[![:space:]]*}"}"
-                func="${func%"${func##*[![:space:]]}"}"
+            while IFS= read -r func; do
                 [[ -z "$func" ]] && continue
                 runs_dir="lib/decomp-permuter/runs/$func"
                 if [[ -d "$runs_dir" ]]; then
@@ -44,7 +41,8 @@ if [[ "$1" == "--once" ]]; then
                 else
                     printf "%s\t-\t0\n" "$func"
                 fi
-            done < tools/parked.txt
+            done < <(find tough_nuts -mindepth 1 -maxdepth 1 -type d \
+                          -name 'func_*' -printf '%f\n' 2>/dev/null | sort)
         } | column -t -s "$(printf '\t')"
         echo "$rule"
     fi

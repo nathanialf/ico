@@ -1,5 +1,5 @@
 
-extern int D_00631B40;
+extern volatile int D_00631B40;
 typedef struct 
 {
   int data[16];

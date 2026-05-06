@@ -953,7 +953,8 @@ segments:
       - [0x11F558, c,   cod/11F558]            # func_0021F558: store-arg-discard
       - [0x11F568, c,   cod/11F568]            # func_0021F568: store-arg-discard
       - [0x11F578, c,   cod/11F578]            # func_0021F578: store-arg-discard
-      - [0x11F588, asm, cod/11F588]
+      - [0x11F588, c,   cod/11F588]            # func_0021F588: spill arg, call(0x40A), p->16C = 0
+      - [0x11F5AC, asm, cod/11F5AC]
       - [0x123DE0, c,   cod/123DE0]            # func_00223DE0: store-arg-discard
       - [0x123DF0, c,   cod/123DF0]            # func_00223DF0: store-arg-discard
       - [0x123E00, c,   cod/123E00]            # func_00223E00: store-arg-discard

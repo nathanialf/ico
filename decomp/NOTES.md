@@ -297,15 +297,19 @@ Two helpers that replace the throwaway shell pipelines I kept retyping:
   - `--shape 'lw,sw,jr,sw'` filters by mnemonic sequence (first token
     only, dotted VU like `vmul.xyz` preserved). Use `*` for any.
   - `--contains 'gp_rel\(D_'` regex on the body.
-  - `--exclude-parked` skips functions listed in `tools/parked.txt` (known
-    unmatchable with the current toolchain — la-macro 64-bit, daddu/or,
-    no-TCO, ret-1+sdata-set regalloc, etc.). Use this on routine queries
-    so the same dead-end functions stop coming back. Example:
+  - `--exclude-parked` skips functions registered under
+    `tough_nuts/<func>/` (known unmatchable with the current toolchain
+    — la-macro 64-bit, daddu/or, no-TCO, ret-1+sdata-set regalloc, etc.).
+    Each `tough_nuts/<func>/` subdirectory is one parked function with a
+    seed `<func>.c` and a `notes.md`. Use `--exclude-parked` on routine
+    queries so the same dead-end functions stop coming back. Example:
     `tools/find_leaves.py --no-vu --jal 0 --insns 4 --size 0x10 --exclude-parked`.
-    To park a new function, add a line `func_NAME  # short reason` to
-    `tools/parked.txt` (a tough_nuts/<func>/notes.md write-up is
-    recommended but not required). Filtering happens after the cache is
-    loaded, so editing `parked.txt` does not require `--rebuild-cache`.
+    To park a new function, create `tough_nuts/<func_NAME>/` with a seed
+    `.c` + `notes.md` describing the failure mode (see
+    `tough_nuts/README.md`). The `--parked-file FILE` flag adds extra
+    one-off names from a flat file on top of the `tough_nuts/` set.
+    Filtering happens after the asm cache is loaded, so adding a
+    tough_nuts entry does not require `--rebuild-cache`.
 - **`tools/claim.py`** — flips a yaml subsegment to `c`, writes the
   source, inserts an asm filler at `addr+size` if needed. Single mode:
   `tools/claim.py single --vram 0x118460 --size 0x10 --comment '...' --body-file src.c`.
@@ -316,8 +320,10 @@ After running `claim.py`, run `make setup && make` (the script tells
 you). Do NOT pre-create the `.c` then run claim — claim refuses to
 clobber existing entries marked `c`.
 
-- **`tools/auto_permute_parked.sh`** — parallel decomp-permuter pool
-  driving every function listed in `tools/parked.txt`. Wires up:
+- **`tools/auto_permute.sh`** — parallel decomp-permuter pool driving
+  every function with a `tough_nuts/<func>/` directory. (The legacy
+  `tools/auto_permute_parked.sh` is now a one-line forwarding shim.)
+  Wires up:
   - `tools/permute_run.sh <func_name>` — per-function driver. Resolves
     the seed (auto-discovers under `tough_nuts/<func>/*.c` or
     `src/cod/<file_off>.c`), slices the asm out of
@@ -329,7 +335,7 @@ clobber existing entries marked `c`.
   - `tools/gen_permuter_settings.py` — regenerates `permuter_settings.toml`
     at the repo root (compiler_type = gcc, ee-gcc path baked from the
     `EEGCC` env or the default `tools/cc/ee-gcc2.96/bin/gcc`).
-  - `tools/auto_permute_parked.sh` — the orchestrator. Runs up to
+  - `tools/auto_permute.sh` — the orchestrator. Runs up to
     `PARALLEL` permuter processes concurrently (default 4), each at
     `-j 1` so total CPU ≈ `PARALLEL`. Promotes the best-scoring
     candidate from each run back into the seed file between passes,
@@ -337,14 +343,14 @@ clobber existing entries marked `c`.
     `MATCH: <func>` and moves on without auto-promoting into
     `src/`/yaml — operator review only. Skips functions whose yaml
     entry is already `c`-typed. Activity log lands at
-    `lib/decomp-permuter/auto_parked.log`; per-function permuter logs
+    `lib/decomp-permuter/auto_permute.log`; per-function permuter logs
     at `lib/decomp-permuter/runs/<func>/permuter.log`.
 
   Env vars: `PARALLEL=N` (default 4), `STOP_AT_SCORE=N` (default 0 =
   match-only; use `STOP_AT_SCORE=50` to stop on hand-attackable
   near-misses), `ITERATIONS=N` (default 0 = infinite),
   `SKIP_MATCHED=0` to retry already-promoted functions,
-  `PARKED_FILE=path` to use a different list.
+  `TOUGH_NUTS_DIR=path` to use a different registry root.
 
   One-time setup (the permuter needs `toml`; `pynacl` and `Levenshtein`
   are optional):
@@ -355,9 +361,9 @@ clobber existing entries marked `c`.
 
   Run it:
   ```sh
-  tools/auto_permute_parked.sh                          # all of parked.txt
-  PARALLEL=8 STOP_AT_SCORE=50 tools/auto_permute_parked.sh
-  tools/auto_permute_parked.sh func_00105278            # single function
+  tools/auto_permute.sh                          # all of tough_nuts/*/
+  PARALLEL=8 STOP_AT_SCORE=50 tools/auto_permute.sh
+  tools/auto_permute.sh func_00105278            # single function
   ```
 
   The orchestrator never calls `make`; it only mutates seed files
