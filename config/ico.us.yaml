@@ -459,6 +459,8 @@ segments:
       - [0x08CFF8, asm, cod/08CFF8]
       - [0x0902C8, c, cod/0902C8]            # func_001902C8: 4-insn sb_zero
       - [0x0902D8, asm, cod/0902D8]
+      - [0x090318, c,   cod/090318]            # func_00190318: 0x44 = D_00630F84
+      - [0x09032C, asm, cod/09032C]
       - [0x0903A8, c,   cod/0903A8]            # func_001903A8: return *(uchar)(sub->800 + 0xC0)
       - [0x0903B8, asm, cod/0903B8]
       - [0x090430, c,   cod/090430]            # func_00190430: sub_15C->800 = a1
