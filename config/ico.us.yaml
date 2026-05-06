@@ -231,6 +231,8 @@ segments:
       - [0x08B0A8, asm, cod/08B0A8]
       - [0x08B2F8, c,   cod/08B2F8]            # func_0018B2F8: D_00633D74 = 0
       - [0x08B300, asm, cod/08B300]
+      - [0x08CB10, c,   cod/08CB10]            # func_0018CB10
+      - [0x08CB1C, asm, cod/08CB1C]
       - [0x08CBE0, c,   cod/08CBE0]            # func_0018CBE0: return D_00633D84
       - [0x08CBE8, asm, cod/08CBE8]
       - [0x08CC10, c,   cod/08CC10]            # func_0018CC10: return D_00633D90
@@ -349,6 +351,8 @@ segments:
       - [0x0D3D80, asm, cod/0D3D80]
       - [0x0D4D98, c,   cod/0D4D98]            # func_001D4D98
       - [0x0D4DA4, asm, cod/0D4DA4]
+      - [0x0E0978, c,   cod/0E0978]            # func_001E0978
+      - [0x0E0984, asm, cod/0E0984]
       - [0x0E8F28, c,   cod/0E8F28]
       - [0x0E8F30, c,   cod/0E8F30]
       - [0x0E8F38, asm, cod/0E8F38]
