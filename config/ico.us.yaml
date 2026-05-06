@@ -582,9 +582,12 @@ segments:
       - [0x0902D8, asm, cod/0902D8]
       - [0x090318, c,   cod/090318]            # func_00190318: 0x44 = D_00630F84
       - [0x09032C, asm, cod/09032C]
+      - [0x090360, c,   cod/090360]            # func_00190360: copy 3 floats from a1 to sub2+0x20
+      - [0x090384, asm, cod/090384]
       - [0x090388, c,   cod/090388]            # func_00190388: return p->68 == p->74 - 1
       - [0x0903A8, c,   cod/0903A8]            # func_001903A8: return *(uchar)(sub->800 + 0xC0)
-      - [0x0903B8, asm, cod/0903B8]
+      - [0x0903B8, c,   cod/0903B8]            # func_001903B8: copy 3 floats from sub2+0xB0 to a0
+      - [0x0903DC, asm, cod/0903DC]
       - [0x090430, c,   cod/090430]            # func_00190430: sub_15C->800 = a1
       - [0x090440, asm, cod/090440]
       - [0x090620, c,   cod/090620]            # func_00190620
