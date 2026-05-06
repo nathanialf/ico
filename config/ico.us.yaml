@@ -299,7 +299,8 @@ segments:
       - [0x02FFE8, c,   cod/02FFE8]            # func_0012FFE8: return D_00633C60
       - [0x02FFF0, asm, cod/02FFF0]
       - [0x033448, c,   cod/033448]            # func_00133448: return D_00631F64
-      - [0x033450, asm, cod/033450]
+      - [0x033450, c,   cod/033450]            # func_00133450: self[0x108] OR= 2
+      - [0x033460, asm, cod/033460]
       - [0x033500, c,   cod/033500]            # func_00133500: sw_arg +0x110
       - [0x033508, c,   cod/033508]            # func_00133508: return D_00633C7C
       - [0x033510, asm, cod/033510]
