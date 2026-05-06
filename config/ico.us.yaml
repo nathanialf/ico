@@ -343,6 +343,10 @@ segments:
       - [0x04A2C4, asm, cod/04A2C4]
       - [0x04B318, c,   cod/04B318]
       - [0x04B320, asm, cod/04B320]
+      - [0x04B840, c,   cod/04B840]            # func_0014B840: return sub_164->30 == 0x6B
+      - [0x04B854, asm, cod/04B854]
+      - [0x04B858, c,   cod/04B858]            # func_0014B858: return sub_164->30 == 0x64
+      - [0x04B86C, asm, cod/04B86C]
       - [0x04BDC8, c,   cod/04BDC8]            # func_0014BDC8: return &D_006AA968
       - [0x04BDD4, asm, cod/04BDD4]
       - [0x04BDF0, c,   cod/04BDF0]
