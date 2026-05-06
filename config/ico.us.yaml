@@ -361,8 +361,13 @@ segments:
       - [0x0547AC, asm, cod/0547AC]
       - [0x0547B0, c,   cod/0547B0]            # func_001547B0: return 0x18
       - [0x0547B8, asm, cod/0547B8]
+      - [0x054CB8, c,   cod/054CB8]            # func_00154CB8: store-arg-discard
+      - [0x054CC8, asm, cod/054CC8]
       - [0x05EE68, c,   cod/05EE68]            # func_0015EE68: *(int*)(*(char**)(self+0x164)+0x180) = val
       - [0x05EE74, asm, cod/05EE74]
+      - [0x05F4E0, c,   cod/05F4E0]            # func_0015F4E0: store-arg-discard
+      - [0x05F4F0, asm, cod/05F4F0]
+      - [0x05F698, c,   cod/05F698]            # func_0015F698: store-arg-discard
       - [0x05F6A8, c,   cod/05F6A8]            # func_0015F6A8: == 0xF compare
       - [0x05F6BC, asm, cod/05F6BC]
       - [0x0652A0, c,   cod/0652A0]            # func_001652A0: sub_164->430 == 2
@@ -383,6 +388,8 @@ segments:
       - [0x07E620, asm, cod/07E620]
       - [0x07E920, c,   cod/07E920]            # func_0017E920
       - [0x07E940, asm, cod/07E940]
+      - [0x080B28, c,   cod/080B28]            # func_00180B28: store-arg-discard
+      - [0x080B38, asm, cod/080B38]
       - [0x080F38, c,   cod/080F38]            # func_00180F38: D_00632600 = 0
       - [0x080F40, asm, cod/080F40]
       - [0x081BB8, c,   cod/081BB8]
@@ -511,6 +518,8 @@ segments:
       - [0x0BB800, c,   cod/0BB800]            # func_001BB800: *(int*)(*(char**)(self+0x164)+0x98) = val
       - [0x0BB810, c,   cod/0BB810]            # func_001BB810: *(int*)(*(char**)(self+0x164)+0x9C) = val
       - [0x0BB81C, asm, cod/0BB81C]
+      - [0x0BB8B0, c,   cod/0BB8B0]            # func_001BB8B0: store-arg-discard
+      - [0x0BB8C0, asm, cod/0BB8C0]
       - [0x0BBE48, c,   cod/0BBE48]
       - [0x0BBE50, asm, cod/0BBE50]
       - [0x0BBFD0, c, cod/0BBFD0]            # func_001BBFD0: 4-insn lwc1
@@ -621,10 +630,122 @@ segments:
       - [0x103C40, asm, cod/103C40]
       - [0x104E90, c,   cod/104E90]            # func_00204E90: return D_0063385C
       - [0x104E98, asm, cod/104E98]
+      - [0x1109D8, c,   cod/1109D8]            # func_002109D8: store-arg-discard
+      - [0x1109E8, asm, cod/1109E8]
+      - [0x110BA8, c,   cod/110BA8]            # func_00210BA8: store-arg-discard
+      - [0x110BB8, asm, cod/110BB8]
       - [0x1115F8, c,   cod/1115F8]
-      - [0x111600, asm, cod/111600]
+      - [0x111600, c,   cod/111600]            # func_00211600: store-arg-discard
+      - [0x111610, c,   cod/111610]            # func_00211610: store-arg-discard
+      - [0x111620, asm, cod/111620]
+      - [0x1128F8, c,   cod/1128F8]            # func_002128F8: store-arg-discard
+      - [0x112908, asm, cod/112908]
+      - [0x112D68, c,   cod/112D68]            # func_00212D68: store-arg-discard
+      - [0x112D78, asm, cod/112D78]
+      - [0x113E80, c,   cod/113E80]            # func_00213E80: store-arg-discard
+      - [0x113E90, asm, cod/113E90]
+      - [0x114030, c,   cod/114030]            # func_00214030: store-arg-discard
+      - [0x114040, asm, cod/114040]
+      - [0x118DC0, c,   cod/118DC0]            # func_00218DC0: store-arg-discard
+      - [0x118DD0, asm, cod/118DD0]
+      - [0x1194C8, c,   cod/1194C8]            # func_002194C8: store-arg-discard
+      - [0x1194D8, asm, cod/1194D8]
+      - [0x119728, c,   cod/119728]            # func_00219728: store-arg-discard
+      - [0x119738, asm, cod/119738]
+      - [0x119EA8, c,   cod/119EA8]            # func_00219EA8: store-arg-discard
+      - [0x119EB8, asm, cod/119EB8]
+      - [0x11A078, c,   cod/11A078]            # func_0021A078: store-arg-discard
+      - [0x11A088, asm, cod/11A088]
+      - [0x11F2A8, c,   cod/11F2A8]            # func_0021F2A8: store-arg-discard
+      - [0x11F2B8, c,   cod/11F2B8]            # func_0021F2B8: store-arg-discard
+      - [0x11F2C8, c,   cod/11F2C8]            # func_0021F2C8: store-arg-discard
+      - [0x11F2D8, c,   cod/11F2D8]            # func_0021F2D8: store-arg-discard
+      - [0x11F2E8, c,   cod/11F2E8]            # func_0021F2E8: store-arg-discard
+      - [0x11F2F8, c,   cod/11F2F8]            # func_0021F2F8: store-arg-discard
+      - [0x11F308, asm, cod/11F308]
+      - [0x11F3A8, c,   cod/11F3A8]            # func_0021F3A8: store-arg-discard
+      - [0x11F3B8, asm, cod/11F3B8]
+      - [0x11F4F8, c,   cod/11F4F8]            # func_0021F4F8: store-arg-discard
+      - [0x11F508, c,   cod/11F508]            # func_0021F508: store-arg-discard
+      - [0x11F518, c,   cod/11F518]            # func_0021F518: store-arg-discard
+      - [0x11F528, c,   cod/11F528]            # func_0021F528: store-arg-discard
+      - [0x11F538, c,   cod/11F538]            # func_0021F538: store-arg-discard
+      - [0x11F548, c,   cod/11F548]            # func_0021F548: store-arg-discard
+      - [0x11F558, c,   cod/11F558]            # func_0021F558: store-arg-discard
+      - [0x11F568, c,   cod/11F568]            # func_0021F568: store-arg-discard
+      - [0x11F578, c,   cod/11F578]            # func_0021F578: store-arg-discard
+      - [0x11F588, asm, cod/11F588]
+      - [0x123DE0, c,   cod/123DE0]            # func_00223DE0: store-arg-discard
+      - [0x123DF0, c,   cod/123DF0]            # func_00223DF0: store-arg-discard
+      - [0x123E00, c,   cod/123E00]            # func_00223E00: store-arg-discard
+      - [0x123E10, c,   cod/123E10]            # func_00223E10: store-arg-discard
+      - [0x123E20, c,   cod/123E20]            # func_00223E20: store-arg-discard
+      - [0x123E30, c,   cod/123E30]            # func_00223E30: store-arg-discard
+      - [0x123E40, c,   cod/123E40]            # func_00223E40: store-arg-discard
+      - [0x123E50, asm, cod/123E50]
+      - [0x123EF0, c,   cod/123EF0]            # func_00223EF0: store-arg-discard
+      - [0x123F00, c,   cod/123F00]            # func_00223F00: store-arg-discard
+      - [0x123F10, c,   cod/123F10]            # func_00223F10: store-arg-discard
+      - [0x123F20, c,   cod/123F20]            # func_00223F20: store-arg-discard
+      - [0x123F30, c,   cod/123F30]            # func_00223F30: store-arg-discard
+      - [0x123F40, c,   cod/123F40]            # func_00223F40: store-arg-discard
+      - [0x123F50, c,   cod/123F50]            # func_00223F50: store-arg-discard
+      - [0x123F60, c,   cod/123F60]            # func_00223F60: store-arg-discard
+      - [0x123F70, asm, cod/123F70]
+      - [0x124960, c,   cod/124960]            # func_00224960: store-arg-discard
+      - [0x124970, asm, cod/124970]
+      - [0x1251E0, c,   cod/1251E0]            # func_002251E0: store-arg-discard
+      - [0x1251F0, asm, cod/1251F0]
+      - [0x1258E0, c,   cod/1258E0]            # func_002258E0: store-arg-discard
+      - [0x1258F0, asm, cod/1258F0]
+      - [0x127350, c,   cod/127350]            # func_00227350: store-arg-discard
+      - [0x127360, asm, cod/127360]
+      - [0x1274F0, c,   cod/1274F0]            # func_002274F0: store-arg-discard
+      - [0x127500, asm, cod/127500]
+      - [0x129CA0, c,   cod/129CA0]            # func_00229CA0: store-arg-discard
+      - [0x129CB0, asm, cod/129CB0]
+      - [0x129E38, c,   cod/129E38]            # func_00229E38: store-arg-discard
+      - [0x129E48, asm, cod/129E48]
+      - [0x129F20, c,   cod/129F20]            # func_00229F20: store-arg-discard
+      - [0x129F30, asm, cod/129F30]
+      - [0x129FE0, c,   cod/129FE0]            # func_00229FE0: store-arg-discard
+      - [0x129FF0, asm, cod/129FF0]
+      - [0x12B640, c,   cod/12B640]            # func_0022B640: store-arg-discard
+      - [0x12B650, asm, cod/12B650]
+      - [0x12BED0, c,   cod/12BED0]            # func_0022BED0: store-arg-discard
+      - [0x12BEE0, asm, cod/12BEE0]
+      - [0x12D6B0, c,   cod/12D6B0]            # func_0022D6B0: store-arg-discard
+      - [0x12D6C0, asm, cod/12D6C0]
+      - [0x12EEF0, c,   cod/12EEF0]            # func_0022EEF0: store-arg-discard
+      - [0x12EF00, asm, cod/12EF00]
+      - [0x1315C8, c,   cod/1315C8]            # func_002315C8: store-arg-discard
+      - [0x1315D8, asm, cod/1315D8]
+      - [0x1341D8, c,   cod/1341D8]            # func_002341D8: store-arg-discard
+      - [0x1341E8, c,   cod/1341E8]            # func_002341E8: store-arg-discard
+      - [0x1341F8, asm, cod/1341F8]
+      - [0x134438, c,   cod/134438]            # func_00234438: store-arg-discard
+      - [0x134448, c,   cod/134448]            # func_00234448: store-arg-discard
+      - [0x134458, asm, cod/134458]
+      - [0x1347C8, c,   cod/1347C8]            # func_002347C8: store-arg-discard
+      - [0x1347D8, asm, cod/1347D8]
       - [0x134AB0, c,   cod/134AB0]
       - [0x134AB8, asm, cod/134AB8]
+      - [0x1356C0, c,   cod/1356C0]            # func_002356C0: store-arg-discard
+      - [0x1356D0, asm, cod/1356D0]
+      - [0x135728, c,   cod/135728]            # func_00235728: store-arg-discard
+      - [0x135738, asm, cod/135738]
+      - [0x1358F8, c,   cod/1358F8]            # func_002358F8: store-arg-discard
+      - [0x135908, asm, cod/135908]
+      - [0x136C60, c,   cod/136C60]            # func_00236C60: store-arg-discard
+      - [0x136C70, asm, cod/136C70]
+      - [0x13A9E0, c,   cod/13A9E0]            # func_0023A9E0: store-arg-discard
+      - [0x13A9F0, asm, cod/13A9F0]
+      - [0x13AA88, c,   cod/13AA88]            # func_0023AA88: store-arg-discard
+      - [0x13AA98, c,   cod/13AA98]            # func_0023AA98: store-arg-discard
+      - [0x13AAA8, c,   cod/13AAA8]            # func_0023AAA8: store-arg-discard
+      - [0x13AAB8, asm, cod/13AAB8]
+      - [0x13AD58, c,   cod/13AD58]            # func_0023AD58: store-arg-discard
+      - [0x13AD68, asm, cod/13AD68]
       - [0x13EFB0, c,   cod/13EFB0]
       - [0x13EFB8, asm, cod/13EFB8]
       - [0x13F070, c,   cod/13F070]            # func_0023F070
