@@ -689,6 +689,8 @@ segments:
       - [0x0A1030, asm, cod/0A1030]
       - [0x0A2E10, c,   cod/0A2E10]            # func_001A2E10: frame + D=-1
       - [0x0A2E24, asm, cod/0A2E24]
+      - [0x0A6DE0, c,   cod/0A6DE0]            # func_001A6DE0: varargs save (t0-t3)
+      - [0x0A6DFC, asm, cod/0A6DFC]
       - [0x0A9D88, c,   cod/0A9D88]            # func_001A9D88: D_00632C74 = 0
       - [0x0A9D90, asm, cod/0A9D90]
       - [0x0A9F20, c,   cod/0A9F20]            # func_001A9F20: D_00632A34 = val

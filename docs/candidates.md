@@ -2,7 +2,7 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-06 21:51:10 UTC
+- Generated: 2026-05-06 22:16:59 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions listed in `tools/parked.txt` are excluded
@@ -69,7 +69,7 @@ _33 total in this bucket; showing top 33._
 | `func_0011EE58` | 0x14 | 5 | 0 |  | `daddu daddu addiu j` | asm/cod/01BFC0.s:3459 |
 | `func_0011EE70` | 0x14 | 5 | 0 |  | `daddu daddu addiu j` | asm/cod/01BFC0.s:3471 |
 | `func_00137EF0` | 0x14 | 5 | 0 |  | `ld andi andi jr` | asm/cod/037EF0.s:13 |
-| `func_001A7820` | 0x14 | 5 | 0 |  | `daddu lui daddu j` | asm/cod/0A2E24.s:5518 |
+| `func_001A7820` | 0x14 | 5 | 0 |  | `daddu lui daddu j` | asm/cod/0A6DFC.s:801 |
 | `func_001C3970` | 0x14 | 5 | 0 |  | `addiu mult addu j` | asm/cod/0C2F20.s:841 |
 | `func_001D12C0` | 0x14 | 5 | 0 |  | `lw sll addu j` | asm/cod/0D03E8.s:1203 |
 | `func_001F0550` | 0x14 | 5 | 0 |  | `lw lw lw j` | asm/cod/0EFA60.s:817 |
@@ -139,7 +139,7 @@ _28 total in this bucket; showing top 28._
 <a id="leaf-7-0x1C"></a>
 ## 7-insn / 0x1C leaf, no jal, no VU (accessor + multiplier/branch)
 
-_33 total in this bucket; showing top 33._
+_32 total in this bucket; showing top 32._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
@@ -149,7 +149,6 @@ _33 total in this bucket; showing top 33._
 | `func_0015F208` | 0x1C | 7 | 0 |  | `lw lw lwu dsll32` | asm/cod/05EF50.s:233 |
 | `func_001882B0` | 0x1C | 7 | 0 |  | `lw bne nop j` | asm/cod/088228.s:63 |
 | `func_0019DB50` | 0x1C | 7 | 0 |  | `lw daddu slt movn` | asm/cod/09B948.s:2555 |
-| `func_001A6DE0` | 0x1C | 7 | 0 |  | `addiu sd sd sd` | asm/cod/0A2E24.s:4722 |
 | `func_001AD748` | 0x1C | 7 | 0 |  | `nop nop nop nop` | asm/cod/0AD748.s:13 |
 | `func_001BB7E0` | 0x1C | 7 | 0 |  | `lw lwu dsll32 dsra32` | asm/cod/0BA5E0.s:1463 |
 | `func_001F3368` | 0x1C | 7 | 0 |  | `lw daddu lw addiu` | asm/cod/0F2250.s:1287 |
@@ -254,7 +253,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4522 unmatched functions are not in any shape bucket above._
+_4523 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 
