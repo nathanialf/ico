@@ -47,7 +47,7 @@ over time.
 
 **Analysis:**
 
-- Ghidra (`tools/ghidra/`) — interactive RE on `baseelf.elf`.
+- Ghidra (`tools/ghidra/`) — interactive RE on `baserom/baseelf.elf`.
 - `m2c` (`lib/m2c/`) — asm → C scaffold. R5900 MMI/VU may be
   unsupported; fall back to manual decompilation.
 - `lib/asm-differ/` — function-level diffing while editing.
