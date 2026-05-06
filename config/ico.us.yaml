@@ -247,6 +247,9 @@ segments:
       - [0x005F00, c,   cod/005F00]            # func_00105F00: 16-byte lq/sq copy
       - [0x005F10, c,   cod/005F10]            # func_00105F10: 16-byte lq/sq copy
       - [0x005F20, asm, cod/005F20]
+      - [0x005F78, c,   cod/005F78]            # func_00105F78: vec add.xyz
+      - [0x005F90, c,   cod/005F90]            # func_00105F90: vec sub.xyz
+      - [0x005FA8, asm, cod/005FA8]
       - [0x009B98, c,   cod/009B98]
       - [0x009BA8, c,   cod/009BA8]
       - [0x009BB8, asm, cod/009BB8]
@@ -296,6 +299,28 @@ segments:
       - [0x017750, c,   cod/017750]            # func_00117750: 3-sdata zero
       - [0x017760, c,   cod/017760]
       - [0x017768, asm, cod/017768]
+      - [0x017C40, c,   cod/017C40]            # func_00117C40: vec init id matrix
+      - [0x017C5C, asm, cod/017C5C]
+      - [0x017C60, c,   cod/017C60]            # func_00117C60: vec init id matrix
+      - [0x017C7C, asm, cod/017C7C]
+      - [0x017C80, c,   cod/017C80]            # func_00117C80: vec store inc
+      - [0x017C98, c,   cod/017C98]            # func_00117C98: vec load dec
+      - [0x017CB0, c,   cod/017CB0]            # func_00117CB0: matrix-vec mul-accum
+      - [0x017CCC, asm, cod/017CCC]
+      - [0x017CD0, c,   cod/017CD0]            # func_00117CD0: load to vf7
+      - [0x017CE0, asm, cod/017CE0]
+      - [0x017FC0, c,   cod/017FC0]            # func_00117FC0: store 4 vfs
+      - [0x017FD8, asm, cod/017FD8]
+      - [0x017FE8, c,   cod/017FE8]            # func_00117FE8: load 4 vfs
+      - [0x018000, asm, cod/018000]
+      - [0x0180C0, c,   cod/0180C0]            # func_001180C0: mat-vec mul
+      - [0x0180E0, asm, cod/0180E0]
+      - [0x018350, c,   cod/018350]            # func_00118350: cross product
+      - [0x018370, c,   cod/018370]            # func_00118370: vec add xyzw
+      - [0x018388, c,   cod/018388]            # func_00118388: vec add xyz vf1
+      - [0x0183A0, c,   cod/0183A0]            # func_001183A0: vec sub xyzw
+      - [0x0183B8, c,   cod/0183B8]            # func_001183B8: vec sub xyz vf1
+      - [0x0183D0, asm, cod/0183D0]
       - [0x018430, c,   cod/018430]            # func_00118430: vftoi4 vec convert
       - [0x018444, asm, cod/018444]
       - [0x018448, c,   cod/018448]            # func_00118448: vftoi0 vec convert
