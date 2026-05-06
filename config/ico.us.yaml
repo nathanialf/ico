@@ -726,6 +726,8 @@ segments:
       - [0x0B4FC8, asm, cod/0B4FC8]
       - [0x0B5610, c,   cod/0B5610]            # func_001B5610: return -1
       - [0x0B5618, asm, cod/0B5618]
+      - [0x0B5770, c,   cod/0B5770]            # func_001B5770: if(a0) D_00274ED8=1; return -1
+      - [0x0B5788, asm, cod/0B5788]
       - [0x0B7040, c,   cod/0B7040]            # func_001B7040: return D_00633150
       - [0x0B7048, asm, cod/0B7048]
       - [0x0B7280, c,   cod/0B7280]            # func_001B7280: return D_00633158

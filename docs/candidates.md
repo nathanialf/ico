@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-06 22:38:58 UTC
+- Generated: 2026-05-06 22:42:51 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions listed in `tools/parked.txt` are excluded
-- Functions: 4708 total in `asm/cod/*.s`, 24 parked, 4684 considered
+- Functions: 4707 total in `asm/cod/*.s`, 24 parked, 4683 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -103,7 +103,7 @@ _33 total in this bucket; showing top 33._
 <a id="leaf-6-0x18"></a>
 ## 6-insn / 0x18 leaf, no jal, no VU (sub-deref + store)
 
-_28 total in this bucket; showing top 28._
+_27 total in this bucket; showing top 27._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
@@ -113,7 +113,6 @@ _28 total in this bucket; showing top 28._
 | `func_0015D470` | 0x18 | 6 | 0 |  | `lw lw lw addiu` | asm/cod/054CC8.s:10271 |
 | `func_00187990` | 0x18 | 6 | 0 |  | `addiu lw mult lw` | asm/cod/087904.s:66 |
 | `func_00193818` | 0x18 | 6 | 0 |  | `lw lw lw addiu` | asm/cod/0920A4.s:1827 |
-| `func_001B5770` | 0x18 | 6 | 0 |  | `beqz lui addiu sw` | asm/cod/0B5618.s:153 |
 | `func_001D4DD0` | 0x18 | 6 | 0 |  | `bnez lw jr lw` | asm/cod/0D4DA4.s:35 |
 | `func_001D4E70` | 0x18 | 6 | 0 |  | `lw addiu addiu sltu` | asm/cod/0D4DA4.s:100 |
 | `func_001E93D0` | 0x18 | 6 | 0 |  | `lw lw lw lw` | asm/cod/0E8F38.s:335 |
