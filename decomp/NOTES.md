@@ -35,9 +35,42 @@ file's quirks are organized by compiler family.
 
 ## Splat / spimdisasm gotchas
 
-- (To be cataloged once we run splat against the ICO ELF for the first
-  time.)
+- **Round-trip is *not* byte-identical at the seed** (10-byte size diff,
+  0x30-offset shift in early `.text` `lui+addiu` pairs that load BSS-
+  region addresses). Cause: splat's `. = ALIGN(., 16)` between `.sdata`
+  and `.sbss` aligns to 16, but the original ELF aligns `.sbss` to 0x100
+  (visible as `.sdata` ending at `0x00633BC6` and `.sbss` starting at
+  `0x00633C00`). Fix: bump `.sbss` subsegment alignment in the yaml or
+  override the linker script to `ALIGN(., 0x100)` at the `.sbss` boundary.
+  Same likely applies to the `.bss → end` boundary (10-byte tail diff).
+  This is the first matching task — do it before any C work; otherwise
+  every function that takes a sbss/bss address will diff.
+
+- Splat's auto-generated `linker_script_extra.ld` only contains
+  `ENTRY(_start)` for ICO; we already pass it via `-T` in the Makefile.
 
 ## Linker quirks
 
-- (To be cataloged.)
+- **RWX LOAD segment warning** is harmless on PS2 (matches snap's N64
+  behavior). Suppress with `--no-warn-mismatch` in `LDFLAGS` (already
+  set in the Makefile).
+- **Auto-generated absolute-symbol stubs** in `config/undefined_syms_auto.us.txt`
+  declare `D_<HEX>` symbols at literal addresses for any spimdisasm-
+  detected `lui+addiu` pair pointing outside the ELF range. They are
+  never executed — they exist only to satisfy the linker. Don't delete
+  them; regenerate via `make setup`.
+
+## Compiler identification — provisional
+
+`splat create_config` defaulted to `compiler: EEGCC` for ICO. Quick
+inspection shows:
+
+- No `.comment` section in `baseelf.elf` (compiler stripped it).
+- `.rodata` contains `sceMcOpen`, `sceMcClose`, etc. — confirms SCE PS2
+  SDK use, but doesn't pin the compiler.
+- Need to compare prologue/epilogue patterns against ee-gcc-emitted
+  reference code once the toolchain is installed.
+
+Treat `EEGCC` as a working hypothesis, not a confirmed fact. If matching
+plateaus quickly with weird scheduling diffs, suspect Pro-DG/wcc or
+CodeWarrior and revisit.

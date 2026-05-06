@@ -1,2 +1,8 @@
 # Format: <SHA-1>  <filename>
 # Filled in by tools/extract_elf.sh on first run.
+#
+# baseelf.elf  — the EE-side ELF as extracted from the ICO disc.
+# baseelf.rom  — the objcopy-flat (binary, gap-fill 0x00) view of the ELF;
+#                this is splat's input and the build oracle.
+a4d8fc1948fb2da2395f3863a94a3b93de55de14  baseelf.elf
+fbf50c75cd5911273511c4f9af90503ff8423582  baseelf.rom

@@ -10,6 +10,10 @@ capstone
 intervaltree
 colorama
 tqdm
+pycdlib
+n64img
+pygfxd
+crunch64
 # Note: asm-differ and decomp-permuter are git projects, not PyPI packages,
 # fetched as submodules under lib/ by tools/setup.sh. m2c is also a
 # submodule, installed editable into the venv.

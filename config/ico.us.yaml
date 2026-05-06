@@ -1,47 +1,98 @@
 # =============================================================================
-# splat configuration — ICO (USA, SLUS-20218)
+# splat configuration — ICO (USA, SCUS-97113)
 #
-# Seed config: a single asm subsegment over the whole .text section, so the
-# build round-trips byte-identical at init. As matching progresses, file-
-# boundary subsegments are added and individual `[ADDR, asm]` lines flip to
-# `[ADDR, c, <name>]` to claim functions.
+# Initial config bootstrapped via `splat create_config baserom/baseelf.elf`
+# and adapted to the project's directory layout. The matching target is the
+# objcopy-flattened .rom (sha1 below); the build chain produces:
 #
-# This file is hand-maintained. Do NOT regenerate from the ELF — splat does
-# not write back to its own config.
+#   objects → ld → build/ico.elf → objcopy -O binary → build/ico.rom
+#
+# and the .rom is sha1-verified against config/sha1sums.txt.
+#
+# Note: ICO is on disc as SCUS_971.13 (SCEA, North America). The on-disc
+# filename uses the SCUS prefix; SLUS-20218 references some retail metadata
+# but the actual boot ELF is SCUS_971.13. We use 'us' as the version slug.
 # =============================================================================
 
 name: ico
-sha1: PLACEHOLDER_FILLED_BY_EXTRACT_ELF
+sha1: fbf50c75cd5911273511c4f9af90503ff8423582  # SHA-1 of baserom/baseelf.rom
 options:
-  platform: ps2
   basename: ico
+  target_path: baserom/baseelf.rom
+  elf_path: build/ico.elf
   base_path: ..
-  build_path: build
-  target_path: baserom/baseelf.elf
+  platform: ps2
+  compiler: EEGCC
+
+  gp_value: 0x006388F0
+  ld_gp_expression: cod_LIT4_START + 0x7FF0
+
   asm_path: asm
   src_path: src
+  build_path: build
+
   ld_script_path: config/ico.us.ld
-  asset_path: assets
-  symbol_addrs_path: config/symbol_addrs.us.txt
+  ld_dependencies: True
+  ld_wildcard_sections: True
+  ld_bss_contains_common: True
+
+  create_asm_dependencies: True
+
+  find_file_boundaries: False
+
+  o_as_suffix: True
+
+  symbol_addrs_path:
+    - config/symbol_addrs.us.txt
+  reloc_addrs_path:
+    - config/reloc_addrs.us.txt
+
   undefined_funcs_auto_path: config/undefined_funcs_auto.us.txt
   undefined_syms_auto_path: config/undefined_syms_auto.us.txt
-  find_file_boundaries: true
-  use_legacy_include_asm: false
-  asm_emit_size_directive: true
 
-# Subsegments are filled in by `tools/extract_elf.sh` after it inspects the
-# ELF program headers. The placeholder below is a single asm catchall covering
-# the .text segment; replace once the real entry point and section table are
-# known.
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+
+  named_regs_for_c_funcs: False
+
+  section_order:
+    - .text
+    # - .vutext (textbin — VU code, not auto-disassembled)
+    - .data
+    - .rodata
+    - .lit4
+    - .sdata
+    - .sbss
+    - .bss
+
+  auto_link_sections:
+    - .data
+    - .rodata
+    - .lit4
+    - .sdata
+    - .sbss
+    - .bss
+
+# Subsegment boundaries (file boundaries inside .text / .data / etc.) will be
+# added as matching progresses and patterns are identified. The seed below is
+# one large `asm` subsegment for .text; flip individual `[ADDR, asm]` lines to
+# `[ADDR, c, name]` to claim functions for matching.
 segments:
-  - name: header
-    type: bin
-    start: 0x0
-    vram: 0x0
-  - name: main
+  - name: cod
     type: code
-    start: PLACEHOLDER_TEXT_START
-    vram: PLACEHOLDER_TEXT_VRAM
+    start: 0x000000
+    vram: 0x00100000
+    bss_size: 0xEAF8C
+    subalign: null
     subsegments:
-      - [PLACEHOLDER_TEXT_START, asm]
-  - [PLACEHOLDER_TEXT_END]
+      - [0x000000, asm, cod/000000]      # .text
+      - [0x16F5E0, textbin, cod/16F5E0]  # .vutext (VU code, kept as raw bytes)
+      - [0x174700, data, cod/174700]     # .data
+      - [0x453700, rodata, cod/453700]   # .rodata
+      - [0x530900, lit4, cod/530900]     # .lit4
+      - [0x531900, sdata, cod/531900]    # .sdata
+      - { type: sbss, vram: 0x00633C00, name: cod/00633C00 }   # .sbss
+      - { type: bss,  vram: 0x00634000, name: cod/00634000 }   # .bss
+  - [0x533BC6]
