@@ -7,6 +7,7 @@
 [submodule "lib/decomp-permuter"]
 	path = lib/decomp-permuter
 	url = https://github.com/simonlindholm/decomp-permuter
+	ignore = untracked
 [submodule "lib/m2c"]
 	path = lib/m2c
 	url = https://github.com/matt-kempster/m2c
