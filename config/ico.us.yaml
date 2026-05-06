@@ -1144,6 +1144,8 @@ segments:
       - [0x151C14, asm, cod/151C14]
       - [0x151C18, c,   cod/151C18]            # func_00251C18
       - [0x151C28, asm, cod/151C28]
+      - [0x151D70, c,   cod/151D70]            # func_00251D70: self[0x10]->0x78=a1; ->0x70=1
+      - [0x151D84, asm, cod/151D84]
       - [0x151D88, c,   cod/151D88]            # func_00251D88: sd 0x78=0; sw 0x70=0
       - [0x151D98, c,   cod/151D98]            # func_00251D98: 3-deref store
       - [0x151DAC, asm, cod/151DAC]
@@ -1153,7 +1155,7 @@ segments:
       - [0x151DE0, c,   cod/151DE0]            # func_00251DE0: same shape
       - [0x151DEC, asm, cod/151DEC]
       - [0x151DF0, c,   cod/151DF0]            # func_00251DF0: getset sub+0xE8
-      - [0x151E00, asm, cod/151E00]
+      - [0x151E00, c,   cod/151E00]            # func_00251E00: self[0x10]->0xF0=a1; ->0xF8=1
       - [0x151E14, asm, cod/151E14]
       - [0x151E18, c,   cod/151E18]            # func_00251E18: 4 stores
       - [0x151E2C, asm, cod/151E2C]
