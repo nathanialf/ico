@@ -39,6 +39,9 @@
 #                      the operator can review/promote the result manually.
 #   TOUGH_NUTS_DIR=path  override the registry root (default:
 #                         <repo>/tough_nuts).
+#   RANDOM_ORDER=1    shuffle tough_nuts/<func>/ enumeration each pass so
+#                      concurrent workers spread across different shapes
+#                      (default: 1; set to 0 for sorted/reproducible order).
 #
 # Output:
 #   Logs from each per-function run land in
@@ -59,6 +62,7 @@ SKIP_MATCHED="${SKIP_MATCHED:-1}"
 ITERATIONS="${ITERATIONS:-0}"   # 0 = infinite
 PARALLEL="${PARALLEL:-4}"
 STOP_AT_SCORE="${STOP_AT_SCORE:-0}"
+RANDOM_ORDER="${RANDOM_ORDER:-1}"
 VRAM_BASE_DEC=$((16#100000))
 
 if [ ! -d "${TOUGH_NUTS_DIR}" ]; then
@@ -97,8 +101,13 @@ trap on_interrupt INT TERM
 # Format: each subdir of tough_nuts/ named func_<HEX> is a parked function.
 # Anything else (README.md, stray files) is ignored.
 read_parked() {
+    # RANDOM_ORDER=1 (default): shuffle so concurrent workers don't all
+    # hammer the same alphabetical prefix — easier-to-crack functions
+    # surface sooner. Set RANDOM_ORDER=0 for sorted/reproducible order.
+    local order_cmd=(shuf)
+    [ "${RANDOM_ORDER}" = "0" ] && order_cmd=(sort)
     find "${TOUGH_NUTS_DIR}" -mindepth 1 -maxdepth 1 -type d \
-        -name 'func_*' -printf '%f\n' 2>/dev/null | sort
+        -name 'func_*' -printf '%f\n' 2>/dev/null | "${order_cmd[@]}"
 }
 
 # --- file_off helpers -------------------------------------------------------
