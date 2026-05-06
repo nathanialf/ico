@@ -512,6 +512,9 @@ segments:
       - [0x06A154, asm, cod/06A154]
       - [0x06A1B8, c,   cod/06A1B8]            # func_0016A1B8: rebase 2 ptr offsets to abs
       - [0x06A1D4, asm, cod/06A1D4]
+      - [0x075C70, c,   cod/075C70]            # func_00175C70: if(D_00631AE8) sub2->3C0 = x
+      - [0x075C90, c,   cod/075C90]            # func_00175C90: if(D_00631AE8) sub2->3C0 = 0
+      - [0x075CB0, asm, cod/075CB0]
       - [0x076130, c,   cod/076130]            # func_00176130: save/reload arg, sub+0x634=0
       - [0x07614C, asm, cod/07614C]
       - [0x078928, c,   cod/078928]
