@@ -781,6 +781,16 @@ segments:
       - [0x1485DC, asm, cod/1485DC]
       - [0x148790, c,   cod/148790]            # func_00248790
       - [0x1487AC, asm, cod/1487AC]
+      - [0x148B40, c,   cod/148B40]            # func_00248B40
+      - [0x148B5C, asm, cod/148B5C]
+      - [0x149490, c,   cod/149490]            # func_00249490
+      - [0x1494AC, asm, cod/1494AC]
+      - [0x1498B8, c,   cod/1498B8]            # func_002498B8
+      - [0x1498D4, asm, cod/1498D4]
+      - [0x14A738, c,   cod/14A738]            # func_0024A738
+      - [0x14A754, asm, cod/14A754]
+      - [0x14AAC8, c,   cod/14AAC8]            # func_0024AAC8
+      - [0x14AAE4, asm, cod/14AAE4]
       - [0x14B3E8, c,   cod/14B3E8]            # func_0024B3E8: syscall 0x74
       - [0x14B3F8, asm, cod/14B3F8]
       - [0x14B448, c,   cod/14B448]            # func_0024B448: syscall 0x55
