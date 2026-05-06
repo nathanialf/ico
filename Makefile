@@ -106,6 +106,9 @@ split:
 	$(VENV_BIN)/python tools/postprocess_ld.py
 	@echo "==> postprocessing asm (R5900 mnemonic fixups)"
 	$(VENV_BIN)/python tools/postprocess_asm.py
+	@echo "==> regenerating docs/candidates.md (matching shortlist)"
+	@$(VENV_BIN)/python tools/gen_candidates.py || \
+	  echo "WARN: gen_candidates.py failed; continuing"
 
 verify-baserom:
 	@echo "==> verifying base ROM SHA-1"
