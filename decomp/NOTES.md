@@ -316,6 +316,57 @@ After running `claim.py`, run `make setup && make` (the script tells
 you). Do NOT pre-create the `.c` then run claim — claim refuses to
 clobber existing entries marked `c`.
 
+- **`tools/auto_permute_parked.sh`** — parallel decomp-permuter pool
+  driving every function listed in `tools/parked.txt`. Wires up:
+  - `tools/permute_run.sh <func_name>` — per-function driver. Resolves
+    the seed (auto-discovers under `tough_nuts/<func>/*.c` or
+    `src/cod/<file_off>.c`), slices the asm out of
+    `asm/matchings/cod/<file_off>/<func>.s` or the segment-level
+    `asm/cod/<seg>.s`, builds the permuter run dir under
+    `lib/decomp-permuter/runs/<func>/` with `compile.sh` (ee-gcc 2.96
+    + `mips-linux-gnu-as`, same flags as `tools/quick_diff.sh`), then
+    execs `permuter.py`.
+  - `tools/gen_permuter_settings.py` — regenerates `permuter_settings.toml`
+    at the repo root (compiler_type = gcc, ee-gcc path baked from the
+    `EEGCC` env or the default `tools/cc/ee-gcc2.96/bin/gcc`).
+  - `tools/auto_permute_parked.sh` — the orchestrator. Runs up to
+    `PARALLEL` permuter processes concurrently (default 4), each at
+    `-j 1` so total CPU ≈ `PARALLEL`. Promotes the best-scoring
+    candidate from each run back into the seed file between passes,
+    so progress survives across restarts. On match, prints
+    `MATCH: <func>` and moves on without auto-promoting into
+    `src/`/yaml — operator review only. Skips functions whose yaml
+    entry is already `c`-typed. Activity log lands at
+    `lib/decomp-permuter/auto_parked.log`; per-function permuter logs
+    at `lib/decomp-permuter/runs/<func>/permuter.log`.
+
+  Env vars: `PARALLEL=N` (default 4), `STOP_AT_SCORE=N` (default 0 =
+  match-only; use `STOP_AT_SCORE=50` to stop on hand-attackable
+  near-misses), `ITERATIONS=N` (default 0 = infinite),
+  `SKIP_MATCHED=0` to retry already-promoted functions,
+  `PARKED_FILE=path` to use a different list.
+
+  One-time setup (the permuter needs `toml`; `pynacl` and `Levenshtein`
+  are optional):
+  ```sh
+  .venv/bin/pip install pynacl toml Levenshtein
+  tools/gen_permuter_settings.py    # writes permuter_settings.toml
+  ```
+
+  Run it:
+  ```sh
+  tools/auto_permute_parked.sh                          # all of parked.txt
+  PARALLEL=8 STOP_AT_SCORE=50 tools/auto_permute_parked.sh
+  tools/auto_permute_parked.sh func_00105278            # single function
+  ```
+
+  The orchestrator never calls `make`; it only mutates seed files
+  under `tough_nuts/` (and writes intermediates under the gitignored
+  `lib/decomp-permuter/runs/`). Once it prints `MATCH: <func>`, the
+  matching candidate sits at `lib/decomp-permuter/runs/<func>/output-0-*/source.c`
+  for the operator to review and promote into `src/cod/<file_off>.c`
+  via `tools/claim.py` (or the equivalent yaml flip + `make setup`).
+
 ## Stale `asm/cod/<seg>.s` files
 
 When you flip a yaml entry from `asm` to `c`, splat removes the old
