@@ -93,7 +93,7 @@ segments:
     subsegments:
       - [0x000000, asm, cod/000000]
       - [0x000110, c,   cod/000110]            # func_00100110: syscall 0x1 stub
-      - [0x000120, asm, cod/000120]
+      - [0x000120, c,   cod/000120]            # func_00100120: syscall 0x2
       - [0x000130, c,   cod/000130]            # func_00100130: syscall 0x3
       - [0x000140, c,   cod/000140]            # func_00100140: syscall 0x4
       - [0x000150, c,   cod/000150]            # func_00100150: syscall 0x5
@@ -234,7 +234,11 @@ segments:
       - [0x000BC8, c,   cod/000BC8]            # func_00100BC8: sync wrapper -> func_001002D0
       - [0x000BE8, c,   cod/000BE8]            # func_00100BE8: sync wrapper -> func_001002E0
       - [0x000C08, c,   cod/000C08]            # func_00100C08: sync wrapper -> func_001002F0
-      - [0x000C28, asm, cod/000C28]
+      - [0x000C28, c,   cod/000C28]            # func_00100C28: syscall 0x74
+      - [0x000C38, c,   cod/000C38]            # func_00100C38: syscall 0x5A
+      - [0x000C48, asm, cod/000C48]
+      - [0x000C80, c,   cod/000C80]            # func_00100C80: syscall 0x5B
+      - [0x000C90, asm, cod/000C90]
       - [0x004A38, c,   cod/004A38]
       - [0x004A48, asm, cod/004A48]
       - [0x005258, c,   cod/005258]
@@ -584,6 +588,18 @@ segments:
       - [0x140B70, asm, cod/140B70]
       - [0x141C38, c,   cod/141C38]            # func_00241C38: return &D_005506A0
       - [0x141C44, asm, cod/141C44]
+      - [0x14B3E8, c,   cod/14B3E8]            # func_0024B3E8: syscall 0x74
+      - [0x14B3F8, asm, cod/14B3F8]
+      - [0x14B448, c,   cod/14B448]            # func_0024B448: syscall 0x55
+      - [0x14B458, c,   cod/14B458]            # func_0024B458: syscall -0x55
+      - [0x14B468, c,   cod/14B468]            # func_0024B468: syscall 0x56
+      - [0x14B478, c,   cod/14B478]            # func_0024B478: syscall -0x56
+      - [0x14B488, c,   cod/14B488]            # func_0024B488: syscall 0x57
+      - [0x14B498, c,   cod/14B498]            # func_0024B498: syscall -0x57
+      - [0x14B4A8, c,   cod/14B4A8]            # func_0024B4A8: syscall 0x58
+      - [0x14B4B8, c,   cod/14B4B8]            # func_0024B4B8: syscall -0x58
+      - [0x14B4C8, c,   cod/14B4C8]            # func_0024B4C8: syscall 0x59
+      - [0x14B4D8, asm, cod/14B4D8]
       - [0x14B880, c,   cod/14B880]            # func_0024B880: cross-ptr copy
       - [0x14B88C, asm, cod/14B88C]
       - [0x14B8C8, c,   cod/14B8C8]            # func_0024B8C8: return &D_00717758
