@@ -1081,6 +1081,10 @@ segments:
       - [0x144444, asm, cod/144444]
       - [0x144448, c,   cod/144448]            # func_00244448: scale xyz
       - [0x144460, asm, cod/144460]
+      - [0x145068, c,   cod/145068]            # func_00245068: clear bit 8 of *p, return bit 8
+      - [0x145084, asm, cod/145084]
+      - [0x145088, c,   cod/145088]            # func_00245088: clear bit 8 of *p, return bit 8
+      - [0x1450A4, asm, cod/1450A4]
       - [0x1450A8, c,   cod/1450A8]            # func_002450A8: 0/8/4 stores
       - [0x1450B8, c,   cod/1450B8]            # func_002450B8
       - [0x1450C8, asm, cod/1450C8]

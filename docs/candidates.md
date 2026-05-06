@@ -2,7 +2,7 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-06 23:09:06 UTC
+- Generated: 2026-05-06 23:15:25 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
@@ -138,7 +138,7 @@ _27 total in this bucket; showing top 27._
 <a id="leaf-7-0x1C"></a>
 ## 7-insn / 0x1C leaf, no jal, no VU (accessor + multiplier/branch)
 
-_32 total in this bucket; showing top 32._
+_30 total in this bucket; showing top 30._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
@@ -151,8 +151,6 @@ _32 total in this bucket; showing top 32._
 | `func_001AD748` | 0x1C | 7 | 0 |  | `nop nop nop nop` | asm/cod/0AD748.s:13 |
 | `func_001BB7E0` | 0x1C | 7 | 0 |  | `lw lwu dsll32 dsra32` | asm/cod/0BA5E0.s:1463 |
 | `func_001F3368` | 0x1C | 7 | 0 |  | `lw daddu lw addiu` | asm/cod/0F2250.s:1287 |
-| `func_00245068` | 0x1C | 7 | 0 |  | `lw addiu and srl` | asm/cod/144460.s:1010 |
-| `func_00245088` | 0x1C | 7 | 0 |  | `lw addiu and srl` | asm/cod/144460.s:1024 |
 | `func_00245E88` | 0x1C | 7 | 0 |  | `lw lui ori sw` | asm/cod/1450C8.s:1236 |
 | `func_00168A40` | 0x1C | 7 | 0 |  | `lw beqz daddu jr` | asm/cod/068A3C.s:18 |
 | `func_00168A60` | 0x1C | 7 | 0 |  | `lw beqz daddu jr` | asm/cod/068A3C.s:33 |
@@ -251,7 +249,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4521 unmatched functions are not in any shape bucket above._
+_4523 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 
