@@ -218,6 +218,10 @@ segments:
       - [0x078930, asm, cod/078930]
       - [0x07E328, c,   cod/07E328]            # func_0017E328: D_00633D40 = 0
       - [0x07E330, asm, cod/07E330]
+      - [0x07E600, c,   cod/07E600]            # func_0017E600
+      - [0x07E620, asm, cod/07E620]
+      - [0x07E920, c,   cod/07E920]            # func_0017E920
+      - [0x07E940, asm, cod/07E940]
       - [0x080F38, c,   cod/080F38]            # func_00180F38: D_00632600 = 0
       - [0x080F40, asm, cod/080F40]
       - [0x081BB8, c,   cod/081BB8]
@@ -277,6 +281,8 @@ segments:
       - [0x098438, asm, cod/098438]
       - [0x09B938, c, cod/09B938]            # func_0019B938: 4-insn lwc1
       - [0x09B948, asm, cod/09B948]
+      - [0x09DBA8, c,   cod/09DBA8]            # func_0019DBA8
+      - [0x09DBC8, asm, cod/09DBC8]
       - [0x09F4E0, c,   cod/09F4E0]
       - [0x09F4E8, asm, cod/09F4E8]
       - [0x0A0028, c,   cod/0A0028]            # func_001A0028
