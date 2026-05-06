@@ -679,6 +679,7 @@ segments:
       - [0x0F6CA0, c,   cod/0F6CA0]            # func_001F6CA0: D_00633780 = val
       - [0x0F6CA8, c,   cod/0F6CA8]            # func_001F6CA8: return D_00633780
       - [0x0F6CB0, asm, cod/0F6CB0]
+      - [0x0F6D90, c,   cod/0F6D90]            # func_001F6D90: if(p) func_00139598(p)
       - [0x0F6DB0, c,   cod/0F6DB0]
       - [0x0F6DB8, asm, cod/0F6DB8]
       - [0x0FA590, c,   cod/0FA590]            # func_001FA590: D_00633F64 = 0
