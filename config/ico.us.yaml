@@ -347,6 +347,8 @@ segments:
       - [0x0F2158, asm, cod/0F2158]
       - [0x0F40C8, c, cod/0F40C8]            # func_001F40C8: 4-insn lw
       - [0x0F40D8, asm, cod/0F40D8]
+      - [0x0F4DD8, c, cod/0F4DD8]            # func_001F4DD8: D_00633750 = &func_001F4C00
+      - [0x0F4DE8, asm, cod/0F4DE8]
       - [0x0F6A90, c, cod/0F6A90]            # func_001F6A90: 4-insn swc1
       - [0x0F6AA0, asm, cod/0F6AA0]
       - [0x0F6CA0, c,   cod/0F6CA0]            # func_001F6CA0: D_00633780 = val
