@@ -351,6 +351,8 @@ segments:
       - [0x0445C8, asm, cod/0445C8]
       - [0x04A2B0, c,   cod/04A2B0]            # func_0014A2B0: D_006AA4B0+0x4B4=0, +0x4B0=0
       - [0x04A2C4, asm, cod/04A2C4]
+      - [0x04B090, c,   cod/04B090]            # func_0014B090: return func_001F40C8() == 1
+      - [0x04B0B4, asm, cod/04B0B4]
       - [0x04B248, c,   cod/04B248]            # func_0014B248: bit-test (sub->90 >> a1) AND 1
       - [0x04B25C, asm, cod/04B25C]
       - [0x04B318, c,   cod/04B318]
