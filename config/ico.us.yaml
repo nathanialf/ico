@@ -822,6 +822,8 @@ segments:
       - [0x151C14, asm, cod/151C14]
       - [0x151C18, c,   cod/151C18]            # func_00251C18
       - [0x151C28, asm, cod/151C28]
+      - [0x151D88, c,   cod/151D88]            # func_00251D88: sd 0x78=0; sw 0x70=0
+      - [0x151D98, asm, cod/151D98]
       - [0x151DB0, c,   cod/151DB0]            # func_00251DB0: return *(int*)(*(char**)(self+0x40)+0xCC)
       - [0x151DC0, c,   cod/151DC0]            # func_00251DC0: ... +0xD0
       - [0x151DD0, c,   cod/151DD0]            # func_00251DD0: return (char*)*(char**)(self+0x40)+0xB4
