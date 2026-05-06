@@ -800,6 +800,8 @@ segments:
       - [0x141C44, asm, cod/141C44]
       - [0x1436C8, c,   cod/1436C8]            # func_002436C8
       - [0x1436E4, asm, cod/1436E4]
+      - [0x1450A8, c,   cod/1450A8]            # func_002450A8: 0/8/4 stores
+      - [0x1450B8, asm, cod/1450B8]
       - [0x1485C0, c,   cod/1485C0]            # func_002485C0
       - [0x1485DC, asm, cod/1485DC]
       - [0x148790, c,   cod/148790]            # func_00248790
