@@ -131,19 +131,27 @@ distclean: clean
 # mips-linux-gnu-as defaults .text section alignment to 2**4 (16) regardless
 # of the actual `.align` directives in the source (which max at 2**3 here).
 # When the linker concatenates multiple .text inputs into the merged .cod
-# section, that 16-byte alignment forces 8-byte padding at every boundary
-# whose offset is 8-aligned-but-not-16-aligned — breaking byte-identity.
-# Lower .text section alignment to 2**3 (8 bytes) post-assembly.
+# section, that 16-byte alignment forces padding at every input-section
+# boundary — breaking byte-identity. Lower it to the alignment implied by
+# the file's offset within .cod (encoded in the basename, e.g.
+# cod/041044.o starts at offset 0x41044 — needs alignment 4, not 8).
+# Helper: pick max power-of-two ≤ 8 that divides the basename hex offset.
+ALIGN_FOR = $(shell python3 -c "import re; \
+  m=re.match(r'^[0-9A-Fa-f]+$$', '$(basename $(notdir $@))'.split('.')[0]); \
+  n=int('$(basename $(notdir $@))'.split('.')[0],16) if m else 0; \
+  a=8; \
+  exec('while a>1 and n%a:a//=2') if n else None; \
+  print(a)")
 $(BUILD_DIR)/asm/%.o: $(ASM_DIR)/%.s
 	@mkdir -p $(@D)
 	$(AS) $(ASFLAGS) -o $@ $<
-	$(OBJCOPY) --set-section-alignment .text=8 $@
+	$(OBJCOPY) --set-section-alignment .text=$(ALIGN_FOR) $@
 
 $(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(@D)
 	$(CC) -B $(EEGCC_LIB) $(CFLAGS) -o $(@:.o=.s) $<
 	$(AS) $(ASFLAGS) -o $@ $(@:.o=.s)
-	$(OBJCOPY) --set-section-alignment .text=8 $@
+	$(OBJCOPY) --set-section-alignment .text=$(ALIGN_FOR) $@
 
 $(TARGET_ELF): $(ALL_OBJS) $(LDSCRIPT)
 	@mkdir -p $(BUILD_DIR)
