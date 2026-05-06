@@ -174,6 +174,37 @@ Both compile to the same instructions, just with different register
 allocation. Splitting into sequential statements pins the temp to
 `$v1`.
 
+## Combined sdata-set + return-value — pin `$v0` with register asm
+
+Original 3-instruction shape for `D_X = 1; return 1;`:
+
+```
+addiu $v0, $zero, 0x1
+jr    $ra
+sw/sb $v0, %gp_rel(D_X)($gp)
+```
+
+ee-gcc 2.96 -O2 splits the constant across two registers (`$v1` for
+the store, `$v0` for the return), producing a 4-instruction sequence.
+Permuting around this never converges because the natural C surface
+always re-derives the split.
+
+**Fix:** pin the temp to `$v0` with a register-asm declaration so the
+compiler is forced to reuse one register for both store and return:
+
+```c
+extern int D_X;
+int func_X(void) {
+    register int v __asm__("$2") = 1;
+    D_X = v;
+    return v;
+}
+```
+
+(`$2` is `$v0` on R5900.) Works for `sw`, `sb`, `gp_rel` and offset
+forms (e.g. `self[N] = v;` for struct-field stores). Cracked all 10
+siblings of `func_0013B858` this way.
+
 ## Splat delay-slot mis-identification
 
 spimdisasm 1.40.3 (used by splat 0.40.0) sometimes splits a `jr $ra`

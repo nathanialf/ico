@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-06 23:15:25 UTC
+- Generated: 2026-05-06 23:27:08 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4706 total in `asm/cod/*.s`, 24 parked, 4682 considered
+- Functions: 4712 total in `asm/cod/*.s`, 15 parked, 4697 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -122,9 +122,9 @@ _27 total in this bucket; showing top 27._
 | `func_0025CCE0` | 0x18 | 6 | 0 |  | `daddu daddu daddu daddu` | asm/cod/158CEC.s:4983 |
 | `func_0025CE78` | 0x18 | 6 | 0 |  | `daddu daddu daddu daddu` | asm/cod/158CEC.s:5131 |
 | `func_001C8B48` | 0x18 | 6 | 0 |  | `lwc1 nop nop div.s` | asm/cod/0C2F20.s:6869 |
-| `func_001B0A68` | 0x18 | 6 | 0 |  | `lui addiu ori daddu` | asm/cod/0B0A54.s:27 |
-| `func_001B0A80` | 0x18 | 6 | 0 |  | `lui addiu ori daddu` | asm/cod/0B0A54.s:38 |
-| `func_001B0A98` | 0x18 | 6 | 0 |  | `lui addiu ori daddu` | asm/cod/0B0A54.s:49 |
+| `func_001B0A68` | 0x18 | 6 | 0 |  | `lui addiu ori daddu` | asm/cod/0B0A64.s:18 |
+| `func_001B0A80` | 0x18 | 6 | 0 |  | `lui addiu ori daddu` | asm/cod/0B0A64.s:29 |
+| `func_001B0A98` | 0x18 | 6 | 0 |  | `lui addiu ori daddu` | asm/cod/0B0A64.s:40 |
 | `func_001D1410` | 0x18 | 6 | 0 |  | `lw lwc1 .word mfc1` | asm/cod/0D03E8.s:1323 |
 | `func_001E8BD8` | 0x18 | 6 | 0 |  | `addiu lui mult addiu` | asm/cod/0E8B68.s:49 |
 | `func_00240B70` | 0x18 | 6 | 0 |  | `lui sll addiu addu` | asm/cod/140B70.s:13 |
@@ -249,7 +249,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4523 unmatched functions are not in any shape bucket above._
+_4538 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 
