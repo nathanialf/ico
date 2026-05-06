@@ -11,6 +11,42 @@ percentage. Same clean-room rules as before — no disc data, no extracted
 assets, no leaked-source-derived code, no AI co-author trailer on
 commits.
 
+## Do not stop matching
+
+**Run until the Claude usage cap stops you, or until the user explicitly
+tells you to stop. Do not stop early, ever.** The only acceptable end-of-
+stream is the cap or a direct user instruction.
+
+Things that are **not** reasons to stop:
+
+- Hitting a "natural seam" — current cluster cleared, deferred list
+  felt thin, nothing obvious in `tools/find_siblings.py` (when it
+  exists) or in `asm/cod/000000.s`.
+- "N matches landed this iteration, that's a good place to pause."
+  There is no good place to pause that isn't the cap or a user prompt.
+- Round-trip went red and you can't immediately see why. Diagnose with
+  `tools/first_diff.py`, revert if needed, keep going.
+- The current target plateaued. Park it under `tough_nuts/` and pick
+  another.
+
+When the obvious seam runs out, broaden the search using the full
+toolkit: rescan `asm/cod/000000.s` for more leaves, retry an older
+deferred entry under newly acquired leverage, launch
+`lib/decomp-permuter` on a near-miss, or pick a medium-size unmatched
+function and start it. Reporting "I stopped because the obvious seam
+ran out" or "I stopped because momentum felt right" is a session bug,
+not a finish line.
+
+**Do not emit "iteration results" / "final state" / "session summary"
+text.** No bullet lists recapping matches and tough-nuts at the end of
+a chunk of work, no "build green at SHA X" sign-off, no totals. That
+summary text functions as a self-imposed stopping point. The only
+acceptable end-of-stream is the cap or a user prompt; the work itself
+(commits, `decomp/NOTES.md` edits, parked tough-nuts) is the record.
+Brief mid-stream status notes ("matched func_X", "parking func_Y",
+"moving on to subseg Z") are fine — but the moment a listed/numbered
+recap shows up, the session has bugged out. Just keep matching.
+
 **Read first** (in this order):
 
 1. `CLAUDE.md` — IP rules, toolchain, build commands, conventions.
@@ -88,13 +124,17 @@ function itself. Codify recurring patterns in `decomp/NOTES.md`. If a
 trick generalizes across ≥2 functions, lift it into saved memory so
 future sessions inherit it.
 
-## Stop conditions and wrap-up
+## Wrap-up (only when stopping for cap or user prompt)
 
-- Keep the working tree clean.
-- ELF SHA-1 must match at session end (`make` exits 0).
+When the cap is imminent or the user has told you to stop:
+
+- Keep the working tree clean — revert any half-finished `src/` files
+  rather than committing broken state.
+- ELF SHA-1 must match at session end (`make` exits 0). If it doesn't,
+  revert the last edit until it does.
 - `git status` empty before the last commit lands.
-- Do not emit an "iteration results" or "session summary" — the commit
-  log is the record.
+- Do **not** emit an "iteration results" or "session summary" — the
+  commit log is the record. See "Do not stop matching" above.
 
 ## If running unattended
 
