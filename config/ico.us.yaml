@@ -408,7 +408,8 @@ segments:
       - [0x08CB10, c,   cod/08CB10]            # func_0018CB10
       - [0x08CB1C, asm, cod/08CB1C]
       - [0x08CBE0, c,   cod/08CBE0]            # func_0018CBE0: return D_00633D84
-      - [0x08CBE8, asm, cod/08CBE8]
+      - [0x08CBE8, c,   cod/08CBE8]            # func_0018CBE8: 2-sdata to ptr-pair
+      - [0x08CBFC, asm, cod/08CBFC]
       - [0x08CC10, c,   cod/08CC10]            # func_0018CC10: return D_00633D90
       - [0x08CC18, asm, cod/08CC18]
       - [0x08CEC0, c,   cod/08CEC0]            # func_0018CEC0: return &D_006D0680
