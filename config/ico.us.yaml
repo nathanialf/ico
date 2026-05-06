@@ -536,10 +536,13 @@ segments:
       - [0x08CBE0, c,   cod/08CBE0]            # func_0018CBE0: return D_00633D84
       - [0x08CBE8, c,   cod/08CBE8]            # func_0018CBE8: 2-sdata to ptr-pair
       - [0x08CBFC, asm, cod/08CBFC]
+      - [0x08CC00, c,   cod/08CC00]            # func_0018CC00: set 2 globals
       - [0x08CC10, c,   cod/08CC10]            # func_0018CC10: return D_00633D90
       - [0x08CC18, asm, cod/08CC18]
       - [0x08CEC0, c,   cod/08CEC0]            # func_0018CEC0: return &D_006D0680
       - [0x08CECC, asm, cod/08CECC]
+      - [0x08CEF0, c,   cod/08CEF0]            # func_0018CEF0: return D_006D06C8 < 2
+      - [0x08CF00, asm, cod/08CF00]
       - [0x08CF58, c,   cod/08CF58]
       - [0x08CF60, asm, cod/08CF60]
       - [0x08CFF0, c,   cod/08CFF0]            # func_0018CFF0: D_00632744 = 0
@@ -599,6 +602,7 @@ segments:
       - [0x09E2D0, c,   cod/09E2D0]            # func_0019E2D0
       - [0x09E2F0, c,   cod/09E2F0]            # func_0019E2F0
       - [0x09E310, asm, cod/09E310]
+      - [0x09E4F8, c,   cod/09E4F8]            # func_0019E4F8: zero p[2..3]
       - [0x09E508, c,   cod/09E508]            # func_0019E508: self[3] == self[4]
       - [0x09E51C, asm, cod/09E51C]
       - [0x09F4E0, c,   cod/09F4E0]
