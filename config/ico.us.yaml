@@ -392,6 +392,8 @@ segments:
       - [0x0654E0, asm, cod/0654E0]
       - [0x068A28, c,   cod/068A28]            # func_00168A28: 4 float stores
       - [0x068A3C, asm, cod/068A3C]
+      - [0x06A130, c,   cod/06A130]            # func_0016A130: D=1; call(); D=0
+      - [0x06A154, asm, cod/06A154]
       - [0x078928, c,   cod/078928]
       - [0x078930, asm, cod/078930]
       - [0x079040, c,   cod/079040]            # func_00179040: empty 0x30 frame
