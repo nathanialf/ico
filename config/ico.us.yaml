@@ -1005,6 +1005,10 @@ segments:
       - [0x13AAB8, asm, cod/13AAB8]
       - [0x13AD58, c,   cod/13AD58]            # func_0023AD58: store-arg-discard
       - [0x13AD68, asm, cod/13AD68]
+      - [0x13D030, c,   cod/13D030]            # func_0023D030: copy 2 sdata floats to *self->34, return 1
+      - [0x13D04C, asm, cod/13D04C]
+      - [0x13D370, c,   cod/13D370]            # func_0023D370: copy 2 sdata floats to *self->34, return 1
+      - [0x13D38C, asm, cod/13D38C]
       - [0x13E280, c,   cod/13E280]            # func_0023E280: self->54 >= self->48
       - [0x13E294, asm, cod/13E294]
       - [0x13EFB0, c,   cod/13EFB0]
