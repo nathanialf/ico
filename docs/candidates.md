@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-06 22:57:29 UTC
+- Generated: 2026-05-06 23:09:06 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4790 total in `asm/cod/*.s`, 24 parked, 4766 considered
+- Functions: 4706 total in `asm/cod/*.s`, 24 parked, 4682 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -200,7 +200,7 @@ _14 total in this bucket; showing top 14._
 <a id="wrap-9-0x24"></a>
 ## 9-insn / 0x24, exactly 1 jal, no VU (wrapper + arg setup)
 
-_28 total in this bucket; showing top 28._
+_27 total in this bucket; showing top 27._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
@@ -217,7 +217,6 @@ _28 total in this bucket; showing top 28._
 | `func_001685B8` | 0x24 | 9 | 1 |  | `addiu sw lw sd` | asm/cod/0685B8.s:13 |
 | `func_00180580` | 0x24 | 9 | 1 |  | `addiu sw lw sd` | asm/cod/07EC94.s:1954 |
 | `func_00194590` | 0x24 | 9 | 1 |  | `addiu sd jal nop` | asm/cod/093F78.s:497 |
-| `func_0021F588` | 0x24 | 9 | 1 |  | `addiu sw sd jal` | asm/cod/11F588.s:13 |
 | `func_00245DB8` | 0x24 | 9 | 1 |  | `addiu sd jal nop` | asm/cod/1450C8.s:1162 |
 | `func_0024FBD0` | 0x24 | 9 | 1 |  | `addiu sd jal daddu` | asm/cod/14B8D4.s:5421 |
 | `func_00251D48` | 0x24 | 9 | 1 |  | `addiu addiu sd daddu` | asm/cod/151C28.s:125 |
@@ -252,7 +251,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4604 unmatched functions are not in any shape bucket above._
+_4521 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 
