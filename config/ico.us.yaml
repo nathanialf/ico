@@ -286,6 +286,8 @@ segments:
       - [0x0118B8, asm, cod/0118B8]
       - [0x011940, c,   cod/011940]
       - [0x011948, asm, cod/011948]
+      - [0x014FB8, c,   cod/014FB8]            # func_00114FB8: empty 0x180 frame
+      - [0x014FC4, asm, cod/014FC4]
       - [0x017760, c,   cod/017760]
       - [0x017768, asm, cod/017768]
       - [0x01BFB8, c,   cod/01BFB8]            # func_0011BFB8: D_00633C50 = 0

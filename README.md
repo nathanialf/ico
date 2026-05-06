@@ -25,7 +25,7 @@ Round-trip is byte-identical. `make setup && make` produces
 <!-- progress:begin -->
 | Section          | Matched | Total |
 | ---------------- | ------: | ----: |
-| `.text` |  0.45 % | 1.44 MB |
+| `.text` |  0.46 % | 1.44 MB |
 | `.data` |  0.00 % | 2.87 MB |
 | `.rodata` |  0.00 % | 884.41 KB |
 <!-- progress:end -->
