@@ -96,7 +96,14 @@ segments:
       - [0x005268, c,   cod/005268]            # func_00105268: --D_00631B40
       - [0x005278, asm, cod/005278]
       - [0x00A2E0, c,   cod/00A2E0]            # func_0010A2E0: self->sub_15C->flag_4D0 = 1
-      - [0x00A2F0, asm, cod/00A2F0]
+      - [0x00A2F0, c,   cod/00A2F0]            # func_0010A2F0: self->sub_15C->flag_4D0 = 0
+      - [0x00A300, c,   cod/00A300]            # func_0010A300: get sub_15C->float_618
+      - [0x00A310, c,   cod/00A310]            # func_0010A310: get sub_15C->int_600
+      - [0x00A320, c,   cod/00A320]            # func_0010A320: get sub_15C->int_604
+      - [0x00A330, asm, cod/00A330]
+      - [0x00A380, c,   cod/00A380]            # func_0010A380: get sub_15C->float_5A0
+      - [0x00A390, c,   cod/00A390]            # func_0010A390: get sub_15C->float_580
+      - [0x00A3A0, asm, cod/00A3A0]
       - [0x16F5E0, textbin, cod/16F5E0]        # .vutext (VU code, kept as raw bytes)
       - [0x174700, data, cod/174700]     # .data
       - [0x453700, rodata, cod/453700]   # .rodata
