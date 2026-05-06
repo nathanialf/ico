@@ -117,6 +117,10 @@ segments:
       - [0x00A380, c,   cod/00A380]            # func_0010A380: get sub_15C->float_5A0
       - [0x00A390, c,   cod/00A390]            # func_0010A390: get sub_15C->float_580
       - [0x00A3A0, asm, cod/00A3A0]
+      - [0x00A4E0, c,   cod/00A4E0]            # func_0010A4E0: sub->4B8 (float) = val
+      - [0x00A4F0, asm, cod/00A4F0]
+      - [0x00A550, c,   cod/00A550]            # func_0010A550: D_00631B48 = val (gp_rel sdata)
+      - [0x00A558, asm, cod/00A558]
       - [0x16F5E0, textbin, cod/16F5E0]        # .vutext (VU code, kept as raw bytes)
       - [0x174700, data, cod/174700]     # .data
       - [0x453700, rodata, cod/453700]   # .rodata
