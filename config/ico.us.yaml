@@ -344,6 +344,13 @@ segments:
       - [0x140B60, c,   cod/140B60]            # func_00240B60: D_00633B98 = 0
       - [0x140B68, c,   cod/140B68]            # func_00240B68: return D_00633B98
       - [0x140B70, asm, cod/140B70]
+      - [0x151C08, c,   cod/151C08]            # func_00251C08: return *(int*)*(char**)(self+0x40)
+      - [0x151C14, asm, cod/151C14]
+      - [0x151DB0, c,   cod/151DB0]            # func_00251DB0: return *(int*)(*(char**)(self+0x40)+0xCC)
+      - [0x151DC0, c,   cod/151DC0]            # func_00251DC0: ... +0xD0
+      - [0x151DD0, c,   cod/151DD0]            # func_00251DD0: return (char*)*(char**)(self+0x40)+0xB4
+      - [0x151DE0, c,   cod/151DE0]            # func_00251DE0: same shape
+      - [0x151DEC, asm, cod/151DEC]
       - [0x16BEE0, c,   cod/16BEE0]
       - [0x16BEE8, c,   cod/16BEE8]
       - [0x16BEF0, asm, cod/16BEF0]
