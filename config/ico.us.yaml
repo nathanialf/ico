@@ -556,7 +556,8 @@ segments:
       - [0x0B8110, c,   cod/0B8110]            # func_001B8110
       - [0x0B8120, asm, cod/0B8120]
       - [0x0BA5C0, c, cod/0BA5C0]            # func_001BA5C0: 4-insn lw
-      - [0x0BA5D0, asm, cod/0BA5D0]
+      - [0x0BA5D0, c,   cod/0BA5D0]            # func_001BA5D0: sub_15C->800->278 = a1
+      - [0x0BA5E0, asm, cod/0BA5E0]
       - [0x0BB800, c,   cod/0BB800]            # func_001BB800: *(int*)(*(char**)(self+0x164)+0x98) = val
       - [0x0BB810, c,   cod/0BB810]            # func_001BB810: *(int*)(*(char**)(self+0x164)+0x9C) = val
       - [0x0BB81C, asm, cod/0BB81C]
