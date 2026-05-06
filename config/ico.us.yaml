@@ -124,6 +124,17 @@ segments:
       - [0x00AB18, c,   cod/00AB18]            # func_0010AB18: empty function
       - [0x00AB20, c,   cod/00AB20]            # func_0010AB20: empty function
       - [0x00AB28, asm, cod/00AB28]
+      - [0x00D070, c,   cod/00D070]            # func_0010D070: empty function
+      - [0x00D078, c,   cod/00D078]            # func_0010D078: sub->800->4 as float
+      - [0x00D088, asm, cod/00D088]
+      - [0x00D180, c,   cod/00D180]            # func_0010D180: return sub->800->30 != 0
+      - [0x00D198, asm, cod/00D198]
+      - [0x00ECD8, c,   cod/00ECD8]            # func_0010ECD8: empty function
+      - [0x00ECE0, asm, cod/00ECE0]
+      - [0x0118B0, c,   cod/0118B0]            # func_001118B0: D_00631BA0 = 0
+      - [0x0118B8, asm, cod/0118B8]
+      - [0x011940, c,   cod/011940]            # func_00111940: return D_00631BA0
+      - [0x011948, asm, cod/011948]
       - [0x16F5E0, textbin, cod/16F5E0]        # .vutext (VU code, kept as raw bytes)
       - [0x174700, data, cod/174700]     # .data
       - [0x453700, rodata, cod/453700]   # .rodata
