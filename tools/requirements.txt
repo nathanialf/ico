@@ -11,6 +11,11 @@ intervaltree
 colorama
 tqdm
 pycdlib
+# n64img / pygfxd / crunch64 are not used for PS2 matching but splat eagerly
+# imports its n64 segtypes at module-load time regardless of platform: ps2,
+# so without them `splat --help` (and therefore `make split`) fails with
+# ModuleNotFoundError. Track upstream — if splat lazy-loads platform
+# segtypes someday, these can drop.
 n64img
 pygfxd
 crunch64
