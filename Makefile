@@ -87,6 +87,8 @@ setup: verify-baserom split
 split:
 	@echo "==> running splat against $(SPLAT_YAML)"
 	$(VENV_BIN)/splat split $(SPLAT_YAML)
+	@echo "==> postprocessing linker script (sbss/bss alignment fix)"
+	$(VENV_BIN)/python tools/postprocess_ld.py
 	@echo "==> postprocessing asm (R5900 mnemonic fixups)"
 	$(VENV_BIN)/python tools/postprocess_asm.py
 

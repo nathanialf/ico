@@ -1,2 +1,10 @@
 // Visit https://github.com/ethteck/splat/wiki/Adding-Symbols for documentation about this file
 _start = 0x00100008; // type:func
+
+// Tail of .sdata is the 6-byte string "FALSE\0" at 0x00633BC0. Splat 0.40.0
+// rounds the last data symbol down to a 4-byte boundary (emits .word for
+// "FALS" only) and drops the trailing 2 bytes, which makes build/ico.rom
+// 2 bytes shorter than expected at the .sdata end. Declaring the symbol's
+// true size lets splat emit all 6 bytes.
+D_00633BC0 = 0x00633BC0; // type:asciz size:0x6
+
