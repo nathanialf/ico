@@ -526,6 +526,8 @@ segments:
       - [0x07E1A4, asm, cod/07E1A4]
       - [0x07E328, c,   cod/07E328]            # func_0017E328: D_00633D40 = 0
       - [0x07E330, asm, cod/07E330]
+      - [0x07E570, c,   cod/07E570]            # func_0017E570: set 3 sdata: D_633798=1, D_6337A0=0, D_63379C=-f
+      - [0x07E588, asm, cod/07E588]
       - [0x07E5E0, c,   cod/07E5E0]            # func_0017E5E0
       - [0x07E5FC, asm, cod/07E5FC]
       - [0x07E600, c,   cod/07E600]            # func_0017E600
