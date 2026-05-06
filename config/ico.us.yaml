@@ -522,6 +522,8 @@ segments:
       - [0x07905C, asm, cod/07905C]
       - [0x07A9B8, c,   cod/07A9B8]            # func_0017A9B8
       - [0x07A9D4, asm, cod/07A9D4]
+      - [0x07E160, c,   cod/07E160]            # func_0017E160: set sub fields: 0x328/0x32C=0x7F, 0x33C/0x110/0x114/0x118=0
+      - [0x07E184, asm, cod/07E184]
       - [0x07E188, c,   cod/07E188]            # func_0017E188
       - [0x07E1A4, asm, cod/07E1A4]
       - [0x07E328, c,   cod/07E328]            # func_0017E328: D_00633D40 = 0
