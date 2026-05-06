@@ -65,49 +65,66 @@ else
     echo "==> lib/m2c missing; add as submodule then re-run"
 fi
 
-# --- 4. EE toolchain ---------------------------------------------------------
+# --- 4. EE GCC 2.96 (matching compiler — same source as SOTC and other PS2 decomps) ----
+
+EEGCC_DIR="$ROOT/tools/cc/ee-gcc2.96"
+EEGCC_BIN="$EEGCC_DIR/bin/gcc"
+EEGCC_TARBALL_URL="${EEGCC_TARBALL_URL:-https://github.com/decompme/compilers/releases/download/compilers/ee-gcc2.96.tar.xz}"
 
 if [[ "${SKIP_TOOLCHAIN:-0}" == "1" ]]; then
-    echo "==> SKIP_TOOLCHAIN=1; not setting up EE toolchain"
-elif command -v mips64r5900el-ps2-elf-gcc >/dev/null 2>&1; then
-    echo "==> system mips64r5900el-ps2-elf-gcc detected; using it"
-    mips64r5900el-ps2-elf-gcc --version | head -1
-elif [[ -x tools/toolchain/bin/mips64r5900el-ps2-elf-gcc ]]; then
-    echo "==> tools/toolchain/ already populated"
-elif command -v docker >/dev/null 2>&1; then
-    echo "==> pulling pinned ps2dev/ps2dev Docker image"
-    if docker pull ps2dev/ps2dev:latest; then
-        cat <<'EOF' >&2
-
-==> EE toolchain available via Docker.
-
-To use it from the Makefile, prefix make with:
-
-    docker run --rm -v "$PWD:/work" -w /work ps2dev/ps2dev make
-
-Or symlink the in-image binaries to tools/toolchain/bin/ via a wrapper
-script. ps2dev exposes /usr/local/ps2dev/ee/bin/.
-EOF
+    echo "==> SKIP_TOOLCHAIN=1; not fetching ee-gcc2.96"
+elif [[ -f "$EEGCC_BIN" ]]; then
+    echo "==> ee-gcc2.96 already at $EEGCC_DIR"
+elif command -v curl >/dev/null 2>&1; then
+    echo "==> fetching ee-gcc2.96 from decompme/compilers (~18 MB)"
+    mkdir -p "$EEGCC_DIR"
+    if curl -fsSL "$EEGCC_TARBALL_URL" | tar -xJ -C "$EEGCC_DIR" --strip-components=1; then
+        echo "==> ee-gcc2.96 extracted to $EEGCC_DIR"
     else
-        echo "==> docker pull failed; falling through to source-build hint" >&2
+        echo "==> ee-gcc2.96 fetch failed; install manually" >&2
+        rm -rf "$EEGCC_DIR"
     fi
+else
+    echo "==> curl not available; skipping ee-gcc2.96 (install manually)"
+fi
+
+# ee-gcc2.96 is a 32-bit i386 ELF (matches the toolchain SOTC and other PS2
+# decomp projects use). On a 64-bit Linux host it requires multilib /
+# 32-bit libc; check and warn so failures are obvious.
+if [[ -f "$EEGCC_BIN" ]] && ! "$EEGCC_BIN" --version >/dev/null 2>&1; then
+    cat >&2 <<EOF
+==> ee-gcc2.96 is installed but won't run on this host.
+    It's a 32-bit i386 binary; you need 32-bit libc support, e.g.:
+
+      sudo dpkg --add-architecture i386
+      sudo apt-get update
+      sudo apt-get install libc6:i386 libstdc++6:i386 zlib1g:i386
+
+    Then re-run tools/setup.sh to verify.
+EOF
+fi
+
+# --- 4b. EE binutils (assembler/linker) -------------------------------------
+
+if [[ "${SKIP_TOOLCHAIN:-0}" == "1" ]]; then
+    :
+elif command -v mips64r5900el-ps2-elf-as >/dev/null 2>&1; then
+    echo "==> system EE binutils detected"
+elif command -v mips-linux-gnu-as >/dev/null 2>&1; then
+    echo "==> using mips-linux-gnu-as in r5900 mode (system fallback — fine for splat asm)"
 else
     cat <<'EOF' >&2
 
-==> No EE toolchain found.
+==> No MIPS assembler/linker on PATH.
 
-Options:
+Quickest fix on Debian/Ubuntu:
 
-  - Install Docker, then re-run this script to use the pinned ps2dev image.
+    sudo apt-get install binutils-mips-linux-gnu
 
-  - Install ps2toolchain from source (slow, ~30 min):
-        git clone https://github.com/ps2dev/ps2toolchain
-        cd ps2toolchain
-        ./toolchain.sh   # installs to $PS2DEV/ee
-    Then export PATH="$PS2DEV/ee/bin:$PATH" and re-run setup.
-
-  - On Debian/Ubuntu, no apt package ships the EE toolchain — Docker or
-    source build are the supported paths.
+That gives you mips-linux-gnu-as / -ld / -objcopy, which assemble splat's
+r5900 output cleanly and round-trip the ICO ELF. The PS2-specific
+'mips64r5900el-ps2-elf-' prefix is only needed if you want EE-specific
+binutils features; for matching work the generic binutils is sufficient.
 
 EOF
 fi

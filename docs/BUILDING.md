@@ -24,11 +24,18 @@ Idempotent. Performs:
    spimdisasm, splat64, pyyaml, …).
 2. `git submodule update --init --recursive` — populates `lib/splat/`,
    `lib/asm-differ/`, `lib/decomp-permuter/`, `lib/m2c/`.
-3. Installs the EE toolchain. Tries in order:
-   - System binaries on `PATH` (e.g. `mips64r5900el-ps2-elf-gcc`) — if
-     present, skips install.
-   - Docker image `ps2dev/ps2dev:latest` if Docker is available.
-   - Source build of `ps2toolchain` into `tools/toolchain/` (slowest).
+3. Fetches the matching C compiler **ee-gcc 2.96** (~18 MB) from
+   `decompme/compilers` into `tools/cc/ee-gcc2.96/`. Same compiler used
+   by SOTC and other PS2 decomp projects. The binary is 32-bit i386, so
+   on a 64-bit host you need multilib / 32-bit libc:
+
+   ```sh
+   sudo dpkg --add-architecture i386
+   sudo apt-get update
+   sudo apt-get install libc6:i386 libstdc++6:i386 zlib1g:i386
+   ```
+
+   `tools/setup.sh` warns if the binary is present but won't execute.
 4. Downloads a pinned Ghidra release into `tools/ghidra/`.
 5. `pip install -e lib/m2c` for `m2c` on `PATH`.
 6. Best-effort `apt-get install pcsx2` (or notes the AppImage path).

@@ -35,10 +35,13 @@ options:
   ld_dependencies: True
   ld_wildcard_sections: True
   ld_bss_contains_common: True
+  ld_bss_is_noload: true
 
   create_asm_dependencies: True
 
   find_file_boundaries: False
+  migrate_rodata_to_functions: True
+  use_gp_rel_macro_nonmatching: False
 
   o_as_suffix: True
 
@@ -93,6 +96,6 @@ segments:
       - [0x453700, rodata, cod/453700]   # .rodata
       - [0x530900, lit4, cod/530900]     # .lit4
       - [0x531900, sdata, cod/531900]    # .sdata
-      - { type: sbss, vram: 0x00633C00, name: cod/00633C00 }   # .sbss
-      - { type: bss,  vram: 0x00634000, name: cod/00634000 }   # .bss
+      - { type: sbss, vram: 0x00633C00, name: cod/00633C00, align: 0x100 }  # .sbss — original aligns to 0x100, not 0x10
+      - { type: bss,  vram: 0x00634000, name: cod/00634000, align: 0x80 }   # .bss — sh_addralign=0x80 in baseelf
   - [0x533BC6]

@@ -24,20 +24,25 @@ PYTHON        ?= python3
 VENV          := .venv
 VENV_BIN      := $(VENV)/bin
 
-# Toolchain prefix. Defaults to the EE-specific ps2dev prefix; falls back to
-# system mips-linux-gnu-* (in r5900 mode) when the EE toolchain is absent —
-# fine for splat-output round-tripping and most matching work, but the EE
-# compiler is required for full byte-identical matching of compiler-emitted
-# code. Override with `make MIPS_PREFIX=...` if your binaries differ.
+# Toolchain prefix for binutils (as / ld / objcopy). Falls back to the
+# system mips-linux-gnu- in r5900 mode when no EE-specific binutils is on
+# PATH — fine for splat-output round-tripping and most matching work.
+# Override with `make MIPS_PREFIX=...` if your binaries differ.
 ifeq ($(shell command -v mips64r5900el-ps2-elf-as 2>/dev/null),)
   MIPS_PREFIX ?= mips-linux-gnu-
 else
   MIPS_PREFIX ?= mips64r5900el-ps2-elf-
 endif
 AS            := $(MIPS_PREFIX)as
-CC            := $(MIPS_PREFIX)gcc
 LD            := $(MIPS_PREFIX)ld
 OBJCOPY       := $(MIPS_PREFIX)objcopy
+
+# Matching C compiler: ee-gcc 2.96 (i386 ELF binary fetched into tools/cc/
+# by tools/setup.sh — same source as SOTC and other PS2 decomp projects).
+# Override CC to use a different compiler (e.g. wcc / CodeWarrior) if the
+# matching compiler turns out to be different.
+EEGCC_DIR     ?= tools/cc/ee-gcc2.96
+CC            ?= $(EEGCC_DIR)/bin/gcc
 
 BUILD_DIR     := build
 ASM_DIR       := asm
