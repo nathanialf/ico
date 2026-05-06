@@ -373,6 +373,8 @@ segments:
       - [0x065414, asm, cod/065414]
       - [0x0654D8, c,   cod/0654D8]            # func_001654D8: return 1
       - [0x0654E0, asm, cod/0654E0]
+      - [0x068A28, c,   cod/068A28]            # func_00168A28: 4 float stores
+      - [0x068A3C, asm, cod/068A3C]
       - [0x078928, c,   cod/078928]
       - [0x078930, asm, cod/078930]
       - [0x07E328, c,   cod/07E328]            # func_0017E328: D_00633D40 = 0
