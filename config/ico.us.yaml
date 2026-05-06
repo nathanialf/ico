@@ -459,6 +459,8 @@ segments:
       - [0x09E2D0, c,   cod/09E2D0]            # func_0019E2D0
       - [0x09E2F0, c,   cod/09E2F0]            # func_0019E2F0
       - [0x09E310, asm, cod/09E310]
+      - [0x09E508, c,   cod/09E508]            # func_0019E508: self[3] == self[4]
+      - [0x09E51C, asm, cod/09E51C]
       - [0x09F4E0, c,   cod/09F4E0]
       - [0x09F4E8, asm, cod/09F4E8]
       - [0x0A0028, c,   cod/0A0028]            # func_001A0028
