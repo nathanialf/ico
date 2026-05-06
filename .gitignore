@@ -94,13 +94,6 @@ expected/
 # --- m2c context output (regenerated on demand) ---
 ctx.c
 
-# --- Submodule bodies cloned by setup.sh ---
-# Tracked via .gitmodules; bodies live in lib/ but are populated locally.
-lib/splat/
-lib/asm-differ/
-lib/decomp-permuter/
-lib/m2c/
-
 # --- Local toolchain blobs (Ghidra, ee-gcc fallback build) ---
 tools/toolchain/
 tools/ghidra/

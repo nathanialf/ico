@@ -1,0 +1,12 @@
+[submodule "lib/splat"]
+	path = lib/splat
+	url = https://github.com/ethteck/splat
+[submodule "lib/asm-differ"]
+	path = lib/asm-differ
+	url = https://github.com/simonlindholm/asm-differ
+[submodule "lib/decomp-permuter"]
+	path = lib/decomp-permuter
+	url = https://github.com/simonlindholm/decomp-permuter
+[submodule "lib/m2c"]
+	path = lib/m2c
+	url = https://github.com/matt-kempster/m2c
