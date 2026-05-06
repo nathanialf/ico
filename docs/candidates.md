@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-06 21:30:23 UTC
+- Generated: 2026-05-06 21:32:55 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions listed in `tools/parked.txt` are excluded
-- Functions: 4711 total in `asm/cod/*.s`, 16 parked, 4695 considered
+- Functions: 4710 total in `asm/cod/*.s`, 16 parked, 4694 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -75,8 +75,8 @@ _33 total in this bucket; showing top 33._
 | `func_001F0550` | 0x14 | 5 | 0 |  | `lw lw lw j` | asm/cod/0EFA60.s:817 |
 | `func_00251D70` | 0x14 | 5 | 0 |  | `lw addiu sd jr` | asm/cod/151C28.s:141 |
 | `func_00251E00` | 0x14 | 5 | 0 |  | `lw addiu sw jr` | asm/cod/151E00.s:13 |
-| `func_0026F420` | 0x14 | 5 | 0 |  | `lui ori and j` | asm/cod/16D554.s:2470 |
-| `func_0026F560` | 0x14 | 5 | 0 |  | `lui ori and j` | asm/cod/16D554.s:2577 |
+| `func_0026F420` | 0x14 | 5 | 0 |  | `lui ori and j` | asm/cod/16D6C8.s:2359 |
+| `func_0026F560` | 0x14 | 5 | 0 |  | `lui ori and j` | asm/cod/16D6C8.s:2469 |
 | `func_001AA688` | 0x14 | 5 | 0 |  | `lui daddu lw jr` | asm/cod/0AA5C0.s:89 |
 | `func_001C8A00` | 0x14 | 5 | 0 |  | `addiu mult addu jr` | asm/cod/0C2F20.s:6757 |
 | `func_001D03C8` | 0x14 | 5 | 0 |  | `lw daddu sw jr` | asm/cod/0CFA34.s:711 |
@@ -189,7 +189,7 @@ _34 total in this bucket; showing top 34._
 <a id="wrap-8-0x20"></a>
 ## 8-insn / 0x20, exactly 1 jal, no VU (passthrough call)
 
-_15 total in this bucket; showing top 15._
+_14 total in this bucket; showing top 14._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
@@ -201,7 +201,6 @@ _15 total in this bucket; showing top 15._
 | `func_001E8B48` | 0x20 | 8 | 1 |  | `addiu lw sd jal` | asm/cod/0E0984.s:9643 |
 | `func_001F2370` | 0x20 | 8 | 1 |  | `addiu sd jal addiu` | asm/cod/0F2250.s:109 |
 | `func_0024BFAC` | 0x20 | 8 | 1 |  | `sd jal daddu sync` | asm/cod/14B8D4.s:572 |
-| `func_0026D6A8` | 0x20 | 8 | 1 |  | `addiu sd lh jal` | asm/cod/16D554.s:127 |
 | `func_001383D8` | 0x20 | 8 | 1 |  | `addiu sd jal addiu` | asm/cod/037EF0.s:417 |
 | `func_001683A8` | 0x20 | 8 | 1 |  | `addiu lw sd jalr` | asm/cod/0654E0.s:3587 |
 | `func_0024A980` | 0x20 | 8 | 1 |  | `addiu daddu sd jal` | asm/cod/14A754.s:183 |

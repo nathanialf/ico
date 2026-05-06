@@ -1152,6 +1152,8 @@ segments:
       - [0x16CF2C, asm, cod/16CF2C]
       - [0x16D538, c,   cod/16D538]            # func_0026D538: func_00245678() passthrough
       - [0x16D554, asm, cod/16D554]
+      - [0x16D6A8, c,   cod/16D6A8]            # func_0026D6A8: func(p->54, (short)p->E)
+      - [0x16D6C8, asm, cod/16D6C8]
       - [0x16F5E0, textbin, cod/16F5E0]
       - [0x174700, data, cod/174700]
       - [0x453700, rodata, cod/453700]
