@@ -433,6 +433,8 @@ segments:
       - [0x043B88, c,   cod/043B88]            # func_00143B88: return D_00632214
       - [0x043B90, c,   cod/043B90]            # func_00143B90: return D_00632208
       - [0x043B98, asm, cod/043B98]
+      - [0x043CB0, c,   cod/043CB0]            # func_00143CB0: D_00633CD8 &= ~self->18 (long long); self->18 = 0
+      - [0x043CCC, asm, cod/043CCC]
       - [0x0445C0, c,   cod/0445C0]            # func_001445C0: return D_00632218
       - [0x0445C8, asm, cod/0445C8]
       - [0x04A2B0, c,   cod/04A2B0]            # func_0014A2B0: D_006AA4B0+0x4B4=0, +0x4B0=0
