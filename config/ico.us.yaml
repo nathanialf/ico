@@ -526,6 +526,7 @@ segments:
       - [0x07E1A4, asm, cod/07E1A4]
       - [0x07E328, c,   cod/07E328]            # func_0017E328: D_00633D40 = 0
       - [0x07E330, asm, cod/07E330]
+      - [0x07E550, c,   cod/07E550]            # func_0017E550: set 6 sdata fields (1 float, 1 int, 3 bytes, 1 int)
       - [0x07E570, c,   cod/07E570]            # func_0017E570: set 3 sdata: D_633798=1, D_6337A0=0, D_63379C=-f
       - [0x07E588, asm, cod/07E588]
       - [0x07E5E0, c,   cod/07E5E0]            # func_0017E5E0
@@ -646,6 +647,8 @@ segments:
       - [0x09E4F8, c,   cod/09E4F8]            # func_0019E4F8: zero p[2..3]
       - [0x09E508, c,   cod/09E508]            # func_0019E508: self[3] == self[4]
       - [0x09E51C, asm, cod/09E51C]
+      - [0x09E628, c,   cod/09E628]            # func_0019E628: if p[3]>0, --p[3]
+      - [0x09E648, asm, cod/09E648]
       - [0x09F4E0, c,   cod/09F4E0]
       - [0x09F4E8, asm, cod/09F4E8]
       - [0x0A0010, c,   cod/0A0010]            # func_001A0010: 3-store with constant 1
