@@ -890,14 +890,31 @@ segments:
       - [0x141C44, asm, cod/141C44]
       - [0x1436C8, c,   cod/1436C8]            # func_002436C8
       - [0x1436E4, asm, cod/1436E4]
+      - [0x143930, c,   cod/143930]            # func_00243930: cross product
+      - [0x14394C, asm, cod/14394C]
       - [0x143950, c,   cod/143950]            # func_00243950: dot product xyz
       - [0x143974, asm, cod/143974]
+      - [0x143A68, c,   cod/143A68]            # func_00243A68: vec divide xyzw
+      - [0x143A88, c,   cod/143A88]            # func_00243A88: vec divide xyz
+      - [0x143AA8, c,   cod/143AA8]            # func_00243AA8: lerp via mul-add
       - [0x143AD0, c,   cod/143AD0]            # func_00243AD0: vec add
       - [0x143AE4, asm, cod/143AE4]
       - [0x143AE8, c,   cod/143AE8]            # func_00243AE8: vec sub
       - [0x143AFC, asm, cod/143AFC]
       - [0x143B00, c,   cod/143B00]            # func_00243B00: vec mul
       - [0x143B14, asm, cod/143B14]
+      - [0x143B18, c,   cod/143B18]            # func_00243B18: scale xyzw
+      - [0x143B30, asm, cod/143B30]
+      - [0x143B98, c,   cod/143B98]            # func_00243B98: vftoi4 store
+      - [0x143BA8, c,   cod/143BA8]            # func_00243BA8: vftoi0 store
+      - [0x143BB8, c,   cod/143BB8]            # func_00243BB8: vitof4 store
+      - [0x143BC8, c,   cod/143BC8]            # func_00243BC8: vitof0 store
+      - [0x143BD8, c,   cod/143BD8]            # func_00243BD8: store id matrix flipped
+      - [0x143C00, asm, cod/143C00]
+      - [0x143EC0, c,   cod/143EC0]            # func_00243EC0: clamp
+      - [0x143EE4, asm, cod/143EE4]
+      - [0x144448, c,   cod/144448]            # func_00244448: scale xyz
+      - [0x144460, asm, cod/144460]
       - [0x1450A8, c,   cod/1450A8]            # func_002450A8: 0/8/4 stores
       - [0x1450B8, c,   cod/1450B8]            # func_002450B8
       - [0x1450C8, asm, cod/1450C8]
