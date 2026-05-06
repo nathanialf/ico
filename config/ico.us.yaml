@@ -581,6 +581,8 @@ segments:
       - [0x0939E0, asm, cod/0939E0]
       - [0x093EC8, c,   cod/093EC8]            # func_00193EC8
       - [0x093EDC, asm, cod/093EDC]
+      - [0x093F68, c,   cod/093F68]            # func_00193F68: p[0]=p[1]=1
+      - [0x093F78, asm, cod/093F78]
       - [0x097330, c,   cod/097330]
       - [0x097338, asm, cod/097338]
       - [0x098328, c,   cod/098328]            # func_00198328
