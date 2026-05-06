@@ -246,7 +246,8 @@ segments:
       - [0x005278, asm, cod/005278]
       - [0x005F00, c,   cod/005F00]            # func_00105F00: 16-byte lq/sq copy
       - [0x005F10, c,   cod/005F10]            # func_00105F10: 16-byte lq/sq copy
-      - [0x005F20, asm, cod/005F20]
+      - [0x005F20, c,   cod/005F20]            # func_00105F20: 64-byte lq/sq memcpy
+      - [0x005F48, asm, cod/005F48]
       - [0x005F78, c,   cod/005F78]            # func_00105F78: vec add.xyz
       - [0x005F90, c,   cod/005F90]            # func_00105F90: vec sub.xyz
       - [0x005FA8, asm, cod/005FA8]
