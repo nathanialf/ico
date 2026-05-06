@@ -244,6 +244,9 @@ segments:
       - [0x005258, c,   cod/005258]
       - [0x005268, c,   cod/005268]
       - [0x005278, asm, cod/005278]
+      - [0x005F00, c,   cod/005F00]            # func_00105F00: 16-byte lq/sq copy
+      - [0x005F10, c,   cod/005F10]            # func_00105F10: 16-byte lq/sq copy
+      - [0x005F20, asm, cod/005F20]
       - [0x009B98, c,   cod/009B98]
       - [0x009BA8, c,   cod/009BA8]
       - [0x009BB8, asm, cod/009BB8]
