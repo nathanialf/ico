@@ -478,6 +478,8 @@ segments:
       - [0x05F698, c,   cod/05F698]            # func_0015F698: store-arg-discard
       - [0x05F6A8, c,   cod/05F6A8]            # func_0015F6A8: == 0xF compare
       - [0x05F6BC, asm, cod/05F6BC]
+      - [0x065158, c,   cod/065158]            # func_00165158: sub+0x150 |= 0x100000000 (bit 32)
+      - [0x065174, asm, cod/065174]
       - [0x0652A0, c,   cod/0652A0]            # func_001652A0: sub_164->430 == 2
       - [0x0652B4, asm, cod/0652B4]
       - [0x0652B8, c,   cod/0652B8]            # func_001652B8
@@ -498,6 +500,10 @@ segments:
       - [0x068A3C, asm, cod/068A3C]
       - [0x06A130, c,   cod/06A130]            # func_0016A130: D=1; call(); D=0
       - [0x06A154, asm, cod/06A154]
+      - [0x06A1B8, c,   cod/06A1B8]            # func_0016A1B8: rebase 2 ptr offsets to abs
+      - [0x06A1D4, asm, cod/06A1D4]
+      - [0x076130, c,   cod/076130]            # func_00176130: save/reload arg, sub+0x634=0
+      - [0x07614C, asm, cod/07614C]
       - [0x078928, c,   cod/078928]
       - [0x078930, asm, cod/078930]
       - [0x079040, c,   cod/079040]            # func_00179040: empty 0x30 frame
