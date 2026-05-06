@@ -43,6 +43,49 @@
 
 set -uo pipefail
 
+# --- Child cleanup trap -----------------------------------------------------
+# Without this, if our parent (auto_permute.sh) dies or this script is
+# killed mid-run, the python permuter (a grandchild via the `tee` pipe)
+# reparents to init and lingers forever — which is exactly the orphan
+# leak we hit before. Trap on EXIT/INT/TERM/HUP and SIGTERM every
+# descendant we spawned (permuter.py, tee, compile.sh, cc1, mips-as).
+_PERMUTE_RUN_CLEANED=0
+_permute_run_kill_descendants() {
+    local sig="${1:-TERM}"
+    # BFS the descendant tree of this script's PID and signal everything.
+    local frontier="$$"
+    local pids=""
+    while [ -n "${frontier// /}" ]; do
+        local next
+        next="$(ps -eo pid,ppid --no-headers 2>/dev/null \
+            | awk -v ps="${frontier// /|}" 'BEGIN{n=split(ps,a,"|"); for(i=1;i<=n;i++) p[a[i]]=1} ($2 in p){print $1}' \
+            | tr '\n' ' ')"
+        [ -z "${next// /}" ] && break
+        pids="${pids} ${next}"
+        frontier="${next}"
+    done
+    # shellcheck disable=SC2086
+    [ -n "${pids// /}" ] && kill -"${sig}" ${pids} 2>/dev/null || true
+}
+_permute_run_cleanup() {
+    [ "${_PERMUTE_RUN_CLEANED}" = "1" ] && return 0
+    _PERMUTE_RUN_CLEANED=1
+    _permute_run_kill_descendants TERM
+    # Brief grace period, then SIGKILL stragglers.
+    local waited=0
+    while [ "${waited}" -lt 4 ]; do
+        # If no children remain at all, we're done.
+        if ! pgrep -P $$ >/dev/null 2>&1; then
+            return 0
+        fi
+        sleep 0.5
+        waited=$((waited + 1))
+    done
+    _permute_run_kill_descendants KILL
+}
+trap '_permute_run_cleanup' EXIT HUP
+trap '_permute_run_cleanup; trap - INT TERM EXIT; exit 130' INT TERM
+
 if [ "$#" -lt 1 ]; then
     echo "usage: $0 <func_name> [seed_c_path] [-- <permuter args>]" >&2
     exit 2
@@ -290,14 +333,26 @@ echo "[permute_run.sh] target.s:  $(wc -l < "${TARGET_S}") lines"
 echo "[permute_run.sh] base.c:    $(wc -l < "${BASE_C}") lines"
 
 # --- Invoke permuter --------------------------------------------------------
+# Run the permuter backgrounded with `tee` as a separate process so this
+# shell can keep handling signals. A foreground pipeline blocks SIGTERM
+# delivery until the pipeline completes — which is what produced the
+# orphan flood we just cleaned up: when auto_permute.sh tried to kill
+# its workers, this shell was stuck inside `python | tee` and never ran
+# its EXIT trap until the python process voluntarily returned.
 LOG="${RUN_DIR}/permuter.log"
 set +e
 ( cd "${RUN_DIR}" && \
     "${PYTHON}" "${PERMUTER_DIR}/permuter.py" \
         "${RUN_DIR}" \
-        "${PERMUTER_EXTRA_ARGS[@]}" \
-) 2>&1 | tee "${LOG}"
-RC="${PIPESTATUS[0]}"
+        "${PERMUTER_EXTRA_ARGS[@]}" 2>&1 ) | tee "${LOG}" &
+PIPELINE_PID=$!
+# `wait $!` returns immediately if the trap interrupts it; we re-enter
+# the wait until the pipeline truly exits so RC reflects the real exit.
+while ! wait "${PIPELINE_PID}" 2>/dev/null; do
+    # If the process is gone, break out — wait failed because it's reaped.
+    kill -0 "${PIPELINE_PID}" 2>/dev/null || break
+done
+RC=$?
 set -e
 
 # Permuter prints "found a match" on a zero-score hit; it's the only

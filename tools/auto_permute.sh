@@ -82,20 +82,104 @@ log() {
 }
 
 # pid -> function name, used to promote/cleanup the right seed when a
-# worker finishes.
+# worker finishes. The pid stored here is the *worker subshell* pid;
+# each worker is launched via setsid so its PID == its PGID, letting us
+# kill the entire descendant tree (permute_run.sh shell, python permuter,
+# tee, compile.sh, cc1, mips-as) with a single `kill -TERM -<pgid>`.
 declare -A WORKER_NAME=()
+CLEANUP_DONE=0
+
+# Recursively SIGTERM then SIGKILL every descendant of the given pid.
+# Used as a belt-and-braces fallback alongside pgroup-kill, because some
+# children (e.g. python multiprocessing workers) can detach into their
+# own session under load.
+_kill_tree() {
+    local root="$1"
+    local sig="${2:-TERM}"
+    local pids="$root"
+    local frontier="$root"
+    while [ -n "${frontier}" ]; do
+        local next
+        next="$(ps -eo pid,ppid --no-headers 2>/dev/null \
+            | awk -v ps="${frontier// /|}" 'BEGIN{n=split(ps,a,"|"); for(i=1;i<=n;i++) p[a[i]]=1} ($2 in p){print $1}' \
+            | tr '\n' ' ')"
+        [ -z "${next// /}" ] && break
+        pids="${pids} ${next}"
+        frontier="${next}"
+    done
+    # shellcheck disable=SC2086
+    kill -"${sig}" ${pids} 2>/dev/null || true
+}
+
+cleanup_workers() {
+    # Idempotent: trap fires on both INT/TERM and EXIT, we only want one pass.
+    [ "${CLEANUP_DONE}" = "1" ] && return 0
+    CLEANUP_DONE=1
+    if [ "${#WORKER_NAME[@]}" -eq 0 ]; then
+        return 0
+    fi
+    log "cleanup: terminating ${#WORKER_NAME[@]} active worker(s)"
+    # Phase 1: walk the descendant tree of each worker subshell and
+    # SIGTERM everything (the worker shell, its permute_run.sh child, the
+    # python permuter grandchild, tee, compile.sh, cc1, mips-as, ...).
+    # We can't rely on bash's job control to forward signals because
+    # `wait` doesn't propagate, and we can't use pgroups because the
+    # workers were spawned with `&` in this script's own pgroup — killing
+    # the pgroup would kill ourselves. The recursive walk is the
+    # portable, surgical option.
+    for pid in "${!WORKER_NAME[@]}"; do
+        _kill_tree "${pid}" TERM
+    done
+    # Give children up to ~3s to exit cleanly so promote_best_into_seed
+    # sees the final source.c the permuter wrote.
+    local waited=0
+    while [ "${waited}" -lt 6 ]; do
+        local alive=0
+        for pid in "${!WORKER_NAME[@]}"; do
+            kill -0 "${pid}" 2>/dev/null && alive=$((alive + 1))
+        done
+        [ "${alive}" -eq 0 ] && break
+        sleep 0.5
+        waited=$((waited + 1))
+    done
+    # Phase 2: SIGKILL anything still alive (descendants too).
+    for pid in "${!WORKER_NAME[@]}"; do
+        if kill -0 "${pid}" 2>/dev/null; then
+            _kill_tree "${pid}" KILL
+        fi
+    done
+    # Reap so we don't leave zombies, then promote whatever the workers
+    # managed to write before we killed them.
+    for pid in "${!WORKER_NAME[@]}"; do
+        wait "${pid}" 2>/dev/null || true
+        local name="${WORKER_NAME[$pid]}"
+        promote_best_into_seed "${name}" || true
+        unset 'WORKER_NAME[$pid]'
+    done
+}
 
 on_interrupt() {
-    log "interrupt received; killing workers and promoting in-flight progress"
-    for pid in "${!WORKER_NAME[@]}"; do
-        local name="${WORKER_NAME[$pid]}"
-        kill -TERM "${pid}" 2>/dev/null || true
-        wait "${pid}" 2>/dev/null || true
-        promote_best_into_seed "${name}"
-    done
-    exit 130
+    local sig="${1:-INT}"
+    log "${sig} received; killing workers and promoting in-flight progress"
+    cleanup_workers
+    # Re-raise so the caller sees the right exit (130 INT, 143 TERM, 129 HUP).
+    trap - INT TERM HUP EXIT
+    case "$sig" in
+        HUP)  exit 129 ;;
+        TERM) exit 143 ;;
+        *)    exit 130 ;;
+    esac
 }
-trap on_interrupt INT TERM
+# INT/TERM/HUP must all force an exit (cleanup-then-die), not just run the
+# cleanup and let the script keep spawning workers. EXIT is the catch-all
+# for normal completion / `set -e` abort / `exit` calls. The HUP handler is
+# critical: when the controlling terminal closes, bash delivers SIGHUP and
+# the previous `trap cleanup_workers EXIT HUP` fired cleanup but then let
+# the script continue, immediately respawning workers and orphaning them.
+trap 'on_interrupt INT'  INT
+trap 'on_interrupt TERM' TERM
+trap 'on_interrupt HUP'  HUP
+trap cleanup_workers EXIT
 
 # --- tough_nuts/ enumeration ------------------------------------------------
 # Format: each subdir of tough_nuts/ named func_<HEX> is a parked function.
