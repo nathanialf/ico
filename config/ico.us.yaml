@@ -873,6 +873,8 @@ segments:
       - [0x151DD0, c,   cod/151DD0]            # func_00251DD0: return (char*)*(char**)(self+0x40)+0xB4
       - [0x151DE0, c,   cod/151DE0]            # func_00251DE0: same shape
       - [0x151DEC, asm, cod/151DEC]
+      - [0x151DF0, c,   cod/151DF0]            # func_00251DF0: getset sub+0xE8
+      - [0x151E00, asm, cod/151E00]
       - [0x151E18, c,   cod/151E18]            # func_00251E18: 4 stores
       - [0x151E2C, asm, cod/151E2C]
       - [0x151E30, c,   cod/151E30]            # func_00251E30: self[0xC] = self[0x8]
