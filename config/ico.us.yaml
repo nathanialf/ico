@@ -121,6 +121,9 @@ segments:
       - [0x00A4F0, asm, cod/00A4F0]
       - [0x00A550, c,   cod/00A550]            # func_0010A550: D_00631B48 = val (gp_rel sdata)
       - [0x00A558, asm, cod/00A558]
+      - [0x00AB18, c,   cod/00AB18]            # func_0010AB18: empty function
+      - [0x00AB20, c,   cod/00AB20]            # func_0010AB20: empty function
+      - [0x00AB28, asm, cod/00AB28]
       - [0x16F5E0, textbin, cod/16F5E0]        # .vutext (VU code, kept as raw bytes)
       - [0x174700, data, cod/174700]     # .data
       - [0x453700, rodata, cod/453700]   # .rodata
