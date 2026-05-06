@@ -553,6 +553,8 @@ segments:
       - [0x0CF790, asm, cod/0CF790]
       - [0x0D03E0, c,   cod/0D03E0]            # func_001D03E0: D_006333D8 = 0
       - [0x0D03E8, asm, cod/0D03E8]
+      - [0x0D1428, c,   cod/0D1428]            # func_001D1428: == arg compare
+      - [0x0D143C, asm, cod/0D143C]
       - [0x0D1AD0, c,   cod/0D1AD0]
       - [0x0D1AD8, asm, cod/0D1AD8]
       - [0x0D1CF8, c,   cod/0D1CF8]
