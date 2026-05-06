@@ -220,7 +220,8 @@ segments:
       - [0x082C14, asm, cod/082C14]
       - [0x0873A0, c,   cod/0873A0]
       - [0x0873A8, c,   cod/0873A8]
-      - [0x0873B0, asm, cod/0873B0]
+      - [0x0873B0, c,   cod/0873B0]            # func_001873B0: D_006326D0=0 + D_006326D8=0 (byte)
+      - [0x0873BC, asm, cod/0873BC]
       - [0x0878F8, c,   cod/0878F8]            # func_001878F8
       - [0x087904, asm, cod/087904]
       - [0x088220, c,   cod/088220]
