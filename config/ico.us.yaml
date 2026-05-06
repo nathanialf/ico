@@ -149,6 +149,7 @@ segments:
       - [0x02FFF0, asm, cod/02FFF0]
       - [0x033448, c,   cod/033448]            # func_00133448: return D_00631F64
       - [0x033450, asm, cod/033450]
+      - [0x033500, c,   cod/033500]            # func_00133500: sw_arg +0x110
       - [0x033508, c,   cod/033508]            # func_00133508: return D_00633C7C
       - [0x033510, asm, cod/033510]
       - [0x036088, c,   cod/036088]            # func_00136088: self[1]=0; self[0]=0
@@ -164,6 +165,10 @@ segments:
       - [0x03CD70, c,   cod/03CD70]            # func_0013CD70: *p = 0 (byte)
       - [0x03CD78, asm, cod/03CD78]
       - [0x03D0A0, asm, cod/03D0A0]
+      - [0x03F808, c,   cod/03F808]            # func_0013F808: sw_zero +0x18
+      - [0x03F810, asm, cod/03F810]
+      - [0x03F990, c,   cod/03F990]            # func_0013F990: sw_zero +0x0
+      - [0x03F998, asm, cod/03F998]
       - [0x03FF80, c,   cod/03FF80]
       - [0x03FF88, asm, cod/03FF88]
       - [0x040B70, c,   cod/040B70]            # func_00140B70: D_00633CC0 = val
@@ -207,6 +212,8 @@ segments:
       - [0x081BB8, c,   cod/081BB8]
       - [0x081BC0, c,   cod/081BC0]
       - [0x081BC8, asm, cod/081BC8]
+      - [0x082860, c,   cod/082860]            # func_00182860: sw_zero +0x0
+      - [0x082868, asm, cod/082868]
       - [0x0873A0, c,   cod/0873A0]
       - [0x0873A8, c,   cod/0873A8]
       - [0x0873B0, asm, cod/0873B0]
@@ -370,6 +377,8 @@ segments:
       - [0x0FBB48, asm, cod/0FBB48]
       - [0x103910, c,   cod/103910]
       - [0x103918, asm, cod/103918]
+      - [0x103C38, c,   cod/103C38]            # func_00203C38: sw_arg +0x0
+      - [0x103C40, asm, cod/103C40]
       - [0x104E90, c,   cod/104E90]            # func_00204E90: return D_0063385C
       - [0x104E98, asm, cod/104E98]
       - [0x1115F8, c,   cod/1115F8]
