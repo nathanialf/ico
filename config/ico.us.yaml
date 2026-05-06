@@ -441,6 +441,8 @@ segments:
       - [0x04B0B4, asm, cod/04B0B4]
       - [0x04B150, c,   cod/04B150]            # func_0014B150: zero 3 ints at sub+0x98..0xA0
       - [0x04B164, asm, cod/04B164]
+      - [0x04B228, c,   cod/04B228]            # func_0014B228: sub->90 |= (1 << bit)
+      - [0x04B244, asm, cod/04B244]
       - [0x04B248, c,   cod/04B248]            # func_0014B248: bit-test (sub->90 >> a1) AND 1
       - [0x04B260, c,   cod/04B260]            # func_0014B260: 2 sd zero stores
       - [0x04B270, asm, cod/04B270]
@@ -1021,6 +1023,7 @@ segments:
       - [0x151DEC, asm, cod/151DEC]
       - [0x151DF0, c,   cod/151DF0]            # func_00251DF0: getset sub+0xE8
       - [0x151E00, asm, cod/151E00]
+      - [0x151E14, asm, cod/151E14]
       - [0x151E18, c,   cod/151E18]            # func_00251E18: 4 stores
       - [0x151E2C, asm, cod/151E2C]
       - [0x151E30, c,   cod/151E30]            # func_00251E30: self[0xC] = self[0x8]
