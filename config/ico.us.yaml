@@ -852,6 +852,8 @@ segments:
       - [0x0F40D8, asm, cod/0F40D8]
       - [0x0F42D0, c,   cod/0F42D0]            # func_001F42D0: sub->800->A0=0, return 1
       - [0x0F42E4, asm, cod/0F42E4]
+      - [0x0F44C8, c,   cod/0F44C8]            # func_001F44C8: q->16C = sub->74 (via sub->800->5C)
+      - [0x0F44E0, asm, cod/0F44E0]
       - [0x0F4BE0, c,   cod/0F4BE0]            # func_001F4BE0: (*D_00633750)(arg) passthrough
       - [0x0F4C00, asm, cod/0F4C00]
       - [0x0F4DD8, c, cod/0F4DD8]            # func_001F4DD8: D_00633750 = &func_001F4C00
