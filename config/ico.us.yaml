@@ -497,6 +497,8 @@ segments:
       - [0x098338, asm, cod/098338]
       - [0x098430, c,   cod/098430]
       - [0x098438, asm, cod/098438]
+      - [0x099998, c,   cod/099998]            # func_00199998
+      - [0x0999A8, asm, cod/0999A8]
       - [0x09B938, c, cod/09B938]            # func_0019B938: 4-insn lwc1
       - [0x09B948, asm, cod/09B948]
       - [0x09DBA8, c,   cod/09DBA8]            # func_0019DBA8
@@ -654,6 +656,8 @@ segments:
       - [0x0EFA60, asm, cod/0EFA60]
       - [0x0F0F90, c,   cod/0F0F90]            # func_001F0F90: D_0063370C = 0
       - [0x0F0F98, asm, cod/0F0F98]
+      - [0x0F10F8, c,   cod/0F10F8]            # func_001F10F8
+      - [0x0F1108, asm, cod/0F1108]
       - [0x0F1240, c,   cod/0F1240]            # func_001F1240
       - [0x0F1260, asm, cod/0F1260]
       - [0x0F2140, c,   cod/0F2140]
@@ -820,7 +824,8 @@ segments:
       - [0x1436C8, c,   cod/1436C8]            # func_002436C8
       - [0x1436E4, asm, cod/1436E4]
       - [0x1450A8, c,   cod/1450A8]            # func_002450A8: 0/8/4 stores
-      - [0x1450B8, asm, cod/1450B8]
+      - [0x1450B8, c,   cod/1450B8]            # func_002450B8
+      - [0x1450C8, asm, cod/1450C8]
       - [0x1485C0, c,   cod/1485C0]            # func_002485C0
       - [0x1485DC, asm, cod/1485DC]
       - [0x148790, c,   cod/148790]            # func_00248790
