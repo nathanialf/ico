@@ -250,6 +250,8 @@ segments:
       - [0x005F78, c,   cod/005F78]            # func_00105F78: vec add.xyz
       - [0x005F90, c,   cod/005F90]            # func_00105F90: vec sub.xyz
       - [0x005FA8, asm, cod/005FA8]
+      - [0x006028, c,   cod/006028]            # func_00106028: magnitude squared (xyz)
+      - [0x006048, asm, cod/006048]
       - [0x009B98, c,   cod/009B98]
       - [0x009BA8, c,   cod/009BA8]
       - [0x009BB8, asm, cod/009BB8]
@@ -286,6 +288,8 @@ segments:
       - [0x00D088, asm, cod/00D088]
       - [0x00D180, c,   cod/00D180]
       - [0x00D198, asm, cod/00D198]
+      - [0x00E928, c,   cod/00E928]            # func_0010E928: dot product 4-component
+      - [0x00E950, asm, cod/00E950]
       - [0x00ECD8, c,   cod/00ECD8]
       - [0x00ECE0, asm, cod/00ECE0]
       - [0x00F5B8, c,   cod/00F5B8]            # func_0010F5B8
@@ -320,7 +324,11 @@ segments:
       - [0x018388, c,   cod/018388]            # func_00118388: vec add xyz vf1
       - [0x0183A0, c,   cod/0183A0]            # func_001183A0: vec sub xyzw
       - [0x0183B8, c,   cod/0183B8]            # func_001183B8: vec sub xyz vf1
-      - [0x0183D0, asm, cod/0183D0]
+      - [0x0183D0, c,   cod/0183D0]            # func_001183D0: scale xyzw
+      - [0x0183EC, asm, cod/0183EC]
+      - [0x0183F0, c,   cod/0183F0]            # func_001183F0: scale xyz
+      - [0x01840C, asm, cod/01840C]
+      - [0x018410, c,   cod/018410]            # func_00118410: componentwise scale
       - [0x018430, c,   cod/018430]            # func_00118430: vftoi4 vec convert
       - [0x018444, asm, cod/018444]
       - [0x018448, c,   cod/018448]            # func_00118448: vftoi0 vec convert
@@ -328,6 +336,17 @@ segments:
       - [0x018460, c,   cod/018460]            # func_00118460: 16-byte lq/sq copy ($t0)
       - [0x018470, c,   cod/018470]            # func_00118470: 16-byte lq/sq copy ($t0)
       - [0x018480, asm, cod/018480]
+      - [0x018490, c,   cod/018490]            # func_00118490: lerp xyzw
+      - [0x0184B8, c,   cod/0184B8]            # func_001184B8: lerp xyz
+      - [0x0184E0, asm, cod/0184E0]
+      - [0x018678, c,   cod/018678]            # func_00118678: store 4-vec id matrix
+      - [0x0186A0, c,   cod/0186A0]            # func_001186A0: store 3-vec id matrix
+      - [0x0186C4, asm, cod/0186C4]
+      - [0x018A68, c,   cod/018A68]            # func_00118A68: random next x
+      - [0x018A80, c,   cod/018A80]            # func_00118A80: random next xyz
+      - [0x018A9C, asm, cod/018A9C]
+      - [0x018AA0, c,   cod/018AA0]            # func_00118AA0: random next xyz packed
+      - [0x018AB4, asm, cod/018AB4]
       - [0x01BFB8, c,   cod/01BFB8]            # func_0011BFB8: D_00633C50 = 0
       - [0x01BFC0, asm, cod/01BFC0]
       - [0x022C48, c,   cod/022C48]            # func_00122C48: D_00631D40 = val
@@ -534,6 +553,8 @@ segments:
       - [0x098338, asm, cod/098338]
       - [0x098430, c,   cod/098430]
       - [0x098438, asm, cod/098438]
+      - [0x099790, c,   cod/099790]            # func_00199790: 3x4 matrix-vec mul
+      - [0x0997B8, asm, cod/0997B8]
       - [0x099998, c,   cod/099998]            # func_00199998
       - [0x0999A8, asm, cod/0999A8]
       - [0x09B938, c, cod/09B938]            # func_0019B938: 4-insn lwc1
@@ -638,6 +659,12 @@ segments:
       - [0x0C2EC8, asm, cod/0C2EC8]
       - [0x0C2F10, c,   cod/0C2F10]            # func_001C2F10
       - [0x0C2F20, asm, cod/0C2F20]
+      - [0x0C8E58, c,   cod/0C8E58]            # func_001C8E58: length squared (xz)
+      - [0x0C8E74, asm, cod/0C8E74]
+      - [0x0C8EB0, c,   cod/0C8EB0]            # func_001C8EB0: vec scale-add
+      - [0x0C8ED4, asm, cod/0C8ED4]
+      - [0x0C8ED8, c,   cod/0C8ED8]            # func_001C8ED8: vec scale xz
+      - [0x0C8EF4, asm, cod/0C8EF4]
       - [0x0C9328, c,   cod/0C9328]
       - [0x0C9330, c,   cod/0C9330]
       - [0x0C9338, asm, cod/0C9338]
@@ -863,6 +890,8 @@ segments:
       - [0x141C44, asm, cod/141C44]
       - [0x1436C8, c,   cod/1436C8]            # func_002436C8
       - [0x1436E4, asm, cod/1436E4]
+      - [0x143950, c,   cod/143950]            # func_00243950: dot product xyz
+      - [0x143974, asm, cod/143974]
       - [0x143AD0, c,   cod/143AD0]            # func_00243AD0: vec add
       - [0x143AE4, asm, cod/143AE4]
       - [0x143AE8, c,   cod/143AE8]            # func_00243AE8: vec sub
