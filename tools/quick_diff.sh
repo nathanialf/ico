@@ -89,7 +89,7 @@ fi
 # -nostdinc -Iinclude. We use -S (emit asm, don't assemble) because the
 # bundled `as` is from the 1990s and chokes on flags modern as accepts —
 # we then run modern mips-linux-gnu-as on the .s output.
-CFLAGS="${CFLAGS:--S -G 0 -O2 -g2 -fno-builtin -nostdinc -Iinclude}"
+CFLAGS="${CFLAGS:--S -G 8 -O2 -g2 -fno-builtin -nostdinc -Iinclude}"
 
 # ee-gcc looks for cc1 at the path it was built against (typically
 # ${PS2DEV}/ee/gcc-lib/...). Pass -B so it finds the bundled cc1 in our tree.
@@ -106,7 +106,7 @@ mkdir -p "$(dirname "$OBJ")"
 $CC $CFLAGS -o "$ASM_OUT" "$CSRC"
 
 # Stage 2: assemble with modern binutils
-ASFLAGS_QD="${ASFLAGS_QD:--EL -march=r5900 -mabi=eabi -G 0 -no-pad-sections -Iinclude}"
+ASFLAGS_QD="${ASFLAGS_QD:--EL -march=r5900 -mabi=eabi -G 8 -no-pad-sections -Iinclude}"
 AS_FOR_QD="${AS_FOR_QD:-mips-linux-gnu-as}"
 $AS_FOR_QD $ASFLAGS_QD -o "$OBJ" "$ASM_OUT"
 

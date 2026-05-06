@@ -63,9 +63,42 @@ def patch_sdata_tail() -> int:
     return 1
 
 
+_GPREL_RE = re.compile(
+    r"\(([A-Za-z_][\w]*)\)\s*/\*\s*gp_rel:\s*\(\1\)\s*\*/"
+)
+
+
+def patch_gp_rel_per_function() -> int:
+    """Rewrite splat per-function `(SYM) /* gp_rel: (SYM) */` to
+    `%gp_rel(SYM)($gp) /* gp_rel: (SYM) */`.
+
+    Splat 0.40.0 emits the bare-paren form for gp-relative loads/stores
+    in per-function .s files (under asm/matchings/). With `.set noat`
+    that expands to a $at-using lui/lo macro and fails to assemble.
+    The %gp_rel form encodes to the original gp_rel instruction bytes
+    and assembles cleanly with .set noat.
+
+    Idempotent: skips lines already containing %gp_rel.
+    """
+    matchings = REPO_ROOT / "asm" / "matchings"
+    if not matchings.exists():
+        return 0
+    changed = 0
+    for path in matchings.rglob("*.s"):
+        text = path.read_text()
+        if "%gp_rel(" in text and " gp_rel: (" not in text:
+            continue
+        new = _GPREL_RE.sub(r"%gp_rel(\1)($gp) /* gp_rel: (\1) */", text)
+        if new != text:
+            path.write_text(new)
+            changed += 1
+    return changed
+
+
 def main() -> int:
     changed = 0
     changed += patch_sdata_tail()
+    changed += patch_gp_rel_per_function()
     print(f"postprocess_asm: {changed} file(s) rewritten")
     return 0
 

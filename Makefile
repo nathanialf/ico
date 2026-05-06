@@ -42,25 +42,40 @@ OBJCOPY       := $(MIPS_PREFIX)objcopy
 # Override CC to use a different compiler (e.g. wcc / CodeWarrior) if the
 # matching compiler turns out to be different.
 EEGCC_DIR     ?= tools/cc/ee-gcc2.96
-CC            ?= $(EEGCC_DIR)/bin/gcc
+# `override` is required: CC is a built-in Make variable (defaults to `cc`),
+# so `?=` won't reassign it. Use `override CC := ...` to force ee-gcc.
+override CC   := $(EEGCC_DIR)/bin/gcc
+# ee-gcc 2.96 looks for cc1 at the path it was built against — point -B at
+# the bundled gcc-lib so it finds the in-tree cc1.
+EEGCC_LIB     := $(EEGCC_DIR)/gcc-lib/ee/2.96-ee-001003-1/
 
 BUILD_DIR     := build
 ASM_DIR       := asm
 SRC_DIR       := src
 INCLUDE_DIR   := include
 
-ASM_SRCS      := $(shell find $(ASM_DIR) -name '*.s' 2>/dev/null)
+# Exclude asm/matchings and asm/nonmatchings — those are per-function diff
+# targets (no macro.inc, not buildable on their own), not link inputs.
+ASM_SRCS      := $(shell find $(ASM_DIR) -name '*.s' \
+                  -not -path '$(ASM_DIR)/matchings/*' \
+                  -not -path '$(ASM_DIR)/nonmatchings/*' 2>/dev/null)
 ASM_OBJS      := $(patsubst $(ASM_DIR)/%.s,$(BUILD_DIR)/asm/%.o,$(ASM_SRCS))
-C_SRCS        := $(wildcard $(SRC_DIR)/*.c)
+C_SRCS        := $(shell find $(SRC_DIR) -name '*.c' 2>/dev/null)
 C_OBJS        := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/src/%.o,$(C_SRCS))
 ALL_OBJS      := $(ASM_OBJS) $(C_OBJS)
 
 # R5900 EE assembly flags. Little-endian, MIPS III base + r5900 extensions.
-ASFLAGS       := -EL -march=r5900 -mabi=eabi -G 0 -no-pad-sections -I$(INCLUDE_DIR)
+# -G 8: small-data threshold of 8 bytes. Variables declared in .sdata/.sbss
+# (or extern with size <= 8) are accessed via %gp_rel($gp) instead of
+# lui+lw, matching the original ICO codegen. Must agree with CFLAGS.
+ASFLAGS       := -EL -march=r5900 -mabi=eabi -G 8 -no-pad-sections -I$(INCLUDE_DIR)
 
 # Placeholder C flags. Real matching CFLAGS will evolve as the compiler is
 # identified. ee-gcc / Pro-DG / CodeWarrior all want different flag sets.
-CFLAGS        := -c -G 0 -O2 -mips3 -EL -fno-builtin -nostdinc -I$(INCLUDE_DIR)
+# -G 8 must agree with ASFLAGS — see comment above. -S because ee-gcc
+# 2.96's bundled `as` is too old to parse modern flags; we re-assemble
+# the .s output with mips-linux-gnu-as in a second step.
+CFLAGS        := -S -G 8 -O2 -mips3 -EL -fno-builtin -nostdinc -I$(INCLUDE_DIR)
 
 LDSCRIPT      := config/ico.$(VERSION).ld
 LDSCRIPT_EXTRA:= config/ico.$(VERSION).linker_script_extra.ld
@@ -113,13 +128,22 @@ distclean: clean
 
 # ---- Rules -------------------------------------------------------------------
 
+# mips-linux-gnu-as defaults .text section alignment to 2**4 (16) regardless
+# of the actual `.align` directives in the source (which max at 2**3 here).
+# When the linker concatenates multiple .text inputs into the merged .cod
+# section, that 16-byte alignment forces 8-byte padding at every boundary
+# whose offset is 8-aligned-but-not-16-aligned — breaking byte-identity.
+# Lower .text section alignment to 2**3 (8 bytes) post-assembly.
 $(BUILD_DIR)/asm/%.o: $(ASM_DIR)/%.s
 	@mkdir -p $(@D)
 	$(AS) $(ASFLAGS) -o $@ $<
+	$(OBJCOPY) --set-section-alignment .text=8 $@
 
 $(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) -o $@ $<
+	$(CC) -B $(EEGCC_LIB) $(CFLAGS) -o $(@:.o=.s) $<
+	$(AS) $(ASFLAGS) -o $@ $(@:.o=.s)
+	$(OBJCOPY) --set-section-alignment .text=8 $@
 
 $(TARGET_ELF): $(ALL_OBJS) $(LDSCRIPT)
 	@mkdir -p $(BUILD_DIR)

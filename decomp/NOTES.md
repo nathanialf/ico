@@ -68,6 +68,71 @@ After all three patches, `make setup && make` produces
 `build/ico.rom` byte-identical to `baserom/baseelf.rom` (SHA-1
 `fbf50c75cd5911273511c4f9af90503ff8423582`).
 
+## Per-function .s vs segment .s — gp_rel form mismatch
+
+Splat 0.40.0 emits gp-relative loads/stores in two different forms:
+
+- **Segment .s** (e.g. `asm/cod/000000.s`): explicit
+  `lw $v0, %gp_rel(D_FOO)($gp)`. Assembles cleanly under `.set noat`.
+- **Per-function .s** (e.g. `asm/matchings/cod/005258/func_X.s`): bare
+  `lw $2, (D_FOO) /* gp_rel: (D_FOO) */`. Under `.set noat`, gas tries
+  to expand this into a `lui $at, %hi; lw $2, %lo($at)` macro and
+  errors out ("macro used $at after .set noat"). Even if it didn't,
+  the encoded bytes wouldn't match the original gp_rel instruction.
+
+Fix: `tools/postprocess_asm.py` rewrites the bare-paren form to the
+explicit `%gp_rel(SYM)($gp)` form across `asm/matchings/`. Idempotent.
+This produces the correct gp_rel encoding and lets the per-function
+target round-trip via `tools/quick_diff.sh`.
+
+## C codegen for $gp-relative loads — `-G 8` everywhere
+
+The original ICO ELF accesses sdata symbols via single-instruction
+gp_rel form (`lw $v0, %gp_rel(SYM)($gp)`). To make ee-gcc + mips-as
+emit the same:
+
+- **CFLAGS** must include `-G 8` (small-data threshold). With `-G 0`
+  the compiler emits `lui+lw` (4 instructions for load+store of an
+  extern int). With `-G 8`, it emits the assembler-macro form
+  `lw $2, SYM`.
+- **ASFLAGS** must also include `-G 8`. The macro form `lw $2, SYM`
+  is expanded by gas at assembly time — with `-G 0` gas treats SYM
+  as "not in small data" and emits lui+lw. With `-G 8` gas checks
+  the `.extern SYM, size` size; if size ≤ 8, it emits the gp_rel form.
+
+Both flags are required — they must agree. ee-gcc emits `.extern SYM,
+4` for any C `extern int`, which lands in the gp_rel bucket at -G ≥ 4.
+
+## .text section alignment — objcopy after assembly
+
+`mips-linux-gnu-as` defaults `.text` section alignment to **2**4
+(16-byte)** regardless of the actual `.align` directives in the
+source (which max out at `.align 3` = 8-byte for splat output).
+
+When the linker concatenates multiple .text inputs into the merged
+`.cod` output section, that 16-byte alignment forces 8 bytes of
+padding at every input-section boundary whose offset is 8-aligned
+but not 16-aligned (e.g., 0x5258). The original ELF was built from
+a single TU so it never hit this — our split per-subsegment build
+hits it at every C/asm boundary.
+
+Fix: after each `as` invocation, `mips-linux-gnu-objcopy
+--set-section-alignment .text=8 $@` lowers the section alignment to
+match the actual content. Must run on **every** .o (asm and src) —
+otherwise the boundary after the lowered .o still pads the next .o
+up to its 16-byte requirement.
+
+## Make CC override
+
+`CC` is a Make built-in variable defaulting to `cc` (the host gcc).
+`CC ?= ee-gcc` does NOT override it because `?=` is a no-op when the
+variable is already defined. Use `override CC := ee-gcc` to force the
+EE compiler in the Makefile.
+
+ee-gcc 2.96 also needs `-B $EEGCC_LIB` to locate its bundled `cc1`,
+and `-S` to skip its own ancient `as` (which doesn't grok modern flags
+like `-G`). Re-assemble the .s with `mips-linux-gnu-as`.
+
 ## Linker quirks
 
 ## Linker quirks
