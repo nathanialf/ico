@@ -8,6 +8,7 @@ Example:
     tools/find_leaves.py --size 0x10 --no-vu --shape 'lw,sw,jr,sw'
     tools/find_leaves.py --size 0x10..0x40 --jal 0 --insns 4..10
     tools/find_leaves.py --contains 'gp_rel\\(D_' --brief
+    tools/find_leaves.py --no-vu --jal 0 --insns 4 --size 0x10 --exclude-parked
 """
 from __future__ import annotations
 
@@ -22,6 +23,7 @@ from pathlib import Path
 
 CACHE_PATH = Path(__file__).resolve().parent.parent / ".cache" / "find_leaves.pkl"
 CACHE_VERSION = 1
+PARKED_PATH = Path(__file__).resolve().parent / "parked.txt"
 
 # /* hex hex HEX */ <whitespace> -- spimdisasm address/vram/rawbytes prefix
 ADDR_PREFIX_RE = re.compile(r"^\s*/\*\s+[0-9a-fA-F]+\s+[0-9a-fA-F]+\s+[0-9A-Fa-f]+\s+\*/[ \t]*")
@@ -158,6 +160,26 @@ def shape_match(mnemonics: list[str], shape: list[str]) -> bool:
     return True
 
 
+def load_parked(path: Path) -> set[str]:
+    """Read newline-delimited parked function names. '#' starts a comment.
+
+    Blank lines and lines that are only comments are ignored. Inline
+    comments after the function name are stripped. Returns an empty set
+    if the file is missing (parked filtering is opt-in).
+    """
+    parked: set[str] = set()
+    if not path.exists():
+        return parked
+    with path.open("r", encoding="utf-8") as f:
+        for raw in f:
+            # strip trailing comment, if any
+            line = raw.split("#", 1)[0].strip()
+            if not line:
+                continue
+            parked.add(line)
+    return parked
+
+
 def load_funcs(paths: list[str], rebuild: bool = False) -> list[Func]:
     """Parse all paths, with a pickle cache keyed on (path, mtime).
 
@@ -224,6 +246,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--list-files", action="store_true", help="include path:line")
     ap.add_argument("--rebuild-cache", action="store_true",
                     help="ignore cache and re-parse all .s files")
+    ap.add_argument("--exclude-parked", action="store_true",
+                    help="skip functions listed in tools/parked.txt "
+                         "(known unmatchable; see decomp/NOTES.md). "
+                         "Example: --no-vu --jal 0 --insns 4 --size 0x10 --exclude-parked")
+    ap.add_argument("--parked-file", default=str(PARKED_PATH),
+                    help=f"path to parked-function list (default: {PARKED_PATH})")
     args = ap.parse_args(argv)
 
     size_lo, size_hi = (0, sys.maxsize)
@@ -245,8 +273,14 @@ def main(argv: list[str] | None = None) -> int:
 
     funcs = load_funcs(paths, rebuild=args.rebuild_cache)
 
+    parked: set[str] = set()
+    if args.exclude_parked:
+        parked = load_parked(Path(args.parked_file))
+
     matched = 0
     for fn in funcs:
+        if parked and fn.name in parked:
+            continue
         if not (size_lo <= fn.size <= size_hi):
             continue
         if not (insn_lo <= len(fn.insns) <= insn_hi):

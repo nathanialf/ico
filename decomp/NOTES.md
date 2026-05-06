@@ -297,6 +297,15 @@ Two helpers that replace the throwaway shell pipelines I kept retyping:
   - `--shape 'lw,sw,jr,sw'` filters by mnemonic sequence (first token
     only, dotted VU like `vmul.xyz` preserved). Use `*` for any.
   - `--contains 'gp_rel\(D_'` regex on the body.
+  - `--exclude-parked` skips functions listed in `tools/parked.txt` (known
+    unmatchable with the current toolchain — la-macro 64-bit, daddu/or,
+    no-TCO, ret-1+sdata-set regalloc, etc.). Use this on routine queries
+    so the same dead-end functions stop coming back. Example:
+    `tools/find_leaves.py --no-vu --jal 0 --insns 4 --size 0x10 --exclude-parked`.
+    To park a new function, add a line `func_NAME  # short reason` to
+    `tools/parked.txt` (a tough_nuts/<func>/notes.md write-up is
+    recommended but not required). Filtering happens after the cache is
+    loaded, so editing `parked.txt` does not require `--rebuild-cache`.
 - **`tools/claim.py`** — flips a yaml subsegment to `c`, writes the
   source, inserts an asm filler at `addr+size` if needed. Single mode:
   `tools/claim.py single --vram 0x118460 --size 0x10 --comment '...' --body-file src.c`.
