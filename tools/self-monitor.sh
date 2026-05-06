@@ -9,7 +9,12 @@ if [[ "$1" == "--once" ]]; then
     rule=$(printf '%*s\n' "$cols" '' | tr ' ' -)
 
     echo "$rule"
-    sed -n '8,13p' docs/PROGRESS.md
+    # Render the markdown table (header + 6 data rows) as a fixed-width
+    # table: strip the leading/trailing pipes, drop the markdown
+    # separator row (---|---|...), then column-align on `|`.
+    sed -n '6,13p' docs/PROGRESS.md \
+        | sed -E 's/^\| //; s/ \|$//; /^[- |:]+$/d' \
+        | column -t -s '|'
     echo "$rule"
     git status
     echo "$rule"
