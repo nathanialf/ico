@@ -9,6 +9,7 @@ Example:
     tools/find_leaves.py --size 0x10..0x40 --jal 0 --insns 4..10
     tools/find_leaves.py --contains 'gp_rel\\(D_' --brief
     tools/find_leaves.py --no-vu --jal 0 --insns 4 --size 0x10 --exclude-parked
+        # excludes every function with a tough_nuts/<func>/ dir.
 """
 from __future__ import annotations
 
@@ -23,7 +24,7 @@ from pathlib import Path
 
 CACHE_PATH = Path(__file__).resolve().parent.parent / ".cache" / "find_leaves.pkl"
 CACHE_VERSION = 1
-PARKED_PATH = Path(__file__).resolve().parent / "parked.txt"
+TOUGH_NUTS_DIR = Path(__file__).resolve().parent.parent / "tough_nuts"
 
 # /* hex hex HEX */ <whitespace> -- spimdisasm address/vram/rawbytes prefix
 ADDR_PREFIX_RE = re.compile(r"^\s*/\*\s+[0-9a-fA-F]+\s+[0-9a-fA-F]+\s+[0-9A-Fa-f]+\s+\*/[ \t]*")
@@ -160,23 +161,30 @@ def shape_match(mnemonics: list[str], shape: list[str]) -> bool:
     return True
 
 
-def load_parked(path: Path) -> set[str]:
-    """Read newline-delimited parked function names. '#' starts a comment.
+def load_parked(extra_file: Path | None = None) -> set[str]:
+    """Enumerate parked function names from `tough_nuts/<func>/` subdirs.
 
-    Blank lines and lines that are only comments are ignored. Inline
-    comments after the function name are stripped. Returns an empty set
-    if the file is missing (parked filtering is opt-in).
+    The canonical source of truth is `tough_nuts/`: each subdirectory
+    name is a parked function. This is also the input the
+    decomp-permuter wrapper iterates — so the exclude list and the
+    permuter input can never drift out of sync.
+
+    If `extra_file` is given, names listed in it (one per line, '#'
+    comments allowed) are added on top. Useful for ad-hoc one-off
+    excludes that aren't worth a full tough_nuts/ writeup.
     """
     parked: set[str] = set()
-    if not path.exists():
-        return parked
-    with path.open("r", encoding="utf-8") as f:
-        for raw in f:
-            # strip trailing comment, if any
-            line = raw.split("#", 1)[0].strip()
-            if not line:
-                continue
-            parked.add(line)
+    if TOUGH_NUTS_DIR.is_dir():
+        for entry in TOUGH_NUTS_DIR.iterdir():
+            if entry.is_dir() and entry.name.startswith("func_"):
+                parked.add(entry.name)
+    if extra_file is not None and extra_file.exists():
+        with extra_file.open("r", encoding="utf-8") as f:
+            for raw in f:
+                line = raw.split("#", 1)[0].strip()
+                if not line:
+                    continue
+                parked.add(line)
     return parked
 
 
@@ -247,11 +255,13 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--rebuild-cache", action="store_true",
                     help="ignore cache and re-parse all .s files")
     ap.add_argument("--exclude-parked", action="store_true",
-                    help="skip functions listed in tools/parked.txt "
-                         "(known unmatchable; see decomp/NOTES.md). "
+                    help="skip functions registered under tough_nuts/<func>/ "
+                         "(known unmatchable; see decomp/NOTES.md and "
+                         "tough_nuts/README.md). "
                          "Example: --no-vu --jal 0 --insns 4 --size 0x10 --exclude-parked")
-    ap.add_argument("--parked-file", default=str(PARKED_PATH),
-                    help=f"path to parked-function list (default: {PARKED_PATH})")
+    ap.add_argument("--parked-file", default=None,
+                    help="optional file with extra parked names (one per "
+                         "line, '#' comments OK), unioned with tough_nuts/")
     args = ap.parse_args(argv)
 
     size_lo, size_hi = (0, sys.maxsize)
@@ -275,7 +285,8 @@ def main(argv: list[str] | None = None) -> int:
 
     parked: set[str] = set()
     if args.exclude_parked:
-        parked = load_parked(Path(args.parked_file))
+        extra = Path(args.parked_file) if args.parked_file else None
+        parked = load_parked(extra)
 
     matched = 0
     for fn in funcs:
