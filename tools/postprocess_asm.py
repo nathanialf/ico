@@ -95,10 +95,49 @@ def patch_gp_rel_per_function() -> int:
     return changed
 
 
+_VU_SPECIAL_RE = re.compile(
+    r"(?<![A-Za-z0-9_$])(?<!\$)(ACC|Q|R|I)(?=[ \t,]|$)"
+)
+
+
+def patch_vu0_special_regs_per_function() -> int:
+    """Rewrite splat-emitted bare `ACC`, `Q`, `R`, `I` operands to `$ACC`,
+    `$Q`, `$R`, `$I`.
+
+    Modern gas (binutils 2.44, including ps2dev's binutils-gdb fork) only
+    accepts the dollar-prefixed form for the R5900 VU0 special regs. Splat
+    0.40.0's matchings/ output emits them bare (the segment-level c.py
+    correctly emits them with `$`, but codesubsegment.py:142 forces the
+    bare form for `c` subsegments).
+
+    Idempotent: the negative-lookbehind on `$` prevents double-prefix.
+    """
+    matchings = REPO_ROOT / "asm" / "matchings"
+    if not matchings.exists():
+        return 0
+    changed = 0
+    for path in matchings.rglob("*.s"):
+        text = path.read_text()
+        # Only touch lines containing a v* mnemonic or COP2 move
+        # (cfc2/ctc2/qmfc2/qmtc2). This avoids any chance of clobbering
+        # something else that happens to spell "ACC" or "Q".
+        new_lines = []
+        for line in text.splitlines(keepends=True):
+            if re.search(r"\b(v[a-z]+(\.\w+)?|cfc2(\.ni)?|ctc2(\.ni)?|qmfc2(\.ni)?|qmtc2(\.ni)?)\b", line):
+                line = _VU_SPECIAL_RE.sub(r"$\1", line)
+            new_lines.append(line)
+        new = "".join(new_lines)
+        if new != text:
+            path.write_text(new)
+            changed += 1
+    return changed
+
+
 def main() -> int:
     changed = 0
     changed += patch_sdata_tail()
     changed += patch_gp_rel_per_function()
+    changed += patch_vu0_special_regs_per_function()
     print(f"postprocess_asm: {changed} file(s) rewritten")
     return 0
 
