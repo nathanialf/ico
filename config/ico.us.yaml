@@ -317,9 +317,11 @@ segments:
       - [0x017CB0, c,   cod/017CB0]            # func_00117CB0: matrix-vec mul-accum
       - [0x017CCC, asm, cod/017CCC]
       - [0x017CD0, c,   cod/017CD0]            # func_00117CD0: load to vf7
-      - [0x017CE0, asm, cod/017CE0]
+      - [0x017CE0, c,   cod/017CE0]            # func_00117CE0: vmove vf7=vf0
+      - [0x017CEC, asm, cod/017CEC]
       - [0x017FC0, c,   cod/017FC0]            # func_00117FC0: store 4 vfs
-      - [0x017FD8, asm, cod/017FD8]
+      - [0x017FD8, c,   cod/017FD8]            # func_00117FD8: store vf7
+      - [0x017FE4, asm, cod/017FE4]
       - [0x017FE8, c,   cod/017FE8]            # func_00117FE8: load 4 vfs
       - [0x018000, asm, cod/018000]
       - [0x0180C0, c,   cod/0180C0]            # func_001180C0: mat-vec mul
@@ -350,7 +352,8 @@ segments:
       - [0x01845C, asm, cod/01845C]
       - [0x018460, c,   cod/018460]            # func_00118460: 16-byte lq/sq copy ($t0)
       - [0x018470, c,   cod/018470]            # func_00118470: 16-byte lq/sq copy ($t0)
-      - [0x018480, asm, cod/018480]
+      - [0x018480, c,   cod/018480]            # func_00118480: store vf0
+      - [0x01848C, asm, cod/01848C]
       - [0x018490, c,   cod/018490]            # func_00118490: lerp xyzw
       - [0x0184B8, c,   cod/0184B8]            # func_001184B8: lerp xyz
       - [0x0184E0, c,   cod/0184E0]            # func_001184E0: length xyz
@@ -401,8 +404,12 @@ segments:
       - [0x03BB70, c,   cod/03BB70]
       - [0x03BB78, c,   cod/03BB78]
       - [0x03BB80, asm, cod/03BB80]
+      - [0x03CC60, c,   cod/03CC60]            # func_0013CC60: zero 2 halfwords
+      - [0x03CC6C, asm, cod/03CC6C]
       - [0x03CD70, c,   cod/03CD70]            # func_0013CD70: *p = 0 (byte)
       - [0x03CD78, asm, cod/03CD78]
+      - [0x03CF70, c,   cod/03CF70]            # func_0013CF70: zero 2 halfwords
+      - [0x03CF7C, asm, cod/03CF7C]
       - [0x03D0A0, asm, cod/03D0A0]
       - [0x03D928, c,   cod/03D928]            # func_0013D928
       - [0x03D944, asm, cod/03D944]
@@ -945,6 +952,8 @@ segments:
       - [0x143B18, c,   cod/143B18]            # func_00243B18: scale xyzw
       - [0x143B30, c,   cod/143B30]            # func_00243B30: mat copy + last row vec add
       - [0x143B5C, asm, cod/143B5C]
+      - [0x143B60, c,   cod/143B60]            # func_00243B60: 16-byte copy a2
+      - [0x143B6C, asm, cod/143B6C]
       - [0x143B98, c,   cod/143B98]            # func_00243B98: vftoi4 store
       - [0x143BA8, c,   cod/143BA8]            # func_00243BA8: vftoi0 store
       - [0x143BB8, c,   cod/143BB8]            # func_00243BB8: vitof4 store
