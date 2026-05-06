@@ -2,7 +2,7 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-06 22:16:59 UTC
+- Generated: 2026-05-06 22:19:47 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions listed in `tools/parked.txt` are excluded
@@ -69,7 +69,7 @@ _33 total in this bucket; showing top 33._
 | `func_0011EE58` | 0x14 | 5 | 0 |  | `daddu daddu addiu j` | asm/cod/01BFC0.s:3459 |
 | `func_0011EE70` | 0x14 | 5 | 0 |  | `daddu daddu addiu j` | asm/cod/01BFC0.s:3471 |
 | `func_00137EF0` | 0x14 | 5 | 0 |  | `ld andi andi jr` | asm/cod/037EF0.s:13 |
-| `func_001A7820` | 0x14 | 5 | 0 |  | `daddu lui daddu j` | asm/cod/0A6DFC.s:801 |
+| `func_001A7820` | 0x14 | 5 | 0 |  | `daddu lui daddu j` | asm/cod/0A6E24.s:786 |
 | `func_001C3970` | 0x14 | 5 | 0 |  | `addiu mult addu j` | asm/cod/0C2F20.s:841 |
 | `func_001D12C0` | 0x14 | 5 | 0 |  | `lw sll addu j` | asm/cod/0D03E8.s:1203 |
 | `func_001F0550` | 0x14 | 5 | 0 |  | `lw lw lw j` | asm/cod/0EFA60.s:817 |
