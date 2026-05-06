@@ -89,7 +89,7 @@ fi
 # -nostdinc -Iinclude. We use -S (emit asm, don't assemble) because the
 # bundled `as` is from the 1990s and chokes on flags modern as accepts —
 # we then run modern mips-linux-gnu-as on the .s output.
-CFLAGS="${CFLAGS:--S -G 8 -O2 -g2 -fno-builtin -nostdinc -Iinclude}"
+CFLAGS="${CFLAGS:--S -G 8 -O2 -g2 -fno-builtin -fno-optimize-sibling-calls -nostdinc -Iinclude}"
 
 # ee-gcc looks for cc1 at the path it was built against (typically
 # ${PS2DEV}/ee/gcc-lib/...). Pass -B so it finds the bundled cc1 in our tree.
