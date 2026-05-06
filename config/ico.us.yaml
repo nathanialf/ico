@@ -859,6 +859,8 @@ segments:
       - [0x158CEC, asm, cod/158CEC]
       - [0x164050, c,   cod/164050]            # func_00264050
       - [0x16405C, asm, cod/16405C]
+      - [0x164D50, c,   cod/164D50]            # func_00264D50
+      - [0x164D60, asm, cod/164D60]
       - [0x16B138, c,   cod/16B138]            # func_0026B138: return &D_00630658
       - [0x16B144, asm, cod/16B144]
       - [0x16BEE0, c,   cod/16BEE0]
