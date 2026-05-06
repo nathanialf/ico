@@ -645,6 +645,7 @@ segments:
       - [0x098338, asm, cod/098338]
       - [0x098430, c,   cod/098430]
       - [0x098438, asm, cod/098438]
+      - [0x098678, c,   cod/098678]            # func_00198678: negate 3 floats, copy 4th
       - [0x0986A8, c,   cod/0986A8]            # func_001986A8: 4x4 mat-vec affine
       - [0x0986D8, asm, cod/0986D8]
       - [0x099790, c,   cod/099790]            # func_00199790: 3x4 matrix-vec mul
