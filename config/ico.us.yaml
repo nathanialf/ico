@@ -151,6 +151,8 @@ segments:
       - [0x033450, asm, cod/033450]
       - [0x033508, c,   cod/033508]            # func_00133508: return D_00633C7C
       - [0x033510, asm, cod/033510]
+      - [0x036088, c,   cod/036088]            # func_00136088: self[1]=0; self[0]=0
+      - [0x036094, asm, cod/036094]
       - [0x037EE8, c,   cod/037EE8]
       - [0x037EF0, asm, cod/037EF0]
       - [0x03B868, c,   cod/03B868]            # func_0013B868: D_00633C90 = 0
