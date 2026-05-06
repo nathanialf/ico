@@ -32,11 +32,17 @@ else
     exit 3
 fi
 
-# Resolve target asm: asm/nonmatchings/$NAME/<func>.s. If multiple .s files
-# exist (multi-function source file), allow narrowing via second arg.
-ASM_DIR="asm/nonmatchings/$NAME"
-if [[ ! -d "$ASM_DIR" ]]; then
-    echo "quick_diff: no $ASM_DIR (did you run 'make setup' after editing the yaml?)" >&2
+# Resolve target asm. Splat 0.40.0 emits per-function baselines under
+# asm/matchings/<name>/<func>.s when a subsegment is `[addr, c, name]`.
+# Older splat versions (and hand-written stubs) live under asm/nonmatchings/.
+# Try matchings first, then nonmatchings.
+if [[ -d "asm/matchings/$NAME" ]]; then
+    ASM_DIR="asm/matchings/$NAME"
+elif [[ -d "asm/nonmatchings/$NAME" ]]; then
+    ASM_DIR="asm/nonmatchings/$NAME"
+else
+    echo "quick_diff: no asm/matchings/$NAME or asm/nonmatchings/$NAME" >&2
+    echo "  did you flip the yaml entry to 'c' and run 'make setup'?" >&2
     exit 4
 fi
 
@@ -78,31 +84,70 @@ if [[ -z "${OBJDUMP:-}" ]]; then
         OBJDUMP="mips-linux-gnu-objdump"
     fi
 fi
-CFLAGS="${CFLAGS:--c -G 0 -O2 -mips3 -EL -fno-builtin -nostdinc -Iinclude}"
+# ee-gcc 2.96 is r5900-LE by default; -EL / -mips3 / -march=r5900 are either
+# unsupported or redundant. Match SOTC's flag shape (mostly): -O2 -g2 -G 0
+# -nostdinc -Iinclude. We use -S (emit asm, don't assemble) because the
+# bundled `as` is from the 1990s and chokes on flags modern as accepts —
+# we then run modern mips-linux-gnu-as on the .s output.
+CFLAGS="${CFLAGS:--S -G 0 -O2 -g2 -fno-builtin -nostdinc -Iinclude}"
+
+# ee-gcc looks for cc1 at the path it was built against (typically
+# ${PS2DEV}/ee/gcc-lib/...). Pass -B so it finds the bundled cc1 in our tree.
+if [[ "$CC" == *"ee-gcc2.96"* ]]; then
+    EEGCC_LIB="$ROOT/tools/cc/ee-gcc2.96/gcc-lib/ee/2.96-ee-001003-1/"
+    CFLAGS="-B $EEGCC_LIB $CFLAGS"
+fi
 
 OBJ="build/quick_diff/$NAME.o"
+ASM_OUT="build/quick_diff/$NAME.s"
 mkdir -p "$(dirname "$OBJ")"
-$CC $CFLAGS -o "$OBJ" "$CSRC"
 
-# Disassemble compiled object and target asm side-by-side.
-LEFT=$(mktemp)
-RIGHT=$(mktemp)
+# Stage 1: ee-gcc → assembly
+$CC $CFLAGS -o "$ASM_OUT" "$CSRC"
+
+# Stage 2: assemble with modern binutils
+ASFLAGS_QD="${ASFLAGS_QD:--EL -march=r5900 -mabi=eabi -G 0 -no-pad-sections -Iinclude}"
+AS_FOR_QD="${AS_FOR_QD:-mips-linux-gnu-as}"
+$AS_FOR_QD $ASFLAGS_QD -o "$OBJ" "$ASM_OUT"
+
+# Canonicalize both sides via the same objdump so the diff is meaningful.
+# We assemble the target .s with the same modern as, then objdump both .o's.
+# splat's per-function .s files don't .include "macro.inc" themselves, so we
+# prepend it to a temp copy.
+TARGET_OBJ="build/quick_diff/$NAME.target.o"
+TARGET_ASM_WRAPPED="build/quick_diff/$NAME.target.s"
+{
+    echo '.include "macro.inc"'
+    echo '.set noreorder'
+    echo '.set noat'
+    cat "$TARGET_ASM"
+} > "$TARGET_ASM_WRAPPED"
+$AS_FOR_QD $ASFLAGS_QD -o "$TARGET_OBJ" "$TARGET_ASM_WRAPPED"
+
+LEFT=$(mktemp); RIGHT=$(mktemp)
 trap 'rm -f "$LEFT" "$RIGHT"' EXIT
 
-"$OBJDUMP" -d -M no-aliases "$OBJ" \
-    | awk '/^[[:xdigit:]]+\s+<[a-zA-Z_]/{p=1} p{print}' \
-    > "$LEFT"
+# Pipe each through objdump → strip leading addr / opcode columns → keep
+# only the mnemonic + operand columns. Tabs delimit; columns 3+ are the
+# instruction text.
+canon() {
+    # objdump lines have shape:  "  ADDR:\tHEXBYTES\tMNEMONIC\tOPERANDS"
+    # Strip leading whitespace + addr+colon + hex bytes; keep the rest.
+    "$OBJDUMP" -d -M no-aliases "$1" 2>/dev/null \
+        | sed -nE 's/^[[:space:]]*[0-9a-f]+:[[:space:]]+[0-9a-f]+[[:space:]]+//p'
+}
+canon "$TARGET_OBJ" > "$RIGHT"
+canon "$OBJ"        > "$LEFT"
 
-# Strip splat-emitted directives / labels noise from the target asm so the
-# diff focuses on instructions.
-grep -E '^\s+[a-z]' "$TARGET_ASM" > "$RIGHT" || true
-
-if command -v diff >/dev/null 2>&1; then
-    diff -y --suppress-common-lines -W 200 "$RIGHT" "$LEFT" || true
+echo "=== expected: $TARGET_ASM ==="
+cat -n "$RIGHT"
+echo
+echo "=== built: $CSRC -> $OBJ ==="
+cat -n "$LEFT"
+echo
+echo "=== diff (expected | built) ==="
+if diff -q "$RIGHT" "$LEFT" >/dev/null; then
+    echo "MATCH (canonical instruction stream identical)"
 else
-    echo "(no diff binary; printing both)"
-    echo "=== expected ($TARGET_ASM) ==="
-    cat "$RIGHT"
-    echo "=== built ($OBJ) ==="
-    cat "$LEFT"
+    diff -y -W 200 "$RIGHT" "$LEFT" || true
 fi

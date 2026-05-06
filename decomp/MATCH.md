@@ -67,7 +67,7 @@ over time.
 
 - `tools/quick_diff.sh <func_name>` — compile one .c (from `src/` or
   `tough_nuts/`) and side-by-side diff against the target asm in
-  `asm/nonmatchings/<func>/`. Skips splat and full-ELF linking — runs
+  `asm/matchings/<func>/`. Skips splat and full-ELF linking — runs
   in ~100 ms vs ~30–60 s for `make setup && make`. This is the
   iteration loop for tough nuts.
 - `tools/first_diff.py` — when SHA-1 fails, prints the first diverging
@@ -93,9 +93,11 @@ over time.
 
 1. Pick a `[0xADDR, asm]` line in `config/ico.us.yaml`. Prefer small,
    leaf-ish ranges. Look at the `.s` file to gauge complexity.
-2. Change the line to `[0xADDR, c, name]`. Re-run `make setup`. Splat
-   moves the asm to `asm/nonmatchings/name/<func>.s` (this subtree IS
-   tracked) and expects `src/name.c`.
+2. Change the line to `[0xADDR, c, name]` (and split the surrounding
+   asm subsegment so the new `c` line has explicit asm neighbours).
+   Re-run `make setup`. Splat emits the per-function baseline at
+   `asm/matchings/name/<func>.s` (gitignored — regenerable from the
+   ELF) and expects `src/name.c`.
 3. Write the C. Iterate fast with `tools/quick_diff.sh name` until the
    diff is empty or trivially close.
 4. Run `make` for the full byte-identical SHA-1 check. If it fails,

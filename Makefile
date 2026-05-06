@@ -107,7 +107,8 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 distclean: clean
-	find $(ASM_DIR) -mindepth 1 -maxdepth 2 -type f -name '*.s' ! -path '$(ASM_DIR)/nonmatchings/*' -delete
+	find $(ASM_DIR) -type f -name '*.s' ! -path '$(ASM_DIR)/nonmatchings/*' -delete
+	find $(ASM_DIR) -type d -empty ! -path $(ASM_DIR) ! -path '$(ASM_DIR)/nonmatchings*' -delete 2>/dev/null || true
 	rm -f $(LDSCRIPT) $(AUTO_FUNCS) $(AUTO_SYMS) config/ico.$(VERSION).d
 
 # ---- Rules -------------------------------------------------------------------

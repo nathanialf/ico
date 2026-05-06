@@ -38,6 +38,7 @@ options:
   ld_bss_is_noload: true
 
   create_asm_dependencies: True
+  disassemble_all: True
 
   find_file_boundaries: False
   migrate_rodata_to_functions: True
@@ -90,8 +91,8 @@ segments:
     bss_size: 0xEAF8C
     subalign: null
     subsegments:
-      - [0x000000, asm, cod/000000]      # .text
-      - [0x16F5E0, textbin, cod/16F5E0]  # .vutext (VU code, kept as raw bytes)
+      - [0x000000, asm, cod/000000]            # .text — flip ranges to `c` per-function for matching
+      - [0x16F5E0, textbin, cod/16F5E0]        # .vutext (VU code, kept as raw bytes)
       - [0x174700, data, cod/174700]     # .data
       - [0x453700, rodata, cod/453700]   # .rodata
       - [0x530900, lit4, cod/530900]     # .lit4
