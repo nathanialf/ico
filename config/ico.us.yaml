@@ -179,6 +179,8 @@ segments:
       - [0x04B320, asm, cod/04B320]
       - [0x04BDF0, c,   cod/04BDF0]
       - [0x04BDF8, asm, cod/04BDF8]
+      - [0x05EE68, c,   cod/05EE68]            # func_0015EE68: *(int*)(*(char**)(self+0x164)+0x180) = val
+      - [0x05EE74, asm, cod/05EE74]
       - [0x078928, c,   cod/078928]
       - [0x078930, asm, cod/078930]
       - [0x07E328, c,   cod/07E328]            # func_0017E328: D_00633D40 = 0
@@ -254,6 +256,9 @@ segments:
       - [0x0B7298, asm, cod/0B7298]
       - [0x0BA5C0, c, cod/0BA5C0]            # func_001BA5C0: 4-insn lw
       - [0x0BA5D0, asm, cod/0BA5D0]
+      - [0x0BB800, c,   cod/0BB800]            # func_001BB800: *(int*)(*(char**)(self+0x164)+0x98) = val
+      - [0x0BB810, c,   cod/0BB810]            # func_001BB810: *(int*)(*(char**)(self+0x164)+0x9C) = val
+      - [0x0BB81C, asm, cod/0BB81C]
       - [0x0BBE48, c,   cod/0BBE48]
       - [0x0BBE50, asm, cod/0BBE50]
       - [0x0BBFD0, c, cod/0BBFD0]            # func_001BBFD0: 4-insn lwc1
@@ -344,6 +349,8 @@ segments:
       - [0x140B60, c,   cod/140B60]            # func_00240B60: D_00633B98 = 0
       - [0x140B68, c,   cod/140B68]            # func_00240B68: return D_00633B98
       - [0x140B70, asm, cod/140B70]
+      - [0x14B880, c,   cod/14B880]            # func_0024B880: cross-ptr copy
+      - [0x14B88C, asm, cod/14B88C]
       - [0x151C08, c,   cod/151C08]            # func_00251C08: return *(int*)*(char**)(self+0x40)
       - [0x151C14, asm, cod/151C14]
       - [0x151DB0, c,   cod/151DB0]            # func_00251DB0: return *(int*)(*(char**)(self+0x40)+0xCC)
