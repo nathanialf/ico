@@ -537,6 +537,12 @@ segments:
       - [0x07E620, asm, cod/07E620]
       - [0x07E920, c,   cod/07E920]            # func_0017E920
       - [0x07E940, asm, cod/07E940]
+      - [0x07E9D8, c,   cod/07E9D8]            # func_0017E9D8: if(D_00631AE4) clear bit 12 of sub+0x20
+      - [0x07E9FC, asm, cod/07E9FC]
+      - [0x07EA00, c,   cod/07EA00]            # func_0017EA00: if(D_00631AE4) set bit 12 of sub+0x20
+      - [0x07EA24, asm, cod/07EA24]
+      - [0x07EA28, c,   cod/07EA28]            # func_0017EA28: if(D_00631AE4) clear bit 13 of sub+0x20
+      - [0x07EA4C, asm, cod/07EA4C]
       - [0x07EC78, c,   cod/07EC78]            # func_0017EC78: clear bit 20 of long long at sub+0x20
       - [0x07EC94, asm, cod/07EC94]
       - [0x080B28, c,   cod/080B28]            # func_00180B28: store-arg-discard
