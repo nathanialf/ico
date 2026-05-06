@@ -522,6 +522,8 @@ segments:
       - [0x07E620, asm, cod/07E620]
       - [0x07E920, c,   cod/07E920]            # func_0017E920
       - [0x07E940, asm, cod/07E940]
+      - [0x07EC78, c,   cod/07EC78]            # func_0017EC78: clear bit 20 of long long at sub+0x20
+      - [0x07EC94, asm, cod/07EC94]
       - [0x080B28, c,   cod/080B28]            # func_00180B28: store-arg-discard
       - [0x080B38, asm, cod/080B38]
       - [0x080F38, c,   cod/080F38]            # func_00180F38: D_00632600 = 0
