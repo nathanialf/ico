@@ -1061,6 +1061,8 @@ segments:
       - [0x143C00, asm, cod/143C00]
       - [0x143EC0, c,   cod/143EC0]            # func_00243EC0: clamp
       - [0x143EE4, asm, cod/143EE4]
+      - [0x1443F8, c,   cod/1443F8]            # func_002443F8: copy 3 floats
+      - [0x144414, asm, cod/144414]
       - [0x144418, c,   cod/144418]            # func_00244418: lerp xyz preserve w
       - [0x144444, asm, cod/144444]
       - [0x144448, c,   cod/144448]            # func_00244448: scale xyz

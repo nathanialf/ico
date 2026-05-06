@@ -2,7 +2,7 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-06 21:23:16 UTC
+- Generated: 2026-05-06 21:30:23 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions listed in `tools/parked.txt` are excluded
@@ -147,7 +147,7 @@ _36 total in this bucket; showing top 36._
 <a id="leaf-7-0x1C"></a>
 ## 7-insn / 0x1C leaf, no jal, no VU (accessor + multiplier/branch)
 
-_35 total in this bucket; showing top 35._
+_34 total in this bucket; showing top 34._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
@@ -185,7 +185,6 @@ _35 total in this bucket; showing top 35._
 | `func_00132610` | 0x1C | 7 | 0 |  | `daddu addiu lui sw` | asm/cod/02FFF0.s:2827 |
 | `func_00175F60` | 0x1C | 7 | 0 |  | `lwc1 lwc1 sub.s .word` | asm/cod/075CB0.s:233 |
 | `func_0018CF60` | 0x1C | 7 | 0 |  | `lw bnez lui jr` | asm/cod/08CF60.s:13 |
-| `func_002443F8` | 0x1C | 7 | 0 |  | `lwc1 swc1 lwc1 swc1` | asm/cod/143EE4.s:386 |
 
 <a id="wrap-8-0x20"></a>
 ## 8-insn / 0x20, exactly 1 jal, no VU (passthrough call)
@@ -265,7 +264,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4520 unmatched functions are not in any shape bucket above._
+_4521 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 
