@@ -4,9 +4,8 @@
 
 INTERVAL=10
 
-dashboard() {
-    local cols=${COLUMNS:-$(tput cols)}
-    local rule
+if [[ "$1" == "--once" ]]; then
+    cols=${COLUMNS:-$(tput cols)}
     rule=$(printf '%*s\n' "$cols" '' | tr ' ' -)
 
     echo "$rule"
@@ -16,7 +15,7 @@ dashboard() {
     echo "$rule"
     git log -1
     echo "$rule"
-}
+    exit 0
+fi
 
-export -f dashboard
-watch -t -n "$INTERVAL" "bash -c dashboard"
+watch -t -n "$INTERVAL" "$0 --once"
