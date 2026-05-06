@@ -484,6 +484,8 @@ segments:
       - [0x0652B4, asm, cod/0652B4]
       - [0x0652B8, c,   cod/0652B8]            # func_001652B8
       - [0x0652CC, asm, cod/0652CC]
+      - [0x0653D0, c,   cod/0653D0]            # func_001653D0: return p->1E0 == 1
+      - [0x0653E8, c,   cod/0653E8]            # func_001653E8: return p->1E0 == 2
       - [0x065400, c,   cod/065400]            # func_00165400
       - [0x065414, asm, cod/065414]
       - [0x0654C8, c,   cod/0654C8]            # func_001654C8
@@ -774,6 +776,8 @@ segments:
       - [0x0D3D70, c, cod/0D3D70]            # func_001D3D70: 4-insn lw
       - [0x0D3D80, c,   cod/0D3D80]            # func_001D3D80: == 0
       - [0x0D3D94, asm, cod/0D3D94]
+      - [0x0D3D98, c,   cod/0D3D98]            # func_001D3D98: return p->48 == 2
+      - [0x0D3DB0, asm, cod/0D3DB0]
       - [0x0D4D98, c,   cod/0D4D98]            # func_001D4D98
       - [0x0D4DA4, asm, cod/0D4DA4]
       - [0x0E0978, c,   cod/0E0978]            # func_001E0978
@@ -836,6 +840,8 @@ segments:
       - [0x0FBB48, asm, cod/0FBB48]
       - [0x0FC2D0, c,   cod/0FC2D0]            # func_001FC2D0
       - [0x0FC2DC, asm, cod/0FC2DC]
+      - [0x101DC8, c,   cod/101DC8]            # func_00201DC8: set bit 21 of (sub+0x428)
+      - [0x101DE0, asm, cod/101DE0]
       - [0x103910, c,   cod/103910]
       - [0x103918, asm, cod/103918]
       - [0x103C38, c,   cod/103C38]            # func_00203C38: sw_arg +0x0
@@ -1060,6 +1066,8 @@ segments:
       - [0x151E30, c,   cod/151E30]            # func_00251E30: self[0xC] = self[0x8]
       - [0x151E40, c,   cod/151E40]            # func_00251E40: self[0x8] = self[0xC]
       - [0x151E4C, asm, cod/151E4C]
+      - [0x151EB8, c,   cod/151EB8]            # func_00251EB8: return p[0] + p[1] - p[2]
+      - [0x151ED0, asm, cod/151ED0]
       - [0x158C68, c,   cod/158C68]            # func_00258C68: return &D_0071C640
       - [0x158C74, asm, cod/158C74]
       - [0x158CC0, c,   cod/158CC0]            # func_00258CC0: return &D_0071E900
