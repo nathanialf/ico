@@ -1,0 +1,47 @@
+# =============================================================================
+# splat configuration — ICO (USA, SLUS-20218)
+#
+# Seed config: a single asm subsegment over the whole .text section, so the
+# build round-trips byte-identical at init. As matching progresses, file-
+# boundary subsegments are added and individual `[ADDR, asm]` lines flip to
+# `[ADDR, c, <name>]` to claim functions.
+#
+# This file is hand-maintained. Do NOT regenerate from the ELF — splat does
+# not write back to its own config.
+# =============================================================================
+
+name: ico
+sha1: PLACEHOLDER_FILLED_BY_EXTRACT_ELF
+options:
+  platform: ps2
+  basename: ico
+  base_path: ..
+  build_path: build
+  target_path: baserom/baseelf.elf
+  asm_path: asm
+  src_path: src
+  ld_script_path: config/ico.us.ld
+  asset_path: assets
+  symbol_addrs_path: config/symbol_addrs.us.txt
+  undefined_funcs_auto_path: config/undefined_funcs_auto.us.txt
+  undefined_syms_auto_path: config/undefined_syms_auto.us.txt
+  find_file_boundaries: true
+  use_legacy_include_asm: false
+  asm_emit_size_directive: true
+
+# Subsegments are filled in by `tools/extract_elf.sh` after it inspects the
+# ELF program headers. The placeholder below is a single asm catchall covering
+# the .text segment; replace once the real entry point and section table are
+# known.
+segments:
+  - name: header
+    type: bin
+    start: 0x0
+    vram: 0x0
+  - name: main
+    type: code
+    start: PLACEHOLDER_TEXT_START
+    vram: PLACEHOLDER_TEXT_VRAM
+    subsegments:
+      - [PLACEHOLDER_TEXT_START, asm]
+  - [PLACEHOLDER_TEXT_END]

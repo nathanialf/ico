@@ -1,0 +1,24 @@
+* text=auto eol=lf
+
+*.sh text eol=lf
+*.py text eol=lf
+*.c text eol=lf
+*.h text eol=lf
+*.s text eol=lf
+*.S text eol=lf
+*.md text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.toml text eol=lf
+Makefile text eol=lf
+
+# Binary patterns — never touched by anyone, but keep diff sensible if
+# something does land in the tree.
+*.bin binary
+*.iso binary
+*.cue binary
+*.elf binary
+*.png binary
+*.jpg binary
+*.gz binary
+*.zip binary

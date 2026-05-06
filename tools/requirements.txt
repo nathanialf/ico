@@ -1,0 +1,15 @@
+# Python tooling for ico (PS2) decomp. Pinning is light — re-pin if a
+# CI run breaks.
+splat64
+spimdisasm
+rabbitizer>=1.12,<2
+mapfile-parser>=2.7,<3
+pyelftools
+pyyaml
+capstone
+intervaltree
+colorama
+tqdm
+# Note: asm-differ and decomp-permuter are git projects, not PyPI packages,
+# fetched as submodules under lib/ by tools/setup.sh. m2c is also a
+# submodule, installed editable into the venv.

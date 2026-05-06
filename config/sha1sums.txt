@@ -1,0 +1,2 @@
+# Format: <SHA-1>  <filename>
+# Filled in by tools/extract_elf.sh on first run.
