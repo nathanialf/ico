@@ -570,6 +570,7 @@ segments:
       - [0x0902D8, asm, cod/0902D8]
       - [0x090318, c,   cod/090318]            # func_00190318: 0x44 = D_00630F84
       - [0x09032C, asm, cod/09032C]
+      - [0x090388, c,   cod/090388]            # func_00190388: return p->68 == p->74 - 1
       - [0x0903A8, c,   cod/0903A8]            # func_001903A8: return *(uchar)(sub->800 + 0xC0)
       - [0x0903B8, asm, cod/0903B8]
       - [0x090430, c,   cod/090430]            # func_00190430: sub_15C->800 = a1
@@ -597,7 +598,10 @@ segments:
       - [0x0939C8, c,   cod/0939C8]            # func_001939C8: return &D_006D0D40
       - [0x0939D4, asm, cod/0939D4]
       - [0x0939D8, c,   cod/0939D8]            # func_001939D8: return 0x287D
-      - [0x0939E0, asm, cod/0939E0]
+      - [0x0939E0, c,   cod/0939E0]            # func_001939E0: copy 3 floats from src+0x10..0x18, return 1
+      - [0x093A00, asm, cod/093A00]
+      - [0x093A58, c,   cod/093A58]            # func_00193A58: copy 2 shorts from sub->800, return 1
+      - [0x093A78, asm, cod/093A78]
       - [0x093EC8, c,   cod/093EC8]            # func_00193EC8
       - [0x093EDC, asm, cod/093EDC]
       - [0x093F68, c,   cod/093F68]            # func_00193F68: p[0]=p[1]=1
