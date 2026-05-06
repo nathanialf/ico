@@ -651,6 +651,7 @@ segments:
       - [0x0A0040, asm, cod/0A0040]
       - [0x0A0090, c,   cod/0A0090]            # func_001A0090
       - [0x0A00A0, asm, cod/0A00A0]
+      - [0x0A1008, c,   cod/0A1008]            # func_001A1008: init 4 sdata: D_00632888=0; D_00633E30=-1; D_00633E24=0; D_00633E44=0
       - [0x0A1020, c,   cod/0A1020]            # func_001A1020: D_00633E28 = 0
       - [0x0A1028, c,   cod/0A1028]
       - [0x0A1030, asm, cod/0A1030]
