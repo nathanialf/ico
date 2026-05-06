@@ -85,6 +85,24 @@ explicit `%gp_rel(SYM)($gp)` form across `asm/matchings/`. Idempotent.
 This produces the correct gp_rel encoding and lets the per-function
 target round-trip via `tools/quick_diff.sh`.
 
+## Non-sdata externs need unsized array (or oversized) declarations
+
+With `-G 8` set in CFLAGS/ASFLAGS (required for sdata gp_rel codegen),
+`extern int FOO;` makes ee-gcc emit `.extern FOO, 4`. The assembler
+then sees size 4 ≤ 8 and assumes FOO is in `.sdata` — generating
+gp_rel loads/stores. If the symbol is **outside** the sdata range
+(0x631900–0x633BC6 for ICO), the resulting gp_rel offset is wrong.
+
+For non-sdata symbols, declare them as:
+
+- **`extern int FOO[];`** — unsized array. ee-gcc omits the `.extern`
+  size hint, so gas falls back to absolute (lui+addiu) addressing.
+- Or oversized: `extern int FOO[3];` (12 bytes > -G 8 threshold).
+
+The unsized-array form is preferred — matches the actual decomp
+intent (these symbols are usually arrays or struct blocks anyway)
+and doesn't require knowing the size up front.
+
 ## C codegen for $gp-relative loads — `-G 8` everywhere
 
 The original ICO ELF accesses sdata symbols via single-instruction
