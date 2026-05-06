@@ -89,6 +89,20 @@ over time.
 - `lib/asm-differ/` — function-level diffing while editing.
 - `lib/decomp-permuter/` — randomized rewrites for near-miss matches.
 
+## Picking the next target
+
+**Default: read `docs/candidates.md`.** It's auto-regenerated at the end
+of every `make setup` from a cached parse of `asm/cod/*.s`, sorted by
+hard-pattern penalty / instruction count / size, with parked functions
+already excluded. Eight pre-baked shape buckets cover the common shapes
+I keep targeting (4-insn 0x10 leaf, 5-insn 0x14 store-and-forward, 8-insn
+0x20 1-jal wrapper, etc.). `grep -E '^\| `func_'` and pick promising rows.
+
+Only fall back to `tools/find_leaves.py` for ad-hoc shape filters that
+aren't in the pre-baked buckets. The tool is a per-file pickle-cached
+walker (so subsequent calls are fast), but the candidates file is
+faster still and persistent.
+
 ## Per-function loop
 
 1. Pick a `[0xADDR, asm]` line in `config/ico.us.yaml`. Prefer small,
@@ -111,13 +125,24 @@ over time.
 
 When a function plateaus (permuter exhausted, no obvious structural fix):
 
+**Use `tools/park.sh <vram> "<reason>"`.** It does steps 1-3 below in one
+go: moves the best-attempt `src/cod/<file_off>.c` into
+`tough_nuts/<func>/<file_off>.c`, writes a `notes.md` with the reason
+and a disassembly excerpt for permuter context, and reverts the yaml
+line back to `asm`.
+
+After parking, run `make setup && make` to confirm the asm fallback
+round-trips, then commit. The auto-permuter (`tools/auto_permute*.sh`)
+picks up the new `tough_nuts/` seed on its next pass.
+
+Manual steps (what `park.sh` does):
+
 1. Revert the yaml line to `[0xADDR, asm]`. Run `make setup` to confirm
    the tree is clean.
 2. Move the best-attempt `src/name.c` to `tough_nuts/<func>/<func>.c`.
 3. Write `tough_nuts/<func>/notes.md` with: failure mode, permuter
    plateau score, structural hints from the asm, what's been tried.
-4. Add a one-line entry to `docs/MATCHING_NOTES.md`.
-5. Commit the parking-doc only — no broken `src/` left behind.
+4. Commit the parking-doc only — no broken `src/` left behind.
 
 ## Leverage building
 
