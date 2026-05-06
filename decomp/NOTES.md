@@ -151,6 +151,29 @@ ee-gcc 2.96 also needs `-B $EEGCC_LIB` to locate its bundled `cc1`,
 and `-S` to skip its own ancient `as` (which doesn't grok modern flags
 like `-G`). Re-assemble the .s with `mips-linux-gnu-as`.
 
+## Compiler regalloc nudges
+
+ee-gcc 2.96 sometimes reuses an argument register (`$a1`/`$a2`) as the
+destination for an arithmetic op when the natural C expression "looks
+through" to a load. Original code typically uses `$v1` as the scratch.
+
+Workaround: rewrite the expression so the intermediate value is bound
+to a local first, then operated on sequentially. Example:
+
+```c
+// Reuses $a1 as result -- doesn't match
+return *(short *)((char *)&table[idx] + 0x3C);
+
+// Forces $v1 scratch -- matches
+char *base = *(char **)(self + 0x2C);
+base += idx * 4;
+return *(short *)(base + 0x3C);
+```
+
+Both compile to the same instructions, just with different register
+allocation. Splitting into sequential statements pins the temp to
+`$v1`.
+
 ## Splat delay-slot mis-identification
 
 spimdisasm 1.40.3 (used by splat 0.40.0) sometimes splits a `jr $ra`
