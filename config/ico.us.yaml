@@ -367,6 +367,8 @@ segments:
       - [0x018574, asm, cod/018574]
       - [0x018578, c,   cod/018578]            # func_00118578: distance xz
       - [0x0185A4, asm, cod/0185A4]
+      - [0x0185A8, c,   cod/0185A8]            # func_001185A8: 64-byte lq/sq memcpy
+      - [0x0185D0, asm, cod/0185D0]
       - [0x018648, c,   cod/018648]            # func_00118648: 4x4 mat-vec mul
       - [0x018678, c,   cod/018678]            # func_00118678: store 4-vec id matrix
       - [0x0186A0, c,   cod/0186A0]            # func_001186A0: store 3-vec id matrix
@@ -1060,6 +1062,8 @@ segments:
       - [0x143B5C, asm, cod/143B5C]
       - [0x143B60, c,   cod/143B60]            # func_00243B60: 16-byte copy a2
       - [0x143B6C, asm, cod/143B6C]
+      - [0x143B70, c,   cod/143B70]            # func_00243B70: 64-byte lq/sq memcpy (interleaved)
+      - [0x143B94, asm, cod/143B94]
       - [0x143B98, c,   cod/143B98]            # func_00243B98: vftoi4 store
       - [0x143BA8, c,   cod/143BA8]            # func_00243BA8: vftoi0 store
       - [0x143BB8, c,   cod/143BB8]            # func_00243BB8: vitof4 store
