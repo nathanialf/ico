@@ -283,6 +283,60 @@ Pure `volatile` on all three pins the order but blocks delay-slot fill.
 Pure non-volatile lets the scheduler reorder. The barrier is the
 combination that matches.
 
+## Tooling shortcuts
+
+Two helpers that replace the throwaway shell pipelines I kept retyping:
+
+- **`tools/find_leaves.py`** — walks `asm/cod/*.s` and prints functions
+  matching size/insn-count/jal-count/shape filters. Use it to hunt for
+  candidate match patterns. Examples:
+  - `tools/find_leaves.py --no-vu --jal 0 --insns 4 --size 0x10` —
+    leaf functions, 4 instructions, 0x10 bytes.
+  - `tools/find_leaves.py --has-vu --insns '4..6' --size '0xC..0x18'`
+    — VU0 functions in a size range.
+  - `--shape 'lw,sw,jr,sw'` filters by mnemonic sequence (first token
+    only, dotted VU like `vmul.xyz` preserved). Use `*` for any.
+  - `--contains 'gp_rel\(D_'` regex on the body.
+- **`tools/claim.py`** — flips a yaml subsegment to `c`, writes the
+  source, inserts an asm filler at `addr+size` if needed. Single mode:
+  `tools/claim.py single --vram 0x118460 --size 0x10 --comment '...' --body-file src.c`.
+  Batch mode: `tools/claim.py batch --manifest claims.toml`. TOML schema
+  is `[[claim]]` with `vram`, `size`, `comment`, `body` (literal C).
+
+After running `claim.py`, run `make setup && make` (the script tells
+you). Do NOT pre-create the `.c` then run claim — claim refuses to
+clobber existing entries marked `c`.
+
+## Stale `asm/cod/<seg>.s` files
+
+When you flip a yaml entry from `asm` to `c`, splat removes the old
+`asm/cod/<seg>.s`, but **the previous splat run's `.s` files for the
+*surrounding* segments may still contain the function** (because splat
+emits one `.s` per asm subsegment, covering the full range up to the
+next subsegment, and re-emits with new boundaries each setup). Symptom:
+
+```
+multiple definition of `func_XXX'; build/asm/cod/SEG.o: first defined here
+```
+
+Fix: delete the stale `asm/cod/<surrounding>.s` and re-run `make setup`.
+For larger blast radii, `rm -f asm/cod/*.s build/asm/cod/*.o; make
+setup` is the nuclear option (rebuilds everything).
+
+## Patterns parked in `tough_nuts/`
+
+- **`la` macro 64-bit expansion** (`func_00105278` family): ee-gcc 2.96
+  with `-G 8 -O2 -mips3` emits `lui+daddiu+daddu` for `&array[index]`
+  via the gas `la` macro, where the original used `lui+addiu+addu` (32-
+  bit). Symptom: 6-insn array index funcs (`lui; sll; addiu; addu; jr;
+  lw`) consistently mismatch. Suspect compiler isn't ee-gcc.
+- **`daddu vs or` for register move**: ee-gcc 2.96 emits `or $vN,
+  $zero, $zero` to materialize 0 in a register; original ICO uses
+  `daddu $vN, $zero, $zero`. Same instruction semantically, different
+  encoding. No clean way to coerce ee-gcc into emitting `daddu`. Affects
+  most "store side effects, return 0" leaves and "pass 0 as nth arg"
+  wrappers.
+
 ## Compiler identification — provisional
 
 `splat create_config` defaulted to `compiler: EEGCC` for ICO. Quick
