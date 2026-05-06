@@ -296,6 +296,10 @@ segments:
       - [0x017750, c,   cod/017750]            # func_00117750: 3-sdata zero
       - [0x017760, c,   cod/017760]
       - [0x017768, asm, cod/017768]
+      - [0x018430, c,   cod/018430]            # func_00118430: vftoi4 vec convert
+      - [0x018444, asm, cod/018444]
+      - [0x018448, c,   cod/018448]            # func_00118448: vftoi0 vec convert
+      - [0x01845C, asm, cod/01845C]
       - [0x018460, c,   cod/018460]            # func_00118460: 16-byte lq/sq copy ($t0)
       - [0x018470, c,   cod/018470]            # func_00118470: 16-byte lq/sq copy ($t0)
       - [0x018480, asm, cod/018480]
@@ -834,6 +838,12 @@ segments:
       - [0x141C44, asm, cod/141C44]
       - [0x1436C8, c,   cod/1436C8]            # func_002436C8
       - [0x1436E4, asm, cod/1436E4]
+      - [0x143AD0, c,   cod/143AD0]            # func_00243AD0: vec add
+      - [0x143AE4, asm, cod/143AE4]
+      - [0x143AE8, c,   cod/143AE8]            # func_00243AE8: vec sub
+      - [0x143AFC, asm, cod/143AFC]
+      - [0x143B00, c,   cod/143B00]            # func_00243B00: vec mul
+      - [0x143B14, asm, cod/143B14]
       - [0x1450A8, c,   cod/1450A8]            # func_002450A8: 0/8/4 stores
       - [0x1450B8, c,   cod/1450B8]            # func_002450B8
       - [0x1450C8, asm, cod/1450C8]
