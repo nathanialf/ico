@@ -1117,6 +1117,8 @@ segments:
       - [0x151ED0, asm, cod/151ED0]
       - [0x154F08, c,   cod/154F08]            # func_00254F08: func_002560D8(3)
       - [0x154F24, asm, cod/154F24]
+      - [0x158450, c,   cod/158450]            # func_00258450: shift extract: (int)(*p >> (64-n))
+      - [0x15846C, asm, cod/15846C]
       - [0x158C68, c,   cod/158C68]            # func_00258C68: return &D_0071C640
       - [0x158C74, asm, cod/158C74]
       - [0x158CC0, c,   cod/158CC0]            # func_00258CC0: return &D_0071E900
