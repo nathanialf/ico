@@ -45,7 +45,7 @@ from pathlib import Path
 from typing import List, Tuple
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_EEGCC = PROJECT_ROOT / "tools" / "cc" / "ee-gcc2.96" / "bin" / "gcc"
+DEFAULT_EEGCC = PROJECT_ROOT / "tools" / "cc" / "ee-gcc2.9-991111" / "ee-gcc"
 HEADER_COMMENT = (
     "# permuter_settings.toml — managed by tools/gen_permuter_settings.py.\n"
     "# Re-run that script to regenerate (e.g. after `EEGCC=` changes or new\n"
@@ -83,7 +83,7 @@ _PRESERVE_PATTERNS: List[Tuple[str, str]] = [
 def resolve_eegcc() -> str:
     """Mirror EEGCC resolution from tools/quick_diff.sh and
     tools/permute_run.sh: `EEGCC` env override, else
-    `tools/cc/ee-gcc2.96/bin/gcc` under the project root."""
+    `tools/cc/ee-gcc2.9-991111/ee-gcc` under the project root."""
     eegcc = os.environ.get("EEGCC")
     if eegcc:
         return eegcc
@@ -102,9 +102,9 @@ def _toml_quote(s: str) -> str:
 def render_toml(eegcc: str) -> str:
     out = [HEADER_COMMENT]
     out.append("\n")
-    # ee-gcc 2.96 is closer to the `gcc` weight set than `ido` / `mwcc`.
-    # If we ever wire a custom weight family for ee-gcc, switch this and
-    # add an entry to lib/decomp-permuter/default_weights.toml.
+    # ee-gcc 2.9-991111 is closer to the `gcc` weight set than `ido` /
+    # `mwcc`. If we ever wire a custom weight family for ee-gcc, switch
+    # this and add an entry to lib/decomp-permuter/default_weights.toml.
     out.append('compiler_type = "gcc"\n')
     out.append("\n")
 
@@ -118,10 +118,10 @@ def render_toml(eegcc: str) -> str:
     out.append("[decompme.compilers]\n")
     out.append("# Local ee-gcc binary path -> decomp.me compiler ID. fnmatch on\n")
     out.append("# the full compiler[0] path. There is no canonical decomp.me ID\n")
-    out.append("# for ee-gcc 2.96 yet — `ee-gcc-2.96` is a placeholder; update\n")
-    out.append("# once decomp.me adds a matching preset.\n")
-    out.append(f"{_toml_quote(eegcc)} = \"ee-gcc-2.96\"\n")
-    out.append('"*/ee-gcc2.96/bin/gcc" = "ee-gcc-2.96"\n')
+    out.append("# for ee-gcc 2.9-991111 yet — `ee-gcc-2.9` is a placeholder;\n")
+    out.append("# update once decomp.me adds a matching preset.\n")
+    out.append(f"{_toml_quote(eegcc)} = \"ee-gcc-2.9\"\n")
+    out.append('"*/ee-gcc2.9-991111/ee-gcc" = "ee-gcc-2.9"\n')
 
     return "".join(out)
 

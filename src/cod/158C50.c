@@ -1,5 +1,6 @@
-#include <ico/codegen.h>
-
 extern int D_0071B680[];
 
-DEFINE_LA_INDEXED_ARG_MULT(func_00258C50, D_0071B680, 0x54)
+int *func_00258C50(int idx)
+{
+    return (int *)((char *)D_0071B680 + idx * 0x54);
+}

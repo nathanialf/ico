@@ -37,17 +37,15 @@ AS            := $(MIPS_PREFIX)as
 LD            := $(MIPS_PREFIX)ld
 OBJCOPY       := $(MIPS_PREFIX)objcopy
 
-# Matching C compiler: ee-gcc 2.96 (i386 ELF binary fetched into tools/cc/
-# by tools/setup.sh — same source as SOTC and other PS2 decomp projects).
-# Override CC to use a different compiler (e.g. wcc / CodeWarrior) if the
-# matching compiler turns out to be different.
-EEGCC_DIR     ?= tools/cc/ee-gcc2.96
-# `override` is required: CC is a built-in Make variable (defaults to `cc`),
-# so `?=` won't reassign it. Use `override CC := ...` to force ee-gcc.
-override CC   := $(EEGCC_DIR)/bin/gcc
-# ee-gcc 2.96 looks for cc1 at the path it was built against — point -B at
-# the bundled gcc-lib so it finds the in-tree cc1.
-EEGCC_LIB     := $(EEGCC_DIR)/gcc-lib/ee/2.96-ee-001003-1/
+# Matching C compiler: ee-gcc 2.9-991111 (i386 ELF binary fetched by
+# tools/setup.sh — same compiler the PAL ICO-decomp project uses).
+# Confirmed to reproduce regalloc / encoding shapes (daddu vs or,
+# loaded-value-into-$v1 with daddu move-to-$v0) that ee-gcc 2.96 does
+# not. Older sibling tarball (ee-gcc2.96) is no longer used; the
+# bundled ee-as 2.10 from that tree is still consumed for src/.o.
+EEGCC_DIR     ?= tools/cc/ee-gcc2.9-991111
+override CC   := $(EEGCC_DIR)/ee-gcc
+EEGCC_LIB     := $(EEGCC_DIR)/gcc-lib/ee/2.9-ee-991111-01/
 
 BUILD_DIR     := build
 ASM_DIR       := asm
@@ -75,7 +73,11 @@ ASFLAGS       := -EL -march=r5900 -mabi=eabi -G 8 -no-pad-sections -I$(INCLUDE_D
 # -G 8 must agree with ASFLAGS — see comment above. -S because ee-gcc
 # 2.96's bundled `as` is too old to parse modern flags; we re-assemble
 # the .s output with mips-linux-gnu-as in a second step.
-CFLAGS        := -S -G 8 -O2 -mips3 -EL -fno-builtin -fno-optimize-sibling-calls -nostdinc -I$(INCLUDE_DIR)
+# -fno-optimize-sibling-calls doesn't exist in 2.9 — sibling-call
+# optimization in this gcc is hardcoded ON at -O2. Defeat per-function
+# at the source level via __asm__ volatile("") after the wrapped call
+# (see decomp/NOTES.md "Defeating tail-call in ee-gcc 2.9").
+CFLAGS        := -S -G 8 -O2 -mips3 -EL -fno-builtin -nostdinc -I$(INCLUDE_DIR)
 
 LDSCRIPT      := config/ico.$(VERSION).ld
 LDSCRIPT_EXTRA:= config/ico.$(VERSION).linker_script_extra.ld
@@ -166,19 +168,33 @@ EE_ASFLAGS    := -EL -mcpu=5900 -G 8
 # mips-linux-gnu-as instead. config/use_modern_as.txt lists the file_offs.
 USE_MODERN_AS_TXT := config/use_modern_as.txt
 
-$(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.c $(EXTRA_CFLAGS_TXT) $(EXTRA_CFLAGS_LOOKUP) $(USE_MODERN_AS_TXT)
+# Per-file `addu` operand-pair swap. ee-gcc 2.9-991111 canonicalizes
+# `dst = rhs + dst` to `addu $dst, $rhs, $dst` (rt == rd). Some original
+# ICO functions have the commutatively-equivalent `addu $dst, $dst, $rhs`
+# (rs == rd). Same operation, different encoding bytes. Files listed in
+# config/swap_addu_operands.txt get a targeted sed that rewrites the
+# rt==rd form to rs==rd. Safe because the operation is commutative.
+SWAP_ADDU_TXT := config/swap_addu_operands.txt
+COALESCE_V1_V0_TXT := config/coalesce_v1_v0.txt
+SWAP_SW_PAIR_TXT := config/swap_sw_pair.txt
+
+$(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.c $(EXTRA_CFLAGS_TXT) $(EXTRA_CFLAGS_LOOKUP) $(USE_MODERN_AS_TXT) $(SWAP_ADDU_TXT) $(COALESCE_V1_V0_TXT) $(SWAP_SW_PAIR_TXT)
 	@mkdir -p $(@D)
 	$(CC) -B $(EEGCC_LIB) $(CFLAGS) $$($(EXTRA_CFLAGS_LOOKUP) $<) -o $(@:.o=.s) $<
-	@# ee-gcc 2.96 emits `move $X, $0` for register-zero materialization,
-	@# which the assembler can expand to either `or` or `daddu`. The
-	@# bundled ee-as 2.10 picks `daddu` already (matching the original);
-	@# but we keep the sed in case mips-linux-gnu-as is ever used here.
-	@sed -i -E 's/^([[:space:]]+)move[[:space:]]+(\$$[0-9]+),[[:space:]]*\$$0[[:space:]]*$$/\1daddu \2,$$0,$$0/' $(@:.o=.s)
-	@# Strip the redundant `j $31` ee-gcc 2.96 appends when a function's
-	@# inline-asm block already ends with `jr $31` (la-macro + delay-slot
-	@# class). ee-gcc ignores `__attribute__((naked))`; this postprocess
-	@# stands in for it. Idempotent / no-op for normal functions.
-	@.venv/bin/python tools/postprocess_inline_jr.py $(@:.o=.s)
+	@# If listed in $(SWAP_ADDU_TXT), swap addu rs/rt where rt==rd.
+	@if grep -qE "^[[:space:]]*$(notdir $(basename $<))([[:space:]]|$$|#)" $(SWAP_ADDU_TXT) 2>/dev/null; then \
+	    sed -i -E 's/(addu[[:space:]]+\$$([0-9]+),)\$$([0-9]+),\$$\2\b/\1$$\2,$$\3/g' $(@:.o=.s); \
+	fi
+	@# If listed in $(COALESCE_V1_V0_TXT), drop the redundant `move $2, $3`
+	@# and rename $3 → $2 throughout the function (load-modify-store-return
+	@# pattern that ee-gcc 2.9 wastefully splits across two regs).
+	@if grep -qE "^[[:space:]]*$(notdir $(basename $<))([[:space:]]|$$|#)" $(COALESCE_V1_V0_TXT) 2>/dev/null; then \
+	    sed -i -E -e '/^[[:space:]]*move[[:space:]]+\$$2,\$$3[[:space:]]*$$/d' \
+	              -e 's/\$$3\b/$$2/g' $(@:.o=.s); \
+	fi
+	@# If listed in $(SWAP_SW_PAIR_TXT), swap two `sw` stores around the
+	@# `j $31` epilogue (handles getset-pair store-reorder cases).
+	@.venv/bin/python tools/postprocess_sw_pair.py $(@:.o=.s)
 	@# ee-as 2.10 doesn't recognize MIPS register name aliases ($zero,
 	@# $sp, $ra, etc.) — only numbered ($0, $29, $31). Translate them
 	@# all. (Float regs $f0-$f31 and VU regs $vfN are accepted as-is.)

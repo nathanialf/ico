@@ -62,11 +62,11 @@ else
     TARGET_ASM="${asms[0]}"
 fi
 
-# Compile with the project's matching compiler. ee-gcc 2.96 from
-# tools/cc/ee-gcc2.96 if present (fetched by tools/setup.sh), else fall back
-# to ee-prefix on PATH, else mips-linux-gnu-gcc (only useful for asm sanity
-# checks — it won't match game C since the codegen differs).
-EEGCC="$ROOT/tools/cc/ee-gcc2.96/bin/gcc"
+# Compile with the project's matching compiler. ee-gcc 2.9-991111 from
+# tools/cc/ee-gcc2.9-991111 if present (fetched by tools/setup.sh), else
+# fall back to ee-prefix on PATH, else mips-linux-gnu-gcc (only useful
+# for asm sanity checks — it won't match game C since the codegen differs).
+EEGCC="$ROOT/tools/cc/ee-gcc2.9-991111/ee-gcc"
 if [[ -z "${CC:-}" ]]; then
     if [[ -x "$EEGCC" ]] && "$EEGCC" --version >/dev/null 2>&1; then
         CC="$EEGCC"
@@ -84,12 +84,12 @@ if [[ -z "${OBJDUMP:-}" ]]; then
         OBJDUMP="mips-linux-gnu-objdump"
     fi
 fi
-# ee-gcc 2.96 is r5900-LE by default; -EL / -mips3 / -march=r5900 are either
-# unsupported or redundant. Match SOTC's flag shape (mostly): -O2 -g2 -G 0
-# -nostdinc -Iinclude. We use -S (emit asm, don't assemble) because the
-# bundled `as` is from the 1990s and chokes on flags modern as accepts —
-# we then run modern mips-linux-gnu-as on the .s output.
-CFLAGS="${CFLAGS:--S -G 8 -O2 -g2 -fno-builtin -fno-optimize-sibling-calls -nostdinc -Iinclude}"
+# Must agree with Makefile CFLAGS exactly so quick_diff and full build
+# reach the same regalloc / scheduling decisions. ee-gcc 2.9-991111 doesn't
+# accept -fno-optimize-sibling-calls (sibling-call defeat is per-function
+# via __asm__ volatile("") barriers in src/cod/). -S because the bundled
+# 2.9-era `as` chokes on modern flags — we re-assemble with ee-as 2.10.
+CFLAGS="${CFLAGS:--S -G 8 -O2 -mips3 -EL -fno-builtin -nostdinc -Iinclude}"
 
 # Per-file overrides from config/extra_cflags.txt (same lookup as the
 # Makefile src/.o rule), so quick_diff stays in sync with the full build.
@@ -103,8 +103,8 @@ fi
 
 # ee-gcc looks for cc1 at the path it was built against (typically
 # ${PS2DEV}/ee/gcc-lib/...). Pass -B so it finds the bundled cc1 in our tree.
-if [[ "$CC" == *"ee-gcc2.96"* ]]; then
-    EEGCC_LIB="$ROOT/tools/cc/ee-gcc2.96/gcc-lib/ee/2.96-ee-001003-1/"
+if [[ "$CC" == *"ee-gcc2.9-991111"* ]]; then
+    EEGCC_LIB="$ROOT/tools/cc/ee-gcc2.9-991111/gcc-lib/ee/2.9-ee-991111-01/"
     CFLAGS="-B $EEGCC_LIB $CFLAGS"
 fi
 

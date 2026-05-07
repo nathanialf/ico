@@ -65,35 +65,47 @@ else
     echo "==> lib/m2c missing; add as submodule then re-run"
 fi
 
-# --- 4. EE GCC 2.96 (matching compiler — same source as SOTC and other PS2 decomps) ----
+# --- 4. EE GCC 2.9-991111 (matching compiler — same source as the
+#       PAL ICO-decomp project) and ee-gcc 2.96 (only its bundled ee-as
+#       2.10, used by the src/.o assembler step) ------------------------
 
-EEGCC_DIR="$ROOT/tools/cc/ee-gcc2.96"
-EEGCC_BIN="$EEGCC_DIR/bin/gcc"
-EEGCC_TARBALL_URL="${EEGCC_TARBALL_URL:-https://github.com/decompme/compilers/releases/download/compilers/ee-gcc2.96.tar.xz}"
+EEGCC29_DIR="$ROOT/tools/cc/ee-gcc2.9-991111"
+EEGCC29_BIN="$EEGCC29_DIR/ee-gcc"
+EEGCC29_URL="${EEGCC29_URL:-https://github.com/decompme/compilers/releases/download/compilers/ee-gcc2.9-991111-01.tar.xz}"
 
-if [[ "${SKIP_TOOLCHAIN:-0}" == "1" ]]; then
-    echo "==> SKIP_TOOLCHAIN=1; not fetching ee-gcc2.96"
-elif [[ -f "$EEGCC_BIN" ]]; then
-    echo "==> ee-gcc2.96 already at $EEGCC_DIR"
-elif command -v curl >/dev/null 2>&1; then
-    echo "==> fetching ee-gcc2.96 from decompme/compilers (~18 MB)"
-    mkdir -p "$EEGCC_DIR"
-    if curl -fsSL "$EEGCC_TARBALL_URL" | tar -xJ -C "$EEGCC_DIR" --strip-components=1; then
-        echo "==> ee-gcc2.96 extracted to $EEGCC_DIR"
+EEGCC96_DIR="$ROOT/tools/cc/ee-gcc2.96"
+EEGCC96_AS="$EEGCC96_DIR/bin/as"
+EEGCC96_URL="${EEGCC96_URL:-https://github.com/decompme/compilers/releases/download/compilers/ee-gcc2.96.tar.xz}"
+
+fetch_compiler() {
+    local label="$1" dir="$2" url="$3" sentinel="$4"
+    if [[ "${SKIP_TOOLCHAIN:-0}" == "1" ]]; then
+        echo "==> SKIP_TOOLCHAIN=1; not fetching $label"
+    elif [[ -f "$sentinel" ]]; then
+        echo "==> $label already at $dir"
+    elif command -v curl >/dev/null 2>&1; then
+        echo "==> fetching $label from decompme/compilers"
+        mkdir -p "$dir"
+        if curl -fsSL "$url" | tar -xJ -C "$dir" --strip-components=1; then
+            echo "==> $label extracted to $dir"
+        else
+            echo "==> $label fetch failed; install manually" >&2
+            rm -rf "$dir"
+        fi
     else
-        echo "==> ee-gcc2.96 fetch failed; install manually" >&2
-        rm -rf "$EEGCC_DIR"
+        echo "==> curl not available; skipping $label"
     fi
-else
-    echo "==> curl not available; skipping ee-gcc2.96 (install manually)"
-fi
+}
 
-# ee-gcc2.96 is a 32-bit i386 ELF (matches the toolchain SOTC and other PS2
-# decomp projects use). On a 64-bit Linux host it requires multilib /
-# 32-bit libc; check and warn so failures are obvious.
+fetch_compiler "ee-gcc 2.9-991111" "$EEGCC29_DIR" "$EEGCC29_URL" "$EEGCC29_BIN"
+fetch_compiler "ee-gcc 2.96 (for ee-as 2.10)" "$EEGCC96_DIR" "$EEGCC96_URL" "$EEGCC96_AS"
+
+# Both compilers are 32-bit i386 ELFs. On a 64-bit Linux host they
+# require multilib / 32-bit libc; check and warn so failures are obvious.
+EEGCC_BIN="$EEGCC29_BIN"
 if [[ -f "$EEGCC_BIN" ]] && ! "$EEGCC_BIN" --version >/dev/null 2>&1; then
     cat >&2 <<EOF
-==> ee-gcc2.96 is installed but won't run on this host.
+==> ee-gcc 2.9-991111 is installed but won't run on this host.
     It's a 32-bit i386 binary; you need 32-bit libc support, e.g.:
 
       sudo dpkg --add-architecture i386

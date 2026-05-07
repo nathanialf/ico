@@ -1,5 +1,6 @@
-#include <ico/codegen.h>
-
 extern int D_0071E900[];
 
-DEFINE_LA_INDEXED_A0_LW(func_00258CA8, D_0071E900, 2)
+int func_00258CA8(int idx)
+{
+    return D_0071E900[idx];
+}

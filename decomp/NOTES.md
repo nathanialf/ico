@@ -7,23 +7,29 @@ diffs are an instance of one of the patterns below.
 Empty at init. Seed entries below are placeholders for the categories we
 expect to fill.
 
-## Compiler fingerprint (open question)
+## Compiler fingerprint (resolved)
 
-ICO is a 2001 first-party SCEI title. The matching compiler is most
-likely:
+**The matching compiler is `ee-gcc 2.9-991111-01`** (Sony fork of GCC
+2.9 dated 1999-11-11). Same build the PAL ICO-decomp project uses;
+fetched by `tools/setup.sh` from `decompme/compilers`. The bundled
+`ee-as 2.10-ee-001003-1` from the older `ee-gcc 2.96` tarball is kept
+alongside and used for assembly only — it picks the right `daddu`
+expansion for `move` macros and the right 32-bit `lui+addiu+addu`
+expansion for `la $X, sym($Y)`.
 
-- **Sony Pro-DG (wcc)** — Sony's in-house PS2 SDK toolchain pre-2003.
-- **Metrowerks CodeWarrior for PS2** — common third-party choice.
-- **ee-gcc** — unlikely for a 2001 SCEI first-party but possible.
+How we landed here: ee-gcc 2.96 was the initial guess but produced
+encoding-level mismatches (`daddu` vs `or` for register-zero move,
+64-bit `la` macro expansion, regalloc preference for `$v1` over `$v0`).
+Switching to 2.9-991111 closed every encoding/regalloc gap that
+remained after natural-C work and post-processing, yielding a
+byte-identical SHA-1 round-trip.
 
-Investigation notes:
-
-- [ ] Inspect `baserom/baseelf.elf`'s `.comment` section once extracted.
-- [ ] Compare prologue/epilogue patterns to known wcc/CW/ee-gcc samples.
-- [ ] Check for compiler-specific symbol mangling in any leftover symbols.
-
-Update this section once the compiler is identified; the rest of this
-file's quirks are organized by compiler family.
+Notes that still apply: most R5900/EE/splat/linker quirks below are
+compiler-agnostic. The pre-2.9 sections marked "ee-gcc 2.96" are
+historical; some 2.96-specific workarounds (e.g. the inline-asm
+`DEFINE_TAILCALL_LWA1` family in the now-deleted `include/ico/codegen.h`)
+were unnecessary under 2.9 and have been removed. The rest of the
+file's quirks remain valid.
 
 ## R5900-specific gotchas (to be cataloged)
 

@@ -24,10 +24,12 @@ Idempotent. Performs:
    spimdisasm, splat64, pyyaml, …).
 2. `git submodule update --init --recursive` — populates `lib/splat/`,
    `lib/asm-differ/`, `lib/decomp-permuter/`, `lib/m2c/`.
-3. Fetches the matching C compiler **ee-gcc 2.96** (~18 MB) from
-   `decompme/compilers` into `tools/cc/ee-gcc2.96/`. Same compiler used
-   by SOTC and other PS2 decomp projects. The binary is 32-bit i386, so
-   on a 64-bit host you need multilib / 32-bit libc:
+3. Fetches the matching C compiler **ee-gcc 2.9-991111-01** (~2 MB) into
+   `tools/cc/ee-gcc2.9-991111/`, plus **ee-gcc 2.96** (~18 MB) into
+   `tools/cc/ee-gcc2.96/` solely for its bundled `ee-as 2.10` (used by
+   the src/.o assembler step). Both are sourced from `decompme/compilers`.
+   The binaries are 32-bit i386, so on a 64-bit host you need multilib
+   / 32-bit libc:
 
    ```sh
    sudo dpkg --add-architecture i386

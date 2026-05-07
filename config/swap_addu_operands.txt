@@ -1,0 +1,25 @@
+# Per-file post-process: swap the operand pair on a commutative `addu` so
+# its rd-register lands in the `rs` slot rather than `rt`.
+#
+# Background: ee-gcc 2.9-991111 canonicalizes `dst = rhs + dst` to emit
+# `addu $dst, $rhs, $dst` (rt == rd). The original ICO codegen for some
+# functions has the equivalent `addu $dst, $dst, $rhs` (rs == rd). Both
+# encode `dst += rhs` semantically, but the bytes differ. Other functions
+# in the same project legitimately use the rt==rd form (e.g. the
+# DEFINE_LA_INDEXED_ARG_MULT cluster in 02FE08, 0E8BD8, 158C38, ...).
+#
+# This file lists the file_offs (uppercase hex basename) that need the
+# rewrite. The Makefile applies a targeted sed on the .s output for those
+# files only. Files not listed are left alone.
+#
+# Format: <FILE_OFF_HEX> [# optional comment]
+# Lines starting with # are comments; blank lines ignored.
+
+# The MULT_LW / MULT_SW cluster: ee-gcc 2.9 emits the wrong canonical
+# operand order for the `addu` that combines `idx*stride` with the
+# `lui+addiu` of the base address. Original keeps result in $dst-with-rs.
+0E8D30   # func_001E8D30: D_007097F0[idx*0x18 + 0x14] (read)
+0F1148   # func_001F1148: D_0070D4D8[idx*0x18 + 0x14] = val (write)
+105A78   # func_00205A78: D_004CAEC0[idx*0x34 + 0x8]  (read)
+105B30   # func_00205B30: D_004CAEC0[idx*0x34 + 0x28] = val (write)
+05F228   # func_0015F228: D_00292540[idx*0x18 + 0x8]  = val (write)
