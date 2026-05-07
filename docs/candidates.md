@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-07 05:43:58 UTC
+- Generated: 2026-05-07 05:47:02 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4656 total in `asm/cod/*.s`, 0 parked, 4656 considered
+- Functions: 4653 total in `asm/cod/*.s`, 0 parked, 4653 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -27,14 +27,11 @@ and `mtc1`/`lwc1`/`swc1`/`cvt.*`/`mfc1` float-pair sequences.
 <a id="leaf-4-0x10"></a>
 ## 4-insn / 0x10 leaf, no jal, no VU (bulk getter/setter)
 
-_4 total in this bucket; showing top 4._
+_1 total in this bucket; showing top 1._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
-| `func_0023E770` | 0x10 | 4 | 0 |  | `lw slt j movz` | asm/cod/13E294.s:361 |
-| `func_0015D348` | 0x10 | 4 | 0 |  | `lui mtc1 j nop` | asm/cod/059240.s:4919 |
 | `func_00209AB0` | 0x10 | 4 | 0 |  | `addiu daddu j addiu` | asm/cod/105B4C.s:4877 |
-| `func_0017B5A0` | 0x10 | 4 | 0 |  | `lwc1 lwc1 j lwc1` | asm/cod/07A9D4.s:1018 |
 
 <a id="leaf-5-0x14"></a>
 ## 5-insn / 0x14 leaf, no jal, no VU (store-and-forward)
@@ -80,7 +77,7 @@ _16 total in this bucket; showing top 16._
 | `func_00101A88` | 0x18 | 6 | 0 |  | `mfc0 lui and ei` | asm/cod/000C90.s:1209 |
 | `func_0013D3D8` | 0x18 | 6 | 0 |  | `bnez nop j nop` | asm/cod/03D0A0.s:271 |
 | `func_0014BDD8` | 0x18 | 6 | 0 |  | `addiu addiu movn ori` | asm/cod/04BDD4.s:18 |
-| `func_0015D470` | 0x18 | 6 | 0 |  | `lw lw lw addiu` | asm/cod/059240.s:5015 |
+| `func_0015D470` | 0x18 | 6 | 0 |  | `lw lw lw addiu` | asm/cod/05D358.s:99 |
 | `func_00187990` | 0x18 | 6 | 0 |  | `addiu lw mult lw` | asm/cod/087904.s:66 |
 | `func_00193818` | 0x18 | 6 | 0 |  | `lw lw lw addiu` | asm/cod/0920A4.s:1827 |
 | `func_001D4DD0` | 0x18 | 6 | 0 |  | `bnez lw jr lw` | asm/cod/0D4DA4.s:35 |
@@ -135,7 +132,7 @@ _12 total in this bucket; showing top 12._
 | `func_0011E708` | 0x20 | 8 | 1 |  | `addiu lw sd jal` | asm/cod/01BFC0.s:2867 |
 | `func_00154CC8` | 0x20 | 8 | 1 |  | `addiu sd sw nop` | asm/cod/054CC8.s:13 |
 | `func_00176198` | 0x20 | 8 | 1 |  | `addiu sd sw jal` | asm/cod/07614C.s:41 |
-| `func_0017C990` | 0x20 | 8 | 1 |  | `addiu sd jal nop` | asm/cod/07A9D4.s:2549 |
+| `func_0017C990` | 0x20 | 8 | 1 |  | `addiu sd jal nop` | asm/cod/07B5B0.s:1547 |
 | `func_001F2370` | 0x20 | 8 | 1 |  | `addiu sd jal addiu` | asm/cod/0F2250.s:109 |
 | `func_0024BFAC` | 0x20 | 8 | 1 |  | `sd jal daddu sync` | asm/cod/14BBC0.s:353 |
 | `func_001383D8` | 0x20 | 8 | 1 |  | `addiu sd jal addiu` | asm/cod/037EF0.s:417 |

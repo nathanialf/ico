@@ -518,6 +518,8 @@ segments:
       - [0x054CC8, asm, cod/054CC8]
       - [0x059230, c,   cod/059230]            # func_00159230: tail call func_00106AB8 (double-deref TCO)
       - [0x059240, asm, cod/059240]
+      - [0x05D348, c,   cod/05D348]            # func_0015D348: tail call func_0010ABD8(30.0f)
+      - [0x05D358, asm, cod/05D358]
       - [0x05EE68, c,   cod/05EE68]            # func_0015EE68: *(int*)(*(char**)(self+0x164)+0x180) = val
       - [0x05EE74, asm, cod/05EE74]
       - [0x05EF40, c,   cod/05EF40]            # func_0015EF40
@@ -580,6 +582,8 @@ segments:
       - [0x07905C, asm, cod/07905C]
       - [0x07A9B8, c,   cod/07A9B8]            # func_0017A9B8
       - [0x07A9D4, asm, cod/07A9D4]
+      - [0x07B5A0, c,   cod/07B5A0]            # func_0017B5A0: tail call func_00102970(a0, xyz from a1[0..2])
+      - [0x07B5B0, asm, cod/07B5B0]
       - [0x07E160, c,   cod/07E160]            # func_0017E160: set sub fields: 0x328/0x32C=0x7F, 0x33C/0x110/0x114/0x118=0
       - [0x07E184, asm, cod/07E184]
       - [0x07E188, c,   cod/07E188]            # func_0017E188
@@ -1133,6 +1137,8 @@ segments:
       - [0x13E180, asm, cod/13E180]
       - [0x13E280, c,   cod/13E280]            # func_0023E280: self->54 >= self->48
       - [0x13E294, asm, cod/13E294]
+      - [0x13E770, c,   cod/13E770]            # func_0023E770: tail call func_0023E578(a0, a1, max(a0->3C, a2))
+      - [0x13E780, asm, cod/13E780]
       - [0x13EFB0, c,   cod/13EFB0]
       - [0x13EFB8, asm, cod/13EFB8]
       - [0x13F070, c,   cod/13F070]            # func_0023F070
