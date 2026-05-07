@@ -7,10 +7,10 @@
  * any analysis power -- the assembler already parses the asm text
  * we'd embed in each macro.
  *
- * Instead we expose ONE generic macro per memory-effect category,
- * each taking the full asm text as a string literal.  Each macro
- * emits a single instruction, satisfying the project rule "one
- * instruction per __asm__ block."
+ * Instead we expose ONE macro per *side-effect class*, each taking
+ * the full asm text as a string literal.  Each macro emits exactly
+ * one instruction, satisfying the project rule "one instruction per
+ * __asm__ block."
  *
  * Pattern is the same shape ps2sdk uses in its VU0 inline-asm
  * helpers (e.g. ee/include/vif.h's VIF1_FBRST_MACRO style): one
@@ -21,33 +21,43 @@
 #ifndef VU0_H
 #define VU0_H
 
-/* COP2 load/store (lqc2, sqc2, lq, sq) — observable to caller's
- * memory.  Caller is responsible for using the right address-form
- * mnemonic in the asm string. */
-#define VU0_LOAD(insn)   __asm__ __volatile__(insn : : : "memory")
-#define VU0_STORE(insn)  __asm__ __volatile__(insn : : : "memory")
+/* ===========================================================
+ *  Pick one of VU0_MEM / VU0_REG depending on what the
+ *  instruction does to the OBSERVABLE state of the caller.
+ * ===========================================================
+ *
+ *  VU0_MEM(insn) — for instructions that load from or store to
+ *  caller-visible memory (typed as `void *` arguments in the
+ *  wrapper signature).  Adds a `"memory"` clobber so gcc can't
+ *  cache stack/global state across the asm.
+ *
+ *      Use for: lqc2, sqc2, lq, sq, ld, sd, lwu, lw, sw, etc.
+ *
+ *  VU0_REG(insn) — for instructions that touch ONLY the VU0
+ *  register file or move between EE GPR/FPR and VU0.  No memory
+ *  effect, but `volatile` to suppress gcc reordering.
+ *
+ *      Use for: vadd, vsub, vmul, vmove, vftoi*, vmadd*, vopm*,
+ *               vftoi*, mfc1, mtc1, qmfc2(.ni), qmtc2(.ni),
+ *               cfc2(.ni), and any other COP2/VU0 op.
+ *
+ *  Use VU0_WORD(w) for COP2 ops that have no gas mnemonic
+ *  (e.g., `vsqrt $Q, $vfNx` -> .word 0x4A0X03BD), VU0_NOP() and
+ *  VU0_WAIT() for the literals "nop" and "vwaitq".
+ */
+#define VU0_MEM(insn)   __asm__ __volatile__(insn : : : "memory")
+#define VU0_REG(insn)   __asm__ __volatile__(insn)
 
-/* Pure compute on VU0 register file (vadd, vsub, vmul, vmove,
- * vftoi0, etc.) — no memory effect, but VOLATILE to suppress
- * gcc reordering. */
-#define VU0_COMPUTE(insn) __asm__ __volatile__(insn)
-
-/* Move between EE GPR/FPR and VU0 (mfc1, mtc1, qmfc2.ni,
- * qmtc2.ni, cfc2.ni). */
-#define VU0_MOVE(insn)   __asm__ __volatile__(insn)
+/* Single nop (used as a delay-slot filler or scheduler barrier). */
+#define VU0_NOP()       __asm__ __volatile__("nop")
 
 /* Wait-for-Q-pipeline barrier (vwaitq).  No memory effect but
  * sequences subsequent VU0 ops with prior compute. */
-#define VU0_WAIT()       __asm__ __volatile__("vwaitq")
+#define VU0_WAIT()      __asm__ __volatile__("vwaitq")
 
-/* Single nop (used as a delay-slot filler or scheduler barrier). */
-#define VU0_NOP()        __asm__ __volatile__("nop")
-
-/* Random-VU0 raw escape hatch — for any mnemonic not classified
- * above (e.g., vrnext, vrxor, vsqi, vlqd, vdiv).  Use when none of
- * the typed forms above apply.  The asm string is emitted verbatim,
- * one instruction at a time. */
-#define VU0_RAW(insn)    __asm__ __volatile__(insn)
+/* Raw 32-bit word emission for COP2 ops without a gas mnemonic
+ * (e.g., `vsqrt $Q, $vfNx` -> .word 0x4A0X03BD). */
+#define VU0_WORD(w)     __asm__ __volatile__(".word " #w)
 
 /* Hazard-pair scheduler barriers.
  *
@@ -65,9 +75,5 @@
  */
 #define VU0_NOREORDER_BEGIN()  __asm__ __volatile__(".set noreorder")
 #define VU0_NOREORDER_END()    __asm__ __volatile__(".set reorder")
-
-/* Raw 32-bit word emission for COP2 ops without a gas mnemonic
- * (e.g., `vsqrt $Q, $vfNx` -> .word 0x4A0X03BD). */
-#define VU0_WORD(w)      __asm__ __volatile__(".word " #w)
 
 #endif /* VU0_H */
