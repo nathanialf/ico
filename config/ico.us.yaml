@@ -241,6 +241,8 @@ segments:
       - [0x000C48, asm, cod/000C48]
       - [0x000C80, c,   cod/000C80]            # func_00100C80: syscall 0x5B
       - [0x000C90, asm, cod/000C90]
+      - [0x0011B0, c,   cod/0011B0]            # func_001011B0: if a0==0xA: func_001010C8(0xD); func_001010C8(0xA) else: tail call func_001010C8(a0)
+      - [0x0011E4, asm, cod/0011E4]
       - [0x001AE8, c,   cod/001AE8]            # func_00101AE8: wrap func_00100950(2, &local=a0)
       - [0x001B0C, asm, cod/001B0C]
       - [0x001B10, c,   cod/001B10]            # func_00101B10: wrap func_00100950(3, &local[a0,(char)a1])
@@ -350,6 +352,8 @@ segments:
       - [0x00DAA0, c,   cod/00DAA0]            # func_0010DAA0: &D_00660A40[D_00631B7C*4] (la-macro)
       - [0x00DAB8, c,   cod/00DAB8]            # func_0010DAB8: &D_00660A30[D_00631B7C*4] (la-macro)
       - [0x00DAD0, asm, cod/00DAD0]
+      - [0x00DB28, c,   cod/00DB28]            # func_0010DB28: D_00631B7C--; if <0: func_001A6E28(&D_00553E48); D_00631B7C=0
+      - [0x00DB5C, asm, cod/00DB5C]
       - [0x00DDB8, c,   cod/00DDB8]            # func_0010DDB8: quaternion mul
       - [0x00DDF4, asm, cod/00DDF4]
       - [0x00E928, c,   cod/00E928]            # func_0010E928: dot product 4-component
@@ -737,6 +741,10 @@ segments:
       - [0x07B314, asm, cod/07B314]
       - [0x07B5A0, c,   cod/07B5A0]            # func_0017B5A0: tail call func_00102970(a0, xyz from a1[0..2])
       - [0x07B5B0, asm, cod/07B5B0]
+      - [0x07C8C0, c,   cod/07C8C0]            # func_0017C8C0: rc=func_0013EAE8; if rc: func_0013FF88(rc, 0x1F, rc)
+      - [0x07C8F4, asm, cod/07C8F4]
+      - [0x07C8F8, c,   cod/07C8F8]            # func_0017C8F8: sibling: rc=func_0013EAE8; if rc: func_0013FF88(rc, 0x20, rc)
+      - [0x07C92C, asm, cod/07C92C]
       - [0x07C930, c,   cod/07C930]            # func_0017C930: if(rc=func_0013EAE8()) tail call func_001EB3A8(rc)
       - [0x07C95C, asm, cod/07C95C]
       - [0x07C960, c,   cod/07C960]            # func_0017C960: if(rc=func_0013EAE8()) tail call func_001EB418(rc)
