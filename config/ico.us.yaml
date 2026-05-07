@@ -1107,15 +1107,20 @@ segments:
       - [0x0B0ABC, asm, cod/0B0ABC]
       - [0x0B4EC0, c,   cod/0B4EC0]            # func_001B4EC0: wrap func_001A6E28(&D_00616ED8); return a1
       - [0x0B4EF0, c,   cod/0B4EF0]            # func_001B4EF0: wrap func_001A6E28(&D_00616EE8); return a1
-      - [0x0B4F20, asm, cod/0B4F20]
+      - [0x0B4F20, c,   cod/0B4F20]            # func_001B4F20: D_00275254 & 0x40 ? func_001B7048(0) : -1
+      - [0x0B4F58, asm, cod/0B4F58]
       - [0x0B4FC0, c,   cod/0B4FC0]            # func_001B4FC0: return -1
       - [0x0B4FC8, asm, cod/0B4FC8]
+      - [0x0B5220, c,   cod/0B5220]            # func_001B5220: D_00275254 & 0x40 ? func_001B7040() : -1
+      - [0x0B5258, asm, cod/0B5258]
       - [0x0B5610, c,   cod/0B5610]            # func_001B5610: return -1
       - [0x0B5618, c,   cod/0B5618]            # func_001B5618: auto-batch
       - [0x0B5620, asm, cod/0B5620]
       - [0x0B5768, c,   cod/0B5768]            # func_001B5768: auto-batch
       - [0x0B5770, c,   cod/0B5770]            # func_001B5770: if(a0) D_00274ED8=1; return -1
       - [0x0B5788, asm, cod/0B5788]
+      - [0x0B5998, c,   cod/0B5998]            # func_001B5998: D_00275254 & 0x10 ? func_001B7040() : -1
+      - [0x0B59D0, asm, cod/0B59D0]
       - [0x0B7040, c,   cod/0B7040]            # func_001B7040: return D_00633150
       - [0x0B7048, asm, cod/0B7048]
       - [0x0B7280, c,   cod/0B7280]            # func_001B7280: return D_00633158
