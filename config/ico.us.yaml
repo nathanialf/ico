@@ -745,6 +745,10 @@ segments:
       - [0x0685DC, asm, cod/0685DC]
       - [0x068A28, c,   cod/068A28]            # func_00168A28: 4 float stores
       - [0x068A3C, asm, cod/068A3C]
+      - [0x068A40, c,   cod/068A40]            # func_00168A40: promote-test: subagent seed (unscored, may match)
+      - [0x068A5C, asm, cod/068A5C]
+      - [0x068A60, c,   cod/068A60]            # func_00168A60: promote-test: subagent seed (unscored, may match)
+      - [0x068A7C, asm, cod/068A7C]
       - [0x068BA0, c,   cod/068BA0]            # func_00168BA0: return func_00243950(a0) + *(float*)(a0+0xC)
       - [0x068BCC, asm, cod/068BCC]
       - [0x068C58, c,   cod/068C58]            # func_00168C58: init 8 sdata + 1 from raw addr 0x10000000
@@ -766,7 +770,8 @@ segments:
       - [0x06BD04, asm, cod/06BD04]
       - [0x075C70, c,   cod/075C70]            # func_00175C70: if(D_00631AE8) sub2->3C0 = x
       - [0x075C90, c,   cod/075C90]            # func_00175C90: if(D_00631AE8) sub2->3C0 = 0
-      - [0x075CB0, asm, cod/075CB0]
+      - [0x075CB0, c,   cod/075CB0]            # func_00175CB0: promote-test: subagent seed (unscored, may match)
+      - [0x075CDC, asm, cod/075CDC]
       - [0x075F60, c,   cod/075F60]            # func_00175F60: return (int)((float*)(a0+0x20) - (float*)(a1+0x20))
       - [0x075F7C, asm, cod/075F7C]
       - [0x076130, c,   cod/076130]            # func_00176130: save/reload arg, sub+0x634=0
@@ -961,6 +966,7 @@ segments:
       - [0x093A78, asm, cod/093A78]
       - [0x093EC8, c,   cod/093EC8]            # func_00193EC8
       - [0x093EDC, asm, cod/093EDC]
+      - [0x093F48, c,   cod/093F48]            # func_00193F48: promote-test: subagent seed (unscored, may match)
       - [0x093F68, c,   cod/093F68]            # func_00193F68: p[0]=p[1]=1
       - [0x093F78, asm, cod/093F78]
       - [0x094590, c,   cod/094590]            # func_00194590: abs(func_00194508(a0..a3))
@@ -1086,6 +1092,7 @@ segments:
       - [0x0AA4F0, asm, cod/0AA4F0]
       - [0x0AA550, c,   cod/0AA550]            # func_001AA550: if (a0 == D_00632C80) { D_00632C80 = -1; func_00247608(); }
       - [0x0AA57C, asm, cod/0AA57C]
+      - [0x0AA580, asm, cod/0AA580]
       - [0x0AA5B8, c,   cod/0AA5B8]
       - [0x0AA5C0, asm, cod/0AA5C0]
       - [0x0AA660, c,   cod/0AA660]            # func_001AA660: wrap func_001123C0(&D_00274EF0), return 1
@@ -1119,6 +1126,8 @@ segments:
       - [0x0AEA68, asm, cod/0AEA68]
       - [0x0AFB90, c,   cod/0AFB90]
       - [0x0AFB98, asm, cod/0AFB98]
+      - [0x0B0518, c,   cod/0B0518]            # func_001B0518: promote-test: subagent seed (unscored, may match)
+      - [0x0B0538, asm, cod/0B0538]
       - [0x0B0A38, c,   cod/0B0A38]            # func_001B0A38: init 5 globals to 0
       - [0x0B0A54, asm, cod/0B0A54]
       - [0x0B0A58, c,   cod/0B0A58]            # func_001B0A58: D_00633024 = 1, return 1
@@ -1262,7 +1271,7 @@ segments:
       - [0x0CEB08, c,   cod/0CEB08]            # func_001CEB08
       - [0x0CEB18, asm, cod/0CEB18]
       - [0x0CEBB0, c, cod/0CEBB0]            # func_001CEBB0: 4-insn lw
-      - [0x0CEBC0, asm, cod/0CEBC0]
+      - [0x0CEBC0, c,   cod/0CEBC0]            # func_001CEBC0: promote-test: subagent seed (unscored, may match)
       - [0x0CEBF0, c, cod/0CEBF0]            # func_001CEBF0: 4-insn swc1
       - [0x0CEC00, asm, cod/0CEC00]
       - [0x0CF770, c,   cod/0CF770]            # func_001CF770: func_0010EC98(a0[1]); return 1
@@ -1304,6 +1313,8 @@ segments:
       - [0x0D4354, asm, cod/0D4354]
       - [0x0D4D98, c,   cod/0D4D98]            # func_001D4D98
       - [0x0D4DA4, asm, cod/0D4DA4]
+      - [0x0D4DA8, c,   cod/0D4DA8]            # func_001D4DA8: promote-test: subagent seed (unscored, may match)
+      - [0x0D4DCC, asm, cod/0D4DCC]
       - [0x0D4DD0, c,   cod/0D4DD0]            # func_001D4DD0: a0 ? D_00633F1C : D_00633F18
       - [0x0D4DE8, asm, cod/0D4DE8]
       - [0x0D4E70, c,   cod/0D4E70]            # func_001D4E70: return p<self[2]?0:-1 (p=self+0x10)
@@ -1609,6 +1620,8 @@ segments:
       - [0x13AAB8, asm, cod/13AAB8]
       - [0x13AD58, c,   cod/13AD58]            # func_0023AD58: store-arg-discard
       - [0x13AD68, asm, cod/13AD68]
+      - [0x13AEA0, c,   cod/13AEA0]            # func_0023AEA0: promote-test: subagent seed (unscored, may match)
+      - [0x13AED4, asm, cod/13AED4]
       - [0x13B4F0, c,   cod/13B4F0]            # func_0023B4F0: sibling: &func_0023B518 instead
       - [0x13B518, asm, cod/13B518]
       - [0x13D030, c,   cod/13D030]            # func_0023D030: copy 2 sdata floats to *self->34, return 1
@@ -1711,6 +1724,8 @@ segments:
       - [0x1456A8, c,   cod/1456A8]            # func_002456A8: sibling: same
       - [0x1456D0, c,   cod/1456D0]            # func_002456D0: sibling: same
       - [0x1456F8, asm, cod/1456F8]
+      - [0x145DB8, c,   cod/145DB8]            # func_00245DB8: promote-test: subagent seed (unscored, may match)
+      - [0x145DDC, asm, cod/145DDC]
       - [0x145E88, c,   cod/145E88]            # func_00245E88: a0->18=0 + a0->10 &= ~1
       - [0x145EA4, asm, cod/145EA4]
       - [0x1470D8, c,   cod/1470D8]            # func_002470D8: func_00247088(); func_00100560(D_00550864); ret 0
@@ -1775,7 +1790,7 @@ segments:
       - [0x151C14, asm, cod/151C14]
       - [0x151C18, c,   cod/151C18]            # func_00251C18
       - [0x151C28, asm, cod/151C28]
-      - [0x151D48, asm, cod/151D48]
+      - [0x151D48, c,   cod/151D48]            # func_00251D48: promote: score-0 from permuter (volatile dummies)
       - [0x151D6C, asm, cod/151D6C]
       - [0x151D70, c,   cod/151D70]            # func_00251D70: self[0x10]->0x78=a1; ->0x70=1
       - [0x151D84, asm, cod/151D84]
@@ -1887,6 +1902,8 @@ segments:
       - [0x16A5FC, asm, cod/16A5FC]
       - [0x16B138, c,   cod/16B138]            # func_0026B138: return &D_00630658
       - [0x16B144, asm, cod/16B144]
+      - [0x16B148, c,   cod/16B148]            # func_0026B148: promote-test: subagent seed (unscored, may match)
+      - [0x16B174, asm, cod/16B174]
       - [0x16B178, c,   cod/16B178]            # func_0026B178: wrap func_0026B138(D_00553244)
       - [0x16B19C, asm, cod/16B19C]
       - [0x16BEE0, c,   cod/16BEE0]
@@ -1896,12 +1913,16 @@ segments:
       - [0x16BFC4, asm, cod/16BFC4]
       - [0x16CF10, c,   cod/16CF10]            # func_0026CF10: func_0026A330() passthrough
       - [0x16CF2C, asm, cod/16CF2C]
+      - [0x16D458, c,   cod/16D458]            # func_0026D458: promote-test: subagent seed (unscored, may match)
+      - [0x16D484, asm, cod/16D484]
       - [0x16D488, c,   cod/16D488]            # func_0026D488: wrap func_0026D188(D_00553244)
       - [0x16D4AC, asm, cod/16D4AC]
       - [0x16D538, c,   cod/16D538]            # func_0026D538: func_00245678() passthrough
       - [0x16D554, asm, cod/16D554]
       - [0x16D6A8, c,   cod/16D6A8]            # func_0026D6A8: func(p->54, (short)p->E)
       - [0x16D6C8, asm, cod/16D6C8]
+      - [0x16E5C8, c,   cod/16E5C8]            # func_0026E5C8: promote-test: subagent seed (unscored, may match)
+      - [0x16E5F4, asm, cod/16E5F4]
       - [0x16E5F8, c,   cod/16E5F8]            # func_0026E5F8: func_002633B8(func_0026E5C8(a0, a1))
       - [0x16E61C, asm, cod/16E61C]
       - [0x16F420, c,   cod/16F420]            # func_0026F420: tail call func_0026F2F8 with both args masked &~0x3F

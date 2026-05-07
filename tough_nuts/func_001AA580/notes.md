@@ -34,3 +34,17 @@ glabel func_001AA580
     /* AA5B4 001AA5B4 2000BD27 */   addiu     $sp, $sp, 0x20
 endlabel func_001AA580
 ```
+
+---
+
+## Attempt at 2026-05-07
+
+**Reason parked:** v0=0 (return val) emitted late vs expected early; tried explicit 'int rv=0' lift but compiler still re-orders the materialize-zero past the call
+
+Seed: `tough_nuts/func_001AA580/0AA580.c`
+
+Disassembly excerpt:
+
+```
+(no asm/cod/*.s found for func_001AA580; check asm/matchings/cod/0AA580/)
+```
