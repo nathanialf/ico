@@ -952,6 +952,8 @@ segments:
       - [0x0F4DE8, asm, cod/0F4DE8]
       - [0x0F6A90, c, cod/0F6A90]            # func_001F6A90: 4-insn swc1
       - [0x0F6AA0, asm, cod/0F6AA0]
+      - [0x0F6C88, c,   cod/0F6C88]            # func_001F6C88: tail call func_00118678(0x70000000) + sdata-set
+      - [0x0F6C98, asm, cod/0F6C98]
       - [0x0F6CA0, c,   cod/0F6CA0]            # func_001F6CA0: D_00633780 = val
       - [0x0F6CA8, c,   cod/0F6CA8]            # func_001F6CA8: return D_00633780
       - [0x0F6CB0, asm, cod/0F6CB0]
