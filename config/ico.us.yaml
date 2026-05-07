@@ -521,7 +521,7 @@ segments:
       - [0x037548, c,   cod/037548]            # func_00137548: sw 0 + tail call func_00137180(a0, 0)
       - [0x037558, asm, cod/037558]
       - [0x037EE8, c,   cod/037EE8]
-      - [0x037EF0, asm, cod/037EF0]
+      - [0x037EF0, c,   cod/037EF0]            # func_00137EF0: promote: score-0 from permuter (char trunc trick)
       - [0x037F04, asm, cod/037F04]
       - [0x0383D8, c,   cod/0383D8]            # func_001383D8: wrap func_00136280(a0, a1, 0x63FC), return 0
       - [0x0383F8, asm, cod/0383F8]
@@ -807,6 +807,8 @@ segments:
       - [0x07B2E4, asm, cod/07B2E4]
       - [0x07B2E8, c,   cod/07B2E8]            # func_0017B2E8: if(rc=func_0017E188()) tail call func_001F19F0(rc)
       - [0x07B314, asm, cod/07B314]
+      - [0x07B358, c,   cod/07B358]            # func_0017B358: promote: score-0 from permuter (void+return)
+      - [0x07B394, asm, cod/07B394]
       - [0x07B568, c,   cod/07B568]            # func_0017B568: func_0013FF88(a0, 0x2F, a0); tail func_001D4B40(a0, 2)
       - [0x07B59C, asm, cod/07B59C]
       - [0x07B5A0, c,   cod/07B5A0]            # func_0017B5A0: tail call func_00102970(a0, xyz from a1[0..2])
@@ -1404,7 +1406,7 @@ segments:
       - [0x0F0540, c,   cod/0F0540]            # func_001F0540: tail call func_001F0098 (triple-deref +0x20 TCO)
       - [0x0F0550, c,   cod/0F0550]            # func_001F0550: tail call func_001F0260 (deref+offset TCO)
       - [0x0F0564, asm, cod/0F0564]
-      - [0x0F0858, asm, cod/0F0858]
+      - [0x0F0858, c,   cod/0F0858]            # func_001F0858: promote: score-0 from permuter (void+return TCO trick)
       - [0x0F0878, asm, cod/0F0878]
       - [0x0F0A28, c,   cod/0F0A28]            # func_001F0A28: tail call func_001A6E28(&D_0061A578) + gp_rel-set 0
       - [0x0F0A38, asm, cod/0F0A38]
