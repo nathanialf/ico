@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-07 17:20:06 UTC
+- Generated: 2026-05-07 17:22:21 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4426 total in `asm/cod/*.s`, 26 parked, 4400 considered
+- Functions: 4425 total in `asm/cod/*.s`, 26 parked, 4399 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -97,14 +97,12 @@ _5 total in this bucket; showing top 5._
 <a id="wrap-1jal-0x34-0x40"></a>
 ## 0x34-0x40, exactly 1 jal, no VU (wrapper w/ stack buffer / arg pack)
 
-_55 total in this bucket; showing top 50._
+_53 total in this bucket; showing top 50._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
 | `func_0024F6D8` | 0x34 | 13 | 1 |  | `addiu sd jal addiu` | asm/cod/14BBC0.s:4862 |
 | `func_00264060` | 0x34 | 13 | 1 |  | `addiu sd sd addiu` | asm/cod/16405C.s:18 |
-| `func_00265AF0` | 0x34 | 13 | 1 |  | `daddu lui daddu addiu` | asm/cod/165814.s:264 |
-| `func_0026E840` | 0x34 | 13 | 1 |  | `daddu lui daddu addiu` | asm/cod/16E61C.s:195 |
 | `func_001019A8` | 0x38 | 14 | 1 |  | `addiu sd sd addiu` | asm/cod/0011E4.s:675 |
 | `func_0013F8C0` | 0x38 | 14 | 1 |  | `addiu sd sd lw` | asm/cod/03F884.s:41 |
 | `func_0019F530` | 0x38 | 14 | 1 |  | `addiu sd sd jal` | asm/cod/09F4E8.s:37 |
@@ -151,6 +149,8 @@ _55 total in this bucket; showing top 50._
 | `func_0025E0C0` | 0x3C | 15 | 1 |  | `addiu addiu sltiu beqz` | asm/cod/15E04C.s:57 |
 | `func_0022B878` | 0x40 | 16 | 1 |  | `addiu sd jal addiu` | asm/cod/12B650.s:189 |
 | `func_0025E118` | 0x40 | 16 | 1 |  | `addiu ori dsll and` | asm/cod/15E114.s:18 |
+| `func_0025E158` | 0x40 | 16 | 1 |  | `addiu ori dsll and` | asm/cod/15E114.s:41 |
+| `func_0024A4D8` | 0x38 | 14 | 1 |  | `addiu lui addiu lui` | asm/cod/1498D4.s:978 |
 
 <a id="wrap-spill-reload"></a>
 ## Any size, has sw $a0,0($sp); lw $a0,0($sp), no VU (volatile unsigned int a0 + volatile int local)
@@ -356,7 +356,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4121 unmatched functions are not in any shape bucket above._
+_4122 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 
