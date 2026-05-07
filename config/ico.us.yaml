@@ -1077,7 +1077,7 @@ segments:
       - [0x098438, asm, cod/098438]
       - [0x098678, c,   cod/098678]            # func_00198678: negate 3 floats, copy 4th
       - [0x0986A8, c,   cod/0986A8]            # func_001986A8: 4x4 mat-vec affine
-      - [0x0986D8, asm, cod/0986D8]
+      - [0x0986D8, c,   cod/0986D8]            # func_001986D8: buf[16] + 2-call wrapper (re-test after lwu insight)
       - [0x098710, asm, cod/098710]
       - [0x099790, c,   cod/099790]            # func_00199790: 3x4 matrix-vec mul
       - [0x0997B8, asm, cod/0997B8]

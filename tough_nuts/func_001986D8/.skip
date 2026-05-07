@@ -1,6 +1,0 @@
-Trailing-nop alignment: expected function size is 0x38 with explicit
-'sll zero,zero,0' as the 14th instruction. ee-gcc 2.9-991111 always
-emits 0x34 (13 instructions, no trailing nop) regardless of formulation
-— the original codegen has a `.p2align`-style trailing pad inside the
-function body. Permuter can't bridge this since the byte difference is
-structural (size mismatch), not regalloc/scheduling.
