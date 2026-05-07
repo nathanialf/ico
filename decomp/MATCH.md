@@ -185,7 +185,7 @@ Idioms that have worked:
   - **Type the global**: `extern char D_X[];` produces lui+lo;
     `extern int D_X;` produces gp_rel for in-sdata-range globals.
 
-### Step 4: Promote to a handwritten-asm leaf (`hasm`) via a header macro
+### Step 4: Promote to a handwritten-asm leaf via a header macro (preferred), or splat-emitted `.s` (fallback)
 
 When the function is *structurally* a handwritten leaf — a syscall
 wrapper, a VU0/COP2 macro shim, an instruction sequence that has no
@@ -195,12 +195,55 @@ C-language semantics (e.g. `syscall` itself) — express it as a
 so the function counts toward `.text` matched-%, but the asm lives in
 a header that other peer leaves can reuse.
 
+#### Two patterns, in strict priority order
+
+**Priority: Pattern C (header macro + `c` yaml)** — preferred.
+
+  - The asm body lives in `include/<topic>.h` as a macro.
+  - `src/cod/<off>.c` does `#include "<topic>.h"` and a one-line macro
+    invocation (or, for matching tricks, a sequence of macro calls).
+  - yaml: `[0xADDR, c, cod/<off>]`.
+  - Examples: `include/syscall.h` (150 syscall wrappers),
+    `include/r5900.h` (SYNC, QCOPY16, …), `include/matching.h`
+    (DEFEAT_TCO, KEEP_LIVE, VOLATILE_RELOAD_CALL, …),
+    `include/vu0.h` (per-instruction VU0/COP2 macros — see below).
+
+**Fallback: Pattern A (`hasm` yaml + splat-emitted `.s` in `src/`)** —
+use only when Pattern C is impossible or impractical.
+
+  - Splat regenerates `src/cod/<off>.s` from the base ELF on `make
+    setup` (gitignored regeneration; the `.s` file is committed once
+    and splat refuses to overwrite — see `lib/splat/.../hasm.py`).
+  - yaml: `[0xADDR, hasm, cod/<off>]`.
+  - Splat needs `hasm_in_src_path: True` in the yaml header (already
+    set).
+  - `progress.py` counts `hasm` the same as `c`.
+  - Use when: the function has a fixed-shape body that no header-macro
+    abstraction usefully covers (e.g., a one-off byte-level pattern
+    that won't recur), OR when the macro abstraction would be a 1:1
+    file-per-macro that adds no real reuse.
+
+#### When to choose which
+
+  - **Pattern C (default).** The body is one or more recognisable
+    instruction families (syscall, COP2 op, sync barrier, dispatch
+    wrapper, etc.).  Even if it's a one-off pattern, prefer Pattern C
+    when the body can be expressed as a small number of macro calls
+    plus C glue — the .c file documents intent better than splat-emitted
+    `.s` does.
+
+  - **Pattern A (fallback).** The body is a long opaque sequence of
+    instructions that doesn't fit a macro idiom (e.g., a VU0 routine
+    with 14+ unique instructions in a specific schedule), OR Pattern C
+    requires `__attribute__((naked))` that ee-gcc 2.9 doesn't support.
+
 This is the **preferred escape hatch over Step 5 (postprocess)**.
 Reach for a postprocess only when *gcc CAN emit the correct shape but
 gas reorders it*, or when *the original codegen depends on
 inter-function layout gcc can't know about*. If the body is genuinely
 not expressible in C (e.g. needs `syscall`, `vrnext`, `qmfc2`, or a
-specific delay-slot fill), promote to `hasm`-via-header instead.
+specific delay-slot fill), promote to a header macro (Pattern C);
+postprocesses are still last resort.
 
 Existing examples:
 
