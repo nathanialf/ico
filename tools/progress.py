@@ -51,7 +51,7 @@ SECTION_TO_TYPES = {
     ".lit4":   {"lit4"},
     ".sdata":  {"sdata"},
 }
-MATCHABLE_TYPES = {"c"}  # Future: hasm if we adopt hand-asm matching.
+MATCHABLE_TYPES = {"c", "hasm"}
 
 
 def _human_bytes(n: int) -> str:
@@ -112,7 +112,9 @@ def _section_for_type(stype: str) -> str | None:
     return None
 
 
-def _src_exists(name: str) -> bool:
+def _src_exists(name: str, stype: str) -> bool:
+    if stype == "hasm":
+        return (SRC_DIR / f"{name}.s").exists()
     return (SRC_DIR / f"{name}.c").exists()
 
 
@@ -135,7 +137,7 @@ def compute_progress() -> dict[str, tuple[int, int]]:
         if sec is None:
             continue
         size = _claim_size(subs, i, final_off)
-        if stype in MATCHABLE_TYPES and name and _src_exists(name):
+        if stype in MATCHABLE_TYPES and name and _src_exists(name, stype):
             matched[sec] += size
 
     totals = {sec: sizes.get(sec, 0) for sec in SECTION_TO_TYPES}
