@@ -177,10 +177,18 @@ USE_MODERN_AS_TXT := config/use_modern_as.txt
 SWAP_ADDU_TXT := config/swap_addu_operands.txt
 COALESCE_V1_V0_TXT := config/coalesce_v1_v0.txt
 SWAP_SW_PAIR_TXT := config/swap_sw_pair.txt
+NO_TRAILING_NOP_TXT := config/no_trailing_nop.txt
 
-$(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.c $(EXTRA_CFLAGS_TXT) $(EXTRA_CFLAGS_LOOKUP) $(USE_MODERN_AS_TXT) $(SWAP_ADDU_TXT) $(COALESCE_V1_V0_TXT) $(SWAP_SW_PAIR_TXT)
+$(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.c $(EXTRA_CFLAGS_TXT) $(EXTRA_CFLAGS_LOOKUP) $(USE_MODERN_AS_TXT) $(SWAP_ADDU_TXT) $(COALESCE_V1_V0_TXT) $(SWAP_SW_PAIR_TXT) $(NO_TRAILING_NOP_TXT)
 	@mkdir -p $(@D)
 	$(CC) -B $(EEGCC_LIB) $(CFLAGS) $$($(EXTRA_CFLAGS_LOOKUP) $<) -o $(@:.o=.s) $<
+	@# If listed in $(NO_TRAILING_NOP_TXT), wrap the final `j $$31` with
+	@# `.set noreorder` so gas doesn't auto-fill the jr ra delay slot
+	@# with a nop. Used for fall-through-into-next-function patterns
+	@# where the original codegen leaves the delay slot empty.
+	@if grep -qE "^[[:space:]]*$(notdir $(basename $<))([[:space:]]|$$|#)" $(NO_TRAILING_NOP_TXT) 2>/dev/null; then \
+	    .venv/bin/python tools/postprocess_no_trailing_nop.py $(@:.o=.s); \
+	fi
 	@# If listed in $(SWAP_ADDU_TXT), swap addu rs/rt where rt==rd.
 	@if grep -qE "^[[:space:]]*$(notdir $(basename $<))([[:space:]]|$$|#)" $(SWAP_ADDU_TXT) 2>/dev/null; then \
 	    sed -i -E 's/(addu[[:space:]]+\$$([0-9]+),)\$$([0-9]+),\$$\2\b/\1$$\2,$$\3/g' $(@:.o=.s); \

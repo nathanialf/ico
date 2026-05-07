@@ -555,7 +555,7 @@ segments:
       - [0x0383F8, asm, cod/0383F8]
       - [0x03A200, c,   cod/03A200]            # func_0013A200
       - [0x03A21C, asm, cod/03A21C]
-      - [0x03A220, asm, cod/03A220]
+      - [0x03A220, c,   cod/03A220]            # func_0013A220: deref+cond+tail-call (with reg-pinned a1; postprocess will wrap end jr in noreorder)
       - [0x03A248, asm, cod/03A248]
       - [0x03B718, c,   cod/03B718]            # func_0013B718: wrap func_0013A5B8(&D_00281630, 0, 0); ret 0
       - [0x03B744, asm, cod/03B744]
@@ -2030,7 +2030,7 @@ segments:
       - [0x15E114, asm, cod/15E114]
       - [0x160610, c,   cod/160610]            # func_00260610: wrap func_00263110(ll, ll); return 0
       - [0x160634, asm, cod/160634]
-      - [0x160CA8, asm, cod/160CA8]
+      - [0x160CA8, c,   cod/160CA8]            # func_00260CA8: guard + tail-call (void+return TCO trick)
       - [0x160CC8, asm, cod/160CC8]
       - [0x163F80, c,   cod/163F80]            # func_00263F80: 4-int packing buffer + 1-arg call
       - [0x163FAC, asm, cod/163FAC]

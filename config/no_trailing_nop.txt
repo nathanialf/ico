@@ -1,0 +1,18 @@
+# Per-file: wrap the final `j $31` (jr ra) at function end with
+# `.set noreorder` so gas doesn't auto-fill the delay slot with a nop.
+#
+# When the original codegen leaves the jr ra delay slot empty (filled
+# by the next linked function's first instruction), ee-gcc 2.9 emits
+# `j $31` outside any noreorder block. With default `.set reorder`,
+# gas appends a nop to fill the delay slot, growing the function by
+# 4 bytes. List the file_off here to suppress that nop.
+#
+# Format: <FILE_OFF_HEX> on its own line. # comments OK. Case-insensitive.
+# Lookup is by basename without extension, e.g. src/cod/03A220.c → 03A220.
+#
+# Risk: the next adjacent function's first instruction becomes the
+# implicit delay slot. Only safe when that instruction has no
+# observable side effect on the return path (typically standard
+# prologue setup of the next function — ld/sd/addiu, etc.).
+
+03A220

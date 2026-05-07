@@ -1,7 +1,0 @@
-ee-gcc 2.9 always emits a nop in the delay slot of the final `jr ra`
-when no other instruction is available to fill it. Expected codegen
-(from the original Pro-DG/CodeWarrior compiler) leaves the delay slot
-empty, with the delay falling through into the first instruction of
-the next linked function. ee-gcc has no inter-procedural delay-slot
-scheduling, so the function ends up 4 bytes larger (one nop).
-Same compiler limitation as func_00194398, func_00194400.
