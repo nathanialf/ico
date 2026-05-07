@@ -726,6 +726,8 @@ segments:
       - [0x06A1D4, asm, cod/06A1D4]
       - [0x06A2A0, c,   cod/06A2A0]            # func_0016A2A0: sqrt(x^2+y^2)
       - [0x06A2C4, asm, cod/06A2C4]
+      - [0x06A2F8, c,   cod/06A2F8]            # func_0016A2F8: return func_00105FE0(func_00243950(a0, a0))
+      - [0x06A31C, asm, cod/06A31C]
       - [0x06A678, c,   cod/06A678]            # func_0016A678: func_0014A3A8(); tail call func_001A6E28(&D_00559430)
       - [0x06A69C, asm, cod/06A69C]
       - [0x06BCF0, c,   cod/06BCF0]            # func_0016BCF0: func_002641D8(&D_00282AC0, 0, 0x5910)
@@ -1779,6 +1781,8 @@ segments:
       - [0x16D554, asm, cod/16D554]
       - [0x16D6A8, c,   cod/16D6A8]            # func_0026D6A8: func(p->54, (short)p->E)
       - [0x16D6C8, asm, cod/16D6C8]
+      - [0x16E5F8, c,   cod/16E5F8]            # func_0026E5F8: func_002633B8(func_0026E5C8(a0, a1))
+      - [0x16E61C, asm, cod/16E61C]
       - [0x16F420, c,   cod/16F420]            # func_0026F420: tail call func_0026F2F8 with both args masked &~0x3F
       - [0x16F434, asm, cod/16F434]
       - [0x16F560, c,   cod/16F560]            # func_0026F560: tail call func_0026F438 with both args masked &~0x3F
