@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-07 17:35:35 UTC
+- Generated: 2026-05-07 17:40:20 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4424 total in `asm/cod/*.s`, 28 parked, 4396 considered
+- Functions: 4425 total in `asm/cod/*.s`, 29 parked, 4396 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -279,13 +279,12 @@ _125 total in this bucket; showing top 50._
 <a id="cond-deref-leaf"></a>
 ## Leaf (no jal) with branch, no VU (cond-return / deref+if)
 
-_48 total in this bucket; showing top 48._
+_46 total in this bucket; showing top 46._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
 | `func_001B7FC8` | 0x20 | 8 | 0 |  | `bgezl sw bgezl sw` | asm/cod/0B7CE0.s:243 |
 | `func_00154420` | 0x24 | 9 | 0 |  | `lw lw lw sltiu` | asm/cod/0538F4.s:873 |
-| `func_001886D0` | 0x24 | 9 | 0 |  | `lui addiu andi beqz` | asm/cod/0882CC.s:314 |
 | `func_001BBEA0` | 0x24 | 9 | 0 |  | `lw lw beqz nop` | asm/cod/0BBEA0.s:13 |
 | `func_001E4700` | 0x24 | 9 | 0 |  | `lw addiu lw bnez` | asm/cod/0E237C.s:2674 |
 | `func_0013C510` | 0x28 | 10 | 0 |  | `beqz sw b sw` | asm/cod/03BB80.s:793 |
@@ -312,7 +311,6 @@ _48 total in this bucket; showing top 48._
 | `func_0014A0D8` | 0x24 | 9 | 0 |  | `lw bnel lw jr` | asm/cod/049EF4.s:165 |
 | `func_0017E588` | 0x24 | 9 | 0 |  | `lw beqz addiu bne` | asm/cod/07E588.s:13 |
 | `func_001903E0` | 0x24 | 9 | 0 |  | `lw lw lbu beqz` | asm/cod/0903DC.s:18 |
-| `func_001D03A0` | 0x24 | 9 | 0 |  | `lw beqz lw beqz` | asm/cod/0CFA34.s:694 |
 | `func_0014B2F0` | 0x28 | 10 | 0 |  | `lw beqz daddu addiu` | asm/cod/04B270.s:67 |
 | `func_0017D0D0` | 0x28 | 10 | 0 |  | `sll beqz sra lw` | asm/cod/07CB1C.s:471 |
 | `func_001F4228` | 0x28 | 10 | 0 |  | `lw lw lw beqz` | asm/cod/0F40D8.s:127 |
@@ -351,7 +349,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4127 unmatched functions are not in any shape bucket above._
+_4129 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 
