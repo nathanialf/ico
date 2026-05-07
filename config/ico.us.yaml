@@ -243,8 +243,10 @@ segments:
       - [0x000C90, asm, cod/000C90]
       - [0x001AE8, c,   cod/001AE8]            # func_00101AE8: wrap func_00100950(2, &local=a0)
       - [0x001B0C, asm, cod/001B0C]
+      - [0x001B10, c,   cod/001B10]            # func_00101B10: wrap func_00100950(3, &local[a0,(char)a1])
       - [0x001B40, c,   cod/001B40]            # func_00101B40: wrap func_00100950(4, &local=a0)
       - [0x001B64, asm, cod/001B64]
+      - [0x001BD8, c,   cod/001BD8]            # func_00101BD8: wrap func_00100950(-7, &local[a0,(char)a1])
       - [0x001C08, c,   cod/001C08]            # func_00101C08: wrap func_00100950(-8, &local=a0)
       - [0x001C2C, asm, cod/001C2C]
       - [0x001C30, c,   cod/001C30]            # func_00101C30: wrap func_00100950(-9, &local=a0)
@@ -1033,6 +1035,9 @@ segments:
       - [0x0B0A98, c,   cod/0B0A98]            # func_001B0A98: sibling: tail call func_00144120(0x18F, -2u, 0, 0)
       - [0x0B0AB0, c,   cod/0B0AB0]            # func_001B0AB0: tail call func_001A6E28(&D_00616CE0)
       - [0x0B0ABC, asm, cod/0B0ABC]
+      - [0x0B4EC0, c,   cod/0B4EC0]            # func_001B4EC0: wrap func_001A6E28(&D_00616ED8); return a1
+      - [0x0B4EF0, c,   cod/0B4EF0]            # func_001B4EF0: wrap func_001A6E28(&D_00616EE8); return a1
+      - [0x0B4F20, asm, cod/0B4F20]
       - [0x0B4FC0, c,   cod/0B4FC0]            # func_001B4FC0: return -1
       - [0x0B4FC8, asm, cod/0B4FC8]
       - [0x0B5610, c,   cod/0B5610]            # func_001B5610: return -1
