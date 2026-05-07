@@ -1552,6 +1552,8 @@ segments:
       - [0x0F6DB0, c,   cod/0F6DB0]
       - [0x0F6DB8, c,   cod/0F6DB8]            # func_001F6DB8: save/restore gp_rel + 4-arg call
       - [0x0F6DFC, asm, cod/0F6DFC]
+      - [0x0F6E00, c,   cod/0F6E00]            # func_001F6E00: func_001F6E00: 4-arg wrapper, frame, DEFEAT_TCO
+      - [0x0F6E24, asm, cod/0F6E24]
       - [0x0FA590, c,   cod/0FA590]            # func_001FA590: D_00633F64 = 0
       - [0x0FA598, asm, cod/0FA598]
       - [0x0FAA30, c,   cod/0FAA30]            # func_001FAA30: D_006337B8 = 1, return 1
