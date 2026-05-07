@@ -262,7 +262,7 @@ segments:
       - [0x002860, c,   cod/002860]            # func_00102860: tail call func_0010D830(*(a0+0x15C)+0xC0)
       - [0x00286C, asm, cod/00286C]
       - [0x002970, c,   cod/002970]            # func_00102970: auto-batch
-      - [0x002978, asm, cod/002978]
+      - [0x002978, c,   cod/002978]            # func_00102978: func_0010D838(a0, a1+0x60); tail call func_0010DDB8(a0, a0, a1->10)
       - [0x0029B8, c,   cod/0029B8]            # func_001029B8: auto-batch
       - [0x0029C0, asm, cod/0029C0]
       - [0x002A38, c,   cod/002A38]            # func_00102A38: auto-batch
