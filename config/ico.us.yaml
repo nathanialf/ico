@@ -1040,7 +1040,7 @@ segments:
       - [0x093F78, asm, cod/093F78]
       - [0x094360, c,   cod/094360]            # func_00194360: buf[4] init via func + zero one slot + 2nd call
       - [0x094394, asm, cod/094394]
-      - [0x094398, asm, cod/094398]
+      - [0x094398, c,   cod/094398]            # func_00194398: buf+2-call (shared jr+sp restore via 0943C0 stub)
       - [0x0943C0, asm, cod/0943C0]
       - [0x0943C8, c,   cod/0943C8]            # func_001943C8: buf+2-call+chained float-call (3 jals)
       - [0x094400, c,   cod/094400]            # func_00194400: buf+2-call+chained-float-call (no-trailing-nop fix)

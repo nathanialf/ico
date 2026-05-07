@@ -166,13 +166,25 @@ Idioms that have worked:
   - **Type the global**: `extern char D_X[];` produces lui+lo;
     `extern int D_X;` produces gp_rel for in-sdata-range globals.
 
-### Step 4: Postprocess the .s file
+### Step 4: Postprocess the .s file (and check adjacent functions)
 
-When gcc emits the right instructions but gas's `.set reorder` mode
-does the wrong thing (auto-filling delay slots, expanding macros to
-the wrong variant, etc.), patch the `.s` between gcc and ee-as.
+When gcc emits the right instructions but the assembler does the
+wrong thing — or the original codegen relies on inter-function
+layout that gcc doesn't know about — patch the `.s` between gcc
+and ee-as.
 
-Existing passes (each driven by a per-file allowlist file):
+**Always check what's adjacent to your function in the linker.**
+The original Pro-DG / CodeWarrior emitted "shared epilogue stubs":
+1- to 4-instruction functions whose body is JUST the missing
+prologue/epilogue piece, reachable by fall-through from the preceding
+function. If your function ends 4–8 bytes too long, look at the
+function immediately AFTER it in `config/ico.us.yaml` (and its
+`asm/cod/<NEXTOFF>.s`). If you see a tiny 4-byte function like
+`addiu sp, +N; endlabel` or 8-byte `jr ra; addiu sp, +N; endlabel`,
+your function is supposed to fall into it — strip the corresponding
+suffix from your function's `.s`.
+
+Existing postprocess passes (each driven by a per-file allowlist):
 
   - `config/swap_addu_operands.txt` → sed: addu rs/rt swap
   - `config/coalesce_v1_v0.txt` → sed: drop redundant `move v0,v1`
@@ -182,6 +194,13 @@ Existing passes (each driven by a per-file allowlist file):
     so gas doesn't auto-fill the delay slot with a nop. Use when the
     original codegen leaves the jr ra delay slot empty (next function's
     first instruction acts as the implicit delay slot).
+  - `config/shared_sp_restore.txt` → `tools/postprocess_shared_sp_restore.py --sp-only`:
+    strips the `addu sp, +N` from the delay slot of `j $31`. Use
+    when the next adjacent function is a 4-byte `addiu sp, +N` stub.
+  - `config/shared_jr_restore.txt` → `tools/postprocess_shared_sp_restore.py --jr-and-sp`:
+    strips both the `j $31` and the `addu sp` from the gcc-emitted
+    epilogue. Use when the next adjacent function is an 8-byte
+    `jr ra; addiu sp, +N` stub.
 
 To add a new postprocess:
 
@@ -189,7 +208,8 @@ To add a new postprocess:
      edits in place. Make it idempotent.
   2. Add a per-file allowlist in `config/<name>.txt`.
   3. Add a Makefile clause modeled on the existing ones.
-  4. Document the precondition (when it's safe to apply).
+  4. Document the precondition (when it's safe to apply, what
+     adjacent functions or call patterns are required).
 
 ### Step 5: Park or `.skip` only after steps 1–4 are exhausted
 

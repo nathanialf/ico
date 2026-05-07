@@ -179,6 +179,7 @@ COALESCE_V1_V0_TXT := config/coalesce_v1_v0.txt
 SWAP_SW_PAIR_TXT := config/swap_sw_pair.txt
 NO_TRAILING_NOP_TXT := config/no_trailing_nop.txt
 SHARED_SP_RESTORE_TXT := config/shared_sp_restore.txt
+SHARED_JR_RESTORE_TXT := config/shared_jr_restore.txt
 
 $(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.c $(EXTRA_CFLAGS_TXT) $(EXTRA_CFLAGS_LOOKUP) $(USE_MODERN_AS_TXT) $(SWAP_ADDU_TXT) $(COALESCE_V1_V0_TXT) $(SWAP_SW_PAIR_TXT) $(NO_TRAILING_NOP_TXT)
 	@mkdir -p $(@D)
@@ -195,7 +196,14 @@ $(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.c $(EXTRA_CFLAGS_TXT) $(EXTRA_CFLAGS_LOOKUP) 
 	@# next adjacent function in the linker script is a 4-byte shared
 	@# `addiu sp, +N` stub that fills the delay slot at link time.
 	@if grep -qE "^[[:space:]]*$(notdir $(basename $<))([[:space:]]|$$|#)" $(SHARED_SP_RESTORE_TXT) 2>/dev/null; then \
-	    .venv/bin/python tools/postprocess_shared_sp_restore.py $(@:.o=.s); \
+	    .venv/bin/python tools/postprocess_shared_sp_restore.py --sp-only $(@:.o=.s); \
+	fi
+	@# If listed in $(SHARED_JR_RESTORE_TXT), strip the entire `j $$31; addu $$sp`
+	@# epilogue (both the jr and the sp restore). Function ends at the
+	@# preceding `ld $$31` and falls through into an 8-byte
+	@# `jr ra; addiu sp, +N` shared stub.
+	@if grep -qE "^[[:space:]]*$(notdir $(basename $<))([[:space:]]|$$|#)" $(SHARED_JR_RESTORE_TXT) 2>/dev/null; then \
+	    .venv/bin/python tools/postprocess_shared_sp_restore.py --jr-and-sp $(@:.o=.s); \
 	fi
 	@# If listed in $(SWAP_ADDU_TXT), swap addu rs/rt where rt==rd.
 	@if grep -qE "^[[:space:]]*$(notdir $(basename $<))([[:space:]]|$$|#)" $(SWAP_ADDU_TXT) 2>/dev/null; then \
