@@ -1113,6 +1113,8 @@ segments:
       - [0x105A94, asm, cod/105A94]
       - [0x105B30, c,   cod/105B30]            # func_00205B30: D_004CAEC0[idx*0x34] +0x28 = a1 (la mult sw)
       - [0x105B4C, asm, cod/105B4C]
+      - [0x109AB0, c,   cod/109AB0]            # func_00209AB0: tail call func_001297A0(0xA2, 0, -1)
+      - [0x109AC0, asm, cod/109AC0]
       - [0x1109D8, c,   cod/1109D8]            # func_002109D8: store-arg-discard
       - [0x1109E8, asm, cod/1109E8]
       - [0x110BA8, c,   cod/110BA8]            # func_00210BA8: store-arg-discard

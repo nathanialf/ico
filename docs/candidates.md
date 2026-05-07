@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-07 06:48:16 UTC
+- Generated: 2026-05-07 06:51:02 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4628 total in `asm/cod/*.s`, 0 parked, 4628 considered
+- Functions: 4627 total in `asm/cod/*.s`, 0 parked, 4627 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -27,11 +27,9 @@ and `mtc1`/`lwc1`/`swc1`/`cvt.*`/`mfc1` float-pair sequences.
 <a id="leaf-4-0x10"></a>
 ## 4-insn / 0x10 leaf, no jal, no VU (bulk getter/setter)
 
-_1 total in this bucket; showing top 1._
+_0 total in this bucket; showing top 0._
 
-| Function | Size | Insns | jal | VU | First mnemonics | Source |
-|---|---:|---:|---:|:---:|---|---|
-| `func_00209AB0` | 0x10 | 4 | 0 |  | `addiu daddu j addiu` | asm/cod/105B4C.s:4877 |
+(empty)
 
 <a id="leaf-5-0x14"></a>
 ## 5-insn / 0x14 leaf, no jal, no VU (store-and-forward)
