@@ -91,6 +91,16 @@ fi
 # we then run modern mips-linux-gnu-as on the .s output.
 CFLAGS="${CFLAGS:--S -G 8 -O2 -g2 -fno-builtin -fno-optimize-sibling-calls -nostdinc -Iinclude}"
 
+# Per-file overrides from config/extra_cflags.txt (same lookup as the
+# Makefile src/.o rule), so quick_diff stays in sync with the full build.
+EXTRA_CFLAGS_LOOKUP="$ROOT/tools/extra_cflags.sh"
+if [[ -x "$EXTRA_CFLAGS_LOOKUP" ]]; then
+    EXTRA_CFLAGS="$("$EXTRA_CFLAGS_LOOKUP" "$CSRC" 2>/dev/null || true)"
+    if [[ -n "$EXTRA_CFLAGS" ]]; then
+        CFLAGS="$CFLAGS $EXTRA_CFLAGS"
+    fi
+fi
+
 # ee-gcc looks for cc1 at the path it was built against (typically
 # ${PS2DEV}/ee/gcc-lib/...). Pass -B so it finds the bundled cc1 in our tree.
 if [[ "$CC" == *"ee-gcc2.96"* ]]; then

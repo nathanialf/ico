@@ -1,0 +1,29 @@
+# Per-file CFLAGS overrides for src/cod/<FILE_OFF>.c.
+#
+# Format: <FILE_OFF_HEX>  <extra-flags...>
+# Lookup: tools/extra_cflags.sh extracts FILE_OFF from the .c basename
+# (uppercased) and prints any matching extra flags. Empty output ⇒ no
+# override. Used by the Makefile src/.o rule and tools/quick_diff.sh so
+# both pipelines stay in sync.
+#
+# When to add an entry: a single function (or small cluster) needs a
+# compiler flag that breaks the global SHA-1 if applied to all of src/.
+# Verify with `make clean && make` after adding an entry, and remove
+# the entry the moment the underlying need disappears (e.g. matching
+# compiler is identified and the flag becomes default).
+#
+# Lines starting with # are comments; blank lines ignored.
+
+# func_001F4C00: bnel-form needs the post-RA scheduler off so the
+# `lui+addiu` for &D_00275850 stays split across the jr delay slot
+# instead of being collapsed.
+0F4C00          -fno-schedule-insns2
+
+# Note on tail calls (`-foptimize-sibling-calls`): the entire 4-insn
+# 0x10 leaf bucket (e.g. func_0010B2C0) compiles to `j func_X` in the
+# original, but ee-gcc 2.96 doesn't implement MIPS sibling-call
+# optimization at all — the flag is a no-op for this compiler.
+# Smoke-tested with 00B2C0; the override mechanism splices the flag
+# correctly but the emitted asm is unchanged. Tail-call shapes will
+# need either a compiler patch, naked-function inline asm, or a
+# different matching compiler.

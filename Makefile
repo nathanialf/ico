@@ -150,9 +150,12 @@ $(BUILD_DIR)/asm/%.o: $(ASM_DIR)/%.s
 	$(AS) $(ASFLAGS) -o $@ $<
 	$(OBJCOPY) --set-section-alignment .text=$(ALIGN_FOR) $@
 
-$(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.c
+EXTRA_CFLAGS_TXT := config/extra_cflags.txt
+EXTRA_CFLAGS_LOOKUP := tools/extra_cflags.sh
+
+$(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.c $(EXTRA_CFLAGS_TXT) $(EXTRA_CFLAGS_LOOKUP)
 	@mkdir -p $(@D)
-	$(CC) -B $(EEGCC_LIB) $(CFLAGS) -o $(@:.o=.s) $<
+	$(CC) -B $(EEGCC_LIB) $(CFLAGS) $$($(EXTRA_CFLAGS_LOOKUP) $<) -o $(@:.o=.s) $<
 	@# ee-gcc 2.96 emits `move $X, $0` for register-zero materialization,
 	@# which mips-linux-gnu-as expands to `or $X, $0, $0` (opcode 0x25).
 	@# Original PS2 codegen uses `daddu $X, $0, $0` (opcode 0x2D); same
