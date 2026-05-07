@@ -456,6 +456,39 @@ Fix: delete the stale `asm/cod/<surrounding>.s` and re-run `make setup`.
 For larger blast radii, `rm -f asm/cod/*.s build/asm/cod/*.o; make
 setup` is the nuclear option (rebuilds everything).
 
+## Defeating tail-call optimization in ee-gcc 2.9
+
+ee-gcc 2.9-991111 has sibling-call optimization hardcoded ON at -O2;
+`-fno-optimize-sibling-calls` is rejected. For wrapper functions whose
+original ICO codegen uses a full stack frame (`addiu sp, -N; sd ra,
+…; jal …; ld ra, …; jr ra; addiu sp, +N`) instead of a tail call
+(`j …`), defeat the optimization per-function with an empty inline-asm
+barrier *after* the wrapped call:
+
+```c
+void func_X(int a0) {
+    func_Y(a0);
+    __asm__ __volatile__("");  // blocks sibling-call opt
+}
+```
+
+If the wrapper additionally needs a larger frame than the saved-`ra`
+slot would force (e.g. 0x20 vs 0x10), add a dummy local and route a
+pointer to it through the barrier so the compiler must allocate stack
+for it:
+
+```c
+void func_X(void) {
+    int local;
+    func_Y(arg);
+    __asm__ __volatile__("" : : "r"(&local));
+}
+```
+
+Without the `&local` clobber, the local gets dead-store-eliminated and
+the frame collapses again. Used by func_00123C00 (0x20 frame) but not
+its sibling func_00241A00 (0x10 frame, no local needed).
+
 ## quick_diff vs full build — `move`-macro expansion mismatch
 
 Trust `make` (full build SHA-1) over `tools/quick_diff.sh` for any
