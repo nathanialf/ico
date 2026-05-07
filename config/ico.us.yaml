@@ -705,6 +705,8 @@ segments:
       - [0x05F224, asm, cod/05F224]
       - [0x05F228, c,   cod/05F228]            # func_0015F228: D_00292540[idx*0x18] +0x8 = a1 (la mult sw)
       - [0x05F244, asm, cod/05F244]
+      - [0x05F320, c,   cod/05F320]            # func_0015F320: buf[4] + 2 calls (caller saves s0)
+      - [0x05F358, asm, cod/05F358]
       - [0x05F4B8, c,   cod/05F4B8]            # func_0015F4B8: promote: score-0 from permuter (parked tough_nut)
       - [0x05F4DC, asm, cod/05F4DC]
       - [0x05F4E0, c,   cod/05F4E0]            # func_0015F4E0: store-arg-discard
@@ -811,6 +813,8 @@ segments:
       - [0x07B314, asm, cod/07B314]
       - [0x07B358, c,   cod/07B358]            # func_0017B358: promote: score-0 from permuter (void+return)
       - [0x07B394, asm, cod/07B394]
+      - [0x07B528, c,   cod/07B528]            # func_0017B528: promote: score-0 (void+new_var return TCO trick)
+      - [0x07B564, asm, cod/07B564]
       - [0x07B568, c,   cod/07B568]            # func_0017B568: func_0013FF88(a0, 0x2F, a0); tail func_001D4B40(a0, 2)
       - [0x07B59C, asm, cod/07B59C]
       - [0x07B5A0, c,   cod/07B5A0]            # func_0017B5A0: tail call func_00102970(a0, xyz from a1[0..2])
