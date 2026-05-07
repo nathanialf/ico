@@ -3,7 +3,7 @@
 
 ## Attempt at 2026-05-07
 
-**Reason parked:** score-5 close + trailing-nop alignment. Compiler-level (.p2align inside func body), needs upstream fix.
+**Reason parked:** ee-gcc 2.9 emits 'jr ra' + nop delay slot at function end. Expected falls-through into next function for the delay slot. Compiler-blocked: gcc has no inter-procedural delay-slot knowledge.
 
 Seed: `tough_nuts/func_0013A220/03A220.c`
 
