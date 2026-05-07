@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-07 06:44:46 UTC
+- Generated: 2026-05-07 06:48:16 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4630 total in `asm/cod/*.s`, 0 parked, 4630 considered
+- Functions: 4628 total in `asm/cod/*.s`, 0 parked, 4628 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -36,28 +36,12 @@ _1 total in this bucket; showing top 1._
 <a id="leaf-5-0x14"></a>
 ## 5-insn / 0x14 leaf, no jal, no VU (store-and-forward)
 
-_18 total in this bucket; showing top 18._
+_2 total in this bucket; showing top 2._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
 | `func_00137EF0` | 0x14 | 5 | 0 |  | `ld andi andi jr` | asm/cod/037EF0.s:13 |
 | `func_001C8A00` | 0x14 | 5 | 0 |  | `addiu mult addu jr` | asm/cod/0C3984.s:5903 |
-| `func_0025C668` | 0x14 | 5 | 0 |  | `daddu addiu addiu j` | asm/cod/158CEC.s:4461 |
-| `func_0025CCB0` | 0x14 | 5 | 0 |  | `daddu daddu daddu j` | asm/cod/158CEC.s:4961 |
-| `func_0025CCC8` | 0x14 | 5 | 0 |  | `daddu daddu daddu j` | asm/cod/158CEC.s:4972 |
-| `func_0025CCF8` | 0x14 | 5 | 0 |  | `daddu daddu daddu j` | asm/cod/15CCF8.s:13 |
-| `func_0025CD10` | 0x14 | 5 | 0 |  | `daddu daddu daddu j` | asm/cod/15CCF8.s:25 |
-| `func_00194EA8` | 0x14 | 5 | 0 |  | `lui addiu swc1 jr` | asm/cod/0945B4.s:707 |
-| `func_0019C010` | 0x14 | 5 | 0 |  | `addiu lui sw j` | asm/cod/09BB5C.s:350 |
-| `func_0025E100` | 0x14 | 5 | 0 |  | `daddu daddu addiu j` | asm/cod/15CE90.s:1525 |
-| `func_0013DD88` | 0x14 | 5 | 0 |  | `lui daddu addiu j` | asm/cod/03D944.s:364 |
-| `func_0016BCF0` | 0x14 | 5 | 0 |  | `lui daddu addiu j` | asm/cod/06A69C.s:1776 |
-| `func_00197FE8` | 0x14 | 5 | 0 |  | `lui daddu addiu j` | asm/cod/097338.s:997 |
-| `func_0025DCF0` | 0x14 | 5 | 0 |  | `addiu daddu daddu j` | asm/cod/15CE90.s:1159 |
-| `func_0025DD08` | 0x14 | 5 | 0 |  | `addiu daddu daddu j` | asm/cod/15CE90.s:1171 |
-| `func_0025E020` | 0x14 | 5 | 0 |  | `addiu daddu daddu j` | asm/cod/15CE90.s:1437 |
-| `func_0025E038` | 0x14 | 5 | 0 |  | `addiu daddu daddu j` | asm/cod/15CE90.s:1449 |
-| `func_001869F8` | 0x14 | 5 | 0 |  | `lui daddu addiu j` | asm/cod/082C14.s:4380 |
 
 <a id="leaf-6-0x18"></a>
 ## 6-insn / 0x18 leaf, no jal, no VU (sub-deref + store)
@@ -133,7 +117,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4587 unmatched functions are not in any shape bucket above._
+_4601 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 
