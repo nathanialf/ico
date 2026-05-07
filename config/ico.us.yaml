@@ -732,7 +732,8 @@ segments:
       - [0x068BA0, c,   cod/068BA0]            # func_00168BA0: return func_00243950(a0) + *(float*)(a0+0xC)
       - [0x068BCC, asm, cod/068BCC]
       - [0x068C58, c,   cod/068C58]            # func_00168C58: init 8 sdata + 1 from raw addr 0x10000000
-      - [0x068C88, asm, cod/068C88]
+      - [0x068C88, c,   cod/068C88]            # func_00168C88: v=D_006AB100[a1&0xF]; v ? (func_00105F00(a0,v); 0) : 1
+      - [0x068CC8, asm, cod/068CC8]
       - [0x06A130, c,   cod/06A130]            # func_0016A130: D=1; call(); D=0
       - [0x06A154, asm, cod/06A154]
       - [0x06A1B8, c,   cod/06A1B8]            # func_0016A1B8: rebase 2 ptr offsets to abs
