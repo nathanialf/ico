@@ -940,6 +940,7 @@ segments:
       - [0x097FFC, asm, cod/097FFC]
       - [0x098328, c,   cod/098328]            # func_00198328
       - [0x098338, asm, cod/098338]
+      - [0x0983F8, c,   cod/0983F8]            # func_001983F8: rc=func_001E8D30; *(rc->60) = 1; ret 1 ($v0 pinned)
       - [0x098420, c,   cod/098420]            # func_00198420: tail call func_00197FE8 passthrough
       - [0x098428, c,   cod/098428]            # func_00198428: sibling: tail call func_00197FE8 passthrough
       - [0x098430, c,   cod/098430]
@@ -1228,6 +1229,8 @@ segments:
       - [0x0D1410, c,   cod/0D1410]            # func_001D1410: cvt.w.s float->int < a1
       - [0x0D1428, c,   cod/0D1428]            # func_001D1428: == arg compare
       - [0x0D143C, asm, cod/0D143C]
+      - [0x0D1440, c,   cod/0D1440]            # func_001D1440: wrap func_0013B610(D_00631AEC, a0); ret 1
+      - [0x0D1468, asm, cod/0D1468]
       - [0x0D1AD0, c,   cod/0D1AD0]
       - [0x0D1AD8, asm, cod/0D1AD8]
       - [0x0D1CF8, c,   cod/0D1CF8]
