@@ -273,6 +273,8 @@ segments:
       - [0x00311C, asm, cod/00311C]
       - [0x004A38, c,   cod/004A38]
       - [0x004A48, asm, cod/004A48]
+      - [0x004EF0, c,   cod/004EF0]            # func_00104EF0: D_00631B40=0; 3-call seq: 243BD8, 0E9F8, tail 10D520
+      - [0x004F1C, asm, cod/004F1C]
       - [0x005258, c,   cod/005258]
       - [0x005268, c,   cod/005268]
       - [0x005278, c,   cod/005278]            # func_00105278: la-macro &D_0065FA40[D_00631B40<<6/4]
