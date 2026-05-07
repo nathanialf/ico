@@ -830,7 +830,7 @@ segments:
       - [0x075F7C, asm, cod/075F7C]
       - [0x076130, c,   cod/076130]            # func_00176130: save/reload arg, sub+0x634=0
       - [0x07614C, asm, cod/07614C]
-      - [0x076198, asm, cod/076198]
+      - [0x076198, c,   cod/076198]            # func_00176198: spill-only-no-reload via inline asm sw
       - [0x0761B8, asm, cod/0761B8]
       - [0x076AE8, c,   cod/076AE8]            # func_00176AE8: a0->0=0 + tail call func_0013A5B8(&D_0028A4A0, a0, 1)
       - [0x076B04, asm, cod/076B04]
