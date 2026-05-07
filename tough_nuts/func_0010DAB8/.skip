@@ -1,1 +1,0 @@
-la-macro 64-bit cluster: ee-gcc 2.96 emits 'lui+addiu+lw' for sdata access; original uses 'lui+lw %lo'. Permuter cannot fix at source level — needs build-pipeline rewrite or compiler patch. See tough_nuts/func_00105278/notes.md for the canonical analysis.

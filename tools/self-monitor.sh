@@ -23,11 +23,16 @@ if [[ "$1" == "--once" ]]; then
     # Lower score = better; 0 = matched. Source of truth for parked
     # functions is tough_nuts/<func>/ (one subdir per parked function).
     if [[ -d tough_nuts && -d lib/decomp-permuter/runs ]]; then
-        echo "Permuter scores (tough_nuts):"
+        # Skip-marked targets (tough_nuts/<func>/.skip) are excluded from
+        # the auto-permuter rotation, so don't list them here either —
+        # this dashboard exists to show what the permuter is working on.
+        skipped=$(find tough_nuts -mindepth 2 -maxdepth 2 -name '.skip' -printf '%h\n' 2>/dev/null | wc -l)
+        echo "Permuter scores (tough_nuts; ${skipped} .skip-marked hidden):"
         {
             printf "func\tbest_score\tcand_count\n"
             while IFS= read -r func; do
                 [[ -z "$func" ]] && continue
+                [[ -f "tough_nuts/$func/.skip" ]] && continue
                 runs_dir="lib/decomp-permuter/runs/$func"
                 if [[ -d "$runs_dir" ]]; then
                     best=$(find "$runs_dir" -maxdepth 1 -type d -name 'output-*' \
