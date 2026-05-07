@@ -862,7 +862,8 @@ segments:
       - [0x080F40, asm, cod/080F40]
       - [0x081BB8, c,   cod/081BB8]
       - [0x081BC0, c,   cod/081BC0]
-      - [0x081BC8, asm, cod/081BC8]
+      - [0x081BC8, c,   cod/081BC8]            # func_00181BC8: buf[28] + 2-call wrapper
+      - [0x081BF8, asm, cod/081BF8]
       - [0x081F38, c,   cod/081F38]            # func_00181F38: if (D_0028A894) tail call func_00182C18(D_0028A894)
       - [0x081F58, asm, cod/081F58]
       - [0x082860, c,   cod/082860]            # func_00182860: sw_zero +0x0
@@ -981,6 +982,8 @@ segments:
       - [0x093F48, c,   cod/093F48]            # func_00193F48: promote-test: subagent seed (unscored, may match)
       - [0x093F68, c,   cod/093F68]            # func_00193F68: p[0]=p[1]=1
       - [0x093F78, asm, cod/093F78]
+      - [0x094398, asm, cod/094398]
+      - [0x0943C0, asm, cod/0943C0]
       - [0x094590, c,   cod/094590]            # func_00194590: abs(func_00194508(a0..a3))
       - [0x0945B4, asm, cod/0945B4]
       - [0x094EA8, c,   cod/094EA8]            # func_00194EA8: D_006D35C0+0x14=a; +0x18=b (2 swc1)
@@ -1495,6 +1498,8 @@ segments:
       - [0x103C40, asm, cod/103C40]
       - [0x103CB8, c,   cod/103CB8]            # func_00203CB8: if(sub) sub->438 = val
       - [0x103CCC, asm, cod/103CCC]
+      - [0x103EE8, asm, cod/103EE8]
+      - [0x103F18, asm, cod/103F18]
       - [0x104E90, c,   cod/104E90]            # func_00204E90: return D_0063385C
       - [0x104E98, asm, cod/104E98]
       - [0x105A78, c,   cod/105A78]            # func_00205A78: D_004CAEC0[idx*0x34] +0x8 (la mult lw)
@@ -1505,6 +1510,8 @@ segments:
       - [0x105B70, asm, cod/105B70]
       - [0x109AB0, c,   cod/109AB0]            # func_00209AB0: tail call func_001297A0(0xA2, 0, -1)
       - [0x109AC0, asm, cod/109AC0]
+      - [0x109F28, asm, cod/109F28]
+      - [0x109F58, asm, cod/109F58]
       - [0x10D208, c,   cod/10D208]            # func_0020D208: func_0017B258(0x138); func_00203B78(&func_0020D238, 0x15)
       - [0x10D238, asm, cod/10D238]
       - [0x10D5A8, c,   cod/10D5A8]            # func_0020D5A8: sibling: 0x13E
@@ -1609,6 +1616,7 @@ segments:
       - [0x12EF00, asm, cod/12EF00]
       - [0x1315C8, c,   cod/1315C8]            # func_002315C8: store-arg-discard
       - [0x1315D8, asm, cod/1315D8]
+      - [0x131A98, asm, cod/131A98]
       - [0x131AC8, c,   cod/131AC8]            # func_00231AC8: if func_0017B230(0x14): tail call func_00205B30(9, 0)
       - [0x131AF8, asm, cod/131AF8]
       - [0x1341D8, c,   cod/1341D8]            # func_002341D8: store-arg-discard
@@ -1627,6 +1635,8 @@ segments:
       - [0x135738, asm, cod/135738]
       - [0x1358F8, c,   cod/1358F8]            # func_002358F8: store-arg-discard
       - [0x135908, asm, cod/135908]
+      - [0x135A18, asm, cod/135A18]
+      - [0x135A48, asm, cod/135A48]
       - [0x136C60, c,   cod/136C60]            # func_00236C60: store-arg-discard
       - [0x136C70, asm, cod/136C70]
       - [0x13A9E0, c,   cod/13A9E0]            # func_0023A9E0: store-arg-discard
@@ -1917,6 +1927,7 @@ segments:
       - [0x164E70, asm, cod/164E70]
       - [0x1657F0, c,   cod/1657F0]            # func_002657F0: wrap func_00265818(a0,a1,D_00553244+0x5C)
       - [0x165814, asm, cod/165814]
+      - [0x168F08, c,   cod/168F08]            # func_00268F08: infinite loop calling 2 funcs
       - [0x168F28, c,   cod/168F28]            # func_00268F28: wrap func_0026E5C8(a0, 0)
       - [0x168F44, asm, cod/168F44]
       - [0x16A5E0, c,   cod/16A5E0]            # func_0026A5E0: tail call func_0026B018(a0, &func_0026A330)
