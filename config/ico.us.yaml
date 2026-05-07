@@ -922,6 +922,8 @@ segments:
       - [0x0EF9E0, asm, cod/0EF9E0]
       - [0x0EFA58, c,   cod/0EFA58]
       - [0x0EFA60, asm, cod/0EFA60]
+      - [0x0F0540, c,   cod/0F0540]            # func_001F0540: tail call func_001F0098 (triple-deref +0x20 TCO)
+      - [0x0F0550, asm, cod/0F0550]
       - [0x0F0F90, c,   cod/0F0F90]            # func_001F0F90: D_0063370C = 0
       - [0x0F0F98, asm, cod/0F0F98]
       - [0x0F10F8, c,   cod/0F10F8]            # func_001F10F8
