@@ -1915,6 +1915,12 @@ segments:
       - [0x14BBEC, asm, cod/14BBEC]
       - [0x14BBF0, asm, cod/14BBF0]
       - [0x14BC18, asm, cod/14BC18]
+      - [0x14D9B8, asm, cod/14D9B8]
+      - [0x14D9E4, asm, cod/14D9E4]
+      - [0x14DA20, asm, cod/14DA20]
+      - [0x14DA4C, asm, cod/14DA4C]
+      - [0x14DA50, asm, cod/14DA50]
+      - [0x14DA7C, asm, cod/14DA7C]
       - [0x150F70, c,   cod/150F70]            # func_00250F70: wrap func_00250C80(a0..a2, 0, -1)
       - [0x150F90, asm, cod/150F90]
       - [0x151AB0, c,   cod/151AB0]            # func_00251AB0: auto
