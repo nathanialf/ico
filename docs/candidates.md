@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-07 05:36:02 UTC
+- Generated: 2026-05-07 05:37:31 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4671 total in `asm/cod/*.s`, 0 parked, 4671 considered
+- Functions: 4667 total in `asm/cod/*.s`, 0 parked, 4667 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -27,17 +27,13 @@ and `mtc1`/`lwc1`/`swc1`/`cvt.*`/`mfc1` float-pair sequences.
 <a id="leaf-4-0x10"></a>
 ## 4-insn / 0x10 leaf, no jal, no VU (bulk getter/setter)
 
-_19 total in this bucket; showing top 19._
+_15 total in this bucket; showing top 15._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
 | `func_0010EC50` | 0x10 | 4 | 0 |  | `daddu lw j sw` | asm/cod/00E950.s:283 |
 | `func_0010ECC8` | 0x10 | 4 | 0 |  | `lui lw j lw` | asm/cod/00E950.s:369 |
-| `func_0019E150` | 0x10 | 4 | 0 |  | `lui ori j and` | asm/cod/09DBE4.s:427 |
-| `func_0019E4E8` | 0x10 | 4 | 0 |  | `lui ori j and` | asm/cod/09E310.s:163 |
-| `func_0023E170` | 0x10 | 4 | 0 |  | `lui ori j and` | asm/cod/13D38C.s:1131 |
 | `func_0023E770` | 0x10 | 4 | 0 |  | `lw slt j movz` | asm/cod/13E294.s:361 |
-| `func_00240950` | 0x10 | 4 | 0 |  | `lui ori j and` | asm/cod/13F17C.s:1830 |
 | `func_002523A0` | 0x10 | 4 | 0 |  | `lui addiu j sw` | asm/cod/151ED0.s:415 |
 | `func_00137538` | 0x10 | 4 | 0 |  | `daddu daddu j sw` | asm/cod/036094.s:1594 |
 | `func_00137548` | 0x10 | 4 | 0 |  | `daddu daddu j sw` | asm/cod/036094.s:1603 |
