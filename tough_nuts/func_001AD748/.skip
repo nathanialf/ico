@@ -1,6 +1,5 @@
-Function body is `5x nop + b self + nop` (28 bytes, no return path).
-Inline-asm reproduces the exact sequence, but ee-gcc 2.9 always appends
-a jr ra + nop epilogue (8 extra bytes); __attribute__((noreturn)) only
-suppresses the return value setup, not the jr ra itself. The 5 leading
-nops also resist normal codegen. Permuter can't help — this needs the
-compiler to be told "no epilogue", which ee-gcc 2.9 doesn't support.
+Function body: 5 nops + b-to-self (tight 1-instruction loop after 5
+"unused" leading nops). gcc's for(;;) unrolls into 5 nops + b-to-start
+(7-insn loop body, different semantics). ee-gcc 2.9 has no `naked`
+attribute and no way to express "branch to a label past the function
+prologue". Keeping skipped.
