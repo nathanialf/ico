@@ -232,6 +232,8 @@ segments:
       - [0x000980, c,   cod/000980]            # func_00100980: syscall 0x7F
       - [0x000990, c,   cod/000990]            # func_00100990: syscall 0x74
       - [0x0009A0, asm, cod/0009A0]
+      - [0x0009E0, c,   cod/0009E0]            # func_001009E0: 3 sequential calls: 1009A0, 100C90, tail 100E40
+      - [0x000A04, asm, cod/000A04]
       - [0x000BA8, c,   cod/000BA8]            # func_00100BA8: sync wrapper -> func_001002C0
       - [0x000BC8, c,   cod/000BC8]            # func_00100BC8: sync wrapper -> func_001002D0
       - [0x000BE8, c,   cod/000BE8]            # func_00100BE8: sync wrapper -> func_001002E0
@@ -373,7 +375,10 @@ segments:
       - [0x00F5B8, c,   cod/00F5B8]            # func_0010F5B8
       - [0x00F5D4, asm, cod/00F5D4]
       - [0x0118B0, c,   cod/0118B0]
-      - [0x0118B8, asm, cod/0118B8]
+      - [0x0118B8, c,   cod/0118B8]            # func_001118B8: func_001FBA80(); func_0010F5D8(); D_00631BA0=1
+      - [0x0118E4, asm, cod/0118E4]
+      - [0x0118E8, c,   cod/0118E8]            # func_001118E8: sibling: func_0010F710 instead of F5D8
+      - [0x011914, asm, cod/011914]
       - [0x011940, c,   cod/011940]
       - [0x011948, asm, cod/011948]
       - [0x014E08, c,   cod/014E08]            # func_00114E08: set 2 sdata floats
