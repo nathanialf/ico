@@ -41,4 +41,46 @@
     __asm__ __volatile__("lq " scratch ", 0($a1)" : : : "memory");             \
     __asm__ __volatile__("sq " scratch ", 0($a0)" : : : "memory")
 
+/* Quadword copy of 64 bytes (4 quadwords) — serial form: each lq is
+ * followed immediately by its sq, reusing a single scratch GPR.  The
+ * implicit src/dst pointers are $a1/$a0.  Trailing nop fills a
+ * jr-ra delay slot. */
+#define QCOPY64_SERIAL(scratch)                                                \
+    __asm__ __volatile__("lq "  scratch ", 0($a1)"    : : : "memory");         \
+    __asm__ __volatile__("sq "  scratch ", 0($a0)"    : : : "memory");         \
+    __asm__ __volatile__("lq "  scratch ", 0x10($a1)" : : : "memory");         \
+    __asm__ __volatile__("sq "  scratch ", 0x10($a0)" : : : "memory");         \
+    __asm__ __volatile__("lq "  scratch ", 0x20($a1)" : : : "memory");         \
+    __asm__ __volatile__("sq "  scratch ", 0x20($a0)" : : : "memory");         \
+    __asm__ __volatile__("lq "  scratch ", 0x30($a1)" : : : "memory");         \
+    __asm__ __volatile__("sq "  scratch ", 0x30($a0)" : : : "memory");         \
+    __asm__ __volatile__("nop")
+
+/* Quadword copy of 64 bytes — parallel form: 4 lq's into 4 distinct
+ * scratch GPRs followed by 4 sq's.  Latency-hiding shape used by
+ * the original ICO codegen.  Caller picks the four scratch register
+ * names as string literals (e.g. "$a2", "$a3", "$t0", "$t1"). */
+#define QCOPY64_PARALLEL(s0, s1, s2, s3)                                       \
+    __asm__ __volatile__("lq " s0 ", 0($a1)"    : : : "memory");               \
+    __asm__ __volatile__("lq " s1 ", 0x10($a1)" : : : "memory");               \
+    __asm__ __volatile__("lq " s2 ", 0x20($a1)" : : : "memory");               \
+    __asm__ __volatile__("lq " s3 ", 0x30($a1)" : : : "memory");               \
+    __asm__ __volatile__("sq " s0 ", 0($a0)"    : : : "memory");               \
+    __asm__ __volatile__("sq " s1 ", 0x10($a0)" : : : "memory");               \
+    __asm__ __volatile__("sq " s2 ", 0x20($a0)" : : : "memory");               \
+    __asm__ __volatile__("sq " s3 ", 0x30($a0)" : : : "memory");               \
+    __asm__ __volatile__("nop")
+
+/* Same as QCOPY64_PARALLEL but without trailing nop — used where the
+ * next function's first insn fills the implicit jr-ra delay slot. */
+#define QCOPY64_PARALLEL_NO_NOP(s0, s1, s2, s3)                                \
+    __asm__ __volatile__("lq " s0 ", 0($a1)"    : : : "memory");               \
+    __asm__ __volatile__("lq " s1 ", 0x10($a1)" : : : "memory");               \
+    __asm__ __volatile__("lq " s2 ", 0x20($a1)" : : : "memory");               \
+    __asm__ __volatile__("lq " s3 ", 0x30($a1)" : : : "memory");               \
+    __asm__ __volatile__("sq " s0 ", 0($a0)"    : : : "memory");               \
+    __asm__ __volatile__("sq " s1 ", 0x10($a0)" : : : "memory");               \
+    __asm__ __volatile__("sq " s2 ", 0x20($a0)" : : : "memory");               \
+    __asm__ __volatile__("sq " s3 ", 0x30($a0)" : : : "memory")
+
 #endif /* R5900_H */
