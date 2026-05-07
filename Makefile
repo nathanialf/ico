@@ -153,6 +153,13 @@ $(BUILD_DIR)/asm/%.o: $(ASM_DIR)/%.s
 $(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(@D)
 	$(CC) -B $(EEGCC_LIB) $(CFLAGS) -o $(@:.o=.s) $<
+	@# ee-gcc 2.96 emits `move $X, $0` for register-zero materialization,
+	@# which mips-linux-gnu-as expands to `or $X, $0, $0` (opcode 0x25).
+	@# Original PS2 codegen uses `daddu $X, $0, $0` (opcode 0x2D); same
+	@# value, different bytes. Rewrite the macro on the way in so the
+	@# whole src/ pipeline lines up with the original encoding. Targets
+	@# only the zero-source form; non-zero `move` is left alone.
+	@sed -i -E 's/^([[:space:]]+)move[[:space:]]+(\$$[0-9]+),[[:space:]]*\$$0[[:space:]]*$$/\1daddu \2,$$0,$$0/' $(@:.o=.s)
 	$(AS) $(ASFLAGS) -o $@ $(@:.o=.s)
 	$(OBJCOPY) --set-section-alignment .text=$(ALIGN_FOR) $@
 
