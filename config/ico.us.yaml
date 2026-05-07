@@ -1560,6 +1560,8 @@ segments:
       - [0x0FB480, asm, cod/0FB480]
       - [0x0FB4A8, c,   cod/0FB4A8]            # func_001FB4A8: init 5 sdata: 0; 0x80 x4
       - [0x0FB4C4, asm, cod/0FB4C4]
+      - [0x0FBA80, asm, cod/0FBA80]
+      - [0x0FBAA8, asm, cod/0FBAA8]
       - [0x0FBB40, c,   cod/0FBB40]            # func_001FBB40: return D_00633F70
       - [0x0FBB48, asm, cod/0FBB48]
       - [0x0FC040, c,   cod/0FC040]            # func_001FC040: auto
@@ -1904,6 +1906,9 @@ segments:
       - [0x14BB90, c,   cod/14BB90]            # func_0024BB90: getset D_00717758[5]; sw a1 to [6]
       - [0x14BBA8, c,   cod/14BBA8]            # func_0024BBA8: getset D_00717758[3]; sw a1 to [4]
       - [0x14BBC0, asm, cod/14BBC0]
+      - [0x14BBEC, asm, cod/14BBEC]
+      - [0x14BBF0, asm, cod/14BBF0]
+      - [0x14BC18, asm, cod/14BC18]
       - [0x150F70, c,   cod/150F70]            # func_00250F70: wrap func_00250C80(a0..a2, 0, -1)
       - [0x150F90, asm, cod/150F90]
       - [0x151AB0, c,   cod/151AB0]            # func_00251AB0: auto
