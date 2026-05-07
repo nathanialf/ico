@@ -386,6 +386,8 @@ segments:
       - [0x011914, asm, cod/011914]
       - [0x011940, c,   cod/011940]
       - [0x011948, asm, cod/011948]
+      - [0x014DD8, c,   cod/014DD8]            # func_00114DD8: copy 4 bytes from D_00672E90[0,4,8,C] to a0[0..3]
+      - [0x014E04, asm, cod/014E04]
       - [0x014E08, c,   cod/014E08]            # func_00114E08: set 2 sdata floats
       - [0x014E14, asm, cod/014E14]
       - [0x014FB8, c,   cod/014FB8]            # func_00114FB8: empty 0x180 frame
