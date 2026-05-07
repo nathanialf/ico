@@ -205,4 +205,35 @@
         );                                                          \
     }
 
+/*
+ * DEFINE_TAILCALL_LWA1 — tail-call wrapper:
+ *
+ *     name(int a0, int a1) {
+ *         tail_target(a0, *(int*)(a1 + LW_OFFSET) + ADDIU_OFFSET);
+ *     }
+ *
+ * Compiles to (3 insns):
+ *
+ *     lw    $a1, LW_OFFSET($a1)
+ *     j     <tail_target>
+ *      addiu $a1, $a1, ADDIU_OFFSET
+ *
+ * ee-gcc 2.96 + -fno-optimize-sibling-calls won't tail-call from
+ * natural C, and -foptimize-sibling-calls is a no-op (sibcall not
+ * implemented for MIPS in this gcc). Use inline asm; postprocess
+ * strips the compiler's appended `j $31`.
+ */
+#define DEFINE_TAILCALL_LWA1(name, tail_target, lw_offset, addiu_offset) \
+    void name(int a0, int a1)                                       \
+    {                                                               \
+        __asm__ volatile (                                          \
+            ".set noreorder\n\t"                                    \
+            "lw $5, " #lw_offset "($5)\n\t"                         \
+            "j " #tail_target "\n\t"                                \
+            " addiu $5, $5, " #addiu_offset "\n\t"                  \
+            ".set reorder"                                          \
+            ::: "$5"                                                \
+        );                                                          \
+    }
+
 #endif /* ICO_CODEGEN_H */

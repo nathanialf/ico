@@ -52,10 +52,14 @@ FUNC_RE = re.compile(
 # Inside a function body, detect the no-frame + inline-asm-return + redundant-j shape.
 NO_FRAME_RE = re.compile(r"^\s*\.frame\s+\$sp,0,\$31", re.MULTILINE)
 
-# Detect the inline-asm block ending with `jr $31`. We look for `jr $31`
-# inside an #APP/#NO_APP pair.
-INLINE_JR_RE = re.compile(
-    r"\s\#APP\s*\n(?:.*\n)*?\s*jr\s+\$31\b.*\n(?:[^#]*\n)?\s\#NO_APP\s*\n",
+# Detect the inline-asm block ending with a terminating jump — either
+# `jr $31` (return), `jr $reg` (computed jump), or `j label` (tail
+# call). We look for it inside an #APP/#NO_APP pair, optionally
+# followed by a delay-slot instruction. If the block terminates this
+# way, the compiler's appended `j $31` is unreachable and safe to
+# strip from a no-frame function.
+INLINE_TERMINATING_RE = re.compile(
+    r"\s\#APP\s*\n(?:.*\n)*?\s*(?:jr\s+\$\w+|j\s+\w+)\b[^\n]*\n(?:[^#]*\n)?\s\#NO_APP\s*\n",
 )
 
 # The compiler-emitted j $31 (with optional `.set noreorder/.set nomacro`
@@ -73,7 +77,7 @@ def fix_function(body: str) -> tuple[str, bool]:
     inline-asm block returns via `jr $31`."""
     if not NO_FRAME_RE.search(body):
         return body, False
-    if not INLINE_JR_RE.search(body):
+    if not INLINE_TERMINATING_RE.search(body):
         return body, False
     new = TRAILING_J_RE.sub(r"\1\2", body)
     return new, new != body

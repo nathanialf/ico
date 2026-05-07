@@ -257,6 +257,10 @@ segments:
       - [0x006000, c,   cod/006000]            # func_00106000: length(xyz)
       - [0x006028, c,   cod/006028]            # func_00106028: magnitude squared (xyz)
       - [0x006048, asm, cod/006048]
+      - [0x006A98, c,   cod/006A98]            # func_00106A98: tail call func_00105F00 (TCO)
+      - [0x006AA4, asm, cod/006AA4]
+      - [0x006AA8, c,   cod/006AA8]            # func_00106AA8: tail call func_00105F00 (TCO)
+      - [0x006AB4, asm, cod/006AB4]
       - [0x009B98, c,   cod/009B98]
       - [0x009BA8, c,   cod/009BA8]
       - [0x009BB8, asm, cod/009BB8]
