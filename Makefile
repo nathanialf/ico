@@ -180,8 +180,9 @@ SWAP_SW_PAIR_TXT := config/swap_sw_pair.txt
 NO_TRAILING_NOP_TXT := config/no_trailing_nop.txt
 SHARED_SP_RESTORE_TXT := config/shared_sp_restore.txt
 SHARED_JR_RESTORE_TXT := config/shared_jr_restore.txt
+LA_SD_INTERLEAVE_TXT := config/la_sd_interleave.txt
 
-$(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.c $(EXTRA_CFLAGS_TXT) $(EXTRA_CFLAGS_LOOKUP) $(USE_MODERN_AS_TXT) $(SWAP_ADDU_TXT) $(COALESCE_V1_V0_TXT) $(SWAP_SW_PAIR_TXT) $(NO_TRAILING_NOP_TXT)
+$(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.c $(EXTRA_CFLAGS_TXT) $(EXTRA_CFLAGS_LOOKUP) $(USE_MODERN_AS_TXT) $(SWAP_ADDU_TXT) $(COALESCE_V1_V0_TXT) $(SWAP_SW_PAIR_TXT) $(NO_TRAILING_NOP_TXT) $(LA_SD_INTERLEAVE_TXT)
 	@mkdir -p $(@D)
 	$(CC) -B $(EEGCC_LIB) $(CFLAGS) $$($(EXTRA_CFLAGS_LOOKUP) $<) -o $(@:.o=.s) $<
 	@# If listed in $(NO_TRAILING_NOP_TXT), wrap the final `j $$31` with
@@ -204,6 +205,13 @@ $(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.c $(EXTRA_CFLAGS_TXT) $(EXTRA_CFLAGS_LOOKUP) 
 	@# `jr ra; addiu sp, +N` shared stub.
 	@if grep -qE "^[[:space:]]*$(notdir $(basename $<))([[:space:]]|$$|#)" $(SHARED_JR_RESTORE_TXT) 2>/dev/null; then \
 	    .venv/bin/python tools/postprocess_shared_sp_restore.py --jr-and-sp $(@:.o=.s); \
+	fi
+	@# If listed in $(LA_SD_INTERLEAVE_TXT), interleave `sd $$31, OFF($$sp)`
+	@# between the lui and addiu halves of the la-macro emission.  Used
+	@# for original 5-arg-via-$$tN wrappers whose prologue ra-save was
+	@# scheduled inside the la pair rather than after it.
+	@if grep -qE "^[[:space:]]*$(notdir $(basename $<))([[:space:]]|$$|#)" $(LA_SD_INTERLEAVE_TXT) 2>/dev/null; then \
+	    .venv/bin/python tools/postprocess_la_sd_interleave.py $(@:.o=.s); \
 	fi
 	@# If listed in $(SWAP_ADDU_TXT), swap addu rs/rt where rt==rd.
 	@if grep -qE "^[[:space:]]*$(notdir $(basename $<))([[:space:]]|$$|#)" $(SWAP_ADDU_TXT) 2>/dev/null; then \
