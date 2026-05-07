@@ -1366,6 +1366,8 @@ segments:
       - [0x0F1108, asm, cod/0F1108]
       - [0x0F1148, c,   cod/0F1148]            # func_001F1148: D_0070D4D8[idx*0x18] +0x14 = a1 (la mult sw)
       - [0x0F1164, asm, cod/0F1164]
+      - [0x0F1168, c,   cod/0F1168]            # func_001F1168: if D_00633720: 2x func_00139598; clear 3 sdata fields
+      - [0x0F11A0, asm, cod/0F11A0]
       - [0x0F1240, c,   cod/0F1240]            # func_001F1240
       - [0x0F1260, asm, cod/0F1260]
       - [0x0F1838, c,   cod/0F1838]            # func_001F1838: wrap func_001D12D8(a0); tail call func_001D12A8(a0, 0x41)
@@ -1458,6 +1460,8 @@ segments:
       - [0x10D718, c,   cod/10D718]            # func_0020D718: sibling: 0x140, B7D8
       - [0x10D748, c,   cod/10D748]            # func_0020D748: wrap func_00203B78(&func_0020B8D8, 0x15)
       - [0x10D770, asm, cod/10D770]
+      - [0x10D7A8, c,   cod/10D7A8]            # func_0020D7A8: 2 fp-passing calls: 0BF88 + D7E0
+      - [0x10D7E0, asm, cod/10D7E0]
       - [0x10D850, c,   cod/10D850]            # func_0020D850: sibling: 0x141, C3A0
       - [0x10D880, asm, cod/10D880]
       - [0x1109D8, c,   cod/1109D8]            # func_002109D8: store-arg-discard
@@ -1595,6 +1599,8 @@ segments:
       - [0x13E180, asm, cod/13E180]
       - [0x13E280, c,   cod/13E280]            # func_0023E280: self->54 >= self->48
       - [0x13E294, asm, cod/13E294]
+      - [0x13E330, c,   cod/13E330]            # func_0023E330: a0->0=3; func_0025E1E8(3,0,0); func_0025E158(3); ret 0
+      - [0x13E368, asm, cod/13E368]
       - [0x13E770, c,   cod/13E770]            # func_0023E770: tail call func_0023E578(a0, a1, max(a0->3C, a2))
       - [0x13E780, asm, cod/13E780]
       - [0x13EFB0, c,   cod/13EFB0]
