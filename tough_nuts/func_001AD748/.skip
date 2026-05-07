@@ -1,0 +1,6 @@
+Function body is `5x nop + b self + nop` (28 bytes, no return path).
+Inline-asm reproduces the exact sequence, but ee-gcc 2.9 always appends
+a jr ra + nop epilogue (8 extra bytes); __attribute__((noreturn)) only
+suppresses the return value setup, not the jr ra itself. The 5 leading
+nops also resist normal codegen. Permuter can't help — this needs the
+compiler to be told "no epilogue", which ee-gcc 2.9 doesn't support.

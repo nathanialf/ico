@@ -1,0 +1,5 @@
+ee-gcc 2.9-991111 (the matching compiler) doesn't emit lwu (load-word-unsigned)
+under any C formulation tested. The original codegen has lwu+dsll32/dsra32
+(unsigned-load + sign-extend-to-64); ours always picks lw (sign-extending
+on load, no follow-up shifts needed). This is a compiler-version issue,
+not a regalloc/scheduling one — permuter can't help.

@@ -698,6 +698,8 @@ segments:
       - [0x05EE74, asm, cod/05EE74]
       - [0x05EF40, c,   cod/05EF40]            # func_0015EF40
       - [0x05EF50, asm, cod/05EF50]
+      - [0x05F208, asm, cod/05F208]
+      - [0x05F224, asm, cod/05F224]
       - [0x05F228, c,   cod/05F228]            # func_0015F228: D_00292540[idx*0x18] +0x8 = a1 (la mult sw)
       - [0x05F244, asm, cod/05F244]
       - [0x05F4B8, c,   cod/05F4B8]            # func_0015F4B8: promote: score-0 from permuter (parked tough_nut)
@@ -1112,6 +1114,7 @@ segments:
       - [0x0ABF7C, asm, cod/0ABF7C]
       - [0x0AD740, c,   cod/0AD740]
       - [0x0AD748, asm, cod/0AD748]
+      - [0x0AD764, asm, cod/0AD764]
       - [0x0ADB70, c,   cod/0ADB70]            # func_001ADB70: 3-store with const 1
       - [0x0ADB84, asm, cod/0ADB84]
       - [0x0ADB88, c,   cod/0ADB88]            # func_001ADB88: rc=func_00240B70; return &D_002A31B8 + rc->C * 0x64
@@ -1174,6 +1177,8 @@ segments:
       - [0x0BAF00, asm, cod/0BAF00]
       - [0x0BB390, c,   cod/0BB390]            # func_001BB390: auto-batch
       - [0x0BB398, asm, cod/0BB398]
+      - [0x0BB7E0, asm, cod/0BB7E0]
+      - [0x0BB7FC, asm, cod/0BB7FC]
       - [0x0BB800, c,   cod/0BB800]            # func_001BB800: *(int*)(*(char**)(self+0x164)+0x98) = val
       - [0x0BB810, c,   cod/0BB810]            # func_001BB810: *(int*)(*(char**)(self+0x164)+0x9C) = val
       - [0x0BB81C, asm, cod/0BB81C]

@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-07 16:01:36 UTC
+- Generated: 2026-05-07 16:10:58 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4439 total in `asm/cod/*.s`, 15 parked, 4424 considered
+- Functions: 4442 total in `asm/cod/*.s`, 18 parked, 4424 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -52,13 +52,9 @@ _1 total in this bucket; showing top 1._
 <a id="leaf-7-0x1C"></a>
 ## 7-insn / 0x1C leaf, no jal, no VU (accessor + multiplier/branch)
 
-_3 total in this bucket; showing top 3._
+_0 total in this bucket; showing top 0._
 
-| Function | Size | Insns | jal | VU | First mnemonics | Source |
-|---|---:|---:|---:|:---:|---|---|
-| `func_0015F208` | 0x1C | 7 | 0 |  | `lw lw lwu dsll32` | asm/cod/05EF50.s:233 |
-| `func_001AD748` | 0x1C | 7 | 0 |  | `nop nop nop nop` | asm/cod/0AD748.s:13 |
-| `func_001BB7E0` | 0x1C | 7 | 0 |  | `lw lwu dsll32 dsra32` | asm/cod/0BB398.s:343 |
+(empty)
 
 <a id="wrap-8-0x20"></a>
 ## 8-insn / 0x20, exactly 1 jal, no VU (passthrough call)
@@ -98,7 +94,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4415 unmatched functions are not in any shape bucket above._
+_4418 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 

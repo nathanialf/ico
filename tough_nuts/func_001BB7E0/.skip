@@ -1,0 +1,3 @@
+Same lwu-vs-lw compiler limitation as func_0015F208. ee-gcc 2.9-991111
+won't emit lwu; permuter can't bridge an instruction the compiler doesn't
+have in its codegen.
