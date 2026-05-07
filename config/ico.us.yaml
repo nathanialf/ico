@@ -1097,7 +1097,7 @@ segments:
       - [0x09D9D0, c,   cod/09D9D0]            # func_0019D9D0: auto-batch
       - [0x09D9D8, c,   cod/09D9D8]            # func_0019D9D8: tail call func_00139598(a0 & 0x0FFFFFFF)
       - [0x09D9E8, asm, cod/09D9E8]
-      - [0x09DA98, asm, cod/09DA98]
+      - [0x09DA98, c,   cod/09DA98]            # func_0019DA98: promote: score-0 (new_var-load-before-store reordering)
       - [0x09DAC4, asm, cod/09DAC4]
       - [0x09DB50, c,   cod/09DB50]            # func_0019DB50: sat-subtract: a0->C -= min(a0->C, a1)
       - [0x09DB6C, asm, cod/09DB6C]
@@ -1418,7 +1418,7 @@ segments:
       - [0x0E0C34, asm, cod/0E0C34]
       - [0x0E2370, c,   cod/0E2370]            # func_001E2370: tail call func_001E1AA0(a0, a1, a1, 0)
       - [0x0E237C, asm, cod/0E237C]
-      - [0x0E4700, asm, cod/0E4700]
+      - [0x0E4700, c,   cod/0E4700]            # func_001E4700: promote: score-0 (store order swap)
       - [0x0E4724, asm, cod/0E4724]
       - [0x0E4938, c,   cod/0E4938]            # func_001E4938: if D_00274ED4: a0->15C->628=0; func_001D12C0(a0,1); ret 1
       - [0x0E496C, asm, cod/0E496C]
@@ -1438,7 +1438,7 @@ segments:
       - [0x0E8D4C, asm, cod/0E8D4C]
       - [0x0E8D50, c,   cod/0E8D50]            # func_001E8D50: promote: score-0 from permuter (parked tough_nut)
       - [0x0E8D6C, asm, cod/0E8D6C]
-      - [0x0E8E80, asm, cod/0E8E80]
+      - [0x0E8E80, c,   cod/0E8E80]            # func_001E8E80: promote: score-0 (CSE-defeat via re-deref)
       - [0x0E8EA8, c,   cod/0E8EA8]            # func_001E8EA8: tail call func_001E8AB8 (triple-deref TCO)
       - [0x0E8EB8, asm, cod/0E8EB8]
       - [0x0E8F28, c,   cod/0E8F28]
@@ -1570,7 +1570,7 @@ segments:
       - [0x0FC1A0, asm, cod/0FC1A0]
       - [0x0FC2D0, c,   cod/0FC2D0]            # func_001FC2D0
       - [0x0FC2DC, asm, cod/0FC2DC]
-      - [0x100A98, asm, cod/100A98]
+      - [0x100A98, c,   cod/100A98]            # func_00200A98: promote: score-0 (unsigned char return-mask trick)
       - [0x100AD4, asm, cod/100AD4]
       - [0x101DC8, c,   cod/101DC8]            # func_00201DC8: set bit 21 of (sub+0x428)
       - [0x101DE0, asm, cod/101DE0]

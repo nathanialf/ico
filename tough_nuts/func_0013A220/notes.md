@@ -3,7 +3,7 @@
 
 ## Attempt at 2026-05-07
 
-**Reason parked:** regalloc swap (a2 vs v1 for primary base). Permuter target.
+**Reason parked:** Score-5 attempt: store target reg differs (a1 vs v0). Plus trailing nop alignment quirk. Permuter target.
 
 Seed: `tough_nuts/func_0013A220/03A220.c`
 
