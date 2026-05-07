@@ -1175,7 +1175,7 @@ segments:
       - [0x0AA4F0, asm, cod/0AA4F0]
       - [0x0AA550, c,   cod/0AA550]            # func_001AA550: if (a0 == D_00632C80) { D_00632C80 = -1; func_00247608(); }
       - [0x0AA57C, asm, cod/0AA57C]
-      - [0x0AA580, asm, cod/0AA580]
+      - [0x0AA580, c,   cod/0AA580]            # func_001AA580: guard + call + double-clear (rv-lift attempt)
       - [0x0AA5B8, c,   cod/0AA5B8]
       - [0x0AA5C0, asm, cod/0AA5C0]
       - [0x0AA660, c,   cod/0AA660]            # func_001AA660: wrap func_001123C0(&D_00274EF0), return 1
