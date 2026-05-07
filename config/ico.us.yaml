@@ -744,7 +744,7 @@ segments:
       - [0x05EE74, asm, cod/05EE74]
       - [0x05EF40, c,   cod/05EF40]            # func_0015EF40
       - [0x05EF50, asm, cod/05EF50]
-      - [0x05F208, asm, cod/05F208]
+      - [0x05F208, c,   cod/05F208]            # func_0015F208: lwu via inline asm (ee-gcc 2.9 doesn't emit lwu natively)
       - [0x05F224, asm, cod/05F224]
       - [0x05F228, c,   cod/05F228]            # func_0015F228: D_00292540[idx*0x18] +0x8 = a1 (la mult sw)
       - [0x05F244, asm, cod/05F244]
@@ -1259,7 +1259,7 @@ segments:
       - [0x0BAF00, asm, cod/0BAF00]
       - [0x0BB390, c,   cod/0BB390]            # func_001BB390: auto-batch
       - [0x0BB398, asm, cod/0BB398]
-      - [0x0BB7E0, asm, cod/0BB7E0]
+      - [0x0BB7E0, c,   cod/0BB7E0]            # func_001BB7E0: lwu via inline asm + xori at return
       - [0x0BB7FC, asm, cod/0BB7FC]
       - [0x0BB800, c,   cod/0BB800]            # func_001BB800: *(int*)(*(char**)(self+0x164)+0x98) = val
       - [0x0BB810, c,   cod/0BB810]            # func_001BB810: *(int*)(*(char**)(self+0x164)+0x9C) = val
