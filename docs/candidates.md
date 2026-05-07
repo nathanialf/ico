@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-07 02:20:56 UTC
+- Generated: 2026-05-07 02:28:06 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4691 total in `asm/cod/*.s`, 3 parked, 4688 considered
+- Functions: 4687 total in `asm/cod/*.s`, 3 parked, 4684 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -40,7 +40,7 @@ _27 total in this bucket; showing top 27._
 | `func_0019D9D8` | 0x10 | 4 | 0 |  | `lui ori j and` | asm/cod/09B948.s:2419 |
 | `func_0019E150` | 0x10 | 4 | 0 |  | `lui ori j and` | asm/cod/09DBE4.s:427 |
 | `func_0019E4E8` | 0x10 | 4 | 0 |  | `lui ori j and` | asm/cod/09E310.s:163 |
-| `func_001E8EA8` | 0x10 | 4 | 0 |  | `lw lw j lw` | asm/cod/0E8B68.s:307 |
+| `func_001E8EA8` | 0x10 | 4 | 0 |  | `lw lw j lw` | asm/cod/0E8BF0.s:259 |
 | `func_001F0540` | 0x10 | 4 | 0 |  | `lw lw j lw` | asm/cod/0EFA60.s:807 |
 | `func_001F6C88` | 0x10 | 4 | 0 |  | `lui lui j sw` | asm/cod/0F6AA0.s:157 |
 | `func_0023E170` | 0x10 | 4 | 0 |  | `lui ori j and` | asm/cod/13D38C.s:1131 |
@@ -97,7 +97,7 @@ _27 total in this bucket; showing top 27._
 <a id="leaf-6-0x18"></a>
 ## 6-insn / 0x18 leaf, no jal, no VU (sub-deref + store)
 
-_24 total in this bucket; showing top 24._
+_20 total in this bucket; showing top 20._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
@@ -117,14 +117,10 @@ _24 total in this bucket; showing top 24._
 | `func_001B0A80` | 0x18 | 6 | 0 |  | `lui addiu ori daddu` | asm/cod/0B0A64.s:29 |
 | `func_001B0A98` | 0x18 | 6 | 0 |  | `lui addiu ori daddu` | asm/cod/0B0A64.s:40 |
 | `func_001D1410` | 0x18 | 6 | 0 |  | `lw lwc1 .word mfc1` | asm/cod/0D03E8.s:1323 |
-| `func_001E8BD8` | 0x18 | 6 | 0 |  | `addiu lui mult addiu` | asm/cod/0E8B68.s:49 |
 | `func_00240B70` | 0x18 | 6 | 0 |  | `lui sll addiu addu` | asm/cod/140B70.s:13 |
 | `func_0024B890` | 0x18 | 6 | 0 |  | `lui sll addiu addu` | asm/cod/14B88C.s:18 |
-| `func_00258C38` | 0x18 | 6 | 0 |  | `addiu lui mult addiu` | asm/cod/15846C.s:626 |
-| `func_00258C50` | 0x18 | 6 | 0 |  | `addiu lui mult addiu` | asm/cod/15846C.s:637 |
-| `func_00258C78` | 0x18 | 6 | 0 |  | `addiu lui mult addiu` | asm/cod/158C74.s:18 |
-| `func_00258C90` | 0x18 | 6 | 0 |  | `lui sll addiu addu` | asm/cod/158C74.s:29 |
-| `func_00258CA8` | 0x18 | 6 | 0 |  | `lui sll addiu addu` | asm/cod/158C74.s:40 |
+| `func_00258C90` | 0x18 | 6 | 0 |  | `lui sll addiu addu` | asm/cod/158C90.s:13 |
+| `func_00258CA8` | 0x18 | 6 | 0 |  | `lui sll addiu addu` | asm/cod/158C90.s:25 |
 
 <a id="leaf-7-0x1C"></a>
 ## 7-insn / 0x1C leaf, no jal, no VU (accessor + multiplier/branch)
@@ -151,8 +147,8 @@ _29 total in this bucket; showing top 29._
 | `func_00176AE8` | 0x1C | 7 | 0 |  | `daddu addiu lui daddu` | asm/cod/07614C.s:732 |
 | `func_0019BB40` | 0x1C | 7 | 0 |  | `lw lui mtc1 lw` | asm/cod/09B948.s:177 |
 | `func_001A2D58` | 0x1C | 7 | 0 |  | `addiu lui mult addiu` | asm/cod/0A1030.s:2201 |
-| `func_001E8D30` | 0x1C | 7 | 0 |  | `addiu lui mult addiu` | asm/cod/0E8B68.s:161 |
-| `func_001E8D50` | 0x1C | 7 | 0 |  | `addiu lui mult addiu` | asm/cod/0E8B68.s:175 |
+| `func_001E8D30` | 0x1C | 7 | 0 |  | `addiu lui mult addiu` | asm/cod/0E8BF0.s:113 |
+| `func_001E8D50` | 0x1C | 7 | 0 |  | `addiu lui mult addiu` | asm/cod/0E8BF0.s:127 |
 | `func_001F1148` | 0x1C | 7 | 0 |  | `addiu lui mult addiu` | asm/cod/0F1108.s:39 |
 | `func_00205A78` | 0x1C | 7 | 0 |  | `addiu lui mult addiu` | asm/cod/104E98.s:1105 |
 | `func_00205B30` | 0x1C | 7 | 0 |  | `addiu lui mult addiu` | asm/cod/104E98.s:1175 |
