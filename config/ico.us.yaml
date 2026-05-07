@@ -606,6 +606,8 @@ segments:
       - [0x082BF8, c,   cod/082BF8]            # func_00182BF8
       - [0x082C08, c,   cod/082C08]            # func_00182C08
       - [0x082C14, asm, cod/082C14]
+      - [0x087308, c,   cod/087308]            # func_00187308: tail call func_001897A8 (sdata-ptr 2-arg shuffle)
+      - [0x087318, asm, cod/087318]
       - [0x0873A0, c,   cod/0873A0]
       - [0x0873A8, c,   cod/0873A8]
       - [0x0873B0, c,   cod/0873B0]            # func_001873B0: D_006326D0=0 + D_006326D8=0 (byte)
