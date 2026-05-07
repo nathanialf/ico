@@ -1,3 +1,4 @@
+#include "regpin.h"
 extern int D_007097F0[];
 
 /*
@@ -10,9 +11,9 @@ extern int D_007097F0[];
  */
 int func_001E8D30(int idx)
 {
-    register int s __asm__("$2") = 0x18;
-    register int *b __asm__("$3") = D_007097F0;
-    register int prod __asm__("$4") = idx * s;
+    register int s REG("$2") = 0x18;
+    register int *b REG("$3") = D_007097F0;
+    register int prod REG("$4") = idx * s;
     b = (int *)((char *)b + prod);
     return *(int *)((char *)b + 0x14);
 }

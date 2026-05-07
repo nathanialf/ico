@@ -1,9 +1,10 @@
+#include "regpin.h"
 extern int func_00100540(int a0, int *a1);
 
 void func_0013A220(int *a0)
 {
-    register int *v1 __asm__("$3") = a0;
-    register int *a1 __asm__("$5") = (int *)v1[0x10 / 4];
+    register int *v1 REG("$3") = a0;
+    register int *a1 REG("$5") = (int *)v1[0x10 / 4];
     int v0;
     int new_a0;
     if (a1 == 0) {

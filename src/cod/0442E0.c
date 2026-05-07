@@ -12,7 +12,7 @@
  * into $v0 (eliding the return-move), where the original keeps the
  * value in $v1 and emits a `daddu $v0, $v1, $zero` for the return.
  * 9 insns vs. 10. Functionally equivalent; not byte-matching. Tried
- * unsigned-vs-signed type, split temp, register __asm__("$3"), and
+ * unsigned-vs-signed type, split temp, $v1 regalloc pin, and
  * volatile-load — none budges the regalloc.
  */
 extern int D_0063223C;
