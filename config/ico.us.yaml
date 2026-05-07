@@ -1791,6 +1791,8 @@ segments:
       - [0x15CD78, asm, cod/15CD78]
       - [0x15CE78, c,   cod/15CE78]            # func_0025CE78: tail call func_002591F0(0x28, a0, a1, a2)
       - [0x15CE90, asm, cod/15CE90]
+      - [0x15D380, c,   cod/15D380]            # func_0025D380: a0<0x30 ? *(u16)(func_00258C50(a0)+0x1E) : -1
+      - [0x15D3B0, asm, cod/15D3B0]
       - [0x15DCF0, c,   cod/15DCF0]            # func_0025DCF0: func_002591F0(0x3C, 0, 0, 0)
       - [0x15DD04, asm, cod/15DD04]
       - [0x15DD08, c,   cod/15DD08]            # func_0025DD08: func_002591F0(0x3D, 0, 0, 0)
