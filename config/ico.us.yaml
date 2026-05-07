@@ -317,10 +317,16 @@ segments:
       - [0x00D088, asm, cod/00D088]
       - [0x00D180, c,   cod/00D180]
       - [0x00D198, asm, cod/00D198]
+      - [0x00D3E0, c,   cod/00D3E0]            # func_0010D3E0: tail call func_0010DDB8(p, p, a0)
+      - [0x00D404, asm, cod/00D404]
       - [0x00D408, c,   cod/00D408]            # func_0010D408: tail call func_0010D838(p,p)=&D_00660A40[D_00631B7C*4]
       - [0x00D424, asm, cod/00D424]
       - [0x00D428, c,   cod/00D428]            # func_0010D428: tail call func_0010D830(&D_00660A40[D_00631B7C*4], a0)
       - [0x00D444, asm, cod/00D444]
+      - [0x00D448, c,   cod/00D448]            # func_0010D448: tail call func_0010E0B8(&D_00660A40[D_00631B7C*4], short(a0))
+      - [0x00D468, c,   cod/00D468]            # func_0010D468: tail call func_0010E158(&D_00660A40[D_00631B7C*4], short(a0))
+      - [0x00D488, c,   cod/00D488]            # func_0010D488: tail call func_0010E1F8(&D_00660A40[D_00631B7C*4], short(a0))
+      - [0x00D4A8, asm, cod/00D4A8]
       - [0x00D520, c,   cod/00D520]            # func_0010D520: tail call func_0010D530(&D_00660A40) + gp_rel-set 0
       - [0x00D530, c,   cod/00D530]            # func_0010D530: tail call func_0010D830(a0, &D_00276140)
       - [0x00D53C, asm, cod/00D53C]
@@ -453,7 +459,8 @@ segments:
       - [0x0333C8, asm, cod/0333C8]
       - [0x033448, c,   cod/033448]            # func_00133448: return D_00631F64
       - [0x033450, c,   cod/033450]            # func_00133450: self[0x108] OR= 2
-      - [0x033460, asm, cod/033460]
+      - [0x033460, c,   cod/033460]            # func_00133460: a0->108 bit-4 = (a1 & 1)
+      - [0x033480, asm, cod/033480]
       - [0x033500, c,   cod/033500]            # func_00133500: sw_arg +0x110
       - [0x033508, c,   cod/033508]            # func_00133508: return D_00633C7C
       - [0x033510, asm, cod/033510]
@@ -473,6 +480,8 @@ segments:
       - [0x03B748, c,   cod/03B748]            # func_0013B748: &D_002811C0[a1<<9] +0 (la-macro)
       - [0x03B760, c,   cod/03B760]            # func_0013B760: &D_002811C0[a1<<9] +4 (la-macro)
       - [0x03B778, asm, cod/03B778]
+      - [0x03B7C0, c,   cod/03B7C0]            # func_0013B7C0: a0[0]=&D_002811C0+a2*512; a0[1]=a3; ret 0
+      - [0x03B7E0, asm, cod/03B7E0]
       - [0x03B858, c,   cod/03B858]            # func_0013B858: D_00633C90 = 1, return 1
       - [0x03B864, asm, cod/03B864]
       - [0x03B868, c,   cod/03B868]            # func_0013B868: D_00633C90 = 0
@@ -536,6 +545,8 @@ segments:
       - [0x0445C8, asm, cod/0445C8]
       - [0x044928, c,   cod/044928]            # func_00144928: tail call func_001AE6F8(a0->C, a0->8)
       - [0x044934, asm, cod/044934]
+      - [0x044DF0, c,   cod/044DF0]            # func_00144DF0: tail call func_00149D60(D_00631AE4, 1, 4, 5, D_00631AE8, 0, 0)
+      - [0x044E10, c,   cod/044E10]            # func_00144E10: tail call func_00149D60(D_00631AE4, 1, 4, 0, 0, 0, 0)
       - [0x044E30, c,   cod/044E30]            # func_00144E30: func_0014A3A8(); tail call func_001A6E28(&D_00557ED0)
       - [0x044E54, asm, cod/044E54]
       - [0x045638, c,   cod/045638]            # func_00145638: sw 0 to deref + tail call func_0014B228(a0, 0)
