@@ -1117,6 +1117,8 @@ segments:
       - [0x0B4F58, asm, cod/0B4F58]
       - [0x0B4FC0, c,   cod/0B4FC0]            # func_001B4FC0: return -1
       - [0x0B4FC8, asm, cod/0B4FC8]
+      - [0x0B5158, c,   cod/0B5158]            # func_001B5158: func_001B7218(0x8C,D); func_001B7218(0x8D,D^1); ret -1
+      - [0x0B518C, asm, cod/0B518C]
       - [0x0B5220, c,   cod/0B5220]            # func_001B5220: D_00275254 & 0x40 ? func_001B7040() : -1
       - [0x0B5258, asm, cod/0B5258]
       - [0x0B5610, c,   cod/0B5610]            # func_001B5610: return -1
