@@ -1,11 +1,9 @@
-float func_00118A68(void) {
-    __asm__ __volatile__(
-        ".set noreorder\n\t"
-        "vrnext.x $vf1, $R\n\t"
-        "vsubw.x $vf1, $vf1, $vf0w\n\t"
-        "qmfc2.ni $a3, $vf1\n\t"
-        "mtc1 $a3, $f0\n\t"
-        ".set reorder"
-        : : : "memory"
-    );
+float func_00118A68(void)
+{
+    __asm__ __volatile__(".set noreorder");
+    __asm__ __volatile__("vrnext.x $vf1, $R");
+    __asm__ __volatile__("vsubw.x $vf1, $vf1, $vf0w");
+    __asm__ __volatile__("qmfc2.ni $a3, $vf1");
+    __asm__ __volatile__("mtc1 $a3, $f0");
+    __asm__ __volatile__(".set reorder");
 }
