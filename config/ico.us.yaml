@@ -603,6 +603,8 @@ segments:
       - [0x03F130, asm, cod/03F130]
       - [0x03F3E8, c,   cod/03F3E8]            # func_0013F3E8: tail call func_0013F700 passthrough
       - [0x03F3F0, asm, cod/03F3F0]
+      - [0x03F6B8, c,   cod/03F6B8]            # func_0013F6B8: 1-call+cond-tail-call (void+return TCO)
+      - [0x03F6FC, asm, cod/03F6FC]
       - [0x03F808, c,   cod/03F808]            # func_0013F808: sw_zero +0x18
       - [0x03F810, asm, cod/03F810]
       - [0x03F878, c,   cod/03F878]            # func_0013F878: self[6] = 1, return 1

@@ -2,7 +2,7 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-07 17:45:49 UTC
+- Generated: 2026-05-07 17:48:42 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
@@ -88,10 +88,10 @@ _5 total in this bucket; showing top 5._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
-| `func_0013F778` | 0x2C | 11 | 1 |  | `daddu addiu andi sd` | asm/cod/03F3F0.s:313 |
+| `func_0013F778` | 0x2C | 11 | 1 |  | `daddu addiu andi sd` | asm/cod/03F6FC.s:57 |
 | `func_00263388` | 0x2C | 11 | 1 |  | `addiu sw sd daddu` | asm/cod/160CC8.s:3135 |
-| `func_0013F7A8` | 0x30 | 12 | 1 |  | `daddu addiu andi daddu` | asm/cod/03F3F0.s:331 |
-| `func_0013F7D8` | 0x2C | 11 | 1 |  | `daddu addiu andi sd` | asm/cod/03F3F0.s:349 |
+| `func_0013F7A8` | 0x30 | 12 | 1 |  | `daddu addiu andi daddu` | asm/cod/03F6FC.s:74 |
+| `func_0013F7D8` | 0x2C | 11 | 1 |  | `daddu addiu andi sd` | asm/cod/03F6FC.s:91 |
 | `func_0013F930` | 0x30 | 12 | 1 |  | `daddu addiu andi daddu` | asm/cod/03F884.s:87 |
 
 <a id="wrap-1jal-0x34-0x40"></a>
@@ -272,7 +272,7 @@ _125 total in this bucket; showing top 50._
 | `func_0023ABE0` | 0x4C | 19 | 1 |  | `lui addiu addiu sw` | asm/cod/13AAB8.s:103 |
 | `func_0023AD08` | 0x4C | 19 | 1 |  | `lui addiu addiu sw` | asm/cod/13AAB8.s:193 |
 | `func_0013E4D0` | 0x78 | 30 | 1 |  | `addiu addiu sd lui` | asm/cod/03E220.s:243 |
-| `func_0013F700` | 0x78 | 30 | 1 |  | `addiu addiu sd lui` | asm/cod/03F3F0.s:273 |
+| `func_0013F700` | 0x78 | 30 | 1 |  | `addiu addiu sd lui` | asm/cod/03F6FC.s:18 |
 | `func_00205498` | 0x7C | 31 | 1 |  | `addiu addiu mult lui` | asm/cod/104E98.s:519 |
 | `func_00240BD0` | 0x80 | 32 | 1 |  | `addiu lw sd sd` | asm/cod/140B88.s:43 |
 
