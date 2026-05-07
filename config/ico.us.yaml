@@ -1043,7 +1043,7 @@ segments:
       - [0x094398, asm, cod/094398]
       - [0x0943C0, asm, cod/0943C0]
       - [0x0943C8, c,   cod/0943C8]            # func_001943C8: buf+2-call+chained float-call (3 jals)
-      - [0x094400, asm, cod/094400]
+      - [0x094400, c,   cod/094400]            # func_00194400: buf+2-call+chained-float-call (no-trailing-nop fix)
       - [0x094438, asm, cod/094438]
       - [0x094590, c,   cod/094590]            # func_00194590: abs(func_00194508(a0..a3))
       - [0x0945B4, asm, cod/0945B4]

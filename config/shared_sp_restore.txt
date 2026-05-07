@@ -1,0 +1,12 @@
+# Per-file: strip the `addu $sp, $sp, N` from the delay slot of the
+# final `j $31`, leaving an empty delay slot to be filled by the next
+# adjacent function (which must be a 4-byte shared-sp-restore stub
+# like func_00194438 = just `addiu sp, +0x20; endlabel`).
+#
+# Format: <FILE_OFF_HEX> on its own line. # comments OK.
+#
+# Risk: only safe when the next adjacent function in the linker is
+# the appropriate `addiu sp, +N` shared restore. Verify by checking
+# the asm of the function at file_off + (this function's size).
+
+094400
