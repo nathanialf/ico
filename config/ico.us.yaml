@@ -506,6 +506,8 @@ segments:
       - [0x0547B8, asm, cod/0547B8]
       - [0x054CB8, c,   cod/054CB8]            # func_00154CB8: store-arg-discard
       - [0x054CC8, asm, cod/054CC8]
+      - [0x059230, c,   cod/059230]            # func_00159230: tail call func_00106AB8 (double-deref TCO)
+      - [0x059240, asm, cod/059240]
       - [0x05EE68, c,   cod/05EE68]            # func_0015EE68: *(int*)(*(char**)(self+0x164)+0x180) = val
       - [0x05EE74, asm, cod/05EE74]
       - [0x05EF40, c,   cod/05EF40]            # func_0015EF40
