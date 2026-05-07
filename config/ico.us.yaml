@@ -639,6 +639,8 @@ segments:
       - [0x090698, c, cod/090698]            # func_00190698: 4-insn sb_zero
       - [0x0906A8, c, cod/0906A8]            # func_001906A8: 4-insn lbu
       - [0x0906B8, asm, cod/0906B8]
+      - [0x091D08, c,   cod/091D08]            # func_00191D08: D_00633DB4=0; D_00633DB8=-1; D_00633DBC=0; return 0
+      - [0x091D20, asm, cod/091D20]
       - [0x092040, c,   cod/092040]            # func_00192040: D_00632780 = 1, return 1
       - [0x09204C, asm, cod/09204C]
       - [0x092088, c,   cod/092088]            # func_00192088: D_00632780 = 0
