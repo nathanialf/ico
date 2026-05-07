@@ -362,7 +362,7 @@ segments:
       - [0x00D520, c,   cod/00D520]            # func_0010D520: tail call func_0010D530(&D_00660A40) + gp_rel-set 0
       - [0x00D530, c,   cod/00D530]            # func_0010D530: tail call func_0010D830(a0, &D_00276140)
       - [0x00D53C, asm, cod/00D53C]
-      - [0x00D7F8, asm, cod/00D7F8]
+      - [0x00D7F8, c,   cod/00D7F8]            # func_0010D7F8: 64-byte buf staging + two-call wrapper
       - [0x00D830, c,   cod/00D830]            # func_0010D830: tail call func_00105F00 passthrough
       - [0x00D838, c,   cod/00D838]            # func_0010D838: func_0010D830(a0,a1); tail call func_001183F0(a0,a1,-1.0f)
       - [0x00D878, asm, cod/00D878]
