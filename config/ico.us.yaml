@@ -711,6 +711,7 @@ segments:
       - [0x0545F8, asm, cod/0545F8]
       - [0x054648, c,   cod/054648]            # func_00154648: set bit 35 of long long array[1]
       - [0x054668, asm, cod/054668]
+      - [0x054770, c,   cod/054770]            # func_00154770: read sentinel byte then return field
       - [0x054790, c,   cod/054790]            # func_00154790
       - [0x05479C, asm, cod/05479C]
       - [0x0547A0, c,   cod/0547A0]            # func_001547A0: return &D_006AAB40
