@@ -358,9 +358,9 @@ segments:
       - [0x00EC98, c,   cod/00EC98]            # func_0010EC98: tail call func_00122BA0 passthrough
       - [0x00ECA0, c,   cod/00ECA0]            # func_0010ECA0: sibling: tail call func_00122BA0 passthrough
       - [0x00ECA8, c,   cod/00ECA8]            # func_0010ECA8: auto-batch
-      - [0x00ECB0, asm, cod/00ECB0]
+      - [0x00ECB0, c,   cod/00ECB0]            # func_0010ECB0: auto
       - [0x00ECB8, c,   cod/00ECB8]            # func_0010ECB8: auto-batch
-      - [0x00ECC0, asm, cod/00ECC0]
+      - [0x00ECC0, c,   cod/00ECC0]            # func_0010ECC0: auto
       - [0x00ECC8, c,   cod/00ECC8]            # func_0010ECC8: tail call func_00244980(D_0063378C, D_00276214)
       - [0x00ECD8, c,   cod/00ECD8]
       - [0x00ECE0, asm, cod/00ECE0]
@@ -1085,6 +1085,9 @@ segments:
       - [0x0C05CC, asm, cod/0C05CC]
       - [0x0C0690, c, cod/0C0690]            # func_001C0690: 4-insn lw
       - [0x0C06A0, asm, cod/0C06A0]
+      - [0x0C0838, c,   cod/0C0838]            # func_001C0838: auto
+      - [0x0C0840, c,   cod/0C0840]            # func_001C0840: auto
+      - [0x0C0848, c,   cod/0C0848]            # func_001C0848: auto
       - [0x0C0850, c,   cod/0C0850]
       - [0x0C0858, c,   cod/0C0858]
       - [0x0C0860, c,   cod/0C0860]            # func_001C0860
@@ -1103,6 +1106,10 @@ segments:
       - [0x0C2EC8, asm, cod/0C2EC8]
       - [0x0C2F10, c,   cod/0C2F10]            # func_001C2F10
       - [0x0C2F20, asm, cod/0C2F20]
+      - [0x0C2FE8, c,   cod/0C2FE8]            # func_001C2FE8: auto
+      - [0x0C2FF0, asm, cod/0C2FF0]
+      - [0x0C34B8, c,   cod/0C34B8]            # func_001C34B8: auto
+      - [0x0C34C0, asm, cod/0C34C0]
       - [0x0C3970, c,   cod/0C3970]            # func_001C3970: tail call func_00105F00(a0, a1 + a2*0x50 + 0x30)
       - [0x0C3984, asm, cod/0C3984]
       - [0x0C8A00, c,   cod/0C8A00]            # func_001C8A00: *(float*)(a0 + a1*0x50 + 0x10) = f
@@ -1127,6 +1134,7 @@ segments:
       - [0x0CB924, asm, cod/0CB924]
       - [0x0CBB88, c,   cod/0CBB88]            # func_001CBB88: tail call func_00105F00(a0, &D_004C09A0)
       - [0x0CBB94, asm, cod/0CBB94]
+      - [0x0CBD68, c,   cod/0CBD68]            # func_001CBD68: auto
       - [0x0CBD70, c,   cod/0CBD70]
       - [0x0CBD78, c,   cod/0CBD78]
       - [0x0CBD80, c,   cod/0CBD80]
@@ -1155,11 +1163,13 @@ segments:
       - [0x0D03E0, c,   cod/0D03E0]            # func_001D03E0: D_006333D8 = 0
       - [0x0D03E8, asm, cod/0D03E8]
       - [0x0D1288, c,   cod/0D1288]            # func_001D1288: D_006333F0=1.0f; if a0 func_001D0FA8(a0) else func_001D1158(a1)
-      - [0x0D12A8, asm, cod/0D12A8]
+      - [0x0D12A8, c,   cod/0D12A8]            # func_001D12A8: auto
       - [0x0D12B0, c,   cod/0D12B0]            # func_001D12B0: D_006333F0=f; tail call func_001D0FA8(a0, a1, 0)
       - [0x0D12BC, asm, cod/0D12BC]
       - [0x0D12C0, c,   cod/0D12C0]            # func_001D12C0: tail call func_00144240(*(int*)(*(a0+0x15C) + a1*4 + 0x61C))
       - [0x0D12D4, asm, cod/0D12D4]
+      - [0x0D12D8, c,   cod/0D12D8]            # func_001D12D8: auto
+      - [0x0D12E0, asm, cod/0D12E0]
       - [0x0D1410, c,   cod/0D1410]            # func_001D1410: cvt.w.s float->int < a1
       - [0x0D1428, c,   cod/0D1428]            # func_001D1428: == arg compare
       - [0x0D143C, asm, cod/0D143C]
@@ -1167,6 +1177,10 @@ segments:
       - [0x0D1AD8, asm, cod/0D1AD8]
       - [0x0D1CF8, c,   cod/0D1CF8]
       - [0x0D1D00, asm, cod/0D1D00]
+      - [0x0D2538, c,   cod/0D2538]            # func_001D2538: auto
+      - [0x0D2540, c,   cod/0D2540]            # func_001D2540: auto
+      - [0x0D2548, c,   cod/0D2548]            # func_001D2548: auto
+      - [0x0D2550, asm, cod/0D2550]
       - [0x0D3D70, c, cod/0D3D70]            # func_001D3D70: 4-insn lw
       - [0x0D3D80, c,   cod/0D3D80]            # func_001D3D80: == 0
       - [0x0D3D94, asm, cod/0D3D94]
@@ -1188,6 +1202,10 @@ segments:
       - [0x0E237C, asm, cod/0E237C]
       - [0x0E4970, c,   cod/0E4970]            # func_001E4970: tail call func_00109FF8(D_00633540, D_00633548)
       - [0x0E497C, asm, cod/0E497C]
+      - [0x0E4980, c,   cod/0E4980]            # func_001E4980: auto
+      - [0x0E4988, asm, cod/0E4988]
+      - [0x0E6960, c,   cod/0E6960]            # func_001E6960: auto
+      - [0x0E6968, asm, cod/0E6968]
       - [0x0E8B48, c,   cod/0E8B48]            # func_001E8B48: tail-wrapper to func_001E83F8 with D_00632028 4th arg
       - [0x0E8B68, asm, cod/0E8B68]
       - [0x0E8BD8, c,   cod/0E8BD8]            # func_001E8BD8: &D_0070A3F0[a0*0xA0]
@@ -1204,16 +1222,24 @@ segments:
       - [0x0E97F8, c, cod/0E97F8]            # func_001E97F8: 4-insn lw
       - [0x0E9808, c,   cod/0E9808]
       - [0x0E9810, asm, cod/0E9810]
+      - [0x0E9910, c,   cod/0E9910]            # func_001E9910: auto
+      - [0x0E9918, c,   cod/0E9918]            # func_001E9918: auto
       - [0x0E9920, c,   cod/0E9920]            # func_001E9920: wrap func_001D12D8(a0); tail call func_001D12A8(a0, 0x38)
       - [0x0E994C, asm, cod/0E994C]
+      - [0x0E9DE8, c,   cod/0E9DE8]            # func_001E9DE8: auto
+      - [0x0E9DF0, c,   cod/0E9DF0]            # func_001E9DF0: auto
+      - [0x0E9DF8, asm, cod/0E9DF8]
       - [0x0EA108, c,   cod/0EA108]            # func_001EA108: fixed16.16 to float of *(self->15C->800+0x24)
       - [0x0EA128, asm, cod/0EA128]
+      - [0x0EA220, c,   cod/0EA220]            # func_001EA220: auto
       - [0x0EA228, c,   cod/0EA228]            # func_001EA228: set short field, copy short field, return 1
       - [0x0EA248, c,   cod/0EA248]            # func_001EA248: copy 2 shorts via sub2
       - [0x0EA268, c,   cod/0EA268]            # func_001EA268
       - [0x0EA278, asm, cod/0EA278]
       - [0x0EAE70, c,   cod/0EAE70]            # func_001EAE70: get-and-clear arr[idx]
       - [0x0EAE90, asm, cod/0EAE90]
+      - [0x0EB0B8, c,   cod/0EB0B8]            # func_001EB0B8: auto
+      - [0x0EB0C0, asm, cod/0EB0C0]
       - [0x0EB9F0, c,   cod/0EB9F0]            # func_001EB9F0: zero 8 sdata vars (with barriers for order)
       - [0x0EBA14, asm, cod/0EBA14]
       - [0x0EEF08, c,   cod/0EEF08]            # func_001EEF08: tail call func_001182F0(a0, &D_004C6160)
@@ -1251,8 +1277,14 @@ segments:
       - [0x0F2250, asm, cod/0F2250]
       - [0x0F2390, c,   cod/0F2390]            # func_001F2390: sibling: func_001D12D8(a0); tail call func_001D12A8(a0, 0x41)
       - [0x0F23BC, asm, cod/0F23BC]
+      - [0x0F23C0, c,   cod/0F23C0]            # func_001F23C0: auto
+      - [0x0F23C8, c,   cod/0F23C8]            # func_001F23C8: auto
+      - [0x0F23D0, c,   cod/0F23D0]            # func_001F23D0: auto
+      - [0x0F23D8, asm, cod/0F23D8]
       - [0x0F3368, c,   cod/0F3368]            # func_001F3368: tail call func_001CE028(a1, base+0x20, +0x30, +0x40)
       - [0x0F3384, asm, cod/0F3384]
+      - [0x0F3388, c,   cod/0F3388]            # func_001F3388: auto
+      - [0x0F3390, asm, cod/0F3390]
       - [0x0F40C8, c, cod/0F40C8]            # func_001F40C8: 4-insn lw
       - [0x0F40D8, asm, cod/0F40D8]
       - [0x0F42D0, c,   cod/0F42D0]            # func_001F42D0: sub->800->A0=0, return 1
@@ -1266,10 +1298,12 @@ segments:
       - [0x0F4DE8, asm, cod/0F4DE8]
       - [0x0F5608, c,   cod/0F5608]            # func_001F5608: D_004C75C0[0..2] = a0,a1,a2
       - [0x0F5620, asm, cod/0F5620]
+      - [0x0F69B0, c,   cod/0F69B0]            # func_001F69B0: auto
+      - [0x0F69B8, asm, cod/0F69B8]
       - [0x0F6A90, c, cod/0F6A90]            # func_001F6A90: 4-insn swc1
       - [0x0F6AA0, asm, cod/0F6AA0]
       - [0x0F6C88, c,   cod/0F6C88]            # func_001F6C88: tail call func_00118678(0x70000000) + sdata-set
-      - [0x0F6C98, asm, cod/0F6C98]
+      - [0x0F6C98, c,   cod/0F6C98]            # func_001F6C98: auto
       - [0x0F6CA0, c,   cod/0F6CA0]            # func_001F6CA0: D_00633780 = val
       - [0x0F6CA8, c,   cod/0F6CA8]            # func_001F6CA8: return D_00633780
       - [0x0F6CB0, asm, cod/0F6CB0]
@@ -1280,15 +1314,18 @@ segments:
       - [0x0FA598, asm, cod/0FA598]
       - [0x0FAA30, c,   cod/0FAA30]            # func_001FAA30: D_006337B8 = 1, return 1
       - [0x0FAA3C, asm, cod/0FAA3C]
-      - [0x0FAA48, asm, cod/0FAA48]
       - [0x0FAA50, c,   cod/0FAA50]            # func_001FAA50: D_006337B4 = val
       - [0x0FAA58, asm, cod/0FAA58]
       - [0x0FAAA8, c,   cod/0FAAA8]            # func_001FAAA8: return D_006337B0 (float)
       - [0x0FAAB0, asm, cod/0FAAB0]
+      - [0x0FB478, c,   cod/0FB478]            # func_001FB478: auto
+      - [0x0FB480, asm, cod/0FB480]
       - [0x0FB4A8, c,   cod/0FB4A8]            # func_001FB4A8: init 5 sdata: 0; 0x80 x4
       - [0x0FB4C4, asm, cod/0FB4C4]
       - [0x0FBB40, c,   cod/0FBB40]            # func_001FBB40: return D_00633F70
       - [0x0FBB48, asm, cod/0FBB48]
+      - [0x0FC040, c,   cod/0FC040]            # func_001FC040: auto
+      - [0x0FC048, asm, cod/0FC048]
       - [0x0FC2D0, c,   cod/0FC2D0]            # func_001FC2D0
       - [0x0FC2DC, asm, cod/0FC2DC]
       - [0x101DC8, c,   cod/101DC8]            # func_00201DC8: set bit 21 of (sub+0x428)
@@ -1430,6 +1467,10 @@ segments:
       - [0x13D38C, asm, cod/13D38C]
       - [0x13D518, c,   cod/13D518]            # func_0023D518: tail call func_00182A40(D_006318BC)
       - [0x13D524, asm, cod/13D524]
+      - [0x13D660, c,   cod/13D660]            # func_0023D660: auto
+      - [0x13D668, asm, cod/13D668]
+      - [0x13D8A0, c,   cod/13D8A0]            # func_0023D8A0: auto
+      - [0x13D8A8, asm, cod/13D8A8]
       - [0x13E170, c,   cod/13E170]            # func_0023E170: tail call func_00139598(a0 & 0x0FFFFFFF)
       - [0x13E180, asm, cod/13E180]
       - [0x13E280, c,   cod/13E280]            # func_0023E280: self->54 >= self->48
@@ -1503,8 +1544,15 @@ segments:
       - [0x1450C8, asm, cod/1450C8]
       - [0x1453C0, c,   cod/1453C0]            # func_002453C0: D_005507D0=0; tail call func_00245B58(a0)
       - [0x1453CC, asm, cod/1453CC]
+      - [0x145590, c,   cod/145590]            # func_00245590: auto
+      - [0x145598, c,   cod/145598]            # func_00245598: auto
+      - [0x1455A0, c,   cod/1455A0]            # func_002455A0: auto
+      - [0x1455A8, asm, cod/1455A8]
+      - [0x145658, c,   cod/145658]            # func_00245658: auto
       - [0x145660, c,   cod/145660]            # func_00245660: a1[0x48]=0(sd); a1[1]=0x2000; return 0
       - [0x145674, asm, cod/145674]
+      - [0x145678, c,   cod/145678]            # func_00245678: auto
+      - [0x145680, asm, cod/145680]
       - [0x145E88, c,   cod/145E88]            # func_00245E88: a0->18=0 + a0->10 &= ~1
       - [0x145EA4, asm, cod/145EA4]
       - [0x147108, c,   cod/147108]            # func_00247108: tail call func_00100540(D_00550864)
@@ -1549,6 +1597,8 @@ segments:
       - [0x14BBC0, asm, cod/14BBC0]
       - [0x150F70, c,   cod/150F70]            # func_00250F70: wrap func_00250C80(a0..a2, 0, -1)
       - [0x150F90, asm, cod/150F90]
+      - [0x151AB0, c,   cod/151AB0]            # func_00251AB0: auto
+      - [0x151AB8, asm, cod/151AB8]
       - [0x151BD0, c,   cod/151BD0]            # func_00251BD0
       - [0x151BE4, asm, cod/151BE4]
       - [0x151BE8, c,   cod/151BE8]            # func_00251BE8: copy 3 ints to *a1, *a2, *a3
@@ -1611,6 +1661,9 @@ segments:
       - [0x158CDC, asm, cod/158CDC]
       - [0x158CE0, c,   cod/158CE0]            # func_00258CE0
       - [0x158CEC, asm, cod/158CEC]
+      - [0x15C5B8, c,   cod/15C5B8]            # func_0025C5B8: auto
+      - [0x15C5C0, c,   cod/15C5C0]            # func_0025C5C0: auto
+      - [0x15C5C8, asm, cod/15C5C8]
       - [0x15C668, c,   cod/15C668]            # func_0025C668: func_002591F0(0x32, 0xA, a0, 0)
       - [0x15C67C, asm, cod/15C67C]
       - [0x15CCB0, c,   cod/15CCB0]            # func_0025CCB0: func_002591F0(0x14, a0, a1, 0)
@@ -1640,6 +1693,8 @@ segments:
       - [0x16405C, asm, cod/16405C]
       - [0x164D50, c,   cod/164D50]            # func_00264D50
       - [0x164D60, asm, cod/164D60]
+      - [0x164E68, c,   cod/164E68]            # func_00264E68: auto
+      - [0x164E70, asm, cod/164E70]
       - [0x1657F0, c,   cod/1657F0]            # func_002657F0: wrap func_00265818(a0,a1,D_00553244+0x5C)
       - [0x165814, asm, cod/165814]
       - [0x16A5E0, c,   cod/16A5E0]            # func_0026A5E0: tail call func_0026B018(a0, &func_0026A330)
