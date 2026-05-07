@@ -15,9 +15,35 @@ commits.
 
 **Run until the Claude usage cap stops you, or until the user explicitly
 tells you to stop. Do not stop early, ever.** The only acceptable end-of-
-stream is the cap or a direct user instruction.
+stream is the cap or a direct user instruction. This rule is the most
+important rule in this document — every other rule below exists to
+support it.
 
-Things that are **not** reasons to stop:
+### Cron-driven /loop is NOT a heartbeat to wait on
+
+If this prompt is firing from `/loop 30m decomp/MATCH.md unsupervised`
+(or similar), the 30-minute cadence is a **failsafe re-entry mechanism**
+in case the agent itself ever winds down — not a per-iteration work
+cap. Each fire of the loop should burn many minutes of agent work
+(many batches, many candidates, retries, parking attempts) before it
+naturally terminates at the usage cap or a user prompt.
+
+**Specific banned patterns** (these are session bugs, regardless of
+how they're phrased):
+
+- "Matched N functions this iteration. 1.X% .text. Continuing to
+  wait for next cron fire." — DO NOT print this. There is no waiting.
+  The next fire is the safety net, not your bedtime.
+- A trailing `grep '\.text' docs/PROGRESS.md | head -1` followed by a
+  one-line outro. The percentage check is not an end-of-turn ritual.
+- "Build green, committed func_X. Ready for next fire." — same
+  pattern, just spelled differently. Keep matching.
+- One batch of matches, then idle output and tool-quiescence. If you
+  finished a batch and aren't sure what to do next, the answer is
+  always: re-scan `docs/candidates.md`, pick more candidates, batch
+  more claims, run `make setup && make`. There is no "wait" state.
+
+### Things that are not reasons to stop
 
 - Hitting a "natural seam" — current cluster cleared, deferred list
   felt thin, nothing obvious in `tools/find_siblings.py` (when it
@@ -26,8 +52,12 @@ Things that are **not** reasons to stop:
   There is no good place to pause that isn't the cap or a user prompt.
 - Round-trip went red and you can't immediately see why. Diagnose with
   `tools/first_diff.py`, revert if needed, keep going.
-- The current target plateaued. Park it under `tough_nuts/` and pick
-  another.
+- The current target plateaued. Park it under `tough_nuts/` (see
+  "Tough-nut parking" below — **park, do not revert+delete**) and
+  pick another.
+- A cron-driven loop just fired and you completed one batch. The fire
+  is not a permission slip to stop; it's a permission slip to keep
+  going if the agent had drifted off task.
 
 When the obvious seam runs out, broaden the search using the full
 toolkit: rescan `asm/cod/000000.s` for more leaves, retry an older
@@ -135,7 +165,29 @@ After parking, run `make setup && make` to confirm the asm fallback
 round-trips, then commit. The auto-permuter (`tools/auto_permute*.sh`)
 picks up the new `tough_nuts/` seed on its next pass.
 
-Manual steps (what `park.sh` does):
+### NEVER revert+delete a near-miss .c file
+
+This is a hard rule, not a guideline. **If you wrote a .c file, ran
+`make`, and the SHA-1 mismatch is small (1-3 instructions, scheduling
+or regalloc differences, a single relocation flavor mismatch), park
+the file via `tools/park.sh`.** Do not:
+
+- `git checkout -- config/ico.us.yaml` to revert the claim and then
+  `rm src/cod/<file_off>.c` because "it's not matching." The .c file
+  is a **permuter seed** — even a 1-instruction-off attempt is much
+  more valuable to the auto-permuter than a blank slate. Throwing it
+  away undoes work the next session has to redo.
+- "Just revert this one, I'll come back to it later" — you won't,
+  and the C body is gone. Park it now.
+- Squash a near-miss into the same yaml-revert commit that drops a
+  bad batch — separate parking commits keep `tough_nuts/` reviewable.
+
+The only time it's correct to revert+delete instead of park is when
+the .c file was structurally wrong from the start (called the wrong
+function, used the wrong type, etc.) and is not a useful seed. If the
+diff was within ~3 instructions, it's a useful seed. Park it.
+
+### Manual steps (what `park.sh` does)
 
 1. Revert the yaml line to `[0xADDR, asm]`. Run `make setup` to confirm
    the tree is clean.
