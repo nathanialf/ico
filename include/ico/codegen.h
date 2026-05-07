@@ -236,4 +236,119 @@
         );                                                          \
     }
 
+/*
+ * DEFINE_LA_INDEXED_A0_LW — leaf returning `BASE[idx]` (4-byte stride
+ * = sll+addu form). Index in $a0; lw at offset 0 in jr's delay slot.
+ */
+#define DEFINE_LA_INDEXED_A0_LW(name, BASE, SCALE_LOG2)             \
+    int name(int idx)                                               \
+    {                                                               \
+        register int _r __asm__("$2");                              \
+        __asm__ volatile (                                          \
+            ".set noreorder\n\t"                                    \
+            "lui $2, %%hi(" #BASE ")\n\t"                           \
+            "sll $4, $4, " #SCALE_LOG2 "\n\t"                       \
+            "addiu $2, $2, %%lo(" #BASE ")\n\t"                     \
+            "addu $4, $4, $2\n\t"                                   \
+            "jr $31\n\t"                                            \
+            " lw $2, 0($4)\n\t"                                     \
+            ".set reorder"                                          \
+            : "=r"(_r) :: "$4"                                      \
+        );                                                          \
+        return _r;                                                  \
+    }
+
+/*
+ * DEFINE_LA_INDEXED_A0_SW_A1 — write $a1 to `BASE[idx]` (4-byte stride =
+ * sll+addu). Index in $a0; sw of $a1 in jr's delay slot.
+ */
+#define DEFINE_LA_INDEXED_A0_SW_A1(name, BASE, SCALE_LOG2)          \
+    void name(int idx, int val)                                     \
+    {                                                               \
+        __asm__ volatile (                                          \
+            ".set noreorder\n\t"                                    \
+            "lui $2, %%hi(" #BASE ")\n\t"                           \
+            "sll $4, $4, " #SCALE_LOG2 "\n\t"                       \
+            "addiu $2, $2, %%lo(" #BASE ")\n\t"                     \
+            "addu $4, $4, $2\n\t"                                   \
+            "jr $31\n\t"                                            \
+            " sw $5, 0($4)\n\t"                                     \
+            ".set reorder"                                          \
+            ::: "$2", "$4"                                          \
+        );                                                          \
+    }
+
+/*
+ * DEFINE_LA_INDEXED_A0_MULT_LW0 — non-power-of-two stride (uses mult),
+ * returns `*(int*)(BASE + idx*STRIDE)`. Original puts `addu` into $a0
+ * (since the lw offset is 0).
+ */
+#define DEFINE_LA_INDEXED_A0_MULT_LW0(name, BASE, STRIDE)           \
+    int name(int idx)                                               \
+    {                                                               \
+        register int _r __asm__("$2");                              \
+        __asm__ volatile (                                          \
+            ".set noreorder\n\t"                                    \
+            "addiu $3, $0, " #STRIDE "\n\t"                         \
+            "lui $2, %%hi(" #BASE ")\n\t"                           \
+            "mult $4, $4, $3\n\t"                                   \
+            "addiu $2, $2, %%lo(" #BASE ")\n\t"                     \
+            "addu $4, $4, $2\n\t"                                   \
+            "jr $31\n\t"                                            \
+            " lw $2, 0($4)\n\t"                                     \
+            ".set reorder"                                          \
+            : "=r"(_r) :: "$3", "$4"                                \
+        );                                                          \
+        return _r;                                                  \
+    }
+
+/*
+ * DEFINE_LA_INDEXED_A0_MULT_LW — non-power-of-two stride, returns
+ * `*(int*)(BASE + idx*STRIDE + OFFSET)`. The original allocates $v0
+ * as the stride, $v1 as the base — register layout differs from the
+ * offset-0 form because `lw` at non-zero offset needs the base to
+ * survive the `addu` into a separate result register ($v1).
+ */
+#define DEFINE_LA_INDEXED_A0_MULT_LW(name, BASE, STRIDE, OFFSET)    \
+    int name(int idx)                                               \
+    {                                                               \
+        register int _r __asm__("$2");                              \
+        __asm__ volatile (                                          \
+            ".set noreorder\n\t"                                    \
+            "addiu $2, $0, " #STRIDE "\n\t"                         \
+            "lui $3, %%hi(" #BASE ")\n\t"                           \
+            "mult $4, $4, $2\n\t"                                   \
+            "addiu $3, $3, %%lo(" #BASE ")\n\t"                     \
+            "addu $3, $3, $4\n\t"                                   \
+            "jr $31\n\t"                                            \
+            " lw $2, " #OFFSET "($3)\n\t"                           \
+            ".set reorder"                                          \
+            : "=r"(_r) :: "$3", "$4"                                \
+        );                                                          \
+        return _r;                                                  \
+    }
+
+/*
+ * DEFINE_LA_INDEXED_A0_MULT_SW_A1 — non-power-of-two stride, writes
+ * $a1 to `*(int*)(BASE + idx*STRIDE + OFFSET)`. Same register layout
+ * as DEFINE_LA_INDEXED_A0_MULT_LW (stride in $v0, base in $v0 via
+ * mult-then-addu… actually picks $v0 for stride+base reuse).
+ */
+#define DEFINE_LA_INDEXED_A0_MULT_SW_A1(name, BASE, STRIDE, OFFSET) \
+    void name(int idx, int val)                                     \
+    {                                                               \
+        __asm__ volatile (                                          \
+            ".set noreorder\n\t"                                    \
+            "addiu $3, $0, " #STRIDE "\n\t"                         \
+            "lui $2, %%hi(" #BASE ")\n\t"                           \
+            "mult $4, $4, $3\n\t"                                   \
+            "addiu $2, $2, %%lo(" #BASE ")\n\t"                     \
+            "addu $2, $2, $4\n\t"                                   \
+            "jr $31\n\t"                                            \
+            " sw $5, " #OFFSET "($2)\n\t"                           \
+            ".set reorder"                                          \
+            ::: "$2", "$3", "$4"                                    \
+        );                                                          \
+    }
+
 #endif /* ICO_CODEGEN_H */
