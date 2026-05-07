@@ -812,7 +812,9 @@ segments:
       - [0x0B0A58, c,   cod/0B0A58]            # func_001B0A58: D_00633024 = 1, return 1
       - [0x0B0A64, asm, cod/0B0A64]
       - [0x0B0A68, c,   cod/0B0A68]            # func_001B0A68: tail call func_00144120(0x190, -2, 0, 0)
-      - [0x0B0A80, asm, cod/0B0A80]
+      - [0x0B0A80, c,   cod/0B0A80]            # func_001B0A80: sibling: tail call func_00144120(0x191, -2u, 0, 0)
+      - [0x0B0A98, c,   cod/0B0A98]            # func_001B0A98: sibling: tail call func_00144120(0x18F, -2u, 0, 0)
+      - [0x0B0AB0, asm, cod/0B0AB0]
       - [0x0B4FC0, c,   cod/0B4FC0]            # func_001B4FC0: return -1
       - [0x0B4FC8, asm, cod/0B4FC8]
       - [0x0B5610, c,   cod/0B5610]            # func_001B5610: return -1
