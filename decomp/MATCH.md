@@ -119,40 +119,85 @@ over time.
 - `lib/asm-differ/` — function-level diffing while editing.
 - `lib/decomp-permuter/` — randomized rewrites for near-miss matches.
 
-**Compiler-blocked diffs — investigate ee-gcc source first:**
+## When a function won't match — the investigation loop
 
-When a function's asm uses an instruction or pattern ee-gcc 2.9-991111
-seems unable to emit (e.g. `lwu`, specific scheduling), don't park it
-or reach for inline asm. **First check the actual ee-gcc backend
-source** to see what conditions trigger that codegen path.
+Before parking ANY function, work through these steps in order. Most
+mismatches that look "compiler-blocked" yield to step 2 or step 4.
 
-Source lives at `https://github.com/GirianSeed/ee-gcc/releases` —
-specifically `src-2.9-ee-991111-01` (matches our `tools/cc/ee-gcc2.9-991111`).
-Download the `ee-gcc-2.0.zip`, extract, then look in
-`src/gcc/config/mips/mips.c` and `mips.md` for the relevant pattern.
+### Step 1: Identify the EXACT instruction-level diff
 
-Example (lwu emission, mips.c ~line 1865):
-```c
-case SImode:
-case CCmode:
-  ret = ((unsignedp && TARGET_64BIT)
-         ? "lwu\t%0,%1"
-         : "lw\t%0,%1");
-```
+Run `tools/quick_diff.sh <name>`. Name the specific instructions and
+registers that differ — never say "regalloc differs" without naming
+them. If quick_diff shows only `daddu | or` for register-zero moves,
+that's a known assembler false positive — run `make` to confirm SHA-1
+before assuming a real mismatch (see "quick_diff vs full build").
 
-This says `lwu` only fires when the operand is unsigned AND the result
-is being held in a 64-bit register context. In C, that means the load
-result must propagate into a `long` or `unsigned long` typed expression.
-The trick:
+### Step 2: Read the ee-gcc backend source
 
-```c
-long x = *(unsigned int *)p;   // forces lwu (load u32 into 64-bit reg)
-return ((int)x) & 1;            // forces dsll/dsra → dsll32/dsra32 + andi
-```
+The ee-gcc 2.9-991111 source is downloadable as
+`ee-gcc-2.0.zip` from `github.com/GirianSeed/ee-gcc/releases`
+(release tag `src-2.9-ee-991111-01`, matches our `tools/cc/ee-gcc2.9-991111`
+binary). Extract and `grep -n <mnemonic>` in
+`src/gcc/config/mips/mips.c` and `mips.md` to find the emit site
+and its gating conditions. Most "the compiler can't emit X" claims
+are wrong — the compiler can, you just need C that satisfies the
+gate (target flags, RTX modes, signedness, register class).
 
-This recovered func_0015F208 + func_001BB7E0 from ".skip" / "INCLUDE_ASM
-stub" status to fully matched pure-C — no inline asm, no compiler patch.
-Always read the backend before declaring a function compiler-blocked.
+Example gates already documented:
+
+  - `lwu`: `unsignedp && TARGET_64BIT` in mips.c (~L1865). Trigger
+    by holding the loaded value in a 64-bit-typed expression:
+    `long x = *(unsigned int *)p; return ((int)x) & 1;`
+  - `j $31` end-of-function: emitted from mips.md `return` template
+    `"%*j\\t$31"` outside `.set noreorder` — see step 4.
+
+### Step 3: Construct C that satisfies the gate
+
+Idioms that have worked:
+
+  - **Type chains** to control sign/size: `long`, `unsigned long`,
+    `(int)(unsigned int)x`, casts on cast results.
+  - **Register pins** for regalloc: `register T *v0 __asm__("$2") = ...;`
+    forces gcc to assign that variable to `$v0`. Combine with
+    inline-asm operand binding `"+r"(var)` to thread state.
+  - **Type the function pointer**: `extern void f(void *fn, ...);`
+    + `f((void *)func_X, ...)` produces a `lui+addiu` pair for the
+    function pointer.
+  - **Type the global**: `extern char D_X[];` produces lui+lo;
+    `extern int D_X;` produces gp_rel for in-sdata-range globals.
+
+### Step 4: Postprocess the .s file
+
+When gcc emits the right instructions but gas's `.set reorder` mode
+does the wrong thing (auto-filling delay slots, expanding macros to
+the wrong variant, etc.), patch the `.s` between gcc and ee-as.
+
+Existing passes (each driven by a per-file allowlist file):
+
+  - `config/swap_addu_operands.txt` → sed: addu rs/rt swap
+  - `config/coalesce_v1_v0.txt` → sed: drop redundant `move v0,v1`
+  - `config/swap_sw_pair.txt` → `tools/postprocess_sw_pair.py`
+  - `config/no_trailing_nop.txt` → `tools/postprocess_no_trailing_nop.py`:
+    wraps the final `$L<N>: j $31` in `.set noreorder`/`.set reorder`
+    so gas doesn't auto-fill the delay slot with a nop. Use when the
+    original codegen leaves the jr ra delay slot empty (next function's
+    first instruction acts as the implicit delay slot).
+
+To add a new postprocess:
+
+  1. Write `tools/postprocess_<name>.py` that takes a `.s` path and
+     edits in place. Make it idempotent.
+  2. Add a per-file allowlist in `config/<name>.txt`.
+  3. Add a Makefile clause modeled on the existing ones.
+  4. Document the precondition (when it's safe to apply).
+
+### Step 5: Park or `.skip` only after steps 1–4 are exhausted
+
+In the parked notes, name the SPECIFIC compiler/assembler limitation
+that blocks the match. "Regalloc differs" is not a documented reason
+unless you also name (a) the instruction, (b) the registers expected
+vs. emitted, (c) what mips.c rule allocates them, (d) why no C
+formulation hits a different rule.
 
 ## Picking the next target
 
