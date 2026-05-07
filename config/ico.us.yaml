@@ -1010,7 +1010,7 @@ segments:
       - [0x09E1D0, c,   cod/09E1D0]            # func_0019E1D0: auto-batch
       - [0x09E1D8, asm, cod/09E1D8]
       - [0x09E278, c,   cod/09E278]            # func_0019E278: wrap func_001A6E28(&D_00632820, a1->4); ret 1
-      - [0x09E2A0, asm, cod/09E2A0]
+      - [0x09E2A0, c,   cod/09E2A0]            # func_0019E2A0: func_0019CF70(a0,a1); func_0023FDF0(a2+0x50); ret 1
       - [0x09E2D0, c,   cod/09E2D0]            # func_0019E2D0
       - [0x09E2F0, c,   cod/09E2F0]            # func_0019E2F0
       - [0x09E310, asm, cod/09E310]
@@ -1441,6 +1441,12 @@ segments:
       - [0x105B4C, asm, cod/105B4C]
       - [0x109AB0, c,   cod/109AB0]            # func_00209AB0: tail call func_001297A0(0xA2, 0, -1)
       - [0x109AC0, asm, cod/109AC0]
+      - [0x10D208, c,   cod/10D208]            # func_0020D208: func_0017B258(0x138); func_00203B78(&func_0020D238, 0x15)
+      - [0x10D238, asm, cod/10D238]
+      - [0x10D5A8, c,   cod/10D5A8]            # func_0020D5A8: sibling: 0x13E
+      - [0x10D5D8, asm, cod/10D5D8]
+      - [0x10D660, c,   cod/10D660]            # func_0020D660: sibling: 0x13F
+      - [0x10D690, asm, cod/10D690]
       - [0x10D748, c,   cod/10D748]            # func_0020D748: wrap func_00203B78(&func_0020B8D8, 0x15)
       - [0x10D770, asm, cod/10D770]
       - [0x1109D8, c,   cod/1109D8]            # func_002109D8: store-arg-discard
