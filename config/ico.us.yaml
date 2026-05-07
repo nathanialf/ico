@@ -289,14 +289,14 @@ segments:
       - [0x0052A8, asm, cod/0052A8]
       - [0x005F00, c,   cod/005F00]            # func_00105F00: 16-byte lq/sq copy
       - [0x005F10, c,   cod/005F10]            # func_00105F10: 16-byte lq/sq copy
-      - [0x005F20, hasm,   cod/005F20]            # handwritten asm leaf (VU0/COP2)
+      - [0x005F20, c   ,   cod/005F20]            # GPR quadword copy (lq/sq)
       - [0x005F48, asm, cod/005F48]
-      - [0x005F78, hasm,   cod/005F78]            # handwritten asm leaf (VU0/COP2)
-      - [0x005F90, hasm,   cod/005F90]            # handwritten asm leaf (VU0/COP2)
+      - [0x005F78, c   ,   cod/005F78]            # VU0 wrapper (vu0.h macros)
+      - [0x005F90, c   ,   cod/005F90]            # VU0 wrapper (vu0.h macros)
       - [0x005FA8, asm, cod/005FA8]
-      - [0x005FE0, hasm,   cod/005FE0]            # handwritten asm leaf (VU0/COP2)
-      - [0x006000, hasm,   cod/006000]            # handwritten asm leaf (VU0/COP2)
-      - [0x006028, hasm,   cod/006028]            # handwritten asm leaf (VU0/COP2)
+      - [0x005FE0, c   ,   cod/005FE0]            # VU0 wrapper (vu0.h macros)
+      - [0x006000, c   ,   cod/006000]            # VU0 wrapper (vu0.h macros)
+      - [0x006028, c   ,   cod/006028]            # VU0 wrapper (vu0.h macros)
       - [0x006048, asm, cod/006048]
       - [0x006A98, c,   cod/006A98]            # func_00106A98: tail call func_00105F00 (TCO)
       - [0x006AA4, asm, cod/006AA4]
@@ -373,9 +373,9 @@ segments:
       - [0x00DAD0, asm, cod/00DAD0]
       - [0x00DB28, c,   cod/00DB28]            # func_0010DB28: D_00631B7C--; if <0: func_001A6E28(&D_00553E48); D_00631B7C=0
       - [0x00DB5C, asm, cod/00DB5C]
-      - [0x00DDB8, hasm,   cod/00DDB8]            # handwritten asm leaf (was C with inline asm)
+      - [0x00DDB8, c   ,   cod/00DDB8]            # VU0 wrapper (vu0.h macros)
       - [0x00DDF4, asm, cod/00DDF4]
-      - [0x00E928, hasm,   cod/00E928]            # handwritten asm leaf (VU0/COP2)
+      - [0x00E928, c   ,   cod/00E928]            # VU0 wrapper (vu0.h macros)
       - [0x00E950, asm, cod/00E950]
       - [0x00EC50, c,   cod/00EC50]            # func_0010EC50: sw a0 to deref + tail call func_0011BF40
       - [0x00EC60, c,   cod/00EC60]            # func_0010EC60: auto-batch
@@ -407,74 +407,74 @@ segments:
       - [0x017750, c,   cod/017750]            # func_00117750: 3-sdata zero
       - [0x017760, c,   cod/017760]
       - [0x017768, asm, cod/017768]
-      - [0x017C20, hasm,   cod/017C20]            # handwritten asm leaf (VU0/COP2)
-      - [0x017C40, hasm,   cod/017C40]            # handwritten asm leaf (VU0/COP2)
+      - [0x017C20, c   ,   cod/017C20]            # VU0 wrapper (vu0.h macros)
+      - [0x017C40, c   ,   cod/017C40]            # VU0 wrapper (vu0.h macros)
       - [0x017C5C, asm, cod/017C5C]
-      - [0x017C60, hasm,   cod/017C60]            # handwritten asm leaf (VU0/COP2)
+      - [0x017C60, c   ,   cod/017C60]            # VU0 wrapper (vu0.h macros)
       - [0x017C7C, asm, cod/017C7C]
-      - [0x017C80, hasm,   cod/017C80]            # handwritten asm leaf (VU0/COP2)
-      - [0x017C98, hasm,   cod/017C98]            # handwritten asm leaf (VU0/COP2)
-      - [0x017CB0, hasm,   cod/017CB0]            # handwritten asm leaf (VU0/COP2)
+      - [0x017C80, c   ,   cod/017C80]            # VU0 wrapper (vu0.h macros)
+      - [0x017C98, c   ,   cod/017C98]            # VU0 wrapper (vu0.h macros)
+      - [0x017CB0, c   ,   cod/017CB0]            # VU0 wrapper (vu0.h macros)
       - [0x017CCC, asm, cod/017CCC]
-      - [0x017CD0, hasm,   cod/017CD0]            # handwritten asm leaf (VU0/COP2)
-      - [0x017CE0, hasm,   cod/017CE0]            # handwritten asm leaf (was C with inline asm)
+      - [0x017CD0, c   ,   cod/017CD0]            # VU0 wrapper (vu0.h macros)
+      - [0x017CE0, c   ,   cod/017CE0]            # VU0 wrapper (vu0.h macros)
       - [0x017CEC, asm, cod/017CEC]
-      - [0x017FC0, hasm,   cod/017FC0]            # handwritten asm leaf (VU0/COP2)
-      - [0x017FD8, hasm,   cod/017FD8]            # handwritten asm leaf (was C with inline asm)
+      - [0x017FC0, c   ,   cod/017FC0]            # VU0 wrapper (vu0.h macros)
+      - [0x017FD8, c   ,   cod/017FD8]            # VU0 wrapper (vu0.h macros)
       - [0x017FE4, asm, cod/017FE4]
-      - [0x017FE8, hasm,   cod/017FE8]            # handwritten asm leaf (VU0/COP2)
+      - [0x017FE8, c   ,   cod/017FE8]            # VU0 wrapper (vu0.h macros)
       - [0x018000, asm, cod/018000]
-      - [0x0180C0, hasm,   cod/0180C0]            # handwritten asm leaf (VU0/COP2)
-      - [0x0180E0, hasm,   cod/0180E0]            # handwritten asm leaf (VU0/COP2)
+      - [0x0180C0, c   ,   cod/0180C0]            # VU0 wrapper (vu0.h macros)
+      - [0x0180E0, c   ,   cod/0180E0]            # VU0 wrapper (vu0.h macros)
       - [0x01810C, asm, cod/01810C]
-      - [0x018110, hasm,   cod/018110]            # handwritten asm leaf (VU0/COP2)
+      - [0x018110, c   ,   cod/018110]            # VU0 wrapper (vu0.h macros)
       - [0x01815C, asm, cod/01815C]
-      - [0x018160, hasm,   cod/018160]            # handwritten asm leaf (VU0/COP2)
-      - [0x018190, hasm,   cod/018190]            # handwritten asm leaf (was C with inline asm)
+      - [0x018160, c   ,   cod/018160]            # VU0 wrapper (vu0.h macros)
+      - [0x018190, c   ,   cod/018190]            # VU0 wrapper (vu0.h macros)
       - [0x0181DC, asm, cod/0181DC]
-      - [0x0182F0, hasm,   cod/0182F0]            # handwritten asm leaf (VU0/COP2)
+      - [0x0182F0, c   ,   cod/0182F0]            # VU0 wrapper (vu0.h macros)
       - [0x01831C, asm, cod/01831C]
-      - [0x018320, hasm,   cod/018320]            # handwritten asm leaf (VU0/COP2)
+      - [0x018320, c   ,   cod/018320]            # VU0 wrapper (vu0.h macros)
       - [0x01834C, asm, cod/01834C]
-      - [0x018350, hasm,   cod/018350]            # handwritten asm leaf (VU0/COP2)
-      - [0x018370, hasm,   cod/018370]            # handwritten asm leaf (was C with inline asm)
-      - [0x018388, hasm,   cod/018388]            # handwritten asm leaf (VU0/COP2)
-      - [0x0183A0, hasm,   cod/0183A0]            # handwritten asm leaf (VU0/COP2)
-      - [0x0183B8, hasm,   cod/0183B8]            # handwritten asm leaf (VU0/COP2)
-      - [0x0183D0, hasm,   cod/0183D0]            # handwritten asm leaf (VU0/COP2)
+      - [0x018350, c   ,   cod/018350]            # VU0 wrapper (vu0.h macros)
+      - [0x018370, c   ,   cod/018370]            # VU0 wrapper (vu0.h macros)
+      - [0x018388, c   ,   cod/018388]            # VU0 wrapper (vu0.h macros)
+      - [0x0183A0, c   ,   cod/0183A0]            # VU0 wrapper (vu0.h macros)
+      - [0x0183B8, c   ,   cod/0183B8]            # VU0 wrapper (vu0.h macros)
+      - [0x0183D0, c   ,   cod/0183D0]            # VU0 wrapper (vu0.h macros)
       - [0x0183EC, asm, cod/0183EC]
-      - [0x0183F0, hasm,   cod/0183F0]            # handwritten asm leaf (VU0/COP2)
+      - [0x0183F0, c   ,   cod/0183F0]            # VU0 wrapper (vu0.h macros)
       - [0x01840C, asm, cod/01840C]
-      - [0x018410, hasm,   cod/018410]            # handwritten asm leaf (VU0/COP2)
-      - [0x018430, hasm,   cod/018430]            # handwritten asm leaf (VU0/COP2)
+      - [0x018410, c   ,   cod/018410]            # VU0 wrapper (vu0.h macros)
+      - [0x018430, c   ,   cod/018430]            # VU0 wrapper (vu0.h macros)
       - [0x018444, asm, cod/018444]
-      - [0x018448, hasm,   cod/018448]            # handwritten asm leaf (VU0/COP2)
+      - [0x018448, c   ,   cod/018448]            # VU0 wrapper (vu0.h macros)
       - [0x01845C, asm, cod/01845C]
       - [0x018460, c,   cod/018460]            # func_00118460: 16-byte lq/sq copy ($t0)
       - [0x018470, c,   cod/018470]            # func_00118470: 16-byte lq/sq copy ($t0)
-      - [0x018480, hasm,   cod/018480]            # handwritten asm leaf (was C with inline asm)
+      - [0x018480, c   ,   cod/018480]            # VU0 wrapper (vu0.h macros)
       - [0x01848C, asm, cod/01848C]
-      - [0x018490, hasm,   cod/018490]            # handwritten asm leaf (VU0/COP2)
-      - [0x0184B8, hasm,   cod/0184B8]            # handwritten asm leaf (VU0/COP2)
-      - [0x0184E0, hasm,   cod/0184E0]            # handwritten asm leaf (VU0/COP2)
+      - [0x018490, c   ,   cod/018490]            # VU0 wrapper (vu0.h macros)
+      - [0x0184B8, c   ,   cod/0184B8]            # VU0 wrapper (vu0.h macros)
+      - [0x0184E0, c   ,   cod/0184E0]            # VU0 wrapper (vu0.h macros)
       - [0x01850C, asm, cod/01850C]
-      - [0x018510, hasm,   cod/018510]            # handwritten asm leaf (VU0/COP2)
+      - [0x018510, c   ,   cod/018510]            # VU0 wrapper (vu0.h macros)
       - [0x018544, asm, cod/018544]
-      - [0x018548, hasm,   cod/018548]            # handwritten asm leaf (VU0/COP2)
+      - [0x018548, c   ,   cod/018548]            # VU0 wrapper (vu0.h macros)
       - [0x018574, asm, cod/018574]
-      - [0x018578, hasm,   cod/018578]            # handwritten asm leaf (VU0/COP2)
+      - [0x018578, c   ,   cod/018578]            # VU0 wrapper (vu0.h macros)
       - [0x0185A4, asm, cod/0185A4]
-      - [0x0185A8, hasm,   cod/0185A8]            # handwritten asm leaf (VU0/COP2)
+      - [0x0185A8, c   ,   cod/0185A8]            # GPR quadword copy (lq/sq)
       - [0x0185D0, asm, cod/0185D0]
-      - [0x018648, hasm,   cod/018648]            # handwritten asm leaf (VU0/COP2)
-      - [0x018678, hasm,   cod/018678]            # handwritten asm leaf (VU0/COP2)
-      - [0x0186A0, hasm,   cod/0186A0]            # handwritten asm leaf (VU0/COP2)
+      - [0x018648, c   ,   cod/018648]            # VU0 wrapper (vu0.h macros)
+      - [0x018678, c   ,   cod/018678]            # VU0 wrapper (vu0.h macros)
+      - [0x0186A0, c   ,   cod/0186A0]            # VU0 wrapper (vu0.h macros)
       - [0x0186C4, asm, cod/0186C4]
-      - [0x018A48, hasm,   cod/018A48]            # handwritten asm leaf (VU0/COP2)
-      - [0x018A68, hasm,   cod/018A68]            # handwritten asm leaf (was C with inline asm)
-      - [0x018A80, hasm,   cod/018A80]            # handwritten asm leaf (VU0/COP2)
+      - [0x018A48, c   ,   cod/018A48]            # VU0 wrapper (vu0.h macros)
+      - [0x018A68, c   ,   cod/018A68]            # VU0 wrapper (vu0.h macros)
+      - [0x018A80, c   ,   cod/018A80]            # VU0 wrapper (vu0.h macros)
       - [0x018A9C, asm, cod/018A9C]
-      - [0x018AA0, hasm,   cod/018AA0]            # handwritten asm leaf (VU0/COP2)
+      - [0x018AA0, c   ,   cod/018AA0]            # VU0 wrapper (vu0.h macros)
       - [0x018AB4, asm, cod/018AB4]
       - [0x01BF40, c,   cod/01BF40]            # func_0011BF40: tail call func_0011B6D8(self->820, self->844->F0, (s8)self[0x820]+0x2F > 0)
       - [0x01BF5C, asm, cod/01BF5C]
@@ -1080,10 +1080,10 @@ segments:
       - [0x098430, c,   cod/098430]
       - [0x098438, asm, cod/098438]
       - [0x098678, c,   cod/098678]            # func_00198678: negate 3 floats, copy 4th
-      - [0x0986A8, hasm,   cod/0986A8]            # handwritten asm leaf (VU0/COP2)
+      - [0x0986A8, c   ,   cod/0986A8]            # VU0 wrapper (vu0.h macros)
       - [0x0986D8, c,   cod/0986D8]            # func_001986D8: buf[16] + 2-call wrapper (re-test after lwu insight)
       - [0x098710, asm, cod/098710]
-      - [0x099790, hasm,   cod/099790]            # handwritten asm leaf (VU0/COP2)
+      - [0x099790, c   ,   cod/099790]            # VU0 wrapper (vu0.h macros)
       - [0x0997B8, asm, cod/0997B8]
       - [0x099998, c,   cod/099998]            # func_00199998
       - [0x0999A8, asm, cod/0999A8]
@@ -1327,18 +1327,18 @@ segments:
       - [0x0C8A14, asm, cod/0C8A14]
       - [0x0C8B48, c,   cod/0C8B48]            # func_001C8B48: f12 / *(float*)(a0+0x14)
       - [0x0C8B60, asm, cod/0C8B60]
-      - [0x0C8DE8, hasm,   cod/0C8DE8]            # handwritten asm leaf (VU0/COP2)
-      - [0x0C8E08, hasm,   cod/0C8E08]            # handwritten asm leaf (VU0/COP2)
+      - [0x0C8DE8, c   ,   cod/0C8DE8]            # VU0 wrapper (vu0.h macros)
+      - [0x0C8E08, c   ,   cod/0C8E08]            # VU0 wrapper (vu0.h macros)
       - [0x0C8E2C, asm, cod/0C8E2C]
-      - [0x0C8E30, hasm,   cod/0C8E30]            # handwritten asm leaf (VU0/COP2)
+      - [0x0C8E30, c   ,   cod/0C8E30]            # VU0 wrapper (vu0.h macros)
       - [0x0C8E54, asm, cod/0C8E54]
-      - [0x0C8E58, hasm,   cod/0C8E58]            # handwritten asm leaf (VU0/COP2)
+      - [0x0C8E58, c   ,   cod/0C8E58]            # VU0 wrapper (vu0.h macros)
       - [0x0C8E74, asm, cod/0C8E74]
-      - [0x0C8E78, hasm,   cod/0C8E78]            # handwritten asm leaf (VU0/COP2)
+      - [0x0C8E78, c   ,   cod/0C8E78]            # VU0 wrapper (vu0.h macros)
       - [0x0C8EAC, asm, cod/0C8EAC]
-      - [0x0C8EB0, hasm,   cod/0C8EB0]            # handwritten asm leaf (VU0/COP2)
+      - [0x0C8EB0, c   ,   cod/0C8EB0]            # VU0 wrapper (vu0.h macros)
       - [0x0C8ED4, asm, cod/0C8ED4]
-      - [0x0C8ED8, hasm,   cod/0C8ED8]            # handwritten asm leaf (VU0/COP2)
+      - [0x0C8ED8, c   ,   cod/0C8ED8]            # VU0 wrapper (vu0.h macros)
       - [0x0C8EF4, asm, cod/0C8EF4]
       - [0x0C9328, c,   cod/0C9328]
       - [0x0C9330, c,   cod/0C9330]
@@ -1801,41 +1801,41 @@ segments:
       - [0x14363C, asm, cod/14363C]
       - [0x1436C8, c,   cod/1436C8]            # func_002436C8
       - [0x1436E4, asm, cod/1436E4]
-      - [0x1438B8, hasm,   cod/1438B8]            # handwritten asm leaf (VU0/COP2)
+      - [0x1438B8, c   ,   cod/1438B8]            # VU0 wrapper (vu0.h macros)
       - [0x1438E4, asm, cod/1438E4]
-      - [0x143930, hasm,   cod/143930]            # handwritten asm leaf (VU0/COP2)
+      - [0x143930, c   ,   cod/143930]            # VU0 wrapper (vu0.h macros)
       - [0x14394C, asm, cod/14394C]
-      - [0x143950, hasm,   cod/143950]            # handwritten asm leaf (VU0/COP2)
+      - [0x143950, c   ,   cod/143950]            # VU0 wrapper (vu0.h macros)
       - [0x143974, asm, cod/143974]
-      - [0x143A68, hasm,   cod/143A68]            # handwritten asm leaf (VU0/COP2)
-      - [0x143A88, hasm,   cod/143A88]            # handwritten asm leaf (VU0/COP2)
-      - [0x143AA8, hasm,   cod/143AA8]            # handwritten asm leaf (VU0/COP2)
-      - [0x143AD0, hasm,   cod/143AD0]            # handwritten asm leaf (VU0/COP2)
+      - [0x143A68, c   ,   cod/143A68]            # VU0 wrapper (vu0.h macros)
+      - [0x143A88, c   ,   cod/143A88]            # VU0 wrapper (vu0.h macros)
+      - [0x143AA8, c   ,   cod/143AA8]            # VU0 wrapper (vu0.h macros)
+      - [0x143AD0, c   ,   cod/143AD0]            # VU0 wrapper (vu0.h macros)
       - [0x143AE4, asm, cod/143AE4]
-      - [0x143AE8, hasm,   cod/143AE8]            # handwritten asm leaf (VU0/COP2)
+      - [0x143AE8, c   ,   cod/143AE8]            # VU0 wrapper (vu0.h macros)
       - [0x143AFC, asm, cod/143AFC]
-      - [0x143B00, hasm,   cod/143B00]            # handwritten asm leaf (VU0/COP2)
+      - [0x143B00, c   ,   cod/143B00]            # VU0 wrapper (vu0.h macros)
       - [0x143B14, asm, cod/143B14]
-      - [0x143B18, hasm,   cod/143B18]            # handwritten asm leaf (VU0/COP2)
-      - [0x143B30, hasm,   cod/143B30]            # handwritten asm leaf (VU0/COP2)
+      - [0x143B18, c   ,   cod/143B18]            # VU0 wrapper (vu0.h macros)
+      - [0x143B30, c   ,   cod/143B30]            # VU0 wrapper (vu0.h macros)
       - [0x143B5C, asm, cod/143B5C]
       - [0x143B60, c,   cod/143B60]            # func_00243B60: 16-byte copy a2
       - [0x143B6C, asm, cod/143B6C]
-      - [0x143B70, hasm,   cod/143B70]            # handwritten asm leaf (VU0/COP2)
+      - [0x143B70, c   ,   cod/143B70]            # GPR quadword copy (lq/sq)
       - [0x143B94, asm, cod/143B94]
-      - [0x143B98, hasm,   cod/143B98]            # handwritten asm leaf (VU0/COP2)
-      - [0x143BA8, hasm,   cod/143BA8]            # handwritten asm leaf (VU0/COP2)
-      - [0x143BB8, hasm,   cod/143BB8]            # handwritten asm leaf (VU0/COP2)
-      - [0x143BC8, hasm,   cod/143BC8]            # handwritten asm leaf (VU0/COP2)
-      - [0x143BD8, hasm,   cod/143BD8]            # handwritten asm leaf (VU0/COP2)
+      - [0x143B98, c   ,   cod/143B98]            # VU0 wrapper (vu0.h macros)
+      - [0x143BA8, c   ,   cod/143BA8]            # VU0 wrapper (vu0.h macros)
+      - [0x143BB8, c   ,   cod/143BB8]            # VU0 wrapper (vu0.h macros)
+      - [0x143BC8, c   ,   cod/143BC8]            # VU0 wrapper (vu0.h macros)
+      - [0x143BD8, c   ,   cod/143BD8]            # VU0 wrapper (vu0.h macros)
       - [0x143C00, asm, cod/143C00]
-      - [0x143EC0, hasm,   cod/143EC0]            # handwritten asm leaf (VU0/COP2)
+      - [0x143EC0, c   ,   cod/143EC0]            # VU0 wrapper (vu0.h macros)
       - [0x143EE4, asm, cod/143EE4]
       - [0x1443F8, c,   cod/1443F8]            # func_002443F8: copy 3 floats
       - [0x144414, asm, cod/144414]
-      - [0x144418, hasm,   cod/144418]            # handwritten asm leaf (VU0/COP2)
+      - [0x144418, c   ,   cod/144418]            # VU0 wrapper (vu0.h macros)
       - [0x144444, asm, cod/144444]
-      - [0x144448, hasm,   cod/144448]            # handwritten asm leaf (VU0/COP2)
+      - [0x144448, c   ,   cod/144448]            # VU0 wrapper (vu0.h macros)
       - [0x144460, asm, cod/144460]
       - [0x144738, c,   cod/144738]            # func_00244738: getset D_00550738 (shared lui)
       - [0x144748, asm, cod/144748]
