@@ -836,7 +836,10 @@ segments:
       - [0x07C990, c,   cod/07C990]            # func_0017C990: tail call func_001EB310(func_0013EAE8())
       - [0x07C9B0, asm, cod/07C9B0]
       - [0x07CA10, c,   cod/07CA10]            # func_0017CA10: tail call func_00154668 passthrough
-      - [0x07CA18, asm, cod/07CA18]
+      - [0x07CA18, c,   cod/07CA18]            # func_0017CA18: while-loop calling func_X chain, store 0 at +0x50
+      - [0x07CA54, asm, cod/07CA54]
+      - [0x07CAE0, c,   cod/07CAE0]            # func_0017CAE0: Same as 17CA18 but offset 0x16C
+      - [0x07CB1C, asm, cod/07CB1C]
       - [0x07E160, c,   cod/07E160]            # func_0017E160: set sub fields: 0x328/0x32C=0x7F, 0x33C/0x110/0x114/0x118=0
       - [0x07E184, asm, cod/07E184]
       - [0x07E188, c,   cod/07E188]            # func_0017E188
@@ -1508,6 +1511,8 @@ segments:
       - [0x0FC1A0, asm, cod/0FC1A0]
       - [0x0FC2D0, c,   cod/0FC2D0]            # func_001FC2D0
       - [0x0FC2DC, asm, cod/0FC2DC]
+      - [0x100A98, asm, cod/100A98]
+      - [0x100AD4, asm, cod/100AD4]
       - [0x101DC8, c,   cod/101DC8]            # func_00201DC8: set bit 21 of (sub+0x428)
       - [0x101DE0, asm, cod/101DE0]
       - [0x103910, c,   cod/103910]
@@ -1709,6 +1714,8 @@ segments:
       - [0x141A20, asm, cod/141A20]
       - [0x141C38, c,   cod/141C38]            # func_00241C38: return &D_005506A0
       - [0x141C44, asm, cod/141C44]
+      - [0x143600, c,   cod/143600]            # func_00243600: 2-call wrapper, save 1st result return last
+      - [0x14363C, asm, cod/14363C]
       - [0x1436C8, c,   cod/1436C8]            # func_002436C8
       - [0x1436E4, asm, cod/1436E4]
       - [0x1438B8, c,   cod/1438B8]            # func_002438B8: 4x4 mat-vec mul (jr-delay)
