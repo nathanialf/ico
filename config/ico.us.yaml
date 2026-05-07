@@ -92,6 +92,8 @@ segments:
     subalign: null
     subsegments:
       - [0x000000, asm, cod/000000]
+      - [0x0000B8, c,   cod/0000B8]            # func_001000B8: auto-batch
+      - [0x0000C0, asm, cod/0000C0]
       - [0x000110, c,   cod/000110]            # func_00100110: syscall 0x1 stub
       - [0x000120, c,   cod/000120]            # func_00100120: syscall 0x2
       - [0x000130, c,   cod/000130]            # func_00100130: syscall 0x3
@@ -249,8 +251,16 @@ segments:
       - [0x001C54, asm, cod/001C54]
       - [0x001C58, c,   cod/001C58]            # func_00101C58: wrap func_00100950(0x10, &local=a0)
       - [0x001C7C, asm, cod/001C7C]
+      - [0x002850, c,   cod/002850]            # func_00102850: auto-batch
+      - [0x002858, c,   cod/002858]            # func_00102858: auto-batch
       - [0x002860, c,   cod/002860]            # func_00102860: tail call func_0010D830(*(a0+0x15C)+0xC0)
       - [0x00286C, asm, cod/00286C]
+      - [0x002970, c,   cod/002970]            # func_00102970: auto-batch
+      - [0x002978, asm, cod/002978]
+      - [0x0029B8, c,   cod/0029B8]            # func_001029B8: auto-batch
+      - [0x0029C0, asm, cod/0029C0]
+      - [0x002A38, c,   cod/002A38]            # func_00102A38: auto-batch
+      - [0x002A40, asm, cod/002A40]
       - [0x002DE0, c,   cod/002DE0]            # func_00102DE0: wrap func_00102A40(a0); tail call func_00109F28(a0)
       - [0x002E08, asm, cod/002E08]
       - [0x003110, c,   cod/003110]            # func_00103110: tail call func_00105F00(a0, *(a1+0x15C)+0x130)
@@ -310,6 +320,8 @@ segments:
       - [0x00AB18, c,   cod/00AB18]
       - [0x00AB20, c,   cod/00AB20]
       - [0x00AB28, asm, cod/00AB28]
+      - [0x00ADC8, c,   cod/00ADC8]            # func_0010ADC8: auto-batch
+      - [0x00ADD0, asm, cod/00ADD0]
       - [0x00B2C0, c,   cod/00B2C0]            # func_0010B2C0: tail call func_00105F00 (double-deref TCO)
       - [0x00B2D0, asm, cod/00B2D0]
       - [0x00D070, c,   cod/00D070]
@@ -341,10 +353,14 @@ segments:
       - [0x00E928, c,   cod/00E928]            # func_0010E928: dot product 4-component
       - [0x00E950, asm, cod/00E950]
       - [0x00EC50, c,   cod/00EC50]            # func_0010EC50: sw a0 to deref + tail call func_0011BF40
-      - [0x00EC60, asm, cod/00EC60]
+      - [0x00EC60, c,   cod/00EC60]            # func_0010EC60: auto-batch
+      - [0x00EC68, asm, cod/00EC68]
       - [0x00EC98, c,   cod/00EC98]            # func_0010EC98: tail call func_00122BA0 passthrough
       - [0x00ECA0, c,   cod/00ECA0]            # func_0010ECA0: sibling: tail call func_00122BA0 passthrough
-      - [0x00ECA8, asm, cod/00ECA8]
+      - [0x00ECA8, c,   cod/00ECA8]            # func_0010ECA8: auto-batch
+      - [0x00ECB0, asm, cod/00ECB0]
+      - [0x00ECB8, c,   cod/00ECB8]            # func_0010ECB8: auto-batch
+      - [0x00ECC0, asm, cod/00ECC0]
       - [0x00ECC8, c,   cod/00ECC8]            # func_0010ECC8: tail call func_00244980(D_0063378C, D_00276214)
       - [0x00ECD8, c,   cod/00ECD8]
       - [0x00ECE0, asm, cod/00ECE0]
@@ -502,16 +518,23 @@ segments:
       - [0x03C5B4, asm, cod/03C5B4]
       - [0x03CC60, c,   cod/03CC60]            # func_0013CC60: zero 2 halfwords
       - [0x03CC6C, asm, cod/03CC6C]
+      - [0x03CC70, c,   cod/03CC70]            # func_0013CC70: auto-batch
+      - [0x03CC78, asm, cod/03CC78]
       - [0x03CD70, c,   cod/03CD70]            # func_0013CD70: *p = 0 (byte)
       - [0x03CD78, asm, cod/03CD78]
       - [0x03CF70, c,   cod/03CF70]            # func_0013CF70: zero 2 halfwords
       - [0x03CF7C, asm, cod/03CF7C]
+      - [0x03D098, c,   cod/03D098]            # func_0013D098: auto-batch
       - [0x03D0A0, asm, cod/03D0A0]
       - [0x03D3C8, c,   cod/03D3C8]            # func_0013D3C8: tail call func_00100340(a0->30, a0->34)
       - [0x03D3D4, asm, cod/03D3D4]
       - [0x03D3D8, c,   cod/03D3D8]            # func_0013D3D8: if a0: tail call func_00100370 else func_00100350
       - [0x03D3F0, c,   cod/03D3F0]            # func_0013D3F0: tail call func_00100440 passthrough
       - [0x03D3F8, asm, cod/03D3F8]
+      - [0x03D538, c,   cod/03D538]            # func_0013D538: auto-batch
+      - [0x03D540, c,   cod/03D540]            # func_0013D540: auto-batch
+      - [0x03D548, c,   cod/03D548]            # func_0013D548: auto-batch
+      - [0x03D550, asm, cod/03D550]
       - [0x03D928, c,   cod/03D928]            # func_0013D928
       - [0x03D944, asm, cod/03D944]
       - [0x03DD88, c,   cod/03DD88]            # func_0013DD88: func_002641D8(&D_006A93D0, 0, 0x110)
@@ -533,8 +556,11 @@ segments:
       - [0x03FEE0, asm, cod/03FEE0]
       - [0x03FF80, c,   cod/03FF80]
       - [0x03FF88, asm, cod/03FF88]
+      - [0x040130, c,   cod/040130]            # func_00140130: auto-batch
+      - [0x040138, asm, cod/040138]
       - [0x040710, c,   cod/040710]            # func_00140710: jal func_001A6E28(&D_00557BF8); tail call func_0025DEF0(self->30 ll)
-      - [0x040740, asm, cod/040740]
+      - [0x040740, c,   cod/040740]            # func_00140740: auto-batch
+      - [0x040748, asm, cod/040748]
       - [0x040B60, c,   cod/040B60]            # func_00140B60: tail call func_00140B30(a0, 0, a1)
       - [0x040B6C, asm, cod/040B6C]
       - [0x040B70, c,   cod/040B70]            # func_00140B70: D_00633CC0 = val
@@ -550,6 +576,11 @@ segments:
       - [0x041168, asm, cod/041168]
       - [0x0412B8, c,   cod/0412B8]            # func_001412B8: D_00632214=a0; tail call func_0025CD28(a0)
       - [0x0412C4, asm, cod/0412C4]
+      - [0x0413A0, c,   cod/0413A0]            # func_001413A0: auto-batch
+      - [0x0413A8, asm, cod/0413A8]
+      - [0x043240, c,   cod/043240]            # func_00143240: auto-batch
+      - [0x043248, c,   cod/043248]            # func_00143248: auto-batch
+      - [0x043250, asm, cod/043250]
       - [0x043B88, c,   cod/043B88]            # func_00143B88: return D_00632214
       - [0x043B90, c,   cod/043B90]            # func_00143B90: return D_00632208
       - [0x043B98, asm, cod/043B98]
@@ -753,8 +784,11 @@ segments:
       - [0x082C14, asm, cod/082C14]
       - [0x0848A0, c,   cod/0848A0]            # func_001848A0: tail call func_00184488(a0, a1, a1+1, a2)
       - [0x0848AC, asm, cod/0848AC]
+      - [0x085660, c,   cod/085660]            # func_00185660: auto-batch
+      - [0x085668, asm, cod/085668]
       - [0x0869F8, c,   cod/0869F8]            # func_001869F8: func_00182D20(&func_00185668, 0, 0)
       - [0x086A0C, asm, cod/086A0C]
+      - [0x087300, c,   cod/087300]            # func_00187300: auto-batch
       - [0x087308, c,   cod/087308]            # func_00187308: tail call func_001897A8 (sdata-ptr 2-arg shuffle)
       - [0x087318, c,   cod/087318]            # func_00187318: tail call func_00182DD8 (sdata-ptr forward+shuffle)
       - [0x087328, asm, cod/087328]
@@ -886,8 +920,11 @@ segments:
       - [0x09BB5C, asm, cod/09BB5C]
       - [0x09C010, c,   cod/09C010]            # func_0019C010: D_00633DE0=0x3C; func_001A6E28(&D_0055C720)
       - [0x09C024, asm, cod/09C024]
+      - [0x09CF70, c,   cod/09CF70]            # func_0019CF70: auto-batch
       - [0x09CF78, c,   cod/09CF78]            # func_0019CF78: tail call func_0023DEB0(&D_006DC718)
       - [0x09CF84, asm, cod/09CF84]
+      - [0x09D9C8, c,   cod/09D9C8]            # func_0019D9C8: auto-batch
+      - [0x09D9D0, c,   cod/09D9D0]            # func_0019D9D0: auto-batch
       - [0x09D9D8, c,   cod/09D9D8]            # func_0019D9D8: tail call func_00139598(a0 & 0x0FFFFFFF)
       - [0x09D9E8, asm, cod/09D9E8]
       - [0x09DB50, c,   cod/09DB50]            # func_0019DB50: sat-subtract: a0->C -= min(a0->C, a1)
@@ -895,11 +932,18 @@ segments:
       - [0x09DBA8, c,   cod/09DBA8]            # func_0019DBA8
       - [0x09DBC8, c,   cod/09DBC8]            # func_0019DBC8: func_00133510() passthrough
       - [0x09DBE4, asm, cod/09DBE4]
+      - [0x09DBE8, c,   cod/09DBE8]            # func_0019DBE8: auto-batch
+      - [0x09DBF0, asm, cod/09DBF0]
+      - [0x09DD38, c,   cod/09DD38]            # func_0019DD38: auto-batch
+      - [0x09DD40, c,   cod/09DD40]            # func_0019DD40: auto-batch
+      - [0x09DD48, asm, cod/09DD48]
       - [0x09E150, c,   cod/09E150]            # func_0019E150: tail call func_00139598(a0 & 0x0FFFFFFF)
       - [0x09E160, asm, cod/09E160]
       - [0x09E1A0, c,   cod/09E1A0]            # func_0019E1A0
       - [0x09E1C0, c,   cod/09E1C0]            # func_0019E1C0: self[46] = 1, return 1
       - [0x09E1CC, asm, cod/09E1CC]
+      - [0x09E1D0, c,   cod/09E1D0]            # func_0019E1D0: auto-batch
+      - [0x09E1D8, asm, cod/09E1D8]
       - [0x09E2D0, c,   cod/09E2D0]            # func_0019E2D0
       - [0x09E2F0, c,   cod/09E2F0]            # func_0019E2F0
       - [0x09E310, asm, cod/09E310]
@@ -976,7 +1020,7 @@ segments:
       - [0x0AE89C, asm, cod/0AE89C]
       - [0x0AEA50, c,   cod/0AEA50]            # func_001AEA50: tail call func_00102858 passthrough
       - [0x0AEA58, c,   cod/0AEA58]            # func_001AEA58: tail call func_0010ECB8 passthrough
-      - [0x0AEA60, asm, cod/0AEA60]
+      - [0x0AEA60, c,   cod/0AEA60]            # func_001AEA60: auto-batch
       - [0x0AEA68, asm, cod/0AEA68]
       - [0x0AFB90, c,   cod/0AFB90]
       - [0x0AFB98, asm, cod/0AFB98]
@@ -992,7 +1036,9 @@ segments:
       - [0x0B4FC0, c,   cod/0B4FC0]            # func_001B4FC0: return -1
       - [0x0B4FC8, asm, cod/0B4FC8]
       - [0x0B5610, c,   cod/0B5610]            # func_001B5610: return -1
-      - [0x0B5618, asm, cod/0B5618]
+      - [0x0B5618, c,   cod/0B5618]            # func_001B5618: auto-batch
+      - [0x0B5620, asm, cod/0B5620]
+      - [0x0B5768, c,   cod/0B5768]            # func_001B5768: auto-batch
       - [0x0B5770, c,   cod/0B5770]            # func_001B5770: if(a0) D_00274ED8=1; return -1
       - [0x0B5788, asm, cod/0B5788]
       - [0x0B7040, c,   cod/0B7040]            # func_001B7040: return D_00633150
@@ -1012,6 +1058,8 @@ segments:
       - [0x0BA5E0, asm, cod/0BA5E0]
       - [0x0BAEE0, c,   cod/0BAEE0]            # func_001BAEE0: tail call func_001A6E28(D_004BEFA8[a0->164->30])
       - [0x0BAF00, asm, cod/0BAF00]
+      - [0x0BB390, c,   cod/0BB390]            # func_001BB390: auto-batch
+      - [0x0BB398, asm, cod/0BB398]
       - [0x0BB800, c,   cod/0BB800]            # func_001BB800: *(int*)(*(char**)(self+0x164)+0x98) = val
       - [0x0BB810, c,   cod/0BB810]            # func_001BB810: *(int*)(*(char**)(self+0x164)+0x9C) = val
       - [0x0BB81C, asm, cod/0BB81C]
@@ -1023,7 +1071,15 @@ segments:
       - [0x0BBFE0, asm, cod/0BBFE0]
       - [0x0BC088, c, cod/0BC088]            # func_001BC088: 4-insn lw
       - [0x0BC098, c,   cod/0BC098]            # func_001BC098
-      - [0x0BC0A8, asm, cod/0BC0A8]
+      - [0x0BC0A8, c,   cod/0BC0A8]            # func_001BC0A8: auto-batch
+      - [0x0BC0B0, c,   cod/0BC0B0]            # func_001BC0B0: auto-batch
+      - [0x0BC0B8, asm, cod/0BC0B8]
+      - [0x0BC9A0, c,   cod/0BC9A0]            # func_001BC9A0: auto-batch
+      - [0x0BC9A8, c,   cod/0BC9A8]            # func_001BC9A8: auto-batch
+      - [0x0BC9B0, c,   cod/0BC9B0]            # func_001BC9B0: auto-batch
+      - [0x0BC9B8, c,   cod/0BC9B8]            # func_001BC9B8: auto-batch
+      - [0x0BC9C0, c,   cod/0BC9C0]            # func_001BC9C0: auto-batch
+      - [0x0BC9C8, asm, cod/0BC9C8]
       - [0x0C05A8, c, cod/0C05A8]            # func_001C05A8: 4-insn lw
       - [0x0C05B8, c,   cod/0C05B8]            # func_001C05B8: == 0
       - [0x0C05CC, asm, cod/0C05CC]
