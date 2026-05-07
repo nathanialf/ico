@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-07 05:49:38 UTC
+- Generated: 2026-05-07 05:55:05 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4653 total in `asm/cod/*.s`, 0 parked, 4653 considered
+- Functions: 4643 total in `asm/cod/*.s`, 0 parked, 4643 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -62,26 +62,16 @@ _18 total in this bucket; showing top 18._
 <a id="leaf-6-0x18"></a>
 ## 6-insn / 0x18 leaf, no jal, no VU (sub-deref + store)
 
-_16 total in this bucket; showing top 16._
+_6 total in this bucket; showing top 6._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
 | `func_00101A88` | 0x18 | 6 | 0 |  | `mfc0 lui and ei` | asm/cod/000C90.s:1209 |
-| `func_0013D3D8` | 0x18 | 6 | 0 |  | `bnez nop j nop` | asm/cod/03D0A0.s:271 |
-| `func_0014BDD8` | 0x18 | 6 | 0 |  | `addiu addiu movn ori` | asm/cod/04BDD4.s:18 |
-| `func_0015D470` | 0x18 | 6 | 0 |  | `lw lw lw addiu` | asm/cod/05D358.s:99 |
-| `func_00187990` | 0x18 | 6 | 0 |  | `addiu lw mult lw` | asm/cod/087904.s:66 |
-| `func_00193818` | 0x18 | 6 | 0 |  | `lw lw lw addiu` | asm/cod/0920A4.s:1827 |
-| `func_001D4DD0` | 0x18 | 6 | 0 |  | `bnez lw jr lw` | asm/cod/0D4DA4.s:35 |
-| `func_001E93D0` | 0x18 | 6 | 0 |  | `lw lw lw lw` | asm/cod/0E8F38.s:335 |
-| `func_001F5608` | 0x18 | 6 | 0 |  | `lui addiu sw sw` | asm/cod/0F4DE8.s:645 |
 | `func_0025CCE0` | 0x18 | 6 | 0 |  | `daddu daddu daddu daddu` | asm/cod/158CEC.s:4983 |
 | `func_0025CE78` | 0x18 | 6 | 0 |  | `daddu daddu daddu daddu` | asm/cod/158CEC.s:5131 |
 | `func_001C8B48` | 0x18 | 6 | 0 |  | `lwc1 nop nop div.s` | asm/cod/0C3984.s:6012 |
-| `func_001B0A68` | 0x18 | 6 | 0 |  | `lui addiu ori daddu` | asm/cod/0B0A64.s:18 |
-| `func_001B0A80` | 0x18 | 6 | 0 |  | `lui addiu ori daddu` | asm/cod/0B0A64.s:29 |
-| `func_001B0A98` | 0x18 | 6 | 0 |  | `lui addiu ori daddu` | asm/cod/0B0A64.s:40 |
-| `func_001D1410` | 0x18 | 6 | 0 |  | `lw lwc1 .word mfc1` | asm/cod/0D12D4.s:123 |
+| `func_001B0A80` | 0x18 | 6 | 0 |  | `lui addiu ori daddu` | asm/cod/0B0A80.s:13 |
+| `func_001B0A98` | 0x18 | 6 | 0 |  | `lui addiu ori daddu` | asm/cod/0B0A80.s:25 |
 
 <a id="leaf-7-0x1C"></a>
 ## 7-insn / 0x1C leaf, no jal, no VU (accessor + multiplier/branch)
