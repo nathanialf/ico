@@ -537,7 +537,7 @@ segments:
       - [0x037EE8, c,   cod/037EE8]
       - [0x037EF0, c,   cod/037EF0]            # func_00137EF0: promote: score-0 from permuter (char trunc trick)
       - [0x037F04, asm, cod/037F04]
-      - [0x037F08, asm, cod/037F08]
+      - [0x037F08, c,   cod/037F08]            # func_00137F08: dispatch wrapper, type-0
       - [0x037F48, asm, cod/037F48]
       - [0x037F88, asm, cod/037F88]
       - [0x037F90, asm, cod/037F90]

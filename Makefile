@@ -181,8 +181,9 @@ NO_TRAILING_NOP_TXT := config/no_trailing_nop.txt
 SHARED_SP_RESTORE_TXT := config/shared_sp_restore.txt
 SHARED_JR_RESTORE_TXT := config/shared_jr_restore.txt
 LA_SD_INTERLEAVE_TXT := config/la_sd_interleave.txt
+EARLY_BODY_SWAP_TXT := config/early_body_swap.txt
 
-$(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.c $(EXTRA_CFLAGS_TXT) $(EXTRA_CFLAGS_LOOKUP) $(USE_MODERN_AS_TXT) $(SWAP_ADDU_TXT) $(COALESCE_V1_V0_TXT) $(SWAP_SW_PAIR_TXT) $(NO_TRAILING_NOP_TXT) $(LA_SD_INTERLEAVE_TXT)
+$(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.c $(EXTRA_CFLAGS_TXT) $(EXTRA_CFLAGS_LOOKUP) $(USE_MODERN_AS_TXT) $(SWAP_ADDU_TXT) $(COALESCE_V1_V0_TXT) $(SWAP_SW_PAIR_TXT) $(NO_TRAILING_NOP_TXT) $(LA_SD_INTERLEAVE_TXT) $(EARLY_BODY_SWAP_TXT)
 	@mkdir -p $(@D)
 	$(CC) -B $(EEGCC_LIB) $(CFLAGS) $$($(EXTRA_CFLAGS_LOOKUP) $<) -o $(@:.o=.s) $<
 	@# If listed in $(NO_TRAILING_NOP_TXT), wrap the final `j $$31` with
@@ -212,6 +213,13 @@ $(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.c $(EXTRA_CFLAGS_TXT) $(EXTRA_CFLAGS_LOOKUP) 
 	@# scheduled inside the la pair rather than after it.
 	@if grep -qE "^[[:space:]]*$(notdir $(basename $<))([[:space:]]|$$|#)" $(LA_SD_INTERLEAVE_TXT) 2>/dev/null; then \
 	    .venv/bin/python tools/postprocess_la_sd_interleave.py $(@:.o=.s); \
+	fi
+	@# If listed in $(EARLY_BODY_SWAP_TXT), swap `sd $$31, OFF($$sp)` with the
+	@# immediately-following inline-asm `#APP` first instruction.  Used when
+	@# the original codegen interleaves a single body op (e.g. a register
+	@# copy) BEFORE the prologue ra-save.
+	@if grep -qE "^[[:space:]]*$(notdir $(basename $<))([[:space:]]|$$|#)" $(EARLY_BODY_SWAP_TXT) 2>/dev/null; then \
+	    .venv/bin/python tools/postprocess_early_body_swap.py $(@:.o=.s); \
 	fi
 	@# If listed in $(SWAP_ADDU_TXT), swap addu rs/rt where rt==rd.
 	@if grep -qE "^[[:space:]]*$(notdir $(basename $<))([[:space:]]|$$|#)" $(SWAP_ADDU_TXT) 2>/dev/null; then \
