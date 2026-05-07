@@ -946,6 +946,7 @@ segments:
       - [0x095208, c,   cod/095208]            # func_00195208: func_001118B8(0xB); tail call func_00111FA8(1,2,0x40)
       - [0x095230, c,   cod/095230]            # func_00195230: tail call func_0010F630 passthrough
       - [0x095238, asm, cod/095238]
+      - [0x095350, c,   cod/095350]            # func_00195350: func_00105F20(&D_0028B100, a0); tail func_001118B8(0xB)
       - [0x095378, c,   cod/095378]            # func_00195378: sibling: tail call func_0010F630 passthrough
       - [0x095380, asm, cod/095380]
       - [0x097078, c,   cod/097078]            # func_00197078: tail call func_001E3FC8 passthrough
@@ -1429,6 +1430,8 @@ segments:
       - [0x105B4C, asm, cod/105B4C]
       - [0x109AB0, c,   cod/109AB0]            # func_00209AB0: tail call func_001297A0(0xA2, 0, -1)
       - [0x109AC0, asm, cod/109AC0]
+      - [0x10D748, c,   cod/10D748]            # func_0020D748: wrap func_00203B78(&func_0020B8D8, 0x15)
+      - [0x10D770, asm, cod/10D770]
       - [0x1109D8, c,   cod/1109D8]            # func_002109D8: store-arg-discard
       - [0x1109E8, asm, cod/1109E8]
       - [0x110BA8, c,   cod/110BA8]            # func_00210BA8: store-arg-discard
@@ -1548,6 +1551,8 @@ segments:
       - [0x13AAB8, asm, cod/13AAB8]
       - [0x13AD58, c,   cod/13AD58]            # func_0023AD58: store-arg-discard
       - [0x13AD68, asm, cod/13AD68]
+      - [0x13B4F0, c,   cod/13B4F0]            # func_0023B4F0: sibling: &func_0023B518 instead
+      - [0x13B518, asm, cod/13B518]
       - [0x13D030, c,   cod/13D030]            # func_0023D030: copy 2 sdata floats to *self->34, return 1
       - [0x13D04C, asm, cod/13D04C]
       - [0x13D370, c,   cod/13D370]            # func_0023D370: copy 2 sdata floats to *self->34, return 1
@@ -1631,6 +1636,7 @@ segments:
       - [0x1450C8, asm, cod/1450C8]
       - [0x1453C0, c,   cod/1453C0]            # func_002453C0: D_005507D0=0; tail call func_00245B58(a0)
       - [0x1453CC, asm, cod/1453CC]
+      - [0x145568, c,   cod/145568]            # func_00245568: rc=func_00264050(...); *rc=5; ret -1
       - [0x145590, c,   cod/145590]            # func_00245590: auto
       - [0x145598, c,   cod/145598]            # func_00245598: auto
       - [0x1455A0, c,   cod/1455A0]            # func_002455A0: auto
@@ -1639,7 +1645,10 @@ segments:
       - [0x145660, c,   cod/145660]            # func_00245660: a1[0x48]=0(sd); a1[1]=0x2000; return 0
       - [0x145674, asm, cod/145674]
       - [0x145678, c,   cod/145678]            # func_00245678: auto
-      - [0x145680, asm, cod/145680]
+      - [0x145680, c,   cod/145680]            # func_00245680: if a0==1: func_00100140(a1); ret 0
+      - [0x1456A8, c,   cod/1456A8]            # func_002456A8: sibling: same
+      - [0x1456D0, c,   cod/1456D0]            # func_002456D0: sibling: same
+      - [0x1456F8, asm, cod/1456F8]
       - [0x145E88, c,   cod/145E88]            # func_00245E88: a0->18=0 + a0->10 &= ~1
       - [0x145EA4, asm, cod/145EA4]
       - [0x147108, c,   cod/147108]            # func_00247108: tail call func_00100540(D_00550864)
@@ -1667,6 +1676,8 @@ segments:
       - [0x14AAE4, asm, cod/14AAE4]
       - [0x14AAE8, c,   cod/14AAE8]            # func_0024AAE8: wrap func_0024A9C0(a0, &D_0062E668, a1, 1)
       - [0x14AB10, asm, cod/14AB10]
+      - [0x14AE10, c,   cod/14AE10]            # func_0024AE10: return (func_00100930(4) & 0x10000) != 0
+      - [0x14AE38, asm, cod/14AE38]
       - [0x14B3E8, c,   cod/14B3E8]            # func_0024B3E8: syscall 0x74
       - [0x14B3F8, asm, cod/14B3F8]
       - [0x14B448, c,   cod/14B448]            # func_0024B448: syscall 0x55
