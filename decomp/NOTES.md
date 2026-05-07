@@ -456,6 +456,26 @@ Fix: delete the stale `asm/cod/<surrounding>.s` and re-run `make setup`.
 For larger blast radii, `rm -f asm/cod/*.s build/asm/cod/*.o; make
 setup` is the nuclear option (rebuilds everything).
 
+## quick_diff vs full build — `move`-macro expansion mismatch
+
+Trust `make` (full build SHA-1) over `tools/quick_diff.sh` for any
+function that materializes 0 into a register. The two pipelines use
+different assemblers and pick different expansions for `move $rD, $0`:
+
+- **Full build**: ee-as 2.10 (`tools/cc/ee-gcc2.96/bin/as -mcpu=5900
+  -G 8`) expands `move $rD, $0` to `daddu $rD, $0, $0` — matches
+  original ICO codegen.
+- **quick_diff**: mips-linux-gnu-as (`-march=r5900 -mabi=eabi -G 8`)
+  expands the same macro to `or $rD, $0, $0` — disassembles as `or`,
+  causes a false-negative diff line.
+
+Symptom: quick_diff reports `daddu | or` mismatches on lines that
+materialize 0, but `make` round-trips the full ELF SHA-1 cleanly.
+**Always confirm with `make` before parking a function** that only
+diverges on `move $rD, $0` expansion. The pre-2.9 NOTES "daddu vs or"
+section below is now obsolete (resolved by the EE_AS path); the
+remaining false negative is purely in the diff harness.
+
 ## Patterns parked in `tough_nuts/`
 
 - **`la` macro 64-bit expansion** (`func_00105278` family): ee-gcc 2.96
@@ -463,12 +483,12 @@ setup` is the nuclear option (rebuilds everything).
   via the gas `la` macro, where the original used `lui+addiu+addu` (32-
   bit). Symptom: 6-insn array index funcs (`lui; sll; addiu; addu; jr;
   lw`) consistently mismatch. Suspect compiler isn't ee-gcc.
-- **`daddu vs or` for register move**: ee-gcc 2.96 emits `or $vN,
-  $zero, $zero` to materialize 0 in a register; original ICO uses
-  `daddu $vN, $zero, $zero`. Same instruction semantically, different
-  encoding. No clean way to coerce ee-gcc into emitting `daddu`. Affects
-  most "store side effects, return 0" leaves and "pass 0 as nth arg"
-  wrappers.
+- **`daddu vs or` for register move** (historical, resolved): ee-gcc
+  2.96 emits `or $vN, $zero, $zero` to materialize 0; original ICO uses
+  `daddu`. Under 2.9-991111 + ee-as 2.10, the EE assembler picks
+  `daddu` for the `move` macro and the diff vanishes in the full build.
+  quick_diff still shows the divergence — see "quick_diff vs full
+  build" above.
 
 ## Compiler identification — provisional
 
