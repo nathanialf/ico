@@ -2,7 +2,7 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-07 16:56:00 UTC
+- Generated: 2026-05-07 16:58:24 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
@@ -174,20 +174,16 @@ _0 total in this bucket; showing top 0._
 <a id="wrap-2jal-0x28-0x40"></a>
 ## 0x28-0x40, exactly 2 jal, no VU (2-call wrapper, mid-size)
 
-_29 total in this bucket; showing top 29._
+_25 total in this bucket; showing top 25._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
-| `func_00252560` | 0x2C | 11 | 2 |  | `daddu addiu daddu sd` | asm/cod/152560.s:13 |
-| `func_00194360` | 0x34 | 13 | 2 |  | `daddu addiu daddu sd` | asm/cod/093F78.s:317 |
-| `func_00194808` | 0x34 | 13 | 2 |  | `addiu sd daddu sd` | asm/cod/0945B4.s:191 |
 | `func_001986D8` | 0x34 | 13 | 2 |  | `addiu sd daddu sd` | asm/cod/0986D8.s:13 |
 | `func_00256BF8` | 0x34 | 13 | 2 |  | `addiu b sd nop` | asm/cod/154F24.s:2275 |
 | `func_0010D7F8` | 0x38 | 14 | 2 |  | `addiu sd daddu sd` | asm/cod/00D53C.s:212 |
 | `func_0018CAD8` | 0x38 | 14 | 2 |  | `addiu sd jal nop` | asm/cod/08BEAC.s:939 |
 | `func_001947D0` | 0x38 | 14 | 2 |  | `addiu sd daddu sd` | asm/cod/0945B4.s:172 |
 | `func_00263350` | 0x38 | 14 | 2 |  | `addiu sd daddu sd` | asm/cod/160CC8.s:3115 |
-| `func_0014BBF0` | 0x3C | 15 | 2 |  | `addiu sd daddu sd` | asm/cod/04BB1C.s:83 |
 | `func_0017CA18` | 0x3C | 15 | 2 |  | `addiu sd jal nop` | asm/cod/07CA18.s:13 |
 | `func_0017CAE0` | 0x3C | 15 | 2 |  | `addiu sd jal nop` | asm/cod/07CA18.s:93 |
 | `func_0017CB20` | 0x3C | 15 | 2 |  | `addiu sd sd jal` | asm/cod/07CA18.s:119 |
@@ -368,7 +364,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4110 unmatched functions are not in any shape bucket above._
+_4114 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 

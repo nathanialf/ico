@@ -662,6 +662,8 @@ segments:
       - [0x04B86C, asm, cod/04B86C]
       - [0x04BB00, c,   cod/04BB00]            # func_0014BB00: set f=1.0f at +0x58, int=0 at +0x54
       - [0x04BB1C, asm, cod/04BB1C]
+      - [0x04BBF0, c,   cod/04BBF0]            # func_0014BBF0: buf[4] + gp_rel D + 2 calls (return-value chain)
+      - [0x04BC2C, asm, cod/04BC2C]
       - [0x04BDC8, c,   cod/04BDC8]            # func_0014BDC8: return &D_006AA968
       - [0x04BDD4, asm, cod/04BDD4]
       - [0x04BDD8, c,   cod/04BDD8]            # func_0014BDD8: bool-flag combiner: a0?9:1, a1?(|4):
@@ -992,10 +994,14 @@ segments:
       - [0x093F48, c,   cod/093F48]            # func_00193F48: promote-test: subagent seed (unscored, may match)
       - [0x093F68, c,   cod/093F68]            # func_00193F68: p[0]=p[1]=1
       - [0x093F78, asm, cod/093F78]
+      - [0x094360, c,   cod/094360]            # func_00194360: buf[4] init via func + zero one slot + 2nd call
+      - [0x094394, asm, cod/094394]
       - [0x094398, asm, cod/094398]
       - [0x0943C0, asm, cod/0943C0]
       - [0x094590, c,   cod/094590]            # func_00194590: abs(func_00194508(a0..a3))
       - [0x0945B4, asm, cod/0945B4]
+      - [0x094808, c,   cod/094808]            # func_00194808: buf[4] init via func + 2nd call uses arg
+      - [0x09483C, asm, cod/09483C]
       - [0x094EA8, c,   cod/094EA8]            # func_00194EA8: D_006D35C0+0x14=a; +0x18=b (2 swc1)
       - [0x094EBC, asm, cod/094EBC]
       - [0x094FE8, c,   cod/094FE8]            # func_00194FE8: self->164->674=a1; tail call func_001951A0(self)
@@ -1854,7 +1860,8 @@ segments:
       - [0x1523A0, c,   cod/1523A0]            # func_002523A0: tail call func_00254CF8(1) + sdata-set 0
       - [0x1523B0, asm, cod/1523B0]
       - [0x152550, c,   cod/152550]            # func_00252550: tail call func_002642D8(&D_0062ED08, a0)
-      - [0x152560, asm, cod/152560]
+      - [0x152560, c,   cod/152560]            # func_00252560: buf[64] init via 3-arg call + buf-only call
+      - [0x15258C, asm, cod/15258C]
       - [0x1526C0, c,   cod/1526C0]            # func_002526C0: a0->[1..4]=a1,a2,a1>>4,a2>>4; ret 1
       - [0x1526E0, asm, cod/1526E0]
       - [0x152F30, c,   cod/152F30]            # func_00252F30: tail call func_00252590(&D_0062ED78)
