@@ -1318,6 +1318,10 @@ segments:
       - [0x158CDC, asm, cod/158CDC]
       - [0x158CE0, c,   cod/158CE0]            # func_00258CE0
       - [0x158CEC, asm, cod/158CEC]
+      - [0x15CCE0, c,   cod/15CCE0]            # func_0025CCE0: tail call func_002591F0(0x16, a0, a1, a2)
+      - [0x15CCF8, asm, cod/15CCF8]
+      - [0x15CE78, c,   cod/15CE78]            # func_0025CE78: tail call func_002591F0(0x28, a0, a1, a2)
+      - [0x15CE90, asm, cod/15CE90]
       - [0x164050, c,   cod/164050]            # func_00264050
       - [0x16405C, asm, cod/16405C]
       - [0x164D50, c,   cod/164D50]            # func_00264D50
