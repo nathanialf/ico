@@ -639,6 +639,8 @@ segments:
       - [0x04B330, c,   cod/04B330]            # func_0014B330: if (x >= p->54) { p->54=x; p->58=f; }
       - [0x04B358, c,   cod/04B358]            # func_0014B358: D_002924B0[idx] (la-macro lwc1)
       - [0x04B370, asm, cod/04B370]
+      - [0x04B580, c,   cod/04B580]            # func_0014B580: rc=func_001E69D8(1); a0->164->670->1B8 = rc
+      - [0x04B5B4, asm, cod/04B5B4]
       - [0x04B840, c,   cod/04B840]            # func_0014B840: return sub_164->30 == 0x6B
       - [0x04B854, asm, cod/04B854]
       - [0x04B858, c,   cod/04B858]            # func_0014B858: return sub_164->30 == 0x64
