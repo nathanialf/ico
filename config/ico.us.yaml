@@ -1606,7 +1606,7 @@ segments:
       - [0x10D690, asm, cod/10D690]
       - [0x10D718, c,   cod/10D718]            # func_0020D718: sibling: 0x140, B7D8
       - [0x10D748, c,   cod/10D748]            # func_0020D748: wrap func_00203B78(&func_0020B8D8, 0x15)
-      - [0x10D770, asm, cod/10D770]
+      - [0x10D770, c,   cod/10D770]            # func_0020D770: spill + 3-call w/ func-ptr arg (sibling of 0020D2B8)
       - [0x10D7A8, c,   cod/10D7A8]            # func_0020D7A8: 2 fp-passing calls: 0BF88 + D7E0
       - [0x10D7E0, asm, cod/10D7E0]
       - [0x10D850, c,   cod/10D850]            # func_0020D850: sibling: 0x141, C3A0
@@ -1708,6 +1708,8 @@ segments:
       - [0x12D6C0, asm, cod/12D6C0]
       - [0x12EEF0, c,   cod/12EEF0]            # func_0022EEF0: store-arg-discard
       - [0x12EF00, asm, cod/12EF00]
+      - [0x12F850, c,   cod/12F850]            # func_0022F850: spill+3-call wrapper (siblings 0022F850/00235B68 differ in last arg)
+      - [0x12F880, asm, cod/12F880]
       - [0x1315C8, c,   cod/1315C8]            # func_002315C8: store-arg-discard
       - [0x1315D8, asm, cod/1315D8]
       - [0x131A98, asm, cod/131A98]
@@ -1731,6 +1733,8 @@ segments:
       - [0x135908, asm, cod/135908]
       - [0x135A18, asm, cod/135A18]
       - [0x135A48, asm, cod/135A48]
+      - [0x135B68, c,   cod/135B68]            # func_00235B68: Sibling of 22F850 with last-arg = 0x20
+      - [0x135B98, asm, cod/135B98]
       - [0x135C38, c,   cod/135C38]            # func_00235C38: guard+func_X+tail-call sibling (arg 0x39)
       - [0x135C70, asm, cod/135C70]
       - [0x136C60, c,   cod/136C60]            # func_00236C60: store-arg-discard
