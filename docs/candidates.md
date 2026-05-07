@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-07 05:03:18 UTC
+- Generated: 2026-05-07 05:20:33 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4679 total in `asm/cod/*.s`, 0 parked, 4679 considered
+- Functions: 4678 total in `asm/cod/*.s`, 0 parked, 4678 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -27,11 +27,10 @@ and `mtc1`/`lwc1`/`swc1`/`cvt.*`/`mfc1` float-pair sequences.
 <a id="leaf-4-0x10"></a>
 ## 4-insn / 0x10 leaf, no jal, no VU (bulk getter/setter)
 
-_27 total in this bucket; showing top 27._
+_26 total in this bucket; showing top 26._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
-| `func_0010B2C0` | 0x10 | 4 | 0 |  | `lw lw j addiu` | asm/cod/00AB28.s:577 |
 | `func_0010EC50` | 0x10 | 4 | 0 |  | `daddu lw j sw` | asm/cod/00E950.s:283 |
 | `func_0010ECC8` | 0x10 | 4 | 0 |  | `lui lw j lw` | asm/cod/00E950.s:369 |
 | `func_00159230` | 0x10 | 4 | 0 |  | `lw lw j addiu` | asm/cod/054CC8.s:5259 |

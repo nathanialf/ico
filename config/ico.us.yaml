@@ -292,6 +292,8 @@ segments:
       - [0x00AB18, c,   cod/00AB18]
       - [0x00AB20, c,   cod/00AB20]
       - [0x00AB28, asm, cod/00AB28]
+      - [0x00B2C0, c,   cod/00B2C0]            # func_0010B2C0: tail call func_00105F00 (double-deref TCO)
+      - [0x00B2D0, asm, cod/00B2D0]
       - [0x00D070, c,   cod/00D070]
       - [0x00D078, c,   cod/00D078]
       - [0x00D088, asm, cod/00D088]
