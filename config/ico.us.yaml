@@ -726,6 +726,8 @@ segments:
       - [0x06A1D4, asm, cod/06A1D4]
       - [0x06A2A0, c,   cod/06A2A0]            # func_0016A2A0: sqrt(x^2+y^2)
       - [0x06A2C4, asm, cod/06A2C4]
+      - [0x06A2C8, c,   cod/06A2C8]            # func_0016A2C8: sqrt(x*x + y*y + z*z) via func_00105FE0
+      - [0x06A2F4, asm, cod/06A2F4]
       - [0x06A2F8, c,   cod/06A2F8]            # func_0016A2F8: return func_00105FE0(func_00243950(a0, a0))
       - [0x06A31C, asm, cod/06A31C]
       - [0x06A678, c,   cod/06A678]            # func_0016A678: func_0014A3A8(); tail call func_001A6E28(&D_00559430)
