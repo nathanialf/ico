@@ -397,6 +397,8 @@ segments:
       - [0x018AB4, asm, cod/018AB4]
       - [0x01BFB8, c,   cod/01BFB8]            # func_0011BFB8: D_00633C50 = 0
       - [0x01BFC0, asm, cod/01BFC0]
+      - [0x01E708, c,   cod/01E708]            # func_0011E708: forward 4 args + 5th=D_00632028 to func_0011D9A0
+      - [0x01E728, asm, cod/01E728]
       - [0x01EE58, c,   cod/01EE58]            # func_0011EE58: tail call func_00118C68(a0, 1, 1, a1, a2)
       - [0x01EE6C, asm, cod/01EE6C]
       - [0x01EE70, c,   cod/01EE70]            # func_0011EE70: tail call func_00118C68(a0, 1, 2, a1, a2)
@@ -405,6 +407,8 @@ segments:
       - [0x022C50, asm, cod/022C50]
       - [0x022C80, c,   cod/022C80]            # func_00122C80: D_00631D40 = 0
       - [0x022C88, asm, cod/022C88]
+      - [0x023C00, c,   cod/023C00]            # func_00123C00: wrap func_001A6E28(&D_00555920)
+      - [0x023C20, asm, cod/023C20]
       - [0x028708, c,   cod/028708]            # func_00128708: D_00631D54 = val
       - [0x028710, asm, cod/028710]
       - [0x02FD30, c,   cod/02FD30]            # func_0012FD30
@@ -431,6 +435,8 @@ segments:
       - [0x037558, asm, cod/037558]
       - [0x037EE8, c,   cod/037EE8]
       - [0x037EF0, asm, cod/037EF0]
+      - [0x0383D8, c,   cod/0383D8]            # func_001383D8: wrap func_00136280(a0, a1, 0x63FC), return 0
+      - [0x0383F8, asm, cod/0383F8]
       - [0x03A200, c,   cod/03A200]            # func_0013A200
       - [0x03A21C, asm, cod/03A21C]
       - [0x03B748, c,   cod/03B748]            # func_0013B748: &D_002811C0[a1<<9] +0 (la-macro)
@@ -597,6 +603,8 @@ segments:
       - [0x07A9D4, asm, cod/07A9D4]
       - [0x07B5A0, c,   cod/07B5A0]            # func_0017B5A0: tail call func_00102970(a0, xyz from a1[0..2])
       - [0x07B5B0, asm, cod/07B5B0]
+      - [0x07C990, c,   cod/07C990]            # func_0017C990: tail call func_001EB310(func_0013EAE8())
+      - [0x07C9B0, asm, cod/07C9B0]
       - [0x07E160, c,   cod/07E160]            # func_0017E160: set sub fields: 0x328/0x32C=0x7F, 0x33C/0x110/0x114/0x118=0
       - [0x07E184, asm, cod/07E184]
       - [0x07E188, c,   cod/07E188]            # func_0017E188
@@ -1194,6 +1202,8 @@ segments:
       - [0x140B68, c,   cod/140B68]            # func_00240B68: return D_00633B98
       - [0x140B70, c,   cod/140B70]            # func_00240B70: D_00712CC0[idx] (la-macro lw)
       - [0x140B88, asm, cod/140B88]
+      - [0x141A00, c,   cod/141A00]            # func_00241A00: wrap func_001A6E28(&D_0062E020)
+      - [0x141A20, asm, cod/141A20]
       - [0x141C38, c,   cod/141C38]            # func_00241C38: return &D_005506A0
       - [0x141C44, asm, cod/141C44]
       - [0x1436C8, c,   cod/1436C8]            # func_002436C8
@@ -1282,6 +1292,8 @@ segments:
       - [0x14BB90, c,   cod/14BB90]            # func_0024BB90: getset D_00717758[5]; sw a1 to [6]
       - [0x14BBA8, c,   cod/14BBA8]            # func_0024BBA8: getset D_00717758[3]; sw a1 to [4]
       - [0x14BBC0, asm, cod/14BBC0]
+      - [0x150F70, c,   cod/150F70]            # func_00250F70: wrap func_00250C80(a0..a2, 0, -1)
+      - [0x150F90, asm, cod/150F90]
       - [0x151BD0, c,   cod/151BD0]            # func_00251BD0
       - [0x151BE4, asm, cod/151BE4]
       - [0x151BE8, c,   cod/151BE8]            # func_00251BE8: copy 3 ints to *a1, *a2, *a3

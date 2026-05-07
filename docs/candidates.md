@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-07 06:10:50 UTC
+- Generated: 2026-05-07 06:13:25 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4639 total in `asm/cod/*.s`, 0 parked, 4639 considered
+- Functions: 4632 total in `asm/cod/*.s`, 0 parked, 4632 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -97,22 +97,16 @@ _17 total in this bucket; showing top 17._
 <a id="wrap-8-0x20"></a>
 ## 8-insn / 0x20, exactly 1 jal, no VU (passthrough call)
 
-_12 total in this bucket; showing top 12._
+_6 total in this bucket; showing top 6._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
-| `func_0011E708` | 0x20 | 8 | 1 |  | `addiu lw sd jal` | asm/cod/01BFC0.s:2867 |
 | `func_00154CC8` | 0x20 | 8 | 1 |  | `addiu sd sw nop` | asm/cod/054CC8.s:13 |
 | `func_00176198` | 0x20 | 8 | 1 |  | `addiu sd sw jal` | asm/cod/07614C.s:41 |
-| `func_0017C990` | 0x20 | 8 | 1 |  | `addiu sd jal nop` | asm/cod/07B5B0.s:1547 |
 | `func_001F2370` | 0x20 | 8 | 1 |  | `addiu sd jal addiu` | asm/cod/0F2250.s:109 |
 | `func_0024BFAC` | 0x20 | 8 | 1 |  | `sd jal daddu sync` | asm/cod/14BBC0.s:353 |
-| `func_001383D8` | 0x20 | 8 | 1 |  | `addiu sd jal addiu` | asm/cod/037EF0.s:417 |
 | `func_001683A8` | 0x20 | 8 | 1 |  | `addiu lw sd jalr` | asm/cod/0654E0.s:3587 |
 | `func_0024A980` | 0x20 | 8 | 1 |  | `addiu daddu sd jal` | asm/cod/14A754.s:183 |
-| `func_00250F70` | 0x20 | 8 | 1 |  | `addiu daddu sd jal` | asm/cod/14BBC0.s:6877 |
-| `func_00123C00` | 0x20 | 8 | 1 |  | `addiu lui sd jal` | asm/cod/022C88.s:1041 |
-| `func_00241A00` | 0x20 | 8 | 1 |  | `addiu lui sd jal` | asm/cod/140B88.s:1143 |
 
 <a id="wrap-9-0x24"></a>
 ## 9-insn / 0x24, exactly 1 jal, no VU (wrapper + arg setup)
@@ -168,7 +162,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4561 unmatched functions are not in any shape bucket above._
+_4560 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 
