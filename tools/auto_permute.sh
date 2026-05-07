@@ -27,7 +27,7 @@
 #   tools/auto_permute.sh func_X      # only this one (single, not parallel)
 #
 # Env:
-#   PARALLEL=N        max concurrent permuter processes (default: 4).
+#   PARALLEL=N        max concurrent permuter processes (default: 8).
 #                      Each uses `-j 1`, so total cores ≈ PARALLEL.
 #   ITERATIONS=N      cap total round-robin passes (default: infinite).
 #   SKIP_MATCHED=1    skip functions whose yaml entry has already been
@@ -63,7 +63,7 @@ ACTIVITY_LOG="${PERMUTER_DIR}/auto_permute.log"
 YAML_FILE="${YAML_FILE:-${PROJECT_ROOT}/config/ico.us.yaml}"
 SKIP_MATCHED="${SKIP_MATCHED:-1}"
 ITERATIONS="${ITERATIONS:-0}"   # 0 = infinite
-PARALLEL="${PARALLEL:-4}"
+PARALLEL="${PARALLEL:-8}"
 STOP_AT_SCORE="${STOP_AT_SCORE:-0}"
 RANDOM_ORDER="${RANDOM_ORDER:-0}"
 VRAM_BASE_DEC=$((16#100000))

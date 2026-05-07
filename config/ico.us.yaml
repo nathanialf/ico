@@ -617,7 +617,8 @@ segments:
       - [0x03F884, asm, cod/03F884]
       - [0x03F990, c,   cod/03F990]            # func_0013F990: sw_zero +0x0
       - [0x03F998, c,   cod/03F998]            # func_0013F998: tail call func_0013F9A0 passthrough
-      - [0x03F9A0, asm, cod/03F9A0]
+      - [0x03F9A0, c,   cod/03F9A0]            # func_0013F9A0: 3 calls + tail-call (void+return TCO)
+      - [0x03F9CC, asm, cod/03F9CC]
       - [0x03FBF8, c,   cod/03FBF8]            # func_0013FBF8: tail call func_0013F9D0 passthrough
       - [0x03FC00, asm, cod/03FC00]
       - [0x03FEB0, c,   cod/03FEB0]            # func_0013FEB0: a0->0=0x140; a1->0=func_0013E488(a0)
@@ -1385,6 +1386,7 @@ segments:
       - [0x0D143C, asm, cod/0D143C]
       - [0x0D1440, c,   cod/0D1440]            # func_001D1440: wrap func_0013B610(D_00631AEC, a0); ret 1
       - [0x0D1468, asm, cod/0D1468]
+      - [0x0D1A98, c,   cod/0D1A98]            # func_001D1A98: 3 calls + tail-call all with same arg (void+return TCO)
       - [0x0D1AD0, c,   cod/0D1AD0]
       - [0x0D1AD8, asm, cod/0D1AD8]
       - [0x0D1CF8, c,   cod/0D1CF8]
