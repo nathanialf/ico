@@ -777,6 +777,8 @@ segments:
       - [0x07B2E4, asm, cod/07B2E4]
       - [0x07B2E8, c,   cod/07B2E8]            # func_0017B2E8: if(rc=func_0017E188()) tail call func_001F19F0(rc)
       - [0x07B314, asm, cod/07B314]
+      - [0x07B568, c,   cod/07B568]            # func_0017B568: func_0013FF88(a0, 0x2F, a0); tail func_001D4B40(a0, 2)
+      - [0x07B59C, asm, cod/07B59C]
       - [0x07B5A0, c,   cod/07B5A0]            # func_0017B5A0: tail call func_00102970(a0, xyz from a1[0..2])
       - [0x07B5B0, asm, cod/07B5B0]
       - [0x07C8C0, c,   cod/07C8C0]            # func_0017C8C0: rc=func_0013EAE8; if rc: func_0013FF88(rc, 0x1F, rc)
@@ -840,6 +842,8 @@ segments:
       - [0x085668, asm, cod/085668]
       - [0x0869F8, c,   cod/0869F8]            # func_001869F8: func_00182D20(&func_00185668, 0, 0)
       - [0x086A0C, asm, cod/086A0C]
+      - [0x087280, c,   cod/087280]            # func_00187280: func_00186A10(D_00632610, a0); tail same(D_00632614, a0)
+      - [0x0872B4, asm, cod/0872B4]
       - [0x087300, c,   cod/087300]            # func_00187300: auto-batch
       - [0x087308, c,   cod/087308]            # func_00187308: tail call func_001897A8 (sdata-ptr 2-arg shuffle)
       - [0x087318, c,   cod/087318]            # func_00187318: tail call func_00182DD8 (sdata-ptr forward+shuffle)
