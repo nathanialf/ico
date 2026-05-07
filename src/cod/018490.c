@@ -3,14 +3,14 @@
 void func_00118490(void *p0, void *p1, void *p2, void *p3)
 {
     VU0_NOREORDER_BEGIN();
-    VU0_REG("mfc1 $t0, $f12");
-    VU0_REG("qmtc2.ni $t0, $vf3");
+    VU0_MFC1(t0, 12);
+    VU0_QMTC2_NI(t0, 3);
     VU0_NOREORDER_END();
-    VU0_MEM("lqc2 $vf1, 0x0($a1)");
-    VU0_MEM("lqc2 $vf2, 0x0($a2)");
-    VU0_REG("vsubx.w $vf8, $vf0, $vf3x");
-    VU0_REG("vmulax.xyzw $ACC, $vf1, $vf3x");
-    VU0_REG("vmaddw.xyzw $vf9, $vf2, $vf8w");
-    VU0_MEM("sqc2 $vf9, 0x0($a0)");
+    VU0_LSV(lqc2, 1, 0x0, a1);
+    VU0_LSV(lqc2, 2, 0x0, a2);
+    VU0_V3OP_BC(vsubx.w, 8, 0, 3, x);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 1, 3, x);
+    VU0_V3OP_BC(vmaddw.xyzw, 9, 2, 8, w);
+    VU0_LSV(sqc2, 9, 0x0, a0);
     VU0_NOP();
 }

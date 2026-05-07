@@ -2,18 +2,18 @@
 
 void func_0010DDB8(void *p0, void *p1, void *p2, void *p3)
 {
-    VU0_MEM("lqc2 $vf11, 0x0($a1)");
-    VU0_MEM("lqc2 $vf12, 0x0($a2)");
-    VU0_REG("vmul.xyzw $vf13, $vf11, $vf12");
-    VU0_REG("vaddy.x $vf13, $vf13, $vf13y");
-    VU0_REG("vaddz.x $vf13, $vf13, $vf13z");
-    VU0_REG("vsubx.w $vf13, $vf13, $vf13x");
-    VU0_REG("vmulw.xyz $vf14, $vf12, $vf11w");
-    VU0_REG("vmulw.xyz $vf15, $vf11, $vf12w");
-    VU0_REG("vopmula.xyz $ACC, $vf12, $vf11");
-    VU0_REG("vopmsub.xyz $vf16, $vf11, $vf12");
-    VU0_REG("vadd.xyz $vf13, $vf14, $vf15");
-    VU0_REG("vadd.xyz $vf13, $vf13, $vf16");
-    VU0_MEM("sqc2 $vf13, 0x0($a0)");
+    VU0_LSV(lqc2, 11, 0x0, a1);
+    VU0_LSV(lqc2, 12, 0x0, a2);
+    VU0_V3OP(vmul.xyzw, 13, 11, 12);
+    VU0_V3OP_BC(vaddy.x, 13, 13, 13, y);
+    VU0_V3OP_BC(vaddz.x, 13, 13, 13, z);
+    VU0_V3OP_BC(vsubx.w, 13, 13, 13, x);
+    VU0_V3OP_BC(vmulw.xyz, 14, 12, 11, w);
+    VU0_V3OP_BC(vmulw.xyz, 15, 11, 12, w);
+    VU0_V3OP_ACC(vopmula.xyz, 12, 11);
+    VU0_V3OP(vopmsub.xyz, 16, 11, 12);
+    VU0_V3OP(vadd.xyz, 13, 14, 15);
+    VU0_V3OP(vadd.xyz, 13, 13, 16);
+    VU0_LSV(sqc2, 13, 0x0, a0);
     VU0_NOP();
 }

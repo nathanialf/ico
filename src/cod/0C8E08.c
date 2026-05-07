@@ -2,13 +2,13 @@
 
 void func_001C8E08(void *p0)
 {
-    VU0_MEM("lqc2 $vf4, 0x0($a0)");
-    VU0_REG("vmul.xz $vf4, $vf4, $vf4");
-    VU0_REG("vaddz.x $vf4, $vf4, $vf4z");
+    VU0_LSV(lqc2, 4, 0x0, a0);
+    VU0_V3OP(vmul.xz, 4, 4, 4);
+    VU0_V3OP_BC(vaddz.x, 4, 4, 4, z);
     VU0_WORD(0x4A0403BD);
     VU0_WAIT();
     VU0_NOREORDER_BEGIN();
-    VU0_REG("cfc2.ni $v0, $vi22");
-    VU0_REG("mtc1 $v0, $f0");
+    VU0_CFC2_NI(v0, 22);
+    VU0_MTC1(v0, 0);
     VU0_NOREORDER_END();
 }

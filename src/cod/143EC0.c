@@ -2,12 +2,12 @@
 
 void func_00243EC0(void *p0, void *p1, void *p2)
 {
-    VU0_REG("mfc1 $t0, $f12");
-    VU0_REG("mfc1 $t1, $f13");
-    VU0_MEM("lqc2 $vf6, 0x0($a1)");
-    VU0_REG("qmtc2.ni $t0, $vf4");
-    VU0_REG("qmtc2.ni $t1, $vf5");
-    VU0_REG("vmaxx.xyzw $vf6, $vf6, $vf4x");
-    VU0_REG("vminix.xyzw $vf6, $vf6, $vf5x");
-    VU0_MEM("sqc2 $vf6, 0x0($a0)");
+    VU0_MFC1(t0, 12);
+    VU0_MFC1(t1, 13);
+    VU0_LSV(lqc2, 6, 0x0, a1);
+    VU0_QMTC2_NI(t0, 4);
+    VU0_QMTC2_NI(t1, 5);
+    VU0_V3OP_BC(vmaxx.xyzw, 6, 6, 4, x);
+    VU0_V3OP_BC(vminix.xyzw, 6, 6, 5, x);
+    VU0_LSV(sqc2, 6, 0x0, a0);
 }

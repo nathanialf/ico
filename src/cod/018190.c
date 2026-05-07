@@ -2,22 +2,22 @@
 
 void func_00118190(void)
 {
-    VU0_REG("vsub.xyzw $vf1, $vf0, $vf0");
-    VU0_REG("vsubw.x $vf2, $vf0, $vf0w");
-    VU0_REG("vaddx.y $vf14, $vf1, $vf5x");
-    VU0_REG("vaddx.z $vf14, $vf1, $vf6x");
-    VU0_REG("vaddy.x $vf15, $vf1, $vf4y");
-    VU0_REG("vaddy.z $vf15, $vf1, $vf6y");
-    VU0_REG("vaddz.x $vf16, $vf1, $vf4z");
-    VU0_REG("vaddz.y $vf16, $vf1, $vf5z");
-    VU0_REG("vmulx.xyz $vf17, $vf7, $vf2x");
-    VU0_REG("vmove.yz $vf4, $vf14");
-    VU0_REG("vmove.xz $vf5, $vf15");
-    VU0_REG("vmove.xy $vf6, $vf16");
-    VU0_REG("vmove.w $vf17, $vf0");
-    VU0_REG("vmulax.xyzw $ACC, $vf4, $vf17x");
-    VU0_REG("vmadday.xyzw $ACC, $vf5, $vf17y");
-    VU0_REG("vmaddaz.xyzw $ACC, $vf6, $vf17z");
-    VU0_REG("vmaddw.xyzw $vf7, $vf0, $vf17w");
+    VU0_V3OP(vsub.xyzw, 1, 0, 0);
+    VU0_V3OP_BC(vsubw.x, 2, 0, 0, w);
+    VU0_V3OP_BC(vaddx.y, 14, 1, 5, x);
+    VU0_V3OP_BC(vaddx.z, 14, 1, 6, x);
+    VU0_V3OP_BC(vaddy.x, 15, 1, 4, y);
+    VU0_V3OP_BC(vaddy.z, 15, 1, 6, y);
+    VU0_V3OP_BC(vaddz.x, 16, 1, 4, z);
+    VU0_V3OP_BC(vaddz.y, 16, 1, 5, z);
+    VU0_V3OP_BC(vmulx.xyz, 17, 7, 2, x);
+    VU0_V2OP(vmove.yz, 4, 14);
+    VU0_V2OP(vmove.xz, 5, 15);
+    VU0_V2OP(vmove.xy, 6, 16);
+    VU0_V2OP(vmove.w, 17, 0);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 17, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 17, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 17, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 7, 0, 17, w);
     VU0_NOP();
 }

@@ -2,10 +2,10 @@
 
 void func_00243930(void *p0, void *p1, void *p2, void *p3)
 {
-    VU0_MEM("lqc2 $vf4, 0x0($a1)");
-    VU0_MEM("lqc2 $vf5, 0x0($a2)");
-    VU0_REG("vopmula.xyz $ACC, $vf4, $vf5");
-    VU0_REG("vopmsub.xyz $vf6, $vf5, $vf4");
-    VU0_REG("vsub.w $vf6, $vf6, $vf6");
-    VU0_MEM("sqc2 $vf6, 0x0($a0)");
+    VU0_LSV(lqc2, 4, 0x0, a1);
+    VU0_LSV(lqc2, 5, 0x0, a2);
+    VU0_V3OP_ACC(vopmula.xyz, 4, 5);
+    VU0_V3OP(vopmsub.xyz, 6, 5, 4);
+    VU0_V3OP(vsub.w, 6, 6, 6);
+    VU0_LSV(sqc2, 6, 0x0, a0);
 }

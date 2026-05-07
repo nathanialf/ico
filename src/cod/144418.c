@@ -2,16 +2,16 @@
 
 void func_00244418(void *p0, void *p1, void *p2, void *p3)
 {
-    VU0_MEM("lqc2 $vf4, 0x0($a1)");
-    VU0_MEM("lqc2 $vf5, 0x0($a2)");
+    VU0_LSV(lqc2, 4, 0x0, a1);
+    VU0_LSV(lqc2, 5, 0x0, a2);
     VU0_NOREORDER_BEGIN();
-    VU0_REG("mfc1 $t0, $f12");
-    VU0_REG("qmtc2.ni $t0, $vf6");
+    VU0_MFC1(t0, 12);
+    VU0_QMTC2_NI(t0, 6);
     VU0_NOREORDER_END();
-    VU0_REG("vmove.w $vf9, $vf4");
-    VU0_REG("vaddw.x $vf7, $vf0, $vf0w");
-    VU0_REG("vsub.x $vf8, $vf7, $vf6");
-    VU0_REG("vmulax.xyz $ACC, $vf4, $vf6x");
-    VU0_REG("vmaddx.xyz $vf9, $vf5, $vf8x");
-    VU0_MEM("sqc2 $vf9, 0x0($a0)");
+    VU0_V2OP(vmove.w, 9, 4);
+    VU0_V3OP_BC(vaddw.x, 7, 0, 0, w);
+    VU0_V3OP(vsub.x, 8, 7, 6);
+    VU0_V3OP_ACC_BC(vmulax.xyz, 4, 6, x);
+    VU0_V3OP_BC(vmaddx.xyz, 9, 5, 8, x);
+    VU0_LSV(sqc2, 9, 0x0, a0);
 }

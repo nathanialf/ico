@@ -2,13 +2,13 @@
 
 void func_00243BD8(void *p0)
 {
-    VU0_REG("vsub.xyzw $vf4, $vf0, $vf0");
-    VU0_REG("vadd.w $vf4, $vf4, $vf0");
-    VU0_REG("vmr32.xyzw $vf5, $vf4");
-    VU0_REG("vmr32.xyzw $vf6, $vf5");
-    VU0_REG("vmr32.xyzw $vf7, $vf6");
-    VU0_MEM("sqc2 $vf4, 0x30($a0)");
-    VU0_MEM("sqc2 $vf5, 0x20($a0)");
-    VU0_MEM("sqc2 $vf6, 0x10($a0)");
-    VU0_MEM("sqc2 $vf7, 0x0($a0)");
+    VU0_V3OP(vsub.xyzw, 4, 0, 0);
+    VU0_V3OP(vadd.w, 4, 4, 0);
+    VU0_V2OP(vmr32.xyzw, 5, 4);
+    VU0_V2OP(vmr32.xyzw, 6, 5);
+    VU0_V2OP(vmr32.xyzw, 7, 6);
+    VU0_LSV(sqc2, 4, 0x30, a0);
+    VU0_LSV(sqc2, 5, 0x20, a0);
+    VU0_LSV(sqc2, 6, 0x10, a0);
+    VU0_LSV(sqc2, 7, 0x0, a0);
 }

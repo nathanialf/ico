@@ -2,13 +2,13 @@
 
 void func_00243A88(void *p0, void *p1, void *p2)
 {
-    VU0_MEM("lqc2 $vf4, 0x0($a1)");
+    VU0_LSV(lqc2, 4, 0x0, a1);
     VU0_NOREORDER_BEGIN();
-    VU0_REG("mfc1 $t0, $f12");
-    VU0_REG("qmtc2.ni $t0, $vf5");
+    VU0_MFC1(t0, 12);
+    VU0_QMTC2_NI(t0, 5);
     VU0_NOREORDER_END();
     VU0_REG("vdiv $Q, $vf0w, $vf5x");
     VU0_WAIT();
     VU0_REG("vmulq.xyz $vf4, $vf4, $Q");
-    VU0_MEM("sqc2 $vf4, 0x0($a0)");
+    VU0_LSV(sqc2, 4, 0x0, a0);
 }

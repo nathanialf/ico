@@ -2,17 +2,17 @@
 
 void func_001C8E78(void *p0, void *p1, void *p2, void *p3)
 {
-    VU0_MEM("lqc2 $vf1, 0x0($a1)");
-    VU0_MEM("lqc2 $vf2, 0x0($a2)");
-    VU0_REG("vsub.xyzw $vf4, $vf1, $vf2");
-    VU0_REG("vmul.xyz $vf3, $vf4, $vf4");
-    VU0_REG("vaddy.x $vf3, $vf3, $vf3y");
-    VU0_REG("vaddz.x $vf3, $vf3, $vf3z");
+    VU0_LSV(lqc2, 1, 0x0, a1);
+    VU0_LSV(lqc2, 2, 0x0, a2);
+    VU0_V3OP(vsub.xyzw, 4, 1, 2);
+    VU0_V3OP(vmul.xyz, 3, 4, 4);
+    VU0_V3OP_BC(vaddy.x, 3, 3, 3, y);
+    VU0_V3OP_BC(vaddz.x, 3, 3, 3, z);
     VU0_REG("vrsqrt $Q, $vf0w, $vf3x");
-    VU0_MEM("sqc2 $vf4, 0x0($a0)");
+    VU0_LSV(sqc2, 4, 0x0, a0);
     VU0_WAIT();
     VU0_NOREORDER_BEGIN();
-    VU0_REG("cfc2.ni $v0, $vi22");
-    VU0_REG("mtc1 $v0, $f0");
+    VU0_CFC2_NI(v0, 22);
+    VU0_MTC1(v0, 0);
     VU0_NOREORDER_END();
 }

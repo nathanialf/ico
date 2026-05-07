@@ -2,11 +2,11 @@
 
 void func_00106028(void *p0)
 {
-    VU0_MEM("lqc2 $vf3, 0x0($a0)");
-    VU0_REG("vmul.xyz $vf3, $vf3, $vf3");
-    VU0_REG("vaddy.x $vf3, $vf3, $vf3y");
-    VU0_REG("vaddz.x $vf3, $vf3, $vf3z");
-    VU0_REG("qmfc2.ni $v0, $vf3");
-    VU0_REG("mtc1 $v0, $f0");
+    VU0_LSV(lqc2, 3, 0x0, a0);
+    VU0_V3OP(vmul.xyz, 3, 3, 3);
+    VU0_V3OP_BC(vaddy.x, 3, 3, 3, y);
+    VU0_V3OP_BC(vaddz.x, 3, 3, 3, z);
+    VU0_QMFC2_NI(v0, 3);
+    VU0_MTC1(v0, 0);
     VU0_NOP();
 }
