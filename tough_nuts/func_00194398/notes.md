@@ -3,7 +3,7 @@
 
 ## Attempt at 2026-05-07
 
-**Reason parked:** Function ends at 'ld ra' with no 'jr ra; addiu sp' — likely falls through to next function or non-standard exit. Standard C body always emits full epilogue.
+**Reason parked:** fall-through epilogue: function ends at 'ld ra' without 'jr ra; addiu sp'
 
 Seed: `tough_nuts/func_00194398/094398.c`
 

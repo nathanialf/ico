@@ -3,7 +3,7 @@
 
 ## Attempt at 2026-05-07
 
-**Reason parked:** compiler picks gp_rel vs lui+lo for D_X access; pointer-vs-array decl doesn't change schedule.
+**Reason parked:** gp_rel/lui+lo schedule mismatch (sibling).
 
 Seed: `tough_nuts/func_0024BBF0/14BBF0.c`
 
