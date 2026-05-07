@@ -11,3 +11,6 @@
 [submodule "lib/m2c"]
 	path = lib/m2c
 	url = https://github.com/matt-kempster/m2c
+[submodule "lib/ps2sdk"]
+	path = lib/ps2sdk
+	url = https://github.com/ps2dev/ps2sdk

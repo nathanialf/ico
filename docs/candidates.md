@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-07 20:00:53 UTC
+- Generated: 2026-05-07 21:20:32 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4420 total in `asm/cod/*.s`, 33 parked, 4387 considered
+- Functions: 4559 total in `asm/cod/*.s`, 22 parked, 4537 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -35,9 +35,60 @@ and `mtc1`/`lwc1`/`swc1`/`cvt.*`/`mfc1` float-pair sequences.
 <a id="leaf-4-0x10"></a>
 ## 4-insn / 0x10 leaf, no jal, no VU (bulk getter/setter)
 
-_0 total in this bucket; showing top 0._
+_150 total in this bucket; showing top 50._
 
-(empty)
+| Function | Size | Insns | jal | VU | First mnemonics | Source |
+|---|---:|---:|---:|:---:|---|---|
+| `func_00100110` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000110.s:14 |
+| `func_00100120` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000120.s:14 |
+| `func_00100130` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000130.s:14 |
+| `func_00100140` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000140.s:14 |
+| `func_00100150` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000150.s:14 |
+| `func_00100160` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000160.s:14 |
+| `func_00100170` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000170.s:14 |
+| `func_00100180` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000180.s:14 |
+| `func_00100190` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000190.s:14 |
+| `func_001001A0` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/0001A0.s:14 |
+| `func_001001B0` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/0001B0.s:14 |
+| `func_001001C0` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/0001C0.s:14 |
+| `func_001001D0` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/0001D0.s:14 |
+| `func_001001E0` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/0001E0.s:14 |
+| `func_001001F0` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/0001F0.s:14 |
+| `func_00100200` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000200.s:14 |
+| `func_00100210` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000210.s:14 |
+| `func_00100220` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000220.s:14 |
+| `func_00100230` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000230.s:14 |
+| `func_00100240` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000240.s:14 |
+| `func_00100250` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000250.s:14 |
+| `func_00100260` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000260.s:14 |
+| `func_00100270` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000270.s:14 |
+| `func_00100280` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000280.s:14 |
+| `func_00100290` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000290.s:14 |
+| `func_001002A0` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/0002A0.s:14 |
+| `func_001002B0` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/0002B0.s:14 |
+| `func_001002C0` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/0002C0.s:14 |
+| `func_001002D0` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/0002D0.s:14 |
+| `func_001002E0` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/0002E0.s:14 |
+| `func_001002F0` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/0002F0.s:14 |
+| `func_00100300` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000300.s:14 |
+| `func_00100310` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000310.s:14 |
+| `func_00100320` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000320.s:14 |
+| `func_00100330` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000330.s:14 |
+| `func_00100340` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000340.s:14 |
+| `func_00100350` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000350.s:14 |
+| `func_00100360` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000360.s:14 |
+| `func_00100370` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000370.s:14 |
+| `func_00100380` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000380.s:14 |
+| `func_00100390` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000390.s:14 |
+| `func_001003A0` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/0003A0.s:14 |
+| `func_001003B0` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/0003B0.s:14 |
+| `func_001003C0` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/0003C0.s:14 |
+| `func_001003D0` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/0003D0.s:14 |
+| `func_001003E0` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/0003E0.s:14 |
+| `func_001003F0` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/0003F0.s:14 |
+| `func_00100400` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000400.s:14 |
+| `func_00100410` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000410.s:14 |
+| `func_00100420` | 0x10 | 4 | 0 |  | `addiu syscall jr nop` | asm/cod/000420.s:14 |
 
 <a id="leaf-5-0x14"></a>
 ## 5-insn / 0x14 leaf, no jal, no VU (store-and-forward)
