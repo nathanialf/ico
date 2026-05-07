@@ -321,6 +321,8 @@ segments:
       - [0x00A380, c,   cod/00A380]
       - [0x00A390, c,   cod/00A390]
       - [0x00A3A0, asm, cod/00A3A0]
+      - [0x00A498, c,   cod/00A498]            # func_0010A498: func_00104508(a0,a1); a0->4 += *(a1->15C + 0x270)
+      - [0x00A4DC, asm, cod/00A4DC]
       - [0x00A4E0, c,   cod/00A4E0]
       - [0x00A4F0, asm, cod/00A4F0]
       - [0x00A550, c,   cod/00A550]
@@ -351,7 +353,8 @@ segments:
       - [0x00D530, c,   cod/00D530]            # func_0010D530: tail call func_0010D830(a0, &D_00276140)
       - [0x00D53C, asm, cod/00D53C]
       - [0x00D830, c,   cod/00D830]            # func_0010D830: tail call func_00105F00 passthrough
-      - [0x00D838, asm, cod/00D838]
+      - [0x00D838, c,   cod/00D838]            # func_0010D838: func_0010D830(a0,a1); tail call func_001183F0(a0,a1,-1.0f)
+      - [0x00D878, asm, cod/00D878]
       - [0x00DA78, c,   cod/00DA78]            # func_0010DA78: wrap func_0010D8E0(a0); tail call func_0010D878(a0)
       - [0x00DAA0, c,   cod/00DAA0]            # func_0010DAA0: &D_00660A40[D_00631B7C*4] (la-macro)
       - [0x00DAB8, c,   cod/00DAB8]            # func_0010DAB8: &D_00660A30[D_00631B7C*4] (la-macro)
