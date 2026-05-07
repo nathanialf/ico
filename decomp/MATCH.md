@@ -119,6 +119,41 @@ over time.
 - `lib/asm-differ/` — function-level diffing while editing.
 - `lib/decomp-permuter/` — randomized rewrites for near-miss matches.
 
+**Compiler-blocked diffs — investigate ee-gcc source first:**
+
+When a function's asm uses an instruction or pattern ee-gcc 2.9-991111
+seems unable to emit (e.g. `lwu`, specific scheduling), don't park it
+or reach for inline asm. **First check the actual ee-gcc backend
+source** to see what conditions trigger that codegen path.
+
+Source lives at `https://github.com/GirianSeed/ee-gcc/releases` —
+specifically `src-2.9-ee-991111-01` (matches our `tools/cc/ee-gcc2.9-991111`).
+Download the `ee-gcc-2.0.zip`, extract, then look in
+`src/gcc/config/mips/mips.c` and `mips.md` for the relevant pattern.
+
+Example (lwu emission, mips.c ~line 1865):
+```c
+case SImode:
+case CCmode:
+  ret = ((unsignedp && TARGET_64BIT)
+         ? "lwu\t%0,%1"
+         : "lw\t%0,%1");
+```
+
+This says `lwu` only fires when the operand is unsigned AND the result
+is being held in a 64-bit register context. In C, that means the load
+result must propagate into a `long` or `unsigned long` typed expression.
+The trick:
+
+```c
+long x = *(unsigned int *)p;   // forces lwu (load u32 into 64-bit reg)
+return ((int)x) & 1;            // forces dsll/dsra → dsll32/dsra32 + andi
+```
+
+This recovered func_0015F208 + func_001BB7E0 from ".skip" / "INCLUDE_ASM
+stub" status to fully matched pure-C — no inline asm, no compiler patch.
+Always read the backend before declaring a function compiler-blocked.
+
 ## Picking the next target
 
 **Default: read `docs/candidates.md`.** It's auto-regenerated at the end

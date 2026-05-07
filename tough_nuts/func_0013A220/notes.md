@@ -3,7 +3,7 @@
 
 ## Attempt at 2026-05-07
 
-**Reason parked:** Score-5 attempt: store target reg differs (a1 vs v0). Plus trailing nop alignment quirk. Permuter target.
+**Reason parked:** score-5 close + trailing-nop alignment. Compiler-level (.p2align inside func body), needs upstream fix.
 
 Seed: `tough_nuts/func_0013A220/03A220.c`
 
