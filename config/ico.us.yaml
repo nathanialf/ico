@@ -373,7 +373,7 @@ segments:
       - [0x00DAD0, asm, cod/00DAD0]
       - [0x00DB28, c,   cod/00DB28]            # func_0010DB28: D_00631B7C--; if <0: func_001A6E28(&D_00553E48); D_00631B7C=0
       - [0x00DB5C, asm, cod/00DB5C]
-      - [0x00DDB8, c,   cod/00DDB8]            # func_0010DDB8: quaternion mul
+      - [0x00DDB8, hasm,   cod/00DDB8]            # handwritten asm leaf (was C with inline asm)
       - [0x00DDF4, asm, cod/00DDF4]
       - [0x00E928, c,   cod/00E928]            # func_0010E928: dot product 4-component
       - [0x00E950, asm, cod/00E950]
@@ -417,10 +417,10 @@ segments:
       - [0x017CB0, c,   cod/017CB0]            # func_00117CB0: matrix-vec mul-accum
       - [0x017CCC, asm, cod/017CCC]
       - [0x017CD0, c,   cod/017CD0]            # func_00117CD0: load to vf7
-      - [0x017CE0, c,   cod/017CE0]            # func_00117CE0: vmove vf7=vf0
+      - [0x017CE0, hasm,   cod/017CE0]            # handwritten asm leaf (was C with inline asm)
       - [0x017CEC, asm, cod/017CEC]
       - [0x017FC0, c,   cod/017FC0]            # func_00117FC0: store 4 vfs
-      - [0x017FD8, c,   cod/017FD8]            # func_00117FD8: store vf7
+      - [0x017FD8, hasm,   cod/017FD8]            # handwritten asm leaf (was C with inline asm)
       - [0x017FE4, asm, cod/017FE4]
       - [0x017FE8, c,   cod/017FE8]            # func_00117FE8: load 4 vfs
       - [0x018000, asm, cod/018000]
@@ -430,14 +430,14 @@ segments:
       - [0x018110, c,   cod/018110]            # func_00118110: 4x4 transpose
       - [0x01815C, asm, cod/01815C]
       - [0x018160, c,   cod/018160]            # func_00118160: transpose 3x3
-      - [0x018190, c,   cod/018190]            # func_00118190: affine inverse 3x3+pos
+      - [0x018190, hasm,   cod/018190]            # handwritten asm leaf (was C with inline asm)
       - [0x0181DC, asm, cod/0181DC]
       - [0x0182F0, c,   cod/0182F0]            # func_001182F0: vec normalize xyz
       - [0x01831C, asm, cod/01831C]
       - [0x018320, c,   cod/018320]            # func_00118320: weighted dot product
       - [0x01834C, asm, cod/01834C]
       - [0x018350, c,   cod/018350]            # func_00118350: cross product
-      - [0x018370, c,   cod/018370]            # func_00118370: vec add xyzw
+      - [0x018370, hasm,   cod/018370]            # handwritten asm leaf (was C with inline asm)
       - [0x018388, c,   cod/018388]            # func_00118388: vec add xyz vf1
       - [0x0183A0, c,   cod/0183A0]            # func_001183A0: vec sub xyzw
       - [0x0183B8, c,   cod/0183B8]            # func_001183B8: vec sub xyz vf1
@@ -452,7 +452,7 @@ segments:
       - [0x01845C, asm, cod/01845C]
       - [0x018460, c,   cod/018460]            # func_00118460: 16-byte lq/sq copy ($t0)
       - [0x018470, c,   cod/018470]            # func_00118470: 16-byte lq/sq copy ($t0)
-      - [0x018480, c,   cod/018480]            # func_00118480: store vf0
+      - [0x018480, hasm,   cod/018480]            # handwritten asm leaf (was C with inline asm)
       - [0x01848C, asm, cod/01848C]
       - [0x018490, c,   cod/018490]            # func_00118490: lerp xyzw
       - [0x0184B8, c,   cod/0184B8]            # func_001184B8: lerp xyz
@@ -471,7 +471,7 @@ segments:
       - [0x0186A0, c,   cod/0186A0]            # func_001186A0: store 3-vec id matrix
       - [0x0186C4, asm, cod/0186C4]
       - [0x018A48, c,   cod/018A48]            # func_00118A48: random init
-      - [0x018A68, c,   cod/018A68]            # func_00118A68: random next x
+      - [0x018A68, hasm,   cod/018A68]            # handwritten asm leaf (was C with inline asm)
       - [0x018A80, c,   cod/018A80]            # func_00118A80: random next xyz
       - [0x018A9C, asm, cod/018A9C]
       - [0x018AA0, c,   cod/018AA0]            # func_00118AA0: random next xyz packed
@@ -832,7 +832,7 @@ segments:
       - [0x075F7C, asm, cod/075F7C]
       - [0x076130, c,   cod/076130]            # func_00176130: save/reload arg, sub+0x634=0
       - [0x07614C, asm, cod/07614C]
-      - [0x076198, c,   cod/076198]            # func_00176198: spill-only-no-reload via inline asm sw
+      - [0x076198, hasm,   cod/076198]            # handwritten asm leaf (was C with inline asm)
       - [0x0761B8, asm, cod/0761B8]
       - [0x076AE8, c,   cod/076AE8]            # func_00176AE8: a0->0=0 + tail call func_0013A5B8(&D_0028A4A0, a0, 1)
       - [0x076B04, asm, cod/076B04]
@@ -1196,7 +1196,7 @@ segments:
       - [0x0ABF58, c,   cod/0ABF58]            # func_001ABF58: func_00244598(a0); tail call func_001123C0(&D_00274EF0)
       - [0x0ABF7C, asm, cod/0ABF7C]
       - [0x0AD740, c,   cod/0AD740]
-      - [0x0AD748, c,   cod/0AD748]            # func_001AD748: 5 nops + b-to-start infinite loop
+      - [0x0AD748, hasm,   cod/0AD748]            # handwritten asm leaf (was C with inline asm)
       - [0x0AD764, asm, cod/0AD764]
       - [0x0ADB70, c,   cod/0ADB70]            # func_001ADB70: 3-store with const 1
       - [0x0ADB84, asm, cod/0ADB84]
