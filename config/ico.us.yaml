@@ -707,6 +707,8 @@ segments:
       - [0x04BDF8, asm, cod/04BDF8]
       - [0x0538C0, c,   cod/0538C0]            # func_001538C0: wrap func_00203C40(&buf); func_00194508(&buf, a0)
       - [0x0538F4, asm, cod/0538F4]
+      - [0x0538F8, c,   cod/0538F8]            # func_001538F8: indirect-deref through D_00631AE4
+      - [0x053918, asm, cod/053918]
       - [0x0545D8, c,   cod/0545D8]            # func_001545D8: extract bit 35 of D_006AAAE8
       - [0x0545F0, c,   cod/0545F0]            # func_001545F0: return D_00633CEC (unsigned char)
       - [0x0545F8, asm, cod/0545F8]

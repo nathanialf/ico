@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-07 21:44:30 UTC
+- Generated: 2026-05-07 21:46:37 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4409 total in `asm/cod/*.s`, 22 parked, 4387 considered
+- Functions: 4408 total in `asm/cod/*.s`, 21 parked, 4387 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -186,7 +186,7 @@ _18 total in this bucket; showing top 18._
 | `func_00252180` | 0x3C | 15 | 2 |  | `lui addiu lw addiu` | asm/cod/151ED0.s:237 |
 | `func_001331D8` | 0x40 | 16 | 2 |  | `addiu sd sd daddu` | asm/cod/03262C.s:917 |
 | `func_0017CAA0` | 0x40 | 16 | 2 |  | `addiu sd jal sd` | asm/cod/07CA54.s:45 |
-| `func_001539B8` | 0x38 | 14 | 2 |  | `addiu sw sd lw` | asm/cod/0538F4.s:80 |
+| `func_001539B8` | 0x38 | 14 | 2 |  | `addiu sw sd lw` | asm/cod/053918.s:61 |
 | `func_00263F48` | 0x38 | 14 | 2 |  | `addiu sd addiu swc1` | asm/cod/160CC8.s:4157 |
 | `func_0015F298` | 0x3C | 15 | 2 |  | `addiu lui mtc1 sd` | asm/cod/05F244.s:47 |
 | `func_00263FB0` | 0x40 | 16 | 2 |  | `addiu sd addiu swc1` | asm/cod/163FAC.s:18 |
@@ -279,7 +279,7 @@ _35 total in this bucket; showing top 35._
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
 | `func_001B7FC8` | 0x20 | 8 | 0 |  | `bgezl sw bgezl sw` | asm/cod/0B7CE0.s:243 |
-| `func_00154420` | 0x24 | 9 | 0 |  | `lw lw lw sltiu` | asm/cod/0538F4.s:873 |
+| `func_00154420` | 0x24 | 9 | 0 |  | `lw lw lw sltiu` | asm/cod/053918.s:861 |
 | `func_0013F1D0` | 0x28 | 10 | 0 |  | `daddu beqz andi sw` | asm/cod/03F130.s:61 |
 | `func_001FB480` | 0x28 | 10 | 0 |  | `lw addiu div beql` | asm/cod/0FB480.s:13 |
 | `func_00244958` | 0x28 | 10 | 0 |  | `lui lui ori ori` | asm/cod/144748.s:169 |
