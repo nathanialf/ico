@@ -294,7 +294,8 @@ segments:
       - [0x00D180, c,   cod/00D180]
       - [0x00D198, asm, cod/00D198]
       - [0x00DAA0, c,   cod/00DAA0]            # func_0010DAA0: &D_00660A40[D_00631B7C*4] (la-macro)
-      - [0x00DAB8, asm, cod/00DAB8]
+      - [0x00DAB8, c,   cod/00DAB8]            # func_0010DAB8: &D_00660A30[D_00631B7C*4] (la-macro)
+      - [0x00DAD0, asm, cod/00DAD0]
       - [0x00DDB8, c,   cod/00DDB8]            # func_0010DDB8: quaternion mul
       - [0x00DDF4, asm, cod/00DDF4]
       - [0x00E928, c,   cod/00E928]            # func_0010E928: dot product 4-component
