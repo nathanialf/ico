@@ -316,6 +316,10 @@ segments:
       - [0x00A088, c,   cod/00A088]            # func_0010A088: wrapper -> func_00168A80(sub->5EC)
       - [0x00A0A8, c,   cod/00A0A8]            # func_0010A0A8: wrapper -> func_00168A80(sub->5F0)
       - [0x00A0C8, asm, cod/00A0C8]
+      - [0x00A120, c,   cod/00A120]            # func_0010A120: deref-chain + lb<<6 + 1-arg call (offsets 0x3F0/0x1D0 sibling)
+      - [0x00A15C, asm, cod/00A15C]
+      - [0x00A160, c,   cod/00A160]            # func_0010A160: Same as 10A120 sibling but offset 0x1D0
+      - [0x00A19C, asm, cod/00A19C]
       - [0x00A2E0, c,   cod/00A2E0]
       - [0x00A2F0, c,   cod/00A2F0]
       - [0x00A300, c,   cod/00A300]
