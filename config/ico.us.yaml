@@ -582,6 +582,7 @@ segments:
       - [0x0654C8, c,   cod/0654C8]            # func_001654C8
       - [0x0654D8, c,   cod/0654D8]            # func_001654D8: return 1
       - [0x0654E0, asm, cod/0654E0]
+      - [0x0683A8, c,   cod/0683A8]            # func_001683A8: D_006323F0(a0, 0) jalr
       - [0x0683C8, c,   cod/0683C8]            # func_001683C8: (*D_006323F0)(arg, 1)
       - [0x0683E8, c,   cod/0683E8]            # func_001683E8: (*D_006323F0)(arg, 2)
       - [0x068408, c,   cod/068408]            # func_00168408: (*D_006323F0)(arg, 6)
@@ -1308,6 +1309,8 @@ segments:
       - [0x1498D4, asm, cod/1498D4]
       - [0x14A738, c,   cod/14A738]            # func_0024A738
       - [0x14A754, asm, cod/14A754]
+      - [0x14A980, c,   cod/14A980]            # func_0024A980: wrap func_0024A758(a0,a1,a2, &buf[16], 0)
+      - [0x14A9A0, asm, cod/14A9A0]
       - [0x14AAC8, c,   cod/14AAC8]            # func_0024AAC8
       - [0x14AAE4, asm, cod/14AAE4]
       - [0x14B3E8, c,   cod/14B3E8]            # func_0024B3E8: syscall 0x74
