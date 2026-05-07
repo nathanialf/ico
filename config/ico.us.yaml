@@ -1117,6 +1117,8 @@ segments:
       - [0x0C0D60, asm, cod/0C0D60]
       - [0x0C2098, c,   cod/0C2098]            # func_001C2098
       - [0x0C20A8, asm, cod/0C20A8]
+      - [0x0C2DF8, c,   cod/0C2DF8]            # func_001C2DF8: func_0010ECB8(a0); tail call func_0010ECA0(self->15C->800->0)
+      - [0x0C2E24, asm, cod/0C2E24]
       - [0x0C2EB8, c, cod/0C2EB8]            # func_001C2EB8: 4-insn swc1
       - [0x0C2EC8, asm, cod/0C2EC8]
       - [0x0C2F10, c,   cod/0C2F10]            # func_001C2F10
