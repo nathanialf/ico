@@ -1447,8 +1447,11 @@ segments:
       - [0x10D5D8, asm, cod/10D5D8]
       - [0x10D660, c,   cod/10D660]            # func_0020D660: sibling: 0x13F
       - [0x10D690, asm, cod/10D690]
+      - [0x10D718, c,   cod/10D718]            # func_0020D718: sibling: 0x140, B7D8
       - [0x10D748, c,   cod/10D748]            # func_0020D748: wrap func_00203B78(&func_0020B8D8, 0x15)
       - [0x10D770, asm, cod/10D770]
+      - [0x10D850, c,   cod/10D850]            # func_0020D850: sibling: 0x141, C3A0
+      - [0x10D880, asm, cod/10D880]
       - [0x1109D8, c,   cod/1109D8]            # func_002109D8: store-arg-discard
       - [0x1109E8, asm, cod/1109E8]
       - [0x110BA8, c,   cod/110BA8]            # func_00210BA8: store-arg-discard
