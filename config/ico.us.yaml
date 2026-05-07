@@ -522,6 +522,7 @@ segments:
       - [0x037558, asm, cod/037558]
       - [0x037EE8, c,   cod/037EE8]
       - [0x037EF0, asm, cod/037EF0]
+      - [0x037F04, asm, cod/037F04]
       - [0x0383D8, c,   cod/0383D8]            # func_001383D8: wrap func_00136280(a0, a1, 0x63FC), return 0
       - [0x0383F8, asm, cod/0383F8]
       - [0x03A200, c,   cod/03A200]            # func_0013A200
@@ -707,6 +708,8 @@ segments:
       - [0x05F4E0, c,   cod/05F4E0]            # func_0015F4E0: store-arg-discard
       - [0x05F4F0, c,   cod/05F4F0]            # func_0015F4F0: 1-jal wrapper w/ spill+reload
       - [0x05F514, asm, cod/05F514]
+      - [0x05F550, c,   cod/05F550]            # func_0015F550: spill+reload wrapper (sibling of 0015F4B8) with a1=0
+      - [0x05F578, asm, cod/05F578]
       - [0x05F698, c,   cod/05F698]            # func_0015F698: store-arg-discard
       - [0x05F6A8, c,   cod/05F6A8]            # func_0015F6A8: == 0xF compare
       - [0x05F6BC, asm, cod/05F6BC]
@@ -1862,7 +1865,8 @@ segments:
       - [0x15C668, c,   cod/15C668]            # func_0025C668: func_002591F0(0x32, 0xA, a0, 0)
       - [0x15C67C, asm, cod/15C67C]
       - [0x15C680, c,   cod/15C680]            # func_0025C680: func_0025C6D8(0x20, a0, a1, a2); return 0
-      - [0x15C6B0, asm, cod/15C6B0]
+      - [0x15C6B0, c,   cod/15C6B0]            # func_0025C6B0: arg-shuffle: func_0025C6D8(0x21, a1, a0, a2) returns 0
+      - [0x15C6D8, asm, cod/15C6D8]
       - [0x15CCB0, c,   cod/15CCB0]            # func_0025CCB0: func_002591F0(0x14, a0, a1, 0)
       - [0x15CCC4, asm, cod/15CCC4]
       - [0x15CCC8, c,   cod/15CCC8]            # func_0025CCC8: func_002591F0(0x15, a0, a1, 0)
@@ -1891,6 +1895,7 @@ segments:
       - [0x15E114, asm, cod/15E114]
       - [0x160610, c,   cod/160610]            # func_00260610: wrap func_00263110(ll, ll); return 0
       - [0x160634, asm, cod/160634]
+      - [0x164028, c,   cod/164028]            # func_00264028: 1-jal w/ u32-return sign-ext via implicit cast
       - [0x164050, c,   cod/164050]            # func_00264050
       - [0x16405C, asm, cod/16405C]
       - [0x164D50, c,   cod/164D50]            # func_00264D50
@@ -1918,10 +1923,13 @@ segments:
       - [0x16BFC4, asm, cod/16BFC4]
       - [0x16CF10, c,   cod/16CF10]            # func_0026CF10: func_0026A330() passthrough
       - [0x16CF2C, asm, cod/16CF2C]
+      - [0x16D430, c,   cod/16D430]            # func_0026D430: D_00553244[0] + 1-arg passthrough (sibling of 16B148 family)
       - [0x16D458, c,   cod/16D458]            # func_0026D458: promote-test: subagent seed (unscored, may match)
       - [0x16D484, asm, cod/16D484]
       - [0x16D488, c,   cod/16D488]            # func_0026D488: wrap func_0026D188(D_00553244)
       - [0x16D4AC, asm, cod/16D4AC]
+      - [0x16D4B0, c,   cod/16D4B0]            # func_0026D4B0: D_00553244[0] + 1-arg passthrough (sibling of 16B148 family)
+      - [0x16D4D8, asm, cod/16D4D8]
       - [0x16D538, c,   cod/16D538]            # func_0026D538: func_00245678() passthrough
       - [0x16D554, asm, cod/16D554]
       - [0x16D6A8, c,   cod/16D6A8]            # func_0026D6A8: func(p->54, (short)p->E)
