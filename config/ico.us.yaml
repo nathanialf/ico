@@ -1714,7 +1714,7 @@ segments:
       - [0x12F880, asm, cod/12F880]
       - [0x1315C8, c,   cod/1315C8]            # func_002315C8: store-arg-discard
       - [0x1315D8, asm, cod/1315D8]
-      - [0x131A98, asm, cod/131A98]
+      - [0x131A98, c,   cod/131A98]            # func_00231A98: volatile a0 -> two-call wrapper
       - [0x131AC8, c,   cod/131AC8]            # func_00231AC8: if func_0017B230(0x14): tail call func_00205B30(9, 0)
       - [0x131AF8, asm, cod/131AF8]
       - [0x1341D8, c,   cod/1341D8]            # func_002341D8: store-arg-discard
