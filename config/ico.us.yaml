@@ -1742,6 +1742,8 @@ segments:
       - [0x15C5B8, c,   cod/15C5B8]            # func_0025C5B8: auto
       - [0x15C5C0, c,   cod/15C5C0]            # func_0025C5C0: auto
       - [0x15C5C8, asm, cod/15C5C8]
+      - [0x15C638, c,   cod/15C638]            # func_0025C638: rc=func_00258C68(a0,a1); if rc->44: tail call func_00258D10()
+      - [0x15C664, asm, cod/15C664]
       - [0x15C668, c,   cod/15C668]            # func_0025C668: func_002591F0(0x32, 0xA, a0, 0)
       - [0x15C67C, asm, cod/15C67C]
       - [0x15C680, c,   cod/15C680]            # func_0025C680: func_0025C6D8(0x20, a0, a1, a2); return 0
