@@ -250,6 +250,10 @@ segments:
       - [0x001B10, c,   cod/001B10]            # func_00101B10: wrap func_00100950(3, &local[a0,(char)a1])
       - [0x001B40, c,   cod/001B40]            # func_00101B40: wrap func_00100950(4, &local=a0)
       - [0x001B64, asm, cod/001B64]
+      - [0x001B68, c,   cod/001B68]            # func_00101B68: promote: score-0 (assignment order trick)
+      - [0x001B9C, asm, cod/001B9C]
+      - [0x001BA0, c,   cod/001BA0]            # func_00101BA0: promote: score-0 (new_var intermediate)
+      - [0x001BD4, asm, cod/001BD4]
       - [0x001BD8, c,   cod/001BD8]            # func_00101BD8: wrap func_00100950(-7, &local[a0,(char)a1])
       - [0x001C08, c,   cod/001C08]            # func_00101C08: wrap func_00100950(-8, &local=a0)
       - [0x001C2C, asm, cod/001C2C]
@@ -1500,6 +1504,8 @@ segments:
       - [0x101DE0, asm, cod/101DE0]
       - [0x103910, c,   cod/103910]
       - [0x103918, asm, cod/103918]
+      - [0x103B40, c,   cod/103B40]            # func_00203B40: gp_rel D + 4-arg call + post-store
+      - [0x103B74, asm, cod/103B74]
       - [0x103C38, c,   cod/103C38]            # func_00203C38: sw_arg +0x0
       - [0x103C40, asm, cod/103C40]
       - [0x103CB8, c,   cod/103CB8]            # func_00203CB8: if(sub) sub->438 = val
