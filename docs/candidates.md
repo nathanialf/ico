@@ -2,7 +2,7 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-07 16:58:24 UTC
+- Generated: 2026-05-07 17:00:54 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
@@ -232,7 +232,7 @@ _17 total in this bucket; showing top 17._
 <a id="wrap-gp-1jal"></a>
 ## 1 jal + gp_rel %gp_rel(D), no VU (D[0] + arg passthrough)
 
-_127 total in this bucket; showing top 50._
+_126 total in this bucket; showing top 50._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
@@ -261,7 +261,6 @@ _127 total in this bucket; showing top 50._
 | `func_0017E4A0` | 0x50 | 20 | 1 |  | `addiu lw sd andi` | asm/cod/07E354.s:119 |
 | `func_001EBA40` | 0xA8 | 42 | 1 |  | `lui addiu lw sd` | asm/cod/0EBA14.s:33 |
 | `func_0017B1A8` | 0x44 | 17 | 1 |  | `addiu lw sd addiu` | asm/cod/07AA04.s:661 |
-| `func_001F6DB8` | 0x44 | 17 | 1 |  | `addiu daddu sd addiu` | asm/cod/0F6DB8.s:13 |
 | `func_0019EF10` | 0x48 | 18 | 1 |  | `addiu lui sd addiu` | asm/cod/09E648.s:633 |
 | `func_002359C8` | 0x4C | 19 | 1 |  | `lui addiu addiu sw` | asm/cod/135908.s:73 |
 | `func_001BBE50` | 0x50 | 20 | 1 |  | `addiu lui sd addiu` | asm/cod/0BBE50.s:13 |
@@ -286,6 +285,7 @@ _127 total in this bucket; showing top 50._
 | `func_0023AD08` | 0x4C | 19 | 1 |  | `lui addiu addiu sw` | asm/cod/13AAB8.s:193 |
 | `func_0013E4D0` | 0x78 | 30 | 1 |  | `addiu addiu sd lui` | asm/cod/03E220.s:243 |
 | `func_0013F700` | 0x78 | 30 | 1 |  | `addiu addiu sd lui` | asm/cod/03F3F0.s:273 |
+| `func_00205498` | 0x7C | 31 | 1 |  | `addiu addiu mult lui` | asm/cod/104E98.s:519 |
 
 <a id="cond-deref-leaf"></a>
 ## Leaf (no jal) with branch, no VU (cond-return / deref+if)
@@ -364,7 +364,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4114 unmatched functions are not in any shape bucket above._
+_4115 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 
