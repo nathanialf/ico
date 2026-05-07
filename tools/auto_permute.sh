@@ -199,6 +199,13 @@ trap cleanup_workers EXIT
 # Format: each subdir of tough_nuts/ named func_<HEX> is a parked function.
 # Anything else (README.md, stray files) is ignored.
 #
+# Skip marker: if `tough_nuts/<func>/.skip` exists, the function is excluded
+# from the iteration. Use this for targets blocked by class-level issues
+# (e.g. la-macro 64-bit family) that the permuter can't crack via random
+# C mutation — they'd otherwise hold a worker slot indefinitely without
+# producing any score improvement. The .skip file's contents (if any) are
+# treated as a free-form reason for documentation only.
+#
 # Default order: lowest existing permuter score first. Functions with no
 # permuter run yet (no output-*-* dirs under runs/<func>/) are treated as
 # lowest-score (sort key 0) so untried targets get attention first. The
@@ -209,15 +216,23 @@ trap cleanup_workers EXIT
 # Tie-breaker is alphabetical, so the order is reproducible. Set
 # RANDOM_ORDER=1 to shuffle instead.
 read_parked() {
+    # Filter out functions with a `.skip` marker before any ordering.
+    local raw
+    raw="$(find "${TOUGH_NUTS_DIR}" -mindepth 1 -maxdepth 1 -type d \
+                -name 'func_*' -printf '%f\n' 2>/dev/null \
+            | while IFS= read -r name; do
+                [ -f "${TOUGH_NUTS_DIR}/${name}/.skip" ] && continue
+                printf '%s\n' "${name}"
+              done)"
     if [ "${RANDOM_ORDER}" = "1" ]; then
-        find "${TOUGH_NUTS_DIR}" -mindepth 1 -maxdepth 1 -type d \
-            -name 'func_*' -printf '%f\n' 2>/dev/null | shuf
+        printf '%s\n' "${raw}" | shuf
         return
     fi
     # Compute "<best_score>\t<name>" per parked function then sort -k1n -k2.
     # Best score = lowest N in lib/decomp-permuter/runs/<name>/output-N-*/.
     # No output dirs (or no runs/<name>/ at all) => 0 so untried go first.
     while IFS= read -r name; do
+        [ -z "${name}" ] && continue
         local runs_dir="${RUNS_DIR}/${name}"
         local best=0
         if [ -d "${runs_dir}" ]; then
@@ -229,8 +244,7 @@ read_parked() {
             [ -n "${n}" ] && best="${n}"
         fi
         printf '%s\t%s\n' "${best}" "${name}"
-    done < <(find "${TOUGH_NUTS_DIR}" -mindepth 1 -maxdepth 1 -type d \
-                -name 'func_*' -printf '%f\n' 2>/dev/null) \
+    done <<< "${raw}" \
       | sort -k1,1n -k2,2 \
       | cut -f2
 }
