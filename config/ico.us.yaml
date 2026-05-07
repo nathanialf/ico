@@ -306,6 +306,8 @@ segments:
       - [0x00DDF4, asm, cod/00DDF4]
       - [0x00E928, c,   cod/00E928]            # func_0010E928: dot product 4-component
       - [0x00E950, asm, cod/00E950]
+      - [0x00EC50, c,   cod/00EC50]            # func_0010EC50: sw a0 to deref + tail call func_0011BF40
+      - [0x00EC60, asm, cod/00EC60]
       - [0x00ECD8, c,   cod/00ECD8]
       - [0x00ECE0, asm, cod/00ECE0]
       - [0x00F5B8, c,   cod/00F5B8]            # func_0010F5B8
@@ -415,6 +417,9 @@ segments:
       - [0x033510, asm, cod/033510]
       - [0x036088, c,   cod/036088]            # func_00136088: self[1]=0; self[0]=0
       - [0x036094, asm, cod/036094]
+      - [0x037538, c,   cod/037538]            # func_00137538: sw 0 + tail call func_00136D50(a0, 0)
+      - [0x037548, c,   cod/037548]            # func_00137548: sw 0 + tail call func_00137180(a0, 0)
+      - [0x037558, asm, cod/037558]
       - [0x037EE8, c,   cod/037EE8]
       - [0x037EF0, asm, cod/037EF0]
       - [0x03A200, c,   cod/03A200]            # func_0013A200
@@ -469,6 +474,8 @@ segments:
       - [0x044308, asm, cod/044308]
       - [0x0445C0, c,   cod/0445C0]            # func_001445C0: return D_00632218
       - [0x0445C8, asm, cod/0445C8]
+      - [0x045638, c,   cod/045638]            # func_00145638: sw 0 to deref + tail call func_0014B228(a0, 0)
+      - [0x045648, asm, cod/045648]
       - [0x04A2B0, c,   cod/04A2B0]            # func_0014A2B0: D_006AA4B0+0x4B4=0, +0x4B0=0
       - [0x04A2C4, asm, cod/04A2C4]
       - [0x04B090, c,   cod/04B090]            # func_0014B090: return func_001F40C8() == 1
@@ -729,6 +736,8 @@ segments:
       - [0x09E648, asm, cod/09E648]
       - [0x09F4E0, c,   cod/09F4E0]
       - [0x09F4E8, asm, cod/09F4E8]
+      - [0x09FF98, c,   cod/09FF98]            # func_0019FF98: tail call func_0019FFA8(a0, 0, 0, 0)
+      - [0x09FFA8, asm, cod/09FFA8]
       - [0x0A0010, c,   cod/0A0010]            # func_001A0010: 3-store with constant 1
       - [0x0A0024, asm, cod/0A0024]
       - [0x0A0028, c,   cod/0A0028]            # func_001A0028
