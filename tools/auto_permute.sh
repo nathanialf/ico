@@ -156,6 +156,17 @@ cleanup_workers() {
         promote_best_into_seed "${name}" || true
         unset 'WORKER_NAME[$pid]'
     done
+    # Phase 3 (belt-and-braces): _kill_tree only walks descendants of the
+    # tracked worker subshell PIDs. If a worker spawned a python that
+    # detached (e.g. via setsid in some library), or a worker was
+    # registered in WORKER_NAME after we cleared it but before we exited,
+    # the descendant walk will miss it. Sweep up any survivors that match
+    # the auto_permute / permute_run / permuter.py / per-run compile.sh
+    # signatures. PROJECT_ROOT-anchored so we don't kill an unrelated
+    # permuter run in some other checkout.
+    pkill -KILL -f "${PROJECT_ROOT}/tools/permute_run.sh" 2>/dev/null || true
+    pkill -KILL -f "${PROJECT_ROOT}/lib/decomp-permuter/permuter.py" 2>/dev/null || true
+    pkill -KILL -f "${PROJECT_ROOT}/lib/decomp-permuter/runs/.*/compile\.sh" 2>/dev/null || true
 }
 
 on_interrupt() {
