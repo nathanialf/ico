@@ -566,8 +566,14 @@ segments:
       - [0x03D944, asm, cod/03D944]
       - [0x03DD88, c,   cod/03DD88]            # func_0013DD88: func_002641D8(&D_006A93D0, 0, 0x110)
       - [0x03DD9C, asm, cod/03DD9C]
+      - [0x03E190, c,   cod/03E190]            # func_0013E190: promote: score-0 from permuter (parked tough_nut)
+      - [0x03E1D8, c,   cod/03E1D8]            # func_0013E1D8: promote: score-0 from permuter (parked tough_nut)
+      - [0x03E220, asm, cod/03E220]
       - [0x03EE58, c,   cod/03EE58]            # func_0013EE58: tail call func_0013EDB0 passthrough
       - [0x03EE60, asm, cod/03EE60]
+      - [0x03F0A0, c,   cod/03F0A0]            # func_0013F0A0: promote: score-0 from permuter (parked tough_nut)
+      - [0x03F0E8, c,   cod/03F0E8]            # func_0013F0E8: promote: score-0 from permuter (parked tough_nut)
+      - [0x03F130, asm, cod/03F130]
       - [0x03F3E8, c,   cod/03F3E8]            # func_0013F3E8: tail call func_0013F700 passthrough
       - [0x03F3F0, asm, cod/03F3F0]
       - [0x03F808, c,   cod/03F808]            # func_0013F808: sw_zero +0x18
@@ -643,6 +649,8 @@ segments:
       - [0x04B370, asm, cod/04B370]
       - [0x04B580, c,   cod/04B580]            # func_0014B580: rc=func_001E69D8(1); a0->164->670->1B8 = rc
       - [0x04B5B4, asm, cod/04B5B4]
+      - [0x04B768, c,   cod/04B768]            # func_0014B768: promote: score-0 from permuter (parked tough_nut)
+      - [0x04B7A4, asm, cod/04B7A4]
       - [0x04B840, c,   cod/04B840]            # func_0014B840: return sub_164->30 == 0x6B
       - [0x04B854, asm, cod/04B854]
       - [0x04B858, c,   cod/04B858]            # func_0014B858: return sub_164->30 == 0x64
@@ -668,7 +676,8 @@ segments:
       - [0x0547B0, c,   cod/0547B0]            # func_001547B0: return 0x18
       - [0x0547B8, asm, cod/0547B8]
       - [0x054CB8, c,   cod/054CB8]            # func_00154CB8: store-arg-discard
-      - [0x054CC8, asm, cod/054CC8]
+      - [0x054CC8, c,   cod/054CC8]            # func_00154CC8: while(1) func_00203AA0(1) + arg-spill
+      - [0x054CE8, asm, cod/054CE8]
       - [0x054E60, c,   cod/054E60]            # func_00154E60: tail call func_00104240 passthrough
       - [0x054E68, c,   cod/054E68]            # func_00154E68: tail call func_00102DE0 passthrough
       - [0x054E70, asm, cod/054E70]
@@ -691,8 +700,11 @@ segments:
       - [0x05EF50, asm, cod/05EF50]
       - [0x05F228, c,   cod/05F228]            # func_0015F228: D_00292540[idx*0x18] +0x8 = a1 (la mult sw)
       - [0x05F244, asm, cod/05F244]
+      - [0x05F4B8, c,   cod/05F4B8]            # func_0015F4B8: promote: score-0 from permuter (parked tough_nut)
+      - [0x05F4DC, asm, cod/05F4DC]
       - [0x05F4E0, c,   cod/05F4E0]            # func_0015F4E0: store-arg-discard
-      - [0x05F4F0, asm, cod/05F4F0]
+      - [0x05F4F0, c,   cod/05F4F0]            # func_0015F4F0: 1-jal wrapper w/ spill+reload
+      - [0x05F514, asm, cod/05F514]
       - [0x05F698, c,   cod/05F698]            # func_0015F698: store-arg-discard
       - [0x05F6A8, c,   cod/05F6A8]            # func_0015F6A8: == 0xF compare
       - [0x05F6BC, asm, cod/05F6BC]
@@ -759,6 +771,8 @@ segments:
       - [0x075F7C, asm, cod/075F7C]
       - [0x076130, c,   cod/076130]            # func_00176130: save/reload arg, sub+0x634=0
       - [0x07614C, asm, cod/07614C]
+      - [0x076198, asm, cod/076198]
+      - [0x0761B8, asm, cod/0761B8]
       - [0x076AE8, c,   cod/076AE8]            # func_00176AE8: a0->0=0 + tail call func_0013A5B8(&D_0028A4A0, a0, 1)
       - [0x076B04, asm, cod/076B04]
       - [0x076BB8, c,   cod/076BB8]            # func_00176BB8: D_00274EE8=0; tail call func_00176AA0
@@ -825,6 +839,8 @@ segments:
       - [0x07EA4C, asm, cod/07EA4C]
       - [0x07EC78, c,   cod/07EC78]            # func_0017EC78: clear bit 20 of long long at sub+0x20
       - [0x07EC94, asm, cod/07EC94]
+      - [0x080580, c,   cod/080580]            # func_00180580: 1-jal wrapper w/ spill+reload
+      - [0x0805A4, asm, cod/0805A4]
       - [0x080B28, c,   cod/080B28]            # func_00180B28: store-arg-discard
       - [0x080B38, asm, cod/080B38]
       - [0x080F38, c,   cod/080F38]            # func_00180F38: D_00632600 = 0
@@ -1282,7 +1298,8 @@ segments:
       - [0x0D3D80, c,   cod/0D3D80]            # func_001D3D80: == 0
       - [0x0D3D94, asm, cod/0D3D94]
       - [0x0D3D98, c,   cod/0D3D98]            # func_001D3D98: return p->48 == 2
-      - [0x0D3DB0, asm, cod/0D3DB0]
+      - [0x0D3DB0, c,   cod/0D3DB0]            # func_001D3DB0: promote: score-0 from permuter (parked tough_nut)
+      - [0x0D3DD8, asm, cod/0D3DD8]
       - [0x0D4348, c,   cod/0D4348]            # func_001D4348: tail call func_00111918(0, D_00633428)
       - [0x0D4354, asm, cod/0D4354]
       - [0x0D4D98, c,   cod/0D4D98]            # func_001D4D98
@@ -1308,12 +1325,16 @@ segments:
       - [0x0E4988, asm, cod/0E4988]
       - [0x0E6960, c,   cod/0E6960]            # func_001E6960: auto
       - [0x0E6968, asm, cod/0E6968]
+      - [0x0E6D68, c,   cod/0E6D68]            # func_001E6D68: promote: score-0 from permuter (parked tough_nut)
+      - [0x0E6DA0, asm, cod/0E6DA0]
       - [0x0E8B48, c,   cod/0E8B48]            # func_001E8B48: tail-wrapper to func_001E83F8 with D_00632028 4th arg
       - [0x0E8B68, asm, cod/0E8B68]
       - [0x0E8BD8, c,   cod/0E8BD8]            # func_001E8BD8: &D_0070A3F0[a0*0xA0]
       - [0x0E8BF0, asm, cod/0E8BF0]
       - [0x0E8D30, c,   cod/0E8D30]            # func_001E8D30: D_007097F0[idx*0x18] +0x14 (la mult lw)
       - [0x0E8D4C, asm, cod/0E8D4C]
+      - [0x0E8D50, c,   cod/0E8D50]            # func_001E8D50: promote: score-0 from permuter (parked tough_nut)
+      - [0x0E8D6C, asm, cod/0E8D6C]
       - [0x0E8EA8, c,   cod/0E8EA8]            # func_001E8EA8: tail call func_001E8AB8 (triple-deref TCO)
       - [0x0E8EB8, asm, cod/0E8EB8]
       - [0x0E8F28, c,   cod/0E8F28]
@@ -1434,6 +1455,8 @@ segments:
       - [0x0FBB48, asm, cod/0FBB48]
       - [0x0FC040, c,   cod/0FC040]            # func_001FC040: auto
       - [0x0FC048, asm, cod/0FC048]
+      - [0x0FC168, c,   cod/0FC168]            # func_001FC168: promote: score-0 from permuter (parked tough_nut)
+      - [0x0FC1A0, asm, cod/0FC1A0]
       - [0x0FC2D0, c,   cod/0FC2D0]            # func_001FC2D0
       - [0x0FC2DC, asm, cod/0FC2DC]
       - [0x101DC8, c,   cod/101DC8]            # func_00201DC8: set bit 21 of (sub+0x428)
@@ -1450,6 +1473,8 @@ segments:
       - [0x105A94, asm, cod/105A94]
       - [0x105B30, c,   cod/105B30]            # func_00205B30: D_004CAEC0[idx*0x34] +0x28 = a1 (la mult sw)
       - [0x105B4C, asm, cod/105B4C]
+      - [0x105B50, c,   cod/105B50]            # func_00205B50: promote: score-0 from permuter (parked tough_nut)
+      - [0x105B70, asm, cod/105B70]
       - [0x109AB0, c,   cod/109AB0]            # func_00209AB0: tail call func_001297A0(0xA2, 0, -1)
       - [0x109AC0, asm, cod/109AC0]
       - [0x10D208, c,   cod/10D208]            # func_0020D208: func_0017B258(0x138); func_00203B78(&func_0020D238, 0x15)
@@ -1750,6 +1775,8 @@ segments:
       - [0x151C14, asm, cod/151C14]
       - [0x151C18, c,   cod/151C18]            # func_00251C18
       - [0x151C28, asm, cod/151C28]
+      - [0x151D48, asm, cod/151D48]
+      - [0x151D6C, asm, cod/151D6C]
       - [0x151D70, c,   cod/151D70]            # func_00251D70: self[0x10]->0x78=a1; ->0x70=1
       - [0x151D84, asm, cod/151D84]
       - [0x151D88, c,   cod/151D88]            # func_00251D88: sd 0x78=0; sw 0x70=0
@@ -1805,6 +1832,8 @@ segments:
       - [0x158CDC, asm, cod/158CDC]
       - [0x158CE0, c,   cod/158CE0]            # func_00258CE0
       - [0x158CEC, asm, cod/158CEC]
+      - [0x158CF0, c,   cod/158CF0]            # func_00258CF0: promote: score-0 from permuter (parked tough_nut)
+      - [0x158D0C, asm, cod/158D0C]
       - [0x15C5B8, c,   cod/15C5B8]            # func_0025C5B8: auto
       - [0x15C5C0, c,   cod/15C5C0]            # func_0025C5C0: auto
       - [0x15C5C8, asm, cod/15C5C8]
