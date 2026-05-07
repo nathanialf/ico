@@ -231,7 +231,7 @@ segments:
       - [0x000970, c,   cod/000970]            # func_00100970: syscall 0x7E
       - [0x000980, c,   cod/000980]            # func_00100980: syscall 0x7F
       - [0x000990, c,   cod/000990]            # func_00100990: syscall 0x74
-      - [0x0009A0, asm, cod/0009A0]
+      - [0x0009A0, c,   cod/0009A0]            # func_001009A0: loop i=0x80..0xFF: func_00100990(i, 0)
       - [0x0009E0, c,   cod/0009E0]            # func_001009E0: 3 sequential calls: 1009A0, 100C90, tail 100E40
       - [0x000A04, asm, cod/000A04]
       - [0x000BA8, c,   cod/000BA8]            # func_00100BA8: sync wrapper -> func_001002C0
