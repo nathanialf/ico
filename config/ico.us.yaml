@@ -1314,6 +1314,8 @@ segments:
       - [0x0FA598, asm, cod/0FA598]
       - [0x0FAA30, c,   cod/0FAA30]            # func_001FAA30: D_006337B8 = 1, return 1
       - [0x0FAA3C, asm, cod/0FAA3C]
+      - [0x0FAA40, c,   cod/0FAA40]            # func_001FAA40: D_006337B8 = D_006337BC = 0
+      - [0x0FAA4C, asm, cod/0FAA4C]
       - [0x0FAA50, c,   cod/0FAA50]            # func_001FAA50: D_006337B4 = val
       - [0x0FAA58, asm, cod/0FAA58]
       - [0x0FAAA8, c,   cod/0FAAA8]            # func_001FAAA8: return D_006337B0 (float)
