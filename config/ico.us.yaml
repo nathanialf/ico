@@ -1550,6 +1550,8 @@ segments:
       - [0x10D7E0, asm, cod/10D7E0]
       - [0x10D850, c,   cod/10D850]            # func_0020D850: sibling: 0x141, C3A0
       - [0x10D880, asm, cod/10D880]
+      - [0x10FB00, c,   cod/10FB00]            # func_0020FB00: guard+func_X+tail-call (void+return TCO trick)
+      - [0x10FB38, asm, cod/10FB38]
       - [0x1109D8, c,   cod/1109D8]            # func_002109D8: store-arg-discard
       - [0x1109E8, asm, cod/1109E8]
       - [0x110BA8, c,   cod/110BA8]            # func_00210BA8: store-arg-discard
@@ -1568,6 +1570,8 @@ segments:
       - [0x114040, asm, cod/114040]
       - [0x118DC0, c,   cod/118DC0]            # func_00218DC0: store-arg-discard
       - [0x118DD0, asm, cod/118DD0]
+      - [0x118E58, c,   cod/118E58]            # func_00218E58: guard+func_X+tail-call sibling (arg 0x92)
+      - [0x118E90, asm, cod/118E90]
       - [0x1194C8, c,   cod/1194C8]            # func_002194C8: store-arg-discard
       - [0x1194D8, asm, cod/1194D8]
       - [0x119728, c,   cod/119728]            # func_00219728: store-arg-discard
@@ -1596,6 +1600,8 @@ segments:
       - [0x11F578, c,   cod/11F578]            # func_0021F578: store-arg-discard
       - [0x11F588, c,   cod/11F588]            # func_0021F588: spill arg, call(0x40A), p->16C = 0
       - [0x11F5AC, asm, cod/11F5AC]
+      - [0x11F7F0, c,   cod/11F7F0]            # func_0021F7F0: guard+func_X+tail-call (different D, different callee)
+      - [0x11F828, asm, cod/11F828]
       - [0x123DE0, c,   cod/123DE0]            # func_00223DE0: store-arg-discard
       - [0x123DF0, c,   cod/123DF0]            # func_00223DF0: store-arg-discard
       - [0x123E00, c,   cod/123E00]            # func_00223E00: store-arg-discard
@@ -1631,6 +1637,8 @@ segments:
       - [0x129F30, asm, cod/129F30]
       - [0x129FE0, c,   cod/129FE0]            # func_00229FE0: store-arg-discard
       - [0x129FF0, asm, cod/129FF0]
+      - [0x12A068, c,   cod/12A068]            # func_0022A068: guard+func_X+tail-call sibling (arg 0x45)
+      - [0x12A0A0, asm, cod/12A0A0]
       - [0x12B640, c,   cod/12B640]            # func_0022B640: store-arg-discard
       - [0x12B650, asm, cod/12B650]
       - [0x12BED0, c,   cod/12BED0]            # func_0022BED0: store-arg-discard
@@ -1662,8 +1670,12 @@ segments:
       - [0x135908, asm, cod/135908]
       - [0x135A18, asm, cod/135A18]
       - [0x135A48, asm, cod/135A48]
+      - [0x135C38, c,   cod/135C38]            # func_00235C38: guard+func_X+tail-call sibling (arg 0x39)
+      - [0x135C70, asm, cod/135C70]
       - [0x136C60, c,   cod/136C60]            # func_00236C60: store-arg-discard
       - [0x136C70, asm, cod/136C70]
+      - [0x1397F8, c,   cod/1397F8]            # func_002397F8: guard+func_X+tail-call sibling (arg 0x31)
+      - [0x139830, asm, cod/139830]
       - [0x13A9E0, c,   cod/13A9E0]            # func_0023A9E0: store-arg-discard
       - [0x13A9F0, asm, cod/13A9F0]
       - [0x13AA88, c,   cod/13AA88]            # func_0023AA88: store-arg-discard
