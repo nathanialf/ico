@@ -1526,7 +1526,7 @@ segments:
       - [0x0F3A28, asm, cod/0F3A28]
       - [0x0F40C8, c, cod/0F40C8]            # func_001F40C8: 4-insn lw
       - [0x0F40D8, asm, cod/0F40D8]
-      - [0x0F4228, asm, cod/0F4228]
+      - [0x0F4228, c,   cod/0F4228]            # func_001F4228: func_001F4228: pointer chain
       - [0x0F4250, asm, cod/0F4250]
       - [0x0F42D0, c,   cod/0F42D0]            # func_001F42D0: sub->800->A0=0, return 1
       - [0x0F42E4, asm, cod/0F42E4]
