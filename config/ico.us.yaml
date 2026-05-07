@@ -771,6 +771,8 @@ segments:
       - [0x07905C, asm, cod/07905C]
       - [0x07A9B8, c,   cod/07A9B8]            # func_0017A9B8
       - [0x07A9D4, asm, cod/07A9D4]
+      - [0x07A9D8, c,   cod/07A9D8]            # func_0017A9D8: wrap func_00104508(&local, a0); func_00178990(&local, -1)
+      - [0x07AA04, asm, cod/07AA04]
       - [0x07B230, c,   cod/07B230]            # func_0017B230: bit lookup: (D_0028A520[a0>>3] >> (a0 & 7)) & 1
       - [0x07B254, asm, cod/07B254]
       - [0x07B2B8, c,   cod/07B2B8]            # func_0017B2B8: if(rc=func_0017E188()) tail call func_001F1868(rc)
@@ -1671,6 +1673,8 @@ segments:
       - [0x1456F8, asm, cod/1456F8]
       - [0x145E88, c,   cod/145E88]            # func_00245E88: a0->18=0 + a0->10 &= ~1
       - [0x145EA4, asm, cod/145EA4]
+      - [0x1470D8, c,   cod/1470D8]            # func_002470D8: func_00247088(); func_00100560(D_00550864); ret 0
+      - [0x147104, asm, cod/147104]
       - [0x147108, c,   cod/147108]            # func_00247108: tail call func_00100540(D_00550864)
       - [0x147114, asm, cod/147114]
       - [0x147348, c,   cod/147348]            # func_00247348: D_00550860=0; func_002641D8(&D_00715F28, 0, 4); ret 0
