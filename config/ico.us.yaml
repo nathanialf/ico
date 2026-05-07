@@ -736,6 +736,8 @@ segments:
       - [0x0AD748, asm, cod/0AD748]
       - [0x0ADB70, c,   cod/0ADB70]            # func_001ADB70: 3-store with const 1
       - [0x0ADB84, asm, cod/0ADB84]
+      - [0x0AE880, asm, cod/0AE880]
+      - [0x0AE89C, asm, cod/0AE89C]
       - [0x0AEA68, asm, cod/0AEA68]
       - [0x0AFB90, c,   cod/0AFB90]
       - [0x0AFB98, asm, cod/0AFB98]
