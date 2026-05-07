@@ -1038,7 +1038,8 @@ segments:
       - [0x0A0028, c,   cod/0A0028]            # func_001A0028
       - [0x0A0034, asm, cod/0A0034]
       - [0x0A0038, c,   cod/0A0038]            # func_001A0038: D_00632864 = val
-      - [0x0A0040, asm, cod/0A0040]
+      - [0x0A0040, c,   cod/0A0040]            # func_001A0040: if D_00274EC0[2]: func_001AE8F0(&D_004B3B28, &D_004B6A90, 0); D_00274EC0[3]=1
+      - [0x0A008C, asm, cod/0A008C]
       - [0x0A0090, c,   cod/0A0090]            # func_001A0090
       - [0x0A00A0, asm, cod/0A00A0]
       - [0x0A1008, c,   cod/0A1008]            # func_001A1008: init 4 sdata: D_00632888=0; D_00633E30=-1; D_00633E24=0; D_00633E44=0
