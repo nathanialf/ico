@@ -834,6 +834,8 @@ segments:
       - [0x09E2D0, c,   cod/09E2D0]            # func_0019E2D0
       - [0x09E2F0, c,   cod/09E2F0]            # func_0019E2F0
       - [0x09E310, asm, cod/09E310]
+      - [0x09E350, c,   cod/09E350]            # func_0019E350: wrap func_0019E4E8(*a0); tail call func_0019E4E8(*(a0+4))
+      - [0x09E37C, asm, cod/09E37C]
       - [0x09E4E8, c,   cod/09E4E8]            # func_0019E4E8: tail call func_00139598(a0 & 0x0FFFFFFF)
       - [0x09E4F8, c,   cod/09E4F8]            # func_0019E4F8: zero p[2..3]
       - [0x09E508, c,   cod/09E508]            # func_0019E508: self[3] == self[4]
@@ -874,6 +876,8 @@ segments:
       - [0x0AA260, asm, cod/0AA260]
       - [0x0AA4E8, c,   cod/0AA4E8]            # func_001AA4E8: return -1
       - [0x0AA4F0, asm, cod/0AA4F0]
+      - [0x0AA550, c,   cod/0AA550]            # func_001AA550: if (a0 == D_00632C80) { D_00632C80 = -1; func_00247608(); }
+      - [0x0AA57C, asm, cod/0AA57C]
       - [0x0AA5B8, c,   cod/0AA5B8]
       - [0x0AA5C0, asm, cod/0AA5C0]
       - [0x0AA660, c,   cod/0AA660]            # func_001AA660: wrap func_001123C0(&D_00274EF0), return 1
@@ -1030,6 +1034,8 @@ segments:
       - [0x0D4E88, asm, cod/0D4E88]
       - [0x0E0978, c,   cod/0E0978]            # func_001E0978
       - [0x0E0984, asm, cod/0E0984]
+      - [0x0E0C08, c,   cod/0E0C08]            # func_001E0C08: wrap func_00105F00(a0, a1+0xA0); a0->C=0
+      - [0x0E0C34, asm, cod/0E0C34]
       - [0x0E8B48, c,   cod/0E8B48]            # func_001E8B48: tail-wrapper to func_001E83F8 with D_00632028 4th arg
       - [0x0E8B68, asm, cod/0E8B68]
       - [0x0E8BD8, c,   cod/0E8BD8]            # func_001E8BD8: &D_0070A3F0[a0*0xA0]
@@ -1046,6 +1052,8 @@ segments:
       - [0x0E97F8, c, cod/0E97F8]            # func_001E97F8: 4-insn lw
       - [0x0E9808, c,   cod/0E9808]
       - [0x0E9810, asm, cod/0E9810]
+      - [0x0E9920, c,   cod/0E9920]            # func_001E9920: wrap func_001D12D8(a0); tail call func_001D12A8(a0, 0x38)
+      - [0x0E994C, asm, cod/0E994C]
       - [0x0EA228, c,   cod/0EA228]            # func_001EA228: set short field, copy short field, return 1
       - [0x0EA248, c,   cod/0EA248]            # func_001EA248: copy 2 shorts via sub2
       - [0x0EA268, c,   cod/0EA268]            # func_001EA268
@@ -1077,12 +1085,16 @@ segments:
       - [0x0F1164, asm, cod/0F1164]
       - [0x0F1240, c,   cod/0F1240]            # func_001F1240
       - [0x0F1260, asm, cod/0F1260]
+      - [0x0F1838, c,   cod/0F1838]            # func_001F1838: wrap func_001D12D8(a0); tail call func_001D12A8(a0, 0x41)
+      - [0x0F1864, asm, cod/0F1864]
       - [0x0F2140, c,   cod/0F2140]
       - [0x0F2148, c, cod/0F2148]            # func_001F2148: 4-insn lw
       - [0x0F2158, asm, cod/0F2158]
       - [0x0F2230, c,   cod/0F2230]            # func_001F2230
       - [0x0F2240, c,   cod/0F2240]            # func_001F2240
       - [0x0F2250, asm, cod/0F2250]
+      - [0x0F2390, c,   cod/0F2390]            # func_001F2390: sibling: func_001D12D8(a0); tail call func_001D12A8(a0, 0x41)
+      - [0x0F23BC, asm, cod/0F23BC]
       - [0x0F3368, c,   cod/0F3368]            # func_001F3368: tail call func_001CE028(a1, base+0x20, +0x30, +0x40)
       - [0x0F3384, asm, cod/0F3384]
       - [0x0F40C8, c, cod/0F40C8]            # func_001F40C8: 4-insn lw
