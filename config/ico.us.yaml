@@ -477,6 +477,8 @@ segments:
       - [0x02AA80, asm, cod/02AA80]
       - [0x02FD30, c,   cod/02FD30]            # func_0012FD30
       - [0x02FD4C, asm, cod/02FD4C]
+      - [0x02FD50, c,   cod/02FD50]            # func_0012FD50: wrap func_0012D218(a0, 0)
+      - [0x02FD6C, asm, cod/02FD6C]
       - [0x02FE08, c,   cod/02FE08]            # func_0012FE08: &D_006812D0[idx*0x2E8] (la-macro mult)
       - [0x02FE20, c,   cod/02FE20]            # func_0012FE20: &D_006812D0[idx*0x2E8] (la-macro mult)
       - [0x02FE38, asm, cod/02FE38]
@@ -729,6 +731,8 @@ segments:
       - [0x076B04, asm, cod/076B04]
       - [0x076BB8, c,   cod/076BB8]            # func_00176BB8: D_00274EE8=0; tail call func_00176AA0
       - [0x076BC4, asm, cod/076BC4]
+      - [0x078908, c,   cod/078908]            # func_00178908: wrap func_00176DE0(a0, a1, a2, 0)
+      - [0x078924, asm, cod/078924]
       - [0x078928, c,   cod/078928]
       - [0x078930, asm, cod/078930]
       - [0x079040, c,   cod/079040]            # func_00179040: empty 0x30 frame
@@ -1593,10 +1597,13 @@ segments:
       - [0x1494AC, asm, cod/1494AC]
       - [0x1498B8, c,   cod/1498B8]            # func_002498B8
       - [0x1498D4, asm, cod/1498D4]
+      - [0x14A718, c,   cod/14A718]            # func_0024A718: wrap func_0024A510(a0, a1, a2, &buf[16])
+      - [0x14A734, asm, cod/14A734]
       - [0x14A738, c,   cod/14A738]            # func_0024A738
       - [0x14A754, asm, cod/14A754]
       - [0x14A980, c,   cod/14A980]            # func_0024A980: wrap func_0024A758(a0,a1,a2, &buf[16], 0)
-      - [0x14A9A0, asm, cod/14A9A0]
+      - [0x14A9A0, c,   cod/14A9A0]            # func_0024A9A0: wrap func_0024A758(a0..a3, 0)
+      - [0x14A9BC, asm, cod/14A9BC]
       - [0x14AAC8, c,   cod/14AAC8]            # func_0024AAC8
       - [0x14AAE4, asm, cod/14AAE4]
       - [0x14B3E8, c,   cod/14B3E8]            # func_0024B3E8: syscall 0x74
@@ -1723,6 +1730,8 @@ segments:
       - [0x164E70, asm, cod/164E70]
       - [0x1657F0, c,   cod/1657F0]            # func_002657F0: wrap func_00265818(a0,a1,D_00553244+0x5C)
       - [0x165814, asm, cod/165814]
+      - [0x168F28, c,   cod/168F28]            # func_00268F28: wrap func_0026E5C8(a0, 0)
+      - [0x168F44, asm, cod/168F44]
       - [0x16A5E0, c,   cod/16A5E0]            # func_0026A5E0: tail call func_0026B018(a0, &func_0026A330)
       - [0x16A5EC, asm, cod/16A5EC]
       - [0x16A5F0, c,   cod/16A5F0]            # func_0026A5F0: tail call func_0026A5E0(D_00553244)
