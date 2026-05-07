@@ -121,8 +121,27 @@ over time.
 
 ## When a function won't match — the investigation loop
 
-Before parking ANY function, work through these steps in order. Most
-mismatches that look "compiler-blocked" yield to step 2 or step 4.
+Work through these steps in order. **Parking is forbidden when the
+session directive is "match the tough nuts."** Every step has a
+specific tool; use them. Most mismatches that look "compiler-blocked"
+yield to step 2 or step 4.
+
+**Tools available at every step** (cross-reference: Toolkit section
+above):
+
+- ee-gcc backend source at `github.com/GirianSeed/ee-gcc/releases`
+  (matches our 2.9-991111 binary) — `grep -n <mnemonic>` in
+  `src/gcc/config/mips/mips.c` and `mips.md` to find emit sites.
+- Header-macro library at `include/syscall.h`, `include/r5900.h`,
+  `include/matching.h` — extend with new macros when a pattern repeats.
+- `tools/quick_diff.sh <name>` — ~100 ms iteration loop.
+- `tools/first_diff.py` — failed-`make` post-mortem with function
+  names from the mapfile.
+- `lib/decomp-permuter/` — randomized C rewrites; useful when a
+  near-miss is regalloc/scheduling and you've exhausted Steps 2–4.
+  Launch with `lib/decomp-permuter/import.py` then `permuter.py`.
+- Postprocess passes (`tools/postprocess_*.py`) — last resort for
+  gas-reorder or inter-function-layout issues; see Step 5.
 
 ### Step 1: Identify the EXACT instruction-level diff
 
@@ -291,15 +310,43 @@ To add a new postprocess:
   4. Document the precondition (when it's safe to apply, what
      adjacent functions or call patterns are required).
 
-### Step 6: Park or `.skip` only after steps 1–5 are exhausted
+### Step 6: Permuter as the next-to-last resort
 
-In the parked notes, name the SPECIFIC compiler/assembler limitation
+When Steps 1–5 leave a near-miss (≤3 instructions different, regalloc
+or scheduling shape), run `lib/decomp-permuter/`:
+
+  1. `lib/decomp-permuter/import.py src/cod/<name>.c <func_name>` —
+     creates a permuter input directory under
+     `lib/decomp-permuter/nonmatchings/<func_name>/`.
+  2. `lib/decomp-permuter/permuter.py lib/decomp-permuter/nonmatchings/<func_name> --threads N`
+     — runs randomized rewrites; emits `output-<i>-<j>/` directories
+     with `score.txt` per attempt.
+  3. **Score 0 = match.** Promote the seed (copy
+     `output-0-0/source.c` to `src/cod/<name>.c`), run `make` to
+     confirm SHA-1, commit.
+  4. Stop after 60–300 s of permuter runtime if no score-0 emerges
+     and the running best is plateaued; investigate the specific
+     near-miss shape and feed back into Step 3 (new C idiom) or
+     Step 5 (new postprocess).
+
+The auto-permuter (`tools/auto_permute*.sh`) runs continuously over
+parked tough nuts; if you have to leave a function unmatched,
+parking it is **only** acceptable if you've also queued an explicit
+permuter run on it (and the session directive permits parking).
+
+### Step 7: Park (forbidden when the directive says "no parking")
+
+Park `.skip` is acceptable ONLY when the session is allowed to defer
+matches.  When the directive is "match all tough nuts" or similar,
+parking is forbidden — keep iterating Steps 1–6.
+
+In a parked note, name the SPECIFIC compiler/assembler limitation
 that blocks the match. "Regalloc differs" is not a documented reason
 unless you also name (a) the instruction, (b) the registers expected
 vs. emitted, (c) what mips.c rule allocates them, (d) why no C
-formulation hits a different rule, and (e) why a header-macro hasm
-promotion isn't appropriate (e.g., the body is too function-specific
-to share, or the issue is scheduling not C-expressibility).
+formulation hits a different rule, (e) why a header-macro hasm
+promotion isn't appropriate, and (f) what the permuter best score
+plateaued at and over how many iterations.
 
 ## Picking the next target
 
