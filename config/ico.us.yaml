@@ -1026,6 +1026,8 @@ segments:
       - [0x0AD748, asm, cod/0AD748]
       - [0x0ADB70, c,   cod/0ADB70]            # func_001ADB70: 3-store with const 1
       - [0x0ADB84, asm, cod/0ADB84]
+      - [0x0AE808, c,   cod/0AE808]            # func_001AE808: D_004B3D50[1]==0 ? 4 : D_004B3D50[2] (u16)
+      - [0x0AE82C, asm, cod/0AE82C]
       - [0x0AE880, c,   cod/0AE880]            # func_001AE880: D_004B3B68[idx] = D_00632F74 (la-macro sw)
       - [0x0AE89C, asm, cod/0AE89C]
       - [0x0AEA50, c,   cod/0AEA50]            # func_001AEA50: tail call func_00102858 passthrough
