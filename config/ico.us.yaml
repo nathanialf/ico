@@ -1194,7 +1194,7 @@ segments:
       - [0x0ABF58, c,   cod/0ABF58]            # func_001ABF58: func_00244598(a0); tail call func_001123C0(&D_00274EF0)
       - [0x0ABF7C, asm, cod/0ABF7C]
       - [0x0AD740, c,   cod/0AD740]
-      - [0x0AD748, asm, cod/0AD748]
+      - [0x0AD748, c,   cod/0AD748]            # func_001AD748: 5 nops + b-to-start infinite loop
       - [0x0AD764, asm, cod/0AD764]
       - [0x0ADB70, c,   cod/0ADB70]            # func_001ADB70: 3-store with const 1
       - [0x0ADB84, asm, cod/0ADB84]

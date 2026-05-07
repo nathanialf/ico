@@ -1,5 +1,0 @@
-Function body: 5 nops + b-to-self (tight 1-instruction loop after 5
-"unused" leading nops). gcc's for(;;) unrolls into 5 nops + b-to-start
-(7-insn loop body, different semantics). ee-gcc 2.9 has no `naked`
-attribute and no way to express "branch to a label past the function
-prologue". Keeping skipped.
