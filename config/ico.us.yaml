@@ -442,6 +442,8 @@ segments:
       - [0x02FFF0, asm, cod/02FFF0]
       - [0x032610, c,   cod/032610]            # func_00132610: a0->4=2 + tail call func_0013A5B8(&D_0027E4C0, a0, 0)
       - [0x03262C, asm, cod/03262C]
+      - [0x033398, c,   cod/033398]            # func_00133398: wrap func_0013A6C0(&D_0027E4F0, &local=a0, 1); ret 1
+      - [0x0333C8, asm, cod/0333C8]
       - [0x033448, c,   cod/033448]            # func_00133448: return D_00631F64
       - [0x033450, c,   cod/033450]            # func_00133450: self[0x108] OR= 2
       - [0x033460, asm, cod/033460]
@@ -459,6 +461,8 @@ segments:
       - [0x0383F8, asm, cod/0383F8]
       - [0x03A200, c,   cod/03A200]            # func_0013A200
       - [0x03A21C, asm, cod/03A21C]
+      - [0x03B718, c,   cod/03B718]            # func_0013B718: wrap func_0013A5B8(&D_00281630, 0, 0); ret 0
+      - [0x03B744, asm, cod/03B744]
       - [0x03B748, c,   cod/03B748]            # func_0013B748: &D_002811C0[a1<<9] +0 (la-macro)
       - [0x03B760, c,   cod/03B760]            # func_0013B760: &D_002811C0[a1<<9] +4 (la-macro)
       - [0x03B778, asm, cod/03B778]
@@ -491,8 +495,12 @@ segments:
       - [0x03F884, asm, cod/03F884]
       - [0x03F990, c,   cod/03F990]            # func_0013F990: sw_zero +0x0
       - [0x03F998, asm, cod/03F998]
+      - [0x03FEB0, c,   cod/03FEB0]            # func_0013FEB0: a0->0=0x140; a1->0=func_0013E488(a0)
+      - [0x03FEE0, asm, cod/03FEE0]
       - [0x03FF80, c,   cod/03FF80]
       - [0x03FF88, asm, cod/03FF88]
+      - [0x040710, c,   cod/040710]            # func_00140710: jal func_001A6E28(&D_00557BF8); tail call func_0025DEF0(self->30 ll)
+      - [0x040740, asm, cod/040740]
       - [0x040B70, c,   cod/040B70]            # func_00140B70: D_00633CC0 = val
       - [0x040B78, asm, cod/040B78]
       - [0x041020, c,   cod/041020]            # func_00141020: return short at sub_2C[idx]+0x3C
@@ -587,6 +595,8 @@ segments:
       - [0x0654C8, c,   cod/0654C8]            # func_001654C8
       - [0x0654D8, c,   cod/0654D8]            # func_001654D8: return 1
       - [0x0654E0, asm, cod/0654E0]
+      - [0x065CE8, c,   cod/065CE8]            # func_00165CE8: a0->164->10 < 0xC ? -1 : func_00163D60(a0)
+      - [0x065D18, asm, cod/065D18]
       - [0x0683A8, c,   cod/0683A8]            # func_001683A8: D_006323F0(a0, 0) jalr
       - [0x0683C8, c,   cod/0683C8]            # func_001683C8: (*D_006323F0)(arg, 1)
       - [0x0683E8, c,   cod/0683E8]            # func_001683E8: (*D_006323F0)(arg, 2)
@@ -733,6 +743,7 @@ segments:
       - [0x08CFEC, asm, cod/08CFEC]
       - [0x08CFF0, c,   cod/08CFF0]            # func_0018CFF0: D_00632744 = 0
       - [0x08CFF8, asm, cod/08CFF8]
+      - [0x090298, c,   cod/090298]            # func_00190298: self->15C->800->60 = 1; jal func_0018D100(self); ret 1
       - [0x0902C8, c, cod/0902C8]            # func_001902C8: 4-insn sb_zero
       - [0x0902D8, asm, cod/0902D8]
       - [0x090318, c,   cod/090318]            # func_00190318: 0x44 = D_00630F84
