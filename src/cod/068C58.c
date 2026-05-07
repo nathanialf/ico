@@ -1,3 +1,5 @@
+#include "matching.h"
+
 extern int D_00633D08;
 extern int D_00633D0C;
 extern int D_00633D10;
@@ -14,7 +16,7 @@ void func_00168C58(void) {
     tmp = *(volatile int *)0x10000000;
     D_00633D0C = 0;
     D_00633D18 = tmp;
-    __asm__ __volatile__("" : : : "memory");
+    DEFEAT_TCO();
     D_00633D10 = 0;
     D_00633D14 = 0;
     D_00633D1C = 0;

@@ -74,4 +74,25 @@
         return _r;                                                              \
     } while (0)
 
+/* No-instruction barrier that prevents gcc tail-call optimization.
+ *
+ * ee-gcc 2.9 hardcodes sibling-call optimisation ON at -O2 with no
+ * `-fno-optimize-sibling-calls` switch.  Inserting an opaque inline-asm
+ * with a memory clobber after a wrapped call forces gcc to retain the
+ * parent's prologue/epilogue (matching the original `jal target; ld
+ * ra; jr ra` shape rather than `j target`).  Emits zero instructions.
+ */
+#define DEFEAT_TCO()                __asm__ __volatile__("" : : : "memory")
+
+/* Same as DEFEAT_TCO but with an address-of-local dependency.  Use
+ * when a callee took the address of a stack-resident value: the input
+ * constraint forces gcc to keep that value materialised in the frame
+ * even after the call returns. */
+#define KEEP_LIVE(x)                __asm__ __volatile__("" : : "r"(x))
+
+/* Same as KEEP_LIVE but ALSO clobbers memory (full barrier on writes
+ * to the held address).  Use when the wrapper writes through the held
+ * address before/after the call. */
+#define KEEP_LIVE_MEM(x)            __asm__ __volatile__("" : : "r"(x) : "memory")
+
 #endif /* MATCHING_H */

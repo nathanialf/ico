@@ -1,5 +1,7 @@
+#include "matching.h"
+
 void func_00193F68(short *p) {
     *(volatile short *)(p + 1) = 1;
-    __asm__ __volatile__("" : : "r"(p) : "memory");
+    KEEP_LIVE_MEM(p);
     p[0] = 1;
 }

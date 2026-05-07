@@ -1,3 +1,5 @@
+#include "matching.h"
+
 extern void func_00100950(int a0, int *a1);
 
 void func_00101B10(int a0, char a1)
@@ -6,5 +8,5 @@ void func_00101B10(int a0, char a1)
     locals[0] = a0;
     locals[1] = a1;
     func_00100950(3, locals);
-    __asm__ __volatile__("" : : "r"(locals));
+    KEEP_LIVE(locals);
 }

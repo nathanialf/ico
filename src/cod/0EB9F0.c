@@ -1,3 +1,5 @@
+#include "matching.h"
+
 extern int D_006335F8;
 extern int D_006335FC;
 extern int D_00633600;
@@ -10,15 +12,15 @@ extern int D_00633614;
 void func_001EB9F0(void) {
     D_006335FC = 0;
     D_00633604 = 0;
-    __asm__ __volatile__("" : : : "memory");
+    DEFEAT_TCO();
     D_00633600 = 0;
-    __asm__ __volatile__("" : : : "memory");
+    DEFEAT_TCO();
     D_0063360C = 0;
-    __asm__ __volatile__("" : : : "memory");
+    DEFEAT_TCO();
     D_006335F8 = 0;
-    __asm__ __volatile__("" : : : "memory");
+    DEFEAT_TCO();
     D_00633608 = 0;
-    __asm__ __volatile__("" : : : "memory");
+    DEFEAT_TCO();
     D_00633610 = 0;
     D_00633614 = 0;
 }
