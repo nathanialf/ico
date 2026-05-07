@@ -60,4 +60,43 @@
         _p;                                                      \
     })
 
+/*
+ * LA_INDEXED_ARG_MULT — define a leaf returning `&BASE[arg * STRIDE]`
+ * where STRIDE is *not* a power of two (so the codegen uses `mult`
+ * instead of `sll`). Original ICO emission:
+ *
+ *     addiu $v1, $zero, STRIDE
+ *     lui   $v0, %hi(BASE)
+ *     mult  $a0, $a0, $v1            (R5900 3-operand mult)
+ *     addiu $v0, $v0, %lo(BASE)
+ *     jr    $ra
+ *      addu $v0, $a0, $v0
+ *
+ * ee-gcc 2.96 ignores __attribute__((naked)), so the inline-asm
+ * block ends with `jr $31`; the trailing redundant `j $31` the
+ * compiler appends is stripped by tools/postprocess_inline_jr.py.
+ *
+ * Usage (top-level in a src/cod/<file_off>.c):
+ *
+ *     extern int D_006812D0[];
+ *     DEFINE_LA_INDEXED_ARG_MULT(func_0012FE08, D_006812D0, 0x2E8)
+ */
+#define DEFINE_LA_INDEXED_ARG_MULT(name, BASE, STRIDE)              \
+    int *name(int idx)                                              \
+    {                                                               \
+        register int *_p __asm__("$2");                             \
+        __asm__ volatile (                                          \
+            ".set noreorder\n\t"                                    \
+            "addiu $3, $0, " #STRIDE "\n\t"                         \
+            "lui $2, %%hi(" #BASE ")\n\t"                           \
+            "mult $4, $4, $3\n\t"                                   \
+            "addiu $2, $2, %%lo(" #BASE ")\n\t"                     \
+            "jr $31\n\t"                                            \
+            " addu $2, $4, $2\n\t"                                  \
+            ".set reorder"                                          \
+            : "=r"(_p) :: "$3", "$4"                                \
+        );                                                          \
+        return _p;                                                  \
+    }
+
 #endif /* ICO_CODEGEN_H */

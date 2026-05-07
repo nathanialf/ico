@@ -174,6 +174,11 @@ $(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.c $(EXTRA_CFLAGS_TXT) $(EXTRA_CFLAGS_LOOKUP) 
 	@# bundled ee-as 2.10 picks `daddu` already (matching the original);
 	@# but we keep the sed in case mips-linux-gnu-as is ever used here.
 	@sed -i -E 's/^([[:space:]]+)move[[:space:]]+(\$$[0-9]+),[[:space:]]*\$$0[[:space:]]*$$/\1daddu \2,$$0,$$0/' $(@:.o=.s)
+	@# Strip the redundant `j $31` ee-gcc 2.96 appends when a function's
+	@# inline-asm block already ends with `jr $31` (la-macro + delay-slot
+	@# class). ee-gcc ignores `__attribute__((naked))`; this postprocess
+	@# stands in for it. Idempotent / no-op for normal functions.
+	@.venv/bin/python tools/postprocess_inline_jr.py $(@:.o=.s)
 	@# ee-as 2.10 doesn't recognize MIPS register name aliases ($zero,
 	@# $sp, $ra, etc.) — only numbered ($0, $29, $31). Translate them
 	@# all. (Float regs $f0-$f31 and VU regs $vfN are accepted as-is.)

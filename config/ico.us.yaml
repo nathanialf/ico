@@ -394,6 +394,11 @@ segments:
       - [0x028710, asm, cod/028710]
       - [0x02FD30, c,   cod/02FD30]            # func_0012FD30
       - [0x02FD4C, asm, cod/02FD4C]
+      - [0x02FE08, c,   cod/02FE08]            # func_0012FE08: &D_006812D0[idx*0x2E8] (la-macro mult)
+      - [0x02FE20, c,   cod/02FE20]            # func_0012FE20: &D_006812D0[idx*0x2E8] (la-macro mult)
+      - [0x02FE38, asm, cod/02FE38]
+      - [0x02FE60, c,   cod/02FE60]            # func_0012FE60: &D_00681538[idx*0x2E8] (la-macro mult)
+      - [0x02FE78, asm, cod/02FE78]
       - [0x02FFE8, c,   cod/02FFE8]            # func_0012FFE8: return D_00633C60
       - [0x02FFF0, asm, cod/02FFF0]
       - [0x033448, c,   cod/033448]            # func_00133448: return D_00631F64
