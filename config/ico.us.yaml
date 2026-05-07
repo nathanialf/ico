@@ -249,8 +249,12 @@ segments:
       - [0x001C54, asm, cod/001C54]
       - [0x001C58, c,   cod/001C58]            # func_00101C58: wrap func_00100950(0x10, &local=a0)
       - [0x001C7C, asm, cod/001C7C]
+      - [0x002860, c,   cod/002860]            # func_00102860: tail call func_0010D830(*(a0+0x15C)+0xC0)
+      - [0x00286C, asm, cod/00286C]
       - [0x002DE0, c,   cod/002DE0]            # func_00102DE0: wrap func_00102A40(a0); tail call func_00109F28(a0)
       - [0x002E08, asm, cod/002E08]
+      - [0x003110, c,   cod/003110]            # func_00103110: tail call func_00105F00(a0, *(a1+0x15C)+0x130)
+      - [0x00311C, asm, cod/00311C]
       - [0x004A38, c,   cod/004A38]
       - [0x004A48, asm, cod/004A48]
       - [0x005258, c,   cod/005258]
@@ -273,6 +277,8 @@ segments:
       - [0x006AA4, asm, cod/006AA4]
       - [0x006AA8, c,   cod/006AA8]            # func_00106AA8: tail call func_00105F00 (TCO)
       - [0x006AB4, asm, cod/006AB4]
+      - [0x006B70, c,   cod/006B70]            # func_00106B70: tail call func_00102FA0(a0, a1, *(a1+0x15C)+0x520)
+      - [0x006B7C, asm, cod/006B7C]
       - [0x009B98, c,   cod/009B98]
       - [0x009BA8, c,   cod/009BA8]
       - [0x009BB8, asm, cod/009BB8]
@@ -316,7 +322,8 @@ segments:
       - [0x00D428, c,   cod/00D428]            # func_0010D428: tail call func_0010D830(&D_00660A40[D_00631B7C*4], a0)
       - [0x00D444, asm, cod/00D444]
       - [0x00D520, c,   cod/00D520]            # func_0010D520: tail call func_0010D530(&D_00660A40) + gp_rel-set 0
-      - [0x00D530, asm, cod/00D530]
+      - [0x00D530, c,   cod/00D530]            # func_0010D530: tail call func_0010D830(a0, &D_00276140)
+      - [0x00D53C, asm, cod/00D53C]
       - [0x00DA78, c,   cod/00DA78]            # func_0010DA78: wrap func_0010D8E0(a0); tail call func_0010D878(a0)
       - [0x00DAA0, c,   cod/00DAA0]            # func_0010DAA0: &D_00660A40[D_00631B7C*4] (la-macro)
       - [0x00DAB8, c,   cod/00DAB8]            # func_0010DAB8: &D_00660A30[D_00631B7C*4] (la-macro)
@@ -483,6 +490,8 @@ segments:
       - [0x03CF70, c,   cod/03CF70]            # func_0013CF70: zero 2 halfwords
       - [0x03CF7C, asm, cod/03CF7C]
       - [0x03D0A0, asm, cod/03D0A0]
+      - [0x03D3C8, c,   cod/03D3C8]            # func_0013D3C8: tail call func_00100340(a0->30, a0->34)
+      - [0x03D3D4, asm, cod/03D3D4]
       - [0x03D3D8, c,   cod/03D3D8]            # func_0013D3D8: if a0: tail call func_00100370 else func_00100350
       - [0x03D3F0, asm, cod/03D3F0]
       - [0x03D928, c,   cod/03D928]            # func_0013D928
@@ -501,6 +510,8 @@ segments:
       - [0x03FF88, asm, cod/03FF88]
       - [0x040710, c,   cod/040710]            # func_00140710: jal func_001A6E28(&D_00557BF8); tail call func_0025DEF0(self->30 ll)
       - [0x040740, asm, cod/040740]
+      - [0x040B60, c,   cod/040B60]            # func_00140B60: tail call func_00140B30(a0, 0, a1)
+      - [0x040B6C, asm, cod/040B6C]
       - [0x040B70, c,   cod/040B70]            # func_00140B70: D_00633CC0 = val
       - [0x040B78, asm, cod/040B78]
       - [0x041020, c,   cod/041020]            # func_00141020: return short at sub_2C[idx]+0x3C
@@ -521,6 +532,8 @@ segments:
       - [0x044308, asm, cod/044308]
       - [0x0445C0, c,   cod/0445C0]            # func_001445C0: return D_00632218
       - [0x0445C8, asm, cod/0445C8]
+      - [0x044928, c,   cod/044928]            # func_00144928: tail call func_001AE6F8(a0->C, a0->8)
+      - [0x044934, asm, cod/044934]
       - [0x044E30, c,   cod/044E30]            # func_00144E30: func_0014A3A8(); tail call func_001A6E28(&D_00557ED0)
       - [0x044E54, asm, cod/044E54]
       - [0x045638, c,   cod/045638]            # func_00145638: sw 0 to deref + tail call func_0014B228(a0, 0)
@@ -640,6 +653,8 @@ segments:
       - [0x07614C, asm, cod/07614C]
       - [0x076AE8, c,   cod/076AE8]            # func_00176AE8: a0->0=0 + tail call func_0013A5B8(&D_0028A4A0, a0, 1)
       - [0x076B04, asm, cod/076B04]
+      - [0x076BB8, c,   cod/076BB8]            # func_00176BB8: D_00274EE8=0; tail call func_00176AA0
+      - [0x076BC4, asm, cod/076BC4]
       - [0x078928, c,   cod/078928]
       - [0x078930, asm, cod/078930]
       - [0x079040, c,   cod/079040]            # func_00179040: empty 0x30 frame
@@ -697,6 +712,8 @@ segments:
       - [0x082BF8, c,   cod/082BF8]            # func_00182BF8
       - [0x082C08, c,   cod/082C08]            # func_00182C08
       - [0x082C14, asm, cod/082C14]
+      - [0x0848A0, c,   cod/0848A0]            # func_001848A0: tail call func_00184488(a0, a1, a1+1, a2)
+      - [0x0848AC, asm, cod/0848AC]
       - [0x0869F8, c,   cod/0869F8]            # func_001869F8: func_00182D20(&func_00185668, 0, 0)
       - [0x086A0C, asm, cod/086A0C]
       - [0x087308, c,   cod/087308]            # func_00187308: tail call func_001897A8 (sdata-ptr 2-arg shuffle)
@@ -796,6 +813,8 @@ segments:
       - [0x0945B4, asm, cod/0945B4]
       - [0x094EA8, c,   cod/094EA8]            # func_00194EA8: D_006D35C0+0x14=a; +0x18=b (2 swc1)
       - [0x094EBC, asm, cod/094EBC]
+      - [0x094FE8, c,   cod/094FE8]            # func_00194FE8: self->164->674=a1; tail call func_001951A0(self)
+      - [0x094FF4, asm, cod/094FF4]
       - [0x095208, c,   cod/095208]            # func_00195208: func_001118B8(0xB); tail call func_00111FA8(1,2,0x40)
       - [0x095230, asm, cod/095230]
       - [0x097330, c,   cod/097330]
@@ -819,6 +838,8 @@ segments:
       - [0x09BB5C, asm, cod/09BB5C]
       - [0x09C010, c,   cod/09C010]            # func_0019C010: D_00633DE0=0x3C; func_001A6E28(&D_0055C720)
       - [0x09C024, asm, cod/09C024]
+      - [0x09CF78, c,   cod/09CF78]            # func_0019CF78: tail call func_0023DEB0(&D_006DC718)
+      - [0x09CF84, asm, cod/09CF84]
       - [0x09D9D8, c,   cod/09D9D8]            # func_0019D9D8: tail call func_00139598(a0 & 0x0FFFFFFF)
       - [0x09D9E8, asm, cod/09D9E8]
       - [0x09DB50, c,   cod/09DB50]            # func_0019DB50: sat-subtract: a0->C -= min(a0->C, a1)
@@ -868,6 +889,8 @@ segments:
       - [0x0A6E24, asm, cod/0A6E24]
       - [0x0A7820, c,   cod/0A7820]            # func_001A7820: tail call func_00264DF8(a0, &D_00632B10, a1, a2)
       - [0x0A7834, asm, cod/0A7834]
+      - [0x0A7838, c,   cod/0A7838]            # func_001A7838: tail call func_00264DF8(a0, &D_00632B00)
+      - [0x0A7844, asm, cod/0A7844]
       - [0x0A9D88, c,   cod/0A9D88]            # func_001A9D88: D_00632C74 = 0
       - [0x0A9D90, asm, cod/0A9D90]
       - [0x0A9F20, c,   cod/0A9F20]            # func_001A9F20: D_00632A34 = val
@@ -910,7 +933,8 @@ segments:
       - [0x0B0A68, c,   cod/0B0A68]            # func_001B0A68: tail call func_00144120(0x190, -2, 0, 0)
       - [0x0B0A80, c,   cod/0B0A80]            # func_001B0A80: sibling: tail call func_00144120(0x191, -2u, 0, 0)
       - [0x0B0A98, c,   cod/0B0A98]            # func_001B0A98: sibling: tail call func_00144120(0x18F, -2u, 0, 0)
-      - [0x0B0AB0, asm, cod/0B0AB0]
+      - [0x0B0AB0, c,   cod/0B0AB0]            # func_001B0AB0: tail call func_001A6E28(&D_00616CE0)
+      - [0x0B0ABC, asm, cod/0B0ABC]
       - [0x0B4FC0, c,   cod/0B4FC0]            # func_001B4FC0: return -1
       - [0x0B4FC8, asm, cod/0B4FC8]
       - [0x0B5610, c,   cod/0B5610]            # func_001B5610: return -1
@@ -985,6 +1009,8 @@ segments:
       - [0x0C9338, asm, cod/0C9338]
       - [0x0CB910, c,   cod/0CB910]            # func_001CB910: sw float to gp_rel + tail call func_00105F00(&D_004C09B0, a0)
       - [0x0CB924, asm, cod/0CB924]
+      - [0x0CBB88, c,   cod/0CBB88]            # func_001CBB88: tail call func_00105F00(a0, &D_004C09A0)
+      - [0x0CBB94, asm, cod/0CBB94]
       - [0x0CBD70, c,   cod/0CBD70]
       - [0x0CBD78, c,   cod/0CBD78]
       - [0x0CBD80, c,   cod/0CBD80]
@@ -1012,6 +1038,8 @@ segments:
       - [0x0D03DC, asm, cod/0D03DC]
       - [0x0D03E0, c,   cod/0D03E0]            # func_001D03E0: D_006333D8 = 0
       - [0x0D03E8, asm, cod/0D03E8]
+      - [0x0D12B0, c,   cod/0D12B0]            # func_001D12B0: D_006333F0=f; tail call func_001D0FA8(a0, a1, 0)
+      - [0x0D12BC, asm, cod/0D12BC]
       - [0x0D12C0, c,   cod/0D12C0]            # func_001D12C0: tail call func_00144240(*(int*)(*(a0+0x15C) + a1*4 + 0x61C))
       - [0x0D12D4, asm, cod/0D12D4]
       - [0x0D1410, c,   cod/0D1410]            # func_001D1410: cvt.w.s float->int < a1
@@ -1026,6 +1054,8 @@ segments:
       - [0x0D3D94, asm, cod/0D3D94]
       - [0x0D3D98, c,   cod/0D3D98]            # func_001D3D98: return p->48 == 2
       - [0x0D3DB0, asm, cod/0D3DB0]
+      - [0x0D4348, c,   cod/0D4348]            # func_001D4348: tail call func_00111918(0, D_00633428)
+      - [0x0D4354, asm, cod/0D4354]
       - [0x0D4D98, c,   cod/0D4D98]            # func_001D4D98
       - [0x0D4DA4, asm, cod/0D4DA4]
       - [0x0D4DD0, c,   cod/0D4DD0]            # func_001D4DD0: a0 ? D_00633F1C : D_00633F18
@@ -1036,6 +1066,10 @@ segments:
       - [0x0E0984, asm, cod/0E0984]
       - [0x0E0C08, c,   cod/0E0C08]            # func_001E0C08: wrap func_00105F00(a0, a1+0xA0); a0->C=0
       - [0x0E0C34, asm, cod/0E0C34]
+      - [0x0E2370, c,   cod/0E2370]            # func_001E2370: tail call func_001E1AA0(a0, a1, a1, 0)
+      - [0x0E237C, asm, cod/0E237C]
+      - [0x0E4970, c,   cod/0E4970]            # func_001E4970: tail call func_00109FF8(D_00633540, D_00633548)
+      - [0x0E497C, asm, cod/0E497C]
       - [0x0E8B48, c,   cod/0E8B48]            # func_001E8B48: tail-wrapper to func_001E83F8 with D_00632028 4th arg
       - [0x0E8B68, asm, cod/0E8B68]
       - [0x0E8BD8, c,   cod/0E8BD8]            # func_001E8BD8: &D_0070A3F0[a0*0xA0]
@@ -1062,6 +1096,8 @@ segments:
       - [0x0EAE90, asm, cod/0EAE90]
       - [0x0EB9F0, c,   cod/0EB9F0]            # func_001EB9F0: zero 8 sdata vars (with barriers for order)
       - [0x0EBA14, asm, cod/0EBA14]
+      - [0x0EEF08, c,   cod/0EEF08]            # func_001EEF08: tail call func_001182F0(a0, &D_004C6160)
+      - [0x0EEF14, asm, cod/0EEF14]
       - [0x0EF980, c,   cod/0EF980]
       - [0x0EF988, c,   cod/0EF988]
       - [0x0EF990, c,   cod/0EF990]            # func_001EF990: D_006336AC = val
@@ -1272,6 +1308,8 @@ segments:
       - [0x13D04C, asm, cod/13D04C]
       - [0x13D370, c,   cod/13D370]            # func_0023D370: copy 2 sdata floats to *self->34, return 1
       - [0x13D38C, asm, cod/13D38C]
+      - [0x13D518, c,   cod/13D518]            # func_0023D518: tail call func_00182A40(D_006318BC)
+      - [0x13D524, asm, cod/13D524]
       - [0x13E170, c,   cod/13E170]            # func_0023E170: tail call func_00139598(a0 & 0x0FFFFFFF)
       - [0x13E180, asm, cod/13E180]
       - [0x13E280, c,   cod/13E280]            # func_0023E280: self->54 >= self->48
@@ -1343,10 +1381,14 @@ segments:
       - [0x1450A8, c,   cod/1450A8]            # func_002450A8: 0/8/4 stores
       - [0x1450B8, c,   cod/1450B8]            # func_002450B8
       - [0x1450C8, asm, cod/1450C8]
+      - [0x1453C0, c,   cod/1453C0]            # func_002453C0: D_005507D0=0; tail call func_00245B58(a0)
+      - [0x1453CC, asm, cod/1453CC]
       - [0x145660, c,   cod/145660]            # func_00245660: a1[0x48]=0(sd); a1[1]=0x2000; return 0
       - [0x145674, asm, cod/145674]
       - [0x145E88, c,   cod/145E88]            # func_00245E88: a0->18=0 + a0->10 &= ~1
       - [0x145EA4, asm, cod/145EA4]
+      - [0x147108, c,   cod/147108]            # func_00247108: tail call func_00100540(D_00550864)
+      - [0x147114, asm, cod/147114]
       - [0x1485C0, c,   cod/1485C0]            # func_002485C0
       - [0x1485DC, asm, cod/1485DC]
       - [0x148790, c,   cod/148790]            # func_00248790
@@ -1418,6 +1460,18 @@ segments:
       - [0x1523B0, asm, cod/1523B0]
       - [0x152550, c,   cod/152550]            # func_00252550: tail call func_002642D8(&D_0062ED08, a0)
       - [0x152560, asm, cod/152560]
+      - [0x152F30, c,   cod/152F30]            # func_00252F30: tail call func_00252590(&D_0062ED78)
+      - [0x152F3C, asm, cod/152F3C]
+      - [0x152F40, c,   cod/152F40]            # func_00252F40: tail call func_00252590(&D_0062EDA8)
+      - [0x152F4C, asm, cod/152F4C]
+      - [0x152F50, c,   cod/152F50]            # func_00252F50: tail call func_00252590(&D_0062EDC0)
+      - [0x152F5C, asm, cod/152F5C]
+      - [0x152F60, c,   cod/152F60]            # func_00252F60: tail call func_00252590(&D_0062EDF8)
+      - [0x152F6C, asm, cod/152F6C]
+      - [0x152F70, c,   cod/152F70]            # func_00252F70: tail call func_002586F8(a0->40 + 0x4C)
+      - [0x152F7C, asm, cod/152F7C]
+      - [0x152F80, c,   cod/152F80]            # func_00252F80: tail call func_002587E0(a0->40 + 0x4C)
+      - [0x152F8C, asm, cod/152F8C]
       - [0x154F08, c,   cod/154F08]            # func_00254F08: func_002560D8(3)
       - [0x154F24, asm, cod/154F24]
       - [0x158450, c,   cod/158450]            # func_00258450: shift extract: (int)(*p >> (64-n))
@@ -1466,6 +1520,10 @@ segments:
       - [0x164D60, asm, cod/164D60]
       - [0x1657F0, c,   cod/1657F0]            # func_002657F0: wrap func_00265818(a0,a1,D_00553244+0x5C)
       - [0x165814, asm, cod/165814]
+      - [0x16A5E0, c,   cod/16A5E0]            # func_0026A5E0: tail call func_0026B018(a0, &func_0026A330)
+      - [0x16A5EC, asm, cod/16A5EC]
+      - [0x16A5F0, c,   cod/16A5F0]            # func_0026A5F0: tail call func_0026A5E0(D_00553244)
+      - [0x16A5FC, asm, cod/16A5FC]
       - [0x16B138, c,   cod/16B138]            # func_0026B138: return &D_00630658
       - [0x16B144, asm, cod/16B144]
       - [0x16B178, c,   cod/16B178]            # func_0026B178: wrap func_0026B138(D_00553244)
