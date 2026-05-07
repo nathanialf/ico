@@ -58,6 +58,31 @@ def _has_vu(fn: Func) -> bool:
     return fn.has_vu()
 
 
+def _has_spill_reload(fn: Func) -> bool:
+    """Detects sw $a0,0($sp) immediately followed by lw $a0,0($sp) — the
+    arg-spill+reload pattern that matches with `volatile unsigned int a0`."""
+    for i in range(len(fn.insns) - 1):
+        a = fn.insns[i]
+        b = fn.insns[i + 1]
+        if a.startswith("sw") and "0($sp)" in a and "$a0" in a \
+           and b.startswith("lw") and "0($sp)" in b and "$a0" in b:
+            return True
+    return False
+
+
+def _has_gp_rel(fn: Func) -> bool:
+    return any("%gp_rel(" in ins for ins in fn.insns)
+
+
+def _has_lui_lo(fn: Func) -> bool:
+    return any("%hi(" in ins for ins in fn.insns)
+
+
+def _has_branch(fn: Func) -> bool:
+    return any(re.match(r"^(beq|bne|beqz|bnez|bgez|bltz|bgtz|blez)", ins)
+               for ins in fn.insns)
+
+
 CATEGORIES: list[tuple[str, str, callable]] = [
     # Tiny scalar leaves — bulk getter/setter / passthrough material.
     ("leaf-4-0x10",
@@ -79,6 +104,40 @@ CATEGORIES: list[tuple[str, str, callable]] = [
     ("wrap-9-0x24",
      "9-insn / 0x24, exactly 1 jal, no VU (wrapper + arg setup)",
      lambda fn: fn.size == 0x24 and len(fn.insns) == 9 and fn.jal_count() == 1 and _no_vu(fn)),
+    # Larger wrappers — 1-jal in 0x28..0x40 range. Frequently match by
+    # restructuring args, using volatile-param spill/reload pattern, etc.
+    ("wrap-1jal-0x28-0x30",
+     "0x28-0x30, exactly 1 jal, no VU (wrapper w/ buffer or extra spill)",
+     lambda fn: 0x28 <= fn.size <= 0x30 and fn.jal_count() == 1 and _no_vu(fn)),
+    ("wrap-1jal-0x34-0x40",
+     "0x34-0x40, exactly 1 jal, no VU (wrapper w/ stack buffer / arg pack)",
+     lambda fn: 0x34 <= fn.size <= 0x40 and fn.jal_count() == 1 and _no_vu(fn)),
+    # Spill+reload wrappers — strong signal for the volatile-param pattern.
+    ("wrap-spill-reload",
+     "Any size, has sw $a0,0($sp); lw $a0,0($sp), no VU "
+     "(volatile unsigned int a0 + volatile int local)",
+     lambda fn: _has_spill_reload(fn) and _no_vu(fn) and fn.jal_count() >= 1),
+    # 2-jal small wrappers — typical func1(...) + func2(...) bodies, often
+    # with the second call tail-called (`j` in original codegen).
+    ("wrap-2jal-0x18-0x24",
+     "0x18-0x24, exactly 2 jal, no VU (compact 2-call wrapper)",
+     lambda fn: 0x18 <= fn.size <= 0x24 and fn.jal_count() == 2 and _no_vu(fn)),
+    ("wrap-2jal-0x28-0x40",
+     "0x28-0x40, exactly 2 jal, no VU (2-call wrapper, mid-size)",
+     lambda fn: 0x28 <= fn.size <= 0x40 and fn.jal_count() == 2 and _no_vu(fn)),
+    # 3-jal wrappers — including tail-call patterns (j on third call).
+    ("wrap-3jal-mid",
+     "0x28-0x40, exactly 3 jal, no VU (3-call wrapper, often w/ tail call)",
+     lambda fn: 0x28 <= fn.size <= 0x40 and fn.jal_count() == 3 and _no_vu(fn)),
+    # gp_rel D + 1-jal — common passthrough family (D[0] + a0 → call).
+    ("wrap-gp-1jal",
+     "1 jal + gp_rel %gp_rel(D), no VU (D[0] + arg passthrough)",
+     lambda fn: fn.jal_count() == 1 and _has_gp_rel(fn) and _no_vu(fn)),
+    # Cond-deref returners: leaf with branch + multiple loads (deref chains
+    # like `if (a0->[X]) return a0->[Y]; else return 0;`).
+    ("cond-deref-leaf",
+     "Leaf (no jal) with branch, no VU (cond-return / deref+if)",
+     lambda fn: fn.jal_count() == 0 and _has_branch(fn) and _no_vu(fn) and 0x14 <= fn.size <= 0x30),
     # VU0 macros.
     ("vu-leaf-4-0x10",
      "4-insn / 0x10 leaf, no jal, has VU (VU0 macro)",
