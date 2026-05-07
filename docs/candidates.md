@@ -2,7 +2,7 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-07 07:16:08 UTC
+- Generated: 2026-05-07 07:17:51 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
@@ -34,12 +34,11 @@ _0 total in this bucket; showing top 0._
 <a id="leaf-5-0x14"></a>
 ## 5-insn / 0x14 leaf, no jal, no VU (store-and-forward)
 
-_2 total in this bucket; showing top 2._
+_1 total in this bucket; showing top 1._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
 | `func_00137EF0` | 0x14 | 5 | 0 |  | `ld andi andi jr` | asm/cod/037EF0.s:13 |
-| `func_001C8A00` | 0x14 | 5 | 0 |  | `addiu mult addu jr` | asm/cod/0C3984.s:5903 |
 
 <a id="leaf-6-0x18"></a>
 ## 6-insn / 0x18 leaf, no jal, no VU (sub-deref + store)
@@ -49,7 +48,7 @@ _2 total in this bucket; showing top 2._
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
 | `func_00101A88` | 0x18 | 6 | 0 |  | `mfc0 lui and ei` | asm/cod/000C90.s:1209 |
-| `func_001C8B48` | 0x18 | 6 | 0 |  | `lwc1 nop nop div.s` | asm/cod/0C3984.s:6012 |
+| `func_001C8B48` | 0x18 | 6 | 0 |  | `lwc1 nop nop div.s` | asm/cod/0C8A14.s:116 |
 
 <a id="leaf-7-0x1C"></a>
 ## 7-insn / 0x1C leaf, no jal, no VU (accessor + multiplier/branch)
@@ -115,7 +114,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4593 unmatched functions are not in any shape bucket above._
+_4594 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 

@@ -993,6 +993,8 @@ segments:
       - [0x0C2F20, asm, cod/0C2F20]
       - [0x0C3970, c,   cod/0C3970]            # func_001C3970: tail call func_00105F00(a0, a1 + a2*0x50 + 0x30)
       - [0x0C3984, asm, cod/0C3984]
+      - [0x0C8A00, c,   cod/0C8A00]            # func_001C8A00: *(float*)(a0 + a1*0x50 + 0x10) = f
+      - [0x0C8A14, asm, cod/0C8A14]
       - [0x0C8DE8, c,   cod/0C8DE8]            # func_001C8DE8: rsqrt(x)
       - [0x0C8E08, c,   cod/0C8E08]            # func_001C8E08: length xz
       - [0x0C8E2C, asm, cod/0C8E2C]
