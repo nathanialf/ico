@@ -523,6 +523,8 @@ segments:
       - [0x041138, c,   cod/041138]            # func_00141138: wrap func_00132DC0(a0, a1->C, 0x5C000); return 1
       - [0x041160, c,   cod/041160]
       - [0x041168, asm, cod/041168]
+      - [0x0412B8, c,   cod/0412B8]            # func_001412B8: D_00632214=a0; tail call func_0025CD28(a0)
+      - [0x0412C4, asm, cod/0412C4]
       - [0x043B88, c,   cod/043B88]            # func_00143B88: return D_00632214
       - [0x043B90, c,   cod/043B90]            # func_00143B90: return D_00632208
       - [0x043B98, asm, cod/043B98]
