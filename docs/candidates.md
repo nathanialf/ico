@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-07 17:00:54 UTC
+- Generated: 2026-05-07 17:05:00 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4432 total in `asm/cod/*.s`, 23 parked, 4409 considered
+- Functions: 4432 total in `asm/cod/*.s`, 24 parked, 4408 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -232,7 +232,7 @@ _17 total in this bucket; showing top 17._
 <a id="wrap-gp-1jal"></a>
 ## 1 jal + gp_rel %gp_rel(D), no VU (D[0] + arg passthrough)
 
-_126 total in this bucket; showing top 50._
+_125 total in this bucket; showing top 50._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
@@ -263,7 +263,6 @@ _126 total in this bucket; showing top 50._
 | `func_0017B1A8` | 0x44 | 17 | 1 |  | `addiu lw sd addiu` | asm/cod/07AA04.s:661 |
 | `func_0019EF10` | 0x48 | 18 | 1 |  | `addiu lui sd addiu` | asm/cod/09E648.s:633 |
 | `func_002359C8` | 0x4C | 19 | 1 |  | `lui addiu addiu sw` | asm/cod/135908.s:73 |
-| `func_001BBE50` | 0x50 | 20 | 1 |  | `addiu lui sd addiu` | asm/cod/0BBE50.s:13 |
 | `func_0018DDF0` | 0x58 | 22 | 1 |  | `addiu lw sd sd` | asm/cod/08CFF8.s:1067 |
 | `func_00140B78` | 0x64 | 25 | 1 |  | `addiu lui lui sd` | asm/cod/040B78.s:13 |
 | `func_001E8B68` | 0x70 | 28 | 1 |  | `addiu lw sd sd` | asm/cod/0E8B68.s:13 |
@@ -286,6 +285,7 @@ _126 total in this bucket; showing top 50._
 | `func_0013E4D0` | 0x78 | 30 | 1 |  | `addiu addiu sd lui` | asm/cod/03E220.s:243 |
 | `func_0013F700` | 0x78 | 30 | 1 |  | `addiu addiu sd lui` | asm/cod/03F3F0.s:273 |
 | `func_00205498` | 0x7C | 31 | 1 |  | `addiu addiu mult lui` | asm/cod/104E98.s:519 |
+| `func_00240BD0` | 0x80 | 32 | 1 |  | `addiu lw sd sd` | asm/cod/140B88.s:43 |
 
 <a id="cond-deref-leaf"></a>
 ## Leaf (no jal) with branch, no VU (cond-return / deref+if)
@@ -300,7 +300,7 @@ _51 total in this bucket; showing top 50._
 | `func_00154420` | 0x24 | 9 | 0 |  | `lw lw lw sltiu` | asm/cod/0538F4.s:873 |
 | `func_00157DA0` | 0x24 | 9 | 0 |  | `beqz addiu lw bne` | asm/cod/056488.s:1831 |
 | `func_001886D0` | 0x24 | 9 | 0 |  | `lui addiu andi beqz` | asm/cod/0882CC.s:314 |
-| `func_001BBEA0` | 0x24 | 9 | 0 |  | `lw lw beqz nop` | asm/cod/0BBE50.s:39 |
+| `func_001BBEA0` | 0x24 | 9 | 0 |  | `lw lw beqz nop` | asm/cod/0BBEA0.s:13 |
 | `func_001E4700` | 0x24 | 9 | 0 |  | `lw addiu lw bnez` | asm/cod/0E237C.s:2674 |
 | `func_0013C510` | 0x28 | 10 | 0 |  | `beqz sw b sw` | asm/cod/03BB80.s:793 |
 | `func_0013F1D0` | 0x28 | 10 | 0 |  | `daddu beqz andi sw` | asm/cod/03F130.s:61 |

@@ -1217,6 +1217,7 @@ segments:
       - [0x0BB8C0, asm, cod/0BB8C0]
       - [0x0BBE48, c,   cod/0BBE48]
       - [0x0BBE50, asm, cod/0BBE50]
+      - [0x0BBEA0, asm, cod/0BBEA0]
       - [0x0BBFD0, c, cod/0BBFD0]            # func_001BBFD0: 4-insn lwc1
       - [0x0BBFE0, asm, cod/0BBFE0]
       - [0x0BC088, c, cod/0BC088]            # func_001BC088: 4-insn lw
