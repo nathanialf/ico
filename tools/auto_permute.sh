@@ -39,9 +39,12 @@
 #                      the operator can review/promote the result manually.
 #   TOUGH_NUTS_DIR=path  override the registry root (default:
 #                         <repo>/tough_nuts).
-#   RANDOM_ORDER=1    shuffle tough_nuts/<func>/ enumeration each pass so
-#                      concurrent workers spread across different shapes
-#                      (default: 1; set to 0 for sorted/reproducible order).
+#   RANDOM_ORDER=1    shuffle tough_nuts/<func>/ enumeration each pass.
+#                      Default 0: iterate lowest-score first (untried
+#                      targets count as score 0 → tried first), so the
+#                      cycles go to brand-new and near-miss parked
+#                      targets rather than functions already hammered
+#                      hard with no improvement.
 #
 # Output:
 #   Logs from each per-function run land in
@@ -62,7 +65,7 @@ SKIP_MATCHED="${SKIP_MATCHED:-1}"
 ITERATIONS="${ITERATIONS:-0}"   # 0 = infinite
 PARALLEL="${PARALLEL:-4}"
 STOP_AT_SCORE="${STOP_AT_SCORE:-0}"
-RANDOM_ORDER="${RANDOM_ORDER:-1}"
+RANDOM_ORDER="${RANDOM_ORDER:-0}"
 VRAM_BASE_DEC=$((16#100000))
 
 if [ ! -d "${TOUGH_NUTS_DIR}" ]; then
@@ -195,14 +198,41 @@ trap cleanup_workers EXIT
 # --- tough_nuts/ enumeration ------------------------------------------------
 # Format: each subdir of tough_nuts/ named func_<HEX> is a parked function.
 # Anything else (README.md, stray files) is ignored.
+#
+# Default order: lowest existing permuter score first. Functions with no
+# permuter run yet (no output-*-* dirs under runs/<func>/) are treated as
+# lowest-score (sort key 0) so untried targets get attention first. The
+# rationale: functions that have already been hammered hard with no
+# improvement are the least likely to crack on the next pass; brand-new
+# parked targets and near-miss targets (low score) deserve the cycles.
+#
+# Tie-breaker is alphabetical, so the order is reproducible. Set
+# RANDOM_ORDER=1 to shuffle instead.
 read_parked() {
-    # RANDOM_ORDER=1 (default): shuffle so concurrent workers don't all
-    # hammer the same alphabetical prefix — easier-to-crack functions
-    # surface sooner. Set RANDOM_ORDER=0 for sorted/reproducible order.
-    local order_cmd=(shuf)
-    [ "${RANDOM_ORDER}" = "0" ] && order_cmd=(sort)
-    find "${TOUGH_NUTS_DIR}" -mindepth 1 -maxdepth 1 -type d \
-        -name 'func_*' -printf '%f\n' 2>/dev/null | "${order_cmd[@]}"
+    if [ "${RANDOM_ORDER}" = "1" ]; then
+        find "${TOUGH_NUTS_DIR}" -mindepth 1 -maxdepth 1 -type d \
+            -name 'func_*' -printf '%f\n' 2>/dev/null | shuf
+        return
+    fi
+    # Compute "<best_score>\t<name>" per parked function then sort -k1n -k2.
+    # Best score = lowest N in lib/decomp-permuter/runs/<name>/output-N-*/.
+    # No output dirs (or no runs/<name>/ at all) => 0 so untried go first.
+    while IFS= read -r name; do
+        local runs_dir="${RUNS_DIR}/${name}"
+        local best=0
+        if [ -d "${runs_dir}" ]; then
+            local n
+            n="$(find "${runs_dir}" -maxdepth 1 -type d -name 'output-*-*' \
+                    -printf '%f\n' 2>/dev/null \
+                  | sed -nE 's/^output-([0-9]+)-.*$/\1/p' \
+                  | sort -n | head -1)"
+            [ -n "${n}" ] && best="${n}"
+        fi
+        printf '%s\t%s\n' "${best}" "${name}"
+    done < <(find "${TOUGH_NUTS_DIR}" -mindepth 1 -maxdepth 1 -type d \
+                -name 'func_*' -printf '%f\n' 2>/dev/null) \
+      | sort -k1,1n -k2,2 \
+      | cut -f2
 }
 
 # --- file_off helpers -------------------------------------------------------
