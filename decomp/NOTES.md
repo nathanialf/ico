@@ -285,6 +285,50 @@ upstream a spim heuristic patch.
   splat. Run `make setup` after distclean before `make`, otherwise the
   build fails with "No rule to make target 'config/ico.us.ld'".
 
+## Header-macro library for inline-asm matching tricks
+
+`src/cod/*.c` files are kept free of raw `__asm__` blocks.  Each
+matching trick that *was* an inline-asm body now lives behind a
+header-defined macro:
+
+- `include/syscall.h` — `SYSCALL_WRAPPER(name, num)` for the 150
+  EE-syscall leaves at file offsets `0x0001XX..0x0009XX`.  Modeled on
+  ps2sdk's `ee/kernel/src/kernel.S` `SYSCALL_SPECIAL` macro.
+- `include/r5900.h` — `SYNC()` (memory barrier) and
+  `QCOPY16(scratch)` / `QCOPY16_NO_NOP(scratch)` (single-quadword
+  copy via lq/sq).
+- `include/matching.h` — workarounds for ee-gcc 2.9 codegen edge cases:
+    - `VOLATILE_RELOAD_CALL(addr, target)` — volatile reload + nop
+      barrier + 1-arg call (defeats gas-reorder pulling the lw into
+      the jal delay slot).
+    - `DEAD_DADDU_V0_SP(pinned_a0)` — injects a dead `daddu $v0,
+      $sp, $0` between two calls (used by `func_0010D7F8` family).
+    - `FABSF_BIT_TWIDDLE(x)` — fabsf via 0x7FFFFFFF mask without the
+      union-access regalloc artifact.
+    - `DEFEAT_TCO()` / `KEEP_LIVE(x)` / `KEEP_LIVE_MEM(x)` — opaque
+      no-instruction barriers that prevent gcc tail-call optimization
+      and/or hold a stack-resident value live.
+    - `NOREORDER_BARRIER()` — open-then-close `.set noreorder` block.
+
+When you find a new pattern that needs a one-off inline-asm
+formulation, **prefer adding a macro to one of these headers** over
+inserting raw `__asm__` in the .c file.  See `decomp/MATCH.md` Step 4
+for the doctrine.
+
+## VU0 wrappers — handwritten asm (`hasm`) leaves, not C with inline asm
+
+Pure VU0/COP2 wrapper functions (no C body, just an `__asm__` block of
+VU0 instructions) are claimed in the yaml as `hasm`, not `c`.  Splat
+emits them to `src/cod/<off>.s` directly from the base ELF, and the
+`progress.py` matched-bytes counter treats `hasm` the same as `c` (see
+`MATCHABLE_TYPES`).  This avoids carrying the multi-line inline-asm
+formulations the original 2.96-era seeds had.
+
+The few VU0 wrappers that DO need to live as `.c` (because they call
+out to gcc-emitted prologue/epilogue around the asm body) use single-
+instruction `__asm__` blocks via a header macro — see the next
+section.
+
 ## VU0 inline asm — `$ACC`, `$Q`, `$R`, `.set noreorder`
 
 VU0 macro instructions in inline `__asm__` need EE-specific syntax that
