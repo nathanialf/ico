@@ -1001,6 +1001,9 @@ segments:
       - [0x094394, asm, cod/094394]
       - [0x094398, asm, cod/094398]
       - [0x0943C0, asm, cod/0943C0]
+      - [0x0943C8, c,   cod/0943C8]            # func_001943C8: buf+2-call+chained float-call (3 jals)
+      - [0x094400, asm, cod/094400]
+      - [0x094438, asm, cod/094438]
       - [0x094590, c,   cod/094590]            # func_00194590: abs(func_00194508(a0..a3))
       - [0x0945B4, asm, cod/0945B4]
       - [0x094808, c,   cod/094808]            # func_00194808: buf[4] init via func + 2nd call uses arg
@@ -1065,7 +1068,8 @@ segments:
       - [0x09DD40, c,   cod/09DD40]            # func_0019DD40: auto-batch
       - [0x09DD48, asm, cod/09DD48]
       - [0x09E150, c,   cod/09E150]            # func_0019E150: tail call func_00139598(a0 & 0x0FFFFFFF)
-      - [0x09E160, asm, cod/09E160]
+      - [0x09E160, c,   cod/09E160]            # func_0019E160: 3-call wrapper, returns 1
+      - [0x09E19C, asm, cod/09E19C]
       - [0x09E1A0, c,   cod/09E1A0]            # func_0019E1A0
       - [0x09E1C0, c,   cod/09E1C0]            # func_0019E1C0: self[46] = 1, return 1
       - [0x09E1CC, asm, cod/09E1CC]
@@ -1539,6 +1543,8 @@ segments:
       - [0x109F58, asm, cod/109F58]
       - [0x10D208, c,   cod/10D208]            # func_0020D208: func_0017B258(0x138); func_00203B78(&func_0020D238, 0x15)
       - [0x10D238, asm, cod/10D238]
+      - [0x10D2B8, c,   cod/10D2B8]            # func_0020D2B8: spill+3-call (2 calls same callee, 3rd takes func ptr)
+      - [0x10D2F0, asm, cod/10D2F0]
       - [0x10D5A8, c,   cod/10D5A8]            # func_0020D5A8: sibling: 0x13E
       - [0x10D5D8, asm, cod/10D5D8]
       - [0x10D660, c,   cod/10D660]            # func_0020D660: sibling: 0x13F
