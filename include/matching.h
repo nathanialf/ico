@@ -95,4 +95,9 @@
  * address before/after the call. */
 #define KEEP_LIVE_MEM(x)            __asm__ __volatile__("" : : "r"(x) : "memory")
 
+/* Open-then-close `.set noreorder` block with no instructions inside.
+ * Used as a scheduler barrier that prevents gas from reordering
+ * across the directive pair without emitting anything. */
+#define NOREORDER_BARRIER()         __asm__ __volatile__(".set noreorder\n\t.set reorder" : : : "memory")
+
 #endif /* MATCHING_H */
