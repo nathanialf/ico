@@ -1562,7 +1562,7 @@ segments:
       - [0x0FB480, asm, cod/0FB480]
       - [0x0FB4A8, c,   cod/0FB4A8]            # func_001FB4A8: init 5 sdata: 0; 0x80 x4
       - [0x0FB4C4, asm, cod/0FB4C4]
-      - [0x0FBA80, asm, cod/0FBA80]
+      - [0x0FBA80, c,   cod/0FBA80]            # func_001FBA80: clamp [0, 0xC] store
       - [0x0FBAA8, asm, cod/0FBAA8]
       - [0x0FBB40, c,   cod/0FBB40]            # func_001FBB40: return D_00633F70
       - [0x0FBB48, asm, cod/0FBB48]
