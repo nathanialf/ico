@@ -1,0 +1,20 @@
+# Files that must be assembled with mips-linux-gnu-as instead of the
+# bundled ee-gcc 2.96 assembler (ee-as 2.10).
+#
+# ee-as 2.10 is the SCEI-vintage assembler and matches the original
+# ICO codegen for la-macro / register-zero / generic R5900 ops, so it's
+# the default for src/.o. But it predates several R5900 VU0 / MMI
+# instruction additions and rejects them. Files that contain such
+# instructions (typically inside `__asm__ __volatile__` blocks for VU0
+# macros) are listed here, one file_off per line. The Makefile src/.o
+# rule grep-checks this file and falls back to mips-linux-gnu-as for
+# any match.
+#
+# When to add an entry: a clean rebuild fails with "Error: illegal
+# operands `vrnext`" or similar from ee-as on a src/cod/<FILE_OFF>.c.
+# Add the file_off, rebuild, confirm SHA-1 still matches.
+#
+# Lines starting with # are comments; blank lines ignored.
+
+018A68    # func_00118A68 — VU0 inline asm with vrnext/vsubw/qmfc2.ni
+0986A8    # func_001986A8 — VU0 inline asm with vmulax/vmadday/vmaddaz

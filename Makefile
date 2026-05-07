@@ -153,18 +153,67 @@ $(BUILD_DIR)/asm/%.o: $(ASM_DIR)/%.s
 EXTRA_CFLAGS_TXT := config/extra_cflags.txt
 EXTRA_CFLAGS_LOOKUP := tools/extra_cflags.sh
 
-$(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.c $(EXTRA_CFLAGS_TXT) $(EXTRA_CFLAGS_LOOKUP)
+# Bundled assembler from ee-gcc 2.96 (GNU as 2.10-ee from 2000, the
+# vintage SCEI fork). Use it for src/ output instead of mips-linux-gnu-as
+# because it expands the `la $X, sym($Y)` macro to 32-bit `lui+addiu+addu`
+# (matching the original ICO codegen) rather than the 64-bit `lui+daddiu+
+# daddu` that modern binutils picks under -mabi=eabi for r5900.
+EE_AS         := tools/cc/ee-gcc2.96/bin/as
+EE_ASFLAGS    := -EL -mcpu=5900 -G 8
+
+# Per-file opt-out: src files containing R5900 VU0/MMI instructions that
+# postdate ee-as 2.10 (e.g. vrnext, vrxor) must be assembled with
+# mips-linux-gnu-as instead. config/use_modern_as.txt lists the file_offs.
+USE_MODERN_AS_TXT := config/use_modern_as.txt
+
+$(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.c $(EXTRA_CFLAGS_TXT) $(EXTRA_CFLAGS_LOOKUP) $(USE_MODERN_AS_TXT)
 	@mkdir -p $(@D)
 	$(CC) -B $(EEGCC_LIB) $(CFLAGS) $$($(EXTRA_CFLAGS_LOOKUP) $<) -o $(@:.o=.s) $<
 	@# ee-gcc 2.96 emits `move $X, $0` for register-zero materialization,
-	@# which mips-linux-gnu-as expands to `or $X, $0, $0` (opcode 0x25).
-	@# Original PS2 codegen uses `daddu $X, $0, $0` (opcode 0x2D); same
-	@# value, different bytes. Rewrite the macro on the way in so the
-	@# whole src/ pipeline lines up with the original encoding. Targets
-	@# only the zero-source form; non-zero `move` is left alone.
+	@# which the assembler can expand to either `or` or `daddu`. The
+	@# bundled ee-as 2.10 picks `daddu` already (matching the original);
+	@# but we keep the sed in case mips-linux-gnu-as is ever used here.
 	@sed -i -E 's/^([[:space:]]+)move[[:space:]]+(\$$[0-9]+),[[:space:]]*\$$0[[:space:]]*$$/\1daddu \2,$$0,$$0/' $(@:.o=.s)
-	$(AS) $(ASFLAGS) -o $@ $(@:.o=.s)
-	$(OBJCOPY) --set-section-alignment .text=$(ALIGN_FOR) $@
+	@# ee-as 2.10 doesn't recognize MIPS register name aliases ($zero,
+	@# $sp, $ra, etc.) — only numbered ($0, $29, $31). Translate them
+	@# all. (Float regs $f0-$f31 and VU regs $vfN are accepted as-is.)
+	@sed -i -E -e 's/\$$zero\b/$$0/g'  -e 's/\$$at\b/$$1/g' \
+	           -e 's/\$$v0\b/$$2/g'    -e 's/\$$v1\b/$$3/g' \
+	           -e 's/\$$a0\b/$$4/g'    -e 's/\$$a1\b/$$5/g' \
+	           -e 's/\$$a2\b/$$6/g'    -e 's/\$$a3\b/$$7/g' \
+	           -e 's/\$$t0\b/$$8/g'    -e 's/\$$t1\b/$$9/g' \
+	           -e 's/\$$t2\b/$$10/g'   -e 's/\$$t3\b/$$11/g' \
+	           -e 's/\$$t4\b/$$12/g'   -e 's/\$$t5\b/$$13/g' \
+	           -e 's/\$$t6\b/$$14/g'   -e 's/\$$t7\b/$$15/g' \
+	           -e 's/\$$s0\b/$$16/g'   -e 's/\$$s1\b/$$17/g' \
+	           -e 's/\$$s2\b/$$18/g'   -e 's/\$$s3\b/$$19/g' \
+	           -e 's/\$$s4\b/$$20/g'   -e 's/\$$s5\b/$$21/g' \
+	           -e 's/\$$s6\b/$$22/g'   -e 's/\$$s7\b/$$23/g' \
+	           -e 's/\$$t8\b/$$24/g'   -e 's/\$$t9\b/$$25/g' \
+	           -e 's/\$$k0\b/$$26/g'   -e 's/\$$k1\b/$$27/g' \
+	           -e 's/\$$gp\b/$$28/g'   -e 's/\$$sp\b/$$29/g' \
+	           -e 's/\$$fp\b/$$30/g'   -e 's/\$$ra\b/$$31/g' \
+	           $(@:.o=.s)
+	@# Pick assembler: prefer ee-as for la-macro / regname / generic
+	@# r5900 fidelity. If config/use_modern_as.txt lists this file_off,
+	@# OR ee-as fails (typically on a VU0/MMI instruction it doesn't
+	@# know), fall back to mips-linux-gnu-as. The fallback path takes
+	@# the explicit list as authoritative — if a file isn't listed but
+	@# ee-as fails on it anyway, the build still succeeds and the
+	@# file_off is appended to the txt as a hint for the next pass.
+	@if grep -qE "^[[:space:]]*$(notdir $(basename $<))([[:space:]]|$$|#)" $(USE_MODERN_AS_TXT) 2>/dev/null; then \
+	    echo "$(AS) $(ASFLAGS) -o $@ $(@:.o=.s)  # modern-as listed"; \
+	    $(AS) $(ASFLAGS) -o $@ $(@:.o=.s); \
+	    $(OBJCOPY) --set-section-alignment .text=$(ALIGN_FOR) $@; \
+	elif $(EE_AS) $(EE_ASFLAGS) -o $@ $(@:.o=.s) 2>/dev/null; then \
+	    echo "$(EE_AS) $(EE_ASFLAGS) -o $@ $(@:.o=.s)"; \
+	    $(OBJCOPY) $@ $@; \
+	else \
+	    echo "$(AS) $(ASFLAGS) -o $@ $(@:.o=.s)  # ee-as rejected, fell back"; \
+	    echo "  → consider adding $(notdir $(basename $<)) to $(USE_MODERN_AS_TXT)" >&2; \
+	    $(AS) $(ASFLAGS) -o $@ $(@:.o=.s); \
+	    $(OBJCOPY) --set-section-alignment .text=$(ALIGN_FOR) $@; \
+	fi
 
 $(TARGET_ELF): $(ALL_OBJS) $(LDSCRIPT)
 	@mkdir -p $(BUILD_DIR)
