@@ -166,12 +166,75 @@ Idioms that have worked:
   - **Type the global**: `extern char D_X[];` produces lui+lo;
     `extern int D_X;` produces gp_rel for in-sdata-range globals.
 
-### Step 4: Postprocess the .s file (and check adjacent functions)
+### Step 4: Promote to a handwritten-asm leaf (`hasm`) via a header macro
 
-When gcc emits the right instructions but the assembler does the
-wrong thing — or the original codegen relies on inter-function
-layout that gcc doesn't know about — patch the `.s` between gcc
-and ee-as.
+When the function is *structurally* a handwritten leaf — a syscall
+wrapper, a VU0/COP2 macro shim, an instruction sequence that has no
+C-language semantics (e.g. `syscall` itself) — express it as a
+**header-defined macro** that expands to the asm body, and keep the
+`.c` source as a one-line macro invocation. The yaml entry stays `c`
+so the function counts toward `.text` matched-%, but the asm lives in
+a header that other peer leaves can reuse.
+
+This is the **preferred escape hatch over Step 5 (postprocess)**.
+Reach for a postprocess only when *gcc CAN emit the correct shape but
+gas reorders it*, or when *the original codegen depends on
+inter-function layout gcc can't know about*. If the body is genuinely
+not expressible in C (e.g. needs `syscall`, `vrnext`, `qmfc2`, or a
+specific delay-slot fill), promote to `hasm`-via-header instead.
+
+Existing examples:
+
+  - `include/syscall.h` — `SYSCALL_WRAPPER(name, num)` macro emitting
+    `addiu $3, $0, NUM; syscall 0`.  Used by all 150 leaf wrappers in
+    `src/cod/0001*.c..0009*.c`.  Inspired by ps2sdk's
+    `ee/kernel/src/kernel.S` `SYSCALL_SPECIAL` macro.
+  - `include/include_asm.h` — generic `INCLUDE_ASM(FOLDER, NAME)` macro
+    that `.include`s a handwritten `.s` file at assembly time.  Mirrors
+    sotn-decomp's `include/include_asm.h`.
+
+When adding a new pattern:
+
+  1. Define the macro in `include/<topic>.h` (e.g. `include/vu0.h` for
+     a COP2 macro family).  Give it a descriptive name in the form
+     `<TOPIC>_<SHAPE>(name, args...)`.
+  2. Write the asm body inside `__asm__ __volatile__("<one-instr>" ...)`
+     blocks — one instruction per `__asm__` block (project rule).
+  3. The `.c` source becomes `#include "<topic>.h"` plus one macro call
+     per leaf.  No raw `__asm__` in `.c` files.
+  4. Cross-reference ps2sdk (`ee/kernel/src/kernel.S`, `ee/vu0/src/`)
+     for shape and naming inspiration (clean-room re-derive — never
+     paste).
+
+If the macro abstraction would be a one-off (only one function uses
+this shape), prefer Step 3 (raw inline asm in the single .c file with
+register pins) over a single-use header.
+
+### Step 5: Postprocess the .s file (and check adjacent functions)
+
+**Last resort.** Only reach for postprocessing when gcc CAN emit the
+right instructions but gas reorders or expands them differently, OR
+when the original codegen relies on inter-function layout that gcc
+doesn't know about (shared-epilogue / fall-through stubs). If the
+issue is "this isn't expressible in C," go back to Step 4 instead —
+header-macro hasm is preferred over a new postprocess pass.
+
+When **adding** a new postprocess, first ask: can the same effect be
+expressed as a header-macro hasm pattern (Step 4)? If yes, do that
+instead. Postprocesses are accepted only when the transformation
+depends on cross-function layout (shared epilogue stubs, jr-ra
+delay-slot fall-through to next function) or on assembler-level
+quirks (gas-reorder pulling spills into delay slots) that would
+require contorting C to defeat.
+
+When **revisiting** an existing postprocess: if the function(s) it
+covers are structurally handwritten leaves (single-purpose, narrow
+opcode set, repeated shape across siblings), migrate to a
+header-macro hasm in `include/<topic>.h`. Postprocess passes that
+guard inter-function layout (`shared_sp_restore`, `shared_jr_restore`,
+`no_trailing_nop`) typically can't migrate; passes that compensate
+for a single-function gas-reorder quirk (`la_sd_interleave`) usually
+can.
 
 **Always check what's adjacent to your function in the linker.**
 The original Pro-DG / CodeWarrior emitted "shared epilogue stubs":
@@ -184,23 +247,40 @@ function immediately AFTER it in `config/ico.us.yaml` (and its
 your function is supposed to fall into it — strip the corresponding
 suffix from your function's `.s`.
 
-Existing postprocess passes (each driven by a per-file allowlist):
+Existing postprocess passes (each driven by a per-file allowlist).
+**hasm-migration column** flags whether the pattern is a candidate for
+Step 4 (header-macro hasm) instead — re-evaluate during refactor:
 
-  - `config/swap_addu_operands.txt` → sed: addu rs/rt swap
-  - `config/coalesce_v1_v0.txt` → sed: drop redundant `move v0,v1`
-  - `config/swap_sw_pair.txt` → `tools/postprocess_sw_pair.py`
+  - `config/swap_addu_operands.txt` → sed: addu rs/rt swap.
+    *hasm-migration:* not really — single-instruction encoding tweak.
+  - `config/coalesce_v1_v0.txt` → sed: drop redundant `move v0,v1`.
+    *hasm-migration:* unlikely — register-allocation tweak per-function.
+  - `config/swap_sw_pair.txt` → `tools/postprocess_sw_pair.py`.
+    *hasm-migration:* unlikely — paired-store ordering inside C body.
   - `config/no_trailing_nop.txt` → `tools/postprocess_no_trailing_nop.py`:
     wraps the final `$L<N>: j $31` in `.set noreorder`/`.set reorder`
     so gas doesn't auto-fill the delay slot with a nop. Use when the
     original codegen leaves the jr ra delay slot empty (next function's
     first instruction acts as the implicit delay slot).
+    *hasm-migration:* no — depends on inter-function layout.
   - `config/shared_sp_restore.txt` → `tools/postprocess_shared_sp_restore.py --sp-only`:
     strips the `addu sp, +N` from the delay slot of `j $31`. Use
     when the next adjacent function is a 4-byte `addiu sp, +N` stub.
+    *hasm-migration:* no — depends on inter-function layout.
   - `config/shared_jr_restore.txt` → `tools/postprocess_shared_sp_restore.py --jr-and-sp`:
     strips both the `j $31` and the `addu sp` from the gcc-emitted
     epilogue. Use when the next adjacent function is an 8-byte
     `jr ra; addiu sp, +N` stub.
+    *hasm-migration:* no — depends on inter-function layout.
+  - `config/la_sd_interleave.txt` → `tools/postprocess_la_sd_interleave.py`:
+    interleaves `sd $31, OFF($sp)` between the `lui` and `addiu` halves
+    of an la-macro emission. Used by 5-arg-via-`$t0` wrappers
+    (`func_0024DA50`, `func_0024DA20`).
+    *hasm-migration:* attempted; not viable — the wrappers carry
+    gcc-generated prologue/epilogue and call-arg setup around the la
+    macro, which a header-macro can't reproduce without a `naked`
+    attribute (ee-gcc 2.9 doesn't support `naked`). Postprocess is
+    the right tool here.
 
 To add a new postprocess:
 
@@ -211,13 +291,15 @@ To add a new postprocess:
   4. Document the precondition (when it's safe to apply, what
      adjacent functions or call patterns are required).
 
-### Step 5: Park or `.skip` only after steps 1–4 are exhausted
+### Step 6: Park or `.skip` only after steps 1–5 are exhausted
 
 In the parked notes, name the SPECIFIC compiler/assembler limitation
 that blocks the match. "Regalloc differs" is not a documented reason
 unless you also name (a) the instruction, (b) the registers expected
 vs. emitted, (c) what mips.c rule allocates them, (d) why no C
-formulation hits a different rule.
+formulation hits a different rule, and (e) why a header-macro hasm
+promotion isn't appropriate (e.g., the body is too function-specific
+to share, or the issue is scheduling not C-expressibility).
 
 ## Picking the next target
 
