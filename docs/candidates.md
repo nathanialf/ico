@@ -2,7 +2,7 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-07 17:29:11 UTC
+- Generated: 2026-05-07 17:35:35 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
@@ -279,15 +279,12 @@ _125 total in this bucket; showing top 50._
 <a id="cond-deref-leaf"></a>
 ## Leaf (no jal) with branch, no VU (cond-return / deref+if)
 
-_51 total in this bucket; showing top 50._
+_48 total in this bucket; showing top 48._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
 | `func_001B7FC8` | 0x20 | 8 | 0 |  | `bgezl sw bgezl sw` | asm/cod/0B7CE0.s:243 |
-| `func_00136060` | 0x24 | 9 | 0 |  | `lw sltiu bnez lw` | asm/cod/033510.s:3409 |
-| `func_00145300` | 0x24 | 9 | 0 |  | `lw lw lw beqz` | asm/cod/044E54.s:380 |
 | `func_00154420` | 0x24 | 9 | 0 |  | `lw lw lw sltiu` | asm/cod/0538F4.s:873 |
-| `func_00157DA0` | 0x24 | 9 | 0 |  | `beqz addiu lw bne` | asm/cod/056488.s:1831 |
 | `func_001886D0` | 0x24 | 9 | 0 |  | `lui addiu andi beqz` | asm/cod/0882CC.s:314 |
 | `func_001BBEA0` | 0x24 | 9 | 0 |  | `lw lw beqz nop` | asm/cod/0BBEA0.s:13 |
 | `func_001E4700` | 0x24 | 9 | 0 |  | `lw addiu lw bnez` | asm/cod/0E237C.s:2674 |
@@ -312,7 +309,7 @@ _51 total in this bucket; showing top 50._
 | `func_001E9950` | 0x30 | 12 | 0 |  | `lw lw lw daddu` | asm/cod/0E994C.s:18 |
 | `func_001F4098` | 0x30 | 12 | 0 |  | `lw lw lw beql` | asm/cod/0F3A28.s:481 |
 | `func_00245EA8` | 0x30 | 12 | 0 |  | `lw lw div beql` | asm/cod/145EA4.s:18 |
-| `func_0014A0D8` | 0x24 | 9 | 0 |  | `lw bnel lw jr` | asm/cod/045648.s:5719 |
+| `func_0014A0D8` | 0x24 | 9 | 0 |  | `lw bnel lw jr` | asm/cod/049EF4.s:165 |
 | `func_0017E588` | 0x24 | 9 | 0 |  | `lw beqz addiu bne` | asm/cod/07E588.s:13 |
 | `func_001903E0` | 0x24 | 9 | 0 |  | `lw lw lbu beqz` | asm/cod/0903DC.s:18 |
 | `func_001D03A0` | 0x24 | 9 | 0 |  | `lw beqz lw beqz` | asm/cod/0CFA34.s:694 |
@@ -333,6 +330,7 @@ _51 total in this bucket; showing top 50._
 | `func_00182868` | 0x24 | 9 | 0 |  | `lw bne nop lwc1` | asm/cod/082868.s:13 |
 | `func_00244630` | 0x28 | 10 | 0 |  | `sltiu beqz lui sll` | asm/cod/144460.s:168 |
 | `func_00176B08` | 0x30 | 12 | 0 |  | `lui lw beqz daddu` | asm/cod/076B04.s:18 |
+| `func_001AAE70` | 0x2C | 11 | 0 |  | `ld addiu sllv and` | asm/cod/0AA69C.s:635 |
 
 <a id="vu-leaf-4-0x10"></a>
 ## 4-insn / 0x10 leaf, no jal, has VU (VU0 macro)
@@ -353,7 +351,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4124 unmatched functions are not in any shape bucket above._
+_4127 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 
