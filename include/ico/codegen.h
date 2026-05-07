@@ -99,4 +99,110 @@
         return _p;                                                  \
     }
 
+/*
+ * DEFINE_LA_INDEXED_A1_LW — leaf returning `*(int*)(BASE + (a1 << SCALE)
+ * + OFFSET)`. The index lives in $a1; the load lives in jr's delay slot.
+ *
+ *     lui   $v0, %hi(BASE)
+ *     sll   $a1, $a1, SCALE
+ *     addiu $v0, $v0, %lo(BASE)
+ *     addu  $a1, $a1, $v0
+ *     jr    $ra
+ *      lw   $v0, OFFSET($a1)
+ */
+#define DEFINE_LA_INDEXED_A1_LW(name, BASE, SCALE_LOG2, OFFSET)     \
+    int name(int unused, int idx)                                   \
+    {                                                               \
+        register int _r __asm__("$2");                              \
+        __asm__ volatile (                                          \
+            ".set noreorder\n\t"                                    \
+            "lui $2, %%hi(" #BASE ")\n\t"                           \
+            "sll $5, $5, " #SCALE_LOG2 "\n\t"                       \
+            "addiu $2, $2, %%lo(" #BASE ")\n\t"                     \
+            "addu $5, $5, $2\n\t"                                   \
+            "jr $31\n\t"                                            \
+            " lw $2, " #OFFSET "($5)\n\t"                           \
+            ".set reorder"                                          \
+            : "=r"(_r) :: "$5"                                      \
+        );                                                          \
+        return _r;                                                  \
+    }
+
+/*
+ * DEFINE_LA_INDEXED_A0_LWC1 — leaf returning `BASE[idx]` as float.
+ * Index in $a0; load is `lwc1` to $f0 in jr's delay slot.
+ */
+#define DEFINE_LA_INDEXED_A0_LWC1(name, BASE, SCALE_LOG2)           \
+    float name(int idx)                                             \
+    {                                                               \
+        register float _r __asm__("$f0");                           \
+        __asm__ volatile (                                          \
+            ".set noreorder\n\t"                                    \
+            "lui $2, %%hi(" #BASE ")\n\t"                           \
+            "sll $4, $4, " #SCALE_LOG2 "\n\t"                       \
+            "addiu $2, $2, %%lo(" #BASE ")\n\t"                     \
+            "addu $4, $4, $2\n\t"                                   \
+            "jr $31\n\t"                                            \
+            " lwc1 $f0, 0($4)\n\t"                                  \
+            ".set reorder"                                          \
+            : "=f"(_r) :: "$2", "$4"                                \
+        );                                                          \
+        return _r;                                                  \
+    }
+
+/*
+ * DEFINE_GETSET_SYM — atomic-looking get-and-set on a single sym:
+ * returns the prior value, stores the new one. Shared `lui` for both
+ * the lw and the sw, sw in jr's delay slot.
+ *
+ *     lui $v1, %hi(SYM)
+ *     lw  $v0, %lo(SYM)($v1)
+ *     jr  $ra
+ *      sw $a0, %lo(SYM)($v1)
+ */
+#define DEFINE_GETSET_SYM(name, SYM)                                \
+    int name(int new_val)                                           \
+    {                                                               \
+        register int _old __asm__("$2");                            \
+        __asm__ volatile (                                          \
+            ".set noreorder\n\t"                                    \
+            "lui $3, %%hi(" #SYM ")\n\t"                            \
+            "lw $2, %%lo(" #SYM ")($3)\n\t"                         \
+            "jr $31\n\t"                                            \
+            " sw $4, %%lo(" #SYM ")($3)\n\t"                        \
+            ".set reorder"                                          \
+            : "=r"(_old) :: "$3"                                    \
+        );                                                          \
+        return _old;                                                \
+    }
+
+/*
+ * DEFINE_LA_INDEXED_A0_SW_GP — write `gp_rel(GP_VAL)` to
+ * `BASE[idx<<SCALE]`. Index in $a0; sw in jr's delay slot.
+ *
+ *     lui   $v0, %hi(BASE)
+ *     sll   $a0, $a0, SCALE
+ *     addiu $v0, $v0, %lo(BASE)
+ *     lw    $v1, %gp_rel(GP_VAL)($gp)
+ *     addu  $a0, $a0, $v0
+ *     jr    $ra
+ *      sw   $v1, 0($a0)
+ */
+#define DEFINE_LA_INDEXED_A0_SW_GP(name, BASE, SCALE_LOG2, GP_VAL)  \
+    void name(int idx)                                              \
+    {                                                               \
+        __asm__ volatile (                                          \
+            ".set noreorder\n\t"                                    \
+            "lui $2, %%hi(" #BASE ")\n\t"                           \
+            "sll $4, $4, " #SCALE_LOG2 "\n\t"                       \
+            "addiu $2, $2, %%lo(" #BASE ")\n\t"                     \
+            "lw $3, %%gp_rel(" #GP_VAL ")($gp)\n\t"                 \
+            "addu $4, $4, $2\n\t"                                   \
+            "jr $31\n\t"                                            \
+            " sw $3, 0($4)\n\t"                                     \
+            ".set reorder"                                          \
+            ::: "$2", "$3", "$4"                                    \
+        );                                                          \
+    }
+
 #endif /* ICO_CODEGEN_H */
