@@ -2030,6 +2030,8 @@ segments:
       - [0x15E114, asm, cod/15E114]
       - [0x160610, c,   cod/160610]            # func_00260610: wrap func_00263110(ll, ll); return 0
       - [0x160634, asm, cod/160634]
+      - [0x1608E0, c,   cod/1608E0]            # func_002608E0: fabsf via 0x7FFFFFFF mask
+      - [0x160900, asm, cod/160900]
       - [0x160CA8, c,   cod/160CA8]            # func_00260CA8: guard + tail-call (void+return TCO trick)
       - [0x160CC8, asm, cod/160CC8]
       - [0x163F80, c,   cod/163F80]            # func_00263F80: 4-int packing buffer + 1-arg call
