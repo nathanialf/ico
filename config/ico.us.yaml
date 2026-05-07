@@ -775,6 +775,8 @@ segments:
       - [0x07E184, asm, cod/07E184]
       - [0x07E188, c,   cod/07E188]            # func_0017E188
       - [0x07E1A4, asm, cod/07E1A4]
+      - [0x07E240, c,   cod/07E240]            # func_0017E240: s0 = a0->164; s0+0x120 = func_001E29E8(a0, a1, s0+0x610)
+      - [0x07E26C, asm, cod/07E26C]
       - [0x07E328, c,   cod/07E328]            # func_0017E328: D_00633D40 = 0
       - [0x07E330, c,   cod/07E330]            # func_0017E330: wrap func_0017E358(a0,a1,a2,0,0,0)
       - [0x07E354, asm, cod/07E354]
