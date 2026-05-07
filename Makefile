@@ -75,7 +75,7 @@ ASFLAGS       := -EL -march=r5900 -mabi=eabi -G 8 -no-pad-sections -I$(INCLUDE_D
 # -G 8 must agree with ASFLAGS — see comment above. -S because ee-gcc
 # 2.96's bundled `as` is too old to parse modern flags; we re-assemble
 # the .s output with mips-linux-gnu-as in a second step.
-CFLAGS        := -S -G 8 -O2 -mips3 -EL -fno-builtin -fno-optimize-sibling-calls -nostdinc -I$(INCLUDE_DIR)
+CFLAGS        := -S -G 8 -O2 -mips3 -EL -fno-builtin -fno-optimize-sibling-calls -fno-schedule-insns2 -nostdinc -I$(INCLUDE_DIR)
 
 LDSCRIPT      := config/ico.$(VERSION).ld
 LDSCRIPT_EXTRA:= config/ico.$(VERSION).linker_script_extra.ld
