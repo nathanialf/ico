@@ -401,6 +401,26 @@ worker() {
         return 0
     fi
 
+    # Base-score-0 detection: when the seed already matches, the permuter
+    # logs "base score = 0" but `--best-only` means it never writes an
+    # output-0-* dir (no improvement over base is possible), and on
+    # `--stop-on-zero` it exits 1. Without this check, a score-0 seed
+    # gets perpetually re-queued every pass with "no-match". Treat as
+    # MATCH and synthesize an output-0-base/ entry so already_done()
+    # catches it on the next pass.
+    local permuter_log="${out_dir}/permuter.log"
+    if [ -f "${permuter_log}" ] \
+        && grep -qE '\[.*\] base score = 0' "${permuter_log}"; then
+        local base0_dir="${out_dir}/output-0-base"
+        if [ ! -d "${base0_dir}" ]; then
+            mkdir -p "${base0_dir}"
+            cp "${seed}" "${base0_dir}/source.c"
+            printf '0\n' > "${base0_dir}/score.txt"
+        fi
+        log "MATCH: ${name}  (base score = 0; seed already matches)"
+        return 0
+    fi
+
     if [ "${STOP_AT_SCORE}" -gt 0 ] && [ -d "${out_dir}" ]; then
         local best
         best=$(ls -d "${out_dir}"/output-*-* 2>/dev/null \
