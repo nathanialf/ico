@@ -239,6 +239,10 @@ segments:
       - [0x000C48, asm, cod/000C48]
       - [0x000C80, c,   cod/000C80]            # func_00100C80: syscall 0x5B
       - [0x000C90, asm, cod/000C90]
+      - [0x001AE8, c,   cod/001AE8]            # func_00101AE8: wrap func_00100950(2, &local=a0)
+      - [0x001B0C, asm, cod/001B0C]
+      - [0x001B40, c,   cod/001B40]            # func_00101B40: wrap func_00100950(4, &local=a0)
+      - [0x001B64, asm, cod/001B64]
       - [0x004A38, c,   cod/004A38]
       - [0x004A48, asm, cod/004A48]
       - [0x005258, c,   cod/005258]
@@ -491,6 +495,8 @@ segments:
       - [0x044308, asm, cod/044308]
       - [0x0445C0, c,   cod/0445C0]            # func_001445C0: return D_00632218
       - [0x0445C8, asm, cod/0445C8]
+      - [0x044E30, c,   cod/044E30]            # func_00144E30: func_0014A3A8(); tail call func_001A6E28(&D_00557ED0)
+      - [0x044E54, asm, cod/044E54]
       - [0x045638, c,   cod/045638]            # func_00145638: sw 0 to deref + tail call func_0014B228(a0, 0)
       - [0x045648, asm, cod/045648]
       - [0x04A2B0, c,   cod/04A2B0]            # func_0014A2B0: D_006AA4B0+0x4B4=0, +0x4B0=0
@@ -588,6 +594,8 @@ segments:
       - [0x06A1D4, asm, cod/06A1D4]
       - [0x06A2A0, c,   cod/06A2A0]            # func_0016A2A0: sqrt(x^2+y^2)
       - [0x06A2C4, asm, cod/06A2C4]
+      - [0x06A678, c,   cod/06A678]            # func_0016A678: func_0014A3A8(); tail call func_001A6E28(&D_00559430)
+      - [0x06A69C, asm, cod/06A69C]
       - [0x075C70, c,   cod/075C70]            # func_00175C70: if(D_00631AE8) sub2->3C0 = x
       - [0x075C90, c,   cod/075C90]            # func_00175C90: if(D_00631AE8) sub2->3C0 = 0
       - [0x075CB0, asm, cod/075CB0]
@@ -610,7 +618,8 @@ segments:
       - [0x07E188, c,   cod/07E188]            # func_0017E188
       - [0x07E1A4, asm, cod/07E1A4]
       - [0x07E328, c,   cod/07E328]            # func_0017E328: D_00633D40 = 0
-      - [0x07E330, asm, cod/07E330]
+      - [0x07E330, c,   cod/07E330]            # func_0017E330: wrap func_0017E358(a0,a1,a2,0,0,0)
+      - [0x07E354, asm, cod/07E354]
       - [0x07E550, c,   cod/07E550]            # func_0017E550: set 6 sdata fields (1 float, 1 int, 3 bytes, 1 int)
       - [0x07E570, c,   cod/07E570]            # func_0017E570: set 3 sdata: D_633798=1, D_6337A0=0, D_63379C=-f
       - [0x07E588, asm, cod/07E588]
@@ -733,6 +742,8 @@ segments:
       - [0x093EDC, asm, cod/093EDC]
       - [0x093F68, c,   cod/093F68]            # func_00193F68: p[0]=p[1]=1
       - [0x093F78, asm, cod/093F78]
+      - [0x094590, c,   cod/094590]            # func_00194590: abs(func_00194508(a0..a3))
+      - [0x0945B4, asm, cod/0945B4]
       - [0x097330, c,   cod/097330]
       - [0x097338, asm, cod/097338]
       - [0x098328, c,   cod/098328]            # func_00198328
@@ -807,15 +818,20 @@ segments:
       - [0x0AA4F0, asm, cod/0AA4F0]
       - [0x0AA5B8, c,   cod/0AA5B8]
       - [0x0AA5C0, asm, cod/0AA5C0]
+      - [0x0AA660, c,   cod/0AA660]            # func_001AA660: wrap func_001123C0(&D_00274EF0), return 1
+      - [0x0AA684, asm, cod/0AA684]
       - [0x0AA688, c,   cod/0AA688]            # func_001AA688: D_006329E8 = *(int*)0x10000000; return 0
       - [0x0AA69C, asm, cod/0AA69C]
       - [0x0AAEA0, c,   cod/0AAEA0]            # func_001AAEA0
       - [0x0AAEC0, asm, cod/0AAEC0]
       - [0x0AB150, c,   cod/0AB150]            # func_001AB150
       - [0x0AB170, c,   cod/0AB170]            # func_001AB170: same as 1AB150
-      - [0x0AB190, asm, cod/0AB190]
+      - [0x0AB190, c,   cod/0AB190]            # func_001AB190: wrap func_001A0A38(D_006310F4 float), return 1
+      - [0x0AB1B4, asm, cod/0AB1B4]
       - [0x0AB1B8, c,   cod/0AB1B8]            # func_001AB1B8
       - [0x0AB1D8, asm, cod/0AB1D8]
+      - [0x0ABF58, c,   cod/0ABF58]            # func_001ABF58: func_00244598(a0); tail call func_001123C0(&D_00274EF0)
+      - [0x0ABF7C, asm, cod/0ABF7C]
       - [0x0AD740, c,   cod/0AD740]
       - [0x0AD748, asm, cod/0AD748]
       - [0x0ADB70, c,   cod/0ADB70]            # func_001ADB70: 3-store with const 1
@@ -1350,8 +1366,12 @@ segments:
       - [0x16405C, asm, cod/16405C]
       - [0x164D50, c,   cod/164D50]            # func_00264D50
       - [0x164D60, asm, cod/164D60]
+      - [0x1657F0, c,   cod/1657F0]            # func_002657F0: wrap func_00265818(a0,a1,D_00553244+0x5C)
+      - [0x165814, asm, cod/165814]
       - [0x16B138, c,   cod/16B138]            # func_0026B138: return &D_00630658
       - [0x16B144, asm, cod/16B144]
+      - [0x16B178, c,   cod/16B178]            # func_0026B178: wrap func_0026B138(D_00553244)
+      - [0x16B19C, asm, cod/16B19C]
       - [0x16BEE0, c,   cod/16BEE0]
       - [0x16BEE8, c,   cod/16BEE8]
       - [0x16BEF0, asm, cod/16BEF0]
@@ -1359,6 +1379,8 @@ segments:
       - [0x16BFC4, asm, cod/16BFC4]
       - [0x16CF10, c,   cod/16CF10]            # func_0026CF10: func_0026A330() passthrough
       - [0x16CF2C, asm, cod/16CF2C]
+      - [0x16D488, c,   cod/16D488]            # func_0026D488: wrap func_0026D188(D_00553244)
+      - [0x16D4AC, asm, cod/16D4AC]
       - [0x16D538, c,   cod/16D538]            # func_0026D538: func_00245678() passthrough
       - [0x16D554, asm, cod/16D554]
       - [0x16D6A8, c,   cod/16D6A8]            # func_0026D6A8: func(p->54, (short)p->E)
