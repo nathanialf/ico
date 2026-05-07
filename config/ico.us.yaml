@@ -303,6 +303,10 @@ segments:
       - [0x00D088, asm, cod/00D088]
       - [0x00D180, c,   cod/00D180]
       - [0x00D198, asm, cod/00D198]
+      - [0x00D408, c,   cod/00D408]            # func_0010D408: tail call func_0010D838(p,p)=&D_00660A40[D_00631B7C*4]
+      - [0x00D424, asm, cod/00D424]
+      - [0x00D428, c,   cod/00D428]            # func_0010D428: tail call func_0010D830(&D_00660A40[D_00631B7C*4], a0)
+      - [0x00D444, asm, cod/00D444]
       - [0x00D520, c,   cod/00D520]            # func_0010D520: tail call func_0010D530(&D_00660A40) + gp_rel-set 0
       - [0x00D530, asm, cod/00D530]
       - [0x00DAA0, c,   cod/00DAA0]            # func_0010DAA0: &D_00660A40[D_00631B7C*4] (la-macro)
