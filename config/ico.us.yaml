@@ -896,6 +896,8 @@ segments:
       - [0x0E8BF0, asm, cod/0E8BF0]
       - [0x0E8D30, c,   cod/0E8D30]            # func_001E8D30: D_007097F0[idx*0x18] +0x14 (la mult lw)
       - [0x0E8D4C, asm, cod/0E8D4C]
+      - [0x0E8EA8, c,   cod/0E8EA8]            # func_001E8EA8: tail call func_001E8AB8 (triple-deref TCO)
+      - [0x0E8EB8, asm, cod/0E8EB8]
       - [0x0E8F28, c,   cod/0E8F28]
       - [0x0E8F30, c,   cod/0E8F30]
       - [0x0E8F38, asm, cod/0E8F38]

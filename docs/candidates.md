@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-07 05:26:42 UTC
+- Generated: 2026-05-07 05:29:18 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4677 total in `asm/cod/*.s`, 0 parked, 4677 considered
+- Functions: 4674 total in `asm/cod/*.s`, 0 parked, 4674 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -27,17 +27,15 @@ and `mtc1`/`lwc1`/`swc1`/`cvt.*`/`mfc1` float-pair sequences.
 <a id="leaf-4-0x10"></a>
 ## 4-insn / 0x10 leaf, no jal, no VU (bulk getter/setter)
 
-_24 total in this bucket; showing top 24._
+_22 total in this bucket; showing top 22._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
 | `func_0010EC50` | 0x10 | 4 | 0 |  | `daddu lw j sw` | asm/cod/00E950.s:283 |
 | `func_0010ECC8` | 0x10 | 4 | 0 |  | `lui lw j lw` | asm/cod/00E950.s:369 |
-| `func_00187318` | 0x10 | 4 | 0 |  | `lw lw j lw` | asm/cod/087318.s:13 |
 | `func_0019D9D8` | 0x10 | 4 | 0 |  | `lui ori j and` | asm/cod/09B948.s:2419 |
 | `func_0019E150` | 0x10 | 4 | 0 |  | `lui ori j and` | asm/cod/09DBE4.s:427 |
 | `func_0019E4E8` | 0x10 | 4 | 0 |  | `lui ori j and` | asm/cod/09E310.s:163 |
-| `func_001E8EA8` | 0x10 | 4 | 0 |  | `lw lw j lw` | asm/cod/0E8D4C.s:145 |
 | `func_001F0540` | 0x10 | 4 | 0 |  | `lw lw j lw` | asm/cod/0EFA60.s:807 |
 | `func_001F6C88` | 0x10 | 4 | 0 |  | `lui lui j sw` | asm/cod/0F6AA0.s:157 |
 | `func_0023E170` | 0x10 | 4 | 0 |  | `lui ori j and` | asm/cod/13D38C.s:1131 |
@@ -220,7 +218,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4547 unmatched functions are not in any shape bucket above._
+_4546 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 
