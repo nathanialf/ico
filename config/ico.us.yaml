@@ -755,6 +755,8 @@ segments:
       - [0x07905C, asm, cod/07905C]
       - [0x07A9B8, c,   cod/07A9B8]            # func_0017A9B8
       - [0x07A9D4, asm, cod/07A9D4]
+      - [0x07B230, c,   cod/07B230]            # func_0017B230: bit lookup: (D_0028A520[a0>>3] >> (a0 & 7)) & 1
+      - [0x07B254, asm, cod/07B254]
       - [0x07B2B8, c,   cod/07B2B8]            # func_0017B2B8: if(rc=func_0017E188()) tail call func_001F1868(rc)
       - [0x07B2E4, asm, cod/07B2E4]
       - [0x07B2E8, c,   cod/07B2E8]            # func_0017B2E8: if(rc=func_0017E188()) tail call func_001F19F0(rc)
@@ -791,6 +793,8 @@ segments:
       - [0x07E620, asm, cod/07E620]
       - [0x07E920, c,   cod/07E920]            # func_0017E920
       - [0x07E940, asm, cod/07E940]
+      - [0x07E9B0, c,   cod/07E9B0]            # func_0017E9B0: copy 3 floats from D_006CF940[0..2] to dst[0..2]
+      - [0x07E9D4, asm, cod/07E9D4]
       - [0x07E9D8, c,   cod/07E9D8]            # func_0017E9D8: if(D_00631AE4) clear bit 12 of sub+0x20
       - [0x07E9FC, asm, cod/07E9FC]
       - [0x07EA00, c,   cod/07EA00]            # func_0017EA00: if(D_00631AE4) set bit 12 of sub+0x20
