@@ -367,6 +367,24 @@ if grep -qE 'found a match' "${LOG}"; then
     exit 0
 fi
 
+# Base-score-0 detection: with --best-only, the permuter never writes
+# an output-*-* dir when the seed already matches (no improvement is
+# possible), and on --stop-on-zero it then exits non-zero. Synthesize
+# an output-0-base/ dir so callers (auto_permute.sh, dashboards) treat
+# the seed as a confirmed match instead of perpetually re-queuing it
+# with "no-match" every pass.
+if grep -qE '\[.*\] base score = 0' "${LOG}"; then
+    BASE0_DIR="${RUN_DIR}/output-0-base"
+    if [ ! -d "${BASE0_DIR}" ]; then
+        mkdir -p "${BASE0_DIR}"
+        cp "${SEED_C}" "${BASE0_DIR}/source.c"
+        printf '0\n' > "${BASE0_DIR}/score.txt"
+    fi
+    echo
+    echo "MATCH: ${FUNC_NAME} base score = 0 (seed already matches)."
+    exit 0
+fi
+
 echo
 echo "no permutation matched (permuter exit=${RC})"
 exit 1

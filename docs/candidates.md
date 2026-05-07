@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-07 18:03:10 UTC
+- Generated: 2026-05-07 18:11:43 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4433 total in `asm/cod/*.s`, 40 parked, 4393 considered
+- Functions: 4434 total in `asm/cod/*.s`, 44 parked, 4390 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -279,13 +279,12 @@ _124 total in this bucket; showing top 50._
 <a id="cond-deref-leaf"></a>
 ## Leaf (no jal) with branch, no VU (cond-return / deref+if)
 
-_42 total in this bucket; showing top 42._
+_38 total in this bucket; showing top 38._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
 | `func_001B7FC8` | 0x20 | 8 | 0 |  | `bgezl sw bgezl sw` | asm/cod/0B7CE0.s:243 |
 | `func_00154420` | 0x24 | 9 | 0 |  | `lw lw lw sltiu` | asm/cod/0538F4.s:873 |
-| `func_0013C510` | 0x28 | 10 | 0 |  | `beqz sw b sw` | asm/cod/03BB80.s:793 |
 | `func_0013F1D0` | 0x28 | 10 | 0 |  | `daddu beqz andi sw` | asm/cod/03F130.s:61 |
 | `func_001FB480` | 0x28 | 10 | 0 |  | `lw addiu div beql` | asm/cod/0FB480.s:13 |
 | `func_001FBA80` | 0x28 | 10 | 0 |  | `bgez slti jr sw` | asm/cod/0FB4C4.s:482 |
@@ -295,7 +294,6 @@ _42 total in this bucket; showing top 42._
 | `func_0013F960` | 0x2C | 11 | 0 |  | `lw beqz addiu lw` | asm/cod/03F884.s:104 |
 | `func_0018CA78` | 0x2C | 11 | 0 |  | `lui addiu lw slti` | asm/cod/08BEAC.s:901 |
 | `func_0018CAA8` | 0x2C | 11 | 0 |  | `lui addiu lw slt` | asm/cod/08BEAC.s:920 |
-| `func_0019DA98` | 0x2C | 11 | 0 |  | `lw lw subu beqz` | asm/cod/09D9E8.s:67 |
 | `func_0024BBC0` | 0x2C | 11 | 0 |  | `bgez sll lui b` | asm/cod/14BBC0.s:13 |
 | `func_002585F8` | 0x2C | 11 | 0 |  | `lw sra lw addu` | asm/cod/15846C.s:146 |
 | `func_0013CF08` | 0x30 | 12 | 0 |  | `lw lw sltu bnel` | asm/cod/03CD78.s:155 |
@@ -309,14 +307,12 @@ _42 total in this bucket; showing top 42._
 | `func_001903E0` | 0x24 | 9 | 0 |  | `lw lw lbu beqz` | asm/cod/0903DC.s:18 |
 | `func_0014B2F0` | 0x28 | 10 | 0 |  | `lw beqz daddu addiu` | asm/cod/04B270.s:67 |
 | `func_0017D0D0` | 0x28 | 10 | 0 |  | `sll beqz sra lw` | asm/cod/07CB1C.s:471 |
-| `func_001F4228` | 0x28 | 10 | 0 |  | `lw lw lw beqz` | asm/cod/0F40D8.s:127 |
 | `func_0013CBD0` | 0x2C | 11 | 0 |  | `lw lw sltu bnel` | asm/cod/03C5B4.s:564 |
 | `func_001653A0` | 0x30 | 12 | 0 |  | `lw lw lw bnez` | asm/cod/0652CC.s:91 |
 | `func_0016AC20` | 0x30 | 12 | 0 |  | `daddu addiu lw lw` | asm/cod/06A69C.s:449 |
 | `func_0017D0F8` | 0x30 | 12 | 0 |  | `beqz nop lw beqz` | asm/cod/07CB1C.s:490 |
 | `func_00198110` | 0x30 | 12 | 0 |  | `lw addiu beq daddu` | asm/cod/097FFC.s:97 |
 | `func_001D3D40` | 0x30 | 12 | 0 |  | `lw daddu lw beqz` | asm/cod/0D2550.s:1745 |
-| `func_001E8E80` | 0x28 | 10 | 0 |  | `bltz addiu lui mult` | asm/cod/0E8D6C.s:115 |
 | `func_0010EC68` | 0x2C | 11 | 0 |  | `daddu lw beqz sw` | asm/cod/00EC68.s:13 |
 | `func_001AE188` | 0x30 | 12 | 0 |  | `lui addiu addiu lhu` | asm/cod/0ADBBC.s:475 |
 | `func_001E8DE0` | 0x30 | 12 | 0 |  | `bgez addiu jr addiu` | asm/cod/0E8D6C.s:57 |
@@ -345,7 +341,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4132 unmatched functions are not in any shape bucket above._
+_4133 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 

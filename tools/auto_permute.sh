@@ -396,28 +396,18 @@ worker() {
 
     promote_best_into_seed "${name}"
 
-    if [ "${rc}" -eq 0 ]; then
-        log "MATCH: ${name}"
+    # Base-score-0 case: permute_run.sh now writes an output-0-base/
+    # dir when the seed already matches (see the matching block in that
+    # script). It exits 0 in that case, so we hit the rc==0 branch
+    # below — but we also explicitly detect the dir here for robustness
+    # (older permute_run.sh, hand-built runs, etc.).
+    if [ -d "${out_dir}/output-0-base" ]; then
+        log "MATCH: ${name}  (base score = 0; seed already matches)"
         return 0
     fi
 
-    # Base-score-0 detection: when the seed already matches, the permuter
-    # logs "base score = 0" but `--best-only` means it never writes an
-    # output-0-* dir (no improvement over base is possible), and on
-    # `--stop-on-zero` it exits 1. Without this check, a score-0 seed
-    # gets perpetually re-queued every pass with "no-match". Treat as
-    # MATCH and synthesize an output-0-base/ entry so already_done()
-    # catches it on the next pass.
-    local permuter_log="${out_dir}/permuter.log"
-    if [ -f "${permuter_log}" ] \
-        && grep -qE '\[.*\] base score = 0' "${permuter_log}"; then
-        local base0_dir="${out_dir}/output-0-base"
-        if [ ! -d "${base0_dir}" ]; then
-            mkdir -p "${base0_dir}"
-            cp "${seed}" "${base0_dir}/source.c"
-            printf '0\n' > "${base0_dir}/score.txt"
-        fi
-        log "MATCH: ${name}  (base score = 0; seed already matches)"
+    if [ "${rc}" -eq 0 ]; then
+        log "MATCH: ${name}"
         return 0
     fi
 
