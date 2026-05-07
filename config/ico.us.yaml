@@ -708,6 +708,8 @@ segments:
       - [0x0999A8, asm, cod/0999A8]
       - [0x09B938, c, cod/09B938]            # func_0019B938: 4-insn lwc1
       - [0x09B948, asm, cod/09B948]
+      - [0x09D9D8, c,   cod/09D9D8]            # func_0019D9D8: tail call func_00139598(a0 & 0x0FFFFFFF)
+      - [0x09D9E8, asm, cod/09D9E8]
       - [0x09DBA8, c,   cod/09DBA8]            # func_0019DBA8
       - [0x09DBC8, c,   cod/09DBC8]            # func_0019DBC8: func_00133510() passthrough
       - [0x09DBE4, asm, cod/09DBE4]
