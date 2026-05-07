@@ -1584,7 +1584,7 @@ segments:
       - [0x103C40, asm, cod/103C40]
       - [0x103CB8, c,   cod/103CB8]            # func_00203CB8: if(sub) sub->438 = val
       - [0x103CCC, asm, cod/103CCC]
-      - [0x103EE8, asm, cod/103EE8]
+      - [0x103EE8, c,   cod/103EE8]            # func_00203EE8: volatile a0 wrapper, dead read
       - [0x103F18, asm, cod/103F18]
       - [0x104E90, c,   cod/104E90]            # func_00204E90: return D_0063385C
       - [0x104E98, asm, cod/104E98]
@@ -1596,7 +1596,7 @@ segments:
       - [0x105B70, asm, cod/105B70]
       - [0x109AB0, c,   cod/109AB0]            # func_00209AB0: tail call func_001297A0(0xA2, 0, -1)
       - [0x109AC0, asm, cod/109AC0]
-      - [0x109F28, asm, cod/109F28]
+      - [0x109F28, c,   cod/109F28]            # func_00209F28: same shape as 103EE8
       - [0x109F58, asm, cod/109F58]
       - [0x10D208, c,   cod/10D208]            # func_0020D208: func_0017B258(0x138); func_00203B78(&func_0020D238, 0x15)
       - [0x10D238, asm, cod/10D238]
@@ -1733,7 +1733,7 @@ segments:
       - [0x135738, asm, cod/135738]
       - [0x1358F8, c,   cod/1358F8]            # func_002358F8: store-arg-discard
       - [0x135908, asm, cod/135908]
-      - [0x135A18, asm, cod/135A18]
+      - [0x135A18, c,   cod/135A18]            # func_00235A18: same shape as 103EE8
       - [0x135A48, asm, cod/135A48]
       - [0x135B68, c,   cod/135B68]            # func_00235B68: Sibling of 22F850 with last-arg = 0x20
       - [0x135B98, asm, cod/135B98]
