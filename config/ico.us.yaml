@@ -2090,6 +2090,8 @@ segments:
       - [0x16BEF0, asm, cod/16BEF0]
       - [0x16BF98, c,   cod/16BF98]            # func_0026BF98: linked-list push to arr[node->4]
       - [0x16BFC4, asm, cod/16BFC4]
+      - [0x16C370, c,   cod/16C370]            # func_0026C370: alloc + init flag/ptr; return base
+      - [0x16C3A8, asm, cod/16C3A8]
       - [0x16CF10, c,   cod/16CF10]            # func_0026CF10: func_0026A330() passthrough
       - [0x16CF2C, asm, cod/16CF2C]
       - [0x16D430, c,   cod/16D430]            # func_0026D430: D_00553244[0] + 1-arg passthrough (sibling of 16B148 family)
