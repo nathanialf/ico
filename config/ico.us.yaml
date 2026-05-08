@@ -1630,6 +1630,8 @@ segments:
       - [0x105B4C, asm, cod/105B4C]
       - [0x105B50, c,   cod/105B50]            # func_00205B50: promote: score-0 from permuter (parked tough_nut)
       - [0x105B70, asm, cod/105B70]
+      - [0x108740, c,   cod/108740]            # func_00208740: 2-call wrapper, conditional TCO on cond
+      - [0x108780, asm, cod/108780]
       - [0x109AB0, c,   cod/109AB0]            # func_00209AB0: tail call func_001297A0(0xA2, 0, -1)
       - [0x109AC0, asm, cod/109AC0]
       - [0x109F28, c,   cod/109F28]            # func_00209F28: same shape as 103EE8
