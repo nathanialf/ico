@@ -1506,6 +1506,8 @@ segments:
       - [0x0BA6F0, asm, cod/0BA6F0]
       - [0x0BA7C0, c,   cod/0BA7C0]            # func_001BA7C0: D_004BEA50[a0->_15C->_800->_8] lookup
       - [0x0BA7E4, asm, cod/0BA7E4]
+      - [0x0BA7E8, c,   cod/0BA7E8]            # func_001BA7E8: p=self->15C->800; ret=f(self,0); if(ret==-1){ zero p->{1C0,1C4,1C8}; return 0; } return ret
+      - [0x0BA834, asm, cod/0BA834]
       - [0x0BA838, c,   cod/0BA838]
       - [0x0BA880, asm, cod/0BA880]
       - [0x0BAEE0, c,   cod/0BAEE0]            # func_001BAEE0: tail call func_001A6E28(D_004BEFA8[a0->164->30])

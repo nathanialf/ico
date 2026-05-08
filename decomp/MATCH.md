@@ -420,8 +420,10 @@ faster still and persistent.
    run `tools/first_diff.py` and address the first divergence.
 5. If stuck near-match: try `lib/decomp-permuter/` (timeout 300 s for a
    first attempt). If still stuck, park.
-6. Once it matches, run `make progress`, run `./tools/check_no_rom.sh`,
-   commit. No AI co-author trailer.
+6. Once it matches, run `./tools/check_no_rom.sh`, commit. No AI
+   co-author trailer. (The progress tables are refreshed by
+   `tools/self-monitor.sh` on its 10 s tick — don't run `make progress`
+   from the matching loop.)
 
 ## Tough-nut parking
 

@@ -9,6 +9,14 @@ if [[ "$1" == "--once" ]]; then
     cols=${COLUMNS:-$(tput cols)}
     rule=$(printf '%*s\n' "$cols" '' | tr ' ' -)
 
+    # Refresh docs/PROGRESS.md from current src/ + yaml + built objects.
+    # Done here (not in per-match commits) so the matching loop doesn't
+    # carry the ~1s progress-regen cost. Output suppressed; progress.py
+    # is a no-op write when content hasn't changed.
+    if [[ -x .venv/bin/python ]]; then
+        .venv/bin/python tools/progress.py >/dev/null 2>&1 || true
+    fi
+
     echo "$rule"
     # Render the markdown table (header + 6 data rows) as a fixed-width
     # table: strip the leading/trailing pipes, drop the markdown
