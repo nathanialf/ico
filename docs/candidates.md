@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-08 18:44:06 UTC
+- Generated: 2026-05-08 18:47:08 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4298 total in `asm/cod/*.s`, 102 parked, 4196 considered
+- Functions: 4297 total in `asm/cod/*.s`, 102 parked, 4195 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -201,7 +201,7 @@ _1 total in this bucket; showing top 1._
 <a id="wrap-1jal-0x40-0x60"></a>
 ## 0x40-0x60, exactly 1 jal, no VU (mid-size wrapper)
 
-_58 total in this bucket; showing top 50._
+_55 total in this bucket; showing top 50._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
@@ -242,10 +242,7 @@ _58 total in this bucket; showing top 50._
 | `func_0024E4C8` | 0x60 | 24 | 1 |  | `addiu addiu mult mult1` | asm/cod/14DAB8.s:817 |
 | `func_0025DEF0` | 0x60 | 24 | 1 |  | `addiu ori dsll sd` | asm/cod/15DDEC.s:102 |
 | `func_0025DF50` | 0x60 | 24 | 1 |  | `addiu ori dsll sd` | asm/cod/15DDEC.s:133 |
-| `func_001381D0` | 0x44 | 17 | 1 |  | `addiu daddu sd addiu` | asm/cod/038138.s:65 |
-| `func_00138218` | 0x44 | 17 | 1 |  | `addiu daddu sd addiu` | asm/cod/038138.s:89 |
 | `func_0014B000` | 0x44 | 17 | 1 |  | `addiu sd beqz sd` | asm/cod/04A2C4.s:1118 |
-| `func_00138188` | 0x48 | 18 | 1 |  | `addiu daddu sd addiu` | asm/cod/038138.s:41 |
 | `func_001BA770` | 0x4C | 19 | 1 |  | `addiu lui sd addiu` | asm/cod/0BA6F0.s:59 |
 | `func_0025C490` | 0x4C | 19 | 1 |  | `daddu daddu daddu addiu` | asm/cod/158D0C.s:4283 |
 | `func_00138138` | 0x50 | 20 | 1 |  | `addiu nop addiu daddu` | asm/cod/038138.s:13 |
@@ -255,6 +252,9 @@ _58 total in this bucket; showing top 50._
 | `func_0024EF20` | 0x54 | 21 | 1 |  | `daddu addiu addiu mult1` | asm/cod/14DAB8.s:1681 |
 | `func_0010A1A0` | 0x5C | 23 | 1 |  | `addiu sd lw daddu` | asm/cod/00A19C.s:18 |
 | `func_0024EEC0` | 0x5C | 23 | 1 |  | `daddu addiu addiu mult1` | asm/cod/14DAB8.s:1649 |
+| `func_0023D420` | 0x44 | 17 | 1 |  | `addiu addiu bne sd` | asm/cod/13D38C.s:65 |
+| `func_0024EF78` | 0x54 | 21 | 1 |  | `daddu addiu addiu mult1` | asm/cod/14DAB8.s:1713 |
+| `func_0017B398` | 0x60 | 24 | 1 |  | `addiu sd sd daddu` | asm/cod/07B394.s:18 |
 
 <a id="wrap-2jal-0x40-0x60"></a>
 ## 0x40-0x60, exactly 2 jal, no VU (2-call mid-size wrapper)
@@ -333,7 +333,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_3966 unmatched functions are not in any shape bucket above._
+_3968 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 
