@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-08 19:52:03 UTC
+- Generated: 2026-05-08 19:53:40 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4279 total in `asm/cod/*.s`, 102 parked, 4177 considered
+- Functions: 4278 total in `asm/cod/*.s`, 102 parked, 4176 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -199,7 +199,7 @@ _0 total in this bucket; showing top 0._
 <a id="wrap-1jal-0x40-0x60"></a>
 ## 0x40-0x60, exactly 1 jal, no VU (mid-size wrapper)
 
-_42 total in this bucket; showing top 42._
+_41 total in this bucket; showing top 41._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
@@ -223,7 +223,7 @@ _42 total in this bucket; showing top 42._
 | `func_0015F248` | 0x4C | 19 | 1 |  | `addiu sd lw lw` | asm/cod/05F244.s:18 |
 | `func_001F10A8` | 0x4C | 19 | 1 |  | `addiu lui mult addiu` | asm/cod/0F0F98.s:105 |
 | `func_0025E198` | 0x50 | 20 | 1 |  | `addiu daddu sd sltiu` | asm/cod/15E198.s:13 |
-| `func_0013D440` | 0x54 | 21 | 1 |  | `addiu daddu sd sd` | asm/cod/03D3F8.s:39 |
+| `func_0013D440` | 0x54 | 21 | 1 |  | `addiu daddu sd sd` | asm/cod/03D440.s:13 |
 | `func_001AE1B8` | 0x54 | 21 | 1 |  | `addiu sd sd daddu` | asm/cod/0AE1B8.s:13 |
 | `func_001F0878` | 0x5C | 23 | 1 |  | `addiu addiu sd lui` | asm/cod/0F0878.s:13 |
 | `func_001019E0` | 0x60 | 24 | 1 |  | `addiu lui sd addiu` | asm/cod/0019E0.s:13 |
@@ -241,7 +241,6 @@ _42 total in this bucket; showing top 42._
 | `func_0024EEC0` | 0x5C | 23 | 1 |  | `daddu addiu addiu mult1` | asm/cod/14DAB8.s:1649 |
 | `func_0024EF78` | 0x54 | 21 | 1 |  | `daddu addiu addiu mult1` | asm/cod/14DAB8.s:1713 |
 | `func_0017B398` | 0x60 | 24 | 1 |  | `addiu sd sd daddu` | asm/cod/07B394.s:18 |
-| `func_0013D3F8` | 0x48 | 18 | 1 |  | `addiu daddu sd bnez` | asm/cod/03D3F8.s:13 |
 | `func_001ADBC0` | 0x54 | 21 | 1 |  | `addiu lui sd addiu` | asm/cod/0ADBBC.s:18 |
 | `func_0023C540` | 0x58 | 22 | 1 |  | `addiu sd jal nop` | asm/cod/13C1C0.s:305 |
 | `func_0023C598` | 0x58 | 22 | 1 |  | `addiu sd jal nop` | asm/cod/13C1C0.s:335 |
