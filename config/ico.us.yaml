@@ -2199,10 +2199,14 @@ segments:
       - [0x15DD04, asm, cod/15DD04]
       - [0x15DD08, c,   cod/15DD08]            # func_0025DD08: func_002591F0(0x3D, 0, 0, 0)
       - [0x15DD1C, asm, cod/15DD1C]
+      - [0x15DDB0, c,   cod/15DDB0]            # func_0025DDB0: if a0 < 0x30: func_002591F0(0x3F, a0, 0, 0); return 0 else -1
+      - [0x15DDEC, asm, cod/15DDEC]
       - [0x15E020, c,   cod/15E020]            # func_0025E020: func_002591F0(0x46, 0, 0, 0)
       - [0x15E034, asm, cod/15E034]
       - [0x15E038, c,   cod/15E038]            # func_0025E038: func_002591F0(0x47, 0, 0, 0)
       - [0x15E04C, asm, cod/15E04C]
+      - [0x15E0C0, c,   cod/15E0C0]            # func_0025E0C0: same shape as 25DDB0; bound 0x10, const 0x49
+      - [0x15E0FC, asm, cod/15E0FC]
       - [0x15E100, c,   cod/15E100]            # func_0025E100: func_002591F0(0x4E, a0, 0, 0)
       - [0x15E114, asm, cod/15E114]
       - [0x15E118, c,   cod/15E118]            # func_0025E118: if (a0 & 0xFF000000) == 0 then func_002591F0(0x4B, (int)a0, 0, 0)
