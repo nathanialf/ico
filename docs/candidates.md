@@ -2,7 +2,7 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-08 02:41:14 UTC
+- Generated: 2026-05-08 02:43:34 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
@@ -247,14 +247,13 @@ _122 total in this bucket; showing top 50._
 <a id="cond-deref-leaf"></a>
 ## Leaf (no jal) with branch, no VU (cond-return / deref+if)
 
-_27 total in this bucket; showing top 27._
+_26 total in this bucket; showing top 26._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
 | `func_0013F1D0` | 0x28 | 10 | 0 |  | `daddu beqz andi sw` | asm/cod/03F130.s:61 |
 | `func_001FB480` | 0x28 | 10 | 0 |  | `lw addiu div beql` | asm/cod/0FB480.s:13 |
 | `func_00244958` | 0x28 | 10 | 0 |  | `lui lui ori ori` | asm/cod/144748.s:169 |
-| `func_0013F848` | 0x2C | 11 | 0 |  | `lw beqz nop lw` | asm/cod/03F810.s:37 |
 | `func_0013F960` | 0x2C | 11 | 0 |  | `lw beqz addiu lw` | asm/cod/03F930.s:31 |
 | `func_0018CA78` | 0x2C | 11 | 0 |  | `lui addiu lw slti` | asm/cod/08BEAC.s:901 |
 | `func_0018CAA8` | 0x2C | 11 | 0 |  | `lui addiu lw slt` | asm/cod/08BEAC.s:920 |
@@ -298,7 +297,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4147 unmatched functions are not in any shape bucket above._
+_4148 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 

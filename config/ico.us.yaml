@@ -620,6 +620,8 @@ segments:
       - [0x03F6FC, asm, cod/03F6FC]
       - [0x03F808, c,   cod/03F808]            # func_0013F808: sw_zero +0x18
       - [0x03F810, asm, cod/03F810]
+      - [0x03F848, c,   cod/03F848]            # func_0013F848: linked-list traverse, set _18=0 if _1C==a1
+      - [0x03F874, asm, cod/03F874]
       - [0x03F878, c,   cod/03F878]            # func_0013F878: self[6] = 1, return 1
       - [0x03F884, asm, cod/03F884]
       - [0x03F888, c,   cod/03F888]            # func_0013F888: linked-list traverse, set _18=1
