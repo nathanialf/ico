@@ -1218,6 +1218,8 @@ segments:
       - [0x0970E8, asm, cod/0970E8]
       - [0x097330, c,   cod/097330]
       - [0x097338, asm, cod/097338]
+      - [0x0973A8, c,   cod/0973A8]            # func_001973A8: if(a0>=0){ v=f(a0); tail g(v+0x40, a1); }
+      - [0x0973EC, asm, cod/0973EC]
       - [0x097FE8, c,   cod/097FE8]            # func_00197FE8: func_002641D8(&D_006D35E0, 0, 0xD50)
       - [0x097FFC, asm, cod/097FFC]
       - [0x098110, c,   cod/098110]            # func_00198110: func_00198110: return D_00631990 in {0x54, 0x3, 0x2E} ? 1 : 0
