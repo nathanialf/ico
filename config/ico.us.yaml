@@ -1409,6 +1409,8 @@ segments:
       - [0x0AB3CC, asm, cod/0AB3CC]
       - [0x0ABF58, c,   cod/0ABF58]            # func_001ABF58: func_00244598(a0); tail call func_001123C0(&D_00274EF0)
       - [0x0ABF7C, asm, cod/0ABF7C]
+      - [0x0AC300, c,   cod/0AC300]            # func_001AC300: f1(1); f2(0x10,0x20,0x30,0x40,-0x136,-0x6B,0x136,0x6B,0); tail f1(1)
+      - [0x0AC348, asm, cod/0AC348]
       - [0x0AD740, c,   cod/0AD740]
       - [0x0AD748, hasm,   cod/0AD748]            # handwritten asm leaf (was C with inline asm)
       - [0x0AD764, asm, cod/0AD764]
