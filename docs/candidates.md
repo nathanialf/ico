@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-08 15:22:56 UTC
+- Generated: 2026-05-08 15:36:39 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4333 total in `asm/cod/*.s`, 94 parked, 4239 considered
+- Functions: 4330 total in `asm/cod/*.s`, 96 parked, 4234 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -207,7 +207,7 @@ _3 total in this bucket; showing top 3._
 <a id="wrap-1jal-0x40-0x60"></a>
 ## 0x40-0x60, exactly 1 jal, no VU (mid-size wrapper)
 
-_94 total in this bucket; showing top 50._
+_89 total in this bucket; showing top 50._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
@@ -242,25 +242,25 @@ _94 total in this bucket; showing top 50._
 | `func_0013C820` | 0x58 | 22 | 1 |  | `addiu sd daddu beqz` | asm/cod/03C5B4.s:206 |
 | `func_001AE8F0` | 0x58 | 22 | 1 |  | `addiu sd sd daddu` | asm/cod/0AE89C.s:45 |
 | `func_001F3F58` | 0x58 | 22 | 1 |  | `addiu sd sd daddu` | asm/cod/0F3A28.s:383 |
-| `func_00245120` | 0x58 | 22 | 1 |  | `addiu sd daddu sd` | asm/cod/1450C8.s:47 |
-| `func_00245178` | 0x58 | 22 | 1 |  | `addiu sd daddu sd` | asm/cod/1450C8.s:75 |
-| `func_002451D0` | 0x58 | 22 | 1 |  | `addiu addiu sd sd` | asm/cod/1450C8.s:103 |
-| `func_0026EC10` | 0x58 | 22 | 1 |  | `addiu sd sd daddu` | asm/cod/16E874.s:308 |
+| `func_002451D0` | 0x58 | 22 | 1 |  | `addiu addiu sd sd` | asm/cod/1451D0.s:13 |
+| `func_0026EC10` | 0x58 | 22 | 1 |  | `addiu sd sd daddu` | asm/cod/16EB50.s:77 |
 | `func_00176398` | 0x5C | 23 | 1 |  | `addiu addiu sd daddu` | asm/cod/0761B8.s:159 |
 | `func_0026D128` | 0x5C | 23 | 1 |  | `addiu sd sd lui` | asm/cod/16CF2C.s:187 |
-| `func_0026EC68` | 0x5C | 23 | 1 |  | `addiu sd sd daddu` | asm/cod/16E874.s:337 |
+| `func_0026EC68` | 0x5C | 23 | 1 |  | `addiu sd sd daddu` | asm/cod/16EB50.s:107 |
 | `func_0013C538` | 0x60 | 24 | 1 |  | `addiu sd sd daddu` | asm/cod/03C538.s:13 |
 | `func_0013CF80` | 0x60 | 24 | 1 |  | `addiu sd sd daddu` | asm/cod/03CF7C.s:18 |
 | `func_001444A0` | 0x60 | 24 | 1 |  | `addiu lui sd sd` | asm/cod/044308.s:145 |
 | `func_00245410` | 0x60 | 24 | 1 |  | `addiu sd daddu sw` | asm/cod/1453CC.s:41 |
 | `func_00245FD0` | 0x60 | 24 | 1 |  | `addiu sd daddu sd` | asm/cod/145F18.s:75 |
-| `func_0026EAF0` | 0x60 | 24 | 1 |  | `addiu sd daddu sd` | asm/cod/16E874.s:214 |
-| `func_0026ECC8` | 0x60 | 24 | 1 |  | `addiu sd daddu sd` | asm/cod/16E874.s:368 |
-| `func_0026ED28` | 0x60 | 24 | 1 |  | `addiu sd daddu sd` | asm/cod/16E874.s:399 |
 | `func_0014B048` | 0x44 | 17 | 1 |  | `addiu sd sd lw` | asm/cod/04A2C4.s:1145 |
 | `func_00168690` | 0x44 | 17 | 1 |  | `addiu daddu sd sd` | asm/cod/0685DC.s:74 |
 | `func_0019BA60` | 0x44 | 17 | 1 |  | `addiu addiu sd sd` | asm/cod/09B948.s:107 |
 | `func_001AA210` | 0x44 | 17 | 1 |  | `addiu sd sd addiu` | asm/cod/0AA0C0.s:121 |
+| `func_0023C17C` | 0x44 | 17 | 1 |  | `addiu addiu sd jal` | asm/cod/13C17C.s:12 |
+| `func_0025E238` | 0x44 | 17 | 1 |  | `addiu daddu sd daddu` | asm/cod/15E198.s:71 |
+| `func_00265B28` | 0x44 | 17 | 1 |  | `addiu sd sd daddu` | asm/cod/165B24.s:18 |
+| `func_00266870` | 0x44 | 17 | 1 |  | `addiu sd sd daddu` | asm/cod/165B24.s:1130 |
+| `func_00203A10` | 0x48 | 18 | 1 |  | `addiu daddu sd daddu` | asm/cod/103918.s:83 |
 
 <a id="wrap-2jal-0x40-0x60"></a>
 ## 0x40-0x60, exactly 2 jal, no VU (2-call mid-size wrapper)
@@ -334,7 +334,7 @@ _1 total in this bucket; showing top 1._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
-| `func_00245258` | 0x18 | 6 | 0 | Y | `lw addiu sq sw` | asm/cod/1450C8.s:149 |
+| `func_00245258` | 0x18 | 6 | 0 | Y | `lw addiu sq sw` | asm/cod/1451D0.s:59 |
 
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)

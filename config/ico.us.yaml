@@ -2073,6 +2073,9 @@ segments:
       - [0x1450A8, c,   cod/1450A8]            # func_002450A8: 0/8/4 stores
       - [0x1450B8, c,   cod/1450B8]            # func_002450B8
       - [0x1450C8, asm, cod/1450C8]
+      - [0x145120, asm, cod/145120]
+      - [0x145178, asm, cod/145178]
+      - [0x1451D0, asm, cod/1451D0]
       - [0x1453C0, c,   cod/1453C0]            # func_002453C0: D_005507D0=0; tail call func_00245B58(a0)
       - [0x1453CC, asm, cod/1453CC]
       - [0x145568, c,   cod/145568]            # func_00245568: rc=func_00264050(...); *rc=5; ret -1
@@ -2366,6 +2369,11 @@ segments:
       - [0x16E61C, asm, cod/16E61C]
       - [0x16E840, c,   cod/16E840]            # func_0026E840: D[0] + 3-arg passthrough sibling of 265AF0
       - [0x16E874, asm, cod/16E874]
+      - [0x16EAF0, c,   cod/16EAF0]            # func_0026EAF0: func_0026EAF0: D_00633FF0 = 0; ret = f(a1,a2,a3); if(ret==-1 && D!=0) self[0]=D
+      - [0x16EB50, asm, cod/16EB50]
+      - [0x16ECC8, c,   cod/16ECC8]            # func_0026ECC8: func_0026ECC8: same shape, calls func_002455A0
+      - [0x16ED28, c,   cod/16ED28]            # func_0026ED28: func_0026ED28: same shape, calls func_002454F0
+      - [0x16ED88, asm, cod/16ED88]
       - [0x16F420, c,   cod/16F420]            # func_0026F420: tail call func_0026F2F8 with both args masked &~0x3F
       - [0x16F434, asm, cod/16F434]
       - [0x16F560, c,   cod/16F560]            # func_0026F560: tail call func_0026F438 with both args masked &~0x3F
