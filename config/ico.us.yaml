@@ -284,6 +284,8 @@ segments:
       - [0x004F1C, asm, cod/004F1C]
       - [0x004F20, asm, cod/004F20]
       - [0x004F44, asm, cod/004F44]
+      - [0x0050B0, asm, cod/0050B0]
+      - [0x0050E0, asm, cod/0050E0]
       - [0x005258, c,   cod/005258]
       - [0x005268, c,   cod/005268]
       - [0x005278, c,   cod/005278]            # func_00105278: la-macro &D_0065FA40[D_00631B40<<6/4]
