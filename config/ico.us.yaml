@@ -312,6 +312,10 @@ segments:
       - [0x006B7C, asm, cod/006B7C]
       - [0x006D68, asm, cod/006D68]
       - [0x006DA4, asm, cod/006DA4]
+      - [0x006DA8, c,   cod/006DA8]            # func_00106DA8: f(a0,a1); f(a0+0x10,a0); *(float*)(a0+0x14)+=D; tail f3(a0)
+      - [0x006DEC, asm, cod/006DEC]
+      - [0x006DF0, c,   cod/006DF0]            # func_00106DF0: sibling, D_0063094C, tail func_00168558
+      - [0x006E34, asm, cod/006E34]
       - [0x009B98, c,   cod/009B98]
       - [0x009BA8, c,   cod/009BA8]
       - [0x009BB8, asm, cod/009BB8]
