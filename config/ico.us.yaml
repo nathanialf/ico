@@ -1609,7 +1609,7 @@ segments:
       - [0x0E8E10, asm, cod/0E8E10]
       - [0x0E8E80, c,   cod/0E8E80]            # func_001E8E80: promote: score-0 (CSE-defeat via re-deref)
       - [0x0E8EA8, c,   cod/0E8EA8]            # func_001E8EA8: tail call func_001E8AB8 (triple-deref TCO)
-      - [0x0E8EB8, asm, cod/0E8EB8]
+      - [0x0E8EB8, c,   cod/0E8EB8]            # func_001E8EB8: func_001E8EB8: alloc 4-byte slot, call func_001E8B48(other->_30, other, self->_15C+0x60), store result, ret slot
       - [0x0E8F28, c,   cod/0E8F28]
       - [0x0E8F30, c,   cod/0E8F30]
       - [0x0E8F38, asm, cod/0E8F38]
