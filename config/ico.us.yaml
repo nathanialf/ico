@@ -658,7 +658,8 @@ segments:
       - [0x03D3D8, c,   cod/03D3D8]            # func_0013D3D8: if a0: tail call func_00100370 else func_00100350
       - [0x03D3F0, c,   cod/03D3F0]            # func_0013D3F0: tail call func_00100440 passthrough
       - [0x03D3F8, c,   cod/03D3F8]            # func_0013D3F8: a1 = a0 ? a0 : D[f()]; tail f2(D2, a1, 0)
-      - [0x03D440, asm, cod/03D440]
+      - [0x03D440, c,   cod/03D440]            # func_0013D440: p = a0 ? a0 : (int*)D[f()]; p->18 = a1; tail f2(p->30, a1)
+      - [0x03D494, asm, cod/03D494]
       - [0x03D538, c,   cod/03D538]            # func_0013D538: auto-batch
       - [0x03D540, c,   cod/03D540]            # func_0013D540: auto-batch
       - [0x03D548, c,   cod/03D548]            # func_0013D548: auto-batch
