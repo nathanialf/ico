@@ -1404,6 +1404,7 @@ segments:
       - [0x0C3984, asm, cod/0C3984]
       - [0x0C8A00, c,   cod/0C8A00]            # func_001C8A00: *(float*)(a0 + a1*0x50 + 0x10) = f
       - [0x0C8A14, asm, cod/0C8A14]
+      - [0x0C8B20, c,   cod/0C8B20]            # func_001C8B20: *(float*)(a0+a1*0x50+0x10) = -1.0f; a0->_C--
       - [0x0C8B48, c,   cod/0C8B48]            # func_001C8B48: f12 / *(float*)(a0+0x14)
       - [0x0C8B60, asm, cod/0C8B60]
       - [0x0C8DE8, c   ,   cod/0C8DE8]            # VU0 wrapper (vu0.h macros)
