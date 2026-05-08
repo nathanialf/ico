@@ -2180,6 +2180,10 @@ segments:
       - [0x13CD1C, asm, cod/13CD1C]
       - [0x13D030, c,   cod/13D030]            # func_0023D030: copy 2 sdata floats to *self->34, return 1
       - [0x13D04C, asm, cod/13D04C]
+      - [0x13D170, c,   cod/13D170]            # func_0023D170: byte-identical sibling of 0023C290
+      - [0x13D1D0, asm, cod/13D1D0]
+      - [0x13D2E8, c,   cod/13D2E8]            # func_0023D2E8: byte-identical sibling of 0023C290
+      - [0x13D348, asm, cod/13D348]
       - [0x13D370, c,   cod/13D370]            # func_0023D370: copy 2 sdata floats to *self->34, return 1
       - [0x13D38C, asm, cod/13D38C]
       - [0x13D420, c,   cod/13D420]            # func_0023D420: if(idx==-1) p=&D2; else p=&D[idx*0x194]; tail f(p)
