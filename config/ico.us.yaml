@@ -403,6 +403,8 @@ segments:
       - [0x0118E4, asm, cod/0118E4]
       - [0x0118E8, c,   cod/0118E8]            # func_001118E8: sibling: func_0010F710 instead of F5D8
       - [0x011914, asm, cod/011914]
+      - [0x011918, asm, cod/011918]
+      - [0x01193C, asm, cod/01193C]
       - [0x011940, c,   cod/011940]
       - [0x011948, asm, cod/011948]
       - [0x014DD8, c,   cod/014DD8]            # func_00114DD8: copy 4 bytes from D_00672E90[0,4,8,C] to a0[0..3]

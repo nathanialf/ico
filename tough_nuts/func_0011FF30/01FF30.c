@@ -10,6 +10,10 @@ void func_0011FF30(void)
   new_var = 2;
   func_001FBA80();
   new_var2 = (int) D_00555830;
- do { func_001FBAA8(new_var, new_var2, 4); } while (0);
+  do
+  {
+    func_001FBAA8(new_var, new_var2, new_var = 4);
+  }
+  while (0);
   func_001FB8B8();
 }
