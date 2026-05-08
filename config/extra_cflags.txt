@@ -24,5 +24,8 @@
 # Disabling only the first-pass scheduler for this TU restores the
 # matching prologue without breaking the other 4 functions (which depend
 # on the default second-pass scheduling that remains enabled).
+#
+# Tested promoting to global CFLAGS — broke 2.2M bytes of matched .text,
+# so the first-pass scheduler is load-bearing for the rest of the codebase.
 
 BASIC -fno-schedule-insns
