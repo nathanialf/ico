@@ -1378,6 +1378,8 @@ segments:
       - [0x0A2D74, asm, cod/0A2D74]
       - [0x0A2E10, c,   cod/0A2E10]            # func_001A2E10: frame + D=-1
       - [0x0A2E24, asm, cod/0A2E24]
+      - [0x0A31C0, c,   cod/0A31C0]            # func_001A31C0: if(D!=-1) f1(1,D); D=f2(1, &func_X, -1); tail f3(1)
+      - [0x0A3204, asm, cod/0A3204]
       - [0x0A3340, asm, cod/0A3340]
       - [0x0A3394, asm, cod/0A3394]
       - [0x0A43F0, c,   cod/0A43F0]            # func_001A43F0: tail call func_001A4220 passthrough
