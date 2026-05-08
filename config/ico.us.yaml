@@ -310,6 +310,8 @@ segments:
       - [0x006AB4, asm, cod/006AB4]
       - [0x006B70, c,   cod/006B70]            # func_00106B70: tail call func_00102FA0(a0, a1, *(a1+0x15C)+0x520)
       - [0x006B7C, asm, cod/006B7C]
+      - [0x006D68, asm, cod/006D68]
+      - [0x006DA4, asm, cod/006DA4]
       - [0x009B98, c,   cod/009B98]
       - [0x009BA8, c,   cod/009BA8]
       - [0x009BB8, asm, cod/009BB8]
@@ -778,6 +780,8 @@ segments:
       - [0x054E70, asm, cod/054E70]
       - [0x056480, c,   cod/056480]            # func_00156480: tail call func_00201DC8 passthrough
       - [0x056488, asm, cod/056488]
+      - [0x057BF8, c,   cod/057BF8]            # func_00157BF8: func_0015EFF8(self) returns ptr; copy ptr->_4 (float) to a1+_4; tail-call func_00104360(self, a1)
+      - [0x057C38, asm, cod/057C38]
       - [0x057DA0, c,   cod/057DA0]            # func_00157DA0: double-guard + tail-call (void+return TCO)
       - [0x057DC4, asm, cod/057DC4]
       - [0x059230, c,   cod/059230]            # func_00159230: tail call func_00106AB8 (double-deref TCO)
