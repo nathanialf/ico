@@ -1111,7 +1111,7 @@ segments:
       - [0x090634, asm, cod/090634]
       - [0x090638, c, cod/090638]            # func_00190638: 4-insn sb_zero
       - [0x090648, c,   cod/090648]            # func_00190648: return *(float)(sub->800 + 0xC8)
-      - [0x090658, asm, cod/090658]
+      - [0x090658, c,   cod/090658]            # func_00190658: func_00190658: return (float)(self->_15C->_800->_74 - 1) * 50.0f
       - [0x090680, c,   cod/090680]            # func_00190680
       - [0x090694, asm, cod/090694]
       - [0x090698, c, cod/090698]            # func_00190698: 4-insn sb_zero

@@ -8,3 +8,17 @@ Asm source: `asm/cod/0E994C.s`
 **Reason parked:** counter-increment + tail-call wrapper compiles to 9 instructions instead of expected 12. ee-gcc 2.9 picks tighter regalloc (skipping the `daddu v0, v1, 0` save before increment+slti) and inlines the increment into the delay slot of bnez. Original has explicit save-then-increment-then-compare structure that the simple C body doesn't reproduce. Try `int v_inc = v + 1; ... = v_inc;` or volatile reads.
 
 Seed: `tough_nuts/func_001E9950/0E9950.c`
+
+---
+
+## Attempt at 2026-05-08
+
+**Reason parked:** counter-with-wrap: ee-gcc fuses old+1 (11 insns); original separates old in v0, new in v1 (12 insns)
+
+Seed: `tough_nuts/func_001E9950/0E9950.c.new`
+
+Disassembly excerpt:
+
+```
+(no asm/cod/*.s found for func_001E9950; check asm/matchings/cod/0E9950/)
+```
