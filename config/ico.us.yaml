@@ -586,6 +586,8 @@ segments:
       - [0x0380F0, asm, cod/0380F0]
       - [0x0380F8, c   , cod/0380F8]            # dispatch wrapper, 137F08-family
       - [0x038138, asm, cod/038138]
+      - [0x038390, c,   cod/038390]            # func_00138390: f(self, &D_X[self->8 * 0x18C / sizeof], 0x18C); return self->10
+      - [0x0383D4, asm, cod/0383D4]
       - [0x0383D8, c,   cod/0383D8]            # func_001383D8: wrap func_00136280(a0, a1, 0x63FC), return 0
       - [0x0383F8, asm, cod/0383F8]
       - [0x03A200, c,   cod/03A200]            # func_0013A200
