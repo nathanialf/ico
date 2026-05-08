@@ -861,6 +861,8 @@ segments:
       - [0x05EAAC, asm, cod/05EAAC]
       - [0x05EE68, c,   cod/05EE68]            # func_0015EE68: *(int*)(*(char**)(self+0x164)+0x180) = val
       - [0x05EE74, asm, cod/05EE74]
+      - [0x05EE78, c,   cod/05EE78]            # func_0015EE78: volatile-spill: s=self->164; f1(D); f2(s->180, self); s->184=s->180; self->15C->420=0
+      - [0x05EED0, asm, cod/05EED0]
       - [0x05EF40, c,   cod/05EF40]            # func_0015EF40
       - [0x05EF50, asm, cod/05EF50]
       - [0x05F208, c,   cod/05F208]            # func_0015F208: lwu via inline asm (ee-gcc 2.9 doesn't emit lwu natively)
