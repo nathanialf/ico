@@ -569,6 +569,8 @@ segments:
       - [0x036084, asm, cod/036084]
       - [0x036088, c,   cod/036088]            # func_00136088: self[1]=0; self[0]=0
       - [0x036094, asm, cod/036094]
+      - [0x036140, c,   cod/036140]            # func_00136140: p=self[0]; if(p) { while(p){ next=p[3]; f(p); p=next; } self[1]=0; self[0]=0; }
+      - [0x036194, asm, cod/036194]
       - [0x037538, c,   cod/037538]            # func_00137538: sw 0 + tail call func_00136D50(a0, 0)
       - [0x037548, c,   cod/037548]            # func_00137548: sw 0 + tail call func_00137180(a0, 0)
       - [0x037558, asm, cod/037558]
