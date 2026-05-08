@@ -397,6 +397,8 @@ segments:
       - [0x00DB5C, asm, cod/00DB5C]
       - [0x00DDB8, c   ,   cod/00DDB8]            # VU0 wrapper (vu0.h macros)
       - [0x00DDF4, asm, cod/00DDF4]
+      - [0x00DDF8, c,   cod/00DDF8]            # func_0010DDF8: stack-buf wrapper: f(buf, a2); f2(self, buf, a1)
+      - [0x00DE40, asm, cod/00DE40]
       - [0x00E928, c   ,   cod/00E928]            # VU0 wrapper (vu0.h macros)
       - [0x00E950, asm, cod/00E950]
       - [0x00EC50, c,   cod/00EC50]            # func_0010EC50: sw a0 to deref + tail call func_0011BF40
@@ -1867,7 +1869,8 @@ segments:
       - [0x103910, c,   cod/103910]
       - [0x103918, asm, cod/103918]
       - [0x103A10, c,   cod/103A10]            # func_00203A10: p=self->164; if(p->12C) return 0; p->130=a2; p->12C=self; f(self,a2,a1); return 1
-      - [0x103A58, asm, cod/103A58]
+      - [0x103A58, c,   cod/103A58]            # func_00203A58: if(n==0) infinite_loop(f); elif(n>0) do { f(); } while(--n != 0)
+      - [0x103AA0, asm, cod/103AA0]
       - [0x103B40, c,   cod/103B40]            # func_00203B40: gp_rel D + 4-arg call + post-store
       - [0x103B74, asm, cod/103B74]
       - [0x103C38, c,   cod/103C38]            # func_00203C38: sw_arg +0x0
