@@ -1,0 +1,8 @@
+int func_0010D338(int *a0, void *a1)
+{
+    void *p = *(void **)((char *)a1 + 0x15C);
+    void *q = *(void **)((char *)a0[0] + 0x15C);
+    void *r = *(void **)((char *)q + 0x800);
+    *(float *)((char *)p + 0x644) = *(float *)((char *)p + 0xA4) - *(float *)((char *)r + 0x4);
+    return 1;
+}
