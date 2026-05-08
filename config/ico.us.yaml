@@ -1523,6 +1523,8 @@ segments:
       - [0x0B59D0, asm, cod/0B59D0]
       - [0x0B7040, c,   cod/0B7040]            # func_001B7040: return D_00633150
       - [0x0B7048, asm, cod/0B7048]
+      - [0x0B7190, c,   cod/0B7190]            # func_001B7190: p=D[idx]; D1+=1; if(D1>=p->134) D1=p->130; if(D1==0x3A){ D2=0x3A; f(0x3A,0x3A); D3 = D4==1 ? 5 : 3; } return D1
+      - [0x0B7218, asm, cod/0B7218]
       - [0x0B7250, c,   cod/0B7250]            # func_001B7250: D_002E81F0[idx*108]._68 bit-0 set/clear
       - [0x0B7280, c,   cod/0B7280]            # func_001B7280: return D_00633158
       - [0x0B7288, c,   cod/0B7288]            # func_001B7288: D_00633164 = val

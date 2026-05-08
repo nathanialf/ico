@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-08 21:31:29 UTC
+- Generated: 2026-05-08 21:34:01 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4260 total in `asm/cod/*.s`, 101 parked, 4159 considered
+- Functions: 4259 total in `asm/cod/*.s`, 101 parked, 4158 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -134,14 +134,13 @@ _0 total in this bucket; showing top 0._
 <a id="wrap-gp-1jal"></a>
 ## 1 jal + gp_rel %gp_rel(D), no VU (D[0] + arg passthrough)
 
-_95 total in this bucket; showing top 50._
+_94 total in this bucket; showing top 50._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
 | `func_001B6FD8` | 0x64 | 25 | 1 |  | `addiu lw sd addiu` | asm/cod/0B59D0.s:1747 |
 | `func_001A1030` | 0x80 | 32 | 1 |  | `lui ori addiu addiu` | asm/cod/0A1030.s:13 |
 | `func_001A10B0` | 0x88 | 34 | 1 |  | `lui ori addiu addiu` | asm/cod/0A1030.s:53 |
-| `func_001B7190` | 0x88 | 34 | 1 |  | `addiu lui mult addiu` | asm/cod/0B7048.s:123 |
 | `func_001B7100` | 0x8C | 35 | 1 |  | `addiu lui mult addiu` | asm/cod/0B7048.s:75 |
 | `func_00111EF8` | 0xAC | 43 | 1 |  | `addiu addiu sd addiu` | asm/cod/011948.s:415 |
 | `func_001E0C98` | 0xB4 | 45 | 1 |  | `addiu lw sd lw` | asm/cod/0E0C34.s:47 |
@@ -188,6 +187,7 @@ _95 total in this bucket; showing top 50._
 | `func_0023C090` | 0x58 | 22 | 1 |  | `addiu lwc1 sd sd` | asm/cod/13B518.s:893 |
 | `func_00141340` | 0x5C | 23 | 1 |  | `addiu lui lui sd` | asm/cod/0412C4.s:55 |
 | `func_001BA928` | 0x88 | 34 | 1 |  | `addiu daddu sd sd` | asm/cod/0BA880.s:61 |
+| `func_00204160` | 0x9C | 39 | 1 |  | `addiu lw sd sd` | asm/cod/103F48.s:191 |
 
 <a id="cond-deref-leaf"></a>
 ## Leaf (no jal) with branch, no VU (cond-return / deref+if)
