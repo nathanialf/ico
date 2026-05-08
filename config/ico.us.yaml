@@ -351,7 +351,8 @@ segments:
       - [0x00AB20, c,   cod/00AB20]
       - [0x00AB28, asm, cod/00AB28]
       - [0x00AC88, c,   cod/00AC88]            # func_0010AC88: copy 16-byte struct *src to local buf, call func_00168C18(buf, dest), store float ret to dest[4]
-      - [0x00ACC8, asm, cod/00ACC8]
+      - [0x00ACC8, c,   cod/00ACC8]            # func_0010ACC8: func_0010ACC8: 3-vec lerp dst[i] = a[i]*t + b[i]*(1-t)
+      - [0x00AD20, asm, cod/00AD20]
       - [0x00ADC8, c,   cod/00ADC8]            # func_0010ADC8: auto-batch
       - [0x00ADD0, asm, cod/00ADD0]
       - [0x00B2C0, c,   cod/00B2C0]            # func_0010B2C0: tail call func_00105F00 (double-deref TCO)
