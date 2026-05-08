@@ -2201,6 +2201,8 @@ segments:
       - [0x146B38, asm, cod/146B38]
       - [0x146B78, asm, cod/146B78]
       - [0x146BD4, asm, cod/146BD4]
+      - [0x147088, c,   cod/147088]            # func_00247088: if(D==-1){buf[]={?,1,1,?,?,0}; D=f(buf);}
+      - [0x1470D4, asm, cod/1470D4]
       - [0x1470D8, c,   cod/1470D8]            # func_002470D8: func_00247088(); func_00100560(D_00550864); ret 0
       - [0x147104, asm, cod/147104]
       - [0x147108, c,   cod/147108]            # func_00247108: tail call func_00100540(D_00550864)
