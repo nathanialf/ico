@@ -2008,6 +2008,8 @@ segments:
       - [0x111600, c,   cod/111600]            # func_00211600: store-arg-discard
       - [0x111610, c,   cod/111610]            # func_00211610: store-arg-discard
       - [0x111620, asm, cod/111620]
+      - [0x111780, c,   cod/111780]            # func_00211780: if(f1(0x69)) tail f2(0x55,0,-1); else { f3(0x1A,0); tail f2(0x55,0,0); }
+      - [0x1117D0, asm, cod/1117D0]
       - [0x1128F8, c,   cod/1128F8]            # func_002128F8: store-arg-discard
       - [0x112908, asm, cod/112908]
       - [0x112D68, c,   cod/112D68]            # func_00212D68: store-arg-discard
