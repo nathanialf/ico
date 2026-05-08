@@ -993,6 +993,8 @@ segments:
       - [0x07D270, c,   cod/07D270]            # func_0017D270: func_0017D270: walk func_0013EB50(x) chain; ret first p where func_001D3D98(p)!=0; else 0
       - [0x07D2C8, c,   cod/07D2C8]            # func_0017D2C8: func_0017D2C8: r=func_0017E188(); if r: ret func_001EA108(r); else: func_001A6E28(D_00559EA8); ret 0.0f
       - [0x07D308, asm, cod/07D308]
+      - [0x07DC90, c,   cod/07DC90]            # func_0017DC90: stack-buf wrapper: f1(buf); f2(a1, a0, buf), 16-byte buf
+      - [0x07DCD4, asm, cod/07DCD4]
       - [0x07E160, c,   cod/07E160]            # func_0017E160: set sub fields: 0x328/0x32C=0x7F, 0x33C/0x110/0x114/0x118=0
       - [0x07E184, asm, cod/07E184]
       - [0x07E188, c,   cod/07E188]            # func_0017E188
@@ -1466,6 +1468,8 @@ segments:
       - [0x0C05A8, c, cod/0C05A8]            # func_001C05A8: 4-insn lw
       - [0x0C05B8, c,   cod/0C05B8]            # func_001C05B8: == 0
       - [0x0C05CC, asm, cod/0C05CC]
+      - [0x0C0648, c,   cod/0C0648]            # func_001C0648: stack-buf wrapper: f1(buf); f2(a0, buf, a2), 64-byte buf
+      - [0x0C068C, asm, cod/0C068C]
       - [0x0C0690, c, cod/0C0690]            # func_001C0690: 4-insn lw
       - [0x0C06A0, asm, cod/0C06A0]
       - [0x0C0838, c,   cod/0C0838]            # func_001C0838: auto
