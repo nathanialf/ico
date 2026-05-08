@@ -1801,6 +1801,8 @@ segments:
       - [0x0EBA14, asm, cod/0EBA14]
       - [0x0EBA18, c,   cod/0EBA18]            # func_001EBA18: ringbuffer push D_0070C6C8[D_006335FC++] = a0
       - [0x0EBA3C, asm, cod/0EBA3C]
+      - [0x0EBA40, c,   cod/0EBA40]            # func_001EBA40: v=D1; D2=0; if(v&0x1000) D3--; if(v&0x4000) D3++; for(i<D4) f(D5[i], &D6[i*0x10])
+      - [0x0EBAE8, asm, cod/0EBAE8]
       - [0x0EBB10, c,   cod/0EBB10]            # func_001EBB10: p=f1(4); for(i=0;i<count;i++){ if(!p) return 0; p=f2(p); } return p
       - [0x0EBB70, asm, cod/0EBB70]
       - [0x0EEF08, c,   cod/0EEF08]            # func_001EEF08: tail call func_001182F0(a0, &D_004C6160)
