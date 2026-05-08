@@ -1144,7 +1144,7 @@ segments:
       - [0x0939D4, asm, cod/0939D4]
       - [0x0939D8, c,   cod/0939D8]            # func_001939D8: return 0x287D
       - [0x0939E0, c,   cod/0939E0]            # func_001939E0: copy 3 floats from src+0x10..0x18, return 1
-      - [0x093A00, asm, cod/093A00]
+      - [0x093A00, c,   cod/093A00]            # func_00193A00: func_00193A00: set p->_30 at q->_50, p->_32 at q->_8; if v==1: q->_54=2 + func_0013FF88(self,1,self); ret 1
       - [0x093A58, c,   cod/093A58]            # func_00193A58: copy 2 shorts from sub->800, return 1
       - [0x093A78, asm, cod/093A78]
       - [0x093EC8, c,   cod/093EC8]            # func_00193EC8
