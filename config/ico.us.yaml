@@ -679,7 +679,8 @@ segments:
       - [0x040B60, c,   cod/040B60]            # func_00140B60: tail call func_00140B30(a0, 0, a1)
       - [0x040B6C, asm, cod/040B6C]
       - [0x040B70, c,   cod/040B70]            # func_00140B70: D_00633CC0 = val
-      - [0x040B78, asm, cod/040B78]
+      - [0x040B78, c,   cod/040B78]            # func_00140B78: func_00140B78: alloc 0xB8800 via func_00135EB8; round-up to 0x800 boundary using signed div
+      - [0x040BDC, asm, cod/040BDC]
       - [0x041020, c,   cod/041020]            # func_00141020: return short at sub_2C[idx]+0x3C
       - [0x041034, asm, cod/041034]
       - [0x041038, c,   cod/041038]            # func_00141038: return *(short*)(*(char**)(self+0x2C)+0x3C)
