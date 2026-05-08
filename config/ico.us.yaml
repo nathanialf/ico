@@ -1509,6 +1509,8 @@ segments:
       - [0x0BA668, c,   cod/0BA668]            # func_001BA668: fn = D[a1*2]; p=self->15C->800; p[2]=a1; if(fn) fn(self); return 1
       - [0x0BA6B0, asm, cod/0BA6B0]
       - [0x0BA6F0, asm, cod/0BA6F0]
+      - [0x0BA770, c,   cod/0BA770]            # func_001BA770: f(0x3D, D[self->30/32].C, -1, 0, self, -1, 7, 1) — 8-arg call, no TCO
+      - [0x0BA7BC, asm, cod/0BA7BC]
       - [0x0BA7C0, c,   cod/0BA7C0]            # func_001BA7C0: D_004BEA50[a0->_15C->_800->_8] lookup
       - [0x0BA7E4, asm, cod/0BA7E4]
       - [0x0BA7E8, c,   cod/0BA7E8]            # func_001BA7E8: p=self->15C->800; ret=f(self,0); if(ret==-1){ zero p->{1C0,1C4,1C8}; return 0; } return ret
