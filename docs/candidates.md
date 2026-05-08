@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-08 06:04:00 UTC
+- Generated: 2026-05-08 06:09:04 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4369 total in `asm/cod/*.s`, 52 parked, 4317 considered
+- Functions: 4368 total in `asm/cod/*.s`, 53 parked, 4315 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -147,12 +147,9 @@ _6 total in this bucket; showing top 6._
 <a id="wrap-3jal-mid"></a>
 ## 0x28-0x40, exactly 3 jal, no VU (3-call wrapper, often w/ tail call)
 
-_2 total in this bucket; showing top 2._
+_0 total in this bucket; showing top 0._
 
-| Function | Size | Insns | jal | VU | First mnemonics | Source |
-|---|---:|---:|---:|:---:|---|---|
-| `func_00246B38` | 0x40 | 16 | 3 |  | `addiu sd sd b` | asm/cod/145ED8.s:1035 |
-| `func_0017D230` | 0x40 | 16 | 3 |  | `addiu sd sd jal` | asm/cod/07D0F8.s:123 |
+(empty)
 
 <a id="wrap-gp-1jal"></a>
 ## 1 jal + gp_rel %gp_rel(D), no VU (D[0] + arg passthrough)
