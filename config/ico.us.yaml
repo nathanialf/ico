@@ -1100,6 +1100,8 @@ segments:
       - [0x092090, c,   cod/092090]            # func_00192090: return D_00632780
       - [0x092098, c,   cod/092098]            # func_00192098
       - [0x0920A4, asm, cod/0920A4]
+      - [0x092B58, c,   cod/092B58]            # func_00192B58: set _15C->_800->_50 = 1, call func_001AE460(self), tail-call func_0013FF88(self, 1, self)
+      - [0x092B98, asm, cod/092B98]
       - [0x093818, c,   cod/093818]            # func_00193818: double-deref ++: *(*(*(a0+0x15C)+0x800)+0x8)++
       - [0x093830, c,   cod/093830]            # func_00193830
       - [0x093844, asm, cod/093844]
@@ -1364,6 +1366,8 @@ segments:
       - [0x0BA5C0, c, cod/0BA5C0]            # func_001BA5C0: 4-insn lw
       - [0x0BA5D0, c,   cod/0BA5D0]            # func_001BA5D0: sub_15C->800->278 = a1
       - [0x0BA5E0, asm, cod/0BA5E0]
+      - [0x0BA6B0, asm, cod/0BA6B0]
+      - [0x0BA6F0, asm, cod/0BA6F0]
       - [0x0BA7C0, c,   cod/0BA7C0]            # func_001BA7C0: D_004BEA50[a0->_15C->_800->_8] lookup
       - [0x0BA7E4, asm, cod/0BA7E4]
       - [0x0BAEE0, c,   cod/0BAEE0]            # func_001BAEE0: tail call func_001A6E28(D_004BEFA8[a0->164->30])
@@ -1593,6 +1597,8 @@ segments:
       - [0x0EA248, c,   cod/0EA248]            # func_001EA248: copy 2 shorts via sub2
       - [0x0EA268, c,   cod/0EA268]            # func_001EA268
       - [0x0EA278, asm, cod/0EA278]
+      - [0x0EACE8, c,   cod/0EACE8]            # func_001EACE8: set _15C->_800->_3C = 1, call func_001AE460(self), tail-call func_001A6E28(&D_006335E0, self->_8)
+      - [0x0EAD28, asm, cod/0EAD28]
       - [0x0EAE70, c,   cod/0EAE70]            # func_001EAE70: get-and-clear arr[idx]
       - [0x0EAE90, asm, cod/0EAE90]
       - [0x0EB0B8, c,   cod/0EB0B8]            # func_001EB0B8: auto
