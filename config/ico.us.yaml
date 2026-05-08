@@ -1311,7 +1311,8 @@ segments:
       - [0x09EF10, c,   cod/09EF10]            # func_0019EF10: tail-call helper: func_0013A0F8(D_00632010, self->_88<<6, &D_00612620, 0x14C); store ret; tail-call func_00103120
       - [0x09EF58, asm, cod/09EF58]
       - [0x09F4E0, c,   cod/09F4E0]
-      - [0x09F4E8, asm, cod/09F4E8]
+      - [0x09F4E8, c,   cod/09F4E8]            # func_0019F4E8: f(self); copy 8 unaligned bytes from src to self->15C
+      - [0x09F52C, asm, cod/09F52C]
       - [0x09FF98, c,   cod/09FF98]            # func_0019FF98: tail call func_0019FFA8(a0, 0, 0, 0)
       - [0x09FFA8, asm, cod/09FFA8]
       - [0x0A0010, c,   cod/0A0010]            # func_001A0010: 3-store with constant 1
