@@ -1124,6 +1124,8 @@ segments:
       - [0x08CFEC, asm, cod/08CFEC]
       - [0x08CFF0, c,   cod/08CFF0]            # func_0018CFF0: D_00632744 = 0
       - [0x08CFF8, asm, cod/08CFF8]
+      - [0x08DDF0, c,   cod/08DDF0]            # func_0018DDF0: if(D1&1) { D2+=0xA; f(0xA, D2, 0xFFFFFFF, D_X); } tail f2(a0)
+      - [0x08DE48, asm, cod/08DE48]
       - [0x090298, c,   cod/090298]            # func_00190298: self->15C->800->60 = 1; jal func_0018D100(self); ret 1
       - [0x0902C8, c, cod/0902C8]            # func_001902C8: 4-insn sb_zero
       - [0x0902D8, asm, cod/0902D8]
@@ -1770,7 +1772,7 @@ segments:
       - [0x0F6C98, c,   cod/0F6C98]            # func_001F6C98: auto
       - [0x0F6CA0, c,   cod/0F6CA0]            # func_001F6CA0: D_00633780 = val
       - [0x0F6CA8, c,   cod/0F6CA8]            # func_001F6CA8: return D_00633780
-      - [0x0F6CB0, c,   Basic]                 # TU promotion: src/Basic.c covers 0x1F6CB0..0x1F6E24 (5 funcs + INCLUDE_ASM)
+      - [0x0F6CB0, c,   Basic]                 # TU promotion: src/Basic.c covers 0x1F6CB0..0x1F6E24 (5 funcs total: 4 C + 1 INCLUDE_ASM)
       - [0x0F6E24, asm, cod/0F6E24]
       - [0x0FA590, c,   cod/0FA590]            # func_001FA590: D_00633F64 = 0
       - [0x0FA598, c,   cod/0FA598]            # func_001FA598: func_001FA598: if D_00633F64: func_001185A8(p,&D_00710BE0); reload; return v && D_006337B8==0
