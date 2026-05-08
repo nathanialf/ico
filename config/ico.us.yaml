@@ -248,6 +248,8 @@ segments:
       - [0x0011E4, asm, cod/0011E4]
       - [0x0019A8, asm, cod/0019A8]
       - [0x0019E0, asm, cod/0019E0]
+      - [0x001AA0, asm, cod/001AA0]
+      - [0x001AE4, asm, cod/001AE4]
       - [0x001AE8, c,   cod/001AE8]            # func_00101AE8: wrap func_00100950(2, &local=a0)
       - [0x001B0C, asm, cod/001B0C]
       - [0x001B10, c,   cod/001B10]            # func_00101B10: wrap func_00100950(3, &local[a0,(char)a1])
