@@ -756,6 +756,8 @@ segments:
       - [0x044500, asm, cod/044500]
       - [0x0445C0, c,   cod/0445C0]            # func_001445C0: return D_00632218
       - [0x0445C8, asm, cod/0445C8]
+      - [0x0447E0, c,   cod/0447E0]            # func_001447E0: f1(idx); f2(0); tail f3(D[idx*0x194 + 0x18C] as u16)
+      - [0x044824, asm, cod/044824]
       - [0x044928, c,   cod/044928]            # func_00144928: tail call func_001AE6F8(a0->C, a0->8)
       - [0x044934, asm, cod/044934]
       - [0x044DF0, c,   cod/044DF0]            # func_00144DF0: tail call func_00149D60(D_00631AE4, 1, 4, 5, D_00631AE8, 0, 0)
