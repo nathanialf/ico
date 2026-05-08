@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-08 18:31:12 UTC
+- Generated: 2026-05-08 18:33:43 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4302 total in `asm/cod/*.s`, 104 parked, 4198 considered
+- Functions: 4301 total in `asm/cod/*.s`, 104 parked, 4197 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -202,7 +202,7 @@ _1 total in this bucket; showing top 1._
 <a id="wrap-1jal-0x40-0x60"></a>
 ## 0x40-0x60, exactly 1 jal, no VU (mid-size wrapper)
 
-_61 total in this bucket; showing top 50._
+_60 total in this bucket; showing top 50._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
@@ -210,7 +210,6 @@ _61 total in this bucket; showing top 50._
 | `func_0019F4E8` | 0x44 | 17 | 1 |  | `addiu sd sd daddu` | asm/cod/09F4E8.s:13 |
 | `func_00157E68` | 0x48 | 18 | 1 |  | `addiu sd sd jal` | asm/cod/057DC4.s:67 |
 | `func_0015F650` | 0x48 | 18 | 1 |  | `addiu addiu sw addiu` | asm/cod/05F578.s:85 |
-| `func_001C22F0` | 0x48 | 18 | 1 |  | `addiu sd sd daddu` | asm/cod/0C21B8.s:99 |
 | `func_0011FCD8` | 0x4C | 19 | 1 |  | `addiu addiu sd lh` | asm/cod/01EE84.s:1028 |
 | `func_001F2320` | 0x4C | 19 | 1 |  | `addiu addiu sw sd` | asm/cod/0F231C.s:18 |
 | `func_00247088` | 0x4C | 19 | 1 |  | `addiu addiu sd lui` | asm/cod/146BD4.s:383 |
@@ -256,6 +255,7 @@ _61 total in this bucket; showing top 50._
 | `func_0024E528` | 0x50 | 20 | 1 |  | `daddu addiu addiu mult1` | asm/cod/14DAB8.s:847 |
 | `func_0024E710` | 0x50 | 20 | 1 |  | `daddu addiu addiu mult1` | asm/cod/14DAB8.s:1015 |
 | `func_00205AD8` | 0x54 | 21 | 1 |  | `addiu sd sd daddu` | asm/cod/105A94.s:41 |
+| `func_0024EF20` | 0x54 | 21 | 1 |  | `daddu addiu addiu mult1` | asm/cod/14DAB8.s:1681 |
 
 <a id="wrap-2jal-0x40-0x60"></a>
 ## 0x40-0x60, exactly 2 jal, no VU (2-call mid-size wrapper)
