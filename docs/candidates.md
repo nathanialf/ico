@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-08 01:35:59 UTC
+- Generated: 2026-05-08 01:41:14 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4393 total in `asm/cod/*.s`, 17 parked, 4376 considered
+- Functions: 4394 total in `asm/cod/*.s`, 18 parked, 4376 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -95,7 +95,7 @@ _5 total in this bucket; showing top 5._
 <a id="wrap-1jal-0x34-0x40"></a>
 ## 0x34-0x40, exactly 1 jal, no VU (wrapper w/ stack buffer / arg pack)
 
-_44 total in this bucket; showing top 44._
+_43 total in this bucket; showing top 43._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
@@ -121,7 +121,6 @@ _44 total in this bucket; showing top 44._
 | `func_00135BB8` | 0x40 | 16 | 1 |  | `addiu sd daddu beqz` | asm/cod/033510.s:3053 |
 | `func_001BA6B0` | 0x40 | 16 | 1 |  | `addiu sd lw lw` | asm/cod/0BA5E0.s:83 |
 | `func_0023C180` | 0x40 | 16 | 1 |  | `addiu sd jal nop` | asm/cod/13B518.s:983 |
-| `func_0024D9E8` | 0x34 | 13 | 1 |  | `addiu lui addiu daddu` | asm/cod/14D9E4.s:18 |
 | `func_00263FF0` | 0x34 | 13 | 1 |  | `addiu lui sd daddu` | asm/cod/163FAC.s:39 |
 | `func_0013F8F8` | 0x38 | 14 | 1 |  | `addiu sd daddu beqz` | asm/cod/03F884.s:64 |
 | `func_0013D8A0` | 0x3C | 15 | 1 |  | `addiu sd bnez sd` | asm/cod/03D550.s:249 |
@@ -315,7 +314,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4145 unmatched functions are not in any shape bucket above._
+_4146 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 
