@@ -320,6 +320,8 @@ segments:
       - [0x006DEC, asm, cod/006DEC]
       - [0x006DF0, c,   cod/006DF0]            # func_00106DF0: sibling, D_0063094C, tail func_00168558
       - [0x006E34, asm, cod/006E34]
+      - [0x007DD8, c,   cod/007DD8]            # func_00107DD8: 5-arg call + tail with shared a0/a1: f(a0, a1, info[2], info[0]->15C->C + info[1]<<6, info[0]); a1->4=0; tail f2(a1, a1)
+      - [0x007E28, asm, cod/007E28]
       - [0x009B98, c,   cod/009B98]
       - [0x009BA8, c,   cod/009BA8]
       - [0x009BB8, asm, cod/009BB8]

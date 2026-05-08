@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-08 20:02:44 UTC
+- Generated: 2026-05-08 20:05:56 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4276 total in `asm/cod/*.s`, 102 parked, 4174 considered
+- Functions: 4275 total in `asm/cod/*.s`, 102 parked, 4173 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -199,11 +199,10 @@ _0 total in this bucket; showing top 0._
 <a id="wrap-1jal-0x40-0x60"></a>
 ## 0x40-0x60, exactly 1 jal, no VU (mid-size wrapper)
 
-_38 total in this bucket; showing top 38._
+_37 total in this bucket; showing top 37._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
-| `func_00107DD8` | 0x50 | 20 | 1 |  | `addiu daddu sd sd` | asm/cod/006E34.s:1130 |
 | `func_0023FDA0` | 0x50 | 20 | 1 |  | `addiu sd sd daddu` | asm/cod/13F95C.s:334 |
 | `func_00240600` | 0x50 | 20 | 1 |  | `addiu sd sd daddu` | asm/cod/13F95C.s:961 |
 | `func_002642D8` | 0x50 | 20 | 1 |  | `addiu lui sd sd` | asm/cod/164094.s:211 |
