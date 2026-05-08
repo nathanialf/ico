@@ -674,6 +674,8 @@ segments:
       - [0x045648, asm, cod/045648]
       - [0x049ED0, c,   cod/049ED0]            # func_00149ED0: 4 zero-stores via reloading deref of a0+0x15C
       - [0x049EF4, asm, cod/049EF4]
+      - [0x04A0D8, c,   cod/04A0D8]            # func_0014A0D8: bnel-deferred-load + dsrl32 bit-extract
+      - [0x04A100, asm, cod/04A100]
       - [0x04A2B0, c,   cod/04A2B0]            # func_0014A2B0: D_006AA4B0+0x4B4=0, +0x4B0=0
       - [0x04A2C4, asm, cod/04A2C4]
       - [0x04B090, c,   cod/04B090]            # func_0014B090: return func_001F40C8() == 1
