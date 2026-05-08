@@ -2275,6 +2275,7 @@ segments:
       - [0x143BC8, c   ,   cod/143BC8]            # VU0 wrapper (vu0.h macros)
       - [0x143BD8, c   ,   cod/143BD8]            # VU0 wrapper (vu0.h macros)
       - [0x143C00, asm, cod/143C00]
+      - [0x143E70, c,   cod/143E70]            # func_00243E70: f1(a0, a1, fa[2]); f2(a0, a0, fa[1]); tail f3(a0, a0, fa[0])
       - [0x143EC0, c   ,   cod/143EC0]            # VU0 wrapper (vu0.h macros)
       - [0x143EE4, asm, cod/143EE4]
       - [0x1443F8, c,   cod/1443F8]            # func_002443F8: copy 3 floats
