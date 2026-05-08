@@ -13,6 +13,16 @@
 #
 # Lines starting with # are comments; blank lines ignored.
 
-# Currently no entries. The 2.96-era `0F4C00 -fno-schedule-insns2` was
-# retired when the project moved to ee-gcc 2.9-991111 (whose default
-# scheduler already produces the matching shape).
+# The 2.96-era `0F4C00 -fno-schedule-insns2` was retired when the project
+# moved to ee-gcc 2.9-991111 (whose default scheduler already produces the
+# matching shape).
+#
+# `BASIC -fno-schedule-insns`: src/Basic.c TU bundles 5 functions and
+# was missing func_001F6E00 because the first-pass scheduler picked an
+# `addiu a2; sd ra` prologue order whereas the original (and the
+# standalone-TU build) emits `sd ra` between `lui a2` and `addiu a2`.
+# Disabling only the first-pass scheduler for this TU restores the
+# matching prologue without breaking the other 4 functions (which depend
+# on the default second-pass scheduling that remains enabled).
+
+BASIC -fno-schedule-insns
