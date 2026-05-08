@@ -811,6 +811,8 @@ segments:
       - [0x0654E0, asm, cod/0654E0]
       - [0x065CE8, c,   cod/065CE8]            # func_00165CE8: a0->164->10 < 0xC ? -1 : func_00163D60(a0)
       - [0x065D18, asm, cod/065D18]
+      - [0x065F88, c,   cod/065F88]            # func_00165F88: D_002A4C48[a0->_8 * 0x4C]._48 bit 21 inverted
+      - [0x065FB4, asm, cod/065FB4]
       - [0x0683A8, c,   cod/0683A8]            # func_001683A8: D_006323F0(a0, 0) jalr
       - [0x0683C8, c,   cod/0683C8]            # func_001683C8: (*D_006323F0)(arg, 1)
       - [0x0683E8, c,   cod/0683E8]            # func_001683E8: (*D_006323F0)(arg, 2)
@@ -1230,6 +1232,8 @@ segments:
       - [0x0AA580, c,   cod/0AA580]            # func_001AA580: guard + call + double-clear (rv-lift attempt)
       - [0x0AA5B8, c,   cod/0AA5B8]
       - [0x0AA5C0, asm, cod/0AA5C0]
+      - [0x0AA608, asm, cod/0AA608]
+      - [0x0AA634, asm, cod/0AA634]
       - [0x0AA638, c,   cod/0AA638]            # func_001AA638: D_006F8EE0[a0*0xD0 + a1*8] = 0
       - [0x0AA65C, asm, cod/0AA65C]
       - [0x0AA660, c,   cod/0AA660]            # func_001AA660: wrap func_001123C0(&D_00274EF0), return 1
@@ -1433,6 +1437,7 @@ segments:
       - [0x0CEBC0, c,   cod/0CEBC0]            # func_001CEBC0: promote-test: subagent seed (unscored, may match)
       - [0x0CEBF0, c, cod/0CEBF0]            # func_001CEBF0: 4-insn swc1
       - [0x0CEC00, asm, cod/0CEC00]
+      - [0x0CEC2C, asm, cod/0CEC2C]
       - [0x0CF770, c,   cod/0CF770]            # func_001CF770: func_0010EC98(a0[1]); return 1
       - [0x0CF790, asm, cod/0CF790]
       - [0x0CFA20, c,   cod/0CFA20]            # func_001CFA20: self->4->30=1, return 1
@@ -1492,6 +1497,8 @@ segments:
       - [0x0E237C, asm, cod/0E237C]
       - [0x0E4700, c,   cod/0E4700]            # func_001E4700: promote: score-0 (store order swap)
       - [0x0E4724, asm, cod/0E4724]
+      - [0x0E4838, asm, cod/0E4838]
+      - [0x0E4864, asm, cod/0E4864]
       - [0x0E4938, c,   cod/0E4938]            # func_001E4938: if D_00274ED4: a0->15C->628=0; func_001D12C0(a0,1); ret 1
       - [0x0E496C, asm, cod/0E496C]
       - [0x0E4970, c,   cod/0E4970]            # func_001E4970: tail call func_00109FF8(D_00633540, D_00633548)
