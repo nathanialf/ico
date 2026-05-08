@@ -1056,6 +1056,7 @@ segments:
       - [0x08CAA4, asm, cod/08CAA4]
       - [0x08CAA8, c,   cod/08CAA8]            # func_0018CAA8: cond max-update D_006D06C0[0/1/2] if a2 >= [2]
       - [0x08CAD4, asm, cod/08CAD4]
+      - [0x08CAD8, c,   cod/08CAD8]            # func_0018CAD8: v=func_00154770(); if !v return D; v=func_0013EAE8(v); if v return v; return D
       - [0x08CB10, c,   cod/08CB10]            # func_0018CB10
       - [0x08CB1C, asm, cod/08CB1C]
       - [0x08CBE0, c,   cod/08CBE0]            # func_0018CBE0: return D_00633D84
@@ -2122,6 +2123,8 @@ segments:
       - [0x14BD8C, asm, cod/14BD8C]
       - [0x14BD90, asm, cod/14BD90]
       - [0x14BDCC, asm, cod/14BDCC]
+      - [0x14C4F0, c,   cod/14C4F0]            # func_0024C4F0: if D_00717904 fnptr set and D_00550924 == 0, indirect-call D_00717904(D_00717908)
+      - [0x14C52C, asm, cod/14C52C]
       - [0x14D9B8, c,   cod/14D9B8]            # func_0024D9B8: promoted from permuter score-0
       - [0x14D9E4, asm, cod/14D9E4]
       - [0x14D9E8, asm, cod/14D9E8]
