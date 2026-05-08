@@ -870,6 +870,8 @@ segments:
       - [0x05F294, asm, cod/05F294]
       - [0x05F298, c,   cod/05F298]            # func_0015F298: stack-buf wrapper: f1(buf, -1.0f); f2(a0, buf)
       - [0x05F2D4, asm, cod/05F2D4]
+      - [0x05F2D8, c,   cod/05F2D8]            # func_0015F2D8: stack-buf wrapper: f1(buf, self->164+0x4A0, -1.0f); f2(self, buf)
+      - [0x05F31C, asm, cod/05F31C]
       - [0x05F320, c,   cod/05F320]            # func_0015F320: buf[4] + 2 calls (caller saves s0)
       - [0x05F358, asm, cod/05F358]
       - [0x05F4B8, c,   cod/05F4B8]            # func_0015F4B8: promote: score-0 from permuter (parked tough_nut)
