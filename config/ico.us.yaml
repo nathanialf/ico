@@ -1673,6 +1673,8 @@ segments:
       - [0x114040, asm, cod/114040]
       - [0x117B48, c,   cod/117B48]            # func_00217B48: volatile-spill a0 + 3-call wrapper
       - [0x117B88, asm, cod/117B88]
+      - [0x1189E0, c,   cod/1189E0]            # func_002189E0: volatile-spill a0 + 3-call wrapper (arg 0xDD)
+      - [0x118A20, asm, cod/118A20]
       - [0x118DC0, c,   cod/118DC0]            # func_00218DC0: store-arg-discard
       - [0x118DD0, asm, cod/118DD0]
       - [0x118E58, c,   cod/118E58]            # func_00218E58: guard+func_X+tail-call sibling (arg 0x92)
@@ -1784,6 +1786,8 @@ segments:
       - [0x135C70, asm, cod/135C70]
       - [0x136C60, c,   cod/136C60]            # func_00236C60: store-arg-discard
       - [0x136C70, asm, cod/136C70]
+      - [0x139710, c,   cod/139710]            # func_00239710: volatile-spill a0 + 3-call wrapper (arg 0x83)
+      - [0x139750, asm, cod/139750]
       - [0x1397F8, c,   cod/1397F8]            # func_002397F8: guard+func_X+tail-call sibling (arg 0x31)
       - [0x139830, asm, cod/139830]
       - [0x13A9E0, c,   cod/13A9E0]            # func_0023A9E0: store-arg-discard
