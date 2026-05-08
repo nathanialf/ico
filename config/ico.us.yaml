@@ -403,6 +403,8 @@ segments:
       - [0x00DE40, asm, cod/00DE40]
       - [0x00E928, c   ,   cod/00E928]            # VU0 wrapper (vu0.h macros)
       - [0x00E950, asm, cod/00E950]
+      - [0x00EC08, c,   cod/00EC08]            # func_0010EC08: if(f12<0) return -(short)f(f13); return f(f13)
+      - [0x00EC4C, asm, cod/00EC4C]
       - [0x00EC50, c,   cod/00EC50]            # func_0010EC50: sw a0 to deref + tail call func_0011BF40
       - [0x00EC60, c,   cod/00EC60]            # func_0010EC60: auto-batch
       - [0x00EC68, c,   cod/00EC68]            # func_0010EC68: gp_rel cond + lui+lui+TCO func_001A6B10(0xCCCCCC00, &D_00553E90, a0)
