@@ -1671,6 +1671,8 @@ segments:
       - [0x113E90, asm, cod/113E90]
       - [0x114030, c,   cod/114030]            # func_00214030: store-arg-discard
       - [0x114040, asm, cod/114040]
+      - [0x117B48, c,   cod/117B48]            # func_00217B48: volatile-spill a0 + 3-call wrapper
+      - [0x117B88, asm, cod/117B88]
       - [0x118DC0, c,   cod/118DC0]            # func_00218DC0: store-arg-discard
       - [0x118DD0, asm, cod/118DD0]
       - [0x118E58, c,   cod/118E58]            # func_00218E58: guard+func_X+tail-call sibling (arg 0x92)
