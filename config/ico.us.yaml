@@ -598,6 +598,8 @@ segments:
       - [0x03CC78, asm, cod/03CC78]
       - [0x03CD70, c,   cod/03CD70]            # func_0013CD70: *p = 0 (byte)
       - [0x03CD78, asm, cod/03CD78]
+      - [0x03CF08, asm, cod/03CF08]
+      - [0x03CF38, asm, cod/03CF38]
       - [0x03CF70, c,   cod/03CF70]            # func_0013CF70: zero 2 halfwords
       - [0x03CF7C, asm, cod/03CF7C]
       - [0x03D098, c,   cod/03D098]            # func_0013D098: auto-batch
@@ -624,6 +626,8 @@ segments:
       - [0x03F0A0, c,   cod/03F0A0]            # func_0013F0A0: promote: score-0 from permuter (parked tough_nut)
       - [0x03F0E8, c,   cod/03F0E8]            # func_0013F0E8: promote: score-0 from permuter (parked tough_nut)
       - [0x03F130, asm, cod/03F130]
+      - [0x03F1D0, asm, cod/03F1D0]
+      - [0x03F1F8, asm, cod/03F1F8]
       - [0x03F3E8, c,   cod/03F3E8]            # func_0013F3E8: tail call func_0013F700 passthrough
       - [0x03F3F0, asm, cod/03F3F0]
       - [0x03F6B8, c,   cod/03F6B8]            # func_0013F6B8: 1-call+cond-tail-call (void+return TCO)
@@ -884,6 +888,8 @@ segments:
       - [0x0761B8, asm, cod/0761B8]
       - [0x076AE8, c,   cod/076AE8]            # func_00176AE8: a0->0=0 + tail call func_0013A5B8(&D_0028A4A0, a0, 1)
       - [0x076B04, asm, cod/076B04]
+      - [0x076B08, c,   cod/076B08]            # func_00176B08: gated tail-call to func_0013A5B8(D_0028A4A0, p, 0); requires D_00274EE8 != 0
+      - [0x076B38, asm, cod/076B38]
       - [0x076BB8, c,   cod/076BB8]            # func_00176BB8: D_00274EE8=0; tail call func_00176AA0
       - [0x076BC4, asm, cod/076BC4]
       - [0x078908, c,   cod/078908]            # func_00178908: wrap func_00176DE0(a0, a1, a2, 0)
@@ -1030,6 +1036,8 @@ segments:
       - [0x08B734, asm, cod/08B734]
       - [0x08BE78, c,   cod/08BE78]            # func_0018BE78: func_0018B9D0(&D_006D0680, 0); tail call func_0018B880(&D_006D0680)
       - [0x08BEAC, asm, cod/08BEAC]
+      - [0x08CA78, c,   cod/08CA78]            # func_0018CA78: if D_006D06C8 < 4 then clear D_006D06C0/C4/C8 with D_00632734
+      - [0x08CAA4, asm, cod/08CAA4]
       - [0x08CAA8, c,   cod/08CAA8]            # func_0018CAA8: cond max-update D_006D06C0[0/1/2] if a2 >= [2]
       - [0x08CAD4, asm, cod/08CAD4]
       - [0x08CB10, c,   cod/08CB10]            # func_0018CB10
