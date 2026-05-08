@@ -1316,7 +1316,8 @@ segments:
       - [0x09E1C0, c,   cod/09E1C0]            # func_0019E1C0: self[46] = 1, return 1
       - [0x09E1CC, asm, cod/09E1CC]
       - [0x09E1D0, c,   cod/09E1D0]            # func_0019E1D0: auto-batch
-      - [0x09E1D8, asm, cod/09E1D8]
+      - [0x09E1D8, c,   cod/09E1D8]            # func_0019E1D8: ret=0; if(!f1(self+0x50)) ret = f2(self) != 0; return ret
+      - [0x09E224, asm, cod/09E224]
       - [0x09E278, c,   cod/09E278]            # func_0019E278: wrap func_001A6E28(&D_00632820, a1->4); ret 1
       - [0x09E2A0, c,   cod/09E2A0]            # func_0019E2A0: func_0019CF70(a0,a1); func_0023FDF0(a2+0x50); ret 1
       - [0x09E2D0, c,   cod/09E2D0]            # func_0019E2D0
