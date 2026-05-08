@@ -822,6 +822,8 @@ segments:
       - [0x05F224, asm, cod/05F224]
       - [0x05F228, c,   cod/05F228]            # func_0015F228: D_00292540[idx*0x18] +0x8 = a1 (la mult sw)
       - [0x05F244, asm, cod/05F244]
+      - [0x05F298, c,   cod/05F298]            # func_0015F298: stack-buf wrapper: f1(buf, -1.0f); f2(a0, buf)
+      - [0x05F2D4, asm, cod/05F2D4]
       - [0x05F320, c,   cod/05F320]            # func_0015F320: buf[4] + 2 calls (caller saves s0)
       - [0x05F358, asm, cod/05F358]
       - [0x05F4B8, c,   cod/05F4B8]            # func_0015F4B8: promote: score-0 from permuter (parked tough_nut)
