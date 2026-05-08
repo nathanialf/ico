@@ -264,6 +264,8 @@ segments:
       - [0x001C54, asm, cod/001C54]
       - [0x001C58, c,   cod/001C58]            # func_00101C58: wrap func_00100950(0x10, &local=a0)
       - [0x001C7C, asm, cod/001C7C]
+      - [0x0024B8, asm, cod/0024B8]
+      - [0x0024F8, asm, cod/0024F8]
       - [0x002850, c,   cod/002850]            # func_00102850: auto-batch
       - [0x002858, c,   cod/002858]            # func_00102858: auto-batch
       - [0x002860, c,   cod/002860]            # func_00102860: tail call func_0010D830(*(a0+0x15C)+0xC0)
@@ -906,6 +908,8 @@ segments:
       - [0x07AA04, asm, cod/07AA04]
       - [0x07B1A8, c,   cod/07B1A8]            # func_0017B1A8: save gp_rel D + call + tail-call w/ different addr
       - [0x07B1EC, asm, cod/07B1EC]
+      - [0x07B1F0, c,   cod/07B1F0]            # func_0017B1F0: two-call wrapper to func_001AE8A0(a0, &D_006325B0, 4) then tail-call (a0, &D_0028A520, 0x2E)
+      - [0x07B22C, asm, cod/07B22C]
       - [0x07B230, c,   cod/07B230]            # func_0017B230: bit lookup: (D_0028A520[a0>>3] >> (a0 & 7)) & 1
       - [0x07B254, asm, cod/07B254]
       - [0x07B2B8, c,   cod/07B2B8]            # func_0017B2B8: if(rc=func_0017E188()) tail call func_001F1868(rc)
@@ -959,6 +963,7 @@ segments:
       - [0x07E5FC, asm, cod/07E5FC]
       - [0x07E600, c,   cod/07E600]            # func_0017E600
       - [0x07E620, asm, cod/07E620]
+      - [0x07E65C, asm, cod/07E65C]
       - [0x07E838, asm, cod/07E838]
       - [0x07E86C, asm, cod/07E86C]
       - [0x07E920, c,   cod/07E920]            # func_0017E920
@@ -1339,6 +1344,8 @@ segments:
       - [0x0B5610, c,   cod/0B5610]            # func_001B5610: return -1
       - [0x0B5618, c,   cod/0B5618]            # func_001B5618: auto-batch
       - [0x0B5620, asm, cod/0B5620]
+      - [0x0B5728, asm, cod/0B5728]
+      - [0x0B5764, asm, cod/0B5764]
       - [0x0B5768, c,   cod/0B5768]            # func_001B5768: auto-batch
       - [0x0B5770, c,   cod/0B5770]            # func_001B5770: if(a0) D_00274ED8=1; return -1
       - [0x0B5788, c,   cod/0B5788]            # func_001B5788: gp_rel-style guard + inc D[1]
@@ -1935,6 +1942,8 @@ segments:
       - [0x13E780, asm, cod/13E780]
       - [0x13EFB0, c,   cod/13EFB0]
       - [0x13EFB8, asm, cod/13EFB8]
+      - [0x13F030, asm, cod/13F030]
+      - [0x13F06C, asm, cod/13F06C]
       - [0x13F070, c,   cod/13F070]            # func_0023F070
       - [0x13F07C, asm, cod/13F07C]
       - [0x13F160, c,   cod/13F160]            # func_0023F160: init struct: [0]=0, [4]=0, [8]=0x3F, [C]=0; return p+0x10
