@@ -1942,6 +1942,8 @@ segments:
       - [0x14DA4C, asm, cod/14DA4C]
       - [0x14DA50, c,   cod/14DA50]            # func_0024DA50: 5-arg via $t0=D_00717BD8
       - [0x14DA7C, asm, cod/14DA7C]
+      - [0x14FBD0, c,   cod/14FBD0]            # func_0024FBD0: sync+ei wrapper -> func_00100F18(a2)
+      - [0x14FBF8, asm, cod/14FBF8]
       - [0x150F70, c,   cod/150F70]            # func_00250F70: wrap func_00250C80(a0..a2, 0, -1)
       - [0x150F90, asm, cod/150F90]
       - [0x151AB0, c,   cod/151AB0]            # func_00251AB0: auto

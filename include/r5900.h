@@ -19,6 +19,10 @@
  * GS, IPU, VU0/1, DMAC). */
 #define SYNC()      __asm__ __volatile__("sync"   : : : "memory")
 
+/* Enable interrupts (COP0 EI). Pairs with SYNC() in EE-kernel
+ * critical-section exit wrappers. Encoding 0x42000038. */
+#define EI()        __asm__ __volatile__(".word 0x42000038" : : : "memory")
+
 /* Quadword copy — single 128-bit `lq`/`sq` pair via a scratch GPR
  * (e.g. `$a2`, `$t0`).  The original ICO codegen uses a different
  * scratch register per call site, so the scratch is exposed as a
