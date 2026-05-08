@@ -2214,6 +2214,8 @@ segments:
       - [0x145F18, asm, cod/145F18]
       - [0x145FD0, c,   cod/145FD0]            # func_00245FD0: p=f1(a1); copy self[14,1C] to p; p[20]=tag; tail f2(magic, p, 0x40, self[20..28])
       - [0x146030, asm, cod/146030]
+      - [0x146918, c,   cod/146918]            # func_00246918: f(self); p=self->C; if(p){ self->4=1; self->C=p->3C; } else self->4=0; f2(); return p
+      - [0x146970, asm, cod/146970]
       - [0x146B38, asm, cod/146B38]
       - [0x146B78, asm, cod/146B78]
       - [0x146BD4, asm, cod/146BD4]
