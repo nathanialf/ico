@@ -1223,6 +1223,8 @@ segments:
       - [0x0ADB84, asm, cod/0ADB84]
       - [0x0ADB88, c,   cod/0ADB88]            # func_001ADB88: rc=func_00240B70; return &D_002A31B8 + rc->C * 0x64
       - [0x0ADBBC, asm, cod/0ADBBC]
+      - [0x0AE420, asm, cod/0AE420]
+      - [0x0AE460, asm, cod/0AE460]
       - [0x0AE808, c,   cod/0AE808]            # func_001AE808: D_004B3D50[1]==0 ? 4 : D_004B3D50[2] (u16)
       - [0x0AE82C, asm, cod/0AE82C]
       - [0x0AE880, c,   cod/0AE880]            # func_001AE880: D_004B3B68[idx] = D_00632F74 (la-macro sw)
