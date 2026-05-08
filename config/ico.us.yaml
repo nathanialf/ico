@@ -2065,6 +2065,10 @@ segments:
       - [0x14BBEC, asm, cod/14BBEC]
       - [0x14BBF0, asm, cod/14BBF0]
       - [0x14BC18, asm, cod/14BC18]
+      - [0x14BD50, asm, cod/14BD50]
+      - [0x14BD8C, asm, cod/14BD8C]
+      - [0x14BD90, asm, cod/14BD90]
+      - [0x14BDCC, asm, cod/14BDCC]
       - [0x14D9B8, c,   cod/14D9B8]            # func_0024D9B8: promoted from permuter score-0
       - [0x14D9E4, asm, cod/14D9E4]
       - [0x14D9E8, asm, cod/14D9E8]
