@@ -1461,6 +1461,8 @@ segments:
       - [0x0BA6F0, asm, cod/0BA6F0]
       - [0x0BA7C0, c,   cod/0BA7C0]            # func_001BA7C0: D_004BEA50[a0->_15C->_800->_8] lookup
       - [0x0BA7E4, asm, cod/0BA7E4]
+      - [0x0BA838, asm, cod/0BA838]
+      - [0x0BA880, asm, cod/0BA880]
       - [0x0BAEE0, c,   cod/0BAEE0]            # func_001BAEE0: tail call func_001A6E28(D_004BEFA8[a0->164->30])
       - [0x0BAF00, asm, cod/0BAF00]
       - [0x0BB390, c,   cod/0BB390]            # func_001BB390: auto-batch

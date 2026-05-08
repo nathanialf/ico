@@ -1,4 +1,13 @@
-/* src/Basic.c — __FILE__ anchor at .rodata 0x0061a8a8 */
+/* src/Basic.c — __FILE__ anchor at .rodata 0x0061a8a8
+ *
+ * TU range: [0x001F6CB0, 0x001F6E28)  (next TU: src/BgAnimation.c at 0x001F6E28)
+ *
+ * Still needed to drop all INCLUDE_ASM:
+ *   - func_001F6CB0  (0xE0 bytes) — currently INCLUDE_ASM below
+ *   - func_001F6E24  (4 bytes, single `nop` tail-pad) — not yet attributed to
+ *     this TU; missing from the promotion. Must be added (likely a second
+ *     INCLUDE_ASM, or expressed via inline asm).
+ */
 
 #include "matching.h"
 #include "include_asm.h"
