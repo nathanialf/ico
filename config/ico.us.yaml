@@ -1616,6 +1616,8 @@ segments:
       - [0x0CBE84, asm, cod/0CBE84]
       - [0x0CCA70, c,   cod/0CCA70]            # func_001CCA70: f1(self); f2(self, -D1); tail f3(self, -D2)
       - [0x0CCAC0, asm, cod/0CCAC0]
+      - [0x0CE690, c,   cod/0CE690]            # func_001CE690: if((self->164->18>>33)&1){ f1(); if(f2(self)==0) tail f3(self); }
+      - [0x0CE6EC, asm, cod/0CE6EC]
       - [0x0CE6F0, asm, cod/0CE6F0]
       - [0x0CE718, asm, cod/0CE718]
       - [0x0CE760, c,   cod/0CE760]
