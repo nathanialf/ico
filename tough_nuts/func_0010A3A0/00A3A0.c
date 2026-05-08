@@ -13,11 +13,7 @@ void func_0010A3A0(int *self, int n)
     {
       p += 0x20 / 4;
       i--;
-      func_0010D530(p + (0x10 / 4));
-      if (i != 0)
-      {
-        p[0] = 0;
-      }
+ do { func_0010D530(p + (0x10 / 4)); if (i != 0) { p[0] = 0; } } while (0);
     }
     while (i != 0);
   }

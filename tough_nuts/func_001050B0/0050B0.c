@@ -17,11 +17,12 @@ void func_001050B0(float f1, float f2, float f3)
   float new_var8;
   void *new_var2;
   new_var9 = (long) (new_var8 = (D_002759A0[5] = new_var));
+  new_var7 = f3;
   new_var5 = new_var7;
   new_var3 = f2;
   D_00631B40++;
   D_00631B40--;
-  new_var = f3;
+  new_var = new_var7;
   D_002759A0[0] = f1;
   ;
   new_var7 = new_var9;
