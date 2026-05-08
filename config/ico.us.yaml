@@ -2380,6 +2380,8 @@ segments:
       - [0x14DA7C, asm, cod/14DA7C]
       - [0x14DA80, asm, cod/14DA80]
       - [0x14DAB8, asm, cod/14DAB8]
+      - [0x14E4C8, c,   cod/14E4C8]            # func_0024E4C8: p=*(D + a0*0x70 + a1*0x1C); f(p, p+0x100); return (p->58 < p->D8) ? p+0x80 : p
+      - [0x14E528, asm, cod/14E528]
       - [0x14F6D8, c,   cod/14F6D8]            # func_0024F6D8: alloc wrapper, set errno on null
       - [0x14F710, asm, cod/14F710]
       - [0x14FBD0, c,   cod/14FBD0]            # func_0024FBD0: sync+ei wrapper -> func_00100F18(a2)
