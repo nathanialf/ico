@@ -549,7 +549,7 @@ segments:
       - [0x033450, c,   cod/033450]            # func_00133450: self[0x108] OR= 2
       - [0x033460, c,   cod/033460]            # func_00133460: a0->108 bit-4 = (a1 & 1)
       - [0x033480, c,   cod/033480]            # func_00133480: func_00133480: walk D_006A5C80[0..0x834] in 0x12C strides; sum (*(int*)(p+0x108) >> 1) & 1 for non-zero entries
-      - [0x0334C8, asm, cod/0334C8]
+      - [0x0334C8, c,   cod/0334C8]            # func_001334C8: func_001334C8: count non-zero entries in D_006A5C80[0..0x834] via stride 0x12C — uses movn idiom
       - [0x033500, c,   cod/033500]            # func_00133500: sw_arg +0x110
       - [0x033508, c,   cod/033508]            # func_00133508: return D_00633C7C
       - [0x033510, asm, cod/033510]
