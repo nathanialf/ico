@@ -713,6 +713,8 @@ segments:
       - [0x0538F4, asm, cod/0538F4]
       - [0x0538F8, c,   cod/0538F8]            # func_001538F8: indirect-deref through D_00631AE4
       - [0x053918, asm, cod/053918]
+      - [0x0539B8, c,   cod/0539B8]            # func_001539B8: volatile-spill a0; chain a0->_164->_678; 2 calls
+      - [0x0539F0, asm, cod/0539F0]
       - [0x054420, asm, cod/054420]
       - [0x054444, asm, cod/054444]
       - [0x0545D8, c,   cod/0545D8]            # func_001545D8: extract bit 35 of D_006AAAE8
