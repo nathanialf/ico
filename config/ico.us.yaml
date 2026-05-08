@@ -1809,6 +1809,8 @@ segments:
       - [0x0F23C8, c,   cod/0F23C8]            # func_001F23C8: auto
       - [0x0F23D0, c,   cod/0F23D0]            # func_001F23D0: auto
       - [0x0F23D8, asm, cod/0F23D8]
+      - [0x0F3308, c,   cod/0F3308]            # func_001F3308: p=self->15C->800; f(a1,p+0x20); f(a2,p+0x30); tail f(a3,p+0x40)
+      - [0x0F3364, asm, cod/0F3364]
       - [0x0F3368, c,   cod/0F3368]            # func_001F3368: tail call func_001CE028(a1, base+0x20, +0x30, +0x40)
       - [0x0F3384, asm, cod/0F3384]
       - [0x0F3388, c,   cod/0F3388]            # func_001F3388: auto
