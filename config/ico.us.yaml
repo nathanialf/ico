@@ -1648,6 +1648,8 @@ segments:
       - [0x0C8ED4, asm, cod/0C8ED4]
       - [0x0C8ED8, c   ,   cod/0C8ED8]            # VU0 wrapper (vu0.h macros)
       - [0x0C8EF4, asm, cod/0C8EF4]
+      - [0x0C92D8, c,   cod/0C92D8]            # func_001C92D8: p=f1(D, 0x290, D2, 0x41); *p=f2(D3); return p
+      - [0x0C9324, asm, cod/0C9324]
       - [0x0C9328, c,   cod/0C9328]
       - [0x0C9330, c,   cod/0C9330]
       - [0x0C9338, asm, cod/0C9338]
