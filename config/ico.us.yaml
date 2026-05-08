@@ -947,7 +947,7 @@ segments:
       - [0x07E354, asm, cod/07E354]
       - [0x07E550, c,   cod/07E550]            # func_0017E550: set 6 sdata fields (1 float, 1 int, 3 bytes, 1 int)
       - [0x07E570, c,   cod/07E570]            # func_0017E570: set 3 sdata: D_633798=1, D_6337A0=0, D_63379C=-f
-      - [0x07E588, asm, cod/07E588]
+      - [0x07E588, c,   cod/07E588]            # func_0017E588: promoted permuter score-0 (v=0;return v idiom)
       - [0x07E5B0, c,   cod/07E5B0]            # func_0017E5B0: gp_rel D + 2-deref + cond call
       - [0x07E5E0, c,   cod/07E5E0]            # func_0017E5E0
       - [0x07E5FC, asm, cod/07E5FC]
@@ -1639,7 +1639,7 @@ segments:
       - [0x0F3390, asm, cod/0F3390]
       - [0x0F3A00, c,   cod/0F3A00]            # func_001F3A00: func_001F3188(a0); tail call func_001F3390(a0)
       - [0x0F3A28, asm, cod/0F3A28]
-      - [0x0F4098, asm, cod/0F4098]
+      - [0x0F4098, c,   cod/0F4098]            # func_001F4098: promoted permuter score-0 (do{}while(0) store-fence idiom)
       - [0x0F40C8, c, cod/0F40C8]            # func_001F40C8: 4-insn lw
       - [0x0F40D8, asm, cod/0F40D8]
       - [0x0F4228, c,   cod/0F4228]            # func_001F4228: func_001F4228: pointer chain
