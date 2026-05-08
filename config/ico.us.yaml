@@ -631,7 +631,7 @@ segments:
       - [0x03BB78, c,   cod/03BB78]
       - [0x03BB80, asm, cod/03BB80]
       - [0x03C510, asm, cod/03C510]
-      - [0x03C538, asm, cod/03C538]
+      - [0x03C538, c,   cod/03C538]            # func_0013C538: list-walker free: while(p){ (self->8)(p, self->C); p=p->34; } self->0=0
       - [0x03C598, c,   cod/03C598]            # func_0013C598: linked-list head insert
       - [0x03C5B4, asm, cod/03C5B4]
       - [0x03CBD0, c,   cod/03CBD0]            # func_0013CBD0: bound-checked table read
