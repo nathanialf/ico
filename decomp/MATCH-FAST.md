@@ -53,6 +53,26 @@ the next-largest bucket, write template C bodies for every entry in it,
 batch-claim them all, run `rm asm/cod/*.s && make setup && make`,
 park the failures, commit the matches, repeat.
 
+### Cron firings are heartbeats, not session boundaries
+
+If you are reading this prompt because a `/loop 30m decomp/MATCH-FAST.md
+unsupervised` cron just fired, **do not treat it as a fresh session**.
+Do not write a "session summary," do not list what you matched last
+round, do not yield. Just continue from current state: scan
+`docs/candidates.md`, pick the next bucket, batch-claim, build, commit,
+repeat. The cron is a heartbeat that keeps the conversation alive — not
+a checkpoint that demands a recap.
+
+The only signals that mean *stop*:
+- The user types something explicitly ending the loop ("stop", "pause",
+  "that's enough", a different task).
+- You hit the usage cap (the harness will surface it).
+- `docs/candidates.md` has zero non-empty buckets AND no unbucketed
+  functions worth surfacing — even then, edit `tools/gen_candidates.py`
+  to add a new sub-shape bucket before yielding.
+
+Between batches, do not summarize. Just go.
+
 ## Read first (in this order)
 
 1. `CLAUDE.md` — IP rules, toolchain, build commands, conventions.
