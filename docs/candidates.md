@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-08 04:29:08 UTC
+- Generated: 2026-05-08 04:37:16 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4376 total in `asm/cod/*.s`, 28 parked, 4348 considered
+- Functions: 4378 total in `asm/cod/*.s`, 30 parked, 4348 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -69,7 +69,7 @@ _2 total in this bucket; showing top 2._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
-| `func_001F2370` | 0x20 | 8 | 1 |  | `addiu sd jal addiu` | asm/cod/0F2250.s:109 |
+| `func_001F2370` | 0x20 | 8 | 1 |  | `addiu sd jal addiu` | asm/cod/0F231C.s:43 |
 | `func_0024BFAC` | 0x20 | 8 | 1 |  | `sd jal daddu sync` | asm/cod/14BC18.s:311 |
 
 <a id="wrap-9-0x24"></a>
@@ -91,7 +91,7 @@ _1 total in this bucket; showing top 1._
 <a id="wrap-1jal-0x34-0x40"></a>
 ## 0x34-0x40, exactly 1 jal, no VU (wrapper w/ stack buffer / arg pack)
 
-_40 total in this bucket; showing top 40._
+_38 total in this bucket; showing top 38._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
@@ -119,8 +119,6 @@ _40 total in this bucket; showing top 40._
 | `func_00263FF0` | 0x34 | 13 | 1 |  | `addiu lui sd daddu` | asm/cod/163FAC.s:39 |
 | `func_0013D8A0` | 0x3C | 15 | 1 |  | `addiu sd bnez sd` | asm/cod/03D550.s:249 |
 | `func_0017B1F0` | 0x3C | 15 | 1 |  | `addiu addiu sd addiu` | asm/cod/07B1EC.s:18 |
-| `func_001C3720` | 0x3C | 15 | 1 |  | `addiu addiu sd daddu` | asm/cod/0C34C0.s:193 |
-| `func_001F22E0` | 0x3C | 15 | 1 |  | `addiu addiu sd daddu` | asm/cod/0F2250.s:61 |
 | `func_00157BF8` | 0x40 | 16 | 1 |  | `addiu sd daddu sd` | asm/cod/056488.s:1701 |
 | `func_001EACE8` | 0x40 | 16 | 1 |  | `addiu addiu sd sd` | asm/cod/0EA278.s:811 |
 | `func_0023EFF8` | 0x38 | 14 | 1 |  | `addiu lw beqz sd` | asm/cod/13EFB8.s:36 |
@@ -287,7 +285,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4146 unmatched functions are not in any shape bucket above._
+_4148 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 
