@@ -585,7 +585,7 @@ segments:
       - [0x03B744, asm, cod/03B744]
       - [0x03B748, c,   cod/03B748]            # func_0013B748: &D_002811C0[a1<<9] +0 (la-macro)
       - [0x03B760, c,   cod/03B760]            # func_0013B760: &D_002811C0[a1<<9] +4 (la-macro)
-      - [0x03B778, asm, cod/03B778]
+      - [0x03B778, c,   cod/03B778]            # func_0013B778: func_0013B778: linear search D_002811C0 for (a,b); ret p->_8 if hit; else -1; max 2 entries
       - [0x03B7C0, c,   cod/03B7C0]            # func_0013B7C0: a0[0]=&D_002811C0+a2*512; a0[1]=a3; ret 0
       - [0x03B7E0, asm, cod/03B7E0]
       - [0x03B858, c,   cod/03B858]            # func_0013B858: D_00633C90 = 1, return 1
@@ -1299,6 +1299,7 @@ segments:
       - [0x0AA580, c,   cod/0AA580]            # func_001AA580: guard + call + double-clear (rv-lift attempt)
       - [0x0AA5B8, c,   cod/0AA5B8]
       - [0x0AA5C0, asm, cod/0AA5C0]
+      - [0x0AA604, asm, cod/0AA604]
       - [0x0AA608, c,   cod/0AA608]            # func_001AA608: promoted from permuter score-0
       - [0x0AA634, asm, cod/0AA634]
       - [0x0AA638, c,   cod/0AA638]            # func_001AA638: D_006F8EE0[a0*0xD0 + a1*8] = 0
