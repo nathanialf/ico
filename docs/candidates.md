@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-08 15:02:49 UTC
+- Generated: 2026-05-08 15:05:20 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4335 total in `asm/cod/*.s`, 95 parked, 4240 considered
+- Functions: 4334 total in `asm/cod/*.s`, 95 parked, 4239 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -265,7 +265,7 @@ _97 total in this bucket; showing top 50._
 <a id="wrap-2jal-0x40-0x60"></a>
 ## 0x40-0x60, exactly 2 jal, no VU (2-call mid-size wrapper)
 
-_78 total in this bucket; showing top 50._
+_77 total in this bucket; showing top 50._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
@@ -301,7 +301,6 @@ _78 total in this bucket; showing top 50._
 | `func_001AE9A8` | 0x44 | 17 | 2 |  | `addiu addiu sd jal` | asm/cod/0AE89C.s:109 |
 | `func_0024FBF8` | 0x44 | 17 | 2 |  | `addiu sd sd lui` | asm/cod/14FBF8.s:13 |
 | `func_001AE830` | 0x4C | 19 | 2 |  | `addiu lui sd sd` | asm/cod/0AE82C.s:18 |
-| `func_0010A330` | 0x50 | 20 | 2 |  | `addiu sd swc1 daddu` | asm/cod/00A330.s:13 |
 | `func_001F66A0` | 0x50 | 20 | 2 |  | `addiu sd swc1 daddu` | asm/cod/0F5620.s:1203 |
 | `func_001B56D0` | 0x54 | 21 | 2 |  | `addiu addiu beq sd` | asm/cod/0B5620.s:75 |
 | `func_001F16A0` | 0x54 | 21 | 2 |  | `addiu lui lw addiu` | asm/cod/0F1260.s:339 |
@@ -319,6 +318,7 @@ _78 total in this bucket; showing top 50._
 | `func_00165EB8` | 0x44 | 17 | 2 |  | `addiu sw sd lui` | asm/cod/065D18.s:149 |
 | `func_00175640` | 0x44 | 17 | 2 |  | `addiu sw sd lui` | asm/cod/06BD04.s:11504 |
 | `func_00175688` | 0x44 | 17 | 2 |  | `addiu sw sd lui` | asm/cod/06BD04.s:11527 |
+| `func_00176150` | 0x44 | 17 | 2 |  | `addiu sw sd lui` | asm/cod/07614C.s:18 |
 
 <a id="vu-leaf-4-0x10"></a>
 ## 4-insn / 0x10 leaf, no jal, has VU (VU0 macro)

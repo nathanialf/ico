@@ -336,7 +336,7 @@ segments:
       - [0x00A300, c,   cod/00A300]
       - [0x00A310, c,   cod/00A310]
       - [0x00A320, c,   cod/00A320]
-      - [0x00A330, asm, cod/00A330]
+      - [0x00A330, c,   cod/00A330]            # func_0010A330: func_0010A330: r1=func_00168C18(a->_15C+0x1D0,a->_15C+0xA0); r2=same on b; ret r1-r2
       - [0x00A380, c,   cod/00A380]
       - [0x00A390, c,   cod/00A390]
       - [0x00A3A0, asm, cod/00A3A0]
