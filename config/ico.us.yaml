@@ -1089,6 +1089,7 @@ segments:
       - [0x093F48, c,   cod/093F48]            # func_00193F48: promote-test: subagent seed (unscored, may match)
       - [0x093F68, c,   cod/093F68]            # func_00193F68: p[0]=p[1]=1
       - [0x093F78, asm, cod/093F78]
+      - [0x093FA4, asm, cod/093FA4]
       - [0x094360, c,   cod/094360]            # func_00194360: buf[4] init via func + zero one slot + 2nd call
       - [0x094394, asm, cod/094394]
       - [0x094398, c,   cod/094398]            # func_00194398: buf+2-call (shared jr+sp restore via 0943C0 stub)
