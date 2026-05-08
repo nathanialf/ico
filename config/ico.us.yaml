@@ -975,6 +975,7 @@ segments:
       - [0x0879A8, asm, cod/0879A8]
       - [0x088220, c,   cod/088220]
       - [0x088228, asm, cod/088228]
+      - [0x088290, asm, cod/088290]
       - [0x0882B0, c,   cod/0882B0]            # func_001882B0: a1==D_00631AE4 ? func_00154D20 : func_00104508
       - [0x0882CC, asm, cod/0882CC]
       - [0x0886D0, c,   cod/0886D0]            # func_001886D0: regalloc-pinned: v0=&D, v1=1; sb v1,lo(D)(v0)

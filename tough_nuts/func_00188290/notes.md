@@ -26,3 +26,17 @@ glabel func_00188290
     /* 882AC 001882AC 1801448C */   lw        $a0, 0x118($v0)
 endlabel func_00188290
 ```
+
+---
+
+## Attempt at 2026-05-08
+
+**Reason parked:** addu dest reg differs: target v0=v0+v1; gcc emits v1=v1+v0 — regalloc shape; both correct
+
+Seed: `tough_nuts/func_00188290/088290.c`
+
+Disassembly excerpt:
+
+```
+(no asm/cod/*.s found for func_00188290; check asm/matchings/cod/088290/)
+```
