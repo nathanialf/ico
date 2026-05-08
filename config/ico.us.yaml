@@ -1019,6 +1019,7 @@ segments:
       - [0x07CA10, c,   cod/07CA10]            # func_0017CA10: tail call func_00154668 passthrough
       - [0x07CA18, c,   cod/07CA18]            # func_0017CA18: while-loop calling func_X chain, store 0 at +0x50
       - [0x07CA54, asm, cod/07CA54]
+      - [0x07CA58, c,   cod/07CA58]            # func_0017CA58: p=f(x); while(p){ p->50=0xFFFFFFFF; p=f2(p); }
       - [0x07CAA0, c,   cod/07CAA0]            # func_0017CAA0: while-loop func_0013EBE0 chain, set [0x16C]=1
       - [0x07CAE0, c,   cod/07CAE0]            # func_0017CAE0: Same as 17CA18 but offset 0x16C
       - [0x07CB1C, asm, cod/07CB1C]
