@@ -656,6 +656,8 @@ segments:
       - [0x03D550, asm, cod/03D550]
       - [0x03D8A0, asm, cod/03D8A0]
       - [0x03D8DC, asm, cod/03D8DC]
+      - [0x03D8E0, c,   cod/03D8E0]            # func_0013D8E0: if(a0<0x101) return D[a0]; log_err(D2); return 0
+      - [0x03D924, asm, cod/03D924]
       - [0x03D928, c,   cod/03D928]            # func_0013D928
       - [0x03D944, asm, cod/03D944]
       - [0x03DD88, c,   cod/03DD88]            # func_0013DD88: func_002641D8(&D_006A93D0, 0, 0x110)
