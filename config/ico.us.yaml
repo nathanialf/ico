@@ -1288,7 +1288,7 @@ segments:
       - [0x0A9DB4, asm, cod/0A9DB4]
       - [0x0A9F20, c,   cod/0A9F20]            # func_001A9F20: D_00632A34 = val
       - [0x0A9F28, asm, cod/0A9F28]
-      - [0x0AA098, asm, cod/0AA098]
+      - [0x0AA098, c,   cod/0AA098]            # func_001AA098: func_001AA098: bulk reset of D_00632C90..A4 + *(0x10000000) + D_00633E58
       - [0x0AA0C0, asm, cod/0AA0C0]
       - [0x0AA258, c,   cod/0AA258]
       - [0x0AA260, asm, cod/0AA260]
@@ -1718,7 +1718,7 @@ segments:
       - [0x0F6CA0, c,   cod/0F6CA0]            # func_001F6CA0: D_00633780 = val
       - [0x0F6CA8, c,   cod/0F6CA8]            # func_001F6CA8: return D_00633780
       - [0x0F6CB0, c,   Basic]                 # TU promotion: src/Basic.c covers 0x1F6CB0..0x1F6E00 (4 funcs + INCLUDE_ASM)
-      - [0x0F6E00, asm, cod/0F6E00]
+      - [0x0F6E00, c,   cod/0F6E00]            # func_001F6E00: func_001F6E00: forward (x,y) to func_00139D78(x,y,D_0061A8A8,0x1A8); DEFEAT_TCO
       - [0x0F6E24, asm, cod/0F6E24]
       - [0x0FA590, c,   cod/0FA590]            # func_001FA590: D_00633F64 = 0
       - [0x0FA598, c,   cod/0FA598]            # func_001FA598: func_001FA598: if D_00633F64: func_001185A8(p,&D_00710BE0); reload; return v && D_006337B8==0
