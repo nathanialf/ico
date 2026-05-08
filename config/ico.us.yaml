@@ -1839,6 +1839,8 @@ segments:
       - [0x140B88, asm, cod/140B88]
       - [0x141A00, c,   cod/141A00]            # func_00241A00: wrap func_001A6E28(&D_0062E020)
       - [0x141A20, asm, cod/141A20]
+      - [0x141AE8, c,   cod/141AE8]            # func_00241AE8: alloc + 2 calls; set float to 1.0; TCO last
+      - [0x141B28, asm, cod/141B28]
       - [0x141C38, c,   cod/141C38]            # func_00241C38: return &D_005506A0
       - [0x141C44, asm, cod/141C44]
       - [0x143600, c,   cod/143600]            # func_00243600: 2-call wrapper, save 1st result return last
