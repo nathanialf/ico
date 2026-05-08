@@ -883,8 +883,11 @@ segments:
       - [0x07CA10, c,   cod/07CA10]            # func_0017CA10: tail call func_00154668 passthrough
       - [0x07CA18, c,   cod/07CA18]            # func_0017CA18: while-loop calling func_X chain, store 0 at +0x50
       - [0x07CA54, asm, cod/07CA54]
+      - [0x07CAA0, c,   cod/07CAA0]            # func_0017CAA0: while-loop func_0013EBE0 chain, set [0x16C]=1
       - [0x07CAE0, c,   cod/07CAE0]            # func_0017CAE0: Same as 17CA18 but offset 0x16C
       - [0x07CB1C, asm, cod/07CB1C]
+      - [0x07CB20, asm, cod/07CB20]
+      - [0x07CB5C, asm, cod/07CB5C]
       - [0x07E160, c,   cod/07E160]            # func_0017E160: set sub fields: 0x328/0x32C=0x7F, 0x33C/0x110/0x114/0x118=0
       - [0x07E184, asm, cod/07E184]
       - [0x07E188, c,   cod/07E188]            # func_0017E188
@@ -1198,6 +1201,8 @@ segments:
       - [0x0AB1B4, asm, cod/0AB1B4]
       - [0x0AB1B8, c,   cod/0AB1B8]            # func_001AB1B8
       - [0x0AB1D8, asm, cod/0AB1D8]
+      - [0x0AB2F8, c,   cod/0AB2F8]            # func_001AB2F8: cond+uncond call(1); return (D_00275254 & 0x100) ? -1 : 0
+      - [0x0AB334, asm, cod/0AB334]
       - [0x0ABF58, c,   cod/0ABF58]            # func_001ABF58: func_00244598(a0); tail call func_001123C0(&D_00274EF0)
       - [0x0ABF7C, asm, cod/0ABF7C]
       - [0x0AD740, c,   cod/0AD740]

@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-08 00:05:52 UTC
+- Generated: 2026-05-08 00:14:02 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4399 total in `asm/cod/*.s`, 12 parked, 4387 considered
+- Functions: 4399 total in `asm/cod/*.s`, 13 parked, 4386 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -173,18 +173,15 @@ _0 total in this bucket; showing top 0._
 <a id="wrap-2jal-0x28-0x40"></a>
 ## 0x28-0x40, exactly 2 jal, no VU (2-call wrapper, mid-size)
 
-_18 total in this bucket; showing top 18._
+_15 total in this bucket; showing top 15._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
 | `func_00256BF8` | 0x34 | 13 | 2 |  | `addiu b sd nop` | asm/cod/154F24.s:2275 |
 | `func_0018CAD8` | 0x38 | 14 | 2 |  | `addiu sd jal nop` | asm/cod/08BEAC.s:939 |
 | `func_00263350` | 0x38 | 14 | 2 |  | `addiu sd daddu sd` | asm/cod/160CC8.s:3115 |
-| `func_0017CB20` | 0x3C | 15 | 2 |  | `addiu sd sd jal` | asm/cod/07CB1C.s:18 |
-| `func_001AB2F8` | 0x3C | 15 | 2 |  | `addiu beqz sd jal` | asm/cod/0AB1D8.s:107 |
 | `func_00252180` | 0x3C | 15 | 2 |  | `lui addiu lw addiu` | asm/cod/151ED0.s:237 |
 | `func_001331D8` | 0x40 | 16 | 2 |  | `addiu sd sd daddu` | asm/cod/03262C.s:917 |
-| `func_0017CAA0` | 0x40 | 16 | 2 |  | `addiu sd jal sd` | asm/cod/07CA54.s:45 |
 | `func_001539B8` | 0x38 | 14 | 2 |  | `addiu sw sd lw` | asm/cod/053918.s:61 |
 | `func_00263F48` | 0x38 | 14 | 2 |  | `addiu sd addiu swc1` | asm/cod/160CC8.s:4157 |
 | `func_0015F298` | 0x3C | 15 | 2 |  | `addiu lui mtc1 sd` | asm/cod/05F244.s:47 |
@@ -205,12 +202,12 @@ _8 total in this bucket; showing top 8._
 |---|---:|---:|---:|:---:|---|---|
 | `func_001807F0` | 0x3C | 15 | 3 |  | `addiu sw sd lw` | asm/cod/0805A4.s:193 |
 | `func_00246B38` | 0x40 | 16 | 3 |  | `addiu sd sd b` | asm/cod/145EA4.s:1043 |
-| `func_001AB338` | 0x3C | 15 | 3 |  | `addiu sd sd jal` | asm/cod/0AB1D8.s:131 |
-| `func_0017D230` | 0x40 | 16 | 3 |  | `addiu sd sd jal` | asm/cod/07CB1C.s:597 |
+| `func_001AB338` | 0x3C | 15 | 3 |  | `addiu sd sd jal` | asm/cod/0AB334.s:18 |
+| `func_0017D230` | 0x40 | 16 | 3 |  | `addiu sd sd jal` | asm/cod/07CB5C.s:574 |
 | `func_00217B48` | 0x40 | 16 | 3 |  | `addiu sw sd lw` | asm/cod/114040.s:4549 |
 | `func_002189E0` | 0x40 | 16 | 3 |  | `addiu sw sd lw` | asm/cod/114040.s:5669 |
 | `func_00239710` | 0x40 | 16 | 3 |  | `addiu sw sd lw` | asm/cod/136C70.s:3325 |
-| `func_0017D2C8` | 0x40 | 16 | 3 |  | `addiu sd jal nop` | asm/cod/07CB1C.s:649 |
+| `func_0017D2C8` | 0x40 | 16 | 3 |  | `addiu sd jal nop` | asm/cod/07CB5C.s:626 |
 
 <a id="wrap-gp-1jal"></a>
 ## 1 jal + gp_rel %gp_rel(D), no VU (D[0] + arg passthrough)
@@ -296,11 +293,11 @@ _34 total in this bucket; showing top 34._
 | `func_0017E588` | 0x24 | 9 | 0 |  | `lw beqz addiu bne` | asm/cod/07E588.s:13 |
 | `func_001903E0` | 0x24 | 9 | 0 |  | `lw lw lbu beqz` | asm/cod/0903DC.s:18 |
 | `func_0014B2F0` | 0x28 | 10 | 0 |  | `lw beqz daddu addiu` | asm/cod/04B270.s:67 |
-| `func_0017D0D0` | 0x28 | 10 | 0 |  | `sll beqz sra lw` | asm/cod/07CB1C.s:471 |
+| `func_0017D0D0` | 0x28 | 10 | 0 |  | `sll beqz sra lw` | asm/cod/07CB5C.s:448 |
 | `func_0013CBD0` | 0x2C | 11 | 0 |  | `lw lw sltu bnel` | asm/cod/03C5B4.s:564 |
 | `func_001653A0` | 0x30 | 12 | 0 |  | `lw lw lw bnez` | asm/cod/0652CC.s:91 |
 | `func_0016AC20` | 0x30 | 12 | 0 |  | `daddu addiu lw lw` | asm/cod/06A69C.s:449 |
-| `func_0017D0F8` | 0x30 | 12 | 0 |  | `beqz nop lw beqz` | asm/cod/07CB1C.s:490 |
+| `func_0017D0F8` | 0x30 | 12 | 0 |  | `beqz nop lw beqz` | asm/cod/07CB5C.s:467 |
 | `func_00198110` | 0x30 | 12 | 0 |  | `lw addiu beq daddu` | asm/cod/097FFC.s:97 |
 | `func_001D3D40` | 0x30 | 12 | 0 |  | `lw daddu lw beqz` | asm/cod/0D2550.s:1745 |
 | `func_0010EC68` | 0x2C | 11 | 0 |  | `daddu lw beqz sw` | asm/cod/00EC68.s:13 |
@@ -331,7 +328,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4141 unmatched functions are not in any shape bucket above._
+_4143 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 
