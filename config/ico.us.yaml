@@ -2448,7 +2448,8 @@ segments:
       - [0x16EAF0, c,   cod/16EAF0]            # func_0026EAF0: func_0026EAF0: D_00633FF0 = 0; ret = f(a1,a2,a3); if(ret==-1 && D!=0) self[0]=D
       - [0x16EB50, asm, cod/16EB50]
       - [0x16EC10, c,   cod/16EC10]            # func_0026EC10: GIF-tag-on-fail wrapper, 1-arg variant: D=0; ret=f(a1); if(ret==-1 && D!=0) self[0]=D
-      - [0x16EC68, asm, cod/16EC68]
+      - [0x16EC68, c,   cod/16EC68]            # func_0026EC68: GIF-tag-on-fail wrapper, 2-arg variant
+      - [0x16ECC4, asm, cod/16ECC4]
       - [0x16ECC8, c,   cod/16ECC8]            # func_0026ECC8: func_0026ECC8: same shape, calls func_002455A0
       - [0x16ED28, c,   cod/16ED28]            # func_0026ED28: func_0026ED28: same shape, calls func_002454F0
       - [0x16ED88, asm, cod/16ED88]
