@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-08 03:14:36 UTC
+- Generated: 2026-05-08 03:18:21 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4382 total in `asm/cod/*.s`, 26 parked, 4356 considered
+- Functions: 4381 total in `asm/cod/*.s`, 27 parked, 4354 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -266,7 +266,7 @@ _24 total in this bucket; showing top 24._
 | `func_0017E588` | 0x24 | 9 | 0 |  | `lw beqz addiu bne` | asm/cod/07E588.s:13 |
 | `func_0014B2F0` | 0x28 | 10 | 0 |  | `lw beqz daddu addiu` | asm/cod/04B270.s:67 |
 | `func_0013CBD0` | 0x2C | 11 | 0 |  | `lw lw sltu bnel` | asm/cod/03C5B4.s:564 |
-| `func_001653A0` | 0x30 | 12 | 0 |  | `lw lw lw bnez` | asm/cod/0652CC.s:91 |
+| `func_001653A0` | 0x30 | 12 | 0 |  | `lw lw lw bnez` | asm/cod/0652F8.s:73 |
 | `func_0016AC20` | 0x30 | 12 | 0 |  | `daddu addiu lw lw` | asm/cod/06A69C.s:449 |
 | `func_0017D0F8` | 0x30 | 12 | 0 |  | `beqz nop lw beqz` | asm/cod/07D0F8.s:13 |
 | `func_00198110` | 0x30 | 12 | 0 |  | `lw addiu beq daddu` | asm/cod/097FFC.s:97 |
@@ -295,7 +295,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4146 unmatched functions are not in any shape bucket above._
+_4144 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 
