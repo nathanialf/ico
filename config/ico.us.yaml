@@ -2355,7 +2355,8 @@ segments:
       - [0x152180, asm, cod/152180]
       - [0x1521BC, asm, cod/1521BC]
       - [0x1523A0, c,   cod/1523A0]            # func_002523A0: tail call func_00254CF8(1) + sdata-set 0
-      - [0x1523B0, asm, cod/1523B0]
+      - [0x1523B0, c,   cod/1523B0]            # func_002523B0: if(D1) f1(D2,a0); elif(D3==3) f2(D4,a0-1); else f3(D5,D6,a0-1); D1=0
+      - [0x152434, asm, cod/152434]
       - [0x152438, asm, cod/152438]
       - [0x152484, asm, cod/152484]
       - [0x152550, c,   cod/152550]            # func_00252550: tail call func_002642D8(&D_0062ED08, a0)
