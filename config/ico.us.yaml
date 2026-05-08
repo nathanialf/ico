@@ -1683,7 +1683,7 @@ segments:
       - [0x0F2158, asm, cod/0F2158]
       - [0x0F2230, c,   cod/0F2230]            # func_001F2230
       - [0x0F2240, c,   cod/0F2240]            # func_001F2240
-      - [0x0F2250, asm, cod/0F2250]
+      - [0x0F2250, c,   cod/0F2250]            # func_001F2250: func_001F2250: 3-call chain — gather buf via func_00104508; func_00243AE8 with offsets; func_00105F00
       - [0x0F22A0, c,   cod/0F22A0]            # func_001F22A0: func_00240EA0(0,0,0,0,&func_001F2370,0,0); store result to D_00633748
       - [0x0F22E0, asm, cod/0F22E0]
       - [0x0F231C, asm, cod/0F231C]
