@@ -2220,6 +2220,7 @@ segments:
       - [0x14F710, asm, cod/14F710]
       - [0x14FBD0, c,   cod/14FBD0]            # func_0024FBD0: sync+ei wrapper -> func_00100F18(a2)
       - [0x14FBF8, asm, cod/14FBF8]
+      - [0x14FC3C, asm, cod/14FC3C]
       - [0x150F70, c,   cod/150F70]            # func_00250F70: wrap func_00250C80(a0..a2, 0, -1)
       - [0x150F90, asm, cod/150F90]
       - [0x151AB0, c,   cod/151AB0]            # func_00251AB0: auto
