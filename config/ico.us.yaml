@@ -1016,6 +1016,8 @@ segments:
       - [0x08B734, asm, cod/08B734]
       - [0x08BE78, c,   cod/08BE78]            # func_0018BE78: func_0018B9D0(&D_006D0680, 0); tail call func_0018B880(&D_006D0680)
       - [0x08BEAC, asm, cod/08BEAC]
+      - [0x08CAA8, c,   cod/08CAA8]            # func_0018CAA8: cond max-update D_006D06C0[0/1/2] if a2 >= [2]
+      - [0x08CAD4, asm, cod/08CAD4]
       - [0x08CB10, c,   cod/08CB10]            # func_0018CB10
       - [0x08CB1C, asm, cod/08CB1C]
       - [0x08CBE0, c,   cod/08CBE0]            # func_0018CBE0: return D_00633D84
