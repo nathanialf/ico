@@ -2124,7 +2124,7 @@ segments:
       - [0x14AE10, c,   cod/14AE10]            # func_0024AE10: return (func_00100930(4) & 0x10000) != 0
       - [0x14AE38, asm, cod/14AE38]
       - [0x14B3E8, c   ,   cod/14B3E8]            # syscall wrapper (SYSCALL_WRAPPER macro)
-      - [0x14B3F8, asm, cod/14B3F8]
+      - [0x14B3F8, c  , cod/14B3F8]
       - [0x14B448, c   ,   cod/14B448]            # syscall wrapper (SYSCALL_WRAPPER macro)
       - [0x14B458, c   ,   cod/14B458]            # syscall wrapper (SYSCALL_WRAPPER macro)
       - [0x14B468, c   ,   cod/14B468]            # syscall wrapper (SYSCALL_WRAPPER macro)
