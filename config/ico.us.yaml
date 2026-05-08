@@ -1331,7 +1331,7 @@ segments:
       - [0x0ADB84, asm, cod/0ADB84]
       - [0x0ADB88, c,   cod/0ADB88]            # func_001ADB88: rc=func_00240B70; return &D_002A31B8 + rc->C * 0x64
       - [0x0ADBBC, asm, cod/0ADBBC]
-      - [0x0AE420, asm, cod/0AE420]
+      - [0x0AE420, c,   cod/0AE420]            # func_001AE420: func_001AE420: wrap func_001ADED8(a0,a3); store a1 at +0x30, a2 at +0x34; return ptr
       - [0x0AE460, asm, cod/0AE460]
       - [0x0AE808, c,   cod/0AE808]            # func_001AE808: D_004B3D50[1]==0 ? 4 : D_004B3D50[2] (u16)
       - [0x0AE82C, asm, cod/0AE82C]
@@ -1369,7 +1369,7 @@ segments:
       - [0x0B5610, c,   cod/0B5610]            # func_001B5610: return -1
       - [0x0B5618, c,   cod/0B5618]            # func_001B5618: auto-batch
       - [0x0B5620, asm, cod/0B5620]
-      - [0x0B5728, asm, cod/0B5728]
+      - [0x0B5728, c,   cod/0B5728]            # func_001B5728: func_001B5728: if (D_00275254 & 0x10): func_001B7288(0); D_0063304C=0; ret 0x1A; else ret -1
       - [0x0B5764, asm, cod/0B5764]
       - [0x0B5768, c,   cod/0B5768]            # func_001B5768: auto-batch
       - [0x0B5770, c,   cod/0B5770]            # func_001B5770: if(a0) D_00274ED8=1; return -1

@@ -1,0 +1,11 @@
+extern int *func_0014A6B8(int a, int b);
+
+int func_0017E620(int a, int b)
+{
+    int *r = func_0014A6B8(a, b);
+    int ret = 0;
+    if (r != 0) {
+        ret = (r[2] == b);
+    }
+    return ret;
+}
