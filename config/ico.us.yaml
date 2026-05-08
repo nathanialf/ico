@@ -2364,6 +2364,10 @@ segments:
       - [0x165814, asm, cod/165814]
       - [0x165AF0, c,   cod/165AF0]            # func_00265AF0: D[0] + 3-arg passthrough (sibling of 26D430 family)
       - [0x165B24, asm, cod/165B24]
+      - [0x165B28, asm, cod/165B28]
+      - [0x165B6C, asm, cod/165B6C]
+      - [0x166870, asm, cod/166870]
+      - [0x1668B4, asm, cod/1668B4]
       - [0x168F08, c,   cod/168F08]            # func_00268F08: infinite loop calling 2 funcs
       - [0x168F28, c,   cod/168F28]            # func_00268F28: wrap func_0026E5C8(a0, 0)
       - [0x168F44, asm, cod/168F44]
