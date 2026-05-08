@@ -422,6 +422,8 @@ segments:
       - [0x017750, c,   cod/017750]            # func_00117750: 3-sdata zero
       - [0x017760, c,   cod/017760]
       - [0x017768, asm, cod/017768]
+      - [0x0177C8, asm, cod/0177C8]
+      - [0x017820, asm, cod/017820]
       - [0x017C20, c   ,   cod/017C20]            # VU0 wrapper (vu0.h macros)
       - [0x017C40, c   ,   cod/017C40]            # VU0 wrapper (vu0.h macros)
       - [0x017C5C, asm, cod/017C5C]
@@ -765,6 +767,7 @@ segments:
       - [0x0545F8, asm, cod/0545F8]
       - [0x054648, c,   cod/054648]            # func_00154648: set bit 35 of long long array[1]
       - [0x054668, asm, cod/054668]
+      - [0x0546BC, asm, cod/0546BC]
       - [0x054770, c,   cod/054770]            # func_00154770: read sentinel byte then return field
       - [0x054790, c,   cod/054790]            # func_00154790
       - [0x05479C, asm, cod/05479C]
@@ -1186,6 +1189,8 @@ segments:
       - [0x0997B8, asm, cod/0997B8]
       - [0x099998, c,   cod/099998]            # func_00199998
       - [0x0999A8, asm, cod/0999A8]
+      - [0x099A08, c,   cod/099A08]            # func_00199A08: func_0013EB50(0x2E) lookup; if found increment its _15C->_800->_4; if D->_164->_140 set tail-call func_001F40D8 on it
+      - [0x099A5C, asm, cod/099A5C]
       - [0x09B8E8, c,   cod/09B8E8]            # func_0019B8E8: rc=func_0013EB50(0x2E); ret (s8)*(rc->15C->800+3)
       - [0x09B910, c,   cod/09B910]            # func_0019B910: sibling: ret *(rc->15C->800+4) (int)
       - [0x09B938, c, cod/09B938]            # func_0019B938: 4-insn lwc1
@@ -1737,6 +1742,10 @@ segments:
       - [0x0FC1A0, asm, cod/0FC1A0]
       - [0x0FC2D0, c,   cod/0FC2D0]            # func_001FC2D0
       - [0x0FC2DC, asm, cod/0FC2DC]
+      - [0x0FC460, asm, cod/0FC460]
+      - [0x0FC4BC, asm, cod/0FC4BC]
+      - [0x0FC4C0, asm, cod/0FC4C0]
+      - [0x0FC51C, asm, cod/0FC51C]
       - [0x100A98, c,   cod/100A98]            # func_00200A98: promote: score-0 (unsigned char return-mask trick)
       - [0x100AD4, asm, cod/100AD4]
       - [0x101DC8, c,   cod/101DC8]            # func_00201DC8: set bit 21 of (sub+0x428)
@@ -2274,6 +2283,7 @@ segments:
       - [0x163F48, asm, cod/163F48]
       - [0x163F80, c,   cod/163F80]            # func_00263F80: 4-int packing buffer + 1-arg call
       - [0x163FAC, asm, cod/163FAC]
+      - [0x163FB0, asm, cod/163FB0]
       - [0x163FF0, c,   cod/163FF0]            # func_00263FF0: func_00264060(D_00553244->_C, &D_0062FC48, a2, a0, a1); tail-call func_00268F08()
       - [0x164024, asm, cod/164024]
       - [0x164028, c,   cod/164028]            # func_00264028: 1-jal w/ u32-return sign-ext via implicit cast
