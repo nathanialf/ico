@@ -2172,6 +2172,8 @@ segments:
       - [0x13C148, asm, cod/13C148]
       - [0x13C17C, asm, cod/13C17C]
       - [0x13C1C0, asm, cod/13C1C0]
+      - [0x13C290, c,   cod/13C290]            # func_0023C290: cached float: if(D1!=D2){ D1=D2; v=f1(self); f=f2(v)*0.5+0.5; cache=f; } self->18 = cached; return -1
+      - [0x13C2F0, asm, cod/13C2F0]
       - [0x13CCE0, asm, cod/13CCE0]
       - [0x13CD1C, asm, cod/13CD1C]
       - [0x13D030, c,   cod/13D030]            # func_0023D030: copy 2 sdata floats to *self->34, return 1
