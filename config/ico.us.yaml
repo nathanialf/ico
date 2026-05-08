@@ -347,6 +347,8 @@ segments:
       - [0x00AB18, c,   cod/00AB18]
       - [0x00AB20, c,   cod/00AB20]
       - [0x00AB28, asm, cod/00AB28]
+      - [0x00AC88, c,   cod/00AC88]            # func_0010AC88: copy 16-byte struct *src to local buf, call func_00168C18(buf, dest), store float ret to dest[4]
+      - [0x00ACC8, asm, cod/00ACC8]
       - [0x00ADC8, c,   cod/00ADC8]            # func_0010ADC8: auto-batch
       - [0x00ADD0, asm, cod/00ADD0]
       - [0x00B2C0, c,   cod/00B2C0]            # func_0010B2C0: tail call func_00105F00 (double-deref TCO)
@@ -954,6 +956,7 @@ segments:
       - [0x07E1A4, asm, cod/07E1A4]
       - [0x07E240, c,   cod/07E240]            # func_0017E240: s0 = a0->164; s0+0x120 = func_001E29E8(a0, a1, s0+0x610)
       - [0x07E26C, asm, cod/07E26C]
+      - [0x07E2E8, c,   cod/07E2E8]            # func_0017E2E8: while ((self->_164->_120->_5C & 1) == 0) func_00203AA0(1)
       - [0x07E328, c,   cod/07E328]            # func_0017E328: D_00633D40 = 0
       - [0x07E330, c,   cod/07E330]            # func_0017E330: wrap func_0017E358(a0,a1,a2,0,0,0)
       - [0x07E354, asm, cod/07E354]
@@ -1227,6 +1230,8 @@ segments:
       - [0x09E51C, asm, cod/09E51C]
       - [0x09E628, c,   cod/09E628]            # func_0019E628: if p[3]>0, --p[3]
       - [0x09E648, asm, cod/09E648]
+      - [0x09EF10, c,   cod/09EF10]            # func_0019EF10: tail-call helper: func_0013A0F8(D_00632010, self->_88<<6, &D_00612620, 0x14C); store ret; tail-call func_00103120
+      - [0x09EF58, asm, cod/09EF58]
       - [0x09F4E0, c,   cod/09F4E0]
       - [0x09F4E8, asm, cod/09F4E8]
       - [0x09FF98, c,   cod/09FF98]            # func_0019FF98: tail call func_0019FFA8(a0, 0, 0, 0)
