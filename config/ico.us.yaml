@@ -2094,6 +2094,8 @@ segments:
       - [0x144658, asm, cod/144658]
       - [0x144738, c,   cod/144738]            # func_00244738: getset D_00550738 (shared lui)
       - [0x144748, asm, cod/144748]
+      - [0x144958, asm, cod/144958]
+      - [0x144980, asm, cod/144980]
       - [0x145068, c,   cod/145068]            # func_00245068: clear bit 8 of *p, return bit 8
       - [0x145084, asm, cod/145084]
       - [0x145088, c,   cod/145088]            # func_00245088: clear bit 8 of *p, return bit 8
