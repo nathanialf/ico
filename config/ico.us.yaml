@@ -1366,7 +1366,7 @@ segments:
       - [0x0ADB84, asm, cod/0ADB84]
       - [0x0ADB88, c,   cod/0ADB88]            # func_001ADB88: rc=func_00240B70; return &D_002A31B8 + rc->C * 0x64
       - [0x0ADBBC, asm, cod/0ADBBC]
-      - [0x0AE188, asm, cod/0AE188]
+      - [0x0AE188, c,   cod/0AE188]
       - [0x0AE1B8, asm, cod/0AE1B8]
       - [0x0AE420, c,   cod/0AE420]            # func_001AE420: func_001AE420: wrap func_001ADED8(a0,a3); store a1 at +0x30, a2 at +0x34; return ptr
       - [0x0AE460, asm, cod/0AE460]
@@ -2214,9 +2214,9 @@ segments:
       - [0x151AB0, c,   cod/151AB0]            # func_00251AB0: auto
       - [0x151AB8, asm, cod/151AB8]
       - [0x151AF0, c,   cod/151AF0]            # func_00251AF0: DMA-tag setup wrapper: p[0xB0]=1; p[0xD8]=a1|0x20000000; p[0xE4]=a2; p[0xDC]=0; p[0xE0]=0; f(self)
-      - [0x151B38, asm, cod/151B38]
+      - [0x151B38, c,   cod/151B38]
       - [0x151B7C, asm, cod/151B7C]
-      - [0x151B80, asm, cod/151B80]
+      - [0x151B80, c,   cod/151B80]
       - [0x151BD0, c,   cod/151BD0]            # func_00251BD0
       - [0x151BE4, asm, cod/151BE4]
       - [0x151BE8, c,   cod/151BE8]            # func_00251BE8: copy 3 ints to *a1, *a2, *a3
