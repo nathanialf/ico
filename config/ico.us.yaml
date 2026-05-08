@@ -646,6 +646,8 @@ segments:
       - [0x03CF38, asm, cod/03CF38]
       - [0x03CF70, c,   cod/03CF70]            # func_0013CF70: zero 2 halfwords
       - [0x03CF7C, asm, cod/03CF7C]
+      - [0x03CF80, c,   cod/03CF80]            # func_0013CF80: byte-identical sibling of 0013C538
+      - [0x03CFE0, asm, cod/03CFE0]
       - [0x03D098, c,   cod/03D098]            # func_0013D098: auto-batch
       - [0x03D0A0, c,   cod/03D0A0]            # func_0013D0A0: conditional bit-clear on byte at *a0
       - [0x03D0D0, asm, cod/03D0D0]
