@@ -1953,6 +1953,8 @@ segments:
       - [0x14DA4C, asm, cod/14DA4C]
       - [0x14DA50, c,   cod/14DA50]            # func_0024DA50: 5-arg via $t0=D_00717BD8
       - [0x14DA7C, asm, cod/14DA7C]
+      - [0x14F6D8, c,   cod/14F6D8]            # func_0024F6D8: alloc wrapper, set errno on null
+      - [0x14F710, asm, cod/14F710]
       - [0x14FBD0, c,   cod/14FBD0]            # func_0024FBD0: sync+ei wrapper -> func_00100F18(a2)
       - [0x14FBF8, asm, cod/14FBF8]
       - [0x150F70, c,   cod/150F70]            # func_00250F70: wrap func_00250C80(a0..a2, 0, -1)
