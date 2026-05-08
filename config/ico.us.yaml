@@ -1366,6 +1366,8 @@ segments:
       - [0x0ADB84, asm, cod/0ADB84]
       - [0x0ADB88, c,   cod/0ADB88]            # func_001ADB88: rc=func_00240B70; return &D_002A31B8 + rc->C * 0x64
       - [0x0ADBBC, asm, cod/0ADBBC]
+      - [0x0AE188, asm, cod/0AE188]
+      - [0x0AE1B8, asm, cod/0AE1B8]
       - [0x0AE420, c,   cod/0AE420]            # func_001AE420: func_001AE420: wrap func_001ADED8(a0,a3); store a1 at +0x30, a2 at +0x34; return ptr
       - [0x0AE460, asm, cod/0AE460]
       - [0x0AE808, c,   cod/0AE808]            # func_001AE808: D_004B3D50[1]==0 ? 4 : D_004B3D50[2] (u16)
