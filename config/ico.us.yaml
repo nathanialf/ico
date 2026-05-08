@@ -2119,6 +2119,8 @@ segments:
       - [0x13F95C, asm, cod/13F95C]
       - [0x140950, c,   cod/140950]            # func_00240950: tail call func_00139598(a0 & 0x0FFFFFFF)
       - [0x140960, asm, cod/140960]
+      - [0x140A20, c,   cod/140A20]            # func_00240A20: f1(self->40); ret=(self->10<<11)+self->14; f2(self->40); return ret
+      - [0x140A6C, asm, cod/140A6C]
       - [0x140B60, c,   cod/140B60]            # func_00240B60: D_00633B98 = 0
       - [0x140B68, c,   cod/140B68]            # func_00240B68: return D_00633B98
       - [0x140B70, c,   cod/140B70]            # func_00240B70: D_00712CC0[idx] (la-macro lw)
