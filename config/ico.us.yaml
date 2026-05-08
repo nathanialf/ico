@@ -898,6 +898,8 @@ segments:
       - [0x064F84, asm, cod/064F84]
       - [0x064F88, c,   cod/064F88]
       - [0x064FCC, asm, cod/064FCC]
+      - [0x064FD0, c,   cod/064FD0]            # func_00164FD0: volatile-spill: f1(D, 0xAF3); f2(D, 0xAF3, D2)
+      - [0x065018, asm, cod/065018]
       - [0x065158, c,   cod/065158]            # func_00165158: sub+0x150 |= 0x100000000 (bit 32)
       - [0x065174, asm, cod/065174]
       - [0x0652A0, c,   cod/0652A0]            # func_001652A0: sub_164->430 == 2
