@@ -1827,6 +1827,8 @@ segments:
       - [0x0F11A0, asm, cod/0F11A0]
       - [0x0F1240, c,   cod/0F1240]            # func_001F1240
       - [0x0F1260, asm, cod/0F1260]
+      - [0x0F16A0, c,   cod/0F16A0]            # func_001F16A0: p=f(D, 2, D2, 0xC); v=f2(); *(short*)p = v; if(v<0) v += 0xFFFF; return p
+      - [0x0F16F4, asm, cod/0F16F4]
       - [0x0F1838, c,   cod/0F1838]            # func_001F1838: wrap func_001D12D8(a0); tail call func_001D12A8(a0, 0x41)
       - [0x0F1864, asm, cod/0F1864]
       - [0x0F2140, c,   cod/0F2140]
