@@ -1,0 +1,14 @@
+extern int *func_0017E188(void);
+extern void func_0012AC70(int a, int *p);
+
+void func_0017CB20(int a0, int a1)
+{
+    int *r;
+    int buf[2];
+    r = func_0017E188();
+    if (r != 0) {
+        buf[0] = (int)r;
+        buf[1] = 0;
+        func_0012AC70(a1, buf);
+    }
+}

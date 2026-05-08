@@ -963,7 +963,7 @@ segments:
       - [0x07D0F8, asm, cod/07D0F8]
       - [0x07D230, c,   cod/07D230]            # func_0017D230: func_0017E188(a0); func_0017E188(0); set _16C=1 on result; call func_001F2148(first)
       - [0x07D270, asm, cod/07D270]
-      - [0x07D2C8, asm, cod/07D2C8]
+      - [0x07D2C8, c,   cod/07D2C8]            # func_0017D2C8: func_0017D2C8: r=func_0017E188(); if r: ret func_001EA108(r); else: func_001A6E28(D_00559EA8); ret 0.0f
       - [0x07D308, asm, cod/07D308]
       - [0x07E160, c,   cod/07E160]            # func_0017E160: set sub fields: 0x328/0x32C=0x7F, 0x33C/0x110/0x114/0x118=0
       - [0x07E184, asm, cod/07E184]
