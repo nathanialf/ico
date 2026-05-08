@@ -650,7 +650,7 @@ segments:
       - [0x03F7D8, c,   cod/03F7D8]            # func_0013F7D8: wrapper for func_0013F3F0(a, 0, b, c, d, 0x1800)
       - [0x03F804, asm, cod/03F804]
       - [0x03F808, c,   cod/03F808]            # func_0013F808: sw_zero +0x18
-      - [0x03F810, asm, cod/03F810]
+      - [0x03F810, c,   cod/03F810]            # func_0013F810: func_0013F810: list traverse — zero p->_2C->_18 chain via _8 link
       - [0x03F848, c,   cod/03F848]            # func_0013F848: linked-list traverse, set _18=0 if _1C==a1
       - [0x03F874, asm, cod/03F874]
       - [0x03F878, c,   cod/03F878]            # func_0013F878: self[6] = 1, return 1
