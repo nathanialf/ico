@@ -1335,6 +1335,8 @@ segments:
       - [0x0A9F28, asm, cod/0A9F28]
       - [0x0AA098, c,   cod/0AA098]            # func_001AA098: func_001AA098: bulk reset of D_00632C90..A4 + *(0x10000000) + D_00633E58
       - [0x0AA0C0, asm, cod/0AA0C0]
+      - [0x0AA210, c,   cod/0AA210]            # func_001AA210: for(i=3;i>=0;i--){ f(p,0); p+=0x10; }
+      - [0x0AA254, asm, cod/0AA254]
       - [0x0AA258, c,   cod/0AA258]
       - [0x0AA260, asm, cod/0AA260]
       - [0x0AA4E8, c,   cod/0AA4E8]            # func_001AA4E8: return -1
