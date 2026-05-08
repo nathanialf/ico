@@ -917,6 +917,7 @@ segments:
       - [0x078924, asm, cod/078924]
       - [0x078928, c,   cod/078928]
       - [0x078930, asm, cod/078930]
+      - [0x07898C, asm, cod/07898C]
       - [0x079040, c,   cod/079040]            # func_00179040: empty 0x30 frame
       - [0x07904C, asm, cod/07904C]
       - [0x079050, c,   cod/079050]            # func_00179050: empty 0x30 frame
@@ -1328,7 +1329,8 @@ segments:
       - [0x0AB2F8, c,   cod/0AB2F8]            # func_001AB2F8: cond+uncond call(1); return (D_00275254 & 0x100) ? -1 : 0
       - [0x0AB334, asm, cod/0AB334]
       - [0x0AB338, c,   cod/0AB338]            # func_001AB338: 3-call w/ TCO; passthrough s0=a0
-      - [0x0AB378, asm, cod/0AB378]
+      - [0x0AB378, c,   cod/0AB378]            # func_001AB378: func_001AB378: func_00242640(0,0); p=func_00244630(1); *p|=0x40; tail-call func_00244980(p, (self->_4 & 0x3FF0) | 0x80000000)
+      - [0x0AB3CC, asm, cod/0AB3CC]
       - [0x0ABF58, c,   cod/0ABF58]            # func_001ABF58: func_00244598(a0); tail call func_001123C0(&D_00274EF0)
       - [0x0ABF7C, asm, cod/0ABF7C]
       - [0x0AD740, c,   cod/0AD740]
