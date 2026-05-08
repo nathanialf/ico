@@ -567,17 +567,86 @@ remaining false negative is purely in the diff harness.
   quick_diff still shows the divergence — see "quick_diff vs full
   build" above.
 
-## Compiler identification — provisional
+## Build-environment fingerprint (informational)
 
-`splat create_config` defaulted to `compiler: EEGCC` for ICO. Quick
-inspection shows:
+The compiler question is settled at the top of this file (ee-gcc
+2.9-991111-01, byte-identical round-trip). The notes below catalog the
+*other* signals the baseelf carries — useful for sanity-checking
+toolchain assumptions and for naming subsystems later.
 
-- No `.comment` section in `baseelf.elf` (compiler stripped it).
-- `.rodata` contains `sceMcOpen`, `sceMcClose`, etc. — confirms SCE PS2
-  SDK use, but doesn't pin the compiler.
-- Need to compare prologue/epilogue patterns against ee-gcc-emitted
-  reference code once the toolchain is installed.
+**Stripped metadata.** No `.comment`, `.note`, `.mdebug`, `.pdr`, or
+`.gptab.*` sections survive in `baseelf.elf`. Any future investigation
+that wants compiler/build-flag strings has to fall back to codegen
+fingerprinting — there is nothing to read.
 
-Treat `EEGCC` as a working hypothesis, not a confirmed fact. If matching
-plateaus quickly with weird scheduling diffs, suspect Pro-DG/wcc or
-CodeWarrior and revisit.
+**Sony PS2 SDK linker conventions present.** The ELF carries SDK-
+specific section names that rule out non-Sony toolchains (CodeWarrior in
+particular):
+
+- `.vutext` / `.vudata` / `.vubss` — VU code/data sections from the
+  Sony SDK linker scripts. `.vutext` is 20704 bytes; `.vudata` and
+  `.vubss` are size 0 but the section table entries persist.
+- `.DVP.ovlytab`, `.DVP.ovlystrtab`, and a dozen `.DVP.overlay.*`
+  sections — output of `dvp-as` / `dvp-link` (Sony's VU assembler and
+  overlay linker). Section-name shape is
+  `.DVP.overlay..<vma>.<id>.<idx>.<flags>` with vma = `0x0` or
+  `unknvma`. Total ~22 KB across all overlays, all marked X+W.
+- `.reginfo` (24 bytes) — standard MIPS but populated by Sony's linker.
+
+**ELF header flags.** `e_flags = 0x20924001`. Decoded:
+
+- bit 0 (`EF_MIPS_NOREORDER`) — set, matches `-mno-reorder`-friendly
+  output.
+- byte at the MACH position = `0x92` (`EF_MIPS_MACH_5900`) — explicit
+  Sony R5900 marker. Standard for PS2 retail ELFs.
+
+**SDK library version tags.** `.data` carries the PsII library banners:
+
+- `PsIIlibcdvd 2240` at `data+0x2DC204`
+- `PsIIlibpad  2200` at `data+0x2DDC7C`
+
+These pin the SDK release window. Useful if we ever need to match
+against a specific SDK version's library object files.
+
+**SCE assert macro signature.** `.rodata+0xDC548` has
+`assertion "%s" failed: file "%s", line %d\n` — the format string from
+the Sony PS2 SDK's `SCE_ASSERT` / `assert` macro. Implies asserts were
+left in (debug-ish build) and that any `__FILE__` argument was emitted
+verbatim.
+
+**Source-path leak via `__FILE__`.** The SCE assert macro emits the
+caller's `__FILE__` into the function's rodata. Scanning `.rodata` for
+`<dir>/<file>.[ch]` patterns recovered **96 source files across 5
+directories** of the original tree: `src/` (83 files), `ios/` (7),
+`isys/` (2), `sound/` (2), `include/` (2 confirmed). Full list and
+inferred subsystem groupings are in `decomp/source_tree.md`; the
+recovered layout is materialized as an empty skeleton with per-
+directory README under `decomp/source_tree/` (regenerate via
+`tools/build_source_tree.py`). When matching a function whose rodata
+contains `assertion "%s" failed`, the embedded path tells you which
+original TU it belongs to — that's the mechanical way to start
+populating per-file subsegments in `config/ico.us.yaml`.
+
+**SHIFT-JIS debug strings.** Multiple Japanese-encoded format strings
+in `.rodata` (the `\xa4\xce`, `\xa4\xac` byte pairs are SHIFT-JIS
+hiragana). Confirms SCE Japan source provenance. When emitting these as
+`.rodata` contents from C, keep them as raw byte arrays or escape
+literals — do not let an editor "helpfully" re-encode to UTF-8.
+
+**What this does *not* tell us.** None of the above pins the compiler
+front-end (already pinned by SHA-1 round-trip anyway). It also doesn't
+tell us whether the build used `-g` or any debug-symbol flags — those
+artifacts (if they ever existed) were stripped along with `.mdebug`.
+
+**Inspection recipe** (read-only, safe to re-run):
+
+```sh
+.venv/bin/python -c "
+from elftools.elf.elffile import ELFFile
+with open('baserom/baseelf.elf','rb') as f:
+    elf = ELFFile(f)
+    print(f'flags=0x{elf.header.e_flags:08x} entry=0x{elf.header.e_entry:08x}')
+    for sec in elf.iter_sections():
+        print(f'  {sec.name:<40} {sec[\"sh_type\"]:<14} {sec[\"sh_size\"]:>10}')
+"
+```

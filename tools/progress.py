@@ -37,6 +37,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 YAML = REPO_ROOT / "config" / "ico.us.yaml"
 BASEELF = REPO_ROOT / "baserom" / "baseelf.elf"
 SRC_DIR = REPO_ROOT / "src"
+BUILD_OBJ_DIR = REPO_ROOT / "build" / "src"
 README = REPO_ROOT / "README.md"
 PROGRESS_DOC = REPO_ROOT / "docs" / "PROGRESS.md"
 
@@ -52,6 +53,15 @@ SECTION_TO_TYPES = {
     ".sdata":  {"sdata"},
 }
 MATCHABLE_TYPES = {"c", "hasm"}
+
+# Non-text sections we credit from compiled object emissions. With
+# `migrate_rodata_to_functions: True` in the splat config, rodata/lit4/
+# sdata bytes referenced from a matched function disappear from the YAML
+# entirely and reappear inside the function's `.o`. Walking the YAML
+# alone therefore under-counts non-text matches; we walk built objects to
+# recover those bytes. .text stays YAML-driven so progress works without
+# a build.
+OBJECT_SECTION_PREFIXES = (".rodata", ".data", ".lit4", ".sdata")
 
 
 def _human_bytes(n: int) -> str:
@@ -118,6 +128,40 @@ def _src_exists(name: str, stype: str) -> bool:
     return (SRC_DIR / f"{name}.c").exists()
 
 
+def _section_for_object_section(name: str) -> str | None:
+    """Map a section name from a built .o (e.g. '.rodata.func_001234') to
+    one of the rollup buckets in SECTION_TO_TYPES."""
+    for prefix in OBJECT_SECTION_PREFIXES:
+        if name == prefix or name.startswith(prefix + "."):
+            return prefix
+    return None
+
+
+def _walk_built_objects() -> dict[str, int]:
+    """Sum non-text section bytes across every built object under
+    build/src/. Returns {section_name: matched_bytes}.
+
+    Returns zeros if the build tree is missing — running progress before
+    a build is supported (e.g. fresh clone, post-`make split`)."""
+    matched: dict[str, int] = {p: 0 for p in OBJECT_SECTION_PREFIXES}
+    if not BUILD_OBJ_DIR.exists():
+        return matched
+    for obj in BUILD_OBJ_DIR.rglob("*.o"):
+        try:
+            with obj.open("rb") as f:
+                elf = ELFFile(f)
+                for sec in elf.iter_sections():
+                    if sec["sh_type"] == "SHT_NOBITS":
+                        continue
+                    bucket = _section_for_object_section(sec.name)
+                    if bucket is None:
+                        continue
+                    matched[bucket] += sec["sh_size"]
+        except Exception as e:
+            print(f"progress: skipping {obj.name}: {e}", file=sys.stderr)
+    return matched
+
+
 def compute_progress() -> dict[str, tuple[int, int]]:
     """Return {section_name: (matched_bytes, total_bytes)}."""
     yaml_doc = yaml.safe_load(YAML.read_text())
@@ -139,6 +183,15 @@ def compute_progress() -> dict[str, tuple[int, int]]:
         size = _claim_size(subs, i, final_off)
         if stype in MATCHABLE_TYPES and name and _src_exists(name, stype):
             matched[sec] += size
+
+    # Add migrated rodata / lit4 / sdata bytes emitted from compiled
+    # objects. Object emissions take precedence over YAML accounting for
+    # non-text sections — explicit YAML rodata subsegments (when added)
+    # will reach the same bytes via the same .o, so we drop the YAML
+    # contribution there to avoid double counting.
+    obj_matched = _walk_built_objects()
+    for sec, n in obj_matched.items():
+        matched[sec] = n
 
     totals = {sec: sizes.get(sec, 0) for sec in SECTION_TO_TYPES}
     return {sec: (matched[sec], totals[sec]) for sec in SECTION_TO_TYPES}

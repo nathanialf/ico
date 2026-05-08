@@ -1713,12 +1713,8 @@ segments:
       - [0x0F6C98, c,   cod/0F6C98]            # func_001F6C98: auto
       - [0x0F6CA0, c,   cod/0F6CA0]            # func_001F6CA0: D_00633780 = val
       - [0x0F6CA8, c,   cod/0F6CA8]            # func_001F6CA8: return D_00633780
-      - [0x0F6CB0, asm, cod/0F6CB0]
-      - [0x0F6D90, c,   cod/0F6D90]            # func_001F6D90: if(p) func_00139598(p)
-      - [0x0F6DB0, c,   cod/0F6DB0]
-      - [0x0F6DB8, c,   cod/0F6DB8]            # func_001F6DB8: save/restore gp_rel + 4-arg call
-      - [0x0F6DFC, asm, cod/0F6DFC]
-      - [0x0F6E00, c,   cod/0F6E00]            # func_001F6E00: func_001F6E00: 4-arg wrapper, frame, DEFEAT_TCO
+      - [0x0F6CB0, c,   Basic]                 # TU promotion: src/Basic.c covers 0x1F6CB0..0x1F6E00 (4 funcs + INCLUDE_ASM)
+      - [0x0F6E00, asm, cod/0F6E00]
       - [0x0F6E24, asm, cod/0F6E24]
       - [0x0FA590, c,   cod/0FA590]            # func_001FA590: D_00633F64 = 0
       - [0x0FA598, asm, cod/0FA598]

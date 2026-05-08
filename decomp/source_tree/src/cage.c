@@ -1,0 +1,1 @@
+/* placeholder: src/cage.c — __FILE__ anchor at .rodata 0x00618848 */

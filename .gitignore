@@ -126,4 +126,15 @@ permuter_settings.toml
 CLAUDE.md
 .claude/
 decomp/RUN_LOG.md
+# Snapshot of asm/{cod,matchings}/ used by TU-mapping analyzers; local
+# only, regenerated on demand via `tools/snapshot_asm.py`.
+decomp/asm_snapshot/
+# TU-mapping pipeline bulk outputs — regeneratable from the snapshot via
+# tools/find_callgraph.py, find_boundaries.py, identify_tus.py. Too
+# large for the IP-safety tracked-file size cap; the small summaries
+# (decomp/vtables.json, decomp/unnamed_tus.md) stay tracked.
+decomp/callgraph.json
+decomp/boundaries.json
+decomp/tu_map.json
+decomp/tu_map.md
 .cache/
