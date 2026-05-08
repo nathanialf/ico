@@ -312,6 +312,8 @@ segments:
       - [0x006AB4, asm, cod/006AB4]
       - [0x006B70, c,   cod/006B70]            # func_00106B70: tail call func_00102FA0(a0, a1, *(a1+0x15C)+0x520)
       - [0x006B7C, asm, cod/006B7C]
+      - [0x006D20, c,   cod/006D20]            # func_00106D20: p=a1->15C; f1(a0, p+0x130); tail f2(a0, a0, p+0xA0)
+      - [0x006D64, asm, cod/006D64]
       - [0x006D68, asm, cod/006D68]
       - [0x006DA4, asm, cod/006DA4]
       - [0x006DA8, c,   cod/006DA8]            # func_00106DA8: f(a0,a1); f(a0+0x10,a0); *(float*)(a0+0x14)+=D; tail f3(a0)
