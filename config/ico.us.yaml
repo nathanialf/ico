@@ -1405,6 +1405,8 @@ segments:
       - [0x0CBD88, asm, cod/0CBD88]
       - [0x0CBE78, c,   cod/0CBE78]            # func_001CBE78
       - [0x0CBE84, asm, cod/0CBE84]
+      - [0x0CE6F0, asm, cod/0CE6F0]
+      - [0x0CE718, asm, cod/0CE718]
       - [0x0CE760, c,   cod/0CE760]
       - [0x0CE768, c,   cod/0CE768]            # func_001CE768
       - [0x0CE778, asm, cod/0CE778]
