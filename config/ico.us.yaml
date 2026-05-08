@@ -747,6 +747,8 @@ segments:
       - [0x043CCC, asm, cod/043CCC]
       - [0x0442E0, c,   cod/0442E0]            # func_001442E0: DMA-tag-style ID generator
       - [0x044308, asm, cod/044308]
+      - [0x0444A0, c,   cod/0444A0]            # func_001444A0: for(p=D; p<D+0x300; p+=0x30){ if((u16)*(p+2)==0x11) f(p); }
+      - [0x044500, asm, cod/044500]
       - [0x0445C0, c,   cod/0445C0]            # func_001445C0: return D_00632218
       - [0x0445C8, asm, cod/0445C8]
       - [0x044928, c,   cod/044928]            # func_00144928: tail call func_001AE6F8(a0->C, a0->8)
