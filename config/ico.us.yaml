@@ -904,7 +904,7 @@ segments:
       - [0x068598, c,   cod/068598]            # func_00168598: (*D_006323F4)(arg, 0xF)
       - [0x0685B8, c,   cod/0685B8]            # func_001685B8: D_00633D34=a1; D_006323F4(a0, 0x10) jalr
       - [0x0685DC, asm, cod/0685DC]
-      - [0x068690, asm, cod/068690]
+      - [0x068690, c,   cod/068690]
       - [0x0686D4, asm, cod/0686D4]
       - [0x068A28, c,   cod/068A28]            # func_00168A28: 4 float stores
       - [0x068A3C, asm, cod/068A3C]
@@ -1472,7 +1472,7 @@ segments:
       - [0x0BA6F0, asm, cod/0BA6F0]
       - [0x0BA7C0, c,   cod/0BA7C0]            # func_001BA7C0: D_004BEA50[a0->_15C->_800->_8] lookup
       - [0x0BA7E4, asm, cod/0BA7E4]
-      - [0x0BA838, asm, cod/0BA838]
+      - [0x0BA838, c,   cod/0BA838]
       - [0x0BA880, asm, cod/0BA880]
       - [0x0BAEE0, c,   cod/0BAEE0]            # func_001BAEE0: tail call func_001A6E28(D_004BEFA8[a0->164->30])
       - [0x0BAF00, asm, cod/0BAF00]
