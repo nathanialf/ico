@@ -2338,6 +2338,8 @@ segments:
       - [0x15E118, c,   cod/15E118]            # func_0025E118: if (a0 & 0xFF000000) == 0 then func_002591F0(0x4B, (int)a0, 0, 0)
       - [0x15E158, c,   cod/15E158]            # func_0025E158: same shape as 0x25E118 with constant 0x4C
       - [0x15E198, asm, cod/15E198]
+      - [0x15E238, c,   cod/15E238]            # func_0025E238: if(a0<0x10) ret=f()+0x180+a0*4 else 0
+      - [0x15E27C, asm, cod/15E27C]
       - [0x160610, c,   cod/160610]            # func_00260610: wrap func_00263110(ll, ll); return 0
       - [0x160634, asm, cod/160634]
       - [0x1608E0, c,   cod/1608E0]            # func_002608E0: fabsf via 0x7FFFFFFF mask
