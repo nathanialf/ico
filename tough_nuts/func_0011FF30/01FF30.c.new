@@ -1,0 +1,11 @@
+extern char D_00555830[];
+extern void func_001FBA80(void);
+extern void func_001FBAA8(int a, char *p, int n);
+extern void func_001FB8B8(void);
+
+void func_0011FF30(void)
+{
+    func_001FBA80();
+    func_001FBAA8(0x2, D_00555830, 0x4);
+    func_001FB8B8();
+}

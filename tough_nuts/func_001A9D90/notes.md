@@ -26,3 +26,17 @@ Disassembly excerpt:
 ```
 (no asm/cod/*.s found for func_001A9D90; check asm/matchings/cod/0A9D90/)
 ```
+
+---
+
+## Attempt at 2026-05-08
+
+**Reason parked:** HW reg write: ee-gcc hoists last sw into jr delay (8 insns); original keeps trailing nop (9 insns)
+
+Seed: `tough_nuts/func_001A9D90/0A9D90.c.new`
+
+Disassembly excerpt:
+
+```
+(no asm/cod/*.s found for func_001A9D90; check asm/matchings/cod/0A9D90/)
+```

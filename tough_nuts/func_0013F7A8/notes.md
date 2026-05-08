@@ -12,3 +12,17 @@ Disassembly excerpt:
 ```
 (no asm/cod/*.s found for func_0013F7A8; check asm/matchings/cod/03F7A8/)
 ```
+
+---
+
+## Attempt at 2026-05-08
+
+**Reason parked:** 6-arg forward: ee-gcc reorders move t1,t0 vs sp adjust between original
+
+Seed: `tough_nuts/func_0013F7A8/03F7A8.c.new`
+
+Disassembly excerpt:
+
+```
+(no asm/cod/*.s found for func_0013F7A8; check asm/matchings/cod/03F7A8/)
+```
