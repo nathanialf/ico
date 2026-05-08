@@ -1234,6 +1234,8 @@ segments:
       - [0x0A9DB4, asm, cod/0A9DB4]
       - [0x0A9F20, c,   cod/0A9F20]            # func_001A9F20: D_00632A34 = val
       - [0x0A9F28, asm, cod/0A9F28]
+      - [0x0AA098, asm, cod/0AA098]
+      - [0x0AA0C0, asm, cod/0AA0C0]
       - [0x0AA258, c,   cod/0AA258]
       - [0x0AA260, asm, cod/0AA260]
       - [0x0AA4E8, c,   cod/0AA4E8]            # func_001AA4E8: return -1
