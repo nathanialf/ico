@@ -894,6 +894,8 @@ segments:
       - [0x0654C8, c,   cod/0654C8]            # func_001654C8
       - [0x0654D8, c,   cod/0654D8]            # func_001654D8: return 1
       - [0x0654E0, asm, cod/0654E0]
+      - [0x065B50, c,   cod/065B50]            # func_00165B50: p=self->164->670; p->200=a1; q=a2 ? *a2 : D; p=self->164->670; p->20C=q
+      - [0x065B80, asm, cod/065B80]
       - [0x065CE8, c,   cod/065CE8]            # func_00165CE8: a0->164->10 < 0xC ? -1 : func_00163D60(a0)
       - [0x065D18, asm, cod/065D18]
       - [0x065EB8, c,   cod/065EB8]
