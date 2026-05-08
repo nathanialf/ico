@@ -530,7 +530,8 @@ segments:
       - [0x02FD6C, asm, cod/02FD6C]
       - [0x02FE08, c,   cod/02FE08]            # func_0012FE08: &D_006812D0[idx*0x2E8] (la-macro mult)
       - [0x02FE20, c,   cod/02FE20]            # func_0012FE20: &D_006812D0[idx*0x2E8] (la-macro mult)
-      - [0x02FE38, asm, cod/02FE38]
+      - [0x02FE38, c,   cod/02FE38]            # func_0012FE38: func_0012FE38: bit-pack a0->_78 = (a2<<6) | (a1<<5) | (orig & ~0xE0)
+      - [0x02FE5C, asm, cod/02FE5C]
       - [0x02FE60, c,   cod/02FE60]            # func_0012FE60: &D_00681538[idx*0x2E8] (la-macro mult)
       - [0x02FE78, c,   cod/02FE78]            # func_0012FE78: return *(short*)(&D_00681278 + a0*6)
       - [0x02FE94, asm, cod/02FE94]

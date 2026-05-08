@@ -40,3 +40,17 @@ Disassembly excerpt:
 ```
 (no asm/cod/*.s found for func_00188290; check asm/matchings/cod/088290/)
 ```
+
+---
+
+## Attempt at 2026-05-08
+
+**Reason parked:** wrap-1jal tail-call: ee-gcc emits addu v1,v1,v0 (lw via v1); original addu v0,v0,v1 (lw via v0) — regalloc swap
+
+Seed: `tough_nuts/func_00188290/088290.c.new`
+
+Disassembly excerpt:
+
+```
+(no asm/cod/*.s found for func_00188290; check asm/matchings/cod/088290/)
+```
