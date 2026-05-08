@@ -951,6 +951,8 @@ segments:
       - [0x07EA24, asm, cod/07EA24]
       - [0x07EA28, c,   cod/07EA28]            # func_0017EA28: if(D_00631AE4) clear bit 13 of sub+0x20
       - [0x07EA4C, asm, cod/07EA4C]
+      - [0x07EC50, asm, cod/07EC50]
+      - [0x07EC74, asm, cod/07EC74]
       - [0x07EC78, c,   cod/07EC78]            # func_0017EC78: clear bit 20 of long long at sub+0x20
       - [0x07EC94, asm, cod/07EC94]
       - [0x080580, c,   cod/080580]            # func_00180580: 1-jal wrapper w/ spill+reload
