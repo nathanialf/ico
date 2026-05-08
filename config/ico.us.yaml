@@ -2128,7 +2128,8 @@ segments:
       - [0x1450C8, asm, cod/1450C8]
       - [0x145120, asm, cod/145120]
       - [0x145178, asm, cod/145178]
-      - [0x1451D0, asm, cod/1451D0]
+      - [0x1451D0, c,   cod/1451D0]            # func_002451D0: f(self,2,3); p=self[0]; self[0]=p+4; self[3]=p; *p = flag?0xD0000000:0x50000000
+      - [0x145228, asm, cod/145228]
       - [0x1453C0, c,   cod/1453C0]            # func_002453C0: D_005507D0=0; tail call func_00245B58(a0)
       - [0x1453CC, asm, cod/1453CC]
       - [0x145568, c,   cod/145568]            # func_00245568: rc=func_00264050(...); *rc=5; ret -1
