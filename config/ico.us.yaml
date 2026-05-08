@@ -856,6 +856,8 @@ segments:
       - [0x05F224, asm, cod/05F224]
       - [0x05F228, c,   cod/05F228]            # func_0015F228: D_00292540[idx*0x18] +0x8 = a1 (la mult sw)
       - [0x05F244, asm, cod/05F244]
+      - [0x05F248, c,   cod/05F248]            # func_0015F248: p=self->15C->0; return (p && p->C==0x11 && f()==7)
+      - [0x05F294, asm, cod/05F294]
       - [0x05F298, c,   cod/05F298]            # func_0015F298: stack-buf wrapper: f1(buf, -1.0f); f2(a0, buf)
       - [0x05F2D4, asm, cod/05F2D4]
       - [0x05F320, c,   cod/05F320]            # func_0015F320: buf[4] + 2 calls (caller saves s0)
