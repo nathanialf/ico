@@ -2296,6 +2296,7 @@ segments:
       - [0x151C18, c,   cod/151C18]            # func_00251C18
       - [0x151C28, c  , cod/151C28]
       - [0x151C68, asm, cod/151C68]
+      - [0x151CF8, c,   cod/151CF8]            # func_00251CF8: if(self && self->40 && (fn=...->C)) ret=fn(self,idx,...->10); return ret
       - [0x151D48, c,   cod/151D48]            # func_00251D48: promote: score-0 from permuter (volatile dummies)
       - [0x151D6C, asm, cod/151D6C]
       - [0x151D70, c,   cod/151D70]            # func_00251D70: self[0x10]->0x78=a1; ->0x70=1
