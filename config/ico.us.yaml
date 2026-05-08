@@ -1790,8 +1790,7 @@ segments:
       - [0x0F6C98, c,   cod/0F6C98]            # func_001F6C98: auto
       - [0x0F6CA0, c,   cod/0F6CA0]            # func_001F6CA0: D_00633780 = val
       - [0x0F6CA8, c,   cod/0F6CA8]            # func_001F6CA8: return D_00633780
-      - [0x0F6CB0, c,   Basic]                 # TU promotion: src/Basic.c covers 0x1F6CB0..0x1F6E24 (5 funcs total: 4 C + 1 INCLUDE_ASM)
-      - [0x0F6E24, asm, cod/0F6E24]
+      - [0x0F6CB0, c,   Basic]                 # TU promotion: src/Basic.c covers 0x1F6CB0..0x1F6E28 (5 funcs, no INCLUDE_ASM); 4-byte nop pad at 0x1F6E24 supplied by linker --gap-fill
       - [0x0FA590, c,   cod/0FA590]            # func_001FA590: D_00633F64 = 0
       - [0x0FA598, c,   cod/0FA598]            # func_001FA598: func_001FA598: if D_00633F64: func_001185A8(p,&D_00710BE0); reload; return v && D_006337B8==0
       - [0x0FA5DC, asm, cod/0FA5DC]
