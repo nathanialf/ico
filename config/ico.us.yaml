@@ -618,6 +618,8 @@ segments:
       - [0x03D540, c,   cod/03D540]            # func_0013D540: auto-batch
       - [0x03D548, c,   cod/03D548]            # func_0013D548: auto-batch
       - [0x03D550, asm, cod/03D550]
+      - [0x03D8A0, asm, cod/03D8A0]
+      - [0x03D8DC, asm, cod/03D8DC]
       - [0x03D928, c,   cod/03D928]            # func_0013D928
       - [0x03D944, asm, cod/03D944]
       - [0x03DD88, c,   cod/03DD88]            # func_0013DD88: func_002641D8(&D_006A93D0, 0, 0x110)
@@ -1897,6 +1899,8 @@ segments:
       - [0x135738, asm, cod/135738]
       - [0x1358F8, c,   cod/1358F8]            # func_002358F8: store-arg-discard
       - [0x135908, asm, cod/135908]
+      - [0x1359C8, c,   cod/1359C8]            # func_002359C8: build buf with D_0061C300 16-byte struct + a0; call func_0017DF38(D_00631AE8, 0, &buf[4], 2, 100.0f)
+      - [0x135A14, asm, cod/135A14]
       - [0x135A18, c,   cod/135A18]            # func_00235A18: same shape as 103EE8
       - [0x135A48, asm, cod/135A48]
       - [0x135B68, c,   cod/135B68]            # func_00235B68: Sibling of 22F850 with last-arg = 0x20
@@ -2249,6 +2253,7 @@ segments:
       - [0x163350, c,   cod/163350]            # func_00263350: save a0 (long long) on stack, call func_00262848(&saved_a0, sp); negate buf[1]; call func_00262718(sp)
       - [0x163388, c,   cod/163388]            # func_00263388: build int+long-long buffer on stack and pass to func_00262718
       - [0x1633B4, asm, cod/1633B4]
+      - [0x163F48, asm, cod/163F48]
       - [0x163F80, c,   cod/163F80]            # func_00263F80: 4-int packing buffer + 1-arg call
       - [0x163FAC, asm, cod/163FAC]
       - [0x164028, c,   cod/164028]            # func_00264028: 1-jal w/ u32-return sign-ext via implicit cast
