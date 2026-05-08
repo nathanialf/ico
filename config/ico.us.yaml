@@ -639,6 +639,8 @@ segments:
       - [0x03D944, asm, cod/03D944]
       - [0x03DD88, c,   cod/03DD88]            # func_0013DD88: func_002641D8(&D_006A93D0, 0, 0x110)
       - [0x03DD9C, asm, cod/03DD9C]
+      - [0x03DDA0, asm, cod/03DDA0]
+      - [0x03DDF8, asm, cod/03DDF8]
       - [0x03E190, c,   cod/03E190]            # func_0013E190: promote: score-0 from permuter (parked tough_nut)
       - [0x03E1D8, c,   cod/03E1D8]            # func_0013E1D8: promote: score-0 from permuter (parked tough_nut)
       - [0x03E220, asm, cod/03E220]
