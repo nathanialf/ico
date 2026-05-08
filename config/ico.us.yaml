@@ -2163,6 +2163,8 @@ segments:
       - [0x145EA8, asm, cod/145EA8]
       - [0x145ED8, c,   cod/145ED8]            # func_00245ED8: if a1 < 0 or a1 >= a0->_20, tail-call func_00245EA8(a0); else return a0->_1C + (a1<<6)
       - [0x145F18, asm, cod/145F18]
+      - [0x145FD0, c,   cod/145FD0]            # func_00245FD0: p=f1(a1); copy self[14,1C] to p; p[20]=tag; tail f2(magic, p, 0x40, self[20..28])
+      - [0x146030, asm, cod/146030]
       - [0x146B38, asm, cod/146B38]
       - [0x146B78, asm, cod/146B78]
       - [0x146BD4, asm, cod/146BD4]
