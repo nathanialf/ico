@@ -1452,6 +1452,8 @@ segments:
       - [0x0AE460, asm, cod/0AE460]
       - [0x0AE808, c,   cod/0AE808]            # func_001AE808: D_004B3D50[1]==0 ? 4 : D_004B3D50[2] (u16)
       - [0x0AE82C, asm, cod/0AE82C]
+      - [0x0AE830, c,   cod/0AE830]            # func_001AE830: if(D[1]) f(a0, &D+0x10); return D[2]; else f(a0, D2); return 4
+      - [0x0AE87C, asm, cod/0AE87C]
       - [0x0AE880, c,   cod/0AE880]            # func_001AE880: D_004B3B68[idx] = D_00632F74 (la-macro sw)
       - [0x0AE89C, asm, cod/0AE89C]
       - [0x0AE8A0, c,   cod/0AE8A0]            # func_001AE8A0: if(a1) f(a1, self[0]+self[1]); self[1] += a2
