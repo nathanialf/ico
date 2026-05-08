@@ -1553,6 +1553,8 @@ segments:
       - [0x0DC8D8, c,   cod/0DC8D8]            # func_001DC8D8: func_0013FF88(D_0063347C, 0x18, D_0063347C); tail call func_00105F00(D_00633F3C+0x150, D_00633F3C)
       - [0x0DC908, c,   cod/0DC908]            # func_001DC908: sibling: 0xF3 instead of 0x18
       - [0x0DC938, asm, cod/0DC938]
+      - [0x0E0860, asm, cod/0E0860]
+      - [0x0E08B8, asm, cod/0E08B8]
       - [0x0E0978, c,   cod/0E0978]            # func_001E0978
       - [0x0E0984, asm, cod/0E0984]
       - [0x0E0C08, c,   cod/0E0C08]            # func_001E0C08: wrap func_00105F00(a0, a1+0xA0); a0->C=0
@@ -1869,6 +1871,8 @@ segments:
       - [0x12A0A0, asm, cod/12A0A0]
       - [0x12B640, c,   cod/12B640]            # func_0022B640: store-arg-discard
       - [0x12B650, asm, cod/12B650]
+      - [0x12B878, c,   cod/12B878]            # func_0022B878: if func_0017B230(0x4F) tail-call func_001297A0(0x157,0,-1); else (0x157,0,0)
+      - [0x12B8B8, asm, cod/12B8B8]
       - [0x12BED0, c,   cod/12BED0]            # func_0022BED0: store-arg-discard
       - [0x12BEE0, asm, cod/12BEE0]
       - [0x12D6B0, c,   cod/12D6B0]            # func_0022D6B0: store-arg-discard
@@ -1933,6 +1937,8 @@ segments:
       - [0x13B518, asm, cod/13B518]
       - [0x13C148, asm, cod/13C148]
       - [0x13C17C, asm, cod/13C17C]
+      - [0x13CCE0, asm, cod/13CCE0]
+      - [0x13CD1C, asm, cod/13CD1C]
       - [0x13D030, c,   cod/13D030]            # func_0023D030: copy 2 sdata floats to *self->34, return 1
       - [0x13D04C, asm, cod/13D04C]
       - [0x13D370, c,   cod/13D370]            # func_0023D370: copy 2 sdata floats to *self->34, return 1
@@ -2046,7 +2052,8 @@ segments:
       - [0x145E88, c,   cod/145E88]            # func_00245E88: a0->18=0 + a0->10 &= ~1
       - [0x145EA4, asm, cod/145EA4]
       - [0x145EA8, asm, cod/145EA8]
-      - [0x145ED8, asm, cod/145ED8]
+      - [0x145ED8, c,   cod/145ED8]            # func_00245ED8: if a1 < 0 or a1 >= a0->_20, tail-call func_00245EA8(a0); else return a0->_1C + (a1<<6)
+      - [0x145F18, asm, cod/145F18]
       - [0x146B38, asm, cod/146B38]
       - [0x146B78, asm, cod/146B78]
       - [0x1470D8, c,   cod/1470D8]            # func_002470D8: func_00247088(); func_00100560(D_00550864); ret 0
@@ -2065,6 +2072,8 @@ segments:
       - [0x1494AC, asm, cod/1494AC]
       - [0x1498B8, c,   cod/1498B8]            # func_002498B8
       - [0x1498D4, asm, cod/1498D4]
+      - [0x14A4D8, c,   cod/14A4D8]            # func_0024A4D8: set D_00550878 = -1; call func_002641D8(&D_007163A8, 0, 4); return 0
+      - [0x14A510, asm, cod/14A510]
       - [0x14A718, c,   cod/14A718]            # func_0024A718: wrap func_0024A510(a0, a1, a2, &buf[16])
       - [0x14A734, asm, cod/14A734]
       - [0x14A738, c,   cod/14A738]            # func_0024A738
@@ -2117,6 +2126,8 @@ segments:
       - [0x14DA4C, asm, cod/14DA4C]
       - [0x14DA50, c,   cod/14DA50]            # func_0024DA50: 5-arg via $t0=D_00717BD8
       - [0x14DA7C, asm, cod/14DA7C]
+      - [0x14DA80, asm, cod/14DA80]
+      - [0x14DAB8, asm, cod/14DAB8]
       - [0x14F6D8, c,   cod/14F6D8]            # func_0024F6D8: alloc wrapper, set errno on null
       - [0x14F710, asm, cod/14F710]
       - [0x14FBD0, c,   cod/14FBD0]            # func_0024FBD0: sync+ei wrapper -> func_00100F18(a2)
@@ -2256,6 +2267,8 @@ segments:
       - [0x163F48, asm, cod/163F48]
       - [0x163F80, c,   cod/163F80]            # func_00263F80: 4-int packing buffer + 1-arg call
       - [0x163FAC, asm, cod/163FAC]
+      - [0x163FF0, c,   cod/163FF0]            # func_00263FF0: func_00264060(D_00553244->_C, &D_0062FC48, a2, a0, a1); tail-call func_00268F08()
+      - [0x164024, asm, cod/164024]
       - [0x164028, c,   cod/164028]            # func_00264028: 1-jal w/ u32-return sign-ext via implicit cast
       - [0x164050, c,   cod/164050]            # func_00264050
       - [0x16405C, asm, cod/16405C]
