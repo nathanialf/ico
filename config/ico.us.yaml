@@ -1859,6 +1859,8 @@ segments:
       - [0x101DE0, asm, cod/101DE0]
       - [0x103910, c,   cod/103910]
       - [0x103918, asm, cod/103918]
+      - [0x103A10, c,   cod/103A10]            # func_00203A10: p=self->164; if(p->12C) return 0; p->130=a2; p->12C=self; f(self,a2,a1); return 1
+      - [0x103A58, asm, cod/103A58]
       - [0x103B40, c,   cod/103B40]            # func_00203B40: gp_rel D + 4-arg call + post-store
       - [0x103B74, asm, cod/103B74]
       - [0x103C38, c,   cod/103C38]            # func_00203C38: sw_arg +0x0
