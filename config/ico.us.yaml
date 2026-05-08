@@ -1527,6 +1527,8 @@ segments:
       - [0x0C0D60, asm, cod/0C0D60]
       - [0x0C2098, c,   cod/0C2098]            # func_001C2098
       - [0x0C20A8, asm, cod/0C20A8]
+      - [0x0C2170, c,   cod/0C2170]            # func_001C2170: p=self->15C->800; f(self); p->10=1; p->14=0; self->15C->62C=0
+      - [0x0C21B8, asm, cod/0C21B8]
       - [0x0C2DF8, c,   cod/0C2DF8]            # func_001C2DF8: func_0010ECB8(a0); tail call func_0010ECA0(self->15C->800->0)
       - [0x0C2E24, asm, cod/0C2E24]
       - [0x0C2EB8, c, cod/0C2EB8]            # func_001C2EB8: 4-insn swc1
