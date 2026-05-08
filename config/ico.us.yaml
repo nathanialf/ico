@@ -522,6 +522,8 @@ segments:
       - [0x02FFF0, asm, cod/02FFF0]
       - [0x032610, c,   cod/032610]            # func_00132610: a0->4=2 + tail call func_0013A5B8(&D_0027E4C0, a0, 0)
       - [0x03262C, asm, cod/03262C]
+      - [0x0331D8, asm, cod/0331D8]
+      - [0x033218, asm, cod/033218]
       - [0x033398, c,   cod/033398]            # func_00133398: wrap func_0013A6C0(&D_0027E4F0, &local=a0, 1); ret 1
       - [0x0333C8, asm, cod/0333C8]
       - [0x033448, c,   cod/033448]            # func_00133448: return D_00631F64
