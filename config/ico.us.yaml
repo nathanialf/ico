@@ -1496,6 +1496,8 @@ segments:
       - [0x0B5610, c,   cod/0B5610]            # func_001B5610: return -1
       - [0x0B5618, c,   cod/0B5618]            # func_001B5618: auto-batch
       - [0x0B5620, asm, cod/0B5620]
+      - [0x0B56D0, c,   cod/0B56D0]            # func_001B56D0: switch(a1){B7→ f(0); D=0; ret 0x2E; B8→ f(0); D=0; ret 0x1A; else ret -1;}
+      - [0x0B5724, asm, cod/0B5724]
       - [0x0B5728, c,   cod/0B5728]            # func_001B5728: func_001B5728: if (D_00275254 & 0x10): func_001B7288(0); D_0063304C=0; ret 0x1A; else ret -1
       - [0x0B5764, asm, cod/0B5764]
       - [0x0B5768, c,   cod/0B5768]            # func_001B5768: auto-batch
