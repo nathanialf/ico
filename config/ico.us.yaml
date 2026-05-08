@@ -1400,6 +1400,8 @@ segments:
       - [0x0AE82C, asm, cod/0AE82C]
       - [0x0AE880, c,   cod/0AE880]            # func_001AE880: D_004B3B68[idx] = D_00632F74 (la-macro sw)
       - [0x0AE89C, asm, cod/0AE89C]
+      - [0x0AE8A0, c,   cod/0AE8A0]            # func_001AE8A0: if(a1) f(a1, self[0]+self[1]); self[1] += a2
+      - [0x0AE8F0, asm, cod/0AE8F0]
       - [0x0AEA50, c,   cod/0AEA50]            # func_001AEA50: tail call func_00102858 passthrough
       - [0x0AEA58, c,   cod/0AEA58]            # func_001AEA58: tail call func_0010ECB8 passthrough
       - [0x0AEA60, c,   cod/0AEA60]            # func_001AEA60: auto-batch
