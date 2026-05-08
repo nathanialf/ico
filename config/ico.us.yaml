@@ -1194,6 +1194,8 @@ segments:
       - [0x0AA684, asm, cod/0AA684]
       - [0x0AA688, c,   cod/0AA688]            # func_001AA688: D_006329E8 = *(int*)0x10000000; return 0
       - [0x0AA69C, asm, cod/0AA69C]
+      - [0x0AAE70, c,   cod/0AAE70]            # func_001AAE70: bit-test selects between two globals
+      - [0x0AAE9C, asm, cod/0AAE9C]
       - [0x0AAEA0, c,   cod/0AAEA0]            # func_001AAEA0
       - [0x0AAEC0, c,   cod/0AAEC0]            # func_001AAEC0: wrap func_001B81B8(0x80, 1.0f); ret 1
       - [0x0AAEE8, asm, cod/0AAEE8]

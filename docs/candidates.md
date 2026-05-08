@@ -2,7 +2,7 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-08 01:08:04 UTC
+- Generated: 2026-05-08 01:11:08 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
@@ -265,7 +265,7 @@ _123 total in this bucket; showing top 50._
 <a id="cond-deref-leaf"></a>
 ## Leaf (no jal) with branch, no VU (cond-return / deref+if)
 
-_34 total in this bucket; showing top 34._
+_33 total in this bucket; showing top 33._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
@@ -302,7 +302,6 @@ _34 total in this bucket; showing top 34._
 | `func_00182868` | 0x24 | 9 | 0 |  | `lw bne nop lwc1` | asm/cod/082868.s:13 |
 | `func_00244630` | 0x28 | 10 | 0 |  | `sltiu beqz lui sll` | asm/cod/144460.s:168 |
 | `func_00176B08` | 0x30 | 12 | 0 |  | `lui lw beqz daddu` | asm/cod/076B04.s:18 |
-| `func_001AAE70` | 0x2C | 11 | 0 |  | `ld addiu sllv and` | asm/cod/0AA69C.s:635 |
 
 <a id="vu-leaf-4-0x10"></a>
 ## 4-insn / 0x10 leaf, no jal, has VU (VU0 macro)
@@ -323,7 +322,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4143 unmatched functions are not in any shape bucket above._
+_4144 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 
