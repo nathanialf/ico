@@ -424,6 +424,7 @@ segments:
       - [0x017768, asm, cod/017768]
       - [0x0177C8, asm, cod/0177C8]
       - [0x017820, asm, cod/017820]
+      - [0x01788C, asm, cod/01788C]
       - [0x017C20, c   ,   cod/017C20]            # VU0 wrapper (vu0.h macros)
       - [0x017C40, c   ,   cod/017C40]            # VU0 wrapper (vu0.h macros)
       - [0x017C5C, asm, cod/017C5C]
