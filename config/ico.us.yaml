@@ -2470,6 +2470,8 @@ segments:
       - [0x16C3A8, asm, cod/16C3A8]
       - [0x16CF10, c,   cod/16CF10]            # func_0026CF10: func_0026A330() passthrough
       - [0x16CF2C, asm, cod/16CF2C]
+      - [0x16D128, c,   cod/16D128]            # func_0026D128: GIF-tag-on-fail wrapper, unsigned variant: D=0; ret=f(a1); if(ret==0xFFFFFFFF && D!=0) self[0]=D
+      - [0x16D184, asm, cod/16D184]
       - [0x16D430, c,   cod/16D430]            # func_0026D430: D_00553244[0] + 1-arg passthrough (sibling of 16B148 family)
       - [0x16D458, c,   cod/16D458]            # func_0026D458: promote-test: subagent seed (unscored, may match)
       - [0x16D484, asm, cod/16D484]
