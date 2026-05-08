@@ -264,7 +264,7 @@ segments:
       - [0x001C54, asm, cod/001C54]
       - [0x001C58, c,   cod/001C58]            # func_00101C58: wrap func_00100950(0x10, &local=a0)
       - [0x001C7C, asm, cod/001C7C]
-      - [0x0024B8, asm, cod/0024B8]
+      - [0x0024B8, c  , cod/0024B8]
       - [0x0024F8, asm, cod/0024F8]
       - [0x002850, c,   cod/002850]            # func_00102850: auto-batch
       - [0x002858, c,   cod/002858]            # func_00102858: auto-batch
@@ -637,7 +637,7 @@ segments:
       - [0x03F0A0, c,   cod/03F0A0]            # func_0013F0A0: promote: score-0 from permuter (parked tough_nut)
       - [0x03F0E8, c,   cod/03F0E8]            # func_0013F0E8: promote: score-0 from permuter (parked tough_nut)
       - [0x03F130, asm, cod/03F130]
-      - [0x03F1D0, asm, cod/03F1D0]
+      - [0x03F1D0, c  , cod/03F1D0]
       - [0x03F1F8, asm, cod/03F1F8]
       - [0x03F3E8, c,   cod/03F3E8]            # func_0013F3E8: tail call func_0013F700 passthrough
       - [0x03F3F0, asm, cod/03F3F0]
@@ -767,7 +767,7 @@ segments:
       - [0x0545F0, c,   cod/0545F0]            # func_001545F0: return D_00633CEC (unsigned char)
       - [0x0545F8, asm, cod/0545F8]
       - [0x054648, c,   cod/054648]            # func_00154648: set bit 35 of long long array[1]
-      - [0x054668, asm, cod/054668]
+      - [0x054668, c  , cod/054668]
       - [0x0546BC, asm, cod/0546BC]
       - [0x054770, c,   cod/054770]            # func_00154770: read sentinel byte then return field
       - [0x054790, c,   cod/054790]            # func_00154790
@@ -1352,7 +1352,7 @@ segments:
       - [0x0B0A98, c,   cod/0B0A98]            # func_001B0A98: sibling: tail call func_00144120(0x18F, -2u, 0, 0)
       - [0x0B0AB0, c,   cod/0B0AB0]            # func_001B0AB0: tail call func_001A6E28(&D_00616CE0)
       - [0x0B0ABC, asm, cod/0B0ABC]
-      - [0x0B4E78, asm, cod/0B4E78]
+      - [0x0B4E78, c  , cod/0B4E78]
       - [0x0B4EC0, c,   cod/0B4EC0]            # func_001B4EC0: wrap func_001A6E28(&D_00616ED8); return a1
       - [0x0B4EF0, c,   cod/0B4EF0]            # func_001B4EF0: wrap func_001A6E28(&D_00616EE8); return a1
       - [0x0B4F20, c,   cod/0B4F20]            # func_001B4F20: D_00275254 & 0x40 ? func_001B7048(0) : -1
@@ -1567,7 +1567,7 @@ segments:
       - [0x0DC8D8, c,   cod/0DC8D8]            # func_001DC8D8: func_0013FF88(D_0063347C, 0x18, D_0063347C); tail call func_00105F00(D_00633F3C+0x150, D_00633F3C)
       - [0x0DC908, c,   cod/0DC908]            # func_001DC908: sibling: 0xF3 instead of 0x18
       - [0x0DC938, asm, cod/0DC938]
-      - [0x0E0860, asm, cod/0E0860]
+      - [0x0E0860, c  , cod/0E0860]
       - [0x0E08B8, asm, cod/0E08B8]
       - [0x0E0978, c,   cod/0E0978]            # func_001E0978
       - [0x0E0984, asm, cod/0E0984]
@@ -2129,9 +2129,9 @@ segments:
       - [0x14BBEC, asm, cod/14BBEC]
       - [0x14BBF0, asm, cod/14BBF0]
       - [0x14BC18, asm, cod/14BC18]
-      - [0x14BD50, asm, cod/14BD50]
+      - [0x14BD50, c  , cod/14BD50]
       - [0x14BD8C, asm, cod/14BD8C]
-      - [0x14BD90, asm, cod/14BD90]
+      - [0x14BD90, c  , cod/14BD90]
       - [0x14BDCC, asm, cod/14BDCC]
       - [0x14C4F0, c,   cod/14C4F0]            # func_0024C4F0: if D_00717904 fnptr set and D_00550924 == 0, indirect-call D_00717904(D_00717908)
       - [0x14C52C, asm, cod/14C52C]
@@ -2159,7 +2159,7 @@ segments:
       - [0x151C08, c,   cod/151C08]            # func_00251C08: return *(int*)*(char**)(self+0x40)
       - [0x151C14, asm, cod/151C14]
       - [0x151C18, c,   cod/151C18]            # func_00251C18
-      - [0x151C28, asm, cod/151C28]
+      - [0x151C28, c  , cod/151C28]
       - [0x151C68, asm, cod/151C68]
       - [0x151D48, c,   cod/151D48]            # func_00251D48: promote: score-0 from permuter (volatile dummies)
       - [0x151D6C, asm, cod/151D6C]
