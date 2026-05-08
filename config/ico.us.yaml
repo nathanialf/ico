@@ -927,6 +927,8 @@ segments:
       - [0x07B2E4, asm, cod/07B2E4]
       - [0x07B2E8, c,   cod/07B2E8]            # func_0017B2E8: if(rc=func_0017E188()) tail call func_001F19F0(rc)
       - [0x07B314, asm, cod/07B314]
+      - [0x07B318, c,   cod/07B318]            # func_0017B318: save f12; func_0017E188(); if !0 call func_001C2EB8(v, f12); tail-call func_001A6E28(&D_00559E60)
+      - [0x07B354, asm, cod/07B354]
       - [0x07B358, c,   cod/07B358]            # func_0017B358: promote: score-0 from permuter (void+return)
       - [0x07B394, asm, cod/07B394]
       - [0x07B528, c,   cod/07B528]            # func_0017B528: promote: score-0 (void+new_var return TCO trick)
