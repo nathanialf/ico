@@ -1717,7 +1717,8 @@ segments:
       - [0x0F6E00, asm, cod/0F6E00]
       - [0x0F6E24, asm, cod/0F6E24]
       - [0x0FA590, c,   cod/0FA590]            # func_001FA590: D_00633F64 = 0
-      - [0x0FA598, asm, cod/0FA598]
+      - [0x0FA598, c,   cod/0FA598]            # func_001FA598: func_001FA598: if D_00633F64: func_001185A8(p,&D_00710BE0); reload; return v && D_006337B8==0
+      - [0x0FA5DC, asm, cod/0FA5DC]
       - [0x0FAA30, c,   cod/0FAA30]            # func_001FAA30: D_006337B8 = 1, return 1
       - [0x0FAA3C, asm, cod/0FAA3C]
       - [0x0FAA40, c,   cod/0FAA40]            # func_001FAA40: D_006337B8 = D_006337BC = 0
