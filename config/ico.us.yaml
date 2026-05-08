@@ -1770,6 +1770,8 @@ segments:
       - [0x0F3390, asm, cod/0F3390]
       - [0x0F3A00, c,   cod/0F3A00]            # func_001F3A00: func_001F3188(a0); tail call func_001F3390(a0)
       - [0x0F3A28, asm, cod/0F3A28]
+      - [0x0F3F58, c,   cod/0F3F58]            # func_001F3F58: s1=self->15C->800; s1[2]=other; ret=f(other,a2); s1[3]=ret; other->15C->630=self
+      - [0x0F3FB0, asm, cod/0F3FB0]
       - [0x0F4098, c,   cod/0F4098]            # func_001F4098: promoted permuter score-0 (do{}while(0) store-fence idiom)
       - [0x0F40C8, c, cod/0F40C8]            # func_001F40C8: 4-insn lw
       - [0x0F40D8, asm, cod/0F40D8]
