@@ -892,6 +892,8 @@ segments:
       - [0x068598, c,   cod/068598]            # func_00168598: (*D_006323F4)(arg, 0xF)
       - [0x0685B8, c,   cod/0685B8]            # func_001685B8: D_00633D34=a1; D_006323F4(a0, 0x10) jalr
       - [0x0685DC, asm, cod/0685DC]
+      - [0x068690, asm, cod/068690]
+      - [0x0686D4, asm, cod/0686D4]
       - [0x068A28, c,   cod/068A28]            # func_00168A28: 4 float stores
       - [0x068A3C, asm, cod/068A3C]
       - [0x068A40, c,   cod/068A40]            # func_00168A40: promote-test: subagent seed (unscored, may match)
