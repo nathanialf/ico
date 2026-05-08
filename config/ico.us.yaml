@@ -2214,6 +2214,8 @@ segments:
       - [0x160900, asm, cod/160900]
       - [0x160CA8, c,   cod/160CA8]            # func_00260CA8: guard + tail-call (void+return TCO trick)
       - [0x160CC8, asm, cod/160CC8]
+      - [0x163388, c,   cod/163388]            # func_00263388: build int+long-long buffer on stack and pass to func_00262718
+      - [0x1633B4, asm, cod/1633B4]
       - [0x163F80, c,   cod/163F80]            # func_00263F80: 4-int packing buffer + 1-arg call
       - [0x163FAC, asm, cod/163FAC]
       - [0x164028, c,   cod/164028]            # func_00264028: 1-jal w/ u32-return sign-ext via implicit cast
