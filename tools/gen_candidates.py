@@ -138,6 +138,14 @@ CATEGORIES: list[tuple[str, str, callable]] = [
     ("cond-deref-leaf",
      "Leaf (no jal) with branch, no VU (cond-return / deref+if)",
      lambda fn: fn.jal_count() == 0 and _has_branch(fn) and _no_vu(fn) and 0x14 <= fn.size <= 0x30),
+    # 1-jal mid-size — captures larger wrappers between 0x40-0x60.
+    ("wrap-1jal-0x40-0x60",
+     "0x40-0x60, exactly 1 jal, no VU (mid-size wrapper)",
+     lambda fn: 0x40 <= fn.size <= 0x60 and fn.jal_count() == 1 and _no_vu(fn)),
+    # 2-jal mid-size — captures 2-call wrappers in 0x40-0x60.
+    ("wrap-2jal-0x40-0x60",
+     "0x40-0x60, exactly 2 jal, no VU (2-call mid-size wrapper)",
+     lambda fn: 0x40 <= fn.size <= 0x60 and fn.jal_count() == 2 and _no_vu(fn)),
     # VU0 macros.
     ("vu-leaf-4-0x10",
      "4-insn / 0x10 leaf, no jal, has VU (VU0 macro)",

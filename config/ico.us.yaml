@@ -1195,7 +1195,8 @@ segments:
       - [0x098678, c,   cod/098678]            # func_00198678: negate 3 floats, copy 4th
       - [0x0986A8, c   ,   cod/0986A8]            # VU0 wrapper (vu0.h macros)
       - [0x0986D8, c,   cod/0986D8]            # func_001986D8: buf[16] + 2-call wrapper (re-test after lwu insight)
-      - [0x098710, asm, cod/098710]
+      - [0x098710, c,   cod/098710]            # func_00198710: func_00198710: if (*self) func_0012A7A0(self); *self = func_0012A618(q)
+      - [0x098758, asm, cod/098758]
       - [0x099790, c   ,   cod/099790]            # VU0 wrapper (vu0.h macros)
       - [0x0997B8, asm, cod/0997B8]
       - [0x099998, c,   cod/099998]            # func_00199998
@@ -1546,7 +1547,8 @@ segments:
       - [0x0D1428, c,   cod/0D1428]            # func_001D1428: == arg compare
       - [0x0D143C, asm, cod/0D143C]
       - [0x0D1440, c,   cod/0D1440]            # func_001D1440: wrap func_0013B610(D_00631AEC, a0); ret 1
-      - [0x0D1468, asm, cod/0D1468]
+      - [0x0D1468, c,   cod/0D1468]            # func_001D1468: func_001D1468: D_006333EC->_15C->_630; if !=0 and func_001F40C8()==1: func_001F41C8(reload->_630); ret 1
+      - [0x0D14B8, asm, cod/0D14B8]
       - [0x0D1A98, c,   cod/0D1A98]            # func_001D1A98: 3 calls + tail-call all with same arg (void+return TCO)
       - [0x0D1AD0, c,   cod/0D1AD0]
       - [0x0D1AD8, asm, cod/0D1AD8]

@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-08 13:51:41 UTC
+- Generated: 2026-05-08 14:10:57 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4335 total in `asm/cod/*.s`, 91 parked, 4244 considered
+- Functions: 4333 total in `asm/cod/*.s`, 91 parked, 4242 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -29,6 +29,8 @@ and `mtc1`/`lwc1`/`swc1`/`cvt.*`/`mfc1` float-pair sequences.
 - [0x28-0x40, exactly 3 jal, no VU (3-call wrapper, often w/ tail call)](#wrap-3jal-mid)
 - [1 jal + gp_rel %gp_rel(D), no VU (D[0] + arg passthrough)](#wrap-gp-1jal)
 - [Leaf (no jal) with branch, no VU (cond-return / deref+if)](#cond-deref-leaf)
+- [0x40-0x60, exactly 1 jal, no VU (mid-size wrapper)](#wrap-1jal-0x40-0x60)
+- [0x40-0x60, exactly 2 jal, no VU (2-call mid-size wrapper)](#wrap-2jal-0x40-0x60)
 - [4-insn / 0x10 leaf, no jal, has VU (VU0 macro)](#vu-leaf-4-0x10)
 - [5-6 insn / 0x14-0x18 leaf, no jal, has VU (VU0 macro)](#vu-leaf-56-0x14-0x18)
 
@@ -202,6 +204,122 @@ _3 total in this bucket; showing top 3._
 | `func_00165B50` | 0x30 | 12 | 0 |  | `lw lw beqz sw` | asm/cod/0654E0.s:499 |
 | `func_001AE188` | 0x30 | 12 | 0 |  | `lui addiu addiu lhu` | asm/cod/0ADBBC.s:475 |
 
+<a id="wrap-1jal-0x40-0x60"></a>
+## 0x40-0x60, exactly 1 jal, no VU (mid-size wrapper)
+
+_99 total in this bucket; showing top 50._
+
+| Function | Size | Insns | jal | VU | First mnemonics | Source |
+|---|---:|---:|---:|:---:|---|---|
+| `func_00106D20` | 0x44 | 17 | 1 |  | `addiu sd sd daddu` | asm/cod/006B7C.s:137 |
+| `func_001973A8` | 0x44 | 17 | 1 |  | `addiu sd sd bltz` | asm/cod/097338.s:51 |
+| `func_0019F4E8` | 0x44 | 17 | 1 |  | `addiu sd sd daddu` | asm/cod/09F4E8.s:13 |
+| `func_001C2FA0` | 0x44 | 17 | 1 |  | `addiu sd sd lw` | asm/cod/0C2F20.s:53 |
+| `func_001C3130` | 0x44 | 17 | 1 |  | `addiu sd sd lw` | asm/cod/0C2FF0.s:107 |
+| `func_001C3470` | 0x44 | 17 | 1 |  | `addiu sd sd lw` | asm/cod/0C2FF0.s:373 |
+| `func_00251B38` | 0x44 | 17 | 1 |  | `addiu lui sd ori` | asm/cod/151AB8.s:57 |
+| `func_00157E68` | 0x48 | 18 | 1 |  | `addiu sd sd jal` | asm/cod/057DC4.s:67 |
+| `func_0015F650` | 0x48 | 18 | 1 |  | `addiu addiu sw addiu` | asm/cod/05F578.s:85 |
+| `func_0017B4E0` | 0x48 | 18 | 1 |  | `addiu sd daddu sd` | asm/cod/07B394.s:120 |
+| `func_001BA668` | 0x48 | 18 | 1 |  | `addiu daddu sd lui` | asm/cod/0BA5E0.s:57 |
+| `func_001BA838` | 0x48 | 18 | 1 |  | `addiu sd sd lw` | asm/cod/0BA7E4.s:45 |
+| `func_001C0870` | 0x48 | 18 | 1 |  | `addiu sd sd daddu` | asm/cod/0C0870.s:13 |
+| `func_001C2170` | 0x48 | 18 | 1 |  | `addiu sd sd daddu` | asm/cod/0C20A8.s:73 |
+| `func_001C22F0` | 0x48 | 18 | 1 |  | `addiu sd sd daddu` | asm/cod/0C20A8.s:183 |
+| `func_00251AF0` | 0x48 | 18 | 1 |  | `addiu lui sd ori` | asm/cod/151AB8.s:33 |
+| `func_0011FCD8` | 0x4C | 19 | 1 |  | `addiu addiu sd lh` | asm/cod/01EE84.s:1028 |
+| `func_001F2320` | 0x4C | 19 | 1 |  | `addiu addiu sw sd` | asm/cod/0F231C.s:18 |
+| `func_00247088` | 0x4C | 19 | 1 |  | `addiu addiu sd lui` | asm/cod/146B78.s:413 |
+| `func_00252438` | 0x4C | 19 | 1 |  | `addiu sd jal addiu` | asm/cod/1523B0.s:59 |
+| `func_00107DD8` | 0x50 | 20 | 1 |  | `addiu daddu sd sd` | asm/cod/006DA4.s:1176 |
+| `func_001AE8A0` | 0x50 | 20 | 1 |  | `addiu sd sd daddu` | asm/cod/0AE89C.s:18 |
+| `func_0023FDA0` | 0x50 | 20 | 1 |  | `addiu sd sd daddu` | asm/cod/13F95C.s:334 |
+| `func_00240600` | 0x50 | 20 | 1 |  | `addiu sd sd daddu` | asm/cod/13F95C.s:961 |
+| `func_00251B80` | 0x50 | 20 | 1 |  | `addiu lui sd mult` | asm/cod/151AB8.s:81 |
+| `func_002642D8` | 0x50 | 20 | 1 |  | `addiu lui sd sd` | asm/cod/164094.s:211 |
+| `func_0011BF60` | 0x54 | 21 | 1 |  | `addiu sra sd sd` | asm/cod/01BF5C.s:18 |
+| `func_00136140` | 0x54 | 21 | 1 |  | `addiu sd sd daddu` | asm/cod/036094.s:69 |
+| `func_0013A7C8` | 0x54 | 21 | 1 |  | `addiu lui sd sd` | asm/cod/03A248.s:453 |
+| `func_001E8A60` | 0x54 | 21 | 1 |  | `addiu lui sd sd` | asm/cod/0E6DA0.s:2089 |
+| `func_00260BA0` | 0x54 | 21 | 1 |  | `addiu lui sd sd` | asm/cod/160900.s:237 |
+| `func_00268DA0` | 0x54 | 21 | 1 |  | `lui lui lw addiu` | asm/cod/165B24.s:4208 |
+| `func_0013C820` | 0x58 | 22 | 1 |  | `addiu sd daddu beqz` | asm/cod/03C5B4.s:206 |
+| `func_001AE8F0` | 0x58 | 22 | 1 |  | `addiu sd sd daddu` | asm/cod/0AE89C.s:45 |
+| `func_001F3F58` | 0x58 | 22 | 1 |  | `addiu sd sd daddu` | asm/cod/0F3A28.s:383 |
+| `func_00245120` | 0x58 | 22 | 1 |  | `addiu sd daddu sd` | asm/cod/1450C8.s:47 |
+| `func_00245178` | 0x58 | 22 | 1 |  | `addiu sd daddu sd` | asm/cod/1450C8.s:75 |
+| `func_002451D0` | 0x58 | 22 | 1 |  | `addiu addiu sd sd` | asm/cod/1450C8.s:103 |
+| `func_0026EC10` | 0x58 | 22 | 1 |  | `addiu sd sd daddu` | asm/cod/16E874.s:308 |
+| `func_00133570` | 0x5C | 23 | 1 |  | `addiu sd sd lw` | asm/cod/033510.s:45 |
+| `func_00176398` | 0x5C | 23 | 1 |  | `addiu addiu sd daddu` | asm/cod/0761B8.s:159 |
+| `func_0026D128` | 0x5C | 23 | 1 |  | `addiu sd sd lui` | asm/cod/16CF2C.s:187 |
+| `func_0026EC68` | 0x5C | 23 | 1 |  | `addiu sd sd daddu` | asm/cod/16E874.s:337 |
+| `func_0013C538` | 0x60 | 24 | 1 |  | `addiu sd sd daddu` | asm/cod/03C538.s:13 |
+| `func_0013CF80` | 0x60 | 24 | 1 |  | `addiu sd sd daddu` | asm/cod/03CF7C.s:18 |
+| `func_001444A0` | 0x60 | 24 | 1 |  | `addiu lui sd sd` | asm/cod/044308.s:145 |
+| `func_00245410` | 0x60 | 24 | 1 |  | `addiu sd daddu sw` | asm/cod/1453CC.s:41 |
+| `func_00245FD0` | 0x60 | 24 | 1 |  | `addiu sd daddu sd` | asm/cod/145F18.s:75 |
+| `func_0026EAF0` | 0x60 | 24 | 1 |  | `addiu sd daddu sd` | asm/cod/16E874.s:214 |
+| `func_0026ECC8` | 0x60 | 24 | 1 |  | `addiu sd daddu sd` | asm/cod/16E874.s:368 |
+
+<a id="wrap-2jal-0x40-0x60"></a>
+## 0x40-0x60, exactly 2 jal, no VU (2-call mid-size wrapper)
+
+_82 total in this bucket; showing top 50._
+
+| Function | Size | Insns | jal | VU | First mnemonics | Source |
+|---|---:|---:|---:|:---:|---|---|
+| `func_0017DC90` | 0x44 | 17 | 2 |  | `addiu sd daddu sd` | asm/cod/07D308.s:777 |
+| `func_00187908` | 0x44 | 17 | 2 |  | `addiu sd sd sd` | asm/cod/087904.s:18 |
+| `func_001C0648` | 0x44 | 17 | 2 |  | `addiu sd daddu sd` | asm/cod/0C05CC.s:57 |
+| `func_00258558` | 0x44 | 17 | 2 |  | `addiu addiu sd sd` | asm/cod/15846C.s:94 |
+| `func_0010DDF8` | 0x48 | 18 | 2 |  | `addiu sd sd daddu` | asm/cod/00DDF4.s:18 |
+| `func_00165FB8` | 0x48 | 18 | 2 |  | `addiu daddu sd addiu` | asm/cod/065FB4.s:18 |
+| `func_0017CA58` | 0x48 | 18 | 2 |  | `addiu sd jal sd` | asm/cod/07CA54.s:18 |
+| `func_001AC300` | 0x48 | 18 | 2 |  | `addiu sd jal addiu` | asm/cod/0ABF7C.s:290 |
+| `func_00203A58` | 0x48 | 18 | 2 |  | `addiu sd bnez sd` | asm/cod/103918.s:111 |
+| `func_00237BD0` | 0x48 | 18 | 2 |  | `addiu lw beqz sd` | asm/cod/136C70.s:1231 |
+| `func_001BA2E0` | 0x4C | 19 | 2 |  | `addiu sd sd daddu` | asm/cod/0B81B8.s:2417 |
+| `func_00240A20` | 0x4C | 19 | 2 |  | `addiu sd sd sd` | asm/cod/140960.s:70 |
+| `func_00258508` | 0x4C | 19 | 2 |  | `addiu sd sd daddu` | asm/cod/15846C.s:69 |
+| `func_001CCA70` | 0x50 | 20 | 2 |  | `addiu sd sd jal` | asm/cod/0CBE84.s:904 |
+| `func_002633B8` | 0x54 | 21 | 2 |  | `addiu sd daddu sd` | asm/cod/1633B4.s:18 |
+| `func_00246918` | 0x58 | 22 | 2 |  | `addiu sd sd sd` | asm/cod/145F18.s:831 |
+| `func_00252590` | 0x58 | 22 | 2 |  | `lui daddu addiu lw` | asm/cod/15258C.s:18 |
+| `func_001CE690` | 0x5C | 23 | 2 |  | `addiu sd sd daddu` | asm/cod/0CBE84.s:2972 |
+| `func_001F3308` | 0x5C | 23 | 2 |  | `addiu sd sd daddu` | asm/cod/0F23D8.s:1101 |
+| `func_00246B78` | 0x5C | 23 | 2 |  | `addiu addiu sd lui` | asm/cod/146B78.s:13 |
+| `func_001AE948` | 0x60 | 24 | 2 |  | `addiu sd sd daddu` | asm/cod/0AE89C.s:76 |
+| `func_0010EC08` | 0x44 | 17 | 2 |  | `mtc1 addiu c.lt.s nop` | asm/cod/00E950.s:255 |
+| `func_0015F2D8` | 0x44 | 17 | 2 |  | `addiu lui mtc1 sd` | asm/cod/05F244.s:68 |
+| `func_0014A700` | 0x48 | 18 | 2 |  | `addiu sd sd daddu` | asm/cod/04A2C4.s:387 |
+| `func_001CEB68` | 0x48 | 18 | 2 |  | `addiu addiu sd addiu` | asm/cod/0CEB64.s:18 |
+| `func_0019E1D8` | 0x4C | 19 | 2 |  | `addiu sd sd daddu` | asm/cod/09E1D8.s:13 |
+| `func_00204F58` | 0x4C | 19 | 2 |  | `addiu sd sd bnez` | asm/cod/104E98.s:73 |
+| `func_0016A240` | 0x5C | 23 | 2 |  | `addiu sd sd lui` | asm/cod/06A1D4.s:51 |
+| `func_0017D1D0` | 0x60 | 24 | 2 |  | `addiu sw sd jal` | asm/cod/07D0F8.s:87 |
+| `func_001A31C0` | 0x44 | 17 | 2 |  | `addiu lw addiu beq` | asm/cod/0A2E24.s:291 |
+| `func_001AE9A8` | 0x44 | 17 | 2 |  | `addiu addiu sd jal` | asm/cod/0AE89C.s:109 |
+| `func_0024FBF8` | 0x44 | 17 | 2 |  | `addiu sd sd lui` | asm/cod/14FBF8.s:13 |
+| `func_001AE830` | 0x4C | 19 | 2 |  | `addiu lui sd sd` | asm/cod/0AE82C.s:18 |
+| `func_0010A330` | 0x50 | 20 | 2 |  | `addiu sd swc1 daddu` | asm/cod/00A330.s:13 |
+| `func_001F66A0` | 0x50 | 20 | 2 |  | `addiu sd swc1 daddu` | asm/cod/0F5620.s:1203 |
+| `func_001AB378` | 0x54 | 21 | 2 |  | `addiu daddu sd daddu` | asm/cod/0AB378.s:13 |
+| `func_001B56D0` | 0x54 | 21 | 2 |  | `addiu addiu beq sd` | asm/cod/0B5620.s:75 |
+| `func_001F16A0` | 0x54 | 21 | 2 |  | `addiu lui lw addiu` | asm/cod/0F1260.s:339 |
+| `func_0015EE78` | 0x58 | 22 | 2 |  | `addiu sw sd lui` | asm/cod/05EE74.s:18 |
+| `func_0017DEE0` | 0x58 | 22 | 2 |  | `addiu sd sd jal` | asm/cod/07D308.s:983 |
+| `func_0023E228` | 0x58 | 22 | 2 |  | `addiu daddu sd daddu` | asm/cod/13E180.s:71 |
+| `func_00178930` | 0x5C | 23 | 2 |  | `addiu sd sd daddu` | asm/cod/078930.s:13 |
+| `func_00133510` | 0x60 | 24 | 2 |  | `addiu sra sd addiu` | asm/cod/033510.s:13 |
+| `func_001EBB10` | 0x60 | 24 | 2 |  | `addiu sd daddu sd` | asm/cod/0EBA3C.s:88 |
+| `func_00106DA8` | 0x44 | 17 | 2 |  | `addiu sd sd jal` | asm/cod/006DA4.s:18 |
+| `func_00106DF0` | 0x44 | 17 | 2 |  | `addiu sd sd jal` | asm/cod/006DA4.s:41 |
+| `func_001447E0` | 0x44 | 17 | 2 |  | `addiu sd sd jal` | asm/cod/0445C8.s:187 |
+| `func_00164EB0` | 0x44 | 17 | 2 |  | `addiu sw sd lui` | asm/cod/05F6EC.s:6652 |
+| `func_00164EF8` | 0x44 | 17 | 2 |  | `addiu sw sd lui` | asm/cod/05F6EC.s:6675 |
+| `func_00164F40` | 0x44 | 17 | 2 |  | `addiu sw sd lui` | asm/cod/05F6EC.s:6698 |
+
 <a id="vu-leaf-4-0x10"></a>
 ## 4-insn / 0x10 leaf, no jal, has VU (VU0 macro)
 
@@ -221,7 +339,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4127 unmatched functions are not in any shape bucket above._
+_3944 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 
