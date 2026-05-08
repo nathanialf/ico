@@ -1178,7 +1178,7 @@ segments:
       - [0x097338, asm, cod/097338]
       - [0x097FE8, c,   cod/097FE8]            # func_00197FE8: func_002641D8(&D_006D35E0, 0, 0xD50)
       - [0x097FFC, asm, cod/097FFC]
-      - [0x098110, asm, cod/098110]
+      - [0x098110, c,   cod/098110]            # func_00198110: func_00198110: return D_00631990 in {0x54, 0x3, 0x2E} ? 1 : 0
       - [0x098140, asm, cod/098140]
       - [0x098328, c,   cod/098328]            # func_00198328
       - [0x098338, asm, cod/098338]
