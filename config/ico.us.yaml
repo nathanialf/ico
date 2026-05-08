@@ -1287,6 +1287,8 @@ segments:
       - [0x0B7298, asm, cod/0B7298]
       - [0x0B7CD8, c,   cod/0B7CD8]            # func_001B7CD8: tail call func_00206328 passthrough
       - [0x0B7CE0, asm, cod/0B7CE0]
+      - [0x0B7FC8, c,   cod/0B7FC8]            # func_001B7FC8: 3x bgezl-deferred store of a2/a3/t0 to gp_rel
+      - [0x0B7FE8, asm, cod/0B7FE8]
       - [0x0B8110, c,   cod/0B8110]            # func_001B8110
       - [0x0B8120, asm, cod/0B8120]
       - [0x0B81A8, c,   cod/0B81A8]            # func_001B81A8: D byte=0; D int=-1
