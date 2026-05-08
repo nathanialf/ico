@@ -1490,6 +1490,8 @@ segments:
       - [0x0B8120, asm, cod/0B8120]
       - [0x0B81A8, c,   cod/0B81A8]            # func_001B81A8: D byte=0; D int=-1
       - [0x0B81B8, asm, cod/0B81B8]
+      - [0x0BA2E0, c,   cod/0BA2E0]            # func_001BA2E0: p=self->15C->800; f1(p+0x1E0,self); f2(p+0x1D0,self); tail f3(p->19C)
+      - [0x0BA32C, asm, cod/0BA32C]
       - [0x0BA5C0, c, cod/0BA5C0]            # func_001BA5C0: 4-insn lw
       - [0x0BA5D0, c,   cod/0BA5D0]            # func_001BA5D0: sub_15C->800->278 = a1
       - [0x0BA5E0, asm, cod/0BA5E0]
