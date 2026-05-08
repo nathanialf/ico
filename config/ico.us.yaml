@@ -2182,6 +2182,7 @@ segments:
       - [0x13D04C, asm, cod/13D04C]
       - [0x13D050, c,   cod/13D050]            # func_0023D050: self->34: write -3300 + D; cached float (same as 23C290); return 1
       - [0x13D0C8, asm, cod/13D0C8]
+      - [0x13D0F0, c,   cod/13D0F0]            # func_0023D0F0: variant: 3 stores at self->34 + cached float; return 1
       - [0x13D170, c,   cod/13D170]            # func_0023D170: byte-identical sibling of 0023C290
       - [0x13D1D0, asm, cod/13D1D0]
       - [0x13D2E8, c,   cod/13D2E8]            # func_0023D2E8: byte-identical sibling of 0023C290
