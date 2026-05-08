@@ -1040,7 +1040,7 @@ segments:
       - [0x087300, c,   cod/087300]            # func_00187300: auto-batch
       - [0x087308, c,   cod/087308]            # func_00187308: tail call func_001897A8 (sdata-ptr 2-arg shuffle)
       - [0x087318, c,   cod/087318]            # func_00187318: tail call func_00182DD8 (sdata-ptr forward+shuffle)
-      - [0x087328, asm, cod/087328]
+      - [0x087328, c,   cod/087328]            # func_00187328: func_00187328: float-preserving 2-call: func_00243B18(buf, self, -1.0f); func_001873A0(buf, a1, a2, a3, t, 0.0f)
       - [0x0873A0, c,   cod/0873A0]
       - [0x0873A8, c,   cod/0873A8]
       - [0x0873B0, c,   cod/0873B0]            # func_001873B0: D_006326D0=0 + D_006326D8=0 (byte)
