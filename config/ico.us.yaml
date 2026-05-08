@@ -1868,6 +1868,12 @@ segments:
       - [0x13AA98, c,   cod/13AA98]            # func_0023AA98: store-arg-discard
       - [0x13AAA8, c,   cod/13AAA8]            # func_0023AAA8: store-arg-discard
       - [0x13AAB8, asm, cod/13AAB8]
+      - [0x13AB90, asm, cod/13AB90]
+      - [0x13ABDC, asm, cod/13ABDC]
+      - [0x13ABE0, asm, cod/13ABE0]
+      - [0x13AC2C, asm, cod/13AC2C]
+      - [0x13AD08, asm, cod/13AD08]
+      - [0x13AD54, asm, cod/13AD54]
       - [0x13AD58, c,   cod/13AD58]            # func_0023AD58: store-arg-discard
       - [0x13AD68, asm, cod/13AD68]
       - [0x13AEA0, c,   cod/13AEA0]            # func_0023AEA0: promote-test: subagent seed (unscored, may match)
