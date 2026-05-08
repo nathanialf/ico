@@ -590,6 +590,8 @@ segments:
       - [0x03C538, asm, cod/03C538]
       - [0x03C598, c,   cod/03C598]            # func_0013C598: linked-list head insert
       - [0x03C5B4, asm, cod/03C5B4]
+      - [0x03CBD0, c,   cod/03CBD0]            # func_0013CBD0: bound-checked table read
+      - [0x03CBFC, asm, cod/03CBFC]
       - [0x03CC60, c,   cod/03CC60]            # func_0013CC60: zero 2 halfwords
       - [0x03CC6C, asm, cod/03CC6C]
       - [0x03CC70, c,   cod/03CC70]            # func_0013CC70: auto-batch
@@ -599,7 +601,8 @@ segments:
       - [0x03CF70, c,   cod/03CF70]            # func_0013CF70: zero 2 halfwords
       - [0x03CF7C, asm, cod/03CF7C]
       - [0x03D098, c,   cod/03D098]            # func_0013D098: auto-batch
-      - [0x03D0A0, asm, cod/03D0A0]
+      - [0x03D0A0, c,   cod/03D0A0]            # func_0013D0A0: conditional bit-clear on byte at *a0
+      - [0x03D0D0, asm, cod/03D0D0]
       - [0x03D3C8, c,   cod/03D3C8]            # func_0013D3C8: tail call func_00100340(a0->30, a0->34)
       - [0x03D3D4, asm, cod/03D3D4]
       - [0x03D3D8, c,   cod/03D3D8]            # func_0013D3D8: if a0: tail call func_00100370 else func_00100350
@@ -714,6 +717,7 @@ segments:
       - [0x04B248, c,   cod/04B248]            # func_0014B248: bit-test (sub->90 >> a1) AND 1
       - [0x04B260, c,   cod/04B260]            # func_0014B260: 2 sd zero stores
       - [0x04B270, asm, cod/04B270]
+      - [0x04B2F0, asm, cod/04B2F0]
       - [0x04B318, c,   cod/04B318]
       - [0x04B320, c,   cod/04B320]            # func_0014B320: 3-level set
       - [0x04B330, c,   cod/04B330]            # func_0014B330: if (x >= p->54) { p->54=x; p->58=f; }
@@ -809,6 +813,7 @@ segments:
       - [0x0652CC, asm, cod/0652CC]
       - [0x0652D0, c,   cod/0652D0]            # func_001652D0: D_002A4C48[a0->_8 * 0x4C]._48 bit 18
       - [0x0652F8, asm, cod/0652F8]
+      - [0x0653A0, c,   cod/0653A0]            # func_001653A0: two-step deref + cond return
       - [0x0653D0, c,   cod/0653D0]            # func_001653D0: return p->1E0 == 1
       - [0x0653E8, c,   cod/0653E8]            # func_001653E8: return p->1E0 == 2
       - [0x065400, c,   cod/065400]            # func_00165400
@@ -863,6 +868,8 @@ segments:
       - [0x06A31C, asm, cod/06A31C]
       - [0x06A678, c,   cod/06A678]            # func_0016A678: func_0014A3A8(); tail call func_001A6E28(&D_00559430)
       - [0x06A69C, asm, cod/06A69C]
+      - [0x06AC20, c,   cod/06AC20]            # func_0016AC20: tail-call func_0014B330(self, 5, 1.5f) if _164->_30 == 10
+      - [0x06AC50, asm, cod/06AC50]
       - [0x06BCF0, c,   cod/06BCF0]            # func_0016BCF0: func_002641D8(&D_00282AC0, 0, 0x5910)
       - [0x06BD04, asm, cod/06BD04]
       - [0x075C70, c,   cod/075C70]            # func_00175C70: if(D_00631AE8) sub2->3C0 = x
@@ -1135,6 +1142,8 @@ segments:
       - [0x097338, asm, cod/097338]
       - [0x097FE8, c,   cod/097FE8]            # func_00197FE8: func_002641D8(&D_006D35E0, 0, 0xD50)
       - [0x097FFC, asm, cod/097FFC]
+      - [0x098110, asm, cod/098110]
+      - [0x098140, asm, cod/098140]
       - [0x098328, c,   cod/098328]            # func_00198328
       - [0x098338, asm, cod/098338]
       - [0x0983F8, c,   cod/0983F8]            # func_001983F8: rc=func_001E8D30; *(rc->60) = 1; ret 1 ($v0 pinned)
@@ -1491,6 +1500,7 @@ segments:
       - [0x0D2540, c,   cod/0D2540]            # func_001D2540: auto
       - [0x0D2548, c,   cod/0D2548]            # func_001D2548: auto
       - [0x0D2550, asm, cod/0D2550]
+      - [0x0D3D40, asm, cod/0D3D40]
       - [0x0D3D70, c, cod/0D3D70]            # func_001D3D70: 4-insn lw
       - [0x0D3D80, c,   cod/0D3D80]            # func_001D3D80: == 0
       - [0x0D3D94, asm, cod/0D3D94]
@@ -1558,6 +1568,8 @@ segments:
       - [0x0E9918, c,   cod/0E9918]            # func_001E9918: auto
       - [0x0E9920, c,   cod/0E9920]            # func_001E9920: wrap func_001D12D8(a0); tail call func_001D12A8(a0, 0x38)
       - [0x0E994C, asm, cod/0E994C]
+      - [0x0E9950, asm, cod/0E9950]
+      - [0x0E9980, asm, cod/0E9980]
       - [0x0E9DE8, c,   cod/0E9DE8]            # func_001E9DE8: auto
       - [0x0E9DF0, c,   cod/0E9DF0]            # func_001E9DF0: auto
       - [0x0E9DF8, asm, cod/0E9DF8]
@@ -1627,6 +1639,7 @@ segments:
       - [0x0F3390, asm, cod/0F3390]
       - [0x0F3A00, c,   cod/0F3A00]            # func_001F3A00: func_001F3188(a0); tail call func_001F3390(a0)
       - [0x0F3A28, asm, cod/0F3A28]
+      - [0x0F4098, asm, cod/0F4098]
       - [0x0F40C8, c, cod/0F40C8]            # func_001F40C8: 4-insn lw
       - [0x0F40D8, asm, cod/0F40D8]
       - [0x0F4228, c,   cod/0F4228]            # func_001F4228: func_001F4228: pointer chain
@@ -1668,7 +1681,7 @@ segments:
       - [0x0FAAA8, c,   cod/0FAAA8]            # func_001FAAA8: return D_006337B0 (float)
       - [0x0FAAB0, asm, cod/0FAAB0]
       - [0x0FB478, c,   cod/0FB478]            # func_001FB478: auto
-      - [0x0FB480, asm, cod/0FB480]
+      - [0x0FB480, c,   cod/0FB480]            # func_001FB480: 0x3200 / D / 2 (signed)
       - [0x0FB4A8, c,   cod/0FB4A8]            # func_001FB4A8: init 5 sdata: 0; 0x80 x4
       - [0x0FB4C4, asm, cod/0FB4C4]
       - [0x0FBA80, c,   cod/0FBA80]            # func_001FBA80: clamp [0, 0xC] store
@@ -1960,6 +1973,8 @@ segments:
       - [0x144444, asm, cod/144444]
       - [0x144448, c   ,   cod/144448]            # VU0 wrapper (vu0.h macros)
       - [0x144460, asm, cod/144460]
+      - [0x144630, c,   cod/144630]            # func_00244630: bound-checked table lookup D_00550710[a0] for a0<10
+      - [0x144658, asm, cod/144658]
       - [0x144738, c,   cod/144738]            # func_00244738: getset D_00550738 (shared lui)
       - [0x144748, asm, cod/144748]
       - [0x145068, c,   cod/145068]            # func_00245068: clear bit 8 of *p, return bit 8
@@ -1988,6 +2003,8 @@ segments:
       - [0x145DDC, asm, cod/145DDC]
       - [0x145E88, c,   cod/145E88]            # func_00245E88: a0->18=0 + a0->10 &= ~1
       - [0x145EA4, asm, cod/145EA4]
+      - [0x145EA8, asm, cod/145EA8]
+      - [0x145ED8, asm, cod/145ED8]
       - [0x1470D8, c,   cod/1470D8]            # func_002470D8: func_00247088(); func_00100560(D_00550864); ret 0
       - [0x147104, asm, cod/147104]
       - [0x147108, c,   cod/147108]            # func_00247108: tail call func_00100540(D_00550864)
