@@ -1,13 +1,14 @@
+
 extern int func_0017E188(int a0, int a1);
 extern void func_0012AC70(int a0, int *a1);
-
 void func_0017CB20(int a0, int a1)
 {
-    int v0 = func_0017E188(a0, a1);
-    if (v0 != 0) {
-        int buf[2];
-        buf[0] = v0;
-        buf[1] = 0;
-        func_0012AC70(a1, &buf[0]);
-    }
+  int v0 = func_0017E188(a0, a1);
+  if (v0 != 0)
+  {
+    int buf[2];
+    buf[0] = v0;
+    func_0012AC70(a1, &buf[0]);
+    buf[1] = 0;
+  }
 }
