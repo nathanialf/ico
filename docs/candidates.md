@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-08 02:11:44 UTC
+- Generated: 2026-05-08 02:15:51 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4385 total in `asm/cod/*.s`, 20 parked, 4365 considered
+- Functions: 4385 total in `asm/cod/*.s`, 21 parked, 4364 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -182,13 +182,12 @@ _9 total in this bucket; showing top 9._
 <a id="wrap-3jal-mid"></a>
 ## 0x28-0x40, exactly 3 jal, no VU (3-call wrapper, often w/ tail call)
 
-_3 total in this bucket; showing top 3._
+_2 total in this bucket; showing top 2._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
 | `func_00246B38` | 0x40 | 16 | 3 |  | `addiu sd sd b` | asm/cod/145EA4.s:1043 |
 | `func_0017D230` | 0x40 | 16 | 3 |  | `addiu sd sd jal` | asm/cod/07D0F8.s:123 |
-| `func_0017D2C8` | 0x40 | 16 | 3 |  | `addiu sd jal nop` | asm/cod/07D0F8.s:177 |
 
 <a id="wrap-gp-1jal"></a>
 ## 1 jal + gp_rel %gp_rel(D), no VU (D[0] + arg passthrough)
