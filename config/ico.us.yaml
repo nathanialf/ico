@@ -286,7 +286,7 @@ segments:
       - [0x004F1C, asm, cod/004F1C]
       - [0x004F20, asm, cod/004F20]
       - [0x004F44, asm, cod/004F44]
-      - [0x0050B0, asm, cod/0050B0]
+      - [0x0050B0, c,   cod/0050B0]
       - [0x0050E0, asm, cod/0050E0]
       - [0x005258, c,   cod/005258]
       - [0x005268, c,   cod/005268]
@@ -646,7 +646,7 @@ segments:
       - [0x03EE60, asm, cod/03EE60]
       - [0x03F0A0, c,   cod/03F0A0]            # func_0013F0A0: promote: score-0 from permuter (parked tough_nut)
       - [0x03F0E8, c,   cod/03F0E8]            # func_0013F0E8: promote: score-0 from permuter (parked tough_nut)
-      - [0x03F130, asm, cod/03F130]
+      - [0x03F130, c,   cod/03F130]
       - [0x03F1D0, c  , cod/03F1D0]
       - [0x03F1F8, asm, cod/03F1F8]
       - [0x03F3E8, c,   cod/03F3E8]            # func_0013F3E8: tail call func_0013F700 passthrough
@@ -1329,7 +1329,7 @@ segments:
       - [0x0AA57C, asm, cod/0AA57C]
       - [0x0AA580, c,   cod/0AA580]            # func_001AA580: guard + call + double-clear (rv-lift attempt)
       - [0x0AA5B8, c,   cod/0AA5B8]
-      - [0x0AA5C0, asm, cod/0AA5C0]
+      - [0x0AA5C0, c,   cod/0AA5C0]
       - [0x0AA604, asm, cod/0AA604]
       - [0x0AA608, c,   cod/0AA608]            # func_001AA608: promoted from permuter score-0
       - [0x0AA634, asm, cod/0AA634]
