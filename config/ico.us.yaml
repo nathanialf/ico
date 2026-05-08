@@ -822,6 +822,8 @@ segments:
       - [0x057C38, asm, cod/057C38]
       - [0x057DA0, c,   cod/057DA0]            # func_00157DA0: double-guard + tail-call (void+return TCO)
       - [0x057DC4, asm, cod/057DC4]
+      - [0x057E68, c,   cod/057E68]            # func_00157E68: f(self); if(self->C==1) tail g(self->164->1A0, 6)
+      - [0x057EB0, asm, cod/057EB0]
       - [0x059230, c,   cod/059230]            # func_00159230: tail call func_00106AB8 (double-deref TCO)
       - [0x059240, asm, cod/059240]
       - [0x05D328, c,   cod/05D328]            # func_0015D328: lazy-init D_00631AF4=1; tail call func_001B6FD8(0x3A)
