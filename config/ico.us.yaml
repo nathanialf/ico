@@ -294,7 +294,8 @@ segments:
       - [0x005268, c,   cod/005268]
       - [0x005278, c,   cod/005278]            # func_00105278: la-macro &D_0065FA40[D_00631B40<<6/4]
       - [0x005290, c,   cod/005290]            # func_00105290: la-macro &D_0065FA00[D_00631B40<<6/4]
-      - [0x0052A8, asm, cod/0052A8]
+      - [0x0052A8, c,   cod/0052A8]            # func_001052A8: p=&D[D2*64]; f1(buf, p, a0); buf[3]=1.0f; f2(p+0x30, buf)
+      - [0x005308, asm, cod/005308]
       - [0x005F00, c,   cod/005F00]            # func_00105F00: 16-byte lq/sq copy
       - [0x005F10, c,   cod/005F10]            # func_00105F10: 16-byte lq/sq copy
       - [0x005F20, c   ,   cod/005F20]            # GPR quadword copy (lq/sq)
