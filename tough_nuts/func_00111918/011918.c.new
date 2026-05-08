@@ -1,0 +1,11 @@
+extern char D_004C7710[];
+
+void func_00111918(long long a, long long b)
+{
+    long long *p = *(long long **)((char *)D_004C7710 + 0x10);
+    *p = b;
+    p++;
+    *(long long **)((char *)D_004C7710 + 0x10) = p;
+    *p = a;
+    p++;
+}
