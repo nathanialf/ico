@@ -1455,7 +1455,8 @@ segments:
       - [0x0AE8A0, c,   cod/0AE8A0]            # func_001AE8A0: if(a1) f(a1, self[0]+self[1]); self[1] += a2
       - [0x0AE8F0, c,   cod/0AE8F0]            # func_001AE8F0: buf={a1,0}; while(self[1] != NULL){ ((*FnPtr)self[1])(buf, a2); self+=2; }
       - [0x0AE948, c,   cod/0AE948]            # func_001AE948: fn-table walker (offset 0): buf={a1,0}; while(self->fn){ fn(buf,a2); self+=2; }; f2(0x169)
-      - [0x0AE9A8, asm, cod/0AE9A8]
+      - [0x0AE9A8, c,   cod/0AE9A8]            # func_001AE9A8: f1(self, buf, 0x12); D = (f2(D2, buf) != 0) ? 1 : 0
+      - [0x0AE9EC, asm, cod/0AE9EC]
       - [0x0AEA50, c,   cod/0AEA50]            # func_001AEA50: tail call func_00102858 passthrough
       - [0x0AEA58, c,   cod/0AEA58]            # func_001AEA58: tail call func_0010ECB8 passthrough
       - [0x0AEA60, c,   cod/0AEA60]            # func_001AEA60: auto-batch
