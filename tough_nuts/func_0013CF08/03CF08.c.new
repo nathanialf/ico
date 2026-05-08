@@ -1,0 +1,12 @@
+extern int D_00632190;
+
+int func_0013CF08(int idx, int val)
+{
+    int *header = (int *)D_00632190;
+    if ((unsigned)idx < (unsigned)header[0]) {
+        ((int *)header[1])[idx] = val;
+    } else {
+        idx = -1;
+    }
+    return idx;
+}

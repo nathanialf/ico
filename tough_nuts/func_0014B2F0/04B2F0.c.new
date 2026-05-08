@@ -1,0 +1,12 @@
+int func_0014B2F0(int *self, int bit)
+{
+    int *p;
+    int ret;
+    long long mask;
+    p = (int *)self[0x164/4];
+    if (p == 0) return 0;
+    ret = 1;
+    mask = *(long long *)((char *)p + 0x58);
+    if ((mask & (1LL << bit)) == 0) ret = 0;
+    return ret;
+}
