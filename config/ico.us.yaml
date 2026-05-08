@@ -1031,7 +1031,7 @@ segments:
       - [0x07C960, c,   cod/07C960]            # func_0017C960: if(rc=func_0013EAE8()) tail call func_001EB418(rc)
       - [0x07C98C, asm, cod/07C98C]
       - [0x07C990, c,   cod/07C990]            # func_0017C990: tail call func_001EB310(func_0013EAE8())
-      - [0x07C9B0, asm, cod/07C9B0]
+      - [0x07C9B0, c,   cod/07C9B0]
       - [0x07CA0C, asm, cod/07CA0C]
       - [0x07CA10, c,   cod/07CA10]            # func_0017CA10: tail call func_00154668 passthrough
       - [0x07CA18, c,   cod/07CA18]            # func_0017CA18: while-loop calling func_X chain, store 0 at +0x50
