@@ -73,6 +73,25 @@ The only signals that mean *stop*:
 
 Between batches, do not summarize. Just go.
 
+### Forbidden closing-summary phrasing
+
+The cron-firing handoff has a recurring bug pattern: a closing line that
+*reads* as a stop signal even when the agent intends to keep going. Do
+not write any of these at the end of a turn:
+
+- "Yielding."
+- "**This firing: N matches, M parks.**"
+- "Cron continues." / "Cron will fire next."
+- "Cumulative session totals: …" / "Direct matches in this session: N"
+- "1.X% .text. Continuing to wait for next cron fire."
+- Any bold-summary block that reads like a per-firing recap.
+
+Mid-stream status notes ("matched func_X", "parking func_Y, regalloc
+swap", "moving to bucket Z") are fine — they describe what *just*
+happened. What's not fine is the closing-line pattern that signals
+"this firing is done" — there is no "this firing." There is one
+continuous matching session, and you keep going until cap or user stop.
+
 ## Read first (in this order)
 
 1. `CLAUDE.md` — IP rules, toolchain, build commands, conventions.
