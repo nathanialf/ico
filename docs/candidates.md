@@ -2,7 +2,7 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-08 19:01:52 UTC
+- Generated: 2026-05-08 19:03:54 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
@@ -201,11 +201,10 @@ _1 total in this bucket; showing top 1._
 <a id="wrap-1jal-0x40-0x60"></a>
 ## 0x40-0x60, exactly 1 jal, no VU (mid-size wrapper)
 
-_49 total in this bucket; showing top 49._
+_48 total in this bucket; showing top 48._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
-| `func_0011FCD8` | 0x4C | 19 | 1 |  | `addiu addiu sd lh` | asm/cod/01EE84.s:1028 |
 | `func_001F2320` | 0x4C | 19 | 1 |  | `addiu addiu sw sd` | asm/cod/0F231C.s:18 |
 | `func_00247088` | 0x4C | 19 | 1 |  | `addiu addiu sd lui` | asm/cod/146BD4.s:383 |
 | `func_00107DD8` | 0x50 | 20 | 1 |  | `addiu daddu sd sd` | asm/cod/006E34.s:1130 |
@@ -332,7 +331,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_3971 unmatched functions are not in any shape bucket above._
+_3972 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 
