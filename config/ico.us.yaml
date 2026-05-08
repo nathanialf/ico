@@ -2345,6 +2345,8 @@ segments:
       - [0x156C2C, asm, cod/156C2C]
       - [0x158450, c,   cod/158450]            # func_00258450: shift extract: (int)(*p >> (64-n))
       - [0x15846C, asm, cod/15846C]
+      - [0x158558, c,   cod/158558]            # func_00258558: ret = f1(self,1); f2(self,1); return ret
+      - [0x15859C, asm, cod/15859C]
       - [0x1585F8, c,   cod/1585F8]            # func_002585F8: ringbuffer index wrap (with -capacity if exceeded)
       - [0x158624, asm, cod/158624]
       - [0x158C38, c,   cod/158C38]            # func_00258C38: &D_0071A600[a0*0x58]
