@@ -2469,6 +2469,8 @@ segments:
       - [0x15AC60, asm, cod/15AC60]
       - [0x15C490, c,   cod/15C490]            # func_0025C490: f(D, a0, a1, a2, t0, a3, t1, 0, 0) — D-prepend with shuffled args
       - [0x15C4DC, asm, cod/15C4DC]
+      - [0x15C570, c,   cod/15C570]            # func_0025C570: ret=0; p=f1(); if(p->44) ret=f2(D); return ret
+      - [0x15C5B4, asm, cod/15C5B4]
       - [0x15C5B8, c,   cod/15C5B8]            # func_0025C5B8: auto
       - [0x15C5C0, c,   cod/15C5C0]            # func_0025C5C0: auto
       - [0x15C5C8, c,   cod/15C5C8]            # func_0025C5C8: func_0025C5C8: loop 2x { func_002591F0(0xB,i,0xFFFFFF,0); func_002591F0(0x28,i,0,0) }; tail-call func_002591F0(0x1F,0,0,0)
