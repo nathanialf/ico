@@ -1208,6 +1208,8 @@ segments:
       - [0x093A00, c,   cod/093A00]            # func_00193A00: func_00193A00: set p->_30 at q->_50, p->_32 at q->_8; if v==1: q->_54=2 + func_0013FF88(self,1,self); ret 1
       - [0x093A58, c,   cod/093A58]            # func_00193A58: copy 2 shorts from sub->800, return 1
       - [0x093A78, asm, cod/093A78]
+      - [0x093CE8, c,   cod/093CE8]            # func_00193CE8: p=self->164; f(D, self->8); *(ll*)(p+0x18) |= 0x400000000LL
+      - [0x093D30, asm, cod/093D30]
       - [0x093EC8, c,   cod/093EC8]            # func_00193EC8
       - [0x093EDC, asm, cod/093EDC]
       - [0x093F48, c,   cod/093F48]            # func_00193F48: promote-test: subagent seed (unscored, may match)
