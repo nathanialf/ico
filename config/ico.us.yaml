@@ -929,6 +929,8 @@ segments:
       - [0x07EC94, asm, cod/07EC94]
       - [0x080580, c,   cod/080580]            # func_00180580: 1-jal wrapper w/ spill+reload
       - [0x0805A4, asm, cod/0805A4]
+      - [0x0807F0, c,   cod/0807F0]            # func_001807F0: volatile-spill a0 + 3-call wrapper
+      - [0x080830, asm, cod/080830]
       - [0x080B28, c,   cod/080B28]            # func_00180B28: store-arg-discard
       - [0x080B38, asm, cod/080B38]
       - [0x080F38, c,   cod/080F38]            # func_00180F38: D_00632600 = 0
