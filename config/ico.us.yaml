@@ -2201,6 +2201,8 @@ segments:
       - [0x13F95C, asm, cod/13F95C]
       - [0x13FDA0, c,   cod/13FDA0]            # func_0023FDA0: f1(self->40); self->14 += a1; *(ll*)(self+0x48) += a1; tail f2(self->40)
       - [0x13FDF0, asm, cod/13FDF0]
+      - [0x140600, c,   cod/140600]            # func_00240600: f1(self->40); self->14 = round-up-to-0x800; tail f2(self->40)
+      - [0x140650, asm, cod/140650]
       - [0x140950, c,   cod/140950]            # func_00240950: tail call func_00139598(a0 & 0x0FFFFFFF)
       - [0x140960, asm, cod/140960]
       - [0x140A20, c,   cod/140A20]            # func_00240A20: f1(self->40); ret=(self->10<<11)+self->14; f2(self->40); return ret
