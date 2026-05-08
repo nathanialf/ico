@@ -382,7 +382,7 @@ segments:
       - [0x00DA78, c,   cod/00DA78]            # func_0010DA78: wrap func_0010D8E0(a0); tail call func_0010D878(a0)
       - [0x00DAA0, c,   cod/00DAA0]            # func_0010DAA0: &D_00660A40[D_00631B7C*4] (la-macro)
       - [0x00DAB8, c,   cod/00DAB8]            # func_0010DAB8: &D_00660A30[D_00631B7C*4] (la-macro)
-      - [0x00DAD0, asm, cod/00DAD0]
+      - [0x00DAD0, c,   cod/00DAD0]            # func_0010DAD0: func_0010DAD0: if D_00631B7C<0: flush+restart; ++D_00631B7C; if >=0x40: cap+log
       - [0x00DB28, c,   cod/00DB28]            # func_0010DB28: D_00631B7C--; if <0: func_001A6E28(&D_00553E48); D_00631B7C=0
       - [0x00DB5C, asm, cod/00DB5C]
       - [0x00DDB8, c   ,   cod/00DDB8]            # VU0 wrapper (vu0.h macros)
