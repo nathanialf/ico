@@ -383,7 +383,8 @@ segments:
       - [0x00E950, asm, cod/00E950]
       - [0x00EC50, c,   cod/00EC50]            # func_0010EC50: sw a0 to deref + tail call func_0011BF40
       - [0x00EC60, c,   cod/00EC60]            # func_0010EC60: auto-batch
-      - [0x00EC68, asm, cod/00EC68]
+      - [0x00EC68, c,   cod/00EC68]            # func_0010EC68: gp_rel cond + lui+lui+TCO func_001A6B10(0xCCCCCC00, &D_00553E90, a0)
+      - [0x00EC94, asm, cod/00EC94]
       - [0x00EC98, c,   cod/00EC98]            # func_0010EC98: tail call func_00122BA0 passthrough
       - [0x00ECA0, c,   cod/00ECA0]            # func_0010ECA0: sibling: tail call func_00122BA0 passthrough
       - [0x00ECA8, c,   cod/00ECA8]            # func_0010ECA8: auto-batch
