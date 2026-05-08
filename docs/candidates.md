@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-08 14:23:18 UTC
+- Generated: 2026-05-08 14:27:42 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4334 total in `asm/cod/*.s`, 93 parked, 4241 considered
+- Functions: 4334 total in `asm/cod/*.s`, 94 parked, 4240 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -97,7 +97,7 @@ _4 total in this bucket; showing top 4._
 |---|---:|---:|---:|:---:|---|---|
 | `func_0019F530` | 0x38 | 14 | 1 |  | `addiu sd sd jal` | asm/cod/09F4E8.s:37 |
 | `func_00264298` | 0x3C | 15 | 1 |  | `addiu sd sd daddu` | asm/cod/164094.s:190 |
-| `func_00135BB8` | 0x40 | 16 | 1 |  | `addiu sd daddu beqz` | asm/cod/033510.s:3053 |
+| `func_00135BB8` | 0x40 | 16 | 1 |  | `addiu sd daddu beqz` | asm/cod/033570.s:3021 |
 | `func_0023EFF8` | 0x38 | 14 | 1 |  | `addiu lw beqz sd` | asm/cod/13EFF4.s:19 |
 
 <a id="wrap-spill-reload"></a>
@@ -249,7 +249,7 @@ _98 total in this bucket; showing top 50._
 | `func_00245178` | 0x58 | 22 | 1 |  | `addiu sd daddu sd` | asm/cod/1450C8.s:75 |
 | `func_002451D0` | 0x58 | 22 | 1 |  | `addiu addiu sd sd` | asm/cod/1450C8.s:103 |
 | `func_0026EC10` | 0x58 | 22 | 1 |  | `addiu sd sd daddu` | asm/cod/16E874.s:308 |
-| `func_00133570` | 0x5C | 23 | 1 |  | `addiu sd sd lw` | asm/cod/033510.s:45 |
+| `func_00133570` | 0x5C | 23 | 1 |  | `addiu sd sd lw` | asm/cod/033570.s:13 |
 | `func_00176398` | 0x5C | 23 | 1 |  | `addiu addiu sd daddu` | asm/cod/0761B8.s:159 |
 | `func_0026D128` | 0x5C | 23 | 1 |  | `addiu sd sd lui` | asm/cod/16CF2C.s:187 |
 | `func_0026EC68` | 0x5C | 23 | 1 |  | `addiu sd sd daddu` | asm/cod/16E874.s:337 |
@@ -265,7 +265,7 @@ _98 total in this bucket; showing top 50._
 <a id="wrap-2jal-0x40-0x60"></a>
 ## 0x40-0x60, exactly 2 jal, no VU (2-call mid-size wrapper)
 
-_80 total in this bucket; showing top 50._
+_79 total in this bucket; showing top 50._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
@@ -309,7 +309,6 @@ _80 total in this bucket; showing top 50._
 | `func_0015EE78` | 0x58 | 22 | 2 |  | `addiu sw sd lui` | asm/cod/05EE74.s:18 |
 | `func_0017DEE0` | 0x58 | 22 | 2 |  | `addiu sd sd jal` | asm/cod/07D308.s:983 |
 | `func_0023E228` | 0x58 | 22 | 2 |  | `addiu daddu sd daddu` | asm/cod/13E180.s:71 |
-| `func_00133510` | 0x60 | 24 | 2 |  | `addiu sra sd addiu` | asm/cod/033510.s:13 |
 | `func_001EBB10` | 0x60 | 24 | 2 |  | `addiu sd daddu sd` | asm/cod/0EBA3C.s:88 |
 | `func_00106DA8` | 0x44 | 17 | 2 |  | `addiu sd sd jal` | asm/cod/006DA4.s:18 |
 | `func_00106DF0` | 0x44 | 17 | 2 |  | `addiu sd sd jal` | asm/cod/006DA4.s:41 |
@@ -319,6 +318,7 @@ _80 total in this bucket; showing top 50._
 | `func_00164F40` | 0x44 | 17 | 2 |  | `addiu sw sd lui` | asm/cod/05F6EC.s:6698 |
 | `func_00164F88` | 0x44 | 17 | 2 |  | `addiu sw sd lui` | asm/cod/05F6EC.s:6721 |
 | `func_00165EB8` | 0x44 | 17 | 2 |  | `addiu sw sd lui` | asm/cod/065D18.s:149 |
+| `func_00175640` | 0x44 | 17 | 2 |  | `addiu sw sd lui` | asm/cod/06BD04.s:11504 |
 
 <a id="vu-leaf-4-0x10"></a>
 ## 4-insn / 0x10 leaf, no jal, has VU (VU0 macro)
