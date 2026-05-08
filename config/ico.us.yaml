@@ -1539,6 +1539,8 @@ segments:
       - [0x0EB0C0, asm, cod/0EB0C0]
       - [0x0EB9F0, c,   cod/0EB9F0]            # func_001EB9F0: zero 8 sdata vars (with barriers for order)
       - [0x0EBA14, asm, cod/0EBA14]
+      - [0x0EBA18, c,   cod/0EBA18]            # func_001EBA18: ringbuffer push D_0070C6C8[D_006335FC++] = a0
+      - [0x0EBA3C, asm, cod/0EBA3C]
       - [0x0EEF08, c,   cod/0EEF08]            # func_001EEF08: tail call func_001182F0(a0, &D_004C6160)
       - [0x0EEF14, asm, cod/0EEF14]
       - [0x0EF980, c,   cod/0EF980]
