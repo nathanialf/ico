@@ -1,0 +1,11 @@
+extern void func_00105F00(void *p, int *buf);
+
+void func_0017E838(int *self, float a, float b, float c)
+{
+    int buf[4];
+    *(float *)&buf[0] = a;
+    *(float *)&buf[1] = b;
+    *(float *)&buf[2] = c;
+    buf[3] = 0;
+    func_00105F00((void *)((char *)self[0x15C/4] + 0x670), buf);
+}
