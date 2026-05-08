@@ -1269,6 +1269,7 @@ segments:
       - [0x0B5770, c,   cod/0B5770]            # func_001B5770: if(a0) D_00274ED8=1; return -1
       - [0x0B5788, c,   cod/0B5788]            # func_001B5788: gp_rel-style guard + inc D[1]
       - [0x0B57B0, asm, cod/0B57B0]
+      - [0x0B5958, asm, cod/0B5958]
       - [0x0B5998, c,   cod/0B5998]            # func_001B5998: D_00275254 & 0x10 ? func_001B7040() : -1
       - [0x0B59D0, asm, cod/0B59D0]
       - [0x0B7040, c,   cod/0B7040]            # func_001B7040: return D_00633150
