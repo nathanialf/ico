@@ -2085,6 +2085,10 @@ segments:
       - [0x127500, asm, cod/127500]
       - [0x129CA0, c,   cod/129CA0]            # func_00229CA0: store-arg-discard
       - [0x129CB0, asm, cod/129CB0]
+      - [0x129D88, c,   cod/129D88]            # func_00229D88: stack-buf wrapper: copy 16 bytes from D_0061BF80 to buf; f1(D2,0,buf,0,100.0); f2(0)
+      - [0x129DDC, asm, cod/129DDC]
+      - [0x129DE0, c,   cod/129DE0]            # func_00229DE0: sibling: D_0061BF90 instead of D_0061BF80
+      - [0x129E34, asm, cod/129E34]
       - [0x129E38, c,   cod/129E38]            # func_00229E38: store-arg-discard
       - [0x129E48, asm, cod/129E48]
       - [0x129F20, c,   cod/129F20]            # func_00229F20: store-arg-discard
