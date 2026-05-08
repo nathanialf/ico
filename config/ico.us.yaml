@@ -1752,7 +1752,8 @@ segments:
       - [0x1315D8, asm, cod/1315D8]
       - [0x131A98, c,   cod/131A98]            # func_00231A98: volatile a0 -> two-call wrapper
       - [0x131AC8, c,   cod/131AC8]            # func_00231AC8: if func_0017B230(0x14): tail call func_00205B30(9, 0)
-      - [0x131AF8, asm, cod/131AF8]
+      - [0x131AF8, c,   cod/131AF8]            # func_00231AF8: early-return + 2-call w/ TCO last
+      - [0x131B38, asm, cod/131B38]
       - [0x1341D8, c,   cod/1341D8]            # func_002341D8: store-arg-discard
       - [0x1341E8, c,   cod/1341E8]            # func_002341E8: store-arg-discard
       - [0x1341F8, asm, cod/1341F8]
