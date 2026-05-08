@@ -1899,6 +1899,8 @@ segments:
       - [0x103F48, asm, cod/103F48]
       - [0x104E90, c,   cod/104E90]            # func_00204E90: return D_0063385C
       - [0x104E98, asm, cod/104E98]
+      - [0x104F58, c,   cod/104F58]            # func_00204F58: if(a0==0) return -1.0f; else { f1(buf,a0); return f2(buf,a1); }
+      - [0x104FA4, asm, cod/104FA4]
       - [0x105A78, c,   cod/105A78]            # func_00205A78: D_004CAEC0[idx*0x34] +0x8 (la mult lw)
       - [0x105A94, asm, cod/105A94]
       - [0x105B30, c,   cod/105B30]            # func_00205B30: D_004CAEC0[idx*0x34] +0x28 = a1 (la mult sw)
