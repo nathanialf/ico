@@ -611,6 +611,8 @@ segments:
       - [0x03A21C, asm, cod/03A21C]
       - [0x03A220, c,   cod/03A220]            # func_0013A220: deref+cond+tail-call (with reg-pinned a1; postprocess will wrap end jr in noreorder)
       - [0x03A248, asm, cod/03A248]
+      - [0x03A820, c,   cod/03A820]            # func_0013A820: if(a0==2){ D2 = !((MMIO>>13)&1); f(p->30, p) where p=*D1; } return 0
+      - [0x03A868, asm, cod/03A868]
       - [0x03B718, c,   cod/03B718]            # func_0013B718: wrap func_0013A5B8(&D_00281630, 0, 0); ret 0
       - [0x03B744, asm, cod/03B744]
       - [0x03B748, c,   cod/03B748]            # func_0013B748: &D_002811C0[a1<<9] +0 (la-macro)
