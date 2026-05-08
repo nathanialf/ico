@@ -559,6 +559,8 @@ segments:
       - [0x033510, asm, cod/033510]
       - [0x033570, asm, cod/033570]
       - [0x0335CC, asm, cod/0335CC]
+      - [0x035BB8, asm, cod/035BB8]
+      - [0x035BF8, asm, cod/035BF8]
       - [0x036060, c,   cod/036060]            # func_00136060: guard + sltiu + tail-call OR D-swap + post-store
       - [0x036084, asm, cod/036084]
       - [0x036088, c,   cod/036088]            # func_00136088: self[1]=0; self[0]=0
