@@ -2091,6 +2091,8 @@ segments:
       - [0x129E34, asm, cod/129E34]
       - [0x129E38, c,   cod/129E38]            # func_00229E38: store-arg-discard
       - [0x129E48, asm, cod/129E48]
+      - [0x129EC8, c,   cod/129EC8]            # func_00229EC8: sibling: D_0061BFA0
+      - [0x129F1C, asm, cod/129F1C]
       - [0x129F20, c,   cod/129F20]            # func_00229F20: store-arg-discard
       - [0x129F30, asm, cod/129F30]
       - [0x129FE0, c,   cod/129FE0]            # func_00229FE0: store-arg-discard
@@ -2105,6 +2107,8 @@ segments:
       - [0x12BEE0, asm, cod/12BEE0]
       - [0x12D6B0, c,   cod/12D6B0]            # func_0022D6B0: store-arg-discard
       - [0x12D6C0, asm, cod/12D6C0]
+      - [0x12ED40, c,   cod/12ED40]            # func_0022ED40: sibling: D_0061C0B0
+      - [0x12ED94, asm, cod/12ED94]
       - [0x12EEF0, c,   cod/12EEF0]            # func_0022EEF0: store-arg-discard
       - [0x12EF00, asm, cod/12EF00]
       - [0x12F850, c,   cod/12F850]            # func_0022F850: spill+3-call wrapper (siblings 0022F850/00235B68 differ in last arg)
