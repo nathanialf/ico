@@ -504,6 +504,8 @@ segments:
       - [0x018AB4, asm, cod/018AB4]
       - [0x01BF40, c,   cod/01BF40]            # func_0011BF40: tail call func_0011B6D8(self->820, self->844->F0, (s8)self[0x820]+0x2F > 0)
       - [0x01BF5C, asm, cod/01BF5C]
+      - [0x01BF60, c,   cod/01BF60]            # func_0011BF60: n=len>>4; if(n>0) for(i=n;i>0;i--){f(p,4); p+=0x10;}
+      - [0x01BFB4, asm, cod/01BFB4]
       - [0x01BFB8, c,   cod/01BFB8]            # func_0011BFB8: D_00633C50 = 0
       - [0x01BFC0, asm, cod/01BFC0]
       - [0x01DEE0, c,   cod/01DEE0]            # func_0011DEE0: 3 calls to func_00102558(a0->18C, a0->188, a0)
