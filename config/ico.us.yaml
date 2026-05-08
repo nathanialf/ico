@@ -898,6 +898,8 @@ segments:
       - [0x065EFC, asm, cod/065EFC]
       - [0x065F88, c,   cod/065F88]            # func_00165F88: D_002A4C48[a0->_8 * 0x4C]._48 bit 21 inverted
       - [0x065FB4, asm, cod/065FB4]
+      - [0x065FB8, c,   cod/065FB8]            # func_00165FB8: p=self->164->670; if(p->1DC==3) f1(self,a1,a2,a3,t0&FF) else f2(...)
+      - [0x066000, asm, cod/066000]
       - [0x0683A8, c,   cod/0683A8]            # func_001683A8: D_006323F0(a0, 0) jalr
       - [0x0683C8, c,   cod/0683C8]            # func_001683C8: (*D_006323F0)(arg, 1)
       - [0x0683E8, c,   cod/0683E8]            # func_001683E8: (*D_006323F0)(arg, 2)
