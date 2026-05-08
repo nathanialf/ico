@@ -2050,6 +2050,8 @@ segments:
       - [0x135C70, asm, cod/135C70]
       - [0x136C60, c,   cod/136C60]            # func_00236C60: store-arg-discard
       - [0x136C70, asm, cod/136C70]
+      - [0x137BD0, c,   cod/137BD0]            # func_00237BD0: if(D && f(0x120) && !f(0x123)) tail f2(0x166)
+      - [0x137C18, asm, cod/137C18]
       - [0x139710, c,   cod/139710]            # func_00239710: volatile-spill a0 + 3-call wrapper (arg 0x83)
       - [0x139750, c,   cod/139750]            # func_00239750: func_00239750: 2 if/else branches calling func_001297A0+func_00205B30 with different ids
       - [0x1397F8, c,   cod/1397F8]            # func_002397F8: guard+func_X+tail-call sibling (arg 0x31)
