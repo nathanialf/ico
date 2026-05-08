@@ -490,6 +490,8 @@ segments:
       - [0x01EE6C, asm, cod/01EE6C]
       - [0x01EE70, c,   cod/01EE70]            # func_0011EE70: tail call func_00118C68(a0, 1, 2, a1, a2)
       - [0x01EE84, asm, cod/01EE84]
+      - [0x01FF30, asm, cod/01FF30]
+      - [0x01FF60, asm, cod/01FF60]
       - [0x022C40, c,   cod/022C40]            # func_00122C40: tail call func_001207E8 passthrough
       - [0x022C48, c,   cod/022C48]            # func_00122C48: D_00631D40 = val
       - [0x022C50, c,   cod/022C50]            # func_00122C50: if a0 >= 0: D_00632CA4 += func_0012D370(a0)
