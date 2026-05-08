@@ -622,6 +622,7 @@ segments:
       - [0x03F810, asm, cod/03F810]
       - [0x03F878, c,   cod/03F878]            # func_0013F878: self[6] = 1, return 1
       - [0x03F884, asm, cod/03F884]
+      - [0x03F8C0, c,   cod/03F8C0]            # func_0013F8C0: linked-list traverse calling func_0013F6B8 on each node
       - [0x03F8F8, c,   cod/03F8F8]            # func_0013F8F8: count-down loop calling func_0013D3D8(0)
       - [0x03F930, asm, cod/03F930]
       - [0x03F990, c,   cod/03F990]            # func_0013F990: sw_zero +0x0
