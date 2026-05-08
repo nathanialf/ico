@@ -60,7 +60,9 @@ ASM_SRCS      := $(shell find $(ASM_DIR) -name '*.s' \
 ASM_OBJS      := $(patsubst $(ASM_DIR)/%.s,$(BUILD_DIR)/asm/%.o,$(ASM_SRCS))
 C_SRCS        := $(shell find $(SRC_DIR) -name '*.c' 2>/dev/null)
 C_OBJS        := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/src/%.o,$(C_SRCS))
-ALL_OBJS      := $(ASM_OBJS) $(C_OBJS)
+HASM_SRCS     := $(shell find $(SRC_DIR) -name '*.s' 2>/dev/null)
+HASM_OBJS     := $(patsubst $(SRC_DIR)/%.s,$(BUILD_DIR)/src/%.o,$(HASM_SRCS))
+ALL_OBJS      := $(ASM_OBJS) $(C_OBJS) $(HASM_OBJS)
 
 # R5900 EE assembly flags. Little-endian, MIPS III base + r5900 extensions.
 # -G 8: small-data threshold of 8 bytes. Variables declared in .sdata/.sbss
@@ -148,6 +150,11 @@ ALIGN_FOR = $(shell python3 -c "import re; \
   exec('while a>1 and n%a:a//=2') if n else None; \
   print(a)")
 $(BUILD_DIR)/asm/%.o: $(ASM_DIR)/%.s
+	@mkdir -p $(@D)
+	$(AS) $(ASFLAGS) -o $@ $<
+	$(OBJCOPY) --set-section-alignment .text=$(ALIGN_FOR) $@
+
+$(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.s
 	@mkdir -p $(@D)
 	$(AS) $(ASFLAGS) -o $@ $<
 	$(OBJCOPY) --set-section-alignment .text=$(ALIGN_FOR) $@

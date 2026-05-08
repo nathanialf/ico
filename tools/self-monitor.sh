@@ -28,33 +28,44 @@ if [[ "$1" == "--once" ]]; then
         # this dashboard exists to show what the permuter is working on.
         skipped=$(find tough_nuts -mindepth 2 -maxdepth 2 -name '.skip' -printf '%h\n' 2>/dev/null | wc -l)
         echo "Permuter scores (tough_nuts; ${skipped} .skip-marked hidden):"
-        {
-            printf "func\tbest_score\tcand_count\n"
-            while IFS= read -r func; do
-                [[ -z "$func" ]] && continue
-                [[ -f "tough_nuts/$func/.skip" ]] && continue
-                runs_dir="lib/decomp-permuter/runs/$func"
-                if [[ -d "$runs_dir" ]]; then
-                    best=$(find "$runs_dir" -maxdepth 1 -type d -name 'output-*' \
-                                -printf '%f\n' 2>/dev/null \
-                            | sed -nE 's/^output-(-?[0-9]+).*$/\1/p' \
-                            | sort -n | head -1)
-                    count=$(find "$runs_dir" -maxdepth 1 -type d -name 'output-*' \
-                                2>/dev/null | wc -l)
-                    [[ -z "$best" ]] && best="-"
-                    printf "%s\t%s\t%s\n" "$func" "$best" "$count"
-                else
-                    printf "%s\t-\t0\n" "$func"
-                fi
-            done < <(find tough_nuts -mindepth 1 -maxdepth 1 -type d \
-                          -name 'func_*' -printf '%f\n' 2>/dev/null | sort)
-        } | column -t -s "$(printf '\t')"
+        # Build "func:best" cells, then pack as many columns as fit the
+        # terminal width.
+        cells=()
+        while IFS= read -r func; do
+            [[ -z "$func" ]] && continue
+            [[ -f "tough_nuts/$func/.skip" ]] && continue
+            runs_dir="lib/decomp-permuter/runs/$func"
+            best="-"
+            if [[ -d "$runs_dir" ]]; then
+                b=$(find "$runs_dir" -maxdepth 1 -type d -name 'output-*' \
+                            -printf '%f\n' 2>/dev/null \
+                        | sed -nE 's/^output-(-?[0-9]+).*$/\1/p' \
+                        | sort -n | head -1)
+                [[ -n "$b" ]] && best="$b"
+            fi
+            cells+=("${func}:${best}")
+        done < <(find tough_nuts -mindepth 1 -maxdepth 1 -type d \
+                      -name 'func_*' -printf '%f\n' 2>/dev/null | sort)
+        if (( ${#cells[@]} > 0 )); then
+            cellw=0
+            for c in "${cells[@]}"; do (( ${#c} > cellw )) && cellw=${#c}; done
+            cellw=$((cellw + 2))            # gutter
+            ncols=$(( cols / cellw ))
+            (( ncols < 1 )) && ncols=1
+            i=0
+            for c in "${cells[@]}"; do
+                printf "%-${cellw}s" "$c"
+                i=$((i + 1))
+                (( i % ncols == 0 )) && echo
+            done
+            (( i % ncols != 0 )) && echo
+        fi
         echo "$rule"
     fi
 
-    git status
-    echo "$rule"
     git log -1
+    echo "$rule"
+    git status
     echo "$rule"
     exit 0
 fi
