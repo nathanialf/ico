@@ -980,6 +980,7 @@ segments:
       - [0x07B354, asm, cod/07B354]
       - [0x07B358, c,   cod/07B358]            # func_0017B358: promote: score-0 from permuter (void+return)
       - [0x07B394, asm, cod/07B394]
+      - [0x07B4E0, c,   cod/07B4E0]            # func_0017B4E0: f1(self); p=self->164->670; p[0xC0]=a1; tail f2(self, 0x2D, self)
       - [0x07B528, c,   cod/07B528]            # func_0017B528: promote: score-0 (void+new_var return TCO trick)
       - [0x07B564, asm, cod/07B564]
       - [0x07B568, c,   cod/07B568]            # func_0017B568: func_0013FF88(a0, 0x2F, a0); tail func_001D4B40(a0, 2)
