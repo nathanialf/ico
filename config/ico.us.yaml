@@ -934,7 +934,8 @@ segments:
       - [0x081F38, c,   cod/081F38]            # func_00181F38: if (D_0028A894) tail call func_00182C18(D_0028A894)
       - [0x081F58, asm, cod/081F58]
       - [0x082860, c,   cod/082860]            # func_00182860: sw_zero +0x0
-      - [0x082868, asm, cod/082868]
+      - [0x082868, c,   cod/082868]            # func_00182868: cond float-add or passthrough on a0->_4 == a1
+      - [0x08288C, asm, cod/08288C]
       - [0x082BE8, c,   cod/082BE8]            # func_00182BE8
       - [0x082BF8, c,   cod/082BF8]            # func_00182BF8
       - [0x082C08, c,   cod/082C08]            # func_00182C08
