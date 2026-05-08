@@ -629,6 +629,8 @@ segments:
       - [0x03F8C0, c,   cod/03F8C0]            # func_0013F8C0: linked-list traverse calling func_0013F6B8 on each node
       - [0x03F8F8, c,   cod/03F8F8]            # func_0013F8F8: count-down loop calling func_0013D3D8(0)
       - [0x03F930, asm, cod/03F930]
+      - [0x03F960, c,   cod/03F960]            # func_0013F960: linked-list traverse, set _18=1 if _1C==a1
+      - [0x03F98C, asm, cod/03F98C]
       - [0x03F990, c,   cod/03F990]            # func_0013F990: sw_zero +0x0
       - [0x03F998, c,   cod/03F998]            # func_0013F998: tail call func_0013F9A0 passthrough
       - [0x03F9A0, c,   cod/03F9A0]            # func_0013F9A0: 3 calls + tail-call (void+return TCO)
