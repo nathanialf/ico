@@ -1176,7 +1176,7 @@ segments:
       - [0x095378, c,   cod/095378]            # func_00195378: sibling: tail call func_0010F630 passthrough
       - [0x095380, asm, cod/095380]
       - [0x097078, c,   cod/097078]            # func_00197078: tail call func_001E3FC8 passthrough
-      - [0x097080, asm, cod/097080]
+      - [0x097080, c,   cod/097080]            # func_00197080: func_00197080: pre-call hook + cond flush via func_0012A7F8 + cond tail-call func_001998C0(self) when D_00631990==0x52
       - [0x0970E0, c,   cod/0970E0]            # func_001970E0: tail call func_0013FF88 passthrough
       - [0x0970E8, asm, cod/0970E8]
       - [0x097330, c,   cod/097330]
