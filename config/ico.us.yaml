@@ -709,6 +709,8 @@ segments:
       - [0x0538F4, asm, cod/0538F4]
       - [0x0538F8, c,   cod/0538F8]            # func_001538F8: indirect-deref through D_00631AE4
       - [0x053918, asm, cod/053918]
+      - [0x054420, asm, cod/054420]
+      - [0x054444, asm, cod/054444]
       - [0x0545D8, c,   cod/0545D8]            # func_001545D8: extract bit 35 of D_006AAAE8
       - [0x0545F0, c,   cod/0545F0]            # func_001545F0: return D_00633CEC (unsigned char)
       - [0x0545F8, asm, cod/0545F8]
@@ -940,6 +942,7 @@ segments:
       - [0x086A0C, asm, cod/086A0C]
       - [0x087280, c,   cod/087280]            # func_00187280: func_00186A10(D_00632610, a0); tail same(D_00632614, a0)
       - [0x0872B4, asm, cod/0872B4]
+      - [0x0872B8, c,   cod/0872B8]            # func_001872B8: 2-call wrapper, func_00186B68(D_00632610/14, a0, a1)
       - [0x087300, c,   cod/087300]            # func_00187300: auto-batch
       - [0x087308, c,   cod/087308]            # func_00187308: tail call func_001897A8 (sdata-ptr 2-arg shuffle)
       - [0x087318, c,   cod/087318]            # func_00187318: tail call func_00182DD8 (sdata-ptr forward+shuffle)
@@ -1455,6 +1458,9 @@ segments:
       - [0x0E97F8, c, cod/0E97F8]            # func_001E97F8: 4-insn lw
       - [0x0E9808, c,   cod/0E9808]
       - [0x0E9810, asm, cod/0E9810]
+      - [0x0E9888, c,   cod/0E9888]            # func_001E9888: cond tail-call func_00190430(v0, a0)
+      - [0x0E98C8, c,   cod/0E98C8]            # func_001E98C8: deref+gate, call+tail-call
+      - [0x0E990C, asm, cod/0E990C]
       - [0x0E9910, c,   cod/0E9910]            # func_001E9910: auto
       - [0x0E9918, c,   cod/0E9918]            # func_001E9918: auto
       - [0x0E9920, c,   cod/0E9920]            # func_001E9920: wrap func_001D12D8(a0); tail call func_001D12A8(a0, 0x38)
