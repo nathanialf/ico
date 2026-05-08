@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-08 04:06:49 UTC
+- Generated: 2026-05-08 04:19:39 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4385 total in `asm/cod/*.s`, 35 parked, 4350 considered
+- Functions: 4385 total in `asm/cod/*.s`, 37 parked, 4348 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -82,15 +82,11 @@ _0 total in this bucket; showing top 0._
 <a id="wrap-1jal-0x28-0x30"></a>
 ## 0x28-0x30, exactly 1 jal, no VU (wrapper w/ buffer or extra spill)
 
-_5 total in this bucket; showing top 5._
+_1 total in this bucket; showing top 1._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
-| `func_0013F778` | 0x2C | 11 | 1 |  | `daddu addiu andi sd` | asm/cod/03F6FC.s:57 |
 | `func_00263388` | 0x2C | 11 | 1 |  | `addiu sw sd daddu` | asm/cod/160CC8.s:3135 |
-| `func_0013F7A8` | 0x30 | 12 | 1 |  | `daddu addiu andi daddu` | asm/cod/03F6FC.s:74 |
-| `func_0013F7D8` | 0x2C | 11 | 1 |  | `daddu addiu andi sd` | asm/cod/03F6FC.s:91 |
-| `func_0013F930` | 0x30 | 12 | 1 |  | `daddu addiu andi daddu` | asm/cod/03F930.s:13 |
 
 <a id="wrap-1jal-0x34-0x40"></a>
 ## 0x34-0x40, exactly 1 jal, no VU (wrapper w/ stack buffer / arg pack)
@@ -291,7 +287,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4144 unmatched functions are not in any shape bucket above._
+_4146 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 
