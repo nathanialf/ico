@@ -1220,7 +1220,7 @@ segments:
       - [0x09E2A0, c,   cod/09E2A0]            # func_0019E2A0: func_0019CF70(a0,a1); func_0023FDF0(a2+0x50); ret 1
       - [0x09E2D0, c,   cod/09E2D0]            # func_0019E2D0
       - [0x09E2F0, c,   cod/09E2F0]            # func_0019E2F0
-      - [0x09E310, asm, cod/09E310]
+      - [0x09E310, c,   cod/09E310]            # func_0019E310: call func_002407C0(a2+0x50, sp); copy 16 bytes from buf to a1[8..0x17]
       - [0x09E350, c,   cod/09E350]            # func_0019E350: wrap func_0019E4E8(*a0); tail call func_0019E4E8(*(a0+4))
       - [0x09E37C, asm, cod/09E37C]
       - [0x09E4E0, c,   cod/09E4E0]            # func_0019E4E0: tail call func_0019E350 passthrough
@@ -2246,6 +2246,7 @@ segments:
       - [0x160900, asm, cod/160900]
       - [0x160CA8, c,   cod/160CA8]            # func_00260CA8: guard + tail-call (void+return TCO trick)
       - [0x160CC8, asm, cod/160CC8]
+      - [0x163350, c,   cod/163350]            # func_00263350: save a0 (long long) on stack, call func_00262848(&saved_a0, sp); negate buf[1]; call func_00262718(sp)
       - [0x163388, c,   cod/163388]            # func_00263388: build int+long-long buffer on stack and pass to func_00262718
       - [0x1633B4, asm, cod/1633B4]
       - [0x163F80, c,   cod/163F80]            # func_00263F80: 4-int packing buffer + 1-arg call
