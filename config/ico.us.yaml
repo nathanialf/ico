@@ -1329,6 +1329,7 @@ segments:
       - [0x0B4F58, asm, cod/0B4F58]
       - [0x0B4FC0, c,   cod/0B4FC0]            # func_001B4FC0: return -1
       - [0x0B4FC8, asm, cod/0B4FC8]
+      - [0x0B5118, c,   cod/0B5118]            # func_001B5118: if D_00633048==0 and (1>>D_0063303C)&1, return -1; else func_001B1B90(); return -1
       - [0x0B5158, c,   cod/0B5158]            # func_001B5158: func_001B7218(0x8C,D); func_001B7218(0x8D,D^1); ret -1
       - [0x0B518C, asm, cod/0B518C]
       - [0x0B5220, c,   cod/0B5220]            # func_001B5220: D_00275254 & 0x40 ? func_001B7040() : -1
@@ -2103,6 +2104,7 @@ segments:
       - [0x151C14, asm, cod/151C14]
       - [0x151C18, c,   cod/151C18]            # func_00251C18
       - [0x151C28, asm, cod/151C28]
+      - [0x151C68, asm, cod/151C68]
       - [0x151D48, c,   cod/151D48]            # func_00251D48: promote: score-0 from permuter (volatile dummies)
       - [0x151D6C, asm, cod/151D6C]
       - [0x151D70, c,   cod/151D70]            # func_00251D70: self[0x10]->0x78=a1; ->0x70=1
@@ -2195,6 +2197,8 @@ segments:
       - [0x15CE90, asm, cod/15CE90]
       - [0x15D380, c,   cod/15D380]            # func_0025D380: a0<0x30 ? *(u16)(func_00258C50(a0)+0x1E) : -1
       - [0x15D3B0, asm, cod/15D3B0]
+      - [0x15DCB0, c,   cod/15DCB0]            # func_0025DCB0: if a0 < 0x30, get table entry, clear byte at +0x51 if it equals 3
+      - [0x15DCEC, asm, cod/15DCEC]
       - [0x15DCF0, c,   cod/15DCF0]            # func_0025DCF0: func_002591F0(0x3C, 0, 0, 0)
       - [0x15DD04, asm, cod/15DD04]
       - [0x15DD08, c,   cod/15DD08]            # func_0025DD08: func_002591F0(0x3D, 0, 0, 0)
