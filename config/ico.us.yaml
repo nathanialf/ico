@@ -2227,7 +2227,7 @@ segments:
       - [0x13D348, asm, cod/13D348]
       - [0x13D370, c,   cod/13D370]            # func_0023D370: copy 2 sdata floats to *self->34, return 1
       - [0x13D38C, asm, cod/13D38C]
-      - [0x13D420, asm, cod/13D420]
+      - [0x13D420, c,   cod/13D420]            # func_0023D420: idx==-1?&D_00633B60:D_005F3038[idx]; tail fD468
       - [0x13D464, asm, cod/13D464]
       - [0x13D518, c,   cod/13D518]            # func_0023D518: tail call func_00182A40(D_006318BC)
       - [0x13D524, asm, cod/13D524]
