@@ -439,20 +439,60 @@ reap_finished() {
 }
 
 # --- collect candidates from tough_nuts/ ------------------------------------
+# Default mode picks 4 lowest-score (untried funcs sort as 0, so they go to
+# the low queue too — they're cheap to try and may match on first pass) +
+# 4 highest-score per pass. Rationale: focus cycles on the two ends of the
+# parked-score distribution rather than uniformly grinding mid-score
+# stragglers that aren't moving. As scores improve, the 4-low / 4-high
+# selection naturally reseats each pass; "queues converge" when the same
+# functions show up at both ends, at which point this is just round-robin.
+#
+# Override:
+#   QUEUE_MODE=split  (default) — 4-low + 4-high, total 8/pass
+#   QUEUE_MODE=all    — every parked function (legacy behavior)
+QUEUE_LOW="${QUEUE_LOW:-4}"
+QUEUE_HIGH="${QUEUE_HIGH:-4}"
+QUEUE_MODE="${QUEUE_MODE:-split}"
+
 collect_candidates() {
     local arg="${1:-}"
     if [ -n "${arg}" ]; then
         echo "${arg}"
         return
     fi
+    # Filter to undone parked.
+    local -a all=()
     local name
     while IFS= read -r name; do
         [ -n "${name}" ] || continue
         if [ "${SKIP_MATCHED}" = "1" ] && already_done "${name}"; then
             continue
         fi
-        echo "${name}"
+        all+=("${name}")
     done < <(read_parked)
+
+    if [ "${QUEUE_MODE}" = "all" ] || [ "${#all[@]}" -le $((QUEUE_LOW + QUEUE_HIGH)) ]; then
+        printf '%s\n' "${all[@]}"
+        return
+    fi
+
+    # read_parked returns lowest-score first; take first QUEUE_LOW and
+    # last QUEUE_HIGH. Interleave so we don't burn the whole low queue
+    # before any high-queue work happens.
+    local total=${#all[@]}
+    local low_end=$((QUEUE_LOW))
+    local high_start=$((total - QUEUE_HIGH))
+    local i=0 j=0
+    while [ "${i}" -lt "${QUEUE_LOW}" ] || [ "${j}" -lt "${QUEUE_HIGH}" ]; do
+        if [ "${i}" -lt "${QUEUE_LOW}" ]; then
+            printf '%s\n' "${all[${i}]}"
+            i=$((i + 1))
+        fi
+        if [ "${j}" -lt "${QUEUE_HIGH}" ]; then
+            printf '%s\n' "${all[$((high_start + j))]}"
+            j=$((j + 1))
+        fi
+    done
 }
 
 # --- main -------------------------------------------------------------------
