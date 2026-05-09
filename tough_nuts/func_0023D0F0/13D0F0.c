@@ -13,6 +13,7 @@ int func_0023D0F0(int *self)
   int *p = (int *) self[0x34 / 4];
   int v;
   *((float *) (((char *) p) + 8)) = -397.0f;
+  *((float *) (((char *) new_var) + 0x18)) = f;
   *((float *) (((char *) p) + 0)) = D_00631890;
   *((float *) (((char *) p) + 4)) = D_00631894;
   if (D_00633B4C != D_00631960)
