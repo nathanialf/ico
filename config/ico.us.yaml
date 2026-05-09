@@ -246,7 +246,7 @@ segments:
       - [0x000C90, asm, cod/000C90]
       - [0x0011B0, c,   cod/0011B0]            # func_001011B0: if a0==0xA: func_001010C8(0xD); func_001010C8(0xA) else: tail call func_001010C8(a0)
       - [0x0011E4, asm, cod/0011E4]
-      - [0x0019A8, asm, cod/0019A8]
+      - [0x0019A8, c  , cod/0019A8]            # func_001019A8: permuter score-0 (parked seed)
       - [0x0019E0, asm, cod/0019E0]
       - [0x001AA0, asm, cod/001AA0]
       - [0x001AE4, asm, cod/001AE4]
@@ -275,14 +275,14 @@ segments:
       - [0x002970, c,   cod/002970]            # func_00102970: auto-batch
       - [0x002978, c,   cod/002978]            # func_00102978: func_0010D838(a0, a1+0x60); tail call func_0010DDB8(a0, a0, a1->10)
       - [0x0029B8, c,   cod/0029B8]            # func_001029B8: auto-batch
-      - [0x0029C0, asm, cod/0029C0]
+      - [0x0029C0, c  , cod/0029C0]            # func_001029C0: permuter score-0 (parked seed)
       - [0x002A38, c,   cod/002A38]            # func_00102A38: auto-batch
       - [0x002A40, asm, cod/002A40]
       - [0x002DE0, c,   cod/002DE0]            # func_00102DE0: wrap func_00102A40(a0); tail call func_00109F28(a0)
       - [0x002E08, asm, cod/002E08]
       - [0x003110, c,   cod/003110]            # func_00103110: tail call func_00105F00(a0, *(a1+0x15C)+0x130)
       - [0x00311C, asm, cod/00311C]
-      - [0x004A38, asm, cod/004A38]
+      - [0x004A38, c  , cod/004A38]            # func_00104A38: permuter score-0 (parked seed)
       - [0x004A48, asm, cod/004A48]
       - [0x004EF0, c,   cod/004EF0]            # func_00104EF0: D_00631B40=0; 3-call seq: 243BD8, 0E9F8, tail 10D520
       - [0x004F1C, asm, cod/004F1C]
@@ -323,15 +323,15 @@ segments:
       - [0x006E34, asm, cod/006E34]
       - [0x007DD8, asm, cod/007DD8]
       - [0x007E28, asm, cod/007E28]
-      - [0x009B98, asm, cod/009B98]
-      - [0x009BA8, asm, cod/009BA8]
+      - [0x009B98, c  , cod/009B98]            # func_00109B98: permuter score-0 (parked seed)
+      - [0x009BA8, c  , cod/009BA8]            # func_00109BA8: permuter score-0 (parked seed)
       - [0x009BB8, asm, cod/009BB8]
-      - [0x009F10, asm, cod/009F10]
+      - [0x009F10, c  , cod/009F10]            # func_00109F10: permuter score-0 (parked seed)
       - [0x009F28, asm, cod/009F28]
-      - [0x009FF8, asm, cod/009FF8]
-      - [0x00A008, asm, cod/00A008]
-      - [0x00A018, asm, cod/00A018]
-      - [0x00A028, asm, cod/00A028]
+      - [0x009FF8, c  , cod/009FF8]            # func_00109FF8: permuter score-0 (parked seed)
+      - [0x00A008, c  , cod/00A008]            # func_0010A008: permuter score-0 (parked seed)
+      - [0x00A018, c  , cod/00A018]            # func_0010A018: permuter score-0 (parked seed)
+      - [0x00A028, c  , cod/00A028]            # func_0010A028: permuter score-0 (parked seed)
       - [0x00A038, c,   cod/00A038]
       - [0x00A048, c,   cod/00A048]            # func_0010A048: wrapper -> func_00168A80(sub->5F8)
       - [0x00A068, c,   cod/00A068]            # func_0010A068: wrapper -> func_00168A80(sub->5F4)
@@ -343,18 +343,18 @@ segments:
       - [0x00A160, c,   cod/00A160]            # func_0010A160: Same as 10A120 sibling but offset 0x1D0
       - [0x00A19C, asm, cod/00A19C]
       - [0x00A2E0, c,   cod/00A2E0]
-      - [0x00A2F0, asm, cod/00A2F0]
-      - [0x00A300, asm, cod/00A300]
-      - [0x00A310, asm, cod/00A310]
-      - [0x00A320, asm, cod/00A320]
+      - [0x00A2F0, c  , cod/00A2F0]            # func_0010A2F0: permuter score-0 (parked seed)
+      - [0x00A300, c  , cod/00A300]            # func_0010A300: permuter score-0 (parked seed)
+      - [0x00A310, c  , cod/00A310]            # func_0010A310: permuter score-0 (parked seed)
+      - [0x00A320, c  , cod/00A320]            # func_0010A320: permuter score-0 (parked seed)
       - [0x00A330, c,   cod/00A330]            # func_0010A330: func_0010A330: r1=func_00168C18(a->_15C+0x1D0,a->_15C+0xA0); r2=same on b; ret r1-r2
-      - [0x00A380, asm, cod/00A380]
-      - [0x00A390, asm, cod/00A390]
+      - [0x00A380, c  , cod/00A380]            # func_0010A380: permuter score-0 (parked seed)
+      - [0x00A390, c  , cod/00A390]            # func_0010A390: permuter score-0 (parked seed)
       - [0x00A3A0, asm, cod/00A3A0]
       - [0x00A3EC, asm, cod/00A3EC]
       - [0x00A498, c,   cod/00A498]            # func_0010A498: func_00104508(a0,a1); a0->4 += *(a1->15C + 0x270)
       - [0x00A4DC, asm, cod/00A4DC]
-      - [0x00A4E0, asm, cod/00A4E0]
+      - [0x00A4E0, c  , cod/00A4E0]            # func_0010A4E0: permuter score-0 (parked seed)
       - [0x00A4F0, c  , cod/00A4F0]
       - [0x00A550, c,   cod/00A550]
       - [0x00A558, asm, cod/00A558]
@@ -371,7 +371,7 @@ segments:
       - [0x00D070, c,   cod/00D070]
       - [0x00D078, c,   cod/00D078]
       - [0x00D088, asm, cod/00D088]
-      - [0x00D180, asm, cod/00D180]
+      - [0x00D180, c  , cod/00D180]            # func_0010D180: permuter score-0 (parked seed)
       - [0x00D198, asm, cod/00D198]
       - [0x00D338, c,   cod/00D338]            # func_0010D338: a1->_15C->_A4 - a0->_15C->_800->_4 to a1->_644
       - [0x00D360, asm, cod/00D360]
@@ -568,7 +568,7 @@ segments:
       - [0x033450, c,   cod/033450]            # func_00133450: self[0x108] OR= 2
       - [0x033460, c,   cod/033460]            # func_00133460: a0->108 bit-4 = (a1 & 1)
       - [0x033480, c,   cod/033480]            # func_00133480: func_00133480: walk D_006A5C80[0..0x834] in 0x12C strides; sum (*(int*)(p+0x108) >> 1) & 1 for non-zero entries
-      - [0x0334C8, asm, cod/0334C8]
+      - [0x0334C8, c  , cod/0334C8]            # func_001334C8: permuter score-0 (parked seed)
       - [0x033500, c,   cod/033500]            # func_00133500: sw_arg +0x110
       - [0x033508, c,   cod/033508]            # func_00133508: return D_00633C7C
       - [0x033510, asm, cod/033510]
@@ -624,7 +624,7 @@ segments:
       - [0x03B744, asm, cod/03B744]
       - [0x03B748, c,   cod/03B748]            # func_0013B748: &D_002811C0[a1<<9] +0 (la-macro)
       - [0x03B760, c,   cod/03B760]            # func_0013B760: &D_002811C0[a1<<9] +4 (la-macro)
-      - [0x03B778, asm, cod/03B778]
+      - [0x03B778, c  , cod/03B778]            # func_0013B778: permuter score-0 (parked seed)
       - [0x03B7C0, c,   cod/03B7C0]            # func_0013B7C0: a0[0]=&D_002811C0+a2*512; a0[1]=a3; ret 0
       - [0x03B7E0, asm, cod/03B7E0]
       - [0x03B858, c,   cod/03B858]            # func_0013B858: D_00633C90 = 1, return 1
@@ -673,6 +673,8 @@ segments:
       - [0x03D924, asm, cod/03D924]
       - [0x03D928, c,   cod/03D928]            # func_0013D928
       - [0x03D944, asm, cod/03D944]
+      - [0x03DB60, asm, cod/03DB60]
+      - [0x03DBB0, asm, cod/03DBB0]
       - [0x03DD88, c,   cod/03DD88]            # func_0013DD88: func_002641D8(&D_006A93D0, 0, 0x110)
       - [0x03DD9C, asm, cod/03DD9C]
       - [0x03DDA0, asm, cod/03DDA0]
@@ -697,7 +699,7 @@ segments:
       - [0x03F7D8, c,   cod/03F7D8]            # func_0013F7D8: wrapper for func_0013F3F0(a, 0, b, c, d, 0x1800)
       - [0x03F804, asm, cod/03F804]
       - [0x03F808, c,   cod/03F808]            # func_0013F808: sw_zero +0x18
-      - [0x03F810, asm, cod/03F810]
+      - [0x03F810, c  , cod/03F810]            # func_0013F810: permuter score-0 (parked seed)
       - [0x03F848, c,   cod/03F848]            # func_0013F848: linked-list traverse, set _18=0 if _1C==a1
       - [0x03F874, asm, cod/03F874]
       - [0x03F878, c,   cod/03F878]            # func_0013F878: self[6] = 1, return 1
@@ -779,7 +781,7 @@ segments:
       - [0x049EF4, asm, cod/049EF4]
       - [0x049EF8, c,   cod/049EF8]            # func_00149EF8: promoted from permuter score-0
       - [0x049F20, asm, cod/049F20]
-      - [0x04A0D8, asm, cod/04A0D8]
+      - [0x04A0D8, c  , cod/04A0D8]            # func_0014A0D8: permuter score-0 (parked seed)
       - [0x04A100, asm, cod/04A100]
       - [0x04A2B0, c,   cod/04A2B0]            # func_0014A2B0: D_006AA4B0+0x4B4=0, +0x4B0=0
       - [0x04A2C4, asm, cod/04A2C4]
@@ -795,7 +797,7 @@ segments:
       - [0x04B164, asm, cod/04B164]
       - [0x04B228, c,   cod/04B228]            # func_0014B228: sub->90 |= (1 << bit)
       - [0x04B244, asm, cod/04B244]
-      - [0x04B248, asm, cod/04B248]
+      - [0x04B248, c  , cod/04B248]            # func_0014B248: permuter score-0 (parked seed)
       - [0x04B260, c,   cod/04B260]            # func_0014B260: 2 sd zero stores
       - [0x04B270, asm, cod/04B270]
       - [0x04B2F0, asm, cod/04B2F0]
@@ -1066,7 +1068,7 @@ segments:
       - [0x07D0F8, asm, cod/07D0F8]
       - [0x07D1D0, asm, cod/07D1D0]
       - [0x07D230, c,   cod/07D230]            # func_0017D230: func_0017E188(a0); func_0017E188(0); set _16C=1 on result; call func_001F2148(first)
-      - [0x07D270, asm, cod/07D270]
+      - [0x07D270, c  , cod/07D270]            # func_0017D270: permuter score-0 (parked seed)
       - [0x07D2C8, c,   cod/07D2C8]            # func_0017D2C8: func_0017D2C8: r=func_0017E188(); if r: ret func_001EA108(r); else: func_001A6E28(D_00559EA8); ret 0.0f
       - [0x07D308, asm, cod/07D308]
       - [0x07DC90, c,   cod/07DC90]            # func_0017DC90: stack-buf wrapper: f1(buf); f2(a1, a0, buf), 16-byte buf
@@ -1087,7 +1089,7 @@ segments:
       - [0x07E4F0, c,   cod/07E4F0]            # func_0017E4F0: f1(self); f2(self); copy 16 bytes from D to buf; f3(self, buf); f4(self, 0x27, self)
       - [0x07E550, c,   cod/07E550]            # func_0017E550: set 6 sdata fields (1 float, 1 int, 3 bytes, 1 int)
       - [0x07E570, c,   cod/07E570]            # func_0017E570: set 3 sdata: D_633798=1, D_6337A0=0, D_63379C=-f
-      - [0x07E588, asm, cod/07E588]
+      - [0x07E588, c  , cod/07E588]            # func_0017E588: permuter score-0 (parked seed)
       - [0x07E5B0, c,   cod/07E5B0]            # func_0017E5B0: gp_rel D + 2-deref + cond call
       - [0x07E5E0, c,   cod/07E5E0]            # func_0017E5E0
       - [0x07E5FC, asm, cod/07E5FC]
@@ -1112,7 +1114,7 @@ segments:
       - [0x07EC94, asm, cod/07EC94]
       - [0x080580, c,   cod/080580]            # func_00180580: 1-jal wrapper w/ spill+reload
       - [0x0805A4, asm, cod/0805A4]
-      - [0x0807F0, asm, cod/0807F0]
+      - [0x0807F0, c  , cod/0807F0]            # func_001807F0: permuter score-0 (parked seed)
       - [0x080830, asm, cod/080830]
       - [0x080B28, c,   cod/080B28]            # func_00180B28: store-arg-discard
       - [0x080B38, asm, cod/080B38]
@@ -1145,7 +1147,7 @@ segments:
       - [0x087300, c,   cod/087300]            # func_00187300: auto-batch
       - [0x087308, c,   cod/087308]            # func_00187308: tail call func_001897A8 (sdata-ptr 2-arg shuffle)
       - [0x087318, c,   cod/087318]            # func_00187318: tail call func_00182DD8 (sdata-ptr forward+shuffle)
-      - [0x087328, asm, cod/087328]
+      - [0x087328, c  , cod/087328]            # func_00187328: permuter score-0 (parked seed)
       - [0x0873A0, c,   cod/0873A0]
       - [0x0873A8, c,   cod/0873A8]
       - [0x0873B0, c,   cod/0873B0]            # func_001873B0: D_006326D0=0 + D_006326D8=0 (byte)
@@ -1206,7 +1208,7 @@ segments:
       - [0x08DE48, asm, cod/08DE48]
       - [0x090298, c,   cod/090298]            # func_00190298: self->15C->800->60 = 1; jal func_0018D100(self); ret 1
       - [0x0902C8, c, cod/0902C8]            # func_001902C8: 4-insn sb_zero
-      - [0x0902D8, asm, cod/0902D8]
+      - [0x0902D8, c  , cod/0902D8]            # func_001902D8: permuter score-0 (parked seed)
       - [0x090318, c,   cod/090318]            # func_00190318: 0x44 = D_00630F84
       - [0x09032C, asm, cod/09032C]
       - [0x090330, c,   cod/090330]            # func_00190330: q->_44 = (float)D_00632D98 * 0.5f * D_00630F88
@@ -1253,7 +1255,7 @@ segments:
       - [0x0939D4, asm, cod/0939D4]
       - [0x0939D8, c,   cod/0939D8]            # func_001939D8: return 0x287D
       - [0x0939E0, c,   cod/0939E0]            # func_001939E0: copy 3 floats from src+0x10..0x18, return 1
-      - [0x093A00, asm, cod/093A00]
+      - [0x093A00, c  , cod/093A00]            # func_00193A00: permuter score-0 (parked seed)
       - [0x093A58, c,   cod/093A58]            # func_00193A58: copy 2 shorts from sub->800, return 1
       - [0x093A78, asm, cod/093A78]
       - [0x093CE8, c,   cod/093CE8]            # func_00193CE8: p=self->164; f(D, self->8); *(ll*)(p+0x18) |= 0x400000000LL
@@ -1309,7 +1311,7 @@ segments:
       - [0x098438, asm, cod/098438]
       - [0x098678, c,   cod/098678]            # func_00198678: negate 3 floats, copy 4th
       - [0x0986A8, c   ,   cod/0986A8]            # VU0 wrapper (vu0.h macros)
-      - [0x0986D8, asm, cod/0986D8]
+      - [0x0986D8, c  , cod/0986D8]            # func_001986D8: permuter score-0 (parked seed)
       - [0x098710, c,   cod/098710]            # func_00198710: func_00198710: if (*self) func_0012A7A0(self); *self = func_0012A618(q)
       - [0x098758, asm, cod/098758]
       - [0x099790, c   ,   cod/099790]            # VU0 wrapper (vu0.h macros)
@@ -1454,7 +1456,7 @@ segments:
       - [0x0AB1D8, asm, cod/0AB1D8]
       - [0x0AB2F8, c,   cod/0AB2F8]            # func_001AB2F8: cond+uncond call(1); return (D_00275254 & 0x100) ? -1 : 0
       - [0x0AB334, asm, cod/0AB334]
-      - [0x0AB338, asm, cod/0AB338]
+      - [0x0AB338, c  , cod/0AB338]            # func_001AB338: permuter score-0 (parked seed)
       - [0x0AB378, c,   cod/0AB378]            # func_001AB378: func_001AB378: func_00242640(0,0); p=func_00244630(1); *p|=0x40; tail-call func_00244980(p, (self->_4 & 0x3FF0) | 0x80000000)
       - [0x0AB3CC, asm, cod/0AB3CC]
       - [0x0ABF58, c,   cod/0ABF58]            # func_001ABF58: func_00244598(a0); tail call func_001123C0(&D_00274EF0)
@@ -1507,7 +1509,7 @@ segments:
       - [0x0B4EC0, c,   cod/0B4EC0]            # func_001B4EC0: wrap func_001A6E28(&D_00616ED8); return a1
       - [0x0B4EF0, c,   cod/0B4EF0]            # func_001B4EF0: wrap func_001A6E28(&D_00616EE8); return a1
       - [0x0B4F20, c,   cod/0B4F20]            # func_001B4F20: D_00275254 & 0x40 ? func_001B7048(0) : -1
-      - [0x0B4F58, asm, cod/0B4F58]
+      - [0x0B4F58, c  , cod/0B4F58]            # func_001B4F58: permuter score-0 (parked seed)
       - [0x0B4FC0, c,   cod/0B4FC0]            # func_001B4FC0: return -1
       - [0x0B4FC8, asm, cod/0B4FC8]
       - [0x0B5118, c,   cod/0B5118]            # func_001B5118: if D_00633048==0 and (1>>D_0063303C)&1, return -1; else func_001B1B90(); return -1
@@ -1572,7 +1574,7 @@ segments:
       - [0x0BB398, asm, cod/0BB398]
       - [0x0BB7E0, c,   cod/0BB7E0]            # func_001BB7E0: lwu via inline asm + xori at return
       - [0x0BB7FC, asm, cod/0BB7FC]
-      - [0x0BB800, asm, cod/0BB800]
+      - [0x0BB800, c  , cod/0BB800]            # func_001BB800: permuter score-0 (parked seed)
       - [0x0BB810, c,   cod/0BB810]            # func_001BB810: *(int*)(*(char**)(self+0x164)+0x9C) = val
       - [0x0BB81C, asm, cod/0BB81C]
       - [0x0BB860, c,   cod/0BB860]            # func_001BB860: rc=func_001BA6B0(a0, 0); ret rc ? 0 : -1
@@ -1793,7 +1795,7 @@ segments:
       - [0x0E8E10, asm, cod/0E8E10]
       - [0x0E8E80, c,   cod/0E8E80]            # func_001E8E80: promote: score-0 (CSE-defeat via re-deref)
       - [0x0E8EA8, c,   cod/0E8EA8]            # func_001E8EA8: tail call func_001E8AB8 (triple-deref TCO)
-      - [0x0E8EB8, asm, cod/0E8EB8]
+      - [0x0E8EB8, c  , cod/0E8EB8]            # func_001E8EB8: permuter score-0 (parked seed)
       - [0x0E8F28, c,   cod/0E8F28]
       - [0x0E8F30, c,   cod/0E8F30]
       - [0x0E8F38, asm, cod/0E8F38]
@@ -1987,7 +1989,7 @@ segments:
       - [0x105B4C, asm, cod/105B4C]
       - [0x105B50, c,   cod/105B50]            # func_00205B50: promote: score-0 from permuter (parked tough_nut)
       - [0x105B70, asm, cod/105B70]
-      - [0x108740, asm, cod/108740]
+      - [0x108740, c  , cod/108740]            # func_00208740: permuter score-0 (parked seed)
       - [0x108780, asm, cod/108780]
       - [0x109AB0, c,   cod/109AB0]            # func_00209AB0: tail call func_001297A0(0xA2, 0, -1)
       - [0x109AC0, asm, cod/109AC0]
@@ -2130,7 +2132,7 @@ segments:
       - [0x1315D8, asm, cod/1315D8]
       - [0x131A98, c,   cod/131A98]            # func_00231A98: volatile a0 -> two-call wrapper
       - [0x131AC8, c,   cod/131AC8]            # func_00231AC8: if func_0017B230(0x14): tail call func_00205B30(9, 0)
-      - [0x131AF8, asm, cod/131AF8]
+      - [0x131AF8, c  , cod/131AF8]            # func_00231AF8: permuter score-0 (parked seed)
       - [0x131B38, asm, cod/131B38]
       - [0x1341D8, c,   cod/1341D8]            # func_002341D8: store-arg-discard
       - [0x1341E8, c,   cod/1341E8]            # func_002341E8: store-arg-discard
@@ -2187,12 +2189,12 @@ segments:
       - [0x13C1C0, asm, cod/13C1C0]
       - [0x13C290, asm, cod/13C290]
       - [0x13C2F0, asm, cod/13C2F0]
-      - [0x13C540, asm, cod/13C540]
-      - [0x13C598, asm, cod/13C598]
+      - [0x13C540, c  , cod/13C540]            # func_0023C540: permuter score-0 (parked seed)
+      - [0x13C598, c  , cod/13C598]            # func_0023C598: permuter score-0 (parked seed)
       - [0x13C5F0, asm, cod/13C5F0]
       - [0x13CC18, asm, cod/13CC18]
       - [0x13CC78, asm, cod/13CC78]
-      - [0x13CCE0, asm, cod/13CCE0]
+      - [0x13CCE0, c  , cod/13CCE0]            # func_0023CCE0: permuter score-0 (parked seed)
       - [0x13CD1C, asm, cod/13CD1C]
       - [0x13D030, c,   cod/13D030]            # func_0023D030: copy 2 sdata floats to *self->34, return 1
       - [0x13D04C, asm, cod/13D04C]
@@ -2249,7 +2251,7 @@ segments:
       - [0x140B88, asm, cod/140B88]
       - [0x141A00, c,   cod/141A00]            # func_00241A00: wrap func_001A6E28(&D_0062E020)
       - [0x141A20, asm, cod/141A20]
-      - [0x141AE8, asm, cod/141AE8]
+      - [0x141AE8, c  , cod/141AE8]            # func_00241AE8: permuter score-0 (parked seed)
       - [0x141B28, asm, cod/141B28]
       - [0x141C38, c,   cod/141C38]            # func_00241C38: return &D_005506A0
       - [0x141C44, asm, cod/141C44]
@@ -2330,7 +2332,7 @@ segments:
       - [0x145DDC, asm, cod/145DDC]
       - [0x145E88, c,   cod/145E88]            # func_00245E88: a0->18=0 + a0->10 &= ~1
       - [0x145EA4, asm, cod/145EA4]
-      - [0x145EA8, asm, cod/145EA8]
+      - [0x145EA8, c  , cod/145EA8]            # func_00245EA8: permuter score-0 (parked seed)
       - [0x145ED8, c,   cod/145ED8]            # func_00245ED8: if a1 < 0 or a1 >= a0->_20, tail-call func_00245EA8(a0); else return a0->_1C + (a1<<6)
       - [0x145F18, asm, cod/145F18]
       - [0x145FD0, asm, cod/145FD0]
@@ -2338,9 +2340,9 @@ segments:
       - [0x146918, asm, cod/146918]
       - [0x146970, asm, cod/146970]
       - [0x146B38, asm, cod/146B38]
-      - [0x146B78, asm, cod/146B78]
+      - [0x146B78, c  , cod/146B78]            # func_00246B78: permuter score-0 (parked seed)
       - [0x146BD4, asm, cod/146BD4]
-      - [0x147088, asm, cod/147088]
+      - [0x147088, c  , cod/147088]            # func_00247088: permuter score-0 (parked seed)
       - [0x1470D4, asm, cod/1470D4]
       - [0x1470D8, c,   cod/1470D8]            # func_002470D8: func_00247088(); func_00100560(D_00550864); ret 0
       - [0x147104, asm, cod/147104]
@@ -2423,9 +2425,9 @@ segments:
       - [0x14DD30, asm, cod/14DD30]
       - [0x14E4C8, asm, cod/14E4C8]
       - [0x14E528, asm, cod/14E528]
-      - [0x14F6D8, asm, cod/14F6D8]
+      - [0x14F6D8, c  , cod/14F6D8]            # func_0024F6D8: permuter score-0 (parked seed)
       - [0x14F710, asm, cod/14F710]
-      - [0x14FBD0, asm, cod/14FBD0]
+      - [0x14FBD0, c  , cod/14FBD0]            # func_0024FBD0: permuter score-0 (parked seed)
       - [0x14FBF8, asm, cod/14FBF8]
       - [0x14FC3C, asm, cod/14FC3C]
       - [0x150F70, c,   cod/150F70]            # func_00250F70: wrap func_00250C80(a0..a2, 0, -1)
@@ -2452,9 +2454,9 @@ segments:
       - [0x151D88, c,   cod/151D88]            # func_00251D88: sd 0x78=0; sw 0x70=0
       - [0x151D98, c,   cod/151D98]            # func_00251D98: 3-deref store
       - [0x151DAC, asm, cod/151DAC]
-      - [0x151DB0, asm, cod/151DB0]
-      - [0x151DC0, asm, cod/151DC0]
-      - [0x151DD0, asm, cod/151DD0]
+      - [0x151DB0, c  , cod/151DB0]            # func_00251DB0: permuter score-0 (parked seed)
+      - [0x151DC0, c  , cod/151DC0]            # func_00251DC0: permuter score-0 (parked seed)
+      - [0x151DD0, c  , cod/151DD0]            # func_00251DD0: permuter score-0 (parked seed)
       - [0x151DE0, c,   cod/151DE0]            # func_00251DE0: same shape
       - [0x151DEC, asm, cod/151DEC]
       - [0x151DF0, c,   cod/151DF0]            # func_00251DF0: getset sub+0xE8
@@ -2462,7 +2464,7 @@ segments:
       - [0x151E14, asm, cod/151E14]
       - [0x151E18, c,   cod/151E18]            # func_00251E18: 4 stores
       - [0x151E2C, asm, cod/151E2C]
-      - [0x151E30, asm, cod/151E30]
+      - [0x151E30, c  , cod/151E30]            # func_00251E30: permuter score-0 (parked seed)
       - [0x151E40, c,   cod/151E40]            # func_00251E40: self[0x8] = self[0xC]
       - [0x151E4C, asm, cod/151E4C]
       - [0x151EB8, c,   cod/151EB8]            # func_00251EB8: return p[0] + p[1] - p[2]
@@ -2574,7 +2576,7 @@ segments:
       - [0x15E27C, asm, cod/15E27C]
       - [0x160610, c,   cod/160610]            # func_00260610: wrap func_00263110(ll, ll); return 0
       - [0x160634, asm, cod/160634]
-      - [0x1608E0, asm, cod/1608E0]
+      - [0x1608E0, c  , cod/1608E0]            # func_002608E0: permuter score-0 (parked seed)
       - [0x160900, asm, cod/160900]
       - [0x160BA0, asm, cod/160BA0]
       - [0x160BF4, asm, cod/160BF4]
@@ -2592,7 +2594,7 @@ segments:
       - [0x164028, c,   cod/164028]            # func_00264028: 1-jal w/ u32-return sign-ext via implicit cast
       - [0x164050, c,   cod/164050]            # func_00264050
       - [0x16405C, asm, cod/16405C]
-      - [0x164060, asm, cod/164060]
+      - [0x164060, c  , cod/164060]            # func_00264060: permuter score-0 (parked seed)
       - [0x164094, asm, cod/164094]
       - [0x164D50, c,   cod/164D50]            # func_00264D50
       - [0x164D60, asm, cod/164D60]

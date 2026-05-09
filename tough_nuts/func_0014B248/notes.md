@@ -3,7 +3,7 @@
 
 ## Attempt at 2026-05-09
 
-**Reason parked:** size mismatch: built=0x14 expected=0x18 diff=-4
+**Reason parked:** permuter score-0 false positive: size mismatch
 
 Seed: `tough_nuts/func_0014B248/04B248.c`
 

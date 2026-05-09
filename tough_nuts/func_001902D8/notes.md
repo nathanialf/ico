@@ -1,9 +1,9 @@
 
 ---
 
-## Attempt at 2026-05-08
+## Attempt at 2026-05-09
 
-**Reason parked:** float copies + min: ee-gcc CSE's lwc1 f1,0x34 (14 insns); original reloads it twice (16 insns)
+**Reason parked:** permuter score-0 false positive: size mismatch
 
 Seed: `tough_nuts/func_001902D8/0902D8.c`
 

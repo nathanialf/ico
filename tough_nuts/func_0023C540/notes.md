@@ -3,7 +3,7 @@
 
 ## Attempt at 2026-05-09
 
-**Reason parked:** promoted permuter score-0 was too short (0x50 vs 0x58 expected)
+**Reason parked:** permuter score-0 false positive: size mismatch
 
 Seed: `tough_nuts/func_0023C540/13C540.c`
 

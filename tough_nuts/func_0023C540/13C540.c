@@ -1,3 +1,4 @@
+
 extern int func_0018CF60(int x);
 int func_0023C540(int *self)
 {
