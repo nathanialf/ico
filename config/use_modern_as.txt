@@ -18,3 +18,4 @@
 
 018A68    # func_00118A68 — VU0 inline asm with vrnext/vsubw/qmfc2.ni
 0986A8    # func_001986A8 — VU0 inline asm with vmulax/vmadday/vmaddaz
+0902D8    # func_001902D8 — c.lt.s/bc1tl FCC hazard nop only inserted by mips-linux-gnu-as
