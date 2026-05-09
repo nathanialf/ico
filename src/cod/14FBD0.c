@@ -1,3 +1,10 @@
-#include "common.h"
+#include "r5900.h"
 
-INCLUDE_ASM("asm/nonmatchings/cod/14FBD0", func_0024FBD0);
+extern void func_00100F18(int a0);
+
+void func_0024FBD0(int a0, int a1, int a2)
+{
+    func_00100F18(a2);
+    SYNC();
+    EI();
+}

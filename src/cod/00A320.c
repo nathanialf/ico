@@ -1,3 +1,4 @@
-#include "common.h"
-
-INCLUDE_ASM("asm/nonmatchings/cod/00A320", func_0010A320);
+int func_0010A320(char *self) {
+    char *sub = *(char **)(self + 0x15C);
+    return *(int *)(sub + 0x604);
+}

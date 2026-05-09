@@ -1,3 +1,3 @@
-#include "common.h"
-
-INCLUDE_ASM("asm/nonmatchings/cod/0BB800", func_001BB800);
+void func_001BB800(char *self, int val) {
+    *(int *)(*(char **)(self + 0x164) + 0x98) = val;
+}
