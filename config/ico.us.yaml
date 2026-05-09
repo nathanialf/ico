@@ -748,7 +748,7 @@ segments:
       - [0x041168, asm, cod/041168]
       - [0x0412B8, c,   cod/0412B8]            # func_001412B8: D_00632214=a0; tail call func_0025CD28(a0)
       - [0x0412C4, asm, cod/0412C4]
-      - [0x041340, asm, cod/041340]
+      - [0x041340, c,   cod/041340]            # func_00141340: v=fEB8(0x78000,&D_,0xFE); v<0?fE28(&D_):fE28(&D_,v,0x78000)
       - [0x04139C, asm, cod/04139C]
       - [0x0413A0, c,   cod/0413A0]            # func_001413A0: auto-batch
       - [0x0413A8, asm, cod/0413A8]
