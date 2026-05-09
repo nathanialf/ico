@@ -2196,7 +2196,7 @@ segments:
       - [0x13ABDC, asm, cod/13ABDC]
       - [0x13ABE0, c,   cod/13ABE0]            # func_0023ABE0: copy V16 D_0061C370 to local; fDF38(D_AE8, 0, &local, 0, 100.0f)
       - [0x13AC2C, asm, cod/13AC2C]
-      - [0x13AD08, asm, cod/13AD08]
+      - [0x13AD08, c,   cod/13AD08]            # func_0023AD08: copy V16 D_0061C380 to local; fDF38(D_AE8, 0, &local, 0, 100.0f)
       - [0x13AD54, asm, cod/13AD54]
       - [0x13AD58, c,   cod/13AD58]            # func_0023AD58: store-arg-discard
       - [0x13AD68, asm, cod/13AD68]
