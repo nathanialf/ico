@@ -811,6 +811,8 @@ segments:
       - [0x04B370, asm, cod/04B370]
       - [0x04B580, c,   cod/04B580]            # func_0014B580: rc=func_001E69D8(1); a0->164->670->1B8 = rc
       - [0x04B5B4, asm, cod/04B5B4]
+      - [0x04B708, asm, cod/04B708]
+      - [0x04B764, asm, cod/04B764]
       - [0x04B768, c,   cod/04B768]            # func_0014B768: promote: score-0 from permuter (parked tough_nut)
       - [0x04B7A4, asm, cod/04B7A4]
       - [0x04B840, c,   cod/04B840]            # func_0014B840: return sub_164->30 == 0x6B
