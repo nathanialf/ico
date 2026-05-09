@@ -2212,7 +2212,7 @@ segments:
       - [0x13C540, c  , cod/13C540]            # func_0023C540: 2-cmp range check (FCC nop via postprocess)
       - [0x13C598, c  , cod/13C598]            # func_0023C598: 2-cmp range check (FCC nop via postprocess)
       - [0x13C5F0, asm, cod/13C5F0]
-      - [0x13CC18, asm, cod/13CC18]
+      - [0x13CC18, c,   cod/13CC18]            # func_0023CC18: same cache-update pattern as 23C290 family
       - [0x13CC78, asm, cod/13CC78]
       - [0x13CCE0, c  , cod/13CCE0]            # func_0023CCE0: 1-cmp range check (FCC nop via postprocess)
       - [0x13CD1C, asm, cod/13CD1C]
