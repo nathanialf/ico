@@ -902,6 +902,7 @@ segments:
       - [0x05F514, asm, cod/05F514]
       - [0x05F550, c,   cod/05F550]            # func_0015F550: spill+reload wrapper (sibling of 0015F4B8) with a1=0
       - [0x05F578, asm, cod/05F578]
+      - [0x05F5D0, asm, cod/05F5D0]
       - [0x05F650, asm, cod/05F650]
       - [0x05F698, c,   cod/05F698]            # func_0015F698: store-arg-discard
       - [0x05F6A8, c,   cod/05F6A8]            # func_0015F6A8: == 0xF compare
