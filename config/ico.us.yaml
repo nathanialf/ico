@@ -2241,7 +2241,7 @@ segments:
       - [0x13E770, c,   cod/13E770]            # func_0023E770: tail call func_0023E578(a0, a1, max(a0->3C, a2))
       - [0x13E780, asm, cod/13E780]
       - [0x13EFB0, c,   cod/13EFB0]
-      - [0x13EFB8, asm, cod/13EFB8]
+      - [0x13EFB8, c,   cod/13EFB8]            # func_0023EFB8: HW reg writes (NOP() trailing)
       - [0x13EFF4, asm, cod/13EFF4]
       - [0x13F030, asm, cod/13F030]
       - [0x13F06C, asm, cod/13F06C]
