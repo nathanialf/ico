@@ -1464,6 +1464,8 @@ segments:
       - [0x0ADB84, asm, cod/0ADB84]
       - [0x0ADB88, c,   cod/0ADB88]            # func_001ADB88: rc=func_00240B70; return &D_002A31B8 + rc->C * 0x64
       - [0x0ADBBC, asm, cod/0ADBBC]
+      - [0x0ADCB0, c,   cod/0ADCB0]            # func_001ADCB0: 3-call wrapper: f1(self,&D1,4); f2(self,D2,0x2D80); tail f3(self,D3,0x1A0)
+      - [0x0ADD00, asm, cod/0ADD00]
       - [0x0AE188, c,   cod/0AE188]
       - [0x0AE1B8, asm, cod/0AE1B8]
       - [0x0AE20C, asm, cod/0AE20C]
