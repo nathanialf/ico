@@ -2359,7 +2359,7 @@ segments:
       - [0x145F18, asm, cod/145F18]
       - [0x145FD0, asm, cod/145FD0]
       - [0x146030, asm, cod/146030]
-      - [0x146918, asm, cod/146918]
+      - [0x146918, c,   cod/146918]            # func_00246918: f1A40(self); update p chain; f1A88(); self[1]=0; ret p
       - [0x146970, asm, cod/146970]
       - [0x146B38, asm, cod/146B38]
       - [0x146B78, c  , cod/146B78]            # func_00246B78: permuter score-0 (parked seed)
