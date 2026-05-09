@@ -840,7 +840,7 @@ segments:
       - [0x054444, asm, cod/054444]
       - [0x0545D8, c,   cod/0545D8]            # func_001545D8: extract bit 35 of D_006AAAE8
       - [0x0545F0, c,   cod/0545F0]            # func_001545F0: return D_00633CEC (unsigned char)
-      - [0x0545F8, asm, cod/0545F8]
+      - [0x0545F8, c,   cod/0545F8]            # func_001545F8: chain check D_00631AE4/AE8 valid+state==0x2D, return pa[0x150][2] else -1
       - [0x054644, asm, cod/054644]
       - [0x054648, c,   cod/054648]            # func_00154648: set bit 35 of long long array[1]
       - [0x054668, c  , cod/054668]
