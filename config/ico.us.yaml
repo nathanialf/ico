@@ -2419,7 +2419,7 @@ segments:
       - [0x14BBA8, c,   cod/14BBA8]            # func_0024BBA8: getset D_00717758[3]; sw a1 to [4]
       - [0x14BBC0, c,   cod/14BBC0]            # func_0024BBC0: signed a0?D_00717764[a0]:D_0071776C[a0]; sw a1, sw a2
       - [0x14BBEC, asm, cod/14BBEC]
-      - [0x14BBF0, asm, cod/14BBF0]
+      - [0x14BBF0, c,   cod/14BBF0]            # func_0024BBF0: signed a0 selects D_00717764/D_0071776C; *base[a0*8] = 0
       - [0x14BC18, asm, cod/14BC18]
       - [0x14BD50, c  , cod/14BD50]
       - [0x14BD8C, asm, cod/14BD8C]

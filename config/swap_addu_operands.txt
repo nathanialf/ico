@@ -24,3 +24,4 @@
 105B30   # func_00205B30: D_004CAEC0[idx*0x34 + 0x28] = val (write)
 05F228   # func_0015F228: D_00292540[idx*0x18 + 0x8]  = val (write)
 14BBC0   # func_0024BBC0: D_00717764[]/D_0071776C[] indexed store
+14BBF0   # func_0024BBF0: D_00717764/D_0071776C indexed clear
