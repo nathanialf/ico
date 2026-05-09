@@ -2040,7 +2040,7 @@ segments:
       - [0x111600, c,   cod/111600]            # func_00211600: store-arg-discard
       - [0x111610, c,   cod/111610]            # func_00211610: store-arg-discard
       - [0x111620, asm, cod/111620]
-      - [0x111780, asm, cod/111780]
+      - [0x111780, c,   cod/111780]            # func_00211780: f7B230(0x69)?: f7A0(0x55,0,-1) : f5B30(0x1A,0); f7A0(0x55,0,0)
       - [0x1117D0, asm, cod/1117D0]
       - [0x1128F8, c,   cod/1128F8]            # func_002128F8: store-arg-discard
       - [0x112908, asm, cod/112908]
