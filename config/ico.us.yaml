@@ -695,6 +695,7 @@ segments:
       - [0x03F3F0, asm, cod/03F3F0]
       - [0x03F6B8, c,   cod/03F6B8]            # func_0013F6B8: 1-call+cond-tail-call (void+return TCO)
       - [0x03F6FC, asm, cod/03F6FC]
+      - [0x03F700, asm, cod/03F700]
       - [0x03F778, c,   cod/03F778]            # func_0013F778: wrapper for func_0013F3F0(a, a, b, c, d, 0x1800)
       - [0x03F7A4, asm, cod/03F7A4]
       - [0x03F7A8, asm, cod/03F7A8]
