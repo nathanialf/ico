@@ -12,7 +12,7 @@ extern int   func_0013A0F8(int a0, int a1, char *file, int line);
 
 int func_001F6CB0(int size)
 {
-    int rv = 0;
+    register int rv __asm__("$18") = 0;
     if (D_00633780 == -1) {
         func_001A6E28(D_0061A890);
         func_001AD768(D_0061A8A8, 0x174);

@@ -22,10 +22,10 @@ int func_0023D0F0(int *self)
     v = func_0018CF60((int) new_var);
     f = func_001F5298(v);
     f = (f * 0.5f) + 0.5f;
-    D_00633B48 = f;
   }
   else
   {
+    D_00633B48 = f;
     f = D_00633B48;
   }
   *((float *) (((char *) new_var) + 0x18)) = f;

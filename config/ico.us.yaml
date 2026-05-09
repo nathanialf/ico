@@ -1993,6 +1993,8 @@ segments:
       - [0x105048, asm, cod/105048]
       - [0x105A78, c,   cod/105A78]            # func_00205A78: D_004CAEC0[idx*0x34] +0x8 (la mult lw)
       - [0x105A94, asm, cod/105A94]
+      - [0x105AD8, c,   cod/105AD8]            # func_00205AD8: if(!self) return 0; log(D,self); return which ? self[3] : self[2]
+      - [0x105B2C, asm, cod/105B2C]
       - [0x105B30, c,   cod/105B30]            # func_00205B30: D_004CAEC0[idx*0x34] +0x28 = a1 (la mult sw)
       - [0x105B4C, asm, cod/105B4C]
       - [0x105B50, c,   cod/105B50]            # func_00205B50: promote: score-0 from permuter (parked tough_nut)
