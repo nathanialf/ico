@@ -100,4 +100,11 @@
  * across the directive pair without emitting anything. */
 #define NOREORDER_BARRIER()         __asm__ __volatile__(".set noreorder\n\t.set reorder" : : : "memory")
 
+/* Emit one literal `nop`.  Use when the original codegen leaves the
+ * `jr ra` delay slot empty (gas reorder in the original would not
+ * fold a body store into the delay slot, but ee-gcc 2.9 will).  Place
+ * AT THE END of the function body to displace a final body store out
+ * of the jr-delay slot. */
+#define NOP()                       __asm__ __volatile__("nop")
+
 #endif /* MATCHING_H */

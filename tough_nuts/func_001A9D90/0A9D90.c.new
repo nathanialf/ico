@@ -1,8 +1,0 @@
-#include "matching.h"
-
-void func_001A9D90(int a)
-{
-    *(volatile int *)0x10000800 = 0;
-    *(volatile int *)0x10000810 = a | 0x80;
-    DEFEAT_TCO();
-}

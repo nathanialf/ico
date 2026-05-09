@@ -1428,7 +1428,7 @@ segments:
       - [0x0A7838, c,   cod/0A7838]            # func_001A7838: tail call func_00264DF8(a0, &D_00632B00)
       - [0x0A7844, asm, cod/0A7844]
       - [0x0A9D88, c,   cod/0A9D88]            # func_001A9D88: D_00632C74 = 0
-      - [0x0A9D90, asm, cod/0A9D90]
+      - [0x0A9D90, c,   cod/0A9D90]            # func_001A9D90: GIF_PATH? hardcoded HW writes
       - [0x0A9DB4, asm, cod/0A9DB4]
       - [0x0A9F20, c,   cod/0A9F20]            # func_001A9F20: D_00632A34 = val
       - [0x0A9F28, asm, cod/0A9F28]
