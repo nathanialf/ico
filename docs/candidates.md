@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-09 06:56:53 UTC
+- Generated: 2026-05-09 06:59:43 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4305 total in `asm/cod/*.s`, 156 parked, 4149 considered
+- Functions: 4304 total in `asm/cod/*.s`, 156 parked, 4148 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -134,7 +134,7 @@ _0 total in this bucket; showing top 0._
 <a id="wrap-gp-1jal"></a>
 ## 1 jal + gp_rel %gp_rel(D), no VU (D[0] + arg passthrough)
 
-_87 total in this bucket; showing top 50._
+_86 total in this bucket; showing top 50._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
@@ -153,7 +153,6 @@ _87 total in this bucket; showing top 50._
 | `func_001101E0` | 0x200 | 128 | 1 |  | `addiu addiu sd addiu` | asm/cod/00F5D4.s:842 |
 | `func_001FAAB0` | 0x3E4 | 249 | 1 |  | `addiu sd sd daddu` | asm/cod/0FAAB0.s:13 |
 | `func_00205498` | 0x7C | 31 | 1 |  | `addiu addiu mult lui` | asm/cod/105048.s:367 |
-| `func_00240BD0` | 0x80 | 32 | 1 |  | `addiu lw sd sd` | asm/cod/140B88.s:43 |
 | `func_0012FF58` | 0x8C | 35 | 1 |  | `addiu sd sd jal` | asm/cod/02FE94.s:79 |
 | `func_0012FD70` | 0x98 | 38 | 1 |  | `addiu sd sd daddu` | asm/cod/02FD6C.s:18 |
 | `func_00130128` | 0xAC | 43 | 1 |  | `addiu sd jal nop` | asm/cod/02FFF0.s:105 |
@@ -188,6 +187,7 @@ _87 total in this bucket; showing top 50._
 | `func_00102680` | 0x10C | 67 | 1 |  | `lw addiu addiu addiu` | asm/cod/0024F8.s:137 |
 | `func_001AFB98` | 0x12C | 75 | 1 |  | `addiu addiu mult lui` | asm/cod/0AFB98.s:13 |
 | `func_00110580` | 0x210 | 132 | 1 |  | `addiu addiu sd addiu` | asm/cod/00F5D4.s:1094 |
+| `func_0023C0E8` | 0x60 | 24 | 1 |  | `addiu lwc1 sd sd` | asm/cod/13B518.s:923 |
 
 <a id="cond-deref-leaf"></a>
 ## Leaf (no jal) with branch, no VU (cond-return / deref+if)

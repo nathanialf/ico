@@ -2261,6 +2261,8 @@ segments:
       - [0x140B68, c,   cod/140B68]            # func_00240B68: return D_00633B98
       - [0x140B70, c,   cod/140B70]            # func_00240B70: D_00712CC0[idx] (la-macro lw)
       - [0x140B88, asm, cod/140B88]
+      - [0x140BD0, c,   cod/140BD0]            # func_00240BD0: scan D_00712CC0[0..D_00633B98) for self; for each match, log via func_001A6E28(&D,i)
+      - [0x140C50, asm, cod/140C50]
       - [0x141A00, c,   cod/141A00]            # func_00241A00: wrap func_001A6E28(&D_0062E020)
       - [0x141A20, asm, cod/141A20]
       - [0x141AE8, c  , cod/141AE8]            # func_00241AE8: permuter score-0 (parked seed)
