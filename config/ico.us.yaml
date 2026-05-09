@@ -1108,7 +1108,7 @@ segments:
       - [0x07E5E0, c,   cod/07E5E0]            # func_0017E5E0
       - [0x07E5FC, asm, cod/07E5FC]
       - [0x07E600, c,   cod/07E600]            # func_0017E600
-      - [0x07E620, asm, cod/07E620]
+      - [0x07E620, c,   cod/07E620]            # func_0017E620: p=fA6B8(a0); p?p[2]^b<1:0
       - [0x07E65C, asm, cod/07E65C]
       - [0x07E838, asm, cod/07E838]
       - [0x07E86C, asm, cod/07E86C]
