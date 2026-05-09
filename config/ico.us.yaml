@@ -984,6 +984,8 @@ segments:
       - [0x06A154, asm, cod/06A154]
       - [0x06A1B8, c,   cod/06A1B8]            # func_0016A1B8: rebase 2 ptr offsets to abs
       - [0x06A1D4, asm, cod/06A1D4]
+      - [0x06A240, c,   cod/06A240]            # func_0016A240: loop 4 iters: log(D,i); i++; f(p); p+=0x10
+      - [0x06A29C, asm, cod/06A29C]
       - [0x06A2A0, c,   cod/06A2A0]            # func_0016A2A0: sqrt(x^2+y^2)
       - [0x06A2C4, asm, cod/06A2C4]
       - [0x06A2C8, c,   cod/06A2C8]            # func_0016A2C8: sqrt(x*x + y*y + z*z) via func_00105FE0
