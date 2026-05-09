@@ -1,3 +1,7 @@
-#include "common.h"
+extern void *func_0018CF60(void);
 
-INCLUDE_ASM("asm/nonmatchings/cod/13CCE0", func_0023CCE0);
+int func_0023CCE0(void) {
+    float *p = (float *)func_0018CF60();
+    if (p[1] > -1000.0f) return 0;
+    return -1;
+}

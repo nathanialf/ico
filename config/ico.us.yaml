@@ -2204,12 +2204,12 @@ segments:
       - [0x13C1C0, asm, cod/13C1C0]
       - [0x13C290, asm, cod/13C290]
       - [0x13C2F0, asm, cod/13C2F0]
-      - [0x13C540, c  , cod/13C540]            # func_0023C540: permuter score-0 (parked seed)
-      - [0x13C598, c  , cod/13C598]            # func_0023C598: permuter score-0 (parked seed)
+      - [0x13C540, c  , cod/13C540]            # func_0023C540: 2-cmp range check (FCC nop via postprocess)
+      - [0x13C598, c  , cod/13C598]            # func_0023C598: 2-cmp range check (FCC nop via postprocess)
       - [0x13C5F0, asm, cod/13C5F0]
       - [0x13CC18, asm, cod/13CC18]
       - [0x13CC78, asm, cod/13CC78]
-      - [0x13CCE0, c  , cod/13CCE0]            # func_0023CCE0: permuter score-0 (parked seed)
+      - [0x13CCE0, c  , cod/13CCE0]            # func_0023CCE0: 1-cmp range check (FCC nop via postprocess)
       - [0x13CD1C, asm, cod/13CD1C]
       - [0x13D030, c,   cod/13D030]            # func_0023D030: copy 2 sdata floats to *self->34, return 1
       - [0x13D04C, asm, cod/13D04C]

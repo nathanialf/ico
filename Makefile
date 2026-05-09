@@ -189,8 +189,9 @@ SHARED_SP_RESTORE_TXT := config/shared_sp_restore.txt
 SHARED_JR_RESTORE_TXT := config/shared_jr_restore.txt
 LA_SD_INTERLEAVE_TXT := config/la_sd_interleave.txt
 EARLY_BODY_SWAP_TXT := config/early_body_swap.txt
+FCC_NOP_TXT := config/fcc_nop.txt
 
-$(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.c $(EXTRA_CFLAGS_TXT) $(EXTRA_CFLAGS_LOOKUP) $(USE_MODERN_AS_TXT) $(SWAP_ADDU_TXT) $(COALESCE_V1_V0_TXT) $(SWAP_SW_PAIR_TXT) $(NO_TRAILING_NOP_TXT) $(LA_SD_INTERLEAVE_TXT) $(EARLY_BODY_SWAP_TXT)
+$(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.c $(EXTRA_CFLAGS_TXT) $(EXTRA_CFLAGS_LOOKUP) $(USE_MODERN_AS_TXT) $(SWAP_ADDU_TXT) $(COALESCE_V1_V0_TXT) $(SWAP_SW_PAIR_TXT) $(NO_TRAILING_NOP_TXT) $(LA_SD_INTERLEAVE_TXT) $(EARLY_BODY_SWAP_TXT) $(FCC_NOP_TXT)
 	@mkdir -p $(@D)
 	$(CC) -B $(EEGCC_LIB) $(CFLAGS) $$($(EXTRA_CFLAGS_LOOKUP) $<) -o $(@:.o=.s) $<
 	@# If listed in $(NO_TRAILING_NOP_TXT), wrap the final `j $$31` with
@@ -220,6 +221,11 @@ $(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.c $(EXTRA_CFLAGS_TXT) $(EXTRA_CFLAGS_LOOKUP) 
 	@# scheduled inside the la pair rather than after it.
 	@if grep -qE "^[[:space:]]*$(notdir $(basename $<))([[:space:]]|$$|#)" $(LA_SD_INTERLEAVE_TXT) 2>/dev/null; then \
 	    .venv/bin/python tools/postprocess_la_sd_interleave.py $(@:.o=.s); \
+	fi
+	@# If listed in $(FCC_NOP_TXT), promote the `#nop` after c.{lt,le,eq}.{s,d}
+	@# to a real `nop` (ee-as 2.10 doesn't insert FCC delay-slot nops).
+	@if grep -qE "^[[:space:]]*$(notdir $(basename $<))([[:space:]]|$$|#)" $(FCC_NOP_TXT) 2>/dev/null; then \
+	    .venv/bin/python tools/postprocess_fcc_nop.py $(@:.o=.s); \
 	fi
 	@# If listed in $(EARLY_BODY_SWAP_TXT), swap `sd $$31, OFF($$sp)` with the
 	@# immediately-following inline-asm `#APP` first instruction.  Used when
