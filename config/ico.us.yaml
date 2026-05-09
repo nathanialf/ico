@@ -682,6 +682,8 @@ segments:
       - [0x03E190, c,   cod/03E190]            # func_0013E190: promote: score-0 from permuter (parked tough_nut)
       - [0x03E1D8, c,   cod/03E1D8]            # func_0013E1D8: promote: score-0 from permuter (parked tough_nut)
       - [0x03E220, asm, cod/03E220]
+      - [0x03E4D0, asm, cod/03E4D0]
+      - [0x03E548, asm, cod/03E548]
       - [0x03EE58, c,   cod/03EE58]            # func_0013EE58: tail call func_0013EDB0 passthrough
       - [0x03EE60, asm, cod/03EE60]
       - [0x03F0A0, c,   cod/03F0A0]            # func_0013F0A0: promote: score-0 from permuter (parked tough_nut)
