@@ -1697,6 +1697,7 @@ segments:
       - [0x0CBD78, c,   cod/0CBD78]
       - [0x0CBD80, c,   cod/0CBD80]
       - [0x0CBD88, asm, cod/0CBD88]
+      - [0x0CBE20, c,   cod/0CBE20]            # func_001CBE20: f12->f20; gp_rel sets D_0063330C/14=1, D_00633310=0, D_00633318=0; func_00105F00(D_004C09A0, a0); D_0063331C=f20; D_00633318=1; D_00633314=0
       - [0x0CBE78, c,   cod/0CBE78]            # func_001CBE78
       - [0x0CBE84, asm, cod/0CBE84]
       - [0x0CCA70, c,   cod/0CCA70]            # func_001CCA70: f1(self); f2(self, -D1); tail f3(self, -D2)
