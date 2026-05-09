@@ -525,7 +525,7 @@ segments:
       - [0x01EE6C, asm, cod/01EE6C]
       - [0x01EE70, c,   cod/01EE70]            # func_0011EE70: tail call func_00118C68(a0, 1, 2, a1, a2)
       - [0x01EE84, asm, cod/01EE84]
-      - [0x01FCD8, asm, cod/01FCD8]
+      - [0x01FCD8, c,   cod/01FCD8]            # func_0011FCD8: idx?fAA8(2,v,6); tail fB8B8():0
       - [0x01FD24, asm, cod/01FD24]
       - [0x01FF30, asm, cod/01FF30]
       - [0x01FF60, asm, cod/01FF60]
