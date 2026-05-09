@@ -667,7 +667,7 @@ segments:
       - [0x03D540, c,   cod/03D540]            # func_0013D540: auto-batch
       - [0x03D548, c,   cod/03D548]            # func_0013D548: auto-batch
       - [0x03D550, asm, cod/03D550]
-      - [0x03D8A0, asm, cod/03D8A0]
+      - [0x03D8A0, c,   cod/03D8A0]            # func_0013D8A0: a0 ?: D_006A6F30[func_00100410()]; return a0[6]
       - [0x03D8DC, asm, cod/03D8DC]
       - [0x03D8E0, asm, cod/03D8E0]
       - [0x03D924, asm, cod/03D924]
