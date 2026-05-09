@@ -882,7 +882,8 @@ segments:
       - [0x05EE78, asm, cod/05EE78]
       - [0x05EED0, asm, cod/05EED0]
       - [0x05EF40, c,   cod/05EF40]            # func_0015EF40
-      - [0x05EF50, asm, cod/05EF50]
+      - [0x05EF50, c,   cod/05EF50]            # func_0015EF50: s=self->p; v=fE29E8(s+0x610); s[0x120]=v; ret v[3]!=0
+      - [0x05EF88, asm, cod/05EF88]
       - [0x05F208, c,   cod/05F208]            # func_0015F208: lwu via inline asm (ee-gcc 2.9 doesn't emit lwu natively)
       - [0x05F224, asm, cod/05F224]
       - [0x05F228, c,   cod/05F228]            # func_0015F228: D_00292540[idx*0x18] +0x8 = a1 (la mult sw)
