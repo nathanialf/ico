@@ -267,6 +267,15 @@ if ! grep -qE "^[[:space:]]*glabel[[:space:]]+${FUNC_NAME}([[:space:]]|$)" "${TA
     exit 1
 fi
 
+# Rewrite splat's bare-paren `(SYM) /* gp_rel: (SYM) */` to
+# `%gp_rel(SYM)($gp)` form. modern gas (mips-linux-gnu-as) under
+# `.set noat` rejects the bare-paren macro; ee-as 2.96 accepts it.
+# This rewrite is local to the permuter's target.s — we do NOT touch
+# the source asm/nonmatchings/ files (they're INCLUDE_ASM'd into src/
+# and assembled by ee-as 2.96, which needs the bare-paren form).
+sed -i -E 's|\(([A-Za-z_][A-Za-z0-9_]*)\)([[:space:]]*/\*[[:space:]]*gp_rel:[[:space:]]*\(\1\))|%gp_rel(\1)($gp)\2|g' \
+    "${TARGET_S}"
+
 # Assemble target.s -> target.o. Same flags as quick_diff.sh's ASFLAGS_QD.
 ASFLAGS_QD="${ASFLAGS_QD:--EL -march=r5900 -mabi=eabi -G 8 -no-pad-sections -Iinclude}"
 TARGET_O="${RUN_DIR}/target.o"

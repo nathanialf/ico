@@ -12,7 +12,7 @@ glabel func_001E8EB8
     /* E8EC8 001E8EC8 2D908000 */  daddu      $18, $4, $0
     /* E8ECC 001E8ECC 1000B1FF */  sd         $17, 0x10($29)
     /* E8ED0 001E8ED0 2D88A000 */  daddu      $17, $5, $0
-    /* E8ED4 001E8ED4 2097848F */  lw         $4, %gp_rel(D_00632010)($gp) /* gp_rel: (D_00632010) */
+    /* E8ED4 001E8ED4 2097848F */  lw         $4, (D_00632010) /* gp_rel: (D_00632010) */
     /* E8ED8 001E8ED8 0000B0FF */  sd         $16, 0x0($29)
     /* E8EDC 001E8EDC 04000524 */  addiu      $5, $0, 0x4
     /* E8EE0 001E8EE0 3000BFFF */  sd         $31, 0x30($29)

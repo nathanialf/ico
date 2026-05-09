@@ -80,19 +80,23 @@ def patch_gp_rel_per_function() -> int:
 
     Idempotent: skips lines already containing %gp_rel.
     """
-    matchings_dirs = [REPO_ROOT / "asm" / "matchings", REPO_ROOT / "asm" / "nonmatchings"]
+    # Only patch asm/matchings/ — asm/nonmatchings/ files are pulled into
+    # src/ via INCLUDE_ASM and assembled by ee-as 2.96, which accepts the
+    # bare-paren form natively but rejects %gp_rel(SYM)($gp). Modern gas
+    # (which assembles asm/matchings/ via the splat per-function path)
+    # needs the %gp_rel rewrite.
+    matchings = REPO_ROOT / "asm" / "matchings"
+    if not matchings.exists():
+        return 0
     changed = 0
-    for matchings in matchings_dirs:
-        if not matchings.exists():
+    for path in matchings.rglob("*.s"):
+        text = path.read_text()
+        if "%gp_rel(" in text and " gp_rel: (" not in text:
             continue
-        for path in matchings.rglob("*.s"):
-            text = path.read_text()
-            if "%gp_rel(" in text and " gp_rel: (" not in text:
-                continue
-            new = _GPREL_RE.sub(r"%gp_rel(\1)($gp) /* gp_rel: (\1) */", text)
-            if new != text:
-                path.write_text(new)
-                changed += 1
+        new = _GPREL_RE.sub(r"%gp_rel(\1)($gp) /* gp_rel: (\1) */", text)
+        if new != text:
+            path.write_text(new)
+            changed += 1
     return changed
 
 
@@ -113,25 +117,24 @@ def patch_vu0_special_regs_per_function() -> int:
 
     Idempotent: the negative-lookbehind on `$` prevents double-prefix.
     """
-    matchings_dirs = [REPO_ROOT / "asm" / "matchings", REPO_ROOT / "asm" / "nonmatchings"]
+    matchings = REPO_ROOT / "asm" / "matchings"
+    if not matchings.exists():
+        return 0
     changed = 0
-    for matchings in matchings_dirs:
-        if not matchings.exists():
-            continue
-        for path in matchings.rglob("*.s"):
-            text = path.read_text()
-            # Only touch lines containing a v* mnemonic or COP2 move
-            # (cfc2/ctc2/qmfc2/qmtc2). This avoids any chance of clobbering
-            # something else that happens to spell "ACC" or "Q".
-            new_lines = []
-            for line in text.splitlines(keepends=True):
-                if re.search(r"\b(v[a-z]+(\.\w+)?|cfc2(\.ni)?|ctc2(\.ni)?|qmfc2(\.ni)?|qmtc2(\.ni)?)\b", line):
-                    line = _VU_SPECIAL_RE.sub(r"$\1", line)
-                new_lines.append(line)
-            new = "".join(new_lines)
-            if new != text:
-                path.write_text(new)
-                changed += 1
+    for path in matchings.rglob("*.s"):
+        text = path.read_text()
+        # Only touch lines containing a v* mnemonic or COP2 move
+        # (cfc2/ctc2/qmfc2/qmtc2). This avoids any chance of clobbering
+        # something else that happens to spell "ACC" or "Q".
+        new_lines = []
+        for line in text.splitlines(keepends=True):
+            if re.search(r"\b(v[a-z]+(\.\w+)?|cfc2(\.ni)?|ctc2(\.ni)?|qmfc2(\.ni)?|qmtc2(\.ni)?)\b", line):
+                line = _VU_SPECIAL_RE.sub(r"$\1", line)
+            new_lines.append(line)
+        new = "".join(new_lines)
+        if new != text:
+            path.write_text(new)
+            changed += 1
     return changed
 
 
