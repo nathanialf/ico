@@ -1,3 +1,3 @@
-#include "common.h"
-
-INCLUDE_ASM("asm/nonmatchings/cod/151E30", func_00251E30);
+void func_00251E30(char *self) {
+    *(int *)(self + 0xC) = *(int *)(self + 0x8);
+}

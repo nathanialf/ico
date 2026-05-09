@@ -1,3 +1,6 @@
-#include "common.h"
+#include "matching.h"
 
-INCLUDE_ASM("asm/nonmatchings/cod/1608E0", func_002608E0);
+float func_002608E0(float x)
+{
+    FABSF_BIT_TWIDDLE(x);
+}

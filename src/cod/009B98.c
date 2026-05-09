@@ -1,3 +1,3 @@
-#include "common.h"
-
-INCLUDE_ASM("asm/nonmatchings/cod/009B98", func_00109B98);
+void *func_00109B98(char *self) {
+    return *(char **)(self + 0x15C) + 0x680;
+}
