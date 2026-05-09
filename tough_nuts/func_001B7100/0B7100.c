@@ -16,8 +16,9 @@ int func_001B7100(int idx)
   new_var4 = new_var3;
   if (new_a < ((int *) (((char *) D_005F2FB8) + (101 * (2 * (idx * 2)))))[0x130 / 4])
   {
+    new_var4 = D_0063314C;
     new_var = p;
-    new_a = D_0063314C - 1;
+    new_a = new_var4 - 1;
     if (1)
     {
     }

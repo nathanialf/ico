@@ -12,3 +12,17 @@ Disassembly excerpt:
 ```
 (no asm/cod/*.s found for func_00101AA0; check asm/matchings/cod/001AA0/)
 ```
+
+---
+
+## Attempt at 2026-05-09
+
+**Reason parked:** syscall wrapper: schedule of sw v0,12(sp) into delay slot doesn't match (close but final 5-insn block differs)
+
+Seed: `tough_nuts/func_00101AA0/001AA0.c.new`
+
+Disassembly excerpt:
+
+```
+(no asm/cod/*.s found for func_00101AA0; check asm/matchings/cod/001AA0/)
+```

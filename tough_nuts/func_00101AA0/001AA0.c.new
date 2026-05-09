@@ -1,0 +1,15 @@
+#include "matching.h"
+
+extern char D_006349E0[];
+extern void func_00100950(int sel, int *args);
+
+void func_00101AA0(unsigned short a, int b, int c)
+{
+    int s[4];
+    s[1] = b;
+    s[0] = a;
+    s[3] = (int)D_006349E0 | 0x20000000;
+    s[2] = c;
+    func_00100950(1, s);
+    KEEP_LIVE(s);
+}
