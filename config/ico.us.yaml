@@ -1770,7 +1770,8 @@ segments:
       - [0x0D4DA8, c,   cod/0D4DA8]            # func_001D4DA8: promote-test: subagent seed (unscored, may match)
       - [0x0D4DCC, asm, cod/0D4DCC]
       - [0x0D4DD0, c,   cod/0D4DD0]            # func_001D4DD0: a0 ? D_00633F1C : D_00633F18
-      - [0x0D4DE8, asm, cod/0D4DE8]
+      - [0x0D4DE8, c,   cod/0D4DE8]            # func_001D4DE8: loop body
+      - [0x0D4E30, asm, cod/0D4E30]
       - [0x0D4E70, c,   cod/0D4E70]            # func_001D4E70: return p<self[2]?0:-1 (p=self+0x10)
       - [0x0D4E88, asm, cod/0D4E88]
       - [0x0DC8D8, c,   cod/0DC8D8]            # func_001DC8D8: func_0013FF88(D_0063347C, 0x18, D_0063347C); tail call func_00105F00(D_00633F3C+0x150, D_00633F3C)
