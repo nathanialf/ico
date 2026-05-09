@@ -282,7 +282,7 @@ segments:
       - [0x002E08, asm, cod/002E08]
       - [0x003110, c,   cod/003110]            # func_00103110: tail call func_00105F00(a0, *(a1+0x15C)+0x130)
       - [0x00311C, asm, cod/00311C]
-      - [0x004A38, c  , cod/004A38]            # func_00104A38: permuter score-0 (parked seed)
+      - [0x004A38, c  , cod/004A38]            # func_00104A38: returns &D_0065F940
       - [0x004A48, asm, cod/004A48]
       - [0x004EF0, c,   cod/004EF0]            # func_00104EF0: D_00631B40=0; 3-call seq: 243BD8, 0E9F8, tail 10D520
       - [0x004F1C, asm, cod/004F1C]

@@ -1,3 +1,5 @@
-#include "common.h"
+extern int D_0065F940[];
 
-INCLUDE_ASM("asm/nonmatchings/cod/004A38", func_00104A38);
+int *func_00104A38(void) {
+    return D_0065F940;
+}
