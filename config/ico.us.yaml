@@ -1208,7 +1208,8 @@ segments:
       - [0x08CEF0, c,   cod/08CEF0]            # func_0018CEF0: return D_006D06C8 < 2
       - [0x08CF00, c,   cod/08CF00]            # func_0018CF00: func_0018CF00: if (D_00633D90 != 3): copy 3 floats from src to D_006D0680 and D_006D06A0
       - [0x08CF58, c,   cod/08CF58]
-      - [0x08CF60, asm, cod/08CF60]
+      - [0x08CF60, c,   cod/08CF60]            # func_0018CF60: D_00632730 ? &D_006D0680 : 0
+      - [0x08CF80, asm, cod/08CF80]
       - [0x08CFD0, c,   cod/08CFD0]            # func_0018CFD0: D_00633D8D = 1, return 1
       - [0x08CFDC, asm, cod/08CFDC]
       - [0x08CFE0, c,   cod/08CFE0]            # func_0018CFE0: D_00632704 = 1, return 1
