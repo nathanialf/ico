@@ -1027,7 +1027,7 @@ segments:
       - [0x078908, c,   cod/078908]            # func_00178908: wrap func_00176DE0(a0, a1, a2, 0)
       - [0x078924, asm, cod/078924]
       - [0x078928, c,   cod/078928]
-      - [0x078930, asm, cod/078930]
+      - [0x078930, c,   cod/078930]            # func_00178930: idx=self[0x64]; idx>=0?{f6E28(&D_); f5498(D_004CC1E0[idx*0x40+0x20]); self[0x64]=-1}
       - [0x07898C, asm, cod/07898C]
       - [0x079040, c,   cod/079040]            # func_00179040: empty 0x30 frame
       - [0x07904C, asm, cod/07904C]
