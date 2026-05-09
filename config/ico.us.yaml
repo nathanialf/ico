@@ -571,7 +571,7 @@ segments:
       - [0x0334C8, c  , cod/0334C8]            # func_001334C8
       - [0x033500, c,   cod/033500]            # func_00133500: sw_arg +0x110
       - [0x033508, c,   cod/033508]            # func_00133508: return D_00633C7C
-      - [0x033510, asm, cod/033510]
+      - [0x033510, c,   cod/033510]            # func_00133510: v=fDAB8(a2>>11,a1,1,&buf); buf?fE28(&D_); ret v<<11
       - [0x033570, asm, cod/033570]
       - [0x0335CC, asm, cod/0335CC]
       - [0x035BB8, asm, cod/035BB8]
