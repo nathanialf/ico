@@ -404,7 +404,7 @@ segments:
       - [0x00DE40, asm, cod/00DE40]
       - [0x00E928, c   ,   cod/00E928]            # VU0 wrapper (vu0.h macros)
       - [0x00E950, asm, cod/00E950]
-      - [0x00EC08, asm, cod/00EC08]
+      - [0x00EC08, c,   cod/00EC08]            # func_0010EC08: short(-call(f13)) if f12<0 else call(f13)
       - [0x00EC4C, asm, cod/00EC4C]
       - [0x00EC50, c,   cod/00EC50]            # func_0010EC50: sw a0 to deref + tail call func_0011BF40
       - [0x00EC60, c,   cod/00EC60]            # func_0010EC60: auto-batch
