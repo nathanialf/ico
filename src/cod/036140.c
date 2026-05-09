@@ -9,7 +9,7 @@ void func_00136140(int *self)
             func_00136060(p);
             p = next;
         } while (p != 0);
-        self[0x4 / 4] = 0;
-        self[0] = 0;
+        ((volatile int *)self)[1] = 0;
+        ((volatile int *)self)[0] = 0;
     }
 }
