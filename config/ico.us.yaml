@@ -675,7 +675,7 @@ segments:
       - [0x03D944, asm, cod/03D944]
       - [0x03D9C8, c,   cod/03D9C8]            # func_0013D9C8: a0?a0[12]:f410(); tail f470
       - [0x03DA00, asm, cod/03DA00]
-      - [0x03DB60, asm, cod/03DB60]
+      - [0x03DB60, c,   cod/03DB60]            # func_0013DB60: v=f0540(self[12]); v<0?(f6E28(&D_,self[12]); v):0
       - [0x03DBB0, asm, cod/03DBB0]
       - [0x03DD88, c,   cod/03DD88]            # func_0013DD88: func_002641D8(&D_006A93D0, 0, 0x110)
       - [0x03DD9C, asm, cod/03DD9C]
