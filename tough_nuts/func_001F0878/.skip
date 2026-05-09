@@ -1,0 +1,3 @@
+permuter score-0 was a false positive: stack frame size differs (-0x30 vs -0x40).
+Permuter cannot resize the frame via random C mutation; needs a structural rewrite
+that adds a 16-byte spill local. Skip until a manual structural attempt is queued.

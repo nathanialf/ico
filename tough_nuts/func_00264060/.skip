@@ -1,0 +1,4 @@
+permuter score-0 was a false positive: byte mismatch versus expected (varargs
+forwarder; ee-gcc 2.9 __builtin_next_arg emits post-frame pointer where target
+wants `addiu a2, sp, 0x50`). Skip until a varargs idiom is found that emits the
+target sp-relative address.
