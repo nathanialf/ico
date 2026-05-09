@@ -5,7 +5,7 @@
 nonmatching func_0014A0D8, 0x24
 
 glabel func_0014A0D8
-    /* 4A0D8 0014A0D8 F891828F */  lw         $2, (D_00631AE8) /* gp_rel: (D_00631AE8) */
+    /* 4A0D8 0014A0D8 F891828F */  lw         $2, %gp_rel(D_00631AE8)($gp) /* gp_rel: (D_00631AE8) */
     /* 4A0DC 0014A0DC 03004054 */  bnel       $2, $0, .L0014A0EC
     /* 4A0E0 0014A0E0 6401438C */   lw        $3, 0x164($2)
     /* 4A0E4 0014A0E4 0800E003 */  jr         $31

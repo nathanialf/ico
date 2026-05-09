@@ -205,8 +205,14 @@ if [ -z "${SEED_C}" ] || [ ! -f "${SEED_C}" ]; then
 fi
 
 # --- Resolve target asm -----------------------------------------------------
-# Prefer per-function .s under asm/matchings/cod/<file_off>/, fall back to
-# slicing the function block out of the segment-level asm/cod/<seg>.s.
+# Search order:
+#   1. asm/matchings/cod/<file_off>/<func>.s — splat per-function emit when
+#      yaml entry is `c` for a single-function file_off.
+#   2. asm/nonmatchings/<TU>/<func>.s — INCLUDE_ASM-style per-function .s
+#      shipped under a TU-named directory (e.g. Basic/, set in
+#      src/<TU>.c via `INCLUDE_ASM("asm/nonmatchings/<TU>", func_X)`).
+#   3. asm/cod/<seg>.s — fall back to slicing the function block out of
+#      the segment-level multi-function asm.
 RUN_DIR="${RUNS_DIR}/${FUNC_NAME}"
 mkdir -p "${RUN_DIR}"
 TARGET_S="${RUN_DIR}/target.s"
@@ -214,13 +220,24 @@ TARGET_S="${RUN_DIR}/target.s"
 PER_FUNC_S="${PROJECT_ROOT}/asm/matchings/cod/${FILE_OFF_HEX}/${FUNC_NAME}.s"
 SEG_S=""
 if [ ! -f "${PER_FUNC_S}" ]; then
+    # Try INCLUDE_ASM TU dirs: asm/nonmatchings/<TU>/<func>.s.
+    NONMATCH_S="$(find "${PROJECT_ROOT}/asm/nonmatchings" -maxdepth 3 \
+                       -name "${FUNC_NAME}.s" 2>/dev/null | head -1)"
+    if [ -n "${NONMATCH_S}" ] && [ -f "${NONMATCH_S}" ]; then
+        PER_FUNC_S="${NONMATCH_S}"
+    fi
+fi
+if [ ! -f "${PER_FUNC_S}" ]; then
     # Search asm/cod/*.s for a glabel matching this function name. There
     # should only be one segment that owns it.
     SEG_S="$(grep -rl --include='*.s' -E "^glabel[[:space:]]+${FUNC_NAME}\b" \
              "${PROJECT_ROOT}/asm/cod" 2>/dev/null | head -1 || true)"
     if [ -z "${SEG_S}" ]; then
         echo "ERROR: cannot locate asm for ${FUNC_NAME}." >&2
-        echo "       Looked at ${PER_FUNC_S} and asm/cod/*.s." >&2
+        echo "       Looked at:" >&2
+        echo "         asm/matchings/cod/${FILE_OFF_HEX}/${FUNC_NAME}.s" >&2
+        echo "         asm/nonmatchings/*/${FUNC_NAME}.s" >&2
+        echo "         asm/cod/*.s (segment-level glabel grep)" >&2
         echo "       Did 'make setup' run?" >&2
         exit 1
     fi
