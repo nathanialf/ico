@@ -1051,6 +1051,8 @@ segments:
       - [0x07B354, asm, cod/07B354]
       - [0x07B358, c,   cod/07B358]            # func_0017B358: promote: score-0 from permuter (void+return)
       - [0x07B394, asm, cod/07B394]
+      - [0x07B398, c,   cod/07B398]            # func_0017B398: permuter score-0 promotion
+      - [0x07B3F8, asm, cod/07B3F8]
       - [0x07B4E0, c,   cod/07B4E0]            # func_0017B4E0: f1(self); p=self->164->670; p[0xC0]=a1; tail f2(self, 0x2D, self)
       - [0x07B528, c,   cod/07B528]            # func_0017B528: promote: score-0 (void+new_var return TCO trick)
       - [0x07B564, asm, cod/07B564]
@@ -1175,7 +1177,7 @@ segments:
       - [0x0879D0, asm, cod/0879D0]
       - [0x088220, c,   cod/088220]
       - [0x088228, asm, cod/088228]
-      - [0x088290, asm, cod/088290]
+      - [0x088290, c,   cod/088290]            # func_00188290: permuter score-0 promotion
       - [0x0882B0, c,   cod/0882B0]            # func_001882B0: a1==D_00631AE4 ? func_00154D20 : func_00104508
       - [0x0882CC, asm, cod/0882CC]
       - [0x0886D0, c,   cod/0886D0]            # func_001886D0: regalloc-pinned: v0=&D, v1=1; sb v1,lo(D)(v0)
@@ -1581,7 +1583,7 @@ segments:
       - [0x0BA7BC, asm, cod/0BA7BC]
       - [0x0BA7C0, c,   cod/0BA7C0]            # func_001BA7C0: D_004BEA50[a0->_15C->_800->_8] lookup
       - [0x0BA7E4, asm, cod/0BA7E4]
-      - [0x0BA7E8, asm, cod/0BA7E8]
+      - [0x0BA7E8, c,   cod/0BA7E8]            # func_001BA7E8: permuter score-0 promotion
       - [0x0BA834, asm, cod/0BA834]
       - [0x0BA838, c,   cod/0BA838]
       - [0x0BA880, asm, cod/0BA880]
@@ -1696,7 +1698,7 @@ segments:
       - [0x0CBD70, c,   cod/0CBD70]
       - [0x0CBD78, c,   cod/0CBD78]
       - [0x0CBD80, c,   cod/0CBD80]
-      - [0x0CBD88, asm, cod/0CBD88]
+      - [0x0CBD88, c,   cod/0CBD88]            # func_001CBD88: permuter score-0 promotion
       - [0x0CBE20, c,   cod/0CBE20]            # func_001CBE20: f12->f20; gp_rel sets D_0063330C/14=1, D_00633310=0, D_00633318=0; func_00105F00(D_004C09A0, a0); D_0063331C=f20; D_00633318=1; D_00633314=0
       - [0x0CBE78, c,   cod/0CBE78]            # func_001CBE78
       - [0x0CBE84, asm, cod/0CBE84]
@@ -1853,7 +1855,7 @@ segments:
       - [0x0EBA18, c,   cod/0EBA18]            # func_001EBA18: ringbuffer push D_0070C6C8[D_006335FC++] = a0
       - [0x0EBA3C, asm, cod/0EBA3C]
       - [0x0EBA40, c  , cod/0EBA40]            # func_001EBA40: permuter score-0 (parked seed)
-      - [0x0EBAE8, asm, cod/0EBAE8]
+      - [0x0EBAE8, c,   cod/0EBAE8]            # func_001EBAE8: gp_rel idx+1; D_0063360C=a1; D_0070C9C8[idx]=a0 (permuter score-0)
       - [0x0EBB10, c  , cod/0EBB10]            # func_001EBB10: permuter score-0 (parked seed)
       - [0x0EBB70, asm, cod/0EBB70]
       - [0x0EEF08, c,   cod/0EEF08]            # func_001EEF08: tail call func_001182F0(a0, &D_004C6160)
@@ -2205,8 +2207,8 @@ segments:
       - [0x13AED4, asm, cod/13AED4]
       - [0x13B4F0, c,   cod/13B4F0]            # func_0023B4F0: sibling: &func_0023B518 instead
       - [0x13B518, asm, cod/13B518]
-      - [0x13C090, asm, cod/13C090]
-      - [0x13C0E8, asm, cod/13C0E8]
+      - [0x13C090, c,   cod/13C090]            # func_0023C090: permuter score-0 promotion (fader gp_rel)
+      - [0x13C0E8, c,   cod/13C0E8]            # func_0023C0E8: permuter score-0 promotion (sibling 23C090)
       - [0x13C148, c,   cod/13C148]            # func_0023C148: v=func_0018B0A0(); return (v==3 || v==9) ? -1 : 0
       - [0x13C17C, asm, cod/13C17C]
       - [0x13C1C0, asm, cod/13C1C0]
@@ -2222,7 +2224,7 @@ segments:
       - [0x13D030, c,   cod/13D030]            # func_0023D030: copy 2 sdata floats to *self->34, return 1
       - [0x13D04C, asm, cod/13D04C]
       - [0x13D050, asm, cod/13D050]
-      - [0x13D0C8, asm, cod/13D0C8]
+      - [0x13D0C8, c,   cod/13D0C8]            # func_0023D0C8: permuter score-0 promotion (float regalloc)
       - [0x13D0F0, asm, cod/13D0F0]
       - [0x13D170, c,   cod/13D170]            # func_0023D170: same cache-update pattern (sister of 23D2E8)
       - [0x13D1D0, asm, cod/13D1D0]
