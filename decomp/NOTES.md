@@ -553,6 +553,65 @@ diverges on `move $rD, $0` expansion. The pre-2.9 NOTES "daddu vs or"
 section below is now obsolete (resolved by the EE_AS path); the
 remaining false negative is purely in the diff harness.
 
+## Migrating data sections from asm to src (per-VMA named sections + SORT_BY_NAME)
+
+Splat outputs every data section (`.sdata` / `.lit4` / `.rodata` /
+`.data`) as a single `.section .X, "flags"` blob in `asm/data/cod/`.
+With the section as one blob, the linker can't reorder it by symbol
+VMA — the bytes are tied to the one .o that splat produces, and that
+.o lands in `build/asm/`, so `tools/progress.py` doesn't credit any of
+those bytes to the matched-bytes counter (it only walks `build/src/`).
+
+Architecture for getting data sections to count toward progress:
+
+1. `tools/rewrite_data_named_sections.py` rewrites each
+   `asm/data/cod/*.s` so every `dlabel D_X` block lives in its own
+   per-VMA named section (`.section ".X.0xVMA", "flags"`). `.align N`
+   directives between blocks (no-ops in the blanket layout because
+   cumulative cursor was already aligned at the symbol's VMA) are
+   replaced with absolute-VMA `.skip K` pads — this preserves byte
+   layout even for byte-aligned mid-section symbols like `D_006331B3`.
+2. `tools/postprocess_ld.py` injects `*(SORT_BY_NAME(.X.0x*))` at the
+   top of each data output section in `config/ico.us.ld`. With per-VMA
+   names, the sort produces deterministic VMA-order layout regardless
+   of which .o file contributes which symbol.
+3. `tools/migrate_data_full.py` extracts every symbol's bytes from
+   the splat-fresh asm (via the hex annotations on each data line)
+   and emits a definition into `src/cod/<X>_pool.c` with
+   `__attribute__((section(".X.0xVMA")))`. The function .c files
+   only see `extern` declarations of those symbols, so ee-gcc 2.9
+   continues to emit `%gp_rel` for sdata/lit4 references (the
+   small-data analysis is preserved because the function .c never
+   sees a section attribute).
+4. `tools/rewrite_data_named_sections.py` then strips any symbol
+   that's defined in a `_pool.c` so we don't get duplicate
+   definitions at link time. The pool .c files are the single source
+   of truth for "which symbols are migrated."
+
+Chunking strategy in `_emit_chunked`:
+
+* For 8-aligned VMAs (~99% of rodata/data symbols), emit ONE
+  `unsigned char[N]` array per block. ee-gcc 2.9 emits `.align 3`
+  for arrays — a no-op at an 8-aligned VMA.
+* For misaligned VMAs, fall back to per-VMA aligned-largest-first
+  chunks (`unsigned int` for 4-aligned 4-byte chunks, then `short`,
+  then `char`). Each single-element chunk gets `.align 2` / `.align
+  1` / no-align respectively, so the section's alignment requirement
+  stays small enough that the linker can place it at any byte VMA.
+
+The four pool files have to use `mips-linux-gnu-as` (added to
+`config/use_modern_as.txt`) — the bundled ee-as 2.10 takes literal
+minutes on inputs that large (data_pool is ~30MB of .s after gcc
+expansion).
+
+State as of 2026-05-11: `.sdata` and `.lit4` are at 100%; `.rodata`
+and `.data` are still on the asm side pending the per-TU refactor
+(see `docs/PROGRESS.md`). The `tools/migrate_data_full.py` SECTIONS
+list is intentionally limited to sdata/lit4 — rodata/data should be
+migrated per-TU instead of into a single pool, since one 900 KB
+rodata_pool.c is unwieldy and doesn't match the parappa2 reference
+project's layout. The per-TU mapper isn't built yet.
+
 ## Patterns parked in `tough_nuts/`
 
 - **`la` macro 64-bit expansion** (`func_00105278` family): ee-gcc 2.96
