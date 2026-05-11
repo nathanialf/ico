@@ -2205,6 +2205,8 @@ segments:
       - [0x13AED4, asm, cod/13AED4]
       - [0x13B4F0, c,   cod/13B4F0]            # func_0023B4F0: sibling: &func_0023B518 instead
       - [0x13B518, asm, cod/13B518]
+      - [0x13C090, asm, cod/13C090]
+      - [0x13C0E8, asm, cod/13C0E8]
       - [0x13C148, asm, cod/13C148]
       - [0x13C17C, asm, cod/13C17C]
       - [0x13C1C0, asm, cod/13C1C0]
