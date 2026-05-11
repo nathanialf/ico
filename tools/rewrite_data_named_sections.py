@@ -1,0 +1,359 @@
+#!/usr/bin/env python3
+"""
+rewrite_data_named_sections.py — wrap each `dlabel SYM` block in
+`asm/data/cod/*.[sdata|lit4|rodata|data].s` in its own per-VMA named
+section.
+
+WHY
+---
+Splat emits each data section (`.sdata`, `.lit4`, `.rodata`, `.data`) as
+one big `.section .X, "FLAGS"` blob with every symbol inside it. That
+means each symbol's bytes are tied to that one .o's section, and the
+linker can't reorder by symbol VMA — the layout is determined entirely
+by which .o contributed the bytes.
+
+For per-function/per-TU migration to work (so that defining a sdata
+global in a matched src/cod/*.c moves the bytes into that .o and ticks
+up the progress counter), we need the linker to place each symbol at
+its original VMA regardless of which .o supplied it. The standard
+trick is per-symbol named sections (`.sdata.0x00631BC0`) combined with
+`SORT_BY_NAME(...)` in the linker script — once sorted by VMA-encoded
+name, the layout is deterministic.
+
+HOW IT WORKS
+------------
+Every splat-emitted data line carries an address comment of the form
+`/* FILE_OFF VMA HEX */ .word ...`. We use those VMA annotations to:
+
+  1. Identify each `nonmatching <SYM>` block and its starting VMA.
+  2. Compute the gap between consecutive data lines.
+  3. Replace `.align N` directives with the exact `.skip <gap>` value
+     that the alignment would have produced *at the original absolute
+     VMA position*, which preserves byte-identical output even when
+     the section VMA is not aligned to the modulus (e.g. byte-aligned
+     symbols in the middle of the section).
+  4. Wrap each block in its own `.section ".X.0xVMA", "FLAGS"` directive.
+  5. Pad the section to the gap-to-next-symbol with a trailing `.skip`.
+
+The original top-level `.section .X, "FLAGS"` is removed.
+
+Combined with the `SORT_BY_NAME(.X.0x*)` patch applied by
+`postprocess_ld.py`, the final ELF section layout is byte-identical
+regardless of which .o contributes which symbol.
+
+Idempotent: skips if the file already has per-VMA named sections.
+
+Run as part of `make setup` after `splat split`.
+"""
+
+from __future__ import annotations
+
+import re
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+DATA_DIR = REPO_ROOT / "asm" / "data" / "cod"
+
+# Symbols listed here are defined in `src/cod/*.c` via
+# `__attribute__((section(".X.0xVMA"))) ... = ...;` and must be removed
+# from the asm-side data file to avoid double-definitions at link time.
+# One symbol per line; `#` comments allowed; blank lines ignored.
+MIGRATED_LIST = REPO_ROOT / "config" / "migrated_data_symbols.txt"
+
+# (filename, section_name, section_flags)
+TARGETS = [
+    ("531900.sdata.s",  ".sdata",  "wa"),
+    ("530900.lit4.s",   ".lit4",   "a"),
+    ("453700.rodata.s", ".rodata", "a"),
+    ("174700.data.s",   ".data",   "wa"),
+]
+
+
+def _load_migrated_symbols() -> set[str]:
+    if not MIGRATED_LIST.exists():
+        return set()
+    out: set[str] = set()
+    for line in MIGRATED_LIST.read_text().splitlines():
+        line = line.split("#", 1)[0].strip()
+        if line:
+            out.add(line)
+    return out
+
+# Detect already-rewritten files.
+ALREADY_REWRITTEN_RE = re.compile(r'^\.section\s+"\.\w+\.0x[0-9A-Fa-f]', re.MULTILINE)
+
+# Top-level section header (splat's blanket).
+SECTION_HEADER_RE = re.compile(
+    r'^\.section\s+(?P<name>\.\w+)\s*,\s*"(?P<flags>[aw]+)"\s*$',
+    re.MULTILINE,
+)
+
+# Match `nonmatching SYM` with a VMA-suffixed symbol name. Captures the
+# preceding `.align N` directives so they're consumed with the match
+# (we strip inter-block aligns; they were no-ops in the original).
+INTER_BLOCK_RE = re.compile(
+    r'(?P<pad>(?:^[ \t]*\.align\s+\d+\s*\n)*)'
+    r'^nonmatching\s+(?P<sym>[A-Za-z_][\w]*?_(?P<vma>[0-9A-Fa-f]{8}))(?:[ \t,]|$)',
+    re.MULTILINE,
+)
+
+# A data line with an address comment. The first capture group is the
+# absolute VMA of the line's first emitted byte.
+ADDR_COMMENT_RE = re.compile(
+    r'^[ \t]*/\*\s+[0-9A-Fa-f]+\s+(?P<vma>[0-9A-Fa-f]{8})\s+[^*]*\*/'
+)
+
+
+def _data_directive_size(line: str) -> int:
+    """Bytes emitted by one data directive line. The address comment
+    is stripped first. Returns 0 for non-data lines (labels, blanks,
+    .align, .section, dlabel/enddlabel, raw-hex bytes comment-only)."""
+    s = line.strip()
+    if not s:
+        return 0
+    # Strip leading address comment.
+    m = re.match(r'/\*[^*]*\*/\s*(.*)', s)
+    if m:
+        s = m.group(1)
+    if not s or s.startswith('/*'):
+        return 0
+    if s.startswith(('.include', '.section', '.align', '.balign', '.global',
+                     '.type', '.size', '.set', '.end', '.weak',
+                     'dlabel', 'enddlabel', 'nonmatching')):
+        return 0
+    s = re.sub(r'/\*.*\*/', '', s).strip()
+    # Don't strip `# ...` as a comment — gas data directives commonly
+    # carry `#` inside .asciz / .ascii string literals. Inline-comment
+    # stripping would corrupt the operand. We just rely on /* */ for
+    # comment removal in splat output.
+    if not s:
+        return 0
+    parts = s.split(None, 1)
+    d = parts[0]
+    operands = parts[1] if len(parts) > 1 else ''
+    width = {
+        '.byte': 1, '.2byte': 2, '.4byte': 4, '.8byte': 8,
+        '.hword': 2, '.short': 2, '.half': 2,
+        '.word': 4, '.long': 4, '.float': 4,
+        '.quad': 8, '.dword': 8, '.double': 8,
+    }
+    if d in width:
+        if not operands:
+            return 0
+        n = 0
+        depth = 0
+        cur = ''
+        # Count comma-separated operands at the top level.
+        for ch in operands:
+            if ch == '"':
+                depth ^= 1
+            if ch == ',' and depth == 0:
+                if cur.strip():
+                    n += 1
+                cur = ''
+            else:
+                cur += ch
+        if cur.strip():
+            n += 1
+        return width[d] * max(n, 1)
+    if d in ('.asciz', '.asciiz', '.string'):
+        m = re.match(r'"((?:[^"\\]|\\.)*)"', operands)
+        if not m:
+            return 0
+        body = m.group(1).encode().decode('unicode_escape').encode('latin-1', 'replace')
+        return len(body) + 1
+    if d == '.ascii':
+        m = re.match(r'"((?:[^"\\]|\\.)*)"', operands)
+        if not m:
+            return 0
+        body = m.group(1).encode().decode('unicode_escape').encode('latin-1', 'replace')
+        return len(body)
+    if d in ('.space', '.skip'):
+        first = operands.split(',', 1)[0].strip()
+        try:
+            return int(first, 0)
+        except ValueError:
+            return 0
+    return 0
+
+
+# Directives we may need to downgrade in misaligned-VMA sections.
+# Original `.word X` forces section alignment to 4 (because the symbol is
+# naturally word-sized). `.4byte X` emits the same bytes without forcing
+# any section alignment — exactly what we want when the section's start
+# VMA is byte-aligned only (e.g. mid-table .byte/.short symbols).
+DOWNGRADE_4BYTE = re.compile(
+    r'(^[ \t]*(?:/\*[^*]*\*/\s*)?)\.(?:word|long|float)\b',
+    re.MULTILINE,
+)
+DOWNGRADE_2BYTE = re.compile(
+    r'(^[ \t]*(?:/\*[^*]*\*/\s*)?)\.(?:short|hword|half)\b',
+    re.MULTILINE,
+)
+
+
+def _downgrade_directives_if_misaligned(body: str, section_vma: int) -> str:
+    """Replace `.word`/`.short` with `.4byte`/`.2byte` when the section
+    VMA isn't aligned to the directive's natural width. Forces section
+    alignment to stay at 1 byte so the linker can place the section at
+    any byte-aligned VMA (e.g. mid-table runs at 0x62FC79)."""
+    if section_vma % 4 != 0:
+        body = DOWNGRADE_4BYTE.sub(r'\1.4byte', body)
+    if section_vma % 2 != 0:
+        body = DOWNGRADE_2BYTE.sub(r'\1.2byte', body)
+    return body
+
+
+def _rewrite_block_body(body: str, section_vma: int, next_vma: int | None) -> str:
+    """Rewrite a single block's body to use absolute-VMA-based padding.
+
+    The body runs from `nonmatching SYM` through (but not including) the
+    next block's `nonmatching` line. We:
+      * walk every line, tracking the absolute VMA cursor
+      * replace `.align N` with `.skip <K>` where K is the pad needed at
+        the original absolute VMA position (so the byte layout is
+        preserved even when section_VMA isn't N-aligned)
+      * pad the trailing tail to next_vma with one `.skip` if needed
+    """
+    lines = body.splitlines(keepends=True)
+    out: list[str] = []
+    cursor = section_vma  # absolute VMA
+
+    last_data_line_idx = -1
+    last_enddlabel_idx = -1
+
+    for line in lines:
+        stripped = line.strip()
+
+        # `.align N` — compute the absolute-VMA pad and emit `.skip <pad>`.
+        m_align = re.match(r'(?P<indent>[ \t]*)\.align[ \t]+(?P<n>\d+)\s*$', stripped)
+        if m_align:
+            n = int(m_align.group('n'))
+            target = ((cursor + (1 << n) - 1) >> n) << n
+            pad = target - cursor
+            indent = m_align.group('indent')
+            if pad > 0:
+                out.append(f"{indent}.skip 0x{pad:X}\n")
+                cursor = target
+            # pad == 0 → drop the .align (no-op).
+            continue
+
+        # Lines with an address comment carry their absolute VMA. If
+        # our running cursor lags behind it, splice in a `.skip` to
+        # catch up — this happens after directives we couldn't size
+        # (e.g. an exotic gas macro) or in the very first line of a
+        # section if the section_vma was off.
+        m_addr = ADDR_COMMENT_RE.match(line)
+        if m_addr:
+            line_vma = int(m_addr.group('vma'), 16)
+            if line_vma > cursor:
+                pad = line_vma - cursor
+                out.append(f"    .skip 0x{pad:X}\n")
+                cursor = line_vma
+            elif line_vma < cursor:
+                # Cursor overshot the actual VMA — symptom of a bad
+                # size estimate above. Reset to the line's VMA so the
+                # rest of the section stays aligned.
+                cursor = line_vma
+
+        # Advance cursor for every data directive (with or without
+        # address comment). Multi-line `.ascii` runs have one address
+        # comment but several emitting lines; this loop accounts for
+        # the continuation lines' bytes.
+        size = _data_directive_size(line)
+        if size > 0:
+            cursor += size
+            last_data_line_idx = len(out)
+        if stripped.startswith('enddlabel'):
+            last_enddlabel_idx = len(out)
+        out.append(line)
+
+    # If there's a trailing gap to next_vma, emit one final .skip.
+    if next_vma is not None and cursor < next_vma:
+        pad = next_vma - cursor
+        pad_line = f".skip 0x{pad:X}\n"
+        # Splice it right after the last enddlabel (or last data line if no
+        # enddlabel was seen — rare) so it stays in-section.
+        anchor = last_enddlabel_idx if last_enddlabel_idx >= 0 else last_data_line_idx
+        if anchor >= 0:
+            out.insert(anchor + 1, pad_line)
+        else:
+            out.append(pad_line)
+
+    return "".join(out)
+
+
+def rewrite_one(
+    path: Path,
+    sect_name: str,
+    sect_flags: str,
+    migrated: set[str],
+) -> tuple[int, str]:
+    if not path.exists():
+        return 0, f"{path.name}: missing"
+    text = path.read_text()
+    if ALREADY_REWRITTEN_RE.search(text):
+        return 0, f"{path.name}: already rewritten"
+
+    matches = list(INTER_BLOCK_RE.finditer(text))
+    if not matches:
+        return 0, f"{path.name}: no symbol blocks found — skipping"
+
+    # Header: everything before the first match's `pad` group (so any
+    # leading inter-block .align in the header is stripped naturally by
+    # the regex consuming it as the first match's pad). Drop splat's
+    # top-level `.section` directive.
+    first_match_body_start = matches[0].start() + len(matches[0].group('pad'))
+    header = text[: matches[0].start()]
+    header = SECTION_HEADER_RE.sub("", header, count=1)
+
+    out: list[str] = [header]
+    skipped = 0
+    for i, m in enumerate(matches):
+        vma = int(m.group('vma'), 16)
+        sym = m.group('sym')
+        body_start = m.start() + len(m.group('pad'))
+        body_end = matches[i + 1].start() if i + 1 < len(matches) else len(text)
+        body = text[body_start:body_end]
+        next_vma = int(matches[i + 1].group('vma'), 16) if i + 1 < len(matches) else None
+
+        if sym in migrated:
+            # This symbol is defined in a src/cod/*.c file with an
+            # explicit `.X.0xVMA` section attribute; the linker pulls
+            # the bytes from there via SORT_BY_NAME. We must NOT emit
+            # the asm-side block (would duplicate the symbol).
+            skipped += 1
+            continue
+
+        new_body = _rewrite_block_body(body, vma, next_vma)
+        new_body = _downgrade_directives_if_misaligned(new_body, vma)
+
+        out.append(f'.section "{sect_name}.0x{vma:08X}", "{sect_flags}"\n')
+        out.append(new_body)
+
+    new_text = "".join(out)
+    path.write_text(new_text)
+    msg = f"{path.name}: wrapped {len(matches) - skipped} symbols"
+    if skipped:
+        msg += f" (skipped {skipped} migrated)"
+    return len(matches), msg
+
+
+def main() -> int:
+    migrated = _load_migrated_symbols()
+    total = 0
+    for fname, sect_name, sect_flags in TARGETS:
+        path = DATA_DIR / fname
+        n, msg = rewrite_one(path, sect_name, sect_flags, migrated)
+        total += n
+        print(f"rewrite_data_named_sections: {msg}")
+    msg = f"rewrite_data_named_sections: {total} symbol(s) wrapped total"
+    if migrated:
+        msg += f" ({len(migrated)} migrated to src/cod/*.c)"
+    print(msg)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

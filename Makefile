@@ -110,6 +110,8 @@ split:
 	$(VENV_BIN)/python tools/postprocess_ld.py
 	@echo "==> postprocessing asm (R5900 mnemonic fixups)"
 	$(VENV_BIN)/python tools/postprocess_asm.py
+	@echo "==> wrapping data symbols in per-VMA named sections"
+	$(VENV_BIN)/python tools/rewrite_data_named_sections.py
 	@echo "==> regenerating docs/candidates.md (matching shortlist)"
 	@$(VENV_BIN)/python tools/gen_candidates.py || \
 	  echo "WARN: gen_candidates.py failed; continuing"

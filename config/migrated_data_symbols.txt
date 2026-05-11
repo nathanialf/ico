@@ -1,0 +1,18 @@
+# Data symbols migrated from asm/data/cod/*.s into src/cod/*.c.
+#
+# Each entry is a symbol name (e.g. D_00631BC0) that has been defined
+# in a matched .c file with an explicit `.X.0xVMA` section attribute.
+# `tools/rewrite_data_named_sections.py` reads this list and skips the
+# corresponding block in the asm-side data file to avoid double
+# definitions at link time. The linker reassembles the section in
+# VMA order via `SORT_BY_NAME(.X.0x*)` (see `tools/postprocess_ld.py`).
+#
+# Add a symbol here ONLY after:
+#   * the C source defines it with the right initial value and section
+#     attribute, AND
+#   * `make && verify-target` confirms the .rom round-trips.
+#
+# One symbol per line. `#` for line comments.
+
+D_00631BC0
+D_00631BC8

@@ -58,6 +58,58 @@ SDATA_END_ALIGN_KILLER = re.compile(
     re.MULTILINE,
 )
 
+# Inject `*(SORT_BY_NAME(.X.0x*))` into each data section so any .o file
+# (asm or src) contributing a per-VMA named section like `.sdata.0x00631BC0`
+# lands at the right VMA. Without this, the per-.o `(.X*)` directives that
+# splat emits pull sections in linker-script order — fine when only the
+# asm blanket .o contributes, but a src .o (from migrated sdata in a
+# matched .c) would land at offset 0 of the section instead of at its
+# original VMA.
+#
+# `tools/rewrite_data_named_sections.py` produces the per-VMA-named
+# sections in the asm-side data .o; the SORT_BY_NAME directive here
+# sorts across all .o files so src-side migrations slot into the right
+# position. When only the asm .o contributes, the sort produces the
+# same VMA-order layout as the unsorted per-.o emission, so the
+# round-trip stays byte-identical.
+SORT_TARGETS = [
+    (".data",   "cod_DATA_START"),
+    (".rodata", "cod_RODATA_START"),
+    (".lit4",   "cod_LIT4_START"),
+    (".sdata",  "cod_SDATA_START"),
+]
+SORT_MARKER_PREFIX = "/* sort-by-name "
+
+
+def inject_sort_by_name(text: str) -> tuple[str, int]:
+    applied = 0
+    for sect_name, start_anchor in SORT_TARGETS:
+        marker = f"{SORT_MARKER_PREFIX}{sect_name} */"
+        if marker in text:
+            continue
+        anchor_re = re.compile(
+            rf"^(?P<indent>[ \t]*){re.escape(start_anchor)}\s*=\s*\.\s*;\s*$",
+            re.MULTILINE,
+        )
+        m = anchor_re.search(text)
+        if m is None:
+            # Section not present in the ld script — skip silently
+            # (e.g. user trimmed the segment). Don't fail the build.
+            continue
+        indent = m.group("indent")
+        # Insert the SORT_BY_NAME pull *after* the START symbol so it
+        # appears at the very top of the section body. GNU ld emits
+        # each input section once; subsequent per-.o globs won't
+        # double-emit.
+        injection = (
+            f'{indent}{marker}\n'
+            f'{indent}*(SORT_BY_NAME(.{sect_name[1:]}.0x*));\n'
+        )
+        insert_at = m.end() + 1  # past the newline
+        text = text[:insert_at] + injection + text[insert_at:]
+        applied += 1
+    return text, applied
+
 
 def clear_stale(text: str) -> tuple[str, int]:
     cleared = 0
@@ -106,7 +158,8 @@ def patch(text: str) -> tuple[str, int, int]:
     text, cleared = clear_stale(text)
     text, applied = apply_section_start_patches(text)
     text, killed = kill_sdata_end_align(text)
-    return text, applied + killed, cleared
+    text, sorted_n = inject_sort_by_name(text)
+    return text, applied + killed + sorted_n, cleared
 
 
 def main() -> int:
