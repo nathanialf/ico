@@ -11,8 +11,6 @@ the correct VMA via SORT_BY_NAME (see tools/postprocess_ld.py).
 
 Chunking strategy
 -----------------
-Same as the now-deprecated tools/migrate_data_full.py (which dumped
-everything into per-section pool .c files):
 
   * If the symbol's VMA is 8-aligned: emit one `unsigned char[N]`
     per block. ee-gcc 2.9's `.align 3` over-alignment is a no-op

@@ -575,20 +575,42 @@ Architecture for getting data sections to count toward progress:
    top of each data output section in `config/ico.us.ld`. With per-VMA
    names, the sort produces deterministic VMA-order layout regardless
    of which .o file contributes which symbol.
-3. `tools/migrate_data_full.py` extracts every symbol's bytes from
-   the splat-fresh asm (via the hex annotations on each data line)
-   and emits a definition into `src/cod/<X>_pool.c` with
-   `__attribute__((section(".X.0xVMA")))`. The function .c files
-   only see `extern` declarations of those symbols, so ee-gcc 2.9
-   continues to emit `%gp_rel` for sdata/lit4 references (the
-   small-data analysis is preserved because the function .c never
-   sees a section attribute).
-4. `tools/rewrite_data_named_sections.py` then strips any symbol
-   that's defined in a `_pool.c` so we don't get duplicate
-   definitions at link time. The pool .c files are the single source
-   of truth for "which symbols are migrated."
+3. `tools/build_data_tu_map.py` votes each data symbol to its owning
+   TU by parsing `%hi`/`%lo`/`%gp_rel` references from every text
+   function and looking the function's TU up in `decomp/tu_map.json`.
+   Symbols with no votes (touched only by untagged functions, or not
+   text-referenced) fall back to VMA-proximity assignment from the
+   nearest voted neighbor. Output: `decomp/data_tu_map.json`
+   (gitignored — symbol-name keyed, ~700 KB).
+4. `tools/migrate_data_per_tu.py` reads the TU map and emits one
+   `src/<TU>_data.c` sidecar per TU containing the byte content of
+   every D_<VMA> dlabel assigned to that TU. Definitions use
+   `__attribute__((section(".X.0xVMA")))`; the linker places each
+   section at the correct VMA via SORT_BY_NAME. Sidecars are
+   gitignored because the byte literals come directly from baserom
+   (IP-sensitive); the build round-trips byte-identical because the
+   linker sees the same bytes either way.
+5. `tools/decode_sdata_lit4_typed.py` (one-shot) is the typed-promotion
+   tool for `.sdata` and `.lit4`. It reads the bytes directly out of
+   `baserom/baseelf.elf` (keyed off `decomp/data_tu_map.json` for
+   the symbol VMA list) and emits typed C — `float D_X = 1.0f`,
+   `const char D_X[] = "..."`, single int/short/char — into tracked
+   `src/sdata.c` and `src/lit4.c`. Typed-form emission is gated on
+   8-aligned VMAs (where gcc's `.align 3` for arrays is a no-op);
+   non-8-aligned blocks fall through to per-VMA single-element
+   chunks identical to `_emit_chunked`'s logic, keeping section
+   alignment ≤ 4 so the linker doesn't pad around them.
+6. `tools/rewrite_data_named_sections.py` is the final step. It
+   wraps each remaining asm dlabel block in a per-VMA named
+   `.section`, then strips any block whose D_<VMA> symbol is
+   defined anywhere under `src/**/*.c` (typed sources OR
+   auto-generated sidecars). Pool/data-sidecar files are the
+   single source of truth for "which symbols are migrated"; the
+   rewriter never re-introduces duplicates.
 
-Chunking strategy in `_emit_chunked`:
+Chunking strategy (shared between `_emit_chunked` in
+`migrate_data_per_tu.py` and the misaligned-VMA fallback in
+`decode_sdata_lit4_typed.py`):
 
 * For 8-aligned VMAs (~99% of rodata/data symbols), emit ONE
   `unsigned char[N]` array per block. ee-gcc 2.9 emits `.align 3`
@@ -599,18 +621,21 @@ Chunking strategy in `_emit_chunked`:
   1` / no-align respectively, so the section's alignment requirement
   stays small enough that the linker can place it at any byte VMA.
 
-The four pool files have to use `mips-linux-gnu-as` (added to
+Big sidecars use `mips-linux-gnu-as` (added to
 `config/use_modern_as.txt`) — the bundled ee-as 2.10 takes literal
-minutes on inputs that large (data_pool is ~30MB of .s after gcc
+minutes on inputs that large (cdvd_data.c is ~30 MB of .s after gcc
 expansion).
 
-State as of 2026-05-11: `.sdata` and `.lit4` are at 100%; `.rodata`
-and `.data` are still on the asm side pending the per-TU refactor
-(see `docs/PROGRESS.md`). The `tools/migrate_data_full.py` SECTIONS
-list is intentionally limited to sdata/lit4 — rodata/data should be
-migrated per-TU instead of into a single pool, since one 900 KB
-rodata_pool.c is unwieldy and doesn't match the parappa2 reference
-project's layout. The per-TU mapper isn't built yet.
+State as of session 2026-05-11:
+
+* `.sdata`: 100% via tracked `src/sdata.c` (decoder-promoted from
+  baserom; safe to commit because the typed forms — string literals,
+  named float constants, single hex word definitions — are a
+  developer's clean-room reconstruction, not raw bytes).
+* `.lit4`: 100% via tracked `src/lit4.c` (same path; every entry
+  decodes as `float D_X = <value>f;`).
+* `.rodata` / `.data`: 0% tracked; bytes live in gitignored per-TU
+  `_data.c` sidecars. Hand-typing follows `decomp/MATCH_DATA.md`.
 
 ## Patterns parked in `tough_nuts/`
 
