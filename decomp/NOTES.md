@@ -637,6 +637,48 @@ State as of session 2026-05-11:
 * `.rodata` / `.data`: 0% tracked; bytes live in gitignored per-TU
   `_data.c` sidecars. Hand-typing follows `decomp/MATCH_DATA.md`.
 
+## VU0 microcode (`.vutext`) — kept as opaque textbin, not typed
+
+`.vutext` is 20,704 bytes (`0x50E0`) of hand-written VU0 microcode at
+VMA `0x0026F5E0`. The block:
+
+* Has **no `.rela.vutext` relocations** — the bytes are a pure opaque
+  blob to the EE-side linker (the only references *into* it come
+  from MIPS .text via DMA tags and VU0 setup code, which already
+  resolve correctly via the linker's `.text` section placement).
+* Is **not MIPS/EE machine code.** VU0 is a separate coprocessor ISA
+  with its own register file and instruction set (`vmadd`, `vsub`,
+  `vrnext`, etc.). ee-gcc / mips-linux-gnu-as don't disassemble or
+  assemble VU0 instructions, so the bytes cannot round-trip through
+  any of our existing typed-decomp paths.
+
+**Policy:** `.vutext` stays as a `textbin` subseg pulled via
+`.incbin` from `assets/cod/16F5E0.textbin.bin` (gitignored). It is
+*not* a target for typed reconstruction in this project. Treating
+hand-written coprocessor microcode as an opaque blob is the
+convention used by parappa2 / sm64 / pm64 decomps for the same
+reason. If someone wants to reconstruct it as VU mnemonics, the
+prerequisite is a VU0 disassembler + a `hasm`-style subseg with
+`src/vutext.s` containing the actual `vmadd…` directives — a
+multi-week project in its own right.
+
+**`tools/progress.py`** correctly reports `.vutext` at 0% under the
+IP-aware filter (the bytes come from `assets/cod/16F5E0.textbin.bin`,
+which is gitignored). The percentage stays at 0% until a hand-typed
+`src/vutext.s` replaces the textbin subseg.
+
+**A 64-byte size detail to know:** the splat-extracted bin file
+(`assets/cod/16F5E0.textbin.bin`) is 20,768 bytes — 64 bytes larger
+than the ELF `.vutext` section's `sh_size` (20,704 / `0x50E0`). The
+extra 64 trailing bytes are all zero. They cover the file-offset
+gap between `.vutext`'s end and `.data`'s start in the original ELF
+(`0x1756C0` → `0x175700`). The yaml subseg
+`[0x16F5E0, textbin, cod/16F5E0]` extracts from `0x16F5E0` up to the
+next subseg at `0x174700`, which is the full 20,768-byte stretch
+including the 64-byte alignment pad. This is benign: the linker
+re-emits exactly those bytes (all zero) into the final ROM, and the
+SHA-1 round-trip matches.
+
 ## Patterns parked in `tough_nuts/`
 
 - **`la` macro 64-bit expansion** (`func_00105278` family): ee-gcc 2.96

@@ -194,11 +194,18 @@ doesn't count.)
   from the migrator for misaligned VMAs. They're not real symbols
   from the asm side; they're synthetic. When you hand-type, fold
   the pad bytes into the parent block's array.
-* **Symbols already in `src/cod/sdata_pool.c` / `src/cod/lit4_pool.c`** —
-  these legacy pool files are still tracked. As you type, prefer
-  moving definitions OUT of the pools and INTO their owning TU's
-  `.c` (next to function definitions, parappa2-style). Eventually
-  the pool files end up empty and can be deleted.
+* **Symbols already in `src/sdata.c` / `src/lit4.c`** — the typed
+  small-data files are the result of one run of
+  `tools/decode_sdata_lit4_typed.py`. As you refine the data side of
+  a TU, prefer moving the corresponding definitions OUT of the
+  shared `src/sdata.c` / `src/lit4.c` and INTO the owning TU's `.c`
+  next to its function definitions (parappa2-style). Eventually the
+  shared files end up empty and can be deleted.
+* **`.vutext`** — do not type. VU0 microcode is an opaque blob
+  (see `decomp/NOTES.md` "VU0 microcode (.vutext)"). The bytes
+  come in via `assets/cod/16F5E0.textbin.bin`; if you want them
+  tracked one day, the path is hand-written VU mnemonics in a
+  `src/vutext.s` hasm subseg, not byte arrays in C.
 
 ## Quick reference
 
