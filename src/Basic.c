@@ -5,23 +5,57 @@
  * The 4-byte `nop` at 0x001F6E24 (between func_001F6E00 and the next TU)
  * is alignment padding — not a real function. Linker --gap-fill=0x00
  * supplies the 4 zero bytes (nop = 0x00000000) automatically.
- *
- * func_001F6CB0 reverted to INCLUDE_ASM: previous C body compiled to
- * 0xD8 vs original 0xE0 (8-byte deficit in if-else-if dispatch).
- * Parked seed at tough_nuts/func_001F6CB0/.
  */
 
 #include "matching.h"
+#include "regpin.h"
 #include "include_asm.h"
 
 extern int   D_00633780;
+extern int   D_00633784;
+extern int   D_00632014;
 extern int   D_00632024;
+extern int   D_00633788[];
+extern char  D_0061A890[];
 extern char  D_0061A8A8[];
 extern void  func_00139598(void *p);
+extern void  func_001A6E28(char *p);
+extern void  func_001AD768(char *buf, int sz);
+extern void  func_00263FF0(char *buf, int sz, int *list);
 extern int   func_0013A0F8(int a0, int a1, char *file, int line);
 extern void  func_00139D78(int a0, int a1, char *a2, int a3);
 
-INCLUDE_ASM("asm/nonmatchings/Basic", func_001F6CB0);
+int func_001F6CB0(int size)
+{
+    int rv = 0;
+    if (D_00633780 == -1) {
+        func_001A6E28(D_0061A890);
+        DEFEAT_TCO();
+        func_001AD768(D_0061A8A8, 0x174);
+        DEFEAT_TCO();
+        {
+            register char *buf REG("$4") = D_0061A8A8;
+            register int *list REG("$6") = D_00633788;
+            DEFEAT_TCO();
+            func_00263FF0(buf, 0x174, list);
+        }
+        DEFEAT_TCO();
+    }
+    switch (D_00633780) {
+    case 0: {
+        int ret;
+        D_00633784 += 0x30 + size;
+        ret = func_0013A0F8(D_00632014, size, D_0061A8A8, 0x17B);
+        DEFEAT_TCO();
+        rv = ret;
+        break;
+    }
+    case 1:
+        rv = func_0013A0F8(D_00632024, size, D_0061A8A8, 0x17E);
+        break;
+    }
+    return rv;
+}
 
 void func_001F6D90(void *p)
 {

@@ -115,13 +115,52 @@ mkdir -p "$(dirname "$OBJ")"
 # Stage 1: ee-gcc → assembly
 $CC $CFLAGS -o "$ASM_OUT" "$CSRC"
 
-# Stage 2: assemble with modern binutils
-ASFLAGS_QD="${ASFLAGS_QD:--EL -march=r5900 -mabi=eabi -G 8 -no-pad-sections -Iinclude}"
-AS_FOR_QD="${AS_FOR_QD:-mips-linux-gnu-as}"
-$AS_FOR_QD $ASFLAGS_QD -o "$OBJ" "$ASM_OUT"
+# Stage 2: assemble. Prefer the project's ee-as 2.10 (matches the full
+# build's src/.o pipeline so `move` pseudos expand consistently — modern
+# mips-linux-gnu-as expands `move rd,rs` to `or`, ee-as expands to
+# `daddu`, which would otherwise show up as spurious diffs). Fall back
+# to mips-linux-gnu-as if ee-as rejects the input (typically on VU0/MMI
+# ops it doesn't know).
+EE_AS="$ROOT/tools/cc/ee-gcc2.96/bin/as"
+EE_ASFLAGS="-EL -mcpu=5900 -G 8 -I$ROOT/include"
+AS_MODERN="${AS_FOR_QD:-mips-linux-gnu-as}"
+ASFLAGS_MODERN="${ASFLAGS_QD:--EL -march=r5900 -mabi=eabi -G 8 -no-pad-sections -Iinclude}"
+
+# ee-as 2.10 doesn't accept register-name aliases ($zero, $sp, $ra, ...).
+# Translate any to numbered. ee-gcc-emitted output uses $N already, but
+# splat-generated target .s often has $sp/$ra/etc.
+canon_regnames() {
+    sed -i -E -e 's/\$zero\b/$0/g'  -e 's/\$at\b/$1/g' \
+               -e 's/\$v0\b/$2/g'    -e 's/\$v1\b/$3/g' \
+               -e 's/\$a0\b/$4/g'    -e 's/\$a1\b/$5/g' \
+               -e 's/\$a2\b/$6/g'    -e 's/\$a3\b/$7/g' \
+               -e 's/\$t0\b/$8/g'    -e 's/\$t1\b/$9/g' \
+               -e 's/\$t2\b/$10/g'   -e 's/\$t3\b/$11/g' \
+               -e 's/\$t4\b/$12/g'   -e 's/\$t5\b/$13/g' \
+               -e 's/\$t6\b/$14/g'   -e 's/\$t7\b/$15/g' \
+               -e 's/\$s0\b/$16/g'   -e 's/\$s1\b/$17/g' \
+               -e 's/\$s2\b/$18/g'   -e 's/\$s3\b/$19/g' \
+               -e 's/\$s4\b/$20/g'   -e 's/\$s5\b/$21/g' \
+               -e 's/\$s6\b/$22/g'   -e 's/\$s7\b/$23/g' \
+               -e 's/\$t8\b/$24/g'   -e 's/\$t9\b/$25/g' \
+               -e 's/\$k0\b/$26/g'   -e 's/\$k1\b/$27/g' \
+               -e 's/\$gp\b/$28/g'   -e 's/\$sp\b/$29/g' \
+               -e 's/\$fp\b/$30/g'   -e 's/\$ra\b/$31/g' \
+               "$1"
+}
+
+assemble() {
+    local out="$1" in="$2"
+    if [[ -x "$EE_AS" ]] && "$EE_AS" $EE_ASFLAGS -o "$out" "$in" 2>/dev/null; then
+        return 0
+    fi
+    $AS_MODERN $ASFLAGS_MODERN -o "$out" "$in"
+}
+
+canon_regnames "$ASM_OUT"
+assemble "$OBJ" "$ASM_OUT"
 
 # Canonicalize both sides via the same objdump so the diff is meaningful.
-# We assemble the target .s with the same modern as, then objdump both .o's.
 # splat's per-function .s files don't .include "macro.inc" themselves, so we
 # prepend it to a temp copy.
 TARGET_OBJ="build/quick_diff/$NAME.target.o"
@@ -132,7 +171,8 @@ TARGET_ASM_WRAPPED="build/quick_diff/$NAME.target.s"
     echo '.set noat'
     cat "$TARGET_ASM"
 } > "$TARGET_ASM_WRAPPED"
-$AS_FOR_QD $ASFLAGS_QD -o "$TARGET_OBJ" "$TARGET_ASM_WRAPPED"
+canon_regnames "$TARGET_ASM_WRAPPED"
+assemble "$TARGET_OBJ" "$TARGET_ASM_WRAPPED"
 
 LEFT=$(mktemp); RIGHT=$(mktemp)
 trap 'rm -f "$LEFT" "$RIGHT"' EXIT
