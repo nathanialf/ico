@@ -1,0 +1,13 @@
+extern int func_002425A8(int a0);
+extern int D_00633B84;
+extern int D_00633B88;
+extern int D_00633FDC;
+
+void func_0023F030(int a0)
+{
+    while (func_002425A8(0) == a0) {
+    }
+    D_00633B88 = 1;
+    D_00633FDC = 0;
+    D_00633B84 = 0;
+}

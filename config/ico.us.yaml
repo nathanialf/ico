@@ -700,7 +700,7 @@ segments:
       - [0x03F700, asm, cod/03F700]
       - [0x03F778, c,   cod/03F778]            # func_0013F778: wrapper for func_0013F3F0(a, a, b, c, d, 0x1800)
       - [0x03F7A4, asm, cod/03F7A4]
-      - [0x03F7A8, asm, cod/03F7A8]
+      - [0x03F7A8, c,   cod/03F7A8]            # func_0013F7A8: tail call func_0013F3F0(a, a, b, c & 0xFF, d, e)
       - [0x03F7D8, c,   cod/03F7D8]            # func_0013F7D8: wrapper for func_0013F3F0(a, 0, b, c, d, 0x1800)
       - [0x03F804, asm, cod/03F804]
       - [0x03F808, c,   cod/03F808]            # func_0013F808: sw_zero +0x18
@@ -713,7 +713,7 @@ segments:
       - [0x03F8BC, asm, cod/03F8BC]
       - [0x03F8C0, c,   cod/03F8C0]            # func_0013F8C0: linked-list traverse calling func_0013F6B8 on each node
       - [0x03F8F8, c,   cod/03F8F8]            # func_0013F8F8: count-down loop calling func_0013D3D8(0)
-      - [0x03F930, asm, cod/03F930]
+      - [0x03F930, c,   cod/03F930]            # func_0013F930: tail call func_0013F3F0(a, 0, b, c & 0xFF, d, e)
       - [0x03F960, c,   cod/03F960]            # func_0013F960: linked-list traverse, set _18=1 if _1C==a1
       - [0x03F98C, asm, cod/03F98C]
       - [0x03F990, c,   cod/03F990]            # func_0013F990: sw_zero +0x0

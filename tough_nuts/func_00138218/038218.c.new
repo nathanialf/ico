@@ -1,0 +1,12 @@
+#include "matching.h"
+
+extern int D_00280F88[];
+extern void func_0013A5B8(int *a0, int a1, int a2);
+
+void func_00138218(int *self)
+{
+    self[1] = 0xD;
+    *(long long *)self &= -2LL;
+    func_0013A5B8(D_00280F88, (int)self, 0);
+    DEFEAT_TCO();
+}
