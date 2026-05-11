@@ -11,7 +11,7 @@ sensitive.
 
 For `.lit4` (4 KB) and `.sdata` (8.7 KB) the byte volume is small enough
 that we can decode each block into a typed C definition (`float D_X =
-1.0f`, `static const char D_X[] = "host:"`, etc.) in one pass. The
+1.0f`, `const char D_X[] = "host:"`, etc.) in one pass. The
 typed output is a developer's clean-room reconstruction — committable
 without IP risk — and progress.py credits the bytes once the tracked
 files exist.
@@ -213,9 +213,9 @@ def _decode_sdata(name: str, sect: str, data: bytes) -> str:
         # If trailing zeros are padding to a different length, use [N] dim.
         if len(data) > nul + 1:
             return (f'__attribute__((section("{sect}"))) '
-                    f'static const char {name}[{len(data)}] = "{body}";')
+                    f'const char {name}[{len(data)}] = "{body}";')
         return (f'__attribute__((section("{sect}"))) '
-                f'static const char {name}[] = "{body}";')
+                f'const char {name}[] = "{body}";')
 
     # Single 4-byte word: try float, else int.
     if len(data) == 4:
