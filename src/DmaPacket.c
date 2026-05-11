@@ -18,3 +18,5 @@
  */
 
 __attribute__((section(".sdata.0x00632014"))) int D_00632014 = 0;
+
+__attribute__((section(".rodata.0x0061AC60"))) const char D_0061AC60[16] = "src/DmaPacket.c";

@@ -47,3 +47,8 @@ __attribute__((section(".lit4.0x0063113C"))) float D_0063113C = 10000.0f;
 __attribute__((section(".lit4.0x00631140"))) float D_00631140 = 0.2f;
 __attribute__((section(".lit4.0x00631144"))) float D_00631144 = 0.2f;
 __attribute__((section(".sdata.0x00632024"))) int D_00632024 = 0;
+
+__attribute__((section(".rodata.0x00612620"))) const char D_00612620[16] = "src/DObj.c";
+
+__attribute__((section(".rodata.0x006127E8"))) const char D_006127E8[24] = "DFDATAS/COMMON.DF";
+__attribute__((section(".rodata.0x00612890"))) const char D_00612890[16] = "girl nokori";

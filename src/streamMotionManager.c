@@ -38,7 +38,10 @@ __attribute__((section(".sdata.0x00633768"))) int D_00633768 = 0;
 __attribute__((section(".sdata.0x0063376C"))) int D_0063376C = 0;
 __attribute__((section(".sdata.0x00633770"))) int D_00633770 = 0;
 __attribute__((section(".sdata.0x00633774"))) int D_00633774 = 0;
-__attribute__((section(".sdata.0x00633778"))) unsigned char D_00633778[8] = { 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+__attribute__((section(".sdata.0x00633778"))) int D_00633778 = 0x00000001;
+__attribute__((section(".sdata.0x0063377C"))) int D_0063377C = 0x00000000;
 __attribute__((section(".sdata.0x00633780"))) unsigned int D_00633780 = 0xFFFFFFFF;
 __attribute__((section(".sdata.0x00633784"))) int D_00633784 = 0;
 __attribute__((section(".sdata.0x00633788"))) unsigned int D_00633788 = 0x00000030;
+
+__attribute__((section(".rodata.0x0061A668"))) const char D_0061A668[32] = "src/streamMotionManager.c";

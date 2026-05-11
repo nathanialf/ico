@@ -64,3 +64,5 @@ __attribute__((section(".lit4.0x006312F0"))) float D_006312F0 = 0.01f;
 __attribute__((section(".lit4.0x006312F4"))) float D_006312F4 = 0.01f;
 __attribute__((section(".lit4.0x006312F8"))) float D_006312F8 = 0.01f;
 __attribute__((section(".lit4.0x006312FC"))) float D_006312FC = 0.01f;
+
+__attribute__((section(".rodata.0x00618DB0"))) const char D_00618DB0[24] = "src/enemyParts.c";

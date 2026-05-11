@@ -26,3 +26,5 @@ __attribute__((section(".lit4.0x006313C4"))) float D_006313C4 = 10430.3779f;
 __attribute__((section(".lit4.0x006313C8"))) float D_006313C8 = 10430.3779f;
 __attribute__((section(".lit4.0x006313CC"))) float D_006313CC = 10430.3779f;
 __attribute__((section(".sdata.0x006335C0"))) const char D_006335C0[8] = "0";
+
+__attribute__((section(".rodata.0x00619EE0"))) const char D_00619EE0[16] = "src/rope.c";

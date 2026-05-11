@@ -42,3 +42,7 @@ __attribute__((section(".sdata.0x0063272C"))) unsigned int D_0063272C = 0x000000
 __attribute__((section(".sdata.0x00632730"))) int D_00632730 = 0;
 __attribute__((section(".sdata.0x00632734"))) int D_00632734 = 0;
 __attribute__((section(".sdata.0x00632CF8"))) int D_00632CF8 = 0;
+
+__attribute__((section(".rodata.0x0055A940"))) const char D_0055A940[24] = "src/camera-ico2.c";
+
+__attribute__((section(".rodata.0x0055AA50"))) const char D_0055AA50[16] = "%d,%d,%d %d";

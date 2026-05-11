@@ -18,9 +18,38 @@
  */
 
 __attribute__((section(".sdata.0x00632514"))) int D_00632514 = 0;
-__attribute__((section(".sdata.0x00632518"))) unsigned char D_00632518[8] = { 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-__attribute__((section(".sdata.0x00632520"))) unsigned char D_00632520[8] = { 0x80, 0x80, 0x80, 0x80, 0x00, 0x00, 0x00, 0x00 };
-__attribute__((section(".sdata.0x00632528"))) unsigned char D_00632528[32] = { 0x30, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x3E, 0x25, 0x64, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0x25, 0x64, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+__attribute__((section(".sdata.0x00632518"))) int D_00632518 = 0x00000001;
+__attribute__((section(".sdata.0x0063251C"))) int D_0063251C = 0x00000000;
+__attribute__((section(".sdata.0x00632520"))) int D_00632520 = 0x80808080;
+__attribute__((section(".sdata.0x00632524"))) int D_00632524 = 0x00000000;
+__attribute__((section(".sdata.0x00632528"))) int D_00632528 = 0x00000030;
+__attribute__((section(".sdata.0x0063252C"))) int D_0063252C = 0x00000000;
+__attribute__((section(".sdata.0x00632530"))) int D_00632530 = 0x0064253E;
+__attribute__((section(".sdata.0x00632534"))) int D_00632534 = 0x00000000;
+__attribute__((section(".sdata.0x00632538"))) int D_00632538 = 0x00642520;
+__attribute__((section(".sdata.0x0063253C"))) int D_0063253C = 0x00000000;
+__attribute__((section(".sdata.0x00632540"))) int D_00632540 = 0x0000000A;
+__attribute__((section(".sdata.0x00632544"))) int D_00632544 = 0x00000000;
 __attribute__((section(".sdata.0x00632548"))) char D_00632548[8] = { 0 };
-__attribute__((section(".sdata.0x00632550"))) unsigned char D_00632550[64] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x72, 0x65, 0x73, 0x65, 0x74, 0x0A, 0x00, 0x00, 0x68, 0x69, 0x74, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x66, 0x72, 0x65, 0x65, 0x0A, 0x00, 0x00, 0x00, 0x66, 0x61, 0x69, 0x6C, 0x0A, 0x00, 0x00, 0x00, 0x65, 0x76, 0x3A, 0x25, 0x66, 0x0A, 0x00, 0x00, 0x64, 0x73, 0x74, 0x20, 0x25, 0x70, 0x0A, 0x00, 0x2D, 0x3E, 0x25, 0x70, 0x0A, 0x00, 0x00, 0x00 };
+__attribute__((section(".sdata.0x00632550"))) int D_00632550 = 0x00000000;
+__attribute__((section(".sdata.0x00632554"))) int D_00632554 = 0x00000000;
+__attribute__((section(".sdata.0x00632558"))) int D_00632558 = 0x65736572;
+__attribute__((section(".sdata.0x0063255C"))) int D_0063255C = 0x00000A74;
+__attribute__((section(".sdata.0x00632560"))) int D_00632560 = 0x0A746968;
+__attribute__((section(".sdata.0x00632564"))) int D_00632564 = 0x00000000;
+__attribute__((section(".sdata.0x00632568"))) int D_00632568 = 0x65657266;
+__attribute__((section(".sdata.0x0063256C"))) int D_0063256C = 0x0000000A;
+__attribute__((section(".sdata.0x00632570"))) int D_00632570 = 0x6C696166;
+__attribute__((section(".sdata.0x00632574"))) int D_00632574 = 0x0000000A;
+__attribute__((section(".sdata.0x00632578"))) int D_00632578 = 0x253A7665;
+__attribute__((section(".sdata.0x0063257C"))) int D_0063257C = 0x00000A66;
+__attribute__((section(".sdata.0x00632580"))) int D_00632580 = 0x20747364;
+__attribute__((section(".sdata.0x00632584"))) int D_00632584 = 0x000A7025;
+__attribute__((section(".sdata.0x00632588"))) int D_00632588 = 0x70253E2D;
+__attribute__((section(".sdata.0x0063258C"))) int D_0063258C = 0x0000000A;
 __attribute__((section(".sdata.0x00632590"))) char D_00632590[8] = { 0 };
+
+__attribute__((section(".rodata.0x00559B88"))) const char D_00559B88[16] = "src/jimaku.c";
+
+__attribute__((section(".rodata.0x00559B68"))) const char D_00559B68[16] = "jimaku%02d.tm2";
+__attribute__((section(".rodata.0x00559B98"))) const char D_00559B98[40] = "jimakuManager: recv command %d error.";

@@ -41,5 +41,8 @@ __attribute__((section(".sdata.0x006337F0"))) int D_006337F0 = 0;
 __attribute__((section(".sdata.0x006337F4"))) unsigned int D_006337F4 = 0x00000080;
 __attribute__((section(".sdata.0x006337F8"))) unsigned int D_006337F8 = 0x00000080;
 __attribute__((section(".sdata.0x006337FC"))) unsigned int D_006337FC = 0x00000080;
-__attribute__((section(".sdata.0x00633800"))) unsigned char D_00633800[8] = { 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+__attribute__((section(".sdata.0x00633800"))) int D_00633800 = 0x00000080;
+__attribute__((section(".sdata.0x00633804"))) int D_00633804 = 0x00000000;
 __attribute__((section(".sdata.0x00633808"))) const char D_00633808[8] = "font";
+
+__attribute__((section(".rodata.0x0061A8D8"))) const char D_0061A8D8[24] = "src/BgAnimation.c";

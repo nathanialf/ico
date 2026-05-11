@@ -72,3 +72,10 @@ __attribute__((section(".lit4.0x00631068"))) float D_00631068 = 0.001f;
 __attribute__((section(".sdata.0x00632774"))) int D_00632774 = 0;
 __attribute__((section(".sdata.0x00632778"))) char D_00632778[8] = { 0 };
 __attribute__((section(".sdata.0x00632780"))) int D_00632780 = 0;
+
+__attribute__((section(".rodata.0x0055AE08"))) const char D_0055AE08[16] = "src/ebrain.c";
+
+__attribute__((section(".rodata.0x0055AE18"))) const char D_0055AE18[16] = "UseStageNo>0";
+__attribute__((section(".rodata.0x0055AE28"))) const char D_0055AE28[24] = "GeneratorLabel>0";
+__attribute__((section(".rodata.0x005F2FB8"))) const char D_005F2FB8[32] = "NULL";
+__attribute__((section(".rodata.0x005F2FD8"))) const char D_005F2FD8[32] = "dummy";

@@ -36,3 +36,5 @@ __attribute__((section(".sdata.0x00633050"))) int D_00633050 = 0;
 __attribute__((section(".sdata.0x00633054"))) int D_00633054 = 0;
 __attribute__((section(".sdata.0x00633058"))) int D_00633058 = 0;
 __attribute__((section(".sdata.0x0063305C"))) int D_0063305C = 0;
+
+__attribute__((section(".rodata.0x00616CA8"))) const char D_00616CA8[24] = "src/kanban.c";

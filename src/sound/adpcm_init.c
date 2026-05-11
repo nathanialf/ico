@@ -17,6 +17,9 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".sdata.0x006321E8"))) unsigned char D_006321E8[8] = { 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+__attribute__((section(".sdata.0x006321E8"))) int D_006321E8 = 0x00000001;
+__attribute__((section(".sdata.0x006321EC"))) int D_006321EC = 0x00000000;
 __attribute__((section(".sdata.0x006321F0"))) const char D_006321F0[8] = "0";
 __attribute__((section(".sdata.0x006321F8"))) const char D_006321F8[8] = "%s\n";
+
+__attribute__((section(".rodata.0x00557B78"))) const char D_00557B78[24] = "sound/adpcm_init.c";

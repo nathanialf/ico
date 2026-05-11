@@ -31,5 +31,9 @@ __attribute__((section(".sdata.0x006337AA"))) char D_006337AA = 0;
 __attribute__((section(".sdata.0x006337AB"))) unsigned char D_006337AB = 0x00;
 __attribute__((section(".sdata.0x006337AC"))) int _pad_006337AC = 0;
 __attribute__((section(".sdata.0x00633810"))) char D_00633810[8] = { 0 };
-__attribute__((section(".sdata.0x00633818"))) unsigned char D_00633818[12] = { 0x46, 0x41, 0x4C, 0x53, 0x45, 0x00, 0x00, 0x00, 0x65, 0x00, 0x00, 0x00 };
+__attribute__((section(".sdata.0x00633818"))) int D_00633818 = 0x534C4146;
+__attribute__((section(".sdata.0x0063381C"))) int D_0063381C = 0x00000045;
+__attribute__((section(".sdata.0x00633820"))) int D_00633820 = 0x00000065;
 __attribute__((section(".sdata.0x00633824"))) int D_00633824 = 0;
+
+__attribute__((section(".rodata.0x0061AB88"))) const char D_0061AB88[24] = "src/DisplayList.c";

@@ -56,10 +56,15 @@ __attribute__((section(".lit4.0x00630F8C"))) float D_00630F8C = 3.14159274f;
 __attribute__((section(".lit4.0x00630F90"))) float D_00630F90 = -0.2f;
 __attribute__((section(".lit4.0x00630F94"))) float D_00630F94 = 0.1f;
 __attribute__((section(".lit4.0x00630F98"))) float D_00630F98 = 3.14159274f;
-__attribute__((section(".sdata.0x00632758"))) unsigned char D_00632758[8] = { 0xFF, 0xFF, 0x7F, 0x7F, 0x00, 0x00, 0x00, 0x00 };
+__attribute__((section(".sdata.0x00632758"))) int D_00632758 = 0x7F7FFFFF;
+__attribute__((section(".sdata.0x0063275C"))) int D_0063275C = 0x00000000;
 __attribute__((section(".sdata.0x00632760"))) const char D_00632760[8] = "0";
 __attribute__((section(".sdata.0x00632768"))) unsigned int D_00632768 = 0x000A6425;
 __attribute__((section(".sdata.0x0063276C"))) unsigned int D_0063276C = 0x7F7FFFFF;
 __attribute__((section(".sdata.0x00632770"))) unsigned int D_00632770 = 0x7F7FFFFF;
 __attribute__((section(".sdata.0x00632CBC"))) int D_00632CBC = 0;
 __attribute__((section(".sdata.0x00632D94"))) int D_00632D94 = 0;
+
+__attribute__((section(".rodata.0x0055AA90"))) const char D_0055AA90[16] = "src/chain.c";
+
+__attribute__((section(".rodata.0x0055AAA0"))) const char D_0055AAA0[16] = "nearestNode!=-1";

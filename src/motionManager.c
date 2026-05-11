@@ -77,7 +77,11 @@ __attribute__((section(".sdata.0x00633458"))) int D_00633458 = 0;
 __attribute__((section(".sdata.0x0063345C"))) unsigned int D_0063345C = 0x7F7FFFFF;
 __attribute__((section(".sdata.0x00633460"))) unsigned int D_00633460 = 0x00000065;
 __attribute__((section(".sdata.0x00633464"))) unsigned int D_00633464 = 0x7F7FFFFF;
-__attribute__((section(".sdata.0x00633468"))) unsigned char D_00633468[8] = { 0xFF, 0xFF, 0x7F, 0x7F, 0x00, 0x00, 0x00, 0x00 };
-__attribute__((section(".sdata.0x00633470"))) unsigned char D_00633470[8] = { 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF };
+__attribute__((section(".sdata.0x00633468"))) int D_00633468 = 0x7F7FFFFF;
+__attribute__((section(".sdata.0x0063346C"))) int D_0063346C = 0x00000000;
+__attribute__((section(".sdata.0x00633470"))) int D_00633470 = 0x00000000;
+__attribute__((section(".sdata.0x00633474"))) int D_00633474 = 0xFFFFFFFF;
 __attribute__((section(".sdata.0x00633478"))) int D_00633478 = 0;
 __attribute__((section(".sdata.0x0063347C"))) int D_0063347C = 0;
+
+__attribute__((section(".rodata.0x006192E0"))) const char D_006192E0[24] = "src/motionManager.c";

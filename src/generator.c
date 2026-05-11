@@ -20,7 +20,8 @@
 __attribute__((section(".sdata.0x00632798"))) const char D_00632798[8] = "0";
 __attribute__((section(".sdata.0x006327A0"))) const char D_006327A0[8] = "revive";
 __attribute__((section(".sdata.0x006327A8"))) const char D_006327A8[8] = "error!";
-__attribute__((section(".sdata.0x006327B0"))) unsigned char D_006327B0[8] = { 0xFF, 0xFF, 0x7F, 0x7F, 0x00, 0x00, 0x00, 0x00 };
+__attribute__((section(".sdata.0x006327B0"))) int D_006327B0 = 0x7F7FFFFF;
+__attribute__((section(".sdata.0x006327B4"))) int D_006327B4 = 0x00000000;
 __attribute__((section(".sdata.0x006327B8"))) const char D_006327B8[8] = "EAT";
 __attribute__((section(".sdata.0x006327C0"))) const char D_006327C0[8] = "STEP";
 __attribute__((section(".sdata.0x006327C8"))) const char D_006327C8[8] = "GROOM";
@@ -46,3 +47,5 @@ __attribute__((section(".sdata.0x00632840"))) int D_00632840 = 0;
 __attribute__((section(".sdata.0x00632844"))) int D_00632844 = 0;
 __attribute__((section(".sdata.0x00632848"))) const char D_00632848[8] = "here\n";
 __attribute__((section(".sdata.0x00632850"))) int D_00632850 = 0;
+
+__attribute__((section(".rodata.0x0055AEA0"))) const char D_0055AEA0[16] = "src/generator.c";

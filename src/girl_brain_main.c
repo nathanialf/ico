@@ -17,9 +17,19 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".sdata.0x00632450"))) unsigned char D_00632450[16] = { 0x30, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x49, 0x49, 0x49, 0x00, 0x00, 0x00, 0x00, 0x00 };
+__attribute__((section(".sdata.0x00632450"))) int D_00632450 = 0x00000030;
+__attribute__((section(".sdata.0x00632454"))) int D_00632454 = 0x00000000;
+__attribute__((section(".sdata.0x00632458"))) int D_00632458 = 0x00494949;
+__attribute__((section(".sdata.0x0063245C"))) int D_0063245C = 0x00000000;
 __attribute__((section(".sdata.0x00632460"))) const char D_00632460[8] = "DIRECT";
-__attribute__((section(".sdata.0x00632468"))) unsigned char D_00632468[16] = { 0x46, 0x41, 0x4C, 0x53, 0x45, 0x00, 0x00, 0x00, 0x58, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+__attribute__((section(".sdata.0x00632468"))) int D_00632468 = 0x534C4146;
+__attribute__((section(".sdata.0x0063246C"))) int D_0063246C = 0x00000045;
+__attribute__((section(".sdata.0x00632470"))) int D_00632470 = 0x00000058;
+__attribute__((section(".sdata.0x00632474"))) int D_00632474 = 0x00000000;
 __attribute__((section(".sdata.0x00632478"))) const char D_00632478[8] = "WAIT";
 __attribute__((section(".sdata.0x00632480"))) const char D_00632480[8] = "END";
 __attribute__((section(".sdata.0x00632488"))) const char D_00632488[8] = "IDLE";
+
+__attribute__((section(".rodata.0x00559528"))) const char D_00559528[32] = "src/girl_brain_main.c.inc";
+__attribute__((section(".rodata.0x00559548"))) const char D_00559548[16] = "SAMEGROUP";
+__attribute__((section(".rodata.0x00559558"))) const char D_00559558[24] = "OTHERGROUP";

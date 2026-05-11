@@ -153,20 +153,36 @@ or function-pointer tables.
 1. **Pick a TU.** Find its `_data.c` (`ls src/*_data.c src/*/*_data.c`).
 2. **Identify the destination .c.** Drop the `_data` suffix:
    `src/Basic_data.c` → `src/Basic.c`. If the destination doesn't exist
-   yet, create it with a preamble comment describing the TU's VMA
-   range (see `src/Basic.c` for the format — it's the existing
-   promoted reference).
+   yet, create it parappa2-style: a single-line anchor comment naming
+   the file and the __FILE__ anchor VMA (e.g.
+   `/* src/sugiTree.c — __FILE__ anchor at .rodata 0x0061A6D8 */`),
+   then the definitions. **Do not** copy the multi-paragraph stylized
+   header from `decode_sdata_lit4_typed.py`-generated files or the
+   "Typed reconstruction of this TU's …" boilerplate — parappa2-style
+   files are minimal, code over prose. Keep `src/Basic.c`'s longer
+   preamble only when there's genuinely TU-specific info worth
+   recording (its TU range, padding nop, etc.).
 3. **Type one symbol.** Open the `_data.c`, grab one definition,
    re-type it into the destination .c with the most natural C shape
    you can justify. Keep the section attribute and `D_<VMA>` name
    on the leading line.
-4. **Rebuild.** `make && verify-target`. If SHA-1 fails, run
-   `tools/first_diff.py`, fix, repeat.
-5. **Commit.** One commit per TU's data-side migration, or one per
+4. **Quick verify (inner loop).** Run
+   `tools/quick_data_diff.py src/<TU>.c [src/<TU2>.c ...]`. This
+   compiles just those files and byte-compares every `D_<VMA>` against
+   the baseelf — seconds, no link. If every symbol reports MATCH the
+   full link will too. Use this after every typed symbol.
+5. **Full rebuild (end of batch / pre-commit).** `make && verify-target`.
+   The link takes ~4 minutes on this input size (BFD ld is
+   near-quadratic on huge link lines; `-Map` / `--no-keep-memory`
+   don't help) — that's expected, not a hang. **Always invoke `make`
+   with an explicit timeout** (~6 min) so a genuinely-stuck build
+   doesn't eat the whole turn. If SHA-1 fails, run `tools/first_diff.py`
+   (text) or re-run `quick_data_diff.py --all` to localize.
+6. **Commit.** One commit per TU's data-side migration, or one per
    logical group within a TU if the TU is huge. Commit message
    format mirrors the rest of the repo (read recent commits) — no
    AI co-author trailer.
-6. **Verify the auto-generated sidecar shrinks.** On the next
+7. **Verify the auto-generated sidecar shrinks.** On the next
    `make setup`, your typed symbols should disappear from
    `src/<TU>_data.c` because the migrator's
    `_scan_existing_definitions()` picks them up.

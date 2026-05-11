@@ -31,3 +31,5 @@ __attribute__((section(".sdata.0x00633260"))) const char D_00633260[8] = "ATTACK
 __attribute__((section(".sdata.0x00633268"))) const char D_00633268[8] = "JUMP";
 __attribute__((section(".sdata.0x00633270"))) const char D_00633270[8] = "WALK";
 __attribute__((section(".sdata.0x00633278"))) const char D_00633278[8] = "STAND";
+
+__attribute__((section(".rodata.0x00618550"))) const char D_00618550[16] = "src/a_p_1.c";

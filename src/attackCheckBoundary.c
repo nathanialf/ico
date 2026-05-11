@@ -19,3 +19,5 @@
 
 __attribute__((section(".sdata.0x00633280"))) char D_00633280[7] = { 0 };
 __attribute__((section(".sdata.0x00633287"))) char D_00633287 = 0;
+
+__attribute__((section(".rodata.0x006185E8"))) const char D_006185E8[32] = "src/attackCheckBoundary.c";

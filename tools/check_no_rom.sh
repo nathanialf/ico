@@ -73,7 +73,40 @@ for f in "${files[@]}"; do
     fi
 done
 
-# --- 5. gitignore-tracked anomalies ---
+# --- 5. raw byte-array initializers in tracked src/ ---
+# The auto-generated `src/<TU>_data.c` sidecars (gitignored) emit
+# `__attribute__((section(".X.0xVMA"))) unsigned char D_<VMA>[N] = { 0x..., ... }`
+# — that's raw bytes from the original ELF, not a developer reconstruction.
+# Tracked `src/**/*.c` must use TYPED forms (string literals, ints, floats,
+# named pointer arrays, struct literals). If a hand-promoted file slips in
+# a byte-array initializer, fail the commit — the bytes shouldn't be
+# laundered into the tracked tree by changing only the filename.
+for f in "${files[@]}"; do
+    [[ -z "$f" ]] && continue
+    [[ ! -f "$f" ]] && continue
+    # Only check tracked src/ .c files; skip gitignored *_data.c sidecars
+    # (those are expected to be raw bytes) and anything outside src/.
+    case "$f" in
+        src/*.c) ;;
+        *) continue ;;
+    esac
+    case "$f" in
+        */[!/]*_data.c|*_data.c) continue ;;
+    esac
+    # Detect `(unsigned char|char|uint8_t|u8|s8|int8_t) D_<8hex>[<N>] = { ... , ... }`
+    # in a per-VMA section. Word-typed initializers (`int D_X[2] = { 0x80, 0 }`)
+    # are fine — they're typed reconstructions. Byte arrays with multiple
+    # brace-init elements are the migrator's raw-bytes shape.
+    byte_type_re='(unsigned[[:space:]]+char|signed[[:space:]]+char|char|uint8_t|int8_t|u8|s8)'
+    if grep -nE "__attribute__[[:space:]]*\(\([[:space:]]*section[[:space:]]*\([[:space:]]*\"\.\w+\.0x[0-9A-Fa-f]+\"[[:space:]]*\)[[:space:]]*\)\)[[:space:]]+(const[[:space:]]+)?${byte_type_re}[[:space:]]+D_[0-9A-Fa-f]{8}[[:space:]]*\[[0-9]+\][[:space:]]*=[[:space:]]*\{[^}]*,[^}]*\}" "$f" >/dev/null 2>&1; then
+        note "raw byte-array initializer in tracked source: $f"
+        note "  ICO data sections must be typed (string literal / int / float /"
+        note "  named pointer array / struct), not raw bytes. See decomp/MATCH_DATA.md."
+        grep -nE "__attribute__[[:space:]]*\(\([[:space:]]*section[[:space:]]*\([[:space:]]*\"\.\w+\.0x[0-9A-Fa-f]+\"[[:space:]]*\)[[:space:]]*\)\)[[:space:]]+(const[[:space:]]+)?${byte_type_re}[[:space:]]+D_[0-9A-Fa-f]{8}[[:space:]]*\[[0-9]+\][[:space:]]*=[[:space:]]*\{[^}]*,[^}]*\}" "$f" 2>&1 | head -3 >&2
+    fi
+done
+
+# --- 6. gitignore-tracked anomalies ---
 while IFS= read -r f; do
     [[ -z "$f" ]] && continue
     if git check-ignore -q "$f" 2>/dev/null; then

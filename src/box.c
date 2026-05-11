@@ -48,3 +48,8 @@ __attribute__((section(".sdata.0x00633288"))) unsigned int D_00633288 = 0x7F7FFF
 __attribute__((section(".sdata.0x0063328C"))) int D_0063328C = 0;
 __attribute__((section(".sdata.0x00633290"))) const char D_00633290[8] = "%d\n";
 __attribute__((section(".sdata.0x00633298"))) const char D_00633298[8] = "tape_b";
+
+__attribute__((section(".rodata.0x006186A0"))) const char D_006186A0[16] = "src/box.c";
+
+__attribute__((section(".rodata.0x00618818"))) const char D_00618818[16] = "b_mantle";
+__attribute__((section(".rodata.0x00618828"))) const char D_00618828[16] = "tape_boro";

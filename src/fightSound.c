@@ -20,3 +20,5 @@
 __attribute__((section(".sdata.0x00632784"))) int D_00632784 = 0;
 __attribute__((section(".sdata.0x00632788"))) char D_00632788[8] = { 0 };
 __attribute__((section(".sdata.0x00632790"))) const char D_00632790[8] = "0";
+
+__attribute__((section(".rodata.0x0055AE88"))) const char D_0055AE88[24] = "src/fightSound.c";

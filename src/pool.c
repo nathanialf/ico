@@ -38,7 +38,8 @@ __attribute__((section(".lit4.0x006309C8"))) float D_006309C8 = 0.001f;
 __attribute__((section(".lit4.0x006309CC"))) float D_006309CC = 536870880.0f;
 __attribute__((section(".sdata.0x00631B68"))) int D_00631B68 = 0;
 __attribute__((section(".sdata.0x00631B6C"))) int D_00631B6C = 0;
-__attribute__((section(".sdata.0x00631B70"))) unsigned char D_00631B70[8] = { 0x80, 0x80, 0x80, 0x80, 0x00, 0x00, 0x00, 0x00 };
+__attribute__((section(".sdata.0x00631B70"))) int D_00631B70 = 0x80808080;
+__attribute__((section(".sdata.0x00631B74"))) int D_00631B74 = 0x00000000;
 __attribute__((section(".sdata.0x00631B78"))) unsigned int D_00631B78 = 0x80FFFFFF;
 __attribute__((section(".sdata.0x00631B7C"))) unsigned int D_00631B7C = 0xFFFFFFFF;
 __attribute__((section(".sdata.0x00631B80"))) int D_00631B80 = 0;
@@ -76,3 +77,14 @@ __attribute__((section(".sdata.0x00631C60"))) int D_00631C60 = 0;
 __attribute__((section(".sdata.0x00631C68"))) int D_00631C68 = 0;
 __attribute__((section(".sdata.0x00631C6C"))) int D_00631C6C = 0;
 __attribute__((section(".sdata.0x00632D48"))) int D_00632D48 = 0;
+
+__attribute__((section(".rodata.0x00553DE0"))) const char D_00553DE0[16] = "src/pool.c";
+
+__attribute__((section(".rodata.0x00553E90"))) const char D_00553E90[32] = "display object = %d";
+__attribute__((section(".rodata.0x00553F10"))) const char D_00553F10[24] = "cdrom0:\\IOPRP224.IMG;1";
+__attribute__((section(".rodata.0x00553F40"))) const char D_00553F40[24] = "cdrom0:\\SIO2MAN.IRX;1";
+__attribute__((section(".rodata.0x00553F58"))) const char D_00553F58[24] = "cdrom0:\\PADMAN.IRX;1";
+__attribute__((section(".rodata.0x00553F70"))) const char D_00553F70[24] = "cdrom0:\\MCMAN.IRX;1";
+__attribute__((section(".rodata.0x00553F88"))) const char D_00553F88[24] = "cdrom0:\\MCSERV.IRX;1";
+__attribute__((section(".rodata.0x00553FA0"))) const char D_00553FA0[24] = "cdrom0:\\LIBSD.IRX;1";
+__attribute__((section(".rodata.0x00553FB8"))) const char D_00553FB8[24] = "cdrom0:\\SNDN2DRV.IRX;1";

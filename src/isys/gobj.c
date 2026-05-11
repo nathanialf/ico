@@ -24,3 +24,5 @@ __attribute__((section(".sdata.0x006321CC"))) int D_006321CC = 0;
 __attribute__((section(".sdata.0x006321D0"))) int D_006321D0 = 0;
 __attribute__((section(".sdata.0x006321D4"))) int D_006321D4 = 0;
 __attribute__((section(".sdata.0x006321D8"))) int D_006321D8 = 0;
+
+__attribute__((section(".rodata.0x00557A10"))) const char D_00557A10[16] = "isys/gobj.c";

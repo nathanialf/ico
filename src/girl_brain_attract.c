@@ -82,3 +82,16 @@ __attribute__((section(".sdata.0x006324F8"))) int D_006324F8 = 0;
 __attribute__((section(".sdata.0x006324FC"))) unsigned int D_006324FC = 0x7F7FFFFF;
 __attribute__((section(".sdata.0x00632500"))) int D_00632500 = 0;
 __attribute__((section(".sdata.0x00632504"))) int D_00632504 = 0;
+
+__attribute__((section(".rodata.0x00559620"))) const char D_00559620[32] = "src/girl_brain_attract.c.inc";
+__attribute__((section(".rodata.0x00559690"))) const char D_00559690[16] = "MOVE LOOP";
+__attribute__((section(".rodata.0x005596A0"))) const char D_005596A0[16] = "MOVE START";
+__attribute__((section(".rodata.0x005596D8"))) const char D_005596D8[32] = "box escape position not found";
+__attribute__((section(".rodata.0x005596F8"))) const char D_005596F8[24] = "next error";
+__attribute__((section(".rodata.0x00559720"))) const char D_00559720[16] = "ATTRLOOK";
+__attribute__((section(".rodata.0x00559730"))) const char D_00559730[16] = "LOOKONLY";
+__attribute__((section(".rodata.0x00559740"))) const char D_00559740[16] = "APPROACH";
+__attribute__((section(".rodata.0x00559750"))) const char D_00559750[16] = "LOSTTWAY";
+__attribute__((section(".rodata.0x00559760"))) const char D_00559760[16] = "SEARCHWAY";
+__attribute__((section(".rodata.0x00559900"))) const char D_00559900[16] = "[%d] [%d]";
+__attribute__((section(".rodata.0x00559B50"))) const char D_00559B50[24] = "Tex_jimaku/data.jim";

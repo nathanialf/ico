@@ -20,3 +20,5 @@
 __attribute__((section(".sdata.0x00631B20"))) int D_00631B20 = 0;
 __attribute__((section(".sdata.0x00631B24"))) int D_00631B24 = 0;
 __attribute__((section(".sdata.0x00631B28"))) const char D_00631B28[8] = "0";
+
+__attribute__((section(".rodata.0x00553AB8"))) const char D_00553AB8[24] = "src/delayFreeManager.c";

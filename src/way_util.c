@@ -76,3 +76,11 @@ __attribute__((section(".sdata.0x006338C0"))) const char D_006338C0[] = "loaded\
 __attribute__((section(".sdata.0x006338C8"))) const char D_006338C8[] = "way0000";
 __attribute__((section(".sdata.0x006338D0"))) const char D_006338D0[8] = "%s.txt";
 __attribute__((section(".sdata.0x006338D8"))) const char D_006338D8[8] = "play";
+
+__attribute__((section(".rodata.0x0055A138"))) const char D_0055A138[16] = "deamon start";
+__attribute__((section(".rodata.0x0055A148"))) const char D_0055A148[16] = "bridge create";
+__attribute__((section(".rodata.0x0055A158"))) const char D_0055A158[24] = "bridge delete";
+__attribute__((section(".rodata.0x0055A2A0"))) const char D_0055A2A0[16] = "face_sadow_sd";
+__attribute__((section(".rodata.0x0055A2B0"))) const char D_0055A2B0[32] = "face_sadow_sd_00";
+__attribute__((section(".rodata.0x0055A370"))) const char D_0055A370[16] = "queen_ball_scr";
+__attribute__((section(".rodata.0x0055A380"))) const char D_0055A380[16] = "sekika_boy";

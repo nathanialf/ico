@@ -20,3 +20,7 @@
 __attribute__((section(".lit4.0x006313A4"))) float D_006313A4 = 4095.0f;
 __attribute__((section(".lit4.0x006313A8"))) float D_006313A8 = 0.2f;
 __attribute__((section(".lit4.0x006313AC"))) float D_006313AC = 4095.0f;
+
+__attribute__((section(".rodata.0x00619E08"))) const char D_00619E08[24] = "src/particleEffect.c";
+
+__attribute__((section(".rodata.0x00619DF8"))) const char D_00619DF8[16] = "enemy_tex01";

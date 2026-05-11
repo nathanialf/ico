@@ -37,3 +37,7 @@ __attribute__((section(".lit4.0x00631420"))) float D_00631420 = 0.02f;
 __attribute__((section(".lit4.0x00631424"))) float D_00631424 = 0.05f;
 __attribute__((section(".lit4.0x00631428"))) float D_00631428 = 8.99999f;
 __attribute__((section(".lit4.0x0063142C"))) float D_0063142C = 8.99999f;
+
+__attribute__((section(".rodata.0x0061A470"))) const char D_0061A470[16] = "src/stormTest.c";
+
+__attribute__((section(".rodata.0x0061A650"))) const char D_0061A650[24] = "STANDBY %d CHARS %s";

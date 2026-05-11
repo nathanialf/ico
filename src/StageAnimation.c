@@ -27,3 +27,11 @@ __attribute__((section(".sdata.0x00631DB0"))) const char D_00631DB0[] = "PSMCT32
 __attribute__((section(".sdata.0x00631DB8"))) const char D_00631DB8[] = "PSMCT24";
 __attribute__((section(".sdata.0x00631DC0"))) const char D_00631DC0[] = "PSMCT16";
 __attribute__((section(".sdata.0x00631DC8"))) const char D_00631DC8[8] = "NONE";
+
+__attribute__((section(".rodata.0x00555BF8"))) const char D_00555BF8[24] = "src/StageAnimation.c";
+
+__attribute__((section(".rodata.0x00612348"))) const char D_00612348[48] = "object/sdf/demo/conte06/d6.smb";
+__attribute__((section(".rodata.0x00612378"))) const char D_00612378[48] = "object/sdf/demo/conte09/d9.smb";
+__attribute__((section(".rodata.0x006123A8"))) const char D_006123A8[48] = "object/sdf/demo/conte09a/d9a.smb";
+__attribute__((section(".rodata.0x00612498"))) const char D_00612498[48] = "object/sdf/demo/conte13/d13.smb";
+__attribute__((section(".rodata.0x006124C8"))) const char D_006124C8[48] = "object/sdf/demo/conte06/e3d6.smb";

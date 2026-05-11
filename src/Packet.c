@@ -35,3 +35,13 @@ __attribute__((section(".sdata.0x00631D10"))) const char D_00631D10[8] = "%s";
 __attribute__((section(".sdata.0x00631D18"))) const char D_00631D18[8] = "%s_l";
 __attribute__((section(".sdata.0x00631D20"))) const char D_00631D20[8] = "%s_ref";
 __attribute__((section(".sdata.0x00632D28"))) int D_00632D28 = 0;
+
+__attribute__((section(".rodata.0x00554FD0"))) const char D_00554FD0[16] = "src/Packet.c";
+
+__attribute__((section(".rodata.0x00555038"))) const char D_00555038[24] = "pac_makeNormalStrip";
+__attribute__((section(".rodata.0x00555050"))) const char D_00555050[24] = "pac_getWeight(0)";
+__attribute__((section(".rodata.0x00555068"))) const char D_00555068[24] = "pac_getWeight(1)";
+__attribute__((section(".rodata.0x00555080"))) const char D_00555080[24] = "pac_getWeight(2)";
+__attribute__((section(".rodata.0x00555138"))) const char D_00555138[24] = "pac_makeClusterStrip";
+__attribute__((section(".rodata.0x005551E0"))) const char D_005551E0[16] = "GIFTAG    :";
+__attribute__((section(".rodata.0x00555308"))) const char D_00555308[32] = "pac_countOneVertexPacketSize";

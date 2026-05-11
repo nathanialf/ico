@@ -61,3 +61,9 @@ __attribute__((section(".sdata.0x00631CC8"))) const char D_00631CC8[8] = "AMB ";
 __attribute__((section(".sdata.0x00632D4C"))) int D_00632D4C = 0;
 __attribute__((section(".sdata.0x00632D50"))) int D_00632D50 = 0;
 __attribute__((section(".sdata.0x00632D54"))) int D_00632D54 = 0;
+
+__attribute__((section(".rodata.0x00554CA8"))) const char D_00554CA8[16] = "src/Light.c";
+
+__attribute__((section(".rodata.0x00554D70"))) const char D_00554D70[64] = "PUSH R2 SELECT LIGHT (%d/3) ('SELECT'RETURN MENU)";
+__attribute__((section(".rodata.0x00554DD0"))) const char D_00554DD0[24] = "(addr 0x%08x <fl) : ";
+__attribute__((section(".rodata.0x00554DE8"))) const char D_00554DE8[24] = "(addr 0x%08x <%2d>) : ";

@@ -17,7 +17,10 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".sdata.0x006335C8"))) unsigned char D_006335C8[16] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x25, 0x73, 0x0A, 0x00, 0x00, 0x00, 0x00, 0x00 };
+__attribute__((section(".sdata.0x006335C8"))) int D_006335C8 = 0x00000000;
+__attribute__((section(".sdata.0x006335CC"))) int D_006335CC = 0x00000000;
+__attribute__((section(".sdata.0x006335D0"))) int D_006335D0 = 0x000A7325;
+__attribute__((section(".sdata.0x006335D4"))) int D_006335D4 = 0x00000000;
 __attribute__((section(".sdata.0x006335D8"))) int D_006335D8 = 0;
 __attribute__((section(".sdata.0x006335DC"))) int D_006335DC = 0;
 __attribute__((section(".sdata.0x006335E0"))) const char D_006335E0[] = "SET %d\n";

@@ -25,3 +25,5 @@ __attribute__((section(".lit4.0x006311F4"))) float D_006311F4 = 0.01f;
 __attribute__((section(".lit4.0x006311F8"))) float D_006311F8 = 1e-06f;
 __attribute__((section(".lit4.0x006311FC"))) float D_006311FC = 0.8f;
 __attribute__((section(".lit4.0x00631200"))) float D_00631200 = 0.98f;
+
+__attribute__((section(".rodata.0x00618848"))) const char D_00618848[16] = "src/cage.c";

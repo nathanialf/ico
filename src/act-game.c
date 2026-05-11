@@ -43,3 +43,8 @@ __attribute__((section(".sdata.0x00632278"))) unsigned int _pad_00632278 = 0x000
 __attribute__((section(".sdata.0x0063227C"))) int _pad_0063227C = 0;
 __attribute__((section(".sdata.0x00632280"))) const char D_00632280[8] = "boy";
 __attribute__((section(".sdata.0x00632288"))) const char D_00632288[8] = "girl";
+
+__attribute__((section(".rodata.0x00557F00"))) const char D_00557F00[16] = "src/act-game.c";
+
+__attribute__((section(".rodata.0x00557EE0"))) const char D_00557EE0[32] = "too many view check object";
+__attribute__((section(".rodata.0x005581D8"))) const char D_005581D8[16] = "orient null";

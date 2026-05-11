@@ -64,7 +64,8 @@ __attribute__((section(".sdata.0x00632320"))) const char D_00632320[8] = "[%s]\n
 __attribute__((section(".sdata.0x00632328"))) const char D_00632328[8] = "loop";
 __attribute__((section(".sdata.0x00632330"))) const char D_00632330[8] = "pull";
 __attribute__((section(".sdata.0x00632338"))) const char D_00632338[8] = "push";
-__attribute__((section(".sdata.0x00632340"))) unsigned char D_00632340[8] = { 0xFF, 0xFF, 0x7F, 0x7F, 0x00, 0x00, 0x00, 0x00 };
+__attribute__((section(".sdata.0x00632340"))) int D_00632340 = 0x7F7FFFFF;
+__attribute__((section(".sdata.0x00632344"))) int D_00632344 = 0x00000000;
 __attribute__((section(".sdata.0x00632348"))) const char D_00632348[8] = "PICKUP";
 __attribute__((section(".sdata.0x00632350"))) const char D_00632350[8] = "ATTACK";
 __attribute__((section(".sdata.0x00632358"))) const char D_00632358[8] = "CLING";
@@ -77,7 +78,8 @@ __attribute__((section(".sdata.0x00632388"))) const char D_00632388[8] = "START"
 __attribute__((section(".sdata.0x00632508"))) char D_00632508[8] = { 0 };
 __attribute__((section(".sdata.0x00632510"))) unsigned int D_00632510 = 0x00000078;
 __attribute__((section(".sdata.0x00632DB4"))) int D_00632DB4 = 0;
-__attribute__((section(".sdata.0x00633060"))) unsigned char D_00633060[8] = { 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+__attribute__((section(".sdata.0x00633060"))) int D_00633060 = 0x00000001;
+__attribute__((section(".sdata.0x00633064"))) int D_00633064 = 0x00000000;
 __attribute__((section(".sdata.0x00633068"))) const char D_00633068[8] = "game.";
 __attribute__((section(".sdata.0x00633070"))) int D_00633070 = 0;
 __attribute__((section(".sdata.0x00633074"))) int D_00633074 = 0;
@@ -106,7 +108,8 @@ __attribute__((section(".sdata.0x006330E4"))) int D_006330E4 = 0;
 __attribute__((section(".sdata.0x006330E8"))) const char D_006330E8[8] = "fail\n";
 __attribute__((section(".sdata.0x006330F0"))) int D_006330F0 = 0;
 __attribute__((section(".sdata.0x006330F4"))) int D_006330F4 = 0;
-__attribute__((section(".sdata.0x006330F8"))) unsigned char D_006330F8[8] = { 0x80, 0x80, 0x80, 0x20, 0x00, 0x00, 0x00, 0x00 };
+__attribute__((section(".sdata.0x006330F8"))) int D_006330F8 = 0x20808080;
+__attribute__((section(".sdata.0x006330FC"))) int D_006330FC = 0x00000000;
 __attribute__((section(".sdata.0x00633100"))) unsigned int D_00633100 = 0x2040FF40;
 __attribute__((section(".sdata.0x00633104"))) unsigned int D_00633104 = 0x00000001;
 __attribute__((section(".sdata.0x00633108"))) int D_00633108 = 0;
@@ -119,3 +122,17 @@ __attribute__((section(".sdata.0x00633124"))) int D_00633124 = 0;
 __attribute__((section(".sdata.0x00633128"))) int D_00633128 = 0;
 __attribute__((section(".sdata.0x0063312C"))) unsigned int D_0063312C = 0x000000FF;
 __attribute__((section(".sdata.0x00633130"))) int D_00633130 = 0;
+
+__attribute__((section(".rodata.0x00558860"))) const char D_00558860[16] = "src/commonact.c";
+
+__attribute__((section(".rodata.0x00558870"))) const char D_00558870[16] = "ROPE_GOBJ!=NULL";
+__attribute__((section(".rodata.0x00558920"))) const char D_00558920[64] = "index>=ClingDataID_cling_start && index<ClingDataID_cling_end";
+__attribute__((section(".rodata.0x00558AC0"))) const char D_00558AC0[24] = "EMERGENCY BY NOMOVE";
+__attribute__((section(".rodata.0x00558AD8"))) const char D_00558AD8[24] = "EMERGENCY BY TIMEOUT";
+__attribute__((section(".rodata.0x00558AF0"))) const char D_00558AF0[32] = "EMERGENCY BY DANGER LOOP";
+__attribute__((section(".rodata.0x00558D90"))) const char D_00558D90[24] = "girl becarry error";
+__attribute__((section(".rodata.0x00558DC0"))) const char D_00558DC0[16] = "IRREGULAR";
+__attribute__((section(".rodata.0x00558DD0"))) const char D_00558DD0[16] = "BODYSLAM";
+__attribute__((section(".rodata.0x00558DE0"))) const char D_00558DE0[16] = "SHOULDER";
+__attribute__((section(".rodata.0x00558DF0"))) const char D_00558DF0[16] = "BODYGUARD";
+__attribute__((section(".rodata.0x00558E00"))) const char D_00558E00[16] = "FIND_GIRL";

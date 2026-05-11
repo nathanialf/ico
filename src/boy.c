@@ -32,3 +32,5 @@ __attribute__((section(".lit4.0x006311DC"))) float D_006311DC = 0.001f;
 __attribute__((section(".lit4.0x006311E0"))) float D_006311E0 = 0.06f;
 __attribute__((section(".sdata.0x006332A0"))) int D_006332A0 = 0;
 __attribute__((section(".sdata.0x006332A4"))) int D_006332A4 = 0;
+
+__attribute__((section(".rodata.0x00618838"))) const char D_00618838[16] = "src/boy.c";

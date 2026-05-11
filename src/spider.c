@@ -21,3 +21,7 @@ __attribute__((section(".lit4.0x006313D0"))) float D_006313D0 = 3.14159274f;
 __attribute__((section(".lit4.0x006313D4"))) float D_006313D4 = 10000.0f;
 __attribute__((section(".lit4.0x006313D8"))) float D_006313D8 = 0.9f;
 __attribute__((section(".lit4.0x006313DC"))) float D_006313DC = 1000000.0f;
+
+__attribute__((section(".rodata.0x0061A040"))) const char D_0061A040[16] = "src/spider.c";
+
+__attribute__((section(".rodata.0x0061A188"))) const char D_0061A188[16] = "%c SE:%s AI:%s";

@@ -47,3 +47,5 @@ __attribute__((section(".sdata.0x00632CAC"))) int D_00632CAC = 0;
 __attribute__((section(".sdata.0x00632D2C"))) int D_00632D2C = 0;
 __attribute__((section(".sdata.0x00632D80"))) int D_00632D80 = 0;
 __attribute__((section(".sdata.0x00632D84"))) int D_00632D84 = 0;
+
+__attribute__((section(".rodata.0x00555490"))) const char D_00555490[16] = "src/Primitive.c";

@@ -20,3 +20,7 @@
 __attribute__((section(".sdata.0x00632000"))) int D_00632000 = 0;
 __attribute__((section(".sdata.0x006321B0"))) char D_006321B0[8] = { 0 };
 __attribute__((section(".sdata.0x006321B8"))) const char D_006321B8[8] = "0";
+
+__attribute__((section(".rodata.0x00557890"))) const char D_00557890[16] = "<THREAD_SP>....";
+__attribute__((section(".rodata.0x005578A0"))) const char D_005578A0[16] = "<THREAD_SP_END>";
+__attribute__((section(".rodata.0x005578D0"))) const char D_005578D0[16] = "ios/thread.c";

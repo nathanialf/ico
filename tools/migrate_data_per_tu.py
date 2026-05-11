@@ -434,6 +434,13 @@ def main() -> int:
 
     SRC_ROOT = REPO_ROOT / "src"
     SRC_ROOT.mkdir(parents=True, exist_ok=True)
+    # Clean slate: drop every existing _data.c sidecar. The loop below
+    # only writes files for TUs that still have symbols to migrate, so
+    # without this any TU whose data has been fully hand-typed would
+    # leave a stale sidecar behind — duplicate-defining the typed symbol
+    # and breaking the link.
+    for stale in list(SRC_ROOT.rglob("*_data.c")):
+        stale.unlink()
     generated_basenames: list[str] = []
     skipped_total = 0
     migrated_total = 0

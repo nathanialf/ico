@@ -23,3 +23,10 @@ __attribute__((section(".sdata.0x00633428"))) unsigned int D_00633428 = 0x000001
 __attribute__((section(".sdata.0x0063342C"))) unsigned int D_0063342C = 0x0000018A;
 __attribute__((section(".sdata.0x00633430"))) char D_00633430[8] = { 0 };
 __attribute__((section(".sdata.0x00633438"))) int D_00633438 = 0;
+
+__attribute__((section(".rodata.0x00618F68"))) const char D_00618F68[16] = "src/item.c";
+
+__attribute__((section(".rodata.0x00618FE8"))) const char D_00618FE8[16] = "GAMEMODE LOW0";
+__attribute__((section(".rodata.0x00618FF8"))) const char D_00618FF8[16] = "GAMEMODE LOW";
+__attribute__((section(".rodata.0x00619008"))) const char D_00619008[16] = "GAMEMODE HIGH";
+__attribute__((section(".rodata.0x00619018"))) const char D_00619018[16] = "DEMO MODE";

@@ -33,3 +33,26 @@ __attribute__((section(".sdata.0x006328A0"))) const char D_006328A0[8] = "e";
 __attribute__((section(".sdata.0x006328A8"))) const char D_006328A8[8] = "0";
 __attribute__((section(".sdata.0x006328B0"))) const char D_006328B0[8] = "FALSE";
 __attribute__((section(".sdata.0x006328B8"))) char D_006328B8[8] = { 0 };
+
+__attribute__((section(".rodata.0x00612A70"))) const char D_00612A70[24] = "src/charFileManager.c";
+
+__attribute__((section(".data.0x004D42B0"))) const char D_004D42B0[48] = "object/sdf/boy/model/skelton.skb";
+__attribute__((section(".rodata.0x00613A70"))) const char D_00613A70[16] = "Hide-High";
+__attribute__((section(".rodata.0x00613A80"))) const char D_00613A80[16] = "Hide-Low";
+__attribute__((section(".rodata.0x00613A90"))) const char D_00613A90[16] = "Through-High";
+__attribute__((section(".rodata.0x00613AA0"))) const char D_00613AA0[16] = "Through-Low";
+__attribute__((section(".rodata.0x00613AB0"))) const char D_00613AB0[16] = "High-Deco";
+__attribute__((section(".rodata.0x00613AC0"))) const char D_00613AC0[16] = "Low-Deco";
+__attribute__((section(".rodata.0x00613AD0"))) const char D_00613AD0[16] = "Variable";
+__attribute__((section(".rodata.0x00613AE0"))) const char D_00613AE0[16] = "Double+Wide";
+__attribute__((section(".rodata.0x00613AF0"))) const char D_00613AF0[16] = "Negative-High";
+__attribute__((section(".rodata.0x00613B00"))) const char D_00613B00[16] = "Positive-High";
+__attribute__((section(".rodata.0x00613B10"))) const char D_00613B10[16] = "Negative-Low";
+__attribute__((section(".rodata.0x00613B20"))) const char D_00613B20[16] = "Positive-Low";
+__attribute__((section(".rodata.0x00613B30"))) const char D_00613B30[16] = "Light+Ambient";
+__attribute__((section(".rodata.0x00613B40"))) const char D_00613B40[16] = "AmbientOnly";
+__attribute__((section(".rodata.0x00613B50"))) const char D_00613B50[16] = "LightOnly";
+__attribute__((section(".rodata.0x00613B60"))) const char D_00613B60[16] = "Material";
+__attribute__((section(".rodata.0x00613B70"))) const char D_00613B70[16] = "ExceptCharacter";
+__attribute__((section(".rodata.0x00613B80"))) const char D_00613B80[16] = "IgnoreCarryZ";
+__attribute__((section(".rodata.0x00613B90"))) const char D_00613B90[16] = "CarryZOnly";

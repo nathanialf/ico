@@ -29,3 +29,6 @@ __attribute__((section(".sdata.0x00632180"))) const char D_00632180[] = "pad:76\
 __attribute__((section(".sdata.0x00632188"))) unsigned int D_00632188 = 0x00000030;
 __attribute__((section(".sdata.0x0063218C"))) unsigned int D_0063218C = 0x00000001;
 __attribute__((section(".sdata.0x00632190"))) int D_00632190 = 0;
+
+__attribute__((section(".rodata.0x005576B8"))) const char D_005576B8[24] = "ios/pad.c";
+__attribute__((section(".rodata.0x00557840"))) const char D_00557840[32] = "pad:checking controler... ";

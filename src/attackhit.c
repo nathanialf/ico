@@ -18,3 +18,7 @@
  */
 
 __attribute__((section(".sdata.0x00632DBC"))) int D_00632DBC = 0;
+
+__attribute__((section(".rodata.0x0055A518"))) const char D_0055A518[16] = "src/attackhit.c";
+
+__attribute__((section(".rodata.0x0055A528"))) const char D_0055A528[16] = "gop!=NULL";

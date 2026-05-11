@@ -43,3 +43,15 @@ __attribute__((section(".lit4.0x006310C4"))) float D_006310C4 = 6.28318548f;
 __attribute__((section(".lit4.0x006310C8"))) float D_006310C8 = 5000.0f;
 __attribute__((section(".lit4.0x006310CC"))) float D_006310CC = 2340.57153f;
 __attribute__((section(".lit4.0x006310D0"))) float D_006310D0 = 10430.3779f;
+
+__attribute__((section(".rodata.0x0055C690"))) const char D_0055C690[16] = "src/queen.c";
+
+__attribute__((section(".rodata.0x0055C620"))) const char D_0055C620[40] = "n_enemy_max:%d n_enemy:%d counter:%d";
+__attribute__((section(".rodata.0x0055C658"))) const char D_0055C658[24] = "queen_ball_scr";
+__attribute__((section(".rodata.0x0055C6C8"))) const char D_0055C6C8[16] = "damage:%d";
+__attribute__((section(".rodata.0x0055CEB0"))) const char D_0055CEB0[32] = "../ito/include/mv_defs.h";
+__attribute__((section(".rodata.0x0055CF10"))) const char D_0055CF10[32] = "../ito/include/mv_defs.h";
+__attribute__((section(".rodata.0x0055CF30"))) const char D_0055CF30[16] = "p != NULL";
+__attribute__((section(".rodata.0x0055CF70"))) const char D_0055CF70[40] = "sceMpegGetPicture() decode error";
+__attribute__((section(".rodata.0x0055CFA8"))) const char D_0055CFA8[32] = "../ito/include/mv_defs.h";
+__attribute__((section(".rodata.0x0055CFC8"))) const char D_0055CFC8[16] = "p != NULL";

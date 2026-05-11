@@ -21,3 +21,5 @@ __attribute__((section(".sdata.0x00631B30"))) const char D_00631B30[8] = "e";
 __attribute__((section(".sdata.0x00631B38"))) unsigned int D_00631B38 = 0x00000030;
 __attribute__((section(".sdata.0x00631B3C"))) int D_00631B3C = 0;
 __attribute__((section(".sdata.0x00631B40"))) char D_00631B40[8] = { 0 };
+
+__attribute__((section(".rodata.0x00553AD0"))) const char D_00553AD0[24] = "src/geometryManager.c";

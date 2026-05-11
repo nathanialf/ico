@@ -21,3 +21,15 @@ __attribute__((section(".sdata.0x00633BA8"))) const char D_00633BA8[8] = "%s";
 __attribute__((section(".sdata.0x00633BB0"))) const char D_00633BB0[8] = "\x1b[m";
 __attribute__((section(".sdata.0x00633BB8"))) const char D_00633BB8[8] = "OBJH";
 __attribute__((section(".sdata.0x00633BC0"))) const char D_00633BC0[] = "FALSE";
+
+__attribute__((section(".rodata.0x0062E010"))) const char D_0062E010[16] = "src/PObj.c";
+
+__attribute__((section(".rodata.0x0062E0D8"))) const char D_0062E0D8[16] = "D1_TADR=%08x:";
+__attribute__((section(".rodata.0x0062E0E8"))) const char D_0062E0E8[16] = "D1_MADR=%08x:";
+__attribute__((section(".rodata.0x0062E118"))) const char D_0062E118[16] = "D2_TADR=%08x:";
+__attribute__((section(".rodata.0x0062E128"))) const char D_0062E128[16] = "D2_MADR=%08x:";
+__attribute__((section(".rodata.0x0062E5A0"))) const char D_0062E5A0[24] = "TTY: receive error";
+__attribute__((section(".rodata.0x0062E658"))) const char D_0062E658[8] = "....";
+__attribute__((section(".rodata.0x0062E660"))) const char D_0062E660[8] = "....";
+__attribute__((section(".rodata.0x0062E668"))) const char D_0062E668[8] = "all";
+__attribute__((section(".rodata.0x0062E670"))) const char D_0062E670[16] = "rom0:UDNL ";

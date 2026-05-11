@@ -41,3 +41,7 @@ __attribute__((section(".sdata.0x00633400"))) const char D_00633400[] = "g_hair9
 __attribute__((section(".sdata.0x00633408"))) const char D_00633408[8] = "STONE";
 __attribute__((section(".sdata.0x00633410"))) const char D_00633410[8] = "DEVIL";
 __attribute__((section(".sdata.0x00633418"))) char D_00633418[8] = { 0 };
+
+__attribute__((section(".rodata.0x00618CF0"))) const char D_00618CF0[16] = "src/enemy.c";
+
+__attribute__((section(".rodata.0x00618D00"))) const char D_00618D00[16] = "enemy_sprite";
