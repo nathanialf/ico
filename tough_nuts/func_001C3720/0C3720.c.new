@@ -1,0 +1,9 @@
+extern int *func_00203B40(int *fn, int arg);
+extern void func_001C34C0(void);
+
+void func_001C3720(int *self)
+{
+    int *r = func_00203B40((int *)func_001C34C0, 0x15);
+    self[0] = 0;
+    r[0x20 / 4] = (int)self;
+}

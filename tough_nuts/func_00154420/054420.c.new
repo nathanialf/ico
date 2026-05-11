@@ -2,10 +2,9 @@ extern int D_00631AE4;
 
 int func_00154420(void)
 {
-    int v = *(int *)((char *)*(int *)((char *)D_00631AE4 + 0x164) + 0x30);
-    int ret = 1;
-    if ((unsigned)v < 0x5D) {
-        ret = (unsigned)v < 0x5B;
+    unsigned int x = (unsigned)*(int *)(*(int *)((char *)D_00631AE4 + 0x164) + 0x30);
+    if (x < 0x5D) {
+        return x < 0x5B;
     }
-    return ret;
+    return 1;
 }

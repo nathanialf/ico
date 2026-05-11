@@ -1555,7 +1555,7 @@ segments:
       - [0x0B7100, asm, cod/0B7100]
       - [0x0B718C, asm, cod/0B718C]
       - [0x0B7190, asm, cod/0B7190]
-      - [0x0B7218, asm, cod/0B7218]
+      - [0x0B7218, c,   cod/0B7218]            # func_001B7218: D_002E81F0[idx*108]._68 bit-1 set/clear
       - [0x0B7250, c,   cod/0B7250]            # func_001B7250: D_002E81F0[idx*108]._68 bit-0 set/clear
       - [0x0B7280, c,   cod/0B7280]            # func_001B7280: return D_00633158
       - [0x0B7288, c,   cod/0B7288]            # func_001B7288: D_00633164 = val
@@ -2207,7 +2207,7 @@ segments:
       - [0x13B518, asm, cod/13B518]
       - [0x13C090, asm, cod/13C090]
       - [0x13C0E8, asm, cod/13C0E8]
-      - [0x13C148, asm, cod/13C148]
+      - [0x13C148, c,   cod/13C148]            # func_0023C148: v=func_0018B0A0(); return (v==3 || v==9) ? -1 : 0
       - [0x13C17C, asm, cod/13C17C]
       - [0x13C1C0, asm, cod/13C1C0]
       - [0x13C290, c,   cod/13C290]            # func_0023C290: cache D_00633B48 update keyed by D_00633B4C; ret -1
