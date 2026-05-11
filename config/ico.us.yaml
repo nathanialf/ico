@@ -1757,7 +1757,7 @@ segments:
       - [0x0D2540, c,   cod/0D2540]            # func_001D2540: auto
       - [0x0D2548, c,   cod/0D2548]            # func_001D2548: auto
       - [0x0D2550, asm, cod/0D2550]
-      - [0x0D3D40, asm, cod/0D3D40]
+      - [0x0D3D40, c,   cod/0D3D40]            # func_001D3D40: chain check; return (self->_16C && !*(ll*)(p->_800+8) && p->_800->_48 < 2)
       - [0x0D3D70, c, cod/0D3D70]            # func_001D3D70: 4-insn lw
       - [0x0D3D80, c,   cod/0D3D80]            # func_001D3D80: == 0
       - [0x0D3D94, asm, cod/0D3D94]
