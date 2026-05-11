@@ -246,7 +246,7 @@ segments:
       - [0x000C90, asm, cod/000C90]
       - [0x0011B0, c,   cod/0011B0]            # func_001011B0: if a0==0xA: func_001010C8(0xD); func_001010C8(0xA) else: tail call func_001010C8(a0)
       - [0x0011E4, asm, cod/0011E4]
-      - [0x0019A8, c  , cod/0019A8]            # func_001019A8: varargs forwarder (INCLUDE_ASM — ee-gcc 2.9 lacks stdarg)
+      - [0x0019A8, asm, cod/0019A8]            # func_001019A8: varargs forwarder (ee-gcc 2.9 lacks stdarg)
       - [0x0019E0, asm, cod/0019E0]
       - [0x001AA0, asm, cod/001AA0]
       - [0x001AE4, asm, cod/001AE4]
@@ -1083,7 +1083,7 @@ segments:
       - [0x07D1D0, asm, cod/07D1D0]
       - [0x07D230, c,   cod/07D230]            # func_0017D230: func_0017E188(a0); func_0017E188(0); set _16C=1 on result; call func_001F2148(first)
       - [0x07D270, c  , cod/07D270]            # func_0017D270
-      - [0x07D2C8, c,   cod/07D2C8]            # func_0017D2C8: func_0017D2C8: r=func_0017E188(); if r: ret func_001EA108(r); else: func_001A6E28(D_00559EA8); ret 0.0f
+      - [0x07D2C8, asm, cod/07D2C8]            # func_0017D2C8: r=func_0017E188(); if r: ret func_001EA108(r); else: func_001A6E28(D_00559EA8); ret 0.0f
       - [0x07D308, asm, cod/07D308]
       - [0x07DC90, c,   cod/07DC90]            # func_0017DC90: stack-buf wrapper: f1(buf); f2(a1, a0, buf), 16-byte buf
       - [0x07DCD4, asm, cod/07DCD4]
@@ -1873,7 +1873,7 @@ segments:
       - [0x0F0550, c,   cod/0F0550]            # func_001F0550: tail call func_001F0260 (deref+offset TCO)
       - [0x0F0564, asm, cod/0F0564]
       - [0x0F0858, c,   cod/0F0858]            # func_001F0858: promote: score-0 from permuter (void+return TCO trick)
-      - [0x0F0878, c  , cod/0F0878]            # func_001F0878: permuter score-0 (parked seed)
+      - [0x0F0878, asm, cod/0F0878]            # func_001F0878: parked seed in tough_nuts/ (score-0 was false positive: frame size differs)
       - [0x0F08D4, asm, cod/0F08D4]
       - [0x0F0A28, c,   cod/0F0A28]            # func_001F0A28: tail call func_001A6E28(&D_0061A578) + gp_rel-set 0
       - [0x0F0A38, asm, cod/0F0A38]
@@ -2365,7 +2365,7 @@ segments:
       - [0x146918, c,   cod/146918]            # func_00246918: f1A40(self); update p chain; f1A88(); self[1]=0; ret p
       - [0x146970, asm, cod/146970]
       - [0x146B38, asm, cod/146B38]
-      - [0x146B78, c  , cod/146B78]            # func_00246B78: permuter score-0 (parked seed)
+      - [0x146B78, asm, cod/146B78]            # func_00246B78: parked seed in tough_nuts/ (INCLUDE_ASM stub removed; not actually matched)
       - [0x146BD4, asm, cod/146BD4]
       - [0x147088, c  , cod/147088]            # func_00247088: permuter score-0 (parked seed)
       - [0x1470D4, asm, cod/1470D4]
@@ -2619,7 +2619,7 @@ segments:
       - [0x164028, c,   cod/164028]            # func_00264028: 1-jal w/ u32-return sign-ext via implicit cast
       - [0x164050, c,   cod/164050]            # func_00264050
       - [0x16405C, asm, cod/16405C]
-      - [0x164060, c  , cod/164060]            # func_00264060: permuter score-0 (parked seed)
+      - [0x164060, asm, cod/164060]            # func_00264060: parked seed in tough_nuts/ (INCLUDE_ASM stub removed; not actually matched)
       - [0x164094, asm, cod/164094]
       - [0x164D50, c,   cod/164D50]            # func_00264D50
       - [0x164D60, asm, cod/164D60]
