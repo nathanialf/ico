@@ -169,7 +169,7 @@ def _walk_built_objects() -> dict[str, int]:
     with bytes we haven't actually decompiled.
 
     Returns zeros if the build tree is missing — running progress
-    before a build is supported (e.g. fresh clone, post-`make split`)."""
+    before a build is supported (e.g. fresh clone, post-`tools/build.sh split`)."""
     matched: dict[str, int] = {p: 0 for p in OBJECT_SECTION_PREFIXES}
     if not BUILD_OBJ_DIR.exists():
         return matched

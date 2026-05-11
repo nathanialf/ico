@@ -6,8 +6,9 @@
 # tough_nuts/<name>/<name>.c), disassemble the result, and side-by-side it
 # against asm/nonmatchings/<name>/<func>.s.
 #
-# Skips splat and full ELF linking — runs in ~100 ms vs ~30–60 s for a full
-# `make setup && make`. This is the iteration loop for tough nuts.
+# Skips splat and full ELF linking — runs in ~100 ms vs several minutes
+# for a full `tools/build.sh setup && ninja`. This is the iteration loop
+# for tough nuts.
 # =============================================================================
 set -euo pipefail
 
@@ -42,7 +43,7 @@ elif [[ -d "asm/nonmatchings/$NAME" ]]; then
     ASM_DIR="asm/nonmatchings/$NAME"
 else
     echo "quick_diff: no asm/matchings/$NAME or asm/nonmatchings/$NAME" >&2
-    echo "  did you flip the yaml entry to 'c' and run 'make setup'?" >&2
+    echo "  did you flip the yaml entry to 'c' and run 'tools/build.sh setup'?" >&2
     exit 4
 fi
 

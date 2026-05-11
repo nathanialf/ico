@@ -191,4 +191,4 @@ echo
 echo "Setup complete. Next steps:"
 echo "  1. Place your disc image at baserom/Ico_USA.bin (+ .cue)"
 echo "  2. Run 'tools/extract_elf.sh' to extract baseelf.elf and record SHA-1"
-echo "  3. Run 'make setup && make' to verify and build"
+echo "  3. Run 'tools/build.sh setup && ninja' to verify and build"

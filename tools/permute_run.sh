@@ -137,7 +137,7 @@ if [ ! -d "${PERMUTER_DIR}" ]; then
 fi
 if [ ! -x "${PYTHON}" ]; then
     echo "ERROR: project venv python missing at ${PYTHON}." >&2
-    echo "       Run ./tools/setup.sh (or 'make setup') first." >&2
+    echo "       Run ./tools/setup.sh (or 'tools/build.sh setup') first." >&2
     exit 1
 fi
 
@@ -238,7 +238,7 @@ if [ ! -f "${PER_FUNC_S}" ]; then
         echo "         asm/matchings/cod/${FILE_OFF_HEX}/${FUNC_NAME}.s" >&2
         echo "         asm/nonmatchings/*/${FUNC_NAME}.s" >&2
         echo "         asm/cod/*.s (segment-level glabel grep)" >&2
-        echo "       Did 'make setup' run?" >&2
+        echo "       Did 'tools/build.sh setup' run?" >&2
         exit 1
     fi
 fi

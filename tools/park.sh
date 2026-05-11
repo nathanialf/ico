@@ -16,9 +16,10 @@
 #   - Reverts the yaml entry: flips c → asm and removes any size-fill
 #     filler this attempt added.
 #
-# After parking, run `make setup && make` to confirm the build still
-# round-trips (asm fallback). The permuter wrapper (tools/auto_permute*)
-# will pick up the new tough_nuts seed on its next pass.
+# After parking, run `tools/build.sh setup && ninja` to confirm the
+# build still round-trips (asm fallback). The permuter wrapper
+# (tools/auto_permute*) will pick up the new tough_nuts seed on its
+# next pass.
 
 set -euo pipefail
 
@@ -107,5 +108,5 @@ fi
 
 echo
 echo "park: done. Next steps:"
-echo "  make setup && make    # confirm asm fallback round-trips"
+echo "  tools/build.sh setup && ninja    # confirm asm fallback round-trips"
 echo "  git add -A && git commit -m 'Park ${fn_name} — ${reason}'"

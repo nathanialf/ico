@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+# tools/build.sh — top-level orchestration for the ICO decomp.
+#
+# Inner-loop build is `ninja` (or `.venv/bin/ninja` if not on PATH).
+# This script only handles one-shots that don't belong in the build
+# graph: baserom verification, splat, progress regeneration.
+#
+# Subcommands:
+#   setup       Verify baserom SHA-1 + run splat + regen build.ninja.
+#   split       Just re-run splat (no baserom check, no build.ninja regen).
+#   clean       rm -rf build/.
+#   distclean   clean + remove splat-emitted asm and config artifacts.
+#   progress    Regenerate progress tables (README + docs/PROGRESS.md).
+
+set -eu
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "${ROOT}"
+
+VENV_PY="${ROOT}/.venv/bin/python"
+SPLAT="${ROOT}/.venv/bin/splat"
+
+VERSION="${VERSION:-us}"
+BASEROM="baserom/baseelf.rom"
+SPLAT_YAML="config/ico.${VERSION}.yaml"
+LDSCRIPT="config/ico.${VERSION}.ld"
+DEPS_FILE="config/ico.${VERSION}.d"
+AUTO_FUNCS="config/undefined_funcs_auto.${VERSION}.txt"
+AUTO_SYMS="config/undefined_syms_auto.${VERSION}.txt"
+
+regen_ninja() {
+    echo "==> regenerating build.ninja"
+    "${VENV_PY}" tools/gen_ninja.py
+}
+
+split() {
+    echo "==> running splat against ${SPLAT_YAML}"
+    "${SPLAT}" split "${SPLAT_YAML}"
+    echo "==> postprocessing linker script (sbss/bss alignment fix)"
+    "${VENV_PY}" tools/postprocess_ld.py
+    echo "==> postprocessing asm (R5900 mnemonic fixups)"
+    "${VENV_PY}" tools/postprocess_asm.py
+    # Order matters: build_data_tu_map reads the just-emitted asm
+    # blocks; migrate_data_per_tu writes per-TU _data.c files based
+    # on that mapping; rewrite_data_named_sections then strips any
+    # symbol that's defined in a *_pool.c or *_data.c from the asm,
+    # avoiding duplicate-definition link errors.
+    echo "==> mapping data symbols to TUs"
+    "${VENV_PY}" tools/build_data_tu_map.py >/dev/null \
+        || echo "WARN: build_data_tu_map.py failed; continuing without per-TU data"
+    echo "==> emitting per-TU data sidecar .c files (gitignored)"
+    "${VENV_PY}" tools/migrate_data_per_tu.py >/dev/null \
+        || echo "WARN: migrate_data_per_tu.py failed; continuing"
+    echo "==> wrapping data symbols in per-VMA named sections (and stripping migrated)"
+    "${VENV_PY}" tools/rewrite_data_named_sections.py
+    echo "==> regenerating docs/candidates.md (matching shortlist)"
+    "${VENV_PY}" tools/gen_candidates.py \
+        || echo "WARN: gen_candidates.py failed; continuing"
+}
+
+setup() {
+    echo "==> verifying base ROM SHA-1"
+    "${VENV_PY}" tools/verify_elf.py --target "${BASEROM}"
+    split
+    regen_ninja
+}
+
+do_clean() {
+    rm -rf build
+}
+
+do_distclean() {
+    do_clean
+    find asm -type f -name '*.s' ! -path 'asm/nonmatchings/*' -delete
+    find asm -type d -empty ! -path asm ! -path 'asm/nonmatchings*' -delete 2>/dev/null || true
+    rm -f "${LDSCRIPT}" "${AUTO_FUNCS}" "${AUTO_SYMS}" "${DEPS_FILE}"
+    rm -f build.ninja .ninja_log .ninja_deps
+}
+
+do_progress() {
+    "${VENV_PY}" tools/progress.py
+}
+
+cmd="${1:-help}"
+case "$cmd" in
+    setup)      setup ;;
+    split)      split ;;
+    regen)      regen_ninja ;;
+    clean)      do_clean ;;
+    distclean)  do_distclean ;;
+    progress)   do_progress ;;
+    help|*)
+        cat <<EOF
+usage: $0 <subcommand>
+
+  setup       verify base ROM, run splat, regenerate build.ninja
+  split       re-run splat only (no baserom verify, no build.ninja regen)
+  regen       regenerate build.ninja from config/ico.us.d
+  clean       rm -rf build/
+  distclean   clean + delete splat-emitted asm and config artifacts
+  progress    regenerate README + docs/PROGRESS.md tables
+
+Build with: ninja
+EOF
+        ;;
+esac

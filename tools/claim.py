@@ -22,7 +22,7 @@ The TOML manifest is an array of [[claim]] tables, each with keys:
   comment  (str, required)            e.g. "16-byte lq/sq copy"
   body     (multiline str, required)  literal C source
 
-After running, kick off `make setup && make` to build & verify.
+After running, kick off `tools/build.sh setup && ninja` to build & verify.
 """
 from __future__ import annotations
 
@@ -197,7 +197,7 @@ def run_claims(claims: list[Claim]) -> int:
 
     write_yaml_block(prefix, entries, suffix)
     print(f"# DONE {n_done}/{len(claims)} claim(s) applied")
-    print("# next: make setup && make")
+    print("# next: tools/build.sh setup && ninja")
     return 0
 
 
