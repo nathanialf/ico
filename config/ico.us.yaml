@@ -1601,7 +1601,7 @@ segments:
       - [0x0BB8B0, c,   cod/0BB8B0]            # func_001BB8B0: store-arg-discard
       - [0x0BB8C0, asm, cod/0BB8C0]
       - [0x0BBE48, c,   cod/0BBE48]
-      - [0x0BBE50, asm, cod/0BBE50]
+      - [0x0BBE50, c,   cod/0BBE50]            # func_001BBE50: alloc 0xC + init buf[0..2] / *obj->_30=0 (permuter score-0)
       - [0x0BBEA0, c,   cod/0BBEA0]            # func_001BBEA0: deref-chain + cond + cond-with-likely-delay-store
       - [0x0BBEC4, asm, cod/0BBEC4]
       - [0x0BBFD0, c, cod/0BBFD0]            # func_001BBFD0: 4-insn lwc1
@@ -1987,7 +1987,7 @@ segments:
       - [0x103910, c,   cod/103910]
       - [0x103918, asm, cod/103918]
       - [0x103A10, asm, cod/103A10]
-      - [0x103A58, asm, cod/103A58]
+      - [0x103A58, c,   cod/103A58]            # func_00203A58: if(n==0) loop forever; else countdown call func_0013D3F0()
       - [0x103AA0, asm, cod/103AA0]
       - [0x103B40, c,   cod/103B40]            # func_00203B40: gp_rel D + 4-arg call + post-store
       - [0x103B74, asm, cod/103B74]
