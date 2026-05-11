@@ -238,12 +238,64 @@ def callgraph_propagate(funcs: list[dict], min_callers: int = 2) -> int:
     Sets `callgraph_tu` on newly-tagged functions. Returns count.
     Strict: requires `min_callers` distinct tagged callers all agreeing
     on the same TU; ignores any caller already tagged via callgraph
-    (single-pass, no transitive amplification of weak signal)."""
+    (single-pass, no transitive amplification of weak signal).
+
+    Proximity guard: refuse to tag a callee whose VMA sits closer to a
+    DIFFERENT TU's nearest anchor than to the proposed TU's. Without
+    this, a public-ish helper that gets called from one TU but lives
+    in another TU's text region picks up the caller's TU label and
+    poisons the migration boundary."""
     if not CALLGRAPH_JSON.exists():
         return 0
     edges = json.loads(CALLGRAPH_JSON.read_text())
     by_vram: dict[int, dict] = {f["vram"]: f for f in funcs
                                 if f.get("vram") is not None}
+
+    # Per-TU sorted-VMA list of anchor-tagged functions only. Anchors
+    # are the high-confidence ground truth derived from __FILE__ strings;
+    # the proximity test should not be influenced by other inferred tags.
+    anchors_by_tu: dict[str, list[int]] = defaultdict(list)
+    for f in funcs:
+        if f["tags"]:
+            tu = best_tag(f)
+            if tu:
+                anchors_by_tu[tu].append(f["vram"])
+    for tu in anchors_by_tu:
+        anchors_by_tu[tu].sort()
+
+    import bisect
+
+    def nearest_anchor_distance(vma: int, tu: str) -> Optional[int]:
+        """Distance from `vma` to nearest anchor of `tu`. None if `tu`
+        has no anchors (callgraph is the only signal — skip proximity)."""
+        vmas = anchors_by_tu.get(tu)
+        if not vmas:
+            return None
+        i = bisect.bisect_left(vmas, vma)
+        best = None
+        for j in (i - 1, i):
+            if 0 <= j < len(vmas):
+                d = abs(vmas[j] - vma)
+                if best is None or d < best:
+                    best = d
+        return best
+
+    def closer_anchor_in_other_tu(vma: int, proposed_tu: str) -> Optional[str]:
+        """If any other TU has an anchor closer to `vma` than `proposed_tu`'s
+        nearest anchor, return that TU. Else None."""
+        proposed_d = nearest_anchor_distance(vma, proposed_tu)
+        if proposed_d is None:
+            return None  # proposed TU has no anchors → can't proximity-test
+        for tu, vmas in anchors_by_tu.items():
+            if tu == proposed_tu:
+                continue
+            i = bisect.bisect_left(vmas, vma)
+            for j in (i - 1, i):
+                if 0 <= j < len(vmas):
+                    d = abs(vmas[j] - vma)
+                    if d < proposed_d:
+                        return tu
+        return None
 
     # Build reverse map: callee_vram → [caller_func, ...]
     callers_of: dict[int, list[dict]] = defaultdict(list)
@@ -255,6 +307,7 @@ def callgraph_propagate(funcs: list[dict], min_callers: int = 2) -> int:
             callers_of[cv].append(caller)
 
     n_new = 0
+    n_rejected_proximity = 0
     for vma, callers in callers_of.items():
         callee = by_vram.get(vma)
         if not callee:
@@ -281,8 +334,16 @@ def callgraph_propagate(funcs: list[dict], min_callers: int = 2) -> int:
         ((tu, count),) = tu_votes.items()
         if count < min_callers:
             continue
+        # Proximity guard: refuse if a different TU's anchor is closer.
+        closer = closer_anchor_in_other_tu(vma, tu)
+        if closer is not None:
+            n_rejected_proximity += 1
+            continue
         callee["callgraph_tu"] = tu
         n_new += 1
+    if n_rejected_proximity:
+        print(f"callgraph_propagate: rejected {n_rejected_proximity} candidate(s) "
+              f"by proximity guard", file=sys.stderr)
     return n_new
 
 
