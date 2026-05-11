@@ -19,8 +19,8 @@ void func_001CBD88(int a0, float t)
     func_001D12A8(D_00631AE8, 0x78);
     func_001D12A8(D_00631AE8, 0x79);
   }
-  new_var = 1;
-  D_0063330C = (D_00633314 = new_var);
+  D_0063330C = (new_var = 1);
+  new_var = (D_00633314 = new_var);
   D_00633318 = (D_00633310 = 0);
   func_00105F00((int) D_004C09A0, a0);
   D_0063331C = t;

@@ -8,7 +8,8 @@ int func_0014B000(int a0)
   new_var = (char *) D_006124F8;
   {
     int idx = func_001F40C8(a0);
-    ret = *((int *) ((new_var + (idx * 0x24)) + 0x1C));
+    ret = *((int *) ((new_var - (-(idx * 0x24))) + 0x1C));
+ do { } while (0);
   }
   return ret;
 }

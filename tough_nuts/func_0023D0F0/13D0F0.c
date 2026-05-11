@@ -8,27 +8,50 @@ extern float D_00631890;
 extern float D_00631894;
 int func_0023D0F0(int *self)
 {
+  int **new_var6;
+  char *new_var7;
   float f;
+  float *new_var8;
+  char *new_var3;
+  int new_var9;
   int *new_var;
   int *p = (int *) self[0x34 / 4];
+  char *new_var2;
+  float new_var4;
+  float *new_var5;
   int v;
+  new_var4 = D_00631890;
   *((float *) (((char *) p) + 8)) = -397.0f;
-  *((float *) (((char *) new_var) + 0x18)) = f;
-  *((float *) (((char *) p) + 0)) = D_00631890;
-  *((float *) (((char *) p) + 4)) = D_00631894;
+  new_var2 += 0x18;
+  new_var6 = &new_var;
+  new_var3 = (char *) p;
+  new_var2 = (char *) (*new_var6);
+  p = *new_var6;
+  *((float *) new_var2) = f;
+  *((float *) (((char *) p) + 0)) = new_var4;
+  new_var = (char *) p;
+  new_var2 = new_var3;
+  *(new_var5 = (float *) (new_var2 + 4)) = new_var4;
+  f = D_00633B48;
+  *(new_var5 = (float *) (new_var2 + 4)) = new_var4;
+  new_var7 = new_var;
   if (D_00633B4C != D_00631960)
   {
     D_00633B4C = D_00631960;
     new_var = self;
     v = func_0018CF60((int) new_var);
     f = func_001F5298(v);
-    f = (f * 0.5f) + 0.5f;
+    new_var8 = &f;
+    f = ((*new_var8) * (new_var4 = 0.5f)) + new_var4;
   }
   else
   {
     D_00633B48 = f;
-    f = D_00633B48;
+    if (new_var9 = 1)
+    {
+      new_var4 = D_00631894;
+    }
   }
-  *((float *) (((char *) new_var) + 0x18)) = f;
-  return 1;
+  *((float *) (new_var7 + 0x18)) = f;
+  return new_var9;
 }

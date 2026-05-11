@@ -15,9 +15,10 @@ int func_0023D050(int *self)
   float new_var3;
   int v;
   new_var = self;
+  new_var2 = D_00633B4C != D_00631960;
   new_var3 = (*((float *) (((char *) p) + 0)) = D_00631880);
-  *((float *) (((char *) p) + 8)) = -3300.0f;
-  if (D_00633B4C != D_00631960)
+  *((float *) (((char *) p) + 8)) = -((unsigned long long) 3300.0f);
+  if (new_var2)
   {
     D_00633B4C = D_00631960;
     v = (new_var2 = func_0018CF60((int) new_var));

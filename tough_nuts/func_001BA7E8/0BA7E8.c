@@ -7,11 +7,10 @@ int func_001BA7E8(int *self)
   unsigned short new_var;
   if (ret == (-1))
   {
-    p[0x1C8 / 4] = 0;
     new_var = 0x1C0;
-    p[new_var / 4] = 0;
+    p[new_var / 4] = (p[new_var / 4] = 0);
     p[0x1C4 / 4] = 0;
-    p[new_var / 4] = 0;
+    p[0x1C8 / 4] = 0;
     return 0;
   }
   return ret;

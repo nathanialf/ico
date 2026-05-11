@@ -9,8 +9,8 @@ void func_0013C538(int *self)
       int *p = (int *) self[0];
       while (p != 0)
       {
-        p = (int *) p[0x34 / 4];
-        fn(p, self[0xC / 4]);
+        ;
+        fn((int *) ((int *) self[0])[0x34 / 4], self[0xC / 4]);
         p = (int *) p[0x34 / 4];
       }
 

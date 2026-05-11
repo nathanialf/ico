@@ -15,7 +15,8 @@ void func_0013CF80(int *self)
     {
       fn = (func_0013CF80_FnPtr) self[0x8 / 4];
       new_var3 = 4;
-      fn(new_var2, self[0xC / 4]);
+      p = &self[0xC / 4];
+      fn(new_var2, *p);
       p = (int *) p[0x34 / new_var3];
     }
 
