@@ -137,16 +137,61 @@ def _section_for_object_section(name: str) -> str | None:
     return None
 
 
+def _tracked_source_files() -> set[Path]:
+    """Set of `src/`-rooted .c/.s files that are tracked by git.
+    Used by `_walk_built_objects` to exclude .o files built from
+    gitignored sources (the auto-generated per-TU `_data.c` sidecars
+    contain raw bytes from the original ELF — IP-sensitive — so they
+    shouldn't count toward the "matched" progress. Only hand-typed
+    sources, which are tracked, contribute.)
+
+    Falls back to "track everything" if `git ls-files` isn't available
+    (e.g. running outside a git checkout)."""
+    import subprocess
+    try:
+        out = subprocess.check_output(
+            ["git", "-C", str(REPO_ROOT), "ls-files",
+             "src/", "--", "*.c", "*.s"],
+            text=True, stderr=subprocess.DEVNULL,
+        )
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return set()  # signal: don't filter
+    return {REPO_ROOT / line.strip() for line in out.splitlines() if line.strip()}
+
+
 def _walk_built_objects() -> dict[str, int]:
     """Sum non-text section bytes across every built object under
-    build/src/. Returns {section_name: matched_bytes}.
+    build/src/ whose corresponding source file is tracked by git.
+    Untracked sources (the auto-generated per-TU `_data.c` files
+    in particular) are *excluded* because their byte content comes
+    directly from the original ELF and isn't a hand-typed clean-room
+    reconstruction — counting them inflates the "matched" numbers
+    with bytes we haven't actually decompiled.
 
-    Returns zeros if the build tree is missing — running progress before
-    a build is supported (e.g. fresh clone, post-`make split`)."""
+    Returns zeros if the build tree is missing — running progress
+    before a build is supported (e.g. fresh clone, post-`make split`)."""
     matched: dict[str, int] = {p: 0 for p in OBJECT_SECTION_PREFIXES}
     if not BUILD_OBJ_DIR.exists():
         return matched
+
+    tracked = _tracked_source_files()
+    # tracked == empty set with falsy bool => no filtering (git not
+    # available). Distinguishing "git not available" from "no tracked
+    # src files" is intentionally optimistic here: if git is missing
+    # we'd rather show inflated progress than no progress.
+    no_filter = not tracked
+
     for obj in BUILD_OBJ_DIR.rglob("*.o"):
+        if not no_filter:
+            # Recover the source path from the .o path. The Makefile
+            # rule is `$(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.s` and a
+            # mirroring rule for .c, so swapping the prefix and trying
+            # both extensions covers all cases.
+            rel = obj.relative_to(BUILD_OBJ_DIR)
+            src_c = REPO_ROOT / "src" / rel.with_suffix(".c")
+            src_s = REPO_ROOT / "src" / rel.with_suffix(".s")
+            if src_c not in tracked and src_s not in tracked:
+                continue
         try:
             with obj.open("rb") as f:
                 elf = ELFFile(f)

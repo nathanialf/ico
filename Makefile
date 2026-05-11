@@ -110,7 +110,21 @@ split:
 	$(VENV_BIN)/python tools/postprocess_ld.py
 	@echo "==> postprocessing asm (R5900 mnemonic fixups)"
 	$(VENV_BIN)/python tools/postprocess_asm.py
-	@echo "==> wrapping data symbols in per-VMA named sections"
+	@# Order matters here: build_data_tu_map reads the just-emitted asm
+	@# blocks; migrate_data_per_tu writes per-TU _data.c files based on
+	@# that mapping; rewrite_data_named_sections then strips any symbol
+	@# that's defined in a *_pool.c or *_data.c from the asm, avoiding
+	@# duplicate-definition link errors. If we ran the rewrite before
+	@# migrate_data_per_tu, the asm wouldn't be stripped on the first
+	@# `make setup` after a clean clone (the _data.c files don't exist
+	@# yet), and the link would fail.
+	@echo "==> mapping data symbols to TUs"
+	@$(VENV_BIN)/python tools/build_data_tu_map.py >/dev/null || \
+	  echo "WARN: build_data_tu_map.py failed; continuing without per-TU data"
+	@echo "==> emitting per-TU data sidecar .c files (gitignored)"
+	@$(VENV_BIN)/python tools/migrate_data_per_tu.py >/dev/null || \
+	  echo "WARN: migrate_data_per_tu.py failed; continuing"
+	@echo "==> wrapping data symbols in per-VMA named sections (and stripping migrated)"
 	$(VENV_BIN)/python tools/rewrite_data_named_sections.py
 	@echo "==> regenerating docs/candidates.md (matching shortlist)"
 	@$(VENV_BIN)/python tools/gen_candidates.py || \
