@@ -55,11 +55,15 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = REPO_ROOT / "asm" / "data" / "cod"
 
-# Symbols listed here are defined in `src/cod/*.c` via
-# `__attribute__((section(".X.0xVMA"))) ... = ...;` and must be removed
-# from the asm-side data file to avoid double-definitions at link time.
-# One symbol per line; `#` comments allowed; blank lines ignored.
-MIGRATED_LIST = REPO_ROOT / "config" / "migrated_data_symbols.txt"
+# Symbols defined in `src/cod/*_pool.c` via
+# `__attribute__((section(".X.0xVMA"))) ... = ...;` must be removed
+# from the asm-side data file to avoid double-definitions at link
+# time. We scan the pool .c files directly each run so the source of
+# truth is just the .c files themselves — no separate list to keep
+# in sync. config/migrated_data_symbols.txt remains as a record of
+# which symbols have been migrated (for tooling that wants a flat
+# list) but it isn't authoritative.
+POOL_FILE_GLOB = "src/cod/*_pool.c"
 
 # (filename, section_name, section_flags)
 TARGETS = [
@@ -71,13 +75,20 @@ TARGETS = [
 
 
 def _load_migrated_symbols() -> set[str]:
-    if not MIGRATED_LIST.exists():
-        return set()
+    """Collect every `D_<VMA>` symbol defined in any src/cod/*_pool.c.
+    Pool definitions use these symbol names (and optionally split
+    multi-byte symbols into _pad_<VMA> continuation chunks, which we
+    intentionally ignore here — only the ORIGINAL asm dlabel names
+    correspond to blocks the rewriter needs to strip)."""
     out: set[str] = set()
-    for line in MIGRATED_LIST.read_text().splitlines():
-        line = line.split("#", 1)[0].strip()
-        if line:
-            out.add(line)
+    for c_path in REPO_ROOT.glob(POOL_FILE_GLOB):
+        text = c_path.read_text()
+        for m in re.finditer(
+            r'__attribute__\s*\(\(section\s*\(\s*"\.\w+\.0x([0-9A-Fa-f]+)"\s*\)\s*\)\)\s*'
+            r'(?:[\w\s\*]+?)\s+(D_[0-9A-Fa-f]{8})\b',
+            text,
+        ):
+            out.add(m.group(2))
     return out
 
 # Detect already-rewritten files.
