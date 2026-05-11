@@ -194,13 +194,17 @@ doesn't count.)
   from the migrator for misaligned VMAs. They're not real symbols
   from the asm side; they're synthetic. When you hand-type, fold
   the pad bytes into the parent block's array.
-* **Symbols already in `src/sdata.c` / `src/lit4.c`** — the typed
-  small-data files are the result of one run of
-  `tools/decode_sdata_lit4_typed.py`. As you refine the data side of
-  a TU, prefer moving the corresponding definitions OUT of the
-  shared `src/sdata.c` / `src/lit4.c` and INTO the owning TU's `.c`
-  next to its function definitions (parappa2-style). Eventually the
-  shared files end up empty and can be deleted.
+* **Typed sdata / lit4 symbols are already in per-TU files** —
+  `tools/decode_sdata_lit4_typed.py` emits typed definitions into
+  `src/<TU>.c` (mirroring `decomp/data_tu_map.json`'s vote
+  assignments) so the parappa2 source-tree layout is in place from
+  the start. When you hand-type a rodata/data symbol for a given
+  TU, drop the new definition into the same `src/<TU>.c` next to
+  its already-typed sdata/lit4 entries. The decoder will not
+  overwrite any `src/<TU>.c` it didn't generate itself (recognized
+  by a `decode_sdata_lit4_typed.py` signature in the header
+  comment), so manual edits to hand-promoted files like
+  `src/Basic.c` are safe.
 * **`.vutext`** — do not type. VU0 microcode is an opaque blob
   (see `decomp/NOTES.md` "VU0 microcode (.vutext)"). The bytes
   come in via `assets/cod/16F5E0.textbin.bin`; if you want them

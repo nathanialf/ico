@@ -594,12 +594,20 @@ Architecture for getting data sections to count toward progress:
    tool for `.sdata` and `.lit4`. It reads the bytes directly out of
    `baserom/baseelf.elf` (keyed off `decomp/data_tu_map.json` for
    the symbol VMA list) and emits typed C — `float D_X = 1.0f`,
-   `const char D_X[] = "..."`, single int/short/char — into tracked
-   `src/sdata.c` and `src/lit4.c`. Typed-form emission is gated on
-   8-aligned VMAs (where gcc's `.align 3` for arrays is a no-op);
-   non-8-aligned blocks fall through to per-VMA single-element
-   chunks identical to `_emit_chunked`'s logic, keeping section
-   alignment ≤ 4 so the linker doesn't pad around them.
+   `const char D_X[] = "..."`, single int/short/char — into
+   **per-TU tracked `src/<TU>.c` files** (`src/Basic.c`,
+   `src/way_tool.c`, `src/ios/cdvd.c`, …), mirroring
+   `decomp/data_tu_map.json`'s assignments. The parappa2 layout
+   is in place from the start; no consolidated `sdata.c`/`lit4.c`.
+   Typed-form emission is gated on 8-aligned VMAs (where gcc's
+   `.align 3` for arrays is a no-op); non-8-aligned blocks fall
+   through to per-VMA single-element chunks identical to
+   `_emit_chunked`'s logic, keeping section alignment ≤ 4 so the
+   linker doesn't pad around them. The decoder refuses to overwrite
+   any `src/<TU>.c` it didn't generate itself (recognized by a
+   `decode_sdata_lit4_typed.py` signature in the header comment),
+   so hand-crafted TU files like `src/Basic.c` are safe across
+   re-runs.
 6. `tools/rewrite_data_named_sections.py` is the final step. It
    wraps each remaining asm dlabel block in a per-VMA named
    `.section`, then strips any block whose D_<VMA> symbol is
@@ -628,14 +636,16 @@ expansion).
 
 State as of session 2026-05-11:
 
-* `.sdata`: 100% via tracked `src/sdata.c` (decoder-promoted from
-  baserom; safe to commit because the typed forms — string literals,
-  named float constants, single hex word definitions — are a
-  developer's clean-room reconstruction, not raw bytes).
-* `.lit4`: 100% via tracked `src/lit4.c` (same path; every entry
+* `.sdata`: 100% via 72 tracked `src/<TU>.c` files (decoder-promoted
+  from baserom; safe to commit because the typed forms — string
+  literals, named float constants, single hex word definitions —
+  are a developer's clean-room reconstruction, not raw bytes).
+* `.lit4`: 100% via the same per-TU `src/<TU>.c` files (every entry
   decodes as `float D_X = <value>f;`).
 * `.rodata` / `.data`: 0% tracked; bytes live in gitignored per-TU
-  `_data.c` sidecars. Hand-typing follows `decomp/MATCH_DATA.md`.
+  `_data.c` sidecars. Hand-typing follows `decomp/MATCH_DATA.md`,
+  with new typed definitions added to the same `src/<TU>.c` that
+  already holds the TU's typed sdata/lit4 entries (parappa2 layout).
 
 ## VU0 microcode (`.vutext`) — kept as opaque textbin, not typed
 

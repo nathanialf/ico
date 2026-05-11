@@ -1,0 +1,104 @@
+/* clothAnimation.c -- typed sdata / lit4 definitions for this TU.
+ *
+ * Generated initially by tools/decode_sdata_lit4_typed.py
+ * from baserom/baseelf.elf. Each line is a developer
+ * reconstruction of one game variable or constant; the
+ * file is tracked because the typed forms (named float
+ * constants, string literals, single hex-word declarations)
+ * are clean-room rather than raw byte arrays.
+ *
+ * As the TU gets fully decompiled, function definitions
+ * land in this same file (parappa2-style layout); typed
+ * data declarations stay here next to their references.
+ *
+ * Downstream tools (rewrite_data_named_sections.py,
+ * migrate_data_per_tu.py _scan_existing_definitions) detect
+ * the D_<VMA> name on each line and drop the corresponding
+ * asm-generated and sidecar definitions.
+ */
+
+__attribute__((section(".lit4.0x00631204"))) float D_00631204 = 0.2f;
+__attribute__((section(".lit4.0x00631208"))) float D_00631208 = 0.2f;
+__attribute__((section(".lit4.0x0063120C"))) float D_0063120C = 4095.0f;
+__attribute__((section(".lit4.0x00631210"))) float D_00631210 = 0.001f;
+__attribute__((section(".lit4.0x00631214"))) float D_00631214 = 0.6666667f;
+__attribute__((section(".lit4.0x00631218"))) float D_00631218 = 50000.0f;
+__attribute__((section(".lit4.0x0063121C"))) float D_0063121C = 0.001f;
+__attribute__((section(".lit4.0x00631220"))) float D_00631220 = 0.96f;
+__attribute__((section(".lit4.0x00631224"))) float D_00631224 = 0.3f;
+__attribute__((section(".lit4.0x00631228"))) float D_00631228 = 0.01f;
+__attribute__((section(".lit4.0x0063122C"))) float D_0063122C = 0.01f;
+__attribute__((section(".lit4.0x00631230"))) float D_00631230 = 0.001f;
+__attribute__((section(".sdata.0x00631940"))) char D_00631940[16] = { 0 };
+__attribute__((section(".sdata.0x00631950"))) char D_00631950[16] = { 0 };
+__attribute__((section(".sdata.0x00632010"))) int D_00632010 = 0;
+__attribute__((section(".sdata.0x00632D58"))) int D_00632D58 = 0;
+__attribute__((section(".sdata.0x006332A8"))) float D_006332A8 = 1.0f;
+__attribute__((section(".sdata.0x006332AC"))) unsigned int D_006332AC = 0x004C0560;
+__attribute__((section(".sdata.0x006332B0"))) unsigned int D_006332B0 = 0x004C0588;
+__attribute__((section(".sdata.0x006332B4"))) unsigned int D_006332B4 = 0x004C0568;
+__attribute__((section(".sdata.0x006332B8"))) unsigned char D_006332B8[8] = { 0x80, 0x05, 0x4C, 0x00, 0x00, 0x00, 0x00, 0x00 };
+__attribute__((section(".sdata.0x006332C0"))) int D_006332C0 = 0;
+__attribute__((section(".sdata.0x006332C4"))) int D_006332C4 = 0;
+__attribute__((section(".sdata.0x006332C8"))) char D_006332C8[8] = { 0 };
+__attribute__((section(".sdata.0x006332D0"))) unsigned char D_006332D0[8] = { 0x44, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+__attribute__((section(".sdata.0x006332D8"))) char D_006332D8 = 0;
+__attribute__((section(".sdata.0x006332D9"))) char D_006332D9 = 0;
+__attribute__((section(".sdata.0x006332DA"))) char D_006332DA = 0;
+__attribute__((section(".sdata.0x006332DB"))) unsigned char D_006332DB = 0x00;
+__attribute__((section(".sdata.0x006332DC"))) int _pad_006332DC = 0;
+__attribute__((section(".sdata.0x006332E0"))) unsigned char D_006332E0[8] = { 0xFF, 0xFF, 0xFF, 0x80, 0x00, 0x00, 0x00, 0x00 };
+__attribute__((section(".sdata.0x006332E8"))) char D_006332E8 = 0;
+__attribute__((section(".sdata.0x006332E9"))) char D_006332E9 = 0;
+__attribute__((section(".sdata.0x006332EA"))) char D_006332EA = 0;
+__attribute__((section(".sdata.0x006332EB"))) unsigned char D_006332EB = 0x80;
+__attribute__((section(".sdata.0x006332EC"))) int _pad_006332EC = 0;
+__attribute__((section(".sdata.0x006332F0"))) char D_006332F0 = 0;
+__attribute__((section(".sdata.0x006332F1"))) char D_006332F1 = 0;
+__attribute__((section(".sdata.0x006332F2"))) char D_006332F2 = 0;
+__attribute__((section(".sdata.0x006332F3"))) unsigned char D_006332F3 = 0x00;
+__attribute__((section(".sdata.0x006332F4"))) int _pad_006332F4 = 0;
+__attribute__((section(".sdata.0x006332F8"))) unsigned char D_006332F8 = 0x80;
+__attribute__((section(".sdata.0x006332F9"))) unsigned char D_006332F9 = 0x80;
+__attribute__((section(".sdata.0x006332FA"))) unsigned char D_006332FA = 0x80;
+__attribute__((section(".sdata.0x006332FB"))) unsigned char D_006332FB = 0x50;
+__attribute__((section(".sdata.0x006332FC"))) int _pad_006332FC = 0;
+__attribute__((section(".sdata.0x00633300"))) unsigned char D_00633300 = 0xFF;
+__attribute__((section(".sdata.0x00633301"))) unsigned char D_00633301 = 0xFF;
+__attribute__((section(".sdata.0x00633302"))) unsigned short D_00633302 = 0x80FF;
+__attribute__((section(".sdata.0x00633304"))) int _pad_00633304 = 0;
+__attribute__((section(".sdata.0x00633308"))) unsigned char D_00633308 = 0x7F;
+__attribute__((section(".sdata.0x00633309"))) char D_00633309 = 0;
+__attribute__((section(".sdata.0x0063330A"))) unsigned short D_0063330A = 0x8062;
+__attribute__((section(".sdata.0x0063330C"))) int D_0063330C = 0;
+__attribute__((section(".sdata.0x00633310"))) int D_00633310 = 0;
+__attribute__((section(".sdata.0x00633314"))) int D_00633314 = 0;
+__attribute__((section(".sdata.0x00633318"))) int D_00633318 = 0;
+__attribute__((section(".sdata.0x0063331C"))) float D_0063331C = 25.0f;
+__attribute__((section(".sdata.0x00633320"))) int D_00633320 = 0;
+__attribute__((section(".sdata.0x00633324"))) int D_00633324 = 0;
+__attribute__((section(".sdata.0x00633328"))) const char D_00633328[8] = "LOOP";
+__attribute__((section(".sdata.0x00633330"))) const char D_00633330[] = "RELEASE";
+__attribute__((section(".sdata.0x00633338"))) const char D_00633338[8] = "SUB";
+__attribute__((section(".sdata.0x00633340"))) const char D_00633340[8] = "ADD";
+__attribute__((section(".sdata.0x00633348"))) const char D_00633348[8] = "BLEND";
+__attribute__((section(".sdata.0x00633350"))) const char D_00633350[] = "COLOR B";
+__attribute__((section(".sdata.0x00633358"))) const char D_00633358[] = "COLOR G";
+__attribute__((section(".sdata.0x00633360"))) const char D_00633360[] = "COLOR R";
+__attribute__((section(".sdata.0x00633368"))) const char D_00633368[8] = "%4.3f";
+__attribute__((section(".sdata.0x00633370"))) const char D_00633370[] = "(%d,%d)";
+__attribute__((section(".sdata.0x00633378"))) const char D_00633378[8] = "%d";
+__attribute__((section(".sdata.0x00633380"))) const char D_00633380[8] = "%s";
+__attribute__((section(".sdata.0x00633388"))) const char D_00633388[8] = "%s%s";
+__attribute__((section(".sdata.0x00633390"))) int D_00633390 = 0;
+__attribute__((section(".sdata.0x00633394"))) unsigned int D_00633394 = 0xFFFFFFFF;
+__attribute__((section(".sdata.0x00633398"))) short D_00633398 = 0;
+__attribute__((section(".sdata.0x0063339A"))) short D_0063339A = 0;
+__attribute__((section(".sdata.0x0063339C"))) int D_0063339C = 0;
+__attribute__((section(".sdata.0x006333A0"))) unsigned int D_006333A0 = 0xFFFFFFFF;
+__attribute__((section(".sdata.0x006333A4"))) int D_006333A4 = 0;
+__attribute__((section(".sdata.0x006333A8"))) int D_006333A8 = 0;
+__attribute__((section(".sdata.0x006333AC"))) int D_006333AC = 0;
+__attribute__((section(".sdata.0x006333B0"))) char D_006333B0[8] = { 0 };
+__attribute__((section(".sdata.0x006333B8"))) const char D_006333B8[8] = "exit\n";
+__attribute__((section(".sdata.0x006333C0"))) char D_006333C0[8] = { 0 };

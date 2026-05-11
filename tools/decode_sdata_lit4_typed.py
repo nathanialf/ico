@@ -39,8 +39,37 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SDATA_OUT = REPO_ROOT / "src" / "sdata.c"
-LIT4_OUT = REPO_ROOT / "src" / "lit4.c"
+
+# Legacy consolidated outputs. The decoder no longer writes to these
+# (per-TU files are emitted via _tu_to_path below) but we delete any
+# leftover ones on each run so old consolidated content doesn't
+# coexist with the per-TU split.
+LEGACY_SDATA_C = REPO_ROOT / "src" / "sdata.c"
+LEGACY_LIT4_C = REPO_ROOT / "src" / "lit4.c"
+
+
+def _tu_to_path(tu: str) -> Path:
+    """Convert a TU label from decomp/data_tu_map.json into the path
+    of the tracked per-TU .c file. Mirrors the parappa2 source-tree
+    layout that `decomp/source_tree/` already documents:
+
+      src/Basic.c           ->  src/Basic.c
+      src/way_tool.c        ->  src/way_tool.c
+      ios/cdvd.c            ->  src/ios/cdvd.c
+      isys/gobj.c           ->  src/isys/gobj.c
+      sound/s_init.c        ->  src/sound/s_init.c
+      _unassigned           ->  src/_unassigned.c
+
+    TUs under the original `src/` dir flatten to the top of `src/`;
+    TUs under `ios/`, `isys/`, `sound/` keep their subdir structure.
+    The synthetic `_unassigned` bucket (proximity-fallback symbols
+    with no text-side vote) lands at the top of `src/` so it's easy
+    to spot."""
+    if tu == "_unassigned":
+        return REPO_ROOT / "src" / "_unassigned.c"
+    if tu.startswith("src/"):
+        return REPO_ROOT / "src" / tu[len("src/"):]
+    return REPO_ROOT / "src" / tu
 
 # Regex for parsing one definition from a _data.c file.
 DEF_RE = re.compile(
@@ -424,89 +453,136 @@ def _load_baseelf_sections() -> dict:
     return out
 
 
+def _decode_lit4_block(name: str, sect: str, data: bytes, vma: int) -> list[str]:
+    """`.lit4` entries are uniformly 4-byte floats. Most blocks are
+    exactly 4 bytes; the rare longer block (zero-padded float bucket)
+    decodes as one `float` per 4-byte slice, falling through to the
+    same misaligned-VMA chunked path as `.sdata` for any non-4-byte
+    tail (shouldn't happen in practice, but be safe)."""
+    lines: list[str] = []
+    cursor = vma
+    end = vma + len(data)
+    first = True
+    while cursor + 4 <= end:
+        chunk = data[cursor - vma:cursor - vma + 4]
+        sym = name if first else f"_pad_{cursor:08X}"
+        lines.append(_decode_lit4(sym, f".lit4.0x{cursor:08X}", chunk))
+        first = False
+        cursor += 4
+    if cursor < end:
+        tail = data[cursor - vma:]
+        tail_sect = f".lit4.0x{cursor:08X}"
+        tail_name = name if first else f"_pad_{cursor:08X}"
+        lines.extend(_decode_sdata(tail_name, tail_sect, tail))
+    return lines
+
+
 def main() -> int:
-    # (vma, lines) — list of definition lines per source block. A
-    # single typed declaration is one line; a misaligned-VMA block
-    # chunked via `_decode_sdata`'s per-VMA fallback is several.
-    sdata_defs: list[tuple[int, list[str]]] = []
-    lit4_defs: list[tuple[int, list[str]]] = []
+    import json
+    tu_map_path = REPO_ROOT / "decomp" / "data_tu_map.json"
+    if not tu_map_path.exists():
+        print("decode_sdata_lit4_typed: missing decomp/data_tu_map.json — "
+              "run `make setup` first to generate it.")
+        return 1
+    tu_map = json.loads(tu_map_path.read_text())
+
+    # Group each block's emitted lines by owning TU and by VMA so the
+    # per-TU files stay sorted (deterministic regeneration).
+    by_tu: dict[str, list[tuple[int, list[str]]]] = {}
+
     baseelf = _load_baseelf_sections()
+
     for sect, name, data in _walk_baseelf_blocks(
         ".sdata", 0x00631900, 0x00633BC6, baseelf,
     ):
+        rec = tu_map.get(name)
+        if rec is None:
+            continue
         vma = int(sect.split(".0x")[-1], 16)
-        sdata_defs.append((vma, _decode_sdata(name, sect, data)))
+        by_tu.setdefault(rec["tu"], []).append(
+            (vma, _decode_sdata(name, sect, data))
+        )
+
     for sect, name, data in _walk_baseelf_blocks(
         ".lit4", 0x00630900, 0x006318D0, baseelf,
     ):
+        rec = tu_map.get(name)
+        if rec is None:
+            continue
         vma = int(sect.split(".0x")[-1], 16)
-        # `.lit4` entries are uniformly 4-byte floats — but `_walk_blocks`
-        # might hand us a block whose `_extract_bytes` returned a longer
-        # span (e.g. trailing zero-padded float bucket). Decode each
-        # 4-byte slice in the block as a `float` and emit per-VMA
-        # definitions; if the block is exactly 4 bytes (the common case)
-        # this collapses to a single line.
-        lines: list[str] = []
-        cursor = vma
-        end = vma + len(data)
-        first = True
-        while cursor + 4 <= end:
-            chunk = data[cursor - vma:cursor - vma + 4]
-            sym = name if first else f"_pad_{cursor:08X}"
-            chunk_sect = f".lit4.0x{cursor:08X}"
-            lines.append(_decode_lit4(sym, chunk_sect, chunk))
-            first = False
-            cursor += 4
-        # Handle a non-4-byte tail with a per-VMA chunked fallback —
-        # shouldn't happen in practice for .lit4 but be safe.
-        if cursor < end:
-            tail = data[cursor - vma:]
-            tail_sect = f".lit4.0x{cursor:08X}"
-            tail_name = name if first else f"_pad_{cursor:08X}"
-            lines.extend(_decode_sdata(tail_name, tail_sect, tail))
-        lit4_defs.append((vma, lines))
-
-    sdata_defs.sort(key=lambda x: x[0])
-    lit4_defs.sort(key=lambda x: x[0])
+        by_tu.setdefault(rec["tu"], []).append(
+            (vma, _decode_lit4_block(name, sect, data, vma))
+        )
 
     # ee-gcc 2.9 (the SCEI 1999 fork) is ASCII-only and chokes on
     # Unicode em-dashes or curly apostrophes in source comments. It
     # also closes /* ... */ comments at the FIRST `*/` it sees, so
-    # `src/**/*_data.c` in a comment is a hidden trap (the `**/`
-    # closes the comment). Header keeps both away.
-    header_sdata = (
-        "/* sdata.c -- hand-typed sdata symbol definitions.\n"
+    # avoid `**/` (the `**/` would close the comment).
+    header_template = (
+        "/* {tu} -- typed sdata / lit4 definitions for this TU.\n"
         " *\n"
-        " * Generated initially by tools/decode_sdata_lit4_typed.py from\n"
-        " * the auto-generated src tree byte content; refine in place\n"
-        " * as the meaning of each symbol becomes clearer. Each line\n"
-        " * is a developer reconstruction of one game variable or\n"
-        " * constant. Unlike the raw byte arrays in the gitignored\n"
-        " * data sidecars, these are clean-room and tracked.\n"
+        " * Generated initially by tools/decode_sdata_lit4_typed.py\n"
+        " * from baserom/baseelf.elf. Each line is a developer\n"
+        " * reconstruction of one game variable or constant; the\n"
+        " * file is tracked because the typed forms (named float\n"
+        " * constants, string literals, single hex-word declarations)\n"
+        " * are clean-room rather than raw byte arrays.\n"
         " *\n"
-        " * Migrators downstream (rewrite_data_named_sections.py,\n"
+        " * As the TU gets fully decompiled, function definitions\n"
+        " * land in this same file (parappa2-style layout); typed\n"
+        " * data declarations stay here next to their references.\n"
+        " *\n"
+        " * Downstream tools (rewrite_data_named_sections.py,\n"
         " * migrate_data_per_tu.py _scan_existing_definitions) detect\n"
         " * the D_<VMA> name on each line and drop the corresponding\n"
-        " * asm-generated definitions.\n"
+        " * asm-generated and sidecar definitions.\n"
         " */\n\n"
     )
-    header_lit4 = header_sdata.replace("sdata.c", "lit4.c").replace(
-        "sdata symbol", "float-literal-pool"
-    ).replace(
-        "one game variable or\n * constant", "one IEEE-encoded float constant"
-    )
 
-    sdata_lines = [ln for _, lines in sdata_defs for ln in lines]
-    lit4_lines = [ln for _, lines in lit4_defs for ln in lines]
-    SDATA_OUT.write_text(header_sdata + "\n".join(sdata_lines) + "\n")
-    LIT4_OUT.write_text(header_lit4 + "\n".join(lit4_lines) + "\n")
+    # Delete legacy consolidated outputs so they don't double-define
+    # against the new per-TU split.
+    for legacy in (LEGACY_SDATA_C, LEGACY_LIT4_C):
+        if legacy.exists():
+            legacy.unlink()
 
-    print(f"decode_sdata_lit4_typed: wrote {len(sdata_lines)} sdata "
-          f"definitions ({len(sdata_defs)} source blocks) to "
-          f"{SDATA_OUT.relative_to(REPO_ROOT)}")
-    print(f"decode_sdata_lit4_typed: wrote {len(lit4_lines)} lit4 "
-          f"definitions ({len(lit4_defs)} source blocks) to "
-          f"{LIT4_OUT.relative_to(REPO_ROOT)}")
+    written: list[Path] = []
+    total_lines = 0
+    total_blocks = 0
+    skipped_existing: list[Path] = []
+
+    for tu, blocks in sorted(by_tu.items()):
+        path = _tu_to_path(tu)
+        blocks.sort(key=lambda x: x[0])
+        lines = [ln for _, body in blocks for ln in body]
+        if not lines:
+            continue
+        if path.exists() and path != _tu_to_path("_unassigned"):
+            # Don't overwrite hand-crafted TU files. The decoder is
+            # idempotent on its own outputs but mustn't clobber work
+            # already in flight (e.g. src/Basic.c). Flag and skip.
+            existing = path.read_text()
+            if "decode_sdata_lit4_typed.py" not in existing:
+                skipped_existing.append(path)
+                continue
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            header_template.format(tu=path.name) +
+            "\n".join(lines) + "\n"
+        )
+        written.append(path)
+        total_lines += len(lines)
+        total_blocks += len(blocks)
+
+    print(f"decode_sdata_lit4_typed: wrote {total_lines} typed "
+          f"definitions ({total_blocks} source blocks) across "
+          f"{len(written)} per-TU files.")
+    for p in skipped_existing:
+        print(f"decode_sdata_lit4_typed: SKIPPED (hand-crafted, no decoder "
+              f"signature): {p.relative_to(REPO_ROOT)}")
+    if skipped_existing:
+        print("  To include the decoder's symbols, add them manually to the "
+              "existing file. Subsequent regenerations will continue to "
+              "skip — the decoder never overwrites a hand-crafted .c.")
     return 0
 
 
