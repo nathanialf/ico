@@ -1083,7 +1083,7 @@ segments:
       - [0x07D1D0, asm, cod/07D1D0]
       - [0x07D230, c,   cod/07D230]            # func_0017D230: func_0017E188(a0); func_0017E188(0); set _16C=1 on result; call func_001F2148(first)
       - [0x07D270, c  , cod/07D270]            # func_0017D270
-      - [0x07D2C8, asm, cod/07D2C8]            # func_0017D2C8: r=func_0017E188(); if r: ret func_001EA108(r); else: func_001A6E28(D_00559EA8); ret 0.0f
+      - [0x07D2C8, c,   cod/07D2C8]            # func_0017D2C8: r=func_0017E188(); if r: ret func_001EA108(r); else: func_001A6E28(D_00559EA8); ret 0.0f
       - [0x07D308, asm, cod/07D308]
       - [0x07DC90, c,   cod/07DC90]            # func_0017DC90: stack-buf wrapper: f1(buf); f2(a1, a0, buf), 16-byte buf
       - [0x07DCD4, asm, cod/07DCD4]
