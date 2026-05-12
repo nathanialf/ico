@@ -2,7 +2,7 @@
 extern int D_006A95B0[];
 int *func_00143CD0(int *target_ptr)
 {
-  int target = *target_ptr;
+  unsigned long target = *target_ptr;
   int *new_var4;
   char *p;
   char *new_var2;
