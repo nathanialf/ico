@@ -2206,7 +2206,7 @@ segments:
       - [0x13E368, asm, cod/13E368]
       - [0x13E770, c,   cod/13E770]            # func_0023E770: tail call func_0023E578(a0, a1, max(a0->3C, a2))
       - [0x13E780, asm, cod/13E780]
-      - [0x13EDF0, asm, cod/13EDF0]
+      - [0x13EDF0, c,   cod/13EDF0]            # func_0023EDF0: score-0 promotion
       - [0x13EE24, asm, cod/13EE24]
       - [0x13EFB0, c,   cod/13EFB0]
       - [0x13EFB8, c,   cod/13EFB8]            # func_0023EFB8: HW reg writes (NOP() trailing)
@@ -2311,7 +2311,7 @@ segments:
       - [0x145398, asm, cod/145398]
       - [0x1453C0, c,   cod/1453C0]            # func_002453C0: D_005507D0=0; tail call func_00245B58(a0)
       - [0x1453CC, asm, cod/1453CC]
-      - [0x1453D0, asm, cod/1453D0]
+      - [0x1453D0, c,   cod/1453D0]            # func_002453D0: score-0 promotion
       - [0x145410, asm, cod/145410]
       - [0x145568, c,   cod/145568]            # func_00245568: rc=func_00264050(...); *rc=5; ret -1
       - [0x145590, c,   cod/145590]            # func_00245590: auto
@@ -2325,7 +2325,7 @@ segments:
       - [0x145680, c,   cod/145680]            # func_00245680: if a0==1: func_00100140(a1); ret 0
       - [0x1456A8, c,   cod/1456A8]            # func_002456A8: sibling: same
       - [0x1456D0, c,   cod/1456D0]            # func_002456D0: sibling: same
-      - [0x1456F8, asm, cod/1456F8]
+      - [0x1456F8, c,   cod/1456F8]            # func_002456F8: score-0 promotion
       - [0x14571C, asm, cod/14571C]
       - [0x145DB8, c,   cod/145DB8]            # func_00245DB8: promote-test: subagent seed (unscored, may match)
       - [0x145DDC, asm, cod/145DDC]
@@ -2395,7 +2395,7 @@ segments:
       - [0x14BD8C, asm, cod/14BD8C]
       - [0x14BD90, c  , cod/14BD90]
       - [0x14BDCC, asm, cod/14BDCC]
-      - [0x14C038, asm, cod/14C038]
+      - [0x14C038, c,   cod/14C038]            # func_0024C038: score-0 promotion
       - [0x14C08C, asm, cod/14C08C]
       - [0x14C4F0, c,   cod/14C4F0]            # func_0024C4F0: if D_00717904 fnptr set and D_00550924 == 0, indirect-call D_00717904(D_00717908)
       - [0x14C52C, asm, cod/14C52C]
