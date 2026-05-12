@@ -849,6 +849,7 @@ segments:
       - [0x065FB8, asm, cod/065FB8]
       - [0x066000, asm, cod/066000]
       - [0x066024, asm, cod/066024]
+      - [0x067230, asm, cod/067230]
       - [0x067258, asm, cod/067258]
       - [0x067280, asm, cod/067280]
       - [0x0683A8, c,   commonact]             # 11-func dispatch block @0x1683A8..0x16850C: (*D_006323F0)(a0, N) wrappers
