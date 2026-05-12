@@ -524,6 +524,8 @@ segments:
       - [0x03C5B4, asm, cod/03C5B4]
       - [0x03CAA0, c,   cod/03CAA0]            # func_0013CAA0: bounds check then base[1][idx]=val; ret idx or -1
       - [0x03CAD4, asm, cod/03CAD4]
+      - [0x03CB50, c,   cod/03CB50]            # func_0013CB50: like 13CAA0 but stores 0 (no val arg)
+      - [0x03CB84, asm, cod/03CB84]
       - [0x03CBD0, c,   cod/03CBD0]            # func_0013CBD0: bound-checked table read
       - [0x03CBFC, asm, cod/03CBFC]
       - [0x03CC60, c,   cod/03CC60]            # func_0013CC60: zero 2 halfwords
