@@ -451,6 +451,8 @@ segments:
       - [0x0335CC, asm, cod/0335CC]
       - [0x0335D0, c,   cod/0335D0]            # func_001335D0: zero D_006A5C80[0x708 - i*0x12C] for i=0..6; clear D_00633C7C
       - [0x033604, asm, cod/033604]
+      - [0x035468, asm, cod/035468]
+      - [0x0354B8, asm, cod/0354B8]
       - [0x035BB8, asm, cod/035BB8]
       - [0x035BF8, asm, cod/035BF8]
       - [0x036060, c,   cod/036060]            # func_00136060: guard + sltiu + tail-call OR D-swap + post-store
