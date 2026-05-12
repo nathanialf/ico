@@ -895,6 +895,8 @@ segments:
       - [0x06AC50, asm, cod/06AC50]
       - [0x06BCF0, c,   cod/06BCF0]            # func_0016BCF0: func_002641D8(&D_00282AC0, 0, 0x5910)
       - [0x06BD04, asm, cod/06BD04]
+      - [0x075308, asm, cod/075308]
+      - [0x07534C, asm, cod/07534C]
       - [0x075640, c,   cod/075640]
       - [0x075684, asm, cod/075684]
       - [0x075688, c,   cod/075688]
