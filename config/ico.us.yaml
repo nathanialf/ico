@@ -1412,7 +1412,8 @@ segments:
       - [0x0AE258, c,   cod/0AE258]            # func_001AE258: 2-call+cond-call+tail: s1=g(); s2=h(); if(s1)func_00264128(s1,a[0]+a[1],s2); a[1]+=s2; tail i(a)
       - [0x0AE2C0, c,   cod/0AE2C0]            # func_001AE2C0: same shape as func_001AE210 but different callees
       - [0x0AE308, c,   cod/0AE308]            # func_001AE308: same shape as func_001AE258 with different callees
-      - [0x0AE370, asm, cod/0AE370]
+      - [0x0AE370, c,   cod/0AE370]            # func_001AE370: init loop at D_004B3D10[0xA80 + i*0x40]: *(short*)(p+2)=0, *(short*)(p+4)=0xFFFF, i=0x8B..0
+      - [0x0AE3AC, asm, cod/0AE3AC]
       - [0x0AE3B0, c,   cod/0AE3B0]            # func_001AE3B0: clear bit 0 of D_004B3D10[0..0xB5] (stride 0x40, ll)
       - [0x0AE3E4, asm, cod/0AE3E4]
       - [0x0AE3E8, c,   cod/0AE3E8]            # func_001AE3E8: clear bits 0-1 of D_004B3D10[0..0xB5] (stride 0x40, ll)
