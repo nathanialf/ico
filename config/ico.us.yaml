@@ -818,6 +818,8 @@ segments:
       - [0x065FB4, asm, cod/065FB4]
       - [0x065FB8, asm, cod/065FB8]
       - [0x066000, asm, cod/066000]
+      - [0x067258, asm, cod/067258]
+      - [0x067280, asm, cod/067280]
       - [0x0683A8, c,   commonact]             # 11-func dispatch block @0x1683A8..0x16850C: (*D_006323F0)(a0, N) wrappers
       - [0x06850C, asm, cod/06850C]
       - [0x068510, c,   cod/068510]            # func_00168510: D_00633D34=a1; D_006323F0(a0, 9) jalr
@@ -1035,6 +1037,8 @@ segments:
       - [0x087990, c,   cod/087990]            # func_00187990: D_00632614[1] + a0*0x4C
       - [0x0879A8, c,   cod/0879A8]            # func_001879A8: D_00632614->_4[a0]._48 + a1*0x5C
       - [0x0879D0, asm, cod/0879D0]
+      - [0x087F28, asm, cod/087F28]
+      - [0x087F4C, asm, cod/087F4C]
       - [0x088220, c,   cod/088220]
       - [0x088228, asm, cod/088228]
       - [0x088290, c,   cod/088290]            # func_00188290: permuter score-0 promotion
@@ -2216,6 +2220,7 @@ segments:
       - [0x1456A8, c,   cod/1456A8]            # func_002456A8: sibling: same
       - [0x1456D0, c,   cod/1456D0]            # func_002456D0: sibling: same
       - [0x1456F8, asm, cod/1456F8]
+      - [0x14571C, asm, cod/14571C]
       - [0x145DB8, c,   cod/145DB8]            # func_00245DB8: promote-test: subagent seed (unscored, may match)
       - [0x145DDC, asm, cod/145DDC]
       - [0x145E88, c,   cod/145E88]            # func_00245E88: a0->18=0 + a0->10 &= ~1
