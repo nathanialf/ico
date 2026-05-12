@@ -2303,6 +2303,8 @@ segments:
       - [0x14BD8C, asm, cod/14BD8C]
       - [0x14BD90, c  , cod/14BD90]
       - [0x14BDCC, asm, cod/14BDCC]
+      - [0x14C038, asm, cod/14C038]
+      - [0x14C08C, asm, cod/14C08C]
       - [0x14C4F0, c,   cod/14C4F0]            # func_0024C4F0: if D_00717904 fnptr set and D_00550924 == 0, indirect-call D_00717904(D_00717908)
       - [0x14C52C, asm, cod/14C52C]
       - [0x14D9B8, c,   cod/14D9B8]            # func_0024D9B8: promoted from permuter score-0
