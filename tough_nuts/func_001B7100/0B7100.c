@@ -9,9 +9,11 @@ int func_001B7100(int idx)
 {
   volatile int new_var3;
   int new_var4;
+  int *new_var6;
   int *new_var;
   int *p = (int *) (((char *) D_005F2FB8) + (101 * (2 * (idx * 2))));
   short new_var2;
+  int new_var5;
   int new_a;
   do
   {
@@ -34,7 +36,9 @@ int func_001B7100(int idx)
   {
     D_00633EC0 = 0x3A;
     func_001B5C38(0x3A, 0x3A);
-    D_00633158 = (new_var2 = (D_0063315C == 1) ? (5) : (3));
+    new_var5 = (D_0063315C == 1) ? (5) : (3);
+    new_var6 = &new_var5;
+    D_00633158 = (new_var2 = *new_var6);
     new_a = new_var3;
     return new_a;
   }

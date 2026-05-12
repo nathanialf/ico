@@ -1,17 +1,28 @@
-/* src/cod/043CD0.c — func_00143CD0 */
 
 extern int D_006A95B0[];
-
 int *func_00143CD0(int *target_ptr)
 {
-    int target = *target_ptr;
-    char *p = (char *)D_006A95B0;
-    char *end = p + 0x300;
-    char *q = p;
-    while (p < end) {
-        if (*(int *)p == target) return (int *)q;
-        p += 0x30;
-        q += 0x30;
+  int target = *target_ptr;
+  int *new_var4;
+  char *p;
+  char *new_var2;
+  char *q = (char *) D_006A95B0;
+  int *new_var3;
+  char *end = 0x300 + ((char *) D_006A95B0);
+  int *new_var;
+  new_var2 = p;
+  while (new_var2 < (new_var4 = end))
+  {
+    new_var = (int *) p;
+    if ((*new_var) == target)
+    {
+      new_var3 = new_var4;
+      new_var4 = (int *) p;
+      return new_var3;
     }
-    return 0;
+    p = p + 0x30;
+    q += 0x30;
+  }
+
+  return 0;
 }

@@ -1,8 +1,9 @@
-/* src/cod/105048.c — func_00205048 */
 
 int func_00205048(float *a, float *b)
 {
-    if (a[1] < b[1]) return -1;
-    if (b[1] < a[1]) return 1;
-    return 0;
+  float *new_var3;
+  int new_var2;
+  int new_var;
+ do { new_var2 = 1; new_var = new_var2; if (a[new_var] < b[new_var]) { return -((double) new_var); } if (b[new_var] < (new_var3 = a)[new_var]) { return new_var; } } while (0);
+  return 0;
 }

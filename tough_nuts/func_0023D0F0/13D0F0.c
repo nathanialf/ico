@@ -12,28 +12,33 @@ int func_0023D0F0(int *self)
   char *new_var7;
   float f;
   float *new_var8;
+  float new_var11;
   char *new_var3;
   int new_var9;
   int *new_var;
   int *p = (int *) self[0x34 / 4];
   char *new_var2;
+  int *new_var10;
   float new_var4;
   float *new_var5;
   int v;
   new_var4 = D_00631890;
+  new_var4 = D_00631894;
   *((float *) (((char *) p) + 8)) = -397.0f;
   new_var2 += 0x18;
+  new_var10 = p;
   new_var6 = &new_var;
-  new_var3 = (char *) p;
+  new_var3 = (char *) new_var10;
   new_var2 = (char *) (*new_var6);
   p = *new_var6;
   *((float *) new_var2) = f;
-  *((float *) (((char *) p) + 0)) = new_var4;
+  *((float *) (((char *) p) + 0)) = new_var11;
   new_var = (char *) p;
+  new_var11 = new_var4;
   new_var2 = new_var3;
-  *(new_var5 = (float *) (new_var2 + 4)) = new_var4;
+  *(new_var5 = (float *) (new_var2 + 4)) = new_var11;
   f = D_00633B48;
-  *(new_var5 = (float *) (new_var2 + 4)) = new_var4;
+  *(new_var5 = (float *) (new_var2 + 4)) = new_var11;
   new_var7 = new_var;
   if (D_00633B4C != D_00631960)
   {
