@@ -62,6 +62,8 @@ setup() {
     echo "==> verifying base ROM SHA-1"
     "${VENV_PY}" tools/verify_elf.py --target "${BASEROM}"
     split
+    echo "==> scanning for orphan src/cod/*.{c,s} (post-coalesce stale files)"
+    "${VENV_PY}" tools/clean_orphan_src.py --delete
     regen_ninja
 }
 
