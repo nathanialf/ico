@@ -248,6 +248,8 @@ segments:
       - [0x0011E4, asm, cod/0011E4]
       - [0x0019A8, asm, cod/0019A8]            # func_001019A8: varargs forwarder (ee-gcc 2.9 lacks stdarg)
       - [0x0019E0, asm, cod/0019E0]
+      - [0x001A40, asm, cod/001A40]
+      - [0x001A88, hasm,   cod/001A88]            # func_00101A88: handwritten EI + return prev EIE state
       - [0x001AA0, asm, cod/001AA0]
       - [0x001AE4, asm, cod/001AE4]
       - [0x001AE8, c,   cod/001AE8]            # func_00101AE8: wrap func_00100950(2, &local=a0)
@@ -1018,6 +1020,9 @@ segments:
       - [0x076194, asm, cod/076194]
       - [0x076198, hasm,   cod/076198]            # handwritten asm leaf (was C with inline asm)
       - [0x0761B8, asm, cod/0761B8]
+      - [0x076398, c,   cod/076398]            # func_00176398: round size up to 0x800 + call f1 + tail call f2
+      - [0x0763F4, asm, cod/0763F4]
+      - [0x0763F8, asm, cod/0763F8]
       - [0x076AE8, c,   cod/076AE8]            # func_00176AE8: a0->0=0 + tail call func_0013A5B8(&D_0028A4A0, a0, 1)
       - [0x076B04, asm, cod/076B04]
       - [0x076B08, c,   cod/076B08]            # func_00176B08: gated tail-call to func_0013A5B8(D_0028A4A0, p, 0); requires D_00274EE8 != 0
