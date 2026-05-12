@@ -1893,6 +1893,7 @@ segments:
       - [0x0F1260, asm, cod/0F1260]
       - [0x0F16A0, c,   cod/0F16A0]            # func_001F16A0: alloc 2 + (short)func_00264D60()
       - [0x0F16F4, asm, cod/0F16F4]
+      - [0x0F17B0, c,   cod/0F17B0]            # func_001F17B0: alloc count*2 + short-store loop; trailing .skip 4 for size padding
       - [0x0F1838, c,   cod/0F1838]            # func_001F1838: wrap func_001D12D8(a0); tail call func_001D12A8(a0, 0x41)
       - [0x0F1864, asm, cod/0F1864]
       - [0x0F2140, c,   cod/0F2140]
