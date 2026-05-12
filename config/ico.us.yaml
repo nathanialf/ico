@@ -811,6 +811,8 @@ segments:
       - [0x05F4E0, c,   cod/05F4E0]            # func_0015F4E0: store-arg-discard
       - [0x05F4F0, c,   cod/05F4F0]            # func_0015F4F0: 1-jal wrapper w/ spill+reload
       - [0x05F514, asm, cod/05F514]
+      - [0x05F518, c,   cod/05F518]            # func_0015F518: volatile self spill+reload then set self[0x164][0x670][0x2A0]=-1, [0x2A4]=0
+      - [0x05F54C, asm, cod/05F54C]
       - [0x05F550, c,   cod/05F550]            # func_0015F550: spill+reload wrapper (sibling of 0015F4B8) with a1=0
       - [0x05F578, asm, cod/05F578]
       - [0x05F5D0, c,   cod/05F5D0]            # func_0015F5D0: volatile arg + OR mask: *(ll*)(p164+0x20) |= 0x40000<<16 (same as 0x0015F428)
