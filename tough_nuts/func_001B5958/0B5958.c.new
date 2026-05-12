@@ -1,16 +1,15 @@
+/* src/cod/0B5958.c — func_001B5958 */
+
 extern int func_00192098(void);
-extern void func_0019FF98(int a, float b, float c);
-extern int D_00633044;
+extern void func_0019FF98(int a0, float arg1, float arg2);
 extern float D_0063110C;
+extern int D_00633044;
 
 int func_001B5958(void)
 {
-    int a;
-    float b;
     if (func_00192098() == 0) {
-        b = D_0063110C;
-        a = D_00633044;
-        func_0019FF98(a, b, 4.0f);
+        float val = D_0063110C;
+        func_0019FF98(D_00633044, val, 4.0f);
     }
     return -1;
 }

@@ -1512,6 +1512,7 @@ segments:
       - [0x0B5870, c,   cod/0B5870]            # func_001B5870: if a0 set flag; bail unless bit 0x800 set; then call+clear+return 0x33
       - [0x0B58B8, asm, cod/0B58B8]
       - [0x0B5958, asm, cod/0B5958]
+      - [0x0B5994, asm, cod/0B5994]
       - [0x0B5998, c,   cod/0B5998]            # func_001B5998: D_00275254 & 0x10 ? func_001B7040() : -1
       - [0x0B59D0, asm, cod/0B59D0]
       - [0x0B7040, c,   cod/0B7040]            # func_001B7040: return D_00633150
