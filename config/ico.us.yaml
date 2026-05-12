@@ -248,7 +248,7 @@ segments:
       - [0x0011E4, asm, cod/0011E4]
       - [0x0019A8, asm, cod/0019A8]            # func_001019A8: varargs forwarder (ee-gcc 2.9 lacks stdarg)
       - [0x0019E0, asm, cod/0019E0]
-      - [0x001A40, asm, cod/001A40]
+      - [0x001A40, hasm,   cod/001A40]            # func_00101A40: handwritten DI + return prev EIE state
       - [0x001A88, hasm,   cod/001A88]            # func_00101A88: handwritten EI + return prev EIE state
       - [0x001AA0, asm, cod/001AA0]
       - [0x001AE4, asm, cod/001AE4]
