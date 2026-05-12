@@ -441,6 +441,8 @@ segments:
       - [0x033510, c,   cod/033510]            # func_00133510: v=fDAB8(a2>>11,a1,1,&buf); buf?fE28(&D_); ret v<<11
       - [0x033570, asm, cod/033570]
       - [0x0335CC, asm, cod/0335CC]
+      - [0x0335D0, c,   cod/0335D0]            # func_001335D0: zero D_006A5C80[0x708 - i*0x12C] for i=0..6; clear D_00633C7C
+      - [0x033604, asm, cod/033604]
       - [0x035BB8, asm, cod/035BB8]
       - [0x035BF8, asm, cod/035BF8]
       - [0x036060, c,   cod/036060]            # func_00136060: guard + sltiu + tail-call OR D-swap + post-store
@@ -484,6 +486,8 @@ segments:
       - [0x03A21C, asm, cod/03A21C]
       - [0x03A220, c,   cod/03A220]            # func_0013A220: deref+cond+tail-call (with reg-pinned a1; postprocess will wrap end jr in noreorder)
       - [0x03A248, asm, cod/03A248]
+      - [0x03A580, c,   cod/03A580]            # func_0013A580: zero 256 ints at D_006A6990[0..0xFF] in reverse
+      - [0x03A5B4, asm, cod/03A5B4]
       - [0x03A7C8, c,   cod/03A7C8]            # func_0013A7C8: iterate 256 D_006A6990 entries; call func_0013A2F8(*p) if non-null
       - [0x03A81C, asm, cod/03A81C]
       - [0x03A820, asm, cod/03A820]
