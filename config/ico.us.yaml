@@ -616,6 +616,8 @@ segments:
       - [0x040710, c,   cod/040710]            # func_00140710: jal func_001A6E28(&D_00557BF8); tail call func_0025DEF0(self->30 ll)
       - [0x040740, c,   cod/040740]            # func_00140740: auto-batch
       - [0x040748, asm, cod/040748]
+      - [0x040B30, asm, cod/040B30]
+      - [0x040B5C, asm, cod/040B5C]
       - [0x040B60, c,   cod/040B60]            # func_00140B60: tail call func_00140B30(a0, 0, a1)
       - [0x040B6C, asm, cod/040B6C]
       - [0x040B70, c,   cod/040B70]            # func_00140B70: D_00633CC0 = val
@@ -824,6 +826,8 @@ segments:
       - [0x065174, asm, cod/065174]
       - [0x0651C8, c,   cod/0651C8]            # func_001651C8: clear bit 21 of D_002A4C48[a0[2]*0x4C + 0x48]
       - [0x0651F8, asm, cod/0651F8]
+      - [0x065270, c,   cod/065270]            # func_00165270: SET bit 18 of D_002A4C48[a0[2]*0x4C + 0x48] — sibling of func_001651C8
+      - [0x06529C, asm, cod/06529C]
       - [0x0652A0, c,   cod/0652A0]            # func_001652A0: sub_164->430 == 2
       - [0x0652B4, asm, cod/0652B4]
       - [0x0652B8, c,   cod/0652B8]            # func_001652B8
