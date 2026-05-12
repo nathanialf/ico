@@ -245,10 +245,10 @@ def _scan_function(asm_path: Path, func_vma: int, sym: str
                     pass
             continue
 
-        # jal/jalr/branch: conservative reset of base regs (function call
-        # invalidates caller-saved registers).
-        if mnem.startswith("j") or mnem.startswith("b"):
-            # Keep s0-s7 (callee-saved) but drop t0-t9, a0-a3, v0-v1.
+        # Function call: clobber all caller-saved base regs. Normal
+        # branches (beq/bne/bgez/etc.) don't clobber any register, so
+        # leave base_regs alone for them.
+        if mnem in ("jal", "jalr"):
             for r in list(base_regs.keys()):
                 if not re.match(r'\$s[0-9]', r):
                     del base_regs[r]

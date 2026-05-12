@@ -98,10 +98,16 @@ def _encode_c_literal(data: bytes) -> str:
     return '"' + "".join(out) + '"'
 
 
-def _decode_for_display(data: bytes) -> str:
-    """Best-effort Shift-JIS decode. Replace bad bytes so the developer
-    still sees what's recognizable."""
-    return data.decode("shift_jis", errors="replace")
+def _decode_for_display(data: bytes) -> tuple[str, str]:
+    """Best-effort decode under both common JP codepages. ICO uses
+    EUC-JP for in-game text; other PS2 titles use Shift-JIS. Returns
+    (label, decoded) for whichever encoding produced fewer replacement
+    chars, so the developer reads readable Japanese instead of garbage."""
+    sjis = data.decode("shift_jis", errors="replace")
+    euc = data.decode("euc_jp", errors="replace")
+    if euc.count("�") < sjis.count("�"):
+        return "EUC-JP", euc
+    return "Shift-JIS", sjis
 
 
 def main() -> int:
@@ -122,14 +128,14 @@ def main() -> int:
             continue
         size, data = found
         vma = int(sym[2:], 16)
-        decoded = _decode_for_display(data)
+        label, decoded = _decode_for_display(data)
         literal = _encode_c_literal(data)
         high_bit = sum(1 for b in data if b >= 0x80)
-        likely_sjis = high_bit >= 2
-        marker = "Decoded" if likely_sjis else "Note: <2 high-bit bytes; may not be JTEXT"
-        macro = "JTEXT" if likely_sjis else "const char"
-        print(f"{sym} ({size} bytes @ 0x{vma:08X})")
-        print(f"  {marker}: {decoded!r}")
+        likely_jp = high_bit >= 2
+        macro = "JTEXT" if likely_jp else "const char"
+        note = "" if likely_jp else " (note: <2 high-bit bytes; may not be JP text)"
+        print(f"{sym} ({size} bytes @ 0x{vma:08X}){note}")
+        print(f"  Decoded ({label}): {decoded!r}")
         print(f"  Literal: {macro}({literal})")
         print()
     return 0

@@ -141,16 +141,18 @@ def _write_asm_blob(tu: str, sym: str, sect: str, vma: int,
 
 def _append_include_rodata(tu: str, sym: str) -> None:
     """Append `INCLUDE_RODATA("asm/rodata/<TU>", <sym>);` to the
-    tracked src/<TU>.c. Includes common.h if it isn't already."""
-    tu_c = SRC / f"{tu}.c" if "/" not in tu else SRC / tu
-    tu_c = tu_c.with_suffix(".c") if tu_c.suffix != ".c" else tu_c
-    if not tu_c.exists():
-        # Create a minimal anchor file (parappa2-style header).
-        tu_c.parent.mkdir(parents=True, exist_ok=True)
-        tu_c.write_text(
-            f'/* src/{tu}.c */\n\n'
+    tracked `src/<TU>.c`. Includes common.h if it isn't already.
+
+    `tu` already includes the `src/` prefix (e.g. `src/BgAnimation`,
+    `ios/cdvd`) — REPO/tu.c is the right path."""
+    tu_path = (REPO / tu).with_suffix(".c")
+    if not tu_path.exists():
+        tu_path.parent.mkdir(parents=True, exist_ok=True)
+        tu_path.write_text(
+            f'/* {tu}.c */\n\n'
             f'#include "common.h"\n\n'
         )
+    tu_c = tu_path
     text = tu_c.read_text()
     if '#include "common.h"' not in text and '#include <common.h>' not in text:
         # Insert include after the first comment block / before defs.
