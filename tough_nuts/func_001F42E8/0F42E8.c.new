@@ -1,0 +1,12 @@
+/* src/cod/0F42E8.c — func_001F42E8 */
+
+extern unsigned char D_006124F8[];
+
+float func_001F42E8(int *self)
+{
+    int *p = (int *)self[0x57];
+    int *q = (int *)p[0x200];
+    int idx = q[0];
+    char *entry = (char *)&D_006124F8[0] + idx * 0x24;
+    return (float)*(int *)(entry + 0xC);
+}
