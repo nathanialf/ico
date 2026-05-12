@@ -745,6 +745,8 @@ segments:
       - [0x057DC4, asm, cod/057DC4]
       - [0x057E68, c,   cod/057E68]            # func_00157E68: f(self); if(self->C==1) tail g(self->164->1A0, 6)
       - [0x057EB0, asm, cod/057EB0]
+      - [0x058928, asm, cod/058928]
+      - [0x05895C, asm, cod/05895C]
       - [0x059230, c,   cod/059230]            # func_00159230: tail call func_00106AB8 (double-deref TCO)
       - [0x059240, asm, cod/059240]
       - [0x05D328, c,   cod/05D328]            # func_0015D328: lazy-init D_00631AF4=1; tail call func_001B6FD8(0x3A)
@@ -1903,6 +1905,8 @@ segments:
       - [0x105000, c,   cod/105000]            # func_00205000: if(!a0) return -1; f1(buf, a0); return f2(buf, 0, f)
       - [0x105048, asm, cod/105048]
       - [0x10507C, asm, cod/10507C]
+      - [0x105518, c,   cod/105518]            # func_00205518: linked-list unlink at D_004CAEC0[idx*0x34]: mark + splice prev/next
+      - [0x105548, asm, cod/105548]
       - [0x105A78, c,   cod/105A78]            # func_00205A78: D_004CAEC0[idx*0x34] +0x8 (la mult lw)
       - [0x105A94, asm, cod/105A94]
       - [0x105AD8, c,   cod/105AD8]            # func_00205AD8: if(!self) return 0; log(D,self); return which ? self[3] : self[2]
@@ -2347,6 +2351,8 @@ segments:
       - [0x14DD30, asm, cod/14DD30]
       - [0x14E4C8, asm, cod/14E4C8]
       - [0x14E528, asm, cod/14E528]
+      - [0x14F3F8, c,   cod/14F3F8]            # func_0024F3F8: init: *a0=&D_00719580, *a1=&D_005523D0, p3C=D_005523D4; return &D_00717FC0
+      - [0x14F428, asm, cod/14F428]
       - [0x14F6D8, c  , cod/14F6D8]            # func_0024F6D8
       - [0x14F710, asm, cod/14F710]
       - [0x14FBD0, c  , cod/14FBD0]            # func_0024FBD0
