@@ -1880,6 +1880,8 @@ segments:
       - [0x0F4C14, asm, cod/0F4C14]
       - [0x0F4DD8, c, cod/0F4DD8]            # func_001F4DD8: D_00633750 = &func_001F4C00
       - [0x0F4DE8, asm, cod/0F4DE8]
+      - [0x0F55D8, asm, cod/0F55D8]
+      - [0x0F5604, asm, cod/0F5604]
       - [0x0F5608, c,   cod/0F5608]            # func_001F5608: D_004C75C0[0..2] = a0,a1,a2
       - [0x0F5620, asm, cod/0F5620]
       - [0x0F66A0, c,   cod/0F66A0]            # func_001F66A0: f1(self, other->15C+0x50); f2(self, self); tail f3(self, self, f)
