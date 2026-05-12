@@ -1,14 +1,13 @@
+/* src/cod/090408.c — func_00190408 */
 
-void func_00190408(int *dst, int *self)
+typedef struct { long long ll; } __attribute__((packed)) Pack8;
+
+void func_00190408(char *dst, int *self)
 {
-  long long *new_var;
-  int *p = (int *) ((int *) self[0x15C / 4])[0x800 / 4];
-  int *new_var2;
-  *((int *) (((char *) dst) + 8)) = *((int *) (((char *) p) + 0xAC));
-  if (1)
-  {
-  }
-  new_var2 = p;
-  *new_var = *(new_var = (long long *) (((char *) new_var2) - -0xA4));
-  new_var = (long long *) dst;
+    int *q = (int *)self[0x57];
+    char *p = (char *)q[0x200];
+    long long ll = ((Pack8 *)(p + 0xA4))->ll;
+    int last = *(int *)(p + 0xAC);
+    ((Pack8 *)dst)->ll = ll;
+    *(int *)(dst + 8) = last;
 }

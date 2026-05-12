@@ -1,25 +1,11 @@
 
 ---
 
-## Attempt at 2026-05-08
-
-**Reason parked:** unaligned 8-byte copy: ee-gcc emits aligned ld/sd (7 insns); original ldl/ldr+sdl/sdr (10 insns)
-
-Seed: `tough_nuts/func_00190408/090408.c`
-
-Disassembly excerpt:
-
-```
-(no asm/cod/*.s found for func_00190408; check asm/matchings/cod/090408/)
-```
-
----
-
 ## Attempt at 2026-05-12
 
-**Reason parked:** structurally matches; ll temp→a1 not v0; int temp→v1 not a1 (regalloc only)
+**Reason parked:** reg alloc differs: target reuses v0 for q->ll, builds use a1 for ll; load/store ordering correct but regs swapped
 
-Seed: `tough_nuts/func_00190408/090408.c.new`
+Seed: `tough_nuts/func_00190408/090408.c`
 
 Disassembly excerpt:
 

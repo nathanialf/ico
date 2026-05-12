@@ -1,0 +1,14 @@
+/* src/cod/067230.c — func_00167230 */
+
+typedef struct { long long ll; } __attribute__((packed)) Pack8;
+extern char D_006323C0;
+extern void func_00166E10(char *a0);
+
+void func_00167230(char *self)
+{
+    *(int *)(self + 0xB0) = 0;
+    *(int *)(self + 0x94) = 0;
+    *(int *)(self + 0x88) = 0;
+    ((Pack8 *)(self + 0x80))->ll = ((Pack8 *)&D_006323C0)->ll;
+    func_00166E10(self);
+}
