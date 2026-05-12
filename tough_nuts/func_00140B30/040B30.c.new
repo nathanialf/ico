@@ -1,0 +1,9 @@
+extern int func_00140A20(int *p, int idx2, int val);
+
+void func_00140B30(int *self, int idx, int val)
+{
+    int *p = (int *)self[0xB];
+    *(short *)((char *)p + idx * 4 + 0x3C) = (short)val;
+    *(short *)((char *)p + idx * 4 + 0x42) = (short)val;
+    func_00140A20(p, idx * 2, val);
+}

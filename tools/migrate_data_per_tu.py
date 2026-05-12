@@ -59,6 +59,10 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TU_MAP = REPO_ROOT / "decomp" / "data_tu_map.json"
+MAP_PATH = REPO_ROOT / "build" / "ico.us.map"
+# Loaded VMA range — words outside this range are integers, not pointers.
+LOAD_VMA_LO = 0x00100000
+LOAD_VMA_HI = 0x00700000
 ASM_FILES = {
     ".sdata":  REPO_ROOT / "asm" / "data" / "cod" / "531900.sdata.s",
     ".lit4":   REPO_ROOT / "asm" / "data" / "cod" / "530900.lit4.s",
@@ -286,10 +290,90 @@ def _extract_bytes(body: str, start_vma: int, end_vma: int) -> bytes | None:
     return bytes(out)
 
 
+_MAP_CACHE: object = ...  # sentinel — None after first failed load
+
+
+def _load_map():
+    """Cached mapfile_parser load. Returns a MapFile or None if the
+    linker map isn't built yet. Parse cost is ~3 s; one parse per run."""
+    global _MAP_CACHE
+    if _MAP_CACHE is not ...:
+        return _MAP_CACHE
+    if not MAP_PATH.exists():
+        _MAP_CACHE = None
+        return None
+    try:
+        from mapfile_parser import mapfile
+        _MAP_CACHE = mapfile.MapFile.newFromMapFile(MAP_PATH)
+    except Exception:
+        _MAP_CACHE = None
+    return _MAP_CACHE
+
+
+def _resolve_word_as_pointer(w: int, mf) -> str | None:
+    """If `w` exactly matches a known symbol's VMA, return `&name`;
+    else None. Restricts to the loaded VMA range to avoid treating
+    numeric constants like 0x80000000 as pointers."""
+    if mf is None:
+        return None
+    if not (LOAD_VMA_LO <= w < LOAD_VMA_HI):
+        return None
+    found = mf.findSymbolByVramOrVrom(w)
+    if found is None:
+        return None
+    sym = found.symbol
+    if sym.vram != w:
+        return None  # word points mid-symbol — treat as int, not pointer
+    return f"&{sym.name}"
+
+
+def _is_clean_ascii_block(data: bytes) -> bool:
+    """True if `data` looks like a (multi-)C string: ends in NUL, has
+    at least one printable byte, all bytes are NUL or 0x20–0x7E or
+    \\t / \\n / \\r. Strings stay as `unsigned char[]` so the
+    tracked-side string migrator can recognize and re-type them."""
+    if not data or data[-1] != 0:
+        return False
+    if not any(0x20 <= b < 0x7f for b in data):
+        return False
+    for b in data:
+        if b == 0 or 0x20 <= b < 0x7f or b in (0x09, 0x0a, 0x0d):
+            continue
+        return False
+    return True
+
+
 def _emit_chunked(sym: str, vma: int, sect_name: str,
                   data: bytes) -> list[str]:
     if not data:
         return []
+    # Word-array branch (papermario-style): for 4-aligned VMAs with
+    # multi-word, non-zero, non-string bytes, emit `void *[]` (with
+    # &func_/&D_ resolved via linker map) or `unsigned int[]`. This
+    # makes pointer tables auto-typed and shrinks the file footprint
+    # by 4×. Strings fall through to the byte-array branch below so
+    # the tracked-side string migrator still recognizes them.
+    if (vma % 4 == 0 and len(data) >= 4 and len(data) % 4 == 0
+            and not all(b == 0 for b in data)
+            and not _is_clean_ascii_block(data)):
+        mf = _load_map()
+        words = [int.from_bytes(data[i:i + 4], "little")
+                 for i in range(0, len(data), 4)]
+        resolved = [_resolve_word_as_pointer(w, mf) for w in words]
+        any_ptr = any(r is not None for r in resolved)
+        if any_ptr:
+            parts = [r if r is not None
+                     else (f"(void *)0x{w:08X}" if w else "(void *)0")
+                     for w, r in zip(words, resolved)]
+            return [
+                f'__attribute__((section("{sect_name}.0x{vma:08X}"))) '
+                f'void *{sym}[{len(words)}] = {{ {", ".join(parts)} }};'
+            ]
+        parts = [f"0x{w:08X}" for w in words]
+        return [
+            f'__attribute__((section("{sect_name}.0x{vma:08X}"))) '
+            f'unsigned int {sym}[{len(words)}] = {{ {", ".join(parts)} }};'
+        ]
     if vma % 8 == 0:
         if len(data) == 1:
             return [
