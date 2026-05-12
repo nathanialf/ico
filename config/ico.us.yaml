@@ -2609,6 +2609,8 @@ segments:
       - [0x15DD1C, asm, cod/15DD1C]
       - [0x15DDB0, c,   cod/15DDB0]            # func_0025DDB0: if a0 < 0x30: func_002591F0(0x3F, a0, 0, 0); return 0 else -1
       - [0x15DDEC, asm, cod/15DDEC]
+      - [0x15DDF0, c,   cod/15DDF0]            # func_0025DDF0: 3 range checks + (a1<<16)|a2 packed into a3; kind 0x40
+      - [0x15DE78, c,   cod/15DE78]            # func_0025DE78: like 25DEF0 + signed-range a1 check (0..0x2EE00); kind 0x41
       - [0x15DEF0, c,   cod/15DEF0]            # func_0025DEF0: (a0&0xFF000000)==0 ? f1F0(0x42,(int)(a0&0xFFFFFF),(int)((a0>>24)&0xFFFFFF),0); 0 : -1
       - [0x15DF50, c,   cod/15DF50]            # func_0025DF50: same as 25DEF0 with constant 0x43
       - [0x15DFB0, asm, cod/15DFB0]

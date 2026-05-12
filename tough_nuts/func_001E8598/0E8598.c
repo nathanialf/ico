@@ -10,7 +10,7 @@ void func_001E8598(int idx)
     goto end;
   }
   {
-    int *p = (int *) (((char *) D_007097F0) + (idx * 0x18));
+    int *p = (int *) (((char *) D_007097F0) - (-(idx * 0x18)));
     if (p[0] != 0)
     {
       return func_001A6E28(D_00619E40);
@@ -20,5 +20,6 @@ void func_001E8598(int idx)
   end:
   ;
 
+  ;
   ;
 }
