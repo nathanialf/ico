@@ -1279,6 +1279,8 @@ segments:
       - [0x09E4F8, c,   cod/09E4F8]            # func_0019E4F8: zero p[2..3]
       - [0x09E508, c,   cod/09E508]            # func_0019E508: self[3] == self[4]
       - [0x09E51C, asm, cod/09E51C]
+      - [0x09E598, asm, cod/09E598]
+      - [0x09E5CC, asm, cod/09E5CC]
       - [0x09E628, c,   cod/09E628]            # func_0019E628: if p[3]>0, --p[3]
       - [0x09E648, asm, cod/09E648]
       - [0x09EF10, c,   cod/09EF10]            # func_0019EF10: tail-call helper: func_0013A0F8(D_00632010, self->_88<<6, &D_00612620, 0x14C); store ret; tail-call func_00103120
