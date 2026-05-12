@@ -917,6 +917,8 @@ segments:
       - [0x07A9D4, asm, cod/07A9D4]
       - [0x07A9D8, c,   cod/07A9D8]            # func_0017A9D8: wrap func_00104508(&local, a0); func_00178990(&local, -1)
       - [0x07AA04, asm, cod/07AA04]
+      - [0x07B0D8, asm, cod/07B0D8]
+      - [0x07B10C, asm, cod/07B10C]
       - [0x07B1A8, c,   cod/07B1A8]            # func_0017B1A8: save gp_rel D + call + tail-call w/ different addr
       - [0x07B1EC, asm, cod/07B1EC]
       - [0x07B1F0, c,   cod/07B1F0]            # func_0017B1F0: two-call wrapper to func_001AE8A0(a0, &D_006325B0, 4) then tail-call (a0, &D_0028A520, 0x2E)
@@ -1320,6 +1322,8 @@ segments:
       - [0x0A9D88, c,   cod/0A9D88]            # func_001A9D88: D_00632C74 = 0
       - [0x0A9D90, c,   cod/0A9D90]            # func_001A9D90: GIF_PATH? hardcoded HW writes
       - [0x0A9DB4, asm, cod/0A9DB4]
+      - [0x0A9EE8, c,   cod/0A9EE8]            # func_001A9EE8: zero bytes D_006F1930[0x5B4 - i*0x38] for i=0..0x1A; clear D_006329E4
+      - [0x0A9F1C, asm, cod/0A9F1C]
       - [0x0A9F20, c,   cod/0A9F20]            # func_001A9F20: D_00632A34 = val
       - [0x0A9F28, asm, cod/0A9F28]
       - [0x0A9FE0, asm, cod/0A9FE0]
@@ -1379,6 +1383,10 @@ segments:
       - [0x0AE188, c,   cod/0AE188]
       - [0x0AE1B8, c,   cod/0AE1B8]            # func_001AE1B8: a1?f4128(a1,self[0]+self[1]); self[1]+=a2; tail f6E28(&D_006168F8,self[1])
       - [0x0AE20C, asm, cod/0AE20C]
+      - [0x0AE3B0, c,   cod/0AE3B0]            # func_001AE3B0: clear bit 0 of D_004B3D10[0..0xB5] (stride 0x40, ll)
+      - [0x0AE3E4, asm, cod/0AE3E4]
+      - [0x0AE3E8, c,   cod/0AE3E8]            # func_001AE3E8: clear bits 0-1 of D_004B3D10[0..0xB5] (stride 0x40, ll)
+      - [0x0AE41C, asm, cod/0AE41C]
       - [0x0AE420, c,   cod/0AE420]            # func_001AE420: func_001AE420: wrap func_001ADED8(a0,a3); store a1 at +0x30, a2 at +0x34; return ptr
       - [0x0AE460, asm, cod/0AE460]
       - [0x0AE808, c,   cod/0AE808]            # func_001AE808: D_004B3D50[1]==0 ? 4 : D_004B3D50[2] (u16)
@@ -1894,6 +1902,7 @@ segments:
       - [0x104FA4, asm, cod/104FA4]
       - [0x105000, c,   cod/105000]            # func_00205000: if(!a0) return -1; f1(buf, a0); return f2(buf, 0, f)
       - [0x105048, asm, cod/105048]
+      - [0x10507C, asm, cod/10507C]
       - [0x105A78, c,   cod/105A78]            # func_00205A78: D_004CAEC0[idx*0x34] +0x8 (la mult lw)
       - [0x105A94, asm, cod/105A94]
       - [0x105AD8, c,   cod/105AD8]            # func_00205AD8: if(!self) return 0; log(D,self); return which ? self[3] : self[2]
