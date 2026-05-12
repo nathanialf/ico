@@ -673,6 +673,7 @@ segments:
       - [0x04A100, asm, cod/04A100]
       - [0x04A2B0, c,   cod/04A2B0]            # func_0014A2B0: D_006AA4B0+0x4B4=0, +0x4B0=0
       - [0x04A2C4, asm, cod/04A2C4]
+      - [0x04A2C8, c,   cod/04A2C8]            # func_0014A2C8: clear bits 43+44 of *(self->p164+0x18) using 2 separate masks
       - [0x04A308, c,   cod/04A308]            # func_0014A308: bit-set 64-bit: *(ll*)(self->p164+0x18) |= (0x8000<<28) | (0x8000<<29)
       - [0x04A330, asm, cod/04A330]
       - [0x04A700, c  , cod/04A700]            # func_0014A700: permuter score-0 (parked seed)
