@@ -2505,7 +2505,7 @@ segments:
       - [0x151E4C, asm, cod/151E4C]
       - [0x151EB8, c,   cod/151EB8]            # func_00251EB8: return p[0] + p[1] - p[2]
       - [0x151ED0, asm, cod/151ED0]
-      - [0x152180, asm, cod/152180]
+      - [0x152180, c,   cod/152180]            # func_00252180: if D_0055266C[0]==3 call func_00252058 else func_002521C0
       - [0x1521BC, asm, cod/1521BC]
       - [0x1523A0, c,   cod/1523A0]            # func_002523A0: tail call func_00254CF8(1) + sdata-set 0
       - [0x1523B0, c,   cod/1523B0]            # func_002523B0: if(D1) f1(D2,a0); elif(D3==3) f2(D4,a0-1); else f3(D5,D6,a0-1); D1=0
@@ -2514,7 +2514,8 @@ segments:
       - [0x152484, asm, cod/152484]
       - [0x152550, c,   cod/152550]            # func_00252550: tail call func_002642D8(&D_0062ED08, a0)
       - [0x152560, c,   cod/152560]            # func_00252560: buf[64] init via 3-arg call + buf-only call
-      - [0x15258C, asm, cod/15258C]
+      - [0x15258C, c,   cod/15258C]            # func_00252590: 3-deep null-check chain; on success func_00251CF8, else fallback func_00252550
+      - [0x1525E8, asm, cod/1525E8]
       - [0x1526C0, c,   cod/1526C0]            # func_002526C0: a0->[1..4]=a1,a2,a1>>4,a2>>4; ret 1
       - [0x1526E0, asm, cod/1526E0]
       - [0x152F30, c,   cod/152F30]            # func_00252F30: tail call func_00252590(&D_0062ED78)
