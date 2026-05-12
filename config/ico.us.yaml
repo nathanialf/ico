@@ -558,6 +558,10 @@ segments:
       - [0x03E220, asm, cod/03E220]
       - [0x03E4D0, asm, cod/03E4D0]
       - [0x03E548, asm, cod/03E548]
+      - [0x03ED40, c,   cod/03ED40]            # func_0013ED40: if (set) D_006321CC |= (1<<bit); else D_006321CC &= ~(1<<bit)
+      - [0x03ED74, asm, cod/03ED74]
+      - [0x03ED78, c,   cod/03ED78]            # func_0013ED78: if (set) D_006321D0 |= (1<<bit); else D_006321D0 &= ~(1<<bit)
+      - [0x03EDAC, asm, cod/03EDAC]
       - [0x03EE58, c,   cod/03EE58]            # func_0013EE58: tail call func_0013EDB0 passthrough
       - [0x03EE60, asm, cod/03EE60]
       - [0x03F0A0, c,   cod/03F0A0]            # func_0013F0A0: promote: score-0 from permuter (parked tough_nut)
