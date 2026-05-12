@@ -153,8 +153,60 @@ def _load_baseelf_bytes(vma: int, length: int) -> bytes:
     raise ValueError(f"VMA 0x{vma:08x} not in any baseelf load segment")
 
 
+def _apply_relocations(obj: Path,
+                       sym_vmas: dict[str, int]
+                       ) -> dict[str, bytes]:
+    """For each `.X.0xVMA` section in `obj`, patch its bytes with the
+    resolved value of every relocation that targets a symbol in
+    `sym_vmas`. Returns {section_name: patched_data}.
+
+    Pointer-array `_data.c` shapes (`void *D_X[] = { &D_Y, ... };`)
+    emit relocations in the .o, so the raw section bytes have zeros
+    where the pointers go. To byte-compare against baseelf, we
+    resolve `&D_Y` against the linker map's VMA and write that VMA
+    into the section bytes. Supports R_MIPS_32 only (the only reloc
+    type ee-gcc emits for `void *` initializers on LE r5900)."""
+    from elftools.elf.relocation import RelocationSection
+    patched: dict[str, bytes] = {}
+    with obj.open("rb") as f:
+        elf = ELFFile(f)
+        symtab = elf.get_section_by_name(".symtab")
+        for sec in elf.iter_sections():
+            m = re.match(r"\.\w+\.0x([0-9A-Fa-f]+)$", sec.name)
+            if not m:
+                continue
+            data = bytearray(sec.data())
+            # Find the matching rel section, if any.
+            rel_name = ".rel" + sec.name
+            rel_sec = elf.get_section_by_name(rel_name)
+            if isinstance(rel_sec, RelocationSection) and symtab is not None:
+                for rel in rel_sec.iter_relocations():
+                    rtype = rel["r_info_type"]
+                    if rtype != 2:  # R_MIPS_32
+                        continue
+                    sym = symtab.get_symbol(rel["r_info_sym"])
+                    name = sym.name
+                    target = sym_vmas.get(name)
+                    if target is None:
+                        continue
+                    off = rel["r_offset"]
+                    if off + 4 > len(data):
+                        continue
+                    # Existing 4 bytes are an addend (usually 0).
+                    addend = int.from_bytes(data[off:off + 4], "little")
+                    final = (target + addend) & 0xFFFFFFFF
+                    data[off:off + 4] = final.to_bytes(4, "little")
+            patched[sec.name] = bytes(data)
+    return patched
+
+
 def _per_vma_sections(obj: Path) -> list[tuple[str, int, bytes]]:
-    """List (section_name, vma, data) for every `.X.0xVMA` section."""
+    """List (section_name, vma, data) for every `.X.0xVMA` section.
+    Relocations are applied if the linker map is available, so
+    pointer-array sections compare correctly to baseelf without a
+    full re-link."""
+    sym_vmas = _load_symbol_vmas()
+    patched = _apply_relocations(obj, sym_vmas) if sym_vmas else {}
     out: list[tuple[str, int, bytes]] = []
     with obj.open("rb") as f:
         elf = ELFFile(f)
@@ -163,7 +215,36 @@ def _per_vma_sections(obj: Path) -> list[tuple[str, int, bytes]]:
             if not m:
                 continue
             vma = int(m.group(1), 16)
-            out.append((sec.name, vma, sec.data()))
+            data = patched.get(sec.name, sec.data())
+            out.append((sec.name, vma, data))
+    return out
+
+
+_SYM_VMAS_CACHE: dict[str, int] | None = None
+
+
+def _load_symbol_vmas() -> dict[str, int]:
+    """Return {symbol_name: vma} from build/ico.us.map. Returns empty
+    dict if the map isn't built yet (callers fall back to raw bytes)."""
+    global _SYM_VMAS_CACHE
+    if _SYM_VMAS_CACHE is not None:
+        return _SYM_VMAS_CACHE
+    map_path = REPO / "build" / "ico.us.map"
+    if not map_path.exists():
+        _SYM_VMAS_CACHE = {}
+        return _SYM_VMAS_CACHE
+    try:
+        from mapfile_parser import mapfile
+        mf = mapfile.MapFile.newFromMapFile(map_path)
+    except Exception:
+        _SYM_VMAS_CACHE = {}
+        return _SYM_VMAS_CACHE
+    out: dict[str, int] = {}
+    for segment in mf:
+        for file in segment:
+            for sym in file:
+                out[sym.name] = sym.vram
+    _SYM_VMAS_CACHE = out
     return out
 
 

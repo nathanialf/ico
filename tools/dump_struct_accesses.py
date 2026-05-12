@@ -191,7 +191,10 @@ def _scan_function(asm_path: Path, func_vma: int, sym: str
                 base_regs[dst] = off
             continue
 
-        # `daddu $dst, $src, $X` where $X holds base → $dst also base.
+        # `daddu/addu $dst, $src1, $src2`: if either source holds a base,
+        # the result is base + variable_index. Subsequent loads from
+        # $dst report field-offsets within the addressed element.
+        # `$zero`-add forms are pure copies.
         if mnem in ("daddu", "addu") and not rel_refs:
             opl = [t.strip().rstrip(',') for t in ops.split(',')]
             if len(opl) == 3:
@@ -201,6 +204,12 @@ def _scan_function(asm_path: Path, func_vma: int, sym: str
                     continue
                 if src2 in base_regs and src1 == "$zero":
                     base_regs[dst] = base_regs[src2]
+                    continue
+                if src1 in base_regs or src2 in base_regs:
+                    # base + index — field offsets land in the loads
+                    # below. Index dimension is invisible to us; report
+                    # offset 0 as the base position.
+                    base_regs[dst] = 0
                     continue
 
         # Load/store via a known base register: `lw $rD, 0xN($rB)`.
@@ -281,26 +290,28 @@ def main() -> int:
             print(f"skipping {arg}: not a D_<8hex> symbol", file=sys.stderr)
             continue
         sym = sym[:2] + sym[2:].upper()
-        tu = data_tu.get(sym)
-        if not tu:
-            print(f"{sym}: no TU in data_tu_map.json (try a closer-VMA neighbor)")
-            continue
-        tu_key = tu[:-2] if tu.endswith(".c") else tu
-        funcs = tu_funcs.get(tu_key, [])
+        tu = data_tu.get(sym) or "(unknown TU)"
+        # The TU-funcs map is sparse (most funcs are still untagged).
+        # Scan ALL asm/cod/*.s files for refs — it's only ~1500 files
+        # and the regex prefilter rejects 99% in milliseconds.
         all_offsets: Counter = Counter()
         all_strides: Counter = Counter()
         scanned = 0
         ref_count = 0
-        for fv in funcs:
-            ap = _asm_path_for_func(fv)
-            if ap is None:
+        for ap in sorted(ASM_COD.glob("*.s")):
+            text = ap.read_text()
+            if sym not in text:
                 continue
-            offsets, strides = _scan_function(ap, fv, sym)
-            if offsets or strides:
-                scanned += 1
-                ref_count += sum(offsets.values())
-                all_offsets.update(offsets)
-                all_strides.update(strides)
+            # Find every glabel in this file and scan each as a function.
+            for gm in re.finditer(r'^glabel\s+func_([0-9A-Fa-f]{8})',
+                                  text, re.MULTILINE):
+                fv = int(gm.group(1), 16)
+                offsets, strides = _scan_function(ap, fv, sym)
+                if offsets or strides:
+                    scanned += 1
+                    ref_count += sum(offsets.values())
+                    all_offsets.update(offsets)
+                    all_strides.update(strides)
         _emit_report(sym, tu, scanned, ref_count, all_offsets, all_strides)
     return 0
 
