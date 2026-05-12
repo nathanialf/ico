@@ -1971,6 +1971,8 @@ segments:
       - [0x10507C, asm, cod/10507C]
       - [0x105518, c,   cod/105518]            # func_00205518: linked-list unlink at D_004CAEC0[idx*0x34]: mark + splice prev/next
       - [0x105548, asm, cod/105548]
+      - [0x105628, asm, cod/105628]
+      - [0x10566C, asm, cod/10566C]
       - [0x105A78, c,   cod/105A78]            # func_00205A78: D_004CAEC0[idx*0x34] +0x8 (la mult lw)
       - [0x105A94, asm, cod/105A94]
       - [0x105AD8, c,   cod/105AD8]            # func_00205AD8: if(!self) return 0; log(D,self); return which ? self[3] : self[2]
