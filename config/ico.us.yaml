@@ -470,6 +470,7 @@ segments:
       - [0x0380F0, asm, cod/0380F0]
       - [0x0380F8, c   , cod/0380F8]            # dispatch wrapper, 137F08-family
       - [0x038138, asm, cod/038138]
+      - [0x038180, asm, cod/038180]
       - [0x038188, asm, cod/038188]
       - [0x0381D0, asm, cod/0381D0]
       - [0x038214, asm, cod/038214]
