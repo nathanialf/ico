@@ -927,6 +927,7 @@ segments:
       - [0x06AC50, asm, cod/06AC50]
       - [0x06BCF0, c,   cod/06BCF0]            # func_0016BCF0: func_002641D8(&D_00282AC0, 0, 0x5910)
       - [0x06BD04, asm, cod/06BD04]
+      - [0x0752D0, c,   cod/0752D0]            # func_001752D0: clear D_006ABDE0[0..1]; if self->_164->_30!=0x45, clear bit 9 of ll at +0x20
       - [0x075308, asm, cod/075308]
       - [0x07534C, asm, cod/07534C]
       - [0x075640, c,   cod/075640]
