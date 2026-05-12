@@ -154,12 +154,34 @@ def kill_sdata_end_align(text: str) -> tuple[str, int]:
     return new_text, n
 
 
+# Splat emits one explicit `build/<path>.o(.<section>*);` line per .o
+# per data section (~2468 lines × 4 sections = ~9872 lines). Empirical
+# audit (mips-linux-gnu-objdump -h over all build/**/*.o) shows ZERO .o
+# files carry non-empty plain `.data`/`.sdata`/`.rodata`/`.lit4` —
+# every byte goes into the typed `.<section>.0x<VMA>` sections from
+# `tools/rewrite_data_named_sections.py`, which the `*(SORT_BY_NAME(...))`
+# pattern at the top of each section already pulls in. The explicit
+# per-.o lines are redundant overhead: GNU ld still walks each one
+# looking for matching sections, multiplying link time. Strip them.
+EXPLICIT_DATA_INPUT_RE = re.compile(
+    r"^\s+build/[^\n]*\.o\(\.(?:data|sdata|rodata|lit4)\*\);\s*\n",
+    re.MULTILINE,
+)
+
+
+def strip_explicit_data_inputs(text: str) -> tuple[str, int]:
+    """Drop the redundant per-.o explicit input lines for data sections."""
+    new_text, n = EXPLICIT_DATA_INPUT_RE.subn("", text)
+    return new_text, n
+
+
 def patch(text: str) -> tuple[str, int, int]:
     text, cleared = clear_stale(text)
     text, applied = apply_section_start_patches(text)
     text, killed = kill_sdata_end_align(text)
     text, sorted_n = inject_sort_by_name(text)
-    return text, applied + killed + sorted_n, cleared
+    text, stripped = strip_explicit_data_inputs(text)
+    return text, applied + killed + sorted_n + stripped, cleared
 
 
 def main() -> int:
