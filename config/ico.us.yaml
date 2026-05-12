@@ -1661,7 +1661,7 @@ segments:
       - [0x0CD4D4, asm, cod/0CD4D4]
       - [0x0CE690, asm, cod/0CE690]
       - [0x0CE6EC, asm, cod/0CE6EC]
-      - [0x0CE6F0, asm, cod/0CE6F0]
+      - [0x0CE6F0, c,   cod/0CE6F0]            # func_001CE6F0: volatile-self 4 zero stores then tail call to 1E3FC8
       - [0x0CE718, asm, cod/0CE718]
       - [0x0CE760, c,   cod/0CE760]
       - [0x0CE768, c,   cod/0CE768]            # func_001CE768
