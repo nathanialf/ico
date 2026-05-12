@@ -1,12 +1,12 @@
-int func_0014B2F0(int *self, int bit)
+/* src/cod/04B2F0.c — func_0014B2F0 */
+
+int func_0014B2F0(char *a0, int a1)
 {
-    int *p;
-    int ret;
-    long long mask;
-    p = (int *)self[0x164/4];
-    if (p == 0) return 0;
-    ret = 1;
-    mask = *(long long *)((char *)p + 0x58);
-    if ((mask & (1LL << bit)) == 0) ret = 0;
-    return ret;
+    long long *p = *(long long **)(a0 + 0x164);
+    int v0 = 0;
+    if (p) {
+        v0 = 1;
+        if ((p[11] & (1 << a1)) == 0) v0 = 0;
+    }
+    return v0;
 }

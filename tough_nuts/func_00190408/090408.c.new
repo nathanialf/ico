@@ -1,0 +1,14 @@
+/* src/cod/090408.c — func_00190408 */
+
+typedef struct {
+    long long ll;
+} __attribute__((packed)) U64u;
+
+void func_00190408(void *dst, char *base)
+{
+    char *p = *(char **)(*(char **)(base + 0x15C) + 0x800);
+    long long v = ((U64u *)(p + 0xA4))->ll;
+    int i = *(int *)(p + 0xAC);
+    ((U64u *)dst)->ll = v;
+    *(int *)((char *)dst + 8) = i;
+}

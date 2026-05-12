@@ -1,10 +1,10 @@
-extern int D_00631AE4;
+/* src/cod/054420.c — func_00154420 */
+
+extern int *D_00631AE4;
 
 int func_00154420(void)
 {
-    unsigned int x = (unsigned)*(int *)(*(int *)((char *)D_00631AE4 + 0x164) + 0x30);
-    if (x < 0x5D) {
-        return x < 0x5B;
-    }
-    return 1;
+    int x = *(int *)(D_00631AE4[0x59] + 0x30);
+    if ((unsigned int)x >= 0x5D) return 1;
+    return (unsigned int)x < 0x5B;
 }
