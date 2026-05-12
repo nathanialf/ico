@@ -2405,6 +2405,8 @@ segments:
       - [0x154D20, asm, cod/154D20]
       - [0x154F08, c,   cod/154F08]            # func_00254F08: func_002560D8(3)
       - [0x154F24, asm, cod/154F24]
+      - [0x155F50, asm, cod/155F50]
+      - [0x155F80, asm, cod/155F80]
       - [0x156BF8, c,   cod/156BF8]            # func_00256BF8: while (func_002564E0(1)) func_002563C8(8)
       - [0x156C2C, asm, cod/156C2C]
       - [0x158450, c,   cod/158450]            # func_00258450: shift extract: (int)(*p >> (64-n))
@@ -2490,6 +2492,7 @@ segments:
       - [0x160900, asm, cod/160900]
       - [0x1609E8, asm, cod/1609E8]
       - [0x160A0C, asm, cod/160A0C]
+      - [0x160B70, asm, cod/160B70]
       - [0x160BA0, asm, cod/160BA0]
       - [0x160BF4, asm, cod/160BF4]
       - [0x160CA8, c,   cod/160CA8]            # func_00260CA8: guard + tail-call (void+return TCO trick)
@@ -2510,6 +2513,7 @@ segments:
       - [0x164094, asm, cod/164094]
       - [0x164D50, c,   cod/164D50]            # func_00264D50
       - [0x164D60, asm, cod/164D60]
+      - [0x164D90, asm, cod/164D90]
       - [0x164E68, c,   cod/164E68]            # func_00264E68: auto
       - [0x164E70, asm, cod/164E70]
       - [0x1657F0, c,   cod/1657F0]            # func_002657F0: wrap func_00265818(a0,a1,D_00553244+0x5C)
