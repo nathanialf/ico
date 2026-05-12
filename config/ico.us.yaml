@@ -1725,6 +1725,8 @@ segments:
       - [0x0E6968, asm, cod/0E6968]
       - [0x0E6D68, c,   cod/0E6D68]            # func_001E6D68: promote: score-0 from permuter (parked tough_nut)
       - [0x0E6DA0, asm, cod/0E6DA0]
+      - [0x0E8598, asm, cod/0E8598]
+      - [0x0E85D8, asm, cod/0E85D8]
       - [0x0E8A60, asm, cod/0E8A60]
       - [0x0E8AB4, asm, cod/0E8AB4]
       - [0x0E8B48, c,   cod/0E8B48]            # func_001E8B48: tail-wrapper to func_001E83F8 with D_00632028 4th arg
