@@ -2541,7 +2541,7 @@ segments:
       - [0x154D20, asm, cod/154D20]
       - [0x154F08, c,   cod/154F08]            # func_00254F08: func_002560D8(3)
       - [0x154F24, asm, cod/154F24]
-      - [0x155F50, asm, cod/155F50]
+      - [0x155F50, c,   cod/155F50]            # func_00255F50: *(0x10002000)=a0; D_005524E4=((int*)D_00552DC8)[a0>>28]
       - [0x155F80, asm, cod/155F80]
       - [0x156BF8, c,   cod/156BF8]            # func_00256BF8: while (func_002564E0(1)) func_002563C8(8)
       - [0x156C2C, asm, cod/156C2C]
