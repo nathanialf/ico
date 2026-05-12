@@ -1,0 +1,21 @@
+/* src/cod/017820.c — func_00117820 */
+
+extern int D_00632024;
+extern const char D_00554CA8[];
+extern int *D_00633C34;
+extern int *func_0013A0F8(int heap, int size, const char *file, int line);
+
+int *func_00117820(int *self)
+{
+    int *n = func_0013A0F8(D_00632024, 0xA0, D_00554CA8, 0x2D3);
+    int *old = D_00633C34;
+    *(int *)((char *)n + 0x90) = (int)self;
+    *(float *)((char *)n + 0x80) = 1.0f;
+    if (old != 0) {
+        *(int *)((char *)old + 0x94) = (int)n;
+    }
+    *(int *)((char *)n + 0x98) = (int)old;
+    *(int *)((char *)n + 0x94) = 0;
+    D_00633C34 = n;
+    return n;
+}
