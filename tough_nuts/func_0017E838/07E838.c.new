@@ -1,21 +1,13 @@
 /* src/cod/07E838.c — func_0017E838 */
 
-extern void func_00105F00(int a0, void *spill);
+extern void func_00105F00(int p, float *buf);
 
-struct FloatSpill4 {
-    float a;
-    float b;
-    float c;
-    int   pad;
-};
-
-void func_0017E838(char *self, float fa, float fb, float fc)
+void func_0017E838(int *self, float a, float b, float c)
 {
-    struct FloatSpill4 s;
-    int p15c = *(int *)(self + 0x15C);
-    s.a = fa;
-    s.b = fb;
-    s.c = fc;
-    s.pad = 0;
-    func_00105F00(p15c + 0x670, &s);
+    float buf[4];
+    buf[0] = a;
+    buf[1] = b;
+    buf[2] = c;
+    buf[3] = 0.0f;
+    func_00105F00((int)((int *)self[0x57]) + 0x670, buf);
 }
