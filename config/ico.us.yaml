@@ -1073,7 +1073,6 @@ segments:
       - [0x081F58, c,   cod/081F58]            # func_00181F58: permuter score-0 promotion
       - [0x081FAC, asm, cod/081FAC]
       - [0x081FB0, c,   cod/081FB0]            # func_00181FB0: search loop + 4-store on hit; tail func_001A6E28(D_0055A568) on miss
-      - [0x081FC8, asm, cod/081FC8]
       - [0x082000, asm, cod/082000]
       - [0x082860, c,   cod/082860]            # func_00182860: sw_zero +0x0
       - [0x082868, c,   cod/082868]            # func_00182868: cond float-add or passthrough on a0->_4 == a1
@@ -2610,6 +2609,9 @@ segments:
       - [0x15DD1C, asm, cod/15DD1C]
       - [0x15DDB0, c,   cod/15DDB0]            # func_0025DDB0: if a0 < 0x30: func_002591F0(0x3F, a0, 0, 0); return 0 else -1
       - [0x15DDEC, asm, cod/15DDEC]
+      - [0x15DEF0, c,   cod/15DEF0]            # func_0025DEF0: (a0&0xFF000000)==0 ? f1F0(0x42,(int)(a0&0xFFFFFF),(int)((a0>>24)&0xFFFFFF),0); 0 : -1
+      - [0x15DF50, c,   cod/15DF50]            # func_0025DF50: same as 25DEF0 with constant 0x43
+      - [0x15DFB0, asm, cod/15DFB0]
       - [0x15E020, c,   cod/15E020]            # func_0025E020: func_002591F0(0x46, 0, 0, 0)
       - [0x15E034, asm, cod/15E034]
       - [0x15E038, c,   cod/15E038]            # func_0025E038: func_002591F0(0x47, 0, 0, 0)
