@@ -1,14 +1,21 @@
-#include "matching.h"
+/* src/cod/07E838.c — func_0017E838 */
 
-extern void func_00105F00(int *p, int *q);
+extern void func_00105F00(int a0, void *spill);
 
-void func_0017E838(int *self, float a, float b, float c)
+struct FloatSpill4 {
+    float a;
+    float b;
+    float c;
+    int   pad;
+};
+
+void func_0017E838(char *self, float fa, float fb, float fc)
 {
-    float buf[4];
-    buf[0] = a;
-    buf[1] = b;
-    buf[2] = c;
-    KEEP_LIVE_MEM(buf);
-    *(int *)&buf[3] = 0;
-    func_00105F00((int *)((char *)(int *)self[0x15C / 4] + 0x670), (int *)buf);
+    struct FloatSpill4 s;
+    int p15c = *(int *)(self + 0x15C);
+    s.a = fa;
+    s.b = fb;
+    s.c = fc;
+    s.pad = 0;
+    func_00105F00(p15c + 0x670, &s);
 }

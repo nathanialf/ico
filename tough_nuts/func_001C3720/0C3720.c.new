@@ -1,9 +1,11 @@
-extern int *func_00203B40(int *fn, int arg);
+/* src/cod/0C3720.c — func_001C3720 */
+
 extern void func_001C34C0(void);
+extern void *func_00203B40(void *handler, int priority);
 
 void func_001C3720(int *self)
 {
-    int *r = func_00203B40((int *)func_001C34C0, 0x15);
+    int *h = (int *)func_00203B40((void *)func_001C34C0, 0x15);
     self[0] = 0;
-    r[0x20 / 4] = (int)self;
+    h[0x20 / 4] = (int)self;
 }
