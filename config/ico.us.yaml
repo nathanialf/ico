@@ -771,7 +771,7 @@ segments:
       - [0x057DC4, asm, cod/057DC4]
       - [0x057E68, c,   cod/057E68]            # func_00157E68: f(self); if(self->C==1) tail g(self->164->1A0, 6)
       - [0x057EB0, asm, cod/057EB0]
-      - [0x058928, asm, cod/058928]
+      - [0x058928, c,   cod/058928]            # func_00158928: switch on self[0x164]->0x30: case 0x31 tail call C0708(p->0x148), case 0x33 tail call 1E9DF0(p->0x5E8)
       - [0x05895C, asm, cod/05895C]
       - [0x059230, c,   cod/059230]            # func_00159230: tail call func_00106AB8 (double-deref TCO)
       - [0x059240, asm, cod/059240]
