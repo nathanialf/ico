@@ -3,13 +3,13 @@
 extern float D_006318A4;
 extern float D_006318A8;
 
-int func_0023D348(char *a0)
+int func_0023D348(int *self)
 {
+    float *p = (float *)self[0xD];
     float a = D_006318A4;
     float b = D_006318A8;
-    float *v = *(float **)(a0 + 0x34);
-    v[2] = b;
-    v[0] = a;
-    *(float *)(a0 + 0x1C) = 0.5f;
+    p[2] = b;
+    p[0] = a;
+    *(float *)((char *)self + 0x1C) = 0.5f;
     return 1;
 }
