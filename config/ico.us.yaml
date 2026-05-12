@@ -853,7 +853,7 @@ segments:
       - [0x065F88, c,   cod/065F88]            # func_00165F88: D_002A4C48[a0->_8 * 0x4C]._48 bit 21 inverted
       - [0x065FB4, asm, cod/065FB4]
       - [0x065FB8, asm, cod/065FB8]
-      - [0x066000, asm, cod/066000]
+      - [0x066000, c,   cod/066000]            # func_00166000: permuter score-0: volatile chain with unsigned int return
       - [0x066024, asm, cod/066024]
       - [0x067230, asm, cod/067230]
       - [0x067258, asm, cod/067258]
@@ -914,7 +914,7 @@ segments:
       - [0x075CDC, asm, cod/075CDC]
       - [0x075F60, c,   cod/075F60]            # func_00175F60: return (int)((float*)(a0+0x20) - (float*)(a1+0x20))
       - [0x075F7C, asm, cod/075F7C]
-      - [0x0760F0, asm, cod/0760F0]
+      - [0x0760F0, c,   cod/0760F0]            # func_001760F0: permuter score-0: 4-call wrapper with volatile local
       - [0x076130, c,   cod/076130]            # func_00176130: save/reload arg, sub+0x634=0
       - [0x07614C, asm, cod/07614C]
       - [0x076150, c,   cod/076150]
@@ -1088,7 +1088,7 @@ segments:
       - [0x087990, c,   cod/087990]            # func_00187990: D_00632614[1] + a0*0x4C
       - [0x0879A8, c,   cod/0879A8]            # func_001879A8: D_00632614->_4[a0]._48 + a1*0x5C
       - [0x0879D0, asm, cod/0879D0]
-      - [0x087F28, asm, cod/087F28]
+      - [0x087F28, c,   cod/087F28]            # func_00187F28: permuter score-0: 2D index
       - [0x087F4C, asm, cod/087F4C]
       - [0x088220, c,   cod/088220]
       - [0x088228, asm, cod/088228]
@@ -1880,7 +1880,7 @@ segments:
       - [0x0F4C14, asm, cod/0F4C14]
       - [0x0F4DD8, c, cod/0F4DD8]            # func_001F4DD8: D_00633750 = &func_001F4C00
       - [0x0F4DE8, asm, cod/0F4DE8]
-      - [0x0F55D8, asm, cod/0F55D8]
+      - [0x0F55D8, c,   cod/0F55D8]            # func_001F55D8: permuter score-0: 3-int copy with new_var trick
       - [0x0F5604, asm, cod/0F5604]
       - [0x0F5608, c,   cod/0F5608]            # func_001F5608: D_004C75C0[0..2] = a0,a1,a2
       - [0x0F5620, asm, cod/0F5620]
