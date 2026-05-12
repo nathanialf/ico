@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-12 23:32:59 UTC
+- Generated: 2026-05-12 23:38:14 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4376 total in `asm/cod/*.s`, 208 parked, 4168 considered
+- Functions: 4404 total in `asm/cod/*.s`, 209 parked, 4195 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -133,7 +133,7 @@ _0 total in this bucket; showing top 0._
 <a id="wrap-gp-1jal"></a>
 ## 1 jal + gp_rel %gp_rel(D), no VU (D[0] + arg passthrough)
 
-_83 total in this bucket; showing top 50._
+_85 total in this bucket; showing top 50._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
@@ -180,13 +180,13 @@ _83 total in this bucket; showing top 50._
 | `func_0017A4C0` | 0xB4 | 45 | 1 |  | `lw addiu addiu lui` | asm/cod/07905C.s:1587 |
 | `func_0018B180` | 0xC8 | 50 | 1 |  | `addiu daddu lui mtc1` | asm/cod/08B0A8.s:83 |
 | `func_001122C8` | 0xF4 | 61 | 1 |  | `addiu daddu sd addiu` | asm/cod/011948.s:719 |
+| `func_001122C8` | 0xF4 | 61 | 1 |  | `addiu daddu sd addiu` | asm/cod/012184.s:125 |
 | `func_001AB058` | 0xF4 | 61 | 1 |  | `addiu lui sd lw` | asm/cod/0AAF28.s:109 |
 | `func_00102680` | 0x10C | 67 | 1 |  | `lw addiu addiu addiu` | asm/cod/0024F8.s:137 |
 | `func_001AFB98` | 0x12C | 75 | 1 |  | `addiu addiu mult lui` | asm/cod/0AFB98.s:13 |
 | `func_00110580` | 0x210 | 132 | 1 |  | `addiu addiu sd addiu` | asm/cod/00F5D4.s:1094 |
 | `func_001F4FE8` | 0x7C | 31 | 1 |  | `lw addiu sd addiu` | asm/cod/0F4DE8.s:181 |
 | `func_0023CE38` | 0x8C | 35 | 1 |  | `addiu sd sd jal` | asm/cod/13CD1C.s:106 |
-| `func_0023CEC8` | 0x8C | 35 | 1 |  | `addiu sd sd jal` | asm/cod/13CD1C.s:153 |
 
 <a id="cond-deref-leaf"></a>
 ## Leaf (no jal) with branch, no VU (cond-return / deref+if)
@@ -248,7 +248,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4058 unmatched functions are not in any shape bucket above._
+_4083 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 
