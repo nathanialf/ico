@@ -1,0 +1,10 @@
+/* src/cod/0EF9A8.c — func_001EF9A8 */
+
+extern unsigned char D_00275120[];
+
+void func_001EF9A8(int a0, float f0, float f1)
+{
+    *(int *)(&D_00275120[0xEC]) = (int)f0;
+    *(int *)(&D_00275120[0xF8]) = a0;
+    *(int *)(&D_00275120[0xF0]) = (int)f1;
+}
