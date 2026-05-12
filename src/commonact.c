@@ -136,3 +136,66 @@ __attribute__((section(".rodata.0x00558DD0"))) const char D_00558DD0[16] = "BODY
 __attribute__((section(".rodata.0x00558DE0"))) const char D_00558DE0[16] = "SHOULDER";
 __attribute__((section(".rodata.0x00558DF0"))) const char D_00558DF0[16] = "BODYGUARD";
 __attribute__((section(".rodata.0x00558E00"))) const char D_00558E00[16] = "FIND_GIRL";
+
+#include "matching.h"
+
+extern void (*D_006323F0)(int a0, int a1);
+extern int D_00633D34;
+
+void func_001683A8(int a0)
+{
+    D_006323F0(a0, 0);
+    DEFEAT_TCO();
+}
+
+void func_001683C8(int arg)
+{
+    D_006323F0(arg, 1);
+}
+
+void func_001683E8(int arg)
+{
+    D_006323F0(arg, 2);
+}
+
+void func_00168408(int arg)
+{
+    D_006323F0(arg, 6);
+}
+
+void func_00168428(int arg)
+{
+    D_006323F0(arg, 7);
+}
+
+void func_00168448(int arg)
+{
+    D_006323F0(arg, 3);
+}
+
+void func_00168468(int arg)
+{
+    D_006323F0(arg, 5);
+}
+
+void func_00168488(int arg)
+{
+    D_006323F0(arg, 0xA);
+}
+
+void func_001684A8(int arg)
+{
+    D_006323F0(arg, 0xB);
+}
+
+void func_001684C8(int arg)
+{
+    D_006323F0(arg, 4);
+}
+
+void func_001684E8(int a0, int a1)
+{
+    D_00633D34 = a1;
+    D_006323F0(a0, 8);
+    DEFEAT_TCO();
+}
