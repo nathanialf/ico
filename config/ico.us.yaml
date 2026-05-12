@@ -633,6 +633,7 @@ segments:
       - [0x040B70, c,   cod/040B70]            # func_00140B70: D_00633CC0 = val
       - [0x040B78, c,   cod/040B78]            # func_00140B78: func_00140B78: alloc 0xB8800 via func_00135EB8; round-up to 0x800 boundary using signed div
       - [0x040BDC, asm, cod/040BDC]
+      - [0x040EE8, c,   cod/040EE8]            # func_00140EE8: scan D_006A94E0 stride 0x58 for 0 entries; set +0x44 to (short)a0
       - [0x040F20, c,   cod/040F20]            # func_00140F20: count non-zero ints in D_00633CB8[0..1] (movn)
       - [0x040F54, asm, cod/040F54]
       - [0x040F58, c,   cod/040F58]            # func_00140F58: count zero ints in D_00633CB8[0..1] (movz)
