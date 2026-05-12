@@ -327,11 +327,13 @@ def _resolve_word_as_pointer(w: int, mf) -> str | None:
         return None  # word points mid-symbol — treat as int, not pointer
     name = sym.name
     # Only canonical decomp symbols are safe as `&name` initializers.
-    # Section-internal mangled names (e.g. __cod_16F5E0_textbin.NON_MATCHING)
-    # break C parsing.
+    # Mangled / section-internal names (e.g. __cod_16F5E0_textbin.NON_MATCHING,
+    # D_00641821.NON_MATCHING) break C parsing.
     if not (name.startswith("D_")
             or name.startswith("func_")
             or name.startswith("jtbl_")):
+        return None
+    if "." in name or "$" in name:
         return None
     return f"&{name}"
 
@@ -568,17 +570,38 @@ def main() -> int:
             f' * codegen for small-data references. */',
             "",
         ]
+        defs: list[str] = []
         local_migrated = 0
+        local_defined: set[str] = set()
         for sym in sorted(syms, key=lambda s: int(s.split("_")[-1], 16)):
             entry = all_bytes.get(sym)
             if entry is None:
                 skipped_total += 1
                 continue
             vma, sect_name, data = entry
-            lines.extend(_emit_chunked(sym, vma, sect_name, data))
+            defs.extend(_emit_chunked(sym, vma, sect_name, data))
+            local_defined.add(sym)
             local_migrated += 1
         if local_migrated == 0:
             continue  # don't generate empty files (e.g. symbol-ref-only TUs)
+        # Pointer-array `void *D_X[] = { &D_Y, &func_Z, ... };` defs
+        # need `extern` decls for every &-referenced symbol that isn't
+        # defined here. Collect those refs and emit decls at the top.
+        ref_re = re.compile(r'&((?:D_|func_|jtbl_)[0-9A-Fa-f]{8})\b')
+        externs: set[str] = set()
+        for line in defs:
+            for m in ref_re.finditer(line):
+                name = m.group(1)
+                if name not in local_defined:
+                    externs.add(name)
+        if externs:
+            for name in sorted(externs):
+                if name.startswith("func_"):
+                    lines.append(f'extern void {name}();')
+                else:
+                    lines.append(f'extern char {name}[];')
+            lines.append("")
+        lines.extend(defs)
         out_path.write_text("\n".join(lines) + "\n")
         # use_modern_as.txt does basename matching, so we pass the
         # stem (e.g. `Basic`, `cdvd`) regardless of subdir.
