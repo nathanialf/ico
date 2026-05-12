@@ -114,6 +114,62 @@ Cheat sheets:
 * `python -c "import struct; print(struct.unpack('<d', bytes.fromhex('XXXXXXXXXXXXXXXX'))[0])"` decodes 8-byte double.
 * `objdump -s -j .rodata baserom/baseelf.elf | less` shows the raw bytes for any rodata VMA — useful for cross-checking your interpretation against ground truth.
 * `grep '<VMA>' build/ico.us.map` resolves a 4-byte word that looks like a text VMA to a function name.
+* `tools/dump_struct_accesses.py D_<VMA>` — survey load/store offsets at every consumer site, so a struct shape can be reconstructed from `lw`/`lh`/`lwc1` widths.
+* `tools/decode_sjis.py D_<VMA>` — Japanese strings: prints EUC-JP/Shift-JIS decode plus the `JTEXT("\xNN...")` literal to paste into tracked src.
+* `tools/stub_rodata_inline.py D_<VMA>` — for opaque chunks you're deferring: moves bytes to `asm/rodata/<TU>/<sym>.s` and adds `INCLUDE_RODATA(...)` to the tracked source so the symbol becomes co-located but uncounted.
+
+## Designated-initializer struct arrays (the WORD_OTHER bucket)
+
+`unsigned char D_X[1664] = { 0x..., ... }` is the migrator's "I don't know what this is" shape. For struct arrays where the consumer code reveals a repeating field layout, the clean-room form is a **designated-initializer struct array** — same shape parappa2 uses for its data (parappa2 ships the same ee-gcc 2.9, so the emitted bytes round-trip identically):
+
+```c
+typedef struct {
+    int   refcount; // 0x00
+    int   handler;  // 0x04
+    float scale;    // 0x08
+    short flags;    // 0x0C
+    char  state;    // 0x0E
+    char  _pad;     // 0x0F
+} D_X_Entry;
+
+const D_X_Entry D_00554680[3] = {
+    { .refcount = 1, .handler = 0,  .scale = 1.0f, .flags = 0x80, .state = 0 },
+    { .refcount = 0, .handler = 0,  .scale = 0.0f, .flags = 0,    .state = 0 },
+    { .refcount = 5, .handler = 99, .scale = 2.5f, .flags = 0x10, .state = 1 },
+};
+```
+
+Workflow:
+
+1. Run `tools/dump_struct_accesses.py D_<VMA>` to get the offset histogram.
+2. Read the asm at one or two consumer sites to confirm field types (`lwc1` → `float`, `lh`/`lhu` → signed/unsigned short, etc.).
+3. Write the struct + designated-init array in the tracked `src/<TU>.c`.
+4. Verify with `tools/quick_data_diff.py src/<TU>.c` — pointer-array refs are auto-resolved against `build/ico.us.map`, so MATCH is meaningful for the array form too.
+
+## Japanese strings via `JTEXT()`
+
+ICO encodes in-game Japanese text in **EUC-JP** (most other PS2 titles use Shift-JIS — `tools/decode_sjis.py` tries both and reports the better decode). The clean-room shape preserves the raw codepage bytes via `\xNN` escapes inside a `JTEXT()` identity macro (defined in `include/common.h`):
+
+```c
+const char D_00554C90[24] = JTEXT("Light:NULL\xa4\xcb\xa4\xca\xa4\xc3"
+                                  "\xa4\xc6\xa4\xf3\xa4\xc7\n");
+// decoded EUC-JP: "Light:NULLになってんで\n"
+```
+
+The macro is a no-op identity. Its presence signals the developer ran the decoder, confirmed the meaning, and committed the bytes as typed source. If `decode_sjis.py` reports `'�����...'` (replacement chars), don't promote — leave in `_data.c` until the consumer reveals enough context to guess the encoding.
+
+## `INCLUDE_RODATA` for deferred chunks
+
+For opaque rodata you're consciously not typing in this PR (compressed textures, VU0 microcode blobs, mystery struct arrays you can't yet shape), use `INCLUDE_RODATA` to keep the symbol co-located with its owning TU instead of leaving it floating in the `_data.c` sidecar. Macro lives in `include/include_asm.h`; helper at `tools/stub_rodata_inline.py`:
+
+```sh
+tools/stub_rodata_inline.py D_0061AA60
+# → writes asm/rodata/<TU>/D_0061AA60.s with raw .byte directives
+# → appends INCLUDE_RODATA("asm/rodata/<TU>", D_0061AA60); to src/<TU>.c
+# → strips the entry from src/<TU>_data.c
+```
+
+The tracked source now shows `INCLUDE_RODATA(...)` inline next to the typed defs. Progress doesn't move (bytes are still asm-side), but the symbol is now pinned to its TU and visible in code review. Prefer typed defs whenever the byte pattern admits one; use INCLUDE_RODATA only as a deliberate "deferred" marker.
 
 ## The migrator's exact emission shape is load-bearing
 
