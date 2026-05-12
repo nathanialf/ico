@@ -1680,6 +1680,8 @@ segments:
       - [0x0D3D98, c,   cod/0D3D98]            # func_001D3D98: return p->48 == 2
       - [0x0D3DB0, c,   cod/0D3DB0]            # func_001D3DB0: promote: score-0 from permuter (parked tough_nut)
       - [0x0D3DD8, asm, cod/0D3DD8]
+      - [0x0D40A0, asm, cod/0D40A0]
+      - [0x0D40D4, asm, cod/0D40D4]
       - [0x0D4348, c,   cod/0D4348]            # func_001D4348: tail call func_00111918(0, D_00633428)
       - [0x0D4354, asm, cod/0D4354]
       - [0x0D4D98, c,   cod/0D4D98]            # func_001D4D98
