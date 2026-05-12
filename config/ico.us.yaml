@@ -690,6 +690,8 @@ segments:
       - [0x04A330, asm, cod/04A330]
       - [0x04A430, c,   cod/04A430]            # func_0014A430: copy 3 floats from globals[0x4F0..F8] to a0[0..2], 3 from [0x4B0..B8] to a1[0..2]
       - [0x04A46C, asm, cod/04A46C]
+      - [0x04A5C0, c,   cod/04A5C0]            # func_0014A5C0: copy 3 floats from [0x500..508] to a0[0..2], 3 from [0x510..518] to a1[0..2]
+      - [0x04A5FC, asm, cod/04A5FC]
       - [0x04A700, c  , cod/04A700]            # func_0014A700: permuter score-0 (parked seed)
       - [0x04A748, asm, cod/04A748]
       - [0x04B000, asm, cod/04B000]
