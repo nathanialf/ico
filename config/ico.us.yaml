@@ -694,6 +694,8 @@ segments:
       - [0x04A5FC, asm, cod/04A5FC]
       - [0x04A700, c  , cod/04A700]            # func_0014A700: permuter score-0 (parked seed)
       - [0x04A748, asm, cod/04A748]
+      - [0x04AF70, asm, cod/04AF70]
+      - [0x04AFB8, asm, cod/04AFB8]
       - [0x04B000, asm, cod/04B000]
       - [0x04B044, asm, cod/04B044]
       - [0x04B048, c,   cod/04B048]            # func_0014B048: q=a0->164->140; return (q==0 || f(q)==0) ? 1 : 0

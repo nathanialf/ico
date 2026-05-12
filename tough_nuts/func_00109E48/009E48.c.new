@@ -1,0 +1,20 @@
+/* src/cod/009E48.c — func_00109E48 */
+
+void func_00109E48(volatile int *self)
+{
+    int *p;
+    char *buf;
+    int count;
+    int i;
+    p = (int *)self[0x57];
+    i = 0;
+    count = p[0x22];
+    if (count <= 0) return;
+    buf = (char *)p[0x1FC];
+    do {
+        buf[i] = 0;
+        i++;
+        p = (int *)self[0x57];
+        count = p[0x22];
+    } while (i < count);
+}
