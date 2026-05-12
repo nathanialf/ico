@@ -228,7 +228,8 @@ segments:
       - [0x00A4E0, c  , cod/00A4E0]            # func_0010A4E0
       - [0x00A4F0, c  , cod/00A4F0]
       - [0x00A550, c,   cod/00A550]
-      - [0x00A558, asm, cod/00A558]
+      - [0x00A558, c,   cod/00A558]            # func_0010A558: aligned 32B-block copy of a2 entries from a1 to a0 (4 ld+sd pairs)
+      - [0x00A598, asm, cod/00A598]
       - [0x00AB18, c,   cod/00AB18]
       - [0x00AB20, c,   cod/00AB20]
       - [0x00AB28, asm, cod/00AB28]
