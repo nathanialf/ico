@@ -1412,6 +1412,7 @@ segments:
       - [0x0AFB98, asm, cod/0AFB98]
       - [0x0B0518, c,   cod/0B0518]            # func_001B0518: promote-test: subagent seed (unscored, may match)
       - [0x0B0538, asm, cod/0B0538]
+      - [0x0B0570, asm, cod/0B0570]
       - [0x0B0A38, c,   cod/0B0A38]            # func_001B0A38: init 5 globals to 0
       - [0x0B0A54, asm, cod/0B0A54]
       - [0x0B0A58, c,   cod/0B0A58]            # func_001B0A58: D_00633024 = 1, return 1
