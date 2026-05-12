@@ -1591,6 +1591,8 @@ segments:
       - [0x0CEBF0, c, cod/0CEBF0]            # func_001CEBF0: 4-insn swc1
       - [0x0CEC00, c,   cod/0CEC00]            # func_001CEC00: promoted from permuter score-0
       - [0x0CEC2C, asm, cod/0CEC2C]
+      - [0x0CEC60, asm, cod/0CEC60]
+      - [0x0CEC88, asm, cod/0CEC88]
       - [0x0CF770, c,   cod/0CF770]            # func_001CF770: func_0010EC98(a0[1]); return 1
       - [0x0CF790, asm, cod/0CF790]
       - [0x0CFA20, c,   cod/0CFA20]            # func_001CFA20: self->4->30=1, return 1
@@ -2330,6 +2332,8 @@ segments:
       - [0x151C18, c,   cod/151C18]            # func_00251C18
       - [0x151C28, c  , cod/151C28]
       - [0x151C68, asm, cod/151C68]
+      - [0x151CD0, asm, cod/151CD0]
+      - [0x151CF4, asm, cod/151CF4]
       - [0x151CF8, asm, cod/151CF8]
       - [0x151D48, c,   cod/151D48]            # func_00251D48: promote: score-0 from permuter (volatile dummies)
       - [0x151D6C, asm, cod/151D6C]
@@ -2378,6 +2382,8 @@ segments:
       - [0x152F7C, asm, cod/152F7C]
       - [0x152F80, c,   cod/152F80]            # func_00252F80: tail call func_002587E0(a0->40 + 0x4C)
       - [0x152F8C, asm, cod/152F8C]
+      - [0x154CF8, c,   cod/154CF8]            # func_00254CF8: RMW MMIO 0x10002010: replace bit-23 with (a0 << 23)
+      - [0x154D20, asm, cod/154D20]
       - [0x154F08, c,   cod/154F08]            # func_00254F08: func_002560D8(3)
       - [0x154F24, asm, cod/154F24]
       - [0x156BF8, c,   cod/156BF8]            # func_00256BF8: while (func_002564E0(1)) func_002563C8(8)
@@ -2463,6 +2469,8 @@ segments:
       - [0x160634, asm, cod/160634]
       - [0x1608E0, c  , cod/1608E0]            # func_002608E0: fabsf via FABSF_BIT_TWIDDLE
       - [0x160900, asm, cod/160900]
+      - [0x1609E8, asm, cod/1609E8]
+      - [0x160A0C, asm, cod/160A0C]
       - [0x160BA0, asm, cod/160BA0]
       - [0x160BF4, asm, cod/160BF4]
       - [0x160CA8, c,   cod/160CA8]            # func_00260CA8: guard + tail-call (void+return TCO trick)
