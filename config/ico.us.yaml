@@ -646,7 +646,8 @@ segments:
       - [0x0413A8, asm, cod/0413A8]
       - [0x043240, c,   cod/043240]            # func_00143240: auto-batch
       - [0x043248, c,   cod/043248]            # func_00143248: auto-batch
-      - [0x043250, asm, cod/043250]
+      - [0x043250, c,   cod/043250]            # func_00143250: D_006A98B0[a0&0xFF]; check id>=0 and key==(a0>>8); tail call func_0025DA68(id)
+      - [0x04328C, asm, cod/04328C]
       - [0x043B88, c,   cod/043B88]            # func_00143B88: return D_00632214
       - [0x043B90, c,   cod/043B90]            # func_00143B90: return D_00632208
       - [0x043B98, asm, cod/043B98]
