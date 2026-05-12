@@ -1,0 +1,11 @@
+/* src/cod/145228.c — func_00245228 */
+
+void func_00245228(int *self)
+{
+    int diff = self[0] - 4;
+    int *p = (int *)self[3];
+    self[3] = 0;
+    diff -= (int)p;
+    diff = (int)((unsigned)(diff >> 2) >> 2);
+    *p += diff;
+}

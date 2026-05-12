@@ -1,0 +1,13 @@
+/* src/cod/13CCB8.c — func_0023CCB8 */
+
+extern float D_0063184C;
+extern float D_00631850;
+
+int func_0023CCB8(int *self)
+{
+    float *p = (float *)self[0xD];
+    p[0] = -133.0f;
+    p[1] = D_0063184C;
+    p[2] = D_00631850;
+    return 1;
+}

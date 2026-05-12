@@ -2343,7 +2343,7 @@ segments:
       - [0x1451D0, c,   cod/1451D0]            # func_002451D0: f5318(self,2,3); enqueue tag using flag (0xD0M or 0x50M)
       - [0x145228, asm, cod/145228]
       - [0x145254, asm, cod/145254]
-      - [0x145398, asm, cod/145398]
+      - [0x145398, c,   cod/145398]            # func_00245398: stream-write long long: split val to lo/hi 32 bit stores, advance buf ptr
       - [0x1453C0, c,   cod/1453C0]            # func_002453C0: D_005507D0=0; tail call func_00245B58(a0)
       - [0x1453CC, asm, cod/1453CC]
       - [0x1453D0, c,   cod/1453D0]            # func_002453D0: score-0 promotion
