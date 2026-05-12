@@ -382,6 +382,10 @@ segments:
       - [0x018A9C, asm, cod/018A9C]
       - [0x018AA0, c   ,   cod/018AA0]            # VU0 wrapper (vu0.h macros)
       - [0x018AB4, asm, cod/018AB4]
+      - [0x018F58, c,   cod/018F58]            # func_00118F58: zero D_00633C3C, then zero D_00672F90[0..0xC] descending
+      - [0x018F94, asm, cod/018F94]
+      - [0x018F98, c,   cod/018F98]            # func_00118F98: identical to 118F58
+      - [0x018FD4, asm, cod/018FD4]
       - [0x01BF40, c,   cod/01BF40]            # func_0011BF40: tail call func_0011B6D8(self->820, self->844->F0, (s8)self[0x820]+0x2F > 0)
       - [0x01BF5C, asm, cod/01BF5C]
       - [0x01BF60, asm, cod/01BF60]
