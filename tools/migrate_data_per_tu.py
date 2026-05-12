@@ -311,9 +311,10 @@ def _load_map():
 
 
 def _resolve_word_as_pointer(w: int, mf) -> str | None:
-    """If `w` exactly matches a known symbol's VMA, return `&name`;
-    else None. Restricts to the loaded VMA range to avoid treating
-    numeric constants like 0x80000000 as pointers."""
+    """If `w` exactly matches a known D_/func_/jtbl_ symbol's VMA,
+    return `&name`; else None. Restricts to the loaded VMA range
+    AND to canonical name prefixes — synthetic linker symbols
+    (section starts, mangled names) aren't valid C references."""
     if mf is None:
         return None
     if not (LOAD_VMA_LO <= w < LOAD_VMA_HI):
@@ -324,22 +325,45 @@ def _resolve_word_as_pointer(w: int, mf) -> str | None:
     sym = found.symbol
     if sym.vram != w:
         return None  # word points mid-symbol — treat as int, not pointer
-    return f"&{sym.name}"
+    name = sym.name
+    # Only canonical decomp symbols are safe as `&name` initializers.
+    # Section-internal mangled names (e.g. __cod_16F5E0_textbin.NON_MATCHING)
+    # break C parsing.
+    if not (name.startswith("D_")
+            or name.startswith("func_")
+            or name.startswith("jtbl_")):
+        return None
+    return f"&{name}"
 
 
-def _is_clean_ascii_block(data: bytes) -> bool:
-    """True if `data` looks like a (multi-)C string: ends in NUL, has
-    at least one printable byte, all bytes are NUL or 0x20–0x7E or
-    \\t / \\n / \\r. Strings stay as `unsigned char[]` so the
-    tracked-side string migrator can recognize and re-type them."""
+def _looks_like_string(data: bytes) -> bool:
+    """True if `data` plausibly contains text — NUL-terminated, at
+    least one printable ASCII byte, no embedded zero-runs that
+    aren't string padding. Both pure ASCII and ASCII+SJIS-mix qualify;
+    the byte-array shape is preserved so the tracked-side migrators
+    (string + SJIS) can recognize and re-type them."""
     if not data or data[-1] != 0:
         return False
     if not any(0x20 <= b < 0x7f for b in data):
         return False
-    for b in data:
-        if b == 0 or 0x20 <= b < 0x7f or b in (0x09, 0x0a, 0x0d):
-            continue
+    # Reject if there's a >=4-byte all-zero run somewhere before the
+    # trailing padding — that means it's structured data, not a string.
+    n = len(data)
+    last_nonzero = -1
+    for i in range(n - 1, -1, -1):
+        if data[i] != 0:
+            last_nonzero = i
+            break
+    if last_nonzero < 0:
         return False
+    run = 0
+    for i in range(last_nonzero):
+        if data[i] == 0:
+            run += 1
+            if run >= 4:
+                return False
+        else:
+            run = 0
     return True
 
 
@@ -355,7 +379,7 @@ def _emit_chunked(sym: str, vma: int, sect_name: str,
     # the tracked-side string migrator still recognizes them.
     if (vma % 4 == 0 and len(data) >= 4 and len(data) % 4 == 0
             and not all(b == 0 for b in data)
-            and not _is_clean_ascii_block(data)):
+            and not _looks_like_string(data)):
         mf = _load_map()
         words = [int.from_bytes(data[i:i + 4], "little")
                  for i in range(0, len(data), 4)]
