@@ -815,6 +815,7 @@ segments:
       - [0x05F54C, asm, cod/05F54C]
       - [0x05F550, c,   cod/05F550]            # func_0015F550: spill+reload wrapper (sibling of 0015F4B8) with a1=0
       - [0x05F578, asm, cod/05F578]
+', copy 12B unaligned from D_00282660 to self[0x15C]+0x1C0, call func_00158960
       - [0x05F5D0, c,   cod/05F5D0]            # func_0015F5D0: volatile arg + OR mask: *(ll*)(p164+0x20) |= 0x40000<<16 (same as 0x0015F428)
       - [0x05F5F8, asm, cod/05F5F8]
       - [0x05F650, asm, cod/05F650]
