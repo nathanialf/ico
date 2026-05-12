@@ -1973,6 +1973,8 @@ segments:
       - [0x105548, asm, cod/105548]
       - [0x105628, asm, cod/105628]
       - [0x10566C, asm, cod/10566C]
+      - [0x105670, c,   cod/105670]            # func_00205670: LL insert in D_004CC1E0: node_a.p12=node_b; node_b.p8=node_a; node_b.p12=old; old.p8=node_b
+      - [0x1056A4, asm, cod/1056A4]
       - [0x105A78, c,   cod/105A78]            # func_00205A78: D_004CAEC0[idx*0x34] +0x8 (la mult lw)
       - [0x105A94, asm, cod/105A94]
       - [0x105AD8, c,   cod/105AD8]            # func_00205AD8: if(!self) return 0; log(D,self); return which ? self[3] : self[2]
