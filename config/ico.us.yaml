@@ -688,6 +688,8 @@ segments:
       - [0x04A2C8, c,   cod/04A2C8]            # func_0014A2C8: clear bits 43+44 of *(self->p164+0x18) using 2 separate masks
       - [0x04A308, c,   cod/04A308]            # func_0014A308: bit-set 64-bit: *(ll*)(self->p164+0x18) |= (0x8000<<28) | (0x8000<<29)
       - [0x04A330, asm, cod/04A330]
+      - [0x04A430, c,   cod/04A430]            # func_0014A430: copy 3 floats from globals[0x4F0..F8] to a0[0..2], 3 from [0x4B0..B8] to a1[0..2]
+      - [0x04A46C, asm, cod/04A46C]
       - [0x04A700, c  , cod/04A700]            # func_0014A700: permuter score-0 (parked seed)
       - [0x04A748, asm, cod/04A748]
       - [0x04B000, asm, cod/04B000]
@@ -1062,9 +1064,9 @@ segments:
       - [0x081BF8, asm, cod/081BF8]
       - [0x081F38, c,   cod/081F38]            # func_00181F38: if (D_0028A894) tail call func_00182C18(D_0028A894)
       - [0x081F58, c,   cod/081F58]            # func_00181F58: permuter score-0 promotion
-      - [0x081FC8, asm, cod/081FC8]
       - [0x081FAC, asm, cod/081FAC]
       - [0x081FB0, c,   cod/081FB0]            # func_00181FB0: search loop + 4-store on hit; tail func_001A6E28(D_0055A568) on miss
+      - [0x081FC8, asm, cod/081FC8]
       - [0x082000, asm, cod/082000]
       - [0x082860, c,   cod/082860]            # func_00182860: sw_zero +0x0
       - [0x082868, c,   cod/082868]            # func_00182868: cond float-add or passthrough on a0->_4 == a1
