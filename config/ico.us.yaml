@@ -134,6 +134,8 @@ segments:
       - [0x001C7C, asm, cod/001C7C]
       - [0x0024B8, c  , cod/0024B8]
       - [0x0024F8, asm, cod/0024F8]
+      - [0x002790, asm, cod/002790]
+      - [0x0027C4, asm, cod/0027C4]
       - [0x002850, c,   cod/002850]            # func_00102850: auto-batch
       - [0x002858, c,   cod/002858]            # func_00102858: auto-batch
       - [0x002860, c,   cod/002860]            # func_00102860: tail call func_0010D830(*(a0+0x15C)+0xC0)
