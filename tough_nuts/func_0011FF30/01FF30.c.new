@@ -1,13 +1,13 @@
 /* src/cod/01FF30.c — func_0011FF30 */
 
+extern unsigned char D_00555830[64];
 extern void func_001FBA80(void);
-extern void func_001FBAA8(int a0, char *a1, int a2);
-extern void func_001FB8B8(int a0, char *a1, int a2);
-extern char D_00555830[];
+extern void func_001FBAA8(int a0, void *a1, int a2);
+extern void func_001FB8B8(void);
 
 void func_0011FF30(void)
 {
     func_001FBA80();
     func_001FBAA8(2, D_00555830, 4);
-    return func_001FB8B8(2, D_00555830, 4);
+    func_001FB8B8();
 }

@@ -20,8 +20,9 @@ int func_001949B8(int a0)
   }
   else
   {
+    new_var = a0 <= 0x86;
     result = 0xB4;
-    if (a0 <= 0x86)
+    if (new_var)
     {
       result = 0x5A;
     }

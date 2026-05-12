@@ -1,0 +1,17 @@
+/* src/cod/035BB8.c — func_00135BB8 */
+
+extern void func_00139598(int);
+
+int func_00135BB8(int head)
+{
+    int s0 = head;
+    int next;
+    if (s0 == 0) return 0;
+    s0 -= 8;
+    do {
+        func_00139598(s0);
+        next = *(int *)(s0 + 4);
+        s0 = next - 8;
+    } while (next != 0);
+    return 0;
+}

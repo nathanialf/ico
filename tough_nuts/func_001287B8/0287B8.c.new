@@ -1,0 +1,11 @@
+/* src/cod/0287B8.c — func_001287B8 */
+
+void func_001287B8(int *self, float val)
+{
+    if (val > 0.0f) {
+        *(float *)(*(int *)((char *)self + 0x824) + 0x3C) = val;
+    } else {
+        *(float *)(*(int *)((char *)self + 0x824) + 0x3C)
+            = *(float *)(*(int *)((char *)self + 0x820) + 0x3C);
+    }
+}
