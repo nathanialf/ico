@@ -1018,6 +1018,8 @@ segments:
       - [0x07CB1C, asm, cod/07CB1C]
       - [0x07CB20, asm, cod/07CB20]
       - [0x07CB5C, asm, cod/07CB5C]
+      - [0x07D098, c,   cod/07D098]            # func_0017D098: count non-zero of D_006CF910[i*0x14] for i=0..1
+      - [0x07D0CC, asm, cod/07D0CC]
       - [0x07D0D0, c,   cod/07D0D0]            # func_0017D0D0: promoted from permuter score-0
       - [0x07D0F8, asm, cod/07D0F8]
       - [0x07D1D0, asm, cod/07D1D0]
