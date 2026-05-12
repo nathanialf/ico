@@ -1,0 +1,9 @@
+/* src/cod/09E598.c — func_0019E598 */
+
+int func_0019E598(int *self)
+{
+    if (self[3] != self[4]) {
+        return self[0] + self[2] * 0x00151800;
+    }
+    return 0;
+}
