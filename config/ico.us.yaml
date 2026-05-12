@@ -195,6 +195,8 @@ segments:
       - [0x009B98, c  , cod/009B98]            # func_00109B98: return *(self+0x15C) + 0x680
       - [0x009BA8, c  , cod/009BA8]            # func_00109BA8: return *(*(self+0x15C) + 0x1E0)
       - [0x009BB8, asm, cod/009BB8]
+      - [0x009E48, asm, cod/009E48]
+      - [0x009E88, asm, cod/009E88]
       - [0x009F10, c  , cod/009F10]            # func_00109F10
       - [0x009F28, asm, cod/009F28]
       - [0x009FF8, c  , cod/009FF8]            # func_00109FF8
