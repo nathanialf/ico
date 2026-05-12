@@ -1804,6 +1804,8 @@ segments:
       - [0x0EF990, c,   cod/0EF990]            # func_001EF990: D_006336AC = val
       - [0x0EF998, c,   cod/0EF998]            # func_001EF998
       - [0x0EF9A4, asm, cod/0EF9A4]
+      - [0x0EF9A8, asm, cod/0EF9A8]
+      - [0x0EF9CC, asm, cod/0EF9CC]
       - [0x0EF9D0, c,   cod/0EF9D0]            # func_001EF9D0: D_00633648 = float val
       - [0x0EF9D8, c,   cod/0EF9D8]            # func_001EF9D8: D_0063363C = 0
       - [0x0EF9E0, asm, cod/0EF9E0]
