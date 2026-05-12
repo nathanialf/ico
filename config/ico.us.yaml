@@ -1400,6 +1400,10 @@ segments:
       - [0x0AE188, c,   cod/0AE188]
       - [0x0AE1B8, c,   cod/0AE1B8]            # func_001AE1B8: a1?f4128(a1,self[0]+self[1]); self[1]+=a2; tail f6E28(&D_006168F8,self[1])
       - [0x0AE20C, asm, cod/0AE20C]
+      - [0x0AE210, c,   cod/0AE210]            # func_001AE210: 3 calls + tail call: f(a0), s0=g(); s1=h(); tail func_001AE1B8(a0, s0, s1)
+      - [0x0AE258, asm, cod/0AE258]
+      - [0x0AE2C0, c,   cod/0AE2C0]            # func_001AE2C0: same shape as func_001AE210 but different callees
+      - [0x0AE308, asm, cod/0AE308]
       - [0x0AE3B0, c,   cod/0AE3B0]            # func_001AE3B0: clear bit 0 of D_004B3D10[0..0xB5] (stride 0x40, ll)
       - [0x0AE3E4, asm, cod/0AE3E4]
       - [0x0AE3E8, c,   cod/0AE3E8]            # func_001AE3E8: clear bits 0-1 of D_004B3D10[0..0xB5] (stride 0x40, ll)
