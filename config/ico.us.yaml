@@ -657,6 +657,8 @@ segments:
       - [0x04A100, asm, cod/04A100]
       - [0x04A2B0, c,   cod/04A2B0]            # func_0014A2B0: D_006AA4B0+0x4B4=0, +0x4B0=0
       - [0x04A2C4, asm, cod/04A2C4]
+      - [0x04A308, c,   cod/04A308]            # func_0014A308: bit-set 64-bit: *(ll*)(self->p164+0x18) |= (0x8000<<28) | (0x8000<<29)
+      - [0x04A330, asm, cod/04A330]
       - [0x04A700, c  , cod/04A700]            # func_0014A700: permuter score-0 (parked seed)
       - [0x04A748, asm, cod/04A748]
       - [0x04B000, asm, cod/04B000]
@@ -765,6 +767,8 @@ segments:
       - [0x05F31C, asm, cod/05F31C]
       - [0x05F320, c,   cod/05F320]            # func_0015F320: buf[4] + 2 calls (caller saves s0)
       - [0x05F358, asm, cod/05F358]
+      - [0x05F428, c,   cod/05F428]            # func_0015F428: volatile arg + OR mask: *(ll*)(p164+0x20) |= 0x40000<<16
+      - [0x05F450, asm, cod/05F450]
       - [0x05F4B8, c,   cod/05F4B8]            # func_0015F4B8: promote: score-0 from permuter (parked tough_nut)
       - [0x05F4DC, asm, cod/05F4DC]
       - [0x05F4E0, c,   cod/05F4E0]            # func_0015F4E0: store-arg-discard
@@ -772,7 +776,8 @@ segments:
       - [0x05F514, asm, cod/05F514]
       - [0x05F550, c,   cod/05F550]            # func_0015F550: spill+reload wrapper (sibling of 0015F4B8) with a1=0
       - [0x05F578, asm, cod/05F578]
-      - [0x05F5D0, asm, cod/05F5D0]
+      - [0x05F5D0, c,   cod/05F5D0]            # func_0015F5D0: volatile arg + OR mask: *(ll*)(p164+0x20) |= 0x40000<<16 (same as 0x0015F428)
+      - [0x05F5F8, asm, cod/05F5F8]
       - [0x05F650, asm, cod/05F650]
       - [0x05F698, c,   cod/05F698]            # func_0015F698: store-arg-discard
       - [0x05F6A8, c,   cod/05F6A8]            # func_0015F6A8: == 0xF compare
@@ -2208,6 +2213,7 @@ segments:
       - [0x145178, asm, cod/145178]
       - [0x1451D0, c,   cod/1451D0]            # func_002451D0: f5318(self,2,3); enqueue tag using flag (0xD0M or 0x50M)
       - [0x145228, asm, cod/145228]
+      - [0x145398, asm, cod/145398]
       - [0x1453C0, c,   cod/1453C0]            # func_002453C0: D_005507D0=0; tail call func_00245B58(a0)
       - [0x1453CC, asm, cod/1453CC]
       - [0x145568, c,   cod/145568]            # func_00245568: rc=func_00264050(...); *rc=5; ret -1
