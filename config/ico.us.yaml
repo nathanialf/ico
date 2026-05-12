@@ -841,6 +841,8 @@ segments:
       - [0x05F6BC, asm, cod/05F6BC]
       - [0x05F6C0, c,   cod/05F6C0]            # func_0015F6C0: spill+reload + 2-deref + 2-arg call
       - [0x05F6EC, asm, cod/05F6EC]
+      - [0x05F9B0, c,   cod/05F9B0]            # func_0015F9B0: scan 5 slots in self->_164->_670+0x360 for match (s8+0x1D!=0 && int+0x14==a1); tail call func_0015F800 if none
+      - [0x05F9F4, asm, cod/05F9F4]
       - [0x05FB60, c,   cod/05FB60]            # func_0015FB60: if(D!=0){f1(self,0x1B); if(table[(self->15C)->4A0 * 0x190].188 bit1 set) tail f2(self,D,5)}
       - [0x05FBD8, c,   cod/05FBD8]            # func_0015FBD8: byte-identical sibling of 15FB60 (D_00631AE8 instead of D_00631AE4)
       - [0x05FC50, asm, cod/05FC50]
