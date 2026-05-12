@@ -2053,6 +2053,14 @@ segments:
       - [0x11F578, c,   cod/11F578]            # func_0021F578: store-arg-discard
       - [0x11F588, c,   cod/11F588]            # func_0021F588: spill arg, call(0x40A), p->16C = 0
       - [0x11F5AC, asm, cod/11F5AC]
+      - [0x11F5B0, asm, cod/11F5B0]
+      - [0x11F5F4, asm, cod/11F5F4]
+      - [0x11F5F8, asm, cod/11F5F8]
+      - [0x11F63C, asm, cod/11F63C]
+      - [0x11F640, asm, cod/11F640]
+      - [0x11F684, asm, cod/11F684]
+      - [0x11F688, asm, cod/11F688]
+      - [0x11F6CC, asm, cod/11F6CC]
       - [0x11F7F0, c,   cod/11F7F0]            # func_0021F7F0: guard+func_X+tail-call (different D, different callee)
       - [0x11F828, asm, cod/11F828]
       - [0x123DE0, c,   cod/123DE0]            # func_00223DE0: store-arg-discard
