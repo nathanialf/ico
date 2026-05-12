@@ -2000,6 +2000,8 @@ segments:
       - [0x118DD0, asm, cod/118DD0]
       - [0x118E58, c,   cod/118E58]            # func_00218E58: guard+func_X+tail-call sibling (arg 0x92)
       - [0x118E90, asm, cod/118E90]
+      - [0x119478, asm, cod/119478]
+      - [0x1194C4, asm, cod/1194C4]
       - [0x1194C8, c,   cod/1194C8]            # func_002194C8: store-arg-discard
       - [0x1194D8, asm, cod/1194D8]
       - [0x119728, c,   cod/119728]            # func_00219728: store-arg-discard
@@ -2051,6 +2053,8 @@ segments:
       - [0x123F70, asm, cod/123F70]
       - [0x124960, c,   cod/124960]            # func_00224960: store-arg-discard
       - [0x124970, asm, cod/124970]
+      - [0x124E30, asm, cod/124E30]
+      - [0x124E7C, asm, cod/124E7C]
       - [0x1251E0, c,   cod/1251E0]            # func_002251E0: store-arg-discard
       - [0x1251F0, asm, cod/1251F0]
       - [0x1258E0, c,   cod/1258E0]            # func_002258E0: store-arg-discard
