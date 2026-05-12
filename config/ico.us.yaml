@@ -1358,6 +1358,7 @@ segments:
       - [0x0AAEA0, c,   cod/0AAEA0]            # func_001AAEA0
       - [0x0AAEC0, c,   cod/0AAEC0]            # func_001AAEC0: wrap func_001B81B8(0x80, 1.0f); ret 1
       - [0x0AAEE8, asm, cod/0AAEE8]
+      - [0x0AAF28, asm, cod/0AAF28]
       - [0x0AB150, c,   cod/0AB150]            # func_001AB150
       - [0x0AB170, c,   cod/0AB170]            # func_001AB170: same as 1AB150
       - [0x0AB190, c,   cod/0AB190]            # func_001AB190: wrap func_001A0A38(D_006310F4 float), return 1
@@ -2251,6 +2252,8 @@ segments:
       - [0x145398, asm, cod/145398]
       - [0x1453C0, c,   cod/1453C0]            # func_002453C0: D_005507D0=0; tail call func_00245B58(a0)
       - [0x1453CC, asm, cod/1453CC]
+      - [0x1453D0, asm, cod/1453D0]
+      - [0x145410, asm, cod/145410]
       - [0x145568, c,   cod/145568]            # func_00245568: rc=func_00264050(...); *rc=5; ret -1
       - [0x145590, c,   cod/145590]            # func_00245590: auto
       - [0x145598, c,   cod/145598]            # func_00245598: auto
