@@ -644,6 +644,8 @@ segments:
       - [0x043B98, asm, cod/043B98]
       - [0x043CB0, c,   cod/043CB0]            # func_00143CB0: D_00633CD8 &= ~self->18 (long long); self->18 = 0
       - [0x043CCC, asm, cod/043CCC]
+      - [0x043CD0, asm, cod/043CD0]
+      - [0x043D14, asm, cod/043D14]
       - [0x044120, c,   cod/044120]            # func_00144120: float-arg variant of 144178: f1(a0,a1,a2,a3,-1.0f,0,0)
       - [0x044174, asm, cod/044174]
       - [0x044178, c,   cod/044178]            # func_00144178: idx=f1(a0,a1,a2,a3,0,0); if(idx>=0) f2(&D[(idx&0xFF)*0x40]); return idx
