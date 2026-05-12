@@ -93,3 +93,6 @@ __attribute__((section(".rodata.0x0055C4B8"))) const float D_0055C4B8[66] = { 0.
 __attribute__((section(".rodata.0x0055C700"))) const float D_0055C700[4] = { 0.0f, 1.0f, 0.0f, 1.0f };
 __attribute__((section(".rodata.0x0055C740"))) const float D_0055C740[4] = { 2.5e+02f, 1.5e+02f, 2e+02f, 0.0f };
 __attribute__((section(".rodata.0x0055C750"))) const float D_0055C750[4] = { 1e+02f, 1.2e+02f, 115.0f, 0.0f };
+
+/* String-pool rodata migrated from queen_data.c */
+__attribute__((section(".rodata.0x0055CED0"))) const char D_0055CED0[64] = "p != NULL\000\000\000\000\000\000\000../ito/include/mv_defs.h\000\000\000\000\000\000\000\000p != NULL\000\000\000\000\000\000";

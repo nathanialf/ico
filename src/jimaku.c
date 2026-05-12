@@ -72,3 +72,8 @@ __attribute__((section(".rodata.0x00559D08"))) const char D_00559D08[16] = "shor
 __attribute__((section(".rodata.0x00559D18"))) const char D_00559D18[24] = "delete guide point\n";
 __attribute__((section(".rodata.0x00559D80"))) const char D_00559D80[16] = "goal wp1\n";
 __attribute__((section(".rodata.0x00559D90"))) const char D_00559D90[16] = "bilist:%p\n";
+
+/* String-pool rodata migrated from jimaku_data.c */
+__attribute__((section(".rodata.0x00559BF0"))) const char D_00559BF0[64] = "other_group\n\000\000\000\000gid:%d = tgid:%d, mgid:%d\n\000\000\000\000\000\000!!cant reach!!\n";
+__attribute__((section(".rodata.0x00559CE0"))) const char D_00559CE0[40] = "illigal way \000\000\000\000WGROUP STAT OTHER\n\000\000\000\000\000";
+__attribute__((section(".rodata.0x00559D30"))) const char D_00559D30[80] = "short cut 1:%p\n\000WGROUP STAT SAME\n\000\000\000\000\000\000\000wp %p myway %p pos %p\n\000\000wgroup stat:%d\n";

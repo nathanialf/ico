@@ -77,3 +77,6 @@ __attribute__((section(".rodata.0x0055A8F0"))) const char D_0055A8F0[16] = "menu
 
 /* Float rodata migrated from camera-editor_data.c */
 __attribute__((section(".rodata.0x0055A930"))) const float D_0055A930[4] = { 0.0f, 2e+02f, 5e+02f, 0.0f };
+
+/* String-pool rodata migrated from camera-editor_data.c */
+__attribute__((section(".rodata.0x0055A710"))) const char D_0055A710[64] = "%s\t%d\t\t%d\t%d\t%d\t\t\t%d\t%d\t%d\n\000\000\000\000\000illegal message %d\n\000\000\000\000\000\000\000\000\000\000\000\000";

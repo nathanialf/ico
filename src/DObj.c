@@ -79,3 +79,6 @@ __attribute__((section(".rodata.0x006129F0"))) const char D_006129F0[24] = "set 
 
 /* Float rodata migrated from DObj_data.c */
 __attribute__((section(".rodata.0x00612630"))) const float D_00612630[4] = { 0.0f, 0.0f, 1.0f, 1.0f };
+
+/* String-pool rodata migrated from DObj_data.c */
+__attribute__((section(".rodata.0x00612858"))) const char D_00612858[56] = "StageManager:unknown msg\n\000\000\000\000\000\000\000stage manager() out\n\000\000\000";

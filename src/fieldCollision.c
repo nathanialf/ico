@@ -66,3 +66,6 @@ __attribute__((section(".rodata.0x005594B8"))) const char D_005594B8[24] = "ente
 __attribute__((section(".rodata.0x005594D0"))) const char D_005594D0[24] = "enter actGirlHand200\n";
 __attribute__((section(".rodata.0x005594E8"))) const char D_005594E8[24] = "enter motGirlHand200\n";
 __attribute__((section(".rodata.0x00559500"))) const char D_00559500[16] = "%s sync error\n";
+
+/* String-pool rodata migrated from fieldCollision_data.c */
+__attribute__((section(".rodata.0x00559208"))) const char D_00559208[56] = "TOO MANY COLLISION DEPEND GOBJS\n\000\000\000\000\000\000\000\000%s%d(%d)\n\000\000\000\000\000\000";

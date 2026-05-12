@@ -111,3 +111,10 @@ __attribute__((section(".rodata.0x0062FC48"))) const char D_0062FC48[49] = "asse
 /* Float rodata migrated from PObj_data.c */
 __attribute__((section(".rodata.0x0062F7E0"))) const float D_0062F7E0[3] = { 0.4636476f, 0.7853981f, 0.9827937f };
 __attribute__((section(".rodata.0x0062F7F0"))) const float D_0062F7F0[3] = { 5.0121582e-09f, 3.7748947e-08f, 3.4473217e-08f };
+
+/* Single-float rodata migrated from PObj_data.c */
+__attribute__((section(".rodata.0x0062F7EC"))) const float D_0062F7EC = 1.5707963f;
+__attribute__((section(".rodata.0x0062F7FC"))) const float D_0062F7FC = 7.5497894e-08f;
+
+/* String-pool rodata migrated from PObj_data.c */
+__attribute__((section(".rodata.0x0062EA48"))) const char D_0062EA48[72] = "libpad: sceSifSetDma faild\n\000\000\000\000\000libpad: tPadDma Structure Invalid\n\000\000\000\000\000";

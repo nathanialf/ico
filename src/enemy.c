@@ -48,3 +48,6 @@ __attribute__((section(".rodata.0x00618D00"))) const char D_00618D00[16] = "enem
 
 /* String rodata migrated from enemy_data.c */
 __attribute__((section(".rodata.0x00618D40"))) const char D_00618D40[40] = "CAN'T ALLOCATE ENEMY'S PARTICLE MEMORY\n";
+
+/* String-pool rodata migrated from enemy_data.c */
+__attribute__((section(".rodata.0x0061DA78"))) const char D_0061DA78[104] = "+\000\000\000+\000\000\000+\000\000\000+\000\000\000+\000\000\000+\000\000\000+\000\000\000+\000\000\000+\000\000\000+\000\000\000+\000\000\000+\000\000\000+\000\000\000+\000\000\000+\000\000\000+\000\000\000+\000\000\000+\000\000\000+\000\000\000+\000\000\000+\000\000\000+\000\000\000+\000\000\000+\000\000\000+\000\000\000\000\000\000";

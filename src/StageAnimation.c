@@ -47,3 +47,7 @@ __attribute__((section(".rodata.0x00555DB0"))) const char D_00555DB0[48] = "stag
 
 /* Float rodata migrated from StageAnimation_data.c */
 __attribute__((section(".rodata.0x00555B70"))) const float D_00555B70[16] = { 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+
+/* String-pool rodata migrated from StageAnimation_data.c */
+__attribute__((section(".rodata.0x006123D8"))) const char D_006123D8[96] = "object/sdf/demo/conte09a/d9b.smb\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000object/sdf/demo/conte12/d12.smb\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000";
+__attribute__((section(".rodata.0x00612438"))) const char D_00612438[96] = "object/sdf/demo/conte12x/d12x.smb\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000object/sdf/demo/conte12x/d12y.smb\000\000\000\000\000\000\000\000\000\000\000\000\000\000";

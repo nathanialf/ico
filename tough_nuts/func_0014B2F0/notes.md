@@ -76,3 +76,30 @@ glabel func_0014B2F0
     /* 4B314 0014B314 00000000 */   nop
 endlabel func_0014B2F0
 ```
+
+---
+
+## Attempt at 2026-05-12
+
+**Reason parked:** regalloc reuses a0 vs v1 for loaded bits; body structurally identical, 1-2 reg names differ
+
+Seed: `tough_nuts/func_0014B2F0/04B2F0.c.new`
+
+Disassembly excerpt:
+
+```
+glabel func_0014B2F0
+    /* 4B2F0 0014B2F0 6401838C */  lw         $v1, 0x164($a0)
+    /* 4B2F4 0014B2F4 06006010 */  beqz       $v1, .L0014B310
+    /* 4B2F8 0014B2F8 2D100000 */   daddu     $v0, $zero, $zero
+    /* 4B2FC 0014B2FC 01000224 */  addiu      $v0, $zero, 0x1
+    /* 4B300 0014B300 580063DC */  ld         $v1, 0x58($v1)
+    /* 4B304 0014B304 0420A200 */  sllv       $a0, $v0, $a1
+    /* 4B308 0014B308 24188300 */  and        $v1, $a0, $v1
+    /* 4B30C 0014B30C 0A100300 */  movz       $v0, $zero, $v1
+.align 2
+  .L0014B310:
+    /* 4B310 0014B310 0800E003 */  jr         $ra
+    /* 4B314 0014B314 00000000 */   nop
+endlabel func_0014B2F0
+```

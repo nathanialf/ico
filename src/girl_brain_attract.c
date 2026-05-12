@@ -117,3 +117,7 @@ __attribute__((section(".rodata.0x00559B18"))) const char D_00559B18[24] = "actG
 /* Float rodata migrated from girl_brain_attract_data.c */
 __attribute__((section(".rodata.0x005598D0"))) const float D_005598D0[4] = { 814.0f, 1827.0f, 865.0f, 1.0f };
 __attribute__((section(".rodata.0x005598E0"))) const float D_005598E0[4] = { 608.0f, 1.6e+03f, -775.0f, 1.0f };
+
+/* String-pool rodata migrated from girl_brain_attract_data.c */
+__attribute__((section(".rodata.0x00559770"))) const char D_00559770[96] = "girl no!!\n\000\000\000\000\000\000src/girl_act.c\000\000NOTARGET\000\000\000\000\000\000\000\000[%s] %4d %4d %4d\000\000\000\000\000\000\000\000delete wg 2\n\000\000\000\000\000\000\000\000\000\000\000";
+__attribute__((section(".rodata.0x00559A70"))) const char D_00559A70[48] = "ditch3m hand connect\n\000\000\000WBP set [ditch jump]\n\000\000";

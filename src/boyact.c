@@ -197,3 +197,13 @@ __attribute__((section(".rodata.0x00558628"))) const float D_00558628[2] = { -10
 __attribute__((section(".rodata.0x005586E0"))) const float D_005586E0[4] = { -1e+06f, 0.0f, 0.0f, 0.0f };
 __attribute__((section(".rodata.0x00558700"))) const float D_00558700[4] = { 0.0f, 0.0f, -5e+01f, 1.0f };
 __attribute__((section(".rodata.0x00558710"))) const float D_00558710[4] = { 0.0f, 0.0f, 5e+01f, 1.0f };
+
+/* Single-float rodata migrated from boyact_data.c */
+__attribute__((section(".rodata.0x0055CFFC"))) const float D_0055CFFC = 5.356473e+07f;
+__attribute__((section(".rodata.0x0057000C"))) const float D_0057000C = 0.0f;
+__attribute__((section(".rodata.0x00595254"))) const float D_00595254 = 0.0f;
+__attribute__((section(".rodata.0x005B0154"))) const float D_005B0154 = 0.0f;
+
+/* String-pool rodata migrated from boyact_data.c */
+__attribute__((section(".rodata.0x00558758"))) const char D_00558758[48] = "hand connect start\n\000\000\000\000\000WBP set [landing]\n\000\000\000\000\000";
+__attribute__((section(".rodata.0x00558818"))) const char D_00558818[48] = "damage!!!!!!!!!!!  %d\n\000\000WBP set [with mail]\n\000\000\000";

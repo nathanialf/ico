@@ -187,3 +187,6 @@ __attribute__((section(".rodata.0x00559058"))) const float D_00559058[2] = { 4.1
 __attribute__((section(".rodata.0x00559070"))) const float D_00559070[2] = { 0.0f, 3.8515625f };
 __attribute__((section(".rodata.0x00559078"))) const float D_00559078[2] = { 0.0f, 3.7636719f };
 __attribute__((section(".rodata.0x00559128"))) const float D_00559128[2] = { 4.172325e-08f, 1.9f };
+
+/* String-pool rodata migrated from enemy_act_data.c */
+__attribute__((section(".rodata.0x00559168"))) const char D_00559168[112] = "change to kidnap\000\000\000\000\000\000\000\000_ACTMotReqTimer wait\n\000\000\000_ACTMotReqTimer error loop\n\000\000\000\000\000\tmail[%d] can not accept\n\000\000\000\000\000\000";

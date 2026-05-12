@@ -353,3 +353,6 @@ __attribute__((section(".rodata.0x006168F8"))) const char D_006168F8[24] = "writ
 
 /* Float rodata migrated from debug_data.c */
 __attribute__((section(".rodata.0x00614D30"))) const float D_00614D30[4] = { 2.5e+06f, 1.5625e+05f, 9e+03f, 2.6e+02f };
+
+/* String-pool rodata migrated from debug_data.c */
+__attribute__((section(".rodata.0x006149A8"))) const char D_006149A8[104] = "src/debug.c\000\000\000\000\000ico_debug.log\000\000\000log-file opened.\n\000\000\000\000\000\000\000log-file appended.\n\000\000\000\000\000log-file closed.\n\000\000\000\000\000\000";

@@ -358,3 +358,7 @@ __attribute__((section(".rodata.0x0061C3B0"))) const float D_0061C3B0[4] = { -2.
 __attribute__((section(".rodata.0x0061C3C0"))) const float D_0061C3C0[4] = { 1.4e+03f, 1.4e+03f, 2.4e+03f, 0.0f };
 __attribute__((section(".rodata.0x0061C3D0"))) const float D_0061C3D0[4] = { 141.0f, 1328.0f, -122.0f, 0.0f };
 __attribute__((section(".rodata.0x0061C3E0"))) const float D_0061C3E0[4] = { 6e+02f, 7e+02f, 1e+03f, 0.0f };
+
+/* String-pool rodata migrated from way_tool_data.c */
+__attribute__((section(".rodata.0x0061BC80"))) const char D_0061BC80[40] = "bridge_shadow\000\000\000bridge_shadow_hiro\000\000\000\000\000";
+__attribute__((section(".rodata.0x0061C620"))) const char D_0061C620[152] = "[%c%c%c%c]\ndata size:                              %d\n\000\000../ito/include/mv_defs.h\000\000\000\000\000\000\000\000p != NULL\000\000\000\000\000\000\000../ito/include/mv_defs.h\000\000\000\000\000\000\000\000p != NULL\000\000\000\000\000\000";

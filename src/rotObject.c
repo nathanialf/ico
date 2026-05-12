@@ -28,3 +28,6 @@ __attribute__((section(".sdata.0x006335E8"))) const char D_006335E8[8] = "YES";
 __attribute__((section(".sdata.0x006335F0"))) unsigned int D_006335F0 = 0x00004F4E;
 __attribute__((section(".sdata.0x006335F4"))) int D_006335F4 = 0;
 __attribute__((section(".sdata.0x006335F8"))) int D_006335F8 = 0;
+
+/* String-pool rodata migrated from rotObject_data.c */
+__attribute__((section(".rodata.0x00619FC8"))) const char D_00619FC8[120] = "src/rotObject.c\000GetRotObjectHoldPoint\000\000\000\t%f, %f, %f\n\000\000\000\000MoveRotObjectWithHoldPoint\000\000\000\000\000\000GetRotObjectGlobalHoldGeometry\000";

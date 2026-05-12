@@ -166,3 +166,6 @@ __attribute__((section(".rodata.0x00556AE8"))) const char D_00556AE8[24] = "cd r
 
 /* Float rodata migrated from cdvd_data.c */
 __attribute__((section(".rodata.0x00630890"))) const float D_00630890[2] = { 1.3105224e-06f, 1.75f };
+
+/* String-pool rodata migrated from cdvd_data.c */
+__attribute__((section(".rodata.0x00556860"))) const char D_00556860[96] = "iosCdvdMgrSearchFile: warning iosCdvdSrhBuff over\n\000\000\000\000\000\000\nCan't alloc cd stream buff %d \n\000\000\000\000\000\000\000";

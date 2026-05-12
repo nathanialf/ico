@@ -41,3 +41,6 @@ __attribute__((section(".rodata.0x0061AB88"))) const char D_0061AB88[24] = "src/
 /* String rodata migrated from DisplayList_data.c */
 __attribute__((section(".rodata.0x0061ABA0"))) const char D_0061ABA0[40] = "dl_PushPriority:Stack Overflow.\n";
 __attribute__((section(".rodata.0x0061ABC8"))) const char D_0061ABC8[40] = "dl_PopPriority:Stack Underflow.\n";
+
+/* String-pool rodata migrated from DisplayList_data.c */
+__attribute__((section(".rodata.0x0061ABF0"))) const char D_0061ABF0[80] = "dldma %d\n\000\000\000\000\000\000\000dl_CheckDLOverflow:Display List Buffer [%d] Full.\n\000\000\000\000\000\000\000\000\000\000\000\000\000";

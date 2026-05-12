@@ -710,7 +710,6 @@ segments:
       - [0x04B248, c  , cod/04B248]            # func_0014B248
       - [0x04B260, c,   cod/04B260]            # func_0014B260: 2 sd zero stores
       - [0x04B270, asm, cod/04B270]
-      - [0x04B2F0, asm, cod/04B2F0]
       - [0x04B318, c,   cod/04B318]
       - [0x04B320, c,   cod/04B320]            # func_0014B320: 3-level set
       - [0x04B330, c,   cod/04B330]            # func_0014B330: if (x >= p->54) { p->54=x; p->58=f; }

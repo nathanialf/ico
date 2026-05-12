@@ -56,3 +56,6 @@ __attribute__((section(".rodata.0x005580D0"))) const char D_005580D0[32] = "[%d]
 
 /* Float rodata migrated from act-game_data.c */
 __attribute__((section(".rodata.0x005581E8"))) const float D_005581E8[2] = { -107374184.0f, 1.8499999f };
+
+/* Single-float rodata migrated from act-game_data.c */
+__attribute__((section(".rodata.0x0056194C"))) const float D_0056194C = 0.0f;

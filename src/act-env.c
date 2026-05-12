@@ -76,3 +76,6 @@ __attribute__((section(".rodata.0x0061AF90"))) const char D_0061AF90[16] = "lval
 
 /* Float rodata migrated from act-env_data.c */
 __attribute__((section(".rodata.0x0061AD10"))) const float D_0061AD10[4] = { 3e+01f, 0.0f, -5e+01f, 0.0f };
+
+/* String-pool rodata migrated from act-env_data.c */
+__attribute__((section(".rodata.0x0061AE30"))) const char D_0061AE30[32] = "exit water\n\000\000\000\000\000WBP <<begin>>\n\000";

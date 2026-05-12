@@ -94,3 +94,6 @@ __attribute__((section(".rodata.0x00619588"))) const float D_00619588[4] = { 0.0
 __attribute__((section(".rodata.0x00619598"))) const float D_00619598[4] = { 0.0f, 0.0f, 5.0f, 0.0f };
 __attribute__((section(".rodata.0x006195A8"))) const float D_006195A8[6] = { 5.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 __attribute__((section(".rodata.0x00619600"))) const float D_00619600[4] = { 1e+01f, 0.0f, 0.0f, 0.0f };
+
+/* String-pool rodata migrated from motionManager_data.c */
+__attribute__((section(".rodata.0x006192F8"))) const char D_006192F8[48] = "NOT ENTRY WCL\n\000\000regular height: %f (%f)\n\000\000\000\000\000\000\000";
