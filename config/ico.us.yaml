@@ -740,6 +740,8 @@ segments:
       - [0x04BB1C, asm, cod/04BB1C]
       - [0x04BBF0, c,   cod/04BBF0]            # func_0014BBF0: buf[4] + gp_rel D + 2 calls (return-value chain)
       - [0x04BC2C, asm, cod/04BC2C]
+      - [0x04BD88, c,   cod/04BD88]            # func_0014BD88: copy first int of each 0x94-stride entry from D_002E4E00 to D_006AA968 for 71 entries
+      - [0x04BDC4, asm, cod/04BDC4]
       - [0x04BDC8, c,   cod/04BDC8]            # func_0014BDC8: return &D_006AA968
       - [0x04BDD4, asm, cod/04BDD4]
       - [0x04BDD8, c,   cod/04BDD8]            # func_0014BDD8: bool-flag combiner: a0?9:1, a1?(|4):
