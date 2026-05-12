@@ -866,6 +866,8 @@ segments:
       - [0x068A7C, asm, cod/068A7C]
       - [0x068BA0, c,   cod/068BA0]            # func_00168BA0: return func_00243950(a0) + *(float*)(a0+0xC)
       - [0x068BCC, asm, cod/068BCC]
+      - [0x068BD0, c,   cod/068BD0]            # func_00168BD0: plane intersection + sub: return a1[1] - -(a0[0]*a1[0]+a0[2]*a1[2]+a0[3])/a0[1]
+      - [0x068C14, asm, cod/068C14]
       - [0x068C18, c,   cod/068C18]            # func_00168C18: plane intersection: -(a0[0]*a1[0] + a0[2]*a1[2] + a0[3]) / a0[1]
       - [0x068C58, c,   cod/068C58]            # func_00168C58: init 8 sdata + 1 from raw addr 0x10000000
       - [0x068C88, c,   cod/068C88]            # func_00168C88: v=D_006AB100[a1&0xF]; v ? (func_00105F00(a0,v); 0) : 1
