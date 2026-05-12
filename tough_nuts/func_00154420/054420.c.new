@@ -4,7 +4,10 @@ extern int *D_00631AE4;
 
 int func_00154420(void)
 {
-    int x = *(int *)(D_00631AE4[0x59] + 0x30);
-    if ((unsigned int)x >= 0x5D) return 1;
-    return (unsigned int)x < 0x5B;
+    int x = ((int *)D_00631AE4[0x59])[0xC];
+    int result = 1;
+    if ((unsigned int)x >= 0x5D) goto done;
+    result = (unsigned int)x < 0x5B;
+done:
+    return result;
 }
