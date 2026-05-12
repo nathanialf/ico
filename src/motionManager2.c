@@ -24,3 +24,6 @@ __attribute__((section(".sdata.0x00631B58"))) unsigned int D_00631B58 = 0x000000
 __attribute__((section(".sdata.0x00631B5C"))) unsigned int D_00631B5C = 0x7F7FFFFF;
 
 __attribute__((section(".rodata.0x00553CA0"))) const char D_00553CA0[24] = "src/motionManager2.c";
+
+/* String rodata migrated from motionManager2_data.c */
+__attribute__((section(".rodata.0x00553D70"))) const char D_00553D70[64] = "Illegal compress formatID(%d) appeard... ignore.\n";

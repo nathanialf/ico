@@ -23,3 +23,10 @@ __attribute__((section(".sdata.0x006321F0"))) const char D_006321F0[8] = "0";
 __attribute__((section(".sdata.0x006321F8"))) const char D_006321F8[8] = "%s\n";
 
 __attribute__((section(".rodata.0x00557B78"))) const char D_00557B78[24] = "sound/adpcm_init.c";
+
+/* String rodata migrated from adpcm_init_data.c */
+__attribute__((section(".rodata.0x00557B90"))) const char D_00557B90[32] = "AdpcmIopBuffAlloc not alloc\n";
+__attribute__((section(".rodata.0x00557BF8"))) const char D_00557BF8[16] = "AdpcmPlay\n";
+__attribute__((section(".rodata.0x00557C08"))) const char D_00557C08[24] = "AdpcmOpen id%d \n";
+__attribute__((section(".rodata.0x00557C20"))) const char D_00557C20[16] = "AdpcmOpensync\n";
+__attribute__((section(".rodata.0x00557C30"))) const char D_00557C30[32] = "AdpcmOpensync done\n";

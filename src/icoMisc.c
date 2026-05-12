@@ -43,3 +43,18 @@ __attribute__((section(".rodata.0x006169E8"))) const char D_006169E8[24] = "%8s%
 __attribute__((section(".rodata.0x00616A00"))) const char D_00616A00[16] = "DISK ERROR";
 __attribute__((section(".rodata.0x00616A10"))) const char D_00616A10[24] = "IOP BUFF OVER -%d bytes";
 __attribute__((section(".rodata.0x00616A28"))) const char D_00616A28[16] = "GObj %d/%d";
+
+/* String rodata migrated from icoMisc_data.c */
+__attribute__((section(".rodata.0x00616910"))) const char D_00616910[120] = "DISP_MEMORY_PARTITION_BAR():\n\tINVALID MEMORY FREE AREA INDICATED IN PARTITION \"%s\"\n\tMALLOCED MEMORY'S NEXT_FREE: %p\n";
+__attribute__((section(".rodata.0x00616A38"))) const char D_00616A38[24] = "p2o_TransMicroProgram\n";
+__attribute__((section(".rodata.0x00616A50"))) const char D_00616A50[24] = "Init Object Light\n";
+__attribute__((section(".rodata.0x00616A68"))) const char D_00616A68[24] = "Init Packing Data\n";
+__attribute__((section(".rodata.0x00616A80"))) const char D_00616A80[32] = "InitCharFIleManager out\n";
+__attribute__((section(".rodata.0x00616AF0"))) const char D_00616AF0[24] = "iosCdvdLoadPackFile\n";
+__attribute__((section(".rodata.0x00616B08"))) const char D_00616B08[24] = "InitWayPointSystem\n";
+__attribute__((section(".rodata.0x00616B20"))) const char D_00616B20[16] = "MakeFogClut\n";
+__attribute__((section(".rodata.0x00616B30"))) const char D_00616B30[24] = "InitParticleEffects\n";
+__attribute__((section(".rodata.0x00616B48"))) const char D_00616B48[24] = "InitSceneObjects( %d )\n";
+__attribute__((section(".rodata.0x00616C10"))) const char D_00616C10[24] = "Init Stage Animation\n";
+__attribute__((section(".rodata.0x00616C28"))) const char D_00616C28[24] = "Init Object Action\n";
+__attribute__((section(".rodata.0x00616C40"))) const char D_00616C40[24] = "load time %f sec\n";

@@ -46,3 +46,11 @@ __attribute__((section(".sdata.0x00632CF8"))) int D_00632CF8 = 0;
 __attribute__((section(".rodata.0x0055A940"))) const char D_0055A940[24] = "src/camera-ico2.c";
 
 __attribute__((section(".rodata.0x0055AA50"))) const char D_0055AA50[16] = "%d,%d,%d %d";
+
+/* String rodata migrated from camera-ico2_data.c */
+__attribute__((section(".rodata.0x0055A9A8"))) const char D_0055A9A8[32] = "camera data version = [%d]\n";
+__attribute__((section(".rodata.0x0055A9C8"))) const char D_0055A9C8[24] = "n_group[%d], n_pin[%d]\n";
+__attribute__((section(".rodata.0x0055AA28"))) const char D_0055AA28[40] = "illegal camera data version [%d]\n";
+
+/* Float rodata migrated from camera-ico2_data.c */
+__attribute__((section(".rodata.0x0055AA60"))) const float D_0055AA60[4] = { 0.0f, -2e+02f, -5e+02f, 0.0f };

@@ -21,3 +21,6 @@ __attribute__((section(".sdata.0x00633280"))) char D_00633280[7] = { 0 };
 __attribute__((section(".sdata.0x00633287"))) char D_00633287 = 0;
 
 __attribute__((section(".rodata.0x006185E8"))) const char D_006185E8[32] = "src/attackCheckBoundary.c";
+
+/* Float rodata migrated from attackCheckBoundary_data.c */
+__attribute__((section(".rodata.0x0061E730"))) const float D_0061E730[6] = { 0.0f, -8e+01f, 15.0f, 0.0f, 1.8e+02f, 0.0f };

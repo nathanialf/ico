@@ -199,3 +199,48 @@ void func_001684E8(int a0, int a1)
     D_006323F0(a0, 8);
     DEFEAT_TCO();
 }
+
+/* String rodata migrated from commonact_data.c */
+__attribute__((section(".rodata.0x00558848"))) const char D_00558848[24] = "common rope after func\n";
+__attribute__((section(".rodata.0x00558880"))) const char D_00558880[32] = "enter actCommonRope\n";
+__attribute__((section(".rodata.0x005588C0"))) const char D_005588C0[24] = "enter actCommonPlay\n";
+__attribute__((section(".rodata.0x005588D8"))) const char D_005588D8[24] = "enter actCommonDamage\n";
+__attribute__((section(".rodata.0x005588F0"))) const char D_005588F0[24] = "enter actCommonDown\n";
+__attribute__((section(".rodata.0x00558908"))) const char D_00558908[24] = "enter actCommonDie\n";
+__attribute__((section(".rodata.0x00558960"))) const char D_00558960[24] = "enter actCommonRevive\n";
+__attribute__((section(".rodata.0x00558978"))) const char D_00558978[16] = "count =(%d)\n";
+__attribute__((section(".rodata.0x00558988"))) const char D_00558988[16] = "level =(%d)\n";
+__attribute__((section(".rodata.0x00558998"))) const char D_00558998[16] = "0x%8x -> 0x%8x\n";
+__attribute__((section(".rodata.0x00558A90"))) const char D_00558A90[48] = "EMERGENCY COMPLETE CHECK : SPEEDSQ:%f LENSQ:%f\n";
+__attribute__((section(".rodata.0x00558B10"))) const char D_00558B10[40] = "EMERGENCY CHECK %d(%d): MAX: %f\n";
+__attribute__((section(".rodata.0x00558B80"))) const char D_00558B80[32] = "enter actCommonCliffdown\n";
+__attribute__((section(".rodata.0x00558BA0"))) const char D_00558BA0[16] = "act main shoal\n";
+__attribute__((section(".rodata.0x00558BB0"))) const char D_00558BB0[24] = "enter actCommonSwim\n";
+__attribute__((section(".rodata.0x00558BC8"))) const char D_00558BC8[24] = "enter actCommonDodge\n";
+__attribute__((section(".rodata.0x00558BE0"))) const char D_00558BE0[24] = "enter actCommonGuard\n";
+__attribute__((section(".rodata.0x00558BF8"))) const char D_00558BF8[32] = "enter motCommonHang None\n";
+__attribute__((section(".rodata.0x00558C18"))) const char D_00558C18[32] = "enter motCommonHang Wall\n";
+__attribute__((section(".rodata.0x00558C38"))) const char D_00558C38[32] = "enter motCommonHang Cliff\n";
+__attribute__((section(".rodata.0x00558C58"))) const char D_00558C58[24] = "enter motCommonNull\n";
+__attribute__((section(".rodata.0x00558C70"))) const char D_00558C70[24] = "ready begin %s to %s\n";
+__attribute__((section(".rodata.0x00558C88"))) const char D_00558C88[24] = "ready end %s to %s\n";
+__attribute__((section(".rodata.0x00558CA0"))) const char D_00558CA0[24] = "exec end %s to %s\n";
+__attribute__((section(".rodata.0x00558CB8"))) const char D_00558CB8[24] = "????error %s to %s\n";
+__attribute__((section(".rodata.0x00558CD0"))) const char D_00558CD0[16] = " ori  = [%s]\n";
+__attribute__((section(".rodata.0x00558CE0"))) const char D_00558CE0[16] = " mot  = [%s]\n";
+__attribute__((section(".rodata.0x00558CF0"))) const char D_00558CF0[16] = " mode = [%s]\n";
+__attribute__((section(".rodata.0x00558D00"))) const char D_00558D00[16] = "frame = [%f]\n";
+__attribute__((section(".rodata.0x00558D10"))) const char D_00558D10[16] = "maxry = [%d]\n";
+__attribute__((section(".rodata.0x00558D20"))) const char D_00558D20[16] = " file = [%s]\n";
+__attribute__((section(".rodata.0x00558D30"))) const char D_00558D30[16] = " life = [%d]\n";
+__attribute__((section(".rodata.0x00558D40"))) const char D_00558D40[24] = "   dw = [%d] [%d]\n";
+__attribute__((section(".rodata.0x00558D58"))) const char D_00558D58[24] = "   dc = [%d] [%d]\n";
+__attribute__((section(".rodata.0x00558D70"))) const char D_00558D70[16] = "wattr = [%x]\n";
+__attribute__((section(".rodata.0x00558D80"))) const char D_00558D80[16] = "bttype= [%d]\n";
+__attribute__((section(".rodata.0x00558DA8"))) const char D_00558DA8[16] = "timer=%2d/%2d\n";
+
+/* Float rodata migrated from commonact_data.c */
+__attribute__((section(".rodata.0x005588A0"))) const float D_005588A0[4] = { 0.0f, 0.0f, -2e+01f, 1.0f };
+__attribute__((section(".rodata.0x005588B0"))) const float D_005588B0[4] = { 0.0f, 0.0f, 2e+01f, 1.0f };
+__attribute__((section(".rodata.0x005589D0"))) const float D_005589D0[48] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 5e+01f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+__attribute__((section(".rodata.0x00558DB8"))) const float D_00558DB8[2] = { 4.172325e-08f, 1.65f };

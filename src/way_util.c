@@ -84,3 +84,22 @@ __attribute__((section(".rodata.0x0055A2A0"))) const char D_0055A2A0[16] = "face
 __attribute__((section(".rodata.0x0055A2B0"))) const char D_0055A2B0[32] = "face_sadow_sd_00";
 __attribute__((section(".rodata.0x0055A370"))) const char D_0055A370[16] = "queen_ball_scr";
 __attribute__((section(".rodata.0x0055A380"))) const char D_0055A380[16] = "sekika_boy";
+
+/* String rodata migrated from way_util_data.c */
+__attribute__((section(".rodata.0x00559DE0"))) const char D_00559DE0[16] = "not same group\n";
+__attribute__((section(".rodata.0x00559DF0"))) const char D_00559DF0[24] = "not same grp, %d\n";
+__attribute__((section(".rodata.0x00559E08"))) const char D_00559E08[16] = "wp:%p %d\n";
+__attribute__((section(".rodata.0x00559E18"))) const char D_00559E18[24] = "abnormal bridge\n";
+__attribute__((section(".rodata.0x00559E30"))) const char D_00559E30[24] = "target is over bridge\n";
+__attribute__((section(".rodata.0x00559E48"))) const char D_00559E48[24] = "set_check_wp:%p %p\n";
+__attribute__((section(".rodata.0x0055A030"))) const char D_0055A030[24] = "start animation down\n";
+__attribute__((section(".rodata.0x0055A048"))) const char D_0055A048[24] = "start animation up\n";
+__attribute__((section(".rodata.0x0055A2E0"))) const char D_0055A2E0[56] = "Now waiting for standby stream motion system... %d\n";
+__attribute__((section(".rodata.0x0055A3D8"))) const char D_0055A3D8[24] = "girl %p\n";
+
+/* Float rodata migrated from way_util_data.c */
+__attribute__((section(".rodata.0x0055A198"))) const float D_0055A198[2] = { 0.0f, 4.3945312f };
+__attribute__((section(".rodata.0x0055A1A0"))) const float D_0055A1A0[4] = { 6646.0f, -2157.0f, 1102.0f, 0.0f };
+__attribute__((section(".rodata.0x0055A1B0"))) const float D_0055A1B0[4] = { -1e+06f, 0.0f, 0.0f, 0.0f };
+__attribute__((section(".rodata.0x0055A2D0"))) const float D_0055A2D0[4] = { 2e+03f, 0.0f, 0.0f, 1.0f };
+__attribute__((section(".rodata.0x0055A360"))) const float D_0055A360[4] = { -1472.7711f, 928.20026f, -18.074427f, 0.0f };

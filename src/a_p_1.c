@@ -33,3 +33,9 @@ __attribute__((section(".sdata.0x00633270"))) const char D_00633270[8] = "WALK";
 __attribute__((section(".sdata.0x00633278"))) const char D_00633278[8] = "STAND";
 
 __attribute__((section(".rodata.0x00618550"))) const char D_00618550[16] = "src/a_p_1.c";
+
+/* String rodata migrated from a_p_1_data.c */
+__attribute__((section(".rodata.0x00618560"))) const char D_00618560[32] = "--- WARNING!! ----\n";
+
+/* Float rodata migrated from a_p_1_data.c */
+__attribute__((section(".rodata.0x00618580"))) const float D_00618580[4] = { 5e+01f, 0.0f, 0.0f, 1.0f };

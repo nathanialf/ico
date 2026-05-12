@@ -68,3 +68,29 @@ __attribute__((section(".sdata.0x00632D94"))) int D_00632D94 = 0;
 __attribute__((section(".rodata.0x0055AA90"))) const char D_0055AA90[16] = "src/chain.c";
 
 __attribute__((section(".rodata.0x0055AAA0"))) const char D_0055AAA0[16] = "nearestNode!=-1";
+
+/* String rodata migrated from chain_data.c */
+__attribute__((section(".rodata.0x0055AAB0"))) const char D_0055AAB0[16] = "collision!!!\n";
+__attribute__((section(".rodata.0x0055AAC0"))) const char D_0055AAC0[32] = "chain_simulate_term_loop\n";
+__attribute__((section(".rodata.0x0055AAE0"))) const char D_0055AAE0[32] = "chain_simulate_term_swingready\n";
+__attribute__((section(".rodata.0x0055AB00"))) const char D_0055AB00[32] = "chain_simulate_term_swingstart\n";
+__attribute__((section(".rodata.0x0055AB28"))) const char D_0055AB28[32] = "chain_simulate_term_moveup\n";
+__attribute__((section(".rodata.0x0055AB58"))) const char D_0055AB58[32] = "chain_simulate_term_free\n";
+__attribute__((section(".rodata.0x0055AB88"))) const char D_0055AB88[32] = "chain_simulate_hangstart\n";
+__attribute__((section(".rodata.0x0055ABA8"))) const char D_0055ABA8[24] = "chain_simulate_term\n";
+__attribute__((section(".rodata.0x0055ABC0"))) const char D_0055ABC0[24] = "chain_simulate_stop\n";
+__attribute__((section(".rodata.0x0055ABD8"))) const char D_0055ABD8[24] = "chain_simulate_free\n";
+__attribute__((section(".rodata.0x0055ABF0"))) const char D_0055ABF0[16] = "time = %f\n";
+__attribute__((section(".rodata.0x0055AC00"))) const char D_0055AC00[16] = "rad  = %f\n";
+__attribute__((section(".rodata.0x0055AC10"))) const char D_0055AC10[16] = "max  = %f\n";
+__attribute__((section(".rodata.0x0055AC20"))) const char D_0055AC20[16] = "maxl = %f\n";
+__attribute__((section(".rodata.0x0055AC30"))) const char D_0055AC30[16] = "T    = %f\n";
+__attribute__((section(".rodata.0x0055AC40"))) const char D_0055AC40[16] = "d    = %f\n";
+__attribute__((section(".rodata.0x0055AC50"))) const char D_0055AC50[16] = "inc  = %d\n";
+__attribute__((section(".rodata.0x0055AD28"))) const char D_0055AD28[16] = "plumb = %d\n";
+__attribute__((section(".rodata.0x0055AD38"))) const char D_0055AD38[24] = "%f/%f, %d\n";
+
+/* Float rodata migrated from chain_data.c */
+__attribute__((section(".rodata.0x0055AB20"))) const float D_0055AB20[2] = { 4.172325e-08f, 1.65f };
+__attribute__((section(".rodata.0x0055ACA0"))) const float D_0055ACA0[4] = { 0.0f, 0.0f, -25.0f, 1.0f };
+__attribute__((section(".rodata.0x0055ACB0"))) const float D_0055ACB0[4] = { 0.0f, 0.0f, 25.0f, 1.0f };

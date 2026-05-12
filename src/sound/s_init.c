@@ -63,3 +63,27 @@ __attribute__((section(".rodata.0x00557DC8"))) const char D_00557DC8[16] = "atte
 __attribute__((section(".rodata.0x00557DD8"))) const char D_00557DD8[16] = "volume length";
 __attribute__((section(".rodata.0x00557DE8"))) const char D_00557DE8[16] = "max volume type";
 __attribute__((section(".rodata.0x00557DF8"))) const char D_00557DF8[16] = "stereo rate";
+
+/* String rodata migrated from s_init_data.c */
+__attribute__((section(".rodata.0x00557C50"))) const char D_00557C50[24] = "Spu2DmaWriteEe2Iop\n";
+__attribute__((section(".rodata.0x00557C68"))) const char D_00557C68[24] = "ee %x iop %x size %x\n";
+__attribute__((section(".rodata.0x00557C80"))) const char D_00557C80[32] = "send SpuStEnv completed \n";
+__attribute__((section(".rodata.0x00557CA0"))) const char D_00557CA0[16] = "SgInit()\n";
+__attribute__((section(".rodata.0x00557CB0"))) const char D_00557CB0[24] = "SgSetTickMode()\n";
+__attribute__((section(".rodata.0x00557CD8"))) const char D_00557CD8[24] = "\nCan't alloc heap \n";
+__attribute__((section(".rodata.0x00557CF0"))) const char D_00557CF0[40] = "iop sound alloced 0x%x  size %d\n";
+__attribute__((section(".rodata.0x00557D18"))) const char D_00557D18[16] = "se open\n";
+__attribute__((section(".rodata.0x00557D28"))) const char D_00557D28[24] = "bgm request buff over\n";
+__attribute__((section(".rodata.0x00557D40"))) const char D_00557D40[16] = "bgm not open\n";
+__attribute__((section(".rodata.0x00557D50"))) const char D_00557D50[16] = "bgm play\n";
+__attribute__((section(".rodata.0x00557D60"))) const char D_00557D60[32] = "soundBufAdpcmChAlloc over\n";
+__attribute__((section(".rodata.0x00557E08"))) const char D_00557E08[24] = "req no %d %s %f\n";
+__attribute__((section(".rodata.0x00557E20"))) const char D_00557E20[16] = "%s%8s = %d\n";
+__attribute__((section(".rodata.0x00557E30"))) const char D_00557E30[16] = "%s%8s = %f\n";
+__attribute__((section(".rodata.0x00557E50"))) const char D_00557E50[24] = "se request buff over\n";
+__attribute__((section(".rodata.0x00557E68"))) const char D_00557E68[16] = "se not open\n";
+__attribute__((section(".rodata.0x00557E78"))) const char D_00557E78[16] = "num %d %d\n";
+__attribute__((section(".rodata.0x00557E88"))) const char D_00557E88[24] = "sound manager in\n";
+__attribute__((section(".rodata.0x00557EA0"))) const char D_00557EA0[16] = "IosSndLock %d\n";
+__attribute__((section(".rodata.0x00557EB0"))) const char D_00557EB0[32] = "SOUND MANAGER START\n";
+__attribute__((section(".rodata.0x00557ED0"))) const char D_00557ED0[16] = "with mail\n";

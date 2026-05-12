@@ -95,3 +95,25 @@ __attribute__((section(".rodata.0x00559750"))) const char D_00559750[16] = "LOST
 __attribute__((section(".rodata.0x00559760"))) const char D_00559760[16] = "SEARCHWAY";
 __attribute__((section(".rodata.0x00559900"))) const char D_00559900[16] = "[%d] [%d]";
 __attribute__((section(".rodata.0x00559B50"))) const char D_00559B50[24] = "Tex_jimaku/data.jim";
+
+/* String rodata migrated from girl_brain_attract_data.c */
+__attribute__((section(".rodata.0x00559670"))) const char D_00559670[16] = "turnL mail\n";
+__attribute__((section(".rodata.0x00559680"))) const char D_00559680[16] = "turnR mail\n";
+__attribute__((section(".rodata.0x005596C8"))) const char D_005596C8[16] = "goal[%d]\n";
+__attribute__((section(".rodata.0x00559888"))) const char D_00559888[16] = "mot error\n";
+__attribute__((section(".rodata.0x00559898"))) const char D_00559898[24] = "hand connect error\n";
+__attribute__((section(".rodata.0x005598B0"))) const char D_005598B0[32] = "dist fatal error, [%f]\n";
+__attribute__((section(".rodata.0x005598F0"))) const char D_005598F0[16] = "after func\n";
+__attribute__((section(".rodata.0x00559910"))) const char D_00559910[32] = "gv[%d] mo[%d] hd[%d] hd2[%d]\n";
+__attribute__((section(".rodata.0x00559930"))) const char D_00559930[32] = "\tgv[%d] mo[%d] hd[%d]\n";
+__attribute__((section(".rodata.0x00559A60"))) const char D_00559A60[16] = "dist error\n";
+__attribute__((section(".rodata.0x00559AA0"))) const char D_00559AA0[24] = "enter actGirlStand\n";
+__attribute__((section(".rodata.0x00559AB8"))) const char D_00559AB8[24] = "enter actGirlWalk\n";
+__attribute__((section(".rodata.0x00559AD0"))) const char D_00559AD0[24] = "enter actGirlRun\n";
+__attribute__((section(".rodata.0x00559AE8"))) const char D_00559AE8[24] = "enter actGirlJump\n";
+__attribute__((section(".rodata.0x00559B00"))) const char D_00559B00[24] = "enter actGirlAttack\n";
+__attribute__((section(".rodata.0x00559B18"))) const char D_00559B18[24] = "actGirlStart:%p\n";
+
+/* Float rodata migrated from girl_brain_attract_data.c */
+__attribute__((section(".rodata.0x005598D0"))) const float D_005598D0[4] = { 814.0f, 1827.0f, 865.0f, 1.0f };
+__attribute__((section(".rodata.0x005598E0"))) const float D_005598E0[4] = { 608.0f, 1.6e+03f, -775.0f, 1.0f };

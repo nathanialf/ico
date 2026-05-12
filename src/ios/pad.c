@@ -32,3 +32,18 @@ __attribute__((section(".sdata.0x00632190"))) int D_00632190 = 0;
 
 __attribute__((section(".rodata.0x005576B8"))) const char D_005576B8[24] = "ios/pad.c";
 __attribute__((section(".rodata.0x00557840"))) const char D_00557840[32] = "pad:checking controler... ";
+
+/* String rodata migrated from pad_data.c */
+__attribute__((section(".rodata.0x005575F0"))) const char D_005575F0[24] = "pad:port:%d slot:%d %s\n";
+__attribute__((section(".rodata.0x00557608"))) const char D_00557608[16] = "pad:?%d\n";
+__attribute__((section(".rodata.0x00557618"))) const char D_00557618[16] = "phase %d\n";
+__attribute__((section(".rodata.0x00557628"))) const char D_00557628[16] = "pad id:%d\n";
+__attribute__((section(".rodata.0x00557638"))) const char D_00557638[16] = "pad: exid %d\n";
+__attribute__((section(".rodata.0x00557648"))) const char D_00557648[24] = "pad:default 0x%x\n";
+__attribute__((section(".rodata.0x00557660"))) const char D_00557660[16] = "pad:%03x\n";
+__attribute__((section(".rodata.0x00557670"))) const char D_00557670[32] = "pad:switch to ANALOG mode\n";
+__attribute__((section(".rodata.0x00557690"))) const char D_00557690[40] = "pad:switch to PRESSURE SENSE mode\n";
+__attribute__((section(".rodata.0x00557808"))) const char D_00557808[16] = "pad:init error\n";
+__attribute__((section(".rodata.0x00557818"))) const char D_00557818[40] = "ERROR: scePadPortOpen port%d slot%d\n";
+__attribute__((section(".rodata.0x00557860"))) const char D_00557860[24] = "port:%d, slot:%d\n";
+__attribute__((section(".rodata.0x00557878"))) const char D_00557878[24] = "voice error? %d\n";

@@ -28,3 +28,10 @@ __attribute__((section(".lit4.0x006313CC"))) float D_006313CC = 10430.3779f;
 __attribute__((section(".sdata.0x006335C0"))) const char D_006335C0[8] = "0";
 
 __attribute__((section(".rodata.0x00619EE0"))) const char D_00619EE0[16] = "src/rope.c";
+
+/* String rodata migrated from rope_data.c */
+__attribute__((section(".rodata.0x00619FB8"))) const char D_00619FB8[16] = "HOLD ROPE\n";
+
+/* Float rodata migrated from rope_data.c */
+__attribute__((section(".rodata.0x00619F30"))) const float D_00619F30[4] = { 0.0f, 0.0f, -1e+01f, 1.0f };
+__attribute__((section(".rodata.0x00619F40"))) const float D_00619F40[4] = { 0.0f, 0.0f, 1e+01f, 1.0f };

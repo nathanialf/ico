@@ -191,3 +191,12 @@ __attribute__((section(".rodata.0x00619BD0"))) const char D_00619BD0[16] = "Enem
 __attribute__((section(".rodata.0x00619BE0"))) const char D_00619BE0[16] = "GirlMotion";
 __attribute__((section(".rodata.0x00619BF0"))) const char D_00619BF0[16] = "BoyMotion";
 __attribute__((section(".rodata.0x006223D8"))) const char D_006223D8[32] = "COMMON";
+
+/* String rodata migrated from motionOrientManager_data.c */
+__attribute__((section(".rodata.0x00619790"))) const char D_00619790[64] = "NODE BLEND MOTION \"%s\" REFERS\nNODE BLEND MOTION RECURSIVELY.\n";
+__attribute__((section(".rodata.0x006198D8"))) const char D_006198D8[24] = "ROT DIFF %08x(%f)\n";
+__attribute__((section(".rodata.0x006199C8"))) const char D_006199C8[72] = "THE MOTION \"%s\"(%d)\nDID NOT LOAD IN THIS STAGE\nOR IS INVALID ID.\n";
+__attribute__((section(".rodata.0x00619A10"))) const char D_00619A10[112] = "THE NUMBER OF NODE DATAS OF MOTION\n\"%s\"(%d SKELTONS) DOES NOT MATCH\nTHE NUMBER OF SKELTON NODES(%d SKELTONS)\n";
+
+/* Float rodata migrated from motionOrientManager_data.c */
+__attribute__((section(".rodata.0x00565060"))) const float D_00565060[25] = { -1.0f, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, -1.0f };

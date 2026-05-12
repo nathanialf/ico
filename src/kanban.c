@@ -38,3 +38,37 @@ __attribute__((section(".sdata.0x00633058"))) int D_00633058 = 0;
 __attribute__((section(".sdata.0x0063305C"))) int D_0063305C = 0;
 
 __attribute__((section(".rodata.0x00616CA8"))) const char D_00616CA8[24] = "src/kanban.c";
+
+/* String rodata migrated from kanban_data.c */
+__attribute__((section(".rodata.0x00616C90"))) const char D_00616C90[24] = "no texture loaded.(%s)\n";
+__attribute__((section(".rodata.0x00616CE0"))) const char D_00616CE0[16] = "sync end\n";
+__attribute__((section(".rodata.0x00616CF0"))) const char D_00616CF0[16] = "unformatted %d\n";
+__attribute__((section(".rodata.0x00616D00"))) const char D_00616D00[32] = "not insert memory card %d\n";
+__attribute__((section(".rodata.0x00616D20"))) const char D_00616D20[24] = "%s file not found\n";
+__attribute__((section(".rodata.0x00616D38"))) const char D_00616D38[24] = "%s Directory not found\n";
+__attribute__((section(".rodata.0x00616D50"))) const char D_00616D50[48] = "segID %d check sum err rom:%d != load:%d\n";
+__attribute__((section(".rodata.0x00616D80"))) const char D_00616D80[32] = "%s handler func ret err code\n";
+__attribute__((section(".rodata.0x00616DA0"))) const char D_00616DA0[16] = "memory over\n";
+__attribute__((section(".rodata.0x00616DB0"))) const char D_00616DB0[32] = "memory card another err %d\n";
+__attribute__((section(".rodata.0x00616ED8"))) const char D_00616ED8[16] = "no memoca\n";
+__attribute__((section(".rodata.0x00616EE8"))) const char D_00616EE8[16] = "no free\n";
+__attribute__((section(".rodata.0x00616F38"))) const char D_00616F38[24] = "load processing\n";
+__attribute__((section(".rodata.0x00616F50"))) const char D_00616F50[16] = "case %d\n";
+__attribute__((section(".rodata.0x00616F60"))) const char D_00616F60[24] = "McLoad phase:%d  %x\n";
+__attribute__((section(".rodata.0x00616F78"))) const char D_00616F78[16] = "phase++\n";
+__attribute__((section(".rodata.0x00616F88"))) const char D_00616F88[16] = "through\n";
+__attribute__((section(".rodata.0x00616F98"))) const char D_00616F98[24] = "=== LoadGameBlock ===\n";
+__attribute__((section(".rodata.0x00616FB0"))) const char D_00616FB0[16] = "case 10\n";
+__attribute__((section(".rodata.0x00616FC0"))) const char D_00616FC0[16] = "stage no %d\n";
+__attribute__((section(".rodata.0x00617028"))) const char D_00617028[32] = "save game check port %d\n";
+__attribute__((section(".rodata.0x00617048"))) const char D_00617048[24] = "sucess :%d %d %d\n";
+__attribute__((section(".rodata.0x00617080"))) const char D_00617080[16] = "format 2\n";
+__attribute__((section(".rodata.0x00617090"))) const char D_00617090[16] = "unformat 2\n";
+__attribute__((section(".rodata.0x006170A0"))) const char D_006170A0[32] = "already exist save data\n";
+__attribute__((section(".rodata.0x006170C0"))) const char D_006170C0[32] = "new save. system data making..\n";
+__attribute__((section(".rodata.0x006170E0"))) const char D_006170E0[32] = "McSave phase:%d  %x\n";
+__attribute__((section(".rodata.0x00617130"))) const char D_00617130[16] = "save error? %d\n";
+__attribute__((section(".rodata.0x00617170"))) const char D_00617170[24] = "save complete %d %d\n";
+__attribute__((section(".rodata.0x00617188"))) const char D_00617188[16] = "%d %d %d\n";
+__attribute__((section(".rodata.0x00617198"))) const char D_00617198[24] = "push start\n";
+__attribute__((section(".rodata.0x0062DF08"))) const char D_0062DF08[32] = "end of packet making...\n";

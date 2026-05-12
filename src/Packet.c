@@ -45,3 +45,31 @@ __attribute__((section(".rodata.0x00555080"))) const char D_00555080[24] = "pac_
 __attribute__((section(".rodata.0x00555138"))) const char D_00555138[24] = "pac_makeClusterStrip";
 __attribute__((section(".rodata.0x005551E0"))) const char D_005551E0[16] = "GIFTAG    :";
 __attribute__((section(".rodata.0x00555308"))) const char D_00555308[32] = "pac_countOneVertexPacketSize";
+
+/* String rodata migrated from Packet_data.c */
+__attribute__((section(".rodata.0x00554EE0"))) const char D_00554EE0[48] = "IN %s\n%s:NoTexture Polygon(s) exist(s).\n";
+__attribute__((section(".rodata.0x00554F10"))) const char D_00554F10[48] = "IN %s\n%s:NoNormal Cluster Model exists.\n";
+__attribute__((section(".rodata.0x00554F40"))) const char D_00554F40[48] = "IN %s\n%s:Abnormal Weight Data exist(s).\n";
+__attribute__((section(".rodata.0x00554F70"))) const char D_00554F70[56] = "IN %s\n%s:Too Much Weight (>=4) Vertex exist(s).\n";
+__attribute__((section(".rodata.0x00554FA8"))) const char D_00554FA8[40] = "IN %s\n%s:No Weight Vertex exist(s).\n";
+__attribute__((section(".rodata.0x00555098"))) const char D_00555098[56] = "vertex has 3 cluster-weights %d(%f) %d(%f) %d(%f)\n";
+__attribute__((section(".rodata.0x005550D0"))) const char D_005550D0[40] = "warning:weight total %f VtxIdx:%d\n";
+__attribute__((section(".rodata.0x00555150"))) const char D_00555150[32] = "over 60 skeltons exist.\n";
+__attribute__((section(".rodata.0x00555170"))) const char D_00555170[32] = "color table not exists.\n";
+__attribute__((section(".rodata.0x00555190"))) const char D_00555190[16] = "DMAOPEN   :%p\n";
+__attribute__((section(".rodata.0x005551A0"))) const char D_005551A0[32] = "VIFUNPACK :%08x %08x (%p:%d)\n";
+__attribute__((section(".rodata.0x005551F0"))) const char D_005551F0[40] = "pac_continueTag:Packet too small. %d\n";
+__attribute__((section(".rodata.0x00555218"))) const char D_00555218[40] = "Original Strip Too Long. Size %d\n";
+__attribute__((section(".rodata.0x00555240"))) const char D_00555240[24] = "size(0x%x) strips(%d)\n";
+__attribute__((section(".rodata.0x00555258"))) const char D_00555258[16] = "--- cut ---\n\n";
+__attribute__((section(".rodata.0x00555268"))) const char D_00555268[56] = "gif over! cut! %d/%d polys:%d/%d fchain:%d vif+gif:%d\n";
+__attribute__((section(".rodata.0x005552A0"))) const char D_005552A0[24] = "chain too long! cut!\n";
+__attribute__((section(".rodata.0x005552B8"))) const char D_005552B8[48] = "pac_copyStrip:No Enough Memory for Packet.\n";
+__attribute__((section(".rodata.0x005552E8"))) const char D_005552E8[32] = "ALL:src:%p => dst:%p (size:%x)\n";
+__attribute__((section(".rodata.0x00555328"))) const char D_00555328[40] = "pac_makeStrip:No Memory To Convert.\n";
+__attribute__((section(".rodata.0x00555350"))) const char D_00555350[40] = "pac_makeStrip:No Tex Poly Exists.%s\n";
+__attribute__((section(".rodata.0x00555398"))) const char D_00555398[88] = "IN OBJECT \"%s\"\nHUGE PACKET (SIZE:0x%x) APPEARED\nMAYBE INFLATE MEMORY AREA WAS BROKEN.\n";
+__attribute__((section(".rodata.0x005553F0"))) const char D_005553F0[48] = "pac_makeTextureTable:\n\tTexture not Found. %s\n";
+__attribute__((section(".rodata.0x00555420"))) const char D_00555420[56] = "pac_makePacket:Material Table Not Found. (%s:%s)\n";
+__attribute__((section(".rodata.0x00555458"))) const char D_00555458[24] = "illegal size = %d\n";
+__attribute__((section(".rodata.0x00555470"))) const char D_00555470[32] = "illegal vertex num %d\n";

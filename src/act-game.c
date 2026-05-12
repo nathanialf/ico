@@ -48,3 +48,11 @@ __attribute__((section(".rodata.0x00557F00"))) const char D_00557F00[16] = "src/
 
 __attribute__((section(".rodata.0x00557EE0"))) const char D_00557EE0[32] = "too many view check object";
 __attribute__((section(".rodata.0x005581D8"))) const char D_005581D8[16] = "orient null";
+
+/* String rodata migrated from act-game_data.c */
+__attribute__((section(".rodata.0x00557F30"))) const char D_00557F30[16] = "mode=[%d]\n";
+__attribute__((section(".rodata.0x005580C0"))) const char D_005580C0[16] = "shoal mail\n";
+__attribute__((section(".rodata.0x005580D0"))) const char D_005580D0[32] = "[%d] [%d] [%d] [%d] [%d]\n";
+
+/* Float rodata migrated from act-game_data.c */
+__attribute__((section(".rodata.0x005581E8"))) const float D_005581E8[2] = { -107374184.0f, 1.8499999f };

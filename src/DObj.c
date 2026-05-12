@@ -52,3 +52,30 @@ __attribute__((section(".rodata.0x00612620"))) const char D_00612620[16] = "src/
 
 __attribute__((section(".rodata.0x006127E8"))) const char D_006127E8[24] = "DFDATAS/COMMON.DF";
 __attribute__((section(".rodata.0x00612890"))) const char D_00612890[16] = "girl nokori";
+
+/* String rodata migrated from DObj_data.c */
+__attribute__((section(".rodata.0x006126B8"))) const char D_006126B8[24] = "----- MASK LINK -----\n";
+__attribute__((section(".rodata.0x006126D0"))) const char D_006126D0[24] = "sound partition reset\n";
+__attribute__((section(".rodata.0x006126E8"))) const char D_006126E8[32] = "sound partition not reset\n";
+__attribute__((section(".rodata.0x00612708"))) const char D_00612708[16] = "InitTableSin\n";
+__attribute__((section(".rodata.0x00612718"))) const char D_00612718[24] = "InitMatrixDrive\n";
+__attribute__((section(".rodata.0x00612730"))) const char D_00612730[16] = "debug_Init\n";
+__attribute__((section(".rodata.0x00612740"))) const char D_00612740[24] = "p2o transMicroProgram\n";
+__attribute__((section(".rodata.0x00612758"))) const char D_00612758[16] = "InitGSSystem\n";
+__attribute__((section(".rodata.0x00612768"))) const char D_00612768[24] = "init debug menu\n";
+__attribute__((section(".rodata.0x00612780"))) const char D_00612780[16] = "enable vsync\n";
+__attribute__((section(".rodata.0x00612790"))) const char D_00612790[16] = "auto stack %d\n";
+__attribute__((section(".rodata.0x006127A0"))) const char D_006127A0[32] = "-----------------Enable VSync\n";
+__attribute__((section(".rodata.0x006127C0"))) const char D_006127C0[40] = "preload %s move %d total %d reset %d\n";
+__attribute__((section(".rodata.0x00612800"))) const char D_00612800[24] = "stage manager() in\n";
+__attribute__((section(".rodata.0x00612818"))) const char D_00612818[16] = "IosCdLock %d\n";
+__attribute__((section(".rodata.0x00612828"))) const char D_00612828[24] = "STAGE MANAGER START\n";
+__attribute__((section(".rodata.0x00612840"))) const char D_00612840[24] = "out of stage %d\n";
+__attribute__((section(".rodata.0x006128F8"))) const char D_006128F8[40] = "backstage timeLimit gamesys area error\n";
+__attribute__((section(".rodata.0x00612920"))) const char D_00612920[16] = "way num %d\n";
+__attribute__((section(".rodata.0x00612930"))) const char D_00612930[32] = "%d %d:dist %f calcdist %f\n";
+__attribute__((section(".rodata.0x00612950"))) const char D_00612950[24] = "set pos_table %f %f %f\n";
+__attribute__((section(".rodata.0x006129F0"))) const char D_006129F0[24] = "set pos %f %f %f\n";
+
+/* Float rodata migrated from DObj_data.c */
+__attribute__((section(".rodata.0x00612630"))) const float D_00612630[4] = { 0.0f, 0.0f, 1.0f, 1.0f };

@@ -49,3 +49,12 @@ __attribute__((section(".sdata.0x00632D80"))) int D_00632D80 = 0;
 __attribute__((section(".sdata.0x00632D84"))) int D_00632D84 = 0;
 
 __attribute__((section(".rodata.0x00555490"))) const char D_00555490[16] = "src/Primitive.c";
+
+/* String rodata migrated from Primitive_data.c */
+__attribute__((section(".rodata.0x005554B0"))) const char D_005554B0[32] = "too large mesh packet. %d\n";
+__attribute__((section(".rodata.0x00555500"))) const char D_00555500[72] = "Particle Object too big (%d particles). (must be under %d particles)\n";
+__attribute__((section(".rodata.0x00555548"))) const char D_00555548[48] = "prim_InitParticle:illegal texture no. %s:%d\n";
+
+/* Float rodata migrated from Primitive_data.c */
+__attribute__((section(".rodata.0x005554E0"))) const float D_005554E0[4] = { 1024.0f, 1024.0f, 0.0f, 1.0f };
+__attribute__((section(".rodata.0x005554F0"))) const float D_005554F0[4] = { 3071.0f, 3071.0f, 0.0f, 16777215.0f };

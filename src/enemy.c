@@ -45,3 +45,6 @@ __attribute__((section(".sdata.0x00633418"))) char D_00633418[8] = { 0 };
 __attribute__((section(".rodata.0x00618CF0"))) const char D_00618CF0[16] = "src/enemy.c";
 
 __attribute__((section(".rodata.0x00618D00"))) const char D_00618D00[16] = "enemy_sprite";
+
+/* String rodata migrated from enemy_data.c */
+__attribute__((section(".rodata.0x00618D40"))) const char D_00618D40[40] = "CAN'T ALLOCATE ENEMY'S PARTICLE MEMORY\n";

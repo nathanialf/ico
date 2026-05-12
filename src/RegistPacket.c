@@ -48,3 +48,12 @@ __attribute__((section(".rodata.0x00555AE0"))) const char D_00555AE0[24] = " Sha
 __attribute__((section(".rodata.0x00555AF8"))) const char D_00555AF8[24] = " Shadow Color R    ";
 __attribute__((section(".rodata.0x00555B10"))) const char D_00555B10[24] = " Shadow Depth      ";
 __attribute__((section(".rodata.0x00555B30"))) const char D_00555B30[16] = "Shadow Tool";
+
+/* String rodata migrated from RegistPacket_data.c */
+__attribute__((section(".rodata.0x00555620"))) const char D_00555620[48] = "reg_setShape:illegal vertex index. %d/%d\n";
+__attribute__((section(".rodata.0x00555668"))) const char D_00555668[56] = "reg_setShape:illegal normal index. %d/%d\n";
+__attribute__((section(".rodata.0x00555710"))) const char D_00555710[24] = "illegal clip type. %d\n";
+__attribute__((section(".rodata.0x00555728"))) const char D_00555728[40] = "no light calc cluster model %s\n";
+__attribute__((section(".rodata.0x00555920"))) const char D_00555920[24] = "shadow_Render called\n";
+__attribute__((section(".rodata.0x00555B40"))) const char D_00555B40[24] = "Shadow %s => %s\n";
+__attribute__((section(".rodata.0x00555B58"))) const char D_00555B58[24] = "Shadow %s => %d\n";

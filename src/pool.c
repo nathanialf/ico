@@ -88,3 +88,15 @@ __attribute__((section(".rodata.0x00553F70"))) const char D_00553F70[24] = "cdro
 __attribute__((section(".rodata.0x00553F88"))) const char D_00553F88[24] = "cdrom0:\\MCSERV.IRX;1";
 __attribute__((section(".rodata.0x00553FA0"))) const char D_00553FA0[24] = "cdrom0:\\LIBSD.IRX;1";
 __attribute__((section(".rodata.0x00553FB8"))) const char D_00553FB8[24] = "cdrom0:\\SNDN2DRV.IRX;1";
+
+/* String rodata migrated from pool_data.c */
+__attribute__((section(".rodata.0x00553E00"))) const char D_00553E00[40] = "Quaternion stack not initialized.\n";
+__attribute__((section(".rodata.0x00553E28"))) const char D_00553E28[32] = "Quaternion stack overflow!!\n";
+__attribute__((section(".rodata.0x00553E48"))) const char D_00553E48[40] = "Quaternion stack underflow!!\n";
+__attribute__((section(".rodata.0x00553EB0"))) const char D_00553EB0[48] = "-------------------------------- read from CD\n";
+__attribute__((section(".rodata.0x00553EE0"))) const char D_00553EE0[24] = "initialize CD device.\n";
+__attribute__((section(".rodata.0x00553EF8"))) const char D_00553EF8[24] = "load default module.\n";
+__attribute__((section(".rodata.0x00553F28"))) const char D_00553F28[24] = "loading iop modules.\n";
+
+/* Float rodata migrated from pool_data.c */
+__attribute__((section(".rodata.0x00553DF0"))) const float D_00553DF0[4] = { 2048.0f, 2048.0f, 0.0f, 0.0f };

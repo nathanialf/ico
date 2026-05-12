@@ -53,3 +53,22 @@ __attribute__((section(".rodata.0x00559B88"))) const char D_00559B88[16] = "src/
 
 __attribute__((section(".rodata.0x00559B68"))) const char D_00559B68[16] = "jimaku%02d.tm2";
 __attribute__((section(".rodata.0x00559B98"))) const char D_00559B98[40] = "jimakuManager: recv command %d error.";
+
+/* String rodata migrated from jimaku_data.c */
+__attribute__((section(".rodata.0x00559B78"))) const char D_00559B78[16] = "already exist\n";
+__attribute__((section(".rodata.0x00559BC0"))) const char D_00559BC0[16] = "GetWay_begin\n";
+__attribute__((section(".rodata.0x00559BD0"))) const char D_00559BD0[16] = "gid t:%d m:%d\n";
+__attribute__((section(".rodata.0x00559BE0"))) const char D_00559BE0[16] = "same_group\n";
+__attribute__((section(".rodata.0x00559C30"))) const char D_00559C30[16] = "wp:%p %p\n";
+__attribute__((section(".rodata.0x00559C40"))) const char D_00559C40[16] = "gid:%d %d\n";
+__attribute__((section(".rodata.0x00559C50"))) const char D_00559C50[16] = "direction:%d\n";
+__attribute__((section(".rodata.0x00559C60"))) const char D_00559C60[16] = "skip wp\n";
+__attribute__((section(".rodata.0x00559C70"))) const char D_00559C70[32] = "delete guide point at avoid\n";
+__attribute__((section(".rodata.0x00559C90"))) const char D_00559C90[16] = "left way %d\n";
+__attribute__((section(".rodata.0x00559CA0"))) const char D_00559CA0[16] = "right way %d\n";
+__attribute__((section(".rodata.0x00559CB0"))) const char D_00559CB0[16] = "up way %d\n";
+__attribute__((section(".rodata.0x00559CC0"))) const char D_00559CC0[32] = "delete guide point group:%d\n";
+__attribute__((section(".rodata.0x00559D08"))) const char D_00559D08[16] = "short cut 2:%p\n";
+__attribute__((section(".rodata.0x00559D18"))) const char D_00559D18[24] = "delete guide point\n";
+__attribute__((section(".rodata.0x00559D80"))) const char D_00559D80[16] = "goal wp1\n";
+__attribute__((section(".rodata.0x00559D90"))) const char D_00559D90[16] = "bilist:%p\n";

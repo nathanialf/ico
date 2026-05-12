@@ -164,3 +164,36 @@ __attribute__((section(".sdata.0x00633174"))) int D_00633174 = 0x00000000;
 __attribute__((section(".rodata.0x005582C8"))) const char D_005582C8[16] = "src/boyact.c";
 
 __attribute__((section(".rodata.0x00558788"))) const char D_00558788[24] = "critical hit to boss!!!";
+
+/* String rodata migrated from boyact_data.c */
+__attribute__((section(".rodata.0x005581F0"))) const char D_005581F0[16] = "boy after func\n";
+__attribute__((section(".rodata.0x00558200"))) const char D_00558200[24] = "enter actBoyHand50\n";
+__attribute__((section(".rodata.0x00558218"))) const char D_00558218[24] = "boy error flg get\n";
+__attribute__((section(".rodata.0x00558230"))) const char D_00558230[24] = "enter motBoyHand50\n";
+__attribute__((section(".rodata.0x00558248"))) const char D_00558248[24] = "enter actBoyHand100\n";
+__attribute__((section(".rodata.0x00558260"))) const char D_00558260[16] = "boy error\n";
+__attribute__((section(".rodata.0x00558270"))) const char D_00558270[24] = "enter motBoyHand100\n";
+__attribute__((section(".rodata.0x00558288"))) const char D_00558288[16] = "%s sync error\n";
+__attribute__((section(".rodata.0x00558298"))) const char D_00558298[24] = "enter actBoyHand200\n";
+__attribute__((section(".rodata.0x005582B0"))) const char D_005582B0[24] = "enter motBoyHand200\n";
+__attribute__((section(".rodata.0x005582D8"))) const char D_005582D8[24] = "speed = %f (%f)\n";
+__attribute__((section(".rodata.0x005582F0"))) const char D_005582F0[16] = "%f / %f\n";
+__attribute__((section(".rodata.0x005584E8"))) const char D_005584E8[16] = "%d -> %d\n";
+__attribute__((section(".rodata.0x00558640"))) const char D_00558640[24] = "enter actBoyFall\n";
+__attribute__((section(".rodata.0x00558658"))) const char D_00558658[24] = "attack sub id [%d]\n";
+__attribute__((section(".rodata.0x00558670"))) const char D_00558670[24] = "enter actBoyAttack\n";
+__attribute__((section(".rodata.0x00558688"))) const char D_00558688[24] = "enter actBoyCall\n";
+__attribute__((section(".rodata.0x005586A0"))) const char D_005586A0[24] = "enter actBoyItemAfter\n";
+__attribute__((section(".rodata.0x005586B8"))) const char D_005586B8[40] = "enemy error body slam[%s]\n";
+__attribute__((section(".rodata.0x005586F0"))) const char D_005586F0[16] = "actBoyStart:%p\n";
+__attribute__((section(".rodata.0x005587A0"))) const char D_005587A0[32] = "!!! unable guard flag get\n";
+__attribute__((section(".rodata.0x005587C0"))) const char D_005587C0[16] = "guard mail\n";
+__attribute__((section(".rodata.0x005587D0"))) const char D_005587D0[32] = "guard error=[%d][%d][%d][%d]\n";
+__attribute__((section(".rodata.0x005587F0"))) const char D_005587F0[16] = "die!!!!!!!!!!!\n";
+__attribute__((section(".rodata.0x00558800"))) const char D_00558800[24] = "down!!!!!!!!!!!\n";
+
+/* Float rodata migrated from boyact_data.c */
+__attribute__((section(".rodata.0x00558628"))) const float D_00558628[2] = { -107374184.0f, 1.8499999f };
+__attribute__((section(".rodata.0x005586E0"))) const float D_005586E0[4] = { -1e+06f, 0.0f, 0.0f, 0.0f };
+__attribute__((section(".rodata.0x00558700"))) const float D_00558700[4] = { 0.0f, 0.0f, -5e+01f, 1.0f };
+__attribute__((section(".rodata.0x00558710"))) const float D_00558710[4] = { 0.0f, 0.0f, 5e+01f, 1.0f };

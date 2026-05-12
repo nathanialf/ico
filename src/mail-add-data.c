@@ -7,3 +7,6 @@ __attribute__((section(".rodata.0x0055AF30"))) const char D_0055AF30[48] = "mad_
 __attribute__((section(".rodata.0x0055AF60"))) const char D_0055AF60[16] = "STOP TGT";
 __attribute__((section(".rodata.0x0055AF70"))) const char D_0055AF70[16] = "STOP FIN";
 __attribute__((section(".rodata.0x0055AF80"))) const char D_0055AF80[24] = "STOP NO FIN %d,%1.1f";
+
+/* String rodata migrated from mail-add-data_data.c */
+__attribute__((section(".rodata.0x0055AF98"))) const char D_0055AF98[24] = "bird reset\n";

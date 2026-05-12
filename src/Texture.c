@@ -92,3 +92,10 @@ __attribute__((section(".rodata.0x00556788"))) const char D_00556788[16] = " Fog
 __attribute__((section(".rodata.0x00556798"))) const char D_00556798[16] = " Fog Color R  ";
 __attribute__((section(".rodata.0x005567A8"))) const char D_005567A8[16] = " Fog On/Off   ";
 __attribute__((section(".rodata.0x005567C0"))) const char D_005567C0[16] = "Fog Tool";
+
+/* String rodata migrated from Texture_data.c */
+__attribute__((section(".rodata.0x005563F0"))) const char D_005563F0[64] = "TEXTURE BROKEN. \"%s\"\n    I:%d C:%d iadr:%p cadr:%p hadr:%p\n";
+__attribute__((section(".rodata.0x005564E0"))) const char D_005564E0[48] = "tex_TransTexture:INVALID TEXTURE ID. %d/%d\n";
+__attribute__((section(".rodata.0x00556580"))) const char D_00556580[72] = "illegal user space data [%s] Clut Scroll (color:%d start:%d end:%d)\n";
+__attribute__((section(".rodata.0x005567D0"))) const char D_005567D0[16] = "Fog %s => %s\n";
+__attribute__((section(".rodata.0x005567E0"))) const char D_005567E0[16] = "Fog %s => %d\n";

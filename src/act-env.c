@@ -61,3 +61,18 @@ __attribute__((section(".rodata.0x0061ADD0"))) const char D_0061ADD0[16] = "walk
 __attribute__((section(".rodata.0x0061ADE0"))) const char D_0061ADE0[16] = "pulledup_50 ";
 __attribute__((section(".rodata.0x0061ADF0"))) const char D_0061ADF0[16] = "pulledup_100";
 __attribute__((section(".rodata.0x0061AE00"))) const char D_0061AE00[16] = "pulledup_200";
+
+/* String rodata migrated from act-env_data.c */
+__attribute__((section(".rodata.0x0061AE20"))) const char D_0061AE20[16] = "enter water\n";
+__attribute__((section(".rodata.0x0061AEB0"))) const char D_0061AEB0[32] = "--b-- %p:act brain del %p\n";
+__attribute__((section(".rodata.0x0061AED0"))) const char D_0061AED0[32] = "--b-- %p:act brain NULL %p\n";
+__attribute__((section(".rodata.0x0061AEF0"))) const char D_0061AEF0[32] = "--m-- %p:act main del %p\n";
+__attribute__((section(".rodata.0x0061AF10"))) const char D_0061AF10[32] = "--m-- %p:act main NULL %p\n";
+__attribute__((section(".rodata.0x0061AF30"))) const char D_0061AF30[32] = "--t-- %p:act mot del %p\n";
+__attribute__((section(".rodata.0x0061AF50"))) const char D_0061AF50[32] = "--t-- %p:act mot NULL %p\n";
+__attribute__((section(".rodata.0x0061AF70"))) const char D_0061AF70[16] = "acst[%p]\n";
+__attribute__((section(".rodata.0x0061AF80"))) const char D_0061AF80[16] = "    [%d]\n";
+__attribute__((section(".rodata.0x0061AF90"))) const char D_0061AF90[16] = "lval[%p]\n";
+
+/* Float rodata migrated from act-env_data.c */
+__attribute__((section(".rodata.0x0061AD10"))) const float D_0061AD10[4] = { 3e+01f, 0.0f, -5e+01f, 0.0f };

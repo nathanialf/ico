@@ -61,3 +61,19 @@ __attribute__((section(".rodata.0x0055A8A0"))) const char D_0055A8A0[16] = "came
 __attribute__((section(".rodata.0x0055A8B0"))) const char D_0055A8B0[16] = "target-x";
 __attribute__((section(".rodata.0x0055A8C0"))) const char D_0055A8C0[16] = "target-y";
 __attribute__((section(".rodata.0x0055A8D0"))) const char D_0055A8D0[16] = "target-z";
+
+/* String rodata migrated from camera-editor_data.c */
+__attribute__((section(".rodata.0x0055A5D8"))) const char D_0055A5D8[56] = "==== Save camera data start ========================\n";
+__attribute__((section(".rodata.0x0055A610"))) const char D_0055A610[16] = "\tfilename[%s]\n";
+__attribute__((section(".rodata.0x0055A620"))) const char D_0055A620[16] = "\t    size[%d]\n";
+__attribute__((section(".rodata.0x0055A640"))) const char D_0055A640[48] = "Save Camera Data: host file open error.\n";
+__attribute__((section(".rodata.0x0055A670"))) const char D_0055A670[56] = "==== Save camera data end ==========================\n";
+__attribute__((section(".rodata.0x0055A6D0"))) const char D_0055A6D0[40] = "group[%s]\n%d\t\t%d\t%d\t%d\t\t\t%d\t%d\t%d\n";
+__attribute__((section(".rodata.0x0055A6F8"))) const char D_0055A6F8[24] = "group[%s]'s pin\n";
+__attribute__((section(".rodata.0x0055A860"))) const char D_0055A860[16] = ">>%8s = %d\n";
+__attribute__((section(".rodata.0x0055A870"))) const char D_0055A870[16] = "  %8s = %d\n";
+__attribute__((section(".rodata.0x0055A8E0"))) const char D_0055A8E0[16] = "menu_2, arg=%d\n";
+__attribute__((section(".rodata.0x0055A8F0"))) const char D_0055A8F0[16] = "menu_1, arg=%d\n";
+
+/* Float rodata migrated from camera-editor_data.c */
+__attribute__((section(".rodata.0x0055A930"))) const float D_0055A930[4] = { 0.0f, 2e+02f, 5e+02f, 0.0f };

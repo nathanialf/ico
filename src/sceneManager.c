@@ -23,3 +23,6 @@ __attribute__((section(".sdata.0x0063319C"))) int D_0063319C = 0;
 __attribute__((section(".sdata.0x006331A0"))) char D_006331A0[8] = { 0 };
 
 __attribute__((section(".rodata.0x006172E0"))) const char D_006172E0[24] = "src/sceneManager.c";
+
+/* String rodata migrated from sceneManager_data.c */
+__attribute__((section(".rodata.0x006172F8"))) const char D_006172F8[16] = "Parentize \"%s\"\n";

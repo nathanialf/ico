@@ -55,3 +55,41 @@ __attribute__((section(".rodata.0x0055CF30"))) const char D_0055CF30[16] = "p !=
 __attribute__((section(".rodata.0x0055CF70"))) const char D_0055CF70[40] = "sceMpegGetPicture() decode error";
 __attribute__((section(".rodata.0x0055CFA8"))) const char D_0055CFA8[32] = "../ito/include/mv_defs.h";
 __attribute__((section(".rodata.0x0055CFC8"))) const char D_0055CFC8[16] = "p != NULL";
+
+/* String rodata migrated from queen_data.c */
+__attribute__((section(".rodata.0x0055C5C0"))) const char D_0055C5C0[16] = "queen attacked\n";
+__attribute__((section(".rodata.0x0055C5D0"))) const char D_0055C5D0[16] = "enemy dead %p\n";
+__attribute__((section(".rodata.0x0055C648"))) const char D_0055C648[16] = "queen dead\n";
+__attribute__((section(".rodata.0x0055C6A0"))) const char D_0055C6A0[24] = "queen barrier attacked\n";
+__attribute__((section(".rodata.0x0055C6D8"))) const char D_0055C6D8[16] = "mail %d\n";
+__attribute__((section(".rodata.0x0055C6E8"))) const char D_0055C6E8[24] = "queen ball attacked\n";
+__attribute__((section(".rodata.0x0055C720"))) const char D_0055C720[32] = "queen barrier damaged\n";
+__attribute__((section(".rodata.0x0055CD98"))) const char D_0055CD98[16] = "movie pause\n";
+__attribute__((section(".rodata.0x0055CDA8"))) const char D_0055CDA8[16] = "D_CTRL %x\n";
+__attribute__((section(".rodata.0x0055CDB8"))) const char D_0055CDB8[24] = "open movie file %s\n";
+__attribute__((section(".rodata.0x0055CDD0"))) const char D_0055CDD0[32] = "create video decode thread\n";
+__attribute__((section(".rodata.0x0055CDF0"))) const char D_0055CDF0[16] = "start thread\n";
+__attribute__((section(".rodata.0x0055CE00"))) const char D_0055CE00[16] = "add intc\n";
+__attribute__((section(".rodata.0x0055CE10"))) const char D_0055CE10[24] = "add intc failed\n";
+__attribute__((section(".rodata.0x0055CE28"))) const char D_0055CE28[16] = "add dmac\n";
+__attribute__((section(".rodata.0x0055CE38"))) const char D_0055CE38[24] = "add dmac failed\n";
+__attribute__((section(".rodata.0x0055CE50"))) const char D_0055CE50[24] = "sceGsGetIMR() %lx\n";
+__attribute__((section(".rodata.0x0055CE68"))) const char D_0055CE68[16] = "dmac %d %d\n";
+__attribute__((section(".rodata.0x0055CE78"))) const char D_0055CE78[16] = "intc %d %d\n";
+__attribute__((section(".rodata.0x0055CE88"))) const char D_0055CE88[24] = "movie init failed\n";
+__attribute__((section(".rodata.0x0055CEA0"))) const char D_0055CEA0[16] = "movie end\n";
+__attribute__((section(".rodata.0x0055CF40"))) const char D_0055CF40[24] = "pts buffer overflow\n";
+__attribute__((section(".rodata.0x0055CF58"))) const char D_0055CF58[24] = "decode thread: aborted\n";
+__attribute__((section(".rodata.0x0055CF98"))) const char D_0055CF98[16] = "movie %d x %d\n";
+
+/* Float rodata migrated from queen_data.c */
+__attribute__((section(".rodata.0x0055C2C0"))) const float D_0055C2C0[12] = { 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.0f };
+__attribute__((section(".rodata.0x0055C2F0"))) const float D_0055C2F0[66] = { 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f, 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f, 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f, 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f, 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f, 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f, 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f, 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f, 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f, 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f, 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f };
+__attribute__((section(".rodata.0x0055C3F8"))) const float D_0055C3F8[12] = { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f };
+__attribute__((section(".rodata.0x0055C428"))) const float D_0055C428[12] = { 3.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f };
+__attribute__((section(".rodata.0x0055C458"))) const float D_0055C458[12] = { 4.0f, 4.0f, 4.0f, 4.0f, 4.0f, 4.0f, 4.0f, 4.0f, 4.0f, 4.0f, 4.0f, 0.0f };
+__attribute__((section(".rodata.0x0055C488"))) const float D_0055C488[12] = { 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.0f };
+__attribute__((section(".rodata.0x0055C4B8"))) const float D_0055C4B8[66] = { 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f, 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f, 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f, 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f, 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f, 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f, 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f, 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f, 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f, 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f, 0.0f, 0.0f, 0.001f, 0.01f, 0.99f, 0.99f };
+__attribute__((section(".rodata.0x0055C700"))) const float D_0055C700[4] = { 0.0f, 1.0f, 0.0f, 1.0f };
+__attribute__((section(".rodata.0x0055C740"))) const float D_0055C740[4] = { 2.5e+02f, 1.5e+02f, 2e+02f, 0.0f };
+__attribute__((section(".rodata.0x0055C750"))) const float D_0055C750[4] = { 1e+02f, 1.2e+02f, 115.0f, 0.0f };

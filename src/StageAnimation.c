@@ -35,3 +35,15 @@ __attribute__((section(".rodata.0x00612378"))) const char D_00612378[48] = "obje
 __attribute__((section(".rodata.0x006123A8"))) const char D_006123A8[48] = "object/sdf/demo/conte09a/d9a.smb";
 __attribute__((section(".rodata.0x00612498"))) const char D_00612498[48] = "object/sdf/demo/conte13/d13.smb";
 __attribute__((section(".rodata.0x006124C8"))) const char D_006124C8[48] = "object/sdf/demo/conte06/e3d6.smb";
+
+/* String rodata migrated from StageAnimation_data.c */
+__attribute__((section(".rodata.0x00555BB0"))) const char D_00555BB0[32] = "Bga Object Already %d %d %d\n";
+__attribute__((section(".rodata.0x00555BD0"))) const char D_00555BD0[40] = "stage_MakeGObj:can't alloc gobj %d\n";
+__attribute__((section(".rodata.0x00555C10"))) const char D_00555C10[40] = "Too much Stage Animation Objects.\n";
+__attribute__((section(".rodata.0x00555C38"))) const char D_00555C38[48] = "stage_ApplyData:Data is not registered. \n\n%s\n";
+__attribute__((section(".rodata.0x00555CF8"))) const char D_00555CF8[40] = "Max Bga = %d // Max DObj %d\n";
+__attribute__((section(".rodata.0x00555D78"))) const char D_00555D78[56] = "stage_CheckAnimationFinish:illegal Animation No.\n";
+__attribute__((section(".rodata.0x00555DB0"))) const char D_00555DB0[48] = "stage_ContinueAnimation:illegal Animation No.\n";
+
+/* Float rodata migrated from StageAnimation_data.c */
+__attribute__((section(".rodata.0x00555B70"))) const float D_00555B70[16] = { 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f };

@@ -49,3 +49,9 @@ __attribute__((section(".sdata.0x00632848"))) const char D_00632848[8] = "here\n
 __attribute__((section(".sdata.0x00632850"))) int D_00632850 = 0;
 
 __attribute__((section(".rodata.0x0055AEA0"))) const char D_0055AEA0[16] = "src/generator.c";
+
+/* String rodata migrated from generator_data.c */
+__attribute__((section(".rodata.0x0055AEB0"))) const char D_0055AEB0[32] = "call enemy! = %d (%p : %d)\n";
+__attribute__((section(".rodata.0x0055AED0"))) const char D_0055AED0[24] = "[%8s] %8f %8f %8f %8f\n";
+__attribute__((section(".rodata.0x0055AEE8"))) const char D_0055AEE8[16] = "lock! = %d\n";
+__attribute__((section(".rodata.0x0055AEF8"))) const char D_0055AEF8[16] = "unlock! = %d\n";

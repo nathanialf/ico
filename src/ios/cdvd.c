@@ -143,3 +143,26 @@ __attribute__((section(".rodata.0x00630610"))) const char D_00630610[8] = "NaN";
 __attribute__((section(".rodata.0x00630618"))) const char D_00630618[8] = "0";
 __attribute__((section(".rodata.0x00630690"))) const char D_00630690[8] = ".";
 __attribute__((section(".rodata.0x00630698"))) const char D_00630698[8] = "C";
+
+/* String rodata migrated from cdvd_data.c */
+__attribute__((section(".rodata.0x00556800"))) const char D_00556800[24] = "wait insert ico disk\n";
+__attribute__((section(".rodata.0x00556828"))) const char D_00556828[56] = "iosCdvdMgrSearchFile: warning filename length over\n";
+__attribute__((section(".rodata.0x005568C0"))) const char D_005568C0[24] = "file %s not found\n";
+__attribute__((section(".rodata.0x005568D8"))) const char D_005568D8[16] = "read done\n";
+__attribute__((section(".rodata.0x005568E8"))) const char D_005568E8[40] = "temp_loadfunc::%s  (size:%d)(segid=%d)\n";
+__attribute__((section(".rodata.0x00556910"))) const char D_00556910[16] = "try load %s\n";
+__attribute__((section(".rodata.0x00556920"))) const char D_00556920[64] = "------------------------------------------------files %d -----\n";
+__attribute__((section(".rodata.0x00556960"))) const char D_00556960[32] = "file id %s %d time %f read %d \n";
+__attribute__((section(".rodata.0x00556980"))) const char D_00556980[24] = "inflate time %f\n";
+__attribute__((section(".rodata.0x00556998"))) const char D_00556998[24] = "load time %d %f Sec\n";
+__attribute__((section(".rodata.0x005569C0"))) const char D_005569C0[16] = "RING %d\n";
+__attribute__((section(".rodata.0x005569D0"))) const char D_005569D0[40] = "iosCdvdHandlerReadInflate size %d\n";
+__attribute__((section(".rodata.0x005569F8"))) const char D_005569F8[24] = "Decompression error\n";
+__attribute__((section(".rodata.0x00556A70"))) const char D_00556A70[16] = "** %d %s %p\n";
+__attribute__((section(".rodata.0x00556A80"))) const char D_00556A80[24] = "%s lsn:%d handler:%p\n";
+__attribute__((section(".rodata.0x00556A98"))) const char D_00556A98[40] = "lsn %d cnt %d size %d buf %p %s\n";
+__attribute__((section(".rodata.0x00556AC0"))) const char D_00556AC0[40] = "lsn %d cnt %d size %d iopbuf %p %s\n";
+__attribute__((section(".rodata.0x00556AE8"))) const char D_00556AE8[24] = "cd read error %d\n";
+
+/* Float rodata migrated from cdvd_data.c */
+__attribute__((section(".rodata.0x00630890"))) const float D_00630890[2] = { 1.3105224e-06f, 1.75f };

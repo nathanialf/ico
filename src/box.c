@@ -53,3 +53,12 @@ __attribute__((section(".rodata.0x006186A0"))) const char D_006186A0[16] = "src/
 
 __attribute__((section(".rodata.0x00618818"))) const char D_00618818[16] = "b_mantle";
 __attribute__((section(".rodata.0x00618828"))) const char D_00618828[16] = "tape_boro";
+
+/* String rodata migrated from box_data.c */
+__attribute__((section(".rodata.0x00618640"))) const char D_00618640[40] = "height: %f   dist: %f  ofs: %f %x \n";
+__attribute__((section(".rodata.0x006186B0"))) const char D_006186B0[24] = "front pos: %f, %f, %f\n";
+__attribute__((section(".rodata.0x006186C8"))) const char D_006186C8[24] = "rear  pos: %f, %f, %f\n";
+__attribute__((section(".rodata.0x00618708"))) const char D_00618708[24] = "box die!!!\n";
+__attribute__((section(".rodata.0x00618740"))) const char D_00618740[32] = "near wall to %f, %f, %f\n";
+__attribute__((section(".rodata.0x00618760"))) const char D_00618760[16] = "BOXREINIT\n";
+__attribute__((section(".rodata.0x00618808"))) const char D_00618808[16] = "%f, %f, %f\n";

@@ -25,3 +25,11 @@ __attribute__((section(".lit4.0x006313DC"))) float D_006313DC = 1000000.0f;
 __attribute__((section(".rodata.0x0061A040"))) const char D_0061A040[16] = "src/spider.c";
 
 __attribute__((section(".rodata.0x0061A188"))) const char D_0061A188[16] = "%c SE:%s AI:%s";
+
+/* String rodata migrated from spider_data.c */
+__attribute__((section(".rodata.0x0061A140"))) const char D_0061A140[16] = "entry %d\n";
+__attribute__((section(".rodata.0x0061A150"))) const char D_0061A150[32] = "entry revived %d\n";
+__attribute__((section(".rodata.0x0061A198"))) const char D_0061A198[16] = "restore: %p\n";
+__attribute__((section(".rodata.0x0061A1A8"))) const char D_0061A1A8[16] = "     WAKE: %s\n";
+__attribute__((section(".rodata.0x0061A1B8"))) const char D_0061A1B8[16] = "    ALIVE: %d\n";
+__attribute__((section(".rodata.0x0061A1C8"))) const char D_0061A1C8[16] = "   REVIVE: %d\n";

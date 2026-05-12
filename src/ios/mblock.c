@@ -47,3 +47,20 @@ __attribute__((section(".rodata.0x00556EB8"))) const char D_00556EB8[16] = "Game
 __attribute__((section(".rodata.0x00556EC8"))) const char D_00556EC8[16] = "GameBlock load";
 __attribute__((section(".rodata.0x00556ED8"))) const char D_00556ED8[16] = "chdirproduct";
 __attribute__((section(".rodata.0x00556EE8"))) const char D_00556EE8[40] = "iosMcManager: recv command %d error.";
+
+/* String rodata migrated from mblock_data.c */
+__attribute__((section(".rodata.0x00556C50"))) const char D_00556C50[32] = "iosMcMgrGetInfo: request busy\n";
+__attribute__((section(".rodata.0x00556C70"))) const char D_00556C70[32] = "iosMcMgrFormat: request busy\n";
+__attribute__((section(".rodata.0x00556C90"))) const char D_00556C90[32] = "iosMcMgrUnformat: request busy\n";
+__attribute__((section(".rodata.0x00556CB0"))) const char D_00556CB0[32] = "iosMcMgrWrite: request busy\n";
+__attribute__((section(".rodata.0x00556CD0"))) const char D_00556CD0[32] = "iosMcMgrRead: request busy\n";
+__attribute__((section(".rodata.0x00556CF0"))) const char D_00556CF0[32] = "sceMcOpen: request busy\n";
+__attribute__((section(".rodata.0x00556D10"))) const char D_00556D10[32] = "sceMcClose: request busy\n";
+__attribute__((section(".rodata.0x00556D30"))) const char D_00556D30[32] = "iosMcMgrChdir: request busy\n";
+__attribute__((section(".rodata.0x00556D50"))) const char D_00556D50[32] = "sceMcGetdir: request busy\n";
+__attribute__((section(".rodata.0x00556D70"))) const char D_00556D70[32] = "iosMcMgrMkdir: request busy\n";
+__attribute__((section(".rodata.0x00556D90"))) const char D_00556D90[32] = "iosMcMgrDelete: request busy\n";
+__attribute__((section(".rodata.0x00556E28"))) const char D_00556E28[24] = "write checkSum: %d\n";
+__attribute__((section(".rodata.0x00556E40"))) const char D_00556E40[16] = "call read_func\n";
+__attribute__((section(".rodata.0x00556E50"))) const char D_00556E50[32] = "sceMcSeek: request busy\n";
+__attribute__((section(".rodata.0x00556E70"))) const char D_00556E70[16] = "done 0 %p\n";

@@ -61,3 +61,41 @@ __attribute__((section(".rodata.0x00554C48"))) const char D_00554C48[16] = "Othe
 __attribute__((section(".rodata.0x00554C58"))) const char D_00554C58[16] = "Fog Tool";
 __attribute__((section(".rodata.0x00554C68"))) const char D_00554C68[16] = "Shadow Tool";
 __attribute__((section(".rodata.0x00554C78"))) const char D_00554C78[16] = "Light Tool";
+
+/* String rodata migrated from FileManager_data.c */
+__attribute__((section(".rodata.0x00554010"))) const char D_00554010[48] = "file_LoadCDFile:file is not exists? (%s)\n";
+__attribute__((section(".rodata.0x00554058"))) const char D_00554058[32] = " to seki area.(%2.1f%%)\n";
+__attribute__((section(".rodata.0x00554078"))) const char D_00554078[40] = " to sugi area.(%2.1f%%/%2.1f%%)\n";
+__attribute__((section(".rodata.0x005540A0"))) const char D_005540A0[48] = " to static motion area.(%2.1f%%/%2.1f%%)\n";
+__attribute__((section(".rodata.0x005540D0"))) const char D_005540D0[48] = " to dynamic motion area.(%2.1f%%/%2.1f%%)\n";
+__attribute__((section(".rodata.0x00554100"))) const char D_00554100[32] = " to hara-area.(%2.1f%%)\n";
+__attribute__((section(".rodata.0x00554120"))) const char D_00554120[32] = " to oomori area.(%2.1f%%)\n";
+__attribute__((section(".rodata.0x00554140"))) const char D_00554140[24] = " to horagai-area.\n";
+__attribute__((section(".rodata.0x00554158"))) const char D_00554158[24] = " to sound-area.\n";
+__attribute__((section(".rodata.0x00554170"))) const char D_00554170[24] = " to sound_semi-area.\n";
+__attribute__((section(".rodata.0x00554188"))) const char D_00554188[40] = "file_LoadCDFile:Reach to CD end.\n";
+__attribute__((section(".rodata.0x005541B0"))) const char D_005541B0[40] = "file_LoadCDFile:Open tray at reading.\n";
+__attribute__((section(".rodata.0x005541D8"))) const char D_005541D8[32] = "file_LoadCDFile:Read error.\n";
+__attribute__((section(".rodata.0x005541F8"))) const char D_005541F8[32] = "file_LoadCDFile:Invalid Disc.\n";
+__attribute__((section(".rodata.0x00554218"))) const char D_00554218[48] = "file_LoadCDFile:Invalid transfer length.\n";
+__attribute__((section(".rodata.0x00554248"))) const char D_00554248[48] = "file_LoadCDFile:Invalid transfer address.\n";
+__attribute__((section(".rodata.0x00554278"))) const char D_00554278[32] = "file_LoadCDFile:Not ready.\n";
+__attribute__((section(".rodata.0x00554298"))) const char D_00554298[32] = "file_LoadCDFile:No Disc.\n";
+__attribute__((section(".rodata.0x005542B8"))) const char D_005542B8[40] = "file_LoadCDFile:Tray is opened.\n";
+__attribute__((section(".rodata.0x005542E0"))) const char D_005542E0[24] = "Undefined command.\n";
+__attribute__((section(".rodata.0x005542F8"))) const char D_005542F8[32] = "file_LoadCDFile:Aborted.\n";
+__attribute__((section(".rodata.0x00554318"))) const char D_00554318[24] = "file_LoadCDFile:Fail\n";
+__attribute__((section(".rodata.0x00554740"))) const char D_00554740[16] = "dma init\n";
+__attribute__((section(".rodata.0x00554750"))) const char D_00554750[16] = "matrix init\n";
+__attribute__((section(".rodata.0x00554760"))) const char D_00554760[16] = "texture init\n";
+__attribute__((section(".rodata.0x00554770"))) const char D_00554770[16] = "gs init\n";
+__attribute__((section(".rodata.0x00554780"))) const char D_00554780[16] = "reset gs\n";
+__attribute__((section(".rodata.0x005547C0"))) const char D_005547C0[48] = "gsb_LoadStageSettings: host file open error.\n";
+__attribute__((section(".rodata.0x005547F0"))) const char D_005547F0[32] = "Load stage settings file. %s\n";
+__attribute__((section(".rodata.0x00554810"))) const char D_00554810[48] = "gsb_SaveStageSettings: host file open error.\n";
+__attribute__((section(".rodata.0x00554840"))) const char D_00554840[32] = "Save stage settings file. %s\n";
+__attribute__((section(".rodata.0x00554BF8"))) const char D_00554BF8[24] = "StageSetting %s => %s\n";
+__attribute__((section(".rodata.0x00554C10"))) const char D_00554C10[24] = "StageSetting %s => %d\n";
+
+/* Float rodata migrated from FileManager_data.c */
+__attribute__((section(".rodata.0x00554790"))) const float D_00554790[4] = { 768.0f, 768.0f, 0.0f, 0.0f };

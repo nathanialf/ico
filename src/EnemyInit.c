@@ -22,3 +22,12 @@ __attribute__((section(".sdata.0x00633830"))) const char D_00633830[8] = "%s=on\
 __attribute__((section(".sdata.0x00633838"))) const char D_00633838[] = "%s=off\n";
 
 __attribute__((section(".rodata.0x0061AC70"))) const char D_0061AC70[16] = "src/EnemyInit.c";
+
+/* String rodata migrated from EnemyInit_data.c */
+__attribute__((section(".rodata.0x0061AC80"))) const char D_0061AC80[16] = "isys:null GObj\n";
+__attribute__((section(".rodata.0x0061AC90"))) const char D_0061AC90[16] = "camera gop:%x\n";
+__attribute__((section(".rodata.0x0061ACA0"))) const char D_0061ACA0[16] = "first entry\n";
+__attribute__((section(".rodata.0x0061ACB0"))) const char D_0061ACB0[24] = "entry into head\n";
+__attribute__((section(".rodata.0x0061ACC8"))) const char D_0061ACC8[24] = "entry into tail\n";
+__attribute__((section(".rodata.0x0061ACE0"))) const char D_0061ACE0[24] = "LinkCameraDL in\n";
+__attribute__((section(".rodata.0x0061ACF8"))) const char D_0061ACF8[24] = "LinkCameraDL out\n";

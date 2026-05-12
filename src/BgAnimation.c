@@ -46,3 +46,13 @@ __attribute__((section(".sdata.0x00633804"))) int D_00633804 = 0x00000000;
 __attribute__((section(".sdata.0x00633808"))) const char D_00633808[8] = "font";
 
 __attribute__((section(".rodata.0x0061A8D8"))) const char D_0061A8D8[24] = "src/BgAnimation.c";
+
+/* String rodata migrated from BgAnimation_data.c */
+__attribute__((section(".rodata.0x0061A8C0"))) const char D_0061A8C0[24] = "this is not bga file.\n";
+__attribute__((section(".rodata.0x0061A918"))) const char D_0061A918[32] = "this is not sdf camera file.\n";
+__attribute__((section(".rodata.0x0061A938"))) const char D_0061A938[32] = "Light Object not exists.\n";
+__attribute__((section(".rodata.0x0061A958"))) const char D_0061A958[32] = "Shadow Object not exists.\n";
+__attribute__((section(".rodata.0x0061A978"))) const char D_0061A978[32] = "OBJECT FILE \"%s\" NOT EXISTS.\n";
+__attribute__((section(".rodata.0x0061A9F8"))) const char D_0061A9F8[40] = "Illegal Envelope Type : %p(%d)\n";
+__attribute__((section(".rodata.0x0061AAF0"))) const char D_0061AAF0[32] = "illegal lightning data set.\n";
+__attribute__((section(".rodata.0x0061AB10"))) const char D_0061AB10[64] = "Lightning data does not found! maybe, start point < end point.\n";

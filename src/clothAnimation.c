@@ -142,3 +142,14 @@ __attribute__((section(".rodata.0x00618B80"))) const char D_00618B80[16] = "POS-
 __attribute__((section(".rodata.0x00618B90"))) const char D_00618B90[16] = "POS-Z:%4.3f";
 __attribute__((section(".rodata.0x00618BA0"))) const char D_00618BA0[16] = "ROT-Y:%4.3f";
 __attribute__((section(".rodata.0x00618BB0"))) const char D_00618BB0[16] = "ROT-X:%4.3f";
+
+/* String rodata migrated from clothAnimation_data.c */
+__attribute__((section(".rodata.0x00618B30"))) const char D_00618B30[24] = "Unknown Data Type \"%s\"\n";
+__attribute__((section(".rodata.0x00618BC0"))) const char D_00618BC0[16] = "initialize\n";
+__attribute__((section(".rodata.0x00618BD0"))) const char D_00618BD0[64] = "==== Save effect ============================================\n";
+__attribute__((section(".rodata.0x00618C10"))) const char D_00618C10[40] = "saveEffectData: host file open error.\n";
+__attribute__((section(".rodata.0x00618C68"))) const char D_00618C68[16] = "%d bytes wrote\n";
+__attribute__((section(".rodata.0x00618C78"))) const char D_00618C78[64] = "=============================================================\n";
+
+/* Float rodata migrated from clothAnimation_data.c */
+__attribute__((section(".rodata.0x00618B60"))) const float D_00618B60[4] = { 0.0f, 0.0f, 1e+02f, 1.0f };

@@ -85,3 +85,12 @@ __attribute__((section(".sdata.0x00633478"))) int D_00633478 = 0;
 __attribute__((section(".sdata.0x0063347C"))) int D_0063347C = 0;
 
 __attribute__((section(".rodata.0x006192E0"))) const char D_006192E0[24] = "src/motionManager.c";
+
+/* String rodata migrated from motionManager_data.c */
+__attribute__((section(".rodata.0x006194D8"))) const char D_006194D8[88] = "MAY BE MOTION ORIENT DATA WAS BROKEN\n(MOTIONNAME:\"%s\" ID:%d: rootUpdateMode:%d)\n";
+
+/* Float rodata migrated from motionManager_data.c */
+__attribute__((section(".rodata.0x00619588"))) const float D_00619588[4] = { 0.0f, 5.0f, 0.0f, 0.0f };
+__attribute__((section(".rodata.0x00619598"))) const float D_00619598[4] = { 0.0f, 0.0f, 5.0f, 0.0f };
+__attribute__((section(".rodata.0x006195A8"))) const float D_006195A8[6] = { 5.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+__attribute__((section(".rodata.0x00619600"))) const float D_00619600[4] = { 1e+01f, 0.0f, 0.0f, 0.0f };

@@ -23,3 +23,7 @@ __attribute__((section(".sdata.0x00633188"))) int D_00633188 = 0;
 __attribute__((section(".sdata.0x0063318C"))) unsigned int D_0063318C = 0xFFFFFFFF;
 
 __attribute__((section(".rodata.0x00617218"))) const char D_00617218[24] = "src/layout_texture.c";
+
+/* String rodata migrated from layout_texture_data.c */
+__attribute__((section(".rodata.0x00617200"))) const char D_00617200[24] = "no texture loaded.(%s)\n";
+__attribute__((section(".rodata.0x00617260"))) const char D_00617260[56] = "try layout index=[%d] model_id=[%d]------------\n";

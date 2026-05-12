@@ -96,3 +96,8 @@ __attribute__((section(".rodata.0x0061A3C0"))) const char D_0061A3C0[16] = "BLSB
 __attribute__((section(".rodata.0x0061A3D0"))) const char D_0061A3D0[16] = "NO ACTION";
 __attribute__((section(".rodata.0x0061A3E0"))) const char D_0061A3E0[16] = "BLUR: %s";
 __attribute__((section(".rodata.0x0061A418"))) const char D_0061A418[24] = "FEED: %s";
+
+/* String rodata migrated from spiderGroupManager_data.c */
+__attribute__((section(".rodata.0x0061A1D8"))) const char D_0061A1D8[32] = "LOCK %p for LABEL %d, ID:%d\n";
+__attribute__((section(".rodata.0x0061A218"))) const char D_0061A218[88] = "No valid enemy layout data for spider.\n(Lack of enemy layout for spider revive.)\n";
+__attribute__((section(".rodata.0x0061A270"))) const char D_0061A270[24] = "UNLOCK %p: (id:%d)\n";

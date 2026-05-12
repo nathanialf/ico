@@ -41,3 +41,7 @@ __attribute__((section(".lit4.0x0063142C"))) float D_0063142C = 8.99999f;
 __attribute__((section(".rodata.0x0061A470"))) const char D_0061A470[16] = "src/stormTest.c";
 
 __attribute__((section(".rodata.0x0061A650"))) const char D_0061A650[24] = "STANDBY %d CHARS %s";
+
+/* String rodata migrated from stormTest_data.c */
+__attribute__((section(".rodata.0x0061A558"))) const char D_0061A558[32] = "delete stream motion manager\n";
+__attribute__((section(".rodata.0x0061A578"))) const char D_0061A578[32] = "disable automatic delete\n";
