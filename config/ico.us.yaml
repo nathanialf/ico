@@ -2628,6 +2628,8 @@ segments:
       - [0x15E1E8, c,   cod/15E1E8]            # func_0025E1E8: void; 3 range checks + bit24-31 check; tail-call f1F0(0x4A,(int)a0,a1,a2)
       - [0x15E238, c,   cod/15E238]            # func_0025E238: if(a0<0x10) ret=f()+0x180+a0*4 else 0
       - [0x15E27C, asm, cod/15E27C]
+      - [0x15E280, c,   cod/15E280]            # func_0025E280: 3 checks (a0<2, a2<=1FFFFF, a1 high byte 0); call f1F0(0x4F,(int)a1,a2,a0)
+      - [0x15E2E8, asm, cod/15E2E8]
       - [0x160610, c,   cod/160610]            # func_00260610: wrap func_00263110(ll, ll); return 0
       - [0x160634, asm, cod/160634]
       - [0x1608E0, c  , cod/1608E0]            # func_002608E0: fabsf via FABSF_BIT_TWIDDLE
