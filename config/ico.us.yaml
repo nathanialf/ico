@@ -2654,7 +2654,7 @@ segments:
       - [0x164060, asm, cod/164060]
       - [0x164094, asm, cod/164094]
       - [0x164D50, c,   cod/164D50]            # func_00264D50
-      - [0x164D60, asm, cod/164D60]
+      - [0x164D60, c,   cod/164D60]            # func_00264D60: LCG (state = state*0x41C64E6D + 0x3039) on D_00553244[0]->_58; ret state & 0x7FFFFFFF
       - [0x164D90, asm, cod/164D90]
       - [0x164E68, c,   cod/164E68]            # func_00264E68: auto
       - [0x164E70, asm, cod/164E70]
