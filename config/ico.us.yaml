@@ -1224,6 +1224,8 @@ segments:
       - [0x0947D0, c,   cod/0947D0]            # func_001947D0: buf[4] + zero one slot + 2 calls (s0=a0)
       - [0x094808, c,   cod/094808]            # func_00194808: buf[4] init via func + 2nd call uses arg
       - [0x09483C, asm, cod/09483C]
+      - [0x0949B8, asm, cod/0949B8]
+      - [0x094A08, asm, cod/094A08]
       - [0x094EA8, c,   cod/094EA8]            # func_00194EA8: D_006D35C0+0x14=a; +0x18=b (2 swc1)
       - [0x094EBC, asm, cod/094EBC]
       - [0x094FE8, c,   cod/094FE8]            # func_00194FE8: self->164->674=a1; tail call func_001951A0(self)
