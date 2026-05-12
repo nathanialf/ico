@@ -903,6 +903,7 @@ segments:
       - [0x075CDC, asm, cod/075CDC]
       - [0x075F60, c,   cod/075F60]            # func_00175F60: return (int)((float*)(a0+0x20) - (float*)(a1+0x20))
       - [0x075F7C, asm, cod/075F7C]
+      - [0x0760F0, asm, cod/0760F0]
       - [0x076130, c,   cod/076130]            # func_00176130: save/reload arg, sub+0x634=0
       - [0x07614C, asm, cod/07614C]
       - [0x076150, c,   cod/076150]
