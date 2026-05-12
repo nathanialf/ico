@@ -2625,7 +2625,7 @@ segments:
       - [0x15E118, c,   cod/15E118]            # func_0025E118: if (a0 & 0xFF000000) == 0 then func_002591F0(0x4B, (int)a0, 0, 0)
       - [0x15E158, c,   cod/15E158]            # func_0025E158: same shape as 0x25E118 with constant 0x4C
       - [0x15E198, c,   cod/15E198]            # func_0025E198: if(a0<0x10 && a1<=0x1FFFFF){ f(0x4D, a0, a1, 0); return 0; } return -1
-      - [0x15E1E8, asm, cod/15E1E8]
+      - [0x15E1E8, c,   cod/15E1E8]            # func_0025E1E8: void; 3 range checks + bit24-31 check; tail-call f1F0(0x4A,(int)a0,a1,a2)
       - [0x15E238, c,   cod/15E238]            # func_0025E238: if(a0<0x10) ret=f()+0x180+a0*4 else 0
       - [0x15E27C, asm, cod/15E27C]
       - [0x160610, c,   cod/160610]            # func_00260610: wrap func_00263110(ll, ll); return 0
