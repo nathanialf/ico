@@ -522,6 +522,8 @@ segments:
       - [0x03C538, asm, cod/03C538]
       - [0x03C598, c,   cod/03C598]            # func_0013C598: linked-list head insert
       - [0x03C5B4, asm, cod/03C5B4]
+      - [0x03CAA0, c,   cod/03CAA0]            # func_0013CAA0: bounds check then base[1][idx]=val; ret idx or -1
+      - [0x03CAD4, asm, cod/03CAD4]
       - [0x03CBD0, c,   cod/03CBD0]            # func_0013CBD0: bound-checked table read
       - [0x03CBFC, asm, cod/03CBFC]
       - [0x03CC60, c,   cod/03CC60]            # func_0013CC60: zero 2 halfwords
