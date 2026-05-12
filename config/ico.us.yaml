@@ -2136,6 +2136,8 @@ segments:
       - [0x13C540, c  , cod/13C540]            # func_0023C540: 2-cmp range check (FCC nop via postprocess)
       - [0x13C598, c  , cod/13C598]            # func_0023C598: 2-cmp range check (FCC nop via postprocess)
       - [0x13C5F0, asm, cod/13C5F0]
+      - [0x13CA08, asm, cod/13CA08]
+      - [0x13CA3C, asm, cod/13CA3C]
       - [0x13CC18, c,   cod/13CC18]            # func_0023CC18: same cache-update pattern as 23C290 family
       - [0x13CC78, c,   cod/13CC78]            # func_0023CC78: 4 const float writes: v1[0]=118, v1[1]=-192, v1[2]=-46; a0+0x1C=0.5; return 1
       - [0x13CCB8, asm, cod/13CCB8]
