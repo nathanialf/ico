@@ -681,6 +681,7 @@ segments:
       - [0x049EF4, asm, cod/049EF4]
       - [0x049EF8, c,   cod/049EF8]            # func_00149EF8: promoted from permuter score-0
       - [0x049F20, asm, cod/049F20]
+      - [0x04A0A8, c,   cod/04A0A8]            # func_0014A0A8: ret a0->_164->_1D0 <= 20.0 ? 1 : 0 (FCC postprocess)
       - [0x04A0D8, c  , cod/04A0D8]            # func_0014A0D8
       - [0x04A100, asm, cod/04A100]
       - [0x04A2B0, c,   cod/04A2B0]            # func_0014A2B0: D_006AA4B0+0x4B4=0, +0x4B0=0

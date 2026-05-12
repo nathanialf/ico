@@ -1,12 +1,6 @@
-/* src/cod/151CD0.c — func_00251CD0 */
-
-int func_00251CD0(int *self, int idx, int new_v1, int v2_val)
+void func_00251CD0(int *a0, int idx, int a2, int a3)
 {
-    char *base = (char *)self[0x10];
-    int offs = idx * 8;
-    int old;
-    *(int *)(base + offs + 0x10) = v2_val;
-    old = *(int *)(base + offs + 0xC);
-    *(int *)(base + offs + 0xC) = new_v1;
-    return old;
+    int *arr = (int *)((char *)a0[0x10] + 0xC);
+    arr[idx * 2 + 0] = a2;
+    arr[idx * 2 + 1] = a3;
 }
