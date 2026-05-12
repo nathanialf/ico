@@ -1,12 +1,18 @@
-extern int D_00632190;
+/* src/cod/03CF08.c — func_0013CF08 */
 
-int func_0013CF08(int idx, int val)
+typedef struct {
+    int len;
+    int *data;
+} D_00632190_t;
+
+extern D_00632190_t *D_00632190;
+
+int func_0013CF08(int a0, int a1)
 {
-    int *header = (int *)D_00632190;
-    if ((unsigned)idx < (unsigned)header[0]) {
-        ((int *)header[1])[idx] = val;
-    } else {
-        idx = -1;
+    D_00632190_t *h = D_00632190;
+    if ((unsigned int)a0 < (unsigned int)h->len) {
+        h->data[a0] = a1;
+        return a0;
     }
-    return idx;
+    return -1;
 }
