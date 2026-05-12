@@ -1325,6 +1325,8 @@ segments:
       - [0x09F52C, asm, cod/09F52C]
       - [0x09F530, asm, cod/09F530]
       - [0x09F568, asm, cod/09F568]
+      - [0x09F6A8, c,   cod/09F6A8]            # func_0019F6A8: init sequence: 8 funcs + 7 calls to func_001A6E28(D_xxx); tail func_00100A70(2)
+      - [0x09F754, asm, cod/09F754]
       - [0x09F758, c,   cod/09F758]            # func_0019F758: 5-call wrapper + tail func_001F0F98
       - [0x09F7A8, asm, cod/09F7A8]
       - [0x09FF98, c,   cod/09FF98]            # func_0019FF98: tail call func_0019FFA8(a0, 0, 0, 0)
