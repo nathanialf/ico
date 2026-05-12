@@ -2405,6 +2405,10 @@ segments:
       - [0x14DD30, asm, cod/14DD30]
       - [0x14E4C8, asm, cod/14E4C8]
       - [0x14E528, asm, cod/14E528]
+      - [0x14E670, c,   cod/14E670]            # func_0024E670: if(idx<8) tail func_00265168(ptr, D_00552390[idx]); else *ptr = D_0062EB68
+      - [0x14E6A4, asm, cod/14E6A4]
+      - [0x14E760, c,   cod/14E760]            # func_0024E760: same shape as func_0024E670: if(idx<4) tail call(ptr, D_005523B0[idx]); else *ptr = D_0062EB68
+      - [0x14E794, asm, cod/14E794]
       - [0x14F3F8, c,   cod/14F3F8]            # func_0024F3F8: init: *a0=&D_00719580, *a1=&D_005523D0, p3C=D_005523D4; return &D_00717FC0
       - [0x14F428, asm, cod/14F428]
       - [0x14F6D8, c  , cod/14F6D8]            # func_0024F6D8
