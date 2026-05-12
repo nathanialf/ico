@@ -373,12 +373,15 @@ def _emit_chunked(sym: str, vma: int, sect_name: str,
                   data: bytes) -> list[str]:
     if not data:
         return []
-    # Word-array branch (papermario-style): for 4-aligned VMAs with
-    # multi-word, non-zero, non-string bytes, emit `void *[]` (with
-    # &func_/&D_ resolved via linker map) or `unsigned int[]`. This
-    # makes pointer tables auto-typed and shrinks the file footprint
-    # by 4×. Strings fall through to the byte-array branch below so
-    # the tracked-side string migrator still recognizes them.
+    # Word-array branch: for 4-aligned VMAs with multi-word, non-zero,
+    # non-string bytes, emit `void *[]` (with &func_/&D_ resolved via
+    # linker map) — but ONLY when the block is densely populated with
+    # symbol pointers (>=25% of words resolve). Otherwise fall back to
+    # `unsigned int[]`. The density gate keeps string-fragment blobs
+    # (e.g. arrays of "camdata/cam0135.gcm"-style strings broken across
+    # 4-byte words) from being mis-typed as pointer tables — a few
+    # words coincidentally match symbol VMAs in that case but the
+    # array is really a string blob.
     if (vma % 4 == 0 and len(data) >= 4 and len(data) % 4 == 0
             and not all(b == 0 for b in data)
             and not _looks_like_string(data)):
@@ -386,8 +389,9 @@ def _emit_chunked(sym: str, vma: int, sect_name: str,
         words = [int.from_bytes(data[i:i + 4], "little")
                  for i in range(0, len(data), 4)]
         resolved = [_resolve_word_as_pointer(w, mf) for w in words]
-        any_ptr = any(r is not None for r in resolved)
-        if any_ptr:
+        ptr_count = sum(1 for r in resolved if r is not None)
+        density_ok = len(words) > 0 and ptr_count * 4 >= len(words)
+        if ptr_count >= 1 and density_ok:
             parts = [r if r is not None
                      else (f"(void *)0x{w:08X}" if w else "(void *)0")
                      for w, r in zip(words, resolved)]
