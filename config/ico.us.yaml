@@ -568,6 +568,8 @@ segments:
       - [0x03E190, c,   cod/03E190]            # func_0013E190: promote: score-0 from permuter (parked tough_nut)
       - [0x03E1D8, c,   cod/03E1D8]            # func_0013E1D8: promote: score-0 from permuter (parked tough_nut)
       - [0x03E220, asm, cod/03E220]
+      - [0x03E488, asm, cod/03E488]
+      - [0x03E4CC, asm, cod/03E4CC]
       - [0x03E4D0, asm, cod/03E4D0]
       - [0x03E548, asm, cod/03E548]
       - [0x03ED40, c,   cod/03ED40]            # func_0013ED40: if (set) D_006321CC |= (1<<bit); else D_006321CC &= ~(1<<bit)
