@@ -1061,7 +1061,8 @@ segments:
       - [0x081BC8, c,   cod/081BC8]            # func_00181BC8: buf[28] + 2-call wrapper
       - [0x081BF8, asm, cod/081BF8]
       - [0x081F38, c,   cod/081F38]            # func_00181F38: if (D_0028A894) tail call func_00182C18(D_0028A894)
-      - [0x081F58, asm, cod/081F58]
+      - [0x081F58, c,   cod/081F58]            # func_00181F58: permuter score-0 promotion
+      - [0x081FC8, asm, cod/081FC8]
       - [0x081FAC, asm, cod/081FAC]
       - [0x081FB0, c,   cod/081FB0]            # func_00181FB0: search loop + 4-store on hit; tail func_001A6E28(D_0055A568) on miss
       - [0x082000, asm, cod/082000]
@@ -1839,6 +1840,7 @@ segments:
       - [0x0F0564, asm, cod/0F0564]
       - [0x0F0858, c,   cod/0F0858]            # func_001F0858: promote: score-0 from permuter (void+return TCO trick)
       - [0x0F0878, asm, cod/0F0878]
+      - [0x0F08B8, asm, cod/0F08B8]
       - [0x0F08D4, asm, cod/0F08D4]
       - [0x0F0A28, c,   cod/0F0A28]            # func_001F0A28: tail call func_001A6E28(&D_0061A578) + gp_rel-set 0
       - [0x0F0A38, asm, cod/0F0A38]
