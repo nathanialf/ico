@@ -691,6 +691,7 @@ segments:
       - [0x045324, asm, cod/045324]
       - [0x045638, c,   cod/045638]            # func_00145638: sw 0 to deref + tail call func_0014B228(a0, 0)
       - [0x045648, asm, cod/045648]
+      - [0x049E70, asm, cod/049E70]
       - [0x049EA8, c,   cod/049EA8]            # func_00149EA8: set 4 fields to 1 via reloaded self[0x15C] each time
       - [0x049ED0, c,   cod/049ED0]            # func_00149ED0: 4 zero-stores via reloading deref of a0+0x15C
       - [0x049EF4, asm, cod/049EF4]

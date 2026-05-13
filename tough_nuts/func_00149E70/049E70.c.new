@@ -1,0 +1,13 @@
+extern int *D_00631AE4;
+
+int func_00149E70(int *a0)
+{
+    int *inner;
+    long long val;
+    if (a0 == 0) return 0;
+    if (a0 != D_00631AE4) return 0;
+    inner = (int *)a0[0x164 / 4];
+    if (inner == 0) return 0;
+    val = *(long long *)((char *)inner + 0x20);
+    return (int)((val << 8) >> 32) & 1;
+}
