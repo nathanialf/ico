@@ -1503,7 +1503,7 @@ segments:
       - [0x0AFB90, c,   cod/0AFB90]
       - [0x0AFB98, asm, cod/0AFB98]
       - [0x0B0518, c,   cod/0B0518]            # func_001B0518: promote-test: subagent seed (unscored, may match)
-      - [0x0B0538, asm, cod/0B0538]
+      - [0x0B0538, c,   cod/0B0538]            # func_001B0538: zero 30 entries (stride 0x20) at D_00706110[0..0x3A0]; clear D_00633E6C/E70
       - [0x0B0570, asm, cod/0B0570]
       - [0x0B0A38, c,   cod/0B0A38]            # func_001B0A38: init 5 globals to 0
       - [0x0B0A54, asm, cod/0B0A54]
