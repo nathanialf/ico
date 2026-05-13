@@ -1918,7 +1918,7 @@ segments:
       - [0x0F22E0, asm, cod/0F22E0]
       - [0x0F231C, asm, cod/0F231C]
       - [0x0F2320, c,   cod/0F2320]            # func_001F2320: volatile-spill: s=self->20; v=f(s+0x10,s+0x20,s+0xA0,1); s->4=v; s->0=1; s->B0=0
-      - [0x0F236C, asm, cod/0F236C]
+      - [0x0F236C, c,   cod/0F236C]            # func_001F2370: infinite yield loop; func_001F2388: tail-call wrapper
       - [0x0F2390, c,   cod/0F2390]            # func_001F2390: sibling: func_001D12D8(a0); tail call func_001D12A8(a0, 0x41)
       - [0x0F23BC, asm, cod/0F23BC]
       - [0x0F23C0, c,   cod/0F23C0]            # func_001F23C0: auto
