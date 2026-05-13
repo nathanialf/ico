@@ -32,3 +32,4 @@ BASIC -fno-schedule-insns
 163F48 -fno-schedule-insns
 0EF9A8 -fno-schedule-insns
 163FB0 -fno-schedule-insns
+07E838 -fno-schedule-insns
