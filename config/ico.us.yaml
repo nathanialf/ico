@@ -400,7 +400,6 @@ segments:
       - [0x01E728, asm, cod/01E728]
       - [0x01EDF8, c,   cod/01EDF8]            # func_0011EDF8: 3-way dispatch: signed byte test + nested int test
       - [0x01EE2C, asm, cod/01EE2C]
-      - [0x01EE30, asm, cod/01EE30]
       - [0x01EE58, c,   cod/01EE58]            # func_0011EE58: tail call func_00118C68(a0, 1, 1, a1, a2)
       - [0x01EE6C, asm, cod/01EE6C]
       - [0x01EE70, c,   cod/01EE70]            # func_0011EE70: tail call func_00118C68(a0, 1, 2, a1, a2)
