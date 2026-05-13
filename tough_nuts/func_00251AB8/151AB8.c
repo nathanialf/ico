@@ -14,7 +14,8 @@ void func_00251AB8(int a0, int a1, int a2)
   {
     t = v;
   }
-  t = (t >> 4) << 4;
+  t = t >> 4;
+  t = t << 4;
   D_005524A8[0] = a1;
   D_005525C0[0] = t;
   func_002525E8(a1, t);
