@@ -1,11 +1,3 @@
-/* src/cod/145398.c — func_00245398 */
+#include "common.h"
 
-void func_00245398(int **a0, long long val)
-{
-    int *buf = *a0;
-    int *next;
-    *buf++ = (int)val;
-    next = buf + 1;
-    *buf = (int)(val >> 32);
-    *a0 = next;
-}
+INCLUDE_ASM("asm/nonmatchings/cod/145398", func_00245398);
