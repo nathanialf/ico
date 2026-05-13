@@ -1212,7 +1212,8 @@ segments:
       - [0x0918A8, c,   cod/0918A8]            # func_001918A8: clear 4 gp_rel globals + reverse-iter clear D_006D0710[0..0x1F] stride 0x1C
       - [0x0918EC, asm, cod/0918EC]
       - [0x091D08, c,   cod/091D08]            # func_00191D08: D_00633DB4=0; D_00633DB8=-1; D_00633DBC=0; return 0
-      - [0x091D20, asm, cod/091D20]
+      - [0x091D20, c,   cod/091D20]            # func_00191D20: dedup-then-append a0 to D_006D0B90[D_00633DB4] (D_00633DB8 = init value)
+      - [0x091D6C, asm, cod/091D6C]
       - [0x092040, c,   cod/092040]            # func_00192040: D_00632780 = 1, return 1
       - [0x09204C, asm, cod/09204C]
       - [0x092050, c,   cod/092050]            # func_00192050: if D_006D0D20: func_00141E00(D_006D0D20); D_006D0D20=0
