@@ -1035,7 +1035,7 @@ segments:
       - [0x07D098, c,   cod/07D098]            # func_0017D098: count non-zero of D_006CF910[i*0x14] for i=0..1
       - [0x07D0CC, asm, cod/07D0CC]
       - [0x07D0D0, c,   cod/07D0D0]            # func_0017D0D0: promoted from permuter score-0
-      - [0x07D0F8, asm, cod/07D0F8]
+      - [0x07D0F8, c,   cod/07D0F8]            # func_0017D0F8: return (a0 && a0->_2C && a0->_2C->_28) ? 1 : 0
       - [0x07D1D0, asm, cod/07D1D0]
       - [0x07D230, c,   cod/07D230]            # func_0017D230: func_0017E188(a0); func_0017E188(0); set _16C=1 on result; call func_001F2148(first)
       - [0x07D270, c  , cod/07D270]            # func_0017D270
