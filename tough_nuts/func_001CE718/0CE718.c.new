@@ -1,0 +1,15 @@
+#include "matching.h"
+#include "regpin.h"
+
+void func_001CE718(int *self, float val)
+{
+    register char *p REG("$3") = (char *)((int *)self[0x57])[0x210];
+    KEEP_LIVE(p);
+    *(float *)(p + 0x30) = val;
+    if (val < 0.0f) {
+        *(float *)(p + 0x30) = 0.0f;
+    }
+    if (1.0f < *(float *)(p + 0x30)) {
+        *(float *)(p + 0x30) = 1.0f;
+    }
+}
