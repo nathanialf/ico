@@ -1,5 +1,3 @@
-/* src/cod/035468.c — func_00135468 */
-
 extern void func_00136088(char *a0);
 
 void func_00135468(char *base)
