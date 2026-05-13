@@ -2379,7 +2379,7 @@ segments:
       - [0x144444, asm, cod/144444]
       - [0x144448, c   ,   cod/144448]            # VU0 wrapper (vu0.h macros)
       - [0x144460, asm, cod/144460]
-      - [0x1445F8, asm, cod/1445F8]
+      - [0x1445F8, c,   cod/1445F8]            # func_002445F8: memset(p,0,n)
       - [0x144630, c,   cod/144630]            # func_00244630: bound-checked table lookup D_00550710[a0] for a0<10
       - [0x144658, asm, cod/144658]
       - [0x144738, c,   cod/144738]            # func_00244738: getset D_00550738 (shared lui)
