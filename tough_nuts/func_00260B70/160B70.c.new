@@ -1,0 +1,8 @@
+float func_00260B70(float f12, float f13)
+{
+    union { float f; unsigned int i; } um, us, ur;
+    um.f = f12;
+    us.f = f13;
+    ur.i = (um.i & 0x7FFFFFFF) | (us.i & 0x80000000);
+    return ur.f;
+}
