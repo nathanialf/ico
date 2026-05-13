@@ -1887,7 +1887,7 @@ segments:
       - [0x0F0550, c,   cod/0F0550]            # func_001F0550: tail call func_001F0260 (deref+offset TCO)
       - [0x0F0564, asm, cod/0F0564]
       - [0x0F0858, c,   cod/0F0858]            # func_001F0858: promote: score-0 from permuter (void+return TCO trick)
-      - [0x0F0878, asm, cod/0F0878]
+      - [0x0F0878, c,   cod/0F0878]            # func_001F0878: promote permuter score-0
       - [0x0F08D4, asm, cod/0F08D4]
       - [0x0F0A28, c,   cod/0F0A28]            # func_001F0A28: tail call func_001A6E28(&D_0061A578) + gp_rel-set 0
       - [0x0F0A38, asm, cod/0F0A38]
