@@ -1,3 +1,5 @@
+#include "matching.h"
+
 extern char D_006A5C80[];
 
 int func_001334C8(void)
@@ -15,3 +17,5 @@ int func_001334C8(void)
     } while ((int)p < (int)limit);
     return count;
 }
+
+TRAILING_PAD_NOP();

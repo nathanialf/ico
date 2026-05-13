@@ -1,3 +1,5 @@
+#include "matching.h"
+
 extern int D_002811C0[];
 
 int func_0013B778(int a, int b)
@@ -15,3 +17,5 @@ int func_0013B778(int a, int b)
     } while (count < 2);
     return -1;
 }
+
+TRAILING_PAD_NOP();

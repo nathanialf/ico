@@ -159,4 +159,13 @@
  * of the jr-delay slot. */
 #define NOP()                       __asm__ __volatile__("nop")
 
+/* File-scope 4-byte zero pad (a nop) emitted into .text immediately
+ * after the preceding function body.  Use at file scope when the
+ * original codegen reserves a 4-byte trailing slot after a tail-call
+ * function (whose own delay slot is already filled) to align the
+ * NEXT TU's first function to 8 bytes.  Splat consolidates that
+ * trailing pad into the TU's size, so the .o must emit the pad even
+ * though gcc's natural tail-call sequence ends one nop short. */
+#define TRAILING_PAD_NOP()          asm("\t.4byte 0")
+
 #endif /* MATCHING_H */

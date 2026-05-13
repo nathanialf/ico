@@ -1,3 +1,5 @@
+#include "matching.h"
+
 #include "regpin.h"
 
 extern int D_00631B7C;
@@ -29,3 +31,5 @@ void func_0010D4A8(void)
         func_0010D830(D_00660A40 + byte_off, (char *)D_00660A40 - 0x10 + byte_off);
     }
 }
+
+TRAILING_PAD_NOP();

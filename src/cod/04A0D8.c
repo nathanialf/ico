@@ -1,3 +1,5 @@
+#include "matching.h"
+
 extern void *D_00631AE8;
 
 long func_0014A0D8(void)
@@ -11,3 +13,5 @@ long func_0014A0D8(void)
         return (b[3] >> 36) & 1;
     }
 }
+
+TRAILING_PAD_NOP();

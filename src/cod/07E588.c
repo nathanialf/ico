@@ -1,3 +1,5 @@
+#include "matching.h"
+
 
 extern int D_00633798;
 int func_0017E588(void)
@@ -14,3 +16,5 @@ int func_0017E588(void)
   }
   return 1;
 }
+
+TRAILING_PAD_NOP();

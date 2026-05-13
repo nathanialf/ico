@@ -1,3 +1,5 @@
+#include "matching.h"
+
 extern int D_00632010;
 extern char D_00619EC0[];
 extern int *func_0013A0F8(int x, int n, char *t, int line);
@@ -12,3 +14,5 @@ int *func_001E8EB8(int *self, int *other)
     *r = func_001E8B48(other[0x30/4], other, (char *)p_15c + 0x60);
     return r;
 }
+
+TRAILING_PAD_NOP();

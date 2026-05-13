@@ -15,3 +15,5 @@ int func_001903E0(int *self)
     }
     return r;
 }
+
+TRAILING_PAD_NOP();

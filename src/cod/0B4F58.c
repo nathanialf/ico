@@ -1,3 +1,5 @@
+#include "matching.h"
+
 extern int D_00631A00;
 extern int D_00274ED4[];
 extern int D_00633E9C;
@@ -24,3 +26,5 @@ int func_001B4F58(int a0)
     }
     return -1;
 }
+
+TRAILING_PAD_NOP();

@@ -1,3 +1,5 @@
+#include "matching.h"
+
 #include "regpin.h"
 
 extern float D_00631884;
@@ -15,3 +17,5 @@ int func_0023D0C8(int *self)
     p[2] = c;
     return 1;
 }
+
+TRAILING_PAD_NOP();

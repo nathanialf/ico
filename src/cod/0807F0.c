@@ -12,3 +12,5 @@ void func_001807F0(volatile unsigned int a0)
     func_00203AA0(1);
     func_0017CB20(0x786, 0x1A7);
 }
+
+TRAILING_PAD_NOP();

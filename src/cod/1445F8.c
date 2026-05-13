@@ -17,3 +17,5 @@ void func_002445F8(char *p, int n)
         NOP();
     } while (i != neg1);
 }
+
+TRAILING_PAD_NOP();

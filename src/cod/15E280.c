@@ -1,3 +1,5 @@
+#include "matching.h"
+
 extern void func_002591F0(int a0, int a1, int a2, int a3);
 
 int func_0025E280(unsigned int a0, unsigned long long a1, unsigned int a2)
@@ -9,3 +11,5 @@ int func_0025E280(unsigned int a0, unsigned long long a1, unsigned int a2)
     }
     return ret;
 }
+
+TRAILING_PAD_NOP();

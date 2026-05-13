@@ -1,3 +1,5 @@
+#include "matching.h"
+
 extern void func_0013FF88(int *self, int x, int *self2);
 
 int func_00193A00(int *self, short *p)
@@ -12,3 +14,5 @@ int func_00193A00(int *self, short *p)
     }
     return 1;
 }
+
+TRAILING_PAD_NOP();

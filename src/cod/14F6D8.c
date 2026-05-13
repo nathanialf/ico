@@ -1,3 +1,5 @@
+#include "matching.h"
+
 extern int D_005523D0[];
 extern void *func_0024F5A0(int a0, int a1, int a2, int a3);
 
@@ -9,3 +11,5 @@ void *func_0024F6D8(int a0, int a1, int a2)
     }
     return p;
 }
+
+TRAILING_PAD_NOP();

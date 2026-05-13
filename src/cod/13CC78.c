@@ -1,3 +1,5 @@
+#include "matching.h"
+
 /* src/cod/13CC78.c — func_0023CC78 */
 
 int func_0023CC78(char *a0)
@@ -9,3 +11,5 @@ int func_0023CC78(char *a0)
     *(float *)(a0 + 0x1C) = 0.5f;
     return 1;
 }
+
+TRAILING_PAD_NOP();

@@ -1,3 +1,5 @@
+#include "matching.h"
+
 extern int func_00104F20(void);
 extern int *func_00105278(void);
 extern void func_00105F20(void *dst, void *src);
@@ -14,3 +16,5 @@ void func_001029C0(int *self, int *other)
     func_00105268();
     func_0010DDB8((void *)self[0x10/4], (char *)self + 0x60, other);
 }
+
+TRAILING_PAD_NOP();

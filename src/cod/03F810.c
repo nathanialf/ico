@@ -1,3 +1,5 @@
+#include "matching.h"
+
 void func_0013F810(int *p)
 {
     int *cur = (int *)p[0x2C/4];
@@ -8,3 +10,5 @@ void func_0013F810(int *p)
         } while (cur != 0);
     }
 }
+
+TRAILING_PAD_NOP();
