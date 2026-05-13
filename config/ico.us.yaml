@@ -875,7 +875,7 @@ segments:
       - [0x0652CC, asm, cod/0652CC]
       - [0x0652D0, c,   cod/0652D0]            # func_001652D0: D_002A4C48[a0->_8 * 0x4C]._48 bit 18
       - [0x0652F8, c,   cod/0652F8]            # func_001652F8: test bits 18+21 of D_002A4C48[a0[2]*0x4C].p48; return 1 if !bit18 && bit21
-      - [0x065344, asm, cod/065344]
+      - [0x065344, c,   cod/065344]            # func_00165348: 3-call wrapper, return first call's value
       - [0x0653A0, c,   cod/0653A0]            # func_001653A0: two-step deref + cond return
       - [0x0653D0, c,   cod/0653D0]            # func_001653D0: return p->1E0 == 1
       - [0x0653E8, c,   cod/0653E8]            # func_001653E8: return p->1E0 == 2
