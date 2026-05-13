@@ -1,18 +1,13 @@
-#include "matching.h"
-#include "regpin.h"
+extern long long D_006323C0;
+extern void func_00166E10(int *self);
 
-extern int D_006323C0;
-extern void func_00166E10(void *);
+typedef long long __attribute__((aligned(1))) U64;
 
-struct __attribute__((packed)) Pack8 { long long q; };
-
-void func_00167230(char *a0)
+void func_00167230(int *self)
 {
-    register char *base REG("$2") = a0;
-    *(int *)(base + 0xB0) = 0;
-    *(int *)(base + 0x94) = 0;
-    *(int *)(base + 0x88) = 0;
-    *(struct Pack8 *)(base + 0x80) = *(struct Pack8 *)&D_006323C0;
-    NOP();
-    return func_00166E10(a0);
+    *(int *)((char *)self + 0xB0) = 0;
+    *(int *)((char *)self + 0x94) = 0;
+    *(int *)((char *)self + 0x88) = 0;
+    *(U64 *)((char *)self + 0x80) = *(U64 *)&D_006323C0;
+    func_00166E10(self);
 }
