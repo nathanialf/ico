@@ -108,6 +108,7 @@ segments:
       - [0x000C48, c,   cod/000C48]            # func_00100C48: func_00100C48: word copy loop n=a2>>2; ret 0
       - [0x000C80, c   ,   cod/000C80]            # syscall wrapper (SYSCALL_WRAPPER macro)
       - [0x000C90, asm, cod/000C90]
+      - [0x0010C8, c,   cod/0010C8]            # func_001010C8: wait for MMIO 0x1000F130 & 0x8000 to clear, then write low byte of a0 to 0x1000F180
       - [0x0011B0, c,   cod/0011B0]            # func_001011B0: if a0==0xA: func_001010C8(0xD); func_001010C8(0xA) else: tail call func_001010C8(a0)
       - [0x0011E4, asm, cod/0011E4]
       - [0x0019A8, asm, cod/0019A8]
