@@ -673,6 +673,7 @@ segments:
       - [0x044174, asm, cod/044174]
       - [0x044178, c,   cod/044178]            # func_00144178: idx=f1(a0,a1,a2,a3,0,0); if(idx>=0) f2(&D[(idx&0xFF)*0x40]); return idx
       - [0x0441C4, asm, cod/0441C4]
+      - [0x044208, asm, cod/044208]
       - [0x0442E0, c,   cod/0442E0]            # func_001442E0: DMA-tag-style ID generator
       - [0x044308, asm, cod/044308]
       - [0x0444A0, asm, cod/0444A0]
