@@ -438,6 +438,7 @@ segments:
       - [0x02FE94, asm, cod/02FE94]
       - [0x02FFE8, c,   cod/02FFE8]            # func_0012FFE8: return D_00633C60
       - [0x02FFF0, asm, cod/02FFF0]
+      - [0x0325D8, asm, cod/0325D8]
       - [0x032610, c,   cod/032610]            # func_00132610: a0->4=2 + tail call func_0013A5B8(&D_0027E4C0, a0, 0)
       - [0x03262C, asm, cod/03262C]
       - [0x0331D8, c,   cod/0331D8]            # func_001331D8: promoted from permuter score-0
