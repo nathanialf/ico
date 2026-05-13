@@ -2267,7 +2267,7 @@ segments:
       - [0x13D030, c,   cod/13D030]            # func_0023D030: copy 2 sdata floats to *self->34, return 1
       - [0x13D04C, asm, cod/13D04C]
       - [0x13D050, asm, cod/13D050]
-      - [0x13D0C8, c,   cod/13D0C8]            # func_0023D0C8: permuter score-0 promotion (float regalloc)
+      - [0x13D0C8, asm, cod/13D0C8]
       - [0x13D0F0, asm, cod/13D0F0]
       - [0x13D170, c,   cod/13D170]            # func_0023D170: same cache-update pattern (sister of 23D2E8)
       - [0x13D1D0, asm, cod/13D1D0]
