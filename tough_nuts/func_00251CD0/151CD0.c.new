@@ -1,6 +1,13 @@
-void func_00251CD0(int *a0, int idx, int a2, int a3)
+struct Pair { int a; int b; };
+struct W { char pad[12]; struct Pair entries[1]; };
+
+int func_00251CD0(char *self, int idx, int new_a, int new_b)
 {
-    int *arr = (int *)((char *)a0[0x10] + 0xC);
-    arr[idx * 2 + 0] = a2;
-    arr[idx * 2 + 1] = a3;
+    struct W *w;
+    int old;
+    w = *(struct W **)(self + 0x40);
+    old = w->entries[idx].a;
+    *(int *)((char *)w + idx * 8 + 0x10) = new_b;
+    w->entries[idx].a = new_a;
+    return old;
 }
