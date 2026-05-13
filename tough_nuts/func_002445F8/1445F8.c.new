@@ -9,7 +9,10 @@ void func_002445F8(char *a0, int a1)
     v1 = -1;
     do {
         *a0 = 0;
-        a0++;
         v0--;
+        a0++;
+        __asm__ __volatile__("nop");
+        __asm__ __volatile__("nop");
     } while (v0 != v1);
+    __asm__ __volatile__("nop");
 }
