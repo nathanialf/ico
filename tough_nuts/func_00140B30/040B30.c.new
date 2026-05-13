@@ -1,9 +1,9 @@
-extern int func_00140A20(int *p, int idx2, int val);
+extern void func_00140A20(void *base, int idx, int val);
 
-void func_00140B30(int *self, int idx, int val)
+void func_00140B30(char *a0, int a1, int a2)
 {
-    int *p = (int *)self[0xB];
-    *(short *)((char *)p + idx * 4 + 0x3C) = (short)val;
-    *(short *)((char *)p + idx * 4 + 0x42) = (short)val;
-    func_00140A20(p, idx * 2, val);
+    char *base = *(char **)(a0 + 0x2C);
+    *(short *)(base + a1 * 4 + 0x42) = (short)a2;
+    *(short *)(base + a1 * 4 + 0x3C) = (short)a2;
+    return func_00140A20(base, a1 * 2, a2);
 }
