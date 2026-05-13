@@ -1,9 +1,10 @@
-/* src/cod/1609E8.c — func_002609E8 */
+#include "regpin.h"
 
-int func_002609E8(float val)
+int func_002609E8(float x)
 {
-    int bits = *(int *)&val;
-    int absbits = bits & 0x7FFFFFFF;
-    int diff = 0x7F800000 - absbits;
-    return (int)((unsigned)diff >> 31);
+    union { float f; int i; } u;
+    register int bits REG("$3");
+    u.f = x;
+    bits = u.i;
+    return ((unsigned int)(0x7F800000 - (bits & 0x7FFFFFFF))) >> 31;
 }

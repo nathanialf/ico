@@ -13,8 +13,5 @@ unsigned short func_0013CB88(unsigned int idx)
     q = 0;
     return 0;
   }
-  if (q == 0)
-  {
-  }
-  return *((unsigned short *) (((char *) (*q)) + 8));
+ do { if (q == 0) { } return *((unsigned short *) (((char *) (*q)) + 8)); } while (0);
 }
