@@ -87,4 +87,11 @@
     __asm__ __volatile__("sq " s2 ", 0x20($a0)" : : : "memory");               \
     __asm__ __volatile__("sq " s3 ", 0x30($a0)" : : : "memory")
 
+/* Map $a0 into EE scratchpad (SPR) addressing by OR-ing 0x20000000.
+ * Pins $a3 as scratch register. Use as a function-body prelude before
+ * QCOPY64_SERIAL or similar. */
+#define MAP_A0_TO_SPR()                                                        \
+    __asm__ __volatile__("lui $a3, 0x2000");                                   \
+    __asm__ __volatile__("or $a0, $a0, $a3")
+
 #endif /* R5900_H */
