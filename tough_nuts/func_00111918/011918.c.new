@@ -1,12 +1,9 @@
-/* src/cod/011918.c — func_00111918 */
+extern int D_004C7710[];
 
-extern char D_004C7710[];
-
-void func_00111918(long long a, long long b)
+void func_00111918(long long a0, long long a1)
 {
-    long long *cur = *(long long **)(&D_004C7710[0x10]);
-    *cur = b;
-    cur++;
-    *(long long **)(&D_004C7710[0x10]) = cur;
-    *cur = a;
+    long long *p = (long long *)D_004C7710[4];
+    *p = a1;
+    D_004C7710[4] = (int)(p + 1);
+    p[1] = a0;
 }
