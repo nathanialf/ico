@@ -524,6 +524,7 @@ segments:
       - [0x03BB70, c,   cod/03BB70]
       - [0x03BB78, c,   cod/03BB78]
       - [0x03BB80, asm, cod/03BB80]
+      - [0x03C488, asm, cod/03C488]
       - [0x03C4C0, asm, cod/03C4C0]
       - [0x03C510, c,   cod/03C510]            # func_0013C510: init struct: [0]=0; [1]=a1?:&f; [2]=a2; [3]=a3
       - [0x03C538, asm, cod/03C538]

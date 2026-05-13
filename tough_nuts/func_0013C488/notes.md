@@ -12,3 +12,17 @@ Disassembly excerpt:
 ```
 (no asm/cod/*.s found for func_0013C488; check asm/matchings/cod/03C488/)
 ```
+
+---
+
+## Attempt at 2026-05-13
+
+**Reason parked:** near-miss: scheduler hoists all loads first; expected has sw a1,0 first
+
+Seed: `tough_nuts/func_0013C488/03C488.c.new`
+
+Disassembly excerpt:
+
+```
+(no asm/cod/*.s found for func_0013C488; check asm/matchings/cod/03C488/)
+```
