@@ -13,8 +13,12 @@ void func_0013F2C8(void)
     new_var2 = &p2;
     *p1 = (*(*(new_var = new_var2)) = 0);
     i--;
+    p1++;
     p2 = D_00281AD0;
- do { p1++; } while (0);
+    do
+    {
+    }
+    while (0);
     p2++;
   }
   while (i >= 0);

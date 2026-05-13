@@ -1204,7 +1204,7 @@ segments:
       - [0x0903B8, c,   cod/0903B8]            # func_001903B8: copy 3 floats from sub2+0xB0 to a0
       - [0x0903DC, asm, cod/0903DC]
       - [0x0903E0, c,   cod/0903E0]            # func_001903E0: q=*self->p; q[A0] ? q[68]<3 : 0
-      - [0x090408, asm, cod/090408]
+      - [0x090408, c,   cod/090408]            # retry with fno-sched
       - [0x090430, c,   cod/090430]            # func_00190430: sub_15C->800 = a1
       - [0x090440, c,   cod/090440]            # func_00190440: *a1 = (int)(p->_70 * 180 / D_00630F8C); return p->_6C as byte
 

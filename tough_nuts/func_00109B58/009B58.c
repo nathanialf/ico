@@ -6,7 +6,7 @@ struct Pack8
 void func_00109B58(int *self)
 {
   volatile char *new_var2;
-  volatile char *base = (volatile char *) self[0x57];
+  volatile char *base;
   char *other;
   unsigned char new_var;
   volatile char *new_var6;
@@ -21,6 +21,7 @@ void func_00109B58(int *self)
     other = (char *) self[0x59];
   }
   while (0);
+  base = (volatile char *) self[0x57];
   *((int *) (new_var6 = (new_var2 = base + 0x188))) = new_var3;
   new_var5 = (int *) (base + new_var4);
   *((struct Pack8 *) (base + 0x180)) = *((struct Pack8 *) (base + new_var));
