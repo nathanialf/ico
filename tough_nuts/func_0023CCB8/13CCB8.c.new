@@ -1,13 +1,11 @@
 extern float D_0063184C;
 extern float D_00631850;
-int func_0023CCB8(int *self)
+
+int func_0023CCB8(char *a0)
 {
-    float *p = (float *)self[0x34/4];
-    float a = -133.0f;
-    float b = D_0063184C;
-    float c = D_00631850;
-    p[0] = a;
-    p[1] = b;
-    p[2] = c;
+    float *v1 = *(float **)(a0 + 0x34);
+    v1[0] = -133.0f;
+    v1[2] = D_00631850;
+    v1[1] = D_0063184C;
     return 1;
 }
