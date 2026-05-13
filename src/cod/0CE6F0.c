@@ -1,12 +1,11 @@
-/* src/cod/0CE6F0.c — func_001CE6F0 */
+extern void func_001E3FC8(void *a0);
 
-extern void func_001E3FC8(int *self);
-
-void func_001CE6F0(volatile int *self)
+void func_001CE6F0(void *a0)
 {
-    ((int *)self[0x57])[0xAC] = 0;
-    ((int *)self[0x57])[0xC4] = 0;
-    ((int *)self[0x57])[0xEE] = 0;
-    ((int *)self[0x57])[0xEF] = 0;
-    func_001E3FC8((int *)self);
+    int * volatile *pp = (int * volatile *)((char *)a0 + 0x15C);
+    *(int *)((char *)(*pp) + 0x2B0) = 0;
+    *(int *)((char *)(*pp) + 0x310) = 0;
+    *(int *)((char *)(*pp) + 0x3B8) = 0;
+    *(int *)((char *)(*pp) + 0x3BC) = 0;
+    func_001E3FC8(a0);
 }
