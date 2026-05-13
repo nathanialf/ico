@@ -2012,7 +2012,7 @@ segments:
       - [0x104F58, c,   cod/104F58]            # func_00204F58: if(a0==0) return -1.0f; else { f1(buf,a0); return f2(buf,a1); }
       - [0x104FA4, asm, cod/104FA4]
       - [0x105000, c,   cod/105000]            # func_00205000: if(!a0) return -1; f1(buf, a0); return f2(buf, 0, f)
-      - [0x105048, asm, cod/105048]
+      - [0x105048, c,   cod/105048]            # func_00205048: same 3-way float compare as 17B0D8 (FCC nop via postprocess)
       - [0x10507C, asm, cod/10507C]
       - [0x105518, c,   cod/105518]            # func_00205518: linked-list unlink at D_004CAEC0[idx*0x34]: mark + splice prev/next
       - [0x105548, asm, cod/105548]
