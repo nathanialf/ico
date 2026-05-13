@@ -1,8 +1,18 @@
+#include "matching.h"
+
 extern void func_0012FFF0(char *a0, int a1, float f12, float f13, float f14, float f15, float f16, float f17);
 extern float D_00630EAC;
 extern char D_0055A380[];
 
 void func_00180550(void)
 {
-    return func_0012FFF0(D_0055A380, 1, 0.0f, 0.0f, 0.0f, D_00630EAC, 0.0f, 0.5f);
+    register float f12_r __asm__("$f12") = 0.0f;
+    register char *a0_r __asm__("$4") = D_0055A380;
+    register float f15_r __asm__("$f15") = D_00630EAC;
+    register float f17_r __asm__("$f17") = 0.5f;
+    register float f13_r __asm__("$f13") = f12_r;
+    register float f14_r __asm__("$f14") = f12_r;
+    register float f16_r __asm__("$f16") = f12_r;
+    __asm__ __volatile__("" : : "r"(a0_r), "f"(f12_r), "f"(f13_r), "f"(f14_r), "f"(f15_r), "f"(f16_r), "f"(f17_r));
+    return func_0012FFF0(a0_r, 1, f12_r, f13_r, f14_r, f15_r, f16_r, f17_r);
 }
