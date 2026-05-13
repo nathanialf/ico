@@ -1,13 +1,15 @@
-struct Pair { int a; int b; };
-struct W { char pad[12]; struct Pair entries[1]; };
-
-int func_00251CD0(char *self, int idx, int new_a, int new_b)
+int func_00251CD0(char *a0, int idx, int a2, int a3)
 {
-    struct W *w;
+    char *base;
+    char *p_lo;
+    char *p_hi;
     int old;
-    w = *(struct W **)(self + 0x40);
-    old = w->entries[idx].a;
-    *(int *)((char *)w + idx * 8 + 0x10) = new_b;
-    w->entries[idx].a = new_a;
+    base = *(char **)(a0 + 0x40);
+    p_hi = base + 0xC;
+    p_lo = base + idx * 8;
+    p_hi += idx * 8;
+    *(int *)(p_lo + 0x10) = a3;
+    old = *(int *)p_hi;
+    *(int *)p_hi = a2;
     return old;
 }
