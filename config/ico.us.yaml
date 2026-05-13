@@ -1834,7 +1834,7 @@ segments:
       - [0x0E93E8, asm, cod/0E93E8]
       - [0x0E97F8, c, cod/0E97F8]            # func_001E97F8: 4-insn lw
       - [0x0E9808, c,   cod/0E9808]
-      - [0x0E9810, asm, cod/0E9810]
+      - [0x0E9810, c,   cod/0E9810]            # func_001E9810: 3-call with FP gate (result > 0) store
       - [0x0E9888, c,   cod/0E9888]            # func_001E9888: cond tail-call func_00190430(v0, a0)
       - [0x0E98C8, c,   cod/0E98C8]            # func_001E98C8: deref+gate, call+tail-call
       - [0x0E990C, asm, cod/0E990C]
