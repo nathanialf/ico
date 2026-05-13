@@ -1,12 +1,10 @@
-/* src/cod/03CF08.c — func_0013CF08 */
-
 extern int *D_00632190;
 
-int func_0013CF08(unsigned int idx, int val)
+int func_0013CF08(int idx, int val)
 {
-    int *base = D_00632190;
-    if (idx < (unsigned)base[0]) {
-        ((int *)base[1])[idx] = val;
+    int *p = D_00632190;
+    if ((unsigned int)idx < (unsigned int)p[0]) {
+        ((int *)p[1])[idx] = val;
         return idx;
     }
     return -1;

@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-13 08:05:17 UTC
+- Generated: 2026-05-13 08:09:33 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4434 total in `asm/cod/*.s`, 224 parked, 4210 considered
+- Functions: 4438 total in `asm/cod/*.s`, 226 parked, 4212 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -248,7 +248,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4098 unmatched functions are not in any shape bucket above._
+_4100 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 
