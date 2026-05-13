@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-13 12:33:01 UTC
+- Generated: 2026-05-13 12:39:01 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4424 total in `asm/cod/*.s`, 220 parked, 4204 considered
+- Functions: 4424 total in `asm/cod/*.s`, 218 parked, 4206 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -91,11 +91,12 @@ _0 total in this bucket; showing top 0._
 <a id="wrap-1jal-0x34-0x40"></a>
 ## 0x34-0x40, exactly 1 jal, no VU (wrapper w/ stack buffer / arg pack)
 
-_1 total in this bucket; showing top 1._
+_2 total in this bucket; showing top 2._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
 | `func_00264298` | 0x3C | 15 | 1 |  | `addiu sd sd daddu` | asm/cod/164094.s:190 |
+| `func_0017E838` | 0x34 | 13 | 1 |  | `addiu sd daddu swc1` | asm/cod/07E838.s:13 |
 
 <a id="wrap-spill-reload"></a>
 ## Any size, has sw $a0,0($sp); lw $a0,0($sp), no VU (volatile unsigned int a0 + volatile int local)
@@ -249,7 +250,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4092 unmatched functions are not in any shape bucket above._
+_4093 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 
