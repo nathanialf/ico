@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-12 23:59:58 UTC
+- Generated: 2026-05-13 00:01:54 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4429 total in `asm/cod/*.s`, 217 parked, 4212 considered
+- Functions: 4436 total in `asm/cod/*.s`, 218 parked, 4218 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -100,7 +100,7 @@ _1 total in this bucket; showing top 1._
 <a id="wrap-spill-reload"></a>
 ## Any size, has sw $a0,0($sp); lw $a0,0($sp), no VU (volatile unsigned int a0 + volatile int local)
 
-_4 total in this bucket; showing top 4._
+_5 total in this bucket; showing top 5._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
@@ -108,6 +108,7 @@ _4 total in this bucket; showing top 4._
 | `func_00175350` | 0x2EC | 187 | 32 |  | `addiu sd sd addiu` | asm/cod/07534C.s:18 |
 | `func_0015EAB0` | 0x304 | 193 | 24 |  | `addiu sw lw sd` | asm/cod/05EAAC.s:18 |
 | `func_00156840` | 0xAAC | 683 | 80 |  | `lui addiu lw addiu` | asm/cod/056488.s:299 |
+| `func_00156840` | 0xAAC | 683 | 80 |  | `lui addiu lw addiu` | asm/cod/0564CC.s:273 |
 
 <a id="wrap-2jal-0x18-0x24"></a>
 ## 0x18-0x24, exactly 2 jal, no VU (compact 2-call wrapper)
@@ -248,7 +249,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4100 unmatched functions are not in any shape bucket above._
+_4105 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 
