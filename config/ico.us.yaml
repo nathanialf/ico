@@ -2588,6 +2588,7 @@ segments:
       - [0x155F80, asm, cod/155F80]
       - [0x156BF8, c,   cod/156BF8]            # func_00256BF8: while (func_002564E0(1)) func_002563C8(8)
       - [0x156C2C, asm, cod/156C2C]
+      - [0x157850, c,   cod/157850]            # func_00257850: if (D_005524A4->_40->_8 != 2): _8=2; _AC=D_005525C4; D_00552D40=1; return 1
       - [0x158450, c,   cod/158450]            # func_00258450: shift extract: (int)(*p >> (64-n))
       - [0x15846C, asm, cod/15846C]
       - [0x158508, c,   cod/158508]            # func_00258508: ret=f1(self,a1); f2(self,a1); return ret
