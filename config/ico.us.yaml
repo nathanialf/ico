@@ -1082,6 +1082,7 @@ segments:
       - [0x07EC74, asm, cod/07EC74]
       - [0x07EC78, c,   cod/07EC78]            # func_0017EC78: clear bit 20 of long long at sub+0x20
       - [0x07EC94, asm, cod/07EC94]
+      - [0x080550, asm, cod/080550]
       - [0x080580, c,   cod/080580]            # func_00180580: 1-jal wrapper w/ spill+reload
       - [0x0805A4, asm, cod/0805A4]
       - [0x0807F0, c  , cod/0807F0]            # func_001807F0
