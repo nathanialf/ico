@@ -168,7 +168,7 @@ segments:
       - [0x005F00, c,   cod/005F00]            # func_00105F00: 16-byte lq/sq copy
       - [0x005F10, c,   cod/005F10]            # func_00105F10: 16-byte lq/sq copy
       - [0x005F20, c   ,   cod/005F20]            # GPR quadword copy (lq/sq)
-      - [0x005F48, asm, cod/005F48]
+      - [0x005F48, c,   cod/005F48]            # func_00105F48: dst |= 0x20000000 (scratchpad), QCOPY64_SERIAL
       - [0x005F78, c   ,   cod/005F78]            # VU0 wrapper (vu0.h macros)
       - [0x005F90, c   ,   cod/005F90]            # VU0 wrapper (vu0.h macros)
       - [0x005FA8, asm, cod/005FA8]
