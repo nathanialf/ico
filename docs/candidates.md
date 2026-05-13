@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-13 10:30:18 UTC
+- Generated: 2026-05-13 10:45:44 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4423 total in `asm/cod/*.s`, 227 parked, 4196 considered
+- Functions: 4423 total in `asm/cod/*.s`, 226 parked, 4197 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -192,9 +192,11 @@ _85 total in this bucket; showing top 50._
 <a id="cond-deref-leaf"></a>
 ## Leaf (no jal) with branch, no VU (cond-return / deref+if)
 
-_0 total in this bucket; showing top 0._
+_1 total in this bucket; showing top 1._
 
-(empty)
+| Function | Size | Insns | jal | VU | First mnemonics | Source |
+|---|---:|---:|---:|:---:|---|---|
+| `func_00154420` | 0x24 | 9 | 0 |  | `lw lw lw sltiu` | asm/cod/054420.s:13 |
 
 <a id="wrap-1jal-0x40-0x60"></a>
 ## 0x40-0x60, exactly 1 jal, no VU (mid-size wrapper)
