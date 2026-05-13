@@ -1,0 +1,28 @@
+#include "matching.h"
+
+extern int func_0017D6D8(int a0, float f, int a1);
+extern void func_001B6FD8(int a0);
+extern void func_0017B258(int a0);
+extern void func_00203AA0(int a0);
+extern void func_001297A0(int a, int b, int c);
+extern int func_0012AA80(int a);
+extern int *D_00631AE4;
+extern int D_006325B4;
+
+void func_00229F30(volatile int unused)
+{
+    while (func_0017D6D8(unused, 100.0f, (int)D_00631AE4) == 0) {
+        func_00203AA0(1);
+    }
+    func_001B6FD8(0x33);
+    func_0017B258(0x73);
+    D_006325B4 = 1;
+    func_00203AA0(1);
+    func_001297A0(0x140, 1, 0);
+    while (func_0012AA80(0x140) == 0) {
+        func_00203AA0(1);
+    }
+    func_00203AA0(1);
+    func_001B6FD8(0x32);
+    D_006325B4 = 0;
+}
