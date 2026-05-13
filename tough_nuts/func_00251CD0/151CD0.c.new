@@ -1,15 +1,11 @@
-int func_00251CD0(char *a0, int idx, int a2, int a3)
+int func_00251CD0(int *self, int idx, int a2, int a3)
 {
-    char *base;
-    char *p_lo;
-    char *p_hi;
+    char *p = (char *)self[0x10];
+    char *base = p + idx * 8;
+    int *slot = (int *)(base + 0xC);
     int old;
-    base = *(char **)(a0 + 0x40);
-    p_hi = base + 0xC;
-    p_lo = base + idx * 8;
-    p_hi += idx * 8;
-    *(int *)(p_lo + 0x10) = a3;
-    old = *(int *)p_hi;
-    *(int *)p_hi = a2;
+    *(int *)(base + 0x10) = a3;
+    old = *slot;
+    *slot = a2;
     return old;
 }
