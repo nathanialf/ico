@@ -1,9 +1,0 @@
-extern void func_001F2320(void);
-extern int **func_00203B40(void *fp, int prio);
-
-void func_001F22E0(int *self)
-{
-    int **r = func_00203B40((void *)func_001F2320, 0x15);
-    r[8] = self;
-    *self = 0;
-}
