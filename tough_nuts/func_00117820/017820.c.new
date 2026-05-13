@@ -1,21 +1,22 @@
-/* src/cod/017820.c — func_00117820 */
+#include "regpin.h"
 
-extern int D_00632024;
-extern const char D_00554CA8[];
-extern int *D_00633C34;
-extern int *func_0013A0F8(int heap, int size, const char *file, int line);
+extern int *D_00632024;
+extern char D_00554CA8[];
+extern char *D_00633C34;
+extern char *func_0013A0F8(int *x, int n, char *t, int line);
 
-int *func_00117820(int *self)
+void *func_00117820(void *self)
 {
-    int *n = func_0013A0F8(D_00632024, 0xA0, D_00554CA8, 0x2D3);
-    int *old = D_00633C34;
-    *(int *)((char *)n + 0x90) = (int)self;
-    *(float *)((char *)n + 0x80) = 1.0f;
+    char *new_node = func_0013A0F8(D_00632024, 0xA0, D_00554CA8, 0x2D3);
+    register char *old REG("$4");
+    old = D_00633C34;
+    *(void **)(new_node + 0x90) = self;
+    *(float *)(new_node + 0x80) = 1.0f;
     if (old != 0) {
-        *(int *)((char *)old + 0x94) = (int)n;
+        *(char **)(old + 0x94) = new_node;
     }
-    *(int *)((char *)n + 0x98) = (int)old;
-    *(int *)((char *)n + 0x94) = 0;
-    D_00633C34 = n;
-    return n;
+    *(char **)(new_node + 0x98) = old;
+    *(int *)(new_node + 0x94) = 0;
+    D_00633C34 = new_node;
+    return new_node;
 }
