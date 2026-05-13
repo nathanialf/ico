@@ -87,3 +87,28 @@ glabel func_0023CCB8
     /* 13CCDC 0023CCDC 040062E4 */   swc1      $f2, 0x4($v1)
 endlabel func_0023CCB8
 ```
+
+---
+
+## Attempt at 2026-05-13
+
+**Reason parked:** retry: improvement on load order but still scheduler reorders stores
+
+Seed: `tough_nuts/func_0023CCB8/13CCB8.c.new`
+
+Disassembly excerpt:
+
+```
+glabel func_0023CCB8
+    /* 13CCB8 0023CCB8 3400838C */  lw         $v1, 0x34($a0)
+    /* 13CCBC 0023CCBC 01000224 */  addiu      $v0, $zero, 0x1
+    /* 13CCC0 0023CCC0 05C3013C */  lui        $at, (0xC3050000 >> 16)
+    /* 13CCC4 0023CCC4 00088144 */  mtc1       $at, $f1
+    /* 13CCC8 0023CCC8 5C8F82C7 */  lwc1       $f2, %gp_rel(D_0063184C)($gp)
+    /* 13CCCC 0023CCCC 608F80C7 */  lwc1       $f0, %gp_rel(D_00631850)($gp)
+    /* 13CCD0 0023CCD0 000061E4 */  swc1       $f1, 0x0($v1)
+    /* 13CCD4 0023CCD4 080060E4 */  swc1       $f0, 0x8($v1)
+    /* 13CCD8 0023CCD8 0800E003 */  jr         $ra
+    /* 13CCDC 0023CCDC 040062E4 */   swc1      $f2, 0x4($v1)
+endlabel func_0023CCB8
+```
