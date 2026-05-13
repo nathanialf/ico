@@ -87,6 +87,15 @@
     __asm__ __volatile__("sq " s2 ", 0x20($a0)" : : : "memory");               \
     __asm__ __volatile__("sq " s3 ", 0x30($a0)" : : : "memory")
 
+/* lq 16 bytes from 0(P) into $a2, where P is a C pointer variable.
+ * gcc binds P to whatever register holds it. */
+#define LQ16_FROM(p)                                                           \
+    __asm__ __volatile__("lq $a2, 0(%0)" : : "r"(p) : "memory")
+
+/* sq 16 bytes from $a2 to 0(P), where P is a C pointer variable. */
+#define SQ16_TO(p)                                                             \
+    __asm__ __volatile__("sq $a2, 0(%0)" : : "r"(p) : "memory")
+
 /* Map $a0 into EE scratchpad (SPR) addressing by OR-ing 0x20000000.
  * Pins $a3 as scratch register. Use as a function-body prelude before
  * QCOPY64_SERIAL or similar. */

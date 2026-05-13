@@ -172,7 +172,7 @@ segments:
       - [0x005F48, c,   cod/005F48]            # func_00105F48: dst |= 0x20000000 (scratchpad), QCOPY64_SERIAL
       - [0x005F78, c   ,   cod/005F78]            # VU0 wrapper (vu0.h macros)
       - [0x005F90, c   ,   cod/005F90]            # VU0 wrapper (vu0.h macros)
-      - [0x005FA8, asm, cod/005FA8]
+      - [0x005FA8, c,   cod/005FA8]            # func_00105FA8: save 16 bytes at a0+0x30 to stack, call func_00243BD8(a0), restore
       - [0x005FE0, c   ,   cod/005FE0]            # VU0 wrapper (vu0.h macros)
       - [0x006000, c   ,   cod/006000]            # VU0 wrapper (vu0.h macros)
       - [0x006028, c   ,   cod/006028]            # VU0 wrapper (vu0.h macros)
