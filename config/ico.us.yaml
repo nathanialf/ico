@@ -880,7 +880,7 @@ segments:
       - [0x0654D8, c,   cod/0654D8]            # func_001654D8: return 1
       - [0x0654E0, asm, cod/0654E0]
       - [0x065540, asm, cod/065540]
-      - [0x065B50, asm, cod/065B50]
+      - [0x065B50, c,   cod/065B50]            # func_00165B50: write a0->_164->_670->{_200=a1, _20C=a2?*a2:D_00632390} (re-deref each access)
       - [0x065B80, asm, cod/065B80]
       - [0x065CE8, c,   cod/065CE8]            # func_00165CE8: a0->164->10 < 0xC ? -1 : func_00163D60(a0)
       - [0x065D18, asm, cod/065D18]
