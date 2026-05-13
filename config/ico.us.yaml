@@ -257,7 +257,7 @@ segments:
       - [0x00D448, c,   cod/00D448]            # func_0010D448: tail call func_0010E0B8(&D_00660A40[D_00631B7C*4], short(a0))
       - [0x00D468, c,   cod/00D468]            # func_0010D468: tail call func_0010E158(&D_00660A40[D_00631B7C*4], short(a0))
       - [0x00D488, c,   cod/00D488]            # func_0010D488: tail call func_0010E1F8(&D_00660A40[D_00631B7C*4], short(a0))
-      - [0x00D4A8, asm, cod/00D4A8]
+      - [0x00D4A8, c,   cod/00D4A8]            # func_0010D4A8: stack push wrapper with bounds check
       - [0x00D520, c,   cod/00D520]            # func_0010D520: tail call func_0010D530(&D_00660A40) + gp_rel-set 0
       - [0x00D530, c,   cod/00D530]            # func_0010D530: tail call func_0010D830(a0, &D_00276140)
       - [0x00D53C, asm, cod/00D53C]
