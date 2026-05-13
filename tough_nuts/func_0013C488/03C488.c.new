@@ -1,0 +1,8 @@
+void func_0013C488(int *self, int *base)
+{
+    unsigned short *h = (unsigned short *)base;
+    self[0] = (int)base;
+    self[3] = (int)((char *)base + h[5] * 4);
+    self[2] = (int)((char *)base + h[3] * 4);
+    self[1] = (int)((char *)base + h[1] * 4);
+}
