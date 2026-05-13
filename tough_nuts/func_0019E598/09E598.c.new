@@ -1,7 +1,12 @@
+#include "regpin.h"
+
 int func_0019E598(int *a0)
 {
-    if (a0[3] == a0[4]) goto end;
-    return a0[0] + a0[2] * 0x151800;
-end:
-    return 0;
+    register int ret REG("$2");
+    if (a0[3] == a0[4]) goto zero;
+    ret = a0[0] + a0[2] * 0x151800;
+    return ret;
+zero:
+    ret = 0;
+    return ret;
 }
