@@ -1,0 +1,18 @@
+#include "matching.h"
+
+int func_00187950(int *a0, int a1)
+{
+    int sum = 0;
+    int i = 0;
+    if (a1 > 0) {
+        int lo = a0[0xE];
+        int hi = a0[0xF];
+        NOP();
+        do {
+            sum += hi - lo;
+            i++;
+            NOP();
+        } while (i < a1);
+    }
+    return sum;
+}
