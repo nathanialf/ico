@@ -1,16 +1,11 @@
-
-int func_00251CD0(int *a0, int idx, int new_v0, int store_v1)
+int func_00251CD0(int *self, int idx, int a2, int a3)
 {
-  int *base = (int *) a0[0x10];
-  int new_var2;
-  int *v1 = (int *) ((((char *) base) + 0xC) + (idx * 8));
-  int new_var;
-  int *v0 = (int *) (((char *) base) + (idx * 8));
-  int old;
-  new_var2 = v1[0];
-  new_var = 0x10;
-  v0[new_var / 4] = store_v1;
-  old = new_var2;
-  v1[0] = new_v0;
-  return old;
+    char *p = (char *)self[0x10];
+    char *base = p + idx * 8;
+    int *slot = (int *)(base + 0xC);
+    int old;
+    *(int *)(base + 0x10) = a3;
+    old = *slot;
+    *slot = a2;
+    return old;
 }

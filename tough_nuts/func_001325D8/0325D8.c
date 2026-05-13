@@ -1,17 +1,13 @@
+#include "regpin.h"
 
 extern int D_0027E4C0[];
-extern void func_0013A5B8(int *a0, int *a1, int a2);
-void func_001325D8(int *a0, int a1)
+extern void func_0013A5B8(int *a0, char *a1, int a2);
+
+void func_001325D8(char *a0, int a1)
 {
-  int new_var2;
-  int *new_var;
-  a0[1] = 1;
-  do
-  {
-  }
-  while (0);
-  new_var2 = ~1LL;
-  *((long long *) a0) = ((*a0) & new_var2) | (a1 & 1);
-  new_var = a0;
-  func_0013A5B8(D_0027E4C0, new_var, 0);
+    register char *p REG("$3") = a0;
+    long long *pp = (long long *)p;
+    *(int *)(p + 4) = 1;
+    *pp = (*pp & ~1LL) | (a1 & 1);
+    return func_0013A5B8(D_0027E4C0, p, 0);
 }

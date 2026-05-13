@@ -1,28 +1,16 @@
+/* src/cod/043CD0.c — func_00143CD0 */
 
-extern int D_006A95B0[];
-int *func_00143CD0(int *target_ptr)
+extern unsigned char D_006A95B0[];
+
+void *func_00143CD0(int *target_ptr)
 {
-  unsigned long target = *target_ptr;
-  int *new_var4;
-  char *p;
-  char *new_var2;
-  char *q = (char *) D_006A95B0;
-  int *new_var3;
-  char *end = 0x300 + ((char *) D_006A95B0);
-  int *new_var;
-  new_var2 = p;
-  while (new_var2 < (new_var4 = end))
-  {
-    new_var = (int *) p;
-    if ((*new_var) == target)
-    {
-      new_var3 = new_var4;
-      new_var4 = (int *) p;
-      return new_var3;
-    }
-    p = p + 0x30;
-    q += 0x30;
-  }
-
-  return 0;
+    int target = *target_ptr;
+    char *base = (char *)&D_006A95B0[0];
+    char *end = base + 0x300;
+    char *p = base;
+    do {
+        if (*(int *)p == target) return p;
+        p += 0x30;
+    } while (p < end);
+    return (void *)0;
 }

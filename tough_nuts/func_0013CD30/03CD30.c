@@ -1,23 +1,16 @@
+/* src/cod/03CD30.c — func_0013CD30 */
 
-unsigned char *func_0013CD30(int *a0)
+void *func_0013CD30(int *self)
 {
-  int new_var;
-  int count = a0[0];
-  int i = 0;
-  if (count > 0)
-  {
-    unsigned char *p = (unsigned char *) a0[1];
-    new_var = 0;
-    do
-    {
-      if ((*p) != new_var)
-      {
-        return p;
-      }
-      i++;
-      p += 0x40;
-    }
-    while (i < count);
-  }
-  return 0;
+    int count = self[0];
+    char *arr = (char *)self[1];
+    int i = 0;
+    if (count <= 0) return (void *)0;
+    do {
+        unsigned char b = *(unsigned char *)arr;
+        i += 1;
+        if (b == 0) return arr;
+        arr += 0x40;
+    } while (i < count);
+    return (void *)0;
 }

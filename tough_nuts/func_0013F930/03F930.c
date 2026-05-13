@@ -1,9 +1,9 @@
+#include "matching.h"
 
-extern void func_0013F3F0(int, int, int, unsigned char, int, int);
+extern void func_0013F3F0(int p1, int p2, int p3, unsigned char p4, int p5, int p6);
+
 void func_0013F930(int a, int b, int c, int d, int e)
 {
-  int new_var;
-  new_var = a;
-  func_0013F3F0(new_var, 0, b, c, new_var = d, e);
-  asm __volatile__("" : : : "memory");
+    func_0013F3F0(a, 0, b, (unsigned char)c, d, e);
+    DEFEAT_TCO();
 }

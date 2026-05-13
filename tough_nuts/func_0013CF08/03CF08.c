@@ -1,17 +1,11 @@
+extern int *D_00632190;
 
-extern unsigned int *D_00632190;
-int func_0013CF08(unsigned int idx, int val)
+int func_0013CF08(int idx, int val)
 {
-  int new_var;
-  int *base = (int *) D_00632190;
-  if (idx <= (((unsigned) base[0]) - 1))
-  {
-    ((int *) base[1])[idx] = val;
-  }
-  else
-  {
-    new_var = -1;
-    idx = new_var;
-  }
-  return idx;
+    int *p = D_00632190;
+    if ((unsigned int)idx < (unsigned int)p[0]) {
+        ((int *)p[1])[idx] = val;
+        return idx;
+    }
+    return -1;
 }

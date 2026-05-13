@@ -1,16 +1,18 @@
+#include "regpin.h"
 
 extern float D_0063183C;
 extern float D_00631840;
-int func_0023CA08(char *a0)
+
+int func_0023CA08(int *self)
 {
-  float *v1 = *((float **) (a0 + 0x34));
-  float a = 1800.0f;
-  float b = D_0063183C;
-  float c = D_00631840;
-  v1[0] = a;
-  v1[1] = b;
-  a = 1;
-  v1[2] = c;
-  *((float *) (a0 + 0x18)) = 1.0f;
-  return a;
+    float *p = (float *)self[0xD];
+    register float a REG("$f3") = 1800.0f;
+    register float b REG("$f2") = D_0063183C;
+    register float c REG("$f0") = D_00631840;
+    register float one REG("$f1") = 1.0f;
+    p[2] = c;
+    p[0] = a;
+    p[1] = b;
+    *(float *)((char *)self + 0x18) = one;
+    return 1;
 }

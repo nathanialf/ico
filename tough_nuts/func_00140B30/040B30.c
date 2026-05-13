@@ -1,13 +1,10 @@
+extern int func_00140A20(int *p, int idx2, int val);
 
-extern void func_00140A20(int *a0);
-void func_00140B30(int *a0, int idx, short val)
+void func_00140B30(int *self, int idx, int val)
 {
-  short *arr = a0[0xB];
-  int new_var2;
-  int *new_var;
-  arr[((idx * 2) + (0x40 / 2)) + 1] = val;
-  new_var2 = 0x3C / 2;
-  arr[(idx * 2) + new_var2] = val;
-  new_var = a0;
-  return func_00140A20(new_var);
+    int *p = (int *)self[0xB];
+    int idx2 = idx * 2;
+    ((short *)((char *)p + 0x40))[idx2 + 1] = val;
+    ((short *)((char *)p + 0x3C))[idx2] = val;
+    func_00140A20(p, idx2, val);
 }

@@ -1,8 +1,7 @@
-
-void func_0013C488(int **dst, char *src)
+void func_0013C488(char **a0, char *a1)
 {
-  dst[0] = (int *) src;
-  dst[1] = (int *) (src + ((*(src + 2)) * 4));
-  dst[2] = (int *) (src + ((*((unsigned short *) (src + 6))) * 4));
-  dst[3] = (int *) (src + ((*((unsigned short *) (src + 0xA))) * 4));
+    a0[0] = a1;
+    a0[1] = a1 + 4 * *(unsigned short *)(a1 + 0x2);
+    a0[2] = a1 + 4 * *(unsigned short *)(a1 + 0x6);
+    a0[3] = a1 + 4 * *(unsigned short *)(a1 + 0xA);
 }

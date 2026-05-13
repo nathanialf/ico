@@ -1,15 +1,16 @@
-
-int func_0014B2F0(int *self, int idx)
+#include "regpin.h"
+int func_0014B2F0(int *a0, int a1)
 {
-  int *p;
-  int new_var3;
-  int *new_var2;
-  int new_var;
-  if ((new_var2 = p) == 0)
-  {
-  }
-  new_var = 0x58;
-  return ((unsigned int) (((new_var3 = 1) << idx) & p[new_var / 4])) ? (1) : (0);
-  return 0;
-  p = (int *) self[0x164 / 4];
+    register int v0 REG("$2") = 0;
+    register int *p REG("$3");
+    long long bits;
+    int mask;
+    p = (int *)a0[0x59];
+    if (p != 0) {
+        v0 = 1;
+        bits = *(long long *)((char *)p + 0x58);
+        mask = 1 << a1;
+        if ((mask & bits) == 0) v0 = 0;
+    }
+    return v0;
 }
