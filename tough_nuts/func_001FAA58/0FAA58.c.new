@@ -1,0 +1,18 @@
+extern int D_00274ED4[];
+extern int D_00633F64;
+extern int D_006337BC;
+extern void func_001F6D90(void *p);
+
+void func_001FAA58(void)
+{
+    int *p;
+    D_00633F64 = 0;
+    if (D_00274ED4[0] != 0) return;
+    p = (int *)D_006337BC;
+    if (p == 0) return;
+    D_006337BC = 0;
+    do {
+        func_001F6D90(p);
+        p = (int *)p[0x55];
+    } while (p != 0);
+}
