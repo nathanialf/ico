@@ -1990,7 +1990,7 @@ segments:
       - [0x0FBB48, asm, cod/0FBB48]
       - [0x0FBBE0, asm, cod/0FBBE0]
       - [0x0FBC14, asm, cod/0FBC14]
-      - [0x0FBC18, asm, cod/0FBC18]
+      - [0x0FBC18, c,   cod/0FBC18]            # func_001FBC18: table delta>>4
       - [0x0FC040, c,   cod/0FC040]            # func_001FC040: auto
       - [0x0FC048, asm, cod/0FC048]
       - [0x0FC168, c,   cod/0FC168]            # func_001FC168: promote: score-0 from permuter (parked tough_nut)
