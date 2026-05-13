@@ -2168,7 +2168,7 @@ segments:
       - [0x129DE0, c,   cod/129DE0]            # func_00229DE0: sibling: D_0061BF90 instead of D_0061BF80
       - [0x129E34, asm, cod/129E34]
       - [0x129E38, c,   cod/129E38]            # func_00229E38: store-arg-discard
-      - [0x129E48, asm, cod/129E48]
+      - [0x129E48, c,   cod/129E48]            # func_00229E48: init seq with yield-loop on 0x144
       - [0x129EC8, c,   cod/129EC8]            # func_00229EC8: sibling: D_0061BFA0
       - [0x129F1C, asm, cod/129F1C]
       - [0x129F20, c,   cod/129F20]            # func_00229F20: store-arg-discard
