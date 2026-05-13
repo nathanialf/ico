@@ -1,3 +1,4 @@
+#include "matching.h"
 #include "regpin.h"
 
 extern char D_00615B48[];
@@ -9,8 +10,10 @@ extern int func_00247380(char *p, int *q);
 
 void func_001AA4F0(int *self, int *other)
 {
-    register int r REG("$3");
     func_00264DF8(D_006EE030, D_00632C88, D_00615B48, self);
-    r = func_00247380(D_006EE030, other);
-    D_00632C80 = r;
+    {
+        register int r REG("$3") = func_00247380(D_006EE030, other);
+        KEEP_LIVE(r);
+        D_00632C80 = r;
+    }
 }
