@@ -60,6 +60,31 @@
  * the enclosing function via `return`.  Use only in single-statement
  * fabsf-shaped bodies.
  */
+/* isnanf-style: returns (0x7F800000 - (|bits(x)|)) >> 31 == 1 iff NaN.
+ * Original codegen routes bits through v1 → v0 via daddu copy, masks with
+ * a0 = 0x7FFFFFFF, then v1 = 0x7F800000 (clobbering bits), subu, srl 31.
+ * Pure C union approach skips the daddu copy.  Use in single-statement
+ * isnanf-shaped bodies. */
+#define ISNANF_BIT_TWIDDLE(x_param)                                             \
+    do {                                                                        \
+        register int _i __asm__("$3");                                          \
+        register int _v __asm__("$2");                                          \
+        register int _mask __asm__("$4");                                       \
+        (void)(x_param);                                                        \
+        __asm__ volatile("mfc1 %0, $f12" : "=r"(_i));                           \
+        __asm__ volatile("daddu %0, %1, $0" : "=r"(_v) : "r"(_i));              \
+        __asm__ volatile("lui %0, 0x7fff" : "=r"(_mask));                       \
+        __asm__ volatile("ori %0, %0, 0xffff" : "+r"(_mask));                   \
+        __asm__ volatile("lui %0, 0x7f80" : "=r"(_i));                          \
+        __asm__ volatile("and %0, %0, %1" : "+r"(_v) : "r"(_mask));             \
+        __asm__ volatile("subu %0, %1, %0" : "+r"(_v) : "r"(_i));               \
+        {                                                                       \
+            register int _ret __asm__("$2");                                    \
+            __asm__ volatile("srl %0, %1, 31" : "=r"(_ret) : "r"(_v));          \
+            return _ret;                                                        \
+        }                                                                       \
+    } while (0)
+
 #define FABSF_BIT_TWIDDLE(x_param)                                              \
     do {                                                                        \
         register int _i __asm__("$3");                                          \

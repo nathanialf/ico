@@ -2682,7 +2682,7 @@ segments:
       - [0x160634, asm, cod/160634]
       - [0x1608E0, c  , cod/1608E0]            # func_002608E0: fabsf via FABSF_BIT_TWIDDLE
       - [0x160900, asm, cod/160900]
-      - [0x1609E8, asm, cod/1609E8]
+      - [0x1609E8, c,   cod/1609E8]            # retry isnan with REG pin
       - [0x160A0C, asm, cod/160A0C]
       - [0x160B70, asm, cod/160B70]
       - [0x160BA0, asm, cod/160BA0]
