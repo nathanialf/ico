@@ -418,7 +418,7 @@ segments:
       - [0x023C20, asm, cod/023C20]
       - [0x028708, c,   cod/028708]            # func_00128708: D_00631D54 = val
       - [0x028710, asm, cod/028710]
-      - [0x0287B8, asm, cod/0287B8]
+      - [0x0287B8, c,   cod/0287B8]            # func_001287B8: f12>0 ? store f12 : load+store src
       - [0x0287E8, asm, cod/0287E8]
       - [0x029A78, c,   cod/029A78]            # func_00129A78: func_001FAA58(); if D_00274ED4: return; tail call func_00117768()
       - [0x029AA8, asm, cod/029AA8]
