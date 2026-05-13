@@ -2162,7 +2162,7 @@ segments:
       - [0x127500, asm, cod/127500]
       - [0x129CA0, c,   cod/129CA0]            # func_00229CA0: store-arg-discard
       - [0x129CB0, c,   cod/129CB0]            # func_00229CB0: init+wait pattern: f1(0x142,1,0); while(!f2(0x142)) yield(1); cleanup sequence
-      - [0x129D2C, asm, cod/129D2C]
+      - [0x129D2C, c,   cod/129D2C]            # func_00229D30: 5-call init sequence with D_00631AE4 reload pattern
       - [0x129D88, c,   cod/129D88]            # func_00229D88: stack-buf wrapper: copy 16 bytes from D_0061BF80 to buf; f1(D2,0,buf,0,100.0); f2(0)
       - [0x129DDC, asm, cod/129DDC]
       - [0x129DE0, c,   cod/129DE0]            # func_00229DE0: sibling: D_0061BF90 instead of D_0061BF80
