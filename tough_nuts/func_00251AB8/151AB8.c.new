@@ -1,14 +1,14 @@
-extern int D_005524A8;
-extern int D_005525C0;
-extern void func_002525E8(int a, int b);
+extern int D_005524A8[100];
+extern int D_005525C0[100];
+extern void func_002525E8(int a0, int a1);
 
 void func_00251AB8(int a0, int a1, int a2)
 {
-    int v1 = a2 + 0x13;
-    int new_a2 = a2 + 0x22;
-    if (v1 >= 0) new_a2 = v1;
-    new_a2 = (new_a2 >> 4) << 4;
-    D_005524A8 = a1;
-    D_005525C0 = new_a2;
-    return func_002525E8(a1, new_a2);
+    int v = a2 + 0x13;
+    int t = a2 + 0x22;
+    if (-1 < v) t = v;
+    t = (t >> 4) << 4;
+    D_005524A8[0] = a1;
+    D_005525C0[0] = t;
+    func_002525E8(a1, t);
 }
