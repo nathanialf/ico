@@ -25,11 +25,12 @@ void func_00109B58(int *self)
     other = (char *) new_var5[0x59];
   }
   while (((long long) 0x1A8) * 0);
+  new_var = 0x180;
   base = new_var8;
   *((int *) (new_var6 = (new_var2 = base + 0x188))) = *new_var5;
   new_var5 = (int *) (base + new_var4);
   new_var7 = (struct Pack8 *) (base + new_var);
-  *((struct Pack8 *) (base + 0x180)) = *new_var7;
+  *((struct Pack8 *) (base + new_var)) = *new_var7;
   new_var3 = *new_var5;
   *(new_var7 = (struct Pack8 *) (new_var5 = other + 0x610)) = *new_var7;
   *((int *) (other + 0x618)) = new_var3;
