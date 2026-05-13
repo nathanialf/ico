@@ -29,3 +29,4 @@
 # so the first-pass scheduler is load-bearing for the rest of the codebase.
 
 BASIC -fno-schedule-insns
+163F48 -fno-schedule-insns

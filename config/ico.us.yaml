@@ -2677,7 +2677,7 @@ segments:
       - [0x163350, c,   cod/163350]            # func_00263350: save a0 (long long) on stack, call func_00262848(&saved_a0, sp); negate buf[1]; call func_00262718(sp)
       - [0x163388, c,   cod/163388]            # func_00263388: build int+long-long buffer on stack and pass to func_00262718
       - [0x1633B4, asm, cod/1633B4]
-      - [0x163F48, asm, cod/163F48]
+      - [0x163F48, c,   cod/163F48]            # func_00263F48: locals[0] holds out from func_00263520(local1,local0); local0[1]=!local0[1]; func_00263410(local0)
       - [0x163F80, c,   cod/163F80]            # func_00263F80: 4-int packing buffer + 1-arg call
       - [0x163FAC, asm, cod/163FAC]
       - [0x163FB0, asm, cod/163FB0]
