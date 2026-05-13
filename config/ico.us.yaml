@@ -507,7 +507,7 @@ segments:
       - [0x03A5B4, asm, cod/03A5B4]
       - [0x03A7C8, c,   cod/03A7C8]            # func_0013A7C8: iterate 256 D_006A6990 entries; call func_0013A2F8(*p) if non-null
       - [0x03A81C, asm, cod/03A81C]
-      - [0x03A820, asm, cod/03A820]
+      - [0x03A820, c,   cod/03A820]            # func_0013A820: if a0==2: read MMIO bit13, store !bit, call helper
       - [0x03A868, asm, cod/03A868]
       - [0x03B718, c,   cod/03B718]            # func_0013B718: wrap func_0013A5B8(&D_00281630, 0, 0); ret 0
       - [0x03B744, asm, cod/03B744]
