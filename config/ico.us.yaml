@@ -981,7 +981,7 @@ segments:
       - [0x07A9D4, asm, cod/07A9D4]
       - [0x07A9D8, c,   cod/07A9D8]            # func_0017A9D8: wrap func_00104508(&local, a0); func_00178990(&local, -1)
       - [0x07AA04, asm, cod/07AA04]
-      - [0x07B0D8, asm, cod/07B0D8]
+      - [0x07B0D8, c,   cod/07B0D8]            # func_0017B0D8: 3-way float compare a[1] vs b[1] returns -1/0/1 (FCC nop via postprocess)
       - [0x07B10C, asm, cod/07B10C]
       - [0x07B1A8, c,   cod/07B1A8]            # func_0017B1A8: save gp_rel D + call + tail-call w/ different addr
       - [0x07B1EC, asm, cod/07B1EC]
