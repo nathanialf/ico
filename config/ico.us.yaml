@@ -1314,6 +1314,7 @@ segments:
       - [0x09BB5C, asm, cod/09BB5C]
       - [0x09C010, c,   cod/09C010]            # func_0019C010: D_00633DE0=0x3C; func_001A6E28(&D_0055C720)
       - [0x09C024, asm, cod/09C024]
+      - [0x09C798, c,   cod/09C798]            # func_0019C798: D_006327FC += 0x7D0 (half); D_00633DE4 += 0x1000; if (D_00633DE0 > 0) decrement (clamped >= 0)
       - [0x09CF70, c,   cod/09CF70]            # func_0019CF70: auto-batch
       - [0x09CF78, c,   cod/09CF78]            # func_0019CF78: tail call func_0023DEB0(&D_006DC718)
       - [0x09CF84, asm, cod/09CF84]
