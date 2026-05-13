@@ -2684,7 +2684,7 @@ segments:
       - [0x160900, asm, cod/160900]
       - [0x1609E8, c,   cod/1609E8]            # retry isnan with REG pin
       - [0x160A0C, asm, cod/160A0C]
-      - [0x160B70, asm, cod/160B70]
+      - [0x160B70, c,   cod/160B70]            # retry copysign via macro
       - [0x160BA0, asm, cod/160BA0]
       - [0x160BF4, asm, cod/160BF4]
       - [0x160CA8, c,   cod/160CA8]            # func_00260CA8: guard + tail-call (void+return TCO trick)

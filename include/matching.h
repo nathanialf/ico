@@ -60,6 +60,33 @@
  * the enclosing function via `return`.  Use only in single-statement
  * fabsf-shaped bodies.
  */
+/* copysignf(f12, f13) — magnitude of f12 with sign of f13.
+ * Original codegen: mfc1 a1,f12; mfc1 a0,f13; daddu v1,a0,0; lui v0,0x7fff;
+ * lui a0,0x8000 (clobbers a0); and a1,a1,v0; and v1,v1,a0; or a1,a1,v1; mtc1 a1,f0.
+ * Pure C union approach has gcc allocating differently. Function body that
+ * returns the result. */
+#define COPYSIGNF_BIT_TWIDDLE(magn_param, sign_param)                           \
+    do {                                                                        \
+        register int _b __asm__("$5");                                          \
+        register int _s __asm__("$4");                                          \
+        register int _v1 __asm__("$3");                                         \
+        register int _m __asm__("$2");                                          \
+        register float _r __asm__("$f0");                                       \
+        (void)(magn_param);                                                     \
+        (void)(sign_param);                                                     \
+        __asm__ volatile("mfc1 %0, $f12" : "=r"(_b));                           \
+        __asm__ volatile("mfc1 %0, $f13" : "=r"(_s));                           \
+        __asm__ volatile("daddu %0, %1, $0" : "=r"(_v1) : "r"(_s));             \
+        __asm__ volatile("lui %0, 0x7fff" : "=r"(_m));                          \
+        __asm__ volatile("ori %0, %0, 0xffff" : "+r"(_m));                      \
+        __asm__ volatile("lui %0, 0x8000" : "=r"(_s));                          \
+        __asm__ volatile("and %0, %0, %1" : "+r"(_b) : "r"(_m));                \
+        __asm__ volatile("and %0, %0, %1" : "+r"(_v1) : "r"(_s));               \
+        __asm__ volatile("or %0, %0, %1" : "+r"(_b) : "r"(_v1));                \
+        __asm__ volatile("mtc1 %1, %0" : "=f"(_r) : "r"(_b));                   \
+        return _r;                                                              \
+    } while (0)
+
 /* isnanf-style: returns (0x7F800000 - (|bits(x)|)) >> 31 == 1 iff NaN.
  * Original codegen routes bits through v1 → v0 via daddu copy, masks with
  * a0 = 0x7FFFFFFF, then v1 = 0x7F800000 (clobbering bits), subu, srl 31.
