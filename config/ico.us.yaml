@@ -1943,7 +1943,7 @@ segments:
       - [0x0F4250, asm, cod/0F4250]
       - [0x0F42D0, c,   cod/0F42D0]            # func_001F42D0: sub->800->A0=0, return 1
       - [0x0F42E4, asm, cod/0F42E4]
-      - [0x0F42E8, asm, cod/0F42E8]
+      - [0x0F42E8, c,   cod/0F42E8]            # retry with barrier
       - [0x0F4318, asm, cod/0F4318]
       - [0x0F44C8, c,   cod/0F44C8]            # func_001F44C8: q->16C = sub->74 (via sub->800->5C)
       - [0x0F44E0, asm, cod/0F44E0]
