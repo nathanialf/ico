@@ -2695,7 +2695,7 @@ segments:
       - [0x163F48, c,   cod/163F48]            # func_00263F48: locals[0] holds out from func_00263520(local1,local0); local0[1]=!local0[1]; func_00263410(local0)
       - [0x163F80, c,   cod/163F80]            # func_00263F80: 4-int packing buffer + 1-arg call
       - [0x163FAC, asm, cod/163FAC]
-      - [0x163FB0, asm, cod/163FB0]
+      - [0x163FB0, c,   cod/163FB0]            # func_00263FB0: similar to 263F48 with shifted a3 long long
       - [0x163FF0, c,   cod/163FF0]            # func_00263FF0: func_00264060(D_00553244->_C, &D_0062FC48, a2, a0, a1); tail-call func_00268F08()
       - [0x164024, asm, cod/164024]
       - [0x164028, c,   cod/164028]            # func_00264028: 1-jal w/ u32-return sign-ext via implicit cast
