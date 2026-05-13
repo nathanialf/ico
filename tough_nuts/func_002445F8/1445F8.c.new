@@ -1,0 +1,15 @@
+#include "regpin.h"
+
+void func_002445F8(char *a0, int a1)
+{
+    register int v0 REG("$2");
+    register int v1 REG("$3");
+    if (a1 == 0) return;
+    v0 = a1 - 1;
+    v1 = -1;
+    do {
+        *a0 = 0;
+        a0++;
+        v0--;
+    } while (v0 != v1);
+}
