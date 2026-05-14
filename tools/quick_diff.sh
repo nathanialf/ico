@@ -190,6 +190,13 @@ canon() {
 canon "$TARGET_OBJ" > "$RIGHT"
 canon "$OBJ"        > "$LEFT"
 
+# Mask the gp-rel cosmetic: unlinked quick_diff .o shows `,0(gp)`
+# while the linked baseline shows the resolved offset like
+# `,-16384(gp)`. Only the narrow "built=0, target=non-zero"
+# signature is masked — see tools/mask_gp_rel.py for why looser
+# normalization would hide real divergences.
+"$ROOT/.venv/bin/python" "$ROOT/tools/mask_gp_rel.py" "$RIGHT" "$LEFT"
+
 echo "=== expected: $TARGET_ASM ==="
 cat -n "$RIGHT"
 echo

@@ -554,6 +554,54 @@ diverges on `move $rD, $0` expansion. The pre-2.9 NOTES "daddu vs or"
 section below is now obsolete (resolved by the EE_AS path); the
 remaining false negative is purely in the diff harness.
 
+## quick_diff vs full build — gp-rel offset cosmetic (guardrail)
+
+A second quick_diff false-negative comes from how gp-relative
+addressing is encoded in unlinked `.o` files when the symbol's
+section is in scope:
+
+- **Target side** (splat-extracted `asm/matchings/<func>.s`,
+  re-assembled into a relocatable `.o`): splat emits
+  `lw $a0, %gp_rel(D_00632014)($gp)`. ee-as / mips-linux-gnu-as
+  produce a `R_MIPS_GPREL16` relocation against the symbol and write
+  **immediate 0** in the instruction. `objdump -d` shows
+  `lw a0, 0(gp)`.
+- **Built side** (`src/<TU>.c` compiled via ee-gcc, the same
+  relocatable `.o` shape): ee-gcc emits `lw $a0, D_00632014`. If the
+  symbol is **defined locally in the same `.o`** (Phase 3d header
+  pattern — typed `.sdata.0xVMA` def colocated with the function),
+  ee-as resolves the offset at assembly time and encodes it as a
+  literal immediate. `objdump -d` shows `lw a0, -16384(gp)` (or
+  whatever the gp-rel offset works out to).
+
+The two lines describe the same load. The full build links both and
+the bytes round-trip SHA-clean — but quick_diff's text-level diff
+sees `0(gp)` vs `-16384(gp)` and reports a 40-line side-by-side.
+
+**Guardrail**: `tools/mask_gp_rel.py` runs after `canon` in
+`tools/quick_diff.sh`. It walks both files in parallel and, at any
+line position where target has `,0(gp)` AND built has `,<N>(gp)` for
+N != 0, rewrites both to `,GP_REL(gp)`. The diff then collapses to
+`MATCH`. Verified on `tools/quick_diff.sh DmaPacket` after the
+Phase 3d promotion.
+
+**Without the guardrail**: every quick_diff run on a function with a
+local gp_rel reference shows a noisy diff. Developer has to
+visually filter the offset column to confirm equivalence — easy to
+mis-read as a real mismatch and park a function that actually
+matches. We saw this on DmaPacket post-promotion before adding the
+guardrail.
+
+**Why the mask is narrow on purpose**: it only fires for the
+exact "target=0, built=non-zero" signature. A looser mask (any
+`,<N>(gp)` on either side) would hide *real* divergences — e.g. a
+candidate that references `D_00632018` while the original referenced
+`D_00632014`, both small-data, both gp-rel, both would mask to
+`GP_REL(gp)` and the typo wouldn't surface. The exact-`0` anchor on
+the target side preserves that bug-finding signal: the only thing
+that gets masked is the splat-side reloc-form vs ee-as-side folded-
+immediate cosmetic.
+
 ## Migrating data sections from asm to src (per-VMA named sections + SORT_BY_NAME)
 
 Splat outputs every data section (`.sdata` / `.lit4` / `.rodata` /
