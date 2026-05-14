@@ -54,6 +54,8 @@ ASM_DATA_FILES = [
     REPO_ROOT / "asm" / "data" / "cod" / "530900.lit4.s",
     REPO_ROOT / "asm" / "data" / "cod" / "453700.rodata.s",
     REPO_ROOT / "asm" / "data" / "cod" / "174700.data.s",
+    REPO_ROOT / "asm" / "data" / "cod" / "00633C00.sbss.s",
+    REPO_ROOT / "asm" / "data" / "cod" / "00634000.bss.s",
 ]
 OUT_JSON = REPO_ROOT / "decomp" / "data_tu_map.json"
 
