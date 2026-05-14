@@ -1,0 +1,15 @@
+#include "matching.h"
+#include "regpin.h"
+
+extern void func_0013A5B8(unsigned char *a0, int *a1, int a2, int a3);
+extern unsigned char D_00280F88[];
+
+void func_001381D0(int *self)
+{
+    register int *p REG("$3") = self;
+    p[1] = 0xC;
+    *(long long *)p &= ~1LL;
+    KEEP_LIVE(p);
+    func_0013A5B8(D_00280F88, p, 0, -2);
+    DEFEAT_TCO();
+}
