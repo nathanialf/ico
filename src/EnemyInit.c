@@ -19,7 +19,6 @@
 
 __attribute__((section(".sdata.0x00633828"))) char D_00633828[8] = { 0 };
 __attribute__((section(".sdata.0x00633830"))) const char D_00633830[8] = "%s=on\n";
-__attribute__((section(".sdata.0x00633838"))) const char D_00633838[] = "%s=off\n";
 
 __attribute__((section(".rodata.0x0061AC70"))) const char D_0061AC70[16] = "src/EnemyInit.c";
 

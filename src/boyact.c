@@ -92,15 +92,11 @@ __attribute__((section(".lit4.0x00630C48"))) float D_00630C48 = 0.01f;
 __attribute__((section(".sdata.0x00631AE4"))) int D_00631AE4 = 0;
 __attribute__((section(".sdata.0x00631AE8"))) int D_00631AE8 = 0;
 __attribute__((section(".sdata.0x00631AF0"))) int D_00631AF0 = 0;
-__attribute__((section(".sdata.0x00631AF4"))) int D_00631AF4 = 0;
-__attribute__((section(".sdata.0x00631AF8"))) int _pad_00631AF8 = 0;
-__attribute__((section(".sdata.0x00631AFC"))) int _pad_00631AFC = 0;
 __attribute__((section(".sdata.0x00631B60"))) int D_00631B60 = 0x7F7FFFFF;
 __attribute__((section(".sdata.0x00631B64"))) int D_00631B64 = 0x00000000;
 __attribute__((section(".sdata.0x006321DC"))) int D_006321DC = 0;
 __attribute__((section(".sdata.0x00632290"))) const char D_00632290[8] = "0";
 __attribute__((section(".sdata.0x00632298"))) char D_00632298[8] = { 0 };
-__attribute__((section(".sdata.0x006322A0"))) const char D_006322A0[] = "L = %f\n";
 __attribute__((section(".sdata.0x006322A8"))) char D_006322A8[8] = { 0 };
 __attribute__((section(".sdata.0x006322B0"))) const char D_006322B0[8] = "next";
 __attribute__((section(".sdata.0x006322B8"))) int D_006322B8 = 0x7F7FFFFF;
@@ -111,8 +107,6 @@ __attribute__((section(".sdata.0x006322C8"))) int D_006322C8 = 0xFFFFFFFF;
 __attribute__((section(".sdata.0x006322CC"))) int D_006322CC = 0;
 __attribute__((section(".sdata.0x006322D0"))) const char D_006322D0[8] = "ignore";
 __attribute__((section(".sdata.0x006322D8"))) const char D_006322D8[8] = "off!!\n";
-__attribute__((section(".sdata.0x006322E0"))) const char D_006322E0[] = "%d, %d\n";
-__attribute__((section(".sdata.0x006322E8"))) const char D_006322E8[] = "damage\n";
 __attribute__((section(".sdata.0x006322F0"))) const char D_006322F0[8] = "reset\n";
 __attribute__((section(".sdata.0x006325B4"))) int D_006325B4 = 0;
 __attribute__((section(".sdata.0x006325B8"))) float D_006325B8 = 1.0f;
@@ -144,8 +138,6 @@ __attribute__((section(".sdata.0x00633134"))) int D_00633134 = 0;
 __attribute__((section(".sdata.0x00633138"))) char D_00633138[8] = { 0 };
 __attribute__((section(".sdata.0x00633140"))) unsigned char D_00633140 = 0x80;
 __attribute__((section(".sdata.0x00633141"))) unsigned char D_00633141 = 0x80;
-__attribute__((section(".sdata.0x00633142"))) unsigned short D_00633142 = 0x7F80;
-__attribute__((section(".sdata.0x00633144"))) int _pad_00633144 = 0;
 __attribute__((section(".sdata.0x00633148"))) unsigned char D_00633148 = 0x80;
 __attribute__((section(".sdata.0x00633149"))) unsigned char D_00633149 = 0x80;
 __attribute__((section(".sdata.0x0063314A"))) unsigned short D_0063314A = 0x7F80;
@@ -199,10 +191,6 @@ __attribute__((section(".rodata.0x00558700"))) const float D_00558700[4] = { 0.0
 __attribute__((section(".rodata.0x00558710"))) const float D_00558710[4] = { 0.0f, 0.0f, 5e+01f, 1.0f };
 
 /* Single-float rodata migrated from boyact_data.c */
-__attribute__((section(".rodata.0x0055CFFC"))) const float D_0055CFFC = 5.356473e+07f;
-__attribute__((section(".rodata.0x0057000C"))) const float D_0057000C = 0.0f;
-__attribute__((section(".rodata.0x00595254"))) const float D_00595254 = 0.0f;
-__attribute__((section(".rodata.0x005B0154"))) const float D_005B0154 = 0.0f;
 
 /* String-pool rodata migrated from boyact_data.c */
 __attribute__((section(".rodata.0x00558758"))) const char D_00558758[48] = "hand connect start\n\000\000\000\000\000WBP set [landing]\n\000\000\000\000\000";

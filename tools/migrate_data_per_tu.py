@@ -589,19 +589,37 @@ def main() -> int:
         if local_migrated == 0:
             continue  # don't generate empty files (e.g. symbol-ref-only TUs)
         # Pointer-array `void *D_X[] = { &D_Y, &func_Z, ... };` defs
-        # need `extern` decls for every &-referenced symbol that isn't
-        # defined here. Collect those refs and emit decls at the top.
+        # need `extern` decls for every &-referenced symbol. Even
+        # locally-defined symbols need a prior `extern` if they're
+        # referenced earlier in the file — ee-gcc 2.9 rejects forward
+        # references to file-scope objects without a prior declaration.
+        # The extern's type must match the definition's type exactly,
+        # otherwise ee-gcc 2.9 errors with "conflicting types".
         ref_re = re.compile(r'&((?:D_|func_|jtbl_)[0-9A-Fa-f]{8})\b')
+        def_re = re.compile(
+            r'__attribute__\(\(section\("[^"]+"\)\)\)\s+'
+            r'(?P<ty>(?:void\s*\*|unsigned\s+(?:char|short|int)|char|short|int|float))\s+'
+            r'(?P<name>(?:D_|_pad_|jtbl_)[0-9A-Fa-f]+)\s*(?P<arr>\[\d*\])?'
+        )
+        local_types: dict[str, tuple[str, bool]] = {}
+        for line in defs:
+            m = def_re.search(line)
+            if m:
+                ty = re.sub(r"\s+", " ", m.group("ty").strip())
+                is_array = m.group("arr") is not None
+                local_types[m.group("name")] = (ty, is_array)
         externs: set[str] = set()
         for line in defs:
             for m in ref_re.finditer(line):
-                name = m.group(1)
-                if name not in local_defined:
-                    externs.add(name)
+                externs.add(m.group(1))
         if externs:
             for name in sorted(externs):
                 if name.startswith("func_"):
                     lines.append(f'extern void {name}();')
+                elif name in local_types:
+                    ty, is_array = local_types[name]
+                    suffix = "[]" if is_array else ""
+                    lines.append(f'extern {ty} {name}{suffix};')
                 else:
                     lines.append(f'extern char {name}[];')
             lines.append("")

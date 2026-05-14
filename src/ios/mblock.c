@@ -28,7 +28,6 @@ __attribute__((section(".sdata.0x0063206C"))) int D_0063206C = 0x00000000;
 __attribute__((section(".sdata.0x00632070"))) int D_00632070 = 0x332E3325;
 __attribute__((section(".sdata.0x00632074"))) int D_00632074 = 0x00000064;
 __attribute__((section(".sdata.0x00632078"))) const char D_00632078[8] = "*";
-__attribute__((section(".sdata.0x00632080"))) const char D_00632080[] = "done 1\n";
 __attribute__((section(".sdata.0x00632088"))) const char D_00632088[8] = "format";
 __attribute__((section(".sdata.0x00632090"))) const char D_00632090[8] = "chdir";
 __attribute__((section(".sdata.0x00632098"))) const char D_00632098[8] = "getdir";

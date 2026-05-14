@@ -44,7 +44,6 @@ __attribute__((section(".sdata.0x00631F68"))) const char D_00631F68[8] = "0";
 __attribute__((section(".sdata.0x00631F70"))) const char D_00631F70[8] = "\\%s;1";
 __attribute__((section(".sdata.0x00631F78"))) const char D_00631F78[] = "handler";
 __attribute__((section(".sdata.0x00631F80"))) const char D_00631F80[8] = "n=%d\n";
-__attribute__((section(".sdata.0x00631F88"))) const char D_00631F88[] = "out %d\n";
 __attribute__((section(".sdata.0x00631F90"))) char D_00631F90[8] = { 0 };
 __attribute__((section(".sdata.0x00631F98"))) const char D_00631F98[8] = "load";
 __attribute__((section(".sdata.0x00631FA0"))) int D_00631FA0 = 0;

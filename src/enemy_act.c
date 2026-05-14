@@ -142,7 +142,6 @@ __attribute__((section(".sdata.0x00632F40"))) int D_00632F40 = 0x25842020;
 __attribute__((section(".sdata.0x00632F44"))) int D_00632F44 = 0x00000A73;
 __attribute__((section(".sdata.0x00632F48"))) int D_00632F48 = 0x84202020;
 __attribute__((section(".sdata.0x00632F4C"))) int D_00632F4C = 0x000A7325;
-__attribute__((section(".sdata.0x00632F50"))) const char D_00632F50[] = "EPC %p\n";
 __attribute__((section(".sdata.0x00632F58"))) const char D_00632F58[12] = "num %d\n";
 __attribute__((section(".sdata.0x00632F64"))) int D_00632F64 = 0;
 __attribute__((section(".sdata.0x00632F68"))) int D_00632F68 = 0;

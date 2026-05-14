@@ -21,7 +21,6 @@ __attribute__((section(".sdata.0x00632004"))) int D_00632004 = 0;
 __attribute__((section(".sdata.0x006320E8"))) const char D_006320E8[8] = "0";
 __attribute__((section(".sdata.0x006320F0"))) const char D_006320F0[8] = "%p\n";
 __attribute__((section(".sdata.0x006320F8"))) const char D_006320F8[8] = "%d %d\n";
-__attribute__((section(".sdata.0x00632100"))) const char D_00632100[] = "evt:%d\n";
 __attribute__((section(".sdata.0x00632108"))) char D_00632108[8] = { 0 };
 __attribute__((section(".sdata.0x00632110"))) int D_00632110 = 0x00000001;
 __attribute__((section(".sdata.0x00632114"))) int D_00632114 = 0x00000000;

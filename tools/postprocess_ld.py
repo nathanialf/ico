@@ -58,6 +58,26 @@ SDATA_END_ALIGN_KILLER = re.compile(
     re.MULTILINE,
 )
 
+# Bump splat's inter-section `. = ALIGN(., 16);` to 0x100 between the
+# DATA/RODATA/LIT4/SDATA blocks. The original linker pads each of those
+# section boundaries to 0x100, so .data ends at 0x5536B8 then .rodata
+# starts at 0x553700, etc. Without this, the build is short by ~200 bytes.
+INTER_SECTION_ALIGN_BUMPERS = [
+    (re.compile(r"(\s*\.\s*=\s*ALIGN\(\.,\s*)16(\);\s*\n\s*cod_DATA_END\s*=\s*\.\s*;)", re.MULTILINE),  r"\g<1>0x100\g<2>"),
+    (re.compile(r"(\s*\.\s*=\s*ALIGN\(\.,\s*)16(\);\s*\n\s*cod_RODATA_END\s*=\s*\.\s*;)", re.MULTILINE), r"\g<1>0x100\g<2>"),
+    (re.compile(r"(\s*\.\s*=\s*ALIGN\(\.,\s*)16(\);\s*\n\s*cod_LIT4_END\s*=\s*\.\s*;)", re.MULTILINE),   r"\g<1>0x100\g<2>"),
+]
+
+
+def bump_inter_section_aligns(text: str) -> tuple[str, int]:
+    applied = 0
+    for pat, repl in INTER_SECTION_ALIGN_BUMPERS:
+        new_text, n = pat.subn(repl, text, count=1)
+        if n:
+            text = new_text
+            applied += 1
+    return text, applied
+
 # Inject `*(SORT_BY_NAME(.X.0x*))` into each data section so any .o file
 # (asm or src) contributing a per-VMA named section like `.sdata.0x00631BC0`
 # lands at the right VMA. Without this, the per-.o `(.X*)` directives that
@@ -179,9 +199,10 @@ def patch(text: str) -> tuple[str, int, int]:
     text, cleared = clear_stale(text)
     text, applied = apply_section_start_patches(text)
     text, killed = kill_sdata_end_align(text)
+    text, bumped = bump_inter_section_aligns(text)
     text, sorted_n = inject_sort_by_name(text)
     text, stripped = strip_explicit_data_inputs(text)
-    return text, applied + killed + sorted_n + stripped, cleared
+    return text, applied + killed + bumped + sorted_n + stripped, cleared
 
 
 def main() -> int:

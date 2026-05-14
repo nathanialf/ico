@@ -85,7 +85,7 @@ def _load_migrated_symbols() -> set[str]:
         text = c_path.read_text()
         for m in re.finditer(
             r'__attribute__\s*\(\(section\s*\(\s*"\.\w+\.0x([0-9A-Fa-f]+)"\s*\)\s*\)\)\s*'
-            r'(?:[\w\s\*]+?)\s+(D_[0-9A-Fa-f]{8})\b',
+            r'[\w\s\*]+?\b(D_[0-9A-Fa-f]{8})\b',
             text,
         ):
             out.add(m.group(2))

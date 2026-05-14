@@ -301,7 +301,6 @@ __attribute__((section(".sdata.0x00631914"))) int D_00631914 = 0;
 __attribute__((section(".sdata.0x00631918"))) const char D_00631918[8] = "NTSC";
 __attribute__((section(".sdata.0x00631920"))) unsigned int D_00631920 = 0x004C4150;
 __attribute__((section(".sdata.0x00631924"))) int D_00631924 = 0;
-__attribute__((section(".sdata.0x00631928"))) const char D_00631928[] = "boot()\n";
 __attribute__((section(".sdata.0x00631930"))) const char D_00631930[16] = "main\n";
 __attribute__((section(".sdata.0x006321E0"))) char D_006321E0[8] = { 0 };
 __attribute__((section(".sdata.0x006323B0"))) char D_006323B0[12] = { 0 };

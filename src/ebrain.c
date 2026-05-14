@@ -87,4 +87,3 @@ __attribute__((section(".rodata.0x0055ADE0"))) const char D_0055ADE0[40] = "eBra
 __attribute__((section(".rodata.0x005F2FF8"))) const float D_005F2FF8[16] = { 5.356473e+07f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 255.0f, 255.0f, 255.0f, 255.0f, 0.0f, 128.0f, 255.0f };
 
 /* Single-float rodata migrated from ebrain_data.c */
-__attribute__((section(".rodata.0x005F3084"))) const float D_005F3084 = 0.0f;

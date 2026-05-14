@@ -51,8 +51,13 @@ split() {
     echo "==> emitting per-TU data sidecar .c files (gitignored)"
     "${VENV_PY}" tools/migrate_data_per_tu.py >/dev/null \
         || echo "WARN: migrate_data_per_tu.py failed; continuing"
+    echo "==> splitting misaligned array defs in per-TU sidecars"
+    "${VENV_PY}" tools/fix_sidecar_align.py >/dev/null \
+        || echo "WARN: fix_sidecar_align.py failed; continuing"
     echo "==> wrapping data symbols in per-VMA named sections (and stripping migrated)"
     "${VENV_PY}" tools/rewrite_data_named_sections.py
+    echo "==> trimming splat over-emission past section boundaries"
+    "${VENV_PY}" tools/trim_splat_data_pads.py
     echo "==> regenerating docs/candidates.md (matching shortlist)"
     "${VENV_PY}" tools/gen_candidates.py \
         || echo "WARN: gen_candidates.py failed; continuing"

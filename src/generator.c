@@ -36,7 +36,6 @@ __attribute__((section(".sdata.0x00632800"))) const char D_00632800[8] = "%s";
 __attribute__((section(".sdata.0x00632808"))) unsigned int D_00632808 = 0x00000001;
 __attribute__((section(".sdata.0x0063280C"))) int D_0063280C = 0;
 __attribute__((section(".sdata.0x00632810"))) char D_00632810[8] = { 0 };
-__attribute__((section(".sdata.0x00632818"))) const char D_00632818[] = "= %d =\n";
 __attribute__((section(".sdata.0x00632820"))) const char D_00632820[8] = "%s\n";
 __attribute__((section(".sdata.0x00632828"))) float D_00632828[2] = { -7.688999e-06f, 0.0f };
 __attribute__((section(".sdata.0x00632830"))) int D_00632830 = 0;

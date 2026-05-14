@@ -108,7 +108,7 @@ segments:
       - [0x000C48, c,   cod/000C48]            # func_00100C48: func_00100C48: word copy loop n=a2>>2; ret 0
       - [0x000C80, c   ,   cod/000C80]            # syscall wrapper (SYSCALL_WRAPPER macro)
       - [0x000C90, asm, cod/000C90]
-      - [0x0010C8, c,   cod/0010C8]            # func_001010C8: wait for MMIO 0x1000F130 & 0x8000 to clear, then write low byte of a0 to 0x1000F180
+      - [0x0010C8, asm, cod/0010C8]
       - [0x0011B0, c,   cod/0011B0]            # func_001011B0: if a0==0xA: func_001010C8(0xD); func_001010C8(0xA) else: tail call func_001010C8(a0)
       - [0x0011E4, asm, cod/0011E4]
       - [0x0019A8, asm, cod/0019A8]
@@ -155,7 +155,7 @@ segments:
       - [0x004A48, asm, cod/004A48]
       - [0x004EF0, c,   cod/004EF0]            # func_00104EF0: D_00631B40=0; 3-call seq: 243BD8, 0E9F8, tail 10D520
       - [0x004F1C, asm, cod/004F1C]
-      - [0x004F20, c,   cod/004F20]            # func_00104F20: ++counter; tail func_00105F20(&item[i], &item[i-1])
+      - [0x004F20, asm, cod/004F20]
       - [0x004F48, asm, cod/004F48]
 
       - [0x0050B0, c,   cod/0050B0]
@@ -701,7 +701,7 @@ segments:
       - [0x049EF4, asm, cod/049EF4]
       - [0x049EF8, c,   cod/049EF8]            # func_00149EF8: promoted from permuter score-0
       - [0x049F20, asm, cod/049F20]
-      - [0x04A0A8, c,   cod/04A0A8]            # func_0014A0A8: ret a0->_164->_1D0 <= 20.0 ? 1 : 0 (FCC postprocess)
+      - [0x04A0A8, asm,   cod/04A0A8]            # func_0014A0A8: ret a0->_164->_1D0 <= 20.0 ? 1 : 0 (FCC postprocess)
       - [0x04A0D8, c  , cod/04A0D8]            # func_0014A0D8
       - [0x04A100, asm, cod/04A100]
       - [0x04A2B0, c,   cod/04A2B0]            # func_0014A2B0: D_006AA4B0+0x4B4=0, +0x4B0=0
@@ -814,7 +814,7 @@ segments:
       - [0x05EE78, asm, cod/05EE78]
       - [0x05EED0, asm, cod/05EED0]
       - [0x05EF40, c,   cod/05EF40]            # func_0015EF40
-      - [0x05EF50, c,   cod/05EF50]            # func_0015EF50: s=self->p; v=fE29E8(s+0x610); s[0x120]=v; ret v[3]!=0
+      - [0x05EF50, asm, cod/05EF50]
       - [0x05EF88, asm, cod/05EF88]
       - [0x05F208, c,   cod/05F208]            # func_0015F208: lwu via inline asm (ee-gcc 2.9 doesn't emit lwu natively)
       - [0x05F224, asm, cod/05F224]
@@ -874,8 +874,8 @@ segments:
       - [0x0652B8, c,   cod/0652B8]            # func_001652B8
       - [0x0652CC, asm, cod/0652CC]
       - [0x0652D0, c,   cod/0652D0]            # func_001652D0: D_002A4C48[a0->_8 * 0x4C]._48 bit 18
-      - [0x0652F8, c,   cod/0652F8]            # func_001652F8: test bits 18+21 of D_002A4C48[a0[2]*0x4C].p48; return 1 if !bit18 && bit21
-      - [0x065344, c,   cod/065344]            # func_00165348: 3-call wrapper, return first call's value
+      - [0x0652F8, asm, cod/0652F8]
+      - [0x065344, asm, cod/065344]
       - [0x0653A0, c,   cod/0653A0]            # func_001653A0: two-step deref + cond return
       - [0x0653D0, c,   cod/0653D0]            # func_001653D0: return p->1E0 == 1
       - [0x0653E8, c,   cod/0653E8]            # func_001653E8: return p->1E0 == 2
@@ -928,7 +928,7 @@ segments:
       - [0x068C88, c,   cod/068C88]            # func_00168C88: v=D_006AB100[a1&0xF]; v ? (func_00105F00(a0,v); 0) : 1
       - [0x068CC8, asm, cod/068CC8]
       - [0x06A130, c,   cod/06A130]            # func_0016A130: D=1; call(); D=0
-      - [0x06A154, c,   cod/06A154]            # func_0016A158: 3-call wrap with FP buffer setup + fptr
+      - [0x06A154, asm, cod/06A154]
       - [0x06A1B8, c,   cod/06A1B8]            # func_0016A1B8: rebase 2 ptr offsets to abs
       - [0x06A1D4, asm, cod/06A1D4]
       - [0x06A240, c,   cod/06A240]            # func_0016A240: loop 4 iters: log(D,i); i++; f(p); p+=0x10
@@ -1040,7 +1040,7 @@ segments:
       - [0x07D098, c,   cod/07D098]            # func_0017D098: count non-zero of D_006CF910[i*0x14] for i=0..1
       - [0x07D0CC, asm, cod/07D0CC]
       - [0x07D0D0, c,   cod/07D0D0]            # func_0017D0D0: promoted from permuter score-0
-      - [0x07D0F8, c,   cod/07D0F8]            # func_0017D0F8: return (a0 && a0->_2C && a0->_2C->_28) ? 1 : 0
+      - [0x07D0F8, asm, cod/07D0F8]
       - [0x07D1D0, asm, cod/07D1D0]
       - [0x07D230, c,   cod/07D230]            # func_0017D230: func_0017E188(a0); func_0017E188(0); set _16C=1 on result; call func_001F2148(first)
       - [0x07D270, c  , cod/07D270]            # func_0017D270
@@ -1180,7 +1180,7 @@ segments:
       - [0x08CEF0, c,   cod/08CEF0]            # func_0018CEF0: return D_006D06C8 < 2
       - [0x08CF00, c,   cod/08CF00]            # func_0018CF00: func_0018CF00: if (D_00633D90 != 3): copy 3 floats from src to D_006D0680 and D_006D06A0
       - [0x08CF58, c,   cod/08CF58]
-      - [0x08CF60, c,   cod/08CF60]            # func_0018CF60: D_00632730 ? &D_006D0680 : 0
+      - [0x08CF60, asm, cod/08CF60]
       - [0x08CF80, asm, cod/08CF80]
       - [0x08CFD0, c,   cod/08CFD0]            # func_0018CFD0: D_00633D8D = 1, return 1
       - [0x08CFDC, asm, cod/08CFDC]
@@ -1192,7 +1192,7 @@ segments:
       - [0x08DE48, asm, cod/08DE48]
       - [0x090298, c,   cod/090298]            # func_00190298: self->15C->800->60 = 1; jal func_0018D100(self); ret 1
       - [0x0902C8, c, cod/0902C8]            # func_001902C8: 4-insn sb_zero
-      - [0x0902D8, c  , cod/0902D8]            # func_001902D8: load-store of vec; min via bc1tl (uses modern-as for FCC nop)
+      - [0x0902D8, asm  , cod/0902D8]            # func_001902D8: load-store of vec; min via bc1tl (uses modern-as for FCC nop)
       - [0x090318, c,   cod/090318]            # func_00190318: 0x44 = D_00630F84
       - [0x09032C, asm, cod/09032C]
       - [0x090330, c,   cod/090330]            # func_00190330: q->_44 = (float)D_00632D98 * 0.5f * D_00630F88
@@ -1206,7 +1206,7 @@ segments:
       - [0x0903E0, c,   cod/0903E0]            # func_001903E0: q=*self->p; q[A0] ? q[68]<3 : 0
       - [0x090408, c,   cod/090408]            # retry with fno-sched
       - [0x090430, c,   cod/090430]            # func_00190430: sub_15C->800 = a1
-      - [0x090440, c,   cod/090440]            # func_00190440: *a1 = (int)(p->_70 * 180 / D_00630F8C); return p->_6C as byte
+      - [0x090440, asm, cod/090440]
 
       - [0x090620, c,   cod/090620]            # func_00190620
       - [0x090634, asm, cod/090634]
@@ -1321,7 +1321,7 @@ segments:
       - [0x09BB5C, asm, cod/09BB5C]
       - [0x09C010, c,   cod/09C010]            # func_0019C010: D_00633DE0=0x3C; func_001A6E28(&D_0055C720)
       - [0x09C024, asm, cod/09C024]
-      - [0x09C798, c,   cod/09C798]            # func_0019C798: D_006327FC += 0x7D0 (half); D_00633DE4 += 0x1000; if (D_00633DE0 > 0) decrement (clamped >= 0)
+      - [0x09C798, asm, cod/09C798]
       - [0x09CF70, c,   cod/09CF70]            # func_0019CF70: auto-batch
       - [0x09CF78, c,   cod/09CF78]            # func_0019CF78: tail call func_0023DEB0(&D_006DC718)
       - [0x09CF84, asm, cod/09CF84]
@@ -1330,7 +1330,7 @@ segments:
       - [0x09D9D8, c,   cod/09D9D8]            # func_0019D9D8: tail call func_00139598(a0 & 0x0FFFFFFF)
       - [0x09D9E8, asm, cod/09D9E8]
       - [0x09DA98, c,   cod/09DA98]            # func_0019DA98: promote: score-0 (new_var-load-before-store reordering)
-      - [0x09DAC4, c,   cod/09DAC4]            # func_0019DAC8: circular buffer advance (promote permuter score-0)
+      - [0x09DAC4, asm, cod/09DAC4]
       - [0x09DB08, c,   cod/09DB08]            # func_0019DB08: if (a0[3]!=0): *out = a0[0] + ((a0[2]-a0[3]+a0[1]) % a0[1]); return a0[3]
       - [0x09DB4C, asm, cod/09DB4C]
       - [0x09DB50, c,   cod/09DB50]            # func_0019DB50: sat-subtract: a0->C -= min(a0->C, a1)
@@ -1396,7 +1396,7 @@ segments:
       - [0x0A1008, c,   cod/0A1008]            # func_001A1008: init 4 sdata: D_00632888=0; D_00633E30=-1; D_00633E24=0; D_00633E44=0
       - [0x0A1020, c,   cod/0A1020]            # func_001A1020: D_00633E28 = 0
       - [0x0A1028, c,   cod/0A1028]
-      - [0x0A1030, c,   cod/0A1030]            # func_001A1030: D_00632898=0; copy 0x18 bytes from D_004B2FD0 to D_006E4890[i*0x18] for 0x9450 bytes; tail
+      - [0x0A1030, asm, cod/0A1030]
       - [0x0A10B0, c,   cod/0A10B0]            # func_001A10B0: same as 1A1030 but only copy slot when *(int*)(dst+0x14)==1
       - [0x0A1138, asm, cod/0A1138]
       - [0x0A2D58, c,   cod/0A2D58]            # func_001A2D58: D_006E4890[idx*0x18] +0 (la-macro mult lw)
@@ -1492,7 +1492,7 @@ segments:
       - [0x0AE3E4, asm, cod/0AE3E4]
       - [0x0AE3E8, c,   cod/0AE3E8]            # func_001AE3E8: clear bits 0-1 of D_004B3D10[0..0xB5] (stride 0x40, ll)
       - [0x0AE41C, asm, cod/0AE41C]
-      - [0x0AE420, c,   cod/0AE420]            # func_001AE420: func_001AE420: wrap func_001ADED8(a0,a3); store a1 at +0x30, a2 at +0x34; return ptr
+      - [0x0AE420, asm,   cod/0AE420]            # func_001AE420: func_001AE420: wrap func_001ADED8(a0,a3); store a1 at +0x30, a2 at +0x34; return ptr
       - [0x0AE460, asm, cod/0AE460]
       - [0x0AE808, c,   cod/0AE808]            # func_001AE808: D_004B3D50[1]==0 ? 4 : D_004B3D50[2] (u16)
       - [0x0AE82C, asm, cod/0AE82C]
@@ -1504,7 +1504,7 @@ segments:
       - [0x0AE8F0, c  , cod/0AE8F0]            # func_001AE8F0: permuter score-0 (parked seed)
       - [0x0AE948, c,   cod/0AE948]            # func_001AE948: callback dispatch loop on self[fn], terminator 0
       - [0x0AE9A8, c,   cod/0AE9A8]            # func_001AE9A8: f1(self, buf, 0x12); D = (f2(D2, buf) != 0) ? 1 : 0
-      - [0x0AE9EC, c,   cod/0AE9EC]            # func_001AE9F0: cond branch; if D!=0 use stack buf, else use literal
+      - [0x0AE9EC, asm, cod/0AE9EC]
       - [0x0AEA50, c,   cod/0AEA50]            # func_001AEA50: tail call func_00102858 passthrough
       - [0x0AEA58, c,   cod/0AEA58]            # func_001AEA58: tail call func_0010ECB8 passthrough
       - [0x0AEA60, c,   cod/0AEA60]            # func_001AEA60: auto-batch
@@ -1513,7 +1513,7 @@ segments:
       - [0x0AFB98, asm, cod/0AFB98]
       - [0x0B0518, c,   cod/0B0518]            # func_001B0518: promote-test: subagent seed (unscored, may match)
       - [0x0B0538, c,   cod/0B0538]            # func_001B0538: zero 30 entries (stride 0x20) at D_00706110[0..0x3A0]; clear D_00633E6C/E70
-      - [0x0B0570, c,   cod/0B0570]            # func_001B0570: walk 30 entries stride 0x20 at D_00706110; if [0]!=0: [3]|=1
+      - [0x0B0570, asm, cod/0B0570]
       - [0x0B0A38, c,   cod/0B0A38]            # func_001B0A38: init 5 globals to 0
       - [0x0B0A54, asm, cod/0B0A54]
       - [0x0B0A58, c,   cod/0B0A58]            # func_001B0A58: D_00633024 = 1, return 1
@@ -1557,7 +1557,7 @@ segments:
       - [0x0B7100, asm, cod/0B7100]
       - [0x0B718C, asm, cod/0B718C]
       - [0x0B7190, asm, cod/0B7190]
-      - [0x0B7218, c,   cod/0B7218]            # func_001B7218: D_002E81F0[idx*108]._68 bit-1 set/clear
+      - [0x0B7218, asm,   cod/0B7218]            # func_001B7218: D_002E81F0[idx*108]._68 bit-1 set/clear
       - [0x0B7250, c,   cod/0B7250]            # func_001B7250: D_002E81F0[idx*108]._68 bit-0 set/clear
       - [0x0B7280, c,   cod/0B7280]            # func_001B7280: return D_00633158
       - [0x0B7288, c,   cod/0B7288]            # func_001B7288: D_00633164 = val
@@ -1708,7 +1708,7 @@ segments:
       - [0x0CD4D4, asm, cod/0CD4D4]
       - [0x0CE690, asm, cod/0CE690]
       - [0x0CE6EC, asm, cod/0CE6EC]
-      - [0x0CE6F0, c,   cod/0CE6F0]            # func_001CE6F0: volatile-self 4 zero stores then tail call to 1E3FC8
+      - [0x0CE6F0, asm, cod/0CE6F0]
       - [0x0CE718, asm, cod/0CE718]
       - [0x0CE75C, asm, cod/0CE75C]
       - [0x0CE760, c,   cod/0CE760]
@@ -1771,7 +1771,7 @@ segments:
       - [0x0D3D98, c,   cod/0D3D98]            # func_001D3D98: return p->48 == 2
       - [0x0D3DB0, c,   cod/0D3DB0]            # func_001D3DB0: promote: score-0 from permuter (parked tough_nut)
       - [0x0D3DD8, asm, cod/0D3DD8]
-      - [0x0D40A0, c,   cod/0D40A0]            # func_001D40A0: return (sub->_800[0]==1 || a0->_16C==0) ? 1 : 0
+      - [0x0D40A0, asm,   cod/0D40A0]            # func_001D40A0: return (sub->_800[0]==1 || a0->_16C==0) ? 1 : 0
       - [0x0D40D4, asm, cod/0D40D4]
       - [0x0D4348, c,   cod/0D4348]            # func_001D4348: tail call func_00111918(0, D_00633428)
       - [0x0D4354, asm, cod/0D4354]
@@ -1780,7 +1780,7 @@ segments:
       - [0x0D4DA8, c,   cod/0D4DA8]            # func_001D4DA8: promote-test: subagent seed (unscored, may match)
       - [0x0D4DCC, asm, cod/0D4DCC]
       - [0x0D4DD0, c,   cod/0D4DD0]            # func_001D4DD0: a0 ? D_00633F1C : D_00633F18
-      - [0x0D4DE8, c,   cod/0D4DE8]            # func_001D4DE8: loop body
+      - [0x0D4DE8, asm, cod/0D4DE8]
       - [0x0D4E30, asm, cod/0D4E30]
       - [0x0D4E6C, asm, cod/0D4E6C]
       - [0x0D4E70, c,   cod/0D4E70]            # func_001D4E70: return p<self[2]?0:-1 (p=self+0x10)
@@ -1825,7 +1825,7 @@ segments:
       - [0x0E8DE0, c,   cod/0E8DE0]            # func_001E8DE0: bgez early-return -1; idx*0xA0 lookup, ==1 test
       - [0x0E8E10, asm, cod/0E8E10]
       - [0x0E8E80, c,   cod/0E8E80]            # func_001E8E80: promote: score-0 (CSE-defeat via re-deref)
-      - [0x0E8EA8, c,   cod/0E8EA8]            # func_001E8EA8: tail call func_001E8AB8 (triple-deref TCO)
+      - [0x0E8EA8, asm,   cod/0E8EA8]            # func_001E8EA8: tail call func_001E8AB8 (triple-deref TCO)
       - [0x0E8EB8, c,   particleLayout]       # TU promotion: src/particleLayout.c covers 0x1E8EB8..0x1E8F24 (single func, 0x6C); 4-byte align pad to next TU is linker --gap-fill
       - [0x0E8F28, c,   cod/0E8F28]
       - [0x0E8F30, c,   cod/0E8F30]
@@ -1834,7 +1834,7 @@ segments:
       - [0x0E93E8, asm, cod/0E93E8]
       - [0x0E97F8, c, cod/0E97F8]            # func_001E97F8: 4-insn lw
       - [0x0E9808, c,   cod/0E9808]
-      - [0x0E9810, c,   cod/0E9810]            # func_001E9810: 3-call with FP gate (result > 0) store
+      - [0x0E9810, asm,   cod/0E9810]            # func_001E9810: 3-call with FP gate (result > 0) store
       - [0x0E9888, c,   cod/0E9888]            # func_001E9888: cond tail-call func_00190430(v0, a0)
       - [0x0E98C8, c,   cod/0E98C8]            # func_001E98C8: deref+gate, call+tail-call
       - [0x0E990C, asm, cod/0E990C]
@@ -1918,7 +1918,7 @@ segments:
       - [0x0F22E0, c,   cod/0F22E0]            # func_001F22E0: sibling of func_001C3720 with priority 0x15
       - [0x0F231C, asm, cod/0F231C]
       - [0x0F2320, c,   cod/0F2320]            # func_001F2320: volatile-spill: s=self->20; v=f(s+0x10,s+0x20,s+0xA0,1); s->4=v; s->0=1; s->B0=0
-      - [0x0F236C, c,   cod/0F236C]            # func_001F2370: infinite yield loop; func_001F2388: tail-call wrapper
+      - [0x0F236C, asm, cod/0F236C]
       - [0x0F2390, c,   cod/0F2390]            # func_001F2390: sibling: func_001D12D8(a0); tail call func_001D12A8(a0, 0x41)
       - [0x0F23BC, asm, cod/0F23BC]
       - [0x0F23C0, c,   cod/0F23C0]            # func_001F23C0: auto
@@ -1965,7 +1965,7 @@ segments:
       - [0x0F6C88, c,   cod/0F6C88]            # func_001F6C88: tail call func_00118678(0x70000000) + sdata-set
       - [0x0F6C98, c,   cod/0F6C98]            # func_001F6C98: auto
       - [0x0F6CA0, c,   cod/0F6CA0]            # func_001F6CA0: D_00633780 = val
-      - [0x0F6CA8, c,   cod/0F6CA8]            # func_001F6CA8: return D_00633780
+      - [0x0F6CA8, asm,   cod/0F6CA8]            # func_001F6CA8: return D_00633780
       - [0x0F6CB0, c,   Basic]                 # TU promotion: src/Basic.c covers 0x1F6CB0..0x1F6E28 (5 matched funcs); 4-byte nop pad at 0x1F6E24 supplied by linker --gap-fill
       - [0x0F6E28, asm, cod/0F6E28]
       - [0x0FA590, c,   cod/0FA590]            # func_001FA590: D_00633F64 = 0
@@ -1983,14 +1983,14 @@ segments:
       - [0x0FB480, c,   cod/0FB480]            # func_001FB480: 0x3200 / D / 2 (signed)
       - [0x0FB4A8, c,   cod/0FB4A8]            # func_001FB4A8: init 5 sdata: 0; 0x80 x4
       - [0x0FB4C4, asm, cod/0FB4C4]
-      - [0x0FB880, c,   cod/0FB880]            # func_001FB880: tail func_001A6E28(&D_0061ABF0, (entry.end-entry.start)/16 - 1)
+      - [0x0FB880, asm, cod/0FB880]
       - [0x0FBA80, c,   cod/0FBA80]            # func_001FBA80: clamp [0, 0xC] store
       - [0x0FBAA8, asm, cod/0FBAA8]
       - [0x0FBB40, c,   cod/0FBB40]            # func_001FBB40: return D_00633F70
       - [0x0FBB48, asm, cod/0FBB48]
       - [0x0FBBE0, asm, cod/0FBBE0]
       - [0x0FBC14, asm, cod/0FBC14]
-      - [0x0FBC18, c,   cod/0FBC18]            # func_001FBC18: table delta>>4
+      - [0x0FBC18, asm, cod/0FBC18]
       - [0x0FC040, c,   cod/0FC040]            # func_001FC040: auto
       - [0x0FC048, asm, cod/0FC048]
       - [0x0FC168, c,   cod/0FC168]            # func_001FC168: promote: score-0 from permuter (parked tough_nut)
@@ -2008,7 +2008,7 @@ segments:
       - [0x103910, c,   cod/103910]
       - [0x103918, asm, cod/103918]
       - [0x103A10, asm, cod/103A10]
-      - [0x103A58, c,   cod/103A58]            # func_00203A58: if(n==0) loop forever; else countdown call func_0013D3F0()
+      - [0x103A58, asm,   cod/103A58]            # func_00203A58: if(n==0) loop forever; else countdown call func_0013D3F0()
       - [0x103AA0, asm, cod/103AA0]
       - [0x103B40, c,   cod/103B40]            # func_00203B40: gp_rel D + 4-arg call + post-store
       - [0x103B74, asm, cod/103B74]
@@ -2162,7 +2162,7 @@ segments:
       - [0x127500, asm, cod/127500]
       - [0x129CA0, c,   cod/129CA0]            # func_00229CA0: store-arg-discard
       - [0x129CB0, c,   cod/129CB0]            # func_00229CB0: init+wait pattern: f1(0x142,1,0); while(!f2(0x142)) yield(1); cleanup sequence
-      - [0x129D2C, c,   cod/129D2C]            # func_00229D30: 5-call init sequence with D_00631AE4 reload pattern
+      - [0x129D2C, asm, cod/129D2C]
       - [0x129D88, c,   cod/129D88]            # func_00229D88: stack-buf wrapper: copy 16 bytes from D_0061BF80 to buf; f1(D2,0,buf,0,100.0); f2(0)
       - [0x129DDC, asm, cod/129DDC]
       - [0x129DE0, c,   cod/129DE0]            # func_00229DE0: sibling: D_0061BF90 instead of D_0061BF80
@@ -2485,7 +2485,7 @@ segments:
       - [0x14BD8C, asm, cod/14BD8C]
       - [0x14BD90, c  , cod/14BD90]
       - [0x14BDCC, asm, cod/14BDCC]
-      - [0x14C038, c,   cod/14C038]            # func_0024C038: score-0 promotion
+      - [0x14C038, asm, cod/14C038]
       - [0x14C08C, asm, cod/14C08C]
       - [0x14C4F0, c,   cod/14C4F0]            # func_0024C4F0: if D_00717904 fnptr set and D_00550924 == 0, indirect-call D_00717904(D_00717908)
       - [0x14C52C, asm, cod/14C52C]
@@ -2567,7 +2567,7 @@ segments:
       - [0x152484, asm, cod/152484]
       - [0x152550, c,   cod/152550]            # func_00252550: tail call func_002642D8(&D_0062ED08, a0)
       - [0x152560, c,   cod/152560]            # func_00252560: buf[64] init via 3-arg call + buf-only call
-      - [0x15258C, c,   cod/15258C]            # func_00252590: 3-deep null-check chain; on success func_00251CF8, else fallback func_00252550
+      - [0x15258C, asm, cod/15258C]
       - [0x1525E8, asm, cod/1525E8]
       - [0x1526C0, c,   cod/1526C0]            # func_002526C0: a0->[1..4]=a1,a2,a1>>4,a2>>4; ret 1
       - [0x1526E0, asm, cod/1526E0]
@@ -2591,7 +2591,7 @@ segments:
       - [0x155F80, asm, cod/155F80]
       - [0x156BF8, c,   cod/156BF8]            # func_00256BF8: while (func_002564E0(1)) func_002563C8(8)
       - [0x156C2C, asm, cod/156C2C]
-      - [0x157850, c,   cod/157850]            # func_00257850: if (D_005524A4->_40->_8 != 2): _8=2; _AC=D_005525C4; D_00552D40=1; return 1
+      - [0x157850, asm, cod/157850]
       - [0x158450, c,   cod/158450]            # func_00258450: shift extract: (int)(*p >> (64-n))
       - [0x15846C, asm, cod/15846C]
       - [0x158508, c,   cod/158508]            # func_00258508: ret=f1(self,a1); f2(self,a1); return ret

@@ -23,7 +23,6 @@ __attribute__((section(".sdata.0x006335D0"))) int D_006335D0 = 0x000A7325;
 __attribute__((section(".sdata.0x006335D4"))) int D_006335D4 = 0x00000000;
 __attribute__((section(".sdata.0x006335D8"))) int D_006335D8 = 0;
 __attribute__((section(".sdata.0x006335DC"))) int D_006335DC = 0;
-__attribute__((section(".sdata.0x006335E0"))) const char D_006335E0[] = "SET %d\n";
 __attribute__((section(".sdata.0x006335E8"))) const char D_006335E8[8] = "YES";
 __attribute__((section(".sdata.0x006335F0"))) unsigned int D_006335F0 = 0x00004F4E;
 __attribute__((section(".sdata.0x006335F4"))) int D_006335F4 = 0;
