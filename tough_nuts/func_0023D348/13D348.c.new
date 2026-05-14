@@ -5,12 +5,13 @@ extern float D_006318A8;
 
 int func_0023D348(int *self)
 {
-    float *p = (float *)self[13];
+    register int rv REG("$2") = 1;
+    register float *p REG("$3") = (float *)self[13];
     register float lo REG("$f2") = D_006318A4;
     register float hi REG("$f0") = D_006318A8;
     register float half REG("$f1") = 0.5f;
     p[2] = hi;
     p[0] = lo;
     *(float *)((char *)self + 0x1C) = half;
-    return 1;
+    return rv;
 }
