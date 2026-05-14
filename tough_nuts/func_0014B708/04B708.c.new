@@ -1,0 +1,17 @@
+#include "regpin.h"
+
+extern void func_002641D8(int *buf, int a, int len);
+extern void func_002438B8(int *self, int x, int *buf);
+
+void func_0014B708(int *self, int *other)
+{
+    register int *s_self REG("$16") = self;
+    register int *s_other REG("$17") = other;
+    int buf[4];
+    func_002641D8(buf, 0, 0x10);
+    *(float *)(buf + 2) = 1.0f;
+    {
+        int *sub = (int *)s_other[0x57];
+        func_002438B8(s_self, sub[3], buf);
+    }
+}
