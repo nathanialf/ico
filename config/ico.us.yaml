@@ -866,7 +866,7 @@ segments:
       - [0x065174, asm, cod/065174]
       - [0x065178, c,   cod/065178]            # func_00165178: copy D_00558FA0[16] to stack + 3-call (104360, 1CEC88, 1651C8)
       - [0x0651C8, c,   cod/0651C8]            # func_001651C8: clear bit 21 of D_002A4C48[a0[2]*0x4C + 0x48]
-      - [0x0651F8, asm, cod/0651F8]
+      - [0x0651F8, c,   cod/0651F8]            # func_001651F8: promote permuter score-0
       - [0x065270, c,   cod/065270]            # func_00165270: SET bit 18 of D_002A4C48[a0[2]*0x4C + 0x48] — sibling of func_001651C8
       - [0x06529C, asm, cod/06529C]
       - [0x0652A0, c,   cod/0652A0]            # func_001652A0: sub_164->430 == 2
