@@ -83,3 +83,13 @@ __attribute__((section(".rodata.0x00554D30"))) const float D_00554D30[4] = { 1e+
 __attribute__((section(".rodata.0x00554D40"))) const float D_00554D40[4] = { -1e+01f, 0.0f, -25.0f, 1.0f };
 __attribute__((section(".rodata.0x00554ED0"))) const float D_00554ED0[4] = { 3e+02f, 3e+02f, 3e+02f, 0.0f };
 __attribute__((section(".rodata.0x005D19E8"))) const float D_005D19E8[12] = { 0.0f, 0.0f, 0.0f, 0.0f, 255.0f, 2e+02f, 1.8e+02f, 1.5e+03f, 128.0f, 1e+02f, 9e+01f, 7.5e+02f };
+
+/* EUC-JP debug strings — re-derived from EE rodata bytes via
+ * EUC-JP decoding. Octal escapes preserve byte-identical layout
+ * without requiring source-encoding compiler flags. */
+/* EUC-JP: "Light:NULLになってんで
+" */
+__attribute__((section(".rodata.0x00554C90"))) const char D_00554C90[24] = "Light:NULL\244\313\244\312\244\303\244\306\244\363\244\307\n";
+/* EUC-JP: "AmbientVolume:NULLになってんで
+" */
+__attribute__((section(".rodata.0x00554CB8"))) const char D_00554CB8[32] = "AmbientVolume:NULL\244\313\244\312\244\303\244\306\244\363\244\307\n";

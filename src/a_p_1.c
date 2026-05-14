@@ -39,3 +39,16 @@ __attribute__((section(".rodata.0x00618560"))) const char D_00618560[32] = "--- 
 
 /* Float rodata migrated from a_p_1_data.c */
 __attribute__((section(".rodata.0x00618580"))) const float D_00618580[4] = { 5e+01f, 0.0f, 0.0f, 1.0f };
+
+/* EUC-JP debug strings — re-derived from EE rodata bytes via
+ * EUC-JP decoding. Octal escapes preserve byte-identical layout
+ * without requiring source-encoding compiler flags. */
+/* EUC-JP: "蜘蛛の抜けによる落下死リクエスト
+" */
+__attribute__((section(".rodata.0x00618590"))) const char D_00618590[40] = "\303\330\351\341\244\316\310\264\244\261\244\313\244\350\244\353\315\356\262\274\273\340\245\352\245\257\245\250\245\271\245\310\n";
+/* EUC-JP: "既に死んでいるので起こしません
+" */
+__attribute__((section(".rodata.0x006185B8"))) const char D_006185B8[32] = "\264\373\244\313\273\340\244\363\244\307\244\244\244\353\244\316\244\307\265\257\244\263\244\267\244\336\244\273\244\363\n";
+/* EUC-JP: "強制死亡
+" */
+__attribute__((section(".rodata.0x006185D8"))) const char D_006185D8[16] = "\266\257\300\251\273\340\313\264\n";

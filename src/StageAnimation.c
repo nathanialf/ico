@@ -51,3 +51,22 @@ __attribute__((section(".rodata.0x00555B70"))) const float D_00555B70[16] = { 0.
 /* String-pool rodata migrated from StageAnimation_data.c */
 __attribute__((section(".rodata.0x006123D8"))) const char D_006123D8[96] = "object/sdf/demo/conte09a/d9b.smb\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000object/sdf/demo/conte12/d12.smb\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000";
 __attribute__((section(".rodata.0x00612438"))) const char D_00612438[96] = "object/sdf/demo/conte12x/d12x.smb\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000object/sdf/demo/conte12x/d12y.smb\000\000\000\000\000\000\000\000\000\000\000\000\000\000";
+
+/* EUC-JP debug strings — re-derived from EE rodata bytes via
+ * EUC-JP decoding. Octal escapes preserve byte-identical layout
+ * without requiring source-encoding compiler flags. */
+/* EUC-JP: "stgBgas が%d有り MAX_ANIM_KIND %dを越えました
+" */
+__attribute__((section(".rodata.0x00555C68"))) const char D_00555C68[48] = "stgBgas \244\254%d\315\255\244\352 MAX_ANIM_KIND %d\244\362\261\333\244\250\244\336\244\267\244\277\n";
+/* EUC-JP: "1ステージ中の BgAnimation の種類が多すぎます
+" */
+__attribute__((section(".rodata.0x00555C98"))) const char D_00555C98[48] = "1\245\271\245\306\241\274\245\270\303\346\244\316 BgAnimation \244\316\274\357\316\340\244\254\302\277\244\271\244\256\244\336\244\271\n";
+/* EUC-JP: "stgBgas が%d有り MAX_ANIM_GOBJ %dを越えました
+" */
+__attribute__((section(".rodata.0x00555CC8"))) const char D_00555CC8[48] = "stgBgas \244\254%d\315\255\244\352 MAX_ANIM_GOBJ %d\244\362\261\333\244\250\244\336\244\267\244\277\n";
+/* EUC-JP: "指定したIDが存在しないか、アニメーションが読み込まれていません.
+" */
+__attribute__((section(".rodata.0x00555DE0"))) const char D_00555DE0[72] = "\273\330\304\352\244\267\244\277ID\244\254\302\270\272\337\244\267\244\312\244\244\244\253\241\242\245\242\245\313\245\341\241\274\245\267\245\347\245\363\244\254\306\311\244\337\271\376\244\336\244\354\244\306\244\244\244\336\244\273\244\363.\n";
+/* EUC-JP: "ステージセグメントにメモリが確保できません.(ヒープメモリ不足)
+" */
+__attribute__((section(".rodata.0x00555E28"))) const char D_00555E28[72] = "\245\271\245\306\241\274\245\270\245\273\245\260\245\341\245\363\245\310\244\313\245\341\245\342\245\352\244\254\263\316\312\335\244\307\244\255\244\336\244\273\244\363.(\245\322\241\274\245\327\245\341\245\342\245\352\311\324\302\255)\n";

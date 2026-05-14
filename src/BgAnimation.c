@@ -56,3 +56,17 @@ __attribute__((section(".rodata.0x0061A978"))) const char D_0061A978[32] = "OBJE
 __attribute__((section(".rodata.0x0061A9F8"))) const char D_0061A9F8[40] = "Illegal Envelope Type : %p(%d)\n";
 __attribute__((section(".rodata.0x0061AAF0"))) const char D_0061AAF0[32] = "illegal lightning data set.\n";
 __attribute__((section(".rodata.0x0061AB10"))) const char D_0061AB10[64] = "Lightning data does not found! maybe, start point < end point.\n";
+
+/* EUC-JP debug strings — re-derived from EE rodata bytes via
+ * EUC-JP decoding. Octal escapes preserve byte-identical layout
+ * without requiring source-encoding compiler flags. */
+/* EUC-JP: "モデルデータファイル[%s]がありません.
+
+" */
+__attribute__((section(".rodata.0x0061A998"))) const char D_0061A998[40] = "\245\342\245\307\245\353\245\307\241\274\245\277\245\325\245\241\245\244\245\353[%s]\244\254\244\242\244\352\244\336\244\273\244\363.\n\n";
+/* EUC-JP: "不明なパーティクル
+" */
+__attribute__((section(".rodata.0x0061AA48"))) const char D_0061AA48[24] = "\311\324\314\300\244\312\245\321\241\274\245\306\245\243\245\257\245\353\n";
+/* EUC-JP: "PBGAタイプのアニメーションではループのパーティクルは使用できません.
+" */
+__attribute__((section(".rodata.0x0061AA60"))) const char D_0061AA60[80] = "PBGA\245\277\245\244\245\327\244\316\245\242\245\313\245\341\241\274\245\267\245\347\245\363\244\307\244\317\245\353\241\274\245\327\244\316\245\321\241\274\245\306\245\243\245\257\245\353\244\317\273\310\315\321\244\307\244\255\244\336\244\273\244\363.\n";

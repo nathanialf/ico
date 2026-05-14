@@ -94,3 +94,13 @@ __attribute__((section(".rodata.0x0055AD38"))) const char D_0055AD38[24] = "%f/%
 __attribute__((section(".rodata.0x0055AB20"))) const float D_0055AB20[2] = { 4.172325e-08f, 1.65f };
 __attribute__((section(".rodata.0x0055ACA0"))) const float D_0055ACA0[4] = { 0.0f, 0.0f, -25.0f, 1.0f };
 __attribute__((section(".rodata.0x0055ACB0"))) const float D_0055ACB0[4] = { 0.0f, 0.0f, 25.0f, 1.0f };
+
+/* EUC-JP debug strings — re-derived from EE rodata bytes via
+ * EUC-JP decoding. Octal escapes preserve byte-identical layout
+ * without requiring source-encoding compiler flags. */
+/* EUC-JP: "鎖の長さが短かすぎます(配置表のY-scaleで指定します)" */
+__attribute__((section(".rodata.0x0055AC60"))) const char D_0055AC60[64] = "\272\277\244\316\304\271\244\265\244\254\303\273\244\253\244\271\244\256\244\336\244\271(\307\333\303\326\311\275\244\316Y-scale\244\307\273\330\304\352\244\267\244\336\244\271)";
+/* EUC-JP: "[33m鎖の上の壁を見付けることができません。
+方向が間違っているか、壁が無いところに置いていませんか?[m
+" */
+__attribute__((section(".rodata.0x0055ACC0"))) const char D_0055ACC0[104] = "\033[33m\272\277\244\316\276\345\244\316\312\311\244\362\270\253\311\325\244\261\244\353\244\263\244\310\244\254\244\307\244\255\244\336\244\273\244\363\241\243\n\312\375\270\376\244\254\264\326\260\343\244\303\244\306\244\244\244\353\244\253\241\242\312\311\244\254\314\265\244\244\244\310\244\263\244\355\244\313\303\326\244\244\244\306\244\244\244\336\244\273\244\363\244\253?\033[m\n";

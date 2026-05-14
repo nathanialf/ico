@@ -412,3 +412,13 @@ __attribute__((section(".rodata.0x0061B700"))) const char D_0061B700[16] = "equn
 __attribute__((section(".rodata.0x0061B710"))) const char D_0061B710[24] = "equn\t%s_%d_start\n";
 __attribute__((section(".rodata.0x0061B728"))) const char D_0061B728[24] = "\t\t\t%d\t%d\t%d\t\t%d\t%d\n";
 __attribute__((section(".rodata.0x0061B740"))) const char D_0061B740[16] = "equn\t%s_%d_end\n";
+
+/* EUC-JP debug strings — re-derived from EE rodata bytes via
+ * EUC-JP decoding. Octal escapes preserve byte-identical layout
+ * without requiring source-encoding compiler flags. */
+/* EUC-JP: "自分のWAYが見付からなかった" */
+__attribute__((section(".rodata.0x0061B068"))) const char D_0061B068[32] = "\274\253\312\254\244\316WAY\244\254\270\253\311\325\244\253\244\351\244\312\244\253\244\303\244\277";
+/* EUC-JP: "見付からないので全WAYPOOINTから アクティブグループで巣許可の一番近いポイントを検索" */
+__attribute__((section(".rodata.0x0061B0F0"))) const char D_0061B0F0[88] = "\270\253\311\325\244\253\244\351\244\312\244\244\244\316\244\307\301\264WAYPOOINT\244\253\244\351 \245\242\245\257\245\306\245\243\245\326\245\260\245\353\241\274\245\327\244\307\301\343\265\366\262\304\244\316\260\354\310\326\266\341\244\244\245\335\245\244\245\363\245\310\244\362\270\241\272\367";
+/* EUC-JP: "アクティブグループの巣許可のポイントがみつかりません" */
+__attribute__((section(".rodata.0x0061B148"))) const char D_0061B148[56] = "\245\242\245\257\245\306\245\243\245\326\245\260\245\353\241\274\245\327\244\316\301\343\265\366\262\304\244\316\245\335\245\244\245\363\245\310\244\254\244\337\244\304\244\253\244\352\244\336\244\273\244\363";

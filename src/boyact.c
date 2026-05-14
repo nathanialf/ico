@@ -207,3 +207,10 @@ __attribute__((section(".rodata.0x005B0154"))) const float D_005B0154 = 0.0f;
 /* String-pool rodata migrated from boyact_data.c */
 __attribute__((section(".rodata.0x00558758"))) const char D_00558758[48] = "hand connect start\n\000\000\000\000\000WBP set [landing]\n\000\000\000\000\000";
 __attribute__((section(".rodata.0x00558818"))) const char D_00558818[48] = "damage!!!!!!!!!!!  %d\n\000\000WBP set [with mail]\n\000\000\000";
+
+/* EUC-JP debug strings — re-derived from EE rodata bytes via
+ * EUC-JP decoding. Octal escapes preserve byte-identical layout
+ * without requiring source-encoding compiler flags. */
+/* EUC-JP: "！！！ソファの壁を見付けることができません！！！
+" */
+__attribute__((section(".rodata.0x00558720"))) const char D_00558720[56] = "\241\252\241\252\241\252\245\275\245\325\245\241\244\316\312\311\244\362\270\253\311\325\244\261\244\353\244\263\244\310\244\254\244\307\244\255\244\336\244\273\244\363\241\252\241\252\241\252\n";

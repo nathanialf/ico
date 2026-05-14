@@ -241,3 +241,10 @@ __attribute__((section(".rodata.0x006184E8"))) const char D_006184E8[24] = "{R}<
 __attribute__((section(".rodata.0x00618500"))) const char D_00618500[16] = "{R}Fumito Ueda ";
 __attribute__((section(".rodata.0x00618510"))) const char D_00618510[24] = "{R}< Game Design > ";
 __attribute__((section(".rodata.0x00618528"))) const char D_00618528[40] = "{#FFFFFF80}{R} ICO Staff  ";
+
+/* EUC-JP debug strings — re-derived from EE rodata bytes via
+ * EUC-JP decoding. Octal escapes preserve byte-identical layout
+ * without requiring source-encoding compiler flags. */
+/* EUC-JP: "staff roll 領域不足
+" */
+__attribute__((section(".rodata.0x00617360"))) const char D_00617360[24] = "staff roll \316\316\260\350\311\324\302\255\n";

@@ -57,3 +57,10 @@ __attribute__((section(".rodata.0x00555728"))) const char D_00555728[40] = "no l
 __attribute__((section(".rodata.0x00555920"))) const char D_00555920[24] = "shadow_Render called\n";
 __attribute__((section(".rodata.0x00555B40"))) const char D_00555B40[24] = "Shadow %s => %s\n";
 __attribute__((section(".rodata.0x00555B58"))) const char D_00555B58[24] = "Shadow %s => %d\n";
+
+/* EUC-JP debug strings — re-derived from EE rodata bytes via
+ * EUC-JP decoding. Octal escapes preserve byte-identical layout
+ * without requiring source-encoding compiler flags. */
+/* EUC-JP: "光源オフでリフレクションを表示.
+" */
+__attribute__((section(".rodata.0x00555800"))) const char D_00555800[48] = "\270\367\270\273\245\252\245\325\244\307\245\352\245\325\245\354\245\257\245\267\245\347\245\363\244\362\311\275\274\250.\n";

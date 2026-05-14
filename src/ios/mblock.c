@@ -64,3 +64,10 @@ __attribute__((section(".rodata.0x00556E28"))) const char D_00556E28[24] = "writ
 __attribute__((section(".rodata.0x00556E40"))) const char D_00556E40[16] = "call read_func\n";
 __attribute__((section(".rodata.0x00556E50"))) const char D_00556E50[32] = "sceMcSeek: request busy\n";
 __attribute__((section(".rodata.0x00556E70"))) const char D_00556E70[16] = "done 0 %p\n";
+
+/* EUC-JP debug strings — re-derived from EE rodata bytes via
+ * EUC-JP decoding. Octal escapes preserve byte-identical layout
+ * without requiring source-encoding compiler flags. */
+/* EUC-JP: "iosMcHandlerRead: メモリカードからデータ読めなかった(リクエストの方がサイズ大きい) %d %d
+" */
+__attribute__((section(".rodata.0x00556DB0"))) const char D_00556DB0[96] = "iosMcHandlerRead: \245\341\245\342\245\352\245\253\241\274\245\311\244\253\244\351\245\307\241\274\245\277\306\311\244\341\244\312\244\253\244\303\244\277(\245\352\245\257\245\250\245\271\245\310\244\316\312\375\244\254\245\265\245\244\245\272\302\347\244\255\244\244) %d %d\n";

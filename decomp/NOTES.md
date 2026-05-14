@@ -648,6 +648,53 @@ State as of session 2026-05-11:
   with new typed definitions added to the same `src/<TU>.c` that
   already holds the TU's typed sdata/lit4 entries (parappa2 layout).
 
+## EUC-JP debug strings in `.rodata` (Japan-Studio convention)
+
+ICO is a Japan Studio title; its rodata contains a substantial body of
+**EUC-JP-encoded** Japanese debug strings interleaved with the English
+ones. Scanning `baserom/baseelf.elf` shows 196 multi-character EUC-JP
+runs spread across 41 TUs (133 distinct symbols). They're standard
+developer asserts and printf-style logs:
+
+* `0x005539E0` `"メーンスレッドの起動失敗しました\n"`  (main thread startup failed)
+* `0x00553CB8` `"…が壁の中に突入させようとしたのでクリップしました\n"`  (clipped a push-into-wall)
+* `0x00555800` `"光源オフでリフレクションを表示.\n"`  (showing reflection with lights off)
+* `0x0055A398` `"warpGirl.c:もしDEBUG STAGE SELECTでなくてここを通ったら おかしい！"`
+* … plus 129 more across `BgAnimation`, `DObj`, `Texture`, `motionManager`,
+  `way_util`, `chain`, etc.
+
+**Why EUC-JP, not Shift-JIS:** the bytes only decode under EUC-JP. ee-gcc
+2.9 on the original Sony Pro-DG / Solaris+Linux build hosts used EUC-JP
+as the default source encoding, which matches what's in the binary.
+
+**Storage convention:** typed in the tracked main TU file (e.g.
+`src/charFileManager.c`) as
+
+```c
+/* EUC-JP: "メーンスレッドの起動失敗しました\n" */
+__attribute__((section(".rodata.0x005539E0"))) const char D_005539E0[40] =
+    "\245\341\241\274\245\363\245\271\245\354\245\303\245\311\244\316"
+    "\265\257\306\260\274\272\307\324\244\267\244\336\244\267\244\277\n";
+```
+
+* **Octal escapes (`\NNN`)** keep the source file pure ASCII — no
+  Japanese characters in the .c content itself, no compiler
+  `-finput-charset` flag needed, no editor-mojibake risk.
+* The decoded EUC-JP sits in a leading comment as a translator's aid;
+  the source-of-truth is the bytes, which `quick_data_diff` verifies
+  byte-identical to the ROM.
+* This follows the same "typed reconstruction" convention as the
+  English ASCII strings in the same files — same shape, just non-ASCII
+  bytes expressed via standard C escapes.
+
+**Mechanical promotion:** `tools/promote_jp_rodata.py` scans every
+`src/*_data.c` sidecar, detects words whose little-endian bytes decode
+as EUC-JP with ≥1 Japanese codepoint, generates the octal-escaped
+`const char` form, and appends a block to the tracked main TU file.
+The sidecar's duplicate definition is dropped automatically on the
+next `tools/migrate_data_per_tu.py` run (it scans existing typed
+definitions across `src/**/*.c`).
+
 ## VU0 microcode (`.vutext`) — kept as opaque textbin, not typed
 
 `.vutext` is 20,704 bytes (`0x50E0`) of hand-written VU0 microcode at

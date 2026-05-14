@@ -54,3 +54,15 @@ __attribute__((section(".rodata.0x0055AA28"))) const char D_0055AA28[40] = "ille
 
 /* Float rodata migrated from camera-ico2_data.c */
 __attribute__((section(".rodata.0x0055AA60"))) const float D_0055AA60[4] = { 0.0f, -2e+02f, -5e+02f, 0.0f };
+
+/* EUC-JP debug strings — re-derived from EE rodata bytes via
+ * EUC-JP decoding. Octal escapes preserve byte-identical layout
+ * without requiring source-encoding compiler flags. */
+/* EUC-JP: "[%s]が見つかりません
+" */
+__attribute__((section(".rodata.0x0055A958"))) const char D_0055A958[24] = "[%s]\244\254\270\253\244\304\244\253\244\352\244\336\244\273\244\363\n";
+/* EUC-JP: "１ステージに登録できるカメラセットは、最大[%d]個です。" */
+__attribute__((section(".rodata.0x0055A970"))) const char D_0055A970[56] = "\243\261\245\271\245\306\241\274\245\270\244\313\305\320\317\277\244\307\244\255\244\353\245\253\245\341\245\351\245\273\245\303\245\310\244\317\241\242\272\307\302\347[%d]\270\304\244\307\244\271\241\243";
+/* EUC-JP: "カメラデータのバージョンに異常があります。大森まで知らせてください
+" */
+__attribute__((section(".rodata.0x0055A9E0"))) const char D_0055A9E0[72] = "\245\253\245\341\245\351\245\307\241\274\245\277\244\316\245\320\241\274\245\270\245\347\245\363\244\313\260\333\276\357\244\254\244\242\244\352\244\336\244\271\241\243\302\347\277\271\244\336\244\307\303\316\244\351\244\273\244\306\244\257\244\300\244\265\244\244\n";

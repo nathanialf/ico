@@ -27,3 +27,13 @@ __attribute__((section(".rodata.0x00553CA0"))) const char D_00553CA0[24] = "src/
 
 /* String rodata migrated from motionManager2_data.c */
 __attribute__((section(".rodata.0x00553D70"))) const char D_00553D70[64] = "Illegal compress formatID(%d) appeard... ignore.\n";
+
+/* EUC-JP debug strings — re-derived from EE rodata bytes via
+ * EUC-JP decoding. Octal escapes preserve byte-identical layout
+ * without requiring source-encoding compiler flags. */
+/* EUC-JP: "AdjustRootPositionToVerticalSidePlaneOfWallが壁の中に突入させようとしたのでクリップしました
+" */
+__attribute__((section(".rodata.0x00553CB8"))) const char D_00553CB8[96] = "AdjustRootPositionToVerticalSidePlaneOfWall\244\254\312\311\244\316\303\346\244\313\306\315\306\376\244\265\244\273\244\350\244\246\244\310\244\267\244\277\244\316\244\307\245\257\245\352\245\303\245\327\244\267\244\336\244\267\244\277\n";
+/* EUC-JP: "AdjustVerticalSidePlaneOfWall:垂直壁が近接しているので補正位置をその中点としました
+" */
+__attribute__((section(".rodata.0x00553D18"))) const char D_00553D18[88] = "AdjustVerticalSidePlaneOfWall:\277\342\304\276\312\311\244\254\266\341\300\334\244\267\244\306\244\244\244\353\244\316\244\307\312\344\300\265\260\314\303\326\244\362\244\275\244\316\303\346\305\300\244\310\244\267\244\336\244\267\244\277\n";

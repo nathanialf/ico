@@ -80,3 +80,11 @@ __attribute__((section(".rodata.0x0055A930"))) const float D_0055A930[4] = { 0.0
 
 /* String-pool rodata migrated from camera-editor_data.c */
 __attribute__((section(".rodata.0x0055A710"))) const char D_0055A710[64] = "%s\t%d\t\t%d\t%d\t%d\t\t\t%d\t%d\t%d\n\000\000\000\000\000illegal message %d\n\000\000\000\000\000\000\000\000\000\000\000\000";
+
+/* EUC-JP debug strings — re-derived from EE rodata bytes via
+ * EUC-JP decoding. Octal escapes preserve byte-identical layout
+ * without requiring source-encoding compiler flags. */
+/* EUC-JP: "これ以上追加できません" */
+__attribute__((section(".rodata.0x0055A900"))) const char D_0055A900[24] = "\244\263\244\354\260\312\276\345\304\311\262\303\244\307\244\255\244\336\244\273\244\363";
+/* EUC-JP: "これ以上削除できません" */
+__attribute__((section(".rodata.0x0055A918"))) const char D_0055A918[24] = "\244\263\244\354\260\312\276\345\272\357\275\374\244\307\244\255\244\336\244\273\244\363";

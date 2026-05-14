@@ -69,3 +69,13 @@ __attribute__((section(".rodata.0x00559500"))) const char D_00559500[16] = "%s s
 
 /* String-pool rodata migrated from fieldCollision_data.c */
 __attribute__((section(".rodata.0x00559208"))) const char D_00559208[56] = "TOO MANY COLLISION DEPEND GOBJS\n\000\000\000\000\000\000\000\000%s%d(%d)\n\000\000\000\000\000\000";
+
+/* EUC-JP debug strings — re-derived from EE rodata bytes via
+ * EUC-JP decoding. Octal escapes preserve byte-identical layout
+ * without requiring source-encoding compiler flags. */
+/* EUC-JP: "壁が無いのにGetOrientOfWallが呼ばれました
+" */
+__attribute__((section(".rodata.0x00559368"))) const char D_00559368[48] = "\312\311\244\254\314\265\244\244\244\316\244\313GetOrientOfWall\244\254\270\306\244\320\244\354\244\336\244\267\244\277\n";
+/* EUC-JP: "DOBJ無しのオブジェクトに対してGetOrientOfWallが呼ばれました
+" */
+__attribute__((section(".rodata.0x00559398"))) const char D_00559398[72] = "DOBJ\314\265\244\267\244\316\245\252\245\326\245\270\245\247\245\257\245\310\244\313\302\320\244\267\244\306GetOrientOfWall\244\254\270\306\244\320\244\354\244\336\244\267\244\277\n";

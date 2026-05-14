@@ -33,3 +33,9 @@ __attribute__((section(".sdata.0x00632488"))) const char D_00632488[8] = "IDLE";
 __attribute__((section(".rodata.0x00559528"))) const char D_00559528[32] = "src/girl_brain_main.c.inc";
 __attribute__((section(".rodata.0x00559548"))) const char D_00559548[16] = "SAMEGROUP";
 __attribute__((section(".rodata.0x00559558"))) const char D_00559558[24] = "OTHERGROUP";
+
+/* EUC-JP debug strings — re-derived from EE rodata bytes via
+ * EUC-JP decoding. Octal escapes preserve byte-identical layout
+ * without requiring source-encoding compiler flags. */
+/* EUC-JP: "敵の数が多すぎます" */
+__attribute__((section(".rodata.0x00559510"))) const char D_00559510[24] = "\305\250\244\316\277\364\244\254\302\277\244\271\244\256\244\336\244\271";

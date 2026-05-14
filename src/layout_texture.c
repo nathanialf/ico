@@ -27,3 +27,10 @@ __attribute__((section(".rodata.0x00617218"))) const char D_00617218[24] = "src/
 /* String rodata migrated from layout_texture_data.c */
 __attribute__((section(".rodata.0x00617200"))) const char D_00617200[24] = "no texture loaded.(%s)\n";
 __attribute__((section(".rodata.0x00617260"))) const char D_00617260[56] = "try layout index=[%d] model_id=[%d]------------\n";
+
+/* EUC-JP debug strings — re-derived from EE rodata bytes via
+ * EUC-JP decoding. Octal escapes preserve byte-identical layout
+ * without requiring source-encoding compiler flags. */
+/* EUC-JP: "ステージ情報にエクセルのデータを使用します.
+" */
+__attribute__((section(".rodata.0x00617230"))) const char D_00617230[48] = "\245\271\245\306\241\274\245\270\276\360\312\363\244\313\245\250\245\257\245\273\245\353\244\316\245\307\241\274\245\277\244\362\273\310\315\321\244\267\244\336\244\271.\n";

@@ -34,3 +34,10 @@ __attribute__((section(".rodata.0x0055A538"))) const char D_0055A538[48] = "brai
 
 /* Float rodata migrated from attackhit_data.c */
 __attribute__((section(".rodata.0x0055A5A8"))) const float D_0055A5A8[2] = { 89128.96f, 0.955f };
+
+/* EUC-JP debug strings — re-derived from EE rodata bytes via
+ * EUC-JP decoding. Octal escapes preserve byte-identical layout
+ * without requiring source-encoding compiler flags. */
+/* EUC-JP: "ブレインレベルのオーバーライドに失敗しました
+" */
+__attribute__((section(".rodata.0x0055A568"))) const char D_0055A568[48] = "\245\326\245\354\245\244\245\363\245\354\245\331\245\353\244\316\245\252\241\274\245\320\241\274\245\351\245\244\245\311\244\313\274\272\307\324\244\267\244\336\244\267\244\277\n";

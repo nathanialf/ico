@@ -45,3 +45,10 @@ __attribute__((section(".sdata.0x00633784"))) int D_00633784 = 0;
 __attribute__((section(".sdata.0x00633788"))) unsigned int D_00633788 = 0x00000030;
 
 __attribute__((section(".rodata.0x0061A668"))) const char D_0061A668[32] = "src/streamMotionManager.c";
+
+/* EUC-JP debug strings — re-derived from EE rodata bytes via
+ * EUC-JP decoding. Octal escapes preserve byte-identical layout
+ * without requiring source-encoding compiler flags. */
+/* EUC-JP: "ストリーム用のバッファメモリが確保できませんでした
+" */
+__attribute__((section(".rodata.0x0061A688"))) const char D_0061A688[56] = "\245\271\245\310\245\352\241\274\245\340\315\321\244\316\245\320\245\303\245\325\245\241\245\341\245\342\245\352\244\254\263\316\312\335\244\307\244\255\244\336\244\273\244\363\244\307\244\267\244\277\n";
