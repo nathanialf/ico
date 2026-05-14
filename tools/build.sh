@@ -91,6 +91,26 @@ do_progress() {
     "${VENV_PY}" tools/progress.py
 }
 
+do_slinky() {
+    # Regenerate config/ico.us.slinky.yaml from the current build state,
+    # run slinky-cli to emit config/ico.us.slinky.ld, then post-process
+    # the ld to inject SORT_BY_NAME for the typed-section catch-alls.
+    # The patched slinky.ld builds a SHA-1-identical ELF alongside the
+    # current postprocess_ld.py-patched ico.us.ld. Requires `ninja` to
+    # have run at least once — gen_slinky.py reads .o section tables
+    # via objdump. See decomp/NOTES.md "Per-TU section linking" block.
+    "${VENV_PY}" tools/gen_slinky.py
+    if ! command -v slinky-cli >/dev/null 2>&1; then
+        echo "do_slinky: slinky-cli not on PATH — install via tools/setup.sh step 7"
+        return 1
+    fi
+    slinky-cli --omit-version-comment \
+        -o "config/ico.${VERSION}.slinky.ld" \
+        "config/ico.${VERSION}.slinky.yaml"
+    "${VENV_PY}" tools/postprocess_slinky_ld.py
+    echo "do_slinky: wrote config/ico.${VERSION}.slinky.ld"
+}
+
 cmd="${1:-help}"
 case "$cmd" in
     setup)      setup ;;
@@ -99,6 +119,7 @@ case "$cmd" in
     clean)      do_clean ;;
     distclean)  do_distclean ;;
     progress)   do_progress ;;
+    slinky)     do_slinky ;;
     help|*)
         cat <<EOF
 usage: $0 <subcommand>
@@ -109,6 +130,7 @@ usage: $0 <subcommand>
   clean       rm -rf build/
   distclean   clean + delete splat-emitted asm and config artifacts
   progress    regenerate README + docs/PROGRESS.md tables
+  slinky      regenerate config/ico.us.slinky.{yaml,ld} (parallel artifact)
 
 Build with: ninja
 EOF

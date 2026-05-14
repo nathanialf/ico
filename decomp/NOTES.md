@@ -899,3 +899,68 @@ TU-owned symbols; no foreign-TU interleaving). `.sdata` is the
 smallest section to migrate first (~8.7 KB) and unblocks the most
 matching work (gp_rel codegen).
 
+### Phase 3b'/3c status (slinky pipeline stood up)
+
+`tools/gen_slinky.py` + `tools/postprocess_slinky_ld.py` (wired into
+`tools/build.sh slinky`) produce `config/ico.us.slinky.yaml` and the
+matching `config/ico.us.slinky.ld`. Design choice: **per-section
+segments**, parappa2-style — one slinky segment per ICO ELF section
+(`text`, `data`, `rodata`, `lit4`, `sdata`, `sbss`, `bss`). Each
+segment's `files:` list is sorted by the .o's minimum contributing
+VMA in that section. The single-merged-`.cod` option was ruled out:
+once C TUs have content in multiple sections with non-correlated
+VMAs, a single `files:` list can't preserve cross-section VMA
+ordering. The built `.elf` then has separate
+`.text/.data/.rodata/.lit4/.sdata/.sbss/.bss` output sections rather
+than today's merged `.cod`+`.cod_bss`; SHA-1 is over `.rom`
+(`objcopy -O binary`), so loadable bytes are what matter.
+
+**`postprocess_slinky_ld.py` bridges the typed-section gap.** Slinky
+emits per-`.o` globs `<.o>(.<sect>*)` in declared order. The
+`(.sdata*)` glob matches both `.sdata` and `.sdata.0xVMA`, which
+means each TU's `.o` (carrying scattered `.sdata.0x*` sections from
+`tools/rewrite_data_named_sections.py`) dumps its sections back-to-
+back at the current loc counter — wrong cross-VMA order, ~440 bytes
+of layout drift. The post-processor injects
+`*(SORT_BY_NAME(.X.0x*))` at the top of each data/rodata/lit4/sdata
+block. GNU ld claims each input section at the *first* matching
+output reference, so the typed sections are absorbed in name (= VMA)
+order first; the per-`.o` globs that follow only see the residual
+plain `.X` sections (currently empty per TU). As TUs migrate to
+plain sections in Phase 3d, the per-`.o` globs start carrying real
+content and the SORT_BY_NAME catch-all shrinks. When the catch-all is
+empty, the injector retires (Phase 3e).
+
+**Status: SHA-clean parallel artifact.** Linking with the patched
+`slinky.ld` produces an ELF whose `.rom` matches `baseelf.rom`
+(`fbf50c75cd5911273511c4f9af90503ff8423582`). `ninja` still uses the
+postprocess_ld.py-patched `ico.us.ld` for the default build —
+swapping ninja's `-T` to `slinky.ld` is a separate change deferred to
+Phase 3d, when the first per-TU promotion lands.
+
+**Per-section status today** (per `tools/gen_slinky.py` output):
+
+| segment | contributing .o files |
+|---------|----------------------|
+| text    | 2836 (from splat) |
+| data    | 60 |
+| rodata  | 145 |
+| lit4    | 34 |
+| sdata   | 87 |
+| sbss    | 1 (the asm blanket) |
+| bss     | 1 (the asm blanket) |
+
+The slinky.ld correctly resolves `_gp` via `gp_info` on the lit4
+segment (offset `0x7FF0` — matches today's
+`_gp = cod_LIT4_START + 0x7FF0`), pins `.text` at `0x00100000` and
+stacks the alloc sections with `0x100` start alignment
+(`.bss` at `0x80`). All structural pieces are in place.
+
+**Reproduce:**
+
+```sh
+tools/build.sh setup && .venv/bin/ninja   # canonical SHA-clean build
+tools/build.sh slinky                     # regen slinky.{yaml,ld}
+# Optional: link with slinky.ld to confirm SHA still matches.
+```
+
