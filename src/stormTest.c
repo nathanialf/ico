@@ -8,7 +8,7 @@
  * are clean-room rather than raw byte arrays.
  *
  * As the TU gets fully decompiled, function definitions
- * land in this same file (parappa2-style layout); typed
+ * land in this same file (per-TU layout); typed
  * data declarations stay here next to their references.
  *
  * Downstream tools (rewrite_data_named_sections.py,

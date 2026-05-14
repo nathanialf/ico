@@ -598,7 +598,7 @@ Architecture for getting data sections to count toward progress:
    `const char D_X[] = "..."`, single int/short/char — into
    **per-TU tracked `src/<TU>.c` files** (`src/Basic.c`,
    `src/way_tool.c`, `src/ios/cdvd.c`, …), mirroring
-   `decomp/data_tu_map.json`'s assignments. The parappa2 layout
+   `decomp/data_tu_map.json`'s assignments. The per-TU layout
    is in place from the start; no consolidated `sdata.c`/`lit4.c`.
    Typed-form emission is gated on 8-aligned VMAs (where gcc's
    `.align 3` for arrays is a no-op); non-8-aligned blocks fall
@@ -646,7 +646,7 @@ State as of session 2026-05-11:
 * `.rodata` / `.data`: 0% tracked; bytes live in gitignored per-TU
   `_data.c` sidecars. Hand-typing follows `decomp/MATCH_DATA.md`,
   with new typed definitions added to the same `src/<TU>.c` that
-  already holds the TU's typed sdata/lit4 entries (parappa2 layout).
+  already holds the TU's typed sdata/lit4 entries (per-TU layout).
 
 ## EUC-JP debug strings in `.rodata` (Japan-Studio convention)
 
@@ -714,7 +714,7 @@ VMA `0x0026F5E0`. The block:
 `.incbin` from `assets/cod/16F5E0.textbin.bin` (gitignored). It is
 *not* a target for typed reconstruction in this project. Treating
 hand-written coprocessor microcode as an opaque blob is the
-convention used by parappa2 / sm64 / pm64 decomps for the same
+convention used by sm64 / pm64 / similar decomps for the same
 reason. If someone wants to reconstruct it as VU mnemonics, the
 prerequisite is a VU0 disassembler + a `hasm`-style subseg with
 `src/vutext.s` containing the actual `vmadd…` directives — a

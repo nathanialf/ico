@@ -8,7 +8,7 @@
  * are clean-room rather than raw byte arrays.
  *
  * As the TU gets fully decompiled, function definitions
- * land in this same file (parappa2-style layout); typed
+ * land in this same file (per-TU layout); typed
  * data declarations stay here next to their references.
  *
  * Downstream tools (rewrite_data_named_sections.py,
@@ -28,7 +28,7 @@
  *   (A) Sibling tracked .c file holding only the sdata def (separate .o,
  *       function's TU sees only `extern` -> %gp_rel preserved).
  *   (B) Migrate to per-TU `.sdata` subsegments in config/ico.us.yaml
- *       (parappa2 style). Requires linker-script and rewriter changes
+ *       (per-TU style). Requires linker-script and rewriter changes
  *       to drop SORT_BY_NAME(.sdata.0x*) in favor of YAML-ordered
  *       concatenation — coordinated refactor across all sdata TUs.
  *

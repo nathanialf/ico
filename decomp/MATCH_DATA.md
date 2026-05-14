@@ -120,7 +120,7 @@ Cheat sheets:
 
 ## Designated-initializer struct arrays (the WORD_OTHER bucket)
 
-`unsigned char D_X[1664] = { 0x..., ... }` is the migrator's "I don't know what this is" shape. For struct arrays where the consumer code reveals a repeating field layout, the clean-room form is a **designated-initializer struct array** — same shape parappa2 uses for its data (parappa2 ships the same ee-gcc 2.9, so the emitted bytes round-trip identically):
+`unsigned char D_X[1664] = { 0x..., ... }` is the migrator's "I don't know what this is" shape. For struct arrays where the consumer code reveals a repeating field layout, the clean-room form is a **designated-initializer struct array** — same shape per-TU sibling decomps use for their data (the ee-gcc 2.9 toolchain emits these byte-identically):
 
 ```c
 typedef struct {
@@ -209,12 +209,12 @@ or function-pointer tables.
 1. **Pick a TU.** Find its `_data.c` (`ls src/*_data.c src/*/*_data.c`).
 2. **Identify the destination .c.** Drop the `_data` suffix:
    `src/Basic_data.c` → `src/Basic.c`. If the destination doesn't exist
-   yet, create it parappa2-style: a single-line anchor comment naming
+   yet, create it per-TU: a single-line anchor comment naming
    the file and the __FILE__ anchor VMA (e.g.
    `/* src/sugiTree.c — __FILE__ anchor at .rodata 0x0061A6D8 */`),
    then the definitions. **Do not** copy the multi-paragraph stylized
    header from `decode_sdata_lit4_typed.py`-generated files or the
-   "Typed reconstruction of this TU's …" boilerplate — parappa2-style
+   "Typed reconstruction of this TU's …" boilerplate — per-TU
    files are minimal, code over prose. Keep `src/Basic.c`'s longer
    preamble only when there's genuinely TU-specific info worth
    recording (its TU range, padding nop, etc.).
@@ -269,7 +269,7 @@ doesn't count.)
 * **Typed sdata / lit4 symbols are already in per-TU files** —
   `tools/decode_sdata_lit4_typed.py` emits typed definitions into
   `src/<TU>.c` (mirroring `decomp/data_tu_map.json`'s vote
-  assignments) so the parappa2 source-tree layout is in place from
+  assignments) so the per-TU source-tree layout is in place from
   the start. When you hand-type a rodata/data symbol for a given
   TU, drop the new definition into the same `src/<TU>.c` next to
   its already-typed sdata/lit4 entries. The decoder will not

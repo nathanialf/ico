@@ -5,7 +5,7 @@ build_data_tu_map.py — assign every data symbol to an owning TU.
 For each data symbol in `.sdata`, `.lit4`, `.rodata`, `.data`, decide
 which original translation unit (TU) it belongs to so that
 `tools/migrate_data_per_tu.py` can emit one C source per TU containing
-its data (parappa2-style layout instead of the per-section monolithic
+its data (per-TU layout instead of the per-section monolithic
 pool .c files).
 
 Assignment algorithm

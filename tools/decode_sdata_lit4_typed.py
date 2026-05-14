@@ -526,7 +526,7 @@ def main() -> int:
         " * are clean-room rather than raw byte arrays.\n"
         " *\n"
         " * As the TU gets fully decompiled, function definitions\n"
-        " * land in this same file (parappa2-style layout); typed\n"
+        " * land in this same file (per-TU layout); typed\n"
         " * data declarations stay here next to their references.\n"
         " *\n"
         " * Downstream tools (rewrite_data_named_sections.py,\n"

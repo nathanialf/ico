@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-migrate_data_per_tu.py — emit per-TU data .c files (parappa2 layout).
+migrate_data_per_tu.py — emit per-TU data .c files (per-TU layout).
 
 Reads `decomp/data_tu_map.json` (built by tools/build_data_tu_map.py)
 and the asm-side data files. For each TU, generates a single
