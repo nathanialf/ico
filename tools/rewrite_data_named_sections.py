@@ -53,7 +53,9 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-DATA_DIR = REPO_ROOT / "asm" / "data" / "cod"
+# After moving subseg names to repo-root paths (e.g. `src/cod/...`),
+# splat emits the asm/data files at `asm/data/src/cod/`.
+DATA_DIR = REPO_ROOT / "asm" / "data" / "src" / "cod"
 
 # Symbols defined in `src/cod/*.c` via
 # `__attribute__((section(".X.0xVMA"))) ... = ...;` must be removed
@@ -80,8 +82,14 @@ def _load_migrated_symbols() -> set[str]:
     intentionally ignore here — only the ORIGINAL asm dlabel names
     correspond to blocks the rewriter needs to strip)."""
     out: set[str] = set()
-    # `Path.glob("src/**/*.c")` does not recurse by default; use rglob.
-    src_paths = list((REPO_ROOT / "src").rglob("*.c")) + list((REPO_ROOT / "src").rglob("*.h"))
+    # Walk every source root: `src/` plus the original ICO sibling
+    # subsystems `ios/`, `sound/`, `isys/` (relocated to repo root).
+    src_paths: list = []
+    for root_name in ("src", "ios", "sound", "isys"):
+        root_dir = REPO_ROOT / root_name
+        if root_dir.is_dir():
+            src_paths += list(root_dir.rglob("*.c"))
+            src_paths += list(root_dir.rglob("*.h"))
     for c_path in src_paths:
         text = c_path.read_text()
         for m in re.finditer(

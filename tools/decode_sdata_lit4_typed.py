@@ -50,26 +50,23 @@ LEGACY_LIT4_C = REPO_ROOT / "src" / "lit4.c"
 
 def _tu_to_path(tu: str) -> Path:
     """Convert a TU label from decomp/data_tu_map.json into the path
-    of the tracked per-TU .c file. Mirrors the parappa2 source-tree
-    layout that `decomp/source_tree/` already documents:
+    of the tracked per-TU .c file. TU labels are repo-root-relative
+    paths matching the original ICO source-tree layout documented in
+    `decomp/source_tree/`:
 
       src/Basic.c           ->  src/Basic.c
       src/way_tool.c        ->  src/way_tool.c
-      ios/cdvd.c            ->  src/ios/cdvd.c
-      isys/gobj.c           ->  src/isys/gobj.c
-      sound/s_init.c        ->  src/sound/s_init.c
+      ios/cdvd.c            ->  ios/cdvd.c
+      isys/gobj.c           ->  isys/gobj.c
+      sound/s_init.c        ->  sound/s_init.c
       _unassigned           ->  src/_unassigned.c
 
-    TUs under the original `src/` dir flatten to the top of `src/`;
-    TUs under `ios/`, `isys/`, `sound/` keep their subdir structure.
     The synthetic `_unassigned` bucket (proximity-fallback symbols
     with no text-side vote) lands at the top of `src/` so it's easy
     to spot."""
     if tu == "_unassigned":
         return REPO_ROOT / "src" / "_unassigned.c"
-    if tu.startswith("src/"):
-        return REPO_ROOT / "src" / tu[len("src/"):]
-    return REPO_ROOT / "src" / tu
+    return REPO_ROOT / tu
 
 # Regex for parsing one definition from a _data.c file.
 DEF_RE = re.compile(

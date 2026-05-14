@@ -57,7 +57,10 @@ POSTPROCESS_TXTS = [
 OUTPUT = ROOT / "build.ninja"
 
 ASM_RE = re.compile(r"^build/asm/(.+)\.o$")
-SRC_RE = re.compile(r"^build/src/(.+)\.o$")
+# Source roots that map to repo-root subdirs (matches splat's src_path: .).
+# `src/` is the catchall; `ios/`, `sound/`, `isys/` are sibling subsystems
+# from the original ICO source layout.
+SRC_RE = re.compile(r"^build/((?:src|ios|sound|isys)/.+)\.o$")
 
 
 def mips_prefix() -> str:
@@ -95,12 +98,18 @@ def discover_sidecar_objs(splat_objs: set[str]) -> list[str]:
     '*.c'` discovery for everything outside the splat manifest.
     """
     extras: list[str] = []
-    src_dir = ROOT / "src"
-    for ext in ("*.c", "*.s"):
-        for path in sorted(src_dir.rglob(ext)):
-            obj_path = "build/" + str(path.relative_to(ROOT).with_suffix(".o"))
-            if obj_path not in splat_objs:
-                extras.append(obj_path)
+    # Walk every source root the project lays out at repo top-level.
+    # `src/` plus the original ICO sibling subsystems `ios/`, `sound/`,
+    # `isys/` (relocated out of `src/` to mirror the original tree).
+    for root_name in ("src", "ios", "sound", "isys"):
+        root_dir = ROOT / root_name
+        if not root_dir.is_dir():
+            continue
+        for ext in ("*.c", "*.s"):
+            for path in sorted(root_dir.rglob(ext)):
+                obj_path = "build/" + str(path.relative_to(ROOT).with_suffix(".o"))
+                if obj_path not in splat_objs:
+                    extras.append(obj_path)
     return extras
 
 
@@ -134,13 +143,15 @@ def source_for(obj_path: str) -> tuple[str, str]:
 
     m = SRC_RE.match(obj_path)
     if m:
+        # `stem` already includes the source-root prefix (e.g. "src/cod/000110"
+        # or "ios/cdvd") since YAML names are repo-root-relative.
         stem = m.group(1)
-        c_path = ROOT / "src" / f"{stem}.c"
-        s_path = ROOT / "src" / f"{stem}.s"
+        c_path = ROOT / f"{stem}.c"
+        s_path = ROOT / f"{stem}.s"
         if c_path.exists():
-            return f"src/{stem}.c", "cc_src"
+            return f"{stem}.c", "cc_src"
         if s_path.exists():
-            return f"src/{stem}.s", "as_hasm"
+            return f"{stem}.s", "as_hasm"
         raise SystemExit(
             f"gen_ninja: no source for {obj_path} (looked for {c_path} and {s_path})"
         )

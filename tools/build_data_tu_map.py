@@ -48,14 +48,14 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TU_MAP_JSON = REPO_ROOT / "decomp" / "tu_map.json"
-ASM_COD = REPO_ROOT / "asm" / "cod"
+ASM_COD = REPO_ROOT / "asm" / "src" / "cod"
 ASM_DATA_FILES = [
-    REPO_ROOT / "asm" / "data" / "cod" / "531900.sdata.s",
-    REPO_ROOT / "asm" / "data" / "cod" / "530900.lit4.s",
-    REPO_ROOT / "asm" / "data" / "cod" / "453700.rodata.s",
-    REPO_ROOT / "asm" / "data" / "cod" / "174700.data.s",
-    REPO_ROOT / "asm" / "data" / "cod" / "00633C00.sbss.s",
-    REPO_ROOT / "asm" / "data" / "cod" / "00634000.bss.s",
+    REPO_ROOT / "asm" / "data" / "src" / "cod" / "531900.sdata.s",
+    REPO_ROOT / "asm" / "data" / "src" / "cod" / "530900.lit4.s",
+    REPO_ROOT / "asm" / "data" / "src" / "cod" / "453700.rodata.s",
+    REPO_ROOT / "asm" / "data" / "src" / "cod" / "174700.data.s",
+    REPO_ROOT / "asm" / "data" / "src" / "cod" / "00633C00.sbss.s",
+    REPO_ROOT / "asm" / "data" / "src" / "cod" / "00634000.bss.s",
 ]
 OUT_JSON = REPO_ROOT / "decomp" / "data_tu_map.json"
 

@@ -64,10 +64,10 @@ MAP_PATH = REPO_ROOT / "build" / "ico.us.map"
 LOAD_VMA_LO = 0x00100000
 LOAD_VMA_HI = 0x00700000
 ASM_FILES = {
-    ".sdata":  REPO_ROOT / "asm" / "data" / "cod" / "531900.sdata.s",
-    ".lit4":   REPO_ROOT / "asm" / "data" / "cod" / "530900.lit4.s",
-    ".rodata": REPO_ROOT / "asm" / "data" / "cod" / "453700.rodata.s",
-    ".data":   REPO_ROOT / "asm" / "data" / "cod" / "174700.data.s",
+    ".sdata":  REPO_ROOT / "asm" / "data" / "src" / "cod" / "531900.sdata.s",
+    ".lit4":   REPO_ROOT / "asm" / "data" / "src" / "cod" / "530900.lit4.s",
+    ".rodata": REPO_ROOT / "asm" / "data" / "src" / "cod" / "453700.rodata.s",
+    ".data":   REPO_ROOT / "asm" / "data" / "src" / "cod" / "174700.data.s",
 }
 SECTION_RANGES = {
     ".sdata":  (0x00631900, 0x00633BC6),
@@ -109,12 +109,10 @@ def _tu_to_filename(tu: str) -> str:
     doesn't depend on which file holds each definition).
     """
     if tu == "_unassigned":
-        return "_unassigned_data.c"
-    if tu.startswith("src/"):
-        rel = tu[len("src/"):]
-    else:
-        rel = tu
-    # Append _data before the .c extension.
+        return "src/_unassigned_data.c"
+    # TU strings are repo-root-relative paths (e.g. "src/Basic.c",
+    # "ios/cdvd.c"). Insert `_data` before the .c extension.
+    rel = tu
     if rel.endswith(".c"):
         return rel[:-2] + "_data.c"
     return rel + "_data.c"
@@ -506,7 +504,14 @@ def _scan_existing_definitions() -> set[str]:
     legacy pool files (src/cod/sdata_pool.c, src/cod/lit4_pool.c)
     and any hand-typed TU sources that already cover some symbols."""
     out: set[str] = set()
-    src_paths = list((REPO_ROOT / "src").rglob("*.c")) + list((REPO_ROOT / "src").rglob("*.h"))
+    # Walk every source root: src/, plus the original ICO sibling
+    # subsystems ios/, sound/, isys/ (relocated to repo root).
+    src_paths: list = []
+    for root_name in ("src", "ios", "sound", "isys"):
+        root_dir = REPO_ROOT / root_name
+        if root_dir.is_dir():
+            src_paths += list(root_dir.rglob("*.c"))
+            src_paths += list(root_dir.rglob("*.h"))
     for c_path in src_paths:
         # Don't read our own _data sidecars — they're regenerated each
         # run, so symbols in them aren't a stable source-of-truth.
@@ -547,21 +552,20 @@ def main() -> int:
             if data is not None:
                 all_bytes[sym] = (vma, sect_name, data)
 
-    SRC_ROOT = REPO_ROOT / "src"
-    SRC_ROOT.mkdir(parents=True, exist_ok=True)
-    # Clean slate: drop every existing _data.c sidecar. The loop below
-    # only writes files for TUs that still have symbols to migrate, so
-    # without this any TU whose data has been fully hand-typed would
-    # leave a stale sidecar behind — duplicate-defining the typed symbol
-    # and breaking the link.
-    for stale in list(SRC_ROOT.rglob("*_data.c")):
-        stale.unlink()
+    # Sidecars now land at repo-root paths (e.g. ios/cdvd_data.c, not
+    # src/ios/cdvd_data.c). Clean every existing sidecar across all
+    # source roots so a fully-typed TU doesn't leave a stale file.
+    for root_name in ("src", "ios", "sound", "isys"):
+        root_dir = REPO_ROOT / root_name
+        if root_dir.is_dir():
+            for stale in list(root_dir.rglob("*_data.c")):
+                stale.unlink()
     generated_basenames: list[str] = []
     skipped_total = 0
     migrated_total = 0
     for tu, syms in sorted(by_tu.items()):
         fname = _tu_to_filename(tu)
-        out_path = SRC_ROOT / fname
+        out_path = REPO_ROOT / fname
         out_path.parent.mkdir(parents=True, exist_ok=True)
         lines: list[str] = [
             f'/* Auto-generated per-TU data file for "{tu}".',

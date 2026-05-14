@@ -47,7 +47,9 @@ YAML = REPO_ROOT / "config" / "ico.us.yaml"
 TU_MAP_JSON = REPO_ROOT / "decomp" / "tu_map.json"
 TU_MAP_MD = REPO_ROOT / "decomp" / "tu_map.md"
 DATA_TU_MAP = REPO_ROOT / "decomp" / "data_tu_map.json"
-SRC_DIR = REPO_ROOT / "src"
+# Splat YAML subseg names are now repo-root-relative (e.g.
+# `src/cod/000110`, `src/Basic`, `ios/cdvd`). Resolve from REPO_ROOT.
+SRC_DIR = REPO_ROOT
 
 SECTION_TO_TYPES = {
     ".text":   {"asm", "c", "hasm"},
@@ -228,16 +230,28 @@ def _scan_typed_defs_per_tu(tu_files: dict[str, Path]) -> tuple[dict[str, dict[s
     typed ones."""
     out: dict[str, dict[str, int]] = {}
     typed_syms: set[str] = set()
-    # Also scan any non-`_data.c` source for typed defs — typed symbols
-    # owned by another TU still need to be excluded from `todo` counts
-    # globally (e.g. a typed def in src/Basic.c counts for Basic, but
-    # also means the symbol is "done" wherever data_tu_map says it lives).
-    for src_path in (REPO_ROOT / "src").rglob("*.c"):
+    # Walk every source root: src/, plus the original ICO sibling
+    # subsystems ios/, sound/, isys/ (relocated to repo root). Scan any
+    # non-`_data.c` source for typed defs — typed symbols owned by
+    # another TU still need to be excluded from `todo` counts globally
+    # (a typed def in src/Basic.c counts for Basic, but also means the
+    # symbol is "done" wherever data_tu_map says it lives).
+    src_paths: list = []
+    for root_name in ("src", "ios", "sound", "isys"):
+        root_dir = REPO_ROOT / root_name
+        if root_dir.is_dir():
+            src_paths += list(root_dir.rglob("*.c"))
+    for src_path in src_paths:
         if src_path.name.endswith("_data.c"):
             continue
         for m in TYPED_SYM_RE.finditer(src_path.read_text()):
             typed_syms.add(m.group("sym"))
-    for src_path in (REPO_ROOT / "src").rglob("*.h"):
+    h_paths: list = []
+    for root_name in ("src", "ios", "sound", "isys"):
+        root_dir = REPO_ROOT / root_name
+        if root_dir.is_dir():
+            h_paths += list(root_dir.rglob("*.h"))
+    for src_path in h_paths:
         for m in TYPED_SYM_RE.finditer(src_path.read_text()):
             typed_syms.add(m.group("sym"))
     for tu, src in tu_files.items():
@@ -251,7 +265,8 @@ def _scan_typed_defs_per_tu(tu_files: dict[str, Path]) -> tuple[dict[str, dict[s
 
 
 def _tu_filename(tu: str) -> Path:
-    """`src/Basic.c` (TU id) -> `<repo>/src/Basic.c`. TU strings already
+    """`src/Basic.c` (TU id) -> `<repo>/src/Basic.c`,
+    `ios/cdvd.c` -> `<repo>/ios/cdvd.c`. TU strings already
     include the `src/` prefix in tu_map.json / data_tu_map.json."""
     return REPO_ROOT / (tu if tu.endswith(".c") else tu + ".c")
 

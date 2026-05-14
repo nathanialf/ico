@@ -32,9 +32,9 @@ REPO = Path(__file__).resolve().parent.parent
 
 # (file, cutoff_vma_exclusive) — drop everything at or beyond cutoff
 TRIMS = [
-    (REPO / "asm/data/cod/174700.data.s",   0x005536B8),
-    (REPO / "asm/data/cod/453700.rodata.s", 0x006308A8),
-    (REPO / "asm/data/cod/530900.lit4.s",   0x006318D0),
+    (REPO / "asm/data/src/cod/174700.data.s",   0x005536B8),
+    (REPO / "asm/data/src/cod/453700.rodata.s", 0x006308A8),
+    (REPO / "asm/data/src/cod/530900.lit4.s",   0x006318D0),
 ]
 
 

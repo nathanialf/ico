@@ -106,7 +106,12 @@ def process(path: Path) -> int:
 
 def main():
     import glob
-    files = sorted(glob.glob('src/**/*_data.c', recursive=True))
+    # Walk every source root: src/, plus the original ICO sibling
+    # subsystems ios/, sound/, isys/ (relocated to repo root).
+    files: list[str] = []
+    for root in ("src", "ios", "sound", "isys"):
+        files += sorted(glob.glob(f"{root}/**/*_data.c", recursive=True))
+    files.sort()
     total = 0
     for f in files:
         c = process(Path(f))

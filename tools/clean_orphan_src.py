@@ -32,13 +32,14 @@ YAML = REPO / "config" / "ico.us.yaml"
 SRC_COD = REPO / "src" / "cod"
 BUILD_SRC_COD = REPO / "build" / "src" / "cod"
 
-# Match yaml subseg `- [0xVMA, {c|hasm}, cod/VMA]` (with whitespace
+# Match yaml subseg `- [0xVMA, {c|hasm}, src/cod/VMA]` (with whitespace
 # tolerance). `c` ⇒ src/cod/<hex>.c; `hasm` ⇒ src/cod/<hex>.s. Both
 # are live sources we must preserve. We do NOT match TU-promoted
-# entries like `[0xF16A0, c, sugiTree]` — those live at `src/<name>.c`,
-# not `src/cod/<hex>.c`, and are protected from this scan.
+# entries like `[0xF16A0, c, src/sugiTree]` — those live at
+# `src/<name>.c`, not `src/cod/<hex>.c`, and are protected from
+# this scan.
 SUBSEG_COD_RE = re.compile(
-    r"^\s*-\s*\[\s*0x[0-9A-Fa-f]+\s*,\s*(?:c|hasm)\s*,\s*cod/([0-9A-Fa-f]+)\s*\]",
+    r"^\s*-\s*\[\s*0x[0-9A-Fa-f]+\s*,\s*(?:c|hasm)\s*,\s*src/cod/([0-9A-Fa-f]+)\s*\]",
 )
 
 
