@@ -1951,7 +1951,7 @@ segments:
       - [0x0E4980, c,   cod/0E4980]            # func_001E4980: auto
       - [0x0E4988, asm, cod/0E4988]
       - [0x0E6960, c,   cod/0E6960]            # func_001E6960: auto
-      - [0x0E6968, c,   cod/0E6968]            # func_001E6968: alloc 12 + self->_30 + 3 random shorts (moveColTest.c TU anchor)
+      - [0x0E6968, c,   moveColTest]           # TU promotion: src/moveColTest.c covers 0x001E6968..0x001E69D8 (single func, 0x6C); 4-byte pad to next TU is linker --gap-fill
       - [0x0E69D8, asm, cod/0E69D8]
       - [0x0E6D68, c,   cod/0E6D68]            # func_001E6D68: promote: score-0 from permuter (parked tough_nut)
       - [0x0E6DA0, asm, cod/0E6DA0]
@@ -2133,7 +2133,7 @@ segments:
       - [0x0FBA80, c,   cod/0FBA80]            # func_001FBA80: clamp [0, 0xC] store
       - [0x0FBAA8, asm, cod/0FBAA8]
       - [0x0FBB40, c,   cod/0FBB40]            # func_001FBB40: return D_00633F70
-      - [0x0FBB48, asm, cod/0FBB48]
+      - [0x0FBB48, c,   cod/0FBB48]            # func_001FBB48: init D_004C7710 packet slots via func_0013A0F8 (DmaPacket TU)
       - [0x0FBBE0, asm, cod/0FBBE0]
       - [0x0FBC14, asm, cod/0FBC14]
       - [0x0FBC18, c,   cod/0FBC18]
