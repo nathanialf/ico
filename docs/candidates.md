@@ -2,11 +2,11 @@
 
 Auto-generated unmatched-function shortlist for the ICO matching loop.
 
-- Generated: 2026-05-13 20:39:36 UTC
+- Generated: 2026-05-14 00:22:00 UTC
 - Source: `tools/gen_candidates.py` (reads `tools/find_leaves.py` cache)
 - Regenerate: `tools/gen_candidates.py` (also runs at the end of `make setup`)
 - Filter: functions registered under `tough_nuts/<func>/` are excluded
-- Functions: 4424 total in `asm/cod/*.s`, 217 parked, 4207 considered
+- Functions: 4424 total in `asm/cod/*.s`, 212 parked, 4212 considered
 - Sort within each section: hard-pattern penalty asc, insn count asc, size asc, name asc.
 
 Hard-pattern penalty up-weights known near-miss shapes:
@@ -91,11 +91,13 @@ _0 total in this bucket; showing top 0._
 <a id="wrap-1jal-0x34-0x40"></a>
 ## 0x34-0x40, exactly 1 jal, no VU (wrapper w/ stack buffer / arg pack)
 
-_3 total in this bucket; showing top 3._
+_5 total in this bucket; showing top 5._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
 | `func_00264298` | 0x3C | 15 | 1 |  | `addiu sd sd daddu` | asm/cod/164094.s:190 |
+| `func_001C3720` | 0x3C | 15 | 1 |  | `addiu addiu sd daddu` | asm/cod/0C3720.s:13 |
+| `func_001F22E0` | 0x3C | 15 | 1 |  | `addiu addiu sd daddu` | asm/cod/0F22E0.s:13 |
 | `func_0017E838` | 0x34 | 13 | 1 |  | `addiu sd daddu swc1` | asm/cod/07E838.s:13 |
 | `func_0024DA80` | 0x38 | 14 | 1 |  | `addiu lui lui sd` | asm/cod/14DA80.s:13 |
 
@@ -227,13 +229,14 @@ _14 total in this bucket; showing top 14._
 <a id="wrap-2jal-0x40-0x60"></a>
 ## 0x40-0x60, exactly 2 jal, no VU (2-call mid-size wrapper)
 
-_3 total in this bucket; showing top 3._
+_4 total in this bucket; showing top 4._
 
 | Function | Size | Insns | jal | VU | First mnemonics | Source |
 |---|---:|---:|---:|:---:|---|---|
 | `func_002633B8` | 0x54 | 21 | 2 |  | `addiu sd daddu sd` | asm/cod/1633B4.s:18 |
 | `func_00252590` | 0x58 | 22 | 2 |  | `lui daddu addiu lw` | asm/cod/15258C.s:18 |
 | `func_0015E658` | 0x54 | 21 | 2 |  | `addiu sd sw nop` | asm/cod/05D488.s:1323 |
+| `func_001AA4F0` | 0x60 | 24 | 2 |  | `addiu daddu sd lui` | asm/cod/0AA4F0.s:13 |
 
 <a id="vu-leaf-4-0x10"></a>
 ## 4-insn / 0x10 leaf, no jal, has VU (VU0 macro)
@@ -254,7 +257,7 @@ _1 total in this bucket; showing top 1._
 <a id="uncategorized"></a>
 ## Uncategorized (not in any shape bucket above)
 
-_4090 unmatched functions are not in any shape bucket above._
+_4092 unmatched functions are not in any shape bucket above._
 
 Tweak the buckets in `tools/gen_candidates.py` to surface more shapes.
 
