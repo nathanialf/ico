@@ -295,20 +295,46 @@ def compute_tu_status() -> list[dict]:
     for sym, tu in data_tu.items():
         sym_by_tu[tu].append(sym)
 
-    # Build sorted [(vma, matched)] intervals from YAML text subsegs.
-    # A subseg covers [vma_i, vma_{i+1}); a vma falling inside a `c`/`hasm`
-    # interval with a backing src counts as matched. This handles both
-    # per-function `cod/<offset>` claims AND coalesced `c, <TU>` claims
+    # Build sorted intervals from YAML text subsegs. Each interval
+    # records (vma, matched, name, stype) so we can answer two
+    # questions per function:
+    #   matched   — is the containing subseg `c`/`hasm` with a backing src?
+    #   coalesced — is the containing subseg's `name` equal to the TU
+    #               stem (e.g. `src/DmaPacket` for TU `src/DmaPacket.c`)?
+    # A subseg covers [vma_i, vma_{i+1}); the lookup handles both
+    # per-function `cod/<offset>` claims and coalesced `c, <TU>` claims
     # that span multiple functions.
     VRAM_BASE = 0x00100000
-    intervals = sorted([(off + VRAM_BASE, matched) for (off, _, _, matched) in text_subs])
+    intervals = sorted([
+        (off + VRAM_BASE, matched, name, stype)
+        for (off, stype, name, matched) in text_subs
+    ])
+    _vmas_sorted = [iv[0] for iv in intervals]
+
+    def _interval_for(vma: int):
+        import bisect
+        i = bisect.bisect_right(_vmas_sorted, vma) - 1
+        if i < 0:
+            return None
+        return intervals[i]
 
     def _is_matched(vma: int) -> bool:
-        import bisect
-        i = bisect.bisect_right([v for v, _ in intervals], vma) - 1
-        if i < 0:
+        iv = _interval_for(vma)
+        return bool(iv and iv[1])
+
+    def _tu_stem(tu: str) -> str:
+        return tu[:-2] if tu.endswith(".c") else tu
+
+    def _is_coalesced(vma: int, tu: str) -> bool:
+        """True iff the YAML subseg covering `vma` is a matched `c`
+        claim whose name equals the TU's stem path (i.e. the function
+        is compiled out of the TU's own `.c`, not a per-function
+        `src/cod/<hex>.c`)."""
+        iv = _interval_for(vma)
+        if iv is None:
             return False
-        return intervals[i][1]
+        _, matched, name, stype = iv
+        return matched and stype == "c" and name == _tu_stem(tu)
 
     # Text counts: for each TU with a region, every callgraph vma in
     # [lo, hi] counts; matched if it has a `c` YAML claim with a backing
@@ -316,6 +342,7 @@ def compute_tu_status() -> list[dict]:
     # their tagged vmas.
     text_total: dict[str, int] = Counter()
     text_matched: dict[str, int] = Counter()
+    text_coalesced: dict[str, int] = Counter()
 
     tagged_addrs_by_tu: dict[str, set[int]] = defaultdict(set)
     for vma, tu in func_tu.items():
@@ -328,6 +355,8 @@ def compute_tu_status() -> list[dict]:
             text_total[tu] += 1
             if _is_matched(vma):
                 text_matched[tu] += 1
+            if _is_coalesced(vma, tu):
+                text_coalesced[tu] += 1
 
     for tu, addrs in tagged_addrs_by_tu.items():
         if tu in tu_regions:
@@ -336,6 +365,8 @@ def compute_tu_status() -> list[dict]:
             text_total[tu] += 1
             if _is_matched(vma):
                 text_matched[tu] += 1
+            if _is_coalesced(vma, tu):
+                text_coalesced[tu] += 1
 
     # Data: typed defs in tracked <TU>.c (done) vs symbols still in
     # asm/data/cod (todo, tracked via data_tu_map.json — which now
@@ -368,6 +399,7 @@ def compute_tu_status() -> list[dict]:
     for tu in sorted(all_tus):
         tt = text_total.get(tu, 0)
         tm = text_matched.get(tu, 0)
+        tc = text_coalesced.get(tu, 0)
         tp = typed.get(tu, {})
         td = todo_by_tu_sec.get(tu, {})
         sec_data = {}
@@ -382,14 +414,21 @@ def compute_tu_status() -> list[dict]:
             and tm == tt
             and (data_total == 0 or data_done == data_total)
         )
+        # "Fully coalesced" = every attributed function is compiled
+        # out of the TU's own .c (not via a per-function
+        # src/cod/<hex>.c). Strictly tighter than `complete`, since
+        # `complete` accepts matched-anywhere.
+        fully_coalesced = tt > 0 and tc == tt
         rows.append({
             "tu": tu,
             "text_matched": tm,
             "text_total": tt,
+            "text_coalesced": tc,
             "data_done": data_done,
             "data_total": data_total,
             "sections": sec_data,
             "complete": complete,
+            "fully_coalesced": fully_coalesced,
         })
     return rows
 
@@ -414,6 +453,11 @@ def main(argv: list[str]) -> int:
                     help="show only the N closest-to-complete TUs")
     ap.add_argument("--min-funcs", type=int, default=0,
                     help="hide TUs with fewer than N tagged functions")
+    ap.add_argument("--hide-coalesced", action="store_true",
+                    help="hide TUs where every attributed function is "
+                         "already compiled out of the TU's own .c "
+                         "(strictly tighter than --complete; useful "
+                         "for spotting what's left to coalesce)")
     ap.add_argument("--json", action="store_true",
                     help="emit JSON instead of a table")
     args = ap.parse_args(argv)
@@ -422,6 +466,8 @@ def main(argv: list[str]) -> int:
 
     if args.complete:
         rows = [r for r in rows if r["complete"]]
+    if args.hide_coalesced:
+        rows = [r for r in rows if not r["fully_coalesced"]]
     if args.min_funcs:
         rows = [r for r in rows if r["text_total"] >= args.min_funcs]
 
@@ -441,8 +487,10 @@ def main(argv: list[str]) -> int:
         print(json.dumps(rows, indent=2))
         return 0
 
-    # Table
-    cols = ["text", "data", ".data", ".rodata", ".lit4", ".sdata", ".sbss", ".bss"]
+    # Table. `text` = functions matched anywhere; `coal` = functions
+    # specifically compiled out of the TU's own .c (subset of text).
+    cols = ["text", "coal", "data", ".data", ".rodata", ".lit4",
+            ".sdata", ".sbss", ".bss"]
     hdr = f"{'TU':<46}" + "".join(f" {c:>9}" for c in cols) + "  done?"
     print(hdr)
     print("-" * len(hdr))
@@ -450,6 +498,7 @@ def main(argv: list[str]) -> int:
         s = r["sections"]
         print(f"{r['tu']:<46} "
               f"{_fmt_section(r['text_matched'], r['text_total']):>9} "
+              f"{_fmt_section(r['text_coalesced'], r['text_total']):>9} "
               f"{_fmt_section(r['data_done'], r['data_total']):>9} "
               f"{_fmt_section(*s['.data']):>9} "
               f"{_fmt_section(*s['.rodata']):>9} "
@@ -461,7 +510,9 @@ def main(argv: list[str]) -> int:
 
     if not args.complete:
         n_done = sum(1 for r in rows if r["complete"])
-        print(f"\n{n_done} / {len(rows)} TUs complete")
+        n_coal = sum(1 for r in rows if r["fully_coalesced"])
+        print(f"\n{n_done} / {len(rows)} TUs complete, "
+              f"{n_coal} fully coalesced")
     return 0
 
 
