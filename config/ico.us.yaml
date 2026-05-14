@@ -2611,7 +2611,17 @@ segments:
       - [0x14AB10, asm, cod/14AB10]
       - [0x14AE10, c,   cod/14AE10]            # func_0024AE10: return (func_00100930(4) & 0x10000) != 0
       - [0x14AE38, asm, cod/14AE38]
-      - [0x14B3E8, c,   syscalls_late]          # 11-func late syscall block @0x24B3E8..0x24B4D8 (10 SYSCALL_WRAPPER + 1 dispatch loop)
+      - [0x14B3E8, c,   cod/14B3E8]            # syscall wrapper (SYSCALL_WRAPPER macro)
+      - [0x14B3F8, c,   cod/14B3F8]            # func_0024B3F8: 6-iter dispatch loop -> func_0024B3E8
+      - [0x14B448, c,   cod/14B448]            # syscall wrapper (SYSCALL_WRAPPER macro)
+      - [0x14B458, c,   cod/14B458]            # syscall wrapper (SYSCALL_WRAPPER macro)
+      - [0x14B468, c,   cod/14B468]            # syscall wrapper (SYSCALL_WRAPPER macro)
+      - [0x14B478, c,   cod/14B478]            # syscall wrapper (SYSCALL_WRAPPER macro)
+      - [0x14B488, c,   cod/14B488]            # syscall wrapper (SYSCALL_WRAPPER macro)
+      - [0x14B498, c,   cod/14B498]            # syscall wrapper (SYSCALL_WRAPPER macro)
+      - [0x14B4A8, c,   cod/14B4A8]            # syscall wrapper (SYSCALL_WRAPPER macro)
+      - [0x14B4B8, c,   cod/14B4B8]            # syscall wrapper (SYSCALL_WRAPPER macro)
+      - [0x14B4C8, c,   cod/14B4C8]            # syscall wrapper (SYSCALL_WRAPPER macro)
       - [0x14B4D8, asm, cod/14B4D8]
       - [0x14B880, c,   cod/14B880]            # func_0024B880: cross-ptr copy
       - [0x14B88C, asm, cod/14B88C]
