@@ -1,4 +1,3 @@
-#include "matching.h"
 #include "regpin.h"
 
 extern int D_00281A70[];
@@ -10,18 +9,17 @@ extern void func_0013DD88(void);
 
 void func_0013DDA0(void)
 {
-    register int *p REG("$3") = D_00281A70;
-    register int *q REG("$2") = D_00281A90;
+    register int *a REG("$3") = D_00281A70;
+    register int *b REG("$2") = D_00281A90;
     register int i REG("$5");
-    NOP();
     for (i = 7; i >= 0; i--) {
-        *p = 0;
-        *q = 0;
-        p++;
-        q++;
+        *a = 0;
+        *b = 0;
+        a++;
+        b++;
     }
     func_0013E4D0();
     D_006321CC = 0;
     D_006321D0 = 0;
-    func_0013DD88();
+    return func_0013DD88();
 }
