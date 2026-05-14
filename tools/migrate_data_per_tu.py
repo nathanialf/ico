@@ -506,7 +506,8 @@ def _scan_existing_definitions() -> set[str]:
     legacy pool files (src/cod/sdata_pool.c, src/cod/lit4_pool.c)
     and any hand-typed TU sources that already cover some symbols."""
     out: set[str] = set()
-    for c_path in (REPO_ROOT / "src").rglob("*.c"):
+    src_paths = list((REPO_ROOT / "src").rglob("*.c")) + list((REPO_ROOT / "src").rglob("*.h"))
+    for c_path in src_paths:
         # Don't read our own _data sidecars — they're regenerated each
         # run, so symbols in them aren't a stable source-of-truth.
         if c_path.name.endswith("_data.c"):

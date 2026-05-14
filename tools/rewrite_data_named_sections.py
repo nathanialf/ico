@@ -81,7 +81,8 @@ def _load_migrated_symbols() -> set[str]:
     correspond to blocks the rewriter needs to strip)."""
     out: set[str] = set()
     # `Path.glob("src/**/*.c")` does not recurse by default; use rglob.
-    for c_path in (REPO_ROOT / "src").rglob("*.c"):
+    src_paths = list((REPO_ROOT / "src").rglob("*.c")) + list((REPO_ROOT / "src").rglob("*.h"))
+    for c_path in src_paths:
         text = c_path.read_text()
         for m in re.finditer(
             r'__attribute__\s*\(\(section\s*\(\s*"\.\w+\.0x([0-9A-Fa-f]+)"\s*\)\s*\)\)\s*'

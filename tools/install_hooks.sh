@@ -14,28 +14,32 @@ cat > "$HOOK" <<'EOF'
 #!/usr/bin/env bash
 # Auto-installed by tools/install_hooks.sh. Runs:
 #   1. tools/check_no_rom.sh    — IP-safety scan on staged files
-#   2. ninja                    — byte-identical-build gate (SHA-1 verify)
+#   2. tools/build.sh setup     — splat + migrator + ninja regen
+#   3. ninja                    — byte-identical-build gate (SHA-1 verify)
+#
+# The full-setup step matters: incremental ninja can be misleadingly
+# green if the per-TU data sidecars on disk happen to match a prior
+# state. Running setup forces the migrator/aligner/rewriter pipeline
+# to regenerate from current asm + linker map, so a commit can only
+# land if a clean-room rebuild also passes SHA-1.
 #
 # Bypass with --no-verify only when you're committing changes that
 # don't touch the build graph (docs-only edits, etc.) and you're
 # certain the build is still green.
 #
 # Notes:
-# * The ninja step is only invoked when the staged changes can plausibly
+# * Setup + ninja is invoked only when the staged changes can plausibly
 #   affect the build (src/, asm/, config/, tools/, include/, baserom/).
 #   Pure docs/notes commits skip it.
 # * If `build.ninja` is absent (fresh checkout), the hook prints a hint
-#   and skips ninja rather than forcing a full setup mid-commit.
-# * Ninja itself depends on `tools/build.sh setup` having been run for
-#   yaml changes — it does not re-run splat for you. If you edited the
-#   yaml, run setup before committing; otherwise stale .o files leak.
+#   and skips the gate rather than spending minutes mid-commit.
 set -e
 ROOT="$(git rev-parse --show-toplevel)"
 
 "$ROOT/tools/check_no_rom.sh"
 
 # Decide whether staged changes can affect the build. Pure-docs commits
-# (only docs/, README.md, .gitignore, etc.) bypass the ninja gate.
+# (only docs/, README.md, .gitignore, etc.) bypass the build gate.
 BUILD_SENSITIVE=$(git diff --cached --name-only -z |
     tr '\0' '\n' |
     grep -E '^(src/|asm/|config/|tools/|include/|baserom/|Makefile|build\.ninja$)' ||
@@ -57,6 +61,14 @@ fi
 if [[ -z "$NINJA" ]]; then
     echo "pre-commit: ninja not on PATH and .venv/bin/ninja missing — skip" >&2
     exit 0
+fi
+
+echo "pre-commit: tools/build.sh setup (full regen) ..."
+if ! "$ROOT/tools/build.sh" setup >/dev/null; then
+    echo "" >&2
+    echo "pre-commit: SETUP FAILED — splat/migrator pipeline errored." >&2
+    echo "  Run \`tools/build.sh setup\` manually to see the error." >&2
+    exit 1
 fi
 
 echo "pre-commit: ninja (SHA-1 gate) ..."

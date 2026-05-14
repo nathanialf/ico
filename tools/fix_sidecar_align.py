@@ -22,11 +22,19 @@ from pathlib import Path
 
 PAT = re.compile(
     r'__attribute__\(\(section\("\.(?P<sect>[\w.]+?)\.0x(?P<vma>[0-9A-Fa-f]+)"\)\)\)\s+'
-    r'(?P<ty>unsigned\s+(?:int|char|short))\s+'
+    r'(?P<ty>unsigned\s+(?:int|char|short)|void\s*\*)\s*'
     r'(?P<sym>\w+)\s*\[(?P<n>\d+)\]\s*=\s*\{(?P<body>[^}]*)\}\s*;\s*$'
 )
 
-ELEM_SIZE = {'unsigned int': 4, 'unsigned char': 1, 'unsigned short': 2}
+ELEM_SIZE = {'unsigned int': 4, 'unsigned char': 1, 'unsigned short': 2, 'void *': 4}
+
+
+def _normalize_ty(ty: str) -> str:
+    """Collapse internal whitespace so `void *` and `void*` map to the
+    same key in ELEM_SIZE."""
+    if 'void' in ty and '*' in ty:
+        return 'void *'
+    return ' '.join(ty.split())
 
 
 def split_line(line: str) -> list[str]:
@@ -35,7 +43,7 @@ def split_line(line: str) -> list[str]:
         return [line]
     sect = m.group('sect')
     vma = int(m.group('vma'), 16)
-    ty = ' '.join(m.group('ty').split())
+    ty = _normalize_ty(m.group('ty'))
     sym = m.group('sym')
     n = int(m.group('n'))
     body = m.group('body').strip()
