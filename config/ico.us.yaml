@@ -1330,7 +1330,7 @@ segments:
       - [0x09D9D8, c,   cod/09D9D8]            # func_0019D9D8: tail call func_00139598(a0 & 0x0FFFFFFF)
       - [0x09D9E8, asm, cod/09D9E8]
       - [0x09DA98, c,   cod/09DA98]            # func_0019DA98: promote: score-0 (new_var-load-before-store reordering)
-      - [0x09DAC4, asm, cod/09DAC4]
+      - [0x09DAC4, c,   cod/09DAC4]            # func_0019DAC8: circular buffer advance (promote permuter score-0)
       - [0x09DB08, c,   cod/09DB08]            # func_0019DB08: if (a0[3]!=0): *out = a0[0] + ((a0[2]-a0[3]+a0[1]) % a0[1]); return a0[3]
       - [0x09DB4C, asm, cod/09DB4C]
       - [0x09DB50, c,   cod/09DB50]            # func_0019DB50: sat-subtract: a0->C -= min(a0->C, a1)
