@@ -209,11 +209,37 @@ def _scan_sidecar(path: Path) -> dict[str, int]:
     return counts
 
 
-def _scan_typed_defs_per_tu(tu_files: dict[str, Path]) -> dict[str, dict[str, int]]:
+# Same pattern as SIDECAR_DEF_RE but also captures the symbol name.
+TYPED_SYM_RE = re.compile(
+    r'__attribute__\(\(section\("\.(?P<sect>data|rodata|lit4|sdata|sbss|bss)\.0x([0-9A-Fa-f]+)"\)\)\)'
+    r'\s+(?:[\w\s\*]+?)\s+(?P<sym>D_[0-9A-Fa-f]{8})\b'
+)
+
+
+def _scan_typed_defs_per_tu(tu_files: dict[str, Path]) -> tuple[dict[str, dict[str, int]], set[str]]:
     """For each TU's tracked `src/<TU>.c` (and per-TU `src/<TU>.h` if it
     exists), count typed section-attributed defs. These are symbols the
-    user has already moved out of the sidecar / asm."""
+    user has already moved out of the sidecar / asm.
+
+    Returns (counts_per_tu, all_typed_symbols). The symbol set lets
+    callers exclude already-typed entries from the `data_tu_map.json`
+    todo bucket — that map is generated from full asm before the
+    rewriter strips typed defs out, so it lists every symbol including
+    typed ones."""
     out: dict[str, dict[str, int]] = {}
+    typed_syms: set[str] = set()
+    # Also scan any non-`_data.c` source for typed defs — typed symbols
+    # owned by another TU still need to be excluded from `todo` counts
+    # globally (e.g. a typed def in src/Basic.c counts for Basic, but
+    # also means the symbol is "done" wherever data_tu_map says it lives).
+    for src_path in (REPO_ROOT / "src").rglob("*.c"):
+        if src_path.name.endswith("_data.c"):
+            continue
+        for m in TYPED_SYM_RE.finditer(src_path.read_text()):
+            typed_syms.add(m.group("sym"))
+    for src_path in (REPO_ROOT / "src").rglob("*.h"):
+        for m in TYPED_SYM_RE.finditer(src_path.read_text()):
+            typed_syms.add(m.group("sym"))
     for tu, src in tu_files.items():
         counts: dict[str, int] = Counter()
         for path in (src, src.with_suffix(".h")):
@@ -221,7 +247,7 @@ def _scan_typed_defs_per_tu(tu_files: dict[str, Path]) -> dict[str, dict[str, in
                 for m in SIDECAR_DEF_RE.finditer(path.read_text()):
                     counts["." + m.group(1)] += 1
         out[tu] = counts
-    return out
+    return out, typed_syms
 
 
 def _tu_filename(tu: str) -> Path:
@@ -303,11 +329,16 @@ def compute_tu_status() -> list[dict]:
     # four initialized sections — we use data_tu_map directly so the
     # accounting works uniformly for .sbss/.bss too.
     tu_files = {tu: _tu_filename(tu) for tu in all_tus}
-    typed = _scan_typed_defs_per_tu(tu_files)
+    typed, typed_syms = _scan_typed_defs_per_tu(tu_files)
 
-    # Bucket remaining (untyped) symbols by (TU, section).
+    # Bucket remaining (untyped) symbols by (TU, section). Skip any
+    # symbol that's already typed anywhere in tracked src/ — those are
+    # done; data_tu_map still lists them because it's built from full
+    # asm before the rewriter strips typed defs.
     todo_by_tu_sec: dict[str, dict[str, int]] = defaultdict(lambda: Counter())
     for sym, tu in data_tu.items():
+        if sym in typed_syms:
+            continue
         # VMA suffix is the last 8 hex chars of the symbol name.
         try:
             vma = int(sym.split("_")[-1], 16)
