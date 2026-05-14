@@ -7,23 +7,7 @@
  * supplies the 4 zero bytes (nop = 0x00000000) automatically.
  */
 
-#include "matching.h"
-#include "regpin.h"
-#include "include_asm.h"
-
-extern int   D_00633780;
-extern int   D_00633784;
-extern int   D_00632014;
-extern int   D_00632024;
-extern int   D_00633788[];
-extern char  D_0061A890[];
-extern char  D_0061A8A8[];
-extern void  func_00139598(void *p);
-extern void  func_001A6E28(char *p);
-extern void  func_001AD768(char *buf, int sz);
-extern void  func_00263FF0(char *buf, int sz, int *list);
-extern int   func_0013A0F8(int a0, int a1, char *file, int line);
-extern void  func_00139D78(int a0, int a1, char *a2, int a3);
+#include "Basic.h"
 
 int func_001F6CB0(int size)
 {
