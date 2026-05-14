@@ -48,6 +48,9 @@ split() {
     echo "==> mapping data symbols to TUs"
     "${VENV_PY}" tools/build_data_tu_map.py >/dev/null \
         || echo "WARN: build_data_tu_map.py failed; continuing without per-TU data"
+    echo "==> deriving per-TU section boundaries"
+    "${VENV_PY}" tools/build_data_tu_boundaries.py >/dev/null \
+        || echo "WARN: build_data_tu_boundaries.py failed; continuing"
     echo "==> emitting per-TU data sidecar .c files (gitignored)"
     "${VENV_PY}" tools/migrate_data_per_tu.py >/dev/null \
         || echo "WARN: migrate_data_per_tu.py failed; continuing"
