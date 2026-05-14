@@ -2520,7 +2520,7 @@ segments:
       - [0x150F70, c,   cod/150F70]            # func_00250F70: wrap func_00250C80(a0..a2, 0, -1)
       - [0x150F90, asm, cod/150F90]
       - [0x151AB0, c,   cod/151AB0]            # func_00251AB0: auto
-      - [0x151AB8, asm, cod/151AB8]
+      - [0x151AB8, c,   cod/151AB8]            # func_00251AB8: promote permuter score-0
       - [0x151AF0, c,   cod/151AF0]            # func_00251AF0: DMA-tag setup wrapper: p[0xB0]=1; p[0xD8]=a1|0x20000000; p[0xE4]=a2; p[0xDC]=0; p[0xE0]=0; f(self)
       - [0x151B38, c,   cod/151B38]
       - [0x151B7C, asm, cod/151B7C]
