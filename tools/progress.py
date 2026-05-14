@@ -36,10 +36,14 @@ except ImportError:
 REPO_ROOT = Path(__file__).resolve().parent.parent
 YAML = REPO_ROOT / "config" / "ico.us.yaml"
 BASEELF = REPO_ROOT / "baserom" / "baseelf.elf"
-SRC_DIR = REPO_ROOT / "src"
-BUILD_OBJ_DIR = REPO_ROOT / "build" / "src"
 README = REPO_ROOT / "README.md"
 PROGRESS_DOC = REPO_ROOT / "docs" / "PROGRESS.md"
+
+# Source roots that contribute to the "matched" tally. Phase 1
+# flattened ios/, sound/, isys/ out of src/ to repo-root siblings;
+# their compiled .o files live at build/<root>/ alongside build/src/.
+SOURCE_ROOTS = ("src", "ios", "sound", "isys")
+BUILD_OBJ_DIRS = tuple(REPO_ROOT / "build" / r for r in SOURCE_ROOTS)
 
 # Yaml subsegment types that correspond to each ELF section. Splat lumps
 # .vutext under `textbin` because it's hand-written VU code rather than
@@ -123,9 +127,13 @@ def _section_for_type(stype: str) -> str | None:
 
 
 def _src_exists(name: str, stype: str) -> bool:
-    if stype == "hasm":
-        return (SRC_DIR / f"{name}.s").exists()
-    return (SRC_DIR / f"{name}.c").exists()
+    # After the Phase 1 flatten, yaml subseg names are repo-root-
+    # relative (e.g. `src/DmaPacket`, `ios/cdvd`, `src/cod/0FBB48`).
+    # The earlier convention prepended `src/` here; that doubles the
+    # prefix and silently makes every check fail. Resolve directly
+    # against the repo root instead.
+    ext = "s" if stype == "hasm" else "c"
+    return (REPO_ROOT / f"{name}.{ext}").exists()
 
 
 def _section_for_object_section(name: str) -> str | None:
@@ -138,12 +146,13 @@ def _section_for_object_section(name: str) -> str | None:
 
 
 def _tracked_source_files() -> set[Path]:
-    """Set of `src/`-rooted .c/.s files that are tracked by git.
-    Used by `_walk_built_objects` to exclude .o files built from
-    gitignored sources (the auto-generated per-TU `_data.c` sidecars
-    contain raw bytes from the original ELF — IP-sensitive — so they
-    shouldn't count toward the "matched" progress. Only hand-typed
-    sources, which are tracked, contribute.)
+    """Set of repo-rooted .c/.s files tracked by git across every
+    source root (src/, ios/, sound/, isys/). Used by
+    `_walk_built_objects` to exclude .o files built from gitignored
+    sources — the auto-generated per-TU `_data.c` sidecars contain
+    raw bytes from the original ELF (IP-sensitive) and shouldn't
+    count toward the "matched" progress. Only hand-typed sources,
+    which are tracked, contribute.
 
     Falls back to "track everything" if `git ls-files` isn't available
     (e.g. running outside a git checkout)."""
@@ -151,7 +160,7 @@ def _tracked_source_files() -> set[Path]:
     try:
         out = subprocess.check_output(
             ["git", "-C", str(REPO_ROOT), "ls-files",
-             "src/", "--", "*.c", "*.s"],
+             *[f"{r}/" for r in SOURCE_ROOTS], "--", "*.c", "*.s"],
             text=True, stderr=subprocess.DEVNULL,
         )
     except (subprocess.CalledProcessError, FileNotFoundError):
@@ -161,18 +170,16 @@ def _tracked_source_files() -> set[Path]:
 
 def _walk_built_objects() -> dict[str, int]:
     """Sum non-text section bytes across every built object under
-    build/src/ whose corresponding source file is tracked by git.
-    Untracked sources (the auto-generated per-TU `_data.c` files
-    in particular) are *excluded* because their byte content comes
-    directly from the original ELF and isn't a hand-typed clean-room
-    reconstruction — counting them inflates the "matched" numbers
-    with bytes we haven't actually decompiled.
+    build/{src,ios,sound,isys}/ whose corresponding source file is
+    tracked by git. Untracked sources (the auto-generated per-TU
+    `_data.c` files in particular) are *excluded* because their byte
+    content comes directly from the original ELF and isn't a hand-
+    typed clean-room reconstruction — counting them inflates the
+    "matched" numbers with bytes we haven't actually decompiled.
 
     Returns zeros if the build tree is missing — running progress
     before a build is supported (e.g. fresh clone, post-`tools/build.sh split`)."""
     matched: dict[str, int] = {p: 0 for p in OBJECT_SECTION_PREFIXES}
-    if not BUILD_OBJ_DIR.exists():
-        return matched
 
     tracked = _tracked_source_files()
     # tracked == empty set with falsy bool => no filtering (git not
@@ -181,29 +188,31 @@ def _walk_built_objects() -> dict[str, int]:
     # we'd rather show inflated progress than no progress.
     no_filter = not tracked
 
-    for obj in BUILD_OBJ_DIR.rglob("*.o"):
-        if not no_filter:
-            # Recover the source path from the .o path. The Makefile
-            # rule is `$(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.s` and a
-            # mirroring rule for .c, so swapping the prefix and trying
-            # both extensions covers all cases.
-            rel = obj.relative_to(BUILD_OBJ_DIR)
-            src_c = REPO_ROOT / "src" / rel.with_suffix(".c")
-            src_s = REPO_ROOT / "src" / rel.with_suffix(".s")
-            if src_c not in tracked and src_s not in tracked:
-                continue
-        try:
-            with obj.open("rb") as f:
-                elf = ELFFile(f)
-                for sec in elf.iter_sections():
-                    if sec["sh_type"] == "SHT_NOBITS":
-                        continue
-                    bucket = _section_for_object_section(sec.name)
-                    if bucket is None:
-                        continue
-                    matched[bucket] += sec["sh_size"]
-        except Exception as e:
-            print(f"progress: skipping {obj.name}: {e}", file=sys.stderr)
+    for build_root in BUILD_OBJ_DIRS:
+        if not build_root.exists():
+            continue
+        for obj in build_root.rglob("*.o"):
+            if not no_filter:
+                # Map the .o path back to its source .c/.s under the
+                # mirroring source root (build/<root>/X.o → <root>/X.c).
+                rel = obj.relative_to(build_root)
+                root_name = build_root.name
+                src_c = REPO_ROOT / root_name / rel.with_suffix(".c")
+                src_s = REPO_ROOT / root_name / rel.with_suffix(".s")
+                if src_c not in tracked and src_s not in tracked:
+                    continue
+            try:
+                with obj.open("rb") as f:
+                    elf = ELFFile(f)
+                    for sec in elf.iter_sections():
+                        if sec["sh_type"] == "SHT_NOBITS":
+                            continue
+                        bucket = _section_for_object_section(sec.name)
+                        if bucket is None:
+                            continue
+                        matched[bucket] += sec["sh_size"]
+            except Exception as e:
+                print(f"progress: skipping {obj.name}: {e}", file=sys.stderr)
     return matched
 
 
@@ -253,9 +262,12 @@ def _fmt_pct(matched: int, total: int) -> str:
 README_BEGIN = "<!-- progress:begin -->"
 README_END = "<!-- progress:end -->"
 
-# Sections shown in the README rollup. .vutext / .lit4 / .sdata are
-# small or non-matchable, omitted from the public-facing summary.
-README_SECTIONS = [".text", ".data", ".rodata"]
+# Sections shown in the README rollup. .vutext is omitted (opaque VU
+# microcode, blob-extracted, not a decomp target). The rest reflect
+# real progress — .lit4 / .sdata are small in byte count but the
+# percentage signals migration health of the per-VMA typed-def
+# pipeline.
+README_SECTIONS = [".text", ".data", ".rodata", ".lit4", ".sdata"]
 
 
 def _render_readme_table(progress: dict[str, tuple[int, int]]) -> str:

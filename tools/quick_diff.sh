@@ -33,16 +33,25 @@ else
     exit 3
 fi
 
-# Resolve target asm. Splat 0.40.0 emits per-function baselines under
-# asm/matchings/<name>/<func>.s when a subsegment is `[addr, c, name]`.
-# Older splat versions (and hand-written stubs) live under asm/nonmatchings/.
-# Try matchings first, then nonmatchings.
-if [[ -d "asm/matchings/$NAME" ]]; then
-    ASM_DIR="asm/matchings/$NAME"
-elif [[ -d "asm/nonmatchings/$NAME" ]]; then
-    ASM_DIR="asm/nonmatchings/$NAME"
-else
-    echo "quick_diff: no asm/matchings/$NAME or asm/nonmatchings/$NAME" >&2
+# Resolve target asm. Splat emits per-function baselines under
+# asm/matchings/<yaml-subseg-name>/<func>.s when a subsegment is
+# `[addr, c, name]`. Since the repo flattened src/ios/sound/isys to
+# repo-root paths (yaml subsegs like `src/DmaPacket`), splat puts the
+# asm at `asm/matchings/src/<TU>/`. We try a few shapes so the user
+# can pass either the bare TU name (`layout_texture`) or the path
+# (`src/layout_texture`).
+for candidate in \
+    "asm/matchings/$NAME" \
+    "asm/matchings/src/$NAME" \
+    "asm/nonmatchings/$NAME" \
+    "asm/nonmatchings/src/$NAME"; do
+    if [[ -d "$candidate" ]]; then
+        ASM_DIR="$candidate"
+        break
+    fi
+done
+if [[ -z "${ASM_DIR:-}" ]]; then
+    echo "quick_diff: no asm/matchings/$NAME (or src/$NAME) and no asm/nonmatchings/$NAME" >&2
     echo "  did you flip the yaml entry to 'c' and run 'tools/build.sh setup'?" >&2
     exit 4
 fi
