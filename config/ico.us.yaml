@@ -108,7 +108,8 @@ segments:
       - [0x000C48, c,   cod/000C48]            # func_00100C48: func_00100C48: word copy loop n=a2>>2; ret 0
       - [0x000C80, c   ,   cod/000C80]            # syscall wrapper (SYSCALL_WRAPPER macro)
       - [0x000C90, asm, cod/000C90]
-      - [0x0010C8, asm, cod/0010C8]
+      - [0x0010C8, c,   cod/0010C8]
+      - [0x001100, asm, cod/001100]
       - [0x0011B0, c,   cod/0011B0]            # func_001011B0: if a0==0xA: func_001010C8(0xD); func_001010C8(0xA) else: tail call func_001010C8(a0)
       - [0x0011E4, asm, cod/0011E4]
       - [0x0019A8, asm, cod/0019A8]
@@ -155,7 +156,7 @@ segments:
       - [0x004A48, asm, cod/004A48]
       - [0x004EF0, c,   cod/004EF0]            # func_00104EF0: D_00631B40=0; 3-call seq: 243BD8, 0E9F8, tail 10D520
       - [0x004F1C, asm, cod/004F1C]
-      - [0x004F20, asm, cod/004F20]
+      - [0x004F20, c,   cod/004F20]
       - [0x004F48, asm, cod/004F48]
 
       - [0x0050B0, c,   cod/0050B0]
@@ -874,7 +875,7 @@ segments:
       - [0x0652B8, c,   cod/0652B8]            # func_001652B8
       - [0x0652CC, asm, cod/0652CC]
       - [0x0652D0, c,   cod/0652D0]            # func_001652D0: D_002A4C48[a0->_8 * 0x4C]._48 bit 18
-      - [0x0652F8, asm, cod/0652F8]
+      - [0x0652F8, c,   cod/0652F8]
       - [0x065344, asm, cod/065344]
       - [0x0653A0, c,   cod/0653A0]            # func_001653A0: two-step deref + cond return
       - [0x0653D0, c,   cod/0653D0]            # func_001653D0: return p->1E0 == 1
@@ -1040,7 +1041,8 @@ segments:
       - [0x07D098, c,   cod/07D098]            # func_0017D098: count non-zero of D_006CF910[i*0x14] for i=0..1
       - [0x07D0CC, asm, cod/07D0CC]
       - [0x07D0D0, c,   cod/07D0D0]            # func_0017D0D0: promoted from permuter score-0
-      - [0x07D0F8, asm, cod/07D0F8]
+      - [0x07D0F8, c,   cod/07D0F8]
+      - [0x07D128, asm, cod/07D128]
       - [0x07D1D0, asm, cod/07D1D0]
       - [0x07D230, c,   cod/07D230]            # func_0017D230: func_0017E188(a0); func_0017E188(0); set _16C=1 on result; call func_001F2148(first)
       - [0x07D270, c  , cod/07D270]            # func_0017D270
@@ -1321,7 +1323,8 @@ segments:
       - [0x09BB5C, asm, cod/09BB5C]
       - [0x09C010, c,   cod/09C010]            # func_0019C010: D_00633DE0=0x3C; func_001A6E28(&D_0055C720)
       - [0x09C024, asm, cod/09C024]
-      - [0x09C798, asm, cod/09C798]
+      - [0x09C798, c,   cod/09C798]
+      - [0x09C7D0, asm, cod/09C7D0]
       - [0x09CF70, c,   cod/09CF70]            # func_0019CF70: auto-batch
       - [0x09CF78, c,   cod/09CF78]            # func_0019CF78: tail call func_0023DEB0(&D_006DC718)
       - [0x09CF84, asm, cod/09CF84]
@@ -1396,7 +1399,7 @@ segments:
       - [0x0A1008, c,   cod/0A1008]            # func_001A1008: init 4 sdata: D_00632888=0; D_00633E30=-1; D_00633E24=0; D_00633E44=0
       - [0x0A1020, c,   cod/0A1020]            # func_001A1020: D_00633E28 = 0
       - [0x0A1028, c,   cod/0A1028]
-      - [0x0A1030, asm, cod/0A1030]
+      - [0x0A1030, c,   cod/0A1030]
       - [0x0A10B0, c,   cod/0A10B0]            # func_001A10B0: same as 1A1030 but only copy slot when *(int*)(dst+0x14)==1
       - [0x0A1138, asm, cod/0A1138]
       - [0x0A2D58, c,   cod/0A2D58]            # func_001A2D58: D_006E4890[idx*0x18] +0 (la-macro mult lw)
@@ -1513,7 +1516,8 @@ segments:
       - [0x0AFB98, asm, cod/0AFB98]
       - [0x0B0518, c,   cod/0B0518]            # func_001B0518: promote-test: subagent seed (unscored, may match)
       - [0x0B0538, c,   cod/0B0538]            # func_001B0538: zero 30 entries (stride 0x20) at D_00706110[0..0x3A0]; clear D_00633E6C/E70
-      - [0x0B0570, asm, cod/0B0570]
+      - [0x0B0570, c,   cod/0B0570]
+      - [0x0B05A8, asm, cod/0B05A8]
       - [0x0B0A38, c,   cod/0B0A38]            # func_001B0A38: init 5 globals to 0
       - [0x0B0A54, asm, cod/0B0A54]
       - [0x0B0A58, c,   cod/0B0A58]            # func_001B0A58: D_00633024 = 1, return 1
@@ -1983,14 +1987,16 @@ segments:
       - [0x0FB480, c,   cod/0FB480]            # func_001FB480: 0x3200 / D / 2 (signed)
       - [0x0FB4A8, c,   cod/0FB4A8]            # func_001FB4A8: init 5 sdata: 0; 0x80 x4
       - [0x0FB4C4, asm, cod/0FB4C4]
-      - [0x0FB880, asm, cod/0FB880]
+      - [0x0FB880, c,   cod/0FB880]
+      - [0x0FB8B8, asm, cod/0FB8B8]
       - [0x0FBA80, c,   cod/0FBA80]            # func_001FBA80: clamp [0, 0xC] store
       - [0x0FBAA8, asm, cod/0FBAA8]
       - [0x0FBB40, c,   cod/0FBB40]            # func_001FBB40: return D_00633F70
       - [0x0FBB48, asm, cod/0FBB48]
       - [0x0FBBE0, asm, cod/0FBBE0]
       - [0x0FBC14, asm, cod/0FBC14]
-      - [0x0FBC18, asm, cod/0FBC18]
+      - [0x0FBC18, c,   cod/0FBC18]
+      - [0x0FBC48, asm, cod/0FBC48]
       - [0x0FC040, c,   cod/0FC040]            # func_001FC040: auto
       - [0x0FC048, asm, cod/0FC048]
       - [0x0FC168, c,   cod/0FC168]            # func_001FC168: promote: score-0 from permuter (parked tough_nut)
@@ -2591,7 +2597,8 @@ segments:
       - [0x155F80, asm, cod/155F80]
       - [0x156BF8, c,   cod/156BF8]            # func_00256BF8: while (func_002564E0(1)) func_002563C8(8)
       - [0x156C2C, asm, cod/156C2C]
-      - [0x157850, asm, cod/157850]
+      - [0x157850, c,   cod/157850]
+      - [0x157888, asm, cod/157888]
       - [0x158450, c,   cod/158450]            # func_00258450: shift extract: (int)(*p >> (64-n))
       - [0x15846C, asm, cod/15846C]
       - [0x158508, c,   cod/158508]            # func_00258508: ret=f1(self,a1); f2(self,a1); return ret
