@@ -179,7 +179,32 @@ else
     echo "==> non-apt host; install pcsx2 manually from https://pcsx2.net"
 fi
 
-# --- 7. pre-commit hook ------------------------------------------------------
+# --- 7. slinky (linker script generator) ------------------------------------
+#
+# slinky generates the linker script from a YAML manifest, decoupling
+# layout from splat. We need it for the per-TU section-promotion path
+# (Phase 3 of the per-TU layout migration) — splat's emitted ld script
+# uses SORT_BY_NAME(.X.0x*) for data placement, which conflicts with
+# ee-gcc 2.9's small-data heuristic when typed sdata defs live in the
+# same TU as their referencing function. slinky lets us emit per-input-
+# file linker rules in VMA order, supporting plain `.sdata` defs that
+# preserve %gp_rel codegen.
+#
+# Install via cargo (Rust >= 1.70). Pre-built binaries:
+#   https://github.com/decompals/slinky/releases
+
+if [[ "${SKIP_SLINKY:-0}" == "1" ]]; then
+    echo "==> SKIP_SLINKY=1; not installing slinky"
+elif command -v slinky-cli >/dev/null 2>&1; then
+    echo "==> slinky-cli already on PATH ($(slinky-cli --version 2>/dev/null || echo unknown))"
+elif command -v cargo >/dev/null 2>&1; then
+    echo "==> installing slinky-cli via cargo"
+    cargo install slinky-cli || echo "==> slinky-cli install failed; install manually if needed" >&2
+else
+    echo "==> cargo not available; skipping slinky-cli (install Rust then re-run, or grab binary from https://github.com/decompals/slinky/releases)" >&2
+fi
+
+# --- 8. pre-commit hook ------------------------------------------------------
 
 if [[ -d .git ]]; then
     bash tools/install_hooks.sh
