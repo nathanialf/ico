@@ -1,0 +1,20 @@
+#include "matching.h"
+#include "regpin.h"
+
+extern int D_0055266C[];
+extern void func_002521C0(void);
+extern void func_00252058(void);
+
+void func_00252180(void)
+{
+    register int d REG("$3") = D_0055266C[0];
+    register int v REG("$2");
+    KEEP_LIVE(d);
+    v = 3;
+    if (d != v) {
+        func_002521C0();
+    } else {
+        func_00252058();
+    }
+    DEFEAT_TCO();
+}
