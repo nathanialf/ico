@@ -1,0 +1,14 @@
+extern int func_0026AC40(int a0, int *a1);
+
+int func_00266870(int a0, int *a1)
+{
+    int ret = 0;
+    if (a1[2] != 0) {
+        ret = func_0026AC40(a0, a1);
+        a1[1] = 0;
+        a1[2] = 0;
+    } else {
+        a1[1] = 0;
+    }
+    return ret;
+}
