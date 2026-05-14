@@ -373,7 +373,7 @@ segments:
       - [0x018578, c   ,   cod/018578]            # VU0 wrapper (vu0.h macros)
       - [0x0185A4, asm, cod/0185A4]
       - [0x0185A8, c   ,   cod/0185A8]            # GPR quadword copy (lq/sq)
-      - [0x0185D0, asm, cod/0185D0]
+      - [0x0185D0, c   ,   cod/0185D0]            # VU0 4x4 matrix multiply (vu0.h macros)
       - [0x018648, c   ,   cod/018648]            # VU0 wrapper (vu0.h macros)
       - [0x018678, c   ,   cod/018678]            # VU0 wrapper (vu0.h macros)
       - [0x0186A0, c   ,   cod/0186A0]            # VU0 wrapper (vu0.h macros)
