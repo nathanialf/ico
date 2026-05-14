@@ -877,6 +877,7 @@ segments:
       - [0x0652D0, c,   cod/0652D0]            # func_001652D0: D_002A4C48[a0->_8 * 0x4C]._48 bit 18
       - [0x0652F8, c,   cod/0652F8]
       - [0x065344, asm, cod/065344]
+      - [0x065348, c,   cod/065348]
       - [0x0653A0, c,   cod/0653A0]            # func_001653A0: two-step deref + cond return
       - [0x0653D0, c,   cod/0653D0]            # func_001653D0: return p->1E0 == 1
       - [0x0653E8, c,   cod/0653E8]            # func_001653E8: return p->1E0 == 2
@@ -930,6 +931,7 @@ segments:
       - [0x068CC8, asm, cod/068CC8]
       - [0x06A130, c,   cod/06A130]            # func_0016A130: D=1; call(); D=0
       - [0x06A154, asm, cod/06A154]
+      - [0x06A158, c,   cod/06A158]
       - [0x06A1B8, c,   cod/06A1B8]            # func_0016A1B8: rebase 2 ptr offsets to abs
       - [0x06A1D4, asm, cod/06A1D4]
       - [0x06A240, c,   cod/06A240]            # func_0016A240: loop 4 iters: log(D,i); i++; f(p); p+=0x10
@@ -1334,6 +1336,7 @@ segments:
       - [0x09D9E8, asm, cod/09D9E8]
       - [0x09DA98, c,   cod/09DA98]            # func_0019DA98: promote: score-0 (new_var-load-before-store reordering)
       - [0x09DAC4, asm, cod/09DAC4]
+      - [0x09DAC8, c,   cod/09DAC8]
       - [0x09DB08, c,   cod/09DB08]            # func_0019DB08: if (a0[3]!=0): *out = a0[0] + ((a0[2]-a0[3]+a0[1]) % a0[1]); return a0[3]
       - [0x09DB4C, asm, cod/09DB4C]
       - [0x09DB50, c,   cod/09DB50]            # func_0019DB50: sat-subtract: a0->C -= min(a0->C, a1)
@@ -1508,6 +1511,7 @@ segments:
       - [0x0AE948, c,   cod/0AE948]            # func_001AE948: callback dispatch loop on self[fn], terminator 0
       - [0x0AE9A8, c,   cod/0AE9A8]            # func_001AE9A8: f1(self, buf, 0x12); D = (f2(D2, buf) != 0) ? 1 : 0
       - [0x0AE9EC, asm, cod/0AE9EC]
+      - [0x0AE9F0, c,   cod/0AE9F0]
       - [0x0AEA50, c,   cod/0AEA50]            # func_001AEA50: tail call func_00102858 passthrough
       - [0x0AEA58, c,   cod/0AEA58]            # func_001AEA58: tail call func_0010ECB8 passthrough
       - [0x0AEA60, c,   cod/0AEA60]            # func_001AEA60: auto-batch
@@ -2169,6 +2173,7 @@ segments:
       - [0x129CA0, c,   cod/129CA0]            # func_00229CA0: store-arg-discard
       - [0x129CB0, c,   cod/129CB0]            # func_00229CB0: init+wait pattern: f1(0x142,1,0); while(!f2(0x142)) yield(1); cleanup sequence
       - [0x129D2C, asm, cod/129D2C]
+      - [0x129D30, c,   cod/129D30]
       - [0x129D88, c,   cod/129D88]            # func_00229D88: stack-buf wrapper: copy 16 bytes from D_0061BF80 to buf; f1(D2,0,buf,0,100.0); f2(0)
       - [0x129DDC, asm, cod/129DDC]
       - [0x129DE0, c,   cod/129DE0]            # func_00229DE0: sibling: D_0061BF90 instead of D_0061BF80
@@ -2574,6 +2579,7 @@ segments:
       - [0x152550, c,   cod/152550]            # func_00252550: tail call func_002642D8(&D_0062ED08, a0)
       - [0x152560, c,   cod/152560]            # func_00252560: buf[64] init via 3-arg call + buf-only call
       - [0x15258C, asm, cod/15258C]
+      - [0x152590, c,   cod/152590]
       - [0x1525E8, asm, cod/1525E8]
       - [0x1526C0, c,   cod/1526C0]            # func_002526C0: a0->[1..4]=a1,a2,a1>>4,a2>>4; ret 1
       - [0x1526E0, asm, cod/1526E0]
