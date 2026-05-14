@@ -2133,7 +2133,7 @@ segments:
       - [0x0FBA80, c, src/cod/0FBA80]            # func_001FBA80: clamp [0, 0xC] store
       - [0x0FBAA8, asm, src/cod/0FBAA8]
       - [0x0FBB40, c, src/cod/0FBB40]            # func_001FBB40: return D_00633F70
-      - [0x0FBB48, c, src/cod/0FBB48]            # func_001FBB48: init D_004C7710 packet slots via func_0013A0F8 (DmaPacket TU)
+      - [0x0FBB48, c, src/DmaPacket]             # func_001FBB48: init D_004C7710 packet slots (DmaPacket TU)
       - [0x0FBBE0, asm, src/cod/0FBBE0]
       - [0x0FBC14, asm, src/cod/0FBC14]
       - [0x0FBC18, c, src/cod/0FBC18]

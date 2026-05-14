@@ -498,11 +498,25 @@ def _ensure_use_modern_as(basenames: list[str]) -> None:
 
 
 def _scan_existing_definitions() -> set[str]:
-    """Symbols already defined in any tracked src/ .c file via
-    `__attribute__((section(".X.0xVMA")))`. The per-TU migrator must
-    skip these to avoid duplicate-definition link errors with the
-    legacy pool files (src/cod/sdata_pool.c, src/cod/lit4_pool.c)
-    and any hand-typed TU sources that already cover some symbols."""
+    """Symbols already defined in any tracked src/ .c file. The per-TU
+    migrator must skip these to avoid duplicate-definition link errors
+    with the legacy pool files (src/cod/sdata_pool.c, src/cod/lit4_pool.c)
+    and any hand-typed TU sources that already cover some symbols.
+
+    Two def shapes are recognized:
+
+    1. Typed def with explicit section attr:
+       `__attribute__((section(".sdata.0x00632014"))) int D_00632014 = 0;`
+       This is the legacy migrator-emitted shape and still covers most
+       sidecar symbols.
+
+    2. Plain def (no section attr):
+       `int D_00632014 = 0;` / `const char D_0061AC60[N] = "...";`
+       This shape lands in tracked TU files after Phase 3d promotion
+       (typed attr stripped so ee-gcc emits %gp_rel for same-TU
+       references). An `extern` declaration of the same symbol is NOT
+       a def — the regex anchors on `=` after the symbol name.
+    """
     out: set[str] = set()
     # Walk every source root: src/, plus the original ICO sibling
     # subsystems ios/, sound/, isys/ (relocated to repo root).
@@ -512,18 +526,31 @@ def _scan_existing_definitions() -> set[str]:
         if root_dir.is_dir():
             src_paths += list(root_dir.rglob("*.c"))
             src_paths += list(root_dir.rglob("*.h"))
+    typed_re = re.compile(
+        r'__attribute__\s*\(\(section\s*\(\s*"\.\w+\.0x([0-9A-Fa-f]+)"\s*\)\s*\)\)\s*'
+        r'(?:[\w\s\*]+?)\s+(D_[0-9A-Fa-f]{8})\b'
+    )
+    # Plain def: a line whose top-level statement defines `D_<VMA>`
+    # with `=`. The symbol MUST be preceded by at least one type
+    # token (e.g. `int`, `const char`, `unsigned int *`) so we don't
+    # match in-function array writes like `    D_X[0] = ...;`.
+    # `extern` declarations have no `=` so they don't match.
+    plain_re = re.compile(
+        r'(?m)^(?!\s*extern\b)[ \t]*'                      # line start, not extern
+        r'(?:[A-Za-z_]\w*\s+)+'                            # one+ type tokens
+        r'\**\s*'                                          # optional `*`s
+        r'(D_[0-9A-Fa-f]{8})\b\s*(?:\[[^\]]*\])?\s*='      # name [optional N] =
+    )
     for c_path in src_paths:
         # Don't read our own _data sidecars — they're regenerated each
         # run, so symbols in them aren't a stable source-of-truth.
         if c_path.name.endswith("_data.c"):
             continue
         text = c_path.read_text()
-        for m in re.finditer(
-            r'__attribute__\s*\(\(section\s*\(\s*"\.\w+\.0x([0-9A-Fa-f]+)"\s*\)\s*\)\)\s*'
-            r'(?:[\w\s\*]+?)\s+(D_[0-9A-Fa-f]{8})\b',
-            text,
-        ):
+        for m in typed_re.finditer(text):
             out.add(m.group(2))
+        for m in plain_re.finditer(text):
+            out.add(m.group(1))
     return out
 
 

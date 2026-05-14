@@ -76,11 +76,20 @@ TARGETS = [
 
 
 def _load_migrated_symbols() -> set[str]:
-    """Collect every `D_<VMA>` symbol defined in any src/cod/*_pool.c.
-    Pool definitions use these symbol names (and optionally split
-    multi-byte symbols into _pad_<VMA> continuation chunks, which we
-    intentionally ignore here — only the ORIGINAL asm dlabel names
-    correspond to blocks the rewriter needs to strip)."""
+    """Collect every `D_<VMA>` symbol defined in any tracked source.
+
+    Two def shapes are recognized — same as
+    `tools/migrate_data_per_tu.py::_scan_existing_definitions`:
+
+    1. Typed:  `__attribute__((section(".X.0xVMA"))) <type> D_X = ...;`
+    2. Plain:  `<type> D_X = ...;` (Phase 3d promoted TUs strip the
+       typed attr so ee-gcc emits %gp_rel for same-TU references —
+       the symbol is still defined here, so the asm-side blanket must
+       still strip it to avoid a multiple-def link error).
+
+    `extern` declarations (no `=`) are not definitions — the plain
+    regex anchors on `=` after the symbol name.
+    """
     out: set[str] = set()
     # Walk every source root: `src/` plus the original ICO sibling
     # subsystems `ios/`, `sound/`, `isys/` (relocated to repo root).
@@ -90,14 +99,25 @@ def _load_migrated_symbols() -> set[str]:
         if root_dir.is_dir():
             src_paths += list(root_dir.rglob("*.c"))
             src_paths += list(root_dir.rglob("*.h"))
+    typed_re = re.compile(
+        r'__attribute__\s*\(\(section\s*\(\s*"\.\w+\.0x([0-9A-Fa-f]+)"\s*\)\s*\)\)\s*'
+        r'[\w\s\*]+?\b(D_[0-9A-Fa-f]{8})\b'
+    )
+    # See migrate_data_per_tu.py::_scan_existing_definitions for the
+    # full rationale; in short: require a type token before the
+    # symbol so in-function `D_X[0] = ...;` writes don't match.
+    plain_re = re.compile(
+        r'(?m)^(?!\s*extern\b)[ \t]*'
+        r'(?:[A-Za-z_]\w*\s+)+'
+        r'\**\s*'
+        r'(D_[0-9A-Fa-f]{8})\b\s*(?:\[[^\]]*\])?\s*='
+    )
     for c_path in src_paths:
         text = c_path.read_text()
-        for m in re.finditer(
-            r'__attribute__\s*\(\(section\s*\(\s*"\.\w+\.0x([0-9A-Fa-f]+)"\s*\)\s*\)\)\s*'
-            r'[\w\s\*]+?\b(D_[0-9A-Fa-f]{8})\b',
-            text,
-        ):
+        for m in typed_re.finditer(text):
             out.add(m.group(2))
+        for m in plain_re.finditer(text):
+            out.add(m.group(1))
     return out
 
 # Detect already-rewritten files.
