@@ -58,6 +58,20 @@ fi
 
 if [[ -n "${1:-}" ]]; then
     TARGET_ASM="$ASM_DIR/$1.s"
+    # In coalesced TUs, the matched funcs live under asm/matchings/src/<TU>/
+    # while the still-INCLUDE_ASM'd funcs live under asm/nonmatchings/src/<TU>/.
+    # When the caller asks for a specific func name, fall through to the
+    # nonmatchings sibling dir if the file isn't in the chosen ASM_DIR.
+    if [[ ! -f "$TARGET_ASM" ]]; then
+        case "$ASM_DIR" in
+            asm/matchings/src/*) ALT_DIR="asm/nonmatchings/src/${ASM_DIR#asm/matchings/src/}" ;;
+            asm/matchings/*)     ALT_DIR="asm/nonmatchings/${ASM_DIR#asm/matchings/}" ;;
+            *)                   ALT_DIR="" ;;
+        esac
+        if [[ -n "$ALT_DIR" && -f "$ALT_DIR/$1.s" ]]; then
+            TARGET_ASM="$ALT_DIR/$1.s"
+        fi
+    fi
 else
     # Default: pick the only .s, error if there are several.
     mapfile -t asms < <(find "$ASM_DIR" -maxdepth 1 -name '*.s' | sort)

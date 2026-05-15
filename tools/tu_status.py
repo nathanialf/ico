@@ -133,6 +133,35 @@ def _load_yaml_text_subs() -> list[tuple[int, str, str, bool]]:
     return out
 
 
+_NM_DIR_RE = re.compile(r'INCLUDE_ASM\s*\(\s*"[^"]*/nonmatchings/([^"]+)"\s*,\s*func_([0-9A-Fa-f]+)')
+
+
+def _load_include_asm_vmas() -> set[int]:
+    """Scan tracked C files for `INCLUDE_ASM(...nonmatchings/<dir>", func_<VMA>)`
+    invocations. Those funcs are NOT C-source matched even though their
+    c-subseg owns them — they're the placeholder for unmatched funcs in
+    a partially-coalesced TU (Basic.c-style). Tu_status should treat
+    them as unmatched."""
+    out: set[int] = set()
+    for root_name in ("src", "ios", "sound", "isys"):
+        root_dir = REPO_ROOT / root_name
+        if not root_dir.is_dir():
+            continue
+        for src_path in root_dir.rglob("*.c"):
+            if src_path.name.endswith("_data.c"):
+                continue
+            try:
+                text = src_path.read_text()
+            except Exception:
+                continue
+            for m in _NM_DIR_RE.finditer(text):
+                try:
+                    out.add(int(m.group(2), 16))
+                except ValueError:
+                    pass
+    return out
+
+
 def _load_tu_func_map() -> dict[int, str]:
     """vram -> TU for every function that's been tagged in tu_map.json."""
     if not TU_MAP_JSON.exists():
@@ -283,6 +312,7 @@ def compute_tu_status() -> list[dict]:
     tu_regions = _load_tu_regions()
     data_tu = _load_data_tu_map()
     all_vmas = _load_all_func_vmas()
+    include_asm_vmas = _load_include_asm_vmas()
 
     # All TUs known to the system.
     all_tus: set[str] = set()
@@ -319,6 +349,8 @@ def compute_tu_status() -> list[dict]:
         return intervals[i]
 
     def _is_matched(vma: int) -> bool:
+        if vma in include_asm_vmas:
+            return False
         iv = _interval_for(vma)
         return bool(iv and iv[1])
 
@@ -343,6 +375,19 @@ def compute_tu_status() -> list[dict]:
     text_total: dict[str, int] = Counter()
     text_matched: dict[str, int] = Counter()
     text_coalesced: dict[str, int] = Counter()
+    # Approximate per-TU sum of instructions in still-unmatched funcs:
+    # size(func) = (next_vma - this_vma); insns = size/4. Tells us
+    # whether a TU's unmatched funcs are 4-insn wrappers or 200-insn
+    # state machines — more honest than function counts for target
+    # selection.
+    unmatched_insns: dict[str, int] = Counter()
+    _sorted_vmas = sorted(all_vmas)
+    _vma_pos = {v: i for i, v in enumerate(_sorted_vmas)}
+    def _insns_at(vma: int) -> int:
+        i = _vma_pos.get(vma)
+        if i is None or i + 1 >= len(_sorted_vmas):
+            return 0
+        return max(0, (_sorted_vmas[i + 1] - vma) // 4)
 
     tagged_addrs_by_tu: dict[str, set[int]] = defaultdict(set)
     for vma, tu in func_tu.items():
@@ -355,6 +400,8 @@ def compute_tu_status() -> list[dict]:
             text_total[tu] += 1
             if _is_matched(vma):
                 text_matched[tu] += 1
+            else:
+                unmatched_insns[tu] += _insns_at(vma)
             if _is_coalesced(vma, tu):
                 text_coalesced[tu] += 1
 
@@ -365,6 +412,8 @@ def compute_tu_status() -> list[dict]:
             text_total[tu] += 1
             if _is_matched(vma):
                 text_matched[tu] += 1
+            else:
+                unmatched_insns[tu] += _insns_at(vma)
             if _is_coalesced(vma, tu):
                 text_coalesced[tu] += 1
 
@@ -424,6 +473,7 @@ def compute_tu_status() -> list[dict]:
             "text_matched": tm,
             "text_total": tt,
             "text_coalesced": tc,
+            "unmatched_insns": unmatched_insns.get(tu, 0),
             "data_done": data_done,
             "data_total": data_total,
             "sections": sec_data,
@@ -488,17 +538,22 @@ def main(argv: list[str]) -> int:
         return 0
 
     # Table. `text` = functions matched anywhere; `coal` = functions
-    # specifically compiled out of the TU's own .c (subset of text).
-    cols = ["text", "coal", "data", ".data", ".rodata", ".lit4",
+    # specifically compiled out of the TU's own .c (subset of text);
+    # `uninsn` = approximate sum of instructions in still-unmatched
+    # funcs (size derived from next-vma deltas).
+    cols = ["text", "coal", "uninsn", "data", ".data", ".rodata", ".lit4",
             ".sdata", ".sbss", ".bss"]
     hdr = f"{'TU':<46}" + "".join(f" {c:>9}" for c in cols) + "  done?"
     print(hdr)
     print("-" * len(hdr))
     for r in rows:
         s = r["sections"]
+        ui = r["unmatched_insns"]
+        ui_s = f"{ui:>9}" if ui else "        —"
         print(f"{r['tu']:<46} "
               f"{_fmt_section(r['text_matched'], r['text_total']):>9} "
               f"{_fmt_section(r['text_coalesced'], r['text_total']):>9} "
+              f"{ui_s} "
               f"{_fmt_section(r['data_done'], r['data_total']):>9} "
               f"{_fmt_section(*s['.data']):>9} "
               f"{_fmt_section(*s['.rodata']):>9} "

@@ -1236,10 +1236,7 @@ segments:
       - [0x080B38, asm, src/cod/080B38]
       - [0x080F38, c, src/cod/080F38]            # func_00180F38: D_00632600 = 0
       - [0x080F40, asm, src/cod/080F40]
-      - [0x081BB8, c, src/cod/081BB8]
-      - [0x081BC0, c, src/cod/081BC0]
-      - [0x081BC8, c, src/cod/081BC8]            # func_00181BC8: buf[28] + 2-call wrapper
-      - [0x081BF8, asm, src/cod/081BF8]
+      - [0x081960, c, src/attackhit]             # TU promotion: src/attackhit.c covers 0x181960..0x181F38 (6 funcs); 3 matched + 3 INCLUDE_ASM
       - [0x081F38, c, src/cod/081F38]            # func_00181F38: if (D_0028A894) tail call func_00182C18(D_0028A894)
       - [0x081F58, c, src/cod/081F58]            # func_00181F58: permuter score-0 promotion
       - [0x081FAC, asm, src/cod/081FAC]

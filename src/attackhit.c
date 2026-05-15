@@ -1,43 +1,34 @@
-/* attackhit.c -- typed sdata / lit4 definitions for this TU.
+/* src/attackhit.c — __FILE__ anchor at .rodata 0x0055A518
  *
- * Generated initially by tools/decode_sdata_lit4_typed.py
- * from baserom/baseelf.elf. Each line is a developer
- * reconstruction of one game variable or constant; the
- * file is tracked because the typed forms (named float
- * constants, string literals, single hex-word declarations)
- * are clean-room rather than raw byte arrays.
+ * TU range: [0x00181960, 0x00181F38)  (next subseg: src/cod/081F38 at 0x00181F38)
  *
- * As the TU gets fully decompiled, function definitions
- * land in this same file (per-TU layout); typed
- * data declarations stay here next to their references.
- *
- * Downstream tools (rewrite_data_named_sections.py,
- * migrate_data_per_tu.py _scan_existing_definitions) detect
- * the D_<VMA> name on each line and drop the corresponding
- * asm-generated and sidecar definitions.
+ * Six funcs:
+ *   - func_00181960 (anchor; complex linked-list scan with debug logs)
+ *   - func_00181BB8 (jr ra + nop — empty stub)
+ *   - func_00181BC0 (jr ra + nop — empty stub)
+ *   - func_00181BC8 (small wrapper: forward to func_00180F40 + func_00181960)
+ *   - func_00181BF8 (anchor; long initializer using D_0055A3F0 template)
+ *   - func_00181D88 (anchor; same shape as func_00181BF8 at line 0x300)
  */
 
-__attribute__((section(".sdata.0x00632DBC"))) int D_00632DBC = 0;
+#include "attackhit.h"
 
-__attribute__((section(".rodata.0x0055A518"))) const char D_0055A518[16] = "src/attackhit.c";
+INCLUDE_ASM("asm/nonmatchings/src/attackhit", func_00181960);
 
-__attribute__((section(".rodata.0x0055A528"))) const char D_0055A528[16] = "gop!=NULL";
+void func_00181BB8(void) {}
 
-/* String rodata migrated from attackhit_data.c */
-__attribute__((section(".rodata.0x0055A4B0"))) const char D_0055A4B0[16] = "flag ok\n";
-__attribute__((section(".rodata.0x0055A4C0"))) const char D_0055A4C0[16] = "group ok\n";
-__attribute__((section(".rodata.0x0055A4D0"))) const char D_0055A4D0[16] = "invincible ok\n";
-__attribute__((section(".rodata.0x0055A4E0"))) const char D_0055A4E0[16] = "geometry ok\n";
-__attribute__((section(".rodata.0x0055A4F0"))) const char D_0055A4F0[16] = "id equal error\n";
-__attribute__((section(".rodata.0x0055A500"))) const char D_0055A500[24] = "mail send ok [%d]\n";
-__attribute__((section(".rodata.0x0055A538"))) const char D_0055A538[48] = "brainStatusDefaultSet: brain target area over\n";
+void func_00181BC0(void) {}
 
-/* Float rodata migrated from attackhit_data.c */
-__attribute__((section(".rodata.0x0055A5A8"))) const float D_0055A5A8[2] = { 89128.96f, 0.955f };
+void func_00181BC8(int a0)
+{
+    int buf[28];
+    int *v0 = *(int **)((char *)a0 + 0x164);
+    func_00180F40(buf, a0, v0[0x140 / 4]);
+    func_00181960(buf);
+}
 
-/* EUC-JP debug strings — re-derived from EE rodata bytes via
- * EUC-JP decoding. Octal escapes preserve byte-identical layout
- * without requiring source-encoding compiler flags. */
-/* EUC-JP: "ブレインレベルのオーバーライドに失敗しました
-" */
-__attribute__((section(".rodata.0x0055A568"))) const char D_0055A568[48] = "\245\326\245\354\245\244\245\363\245\354\245\331\245\353\244\316\245\252\241\274\245\320\241\274\245\351\245\244\245\311\244\313\274\272\307\324\244\267\244\336\244\267\244\277\n";
+/* func_00181BF8 parked at tough_nuts/func_00181BF8/ (67-byte diff plateau;
+ * gcc 2.9 caller-save regalloc choices for D_0055A3F0 copy loop). */
+INCLUDE_ASM("asm/nonmatchings/src/attackhit", func_00181BF8);
+
+INCLUDE_ASM("asm/nonmatchings/src/attackhit", func_00181D88);
