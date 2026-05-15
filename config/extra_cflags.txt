@@ -38,3 +38,4 @@ BASIC -fno-schedule-insns
 0ADBC0 -fno-schedule-insns
 14DA80 -fno-schedule-insns
 0AA4F0 -fno-schedule-insns
+GOBJ_PROCESS -fno-strength-reduce
