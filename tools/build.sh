@@ -64,6 +64,8 @@ split() {
 }
 
 setup() {
+    echo "==> clean build/ (full rebuild — incremental ninja silently retains stale .o files when only .h/.s deps change, masking yaml-flip / coalesce regressions)"
+    rm -rf build .ninja_log .ninja_deps
     echo "==> verifying base ROM SHA-1"
     "${VENV_PY}" tools/verify_elf.py --target "${BASEROM}"
     split
