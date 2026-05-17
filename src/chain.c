@@ -17,53 +17,6 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".lit4.0x00630F00"))) float D_00630F00 = -0.2f;
-__attribute__((section(".lit4.0x00630F04"))) float D_00630F04 = 0.1f;
-__attribute__((section(".lit4.0x00630F08"))) float D_00630F08 = 3.14159274f;
-__attribute__((section(".lit4.0x00630F0C"))) float D_00630F0C = 0.6f;
-__attribute__((section(".lit4.0x00630F10"))) float D_00630F10 = -0.01f;
-__attribute__((section(".lit4.0x00630F14"))) float D_00630F14 = -0.05f;
-__attribute__((section(".lit4.0x00630F18"))) float D_00630F18 = -0.15f;
-__attribute__((section(".lit4.0x00630F1C"))) float D_00630F1C = -0.01f;
-__attribute__((section(".lit4.0x00630F20"))) float D_00630F20 = -0.05f;
-__attribute__((section(".lit4.0x00630F24"))) float D_00630F24 = -0.15f;
-__attribute__((section(".lit4.0x00630F28"))) float D_00630F28 = -0.01f;
-__attribute__((section(".lit4.0x00630F2C"))) float D_00630F2C = -0.2f;
-__attribute__((section(".lit4.0x00630F30"))) float D_00630F30 = -0.3f;
-__attribute__((section(".lit4.0x00630F34"))) float D_00630F34 = -0.05f;
-__attribute__((section(".lit4.0x00630F38"))) float D_00630F38 = -0.15f;
-__attribute__((section(".lit4.0x00630F3C"))) float D_00630F3C = -1.57079637f;
-__attribute__((section(".lit4.0x00630F40"))) float D_00630F40 = -0.01f;
-__attribute__((section(".lit4.0x00630F44"))) float D_00630F44 = -0.05f;
-__attribute__((section(".lit4.0x00630F48"))) float D_00630F48 = -0.15f;
-__attribute__((section(".lit4.0x00630F4C"))) float D_00630F4C = -0.01f;
-__attribute__((section(".lit4.0x00630F50"))) float D_00630F50 = -0.05f;
-__attribute__((section(".lit4.0x00630F54"))) float D_00630F54 = -0.15f;
-__attribute__((section(".lit4.0x00630F58"))) float D_00630F58 = -1.57079637f;
-__attribute__((section(".lit4.0x00630F5C"))) float D_00630F5C = -0.05f;
-__attribute__((section(".lit4.0x00630F60"))) float D_00630F60 = 0.675f;
-__attribute__((section(".lit4.0x00630F64"))) float D_00630F64 = 3.14159274f;
-__attribute__((section(".lit4.0x00630F68"))) float D_00630F68 = 0.2f;
-__attribute__((section(".lit4.0x00630F6C"))) float D_00630F6C = 3.14159274f;
-__attribute__((section(".lit4.0x00630F70"))) float D_00630F70 = 3.14159274f;
-__attribute__((section(".lit4.0x00630F74"))) float D_00630F74 = -0.2f;
-__attribute__((section(".lit4.0x00630F78"))) float D_00630F78 = 0.1f;
-__attribute__((section(".lit4.0x00630F7C"))) float D_00630F7C = -0.2f;
-__attribute__((section(".lit4.0x00630F80"))) float D_00630F80 = 0.1f;
-__attribute__((section(".lit4.0x00630F84"))) float D_00630F84 = 0.1f;
-__attribute__((section(".lit4.0x00630F88"))) float D_00630F88 = -0.1f;
-__attribute__((section(".lit4.0x00630F8C"))) float D_00630F8C = 3.14159274f;
-__attribute__((section(".lit4.0x00630F90"))) float D_00630F90 = -0.2f;
-__attribute__((section(".lit4.0x00630F94"))) float D_00630F94 = 0.1f;
-__attribute__((section(".lit4.0x00630F98"))) float D_00630F98 = 3.14159274f;
-__attribute__((section(".sdata.0x00632758"))) int D_00632758 = 0x7F7FFFFF;
-__attribute__((section(".sdata.0x0063275C"))) int D_0063275C = 0x00000000;
-__attribute__((section(".sdata.0x00632760"))) const char D_00632760[8] = "0";
-__attribute__((section(".sdata.0x00632768"))) unsigned int D_00632768 = 0x000A6425;
-__attribute__((section(".sdata.0x0063276C"))) unsigned int D_0063276C = 0x7F7FFFFF;
-__attribute__((section(".sdata.0x00632770"))) unsigned int D_00632770 = 0x7F7FFFFF;
-__attribute__((section(".sdata.0x00632CBC"))) int D_00632CBC = 0;
-__attribute__((section(".sdata.0x00632D94"))) int D_00632D94 = 0;
 
 __attribute__((section(".rodata.0x0055AA90"))) const char D_0055AA90[16] = "src/chain.c";
 
@@ -104,3 +57,40 @@ __attribute__((section(".rodata.0x0055AC60"))) const char D_0055AC60[64] = "\272
 方向が間違っているか、壁が無いところに置いていませんか?[m
 " */
 __attribute__((section(".rodata.0x0055ACC0"))) const char D_0055ACC0[104] = "\033[33m\272\277\244\316\276\345\244\316\312\311\244\362\270\253\311\325\244\261\244\353\244\263\244\310\244\254\244\307\244\255\244\336\244\273\244\363\241\243\n\312\375\270\376\244\254\264\326\260\343\244\303\244\306\244\244\244\353\244\253\241\242\312\311\244\254\314\265\244\244\244\310\244\263\244\355\244\313\303\326\244\244\244\306\244\244\244\336\244\273\244\363\244\253?\033[m\n";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018D100);
+INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018D3A0);
+INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018D4F0);
+INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018D640);
+INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018D708);
+INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018D7D0);
+INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018D928);
+INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018DAC8);
+INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018DB90);
+INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018DD80);
+
+extern int D_00632CBC;
+extern int D_00633DA0;
+extern void func_001A6A30(int a, int b, int c, const char *d);
+
+void func_0018DDF0(int a0)
+{
+    if (D_00632CBC & 1) {
+        D_00633DA0 = D_00633DA0 + 0xA;
+        func_001A6A30(0xA, D_00633DA0, 0x0FFFFFFF, D_0055ABA8);
+    }
+    func_0018D4F0(a0);
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018DE48);
+INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018DF00);
+INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018DFF8);
+INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018E188);
+INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018E5B0);
+INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018EB70);
+INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018ECC8);
+INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018F640);
+INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018F798);
+INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018F8E8);

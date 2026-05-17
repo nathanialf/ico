@@ -1338,8 +1338,8 @@ segments:
       - [0x08CFEC, asm, src/cod/08CFEC]
       - [0x08CFF0, c, src/cod/08CFF0]            # func_0018CFF0: D_00632744 = 0
       - [0x08CFF8, asm, src/cod/08CFF8]
-      - [0x08DDF0, c, src/cod/08DDF0]            # func_0018DDF0: if(D1&1) { D2+=0xA; f(0xA, D2, 0xFFFFFFF, D_X); } tail f2(a0)
-      - [0x08DE48, asm, src/cod/08DE48]
+      - [0x08D100, c, src/chain]                 # TU promotion: 0x18D100..0x18FA70 (20 INCLUDE_ASM + 1 matched func)
+      - [0x08FA70, asm, src/cod/08FA70]
       - [0x090298, c, src/cod/090298]            # func_00190298: self->15C->800->60 = 1; jal func_0018D100(self); ret 1
       - [0x0902C8, c, src/cod/0902C8]            # func_001902C8: 4-insn sb_zero
       - [0x0902D8, asm, src/cod/0902D8]            # func_001902D8: load-store of vec; min via bc1tl (uses modern-as for FCC nop)
