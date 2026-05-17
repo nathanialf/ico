@@ -456,24 +456,8 @@ segments:
       - [0x014E14, asm, src/cod/014E14]
       - [0x014FB8, c, src/cod/014FB8]            # func_00114FB8: empty 0x180 frame
       - [0x014FC4, asm, src/cod/014FC4]
-      - [0x017750, c, src/cod/017750]            # func_00117750: 3-sdata zero
-      - [0x017760, c, src/cod/017760]
-      - [0x017768, asm, src/cod/017768]
-      - [0x0177C8, asm, src/cod/0177C8]
-      - [0x017820, asm, src/cod/017820]
-      - [0x01788C, asm, src/cod/01788C]
-      - [0x017C20, c, src/cod/017C20]            # VU0 wrapper (vu0.h macros)
-      - [0x017C40, c, src/cod/017C40]            # VU0 wrapper (vu0.h macros)
-      - [0x017C5C, asm, src/cod/017C5C]
-      - [0x017C60, c, src/cod/017C60]            # VU0 wrapper (vu0.h macros)
-      - [0x017C7C, asm, src/cod/017C7C]
-      - [0x017C80, c, src/cod/017C80]            # VU0 wrapper (vu0.h macros)
-      - [0x017C98, c, src/cod/017C98]            # VU0 wrapper (vu0.h macros)
-      - [0x017CB0, c, src/cod/017CB0]            # VU0 wrapper (vu0.h macros)
-      - [0x017CCC, asm, src/cod/017CCC]
-      - [0x017CD0, c, src/cod/017CD0]            # VU0 wrapper (vu0.h macros)
-      - [0x017CE0, c, src/cod/017CE0]            # VU0 wrapper (vu0.h macros)
-      - [0x017CEC, asm, src/cod/017CEC]
+      - [0x014FC8, c, src/Light]                 # TU promotion: 0x114FC8..0x117DB0 (18 INCLUDE_ASM + 10 matched)
+      - [0x017DB0, asm, src/cod/017DB0]
       - [0x017FC0, c, src/cod/017FC0]            # VU0 wrapper (vu0.h macros)
       - [0x017FD8, c, src/cod/017FD8]            # VU0 wrapper (vu0.h macros)
       - [0x017FE4, asm, src/cod/017FE4]

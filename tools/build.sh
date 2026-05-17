@@ -34,6 +34,10 @@ regen_ninja() {
 }
 
 split() {
+    # ICO patches the installed splat to add `$` to r5900 special VU0
+    # operands ($ACC, $Q) in per-func nonmatching .s files. The patch
+    # dies on every `pip install`, so re-apply (idempotent) here.
+    "${VENV_PY}" tools/patch_splat.py
     echo "==> running splat against ${SPLAT_YAML}"
     "${SPLAT}" split "${SPLAT_YAML}"
     echo "==> postprocessing linker script (sbss/bss alignment fix)"
