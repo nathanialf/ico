@@ -2163,8 +2163,7 @@ segments:
       - [0x100AD4, asm, src/cod/100AD4]
       - [0x101DC8, c, src/cod/101DC8]            # func_00201DC8: set bit 21 of (sub+0x428)
       - [0x101DE0, asm, src/cod/101DE0]
-      - [0x103910, c, src/cod/103910]
-      - [0x103918, asm, src/cod/103918]
+      - [0x102148, c, src/act]                   # TU promotion: 0x202148..0x203A10 (7 INCLUDE_ASM + 1 matched func)
       - [0x103A10, asm, src/cod/103A10]
       - [0x103A58, asm, src/cod/103A58]            # func_00203A58: if(n==0) loop forever; else countdown call func_0013D3F0()
       - [0x103AA0, asm, src/cod/103AA0]
