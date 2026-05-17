@@ -17,42 +17,6 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".lit4.0x00630A9C"))) float D_00630A9C = 0.1f;
-__attribute__((section(".lit4.0x00630AA0"))) float D_00630AA0 = 0.05f;
-__attribute__((section(".lit4.0x00630AA4"))) float D_00630AA4 = -0.00277777785f;
-__attribute__((section(".lit4.0x00630AA8"))) float D_00630AA8 = 3000.0f;
-__attribute__((section(".lit4.0x00630AAC"))) float D_00630AAC = 0.1f;
-__attribute__((section(".lit4.0x00630AB0"))) float D_00630AB0 = 10000.0f;
-__attribute__((section(".lit4.0x00630AB4"))) float D_00630AB4 = 3000.0f;
-__attribute__((section(".lit4.0x00630AB8"))) float D_00630AB8 = 0.1f;
-__attribute__((section(".lit4.0x00630ABC"))) float D_00630ABC = 3000.0f;
-__attribute__((section(".lit4.0x00630AC0"))) float D_00630AC0 = 0.1f;
-__attribute__((section(".lit4.0x00630AC4"))) float D_00630AC4 = 0.0174532924f;
-__attribute__((section(".lit4.0x00630AC8"))) float D_00630AC8 = 0.8f;
-__attribute__((section(".lit4.0x00630ACC"))) float D_00630ACC = 0.8f;
-__attribute__((section(".lit4.0x00630AD0"))) float D_00630AD0 = 5000.0f;
-__attribute__((section(".lit4.0x00630AD4"))) float D_00630AD4 = -1.57079637f;
-__attribute__((section(".lit4.0x00630AD8"))) float D_00630AD8 = 1.57079637f;
-__attribute__((section(".lit4.0x00630ADC"))) float D_00630ADC = 12100.0f;
-__attribute__((section(".lit4.0x00630AE0"))) float D_00630AE0 = 160000.0f;
-__attribute__((section(".lit4.0x00630AE4"))) float D_00630AE4 = 0.3f;
-__attribute__((section(".lit4.0x00630AE8"))) float D_00630AE8 = 0.2f;
-__attribute__((section(".sdata.0x00631AEC"))) int D_00631AEC = 0;
-__attribute__((section(".sdata.0x00632200"))) unsigned int D_00632200 = 0x00005010;
-__attribute__((section(".sdata.0x00632204"))) unsigned int D_00632204 = 0x001D9020;
-__attribute__((section(".sdata.0x00632208"))) unsigned int D_00632208 = 0x0000000A;
-__attribute__((section(".sdata.0x0063220C"))) float D_0063220C = 1.0f;
-__attribute__((section(".sdata.0x00632210"))) int D_00632210 = 0;
-__attribute__((section(".sdata.0x00632214"))) int D_00632214 = 0;
-__attribute__((section(".sdata.0x00632218"))) char D_00632218[8] = { 0 };
-__attribute__((section(".sdata.0x00632220"))) unsigned int D_00632220 = 0x00000030;
-__attribute__((section(".sdata.0x00632224"))) int D_00632224 = 0;
-__attribute__((section(".sdata.0x00632228"))) int D_00632228 = 0x00000001;
-__attribute__((section(".sdata.0x0063222C"))) int D_0063222C = 0x00000000;
-__attribute__((section(".sdata.0x00632230"))) const char D_00632230[8] = ">";
-__attribute__((section(".sdata.0x00632238"))) unsigned int D_00632238 = 0x00000020;
-__attribute__((section(".sdata.0x0063223C"))) int D_0063223C = 0;
-__attribute__((section(".sdata.0x00632240"))) int D_00632240 = 0;
 
 __attribute__((section(".rodata.0x00557CC8"))) const char D_00557CC8[16] = "sound/s_init.c";
 __attribute__((section(".rodata.0x00557D80"))) const char D_00557D80[16] = "center x";
@@ -87,3 +51,139 @@ __attribute__((section(".rodata.0x00557E88"))) const char D_00557E88[24] = "soun
 __attribute__((section(".rodata.0x00557EA0"))) const char D_00557EA0[16] = "IosSndLock %d\n";
 __attribute__((section(".rodata.0x00557EB0"))) const char D_00557EB0[32] = "SOUND MANAGER START\n";
 __attribute__((section(".rodata.0x00557ED0"))) const char D_00557ED0[16] = "with mail\n";
+
+#include "include_asm.h"
+#include "matching.h"
+#include "regpin.h"
+
+
+extern int D_00632240;
+extern int func_00135EB8(int x, char *p, int b);
+extern void func_001A6E28();
+
+void func_00141340(void) {
+    int v = func_00135EB8(0x78000, D_00557CC8, 0xFE);
+    D_00632240 = v;
+    if (v < 0) {
+        func_001A6E28(D_00557CD8);
+    } else {
+        func_001A6E28(D_00557CF0, v, 0x78000);
+    }
+}
+
+
+INCLUDE_ASM_NOP_PAD(func_0014139C);
+
+
+extern void func_0024A1E0(int a0);
+void func_001413A0(void)
+{
+    func_0024A1E0(D_00632240);
+}
+
+
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_001413A8);
+
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00141660);
+
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00141868);
+
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00141980);
+
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00141C28);
+
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00141D18);
+
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00141E00);
+
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00141F58);
+
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00142008);
+
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00142208);
+
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00142890);
+
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00142C60);
+
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00143138);
+
+
+extern void func_00143138(int a0, int a1);
+void func_00143240(int a0)
+{
+    func_00143138(a0, 0);
+}
+
+
+
+void func_00143248(int a0)
+{
+    func_00143138(a0, 1);
+}
+
+
+
+extern char D_006A98B0[];
+extern int func_0025DA68(int a0);
+
+void func_00143250(int a0)
+{
+    char *entry;
+    short id;
+    entry = &D_006A98B0[(a0 & 0xFF) * 64];
+    id = *(short *)(entry + 0x10);
+    if (id < 0) return;
+    a0 = a0 >> 8;
+    if (a0 != *(unsigned short *)entry) return;
+    func_0025DA68(id);
+}
+
+
+INCLUDE_ASM_NOP_PAD(func_0014328C);
+
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00143290);
+
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_001434B0);
+
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00143948);
+
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00143AD0);
+
+
+extern int D_00632214;
+
+int func_00143B88(void) {
+    return D_00632214;
+}
+
+
+
+extern int D_00632208;
+
+int func_00143B90(void) {
+    return D_00632208;
+}
+
+
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00143B98);
+
+
+extern long long D_00633CD8;
+
+void func_00143CB0(char *self) {
+    long long mask = ~*(long long *)(self + 0x18);
+    D_00633CD8 &= mask;
+    *(long long *)(self + 0x18) = 0;
+}
+
+
+INCLUDE_ASM_NOP_PAD(func_00143CCC);
+
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00143CD0);
+
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00143D18);
+
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00143E60);
+
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00143FC0);

@@ -46,3 +46,4 @@ GOBJ_PROCESS -fno-strength-reduce
 # .p2align 3 (8-byte) which adds +4 byte pad when the matched body's
 # VMA mod 8 == 4, cascading SHA-1 mismatch.
 SWITCH -malign-functions=2
+S_INIT -malign-functions=2
