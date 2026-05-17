@@ -571,8 +571,8 @@ segments:
       - [0x029AA8, asm, src/cod/029AA8]
       - [0x02AA78, c, src/cod/02AA78]            # func_0012AA78: tail call func_001FAA30 passthrough
       - [0x02AA80, asm, src/cod/02AA80]
-      - [0x02BBE8, c, src/cod/02BBE8]            # func_0012BBE8: func_001FBAA8(2, a0+0x58, 5); tail call func_001FB8B8()
-      - [0x02BC0C, asm, src/cod/02BC0C]
+      - [0x02AED0, c, src/Texture]               # TU promotion: 0x12AED0..0x12D4A0 (17 INCLUDE_ASM + 1 matched func)
+      - [0x02D4A0, asm, src/cod/02D4A0]
       - [0x02FD30, c, src/cod/02FD30]            # func_0012FD30
       - [0x02FD4C, asm, src/cod/02FD4C]
       - [0x02FD50, c, src/cod/02FD50]            # func_0012FD50: wrap func_0012D218(a0, 0)

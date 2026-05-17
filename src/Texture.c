@@ -17,62 +17,6 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".sdata.0x00631DD0"))) const char D_00631DD0[8] = "0";
-__attribute__((section(".sdata.0x00631DD8"))) const char D_00631DD8[8] = "FALSE";
-__attribute__((section(".sdata.0x00631DE0"))) const char D_00631DE0[8] = "ICO";
-__attribute__((section(".sdata.0x00631DE8"))) const char D_00631DE8[8] = "e";
-__attribute__((section(".sdata.0x00631DF0"))) const char D_00631DF0[8] = "%s";
-__attribute__((section(".sdata.0x00631DF8"))) const char D_00631DF8[8] = "1:%s\n";
-__attribute__((section(".sdata.0x00631E00"))) const char D_00631E00[8] = "%s.tm2";
-__attribute__((section(".sdata.0x00631E08"))) char D_00631E08[8] = { 0 };
-__attribute__((section(".sdata.0x00631E10"))) int D_00631E10 = 0x80808080;
-__attribute__((section(".sdata.0x00631E14"))) int D_00631E14 = 0x00000000;
-__attribute__((section(".sdata.0x00631E18"))) const char D_00631E18[8] = "SELTEX";
-__attribute__((section(".sdata.0x00631E20"))) const char D_00631E20[8] = "SCRL-U";
-__attribute__((section(".sdata.0x00631E28"))) const char D_00631E28[8] = "SCRL-V";
-__attribute__((section(".sdata.0x00631E30"))) const char D_00631E30[8] = "AMP-U ";
-__attribute__((section(".sdata.0x00631E38"))) const char D_00631E38[8] = "AMP-V ";
-__attribute__((section(".sdata.0x00631E40"))) const char D_00631E40[8] = "CS-BGN";
-__attribute__((section(".sdata.0x00631E48"))) const char D_00631E48[8] = "CS-END";
-__attribute__((section(".sdata.0x00631E50"))) const char D_00631E50[8] = "CS-SPD";
-__attribute__((section(".sdata.0x00631E58"))) const char D_00631E58[8] = "CS-STP";
-__attribute__((section(".sdata.0x00631E60"))) const char D_00631E60[8] = "SHINE ";
-__attribute__((section(".sdata.0x00631E68"))) const char D_00631E68[8] = "SMPMAG";
-__attribute__((section(".sdata.0x00631E70"))) const char D_00631E70[8] = "SMPMIN";
-__attribute__((section(".sdata.0x00631E78"))) const char D_00631E78[8] = "TEXFNC";
-__attribute__((section(".sdata.0x00631E80"))) const char D_00631E80[8] = "ALPTST";
-__attribute__((section(".sdata.0x00631E88"))) const char D_00631E88[8] = "ALPFAI";
-__attribute__((section(".sdata.0x00631E90"))) const char D_00631E90[] = "MIPMAPK";
-__attribute__((section(".sdata.0x00631E98"))) const char D_00631E98[] = "MIPMAPL";
-__attribute__((section(".sdata.0x00631EA0"))) int D_00631EA0 = 0x00000001;
-__attribute__((section(".sdata.0x00631EA4"))) int D_00631EA4 = 0x00000000;
-__attribute__((section(".sdata.0x00631EA8"))) int D_00631EA8 = 0xFFFFFF00;
-__attribute__((section(".sdata.0x00631EAC"))) int D_00631EAC = 0xFFC0C000;
-__attribute__((section(".sdata.0x00631EB0"))) const char D_00631EB0[8] = "%s:%d";
-__attribute__((section(".sdata.0x00631EB8"))) const char D_00631EB8[8] = "%s:%f";
-__attribute__((section(".sdata.0x00631EC0"))) const char D_00631EC0[8] = "C-8";
-__attribute__((section(".sdata.0x00631EC8"))) const char D_00631EC8[8] = "C-4";
-__attribute__((section(".sdata.0x00631ED0"))) const char D_00631ED0[8] = "D32";
-__attribute__((section(".sdata.0x00631ED8"))) const char D_00631ED8[8] = "D24";
-__attribute__((section(".sdata.0x00631EE0"))) const char D_00631EE0[8] = "D16";
-__attribute__((section(".sdata.0x00631EE8"))) const char D_00631EE8[8] = "NON";
-__attribute__((section(".sdata.0x00631EF0"))) const char D_00631EF0[8] = "32";
-__attribute__((section(".sdata.0x00631EF8"))) const char D_00631EF8[8] = "24";
-__attribute__((section(".sdata.0x00631F00"))) const char D_00631F00[8] = "16";
-__attribute__((section(".sdata.0x00631F08"))) const char D_00631F08[8] = "--";
-__attribute__((section(".sdata.0x00631F10"))) int D_00631F10 = 0x00000080;
-__attribute__((section(".sdata.0x00631F14"))) int D_00631F14 = 0x00000000;
-__attribute__((section(".sdata.0x00631F18"))) unsigned int D_00631F18 = 0x00000020;
-__attribute__((section(".sdata.0x00631F1C"))) int D_00631F1C = 0;
-__attribute__((section(".sdata.0x00631F20"))) char D_00631F20[8] = { 0 };
-__attribute__((section(".sdata.0x00631F28"))) const char D_00631F28[8] = "Z";
-__attribute__((section(".sdata.0x00631F30"))) const char D_00631F30[8] = "On";
-__attribute__((section(".sdata.0x00631F38"))) unsigned int D_00631F38 = 0x0066664F;
-__attribute__((section(".sdata.0x00631F3C"))) int D_00631F3C = 0;
-__attribute__((section(".sdata.0x00631F40"))) const char D_00631F40[] = "%s : %s";
-__attribute__((section(".sdata.0x00631F48"))) const char D_00631F48[] = "%s : %d";
-__attribute__((section(".sdata.0x00632C9C"))) int D_00632C9C = 0;
-__attribute__((section(".sdata.0x00632CA0"))) int D_00632CA0 = 0;
 
 __attribute__((section(".rodata.0x00555ED8"))) const char D_00555ED8[16] = "src/Texture.c";
 
@@ -136,3 +80,33 @@ __attribute__((section(".rodata.0x00556510"))) const char D_00556510[56] = "tex_
 /* EUC-JP: "tex_TransTexture:テクスチャの転送に失敗しました. %d:%s
 " */
 __attribute__((section(".rodata.0x00556548"))) const char D_00556548[56] = "tex_TransTexture:\245\306\245\257\245\271\245\301\245\343\244\316\305\276\301\367\244\313\274\272\307\324\244\267\244\336\244\267\244\277. %d:%s\n";
+
+#include "include_asm.h"
+
+extern void func_001FBAA8(int a0, int a1, int a2);
+extern void func_001FB8B8(void);
+
+INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012AED0);
+INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012AFC0);
+INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012B1C0);
+INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012B850);
+INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012BA68);
+
+void func_0012BBE8(int a0)
+{
+    func_001FBAA8(2, a0 + 0x58, 5);
+    func_001FB8B8();
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012BC0C);
+INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012BC10);
+INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012BEB0);
+INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012C050);
+INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012C3D0);
+INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012C610);
+INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012C6F0);
+INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012C8F8);
+INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012CB70);
+INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012CEF8);
+INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012D218);
+INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012D370);
