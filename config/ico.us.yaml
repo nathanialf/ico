@@ -567,10 +567,8 @@ segments:
       - [0x028710, asm, src/cod/028710]
       - [0x0287B8, c, src/cod/0287B8]            # func_001287B8: f12>0 ? store f12 : load+store src
       - [0x0287E8, asm, src/cod/0287E8]
-      - [0x029A78, c, src/cod/029A78]            # func_00129A78: func_001FAA58(); if D_00274ED4: return; tail call func_00117768()
-      - [0x029AA8, asm, src/cod/029AA8]
-      - [0x02AA78, c, src/cod/02AA78]            # func_0012AA78: tail call func_001FAA30 passthrough
-      - [0x02AA80, asm, src/cod/02AA80]
+      - [0x028868, c, src/StageAnimation]        # TU promotion: 0x128868..0x12AB50 (15 INCLUDE_ASM + 2 matched funcs)
+      - [0x02AB50, asm, src/cod/02AB50]
       - [0x02AED0, c, src/Texture]               # TU promotion: 0x12AED0..0x12D4A0 (17 INCLUDE_ASM + 1 matched func)
       - [0x02D4A0, asm, src/cod/02D4A0]
       - [0x02FD30, c, src/cod/02FD30]            # func_0012FD30

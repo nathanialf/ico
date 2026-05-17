@@ -17,16 +17,6 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".sdata.0x00631A10"))) char D_00631A10[16] = { 0 };
-__attribute__((section(".sdata.0x00631D88"))) const char D_00631D88[8] = "0";
-__attribute__((section(".sdata.0x00631D90"))) const char D_00631D90[8] = "BGA";
-__attribute__((section(".sdata.0x00631D98"))) const char D_00631D98[8] = "e";
-__attribute__((section(".sdata.0x00631DA0"))) const char D_00631DA0[8] = "PSMT8";
-__attribute__((section(".sdata.0x00631DA8"))) const char D_00631DA8[8] = "PSMT4";
-__attribute__((section(".sdata.0x00631DB0"))) const char D_00631DB0[] = "PSMCT32";
-__attribute__((section(".sdata.0x00631DB8"))) const char D_00631DB8[] = "PSMCT24";
-__attribute__((section(".sdata.0x00631DC0"))) const char D_00631DC0[] = "PSMCT16";
-__attribute__((section(".sdata.0x00631DC8"))) const char D_00631DC8[8] = "NONE";
 
 __attribute__((section(".rodata.0x00555BF8"))) const char D_00555BF8[24] = "src/StageAnimation.c";
 
@@ -70,3 +60,40 @@ __attribute__((section(".rodata.0x00555DE0"))) const char D_00555DE0[72] = "\273
 /* EUC-JP: "ステージセグメントにメモリが確保できません.(ヒープメモリ不足)
 " */
 __attribute__((section(".rodata.0x00555E28"))) const char D_00555E28[72] = "\245\271\245\306\241\274\245\270\245\273\245\260\245\341\245\363\245\310\244\313\245\341\245\342\245\352\244\254\263\316\312\335\244\307\244\255\244\336\244\273\244\363.(\245\322\241\274\245\327\245\341\245\342\245\352\311\324\302\255)\n";
+
+#include "include_asm.h"
+
+extern void func_001FAA58(void);
+extern int D_00274ED4[];
+extern void func_00117768(void);
+extern void func_001FAA30(int a0, int a1, int a2, int a3);
+
+INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_00128868);
+INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_00128AF0);
+INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_00128CD0);
+INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_001297A0);
+INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_00129970);
+
+void func_00129A78(void)
+{
+    func_001FAA58();
+    if (D_00274ED4[0] != 0) return;
+    func_00117768();
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_00129AA8);
+INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_00129C90);
+INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_00129E28);
+INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_00129F58);
+INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012A060);
+INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012A318);
+INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012A618);
+INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012A7A0);
+INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012A7F8);
+
+void func_0012AA78(int a0, int a1, int a2, int a3)
+{
+    func_001FAA30(a0, a1, a2, a3);
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012AA80);
