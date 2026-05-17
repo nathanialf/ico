@@ -1792,6 +1792,8 @@ segments:
       - [0x0C0BF4, asm, src/cod/0C0BF4]
       - [0x0C0D50, c, src/cod/0C0D50]            # func_001C0D50: 4-insn lh
       - [0x0C0D60, asm, src/cod/0C0D60]
+      - [0x0C1380, c, src/boy]                   # TU promotion (debug): 3 INCLUDE_ASMs
+      - [0x0C1C48, asm, src/cod/0C1C48]
       - [0x0C2098, c, src/cod/0C2098]            # func_001C2098
       - [0x0C20A8, asm, src/cod/0C20A8]
       - [0x0C2170, c, src/cod/0C2170]            # func_001C2170: p=self->15C->800; f(self); p->10=1; p->14=0; self->15C->62C=0

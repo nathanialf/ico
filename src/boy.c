@@ -1,36 +1,17 @@
-/* boy.c -- typed sdata / lit4 definitions for this TU.
+/* src/boy.c — TU body. 3 INCLUDE_ASM funcs.
  *
- * Generated initially by tools/decode_sdata_lit4_typed.py
- * from baserom/baseelf.elf. Each line is a developer
- * reconstruction of one game variable or constant; the
- * file is tracked because the typed forms (named float
- * constants, string literals, single hex-word declarations)
- * are clean-room rather than raw byte arrays.
- *
- * As the TU gets fully decompiled, function definitions
- * land in this same file (per-TU layout); typed
- * data declarations stay here next to their references.
- *
- * Downstream tools (rewrite_data_named_sections.py,
- * migrate_data_per_tu.py _scan_existing_definitions) detect
- * the D_<VMA> name on each line and drop the corresponding
- * asm-generated and sidecar definitions.
+ * .lit4 and .sdata defs are intentionally NOT here — co-locating them with
+ * INCLUDE_ASM consumers in the same .o forces ee-as to emit %hi/%lo (2 insn)
+ * instead of the original %gp_rel (1 insn), cascading +4 bytes per ref into
+ * a SHA mismatch (memory: lit4_gp_rel_extern). They live in the gitignored
+ * boy_data.c sidecar (separate .o → boy.o sees them as extern). Promote
+ * back here as a .h pair if needed for a typed-data .h split later.
  */
 
-__attribute__((section(".lit4.0x006311B0"))) float D_006311B0 = 0.1f;
-__attribute__((section(".lit4.0x006311B4"))) float D_006311B4 = 0.01f;
-__attribute__((section(".lit4.0x006311B8"))) float D_006311B8 = 0.9f;
-__attribute__((section(".lit4.0x006311BC"))) float D_006311BC = 0.05f;
-__attribute__((section(".lit4.0x006311C0"))) float D_006311C0 = 0.4f;
-__attribute__((section(".lit4.0x006311C4"))) float D_006311C4 = 18.99998f;
-__attribute__((section(".lit4.0x006311C8"))) float D_006311C8 = 0.05f;
-__attribute__((section(".lit4.0x006311CC"))) float D_006311CC = 0.4f;
-__attribute__((section(".lit4.0x006311D0"))) float D_006311D0 = 0.9f;
-__attribute__((section(".lit4.0x006311D4"))) float D_006311D4 = 0.7f;
-__attribute__((section(".lit4.0x006311D8"))) float D_006311D8 = 0.01f;
-__attribute__((section(".lit4.0x006311DC"))) float D_006311DC = 0.001f;
-__attribute__((section(".lit4.0x006311E0"))) float D_006311E0 = 0.06f;
-__attribute__((section(".sdata.0x006332A0"))) int D_006332A0 = 0;
-__attribute__((section(".sdata.0x006332A4"))) int D_006332A4 = 0;
-
 __attribute__((section(".rodata.0x00618838"))) const char D_00618838[16] = "src/boy.c";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/boy", func_001C1380);
+INCLUDE_ASM("asm/nonmatchings/src/boy", func_001C16A8);
+INCLUDE_ASM("asm/nonmatchings/src/boy", func_001C1A98);
