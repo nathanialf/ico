@@ -17,63 +17,6 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".lit4.0x00630900"))) float D_00630900 = 1.23456776f;
-__attribute__((section(".lit4.0x00630904"))) float D_00630904 = -100000.0f;
-__attribute__((section(".lit4.0x00630908"))) float D_00630908 = 100000.0f;
-__attribute__((section(".lit4.0x0063090C"))) float D_0063090C = 0.01f;
-__attribute__((section(".lit4.0x00630910"))) float D_00630910 = 0.01f;
-__attribute__((section(".lit4.0x00630914"))) float D_00630914 = 0.01f;
-__attribute__((section(".lit4.0x00630918"))) float D_00630918 = 0.01f;
-__attribute__((section(".lit4.0x0063091C"))) float D_0063091C = 0.01f;
-__attribute__((section(".lit4.0x00630920"))) float D_00630920 = 0.01f;
-__attribute__((section(".lit4.0x00630924"))) float D_00630924 = 0.01f;
-__attribute__((section(".lit4.0x00630928"))) float D_00630928 = 0.01f;
-__attribute__((section(".lit4.0x0063092C"))) float D_0063092C = 0.01f;
-__attribute__((section(".sdata.0x00631A00"))) char D_00631A00[16] = { 0 };
-__attribute__((section(".sdata.0x00631AB0"))) char D_00631AB0[16] = { 0 };
-__attribute__((section(".sdata.0x00631AC0"))) char D_00631AC0[16] = { 0 };
-__attribute__((section(".sdata.0x00631AD0"))) char D_00631AD0[16] = { 0 };
-__attribute__((section(".sdata.0x00631AE0"))) int D_00631AE0 = 0;
-__attribute__((section(".sdata.0x00631F50"))) int D_00631F50 = 0;
-__attribute__((section(".sdata.0x00631F54"))) int D_00631F54 = 0;
-__attribute__((section(".sdata.0x00631F58"))) int D_00631F58 = 0x00000001;
-__attribute__((section(".sdata.0x00631F5C"))) int D_00631F5C = 0x00000000;
-__attribute__((section(".sdata.0x00631F60"))) unsigned int D_00631F60 = 0x00000002;
-__attribute__((section(".sdata.0x00631F64"))) int D_00631F64 = 0;
-__attribute__((section(".sdata.0x00631F68"))) const char D_00631F68[8] = "0";
-__attribute__((section(".sdata.0x00631F70"))) const char D_00631F70[8] = "\\%s;1";
-__attribute__((section(".sdata.0x00631F78"))) const char D_00631F78[] = "handler";
-__attribute__((section(".sdata.0x00631F80"))) const char D_00631F80[8] = "n=%d\n";
-__attribute__((section(".sdata.0x00631F90"))) char D_00631F90[8] = { 0 };
-__attribute__((section(".sdata.0x00631F98"))) const char D_00631F98[8] = "load";
-__attribute__((section(".sdata.0x00631FA0"))) int D_00631FA0 = 0;
-__attribute__((section(".sdata.0x00631FA4"))) int D_00631FA4 = 0;
-__attribute__((section(".sdata.0x00631FA8"))) int D_00631FA8 = 0;
-__attribute__((section(".sdata.0x00631FAC"))) int D_00631FAC = 0;
-__attribute__((section(".sdata.0x00631FB0"))) int D_00631FB0 = 0;
-__attribute__((section(".sdata.0x00631FB4"))) int D_00631FB4 = 0;
-__attribute__((section(".sdata.0x00631FB8"))) char D_00631FB8[8] = { 0 };
-__attribute__((section(".sdata.0x00631FC0"))) const char D_00631FC0[8] = "stage";
-__attribute__((section(".sdata.0x00631FC8"))) const char D_00631FC8[8] = "event";
-__attribute__((section(".sdata.0x00631FD0"))) const char D_00631FD0[8] = "hara";
-__attribute__((section(".sdata.0x00631FD8"))) const char D_00631FD8[8] = "oomori";
-__attribute__((section(".sdata.0x00631FE0"))) const char D_00631FE0[] = "horagai";
-__attribute__((section(".sdata.0x00631FE8"))) const char D_00631FE8[8] = "sound";
-__attribute__((section(".sdata.0x00631FF0"))) const char D_00631FF0[8] = "shock";
-__attribute__((section(".sdata.0x00631FF8"))) const char D_00631FF8[8] = "common";
-__attribute__((section(".sdata.0x00632854"))) int D_00632854 = 0;
-__attribute__((section(".sdata.0x00632858"))) int D_00632858 = 0;
-__attribute__((section(".sdata.0x0063285C"))) int D_0063285C = 0;
-__attribute__((section(".sdata.0x00632860"))) int D_00632860 = 0;
-__attribute__((section(".sdata.0x00632864"))) int D_00632864 = 0;
-__attribute__((section(".sdata.0x00632868"))) int D_00632868 = 0;
-__attribute__((section(".sdata.0x0063286C"))) int D_0063286C = 0;
-__attribute__((section(".sdata.0x00632870"))) char D_00632870[8] = { 0 };
-__attribute__((section(".sdata.0x00632878"))) const char D_00632878[8] = "done";
-__attribute__((section(".sdata.0x00632880"))) int D_00632880 = 0;
-__attribute__((section(".sdata.0x00632884"))) int D_00632884 = 0;
-__attribute__((section(".sdata.0x00632888"))) char D_00632888[8] = { 0 };
-__attribute__((section(".sdata.0x00632890"))) const char D_00632890[8] = "%d\n";
 
 __attribute__((section(".data.0x005524E0"))) const char D_005524E0[4] = "P*U";
 __attribute__((section(".rodata.0x005567F0"))) const char D_005567F0[16] = "SCUS_971.13";
@@ -168,3 +111,53 @@ __attribute__((section(".rodata.0x00630890"))) const float D_00630890[2] = { 1.3
 
 /* String-pool rodata migrated from cdvd_data.c */
 __attribute__((section(".rodata.0x00556860"))) const char D_00556860[96] = "iosCdvdMgrSearchFile: warning iosCdvdSrhBuff over\n\000\000\000\000\000\000\nCan't alloc cd stream buff %d \n\000\000\000\000\000\000\000";
+
+#include "include_asm.h"
+
+extern int D_0027E4C0[];
+extern void func_0013A5B8(int *a0, int a1, int a2);
+extern int func_0024DA80(int a0);
+extern int func_0024D7B0(void);
+extern void func_0024A1E0(int a0);
+
+INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001312F0);
+INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131480);
+INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131560);
+INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001315A8);
+INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131780);
+INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131818);
+INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131C90);
+INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00132038);
+INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001320E8);
+INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001321C8);
+INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00132388);
+INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001325D8);
+
+void func_00132610(int a0)
+{
+    *(int *)(a0 + 0x4) = 2;
+    func_0013A5B8(D_0027E4C0, a0, 0);
+}
+
+INCLUDE_ASM_NOP_PAD(func_0013262C);
+INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00132630);
+INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00132930);
+INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00132B90);
+INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00132DC0);
+INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00132FF0);
+
+void func_001331D8(int a0)
+{
+    int *s0 = (int *) a0;
+    int v0;
+    do { s0[0xC / 4] = 0; } while (0);
+    v0 = func_0024DA80(a0);
+    if (v0 == 0)
+    {
+        s0[0xC / 4] = func_0024D7B0();
+    }
+    return func_0024A1E0(s0[0x160 / 4]);
+}
+
+INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00133218);
+INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001332B8);

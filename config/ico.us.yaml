@@ -581,11 +581,7 @@ segments:
       - [0x02FE94, asm, src/cod/02FE94]
       - [0x02FFE8, c, src/cod/02FFE8]            # func_0012FFE8: return D_00633C60
       - [0x02FFF0, asm, src/cod/02FFF0]
-      - [0x0325D8, asm, src/cod/0325D8]
-      - [0x032610, c, src/cod/032610]            # func_00132610: a0->4=2 + tail call func_0013A5B8(&D_0027E4C0, a0, 0)
-      - [0x03262C, asm, src/cod/03262C]
-      - [0x0331D8, c, src/cod/0331D8]            # func_001331D8: promoted from permuter score-0
-      - [0x033218, asm, src/cod/033218]
+      - [0x0312F0, c, ios/cdvd]                  # TU promotion: 0x1312F0..0x133398 (20 INCLUDE_ASM + 2 matched funcs)
       - [0x033398, c, src/cod/033398]            # func_00133398: wrap func_0013A6C0(&D_0027E4F0, &local=a0, 1); ret 1
       - [0x0333C8, asm, src/cod/0333C8]
       - [0x033448, c, src/cod/033448]            # func_00133448: return D_00631F64
@@ -1932,8 +1928,8 @@ segments:
       - [0x0E0984, asm, src/cod/0E0984]
       - [0x0E0C08, c, src/cod/0E0C08]            # func_001E0C08: wrap func_00105F00(a0, a1+0xA0); a0->C=0
       - [0x0E0C34, asm, src/cod/0E0C34]
-      - [0x0E2370, c, src/cod/0E2370]            # func_001E2370: tail call func_001E1AA0(a0, a1, a1, 0)
-      - [0x0E237C, asm, src/cod/0E237C]
+      - [0x0E0D50, c, src/motionOrientManager]   # TU promotion: 0x1E0D50..0x1E44C0 (21 INCLUDE_ASM + 1 matched func)
+      - [0x0E44C0, asm, src/cod/0E44C0]
       - [0x0E4700, c, src/cod/0E4700]            # func_001E4700: promote: score-0 (store order swap)
       - [0x0E4724, asm, src/cod/0E4724]
       - [0x0E4838, c, src/cod/0E4838]            # func_001E4838: promoted from permuter score-0
