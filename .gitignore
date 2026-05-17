@@ -167,3 +167,8 @@ isys/**/*_data.c
 build.ninja
 .ninja_log
 .ninja_deps
+
+# Auto-generated planning artifacts (regenerable via tools/build_placement_plan.py + tools/tu_candidates.py)
+decomp/placement_plan.json
+docs/tu_candidates.json
+decomp/placement_plan.md
