@@ -17,13 +17,6 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".sdata.0x006320B0"))) char D_006320B0[8] = { 0 };
-__attribute__((section(".sdata.0x006320B8"))) const char D_006320B8[8] = "e";
-__attribute__((section(".sdata.0x006320C0"))) const char D_006320C0[8] = "0";
-__attribute__((section(".sdata.0x006320C8"))) const char D_006320C8[8] = "align";
-__attribute__((section(".sdata.0x006320D0"))) const char D_006320D0[8] = "ALLOC ";
-__attribute__((section(".sdata.0x006320D8"))) const char D_006320D8[8] = "%c";
-__attribute__((section(".sdata.0x006320E0"))) const char D_006320E0[8] = "\n";
 
 __attribute__((section(".rodata.0x00556F70"))) const char D_00556F70[16] = "<PARTITION>____";
 __attribute__((section(".rodata.0x00556F80"))) const char D_00556F80[16] = "<FREE AREA>____";
@@ -81,3 +74,15 @@ __attribute__((section(".rodata.0x005574A8"))) const char D_005574A8[40] = "%p:!
 __attribute__((section(".rodata.0x005574D0"))) const char D_005574D0[48] = "IOSREALLOC():\nNULL MEMORY POINTER AT MALLOC\n";
 __attribute__((section(".rodata.0x00557500"))) const char D_00557500[32] = "mem:realloc; not support yet\n";
 __attribute__((section(".rodata.0x00557520"))) const char D_00557520[32] = "mem:realloc; not enough memory\n";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00138E30);
+INCLUDE_ASM("asm/nonmatchings/ios/memory", func_001392A8);
+INCLUDE_ASM("asm/nonmatchings/ios/memory", func_001394F0);
+INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00139598);
+INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00139A50);
+INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00139C30);
+INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00139D78);
+INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00139FE8);
+INCLUDE_ASM("asm/nonmatchings/ios/memory", func_0013A0F8);

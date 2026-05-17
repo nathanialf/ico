@@ -646,6 +646,7 @@ segments:
       - [0x0383D4, asm, src/cod/0383D4]
       - [0x0383D8, c, src/cod/0383D8]            # func_001383D8: wrap func_00136280(a0, a1, 0x63FC), return 0
       - [0x0383F8, asm, src/cod/0383F8]
+      - [0x038E30, c, ios/memory]                # TU promotion: 0x138E30..0x13A200 (9 INCLUDE_ASM funcs)
       - [0x03A200, c, src/cod/03A200]            # func_0013A200
       - [0x03A21C, asm, src/cod/03A21C]
       - [0x03A220, c, src/cod/03A220]            # func_0013A220: deref+cond+tail-call (with reg-pinned a1; postprocess will wrap end jr in noreorder)
