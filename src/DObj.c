@@ -17,36 +17,6 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".lit4.0x006310D4"))) float D_006310D4 = 0.333f;
-__attribute__((section(".lit4.0x006310D8"))) float D_006310D8 = 3.14159274f;
-__attribute__((section(".lit4.0x006310DC"))) float D_006310DC = 1e+07f;
-__attribute__((section(".lit4.0x006310E0"))) float D_006310E0 = 0.000111111112f;
-__attribute__((section(".lit4.0x006310E4"))) float D_006310E4 = 0.01f;
-__attribute__((section(".lit4.0x006310E8"))) float D_006310E8 = 0.000111111112f;
-__attribute__((section(".lit4.0x006310EC"))) float D_006310EC = 0.001f;
-__attribute__((section(".lit4.0x006310F0"))) float D_006310F0 = 0.001f;
-__attribute__((section(".lit4.0x006310F4"))) float D_006310F4 = 1e+07f;
-__attribute__((section(".lit4.0x006310F8"))) float D_006310F8 = 0.8f;
-__attribute__((section(".lit4.0x006310FC"))) float D_006310FC = 3.14159274f;
-__attribute__((section(".lit4.0x00631100"))) float D_00631100 = 3.14159274f;
-__attribute__((section(".lit4.0x00631104"))) float D_00631104 = 0.05f;
-__attribute__((section(".lit4.0x00631108"))) float D_00631108 = 0.025f;
-__attribute__((section(".lit4.0x0063110C"))) float D_0063110C = 0.4f;
-__attribute__((section(".lit4.0x00631110"))) float D_00631110 = 3.14159274f;
-__attribute__((section(".lit4.0x00631114"))) float D_00631114 = 3.14159274f;
-__attribute__((section(".lit4.0x00631118"))) float D_00631118 = 10000.0f;
-__attribute__((section(".lit4.0x0063111C"))) float D_0063111C = 0.8f;
-__attribute__((section(".lit4.0x00631120"))) float D_00631120 = 0.1f;
-__attribute__((section(".lit4.0x00631124"))) float D_00631124 = 2500.0f;
-__attribute__((section(".lit4.0x00631128"))) float D_00631128 = 0.1f;
-__attribute__((section(".lit4.0x0063112C"))) float D_0063112C = 10000.0f;
-__attribute__((section(".lit4.0x00631130"))) float D_00631130 = 10000.0f;
-__attribute__((section(".lit4.0x00631134"))) float D_00631134 = 0.05f;
-__attribute__((section(".lit4.0x00631138"))) float D_00631138 = 10000.0f;
-__attribute__((section(".lit4.0x0063113C"))) float D_0063113C = 10000.0f;
-__attribute__((section(".lit4.0x00631140"))) float D_00631140 = 0.2f;
-__attribute__((section(".lit4.0x00631144"))) float D_00631144 = 0.2f;
-__attribute__((section(".sdata.0x00632024"))) int D_00632024 = 0;
 
 __attribute__((section(".rodata.0x00612620"))) const char D_00612620[16] = "src/DObj.c";
 
@@ -98,3 +68,22 @@ __attribute__((section(".rodata.0x00612978"))) const char D_00612978[48] = "\245
 __attribute__((section(".rodata.0x006129A8"))) const char D_006129A8[24] = "\245\322\245\355\245\244\245\363\312\341\244\336\244\303\244\306\244\312\244\244";
 /* EUC-JP: "巣までの経路がみつからないので直接巣に配置" */
 __attribute__((section(".rodata.0x006129C0"))) const char D_006129C0[48] = "\301\343\244\336\244\307\244\316\267\320\317\251\244\254\244\337\244\304\244\253\244\351\244\312\244\244\244\316\244\307\304\276\300\334\301\343\244\313\307\333\303\326";
+
+#include "include_asm.h"
+
+extern int D_00632010;
+extern int func_0013A0F8(int a0, int a1, int *a2, int a3);
+extern void func_00103120(int v, int *self);
+
+INCLUDE_ASM("asm/nonmatchings/src/DObj", func_0019E648);
+INCLUDE_ASM("asm/nonmatchings/src/DObj", func_0019EB88);
+INCLUDE_ASM("asm/nonmatchings/src/DObj", func_0019ED30);
+
+void func_0019EF10(int *self) {
+    int v = func_0013A0F8(D_00632010, self[0x88/4] << 6, (int*)D_00612620, 0x14C);
+    self[0x90/4] = v;
+    func_00103120(v, self);
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/DObj", func_0019EF58);
+INCLUDE_ASM("asm/nonmatchings/src/DObj", func_0019F310);

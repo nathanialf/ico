@@ -1521,9 +1521,7 @@ segments:
       - [0x09E598, asm, src/cod/09E598]
       - [0x09E5CC, asm, src/cod/09E5CC]
       - [0x09E628, c, src/cod/09E628]            # func_0019E628: if p[3]>0, --p[3]
-      - [0x09E648, asm, src/cod/09E648]
-      - [0x09EF10, c, src/cod/09EF10]            # func_0019EF10: tail-call helper: func_0013A0F8(D_00632010, self->_88<<6, &D_00612620, 0x14C); store ret; tail-call func_00103120
-      - [0x09EF58, asm, src/cod/09EF58]
+      - [0x09E648, c, src/DObj]                  # TU promotion: 0x19E648..0x19F4E0 (5 INCLUDE_ASM + 1 matched func)
       - [0x09F4E0, c, src/cod/09F4E0]
       - [0x09F4E8, asm, src/cod/09F4E8]
       - [0x09F52C, asm, src/cod/09F52C]
