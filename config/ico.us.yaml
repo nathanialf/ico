@@ -542,6 +542,7 @@ segments:
       - [0x01BFB4, asm, src/cod/01BFB4]
       - [0x01BFB8, c, src/cod/01BFB8]            # func_0011BFB8: D_00633C50 = 0
       - [0x01BFC0, asm, src/cod/01BFC0]
+      - [0x01C028, c, src/Primitive]             # TU promotion: 0x11C028..0x11DEE0 (13 INCLUDE_ASM funcs)
       - [0x01DEE0, c, src/cod/01DEE0]            # func_0011DEE0: 3 calls to func_00102558(a0->18C, a0->188, a0)
       - [0x01DF14, asm, src/cod/01DF14]
       - [0x01E708, c, src/cod/01E708]            # func_0011E708: forward 4 args + 5th=D_00632028 to func_0011D9A0
