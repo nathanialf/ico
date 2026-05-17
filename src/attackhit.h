@@ -49,6 +49,7 @@ extern void func_00180F40(int *buf, int self, int arg);
 extern void func_001A6E28(const char *msg);
 extern void func_001AD768(const char *file, int line);
 extern void func_00263FF0(const char *file, int line, const char *expr);
+extern void func_00243AE8(float *dst, float *src, void *cb);
 
 /* Intra-TU forward decls (defined via INCLUDE_ASM or below) */
 void func_00181960(int *buf);
