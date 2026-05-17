@@ -17,24 +17,6 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".lit4.0x00630A3C"))) float D_00630A3C = 0.99f;
-__attribute__((section(".lit4.0x00630A40"))) float D_00630A40 = 16777215.0f;
-__attribute__((section(".lit4.0x00630A44"))) float D_00630A44 = -16777215.0f;
-__attribute__((section(".lit4.0x00630A48"))) float D_00630A48 = 0.5019608f;
-__attribute__((section(".lit4.0x00630A4C"))) float D_00630A4C = 0.5019608f;
-__attribute__((section(".lit4.0x00630A50"))) float D_00630A50 = 0.5019608f;
-__attribute__((section(".sdata.0x00631CD0"))) char D_00631CD0[8] = { 0 };
-__attribute__((section(".sdata.0x00631CD8"))) const char D_00631CD8[8] = "%02x";
-__attribute__((section(".sdata.0x00631CE0"))) const char D_00631CE0[8] = " ";
-__attribute__((section(".sdata.0x00631CE8"))) const char D_00631CE8[8] = "%12f ";
-__attribute__((section(".sdata.0x00631CF0"))) const char D_00631CF0[8] = "\n";
-__attribute__((section(".sdata.0x00631CF8"))) const char D_00631CF8[8] = "0";
-__attribute__((section(".sdata.0x00631D00"))) const char D_00631D00[8] = " (%d)\n";
-__attribute__((section(".sdata.0x00631D08"))) const char D_00631D08[8] = "e";
-__attribute__((section(".sdata.0x00631D10"))) const char D_00631D10[8] = "%s";
-__attribute__((section(".sdata.0x00631D18"))) const char D_00631D18[8] = "%s_l";
-__attribute__((section(".sdata.0x00631D20"))) const char D_00631D20[8] = "%s_ref";
-__attribute__((section(".sdata.0x00632D28"))) int D_00632D28 = 0;
 
 __attribute__((section(".rodata.0x00554FD0"))) const char D_00554FD0[16] = "src/Packet.c";
 
@@ -73,3 +55,25 @@ __attribute__((section(".rodata.0x005553F0"))) const char D_005553F0[48] = "pac_
 __attribute__((section(".rodata.0x00555420"))) const char D_00555420[56] = "pac_makePacket:Material Table Not Found. (%s:%s)\n";
 __attribute__((section(".rodata.0x00555458"))) const char D_00555458[24] = "illegal size = %d\n";
 __attribute__((section(".rodata.0x00555470"))) const char D_00555470[32] = "illegal vertex num %d\n";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/Packet", func_00119470);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", func_00119540);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", func_001199A0);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", func_00119CA0);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011A238);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011A2A8);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011A2F0);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011A338);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011A410);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011A520);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011A668);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011A7F8);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011A990);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011ACF8);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011AE78);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011B040);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011B1F0);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011B360);
+INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011B6D8);
