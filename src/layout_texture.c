@@ -34,3 +34,9 @@ __attribute__((section(".rodata.0x00617260"))) const char D_00617260[56] = "try 
 /* EUC-JP: "ステージ情報にエクセルのデータを使用します.
 " */
 __attribute__((section(".rodata.0x00617230"))) const char D_00617230[48] = "\245\271\245\306\241\274\245\270\276\360\312\363\244\313\245\250\245\257\245\273\245\353\244\316\245\307\241\274\245\277\244\362\273\310\315\321\244\267\244\336\244\271.\n";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/layout_texture", func_001B6CD0);
+INCLUDE_ASM("asm/nonmatchings/src/layout_texture", func_001B6E58);
+INCLUDE_ASM("asm/nonmatchings/src/layout_texture", func_001B6FD8);

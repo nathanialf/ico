@@ -52,3 +52,14 @@ __attribute__((section(".rodata.0x006185B8"))) const char D_006185B8[32] = "\264
 /* EUC-JP: "強制死亡
 " */
 __attribute__((section(".rodata.0x006185D8"))) const char D_006185D8[16] = "\266\257\300\251\273\340\313\264\n";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/a_p_1", func_001B8720);
+INCLUDE_ASM("asm/nonmatchings/src/a_p_1", func_001B8CE0);
+INCLUDE_ASM("asm/nonmatchings/src/a_p_1", func_001B8DC8);
+INCLUDE_ASM("asm/nonmatchings/src/a_p_1", func_001B8EB0);
+INCLUDE_ASM("asm/nonmatchings/src/a_p_1", func_001B94B0);
+INCLUDE_ASM("asm/nonmatchings/src/a_p_1", func_001B9638);
+INCLUDE_ASM("asm/nonmatchings/src/a_p_1", func_001B99B0);
+INCLUDE_ASM("asm/nonmatchings/src/a_p_1", func_001BA090);

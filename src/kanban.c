@@ -82,3 +82,12 @@ __attribute__((section(".rodata.0x00623528"))) const char D_00623528[1664] = "Te
 /* EUC-JP: "debug_mcLoadMainBlock:既に設定された数以上のデータを保存してる
 " */
 __attribute__((section(".rodata.0x00616E18"))) const char D_00616E18[72] = "debug_mcLoadMainBlock:\264\373\244\313\300\337\304\352\244\265\244\354\244\277\277\364\260\312\276\345\244\316\245\307\241\274\245\277\244\362\312\335\302\270\244\267\244\306\244\353\n";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/kanban", func_001AFCC8);
+INCLUDE_ASM("asm/nonmatchings/src/kanban", func_001AFE50);
+INCLUDE_ASM("asm/nonmatchings/src/kanban", func_001AFF50);
+INCLUDE_ASM("asm/nonmatchings/src/kanban", func_001B0200);
+INCLUDE_ASM("asm/nonmatchings/src/kanban", func_001B0348);
+INCLUDE_ASM("asm/nonmatchings/src/kanban", func_001B04E0);

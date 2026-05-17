@@ -1390,6 +1390,7 @@ segments:
       - [0x097080, c, src/cod/097080]            # func_00197080: func_00197080: pre-call hook + cond flush via func_0012A7F8 + cond tail-call func_001998C0(self) when D_00631990==0x52
       - [0x0970E0, c, src/cod/0970E0]            # func_001970E0: tail call func_0013FF88 passthrough
       - [0x0970E8, asm, src/cod/0970E8]
+      - [0x097240, c, src/act_bird]              # TU promotion: 0x197240..0x197330 (1 INCLUDE_ASM)
       - [0x097330, c, src/cod/097330]
       - [0x097338, asm, src/cod/097338]
       - [0x0973A8, c, src/cod/0973A8]            # func_001973A8: if(a0>=0){ v=f(a0); tail g(v+0x40, a1); }
@@ -1398,6 +1399,7 @@ segments:
       - [0x097FFC, asm, src/cod/097FFC]
       - [0x098110, c, src/cod/098110]            # func_00198110: func_00198110: return D_00631990 in {0x54, 0x3, 0x2E} ? 1 : 0
       - [0x098140, asm, src/cod/098140]
+      - [0x098218, c, src/itou_boss]             # TU promotion: 0x198218..0x198328 (1 INCLUDE_ASM)
       - [0x098328, c, src/cod/098328]            # func_00198328
       - [0x098338, asm, src/cod/098338]
       - [0x0983F8, c, src/cod/0983F8]            # func_001983F8: rc=func_001E8D30; *(rc->60) = 1; ret 1 ($v0 pinned)
@@ -1611,6 +1613,7 @@ segments:
       - [0x0AEA68, c, src/icoMisc]               # TU promotion: 0x1AEA68..0x1AFB90 (5 INCLUDE_ASM)
       - [0x0AFB90, c, src/cod/0AFB90]
       - [0x0AFB98, asm, src/cod/0AFB98]
+      - [0x0AFCC8, c, src/kanban]                # TU promotion: 0x1AFCC8..0x1B0518 (6 INCLUDE_ASM)
       - [0x0B0518, c, src/cod/0B0518]            # func_001B0518: promote-test: subagent seed (unscored, may match)
       - [0x0B0538, c, src/cod/0B0538]            # func_001B0538: zero 30 entries (stride 0x20) at D_00706110[0..0x3A0]; clear D_00633E6C/E70
       - [0x0B0570, c, src/cod/0B0570]
@@ -1653,6 +1656,7 @@ segments:
       - [0x0B5994, asm, src/cod/0B5994]
       - [0x0B5998, c, src/cod/0B5998]            # func_001B5998: D_00275254 & 0x10 ? func_001B7040() : -1
       - [0x0B59D0, asm, src/cod/0B59D0]
+      - [0x0B6CD0, c, src/layout_texture]        # TU promotion: 0x1B6CD0..0x1B7040 (3 INCLUDE_ASM)
       - [0x0B7040, c, src/cod/0B7040]            # func_001B7040: return D_00633150
       - [0x0B7048, asm, src/cod/0B7048]
       - [0x0B7100, asm, src/cod/0B7100]
@@ -1664,6 +1668,7 @@ segments:
       - [0x0B7288, c, src/cod/0B7288]            # func_001B7288: D_00633164 = val
       - [0x0B7290, c, src/cod/0B7290]            # func_001B7290: D_0063315C = val
       - [0x0B7298, asm, src/cod/0B7298]
+      - [0x0B7B88, c, src/sceneManager]          # TU promotion: 0x1B7B88..0x1B7CD8 (1 INCLUDE_ASM)
       - [0x0B7CD8, c, src/cod/0B7CD8]            # func_001B7CD8: tail call func_00206328 passthrough
       - [0x0B7CE0, asm, src/cod/0B7CE0]
       - [0x0B7FC8, c, src/cod/0B7FC8]            # func_001B7FC8: 3x bgezl-deferred store of a2/a3/t0 to gp_rel
@@ -1672,6 +1677,7 @@ segments:
       - [0x0B8120, asm, src/cod/0B8120]
       - [0x0B81A8, c, src/cod/0B81A8]            # func_001B81A8: D byte=0; D int=-1
       - [0x0B81B8, asm, src/cod/0B81B8]
+      - [0x0B8720, c, src/a_p_1]                 # TU promotion: 0x1B8720..0x1BA2E0 (8 INCLUDE_ASM)
       - [0x0BA2E0, c, src/cod/0BA2E0]            # func_001BA2E0: p=self->15C->800; f1(p+0x1E0,self); f2(p+0x1D0,self); tail f3(p->19C)
       - [0x0BA32C, asm, src/cod/0BA32C]
       - [0x0BA5C0, c, src/cod/0BA5C0]            # func_001BA5C0: 4-insn lw
@@ -1837,6 +1843,7 @@ segments:
       - [0x0CF8D0, asm, src/cod/0CF8D0]
       - [0x0CFA20, c, src/cod/0CFA20]            # func_001CFA20: self->4->30=1, return 1
       - [0x0CFA34, asm, src/cod/0CFA34]
+      - [0x0CFB58, c, src/flag]                  # TU promotion: 0x1CFB58..0x1D03A0 (3 INCLUDE_ASM)
       - [0x0D03A0, c, src/cod/0D03A0]            # func_001D03A0: 2 gp_rel guards + tail-call (void+return TCO)
       - [0x0D03C4, asm, src/cod/0D03C4]
       - [0x0D03C8, c, src/cod/0D03C8]            # func_001D03C8: D_006333D8 = self; self[0x57]->0x74 = 0; return 0
@@ -1857,9 +1864,11 @@ segments:
       - [0x0D1440, c, src/cod/0D1440]            # func_001D1440: wrap func_0013B610(D_00631AEC, a0); ret 1
       - [0x0D1468, c, src/cod/0D1468]            # func_001D1468: func_001D1468: D_006333EC->_15C->_630; if !=0 and func_001F40C8()==1: func_001F41C8(reload->_630); ret 1
       - [0x0D14B8, asm, src/cod/0D14B8]
+      - [0x0D1668, c, src/girl]                  # TU promotion: 0x1D1668..0x1D1A98 (3 INCLUDE_ASM)
       - [0x0D1A98, c, src/cod/0D1A98]            # func_001D1A98: 3 calls + tail-call all with same arg (void+return TCO)
       - [0x0D1AD0, c, src/cod/0D1AD0]
       - [0x0D1AD8, asm, src/cod/0D1AD8]
+      - [0x0D1C78, c, src/girlForceField]        # TU promotion: 0x1D1C78..0x1D1CF8 (1 INCLUDE_ASM)
       - [0x0D1CF8, c, src/cod/0D1CF8]
       - [0x0D1D00, asm, src/cod/0D1D00]
       - [0x0D2538, c, src/cod/0D2538]            # func_001D2538: auto
@@ -1878,6 +1887,7 @@ segments:
       - [0x0D40D4, asm, src/cod/0D40D4]
       - [0x0D4348, c, src/cod/0D4348]            # func_001D4348: tail call func_00111918(0, D_00633428)
       - [0x0D4354, asm, src/cod/0D4354]
+      - [0x0D4B40, c, src/lodManager]            # TU promotion: 0x1D4B40..0x1D4D98 (3 INCLUDE_ASM)
       - [0x0D4D98, c, src/cod/0D4D98]            # func_001D4D98
       - [0x0D4DA4, asm, src/cod/0D4DA4]
       - [0x0D4DA8, c, src/cod/0D4DA8]            # func_001D4DA8: promote-test: subagent seed (unscored, may match)
@@ -2418,6 +2428,7 @@ segments:
       - [0x140B88, asm, src/cod/140B88]
       - [0x140BD0, c, src/cod/140BD0]            # func_00240BD0: scan D_00712CC0[0..D_00633B98) for self; for each match, log via func_001A6E28(&D,i)
       - [0x140C50, asm, src/cod/140C50]
+      - [0x1413F0, c, src/PObj]                  # TU promotion: 0x2413F0..0x241A00 (2 INCLUDE_ASM)
       - [0x141A00, c, src/cod/141A00]            # func_00241A00: wrap func_001A6E28(&D_0062E020)
       - [0x141A20, asm, src/cod/141A20]
       - [0x141AE8, c, src/cod/141AE8]            # func_00241AE8

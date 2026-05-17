@@ -17,3 +17,7 @@ __attribute__((section(".rodata.0x0055C1E0"))) const float D_0055C1E0[16] = { 0.
 __attribute__((section(".rodata.0x0055C230"))) const float D_0055C230[12] = { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f };
 __attribute__((section(".rodata.0x0055C260"))) const float D_0055C260[12] = { 7.0f, 6.0f, 6.0f, 5.0f, 5.0f, 4.0f, 4.0f, 4.0f, 4.0f, 4.0f, 4.0f, 0.0f };
 __attribute__((section(".rodata.0x0055C290"))) const float D_0055C290[12] = { 5.0f, 5.0f, 5.0f, 5.0f, 5.0f, 5.0f, 5.0f, 5.0f, 5.0f, 5.0f, 5.0f, 0.0f };
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/itou_boss", func_00198218);

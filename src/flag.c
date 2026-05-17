@@ -15,3 +15,9 @@ __attribute__((section(".rodata.0x00618DD8"))) const char D_00618DD8[40] = "SE \
 /* EUC-JP: "注意：ノード指定のモーションエフェクトでノードが見つかりませんでした
 " */
 __attribute__((section(".rodata.0x00618E58"))) const char D_00618E58[72] = "\303\355\260\325\241\247\245\316\241\274\245\311\273\330\304\352\244\316\245\342\241\274\245\267\245\347\245\363\245\250\245\325\245\247\245\257\245\310\244\307\245\316\241\274\245\311\244\254\270\253\244\304\244\253\244\352\244\336\244\273\244\363\244\307\244\267\244\277\n";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/flag", func_001CFB58);
+INCLUDE_ASM("asm/nonmatchings/src/flag", func_001D00F8);
+INCLUDE_ASM("asm/nonmatchings/src/flag", func_001D01E8);

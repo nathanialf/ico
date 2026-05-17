@@ -118,3 +118,8 @@ __attribute__((section(".rodata.0x0062F7FC"))) const float D_0062F7FC = 7.549789
 
 /* String-pool rodata migrated from PObj_data.c */
 __attribute__((section(".rodata.0x0062EA48"))) const char D_0062EA48[72] = "libpad: sceSifSetDma faild\n\000\000\000\000\000libpad: tPadDma Structure Invalid\n\000\000\000\000\000";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/PObj", func_002413F0);
+INCLUDE_ASM("asm/nonmatchings/src/PObj", func_002418A0);
