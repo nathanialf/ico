@@ -17,9 +17,6 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".lit4.0x006313A4"))) float D_006313A4 = 4095.0f;
-__attribute__((section(".lit4.0x006313A8"))) float D_006313A8 = 0.2f;
-__attribute__((section(".lit4.0x006313AC"))) float D_006313AC = 4095.0f;
 
 __attribute__((section(".rodata.0x00619E08"))) const char D_00619E08[24] = "src/particleEffect.c";
 
@@ -28,3 +25,23 @@ __attribute__((section(".rodata.0x00619DF8"))) const char D_00619DF8[16] = "enem
 /* String rodata migrated from particleEffect_data.c */
 __attribute__((section(".rodata.0x00619DE0"))) const char D_00619DE0[24] = "PARTICLE EFFECT WRONG\n";
 __attribute__((section(".rodata.0x00619E20"))) const char D_00619E20[32] = "No more effect... Ignored.\n";
+
+#include "include_asm.h"
+
+extern void func_00105F00(int a0);
+extern int func_0010D830(int a0, int a1);
+
+void func_001E6D68(int a0, int a1, int a2)
+{
+    func_00105F00(a0);
+    return func_0010D830(a0 + 0x10, a2);
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/particleEffect", func_001E6DA0);
+INCLUDE_ASM("asm/nonmatchings/src/particleEffect", func_001E73A8);
+INCLUDE_ASM("asm/nonmatchings/src/particleEffect", func_001E80D8);
+INCLUDE_ASM("asm/nonmatchings/src/particleEffect", func_001E83F8);
+INCLUDE_ASM("asm/nonmatchings/src/particleEffect", func_001E8598);
+INCLUDE_ASM("asm/nonmatchings/src/particleEffect", func_001E85D8);
+INCLUDE_ASM("asm/nonmatchings/src/particleEffect", func_001E8618);
+INCLUDE_ASM("asm/nonmatchings/src/particleEffect", func_001E8810);
