@@ -386,7 +386,8 @@ segments:
       - [0x00ADC8, c, src/cod/00ADC8]            # func_0010ADC8: auto-batch
       - [0x00ADD0, asm, src/cod/00ADD0]
       - [0x00B2C0, c, src/cod/00B2C0]            # func_0010B2C0: tail call func_00105F00 (double-deref TCO)
-      - [0x00B2D0, asm, src/cod/00B2D0]
+      - [0x00B2D0, c, src/pool]                  # TU promotion: 0x10B2D0..0x10C808 (5 INCLUDE_ASM funcs)
+      - [0x00C808, asm, src/cod/00C808]
       - [0x00D070, c, src/cod/00D070]
       - [0x00D078, c, src/cod/00D078]
       - [0x00D088, asm, src/cod/00D088]
