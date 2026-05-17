@@ -17,9 +17,12 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".sdata.0x00633BA8"))) const char D_00633BA8[8] = "%s";
-__attribute__((section(".sdata.0x00633BB0"))) const char D_00633BB0[8] = "\x1b[m";
-__attribute__((section(".sdata.0x00633BB8"))) const char D_00633BB8[8] = "OBJH";
+extern const char D_00633BA8[8];
+extern const char D_00633BB0[8];
+extern const char D_00633BB8[8];
+/* D_00633BC0 kept as a typed def because the auto-gen sidecar truncates
+ * the trailing 'E' (emits "FALS\0\0" instead of "FALSE\0"). Override
+ * here so the .o owns the correct bytes. */
 __attribute__((section(".sdata.0x00633BC0"))) const char D_00633BC0[] = "FALSE";
 
 __attribute__((section(".rodata.0x0062E010"))) const char D_0062E010[16] = "src/PObj.c";

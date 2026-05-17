@@ -17,11 +17,11 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".sdata.0x00632140"))) const char D_00632140[8] = "pad:4\n";
-__attribute__((section(".sdata.0x00632148"))) const char D_00632148[8] = "pad:7\n";
-__attribute__((section(".sdata.0x00632188"))) unsigned int D_00632188 = 0x00000030;
-__attribute__((section(".sdata.0x0063218C"))) unsigned int D_0063218C = 0x00000001;
-__attribute__((section(".sdata.0x00632190"))) int D_00632190 = 0;
+extern const char D_00632140[8];
+extern const char D_00632148[8];
+extern unsigned int D_00632188;
+extern unsigned int D_0063218C;
+extern int D_00632190;
 
 __attribute__((section(".rodata.0x005576B8"))) const char D_005576B8[24] = "ios/pad.c";
 __attribute__((section(".rodata.0x00557840"))) const char D_00557840[32] = "pad:checking controler... ";

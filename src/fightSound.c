@@ -17,8 +17,14 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".sdata.0x00632784"))) int D_00632784 = 0;
-__attribute__((section(".sdata.0x00632788"))) char D_00632788[8] = { 0 };
-__attribute__((section(".sdata.0x00632790"))) const char D_00632790[8] = "0";
+/* D_00632784 is gp_rel-reached by func_00191F50; D_00632788/90 sit in
+ * the same neighborhood so extern them too (memory lit4_gp_rel_extern). */
+extern int D_00632784;
+extern char D_00632788[8];
+extern const char D_00632790[8];
 
 __attribute__((section(".rodata.0x0055AE88"))) const char D_0055AE88[24] = "src/fightSound.c";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/fightSound", func_00191F50);

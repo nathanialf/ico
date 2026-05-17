@@ -17,8 +17,15 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".sdata.0x00631B20"))) int D_00631B20 = 0;
-__attribute__((section(".sdata.0x00631B24"))) int D_00631B24 = 0;
-__attribute__((section(".sdata.0x00631B28"))) const char D_00631B28[8] = "0";
+/* sdata defs co-located with %gp_rel consumers moved to gitignored
+ * delayFreeManager_data.c sidecar (memory lit4_gp_rel_extern). */
+extern int D_00631B20, D_00631B24;
+extern const char D_00631B28[8];
 
 __attribute__((section(".rodata.0x00553AB8"))) const char D_00553AB8[24] = "src/delayFreeManager.c";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/delayFreeManager", func_00102558);
+INCLUDE_ASM("asm/nonmatchings/src/delayFreeManager", func_001025E8);
+INCLUDE_ASM("asm/nonmatchings/src/delayFreeManager", func_00102680);

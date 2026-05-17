@@ -6,7 +6,7 @@
 #include "include_asm.h"
 
 /* sdata */
-__attribute__((section(".sdata.0x00632DBC"))) int D_00632DBC = 0;
+extern int D_00632DBC;
 
 /* ASCII rodata */
 __attribute__((section(".rodata.0x0055A4B0"))) const char D_0055A4B0[16] = "flag ok\n";

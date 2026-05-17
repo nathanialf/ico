@@ -17,11 +17,11 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".lit4.0x0063097C"))) float D_0063097C = -0.1f;
-__attribute__((section(".lit4.0x00630980"))) float D_00630980 = 0.001f;
-__attribute__((section(".sdata.0x00631B50"))) const char D_00631B50[8] = "!!";
-__attribute__((section(".sdata.0x00631B58"))) unsigned int D_00631B58 = 0x00000065;
-__attribute__((section(".sdata.0x00631B5C"))) unsigned int D_00631B5C = 0x7F7FFFFF;
+extern float D_0063097C;
+extern float D_00630980;
+extern const char D_00631B50[8];
+extern unsigned int D_00631B58;
+extern unsigned int D_00631B5C;
 
 __attribute__((section(".rodata.0x00553CA0"))) const char D_00553CA0[24] = "src/motionManager2.c";
 
@@ -37,3 +37,7 @@ __attribute__((section(".rodata.0x00553CB8"))) const char D_00553CB8[96] = "Adju
 /* EUC-JP: "AdjustVerticalSidePlaneOfWall:垂直壁が近接しているので補正位置をその中点としました
 " */
 __attribute__((section(".rodata.0x00553D18"))) const char D_00553D18[88] = "AdjustVerticalSidePlaneOfWall:\277\342\304\276\312\311\244\254\266\341\300\334\244\267\244\306\244\244\244\353\244\316\244\307\312\344\300\265\260\314\303\326\244\362\244\275\244\316\303\346\305\300\244\310\244\267\244\336\244\267\244\277\n";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/motionManager2", func_00107B28);

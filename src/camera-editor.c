@@ -17,36 +17,36 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".sdata.0x00632028"))) int D_00632028 = 0;
-__attribute__((section(".sdata.0x00632614"))) unsigned int D_00632614 = 0x030E27E0;
-__attribute__((section(".sdata.0x00632618"))) const char D_00632618[8] = "a.txt";
-__attribute__((section(".sdata.0x00632620"))) const char D_00632620[8] = "0";
-__attribute__((section(".sdata.0x00632628"))) int D_00632628 = 0x0000FBA1;
-__attribute__((section(".sdata.0x0063262C"))) int D_0063262C = 0x00000000;
-__attribute__((section(".sdata.0x00632630"))) int D_00632630 = 0x0000DFA1;
-__attribute__((section(".sdata.0x00632634"))) int D_00632634 = 0x00000000;
-__attribute__((section(".sdata.0x00632638"))) float D_00632638[2] = { 3.00393677f, 0.0f };
-__attribute__((section(".sdata.0x00632640"))) float D_00632640[2] = { 3.00393677f, 0.0f };
-__attribute__((section(".sdata.0x00632648"))) const char D_00632648[8] = "   @";
-__attribute__((section(".sdata.0x00632650"))) float D_00632650[2] = { 3.00393677f, 0.0f };
-__attribute__((section(".sdata.0x00632658"))) const char D_00632658[8] = " \b\b@";
-__attribute__((section(".sdata.0x00632660"))) const char D_00632660[8] = "   @";
-__attribute__((section(".sdata.0x00632668"))) float D_00632668[2] = { 2.03137255f, 0.0f };
-__attribute__((section(".sdata.0x00632670"))) const char D_00632670[8] = ">> %s";
-__attribute__((section(".sdata.0x00632678"))) const char D_00632678[8] = "   %s";
-__attribute__((section(".sdata.0x00632680"))) const char D_00632680[8] = "group";
-__attribute__((section(".sdata.0x00632688"))) const char D_00632688[] = "width-x";
-__attribute__((section(".sdata.0x00632690"))) const char D_00632690[] = "width-y";
-__attribute__((section(".sdata.0x00632698"))) const char D_00632698[] = "width-z";
-__attribute__((section(".sdata.0x006326A0"))) const char D_006326A0[] = ">>%s %d";
-__attribute__((section(".sdata.0x006326A8"))) const char D_006326A8[8] = "ON ";
-__attribute__((section(".sdata.0x006326B0"))) const char D_006326B0[8] = "OFF";
-__attribute__((section(".sdata.0x006326B8"))) const char D_006326B8[] = "  %s %d";
-__attribute__((section(".sdata.0x006326C0"))) const char D_006326C0[8] = "onoff";
-__attribute__((section(".sdata.0x006326C8"))) const char D_006326C8[8] = "view";
-__attribute__((section(".sdata.0x006326D0"))) int D_006326D0 = 0;
-__attribute__((section(".sdata.0x006326D4"))) int D_006326D4 = 0;
-__attribute__((section(".sdata.0x006326D8"))) char D_006326D8[8] = { 0 };
+extern int D_00632028;
+extern unsigned int D_00632614;
+extern const char D_00632618[8];
+extern const char D_00632620[8];
+extern int D_00632628;
+extern int D_0063262C;
+extern int D_00632630;
+extern int D_00632634;
+extern float D_00632638[2];
+extern float D_00632640[2];
+extern const char D_00632648[8];
+extern float D_00632650[2];
+extern const char D_00632658[8];
+extern const char D_00632660[8];
+extern float D_00632668[2];
+extern const char D_00632670[8];
+extern const char D_00632678[8];
+extern const char D_00632680[8];
+extern const char D_00632688[];
+extern const char D_00632690[];
+extern const char D_00632698[];
+extern const char D_006326A0[];
+extern const char D_006326A8[8];
+extern const char D_006326B0[8];
+extern const char D_006326B8[];
+extern const char D_006326C0[8];
+extern const char D_006326C8[8];
+extern int D_006326D0;
+extern int D_006326D4;
+extern char D_006326D8[8];
 
 __attribute__((section(".rodata.0x0055A5C0"))) const char D_0055A5C0[24] = "src/camera-editor.c";
 

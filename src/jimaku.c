@@ -17,37 +17,39 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".sdata.0x00632514"))) int D_00632514 = 0;
-__attribute__((section(".sdata.0x00632518"))) int D_00632518 = 0x00000001;
-__attribute__((section(".sdata.0x0063251C"))) int D_0063251C = 0x00000000;
-__attribute__((section(".sdata.0x00632520"))) int D_00632520 = 0x80808080;
-__attribute__((section(".sdata.0x00632524"))) int D_00632524 = 0x00000000;
-__attribute__((section(".sdata.0x00632528"))) int D_00632528 = 0x00000030;
-__attribute__((section(".sdata.0x0063252C"))) int D_0063252C = 0x00000000;
-__attribute__((section(".sdata.0x00632530"))) int D_00632530 = 0x0064253E;
-__attribute__((section(".sdata.0x00632534"))) int D_00632534 = 0x00000000;
-__attribute__((section(".sdata.0x00632538"))) int D_00632538 = 0x00642520;
-__attribute__((section(".sdata.0x0063253C"))) int D_0063253C = 0x00000000;
-__attribute__((section(".sdata.0x00632540"))) int D_00632540 = 0x0000000A;
-__attribute__((section(".sdata.0x00632544"))) int D_00632544 = 0x00000000;
-__attribute__((section(".sdata.0x00632548"))) char D_00632548[8] = { 0 };
-__attribute__((section(".sdata.0x00632550"))) int D_00632550 = 0x00000000;
-__attribute__((section(".sdata.0x00632554"))) int D_00632554 = 0x00000000;
-__attribute__((section(".sdata.0x00632558"))) int D_00632558 = 0x65736572;
-__attribute__((section(".sdata.0x0063255C"))) int D_0063255C = 0x00000A74;
-__attribute__((section(".sdata.0x00632560"))) int D_00632560 = 0x0A746968;
-__attribute__((section(".sdata.0x00632564"))) int D_00632564 = 0x00000000;
-__attribute__((section(".sdata.0x00632568"))) int D_00632568 = 0x65657266;
-__attribute__((section(".sdata.0x0063256C"))) int D_0063256C = 0x0000000A;
-__attribute__((section(".sdata.0x00632570"))) int D_00632570 = 0x6C696166;
-__attribute__((section(".sdata.0x00632574"))) int D_00632574 = 0x0000000A;
-__attribute__((section(".sdata.0x00632578"))) int D_00632578 = 0x253A7665;
-__attribute__((section(".sdata.0x0063257C"))) int D_0063257C = 0x00000A66;
-__attribute__((section(".sdata.0x00632580"))) int D_00632580 = 0x20747364;
-__attribute__((section(".sdata.0x00632584"))) int D_00632584 = 0x000A7025;
-__attribute__((section(".sdata.0x00632588"))) int D_00632588 = 0x70253E2D;
-__attribute__((section(".sdata.0x0063258C"))) int D_0063258C = 0x0000000A;
-__attribute__((section(".sdata.0x00632590"))) char D_00632590[8] = { 0 };
+/* D_00632514 is gp_rel-reached by a jimaku func; def lives in
+ * gitignored jimaku_data.c sidecar (memory lit4_gp_rel_extern). */
+extern int D_00632514;
+extern int D_00632518;
+extern int D_0063251C;
+extern int D_00632520;
+extern int D_00632524;
+extern int D_00632528;
+extern int D_0063252C;
+extern int D_00632530;
+extern int D_00632534;
+extern int D_00632538;
+extern int D_0063253C;
+extern int D_00632540;
+extern int D_00632544;
+extern char D_00632548[8];
+extern int D_00632550;
+extern int D_00632554;
+extern int D_00632558;
+extern int D_0063255C;
+extern int D_00632560;
+extern int D_00632564;
+extern int D_00632568;
+extern int D_0063256C;
+extern int D_00632570;
+extern int D_00632574;
+extern int D_00632578;
+extern int D_0063257C;
+extern int D_00632580;
+extern int D_00632584;
+extern int D_00632588;
+extern int D_0063258C;
+extern char D_00632590[8];
 
 __attribute__((section(".rodata.0x00559B88"))) const char D_00559B88[16] = "src/jimaku.c";
 
@@ -77,3 +79,9 @@ __attribute__((section(".rodata.0x00559D90"))) const char D_00559D90[16] = "bili
 __attribute__((section(".rodata.0x00559BF0"))) const char D_00559BF0[64] = "other_group\n\000\000\000\000gid:%d = tgid:%d, mgid:%d\n\000\000\000\000\000\000!!cant reach!!\n";
 __attribute__((section(".rodata.0x00559CE0"))) const char D_00559CE0[40] = "illigal way \000\000\000\000WGROUP STAT OTHER\n\000\000\000\000\000";
 __attribute__((section(".rodata.0x00559D30"))) const char D_00559D30[80] = "short cut 1:%p\n\000WGROUP STAT SAME\n\000\000\000\000\000\000\000wp %p myway %p pos %p\n\000\000wgroup stat:%d\n";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/jimaku", func_00176808);
+INCLUDE_ASM("asm/nonmatchings/src/jimaku", func_001769D0);
+INCLUDE_ASM("asm/nonmatchings/src/jimaku", func_00176AA0);

@@ -17,10 +17,10 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".sdata.0x00633190"))) const char D_00633190[8] = "0";
-__attribute__((section(".sdata.0x00633198"))) int D_00633198 = 0;
-__attribute__((section(".sdata.0x0063319C"))) int D_0063319C = 0;
-__attribute__((section(".sdata.0x006331A0"))) char D_006331A0[8] = { 0 };
+extern const char D_00633190[8];
+extern int D_00633198;
+extern int D_0063319C;
+extern char D_006331A0[8];
 
 __attribute__((section(".rodata.0x006172E0"))) const char D_006172E0[24] = "src/sceneManager.c";
 

@@ -17,20 +17,20 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".sdata.0x00633210"))) const char D_00633210[8] = "e";
-__attribute__((section(".sdata.0x00633218"))) const char D_00633218[8] = "SL";
-__attribute__((section(".sdata.0x00633220"))) const char D_00633220[8] = "DE";
-__attribute__((section(".sdata.0x00633228"))) const char D_00633228[8] = "AT";
-__attribute__((section(".sdata.0x00633230"))) const char D_00633230[8] = "JM";
-__attribute__((section(".sdata.0x00633238"))) const char D_00633238[8] = "WA";
-__attribute__((section(".sdata.0x00633240"))) const char D_00633240[8] = "ST";
-__attribute__((section(".sdata.0x00633248"))) const char D_00633248[8] = "--";
-__attribute__((section(".sdata.0x00633250"))) const char D_00633250[8] = "SLEEP";
-__attribute__((section(".sdata.0x00633258"))) const char D_00633258[8] = "DEAD";
-__attribute__((section(".sdata.0x00633260"))) const char D_00633260[8] = "ATTACK";
-__attribute__((section(".sdata.0x00633268"))) const char D_00633268[8] = "JUMP";
-__attribute__((section(".sdata.0x00633270"))) const char D_00633270[8] = "WALK";
-__attribute__((section(".sdata.0x00633278"))) const char D_00633278[8] = "STAND";
+extern const char D_00633210[8];
+extern const char D_00633218[8];
+extern const char D_00633220[8];
+extern const char D_00633228[8];
+extern const char D_00633230[8];
+extern const char D_00633238[8];
+extern const char D_00633240[8];
+extern const char D_00633248[8];
+extern const char D_00633250[8];
+extern const char D_00633258[8];
+extern const char D_00633260[8];
+extern const char D_00633268[8];
+extern const char D_00633270[8];
+extern const char D_00633278[8];
 
 __attribute__((section(".rodata.0x00618550"))) const char D_00618550[16] = "src/a_p_1.c";
 

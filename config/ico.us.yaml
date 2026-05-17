@@ -281,6 +281,7 @@ segments:
       - [0x001C7C, asm, src/cod/001C7C]
       - [0x0024B8, c, src/cod/0024B8]
       - [0x0024F8, asm, src/cod/0024F8]
+      - [0x002558, c, src/delayFreeManager]      # TU promotion: 0x102558..0x102790 (3 INCLUDE_ASM)
       - [0x002790, c, src/cod/002790]            # func_00102790: dispatch: if *a1, tail call func_0010DDB8 with computed args
       - [0x0027C4, asm, src/cod/0027C4]
       - [0x002850, c, src/cod/002850]            # func_00102850: auto-batch
@@ -337,6 +338,7 @@ segments:
       - [0x006DEC, asm, src/cod/006DEC]
       - [0x006DF0, c, src/cod/006DF0]            # func_00106DF0: sibling, D_0063094C, tail func_00168558
       - [0x006E34, asm, src/cod/006E34]
+      - [0x007B28, c, src/motionManager2]        # TU promotion: 0x107B28..0x107DD8 (1 INCLUDE_ASM)
       - [0x007DD8, asm, src/cod/007DD8]
       - [0x007E28, asm, src/cod/007E28]
       - [0x009B98, c, src/cod/009B98]            # func_00109B98: return *(self+0x15C) + 0x680
@@ -439,6 +441,7 @@ segments:
       - [0x00ECC8, c, src/cod/00ECC8]            # func_0010ECC8: tail call func_00244980(D_0063378C, D_00276214)
       - [0x00ECD8, c, src/cod/00ECD8]
       - [0x00ECE0, asm, src/cod/00ECE0]
+      - [0x00EE90, c, src/FileManager]           # TU promotion: 0x10EE90..0x10F5B8 (1 INCLUDE_ASM)
       - [0x00F5B8, c, src/cod/00F5B8]            # func_0010F5B8
       - [0x00F5D4, asm, src/cod/00F5D4]
       - [0x0118B0, c, src/cod/0118B0]
@@ -1075,6 +1078,7 @@ segments:
       - [0x076398, c, src/cod/076398]            # func_00176398: round size up to 0x800 + call f1 + tail call f2
       - [0x0763F4, asm, src/cod/0763F4]
       - [0x0763F8, asm, src/cod/0763F8]
+      - [0x076808, c, src/jimaku]                # TU promotion: 0x176808..0x176AE8 (3 INCLUDE_ASM)
       - [0x076AE8, c, src/cod/076AE8]            # func_00176AE8: a0->0=0 + tail call func_0013A5B8(&D_0028A4A0, a0, 1)
       - [0x076B04, asm, src/cod/076B04]
       - [0x076B08, c, src/cod/076B08]            # func_00176B08: gated tail-call to func_0013A5B8(D_0028A4A0, p, 0); requires D_00274EE8 != 0
@@ -1329,6 +1333,7 @@ segments:
       - [0x091D08, c, src/cod/091D08]            # func_00191D08: D_00633DB4=0; D_00633DB8=-1; D_00633DBC=0; return 0
       - [0x091D20, c, src/cod/091D20]            # func_00191D20: dedup-then-append a0 to D_006D0B90[D_00633DB4] (D_00633DB8 = init value)
       - [0x091D6C, asm, src/cod/091D6C]
+      - [0x091F50, c, src/fightSound]            # TU promotion: 0x191F50..0x192040 (1 INCLUDE_ASM)
       - [0x092040, c, src/cod/092040]            # func_00192040: D_00632780 = 1, return 1
       - [0x09204C, asm, src/cod/09204C]
       - [0x092050, c, src/cod/092050]            # func_00192050: if D_006D0D20: func_00141E00(D_006D0D20); D_006D0D20=0
@@ -1958,6 +1963,7 @@ segments:
       - [0x0E9DE8, c, src/cod/0E9DE8]            # func_001E9DE8: auto
       - [0x0E9DF0, c, src/cod/0E9DF0]            # func_001E9DF0: auto
       - [0x0E9DF8, asm, src/cod/0E9DF8]
+      - [0x0E9F08, c, src/rotObject]             # TU promotion: 0x1E9F08..0x1EA108 (2 INCLUDE_ASM)
       - [0x0EA108, c, src/cod/0EA108]            # func_001EA108: fixed16.16 to float of *(self->15C->800+0x24)
       - [0x0EA128, asm, src/cod/0EA128]
       - [0x0EA220, c, src/cod/0EA220]            # func_001EA220: auto

@@ -17,21 +17,20 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".sdata.0x00631B90"))) const char D_00631B90[8] = ";1";
-__attribute__((section(".sdata.0x00631B98"))) const char D_00631B98[8] = "FALSE";
-__attribute__((section(".sdata.0x00631BA0"))) char D_00631BA0[8] = { 0 };
-__attribute__((section(".sdata.0x00631BA8"))) int D_00631BA8 = 0;
-__attribute__((section(".sdata.0x00631BAC"))) int D_00631BAC = 0;
-__attribute__((section(".sdata.0x00631BB0"))) char D_00631BB0[8] = { 0 };
-__attribute__((section(".sdata.0x00631BB8"))) int D_00631BB8 = 0;
-__attribute__((section(".sdata.0x00631BBC"))) int D_00631BBC = 0;
-__attribute__((section(".sdata.0x00631BC0"))) float D_00631BC0 = 1.0f;
-__attribute__((section(".sdata.0x00631BC4"))) float D_00631BC4 = 1.0f;
-__attribute__((section(".sdata.0x00631BC8"))) float D_00631BC8 = 1000.0f;
-__attribute__((section(".sdata.0x0063200C"))) int D_0063200C = 0;
-__attribute__((section(".sdata.0x00632018"))) int D_00632018 = 0;
-__attribute__((section(".sdata.0x0063202C"))) int D_0063202C = 0;
-__attribute__((section(".sdata.0x00632034"))) int D_00632034 = 0;
+extern const char D_00631B90[8];
+extern const char D_00631B98[8];
+extern char D_00631BA0[8];
+extern int D_00631BA8;
+extern int D_00631BAC;
+extern char D_00631BB0[8];
+extern int D_00631BB8;
+extern int D_00631BBC;
+extern float D_00631BC0;
+extern float D_00631BC4;
+extern float D_00631BC8;
+/* sdata defs co-located with func_0010EE90's %gp_rel refs moved to
+ * gitignored FileManager_data.c sidecar (memory lit4_gp_rel_extern). */
+extern int D_0063200C, D_00632018, D_0063202C, D_00632034;
 
 __attribute__((section(".rodata.0x00554040"))) const char D_00554040[24] = "src/FileManager.c";
 
@@ -99,3 +98,7 @@ __attribute__((section(".rodata.0x00554C10"))) const char D_00554C10[24] = "Stag
 
 /* Float rodata migrated from FileManager_data.c */
 __attribute__((section(".rodata.0x00554790"))) const float D_00554790[4] = { 768.0f, 768.0f, 0.0f, 0.0f };
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/FileManager", func_0010EE90);

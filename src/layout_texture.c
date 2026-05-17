@@ -17,10 +17,10 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".sdata.0x00633178"))) const char D_00633178[8] = "/";
-__attribute__((section(".sdata.0x00633180"))) const char D_00633180[8] = "0";
-__attribute__((section(".sdata.0x00633188"))) int D_00633188 = 0;
-__attribute__((section(".sdata.0x0063318C"))) unsigned int D_0063318C = 0xFFFFFFFF;
+extern const char D_00633178[8];
+extern const char D_00633180[8];
+extern int D_00633188;
+extern unsigned int D_0063318C;
 
 __attribute__((section(".rodata.0x00617218"))) const char D_00617218[24] = "src/layout_texture.c";
 
