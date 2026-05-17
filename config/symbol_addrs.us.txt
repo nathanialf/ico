@@ -57,3 +57,4 @@ D_006337A9 = 0x006337A9; // type:s8 size:0x1 defined:True
 D_006337AA = 0x006337AA; // type:s8 size:0x1 defined:True
 D_006337AB = 0x006337AB; // type:u8 size:0x1 defined:True
 
+func_00167280 = 0x00167280; // type:func size:0x2A4

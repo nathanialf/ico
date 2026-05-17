@@ -17,27 +17,27 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".sdata.0x006323C7"))) unsigned char D_006323C7 = 0xFF;
-__attribute__((section(".sdata.0x006323C8"))) char D_006323C8[8] = { 0 };
-__attribute__((section(".sdata.0x006323D0"))) const char D_006323D0[8] = "e";
-__attribute__((section(".sdata.0x006323D8"))) const char D_006323D8[8] = " COL: ";
-__attribute__((section(".sdata.0x006323E0"))) const char D_006323E0[8] = " MAT: ";
-__attribute__((section(".sdata.0x006323E8"))) const char D_006323E8[8] = "GOBJ: ";
-__attribute__((section(".sdata.0x006323F0"))) unsigned int D_006323F0 = 0x00167230;
-__attribute__((section(".sdata.0x006323F4"))) unsigned int D_006323F4 = 0x00167258;
-__attribute__((section(".sdata.0x006323F8"))) char D_006323F8[8] = { 0 };
-__attribute__((section(".sdata.0x00632400"))) const char D_00632400[8] = "%2d ";
-__attribute__((section(".sdata.0x00632408"))) const char D_00632408[8] = "\n";
-__attribute__((section(".sdata.0x00632410"))) const char D_00632410[8] = "0";
-__attribute__((section(".sdata.0x00632418"))) const char D_00632418[] = "%10.3f ";
-__attribute__((section(".sdata.0x00632420"))) const char D_00632420[8] = "\n";
-__attribute__((section(".sdata.0x00632428"))) const char D_00632428[8] = "[%d]: ";
-__attribute__((section(".sdata.0x00632430"))) const char D_00632430[8] = "boy";
-__attribute__((section(".sdata.0x00632438"))) const char D_00632438[8] = "girl";
-__attribute__((section(".sdata.0x00632440"))) int D_00632440 = 0x000000D7;
-__attribute__((section(".sdata.0x00632444"))) int D_00632444 = 0x000000E2;
-__attribute__((section(".sdata.0x00632448"))) int D_00632448 = 0x000000D8;
-__attribute__((section(".sdata.0x0063244C"))) int D_0063244C = 0x000000E3;
+extern unsigned char D_006323C7;
+extern char D_006323C8[8];
+extern const char D_006323D0[8];
+extern const char D_006323D8[8];
+extern const char D_006323E0[8];
+extern const char D_006323E8[8];
+extern unsigned int D_006323F0;
+extern unsigned int D_006323F4;
+extern char D_006323F8[8];
+extern const char D_00632400[8];
+extern const char D_00632408[8];
+extern const char D_00632410[8];
+extern const char D_00632418[];
+extern const char D_00632420[8];
+extern const char D_00632428[8];
+extern const char D_00632430[8];
+extern const char D_00632438[8];
+extern int D_00632440;
+extern int D_00632444;
+extern int D_00632448;
+extern int D_0063244C;
 
 __attribute__((section(".rodata.0x005591F0"))) const char D_005591F0[24] = "src/fieldCollision.c";
 
@@ -79,3 +79,19 @@ __attribute__((section(".rodata.0x00559368"))) const char D_00559368[48] = "\312
 /* EUC-JP: "DOBJ無しのオブジェクトに対してGetOrientOfWallが呼ばれました
 " */
 __attribute__((section(".rodata.0x00559398"))) const char D_00559398[72] = "DOBJ\314\265\244\267\244\316\245\252\245\326\245\270\245\247\245\257\245\310\244\313\302\320\244\267\244\306GetOrientOfWall\244\254\270\306\244\320\244\354\244\336\244\267\244\277\n";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00166028);
+INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00166118);
+INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00166258);
+INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_001667E0);
+INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00166A10);
+INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00166BB0);
+INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00166E10);
+INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00167230);
+INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00167258);
+INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00167278);
+INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00167280);
+INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00167528);
+INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00167760);

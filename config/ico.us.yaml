@@ -1005,9 +1005,8 @@ segments:
       - [0x065FB8, asm, src/cod/065FB8]
       - [0x066000, c, src/cod/066000]            # func_00166000: permuter score-0: volatile chain with unsigned int return
       - [0x066024, asm, src/cod/066024]
-      - [0x067230, asm, src/cod/067230]
-      - [0x067258, asm, src/cod/067258]
-      - [0x067280, asm, src/cod/067280]
+      - [0x066028, c, src/fieldCollision]        # TU promotion: 0x166028..0x1677D0 (13 INCLUDE_ASM, merged 4 asm subsegs)
+      - [0x0677D0, asm, src/cod/0677D0]
       - [0x0683A8, c, src/commonact]             # 11-func dispatch block @0x1683A8..0x16850C: (*D_006323F0)(a0, N) wrappers
       - [0x06850C, asm, src/cod/06850C]
       - [0x068510, c, src/cod/068510]            # func_00168510: D_00633D34=a1; D_006323F0(a0, 9) jalr
