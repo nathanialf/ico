@@ -1260,7 +1260,8 @@ segments:
       - [0x082C08, c, src/cod/082C08]            # func_00182C08
       - [0x082C14, asm, src/cod/082C14]
       - [0x082CF0, c, src/cod/082CF0]            # func_00182CF0: byte-flag check + cond 2-arg call → bool
-      - [0x082D20, asm, src/cod/082D20]
+      - [0x082D20, c, src/camera-editor]         # TU promotion: covers 0x182D20..0x183218 (3 INCLUDE_ASM funcs)
+      - [0x083218, asm, src/cod/083218]
       - [0x0848A0, c, src/cod/0848A0]            # func_001848A0: tail call func_00184488(a0, a1, a1+1, a2)
       - [0x0848AC, asm, src/cod/0848AC]
       - [0x085660, c, src/cod/085660]            # func_00185660: auto-batch

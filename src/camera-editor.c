@@ -88,3 +88,9 @@ __attribute__((section(".rodata.0x0055A710"))) const char D_0055A710[64] = "%s\t
 __attribute__((section(".rodata.0x0055A900"))) const char D_0055A900[24] = "\244\263\244\354\260\312\276\345\304\311\262\303\244\307\244\255\244\336\244\273\244\363";
 /* EUC-JP: "これ以上削除できません" */
 __attribute__((section(".rodata.0x0055A918"))) const char D_0055A918[24] = "\244\263\244\354\260\312\276\345\272\357\275\374\244\307\244\255\244\336\244\273\244\363";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/camera-editor", func_00182D20);
+INCLUDE_ASM("asm/nonmatchings/src/camera-editor", func_00182DD8);
+INCLUDE_ASM("asm/nonmatchings/src/camera-editor", func_00182F20);
