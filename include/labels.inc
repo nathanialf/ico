@@ -31,7 +31,14 @@
 
 
 # A label referenced by a jumptable.
-.macro jlabel label, visibility=local
+#
+# visibility=global so jumptable target labels (e.g. `.L0010F564`) emit
+# as global symbols. ICO has one giant rodata subseg (no per-TU .rodata),
+# so when an INCLUDE_ASM'd function's rodata jumptable lands in the global
+# rodata .o, its `.word .L*` references must cross .o boundaries — only
+# global labels resolve. Upstream default is local (parappa2/oot use
+# per-TU .rodata subsegs so the migration keeps them local within one .o).
+.macro jlabel label, visibility=global
     .\visibility \label
     \label:
 .endm
