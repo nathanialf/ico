@@ -17,8 +17,11 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".sdata.0x00633828"))) char D_00633828[8] = { 0 };
-__attribute__((section(".sdata.0x00633830"))) const char D_00633830[8] = "%s=on\n";
+/* sdata defs live in the gitignored EnemyInit_data.c sidecar — keeping
+ * them out of this TU's .o lets ee-gcc emit %gp_rel for func_001FBC48
+ * (per memory lit4_gp_rel_extern). */
+extern char D_00633828[8];
+extern const char D_00633830[8];
 
 __attribute__((section(".rodata.0x0061AC70"))) const char D_0061AC70[16] = "src/EnemyInit.c";
 
@@ -30,3 +33,9 @@ __attribute__((section(".rodata.0x0061ACB0"))) const char D_0061ACB0[24] = "entr
 __attribute__((section(".rodata.0x0061ACC8"))) const char D_0061ACC8[24] = "entry into tail\n";
 __attribute__((section(".rodata.0x0061ACE0"))) const char D_0061ACE0[24] = "LinkCameraDL in\n";
 __attribute__((section(".rodata.0x0061ACF8"))) const char D_0061ACF8[24] = "LinkCameraDL out\n";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/EnemyInit", func_001FBC48);
+INCLUDE_ASM("asm/nonmatchings/src/EnemyInit", func_001FBF88);
+INCLUDE_ASM("asm/nonmatchings/src/EnemyInit", func_001FBFC8);
