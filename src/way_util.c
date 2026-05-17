@@ -17,62 +17,62 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".lit4.0x00630E3C"))) float D_00630E3C = 100000.0f;
-__attribute__((section(".lit4.0x00630E40"))) float D_00630E40 = 100000.0f;
-__attribute__((section(".lit4.0x00630E44"))) float D_00630E44 = 100000.0f;
-__attribute__((section(".lit4.0x00630E48"))) float D_00630E48 = 100000.0f;
-__attribute__((section(".lit4.0x00630E4C"))) float D_00630E4C = 100000.0f;
-__attribute__((section(".lit4.0x00630E50"))) float D_00630E50 = 100000.0f;
-__attribute__((section(".lit4.0x00630E54"))) float D_00630E54 = 100000.0f;
-__attribute__((section(".lit4.0x00630E58"))) float D_00630E58 = 100000.0f;
-__attribute__((section(".lit4.0x00630E5C"))) float D_00630E5C = 100000.0f;
-__attribute__((section(".lit4.0x00630E60"))) float D_00630E60 = 100000.0f;
-__attribute__((section(".lit4.0x00630E64"))) float D_00630E64 = 100000.0f;
-__attribute__((section(".lit4.0x00630E68"))) float D_00630E68 = 100000.0f;
-__attribute__((section(".lit4.0x00630E6C"))) float D_00630E6C = 40000.0f;
-__attribute__((section(".lit4.0x00630E70"))) float D_00630E70 = 40000.0f;
-__attribute__((section(".lit4.0x00630E74"))) float D_00630E74 = 3.14159274f;
-__attribute__((section(".lit4.0x00630E78"))) float D_00630E78 = 3.14159274f;
-__attribute__((section(".lit4.0x00630E7C"))) float D_00630E7C = 3834.0f;
-__attribute__((section(".lit4.0x00630E80"))) float D_00630E80 = 0.8f;
-__attribute__((section(".lit4.0x00630E84"))) float D_00630E84 = 0.45f;
-__attribute__((section(".lit4.0x00630E88"))) float D_00630E88 = 3834.0f;
-__attribute__((section(".lit4.0x00630E8C"))) float D_00630E8C = 0.99f;
-__attribute__((section(".lit4.0x00630E90"))) float D_00630E90 = 0.1f;
-__attribute__((section(".lit4.0x00630E94"))) float D_00630E94 = 0.8f;
-__attribute__((section(".lit4.0x00630E98"))) float D_00630E98 = 0.45f;
-__attribute__((section(".lit4.0x00630E9C"))) float D_00630E9C = 625.0f;
-__attribute__((section(".lit4.0x00630EA0"))) float D_00630EA0 = 1650.0f;
-__attribute__((section(".lit4.0x00630EA4"))) float D_00630EA4 = 4200.0f;
-__attribute__((section(".lit4.0x00630EA8"))) float D_00630EA8 = 3100.0f;
-__attribute__((section(".lit4.0x00630EAC"))) float D_00630EAC = 0.01f;
-__attribute__((section(".lit4.0x00630EB0"))) float D_00630EB0 = 1500.0f;
-__attribute__((section(".lit4.0x00630EB4"))) float D_00630EB4 = 0.99f;
-__attribute__((section(".lit4.0x00630EB8"))) float D_00630EB8 = 0.001f;
-__attribute__((section(".lit4.0x00630EBC"))) float D_00630EBC = 0.01f;
-__attribute__((section(".lit4.0x00630EC0"))) float D_00630EC0 = 0.0174532924f;
-__attribute__((section(".lit4.0x00630EC4"))) float D_00630EC4 = 0.1f;
-__attribute__((section(".lit4.0x00630EC8"))) float D_00630EC8 = 1.9f;
-__attribute__((section(".lit4.0x00630ECC"))) float D_00630ECC = 3.14159274f;
-__attribute__((section(".lit4.0x00630ED0"))) float D_00630ED0 = 0.0001f;
-__attribute__((section(".lit4.0x00630ED4"))) float D_00630ED4 = 0.0001f;
-__attribute__((section(".sdata.0x00632598"))) const char D_00632598[8] = "0";
-__attribute__((section(".sdata.0x006325A8"))) float D_006325A8[2] = { 100000.0f, 100000.0f };
-__attribute__((section(".sdata.0x00633874"))) int D_00633874 = 0;
-__attribute__((section(".sdata.0x00633878"))) unsigned int D_00633878 = 0xFFFFFFFF;
-__attribute__((section(".sdata.0x0063387C"))) int D_0063387C = 0;
-__attribute__((section(".sdata.0x00633880"))) const char D_00633880[8] = "pt.%d";
-__attribute__((section(".sdata.0x00633888"))) unsigned int D_00633888 = 0x00000062;
-__attribute__((section(".sdata.0x0063388C"))) int D_0063388C = 0;
-__attribute__((section(".sdata.0x00633890"))) int D_00633890 = 0;
-__attribute__((section(".sdata.0x00633894"))) int D_00633894 = 0;
-__attribute__((section(".sdata.0x006338A0"))) const char D_006338A0[] = "test.wp";
-__attribute__((section(".sdata.0x006338A8"))) const char D_006338A8[8] = "saved\n";
-__attribute__((section(".sdata.0x006338B0"))) const char D_006338B0[8] = "%d ";
-__attribute__((section(".sdata.0x006338B8"))) const char D_006338B8[8] = "\n";
-__attribute__((section(".sdata.0x006338C8"))) const char D_006338C8[] = "way0000";
-__attribute__((section(".sdata.0x006338D0"))) const char D_006338D0[8] = "%s.txt";
-__attribute__((section(".sdata.0x006338D8"))) const char D_006338D8[8] = "play";
+extern float D_00630E3C;
+extern float D_00630E40;
+extern float D_00630E44;
+extern float D_00630E48;
+extern float D_00630E4C;
+extern float D_00630E50;
+extern float D_00630E54;
+extern float D_00630E58;
+extern float D_00630E5C;
+extern float D_00630E60;
+extern float D_00630E64;
+extern float D_00630E68;
+extern float D_00630E6C;
+extern float D_00630E70;
+extern float D_00630E74;
+extern float D_00630E78;
+extern float D_00630E7C;
+extern float D_00630E80;
+extern float D_00630E84;
+extern float D_00630E88;
+extern float D_00630E8C;
+extern float D_00630E90;
+extern float D_00630E94;
+extern float D_00630E98;
+extern float D_00630E9C;
+extern float D_00630EA0;
+extern float D_00630EA4;
+extern float D_00630EA8;
+extern float D_00630EAC;
+extern float D_00630EB0;
+extern float D_00630EB4;
+extern float D_00630EB8;
+extern float D_00630EBC;
+extern float D_00630EC0;
+extern float D_00630EC4;
+extern float D_00630EC8;
+extern float D_00630ECC;
+extern float D_00630ED0;
+extern float D_00630ED4;
+extern const char D_00632598[8];
+extern float D_006325A8[2];
+extern int D_00633874;
+extern unsigned int D_00633878;
+extern int D_0063387C;
+extern const char D_00633880[8];
+extern unsigned int D_00633888;
+extern int D_0063388C;
+extern int D_00633890;
+extern int D_00633894;
+extern const char D_006338A0[];
+extern const char D_006338A8[8];
+extern const char D_006338B0[8];
+extern const char D_006338B8[8];
+extern const char D_006338C8[];
+extern const char D_006338D0[8];
+extern const char D_006338D8[8];
 
 __attribute__((section(".rodata.0x0055A138"))) const char D_0055A138[16] = "deamon start";
 __attribute__((section(".rodata.0x0055A148"))) const char D_0055A148[16] = "bridge create";
@@ -144,3 +144,70 @@ __attribute__((section(".rodata.0x0055A238"))) const char D_0055A238[48] = "scpC
 __attribute__((section(".rodata.0x0055A268"))) const char D_0055A268[56] = "scpCheckExistAliveSpider: \300\270\244\255\244\306\244\244\244\353\303\330\351\341\244\317\244\244\244\336\244\273\244\363\n";
 /* EUC-JP: "warpGirl.c:もしDEBUG STAGE SELECTでなくてここを通ったら おかしい！" */
 __attribute__((section(".rodata.0x0055A390"))) const char D_0055A390[72] = "warpGirl.c:\244\342\244\267DEBUG STAGE SELECT\244\307\244\312\244\257\244\306\244\263\244\263\244\362\304\314\244\303\244\277\244\351 \244\252\244\253\244\267\244\244\241\252";
+
+#include "include_asm.h"
+#include "matching.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_00178990);
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_00178B20);
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_00178CC8);
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_00178E78);
+
+/* Matched body inlined from src/cod/079040.c during TU coalesce. */
+void func_00179040(void) {
+    volatile int local[12];
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017904C);
+
+/* Matched body inlined from src/cod/079050.c during TU coalesce. */
+void func_00179050(void) {
+    volatile int local[12];
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017905C);
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_00179060);
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_00179248);
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_00179438);
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_00179558);
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_001795B8);
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_00179878);
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_00179B50);
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_00179E10);
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_00179F68);
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A230);
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A2C8);
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A368);
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A410);
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A4C0);
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A578);
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A638);
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A6F8);
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A788);
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A830);
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A910);
+
+/* Matched body inlined from src/cod/07A9B8.c during TU coalesce. */
+extern void func_00178990(int *a0, int a1);
+void func_0017A9B8(int x) {
+    func_00178990((int *)x, -1);
+    DEFEAT_TCO();
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A9D4);
+
+/* Matched body inlined from src/cod/07A9D8.c during TU coalesce. */
+extern void func_00104508(int *a0, int a1);
+void func_0017A9D8(int a0)
+{
+    int locals[4];
+    func_00104508(locals, a0);
+    func_00178990(locals, -1);
+    KEEP_LIVE(locals);
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017AA04);
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017AA08);
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017AB20);
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017AC48);
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017ACD8);

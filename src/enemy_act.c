@@ -17,140 +17,142 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".lit4.0x00630AEC"))) float D_00630AEC = 22500.0f;
-__attribute__((section(".lit4.0x00630CE0"))) float D_00630CE0 = 90000.0f;
-__attribute__((section(".lit4.0x00630CE4"))) float D_00630CE4 = 0.001f;
-__attribute__((section(".lit4.0x00630CE8"))) float D_00630CE8 = 0.1f;
-__attribute__((section(".lit4.0x00630CEC"))) float D_00630CEC = 0.99f;
-__attribute__((section(".lit4.0x00630CF0"))) float D_00630CF0 = 0.1f;
-__attribute__((section(".lit4.0x00630CF4"))) float D_00630CF4 = 0.99f;
-__attribute__((section(".lit4.0x00630CF8"))) float D_00630CF8 = 0.1f;
-__attribute__((section(".lit4.0x00630CFC"))) float D_00630CFC = 0.99f;
-__attribute__((section(".lit4.0x00630D00"))) float D_00630D00 = 0.1f;
-__attribute__((section(".lit4.0x00630D04"))) float D_00630D04 = 0.1f;
-__attribute__((section(".lit4.0x00630D08"))) float D_00630D08 = 0.1f;
-__attribute__((section(".lit4.0x00630D0C"))) float D_00630D0C = 10000.0f;
-__attribute__((section(".lit4.0x00630D10"))) float D_00630D10 = 0.0001f;
-__attribute__((section(".lit4.0x00630D14"))) float D_00630D14 = 0.01f;
-__attribute__((section(".lit4.0x00630D18"))) float D_00630D18 = 0.1f;
-__attribute__((section(".lit4.0x00630D1C"))) float D_00630D1C = 3.14159274f;
-__attribute__((section(".lit4.0x00630D20"))) float D_00630D20 = 0.7f;
-__attribute__((section(".lit4.0x00630D24"))) float D_00630D24 = 0.7f;
-__attribute__((section(".lit4.0x00630D28"))) float D_00630D28 = 0.7f;
-__attribute__((section(".lit4.0x00630D2C"))) float D_00630D2C = 0.7f;
-__attribute__((section(".lit4.0x00630D30"))) float D_00630D30 = 160000.0f;
-__attribute__((section(".lit4.0x00630D34"))) float D_00630D34 = 0.7f;
-__attribute__((section(".lit4.0x00630D38"))) float D_00630D38 = 160000.0f;
-__attribute__((section(".lit4.0x00630D3C"))) float D_00630D3C = 1440000.0f;
-__attribute__((section(".lit4.0x00630D40"))) float D_00630D40 = 40000.0f;
-__attribute__((section(".lit4.0x00630D44"))) float D_00630D44 = 341.0f;
-__attribute__((section(".lit4.0x00630D48"))) float D_00630D48 = 0.05f;
-__attribute__((section(".lit4.0x00630D4C"))) float D_00630D4C = 0.05f;
-__attribute__((section(".lit4.0x00630D50"))) float D_00630D50 = 0.3f;
-__attribute__((section(".lit4.0x00630D54"))) float D_00630D54 = 10000.0f;
-__attribute__((section(".lit4.0x00630D58"))) float D_00630D58 = 90000.0f;
-__attribute__((section(".lit4.0x00630D5C"))) float D_00630D5C = 160000.0f;
-__attribute__((section(".lit4.0x00630D60"))) float D_00630D60 = 40000.0f;
-__attribute__((section(".lit4.0x00630D64"))) float D_00630D64 = 250000.0f;
-__attribute__((section(".lit4.0x00630D68"))) float D_00630D68 = 22500.0f;
-__attribute__((section(".lit4.0x00630D6C"))) float D_00630D6C = 160000.0f;
-__attribute__((section(".lit4.0x00630D70"))) float D_00630D70 = 0.1f;
-__attribute__((section(".lit4.0x00630D74"))) float D_00630D74 = 2300.0f;
-__attribute__((section(".lit4.0x00630D78"))) float D_00630D78 = 850.0f;
-__attribute__((section(".lit4.0x00630D7C"))) float D_00630D7C = 2300.0f;
-__attribute__((section(".lit4.0x00630D80"))) float D_00630D80 = 850.0f;
-__attribute__((section(".lit4.0x00630D84"))) float D_00630D84 = 750.0f;
-__attribute__((section(".lit4.0x00630D88"))) float D_00630D88 = 650.0f;
-__attribute__((section(".lit4.0x00630D8C"))) float D_00630D8C = 950.0f;
-__attribute__((section(".lit4.0x00630D90"))) float D_00630D90 = 1900.0f;
-__attribute__((section(".lit4.0x00630D94"))) float D_00630D94 = 870.0f;
-__attribute__((section(".sdata.0x00631B10"))) int D_00631B10 = 0;
-__attribute__((section(".sdata.0x00631B14"))) int D_00631B14 = 0;
-__attribute__((section(".sdata.0x00631B18"))) char D_00631B18[8] = { 0 };
-__attribute__((section(".sdata.0x00632390"))) char D_00632390[8] = { 0 };
-__attribute__((section(".sdata.0x00632398"))) unsigned int D_00632398 = 0x00000030;
-__attribute__((section(".sdata.0x0063239C"))) int D_0063239C = 0;
-__attribute__((section(".sdata.0x006323A0"))) unsigned int D_006323A0 = 0x7F7FFFFF;
-__attribute__((section(".sdata.0x006323A4"))) unsigned int D_006323A4 = 0x7F7FFFFF;
-__attribute__((section(".sdata.0x006323A8"))) unsigned int D_006323A8 = 0x7F7FFFFF;
-__attribute__((section(".sdata.0x006323AC"))) unsigned int D_006323AC = 0x7F7FFFFF;
-__attribute__((section(".sdata.0x006325B0"))) int D_006325B0 = 0;
-__attribute__((section(".sdata.0x00632DC0"))) char D_00632DC0[8] = { 0 };
-__attribute__((section(".sdata.0x00632DC8"))) int D_00632DC8 = 0;
-__attribute__((section(".sdata.0x00632DCC"))) int D_00632DCC = 0;
-__attribute__((section(".sdata.0x00632DD0"))) const char D_00632DD0[8] = "ra";
-__attribute__((section(".sdata.0x00632DD8"))) const char D_00632DD8[8] = "s8";
-__attribute__((section(".sdata.0x00632DE0"))) const char D_00632DE0[8] = "sp";
-__attribute__((section(".sdata.0x00632DE8"))) const char D_00632DE8[8] = "gp";
-__attribute__((section(".sdata.0x00632DF0"))) const char D_00632DF0[8] = "k1";
-__attribute__((section(".sdata.0x00632DF8"))) const char D_00632DF8[8] = "k0";
-__attribute__((section(".sdata.0x00632E00"))) const char D_00632E00[8] = "t9";
-__attribute__((section(".sdata.0x00632E08"))) const char D_00632E08[8] = "t8";
-__attribute__((section(".sdata.0x00632E10"))) const char D_00632E10[8] = "s7";
-__attribute__((section(".sdata.0x00632E18"))) const char D_00632E18[8] = "s6";
-__attribute__((section(".sdata.0x00632E20"))) const char D_00632E20[8] = "s5";
-__attribute__((section(".sdata.0x00632E28"))) const char D_00632E28[8] = "s4";
-__attribute__((section(".sdata.0x00632E30"))) const char D_00632E30[8] = "s3";
-__attribute__((section(".sdata.0x00632E38"))) const char D_00632E38[8] = "s2";
-__attribute__((section(".sdata.0x00632E40"))) const char D_00632E40[8] = "s1";
-__attribute__((section(".sdata.0x00632E48"))) const char D_00632E48[8] = "s0";
-__attribute__((section(".sdata.0x00632E50"))) const char D_00632E50[8] = "t7";
-__attribute__((section(".sdata.0x00632E58"))) const char D_00632E58[8] = "t6";
-__attribute__((section(".sdata.0x00632E60"))) const char D_00632E60[8] = "t5";
-__attribute__((section(".sdata.0x00632E68"))) unsigned int D_00632E68 = 0x00003474;
-__attribute__((section(".sdata.0x00632E6C"))) int D_00632E6C = 0;
-__attribute__((section(".sdata.0x00632E70"))) unsigned int D_00632E70 = 0x00003374;
-__attribute__((section(".sdata.0x00632E74"))) int D_00632E74 = 0;
-__attribute__((section(".sdata.0x00632E78"))) const char D_00632E78[8] = "t2";
-__attribute__((section(".sdata.0x00632E80"))) const char D_00632E80[8] = "t1";
-__attribute__((section(".sdata.0x00632E88"))) const char D_00632E88[8] = "t0";
-__attribute__((section(".sdata.0x00632E90"))) const char D_00632E90[8] = "a3";
-__attribute__((section(".sdata.0x00632E98"))) const char D_00632E98[8] = "a2";
-__attribute__((section(".sdata.0x00632EA0"))) const char D_00632EA0[8] = "a1";
-__attribute__((section(".sdata.0x00632EA8"))) const char D_00632EA8[8] = "a0";
-__attribute__((section(".sdata.0x00632EB0"))) const char D_00632EB0[8] = "v1";
-__attribute__((section(".sdata.0x00632EB8"))) const char D_00632EB8[8] = "v0";
-__attribute__((section(".sdata.0x00632EC0"))) const char D_00632EC0[8] = "at";
-__attribute__((section(".sdata.0x00632EC8"))) unsigned int D_00632EC8 = 0x00003020;
-__attribute__((section(".sdata.0x00632ECC"))) int D_00632ECC = 0;
-__attribute__((section(".sdata.0x00632ED0"))) int D_00632ED0 = 0;
-__attribute__((section(".sdata.0x00632ED4"))) float D_00632ED4 = 1.0f;
-__attribute__((section(".sdata.0x00632ED8"))) float D_00632ED8 = 1.0f;
-__attribute__((section(".sdata.0x00632EDC"))) unsigned int D_00632EDC = 0x000000FF;
-__attribute__((section(".sdata.0x00632EE0"))) unsigned int D_00632EE0 = 0x000000FF;
-__attribute__((section(".sdata.0x00632EE4"))) unsigned int D_00632EE4 = 0x000000FF;
-__attribute__((section(".sdata.0x00632EE8"))) int D_00632EE8 = 0x00000000;
-__attribute__((section(".sdata.0x00632EEC"))) short D_00632EEC = 0x0020;
-__attribute__((section(".sdata.0x00632EEE"))) char D_00632EEE = 0x00;
-__attribute__((section(".sdata.0x00632EEF"))) char D_00632EEF = 0;
-__attribute__((section(".sdata.0x00632EF0"))) int D_00632EF0 = 0;
-__attribute__((section(".sdata.0x00632EF4"))) int D_00632EF4 = 0;
-__attribute__((section(".sdata.0x00632EF8"))) int D_00632EF8 = 0;
-__attribute__((section(".sdata.0x00632EFC"))) int D_00632EFC = 0;
-__attribute__((section(".sdata.0x00632F00"))) const char D_00632F00[8] = "%s";
-__attribute__((section(".sdata.0x00632F08"))) const char D_00632F08[8] = " \n";
-__attribute__((section(".sdata.0x00632F10"))) const char D_00632F10[8] = "  %x:";
-__attribute__((section(".sdata.0x00632F18"))) const char D_00632F18[8] = "%s\n";
-__attribute__((section(".sdata.0x00632F20"))) const char D_00632F20[8] = "  %s\n";
-__attribute__((section(".sdata.0x00632F28"))) int D_00632F28 = 0x00000A85;
-__attribute__((section(".sdata.0x00632F2C"))) int D_00632F2C = 0x00000000;
-__attribute__((section(".sdata.0x00632F30"))) int D_00632F30 = 0x0A732584;
-__attribute__((section(".sdata.0x00632F34"))) int D_00632F34 = 0x00000000;
-__attribute__((section(".sdata.0x00632F38"))) int D_00632F38 = 0x73258420;
-__attribute__((section(".sdata.0x00632F3C"))) int D_00632F3C = 0x0000000A;
-__attribute__((section(".sdata.0x00632F40"))) int D_00632F40 = 0x25842020;
-__attribute__((section(".sdata.0x00632F44"))) int D_00632F44 = 0x00000A73;
-__attribute__((section(".sdata.0x00632F48"))) int D_00632F48 = 0x84202020;
-__attribute__((section(".sdata.0x00632F4C"))) int D_00632F4C = 0x000A7325;
-__attribute__((section(".sdata.0x00632F58"))) const char D_00632F58[12] = "num %d\n";
-__attribute__((section(".sdata.0x00632F64"))) int D_00632F64 = 0;
-__attribute__((section(".sdata.0x00632F68"))) int D_00632F68 = 0;
-__attribute__((section(".sdata.0x00632F6C"))) int D_00632F6C = 0;
-__attribute__((section(".sdata.0x00632F70"))) int D_00632F70 = 0;
-__attribute__((section(".sdata.0x00632F74"))) int D_00632F74 = 0;
-__attribute__((section(".sdata.0x00632F78"))) int D_00632F78 = 0;
-__attribute__((section(".sdata.0x00632F7C"))) int D_00632F7C = 0;
-__attribute__((section(".sdata.0x00632F80"))) char D_00632F80[8] = { 0 };
+extern float D_00630AEC;
+extern float D_00630CE0;
+extern float D_00630CE4;
+extern float D_00630CE8;
+extern float D_00630CEC;
+extern float D_00630CF0;
+extern float D_00630CF4;
+extern float D_00630CF8;
+extern float D_00630CFC;
+extern float D_00630D00;
+extern float D_00630D04;
+extern float D_00630D08;
+extern float D_00630D0C;
+extern float D_00630D10;
+extern float D_00630D14;
+extern float D_00630D18;
+extern float D_00630D1C;
+extern float D_00630D20;
+extern float D_00630D24;
+extern float D_00630D28;
+extern float D_00630D2C;
+extern float D_00630D30;
+extern float D_00630D34;
+extern float D_00630D38;
+extern float D_00630D3C;
+extern float D_00630D40;
+extern float D_00630D44;
+extern float D_00630D48;
+extern float D_00630D4C;
+extern float D_00630D50;
+extern float D_00630D54;
+extern float D_00630D58;
+extern float D_00630D5C;
+extern float D_00630D60;
+extern float D_00630D64;
+extern float D_00630D68;
+extern float D_00630D6C;
+extern float D_00630D70;
+extern float D_00630D74;
+extern float D_00630D78;
+extern float D_00630D7C;
+extern float D_00630D80;
+extern float D_00630D84;
+extern float D_00630D88;
+extern float D_00630D8C;
+extern float D_00630D90;
+extern float D_00630D94;
+extern int D_00631B10;
+extern int D_00631B14;
+extern char D_00631B18[8];
+extern char D_00632390[8];
+/* KEEP_DEF: D_00632398 must be declared as array (not scalar) so
+ * ee-gcc's small-data gp_rel optimization stays off, matching original. */
+extern int D_00632398[];
+extern int D_0063239C;
+extern unsigned int D_006323A0;
+extern unsigned int D_006323A4;
+extern unsigned int D_006323A8;
+extern unsigned int D_006323AC;
+extern int D_006325B0;
+extern char D_00632DC0[8];
+extern int D_00632DC8;
+extern int D_00632DCC;
+extern const char D_00632DD0[8];
+extern const char D_00632DD8[8];
+extern const char D_00632DE0[8];
+extern const char D_00632DE8[8];
+extern const char D_00632DF0[8];
+extern const char D_00632DF8[8];
+extern const char D_00632E00[8];
+extern const char D_00632E08[8];
+extern const char D_00632E10[8];
+extern const char D_00632E18[8];
+extern const char D_00632E20[8];
+extern const char D_00632E28[8];
+extern const char D_00632E30[8];
+extern const char D_00632E38[8];
+extern const char D_00632E40[8];
+extern const char D_00632E48[8];
+extern const char D_00632E50[8];
+extern const char D_00632E58[8];
+extern const char D_00632E60[8];
+extern unsigned int D_00632E68;
+extern int D_00632E6C;
+extern unsigned int D_00632E70;
+extern int D_00632E74;
+extern const char D_00632E78[8];
+extern const char D_00632E80[8];
+extern const char D_00632E88[8];
+extern const char D_00632E90[8];
+extern const char D_00632E98[8];
+extern const char D_00632EA0[8];
+extern const char D_00632EA8[8];
+extern const char D_00632EB0[8];
+extern const char D_00632EB8[8];
+extern const char D_00632EC0[8];
+extern unsigned int D_00632EC8;
+extern int D_00632ECC;
+extern int D_00632ED0;
+extern float D_00632ED4;
+extern float D_00632ED8;
+extern unsigned int D_00632EDC;
+extern unsigned int D_00632EE0;
+extern unsigned int D_00632EE4;
+extern int D_00632EE8;
+extern short D_00632EEC;
+extern char D_00632EEE;
+extern char D_00632EEF;
+extern int D_00632EF0;
+extern int D_00632EF4;
+extern int D_00632EF8;
+extern int D_00632EFC;
+extern const char D_00632F00[8];
+extern const char D_00632F08[8];
+extern const char D_00632F10[8];
+extern const char D_00632F18[8];
+extern const char D_00632F20[8];
+extern int D_00632F28;
+extern int D_00632F2C;
+extern int D_00632F30;
+extern int D_00632F34;
+extern int D_00632F38;
+extern int D_00632F3C;
+extern int D_00632F40;
+extern int D_00632F44;
+extern int D_00632F48;
+extern int D_00632F4C;
+extern const char D_00632F58[12];
+extern int D_00632F64;
+extern int D_00632F68;
+extern int D_00632F6C;
+extern int D_00632F70;
+extern int D_00632F74;
+extern int D_00632F78;
+extern int D_00632F7C;
+extern char D_00632F80[8];
 
 __attribute__((section(".rodata.0x00558E10"))) const char D_00558E10[16] = "src/enemy_act.c";
 
@@ -189,3 +191,336 @@ __attribute__((section(".rodata.0x00559128"))) const float D_00559128[2] = { 4.1
 
 /* String-pool rodata migrated from enemy_act_data.c */
 __attribute__((section(".rodata.0x00559168"))) const char D_00559168[112] = "change to kidnap\000\000\000\000\000\000\000\000_ACTMotReqTimer wait\n\000\000\000_ACTMotReqTimer error loop\n\000\000\000\000\000\tmail[%d] can not accept\n\000\000\000\000\000\000";
+
+#include "include_asm.h"
+#include "matching.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_0015F6F0);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_0015F800);
+
+/* Matched body inlined from src/cod/05F9B0.c during TU coalesce. */
+extern void func_0015F800(int *self, int a1);
+void func_0015F9B0(int *self, int a1)
+{
+    char *p;
+    int i;
+    p = (char *)((int *)self[0x59])[0x19C] + 0x360;
+    i = 0;
+    do {
+        if (*(signed char *)(p + 0x1D) != 0) {
+            if (*(int *)(p + 0x14) == a1) {
+                return;
+            }
+        }
+        i++;
+        p += 0x20;
+    } while (i < 5);
+    func_0015F800(self, a1);
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_0015F9F4);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_0015F9F8);
+
+/* Matched body inlined from src/cod/05FB60.c during TU coalesce. */
+extern int D_00631AE4;
+extern char D_00565060[];
+extern void func_0014B228(int *self, int x);
+extern void func_00165B80(int *self, int a1, int a2);
+void func_0015FB60(int *self) {
+    int *p, *entry;
+    int idx;
+    unsigned int v;
+    if (D_00631AE4 != 0) {
+        func_0014B228(self, 0x1B);
+        p = (int *)self[0x15C / 4];
+        idx = p[0x4A0 / 4] * 0x190;
+        entry = (int *)(D_00565060 + idx);
+        v = entry[0x188 / 4];
+        if (((v >> 1) & 1) != 0) {
+            func_00165B80(self, D_00631AE4, 5);
+        }
+    }
+}
+
+/* Matched body inlined from src/cod/05FBD8.c during TU coalesce. */
+extern int D_00631AE8;
+void func_0015FBD8(int *self) {
+    int *p, *entry;
+    int idx;
+    unsigned int v;
+    if (D_00631AE8 != 0) {
+        func_0014B228(self, 0x1B);
+        p = (int *)self[0x15C / 4];
+        idx = p[0x4A0 / 4] * 0x190;
+        entry = (int *)(D_00565060 + idx);
+        v = entry[0x188 / 4];
+        if (((v >> 1) & 1) != 0) {
+            func_00165B80(self, D_00631AE8, 5);
+        }
+    }
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_0015FC50);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_0015FD58);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001609A0);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00160AF8);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00160C08);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001613B0);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00161598);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00161AC8);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00161C38);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00161F10);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001626D0);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00162AC8);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00162DB8);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00163068);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001631B8);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00163890);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00163950);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00163D60);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00163EB8);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00164440);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001648A0);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00164D30);
+
+/* Matched body inlined from src/cod/064EB0.c during TU coalesce.
+ * D_00558ED8/F08/F38/F80 are typed rodata defs above (const char[N]);
+ * cast at call site to satisfy func_001A6E28's `char *` signature. */
+extern void func_001A6E28(char *p);
+extern unsigned int func_00203AA0(int a0);
+void func_00164EB0(volatile unsigned int a0)
+{
+    volatile int local;
+    int *new_var;
+    int *s0;
+    new_var = *((int **) (a0 + 0x164));
+    func_001A6E28((char *)D_00558ED8);
+    s0 = new_var;
+    s0[0x30 / 4] = 0x1;
+    func_00203AA0(0);
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00164EF4);
+
+/* Matched body inlined from src/cod/064EF8.c during TU coalesce. */
+void func_00164EF8(volatile unsigned int a0)
+{
+    volatile int local;
+    int *s0;
+    s0 = *((int **) (a0 + 0x164));
+    func_001A6E28((char *)D_00558F08);
+    s0[0x30 / 4] = 0x2;
+    func_00203AA0(0);
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00164F3C);
+
+/* Matched body inlined from src/cod/064F40.c during TU coalesce. */
+void func_00164F40(volatile unsigned int a0)
+{
+    volatile int local;
+    int *s0;
+    s0 = *((int **) (a0 + 0x164));
+    func_001A6E28((char *)D_00558F38);
+    s0[0x30 / 4] = 0x3;
+    func_00203AA0(0);
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00164F84);
+
+/* Matched body inlined from src/cod/064F88.c during TU coalesce. */
+void func_00164F88(volatile unsigned int a0)
+{
+    int *new_var;
+    volatile int local;
+    int *s0;
+    new_var = *((int **) (a0 + 0x164));
+    func_001A6E28((char *)D_00558F80);
+    s0 = new_var;
+    s0[0x30 / 4] = 0x1C;
+    func_00203AA0(0);
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00164FCC);
+
+/* Matched body inlined from src/cod/064FD0.c during TU coalesce. */
+extern void func_001AD768(char *buf, int sz);
+extern void func_00263FF0(char *buf, int sz, int *list);
+void func_00164FD0(volatile unsigned int a0)
+{
+    volatile int local;
+    func_001AD768((char *)D_00558E10, 0xAF3);
+    func_00263FF0((char *)D_00558E10, 0xAF3, D_00632398);
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165018);
+
+/* Matched body inlined from src/cod/065158.c during TU coalesce. */
+void func_00165158(char *self) {
+    char *sub = *(char **)(self + 0x164);
+    *(long long *)(sub + 0x150) |= 0x100000000LL;
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165174);
+
+/* Matched body inlined from src/cod/065178.c during TU coalesce. */
+extern void func_00104360(int *self, char *spill);
+extern void func_001CEC88(int *self);
+extern void func_001651C8(int *self);
+void func_00165178(int *self)
+{
+    char spill[16];
+    *(long long *)(spill + 0) = *(long long *)((char *)D_00558FA0 + 0);
+    *(long long *)(spill + 8) = *(long long *)((char *)D_00558FA0 + 8);
+    func_00104360(self, spill);
+    func_001CEC88(self);
+    func_001651C8(self);
+}
+
+/* Matched body inlined from src/cod/0651C8.c during TU coalesce. */
+extern char D_002A4C48[];
+void func_001651C8(int *a0)
+{
+    char *base = D_002A4C48 + a0[2] * 0x4C;
+    *(int *)(base + 0x48) &= ~0x200000;
+}
+
+/* Matched body inlined from src/cod/0651F8.c during TU coalesce. */
+extern void func_0013FF88(int *p, int a, int b);
+extern void func_00149EA8(int *p);
+extern void func_0017B288(int a);
+extern void func_001919A0(int *self, int a);
+void func_001651F8(volatile int self_arg)
+{
+    register int *D asm("$3") = (int *)D_00631AE8;
+    int new_var2;
+    int *sub = (int *) ((int *) self_arg)[0x59];
+    int *new_var;
+    sub[0x4E] = (int) D;
+    new_var2 = 0x4E;
+    new_var = &sub[new_var2];
+    func_0013FF88((int *)D_00631AE8, 0x30, self_arg);
+    new_var2 = *new_var;
+    ((int *) ((int *) sub[0x4E])[0x57])[0x1D] = 1;
+    func_00149EA8((int *) new_var2);
+    func_0017B288(0x168);
+    sub[0x4E] = 0;
+    if (sub[0xC] == 5)
+    {
+        func_001919A0((int *) self_arg, 4);
+    }
+    asm __volatile__("" : : : "memory");
+}
+
+/* Matched body inlined from src/cod/065270.c during TU coalesce. */
+void func_00165270(int *a0)
+{
+    char *base = D_002A4C48 + a0[2] * 0x4C;
+    *(int *)(base + 0x48) |= 0x40000;
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_0016529C);
+
+/* Matched body inlined from src/cod/0652A0.c during TU coalesce. */
+int func_001652A0(char *self) {
+    char *sub = *(char **)(self + 0x164);
+    return *(int *)(sub + 0x430) == 2;
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001652B4);
+
+/* Matched body inlined from src/cod/0652B8.c during TU coalesce. */
+int func_001652B8(char *self) {
+    char *sub = *(char **)(self + 0x164);
+    return *(int *)(sub + 0x430) == 1;
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001652CC);
+
+/* Matched body inlined from src/cod/0652D0.c during TU coalesce. */
+int func_001652D0(int *a0)
+{
+    int *p = (int *)(D_002A4C48 + a0[2] * 0x4C);
+    return ((unsigned int)p[0x48 / 4] >> 18) & 1;
+}
+
+/* Matched body inlined from src/cod/0652F8.c during TU coalesce. */
+int func_001652F8(int *a0)
+{
+    unsigned int *p = (unsigned int *)(D_002A4C48 + a0[2] * 0x4C);
+    unsigned int field = p[0x48 / 4];
+    unsigned int v0 = (field >> 18) & 1;
+    if (v0 != 0) goto zero;
+    v0 = (field >> 21) & 1;
+    v0 = v0 ^ 1;
+    if (v0 == 0) goto one;
+zero:
+    return 0;
+one:
+    return 1;
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165344);
+
+/* Matched body inlined from src/cod/065348.c during TU coalesce. */
+extern int func_00160AF8(int *self);
+extern void func_00165B50(int *self, int a, int b);
+extern void func_0015BCC8(int *self, int a);
+int func_00165348(int *self)
+{
+    int r = func_00160AF8(self);
+    if (r != 0) {
+        func_00165B50(self, 0, 0);
+    }
+    func_0015BCC8(self, 0xF4);
+    return r;
+}
+
+/* Matched body inlined from src/cod/0653A0.c during TU coalesce. */
+int func_001653A0(int *self) {
+    int *p = (int *)self[0x164/4];
+    int *q = (int *)p[0x670/4];
+    if (q[0x1E0/4] == 0 && p[0x30/4] == 0x10) {
+        return q[0x218/4];
+    }
+    return 0;
+}
+
+/* Matched body inlined from src/cod/0653D0.c during TU coalesce. */
+int func_001653D0(char *self) {
+    char *sub = *(char **)(self + 0x164);
+    char *p = *(char **)(sub + 0x670);
+    return *(int *)(p + 0x1E0) == 1;
+}
+
+/* Matched body inlined from src/cod/0653E8.c during TU coalesce. */
+int func_001653E8(char *self) {
+    char *sub = *(char **)(self + 0x164);
+    char *p = *(char **)(sub + 0x670);
+    return *(int *)(p + 0x1E0) == 2;
+}
+
+/* Matched body inlined from src/cod/065400.c during TU coalesce. */
+int func_00165400(char *self) {
+    char *sub = *(char **)(self + 0x164);
+    char *p = *(char **)(sub + 0x670);
+    return *(int *)(p + 0x1E0) == 0;
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165414);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165418);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165488);
+
+/* Matched body inlined from src/cod/0654C8.c during TU coalesce. */
+int func_001654C8(char *self) {
+    char *sub = *(char **)(self + 0x164);
+    char *p = *(char **)(sub + 0x670);
+    return *(int *)(p + 0x1DC);
+}
+
+/* Matched body inlined from src/cod/0654D8.c during TU coalesce. */
+int func_001654D8(void) {
+    return 1;
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001654E0);
