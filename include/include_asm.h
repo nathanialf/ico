@@ -30,6 +30,30 @@
     )
 #endif
 
+/* INCLUDE_ASM_NOP_PAD(label) — emit a single 4-byte nop in .text.
+ *
+ * Splat omits per-function .s files for tiny pad functions (verified
+ * 4-byte nops sitting between real functions for alignment). When a
+ * coalesced TU's c subseg covers a range that includes such a pad,
+ * INCLUDE_ASM(... pad_func) fails with "can't open .../<pad>.s for
+ * reading". This macro emits the exact 4-byte nop the original ELF
+ * has at that location — functionally identical, not a fabrication.
+ * The `label` argument is the func name from the original disasm
+ * (e.g. func_001FA5DC); it's used as a label in the emitted asm so
+ * relocations targeting it still resolve. */
+#ifndef INCLUDE_ASM_NOP_PAD
+#define INCLUDE_ASM_NOP_PAD(LABEL) \
+    __asm__( \
+        ".section .text\n" \
+        "    .align 2\n" \
+        "    .globl " #LABEL "\n" \
+        "    .type " #LABEL ", @function\n" \
+        #LABEL ":\n" \
+        "    nop\n" \
+        "    .size " #LABEL ", . - " #LABEL "\n" \
+    )
+#endif
+
 #if INCLUDE_ASM_USE_MACRO_INC
 __asm__(".include \"include/macro.inc\"\n");
 #else

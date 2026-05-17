@@ -17,33 +17,6 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".lit4.0x00631430"))) float D_00631430 = 2.66f;
-__attribute__((section(".lit4.0x00631434"))) float D_00631434 = 182.044449f;
-__attribute__((section(".lit4.0x00631438"))) float D_00631438 = 182.044449f;
-__attribute__((section(".lit4.0x0063143C"))) float D_0063143C = 3.14159274f;
-__attribute__((section(".lit4.0x00631440"))) float D_00631440 = 10430.3779f;
-__attribute__((section(".lit4.0x00631444"))) float D_00631444 = 0.01f;
-__attribute__((section(".lit4.0x00631448"))) float D_00631448 = -3000.0f;
-__attribute__((section(".sdata.0x006319F0"))) char D_006319F0[16] = { 0 };
-__attribute__((section(".sdata.0x00631C64"))) int D_00631C64 = 0;
-__attribute__((section(".sdata.0x006337B0"))) int D_006337B0 = 0;
-__attribute__((section(".sdata.0x006337B4"))) unsigned int D_006337B4 = 0x00000001;
-__attribute__((section(".sdata.0x006337B8"))) int D_006337B8 = 0;
-__attribute__((section(".sdata.0x006337BC"))) int D_006337BC = 0;
-__attribute__((section(".sdata.0x006337C0"))) const char D_006337C0[8] = "BGA";
-__attribute__((section(".sdata.0x006337C8"))) const char D_006337C8[8] = "FALSE";
-__attribute__((section(".sdata.0x006337D0"))) const char D_006337D0[8] = "SDF";
-__attribute__((section(".sdata.0x006337D8"))) const char D_006337D8[8] = "0";
-__attribute__((section(".sdata.0x006337E0"))) unsigned int D_006337E0 = 0x00000065;
-__attribute__((section(".sdata.0x006337E4"))) int D_006337E4 = 0;
-__attribute__((section(".sdata.0x006337E8"))) const char D_006337E8[8] = "LWS";
-__attribute__((section(".sdata.0x006337F0"))) int D_006337F0 = 0;
-__attribute__((section(".sdata.0x006337F4"))) unsigned int D_006337F4 = 0x00000080;
-__attribute__((section(".sdata.0x006337F8"))) unsigned int D_006337F8 = 0x00000080;
-__attribute__((section(".sdata.0x006337FC"))) unsigned int D_006337FC = 0x00000080;
-__attribute__((section(".sdata.0x00633800"))) int D_00633800 = 0x00000080;
-__attribute__((section(".sdata.0x00633804"))) int D_00633804 = 0x00000000;
-__attribute__((section(".sdata.0x00633808"))) const char D_00633808[8] = "font";
 
 __attribute__((section(".rodata.0x0061A8D8"))) const char D_0061A8D8[24] = "src/BgAnimation.c";
 
@@ -70,3 +43,47 @@ __attribute__((section(".rodata.0x0061AA48"))) const char D_0061AA48[24] = "\311
 /* EUC-JP: "PBGAタイプのアニメーションではループのパーティクルは使用できません.
 " */
 __attribute__((section(".rodata.0x0061AA60"))) const char D_0061AA60[80] = "PBGA\245\277\245\244\245\327\244\316\245\242\245\313\245\341\241\274\245\267\245\347\245\363\244\307\244\317\245\353\241\274\245\327\244\316\245\321\241\274\245\306\245\243\245\257\245\353\244\317\273\310\315\321\244\307\244\255\244\336\244\273\244\363.\n";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001F6E28);
+INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001F71D0);
+INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001F74E8);
+INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001F77A0);
+INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001F7D70);
+INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001F8038);
+INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001F8398);
+INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001F8600);
+INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001F88C0);
+INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001F8B90);
+INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001F9348);
+INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001F9418);
+INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001F9680);
+INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001F99A0);
+INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001F9DD8);
+INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001FA030);
+
+extern int D_00633F64;
+extern int D_006337B0;
+extern int D_006337B8;
+extern int D_00710BE0[];
+extern void func_001185A8(void *dst, void *src);
+
+void func_001FA590(void) {
+    D_00633F64 = 0;
+}
+
+int func_001FA598(void *p)
+{
+    int v = D_00633F64;
+    if (v != 0) {
+        func_001185A8(p, D_00710BE0);
+        v = D_00633F64;
+    } else {
+        D_006337B0 = 0;
+    }
+    return v != 0 && D_006337B8 == 0;
+}
+
+INCLUDE_ASM_NOP_PAD(func_001FA5DC);
+INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001FA5E0);
