@@ -17,22 +17,6 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".sdata.0x0063201C"))) int D_0063201C = 0;
-__attribute__((section(".sdata.0x00632020"))) int D_00632020 = 0;
-__attribute__((section(".sdata.0x00632030"))) int D_00632030 = 0;
-__attribute__((section(".sdata.0x00632038"))) int D_00632038 = 0;
-__attribute__((section(".sdata.0x00632194"))) int D_00632194 = 0;
-__attribute__((section(".sdata.0x00632198"))) char D_00632198[8] = { 0 };
-__attribute__((section(".sdata.0x006321A0"))) char D_006321A0[8] = { 0 };
-__attribute__((section(".sdata.0x006321A8"))) char D_006321A8[8] = { 0 };
-__attribute__((section(".sdata.0x00632244"))) int D_00632244 = 0;
-__attribute__((section(".sdata.0x00632248"))) const char D_00632248[8] = "first\n";
-__attribute__((section(".sdata.0x00632250"))) const char D_00632250[8] = "set\n";
-__attribute__((section(".sdata.0x00632898"))) char D_00632898[8] = { 0 };
-__attribute__((section(".sdata.0x006328A0"))) const char D_006328A0[8] = "e";
-__attribute__((section(".sdata.0x006328A8"))) const char D_006328A8[8] = "0";
-__attribute__((section(".sdata.0x006328B0"))) const char D_006328B0[8] = "FALSE";
-__attribute__((section(".sdata.0x006328B8"))) char D_006328B8[8] = { 0 };
 
 __attribute__((section(".rodata.0x00612A70"))) const char D_00612A70[24] = "src/charFileManager.c";
 
@@ -133,3 +117,24 @@ __attribute__((section(".rodata.0x006131F0"))) const char D_006131F0[56] = "\033
 
 /* Float rodata migrated from charFileManager_data.c */
 __attribute__((section(".rodata.0x00553758"))) const float D_00553758[2] = { 0.0f, 10.907349f };
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A1138);
+INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A1308);
+INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A14D8);
+INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A16B8);
+INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A17C0);
+INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A1A18);
+INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A1D88);
+INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A1E90);
+INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A20D8);
+INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A2170);
+INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A2320);
+INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A2500);
+INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A2610);
+INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A26E0);
+INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A2758);
+INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A27F8);
+INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A2AB0);
+INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A2C18);
