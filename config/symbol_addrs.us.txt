@@ -67,3 +67,5 @@ func_001A3398 = 0x001A3398; // type:func size:0x5E4 defined:True
 func_001A3394 = 0x001A3394; // type:func
 func_001A2E24 = 0x001A2E24; // type:func
 func_001A3204 = 0x001A3204; // type:func
+func_0010311C = 0x0010311C; // type:func
+func_00103120 = 0x00103120; // type:func
