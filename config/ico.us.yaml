@@ -1779,6 +1779,8 @@ segments:
       - [0x0C375C, asm, src/cod/0C375C]
       - [0x0C3970, c, src/cod/0C3970]            # func_001C3970: tail call func_00105F00(a0, a1 + a2*0x50 + 0x30)
       - [0x0C3984, asm, src/cod/0C3984]
+      - [0x0C58C0, c, src/clothAnimation]        # TU promotion: 0x1C58C0..0x1C8478 (10 INCLUDE_ASM)
+      - [0x0C8478, asm, src/cod/0C8478]
       - [0x0C8A00, c, src/cod/0C8A00]            # func_001C8A00: *(float*)(a0 + a1*0x50 + 0x10) = f
       - [0x0C8A14, asm, src/cod/0C8A14]
       - [0x0C8B20, c, src/cod/0C8B20]            # func_001C8B20: *(float*)(a0+a1*0x50+0x10) = -1.0f; a0->_C--
