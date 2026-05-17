@@ -17,70 +17,6 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".lit4.0x00630940"))) float D_00630940 = 0.8f;
-__attribute__((section(".lit4.0x00630944"))) float D_00630944 = 10430.3779f;
-__attribute__((section(".lit4.0x00630948"))) float D_00630948 = 10000.0f;
-__attribute__((section(".lit4.0x0063094C"))) float D_0063094C = 10000.0f;
-__attribute__((section(".lit4.0x00630950"))) float D_00630950 = 10430.3779f;
-__attribute__((section(".lit4.0x00630954"))) float D_00630954 = 0.2f;
-__attribute__((section(".lit4.0x00630958"))) float D_00630958 = 0.45f;
-__attribute__((section(".lit4.0x0063095C"))) float D_0063095C = 1.1f;
-__attribute__((section(".lit4.0x00630960"))) float D_00630960 = 0.3f;
-__attribute__((section(".lit4.0x00630964"))) float D_00630964 = 0.3f;
-__attribute__((section(".lit4.0x00630968"))) float D_00630968 = 0.2f;
-__attribute__((section(".lit4.0x0063096C"))) float D_0063096C = 0.45f;
-__attribute__((section(".lit4.0x00630970"))) float D_00630970 = 1.1f;
-__attribute__((section(".lit4.0x00630974"))) float D_00630974 = 0.3f;
-__attribute__((section(".lit4.0x00630978"))) float D_00630978 = 0.1f;
-__attribute__((section(".lit4.0x00631300"))) float D_00631300 = 10000.0f;
-__attribute__((section(".lit4.0x00631304"))) float D_00631304 = 10000.0f;
-__attribute__((section(".lit4.0x00631308"))) float D_00631308 = 10000.0f;
-__attribute__((section(".lit4.0x0063130C"))) float D_0063130C = 0.01f;
-__attribute__((section(".lit4.0x00631310"))) float D_00631310 = -0.99f;
-__attribute__((section(".lit4.0x00631314"))) float D_00631314 = 50000.0f;
-__attribute__((section(".lit4.0x00631318"))) float D_00631318 = -0.3f;
-__attribute__((section(".lit4.0x0063131C"))) float D_0063131C = 0.909999967f;
-__attribute__((section(".lit4.0x00631320"))) float D_00631320 = -0.3f;
-__attribute__((section(".lit4.0x00631324"))) float D_00631324 = 0.909999967f;
-__attribute__((section(".lit4.0x00631328"))) float D_00631328 = 0.1f;
-__attribute__((section(".lit4.0x0063132C"))) float D_0063132C = 0.7f;
-__attribute__((section(".lit4.0x00631330"))) float D_00631330 = 0.8f;
-__attribute__((section(".lit4.0x00631334"))) float D_00631334 = 0.95f;
-__attribute__((section(".lit4.0x00631338"))) float D_00631338 = 10000.0f;
-__attribute__((section(".lit4.0x0063133C"))) float D_0063133C = 10000.0f;
-__attribute__((section(".lit4.0x00631340"))) float D_00631340 = 0.8f;
-__attribute__((section(".lit4.0x00631344"))) float D_00631344 = 0.8f;
-__attribute__((section(".lit4.0x00631348"))) float D_00631348 = 10430.3779f;
-__attribute__((section(".lit4.0x0063134C"))) float D_0063134C = 0.2f;
-__attribute__((section(".lit4.0x00631350"))) float D_00631350 = -0.1f;
-__attribute__((section(".lit4.0x00631354"))) float D_00631354 = 0.9f;
-__attribute__((section(".lit4.0x00631358"))) float D_00631358 = 0.07f;
-__attribute__((section(".lit4.0x0063135C"))) float D_0063135C = 0.2f;
-__attribute__((section(".lit4.0x00631360"))) float D_00631360 = 10000.0f;
-__attribute__((section(".lit4.0x00631364"))) float D_00631364 = 10000.0f;
-__attribute__((section(".lit4.0x00631368"))) float D_00631368 = 10430.3779f;
-__attribute__((section(".sdata.0x006323C0"))) int D_006323C0 = 0;
-__attribute__((section(".sdata.0x00632CD4"))) int D_00632CD4 = 0;
-__attribute__((section(".sdata.0x00632DB0"))) int D_00632DB0 = 0;
-__attribute__((section(".sdata.0x0063343C"))) int D_0063343C = 0;
-__attribute__((section(".sdata.0x00633440"))) float D_00633440 = 1.0f;
-__attribute__((section(".sdata.0x00633444"))) short D_00633444 = 0;
-__attribute__((section(".sdata.0x00633446"))) short D_00633446 = 0;
-__attribute__((section(".sdata.0x00633448"))) short D_00633448 = 0;
-__attribute__((section(".sdata.0x0063344A"))) short D_0063344A = 0;
-__attribute__((section(".sdata.0x0063344C"))) float D_0063344C = 0.1f;
-__attribute__((section(".sdata.0x00633450"))) float D_00633450 = 0.97f;
-__attribute__((section(".sdata.0x00633454"))) int D_00633454 = 0;
-__attribute__((section(".sdata.0x00633458"))) int D_00633458 = 0;
-__attribute__((section(".sdata.0x0063345C"))) unsigned int D_0063345C = 0x7F7FFFFF;
-__attribute__((section(".sdata.0x00633460"))) unsigned int D_00633460 = 0x00000065;
-__attribute__((section(".sdata.0x00633464"))) unsigned int D_00633464 = 0x7F7FFFFF;
-__attribute__((section(".sdata.0x00633468"))) int D_00633468 = 0x7F7FFFFF;
-__attribute__((section(".sdata.0x0063346C"))) int D_0063346C = 0x00000000;
-__attribute__((section(".sdata.0x00633470"))) int D_00633470 = 0x00000000;
-__attribute__((section(".sdata.0x00633474"))) int D_00633474 = 0xFFFFFFFF;
-__attribute__((section(".sdata.0x00633478"))) int D_00633478 = 0;
-__attribute__((section(".sdata.0x0063347C"))) int D_0063347C = 0;
 
 __attribute__((section(".rodata.0x006192E0"))) const char D_006192E0[24] = "src/motionManager.c";
 
@@ -122,3 +58,58 @@ __attribute__((section(".rodata.0x00619428"))) const char D_00619428[96] = "\262
 /* EUC-JP: "拡張壁に当たった
 " */
 __attribute__((section(".rodata.0x00619498"))) const char D_00619498[24] = "\263\310\304\245\312\311\244\313\305\366\244\277\244\303\244\277\n";
+
+#include "include_asm.h"
+
+extern int D_0063347C;
+extern int D_00633F3C;
+extern void func_0013FF88(int a0, int a1, int a2);
+extern void func_00105F00(int a0, int a1);
+
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001D8E40);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001D92E0);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001D9890);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001D9BB8);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001D9C58);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001D9CB0);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001D9E10);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001D9E90);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DA360);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DA4B8);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DA610);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DADF0);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DAF30);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DB000);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DC0E8);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DC558);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DC720);
+
+void func_001DC8D8(void)
+{
+    func_0013FF88(D_0063347C, 0x18, D_0063347C);
+    func_00105F00(D_00633F3C + 0x150, D_00633F3C);
+}
+
+
+void func_001DC908(void)
+{
+    func_0013FF88(D_0063347C, 0xF3, D_0063347C);
+    func_00105F00(D_00633F3C + 0x150, D_00633F3C);
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DC938);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DC998);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DCAC8);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DD1F0);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DD668);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DD7A8);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DE250);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DE338);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DE428);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DE588);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DE6B8);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DE8D0);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DED10);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DEF20);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DF150);
+INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DF368);

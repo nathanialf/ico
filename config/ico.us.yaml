@@ -1921,9 +1921,8 @@ segments:
       - [0x0D4E6C, asm, src/cod/0D4E6C]
       - [0x0D4E70, c, src/cod/0D4E70]            # func_001D4E70: return p<self[2]?0:-1 (p=self+0x10)
       - [0x0D4E88, asm, src/cod/0D4E88]
-      - [0x0DC8D8, c, src/cod/0DC8D8]            # func_001DC8D8: func_0013FF88(D_0063347C, 0x18, D_0063347C); tail call func_00105F00(D_00633F3C+0x150, D_00633F3C)
-      - [0x0DC908, c, src/cod/0DC908]            # func_001DC908: sibling: 0xF3 instead of 0x18
-      - [0x0DC938, asm, src/cod/0DC938]
+      - [0x0D8E40, c, src/motionManager]         # TU promotion: 0x1D8E40..0x1DF8C0 (32 INCLUDE_ASM + 2 matched funcs)
+      - [0x0DF8C0, asm, src/cod/0DF8C0]
       - [0x0E0860, c, src/cod/0E0860]
       - [0x0E08B8, asm, src/cod/0E08B8]
       - [0x0E0978, c, src/cod/0E0978]            # func_001E0978

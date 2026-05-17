@@ -4,13 +4,13 @@
 #if !defined(M2CTX) && !defined(PERMUTER)
 
 #ifndef INCLUDE_ASM
-/* .set at (not noat): splat-emitted .s files use compact gp_rel pseudo
- * forms like `lwc1 $f21, (D_006313F4)` that ee-as resolves via a macro
- * which may need $at for the %hi/%lo fallback path. Under .set noat,
- * ee-as errors out ("macro used $at after .set noat") on these lines.
- * .set at lets the macro use $at as needed; for gp_rel-reachable
- * symbols ee-as still prefers the 1-insn gp_rel form (no $at needed).
- * .set noreorder stays — delay-slot scheduling must be hand-controlled. */
+/* .set at: splat-emitted .s files use compact gp_rel pseudos like
+ * `lwc1 $f21, (D_006313F4)` that ee-as resolves via a macro which may
+ * need $at for the %hi/%lo fallback. Under .set noat ee-as errors out
+ * on these ("macro used $at after .set noat"). Most .s files work
+ * with .set at as default; for files whose explicit `daddu reg,reg,$0`
+ * instructions get canonicalized away under .set at, use the
+ * INCLUDE_ASM_NOAT variant. */
 #define INCLUDE_ASM(FOLDER, NAME) \
     __asm__( \
         ".section .text\n" \
@@ -20,6 +20,24 @@
         "    .set reorder\n" \
         "    .set at\n" \
     )
+
+/* INCLUDE_ASM_NOAT — variant of INCLUDE_ASM with .set noat, for the
+ * rare .s file whose explicit `daddu reg,reg,$0` instructions get
+ * canonicalized to `or reg,reg,$0` under the default .set at (same
+ * semantics, different encoding → SHA mismatch). Trades macro
+ * resolution for verbatim opcode preservation. */
+#ifndef INCLUDE_ASM_NOAT
+#define INCLUDE_ASM_NOAT(FOLDER, NAME) \
+    __asm__( \
+        ".section .text\n" \
+        "    .set noat\n" \
+        "    .set noreorder\n" \
+        "    .include \"" FOLDER "/" #NAME ".s\"\n" \
+        "    .set reorder\n" \
+        "    .set at\n" \
+    )
+#endif
+
 #endif
 #ifndef INCLUDE_RODATA
 #define INCLUDE_RODATA(FOLDER, NAME) \
