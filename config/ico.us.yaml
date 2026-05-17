@@ -1421,7 +1421,7 @@ segments:
       - [0x094EA8, c, src/cod/094EA8]            # func_00194EA8: D_006D35C0+0x14=a; +0x18=b (2 swc1)
       - [0x094EBC, asm, src/cod/094EBC]
       - [0x094FE8, c, src/cod/094FE8]            # func_00194FE8: self->164->674=a1; tail call func_001951A0(self)
-      - [0x094FF4, asm, src/cod/094FF4]
+      - [0x094FF4, c, src/mail-add-data]         # TU promotion: 0x194FF4 (4-byte pad) + 3 INCLUDE_ASM funcs (covers 0x194FF8..0x195208)
       - [0x095208, c, src/cod/095208]            # func_00195208: func_001118B8(0xB); tail call func_00111FA8(1,2,0x40)
       - [0x095230, c, src/cod/095230]            # func_00195230: tail call func_0010F630 passthrough
       - [0x095238, asm, src/cod/095238]

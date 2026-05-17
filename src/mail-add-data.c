@@ -10,3 +10,10 @@ __attribute__((section(".rodata.0x0055AF80"))) const char D_0055AF80[24] = "STOP
 
 /* String rodata migrated from mail-add-data_data.c */
 __attribute__((section(".rodata.0x0055AF98"))) const char D_0055AF98[24] = "bird reset\n";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", func_00194FF4);
+INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", func_00194FF8);
+INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", func_001950F8);
+INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", func_001951A0);
