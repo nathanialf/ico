@@ -21,7 +21,7 @@ if [[ "$1" == "--once" ]]; then
     # Render the markdown table (header + 6 data rows) as a fixed-width
     # table: strip the leading/trailing pipes, drop the markdown
     # separator row (---|---|...), then column-align on `|`.
-    sed -n '6,13p' docs/PROGRESS.md \
+    sed -n '6,9p' docs/PROGRESS.md \
         | sed -E 's/^\| //; s/ \|$//; /^[- |:]+$/d' \
         | column -t -s '|'
     echo "$rule"
@@ -30,7 +30,11 @@ if [[ "$1" == "--once" ]]; then
     # candidates to lib/decomp-permuter/runs/<func>/output-<score>-<n>/.
     # Lower score = better; 0 = matched. Source of truth for parked
     # functions is tough_nuts/<func>/ (one subdir per parked function).
-    if [[ -d tough_nuts && -d lib/decomp-permuter/runs ]]; then
+    #
+    # Temporarily hidden during the coalesce sprint — the dashboard
+    # focuses on TU coalesce progress, not per-function matching, until
+    # the structural pass is done. Flip this guard to re-enable.
+    if false && [[ -d tough_nuts && -d lib/decomp-permuter/runs ]]; then
         # Skip-marked targets (tough_nuts/<func>/.skip) are excluded from
         # the auto-permuter rotation, so don't list them here either —
         # this dashboard exists to show what the permuter is working on.

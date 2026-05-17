@@ -40,3 +40,8 @@ __attribute__((section(".rodata.0x00557808"))) const char D_00557808[16] = "pad:
 __attribute__((section(".rodata.0x00557818"))) const char D_00557818[40] = "ERROR: scePadPortOpen port%d slot%d\n";
 __attribute__((section(".rodata.0x00557860"))) const char D_00557860[24] = "port:%d, slot:%d\n";
 __attribute__((section(".rodata.0x00557878"))) const char D_00557878[24] = "voice error? %d\n";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013A868);
+INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013AD58);

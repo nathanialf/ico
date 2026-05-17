@@ -61,9 +61,6 @@ split() {
     "${VENV_PY}" tools/rewrite_data_named_sections.py
     echo "==> trimming splat over-emission past section boundaries"
     "${VENV_PY}" tools/trim_splat_data_pads.py
-    echo "==> regenerating docs/candidates.md (matching shortlist)"
-    "${VENV_PY}" tools/gen_candidates.py \
-        || echo "WARN: gen_candidates.py failed; continuing"
 }
 
 setup() {

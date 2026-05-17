@@ -119,6 +119,41 @@ def _claim_size(subs: list[tuple[int, str, str]], idx: int, default_end: int) ->
     return max(0, default_end - cur_off)
 
 
+_INCLUDE_ASM_RE = re.compile(
+    r'\bINCLUDE_ASM\s*\(\s*"[^"]+"\s*,\s*(\w+)\s*\)'
+)
+
+
+def _include_asm_bytes(name: str) -> int:
+    """Sum bytes of every INCLUDE_ASM'd function referenced from the
+    matched src file `name` (yaml subseg name, repo-root-relative).
+    Function sizes are read from the `nonmatching <func>, 0x<size>`
+    directive splat emits at the top of each per-function .s file.
+
+    Returns 0 if the .c file is absent or has no INCLUDE_ASMs."""
+    csrc = REPO_ROOT / f"{name}.c"
+    if not csrc.exists():
+        return 0
+    try:
+        text = csrc.read_text()
+    except Exception:
+        return 0
+    total = 0
+    for func in _INCLUDE_ASM_RE.findall(text):
+        s = REPO_ROOT / "asm" / "nonmatchings" / name / f"{func}.s"
+        if not s.exists():
+            continue
+        try:
+            head = s.read_text()
+        except Exception:
+            continue
+        # `nonmatching <func>, 0x<size>` lives in the .s preamble.
+        m = re.search(r"\bnonmatching\s+" + re.escape(func) + r"\s*,\s*0x([0-9A-Fa-f]+)", head)
+        if m:
+            total += int(m.group(1), 16)
+    return total
+
+
 def _section_for_type(stype: str) -> str | None:
     for sec, types in SECTION_TO_TYPES.items():
         if stype in types:
@@ -236,7 +271,14 @@ def compute_progress() -> dict[str, tuple[int, int]]:
             continue
         size = _claim_size(subs, i, final_off)
         if stype in MATCHABLE_TYPES and name and _src_exists(name, stype):
-            matched[sec] += size
+            # Honest count: a coalesced TU's `c` subseg covers its
+            # whole range, but any function still INCLUDE_ASM'd inside
+            # that .c isn't actually a match — it's the original asm
+            # being passed through. Subtract those bytes so .text %
+            # reflects real decompilation progress, not yaml shape.
+            if sec == ".text":
+                size -= _include_asm_bytes(name)
+            matched[sec] += max(0, size)
 
     # Add migrated rodata / lit4 / sdata bytes emitted from compiled
     # objects. Object emissions take precedence over YAML accounting for
@@ -262,12 +304,14 @@ def _fmt_pct(matched: int, total: int) -> str:
 README_BEGIN = "<!-- progress:begin -->"
 README_END = "<!-- progress:end -->"
 
-# Sections shown in the README rollup. .vutext is omitted (opaque VU
-# microcode, blob-extracted, not a decomp target). The rest reflect
-# real progress — .lit4 / .sdata are small in byte count but the
-# percentage signals migration health of the per-VMA typed-def
-# pipeline.
-README_SECTIONS = [".text", ".data", ".rodata", ".lit4", ".sdata"]
+# Only .text rolls up as decomp progress. Data sections (.data/.rodata/
+# .lit4/.sdata) are tracked via the gitignored auto-gen `_data.c`
+# sidecar pattern (raw bytes extracted from baserom at build time, not
+# committed). Their "matched" percentage is misleading — it conflates
+# auto-gen byte fidelity with hand-typed clean-room reconstruction.
+# Drop the data rows; resurrect if we ever start tracking typed-data
+# promotion as a metric.
+README_SECTIONS = [".text"]
 
 
 def _render_readme_table(progress: dict[str, tuple[int, int]]) -> str:
@@ -333,7 +377,7 @@ def _render_progress_table(progress: dict[str, tuple[int, int]]) -> str:
         "| Section | Matched bytes | Total bytes | % |",
         "| --- | ---: | ---: | ---: |",
     ]
-    for sec in [".text", ".vutext", ".data", ".rodata", ".lit4", ".sdata"]:
+    for sec in [".text", ".vutext"]:
         matched, total = progress.get(sec, (0, 0))
         lines.append(
             f"| `{sec}` | {matched} | {total} | {_fmt_pct(matched, total)} |"
