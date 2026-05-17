@@ -544,13 +544,8 @@ segments:
       - [0x01DEE0, c, src/cod/01DEE0]            # func_0011DEE0: 3 calls to func_00102558(a0->18C, a0->188, a0)
       - [0x01DF14, asm, src/cod/01DF14]
       - [0x01E708, c, src/cod/01E708]            # func_0011E708: forward 4 args + 5th=D_00632028 to func_0011D9A0
-      - [0x01E728, asm, src/cod/01E728]
-      - [0x01EDF8, c, src/cod/01EDF8]            # func_0011EDF8: 3-way dispatch: signed byte test + nested int test
-      - [0x01EE2C, asm, src/cod/01EE2C]
-      - [0x01EE58, c, src/cod/01EE58]            # func_0011EE58: tail call func_00118C68(a0, 1, 1, a1, a2)
-      - [0x01EE6C, asm, src/cod/01EE6C]
-      - [0x01EE70, c, src/cod/01EE70]            # func_0011EE70: tail call func_00118C68(a0, 1, 2, a1, a2)
-      - [0x01EE84, asm, src/cod/01EE84]
+      - [0x01E728, c, src/RegistPacket]          # TU promotion: 0x11E728..0x11FC28 (14 INCLUDE_ASM + 3 matched funcs)
+      - [0x01FC28, asm, src/cod/01FC28]
       - [0x01FCD8, c, src/cod/01FCD8]            # func_0011FCD8: idx?fAA8(2,v,6); tail fB8B8():0
       - [0x01FD24, asm, src/cod/01FD24]
       - [0x01FF30, asm, src/cod/01FF30]

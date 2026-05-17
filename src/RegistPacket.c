@@ -17,23 +17,6 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".lit4.0x006309D0"))) float D_006309D0 = 0.99f;
-__attribute__((section(".sdata.0x00631970"))) char D_00631970[16] = { 0 };
-__attribute__((section(".sdata.0x00631980"))) char D_00631980[16] = { 0 };
-__attribute__((section(".sdata.0x00631D48"))) const char D_00631D48[8] = "0";
-__attribute__((section(".sdata.0x00631D50"))) int D_00631D50 = 0;
-__attribute__((section(".sdata.0x00631D54"))) int D_00631D54 = 0;
-__attribute__((section(".sdata.0x00631D58"))) char D_00631D58 = 0;
-__attribute__((section(".sdata.0x00631D59"))) char D_00631D59 = 0;
-__attribute__((section(".sdata.0x00631D5A"))) char D_00631D5A = 0;
-__attribute__((section(".sdata.0x00631D60"))) int D_00631D60 = 0x00000053;
-__attribute__((section(".sdata.0x00631D64"))) int D_00631D64 = 0xFFFFFFFF;
-__attribute__((section(".sdata.0x00631D68"))) const char D_00631D68[8] = "On";
-__attribute__((section(".sdata.0x00631D70"))) unsigned int D_00631D70 = 0x0066664F;
-__attribute__((section(".sdata.0x00631D74"))) int D_00631D74 = 0;
-__attribute__((section(".sdata.0x00631D78"))) const char D_00631D78[] = "%s : %s";
-__attribute__((section(".sdata.0x00631D80"))) const char D_00631D80[] = "%s : %d";
-__attribute__((section(".sdata.0x00632D04"))) int D_00632D04 = 0;
 
 __attribute__((section(".rodata.0x00555650"))) const char D_00555650[24] = "src/RegistPacket.c";
 
@@ -62,3 +45,51 @@ __attribute__((section(".rodata.0x00555B58"))) const char D_00555B58[24] = "Shad
 /* EUC-JP: "光源オフでリフレクションを表示.
 " */
 __attribute__((section(".rodata.0x00555800"))) const char D_00555800[48] = "\270\367\270\273\245\252\245\325\244\307\245\352\245\325\245\354\245\257\245\267\245\347\245\363\244\362\311\275\274\250.\n";
+
+#include "include_asm.h"
+
+extern void func_00118E88(int);
+extern void func_00118C68(int a0, int a1, int a2, int a3, int a4);
+
+INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011E728);
+INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011EB50);
+INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011ECE0);
+
+void func_0011EDF8(char *a0)
+{
+    int *p820 = *(int **)(a0 + 0x820);
+    if (*((signed char *)p820 + 0x2F) != 0) {
+        return func_00118E88(3);
+    }
+    {
+        int *p844 = *(int **)(a0 + 0x844);
+        if (*(int *)((char *)p844 + 0xF0) == 0) {
+            return func_00118E88(1);
+        }
+    }
+    return func_00118E88(2);
+}
+
+INCLUDE_ASM_NOP_PAD(func_0011EE2C);
+INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011EE30);
+
+void func_0011EE58(int a0, int a1, int a2)
+{
+    func_00118C68(a0, 1, 1, a1, a2);
+}
+
+INCLUDE_ASM_NOP_PAD(func_0011EE6C);
+
+void func_0011EE70(int a0, int a1, int a2)
+{
+    func_00118C68(a0, 1, 2, a1, a2);
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011EE84);
+INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011EE88);
+INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011EF70);
+INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011F040);
+INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011F248);
+INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011F398);
+INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011F468);
+INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011F8E8);
