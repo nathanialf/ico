@@ -1252,12 +1252,7 @@ segments:
       - [0x088290, c, src/cod/088290]            # func_00188290: permuter score-0 promotion
       - [0x0882B0, c, src/cod/0882B0]            # func_001882B0: a1==D_00631AE4 ? func_00154D20 : func_00104508
       - [0x0882CC, asm, src/cod/0882CC]
-      - [0x0886D0, c, src/cod/0886D0]            # func_001886D0: regalloc-pinned: v0=&D, v1=1; sb v1,lo(D)(v0)
-      - [0x0886F4, asm, src/cod/0886F4]
-      - [0x08B098, c, src/cod/08B098]            # func_0018B098: D_006326E0 = float val
-      - [0x08B0A0, c, src/cod/08B0A0]            # func_0018B0A0: return D_00633D64
-      - [0x08B0A8, asm, src/cod/08B0A8]
-      - [0x08B2F8, c, src/cod/08B2F8]            # func_0018B2F8: D_00633D74 = 0
+      - [0x0886D0, c, src/camera-ico2]           # TU promotion: 0x1886D0..0x18B300 (9 INCLUDE_ASM + 4 matched)
       - [0x08B300, asm, src/cod/08B300]
       - [0x08B700, c, src/cod/08B700]            # func_0018B700: func_0018B738(&D_006D0680, a0); tail call func_0018B880(&D_006D0680)
       - [0x08B734, asm, src/cod/08B734]

@@ -69,3 +69,4 @@ func_001A2E24 = 0x001A2E24; // type:func
 func_001A3204 = 0x001A3204; // type:func
 func_0010311C = 0x0010311C; // type:func
 func_00103120 = 0x00103120; // type:func
+func_001886F4 = 0x001886F4; // type:func
