@@ -1367,8 +1367,8 @@ segments:
       - [0x090698, c, src/cod/090698]            # func_00190698: 4-insn sb_zero
       - [0x0906A8, c, src/cod/0906A8]            # func_001906A8: 4-insn lbu
       - [0x0906B8, asm, src/cod/0906B8]
-      - [0x0918A8, c, src/cod/0918A8]            # func_001918A8: clear 4 gp_rel globals + reverse-iter clear D_006D0710[0..0x1F] stride 0x1C
-      - [0x0918EC, asm, src/cod/0918EC]
+      - [0x090D70, c, src/ebrain]                # TU promotion: 0x190D70..0x191C80 (7 INCLUDE_ASM + 1 matched func)
+      - [0x091C80, asm, src/cod/091C80]
       - [0x091D08, c, src/cod/091D08]            # func_00191D08: D_00633DB4=0; D_00633DB8=-1; D_00633DBC=0; return 0
       - [0x091D20, c, src/cod/091D20]            # func_00191D20: dedup-then-append a0 to D_006D0B90[D_00633DB4] (D_00633DB8 = init value)
       - [0x091D6C, asm, src/cod/091D6C]
