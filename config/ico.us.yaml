@@ -1506,12 +1506,8 @@ segments:
       - [0x0A1138, c, src/charFileManager]       # TU promotion: 0x1A1138..0x1A2D58 (18 INCLUDE_ASM funcs)
       - [0x0A2D58, c, src/cod/0A2D58]            # func_001A2D58: D_006E4890[idx*0x18] +0 (la-macro mult lw)
       - [0x0A2D74, asm, src/cod/0A2D74]
-      - [0x0A2E10, c, src/cod/0A2E10]            # func_001A2E10: frame + D=-1
-      - [0x0A2E24, asm, src/cod/0A2E24]
-      - [0x0A31C0, c, src/cod/0A31C0]            # func_001A31C0: if(D!=-1) f1(1,D); D=f2(1, &func_X, -1); tail f3(1)
-      - [0x0A3204, asm, src/cod/0A3204]
-      - [0x0A3340, asm, src/cod/0A3340]
-      - [0x0A3394, asm, src/cod/0A3394]
+      - [0x0A2D78, c, src/debug]                 # TU promotion: 0x1A2D78..0x1A3980 (9 INCLUDE_ASM + 2 matched, merged 6 subsegs)
+      - [0x0A3980, asm, src/cod/0A3980]
       - [0x0A43F0, c, src/cod/0A43F0]            # func_001A43F0: tail call func_001A4220 passthrough
       - [0x0A43F8, asm, src/cod/0A43F8]
       - [0x0A6DE0, hasm, src/cod/0A6DE0]            # handwritten asm leaf (VU0/COP2)

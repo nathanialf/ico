@@ -58,3 +58,12 @@ D_006337AA = 0x006337AA; // type:s8 size:0x1 defined:True
 D_006337AB = 0x006337AB; // type:u8 size:0x1 defined:True
 
 func_00167280 = 0x00167280; // type:func size:0x2A4
+func_001A2E28 = 0x001A2E28; // type:func size:0x58 defined:True
+func_001A2E80 = 0x001A2E80; // type:func size:0x120 defined:True
+func_001A2FA0 = 0x001A2FA0; // type:func size:0x220 defined:True
+func_001A3208 = 0x001A3208; // type:func size:0x134 defined:True
+func_001A3340 = 0x001A3340; // type:func size:0x54 defined:True
+func_001A3398 = 0x001A3398; // type:func size:0x5E4 defined:True
+func_001A3394 = 0x001A3394; // type:func
+func_001A2E24 = 0x001A2E24; // type:func
+func_001A3204 = 0x001A3204; // type:func
