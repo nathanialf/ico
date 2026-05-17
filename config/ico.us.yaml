@@ -2035,10 +2035,8 @@ segments:
       - [0x0EF9E0, asm, src/cod/0EF9E0]
       - [0x0EFA54, asm, src/cod/0EFA54]
       - [0x0EFA58, c, src/cod/0EFA58]
-      - [0x0EFA60, asm, src/cod/0EFA60]
-      - [0x0F0540, c, src/cod/0F0540]            # func_001F0540: tail call func_001F0098 (triple-deref +0x20 TCO)
-      - [0x0F0550, c, src/cod/0F0550]            # func_001F0550: tail call func_001F0260 (deref+offset TCO)
-      - [0x0F0564, asm, src/cod/0F0564]
+      - [0x0EFA60, c, src/stormTest]             # TU promotion: 0x1EFA60..0x1F0608 (6 INCLUDE_ASM + 2 matched + 1 nop-pad func)
+      - [0x0F0608, asm, src/cod/0F0608]
       - [0x0F0858, c, src/cod/0F0858]            # func_001F0858: promote: score-0 from permuter (void+return TCO trick)
       - [0x0F0878, c, src/cod/0F0878]            # func_001F0878: promote permuter score-0
       - [0x0F08D4, asm, src/cod/0F08D4]

@@ -17,26 +17,6 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".lit4.0x006313E0"))) float D_006313E0 = 0.181818187f;
-__attribute__((section(".lit4.0x006313E4"))) float D_006313E4 = 0.9f;
-__attribute__((section(".lit4.0x006313E8"))) float D_006313E8 = 0.1f;
-__attribute__((section(".lit4.0x006313EC"))) float D_006313EC = 0.1f;
-__attribute__((section(".lit4.0x006313F0"))) float D_006313F0 = 1500.0f;
-__attribute__((section(".lit4.0x006313F4"))) float D_006313F4 = 0.1f;
-__attribute__((section(".lit4.0x006313F8"))) float D_006313F8 = 182.044449f;
-__attribute__((section(".lit4.0x006313FC"))) float D_006313FC = 0.7f;
-__attribute__((section(".lit4.0x00631400"))) float D_00631400 = 0.7f;
-__attribute__((section(".lit4.0x00631404"))) float D_00631404 = 0.9f;
-__attribute__((section(".lit4.0x00631408"))) float D_00631408 = 0.1f;
-__attribute__((section(".lit4.0x0063140C"))) float D_0063140C = 0.1f;
-__attribute__((section(".lit4.0x00631410"))) float D_00631410 = 0.01f;
-__attribute__((section(".lit4.0x00631414"))) float D_00631414 = 0.1f;
-__attribute__((section(".lit4.0x00631418"))) float D_00631418 = 0.7f;
-__attribute__((section(".lit4.0x0063141C"))) float D_0063141C = 0.8f;
-__attribute__((section(".lit4.0x00631420"))) float D_00631420 = 0.02f;
-__attribute__((section(".lit4.0x00631424"))) float D_00631424 = 0.05f;
-__attribute__((section(".lit4.0x00631428"))) float D_00631428 = 8.99999f;
-__attribute__((section(".lit4.0x0063142C"))) float D_0063142C = 8.99999f;
 
 __attribute__((section(".rodata.0x0061A470"))) const char D_0061A470[16] = "src/stormTest.c";
 
@@ -64,3 +44,28 @@ __attribute__((section(".rodata.0x0061A5E0"))) const char D_0061A5E0[72] = "\245
 /* EUC-JP: "ストリームモーションの終了を検知
 " */
 __attribute__((section(".rodata.0x0061A628"))) const char D_0061A628[40] = "\245\271\245\310\245\352\241\274\245\340\245\342\241\274\245\267\245\347\245\363\244\316\275\252\316\273\244\362\270\241\303\316\n";
+
+#include "include_asm.h"
+
+extern void func_001F0098(int a0);
+extern void func_001F0260(int a0, int a1);
+
+INCLUDE_ASM("asm/nonmatchings/src/stormTest", func_001EFA60);
+INCLUDE_ASM("asm/nonmatchings/src/stormTest", func_001EFD18);
+INCLUDE_ASM("asm/nonmatchings/src/stormTest", func_001EFEE0);
+INCLUDE_ASM("asm/nonmatchings/src/stormTest", func_001F0098);
+INCLUDE_ASM("asm/nonmatchings/src/stormTest", func_001F0260);
+
+void func_001F0540(int a0)
+{
+    func_001F0098(*(int *)(*(int *)(*(int *)(a0 + 0x15C) + 0x800) + 0x20));
+}
+
+void func_001F0550(int a0)
+{
+    int p = *(int *)(*(int *)(a0 + 0x15C) + 0x800);
+    func_001F0260(*(int *)(p + 0x20), p + 0x10);
+}
+
+INCLUDE_ASM_NOP_PAD(func_001F0564);
+INCLUDE_ASM("asm/nonmatchings/src/stormTest", func_001F0568);
