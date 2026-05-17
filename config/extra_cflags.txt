@@ -39,3 +39,10 @@ BASIC -fno-schedule-insns
 14DA80 -fno-schedule-insns
 0AA4F0 -fno-schedule-insns
 GOBJ_PROCESS -fno-strength-reduce
+
+# Coalesced TUs with matched function bodies sandwiched between
+# INCLUDE_ASM blocks need 4-byte function alignment to land their
+# matched bodies at the original VMA offset. ee-gcc 2.9 defaults to
+# .p2align 3 (8-byte) which adds +4 byte pad when the matched body's
+# VMA mod 8 == 4, cascading SHA-1 mismatch.
+SWITCH -malign-functions=2
