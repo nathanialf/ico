@@ -17,15 +17,13 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".lit4.0x006313B0"))) float D_006313B0 = 10430.3779f;
-__attribute__((section(".lit4.0x006313B4"))) float D_006313B4 = 10430.3779f;
-__attribute__((section(".lit4.0x006313B8"))) float D_006313B8 = 0.01f;
-__attribute__((section(".lit4.0x006313BC"))) float D_006313BC = 31.8309879f;
-__attribute__((section(".lit4.0x006313C0"))) float D_006313C0 = 10430.3779f;
-__attribute__((section(".lit4.0x006313C4"))) float D_006313C4 = 10430.3779f;
-__attribute__((section(".lit4.0x006313C8"))) float D_006313C8 = 10430.3779f;
-__attribute__((section(".lit4.0x006313CC"))) float D_006313CC = 10430.3779f;
-__attribute__((section(".sdata.0x006335C0"))) const char D_006335C0[8] = "0";
+/* lit4/sdata defs live in the gitignored rope_data.c sidecar so the
+ * rope.o doesn't co-locate them with INCLUDE_ASM consumer
+ * func_001E8F38, which reaches D_006313B0 via %gp_rel (memory
+ * lit4_gp_rel_extern). */
+extern float D_006313B0, D_006313B4, D_006313B8, D_006313BC;
+extern float D_006313C0, D_006313C4, D_006313C8, D_006313CC;
+extern const char D_006335C0[8];
 
 __attribute__((section(".rodata.0x00619EE0"))) const char D_00619EE0[16] = "src/rope.c";
 
@@ -46,3 +44,7 @@ __attribute__((section(".rodata.0x00619EF0"))) const char D_00619EF0[64] = "\245
 方向が間違っているか、壁が無いところに置いていませんか?[m
 " */
 __attribute__((section(".rodata.0x00619F50"))) const char D_00619F50[104] = "\033[33m\272\277\244\316\276\345\244\316\312\311\244\362\270\253\311\325\244\261\244\353\244\263\244\310\244\254\244\307\244\255\244\336\244\273\244\363\241\243\n\312\375\270\376\244\254\264\326\260\343\244\303\244\306\244\244\244\353\244\253\241\242\312\311\244\254\314\265\244\244\244\310\244\263\244\355\244\313\303\326\244\244\244\306\244\244\244\336\244\273\244\363\244\253?\033[m\n";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/rope", func_001E8F38);

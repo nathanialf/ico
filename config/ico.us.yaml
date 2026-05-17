@@ -1608,7 +1608,7 @@ segments:
       - [0x0AEA50, c, src/cod/0AEA50]            # func_001AEA50: tail call func_00102858 passthrough
       - [0x0AEA58, c, src/cod/0AEA58]            # func_001AEA58: tail call func_0010ECB8 passthrough
       - [0x0AEA60, c, src/cod/0AEA60]            # func_001AEA60: auto-batch
-      - [0x0AEA68, asm, src/cod/0AEA68]
+      - [0x0AEA68, c, src/icoMisc]               # TU promotion: 0x1AEA68..0x1AFB90 (5 INCLUDE_ASM)
       - [0x0AFB90, c, src/cod/0AFB90]
       - [0x0AFB98, asm, src/cod/0AFB98]
       - [0x0B0518, c, src/cod/0B0518]            # func_001B0518: promote-test: subagent seed (unscored, may match)
@@ -1745,7 +1745,7 @@ segments:
       - [0x0C2170, c, src/cod/0C2170]            # func_001C2170: p=self->15C->800; f(self); p->10=1; p->14=0; self->15C->62C=0
       - [0x0C21B8, asm, src/cod/0C21B8]
       - [0x0C22F0, c, src/cod/0C22F0]            # func_001C22F0: p=self->15C->800; f(p->20[0]+0x20, a1); tail f(p+0x10, a2)
-      - [0x0C2338, asm, src/cod/0C2338]
+      - [0x0C2338, c, src/cage]                  # TU promotion: 0x1C2338..0x1C2DF8 (3 INCLUDE_ASM)
       - [0x0C2DF8, c, src/cod/0C2DF8]            # func_001C2DF8: func_0010ECB8(a0); tail call func_0010ECA0(self->15C->800->0)
       - [0x0C2E24, asm, src/cod/0C2E24]
       - [0x0C2EB8, c, src/cod/0C2EB8]            # func_001C2EB8: 4-insn swc1
@@ -1755,7 +1755,7 @@ segments:
       - [0x0C2FA0, c, src/cod/0C2FA0]            # func_001C2FA0: func_001C2FA0: if(self->15C->74) { f1(); tail f2(self->15C); }
       - [0x0C2FE4, asm, src/cod/0C2FE4]
       - [0x0C2FE8, c, src/cod/0C2FE8]            # func_001C2FE8: auto
-      - [0x0C2FF0, asm, src/cod/0C2FF0]
+      - [0x0C2FF0, c, src/candle]                # TU promotion: 0x1C2FF0..0x1C3130 (1 INCLUDE_ASM)
       - [0x0C3130, c, src/cod/0C3130]            # func_001C3130: func_001C3130: if(self->15C->74) { f1(); tail f2(self->15C); }
       - [0x0C3174, asm, src/cod/0C3174]
       - [0x0C3470, c, src/cod/0C3470]            # func_001C3470: func_001C3470: if(self->15C->74) { f1(); tail f2(self->15C); }
@@ -1910,7 +1910,7 @@ segments:
       - [0x0E4988, asm, src/cod/0E4988]
       - [0x0E6960, c, src/cod/0E6960]            # func_001E6960: auto
       - [0x0E6968, c, src/moveColTest]           # TU promotion: src/moveColTest.c covers 0x001E6968..0x001E69D8 (single func, 0x6C); 4-byte pad to next TU is linker --gap-fill
-      - [0x0E69D8, asm, src/cod/0E69D8]
+      - [0x0E69D8, c, src/multiBgaManager]       # TU promotion: 0x1E69D8..0x1E6D68 (6 INCLUDE_ASM)
       - [0x0E6D68, c, src/particleEffect]        # TU promotion: 0x1E6D68..0x1E8930 (8 INCLUDE_ASM + 1 matched func)
       - [0x0E8930, asm, src/cod/0E8930]
       - [0x0E8A60, asm, src/cod/0E8A60]
@@ -1930,7 +1930,7 @@ segments:
       - [0x0E8EB8, c, src/particleLayout]       # TU promotion: src/particleLayout.c covers 0x1E8EB8..0x1E8F24 (single func, 0x6C); 4-byte align pad to next TU is linker --gap-fill
       - [0x0E8F28, c, src/cod/0E8F28]
       - [0x0E8F30, c, src/cod/0E8F30]
-      - [0x0E8F38, asm, src/cod/0E8F38]
+      - [0x0E8F38, c, src/rope]                  # TU promotion: 0x1E8F38..0x1E93D0 (1 INCLUDE_ASM)
       - [0x0E93D0, c, src/cod/0E93D0]            # func_001E93D0: tail call func_00105F00(triple-deref + 0x20, a1)
       - [0x0E93E8, asm, src/cod/0E93E8]
       - [0x0E97F8, c, src/cod/0E97F8]            # func_001E97F8: 4-insn lw

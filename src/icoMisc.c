@@ -76,3 +76,11 @@ __attribute__((section(".rodata.0x00616BA0"))) const char D_00616BA0[112] = "\03
 /* EUC-JP: "かんばんクエストボックスオーバー
 " */
 __attribute__((section(".rodata.0x00616C58"))) const char D_00616C58[40] = "\244\253\244\363\244\320\244\363\245\257\245\250\245\271\245\310\245\334\245\303\245\257\245\271\245\252\241\274\245\320\241\274\n";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/icoMisc", func_001AEA68);
+INCLUDE_ASM("asm/nonmatchings/src/icoMisc", func_001AF050);
+INCLUDE_ASM("asm/nonmatchings/src/icoMisc", func_001AF190);
+INCLUDE_ASM("asm/nonmatchings/src/icoMisc", func_001AF4A0);
+INCLUDE_ASM("asm/nonmatchings/src/icoMisc", func_001AF9C8);

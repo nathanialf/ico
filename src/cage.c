@@ -17,13 +17,16 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".lit4.0x006311E4"))) float D_006311E4 = 0.995f;
-__attribute__((section(".lit4.0x006311E8"))) float D_006311E8 = 10430.3779f;
-__attribute__((section(".lit4.0x006311EC"))) float D_006311EC = 2730.0f;
-__attribute__((section(".lit4.0x006311F0"))) float D_006311F0 = 10430.3779f;
-__attribute__((section(".lit4.0x006311F4"))) float D_006311F4 = 0.01f;
-__attribute__((section(".lit4.0x006311F8"))) float D_006311F8 = 1e-06f;
-__attribute__((section(".lit4.0x006311FC"))) float D_006311FC = 0.8f;
-__attribute__((section(".lit4.0x00631200"))) float D_00631200 = 0.98f;
+/* lit4 defs live in the gitignored cage_data.c sidecar so the cage.o
+ * doesn't co-locate them with INCLUDE_ASM consumers that reach them
+ * via %gp_rel (memory lit4_gp_rel_extern). */
+extern float D_006311E4, D_006311E8, D_006311EC, D_006311F0;
+extern float D_006311F4, D_006311F8, D_006311FC, D_00631200;
 
 __attribute__((section(".rodata.0x00618848"))) const char D_00618848[16] = "src/cage.c";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/cage", func_001C2338);
+INCLUDE_ASM("asm/nonmatchings/src/cage", func_001C2760);
+INCLUDE_ASM("asm/nonmatchings/src/cage", func_001C28D0);
