@@ -17,35 +17,35 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".sdata.0x00632798"))) const char D_00632798[8] = "0";
-__attribute__((section(".sdata.0x006327A0"))) const char D_006327A0[8] = "revive";
-__attribute__((section(".sdata.0x006327A8"))) const char D_006327A8[8] = "error!";
-__attribute__((section(".sdata.0x006327B0"))) int D_006327B0 = 0x7F7FFFFF;
-__attribute__((section(".sdata.0x006327B4"))) int D_006327B4 = 0x00000000;
-__attribute__((section(".sdata.0x006327B8"))) const char D_006327B8[8] = "EAT";
-__attribute__((section(".sdata.0x006327C0"))) const char D_006327C0[8] = "STEP";
-__attribute__((section(".sdata.0x006327C8"))) const char D_006327C8[8] = "GROOM";
-__attribute__((section(".sdata.0x006327D0"))) const char D_006327D0[8] = "FLY S";
-__attribute__((section(".sdata.0x006327D8"))) const char D_006327D8[8] = "FLY";
-__attribute__((section(".sdata.0x006327E0"))) const char D_006327E0[8] = "FLY E1";
-__attribute__((section(".sdata.0x006327E8"))) const char D_006327E8[8] = "FLY E2";
-__attribute__((section(".sdata.0x006327F0"))) const char D_006327F0[] = "barr %d";
-__attribute__((section(".sdata.0x006327F8"))) unsigned int D_006327F8 = 0x80808080;
-__attribute__((section(".sdata.0x006327FC"))) int D_006327FC = 0;
-__attribute__((section(".sdata.0x00632800"))) const char D_00632800[8] = "%s";
-__attribute__((section(".sdata.0x00632808"))) unsigned int D_00632808 = 0x00000001;
-__attribute__((section(".sdata.0x0063280C"))) int D_0063280C = 0;
-__attribute__((section(".sdata.0x00632810"))) char D_00632810[8] = { 0 };
-__attribute__((section(".sdata.0x00632820"))) const char D_00632820[8] = "%s\n";
-__attribute__((section(".sdata.0x00632828"))) float D_00632828[2] = { -7.688999e-06f, 0.0f };
-__attribute__((section(".sdata.0x00632830"))) int D_00632830 = 0;
-__attribute__((section(".sdata.0x00632834"))) int D_00632834 = 0;
-__attribute__((section(".sdata.0x00632838"))) unsigned int D_00632838 = 0x00000003;
-__attribute__((section(".sdata.0x0063283C"))) unsigned int D_0063283C = 0x80000000;
-__attribute__((section(".sdata.0x00632840"))) int D_00632840 = 0;
-__attribute__((section(".sdata.0x00632844"))) int D_00632844 = 0;
-__attribute__((section(".sdata.0x00632848"))) const char D_00632848[8] = "here\n";
-__attribute__((section(".sdata.0x00632850"))) int D_00632850 = 0;
+extern const char D_00632798[8];
+extern const char D_006327A0[8];
+extern const char D_006327A8[8];
+extern int D_006327B0;
+extern int D_006327B4;
+extern const char D_006327B8[8];
+extern const char D_006327C0[8];
+extern const char D_006327C8[8];
+extern const char D_006327D0[8];
+extern const char D_006327D8[8];
+extern const char D_006327E0[8];
+extern const char D_006327E8[8];
+extern const char D_006327F0[];
+extern unsigned int D_006327F8;
+extern int D_006327FC;
+extern const char D_00632800[8];
+extern unsigned int D_00632808;
+extern int D_0063280C;
+extern char D_00632810[8];
+extern const char D_00632820[8];
+extern float D_00632828[2];
+extern int D_00632830;
+extern int D_00632834;
+extern unsigned int D_00632838;
+extern unsigned int D_0063283C;
+extern int D_00632840;
+extern int D_00632844;
+extern const char D_00632848[8];
+extern int D_00632850;
 
 __attribute__((section(".rodata.0x0055AEA0"))) const char D_0055AEA0[16] = "src/generator.c";
 
@@ -54,3 +54,27 @@ __attribute__((section(".rodata.0x0055AEB0"))) const char D_0055AEB0[32] = "call
 __attribute__((section(".rodata.0x0055AED0"))) const char D_0055AED0[24] = "[%8s] %8f %8f %8f %8f\n";
 __attribute__((section(".rodata.0x0055AEE8"))) const char D_0055AEE8[16] = "lock! = %d\n";
 __attribute__((section(".rodata.0x0055AEF8"))) const char D_0055AEF8[16] = "unlock! = %d\n";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/generator", func_00192478);
+INCLUDE_ASM("asm/nonmatchings/src/generator", func_001925E0);
+INCLUDE_ASM("asm/nonmatchings/src/generator", func_00192908);
+
+/* Matched body inlined from src/cod/092B58.c during TU coalesce. */
+extern void func_001AE460(int *self);
+extern void func_0013FF88(int a0, int a1, int a2);
+
+void func_00192B58(int *self) {
+    int *p = (int *)((int *)self[0x15C/4])[0x800/4];
+    p[0x50/4] = 1;
+    func_001AE460(self);
+    func_0013FF88((int)self, 1, (int)self);
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/generator", func_00192B98);
+INCLUDE_ASM("asm/nonmatchings/src/generator", func_00192D20);
+INCLUDE_ASM("asm/nonmatchings/src/generator", func_00192E08);
+INCLUDE_ASM("asm/nonmatchings/src/generator", func_00192EB8);
+INCLUDE_ASM("asm/nonmatchings/src/generator", func_001930B0);
+INCLUDE_ASM("asm/nonmatchings/src/generator", func_00193600);

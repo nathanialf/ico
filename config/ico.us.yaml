@@ -1340,8 +1340,8 @@ segments:
       - [0x092090, c, src/cod/092090]            # func_00192090: return D_00632780
       - [0x092098, c, src/cod/092098]            # func_00192098
       - [0x0920A4, asm, src/cod/0920A4]
-      - [0x092B58, c, src/cod/092B58]            # func_00192B58: set _15C->_800->_50 = 1, call func_001AE460(self), tail-call func_0013FF88(self, 1, self)
-      - [0x092B98, asm, src/cod/092B98]
+      - [0x092478, c, src/generator]             # TU promotion: 0x192478..0x193730 (9 INCLUDE_ASM + 1 matched)
+      - [0x093730, asm, src/cod/093730]
       - [0x093818, c, src/cod/093818]            # func_00193818: double-deref ++: *(*(*(a0+0x15C)+0x800)+0x8)++
       - [0x093830, c, src/cod/093830]            # func_00193830
       - [0x093844, asm, src/cod/093844]
