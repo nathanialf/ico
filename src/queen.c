@@ -17,32 +17,6 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".lit4.0x0063106C"))) float D_0063106C = 0.98f;
-__attribute__((section(".lit4.0x00631070"))) float D_00631070 = 0.9f;
-__attribute__((section(".lit4.0x00631074"))) float D_00631074 = 0.001f;
-__attribute__((section(".lit4.0x00631078"))) float D_00631078 = 0.05235988f;
-__attribute__((section(".lit4.0x0063107C"))) float D_0063107C = 0.08726647f;
-__attribute__((section(".lit4.0x00631080"))) float D_00631080 = 0.122173056f;
-__attribute__((section(".lit4.0x00631084"))) float D_00631084 = 0.02f;
-__attribute__((section(".lit4.0x00631088"))) float D_00631088 = 0.05f;
-__attribute__((section(".lit4.0x0063108C"))) float D_0063108C = 6.28318548f;
-__attribute__((section(".lit4.0x00631090"))) float D_00631090 = 3.14159274f;
-__attribute__((section(".lit4.0x00631094"))) float D_00631094 = 6.28318548f;
-__attribute__((section(".lit4.0x00631098"))) float D_00631098 = -3.14159274f;
-__attribute__((section(".lit4.0x0063109C"))) float D_0063109C = 6.28318548f;
-__attribute__((section(".lit4.0x006310A0"))) float D_006310A0 = 6.28318548f;
-__attribute__((section(".lit4.0x006310A4"))) float D_006310A4 = 3.14159274f;
-__attribute__((section(".lit4.0x006310A8"))) float D_006310A8 = 6.28318548f;
-__attribute__((section(".lit4.0x006310AC"))) float D_006310AC = -3.14159274f;
-__attribute__((section(".lit4.0x006310B0"))) float D_006310B0 = 6.28318548f;
-__attribute__((section(".lit4.0x006310B4"))) float D_006310B4 = 6.28318548f;
-__attribute__((section(".lit4.0x006310B8"))) float D_006310B8 = 3.14159274f;
-__attribute__((section(".lit4.0x006310BC"))) float D_006310BC = 6.28318548f;
-__attribute__((section(".lit4.0x006310C0"))) float D_006310C0 = -3.14159274f;
-__attribute__((section(".lit4.0x006310C4"))) float D_006310C4 = 6.28318548f;
-__attribute__((section(".lit4.0x006310C8"))) float D_006310C8 = 5000.0f;
-__attribute__((section(".lit4.0x006310CC"))) float D_006310CC = 2340.57153f;
-__attribute__((section(".lit4.0x006310D0"))) float D_006310D0 = 10430.3779f;
 
 __attribute__((section(".rodata.0x0055C690"))) const char D_0055C690[16] = "src/queen.c";
 
@@ -96,3 +70,79 @@ __attribute__((section(".rodata.0x0055C750"))) const float D_0055C750[4] = { 1e+
 
 /* String-pool rodata migrated from queen_data.c */
 __attribute__((section(".rodata.0x0055CED0"))) const char D_0055CED0[64] = "p != NULL\000\000\000\000\000\000\000../ito/include/mv_defs.h\000\000\000\000\000\000\000\000p != NULL\000\000\000\000\000\000";
+
+#include "include_asm.h"
+
+extern int *func_0013EB50(int a0);
+
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019A7E8);
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019A8F0);
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019A9A0);
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019AA20);
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019AE50);
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019AE98);
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B660);
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B7F8);
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B888);
+
+int func_0019B8E8(void)
+{
+    int v0 = (int)func_0013EB50(0x2E);
+    int v1 = *(int *)(v0 + 0x15C);
+    int a0 = *(int *)(v1 + 0x800);
+    return *(signed char *)(a0 + 0x3);
+}
+
+int func_0019B910(void)
+{
+    int v0 = (int)func_0013EB50(0x2E);
+    int v1 = *(int *)(v0 + 0x15C);
+    int a0 = *(int *)(v1 + 0x800);
+    return *(int *)(a0 + 0x4);
+}
+
+float func_0019B938(char *self) {
+    char *sub = *(char **)(self + 0x15C);
+    char *p = *(char **)(sub + 0x800);
+    return *(float *)(p + 0x14);
+}
+
+int func_0019B948(void)
+{
+    int *p;
+    int ret = 0;
+    p = (int *)((int *)func_0013EB50(0x2E)[0x15C / 4])[0x800 / 4];
+    if (p[0x4 / 4] > 0 || p[0x8 / 4] > 0) {
+        ret = 1;
+    }
+    return ret;
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B998);
+
+int func_0019BA60(void)
+{
+    int ret = 0;
+    int *p;
+    int *q;
+    int *r;
+    p = func_0013EB50(0x35);
+    if (p != 0) {
+        q = (int *)p[0x15C / 4];
+        r = (int *)q[0x800 / 4];
+        ret = r[0x18 / 4] < 5;
+    }
+    return ret;
+}
+
+INCLUDE_ASM_NOP_PAD(func_0019BAA4);
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019BAA8);
+
+float func_0019BB40(int a0)
+{
+    return *(float *)(*(int *)(*(int *)(a0 + 0x15C) + 0x800) + 0x14) * 100.0f;
+}
+
+INCLUDE_ASM_NOP_PAD(func_0019BB5C);
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019BB60);
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019BC58);

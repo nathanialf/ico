@@ -1458,15 +1458,8 @@ segments:
       - [0x0999A8, asm, src/cod/0999A8]
       - [0x099A08, c, src/cod/099A08]            # func_00199A08: func_0013EB50(0x2E) lookup; if found increment its _15C->_800->_4; if D->_164->_140 set tail-call func_001F40D8 on it
       - [0x099A5C, asm, src/cod/099A5C]
-      - [0x09B8E8, c, src/cod/09B8E8]            # func_0019B8E8: rc=func_0013EB50(0x2E); ret (s8)*(rc->15C->800+3)
-      - [0x09B910, c, src/cod/09B910]            # func_0019B910: sibling: ret *(rc->15C->800+4) (int)
-      - [0x09B938, c, src/cod/09B938]            # func_0019B938: 4-insn lwc1
-      - [0x09B948, c, src/cod/09B948]            # func_0019B948: p=f(0x2E)->15C->800; return (p->4>0 || p->8>0)
-      - [0x09B998, asm, src/cod/09B998]
-      - [0x09BA60, c, src/cod/09BA60]            # func_0019BA60: p=f(0x35); if(!p) return 0; return p->15C->800->18 < 5
-      - [0x09BAA4, asm, src/cod/09BAA4]
-      - [0x09BB40, c, src/cod/09BB40]            # func_0019BB40: triple-deref float * 100.0f
-      - [0x09BB5C, asm, src/cod/09BB5C]
+      - [0x09A7E8, c, src/queen]                 # TU promotion: 0x19A7E8..0x19BCE0 (15 INCLUDE_ASM + 6 matched funcs)
+      - [0x09BCE0, asm, src/cod/09BCE0]
       - [0x09C010, c, src/cod/09C010]            # func_0019C010: D_00633DE0=0x3C; func_001A6E28(&D_0055C720)
       - [0x09C024, asm, src/cod/09C024]
       - [0x09C798, c, src/cod/09C798]
