@@ -17,10 +17,10 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".lit4.0x006313D0"))) float D_006313D0 = 3.14159274f;
-__attribute__((section(".lit4.0x006313D4"))) float D_006313D4 = 10000.0f;
-__attribute__((section(".lit4.0x006313D8"))) float D_006313D8 = 0.9f;
-__attribute__((section(".lit4.0x006313DC"))) float D_006313DC = 1000000.0f;
+extern float D_006313D0;
+extern float D_006313D4;
+extern float D_006313D8;
+extern float D_006313DC;
 
 __attribute__((section(".rodata.0x0061A040"))) const char D_0061A040[16] = "src/spider.c";
 
@@ -47,3 +47,11 @@ __attribute__((section(".rodata.0x0061A090"))) const char D_0061A090[80] = "\303
 このステージにヒロインはいません。
 " */
 __attribute__((section(".rodata.0x0061A0E0"))) const char D_0061A0E0[96] = "\303\330\351\341\244\316\245\277\241\274\245\262\245\303\245\310\244\362\245\322\245\355\245\244\245\363\244\313\244\273\244\350\244\310\270\300\244\246\314\277\316\341\244\254\244\242\244\352\244\336\244\267\244\277\244\254\n\244\263\244\316\245\271\245\306\241\274\245\270\244\313\245\322\245\355\245\244\245\363\244\317\244\244\244\336\244\273\244\363\241\243\n";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/spider", func_001EA278);
+INCLUDE_ASM("asm/nonmatchings/src/spider", func_001EA3E0);
+INCLUDE_ASM("asm/nonmatchings/src/spider", func_001EA480);
+INCLUDE_ASM("asm/nonmatchings/src/spider", func_001EA5E8);
+INCLUDE_ASM("asm/nonmatchings/src/spider", func_001EA9C8);

@@ -63,6 +63,12 @@ def _skip_initializer(text: str, start: int) -> int:
     raise ValueError(f'unterminated initializer at offset {start}')
 
 
+KEEP_MARKER = 'KEEP_DEF'  # any `/* KEEP_DEF ... */` comment in the
+                          # ~120 chars preceding a def disables conversion
+                          # (used when the auto-gen sidecar's bytes are
+                          # wrong and we need the typed def to win).
+
+
 def convert_file(path: Path) -> tuple[int, str]:
     """Return (n_converted, new_text). n=0 means no change."""
     text = path.read_text()
@@ -71,6 +77,10 @@ def convert_file(path: Path) -> tuple[int, str]:
     last = 0
     for m in DEF_HEAD_RE.finditer(text):
         end = _skip_initializer(text, m.end())
+        # Skip if the preceding 200 chars contain the KEEP marker.
+        prelude = text[max(0, m.start() - 200):m.start()]
+        if KEEP_MARKER in prelude:
+            continue
         out.append(text[last:m.start()])
         type_part = m.group(2).strip()
         name = m.group(3)

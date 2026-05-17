@@ -17,21 +17,21 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".sdata.0x006331A8"))) const char D_006331A8[11] = "0";
-__attribute__((section(".sdata.0x006331B3"))) char D_006331B3 = 0;
-__attribute__((section(".sdata.0x006331B4"))) int D_006331B4 = 0;
-__attribute__((section(".sdata.0x006331B8"))) const char D_006331B8[8] = "Lead: ";
-__attribute__((section(".sdata.0x006331C0"))) unsigned int D_006331C0 = 0x00000020;
-__attribute__((section(".sdata.0x006331C4"))) unsigned int D_006331C4 = 0x00000430;
-__attribute__((section(".sdata.0x006331C8"))) const char D_006331C8[8] = "SL";
-__attribute__((section(".sdata.0x006331D0"))) const char D_006331D0[8] = "TH";
-__attribute__((section(".sdata.0x006331D8"))) const char D_006331D8[8] = "D2";
-__attribute__((section(".sdata.0x006331E0"))) const char D_006331E0[8] = "D1";
-__attribute__((section(".sdata.0x006331E8"))) const char D_006331E8[8] = "DE";
-__attribute__((section(".sdata.0x006331F0"))) const char D_006331F0[8] = "AT";
-__attribute__((section(".sdata.0x006331F8"))) const char D_006331F8[8] = "RO";
-__attribute__((section(".sdata.0x00633200"))) const char D_00633200[8] = "WA";
-__attribute__((section(".sdata.0x00633208"))) const char D_00633208[8] = "ST";
+extern const char D_006331A8[11];
+extern char D_006331B3;
+extern int D_006331B4;
+extern const char D_006331B8[8];
+extern unsigned int D_006331C0;
+extern unsigned int D_006331C4;
+extern const char D_006331C8[8];
+extern const char D_006331D0[8];
+extern const char D_006331D8[8];
+extern const char D_006331E0[8];
+extern const char D_006331E8[8];
+extern const char D_006331F0[8];
+extern const char D_006331F8[8];
+extern const char D_00633200[8];
+extern const char D_00633208[8];
 
 __attribute__((section(".rodata.0x00617378"))) const char D_00617378[24] = "src/staffroll.c";
 
@@ -248,3 +248,9 @@ __attribute__((section(".rodata.0x00618528"))) const char D_00618528[40] = "{#FF
 /* EUC-JP: "staff roll 領域不足
 " */
 __attribute__((section(".rodata.0x00617360"))) const char D_00617360[24] = "staff roll \316\316\260\350\311\324\302\255\n";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/staffroll", func_001B8388);
+INCLUDE_ASM("asm/nonmatchings/src/staffroll", func_001B84C8);
+INCLUDE_ASM("asm/nonmatchings/src/staffroll", func_001B86C0);

@@ -17,39 +17,39 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".sdata.0x00633530"))) int D_00633530 = 0;
-__attribute__((section(".sdata.0x00633534"))) int D_00633534 = 0;
-__attribute__((section(".sdata.0x00633538"))) int D_00633538 = 0;
-__attribute__((section(".sdata.0x0063353C"))) int D_0063353C = 0;
-__attribute__((section(".sdata.0x00633540"))) int D_00633540 = 0;
-__attribute__((section(".sdata.0x00633544"))) int D_00633544 = 0;
-__attribute__((section(".sdata.0x00633548"))) int D_00633548 = 0;
-__attribute__((section(".sdata.0x0063354C"))) float D_0063354C = 1.0f;
-__attribute__((section(".sdata.0x00633550"))) int D_00633550 = 0x80C05434;
-__attribute__((section(".sdata.0x00633554"))) int D_00633554 = 0x00000000;
-__attribute__((section(".sdata.0x00633558"))) unsigned int D_00633558 = 0x803454C0;
-__attribute__((section(".sdata.0x0063355C"))) unsigned int D_0063355C = 0xFFFFFFFF;
-__attribute__((section(".sdata.0x00633560"))) int D_00633560 = 0;
-__attribute__((section(".sdata.0x00633564"))) unsigned int D_00633564 = 0xFFFFFFFF;
-__attribute__((section(".sdata.0x00633568"))) int D_00633568 = 0xFFFFFFFF;
-__attribute__((section(".sdata.0x0063356C"))) int D_0063356C = 0x00000000;
-__attribute__((section(".sdata.0x00633570"))) const char D_00633570[8] = "%c %s";
-__attribute__((section(".sdata.0x00633578"))) const char D_00633578[8] = "Depend";
-__attribute__((section(".sdata.0x00633580"))) const char D_00633580[] = "RotOnly";
-__attribute__((section(".sdata.0x00633588"))) int D_00633588 = 0x203A8320;
-__attribute__((section(".sdata.0x0063358C"))) int D_0063358C = 0x00007325;
-__attribute__((section(".sdata.0x00633590"))) int D_00633590 = 0;
-__attribute__((section(".sdata.0x00633594"))) int D_00633594 = 0;
-__attribute__((section(".sdata.0x00633598"))) int D_00633598 = 0;
-__attribute__((section(".sdata.0x0063359C"))) short D_0063359C = 0;
-__attribute__((section(".sdata.0x0063359E"))) short D_0063359E = 0;
-__attribute__((section(".sdata.0x006335A0"))) int D_006335A0 = 0;
-__attribute__((section(".sdata.0x006335A4"))) int D_006335A4 = 0;
-__attribute__((section(".sdata.0x006335A8"))) int D_006335A8 = 0;
-__attribute__((section(".sdata.0x006335AC"))) float D_006335AC = 100.0f;
-__attribute__((section(".sdata.0x006335B0"))) int D_006335B0 = 0;
-__attribute__((section(".sdata.0x006335B4"))) int D_006335B4 = 0;
-__attribute__((section(".sdata.0x006335B8"))) const char D_006335B8[8] = "%d\n";
+extern int D_00633530;
+extern int D_00633534;
+extern int D_00633538;
+extern int D_0063353C;
+extern int D_00633540;
+extern int D_00633544;
+extern int D_00633548;
+extern float D_0063354C;
+extern int D_00633550;
+extern int D_00633554;
+extern unsigned int D_00633558;
+extern unsigned int D_0063355C;
+extern int D_00633560;
+extern unsigned int D_00633564;
+extern int D_00633568;
+extern int D_0063356C;
+extern const char D_00633570[8];
+extern const char D_00633578[8];
+extern const char D_00633580[];
+extern int D_00633588;
+extern int D_0063358C;
+extern int D_00633590;
+extern int D_00633594;
+extern int D_00633598;
+extern short D_0063359C;
+extern short D_0063359E;
+extern int D_006335A0;
+extern int D_006335A4;
+extern int D_006335A8;
+extern float D_006335AC;
+extern int D_006335B0;
+extern int D_006335B4;
+extern const char D_006335B8[8];
 
 __attribute__((section(".rodata.0x00619C00"))) const char D_00619C00[24] = "src/motionViewer.c";
 
@@ -64,3 +64,12 @@ __attribute__((section(".rodata.0x00619D00"))) const char D_00619D00[32] = "Left
 __attribute__((section(".rodata.0x00619D20"))) const char D_00619D20[32] = "Left: Target with motion.";
 __attribute__((section(".rodata.0x00619D40"))) const char D_00619D40[32] = "Right: Target direct orient.";
 __attribute__((section(".rodata.0x00619D60"))) const char D_00619D60[32] = "Right: Target with motion.";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/motionViewer", func_001E50C8);
+INCLUDE_ASM("asm/nonmatchings/src/motionViewer", func_001E54E0);
+INCLUDE_ASM("asm/nonmatchings/src/motionViewer", func_001E5848);
+INCLUDE_ASM("asm/nonmatchings/src/motionViewer", func_001E5AF8);
+INCLUDE_ASM("asm/nonmatchings/src/motionViewer", func_001E5F78);
+INCLUDE_ASM("asm/nonmatchings/src/motionViewer", func_001E6788);

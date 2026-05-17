@@ -25,7 +25,8 @@
     .\visibility "\label"
     .type "\label", @function
     "\label":
-        .aent "\label"
+    /* .aent omitted: ee-as 2.10 doesn't support the pseudo and it's
+     * stabs debugger metadata only — no effect on emitted bytes. */
 .endm
 
 # A label referenced by an error handler table.

@@ -17,3 +17,7 @@ __attribute__((section(".rodata.0x0061A710"))) const char D_0061A710[80] = "    
 /* EUC-JP: "決定: 第%dポイント 第%d候補 %f, %f, %f
 " */
 __attribute__((section(".rodata.0x0061A760"))) const char D_0061A760[48] = "\267\350\304\352: \302\350%d\245\335\245\244\245\363\245\310 \302\350%d\270\365\312\344 %f, %f, %f\n";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/torch", func_001F2048);
