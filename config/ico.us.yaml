@@ -1861,6 +1861,8 @@ segments:
       - [0x0CCAC0, asm, src/cod/0CCAC0]
       - [0x0CD490, c, src/cod/0CD490]            # func_001CD490: f1(D1); D1=-1; f2(D2, 0, 3); D3=0; tail f3(D4)
       - [0x0CD4D4, asm, src/cod/0CD4D4]
+      - [0x0CD5C0, c, src/enemy]                 # TU promotion: 0x1CD5C0..0x1CE3C0 (6 INCLUDE_ASM funcs)
+      - [0x0CE3C0, asm, src/cod/0CE3C0]
       - [0x0CE690, asm, src/cod/0CE690]
       - [0x0CE6EC, asm, src/cod/0CE6EC]
       - [0x0CE6F0, asm, src/cod/0CE6F0]
@@ -1918,7 +1920,8 @@ segments:
       - [0x0D2538, c, src/cod/0D2538]            # func_001D2538: auto
       - [0x0D2540, c, src/cod/0D2540]            # func_001D2540: auto
       - [0x0D2548, c, src/cod/0D2548]            # func_001D2548: auto
-      - [0x0D2550, asm, src/cod/0D2550]
+      - [0x0D2550, c, src/item]                  # TU promotion: 0x1D2550..0x1D29B8 (5 INCLUDE_ASM funcs)
+      - [0x0D29B8, asm, src/cod/0D29B8]
       - [0x0D3D40, c, src/cod/0D3D40]            # func_001D3D40: chain check; return (self->_16C && !*(ll*)(p->_800+8) && p->_800->_48 < 2)
       - [0x0D3D70, c, src/cod/0D3D70]            # func_001D3D70: 4-insn lw
       - [0x0D3D80, c, src/cod/0D3D80]            # func_001D3D80: == 0
@@ -2138,7 +2141,7 @@ segments:
       - [0x0FB478, c, src/cod/0FB478]            # func_001FB478: auto
       - [0x0FB480, c, src/cod/0FB480]            # func_001FB480: 0x3200 / D / 2 (signed)
       - [0x0FB4A8, c, src/cod/0FB4A8]            # func_001FB4A8: init 5 sdata: 0; 0x80 x4
-      - [0x0FB4C4, asm, src/cod/0FB4C4]
+      - [0x0FB4C4, c, src/DisplayList]           # TU promotion: 0x1FB4C4..0x1FB880 (4-byte pad func_001FB4C4 + 5 INCLUDE_ASM funcs)
       - [0x0FB880, c, src/cod/0FB880]
       - [0x0FB8B8, asm, src/cod/0FB8B8]
       - [0x0FBA80, c, src/cod/0FBA80]            # func_001FBA80: clamp [0, 0xC] store

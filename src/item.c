@@ -17,12 +17,6 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".sdata.0x00633420"))) unsigned int D_00633420 = 0x00000030;
-__attribute__((section(".sdata.0x00633424"))) unsigned int D_00633424 = 0x00000142;
-__attribute__((section(".sdata.0x00633428"))) unsigned int D_00633428 = 0x00000189;
-__attribute__((section(".sdata.0x0063342C"))) unsigned int D_0063342C = 0x0000018A;
-__attribute__((section(".sdata.0x00633430"))) char D_00633430[8] = { 0 };
-__attribute__((section(".sdata.0x00633438"))) int D_00633438 = 0;
 
 __attribute__((section(".rodata.0x00618F68"))) const char D_00618F68[16] = "src/item.c";
 
@@ -49,3 +43,11 @@ __attribute__((section(".rodata.0x00618FA0"))) const char D_00618FA0[16] = "\277
 /* EUC-JP: "爆発アニメーション停止処理予定
 " */
 __attribute__((section(".rodata.0x00618FC8"))) const char D_00618FC8[32] = "\307\372\310\257\245\242\245\313\245\341\241\274\245\267\245\347\245\363\304\344\273\337\275\350\315\375\315\275\304\352\n";
+
+#include "include_asm.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/item", func_001D2550);
+INCLUDE_ASM("asm/nonmatchings/src/item", func_001D2650);
+INCLUDE_ASM("asm/nonmatchings/src/item", func_001D26C8);
+INCLUDE_ASM("asm/nonmatchings/src/item", func_001D2738);
+INCLUDE_ASM("asm/nonmatchings/src/item", func_001D27A8);
