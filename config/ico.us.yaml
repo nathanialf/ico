@@ -650,9 +650,7 @@ segments:
       - [0x03A200, c, src/cod/03A200]            # func_0013A200
       - [0x03A21C, asm, src/cod/03A21C]
       - [0x03A220, c, src/cod/03A220]            # func_0013A220: deref+cond+tail-call (with reg-pinned a1; postprocess will wrap end jr in noreorder)
-      - [0x03A248, asm, src/cod/03A248]
-      - [0x03A580, c, src/cod/03A580]            # func_0013A580: zero 256 ints at D_006A6990[0..0xFF] in reverse
-      - [0x03A5B4, asm, src/cod/03A5B4]
+      - [0x03A248, c, ios/message]               # TU promotion: 0x13A248..0x13A7C8 (7 INCLUDE_ASM + 2 nop-pad + 1 matched func)
       - [0x03A7C8, c, src/cod/03A7C8]            # func_0013A7C8: iterate 256 D_006A6990 entries; call func_0013A2F8(*p) if non-null
       - [0x03A81C, asm, src/cod/03A81C]
       - [0x03A820, c, src/cod/03A820]            # func_0013A820: if a0==2: read MMIO bit13, store !bit, call helper
