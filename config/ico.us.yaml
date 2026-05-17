@@ -690,27 +690,8 @@ segments:
       - [0x03D098, c, src/cod/03D098]            # func_0013D098: auto-batch
       - [0x03D0A0, c, src/cod/03D0A0]            # func_0013D0A0: conditional bit-clear on byte at *a0
       - [0x03D0D0, asm, src/cod/03D0D0]
-      - [0x03D3C8, c, src/cod/03D3C8]            # func_0013D3C8: tail call func_00100340(a0->30, a0->34)
-      - [0x03D3D4, asm, src/cod/03D3D4]
-      - [0x03D3D8, c, src/cod/03D3D8]            # func_0013D3D8: if a0: tail call func_00100370 else func_00100350
-      - [0x03D3F0, c, src/cod/03D3F0]            # func_0013D3F0: tail call func_00100440 passthrough
-      - [0x03D3F8, c, src/cod/03D3F8]            # func_0013D3F8: a1 = a0 ? a0 : D[f()]; tail f2(D2, a1, 0)
-      - [0x03D440, c, src/cod/03D440]            # func_0013D440: permuter score-0 (parked seed)
-      - [0x03D494, asm, src/cod/03D494]
-      - [0x03D538, c, src/cod/03D538]            # func_0013D538: auto-batch
-      - [0x03D540, c, src/cod/03D540]            # func_0013D540: auto-batch
-      - [0x03D548, c, src/cod/03D548]            # func_0013D548: auto-batch
-      - [0x03D550, asm, src/cod/03D550]
-      - [0x03D8A0, c, src/cod/03D8A0]            # func_0013D8A0: a0 ?: D_006A6F30[func_00100410()]; return a0[6]
-      - [0x03D8DC, asm, src/cod/03D8DC]
-      - [0x03D8E0, c, src/cod/03D8E0]            # func_0013D8E0: a0<0x101?D_006A6F30[a0]:f6E28(&D_),0
-      - [0x03D924, asm, src/cod/03D924]
-      - [0x03D928, c, src/cod/03D928]            # func_0013D928
-      - [0x03D944, asm, src/cod/03D944]
-      - [0x03D9C8, c, src/cod/03D9C8]            # func_0013D9C8: a0?a0[12]:f410(); tail f470
-      - [0x03DA00, asm, src/cod/03DA00]
-      - [0x03DB60, c, src/cod/03DB60]            # func_0013DB60: v=f0540(self[12]); v<0?(f6E28(&D_,self[12]); v):0
-      - [0x03DBB0, asm, src/cod/03DBB0]
+      - [0x03D1B0, c, ios/thread]                # TU promotion: 0x13D1B0..0x13DC30 (13 INCLUDE_ASM + 13 matched funcs)
+      - [0x03DC30, asm, src/cod/03DC30]
       - [0x03DD88, c, src/cod/03DD88]            # func_0013DD88: func_002641D8(&D_006A93D0, 0, 0x110)
       - [0x03DD9C, asm, src/cod/03DD9C]
       - [0x03DDA0, asm, src/cod/03DDA0]
