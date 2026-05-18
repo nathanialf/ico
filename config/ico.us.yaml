@@ -1066,6 +1066,7 @@ segments:
       - [0x07D308, asm, src/cod/07D308]
       - [0x07DC90, c, src/cod/07DC90]            # func_0017DC90: stack-buf wrapper: f1(buf); f2(a1, a0, buf), 16-byte buf
       - [0x07DCD4, asm, src/cod/07DCD4]
+      - [0x07DE98, c, src/cod/07DE98]            # func_0017DE98: while ((p = func_0013EB50(0x21))) f193848(p); p = f13EBE0(p);
       - [0x07DEE0, c, src/cod/07DEE0]            # func_0017DEE0: permuter score-0 (parked seed)
       - [0x07DF38, asm, src/cod/07DF38]
       - [0x07E160, c, src/cod/07E160]            # func_0017E160: set sub fields: 0x328/0x32C=0x7F, 0x33C/0x110/0x114/0x118=0
