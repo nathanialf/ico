@@ -219,7 +219,19 @@ INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013DA00);
 
 INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013DA88);
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013DB00);
+extern int func_00100590(int sem, int *self);
+extern int func_00100560(int sem);
+extern void func_001A6E28(const char *fmt, int arg);
+int func_0013DB00(int *self)
+{
+    int rv = func_00100590(self[0x30 / 4], self);
+    if (rv < 0) {
+        func_001A6E28(D_005579C8, self[0x30 / 4]);
+        return rv;
+    }
+    func_00100560(self[0x30 / 4]);
+    return 0;
+}
 
 
 extern int func_00100540(int x);
