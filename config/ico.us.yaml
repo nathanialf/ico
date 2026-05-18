@@ -646,6 +646,8 @@ segments:
       - [0x03B868, c, src/cod/03B868]            # func_0013B868: D_00633C90 = 0
       - [0x03B870, c, src/cod/03B870]            # func_0013B870: return D_00633C90
       - [0x03B878, asm, src/cod/03B878]
+      - [0x03BA20, c, src/cod/03BA20]            # func_0013BA20: init f1A250(D_00281630, D_006A6D90, 8); loop forever calling f1A6C0(&D, sp, 1); f1AF88()
+      - [0x03BA64, asm, src/cod/03BA64]
       - [0x03BB70, c, src/cod/03BB70]
       - [0x03BB78, c, src/cod/03BB78]
       - [0x03BB80, asm, src/cod/03BB80]
