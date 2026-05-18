@@ -35,7 +35,17 @@ __attribute__((section(".rodata.0x0061ACE0"))) const char D_0061ACE0[24] = "Link
 __attribute__((section(".rodata.0x0061ACF8"))) const char D_0061ACF8[24] = "LinkCameraDL out\n";
 
 #include "include_asm.h"
+#include "regpin.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/EnemyInit", func_001FBC48);
-INCLUDE_ASM("asm/nonmatchings/src/EnemyInit", func_001FBF88);
+extern int D_00710FA0[];
+
+int func_001FBF88(int idx, int sub_idx)
+{
+    register int factor REG("$4");
+    if (idx < 0 || idx >= *(int *)D_00633828) return 0;
+    factor = 0x6C;
+    return *(int *)((char *)D_00710FA0 + idx * factor + sub_idx * 4);
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/EnemyInit", func_001FBFC8);
