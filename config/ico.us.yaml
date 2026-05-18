@@ -101,7 +101,7 @@ segments:
     bss_size: 0xEAF8C
     subalign: null
     subsegments:
-      - [0x000000, asm, src/cod/000000]
+      - [0x000000, hasm, src/cod/000000]
       - [0x0000B8, c, src/cod/0000B8]            # func_001000B8: auto-batch
       - [0x0000C0, hasm, src/cod/0000C0]            # func_001000C0: handwritten startup/exit syscall pair with 14 nops between
       - [0x000110, c, src/cod/000110]            # syscall wrapper (SYSCALL_WRAPPER macro)
@@ -2441,7 +2441,7 @@ segments:
       - [0x143C78, hasm, src/cod/143C78]            # 3 handwritten VU0 wrappers using addi (func_00243C78/D20/DC8)
       - [0x143E70, c, src/cod/143E70]            # func_00243E70: f1(a0, a1, fa[2]); f2(a0, a0, fa[1]); tail f3(a0, a0, fa[0])
       - [0x143EC0, c, src/cod/143EC0]            # VU0 wrapper (vu0.h macros)
-      - [0x143EE4, asm, src/cod/143EE4]
+      - [0x143EE4, hasm, src/cod/143EE4]
       - [0x1443F8, c, src/cod/1443F8]            # func_002443F8: copy 3 floats
       - [0x144414, asm, src/cod/144414]
       - [0x144418, c, src/cod/144418]            # VU0 wrapper (vu0.h macros)
