@@ -79,7 +79,16 @@ INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019A7E8);
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019A8F0);
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019A9A0);
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019AA20);
-INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019AE50);
+extern void func_0019C280(float x);
+void func_0019AE50(int *self)
+{
+    int *p = (int *)((int *)self[0x15C / 4])[0x800 / 4];
+    if (*(signed char *)((char *)p + 0x12) == 0) return;
+    {
+        float f = (float)p[0x18 / 4];
+        func_0019C280(1.0f - f / 5.0f);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019AE98);
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B660);
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B7F8);
