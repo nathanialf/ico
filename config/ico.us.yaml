@@ -1964,7 +1964,7 @@ segments:
       - [0x0F6C88, c, src/cod/0F6C88]            # func_001F6C88: tail call func_00118678(0x70000000) + sdata-set
       - [0x0F6C98, c, src/cod/0F6C98]            # func_001F6C98: auto
       - [0x0F6CA0, c, src/cod/0F6CA0]            # func_001F6CA0: D_00633780 = val
-      - [0x0F6CA8, asm, src/cod/0F6CA8]            # func_001F6CA8: return D_00633780
+      - [0x0F6CA8, c, src/cod/0F6CA8]              # func_001F6CA8: return D_00633780
       - [0x0F6CB0, c, src/Basic]                 # TU promotion: src/Basic.c covers 0x1F6CB0..0x1F6E28 (5 matched funcs); 4-byte nop pad at 0x1F6E24 supplied by linker --gap-fill
       - [0x0F6E28, c, src/BgAnimation]           # TU promotion: 0x1F6E28..0x1FA658 (17 INCLUDE_ASM + 2 matched + 1 nop-pad funcs)
       - [0x0FA658, asm, src/cod/0FA658]
