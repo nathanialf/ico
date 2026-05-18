@@ -2396,6 +2396,7 @@ segments:
       - [0x144658, asm, src/cod/144658]
       - [0x144738, c, src/cod/144738]            # func_00244738: getset D_00550738 (shared lui)
       - [0x144748, asm, src/cod/144748]
+      - [0x144920, c, src/cod/144920]            # func_00244920: copy 20B from D_005507A8 to *a0 via ldl/ldr/sdl/sdr + sw; return a0
       - [0x144958, c, src/cod/144958]            # func_00244958: read MMIO 0x1000E060 (return old); if a0 != -1: write a0 to MMIO
       - [0x144980, asm, src/cod/144980]
       - [0x145068, c, src/cod/145068]            # func_00245068: clear bit 8 of *p, return bit 8
