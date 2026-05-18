@@ -2306,6 +2306,8 @@ segments:
       - [0x13E228, c, src/cod/13E228]            # func_0023E228: f5E1E8(3,0,0); f5E158(3,0,0); zero various self offsets
       - [0x13E280, c, src/cod/13E280]            # func_0023E280: self->54 >= self->48
       - [0x13E294, asm, src/cod/13E294]
+      - [0x13E298, c, src/cod/13E298]            # func_0023E298: pre-process (3 jal); branch on self->_58 byte; dispatch func_0025E1E8 with 1 or 2 calls; set self[0]=2
+      - [0x13E32C, asm, src/cod/13E32C]
       - [0x13E330, c, src/cod/13E330]            # func_0023E330: a0->0=3; func_0025E1E8(3,0,0); func_0025E158(3); ret 0
       - [0x13E368, asm, src/cod/13E368]
       - [0x13E770, c, src/cod/13E770]            # func_0023E770: tail call func_0023E578(a0, a1, max(a0->3C, a2))
