@@ -965,6 +965,7 @@ segments:
       - [0x06A69C, asm, src/cod/06A69C]
       - [0x06AC20, c, src/cod/06AC20]            # func_0016AC20: tail-call func_0014B330(self, 5, 1.5f) if _164->_30 == 10
       - [0x06AC50, asm, src/cod/06AC50]
+      - [0x06BCA0, c, src/cod/06BCA0]            # func_0016BCA0: 4-call init of D_002882D0[0..30] paired with D_00631AE4/8 (last via tail call)
       - [0x06BCF0, c, src/cod/06BCF0]            # func_0016BCF0: func_002641D8(&D_00282AC0, 0, 0x5910)
       - [0x06BD04, asm, src/cod/06BD04]
       - [0x0752D0, c, src/cod/0752D0]            # func_001752D0: clear D_006ABDE0[0..1]; if self->_164->_30!=0x45, clear bit 9 of ll at +0x20
