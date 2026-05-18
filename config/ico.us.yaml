@@ -257,7 +257,7 @@ segments:
       - [0x001100, asm, src/cod/001100]
       - [0x0011B0, c, src/cod/0011B0]            # func_001011B0: if a0==0xA: func_001010C8(0xD); func_001010C8(0xA) else: tail call func_001010C8(a0)
       - [0x0011E4, asm, src/cod/0011E4]
-      - [0x0019A8, asm, src/cod/0019A8]
+      - [0x0019A8, c, src/cod/0019A8]            # func_001019A8: vprintf-like wrapper: save va_args to stack, pass &args to func_001013E0
       - [0x0019E0, asm, src/cod/0019E0]
       - [0x001A40, hasm, src/cod/001A40]            # func_00101A40: handwritten DI + return prev EIE state
       - [0x001A88, hasm, src/cod/001A88]            # func_00101A88: handwritten EI + return prev EIE state
