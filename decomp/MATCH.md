@@ -377,19 +377,30 @@ parked tough nuts; if you have to leave a function unmatched,
 parking it is **only** acceptable if you've also queued an explicit
 permuter run on it (and the session directive permits parking).
 
-### Step 7: Park (forbidden when the directive says "no parking")
+### Step 7: Park — DISALLOWED
 
-Park `.skip` is acceptable ONLY when the session is allowed to defer
-matches.  When the directive is "match all tough nuts" or similar,
-parking is forbidden — keep iterating Steps 1–6.
+Parking is no longer permitted. When you hit a function that doesn't
+match after multiple C-iteration rounds, the answer is NOT to park it
+for the permuter to chew on. Instead:
 
-In a parked note, name the SPECIFIC compiler/assembler limitation
-that blocks the match. "Regalloc differs" is not a documented reason
-unless you also name (a) the instruction, (b) the registers expected
-vs. emitted, (c) what mips.c rule allocates them, (d) why no C
-formulation hits a different rule, (e) why a header-macro hasm
-promotion isn't appropriate, and (f) what the permuter best score
-plateaued at and over how many iterations.
+1. Stop and read the asm closely. Identify the exact codegen decision
+   that gcc 2.9 made differently — operand ordering, register
+   allocation, branch direction, scheduling, delay slot fill, etc.
+2. Determine if a C-level reformulation can drive gcc to the target.
+   Try at least 3–5 distinct shapes (compound updates, REG pins,
+   MATERIALIZE/KEEP_LIVE barriers, volatile casts, goto labels,
+   single-vs-multi return points, etc.) before concluding it isn't
+   possible at the C level.
+3. If no C formulation reaches the target, ADD A NEW POSTPROCESS.
+   That's the only acceptable next step. See `tools/postprocess_*.py`
+   for examples — they're small, file-gated sed/Python passes that
+   rewrite specific gcc-emit shapes into the original-codegen shape.
+4. Commit the postprocess infrastructure and the function together,
+   so the next person sees both the C body and the rewriter that
+   made it match.
+
+"Permuter isn't helpful" is the directive — the bar for parking is
+effectively infinite. Spend the time per function instead.
 
 ## Picking the next target
 
@@ -438,9 +449,27 @@ function to match; the TU-level docs pick a structural promotion target.
    `tools/self-monitor.sh` on its 10 s tick — don't run `make progress`
    from the matching loop.)
 
-## Tough-nut parking
+## Tough-nut parking — DISALLOWED
 
-When a function plateaus (permuter exhausted, no obvious structural fix):
+**Parking is no longer allowed in this project.** The permuter is not
+helpful at the current scale of tough nuts, and parking just defers the
+problem indefinitely. When you hit a function that plateaus, you must
+spend the time to figure it out:
+
+- Read the asm carefully, identify the exact compiler/scheduler decision
+  that differs from your C-level emit.
+- Try multiple C formulations (regpins, MATERIALIZE/KEEP_LIVE barriers,
+  volatile casts, goto-vs-if-else, compound updates, etc.).
+- If no C formulation reaches the target, add a new postprocess pass to
+  `tools/postprocess_*.py` with a config gate, and apply it to the
+  specific file. Existing postprocesses to learn from: swap_addu_operands,
+  unfold_ra_delay, early_epilogue_restore, fill_blez_delay,
+  swap_zero_ret_ld_ra.
+
+The historical `tools/park.sh` and `tough_nuts/` directory exist for the
+auto-permuter's benefit, but they should NOT be used as an escape hatch.
+If you find yourself reaching for `park.sh`, stop and add a postprocess
+or commit to a longer C-iteration session on that function.
 
 **Use `tools/park.sh <vram> "<reason>"`.** It does steps 1-3 below in one
 go: moves the best-attempt `src/cod/<file_off>.c` into
