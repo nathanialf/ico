@@ -393,7 +393,7 @@ segments:
       - [0x00D180, c, src/cod/00D180]            # func_0010D180
       - [0x00D198, asm, src/cod/00D198]
       - [0x00D338, c, src/cod/00D338]            # func_0010D338: a1->_15C->_A4 - a0->_15C->_800->_4 to a1->_644
-      - [0x00D360, asm, src/cod/00D360]
+      - [0x00D360, c, src/cod/00D360]            # func_0010D360: triangle-wave: x'=(x+50) mod 200; <100: x'*D_B0-0.5; else: -(x'-100)*D_B4+0.5
       - [0x00D3E0, c, src/cod/00D3E0]            # func_0010D3E0: tail call func_0010DDB8(p, p, a0)
       - [0x00D404, asm, src/cod/00D404]
       - [0x00D408, c, src/cod/00D408]            # func_0010D408: tail call func_0010D838(p,p)=&D_00660A40[D_00631B7C*4]

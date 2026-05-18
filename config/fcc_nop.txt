@@ -1,6 +1,7 @@
 # FCC delay-slot nop after c.lt.s/c.le.s/c.eq.s when followed by bc1f/bc1t/bc1fl/bc1tl.
 # ee-as 2.10 ignores gcc's '#nop' comment, leaving the FCC hazard unfilled.
 # Listed file_offs get tools/postprocess_fcc_nop.py applied to the gcc-emitted .s.
+00D360
 13C540
 13C598
 13CCE0
