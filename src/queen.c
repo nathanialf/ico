@@ -72,6 +72,7 @@ __attribute__((section(".rodata.0x0055C750"))) const float D_0055C750[4] = { 1e+
 __attribute__((section(".rodata.0x0055CED0"))) const char D_0055CED0[64] = "p != NULL\000\000\000\000\000\000\000../ito/include/mv_defs.h\000\000\000\000\000\000\000\000p != NULL\000\000\000\000\000\000";
 
 #include "include_asm.h"
+#include "regpin.h"
 
 extern int *func_0013EB50(int a0);
 
@@ -91,7 +92,24 @@ void func_0019AE50(int *self)
 }
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019AE98);
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B660);
-INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B7F8);
+extern int *func_00202208(int *self);
+extern void func_00203AA0(int x);
+extern void func_00203B78(void *func, int id);
+extern int func_001E29E8(int *self, int x, int *arg);
+extern char D_00199F80[];
+extern int func_0019BCE0(void);
+extern int func_00199C30(void);
+void func_0019B7F8(int *self)
+{
+    int *p = func_00202208(self);
+    func_00202148(self);
+    func_00203AA0(1);
+    func_00203B78((void *)D_00199F80, 0x14);
+    func_00203B78((void *)func_0019BCE0, 0x15);
+    func_00203B78((void *)func_00199C30, 0x15);
+    p[0x120 / 4] = func_001E29E8(self, 0xEE, p + 0x610 / 4);
+    ((int *)self[0x15C / 4])[0x7C / 4] = 1;
+}
 extern int func_0013EBE0(int iter);
 void func_0019B888(void)
 {
