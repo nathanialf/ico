@@ -455,6 +455,8 @@ segments:
       - [0x014E04, asm, src/cod/014E04]
       - [0x014E08, c, src/cod/014E08]            # func_00114E08: set 2 sdata floats
       - [0x014E14, asm, src/cod/014E14]
+      - [0x014E18, c, src/cod/014E18]            # func_00114E18: rate-limited error: counter < 0xB → ret 1; >= 0xB → log + ret 1; reset on f242640()==0
+      - [0x014E78, asm, src/cod/014E78]
       - [0x014FB8, c, src/cod/014FB8]            # func_00114FB8: empty 0x180 frame
       - [0x014FC4, asm, src/cod/014FC4]
       - [0x014FC8, c, src/Light]                 # TU promotion: 0x114FC8..0x117DB0 (18 INCLUDE_ASM + 10 matched)
