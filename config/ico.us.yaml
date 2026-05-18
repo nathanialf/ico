@@ -582,7 +582,7 @@ segments:
       - [0x033604, asm, src/cod/033604]
       - [0x035468, asm, src/cod/035468]
       - [0x0354B8, asm, src/cod/0354B8]
-      - [0x035BB8, asm, src/cod/035BB8]
+      - [0x035BB8, c, src/cod/035BB8]            # func_00135BB8: linked list with offset -8 base, call func at each node, follow +4 next
       - [0x035BF8, asm, src/cod/035BF8]
       - [0x036060, c, src/cod/036060]            # func_00136060: guard + sltiu + tail-call OR D-swap + post-store
       - [0x036084, asm, src/cod/036084]

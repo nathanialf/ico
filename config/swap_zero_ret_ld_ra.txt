@@ -1,0 +1,12 @@
+# Per-file post-process: swap `daddu $2,$0,$0` (zero return value)
+# and the immediately-following `ld $31, OFF($sp)` (restore ra) so
+# ld-ra precedes the zero-return.
+#
+# ee-gcc 2.9 sometimes emits the daddu before the ld, but the original
+# ICO codegen has the ld first. Both are byte-different epilogue
+# variants of the same semantics.
+#
+# Format: <FILE_OFF_HEX>  [# optional comment]
+# Lines starting with # are comments; blank lines ignored.
+
+035BB8   # func_00135BB8: linked-list traversal
