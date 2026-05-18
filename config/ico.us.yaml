@@ -1044,7 +1044,7 @@ segments:
       - [0x07CAA0, c, src/cod/07CAA0]            # func_0017CAA0: while-loop func_0013EBE0 chain, set [0x16C]=1
       - [0x07CAE0, c, src/cod/07CAE0]            # func_0017CAE0: Same as 17CA18 but offset 0x16C
       - [0x07CB1C, asm, src/cod/07CB1C]
-      - [0x07CB20, asm, src/cod/07CB20]
+      - [0x07CB20, c, src/cod/07CB20]              # func_0017CB20: v=f(a0); if v: g(a1, {v, 0})
       - [0x07CB5C, asm, src/cod/07CB5C]
       - [0x07D098, c, src/cod/07D098]            # func_0017D098: count non-zero of D_006CF910[i*0x14] for i=0..1
       - [0x07D0CC, asm, src/cod/07D0CC]
