@@ -102,7 +102,7 @@ void func_0019A8F0(int *self)
             int x;
             float f12 = 3.0f;
             float f13 = D_0063106C;
-            __asm__ __volatile__("" : : "f"(f12), "f"(f13));
+            KEEP_LIVE_FP2(f12, f13);
             x = p_800[0x10 / 4];
             func_001C8218(x, f12, f13);
         }
@@ -110,7 +110,7 @@ void func_0019A8F0(int *self)
             int x;
             float f12 = 5.0f;
             float f13 = D_00631070;
-            __asm__ __volatile__("" : : "f"(f12), "f"(f13));
+            KEEP_LIVE_FP2(f12, f13);
             x = p_800[0x14 / 4];
             func_001C8218(x, f12, f13);
         }

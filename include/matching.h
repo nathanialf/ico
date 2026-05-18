@@ -155,6 +155,14 @@
  * pair. */
 #define MATERIALIZE(x)              __asm__ __volatile__("" : "+r"(x))
 
+/* Float-input barrier: forces gcc to materialize floating-point values
+ * in $fN registers BEFORE the barrier point. Use when gcc emits the
+ * integer arg-setup before the float-constant setup (lui/mtc1, lwc1)
+ * but the original codegen has floats first, then int in the jal delay
+ * slot. */
+#define KEEP_LIVE_FP(x)             __asm__ __volatile__("" : : "f"(x))
+#define KEEP_LIVE_FP2(x, y)         __asm__ __volatile__("" : : "f"(x), "f"(y))
+
 /* Open-then-close `.set noreorder` block with no instructions inside.
  * Used as a scheduler barrier that prevents gas from reordering
  * across the directive pair without emitting anything. */
