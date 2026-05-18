@@ -243,7 +243,7 @@ segments:
       - [0x000990, c, src/cod/000990]            # syscall wrapper (SYSCALL_WRAPPER macro)
       - [0x0009A0, c, src/cod/0009A0]            # func_001009A0: loop i=0x80..0xFF: func_00100990(i, 0)
       - [0x0009E0, c, src/cod/0009E0]            # func_001009E0: 3 sequential calls: 1009A0, 100C90, tail 100E40
-      - [0x000A04, asm, src/cod/000A04]
+      - [0x000A04, hasm, src/cod/000A04]            # 4 handwritten thread-safety wrappers (DI/sync/EI bracket) for func_00100270/2D8/2E0/2F0; use mfc0 $12 to read COP0 status
       - [0x000BA8, c, src/cod/000BA8]            # func_00100BA8: sync wrapper -> func_001002C0
       - [0x000BC8, c, src/cod/000BC8]            # func_00100BC8: sync wrapper -> func_001002D0
       - [0x000BE8, c, src/cod/000BE8]            # func_00100BE8: sync wrapper -> func_001002E0
