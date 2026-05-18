@@ -2672,6 +2672,8 @@ segments:
       - [0x152F7C, asm, src/cod/152F7C]
       - [0x152F80, c, src/cod/152F80]            # func_00252F80: tail call func_002587E0(a0->40 + 0x4C)
       - [0x152F8C, asm, src/cod/152F8C]
+      - [0x153F28, hasm, src/cod/153F28]            # func_00253F28: handwritten MMI texture-byte expand loop (qfsrv/pextlb/pextub with addi+mtsab)
+      - [0x153F9C, asm, src/cod/153F9C]
       - [0x154CF8, c, src/cod/154CF8]            # func_00254CF8: RMW MMIO 0x10002010: replace bit-23 with (a0 << 23)
       - [0x154D20, asm, src/cod/154D20]
       - [0x154F08, c, src/cod/154F08]            # func_00254F08: func_002560D8(3)
