@@ -476,6 +476,7 @@ segments:
       - [0x017FE4, asm, src/cod/017FE4]
       - [0x017FE8, c, src/cod/017FE8]            # VU0 wrapper (vu0.h macros)
       - [0x018000, asm, src/cod/018000]
+      - [0x018068, c, src/cod/018068]            # func_00118068: 4x4 matrix * vf4..vf7 (in-place via vmulax/vmaddXY chain)
       - [0x0180C0, c, src/cod/0180C0]            # VU0 wrapper (vu0.h macros)
       - [0x0180E0, c, src/cod/0180E0]            # VU0 wrapper (vu0.h macros)
       - [0x01810C, asm, src/cod/01810C]
