@@ -44,4 +44,34 @@ done:
     return accum;
 }
 TRAILING_PAD_NOP();
-INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C0C40);
+extern int D_00632010;
+extern int func_0013A0F8(int handle, int size, const char *file, int line);
+extern unsigned char D_004BEFD0[];
+extern unsigned int D_0028CA88[];
+extern int func_0019F310(int x, void *y);
+typedef struct { long long w[4]; } __attribute__((packed)) SwitchBuf20;
+int *func_001C0C40(char *self, void *arg1)
+{
+    int *buf = (int *)func_0013A0F8(D_00632010, 0x20, D_00618630, 0x12C);
+    int *entry;
+    *(SwitchBuf20 *)buf = *(SwitchBuf20 *)D_004BEFD0;
+    if (((int *)arg1)[0x30 / 4] != 0) {
+        buf[0x14 / 4] = 1;
+    } else {
+        buf[0x14 / 4] = 0;
+    }
+    entry = (int *)((char *)D_0028CA88 + (*(int **)(self + 0x15C))[0x814 / 4] * 0x28);
+    buf[0xC / 4] = func_0019F310(entry[0], arg1);
+    KEEP_LIVE_MEM(buf);
+    {
+        register void *a1 REG("$5") = arg1;
+        register int *t1 REG("$3");
+        register int idx2 REG("$2");
+        KEEP_LIVE(a1);
+        t1 = *(int **)(self + 0x15C);
+        idx2 = t1[0x814 / 4];
+        entry = (int *)((char *)D_0028CA88 + idx2 * 0x28);
+        buf[0x10 / 4] = func_0019F310(entry[1], a1);
+    }
+    return buf;
+}
