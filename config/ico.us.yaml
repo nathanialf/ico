@@ -2438,6 +2438,7 @@ segments:
       - [0x143BC8, c, src/cod/143BC8]            # VU0 wrapper (vu0.h macros)
       - [0x143BD8, c, src/cod/143BD8]            # VU0 wrapper (vu0.h macros)
       - [0x143C00, asm, src/cod/143C00]
+      - [0x143C78, hasm, src/cod/143C78]            # 3 handwritten VU0 wrappers using addi (func_00243C78/D20/DC8)
       - [0x143E70, c, src/cod/143E70]            # func_00243E70: f1(a0, a1, fa[2]); f2(a0, a0, fa[1]); tail f3(a0, a0, fa[0])
       - [0x143EC0, c, src/cod/143EC0]            # VU0 wrapper (vu0.h macros)
       - [0x143EE4, asm, src/cod/143EE4]
