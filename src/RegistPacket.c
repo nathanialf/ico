@@ -71,7 +71,12 @@ void func_0011EDF8(char *a0)
 }
 
 INCLUDE_ASM_NOP_PAD(func_0011EE2C);
-INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011EE30);
+void func_0011EE30(char *self, int b, int c)
+{
+    long long v_ll = *(long long *)(self + 0x60);
+    int v_int = *(int *)(self + 0x60);
+    func_00118C68(v_int & 1, ((int)(v_ll >> 5)) & 3, 0, b, c);
+}
 
 void func_0011EE58(int a0, int a1, int a2)
 {
