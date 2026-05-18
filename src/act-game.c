@@ -112,7 +112,17 @@ int func_00149EF8(void *a0)
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_00149F20);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_00149F70);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_00149FF0);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A0A8);
+int func_0014A0A8(int *a0)
+{
+    register int *sub REG("$3");
+    register int rv REG("$2");
+    sub = (int *)a0[0x164 / 4];
+    rv = 0;
+    if (*(float *)((char *)sub + 0x1D0) <= 20.0f) {
+        rv = 1;
+    }
+    return rv;
+}
 
 /* Matched body inlined from src/cod/04A0D8.c during TU coalesce. */
 extern void *D_00631AE8;
