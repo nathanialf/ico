@@ -1549,7 +1549,8 @@ segments:
       - [0x0B5958, c, src/cod/0B5958]            # retry fno-sched
       - [0x0B5994, asm, src/cod/0B5994]
       - [0x0B5998, c, src/cod/0B5998]            # func_001B5998: D_00275254 & 0x10 ? func_001B7040() : -1
-      - [0x0B59D0, asm, src/cod/0B59D0]
+      - [0x0B59D0, c, src/cod/0B59D0]            # func_001B59D0: D[idx*0x58+4] & (0x40|0x10) -> 1 else 0
+      - [0x0B5A0C, asm, src/cod/0B5A0C]
       - [0x0B6CD0, c, src/layout_texture]        # TU promotion: 0x1B6CD0..0x1B7040 (3 INCLUDE_ASM)
       - [0x0B7040, c, src/cod/0B7040]            # func_001B7040: return D_00633150
       - [0x0B7048, asm, src/cod/0B7048]
