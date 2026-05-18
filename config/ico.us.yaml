@@ -621,20 +621,20 @@ segments:
       - [0x037F04, hasm, src/cod/037F04]
       - [0x037F08, c, src/cod/037F08]            # func_00137F08: dispatch wrapper, type-0
       - [0x037F48, c, src/cod/037F48]            # dispatch wrapper, 137F08-family
-      - [0x037F88, asm, src/cod/037F88]
+      - [0x037F88, hasm, src/cod/037F88]
       - [0x037F90, c, src/cod/037F90]            # dispatch wrapper, 137F08-family
-      - [0x037FD0, asm, src/cod/037FD0]
+      - [0x037FD0, hasm, src/cod/037FD0]
       - [0x037FD8, c, src/cod/037FD8]            # dispatch wrapper, 137F08-family
-      - [0x038018, asm, src/cod/038018]
+      - [0x038018, hasm, src/cod/038018]
       - [0x038020, c, src/cod/038020]            # dispatch wrapper, 137F08-family
-      - [0x038060, asm, src/cod/038060]
+      - [0x038060, hasm, src/cod/038060]
       - [0x038068, c, src/cod/038068]            # dispatch wrapper, 137F08-family
-      - [0x0380A8, asm, src/cod/0380A8]
+      - [0x0380A8, hasm, src/cod/0380A8]
       - [0x0380B0, c, src/cod/0380B0]            # dispatch wrapper, 137F08-family
-      - [0x0380F0, asm, src/cod/0380F0]
+      - [0x0380F0, hasm, src/cod/0380F0]
       - [0x0380F8, c, src/cod/0380F8]            # dispatch wrapper, 137F08-family
       - [0x038138, asm, src/cod/038138]
-      - [0x038180, asm, src/cod/038180]
+      - [0x038180, hasm, src/cod/038180]
       - [0x038188, asm, src/cod/038188]
       - [0x0381D0, asm, src/cod/0381D0]
       - [0x038214, hasm, src/cod/038214]
@@ -1297,7 +1297,7 @@ segments:
       - [0x094360, c, src/cod/094360]            # func_00194360: buf[4] init via func + zero one slot + 2nd call
       - [0x094394, hasm, src/cod/094394]
       - [0x094398, c, src/cod/094398]            # func_00194398: buf+2-call (shared jr+sp restore via 0943C0 stub)
-      - [0x0943C0, asm, src/cod/0943C0]
+      - [0x0943C0, hasm, src/cod/0943C0]
       - [0x0943C8, c, src/cod/0943C8]            # func_001943C8: buf+2-call+chained float-call (3 jals)
       - [0x094400, c, src/cod/094400]            # func_00194400: buf+2-call+chained-float-call (no-trailing-nop fix)
       - [0x094438, asm, src/cod/094438]
@@ -2574,7 +2574,7 @@ segments:
       - [0x14BD90, c, src/cod/14BD90]
       - [0x14BDCC, hasm, src/cod/14BDCC]            # func_0024BDCC/BDD0: handwritten — uses ei (privileged)
       - [0x14BEF8, hasm, src/cod/14BEF8]            # func_0024BEF8: handwritten data-cache flush (cache 0x18 + sync × N over 0x40-aligned range)
-      - [0x14BFA4, asm, src/cod/14BFA4]
+      - [0x14BFA4, hasm, src/cod/14BFA4]
       - [0x14BFAC, hasm, src/cod/14BFAC]            # func_0024BFAC: handwritten privileged call + sync + ei (no own prologue)
       - [0x14BFCC, asm, src/cod/14BFCC]
       - [0x14C038, c, src/cod/14C038]            # func_0024C038: permuter score-0: guard + prev/self swap of D_00717900[0]
