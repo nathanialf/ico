@@ -1405,7 +1405,7 @@ segments:
       - [0x09E4E8, c, src/cod/09E4E8]            # func_0019E4E8: tail call func_00139598(a0 & 0x0FFFFFFF)
       - [0x09E4F8, c, src/cod/09E4F8]            # func_0019E4F8: zero p[2..3]
       - [0x09E508, c, src/cod/09E508]            # func_0019E508: self[3] == self[4]
-      - [0x09E51C, asm, src/cod/09E51C]
+      - [0x09E51C, hasm, src/cod/09E51C]
       - [0x09E598, asm, src/cod/09E598]
       - [0x09E5CC, asm, src/cod/09E5CC]
       - [0x09E628, c, src/cod/09E628]            # func_0019E628: if p[3]>0, --p[3]
@@ -2382,13 +2382,13 @@ segments:
       - [0x13F7E0, c, src/cod/13F7E0]            # func_0023F7E0: tail call func_001A6E28(&D_0061C6B8, a0)
       - [0x13F7F0, asm, src/cod/13F7F0]
       - [0x13F928, c, src/cod/13F928]            # func_0023F928: 3-call func_00240950(a0->0, a0->4, a0->50)
-      - [0x13F95C, asm, src/cod/13F95C]
+      - [0x13F95C, hasm, src/cod/13F95C]
       - [0x13FDA0, c, src/cod/13FDA0]            # func_0023FDA0: permuter score-0 (parked seed)
       - [0x13FDF0, hasm, src/cod/13FDF0]            # 3 handwritten functions: f23FDF0 (0x2A0), f240090 (0x184), f240218 (0x3E8)
       - [0x140600, asm, src/cod/140600]
       - [0x140650, asm, src/cod/140650]
       - [0x140950, c, src/cod/140950]            # func_00240950: tail call func_00139598(a0 & 0x0FFFFFFF)
-      - [0x140960, asm, src/cod/140960]
+      - [0x140960, hasm, src/cod/140960]
       - [0x140A20, c, src/cod/140A20]            # func_00240A20: f1(self->40); ret=(self->10<<11)+self->14; f2(self->40); return ret
       - [0x140A6C, asm, src/cod/140A6C]
       - [0x140B60, c, src/cod/140B60]            # func_00240B60: D_00633B98 = 0
@@ -2447,7 +2447,7 @@ segments:
       - [0x144418, c, src/cod/144418]            # VU0 wrapper (vu0.h macros)
       - [0x144444, asm, src/cod/144444]
       - [0x144448, c, src/cod/144448]            # VU0 wrapper (vu0.h macros)
-      - [0x144460, asm, src/cod/144460]
+      - [0x144460, hasm, src/cod/144460]
       - [0x1445F8, c, src/cod/1445F8]            # func_002445F8: memset(p,0,n)
       - [0x144630, c, src/cod/144630]            # func_00244630: bound-checked table lookup D_00550710[a0] for a0<10
       - [0x144658, asm, src/cod/144658]
@@ -2479,7 +2479,7 @@ segments:
       - [0x145590, c, src/cod/145590]            # func_00245590: auto
       - [0x145598, c, src/cod/145598]            # func_00245598: auto
       - [0x1455A0, c, src/cod/1455A0]            # func_002455A0: auto
-      - [0x1455A8, asm, src/cod/1455A8]
+      - [0x1455A8, hasm, src/cod/1455A8]
       - [0x145658, c, src/cod/145658]            # func_00245658: auto
       - [0x145660, c, src/cod/145660]            # func_00245660: a1[0x48]=0(sd); a1[1]=0x2000; return 0
       - [0x145674, asm, src/cod/145674]
@@ -2541,7 +2541,7 @@ segments:
       - [0x14AAE8, c, src/cod/14AAE8]            # func_0024AAE8: wrap func_0024A9C0(a0, &D_0062E668, a1, 1)
       - [0x14AB10, asm, src/cod/14AB10]
       - [0x14AE10, c, src/cod/14AE10]            # func_0024AE10: return (func_00100930(4) & 0x10000) != 0
-      - [0x14AE38, asm, src/cod/14AE38]
+      - [0x14AE38, hasm, src/cod/14AE38]
       - [0x14B3E8, c, src/cod/14B3E8]            # syscall wrapper (SYSCALL_WRAPPER macro)
       - [0x14B3F8, c, src/cod/14B3F8]            # func_0024B3F8: 6-iter dispatch loop -> func_0024B3E8
       - [0x14B448, c, src/cod/14B448]            # syscall wrapper (SYSCALL_WRAPPER macro)
@@ -2553,7 +2553,7 @@ segments:
       - [0x14B4A8, c, src/cod/14B4A8]            # syscall wrapper (SYSCALL_WRAPPER macro)
       - [0x14B4B8, c, src/cod/14B4B8]            # syscall wrapper (SYSCALL_WRAPPER macro)
       - [0x14B4C8, c, src/cod/14B4C8]            # syscall wrapper (SYSCALL_WRAPPER macro)
-      - [0x14B4D8, asm, src/cod/14B4D8]
+      - [0x14B4D8, hasm, src/cod/14B4D8]
       - [0x14B880, c, src/cod/14B880]            # func_0024B880: cross-ptr copy
       - [0x14B88C, asm, src/cod/14B88C]
       - [0x14B890, c, src/cod/14B890]            # func_0024B890: D_00717880[idx] (la-macro lw)
@@ -2677,7 +2677,7 @@ segments:
       - [0x152F80, c, src/cod/152F80]            # func_00252F80: tail call func_002587E0(a0->40 + 0x4C)
       - [0x152F8C, asm, src/cod/152F8C]
       - [0x153F28, hasm, src/cod/153F28]            # func_00253F28: handwritten MMI texture-byte expand loop (qfsrv/pextlb/pextub with addi+mtsab)
-      - [0x153F9C, asm, src/cod/153F9C]
+      - [0x153F9C, hasm, src/cod/153F9C]
       - [0x154CF8, c, src/cod/154CF8]            # func_00254CF8: RMW MMIO 0x10002010: replace bit-23 with (a0 << 23)
       - [0x154D20, asm, src/cod/154D20]
       - [0x154F08, c, src/cod/154F08]            # func_00254F08: func_002560D8(3)
@@ -2687,7 +2687,7 @@ segments:
       - [0x156BF8, c, src/cod/156BF8]            # func_00256BF8: while (func_002564E0(1)) func_002563C8(8)
       - [0x156C2C, asm, src/cod/156C2C]
       - [0x157850, c, src/cod/157850]
-      - [0x157888, asm, src/cod/157888]
+      - [0x157888, hasm, src/cod/157888]
       - [0x158450, c, src/cod/158450]            # func_00258450: shift extract: (int)(*p >> (64-n))
       - [0x15846C, asm, src/cod/15846C]
       - [0x158508, c, src/cod/158508]            # func_00258508: ret=f1(self,a1); f2(self,a1); return ret
@@ -2864,9 +2864,9 @@ segments:
       - [0x16ECC4, asm, src/cod/16ECC4]
       - [0x16ECC8, c, src/cod/16ECC8]            # func_0026ECC8: func_0026ECC8: same shape, calls func_002455A0
       - [0x16ED28, c, src/cod/16ED28]            # func_0026ED28: func_0026ED28: same shape, calls func_002454F0
-      - [0x16ED88, asm, src/cod/16ED88]
+      - [0x16ED88, hasm, src/cod/16ED88]
       - [0x16F420, c, src/cod/16F420]            # func_0026F420: tail call func_0026F2F8 with both args masked &~0x3F
-      - [0x16F434, asm, src/cod/16F434]
+      - [0x16F434, hasm, src/cod/16F434]
       - [0x16F560, c, src/cod/16F560]            # func_0026F560: tail call func_0026F438 with both args masked &~0x3F
       - [0x16F574, asm, src/cod/16F574]
       - [0x16F5E0, textbin, src/cod/16F5E0]
