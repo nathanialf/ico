@@ -320,7 +320,8 @@ segments:
       - [0x005FE0, c, src/cod/005FE0]            # VU0 wrapper (vu0.h macros)
       - [0x006000, c, src/cod/006000]            # VU0 wrapper (vu0.h macros)
       - [0x006028, c, src/cod/006028]            # VU0 wrapper (vu0.h macros)
-      - [0x006048, asm, src/cod/006048]
+      - [0x006048, c, src/cod/006048]            # func_00106048: cross(a,b) into local, then 1/|local| via VU0 rsqrt
+      - [0x00608C, asm, src/cod/00608C]
       - [0x006A98, c, src/cod/006A98]            # func_00106A98: tail call func_00105F00 (TCO)
       - [0x006AA4, asm, src/cod/006AA4]
       - [0x006AA8, c, src/cod/006AA8]            # func_00106AA8: tail call func_00105F00 (TCO)
