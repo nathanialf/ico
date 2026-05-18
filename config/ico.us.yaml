@@ -550,7 +550,8 @@ segments:
       - [0x022C88, c, src/cod/022C88]            # func_00122C88: switch(a0) {2→8, 3→9, default→7}
       - [0x022CD8, asm, src/cod/022CD8]
       - [0x023C00, c, src/cod/023C00]            # func_00123C00: wrap func_001A6E28(&D_00555920)
-      - [0x023C20, asm, src/cod/023C20]
+      - [0x023C20, c, src/cod/023C20]            # func_00123C20: chain f118460, f117FE8(D+0x80), f117CE0, f1180C0(self,self), tail f1182F0(self,self)
+      - [0x023C70, asm, src/cod/023C70]
       - [0x028708, c, src/cod/028708]            # func_00128708: D_00631D54 = val
       - [0x028710, asm, src/cod/028710]
       - [0x0287B8, c, src/cod/0287B8]            # func_001287B8: f12>0 ? store f12 : load+store src
