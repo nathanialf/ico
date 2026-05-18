@@ -1195,7 +1195,7 @@ segments:
       - [0x08FA70, asm, src/cod/08FA70]
       - [0x090298, c, src/cod/090298]            # func_00190298: self->15C->800->60 = 1; jal func_0018D100(self); ret 1
       - [0x0902C8, c, src/cod/0902C8]            # func_001902C8: 4-insn sb_zero
-      - [0x0902D8, asm, src/cod/0902D8]            # func_001902D8: load-store of vec; min via bc1tl (uses modern-as for FCC nop)
+      - [0x0902D8, c, src/cod/0902D8]              # func_001902D8: load-store of vec; min via bc1tl (uses modern-as for FCC nop)
       - [0x090318, c, src/cod/090318]            # func_00190318: 0x44 = D_00630F84
       - [0x09032C, asm, src/cod/09032C]
       - [0x090330, c, src/cod/090330]            # func_00190330: q->_44 = (float)D_00632D98 * 0.5f * D_00630F88
