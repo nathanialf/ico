@@ -737,7 +737,7 @@ segments:
       - [0x040710, c, src/cod/040710]            # func_00140710: jal func_001A6E28(&D_00557BF8); tail call func_0025DEF0(self->30 ll)
       - [0x040740, c, src/cod/040740]            # func_00140740: auto-batch
       - [0x040748, asm, src/cod/040748]
-      - [0x040B30, asm, src/cod/040B30]
+      - [0x040B30, c, src/cod/040B30]            # func_00140B30: p=self->_2C; p[2*i+0x1E]=v; p[2*i+0x21]=v; tail func_00140A20(p, 2*i)
       - [0x040B5C, asm, src/cod/040B5C]
       - [0x040B60, c, src/cod/040B60]            # func_00140B60: tail call func_00140B30(a0, 0, a1)
       - [0x040B6C, asm, src/cod/040B6C]
