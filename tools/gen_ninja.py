@@ -54,6 +54,7 @@ POSTPROCESS_TXTS = [
     "fcc_nop.txt",
     "unfold_ra_delay.txt",
     "early_epilogue_restore.txt",
+    "fill_blez_delay.txt",
 ]
 
 OUTPUT = ROOT / "build.ninja"

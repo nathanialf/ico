@@ -49,6 +49,7 @@ EARLY_BODY_SWAP_TXT="${ROOT}/config/early_body_swap.txt"
 FCC_NOP_TXT="${ROOT}/config/fcc_nop.txt"
 UNFOLD_RA_DELAY_TXT="${ROOT}/config/unfold_ra_delay.txt"
 EARLY_EPILOGUE_RESTORE_TXT="${ROOT}/config/early_epilogue_restore.txt"
+FILL_BLEZ_DELAY_TXT="${ROOT}/config/fill_blez_delay.txt"
 
 BASE="$(basename "${SRC}" .c)"
 S="${OUT%.o}.s"
@@ -105,6 +106,9 @@ if listed "${UNFOLD_RA_DELAY_TXT}"; then
 fi
 if listed "${EARLY_EPILOGUE_RESTORE_TXT}"; then
     "${PYTHON}" "${ROOT}/tools/postprocess_early_epilogue_restore.py" "${S}"
+fi
+if listed "${FILL_BLEZ_DELAY_TXT}"; then
+    "${PYTHON}" "${ROOT}/tools/postprocess_fill_blez_delay.py" "${S}"
 fi
 if listed "${SWAP_ADDU_TXT}"; then
     sed -i -E 's/(addu[[:space:]]+\$([0-9]+),)\$([0-9]+),\$\2\b/\1$\2,$\3/g' "${S}"

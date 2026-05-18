@@ -181,7 +181,31 @@ float func_001F42E8(char *a0)
     return v;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/weapon", func_001F4318);
+extern int func_0013EB50(int kind);
+extern int func_0013EBE0(int handle);
+extern void func_001F2240(int item, int arg0);
+void func_001F4318(int arg0)
+{
+    register int i REG("$16");
+    register int *self REG("$17");
+    int handle = func_0013EB50(0xE);
+    if (handle != 0) {
+        do {
+            self = (int *)(((int *)((int *)handle)[0x15C / 4])[0x800 / 4]);
+            if (*self == 1 && self[0x50 / 4] > 0) {
+                register int count REG("$2");
+                i = 0;
+                do {
+                    func_001F2240(((int *)self[0x54 / 4])[i], arg0);
+                    i++;
+                    count = self[0x50 / 4];
+                } while (i < count);
+            }
+            handle = func_0013EBE0(handle);
+        } while (handle != 0);
+    }
+}
+
 extern int D_00632010;
 extern int func_0013A0F8(int handle, int size, const char *file, int line);
 extern unsigned int D_004C6240[];
