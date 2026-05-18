@@ -2545,7 +2545,7 @@ segments:
       - [0x151C18, c, src/cod/151C18]            # func_00251C18
       - [0x151C28, c, src/cod/151C28]
       - [0x151C68, asm, src/cod/151C68]
-      - [0x151CD0, asm, src/cod/151CD0]
+      - [0x151CD0, c, src/cod/151CD0]            # func_00251CD0: a0[0x40]->entry; entry[0x10]=a3; rv=entry[0xC]; entry[0xC]=a2
       - [0x151CF4, asm, src/cod/151CF4]
       - [0x151CF8, asm, src/cod/151CF8]
       - [0x151D48, c, src/cod/151D48]            # func_00251D48: promote: score-0 from permuter (volatile dummies)
