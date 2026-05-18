@@ -92,7 +92,18 @@ void func_0019AE50(int *self)
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019AE98);
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B660);
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B7F8);
-INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B888);
+extern int func_0013EBE0(int iter);
+void func_0019B888(void)
+{
+    int *obj1 = func_0013EB50(0x2E);
+    int *iter;
+    *((char *)((int *)obj1[0x15C / 4])[0x800 / 4] + 1) = 1;
+    iter = func_0013EB50(0x35);
+    while (iter != 0) {
+        *((char *)((int *)iter[0x15C / 4])[0x800 / 4] + 0x12) = 1;
+        iter = (int *)func_0013EBE0((int)iter);
+    }
+}
 
 int func_0019B8E8(void)
 {
