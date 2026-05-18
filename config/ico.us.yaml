@@ -804,6 +804,8 @@ segments:
       - [0x04B0B4, asm, src/cod/04B0B4]
       - [0x04B150, c, src/cod/04B150]            # func_0014B150: zero 3 ints at sub+0x98..0xA0
       - [0x04B164, asm, src/cod/04B164]
+      - [0x04B1D0, c, src/cod/04B1D0]            # func_0014B1D0: f14BD88(self); f145638(self); f14BC30(p[0x678],q[0x90],0); q[0x94]=q[0x90]
+      - [0x04B224, asm, src/cod/04B224]
       - [0x04B228, c, src/cod/04B228]            # func_0014B228: sub->90 |= (1 << bit)
       - [0x04B244, asm, src/cod/04B244]
       - [0x04B248, c, src/cod/04B248]            # func_0014B248
