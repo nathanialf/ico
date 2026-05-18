@@ -422,6 +422,8 @@ segments:
       - [0x00DDF4, asm, src/cod/00DDF4]
       - [0x00DDF8, c, src/cod/00DDF8]            # func_0010DDF8: stack-buf wrapper: f(buf, a2); f2(self, buf, a1)
       - [0x00DE40, asm, src/cod/00DE40]
+      - [0x00E708, c, src/cod/00E708]            # func_0010E708: vector magnitude — dot(v,v) then sqrt via func_00117C20
+      - [0x00E744, asm, src/cod/00E744]
       - [0x00E928, c, src/cod/00E928]            # VU0 wrapper (vu0.h macros)
       - [0x00E950, asm, src/cod/00E950]
       - [0x00EC08, c, src/cod/00EC08]            # func_0010EC08: short(-call(f13)) if f12<0 else call(f13)
