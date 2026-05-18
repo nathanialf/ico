@@ -2309,7 +2309,8 @@ segments:
       - [0x13E298, c, src/cod/13E298]            # func_0023E298: pre-process (3 jal); branch on self->_58 byte; dispatch func_0025E1E8 with 1 or 2 calls; set self[0]=2
       - [0x13E32C, asm, src/cod/13E32C]
       - [0x13E330, c, src/cod/13E330]            # func_0023E330: a0->0=3; func_0025E1E8(3,0,0); func_0025E158(3); ret 0
-      - [0x13E368, asm, src/cod/13E368]
+      - [0x13E368, c, src/cod/13E368]            # func_0023E368: byte-identical twin of func_0023E298
+      - [0x13E3FC, asm, src/cod/13E3FC]
       - [0x13E770, c, src/cod/13E770]            # func_0023E770: tail call func_0023E578(a0, a1, max(a0->3C, a2))
       - [0x13E780, asm, src/cod/13E780]
       - [0x13EDF0, c, src/cod/13EDF0]            # func_0023EDF0: score-0 promotion
