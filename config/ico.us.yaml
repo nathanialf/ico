@@ -1556,7 +1556,7 @@ segments:
       - [0x0B7100, asm, src/cod/0B7100]
       - [0x0B718C, asm, src/cod/0B718C]
       - [0x0B7190, asm, src/cod/0B7190]
-      - [0x0B7218, asm, src/cod/0B7218]            # func_001B7218: D_002E81F0[idx*108]._68 bit-1 set/clear
+      - [0x0B7218, c, src/cod/0B7218]              # func_001B7218: D_002E81F0[idx*108]._68 bit-1 set/clear
       - [0x0B7250, c, src/cod/0B7250]            # func_001B7250: D_002E81F0[idx*108]._68 bit-0 set/clear
       - [0x0B7280, c, src/cod/0B7280]            # func_001B7280: return D_00633158
       - [0x0B7288, c, src/cod/0B7288]            # func_001B7288: D_00633164 = val
