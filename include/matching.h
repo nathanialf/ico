@@ -147,6 +147,14 @@
  * address before/after the call. */
 #define KEEP_LIVE_MEM(x)            __asm__ __volatile__("" : : "r"(x) : "memory")
 
+/* In/out variant of KEEP_LIVE: tells gcc the value may have been
+ * modified across this barrier (read AND written by the empty asm).
+ * Use when gcc is collapsing two distinct writes to the same variable
+ * across separate branches via cmov/xori, or merging the variable's
+ * lifetime in a way that omits an expected materialise-and-store
+ * pair. */
+#define MATERIALIZE(x)              __asm__ __volatile__("" : "+r"(x))
+
 /* Open-then-close `.set noreorder` block with no instructions inside.
  * Used as a scheduler barrier that prevents gas from reordering
  * across the directive pair without emitting anything. */

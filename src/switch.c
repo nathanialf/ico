@@ -31,16 +31,16 @@ int func_001C0BE0(char *self) {
 INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C0BF4);
 int func_001C0BF8(char *self)
 {
-    register int accum __asm__("$4");
+    register int accum REG("$4");
     short *p = *(short **)(*(char **)(self + 0x15C) + 0x800);
     if (__builtin_abs((int)p[1]) < 0xBB9) {
         accum = 0;
-        __asm__ __volatile__("" : "+r"(accum));
+        MATERIALIZE(accum);
         if (__builtin_abs((int)p[0]) < 0xBB9) goto done;
     }
     accum = 1;
 done:
-    __asm__ __volatile__("" : "+r"(accum));
+    MATERIALIZE(accum);
     return accum;
 }
 TRAILING_PAD_NOP();
