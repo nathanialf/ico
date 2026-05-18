@@ -788,7 +788,7 @@ segments:
       - [0x04AEC8, asm, src/cod/04AEC8]
       - [0x04AF70, asm, src/cod/04AF70]
       - [0x04AFB8, asm, src/cod/04AFB8]
-      - [0x04B000, asm, src/cod/04B000]
+      - [0x04B000, c, src/cod/04B000]            # func_0014B000: if (a0) return D_006124F8[func_001F40C8(a0)*9+7]; else 0
       - [0x04B044, asm, src/cod/04B044]
       - [0x04B048, c, src/cod/04B048]            # func_0014B048: q=a0->164->140; return (q==0 || f(q)==0) ? 1 : 0
       - [0x04B08C, asm, src/cod/04B08C]
