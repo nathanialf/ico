@@ -360,6 +360,8 @@ segments:
       - [0x00A15C, asm, src/cod/00A15C]
       - [0x00A160, c, src/cod/00A160]            # func_0010A160: Same as 10A120 sibling but offset 0x1D0
       - [0x00A19C, asm, src/cod/00A19C]
+      - [0x00A200, c, src/cod/00A200]            # func_0010A200: self->_15C->_810[idx] (sbyte b); f1080F8(buf,0,buf+0x10,p+0x180,1); f168BD0(buf, p->_C + b*0x40 + 0x30)
+      - [0x00A270, c, src/cod/00A270]            # func_0010A270: sibling with flag=0
       - [0x00A2E0, c, src/cod/00A2E0]
       - [0x00A2F0, c, src/cod/00A2F0]            # func_0010A2F0
       - [0x00A300, c, src/cod/00A300]            # func_0010A300
