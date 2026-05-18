@@ -646,7 +646,7 @@ segments:
       - [0x03BB70, c, src/cod/03BB70]
       - [0x03BB78, c, src/cod/03BB78]
       - [0x03BB80, asm, src/cod/03BB80]
-      - [0x03C488, asm, src/cod/03C488]
+      - [0x03C488, c, src/cod/03C488]            # func_0013C488: out[0]=q; out[1,2,3]=q+q[1,3,5]*4 (ushort count→ptr)
       - [0x03C4C0, asm, src/cod/03C4C0]
       - [0x03C510, c, src/cod/03C510]            # func_0013C510: init struct: [0]=0; [1]=a1?:&f; [2]=a2; [3]=a3
       - [0x03C538, asm, src/cod/03C538]
