@@ -2424,6 +2424,10 @@ segments:
       - [0x1456D0, c, src/cod/1456D0]            # func_002456D0: sibling: same
       - [0x1456F8, c, src/cod/1456F8]            # func_002456F8: score-0 promotion
       - [0x14571C, asm, src/cod/14571C]
+      - [0x145720, c, src/cod/145720]            # func_00245720: ring buffer push: q[1]++, wrap q[3]+1 to q+0x10 at end
+      - [0x14575C, asm, src/cod/14575C]
+      - [0x145760, c, src/cod/145760]            # func_00245760: ring buffer pop: q[1]--, wrap q[2]+1 to q+0x10 at end
+      - [0x14579C, asm, src/cod/14579C]
       - [0x145DB8, c, src/cod/145DB8]            # func_00245DB8: promote-test: subagent seed (unscored, may match)
       - [0x145DDC, asm, src/cod/145DDC]
       - [0x145E88, c, src/cod/145E88]            # func_00245E88: a0->18=0 + a0->10 &= ~1
