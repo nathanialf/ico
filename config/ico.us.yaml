@@ -865,6 +865,8 @@ segments:
       - [0x05D358, asm, src/cod/05D358]
       - [0x05D470, c, src/cod/05D470]            # func_0015D470: double-deref --: *(*(*(a0+0x164)+0x670)+0x204)--
       - [0x05D488, asm, src/cod/05D488]
+      - [0x05E658, hasm, src/cod/05E658]            # func_0015E658: handwritten — infinite loop + dead-code "alternate entry" body that's never reached
+      - [0x05E6AC, asm, src/cod/05E6AC]
       - [0x05E7C0, c, src/cod/05E7C0]            # func_0015E7C0: spill+reload + 2-deref + store -1 + call
       - [0x05E7F4, asm, src/cod/05E7F4]
       - [0x05EA50, c, src/cod/05EA50]            # func_0015EA50: wrap func_001A6E28(&D_00558C18); func_00203AA0(0)
