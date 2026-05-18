@@ -523,6 +523,8 @@ segments:
       - [0x018678, c, src/cod/018678]            # VU0 wrapper (vu0.h macros)
       - [0x0186A0, c, src/cod/0186A0]            # VU0 wrapper (vu0.h macros)
       - [0x0186C4, asm, src/cod/0186C4]
+      - [0x0186C8, hasm, src/cod/0186C8]            # func_001186C8: handwritten MMI 4x4 transpose (sq before jr)
+      - [0x018710, asm, src/cod/018710]
       - [0x018A48, c, src/cod/018A48]            # VU0 wrapper (vu0.h macros)
       - [0x018A68, c, src/cod/018A68]            # VU0 wrapper (vu0.h macros)
       - [0x018A80, c, src/cod/018A80]            # VU0 wrapper (vu0.h macros)
