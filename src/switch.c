@@ -7,7 +7,37 @@ __attribute__((section(".rodata.0x00618630"))) const char D_00618630[16] = "src/
 #include "matching.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C09C4);
-INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C09C8);
+extern int D_00632010;
+extern int func_0013A0F8(int handle, int size, const char *file, int line);
+extern unsigned char D_004BEFD0[];
+extern unsigned int D_0028CA88[];
+extern int func_0019F310(int x, void *y);
+typedef struct { long long w[4]; } __attribute__((packed)) SwitchBuf20_09C8;
+int *func_001C09C8(char *self, void *arg1)
+{
+    int *buf = (int *)func_0013A0F8(D_00632010, 0x20, D_00618630, 0x8D);
+    int *entry;
+    *(SwitchBuf20_09C8 *)buf = *(SwitchBuf20_09C8 *)D_004BEFD0;
+    if (((int *)arg1)[0x30 / 4] != 0) {
+        buf[0x14 / 4] = 1;
+    } else {
+        buf[0x14 / 4] = 0;
+    }
+    entry = (int *)((char *)D_0028CA88 + (*(int **)(self + 0x15C))[0x814 / 4] * 0x28);
+    buf[0xC / 4] = func_0019F310(entry[0], arg1);
+    KEEP_LIVE_MEM(buf);
+    {
+        register void *a1 REG("$5") = arg1;
+        register int *t1 REG("$3");
+        register int idx2 REG("$2");
+        KEEP_LIVE(a1);
+        t1 = *(int **)(self + 0x15C);
+        idx2 = t1[0x814 / 4];
+        entry = (int *)((char *)D_0028CA88 + idx2 * 0x28);
+        buf[0x10 / 4] = func_0019F310(entry[1], a1);
+    }
+    return buf;
+}
 
 /* Override ee-gcc's default .align 3 (8-byte) function alignment so the
  * matched body lands at its expected 4-aligned VMA offset 0x114 (the
