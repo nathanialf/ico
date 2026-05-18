@@ -2358,7 +2358,7 @@ segments:
       - [0x13E770, c, src/cod/13E770]            # func_0023E770: tail call func_0023E578(a0, a1, max(a0->3C, a2))
       - [0x13E780, asm, src/cod/13E780]
       - [0x13EDF0, c, src/cod/13EDF0]            # func_0023EDF0: score-0 promotion
-      - [0x13EE24, asm, src/cod/13EE24]
+      - [0x13EE24, hasm, src/cod/13EE24]            # func_0023EE24/E28: handwritten 0x18C bytes
       - [0x13EFB0, c, src/cod/13EFB0]
       - [0x13EFB8, c, src/cod/13EFB8]            # func_0023EFB8: HW reg writes (NOP() trailing)
       - [0x13EFF4, asm, src/cod/13EFF4]
