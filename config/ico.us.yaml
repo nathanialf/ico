@@ -2739,6 +2739,8 @@ segments:
       - [0x164094, asm, src/cod/164094]
       - [0x164298, c, src/cod/164298]            # func_00264298: vsprintf-style wrapper: func_002669E8(self, self[2], b, va_args)
       - [0x1642D4, asm, src/cod/1642D4]
+      - [0x1642D8, c, src/cod/1642D8]            # func_002642D8: vsprintf-style: D->_8 self-link then func_00266970(D->_8, a0, va_args)
+      - [0x164328, asm, src/cod/164328]
       - [0x164D50, c, src/cod/164D50]            # func_00264D50
       - [0x164D60, c, src/cod/164D60]            # func_00264D60: LCG (state = state*0x41C64E6D + 0x3039) on D_00553244[0]->_58; ret state & 0x7FFFFFFF
       - [0x164D90, asm, src/cod/164D90]
