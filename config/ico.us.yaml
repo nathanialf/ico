@@ -2404,7 +2404,7 @@ segments:
       - [0x1436C8, c, src/cod/1436C8]            # func_002436C8
       - [0x1436E4, asm, src/cod/1436E4]
       - [0x1438B8, c, src/cod/1438B8]            # VU0 wrapper (vu0.h macros)
-      - [0x1438E4, asm, src/cod/1438E4]
+      - [0x1438E4, hasm, src/cod/1438E4]            # func_002438E4 + func_002438E8: handwritten 4-iter VU0 matrix*vec batch using addi (not addiu)
       - [0x143930, c, src/cod/143930]            # VU0 wrapper (vu0.h macros)
       - [0x14394C, asm, src/cod/14394C]
       - [0x143950, c, src/cod/143950]            # VU0 wrapper (vu0.h macros)
