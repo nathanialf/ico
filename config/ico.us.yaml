@@ -666,7 +666,7 @@ segments:
       - [0x03CD70, c, src/cod/03CD70]            # func_0013CD70: *p = 0 (byte)
       - [0x03CD78, asm, src/cod/03CD78]
       - [0x03CF08, asm, src/cod/03CF08]
-      - [0x03CF38, asm, src/cod/03CF38]
+      - [0x03CF38, c, src/cod/03CF38]              # func_0013CF38: init 4-int struct with fn ptrs + D_006321A8 addr
       - [0x03CF70, c, src/cod/03CF70]            # func_0013CF70: zero 2 halfwords
       - [0x03CF7C, asm, src/cod/03CF7C]
       - [0x03CF80, asm, src/cod/03CF80]
