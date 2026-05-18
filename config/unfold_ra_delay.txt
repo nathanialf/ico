@@ -1,0 +1,10 @@
+# Per-file allowlist for tools/postprocess_unfold_ra_delay.py.
+#
+# Lists basename (without .s extension) of .s files that should have
+# their gcc-emitted `beq <reg>, $0, $L_late; ld $31, OFF($sp)` fold
+# un-folded back into `beq <reg>, $0, $L_early; daddu $reg, $0, $0`
+# where $L_early lands at the full epilogue.
+#
+# See tools/postprocess_unfold_ra_delay.py for the exact pattern.
+
+weapon

@@ -52,6 +52,7 @@ POSTPROCESS_TXTS = [
     "la_sd_interleave.txt",
     "early_body_swap.txt",
     "fcc_nop.txt",
+    "unfold_ra_delay.txt",
 ]
 
 OUTPUT = ROOT / "build.ninja"
