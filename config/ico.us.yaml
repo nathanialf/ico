@@ -551,6 +551,8 @@ segments:
       - [0x0287E8, asm, src/cod/0287E8]
       - [0x028868, c, src/StageAnimation]        # TU promotion: 0x128868..0x12AB50 (15 INCLUDE_ASM + 2 matched funcs)
       - [0x02AB50, asm, src/cod/02AB50]
+      - [0x02AC28, c, src/cod/02AC28]            # func_0012AC28: scan D_00674058[N stride 0x290] for entry->_58 == target; if match, set entry->_1C = (float)val
+      - [0x02AC70, asm, src/cod/02AC70]
       - [0x02AED0, c, src/Texture]               # TU promotion: 0x12AED0..0x12D4A0 (17 INCLUDE_ASM + 1 matched func)
       - [0x02D4A0, asm, src/cod/02D4A0]
       - [0x02FD30, c, src/cod/02FD30]            # func_0012FD30
