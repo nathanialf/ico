@@ -85,7 +85,25 @@ void func_001F40D8(int *self)
 exit:
     ;
 }
-INCLUDE_ASM("asm/nonmatchings/src/weapon", func_001F4150);
+void func_001F4150(int *self)
+{
+    int *p = (int *)((int *)self[0x15C / 4])[0x800 / 4];
+    register int count REG("$2");
+    int i;
+    count = p[0x50 / 4];
+    if (count == 0) goto exit;
+    func_001F2388(((int *)p[0x54 / 4])[0]);
+    if (p[0x50 / 4] <= 0) goto exit;
+    i = 0;
+    __asm__ __volatile__("" : "+r"(i));
+    do {
+        int *arr = (int *)p[0x54 / 4];
+        func_001F1868(arr[i]);
+        i++;
+    } while (i < p[0x50 / 4]);
+exit:
+    ;
+}
 
 void func_001F41C8(int *self)
 {
