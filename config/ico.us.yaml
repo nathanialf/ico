@@ -2149,7 +2149,7 @@ segments:
       - [0x118DD0, asm, src/cod/118DD0]
       - [0x118E58, c, src/cod/118E58]            # func_00218E58: guard+func_X+tail-call sibling (arg 0x92)
       - [0x118E90, asm, src/cod/118E90]
-      - [0x119478, asm, src/cod/119478]
+      - [0x119478, c, src/cod/119478]            # func_00219478: permuter score-0 (volatile-wrapper + asm pin)
       - [0x1194C4, hasm, src/cod/1194C4]
       - [0x1194C8, c, src/cod/1194C8]            # func_002194C8: store-arg-discard
       - [0x1194D8, asm, src/cod/1194D8]
