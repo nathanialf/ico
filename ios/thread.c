@@ -279,4 +279,14 @@ int func_0013DB60(int *self)
 }
 
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013DBB0);
+int func_0013DBB0(int *self)
+{
+    int rv = func_00100590(self[0x30 / 4], self + 0x18 / 4);
+    if (rv < 0) {
+        func_001A6E28(D_005579F8, self[0x30 / 4]);
+        func_001AD768(D_005578D0, 0x2B0);
+        func_00263FF0(D_005578D0, 0x2B0, D_006321B8);
+        return rv;
+    }
+    return 0;
+}
