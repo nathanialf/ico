@@ -182,4 +182,25 @@ float func_001F42E8(char *a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/weapon", func_001F4318);
-INCLUDE_ASM("asm/nonmatchings/src/weapon", func_001F43D0);
+extern int D_00632010;
+extern int func_0013A0F8(int handle, int size, const char *file, int line);
+extern unsigned int D_004C6240[];
+extern void func_001F34C8(int *self, int i, int arg1);
+typedef struct { long long w[22]; } WeaponBuf_B0;
+int func_001F43D0(int *self, int arg1)
+{
+    int s2 = func_0013A0F8(D_00632010, 0xB0, D_0061A850, 0x2F2);
+    register int count_outer REG("$3");
+    int i;
+    ((int *)self[0x15C / 4])[0x800 / 4] = s2;
+    *(WeaponBuf_B0 *)s2 = *(WeaponBuf_B0 *)D_004C6240;
+    count_outer = ((int *)self[0x15C / 4])[0x8 / 4];
+    if (count_outer > 0) {
+        i = 0;
+        do {
+            func_001F34C8(self, i, arg1);
+            i++;
+        } while (i < ((int *)self[0x15C / 4])[0x8 / 4]);
+    }
+    return s2;
+}
