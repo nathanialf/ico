@@ -215,12 +215,28 @@ int func_0013D9C8(int *self)
 TRAILING_PAD_NOP();
 
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013DA00);
+extern int func_00100520(int *self);
+extern char D_006321B8[];
+int func_0013DA00(int *self, int a1, int a2, int a3)
+{
+    int rv;
+    self[0x8 / 4] = a1;
+    self[0x4 / 4] = a2;
+    self[0x14 / 4] = a3;
+    rv = func_00100520(self);
+    self[0x30 / 4] = rv;
+    if (rv < 0) {
+        func_001A6E28(D_00557998, rv);
+        func_001AD768(D_005578D0, 0x25C);
+        func_00263FF0(D_005578D0, 0x25C, D_006321B8);
+        return self[0x30 / 4];
+    }
+    return 0;
+}
 
 extern int func_00100530(int sem);
 extern void func_001AD768(const char *file, int line);
 extern void func_00263FF0(const char *file, int line, const char *expr);
-extern char D_006321B8[];
 int func_0013DA88(int *self)
 {
     int rv = func_00100530(self[0x30 / 4]);
