@@ -2415,7 +2415,7 @@ segments:
       - [0x143930, c, src/cod/143930]            # VU0 wrapper (vu0.h macros)
       - [0x14394C, hasm, src/cod/14394C]
       - [0x143950, c, src/cod/143950]            # VU0 wrapper (vu0.h macros)
-      - [0x143974, asm, src/cod/143974]
+      - [0x143974, hasm, src/cod/143974]            # func_00243978: vu0 normalize (vsqrt .word, vwaitq, vdiv chain)
       - [0x1439AC, hasm, src/cod/1439AC]            # func_002439AC+func_002439B0: handwritten MMI 4x4 transpose (pextlw/pextuw/pcpyld/pcpyud)
       - [0x1439F4, asm, src/cod/1439F4]
       - [0x143A68, c, src/cod/143A68]            # VU0 wrapper (vu0.h macros)
