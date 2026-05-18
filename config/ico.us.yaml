@@ -103,7 +103,7 @@ segments:
     subsegments:
       - [0x000000, asm, src/cod/000000]
       - [0x0000B8, c, src/cod/0000B8]            # func_001000B8: auto-batch
-      - [0x0000C0, asm, src/cod/0000C0]
+      - [0x0000C0, hasm, src/cod/0000C0]            # func_001000C0: handwritten startup/exit syscall pair with 14 nops between
       - [0x000110, c, src/cod/000110]            # syscall wrapper (SYSCALL_WRAPPER macro)
       - [0x000120, c, src/cod/000120]            # syscall wrapper (SYSCALL_WRAPPER macro)
       - [0x000130, c, src/cod/000130]            # syscall wrapper (SYSCALL_WRAPPER macro)
