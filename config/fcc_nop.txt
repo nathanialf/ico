@@ -2,6 +2,7 @@
 # ee-as 2.10 ignores gcc's '#nop' comment, leaving the FCC hazard unfilled.
 # Listed file_offs get tools/postprocess_fcc_nop.py applied to the gcc-emitted .s.
 00D360
+0C9078
 13C540
 13C598
 13CCE0

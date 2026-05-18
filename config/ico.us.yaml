@@ -1730,6 +1730,8 @@ segments:
       - [0x0C8ED4, asm, src/cod/0C8ED4]
       - [0x0C8ED8, c, src/cod/0C8ED8]            # VU0 wrapper (vu0.h macros)
       - [0x0C8EF4, asm, src/cod/0C8EF4]
+      - [0x0C9078, c, src/cod/0C9078]            # func_001C9078: VU0 4-vec dot product → return (dot > 0) ? 1 : 0
+      - [0x0C90B8, asm, src/cod/0C90B8]
       - [0x0C92D8, c, src/clothTest]            # TU promotion: src/clothTest.c covers 0x1C92D8..0x1C9324 (single func, 0x4C); 4-byte align pad to next TU is linker --gap-fill
       - [0x0C9324, asm, src/cod/0C9324]
       - [0x0C9328, c, src/cod/0C9328]
