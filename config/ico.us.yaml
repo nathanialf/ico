@@ -1373,7 +1373,7 @@ segments:
       - [0x09E628, c, src/cod/09E628]            # func_0019E628: if p[3]>0, --p[3]
       - [0x09E648, c, src/DObj]                  # TU promotion: 0x19E648..0x19F4E0 (5 INCLUDE_ASM + 1 matched func)
       - [0x09F4E0, c, src/cod/09F4E0]
-      - [0x09F4E8, asm, src/cod/09F4E8]
+      - [0x09F4E8, c, src/cod/09F4E8]              # func_0019F4E8: call func_00102E08(a0); unaligned 8-byte copy a1 -> a0->_15C
       - [0x09F52C, asm, src/cod/09F52C]
       - [0x09F530, asm, src/cod/09F530]
       - [0x09F568, asm, src/cod/09F568]
