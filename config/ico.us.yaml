@@ -2569,6 +2569,8 @@ segments:
       - [0x14BD8C, asm, src/cod/14BD8C]
       - [0x14BD90, c, src/cod/14BD90]
       - [0x14BDCC, asm, src/cod/14BDCC]
+      - [0x14BEF8, hasm, src/cod/14BEF8]            # func_0024BEF8: handwritten data-cache flush (cache 0x18 + sync × N over 0x40-aligned range)
+      - [0x14BFA4, asm, src/cod/14BFA4]
       - [0x14BFAC, hasm, src/cod/14BFAC]            # func_0024BFAC: handwritten privileged call + sync + ei (no own prologue)
       - [0x14BFCC, asm, src/cod/14BFCC]
       - [0x14C038, c, src/cod/14C038]            # func_0024C038: permuter score-0: guard + prev/self swap of D_00717900[0]
