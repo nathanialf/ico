@@ -1780,7 +1780,7 @@ segments:
       - [0x0D3D98, c, src/cod/0D3D98]            # func_001D3D98: return p->48 == 2
       - [0x0D3DB0, c, src/cod/0D3DB0]            # func_001D3DB0: promote: score-0 from permuter (parked tough_nut)
       - [0x0D3DD8, asm, src/cod/0D3DD8]
-      - [0x0D40A0, asm, src/cod/0D40A0]            # func_001D40A0: return (sub->_800[0]==1 || a0->_16C==0) ? 1 : 0
+      - [0x0D40A0, c, src/cod/0D40A0]              # func_001D40A0: return (sub->_800[0]==1 || a0->_16C==0) ? 1 : 0
       - [0x0D40D4, asm, src/cod/0D40D4]
       - [0x0D4348, c, src/cod/0D4348]            # func_001D4348: tail call func_00111918(0, D_00633428)
       - [0x0D4354, asm, src/cod/0D4354]
