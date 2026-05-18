@@ -2034,6 +2034,8 @@ segments:
       - [0x1056A4, asm, src/cod/1056A4]
       - [0x105A78, c, src/cod/105A78]            # func_00205A78: D_004CAEC0[idx*0x34] +0x8 (la mult lw)
       - [0x105A94, asm, src/cod/105A94]
+      - [0x105A98, c, src/cod/105A98]            # func_00205A98: D_004CAEC0[self[8]].8 == self[3] ? 0 : self[3] (null-guard, speculative idx load)
+      - [0x105AD4, asm, src/cod/105AD4]
       - [0x105AD8, c, src/cod/105AD8]            # func_00205AD8: if(!self) return 0; log(D,self); return which ? self[3] : self[2]
       - [0x105B2C, asm, src/cod/105B2C]
       - [0x105B30, c, src/cod/105B30]            # func_00205B30: D_004CAEC0[idx*0x34] +0x28 = a1 (la mult sw)
