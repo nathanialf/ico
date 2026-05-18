@@ -34,9 +34,51 @@ __attribute__((section(".rodata.0x00618608"))) const char D_00618608[24] = " - \
 __attribute__((section(".rodata.0x00618620"))) const char D_00618620[16] = " - \244\255\244\354\244\312\244\244\n";
 
 #include "include_asm.h"
+#include "regpin.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BBB20);
-INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BBDD8);
+
+typedef struct { void *sub; int field4; } BBDD8Entry;
+
+int func_001BBDD8(void *obj)
+{
+    register void *temp1 REG("$3");
+    register int *t1 REG("$9");
+    register int count REG("$2");
+    register int i REG("$8");
+    register BBDD8Entry *entries REG("$10");
+    register int const_one REG("$7");
+    register BBDD8Entry *e REG("$5");
+    register void *sub REG("$6");
+    int saved;
+    int *inner;
+    int *inner2;
+    temp1 = *(void **)((char *)obj + 0x15C);
+    t1 = *(int **)((char *)temp1 + 0x800);
+    count = *t1;
+    if (count > 0) {
+        i = 0;
+        entries = *(BBDD8Entry **)((char *)t1 + 0xC);
+        do {
+            e = (BBDD8Entry *)(i << 3);
+            const_one = 1;
+            e = (BBDD8Entry *)((long)e + (long)entries);
+            i += 1;
+            sub = e->sub;
+            inner = *(int * volatile *)((char *)*(void * volatile *)((char *)sub + 0x15C) + 0x800);
+            e->field4 = inner[1];
+            __asm__ __volatile__("" ::: "memory");
+            inner2 = *(int * volatile *)((char *)*(void * volatile *)((char *)sub + 0x15C) + 0x800);
+            inner2[1] = 0;
+            *(int *)((char *)sub + 0x16C) = const_one;
+            count = *t1;
+        } while (i < count);
+    }
+    saved = t1[1];
+    t1[1] = 0;
+    t1[2] = saved;
+    return saved;
+}
 
 void func_001BBE48(void) {}
 
