@@ -418,6 +418,8 @@ segments:
       - [0x00DAD0, c, src/cod/00DAD0]            # func_0010DAD0: func_0010DAD0: if D_00631B7C<0: flush+restart; ++D_00631B7C; if >=0x40: cap+log
       - [0x00DB28, c, src/cod/00DB28]            # func_0010DB28: D_00631B7C--; if <0: func_001A6E28(&D_00553E48); D_00631B7C=0
       - [0x00DB5C, asm, src/cod/00DB5C]
+      - [0x00DBD0, c, src/cod/00DBD0]            # func_0010DBD0: half-angle variant with f12,f13,f14 vec3 stored at sp
+      - [0x00DC34, asm, src/cod/00DC34]
       - [0x00DCF8, c, src/cod/00DCF8]            # func_0010DCF8: variant of f10DD58 with f1182F0(sp,p) preface; uses sp-buffer for f1183D0
       - [0x00DD58, c, src/cod/00DD58]            # func_0010DD58: half=(short)a1>>1; f1183D0(self,a2,func_0010E950(half)); self->_C = func_0010E9A0(half)
       - [0x00DDB8, c, src/cod/00DDB8]            # VU0 wrapper (vu0.h macros)
