@@ -2021,7 +2021,8 @@ segments:
       - [0x0FC168, c, src/cod/0FC168]            # func_001FC168: promote: score-0 from permuter (parked tough_nut)
       - [0x0FC1A0, asm, src/cod/0FC1A0]
       - [0x0FC220, c, src/cod/0FC220]            # func_001FC220: list head insert (5 args, tail-call f1A6E28 if t0==0)
-      - [0x0FC274, asm, src/cod/0FC274]
+      - [0x0FC278, c, src/cod/0FC278]            # func_001FC278: byte-identical twin of func_001FC220
+      - [0x0FC2CC, asm, src/cod/0FC2CC]
       - [0x0FC2D0, c, src/cod/0FC2D0]            # func_001FC2D0
       - [0x0FC2DC, asm, src/cod/0FC2DC]
       - [0x0FC460, asm, src/cod/0FC460]
