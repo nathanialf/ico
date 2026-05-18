@@ -1411,6 +1411,8 @@ segments:
       - [0x0A6DFC, asm, src/cod/0A6DFC]
       - [0x0A6E00, hasm, src/cod/0A6E00]            # handwritten asm leaf (VU0/COP2)
       - [0x0A6E24, asm, src/cod/0A6E24]
+      - [0x0A6E28, c, src/cod/0A6E28]            # func_001A6E28: empty varargs body — save argregs and return
+      - [0x0A6E50, asm, src/cod/0A6E50]
       - [0x0A7820, c, src/cod/0A7820]            # func_001A7820: tail call func_00264DF8(a0, &D_00632B10, a1, a2)
       - [0x0A7834, asm, src/cod/0A7834]
       - [0x0A7838, c, src/cod/0A7838]            # func_001A7838: tail call func_00264DF8(a0, &D_00632B00)
