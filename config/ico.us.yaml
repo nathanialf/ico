@@ -541,7 +541,8 @@ segments:
       - [0x022C50, c, src/cod/022C50]            # func_00122C50: if a0 >= 0: D_00632CA4 += func_0012D370(a0)
       - [0x022C7C, asm, src/cod/022C7C]
       - [0x022C80, c, src/cod/022C80]            # func_00122C80: D_00631D40 = 0
-      - [0x022C88, asm, src/cod/022C88]
+      - [0x022C88, c, src/cod/022C88]            # func_00122C88: switch(a0) {2→8, 3→9, default→7}
+      - [0x022CD8, asm, src/cod/022CD8]
       - [0x023C00, c, src/cod/023C00]            # func_00123C00: wrap func_001A6E28(&D_00555920)
       - [0x023C20, asm, src/cod/023C20]
       - [0x028708, c, src/cod/028708]            # func_00128708: D_00631D54 = val
