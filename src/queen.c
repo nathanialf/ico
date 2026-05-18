@@ -174,7 +174,26 @@ int func_0019BA60(void)
 }
 
 INCLUDE_ASM_NOP_PAD(func_0019BAA4);
-INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019BAA8);
+extern void func_0019C558(void);
+extern int D_00632010;
+extern int func_0013A0F8(int handle, int size, const char *file, int line);
+extern void func_002641D8(int *buf, int val, int size);
+extern void func_00104508(int *buf, int *self);
+int *func_0019BAA8(int *self)
+{
+    register int *p REG("$18");
+    int *buf;
+    p = (int *)self[0x15C / 4];
+    buf = (int *)func_0013A0F8(D_00632010, 0x30, D_0055C690, 0x3DA);
+    func_002641D8(buf, 0, 0x30);
+    p[0x800 / 4] = (int)buf;
+    *((float *)((char *)buf + 0x14)) = 300.0f;
+    func_00104508(buf, self);
+    func_00202208(self);
+    func_00202148(self);
+    func_0019C558();
+    return buf;
+}
 
 float func_0019BB40(int a0)
 {
