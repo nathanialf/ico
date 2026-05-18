@@ -2797,7 +2797,7 @@ segments:
       - [0x164028, c, src/cod/164028]            # func_00264028: 1-jal w/ u32-return sign-ext via implicit cast
       - [0x164050, c, src/cod/164050]            # func_00264050
       - [0x16405C, hasm, src/cod/16405C]
-      - [0x164060, asm, src/cod/164060]
+      - [0x164060, c, src/cod/164060]            # func_00264060: varargs wrapper -> func_00265C28(a0, a1, va_list)
       - [0x164094, asm, src/cod/164094]
       - [0x164298, c, src/cod/164298]            # func_00264298: vsprintf-style wrapper: func_002669E8(self, self[2], b, va_args)
       - [0x1642D4, hasm, src/cod/1642D4]
