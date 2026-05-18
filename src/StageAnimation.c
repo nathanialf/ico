@@ -88,7 +88,31 @@ INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_00129F58);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012A060);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012A318);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012A618);
-INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012A7A0);
+extern int D_00633C58;
+extern void func_001F6D90(int *node);
+void func_0012A7A0(int **self)
+{
+    int *node = *self;
+    int *next;
+    int *prev;
+    if (node == 0) return;
+    next = (int *)node[0x10 / 4];
+    if (next != 0) {
+        next[0x14 / 4] = node[0x14 / 4];
+    } else {
+        D_00633C58 = node[0x14 / 4];
+        __asm__ __volatile__("" ::: "memory");
+        node = *(int * volatile *)self;
+    }
+    prev = (int *)node[0x14 / 4];
+    if (prev != 0) {
+        prev[0x10 / 4] = node[0x10 / 4];
+    }
+    if (D_00633C58 != 0) {
+        ((int *)D_00633C58)[0x10 / 4] = 0;
+    }
+    func_001F6D90(*self);
+}
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012A7F8);
 
 void func_0012AA78(int a0, int a1, int a2, int a3)
