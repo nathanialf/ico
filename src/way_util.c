@@ -169,7 +169,18 @@ INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017905C);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_00179060);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_00179248);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_00179438);
-INCLUDE_ASM("asm/nonmatchings/src/way_util", func_00179558);
+extern void func_00139598(int x);
+void func_00179558(int *self)
+{
+    func_00139598(self[0]);
+    func_00139598(self[2]);
+    func_00139598(self[1]);
+    func_00139598(self[3]);
+    func_00139598(self[4]);
+    func_00139598(self[5]);
+    func_00139598(self[6]);
+    func_00139598((int)self);
+}
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_001795B8);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_00179878);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_00179B50);
