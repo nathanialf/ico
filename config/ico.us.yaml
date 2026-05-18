@@ -705,7 +705,9 @@ segments:
       - [0x03F0E8, c, src/cod/03F0E8]            # func_0013F0E8: promote: score-0 from permuter (parked tough_nut)
       - [0x03F130, c, src/cod/03F130]
       - [0x03F1D0, c, src/cod/03F1D0]
-      - [0x03F1F8, asm, src/cod/03F1F8]
+      - [0x03F1F8, c, src/cod/03F1F8]            # func_0013F1F8: list-head insert variant (4 args, tail-call f1A6E28 if a3==0)
+      - [0x03F260, c, src/cod/03F260]            # func_0013F260: byte-identical twin of func_0013F1F8
+      - [0x03F2C8, asm, src/cod/03F2C8]
       - [0x03F3E8, c, src/cod/03F3E8]            # func_0013F3E8: tail call func_0013F700 passthrough
       - [0x03F3F0, asm, src/cod/03F3F0]
       - [0x03F6B8, c, src/cod/03F6B8]            # func_0013F6B8: 1-call+cond-tail-call (void+return TCO)
