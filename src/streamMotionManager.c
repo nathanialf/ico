@@ -55,5 +55,18 @@ __attribute__((section(".rodata.0x0061A688"))) const char D_0061A688[56] = "\245
 
 #include "include_asm.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", func_001F0DA8);
+extern int D_00632010;
+extern int func_0013A0F8(int handle, int size, const char *file, int line);
+extern void func_001A6E28(const char *msg);
+
+void func_001F0DA8(void)
+{
+    D_00633720 = func_0013A0F8(D_00632010, 0x28000, D_0061A668, 0x1F6);
+    D_00633728 = func_0013A0F8(D_00632010, 0x28040, D_0061A668, 0x1F8);
+    D_00633724 = (D_00633728 + 0x3F) & 0xFFFFFFC0u;
+    if (D_00633720 == 0 || D_00633724 == 0) {
+        func_001A6E28(D_0061A688);
+    }
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", func_001F0E40);
