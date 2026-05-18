@@ -1273,6 +1273,8 @@ segments:
       - [0x0947D0, c, src/cod/0947D0]            # func_001947D0: buf[4] + zero one slot + 2 calls (s0=a0)
       - [0x094808, c, src/cod/094808]            # func_00194808: buf[4] init via func + 2nd call uses arg
       - [0x09483C, asm, src/cod/09483C]
+      - [0x0948A8, c, src/cod/0948A8]            # func_001948A8: vec3 float swap via stack temp
+      - [0x0948F0, asm, src/cod/0948F0]
       - [0x0949B8, asm, src/cod/0949B8]
       - [0x094A08, asm, src/cod/094A08]
       - [0x094EA8, c, src/cod/094EA8]            # func_00194EA8: D_006D35C0+0x14=a; +0x18=b (2 swc1)
