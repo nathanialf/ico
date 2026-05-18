@@ -36,7 +36,25 @@ extern int D_006A6990[];
 
 INCLUDE_ASM_NOP_PAD(func_0013A248);
 INCLUDE_ASM("asm/nonmatchings/ios/message", func_0013A250);
-INCLUDE_ASM("asm/nonmatchings/ios/message", func_0013A2F8);
+extern void func_001A6E28(const char *fmt, int *self);
+extern void func_001AD768(const char *file, int line);
+extern void func_00263FF0(const char *file, int line, const char *expr);
+extern int func_00100530(int x);
+extern const char D_006320F0[];
+extern const char D_006320E8[];
+void func_0013A2F8(int *self)
+{
+    int idx;
+    func_001A6E28(D_006320F0, self);
+    idx = self[0x2C / 4];
+    if (idx < 0) {
+        func_001AD768(D_00557540, 0x88);
+        func_00263FF0(D_00557540, 0x88, D_006320E8);
+        idx = self[0x2C / 4];
+    }
+    D_006A6990[idx] = 0;
+    func_00100530(idx);
+}
 INCLUDE_ASM("asm/nonmatchings/ios/message", func_0013A380);
 INCLUDE_ASM("asm/nonmatchings/ios/message", func_0013A498);
 
