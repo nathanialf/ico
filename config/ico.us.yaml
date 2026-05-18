@@ -473,12 +473,12 @@ segments:
       - [0x014FB8, c, src/cod/014FB8]            # func_00114FB8: empty 0x180 frame
       - [0x014FC4, hasm, src/cod/014FC4]
       - [0x014FC8, c, src/Light]                 # TU promotion: 0x114FC8..0x117DB0 (18 INCLUDE_ASM + 10 matched)
-      - [0x017DB0, asm, src/cod/017DB0]
+      - [0x017DB0, hasm, src/cod/017DB0]            # 3 vu0 rotation-matrix funcs: vaddx/vsubx/vmulax-vmadday chain + jal cos/sin
       - [0x017FC0, c, src/cod/017FC0]            # VU0 wrapper (vu0.h macros)
       - [0x017FD8, c, src/cod/017FD8]            # VU0 wrapper (vu0.h macros)
       - [0x017FE4, hasm, src/cod/017FE4]
       - [0x017FE8, c, src/cod/017FE8]            # VU0 wrapper (vu0.h macros)
-      - [0x018000, asm, src/cod/018000]
+      - [0x018000, hasm, src/cod/018000]            # func_00118000: vu0 4x4 matrix mul accumulator + register move-back
       - [0x018068, c, src/cod/018068]            # func_00118068: 4x4 matrix * vf4..vf7 (in-place via vmulax/vmaddXY chain)
       - [0x0180C0, c, src/cod/0180C0]            # VU0 wrapper (vu0.h macros)
       - [0x0180E0, c, src/cod/0180E0]            # VU0 wrapper (vu0.h macros)
@@ -527,7 +527,7 @@ segments:
       - [0x0186A0, c, src/cod/0186A0]            # VU0 wrapper (vu0.h macros)
       - [0x0186C4, hasm, src/cod/0186C4]
       - [0x0186C8, hasm, src/cod/0186C8]            # func_001186C8: handwritten MMI 4x4 transpose (sq before jr)
-      - [0x018710, asm, src/cod/018710]
+      - [0x018710, hasm, src/cod/018710]            # 5 vu0 matrix funcs (vmulax/vmadday chain, vrsqrt, qmfc2.ni/pextlw/pcpyld)
       - [0x018A48, c, src/cod/018A48]            # VU0 wrapper (vu0.h macros)
       - [0x018A68, c, src/cod/018A68]            # VU0 wrapper (vu0.h macros)
       - [0x018A80, c, src/cod/018A80]            # VU0 wrapper (vu0.h macros)
@@ -2417,7 +2417,7 @@ segments:
       - [0x143950, c, src/cod/143950]            # VU0 wrapper (vu0.h macros)
       - [0x143974, hasm, src/cod/143974]            # func_00243978: vu0 normalize (vsqrt .word, vwaitq, vdiv chain)
       - [0x1439AC, hasm, src/cod/1439AC]            # func_002439AC+func_002439B0: handwritten MMI 4x4 transpose (pextlw/pextuw/pcpyld/pcpyud)
-      - [0x1439F4, asm, src/cod/1439F4]
+      - [0x1439F4, hasm, src/cod/1439F4]            # func_002439F8: vu0 transpose-mul (pextlw/pcpyld + vmulax/vmadday chain)
       - [0x143A68, c, src/cod/143A68]            # VU0 wrapper (vu0.h macros)
       - [0x143A88, c, src/cod/143A88]            # VU0 wrapper (vu0.h macros)
       - [0x143AA8, c, src/cod/143AA8]            # VU0 wrapper (vu0.h macros)
