@@ -53,6 +53,7 @@ POSTPROCESS_TXTS = [
     "early_body_swap.txt",
     "fcc_nop.txt",
     "unfold_ra_delay.txt",
+    "early_epilogue_restore.txt",
 ]
 
 OUTPUT = ROOT / "build.ninja"

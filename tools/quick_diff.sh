@@ -139,6 +139,27 @@ mkdir -p "$(dirname "$OBJ")"
 # Stage 1: ee-gcc → assembly
 $CC $CFLAGS -o "$ASM_OUT" "$CSRC"
 
+# Stage 1b: run postprocesses listed in their gate files (match
+# compile_c.sh pipeline). Only the per-file postprocesses; the always-on
+# sw_pair + `move`→`daddu` translations are applied unconditionally.
+qd_listed() {
+    local txt="$ROOT/config/$1"
+    [ -r "$txt" ] || return 1
+    grep -qE "^[[:space:]]*${NAME}([[:space:]]|\$|#)" "$txt"
+}
+qd_listed no_trailing_nop.txt    && python3 "$ROOT/tools/postprocess_no_trailing_nop.py" "$ASM_OUT" || true
+qd_listed shared_sp_restore.txt  && python3 "$ROOT/tools/postprocess_shared_sp_restore.py" --sp-only "$ASM_OUT" || true
+qd_listed shared_jr_restore.txt  && python3 "$ROOT/tools/postprocess_shared_sp_restore.py" --jr-and-sp "$ASM_OUT" || true
+qd_listed la_sd_interleave.txt   && python3 "$ROOT/tools/postprocess_la_sd_interleave.py" "$ASM_OUT" || true
+qd_listed fcc_nop.txt            && python3 "$ROOT/tools/postprocess_fcc_nop.py" "$ASM_OUT" || true
+qd_listed early_body_swap.txt    && python3 "$ROOT/tools/postprocess_early_body_swap.py" "$ASM_OUT" || true
+qd_listed unfold_ra_delay.txt    && python3 "$ROOT/tools/postprocess_unfold_ra_delay.py" "$ASM_OUT" || true
+qd_listed early_epilogue_restore.txt && python3 "$ROOT/tools/postprocess_early_epilogue_restore.py" "$ASM_OUT" || true
+qd_listed swap_addu_operands.txt && sed -i -E 's/(addu[[:space:]]+\$([0-9]+),)\$([0-9]+),\$\2\b/\1$\2,$\3/g' "$ASM_OUT" || true
+qd_listed coalesce_v1_v0.txt     && sed -i -E -e '/^[[:space:]]*move[[:space:]]+\$2,\$3[[:space:]]*$/d' -e 's/\$3\b/$2/g' "$ASM_OUT" || true
+python3 "$ROOT/tools/postprocess_sw_pair.py" "$ASM_OUT" || true
+sed -i -E 's/\bmove[[:space:]]+(\$[0-9a-zA-Z]+),[[:space:]]*(\$[0-9a-zA-Z]+)\b/daddu \1,\2,$0/g' "$ASM_OUT"
+
 # Stage 2: assemble. Prefer the project's ee-as 2.10 (matches the full
 # build's src/.o pipeline so `move` pseudos expand consistently — modern
 # mips-linux-gnu-as expands `move rd,rs` to `or`, ee-as expands to

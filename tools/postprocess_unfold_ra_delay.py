@@ -72,9 +72,19 @@ BEQ_FOLD_PATTERN = re.compile(
     r"([ \t]*\.set\s+macro\s*\n[ \t]*\.set\s+reorder)",
 )
 
-# Label followed by `ld $31, NN($29)` and then another label
+# Label followed by `ld $31, NN($29)` and then another label.
+# This is the "two-early-exit" shape (e.g. func_001F40D8) where gcc
+# emits a separate $L_early: ld $31; $L_late: label pair.
 EPILOGUE_PAIR_PATTERN = re.compile(
     r"(\$L\d+):\s*\n[ \t]*ld[ \t]+\$31,\s*(\d+)\(\$(?:29|sp)\)\s*\n(\$L\d+):"
+)
+
+# `ld $31, NN($sp)\n$L_late:` with NO label before the ld.
+# This is the "single-early-exit" shape (e.g. func_001F4318) where the
+# only label is at the body of the epilogue and the `ld $31` is reached
+# by fall-through. We need to INSERT a new label before the ld.
+EPILOGUE_FALLTHRU_PATTERN = re.compile(
+    r"(?<!:\n)([ \t]*)ld[ \t]+\$31,\s*(\d+)\(\$(?:29|sp)\)\s*\n(\$L\d+):"
 )
 
 # Any zero-init move for the loop induction var — used to find $Y.
@@ -112,24 +122,53 @@ def patch_function(body: str) -> tuple[str, bool]:
         return body, False
     late_label = target_match.group(0)
 
-    # Find $L_early: ld $31, NN($29); $L_late: in the function.
-    # The ld $31 offset must match the folded one.
+    # Try the two-early-exit shape first: $L_early: ld $31; $L_late:
+    # The beq target == $L_late, and the ld $31 offset matches.
     for ep in EPILOGUE_PAIR_PATTERN.finditer(body):
         early_label, ld_off, found_late = ep.group(1), ep.group(2), ep.group(3)
         if found_late == late_label and ld_off == ra_offset:
-            # Build replacement: redirect beq to $L_early, replace
-            # delay slot ld $31 with daddu $reg_num, $0, $0.
             new_beq = beq_insn.replace(late_label, early_label)
-            indent_inner = "\t"  # gcc emits with tab indent
-            # Emit `move $reg, $0` here so the later sed-rewrite to
-            # `daddu $reg, $0, $0` happens consistently with the rest
-            # of the file.
+            indent_inner = "\t"
             replacement = (
                 f"{indent}{new_beq}\n"
                 f"{indent_inner}move\t${reg_num},$0\n"
                 f"{set_macro}"
             )
             new_body = body[: beq_match.start()] + replacement + body[beq_match.end() :]
+            return new_body, True
+
+    # Single-early-exit shape: no label before the ld $31. Insert a
+    # synthetic label and redirect beq to it.
+    for ep in EPILOGUE_FALLTHRU_PATTERN.finditer(body):
+        ld_indent, ld_off, found_late = ep.group(1), ep.group(2), ep.group(3)
+        if found_late == late_label and ld_off == ra_offset:
+            # Generate a unique label name not already in the body.
+            base = late_label.lstrip("$")
+            new_label = f"$L_unfold_{base}"
+            assert (new_label + ":") not in body, "label collision"
+
+            # 1) Rewrite the beq+fold pair (replace ld $31 with move).
+            new_beq = beq_insn.replace(late_label, new_label)
+            indent_inner = "\t"
+            beq_replacement = (
+                f"{indent}{new_beq}\n"
+                f"{indent_inner}move\t${reg_num},$0\n"
+                f"{set_macro}"
+            )
+            new_body = body[: beq_match.start()] + beq_replacement + body[beq_match.end() :]
+
+            # 2) Insert `$L_unfold_X:` immediately before the ld $31
+            #    that precedes the original target label. Use the
+            #    UPDATED body so positions don't drift.
+            ep_in_new = EPILOGUE_FALLTHRU_PATTERN.search(new_body)
+            if ep_in_new is None:
+                return body, False
+            insert_at = ep_in_new.start()
+            new_body = (
+                new_body[:insert_at]
+                + f"{new_label}:\n"
+                + new_body[insert_at:]
+            )
             return new_body, True
 
     return body, False
