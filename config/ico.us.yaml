@@ -1620,6 +1620,8 @@ segments:
       - [0x0BBB20, c, src/attackCheckBoundary]   # TU promotion: 0x1BBB20..0x1BBEA0 (2 INCLUDE_ASM + 2 matched funcs)
       - [0x0BBEA0, c, src/cod/0BBEA0]            # func_001BBEA0: deref-chain + cond + cond-with-likely-delay-store
       - [0x0BBEC4, asm, src/cod/0BBEC4]
+      - [0x0BBF78, c, src/cod/0BBF78]            # func_001BBF78: f202208(self); f202148(self); f203AA0(1); p->_18 |= 1LL<<32
+      - [0x0BBFCC, asm, src/cod/0BBFCC]
       - [0x0BBFD0, c, src/cod/0BBFD0]            # func_001BBFD0: 4-insn lwc1
       - [0x0BBFE0, asm, src/cod/0BBFE0]
       - [0x0BC088, c, src/cod/0BC088]            # func_001BC088: 4-insn lw
