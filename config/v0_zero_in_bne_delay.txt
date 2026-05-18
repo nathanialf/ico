@@ -1,0 +1,14 @@
+# Files where `postprocess_v0_zero_in_bne_delay.py` should run.
+# Each line is the .c stem (case-sensitive) of a translation unit.
+#
+# Pattern: ee-gcc with -fno-schedule-insns emits the return-value
+# `daddu $2,$0,$0` between `ld $31` and `ld $sN` in the epilogue, but
+# the original codegen schedules it into the delay slot of the early-
+# exit `bne $2,$0,$L`. See the postprocess's docstring for the full
+# pattern + transformation.
+#
+# Add an entry only when adding the -fno-schedule-insns extra_cflag
+# isn't enough on its own to produce the matching epilogue shape.
+
+165B28
+166870

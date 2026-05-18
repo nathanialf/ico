@@ -2726,9 +2726,9 @@ segments:
       - [0x165814, asm, src/cod/165814]
       - [0x165AF0, c, src/cod/165AF0]            # func_00265AF0: D[0] + 3-arg passthrough (sibling of 26D430 family)
       - [0x165B24, asm, src/cod/165B24]
-      - [0x165B28, asm, src/cod/165B28]
+      - [0x165B28, c, src/cod/165B28]            # func_00265B28: if (self->_8) func_0026AC40(passthrough, self); zero _4/_8
       - [0x165B6C, asm, src/cod/165B6C]
-      - [0x166870, asm, src/cod/166870]
+      - [0x166870, c, src/cod/166870]            # func_00266870: byte-identical twin of 0x165B28
       - [0x1668B4, asm, src/cod/1668B4]
       - [0x168F08, c, src/cod/168F08]            # func_00268F08: infinite loop calling 2 funcs
       - [0x168F28, c, src/cod/168F28]            # func_00268F28: wrap func_0026E5C8(a0, 0)

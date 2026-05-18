@@ -5,7 +5,7 @@ functions whose `.text` bytes are bitwise identical, with at least one
 member still unmatched. A single C source body that matches one will
 match every other member of its group.
 
-- Generated: 2026-05-18 (read from `baserom/baseelf.elf` + `build/ico.elf`)
+- Generated: 2026-05-18 (read from `baserom/baseelf.elf` + `build/ico.elf`; regenerated after the stale asm-path mirror cleanup — see "Stale-path cleanup" note below)
 - Regenerate: `nm --defined-only -S build/ico.elf > /tmp/nm.txt && python3 tools/find_dup_funcs.py > docs/dup_funcs.md.raw`
 - Reproducer: `tools/find_dup_funcs.py`
 
@@ -22,18 +22,17 @@ match every other member of its group.
 | Metric                                                | Count   |
 | ----------------------------------------------------- | ------: |
 | Total `func_*` symbols (from `nm` on `build/ico.elf`) | 9 997   |
-| Unmatched names                                       | 4 396   |
-| Matched-snapshot names                                | 2 103   |
+| Unmatched names                                       | 4 199   |
+| Matched-snapshot names                                | 2 104   |
 | Byte-duplicate groups overall (size ≥ 2)              |    69   |
-| Groups with ≥ 1 unmatched member                      |    29   |
-| ↳ non-stub (size > 0x10)                              |    26   |
-| ↳ stub (size ≤ 0x10)                                  |     3   |
+| Groups with ≥ 1 unmatched member                      |    23   |
+| ↳ non-stub (size > 0x10)                              |    21   |
+| ↳ stub (size ≤ 0x10)                                  |     2   |
 
 **Negative result worth noting:** no unmatched duplicate has a
 fully-matched twin. Every byte-twin of every unmatched function is
-itself unmatched (one 12-byte exception, listed below). So this is a
-"write one body, get N matches" lever, not a "copy a matched C body
-across" lever.
+itself unmatched. So this is a "write one body, get N matches" lever,
+not a "copy a matched C body across" lever.
 
 ## Quick picks
 
@@ -47,9 +46,6 @@ the second TU's surrounding C exists.
 | 148 B | `0023E298` ↔ `0023E368`         | cod/13E294 ↔ cod/13E368                            |
 | 120 B | `0013B7E0` ↔ `00203C40`         | cod/03B7E0 ↔ cod/103C40                            |
 |  96 B | `0013C538` ↔ `0013CF80`         | cod/03C538 ↔ cod/03CF80                            |
-|  68 B | `00265B28` ↔ `00266870`         | cod/165B28 ↔ cod/166870                            |
-|  52 B | `0017B0D8` ↔ `00205048`         | cod/07AA04 ↔ cod/105048                            |
-|  40 B | `0015F428` ↔ `0015F5D0`         | cod/05F358 ↔ cod/05F5D0                            |
 
 The 228 B `0011EE88`/`001219A8` pair is the strongest candidate: an
 active C TU (`src/RegistPacket.c`) already exists for one side, so a
@@ -77,7 +73,6 @@ are noted explicitly.
 |    144   |  2 | [U] `0023A858` `asm/src/cod/139830.s` · [U] `0023A8E8` `asm/src/cod/139830.s`                                                           |
 |    124   |  2 | [U] `001BC438` `asm/src/cod/0BC0B8.s` · [U] `001BC7F0` `asm/src/cod/0BC0B8.s`                                                           |
 |    120   |  2 | [U] `0013B7E0` `asm/src/cod/03B7E0.s` · [U] `00203C40` `asm/src/cod/103C40.s`   ← cross-TU                                              |
-|    120   |  2 | [U] `001F40D8` `asm/nonmatchings/src/weapon/func_001F40D8.s` · [U] `001F4150` `asm/nonmatchings/src/weapon/func_001F4150.s`             |
 |    108   |  2 | [U] `001A6A30` `asm/src/cod/0A43F8.s` · [U] `001A6AA0` `asm/src/cod/0A43F8.s`                                                           |
 |    104   |  2 | [U] `0013F1F8` `asm/src/cod/03F1F8.s` · [U] `0013F260` `asm/src/cod/03F1F8.s`                                                           |
 |    100   |  2 | [U] `00258690` `asm/src/cod/158624.s` · [U] `00258998` `asm/src/cod/158624.s`                                                           |
@@ -86,18 +81,86 @@ are noted explicitly.
 |     84   |  2 | [U] `001FC220` `asm/src/cod/0FC1A0.s` · [U] `001FC278` `asm/src/cod/0FC1A0.s`                                                           |
 |     84   |  2 | [U] `00205808` `asm/src/cod/1056A4.s` · [U] `00205948` `asm/src/cod/1056A4.s`                                                           |
 |     84   |  2 | [U] `00205860` `asm/src/cod/1056A4.s` · [U] `002059A0` `asm/src/cod/1056A4.s`                                                           |
-|     68   |  2 | [U] `00265B28` `asm/src/cod/165B28.s` · [U] `00266870` `asm/src/cod/166870.s`   ← cross-TU                                              |
-|     60   |  2 | [U] `00118F58` `asm/cod/018AB4.s`     · [U] `00118F98` `asm/cod/018AB4.s`                                                               |
-|     52   |  2 | [U] `0017B0D8` `asm/cod/07AA04.s`     · [U] `00205048` `asm/cod/105048.s`       ← cross-TU                                              |
-|     40   |  2 | [U] `0015F428` `asm/cod/05F358.s`     · [U] `0015F5D0` `asm/cod/05F5D0.s`       ← cross-TU                                              |
 
 ## Stub groups (size ≤ 0x10)
 
 | Size (B) |   n | Note                                                                                       |
 | -------: | --: | ------------------------------------------------------------------------------------------ |
-|       12 |   2 | [U] `func_00251DD0` · **[M]** `func_00251DE0` — the only group with a matched twin. Read `src/cod/151DE0.c`; its 12-byte body should transplant to `0x251DD0`. |
 |        4 | 632 | Single `nop` "functions" — almost entirely alignment padding promoted to symbols. Not target material. |
 |        4 |   6 | Sequential `0x137F88`–`0x1380F0` `nop` group — probably vtable/jump-table holes.            |
+
+## What changed on this regen
+
+Six groups dropped off the actionable list compared with the previous
+regen. **One** is a new match (the 68B cross-TU pair); the other five
+were already matched in `build/ico.elf` (verified by `ico.rom` SHA-1)
+but the dup-scanner was mis-classifying them because `asm/` still held
+stale `.s` files from a path-scheme migration.
+
+### New match: 68B `func_00265B28` / `func_00266870`
+
+Both ends of the cross-TU pair now compile from C bodies in
+`src/cod/165B28.c` and `src/cod/166870.c`. The match needed two
+infrastructure additions:
+
+- `165B28` and `166870` in `config/extra_cflags.txt` with
+  `-fno-schedule-insns` — turning off first-pass scheduling stops gcc
+  from inserting a redundant `daddu $2,$0,$0` between the two trailing
+  body stores and from swapping their order.
+- New postprocess `tools/postprocess_v0_zero_in_bne_delay.py` (gated
+  by `config/v0_zero_in_bne_delay.txt`) that lifts the
+  return-value-clear `daddu $2,$0,$0` from between `ld $ra` and
+  `ld $sN` in the epilogue into the delay slot of the preceding
+  `bne $2,$0,$L<n>`. gas's reorder pass refuses to fill that slot on
+  its own because the daddu writes the bne's input register, even
+  though the branch decision uses the pre-delay-slot value; the
+  postprocess wraps the bne+daddu pair in `.set noreorder/nomacro` so
+  gas accepts the manual fill.
+
+The C body itself is the same on both sides:
+
+```c
+extern void func_0026AC40(int a0, int *self);
+
+int func_00265B28(int a0, int *self)
+{
+    if (self[2] == 0) {
+        self[1] = 0;
+        goto end;
+    }
+    func_0026AC40(a0, self);
+    self[1] = 0;
+    self[2] = 0;
+end:
+    return 0;
+}
+```
+
+### Already matched: five stale-classification groups
+
+The earlier cleanup removed:
+
+- The whole `asm/cod/` tree (~27 MB) — superseded by `asm/src/cod/`.
+- Top-level `asm/nonmatchings/<TU>/` mirrors for 15 TUs — superseded by `asm/nonmatchings/src/<TU>/`.
+- 170 orphan `asm/src/cod/*.s` bucket files that no live yaml subseg
+  pointed at (left over after TU-promote operations).
+- 155 per-function `asm/nonmatchings/src/<TU>/func_*.s` files that
+  already had a `asm/matchings/src/<TU>/...` counterpart of the same
+  name (matched-snapshot files that never had the redundant
+  nonmatching sibling deleted).
+
+Cleared from the actionable list as a result:
+
+| Size  | Pair                                  | Why it was on the list before          |
+| ----: | ------------------------------------- | -------------------------------------- |
+|  12 B | `func_00251DD0` / `func_00251DE0`     | stale `asm/nonmatchings/cod/151DD0/`   |
+| 120 B | `func_001F40D8` / `func_001F4150`     | stale `asm/nonmatchings/src/weapon/`   |
+|  60 B | `func_00118F58` / `func_00118F98`     | stale `asm/cod/018AB4.s` bucket        |
+|  52 B | `func_0017B0D8` / `func_00205048`     | stale `asm/cod/07AA04.s` / `105048.s`  |
+|  40 B | `func_0015F428` / `func_0015F5D0`     | stale `asm/cod/05F358.s` / `05F5D0.s`  |
+
+`ninja: no work to do` and `verify_elf: OK (sha1=fbf50c75…)` before and
+after the cleanup — no codegen changed, only the asm-tree topology.
 
 ## Out of scope
 
