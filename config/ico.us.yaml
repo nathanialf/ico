@@ -1728,7 +1728,7 @@ segments:
       - [0x10507C, asm, src/cod/10507C]
       - [0x105518, c, src/cod/105518]            # func_00205518: linked-list unlink at D_004CAEC0[idx*0x34]: mark + splice prev/next
       - [0x105548, asm, src/cod/105548]
-      - [0x105628, asm, src/cod/105628]
+      - [0x105628, c, src/cod/105628]
       - [0x10566C, hasm, src/cod/10566C]
       - [0x105670, c, src/cod/105670]            # func_00205670: LL insert in D_004CC1E0: node_a.p12=node_b; node_b.p8=node_a; node_b.p12=old; old.p8=node_b
       - [0x1056A4, asm, src/cod/1056A4]
