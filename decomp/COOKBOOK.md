@@ -191,6 +191,9 @@ must contain **zero** `__asm__` tokens — bodies go in
 
 ASM fingerprint: `jal X; nop; daddu $v1, $v0, $0; ... sw ..., OFF($v1)`.
 
+**Diff fingerprint:** expected has `daddu $3,$2,$0` (or `move $3,$2`)
+right after a `jal`; built lacks the dead copy and stores via `$v0`.
+
 ```c
 #include "matching.h"
 #include "regpin.h"
@@ -278,6 +281,10 @@ See: [feedback_materialize_barrier].
 
 ### 3.1 Multi-fail null-chain → bool (force 2 distinct `jr ra`)
 
+**Diff fingerprint:** built has `sltu` followed by `movz`/`movn`
+(bool-collapse); expected has multiple distinct `jr ra` paths returning
+0 and 1.
+
 ASM fingerprint:
 
 ```
@@ -337,6 +344,9 @@ See: [feedback_goto_single_return].
 
 ### 3.3 `beql`/`bnel` vs `beq`/`bne` — park, don't grind
 
+**Diff fingerprint:** built has `beq` (or `bne`) where expected has
+`beql` (or `bnel`), otherwise identical operands.
+
 ASM fingerprint: only branch-likely vs plain branch differs between built
 and expected; body otherwise matches.
 
@@ -369,6 +379,9 @@ is rare and search-discoverable).
 See: [feedback_store_then_clamp].
 
 ### 4.2 `sra X,2; srl X,2` (signed-then-unsigned shift)
+
+**Diff fingerprint:** built has `movn`/`slt+movn` sign-correction for
+signed division; expected has plain `sra X,N; srl X,N` two-shift form.
 
 ASM fingerprint: two-shift sequence with mixed signedness in same basic
 block.
@@ -417,6 +430,9 @@ See: [feedback_struct_member_offset].
 
 ### 5.2 `& ~0x3F` matches addiu — use `0xFFFFFFC0u` for lui+ori
 
+**Diff fingerprint:** built has single `addiu $rT,$0,0xFFC0`; expected
+has `lui $rT,0xFFFF` followed by `ori $rT,$rT,0xFFC0`.
+
 ASM fingerprint: original uses `lui $r,0xFFFF; ori $r,$r,0xFFC0` (2 insns);
 your build emits `addiu $r,$0,0xFFC0` (1 insn).
 
@@ -431,6 +447,10 @@ Example: `func_001F0DA8` (`streamMotionManager.c`) — alignment of
 See: [feedback_unsigned_mask_for_lui_ori].
 
 ### 5.3 gp_rel `addiu` vs `daddiu` (quick_diff false positive)
+
+**Diff fingerprint:** built has `addiu` and expected has `daddiu` on a
+`%gp_rel(...)` operand, otherwise identical. **This is a false
+positive — commit as-is.**
 
 ASM fingerprint: quick_diff shows ONLY `addiu` vs `daddiu` differences
 for `%gp_rel(D_X)($gp)` address loads, everything else matches.
@@ -746,6 +766,10 @@ See: [feedback_unfold_ra_delay].
 
 ### 8.3 `postprocess_swap_zero_ret_ld_ra.py`
 
+**Diff fingerprint:** built has `daddu $2,$0,$0` (or `move $2,$0`)
+immediately BEFORE `ld $31, OFF($sp)`; expected has them in the
+opposite order.
+
 Symptom: original has `ld ra; daddu v0,$0,$0` ordering; gcc emits
 `daddu v0,$0,$0; ld ra`.
 
@@ -767,6 +791,10 @@ Example: TU `girlForceField` (`func_001D1C78` — allocator + reciprocal
 See: [feedback_early_epilogue_restore].
 
 ### 8.5 `postprocess_fill_blez_delay.py`
+
+**Diff fingerprint:** built has
+`blez/bgez/bltz/bgtz/beql/bnel/...; nop; <insn>`; expected has the
+`<insn>` directly in the branch's delay slot.
 
 Symptom: gcc emits a `blez/bgez/bltz/bgtz/bnel/beql/...` followed by an
 intended delay-slot fill, but gas (`.set reorder`) inserts a `nop`
@@ -855,6 +883,9 @@ Examples: `165B28` → `func_00265B28`, `166870` → `func_00266870`.
 
 ### 8.11 `postprocess_swap_addu_to_rt.py` / `swap_addu_operands` (sed)
 
+**Diff fingerprint:** `addu $X,$X,$Y` (built) vs `addu $X,$Y,$X`
+(expected), or vice versa — commutative operand swap.
+
 Symptom: original uses one operand order for a commutative `addu`; gcc
 emits the other. Both compute `dst = a + b`, bytes differ.
 
@@ -871,6 +902,10 @@ inverse (swap_addu_operands): `0E8D30` → `func_001E8D30`,
 `0F1148` → `func_001F1148`, `105A78` → `func_00205A78`.
 
 ### 8.12 `postprocess_no_trailing_nop.py` — suppress gas-inserted trailing nop
+
+**Diff fingerprint:** built ends with `j $31` followed by `nop`;
+expected ends with `j $31` only (delay slot filled at link time by the
+next function's first instruction).
 
 Symptom: function ends with `j $31`; gas in `.set reorder` appends a
 `nop` in the delay slot, but the original ELF leaves it empty (the next
@@ -916,6 +951,9 @@ loop body to interleave the `lw` into the jal delay slot.
 Example: `0FAA58` → `func_001FAA58`.
 
 ### 8.15 `postprocess_fcc_nop.py` — promote `#nop` comment to real `nop` after FCC compare
+
+**Diff fingerprint:** built has `c.lt.s/c.le.s/c.eq.s/...` not
+followed by a `nop`; expected has the required FCC hazard nop after.
 
 Symptom: missing nop in the FCC hazard slot after `c.lt.s` / `c.le.s` /
 `c.eq.s` (and `.d` variants). ee-gcc 2.9 emits a `#nop` *comment* trusting
@@ -988,6 +1026,33 @@ Fix: per-file allowlist in `config/dummy_sp_prologue.txt`. Also lowers
 function `.p2align` from 3 to 2 since the inserted insn shifts the
 function's natural alignment (e.g. func_0023C17C sits at mod-8 = 4).
 Example: `13C17C` → `func_0023C17C`.
+
+### 8.21 `postprocess_fill_beq_delay.py` — wrap `beq`/`bne` so gas fills the delay slot
+
+**Diff fingerprint:** `beq $X,$Y,$L; nop; <sw/insn>` (built) vs
+`beq $X,$Y,$L; <sw/insn>` (expected, sw lives in delay slot).
+
+Sibling of §8.5 `fill_blez_delay`, but for the plain `beq`/`bne`
+families that §8.5 deliberately excludes. Most original ICO codegen
+leaves `beq`/`bne` delay slots empty, but a handful of functions had a
+real fill that ee-as 2.10 won't pack — the function comes out 4 bytes
+too long with a `nop` between the branch and the would-be-delay insn.
+
+Symptom: gcc emitted `beq $X, $Y, $L` directly followed by an
+instruction (typically a store) that should land in the delay slot.
+ee-as 2.10 conservatively inserts a `nop` instead of packing the next
+insn. Built function is 4 bytes longer than expected and shifts every
+subsequent address.
+
+Fix: add the TU basename or file_off to `config/fill_beq_delay.txt`.
+The pass wraps the branch+fill pair with `.set noreorder/.set reorder`
+so gas honours gcc's emit order verbatim. Stores are always
+delay-slot-safe relative to the branch's compare registers because the
+store reads its source before the branch fires.
+
+Example: TU `kanban` (`func_001B04E0` — doubly-linked-list unlink with
+a `beq $v0, $0, .L; sw $v0, 0x18($v1)` pair gcc-intended but ee-as
+left as `beq; nop; sw`).
 
 > All postprocesses are run by both `tools/compile_c.sh` and
 > `tools/quick_diff.sh`, so quick_diff sees the same bytes ninja will.

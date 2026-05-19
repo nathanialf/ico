@@ -50,6 +50,7 @@ FCC_NOP_TXT="${ROOT}/config/fcc_nop.txt"
 UNFOLD_RA_DELAY_TXT="${ROOT}/config/unfold_ra_delay.txt"
 EARLY_EPILOGUE_RESTORE_TXT="${ROOT}/config/early_epilogue_restore.txt"
 FILL_BLEZ_DELAY_TXT="${ROOT}/config/fill_blez_delay.txt"
+FILL_BEQ_DELAY_TXT="${ROOT}/config/fill_beq_delay.txt"
 SWAP_ZERO_RET_LD_RA_TXT="${ROOT}/config/swap_zero_ret_ld_ra.txt"
 V0_ZERO_IN_BNE_DELAY_TXT="${ROOT}/config/v0_zero_in_bne_delay.txt"
 JAL_DADDU_LW_LOOP_TXT="${ROOT}/config/jal_daddu_lw_loop.txt"
@@ -116,6 +117,9 @@ if listed "${EARLY_EPILOGUE_RESTORE_TXT}"; then
 fi
 if listed "${FILL_BLEZ_DELAY_TXT}"; then
     "${PYTHON}" "${ROOT}/tools/postprocess_fill_blez_delay.py" "${S}"
+fi
+if listed "${FILL_BEQ_DELAY_TXT}"; then
+    "${PYTHON}" "${ROOT}/tools/postprocess_fill_beq_delay.py" "${S}"
 fi
 if listed "${SWAP_ZERO_RET_LD_RA_TXT}"; then
     "${PYTHON}" "${ROOT}/tools/postprocess_swap_zero_ret_ld_ra.py" "${S}"

@@ -157,6 +157,7 @@ qd_listed early_body_swap.txt    && python3 "$ROOT/tools/postprocess_early_body_
 qd_listed unfold_ra_delay.txt    && python3 "$ROOT/tools/postprocess_unfold_ra_delay.py" "$ASM_OUT" || true
 qd_listed early_epilogue_restore.txt && python3 "$ROOT/tools/postprocess_early_epilogue_restore.py" "$ASM_OUT" || true
 qd_listed fill_blez_delay.txt        && python3 "$ROOT/tools/postprocess_fill_blez_delay.py" "$ASM_OUT" || true
+qd_listed fill_beq_delay.txt         && python3 "$ROOT/tools/postprocess_fill_beq_delay.py" "$ASM_OUT" || true
 qd_listed swap_zero_ret_ld_ra.txt    && python3 "$ROOT/tools/postprocess_swap_zero_ret_ld_ra.py" "$ASM_OUT" || true
 qd_listed v0_zero_in_bne_delay.txt   && python3 "$ROOT/tools/postprocess_v0_zero_in_bne_delay.py" "$ASM_OUT" || true
 qd_listed jal_daddu_lw_loop.txt      && python3 "$ROOT/tools/postprocess_jal_daddu_lw_loop.py" "$ASM_OUT" || true
@@ -276,4 +277,13 @@ if diff -q "$RIGHT" "$LEFT" >/dev/null; then
     echo "MATCH (canonical instruction stream identical)"
 else
     diff -y -W 200 "$RIGHT" "$LEFT" || true
+    # Tag the diff against known cookbook anti-patterns and surface
+    # which postprocess / C reformulation likely applies. See
+    # tools/tag_diff.py RULES list. Quiet when no rule fires.
+    HINTS=$("$ROOT/.venv/bin/python" "$ROOT/tools/tag_diff.py" "$RIGHT" "$LEFT" 2>/dev/null || true)
+    if [[ -n "$HINTS" ]]; then
+        echo
+        echo "=== tag_diff hints ==="
+        echo "$HINTS"
+    fi
 fi

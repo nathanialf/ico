@@ -4,6 +4,11 @@ Catalog of compiler / assembler / splat / linker quirks that have bitten
 matching work. **Read this before starting a new match.** Most "near-miss"
 diffs are an instance of one of the patterns below.
 
+> **Shape-indexed cookbook:** see `decomp/COOKBOOK.md` for asm-shape →
+> C-recipe lookups (wrapper templates, regalloc nudges, branch-shape
+> tricks, postprocess gates). NOTES.md is the catalog of *why*; the
+> cookbook is the lookup table for *what to type*.
+
 Empty at init. Seed entries below are placeholders for the categories we
 expect to fill.
 
@@ -1064,4 +1069,47 @@ tools/build.sh setup && .venv/bin/ninja   # canonical SHA-clean build
 tools/build.sh slinky                     # regen slinky.{yaml,ld}
 # Optional: link with slinky.ld to confirm SHA still matches.
 ```
+
+## `main` location and the "don't coalesce the giants yet" rule
+
+`main = 0x001024F8` (added to `config/symbol_addrs.us.txt`). Derived
+from `_start`: the penultimate call is `jal func_001024F8` with
+`$a0 = *D_00634000` (argc) and `$a1 = D_00634000 + 4` (argv), and its
+return value is fed to `j func_00100140` (Exit syscall #4) in the
+delay slot. The body is 24 instructions: a handful of init calls and
+`return 0`. It almost certainly lives in its own original TU
+(`src/main.c`); `decomp/tu_map.json` mis-buckets it into
+`src/delayFreeManager.c` via the weak `data` tag-source — ignore that
+when promoting. The yaml already isolates it as a single-func subseg
+(`[0x0024F8, asm, src/cod/0024F8]`).
+
+### Big-TU boundaries: defer coalescing
+
+`decomp/tu_map.json` resolves these as the largest original TUs by
+function count. **Do not promote any of them to a single
+`src/<TU>.c` until matching tooling can handle the iteration cost.**
+
+| funcs | TU | status |
+| ---: | --- | --- |
+| 558 | `src/way_tool.c` | keep as per-func asm subsegs |
+| 410 | `src/PObj.c` | keep as per-func asm subsegs |
+| 217 | `src/commonact.c` | partial promotion exists at `[0x0683A8, c, src/commonact]`; don't expand it further yet |
+| 121 | `src/motionManager.c` | keep as per-func asm subsegs |
+|  88 | `src/debug.c` | safe to promote when ready |
+|  83 | `src/layout_texture.c` | safe to promote when ready |
+
+Why the cap: every match attempt against a typed `src/<TU>.c` TU
+recompiles the whole TU. `quick_diff.sh` is per-function so it stays
+cheap, but `ninja` round-trip scales linearly with TU size, and a
+558-func TU would dominate the matching loop. The current 89-func
+asm subseg (`0024F8` neighbourhood is single-func; the giants are
+`asm/src/cod/11A088.s` at 89 and `11F828.s` at 73) is already at the
+upper end of comfortable. ee-as itself has no problem — the
+bottleneck is the compile/diff edit-loop.
+
+When promoting one of the giants eventually, the right shape is the
+existing `src/commonact` partial: promote a *named slice* (a tight
+shape-bucket of adjacent functions) into the typed TU while leaving
+the rest as `INCLUDE_ASM` neighbours. Don't lift the whole TU at
+once.
 

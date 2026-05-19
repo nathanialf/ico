@@ -42,6 +42,25 @@ escalated to "stop".
 - Don't commit anything under `asm/`, `assets/`, `build/`, `baserom/`,
   or anything from leaked SDKs / leaked source / pirated debug builds.
 - Don't add an AI co-author trailer to commits.
+- **Don't coalesce the giant TUs yet.** `decomp/tu_map.json`'s largest
+  original TUs by function count are off-limits for whole-TU promotion
+  until matching tooling can handle the iteration cost: every match
+  attempt against a typed `src/<TU>.c` recompiles the whole TU, and a
+  558-func TU would dominate the matching loop. Treat these as
+  per-func asm subsegs only:
+
+  | funcs | TU |
+  | ---: | --- |
+  | 558 | `src/way_tool.c` |
+  | 410 | `src/PObj.c` |
+  | 217 | `src/commonact.c` (partial promotion already at `[0x0683A8, c, src/commonact]` — don't expand) |
+  | 121 | `src/motionManager.c` |
+
+  Promote *named slices* (tight shape-buckets of adjacent functions) into
+  the typed TU while leaving the rest as `INCLUDE_ASM` neighbours, the
+  way `src/commonact` does. Don't lift a giant whole. See
+  `decomp/NOTES.md` § "`main` location and the don't-coalesce-the-giants-yet rule"
+  for the full rationale.
 
 ## Read these first (in order)
 
