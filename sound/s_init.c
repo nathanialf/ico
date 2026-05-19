@@ -187,3 +187,84 @@ INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00143D18);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00143E60);
 
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00143FC0);
+
+extern int func_00142C60(int a0, int a1, int a2, int a3, float f, int t0, int t1);
+extern void func_00142890(int *p);
+
+int func_00144120(int a0, int a1, int a2, int a3)
+{
+    int idx = func_00142C60(a0, a1, a2, a3, -1.0f, 0, 0);
+    if (idx >= 0) {
+        func_00142890((int *)((char *)D_006A98B0 + (idx & 0xFF) * 64));
+    }
+    return idx;
+}
+
+INCLUDE_ASM_NOP_PAD(func_00144174);
+
+int func_00144178(int a0, int a1, int a2, int a3)
+{
+    int idx = ((int (*)(int, int, int, int, int, int))func_00142C60)(a0, a1, a2, a3, 0, 0);
+    if (idx >= 0) {
+        func_00142890((int *)((char *)D_006A98B0 + (idx & 0xFF) * 64));
+    }
+    return idx;
+}
+
+INCLUDE_ASM_NOP_PAD(func_001441C4);
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_001441C8);
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00144208);
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00144240);
+
+extern int D_0063223C;
+
+int func_001442E0(void)
+{
+    int next = ((D_0063223C + 1) & 0x0FFFFFFF) | 0x10000000;
+    D_0063223C = next;
+    return next;
+}
+
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00144308);
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00144390);
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_001444A0);
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00144500);
+
+extern int D_00632218;
+
+int func_001445C0(void) {
+    return D_00632218;
+}
+
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_001445C8);
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_001446E8);
+
+extern void func_00141F58(int x, int y);
+extern void func_001434B0(int *a, int *b);
+extern void func_00143948(int x, int *p);
+extern void func_00144308(int x);
+extern void func_00144500(int x);
+
+void func_00144780(int *a, int *b)
+{
+    func_00143948(1, a);
+    func_00143948(2, a);
+    func_00144308(1);
+    func_00141F58(1, 0);
+    func_001434B0(a, b);
+}
+
+extern void func_00140B70(int x);
+extern void func_001412C8(int x);
+extern unsigned char D_005F2FB8[];
+
+void func_001447E0(int idx)
+{
+    short new_var;
+    func_00144500(idx);
+    func_00140B70(0);
+    new_var = 0x18C;
+    func_001412C8(*((unsigned short *) ((((char *) D_005F2FB8) + (idx * 0x194)) + new_var)));
+}
+
+INCLUDE_ASM_NOP_PAD(func_00144824);

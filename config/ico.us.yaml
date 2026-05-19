@@ -692,21 +692,8 @@ segments:
       - [0x041168, asm, src/cod/041168]
       - [0x0412B8, c, src/cod/0412B8]            # func_001412B8: D_00632214=a0; tail call func_0025CD28(a0)
       - [0x0412C4, asm, src/cod/0412C4]
-      - [0x041340, c, sound/s_init]              # TU promotion: 0x141340..0x144120 (27 INCLUDE_ASM + 7 matched funcs)
-      - [0x044120, c, src/cod/044120]            # func_00144120: float-arg variant of 144178: f1(a0,a1,a2,a3,-1.0f,0,0)
-      - [0x044174, hasm, src/cod/044174]
-      - [0x044178, c, src/cod/044178]            # func_00144178: idx=f1(a0,a1,a2,a3,0,0); if(idx>=0) f2(&D[(idx&0xFF)*0x40]); return idx
-      - [0x0441C4, asm, src/cod/0441C4]
-      - [0x044208, asm, src/cod/044208]
-      - [0x0442E0, c, src/cod/0442E0]            # func_001442E0: DMA-tag-style ID generator
-      - [0x044308, asm, src/cod/044308]
-      - [0x0444A0, asm, src/cod/0444A0]
-      - [0x044500, asm, src/cod/044500]
-      - [0x0445C0, c, src/cod/0445C0]            # func_001445C0: return D_00632218
-      - [0x0445C8, asm, src/cod/0445C8]
-      - [0x044780, c, src/cod/044780]            # func_00144780: 4-call init then tail-call f1434B0(a, b)
-      - [0x0447E0, c, src/cod/0447E0]            # func_001447E0: permuter score-0 (parked seed)
-      - [0x044824, asm, src/cod/044824]
+      - [0x041340, c, sound/s_init]              # TU promotion: 0x141340..0x144828 (37 INCLUDE_ASM + 14 matched funcs, extended)
+      - [0x044828, asm, src/cod/044828]          # post-s_init: starts func_00144828
       - [0x044928, c, src/cod/044928]            # func_00144928: tail call func_001AE6F8(a0->C, a0->8)
       - [0x044934, asm, src/cod/044934]
       - [0x044DF0, c, src/cod/044DF0]            # func_00144DF0: tail call func_00149D60(D_00631AE4, 1, 4, 5, D_00631AE8, 0, 0)
