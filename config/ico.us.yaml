@@ -1840,7 +1840,7 @@ segments:
       - [0x123E20, c, src/cod/123E20]            # func_00223E20: store-arg-discard
       - [0x123E30, c, src/cod/123E30]            # func_00223E30: store-arg-discard
       - [0x123E40, c, src/cod/123E40]            # func_00223E40: store-arg-discard
-      - [0x123E50, asm, src/cod/123E50]
+      - [0x123E50, c, src/cod/123E50]
       - [0x123E94, asm, src/cod/123E94]
       - [0x123EF0, c, src/cod/123EF0]            # func_00223EF0: store-arg-discard
       - [0x123F00, c, src/cod/123F00]            # func_00223F00: store-arg-discard
@@ -1853,7 +1853,7 @@ segments:
       - [0x123F70, asm, src/cod/123F70]
       - [0x124960, c, src/cod/124960]            # func_00224960: store-arg-discard
       - [0x124970, asm, src/cod/124970]
-      - [0x124E30, asm, src/cod/124E30]
+      - [0x124E30, c, src/cod/124E30]
       - [0x124E7C, asm, src/cod/124E7C]
       - [0x1251E0, c, src/cod/1251E0]            # func_002251E0: store-arg-discard
       - [0x1251F0, asm, src/cod/1251F0]
