@@ -1,0 +1,5 @@
+# Per-file allowlist for postprocess_jal_daddu_lw_loop.py.
+# Rewrites gcc's "daddu in jal-delay, separate bne+nop" loop into
+# the more compact "lw in jal-delay, daddu in bne-delay" form.
+# Use file basename (uppercase hex file_off) per line.
+0FAA58

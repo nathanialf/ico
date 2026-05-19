@@ -1553,7 +1553,7 @@ segments:
       - [0x0E69D8, c, src/multiBgaManager]       # TU promotion: 0x1E69D8..0x1E6D68 (6 INCLUDE_ASM)
       - [0x0E6D68, c, src/particleEffect]        # TU promotion: 0x1E6D68..0x1E8930 (8 INCLUDE_ASM + 1 matched func)
       - [0x0E8930, asm, src/cod/0E8930]
-      - [0x0E8A60, asm, src/cod/0E8A60]
+      - [0x0E8A60, c, src/cod/0E8A60]
       - [0x0E8AB4, asm, src/cod/0E8AB4]
       - [0x0E8B48, c, src/cod/0E8B48]            # func_001E8B48: tail-wrapper to func_001E83F8 with D_00632028 4th arg
       - [0x0E8B68, asm, src/cod/0E8B68]
@@ -1678,7 +1678,7 @@ segments:
       - [0x0FAA40, c, src/cod/0FAA40]            # func_001FAA40: D_006337B8 = D_006337BC = 0
       - [0x0FAA4C, hasm, src/cod/0FAA4C]
       - [0x0FAA50, c, src/cod/0FAA50]            # func_001FAA50: D_006337B4 = val
-      - [0x0FAA58, asm, src/cod/0FAA58]
+      - [0x0FAA58, c, src/cod/0FAA58]
       - [0x0FAAA8, c, src/cod/0FAAA8]            # func_001FAAA8: return D_006337B0 (float)
       - [0x0FAAB0, asm, src/cod/0FAAB0]
       - [0x0FB478, c, src/cod/0FB478]            # func_001FB478: auto
