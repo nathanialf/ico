@@ -1808,7 +1808,7 @@ segments:
       - [0x11F2D8, c, src/cod/11F2D8]            # func_0021F2D8: store-arg-discard
       - [0x11F2E8, c, src/cod/11F2E8]            # func_0021F2E8: store-arg-discard
       - [0x11F2F8, c, src/cod/11F2F8]            # func_0021F2F8: store-arg-discard
-      - [0x11F308, asm, src/cod/11F308]
+      - [0x11F308, c, src/cod/11F308]
       - [0x11F348, asm, src/cod/11F348]
       - [0x11F3A8, c, src/cod/11F3A8]            # func_0021F3A8: store-arg-discard
       - [0x11F3B8, asm, src/cod/11F3B8]
