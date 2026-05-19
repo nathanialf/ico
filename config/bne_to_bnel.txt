@@ -8,3 +8,4 @@
 # where the delay-slot operation is safe to squash on not-taken path.
 
 # func_0013C538:bne  # disabled while function is INCLUDE_ASM
+func_0013C920:bne

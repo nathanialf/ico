@@ -627,6 +627,8 @@ segments:
       - [0x03A220, c, ios/message]               # TU promotion: 0x13A220..0x13A820 (5 INCLUDE_ASM + 2 nop-pad + 3 matched funcs)
       - [0x03A820, c, ios/pad]                   # TU promotion: ios/pad.c covers 0x13A820..0x13C5B4 (23 INCLUDE_ASM + 2 nop-pad + 15 matched funcs)
       - [0x03C5B4, asm, src/cod/03C5B4]
+      - [0x03C920, c, src/cod/03C920]            # func_0013C920: linked-list search; bnel chain
+      - [0x03C958, asm, src/cod/03C958]
       - [0x03CAA0, c, src/cod/03CAA0]            # func_0013CAA0: bounds check then base[1][idx]=val; ret idx or -1
       - [0x03CAD4, asm, src/cod/03CAD4]
       - [0x03CB50, c, src/cod/03CB50]            # func_0013CB50: like 13CAA0 but stores 0 (no val arg)
