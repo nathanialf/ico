@@ -1456,7 +1456,6 @@ segments:
       - [0x0CBD88, c, src/cod/0CBD88]            # func_001CBD88: permuter score-0 promotion
       - [0x0CBE20, c, src/cod/0CBE20]            # func_001CBE20: f12->f20; gp_rel sets D_0063330C/14=1, D_00633310=0, D_00633318=0; func_00105F00(D_004C09A0, a0); D_0063331C=f20; D_00633318=1; D_00633314=0
       - [0x0CBE78, c, src/cod/0CBE78]            # func_001CBE78
-      - [0x0CBE84, asm, src/cod/0CBE84]
       - [0x0CBE88, c, src/enemy]                 # TU promotion: 0x1CBE88..0x1CE6EC (15 INCLUDE_ASM + 2 matched)
       - [0x0CE6EC, hasm, src/cod/0CE6EC]
       - [0x0CE6F0, c, src/cod/0CE6F0]              # func_001CE6F0: zero 4 fields of self->_15C; tail call
