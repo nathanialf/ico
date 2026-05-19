@@ -1,29 +1,6 @@
-/* gobj.c -- typed sdata / lit4 definitions for this TU.
- *
- * Generated initially by tools/decode_sdata_lit4_typed.py
- * from baserom/baseelf.elf. Each line is a developer
- * reconstruction of one game variable or constant; the
- * file is tracked because the typed forms (named float
- * constants, string literals, single hex-word declarations)
- * are clean-room rather than raw byte arrays.
- *
- * As the TU gets fully decompiled, function definitions
- * land in this same file (per-TU layout); typed
- * data declarations stay here next to their references.
- *
- * Downstream tools (rewrite_data_named_sections.py,
- * migrate_data_per_tu.py _scan_existing_definitions) detect
- * the D_<VMA> name on each line and drop the corresponding
- * asm-generated and sidecar definitions.
- */
+/* isys/gobj.c — __FILE__ anchor at .rodata 0x00557a10 */
 
-__attribute__((section(".sdata.0x00632008"))) int D_00632008 = 0;
-__attribute__((section(".sdata.0x006321C0"))) char D_006321C0[8] = { 0 };
-__attribute__((section(".sdata.0x006321C8"))) unsigned int D_006321C8 = 0x00000030;
-__attribute__((section(".sdata.0x006321CC"))) int D_006321CC = 0;
-__attribute__((section(".sdata.0x006321D0"))) int D_006321D0 = 0;
-__attribute__((section(".sdata.0x006321D4"))) int D_006321D4 = 0;
-__attribute__((section(".sdata.0x006321D8"))) int D_006321D8 = 0;
+#include "include_asm.h"
 
 __attribute__((section(".rodata.0x00557A10"))) const char D_00557A10[16] = "isys/gobj.c";
 
@@ -37,3 +14,70 @@ __attribute__((section(".rodata.0x00557A90"))) const char D_00557A90[16] = "add 
 __attribute__((section(".rodata.0x00557AA0"))) const char D_00557AA0[16] = "add to tail %p\n";
 __attribute__((section(".rodata.0x00557AB0"))) const char D_00557AB0[16] = "GObjLinkDL in\n";
 __attribute__((section(".rodata.0x00557AC0"))) const char D_00557AC0[16] = "GObjLinkDL out\n";
+
+extern int D_006A93D0[];
+extern int D_006321CC;
+
+extern void func_002641D8(int *a0, int a1, int a2);
+extern void func_0013DDF8(int a0);
+extern int  func_0013DFF0(int a0, int a1, int a2);
+extern int  func_0013E0C0(int a0, int a1, int a2);
+
+void func_0013DD88(void)
+{
+    func_002641D8(D_006A93D0, 0, 0x110);
+}
+
+INCLUDE_ASM_NOP_PAD(func_0013DD9C);
+INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013DDA0);
+INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013DDF8);
+INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013DEA0);
+INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013DFF0);
+INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E0C0);
+
+void func_0013E190(int a0, int a1, int a2)
+{
+    int s1 = a1 & 0xFF;
+    int new_var;
+    new_var = a2;
+    func_0013DDF8(a0);
+    return func_0013DFF0(a0, s1, new_var);
+}
+
+void func_0013E1D8(int a0, int a1, int a2)
+{
+    int new_var;
+    int s1 = a1 & 0xFF;
+    func_0013DDF8(a0);
+    new_var = s1;
+    return func_0013E0C0(a0, new_var, a2);
+}
+
+INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E220);
+INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E350);
+INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E488);
+INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E4D0);
+INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E548);
+INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E648);
+INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E728);
+INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E7F8);
+INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E868);
+INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E8D8);
+INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E9E0);
+INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013EAE8);
+INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013EB50);
+INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013EBE0);
+INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013EC50);
+INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013ECA8);
+INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013ECF8);
+
+void func_0013ED40(int bit, int set)
+{
+    if (set != 0) goto set_path;
+    D_006321CC &= ~(1 << bit);
+    return;
+set_path:
+    D_006321CC |= (1 << bit);
+}
+
+INCLUDE_ASM_NOP_PAD(func_0013ED74);
