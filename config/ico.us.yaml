@@ -683,7 +683,6 @@ segments:
       - [0x03F990, c, src/cod/03F990]            # func_0013F990: sw_zero +0x0
       - [0x03F998, c, src/cod/03F998]            # func_0013F998: tail call func_0013F9A0 passthrough
       - [0x03F9A0, c, src/cod/03F9A0]            # func_0013F9A0: 3 calls + tail-call (void+return TCO)
-      - [0x03F9CC, asm, src/cod/03F9CC]
       - [0x03F9D0, c, sound/adpcm_init]          # TU promotion: sound/adpcm_init.c covers 0x13F9D0..0x141038 (23 INCLUDE_ASM + 6 nop-pads + 15 matched funcs)
       - [0x041038, c, src/cod/041038]            # func_00141038: return *(short*)(*(char**)(self+0x2C)+0x3C)
       - [0x041044, asm, src/cod/041044]          # 4-byte pad belonging to prev TU
@@ -1417,7 +1416,6 @@ segments:
       - [0x0C3720, c, src/cod/0C3720]            # func_001C3720: register a callback and link self
       - [0x0C375C, asm, src/cod/0C375C]
       - [0x0C3970, c, src/cod/0C3970]            # func_001C3970: tail call func_00105F00(a0, a1 + a2*0x50 + 0x30)
-      - [0x0C3984, asm, src/cod/0C3984]
       - [0x0C3988, c, src/clothAnimation]        # TU promotion: 0x1C3988..0x1C8A18 (19 INCLUDE_ASM + 1 matched + nop pad)
       - [0x0C8A18, asm, src/cod/0C8A18]
       - [0x0C8B20, c, src/cod/0C8B20]            # func_001C8B20: *(float*)(a0+a1*0x50+0x10) = -1.0f; a0->_C--
@@ -1481,7 +1479,6 @@ segments:
       - [0x0CEC30, c, src/enemyParts]            # TU promotion: 0x1CEC30..0x1CF930 (7 INCLUDE_ASM + 6 matched + nop pad)
       - [0x0CF930, asm, src/cod/0CF930]
       - [0x0CFA20, c, src/cod/0CFA20]            # func_001CFA20: self->4->30=1, return 1
-      - [0x0CFA34, asm, src/cod/0CFA34]
       - [0x0CFA38, c, src/flag]                  # TU promotion: 0x1CFA38..0x1D03C4 (4 INCLUDE_ASM + 1 matched)
       - [0x0D03C4, hasm, src/cod/0D03C4]
       - [0x0D03C8, c, src/cod/0D03C8]            # func_001D03C8: D_006333D8 = self; self[0x57]->0x74 = 0; return 0
@@ -1524,7 +1521,6 @@ segments:
       - [0x0D40A0, c, src/cod/0D40A0]              # func_001D40A0: return (sub->_800[0]==1 || a0->_16C==0) ? 1 : 0
       - [0x0D40D4, asm, src/cod/0D40D4]
       - [0x0D4348, c, src/cod/0D4348]            # func_001D4348: tail call func_00111918(0, D_00633428)
-      - [0x0D4354, asm, src/cod/0D4354]
       - [0x0D4358, c, src/lodManager]            # TU promotion: 0x1D4358..0x1D4DA4 (8 INCLUDE_ASM + 1 matched)
       - [0x0D4DA4, hasm, src/cod/0D4DA4]
       - [0x0D4DA8, c, src/cod/0D4DA8]            # func_001D4DA8: promote-test: subagent seed (unscored, may match)
