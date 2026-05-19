@@ -42,6 +42,16 @@ extern void func_0013A5B8(int *a0, int a1, int a2);
 extern void func_0013A6C0(int *a, void *b, int c);
 extern void func_0013AF88(void);
 extern int  func_0013D098(int a0);
+extern void func_0013C958(int a0, int a1);
+extern void func_002439B0(void *dst, void *src);
+extern void func_002438B8(int *p17, void *mat, void *vec);
+extern int  D_00631970;
+extern int  D_00632194;
+extern void func_002641D8(void *dst, int val, int n);
+extern void func_0013CE48(void);
+extern void func_0013CF08(int a, int b);
+extern void func_0013CF38(int *p);
+extern void func_0013CF70(int *p);
 
 int func_0013A820(int a0)
 {
@@ -127,7 +137,19 @@ int func_0013B870(void) {
 
 INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013B878);
 INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013B8F0);
-INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013B970);
+void func_0013B970(void)
+{
+    int *p = D_006A6DB0;
+    int i;
+    for (i = 0xF; i != -1; i--) {
+        int x = p[0];
+        if (x != 0) {
+            func_0013C958(p[1], x);
+            p[0] = 0;
+        }
+        p = (int *)((char *)p + 0x18);
+    }
+}
 
 int *func_0013B9D8(int key, unsigned int val)
 {
