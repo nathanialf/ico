@@ -422,7 +422,13 @@ void func_0016A678(void) {
 /* func_0016A69C nop pad absorbed into func_0016A6A0's .s. */
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0016A6A0);
 /* func_0016AC0C nop pad (between A6A0 and AC10). */
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0016AC10);
+extern int D_0028A890[];
+extern void func_00182890(int *p);
+
+void func_0016AC10(void)
+{
+    func_00182890(D_0028A890);
+}
 
 void func_0016AC20(int *self) {
     int v = ((int *)self[0x164/4])[0x30/4];
