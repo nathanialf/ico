@@ -1457,7 +1457,7 @@ segments:
       - [0x0CBE88, c, src/enemy]                 # TU promotion: 0x1CBE88..0x1CE6EC (15 INCLUDE_ASM + 2 matched)
       - [0x0CE6EC, hasm, src/cod/0CE6EC]
       - [0x0CE6F0, c, src/cod/0CE6F0]              # func_001CE6F0: zero 4 fields of self->_15C; tail call
-      - [0x0CE718, asm, src/cod/0CE718]
+      - [0x0CE718, c, src/cod/0CE718]
       - [0x0CE75C, hasm, src/cod/0CE75C]
       - [0x0CE760, c, src/cod/0CE760]
       - [0x0CE768, c, src/cod/0CE768]            # func_001CE768

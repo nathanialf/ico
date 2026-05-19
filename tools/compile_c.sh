@@ -165,6 +165,9 @@ fi
 if [ "${BASE}" = "0D4E30" ]; then
     "${PYTHON}" "${ROOT}/tools/postprocess_0D4E30.py" "${S}"
 fi
+if [ "${BASE}" = "0CE718" ]; then
+    "${PYTHON}" "${ROOT}/tools/postprocess_0CE718.py" "${S}"
+fi
 if listed "${SWAP_ADDU_TXT}"; then
     sed -i -E 's/(addu[[:space:]]+\$([0-9]+),)\$([0-9]+),\$\2\b/\1$\2,$\3/g' "${S}"
 fi
