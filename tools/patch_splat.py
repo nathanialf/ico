@@ -48,6 +48,37 @@ PATCH = """
             outpath.write_text(_ico_text)
 """
 
+# Second patch: make get_global_asm_funcs follow #include "X.c.inc"
+# directives so INCLUDE_ASM declarations inside .c.inc fragments
+# are visible to splat. Without this, funcs declared INCLUDE_ASM
+# inside a `.c.inc` end up in `asm/matchings/` instead of
+# `asm/nonmatchings/` and the macro path fails at link time.
+INC_MARKER = "# ICO_PATCH: scan .c.inc includes"
+INC_ANCHOR = '        text = CommonSegC.strip_c_comments(c_file.read_text(encoding="utf-8"))'
+INC_PATCH = """
+        # ICO_PATCH: scan .c.inc includes
+        # Expand any `#include "X.c.inc"` (and `.h` for completeness)
+        # so INCLUDE_ASM directives inside those fragments are visible.
+        import re as _ico_inc_re
+        _ico_seen = set()
+        def _ico_expand(c_path, depth=0):
+            if depth > 4: return ""
+            try:
+                t = c_path.read_text(encoding="utf-8")
+            except Exception:
+                return ""
+            out_parts = [t]
+            for _m in _ico_inc_re.finditer(r'^\\s*#\\s*include\\s+"([^"]+\\.c\\.inc)"', t, _ico_inc_re.MULTILINE):
+                _inc_name = _m.group(1)
+                _inc_path = c_path.parent / _inc_name
+                if not _inc_path.exists() or str(_inc_path) in _ico_seen:
+                    continue
+                _ico_seen.add(str(_inc_path))
+                out_parts.append(_ico_expand(_inc_path, depth+1))
+            return "\\n".join(out_parts)
+        text = CommonSegC.strip_c_comments(_ico_expand(c_file))
+"""
+
 
 def main() -> int:
     c_py = find_splat_c_py()
@@ -56,26 +87,44 @@ def main() -> int:
         return 0
 
     text = c_py.read_text()
-    if MARKER in text:
+    changed = False
+
+    if MARKER not in text:
+        if PATCH_INSERT_AFTER not in text:
+            print(
+                f"patch_splat: anchor line not found in {c_py}; splat may have "
+                "changed upstream. Skipping ACC/Q patch.",
+                file=sys.stderr,
+            )
+        else:
+            text = text.replace(
+                PATCH_INSERT_AFTER,
+                PATCH_INSERT_AFTER + PATCH.rstrip(),
+                1,
+            )
+            changed = True
+            print(f"patch_splat: ACC/Q fix applied to {c_py}")
+
+    if INC_MARKER not in text:
+        if INC_ANCHOR not in text:
+            print(
+                f"patch_splat: .c.inc anchor not found in {c_py}; splat may "
+                "have changed upstream. Skipping .c.inc-scan patch.",
+                file=sys.stderr,
+            )
+        else:
+            # Replace ALL occurrences — the anchor pattern appears in
+            # both get_funcs_defined_in_c and get_global_asm_funcs (and
+            # get_global_asm_rodata_syms). All three need .c.inc visibility.
+            n_subs = text.count(INC_ANCHOR)
+            text = text.replace(INC_ANCHOR, INC_PATCH.rstrip())
+            changed = True
+            print(f"patch_splat: .c.inc-scan applied to {c_py} ({n_subs} sites)")
+
+    if changed:
+        c_py.write_text(text)
+    else:
         print(f"patch_splat: {c_py} already patched.")
-        return 0
-
-    if PATCH_INSERT_AFTER not in text:
-        print(
-            f"patch_splat: anchor line not found in {c_py}; splat may have "
-            "changed upstream. Skipping patch.",
-            file=sys.stderr,
-        )
-        return 1
-
-    # Insert PATCH right after the anchor line.
-    text = text.replace(
-        PATCH_INSERT_AFTER,
-        PATCH_INSERT_AFTER + PATCH.rstrip(),
-        1,
-    )
-    c_py.write_text(text)
-    print(f"patch_splat: applied to {c_py}")
     return 0
 
 

@@ -18,11 +18,13 @@ if [[ "$1" == "--once" ]]; then
     fi
 
     echo "$rule"
-    # Render the markdown table (header + 6 data rows) as a fixed-width
-    # table: strip the leading/trailing pipes, drop the markdown
-    # separator row (---|---|...), then column-align on `|`.
-    sed -n '6,9p' docs/PROGRESS.md \
-        | sed -E 's/^\| //; s/ \|$//; /^[- |:]+$/d' \
+    # Render the markdown table as a fixed-width table. Pull the rows
+    # between the `progress:begin` / `progress:end` markers so adding
+    # a new section row in tools/progress.py doesn't drift this range.
+    # Strip the leading/trailing pipes, drop the markdown separator
+    # row (---|---|...), then column-align on `|`.
+    sed -n '/<!-- progress:begin -->/,/<!-- progress:end -->/p' docs/PROGRESS.md \
+        | sed -E '/<!-- progress:(begin|end) -->/d; s/^\| //; s/ \|$//; /^[- |:]+$/d' \
         | column -t -s '|'
     echo "$rule"
 

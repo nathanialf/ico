@@ -195,6 +195,244 @@ void func_001684E8(int a0, int a1)
     DEFEAT_TCO();
 }
 
+/* ====================================================================
+ * cmn_tail (.text 0x16850C..0x16AE48): commonact's own body after the
+ * 11-func dispatch block above. Matched-C bodies inline; unmatched
+ * funcs are INCLUDE_ASM'd. Funcs are emitted in .text address order
+ * so ee-gcc produces them at the right VMA when this TU is linked.
+ * 4-byte nop pads (single-instruction func_<XXX> shims) are absorbed
+ * into the preceding function's matching/nonmatching .s by splat —
+ * no separate INCLUDE_ASM line is needed for them.
+ * ==================================================================== */
+
+#include "include_asm.h"
+
+extern void (*D_006323F4)(int, int);
+extern int D_006323BC;
+extern int D_00633D08;
+extern int D_00633D0C;
+extern int D_00633D10;
+extern int D_00633D14;
+extern int D_00633D18;
+extern int D_00633D1C;
+extern int D_00633D20;
+extern int D_00633D24;
+extern int D_00633D28;
+extern int D_006AB100[];
+extern char D_00632428[];
+extern int D_00559430[];
+extern void func_00104508(int *dst, int *src);
+extern void func_0010A498(int *dst, int *src);
+extern void func_00105F00(int a0, int a1);
+extern volatile int func_0010F5B8(int a0, int a1, int a2);
+extern float func_00105FE0(float f);
+extern void func_00167230(int *a0);
+extern void func_00167258(int *a0);
+extern void func_00169F80(int *a0);
+extern void func_0016A058(int *a0);
+extern void func_0014A3A8(void);
+extern void func_0014B330(int *self, int a1, float a2);
+extern void func_001A6E28();   /* K&R: takes (char*) or (int*) or (char*, int) across callers */
+extern void func_00243B60(int *dst, int *src);
+extern float func_00243950();  /* called with 1 or 2 args across cod stubs */
+extern int (*D_006323F0_fp)(int *, int);  /* aliased below — D_006323F0 is also used as fn-ptr */
+extern void func_0016A1D8(int *p);
+
+/* func_00168510 */
+void func_00168510(int a0, int a1)
+{
+    D_00633D34 = a1;
+    D_006323F0(a0, 9);
+    DEFEAT_TCO();
+}
+
+/* func_00168534 is a 4-byte nop pad absorbed into the .s for func_00168538. */
+void func_00168538(int arg) { D_006323F4(arg, 0xC); }
+void func_00168558(int arg) { D_006323F4(arg, 0xD); }
+void func_00168578(int arg) { D_006323F4(arg, 0xE); }
+void func_00168598(int arg) { D_006323F4(arg, 0xF); }
+
+void func_001685B8(int a0, int a1)
+{
+    D_00633D34 = a1;
+    D_006323F4(a0, 0x10);
+    DEFEAT_TCO();
+}
+
+/* func_001685DC (4-byte nop pad) absorbed into func_001685E0's .s. */
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001685E0);
+
+int func_00168650(int a0)
+{
+    *(int *)&D_006323F0 = (int)&func_00167230;
+    *(int *)&D_006323F4 = (int)&func_00167258;
+    if (a0 != 0) {
+        *(int *)&D_006323F0 = (int)&func_00169F80;
+        *(int *)&D_006323F4 = (int)&func_0016A058;
+    }
+    return 0;
+}
+
+/* func_0016868C nop pad. */
+void func_00168690(int *self, int a1)
+{
+    int new_var;
+    int *p;
+    func_0010F5B8((int) self, a1, 0);
+    p = (int *) self[0];
+    new_var = 0x14 / 4;
+    p[0x10 / 4] = (int) (((char *) p) + p[0x10 / 4]);
+    p[0x14 / 4] = (int) (((char *) p) + p[new_var]);
+}
+
+/* func_001686D4 nop pad absorbed into func_001686D8's .s. */
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001686D8);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001687B8);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001688E0);
+
+void func_00168A28(float *self, float a, float b, float c, float d) {
+    self[0] = a; self[1] = b; self[2] = c; self[3] = d;
+}
+
+/* func_00168A3C nop pad. */
+int func_00168A40(int a0) {
+    if (*(int *)(a0 + 0x88) == 0) return 0;
+    return *(int *)(a0 + 0x98);
+}
+
+/* func_00168A5C nop pad. */
+int func_00168A60(int a0) {
+    if (*(int *)(a0 + 0x94) == 0) return 0;
+    return *(int *)(a0 + 0x98);
+}
+
+/* func_00168A7C nop pad absorbed into func_00168A80's .s. */
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00168A80);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00168AE0);
+
+float func_00168BA0(int a0) { return func_00243950(a0) + *(float *)(a0 + 0xC); }
+
+/* func_00168BCC nop pad. */
+float func_00168BD0(float *a0, float *a1) {
+    return a1[1] - (-(a0[0] * a1[0] + a0[2] * a1[2] + a0[3]) / a0[1]);
+}
+
+/* func_00168C14 nop pad. */
+float func_00168C18(float *a0, float *a1) {
+    return -(a0[0] * a1[0] + a0[2] * a1[2] + a0[3]) / a0[1];
+}
+
+void func_00168C58(void) {
+    int tmp;
+    D_00633D08 = 0;
+    tmp = *(volatile int *)0x10000000;
+    D_00633D0C = 0;
+    D_00633D18 = tmp;
+    DEFEAT_TCO();
+    D_00633D10 = 0;
+    D_00633D14 = 0;
+    D_00633D1C = 0;
+    D_00633D20 = 0;
+    D_00633D24 = 0;
+    D_00633D28 = 0;
+}
+
+int func_00168C88(int a0, int a1) {
+    int v = D_006AB100[a1 & 0xF];
+    if (v != 0) { func_00105F00(a0, v); return 0; }
+    return 1;
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00168CC8);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00168DA8);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00168ED0);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00169020);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00169190);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001692F0);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00169440);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00169580);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001696C0);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00169800);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00169968);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00169AA8);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00169BD0);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00169D18);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00169E58);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00169F80);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0016A058);
+
+void func_0016A130(void) {
+    D_006323BC = 1;
+    /* Cast away the (int) prototype so gcc doesn't emit `daddu $a0,$0,$0`
+     * to set up an arg the original call didn't pass. The implementation
+     * happens to read $a0 but the original cross-TU caller didn't bother
+     * to clear it. */
+    ((void (*)(void))func_001683C8)();
+    D_006323BC = 0;
+}
+
+/* func_0016A154 nop pad. */
+int func_0016A158(int *a0, int *a1) {
+    int buf[48];
+    *(float *)&buf[28] = 50.0f;
+    func_00243B60(buf, a0);
+    func_00243B60(buf + 4, a1);
+    ((int (*)(int *, int))D_006323F0)(buf, 1);
+    return buf[34];
+}
+
+void func_0016A1B8(int *self) {
+    int v0 = self[4];
+    int v1 = self[5];
+    self[4] = (int)((char *)self + v0);
+    self[5] = (int)((char *)self + v1);
+}
+
+/* func_0016A1D4 nop pad absorbed into func_0016A1D8's .s. */
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0016A1D8);
+
+void func_0016A240(int *p) {
+    int i = 0;
+    do {
+        func_001A6E28(D_00632428, i);
+        i++;
+        func_0016A1D8(p);
+        p = (int *)((char *)p + 0x10);
+    } while (i < 4);
+}
+
+/* func_0016A29C nop pad. */
+float func_0016A2A0(float x, float y) { return func_00105FE0(x*x + y*y); }
+/* func_0016A2C4 nop pad. */
+float func_0016A2C8(float x, float y, float z) { return func_00105FE0(x*x + y*y + z*z); }
+/* func_0016A2F4 nop pad. */
+float func_0016A2F8(int a0) { return func_00105FE0(func_00243950(a0, a0)); }
+
+/* func_0016A31C nop pad absorbed into func_0016A320's .s. */
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0016A320);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0016A3B0);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0016A460);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0016A5F0);
+
+void func_0016A678(void) {
+    func_0014A3A8();
+    func_001A6E28(D_00559430);
+}
+
+/* func_0016A69C nop pad absorbed into func_0016A6A0's .s. */
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0016A6A0);
+/* func_0016AC0C nop pad (between A6A0 and AC10). */
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0016AC10);
+
+void func_0016AC20(int *self) {
+    int v = ((int *)self[0x164/4])[0x30/4];
+    if (v == 10) {
+        func_0014B330(self, 5, 1.5f);
+    }
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0016AC50);
+
 /* String rodata migrated from commonact_data.c */
 __attribute__((section(".rodata.0x00558848"))) const char D_00558848[24] = "common rope after func\n";
 __attribute__((section(".rodata.0x00558880"))) const char D_00558880[32] = "enter actCommonRope\n";
@@ -239,3 +477,135 @@ __attribute__((section(".rodata.0x005588A0"))) const float D_005588A0[4] = { 0.0
 __attribute__((section(".rodata.0x005588B0"))) const float D_005588B0[4] = { 0.0f, 0.0f, 2e+01f, 1.0f };
 __attribute__((section(".rodata.0x005589D0"))) const float D_005589D0[48] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 5e+01f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 __attribute__((section(".rodata.0x00558DB8"))) const float D_00558DB8[2] = { 4.172325e-08f, 1.65f };
+
+/* girl_brain_{main,attract}.c.inc carry the rodata + chunk-1 function
+ * bodies for the two .c.inc TUs whose __FILE__ anchors live at
+ * D_00559528 and D_00559620. They are NOT standalone .c files; they
+ * are inline-included here so commonact.o absorbs their symbols. */
+#include "girl_brain_main.c.inc"     /* gbm chunk 1: 0x16AE48..0x16D707 */
+#include "girl_brain_attract.c.inc"  /* gba chunk 1: 0x16D708..0x16E90F */
+
+/* ====================================================================
+ * gbm chunk 2 (.text 0x16E910..0x16EE07) — 3 funcs whose original
+ * __FILE__ was "src/girl_brain_main.c.inc". `#line` makes the
+ * preprocessor report that __FILE__ for any code inside this region,
+ * matching what the original SCEI source emitted.
+ * ==================================================================== */
+#line 1 "src/girl_brain_main.c.inc"
+
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0016E910);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0016EB68);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0016EC78);
+
+/* ====================================================================
+ * gba chunk 2 (.text 0x16EE08..0x175CDC) — bulk of girl_brain_attract.
+ * Matched-C bodies inline; rest is INCLUDE_ASM.
+ * ==================================================================== */
+#line 1 "src/girl_brain_attract.c.inc"
+
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0016EE08);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0016F2A8);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0016F410);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0016F9A8);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0016FC48);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00170438);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001706E0);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00170950);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00170C20);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00170ED8);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001712C8);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001718F0);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00171AB0);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00171BC8);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00171E48);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00173060);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00173170);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00173268);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001733D0);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001734D8);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001736B8);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00173820);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00174D78);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00174F00);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00175098);
+
+extern int D_006ABDE0[100];
+
+void func_001752D0(int *self)
+{
+    int *p;
+    p = (int *)self[0x59];
+    D_006ABDE0[0] = 0;
+    D_006ABDE0[1] = 0;
+    if (p[0xC] != 0x45) {
+        *(long long *)((char *)p + 0x20) &= ~0x200LL;
+    }
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00175308);
+/* func_0017534C nop pad absorbed into func_00175350's .s. */
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00175350);
+
+extern void func_00203AA0(int a0);
+/* D_00559AB8 / D_00559AD0 are defined earlier in girl_brain_attract.c.inc */
+
+void func_00175640(volatile unsigned int a0)
+{
+    volatile int local;
+    int *s0;
+    s0 = *((int **) (a0 + 0x164));
+    func_001A6E28(D_00559AB8);
+    s0[0x30 / 4] = 0x2;
+    func_00203AA0(0);
+}
+
+/* func_00175684 nop pad. */
+
+void func_00175688(volatile unsigned int a0)
+{
+    volatile int local;
+    int new_var;
+    int *s0;
+    s0 = *((int **) (a0 + 0x164));
+    func_001A6E28(D_00559AD0);
+    s0[0x30 / 4] = 0x3;
+    new_var = 0;
+    func_00203AA0(new_var);
+}
+
+/* func_001756CC nop pad absorbed into func_001756D0's .s. */
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001756D0);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00175800);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001758F8);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00175A98);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00175B58);
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00175C18);
+
+void func_00175C70(int x) {
+    char *p = (char *)D_00631AE8;
+    if (p != 0) {
+        char *sub = *(char **)(p + 0x164);
+        char *q = *(char **)(sub + 0x678);
+        *(int *)(q + 0x3C0) = x;
+    }
+}
+
+void func_00175C90(void) {
+    char *p = (char *)D_00631AE8;
+    if (p != 0) {
+        char *sub = *(char **)(p + 0x164);
+        char *q = *(char **)(sub + 0x678);
+        *(int *)(q + 0x3C0) = 0;
+    }
+}
+
+void func_00175CB0(int a0)
+{
+    volatile int local = a0;
+    int v0 = local;
+    int v1 = *(int *)(v0 + 0x164);
+    *(int *)(v1 + 0x33C) = 0;
+    func_00203AA0(0);
+}
+
+#line 480 "src/commonact.c"

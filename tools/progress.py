@@ -377,7 +377,11 @@ def _render_progress_table(progress: dict[str, tuple[int, int]]) -> str:
         "| Section | Matched bytes | Total bytes | % |",
         "| --- | ---: | ---: | ---: |",
     ]
-    for sec in [".text", ".vutext"]:
+    # `.rodata` reflects bytes emitted from compiled tracked sources
+    # (typed `D_<VMA>` defs in src/*.c, .c.inc fragments, and matched
+    # function bodies' embedded constants). Auto-generated `_data.c`
+    # sidecars are excluded from the matched tally (see _walk_built_objects).
+    for sec in [".text", ".vutext", ".rodata"]:
         matched, total = progress.get(sec, (0, 0))
         lines.append(
             f"| `{sec}` | {matched} | {total} | {_fmt_pct(matched, total)} |"

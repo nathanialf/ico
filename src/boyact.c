@@ -157,17 +157,12 @@ __attribute__((section(".rodata.0x005582C8"))) const char D_005582C8[16] = "src/
 
 __attribute__((section(".rodata.0x00558788"))) const char D_00558788[24] = "critical hit to boss!!!";
 
+/* D_005581F0 .. D_005582B0 (10 "boy{act,mot}Hand{50,100,200}" + sync
+ * strings, plus "boy after func", "boy error flg get", "boy error",
+ * "%s sync error") moved to src/act-parallel-control.c — they sit
+ * in apc's rodata range (between apc and boyact anchors). */
+
 /* String rodata migrated from boyact_data.c */
-__attribute__((section(".rodata.0x005581F0"))) const char D_005581F0[16] = "boy after func\n";
-__attribute__((section(".rodata.0x00558200"))) const char D_00558200[24] = "enter actBoyHand50\n";
-__attribute__((section(".rodata.0x00558218"))) const char D_00558218[24] = "boy error flg get\n";
-__attribute__((section(".rodata.0x00558230"))) const char D_00558230[24] = "enter motBoyHand50\n";
-__attribute__((section(".rodata.0x00558248"))) const char D_00558248[24] = "enter actBoyHand100\n";
-__attribute__((section(".rodata.0x00558260"))) const char D_00558260[16] = "boy error\n";
-__attribute__((section(".rodata.0x00558270"))) const char D_00558270[24] = "enter motBoyHand100\n";
-__attribute__((section(".rodata.0x00558288"))) const char D_00558288[16] = "%s sync error\n";
-__attribute__((section(".rodata.0x00558298"))) const char D_00558298[24] = "enter actBoyHand200\n";
-__attribute__((section(".rodata.0x005582B0"))) const char D_005582B0[24] = "enter motBoyHand200\n";
 __attribute__((section(".rodata.0x005582D8"))) const char D_005582D8[24] = "speed = %f (%f)\n";
 __attribute__((section(".rodata.0x005582F0"))) const char D_005582F0[16] = "%f / %f\n";
 __attribute__((section(".rodata.0x005584E8"))) const char D_005584E8[16] = "%d -> %d\n";

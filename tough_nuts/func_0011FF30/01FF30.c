@@ -1,23 +1,11 @@
-
 extern void func_001FBA80(void);
-extern volatile long func_001FBAA8(int a, char *p, int n);
+extern int func_001FBAA8(int, void *, int);
 extern void func_001FB8B8(void);
-extern char D_00555830[];
+extern unsigned int D_00555830[16];
+
 void func_0011FF30(void)
 {
-  unsigned short new_var3;
-  char *new_var;
-  unsigned short new_var4;
-  char *new_var2;
-  func_001FBA80();
-  new_var3 = 2;
-  new_var4 = new_var3;
-  new_var = D_00555830;
-  do
-  {
-    new_var2 = new_var;
-    func_001FBAA8(4, new_var2, new_var4);
-  }
-  while (0);
-  func_001FB8B8();
+    func_001FBA80();
+    func_001FBAA8(2, D_00555830, 4);
+    func_001FB8B8();
 }

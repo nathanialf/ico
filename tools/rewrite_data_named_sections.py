@@ -93,12 +93,16 @@ def _load_migrated_symbols() -> set[str]:
     out: set[str] = set()
     # Walk every source root: `src/` plus the original ICO sibling
     # subsystems `ios/`, `sound/`, `isys/` (relocated to repo root).
+    # Also scan `.c.inc` fragments — when inline-included by a parent
+    # .c file, their `D_<VMA>` defs are part of the parent TU and the
+    # asm-side rodata must still strip the duplicate.
     src_paths: list = []
     for root_name in ("src", "ios", "sound", "isys"):
         root_dir = REPO_ROOT / root_name
         if root_dir.is_dir():
             src_paths += list(root_dir.rglob("*.c"))
             src_paths += list(root_dir.rglob("*.h"))
+            src_paths += list(root_dir.rglob("*.c.inc"))
     typed_re = re.compile(
         r'__attribute__\s*\(\(section\s*\(\s*"\.\w+\.0x([0-9A-Fa-f]+)"\s*\)\s*\)\)\s*'
         r'[\w\s\*]+?\b(D_[0-9A-Fa-f]{8})\b'
