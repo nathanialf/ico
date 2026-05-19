@@ -1961,11 +1961,11 @@ segments:
       - [0x13C540, c, src/cod/13C540]            # func_0023C540: 2-cmp range check (FCC nop via postprocess)
       - [0x13C598, c, src/cod/13C598]            # func_0023C598: 2-cmp range check (FCC nop via postprocess)
       - [0x13C5F0, asm, src/cod/13C5F0]
-      - [0x13CA08, asm, src/cod/13CA08]
+      - [0x13CA08, c, src/cod/13CA08]
       - [0x13CA3C, asm, src/cod/13CA3C]
       - [0x13CC18, c, src/cod/13CC18]            # func_0023CC18: same cache-update pattern as 23C290 family
       - [0x13CC78, c, src/cod/13CC78]            # func_0023CC78: 4 const float writes: v1[0]=118, v1[1]=-192, v1[2]=-46; a0+0x1C=0.5; return 1
-      - [0x13CCB8, asm, src/cod/13CCB8]
+      - [0x13CCB8, c, src/cod/13CCB8]
       - [0x13CCE0, c, src/cod/13CCE0]            # func_0023CCE0: 1-cmp range check (FCC nop via postprocess)
       - [0x13CD1C, asm, src/cod/13CD1C]
       - [0x13D030, c, src/cod/13D030]            # func_0023D030: copy 2 sdata floats to *self->34, return 1
@@ -1976,7 +1976,7 @@ segments:
       - [0x13D170, c, src/cod/13D170]            # func_0023D170: same cache-update pattern (sister of 23D2E8)
       - [0x13D1D0, asm, src/cod/13D1D0]
       - [0x13D2E8, c, src/cod/13D2E8]            # func_0023D2E8: cache-update (same pattern as 23C290) ret -1
-      - [0x13D348, asm, src/cod/13D348]
+      - [0x13D348, c, src/cod/13D348]
       - [0x13D370, c, src/cod/13D370]            # func_0023D370: copy 2 sdata floats to *self->34, return 1
       - [0x13D38C, asm, src/cod/13D38C]
       - [0x13D420, c, src/cod/13D420]            # func_0023D420: idx==-1?&D_00633B60:D_005F3038[idx]; tail fD468
@@ -2013,14 +2013,14 @@ segments:
       - [0x13F160, c, src/cod/13F160]            # func_0023F160: init struct: [0]=0, [4]=0, [8]=0x3F, [C]=0; return p+0x10
       - [0x13F17C, asm, src/cod/13F17C]
       - [0x13F598, asm, src/cod/13F598]
-      - [0x13F5D0, asm, src/cod/13F5D0]
+      - [0x13F5D0, c, src/cod/13F5D0]
       - [0x13F5FC, asm, src/cod/13F5FC]
       - [0x13F708, c, src/cod/13F708]            # func_0023F708: pack: write (a3<<24|a2<<16|a1) at a0[1], 0x50 at a0[2], 0 at a0[0], 0 at a0[3]
       - [0x13F73C, hasm, src/cod/13F73C]
       - [0x13F740, c, src/cod/13F740]            # func_0023F740: pack: write (a1<<27|a3<<16|a2) at a0[1], 0x51 at a0[2], 0/0 at a0[0]/a0[3]
       - [0x13F774, hasm, src/cod/13F774]
       - [0x13F778, asm, src/cod/13F778]
-      - [0x13F7B0, asm, src/cod/13F7B0]
+      - [0x13F7B0, c, src/cod/13F7B0]
       - [0x13F7E0, c, src/cod/13F7E0]            # func_0023F7E0: tail call func_001A6E28(&D_0061C6B8, a0)
       - [0x13F7F0, asm, src/cod/13F7F0]
       - [0x13F928, c, src/cod/13F928]            # func_0023F928: 3-call func_00240950(a0->0, a0->4, a0->50)
