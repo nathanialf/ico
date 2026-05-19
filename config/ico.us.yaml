@@ -2239,8 +2239,8 @@ segments:
       - [0x14DA7C, hasm, src/cod/14DA7C]
       - [0x14DA80, c, src/cod/14DA80]            # func_0024DA80: 5-arg via $t0=D_00717BD8 (3rd-arg=3)
       - [0x14DAB8, asm, src/cod/14DAB8]
-      - [0x14DC40, asm, src/cod/14DC40]
-      - [0x14DC90, asm, src/cod/14DC90]
+      - [0x14DC40, c, src/cod/14DC40]
+      - [0x14DC90, c, src/cod/14DC90]
       - [0x14DCE4, hasm, src/cod/14DCE4]
       - [0x14DCE8, c, src/cod/14DCE8]
       - [0x14DD30, asm, src/cod/14DD30]
