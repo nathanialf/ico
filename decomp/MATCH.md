@@ -25,8 +25,9 @@ If this prompt is firing from `/loop 30m decomp/MATCH.md unsupervised`
 (or similar), the 30-minute cadence is a **failsafe re-entry mechanism**
 in case the agent itself ever winds down — not a per-iteration work
 cap. Each fire of the loop should burn many minutes of agent work
-(many batches, many candidates, retries, parking attempts) before it
-naturally terminates at the usage cap or a user prompt.
+(many batches, many candidates, retries, postprocess additions,
+header-macro promotions) before it naturally terminates at the usage
+cap or a user prompt.
 
 **Specific banned patterns** (these are session bugs, regardless of
 how they're phrased):
@@ -52,9 +53,10 @@ how they're phrased):
   There is no good place to pause that isn't the cap or a user prompt.
 - Round-trip went red and you can't immediately see why. Diagnose with
   `tools/first_diff.py`, revert if needed, keep going.
-- The current target plateaued. Park it under `tough_nuts/` (see
-  "Tough-nut parking" below — **park, do not revert+delete**) and
-  pick another.
+- The current target plateaued. Identify the specific codegen
+  decision that differs and escalate to Step 4 (header-macro hasm)
+  or Step 5 (new postprocess). **Parking is disallowed** — see
+  "Tough-nut parking" below.
 - A cron-driven loop just fired and you completed one batch. The fire
   is not a permission slip to stop; it's a permission slip to keep
   going if the agent had drifted off task.
@@ -72,9 +74,10 @@ text.** No bullet lists recapping matches and tough-nuts at the end of
 a chunk of work, no "build green at SHA X" sign-off, no totals. That
 summary text functions as a self-imposed stopping point. The only
 acceptable end-of-stream is the cap or a user prompt; the work itself
-(commits, `decomp/NOTES.md` edits, parked tough-nuts) is the record.
-Brief mid-stream status notes ("matched func_X", "parking func_Y",
-"moving on to subseg Z") are fine — but the moment a listed/numbered
+(commits, `decomp/NOTES.md` edits, new postprocesses, header-macro
+additions) is the record. Brief mid-stream status notes ("matched
+func_X", "iterating on func_Y", "moving on to subseg Z") are fine —
+but the moment a listed/numbered
 recap shows up, the session has bugged out. Just keep matching.
 
 **Read first** (in this order):
@@ -83,15 +86,119 @@ recap shows up, the session has bugged out. Just keep matching.
 2. `decomp/NOTES.md` — every PS2 EE / compiler / splat / linker quirk
    catalogued so far. Most "near-miss" diffs are an instance of a
    pattern in here.
-3. `docs/MATCHING_NOTES.md` — per-function tough-nuts and deferred
+3. `decomp/COOKBOOK.md` — shape-indexed C recipes (asm fingerprint →
+   C template + headers). Skim the ToC; when you spot a familiar asm
+   shape, jump straight to that section.
+4. `docs/MATCHING_NOTES.md` — per-function tough-nuts and deferred
    targets.
-4. `docs/LEGAL.md` — clean-room boundary, what's allowed as a reference,
+5. `docs/LEGAL.md` — clean-room boundary, what's allowed as a reference,
    what's forbidden as an input.
+
+## Recipe-first fast path (use this FIRST on every new function)
+
+Before reading the `.s` manually, **always run the classifier**. It
+fingerprints the asm in milliseconds and points you at the cookbook
+section whose recipe most likely applies. Most of the matches landed in
+this project are instances of a small set of shapes — the classifier
+exists to recognize which one, so you write the *right* C the first
+time instead of iterating from blank.
+
+### Single function
+
+```sh
+tools/classify_asm.py asm/nonmatchings/<TU>/func_<addr>.s
+# → prints fingerprint + top-N recipes from decomp/COOKBOOK.md
+```
+
+To get a starter `.c` body with the cookbook template substituted in
+(function name filled, header `#include`s added, TODO callee names
+flagged), add `--scaffold`:
+
+```sh
+tools/classify_asm.py --scaffold asm/.../func_X.s
+# → prints classification + a compilable C scaffold to stdout
+```
+
+Use `--write src/cod/<file_off>.c` instead of stdout to commit the
+scaffold to disk in one shot, OR use `--recipe N.M --name func_X` to
+scaffold without classifying (when you've already decided which recipe
+fits).
+
+The scaffold is a **starting point**, not a finished match: the
+wrapper name is filled in, but `func_target`/`func_X`/`OFF`/`D_X` and
+similar placeholders are deliberately left as `TODO` (in some recipes
+they're callees, in others they're the wrapper — getting it wrong
+inverts the meaning). Fill them from the `.s` jal targets and operand
+context before running quick_diff.
+
+### Batch (a whole TU or a candidate list)
+
+```sh
+# Triage what's matchable in a TU's nonmatchings dir without touching
+# anything. Prints a plan: which functions hit which recipes, which
+# fall back to natural-C, which have no recipe match.
+tools/auto_match.py --bucket asm/nonmatchings/src/<TU>/
+
+# Same, but write scaffolds to a /tmp/auto_match_* dir for review.
+tools/auto_match.py --scaffold-only --bucket asm/nonmatchings/src/<TU>/
+
+# Full pipeline (DESTRUCTIVE): writes src/cod/<off>.c per candidate,
+# claims each into yaml via tools/claim.py, runs `tools/build.sh setup`
+# ONCE for the whole batch (nuclear-clean per the batching rule), then
+# `tools/quick_diff.sh` each one and tabulates matched/diffs/no-recipe.
+tools/auto_match.py --apply --bucket asm/nonmatchings/src/<TU>/
+```
+
+`--apply` refuses to run if `src/cod/` has uncommitted edits unless
+`--force` is given. It will skip recipes with no template (PARK
+recipes, fallbacks) rather than fabricate code.
+
+When `--apply` reports `diffs` candidates, those are starting points
+for the Step 1–5 investigation loop, not endpoints. The scaffold .c
+stays in `src/cod/` and the yaml stays flipped to `c`; iterate on the
+diff with `tools/quick_diff.sh` or escalate to Step 4 (header-macro
+hasm) / Step 5 (postprocess). Parking is disallowed — see
+"Tough-nut parking" below.
+
+### Decision tree
+
+1. Picked a candidate? → `classify_asm.py <file>`. Read the top recipe.
+2. Recipe applies? → `--scaffold --write src/cod/<off>.c`, edit the
+   `TODO` placeholders, run `quick_diff`, iterate.
+3. Top recipe is `§0.0` (natural C) or `no recipes matched`? → write
+   naive C from the asm, iterate via quick_diff.
+4. Top recipe is a PARK entry (§1.3, §3.3)? → it's a known unmatched
+   shape; investigate Step 4 (header-macro hasm) or Step 5
+   (postprocess) directly.
+5. Trying to clear a whole TU? → `auto_match.py --bucket` first to see
+   the recipe distribution, THEN decide whether to `--apply` or
+   hand-pick.
 
 ## Toolkit
 
 Run `--help` on each tool before first use; expect the inventory to grow
 over time.
+
+**Recipe lookup & scaffolding (use these BEFORE writing any C):**
+
+- `decomp/COOKBOOK.md` — shape-indexed cookbook. Each recipe carries an
+  asm fingerprint, a C template, required header macros, and a back-link
+  to the originating `feedback_*.md` memory. Recipes are grouped:
+  §1 wrappers, §2 regalloc nudges, §3 branch shape, §4 conditional,
+  §5 pointer/gp_rel, §6 unaligned/MMI, §7 float, §8 scheduler
+  postprocesses, §9 frame/stack, §12 build gotchas, §13 one-off
+  per-function postprocesses. Appendix A inventories every header macro.
+- `tools/classify_asm.py <file.s>` — fingerprints a single `.s` and
+  prints the top-N matching recipes from the cookbook. Add `--scaffold`
+  to also emit a starter C template with the wrapper name substituted
+  in. Add `--write src/cod/<off>.c` to commit it to disk. Use
+  `--recipe N.M --name func_X` to scaffold by recipe id without
+  classifying.
+- `tools/auto_match.py` — batch orchestrator. `--dry-run` prints the
+  plan for a list of candidates; `--scaffold-only` writes scaffolds to
+  a `/tmp/auto_match_*` dir; `--apply` runs the full pipeline (write
+  scaffolds, claim into yaml, `make setup`, quick_diff, tabulate). See
+  the "Recipe-first fast path" above.
 
 **Fast inner-loop diff (use these BEFORE `make split && make`):**
 
@@ -121,10 +228,9 @@ over time.
 
 ## When a function won't match — the investigation loop
 
-Work through these steps in order. **Parking is forbidden when the
-session directive is "match the tough nuts."** Every step has a
-specific tool; use them. Most mismatches that look "compiler-blocked"
-yield to step 2 or step 4.
+Work through these steps in order. **Parking is forbidden** — every
+step has a specific tool; use them. Most mismatches that look
+"compiler-blocked" yield to step 2 or step 4.
 
 **Tools available at every step** (cross-reference: Toolkit section
 above):
@@ -143,6 +249,19 @@ above):
 - Postprocess passes (`tools/postprocess_*.py`) — last resort for
   gas-reorder or inter-function-layout issues; see Step 5.
 
+### Step 0: Classify (always first)
+
+Run `tools/classify_asm.py asm/nonmatchings/<TU>/<func>.s` before
+anything else. The fingerprint summary (insn count, frame size, jal
+count, branch-likely set, MMI/FP/FCC, gp_rel) tells you which cookbook
+section to read; the top-N recipe list tells you which C idiom most
+likely applies. If a recipe with a template surfaces, read it from
+`decomp/COOKBOOK.md` and start from the scaffold — most of Steps 1–6
+below become "fill in the TODOs and verify."
+
+Skipping this step means re-deriving recipes that are already
+catalogued. Don't.
+
 ### Step 1: Identify the EXACT instruction-level diff
 
 Run `tools/quick_diff.sh <name>`. Name the specific instructions and
@@ -150,6 +269,15 @@ registers that differ — never say "regalloc differs" without naming
 them. If quick_diff shows only `daddu | or` for register-zero moves,
 that's a known assembler false positive — run `make` to confirm SHA-1
 before assuming a real mismatch (see "quick_diff vs full build").
+
+If the diff narrows to a pattern catalogued in the cookbook, the
+recipe tells you what to do directly:
+  - §5.3 (gp_rel addiu vs daddiu false positive) → commit, the bytes
+    match the original ELF.
+  - §3.3 (branch-likely-only diff) → escalate to §8.6
+    `postprocess_bne_to_bnel.py` rather than retrying condition flips.
+  - Any §8.x detector firing → check that postprocess's config gate
+    and add the function to its allowlist.
 
 ### Step 2: Read the ee-gcc backend source
 
@@ -372,10 +500,11 @@ or scheduling shape), run `lib/decomp-permuter/`:
      near-miss shape and feed back into Step 3 (new C idiom) or
      Step 5 (new postprocess).
 
-The auto-permuter (`tools/auto_permute*.sh`) runs continuously over
-parked tough nuts; if you have to leave a function unmatched,
-parking it is **only** acceptable if you've also queued an explicit
-permuter run on it (and the session directive permits parking).
+If the permuter doesn't crack it in a reasonable runtime, do NOT
+park. Identify the specific codegen decision that differs and
+escalate to Step 4 (header-macro hasm) or Step 5 (new postprocess).
+The auto-permuter (`tools/auto_permute*.sh`) is a background pipeline
+over historical parked seeds, not an escape hatch for live work.
 
 ### Step 7: Park — DISALLOWED
 
@@ -429,95 +558,181 @@ files, not individual function matching), read in order:
 These are complementary to `docs/candidates.md`: candidates picks one
 function to match; the TU-level docs pick a structural promotion target.
 
+**Skip the giants when coalescing.** `src/way_tool.c` (558 funcs),
+`src/PObj.c` (410), `src/commonact.c` (217 — partial already at
+`[0x0683A8, c, src/commonact]`, don't expand), and `src/motionManager.c`
+(121) are off-limits for whole-TU promotion. Compile-per-attempt cost
+scales linearly with TU size and a 558-func TU would dominate the
+matching loop. Promote *named slices* only (commonact-style partial),
+or skip these and pick a smaller TU. See `decomp/NOTES.md` § "`main`
+location and the don't-coalesce-the-giants-yet rule".
+
 ## Per-function loop
 
 1. Pick a `[0xADDR, asm]` line in `config/ico.us.yaml`. Prefer small,
    leaf-ish ranges. Look at the `.s` file to gauge complexity.
-2. Change the line to `[0xADDR, c, name]` (and split the surrounding
-   asm subsegment so the new `c` line has explicit asm neighbours).
-   Re-run `make setup`. Splat emits the per-function baseline at
-   `asm/matchings/name/<func>.s` (gitignored — regenerable from the
-   ELF) and expects `src/name.c`.
-3. Write the C. Iterate fast with `tools/quick_diff.sh name` until the
-   diff is empty or trivially close.
-4. Run `make` for the full byte-identical SHA-1 check. If it fails,
+2. **Classify before claiming.** Run
+   `tools/classify_asm.py asm/nonmatchings/<TU>/func_<addr>.s` to see
+   the recipe verdict. If the top recipe has a template, scaffold
+   directly with `--scaffold --write src/cod/<file_off>.c`. If the
+   verdict is `§0.0 natural C` or `no recipes matched`, write naive C
+   yourself.
+3. Change the yaml line to `[0xADDR, c, name]` (and split the
+   surrounding asm subsegment so the new `c` line has explicit asm
+   neighbours). Re-run `make setup`. Splat emits the per-function
+   baseline at `asm/matchings/name/<func>.s` (gitignored — regenerable
+   from the ELF) and expects `src/name.c`. The scaffold from step 2 is
+   already at the expected path.
+4. Fill the TODO placeholders in the scaffold (callee names from jal
+   targets, struct field offsets from the asm). Iterate with
+   `tools/quick_diff.sh name` until the diff is empty or trivially close.
+5. Run `make` for the full byte-identical SHA-1 check. If it fails,
    run `tools/first_diff.py` and address the first divergence.
-5. If stuck near-match: try `lib/decomp-permuter/` (timeout 300 s for a
-   first attempt). If still stuck, park.
-6. Once it matches, run `./tools/check_no_rom.sh`, commit. No AI
+6. If stuck near-match: identify the exact codegen decision that
+   differs (operand order, regalloc, branch direction, delay-slot
+   fill). Try at least 3–5 distinct C reformulations from the cookbook
+   §2/§3/§4 (REG pins, MATERIALIZE/KEEP_LIVE barriers, volatile casts,
+   goto labels, single-vs-multi return points). If no C formulation
+   reaches the target, escalate to Step 4 (header-macro hasm) or Step
+   5 (new postprocess) of the investigation loop. **Do not park.**
+7. Once it matches, run `./tools/check_no_rom.sh`, commit. No AI
    co-author trailer. (The progress tables are refreshed by
    `tools/self-monitor.sh` on its 10 s tick — don't run `make progress`
    from the matching loop.)
 
+### Batch alternative — `tools/auto_match.py --apply`
+
+For a homogeneous bucket (several candidates sharing the same recipe
+shape, e.g. all 2-jal wrappers in a TU), `auto_match --apply` does
+steps 2-4 for the whole batch in one pass: scaffolds every candidate,
+claims them, runs `make setup` once (nuclear-clean), and reports
+matched/diffs per candidate. Then you iterate on the `diffs` rows
+individually starting at step 4 of the per-function loop.
+
 ## Tough-nut parking — DISALLOWED
 
-**Parking is no longer allowed in this project.** The permuter is not
-helpful at the current scale of tough nuts, and parking just defers the
-problem indefinitely. When you hit a function that plateaus, you must
-spend the time to figure it out:
+**Parking is off the table in this project.** When you hit a function
+that plateaus, the only acceptable next steps are:
 
-- Read the asm carefully, identify the exact compiler/scheduler decision
-  that differs from your C-level emit.
-- Try multiple C formulations (regpins, MATERIALIZE/KEEP_LIVE barriers,
-  volatile casts, goto-vs-if-else, compound updates, etc.).
-- If no C formulation reaches the target, add a new postprocess pass to
-  `tools/postprocess_*.py` with a config gate, and apply it to the
-  specific file. Existing postprocesses to learn from: swap_addu_operands,
-  unfold_ra_delay, early_epilogue_restore, fill_blez_delay,
-  swap_zero_ret_ld_ra.
+1. **Read the asm carefully.** Identify the exact compiler/scheduler
+   decision that differs from your C-level emit — operand ordering,
+   register allocation, branch mnemonic, scheduling, delay-slot fill.
+   Name the specific instructions; never say "regalloc differs"
+   without naming them.
+2. **Try multiple C formulations** drawing from the cookbook §2
+   (regalloc nudges), §3 (branch shape), §4 (conditional idioms),
+   §5 (pointer/gp_rel), §7 (float), §9 (frame/stack). REG pins,
+   `MATERIALIZE`/`KEEP_LIVE` barriers, volatile casts, goto-vs-if-else,
+   compound updates, `__builtin_abs`, packed structs — try at least
+   3–5 distinct shapes before concluding the C level can't reach it.
+3. **Promote to a header-macro hasm** (cookbook §1.7 varargs idiom or
+   `include/<topic>.h` for a new pattern) — see Step 4 of the
+   investigation loop. This is the preferred escape hatch when the
+   body has no natural C-language semantics.
+4. **Add a new postprocess pass** (cookbook §8.x or §13 for one-offs)
+   when gcc CAN emit the right shape but gas reorders it. See Step 5
+   of the investigation loop. Existing postprocesses to learn from:
+   swap_addu_operands, unfold_ra_delay, early_epilogue_restore,
+   fill_blez_delay, swap_zero_ret_ld_ra.
+5. **Commit the postprocess infrastructure AND the function together**
+   so the next session sees both the C body and the rewriter that
+   made it match.
 
-The historical `tools/park.sh` and `tough_nuts/` directory exist for the
-auto-permuter's benefit, but they should NOT be used as an escape hatch.
-If you find yourself reaching for `park.sh`, stop and add a postprocess
-or commit to a longer C-iteration session on that function.
+The historical `tools/park.sh` and `tough_nuts/` directory exist for
+the auto-permuter background pipeline only. Do not invoke `park.sh`
+from supervised work. If you find yourself reaching for it, stop and
+escalate to Step 4 or Step 5 instead.
 
-**Use `tools/park.sh <vram> "<reason>"`.** It does steps 1-3 below in one
-go: moves the best-attempt `src/cod/<file_off>.c` into
-`tough_nuts/<func>/<file_off>.c`, writes a `notes.md` with the reason
-and a disassembly excerpt for permuter context, and reverts the yaml
-line back to `asm`.
+### Reverting a structurally-wrong attempt
 
-After parking, run `make setup && make` to confirm the asm fallback
-round-trips, then commit. The auto-permuter (`tools/auto_permute*.sh`)
-picks up the new `tough_nuts/` seed on its next pass.
+If the .c file you wrote was structurally wrong from the start
+(called the wrong function, used the wrong type, would never match no
+matter the codegen), revert the yaml + delete the .c is fine. This is
+distinct from parking a near-miss — there's nothing useful in a
+fundamentally wrong attempt. Use judgment: a 1-3 instruction near-miss
+is solvable via Steps 1-5 above; a 30-line type-confused mess is not.
 
-### NEVER revert+delete a near-miss .c file
+## Leverage building — codify the recipe, not just the match
 
-This is a hard rule, not a guideline. **If you wrote a .c file, ran
-`make`, and the SHA-1 mismatch is small (1-3 instructions, scheduling
-or regalloc differences, a single relocation flavor mismatch), park
-the file via `tools/park.sh`.** Do not:
+When a tough nut cracks, the *recipe* is often higher leverage than
+the function itself. The cookbook + classifier + memory system only
+stays useful if you feed it every time you discover a new shape.
 
-- `git checkout -- config/ico.us.yaml` to revert the claim and then
-  `rm src/cod/<file_off>.c` because "it's not matching." The .c file
-  is a **permuter seed** — even a 1-instruction-off attempt is much
-  more valuable to the auto-permuter than a blank slate. Throwing it
-  away undoes work the next session has to redo.
-- "Just revert this one, I'll come back to it later" — you won't,
-  and the C body is gone. Park it now.
-- Squash a near-miss into the same yaml-revert commit that drops a
-  bad batch — separate parking commits keep `tough_nuts/` reviewable.
+### When you crack a new pattern — DO THIS BEFORE MOVING ON
 
-The only time it's correct to revert+delete instead of park is when
-the .c file was structurally wrong from the start (called the wrong
-function, used the wrong type, etc.) and is not a useful seed. If the
-diff was within ~3 instructions, it's a useful seed. Park it.
+If the trick you just used isn't already in `decomp/COOKBOOK.md`,
+make these additions in the SAME commit (or the immediately-following
+one) as the match itself:
 
-### Manual steps (what `park.sh` does)
+1. **Save a feedback memory** — `feedback_<short-slug>.md` in the
+   memory dir. Structure: rule → **Why:** → **How to apply:**. Always
+   helpful — it captures the *why* even before you know if the trick
+   generalizes.
+2. **Add a recipe to `decomp/COOKBOOK.md`** if the trick generalizes
+   (or is plausibly going to). Pick the right section by what you'd
+   grep for in `.s`: §1 wrapper shape, §2 regalloc, §3 branch, §4
+   conditional, §5 pointer/gp_rel, §6 unaligned/MMI, §7 float,
+   §8 scheduler postprocess, §9 frame/stack, §12 build gotcha,
+   §13 one-off per-function postprocess. Each recipe carries:
+   - ASM fingerprint (the line you'd grep for)
+   - ```c template (the canonical C body — this is what the
+     classifier's `--scaffold` mode emits, so make it compilable)
+   - Headers (`matching.h` / `regpin.h` / `r5900.h` as needed)
+   - One-sentence Why (compiler bias being defeated)
+   - Example: `func_X` and a link back to the feedback memory
+3. **Add a classifier rule** in `tools/classify_asm.py` if the asm
+   fingerprint is detectable from a single-pass scan. Append a `R(...)`
+   entry to `RULES` with the predicate list, weight, and the recipe
+   id (e.g. `"4.3"` to anchor to §4.3). If the rule needs a multi-line
+   pattern (e.g. "bltzl followed by negu"), add a derived signal in
+   `_derive_signals()` first.
+4. **If a new postprocess was needed**, also add a §8.x or §13 entry
+   in the cookbook with: pattern (gcc-emit shape), fix (config file +
+   tu/func entry), example function. Cross-reference the script
+   filename.
 
-1. Revert the yaml line to `[0xADDR, asm]`. Run `make setup` to confirm
-   the tree is clean.
-2. Move the best-attempt `src/name.c` to `tough_nuts/<func>/<func>.c`.
-3. Write `tough_nuts/<func>/notes.md` with: failure mode, permuter
-   plateau score, structural hints from the asm, what's been tried.
-4. Commit the parking-doc only — no broken `src/` left behind.
+### Threshold — recipe vs memory-only
 
-## Leverage building
+- **One function cracked**: write the feedback memory, defer the
+  cookbook entry. Don't speculate on shape generality from N=1.
+- **Two functions cracked with the same trick**: cookbook entry. Two
+  occurrences is enough signal that future sessions will hit it.
+- **A whole sibling family cracked**: cookbook entry + classifier rule.
+  The rule prevents the next session re-discovering it manually.
+- **A new postprocess landed**: cookbook §8/§13 entry mandatory. The
+  config file allowlist is opaque without it.
 
-When a tough nut cracks, the *recipe* is often higher leverage than the
-function itself. Codify recurring patterns in `decomp/NOTES.md`. If a
-trick generalizes across ≥2 functions, lift it into saved memory so
-future sessions inherit it.
+### When to extend the classifier, not just the cookbook
+
+The cookbook is human-discoverable (Ctrl-F or skim ToC). The
+classifier is automatic — it surfaces the recipe without the human
+having to remember to look. Add a classifier rule when:
+
+- The asm fingerprint is concrete (specific mnemonic, operand shape,
+  frame/jal/branch pattern) — not "vibes."
+- A predicate can be expressed in pure-stdlib Python over the
+  `Signals` dict. Multi-line patterns get a `_has_*()` helper in
+  `_derive_signals()`.
+- The rule's weight makes sense in the existing ranking. Specific
+  recipes get 0.7–1.0; "hint" rules (e.g. "FCC compares present,
+  might need fcc_nop") get 0.3–0.4.
+
+Don't add a classifier rule when the recipe is "write naive C" or
+"park it" — the §0.0 natural-C fallback already covers those.
+
+### Cookbook hygiene
+
+When updating the cookbook:
+
+- Verify the C block compiles (or at least parses cleanly) — the
+  scaffolder pulls it verbatim. A broken template silently breaks
+  every future scaffold.
+- Keep wrapper placeholder names to `func_wrapper` / `wrapper`. Don't
+  use `func_X` for the wrapper — the scaffolder leaves `func_X` as a
+  TODO for the callee.
+- Link to the originating feedback memory at the bottom of the recipe
+  (`See: [feedback_X]`). Memory is source of truth; cookbook is the
+  index.
 
 ## Wrap-up (only when stopping for cap or user prompt)
 
@@ -537,8 +752,8 @@ When the cap is imminent or the user has told you to stop:
 be split off. Skip if running interactively.)
 
 - No `/loop`, no `ScheduleWakeup`, no user Q&A.
-- Per-iteration commit cadence: one commit per matched function or per
-  parked tough-nut.
+- Per-iteration commit cadence: one commit per matched function or
+  per postprocess/header-macro addition.
 - Stop condition: <15 min of usage budget left, or three consecutive
   iterations with no matches and no progress on tough nuts.
 - Append a one-line entry to `decomp/RUN_LOG.md` (gitignored) per
