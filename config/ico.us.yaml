@@ -1050,7 +1050,7 @@ segments:
       - [0x094438, asm, src/cod/094438]
       - [0x094590, c, src/cod/094590]            # func_00194590: abs(func_00194508(a0..a3))
       - [0x0945B4, asm, src/cod/0945B4]
-      - [0x094630, asm, src/cod/094630]
+      - [0x094630, c, src/cod/094630]
       - [0x094674, asm, src/cod/094674]
       - [0x0947D0, c, src/cod/0947D0]            # func_001947D0: buf[4] + zero one slot + 2 calls (s0=a0)
       - [0x094808, c, src/cod/094808]            # func_00194808: buf[4] init via func + 2nd call uses arg

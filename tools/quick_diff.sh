@@ -164,6 +164,7 @@ qd_listed lui_const_swap.txt        && python3 "$ROOT/tools/postprocess_lui_cons
 qd_listed move_sw_v0_before_lds.txt && python3 "$ROOT/tools/postprocess_move_sw_v0_before_lds.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "0AE420" ] && python3 "$ROOT/tools/postprocess_0AE420.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "080550" ] && python3 "$ROOT/tools/postprocess_080550.py" "$ASM_OUT" || true
+[ "$(basename "$NAME")" = "094630" ] && python3 "$ROOT/tools/postprocess_094630.py" "$ASM_OUT" || true
 qd_listed swap_addu_operands.txt && sed -i -E 's/(addu[[:space:]]+\$([0-9]+),)\$([0-9]+),\$\2\b/\1$\2,$\3/g' "$ASM_OUT" || true
 qd_listed coalesce_v1_v0.txt     && sed -i -E -e '/^[[:space:]]*move[[:space:]]+\$2,\$3[[:space:]]*$/d' -e 's/\$3\b/$2/g' "$ASM_OUT" || true
 python3 "$ROOT/tools/postprocess_sw_pair.py" "$ASM_OUT" || true
