@@ -616,9 +616,9 @@ segments:
       - [0x038138, asm, src/cod/038138]
       - [0x038180, hasm, src/cod/038180]
       - [0x038188, asm, src/cod/038188]
-      - [0x0381D0, asm, src/cod/0381D0]
+      - [0x0381D0, c, src/cod/0381D0]
       - [0x038214, hasm, src/cod/038214]
-      - [0x038218, asm, src/cod/038218]
+      - [0x038218, c, src/cod/038218]
       - [0x03825C, asm, src/cod/03825C]
       - [0x038390, c, src/cod/038390]            # func_00138390: f(self, &D_X[self->8 * 0x18C / sizeof], 0x18C); return self->10
       - [0x0383D4, hasm, src/cod/0383D4]
