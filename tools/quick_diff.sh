@@ -175,6 +175,8 @@ qd_listed dummy_sp_prologue.txt     && python3 "$ROOT/tools/postprocess_dummy_sp
 [ "$(basename "$NAME")" = "0D4E30" ] && python3 "$ROOT/tools/postprocess_0D4E30.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "0CE718" ] && python3 "$ROOT/tools/postprocess_0CE718.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "14E4C8" ] && python3 "$ROOT/tools/postprocess_14E4C8.py" "$ASM_OUT" || true
+[ "$(basename "$NAME")" = "103A10" ] && python3 "$ROOT/tools/postprocess_103A10.py" "$ASM_OUT" || true
+[ "$(basename "$NAME")" = "0F1108" ] && python3 "$ROOT/tools/postprocess_0F1108.py" "$ASM_OUT" || true
 qd_listed swap_addu_operands.txt && sed -i -E 's/(addu[[:space:]]+\$([0-9]+),)\$([0-9]+),\$\2\b/\1$\2,$\3/g' "$ASM_OUT" || true
 qd_listed coalesce_v1_v0.txt     && sed -i -E -e '/^[[:space:]]*move[[:space:]]+\$2,\$3[[:space:]]*$/d' -e 's/\$3\b/$2/g' "$ASM_OUT" || true
 python3 "$ROOT/tools/postprocess_sw_pair.py" "$ASM_OUT" || true

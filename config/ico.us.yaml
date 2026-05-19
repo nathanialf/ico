@@ -1629,7 +1629,7 @@ segments:
       - [0x0F10A8, c, src/cod/0F10A8]            # func_001F10A8: permuter score-0 (parked seed)
       - [0x0F10F4, hasm, src/cod/0F10F4]
       - [0x0F10F8, c, src/cod/0F10F8]            # func_001F10F8
-      - [0x0F1108, asm, src/cod/0F1108]
+      - [0x0F1108, c, src/cod/0F1108]
       - [0x0F1148, c, src/cod/0F1148]            # func_001F1148: D_0070D4D8[idx*0x18] +0x14 = a1 (la mult sw)
       - [0x0F1164, hasm, src/cod/0F1164]
       - [0x0F1168, c, src/sugiTree]              # TU promotion: 0x1F1168..0x1F1868 (4 INCLUDE_ASM + 7 matched + .skip 4 pads)
@@ -1707,7 +1707,7 @@ segments:
       - [0x101DC8, c, src/cod/101DC8]            # func_00201DC8: set bit 21 of (sub+0x428)
       - [0x101DE0, asm, src/cod/101DE0]
       - [0x102148, c, src/act]                   # TU promotion: 0x202148..0x203A10 (7 INCLUDE_ASM + 1 matched func)
-      - [0x103A10, asm, src/cod/103A10]
+      - [0x103A10, c, src/cod/103A10]
       - [0x103A58, asm, src/cod/103A58]            # func_00203A58: if(n==0) loop forever; else countdown call func_0013D3F0()
       - [0x103AA0, asm, src/cod/103AA0]
       - [0x103B40, c, src/cod/103B40]            # func_00203B40: gp_rel D + 4-arg call + post-store
