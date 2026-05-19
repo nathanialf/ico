@@ -43,7 +43,12 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 OUT_PATH = REPO_ROOT / "decomp" / "boundaries.json"
 # Read from snapshot to stay isolated from the live matching loop.
 ASM_COD_DIR = REPO_ROOT / "decomp" / "asm_snapshot" / "cod"
-ASM_MATCHINGS_DIR = REPO_ROOT / "decomp" / "asm_snapshot" / "matchings" / "cod"
+# Whole matchings/ + nonmatchings/ trees — see find_callgraph.py for
+# the same fix. Per-TU subdirs (matchings/Basic/, nonmatchings/src/
+# way_tool/) hold the synthetic_nop padding markers between TUs that
+# the legacy cod/-only scan missed.
+ASM_MATCHINGS_DIR = REPO_ROOT / "decomp" / "asm_snapshot" / "matchings"
+ASM_NONMATCHINGS_DIR = REPO_ROOT / "decomp" / "asm_snapshot" / "nonmatchings"
 
 GLABEL_RE = re.compile(r"^glabel\s+(func_[0-9A-Fa-f]+)\s*$")
 ENDLABEL_RE = re.compile(r"^endlabel\s+(func_[0-9A-Fa-f]+)\s*$")
@@ -148,11 +153,12 @@ def main() -> int:
         sys.exit(f"find_boundaries: {ASM_COD_DIR.relative_to(REPO_ROOT)}/ "
                  "missing — run `tools/snapshot_asm.py` first.")
     all_funcs: list[dict] = []
+    for snapshot_dir in (ASM_NONMATCHINGS_DIR, ASM_MATCHINGS_DIR):
+        if snapshot_dir.exists():
+            for sfile in sorted(snapshot_dir.rglob("func_*.s")):
+                all_funcs.extend(parse_funcs(sfile))
     for sfile in sorted(ASM_COD_DIR.glob("*.s")):
         all_funcs.extend(parse_funcs(sfile))
-    if ASM_MATCHINGS_DIR.exists():
-        for sfile in sorted(ASM_MATCHINGS_DIR.rglob("func_*.s")):
-            all_funcs.extend(parse_funcs(sfile))
 
     print(f"find_boundaries: parsed {len(all_funcs)} function bodies")
 

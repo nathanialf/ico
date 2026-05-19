@@ -35,7 +35,7 @@ TU_MAP_JSON = REPO_ROOT / "decomp" / "tu_map.json"
 TU_MAP_MD = REPO_ROOT / "decomp" / "tu_map.md"
 BOUNDARIES_JSON = REPO_ROOT / "decomp" / "boundaries.json"
 CALLGRAPH_JSON = REPO_ROOT / "decomp" / "callgraph.json"
-MATCHINGS_DIR = REPO_ROOT / "decomp" / "asm_snapshot" / "matchings" / "cod"
+MATCHINGS_DIR = REPO_ROOT / "decomp" / "asm_snapshot" / "matchings"
 OUT_PATH = REPO_ROOT / "decomp" / "unnamed_tus.md"
 
 # Function listing row format from tu_map.md.

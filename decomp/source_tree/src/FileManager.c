@@ -1,1 +1,1 @@
-/* placeholder: src/FileManager.c — __FILE__ anchor at .rodata 0x00554040 */
+/* placeholder: src/FileManager.c — __FILE__ anchor at .rodata 0x00554040 — status: partial */

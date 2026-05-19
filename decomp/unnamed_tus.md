@@ -6,11 +6,11 @@ padding-nop functions the linker inserted between two TUs. The
 presence of those markers is strong evidence a TU boundary sits
 there, even when no `__FILE__` anchor lets us name it.
 
-**Slices total:** 457
-- 23 cleanly-named (one TU, no untagged members)
-- 117 partly-named (some untagged members in a tagged slice; bracket-fill candidates)
-- 39 multi-TU (boundary cuts inside an inlined or shared region)
-- 317 fully-unnamed (boundary-delimited but no TU evidence at all — highest priority for new anchors)
+**Slices total:** 652
+- 253 cleanly-named (one TU, no untagged members)
+- 16 partly-named (some untagged members in a tagged slice; bracket-fill candidates)
+- 19 multi-TU (boundary cuts inside an inlined or shared region)
+- 380 fully-unnamed (boundary-delimited but no TU evidence at all — highest priority for new anchors)
 
 ## Fully-unnamed TU candidates
 
@@ -23,87 +23,87 @@ Sorted by size — large regions have the most leverage if named.
 
 | vram_start | vram_end | size | funcs | matched | match% | first vram | last vram |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 0x0021f5b0 | 0x00235a18 | 0x16468 | 437 | 46 | 11% | 0x0021f5b0 | 0x00235a14 |
 | 0x0026f578 | 0x0027f578 | 0x10000 | 1 | 0 | 0% | 0x0026f578 | 0x0026f578 |
-| 0x00235a18 | 0x0023abe0 | 0x51c8 | 102 | 11 | 11% | 0x00235a18 | 0x0023abdc |
-| 0x001b0ac0 | 0x001b5190 | 0x46d0 | 42 | 7 | 17% | 0x001b0ac0 | 0x001b518c |
-| 0x00258d10 | 0x0025c668 | 0x3958 | 41 | 3 | 7% | 0x00258d10 | 0x0025c664 |
-| 0x001eba40 | 0x001eef18 | 0x34d8 | 34 | 1 | 3% | 0x001eba40 | 0x001eef14 |
-| 0x001a7848 | 0x001a9db8 | 0x2570 | 20 | 2 | 10% | 0x001a7848 | 0x001a9db4 |
-| 0x0025e118 | 0x00260638 | 0x2520 | 22 | 3 | 14% | 0x0025e118 | 0x00260634 |
-| 0x0010f5d8 | 0x001118e8 | 0x2310 | 25 | 2 | 8% | 0x0010f5d8 | 0x001118e4 |
-| 0x001848b0 | 0x00186a10 | 0x2160 | 7 | 2 | 29% | 0x001848b0 | 0x00186a0c |
-| 0x00252f90 | 0x00254f28 | 0x1f98 | 25 | 1 | 4% | 0x00252f90 | 0x00254f24 |
-| 0x0023aed8 | 0x0023cd20 | 0x1e48 | 47 | 3 | 6% | 0x0023aed8 | 0x0023cd1c |
-| 0x00176bc8 | 0x00178928 | 0x1d60 | 9 | 1 | 11% | 0x00176bc8 | 0x00178924 |
-| 0x00254f28 | 0x00256c30 | 0x1d08 | 25 | 1 | 4% | 0x00254f28 | 0x00256c2c |
+| 0x002194c8 | 0x0021f5b0 | 0x60e8 | 126 | 22 | 17% | 0x002194c8 | 0x0021f5ac |
+| 0x00235a18 | 0x0023abe0 | 0x51c8 | 102 | 15 | 15% | 0x00235a18 | 0x0023abdc |
+| 0x00224e80 | 0x00229d30 | 0x4eb0 | 96 | 7 | 7% | 0x00224e80 | 0x00229d2c |
+| 0x0021f6d0 | 0x00223e98 | 0x47c8 | 87 | 10 | 11% | 0x0021f6d0 | 0x00223e94 |
+| 0x0011fd28 | 0x00122c80 | 0x2f58 | 22 | 4 | 18% | 0x0011fd28 | 0x00122c7c |
+| 0x002668b8 | 0x00268f48 | 0x2690 | 12 | 2 | 17% | 0x002668b8 | 0x00268f44 |
+| 0x0025e280 | 0x00260638 | 0x23b8 | 17 | 2 | 12% | 0x0025e280 | 0x00260634 |
+| 0x0010f5d8 | 0x001118e8 | 0x2310 | 25 | 3 | 12% | 0x0010f5d8 | 0x001118e4 |
+| 0x00254f28 | 0x00256c30 | 0x1d08 | 25 | 2 | 8% | 0x00254f28 | 0x00256c2c |
 | 0x00241c48 | 0x00243640 | 0x19f8 | 17 | 1 | 6% | 0x00241c48 | 0x0024363c |
-| 0x0017ec98 | 0x001805a8 | 0x1910 | 12 | 1 | 8% | 0x0017ec98 | 0x001805a4 |
-| 0x00256c30 | 0x00258470 | 0x1840 | 22 | 1 | 5% | 0x00256c30 | 0x0025846c |
-| 0x001abf80 | 0x001ad768 | 0x17e8 | 15 | 2 | 13% | 0x001abf80 | 0x001ad764 |
 | 0x00268f48 | 0x0026a5f0 | 0x16a8 | 8 | 1 | 12% | 0x00268f48 | 0x0026a5ec |
-| 0x0017cb60 | 0x0017e188 | 0x1628 | 34 | 5 | 15% | 0x0017cb60 | 0x0017e184 |
-| 0x0017b5a0 | 0x0017c8f8 | 0x1358 | 10 | 2 | 20% | 0x0017b5a0 | 0x0017c8f4 |
-| 0x00245ea8 | 0x00247108 | 0x1260 | 25 | 4 | 16% | 0x00245ea8 | 0x00247104 |
-| 0x0026d558 | 0x0026e5f8 | 0x10a0 | 7 | 2 | 29% | 0x0026d558 | 0x0026e5f4 |
-| 0x001ba7e8 | 0x001bb800 | 0x1018 | 16 | 3 | 19% | 0x001ba7e8 | 0x001bb7fc |
-| 0x001f23c0 | 0x001f3388 | 0xfc8 | 11 | 4 | 36% | 0x001f23c0 | 0x001f3384 |
+| 0x002642d8 | 0x00265818 | 0x1540 | 18 | 5 | 28% | 0x002642d8 | 0x00265814 |
+| 0x0023f960 | 0x00240a70 | 0x1110 | 14 | 3 | 21% | 0x0023f960 | 0x00240a6c |
+| 0x00252f90 | 0x00253fa0 | 0x1010 | 5 | 0 | 0% | 0x00252f90 | 0x00253f9c |
+| 0x00223e98 | 0x00224e80 | 0xfe8 | 34 | 11 | 32% | 0x00223e98 | 0x00224e7c |
+| 0x0025cd28 | 0x0025dcf0 | 0xfc8 | 21 | 5 | 24% | 0x0025cd28 | 0x0025dcec |
+| 0x001f23c0 | 0x001f3368 | 0xfa8 | 10 | 4 | 40% | 0x001f23c0 | 0x001f3364 |
+| 0x00253fa0 | 0x00254f28 | 0xf88 | 20 | 2 | 10% | 0x00253fa0 | 0x00254f24 |
 | 0x0026bfc8 | 0x0026cf30 | 0xf68 | 17 | 2 | 12% | 0x0026bfc8 | 0x0026cf2c |
-| 0x0019c028 | 0x0019cf88 | 0xf60 | 12 | 2 | 17% | 0x0019c028 | 0x0019cf84 |
 | 0x001d03e0 | 0x001d12c0 | 0xee0 | 15 | 4 | 27% | 0x001d03e0 | 0x001d12bc |
-| 0x0010ddf8 | 0x0010ec98 | 0xea0 | 29 | 4 | 14% | 0x0010ddf8 | 0x0010ec94 |
-| 0x002498d8 | 0x0024a738 | 0xe60 | 14 | 2 | 14% | 0x002498d8 | 0x0024a734 |
 | 0x0026b1a0 | 0x0026bfc8 | 0xe28 | 11 | 3 | 27% | 0x0026b1a0 | 0x0026bfc4 |
-| 0x0023e298 | 0x0023f070 | 0xdd8 | 16 | 4 | 25% | 0x0023e298 | 0x0023f06c |
-| 0x0023d528 | 0x0023e298 | 0xd70 | 18 | 4 | 22% | 0x0023d528 | 0x0023e294 |
-| 0x0013b868 | 0x0013c5b8 | 0xd50 | 20 | 6 | 30% | 0x0013b868 | 0x0013c5b4 |
-| 0x001ab338 | 0x001abf80 | 0xc48 | 12 | 2 | 17% | 0x001ab338 | 0x001abf7c |
-| 0x00244448 | 0x00245088 | 0xc40 | 22 | 4 | 18% | 0x00244448 | 0x00245084 |
-| 0x0018beb0 | 0x0018caa8 | 0xbf8 | 7 | 1 | 14% | 0x0018beb0 | 0x0018caa4 |
-| 0x002633b8 | 0x00263fb0 | 0xbf8 | 16 | 2 | 12% | 0x002633b8 | 0x00263fac |
-| 0x0026e878 | 0x0026f438 | 0xbc0 | 13 | 1 | 8% | 0x0026e878 | 0x0026f434 |
+| 0x0023d528 | 0x0023e298 | 0xd70 | 18 | 5 | 28% | 0x0023d528 | 0x0023e294 |
+| 0x00265b70 | 0x002668b8 | 0xd48 | 5 | 1 | 20% | 0x00265b70 | 0x002668b4 |
+| 0x00244448 | 0x00245088 | 0xc40 | 22 | 7 | 32% | 0x00244448 | 0x00245084 |
+| 0x0017d0d0 | 0x0017dcd8 | 0xc08 | 18 | 8 | 44% | 0x0017d0d0 | 0x0017dcd4 |
+| 0x002633b8 | 0x00263fb0 | 0xbf8 | 16 | 15 | 94% | 0x002633b8 | 0x00263fac |
+| 0x001ab3d0 | 0x001abf80 | 0xbb0 | 10 | 2 | 20% | 0x001ab3d0 | 0x001abf7c |
 | 0x0026a600 | 0x0026b148 | 0xb48 | 9 | 1 | 11% | 0x0026a600 | 0x0026b144 |
-| 0x0019cf88 | 0x0019dac8 | 0xb40 | 12 | 4 | 33% | 0x0019cf88 | 0x0019dac4 |
-| 0x001eef18 | 0x001ef9a8 | 0xa90 | 13 | 4 | 31% | 0x001eef18 | 0x001ef9a4 |
-| 0x001a6e28 | 0x001a7838 | 0xa10 | 8 | 1 | 12% | 0x001a6e28 | 0x001a7834 |
-| 0x0024aae8 | 0x0024b4dc | 0x9f4 | 27 | 12 | 44% | 0x0024aae8 | 0x0024b4d8 |
-| 0x00187908 | 0x001882d0 | 0x9c8 | 16 | 5 | 31% | 0x00187908 | 0x001882cc |
-| 0x00252590 | 0x00252f40 | 0x9b0 | 11 | 2 | 18% | 0x00252590 | 0x00252f3c |
-| 0x00248b60 | 0x002494b0 | 0x950 | 8 | 1 | 12% | 0x00248b60 | 0x002494ac |
-| 0x001011e8 | 0x00101b10 | 0x928 | 10 | 2 | 20% | 0x001011e8 | 0x00101b0c |
+| 0x00106090 | 0x00106aa8 | 0xa18 | 5 | 1 | 20% | 0x00106090 | 0x00106aa4 |
+| 0x00100004 | 0x00100a08 | 0xa04 | 142 | 140 | 99% | 0x001000b8 | 0x00100a04 |
+| 0x0010ddf8 | 0x0010e748 | 0x950 | 16 | 3 | 19% | 0x0010ddf8 | 0x0010e744 |
+| 0x0013edb0 | 0x0013f700 | 0x950 | 18 | 10 | 56% | 0x0013edb0 | 0x0013f6fc |
+| 0x001011e8 | 0x00101ae8 | 0x900 | 7 | 3 | 43% | 0x001011e8 | 0x00101ae4 |
+| 0x00181fb0 | 0x00182890 | 0x8e0 | 8 | 3 | 38% | 0x00181fb0 | 0x0018288c |
 | 0x00186a10 | 0x001872b8 | 0x8a8 | 6 | 1 | 17% | 0x00186a10 | 0x001872b4 |
 | 0x001aa6a0 | 0x001aaea0 | 0x800 | 7 | 1 | 14% | 0x001aa6a0 | 0x001aae9c |
-| 0x00100a08 | 0x001011e8 | 0x7e0 | 22 | 8 | 36% | 0x00100a08 | 0x001011e4 |
-| 0x0023f180 | 0x0023f960 | 0x7e0 | 21 | 2 | 10% | 0x0023f180 | 0x0023f95c |
-| 0x001a9db8 | 0x001aa580 | 0x7c8 | 16 | 5 | 31% | 0x001a9db8 | 0x001aa57c |
-| 0x0018b738 | 0x0018beb0 | 0x778 | 5 | 1 | 20% | 0x0018b738 | 0x0018beac |
-| 0x00245678 | 0x00245de0 | 0x768 | 14 | 5 | 36% | 0x00245678 | 0x00245ddc |
-| 0x0024bdd0 | 0x0024c530 | 0x760 | 14 | 1 | 7% | 0x0024bdd0 | 0x0024c52c |
-| 0x00194840 | 0x00194ec0 | 0x680 | 11 | 1 | 9% | 0x00194840 | 0x00194ebc |
-| 0x00258628 | 0x00258c78 | 0x650 | 11 | 3 | 27% | 0x00258628 | 0x00258c74 |
-| 0x0013c5b8 | 0x0013cc00 | 0x648 | 14 | 1 | 7% | 0x0013c5b8 | 0x0013cbfc |
+| 0x0026ecc8 | 0x0026f438 | 0x770 | 7 | 3 | 43% | 0x0026ecc8 | 0x0026f434 |
 | 0x0025c680 | 0x0025ccc8 | 0x648 | 11 | 3 | 27% | 0x0025c680 | 0x0025ccc4 |
-| 0x001b5190 | 0x001b5768 | 0x5d8 | 12 | 4 | 33% | 0x001b5190 | 0x001b5764 |
+| 0x0010d540 | 0x0010db60 | 0x620 | 13 | 9 | 69% | 0x0010d540 | 0x0010db5c |
+| 0x00187950 | 0x00187f50 | 0x600 | 9 | 4 | 44% | 0x00187950 | 0x00187f4c |
+| 0x001adc18 | 0x001ae210 | 0x5f8 | 7 | 3 | 43% | 0x001adc18 | 0x001ae20c |
+| 0x00205080 | 0x00205670 | 0x5f0 | 10 | 2 | 20% | 0x00205080 | 0x0020566c |
 | 0x0019dbe8 | 0x0019e1a0 | 0x5b8 | 10 | 5 | 50% | 0x0019dbe8 | 0x0019e19c |
-| 0x0026cf30 | 0x0026d488 | 0x558 | 11 | 2 | 18% | 0x0026cf30 | 0x0026d484 |
-| 0x001873c0 | 0x00187908 | 0x548 | 7 | 1 | 14% | 0x001873c0 | 0x00187904 |
 | 0x00243ee8 | 0x00244418 | 0x530 | 9 | 1 | 11% | 0x00243ee8 | 0x00244414 |
+| 0x0013c5b8 | 0x0013cad8 | 0x520 | 10 | 3 | 30% | 0x0013c5b8 | 0x0013cad4 |
 | 0x00144938 | 0x00144e58 | 0x520 | 7 | 3 | 43% | 0x00144938 | 0x00144e54 |
-| 0x001939d8 | 0x00193ee0 | 0x508 | 12 | 4 | 33% | 0x001939d8 | 0x00193edc |
+| 0x001939d8 | 0x00193ee0 | 0x508 | 12 | 6 | 50% | 0x001939d8 | 0x00193edc |
+| 0x00187418 | 0x00187908 | 0x4f0 | 6 | 1 | 17% | 0x00187418 | 0x00187904 |
 | 0x00144e58 | 0x00145328 | 0x4d0 | 4 | 1 | 25% | 0x00144e58 | 0x00145324 |
-| 0x001685e0 | 0x00168a40 | 0x460 | 8 | 1 | 12% | 0x001685e0 | 0x00168a3c |
-| 0x002494b0 | 0x002498d8 | 0x428 | 4 | 1 | 25% | 0x002494b0 | 0x002498d4 |
-| 0x001ad768 | 0x001adb88 | 0x420 | 6 | 1 | 17% | 0x001ad768 | 0x001adb84 |
+| 0x0017dcd8 | 0x0017e188 | 0x4b0 | 9 | 3 | 33% | 0x0017dcd8 | 0x0017e184 |
+| 0x0023f180 | 0x0023f600 | 0x480 | 12 | 3 | 25% | 0x0023f180 | 0x0023f5fc |
+| 0x001bb3e0 | 0x001bb800 | 0x420 | 4 | 1 | 25% | 0x001bb3e0 | 0x001bb7fc |
 | 0x001c8a18 | 0x001c8e30 | 0x418 | 9 | 4 | 44% | 0x001c8a18 | 0x001c8e2c |
+| 0x001ae420 | 0x001ae830 | 0x410 | 7 | 2 | 29% | 0x001ae420 | 0x001ae82c |
 | 0x00193fa8 | 0x00194398 | 0x3f0 | 6 | 1 | 17% | 0x00193fa8 | 0x00194394 |
-| 0x001186c8 | 0x00118aa0 | 0x3d8 | 10 | 3 | 30% | 0x001186c8 | 0x00118a9c |
-| 0x002521c0 | 0x00252590 | 0x3d0 | 9 | 3 | 33% | 0x002521c0 | 0x0025258c |
-| 0x0024b4dc | 0x0024b890 | 0x3b4 | 3 | 1 | 33% | 0x0024b500 | 0x0024b88c |
-| 0x002487b0 | 0x00248b60 | 0x3b0 | 4 | 1 | 25% | 0x002487b0 | 0x00248b5c |
+| 0x001186c8 | 0x00118aa0 | 0x3d8 | 9 | 3 | 33% | 0x00118710 | 0x00118a9c |
+| 0x00260638 | 0x00260a10 | 0x3d8 | 5 | 2 | 40% | 0x00260638 | 0x00260a0c |
 | 0x00182890 | 0x00182c18 | 0x388 | 10 | 3 | 30% | 0x00182890 | 0x00182c14 |
-| 0x0014b248 | 0x0014b5b8 | 0x370 | 13 | 8 | 62% | 0x0014b248 | 0x0014b5b4 |
+| 0x00187f50 | 0x001882d0 | 0x380 | 7 | 4 | 57% | 0x00187f50 | 0x001882cc |
 | 0x00251e50 | 0x002521c0 | 0x370 | 6 | 2 | 33% | 0x00251e50 | 0x002521bc |
-| … | _237 more_ | | | | | | |
+| 0x00243b98 | 0x00243ee8 | 0x350 | 9 | 7 | 78% | 0x00243b98 | 0x00243ee4 |
+| 0x001c3178 | 0x001c34b8 | 0x340 | 6 | 1 | 17% | 0x001c3178 | 0x001c34b4 |
+| 0x001d3d98 | 0x001d40d8 | 0x340 | 7 | 3 | 43% | 0x001d3d98 | 0x001d40d4 |
+| 0x0023d050 | 0x0023d390 | 0x340 | 10 | 6 | 60% | 0x0023d050 | 0x0023d38c |
+| 0x0023cd20 | 0x0023d050 | 0x330 | 7 | 1 | 14% | 0x0023cd20 | 0x0023d04c |
+| 0x001aa258 | 0x001aa580 | 0x328 | 6 | 4 | 67% | 0x001aa258 | 0x001aa57c |
+| 0x001aaea0 | 0x001ab1b8 | 0x318 | 10 | 6 | 60% | 0x001aaea0 | 0x001ab1b4 |
+| 0x00137f08 | 0x00138218 | 0x310 | 19 | 11 | 58% | 0x00137f08 | 0x00138214 |
+| 0x0013cc70 | 0x0013cf80 | 0x310 | 11 | 6 | 55% | 0x0013cc70 | 0x0013cf7c |
+| 0x00265818 | 0x00265b28 | 0x310 | 3 | 1 | 33% | 0x00265818 | 0x00265b24 |
+| 0x0026d188 | 0x0026d488 | 0x300 | 7 | 6 | 86% | 0x0026d188 | 0x0026d484 |
+| 0x0023ca40 | 0x0023cd20 | 0x2e0 | 7 | 4 | 57% | 0x0023ca40 | 0x0023cd1c |
+| 0x002057c8 | 0x00205a98 | 0x2d0 | 11 | 2 | 18% | 0x002057c8 | 0x00205a94 |
+| 0x0017e358 | 0x0017e600 | 0x2a8 | 9 | 7 | 78% | 0x0017e358 | 0x0017e5fc |
+| 0x001c34b8 | 0x001c3760 | 0x2a8 | 5 | 3 | 60% | 0x001c34b8 | 0x001c375c |
+| 0x001d40d8 | 0x001d4358 | 0x280 | 5 | 1 | 20% | 0x001d40d8 | 0x001d4354 |
+| 0x002521c0 | 0x00252438 | 0x278 | 5 | 2 | 40% | 0x002521c0 | 0x00252434 |
+| 0x00264060 | 0x002642d8 | 0x278 | 6 | 2 | 33% | 0x00264060 | 0x002642d4 |
+| 0x001cb928 | 0x001cbb98 | 0x270 | 3 | 1 | 33% | 0x001cb928 | 0x001cbb94 |
+| … | _300 more_ | | | | | | |
 
 ## Partly-named TU candidates
 
@@ -112,46 +112,22 @@ or callgraph-propagation should pick these up next.
 
 | vram_start | vram_end | TU(s) | tagged | untagged |
 | ---: | ---: | --- | ---: | ---: |
-| 0x00205b50 | 0x0021f5b0 | `src/way_tool.c` | 1 | 398 |
-| 0x001d4dd0 | 0x001e0988 | `src/motionManager.c`, `src/motionOrientManager.c` | 35 | 28 |
-| 0x0016bd08 | 0x00175ce0 | `src/girl_brain_attract.c`, `src/girl_brain_main.c` | 5 | 43 |
-| 0x00122c80 | 0x0012bc10 | `src/StageAnimation.c`, `src/Texture.c` | 24 | 25 |
-| 0x0014bdd8 | 0x001538f8 | `src/boyact.c` | 15 | 8 |
-| 0x00157dc8 | 0x0015e7f8 | `src/commonact.c` | 44 | 3 |
-| 0x001c3988 | 0x001c8a18 | `src/clothAnimation.c` | 11 | 10 |
-| 0x001b5768 | 0x001ba7e8 | `src/a_p_1.c`, `src/layout_texture.c`, `src/sceneManager.c`, `src/staffroll.c` | 4 | 64 |
-| 0x00145328 | 0x00149ef8 | `src/act-game.c`, `src/enemy_act.c` | 6 | 19 |
-| 0x001bbec8 | 0x001c05d0 | `src/box.c` | 23 | 28 |
-| 0x001fc520 | 0x00200ad8 | `src/act-env.c` | 1 | 8 |
-| 0x001e4980 | 0x001e8d50 | `src/BgAnimation.c`, `src/motionViewer.c`, `src/moveColTest.c`, `src/multiBgaManager.c`, `src/particleEffect.c` | 13 | 25 |
-| 0x0024da80 | 0x00251be8 | `ios/cdvd.c` | 1 | 78 |
-| 0x0012bc10 | 0x0012fd50 | `src/Texture.c` | 11 | 12 |
-| 0x0011ee88 | 0x00122c80 | `src/RegistPacket.c`, `src/StageAnimation.c` | 8 | 23 |
-| 0x001f6e28 | 0x001faa40 | `src/BgAnimation.c`, `src/StageAnimation.c` | 21 | 7 |
-| 0x001a3398 | 0x001a6e00 | `src/debug.c`, `src/motionOrientManager.c` | 3 | 19 |
-| 0x00132630 | 0x00136088 | `ios/cdvd.c`, `ios/inflate.c`, `ios/mblock.c` | 20 | 18 |
-| 0x001547b0 | 0x00157dc8 | `src/boyact.c`, `src/commonact.c` | 7 | 22 |
-| 0x00111918 | 0x00114e08 | `src/RegistPacket.c` | 1 | 41 |
-| 0x00118ab8 | 0x0011bf60 | `src/Packet.c`, `src/Primitive.c` | 21 | 9 |
-| 0x00265b28 | 0x00268f48 | `src/debug.c` | 1 | 16 |
-| 0x00106da8 | 0x0010a160 | `src/motionManager2.c`, `src/motionOrientManager.c` | 2 | 39 |
-| 0x0018cff0 | 0x00190330 | `src/chain.c` | 21 | 8 |
-| 0x00200ad8 | 0x00203b78 | `src/act.c`, `src/enemy_act.c` | 9 | 15 |
-| 0x001886f8 | 0x0018b738 | `src/camera-ico2.c` | 12 | 8 |
-| 0x00194ff8 | 0x00198000 | `src/act_bird.c`, `src/mail-add-data.c` | 4 | 31 |
-| 0x0010a4e0 | 0x0010d408 | `src/motionManager.c`, `src/motionOrientManager.c`, `src/pool.c` | 7 | 32 |
-| 0x00260638 | 0x002633b8 | `src/chain.c` | 2 | 29 |
-| 0x001a0090 | 0x001a2d78 | `src/charFileManager.c` | 18 | 14 |
-| 0x00114fc8 | 0x00117c60 | `src/Light.c` | 15 | 5 |
-| 0x001cbe88 | 0x001ce998 | `src/enemy.c`, `src/enemy_act.c` | 8 | 23 |
-| 0x001c8ef8 | 0x001cb928 | `src/clothTest.c` | 1 | 16 |
-| 0x001412c8 | 0x00143cd0 | `sound/s_init.c` | 27 | 1 |
-| 0x001d1440 | 0x001d3d98 | `src/girl.c`, `src/girlForceField.c`, `src/item.c` | 7 | 28 |
-| 0x0012fe98 | 0x00132630 | `ios/cdvd.c`, `src/Primitive.c` | 15 | 8 |
-| 0x00165fb8 | 0x00168510 | `src/box.c`, `src/enemy_act.c`, `src/fieldCollision.c`, `src/motionManager.c` | 17 | 13 |
-| 0x001e2380 | 0x001e4728 | `src/motionOrientManager.c` | 11 | 5 |
-| 0x00137f08 | 0x0013a220 | `ios/memory.c` | 9 | 31 |
-| 0x001805a8 | 0x00182890 | `src/attackhit.c` | 3 | 31 |
+| 0x00122c80 | 0x0012bc10 | `src/StageAnimation.c`, `src/Texture.c` | 34 | 15 |
+| 0x001f5608 | 0x001faa40 | `src/Basic.c`, `src/BgAnimation.c`, `src/worm.c` | 32 | 20 |
+| 0x001e4980 | 0x001e8ab8 | `src/motionViewer.c`, `src/moveColTest.c`, `src/multiBgaManager.c`, `src/particleEffect.c` | 23 | 8 |
+| 0x001b7190 | 0x001ba330 | `src/a_p_1.c`, `src/layout_texture.c`, `src/sceneManager.c`, `src/staffroll.c` | 13 | 21 |
+| 0x00133608 | 0x00136088 | `ios/inflate.c`, `ios/mblock.c` | 11 | 7 |
+| 0x001d1440 | 0x001d3d98 | `src/girl.c`, `src/girlForceField.c`, `src/item.c` | 9 | 26 |
+| 0x00166028 | 0x00168510 | `src/commonact.c`, `src/fieldCollision.c` | 16 | 13 |
+| 0x00194ff8 | 0x001973f0 | `src/act_bird.c`, `src/mail-add-data.c` | 4 | 23 |
+| 0x001c0bf8 | 0x001c2e28 | `src/boy.c`, `src/cage.c`, `src/switch.c` | 8 | 22 |
+| 0x001e9950 | 0x001eba18 | `src/rotObject.c`, `src/spider.c`, `src/spiderGroupManager.c` | 10 | 27 |
+| 0x001ae9f0 | 0x001b0a58 | `src/icoMisc.c`, `src/kanban.c` | 11 | 14 |
+| 0x0013d1b0 | 0x0013dda0 | `ios/thread.c`, `isys/gobj.c` | 24 | 1 |
+| 0x001e8d70 | 0x001e9910 | `src/particleLayout.c`, `src/rope.c` | 2 | 17 |
+| 0x001faa50 | 0x001fb4c8 | `src/BgAnimation.c`, `src/DisplayList.c` | 2 | 8 |
+| 0x001fb4c8 | 0x001fbc18 | `src/DisplayList.c`, `src/DmaPacket.c` | 6 | 8 |
+| 0x001763f8 | 0x00176b08 | `src/girl_act.c`, `src/jimaku.c` | 5 | 2 |
 
 ## Multi-TU slices (review)
 
@@ -161,33 +137,22 @@ spurious boundary marker. Worth manual review.
 
 | vram_start | vram_end | TUs |
 | ---: | ---: | --- |
-| 0x001d4dd0 | 0x001e0988 | `src/motionManager.c`, `src/motionOrientManager.c` |
-| 0x0016bd08 | 0x00175ce0 | `src/girl_brain_attract.c`, `src/girl_brain_main.c` |
 | 0x00122c80 | 0x0012bc10 | `src/StageAnimation.c`, `src/Texture.c` |
-| 0x001b5768 | 0x001ba7e8 | `src/a_p_1.c`, `src/layout_texture.c`, `src/sceneManager.c`, `src/staffroll.c` |
-| 0x00145328 | 0x00149ef8 | `src/act-game.c`, `src/enemy_act.c` |
-| 0x001e4980 | 0x001e8d50 | `src/BgAnimation.c`, `src/motionViewer.c`, `src/moveColTest.c`, `src/multiBgaManager.c`, `src/particleEffect.c` |
-| 0x0011ee88 | 0x00122c80 | `src/RegistPacket.c`, `src/StageAnimation.c` |
-| 0x001f6e28 | 0x001faa40 | `src/BgAnimation.c`, `src/StageAnimation.c` |
-| 0x001a3398 | 0x001a6e00 | `src/debug.c`, `src/motionOrientManager.c` |
-| 0x00132630 | 0x00136088 | `ios/cdvd.c`, `ios/inflate.c`, `ios/mblock.c` |
-| 0x001547b0 | 0x00157dc8 | `src/boyact.c`, `src/commonact.c` |
-| 0x00118ab8 | 0x0011bf60 | `src/Packet.c`, `src/Primitive.c` |
-| 0x00106da8 | 0x0010a160 | `src/motionManager2.c`, `src/motionOrientManager.c` |
-| 0x00200ad8 | 0x00203b78 | `src/act.c`, `src/enemy_act.c` |
-| 0x00194ff8 | 0x00198000 | `src/act_bird.c`, `src/mail-add-data.c` |
-| 0x0010a4e0 | 0x0010d408 | `src/motionManager.c`, `src/motionOrientManager.c`, `src/pool.c` |
-| 0x001cbe88 | 0x001ce998 | `src/enemy.c`, `src/enemy_act.c` |
+| 0x0014bdd8 | 0x001538f8 | `src/act-parallel-control.c`, `src/boyact.c` |
+| 0x001f5608 | 0x001faa40 | `src/Basic.c`, `src/BgAnimation.c`, `src/worm.c` |
+| 0x001e4980 | 0x001e8ab8 | `src/motionViewer.c`, `src/moveColTest.c`, `src/multiBgaManager.c`, `src/particleEffect.c` |
+| 0x001b7190 | 0x001ba330 | `src/a_p_1.c`, `src/layout_texture.c`, `src/sceneManager.c`, `src/staffroll.c` |
+| 0x00133608 | 0x00136088 | `ios/inflate.c`, `ios/mblock.c` |
 | 0x001d1440 | 0x001d3d98 | `src/girl.c`, `src/girlForceField.c`, `src/item.c` |
-| 0x0012fe98 | 0x00132630 | `ios/cdvd.c`, `src/Primitive.c` |
-| 0x00165fb8 | 0x00168510 | `src/box.c`, `src/enemy_act.c`, `src/fieldCollision.c`, `src/motionManager.c` |
-| 0x0023f960 | 0x00241c48 | `src/PObj.c`, `src/charFileManager.c` |
+| 0x00166028 | 0x00168510 | `src/commonact.c`, `src/fieldCollision.c` |
+| 0x00194ff8 | 0x001973f0 | `src/act_bird.c`, `src/mail-add-data.c` |
 | 0x001c0bf8 | 0x001c2e28 | `src/boy.c`, `src/cage.c`, `src/switch.c` |
-| 0x001f4c18 | 0x001f6e00 | `src/Basic.c`, `src/charFileManager.c`, `src/worm.c` |
-| 0x001ae8a0 | 0x001b0a58 | `src/icoMisc.c`, `src/kanban.c` |
 | 0x001e9950 | 0x001eba18 | `src/rotObject.c`, `src/spider.c`, `src/spiderGroupManager.c` |
-| 0x0011bf60 | 0x0011df18 | `src/Primitive.c`, `src/particleEffect.c` |
-| 0x00103120 | 0x00104f20 | `src/box.c`, `src/geometryManager.c` |
-| 0x00104f20 | 0x00106aa8 | `src/enemy.c`, `src/motionManager.c` |
-| 0x00190698 | 0x00192050 | `src/chain.c`, `src/ebrain.c`, `src/fightSound.c` |
-| 0x0013a24c | 0x0013b748 | `ios/message.c`, `ios/pad.c` |
+| 0x001ae9f0 | 0x001b0a58 | `src/icoMisc.c`, `src/kanban.c` |
+| 0x0013d1b0 | 0x0013dda0 | `ios/thread.c`, `isys/gobj.c` |
+| 0x001e8d70 | 0x001e9910 | `src/particleLayout.c`, `src/rope.c` |
+| 0x001faa50 | 0x001fb4c8 | `src/BgAnimation.c`, `src/DisplayList.c` |
+| 0x0014a600 | 0x0014b048 | `src/act-game.c`, `src/act-parallel-control.c` |
+| 0x001fb4c8 | 0x001fbc18 | `src/DisplayList.c`, `src/DmaPacket.c` |
+| 0x001763f8 | 0x00176b08 | `src/girl_act.c`, `src/jimaku.c` |
+| 0x00175ce0 | 0x00175f80 | `src/girl_act.c`, `src/girl_brain_attract.c` |

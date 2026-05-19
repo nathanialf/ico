@@ -32,7 +32,12 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 OUT_PATH = REPO_ROOT / "decomp" / "callgraph.json"
 # Read from snapshot to stay isolated from the live matching loop.
 ASM_COD_DIR = REPO_ROOT / "decomp" / "asm_snapshot" / "cod"
-ASM_MATCHINGS_DIR = REPO_ROOT / "decomp" / "asm_snapshot" / "matchings" / "cod"
+# Whole matchings/ and nonmatchings/ trees — the snapshot includes
+# per-TU subdirs (`matchings/Basic/`, `nonmatchings/src/way_tool/`, …)
+# alongside the legacy `cod/<offset>/` layout. rglob picks up every
+# func_*.s regardless of nesting.
+ASM_MATCHINGS_DIR = REPO_ROOT / "decomp" / "asm_snapshot" / "matchings"
+ASM_NONMATCHINGS_DIR = REPO_ROOT / "decomp" / "asm_snapshot" / "nonmatchings"
 
 JAL_RE = re.compile(r"\bjal\s+(?:func_|D_)([0-9A-Fa-f]+)\b")
 HI_FUNC_RE = re.compile(r"%hi\((?:func_|D_)([0-9A-Fa-f]+)\)")
@@ -115,11 +120,16 @@ def main() -> int:
     if not ASM_COD_DIR.exists():
         sys.exit(f"find_callgraph: {ASM_COD_DIR.relative_to(REPO_ROOT)}/ "
                  "missing — run `tools/snapshot_asm.py` first.")
+    # Per-TU dirs (matchings + nonmatchings) FIRST — they're the
+    # authoritative current layout. The cod snapshot may still hold
+    # older copies of those same vrams; dedup by vram keeps the more
+    # specific record.
+    for snapshot_dir in (ASM_NONMATCHINGS_DIR, ASM_MATCHINGS_DIR):
+        if snapshot_dir.exists():
+            for sfile in sorted(snapshot_dir.rglob("func_*.s")):
+                parse_calls(sfile, func_vrams, edges, seen)
     for sfile in sorted(ASM_COD_DIR.glob("*.s")):
         parse_calls(sfile, func_vrams, edges, seen)
-    if ASM_MATCHINGS_DIR.exists():
-        for sfile in sorted(ASM_MATCHINGS_DIR.rglob("func_*.s")):
-            parse_calls(sfile, func_vrams, edges, seen)
 
     edges.sort(key=lambda e: e["caller"])
     OUT_PATH.write_text(json.dumps(edges, indent=2) + "\n")

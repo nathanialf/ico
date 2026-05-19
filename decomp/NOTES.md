@@ -696,6 +696,59 @@ State as of session 2026-05-11:
   with new typed definitions added to the same `src/<TU>.c` that
   already holds the TU's typed sdata/lit4 entries (per-TU layout).
 
+## TU identification pipeline (`identify_tus.py` + `asm_snapshot/`)
+
+`decomp/tu_map.json` maps every function vram to its owning original
+TU (e.g. `src/way_util.c`). It's the input to `data_tu_map.json`'s
+voting and to every "which TU is close to done" report. The pipeline
+runs over `decomp/asm_snapshot/` (a stable copy of `asm/` that
+isolates analysis from the matching loop's `rm asm/cod/*.s` cycles).
+
+**Crucial: the snapshot must cover the whole `asm/matchings/` and
+`asm/nonmatchings/` trees, not just `matchings/cod/`.** Splat's
+per-TU layout puts matched / `INCLUDE_ASM`-stubbed functions under
+top-level per-TU directories (`asm/matchings/Basic/`,
+`asm/nonmatchings/src/way_tool/`, etc.), and the legacy
+`matchings/cod/<offset>/` form only covers a shrinking subset.
+`tools/snapshot_asm.py` mirrors the whole subtrees; analyzers
+(`identify_tus.py`, `find_callgraph.py`, `find_boundaries.py`,
+`find_unnamed_tus.py`) rglob `func_*.s` over the entire snapshot
+tree. If a new analyzer hardcodes `matchings/cod`, it will silently
+miss every per-TU subdir — which previously made TUs like
+`src/Basic.c`, `src/act-parallel-control.c`, `ios/pad.c`, and many
+others invisible to TU identification.
+
+### Tag sources (precedence)
+
+`identify_tus.py` tags each function via one of these sources,
+ordered strongest → weakest:
+
+1. **`path`** — splat YAML emitted the function's `.s` file under
+   a per-TU subdir like `nonmatchings/src/way_tool/`. The directory
+   structure itself encodes the authoritative TU assignment. This is
+   the strongest signal because the YAML is hand-curated.
+2. **`anchor`** — function body loads the `__FILE__` literal at the
+   TU's rodata anchor vma (recovered by `build_source_tree.py`).
+3. **`bracket`** — function sits between two path-or-anchor-tagged
+   neighbours of the same TU.
+4. **`vtable`** — function is an entry of a function-pointer table
+   (`find_vtables.py`); dominant entry tag propagates.
+5. **`callgraph`** — ≥2 distinct already-tagged callers agree on
+   one TU, gated by proximity to a TU's anchored region.
+6. **`data`** — function references unanimous-vote data symbols
+   (from `data_tu_map.json`) that all agree on one TU.
+7. **`revcg`** — ≥2 already-tagged callees agree on one TU (the
+   reverse-direction analogue of `callgraph`).
+8. **`slice_vote`** — every function in a fully-unnamed
+   `synthetic_nop`-bounded slice contributes its data refs; the
+   slice's plurality TU wins if ≥3 distinct symbols and ≥2× the
+   runner-up.
+9. **`bracket_inferred`** — slice-level fill using any inferred
+   tag (weakest; depends on slice geometry).
+
+Iterate `build_data_tu_map.py → identify_tus.py` to fixpoint — each
+new text tag feeds the next round's data voting.
+
 ## EUC-JP debug strings in `.rodata` (Japan-Studio convention)
 
 ICO is a Japan Studio title; its rodata contains a substantial body of

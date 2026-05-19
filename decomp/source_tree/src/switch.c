@@ -1,1 +1,1 @@
-/* placeholder: src/switch.c — __FILE__ anchor at .rodata 0x00618630 */
+/* placeholder: src/switch.c — __FILE__ anchor at .rodata 0x00618630 — status: partial */

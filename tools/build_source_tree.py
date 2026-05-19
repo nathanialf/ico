@@ -134,10 +134,50 @@ def scan_rodata() -> dict[str, int]:
     return anchors
 
 
+def tu_status(path: str) -> str:
+    """Inspect the live repo for this TU and return a short status
+    word: `complete`, `partial`, `coalesced`, `unstarted`, or
+    `legacy-header` (a `.h` sits next to the `.c` but the policy is
+    that per-TU headers aren't sanctioned — see
+    `decomp/header_candidates.md`). Used to annotate the placeholder
+    so readers don't get confused when a TU shows zero functions in
+    `tu_map.json` because it's been fully promoted to C (and its .s
+    files no longer exist anywhere)."""
+    c_file = REPO_ROOT / path  # e.g. src/Basic.c
+    inc_file = REPO_ROOT / (path + ".inc")  # e.g. src/girl_brain_main.c.inc
+    h_file = c_file.with_suffix(".h")
+    data_file = c_file.with_name(c_file.stem + "_data.c")
+
+    if not c_file.exists() and not inc_file.exists():
+        return "unstarted"
+    if inc_file.exists() and not c_file.exists():
+        return "coalesced"
+    if c_file.exists():
+        try:
+            body = c_file.read_text(errors="ignore")
+        except OSError:
+            return "partial"
+        has_include_asm = "INCLUDE_ASM" in body
+        # Tag legacy private headers separately — they're scheduled to
+        # be migrated back into the .c per the no-per-TU-headers policy.
+        legacy = " (legacy-header)" if h_file.exists() else ""
+        if not has_include_asm:
+            return "complete" + legacy
+        suffix = ""
+        if data_file.exists():
+            suffix = "+data-sidecar"
+        return "partial" + suffix + legacy
+    return "unstarted"
+
+
 def placeholder_body(path: str, anchor_vma: int) -> str:
-    """One-line C placeholder. Just enough to be searchable."""
+    """One-line C placeholder. Just enough to be searchable. The
+    `status` field reflects live repo state (see `tu_status`) so a
+    reader knows whether absence from `tu_map.json` means "not yet
+    started" (no asm in snapshot) or "fully promoted" (no asm anywhere
+    because all functions are matched-to-C)."""
     return (f"/* placeholder: {path} — __FILE__ anchor at "
-            f".rodata 0x{anchor_vma:08x} */\n")
+            f".rodata 0x{anchor_vma:08x} — status: {tu_status(path)} */\n")
 
 
 def render_dir_readme(dirname: str, files: list[tuple[str, int]]) -> str:

@@ -25,11 +25,22 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-ASM_COD_SRC = REPO_ROOT / "asm" / "cod"
-ASM_MATCHINGS_SRC = REPO_ROOT / "asm" / "matchings" / "cod"
+# Splat emits cod-segment .s files to asm/src/cod/ (after the repo's
+# "flatten to repo root" reorganization). Snapshot mirrors them into
+# decomp/asm_snapshot/cod/ so downstream readers (identify_tus,
+# find_callgraph, find_boundaries, ...) don't need to know the live
+# path — they only consume the snapshot view.
+ASM_COD_SRC = REPO_ROOT / "asm" / "src" / "cod"
+# Whole matchings/ and nonmatchings/ trees — both have a mixed layout
+# (flattened src/ios/isys/sound subdirs + legacy cod/<offset> dirs +
+# bare per-TU dirs at the top level like `Basic/`). Snapshot copies
+# everything; analyzer rglobs for func_*.s files.
+ASM_MATCHINGS_SRC = REPO_ROOT / "asm" / "matchings"
+ASM_NONMATCHINGS_SRC = REPO_ROOT / "asm" / "nonmatchings"
 SNAPSHOT_ROOT = REPO_ROOT / "decomp" / "asm_snapshot"
 SNAPSHOT_COD = SNAPSHOT_ROOT / "cod"
-SNAPSHOT_MATCHINGS = SNAPSHOT_ROOT / "matchings" / "cod"
+SNAPSHOT_MATCHINGS = SNAPSHOT_ROOT / "matchings"
+SNAPSHOT_NONMATCHINGS = SNAPSHOT_ROOT / "nonmatchings"
 
 
 def snapshot(src: Path, dst: Path, label: str, glob: str = "*.s") -> int:
@@ -54,19 +65,30 @@ def snapshot(src: Path, dst: Path, label: str, glob: str = "*.s") -> int:
 
 
 def main() -> int:
-    cod_files = list(ASM_COD_SRC.glob("*.s")) if ASM_COD_SRC.exists() else []
-    if not cod_files:
-        sys.exit(f"snapshot_asm: {ASM_COD_SRC.relative_to(REPO_ROOT)}/ "
-                 "is empty — matching loop is mid-cycle. Wait for "
-                 "splat to regenerate segment .s files, then re-run.")
-
     SNAPSHOT_ROOT.mkdir(parents=True, exist_ok=True)
 
-    n_cod = snapshot(ASM_COD_SRC, SNAPSHOT_COD, "asm/cod")
-    n_matchings = snapshot(ASM_MATCHINGS_SRC, SNAPSHOT_MATCHINGS,
-                           "asm/matchings/cod", glob="func_*.s")
+    cod_files = list(ASM_COD_SRC.glob("*.s")) if ASM_COD_SRC.exists() else []
+    if cod_files:
+        n_cod = snapshot(ASM_COD_SRC, SNAPSHOT_COD, "asm/cod")
+    else:
+        # Matching loop is mid-cycle (`rm asm/cod/*.s + make setup`).
+        # Don't wipe the existing cod snapshot — it's still the most
+        # recent stable copy. matchings/ and nonmatchings/ are NOT
+        # cleared by the loop, so we can still refresh those.
+        existing = len(list(SNAPSHOT_COD.rglob("*.s"))) if SNAPSHOT_COD.exists() else 0
+        print(f"snapshot_asm: asm/cod/ is empty (matching loop "
+              f"mid-cycle); keeping previous cod snapshot "
+              f"({existing} file(s)).")
+        n_cod = 0
 
-    print(f"snapshot_asm: total {n_cod + n_matchings} file(s) in "
+    n_matchings = snapshot(ASM_MATCHINGS_SRC, SNAPSHOT_MATCHINGS,
+                           "asm/matchings", glob="func_*.s")
+    n_nonmatchings = snapshot(ASM_NONMATCHINGS_SRC, SNAPSHOT_NONMATCHINGS,
+                              "asm/nonmatchings", glob="func_*.s")
+
+    print(f"snapshot_asm: copied {n_cod} cod + {n_matchings} matchings "
+          f"+ {n_nonmatchings} nonmatchings = "
+          f"{n_cod + n_matchings + n_nonmatchings} file(s) into "
           f"{SNAPSHOT_ROOT.relative_to(REPO_ROOT)}/")
     return 0
 

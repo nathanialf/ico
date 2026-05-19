@@ -124,3 +124,8 @@ worm_data
 motionManager
 commonact
 Light
+
+# Auto-generated per-TU data files (migrate_data_per_tu.py)
+act-parallel-control_data
+clothTest_data
+girl_act_data
