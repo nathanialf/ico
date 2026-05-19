@@ -1,0 +1,10 @@
+# Per-file allowlist for postprocess_bne_to_bnel.py
+#
+# Format: <func_name> or <func_name>:bne or <func_name>:beq
+#
+# Lines starting with # are comments.
+#
+# These functions have known bne→bnel or beq→beql gcc-emit differences
+# where the delay-slot operation is safe to squash on not-taken path.
+
+# func_0013C538:bne  # disabled while function is INCLUDE_ASM

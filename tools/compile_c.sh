@@ -129,6 +129,9 @@ fi
 # Always runs — internal config/swap_sw_pair.txt gate, not a per-recipe `if`.
 "${PYTHON}" "${ROOT}/tools/postprocess_sw_pair.py" "${S}"
 
+# Always runs — internal config/bne_to_bnel.txt gate (per-function allowlist).
+"${PYTHON}" "${ROOT}/tools/postprocess_bne_to_bnel.py" "${S}"
+
 # ee-gcc emits `move $r,$s` for parameter-passing moves. ee-as 2.10
 # encodes `move` as `daddu $r,$s,$0` (function code 0x2D); modern gas
 # encodes `move` as `or $r,$s,$0` (function code 0x25). Original ELF
