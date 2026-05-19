@@ -2013,14 +2013,14 @@ segments:
       - [0x13F130, c, src/cod/13F130]            # func_0023F130: promote permuter score-0
       - [0x13F160, c, src/cod/13F160]            # func_0023F160: init struct: [0]=0, [4]=0, [8]=0x3F, [C]=0; return p+0x10
       - [0x13F17C, asm, src/cod/13F17C]
-      - [0x13F598, asm, src/cod/13F598]
+      - [0x13F598, c, src/cod/13F598]
       - [0x13F5D0, c, src/cod/13F5D0]
       - [0x13F5FC, asm, src/cod/13F5FC]
       - [0x13F708, c, src/cod/13F708]            # func_0023F708: pack: write (a3<<24|a2<<16|a1) at a0[1], 0x50 at a0[2], 0 at a0[0], 0 at a0[3]
       - [0x13F73C, hasm, src/cod/13F73C]
       - [0x13F740, c, src/cod/13F740]            # func_0023F740: pack: write (a1<<27|a3<<16|a2) at a0[1], 0x51 at a0[2], 0/0 at a0[0]/a0[3]
       - [0x13F774, hasm, src/cod/13F774]
-      - [0x13F778, asm, src/cod/13F778]
+      - [0x13F778, c, src/cod/13F778]
       - [0x13F7B0, c, src/cod/13F7B0]
       - [0x13F7E0, c, src/cod/13F7E0]            # func_0023F7E0: tail call func_001A6E28(&D_0061C6B8, a0)
       - [0x13F7F0, asm, src/cod/13F7F0]
