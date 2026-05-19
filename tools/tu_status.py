@@ -174,6 +174,27 @@ def _load_tu_func_map() -> dict[int, str]:
     return out
 
 
+# Tag-source precedence in identify_tus.py — strongest first.
+TAG_SOURCE_ORDER = (
+    "path", "anchor", "bracket", "vtable", "callgraph",
+    "data", "revcg", "slice_vote", "bracket_inferred",
+)
+
+
+def _load_tu_tag_sources() -> dict[int, str]:
+    """vram -> tag_source (e.g. 'path', 'anchor', 'bracket', ...)
+    for every tagged function in tu_map.json. Returns {} when
+    tu_map.json is missing."""
+    if not TU_MAP_JSON.exists():
+        return {}
+    d = json.loads(TU_MAP_JSON.read_text())
+    out: dict[int, str] = {}
+    for f in d:
+        if f.get("tu") and f.get("tag_source"):
+            out[f["vram"]] = f["tag_source"]
+    return out
+
+
 def _load_all_func_vmas() -> list[int]:
     """Sorted list of every function vma from tu_map.json. Unlike the
     YAML (where unmatched funcs collapse into giant `asm` blobs),
@@ -309,6 +330,7 @@ def compute_tu_status() -> list[dict]:
     # Inputs
     text_subs = _load_yaml_text_subs()
     func_tu = _load_tu_func_map()
+    func_tag_source = _load_tu_tag_sources()
     tu_regions = _load_tu_regions()
     data_tu = _load_data_tu_map()
     all_vmas = _load_all_func_vmas()
@@ -444,6 +466,14 @@ def compute_tu_status() -> list[dict]:
             continue
         todo_by_tu_sec[tu][sec] += 1
 
+    # Per-TU tag-source counts (which identify_tus.py pass tagged each
+    # function — path / anchor / bracket / data / slice_vote / ...).
+    tag_sources_by_tu: dict[str, Counter] = defaultdict(Counter)
+    for vma, tu in func_tu.items():
+        src = func_tag_source.get(vma)
+        if src:
+            tag_sources_by_tu[tu][src] += 1
+
     rows: list[dict] = []
     for tu in sorted(all_tus):
         tt = text_total.get(tu, 0)
@@ -479,6 +509,7 @@ def compute_tu_status() -> list[dict]:
             "sections": sec_data,
             "complete": complete,
             "fully_coalesced": fully_coalesced,
+            "tag_sources": dict(tag_sources_by_tu.get(tu, {})),
         })
     return rows
 
@@ -510,6 +541,12 @@ def main(argv: list[str]) -> int:
                          "for spotting what's left to coalesce)")
     ap.add_argument("--json", action="store_true",
                     help="emit JSON instead of a table")
+    ap.add_argument("--tag-sources", action="store_true",
+                    help="show per-TU tag-source breakdown from "
+                         "identify_tus.py (path / anchor / bracket / "
+                         "vtable / callgraph / data / revcg / "
+                         "slice_vote / bracket_inferred) instead of "
+                         "the text/data completion table")
     args = ap.parse_args(argv)
 
     rows = compute_tu_status()
@@ -535,6 +572,43 @@ def main(argv: list[str]) -> int:
 
     if args.json:
         print(json.dumps(rows, indent=2))
+        return 0
+
+    if args.tag_sources:
+        # Per-TU tag-source breakdown view. Surfaces how each function's
+        # TU assignment was inferred (path/anchor/bracket/...) so a
+        # reader can tell which TUs rest on authoritative signals vs.
+        # weaker inference (bracket_inferred at the bottom of the chain).
+        cols = TAG_SOURCE_ORDER
+        # Abbreviate long source names for the header.
+        short = {"bracket": "brkt", "vtable": "vt", "callgraph": "cg",
+                 "slice_vote": "slc_v", "bracket_inferred": "brkt_i",
+                 "anchor": "anch", "path": "path", "data": "data",
+                 "revcg": "revcg"}
+        hdr = (f"{'TU':<40} {'total':>6}  "
+               + "".join(f" {short[c]:>7}" for c in cols))
+        # Filter to TUs that have at least one tagged function.
+        srows = [r for r in rows if r.get("tag_sources")]
+        srows.sort(key=lambda r: (-sum(r["tag_sources"].values()),
+                                  r["tu"]))
+        print(hdr)
+        print("-" * len(hdr))
+        global_total = Counter()
+        for r in srows:
+            ts = r["tag_sources"]
+            total = sum(ts.values())
+            cells = [f" {ts.get(c, 0) or '':>7}" for c in cols]
+            print(f"{r['tu']:<40} {total:>6}  " + "".join(cells))
+            for k, v in ts.items():
+                global_total[k] += v
+        print("-" * len(hdr))
+        gtot = sum(global_total.values())
+        print(f"{'TOTAL':<40} {gtot:>6}  "
+              + "".join(f" {global_total.get(c, 0):>7}" for c in cols))
+        print()
+        print(f"{len(srows)} TUs with at least one tagged function. "
+              f"Source precedence (strongest first): "
+              + " > ".join(cols))
         return 0
 
     # Table. `text` = functions matched anywhere; `coal` = functions
