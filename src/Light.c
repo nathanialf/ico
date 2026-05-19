@@ -95,6 +95,7 @@ __attribute__((section(".rodata.0x00554C90"))) const char D_00554C90[24] = "Ligh
 __attribute__((section(".rodata.0x00554CB8"))) const char D_00554CB8[32] = "AmbientVolume:NULL\244\313\244\312\244\303\244\306\244\363\244\307\n";
 
 #include "include_asm.h"
+#include "matching.h"
 #include "vu0.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/Light", func_00114FC8);
@@ -156,7 +157,7 @@ void func_00117C40(void)
     VU0_NOP();
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/Light", func_00117C5C);
+TRAILING_PAD_NOP();
 
 /* Matched body inlined from src/cod/017C60.c during TU coalesce. */
 void func_00117C60(void)
@@ -169,7 +170,7 @@ void func_00117C60(void)
     VU0_NOP();
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/Light", func_00117C7C);
+TRAILING_PAD_NOP();
 
 /* Matched body inlined from src/cod/017C80.c during TU coalesce. */
 void func_00117C80(void)
@@ -202,7 +203,7 @@ void func_00117CB0(void *p0)
     VU0_NOP();
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/Light", func_00117CCC);
+TRAILING_PAD_NOP();
 
 /* Matched body inlined from src/cod/017CD0.c during TU coalesce. */
 void func_00117CD0(void *p0)
@@ -219,5 +220,5 @@ void func_00117CE0(void)
     VU0_NOP();
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/Light", func_00117CEC);
+TRAILING_PAD_NOP();
 INCLUDE_ASM("asm/nonmatchings/src/Light", func_00117CF0);
