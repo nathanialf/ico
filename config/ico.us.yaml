@@ -2250,7 +2250,7 @@ segments:
       - [0x14F6D8, c, src/cod/14F6D8]            # func_0024F6D8
       - [0x14F710, asm, src/cod/14F710]
       - [0x14FBD0, c, src/cod/14FBD0]            # func_0024FBD0
-      - [0x14FBF8, asm, src/cod/14FBF8]
+      - [0x14FBF8, c, src/cod/14FBF8]
       - [0x14FC3C, asm, src/cod/14FC3C]
       - [0x150F70, c, src/cod/150F70]            # func_00250F70: wrap func_00250C80(a0..a2, 0, -1)
       - [0x150F90, asm, src/cod/150F90]
