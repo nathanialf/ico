@@ -132,6 +132,9 @@ fi
 # Always runs — internal config/bne_to_bnel.txt gate (per-function allowlist).
 "${PYTHON}" "${ROOT}/tools/postprocess_bne_to_bnel.py" "${S}"
 
+# Always runs — internal config/swap_addu_to_rt.txt gate (per-function allowlist).
+"${PYTHON}" "${ROOT}/tools/postprocess_swap_addu_to_rt.py" "${S}"
+
 # ee-gcc emits `move $r,$s` for parameter-passing moves. ee-as 2.10
 # encodes `move` as `daddu $r,$s,$0` (function code 0x2D); modern gas
 # encodes `move` as `or $r,$s,$0` (function code 0x25). Original ELF

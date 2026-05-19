@@ -1,0 +1,8 @@
+# Per-function allowlist for postprocess_swap_addu_to_rt.py
+#
+# Inverse of swap_addu_operands: converts rd==rs form to rd==rt form
+# for functions where the original codegen uses the rt-form.
+#
+# Format: <func_name> — one per line; # starts a comment.
+
+func_0013FF88

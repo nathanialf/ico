@@ -1,6 +1,7 @@
 /* sound/adpcm_init.c — __FILE__ anchor at .rodata 0x00557b78 */
 
 #include "include_asm.h"
+#include "regpin.h"
 
 __attribute__((section(".rodata.0x00557B78"))) const char D_00557B78[24] = "sound/adpcm_init.c";
 
@@ -79,7 +80,20 @@ INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_0013FF20);
 
 void func_0013FF80(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_0013FF88);
+int func_0013FF88(char *self_arg, int val5, int val6)
+{
+    register char *self REG("$8") = self_arg;
+    int *p = (int *)(self + 0x54);
+    int count = p[1];
+    if (count == 0x20) return -1;
+    *(int *)(self + count * 8 + 0x5C) = val5;
+    {
+        int c2 = p[1];
+        p[1] = c2 + 1;
+        *(int *)(self + c2 * 8 + 0x60) = val6;
+    }
+    return 0;
+}
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_0013FFD0);
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140048);
 
