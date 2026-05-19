@@ -87,3 +87,10 @@ int func_001FA598(void *p)
 
 INCLUDE_ASM_NOP_PAD(func_001FA5DC);
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001FA5E0);
+INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001FA658);
+INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001FA6D8);
+INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001FA760);
+INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001FA7F8);
+INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001FA898);
+INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001FA910);
+INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001FA998);

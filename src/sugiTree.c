@@ -7,12 +7,20 @@
  * scope. D_00632010 is gp_rel; verified -0x68E0 from _gp (in range).
  */
 
+#include "include_asm.h"
 #include "regpin.h"
 #include "matching.h"
 
 __attribute__((section(".rodata.0x0061A6D8"))) const char D_0061A6D8[16] = "src/sugiTree.c";
 
 extern int    D_00632010;
+extern int    D_00633720;
+extern int    D_00633724;
+extern int    D_00633728;
+extern void   func_00139598(int a0);
+extern void   func_001F08D8(void);
+extern void   func_001D12D8(int a0);
+extern void   func_001D12A8(int a0, int a1);
 extern short *func_0013A0F8(int handle, int size, char *file, int line);
 extern int    func_00264D60(void);
 extern int    func_00105278(void);
@@ -20,6 +28,28 @@ extern int    func_00105F20(int a0, int *a1);
 extern float  func_0010E950(int x);
 extern void   func_00104FC0(int x);
 extern void   func_00104F48(int x);
+
+void func_001F1168(void)
+{
+    if (D_00633720 != 0) {
+        func_00139598(D_00633720);
+        func_00139598(D_00633728);
+        D_00633728 = 0;
+        D_00633720 = 0;
+        D_00633724 = 0;
+    }
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/sugiTree", func_001F11A0);
+
+int func_001F1240(void) {
+    func_001F08D8();
+    return 1;
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/sugiTree", func_001F1260);
+INCLUDE_ASM("asm/nonmatchings/src/sugiTree", func_001F1330);
+INCLUDE_ASM("asm/nonmatchings/src/sugiTree", func_001F1508);
 
 short *func_001F16A0(void)
 {
@@ -92,3 +122,9 @@ short *func_001F17B0(int *self)
 }
 
 __asm__(".skip 4");
+
+void func_001F1838(int a0)
+{
+    func_001D12D8(a0);
+    func_001D12A8(a0, 0x41);
+}

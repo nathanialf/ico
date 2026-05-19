@@ -63,3 +63,69 @@ INCLUDE_ASM("asm/nonmatchings/src/a_p_1", func_001B94B0);
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", func_001B9638);
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", func_001B99B0);
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", func_001BA090);
+
+extern void func_00104508(int p, int *self);
+extern void func_00102850(int p, int *self);
+extern void func_001CFA20(int x);
+extern int D_004BEE60[];
+extern void func_001B7FE8(int a, int b, int c, int d, int e, int f, int g, int h);
+extern int D_00623468[];
+
+void func_001BA2E0(int *self)
+{
+    int *p = (int *)((int *)self[0x15C / 4])[0x800 / 4];
+    func_00104508((int)((char *)p + 0x1E0), self);
+    func_00102850((int)((char *)p + 0x1D0), self);
+    func_001CFA20(p[0x19C / 4]);
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/a_p_1", func_001BA330);
+INCLUDE_ASM("asm/nonmatchings/src/a_p_1", func_001BA530);
+
+int func_001BA5C0(char *self) {
+    char *sub = *(char **)(self + 0x15C);
+    char *p = *(char **)(sub + 0x800);
+    return *(int *)(p + 0x0);
+}
+
+void func_001BA5D0(char *self, int val) {
+    char *sub = *(char **)(self + 0x15C);
+    char *p = *(char **)(sub + 0x800);
+    *(int *)(p + 0x278) = val;
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/a_p_1", func_001BA5E0);
+
+int func_001BA668(int *self, int a1)
+{
+    void (*fn)(int *);
+    int *p;
+    fn = (void (*)(int *))D_004BEE60[a1 * 2];
+    p = (int *)((int *)self[0x15C / 4])[0x800 / 4];
+    p[0x8 / 4] = a1;
+    if (fn != 0) {
+        fn(self);
+    }
+    return 1;
+}
+
+int func_001BA6B0(int *self)
+{
+    int x = ((int *)((int *)self[0x15C/4])[0x800/4])[0x8/4];
+    if (x < 6) {
+        if (x >= 2) {
+            return 0;
+        }
+    }
+    ((int (*)())func_001BA668)();
+    return 1;
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/a_p_1", func_001BA6F0);
+
+void func_001BA770(int *self)
+{
+  int *entry = (int *) (((char *) D_00623468) - (-(self[0x30 / 4] * 32)));
+  func_001B7FE8(0x3D, entry[0xC / 4], -1, 0, (int) self, -1, 7, 1);
+  asm __volatile__("" : : : "memory");
+}

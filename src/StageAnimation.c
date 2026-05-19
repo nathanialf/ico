@@ -67,6 +67,8 @@ extern void func_001FAA58(void);
 extern int D_00274ED4[];
 extern void func_00117768(void);
 extern void func_001FAA30(int a0, int a1, int a2, int a3);
+extern int D_00633C54;
+extern char D_00674058[];
 
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_00128868);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_00128AF0);
@@ -121,3 +123,28 @@ void func_0012AA78(int a0, int a1, int a2, int a3)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012AA80);
+INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012AB50);
+INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012ABE0);
+
+void func_0012AC28(int target, int val)
+{
+    int n = D_00633C54;
+    char *p = (char *)D_00674058;
+    int i;
+    if (n <= 0) return;
+    i = n;
+    do {
+        int *entry1 = *(int **)(p + 0x280);
+        if (target == entry1[0x58 / 4]) {
+            int *entry2 = *(int **)(p + 0x284);
+            *(float *)((char *)entry2 + 0x1C) = (float)val;
+        }
+        p += 0x290;
+    } while (--i);
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012AC70);
+INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012ACD8);
+INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012AD40);
+INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012ADE8);
+INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012AE40);

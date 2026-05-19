@@ -85,6 +85,7 @@ __attribute__((section(".rodata.0x00619B68"))) const char D_00619B68[72] = "\245
 
 extern void func_001E1AA0(int a0, int a1, int a2, int a3);
 
+INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E0C98);
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E0D50);
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E0FE8);
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E10F0);
@@ -112,3 +113,29 @@ INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E3E20);
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E3F40);
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E3FC8);
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E4180);
+INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E44C0);
+INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E4548);
+INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E45E0);
+
+void func_001E4700(int *a0, int a1, int a2)
+{
+    int *v1 = (int *)(((char *)a0[0x15C / 4]) + 0x470);
+    if (v1[0x18 / 4] != 0) {
+        return;
+    }
+    v1[0x1C / 4] = a2;
+    v1[0x20 / 4] = a1;
+}
+
+INCLUDE_ASM_NOP_PAD(func_001E4724);
+INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E4728);
+INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E4798);
+
+int func_001E4838(void *a0)
+{
+  void *p = *((void **) (((char *) a0) + 0x15C));
+  int idx = *((int *) (((char *) p) + 0x4A0));
+  int new_var;
+  new_var = 0x184;
+  return (((unsigned int) (*((int *) (((char *)D_00565060 + (idx * 0x190)) + new_var)))) >> 28) & 3;
+}

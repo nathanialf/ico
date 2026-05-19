@@ -58,8 +58,17 @@ __attribute__((section(".rodata.0x0055AC60"))) const char D_0055AC60[64] = "\272
 " */
 __attribute__((section(".rodata.0x0055ACC0"))) const char D_0055ACC0[104] = "\033[33m\272\277\244\316\276\345\244\316\312\311\244\362\270\253\311\325\244\261\244\353\244\263\244\310\244\254\244\307\244\255\244\336\244\273\244\363\241\243\n\312\375\270\376\244\254\264\326\260\343\244\303\244\306\244\244\244\353\244\253\241\242\312\311\244\254\314\265\244\244\244\310\244\263\244\355\244\313\303\326\244\244\244\306\244\244\244\336\244\273\244\363\244\253?\033[m\n";
 
+#include "matching.h"
 #include "include_asm.h"
+#include "regpin.h"
 
+extern int D_00632744;
+
+void func_0018CFF0(void) {
+    D_00632744 = 0;
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018CFF8);
 INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018D100);
 INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018D3A0);
 INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018D4F0);
@@ -94,3 +103,42 @@ INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018ECC8);
 INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018F640);
 INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018F798);
 INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018F8E8);
+INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018FA70);
+
+extern float D_00630F84;
+
+int func_00190298(int a0)
+{
+    int s0 = *(int *)(*(int *)(a0 + 0x15C) + 0x800);
+    func_0018D100(a0);
+    {
+        register int v REG("$2") = 1;
+        *(signed char *)(s0 + 0x60) = v;
+        return v;
+    }
+}
+
+void func_001902C8(char *self) {
+    char *sub = *(char **)(self + 0x15C);
+    char *p = *(char **)(sub + 0x800);
+    *(char *)(p + 0x60) = 0;
+}
+
+void func_001902D8(int *a0, float *a1, float *a2, float *a3)
+{
+    int *sub = (int *)((int *)a0[0x15C / 4])[0x800 / 4];
+    *a1 = *(float *)((char *)sub + 0x30);
+    *a2 = *(float *)((char *)sub + 0x34);
+    if (*(float *)((char *)sub + 0x48) < *(float *)((char *)sub + 0x34)) {
+        *a2 = *(float *)((char *)sub + 0x48);
+    }
+    *a3 = *(float *)((char *)sub + 0x40);
+}
+
+TRAILING_PAD_NOP();
+
+void func_00190318(char *self) {
+    char *sub = *(char **)(self + 0x15C);
+    char *p = *(char **)(sub + 0x800);
+    *(float *)(p + 0x44) = D_00630F84;
+}

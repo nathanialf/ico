@@ -46,9 +46,12 @@ __attribute__((section(".rodata.0x0061A5E0"))) const char D_0061A5E0[72] = "\245
 __attribute__((section(".rodata.0x0061A628"))) const char D_0061A628[40] = "\245\271\245\310\245\352\241\274\245\340\245\342\241\274\245\267\245\347\245\363\244\316\275\252\316\273\244\362\270\241\303\316\n";
 
 #include "include_asm.h"
+#include "regpin.h"
 
 extern void func_001F0098(int a0);
 extern void func_001F0260(int a0, int a1);
+
+void func_001EFA58(void) {}
 
 INCLUDE_ASM("asm/nonmatchings/src/stormTest", func_001EFA60);
 INCLUDE_ASM("asm/nonmatchings/src/stormTest", func_001EFD18);
@@ -69,3 +72,35 @@ void func_001F0550(int a0)
 
 INCLUDE_ASM_NOP_PAD(func_001F0564);
 INCLUDE_ASM("asm/nonmatchings/src/stormTest", func_001F0568);
+INCLUDE_ASM("asm/nonmatchings/src/stormTest", func_001F0608);
+
+extern int D_00633714;
+extern int D_0063370C;
+extern char D_0061A500[];
+extern int func_001A6E28(char *a0);
+
+void func_001F0858(void)
+{
+    if (D_00633714 == 0) {
+        return func_001A6E28(D_0061A500);
+    }
+    D_0063370C = 1;
+    return 1;
+}
+
+extern void func_00105F00(int p, int q);
+extern char D_00275850[];
+
+void func_001F0878(int *self)
+{
+    register int one REG("$17") = 1;
+    register int *p REG("$2");
+    volatile int pad;
+    p = (int *)self[0x57];
+    p[0x11C] = -1;
+    p = (int *)self[0x57];
+    p[0x198] = one;
+    func_00105F00((int)((char *)((int *)self[0x57]) + 0x670), (int)D_00275850);
+    p = (int *)self[0x57];
+    p[0x154] = one;
+}

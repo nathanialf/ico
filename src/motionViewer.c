@@ -67,6 +67,8 @@ __attribute__((section(".rodata.0x00619D60"))) const char D_00619D60[32] = "Righ
 
 #include "include_asm.h"
 
+INCLUDE_ASM("asm/nonmatchings/src/motionViewer", func_001E4D90);
+INCLUDE_ASM("asm/nonmatchings/src/motionViewer", func_001E4F40);
 INCLUDE_ASM("asm/nonmatchings/src/motionViewer", func_001E50C8);
 INCLUDE_ASM("asm/nonmatchings/src/motionViewer", func_001E54E0);
 INCLUDE_ASM("asm/nonmatchings/src/motionViewer", func_001E5848);

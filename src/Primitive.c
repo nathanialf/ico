@@ -1,22 +1,6 @@
-/* Primitive.c -- typed sdata / lit4 definitions for this TU.
- *
- * Generated initially by tools/decode_sdata_lit4_typed.py
- * from baserom/baseelf.elf. Each line is a developer
- * reconstruction of one game variable or constant; the
- * file is tracked because the typed forms (named float
- * constants, string literals, single hex-word declarations)
- * are clean-room rather than raw byte arrays.
- *
- * As the TU gets fully decompiled, function definitions
- * land in this same file (per-TU layout); typed
- * data declarations stay here next to their references.
- *
- * Downstream tools (rewrite_data_named_sections.py,
- * migrate_data_per_tu.py _scan_existing_definitions) detect
- * the D_<VMA> name on each line and drop the corresponding
- * asm-generated and sidecar definitions.
- */
+/* src/Primitive.c — __FILE__ anchor at .rodata 0x00555490 */
 
+#include "include_asm.h"
 
 __attribute__((section(".rodata.0x00555490"))) const char D_00555490[16] = "src/Primitive.c";
 
@@ -36,8 +20,14 @@ __attribute__((section(".rodata.0x005554F0"))) const float D_005554F0[4] = { 307
 " */
 __attribute__((section(".rodata.0x00555578"))) const char D_00555578[64] = "prim_DispParticle:\273\330\304\352\244\267\244\277\245\306\245\257\245\271\245\301\245\343\310\326\271\346\244\254\260\333\276\357\244\307\244\271. %s:%d\n";
 
-#include "include_asm.h"
+extern int D_00633C50;
+extern void func_00102558(int a0);
 
+void func_0011BFB8(void) {
+    D_00633C50 = 0;
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/Primitive", func_0011BFC0);
 INCLUDE_ASM("asm/nonmatchings/src/Primitive", func_0011C028);
 INCLUDE_ASM("asm/nonmatchings/src/Primitive", func_0011C2B8);
 INCLUDE_ASM("asm/nonmatchings/src/Primitive", func_0011C500);
@@ -51,3 +41,10 @@ INCLUDE_ASM("asm/nonmatchings/src/Primitive", func_0011D730);
 INCLUDE_ASM("asm/nonmatchings/src/Primitive", func_0011D800);
 INCLUDE_ASM("asm/nonmatchings/src/Primitive", func_0011D9A0);
 INCLUDE_ASM("asm/nonmatchings/src/Primitive", func_0011DD08);
+
+void func_0011DEE0(int a0)
+{
+    func_00102558(*(int *)(a0 + 0x18C));
+    func_00102558(*(int *)(a0 + 0x188));
+    func_00102558(a0);
+}

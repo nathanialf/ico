@@ -35,6 +35,23 @@ __attribute__((section(".rodata.0x005F2FF8"))) const float D_005F2FF8[16] = { 5.
 
 #include "include_asm.h"
 
+void func_00190698(char *self) {
+    char *sub = *(char **)(self + 0x15C);
+    char *p = *(char **)(sub + 0x800);
+    *(char *)(p + 0xCD) = 0;
+}
+
+unsigned char func_001906A8(char *self) {
+    char *sub = *(char **)(self + 0x15C);
+    char *p = *(char **)(sub + 0x800);
+    return *(unsigned char *)(p + 0xCD);
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/ebrain", func_001906B8);
+INCLUDE_ASM("asm/nonmatchings/src/ebrain", func_001907E0);
+INCLUDE_ASM("asm/nonmatchings/src/ebrain", func_001909B8);
+INCLUDE_ASM("asm/nonmatchings/src/ebrain", func_00190A48);
+INCLUDE_ASM("asm/nonmatchings/src/ebrain", func_00190B30);
 INCLUDE_ASM("asm/nonmatchings/src/ebrain", func_00190D70);
 INCLUDE_ASM("asm/nonmatchings/src/ebrain", func_00190F30);
 
@@ -66,3 +83,31 @@ INCLUDE_ASM("asm/nonmatchings/src/ebrain", func_001918F0);
 INCLUDE_ASM("asm/nonmatchings/src/ebrain", func_001919A0);
 INCLUDE_ASM("asm/nonmatchings/src/ebrain", func_00191AA0);
 INCLUDE_ASM("asm/nonmatchings/src/ebrain", func_00191B70);
+INCLUDE_ASM("asm/nonmatchings/src/ebrain", func_00191C80);
+
+extern int D_00633DB4;
+extern int D_00633DB8;
+extern int D_00633DBC;
+extern int D_006D0B90[];
+
+int func_00191D08(void)
+{
+    D_00633DB4 = 0;
+    D_00633DB8 = -1;
+    D_00633DBC = 0;
+    return 0;
+}
+
+int func_00191D20(int a0)
+{
+    if (D_00633DB8 < 0) goto init;
+    if (a0 != D_00633DB8) goto append;
+    return 1;
+init:
+    D_00633DB8 = a0;
+    return 1;
+append:
+    D_006D0B90[D_00633DB4] = a0;
+    D_00633DB4++;
+    return 0;
+}

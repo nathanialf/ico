@@ -67,7 +67,7 @@ extern float D_00630D94;
 extern int D_00631B10;
 extern int D_00631B14;
 extern char D_00631B18[8];
-extern char D_00632390[8];
+extern int D_00632390;
 /* KEEP_DEF: D_00632398 must be declared as array (not scalar) so
  * ee-gcc's small-data gp_rel optimization stays off, matching original. */
 extern int D_00632398[];
@@ -194,6 +194,7 @@ __attribute__((section(".rodata.0x00559168"))) const char D_00559168[112] = "cha
 
 #include "include_asm.h"
 #include "matching.h"
+#include "regpin.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_0015F6F0);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_0015F800);
@@ -464,7 +465,7 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165344);
 
 /* Matched body inlined from src/cod/065348.c during TU coalesce. */
 extern int func_00160AF8(int *self);
-extern void func_00165B50(int *self, int a, int b);
+extern void func_00165B50(char *self, int a1, int *a2);
 extern void func_0015BCC8(int *self, int a);
 int func_00165348(int *self)
 {
@@ -524,3 +525,40 @@ int func_001654D8(void) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001654E0);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165540);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001655B0);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165918);
+
+extern int func_00163D60(int a0);
+
+void func_00165B50(char *self, int a1, int *a2)
+{
+    char *first;
+    register char *second REG("$3");
+    register int new_a0 REG("$4");
+    first = *(char * volatile *)(self + 0x164);
+    second = *(char **)(first + 0x670);
+    *(int *)(second + 0x200) = a1;
+    if (a2 != 0) {
+        first = *(char * volatile *)(self + 0x164);
+        new_a0 = *a2;
+    } else {
+        first = *(char * volatile *)(self + 0x164);
+        new_a0 = D_00632390;
+    }
+    second = *(char **)(first + 0x670);
+    *(int *)(second + 0x20C) = new_a0;
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165B80);
+
+int func_00165CE8(int a0)
+{
+    int v = *(int *)(*(int *)(a0 + 0x164) + 0x10);
+    if (v < 0xC) return -1;
+    return func_00163D60(a0);
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165D18);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165DC0);
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165E60);

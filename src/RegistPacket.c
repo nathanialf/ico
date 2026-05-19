@@ -1,22 +1,7 @@
-/* RegistPacket.c -- typed sdata / lit4 definitions for this TU.
- *
- * Generated initially by tools/decode_sdata_lit4_typed.py
- * from baserom/baseelf.elf. Each line is a developer
- * reconstruction of one game variable or constant; the
- * file is tracked because the typed forms (named float
- * constants, string literals, single hex-word declarations)
- * are clean-room rather than raw byte arrays.
- *
- * As the TU gets fully decompiled, function definitions
- * land in this same file (per-TU layout); typed
- * data declarations stay here next to their references.
- *
- * Downstream tools (rewrite_data_named_sections.py,
- * migrate_data_per_tu.py _scan_existing_definitions) detect
- * the D_<VMA> name on each line and drop the corresponding
- * asm-generated and sidecar definitions.
- */
+/* src/RegistPacket.c — __FILE__ anchor at .rodata 0x00555650 */
 
+#include "matching.h"
+#include "include_asm.h"
 
 __attribute__((section(".rodata.0x00555650"))) const char D_00555650[24] = "src/RegistPacket.c";
 
@@ -46,10 +31,23 @@ __attribute__((section(".rodata.0x00555B58"))) const char D_00555B58[24] = "Shad
 " */
 __attribute__((section(".rodata.0x00555800"))) const char D_00555800[48] = "\270\367\270\273\245\252\245\325\244\307\245\352\245\325\245\354\245\257\245\267\245\347\245\363\244\362\311\275\274\250.\n";
 
-#include "include_asm.h"
-
+extern int D_00632028;
+extern void func_0011D9A0(int a0, int a1, int a2, int a3, int a4);
 extern void func_00118E88(int);
 extern void func_00118C68(int a0, int a1, int a2, int a3, int a4);
+extern int func_001FBAA8(int a0, int v, int n);
+extern void func_001FB8B8(void);
+
+INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011DF18);
+INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011E0B8);
+INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011E220);
+INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011E4F8);
+
+void func_0011E708(int a0, int a1, int a2, int a3)
+{
+    func_0011D9A0(a0, a1, a2, a3, D_00632028);
+    DEFEAT_TCO();
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011E728);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011EB50);
@@ -98,3 +96,14 @@ INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011F248);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011F398);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011F468);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011F8E8);
+INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011FC28);
+
+void func_0011FCD8(short *self, int *p)
+{
+    short idx = self[0x80/2];
+    if (idx != -1) {
+        int v = *p + idx * 0x70;
+        func_001FBAA8(2, v, 6);
+        func_001FB8B8();
+    }
+}

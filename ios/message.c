@@ -1,22 +1,7 @@
-/* message.c -- typed sdata / lit4 definitions for this TU.
- *
- * Generated initially by tools/decode_sdata_lit4_typed.py
- * from baserom/baseelf.elf. Each line is a developer
- * reconstruction of one game variable or constant; the
- * file is tracked because the typed forms (named float
- * constants, string literals, single hex-word declarations)
- * are clean-room rather than raw byte arrays.
- *
- * As the TU gets fully decompiled, function definitions
- * land in this same file (per-TU layout); typed
- * data declarations stay here next to their references.
- *
- * Downstream tools (rewrite_data_named_sections.py,
- * migrate_data_per_tu.py _scan_existing_definitions) detect
- * the D_<VMA> name on each line and drop the corresponding
- * asm-generated and sidecar definitions.
- */
+/* ios/message.c — __FILE__ anchor at .rodata 0x00557540 */
 
+#include "include_asm.h"
+#include "regpin.h"
 
 __attribute__((section(".rodata.0x00557540"))) const char D_00557540[16] = "ios/message.c";
 __attribute__((section(".rodata.0x005575D0"))) const char D_005575D0[16] = "FINDCTP1";
@@ -30,18 +15,34 @@ __attribute__((section(".rodata.0x00557588"))) const char D_00557588[24] = "evt:
 __attribute__((section(".rodata.0x005575A0"))) const char D_005575A0[16] = "where is here\n";
 __attribute__((section(".rodata.0x005575B0"))) const char D_005575B0[32] = "evt:signal added\n";
 
-#include "include_asm.h"
-
 extern int D_006A6990[];
-
-INCLUDE_ASM_NOP_PAD(func_0013A248);
-INCLUDE_ASM("asm/nonmatchings/ios/message", func_0013A250);
 extern void func_001A6E28(const char *fmt, int *self);
 extern void func_001AD768(const char *file, int line);
 extern void func_00263FF0(const char *file, int line, const char *expr);
 extern int func_00100530(int x);
+extern int func_00100540(int a0, int *a1);
 extern const char D_006320F0[];
 extern const char D_006320E8[];
+
+void func_0013A220(int *a0)
+{
+    register int *v1 REG("$3") = a0;
+    register int *a1 REG("$5") = (int *)v1[0x10 / 4];
+    int v0;
+    int new_a0;
+    if (a1 == 0) {
+        return;
+    }
+    v0 = a1[0x44 / 4];
+    new_a0 = v1[0x2C / 4];
+    v1[0x10 / 4] = v0;
+    a1[0x44 / 4] = 0;
+    return func_00100540(new_a0, a1);
+}
+
+INCLUDE_ASM_NOP_PAD(func_0013A248);
+INCLUDE_ASM("asm/nonmatchings/ios/message", func_0013A250);
+
 void func_0013A2F8(int *self)
 {
     int idx;
@@ -55,6 +56,7 @@ void func_0013A2F8(int *self)
     D_006A6990[idx] = 0;
     func_00100530(idx);
 }
+
 INCLUDE_ASM("asm/nonmatchings/ios/message", func_0013A380);
 INCLUDE_ASM("asm/nonmatchings/ios/message", func_0013A498);
 
@@ -72,3 +74,17 @@ void func_0013A580(void)
 INCLUDE_ASM_NOP_PAD(func_0013A5B4);
 INCLUDE_ASM("asm/nonmatchings/ios/message", func_0013A5B8);
 INCLUDE_ASM("asm/nonmatchings/ios/message", func_0013A6C0);
+
+void func_0013A7C8(void) {
+    int *p;
+    int i;
+    int **q = (int **)D_006A6990;
+    i = 0xFF;
+    do {
+        p = *q++;
+        if (p != 0) {
+            func_0013A2F8(p);
+        }
+        i--;
+    } while (i >= 0);
+}

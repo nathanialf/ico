@@ -1,22 +1,7 @@
-/* memory.c -- typed sdata / lit4 definitions for this TU.
- *
- * Generated initially by tools/decode_sdata_lit4_typed.py
- * from baserom/baseelf.elf. Each line is a developer
- * reconstruction of one game variable or constant; the
- * file is tracked because the typed forms (named float
- * constants, string literals, single hex-word declarations)
- * are clean-room rather than raw byte arrays.
- *
- * As the TU gets fully decompiled, function definitions
- * land in this same file (per-TU layout); typed
- * data declarations stay here next to their references.
- *
- * Downstream tools (rewrite_data_named_sections.py,
- * migrate_data_per_tu.py _scan_existing_definitions) detect
- * the D_<VMA> name on each line and drop the corresponding
- * asm-generated and sidecar definitions.
- */
+/* ios/memory.c — __FILE__ anchor at .rodata 0x005570E0 */
 
+#include "matching.h"
+#include "include_asm.h"
 
 __attribute__((section(".rodata.0x00556F70"))) const char D_00556F70[16] = "<PARTITION>____";
 __attribute__((section(".rodata.0x00556F80"))) const char D_00556F80[16] = "<FREE AREA>____";
@@ -75,8 +60,23 @@ __attribute__((section(".rodata.0x005574D0"))) const char D_005574D0[48] = "IOSR
 __attribute__((section(".rodata.0x00557500"))) const char D_00557500[32] = "mem:realloc; not support yet\n";
 __attribute__((section(".rodata.0x00557520"))) const char D_00557520[32] = "mem:realloc; not enough memory\n";
 
-#include "include_asm.h"
+extern void func_00136280(int a0, int a1, int a2);
+extern void func_00138E30(void);
 
+int func_001383D8(int a0, int a1)
+{
+    func_00136280(a0, a1, 0x63FC);
+    return 0;
+}
+
+INCLUDE_ASM("asm/nonmatchings/ios/memory", func_001383F8);
+INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00138510);
+INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00138618);
+INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00138720);
+INCLUDE_ASM("asm/nonmatchings/ios/memory", func_001387F0);
+INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00138A10);
+INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00138BF0);
+INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00138C78);
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00138E30);
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_001392A8);
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_001394F0);
@@ -86,3 +86,8 @@ INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00139C30);
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00139D78);
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00139FE8);
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_0013A0F8);
+
+void func_0013A200(void) {
+    func_00138E30();
+    DEFEAT_TCO();
+}

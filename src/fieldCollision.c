@@ -95,3 +95,4 @@ INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00167278);
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00167280);
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00167528);
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00167760);
+INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_001677D0);

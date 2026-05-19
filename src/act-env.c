@@ -1,21 +1,6 @@
-/* act-env.c -- typed sdata / lit4 definitions for this TU.
- *
- * Generated initially by tools/decode_sdata_lit4_typed.py
- * from baserom/baseelf.elf. Each line is a developer
- * reconstruction of one game variable or constant; the
- * file is tracked because the typed forms (named float
- * constants, string literals, single hex-word declarations)
- * are clean-room rather than raw byte arrays.
- *
- * As the TU gets fully decompiled, function definitions
- * land in this same file (per-TU layout); typed
- * data declarations stay here next to their references.
- *
- * Downstream tools (rewrite_data_named_sections.py,
- * migrate_data_per_tu.py _scan_existing_definitions) detect
- * the D_<VMA> name on each line and drop the corresponding
- * asm-generated and sidecar definitions.
- */
+/* src/act-env.c — __FILE__ anchor at .rodata 0x0061AE10 */
+
+#include "include_asm.h"
 
 extern float D_0063144C;
 extern float D_00631450;
@@ -31,7 +16,7 @@ extern float D_00631474;
 extern float D_00631478;
 extern float D_0063147C;
 extern float D_00631480;
-extern char D_00631990[16];
+extern int D_00631990;
 extern char D_006319A0[16];
 extern char D_006319B0[16];
 extern const char D_00633840[8];
@@ -78,9 +63,24 @@ __attribute__((section(".rodata.0x0061AD10"))) const float D_0061AD10[4] = { 3e+
 /* String-pool rodata migrated from act-env_data.c */
 __attribute__((section(".rodata.0x0061AE30"))) const char D_0061AE30[32] = "exit water\n\000\000\000\000\000WBP <<begin>>\n\000";
 
-#include "include_asm.h"
+extern int func_0010A088(int a0, int a1);
+extern int func_0010A068(int a0, int a1);
 
+INCLUDE_ASM("asm/nonmatchings/src/act-env", func_001FC520);
+INCLUDE_ASM("asm/nonmatchings/src/act-env", func_001FC6C8);
+INCLUDE_ASM("asm/nonmatchings/src/act-env", func_001FC780);
 INCLUDE_ASM("asm/nonmatchings/src/act-env", func_001FCA20);
 INCLUDE_ASM("asm/nonmatchings/src/act-env", func_00200848);
 INCLUDE_ASM("asm/nonmatchings/src/act-env", func_00200970);
 INCLUDE_ASM("asm/nonmatchings/src/act-env", func_002009F0);
+
+int func_00200A98(int a0)
+{
+    unsigned char v0;
+    if (D_00631990 == 4) {
+        v0 = func_0010A088(a0, 0x1000);
+    } else {
+        v0 = func_0010A068(a0, 0x1000);
+    }
+    return v0 & 0xFF;
+}

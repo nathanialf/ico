@@ -81,10 +81,12 @@ __attribute__((section(".rodata.0x00556510"))) const char D_00556510[56] = "tex_
 " */
 __attribute__((section(".rodata.0x00556548"))) const char D_00556548[56] = "tex_TransTexture:\245\306\245\257\245\271\245\301\245\343\244\316\305\276\301\367\244\313\274\272\307\324\244\267\244\336\244\267\244\277. %d:%s\n";
 
+#include "matching.h"
 #include "include_asm.h"
 
 extern void func_001FBAA8(int a0, int a1, int a2);
 extern void func_001FB8B8(void);
+extern void func_0012CEF8(void);
 
 INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012AED0);
 INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012AFC0);
@@ -110,3 +112,18 @@ INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012CB70);
 INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012CEF8);
 INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012D218);
 INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012D370);
+INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012D4A0);
+INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012DA48);
+INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012DE00);
+INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012DE80);
+INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012DF98);
+INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012E0D8);
+INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012E528);
+INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012E940);
+INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012F818);
+INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012FCE0);
+
+void func_0012FD30(void) {
+    func_0012CEF8();
+    DEFEAT_TCO();
+}

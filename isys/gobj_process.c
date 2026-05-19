@@ -23,6 +23,7 @@ extern int   D_00632008;
 extern int   D_00633CA8;
 extern int   D_00633CAC;
 extern int   func_0013A0F8(int a0, int a1, char *file, int line);
+extern void  func_0013F3F0(int, int, int, unsigned char, int, int);
 
 void func_0013F700(int count)
 {
@@ -40,4 +41,9 @@ void func_0013F700(int count)
             i += 1;
         } while (i < (unsigned int)count);
     }
+}
+
+void func_0013F778(int a, int b, int c, int d) {
+    func_0013F3F0(a, a, b, c, d, 0x1800);
+    DEFEAT_TCO();
 }

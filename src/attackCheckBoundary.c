@@ -36,6 +36,24 @@ __attribute__((section(".rodata.0x00618620"))) const char D_00618620[16] = " - \
 #include "include_asm.h"
 #include "regpin.h"
 
+extern int func_001BA6B0(int a0, int a1);
+
+int func_001BB860(int a0)
+{
+    return func_001BA6B0(a0, 0) ? 0 : -1;
+}
+
+int func_001BB888(int a0)
+{
+    return func_001BA6B0(a0, 0) ? 0 : -1;
+}
+
+void func_001BB8B0(int x) {
+    volatile int local = x;
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BB8C0);
+INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BB988);
 INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BBB20);
 
 typedef struct { void *sub; int field4; } BBDD8Entry;
@@ -101,4 +119,16 @@ int func_001BBE50(int unused, void *obj)
   *new_var3 = new_var4;
   *((int *) (buf + 8)) = 0;
   return buf;
+}
+
+void func_001BBEA0(int *a0)
+{
+    int *p = (int *)a0[0x15C / 4];
+    int *q = (int *)p[0];
+    if (q == 0) {
+        return;
+    }
+    if (q[0x16C / 4] == 0) {
+        a0[0x16C / 4] = 0;
+    }
 }

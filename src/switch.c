@@ -6,6 +6,52 @@ __attribute__((section(".rodata.0x00618630"))) const char D_00618630[16] = "src/
 #include "regpin.h"
 #include "matching.h"
 
+extern void func_001BC0A8(void);
+
+int func_001C0690(char *self) {
+    char *sub = *(char **)(self + 0x15C);
+    char *p = *(char **)(sub + 0x800);
+    return *(int *)(p + 0x58);
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C06A0);
+INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C0708);
+INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C0790);
+
+int func_001C0838(void) { return 1; }
+int func_001C0840(void) { return 1; }
+int func_001C0848(void) { return 0; }
+void func_001C0850(void) {}
+void func_001C0858(void) {}
+
+void func_001C0860(char *self, int val) {
+    char *sub = *(char **)(self + 0x15C);
+    char *p = *(char **)(sub + 0x800);
+    *(int *)(p + 0x1C) = val;
+}
+
+void func_001C0870(int *self, int x)
+{
+    register int *t REG("$2");
+    int *q;
+    register int v REG("$3");
+    t = (int *)self[0x15C/4];
+    q = (int *)t[0x800/4];
+    v = q[0x4/4];
+    if (v != x) {
+        func_001BC0A8();
+    }
+    q[0x4/4] = x;
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C08B8);
+
+int func_001C09B0(char *self) {
+    char *sub = *(char **)(self + 0x15C);
+    char *p = *(char **)(sub + 0x800);
+    return *(int *)(p + 0x4) == 0;
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C09C4);
 extern int D_00632010;
 extern int func_0013A0F8(int handle, int size, const char *file, int line);

@@ -18,6 +18,69 @@ __attribute__((section(".rodata.0x0061A710"))) const char D_0061A710[80] = "    
 " */
 __attribute__((section(".rodata.0x0061A760"))) const char D_0061A760[48] = "\267\350\304\352: \302\350%d\245\335\245\244\245\363\245\310 \302\350%d\270\365\312\344 %f, %f, %f\n";
 
+#include "matching.h"
 #include "include_asm.h"
+#include "regpin.h"
 
+extern void func_00104508(int *buf, int *p);
+extern void func_00243AE8(int *p, int *buf, int *q);
+extern void func_00105F00(int *dst, int *src);
+extern int func_00240EA0(int a, int b, int c, int d, int e, int f, int g);
+extern void func_001F2370(void);
+extern int D_00633748;
+extern void func_001F2320(void);
+extern int *func_00203B40(void (*fn)(void), int x);
+
+INCLUDE_ASM("asm/nonmatchings/src/torch", func_001F1868);
+INCLUDE_ASM("asm/nonmatchings/src/torch", func_001F19F0);
+INCLUDE_ASM("asm/nonmatchings/src/torch", func_001F1AD8);
+INCLUDE_ASM("asm/nonmatchings/src/torch", func_001F1B98);
+INCLUDE_ASM("asm/nonmatchings/src/torch", func_001F1CF0);
 INCLUDE_ASM("asm/nonmatchings/src/torch", func_001F2048);
+
+void func_001F2140(void) {}
+
+int func_001F2148(char *self) {
+    char *sub = *(char **)(self + 0x15C);
+    char *p = *(char **)(sub + 0x800);
+    return *(int *)(p + 0x4);
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/torch", func_001F2158);
+
+void func_001F2230(char *self, int val) {
+    char *sub = *(char **)(self + 0x15C);
+    char *p = *(char **)(sub + 0x800);
+    *(int *)(p + 0xC) = val;
+}
+
+void func_001F2240(char *self, int val) {
+    char *sub = *(char **)(self + 0x15C);
+    char *p = *(char **)(sub + 0x800);
+    *(int *)(p + 0x10) = val;
+}
+
+void func_001F2250(int *self)
+{
+    int buf[4];
+    int *p;
+    func_00104508(buf, self);
+    p = (int *)self[0x15C/4];
+    func_00243AE8((int *)((char *)p + 0x130), buf, (int *)((char *)p + 0x1F0));
+    p = (int *)self[0x15C/4];
+    func_00105F00((int *)((char *)p + 0x1F0), buf);
+}
+
+int func_001F22A0(void) {
+    int v = func_00240EA0(0, 0, 0, 0, (int)&func_001F2370, 0, 0);
+    D_00633748 = v;
+    return v;
+}
+
+void func_001F22E0(int *self)
+{
+    register int *q REG("$3") = func_00203B40(func_001F2320, 0x15);
+    KEEP_LIVE(q);
+    *self = 0;
+    q[8] = (int)self;
+}

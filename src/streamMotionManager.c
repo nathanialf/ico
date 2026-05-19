@@ -56,8 +56,31 @@ __attribute__((section(".rodata.0x0061A688"))) const char D_0061A688[56] = "\245
 #include "include_asm.h"
 
 extern int D_00632010;
+extern int D_00633708;
+extern int D_0063370C;
+extern unsigned int D_0063373C;
+extern int D_0061A578[];
 extern int func_0013A0F8(int handle, int size, const char *file, int line);
-extern void func_001A6E28(const char *msg);
+extern void func_001A6E28();
+
+struct Slot {
+    int pad[4];
+    int self_ptr;
+    int pad2[1];
+};
+extern struct Slot D_0070D4D8[];
+
+INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", func_001F08D8);
+
+void func_001F0A28(void)
+{
+    D_0063373C = 0;
+    func_001A6E28(D_0061A578);
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", func_001F0A38);
+INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", func_001F0B20);
+INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", func_001F0BC8);
 
 void func_001F0DA8(void)
 {
@@ -70,3 +93,21 @@ void func_001F0DA8(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", func_001F0E40);
+
+void func_001F0F90(void) {
+    D_0063370C = 0;
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", func_001F0F98);
+
+int func_001F1058(volatile int *self)
+{
+    int slot = D_00633708;
+    D_0070D4D8[slot].self_ptr = (int)self;
+    ((int *)self[0x57])[0x11C] = slot;
+    ((int *)self[0x57])[0x13C] = 0;
+    ((int *)self[0x57])[0x13B] = 0;
+    ((int *)self[0x57])[0x154] = 0;
+    D_00633708 = slot + 1;
+    return slot;
+}

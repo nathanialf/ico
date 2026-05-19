@@ -57,6 +57,8 @@ __attribute__((section(".rodata.0x0055AEF8"))) const char D_0055AEF8[16] = "unlo
 
 #include "include_asm.h"
 
+INCLUDE_ASM("asm/nonmatchings/src/generator", func_001920A8);
+INCLUDE_ASM("asm/nonmatchings/src/generator", func_001921F8);
 INCLUDE_ASM("asm/nonmatchings/src/generator", func_00192478);
 INCLUDE_ASM("asm/nonmatchings/src/generator", func_001925E0);
 INCLUDE_ASM("asm/nonmatchings/src/generator", func_00192908);
@@ -78,3 +80,15 @@ INCLUDE_ASM("asm/nonmatchings/src/generator", func_00192E08);
 INCLUDE_ASM("asm/nonmatchings/src/generator", func_00192EB8);
 INCLUDE_ASM("asm/nonmatchings/src/generator", func_001930B0);
 INCLUDE_ASM("asm/nonmatchings/src/generator", func_00193600);
+INCLUDE_ASM("asm/nonmatchings/src/generator", func_00193730);
+
+void func_00193818(int a0)
+{
+    *(int *)(*(int *)(*(int *)(a0 + 0x15C) + 0x800) + 0x8) += 1;
+}
+
+void func_00193830(char *self) {
+    char *sub = *(char **)(self + 0x15C);
+    char *p = *(char **)(sub + 0x800);
+    *(p + 0xE) = 1;
+}

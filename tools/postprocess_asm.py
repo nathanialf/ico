@@ -138,11 +138,74 @@ def patch_vu0_special_regs_per_function() -> int:
     return changed
 
 
+# Match splat's bare-paren `la $X, (SYM)` form, capturing the
+# little-endian hex from the comment so we can emit the original
+# 4-byte encoding as a literal `.4byte`.
+_LA_GPREL_LITERAL_RE = re.compile(
+    r"(?P<indent>^[ \t]*)"
+    r"(?P<comment>/\*\s*[0-9A-Fa-f]+\s+[0-9A-Fa-f]+\s+"
+    r"(?P<hex_le>[0-9A-Fa-f]{8})\s*\*/)"
+    r"\s+la\b\s+(?P<reg>\$\d+),\s*\((?P<sym>[A-Za-z_][\w]*)\)"
+    r"(?P<trail>\s*/\*\s*gp_rel:.*?\*/)",
+    re.MULTILINE,
+)
+
+
+def _swap_endian(hex_le: str) -> str:
+    """Convert little-endian hex bytes to big-endian (instruction value)."""
+    b = bytes.fromhex(hex_le)
+    return b[::-1].hex().upper()
+
+
+def patch_la_gp_rel_nonmatchings() -> int:
+    """Replace splat's `la $X, (SYM) /* gp_rel: ... */` with a literal
+    `.4byte 0x<INSN>` using the hex from splat's own per-instruction
+    comment.
+
+    Splat emits `la $X, (SYM)` for gp_rel address-loads. ee-as 2.96
+    expands the pseudo to `addiu` (32-bit); modern gas expands to
+    `daddiu` (64-bit). When a TU falls back to modern gas (e.g., a
+    sibling function uses VU0 macroinstructions that ee-as 2.96
+    rejects), the address-load encodes as daddiu instead of the
+    original addiu, breaking the round-trip by 1 byte per `la` site.
+
+    The hex in splat's per-instruction comment IS the original ELF
+    bytes (little-endian). Emitting them via `.4byte 0xVALUE`
+    produces an identical encoding under both assemblers and skips
+    the la-pseudo expansion entirely. The trade-off is the load
+    loses its relocation entry — fine here because the gp_rel offset
+    is fixed by the baseline link layout we're matching against.
+
+    Idempotent.
+    """
+    nonmatchings = REPO_ROOT / "asm" / "nonmatchings"
+    if not nonmatchings.exists():
+        return 0
+    changed = 0
+
+    def _repl(m):
+        be = _swap_endian(m.group("hex_le"))
+        return (
+            f"{m.group('indent')}{m.group('comment')}  .4byte 0x{be}  "
+            f"/* la {m.group('reg')}, ({m.group('sym')}) */"
+            f"{m.group('trail')}"
+        )
+
+    for path in nonmatchings.rglob("*.s"):
+        text = path.read_text()
+        new = _LA_GPREL_LITERAL_RE.sub(_repl, text)
+        if new != text:
+            path.write_text(new)
+            changed += 1
+    return changed
+
+
 def main() -> int:
     changed = 0
     changed += patch_sdata_tail()
     changed += patch_gp_rel_per_function()
     changed += patch_vu0_special_regs_per_function()
+    changed += patch_la_gp_rel_nonmatchings()
     print(f"postprocess_asm: {changed} file(s) rewritten")
     return 0
 

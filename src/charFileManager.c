@@ -120,6 +120,76 @@ __attribute__((section(".rodata.0x00553758"))) const float D_00553758[2] = { 0.0
 
 #include "include_asm.h"
 
+extern int D_00632850;
+extern int D_0063285C;
+extern int D_0063286C;
+extern int D_00632888;
+extern int D_00633E30;
+extern int D_00633E24;
+extern int D_00633E44;
+extern int D_00633E28;
+extern char D_006E4890[];
+extern char D_004B2FD0[];
+extern int D_00632898;
+extern void func_0018B2F8(void);
+extern void func_0018CFF0(void);
+
+struct __attribute__((packed)) Pack24 { long long a; long long b; long long c; };
+
+void func_001A0090(void) {
+    D_00632850 = 0;
+    D_0063285C = 0;
+    D_0063286C = 0;
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A00A0);
+INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A05D0);
+INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A07F8);
+INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A0A38);
+INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A0EB8);
+INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A0F60);
+
+void func_001A1008(void) {
+    D_00632888 = 0;
+    D_00633E30 = -1;
+    D_00633E24 = 0;
+    D_00633E44 = 0;
+}
+
+void func_001A1020(void) {
+    D_00633E28 = 0;
+}
+
+void func_001A1028(void) {}
+
+void func_001A1030(void)
+{
+    char *dst = D_006E4890;
+    char *end = dst + 0x9450;
+    D_00632898 = 0;
+    do {
+        *(struct Pack24 *)dst = *(struct Pack24 *)D_004B2FD0;
+        dst += 0x18;
+    } while ((int)dst < (int)end);
+    func_0018B2F8();
+    func_0018CFF0();
+}
+
+void func_001A10B0(void)
+{
+    char *dst = D_006E4890;
+    char *end = dst + 0x9450;
+    D_00632898 = 0;
+    do {
+        if (*(int *)(dst + 0x14) == 1) {
+            *(struct Pack24 *)dst = *(struct Pack24 *)D_004B2FD0;
+        }
+        dst += 0x18;
+    } while ((int)dst < (int)end);
+    func_0018B2F8();
+    func_0018CFF0();
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A1138);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A1308);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A14D8);
@@ -138,3 +208,8 @@ INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A2758);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A27F8);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A2AB0);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A2C18);
+
+int func_001A2D58(int idx)
+{
+    return *(int *)((char *)D_006E4890 + idx * 0x18);
+}

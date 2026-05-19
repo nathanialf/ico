@@ -1,21 +1,8 @@
-/* EnemyInit.c -- typed sdata / lit4 definitions for this TU.
- *
- * Generated initially by tools/decode_sdata_lit4_typed.py
- * from baserom/baseelf.elf. Each line is a developer
- * reconstruction of one game variable or constant; the
- * file is tracked because the typed forms (named float
- * constants, string literals, single hex-word declarations)
- * are clean-room rather than raw byte arrays.
- *
- * As the TU gets fully decompiled, function definitions
- * land in this same file (per-TU layout); typed
- * data declarations stay here next to their references.
- *
- * Downstream tools (rewrite_data_named_sections.py,
- * migrate_data_per_tu.py _scan_existing_definitions) detect
- * the D_<VMA> name on each line and drop the corresponding
- * asm-generated and sidecar definitions.
- */
+/* src/EnemyInit.c — __FILE__ anchor at .rodata 0x0061AC70 */
+
+#include "matching.h"
+#include "include_asm.h"
+#include "regpin.h"
 
 /* sdata defs live in the gitignored EnemyInit_data.c sidecar — keeping
  * them out of this TU's .o lets ee-gcc emit %gp_rel for func_001FBC48
@@ -34,11 +21,22 @@ __attribute__((section(".rodata.0x0061ACC8"))) const char D_0061ACC8[24] = "entr
 __attribute__((section(".rodata.0x0061ACE0"))) const char D_0061ACE0[24] = "LinkCameraDL in\n";
 __attribute__((section(".rodata.0x0061ACF8"))) const char D_0061ACF8[24] = "LinkCameraDL out\n";
 
-#include "include_asm.h"
-#include "regpin.h"
+extern int D_004C7710[];
+extern int D_00710FA0[];
+extern int *D_006321D8;
+extern void func_001A6E28();
+extern void func_001FBFC8();
+extern int func_001FC048(int a0, int a1);
+
+int func_001FBC18(void)
+{
+    int idx = D_004C7710[0];
+    int adj_cur = D_004C7710[4] - 0x80000;
+    int end_off = (D_004C7710 + idx)[1];
+    return (end_off - adj_cur) >> 4;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/EnemyInit", func_001FBC48);
-extern int D_00710FA0[];
 
 int func_001FBF88(int idx, int sub_idx)
 {
@@ -49,3 +47,42 @@ int func_001FBF88(int idx, int sub_idx)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/EnemyInit", func_001FBFC8);
+
+void func_001FC040(int a0, int a1, int a2, int a3)
+{
+    func_001FBFC8(a0, a1, a2, a3);
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/EnemyInit", func_001FC048);
+
+void func_001FC168(int a0, int a1)
+{
+    func_001FBFC8(a0);
+    return func_001FC048(a0, a1);
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/EnemyInit", func_001FC1A0);
+
+void func_001FC220(int *self, int a1, int a2, int a3, int *t0)
+{
+    register int *t1 REG("$9") = self;
+    int v34, v44;
+    if (t0 == 0) {
+        func_001A6E28(D_0061AC80);
+        return;
+    }
+    MATERIALIZE(t1);
+    t1[0x13] = a2;
+    t1[0x14] = a3;
+    t1[0x12] = a1;
+    *((unsigned char *)t1 + 0x40) = *((unsigned char *)t0 + 0x40);
+    t1[0xE] = (int)t0;
+    v34 = t0[0xD];
+    v44 = t0[0x11];
+    t1[0xD] = v34;
+    t0[0xD] = (int)t1;
+    t1[0x11] = v44;
+    if (t1[0xD] == 0) {
+        D_006321D8 = t1;
+    }
+}

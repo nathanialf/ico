@@ -43,6 +43,21 @@ __attribute__((section(".rodata.0x005579F8"))) const char D_005579F8[24] = "sem:
 #include "regpin.h"
 #include "matching.h"
 
+INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013CF80);
+INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013CFE0);
+
+int func_0013D098(void)
+{
+    return 0;
+}
+
+void func_0013D0A0(unsigned char *p, int a1, int a2) {
+    if (a1) *p &= 0xFE;
+    if (a2) *p &= 0xEF;
+}
+
+INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013D0D0);
+INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013D140);
 INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013D1B0);
 
 
@@ -292,3 +307,5 @@ int func_0013DBB0(int *self)
     }
     return 0;
 }
+
+INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013DC30);

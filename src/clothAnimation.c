@@ -146,6 +146,13 @@ __attribute__((section(".rodata.0x00618B60"))) const float D_00618B60[4] = { 0.0
 
 #include "include_asm.h"
 
+INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", func_001C3988);
+INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", func_001C3E08);
+INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", func_001C4150);
+INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", func_001C42F0);
+INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", func_001C48F8);
+INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", func_001C4A28);
+INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", func_001C55F0);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", func_001C58C0);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", func_001C5BA0);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", func_001C5FD0);
@@ -156,3 +163,10 @@ INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", func_001C6998);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", func_001C6DF0);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", func_001C7FB0);
 INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", func_001C8218);
+INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", func_001C8478);
+INCLUDE_ASM("asm/nonmatchings/src/clothAnimation", func_001C8958);
+
+void func_001C8A00(int a0, int a1, float f)
+{
+    *(float *)(a0 + a1 * 0x50 + 0x10) = f;
+}

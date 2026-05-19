@@ -242,3 +242,4 @@ float func_0019BB40(int a0)
 INCLUDE_ASM_NOP_PAD(func_0019BB5C);
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019BB60);
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019BC58);
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019BCE0);

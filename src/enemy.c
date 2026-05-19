@@ -37,9 +37,53 @@ __attribute__((section(".rodata.0x00618D10"))) const char D_00618D10[48] = "\305
 
 #include "include_asm.h"
 
+extern unsigned short D_00633398;
+extern unsigned short D_0063339A;
+extern int D_00633394;
+extern int D_006333AC;
+extern int D_006325B4;
+extern char D_006333B8[];
+extern void func_0010D530(int *self);
+extern void func_0010E158(int *self, short y);
+extern void func_0010E0B8(int *self, short y);
+extern void func_001E8AB8(int x);
+extern void func_0018CAA8(int x, int y, int z);
+extern void func_001A6E28(char *p);
+
+INCLUDE_ASM("asm/nonmatchings/src/enemy", func_001CBE88);
+INCLUDE_ASM("asm/nonmatchings/src/enemy", func_001CC048);
+INCLUDE_ASM("asm/nonmatchings/src/enemy", func_001CC470);
+INCLUDE_ASM("asm/nonmatchings/src/enemy", func_001CC838);
+
+void func_001CCA70(int *self)
+{
+    func_0010D530(self);
+    func_0010E158(self, -D_00633398);
+    func_0010E0B8(self, -D_0063339A);
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/enemy", func_001CCAC0);
+INCLUDE_ASM("asm/nonmatchings/src/enemy", func_001CCD98);
+INCLUDE_ASM("asm/nonmatchings/src/enemy", func_001CCFD0);
+INCLUDE_ASM("asm/nonmatchings/src/enemy", func_001CD0B8);
+INCLUDE_ASM("asm/nonmatchings/src/enemy", func_001CD2B0);
+
+void func_001CD490(void)
+{
+    func_001E8AB8(D_00633394);
+    D_00633394 = -1;
+    func_0018CAA8(D_006333AC, 0, 3);
+    D_006325B4 = 0;
+    func_001A6E28(D_006333B8);
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/enemy", func_001CD4D8);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", func_001CD5C0);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", func_001CD9B0);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", func_001CDB28);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", func_001CDE30);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", func_001CE028);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", func_001CE220);
+INCLUDE_ASM("asm/nonmatchings/src/enemy", func_001CE3C0);
+INCLUDE_ASM("asm/nonmatchings/src/enemy", func_001CE5F8);
+INCLUDE_ASM("asm/nonmatchings/src/enemy", func_001CE690);
