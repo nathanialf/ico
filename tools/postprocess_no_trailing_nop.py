@@ -32,6 +32,15 @@ PATTERN = re.compile(
     re.MULTILINE,
 )
 
+# Same but for inline-asm-terminated functions where the only thing
+# before `j $31` is `#NO_APP` (no $L label).
+PATTERN_NOAPP = re.compile(
+    r"(#NO_APP[ \t]*\n)"
+    r"([ \t]*)(j[ \t]+\$31)[ \t]*\n"
+    r"([ \t]*\.end)",
+    re.MULTILINE,
+)
+
 
 def patch(path: Path) -> bool:
     text = path.read_text()
@@ -43,6 +52,12 @@ def patch(path: Path) -> bool:
         text,
         count=1,
     )
+    if new == text:
+        new = PATTERN_NOAPP.sub(
+            lambda m: f"{m.group(1)}{m.group(2)}.set noreorder\n{m.group(2)}{m.group(3)}\n{m.group(2)}.set reorder\n{m.group(4)}",
+            text,
+            count=1,
+        )
     if new == text:
         return False
     path.write_text(new)

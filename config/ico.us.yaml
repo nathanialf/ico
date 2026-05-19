@@ -460,7 +460,7 @@ segments:
       - [0x0118E4, hasm, src/cod/0118E4]
       - [0x0118E8, c, src/cod/0118E8]            # func_001118E8: sibling: func_0010F710 instead of F5D8
       - [0x011914, hasm, src/cod/011914]
-      - [0x011918, asm, src/cod/011918]
+      - [0x011918, c, src/cod/011918]
       - [0x01193C, hasm, src/cod/01193C]
       - [0x011940, c, src/cod/011940]
       - [0x011948, asm, src/cod/011948]
