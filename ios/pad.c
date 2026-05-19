@@ -31,6 +31,7 @@ extern int D_00632190;
 extern int D_002811C0[];
 extern int D_00281630[];
 extern int D_006A6D90[];
+extern int D_006A6DB0[];
 extern int D_00631950;
 extern int D_00632108;
 extern int D_00633C90;
@@ -127,7 +128,31 @@ int func_0013B870(void) {
 INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013B878);
 INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013B8F0);
 INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013B970);
-INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013B9D8);
+
+int *func_0013B9D8(int key, unsigned int val)
+{
+    int *p = D_006A6DB0;
+    int *rv;
+    int i;
+    val = val & 0xFF;
+    i = 0xF;
+    while (1) {
+        if (*p == key) goto found;
+        i--;
+        if (i == -1) goto notfound;
+        p = (int *)((char *)p + 0x18);
+    }
+notfound:
+    rv = 0;
+    goto end;
+found:
+    rv = p;
+end:
+    if (rv != 0) {
+        *(unsigned char *)((char *)rv + 0x14) = val;
+    }
+    return rv;
+}
 
 void func_0013BA20(void)
 {
@@ -163,7 +188,28 @@ void func_0013C488(int *out, unsigned short *q)
     out[2] = (int)q;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013C4C0);
+void func_0013C4C0(unsigned char *self, int a, int b, unsigned char c, unsigned char d)
+{
+    self[0x3] = d;
+    self[0x0] = 0x11;
+    *(int *)(self + 0x4) = a;
+    *(int *)(self + 0x14) = b;
+    self[0x2] = c;
+    self[0x24] = 0;
+    *(short *)(self + 0x8) = 0;
+    *(short *)(self + 0x12) = 0;
+    *(short *)(self + 0x10) = 0;
+    *(short *)(self + 0xC) = 0;
+    *(short *)(self + 0xA) = 0;
+    self[0x26] = 0;
+    *(short *)(self + 0x18) = 0;
+    *(short *)(self + 0x22) = 0;
+    *(short *)(self + 0x20) = 0;
+    *(short *)(self + 0x1C) = 0;
+    *(short *)(self + 0x1A) = 0;
+    __asm__ __volatile__("" : : "r"(self) : "memory");
+    self[0x27] = 0;
+}
 
 void func_0013C510(int *a0, int a1, int a2, int a3)
 {
