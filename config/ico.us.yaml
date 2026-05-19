@@ -2239,7 +2239,7 @@ segments:
       - [0x14DCE4, hasm, src/cod/14DCE4]
       - [0x14DCE8, c, src/cod/14DCE8]
       - [0x14DD30, asm, src/cod/14DD30]
-      - [0x14E4C8, asm, src/cod/14E4C8]
+      - [0x14E4C8, c, src/cod/14E4C8]
       - [0x14E528, asm, src/cod/14E528]
       - [0x14E670, c, src/cod/14E670]            # func_0024E670: if(idx<8) tail func_00265168(ptr, D_00552390[idx]); else *ptr = D_0062EB68
       - [0x14E6A4, asm, src/cod/14E6A4]
