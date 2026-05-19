@@ -1,0 +1,5 @@
+# Per-file allowlist for postprocess_lui_const_swap.py.
+# Swaps the register allocation between an address-load lui and a
+# nearby const li when gcc allocated different regs but the original
+# codegen reused the lui's reg.
+152180

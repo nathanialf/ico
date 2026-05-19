@@ -53,6 +53,7 @@ FILL_BLEZ_DELAY_TXT="${ROOT}/config/fill_blez_delay.txt"
 SWAP_ZERO_RET_LD_RA_TXT="${ROOT}/config/swap_zero_ret_ld_ra.txt"
 V0_ZERO_IN_BNE_DELAY_TXT="${ROOT}/config/v0_zero_in_bne_delay.txt"
 JAL_DADDU_LW_LOOP_TXT="${ROOT}/config/jal_daddu_lw_loop.txt"
+LUI_CONST_SWAP_TXT="${ROOT}/config/lui_const_swap.txt"
 
 BASE="$(basename "${SRC}" .c)"
 S="${OUT%.o}.s"
@@ -121,6 +122,9 @@ if listed "${V0_ZERO_IN_BNE_DELAY_TXT}"; then
 fi
 if listed "${JAL_DADDU_LW_LOOP_TXT}"; then
     "${PYTHON}" "${ROOT}/tools/postprocess_jal_daddu_lw_loop.py" "${S}"
+fi
+if listed "${LUI_CONST_SWAP_TXT}"; then
+    "${PYTHON}" "${ROOT}/tools/postprocess_lui_const_swap.py" "${S}"
 fi
 if listed "${SWAP_ADDU_TXT}"; then
     sed -i -E 's/(addu[[:space:]]+\$([0-9]+),)\$([0-9]+),\$\2\b/\1$\2,$\3/g' "${S}"
