@@ -2226,7 +2226,7 @@ segments:
       - [0x14C52C, asm, src/cod/14C52C]
       - [0x14D9B8, c, src/cod/14D9B8]            # func_0024D9B8: promoted from permuter score-0
       - [0x14D9E4, hasm, src/cod/14D9E4]
-      - [0x14D9E8, asm, src/cod/14D9E8]
+      - [0x14D9E8, c, src/cod/14D9E8]
       - [0x14DA1C, hasm, src/cod/14DA1C]
       - [0x14DA20, c, src/cod/14DA20]            # func_0024DA20: 5-arg via $t0=D_00717BD8 (3rd-arg=9)
       - [0x14DA4C, hasm, src/cod/14DA4C]

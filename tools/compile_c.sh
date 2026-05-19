@@ -55,6 +55,7 @@ V0_ZERO_IN_BNE_DELAY_TXT="${ROOT}/config/v0_zero_in_bne_delay.txt"
 JAL_DADDU_LW_LOOP_TXT="${ROOT}/config/jal_daddu_lw_loop.txt"
 MOVE_SW_V0_BEFORE_LDS_TXT="${ROOT}/config/move_sw_v0_before_lds.txt"
 LUI_CONST_SWAP_TXT="${ROOT}/config/lui_const_swap.txt"
+LUI_LI_PRE_SD_TXT="${ROOT}/config/lui_li_pre_sd.txt"
 
 BASE="$(basename "${SRC}" .c)"
 S="${OUT%.o}.s"
@@ -129,6 +130,9 @@ if listed "${LUI_CONST_SWAP_TXT}"; then
 fi
 if listed "${MOVE_SW_V0_BEFORE_LDS_TXT}"; then
     "${PYTHON}" "${ROOT}/tools/postprocess_move_sw_v0_before_lds.py" "${S}"
+fi
+if listed "${LUI_LI_PRE_SD_TXT}"; then
+    "${PYTHON}" "${ROOT}/tools/postprocess_lui_li_pre_sd.py" "${S}"
 fi
 if [ "${BASE}" = "0AE420" ]; then
     "${PYTHON}" "${ROOT}/tools/postprocess_0AE420.py" "${S}"
