@@ -684,15 +684,8 @@ segments:
       - [0x03F9CC, asm, src/cod/03F9CC]
       - [0x03F9D0, c, sound/adpcm_init]          # TU promotion: sound/adpcm_init.c covers 0x13F9D0..0x141038 (23 INCLUDE_ASM + 6 nop-pads + 15 matched funcs)
       - [0x041038, c, src/cod/041038]            # func_00141038: return *(short*)(*(char**)(self+0x2C)+0x3C)
-      - [0x041044, asm, src/cod/041044]
-      - [0x041128, c, src/cod/041128]
-      - [0x041130, c, src/cod/041130]
-      - [0x041138, c, src/cod/041138]            # func_00141138: wrap func_00132DC0(a0, a1->C, 0x5C000); return 1
-      - [0x041160, c, src/cod/041160]
-      - [0x041168, asm, src/cod/041168]
-      - [0x0412B8, c, src/cod/0412B8]            # func_001412B8: D_00632214=a0; tail call func_0025CD28(a0)
-      - [0x0412C4, asm, src/cod/0412C4]
-      - [0x041340, c, sound/s_init]              # TU promotion: 0x141340..0x144828 (37 INCLUDE_ASM + 14 matched funcs, extended)
+      - [0x041044, asm, src/cod/041044]          # 4-byte pad belonging to prev TU
+      - [0x041048, c, sound/s_init]              # TU promotion: sound/s_init.c covers 0x141048..0x144828 (extended both ways)
       - [0x044828, asm, src/cod/044828]          # post-s_init: starts func_00144828
       - [0x044928, c, src/cod/044928]            # func_00144928: tail call func_001AE6F8(a0->C, a0->8)
       - [0x044934, asm, src/cod/044934]

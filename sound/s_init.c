@@ -60,6 +60,33 @@ __attribute__((section(".rodata.0x00557ED0"))) const char D_00557ED0[16] = "with
 extern int D_00632240;
 extern int func_00135EB8(int x, char *p, int b);
 extern void func_001A6E28();
+extern void func_00132DC0(int a0, int a1, int a2);
+extern void func_0025CD28(int a0);
+extern int  D_00632214;
+
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00141048);
+
+void func_00141128(void) {}
+void func_00141130(void) {}
+
+int func_00141138(int a0, int a1)
+{
+    func_00132DC0(a0, *(int *)(a1 + 0xC), 0x5C000);
+    return 1;
+}
+
+void func_00141160(void) {}
+
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00141168);
+
+void func_001412B8(int a0)
+{
+    D_00632214 = a0;
+    func_0025CD28(a0);
+}
+
+INCLUDE_ASM_NOP_PAD(func_001412C4);
+INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_001412C8);
 
 void func_00141340(void) {
     int v = func_00135EB8(0x78000, D_00557CC8, 0xFE);
