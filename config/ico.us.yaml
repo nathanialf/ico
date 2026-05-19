@@ -1691,7 +1691,7 @@ segments:
       - [0x0FBAA8, asm, src/cod/0FBAA8]
       - [0x0FBB40, c, src/cod/0FBB40]            # func_001FBB40: return D_00633F70
       - [0x0FBB48, c, src/DmaPacket]             # func_001FBB48: init D_004C7710 packet slots (DmaPacket TU)
-      - [0x0FBBE0, asm, src/cod/0FBBE0]
+      - [0x0FBBE0, c, src/cod/0FBBE0]
       - [0x0FBC14, hasm, src/cod/0FBC14]
       - [0x0FBC18, c, src/EnemyInit]             # TU promotion: 0x1FBC18..0x1FC278 (4 INCLUDE_ASM + 5 matched)
       - [0x0FC278, c, src/cod/0FC278]            # func_001FC278: byte-identical twin of func_001FC220

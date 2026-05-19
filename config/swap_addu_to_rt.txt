@@ -6,3 +6,4 @@
 # Format: <func_name> — one per line; # starts a comment.
 
 func_0013FF88
+func_001FBBE0
