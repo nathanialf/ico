@@ -56,6 +56,7 @@ JAL_DADDU_LW_LOOP_TXT="${ROOT}/config/jal_daddu_lw_loop.txt"
 MOVE_SW_V0_BEFORE_LDS_TXT="${ROOT}/config/move_sw_v0_before_lds.txt"
 LUI_CONST_SWAP_TXT="${ROOT}/config/lui_const_swap.txt"
 LUI_LI_PRE_SD_TXT="${ROOT}/config/lui_li_pre_sd.txt"
+DUMMY_SP_PROLOGUE_TXT="${ROOT}/config/dummy_sp_prologue.txt"
 
 BASE="$(basename "${SRC}" .c)"
 S="${OUT%.o}.s"
@@ -133,6 +134,9 @@ if listed "${MOVE_SW_V0_BEFORE_LDS_TXT}"; then
 fi
 if listed "${LUI_LI_PRE_SD_TXT}"; then
     "${PYTHON}" "${ROOT}/tools/postprocess_lui_li_pre_sd.py" "${S}"
+fi
+if listed "${DUMMY_SP_PROLOGUE_TXT}"; then
+    "${PYTHON}" "${ROOT}/tools/postprocess_dummy_sp_prologue.py" "${S}"
 fi
 if [ "${BASE}" = "0AE420" ]; then
     "${PYTHON}" "${ROOT}/tools/postprocess_0AE420.py" "${S}"

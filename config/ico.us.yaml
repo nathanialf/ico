@@ -1955,7 +1955,7 @@ segments:
       - [0x13C090, c, src/cod/13C090]            # func_0023C090: permuter score-0 promotion (fader gp_rel)
       - [0x13C0E8, c, src/cod/13C0E8]            # func_0023C0E8: permuter score-0 promotion (sibling 23C090)
       - [0x13C148, c, src/cod/13C148]            # func_0023C148: v=func_0018B0A0(); return (v==3 || v==9) ? -1 : 0
-      - [0x13C17C, asm, src/cod/13C17C]
+      - [0x13C17C, c, src/cod/13C17C]
       - [0x13C1C0, asm, src/cod/13C1C0]
       - [0x13C290, c, src/cod/13C290]            # func_0023C290: cache D_00633B48 update keyed by D_00633B4C; ret -1
       - [0x13C2F0, asm, src/cod/13C2F0]
