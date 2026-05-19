@@ -98,6 +98,32 @@ class Candidate:
 # somewhere in the source tree before they ever enter the candidate list.
 # ---------------------------------------------------------------------------
 
+def _find_include_asm_site(func_name: str) -> str:
+    """If `func_name` is INCLUDE_ASM'd inside a coalesced TU, return a
+    short `<path>:<line>` hint pointing at the line to replace. Returns
+    empty string if no such site exists (pure asm subseg or otherwise)."""
+    src = REPO_ROOT / "src"
+    if not src.is_dir():
+        return ""
+    try:
+        r = subprocess.run(
+            ["grep", "-rn", "-w", func_name, str(src)],
+            capture_output=True, text=True, check=False,
+        )
+    except FileNotFoundError:
+        return ""
+    for line in r.stdout.splitlines():
+        if "INCLUDE_ASM(" in line and func_name in line:
+            # line is "<path>:<lineno>:<content>"
+            try:
+                path, lineno, _ = line.split(":", 2)
+                rel = Path(path).relative_to(REPO_ROOT)
+                return f"{rel}:{lineno}  (replace INCLUDE_ASM with scaffold)"
+            except (ValueError, IndexError):
+                return line.split(":", 1)[0]
+    return ""
+
+
 def _load_yaml_intervals() -> list[tuple[int, str, str]]:
     """Parse `config/ico.us.yaml` into a list of (vram_start, type, name)
     intervals sorted by vram. Only entries with `0x...` file_offs in the
@@ -273,18 +299,28 @@ def build_candidate(
 # ---------------------------------------------------------------------------
 
 def attach_scaffold(c: Candidate, cookbook: dict[str, "classify_asm.Recipe"]) -> None:
+    """Attach a starter scaffold to `c`. Prefer the cookbook recipe; fall
+    back to an asm-derived structural scaffold so the user/AI always gets
+    something compilable to iterate on — never an empty result for a
+    truly-unmatched candidate."""
     hits = classify_asm.score(c.signals)
-    if not hits:
-        c.outcome = "no-recipe"
-        return
-    top = hits[0][0]
-    c.recipe_id = top.id
-    c.recipe_title = top.name
-    recipe = cookbook.get(top.id)
-    if recipe is None or not recipe.template:
+    asm_text = c.asm_path.read_text(errors="replace")
+    if hits:
+        top = hits[0][0]
+        c.recipe_id = top.id
+        c.recipe_title = top.name
+        recipe = cookbook.get(top.id)
+        if recipe is not None and recipe.template:
+            c.scaffold = classify_asm.scaffold(recipe, c.func_name, signals=c.signals)
+            return
+        # Recipe matched but has no template (e.g. §1.3 PARK, §3.3 park,
+        # §0.0 natural-C). Still emit the structural fallback so the
+        # human has the asm inline + an inferred signature.
         c.outcome = "no-template"
-        return
-    c.scaffold = classify_asm.scaffold(recipe, c.func_name, signals=c.signals)
+    else:
+        c.outcome = "no-recipe"
+
+    c.scaffold = classify_asm.fallback_scaffold(c.signals, asm_text)
 
 
 # ---------------------------------------------------------------------------
@@ -509,14 +545,29 @@ def main(argv: list[str]) -> int:
     for c in cands:
         attach_scaffold(c, cookbook)
 
-    # --- dry-run (default) ---
+    # --- dry-run (default): print plan + ALL scaffolds to stdout.
+    # Most candidates that survive the unmatched-detection filter live
+    # inside a coalesced TU (`src/<TU>.c`), so the scaffold can't just
+    # be written to `src/cod/<off>.c` — the human (or another tool)
+    # has to splice the body into the TU file in place of the
+    # `INCLUDE_ASM(...,func_X)` line. Printing every scaffold to stdout
+    # makes that splice direct: copy, find the matching INCLUDE_ASM,
+    # replace.
     if not (args.scaffold_only or args.apply):
         print_plan(cands)
-        # Show first scaffold inline so the user can sanity-check.
-        first_scaffold = next((c for c in cands if c.scaffold), None)
-        if first_scaffold:
-            print(f"\n--- first scaffold ({first_scaffold.func_name}, §{first_scaffold.recipe_id}) ---")
-            print(first_scaffold.scaffold)
+        emitted = 0
+        for c in cands:
+            if not c.scaffold:
+                continue
+            splice_hint = _find_include_asm_site(c.func_name)
+            print(f"\n--- scaffold {emitted+1}/{sum(1 for x in cands if x.scaffold)}: "
+                  f"{c.func_name} (§{c.recipe_id}) ---")
+            if splice_hint:
+                print(f"# splice target: {splice_hint}")
+            print(c.scaffold)
+            emitted += 1
+        if emitted == 0:
+            print("\n(no scaffold-capable candidates in this batch)")
         return 0
 
     # --- scaffold-only: write to a tmp dir for review ---

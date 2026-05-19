@@ -812,6 +812,140 @@ def _strip_leading_includes(template: str) -> str:
     return "\n".join(lines)
 
 
+# Helpers used by fallback_scaffold(): infer signature and pull externs
+# directly from the signals dict. Keep it cheap — pure introspection of
+# the already-parsed instructions, no second pass.
+
+_GLOBAL_REF_RE = re.compile(r"%(?:hi|lo|gp_rel)\(([A-Za-z_][\w]*)\)")
+# Bare-paren gp_rel form (asm/nonmatchings/.../<func>.s has these).
+_GP_REL_BARE_RE = re.compile(r"\b(?:l[wbhd]u?|s[wbhd])\s+\$\d+,\s*\(([A-Za-z_][\w]*)\)")
+
+
+def _infer_signature(s: Signals) -> str:
+    """Best-effort C signature from the asm signal pattern."""
+    # Argument-register usage. ee-gcc EE-EABI: $a0=$4, $a1=$5, $a2=$6, $a3=$7.
+    arg_count = 0
+    for reg_no, reg_name in [(4, "a0"), (5, "a1"), (6, "a2"), (7, "a3")]:
+        used = any(re.search(rf"\$\b{reg_no}\b", o) for _, o, _ in s.insns[:16])
+        if used:
+            arg_count = max(arg_count, reg_no - 3)
+
+    # Pointer-vs-int for $a0: if it's dereferenced via lw/sw/lhu/sb/etc.,
+    # treat as int *. Otherwise plain int.
+    a0_is_ptr = any(
+        m in {"lw", "lh", "lhu", "lb", "lbu", "ld", "sw", "sh", "sb", "sd", "lwc1", "swc1"}
+        and re.search(r"\$4\)", o)
+        for m, o, _ in s.insns[:16]
+    )
+
+    # Return type: void if no insn writes $v0 ($2) after the prologue.
+    # We treat the post-prologue area as everything after the first sd $ra
+    # (or just the whole function for leaves).
+    writes_v0 = any(
+        re.match(r"\$2,", o) and m in {
+            "addiu", "addu", "subu", "daddiu", "daddu", "or", "and", "xor",
+            "lw", "lh", "lhu", "lb", "lbu", "ld", "sll", "srl", "sra", "lui",
+            "move", "negu",
+        }
+        for m, o, _ in s.insns
+    )
+    rettype = "int" if (writes_v0 or s.has_sibcall) else "void"
+
+    # Build signature.
+    if arg_count == 0:
+        return f"{rettype} {s.name}(void)"
+    args = []
+    for i in range(arg_count):
+        if i == 0 and a0_is_ptr:
+            args.append("int *a0")
+        else:
+            args.append(f"int a{i}")
+    return f"{rettype} {s.name}({', '.join(args)})"
+
+
+def _extracted_globals(s: Signals) -> list[str]:
+    """Distinct D_<VMA> / named globals referenced via %hi/%lo/%gp_rel."""
+    seen: list[str] = []
+    for _, o, _ in s.insns:
+        for m in _GLOBAL_REF_RE.finditer(o):
+            n = m.group(1)
+            if n.startswith("func_"):
+                continue
+            if n not in seen:
+                seen.append(n)
+        for m in _GP_REL_BARE_RE.finditer(o):
+            n = m.group(1)
+            if n not in seen:
+                seen.append(n)
+    return seen
+
+
+def _format_asm_body(asm_text: str) -> str:
+    """Indent the raw .s body as a /* ... */ comment block. We keep splat's
+    per-instruction comments since they include the file offset / VRAM and
+    the encoded bytes — useful context for byte-level matching."""
+    lines = []
+    in_func = False
+    for raw in asm_text.splitlines():
+        if re.match(r"^\s*glabel\s+", raw):
+            in_func = True
+        if in_func:
+            lines.append(" * " + raw.rstrip())
+        if re.match(r"^\s*endlabel\s+", raw):
+            in_func = False
+    return "\n".join(lines)
+
+
+def fallback_scaffold(signals: Signals, asm_text: str) -> str:
+    """Emit a starter .c body for a function that has no matching recipe.
+
+    The shell includes:
+      - extern declarations for every global the asm touches
+      - extern declarations for every callee (from `jal` targets)
+      - the inferred C signature
+      - the splat-emitted asm as a comment block right above the body
+      - an empty function body with a `TODO` marker
+
+    The intent: the AI sees the full asm inline, plus a compilable shell
+    it can flesh out without re-reading the .s file separately. Minor
+    edits get you to byte match.
+    """
+    sig = _infer_signature(signals)
+    globals_used = _extracted_globals(signals)
+    callees = []
+    seen = set()
+    for t in signals.jal_targets:
+        t = t.rstrip(",")
+        if t and t != signals.name and t not in seen:
+            callees.append(t)
+            seen.add(t)
+
+    parts: list[str] = []
+    parts.append(
+        f"/* Fallback scaffold — no cookbook recipe matched.\n"
+        f" * Fingerprint: {fmt_signals_summary(signals)}\n"
+        f" *\n"
+        f" * The original asm is inlined as a comment below for reference.\n"
+        f" * Fill in the body so it compiles to the same bytes; iterate via\n"
+        f" * tools/quick_diff.sh or a full ninja for SHA check.\n"
+        f" */\n"
+    )
+    # Extern declarations.
+    if globals_used:
+        for g in globals_used:
+            parts.append(f"extern int {g};")
+        parts.append("")
+    if callees:
+        for c in callees:
+            parts.append(f"extern int {c}();")
+        parts.append("")
+
+    asm_body = _format_asm_body(asm_text)
+    parts.append("/*\n" + asm_body + "\n */")
+    parts.append(f"{sig}\n{{\n    /* TODO: fill in from asm above */\n}}\n")
+    return "\n".join(parts)
+
+
 def scaffold(recipe: Recipe, func_name: str, signals: Signals | None = None) -> str:
     """Render a recipe's template into a complete .c file body.
 
