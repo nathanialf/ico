@@ -1465,7 +1465,7 @@ segments:
       - [0x0CE978, c, src/cod/0CE978]            # func_001CE978: arr[idx] = 0
       - [0x0CE994, hasm, src/cod/0CE994]
       - [0x0CE998, c, src/cod/0CE998]            # func_001CE998: return arr[idx] == 0
-      - [0x0CE9B8, asm, src/cod/0CE9B8]
+      - [0x0CE9B8, c, src/cod/0CE9B8]
       - [0x0CE9FC, asm, src/cod/0CE9FC]
       - [0x0CEB08, c, src/cod/0CEB08]            # func_001CEB08
       - [0x0CEB18, c, src/cod/0CEB18]            # func_001CEB18: func_001CEB18: func_001E4798(self,0x71C,0x839,-1,-1,0x39A); func_001D4B40(self,0); self->_16C=0; ret 0
