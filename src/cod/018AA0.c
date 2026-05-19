@@ -1,3 +1,4 @@
+#include "matching.h"
 #include "vu0.h"
 
 void func_00118AA0(void *p0)
@@ -7,3 +8,5 @@ void func_00118AA0(void *p0)
     VU0_LSV(sqc2, 1, 0x0, a0);
     VU0_NOP();
 }
+
+TRAILING_PAD_NOP();
