@@ -88,19 +88,36 @@ escalated to "stop".
 ### Step 0 — refresh the TU map (only if stale)
 
 If recent matching activity has substantially changed `asm/matchings/`
-since `decomp/tu_map.json` was last written, refresh:
+or `asm/nonmatchings/` since `decomp/tu_map.json` was last written,
+refresh — iterate `build_data_tu_map` ↔ `identify_tus` to fixpoint
+(typically 2–3 rounds):
 
 ```sh
 .venv/bin/python tools/snapshot_asm.py
 .venv/bin/python tools/find_callgraph.py
 .venv/bin/python tools/find_vtables.py
 .venv/bin/python tools/find_boundaries.py
+.venv/bin/python tools/build_data_tu_map.py
+.venv/bin/python tools/identify_tus.py
+.venv/bin/python tools/build_data_tu_map.py
 .venv/bin/python tools/identify_tus.py
 .venv/bin/python tools/find_unnamed_tus.py
 ```
 
-If `snapshot_asm.py` refuses with "asm/cod/ is empty", matching is
-mid-cycle — wait, then retry.
+`snapshot_asm.py` mirrors `asm/src/cod/`, `asm/matchings/` (whole tree),
+and `asm/nonmatchings/` (whole tree) into `decomp/asm_snapshot/`. If
+`asm/src/cod/` is empty the matching loop is mid-cycle — the script
+keeps the previous cod snapshot but still refreshes matchings +
+nonmatchings.
+
+The strongest signal in the refreshed map is **`path`** — when a
+function's `.s` file lives in a per-TU subdir (e.g.
+`asm/nonmatchings/src/way_tool/`), splat's YAML explicitly assigned
+it. See `decomp/NOTES.md` §"TU identification pipeline" for the
+full source precedence (path > anchor > bracket > vtable > callgraph
+> data > revcg > slice_vote > bracket_inferred).
+
+Tag-source breakdown for a TU: `tools/tu_status.py --tag-sources`.
 
 If artifacts look fresh enough, skip this step.
 
@@ -119,7 +136,9 @@ Skip:
 - TUs flagged in `decomp/unnamed_tus.md` "Multi-TU slices (review)" —
   `.c.inc` inlining requires bespoke handling.
 
-Enumerate candidates:
+Enumerate candidates (`matchings/` is now the whole tree, not just
+`matchings/cod/` — recursive glob picks up per-TU subdirs like
+`matchings/Basic/`, `matchings/src/Texture/`):
 
 ```python
 .venv/bin/python << 'PY'
@@ -128,7 +147,7 @@ from pathlib import Path
 from collections import defaultdict
 tu_map = json.load(open("decomp/tu_map.json"))
 matched = set()
-for p in Path("decomp/asm_snapshot/matchings/cod").rglob("func_*.s"):
+for p in Path("decomp/asm_snapshot/matchings").rglob("func_*.s"):
     m = re.match(r"func_([0-9A-Fa-f]+)\.s", p.name)
     if m: matched.add(int(m.group(1), 16))
 by_tu = defaultdict(list)
@@ -188,26 +207,55 @@ Top of the file (in order):
    `cat decomp/source_tree/<tu_path>` — it's a one-liner.
 2. `#include "matching.h"`
 3. `#include "include_asm.h"` (only if any `INCLUDE_ASM` is used)
-4. Extern declarations — union of externs from all source `.c` files,
-   deduplicated. Match types exactly; don't introduce broader/narrower
-   types than the originals had.
+4. `#include "regpin.h"` (only if any function body uses the `REG()`
+   macro for register pinning)
+5. **Rodata typed defs** — every `.rodata.0x...` symbol owned by this
+   TU, with its `__attribute__((section(...)))` section attribute.
+   These live directly in the TU's `.c` — **do not create a private
+   `.h`**. Per-TU headers are not part of the original source layout;
+   the only sanctioned `.h` files are those listed in
+   `decomp/source_tree/include/`. See
+   `decomp/header_candidates.md` for the migration history.
+6. **Extern declarations** — union of externs from all source `.c`
+   files, deduplicated. Match types exactly; don't introduce
+   broader/narrower types than the originals had. Externs for:
+   - `.sdata` / `.lit4` / `.data` / `.bss` / `.sbss` symbols owned
+     by this TU (those definitions stay in the auto-generated
+     `<TU>_data.c` sidecar — `feedback_lit4_gp_rel` requires they
+     live outside the `INCLUDE_ASM`-containing TU)
+   - Cross-TU rodata symbols (the *other* TU defines those)
+   - Cross-TU function pointers
 
-Example top-of-file:
+Example top-of-file (matches `src/Basic.c` style):
 
 ```c
 /* src/Basic.c — __FILE__ anchor at .rodata 0x0061a8a8 */
 
 #include "matching.h"
+#include "regpin.h"
 #include "include_asm.h"
 
-extern int   D_00633780;
-extern char  D_0061A8A8[];
+__attribute__((section(".rodata.0x0061A890"))) char D_0061A890[24] = "set partition first!\n";
+__attribute__((section(".rodata.0x0061A8A8"))) char D_0061A8A8[24] = "src/Basic.c";
+
+extern int   D_00633780;          /* in <TU>_data.c sidecar — .sdata */
+extern int   D_00633788[];        /* in <TU>_data.c sidecar — .sbss */
+extern int   func_0013A0F8(int a0, int a1, char *file, int line);
+extern void  func_001A6E28(char *p);
 // …
 ```
 
+For TUs with `INCLUDE_ASM`, see `src/EnemyInit.c` and
+`src/act-parallel-control.c` as references — same top-of-file
+pattern, then `INCLUDE_ASM(...)` lines in vram order alongside
+matched C bodies.
+
 The skeleton placeholder under `decomp/source_tree/<tu_path>` stays
 in place after promotion — it remains the master record of the
-recovered tree layout and the anchor table.
+recovered tree layout and the anchor table. Status markers in the
+placeholder (`complete` / `partial` / `partial+data-sidecar` /
+`coalesced` / `unstarted`) are auto-updated by
+`tools/build_source_tree.py`.
 
 ### Step 4 — update the YAML
 
