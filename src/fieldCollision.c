@@ -81,6 +81,7 @@ __attribute__((section(".rodata.0x00559368"))) const char D_00559368[48] = "\312
 __attribute__((section(".rodata.0x00559398"))) const char D_00559398[72] = "DOBJ\314\265\244\267\244\316\245\252\245\326\245\270\245\247\245\257\245\310\244\313\302\320\244\267\244\306GetOrientOfWall\244\254\270\306\244\320\244\354\244\336\244\267\244\277\n";
 
 #include "include_asm.h"
+#include "matching.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00166028);
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00166118);
@@ -90,7 +91,21 @@ INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00166A10);
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00166BB0);
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00166E10);
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00167230);
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00167258);
+extern void func_00166E10(int *self);
+
+void func_00167258(int *self_arg)
+{
+    register int *self __asm__("$2") = self_arg;
+    register long long val __asm__("$3");
+    KEEP_LIVE(self);
+    *(int *)((char *)self + 0x94) = 0;
+    __asm__ volatile("ldl %0, %%gp_rel(D_006323C7)($28)" : "=r"(val));
+    __asm__ volatile("ldr %0, %%gp_rel(D_006323C0)($28)" : "+r"(val));
+    __asm__ volatile("sdl %1, 0x93(%0)" : : "r"(self), "r"(val) : "memory");
+    __asm__ volatile("sdr %1, 0x8C(%0)" : : "r"(self), "r"(val) : "memory");
+    NOP();
+    func_00166E10(self);
+}
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00167278);
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00167280);
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00167528);
