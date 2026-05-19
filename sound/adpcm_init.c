@@ -42,7 +42,16 @@ void func_0013FBF8(int a0, int a1, int a2, int a3)
 }
 
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_0013FC00);
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_0013FD10);
+void func_0013FD10(int idx, void (*fn)(int *, int), int arg)
+{
+    int *node = D_00281A70[idx];
+    if (node != 0) {
+        do {
+            fn(node, arg);
+            node = (int *)node[0x10 / 4];
+        } while (node != 0);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_0013FD78);
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_0013FE18);
 
