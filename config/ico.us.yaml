@@ -534,7 +534,7 @@ segments:
       - [0x018A9C, hasm, src/cod/018A9C]
       - [0x018AA0, c, src/cod/018AA0]            # VU0 wrapper (vu0.h macros)
       - [0x018AB8, c, src/Packet]                # TU promotion: 0x118AB8..0x11BF60 (28 INCLUDE_ASM + 3 matched + nop pads)
-      - [0x01BF60, asm, src/cod/01BF60]
+      - [0x01BF60, c, src/cod/01BF60]
       - [0x01BFB4, hasm, src/cod/01BFB4]
       - [0x01BFB8, c, src/Primitive]             # TU promotion: 0x11BFB8..0x11DF18 (14 INCLUDE_ASM + 2 matched)
       - [0x01DF18, c, src/RegistPacket]          # TU promotion: 0x11DF18..0x11FD28 (16 INCLUDE_ASM + 5 matched + 2 nop-pad)
