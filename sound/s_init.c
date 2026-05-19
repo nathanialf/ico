@@ -86,7 +86,20 @@ void func_001412B8(int a0)
 }
 
 INCLUDE_ASM_NOP_PAD(func_001412C4);
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_001412C8);
+extern int D_00632208;
+extern int func_0025CCE0(int a, int b, int c);
+extern int func_0025CE78(int a, int b, int c);
+
+void func_001412C8(int a0)
+{
+    int val;
+    D_00632208 = a0;
+    val = (a0 * 32767) / 100;
+    func_0025CCE0(0, val, val);
+    func_0025CCE0(1, val, val);
+    func_0025CE78(0, 0x3FFF, 0x3FFF);
+    func_0025CE78(1, 0x3FFF, 0x3FFF);
+}
 
 void func_00141340(void) {
     int v = func_00135EB8(0x78000, D_00557CC8, 0xFE);
