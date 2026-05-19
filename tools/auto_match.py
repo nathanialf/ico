@@ -63,6 +63,20 @@ BUILD_SH = REPO_ROOT / "tools" / "build.sh"
 # Build setup can take a long time; capped per feedback_make_timeout.
 BUILD_TIMEOUT_S = 30 * 60
 
+# cod-segment file_off ↔ vram conversion. All matching candidates live here.
+COD_FILE_OFF_TO_VRAM = 0x100000
+
+# Source roots a function body can legitimately live under. If a func name
+# appears as a real C definition / Pattern-C macro invocation in any of
+# these, it's claimed; if it's INCLUDE_ASM'd, it's the canonical
+# "unmatched inside coalesced TU" marker.
+SEARCH_ROOTS = ("src", "include", "tough_nuts")
+
+ICO_YAML = REPO_ROOT / "config" / "ico.us.yaml"
+_YAML_ENTRY_RE = re.compile(
+    r"^\s+-\s+\[\s*(0x[0-9A-Fa-f]+)\s*,\s*(\w+)(?:\s*,\s*([^\]]+))?\s*\]"
+)
+
 
 @dataclass
 class Candidate:
@@ -77,6 +91,119 @@ class Candidate:
     scaffold: str = ""  # rendered C
     outcome: str = ""   # "matched" / "diffs" / "no-recipe" / "no-template" / "skipped"
     diff_summary: str = ""
+
+
+# ---------------------------------------------------------------------------
+# Unmatched-detection — filter out functions that already have a claim
+# somewhere in the source tree before they ever enter the candidate list.
+# ---------------------------------------------------------------------------
+
+def _load_yaml_intervals() -> list[tuple[int, str, str]]:
+    """Parse `config/ico.us.yaml` into a list of (vram_start, type, name)
+    intervals sorted by vram. Only entries with `0x...` file_offs in the
+    cod range are converted to vram (file_off + 0x100000); others are
+    skipped since they aren't matching candidates anyway."""
+    out: list[tuple[int, str, str]] = []
+    if not ICO_YAML.exists():
+        return out
+    for line in ICO_YAML.read_text().splitlines():
+        m = _YAML_ENTRY_RE.match(line)
+        if not m:
+            continue
+        file_off = int(m.group(1), 16)
+        subseg_type = m.group(2)
+        name = (m.group(3) or "").strip()
+        out.append((file_off + COD_FILE_OFF_TO_VRAM, subseg_type, name))
+    out.sort(key=lambda e: e[0])
+    return out
+
+
+def _subseg_for_vram(
+    vram: int, intervals: list[tuple[int, str, str]]
+) -> tuple[str, str] | None:
+    """Largest interval[i].vram <= vram. Returns (type, name) or None."""
+    if not intervals:
+        return None
+    import bisect
+    keys = [e[0] for e in intervals]
+    idx = bisect.bisect_right(keys, vram) - 1
+    if idx < 0:
+        return None
+    _, t, n = intervals[idx]
+    return t, n
+
+
+# Patterns used to decide whether a grep hit represents an actual claim.
+def _include_asm_re(func: str) -> re.Pattern:
+    return re.compile(rf"INCLUDE_ASM\([^)]*\b{re.escape(func)}\b")
+
+
+def _c_def_re(func: str) -> re.Pattern:
+    # `<rettype> func_X(args) {` — definition opening
+    return re.compile(
+        rf"^\s*\w[\w\s*]*\b{re.escape(func)}\s*\([^;]*\)\s*\{{",
+        re.MULTILINE,
+    )
+
+
+def _macro_inv_re(func: str) -> re.Pattern:
+    # Pattern-C: `SYSCALL_WRAPPER(func_X, 0x53)` etc. at column 0.
+    return re.compile(rf"^[A-Z][A-Z_0-9]*\(\s*{re.escape(func)}\b", re.MULTILINE)
+
+
+def is_unmatched(func_name: str, vram: int,
+                 intervals: list[tuple[int, str, str]] | None = None) -> tuple[bool, str]:
+    """Return (is_unmatched, reason). `reason` is a short human-readable
+    string the caller can surface in skip messages.
+    """
+    if intervals is None:
+        intervals = _load_yaml_intervals()
+    seg = _subseg_for_vram(vram, intervals)
+    if seg is None:
+        return True, "no covering yaml subseg"
+    subseg_type, subseg_name = seg
+    if subseg_type == "hasm":
+        return False, f"hasm subseg ({subseg_name}) — matched via Pattern A"
+    if subseg_type == "asm":
+        return True, f"asm subseg ({subseg_name}) — no claim yet"
+    if subseg_type != "c":
+        # bin/data/etc — not a matching candidate
+        return False, f"non-c subseg type ({subseg_type})"
+
+    # `c` subseg — disambiguate by source content.
+    include_asm = _include_asm_re(func_name)
+    c_def = _c_def_re(func_name)
+    macro_inv = _macro_inv_re(func_name)
+    found_any = False
+    for root in SEARCH_ROOTS:
+        rpath = REPO_ROOT / root
+        if not rpath.is_dir():
+            continue
+        try:
+            r = subprocess.run(
+                ["grep", "-rln", "-w", func_name, str(rpath)],
+                capture_output=True, text=True, check=False,
+            )
+        except FileNotFoundError:
+            return True, "grep unavailable; defaulting to unmatched"
+        for p in r.stdout.splitlines():
+            found_any = True
+            text = Path(p).read_text(errors="replace")
+            if include_asm.search(text):
+                return True, f"INCLUDE_ASM in {Path(p).relative_to(REPO_ROOT)}"
+            if c_def.search(text):
+                return False, f"C definition in {Path(p).relative_to(REPO_ROOT)}"
+            if macro_inv.search(text):
+                return False, f"Pattern-C macro in {Path(p).relative_to(REPO_ROOT)}"
+            if "tough_nuts" in p:
+                return False, f"parked seed at {Path(p).relative_to(REPO_ROOT)}"
+    if found_any:
+        # Func name appeared somewhere (extern decl / call site) but no
+        # claim pattern matched. Be conservative and treat as claimed —
+        # the cost of skipping a real candidate is one human review;
+        # the cost of including a claimed func is wasted setup runs.
+        return False, "name appears in source (extern/call); treating as claimed"
+    return True, "no body found in any source root"
 
 
 # ---------------------------------------------------------------------------
@@ -108,7 +235,16 @@ def _parse_decl(asm_path: Path) -> tuple[int, int] | None:
     return int(m.group(1), 16), int(m.group(2), 16)
 
 
-def build_candidate(arg: str) -> Candidate | None:
+def build_candidate(
+    arg: str,
+    intervals: list[tuple[int, str, str]] | None = None,
+    force: bool = False,
+) -> Candidate | None:
+    """Resolve `arg` (path or func name) into a Candidate, or return None
+    if the function is already claimed/matched. Pass `force=True` to
+    bypass the unmatched-detection (useful when iterating on a known
+    near-miss the user named explicitly).
+    """
     asm = _resolve_arg(arg)
     if asm is None:
         print(f"skip: cannot resolve {arg!r}", file=sys.stderr)
@@ -120,7 +256,15 @@ def build_candidate(arg: str) -> Candidate | None:
     vram, size = decl
     file_off = vram - 0x100000
     sig = classify_asm.extract_signals(asm)
-    return Candidate(asm_path=asm, func_name=sig.name or f"func_{vram:08X}",
+    func_name = sig.name or f"func_{vram:08X}"
+
+    if not force:
+        unmatched, reason = is_unmatched(func_name, vram, intervals=intervals)
+        if not unmatched:
+            print(f"skip: {func_name} is claimed — {reason}", file=sys.stderr)
+            return None
+
+    return Candidate(asm_path=asm, func_name=func_name,
                      vram=vram, file_off=file_off, size=size, signals=sig)
 
 
@@ -321,6 +465,9 @@ def main(argv: list[str]) -> int:
                     help="allow --apply even if working tree is dirty")
     ap.add_argument("--top", type=int, default=1,
                     help="recipe rank to scaffold (default 1 = top)")
+    ap.add_argument("--include-claimed", action="store_true",
+                    help="bypass the unmatched-detection (use when iterating "
+                         "on a known near-miss that's already in src/)")
     args = ap.parse_args(argv[1:])
 
     # Collect targets.
@@ -339,14 +486,24 @@ def main(argv: list[str]) -> int:
         ap.print_usage(sys.stderr)
         return 2
 
+    # Load yaml once so the unmatched-detection isn't re-parsing per candidate.
+    intervals = _load_yaml_intervals()
+
     cands: list[Candidate] = []
+    skipped = 0
     for t in targets:
-        c = build_candidate(t)
+        c = build_candidate(t, intervals=intervals, force=args.include_claimed)
         if c:
             cands.append(c)
+        else:
+            skipped += 1
     if not cands:
-        print("no resolvable candidates", file=sys.stderr)
+        print(f"no resolvable candidates ({skipped} skipped/claimed)",
+              file=sys.stderr)
         return 1
+    if skipped:
+        print(f"({skipped} target(s) filtered as already-claimed; pass "
+              f"--include-claimed to bypass)", file=sys.stderr)
 
     cookbook = classify_asm.parse_cookbook()
     for c in cands:
