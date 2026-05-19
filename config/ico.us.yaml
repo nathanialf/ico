@@ -1259,7 +1259,7 @@ segments:
       - [0x0AE3E4, hasm, src/cod/0AE3E4]
       - [0x0AE3E8, c, src/cod/0AE3E8]            # func_001AE3E8: clear bits 0-1 of D_004B3D10[0..0xB5] (stride 0x40, ll)
       - [0x0AE41C, hasm, src/cod/0AE41C]
-      - [0x0AE420, asm, src/cod/0AE420]            # func_001AE420: func_001AE420: wrap func_001ADED8(a0,a3); store a1 at +0x30, a2 at +0x34; return ptr
+      - [0x0AE420, c, src/cod/0AE420]            # func_001AE420: func_001AE420: wrap func_001ADED8(a0,a3); store a1 at +0x30, a2 at +0x34; return ptr
       - [0x0AE460, asm, src/cod/0AE460]
       - [0x0AE808, c, src/cod/0AE808]            # func_001AE808: D_004B3D50[1]==0 ? 4 : D_004B3D50[2] (u16)
       - [0x0AE82C, hasm, src/cod/0AE82C]
