@@ -540,7 +540,7 @@ segments:
       - [0x01BFB8, c, src/Primitive]             # TU promotion: 0x11BFB8..0x11DF18 (14 INCLUDE_ASM + 2 matched)
       - [0x01DF18, c, src/RegistPacket]          # TU promotion: 0x11DF18..0x11FD28 (16 INCLUDE_ASM + 5 matched + 2 nop-pad)
       - [0x01FD28, asm, src/cod/01FD28]
-      - [0x01FF30, asm, src/cod/01FF30]
+      - [0x01FF30, c, src/cod/01FF30]
       - [0x01FF60, asm, src/cod/01FF60]
       - [0x022C40, c, src/cod/022C40]            # func_00122C40: tail call func_001207E8 passthrough
       - [0x022C48, c, src/cod/022C48]            # func_00122C48: D_00631D40 = val
@@ -1145,7 +1145,7 @@ segments:
       - [0x09E4F8, c, src/cod/09E4F8]            # func_0019E4F8: zero p[2..3]
       - [0x09E508, c, src/cod/09E508]            # func_0019E508: self[3] == self[4]
       - [0x09E51C, hasm, src/cod/09E51C]
-      - [0x09E598, asm, src/cod/09E598]
+      - [0x09E598, c, src/cod/09E598]
       - [0x09E5CC, asm, src/cod/09E5CC]
       - [0x09E628, c, src/cod/09E628]            # func_0019E628: if p[3]>0, --p[3]
       - [0x09E648, c, src/DObj]                  # TU promotion: 0x19E648..0x19F4E0 (5 INCLUDE_ASM + 1 matched func)
@@ -2154,7 +2154,7 @@ segments:
       - [0x146684, asm, src/cod/146684]
       - [0x146918, c, src/cod/146918]            # func_00246918: f1A40(self); update p chain; f1A88(); self[1]=0; ret p
       - [0x146970, asm, src/cod/146970]
-      - [0x146B38, asm, src/cod/146B38]
+      - [0x146B38, c, src/cod/146B38]
       - [0x146B78, c, src/cod/146B78]            # func_00246B78: permuter score-0 promotion (lazy init from sentinel -1)
       - [0x146BD4, asm, src/cod/146BD4]
       - [0x147088, c, src/cod/147088]            # func_00247088: permuter score-0 (parked seed)
