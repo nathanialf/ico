@@ -949,7 +949,7 @@ segments:
       - [0x087904, hasm, src/cod/087904]
       - [0x087908, c, src/cod/087908]            # func_00187908: p=f(a0); q=f(a0); return p->3C - q->38
       - [0x08794C, hasm, src/cod/08794C]
-      - [0x087950, asm, src/cod/087950]
+      - [0x087950, c, src/cod/087950]
       - [0x087990, c, src/cod/087990]            # func_00187990: D_00632614[1] + a0*0x4C
       - [0x0879A8, c, src/cod/0879A8]            # func_001879A8: D_00632614->_4[a0]._48 + a1*0x5C
       - [0x0879D0, asm, src/cod/0879D0]
