@@ -2006,7 +2006,7 @@ segments:
       - [0x13EFB8, c, src/cod/13EFB8]            # func_0023EFB8: HW reg writes (NOP() trailing)
       - [0x13EFF4, hasm, src/cod/13EFF4]
       - [0x13EFF8, c, src/cod/13EFF8]            # func_0023EFF8: cond call + gp_rel zero + SYNC + EI + ret 0
-      - [0x13F030, asm, src/cod/13F030]
+      - [0x13F030, c, src/cod/13F030]
       - [0x13F06C, hasm, src/cod/13F06C]
       - [0x13F070, c, src/cod/13F070]            # func_0023F070
       - [0x13F07C, asm, src/cod/13F07C]
