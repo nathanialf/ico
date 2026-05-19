@@ -767,7 +767,7 @@ segments:
       - [0x05F578, asm, src/cod/05F578]
       - [0x05F5D0, c, src/cod/05F5D0]            # func_0015F5D0: volatile arg + OR mask: *(ll*)(p164+0x20) |= 0x40000<<16 (same as 0x0015F428)
       - [0x05F5F8, asm, src/cod/05F5F8]
-      - [0x05F650, asm, src/cod/05F650]
+      - [0x05F650, c, src/cod/05F650]
       - [0x05F698, c, src/cod/05F698]            # func_0015F698: store-arg-discard
       - [0x05F6A8, c, src/cod/05F6A8]            # func_0015F6A8: == 0xF compare
       - [0x05F6BC, hasm, src/cod/05F6BC]
@@ -2242,7 +2242,7 @@ segments:
       - [0x14DC40, asm, src/cod/14DC40]
       - [0x14DC90, asm, src/cod/14DC90]
       - [0x14DCE4, hasm, src/cod/14DCE4]
-      - [0x14DCE8, asm, src/cod/14DCE8]
+      - [0x14DCE8, c, src/cod/14DCE8]
       - [0x14DD30, asm, src/cod/14DD30]
       - [0x14E4C8, asm, src/cod/14E4C8]
       - [0x14E528, asm, src/cod/14E528]
