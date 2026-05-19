@@ -371,6 +371,15 @@ def _emit_chunked(sym: str, vma: int, sect_name: str,
                   data: bytes) -> list[str]:
     if not data:
         return []
+    # NOTE: rodata symbols are deliberately emitted WITHOUT `const`.
+    # gas warns about this ("setting incorrect section attributes for
+    # .rodata.0xVMA" — section name suggests `"a"` flags but a
+    # non-const decl makes gcc emit `"aw"`). The warning is cosmetic.
+    # Adding `const` produces a SHA-1 mismatch: ee-gcc's linker groups
+    # sections by flag set, so a mix of `"a"` (const) and `"aw"`
+    # (non-const) `.rodata.0x*` sections gets reordered relative to
+    # baserom's all-`"aw"` layout. Revisit only if the rodata sidecars
+    # ever become uniformly const-able.
     # Word-array branch: for 4-aligned VMAs with multi-word, non-zero,
     # non-string bytes, emit `void *[]` (with &func_/&D_ resolved via
     # linker map) — but ONLY when the block is densely populated with
