@@ -20,6 +20,7 @@ __attribute__((section(".rodata.0x005597A0"))) const char D_005597A0[24] = "[%s]
 __attribute__((section(".rodata.0x005597B8"))) const char D_005597B8[24] = "delete wg 2\n";
 
 #include "include_asm.h"
+#include "matching.h"
 
 extern void func_0014A3A8(unsigned int a0);
 extern void func_001A6E28(char *a0);
@@ -73,7 +74,16 @@ void func_00176150(volatile unsigned int a0)
 }
 
 /* func_00176194 is a 4-byte nop pad absorbed into func_00176198's .s. */
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00176198);
+void func_00176198(int a0)
+{
+    int s;
+    DEFEAT_TCO();
+    s = a0;
+    __asm__ volatile("" : : "r"(&s), "r"(s) : "memory");
+    NOP();
+    func_0014A3A8(a0);
+    DEFEAT_TCO();
+}
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001761B8);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00176200);
 
