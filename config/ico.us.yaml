@@ -614,7 +614,7 @@ segments:
       - [0x0380F8, c, src/cod/0380F8]            # dispatch wrapper, 137F08-family
       - [0x038138, asm, src/cod/038138]
       - [0x038180, hasm, src/cod/038180]
-      - [0x038188, asm, src/cod/038188]
+      - [0x038188, c, src/cod/038188]
       - [0x0381D0, c, src/cod/0381D0]
       - [0x038214, hasm, src/cod/038214]
       - [0x038218, c, src/cod/038218]

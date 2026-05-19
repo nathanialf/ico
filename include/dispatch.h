@@ -100,4 +100,38 @@ extern char D_00280F88[];
         return rv;                                                              \
     }
 
+/* Same as DISPATCH_WRAPPER_TYPEN but ALSO stores the original a1 arg
+ * into v1[0x48/4] BEFORE the call. Used by func_00138188 / func_00138140
+ * family (type_lit 0xB, 0xA): same dispatch shape with one extra
+ * pre-call store of `a1` at struct offset 0x48. */
+#define DISPATCH_WRAPPER_TYPEN_A1(name, type_lit)                               \
+    int name(long *a0, long a1_in) {                                            \
+        register long *v1 __asm__("$3");                                        \
+        register int a3 __asm__("$7");                                          \
+        register char *a0_arg __asm__("$4");                                    \
+        register long *a1_arg __asm__("$5");                                    \
+        register int a2_arg __asm__("$6");                                      \
+        register long v0 __asm__("$2");                                         \
+        register int rv __asm__("$2");                                          \
+                                                                                \
+        __asm__ volatile("daddu %0, %1, $0" : "=r"(v1) : "r"(a0));              \
+        __asm__ volatile("addiu %0, $0, " #type_lit : "=r"(v0));                \
+        __asm__ volatile("sw %0, 4(%1)" : : "r"(v0), "r"(v1) : "memory");       \
+        __asm__ volatile("addiu %0, $0, -2" : "=r"(a3));                        \
+        __asm__ volatile("sw %0, 0x48(%1)" : : "r"(a1_in), "r"(v1) : "memory"); \
+        __asm__ volatile("lui %0, %%hi(D_00280F88)" : "=r"(a0_arg));            \
+        __asm__ volatile("ld %0, 0(%1)" : "=r"(v0) : "r"(v1));                  \
+        __asm__ volatile("addiu %0, %0, %%lo(D_00280F88)" : "+r"(a0_arg));      \
+        __asm__ volatile("daddu %0, %1, $0" : "=r"(a1_arg) : "r"(v1));          \
+        __asm__ volatile("daddu %0, $0, $0" : "=r"(a2_arg));                    \
+        __asm__ volatile("and %0, %0, %1" : "+r"(v0) : "r"(a3));                \
+        __asm__ volatile("sd %0, 0(%1)" : : "r"(v0), "r"(v1) : "memory");       \
+        __asm__ volatile(                                                       \
+            "jal func_0013A5B8"                                                 \
+            : "=r"(rv)                                                          \
+            : "r"(a0_arg), "r"(a1_arg), "r"(a2_arg), "r"(a3)                    \
+            : "$31", "memory");                                                 \
+        return rv;                                                              \
+    }
+
 #endif /* DISPATCH_H */
