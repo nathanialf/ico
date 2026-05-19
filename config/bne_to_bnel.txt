@@ -9,3 +9,4 @@
 
 # func_0013C538:bne  # disabled while function is INCLUDE_ASM
 func_0013C920:bne
+func_0010A3A0:bne
