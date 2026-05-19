@@ -264,7 +264,7 @@ segments:
       - [0x0019E0, c, src/cod/0019E0]            # func_001019E0: varargs wrapper: save/swap D_00274EB8 to func_00101100, call func_001013E0, restore
       - [0x001A40, hasm, src/cod/001A40]            # func_00101A40: handwritten DI + return prev EIE state
       - [0x001A88, hasm, src/cod/001A88]            # func_00101A88: handwritten EI + return prev EIE state
-      - [0x001AA0, asm, src/cod/001AA0]
+      - [0x001AA0, c, src/cod/001AA0]
       - [0x001AE4, hasm, src/cod/001AE4]
       - [0x001AE8, c, src/cod/001AE8]            # func_00101AE8: wrap func_00100950(2, &local=a0)
       - [0x001B0C, hasm, src/cod/001B0C]
