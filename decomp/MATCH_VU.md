@@ -17,26 +17,24 @@ leaked-source-derived code, no AI co-author trailer on commits.
 ## What this matching loop is
 
 The `.vutext` section (`0x0026F5E0 - 0x00274EBF`, 20,704 bytes, ~2,588
-bundles) currently lives in `config/ico.us.yaml` as:
+bundles) is split in `config/ico.us.yaml` between a `hasm` head
+(bytes already hand-typed) and a `textbin` tail (rest still
+incbin'd):
 
 ```yaml
-- [0x16F5E0, textbin, src/cod/16F5E0]
+- [0x16F5E0, hasm, src/cod/16F5E0]            # already hand-typed
+- [0x16F<N+0x40>, textbin, src/cod/16F<N+0x40>]   # rest
 ```
 
-`textbin` is "opaque binary blob, pulled via `.incbin`." Splat
-references `assets/cod/16F5E0.textbin.bin` (gitignored, IP-sensitive).
-`tools/progress.py` reports `.vutext` 0% under the IP-aware filter
-because the bytes are not in tracked source.
+The hasm head is backed by `src/cod/16F5E0.S` — a hand-typed VU0
+assembly file. The textbin tail is `assets/src/cod/16F<N+0x40>.textbin.bin`
+(gitignored, IP-sensitive). Each new chunk extends the hasm range
+forward and shrinks the textbin head — see the
+"Yaml split-extension procedure" section below.
 
-**The match:** replace the yaml entry with:
-
-```yaml
-- [0x16F5E0, hasm, src/cod/16F5E0]
-```
-
-backed by `src/cod/16F5E0.S` — a hand-typed VU0 assembly file. Splat
-already supports `hasm` for the rest of the binary (see Pattern A in
-`decomp/MATCH.md`). `tools/postprocess_asm.py:patch_vu0_special_regs_per_function()`
+`tools/progress.py` credits hasm subsegs landing in the .vutext VRAM
+range to `.vutext`, so the percentage tracks real hand-typed bytes
+(not yaml shape). `tools/postprocess_asm.py:patch_vu0_special_regs_per_function()`
 already handles `$ACC`/`$Q`/`$R`/`$I` rewrites for splat-emitted asm;
 it's a no-op for hand-typed `.S`.
 
@@ -67,14 +65,16 @@ When you crack a new opcode family during hand-rewrite:
      (so the source no longer needs `.word` for that family).
   3. Add a round-trip test entry in `tools/test_assemble_vu0.py`.
 
-`tools/assemble_vu0.py --check assets/cod/16F5E0.textbin.bin` does an
-end-to-end byte comparison after each iteration. Use it instead of
-the full ninja build until the chunk is byte-clean.
+`tools/assemble_vu0.py src/cod/16F5E0.S --check assets/cod/16F5E0.textbin.bin --allow-short`
+does an end-to-end byte comparison: built vs the textbin's leading
+bytes (length-permissive, prefix-only match). Use it after every
+edit to the `.S` — it's a sub-second loop vs the multi-minute
+`build.sh setup && ninja` cycle.
 
-The ninja-rule wiring (route `.S` through assemble_vu0 before
-`as_hasm`) is the next integration step — currently done manually by
-running `tools/assemble_vu0.py src/cod/16F5E0.S` before `ninja`. See
-`tools/test_assemble_vu0.py` for the canonical invocation.
+Build wiring is automatic. `tools/build.sh setup` runs `assemble_vu0`
+on every `src/cod/*.S` before splat, generating the corresponding
+gitignored `<stem>.s` that splat's `hasm` subseg picks up. No manual
+pre-step needed; just edit the `.S` and re-run setup + ninja.
 
 ## IP-safety boundary — HARD RULE
 
@@ -142,10 +142,17 @@ banned.
 bounded unit of work. Per-session goal: 1-4 chunks fully matched.
 
 ```sh
-# Determine the next unstarted chunk:
-.venv/bin/python tools/disasm_vu0.py --bundles 16 --range 0x0-0x80
-# Identify the boundary of work already committed in src/cod/16F5E0.S.
-# Start at the next 0x40-aligned offset.
+# 1. Find the boundary of work already committed:
+grep -E '0x16F[5-9A-F][0-9A-F]+, (hasm|textbin)' config/ico.us.yaml
+#   → output shows e.g.
+#         - [0x16F5E0, hasm, src/cod/16F5E0]
+#         - [0x16F620, textbin, src/cod/16F620]
+#     The hasm subseg runs 0x16F5E0..0x16F620 (== textbin start).
+#     Subtract 0x16F5E0 to translate to a .vutext-relative offset
+#     (0..0x40 already hand-typed).
+
+# 2. Disassemble the next 8 bundles (64 bytes) as reference:
+.venv/bin/python tools/disasm_vu0.py --range 0x40-0x80 > /tmp/vu0_ref.txt
 ```
 
 For early sessions, prefer obvious-shape chunks (long branch chains,
@@ -179,31 +186,48 @@ For each picked chunk `[lo, hi]`:
    - Accumulator chains (`mula` followed by `madda`*N then `madd`).
    - Memory-access patterns (`lq`/`sq` with offset register).
 
-4. **Re-write the chunk** into `src/cod/16F5E0.S`. Use:
+4. **Re-write the chunk** by appending to `src/cod/16F5E0.S`. Use:
    - Hand-chosen labels (`matrix_mul_inner:`, `vertex_loop:`) — not
-     `L_0040`.
+     `L_0040` (the disasm uses `L_<addr>` because it knows nothing
+     about intent; you do).
    - Pseudocode comments (`; rotate vertex into world space`).
-   - Standard VU0 mnemonics with `.bc` and `.xyzw` field suffixes.
-   - Bundle-pair formatting: upper instruction on left, lower on
-     right, separated by `;`.
+   - Standard VU0 mnemonics with `.bc` and `.xyzw` field suffixes
+     when symbolic in `tools/assemble_vu0.py` — otherwise `.word
+     0x<hex>` (with intent comment on the same line).
+   - Bundle-pair formatting: upper on left, lower on right,
+     separated by `;`.
 
-5. **Build:**
+5. **Tight inner loop — verify before building.** Sub-second:
    ```sh
-   timeout 600 tools/build.sh setup && timeout 900 ninja
+   .venv/bin/python tools/assemble_vu0.py src/cod/16F5E0.S \
+     --check assets/cod/16F5E0.textbin.bin --allow-short
+   ```
+   Prints the first mismatched byte (with both `--check-offset` and
+   in-built offset) or `OK (N bytes match — built is a N/20768 prefix)`.
+   Iterate on the `.S` until OK, THEN promote the hasm/textbin split.
+
+6. **Promote the chunk** in `config/ico.us.yaml`. The hasm subseg
+   grows by 0x40, the textbin subseg shrinks by 0x40 from its head.
+   See "Yaml split-extension procedure" below for the exact form.
+
+7. **Build + SHA-1 verify:**
+   ```sh
+   tools/build.sh setup && ninja
    ```
    No `quick_diff` for `.vutext` — `quick_diff.sh` only covers
-   `.text`. SHA-1 round-trip via `verify_elf.py` is the only signal.
+   `.text`. SHA-1 round-trip via `verify_elf.py` (last ninja step) is
+   the only signal.
 
-6. **Localize failures:**
+8. **Localize unexpected failures:**
    ```sh
    .venv/bin/python tools/first_diff.py
    ```
-   First diff usually shows the exact bundle that diverges. Either:
-   - Mnemonic wrong → re-read VU0 reference, fix instruction.
-   - Bundle ordering wrong → check upper/lower placement.
-   - Register field wrong → re-decode the bit pattern.
+   If `--check` already passed and ninja fails, the divergence is in
+   the yaml/build wiring, not the bytes. Common causes: textbin's
+   bin offset didn't slice correctly (rare; splat handles this), or
+   the gitignore for the generated `.s` isn't covering the new path.
 
-7. **Commit one chunk at a time** with descriptive messages:
+9. **Commit one chunk at a time** with descriptive messages:
    ```
    VU0: hand-write 0x0040-0x0080 (matrix_mul_inner)
    VU0: hand-write 0x0080-0x00C0 (vertex_normalize)
@@ -258,45 +282,65 @@ vocabulary used in ICO's matching C source. Same mnemonics, same
 register names — when you're unsure about an instruction's syntax,
 check how the EE side invokes it.
 
-## Yaml flip procedure
+## Yaml split-extension procedure
 
-Once `src/cod/16F5E0.S` is structurally complete (all 2,588 bundles
-hand-written), flip the yaml subseg type:
+The `.vutext` segment lives in the yaml as TWO subsegs in tandem:
+a leading `hasm` covering the already-hand-typed bytes, and a
+trailing `textbin` covering everything that's still incbin'd from
+`assets/`. After each new chunk lands, advance the split point:
 
 ```yaml
-# before:
-- [0x16F5E0, textbin, src/cod/16F5E0]
-# after:
+# before (after the first 8 bundles landed):
 - [0x16F5E0, hasm, src/cod/16F5E0]
+- [0x16F620, textbin, src/cod/16F620]
+
+# after the second chunk (next 8 bundles, 0x40 more bytes):
+- [0x16F5E0, hasm, src/cod/16F5E0]
+- [0x16F660, textbin, src/cod/16F660]
 ```
 
-Then:
+Splat re-derives `assets/src/cod/16F660.textbin.bin` from the rest
+of the .vutext bytes on the next setup, so no manual asset
+extraction is needed. The hasm side just grows its byte range; the
+single `src/cod/16F5E0.S` file accumulates more bundles.
+
+When the entire 20704 bytes are hand-typed, delete the textbin
+subseg entirely:
+
+```yaml
+- [0x16F5E0, hasm, src/cod/16F5E0]
+# (no following textbin entry)
+```
+
+Then run:
 
 ```sh
-timeout 600 tools/build.sh setup && timeout 900 ninja
-.venv/bin/python tools/verify_elf.py        # must report SHA-1 match
-.venv/bin/python tools/progress.py          # .vutext now 100%
-tools/check_no_rom.sh                       # must pass
+tools/build.sh setup && ninja           # SHA-1 verify last step
+.venv/bin/python tools/progress.py      # .vutext now 100%
+tools/check_no_rom.sh                   # must pass
 ```
 
-The `hasm_in_src_path: True` splat option is already set in the yaml
-header. `tools/postprocess_asm.py:patch_vu0_special_regs_per_function()`
-applies idempotently to the hand-written `.S` — it's a no-op when the
-file already uses `$ACC`/`$Q` form.
+The `hasm_in_src_path: True` splat option is already set in the
+yaml header. `tools/postprocess_asm.py:patch_vu0_special_regs_per_function()`
+applies idempotently to the generated `<stem>.s` — it's a no-op
+when the file already uses `$ACC`/`$Q` form.
 
 ## Done criterion
 
 - `src/cod/16F5E0.S` exists and contains hand-typed VU0 assembly
   (no copy-paste from `tools/disasm_vu0.py` output).
-- Yaml subseg type is `hasm`.
-- `make setup && ninja && .venv/bin/python tools/verify_elf.py`
-  reports SHA-1 match.
-- `tools/progress.py` reports `.vutext` 100%.
+- Yaml entry for 0x16F5E0 is `hasm` and there is NO trailing
+  `textbin` subseg in the .vutext range.
+- `tools/build.sh setup && ninja` reports
+  `verify_elf: OK (... sha1=fbf50c75cd5911273511c4f9af90503ff8423582)`.
+- `tools/progress.py` reports `.vutext` 100% (20704 / 20704).
 - `tools/check_no_rom.sh` passes.
 - `tools/disasm_vu0.py` stdout was never committed to git
   (verify via `git log -p --all -- src/cod/16F5E0.S` and grep for
   the disassembler's "REFERENCE ONLY" banner — must show zero
   matches).
+- `assets/src/cod/16F*.textbin.bin` left in `.gitignore`'d
+  `assets/` tree only — no `assets/` files are tracked.
 
 ## Effort expectation
 
@@ -311,13 +355,14 @@ continuing in parallel.
 
 ## Tough-nut parking
 
-If a chunk's SHA-1 fails persistently and you can't localize the
-divergence, **revert that chunk's section of `src/cod/16F5E0.S`**
-and commit a `tough_nuts/vu0/<offset>.md` note describing what you
-tried. Move on to the next chunk. The reverted section returns to
-the `textbin` form by virtue of the yaml subseg still being mostly
-hasm-pointing-at-a-hand-written-file — but the gap is real. Track
-gaps in `tough_nuts/vu0/` for a future re-attempt.
+If a chunk's `--check` fails and you can't decode the bytes, **revert
+that chunk's lines from `src/cod/16F5E0.S`** and back out the yaml
+split-extension (move the textbin start back to where it was). The
+reverted bytes return to incbin from `assets/` via the now-larger
+textbin subseg — the section round-trips trivially. Commit a
+`tough_nuts/vu0/<offset>.md` note describing what you tried (which
+upper opcode family was opaque, which bundle's encoding you couldn't
+identify) so a future session has the breadcrumbs.
 
 (Permuter does not apply to VU0 code; there's no equivalent of
 ee-gcc regalloc to randomize.)
