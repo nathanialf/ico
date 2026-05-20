@@ -202,7 +202,22 @@ void func_0014B768(int a0)
 
 /* func_0014B7A4 is a 4-byte nop pad absorbed into func_0014B7A8's .s. */
 INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014B7A8);
-INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014B800);
+extern int D_006325B4;
+
+int func_0014B800(char *self)
+{
+    char *sub = *(char **)(self + 0x164);
+    if (*(int *)(sub + 0x30) == 0x35) goto ret1;
+    {
+        char *other = *(char **)(sub + 0x678);
+        if (*(int *)(other + 0x394) == 0) goto ret0;
+        if (D_006325B4 == 0) goto ret0;
+    }
+ret1:
+    return 1;
+ret0:
+    return 0;
+}
 /* func_0014B83C is a 4-byte nop pad absorbed into func_0014B840's matching .s. */
 
 int func_0014B840(char *self) {
