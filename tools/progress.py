@@ -47,16 +47,25 @@ BUILD_OBJ_DIRS = tuple(REPO_ROOT / "build" / r for r in SOURCE_ROOTS)
 
 # Yaml subsegment types that correspond to each ELF section. Splat lumps
 # .vutext under `textbin` because it's hand-written VU code rather than
-# auto-disassembled MIPS — we account for it as its own row.
+# auto-disassembled MIPS — we account for it as its own row.  Hand-typed
+# VU0 chunks land as `hasm` subsegs in the .vutext VRAM range; the
+# address check in `_section_for_subseg` keeps them out of the .text
+# tally and credits them to .vutext.
 SECTION_TO_TYPES = {
     ".text":   {"asm", "c", "hasm"},
-    ".vutext": {"textbin"},
+    ".vutext": {"textbin", "hasm"},
     ".data":   {"data"},
     ".rodata": {"rodata"},
     ".lit4":   {"lit4"},
     ".sdata":  {"sdata"},
 }
 MATCHABLE_TYPES = {"c", "hasm"}
+
+# Subseg file-offset range (vram - 0x100000) that the .vutext ELF
+# section covers. Subsegs landing here count toward .vutext even if
+# their yaml type is also valid for .text (e.g. hasm). Filled in from
+# baseelf.elf on first use; cached in _VUTEXT_RANGE.
+_VUTEXT_RANGE: tuple[int, int] | None = None
 
 # Non-text sections we credit from compiled object emissions. With
 # `migrate_rodata_to_functions: True` in the splat config, rodata/lit4/
@@ -161,14 +170,55 @@ def _section_for_type(stype: str) -> str | None:
     return None
 
 
+def _vutext_range() -> tuple[int, int]:
+    """Lazy-load the .vutext file-offset range from baseelf.elf.
+
+    Yaml subseg offsets are vram - 0x100000 (the ELF load base for the
+    cod segment), so we translate the ELF section's vram bounds into
+    that file-offset space."""
+    global _VUTEXT_RANGE
+    if _VUTEXT_RANGE is not None:
+        return _VUTEXT_RANGE
+    if not BASEELF.exists():
+        _VUTEXT_RANGE = (0, 0)
+        return _VUTEXT_RANGE
+    with BASEELF.open("rb") as f:
+        elf = ELFFile(f)
+        for sec in elf.iter_sections():
+            if sec.name == ".vutext":
+                base = sec["sh_addr"] - 0x100000
+                _VUTEXT_RANGE = (base, base + sec["sh_size"])
+                return _VUTEXT_RANGE
+    _VUTEXT_RANGE = (0, 0)
+    return _VUTEXT_RANGE
+
+
+def _section_for_subseg(offset: int, stype: str) -> str | None:
+    """Address-aware mapping. A subseg in the .vutext VRAM range counts
+    as .vutext regardless of yaml type (textbin or hasm — both are
+    valid forms for VU code); everything else falls back to the
+    type-only mapping."""
+    lo, hi = _vutext_range()
+    if lo <= offset < hi:
+        if stype in {"textbin", "hasm"}:
+            return ".vutext"
+    return _section_for_type(stype)
+
+
 def _src_exists(name: str, stype: str) -> bool:
     # After the Phase 1 flatten, yaml subseg names are repo-root-
     # relative (e.g. `src/DmaPacket`, `ios/cdvd`, `src/cod/0FBB48`).
     # The earlier convention prepended `src/` here; that doubles the
     # prefix and silently makes every check fail. Resolve directly
     # against the repo root instead.
-    ext = "s" if stype == "hasm" else "c"
-    return (REPO_ROOT / f"{name}.{ext}").exists()
+    if stype == "hasm":
+        # VU0 hand-typed sources commit as `<name>.S` (uppercase);
+        # `tools/assemble_vu0.py` regenerates `<name>.s` from it as a
+        # build artifact. Either form is a real, tracked match.
+        if (REPO_ROOT / f"{name}.S").exists():
+            return True
+        return (REPO_ROOT / f"{name}.s").exists()
+    return (REPO_ROOT / f"{name}.c").exists()
 
 
 def _section_for_object_section(name: str) -> str | None:
@@ -265,8 +315,8 @@ def compute_progress() -> dict[str, tuple[int, int]]:
             final_off = max(final_off, seg[0])
 
     matched: dict[str, int] = {sec: 0 for sec in SECTION_TO_TYPES}
-    for i, (_off, stype, name) in enumerate(subs):
-        sec = _section_for_type(stype)
+    for i, (off, stype, name) in enumerate(subs):
+        sec = _section_for_subseg(off, stype)
         if sec is None:
             continue
         size = _claim_size(subs, i, final_off)
@@ -311,7 +361,7 @@ README_END = "<!-- progress:end -->"
 # auto-gen byte fidelity with hand-typed clean-room reconstruction.
 # Drop the data rows; resurrect if we ever start tracking typed-data
 # promotion as a metric.
-README_SECTIONS = [".text"]
+README_SECTIONS = [".text", ".vutext"]
 
 
 def _render_readme_table(progress: dict[str, tuple[int, int]]) -> str:

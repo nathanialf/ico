@@ -72,6 +72,14 @@ setup() {
     rm -rf build .ninja_log .ninja_deps
     echo "==> verifying base ROM SHA-1"
     "${VENV_PY}" tools/verify_elf.py --target "${BASEROM}"
+    echo "==> assembling hand-written VU0 .S sources"
+    for vs in src/cod/*.S; do
+        [ -f "$vs" ] || continue
+        out="${vs%.S}.s"
+        stem=$(basename "${vs%.S}")
+        "${VENV_PY}" tools/assemble_vu0.py "$vs" \
+            --label "__src_cod_${stem}_textbin" --out "$out"
+    done
     split
     echo "==> scanning for orphan src/cod/*.{c,s} (post-coalesce stale files)"
     "${VENV_PY}" tools/clean_orphan_src.py --delete

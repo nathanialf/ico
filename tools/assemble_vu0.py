@@ -333,9 +333,12 @@ def parse(text: str) -> tuple[list[ParsedBundle], dict[str, int], list[tuple[int
 
     for line_no, raw_line in enumerate(text.splitlines(), 1):
         line = _strip_comment(raw_line)
-        if not line.strip():
-            continue
         stripped = line.strip()
+        # Whole-line comments. A leading `;` or `#` means there's no
+        # upper-half before the separator, so the entire line is a
+        # comment (NOT a bundle with an empty upper).
+        if not stripped or stripped.startswith(";") or stripped.startswith("#"):
+            continue
 
         # Pragmas.
         if stripped == ".vu0":
@@ -473,6 +476,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--out", help="output .s path (default: <input stem>.s)")
     ap.add_argument("--raw", help="write raw bytes here instead of .s")
     ap.add_argument("--check", help="compare assembled bytes vs textbin path")
+    ap.add_argument("--check-offset", type=lambda s: int(s, 0), default=0,
+                    help="offset into --check file where assembled bytes start")
+    ap.add_argument("--allow-short", action="store_true",
+                    help="with --check, allow built bytes to be a prefix of ref")
     ap.add_argument("--label", default=None,
                     help="symbol name (default: __<dotted_input_path>)")
     ap.add_argument("--section", default=".text",
@@ -491,15 +498,20 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.check:
         ref = Path(args.check).read_bytes()
-        n = min(len(body), len(ref))
+        ref_slice = ref[args.check_offset:args.check_offset + len(body)]
+        n = min(len(body), len(ref_slice))
         for i in range(n):
-            if body[i] != ref[i]:
-                print(f"mismatch at 0x{i:04X}: built=0x{body[i]:02X} "
-                      f"ref=0x{ref[i]:02X}")
+            if body[i] != ref_slice[i]:
+                print(f"mismatch at 0x{i:04X} (file offset 0x{args.check_offset + i:04X}):"
+                      f" built=0x{body[i]:02X} ref=0x{ref_slice[i]:02X}")
                 return 1
         if len(body) != len(ref):
-            print(f"length differs: built={len(body)} ref={len(ref)}")
-            return 1
+            if not args.allow_short or len(body) > len(ref):
+                print(f"length differs: built={len(body)} ref={len(ref)}"
+                      f" (--allow-short to accept built as a prefix of ref)")
+                return 1
+            print(f"OK ({n} bytes match — built is a {len(body)}/{len(ref)} prefix)")
+            return 0
         print(f"OK ({n} bytes match)")
         return 0
 

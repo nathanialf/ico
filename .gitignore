@@ -85,6 +85,12 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
+# --- VU0 hand-typed assembly intermediate ---
+# `src/cod/<stem>.S` is tracked; `tools/assemble_vu0.py` regenerates
+# `src/cod/<stem>.s` from it before each splat (via build.sh setup).
+# The .s is a build artifact, not source — keep it out of git.
+src/cod/16F5E0.s
+
 # --- Local config overrides ---
 .env
 .env.local
