@@ -346,7 +346,7 @@ segments:
       - [0x009BA8, c, src/cod/009BA8]            # func_00109BA8: return *(*(self+0x15C) + 0x1E0)
       - [0x009BB8, asm, src/cod/009BB8]
       - [0x009E48, c, src/cod/009E48]
-      - [0x009E88, asm, src/cod/009E88]
+      - [0x009E88, c, src/cod/009E88]            # func_00109E88: memcpy(self, D_00275DB0, 0x1F0); +2 calls to func_001442E0
       - [0x009F10, c, src/cod/009F10]            # func_00109F10
       - [0x009F28, asm, src/cod/009F28]
       - [0x009FF8, c, src/cod/009FF8]            # func_00109FF8
