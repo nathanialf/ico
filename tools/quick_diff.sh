@@ -242,6 +242,11 @@ TARGET_ASM_WRAPPED="build/quick_diff/$NAME.target.s"
     cat "$TARGET_ASM"
 } > "$TARGET_ASM_WRAPPED"
 canon_regnames "$TARGET_ASM_WRAPPED"
+# Rewrite splat's la-pseudo gp_rel form `(D_X)` (no base reg) into the
+# explicit `%gp_rel(D_X)($gp)` form so modern-as doesn't try $at under
+# .set noat. The trailing `/* gp_rel: (D_X) */` marker tells us splat
+# already verified this symbol is gp-addressable.
+sed -i -E 's|,[[:space:]]*\((D_[0-9A-Fa-f]+)\)[[:space:]]*/\*[[:space:]]*gp_rel:|, %gp_rel(\1)($28) /* gp_rel:|g' "$TARGET_ASM_WRAPPED"
 assemble "$TARGET_OBJ" "$TARGET_ASM_WRAPPED"
 
 LEFT=$(mktemp); RIGHT=$(mktemp)
@@ -256,8 +261,24 @@ canon() {
     "$OBJDUMP" -d -M no-aliases "$1" 2>/dev/null \
         | sed -nE 's/^[[:space:]]*[0-9a-f]+:[[:space:]]+[0-9a-f]+[[:space:]]+//p'
 }
-canon "$TARGET_OBJ" > "$RIGHT"
-canon "$OBJ"        > "$LEFT"
+# For multi-function .o files (coalesced TUs), --disassemble=<func> limits
+# the dump to just the requested function. Use the 2nd arg as the symbol
+# name when present; fall back to whole-file dump (single-function .c).
+canon_func() {
+    local obj="$1" fn="${2:-}"
+    if [[ -n "$fn" ]]; then
+        "$OBJDUMP" -d -M no-aliases --disassemble="$fn" "$obj" 2>/dev/null \
+            | sed -nE 's/^[[:space:]]*[0-9a-f]+:[[:space:]]+[0-9a-f]+[[:space:]]+//p'
+    else
+        canon "$obj"
+    fi
+}
+TGT_FN=""
+case "$TARGET_ASM" in
+    */func_*.s) TGT_FN="$(basename "$TARGET_ASM" .s)" ;;
+esac
+canon_func "$TARGET_OBJ" "$TGT_FN" > "$RIGHT"
+canon_func "$OBJ"        "$TGT_FN" > "$LEFT"
 
 # Mask the gp-rel cosmetic: unlinked quick_diff .o shows `,0(gp)`
 # while the linked baseline shows the resolved offset like
