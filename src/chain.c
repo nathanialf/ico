@@ -78,7 +78,23 @@ INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018D7D0);
 INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018D928);
 INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018DAC8);
 INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018DB90);
-INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018DD80);
+extern int D_00632CBC;
+extern int D_00633DA0;
+extern float D_00630F5C;
+extern void func_001A6A30(int a, int b, int c, const char *d);
+extern void func_0018D4F0(int a0);
+
+void func_0018DD80(int a0)
+{
+    char *sub = *(char **)(a0 + 0x15C);
+    int *inner = *(int **)(sub + 0x800);
+    if (D_00632CBC & 1) {
+        D_00633DA0 = D_00633DA0 + 0xA;
+        func_001A6A30(0xA, D_00633DA0, 0x0FFFFFFF, D_0055AB88);
+    }
+    *(float *)((char *)inner + 0x44) = D_00630F5C;
+    func_0018D4F0(a0);
+}
 
 extern int D_00632CBC;
 extern int D_00633DA0;
