@@ -316,7 +316,17 @@ int func_00168A60(int a0) {
 }
 
 /* func_00168A7C nop pad absorbed into func_00168A80's .s. */
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00168A80);
+int func_00168A80(unsigned int a, unsigned int b)
+{
+    int i;
+    if ((a & b) == 0) return 0;
+    for (i = 0; i < 8; i++) {
+        unsigned int da = (a >> (i * 4)) & 0xF;
+        unsigned int db = (b >> (i * 4)) & 0xF;
+        if (da != 0 && db != 0 && da == db) return 1;
+    }
+    return 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00168AE0);
 
 float func_00168BA0(int a0) { return func_00243950(a0) + *(float *)(a0 + 0xC); }
