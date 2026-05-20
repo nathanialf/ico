@@ -237,6 +237,110 @@ def _enc_upper_plain(family: str, mask: str,
     return (_enc_dest_mask(mask) << 21) | (ft << 16) | (fs << 11) | (fd << 6) | op6
 
 
+# ----------------------------- Upper i/q variants -----------------------------
+#
+# Single-source FMAC ops where ft is replaced by the implicit I or Q
+# register.  Syntax: <mnem>.<mask> vfd, vfs
+# (no ft operand — `I` and `Q` are implicit).
+#
+# Encoding ignores ft; we always emit ft=0.  A handful of textbin
+# bundles have non-zero ft here (likely an emit artifact); those will
+# need `.word` form to round-trip.
+
+_UPPER_IQ_OP6 = {
+    "mulq":  0x1C, "maxi":  0x1D, "muli":  0x1E, "minii": 0x1F,
+    "addq":  0x20, "maddq": 0x21, "addi":  0x22, "maddi": 0x23,
+    "subq":  0x24, "msubq": 0x25, "subi":  0x26, "msubi": 0x27,
+}
+
+
+def _enc_upper_iq(family: str, mask: str, fd: int, fs: int) -> int:
+    op6 = _UPPER_IQ_OP6[family]
+    return (_enc_dest_mask(mask) << 21) | (fs << 11) | (fd << 6) | op6
+
+
+# --------------------- Upper FD sub-table dispatch (ACC ops) ------------------
+#
+# op6 0x3C-0x3F selects the FD_00/01/10/11 sub-table by bc field
+# (bits 0-1).  Within each table, bits 6-10 are the sub-opcode.
+#
+# Three operand shapes:
+#   ACC ops      — fs source, ft source, destination is implicit ACC
+#                  Syntax: <mnem>.<mask> vfs, vft
+#   FTOI/ITOF    — fs source, ft destination
+#                  Syntax: <mnem>.<mask> vft, vfs
+#   ABS          — same shape as FTOI (ft = dest, fs = source)
+#   CLIP         — fs and ft both source, no destination (sets CLIP flag)
+#                  Syntax: clip vfs, vft.w   (w-broadcast on ft, no mask)
+#                  Deferred — operand semantics tricky.
+#   NOP (pad)    — FD_11 sub 0x0B, already handled as `pad`.
+
+# Map: mnemonic → (bc, sub_op, operand_shape)
+#   operand_shape: 'acc' (vfs, vft) or 'fd2' (vft, vfs)
+_UPPER_FD_TABLE = {
+    # FD_00 (bc=x)
+    "addax":  (0,  0, "acc"),
+    "subax":  (0,  1, "acc"),
+    "maddax": (0,  2, "acc"),
+    "msubax": (0,  3, "acc"),
+    "itof0":  (0,  4, "fd2"),
+    "ftoi0":  (0,  5, "fd2"),
+    "mulax":  (0,  6, "acc"),
+    "mulaq":  (0,  7, "acc1"),   # ACC = vfs * Q (no vft operand)
+    "addaq":  (0,  8, "acc1"),
+    "subaq":  (0,  9, "acc1"),
+    "adda":   (0, 10, "acc"),    # plain ACC = vfs + vft
+    "suba":   (0, 11, "acc"),
+    # FD_01 (bc=y)
+    "adday":  (1,  0, "acc"),
+    "subay":  (1,  1, "acc"),
+    "madday": (1,  2, "acc"),
+    "msubay": (1,  3, "acc"),
+    "itof4":  (1,  4, "fd2"),
+    "ftoi4":  (1,  5, "fd2"),
+    "mulay":  (1,  6, "acc"),
+    "abs":    (1,  7, "fd2"),
+    "maddaq": (1,  8, "acc1"),
+    "msubaq": (1,  9, "acc1"),
+    "madda":  (1, 10, "acc"),
+    "msuba":  (1, 11, "acc"),
+    # FD_10 (bc=z)
+    "addaz":  (2,  0, "acc"),
+    "subaz":  (2,  1, "acc"),
+    "maddaz": (2,  2, "acc"),
+    "msubaz": (2,  3, "acc"),
+    "itof12": (2,  4, "fd2"),
+    "ftoi12": (2,  5, "fd2"),
+    "mulaz":  (2,  6, "acc"),
+    "mulai":  (2,  7, "acc1"),
+    "addai":  (2,  8, "acc1"),
+    "subai":  (2,  9, "acc1"),
+    "mula":   (2, 10, "acc"),
+    "opmula": (2, 11, "acc"),
+    # FD_11 (bc=w)
+    "addaw":  (3,  0, "acc"),
+    "subaw":  (3,  1, "acc"),
+    "maddaw": (3,  2, "acc"),
+    "msubaw": (3,  3, "acc"),
+    "itof15": (3,  4, "fd2"),
+    "ftoi15": (3,  5, "fd2"),
+    "mulaw":  (3,  6, "acc"),
+    # "clip":   (3,  7, "clip"),  # special — deferred
+    "maddai": (3,  8, "acc1"),
+    "msubai": (3,  9, "acc1"),
+    # (3, 10) is unknown / reserved
+    # (3, 11) is NOP — handled by `pad` mnemonic
+}
+
+
+def _enc_upper_fd(mnem: str, mask: str,
+                  fs: int, ft: int) -> int:
+    bc, sub, shape = _UPPER_FD_TABLE[mnem]
+    op6 = 0x3C | bc
+    return ((_enc_dest_mask(mask) << 21) | (ft << 16) | (fs << 11)
+            | (sub << 6) | op6)
+
+
 def encode_lower_nop() -> int:
     return 0
 
@@ -339,7 +443,7 @@ def _is_label(token: str) -> str | None:
 
 
 _FMAC_MNEM_RE = re.compile(
-    r"^([a-zA-Z]+?)(?:\.([xyzwXYZW]+))?$"
+    r"^([a-zA-Z][a-zA-Z0-9]*?)(?:\.([xyzwXYZW]+))?$"
 )
 
 
@@ -362,6 +466,8 @@ def _try_encode_upper(text: str) -> int | None:
     # FMAC mnemonics: <name>[.<mask>] vfd, vfs, vft
     #   broadcast:   addx.xy vf3, vf1, vf2      → family=add, bc=x
     #   plain:       add.xyzw vf3, vf1, vf2     → family=add (no bc)
+    #   i/q variant: addi.w vf3, vf1            → I/Q implicit (no ft)
+    #   ACC variant: mulax.xyzw vf1, vf30       → ACC implicit (no fd)
     m = _FMAC_MNEM_RE.match(head_raw)
     if m:
         name = m.group(1).lower()
@@ -371,6 +477,31 @@ def _try_encode_upper(text: str) -> int | None:
             if operands is not None:
                 fd, fs, ft = operands
                 return _enc_upper_plain(name, mask, fd, fs, ft)
+        if name in _UPPER_IQ_OP6:
+            operands = _parse_n_vf(tok[1:], n=2)
+            if operands is not None:
+                fd, fs = operands
+                return _enc_upper_iq(name, mask, fd, fs)
+        if name in _UPPER_FD_TABLE:
+            _bc, _sub, shape = _UPPER_FD_TABLE[name]
+            if shape == "acc":
+                # vfs, vft — ACC implicit destination
+                operands = _parse_n_vf(tok[1:], n=2)
+                if operands is not None:
+                    fs, ft = operands
+                    return _enc_upper_fd(name, mask, fs, ft)
+            elif shape == "fd2":
+                # vft, vfs — ft is the destination
+                operands = _parse_n_vf(tok[1:], n=2)
+                if operands is not None:
+                    ft, fs = operands
+                    return _enc_upper_fd(name, mask, fs, ft)
+            elif shape == "acc1":
+                # vfs — vft implicit (ACC = fs op {I,Q})
+                operands = _parse_n_vf(tok[1:], n=1)
+                if operands is not None:
+                    (fs,) = operands
+                    return _enc_upper_fd(name, mask, fs, 0)
         # Broadcast: name ends in x/y/z/w AND the prefix is a known family.
         if len(name) >= 2 and name[-1] in "xyzw" and name[:-1] in _UPPER_BC_FAMILY:
             family, bc = name[:-1], name[-1]
@@ -382,16 +513,20 @@ def _try_encode_upper(text: str) -> int | None:
 
 
 def _parse_three_vf(tokens: list[str]) -> tuple[int, int, int] | None:
-    """Parse `vfd, vfs, vft` after a 3-vf FMAC mnemonic.  Accepts
-    optional trailing commas.  Returns None (not an exception) when
-    the operand shape doesn't match — lets the caller treat the
-    mnemonic as unrecognised instead of erroring out half-parsed."""
+    out = _parse_n_vf(tokens, n=3)
+    return out  # type: ignore[return-value]
+
+
+def _parse_n_vf(tokens: list[str], n: int) -> tuple[int, ...] | None:
+    """Parse N vfX operands after a mnemonic.  Returns None (not an
+    exception) on shape mismatch so the caller can fall through to
+    other mnemonic candidates."""
     joined = " ".join(tokens)
     parts = [p.strip() for p in joined.split(",")]
-    if len(parts) != 3:
+    if len(parts) != n:
         return None
     try:
-        return (_vf(parts[0]), _vf(parts[1]), _vf(parts[2]))
+        return tuple(_vf(p) for p in parts)
     except EncodeError:
         return None
 

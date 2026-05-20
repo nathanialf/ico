@@ -202,6 +202,52 @@ def test_dest_mask_parsing() -> None:
     print(f"  ok: dest mask parser handles order + invalid letters")
 
 
+def test_upper_iq_variants() -> None:
+    """i/q variants: 2-operand FMACs with I/Q implicit. Validated
+    against real ICO bundles."""
+    src = (
+        ".vu0\n"
+        "addi.w  vf14, vf00 ; nop\n"   # real bundle pc=0x10D0 → 0x002003A2
+        "addi.xy vf14, vf00 ; nop\n"   # real bundle pc=0x10E0 → 0x018003A2
+        "addq.x  vf29, vf00 ; nop\n"   # real bundle pc=0x27B0 → 0x01000760
+    )
+    body = _assemble(src)
+    wants = [0x002003A2, 0x018003A2, 0x01000760]
+    for i, want in enumerate(wants):
+        got = struct.unpack_from("<I", body, i * 8 + 4)[0]
+        assert got == want, f"bundle {i}: 0x{got:08X} != 0x{want:08X}"
+    print(f"  ok: 3 i/q variants validated against real ICO bundles")
+
+
+def test_upper_fd_acc_ops() -> None:
+    """FD sub-table ACC ops: bc is implicit in mnemonic suffix,
+    bits 6-10 carry the sub-opcode."""
+    src = (
+        ".vu0\n"
+        "mulax.xyzw  vf01, vf21 ; nop\n"  # pc=0x04C8 → 0x01F509BC
+        "madday.xyzw vf02, vf21 ; nop\n"  # pc=0x04D0 → 0x01F510BD
+        "maddaz.xyzw vf03, vf21 ; nop\n"  # pc=0x04D8 → 0x01F518BE
+    )
+    body = _assemble(src)
+    wants = [0x01F509BC, 0x01F510BD, 0x01F518BE]
+    for i, want in enumerate(wants):
+        got = struct.unpack_from("<I", body, i * 8 + 4)[0]
+        assert got == want, f"bundle {i}: 0x{got:08X} != 0x{want:08X}"
+    print(f"  ok: 3 ACC FMAC bundles validated (matrix-mul mulax/madday/maddaz idiom)")
+
+
+def test_upper_fd_ftoi() -> None:
+    """FTOI/ITOF: 2-operand, ft is destination."""
+    src = (
+        ".vu0\n"
+        "ftoi4.xyzw vf10, vf09 ; nop\n"   # pc=0x02D8 → 0x01EA497D
+    )
+    body = _assemble(src)
+    got = struct.unpack_from("<I", body, 4)[0]
+    assert got == 0x01EA497D, f"0x{got:08X}"
+    print(f"  ok: ftoi4.xyzw vf10,vf09 → 0x{got:08X} (ft=dest, fs=source)")
+
+
 def test_nop_swap() -> None:
     """The 0x8000033C BIOS-bug NOP pattern is its own mnemonic now.
 
@@ -321,6 +367,9 @@ def main(argv: list[str] | None = None) -> int:
     test_upper_pad_and_nop()
     test_upper_fmac_broadcast()
     test_upper_fmac_plain()
+    test_upper_iq_variants()
+    test_upper_fd_acc_ops()
+    test_upper_fd_ftoi()
     test_nop_swap()
     if args.against_textbin:
         test_against_textbin()

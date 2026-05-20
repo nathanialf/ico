@@ -117,6 +117,44 @@ _UPPER_PLAIN_OP = {
     0x2F: "mini",
 }
 
+# i/q variants — ft is implicit (I or Q reg), bits 6-10 = fd.
+_UPPER_IQ_OP = {
+    0x1C: "mulq",  0x1D: "maxi",  0x1E: "muli",  0x1F: "minii",
+    0x20: "addq",  0x21: "maddq", 0x22: "addi",  0x23: "maddi",
+    0x24: "subq",  0x25: "msubq", 0x26: "subi",  0x27: "msubi",
+}
+
+# FD_XX sub-table dispatch: (bc, sub_op) -> (mnemonic, operand_shape)
+#   "acc"  : vfs, vft     (ACC implicit destination)
+#   "fd2"  : vft, vfs     (ft is destination — FTOI/ITOF/ABS)
+#   "acc1" : vfs          (vft implicit — I or Q broadcast to ACC)
+_UPPER_FD_OP = {
+    (0,  0): ("addax",  "acc"),  (0,  1): ("subax",  "acc"),
+    (0,  2): ("maddax", "acc"),  (0,  3): ("msubax", "acc"),
+    (0,  4): ("itof0",  "fd2"),  (0,  5): ("ftoi0",  "fd2"),
+    (0,  6): ("mulax",  "acc"),  (0,  7): ("mulaq",  "acc1"),
+    (0,  8): ("addaq",  "acc1"), (0,  9): ("subaq",  "acc1"),
+    (0, 10): ("adda",   "acc"),  (0, 11): ("suba",   "acc"),
+    (1,  0): ("adday",  "acc"),  (1,  1): ("subay",  "acc"),
+    (1,  2): ("madday", "acc"),  (1,  3): ("msubay", "acc"),
+    (1,  4): ("itof4",  "fd2"),  (1,  5): ("ftoi4",  "fd2"),
+    (1,  6): ("mulay",  "acc"),  (1,  7): ("abs",    "fd2"),
+    (1,  8): ("maddaq", "acc1"), (1,  9): ("msubaq", "acc1"),
+    (1, 10): ("madda",  "acc"),  (1, 11): ("msuba",  "acc"),
+    (2,  0): ("addaz",  "acc"),  (2,  1): ("subaz",  "acc"),
+    (2,  2): ("maddaz", "acc"),  (2,  3): ("msubaz", "acc"),
+    (2,  4): ("itof12", "fd2"),  (2,  5): ("ftoi12", "fd2"),
+    (2,  6): ("mulaz",  "acc"),  (2,  7): ("mulai",  "acc1"),
+    (2,  8): ("addai",  "acc1"), (2,  9): ("subai",  "acc1"),
+    (2, 10): ("mula",   "acc"),  (2, 11): ("opmula", "acc"),
+    (3,  0): ("addaw",  "acc"),  (3,  1): ("subaw",  "acc"),
+    (3,  2): ("maddaw", "acc"),  (3,  3): ("msubaw", "acc"),
+    (3,  4): ("itof15", "fd2"),  (3,  5): ("ftoi15", "fd2"),
+    (3,  6): ("mulaw",  "acc"),  # (3,7) CLIP — deferred
+    (3,  8): ("maddai", "acc1"), (3,  9): ("msubai", "acc1"),
+    (3, 11): ("nop",    "pad"),  # handled by `pad` mnemonic above
+}
+
 
 def decode_upper(w: int) -> str:
     """Decode the 32-bit upper instruction.  Cross-referenced against
@@ -156,6 +194,8 @@ def decode_upper(w: int) -> str:
     if not has_flags:
         if op6 in _UPPER_PLAIN_OP:
             return f"{_UPPER_PLAIN_OP[op6]}{dst_str} {vf(fd)}, {vf(fs)}, {vf(ft)}"
+        if op6 in _UPPER_IQ_OP:
+            return f"{_UPPER_IQ_OP[op6]}{dst_str} {vf(fd)}, {vf(fs)}"
         if op6 <= 0x1B:
             family_idx = (op6 >> 2) & 0x7
             bc_idx = op6 & 0x3
@@ -163,6 +203,18 @@ def decode_upper(w: int) -> str:
                 family = _UPPER_BC_OP[family_idx]
                 bc = "xyzw"[bc_idx]
                 return f"{family}{bc}{dst_str} {vf(fd)}, {vf(fs)}, {vf(ft)}"
+        if 0x3C <= op6 <= 0x3F:
+            bc = op6 - 0x3C
+            sub = fd  # bits 6-10 ARE the sub-opcode in FD dispatch
+            key = (bc, sub)
+            if key in _UPPER_FD_OP:
+                mnem, shape = _UPPER_FD_OP[key]
+                if shape == "acc":
+                    return f"{mnem}{dst_str} {vf(fs)}, {vf(ft)}"
+                if shape == "fd2":
+                    return f"{mnem}{dst_str} {vf(ft)}, {vf(fs)}"
+                if shape == "acc1":
+                    return f"{mnem}{dst_str} {vf(fs)}"
     if bits(w, 31, 31):
         return f".word 0x{w:08X}  ; I-bit set (likely LOI; next bundle lower = float imm)"
     return (f".word 0x{w:08X}"
