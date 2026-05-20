@@ -40,6 +40,42 @@ already supports `hasm` for the rest of the binary (see Pattern A in
 already handles `$ACC`/`$Q`/`$R`/`$I` rewrites for splat-emitted asm;
 it's a no-op for hand-typed `.S`.
 
+## Toolchain — `tools/assemble_vu0.py`
+
+The repo ships a clean-room VU0 micromode assembler. The hand-written
+`src/cod/16F5E0.S` does NOT go straight to `mips-linux-gnu-as` (which
+doesn't know VU0 micromode). Instead:
+
+    src/cod/16F5E0.S
+       → tools/assemble_vu0.py        ; symbolic → .word stream
+       → src/cod/16F5E0.s             ; binutils-ingestable .s
+       → mips-linux-gnu-as            ; existing `as_hasm` ninja rule
+
+Symbolic mnemonics the assembler recognises today (parity with
+`tools/disasm_vu0.py`): `nop` (true zero), `pad` (0x000002FF
+upper-pad), lower branches `b/bal/jr/jalr/ibeq/ibne/ibltz/ibgtz/iblez/ibgez`,
+plus the escape directives `.word`, `.bundle <upper>, <lower>`,
+`.raw <bytes>`. Everything else (every FMAC, every LSU, every I-type)
+is written via `.word` until that opcode family's encoder lands in
+`assemble_vu0.py:encode_*` (mirror the pattern in `disasm_vu0.py`).
+
+When you crack a new opcode family during hand-rewrite:
+
+  1. Add the decode case to `tools/disasm_vu0.py:decode_upper` /
+     `decode_lower` (so the reference listing is no longer `.word`).
+  2. Add the matching encode case to `tools/assemble_vu0.py:_try_encode_*`
+     (so the source no longer needs `.word` for that family).
+  3. Add a round-trip test entry in `tools/test_assemble_vu0.py`.
+
+`tools/assemble_vu0.py --check assets/cod/16F5E0.textbin.bin` does an
+end-to-end byte comparison after each iteration. Use it instead of
+the full ninja build until the chunk is byte-clean.
+
+The ninja-rule wiring (route `.S` through assemble_vu0 before
+`as_hasm`) is the next integration step — currently done manually by
+running `tools/assemble_vu0.py src/cod/16F5E0.S` before `ninja`. See
+`tools/test_assemble_vu0.py` for the canonical invocation.
+
 ## IP-safety boundary — HARD RULE
 
 Mechanical byte→mnemonic disassembly is **itself extraction** and is

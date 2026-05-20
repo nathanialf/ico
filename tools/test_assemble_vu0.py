@@ -1,0 +1,185 @@
+#!/usr/bin/env python3
+"""
+test_assemble_vu0.py — round-trip self-test for tools/assemble_vu0.py.
+
+Builds a small synthetic `.S` source using only the symbolic opcodes
+`tools/disasm_vu0.py` reliably decodes (`nop`, `pad`, branches, raw
+`.word`), assembles it, and verifies the byte output matches an
+expected pattern. No disc data — the test is synthetic.
+
+A second test, gated on `--against-textbin`, replays the first 8
+bundles from `assets/cod/16F5E0.textbin.bin` through disasm → re-emit
+→ assemble → compare. Skipped if the textbin is absent.
+
+Run:
+    .venv/bin/python tools/test_assemble_vu0.py
+    .venv/bin/python tools/test_assemble_vu0.py --against-textbin
+"""
+from __future__ import annotations
+
+import argparse
+import struct
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO / "tools"))
+
+import assemble_vu0  # noqa: E402
+
+
+def _assemble(src_text: str) -> bytes:
+    """Run assemble_vu0 in --raw mode against src_text."""
+    with tempfile.TemporaryDirectory() as td:
+        s = Path(td) / "in.S"
+        s.write_text(src_text)
+        out = Path(td) / "out.bin"
+        rc = assemble_vu0.main([str(s), "--raw", str(out)])
+        if rc != 0:
+            raise RuntimeError(f"assemble_vu0 returned {rc}")
+        return out.read_bytes()
+
+
+def test_synthetic() -> None:
+    """Mnemonics → bytes spot-checks."""
+    cases = [
+        # (label, src, expected raw bytes)
+        ("zero-zero bundle",
+         ".vu0\nnop ; nop\n",
+         struct.pack("<II", 0, 0)),  # lower=0, upper=0
+        ("upper pad + zero lower",
+         ".vu0\npad ; nop\n",
+         struct.pack("<II", 0, 0x000002FF)),
+        ("raw .word upper + raw .word lower",
+         ".vu0\n.word 0x4A000000 ; .word 0x12345678\n",
+         struct.pack("<II", 0x12345678, 0x4A000000)),
+        ("two-bundle block: pad ; pad",
+         ".vu0\npad ; nop\npad ; nop\n",
+         struct.pack("<IIII", 0, 0x000002FF, 0, 0x000002FF)),
+    ]
+    for name, src, expected in cases:
+        got = _assemble(src)
+        assert got == expected, (
+            f"{name}: got {got.hex()} expected {expected.hex()}")
+        print(f"  ok: {name}")
+
+
+def test_branch() -> None:
+    """Forward branch to a label resolves to the correct PC offset.
+
+    Layout (16 bytes total):
+        0x0000: nop ; b done
+        0x0008: pad ; nop        ; delay slot
+       done: (label at pc=0x0010 → falls past end)
+    """
+    src = (
+        ".vu0\n"
+        "nop ; b done\n"
+        "pad ; nop\n"
+        "done:\n"
+    )
+    body = _assemble(src)
+    assert len(body) == 16, f"expected 16 bytes, got {len(body)}"
+    lower0 = struct.unpack_from("<I", body, 0)[0]
+    upper0 = struct.unpack_from("<I", body, 4)[0]
+    assert upper0 == 0, f"upper0 should be 0 (nop), got 0x{upper0:08X}"
+    # `b done` from pc=0 → target 0x10 → delta = 0x10 - 8 = 8 = 1 bundle
+    # op6=0x20 (b), bits 0-10 = 1 (one-bundle forward)
+    expect = (0x20 << 26) | 1
+    assert lower0 == expect, (
+        f"branch encoding: got 0x{lower0:08X} expected 0x{expect:08X}")
+    print(f"  ok: forward branch resolves to +1 bundle")
+
+
+def test_backward_branch() -> None:
+    """Backward branch: b loop where loop is 1 bundle behind."""
+    src = (
+        ".vu0\n"
+        "loop:\n"
+        "nop ; nop\n"
+        "nop ; b loop\n"
+    )
+    body = _assemble(src)
+    assert len(body) == 16
+    lower1 = struct.unpack_from("<I", body, 8)[0]
+    # `b loop` from pc=8 → target 0 → delta = 0 - 16 = -16 = -2 bundles
+    # 11-bit signed: -2 = 0x7FE (two's complement, 11-bit)
+    expect = (0x20 << 26) | (0x7FE & 0x7FF)
+    assert lower1 == expect, (
+        f"backward branch: got 0x{lower1:08X} expected 0x{expect:08X}")
+    print(f"  ok: backward branch resolves to -2 bundles")
+
+
+def test_ibeq_with_regs() -> None:
+    """ibeq vi02, vi01, target — three-operand branch with vi regs."""
+    src = (
+        ".vu0\n"
+        "nop ; ibeq vi02, vi01, end\n"
+        "pad ; nop\n"
+        "end:\n"
+    )
+    body = _assemble(src)
+    lower0 = struct.unpack_from("<I", body, 0)[0]
+    # op6=0x28, ft=2 (vi02), fs=1 (vi01), offset=1 bundle
+    expect = (0x28 << 26) | (2 << 16) | (1 << 11) | 1
+    assert lower0 == expect, (
+        f"ibeq: got 0x{lower0:08X} expected 0x{expect:08X}")
+    print(f"  ok: ibeq vi02, vi01, end encodes correctly")
+
+
+def test_dot_bundle_escape() -> None:
+    """`.bundle` directive emits upper/lower verbatim."""
+    src = (
+        ".vu0\n"
+        ".bundle 0xDEADBEEF, 0xCAFEBABE\n"
+    )
+    body = _assemble(src)
+    # Order on disk: lower @+0, upper @+4
+    expect = struct.pack("<II", 0xCAFEBABE, 0xDEADBEEF)
+    assert body == expect, f"got {body.hex()} expected {expect.hex()}"
+    print(f"  ok: .bundle escape preserves bytes verbatim")
+
+
+def test_against_textbin() -> None:
+    """Disassemble first 8 bundles, re-emit as `.bundle` lines, assemble,
+    compare. This tests that the round-trip via the `.bundle` escape
+    hatch is byte-perfect.  Symbolic round-trip will be tested per
+    opcode family as encoders land."""
+    textbin = REPO / "assets" / "cod" / "16F5E0.textbin.bin"
+    if not textbin.exists():
+        print("  skip: assets/cod/16F5E0.textbin.bin not found")
+        return
+    data = textbin.read_bytes()[:64]  # first 8 bundles
+    lines = [".vu0"]
+    for pc in range(0, 64, 8):
+        lower, upper = struct.unpack_from("<II", data, pc)
+        lines.append(f".bundle 0x{upper:08X}, 0x{lower:08X}")
+    src = "\n".join(lines) + "\n"
+    body = _assemble(src)
+    assert body == data, (
+        f"textbin round-trip: divergence at "
+        f"byte {next((i for i in range(len(data)) if i < len(body) and body[i] != data[i]), -1)}")
+    print(f"  ok: first 8 bundles round-trip via .bundle escape (64 bytes)")
+
+
+def main(argv: list[str] | None = None) -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--against-textbin", action="store_true",
+                    help="also test against assets/cod/16F5E0.textbin.bin")
+    args = ap.parse_args(argv)
+    print("test_assemble_vu0:")
+    test_synthetic()
+    test_branch()
+    test_backward_branch()
+    test_ibeq_with_regs()
+    test_dot_bundle_escape()
+    if args.against_textbin:
+        test_against_textbin()
+    print("all tests passed")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

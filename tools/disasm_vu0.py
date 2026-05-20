@@ -124,7 +124,12 @@ def decode_upper(w: int) -> str:
     if w == 0 or (w & 0x7FFFFFFF) == 0:
         return "nop"
     if w == 0x000002FF:
-        return "nop"
+        # Canonical upper-pad bit pattern. Distinct from a true zero
+        # nop — `tools/assemble_vu0.py` accepts `pad` as the mnemonic
+        # for this form (and `nop` for the zero form). Keeping the
+        # distinction in disassembly output preserves the bytes
+        # across the round trip.
+        return "pad"
     if bits(w, 31, 31):
         return f".word 0x{w:08X}  ; I-bit set (likely LOI; next bundle lower = float imm)"
     # Annotate a few fields to help the reader cross-reference against
