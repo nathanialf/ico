@@ -1381,7 +1381,7 @@ segments:
       - [0x0BC9C0, c, src/cod/0BC9C0]            # func_001BC9C0: auto-batch
       - [0x0BC9C8, asm, src/cod/0BC9C8]
       - [0x0BCAF0, c, src/box]                   # TU promotion: 0x1BCAF0..0x1C0538 (23 INCLUDE_ASM funcs)
-      - [0x0C0538, asm, src/cod/0C0538]
+      - [0x0C0538, c, src/cod/0C0538]            # func_001C0538: dispatch + p->_0 bump-mod-31; on overflow tail-call func_001AE460(self)
       - [0x0C05A8, c, src/cod/0C05A8]            # func_001C05A8: 4-insn lw
       - [0x0C05B8, c, src/cod/0C05B8]            # func_001C05B8: == 0
       - [0x0C05CC, asm, src/cod/0C05CC]
