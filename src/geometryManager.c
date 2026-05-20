@@ -44,7 +44,25 @@ __attribute__((section(".rodata.0x00553C90"))) const float D_00553C90[4] = { 0.0
 #include "matching.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00102E08);
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00102FA0);
+extern void func_002438B8(int *self, int v, char *p);
+extern void func_00243978(int *out, int *src);
+
+void func_00102FA0(int *self, int *other, char *p)
+{
+    func_00105F00((int)self, (int)p);
+    {
+        char *sub = *(char **)((char *)other + 0x15C);
+        char *a = *(char **)sub;
+        if (a != 0) {
+            char *inner_struct = *(char **)(a + 0x15C);
+            int inner_field = *(int *)(inner_struct + 0xC);
+            int idx = *(int *)(sub + 0x4);
+            func_002438B8(self, inner_field + (idx << 6), p);
+        }
+    }
+    *(int *)((char *)self + 0x4) = 0;
+    func_00243978(self, self);
+}
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00103018);
 
 /* Matched body inlined from src/cod/003110.c during TU coalesce. */
