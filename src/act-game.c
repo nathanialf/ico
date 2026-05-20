@@ -114,7 +114,22 @@ int func_00149EF8(void *a0)
     return ((unsigned short *) (((char *) new_var) + (idx * 0x190)))[0x186 / 2] & 7;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", func_00149F20);
+typedef struct { char _0[0x188]; int _188; } _E190;
+
+int func_00149F20(char *a, char *b)
+{
+    char *sub1 = *(char **)(a + 0x15C);
+    char *sub2 = *(char **)(b + 0x15C);
+    int idx1 = *(int *)(sub1 + 0x4A0);
+    int idx2 = *(int *)(sub2 + 0x4A0);
+    _E190 *e1 = (_E190 *)((char *)D_00565060 + idx1 * 0x190);
+    _E190 *e2 = (_E190 *)((char *)D_00565060 + idx2 * 0x190);
+    int b1 = ((unsigned int)e1->_188 >> 15) & 1;
+    int b2 = ((unsigned int)e2->_188 >> 15) & 1;
+    MATERIALIZE(b1);
+    MATERIALIZE(b2);
+    return b1 & b2;
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_00149F70);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_00149FF0);
 int func_0014A0A8(int *a0)
