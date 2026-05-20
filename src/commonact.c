@@ -236,7 +236,7 @@ extern void func_001A6E28();   /* K&R: takes (char*) or (int*) or (char*, int) a
 extern void func_00243B60(int *dst, int *src);
 extern float func_00243950();  /* called with 1 or 2 args across cod stubs */
 extern int (*D_006323F0_fp)(int *, int);  /* aliased below — D_006323F0 is also used as fn-ptr */
-extern void func_0016A1D8(int *p);
+extern void func_0016A1D8(float *p);
 
 /* func_00168510 */
 void func_00168510(int a0, int a1)
@@ -389,7 +389,21 @@ void func_0016A1B8(int *self) {
 }
 
 /* func_0016A1D4 nop pad absorbed into func_0016A1D8's .s. */
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0016A1D8);
+extern char D_00632418[];
+extern char D_00632420[];
+extern int func_00263FB0(float f);
+
+void func_0016A1D8(float *p)
+{
+    int i = 3;
+    do {
+        int s = func_00263FB0(*p);
+        func_001A6E28(D_00632418, s);
+        p++;
+        i--;
+    } while (i >= 0);
+    func_001A6E28(D_00632420);
+}
 
 void func_0016A240(int *p) {
     int i = 0;
