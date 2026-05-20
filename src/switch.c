@@ -15,7 +15,26 @@ int func_001C0690(char *self) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C06A0);
-INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C0708);
+extern void func_001D12D8(int *self);
+extern void func_001D12C0(int *self, int v);
+extern void func_001D12A8(int *self, int v);
+extern void func_001BC9C0(int *self);
+
+void func_001C0708(int *self)
+{
+    char *sub = *(char **)((char *)self + 0x15C);
+    char *inner = *(char **)(sub + 0x800);
+    if (*(int *)(inner + 0x58) == 0 || *(int *)(inner + 0x110) != 0) {
+        func_001D12D8(self);
+        func_001D12C0(self, 1);
+        func_001D12A8(self, 0x16);
+        if (*(int *)(inner + 0x140) != 0) {
+            func_001BC9C0(self);
+            *(int *)(inner + 0x140) = 0;
+        }
+    }
+    *(int *)(inner + 0x110) = 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C0790);
 
 int func_001C0838(void) { return 1; }
