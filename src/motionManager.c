@@ -60,6 +60,8 @@ __attribute__((section(".rodata.0x00619428"))) const char D_00619428[96] = "\262
 __attribute__((section(".rodata.0x00619498"))) const char D_00619498[24] = "\263\310\304\245\312\311\244\313\305\366\244\277\244\303\244\277\n";
 
 #include "include_asm.h"
+#include "matching.h"
+#include "regpin.h"
 
 extern int D_0063347C;
 extern int D_00633F3C;
@@ -70,7 +72,23 @@ INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001D8E40);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001D92E0);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001D9890);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001D9BB8);
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001D9C58);
+extern int func_00105278(void);
+extern int func_00118678(int);
+extern void func_00105308(float, float, float);
+extern void func_0010DF70(char *p);
+extern void func_001D9890(void);
+
+void func_001D9C58(void)
+{
+    int v = func_00105278();
+    func_00118678(v);
+    {
+        register float *p REG("$2") = (float *)D_00633F3C;
+        func_00105308(p[0], p[1] + p[0x1D0 / 4] + 10.0f, p[2]);
+    }
+    func_0010DF70((char *)D_00633F3C + 0x30);
+    func_001D9890();
+}
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001D9CB0);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001D9E10);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001D9E90);
