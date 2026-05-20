@@ -436,6 +436,24 @@ void func_001A31C0(void)
 
 INCLUDE_ASM("asm/nonmatchings/src/debug", func_001A3204);
 INCLUDE_ASM("asm/nonmatchings/src/debug", func_001A3208);
-INCLUDE_ASM("asm/nonmatchings/src/debug", func_001A3340);
+extern int D_00632C9C;
+extern int D_00632CA0;
+extern int D_00632CA4;
+extern void func_001A9EE8(void);
+extern void func_001A3C38(void);
+
+void func_001A3340(void) {
+    func_001A9EE8();
+    D_00632C90 = 0;
+    D_00632C94 = 0;
+    D_00632C98 = 0;
+    D_00632C9C = 0;
+    D_00632CA0 = 0;
+    D_00632CA4 = 0;
+    D_00632D44 = 0;
+    *(volatile int *)0x10000010 = 0x82;
+    *(volatile int *)0x10000810 = 0x82;
+    func_001A3C38();
+}
 INCLUDE_ASM("asm/nonmatchings/src/debug", func_001A3394);
 INCLUDE_ASM("asm/nonmatchings/src/debug", func_001A3398);
