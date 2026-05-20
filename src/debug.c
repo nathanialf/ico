@@ -59,8 +59,8 @@ extern const char D_006329C8[8];
 extern const char D_006329D0[8];
 extern const char D_006329D8[8];
 extern unsigned int D_006329E0;
-extern const char D_006329F8[8];
-extern unsigned int D_00632A00;
+extern const char D_006329F8[];
+extern const char D_00632A00[];
 extern unsigned int D_00632A0C;
 extern const char D_00632A10[8];
 extern const char D_00632A18[8];
@@ -380,7 +380,19 @@ __attribute__((section(".rodata.0x006167E0"))) const char D_006167E0[56] = "\033
 #include "include_asm.h"
 #include "matching.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/debug", func_001A2D78);
+extern void func_001AD748(const char *, int, char *);
+extern void func_00263FF0(const char *, int, const char *);
+extern void func_001AD768(const char *, int);
+extern void func_00268DA0(char *buf, const char *fmt, void *va);
+
+void func_001A2D78(const char *fmt, ...) {
+    char buf[0x100];
+    func_00268DA0(buf, fmt, (char *)__builtin_next_arg(fmt) - 0x38);
+    func_001AD748(D_006149A8, 0x503, buf);
+    func_00263FF0(D_006149A8, 0x503, D_006329F8);
+    func_001AD768(D_006149A8, 0x504);
+    func_00263FF0(D_006149A8, 0x504, D_00632A00);
+}
 
 /* Matched body inlined from src/cod/0A2E10.c during TU coalesce. */
 extern int D_00632A04;
