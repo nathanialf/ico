@@ -53,10 +53,10 @@ how they're phrased):
   There is no good place to pause that isn't the cap or a user prompt.
 - Round-trip went red and you can't immediately see why. Diagnose with
   `tools/first_diff.py`, revert if needed, keep going.
-- The current target plateaued. Identify the specific codegen
-  decision that differs and escalate to Step 4 (header-macro hasm)
-  or Step 5 (new postprocess). **Parking is disallowed** — see
-  "Tough-nut parking" below.
+- The current target plateaued. Check the diff-triage cheat-sheet —
+  if no cheat-sheet row matches and no sibling shape applies, **park
+  it** via `tools/park_tu.py` and move on. The permuter pool picks up
+  the seed. See "Tough-nut parking" below.
 - A cron-driven loop just fired and you completed one batch. The fire
   is not a permission slip to stop; it's a permission slip to keep
   going if the agent had drifted off task.
@@ -511,36 +511,56 @@ or scheduling shape), run `lib/decomp-permuter/`:
      near-miss shape and feed back into Step 3 (new C idiom) or
      Step 5 (new postprocess).
 
-If the permuter doesn't crack it in a reasonable runtime, do NOT
-park. Identify the specific codegen decision that differs and
-escalate to Step 4 (header-macro hasm) or Step 5 (new postprocess).
-The auto-permuter (`tools/auto_permute*.sh`) is a background pipeline
-over historical parked seeds, not an escape hatch for live work.
+The auto-permuter (`tools/auto_permute*.sh`) IS the escape hatch for
+live work. After 1 quick_diff iteration with no cheat-sheet recipe and
+no sibling leverage, park to `tough_nuts/` (`tools/park_tu.py` for
+coalesced TUs, `tools/park.sh` for legacy `src/cod/`). The permuter
+chews on the seed across passes; score-0 hits land in
+`lib/decomp-permuter/runs/<func>/output-0-*/source.c` and get
+promoted back into the TU by hand or via promote tooling. Step 4
+(header-macro hasm) and Step 5 (new postprocess) are still the right
+moves when you can SEE the gap class — but for "permuter-shaped"
+shapes (reg shuffle, branch likely, scheduling), park is faster.
 
-### Step 7: Park — DISALLOWED
+### Step 7: Park to the permuter pool (1-iteration rule)
 
-Parking is no longer permitted. When you hit a function that doesn't
-match after multiple C-iteration rounds, the answer is NOT to park it
-for the permuter to chew on. Instead:
+**Park aggressively.** If your first `quick_diff` doesn't byte-match,
+check the cheat-sheet (below) and:
 
-1. Stop and read the asm closely. Identify the exact codegen decision
-   that gcc 2.9 made differently — operand ordering, register
-   allocation, branch direction, scheduling, delay slot fill, etc.
-2. Determine if a C-level reformulation can drive gcc to the target.
-   Try at least 3–5 distinct shapes (compound updates, REG pins,
-   MATERIALIZE/KEEP_LIVE barriers, volatile casts, goto labels,
-   single-vs-multi return points, etc.) before concluding it isn't
-   possible at the C level.
-3. If no C formulation reaches the target, ADD A NEW POSTPROCESS.
-   That's the only acceptable next step. See `tools/postprocess_*.py`
-   for examples — they're small, file-gated sed/Python passes that
-   rewrite specific gcc-emit shapes into the original-codegen shape.
-4. Commit the postprocess infrastructure and the function together,
-   so the next person sees both the C body and the rewriter that
-   made it match.
+1. **If the diff shape matches a cheat-sheet row** — apply that recipe
+   directly. Most one-shape diffs (volatile-cast store order, REG
+   pins, KEEP_LIVE barriers) land in iteration 2.
+2. **If you have a confirmed sibling shape** in the same TU — try
+   transferring the trick from the sibling. Sibling-transfer matches
+   typically land in 1–2 iterations.
+3. **Otherwise, park immediately.** Don't grind. The cheap default is:
 
-"Permuter isn't helpful" is the directive — the bar for parking is
-effectively infinite. Spend the time per function instead.
+   ```sh
+   # Coalesced TU (src/<TU>.c):
+   tools/park_tu.py func_X src/<TU>.c "<short reason>"
+   # Edit the TU to revert the function body to INCLUDE_ASM(...)
+   ninja  # confirm SHA-1 round-trips with asm fallback
+   git add -A && git commit -m 'Park func_X (<reason>)'
+
+   # Legacy single-function file (src/cod/<file_off>.c):
+   tools/park.sh 0x<vram> "<reason>"
+   ```
+
+   The parked seed lands in `tough_nuts/func_X/`. `tools/auto_permute.sh`
+   picks it up on its next pass and chews until score-0 or
+   `STOP_AT_SCORE`. Score-0 hits land in
+   `lib/decomp-permuter/runs/func_X/output-0-*/source.c`.
+
+**Why park aggressively:** manual iteration is the slow step. Permuter
+explores reg-shuffle / branch-likely / scheduling space at thousands
+of attempts per minute — orders of magnitude faster than a human
+trying shapes by hand. Burning your attention on iter 3+ of the same
+function is the same compute the permuter would have done for free.
+
+**Don't park when you have leverage**: a sibling shape you've already
+matched in the TU, a cheat-sheet recipe with a labeled fix, or a
+known-class postprocess gap. Those are 1-iteration wins, not
+permuter-shaped problems.
 
 ## Picking the next target
 
@@ -697,70 +717,52 @@ claims them, runs `make setup` once (nuclear-clean), and reports
 matched/diffs per candidate. Then you iterate on the `diffs` rows
 individually starting at step 4 of the per-function loop.
 
-## Tough-nut parking AND reverts — BOTH DISALLOWED
+## Tough-nut parking — the default after 1 iteration
 
-**Once you pick a function and flip its yaml entry to `c` (or replace
-its `INCLUDE_ASM` with a C body), you commit to making it match.** The
-only acceptable end-of-attempt is "bytes match SHA-1" — not "I gave
-up", not "INCLUDE_ASM is back", not "tough_nuts/". Reverting an
-in-progress C body to `INCLUDE_ASM` is **the same thing as parking**,
-just spelled differently, and it is equally forbidden.
+**Park aggressively.** The old rule was "no parking, grind every
+function to match" — that overweighted human iteration. The new rule:
+after 1 quick_diff iteration that doesn't byte-match, the *default*
+next action is `tools/park_tu.py` (coalesced TU) or `tools/park.sh`
+(legacy `src/cod/`). The seed lands in `tough_nuts/func_X/` and the
+permuter pool chews on it across passes.
 
-If you find yourself typing the original `INCLUDE_ASM(...)` line back
-in to "move on to easier matches", **stop**. You picked it; you finish
-it. The acceptable next steps when stuck are below — none of them is
-revert.
+The exceptions — keep iterating directly — are narrow but real:
 
-When you hit a function that plateaus, the only acceptable next steps are:
+1. **Cheat-sheet-recipe diffs.** If the diff shape matches a row in
+   the diff-triage cheat-sheet below, apply that recipe directly.
+   That's an iteration-2 match, not a permuter problem.
+2. **Sibling-transfer.** If you matched func_Y in this TU and func_X
+   looks identical, port the trick. Usually iter 1–2.
+3. **Postprocess work.** If you can see the postprocess gap (gas
+   reorders correct gcc emit, missing class-level rewriter), add the
+   postprocess instead of parking. See Step 5 of the investigation
+   loop.
 
-1. **Read the asm carefully.** Identify the exact compiler/scheduler
-   decision that differs from your C-level emit — operand ordering,
-   register allocation, branch mnemonic, scheduling, delay-slot fill.
-   Name the specific instructions; never say "regalloc differs"
-   without naming them.
-2. **Try multiple C formulations** drawing from the cookbook §2
-   (regalloc nudges), §3 (branch shape), §4 (conditional idioms),
-   §5 (pointer/gp_rel), §7 (float), §9 (frame/stack). REG pins,
-   `MATERIALIZE`/`KEEP_LIVE` barriers, volatile casts, goto-vs-if-else,
-   compound updates, `__builtin_abs`, packed structs — try at least
-   3–5 distinct shapes before concluding the C level can't reach it.
-3. **Promote to a header-macro hasm** (cookbook §1.7 varargs idiom or
-   `include/<topic>.h` for a new pattern) — see Step 4 of the
-   investigation loop. This is the preferred escape hatch when the
-   body has no natural C-language semantics.
-4. **Add a new postprocess pass** (cookbook §8.x or §13 for one-offs)
-   when gcc CAN emit the right shape but gas reorders it. See Step 5
-   of the investigation loop. Existing postprocesses to learn from:
-   swap_addu_operands, unfold_ra_delay, early_epilogue_restore,
-   fill_blez_delay, swap_zero_ret_ld_ra.
-5. **Commit the postprocess infrastructure AND the function together**
-   so the next session sees both the C body and the rewriter that
-   made it match.
+Everything else — alloca, packed-struct alignment proofs, search
+loops with branch-likely heuristics, reg-shuffle near-misses, state
+machines, frame-size mismatches — is permuter-shaped. Park it after
+iter 1, save your attention for shapes you have leverage on.
 
-The historical `tools/park.sh` and `tough_nuts/` directory exist for
-the auto-permuter background pipeline only. Do not invoke `park.sh`
-from supervised work. If you find yourself reaching for it, stop and
-escalate to Step 4 or Step 5 instead.
+**Why this changed:** of 62 score-0 permuter hits in the runs
+directory, ~95% land within their first auto_permute pass.
+Iterating manually past iter 1 on a non-leverage shape is the same
+compute the permuter would have done for free overnight. The
+expensive resource is human attention, not CPU.
 
-### Reverting — ALSO DISALLOWED (with one narrow exception)
+### Reverting — fine, just save the seed first
 
-A near-miss .c body — instructions correct, only register letters
-or scheduling differs — is **not** revertable. Treat it as Step 4 /
-Step 5 work and finish it. The "I'm spending too much time, let me
-move on" reflex is the bug this rule exists to suppress; the speed
-gain from moving on is the speed *loss* on the next session that
-has to re-derive your half-finished investigation.
+Reverting an in-progress C body to `INCLUDE_ASM` is now the natural
+park flow. The rule is: **don't delete the seed.** Run `park_tu.py`
+or `park.sh` *first* to write the seed into `tough_nuts/<func>/`
+before reverting. Only then revert the TU file and confirm ninja
+round-trips with the asm fallback.
 
-**The one narrow exception:** if the very *first* compile reveals
-the C body was structurally wrong from the start (called the wrong
-function, used the wrong type, would never match no matter the
-codegen), revert + delete is fine. Use judgment: 30 lines of
-type-confused mess at first quick_diff = revert; anything you've
-iterated on more than once = not revertable.
-
-If you've spent time and the diff is "instructions correct, only
-regalloc / scheduling differs", that is **always** Step 4 / Step 5
-territory, never revert territory.
+Structurally-wrong attempts (called the wrong function, wrong arg
+types, would never match no matter the codegen) can still be
+revert + delete without parking — they'd just spin the permuter at
+score>500 forever. Use judgment: 30 lines of type-confused mess at
+first quick_diff = revert; anything that compiles cleanly and produces
+a near-miss diff = park.
 
 ### Diff-triage cheat-sheet (read BEFORE iterating more than twice)
 
