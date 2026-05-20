@@ -213,6 +213,31 @@ void func_0012ACD8(int key, char *src, int value)
         e += 0x290;
     } while (i < count);
 }
-INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012AD40);
+extern void func_00118460(char *target, int arg1);
+extern void func_0010D830(char *target, int arg2);
+
+void func_0012AD40(int key, int arg1, int arg2)
+{
+    int count = *(volatile int *)&D_00633C54;
+    int i = 0;
+    char *e = (char *)D_00674058;
+    if (count <= 0) return;
+    do {
+        int *entry1 = *(int **)(e + 0x280);
+        if (key == entry1[0x58 / 4]) {
+            int *entry2;
+            char *target;
+            entry2 = *(int **)(e + 0x284);
+            target = *(char **)((char *)entry2 + 0x24);
+            func_00118460(target, arg1);
+            entry2 = *(int **)(e + 0x284);
+            target = *(char **)((char *)entry2 + 0x24);
+            func_0010D830(target + 0x10, arg2);
+            count = *(volatile int *)&D_00633C54;
+        }
+        i++;
+        e += 0x290;
+    } while (i < count);
+}
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012ADE8);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012AE40);
