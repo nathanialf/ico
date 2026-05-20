@@ -27,16 +27,24 @@
 #   tools/auto_permute.sh func_X      # only this one (single, not parallel)
 #
 # Env:
-#   PARALLEL=N        max concurrent permuter processes (default: 8).
-#                      Each uses `-j 1`, so total cores ≈ PARALLEL.
+#   PARALLEL=N        max concurrent permuter processes (default: 2).
+#                      Each uses `-j PERMUTER_J` threads.
+#                      Default 2×4 = 8 cores, focused on 2 functions
+#                      (vs the old 8×1 = 8 cores spread across 8
+#                      functions, each starved → slow convergence).
+#   PERMUTER_J=N      threads per permuter process (default: 4).
+#                      Scales the per-function iteration rate; with the
+#                      same total core budget, higher PERMUTER_J × lower
+#                      PARALLEL converges closer-to-match seeds faster.
 #   ITERATIONS=N      cap total round-robin passes (default: infinite).
 #   SKIP_MATCHED=1    skip functions whose yaml entry has already been
 #                      flipped to `c` (default: 1; set to 0 to retry).
 #   STOP_AT_SCORE=N   advance to next function once permuter has produced
-#                      an output with score <= N (default: 0 = match-only).
-#                      A score-50 result is hand-attackable: the wrapper
-#                      will kill that function's permuter and move on so
-#                      the operator can review/promote the result manually.
+#                      an output with score <= N (default: 25).
+#                      Hand-attackable results pull out of the queue
+#                      early so the operator can review/promote
+#                      manually instead of leaving permuter chewing
+#                      on a converged seed for hours.
 #   TOUGH_NUTS_DIR=path  override the registry root (default:
 #                         <repo>/tough_nuts).
 #   RANDOM_ORDER=1    shuffle tough_nuts/<func>/ enumeration each pass.
@@ -63,8 +71,8 @@ ACTIVITY_LOG="${PERMUTER_DIR}/auto_permute.log"
 YAML_FILE="${YAML_FILE:-${PROJECT_ROOT}/config/ico.us.yaml}"
 SKIP_MATCHED="${SKIP_MATCHED:-1}"
 ITERATIONS="${ITERATIONS:-0}"   # 0 = infinite
-PARALLEL="${PARALLEL:-8}"
-STOP_AT_SCORE="${STOP_AT_SCORE:-0}"
+PARALLEL="${PARALLEL:-2}"
+STOP_AT_SCORE="${STOP_AT_SCORE:-25}"
 RANDOM_ORDER="${RANDOM_ORDER:-0}"
 VRAM_BASE_DEC=$((16#100000))
 
@@ -355,10 +363,14 @@ worker() {
 
     log "  START ${name} (seed=${seed#${PROJECT_ROOT}/})"
 
-    # Each worker gets exactly 1 permuter thread so PARALLEL workers
-    # consume PARALLEL cores total. --best-only writes only improved
-    # candidates; --stop-on-zero exits the permuter on a true match.
-    local extra=(-- --stop-on-zero --best-only -j 1)
+    # Each worker uses `-j ${PERMUTER_J:-4}` permuter threads.
+    # Total concurrent threads ≈ PARALLEL × PERMUTER_J.
+    # Default 2×4 = 8 cores, focused on 2 functions at a time (vs the old
+    # 8×1 = 8 cores spread across 8 functions, each starved).
+    # --best-only writes only improved candidates; --stop-on-zero exits
+    # the permuter on a true match.
+    local pj="${PERMUTER_J:-4}"
+    local extra=(-- --stop-on-zero --best-only -j "${pj}")
     local rc=0
     local out_dir="${RUNS_DIR}/${name}"
 

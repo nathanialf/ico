@@ -48,6 +48,39 @@ if [[ ! -f "$src_file" ]]; then
     exit 3
 fi
 
+# Size-match guard: a parked seed whose function compiles to a different
+# .text size than the expected asm has zero permuter yield — permuter
+# only mutates source, it can't shrink/grow the function body. Either
+# the C structure is fundamentally wrong (e.g., wrong arg count, missing
+# branch) or the wrong gcc emit path is being taken. Refuse to park.
+# Bypass with FORCE_PARK=1 if you're sure (e.g., parking a strict subset
+# of a larger function for later analysis).
+if [[ "${FORCE_PARK:-0}" != "1" ]]; then
+    expected_size=$(grep -E "^[ \t]*nonmatching ${fn_name}, 0x" "asm/matchings/cod/${file_off}/${fn_name}.s" 2>/dev/null \
+                     | sed -E 's|.*, 0x([0-9A-Fa-f]+).*|\1|' | head -1)
+    if [[ -z "$expected_size" ]]; then
+        # Try segment .s file (some non-promoted subsegs)
+        expected_size=$(grep -E "^[ \t]*nonmatching ${fn_name}, 0x" asm/cod/*.s 2>/dev/null \
+                         | sed -E 's|.*, 0x([0-9A-Fa-f]+).*|\1|' | head -1)
+    fi
+    built_obj="build/src/cod/${file_off}.o"
+    if [[ -f "$built_obj" && -n "$expected_size" ]]; then
+        # Read .text size from the .o file (objdump -h gives hex 8-char size in col 3)
+        built_size=$(mips-linux-gnu-objdump -h "$built_obj" 2>/dev/null \
+                       | awk '/^ *[0-9]+ \.text /{print $3; exit}')
+        if [[ -n "$built_size" ]]; then
+            built_dec=$(( 16#$built_size ))
+            expected_dec=$(( 16#$expected_size ))
+            if [[ "$built_dec" -ne "$expected_dec" ]]; then
+                echo "park: REFUSING — size mismatch (built=0x${built_size}, expected=0x${expected_size})" >&2
+                echo "      permuter only mutates source, not .text size; fix the structure first." >&2
+                echo "      Override with FORCE_PARK=1 if you're sure." >&2
+                exit 4
+            fi
+        fi
+    fi
+fi
+
 # Find the asm source for this function, for the notes.md excerpt.
 asm_path=$(grep -l "glabel ${fn_name}\b" asm/cod/*.s 2>/dev/null | head -1 || true)
 if [[ -z "$asm_path" ]]; then
