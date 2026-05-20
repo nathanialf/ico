@@ -277,6 +277,40 @@ See: [feedback_materialize_barrier].
 
 ---
 
+### 2.6 Force `$fA` over `$fB` for a fresh FP load (REG pin)
+
+**Diff fingerprint:** `lwc1 $fA, OFF(...)` (expected) vs
+`lwc1 $fB, OFF(...)` (built); same mnemonic, same memory operand,
+only the FP register letter differs. Usually paired with the matching
+`swc1 $fA, OFF2(...)` on the next line. tag_diff §2.7 fires.
+
+**Why:** when multiple FP registers are dead at the same program point,
+ee-gcc 2.9's regalloc picks the lowest-numbered free reg by default
+(typically `$f0` because it just held the last computed result and went
+dead). The original codegen sometimes picked a *different* free reg
+(e.g. `$f1` because the most recent `mtc1 $0, $f1` left it associated
+with a value).
+
+**Fix:** pin a local float to the desired register:
+
+```c
+{
+    register float v REG("$f1");
+    v = *(float *)((char *)src + 0x28);
+    *(float *)((char *)dst + 0x28) = v;
+}
+```
+
+Headers: `#include "regpin.h"`. Wrap in a `{ ... }` block so the pin's
+lifetime is exactly the load/store pair — gcc rejects mid-block decls
+in C89 mode, so this block scope is the only sane way.
+
+Example: `func_001E9F08` (`rotObject.c`) — only diff at end was
+`lwc1 $f1,40($s1) / swc1 $f1,40($s0)` vs gcc's `$f0` pick.
+See: [feedback_fpr_letter_swap].
+
+---
+
 ## 3. Branch shape
 
 ### 3.1 Multi-fail null-chain → bool (force 2 distinct `jr ra`)
@@ -508,6 +542,41 @@ Examples: `src/motionManager2` (commit eccdc21), `src/sound/s_init`,
 `src/icoMisc`, `src/FileManager`, `src/DmaPacket` — all surveyed when
 the rule was finalized.
 See: [feedback_lit4_gp_rel], [feedback_data_symbols_extern].
+
+### 5.7 Eager rodata pointer materialization (split `lui+addiu` away from jal)
+
+**Diff fingerprint:** built clusters `lui $aN, hi; addiu $aN, $aN, lo; jal`
+right at the call site; expected emits `lui+addiu` earlier (between the
+preceding stores) so the jal's delay slot can be filled by an unrelated
+op. tag_diff §5.9 fires.
+
+**Why:** gcc treats a global address (`D_X`) as a const it can synthesize
+anywhere — its scheduler picks the latest legal point, which is right
+before the call. The original codegen sometimes emitted the address
+materialization earlier (probably because the const was already
+loaded into a register from an earlier expression). Capturing the
+global into a local + `KEEP_LIVE` forces gcc to materialize the
+address at the local's def site rather than at the call.
+
+**Fix:**
+
+```c
+{
+    int *p = D_X;
+    KEEP_LIVE(p);
+    /* ... other stores ... */
+    func_target(arg0, p);   /* call uses p (already in a register) */
+}
+```
+
+Headers: `#include "matching.h"`. The `KEEP_LIVE` is what prevents
+gcc from re-CSE-ing the global address back to the call site.
+
+Example: `func_001E9F08` (`rotObject.c`) — `D_00275860` passed to
+`func_00105F00`; without the local capture, `lui $a1; addiu $a1`
+emitted right before jal; with the capture, emitted between the
+two preceding `swc1` stores (matching original).
+See: [feedback_eager_rodata_materialize].
 
 ---
 
@@ -1053,6 +1122,43 @@ store reads its source before the branch fires.
 Example: TU `kanban` (`func_001B04E0` — doubly-linked-list unlink with
 a `beq $v0, $0, .L; sw $v0, 0x18($v1)` pair gcc-intended but ee-as
 left as `beq; nop; sw`).
+
+### 8.22 `swc1` in jal delay slot — memory barrier before the call
+
+**Diff fingerprint:** `jal X; swc1 $fN, OFF(...)` (built) vs
+`jal X; <addiu/lw/mov>` (expected) — gcc fills the jal's delay slot
+with an unrelated trailing store from the preceding block; original
+codegen has the call-arg setup (addiu/lw) in the delay instead.
+tag_diff §8.22 fires.
+
+**Why:** gcc's scheduler considers every "movable" instruction near
+the call as a candidate for the delay slot. A `swc1` store that
+doesn't depend on the call-target's args is a perfectly legal pick.
+The original codegen evidently considered the call-arg setup more
+attractive (likely because the helper that emitted this code didn't
+hoist trailing stores into delay slots in the first place).
+
+**Fix:** insert a memory barrier between the trailing store and the
+call so gcc can no longer treat that store as movable past the
+sequence point:
+
+```c
+*(float *)((char *)obj + 0x28) = v_28;
+*(float *)((char *)obj + 0x2C) = v_2c;
+__asm__ __volatile__("" : : : "memory");
+func_target(arg0, arg1);
+```
+
+Alternative: mark the stores `volatile` (`*(volatile float *)...`).
+Both work; the explicit barrier is preferred when several stores
+need to be locked in place at once (the volatile cast only locks
+its single store relative to other volatile-accessed memory).
+
+Example: `func_001E9F08` (`rotObject.c`) — `swc1 $f0, 44(s0)` was
+landing in `jal func_00105F00`'s delay slot; the memory barrier
+moved it before the jal and let the `addiu a0, a0, 160` (= the
+helper's 2nd-arg construction) fill the slot.
+See: [feedback_memory_barrier_before_call].
 
 > All postprocesses are run by both `tools/compile_c.sh` and
 > `tools/quick_diff.sh`, so quick_diff sees the same bytes ninja will.

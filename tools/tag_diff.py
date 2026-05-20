@@ -240,6 +240,64 @@ def _rule_fcc_compare_missing_nop(pairs: list[DiffPair]) -> bool:
     return False
 
 
+def _rule_fpr_letter_swap(pairs: list[DiffPair]) -> bool:
+    """`lwc1 $fA,OFF(...)` (expected) vs `lwc1 $fB,OFF(...)` (built) — same
+    mnemonic and offsets, only the FP register letter differs. Same pattern
+    on the very next swc1/use. Suggests `REG("$fA")` pin on the source."""
+    fp_op = re.compile(r"^(lwc1|swc1|mov\.s|mfc1|mtc1)\s+\$f(\d+)\b")
+    saw = False
+    for e, b in pairs:
+        if not (e and b):
+            continue
+        em = fp_op.match(e)
+        bm = fp_op.match(b)
+        if not (em and bm):
+            continue
+        if em.group(1) != bm.group(1):
+            continue
+        if em.group(2) == bm.group(2):
+            continue
+        # Operands after register should match
+        e_rest = e[em.end():]
+        b_rest = b[bm.end():]
+        if e_rest == b_rest:
+            saw = True
+    return saw
+
+
+def _rule_swc1_in_jal_delay(pairs: list[DiffPair]) -> bool:
+    """built has `jal X; swc1 $fN, OFF(...)` (store fills jal delay), expected
+    has the swc1 BEFORE the jal and something else (addiu / lw / mov) in the
+    delay. Common when an unrelated trailing store competes with call-arg
+    setup for the slot."""
+    for i in range(len(pairs) - 1):
+        e0, b0 = pairs[i]
+        e1, b1 = pairs[i + 1]
+        if _mnem(b0) == "jal" and _mnem(b1) in {"swc1", "sw", "sd"}:
+            if _mnem(e0) == "jal" and _mnem(e1) not in {"swc1", "sw", "sd"}:
+                return True
+    return False
+
+
+def _rule_lui_addiu_late(pairs: list[DiffPair]) -> bool:
+    """rodata-pointer `lui+addiu` of a D_X address materializes right before
+    a jal (built) instead of earlier (expected). Heuristic: expected has the
+    lui at an earlier diff position than built, OR built clusters `lui+addiu+jal`
+    while expected has them split apart."""
+    # Cheap proxy: built has `lui $a1,0x..; addiu $a1,$a1,..; jal` and
+    # expected has them broken up by intervening ops.
+    for i in range(len(pairs) - 2):
+        e0, b0 = pairs[i]
+        e1, b1 = pairs[i + 1]
+        e2, b2 = pairs[i + 2]
+        if _mnem(b0) == "lui" and _mnem(b1) == "addiu" and _mnem(b2) == "jal":
+            if not (_mnem(e0) == "lui" and _mnem(e1) == "addiu"
+                    and _mnem(e2) == "jal"):
+                # Expected has different scheduling here
+                return True
+    return False
+
+
 RULES: list[Rule] = [
     Rule("8.21", "beq/bne delay slot has nop where original packs a sw",
          _rule_beq_nop_fill,
@@ -277,6 +335,21 @@ RULES: list[Rule] = [
     Rule("8.15", "FCC compare without trailing nop",
          _rule_fcc_compare_missing_nop,
          "add basename to config/fcc_nop.txt"),
+    Rule("2.7", "FP register letter swap ($fA ↔ $fB, otherwise identical)",
+         _rule_fpr_letter_swap,
+         "REG(\"$fA\") pin on the source local — gcc picked the wrong "
+         "free FP reg; force the original choice via a register-pinned "
+         "float local."),
+    Rule("8.22", "swc1 in jal delay slot where expected has addiu/lw",
+         _rule_swc1_in_jal_delay,
+         "add `__asm__ volatile(\"\" ::: \"memory\")` between the trailing "
+         "store and the call, OR mark the store as volatile, so gcc fills "
+         "the delay with the call-arg setup instead of the unrelated store."),
+    Rule("5.9", "rodata lui+addiu materialized late next to jal",
+         _rule_lui_addiu_late,
+         "capture the global address into a local: "
+         "`T *p = D_X; KEEP_LIVE(p);` so gcc emits the lui+addiu "
+         "earlier instead of clustering them against the jal."),
 ]
 
 
