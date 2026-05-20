@@ -85,9 +85,9 @@ def test_branch() -> None:
     lower0 = struct.unpack_from("<I", body, 0)[0]
     upper0 = struct.unpack_from("<I", body, 4)[0]
     assert upper0 == 0, f"upper0 should be 0 (nop), got 0x{upper0:08X}"
-    # `b done` from pc=0 → target 0x10 → delta = 0x10 - 8 = 8 = 1 bundle
-    # op6=0x20 (b), bits 0-10 = 1 (one-bundle forward)
-    expect = (0x20 << 26) | 1
+    # `b done` from pc=0 → target 0x10 → delta = 0x10 - 8 = 8 = 1 bundle.
+    # Lower opcode is 7-bit at bits 25-31; b == 0x20; Imm11 == 1.
+    expect = (0x20 << 25) | 1
     assert lower0 == expect, (
         f"branch encoding: got 0x{lower0:08X} expected 0x{expect:08X}")
     print(f"  ok: forward branch resolves to +1 bundle")
@@ -104,9 +104,9 @@ def test_backward_branch() -> None:
     body = _assemble(src)
     assert len(body) == 16
     lower1 = struct.unpack_from("<I", body, 8)[0]
-    # `b loop` from pc=8 → target 0 → delta = 0 - 16 = -16 = -2 bundles
-    # 11-bit signed: -2 = 0x7FE (two's complement, 11-bit)
-    expect = (0x20 << 26) | (0x7FE & 0x7FF)
+    # `b loop` from pc=8 → target 0 → delta = 0 - 16 = -16 = -2 bundles.
+    # 11-bit signed: -2 = 0x7FE (two's complement, 11-bit).
+    expect = (0x20 << 25) | (0x7FE & 0x7FF)
     assert lower1 == expect, (
         f"backward branch: got 0x{lower1:08X} expected 0x{expect:08X}")
     print(f"  ok: backward branch resolves to -2 bundles")
@@ -122,11 +122,30 @@ def test_ibeq_with_regs() -> None:
     )
     body = _assemble(src)
     lower0 = struct.unpack_from("<I", body, 0)[0]
-    # op6=0x28, ft=2 (vi02), fs=1 (vi01), offset=1 bundle
-    expect = (0x28 << 26) | (2 << 16) | (1 << 11) | 1
+    # ibeq op7=0x28; ft=2 (vi02), fs=1 (vi01); Imm11=1.
+    expect = (0x28 << 25) | (2 << 16) | (1 << 11) | 1
     assert lower0 == expect, (
         f"ibeq: got 0x{lower0:08X} expected 0x{expect:08X}")
     print(f"  ok: ibeq vi02, vi01, end encodes correctly")
+
+
+def test_nop_swap() -> None:
+    """The 0x8000033C BIOS-bug NOP pattern is its own mnemonic now.
+
+    PCSX2 microVU_Compile.inl mVUcheckBadOp: this exact byte pattern
+    is what the BIOS emits when upper/lower NOP slots get swapped;
+    PCSX2 silently passes it as a no-op. Treat it as a distinct
+    mnemonic so the byte-perfect round trip stays explicit."""
+    src = (
+        ".vu0\n"
+        "pad ; nop_swap\n"
+    )
+    body = _assemble(src)
+    lower = struct.unpack_from("<I", body, 0)[0]
+    upper = struct.unpack_from("<I", body, 4)[0]
+    assert lower == 0x8000033C, f"got 0x{lower:08X}"
+    assert upper == 0x000002FF, f"got 0x{upper:08X}"
+    print(f"  ok: nop_swap encodes 0x8000033C (BIOS-bug NOP)")
 
 
 def test_dot_bundle_escape() -> None:
@@ -159,8 +178,8 @@ def test_macro_expansion() -> None:
     lower0 = struct.unpack_from("<I", body, 0)[0]
     upper0 = struct.unpack_from("<I", body, 4)[0]
     assert upper0 == 0x000002FF, f"upper0 not pad: 0x{upper0:08X}"
-    # b done: pc=0, target=0x10, delta=8, bundles=1, op6=0x20
-    assert lower0 == (0x20 << 26) | 1, f"branch enc wrong: 0x{lower0:08X}"
+    # b done: pc=0, target=0x10, delta=8, bundles=1, op7=0x20 (7-bit dispatch)
+    assert lower0 == (0x20 << 25) | 1, f"branch enc wrong: 0x{lower0:08X}"
     print(f"  ok: .macro JMP target expands to pad ; b target")
 
 
@@ -225,6 +244,7 @@ def main(argv: list[str] | None = None) -> int:
     test_dot_bundle_escape()
     test_macro_expansion()
     test_assert_pc_directive()
+    test_nop_swap()
     if args.against_textbin:
         test_against_textbin()
     print("all tests passed")

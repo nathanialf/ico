@@ -144,29 +144,42 @@ def decode_upper(w: int) -> str:
 # --------------------------------------------------------------- lower decode
 
 def decode_lower(w: int, pc: int, branch_targets: list[int] | None = None) -> str:
-    """Decode the 32-bit lower instruction. Conservative: only the
-    well-known cases are decoded (nop, branches, jumps). Branches
-    are decoded specifically to enable label collection for the
-    reader. Everything else is `.word` with field-position
-    annotations.
+    """Decode the 32-bit lower instruction.  Cross-referenced against
+    PCSX2's microVU dispatch (GPL-3.0; the bit-field semantics are
+    factual hardware encoding, re-derived here for our own use).
 
-    Reliable cases handled:
-      * w == 0 → nop
-      * op6 in {0x20 (b), 0x21 (bal), 0x24 (jr), 0x25 (jalr),
-        0x28 (ibeq), 0x29 (ibne), 0x2C (ibltz), 0x2D (ibgtz),
-        0x2E (iblez), 0x2F (ibgez)} → branch/jump with target
-        computation. Note: bit positions for branch offset
-        depend on EE manual and may need correction for ICO.
+    Lower opcode dispatch is via **bits 25-31** (7-bit field), NOT
+    bits 26-31 — an earlier version of this file got that wrong, and
+    every "branch" the prior disasm reported in the [0x8xxxxxxx]
+    encoding range was actually a `vmove vf<N>, vf0` with no
+    destination mask (the bit pattern PCSX2 calls out as the
+    "BIOS-bug NOP" because the BIOS emits upper/lower NOP slots
+    swapped).  Real VU0 branches live in [0x4xxxxxxx].
 
-    All non-branch/non-nop encodings emit `.word` with op6 + reg
-    field annotations.
-    """
+    Reliable cases handled now:
+      * w == 0                  → nop (true zero)
+      * w == 0x8000033C         → nop_swap (BIOS-bug NOP padding)
+      * op7 == 0x20 (b)         } symbolic with PC-relative target
+      * op7 == 0x21 (bal)       }
+      * op7 == 0x24 (jr)        } symbolic, register only
+      * op7 == 0x25 (jalr)      }
+      * op7 in 0x28..0x2F       } symbolic conditional branches
+                                  (ibeq/ibne/ibltz/ibgtz/iblez/ibgez)
+
+    All other encodings emit `.word 0x<hex>` with the op7 + fs/ft
+    fields annotated so the manual rewrite can identify the family
+    against a VU0 reference."""
     if w == 0:
         return "nop"
-    op6 = bits(w, 26, 31)
+    if w == 0x8000033C:
+        # PCSX2 microVU_Compile.inl mVUcheckBadOp: "The BIOS writes
+        # upper and lower NOPs in reversed slots (bug)". Treat as a
+        # distinct mnemonic so the round trip stays byte-perfect.
+        return "nop_swap"
+    op7 = bits(w, 25, 31)
     fs = bits(w, 11, 15)
     ft = bits(w, 16, 20)
-    branch_table = {
+    cond_branch_table = {
         0x28: "ibeq",
         0x29: "ibne",
         0x2C: "ibltz",
@@ -174,35 +187,33 @@ def decode_lower(w: int, pc: int, branch_targets: list[int] | None = None) -> st
         0x2E: "iblez",
         0x2F: "ibgez",
     }
-    if op6 in branch_table:
-        op = branch_table[op6]
-        # 11-bit signed offset in bits 0-10, in units of bundles (* 8).
-        # Target encoding may vary; treat with care.
+    if op7 in cond_branch_table:
+        op = cond_branch_table[op7]
         offset = signed(bits(w, 0, 10), 11) * 8
         target = pc + 8 + offset
         if branch_targets is not None:
             branch_targets.append(target)
-        if op6 in (0x28, 0x29):
+        if op7 in (0x28, 0x29):
             return f"{op} {vi(ft)}, {vi(fs)}, L_{target:04X}"
         return f"{op} {vi(fs)}, L_{target:04X}"
-    if op6 == 0x20:
+    if op7 == 0x20:
         offset = signed(bits(w, 0, 10), 11) * 8
         target = pc + 8 + offset
         if branch_targets is not None:
             branch_targets.append(target)
         return f"b L_{target:04X}"
-    if op6 == 0x21:
+    if op7 == 0x21:
         offset = signed(bits(w, 0, 10), 11) * 8
         target = pc + 8 + offset
         if branch_targets is not None:
             branch_targets.append(target)
         return f"bal {vi(ft)}, L_{target:04X}"
-    if op6 == 0x24:
+    if op7 == 0x24:
         return f"jr {vi(fs)}"
-    if op6 == 0x25:
+    if op7 == 0x25:
         return f"jalr {vi(ft)}, {vi(fs)}"
     return (f".word 0x{w:08X}"
-            f"  ; lower op6=0x{op6:02X} fs={fs} ft={ft}"
+            f"  ; lower op7=0x{op7:02X} fs={fs} ft={ft}"
             f" (cross-ref VU0 ref)")
 
 

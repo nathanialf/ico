@@ -50,12 +50,29 @@ doesn't know VU0 micromode). Instead:
        → mips-linux-gnu-as            ; existing `as_hasm` ninja rule
 
 Symbolic mnemonics the assembler recognises today (parity with
-`tools/disasm_vu0.py`): `nop` (true zero), `pad` (0x000002FF
-upper-pad), lower branches `b/bal/jr/jalr/ibeq/ibne/ibltz/ibgtz/iblez/ibgez`,
-plus the escape directives `.word`, `.bundle <upper>, <lower>`,
-`.raw <bytes>`. Everything else (every FMAC, every LSU, every I-type)
-is written via `.word` until that opcode family's encoder lands in
-`assemble_vu0.py:encode_*` (mirror the pattern in `disasm_vu0.py`).
+`tools/disasm_vu0.py`):
+
+  upper:  `nop` (true zero), `pad` (0x000002FF — the canonical NOP
+          encoding, FD_11 sub-op 0x0B)
+  lower:  `nop` (true zero), `nop_swap` (0x8000033C — PCSX2 names
+          this the "BIOS-bug NOP"; bytes are common in PS2 microcode
+          but PCSX2 special-cases them as a no-op), branches
+          `b/bal/jr/jalr/ibeq/ibne/ibltz/ibgtz/iblez/ibgez`
+
+Plus the escape directives `.word`, `.bundle <upper>, <lower>`,
+`.raw <bytes>`, `.macro`, `.assert_pc`.
+
+The lower-half opcode dispatches via **bits 25-31** (7-bit field —
+cross-checked against PCSX2 `VU0_LOWER_OPCODE[VU->code >> 25]`, GPL-3.0).
+An earlier version of `disasm_vu0.py` used a 6-bit dispatch, which
+silently mislabeled four ICO bundles as branches in the very first
+chunk (the bytes were the BIOS-NOP `0x8000033C` pattern). If you
+spot historical commits that wrote `b L_<addr>` for a 0x8000033C
+bundle, that's a known-fixed bug.
+
+Everything else (FMAC families, LSU, I-type, T3 sub-tables) is
+still written via `.word` until that family's encoder lands in
+`assemble_vu0.py` (mirror `disasm_vu0.py`).
 
 When you crack a new opcode family during hand-rewrite:
 

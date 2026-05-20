@@ -178,9 +178,12 @@ _BRANCH_OPS = {
 }
 
 
-def _enc_branch(op6: int, pc: int, target_pc: int,
+def _enc_branch(op7: int, pc: int, target_pc: int,
                 ft: int = 0, fs: int = 0) -> int:
-    """Encode an 11-bit PC-relative branch in units of bundles."""
+    """Encode an 11-bit PC-relative branch.  Lower-half opcode lives
+    in bits 25-31 (7-bit dispatch — confirmed against PCSX2
+    VU0microInterp `VU0_LOWER_OPCODE[VU->code >> 25]`).  Branch
+    immediate is bits 0-10, sign-extended, in units of bundles."""
     delta = target_pc - (pc + 8)
     if delta % 8 != 0:
         raise EncodeError(
@@ -191,15 +194,24 @@ def _enc_branch(op6: int, pc: int, target_pc: int,
             f"branch out of range: {bundles} bundles "
             f"(±1024 max) from pc 0x{pc:04X} → 0x{target_pc:04X}")
     offset = bundles & 0x7FF
-    return (op6 << 26) | (ft << 16) | (fs << 11) | offset
+    return (op7 << 25) | (ft << 16) | (fs << 11) | offset
 
 
 def _enc_jr(fs: int) -> int:
-    return (0x24 << 26) | (fs << 11)
+    return (0x24 << 25) | (fs << 11)
 
 
 def _enc_jalr(ft: int, fs: int) -> int:
-    return (0x25 << 26) | (ft << 16) | (fs << 11)
+    return (0x25 << 25) | (ft << 16) | (fs << 11)
+
+
+def encode_lower_nop_swap() -> int:
+    """The "BIOS-bug NOP" pattern (0x8000033C) — written as `nop_swap`
+    in source so it stays semantically distinct from `nop` (true zero).
+    PCSX2 special-cases this exact byte pattern in its bad-op spam
+    filter; the actual encoding dispatches to mVU_MOVE with all-zero
+    operands and dest mask, i.e. an effective no-op."""
+    return 0x8000033C
 
 
 # ============================================================================
@@ -273,6 +285,8 @@ def _try_encode_lower_late(text: str, pc: int,
     Called after the first pass collects label PCs."""
     if not text or text.lower() == "nop":
         return encode_lower_nop()
+    if text.lower() == "nop_swap":
+        return encode_lower_nop_swap()
     tok = re.split(r"[ ,]+", text)
     tok = [t for t in tok if t]
     head = tok[0].lower()
