@@ -96,83 +96,94 @@ recap shows up, the session has bugged out. Just keep matching.
 
 ## Recipe-first fast path (use this FIRST on every new function)
 
-Before reading the `.s` manually, **always run the classifier**. It
-fingerprints the asm in milliseconds and points you at the cookbook
-section whose recipe most likely applies. Most of the matches landed in
-this project are instances of a small set of shapes — the classifier
-exists to recognize which one, so you write the *right* C the first
-time instead of iterating from blank.
+**The fast path starts with `auto_match --bucket`, NOT with reading
+individual `.s` files.** Hand-classifying one candidate at a time is
+the slow path — it burns minutes per function on triage before any C
+is written. Bucket-classify a whole TU in one shot, then look at the
+table and pick the high-leverage rows.
 
-### Single function
-
-```sh
-tools/classify_asm.py asm/nonmatchings/<TU>/func_<addr>.s
-# → prints fingerprint + top-N recipes from decomp/COOKBOOK.md
-```
-
-To get a starter `.c` body with the cookbook template substituted in
-(function name filled, header `#include`s added, TODO callee names
-flagged), add `--scaffold`:
+### Step 0 — Always: bucket-classify before reading any asm
 
 ```sh
-tools/classify_asm.py --scaffold asm/.../func_X.s
-# → prints classification + a compilable C scaffold to stdout
-```
-
-Use `--write src/cod/<file_off>.c` instead of stdout to commit the
-scaffold to disk in one shot, OR use `--recipe N.M --name func_X` to
-scaffold without classifying (when you've already decided which recipe
-fits).
-
-The scaffold is a **starting point**, not a finished match: the
-wrapper name is filled in, but `func_target`/`func_X`/`OFF`/`D_X` and
-similar placeholders are deliberately left as `TODO` (in some recipes
-they're callees, in others they're the wrapper — getting it wrong
-inverts the meaning). Fill them from the `.s` jal targets and operand
-context before running quick_diff.
-
-### Batch (a whole TU or a candidate list)
-
-```sh
-# Triage what's matchable in a TU's nonmatchings dir without touching
-# anything. Prints a plan: which functions hit which recipes, which
-# fall back to natural-C, which have no recipe match.
 tools/auto_match.py --bucket asm/nonmatchings/src/<TU>/
+```
 
-# Same, but write scaffolds to a /tmp/auto_match_* dir for review.
-tools/auto_match.py --scaffold-only --bucket asm/nonmatchings/src/<TU>/
+That prints a one-line-per-candidate table with vram, size, top recipe,
+and outcome (`scaffold` / `no-template` / `no-recipe`). Read the table
+once; do NOT read individual `.s` files until the table tells you
+which functions are worth opening.
 
-# Full pipeline (DESTRUCTIVE): writes src/cod/<off>.c per candidate,
-# claims each into yaml via tools/claim.py, runs `tools/build.sh setup`
-# ONCE for the whole batch (nuclear-clean per the batching rule), then
-# `tools/quick_diff.sh` each one and tabulates matched/diffs/no-recipe.
+What to do based on the outcome column, in priority order:
+
+  - **`scaffold` rows** — the classifier has a template for this shape
+    (§1.x wrappers, §2.x regalloc, §7.x mixed FP, etc.). If 3+ rows
+    in the same bucket have the same recipe id, batch-claim them
+    together with `--apply` (see "Batch claim" below). If only one,
+    `--scaffold-only` it and iterate by hand.
+  - **`no-template` rows** — recipe matched but its entry is a PARK
+    (§1.3, §3.3) or branch-likely-only diff. These need direct Step
+    4 / Step 5 work (header-macro hasm or new postprocess); don't
+    iterate C on them.
+  - **`no-recipe` rows** — natural-C territory. Open the `.s`, write
+    naive C, quick_diff. These are the slowest per-function but often
+    the most numerous in close-to-done TUs.
+
+### Batch claim (`--apply`) — preferred when ≥2 templated rows
+
+```sh
 tools/auto_match.py --apply --bucket asm/nonmatchings/src/<TU>/
 ```
 
-`--apply` refuses to run if `src/cod/` has uncommitted edits unless
-`--force` is given. It will skip recipes with no template (PARK
-recipes, fallbacks) rather than fabricate code.
+Writes scaffolds for every templated candidate, claims them in yaml,
+runs `tools/build.sh setup` ONCE (nuclear-clean batching), then
+quick_diffs each. Diff-table tells you which immediately landed and
+which need more iteration. **Refuses if `src/cod/` is dirty** — commit
+or stash first.
 
-When `--apply` reports `diffs` candidates, those are starting points
-for the Step 1–5 investigation loop, not endpoints. The scaffold .c
-stays in `src/cod/` and the yaml stays flipped to `c`; iterate on the
-diff with `tools/quick_diff.sh` or escalate to Step 4 (header-macro
-hasm) / Step 5 (postprocess). Parking is disallowed — see
-"Tough-nut parking" below.
+### Single function (when a bucket isn't right)
 
-### Decision tree
+```sh
+# Just classify, don't scaffold
+tools/classify_asm.py asm/nonmatchings/<TU>/func_<addr>.s
 
-1. Picked a candidate? → `classify_asm.py <file>`. Read the top recipe.
-2. Recipe applies? → `--scaffold --write src/cod/<off>.c`, edit the
-   `TODO` placeholders, run `quick_diff`, iterate.
-3. Top recipe is `§0.0` (natural C) or `no recipes matched`? → write
-   naive C from the asm, iterate via quick_diff.
-4. Top recipe is a PARK entry (§1.3, §3.3)? → it's a known unmatched
-   shape; investigate Step 4 (header-macro hasm) or Step 5
-   (postprocess) directly.
-5. Trying to clear a whole TU? → `auto_match.py --bucket` first to see
-   the recipe distribution, THEN decide whether to `--apply` or
-   hand-pick.
+# Scaffold to stdout (review before writing)
+tools/classify_asm.py --scaffold asm/.../func_X.s
+
+# Scaffold straight to disk
+tools/classify_asm.py --scaffold --write src/cod/<file_off>.c asm/.../func_X.s
+
+# Scaffold by recipe id when you've already decided
+tools/classify_asm.py --recipe 2.1 --name func_X --write src/cod/<off>.c
+```
+
+### Scaffolds are sketches, not drop-ins
+
+The scaffold output is a 10-20 line C **sketch** showing the recipe's
+canonical shape with `func_target` / `OFF` / `D_X` placeholders. It is
+not standalone code — you fill in the callee names, operand offsets,
+and struct types from the `.s` jal targets and operand context. Some
+scaffolds (e.g. §2.1) are just the regalloc trick fragment (a single
+`register REG("$3")` declaration + `KEEP_LIVE`) — you still write the
+surrounding body.
+
+### Coalesced-TU quick_diff invocation
+
+For coalesced TUs (the function lives in `src/<TU>.c` via `INCLUDE_ASM`
+rather than its own `.c` file), pass the TU name AND the function name:
+
+```sh
+tools/quick_diff.sh <TU>           # only works for single-function .c
+tools/quick_diff.sh <TU> func_X    # for multi-function .c (the common case)
+```
+
+The script disassembles the whole TU but uses `--disassemble=func_X`
+on both sides so the comparison is scoped to just that function. The
+remaining "differences" in the diff output that show `jal 0 <other_func>`
+on one side and `jal 0 <func_X>` on the other are cosmetic — objdump
+names the relocated branch by the nearest preceding symbol in the
+.o file, which differs between built (multi-func) and target
+(single-func). Verify byte match by running `ninja` once after the
+quick_diff stream is otherwise identical.
 
 ## Toolkit
 
