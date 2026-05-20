@@ -160,7 +160,34 @@ void func_0012AC28(int target, int val)
     } while (--i);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012AC70);
+typedef struct { long long w; } __attribute__((packed)) _packed64_sa;
+
+void func_0012AC70(int key, char *src)
+{
+    register int count REG("$8");
+    int one = 1;
+    int i;
+    char *e = (char *)D_00674058;
+    count = *(volatile int *)&D_00633C54;
+    i = 0;
+    if (count <= 0) return;
+    do {
+        register int *entry1 REG("$2") = *(int **)(e + 0x280);
+        i++;
+        if (key == entry1[0x58 / 4]) {
+            int *entry2;
+            register char *target REG("$3");
+            entry2 = *(int **)(e + 0x284);
+            target = *(char **)((char *)entry2 + 0x24);
+            *(_packed64_sa *)(target + 0x20) = *(_packed64_sa *)src;
+            entry2 = *(int **)(e + 0x284);
+            target = *(char **)((char *)entry2 + 0x24);
+            *(int *)(target + 0x28) = one;
+            count = *(volatile int *)&D_00633C54;
+        }
+        e += 0x290;
+    } while (i < count);
+}
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012ACD8);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012AD40);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012ADE8);
