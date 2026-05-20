@@ -71,7 +71,37 @@ extern void func_00105F00(int a0, int a1);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001D8E40);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001D92E0);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001D9890);
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001D9BB8);
+extern char *D_00633F40;
+extern float func_00168C18(char *p1, char *p2);
+extern void func_001D8CF0(void);
+extern void func_00105308(float, float, float);
+
+void func_001D9BB8(void)
+{
+    int v;
+    float f1;
+    register char *s REG("$16");
+    v = func_00105278();
+    func_00118678(v);
+    s = (char *)D_00633F3C;
+    f1 = func_00168C18(s + 0x130, s);
+    {
+        float *p = (float *)D_00633F3C;
+        func_00105308(*(float *)s, f1, p[2]);
+    }
+    func_0010DF70((char *)D_00633F3C + 0x30);
+    func_00104F20();
+    func_001D9890();
+    func_00105268();
+    {
+        register int *q REG("$2") = (int *)D_00633F40;
+        if (q[0xE4 / 4] != 0) {
+            func_00104F20();
+            func_001D8CF0();
+            func_00105268();
+        }
+    }
+}
 extern int func_00105278(void);
 extern int func_00118678(int);
 extern void func_00105308(float, float, float);
