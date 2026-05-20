@@ -117,7 +117,33 @@ void func_0019A8F0(int *self)
     }
     func_00103D50(self, 1, 100.0f, 100.0f, D_00631074);
 }
-INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019A9A0);
+extern int *D_00631AE4;
+extern void func_001504D8(int *p);
+extern void func_0010ECD8(void);
+extern void func_0010ECB8(int *self);
+extern void func_001C62D0(int a, char *b, char *c);
+
+void func_0019A9A0(int *self)
+{
+    if (D_00631AE4 != 0) {
+        func_001504D8(D_00631AE4);
+    }
+    func_0010ECD8();
+    func_0010ECB8(self);
+    {
+        char *sub = *(char **)((char *)self + 0x15C);
+        int *inner = *(int **)(sub + 0x800);
+        if (*(int *)((char *)inner + 0xC) != 0) {
+            char *q = *(char **)(sub + 0x844);
+            func_001C62D0(*(int *)((char *)inner + 0x10), q + 0x40, q);
+            sub = *(char **)((char *)self + 0x15C);
+        }
+        {
+            char *q = *(char **)(sub + 0x844);
+            func_001C62D0(*(int *)((char *)inner + 0x14), q + 0x40, q);
+        }
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019AA20);
 extern void func_0019C280(float x);
 void func_0019AE50(int *self)
