@@ -279,6 +279,33 @@ def _rule_swc1_in_jal_delay(pairs: list[DiffPair]) -> bool:
     return False
 
 
+def _rule_alternating_reload_regs(pairs: list[DiffPair]) -> bool:
+    """Chain of `lw $rT, OFF($rs)` reloads where expected alternates between
+    two registers (`$v0`/`$v1`) but built uses a single register. Indicates
+    the original codegen rotated temporaries across back-to-back independent
+    loads of the same memory; gcc by default coalesces them onto one temp."""
+    lw_pat = re.compile(r"^lw\s+\$(\w+),\s*(-?\d+|0x[0-9a-fA-F]+)\(\$(\w+)\)")
+    expected_dests: list[str] = []
+    built_dests: list[str] = []
+    expected_offs: list[str] = []
+    built_offs: list[str] = []
+    for e, b in pairs:
+        if e and (m := lw_pat.match(e)):
+            expected_dests.append(m.group(1))
+            expected_offs.append(m.group(2) + "(" + m.group(3) + ")")
+        if b and (m := lw_pat.match(b)):
+            built_dests.append(m.group(1))
+            built_offs.append(m.group(2) + "(" + m.group(3) + ")")
+    # Need ≥3 lw's on the same source address on both sides; expected uses
+    # ≥2 distinct dest regs, built uses 1.
+    if len(expected_dests) < 3 or len(built_dests) < 3:
+        return False
+    if expected_offs[:3] != built_offs[:3]:
+        return False  # different addresses; not the same pattern
+    return (len(set(expected_dests)) >= 2
+            and len(set(built_dests)) == 1)
+
+
 def _rule_lui_addiu_late(pairs: list[DiffPair]) -> bool:
     """rodata-pointer `lui+addiu` of a D_X address materializes right before
     a jal (built) instead of earlier (expected). Heuristic: expected has the
@@ -350,6 +377,13 @@ RULES: list[Rule] = [
          "capture the global address into a local: "
          "`T *p = D_X; KEEP_LIVE(p);` so gcc emits the lui+addiu "
          "earlier instead of clustering them against the jal."),
+    Rule("2.8", "alternating $v0/$v1 reload pattern vs single-reg built",
+         _rule_alternating_reload_regs,
+         "DUAL register pin: declare two aliases for the same logical "
+         "pointer (`register T *p_v0 REG(\"$2\")`, "
+         "`register T *p_v1 REG(\"$3\")`), then alternate which alias each "
+         "volatile re-deref assigns to. Single-reg pins won't work — gcc "
+         "puts every load in one reg; you need two pins that take turns."),
 ]
 
 

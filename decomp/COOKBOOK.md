@@ -311,6 +311,53 @@ See: [feedback_fpr_letter_swap].
 
 ---
 
+### 2.7 Dual-pin alternating regalloc for chained volatile reloads
+
+**Diff fingerprint:** expected has a chain of ≥3 `lw $rT, OFF($rs)`
+reloads of the SAME memory, alternating between `$v0` and `$v1` as
+the destination (`lw $v1; sw…(v1); lw $v0; sw…(v0); lw $v1; sw…(v1)`).
+Built compiles the same chain but with every `lw` going to `$v0`
+(or every one going to `$v1` if you over-pinned the local). The
+instructions are otherwise identical, only the destination register
+letters differ across the chain. tag_diff §2.8 fires.
+
+**Why:** when source-level code re-derefs the same volatile pointer
+many times in a row (cookbook §5.4 pattern), gcc treats each load as
+independent but defaults to allocating them all to the lowest free
+temp. The original codegen rotated `$v0`/`$v1` across the chain —
+likely because the scheduler treated alternating destinations as
+hiding load-use latency. A single REG pin won't help: it locks every
+load to one register.
+
+**Fix:** declare **two** register-pinned aliases for the same logical
+pointer; assign to whichever alias matches the original's choice at
+each store:
+
+```c
+register int *p_v0 REG("$2");
+register int *p_v1 REG("$3");
+
+p_v1 = (int *)*(int * volatile *)((char *)self + OFF_PTR);
+*(volatile int *)((char *)p_v1 + OFF_A) = const_a;
+p_v0 = (int *)*(int * volatile *)((char *)self + OFF_PTR);
+*(volatile int *)((char *)p_v0 + OFF_B) = 0;
+p_v1 = (int *)*(int * volatile *)((char *)self + OFF_PTR);
+*(volatile int *)((char *)p_v1 + OFF_C) = const_a;
+/* …continue alternating… */
+```
+
+Headers: `#include "regpin.h"` and `#include "matching.h"`. The
+volatile stores are required: without them gcc hoists all the lw's
+to the top of the block, which breaks the lw/sw pairing the chain
+depends on.
+
+Example: `func_00197240` (`act_bird.c`) — 7 reloads of `self->_15C`
+across the `_544/_54C/_548/_550/_4AC/_4B0/_4C4` store chain; built
+defaulted all to `$v0`, expected alternates `$v1, $v0, $v1, $v0, $v0, $v1, $v0`.
+See: [feedback_dual_pin_alternating].
+
+---
+
 ## 3. Branch shape
 
 ### 3.1 Multi-fail null-chain → bool (force 2 distinct `jr ra`)

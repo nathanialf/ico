@@ -762,6 +762,35 @@ If you've spent time and the diff is "instructions correct, only
 regalloc / scheduling differs", that is **always** Step 4 / Step 5
 territory, never revert territory.
 
+### Diff-triage cheat-sheet (read BEFORE iterating more than twice)
+
+When stuck, run quick_diff once and classify the *shape* of the diff
+before trying another C reformulation. The recipe to reach for is
+implied by the shape:
+
+| Diff shape | Recipe | Source of fix |
+|---|---|---|
+| Only branch mnemonic (`beq` vs `beql`, `bne` vs `bnel`) | §8.6 postprocess `bne_to_bnel` | already wired |
+| `daddiu` (expected) vs `addiu` (built) on `%gp_rel` | §5.3 false positive | commit as-is |
+| Only one FP reg letter differs (`$f0` vs `$f1`) | §2.6 `REG("$fN")` pin in `{ }` block | feedback_fpr_letter_swap |
+| Chain of `lw $rT, OFF($rs)` where expected alternates `$v0`/`$v1`, built uses one reg | §2.7 DUAL pin (`p_v0` + `p_v1`, alternate source) | feedback_dual_pin_alternating |
+| `swc1` (or `sw`/`sd`) in jal delay slot vs `addiu`/`lw` in expected delay | §8.22 `__asm__ volatile("" ::: "memory")` between trailing stores and call | feedback_memory_barrier_before_call |
+| `lui+addiu` of `D_X` clusters right before `jal`, expected has them earlier | §5.7 `T *p = D_X; KEEP_LIVE(p);` | feedback_eager_rodata_materialize |
+| Single missing `daddu $v1, $v0, $0` after a jal | §2.1 `REG("$3")` + `KEEP_LIVE(q)` | feedback_keep_live_v1_pin |
+| `ld $31` and `daddu $v0,$0,$0` swapped at epilogue | §8.3 postprocess `swap_zero_ret_ld_ra` | already wired |
+| Operand swap on `addu $X,$Y,$Z` vs `addu $X,$Z,$Y` | §8.11 postprocess `swap_addu_operands` | already wired |
+| `nop` between branch and "would-be delay" sw | §8.5 (blez/likely) or §8.21 (beq/bne) postprocess | already wired |
+| Trailing `nop` after `j $31` | §8.12 postprocess `no_trailing_nop` | already wired |
+| `c.lt.s` / FCC compare without trailing `nop` | §8.15 postprocess `fcc_nop` | already wired |
+
+If the diff doesn't match any row above, **then** iterate. If it does
+match, jump straight to that recipe — don't burn time trying naive
+reformulations of the C.
+
+Running `tools/quick_diff.sh <TU> <func>` automatically pipes the diff
+through `tools/tag_diff.py`, which fires hints matching this table.
+Read the hints **before** iterating.
+
 ## Leverage building — codify the recipe, not just the match
 
 When a tough nut cracks, the *recipe* is often higher leverage than
