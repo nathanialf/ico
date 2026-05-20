@@ -1,3 +1,4 @@
+
 extern int D_00713000[];
 int *func_002456F8(int a0)
 {
