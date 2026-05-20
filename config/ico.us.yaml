@@ -1912,7 +1912,7 @@ segments:
       - [0x134AB0, c, src/cod/134AB0]
       - [0x134AB8, asm, src/cod/134AB8]
       - [0x1356C0, c, src/cod/1356C0]            # func_002356C0: store-arg-discard
-      - [0x1356D0, asm, src/cod/1356D0]
+      - [0x1356D0, c, src/cod/1356D0]            # func_002356D0: pulse-set obj->_4E8 (1 then 0) via D_00631AE4->_15C; then func_0017CD18(0,0,0,0,0,100.0) + func_00203AA0(60)
       - [0x135728, c, src/cod/135728]            # func_00235728: store-arg-discard
       - [0x135738, asm, src/cod/135738]
       - [0x1358F8, c, src/cod/1358F8]            # func_002358F8: store-arg-discard
