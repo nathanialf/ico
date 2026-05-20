@@ -2489,7 +2489,7 @@ segments:
       - [0x16D488, c, src/cod/16D488]            # func_0026D488: wrap func_0026D188(D_00553244)
       - [0x16D4AC, hasm, src/cod/16D4AC]
       - [0x16D4B0, c, src/cod/16D4B0]            # func_0026D4B0: D_00553244[0] + 1-arg passthrough (sibling of 16B148 family)
-      - [0x16D4D8, asm, src/cod/16D4D8]
+      - [0x16D4D8, c, src/cod/16D4D8]            # func_0026D4D8: clones func_0026ECC8 shape for func_00245680(a1, a2)
       - [0x16D538, c, src/cod/16D538]            # func_0026D538: func_00245678() passthrough
       - [0x16D554, asm, src/cod/16D554]
       - [0x16D6A8, c, src/cod/16D6A8]            # func_0026D6A8: func(p->54, (short)p->E)
