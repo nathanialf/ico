@@ -84,4 +84,19 @@ __attribute__((section(".rodata.0x00559D30"))) const char D_00559D30[80] = "shor
 
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", func_00176808);
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", func_001769D0);
-INCLUDE_ASM("asm/nonmatchings/src/jimaku", func_00176AA0);
+extern char D_006CF030[];
+extern char D_006CEFF8[];
+extern char D_006CEFC0[];
+extern void func_00133450(int val);
+extern void func_0013DA88(char *p);
+
+void func_00176AA0(int *p)
+{
+    int val = p[0x4C / 4];
+    if (val != 0) {
+        func_00133450(val);
+    }
+    func_0013DA88(D_006CF030);
+    func_0013DA88(D_006CEFF8);
+    func_0013DA88(D_006CEFC0);
+}
