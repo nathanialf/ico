@@ -40,6 +40,7 @@ BASIC -fno-schedule-insns
 0AA4F0 -fno-schedule-insns
 165B28 -fno-schedule-insns
 166870 -fno-schedule-insns
+145120 -fno-schedule-insns
 
 ATTACKCHECKBOUNDARY -fno-strength-reduce
 GOBJ_PROCESS -fno-strength-reduce

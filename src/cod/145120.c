@@ -1,0 +1,23 @@
+#include "regpin.h"
+#include "matching.h"
+
+extern int func_002450C8(int *self, int tag);
+
+void func_00245120(int *self, int tag)
+{
+    register int r REG("$2");
+    register int *p REG("$4");
+    register int tag_v REG("$16");
+
+    tag_v = tag;
+    r = func_002450C8(self, tag_v);
+    p = (int *)self[0];
+    KEEP_LIVE(p);
+    tag_v |= 0x10000000;
+    KEEP_LIVE(tag_v);
+    self[2] = r;
+    *p++ = tag_v;
+    self[3] = 0;
+    self[0] = (int)(p + 1);
+    *p = 0;
+}
