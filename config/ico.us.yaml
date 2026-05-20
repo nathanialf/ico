@@ -1622,7 +1622,7 @@ segments:
       - [0x0EF9CC, hasm, src/cod/0EF9CC]
       - [0x0EF9D0, c, src/cod/0EF9D0]            # func_001EF9D0: D_00633648 = float val
       - [0x0EF9D8, c, src/cod/0EF9D8]            # func_001EF9D8: D_0063363C = 0
-      - [0x0EF9E0, asm, src/cod/0EF9E0]
+      - [0x0EF9E0, c, src/cod/0EF9E0]            # func_001EF9E0: D_00633634/_38 = func_0011C028(0x10, D_00275860, -128, 0, 80.0f) ×2
       - [0x0EFA54, hasm, src/cod/0EFA54]
       - [0x0EFA58, c, src/stormTest]             # TU promotion: 0x1EFA58..0x1F08D8 (8 INCLUDE_ASM + 4 matched + 1 nop-pad)
       - [0x0F08D8, c, src/streamMotionManager]   # TU promotion: 0x1F08D8..0x1F10A8 (5 INCLUDE_ASM + 5 matched + nop pad)
