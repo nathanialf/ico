@@ -15,7 +15,7 @@ __attribute__((section(".rodata.0x0055AF98"))) const char D_0055AF98[24] = "bird
 #include "include_asm.h"
 
 extern float D_006D35C0[];
-extern void func_001951A0(int a0);
+extern void func_001951A0(char *a0);
 
 INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", func_00194840);
 
@@ -70,4 +70,18 @@ void func_00194FE8(int a0, int a1)
 INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", func_00194FF4);
 INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", func_00194FF8);
 INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", func_001950F8);
-INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", func_001951A0);
+extern void func_001AD768(const char *, int);
+extern void func_00263FF0(const char *, int, const char *);
+
+void func_001951A0(char *self)
+{
+    char *sub_a = *(char **)(self + 0x164);
+    int *sub_b;
+    if (sub_a == 0) {
+        func_001AD768(D_0055AF08, 0x47);
+        func_00263FF0(D_0055AF08, 0x47, D_0055AF20);
+        sub_a = *(char **)(self + 0x164);
+    }
+    sub_b = *(int **)(sub_a + 0x674);
+    *sub_b = 0;
+}
