@@ -391,7 +391,18 @@ void func_001A2E10(void) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/debug", func_001A2E24);
-INCLUDE_ASM("asm/nonmatchings/src/debug", func_001A2E28);
+
+extern void func_00268DA0(char *buf, const char *fmt, void *va);
+extern void *func_0026527C(char *buf);
+extern void func_00247C30(int target, char *buf, void *info);
+
+void func_001A2E28(const char *fmt, ...) {
+    char buf[0x100];
+    void *info;
+    func_00268DA0(buf, fmt, (char *)__builtin_next_arg(fmt) - 0x38);
+    info = func_0026527C(buf);
+    func_00247C30(D_00632A04, buf, info);
+}
 INCLUDE_ASM("asm/nonmatchings/src/debug", func_001A2E80);
 INCLUDE_ASM("asm/nonmatchings/src/debug", func_001A2FA0);
 
