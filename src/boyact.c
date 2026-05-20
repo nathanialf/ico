@@ -228,7 +228,16 @@ void func_001502D8(void)
     func_00102858(*(int *)(base + 0x20));
 }
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00150348);
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001504D8);
+extern void func_0014E5E8(char *self, int code, char *p);
+
+void func_001504D8(char *self)
+{
+    func_0014E5E8(self, 0x1A0, *(char **)(*(char * volatile *)(self + 0x164) + 0x670) + 0x2A0);
+    func_0014E5E8(self, 0x1A1, *(char **)(*(char * volatile *)(self + 0x164) + 0x670) + 0x2A4);
+    func_0014E5E8(self, 0x1A5, *(char **)(*(char * volatile *)(self + 0x164) + 0x670) + 0x2B0);
+    func_0014E5E8(self, 0x1A5, *(char **)(*(char * volatile *)(self + 0x164) + 0x670) + 0x2AC);
+    func_0014E5E8(self, 0x1A6, *(char **)(*(char * volatile *)(self + 0x164) + 0x670) + 0x2A8);
+}
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00150568);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001520E8);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001521F0);
