@@ -61,7 +61,15 @@ void func_001FC168(int a0, int a1)
     return func_001FC048(a0, a1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/EnemyInit", func_001FC1A0);
+void func_001FC1A0(char *self, int a1, int a2, int a3, int a4)
+{
+    func_001A6E28(D_0061ACE0);
+    *(int *)(self + 0x48) = a1;
+    *(int *)(self + 0x4C) = a3;
+    *(int *)(self + 0x50) = a4;
+    func_001FC048((int)self, a2);
+    func_001A6E28(D_0061ACF8);
+}
 
 void func_001FC220(int *self, int a1, int a2, int a3, int *t0)
 {
