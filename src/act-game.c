@@ -130,7 +130,17 @@ int func_00149F20(char *a, char *b)
     MATERIALIZE(b2);
     return b1 & b2;
 }
-INCLUDE_ASM("asm/nonmatchings/src/act-game", func_00149F70);
+extern int D_00561928[][10];
+extern void func_00144938(int idx, char *tmp_a, char *tmp_b);
+extern void func_001AE4C8(char *self, char *other, int v, char *tmp_a, char *tmp_b);
+
+void func_00149F70(char *self, char *other, int idx)
+{
+    char tmp_a[0x10];
+    char tmp_b[0x10];
+    func_00144938(idx, tmp_a, tmp_b);
+    func_001AE4C8(self, other, D_00561928[idx][9], tmp_a, tmp_b);
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_00149FF0);
 int func_0014A0A8(int *a0)
 {
