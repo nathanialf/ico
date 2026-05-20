@@ -123,7 +123,39 @@ void func_0012AA78(int a0, int a1, int a2, int a3)
     func_001FAA30(a0, a1, a2, a3);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012AA80);
+extern int func_001FA6D8(int);
+extern int func_001FA898(int);
+extern void func_001A6E28(const char *);
+extern void func_001AD768(const char *file, int line);
+extern void func_00263FF0(const char *file, int line, const char *fmt);
+extern const char D_00555D78[];
+extern const char D_00555BF8[];
+extern const char D_00631D88[];
+
+int func_0012AA80(int key)
+{
+    int count = *(volatile int *)&D_00633C54;
+    int i = 0;
+    char *e = (char *)D_00674058;
+    if (count > 0) {
+        do {
+            int *entry1 = *(int **)(e + 0x280);
+            if (key == entry1[0x58 / 4]) {
+                int v = *(int *)(e + 0x28C) >> 30;
+                switch (v) {
+                case 0: return func_001FA6D8(*(int *)(e + 0x284));
+                case 1: return func_001FA898(*(int *)(e + 0x288));
+                }
+            }
+            i++;
+            e += 0x290;
+        } while (i < count);
+    }
+    func_001A6E28(D_00555D78);
+    func_001AD768(D_00555BF8, 0x360);
+    func_00263FF0(D_00555BF8, 0x360, D_00631D88);
+    return 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012AB50);
 void func_0012ABE0(int key, int new_val)
 {
