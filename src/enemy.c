@@ -86,4 +86,16 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy", func_001CE028);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", func_001CE220);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", func_001CE3C0);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", func_001CE5F8);
-INCLUDE_ASM("asm/nonmatchings/src/enemy", func_001CE690);
+extern int func_00165F88(int *self);
+extern void func_001BB7E0(void);
+extern void func_001CE5F8(int *self);
+
+void func_001CE690(int *self)
+{
+    char *sub = *(char **)((char *)self + 0x164);
+    unsigned long long flag = *(unsigned long long *)(sub + 0x18);
+    if (((flag >> 33) & 1) == 0) return;
+    func_001BB7E0();
+    if (func_00165F88(self) != 0) return;
+    func_001CE5F8(self);
+}
