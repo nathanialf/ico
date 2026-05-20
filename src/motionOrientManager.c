@@ -128,7 +128,30 @@ void func_001E4700(int *a0, int a1, int a2)
 }
 
 INCLUDE_ASM_NOP_PAD(func_001E4724);
-INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E4728);
+
+extern int func_001E26A0(void);
+
+void func_001E4728(int *self, int a1, int a2, int a3, int a4)
+{
+    char *inner = (char *)self[0x15C / 4] + 0x470;
+    int saved = *(int *)(inner + 0xD0);
+    *(int *)(inner + 0xD0) = 0xED;
+
+    {
+        char *p = (char *)self[0x15C / 4] + 0x470;
+        if (*(int *)(p + 0x18) == 0) {
+            *(volatile int *)(p + 0x20) = a1;
+            *(volatile int *)(p + 0x1C) = a2;
+        }
+    }
+    *(int *)(inner + 0x24) = a3;
+    *(int *)(inner + 0x28) = a4;
+    if (func_001E26A0() != 0) {
+        *(int *)(inner + 0x44) = 0;
+    } else {
+        *(int *)(inner + 0xD0) = saved;
+    }
+}
 extern int func_001442E0(void);
 extern void func_001E4180(int *self, int x, int y);
 
