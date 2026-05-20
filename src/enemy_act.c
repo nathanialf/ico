@@ -510,7 +510,18 @@ int func_00165400(char *self) {
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165414);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165418);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165488);
+int func_00165488(char *self)
+{
+    char *sub;
+    char *sub2;
+    if (D_00631AE8 != 0) {
+        char *sub_d = *(char **)((char *)D_00631AE8 + 0x164);
+        if (*(int *)(sub_d + 0x30) != 0x6B) return 0;
+    }
+    sub = *(char **)((char *)self + 0x164);
+    sub2 = *(char **)(sub + 0x670);
+    return *(int *)(sub2 + 0x1FC) == 3;
+}
 
 /* Matched body inlined from src/cod/0654C8.c during TU coalesce. */
 int func_001654C8(char *self) {
