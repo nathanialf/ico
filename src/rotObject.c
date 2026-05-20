@@ -17,7 +17,7 @@
  * asm-generated and sidecar definitions.
  */
 
-extern int D_006335C8;
+extern unsigned char D_006335C8;
 extern int D_006335CC;
 extern int D_006335D0;
 extern int D_006335D4;
@@ -29,11 +29,15 @@ extern int D_006335F4;
 extern int D_006335F8;
 
 extern unsigned int D_00275890[20];
+extern int          D_00275860[4];
+extern int          D_00632010;
 extern float        D_006313C8;
 
+extern int  *func_0013A0F8(int handle, int size, char *file, int line);
 extern int   func_00105278(void);
 extern void  func_00104140(int v, int *self);
 extern void  func_00104FC0(int x);
+extern void  func_00105F00(int *out, int *src);
 extern void  func_00118648(int *out, int v, unsigned int *src);
 extern void  func_001182F0(int *out, int *in);
 extern void  func_00105FA8(int v);
@@ -46,8 +50,61 @@ __attribute__((section(".rodata.0x00619FC8"))) const char D_00619FC8[120] = "src
 
 #include "include_asm.h"
 #include "matching.h"
+#include "regpin.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/rotObject", func_001E9F08);
+int *func_001E9F08(int *a0, int *a1)
+{
+    int *obj;
+    int mode;
+    int *vmtx;
+    int *p15c;
+    int *src275860;
+    float angle;
+    float zero_f;
+    float v28, v20;
+
+    obj = func_0013A0F8(D_00632010, 0x40, (char *)D_00619FC8, 0x37);
+
+    obj[0x30 / 4] = D_006335C8;
+    D_006335C8 = (D_006335C8 + 1) % 30;
+
+    func_00105F00(obj + (0x10 / 4), a1);
+
+    *(float *)((char *)obj + 0x1C) = 1.0f;
+
+    angle = *(float *)((char *)a1 + 0x14) * 32768.0f;
+    mode = a1[0x30 / 4];
+    zero_f = 0.0f;
+    obj[0] = mode;
+    angle = angle / 180.0f;
+
+    *(float *)((char *)obj + 0x2C) = zero_f;
+    *(float *)((char *)obj + 0x28) = zero_f;
+    obj[0x24 / 4] = 0;
+    obj[0x34 / 4] = 0;
+
+    *(short *)((char *)obj + 0x20) = (short)(int)angle;
+
+    if (mode == 3) {
+        register float v28_p REG("$f1");
+        v28_p = *(float *)((char *)a1 + 0x28);
+        src275860 = D_00275860;
+        *(volatile float *)((char *)obj + 0x28) = v28_p;
+        KEEP_LIVE(src275860);
+        v20 = *(float *)((char *)a1 + 0x20);
+        *(volatile float *)((char *)obj + 0x2C) = v20;
+        __asm__ __volatile__("" : : : "memory");
+        p15c = (int *)a0[0x15C / 4];
+        func_00105F00((int *)((char *)p15c + 0xA0), src275860);
+    }
+
+    vmtx = (int *)((int *)a0[0x15C / 4])[0x840 / 4];
+    *(volatile float *)((char *)vmtx + 0x20) = 1.0f;
+    *(volatile float *)((char *)vmtx + 0x28) = 1.0f;
+    *(volatile float *)((char *)vmtx + 0x24) = 1.0f;
+
+    return obj;
+}
 
 void func_001EA030(int *self)
 {
