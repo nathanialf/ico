@@ -36,7 +36,18 @@ void func_001948A8(float *a, float *b)
 
 INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", func_001948F0);
 INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", func_00194960);
-INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", func_001949B8);
+int func_001949B8(int a0)
+{
+    if (a0 < -135) a0 = 180;
+    else if (a0 < -45) a0 = -90;
+    else if (a0 < 45) a0 = 0;
+    else {
+        int v = a0;
+        a0 = 180;
+        if (v <= 134) a0 = 90;
+    }
+    return a0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", func_00194A08);
 INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", func_00194BD8);
 INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", func_00194DC0);
