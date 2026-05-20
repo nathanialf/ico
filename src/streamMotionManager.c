@@ -79,7 +79,23 @@ void func_001F0A28(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", func_001F0A38);
-INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", func_001F0B20);
+extern void func_00264128(char *dst, char *src, int n);
+
+void func_001F0B20(int *idx_p, char *dst, int size, char *src, int amt)
+{
+    int old_idx = *idx_p;
+    int new_idx = old_idx + amt;
+    *idx_p = new_idx;
+    if (new_idx >= size) {
+        int overflow = new_idx - size;
+        int first_chunk = amt - overflow;
+        *idx_p = overflow;
+        func_00264128(dst + old_idx, src, first_chunk);
+        func_00264128(dst, src + first_chunk, *idx_p);
+        return;
+    }
+    func_00264128(dst + old_idx, src, amt);
+}
 INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", func_001F0BC8);
 
 void func_001F0DA8(void)
