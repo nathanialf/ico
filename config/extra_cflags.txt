@@ -53,3 +53,4 @@ GOBJ_PROCESS -fno-strength-reduce
 # VMA mod 8 == 4, cascading SHA-1 mismatch.
 SWITCH -malign-functions=2
 S_INIT -malign-functions=2
+145178 -fno-schedule-insns

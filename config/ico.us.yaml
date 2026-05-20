@@ -2107,7 +2107,7 @@ segments:
       - [0x1450B8, c, src/cod/1450B8]            # func_002450B8
       - [0x1450C8, asm, src/cod/1450C8]
       - [0x145120, c, src/cod/145120]            # func_00245120: alloc(self,tag); self->_8=r; ring/cmd setup at *self->_0 then bump _0+=8
-      - [0x145178, asm, src/cod/145178]
+      - [0x145178, c, src/cod/145178]            # func_00245178: ring push helper variant of func_00245120 (mask 0x70000000 instead of 0x10000000)
       - [0x1451D0, c, src/cod/1451D0]            # func_002451D0: f5318(self,2,3); enqueue tag using flag (0xD0M or 0x50M)
       - [0x145228, c, src/cod/145228]            # func_00245228: *a0[3] += (a0[0] - a0[3] - 1) / 4; clear a0[3]
       - [0x145254, hasm, src/cod/145254]
