@@ -115,7 +115,26 @@ void func_001DC908(void)
     func_00105F00(D_00633F3C + 0x150, D_00633F3C);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DC938);
+extern float D_007097C4[];
+extern int func_00104F20(void);
+extern int func_00243BD8(int);
+extern void func_001D8C40(void);
+extern void func_00105268(void);
+
+void func_001DC938(void)
+{
+    int v;
+    func_00104F20();
+    v = func_00105278();
+    func_00243BD8(v);
+    {
+        register float *p REG("$3") = (float *)D_00633F3C;
+        func_00105308(p[0], p[1] - D_007097C4[0], p[2]);
+    }
+    func_0010DF70((char *)D_00633F3C + 0x30);
+    func_001D8C40();
+    func_00105268();
+}
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DC998);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DCAC8);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DD1F0);
