@@ -74,8 +74,25 @@ INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104478);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104508);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104590);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104638);
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104698);
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_001046F0);
+extern void func_00105E70(char *dst, char *src);
+extern void func_002438E8(char *dst, char *src, int m);
+
+void func_00104698(char *dst, char *src)
+{
+    char tmp[0x40];
+    func_00105E70(tmp, src + 0x20);
+    func_002438E8(tmp, tmp, *(int *)(src + 0xC));
+    func_00105F00((int)dst, (int)(tmp + 0x30));
+}
+
+void func_001046F0(char *dst, char *outer)
+{
+    char *src = *(char **)(outer + 0x15C);
+    char tmp[0x40];
+    func_00105E70(tmp, src + 0x20);
+    func_002438E8(tmp, tmp, *(int *)(src + 0xC));
+    func_00105F00((int)dst, (int)(tmp + 0x30));
+}
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104748);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104818);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_001048C8);
