@@ -121,7 +121,30 @@ INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012E0D8);
 INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012E528);
 INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012E940);
 INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012F818);
-INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012FCE0);
+int func_0012FCE0(int a0)
+{
+    int one_outer = 1;
+    int ret = -1;
+    int v1 = 0;
+    if (!(one_outer < a0)) {
+        ret = 0;
+        goto exit;
+    }
+    do {
+        v1++;
+        if (!(v1 < 11)) goto exit;
+        {
+            int one_inner = 1;
+            MATERIALIZE(one_inner);
+            if (!((one_inner << v1) < a0)) {
+                ret = v1;
+                goto exit;
+            }
+        }
+    } while (1);
+exit:
+    return ret;
+}
 
 void func_0012FD30(void) {
     func_0012CEF8();
