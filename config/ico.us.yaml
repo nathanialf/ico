@@ -340,7 +340,7 @@ segments:
       - [0x006DF0, c, src/cod/006DF0]            # func_00106DF0: sibling, D_0063094C, tail func_00168558
       - [0x006E34, asm, src/cod/006E34]
       - [0x007B28, c, src/motionManager2]        # TU promotion: 0x107B28..0x107DD8 (1 INCLUDE_ASM)
-      - [0x007DD8, asm, src/cod/007DD8]
+      - [0x007DD8, c, src/cod/007DD8]            # func_00107DD8: cfg-shifted +0xC offset arg setup; func_00168AE0 + (p->_4=0) + tail func_001182F0(p,p)
       - [0x007E28, asm, src/cod/007E28]
       - [0x009B98, c, src/cod/009B98]            # func_00109B98: return *(self+0x15C) + 0x680
       - [0x009BA8, c, src/cod/009BA8]            # func_00109BA8: return *(*(self+0x15C) + 0x1E0)
