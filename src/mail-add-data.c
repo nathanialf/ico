@@ -50,7 +50,21 @@ int func_001949B8(int a0)
 }
 INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", func_00194A08);
 INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", func_00194BD8);
-INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", func_00194DC0);
+extern int D_00274EC0[];
+extern float D_00633DC0;
+
+void func_00194DC0(void)
+{
+    int a = D_00274EC0[0];
+    int b = D_00274EC0[1];
+    int t = a * 10;
+    int diff = 0x3C - t;
+    int q;
+    *(int *)&D_006D35C0[0] = 0;
+    *(int *)&D_006D35C0[1] = 0;
+    q = diff / b;
+    D_00633DC0 = 60.0f / (float)q;
+}
 INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", func_00194E28);
 
 void func_00194EA8(float a, float b)
