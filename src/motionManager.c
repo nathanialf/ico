@@ -90,7 +90,29 @@ void func_001D9C58(void)
     func_001D9890();
 }
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001D9CB0);
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001D9E10);
+extern void func_001118B8(int);
+extern void func_00111FA8(int, int, int);
+extern void func_001050B0(float, float, float);
+extern void func_001D4E88(int);
+extern void func_0010F630(void);
+
+void func_001D9E10(void)
+{
+    int v;
+    func_001118B8(0xB);
+    func_00111FA8(1, 5, 0x80);
+    func_00104F20();
+    v = func_00105278();
+    func_00243BD8(v);
+    {
+        register float *p REG("$2") = (float *)D_00633F3C;
+        func_00105308(p[0x1B0 / 4], p[0x1B4 / 4], p[0x1B8 / 4]);
+    }
+    func_001050B0(8.0f, 8.0f, 8.0f);
+    func_001D4E88(0xFF);
+    func_00105268();
+    func_0010F630();
+}
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001D9E90);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DA360);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DA4B8);
