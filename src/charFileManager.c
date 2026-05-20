@@ -203,7 +203,19 @@ INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A2170);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A2320);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A2500);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A2610);
-INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A26E0);
+extern int D_00632028;
+extern int D_00274EC0[];
+extern int func_0013A0F8(int a0, char *q, const char *src, int code);
+extern void func_001320E8(int *self, int p, char *q);
+extern void func_00139598(int p);
+
+void func_001A26E0(int *self, int unused, char *q)
+{
+    int p = func_0013A0F8(D_00632028, q, D_00612A70, 0x349);
+    D_00274EC0[8]++;
+    func_001320E8(self, p, q);
+    func_00139598(p);
+}
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A2758);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A27F8);
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A2AB0);
