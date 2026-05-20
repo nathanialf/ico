@@ -129,6 +129,79 @@ def test_ibeq_with_regs() -> None:
     print(f"  ok: ibeq vi02, vi01, end encodes correctly")
 
 
+def test_upper_fmac_broadcast() -> None:
+    """Broadcast FMAC mnemonics encode correctly. Spot-checked
+    against real ICO bundles (via the cross-validation script in the
+    commit log)."""
+    src = (
+        ".vu0\n"
+        "maddw.xyzw vf28, vf04, vf00 ; nop\n"   # 0x01E0270B
+        "maddw.xyz  vf28, vf29, vf23 ; nop\n"   # 0x01D7EF0B
+        "subw.x     vf30, vf00, vf00 ; nop\n"   # 0x01000787
+        "mulx.w     vf25, vf17, vf30 ; nop\n"   # 0x003E8E58
+    )
+    body = _assemble(src)
+    expected_uppers = [0x01E0270B, 0x01D7EF0B, 0x01000787, 0x003E8E58]
+    for i, want in enumerate(expected_uppers):
+        got = struct.unpack_from("<I", body, i * 8 + 4)[0]
+        assert got == want, (
+            f"bundle {i}: built upper=0x{got:08X} expected 0x{want:08X}")
+    print(f"  ok: 4 broadcast FMAC encodings match real ICO textbin bundles")
+
+
+def test_upper_fmac_plain() -> None:
+    """Plain (non-broadcast) FMAC mnemonics. Two real ICO bundles +
+    one synthetic."""
+    src = (
+        ".vu0\n"
+        "add.xy   vf09, vf09, vf16 ; nop\n"     # 0x01904A68 (textbin pc=0x02B0)
+        "sub.w    vf00, vf24, vf00 ; nop\n"     # 0x0020C02C (textbin pc=0x05A8)
+        "msub.xyzw vf3, vf1, vf2  ; nop\n"      # synthetic
+    )
+    body = _assemble(src)
+    got_b0 = struct.unpack_from("<I", body, 4)[0]
+    got_b1 = struct.unpack_from("<I", body, 12)[0]
+    got_b2 = struct.unpack_from("<I", body, 20)[0]
+    assert got_b0 == 0x01904A68, f"add.xy bundle: 0x{got_b0:08X}"
+    assert got_b1 == 0x0020C02C, f"sub.w bundle:  0x{got_b1:08X}"
+    expect_b2 = (0xF << 21) | (2 << 16) | (1 << 11) | (3 << 6) | 0x2D
+    assert got_b2 == expect_b2, f"msub: 0x{got_b2:08X} != 0x{expect_b2:08X}"
+    print(f"  ok: 3 plain FMAC encodings (2 textbin-validated + 1 synthetic)")
+
+
+def test_upper_pad_and_nop() -> None:
+    """`pad` (0x000002FF) is FD_11 sub-op 0x0B = NOP. `nop` is true zero."""
+    src = (
+        ".vu0\n"
+        "nop ; nop\n"
+        "pad ; nop\n"
+    )
+    body = _assemble(src)
+    upper0 = struct.unpack_from("<I", body, 4)[0]
+    upper1 = struct.unpack_from("<I", body, 12)[0]
+    assert upper0 == 0x00000000, f"nop upper: 0x{upper0:08X}"
+    assert upper1 == 0x000002FF, f"pad upper: 0x{upper1:08X}"
+    print(f"  ok: pad/nop distinct upper encodings preserved")
+
+
+def test_dest_mask_parsing() -> None:
+    """Dest mask is a 4-bit field; letter order in `.xyzw` doesn't matter."""
+    import assemble_vu0 as A
+    assert A._enc_dest_mask("xyzw") == 0xF
+    assert A._enc_dest_mask("wzyx") == 0xF
+    assert A._enc_dest_mask("x") == 0x8
+    assert A._enc_dest_mask("w") == 0x1
+    assert A._enc_dest_mask("xw") == 0x9
+    assert A._enc_dest_mask("") == 0
+    try:
+        A._enc_dest_mask("xq")
+    except A.EncodeError:
+        pass
+    else:
+        raise AssertionError(".xq should error")
+    print(f"  ok: dest mask parser handles order + invalid letters")
+
+
 def test_nop_swap() -> None:
     """The 0x8000033C BIOS-bug NOP pattern is its own mnemonic now.
 
@@ -244,6 +317,10 @@ def main(argv: list[str] | None = None) -> int:
     test_dot_bundle_escape()
     test_macro_expansion()
     test_assert_pc_directive()
+    test_dest_mask_parsing()
+    test_upper_pad_and_nop()
+    test_upper_fmac_broadcast()
+    test_upper_fmac_plain()
     test_nop_swap()
     if args.against_textbin:
         test_against_textbin()

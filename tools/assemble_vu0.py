@@ -157,8 +157,84 @@ def encode_upper_nop() -> int:
 
 def encode_upper_pad() -> int:
     """Canonical upper-pad pattern (`0x000002FF`). Disassembled as
-    `pad` by disasm_vu0.py; written as `pad ; <lower>` in source."""
+    `pad` by disasm_vu0.py; written as `pad ; <lower>` in source.
+    Equivalent to NOP per PCSX2: FD_11 sub-op 0x0B."""
     return 0x000002FF
+
+
+# ----------------------------- Upper FMAC encoders ----------------------------
+#
+# Bit layout (cross-checked against PCSX2 microVU_Tables.inl + Misc.h, GPL-3.0):
+#
+#   bits 0-5   : opcode (6-bit dispatch via `code & 0x3F`)
+#   bits 6-10  : fd
+#   bits 11-15 : fs
+#   bits 16-20 : ft
+#   bits 21-24 : dest mask (bit 24=x, 23=y, 22=z, 21=w)
+#   bits 25-30 : flag bits (I/E/M/D/T/-) — left zero for canonical form
+#   bit  31    : reserved
+#
+# Broadcast variants encode the bc letter in bits 0-1; family in bits 2-5:
+#   bits 0-1 : 00=x 01=y 10=z 11=w
+#   bits 2-4 : 0=add 1=sub 2=madd 3=msub 4=max 5=mini 6=mul
+#   bit  5   : 0
+#
+# Plain (non-broadcast) variants live at op6 0x28-0x2F directly:
+#   ADD=0x28 MADD=0x29 MUL=0x2A MAX=0x2B SUB=0x2C MSUB=0x2D OPMSUB=0x2E MINI=0x2F
+#
+# FD-sub-table variants live at op6 0x3C-0x3F with bits 6-10 picking
+# within the sub-table.  Those land in Phase 2.
+
+_UPPER_BC_FAMILY = {
+    "add":  0, "sub":  1, "madd": 2, "msub": 3,
+    "max":  4, "mini": 5, "mul":  6,
+}
+
+_UPPER_PLAIN_OP6 = {
+    "add":    0x28,
+    "madd":   0x29,
+    "mul":    0x2A,
+    "max":    0x2B,
+    "sub":    0x2C,
+    "msub":   0x2D,
+    "opmsub": 0x2E,
+    "mini":   0x2F,
+}
+
+
+def _enc_dest_mask(mask: str) -> int:
+    """`xyzw`-style mask → 4-bit field in bits 21-24.  Order of letters
+    in the input doesn't matter (`.wyx` same as `.xyw`).  Returns 0 for
+    an empty mask (still legal — produces an FMAC op with no
+    destination write, useful for flag-setting ADD-then-discard)."""
+    if mask == "":
+        return 0
+    bits_out = 0
+    for c in mask.lower():
+        if c == "x":   bits_out |= 8
+        elif c == "y": bits_out |= 4
+        elif c == "z": bits_out |= 2
+        elif c == "w": bits_out |= 1
+        else:
+            raise EncodeError(f"unknown dest-mask letter: {c!r}")
+    return bits_out
+
+
+def _enc_upper_bc(family: str, bc: str, mask: str,
+                  fd: int, fs: int, ft: int) -> int:
+    """Encode a broadcast FMAC: <family><bc>.<mask> vfd, vfs, vft.
+    bc is one of 'x'/'y'/'z'/'w'."""
+    fam_idx = _UPPER_BC_FAMILY[family]
+    bc_idx = "xyzw".index(bc)
+    op6 = (fam_idx << 2) | bc_idx
+    return (_enc_dest_mask(mask) << 21) | (ft << 16) | (fs << 11) | (fd << 6) | op6
+
+
+def _enc_upper_plain(family: str, mask: str,
+                     fd: int, fs: int, ft: int) -> int:
+    """Encode a plain FMAC: <family>.<mask> vfd, vfs, vft."""
+    op6 = _UPPER_PLAIN_OP6[family]
+    return (_enc_dest_mask(mask) << 21) | (ft << 16) | (fs << 11) | (fd << 6) | op6
 
 
 def encode_lower_nop() -> int:
@@ -262,6 +338,11 @@ def _is_label(token: str) -> str | None:
     return m.group(1) if m else None
 
 
+_FMAC_MNEM_RE = re.compile(
+    r"^([a-zA-Z]+?)(?:\.([xyzwXYZW]+))?$"
+)
+
+
 def _try_encode_upper(text: str) -> int | None:
     """Encode a textual upper insn to a 32-bit int. Returns None if
     text is empty (caller treats as nop) or needs late resolution
@@ -269,14 +350,50 @@ def _try_encode_upper(text: str) -> int | None:
     if not text or text.lower() == "nop":
         return encode_upper_nop()
     tok = text.split()
-    head = tok[0].lower()
+    head_raw = tok[0]
+    head = head_raw.lower()
     if head == "pad":
         return encode_upper_pad()
     if head == ".word":
         if len(tok) != 2:
             raise EncodeError(f".word needs exactly one operand, got {text!r}")
         return _int(tok[1]) & 0xFFFFFFFF
+
+    # FMAC mnemonics: <name>[.<mask>] vfd, vfs, vft
+    #   broadcast:   addx.xy vf3, vf1, vf2      → family=add, bc=x
+    #   plain:       add.xyzw vf3, vf1, vf2     → family=add (no bc)
+    m = _FMAC_MNEM_RE.match(head_raw)
+    if m:
+        name = m.group(1).lower()
+        mask = m.group(2) or ""
+        if name in _UPPER_PLAIN_OP6:
+            operands = _parse_three_vf(tok[1:])
+            if operands is not None:
+                fd, fs, ft = operands
+                return _enc_upper_plain(name, mask, fd, fs, ft)
+        # Broadcast: name ends in x/y/z/w AND the prefix is a known family.
+        if len(name) >= 2 and name[-1] in "xyzw" and name[:-1] in _UPPER_BC_FAMILY:
+            family, bc = name[:-1], name[-1]
+            operands = _parse_three_vf(tok[1:])
+            if operands is not None:
+                fd, fs, ft = operands
+                return _enc_upper_bc(family, bc, mask, fd, fs, ft)
     raise EncodeError(f"unknown upper insn: {text!r}")
+
+
+def _parse_three_vf(tokens: list[str]) -> tuple[int, int, int] | None:
+    """Parse `vfd, vfs, vft` after a 3-vf FMAC mnemonic.  Accepts
+    optional trailing commas.  Returns None (not an exception) when
+    the operand shape doesn't match — lets the caller treat the
+    mnemonic as unrecognised instead of erroring out half-parsed."""
+    joined = " ".join(tokens)
+    parts = [p.strip() for p in joined.split(",")]
+    if len(parts) != 3:
+        return None
+    try:
+        return (_vf(parts[0]), _vf(parts[1]), _vf(parts[2]))
+    except EncodeError:
+        return None
 
 
 def _try_encode_lower_late(text: str, pc: int,

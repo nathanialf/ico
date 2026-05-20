@@ -96,48 +96,77 @@ def signed(value: int, width: int) -> int:
 # tuple (3-bit op family in bits 2-5, identifies the operation).
 # All these read fs (11-15), ft (16-20), write fd (6-10) on dst lanes.
 _UPPER_BC_OP = {
-    0x0: "addbc",
-    0x1: "subbc",
-    0x2: "maddbc",
-    0x3: "msubbc",
-    0x4: "maxbc",
-    0x5: "minibc",
-    0x6: "mulbc",
+    0x0: "add",
+    0x1: "sub",
+    0x2: "madd",
+    0x3: "msub",
+    0x4: "max",
+    0x5: "mini",
+    0x6: "mul",
+}
+
+# Plain (non-broadcast) FMAC ops at op6 0x28-0x2F.
+_UPPER_PLAIN_OP = {
+    0x28: "add",
+    0x29: "madd",
+    0x2A: "mul",
+    0x2B: "max",
+    0x2C: "sub",
+    0x2D: "msub",
+    0x2E: "opmsub",
+    0x2F: "mini",
 }
 
 
 def decode_upper(w: int) -> str:
-    """Decode the 32-bit upper instruction. Conservative: only the
-    well-known no-op and LOI patterns are decoded. Every FMAC opcode
-    family is emitted as `.word` because hand-typed decode tables
-    here would risk mis-decoding — the developer cross-references
-    each line against a VU0 reference manual anyway.
+    """Decode the 32-bit upper instruction.  Cross-referenced against
+    PCSX2 microVU_Tables.inl + Misc.h (GPL-3.0 — bit-field semantics
+    are factual hardware encoding, re-derived for our use).
 
-    Reliable cases handled:
-      * w == 0 → nop
-      * w == 0x000002FF → nop (canonical upper-pad filler)
-      * bit 31 set → LOI marker (next bundle's lower 32 bits are a
-        float immediate)
-      * otherwise → `.word 0x<hex>` with field-position annotation
-        to aid manual decoding.
+    Bit layout:
+      bits 0-5  : opcode (6-bit, `code & 0x3F`)
+        - 0x00..0x1B : broadcast FMAC (family in bits 2-4, bc in bits 0-1)
+        - 0x1C..0x27 : i/q broadcast variants (Phase 2)
+        - 0x28..0x2F : plain FMAC (add/madd/mul/max/sub/msub/opmsub/mini)
+        - 0x3C..0x3F : FD sub-table dispatch (incl NOP=pad) (Phase 2)
+      bits 6-10  : fd
+      bits 11-15 : fs
+      bits 16-20 : ft
+      bits 21-24 : dest mask
+
+    Cases handled now:
+      * w == 0 (with all flag bits zero)  → nop
+      * w == 0x000002FF                   → pad (FD_11 sub-op 0x0B = NOP)
+      * op6 in _UPPER_BC_OP * 4           → broadcast FMAC, symbolic
+      * op6 in _UPPER_PLAIN_OP            → plain FMAC, symbolic
+      * everything else                   → .word with field annotations
     """
     if w == 0 or (w & 0x7FFFFFFF) == 0:
         return "nop"
     if w == 0x000002FF:
-        # Canonical upper-pad bit pattern. Distinct from a true zero
-        # nop — `tools/assemble_vu0.py` accepts `pad` as the mnemonic
-        # for this form (and `nop` for the zero form). Keeping the
-        # distinction in disassembly output preserves the bytes
-        # across the round trip.
         return "pad"
-    if bits(w, 31, 31):
-        return f".word 0x{w:08X}  ; I-bit set (likely LOI; next bundle lower = float imm)"
-    # Annotate a few fields to help the reader cross-reference against
-    # a VU0 instruction encoding table.
+    # Strip flag bits (25-30) for opcode classification; the bytes are
+    # still emitted via .word for any bundle that has non-zero flags
+    # so the round trip preserves them exactly.
+    has_flags = (w >> 25) & 0x3F != 0
+    op6 = bits(w, 0, 5)
     fd, fs, ft = fd_fs_ft(w)
     dst = dest_bcc(w)
+    dst_str = f".{dst}" if dst != "none" else ""
+    if not has_flags:
+        if op6 in _UPPER_PLAIN_OP:
+            return f"{_UPPER_PLAIN_OP[op6]}{dst_str} {vf(fd)}, {vf(fs)}, {vf(ft)}"
+        if op6 <= 0x1B:
+            family_idx = (op6 >> 2) & 0x7
+            bc_idx = op6 & 0x3
+            if family_idx in _UPPER_BC_OP:
+                family = _UPPER_BC_OP[family_idx]
+                bc = "xyzw"[bc_idx]
+                return f"{family}{bc}{dst_str} {vf(fd)}, {vf(fs)}, {vf(ft)}"
+    if bits(w, 31, 31):
+        return f".word 0x{w:08X}  ; I-bit set (likely LOI; next bundle lower = float imm)"
     return (f".word 0x{w:08X}"
-            f"  ; upper FMAC — dst={dst} fd={fd} fs={fs} ft={ft}"
+            f"  ; upper op6=0x{op6:02X} dst={dst} fd={fd} fs={fs} ft={ft}"
             f" (cross-ref VU0 ref for opcode bits)")
 
 
