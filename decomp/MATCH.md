@@ -697,10 +697,21 @@ claims them, runs `make setup` once (nuclear-clean), and reports
 matched/diffs per candidate. Then you iterate on the `diffs` rows
 individually starting at step 4 of the per-function loop.
 
-## Tough-nut parking — DISALLOWED
+## Tough-nut parking AND reverts — BOTH DISALLOWED
 
-**Parking is off the table in this project.** When you hit a function
-that plateaus, the only acceptable next steps are:
+**Once you pick a function and flip its yaml entry to `c` (or replace
+its `INCLUDE_ASM` with a C body), you commit to making it match.** The
+only acceptable end-of-attempt is "bytes match SHA-1" — not "I gave
+up", not "INCLUDE_ASM is back", not "tough_nuts/". Reverting an
+in-progress C body to `INCLUDE_ASM` is **the same thing as parking**,
+just spelled differently, and it is equally forbidden.
+
+If you find yourself typing the original `INCLUDE_ASM(...)` line back
+in to "move on to easier matches", **stop**. You picked it; you finish
+it. The acceptable next steps when stuck are below — none of them is
+revert.
+
+When you hit a function that plateaus, the only acceptable next steps are:
 
 1. **Read the asm carefully.** Identify the exact compiler/scheduler
    decision that differs from your C-level emit — operand ordering,
@@ -731,14 +742,25 @@ the auto-permuter background pipeline only. Do not invoke `park.sh`
 from supervised work. If you find yourself reaching for it, stop and
 escalate to Step 4 or Step 5 instead.
 
-### Reverting a structurally-wrong attempt
+### Reverting — ALSO DISALLOWED (with one narrow exception)
 
-If the .c file you wrote was structurally wrong from the start
-(called the wrong function, used the wrong type, would never match no
-matter the codegen), revert the yaml + delete the .c is fine. This is
-distinct from parking a near-miss — there's nothing useful in a
-fundamentally wrong attempt. Use judgment: a 1-3 instruction near-miss
-is solvable via Steps 1-5 above; a 30-line type-confused mess is not.
+A near-miss .c body — instructions correct, only register letters
+or scheduling differs — is **not** revertable. Treat it as Step 4 /
+Step 5 work and finish it. The "I'm spending too much time, let me
+move on" reflex is the bug this rule exists to suppress; the speed
+gain from moving on is the speed *loss* on the next session that
+has to re-derive your half-finished investigation.
+
+**The one narrow exception:** if the very *first* compile reveals
+the C body was structurally wrong from the start (called the wrong
+function, used the wrong type, would never match no matter the
+codegen), revert + delete is fine. Use judgment: 30 lines of
+type-confused mess at first quick_diff = revert; anything you've
+iterated on more than once = not revertable.
+
+If you've spent time and the diff is "instructions correct, only
+regalloc / scheduling differs", that is **always** Step 4 / Step 5
+territory, never revert territory.
 
 ## Leverage building — codify the recipe, not just the match
 
