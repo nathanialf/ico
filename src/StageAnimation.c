@@ -62,6 +62,7 @@ __attribute__((section(".rodata.0x00555DE0"))) const char D_00555DE0[72] = "\273
 __attribute__((section(".rodata.0x00555E28"))) const char D_00555E28[72] = "\245\271\245\306\241\274\245\270\245\273\245\260\245\341\245\363\245\310\244\313\245\341\245\342\245\352\244\254\263\316\312\335\244\307\244\255\244\336\244\273\244\363.(\245\322\241\274\245\327\245\341\245\342\245\352\311\324\302\255)\n";
 
 #include "include_asm.h"
+#include "regpin.h"
 
 extern void func_001FAA58(void);
 extern int D_00274ED4[];
@@ -124,7 +125,23 @@ void func_0012AA78(int a0, int a1, int a2, int a3)
 
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012AA80);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012AB50);
-INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012ABE0);
+void func_0012ABE0(int key, int new_val)
+{
+    register int count REG("$7");
+    int i = 0;
+    char *e = (char *)D_00674058;
+    count = *(volatile int *)&D_00633C54;
+    if (count <= 0) return;
+    do {
+        int *p = *(int **)(e + 0x280);
+        i++;
+        if (key == p[0x58 / 4]) {
+            p[0x50 / 4] = new_val;
+            count = *(volatile int *)&D_00633C54;
+        }
+        e += 0x290;
+    } while (i < count);
+}
 
 void func_0012AC28(int target, int val)
 {
