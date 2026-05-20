@@ -207,7 +207,26 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", func_0014E708);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_0014E840);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_0014EA30);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001501A0);
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001502D8);
+extern long long D_006AAAE0[];
+extern void func_00107270(char *p, float a, float b, float c, float d, float e, float f);
+extern void func_00102858(int obj);
+
+void func_001502D8(void)
+{
+    char *base = (char *)D_006AAAE0;
+    int *obj_ptr = *(int **)(base + 0x20);
+    char *sub;
+    if (obj_ptr == 0) return;
+    sub = *(char **)((char *)obj_ptr + 0x15C);
+    func_00107270(sub + 0xA0,
+                  *(float *)(base + 0x30),
+                  *(float *)(base + 0x34),
+                  *(float *)(base + 0x38),
+                  -*(float *)(base + 0x40),
+                  -*(float *)(base + 0x44),
+                  -*(float *)(base + 0x48));
+    func_00102858(*(int *)(base + 0x20));
+}
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00150348);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001504D8);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00150568);
