@@ -34,9 +34,19 @@ nop              ; .word 0x600000DA
 ;     L_<addr> in branch targets resolves to the absolute section
 ;     offset in `tools/assemble_vu0.py` — labels in this file are
 ;     only required for in-file branches.
+
+; The dispatch-table jumps are all `pad ; b L_<dispatcher_entry>` —
+; collapse to a JMP macro for readability.  Adding more dispatch
+; entries on subsequent chunks is one-line-per-entry instead of
+; copy-pasting the `pad ;` prefix.
+.macro JMP target
+    pad ; b target
+.endmacro
+
 pad ; .word 0x4000001F
-pad ; b L_1A00
+JMP L_1A00
 pad ; .word 0x4000002E
-pad ; b L_1A10
-pad ; b L_1A18
-pad ; b L_1A20
+JMP L_1A10
+JMP L_1A18
+JMP L_1A20
+.assert_pc 0x40

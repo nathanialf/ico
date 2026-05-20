@@ -58,6 +58,20 @@ Pragmas:
 
     .vu0                              ; mark file as VU0 (header sanity check)
     .org 0x40                         ; assert current bundle offset (sanity)
+    .assert_pc 0x80                   ; alias for .org — never advances pc
+
+Macros (text substitution; one bundle per body line):
+
+    .macro JMP target
+        pad ; b target
+    .endmacro
+    JMP L_1A00      ; expands to: pad ; b L_1A00
+    JMP L_1A10      ; one bundle per call
+
+The body of a macro is a sequence of bundle lines (and labels). Each
+non-comment, non-pragma line inside `.macro ... .endmacro` becomes
+one bundle in the expansion. Parameter names occurring in the body
+are textually replaced by the call's argument.
 
 # Output
 
@@ -318,6 +332,70 @@ def _resolve_target(tok: str, labels: dict[str, int]) -> int:
     raise EncodeError(f"unresolved branch target: {tok!r}")
 
 
+def _expand_macros(text: str) -> str:
+    """Pre-pass: scan for `.macro NAME params... ... .endmacro` blocks,
+    register them, then re-emit `text` with each call site replaced by
+    the macro body (textual parameter substitution).
+
+    Body lines that start with `.macro` themselves are an error;
+    macros don't nest.  Comments inside the body are preserved
+    verbatim (so the expanded source remains readable in --listing
+    output)."""
+    lines = text.splitlines()
+    out: list[str] = []
+    macros: dict[str, tuple[list[str], list[str]]] = {}
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        stripped = line.strip()
+        if stripped.startswith(".macro"):
+            # `.macro NAME p1 p2 ...`
+            head = stripped[len(".macro"):].split()
+            if not head:
+                raise EncodeError(f"line {i+1}: .macro needs a name")
+            name, *params = head
+            body: list[str] = []
+            i += 1
+            while i < len(lines):
+                inner = lines[i].strip()
+                if inner.startswith(".macro"):
+                    raise EncodeError(
+                        f"line {i+1}: nested .macro not supported")
+                if inner.startswith(".endmacro") or inner.startswith(".endm"):
+                    break
+                body.append(lines[i])
+                i += 1
+            else:
+                raise EncodeError(f"line {i+1}: unterminated .macro {name}")
+            macros[name] = (params, body)
+            i += 1
+            continue
+        # Macro call? — first whitespace token matches a known macro name,
+        # rest of line is arg list (comma- or whitespace-separated).
+        head_tok = stripped.split()[0] if stripped.split() else ""
+        if head_tok in macros:
+            params, body = macros[head_tok]
+            arg_text = stripped[len(head_tok):].strip()
+            args = [a.strip() for a in re.split(r"[,\s]+", arg_text) if a.strip()]
+            if len(args) != len(params):
+                raise EncodeError(
+                    f"line {i+1}: macro {head_tok} expects "
+                    f"{len(params)} arg(s), got {len(args)}")
+            subs = dict(zip(params, args))
+            for body_line in body:
+                # Whole-word textual substitution (avoid matching inside
+                # other identifiers).
+                expanded = body_line
+                for p, a in subs.items():
+                    expanded = re.sub(rf"\b{re.escape(p)}\b", a, expanded)
+                out.append(expanded)
+            i += 1
+            continue
+        out.append(line)
+        i += 1
+    return "\n".join(out)
+
+
 def parse(text: str) -> tuple[list[ParsedBundle], dict[str, int], list[tuple[int, list[int]]]]:
     """Two-pass shell: pass 1 collects labels and per-bundle source text;
     pass 2 (caller) resolves branch targets via the labels map.
@@ -325,6 +403,10 @@ def parse(text: str) -> tuple[list[ParsedBundle], dict[str, int], list[tuple[int
     Returns (bundles, labels, raw_blocks). `raw_blocks` are
     `.raw`-style byte sequences keyed by their start pc.
     """
+    # First: expand macros into the raw text stream so the line-by-line
+    # loop below sees only bundle lines / pragmas.
+    text = _expand_macros(text)
+
     bundles: list[ParsedBundle] = []
     labels: dict[str, int] = {}
     raw_blocks: list[tuple[int, list[int]]] = []
@@ -344,11 +426,12 @@ def parse(text: str) -> tuple[list[ParsedBundle], dict[str, int], list[tuple[int
         if stripped == ".vu0":
             seen_vu0 = True
             continue
-        if stripped.startswith(".org"):
+        if stripped.startswith(".org") or stripped.startswith(".assert_pc"):
             want = _int(stripped.split(None, 1)[1])
             if want != pc:
                 raise EncodeError(
-                    f"line {line_no}: .org 0x{want:X} != current pc 0x{pc:X}")
+                    f"line {line_no}: assertion failed — expected pc "
+                    f"0x{want:X}, currently at 0x{pc:X}")
             continue
         if stripped.startswith(".bundle"):
             args = [a.strip() for a in stripped[len(".bundle"):].split(",")]

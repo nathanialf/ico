@@ -142,6 +142,54 @@ def test_dot_bundle_escape() -> None:
     print(f"  ok: .bundle escape preserves bytes verbatim")
 
 
+def test_macro_expansion() -> None:
+    """Macro defs expand to bundle sequences with arg substitution."""
+    src = (
+        ".vu0\n"
+        ".macro JMP target\n"
+        "    pad ; b target\n"
+        ".endmacro\n"
+        "JMP done\n"
+        "pad ; nop\n"
+        "done:\n"
+    )
+    body = _assemble(src)
+    assert len(body) == 16, f"expected 16 bytes, got {len(body)}"
+    # First bundle: pad upper, b done (forward 1 bundle)
+    lower0 = struct.unpack_from("<I", body, 0)[0]
+    upper0 = struct.unpack_from("<I", body, 4)[0]
+    assert upper0 == 0x000002FF, f"upper0 not pad: 0x{upper0:08X}"
+    # b done: pc=0, target=0x10, delta=8, bundles=1, op6=0x20
+    assert lower0 == (0x20 << 26) | 1, f"branch enc wrong: 0x{lower0:08X}"
+    print(f"  ok: .macro JMP target expands to pad ; b target")
+
+
+def test_assert_pc_directive() -> None:
+    """`.assert_pc` catches stale PC expectations without advancing."""
+    src = (
+        ".vu0\n"
+        "pad ; nop\n"
+        "pad ; nop\n"
+        ".assert_pc 0x10\n"
+        "pad ; nop\n"
+    )
+    body = _assemble(src)
+    assert len(body) == 24, f"expected 24 bytes, got {len(body)}"
+    print(f"  ok: .assert_pc 0x10 accepted at pc=0x10")
+    # Negative case: mismatched assert
+    bad = (
+        ".vu0\n"
+        "pad ; nop\n"
+        ".assert_pc 0x10\n"   # we're actually at 0x08
+    )
+    try:
+        _assemble(bad)
+    except RuntimeError:
+        print(f"  ok: .assert_pc 0x10 rejected at pc=0x08")
+        return
+    raise AssertionError(".assert_pc mismatch did not raise")
+
+
 def test_against_textbin() -> None:
     """Disassemble first 8 bundles, re-emit as `.bundle` lines, assemble,
     compare. This tests that the round-trip via the `.bundle` escape
@@ -175,6 +223,8 @@ def main(argv: list[str] | None = None) -> int:
     test_backward_branch()
     test_ibeq_with_regs()
     test_dot_bundle_escape()
+    test_macro_expansion()
+    test_assert_pc_directive()
     if args.against_textbin:
         test_against_textbin()
     print("all tests passed")
