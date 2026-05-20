@@ -260,7 +260,16 @@ void func_001685B8(int a0, int a1)
 }
 
 /* func_001685DC (4-byte nop pad) absorbed into func_001685E0's .s. */
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001685E0);
+void func_001685E0(int *self)
+{
+    int buf[4];
+    int *p10 = self + 4;
+    func_00243B60(buf, p10);
+    D_006323F0((int)self, 1);
+    func_00243B60(p10, self + 8);
+    D_006323F4((int)self, 0xC);
+    func_00243B60(p10, buf);
+}
 
 int func_00168650(int a0)
 {
