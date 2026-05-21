@@ -98,7 +98,25 @@ INCLUDE_ASM_NOP_PAD(func_00118FD4);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_00118FD8);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_001191C0);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_00119350);
-INCLUDE_ASM("asm/nonmatchings/src/Packet", func_00119470);
+
+extern void func_001A2D78(const char *fmt, char *arg, char *ctx);
+extern void func_001AD768(const char *str, int len);
+extern void func_00263FF0(const char *str, int len, char *ctx);
+extern char D_00672FD0[];
+extern char D_00631CF8[];
+
+void func_00119470(char *self, int idx) {
+    switch (idx) {
+        case 5: func_001A2D78(D_00554EE0, D_00672FD0, self); break;
+        case 1: func_001A2D78(D_00554F10, D_00672FD0, self); break;
+        case 2: func_001A2D78(D_00554F40, D_00672FD0, self); break;
+        case 3: func_001A2D78(D_00554F70, D_00672FD0, self); break;
+        case 4: func_001A2D78(D_00554FA8, D_00672FD0, self); break;
+    }
+    func_001AD768(D_00554FD0, 0x2AC);
+    func_00263FF0(D_00554FD0, 0x2AC, D_00631CF8);
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_00119540);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_001199A0);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_00119CA0);
