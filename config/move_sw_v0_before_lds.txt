@@ -1,2 +1,6 @@
 # Per-file allowlist for postprocess_move_sw_v0_before_lds.py.
+# Retirement-trial 2026-05-21: 33 C-side variants tried (memory barriers,
+# MATERIALIZE, KEEP_LIVE pins, volatile casts, -fno-schedule-insns{,2},
+# 13 other compiler flags, pointer temps). None reproduce the
+# `ld $ra; sw $v0; ld $s0` interleave — postprocess remains.
 13F030
