@@ -162,7 +162,6 @@ qd_listed early_epilogue_restore.txt && python3 "$ROOT/tools/postprocess_early_e
 qd_listed fill_blez_delay.txt        && python3 "$ROOT/tools/postprocess_fill_blez_delay.py" "$ASM_OUT" || true
 qd_listed fill_beq_delay.txt         && python3 "$ROOT/tools/postprocess_fill_beq_delay.py" "$ASM_OUT" || true
 qd_listed v0_zero_in_bne_delay.txt   && python3 "$ROOT/tools/postprocess_v0_zero_in_bne_delay.py" "$ASM_OUT" || true
-qd_listed jal_daddu_lw_loop.txt      && python3 "$ROOT/tools/postprocess_jal_daddu_lw_loop.py" "$ASM_OUT" || true
 qd_listed lui_const_swap.txt        && python3 "$ROOT/tools/postprocess_lui_const_swap.py" "$ASM_OUT" || true
 qd_listed move_sw_v0_before_lds.txt && python3 "$ROOT/tools/postprocess_move_sw_v0_before_lds.py" "$ASM_OUT" || true
 qd_listed lui_li_pre_sd.txt         && python3 "$ROOT/tools/postprocess_lui_li_pre_sd.py" "$ASM_OUT" || true

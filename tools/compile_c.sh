@@ -51,7 +51,6 @@ EARLY_EPILOGUE_RESTORE_TXT="${ROOT}/config/early_epilogue_restore.txt"
 FILL_BLEZ_DELAY_TXT="${ROOT}/config/fill_blez_delay.txt"
 FILL_BEQ_DELAY_TXT="${ROOT}/config/fill_beq_delay.txt"
 V0_ZERO_IN_BNE_DELAY_TXT="${ROOT}/config/v0_zero_in_bne_delay.txt"
-JAL_DADDU_LW_LOOP_TXT="${ROOT}/config/jal_daddu_lw_loop.txt"
 MOVE_SW_V0_BEFORE_LDS_TXT="${ROOT}/config/move_sw_v0_before_lds.txt"
 LUI_CONST_SWAP_TXT="${ROOT}/config/lui_const_swap.txt"
 LUI_LI_PRE_SD_TXT="${ROOT}/config/lui_li_pre_sd.txt"
@@ -118,9 +117,6 @@ if listed "${FILL_BEQ_DELAY_TXT}"; then
 fi
 if listed "${V0_ZERO_IN_BNE_DELAY_TXT}"; then
     "${PYTHON}" "${ROOT}/tools/postprocess_v0_zero_in_bne_delay.py" "${S}"
-fi
-if listed "${JAL_DADDU_LW_LOOP_TXT}"; then
-    "${PYTHON}" "${ROOT}/tools/postprocess_jal_daddu_lw_loop.py" "${S}"
 fi
 if listed "${LUI_CONST_SWAP_TXT}"; then
     "${PYTHON}" "${ROOT}/tools/postprocess_lui_const_swap.py" "${S}"

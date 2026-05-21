@@ -1096,16 +1096,43 @@ Examples (sp-only): `094400` → `func_00194400` (consumer of stub
 `func_00194438`); `037F48`, `037F90`. Examples (jr-and-sp): `094398`
 → `func_00194398` (consumer of stub `func_001943C0`); `038140`.
 
-### 8.14 `postprocess_jal_daddu_lw_loop.py` — utilize both delay slots in linked-list walk
+### 8.14 linked-list walk loop with both delay slots filled — **RETIRED, use C restructure**
 
 Symptom: linked-list-walk loop where original codegen fills both delay
 slots usefully (jal delay = next-pointer load, bne delay = arg setup
 for next iter). gcc's natural emit has `jal; daddu (delay); lw (body);
 nop; bne; daddu (delay)`.
 
-Fix: per-file allowlist in `config/jal_daddu_lw_loop.txt`. Rewrites the
-loop body to interleave the `lw` into the jal delay slot.
-Example: `0FAA58` → `func_001FAA58`.
+**Fix in C:** advance the pointer EARLY (before the call), keep a
+separate `prev` register-pinned to `$a0`, and add an explicit `NOP()`
+between the initial arg-setup and the loop label for alignment:
+
+```c
+register int *s0 REG("$16");
+register int *prev REG("$4");
+
+if (s0 == 0) return;
+prev = s0;
+NOP();                              // align loop entry to .align 2
+loop:
+    s0 = (int *)s0[OFFSET / 4];     // advance — lands in jal-delay
+    func(prev);
+    if (s0 != 0) {
+        prev = s0;                  // sets up $a0 — lands in bne-delay
+        goto loop;
+    }
+```
+
+ee-gcc 2.9 picks up the optimal scheduling because:
+- `prev` is pinned to `$a0`, so `prev = s0` IS the `daddu $a0,s0,$0` insn;
+- `s0 = s0[OFFSET/4]` between the call and the conditional advance gets
+  scheduled into the jal delay slot;
+- the loop-tail `prev = s0; goto loop;` fills the bne delay slot;
+- the explicit `NOP()` before the loop label keeps the entry aligned.
+
+Example (retired postprocess): `func_001FAA58` (`src/cod/0FAA58.c`).
+Postprocess removed 2026-05-21 — `tools/postprocess_jal_daddu_lw_loop.py`
+and `config/jal_daddu_lw_loop.txt` were deleted.
 
 ### 8.15 `postprocess_fcc_nop.py` — promote `#nop` comment to real `nop` after FCC compare
 
