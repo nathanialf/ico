@@ -153,50 +153,48 @@ extern int D_0063316C;
 extern int D_00633170;
 extern int D_00633174;
 
-__attribute__((section(".rodata.0x005582C8"))) const char D_005582C8[16] = "src/boyact.c";
+const char D_005582C8[16] = "src/boyact.c";
 
-__attribute__((section(".rodata.0x00558788"))) const char D_00558788[24] = "critical hit to boss!!!";
+const char D_005582D8[24] = "speed = %f (%f)\n";
 
-/* D_005581F0 .. D_005582B0 (10 "boy{act,mot}Hand{50,100,200}" + sync
- * strings, plus "boy after func", "boy error flg get", "boy error",
- * "%s sync error") moved to src/act-parallel-control.c — they sit
- * in apc's rodata range (between apc and boyact anchors). */
+const char D_005582F0[16] = "%f / %f\n";
 
-/* String rodata migrated from boyact_data.c */
-__attribute__((section(".rodata.0x005582D8"))) const char D_005582D8[24] = "speed = %f (%f)\n";
-__attribute__((section(".rodata.0x005582F0"))) const char D_005582F0[16] = "%f / %f\n";
-__attribute__((section(".rodata.0x005584E8"))) const char D_005584E8[16] = "%d -> %d\n";
-__attribute__((section(".rodata.0x00558640"))) const char D_00558640[24] = "enter actBoyFall\n";
-__attribute__((section(".rodata.0x00558658"))) const char D_00558658[24] = "attack sub id [%d]\n";
-__attribute__((section(".rodata.0x00558670"))) const char D_00558670[24] = "enter actBoyAttack\n";
-__attribute__((section(".rodata.0x00558688"))) const char D_00558688[24] = "enter actBoyCall\n";
-__attribute__((section(".rodata.0x005586A0"))) const char D_005586A0[24] = "enter actBoyItemAfter\n";
-__attribute__((section(".rodata.0x005586B8"))) const char D_005586B8[40] = "enemy error body slam[%s]\n";
-__attribute__((section(".rodata.0x005586F0"))) const char D_005586F0[16] = "actBoyStart:%p\n";
-__attribute__((section(".rodata.0x005587A0"))) const char D_005587A0[32] = "!!! unable guard flag get\n";
-__attribute__((section(".rodata.0x005587C0"))) const char D_005587C0[16] = "guard mail\n";
-__attribute__((section(".rodata.0x005587D0"))) const char D_005587D0[32] = "guard error=[%d][%d][%d][%d]\n";
-__attribute__((section(".rodata.0x005587F0"))) const char D_005587F0[16] = "die!!!!!!!!!!!\n";
-__attribute__((section(".rodata.0x00558800"))) const char D_00558800[24] = "down!!!!!!!!!!!\n";
+const char D_005584E8[16] = "%d -> %d\n";
+
+const char D_00558640[24] = "enter actBoyFall\n";
+
+const char D_00558658[24] = "attack sub id [%d]\n";
+
+const char D_00558670[24] = "enter actBoyAttack\n";
+
+const char D_00558688[24] = "enter actBoyCall\n";
+
+const char D_005586A0[24] = "enter actBoyItemAfter\n";
+
+const char D_005586B8[40] = "enemy error body slam[%s]\n";
+
+const char D_005586F0[16] = "actBoyStart:%p\n";
+
+const char D_00558788[24] = "critical hit to boss!!!";
+
+const char D_005587A0[32] = "!!! unable guard flag get\n";
+
+const char D_005587C0[16] = "guard mail\n";
+
+const char D_005587D0[32] = "guard error=[%d][%d][%d][%d]\n";
+
+const char D_005587F0[16] = "die!!!!!!!!!!!\n";
+
+const char D_00558800[24] = "down!!!!!!!!!!!\n";
 
 /* Float rodata migrated from boyact_data.c */
 __attribute__((section(".rodata.0x00558628"))) const float D_00558628[2] = { -107374184.0f, 1.8499999f };
-__attribute__((section(".rodata.0x005586E0"))) const float D_005586E0[4] = { -1e+06f, 0.0f, 0.0f, 0.0f };
-__attribute__((section(".rodata.0x00558700"))) const float D_00558700[4] = { 0.0f, 0.0f, -5e+01f, 1.0f };
-__attribute__((section(".rodata.0x00558710"))) const float D_00558710[4] = { 0.0f, 0.0f, 5e+01f, 1.0f };
-
-/* Single-float rodata migrated from boyact_data.c */
-
-/* String-pool rodata migrated from boyact_data.c */
-__attribute__((section(".rodata.0x00558758"))) const char D_00558758[48] = "hand connect start\n\000\000\000\000\000WBP set [landing]\n\000\000\000\000\000";
-__attribute__((section(".rodata.0x00558818"))) const char D_00558818[48] = "damage!!!!!!!!!!!  %d\n\000\000WBP set [with mail]\n\000\000\000";
-
-/* EUC-JP debug strings — re-derived from EE rodata bytes via
- * EUC-JP decoding. Octal escapes preserve byte-identical layout
- * without requiring source-encoding compiler flags. */
-/* EUC-JP: "！！！ソファの壁を見付けることができません！！！
-" */
-__attribute__((section(".rodata.0x00558720"))) const char D_00558720[56] = "\241\252\241\252\241\252\245\275\245\325\245\241\244\316\312\311\244\362\270\253\311\325\244\261\244\353\244\263\244\310\244\254\244\307\244\255\244\336\244\273\244\363\241\252\241\252\241\252\n";
+const float D_005586E0[4] = { -1e+06f, 0.0f, 0.0f, 0.0f };
+const float D_00558700[4] = { 0.0f, 0.0f, -5e+01f, 1.0f };
+const float D_00558710[4] = { 0.0f, 0.0f, 5e+01f, 1.0f };
+const char D_00558720[56] = "\241\252\241\252\241\252\245\275\245\325\245\241\244\316\312\311\244\362\270\253\311\325\244\261\244\353\244\263\244\310\244\254\244\307\244\255\244\336\244\273\244\363\241\252\241\252\241\252\n";
+const char D_00558758[48] = "hand connect start\n\000\000\000\000\000WBP set [landing]\n\000\000\000\000\000";
+const char D_00558818[48] = "damage!!!!!!!!!!!  %d\n\000\000WBP set [with mail]\n\000\000\000";
 
 #include "include_asm.h"
 #include "matching.h"

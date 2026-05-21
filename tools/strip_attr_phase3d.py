@@ -286,20 +286,22 @@ def strip_file(path: Path, ranges: dict[str, list[tuple[int, int]]],
                     elif (len(tokens) >= 2 and tokens[-2] == "unsigned"
                           and tokens[-1] == "char"):
                         pre = "const " + pre
-                # Small-const-leak workaround: ee-gcc with `-G 8`
-                # places `const T[N]` (N*sizeof(T) ≤ 8) into `.sdata`
-                # regardless of `.rodata` VMA. Without a placement
-                # attribute the bytes end up in the wrong output
-                # section. Rewrite the VMA-pinned attr to a non-VMA
-                # `.rodata` directive — the legitimate clean-room
-                # form an original developer would use.
+                # Small-const-leak: ee-gcc with `-G 8` places
+                # `const T[N]` (N*sizeof(T) ≤ 8) into `.sdata`
+                # regardless of `.rodata` VMA. The VMA-pinned attr
+                # is the minimum-necessary directive to force
+                # `.rodata` placement. Don't strip it — keep the
+                # `.rodata.0x<VMA>` form so the per-symbol slot
+                # generator (postprocess_slinky_ld.py) lays the
+                # bytes at the original VMA via the attr-tag form.
+                # Net result: ~44 small-const survivors retain
+                # `__attribute__((section(".rodata.0x<VMA>")))`
+                # across the project as the legitimate workaround.
                 if sec == ".rodata":
                     size = _sizeof_def(pre, n_arr)
                     if size is not None and size <= _SDATA_LEAK_THRESHOLD:
-                        return (
-                            '__attribute__((section(".rodata"))) '
-                            f'{pre}{name}{arr}'
-                        )
+                        counts[sec] = counts.get(sec, 0) - 1
+                        return m.group(0)
                 return pre + name + arr
         return m.group(0)
     new_text = ATTR_RE.sub(replacer, text)
