@@ -155,7 +155,6 @@ qd_listed() {
 qd_listed no_trailing_nop.txt    && python3 "$ROOT/tools/postprocess_no_trailing_nop.py" "$ASM_OUT" || true
 qd_listed shared_sp_restore.txt  && python3 "$ROOT/tools/postprocess_shared_sp_restore.py" --sp-only "$ASM_OUT" || true
 qd_listed shared_jr_restore.txt  && python3 "$ROOT/tools/postprocess_shared_sp_restore.py" --jr-and-sp "$ASM_OUT" || true
-qd_listed la_sd_interleave.txt   && python3 "$ROOT/tools/postprocess_la_sd_interleave.py" "$ASM_OUT" || true
 qd_listed fcc_nop.txt            && python3 "$ROOT/tools/postprocess_fcc_nop.py" "$ASM_OUT" || true
 qd_listed early_body_swap.txt    && python3 "$ROOT/tools/postprocess_early_body_swap.py" "$ASM_OUT" || true
 qd_listed unfold_ra_delay.txt    && python3 "$ROOT/tools/postprocess_unfold_ra_delay.py" "$ASM_OUT" || true

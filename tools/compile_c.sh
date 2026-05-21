@@ -44,7 +44,6 @@ COALESCE_V1_V0_TXT="${ROOT}/config/coalesce_v1_v0.txt"
 NO_TRAILING_NOP_TXT="${ROOT}/config/no_trailing_nop.txt"
 SHARED_SP_RESTORE_TXT="${ROOT}/config/shared_sp_restore.txt"
 SHARED_JR_RESTORE_TXT="${ROOT}/config/shared_jr_restore.txt"
-LA_SD_INTERLEAVE_TXT="${ROOT}/config/la_sd_interleave.txt"
 EARLY_BODY_SWAP_TXT="${ROOT}/config/early_body_swap.txt"
 FCC_NOP_TXT="${ROOT}/config/fcc_nop.txt"
 UNFOLD_RA_DELAY_TXT="${ROOT}/config/unfold_ra_delay.txt"
@@ -98,9 +97,6 @@ if listed "${SHARED_SP_RESTORE_TXT}"; then
 fi
 if listed "${SHARED_JR_RESTORE_TXT}"; then
     "${PYTHON}" "${ROOT}/tools/postprocess_shared_sp_restore.py" --jr-and-sp "${S}"
-fi
-if listed "${LA_SD_INTERLEAVE_TXT}"; then
-    "${PYTHON}" "${ROOT}/tools/postprocess_la_sd_interleave.py" "${S}"
 fi
 if listed "${FCC_NOP_TXT}"; then
     "${PYTHON}" "${ROOT}/tools/postprocess_fcc_nop.py" "${S}"

@@ -983,7 +983,7 @@ straddle it.
 Fix: per-func allowlist in `config/lui_li_pre_sd.txt`.
 Example: `14D9E8` → `func_0024D9E8`.
 
-### 8.9 `postprocess_la_sd_interleave.py` — `sd $ra` between `lui` and `addiu`
+### 8.9 `sd $ra` between `lui` and `addiu` — **RETIRED, use `LA_SPLIT` macro**
 
 Symptom: original schedules the prologue ra-save between the two halves
 of an `la $X, SYM` macro emission:
@@ -995,9 +995,26 @@ addiu $sp,-N; lui $X,%hi(SYM); sd $31,OFF($sp); addiu $X,$X,%lo(SYM)
 gcc emits the lui+addiu pair back-to-back with `sd $31` after. Common in
 leaf-prologue 5-arg-via-`$tN` wrappers (func_0024DA50 family).
 
-Fix: per-func allowlist in `config/la_sd_interleave.txt`.
-Examples: `14DA50` → `func_0024DA50`, `14DA20` → `func_0024DA20`,
-`0F6E00` → `func_001F6E00`.
+**Fix in C:** use the `LA_SPLIT` macro from `include/matching.h`, which
+emits the `lui` and `addiu` in two separate `#APP/#NO_APP` blocks with
+a `KEEP_LIVE` between to prevent ee-gcc 2.9 from coalescing them. The
+scheduler then places `sd $ra` in the gap.
+
+```c
+register T *p REG("$8");
+LA_SPLIT(p, SYM);            /* lui + KEEP_LIVE + addiu */
+KEEP_LIVE(p);                /* anchor regalloc */
+```
+
+Without the inner `KEEP_LIVE`, gcc may merge adjacent `#APP` blocks into
+one when nothing else separates them (observed for `func_001F6E00` in
+`src/Basic.c`). The two-block emission is what gives the scheduler room
+to interleave `sd $ra`.
+
+Examples (retired postprocess): `func_0024DA50` (`src/cod/14DA50.c`),
+`func_0024DA20` (`src/cod/14DA20.c`), `func_001F6E00` (`src/Basic.c`).
+Postprocess removed 2026-05-21 — `tools/postprocess_la_sd_interleave.py`
+and `config/la_sd_interleave.txt` were deleted.
 
 ### 8.10 `postprocess_v0_zero_in_bne_delay.py` — lift `daddu $v0,$0,$0` into bne delay
 

@@ -473,15 +473,11 @@ Step 4 (header-macro hasm) instead — re-evaluate during refactor:
     epilogue. Use when the next adjacent function is an 8-byte
     `jr ra; addiu sp, +N` stub.
     *hasm-migration:* no — depends on inter-function layout.
-  - `config/la_sd_interleave.txt` → `tools/postprocess_la_sd_interleave.py`:
-    interleaves `sd $31, OFF($sp)` between the `lui` and `addiu` halves
-    of an la-macro emission. Used by 5-arg-via-`$t0` wrappers
-    (`func_0024DA50`, `func_0024DA20`).
-    *hasm-migration:* attempted; not viable — the wrappers carry
-    gcc-generated prologue/epilogue and call-arg setup around the la
-    macro, which a header-macro can't reproduce without a `naked`
-    attribute (ee-gcc 2.9 doesn't support `naked`). Postprocess is
-    the right tool here.
+  - ~~`config/la_sd_interleave.txt` → `tools/postprocess_la_sd_interleave.py`~~
+    **retired 2026-05-21** — use the `LA_SPLIT` macro from
+    `include/matching.h`, which emits `lui` and `addiu` in two
+    separate `#APP/#NO_APP` blocks with an interior `KEEP_LIVE`. ee-gcc
+    2.9 then schedules `sd $ra` in the gap, matching the original.
 
 To add a new postprocess:
 

@@ -184,4 +184,32 @@
  * though gcc's natural tail-call sequence ends one nop short. */
 #define TRAILING_PAD_NOP()          asm("\t.4byte 0")
 
+/* Split `la $rX, SYM` into separate `lui` and `addiu` so gcc's prologue
+ * scheduler can interleave `sd $ra` between them. ee-gcc 2.9 emits the
+ * la as a back-to-back lui+addiu pair; some original ICO leaf wrappers
+ * (e.g. func_0024DA50, func_0024DA20) have sd-ra in between. See
+ * COOKBOOK §8.9. Retires postprocess_la_sd_interleave.py.
+ *
+ *   register T *p REG("$8");
+ *   LA_SPLIT(p, SYM);
+ *   KEEP_LIVE(p);                  // anchor regalloc
+ */
+#define LA_SPLIT(reg, sym)                                                      \
+    do {                                                                        \
+        __asm__("lui %0, %%hi(" #sym ")" : "=r"(reg));                          \
+        KEEP_LIVE(reg);    /* prevents gcc 2.9 from coalescing #APP blocks */   \
+        __asm__("addiu %0, %0, %%lo(" #sym ")" : "+r"(reg));                    \
+    } while (0)
+
+/* Force gcc to emit a commutative `addu` with rd lining up in the `rt`
+ * slot: `addu $X, $Y, $X` instead of gcc's natural `addu $X, $X, $Y`.
+ * Pin the destination with `+r` so it ends up in both `rd` and `rt`.
+ * See COOKBOOK §8.11. Retires postprocess_swap_addu_to_rt.py.
+ *
+ *   int idx = count * 8;
+ *   ADDU_RT(idx, base);    // encoded as: addu idx, base, idx (rd==rt)
+ */
+#define ADDU_RT(dst, src)                                                       \
+    __asm__("addu %0, %1, %2" : "+r"(dst) : "r"(src))
+
 #endif /* MATCHING_H */

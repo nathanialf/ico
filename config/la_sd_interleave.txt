@@ -1,8 +1,0 @@
-# Per-file allowlist for postprocess_la_sd_interleave.py.
-# Pattern: "<sp>; lui rX, %hi(SYM); addiu rX, rX, %lo(SYM); sd $31, OFF($sp)"
-# rewritten to "<sp>; lui rX; sd $31, OFF($sp); addiu rX, rX, %lo(SYM)".
-# Use this file's basename (uppercase hex file_off, no .c/.s) per line.
-14DA50
-14DA20
-0F6E00
-Basic    # func_001F6E00 in TU

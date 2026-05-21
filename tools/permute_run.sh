@@ -364,7 +364,6 @@ PP_FLAGS=""
 in_config_txt "${CFG}/no_trailing_nop.txt"     && PP_FLAGS="${PP_FLAGS} no_trailing_nop"
 in_config_txt "${CFG}/shared_sp_restore.txt"   && PP_FLAGS="${PP_FLAGS} shared_sp_restore"
 in_config_txt "${CFG}/shared_jr_restore.txt"   && PP_FLAGS="${PP_FLAGS} shared_jr_restore"
-in_config_txt "${CFG}/la_sd_interleave.txt"    && PP_FLAGS="${PP_FLAGS} la_sd_interleave"
 in_config_txt "${CFG}/early_body_swap.txt"     && PP_FLAGS="${PP_FLAGS} early_body_swap"
 in_config_txt "${CFG}/swap_addu_operands.txt"  && PP_FLAGS="${PP_FLAGS} swap_addu"
 in_config_txt "${CFG}/coalesce_v1_v0.txt"      && PP_FLAGS="${PP_FLAGS} coalesce_v1_v0"
@@ -410,9 +409,6 @@ if [[ " ${PP_FLAGS} " == *" shared_sp_restore "* ]]; then
 fi
 if [[ " ${PP_FLAGS} " == *" shared_jr_restore "* ]]; then
     echo "${PYTHON} ${PROJECT_ROOT}/tools/postprocess_shared_sp_restore.py --jr-and-sp \"\${TMP_S}\""
-fi
-if [[ " ${PP_FLAGS} " == *" la_sd_interleave "* ]]; then
-    echo "${PYTHON} ${PROJECT_ROOT}/tools/postprocess_la_sd_interleave.py \"\${TMP_S}\""
 fi
 if [[ " ${PP_FLAGS} " == *" early_body_swap "* ]]; then
     echo "${PYTHON} ${PROJECT_ROOT}/tools/postprocess_early_body_swap.py \"\${TMP_S}\""

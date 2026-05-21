@@ -14,7 +14,7 @@ void func_001FBBE0(void)
     D_004C7710[0] = flag;
     offset = flag * 4;
     KEEP_LIVE(full);
-    __asm__("addu %0, %1, %2" : "+r"(offset) : "r"(full));
+    ADDU_RT(offset, full);
     next = *(int *)((char *)offset + 4);
     full[5] = 0;
     full[6] = 0;
