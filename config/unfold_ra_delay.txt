@@ -7,4 +7,13 @@
 #
 # See tools/postprocess_unfold_ra_delay.py for the exact pattern.
 
+# Retirement-trial 2026-05-21: 30+ attempts. Source pins (p=$s1, i=$s0)
+# + `int i = 0` declared early DO eliminate the gcc fold of ld $31 into
+# the early-exit beq delay slot — the daddu becomes the delay-slot op
+# matching the original. BUT this introduces a separate prologue
+# regression: gcc then emits `sd s0,0(sp)` BEFORE `sd ra` and `sd s1`,
+# where original saves ra/s1/s0 in declaration order. 20 compiler flags
+# tried (-fno-delayed-branch, -fno-reorder-blocks, -fno-defer-pop,
+# -fno-schedule-insns{,2}, -O3, -Os, -frename-registers, -fno-cse-skip-blocks,
+# -fno-tree-pre, -fno-cprop-registers, etc.) — none reorder saves.
 weapon
