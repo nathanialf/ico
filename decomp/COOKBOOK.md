@@ -880,19 +880,35 @@ loop). Sibling `func_001F41C8` doesn't need the pass (only one early
 exit).
 See: [feedback_unfold_ra_delay].
 
-### 8.3 `postprocess_swap_zero_ret_ld_ra.py`
+### 8.3 `ld $31` / `daddu $2,$0,$0` epilogue swap — **RETIRED, use C fix**
 
 **Diff fingerprint:** built has `daddu $2,$0,$0` (or `move $2,$0`)
 immediately BEFORE `ld $31, OFF($sp)`; expected has them in the
 opposite order.
 
 Symptom: original has `ld ra; daddu v0,$0,$0` ordering; gcc emits
-`daddu v0,$0,$0; ld ra`.
+`daddu v0,$0,$0; ld ra`. Triggered by multiple `return 0;` paths in a
+single function; gcc fuses them with the daddu-first ordering, the
+original used ld-ra-first.
 
-Fix: add `<file_off>` to `config/swap_zero_ret_ld_ra.txt`. The pass
-handles both pre- and post-canon forms (`move $2,$0` and
-`daddu $2,$0,$0`, `$sp` and `$29`).
-Example: `035BB8` → `func_00135BB8` (linked-list traversal).
+**Fix in C:** convert multiple `return 0;` paths to a single one via
+`goto end; ... end: return 0;`. Forces gcc to use a single epilogue
+basic block with the ld-ra-first ordering.
+
+```c
+int func(char *p) {
+    if (p == 0) goto end;       // was: return 0;
+    ... loop body ...
+end:
+    return 0;
+}
+```
+
+Examples (retired postprocess): `func_00135BB8` (linked-list traversal,
+`src/cod/035BB8.c`); `func_00140048` (`sound/adpcm_init.c`).
+
+Postprocess removed 2026-05-21 — `tools/postprocess_swap_zero_ret_ld_ra.py`
+and `config/swap_zero_ret_ld_ra.txt` were deleted.
 See: [feedback_swap_zero_ret_ld_ra].
 
 ### 8.4 `postprocess_early_epilogue_restore.py`

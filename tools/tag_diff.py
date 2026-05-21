@@ -355,7 +355,7 @@ RULES: list[Rule] = [
          "split null-chain returns via `goto fail/succ:` labels"),
     Rule("8.3", "ld $31 / daddu $2,$0,$0 epilogue swap",
          _rule_swap_zero_ret_ld_ra,
-         "add file_off to config/swap_zero_ret_ld_ra.txt"),
+         "convert multiple `return 0;` paths to single `goto end; ... end: return 0;`"),
     Rule("8.12", "trailing nop after `j $31`",
          _rule_trailing_nop,
          "add basename to config/no_trailing_nop.txt"),

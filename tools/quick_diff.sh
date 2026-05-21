@@ -23,13 +23,15 @@ fi
 NAME="$1"
 shift || true
 
-# Resolve C source: prefer src/, fall back to tough_nuts/
+# Resolve C source: prefer src/, fall back to tough_nuts/, sound/.
 if [[ -f "src/$NAME.c" ]]; then
     CSRC="src/$NAME.c"
 elif [[ -f "tough_nuts/$NAME/$NAME.c" ]]; then
     CSRC="tough_nuts/$NAME/$NAME.c"
+elif [[ -f "sound/$NAME.c" ]]; then
+    CSRC="sound/$NAME.c"
 else
-    echo "quick_diff: no src/$NAME.c or tough_nuts/$NAME/$NAME.c" >&2
+    echo "quick_diff: no src/$NAME.c, tough_nuts/$NAME/$NAME.c, or sound/$NAME.c" >&2
     exit 3
 fi
 
@@ -43,8 +45,10 @@ fi
 for candidate in \
     "asm/matchings/$NAME" \
     "asm/matchings/src/$NAME" \
+    "asm/matchings/sound/$NAME" \
     "asm/nonmatchings/$NAME" \
-    "asm/nonmatchings/src/$NAME"; do
+    "asm/nonmatchings/src/$NAME" \
+    "asm/nonmatchings/sound/$NAME"; do
     if [[ -d "$candidate" ]]; then
         ASM_DIR="$candidate"
         break
@@ -158,7 +162,6 @@ qd_listed unfold_ra_delay.txt    && python3 "$ROOT/tools/postprocess_unfold_ra_d
 qd_listed early_epilogue_restore.txt && python3 "$ROOT/tools/postprocess_early_epilogue_restore.py" "$ASM_OUT" || true
 qd_listed fill_blez_delay.txt        && python3 "$ROOT/tools/postprocess_fill_blez_delay.py" "$ASM_OUT" || true
 qd_listed fill_beq_delay.txt         && python3 "$ROOT/tools/postprocess_fill_beq_delay.py" "$ASM_OUT" || true
-qd_listed swap_zero_ret_ld_ra.txt    && python3 "$ROOT/tools/postprocess_swap_zero_ret_ld_ra.py" "$ASM_OUT" || true
 qd_listed v0_zero_in_bne_delay.txt   && python3 "$ROOT/tools/postprocess_v0_zero_in_bne_delay.py" "$ASM_OUT" || true
 qd_listed jal_daddu_lw_loop.txt      && python3 "$ROOT/tools/postprocess_jal_daddu_lw_loop.py" "$ASM_OUT" || true
 qd_listed lui_const_swap.txt        && python3 "$ROOT/tools/postprocess_lui_const_swap.py" "$ASM_OUT" || true

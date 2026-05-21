@@ -111,7 +111,7 @@ int func_00140048(void (*cb)(long long)) {
     int i;
     char *entries_base;
     count = *(int *)(base + 4);
-    if (count <= 0) return 0;
+    if (count <= 0) goto end;
     i = 0;
     entries_base = ctx + 0x5C;
     do {
@@ -139,6 +139,7 @@ int func_00140048(void (*cb)(long long)) {
         }
         i++;
     } while (i < *(int *)(base + 4));
+end:
     return 0;
 }
 

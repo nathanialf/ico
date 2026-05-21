@@ -779,7 +779,7 @@ implied by the shape:
 | `swc1` (or `sw`/`sd`) in jal delay slot vs `addiu`/`lw` in expected delay | §8.22 `__asm__ volatile("" ::: "memory")` between trailing stores and call | feedback_memory_barrier_before_call |
 | `lui+addiu` of `D_X` clusters right before `jal`, expected has them earlier | §5.7 `T *p = D_X; KEEP_LIVE(p);` | feedback_eager_rodata_materialize |
 | Single missing `daddu $v1, $v0, $0` after a jal | §2.1 `REG("$3")` + `KEEP_LIVE(q)` | feedback_keep_live_v1_pin |
-| `ld $31` and `daddu $v0,$0,$0` swapped at epilogue | §8.3 postprocess `swap_zero_ret_ld_ra` | already wired |
+| `ld $31` and `daddu $v0,$0,$0` swapped at epilogue | §8.3 C fix: convert multiple `return 0;` to `goto end; ... end: return 0;` | retired postprocess |
 | Operand swap on `addu $X,$Y,$Z` vs `addu $X,$Z,$Y` | §8.11 postprocess `swap_addu_operands` | already wired |
 | `nop` between branch and "would-be delay" sw | §8.5 (blez/likely) or §8.21 (beq/bne) postprocess | already wired |
 | Trailing `nop` after `j $31` | §8.12 postprocess `no_trailing_nop` | already wired |
