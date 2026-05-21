@@ -225,3 +225,11 @@ int func_001A2D58(int idx)
 {
     return *(int *)((char *)D_006E4890 + idx * 0x18);
 }
+
+/* ASCII debug strings — re-derived from EE rodata bytes. */
+/* ASCII preview: "ReadMotionFile:[%d]%s (size:%d): <ESC>[33m%1.2fMB<ESC>[m<LF>" */
+__attribute__((section(".rodata.0x00612EF8"))) const char D_00612EF8[56] = "ReadMotionFile:[%d]%s (size:%d): \033[33m%1.2fMB\033[m\n";
+/* ASCII preview: "<ESC>[33m --- W - A - R - N - I - N - G ------------------------<ESC>[m<LF>" */
+__attribute__((section(".rodata.0x00613170"))) const char D_00613170[72] = "\033[33m --- W - A - R - N - I - N - G ------------------------\033[m\n";
+/* ASCII preview: "<ESC>[33m ------------------------------------------------------<ESC>[m<LF>" */
+__attribute__((section(".rodata.0x00613228"))) const char D_00613228[72] = "\033[33m ------------------------------------------------------\033[m\n";

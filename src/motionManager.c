@@ -202,3 +202,17 @@ INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DED10);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DEF20);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DF150);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DF368);
+
+/* ASCII debug strings — re-derived from EE rodata bytes. */
+/* ASCII preview: "Change "<ESC>[33m%s(%d)<ESC>[m"in "<ESC>[33m%s(%d)<ESC>[m" at control "<ESC>[33m%s<ESC>[m".<LF>" */
+__attribute__((section(".rodata.0x00619848"))) const char D_00619848[72] = "Change \"\033[33m%s(%d)\033[m\"in \"\033[33m%s(%d)\033[m\" at control \"\033[33m%s\033[m\".\n";
+/* ASCII preview: "ADJUST FROM TABLE <ESC>[36m%08x(%f)<ESC>[m<LF>" */
+__attribute__((section(".rodata.0x00619890"))) const char D_00619890[40] = "ADJUST FROM TABLE \033[36m%08x(%f)\033[m\n";
+/* ASCII preview: "ADJUST <ESC>[36m%08x(%f)<ESC>[m<LF>" */
+__attribute__((section(".rodata.0x006198B8"))) const char D_006198B8[32] = "ADJUST \033[36m%08x(%f)\033[m\n";
+/* ASCII preview: "<ESC>[36mUpdate with collision info that act memorized.<ESC>[m<LF>" */
+__attribute__((section(".rodata.0x006198F0"))) const char D_006198F0[56] = "\033[36mUpdate with collision info that act memorized.\033[m\n";
+/* ASCII preview: "<ESC>[36mError!!! Set geometry for release type particle.<ESC>[m<LF>" */
+__attribute__((section(".rodata.0x00619E40"))) const char D_00619E40[64] = "\033[36mError!!! Set geometry for release type particle.\033[m\n";
+/* ASCII preview: "<ESC>[36mThis is old version(%d) file. May be an error occur.<ESC>[m<LF>" */
+__attribute__((section(".rodata.0x00619E80"))) const char D_00619E80[64] = "\033[36mThis is old version(%d) file. May be an error occur.\033[m\n";

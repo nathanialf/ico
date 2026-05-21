@@ -127,3 +127,21 @@ __attribute__((section(".rodata.0x0062EA48"))) const char D_0062EA48[72] = "libp
 
 INCLUDE_ASM("asm/nonmatchings/src/PObj", func_002413F0);
 INCLUDE_ASM("asm/nonmatchings/src/PObj", func_002418A0);
+
+/* ASCII debug strings — re-derived from EE rodata bytes. */
+/* ASCII preview: "<ESC>[33mobject info : adrs(%p) objnum(%d) clstnum(%d)<LF>" */
+__attribute__((section(".rodata.0x0062DF28"))) const char D_0062DF28[56] = "\033[33mobject info : adrs(%p) objnum(%d) clstnum(%d)\n";
+/* ASCII preview: "            : object table (%p)<ESC><LF>" */
+__attribute__((section(".rodata.0x0062DF80"))) const char D_0062DF80[40] = "            : object table (%p)\033\n";
+/* ASCII preview: "            : texture table (%p)<ESC>[m<LF>" */
+__attribute__((section(".rodata.0x0062DFA8"))) const char D_0062DFA8[40] = "            : texture table (%p)\033[m\n";
+/* ASCII preview: "                " */
+__attribute__((section(".rodata.0x0062FD90"))) const char D_0062FD90[16] = "                ";
+/* ASCII preview: "0000000000000000" */
+__attribute__((section(".rodata.0x0062FDA0"))) const char D_0062FDA0[16] = "0000000000000000";
+/* ASCII preview: "                " */
+__attribute__((section(".rodata.0x0062FF80"))) const char D_0062FF80[16] = "                ";
+/* ASCII preview: "0000000000000000" */
+__attribute__((section(".rodata.0x0062FF90"))) const char D_0062FF90[16] = "0000000000000000";
+/* ASCII preview: "bug in vfprintf: bad bas" */
+__attribute__((section(".rodata.0x0062FFE8"))) const char D_0062FFE8[24] = "bug in vfprintf: bad bas";

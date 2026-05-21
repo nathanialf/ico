@@ -192,3 +192,13 @@ void func_00181D88(void *self, int p1, float *vec, void *cb, float scale)
     }
     func_00181960((int *)((char *)(&buf)));
 }
+
+/* ASCII debug strings — re-derived from EE rodata bytes. */
+/* ASCII preview: "<ESC>[35mALLOCED DOBJ<ESC>[m<LF>" */
+__attribute__((section(".rodata.0x00612640"))) const char D_00612640[24] = "\033[35mALLOCED DOBJ\033[m\n";
+/* ASCII preview: "<ESC>[35mINITED POLYGONSTATE<ESC>[m<LF>" */
+__attribute__((section(".rodata.0x00612658"))) const char D_00612658[32] = "\033[35mINITED POLYGONSTATE\033[m\n";
+/* ASCII preview: "<ESC>[35mINITED GEOMETRYSTATE<ESC>[m<LF>" */
+__attribute__((section(".rodata.0x00612678"))) const char D_00612678[32] = "\033[35mINITED GEOMETRYSTATE\033[m\n";
+/* ASCII preview: "<ESC>[35mEND OF INIT DOBJ<ESC>[m<LF>" */
+__attribute__((section(".rodata.0x00612698"))) const char D_00612698[32] = "\033[35mEND OF INIT DOBJ\033[m\n";

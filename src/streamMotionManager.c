@@ -127,3 +127,7 @@ int func_001F1058(volatile int *self)
     D_00633708 = slot + 1;
     return slot;
 }
+
+/* ASCII debug strings — re-derived from EE rodata bytes. */
+/* ASCII preview: "<ESC>[36mWait!!!<ESC>[m<LF>" */
+__attribute__((section(".rodata.0x0061A6C0"))) const char D_0061A6C0[24] = "\033[36mWait!!!\033[m\n";

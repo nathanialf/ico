@@ -124,3 +124,11 @@ void func_0011BF40(int a0)
     int p = *(int *)(a0 + 0x844);
     func_0011B6D8(v, *(int *)(p + 0xF0), *(signed char *)(v + 0x2F) > 0);
 }
+
+/* ASCII debug strings — re-derived from EE rodata bytes. */
+/* ASCII preview: "<ESC>[31msorce normal model data broken! %f %f %f %f [%d]<ESC>[0m<LF>" */
+__attribute__((section(".rodata.0x00554FF8"))) const char D_00554FF8[64] = "\033[31msorce normal model data broken! %f %f %f %f [%d]\033[0m\n";
+/* ASCII preview: "<ESC>[31msorce cluster model data broken! %f %f %f %f [%d]<ESC>[0m<LF>" */
+__attribute__((section(".rodata.0x005550F8"))) const char D_005550F8[64] = "\033[31msorce cluster model data broken! %f %f %f %f [%d]\033[0m\n";
+/* ASCII preview: "<ESC>[31mMaxPacketSize = %d<ESC>[0m<LF>" */
+__attribute__((section(".rodata.0x00555378"))) const char D_00555378[32] = "\033[31mMaxPacketSize = %d\033[0m\n";

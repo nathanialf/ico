@@ -648,3 +648,11 @@ void func_00175CB0(int a0)
 }
 
 #line 480 "src/commonact.c"
+
+/* ASCII debug strings — re-derived from EE rodata bytes. */
+/* ASCII preview: "<ESC>[36mEMERGENCY WITH DANGER LOOP<ESC>[m<LF>" */
+__attribute__((section(".rodata.0x005589A8"))) const char D_005589A8[40] = "\033[36mEMERGENCY WITH DANGER LOOP\033[m\n";
+/* ASCII preview: "<ESC>[36mEMERGENCY WITH NO MOVE<ESC>[m<LF>" */
+__attribute__((section(".rodata.0x00558B38"))) const char D_00558B38[32] = "\033[36mEMERGENCY WITH NO MOVE\033[m\n";
+/* ASCII preview: "<ESC>[36mEMERGENCY WITH TIME OUT<ESC>[m<LF>" */
+__attribute__((section(".rodata.0x00558B58"))) const char D_00558B58[40] = "\033[36mEMERGENCY WITH TIME OUT\033[m\n";

@@ -170,3 +170,7 @@ int *func_001C0C40(char *self, void *arg1)
     }
     return buf;
 }
+
+/* ASCII debug strings — re-derived from EE rodata bytes. */
+/* ASCII preview: "<ESC>[33mInitialize candle geometries.<ESC>[m<LF>" */
+__attribute__((section(".rodata.0x00618868"))) const char D_00618868[40] = "\033[33mInitialize candle geometries.\033[m\n";

@@ -40,3 +40,7 @@ __attribute__((section(".rodata.0x00617230"))) const char D_00617230[48] = "\245
 INCLUDE_ASM("asm/nonmatchings/src/layout_texture", func_001B6CD0);
 INCLUDE_ASM("asm/nonmatchings/src/layout_texture", func_001B6E58);
 INCLUDE_ASM("asm/nonmatchings/src/layout_texture", func_001B6FD8);
+
+/* ASCII debug strings — re-derived from EE rodata bytes. */
+/* ASCII preview: "[<ESC>[42m scene %d <ESC>[m ]<LF>" */
+__attribute__((section(".rodata.0x00617348"))) const char D_00617348[24] = "[\033[42m scene %d \033[m ]\n";

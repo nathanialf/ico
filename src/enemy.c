@@ -99,3 +99,13 @@ void func_001CE690(int *self)
     if (func_00165F88(self) != 0) return;
     func_001CE5F8(self);
 }
+
+/* ASCII debug strings — re-derived from EE rodata bytes. */
+/* ASCII preview: "Save effect file [<ESC>[36m%s<ESC>[m](%s:%dbytes) <LF>" */
+__attribute__((section(".rodata.0x00618C38"))) const char D_00618C38[48] = "Save effect file [\033[36m%s\033[m](%s:%dbytes) \n";
+/* ASCII preview: "<ESC>[36mRANDOMIZE COUNT: %d > RID: %d<ESC>[m<LF>" */
+__attribute__((section(".rodata.0x00618D68"))) const char D_00618D68[40] = "\033[36mRANDOMIZE COUNT: %d > RID: %d\033[m\n";
+/* ASCII preview: "<ESC>[36mENEMY DESIGN ID: %d<ESC>[m<LF>" */
+__attribute__((section(".rodata.0x00618D90"))) const char D_00618D90[32] = "\033[36mENEMY DESIGN ID: %d\033[m\n";
+/* ASCII preview: "<ESC>[36mRequested by program... <ESC>[m" */
+__attribute__((section(".rodata.0x00618EA0"))) const char D_00618EA0[40] = "\033[36mRequested by program... \033[m";

@@ -457,3 +457,17 @@ void func_001A3340(void) {
 }
 INCLUDE_ASM("asm/nonmatchings/src/debug", func_001A3394);
 INCLUDE_ASM("asm/nonmatchings/src/debug", func_001A3398);
+
+/* ASCII debug strings — re-derived from EE rodata bytes. */
+/* ASCII preview: "Save start stage file. Setting to [ <ESC>[36m%d<ESC>[m ]<LF>" */
+__attribute__((section(".rodata.0x00614AA0"))) const char D_00614AA0[56] = "Save start stage file. Setting to [ \033[36m%d\033[m ]\n";
+/* ASCII preview: "<ESC>[36mInvalid line appeard.<LF>    Use default one.<ESC>[m<LF>" */
+__attribute__((section(".rodata.0x00614C48"))) const char D_00614C48[56] = "\033[36mInvalid line appeard.\n    Use default one.\033[m\n";
+/* ASCII preview: "<ESC>[36mInvalid name appeard.(%s!=%s)<LF>    Use default one.<ESC>[m<LF>" */
+__attribute__((section(".rodata.0x00614C80"))) const char D_00614C80[64] = "\033[36mInvalid name appeard.(%s!=%s)\n    Use default one.\033[m\n";
+/* ASCII preview: "loading:"<ESC>[33m%s<ESC>[m"<LF><TAB>(address:<ESC>[35m%p<ESC>[m/size:<ESC>[35m%d<ESC>[m)" */
+__attribute__((section(".rodata.0x00614D68"))) const char D_00614D68[64] = "loading:\"\033[33m%s\033[m\"\n\t(address:\033[35m%p\033[m/size:\033[35m%d\033[m)";
+/* ASCII preview: "Init line trace table. (<ESC>[36mEntry: %ddatas<ESC>[m)<LF>" */
+__attribute__((section(".rodata.0x00616590"))) const char D_00616590[56] = "Init line trace table. (\033[36mEntry: %ddatas\033[m)\n";
+/* ASCII preview: "----------------------------------------------<ESC>[m<LF>" */
+__attribute__((section(".rodata.0x00616848"))) const char D_00616848[56] = "----------------------------------------------\033[m\n";

@@ -170,3 +170,7 @@ void func_001C8A00(int a0, int a1, float f)
 {
     *(float *)(a0 + a1 * 0x50 + 0x10) = f;
 }
+
+/* ASCII debug strings — re-derived from EE rodata bytes. */
+/* ASCII preview: "<ESC>[36mALLOC CLOTHES<ESC>[m<LF>" */
+__attribute__((section(".rodata.0x00618948"))) const char D_00618948[24] = "\033[36mALLOC CLOTHES\033[m\n";

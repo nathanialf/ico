@@ -102,3 +102,7 @@ __attribute__((section(".rodata.0x00554790"))) const float D_00554790[4] = { 768
 #include "include_asm.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/FileManager", func_0010EE90);
+
+/* ASCII debug strings — re-derived from EE rodata bytes. */
+/* ASCII preview: "loading:"<ESC>[33m%s<ESC>[m" (address:<ESC>[35m%p<ESC>[m/size:<ESC>[35m%d<ESC>[m)" */
+__attribute__((section(".rodata.0x00553FD0"))) const char D_00553FD0[64] = "loading:\"\033[33m%s\033[m\" (address:\033[35m%p\033[m/size:\033[35m%d\033[m)";

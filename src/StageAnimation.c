@@ -273,3 +273,7 @@ void func_0012AD40(int key, int arg1, int arg2)
 }
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012ADE8);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012AE40);
+
+/* ASCII debug strings — re-derived from EE rodata bytes. */
+/* ASCII preview: "2:%s<ESC>[0m<LF>" */
+__attribute__((section(".rodata.0x00556468"))) const char D_00556468[16] = "2:%s\033[0m\n";
