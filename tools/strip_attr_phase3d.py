@@ -31,15 +31,56 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 BOUNDARIES_JSON = REPO / "decomp" / "data_tu_boundaries.json"
 
-# `__attribute__((section(".<sec>.0xVMA"))) <type-prefix> <symbol>` — we
-# also capture the type prefix between the attr and the symbol so we
-# can patch read-only-string corner cases (e.g. force `const` on `char`
-# arrays when stripping `.rodata` attrs).
+# `__attribute__((section(".<sec>.0xVMA"))) <type-prefix> <symbol>[N]?`
+# Captures type prefix + optional `[N]` array size so we can decide
+# between full strip and non-VMA-attribute rewrap.
 ATTR_RE = re.compile(
     r'__attribute__\(\(section\("\.(?P<sec>\w+)\.0x(?P<vma>[0-9A-Fa-f]+)"\)\)\)\s+'
     r'(?P<pre>(?:[A-Za-z_]\w*\s+)+\**\s*)'
     r'(?P<name>D_[0-9A-Fa-f]{8})\b'
+    r'(?P<arr>\s*\[\s*(?P<n>\d+)\s*\])?'
 )
+
+# Base C type → size in bytes. ee-gcc 2.9 on R5900 EABI (default).
+_BASE_TYPE_SIZE = {
+    "char": 1, "uchar": 1, "u8": 1, "s8": 1, "int8_t": 1, "uint8_t": 1,
+    "short": 2, "ushort": 2, "u16": 2, "s16": 2, "int16_t": 2, "uint16_t": 2,
+    "int": 4, "uint": 4, "long": 4, "ulong": 4, "u32": 4, "s32": 4,
+    "int32_t": 4, "uint32_t": 4, "float": 4,
+    "double": 8, "u64": 8, "s64": 8, "int64_t": 8, "uint64_t": 8,
+}
+_TYPE_MODIFIERS = {"const", "static", "volatile", "signed", "unsigned",
+                   "register", "extern"}
+
+
+def _sizeof_def(pre: str, n_array: int | None) -> int | None:
+    """Best-effort sizeof for a typed def's storage. `pre` is the type
+    prefix between the attribute and the symbol name (e.g.
+    `const float `, `unsigned int `). `n_array` is the `[N]` count or
+    None for a scalar. Returns total byte size, or None if the type
+    isn't a recognized fundamental (e.g. a struct or pointer)."""
+    n = 1 if n_array is None else n_array
+    if "*" in pre:
+        return 4 * n  # pointer (ee R5900 = 32-bit ABI)
+    base = None
+    for tok in pre.split():
+        if tok in _TYPE_MODIFIERS:
+            continue
+        if tok in _BASE_TYPE_SIZE:
+            base = tok
+            break
+    if base is None:
+        return None
+    return _BASE_TYPE_SIZE[base] * n
+
+
+# Symbols ≤ this size land in `.sdata` under `-G 8` even when typed
+# `const` whose original VMA is in `.rodata`. The strip helper must
+# rewrite their VMA-pinned attr to a non-VMA `.rodata` placement
+# attribute (a legitimate developer directive) instead of fully
+# stripping — otherwise ee-gcc's small-data heuristic shifts the
+# bytes off-VMA.
+_SDATA_LEAK_THRESHOLD = 8
 
 
 def load_boundaries() -> dict:
@@ -70,13 +111,15 @@ def promotable_ranges(tu: str, sections_filter: set[str] | None,
     return out
 
 
-# Matches a complete plain-form typed def (post-strip):
-#   `<type-prefix> D_<VMA>[<size>]? = ... ;`
-# The body is allowed to contain balanced braces (designated-init
-# struct arrays, function-pointer tables) — we look for the closing
-# `;` after any matched braces by counting brace depth.
+# Matches a complete plain-form typed def (post-strip), including the
+# small-const survivor form `__attribute__((section(".rodata"))) <type>
+# D_<VMA> = ...`. Both shapes land in the .o's plain `.rodata` (or
+# `.<sec>`) section in source-declaration order, so they share one
+# VMA-sorted span.
 PLAIN_DEF_HEADER_RE = re.compile(
-    r'(?m)^(?P<pre>(?:[A-Za-z_]\w*\s+)+\**\s*)'
+    r'(?m)^'
+    r'(?:__attribute__\(\(section\("\.\w+"\)\)\)\s+)?'
+    r'(?P<pre>(?:[A-Za-z_]\w*\s+)+\**\s*)'
     r'(?P<name>D_(?P<vma>[0-9A-Fa-f]{8}))\b'
     r'\s*(?:\[[^\]]*\])?\s*='
 )
@@ -229,6 +272,8 @@ def strip_file(path: Path, ranges: dict[str, list[tuple[int, int]]],
                 counts[sec] = counts.get(sec, 0) + 1
                 pre = m.group("pre")
                 name = m.group("name")
+                arr = m.group("arr") or ""
+                n_arr = int(m.group("n")) if m.group("n") else None
                 # When stripping `.rodata` attrs from a `char` (or
                 # `unsigned char`) array without `const`, ee-gcc would
                 # default-place it in `.data` (mutable) instead of
@@ -241,7 +286,21 @@ def strip_file(path: Path, ranges: dict[str, list[tuple[int, int]]],
                     elif (len(tokens) >= 2 and tokens[-2] == "unsigned"
                           and tokens[-1] == "char"):
                         pre = "const " + pre
-                return pre + name
+                # Small-const-leak workaround: ee-gcc with `-G 8`
+                # places `const T[N]` (N*sizeof(T) ≤ 8) into `.sdata`
+                # regardless of `.rodata` VMA. Without a placement
+                # attribute the bytes end up in the wrong output
+                # section. Rewrite the VMA-pinned attr to a non-VMA
+                # `.rodata` directive — the legitimate clean-room
+                # form an original developer would use.
+                if sec == ".rodata":
+                    size = _sizeof_def(pre, n_arr)
+                    if size is not None and size <= _SDATA_LEAK_THRESHOLD:
+                        return (
+                            '__attribute__((section(".rodata"))) '
+                            f'{pre}{name}{arr}'
+                        )
+                return pre + name + arr
         return m.group(0)
     new_text = ATTR_RE.sub(replacer, text)
     if new_text != text and not dry_run:
