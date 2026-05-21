@@ -46,6 +46,7 @@ POSTPROCESS_TXTS = [
     "swap_addu_operands.txt",
     "coalesce_v1_v0.txt",
     "no_trailing_nop.txt",
+    # swap_addu_to_rt.txt retired 2026-05-21 (inline asm in C)
     "shared_sp_restore.txt",
     "shared_jr_restore.txt",
     "la_sd_interleave.txt",

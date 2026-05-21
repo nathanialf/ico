@@ -343,7 +343,7 @@ RULES: list[Rule] = [
          "REG(\"$3\") + KEEP_LIVE(q) per §2.1"),
     Rule("8.11", "addu operand order swap",
          _rule_swap_addu_to_rt,
-         "add func to config/swap_addu_to_rt.txt or swap_addu_operands.txt"),
+         "for rd==rs/rt swap, use inline asm: __asm__(\"addu %0, %1, %2\" : \"+r\"(dst) : \"r\"(base)) — see COOKBOOK §8.11"),
     Rule("5.2", "single addiu vs lui+ori for a 32-bit mask",
          _rule_unsigned_mask,
          "write the mask as an unsigned 32-bit literal (e.g. 0xFFFFFFC0u)"),

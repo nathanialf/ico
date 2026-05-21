@@ -14,8 +14,8 @@ void func_001FBBE0(void)
     D_004C7710[0] = flag;
     offset = flag * 4;
     KEEP_LIVE(full);
-    KEEP_LIVE(offset);
-    next = *(int *)((char *)full + offset + 4);
+    __asm__("addu %0, %1, %2" : "+r"(offset) : "r"(full));
+    next = *(int *)((char *)offset + 4);
     full[5] = 0;
     full[6] = 0;
     full[4] = next;

@@ -1013,7 +1013,7 @@ removes the epilogue daddu and wraps the bne in `.set noreorder/nomacro`
 so gas accepts the manual fill.
 Examples: `165B28` → `func_00265B28`, `166870` → `func_00266870`.
 
-### 8.11 `postprocess_swap_addu_to_rt.py` / `swap_addu_operands` (sed)
+### 8.11 commutative `addu` operand swap — partial C fix, partial sed
 
 **Diff fingerprint:** `addu $X,$X,$Y` (built) vs `addu $X,$Y,$X`
 (expected), or vice versa — commutative operand swap.
@@ -1021,17 +1021,25 @@ Examples: `165B28` → `func_00265B28`, `166870` → `func_00266870`.
 Symptom: original uses one operand order for a commutative `addu`; gcc
 emits the other. Both compute `dst = a + b`, bytes differ.
 
-- `swap_addu_to_rt`: `addu $X, $X, $Y` → `addu $X, $Y, $X` (rd lands in
-  `rt`). Per-func allowlist in `config/swap_addu_to_rt.txt`.
-- `swap_addu_operands` (sed pass in `tools/compile_c.sh`): the inverse —
-  `addu $X, $Y, $X` → `addu $X, $X, $Y` (rd lands in `rs`). Per-file
-  allowlist `config/swap_addu_operands.txt`.
+**For rd==rs → rd==rt (swap_addu_to_rt direction): use inline asm with
+the destination tied to operand 0 via `+r`:**
 
-If your near-miss is exactly one `addu` operand swap, pick the direction
-from the diff and add to the matching list.
-Examples: `func_0013FF88`, `func_001FBBE0` (swap_addu_to_rt). For the
-inverse (swap_addu_operands): `0E8D30` → `func_001E8D30`,
-`0F1148` → `func_001F1148`, `105A78` → `func_00205A78`.
+```c
+register T *base ...; /* in rs slot */
+register int idx ...;
+__asm__("addu %0, %1, %2" : "+r"(idx) : "r"(base));
+/* now idx = base + idx, encoded as addu idx,base,idx (rd==rt) */
+```
+
+The `+r` constraint pins `idx` as both input and output; gas places
+it in both rd and rt. Successful examples: `func_0013FF88`
+(`sound/adpcm_init.c`) and `func_001FBBE0` (`src/cod/0FBBE0.c`).
+Postprocess `postprocess_swap_addu_to_rt.py` retired 2026-05-21.
+
+**For rd==rt → rd==rs (swap_addu_operands direction): still a sed pass in
+`tools/compile_c.sh`** — per-file allowlist `config/swap_addu_operands.txt`.
+Examples: `0E8D30` → `func_001E8D30`, `0F1148` → `func_001F1148`,
+`105A78` → `func_00205A78`.
 
 ### 8.12 `postprocess_no_trailing_nop.py` — suppress gas-inserted trailing nop
 

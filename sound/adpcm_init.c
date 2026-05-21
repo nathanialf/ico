@@ -86,12 +86,20 @@ int func_0013FF88(char *self_arg, int val5, int val6)
     register char *self REG("$8") = self_arg;
     int *p = (int *)(self + 0x54);
     int count = p[1];
+    register int idx REG("$3");
+    register char *addr REG("$3");
     if (count == 0x20) return -1;
-    *(int *)(self + count * 8 + 0x5C) = val5;
+    idx = count * 8;
+    __asm__("addu %0, %1, %2" : "=r"(addr) : "r"(self), "0"(idx));
+    *(int *)(addr + 0x5C) = val5;
     {
         int c2 = p[1];
+        register int idx2 REG("$3");
+        register char *addr2 REG("$3");
         p[1] = c2 + 1;
-        *(int *)(self + c2 * 8 + 0x60) = val6;
+        idx2 = c2 * 8;
+        __asm__("addu %0, %1, %2" : "=r"(addr2) : "r"(self), "0"(idx2));
+        *(int *)(addr2 + 0x60) = val6;
     }
     return 0;
 }
