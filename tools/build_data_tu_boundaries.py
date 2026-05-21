@@ -41,17 +41,24 @@ REPO = Path(__file__).resolve().parent.parent
 DATA_TU_MAP = REPO / "decomp" / "data_tu_map.json"
 OUT_PATH = REPO / "decomp" / "data_tu_boundaries.json"
 
-# Tracked typed-def regex: __attribute__((section(".X.0xVMA"))) ... D_X
+# Tracked typed-def regex: __attribute__((section(".X.0xVMA"))) ... D_X.
+# Captures: section name (group 1), VMA (group 2), symbol (group 3).
 TYPED_SYM_RE = re.compile(
-    r'__attribute__\(\(section\("\.\w+\.0x([0-9A-Fa-f]+)"\)\)\)'
+    r'__attribute__\(\(section\("\.(\w+)\.0x([0-9A-Fa-f]+)"\)\)\)'
     r'\s+(?:[\w\s\*]+?)\s+(D_[0-9A-Fa-f]{8})\b'
 )
 
 
-def _scan_typed_attributions() -> dict[str, str]:
-    """Symbol -> TU (e.g. "src/DmaPacket.c") for every typed def found
-    in tracked source. Authoritative: a typed def lives in its TU."""
-    out: dict[str, str] = {}
+def _scan_tracked_sources() -> tuple[dict[str, str], dict[tuple[str, str], int]]:
+    """Walk tracked src/{src,ios,sound,isys}/**/*.{c,h} and return:
+      (sym_to_tu, attr_counts)
+    where:
+      sym_to_tu[D_X] = "src/<TU>.c" for every attr-tagged typed def found,
+      attr_counts[(tu, ".X")] = number of attr-tagged defs in TU/section.
+
+    `_data.c` sidecars are skipped (auto-generated, not authoritative)."""
+    sym_to_tu: dict[str, str] = {}
+    attr_counts: dict[tuple[str, str], int] = {}
     for root_name in ("src", "ios", "sound", "isys"):
         root_dir = REPO / root_name
         if not root_dir.is_dir():
@@ -59,20 +66,38 @@ def _scan_typed_attributions() -> dict[str, str]:
         for ext in ("*.c", "*.h"):
             for path in root_dir.rglob(ext):
                 if path.name.endswith("_data.c"):
-                    continue  # auto-generated sidecar — not authoritative
+                    continue
                 try:
                     text = path.read_text()
                 except Exception:
                     continue
                 rel = str(path.relative_to(REPO))
-                # Map the .h sibling to its .c TU (e.g. src/Basic.h ->
-                # src/Basic.c) so typed defs from headers attribute to
-                # the TU's main source file.
+                # Headers attribute to their sibling .c TU.
                 if rel.endswith(".h"):
                     rel = rel[:-2] + ".c"
                 for m in TYPED_SYM_RE.finditer(text):
-                    out[m.group(2)] = rel
-    return out
+                    sec_name = "." + m.group(1)
+                    sym_to_tu[m.group(3)] = rel
+                    attr_counts[(rel, sec_name)] = (
+                        attr_counts.get((rel, sec_name), 0) + 1
+                    )
+    return sym_to_tu, attr_counts
+
+
+def _scan_typed_attributions() -> dict[str, str]:
+    """Backward-compatible shim — returns sym_to_tu only."""
+    sym_to_tu, _ = _scan_tracked_sources()
+    return sym_to_tu
+
+
+def _tu_to_opath(tu: str) -> str | None:
+    """src/DmaPacket.c → build/src/DmaPacket.o. Returns None for synthetic
+    TU keys (_unassigned, etc.) that don't correspond to a real source."""
+    if not tu.endswith(".c"):
+        return None
+    if tu.startswith("_") or "/" not in tu:
+        return None
+    return f"build/{tu[:-2]}.o"
 
 # VMA ranges per section, mirroring tools/migrate_data_per_tu.py +
 # the bss/sbss asm files.
@@ -101,7 +126,7 @@ def main() -> int:
             "run tools/build_data_tu_map.py first."
         )
     sym_to_tu_voted = json.loads(DATA_TU_MAP.read_text())
-    typed_attribs = _scan_typed_attributions()
+    typed_attribs, attr_counts = _scan_tracked_sources()
 
     # Build authoritative TU map. Tracked typed defs override votes:
     # a symbol typed in src/DmaPacket.c belongs to DmaPacket TU even
@@ -178,10 +203,21 @@ def main() -> int:
         # range (no foreign-TU symbols in between any of this TU's
         # symbols in this section).
         promotable = len(out_runs) == 1
-        by_tu[tu][sec] = {
+        # `stripped` is true when this TU's tracked source has zero
+        # __attribute__((section(".<sec>.0x..."))) defs in this
+        # section. Phase 3d's slot generator uses this to decide
+        # whether to emit a per-TU plain `<o>(.<sec>*)` slot (stripped)
+        # or one explicit slot per typed `.<sec>.0xVMA` section.
+        stripped = attr_counts.get((tu, sec), 0) == 0
+        entry: dict = {
             "promotable": promotable,
+            "stripped": stripped,
             "ranges": out_runs,
         }
+        opath = _tu_to_opath(tu)
+        if opath is not None:
+            entry["o_path"] = opath
+        by_tu[tu][sec] = entry
 
     # Sort TUs alphabetically; sort sections in the canonical order.
     sec_order = {n: i for i, (n, _, _) in enumerate(SECTION_RANGES)}
@@ -200,6 +236,8 @@ def main() -> int:
     print(f"  promotable (single contiguous run): {promotable}")
     print(f"  not yet promotable (foreign syms interleaved): "
           f"{tot_sec_entries - promotable}")
+    stripped_count = sum(1 for s in out.values() for v in s.values() if v.get("stripped"))
+    print(f"  stripped (no attr-tagged defs in tracked source): {stripped_count}")
     return 0
 
 

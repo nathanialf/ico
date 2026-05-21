@@ -34,7 +34,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 DEPS_FILE = ROOT / "config" / "ico.us.d"
-LDSCRIPT = ROOT / "config" / "ico.us.ld"
+LDSCRIPT = ROOT / "config" / "ico.us.slinky.ld"
 LDSCRIPT_EXTRA = ROOT / "config" / "ico.us.linker_script_extra.ld"
 AUTO_FUNCS = ROOT / "config" / "undefined_funcs_auto.us.txt"
 AUTO_SYMS = ROOT / "config" / "undefined_syms_auto.us.txt"

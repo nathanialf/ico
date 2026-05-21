@@ -253,7 +253,16 @@ def _tracked_source_files() -> set[Path]:
     return {REPO_ROOT / line.strip() for line in out.splitlines() if line.strip()}
 
 
-def _walk_built_objects() -> dict[str, int]:
+def _is_attr_form(sec_name: str, base: str) -> bool:
+    """True for attr-tagged-form section names like `.rodata.0x00553700`.
+    False for plain-form sections (`.rodata`, `.rodata.str1.4`)."""
+    if not sec_name.startswith(base + "."):
+        return False
+    rest = sec_name[len(base) + 1:]
+    return rest.startswith("0x") or rest.startswith("0X")
+
+
+def _walk_built_objects() -> tuple[dict[str, int], dict[str, int]]:
     """Sum non-text section bytes across every built object under
     build/{src,ios,sound,isys}/ whose corresponding source file is
     tracked by git. Untracked sources (the auto-generated per-TU
@@ -262,9 +271,17 @@ def _walk_built_objects() -> dict[str, int]:
     typed clean-room reconstruction — counting them inflates the
     "matched" numbers with bytes we haven't actually decompiled.
 
+    Returns (attr_form_bytes, plain_form_bytes), each a dict keyed by
+    section base name. attr_form_bytes counts `.X.0x<VMA>` named
+    sections (Phase 3d's pre-strip form). plain_form_bytes counts
+    bare `.X` or ee-gcc sub-sections (`.rodata.str1.4`) — the
+    post-strip form. Sum across both keys equals the total tracked
+    bytes for that section.
+
     Returns zeros if the build tree is missing — running progress
     before a build is supported (e.g. fresh clone, post-`tools/build.sh split`)."""
-    matched: dict[str, int] = {p: 0 for p in OBJECT_SECTION_PREFIXES}
+    attr: dict[str, int] = {p: 0 for p in OBJECT_SECTION_PREFIXES}
+    plain: dict[str, int] = {p: 0 for p in OBJECT_SECTION_PREFIXES}
 
     tracked = _tracked_source_files()
     # tracked == empty set with falsy bool => no filtering (git not
@@ -295,10 +312,14 @@ def _walk_built_objects() -> dict[str, int]:
                         bucket = _section_for_object_section(sec.name)
                         if bucket is None:
                             continue
-                        matched[bucket] += sec["sh_size"]
+                        sz = sec["sh_size"]
+                        if _is_attr_form(sec.name, bucket):
+                            attr[bucket] += sz
+                        else:
+                            plain[bucket] += sz
             except Exception as e:
                 print(f"progress: skipping {obj.name}: {e}", file=sys.stderr)
-    return matched
+    return attr, plain
 
 
 def compute_progress() -> dict[str, tuple[int, int]]:
@@ -335,9 +356,13 @@ def compute_progress() -> dict[str, tuple[int, int]]:
     # non-text sections — explicit YAML rodata subsegments (when added)
     # will reach the same bytes via the same .o, so we drop the YAML
     # contribution there to avoid double counting.
-    obj_matched = _walk_built_objects()
-    for sec, n in obj_matched.items():
-        matched[sec] = n
+    attr_form, plain_form = _walk_built_objects()
+    # Cache the split so callers can render Phase 3d strip progress
+    # without re-walking the build tree.
+    compute_progress.attr_form = dict(attr_form)
+    compute_progress.plain_form = dict(plain_form)
+    for sec in OBJECT_SECTION_PREFIXES:
+        matched[sec] = attr_form.get(sec, 0) + plain_form.get(sec, 0)
 
     totals = {sec: sizes.get(sec, 0) for sec in SECTION_TO_TYPES}
     # Clamp matched against section total: subsegment spans (from yaml
@@ -382,6 +407,21 @@ def _render_readme_table(progress: dict[str, tuple[int, int]]) -> str:
         lines.append(
             f"| `{sec}` | {_fmt_pct(matched, total):>7} | {_human_bytes(total)} |"
         )
+
+    # Phase 3d one-line summary appended below the .text/.vutext table.
+    attr = getattr(compute_progress, "attr_form", None)
+    plain = getattr(compute_progress, "plain_form", None)
+    if attr is not None and plain is not None:
+        tot_attr = sum(attr.values())
+        tot_plain = sum(plain.values())
+        denom = tot_attr + tot_plain
+        if denom > 0:
+            pct = f"{(100.0 * tot_plain / denom):.2f}%"
+            lines.append(
+                f"\nPhase 3d (attr-tag retirement): "
+                f"{_human_bytes(tot_plain)} / {_human_bytes(denom)} stripped "
+                f"({pct})"
+            )
     return "\n".join(lines)
 
 
@@ -444,6 +484,28 @@ def _render_progress_table(progress: dict[str, tuple[int, int]]) -> str:
         lines.append(
             f"| `{sec}` | {matched} | {total} | {_fmt_pct(matched, total)} |"
         )
+
+    # Phase 3d strip-progress: per-data-section attr-tagged vs plain
+    # byte breakdown. attr_form / plain_form are populated by
+    # compute_progress() on the most recent walk.
+    attr = getattr(compute_progress, "attr_form", None)
+    plain = getattr(compute_progress, "plain_form", None)
+    if attr is None or plain is None:
+        return "\n".join(lines)
+    lines += [
+        "",
+        "## Phase 3d strip progress (attr-tagged → plain)",
+        "",
+        "| Section | Total | Typed (attr) | Typed (plain) | % stripped |",
+        "| --- | ---: | ---: | ---: | ---: |",
+    ]
+    for sec in OBJECT_SECTION_PREFIXES:
+        total = progress.get(sec, (0, 0))[1]
+        a = attr.get(sec, 0)
+        p = plain.get(sec, 0)
+        typed_total = a + p
+        pct = f"{(100.0 * p / typed_total):.2f} %" if typed_total else "-"
+        lines.append(f"| `{sec}` | {total} | {a} | {p} | {pct} |")
     return "\n".join(lines)
 
 
@@ -483,6 +545,16 @@ def main() -> int:
     print("progress (matched / total):")
     for sec, (m, t) in progress.items():
         print(f"  {sec:<10} {m:>10} / {t:<10} {_fmt_pct(m, t):>8}")
+
+    attr = getattr(compute_progress, "attr_form", None)
+    plain = getattr(compute_progress, "plain_form", None)
+    if attr is not None and plain is not None:
+        print("phase3d (attr-tagged / plain):")
+        for sec in OBJECT_SECTION_PREFIXES:
+            a = attr.get(sec, 0)
+            p = plain.get(sec, 0)
+            pct = f"{(100.0 * p / (a + p)):.2f} %" if (a + p) else "-"
+            print(f"  {sec:<10} attr={a:<8} plain={p:<8} stripped={pct}")
 
     changed_readme = _update_readme(progress)
     changed_doc = _update_progress_doc(progress)
