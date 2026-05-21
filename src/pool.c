@@ -18,7 +18,9 @@
  */
 
 
-const unsigned int D_00553DD0[4] = { 0xFFFFF800, 0xFFFFF800, 0x00001000, 0x00001000 };
+/* World bounding box: { min_x, min_y, max_x, max_y } in fixed-point
+ * stage coordinates (-2048..+4096 covers the stage extent). */
+const int D_00553DD0[4] = { -2048, -2048, 4096, 4096 };
 
 const char D_00553DE0[16] = "src/pool.c";
 

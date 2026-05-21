@@ -126,7 +126,7 @@ PLAIN_DEF_HEADER_RE = re.compile(
     r'(?:__attribute__\(\(section\("\.\w+"\)\)\)\s+)?'
     r'(?P<pre>(?:[A-Za-z_]\w*\s+)+\**\s*)'
     r'(?P<name>D_(?P<vma>[0-9A-Fa-f]{8}))\b'
-    r'\s*(?:\[[^\]]*\])?\s*='
+    r'\s*(?:\[[^\]]*\])*\s*='
 )
 
 

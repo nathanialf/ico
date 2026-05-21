@@ -190,7 +190,7 @@ def _load_migrated_symbols() -> set[str]:
         r'(?m)^(?!\s*extern\b)[ \t]*'
         r'(?:[A-Za-z_]\w*\s+)+'
         r'\**\s*'
-        r'(D_[0-9A-Fa-f]{8})\b\s*(?:\[[^\]]*\])?\s*='
+        r'(D_[0-9A-Fa-f]{8})\b\s*(?:\[[^\]]*\])*\s*='
     )
     for c_path in src_paths:
         text = c_path.read_text()

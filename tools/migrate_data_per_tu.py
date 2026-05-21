@@ -552,7 +552,7 @@ def _scan_existing_definitions() -> set[str]:
         r'(?m)^(?!\s*extern\b)[ \t]*'                      # line start, not extern
         r'(?:[A-Za-z_]\w*\s+)+'                            # one+ type tokens
         r'\**\s*'                                          # optional `*`s
-        r'(D_[0-9A-Fa-f]{8})\b\s*(?:\[[^\]]*\])?\s*='      # name [optional N] =
+        r'(D_[0-9A-Fa-f]{8})\b\s*(?:\[[^\]]*\])*\s*='      # name [N][M]... =
     )
     for c_path in src_paths:
         # Don't read our own _data sidecars — they're regenerated each

@@ -70,13 +70,31 @@ const char D_0055A6F8[24] = "group[%s]'s pin\n";
 
 const char D_0055A710[64] = "%s\t%d\t\t%d\t%d\t%d\t\t\t%d\t%d\t%d\n\000\000\000\000\000illegal message %d\n\000\000\000\000\000\000\000\000\000\000\000\000";
 
-const unsigned int D_0055A750[4] = { 0x000000FF, 0x000000FF, 0x000000FF, 0x00000080 };
+/* RGBA color: white at 50% alpha — used for the camera-editor's
+ * translucent overlay quads. Each channel is a 32-bit value (not a
+ * packed 32-bit pixel) so the GS register write goes lane-by-lane. */
+const int D_0055A750[4] = { 255, 255, 255, 128 };
 
-const unsigned int D_0055A760[24] = { 0x00000000, 0x00000001, 0x00000002, 0x00000003, 0x00000001, 0x00000003, 0x00000005, 0x00000007, 0x00000002, 0x00000003, 0x00000006, 0x00000007, 0x00000000, 0x00000002, 0x00000004, 0x00000006, 0x00000005, 0x00000004, 0x00000007, 0x00000006, 0x00000001, 0x00000000, 0x00000005, 0x00000004 };
+/* Cube face list: 6 faces × 4 vertices each. Vertex indices reference
+ * the cube's 8 corners (binary-coded: bit0=X, bit1=Y, bit2=Z). */
+const int D_0055A760[6][4] = {
+    { 0, 1, 2, 3 },  /* -Z */
+    { 1, 3, 5, 7 },  /* +X */
+    { 2, 3, 6, 7 },  /* +Y */
+    { 0, 2, 4, 6 },  /* -X */
+    { 5, 4, 7, 6 },  /* +Z */
+    { 1, 0, 5, 4 },  /* -Y */
+};
 
-const unsigned int D_0055A7C0[24] = { 0x00000000, 0x00000001, 0x00000001, 0x00000003, 0x00000003, 0x00000002, 0x00000002, 0x00000000, 0x00000000, 0x00000004, 0x00000001, 0x00000005, 0x00000002, 0x00000006, 0x00000003, 0x00000007, 0x00000004, 0x00000005, 0x00000005, 0x00000007, 0x00000007, 0x00000006, 0x00000006, 0x00000004 };
+/* Cube edge list: 12 edges × 2 vertex indices (start, end). */
+const int D_0055A7C0[12][2] = {
+    { 0, 1 }, { 1, 3 }, { 3, 2 }, { 2, 0 },  /* bottom face */
+    { 0, 4 }, { 1, 5 }, { 2, 6 }, { 3, 7 },  /* vertical edges */
+    { 4, 5 }, { 5, 7 }, { 7, 6 }, { 6, 4 },  /* top face */
+};
 
-const unsigned int D_0055A820[4] = { 0x000000FF, 0x000000FF, 0x000000FF, 0x000000FF };
+/* RGBA color: opaque white — outline / non-translucent overlay. */
+const int D_0055A820[4] = { 255, 255, 255, 255 };
 
 const char D_0055A830[16] = "center-x";
 
