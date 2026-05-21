@@ -84,11 +84,25 @@ PLAIN_DEF_HEADER_RE = re.compile(
 
 def _find_def_end(text: str, start: int) -> int:
     """Given the start of a `=` in a def, find the matching `;` at brace
-    depth 0. Returns the index just past the `;`."""
+    depth 0 (skipping string/char literals + escapes). Returns the
+    index just past the `;`."""
     depth = 0
     i = start
-    while i < len(text):
+    n = len(text)
+    while i < n:
         c = text[i]
+        if c == '"' or c == "'":
+            quote = c
+            i += 1
+            while i < n:
+                if text[i] == '\\':
+                    i += 2
+                    continue
+                if text[i] == quote:
+                    i += 1
+                    break
+                i += 1
+            continue
         if c == '{':
             depth += 1
         elif c == '}':
@@ -96,7 +110,7 @@ def _find_def_end(text: str, start: int) -> int:
         elif c == ';' and depth == 0:
             return i + 1
         i += 1
-    return len(text)
+    return n
 
 
 def _extract_plain_defs(text: str, ranges: dict[str, list[tuple[int, int]]]
