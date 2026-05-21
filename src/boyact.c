@@ -189,6 +189,13 @@ const char D_00558800[24] = "down!!!!!!!!!!!\n";
 
 /* Float rodata migrated from boyact_data.c */
 __attribute__((section(".rodata.0x00558628"))) const float D_00558628[2] = { -107374184.0f, 1.8499999f };
+
+/* 8-byte double constants. -G 8 would put doubles in `.sdata`
+ * without the placement attribute; the VMA-pinned attr forces
+ * `.rodata` placement. */
+__attribute__((section(".rodata.0x00558620"))) const double D_00558620 = 0.2;
+__attribute__((section(".rodata.0x00558630"))) const double D_00558630 = 0.2;
+__attribute__((section(".rodata.0x00558638"))) const double D_00558638 = 0.7;
 const float D_005586E0[4] = { -1e+06f, 0.0f, 0.0f, 0.0f };
 const float D_00558700[4] = { 0.0f, 0.0f, -5e+01f, 1.0f };
 const float D_00558710[4] = { 0.0f, 0.0f, 5e+01f, 1.0f };

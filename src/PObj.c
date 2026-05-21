@@ -26,6 +26,12 @@ extern const char D_00633BB8[8];
  * tools/extern_sdata_lit4.py to skip this line on subsequent sweeps. */
 const char D_00633BC0[] = "FALSE";
 
+/* 8-byte double constants. -G 8 would put doubles in `.sdata`
+ * without the placement attribute; the VMA-pinned attr forces
+ * `.rodata` placement. */
+__attribute__((section(".rodata.0x00553748"))) const double D_00553748 = 0.1;
+__attribute__((section(".rodata.0x00553750"))) const double D_00553750 = 0.1;
+
 __attribute__((section(".rodata.0x0062E010"))) const char D_0062E010[16] = "src/PObj.c";
 
 __attribute__((section(".rodata.0x0062E0D8"))) const char D_0062E0D8[16] = "D1_TADR=%08x:";

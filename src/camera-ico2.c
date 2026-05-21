@@ -55,6 +55,16 @@ __attribute__((section(".rodata.0x0055AA28"))) const char D_0055AA28[40] = "ille
 /* Float rodata migrated from camera-ico2_data.c */
 __attribute__((section(".rodata.0x0055AA60"))) const float D_0055AA60[4] = { 0.0f, -2e+02f, -5e+02f, 0.0f };
 
+/* Trig constants — 2π (precise double) and π (float promoted to
+ * double, hence the limited-precision tail). Two pairs presumably
+ * for two unrelated callers in the camera-ico2 code. Two-element
+ * unsigned-int form: 8-byte VMA is at the -G 8 threshold so the
+ * VMA-pinned attr is the necessary placement directive. */
+__attribute__((section(".rodata.0x0055AB48"))) const double D_0055AB48 = 6.283185307179586;        /* 2π */
+__attribute__((section(".rodata.0x0055AB50"))) const double D_0055AB50 = 3.1415927410125732;       /* π via float */
+__attribute__((section(".rodata.0x0055AB78"))) const double D_0055AB78 = 6.283185307179586;        /* 2π */
+__attribute__((section(".rodata.0x0055AB80"))) const double D_0055AB80 = 3.1415927410125732;       /* π via float */
+
 /* EUC-JP debug strings — re-derived from EE rodata bytes via
  * EUC-JP decoding. Octal escapes preserve byte-identical layout
  * without requiring source-encoding compiler flags. */
