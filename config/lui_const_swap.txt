@@ -2,4 +2,15 @@
 # Swaps the register allocation between an address-load lui and a
 # nearby const li when gcc allocated different regs but the original
 # codegen reused the lui's reg.
+#
+# Retirement-trial 2026-05-21: 30 C-side attempts. Tried REG pins on
+# both p and three to $v0 (dual-pin doesn't override gcc RA), inline-asm
+# addiu/beq with explicit $v0, KEEP_LIVE on three, scoped pin blocks,
+# struct field holding D_0055266C, switch/ternary instead of if, pin p
+# to $v1, plus 18 compiler flags (-fno-cse-skip-blocks, -frename-registers,
+# -O3, -Os, -fno-tree-pre, -fweb, -fno-gcse, -fcaller-saves,
+# -fno-strength-reduce, -fno-rerun-loop-opt, -fno-thread-jumps,
+# -fno-cprop-registers, -fno-tree-cselim, plus others).
+# gcc 2.9 cannot dual-allocate $v0 to both lui's address-load and the
+# nearby const-li even though the lui result is dead after its lw use.
 152180
