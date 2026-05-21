@@ -11,7 +11,7 @@
 #include "regpin.h"
 #include "matching.h"
 
-__attribute__((section(".rodata.0x0061A6D8"))) const char D_0061A6D8[16] = "src/sugiTree.c";
+const char D_0061A6D8[16] = "src/sugiTree.c";
 
 extern int    D_00632010;
 extern int    D_00633720;

@@ -5,7 +5,7 @@
  * alignment padding supplied by the linker --gap-fill.
  */
 
-__attribute__((section(".rodata.0x00618960"))) const char D_00618960[16] = "src/clothTest.c";
+const char D_00618960[16] = "src/clothTest.c";
 
 extern int   D_00632010;
 extern char  D_004C0960[];

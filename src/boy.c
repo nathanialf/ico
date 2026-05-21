@@ -8,7 +8,7 @@
  * back here as a .h pair if needed for a typed-data .h split later.
  */
 
-__attribute__((section(".rodata.0x00618838"))) const char D_00618838[16] = "src/boy.c";
+const char D_00618838[16] = "src/boy.c";
 
 #include "include_asm.h"
 

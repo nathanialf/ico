@@ -23,7 +23,7 @@
 extern float D_006311E4, D_006311E8, D_006311EC, D_006311F0;
 extern float D_006311F4, D_006311F8, D_006311FC, D_00631200;
 
-__attribute__((section(".rodata.0x00618848"))) const char D_00618848[16] = "src/cage.c";
+const char D_00618848[16] = "src/cage.c";
 
 #include "include_asm.h"
 
