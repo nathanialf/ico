@@ -1696,4 +1696,560 @@ pad ; nop_swap
 pad ; b L_1EA8                           ; → sub_1EA0's E-bit
 pad ; nop_swap                           ; (branch delay slot)
 
-.assert_pc 0x2080
+; -----------------------------------------------------------------------
+; sub_2080 — hierarchical LOD mesh subdivision driver.
+;
+; Top-level dispatcher that walks 6 LOD tiers, each running the same
+; per-vertex transform inner loop with different bone-count and
+; mip-step parameters.  The inner subroutines are:
+;   L_25C0 — per-vertex blend + lit-color quantize (called via
+;            `bal vi02` from every tier's inner loop).
+;   L_2580 — 3-quad output flush (called via `bal vi02` at each
+;            tier's end).
+;   L_2570 — `jr vi15` early-out (taken when vi11 hasn't accumulated
+;            anything).
+;   L_2740 — front/back-face refinement (called via `bal vi01`).
+;   L_27A0 — perspective-divide + clip-test continuation of L_2740.
+;
+; Setup (0x2080..0x2168):
+;   - vi08 = mem[104] (input vertex buffer base)
+;   - Initial L_2088 store-pattern: copies vf22 to slots {0,9},
+;     vf23 to {3}, vf24 to {6}, then re-loads through stored vi03
+;     offsets and applies vf17 .xy fixups before saving back.
+;   - Re-loads three quads from vi07-relative slots and integerizes
+;     via itof0 (no — actually IEEE float "int-to-float" cast).
+;
+; Tier loop body (repeats 6 times with different constants):
+;   - vi05 = work-quad-count (2048 / 1024 / 512 / 256 / 128 / 64)
+;   - vi06 = mip-step          (32 / 16 / 8 / 4 / 2 / 1)
+;   - vi07 = bone-row-index    (2 / 2 / 1 / 1 / 0 / 0)
+;   - vi10 = inner-loop counter (3) ; vi11 = output cursor (0 initial)
+;   - 3 lqi prefetches (vf21/22/23) from vi08-stream
+;   - Inner loop @ L_2XXX:  `bal L_25C0` ; isubiu vi10 ; ibne back
+;   - `iaddiu vi08, 164 or 104` (swap input buffer)
+;   - `bal L_2580` (flush output)
+;   - `ibeq vi11, L_2570` (early-out if nothing accumulated)
+;   - subw.x / addw.x toggles the sign of vf30.x for the next tier
+;
+; Final block (0x2540..0x2568):
+;   `bal vi01, L_2818` — jumps to a save-context subroutine that
+;   reads vi10=vi11 and lqi 3 quads, then xgkicks vi02 for output.
+;
+; L_2570: `jr vi15` — return-to-caller stub used by all early-out
+;   `ibeq vi11, L_2570` paths.
+;
+; L_2580: 3-quad flush subroutine.  Reads 3 quads from vi08-relative
+;   slots, sqi to vi09-stream, then `jr vi02` returns to caller.
+;
+; L_25C0: per-vertex blend + lit-color subroutine.  3 add.xyzw
+;   bundles produce vf17/vf18/vf19 = vf31 + vfXX (lit-additive blend),
+;   then two `.word`-emitted flag-bits-set FMACs at 0x25D8/0x25E0
+;   (op6=0x3F .xyz, fd=7 fs=17/21 ft=17/21 — likely partial-mask
+;   accumulator collapse), then fcget polls clip flags.  Based on
+;   the masked flags, branches between three slot-store paths:
+;     - L_2658: 3 sqi (vf25/26/27 only).
+;     - L_2698 → 6 sqi (vf17..vf19 + vf25..vf27) + iaddiu vi11+=2.
+;     - L_2710: 3 sqi (vf17..vf19) + iaddiu vi11+=1.
+;   All converge at L_2730: `jr vi02` return.
+;
+; L_2740: refinement subroutine.  Computes `vf25 = mulx(vf17, vf30)`
+;   and `vf26 = mulx(vf21, vf30)`, subtracts to get error vectors,
+;   then loop-walks with `mr32` rotate-by-32 to swizzle lanes until
+;   the per-bone error counter vi12 hits zero, dropping into L_27A0.
+;
+; L_27A0: perspective-divide path.  `div Q = vf25.x/vf27.x` then
+;   `addq.x vf29` + `abs.x vf29` yields a magnitude.  Three
+;   sub.xyzw bundles produce vf25/vf26/vf27 = (vf21..vf23)-(vf17..vf19),
+;   each mulx'd by vf29, and finally added into vf17..vf19.  The
+;   routine falls through past 0x27F8 into more code at 0x2800+.
+; -----------------------------------------------------------------------
+sub_2080:
+pad ; iaddiu vi08, vi00, 104             ; vi08 = mem[104] (input vtx base)
+L_2088:
+pad ; sq.xyzw vf22, 0(vi08)              ; mem[104+0] = vf22
+pad ; sq.xyzw vf22, 9(vi08)              ; mem[104+9] = vf22 (mirror)
+pad ; sq.xyzw vf23, 3(vi08)              ; mem[104+3] = vf23
+pad ; iaddiu vi09, vi00, 164             ; vi09 = mem[164] (output base)
+pad ; sq.xyzw vf24, 6(vi08)              ; mem[104+6] = vf24
+pad ; lq.xyzw vf22, -8(vi03)             ; reload from vi03 stream
+add.xy vf22, vf22, vf17 ; lq.xyzw vf23, -5(vi03)
+add.xy vf23, vf23, vf17 ; lq.xyzw vf24, -2(vi03)
+add.xy vf24, vf24, vf17 ; nop_swap
+pad ; sq.xyzw vf22, 2(vi08)
+pad ; sq.xyzw vf22, 11(vi08)
+pad ; sq.xyzw vf23, 5(vi08)
+pad ; sq.xyzw vf24, 8(vi08)
+pad ; lq.xyzw vf22, -5(vi07)
+itof0.xyzw vf22, vf22 ; lq.xyzw vf23, -2(vi07)
+itof0.xyzw vf23, vf23 ; lq.xyzw vf24, 1(vi07)
+itof0.xyzw vf24, vf24 ; nop_swap
+pad ; sq.xyzw vf22, 1(vi08)
+pad ; sq.xyzw vf22, 10(vi08)
+pad ; sq.xyzw vf23, 4(vi08)
+pad ; sq.xyzw vf24, 7(vi08)
+
+; --- LOD tier 1 ---
+pad ; iaddiu vi05, vi00, 2048
+pad ; iaddiu vi06, vi00, 32
+pad ; iaddiu vi07, vi00, 2
+pad ; iaddiu vi10, vi00, 3
+pad ; iaddiu vi11, vi00, 0
+subw.x vf30, vf00, vf00 ; lqi.xyzw vf21, vi08
+pad ; lqi.xyzw vf22, vi08
+pad ; lqi.xyzw vf23, vi08
+L_2170:
+pad ; bal vi02, L_25C0
+pad ; nop_swap
+pad ; isubiu vi10, vi10, 1
+pad ; nop_swap
+pad ; ibne vi10, vi00, L_2170
+pad ; nop_swap
+pad ; iaddiu vi08, vi00, 164
+pad ; bal vi02, L_2580
+pad ; nop_swap
+.word 0x100002FF ; nop_swap              ; pad with M-bit flag (bit 28)
+pad ; ibeq vi11, vi00, L_2570
+pad ; nop_swap
+
+; --- LOD tier 2 ---
+pad ; iaddiu vi05, vi00, 1024
+pad ; iaddiu vi06, vi00, 16
+pad ; iaddiu vi07, vi00, 2
+pad ; iaddiu vi08, vi00, 164
+pad ; iaddiu vi09, vi00, 104
+pad ; iadd vi10, vi00, vi11             ; vi10 = previous tier's vi11
+pad ; iaddiu vi11, vi00, 0
+addw.x vf30, vf00, vf00 ; nop_swap
+pad ; lqi.xyzw vf21, vi08
+pad ; lqi.xyzw vf22, vi08
+pad ; lqi.xyzw vf23, vi08
+L_2228:
+pad ; bal vi02, L_25C0
+pad ; nop_swap
+pad ; isubiu vi10, vi10, 1
+pad ; nop_swap
+pad ; ibne vi10, vi00, L_2228
+pad ; nop_swap
+pad ; iaddiu vi08, vi00, 104
+pad ; bal vi02, L_2580
+pad ; nop_swap
+pad ; ibeq vi11, vi00, L_2570
+pad ; nop_swap
+
+; --- LOD tier 3 ---
+pad ; iaddiu vi05, vi00, 128
+pad ; iaddiu vi06, vi00, 2
+pad ; iaddiu vi07, vi00, 0
+pad ; iaddiu vi08, vi00, 104
+pad ; iaddiu vi09, vi00, 164
+pad ; iadd vi10, vi00, vi11
+pad ; iaddiu vi11, vi00, 0
+subw.x vf30, vf00, vf00 ; nop_swap
+pad ; lqi.xyzw vf21, vi08
+pad ; lqi.xyzw vf22, vi08
+pad ; lqi.xyzw vf23, vi08
+L_22D8:
+pad ; bal vi02, L_25C0
+pad ; nop_swap
+pad ; isubiu vi10, vi10, 1
+pad ; nop_swap
+pad ; ibne vi10, vi00, L_22D8
+pad ; nop_swap
+pad ; iaddiu vi08, vi00, 164
+pad ; bal vi02, L_2580
+pad ; nop_swap
+pad ; ibeq vi11, vi00, L_2570
+pad ; nop_swap
+
+; --- LOD tier 4 ---
+pad ; iaddiu vi05, vi00, 64
+pad ; iaddiu vi06, vi00, 1
+pad ; iaddiu vi07, vi00, 0
+pad ; iaddiu vi08, vi00, 164
+pad ; iaddiu vi09, vi00, 104
+pad ; iadd vi10, vi00, vi11
+pad ; iaddiu vi11, vi00, 0
+addw.x vf30, vf00, vf00 ; nop_swap
+pad ; lqi.xyzw vf21, vi08
+pad ; lqi.xyzw vf22, vi08
+pad ; lqi.xyzw vf23, vi08
+L_2388:
+pad ; bal vi02, L_25C0
+pad ; nop_swap
+pad ; isubiu vi10, vi10, 1
+pad ; nop_swap
+pad ; ibne vi10, vi00, L_2388
+pad ; nop_swap
+pad ; iaddiu vi08, vi00, 104
+pad ; bal vi02, L_2580
+pad ; nop_swap
+pad ; ibeq vi11, vi00, L_2570
+pad ; nop_swap
+
+; --- LOD tier 5 ---
+pad ; iaddiu vi05, vi00, 512
+pad ; iaddiu vi06, vi00, 8
+pad ; iaddiu vi07, vi00, 1
+pad ; iaddiu vi08, vi00, 104
+pad ; iaddiu vi09, vi00, 164
+pad ; iadd vi10, vi00, vi11
+pad ; iaddiu vi11, vi00, 0
+subw.x vf30, vf00, vf00 ; nop_swap
+pad ; lqi.xyzw vf21, vi08
+pad ; lqi.xyzw vf22, vi08
+pad ; lqi.xyzw vf23, vi08
+L_2438:
+pad ; bal vi02, L_25C0
+pad ; nop_swap
+pad ; isubiu vi10, vi10, 1
+pad ; nop_swap
+pad ; ibne vi10, vi00, L_2438
+pad ; nop_swap
+pad ; iaddiu vi08, vi00, 164
+pad ; bal vi02, L_2580
+pad ; nop_swap
+pad ; ibeq vi11, vi00, L_2570
+pad ; nop_swap
+
+; --- LOD tier 6 ---
+pad ; iaddiu vi05, vi00, 256
+pad ; iaddiu vi06, vi00, 4
+pad ; iaddiu vi07, vi00, 1
+pad ; iaddiu vi08, vi00, 164
+pad ; iaddiu vi09, vi00, 104
+pad ; iadd vi10, vi00, vi11
+pad ; iaddiu vi11, vi00, 0
+addw.x vf30, vf00, vf00 ; nop_swap
+pad ; lqi.xyzw vf21, vi08
+pad ; lqi.xyzw vf22, vi08
+pad ; lqi.xyzw vf23, vi08
+L_24E8:
+pad ; bal vi02, L_25C0
+pad ; nop_swap
+pad ; isubiu vi10, vi10, 1
+pad ; nop_swap
+pad ; ibne vi10, vi00, L_24E8
+pad ; nop_swap
+pad ; iaddiu vi08, vi00, 104
+pad ; bal vi02, L_2580
+pad ; nop_swap
+pad ; ibeq vi11, vi00, L_2570
+pad ; nop_swap
+
+; --- Final consolidation block: call save-context routine at L_2818 ---
+pad ; iaddiu vi08, vi00, 104
+pad ; iaddiu vi09, vi00, 164
+pad ; iadd vi10, vi00, vi11
+pad ; iaddiu vi11, vi00, 0
+pad ; bal vi01, L_2818                   ; call save-context routine
+pad ; nop_swap
+
+; -----------------------------------------------------------------------
+; L_2570 — shared early-out return stub.  `jr vi15` jumps back to
+; whatever caller set vi15 to (typically the EE-level VCALLMS).
+; -----------------------------------------------------------------------
+L_2570:
+pad ; jr vi15
+pad ; nop_swap
+
+; -----------------------------------------------------------------------
+; L_2580 — 3-quad flush subroutine.  Loads 3 quads from mem[vi08+0..2]
+; and stores them post-increment into the vi09 output stream.
+; Returns via `jr vi02`.
+; -----------------------------------------------------------------------
+L_2580:
+pad ; lq.xyzw vf21, 0(vi08)
+pad ; lq.xyzw vf22, 1(vi08)
+pad ; lq.xyzw vf23, 2(vi08)
+pad ; sqi.xyzw vf21, vi09
+pad ; sqi.xyzw vf22, vi09
+pad ; sqi.xyzw vf23, vi09
+pad ; jr vi02
+pad ; nop_swap
+
+; -----------------------------------------------------------------------
+; L_25C0 — per-vertex blend + clip-flag-driven output selection.
+;
+; First three FMACs add vf31 (a tier-shared base vertex) to the
+; lqi'd vf21/vf22/vf23, producing vf17/vf18/vf19 as lit + position
+; pairs (with output prefetch via lqi vf21/22/23 next-iter).
+; Two flag-bits-set FMACs at 0x25D8/0x25E0 do partial-mask masked
+; accumulator collapses (emitted as `.word`).
+; fcget polls clip flags into vi01; two `iand`/`ibeq` tests select
+; between three storage paths (front-face-only / both / back-face-only).
+; -----------------------------------------------------------------------
+L_25C0:
+add.xyzw vf17, vf31, vf21 ; lqi.xyzw vf21, vi08
+add.xyzw vf18, vf31, vf22 ; lqi.xyzw vf22, vi08
+add.xyzw vf19, vf31, vf23 ; lqi.xyzw vf23, vi08
+.word 0x01D189FF ; nop_swap              ; upper op6=0x3F .xyz fd=7 fs=17 ft=17 (FD-dispatch)
+.word 0x01D5A9FF ; nop_swap              ; upper op6=0x3F .xyz fd=7 fs=21 ft=21 (FD-dispatch)
+pad ; nop_swap
+pad ; nop_swap
+pad ; nop_swap
+pad ; fcget vi01                         ; vi01 = clip flag bits
+pad ; iand vi04, vi01, vi05              ; vi04 = vi01 & tier-mask
+pad ; nop_swap
+pad ; ibeq vi04, vi00, L_2698
+pad ; nop_swap
+pad ; iand vi04, vi01, vi06              ; vi04 = vi01 & mip-mask
+pad ; nop_swap
+pad ; ibeq vi04, vi00, L_2658
+pad ; nop_swap
+pad ; b L_2730
+pad ; nop_swap
+L_2658:
+pad ; bal vi01, L_2740                   ; refine via subroutine
+pad ; nop_swap                           ; (delay slot)
+pad ; sqi.xyzw vf25, vi09                ; store refined vf25/26/27
+pad ; sqi.xyzw vf26, vi09
+pad ; sqi.xyzw vf27, vi09
+pad ; iaddiu vi11, vi11, 1
+pad ; b L_2730
+pad ; nop_swap
+L_2698:
+pad ; iand vi04, vi01, vi06
+pad ; nop_swap
+pad ; ibeq vi04, vi00, L_2710
+pad ; nop_swap
+pad ; bal vi01, L_2740                   ; refine (both-path variant)
+pad ; nop_swap                           ; (delay slot)
+pad ; sqi.xyzw vf17, vi09                ; store base vf17/18/19
+pad ; sqi.xyzw vf18, vi09
+pad ; sqi.xyzw vf19, vi09
+pad ; sqi.xyzw vf25, vi09                ; + refined vf25/26/27
+pad ; sqi.xyzw vf26, vi09
+pad ; sqi.xyzw vf27, vi09
+pad ; iaddiu vi11, vi11, 2
+pad ; b L_2730
+pad ; nop_swap
+L_2710:
+pad ; sqi.xyzw vf17, vi09                ; store base vf17/18/19 only
+pad ; sqi.xyzw vf18, vi09
+pad ; sqi.xyzw vf19, vi09
+pad ; iaddiu vi11, vi11, 1
+L_2730:
+pad ; jr vi02                            ; return
+pad ; nop_swap
+
+; -----------------------------------------------------------------------
+; L_2740 — per-bone refinement subroutine.
+;
+; Computes mulx-w broadcasts of vf17/vf21 by vf30, then subw.xyzw
+; produces vf25/vf26 = vfXX - (vfXX*vf30.w) error vectors.  vi12 =
+; vi07 + vi00 (= tier bone-row index from caller).  Loop walks vi12
+; iterations, mr32-rotating vf25/vf26 each time (lane-shift trick),
+; then falls into L_27A0 for the perspective-divide path.
+; -----------------------------------------------------------------------
+L_2740:
+mulx.w vf25, vf17, vf30 ; iadd vi12, vi00, vi07
+mulx.w vf26, vf21, vf30 ; nop_swap
+subw.xyzw vf25, vf17, vf25 ; nop_swap
+subw.xyzw vf26, vf21, vf26 ; nop_swap
+pad ; nop_swap
+L_2768:
+pad ; ibeq vi12, vi00, L_27A0
+pad ; nop_swap
+pad ; mr32.xyzw vf25, vf25
+pad ; mr32.xyzw vf26, vf26
+pad ; isubiu vi12, vi12, 1
+pad ; b L_2768
+pad ; nop_swap
+
+; -----------------------------------------------------------------------
+; L_27A0 — perspective-divide + clip-test continuation.  Computes
+; Q = vf25.x / vf27.x, |Q|, then mixes the per-axis differences by
+; abs-Q to produce vf25/vf26/vf27 = vf17/vf18/vf19 + Q*(vfXX-vfYY).
+; Bundle 0x27C8 is another flag-bits-set FMAC variant (`.word`).
+; -----------------------------------------------------------------------
+L_27A0:
+sub.xyz vf27, vf26, vf25 ; nop_swap
+pad ; div Q, vf25.x, vf27.x
+addq.x vf29, vf00 ; waitq
+abs.x vf29, vf29 ; nop_swap
+sub.xyzw vf25, vf21, vf17 ; nop_swap
+.word 0x4AD60200 ; nop                   ; upper: `add.yz vf08, vf00, vf22` + flag bits
+sub.xyzw vf26, vf22, vf18 ; nop_swap
+sub.xyzw vf27, vf23, vf19 ; nop_swap
+mulx.xyzw vf25, vf25, vf29 ; nop_swap
+mulx.xyzw vf26, vf26, vf29 ; nop_swap
+mulx.xyzw vf27, vf27, vf29 ; nop_swap
+add.xyzw vf25, vf25, vf17 ; nop_swap
+add.xyzw vf26, vf26, vf18 ; nop_swap
+add.xyzw vf27, vf27, vf19 ; nop_swap
+pad ; jr vi01                            ; return to L_2740-call-site
+
+; -----------------------------------------------------------------------
+; sub_2818 (= L_2818) — save-context vertex output subroutine.
+;
+; Called by sub_2080's `bal vi01, L_2818`.  Builds a GIF packet via
+; mem[vi02], applies matrix transform + perspective divide to vi03-
+; stream vertices, ftoi-converts, stores via sq/sqi, then xgkicks the
+; final packet.  Two xgkick stages: one with mem[8..11] matrix
+; (initial), one with mem[16..19] matrix (post-transform).
+; -----------------------------------------------------------------------
+sub_2818:
+pad ; nop_swap                           ; (entry — also delay slot from L_2818 caller)
+pad ; iaddiu vi02, vi00, 37              ; vi02 = mem[37] (GIF tag slot)
+pad ; iadd vi03, vi00, vi08              ; vi03 = vi08 (input cursor)
+pad ; iaddiu vi07, vi02, 2               ; vi07 = vi02 + 2 (output cursor)
+pad ; iaddiu vi11, vi00, 32767           ; vi11 = 0x7FFF
+pad ; iaddiu vi11, vi11, 1               ; vi11 = 0x8000
+pad ; isw.x vi11, 0(vi02)                ; mem[vi02].x = 0x8000 (count word)
+pad ; lq.xyzw vf01, 8(vi00)              ; load matrix M0
+pad ; lq.xyzw vf02, 9(vi00)              ; M1
+pad ; lq.xyzw vf03, 10(vi00)             ; M2
+pad ; lq.xyzw vf04, 11(vi00)             ; M3
+pad ; xgkick vi02                        ; kick initial GIF packet
+pad ; iaddiu vi11, vi10, 32767           ; vi11 = vi10 + 0x7FFF
+pad ; iaddiu vi11, vi11, 1               ; vi11 = vi10 + 0x8000
+pad ; isw.x vi11, 0(vi02)                ; mem[vi02].x = vi11 (count)
+
+sub_2818_loop:
+pad ; lq.xyzw vf20, 0(vi03)              ; vf20 = *vi03 (input vertex)
+mulax.xyzw  vf01, vf20 ; nop_swap        ; ACC = vf01 * vf20.x
+madday.xyzw vf02, vf20 ; nop_swap
+maddaz.xyzw vf03, vf20 ; nop_swap
+maddw.xyzw  vf25, vf04, vf20 ; nop_swap  ; vf25 = ACC + vf04*vf20.w
+pad ; div Q, vf00.w, vf25.w              ; Q = 1/vf25.w
+mulq.xyzw   vf25, vf25 ; waitq           ; vf25 *= Q (perspective)
+ftoi4.xyzw  vf26, vf25 ; nop_swap        ; vf26 = ftoi4(vf25)
+pad ; sq.xyzw vf26, 1(vi07)
+pad ; lq.xyzw vf20, 2(vi03)              ; vf20 = mem[vi03+2]
+mulq.xyz    vf28, vf20 ; nop_swap        ; vf28 = vf20 * Q
+pad ; sq.xyzw vf28, -1(vi07)
+pad ; lq.xyzw vf27, 1(vi03)              ; vf27 = mem[vi03+1]
+ftoi0.xyzw  vf29, vf27 ; nop_swap        ; vf29 = ftoi0(vf27)
+pad ; sq.xyzw vf29, 0(vi07)
+pad ; iaddiu vi07, vi07, 3
+pad ; iaddiu vi03, vi03, 3
+pad ; iaddi vi10, vi10, -1
+pad ; nop_swap
+pad ; ibne vi10, vi00, sub_2818_loop
+pad ; nop_swap                           ; (branch delay slot)
+pad ; xgkick vi02                        ; kick transformed GIF packet
+pad ; lq.xyzw vf01, 16(vi00)             ; reload matrix M0 from mem[16..19]
+pad ; lq.xyzw vf02, 17(vi00)
+pad ; lq.xyzw vf03, 18(vi00)
+pad ; lq.xyzw vf04, 19(vi00)
+pad ; nop_swap
+pad ; jr vi01                            ; return to sub_2080 caller
+pad ; nop_swap                           ; (delay slot)
+
+; -----------------------------------------------------------------------
+; L_2978 — VU0 register-bank save routine.
+;
+; Stores all 15 float registers vf17..vf31 (via sqd post-decrement
+; into the vi14 stack), then packs all 14 int registers vi02..vi15
+; into 4 quads via iswr (one lane per int).  Used as an interrupt
+; save / context-switch primitive.  Caller saves vi14 (= "stack top")
+; before calling; this routine returns via `jr vi15`.
+; -----------------------------------------------------------------------
+L_2978:
+pad ; sqd.xyzw vf17, vi14
+pad ; sqd.xyzw vf18, vi14
+pad ; sqd.xyzw vf19, vi14
+pad ; sqd.xyzw vf20, vi14
+pad ; sqd.xyzw vf21, vi14
+pad ; sqd.xyzw vf22, vi14
+pad ; sqd.xyzw vf23, vi14
+pad ; sqd.xyzw vf24, vi14
+pad ; sqd.xyzw vf25, vi14
+pad ; sqd.xyzw vf26, vi14
+pad ; sqd.xyzw vf27, vi14
+pad ; sqd.xyzw vf28, vi14
+pad ; sqd.xyzw vf29, vi14
+pad ; sqd.xyzw vf30, vi14
+pad ; sqd.xyzw vf31, vi14
+pad ; isubiu vi14, vi14, 1               ; vi14--
+pad ; iswr.x vi02, vi14                  ; pack vi02..vi05 → quad
+pad ; iswr.y vi03, vi14
+pad ; iswr.z vi04, vi14
+pad ; iswr.w vi05, vi14
+pad ; isubiu vi14, vi14, 1
+pad ; iswr.x vi06, vi14                  ; vi06..vi09 → quad
+pad ; iswr.y vi07, vi14
+pad ; iswr.z vi08, vi14
+pad ; iswr.w vi09, vi14
+pad ; isubiu vi14, vi14, 1
+pad ; iswr.x vi10, vi14                  ; vi10..vi13 → quad
+pad ; iswr.y vi11, vi14
+pad ; iswr.z vi12, vi14
+pad ; iswr.w vi13, vi14
+pad ; isubiu vi14, vi14, 1
+pad ; iswr.x vi14, vi14                  ; vi14, vi15 → quad (vi00/vi01 omitted)
+pad ; iswr.y vi15, vi14
+pad ; nop_swap
+pad ; jr vi15
+pad ; nop_swap
+
+; -----------------------------------------------------------------------
+; L_2A98 — VU0 register-bank restore routine.
+;
+; Reverses L_2978: unpacks 4 int-saving quads via ilwr (one lane per
+; int), then lqi 15 floats back into vf17..vf31 (in reverse order:
+; vf31 first since save order is reverse).  Caller pre-loads vi14
+; to the bottom-of-stack slot; routine returns via `jr vi01`.
+; -----------------------------------------------------------------------
+L_2A98:
+pad ; iadd vi01, vi00, vi15              ; vi01 = vi15 (save return target)
+pad ; iswr.x vi14, vi14                  ; ?? (write-back vi14/vi15 first)
+pad ; iswr.y vi15, vi14
+pad ; iaddiu vi14, vi14, 1               ; vi14++
+pad ; ilwr.x vi10, vi14                  ; unpack vi10..vi13 from quad
+pad ; ilwr.y vi11, vi14
+pad ; ilwr.z vi12, vi14
+pad ; ilwr.w vi13, vi14
+pad ; iaddiu vi14, vi14, 1
+pad ; ilwr.x vi06, vi14                  ; vi06..vi09
+pad ; ilwr.y vi07, vi14
+pad ; ilwr.z vi08, vi14
+pad ; ilwr.w vi09, vi14
+pad ; iaddiu vi14, vi14, 1
+pad ; ilwr.x vi02, vi14                  ; vi02..vi05
+pad ; ilwr.y vi03, vi14
+pad ; ilwr.z vi04, vi14
+pad ; ilwr.w vi05, vi14
+pad ; iaddiu vi14, vi14, 1
+pad ; lqi.xyzw vf31, vi14                ; restore vf17..vf31 (reverse)
+pad ; lqi.xyzw vf30, vi14
+pad ; lqi.xyzw vf29, vi14
+pad ; lqi.xyzw vf28, vi14
+pad ; lqi.xyzw vf27, vi14
+pad ; lqi.xyzw vf26, vi14
+pad ; lqi.xyzw vf25, vi14
+pad ; lqi.xyzw vf24, vi14
+pad ; lqi.xyzw vf23, vi14
+pad ; lqi.xyzw vf22, vi14
+pad ; lqi.xyzw vf21, vi14
+pad ; lqi.xyzw vf20, vi14
+pad ; lqi.xyzw vf19, vi14
+pad ; lqi.xyzw vf18, vi14
+pad ; lqi.xyzw vf17, vi14
+pad ; nop_swap
+
+; -----------------------------------------------------------------------
+; sub_2BB0 — `jr vi01` return stub.  Reachable as a dispatch-table
+; entry (TPC=0xE0 → b L_2BB0 in program 3's table) and as a fall-
+; through from L_2A98's context-restore tail.
+; -----------------------------------------------------------------------
+sub_2BB0:
+pad ; jr vi01
+pad ; nop_swap
+
+; -----------------------------------------------------------------------
+; sub_2BC0 — vertex-buffer init / clear.  Sets up vf17/vf31 to known
+; values, loads working matrix from mem[20..23], and initializes
+; vi14 = 256 (heap base).  Terminates via E-bit.
+; -----------------------------------------------------------------------
+L_2BC0:
+sub.xyzw vf31, vf00, vf00 ; lq.xyzw vf17, 2(vi00)   ; vf31 = 0; vf17 = mem[2]
+pad ; lq.xyzw vf13, 20(vi00)
+pad ; lq.xyzw vf14, 21(vi00)
+pad ; lq.xyzw vf15, 22(vi00)
+pad ; lq.xyzw vf16, 23(vi00)
+mulw.w vf17, vf00, vf00 ; iaddiu vi14, vi00, 256
+pad ; move.z vf17, vf00                  ; vf17.z = 0
+.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+
+.assert_pc 0x2C00
