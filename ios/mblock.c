@@ -17,22 +17,22 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".sdata.0x0063203C"))) int D_0063203C = 0;
-__attribute__((section(".sdata.0x00632040"))) char D_00632040[8] = { 0 };
+int D_0063203C = 0;
+char D_00632040[8] = { 0 };
 __attribute__((section(".sdata.0x00632048"))) char D_00632048[12] = { 0 };
-__attribute__((section(".sdata.0x00632054"))) unsigned int D_00632054 = 0xFFFFFFFF;
-__attribute__((section(".sdata.0x00632058"))) const char D_00632058[8] = "game.";
-__attribute__((section(".sdata.0x00632060"))) char D_00632060[8] = { 0 };
-__attribute__((section(".sdata.0x00632068"))) int D_00632068 = 0x000A6425;
-__attribute__((section(".sdata.0x0063206C"))) int D_0063206C = 0x00000000;
-__attribute__((section(".sdata.0x00632070"))) int D_00632070 = 0x332E3325;
-__attribute__((section(".sdata.0x00632074"))) int D_00632074 = 0x00000064;
-__attribute__((section(".sdata.0x00632078"))) const char D_00632078[8] = "*";
-__attribute__((section(".sdata.0x00632088"))) const char D_00632088[8] = "format";
-__attribute__((section(".sdata.0x00632090"))) const char D_00632090[8] = "chdir";
-__attribute__((section(".sdata.0x00632098"))) const char D_00632098[8] = "getdir";
-__attribute__((section(".sdata.0x006320A0"))) const char D_006320A0[8] = "delete";
-__attribute__((section(".sdata.0x006320A8"))) const char D_006320A8[8] = "test";
+unsigned int D_00632054 = 0xFFFFFFFF;
+const char D_00632058[8] = "game.";
+char D_00632060[8] = { 0 };
+int D_00632068 = 0x000A6425;
+int D_0063206C = 0x00000000;
+int D_00632070 = 0x332E3325;
+int D_00632074 = 0x00000064;
+const char D_00632078[8] = "*";
+const char D_00632088[8] = "format";
+const char D_00632090[8] = "chdir";
+const char D_00632098[8] = "getdir";
+const char D_006320A0[8] = "delete";
+const char D_006320A8[8] = "test";
 
 const char D_00556C08[24] = "ios/mblock.c";
 const char D_00556C20[16] = "boy_blk.ico";
