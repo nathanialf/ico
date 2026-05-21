@@ -18,28 +18,41 @@
  */
 
 
-__attribute__((section(".rodata.0x00553DE0"))) const char D_00553DE0[16] = "src/pool.c";
+const unsigned int D_00553DD0[4] = { 0xFFFFF800, 0xFFFFF800, 0x00001000, 0x00001000 };
 
-__attribute__((section(".rodata.0x00553E90"))) const char D_00553E90[32] = "display object = %d";
-__attribute__((section(".rodata.0x00553F10"))) const char D_00553F10[24] = "cdrom0:\\IOPRP224.IMG;1";
-__attribute__((section(".rodata.0x00553F40"))) const char D_00553F40[24] = "cdrom0:\\SIO2MAN.IRX;1";
-__attribute__((section(".rodata.0x00553F58"))) const char D_00553F58[24] = "cdrom0:\\PADMAN.IRX;1";
-__attribute__((section(".rodata.0x00553F70"))) const char D_00553F70[24] = "cdrom0:\\MCMAN.IRX;1";
-__attribute__((section(".rodata.0x00553F88"))) const char D_00553F88[24] = "cdrom0:\\MCSERV.IRX;1";
-__attribute__((section(".rodata.0x00553FA0"))) const char D_00553FA0[24] = "cdrom0:\\LIBSD.IRX;1";
-__attribute__((section(".rodata.0x00553FB8"))) const char D_00553FB8[24] = "cdrom0:\\SNDN2DRV.IRX;1";
+const char D_00553DE0[16] = "src/pool.c";
 
-/* String rodata migrated from pool_data.c */
-__attribute__((section(".rodata.0x00553E00"))) const char D_00553E00[40] = "Quaternion stack not initialized.\n";
-__attribute__((section(".rodata.0x00553E28"))) const char D_00553E28[32] = "Quaternion stack overflow!!\n";
-__attribute__((section(".rodata.0x00553E48"))) const char D_00553E48[40] = "Quaternion stack underflow!!\n";
-__attribute__((section(".rodata.0x00553EB0"))) const char D_00553EB0[48] = "-------------------------------- read from CD\n";
-__attribute__((section(".rodata.0x00553EE0"))) const char D_00553EE0[24] = "initialize CD device.\n";
-__attribute__((section(".rodata.0x00553EF8"))) const char D_00553EF8[24] = "load default module.\n";
-__attribute__((section(".rodata.0x00553F28"))) const char D_00553F28[24] = "loading iop modules.\n";
+const float D_00553DF0[4] = { 2048.0f, 2048.0f, 0.0f, 0.0f };
 
-/* Float rodata migrated from pool_data.c */
-__attribute__((section(".rodata.0x00553DF0"))) const float D_00553DF0[4] = { 2048.0f, 2048.0f, 0.0f, 0.0f };
+const char D_00553E00[40] = "Quaternion stack not initialized.\n";
+
+const char D_00553E28[32] = "Quaternion stack overflow!!\n";
+
+const char D_00553E48[40] = "Quaternion stack underflow!!\n";
+
+const char D_00553E90[32] = "display object = %d";
+
+const char D_00553EB0[48] = "-------------------------------- read from CD\n";
+
+const char D_00553EE0[24] = "initialize CD device.\n";
+
+const char D_00553EF8[24] = "load default module.\n";
+
+const char D_00553F10[24] = "cdrom0:\\IOPRP224.IMG;1";
+
+const char D_00553F28[24] = "loading iop modules.\n";
+
+const char D_00553F40[24] = "cdrom0:\\SIO2MAN.IRX;1";
+
+const char D_00553F58[24] = "cdrom0:\\PADMAN.IRX;1";
+
+const char D_00553F70[24] = "cdrom0:\\MCMAN.IRX;1";
+
+const char D_00553F88[24] = "cdrom0:\\MCSERV.IRX;1";
+
+const char D_00553FA0[24] = "cdrom0:\\LIBSD.IRX;1";
+
+const char D_00553FB8[24] = "cdrom0:\\SNDN2DRV.IRX;1";
 
 #include "include_asm.h"
 

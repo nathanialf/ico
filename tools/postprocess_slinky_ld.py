@@ -51,10 +51,10 @@ BOUNDARIES_JSON = REPO / "decomp" / "data_tu_boundaries.json"
 
 # (start_symbol, end_symbol, section_name, vram_symbol) per data section.
 SECTIONS = [
-    ("data_DATA_START",     "data_DATA_END",     ".data",   "data_VRAM"),
-    ("rodata_RODATA_START", "rodata_RODATA_END", ".rodata", "rodata_VRAM"),
-    ("lit4_LIT4_START",     "lit4_LIT4_END",     ".lit4",   "lit4_VRAM"),
-    ("sdata_SDATA_START",   "sdata_SDATA_END",   ".sdata",  "sdata_VRAM"),
+    ("data_DATA_START",     "data_DATA_END",     ".data",   "data_VRAM",   0x00274700, 0x005536B8),
+    ("rodata_RODATA_START", "rodata_RODATA_END", ".rodata", "rodata_VRAM", 0x00553700, 0x006308A8),
+    ("lit4_LIT4_START",     "lit4_LIT4_END",     ".lit4",   "lit4_VRAM",   0x00630900, 0x006318D0),
+    ("sdata_SDATA_START",   "sdata_SDATA_END",   ".sdata",  "sdata_VRAM",  0x00631900, 0x00633BC6),
 ]
 MARKER_PREFIX = "/* phase3d-slots "
 
@@ -210,22 +210,41 @@ def _has_plain_section(secs: list[tuple[str, int]], base: str) -> bool:
 
 
 def collect_slots(objdump: str, base: str, vram_sym: str,
+                  vma_lo: int, vma_hi: int,
                   link_objs: list[str], boundaries: dict
                   ) -> list[tuple[int, str, str, str]]:
     """Return [(vma, slot_kind, opath, section_glob), ...] for one
-    data section. `slot_kind` is "typed" or "promoted"; `section_glob`
-    is the input-section pattern to use inside KEEP(...)."""
+    data section. `slot_kind` is "typed", "promoted", or "jtbl";
+    `section_glob` is the input-section pattern to use inside
+    KEEP(...). Sections whose name-encoded VMA falls outside the
+    output section's [vma_lo, vma_hi) are skipped — ee-gcc may
+    place a symbol's bytes in the wrong default section under -G 8
+    (e.g. `const float[2]` in `.rodata` range → `.sdata.D_X` per
+    -fdata-sections), but the slot must only emit in the output
+    block whose VMA range matches."""
     slots: list[tuple[int, str, str, str]] = []
 
-    # 1. Typed slots — one per `.<base>.0xVMA` named section across
-    #    every contributing .o.
+    # 1. Typed slots — one per per-symbol section. Two forms:
+    #    `.<base>.0x<VMA>` (attr-tag form) AND `.<base>.D_<VMA>`
+    #    (ee-gcc -fdata-sections per-symbol emission).
     for o in link_objs:
         for name, _sz in sections_of(objdump, o):
-            if not name.startswith(base + ".0x") and not name.startswith(base + ".0X"):
+            if not name.startswith(base + "."):
                 continue
-            try:
-                vma = int(name.split(".0x", 1)[-1].split(".0X", 1)[-1], 16)
-            except ValueError:
+            suffix = name[len(base) + 1:]
+            if suffix.startswith("0x") or suffix.startswith("0X"):
+                try:
+                    vma = int(suffix, 16)
+                except ValueError:
+                    continue
+            elif suffix.startswith("D_") or suffix.startswith("d_"):
+                try:
+                    vma = int(suffix[2:], 16)
+                except ValueError:
+                    continue
+            else:
+                continue
+            if not (vma_lo <= vma < vma_hi):
                 continue
             slots.append((vma, "typed", o, name))
 
@@ -246,43 +265,32 @@ def collect_slots(objdump: str, base: str, vram_sym: str,
     for o in link_objs:
         vmas: set[int] = set()
         for name, _sz in sections_of(objdump, o):
-            if not (name.startswith(base + ".0x") or name.startswith(base + ".0X")):
+            if not name.startswith(base + "."):
                 continue
-            try:
-                v = int(name.split(".0x", 1)[-1].split(".0X", 1)[-1], 16)
-            except ValueError:
-                continue
-            vmas.add(v)
+            suffix = name[len(base) + 1:]
+            v: int | None = None
+            if suffix.startswith("0x") or suffix.startswith("0X"):
+                try:
+                    v = int(suffix, 16)
+                except ValueError:
+                    v = None
+            elif suffix.startswith("D_") or suffix.startswith("d_"):
+                try:
+                    v = int(suffix[2:], 16)
+                except ValueError:
+                    v = None
+            if v is not None:
+                vmas.add(v)
         foreign_vmas_per_o[o] = vmas
 
-    for tu, sections in boundaries.items():
-        info = sections.get(base)
-        if info is None:
-            continue
-        if not info.get("promotable") or not info.get("stripped"):
-            continue
-        opath = info.get("o_path")
-        if not opath:
-            continue
-        secs = sections_of(objdump, opath)
-        if not _has_plain_section(secs, base):
-            continue
-        ranges = info.get("ranges", [])
-        if not ranges:
-            continue
-        lo_vma = int(ranges[0]["lo_vma"], 16)
-        hi_vma = int(ranges[0]["hi_vma"], 16)
-        # Foreign-.o typed sections in the range disqualify promotion.
-        overlap = False
-        for other_o, vmas in foreign_vmas_per_o.items():
-            if other_o == opath:
-                continue
-            if any(lo_vma <= v < hi_vma for v in vmas):
-                overlap = True
-                break
-        if overlap:
-            continue
-        slots.append((lo_vma, "promoted", opath, f"{base}*"))
+    # Per-TU promoted `(.<base>*)` slots are obviated by per-symbol
+    # typed slots (`-fdata-sections` emits one `.<base>.D_<VMA>` per
+    # plain def). The promoted glob would double-claim the same
+    # bytes as the per-symbol slots and trigger a duplicate-VMA
+    # assertion. Leave the loop placeholder so future re-enable is
+    # a one-line revert.
+    _ = boundaries  # noqa: silence unused-arg lint
+    _ = foreign_vmas_per_o
 
     # 3. jtbl slots — for each C-matched function with a jtbl, the
     #    function's `.o` `.rodata` contains gcc's emitted jtbl bytes.
@@ -391,8 +399,9 @@ def main() -> int:
     text = original
 
     summary: list[str] = []
-    for start_sym, end_sym, base, vram_sym in SECTIONS:
-        slots = collect_slots(objdump, base, vram_sym, link_objs, boundaries)
+    for start_sym, end_sym, base, vram_sym, vma_lo, vma_hi in SECTIONS:
+        slots = collect_slots(objdump, base, vram_sym, vma_lo, vma_hi,
+                              link_objs, boundaries)
         text, changed = restructure_section_body(
             text, base, start_sym, end_sym, vram_sym, slots
         )

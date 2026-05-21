@@ -31,7 +31,7 @@ OBJCOPY="${MIPS_PREFIX}objcopy"
 EE_AS="${ROOT}/tools/cc/ee-gcc2.96/bin/as"
 
 INCLUDE_DIR="${ROOT}/include"
-CFLAGS="-S -G 8 -O2 -mips3 -EL -fno-builtin -nostdinc -I${INCLUDE_DIR}"
+CFLAGS="-S -G 8 -O2 -mips3 -EL -fno-builtin -nostdinc -fdata-sections -I${INCLUDE_DIR}"
 ASFLAGS="-EL -march=r5900 -mabi=eabi -G 8 -no-pad-sections -I${INCLUDE_DIR}"
 EE_ASFLAGS="-EL -mcpu=5900 -G 8"
 
