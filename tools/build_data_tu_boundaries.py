@@ -48,13 +48,28 @@ TYPED_SYM_RE = re.compile(
     r'\s+(?:[\w\s\*]+?)\s+(D_[0-9A-Fa-f]{8})\b'
 )
 
+# Phase 3d-stripped plain-form typed def. Matches at line start (no
+# attr prefix), excludes `extern`, requires a type token before D_X,
+# and anchors on `=` so in-function writes don't qualify. Captures: D_X.
+PLAIN_SYM_RE = re.compile(
+    r'(?m)^(?!\s*extern\b)[ \t]*'
+    r'(?:[A-Za-z_]\w*\s+)+'
+    r'\**\s*'
+    r'(D_[0-9A-Fa-f]{8})\b\s*(?:\[[^\]]*\])?\s*='
+)
+
 
 def _scan_tracked_sources() -> tuple[dict[str, str], dict[tuple[str, str], int]]:
     """Walk tracked src/{src,ios,sound,isys}/**/*.{c,h} and return:
       (sym_to_tu, attr_counts)
     where:
-      sym_to_tu[D_X] = "src/<TU>.c" for every attr-tagged typed def found,
+      sym_to_tu[D_X] = "src/<TU>.c" for every typed def found (both
+      attr-tagged AND plain-form post-Phase 3d strip),
       attr_counts[(tu, ".X")] = number of attr-tagged defs in TU/section.
+
+    Plain-form defs contribute to `sym_to_tu` so the TU still owns
+    its symbols after attr-tag strip, but don't increment attr_counts
+    (the `stripped` flag downstream needs zero attr-tagged defs).
 
     `_data.c` sidecars are skipped (auto-generated, not authoritative)."""
     sym_to_tu: dict[str, str] = {}
@@ -75,12 +90,21 @@ def _scan_tracked_sources() -> tuple[dict[str, str], dict[tuple[str, str], int]]
                 # Headers attribute to their sibling .c TU.
                 if rel.endswith(".h"):
                     rel = rel[:-2] + ".c"
+                # Attr-tagged defs: contribute to both sym_to_tu and attr_counts.
                 for m in TYPED_SYM_RE.finditer(text):
                     sec_name = "." + m.group(1)
                     sym_to_tu[m.group(3)] = rel
                     attr_counts[(rel, sec_name)] = (
                         attr_counts.get((rel, sec_name), 0) + 1
                     )
+                # Plain-form defs (Phase 3d-stripped): contribute to
+                # sym_to_tu only. Existing attr-tagged binding (if
+                # the symbol is somehow both, e.g. typed first then
+                # stripped) wins via the second `if` below.
+                for m in PLAIN_SYM_RE.finditer(text):
+                    sym = m.group(1)
+                    if sym not in sym_to_tu:
+                        sym_to_tu[sym] = rel
     return sym_to_tu, attr_counts
 
 

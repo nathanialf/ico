@@ -1,21 +1,22 @@
 /* src/DmaPacket.c
  *
- * The `extern int D_00632014;` precedes the typed-attribute
- * definition below so ee-gcc 2.9's small-data heuristic emits %gp_rel
- * for references in the function. The compiler reads the first
- * declaration to decide gp_rel eligibility, not the section
- * attribute on the later definition. Typed `.sdata.0xVMA` /
- * `.rodata.0xVMA` attrs keep the linker's SORT_BY_NAME placement
- * VMA-correct until Phase 3e retires SORT_BY_NAME in favor of
- * slinky's per-`.o` ordered emission.
+ * The `extern int D_00632014;` precedes the plain definition below
+ * so ee-gcc 2.9's small-data heuristic emits %gp_rel for references
+ * in the function. The compiler reads the first declaration to
+ * decide gp_rel eligibility.
+ *
+ * Phase 3d pilot: this TU's `.rodata` and `.sdata` defs are in plain
+ * form (no `__attribute__((section()))` wrappers); slinky places the
+ * .o's per-section content via per-TU explicit slots in
+ * ico.us.slinky.ld (see tools/postprocess_slinky_ld.py).
  */
 
 extern int D_00632014;
 extern int D_004C7710[];
 extern int func_0013A0F8(int handle, int size, char *file, int line);
 
-__attribute__((section(".sdata.0x00632014"))) int D_00632014 = 0;
-__attribute__((section(".rodata.0x0061AC60"))) const char D_0061AC60[16] = "src/DmaPacket.c";
+int D_00632014 = 0;
+const char D_0061AC60[16] = "src/DmaPacket.c";
 
 void func_001FBB48(void)
 {
