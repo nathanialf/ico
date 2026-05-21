@@ -3227,4 +3227,318 @@ add.xyzw vf27, vf27, vf19 ; nop_swap
 pad ; jr vi01
 pad ; nop_swap
 
-.assert_pc 0x43E0
+; -----------------------------------------------------------------------
+; sub_43E0 — program-4 clone of sub_2818 (save-context vertex output).
+; Two-stage GIF kick with matrix reload from mem[16..19].
+; -----------------------------------------------------------------------
+sub_43E0:
+pad ; iaddiu vi02, vi00, 37
+pad ; iadd vi03, vi00, vi08
+pad ; iaddiu vi07, vi02, 2
+pad ; iaddiu vi11, vi00, 32767
+pad ; iaddiu vi11, vi11, 1
+pad ; isw.x vi11, 0(vi02)
+pad ; lq.xyzw vf01, 8(vi00)
+pad ; lq.xyzw vf02, 9(vi00)
+pad ; lq.xyzw vf03, 10(vi00)
+pad ; lq.xyzw vf04, 11(vi00)
+pad ; xgkick vi02
+pad ; iaddiu vi11, vi10, 32767
+pad ; iaddiu vi11, vi11, 1
+pad ; isw.x vi11, 0(vi02)
+
+sub_43E0_loop:
+pad ; lq.xyzw vf20, 0(vi03)
+mulax.xyzw  vf01, vf20 ; nop_swap
+madday.xyzw vf02, vf20 ; nop_swap
+maddaz.xyzw vf03, vf20 ; nop_swap
+maddw.xyzw  vf25, vf04, vf20 ; nop_swap
+pad ; div Q, vf00.w, vf25.w
+mulq.xyzw   vf25, vf25 ; waitq
+ftoi4.xyzw  vf26, vf25 ; nop_swap
+pad ; sq.xyzw vf26, 1(vi07)
+pad ; lq.xyzw vf20, 2(vi03)
+mulq.xyz    vf28, vf20 ; nop_swap
+pad ; sq.xyzw vf28, -1(vi07)
+pad ; lq.xyzw vf27, 1(vi03)
+ftoi0.xyzw  vf29, vf27 ; nop_swap
+pad ; sq.xyzw vf29, 0(vi07)
+pad ; iaddiu vi07, vi07, 3
+pad ; iaddiu vi03, vi03, 3
+pad ; iaddi vi10, vi10, -1
+pad ; nop_swap
+pad ; ibne vi10, vi00, sub_43E0_loop
+pad ; nop_swap
+pad ; xgkick vi02
+pad ; lq.xyzw vf01, 16(vi00)
+pad ; lq.xyzw vf02, 17(vi00)
+pad ; lq.xyzw vf03, 18(vi00)
+pad ; lq.xyzw vf04, 19(vi00)
+pad ; nop_swap
+pad ; jr vi01
+pad ; nop_swap
+pad ; sqd.xyzw vf17, vi14                ; entry of L_4538/L_4540 save-context
+
+; -----------------------------------------------------------------------
+; L_4540 — VU0 register-bank save (program-4 clone of L_2978).
+; sqd 15 floats + iswr 14 ints; `jr vi15` returns.
+; -----------------------------------------------------------------------
+L_4540:
+pad ; sqd.xyzw vf18, vi14
+pad ; sqd.xyzw vf19, vi14
+pad ; sqd.xyzw vf20, vi14
+pad ; sqd.xyzw vf21, vi14
+pad ; sqd.xyzw vf22, vi14
+pad ; sqd.xyzw vf23, vi14
+pad ; sqd.xyzw vf24, vi14
+pad ; sqd.xyzw vf25, vi14
+pad ; sqd.xyzw vf26, vi14
+pad ; sqd.xyzw vf27, vi14
+pad ; sqd.xyzw vf28, vi14
+pad ; sqd.xyzw vf29, vi14
+pad ; sqd.xyzw vf30, vi14
+pad ; sqd.xyzw vf31, vi14
+pad ; isubiu vi14, vi14, 1
+pad ; iswr.x vi02, vi14
+pad ; iswr.y vi03, vi14
+pad ; iswr.z vi04, vi14
+pad ; iswr.w vi05, vi14
+pad ; isubiu vi14, vi14, 1
+pad ; iswr.x vi06, vi14
+pad ; iswr.y vi07, vi14
+pad ; iswr.z vi08, vi14
+pad ; iswr.w vi09, vi14
+pad ; isubiu vi14, vi14, 1
+pad ; iswr.x vi10, vi14
+pad ; iswr.y vi11, vi14
+pad ; iswr.z vi12, vi14
+pad ; iswr.w vi13, vi14
+pad ; isubiu vi14, vi14, 1
+pad ; iswr.x vi14, vi14
+pad ; iswr.y vi15, vi14
+pad ; nop_swap
+pad ; jr vi15
+pad ; nop_swap
+
+; -----------------------------------------------------------------------
+; L_4660 — VU0 register-bank restore (program-4 clone of L_2A98).
+; Flag-bits-set FMAC at 0x46B0 (`.word 0x4A8D0300`) — `add.y vf12,
+; vf00, vf13` with E/T/extra flag bits, emitted as `.word`.
+; -----------------------------------------------------------------------
+pad ; iadd vi01, vi00, vi15                ; (0x4658 — pre-L_4660 setup bundle)
+L_4660:
+pad ; iswr.x vi14, vi14
+pad ; iswr.y vi15, vi14
+pad ; iaddiu vi14, vi14, 1
+pad ; ilwr.x vi10, vi14
+pad ; ilwr.y vi11, vi14
+pad ; ilwr.z vi12, vi14
+pad ; ilwr.w vi13, vi14
+pad ; iaddiu vi14, vi14, 1
+pad ; ilwr.x vi06, vi14
+pad ; ilwr.y vi07, vi14
+.word 0x4A8D0300 ; nop                   ; upper: `add.y vf12, vf00, vf13` + flag bits
+pad ; ilwr.z vi08, vi14
+pad ; ilwr.w vi09, vi14
+pad ; iaddiu vi14, vi14, 1
+pad ; ilwr.x vi02, vi14
+pad ; ilwr.y vi03, vi14
+pad ; ilwr.z vi04, vi14
+pad ; ilwr.w vi05, vi14
+pad ; iaddiu vi14, vi14, 1
+pad ; lqi.xyzw vf31, vi14
+pad ; lqi.xyzw vf30, vi14
+pad ; lqi.xyzw vf29, vi14
+pad ; lqi.xyzw vf28, vi14
+pad ; lqi.xyzw vf27, vi14
+pad ; lqi.xyzw vf26, vi14
+pad ; lqi.xyzw vf25, vi14
+pad ; lqi.xyzw vf24, vi14
+pad ; lqi.xyzw vf23, vi14
+pad ; lqi.xyzw vf22, vi14
+pad ; lqi.xyzw vf21, vi14
+pad ; lqi.xyzw vf20, vi14
+pad ; lqi.xyzw vf19, vi14
+pad ; lqi.xyzw vf18, vi14
+pad ; lqi.xyzw vf17, vi14
+L_4770:
+pad ; nop_swap                           ; `jr vi01` return stub
+pad ; jr vi01
+pad ; nop_swap
+
+; -----------------------------------------------------------------------
+; L_4788 — vertex-buffer init (program-4 clone of L_2BC0).
+; Loads scratch matrix vf13..vf16 from mem[20..23], extended bulk
+; load vf05..vf12 from mem[28..35] / mem[32..35].  Sets vi14 = 256.
+; -----------------------------------------------------------------------
+L_4788:
+sub.xyzw vf31, vf00, vf00 ; lq.xyzw vf17, 2(vi00)
+pad ; lq.xyzw vf13, 20(vi00)
+pad ; lq.xyzw vf14, 21(vi00)
+pad ; lq.xyzw vf15, 22(vi00)
+pad ; lq.xyzw vf16, 23(vi00)
+pad ; lq.xyzw vf05, 28(vi00)
+pad ; lq.xyzw vf06, 29(vi00)
+pad ; lq.xyzw vf07, 30(vi00)
+pad ; lq.xyzw vf08, 31(vi00)
+pad ; lq.xyzw vf09, 32(vi00)
+pad ; lq.xyzw vf10, 33(vi00)
+pad ; lq.xyzw vf11, 34(vi00)
+pad ; lq.xyzw vf12, 35(vi00)
+mulw.w vf17, vf00, vf00 ; iaddiu vi14, vi00, 256
+pad ; move.z vf17, vf00
+.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+pad ; nop_swap                           ; E-bit delay slot
+
+; -----------------------------------------------------------------------
+; sub_4810 — bone-blended vertex transform with clip-flag culling
+; (program-4 clone of sub_2C00, but with subtle vf-register
+; reshuffling: vf18/vf19/vf20/vf21 instead of vf18/vf21/vf20).
+; -----------------------------------------------------------------------
+sub_4810:
+pad ; xtop vi01
+pad ; ilwr.x vi10, vi01
+pad ; iaddiu vi11, vi00, 32767
+pad ; iand vi10, vi10, vi11
+pad ; iaddi vi11, vi11, 1
+pad ; lq.xyzw vf25, 0(vi01)
+pad ; iaddiu vi03, vi01, 1
+pad ; iaddiu vi02, vi01, 192
+pad ; sq.xyzw vf25, 0(vi02)
+pad ; iaddiu vi07, vi02, 1
+mulw.xyzw   vf22, vf00, vf00 ; iaddi vi04, vi00, -2
+mulw.xyzw   vf23, vf00, vf00 ; iaddi vi05, vi00, -2
+mulw.xyzw   vf24, vf00, vf00 ; iaddi vi06, vi00, -2
+pad ; lq.xyzw vf19, 1(vi03)              ; (different load order vs sub_2C00)
+pad ; lq.xyzw vf18, 0(vi03)
+pad ; lq.xyzw vf21, 2(vi03)
+pad ; lq.xyzw vf20, 3(vi03)
+
+L_4898:
+mulax.xyzw  vf05, vf19 ; iaddiu vi03, vi03, 4
+madday.xyzw vf06, vf19 ; iaddi vi10, vi10, -1
+maddaz.xyzw vf07, vf19 ; iadd vi04, vi00, vi05
+maddw.xyzw  vf26, vf08, vf19 ; iadd vi05, vi00, vi06
+mulax.xyzw  vf01, vf18 ; move.xyzw vf22, vf23
+madday.xyzw vf02, vf18 ; move.xyzw vf23, vf24
+maddaz.xyzw vf03, vf18 ; lq.xyzw vf19, 1(vi03)
+maxx.xyzw   vf26, vf26, vf00 ; nop_swap
+pad ; nop_swap
+pad ; nop_swap
+maddw.xyzw  vf25, vf04, vf18 ; nop_swap
+mulax.xyzw  vf09, vf26 ; nop_swap
+madday.xyzw vf10, vf26 ; nop_swap
+maddaz.xyzw vf11, vf26 ; nop_swap
+maddw.xyzw  vf26, vf12, vf26 ; div Q, vf00.w, vf25.w
+mulax.xyzw  vf13, vf18 ; nop_swap
+madday.xyzw vf14, vf18 ; nop_swap
+maddaz.xyzw vf15, vf18 ; nop_swap
+maddw.xyzw  vf24, vf16, vf18 ; nop_swap
+maxx.xyzw   vf26, vf26, vf00 ; lq.xyzw vf18, 0(vi03)
+add.xy      vf21, vf21, vf17 ; nop_swap
+mulq.xyzw   vf27, vf25 ; waitq
+mulq.xyz    vf28, vf21 ; nop_swap
+mul.xyz     vf20, vf20, vf26 ; nop_swap
+; I-bit immediate bundle: upper sub.w vf00,vf21,vf00 + I-bit; lower = 255.0f → I.
+; (disasm reads lower as `bal vi31, L_4960` — a misread; the next bundle is sequential.)
+.word 0x8020A82C ; .word 0x437F0000
+
+ftoi4.xyzw  vf27, vf27 ; lq.xyzw vf21, 2(vi03)
+pad ; sq.xyzw vf28, 0(vi07)
+minii.xyzw  vf20, vf20 ; nop_swap
+.word 0x01D6B1FF ; fsand vi08, 0x2       ; flag-bit FD-dispatch FMAC
+.word 0x01D7B9FF ; sq.xyzw vf27, 2(vi07)
+.word 0x01D8C1FF ; nop_swap
+pad ; nop_swap
+pad ; nop_swap
+pad ; nop_swap
+ftoi0.xyzw  vf29, vf20 ; fcand vi01, 0x3F
+pad ; lq.xyzw vf20, 3(vi03)
+pad ; iadd vi06, vi00, vi01
+pad ; ibeq vi08, vi00, L_49E8
+pad ; sq.xyzw vf29, 1(vi07)               ; (delay slot)
+pad ; iaddi vi04, vi00, 1
+pad ; iaddi vi05, vi00, 1
+pad ; iaddi vi09, vi00, 2
+L_49E8:
+pad ; iadd vi01, vi04, vi05
+pad ; iadd vi01, vi01, vi06
+pad ; nop_swap
+pad ; ibgtz vi01, L_4A40
+pad ; nop_swap                           ; (delay slot)
+L_4A10:
+pad ; ibne vi10, vi00, L_4898
+pad ; iaddiu vi07, vi07, 3                ; (delay slot)
+pad ; xgkick vi02
+pad ; nop_swap
+pad ; b L_4788
+pad ; nop_swap
+L_4A40:
+pad ; iaddi vi09, vi09, -1
+pad ; ibgtz vi09, L_4B10
+pad ; fcor vi01, 0xFDF7DF
+pad ; ibne vi01, vi00, L_4B10
+pad ; nop_swap
+pad ; fcor vi01, 0xFEFBEF
+pad ; ibne vi01, vi00, L_4B10
+pad ; nop_swap
+pad ; fcor vi01, 0xFF7DF7
+pad ; ibne vi01, vi00, L_4B10
+pad ; nop_swap
+pad ; fcor vi01, 0xFFBEFB
+pad ; ibne vi01, vi00, L_4B10
+pad ; nop_swap
+pad ; fcor vi01, 0xFFDF7D
+pad ; ibne vi01, vi00, L_4B10
+pad ; nop_swap
+pad ; fcor vi01, 0xFFEFBE
+pad ; ibne vi01, vi00, L_4B10
+pad ; nop_swap
+pad ; bal vi15, L_4540
+pad ; nop_swap
+pad ; bal vi15, L_3C50
+pad ; nop_swap
+pad ; bal vi15, L_4660
+pad ; nop_swap
+L_4B10:
+pad ; b L_4A10
+pad ; isw.w vi11, 2(vi07)                ; (delay slot)
+
+; =======================================================================
+; FIFTH VU0 PROGRAM begins here.  FCSET imm = 0x59 this time.
+; Entry table at 0x4B40..0x4BE8 with targets L_4C40 / L_4CC8 /
+; L_4D00 / L_4D70 / L_4E48 / L_4E60 / L_4EA8 / L_4EC0.
+; =======================================================================
+
+nop ; .word 0x70000000                  ; 0x4B20 — op7=0x38
+nop ; nop                               ; 0x4B28 — true-zero filler
+nop ; .word 0x60000059                  ; 0x4B30 — FCSET imm24=0x59
+.word 0x4AB20000 ; nop                  ; 0x4B38 — upper FMAC-family (`add.yw vf00, vf00, vf18`+flags)
+
+; Program-5 entry dispatch.
+pad ; b L_4C40                          ; 0x4B40
+pad ; nop_swap
+pad ; b L_4CC8                          ; 0x4B50
+pad ; nop_swap
+pad ; nop_swap                          ; 0x4B60 — reserved
+pad ; nop_swap                          ; 0x4B68 — reserved
+pad ; nop_swap                          ; 0x4B70 — reserved
+pad ; nop_swap                          ; 0x4B78 — reserved
+pad ; b L_4D00                          ; 0x4B80
+pad ; nop_swap
+pad ; b L_4D70                          ; 0x4B90
+pad ; nop_swap
+pad ; b L_4E48                          ; 0x4BA0
+pad ; nop_swap
+pad ; nop_swap                          ; 0x4BB0 — reserved
+pad ; nop_swap                          ; 0x4BB8 — reserved
+pad ; b L_4E60                          ; 0x4BC0
+pad ; nop_swap
+pad ; b L_4EA8                          ; 0x4BD0
+pad ; nop_swap
+pad ; b L_4EC0                          ; 0x4BE0
+pad ; nop_swap
+pad ; nop_swap                          ; 0x4BF0 — reserved
+pad ; nop_swap                          ; 0x4BF8 — reserved
+
+.assert_pc 0x4C00
