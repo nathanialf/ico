@@ -334,7 +334,7 @@ RULES: list[Rule] = [
          "add basename to config/fill_blez_delay.txt"),
     Rule("3.3 / 8.6", "branch-likely mnemonic mismatch (beq↔beql / bne↔bnel)",
          _rule_branch_likely_mnemonic,
-         "park (§3.3) OR force via config/bne_to_bnel.txt (§8.6)"),
+         "park (§3.3) — ee-gcc 2.9 now usually picks bnel naturally for known-safe annul shapes; if not, see §8.6"),
     Rule("5.3", "gp_rel addiu vs daddiu (quick_diff false positive)",
          _rule_gp_rel_addiu_vs_daddiu,
          "commit — the bytes match the original ELF"),

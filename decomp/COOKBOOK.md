@@ -434,9 +434,9 @@ and expected; body otherwise matches.
 **No source-level fix.** ee-gcc 2.9's likely-branch heuristic is fixed;
 flipping `==` to `!=` doesn't shift it. Park via `tools/park.sh`.
 
-When the delay-slot op IS safe to annul, §8.6 `postprocess_bne_to_bnel.py`
-is the "force it" alternative — see that entry for examples
-(`func_0013C920:bne`, `func_0010A3A0:bne`).
+When the delay-slot op IS safe to annul, ee-gcc 2.9 now picks bnel
+natively for most cases — see §8.6 (postprocess retired). If gcc still
+disagrees, restructure the delay-slot operation to be a reload-for-next-iter.
 See: [feedback_branch_likely_emission].
 
 ---
@@ -939,18 +939,22 @@ Examples: TU `weapon` (`func_001F4318` — outer registry-walk loop),
 file `109E48` → `func_00209E48`.
 See: [feedback_fill_blez_delay].
 
-### 8.6 `postprocess_bne_to_bnel.py` — promote bne→bnel / beq→beql
+### 8.6 bne→bnel / beq→beql mnemonic — **RETIRED, gcc picks naturally now**
 
-Symptom: original ELF uses branch-likely (`bnel`/`beql`) but ee-gcc 2.9's
-heuristic picks the plain variant. No C-level fix shifts the choice.
-([feedback_branch_likely_emission] is the "park it" half — this is the
-"force it" half, used only when the delay-slot op is safe to annul on
-the not-taken path.)
+Historical symptom: original ELF used branch-likely (`bnel`/`beql`) but
+ee-gcc 2.9's heuristic picked the plain variant. The cookbook used to
+claim "no C-level fix shifts the choice."
 
-Fix: add to `config/bne_to_bnel.txt` either `<func>` (apply to all
-`bne`/`beq` in the func) or `<func>:bne` / `<func>:beq` (specific
-mnemonic). One line per entry, `#` comments.
-Examples: `func_0013C920:bne`, `func_0010A3A0:bne`.
+**Status 2026-05-21:** the two gate entries (`func_0013C920`,
+`func_0010A3A0`) both emit `bnel` natively under the current C source
+in `src/cod/03C920.c` and `src/cod/00A3A0.c`. Postprocess removed —
+`tools/postprocess_bne_to_bnel.py` and `config/bne_to_bnel.txt` deleted.
+
+If a future near-miss is purely bne vs bnel (or beq vs beql) and gcc's
+heuristic disagrees, restructure the loop body so the delay-slot
+operation is genuinely safe to annul (e.g. a reload-for-next-iter
+shape) — ee-gcc 2.9's current behavior picks the likely variant
+correctly in those patterns.
 
 ### 8.7 `postprocess_lui_const_swap.py` — swap regalloc on a dead `lui`
 

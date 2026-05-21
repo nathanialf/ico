@@ -192,9 +192,6 @@ if listed "${COALESCE_V1_V0_TXT}"; then
         -e '/^[[:space:]]*move[[:space:]]+\$2,\$3[[:space:]]*$/d' \
         -e 's/\$3\b/$2/g' "${S}"
 fi
-# Always runs — internal config/bne_to_bnel.txt gate (per-function allowlist).
-"${PYTHON}" "${ROOT}/tools/postprocess_bne_to_bnel.py" "${S}"
-
 # ee-gcc emits `move $r,$s` for parameter-passing moves. ee-as 2.10
 # encodes `move` as `daddu $r,$s,$0` (function code 0x2D); modern gas
 # encodes `move` as `or $r,$s,$0` (function code 0x25). Original ELF

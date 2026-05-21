@@ -285,8 +285,9 @@ If the diff narrows to a pattern catalogued in the cookbook, the
 recipe tells you what to do directly:
   - §5.3 (gp_rel addiu vs daddiu false positive) → commit, the bytes
     match the original ELF.
-  - §3.3 (branch-likely-only diff) → escalate to §8.6
-    `postprocess_bne_to_bnel.py` rather than retrying condition flips.
+  - §3.3 (branch-likely-only diff) → ee-gcc 2.9 now usually picks bnel
+    naturally for known-safe-to-annul shapes; if not, restructure the
+    delay-slot operation. See §8.6 (retired postprocess).
   - Any §8.x detector firing → check that postprocess's config gate
     and add the function to its allowlist.
 
@@ -768,7 +769,7 @@ implied by the shape:
 
 | Diff shape | Recipe | Source of fix |
 |---|---|---|
-| Only branch mnemonic (`beq` vs `beql`, `bne` vs `bnel`) | §8.6 postprocess `bne_to_bnel` | already wired |
+| Only branch mnemonic (`beq` vs `beql`, `bne` vs `bnel`) | §8.6 (postprocess retired) — gcc usually picks bnel natively; restructure delay-slot op if not | source-level |
 | `daddiu` (expected) vs `addiu` (built) on `%gp_rel` | §5.3 false positive | commit as-is |
 | Only one FP reg letter differs (`$f0` vs `$f1`) | §2.6 `REG("$fN")` pin in `{ }` block | feedback_fpr_letter_swap |
 | Chain of `lw $rT, OFF($rs)` where expected alternates `$v0`/`$v1`, built uses one reg | §2.7 DUAL pin (`p_v0` + `p_v1`, alternate source) | feedback_dual_pin_alternating |
