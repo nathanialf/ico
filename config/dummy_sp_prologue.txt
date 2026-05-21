@@ -1,1 +1,6 @@
+# Retirement-trial 2026-05-21: ee-gcc 2.9 emits this dummy `addiu $sp,
+# $sp, 16` at function entry only in old releases; modern ee-gcc 2.9
+# never does. Also requires lowering .p2align 3 → .p2align 2 to keep
+# section layout. Neither effect is accessible from C source (gcc owns
+# the prologue and alignment metadata). 5 cflag/source attempts tried.
 13C17C
