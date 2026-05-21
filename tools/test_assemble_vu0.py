@@ -292,6 +292,69 @@ def test_iaddiu_imm15_split() -> None:
     print(f"  ok: iaddiu imm15 0x4321 splits as 0x8<<21 | 0x321")
 
 
+def test_t3_dispatch() -> None:
+    """T3 (op7=0x40) dispatch encodings — validated against real ICO
+    bundles for the most common sub-ops."""
+    src = (
+        ".vu0\n"
+        # T3 LSU + reg-move
+        "pad ; lqi.xyzw vf29, vi12\n"        # 0x81FD637C
+        "pad ; sqi.xyzw vf29, vi09\n"        # 0x81E9EB7D
+        "pad ; ilwr.x vi10, vi12\n"          # 0x810A63FE
+        "pad ; mr32.xyzw vf25, vf25\n"       # 0x81F9CB3D
+        "pad ; mfir.w vf26, vi00\n"          # 0x803A03FD
+        # T3 division (subfield syntax)
+        "pad ; div Q, vf00.w, vf28.w\n"      # 0x81FC03BC
+        # T3 specials
+        "pad ; xtop vi12\n"                  # 0x800C06BC
+        "pad ; xgkick vi07\n"                # 0x80003EFC
+        "pad ; waitq\n"                      # 0x800003BF
+        # T3 integer (direct sub6)
+        "pad ; iadd vi10, vi00, vi11\n"      # 0x800B02B0
+        "pad ; iaddi vi10, vi10, -1\n"       # 0x800A57F2
+        "pad ; iand vi10, vi13, vi10\n"      # 0x800A6AB4
+    )
+    body = _assemble(src)
+    wants = [0x81FD637C, 0x81E9EB7D, 0x810A63FE, 0x81F9CB3D, 0x803A03FD,
+             0x81FC03BC, 0x800C06BC, 0x80003EFC, 0x800003BF,
+             0x800B02B0, 0x800A57F2, 0x800A6AB4]
+    for i, want in enumerate(wants):
+        got = struct.unpack_from("<I", body, i * 8)[0]
+        assert got == want, f"bundle {i}: 0x{got:08X} != 0x{want:08X}"
+    print(f"  ok: 12 T3 dispatch encodings validated against real ICO bundles")
+
+
+def test_lower_flag_ops() -> None:
+    """Lower-half status-flag ops — fsand/fmand verified, plus a
+    synthetic fcget."""
+    src = (
+        ".vu0\n"
+        "pad ; fsand vi15, 0x2\n"      # 0x2C0F0002 (real)
+        "pad ; fmand vi14, vi09\n"     # 0x340E4800 (real)
+        "pad ; fcget vi03\n"           # synthetic
+    )
+    body = _assemble(src)
+    wants = [0x2C0F0002, 0x340E4800]
+    for i, want in enumerate(wants):
+        got = struct.unpack_from("<I", body, i * 8)[0]
+        assert got == want, f"bundle {i}: 0x{got:08X} != 0x{want:08X}"
+    fcget = struct.unpack_from("<I", body, 16)[0]
+    assert fcget == (0x1C << 25) | (3 << 16), f"fcget: 0x{fcget:08X}"
+    print(f"  ok: fsand + fmand validated (real); fcget synthetic")
+
+
+def test_move_equiv_nop_swap() -> None:
+    """Confirm that `move vf00, vf00` (mask=0) produces the same bytes
+    as the standalone `nop_swap` mnemonic — i.e. the BIOS-NOP pattern."""
+    src1 = ".vu0\npad ; move vf00, vf00\n"
+    src2 = ".vu0\npad ; nop_swap\n"
+    b1 = _assemble(src1)
+    b2 = _assemble(src2)
+    assert b1 == b2 == struct.pack("<II", 0x8000033C, 0x000002FF), (
+        f"b1={b1.hex()} b2={b2.hex()}")
+    print(f"  ok: `move vf00, vf00` ≡ `nop_swap` ≡ 0x8000033C")
+
+
 def test_nop_swap() -> None:
     """The 0x8000033C BIOS-bug NOP pattern is its own mnemonic now.
 
@@ -417,6 +480,9 @@ def main(argv: list[str] | None = None) -> int:
     test_lower_lsu()
     test_lower_iaddiu_isubiu()
     test_iaddiu_imm15_split()
+    test_t3_dispatch()
+    test_lower_flag_ops()
+    test_move_equiv_nop_swap()
     test_nop_swap()
     if args.against_textbin:
         test_against_textbin()

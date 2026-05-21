@@ -105,6 +105,101 @@ _UPPER_BC_OP = {
     0x6: "mul",
 }
 
+# T3 dispatch (op7=0x40) sub-decoders.  Key: (sub6_low_2_bits, sub5).
+# Direct sub6 values (without T3 sub-table): IADD/ISUB/IADDI/IAND/IOR.
+_T3_INT_DEC = {
+    0x30: "iadd", 0x31: "isub", 0x32: "iaddi",
+    0x34: "iand", 0x35: "ior",
+}
+# T3 sub-table entries — (bc, sub5) → (mnemonic, shape).
+_T3_SUB_DEC = {
+    (0, 0x0C): ("move",   "v2f_mask"),
+    (0, 0x0D): ("lqi",    "v2lqi"),
+    (0, 0x0E): ("div",    "div2"),
+    (0, 0x0F): ("mtir",   "vmtir"),
+    (0, 0x10): ("rnext",  "vr_get"),
+    (0, 0x19): ("mfp",    "vmfp"),
+    (0, 0x1A): ("xtop",   "vi_x"),
+    (0, 0x1B): ("xgkick", "vi_xgkick"),
+    (1, 0x0C): ("mr32",   "v2f_mask"),
+    (1, 0x0D): ("sqi",    "v2sqi"),
+    (1, 0x0E): ("sqrt",   "div1"),
+    (1, 0x0F): ("mfir",   "v2mfir"),
+    (1, 0x10): ("rget",   "vr_get"),
+    (1, 0x1A): ("xitop",  "vi_x"),
+    (2, 0x0D): ("lqd",    "v2lqi"),
+    (2, 0x0E): ("rsqrt",  "div2"),
+    (2, 0x0F): ("ilwr",   "v2lqi"),
+    (2, 0x10): ("rinit",  "vr_init"),
+    (3, 0x0D): ("sqd",    "v2sqi"),
+    (3, 0x0E): ("waitq",  "no_op"),
+    (3, 0x0F): ("iswr",   "v2sqi"),
+    (3, 0x10): ("rxor",   "vr_init"),
+    (3, 0x1E): ("waitp",  "no_op"),
+}
+
+
+def _decode_t3(w: int) -> str:
+    """Render the T3-dispatch (op7=0x40) instruction symbolically."""
+    sub6 = bits(w, 0, 5)
+    if sub6 in _T3_INT_DEC:
+        n = _T3_INT_DEC[sub6]
+        id_ = bits(w, 6, 10) & 0xF
+        is_ = bits(w, 11, 15) & 0xF
+        it_ = bits(w, 16, 20) & 0xF
+        if n == "iaddi":
+            imm5 = signed(bits(w, 6, 10), 5)
+            return f"iaddi {vi(it_)}, {vi(is_)}, {imm5}"
+        return f"{n} {vi(id_)}, {vi(is_)}, {vi(it_)}"
+    if 0x3C <= sub6 <= 0x3F:
+        bc = sub6 - 0x3C
+        sub5 = bits(w, 6, 10)
+        key = (bc, sub5)
+        if key not in _T3_SUB_DEC:
+            return (f".word 0x{w:08X}  ; T3 sub6=0x{sub6:02X} sub5=0x{sub5:02X}"
+                    f" (likely E-class transcendental — encoder pending)")
+        n, shape = _T3_SUB_DEC[key]
+        ft5 = bits(w, 16, 20)
+        fs5 = bits(w, 11, 15)
+        it4 = ft5 & 0xF
+        is4 = fs5 & 0xF
+        dst_mask = bits(w, 21, 24)
+        dst_str = "." + ''.join(c for c, b in zip("xyzw", (8,4,2,1)) if dst_mask & b) if dst_mask else ""
+        fsf = bits(w, 21, 22)
+        ftf = bits(w, 23, 24)
+        if shape == "v2f_mask":
+            return f"{n}{dst_str} {vf(ft5)}, {vf(fs5)}"
+        if shape == "v2lqi":
+            if n == "ilwr":
+                return f"{n}{dst_str} {vi(it4)}, {vi(is4)}"
+            return f"{n}{dst_str} {vf(ft5)}, {vi(is4)}"
+        if shape == "v2sqi":
+            if n == "iswr":
+                return f"{n}{dst_str} {vi(it4)}, {vi(is4)}"
+            return f"{n}{dst_str} {vf(fs5)}, {vi(it4)}"
+        if shape == "v2mfir":
+            return f"{n}{dst_str} {vf(ft5)}, {vi(is4)}"
+        if shape == "vmfp":
+            return f"{n}{dst_str} {vf(ft5)}"
+        if shape == "vmtir":
+            return f"mtir {vi(it4)}, {vf(fs5)}.{'xyzw'[fsf]}"
+        if shape == "vi_x":
+            return f"{n} {vi(it4)}"
+        if shape == "vi_xgkick":
+            return f"{n} {vi(is4)}"
+        if shape == "no_op":
+            return n
+        if shape == "vr_get":
+            return f"{n}{dst_str} {vf(ft5)}"
+        if shape == "vr_init":
+            return f"{n} R, {vf(fs5)}.{'xyzw'[fsf]}"
+        if shape == "div2":
+            return f"{n} Q, {vf(fs5)}.{'xyzw'[fsf]}, {vf(ft5)}.{'xyzw'[ftf]}"
+        if shape == "div1":
+            return f"{n} Q, {vf(ft5)}.{'xyzw'[ftf]}"
+    return (f".word 0x{w:08X}  ; T3 sub6=0x{sub6:02X} (no decoder)")
+
+
 # Plain (non-broadcast) FMAC ops at op6 0x28-0x2F.
 _UPPER_PLAIN_OP = {
     0x28: "add",
@@ -302,6 +397,27 @@ def decode_lower(w: int, pc: int, branch_targets: list[int] | None = None) -> st
     if op7 == 0x09:
         imm15 = (bits(w, 21, 24) << 11) | bits(w, 0, 10)
         return f"isubiu {vi(ft & 0xF)}, {vi(fs & 0xF)}, {imm15}"
+    # Flag ops (op7 0x10-0x1C) — varied operand shapes.
+    if op7 == 0x11:
+        return f"fcset 0x{bits(w, 0, 23):X}"
+    if op7 in (0x12, 0x10, 0x13):
+        n = {0x12: "fcand", 0x10: "fceq", 0x13: "fcor"}[op7]
+        return f"{n} vi01, 0x{bits(w, 0, 23):X}"
+    if op7 == 0x15:
+        imm12 = (bits(w, 21, 21) << 11) | bits(w, 0, 10)
+        return f"fsset 0x{imm12:X}"
+    if op7 in (0x14, 0x16, 0x17):
+        n = {0x14: "fseq", 0x16: "fsand", 0x17: "fsor"}[op7]
+        imm12 = (bits(w, 21, 21) << 11) | bits(w, 0, 10)
+        return f"{n} {vi(ft & 0xF)}, 0x{imm12:X}"
+    if op7 in (0x18, 0x1A, 0x1B):
+        n = {0x18: "fmeq", 0x1A: "fmand", 0x1B: "fmor"}[op7]
+        return f"{n} {vi(ft & 0xF)}, {vi(fs & 0xF)}"
+    if op7 == 0x1C:
+        return f"fcget {vi(ft & 0xF)}"
+    # T3 dispatch (op7 = 0x40).
+    if op7 == 0x40:
+        return _decode_t3(w)
     if op7 == 0x20:
         offset = signed(bits(w, 0, 10), 11) * 8
         target = pc + 8 + offset

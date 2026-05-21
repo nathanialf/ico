@@ -613,6 +613,248 @@ _LOWER_MEM_OPS = {
 }
 
 
+# ============================================================================
+# Lower T3 dispatch (op7 = 0x40) — covers nearly half of ICO's textbin
+# bundles.  Sub-dispatch is via bits 0-5:
+#   0x30: IADD       0x31: ISUB       0x32: IADDI     0x34: IAND      0x35: IOR
+#   0x3C-0x3F:       T3_00 / T3_01 / T3_10 / T3_11 sub-tables
+#     T3 sub-tables use bits 6-10 as the secondary opcode.
+# ============================================================================
+
+_T3_OP7 = 0x40
+
+# Direct-sub6 integer ops (no T3 sub-table involved).
+_T3_INT_OP6 = {
+    "iadd":  0x30,   # iadd vid, vis, vit
+    "isub":  0x31,   # isub vid, vis, vit
+    "iaddi": 0x32,   # iaddi vit, vis, imm5  (signed 5-bit at bits 6-10)
+    "iand":  0x34,   # iand vid, vis, vit
+    "ior":   0x35,   # ior  vid, vis, vit
+}
+
+
+def _enc_lower_t3_int(mnem: str, **fields: int) -> int:
+    op6 = _T3_INT_OP6[mnem]
+    base = (_T3_OP7 << 25) | op6
+    if mnem in ("iadd", "isub", "iand", "ior"):
+        # bits 6-10 = id, 11-15 = is, 16-20 = it; mask field = 0
+        return (base | ((fields["it"] & 0xF) << 16)
+                     | ((fields["is_"] & 0xF) << 11)
+                     | ((fields["id"] & 0xF) << 6))
+    # iaddi: bits 6-10 = signed Imm5, 11-15 = is, 16-20 = it
+    imm5 = fields["imm5"]
+    if not -16 <= imm5 <= 15:
+        raise EncodeError(f"iaddi imm5 out of signed 5-bit range: {imm5}")
+    return (base | ((fields["it"] & 0xF) << 16)
+                 | ((fields["is_"] & 0xF) << 11)
+                 | ((imm5 & 0x1F) << 6))
+
+
+# T3 sub-table entries.  Key: lowercase mnemonic → (bc, sub5, shape).
+#   shape strings (one parser per shape):
+#     "v2f_mask"   : vft, vfs               (mask suffix) — MOVE / MR32
+#     "v2lqi"      : vft, vis               (mask suffix) — LQI / LQD / ILWR
+#     "v2sqi"      : vfs, vit               (mask suffix) — SQI / SQD / ISWR
+#     "v2mfir"     : vft, vis               (mask suffix) — MFIR
+#     "vmfp"       : vft                    (mask suffix) — MFP
+#     "vmtir"      : vit, vfs               (fsf-selector, no mask) — MTIR
+#     "no_op"      : (no operands)          — WAITQ / WAITP
+#     "vi_x"       : vit                    (no mask) — XTOP / XITOP
+#     "vi_xgkick"  : vis                    (no mask) — XGKICK
+#     "vr_get"     : vft                    (mask suffix) — RGET / RNEXT
+#     "vr_init"    : vfs<fsf>               (no mask)     — RINIT / RXOR
+#     "div2"       : Q, vfs<fsf>, vft<ftf>  — DIV / RSQRT
+#     "div1"       : Q, vft<ftf>            — SQRT
+_T3_SUB = {
+    # T3_00 (sub6 = 0x3C)
+    "move":   (0, 0x0C, "v2f_mask"),
+    "lqi":    (0, 0x0D, "v2lqi"),
+    "div":    (0, 0x0E, "div2"),
+    "mtir":   (0, 0x0F, "vmtir"),
+    "rnext":  (0, 0x10, "vr_get"),
+    "mfp":    (0, 0x19, "vmfp"),
+    "xtop":   (0, 0x1A, "vi_x"),
+    "xgkick": (0, 0x1B, "vi_xgkick"),
+    # T3_01 (sub6 = 0x3D)
+    "mr32":   (1, 0x0C, "v2f_mask"),
+    "sqi":    (1, 0x0D, "v2sqi"),
+    "sqrt":   (1, 0x0E, "div1"),
+    "mfir":   (1, 0x0F, "v2mfir"),
+    "rget":   (1, 0x10, "vr_get"),
+    "xitop":  (1, 0x1A, "vi_x"),
+    # T3_10 (sub6 = 0x3E)
+    "lqd":    (2, 0x0D, "v2lqi"),
+    "rsqrt":  (2, 0x0E, "div2"),
+    "ilwr":   (2, 0x0F, "v2lqi"),  # (vit, vis) — same shape as LQI register-form
+    "rinit":  (2, 0x10, "vr_init"),
+    # T3_11 (sub6 = 0x3F)
+    "sqd":    (3, 0x0D, "v2sqi"),
+    "waitq":  (3, 0x0E, "no_op"),
+    "iswr":   (3, 0x0F, "v2sqi"),  # (vfs, vit) — but ISWR's operands are (vit, vis); see encoder
+    "rxor":   (3, 0x10, "vr_init"),
+    "waitp":  (3, 0x1E, "no_op"),
+}
+
+
+def _t3_base(bc: int, sub5: int) -> int:
+    return (_T3_OP7 << 25) | ((sub5 & 0x1F) << 6) | (0x3C | bc)
+
+
+def _enc_lower_t3(mnem: str, mask: str, args: list[str]) -> int:
+    bc, sub5, shape = _T3_SUB[mnem]
+    base = _t3_base(bc, sub5)
+    mask_bits = _enc_dest_mask(mask) << 21
+    if shape == "v2f_mask":
+        # mnem.MASK vft, vfs
+        if len(args) != 2: raise EncodeError(f"{mnem}: needs vft, vfs")
+        ft, fs = _vf(args[0]), _vf(args[1])
+        return base | mask_bits | (ft << 16) | (fs << 11)
+    if shape == "v2lqi":
+        # LQI: mnem.MASK vft, vis   (bits 16-20 = vf dest, 11-15 = vi base)
+        # LQD: same form, pre-decrement semantics; same encoding shape
+        # ILWR: same form, no inc; same encoding shape
+        if len(args) != 2: raise EncodeError(f"{mnem}: needs vft, vis")
+        if mnem == "ilwr":
+            it = _vi(args[0])  # ILWR writes vi dest
+            is_ = _vi(args[1])
+            return base | mask_bits | ((it & 0xF) << 16) | ((is_ & 0xF) << 11)
+        ft = _vf(args[0])
+        is_ = _vi(args[1])
+        return base | mask_bits | (ft << 16) | ((is_ & 0xF) << 11)
+    if shape == "v2sqi":
+        # SQI/SQD: mnem.MASK vfs, vit   (bits 11-15 = vf src, 16-20 = vi base)
+        # ISWR: mnem.MASK vit, vis      (different operand order!)
+        if len(args) != 2: raise EncodeError(f"{mnem}: needs two operands")
+        if mnem == "iswr":
+            it = _vi(args[0])
+            is_ = _vi(args[1])
+            return base | mask_bits | ((it & 0xF) << 16) | ((is_ & 0xF) << 11)
+        fs = _vf(args[0])
+        it = _vi(args[1])
+        return base | mask_bits | ((it & 0xF) << 16) | (fs << 11)
+    if shape == "v2mfir":
+        # MFIR.MASK vft, vis  (vft = vf dest, vis = vi src — sign-extended fill)
+        if len(args) != 2: raise EncodeError(f"mfir: needs vft, vis")
+        ft = _vf(args[0])
+        is_ = _vi(args[1])
+        return base | mask_bits | (ft << 16) | ((is_ & 0xF) << 11)
+    if shape == "vmfp":
+        # MFP.MASK vft
+        if len(args) != 1: raise EncodeError(f"mfp: needs vft")
+        ft = _vf(args[0])
+        return base | mask_bits | (ft << 16)
+    if shape == "vmtir":
+        # MTIR vit, vfs<fsf>   — single lane to vi; Fsf at bits 21-22
+        # Parse the `vfsN<fsf>` operand
+        if len(args) != 2: raise EncodeError(f"mtir: needs vit, vfs<lane>")
+        it = _vi(args[0])
+        fs_idx, fsf = _parse_vf_subfield(args[1])
+        return base | (fsf << 21) | ((it & 0xF) << 16) | (fs_idx << 11)
+    if shape == "no_op":
+        if args: raise EncodeError(f"{mnem}: takes no operands")
+        return base
+    if shape == "vi_x":
+        if len(args) != 1: raise EncodeError(f"{mnem}: needs vit")
+        it = _vi(args[0])
+        return base | ((it & 0xF) << 16)
+    if shape == "vi_xgkick":
+        if len(args) != 1: raise EncodeError(f"xgkick: needs vis")
+        is_ = _vi(args[0])
+        return base | ((is_ & 0xF) << 11)
+    if shape == "vr_get":
+        # RGET.MASK vft / RNEXT.MASK vft
+        if len(args) != 1: raise EncodeError(f"{mnem}: needs vft")
+        ft = _vf(args[0])
+        return base | mask_bits | (ft << 16)
+    if shape == "vr_init":
+        # RINIT/RXOR R, vfs<fsf>  — implicit R; Fsf at bits 21-22
+        if len(args) == 2 and args[0].lower() in ("r", "$r"):
+            args = [args[1]]
+        if len(args) != 1: raise EncodeError(f"{mnem}: needs [R,] vfs<lane>")
+        fs_idx, fsf = _parse_vf_subfield(args[0])
+        return base | (fsf << 21) | (fs_idx << 11)
+    if shape == "div2":
+        # DIV Q, vfs<fsf>, vft<ftf>  — Fsf bits 21-22, Ftf bits 23-24
+        if len(args) == 3 and args[0].lower() in ("q", "$q"):
+            args = args[1:]
+        if len(args) != 2: raise EncodeError(f"{mnem}: needs Q, vfs<lane>, vft<lane>")
+        fs_idx, fsf = _parse_vf_subfield(args[0])
+        ft_idx, ftf = _parse_vf_subfield(args[1])
+        return base | (ftf << 23) | (fsf << 21) | (ft_idx << 16) | (fs_idx << 11)
+    if shape == "div1":
+        # SQRT Q, vft<ftf>
+        if len(args) == 2 and args[0].lower() in ("q", "$q"):
+            args = args[1:]
+        if len(args) != 1: raise EncodeError(f"sqrt: needs Q, vft<lane>")
+        ft_idx, ftf = _parse_vf_subfield(args[0])
+        return base | (ftf << 23) | (ft_idx << 16)
+    raise EncodeError(f"unimplemented T3 shape: {shape}")
+
+
+_VF_SUBFIELD_RE = re.compile(
+    r"^(vf[0-9]{1,2})\s*(?:\.|<)?\s*([xyzw])\s*>?\s*$", re.IGNORECASE
+)
+
+
+def _parse_vf_subfield(text: str) -> tuple[int, int]:
+    """Parse `vfN.x` or `vfN<x>` syntax.  Returns (vf_index, fsf/ftf
+    selector 0..3)."""
+    m = _VF_SUBFIELD_RE.match(text.strip())
+    if not m:
+        raise EncodeError(f"expected vfN.<x|y|z|w>, got {text!r}")
+    return (_vf(m.group(1)), "xyzw".index(m.group(2).lower()))
+
+
+# ============================================================================
+# Lower flag ops (op7 0x10-0x1C).
+# ============================================================================
+
+_LOWER_FLAG_OP7 = {
+    "fceq":  0x10, "fcset": 0x11, "fcand": 0x12, "fcor":  0x13,
+    "fseq":  0x14, "fsset": 0x15, "fsand": 0x16, "fsor":  0x17,
+    "fmeq":  0x18, "fmand": 0x1A, "fmor":  0x1B, "fcget": 0x1C,
+}
+
+
+def _enc_lower_flag(mnem: str, args: list[str]) -> int:
+    op7 = _LOWER_FLAG_OP7[mnem]
+    base = op7 << 25
+    if mnem in ("fcand", "fceq", "fcor"):
+        # mnem vi01, imm24  (vi01 implicit)
+        if len(args) == 2 and args[0].lower() in ("vi01", "$vi01"):
+            args = args[1:]
+        if len(args) != 1: raise EncodeError(f"{mnem}: needs [vi01,] imm24")
+        imm24 = _int(args[0])
+        if not 0 <= imm24 <= 0xFFFFFF:
+            raise EncodeError(f"{mnem}: imm24 out of range")
+        return base | (imm24 & 0xFFFFFF)
+    if mnem == "fcset":
+        if len(args) != 1: raise EncodeError("fcset: needs imm24")
+        imm24 = _int(args[0])
+        return base | (imm24 & 0xFFFFFF)
+    if mnem in ("fmand", "fmeq", "fmor"):
+        if len(args) != 2: raise EncodeError(f"{mnem}: needs vit, vis")
+        it, is_ = _vi(args[0]), _vi(args[1])
+        return base | ((it & 0xF) << 16) | ((is_ & 0xF) << 11)
+    if mnem == "fcget":
+        if len(args) != 1: raise EncodeError("fcget: needs vit")
+        it = _vi(args[0])
+        return base | ((it & 0xF) << 16)
+    if mnem in ("fsand", "fseq", "fsor"):
+        if len(args) != 2: raise EncodeError(f"{mnem}: needs vit, imm12")
+        it = _vi(args[0])
+        imm12 = _int(args[1])
+        if not 0 <= imm12 <= 0xFFF:
+            raise EncodeError(f"{mnem}: imm12 out of range")
+        return (base | ((imm12 >> 11) & 1) << 21
+                     | ((it & 0xF) << 16) | (imm12 & 0x7FF))
+    if mnem == "fsset":
+        if len(args) != 1: raise EncodeError("fsset: needs imm12")
+        imm12 = _int(args[0])
+        return (base | ((imm12 >> 11) & 1) << 21 | (imm12 & 0x7FF))
+    raise EncodeError(f"flag op not implemented: {mnem}")
+
+
 def _try_encode_lower_late(text: str, pc: int,
                            labels: dict[str, int]) -> int:
     """Encode a textual lower insn. Branches resolve labels here.
@@ -669,6 +911,25 @@ def _try_encode_lower_late(text: str, pc: int,
             if name == "iaddiu":
                 return _enc_lower_iaddiu(it, is_, imm15)
             return _enc_lower_isubiu(it, is_, imm15)
+        if name in _T3_INT_OP6:
+            parts = [p.strip() for p in rest.split(",")] if rest else []
+            if name == "iaddi":
+                if len(parts) != 3:
+                    raise EncodeError(f"iaddi: needs vit, vis, imm5")
+                return _enc_lower_t3_int("iaddi",
+                                          it=_vi(parts[0]), is_=_vi(parts[1]),
+                                          imm5=_int(parts[2]))
+            if len(parts) != 3:
+                raise EncodeError(f"{name}: needs vid, vis, vit")
+            return _enc_lower_t3_int(name,
+                                      id=_vi(parts[0]), is_=_vi(parts[1]),
+                                      it=_vi(parts[2]))
+        if name in _T3_SUB:
+            parts = [p.strip() for p in rest.split(",")] if rest else []
+            return _enc_lower_t3(name, mask, parts)
+        if name in _LOWER_FLAG_OP7:
+            parts = [p.strip() for p in rest.split(",")] if rest else []
+            return _enc_lower_flag(name, parts)
     if head in _BRANCH_OPS:
         op6 = _BRANCH_OPS[head]
         # ibeq/ibne: ibeq vi_ft, vi_fs, target
