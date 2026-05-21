@@ -3,32 +3,30 @@
 postprocess_slinky_ld.py — patch the slinky-generated linker script so
 the resulting ELF is SHA-1-identical to the baseelf round-trip.
 
-Today's pipeline carries every typed clean-room data def in tracked
-`src/<TU>.c` wrapped in `__attribute__((section(".X.0xVMA")))`. Slinky
-emits per-`.o` `(.X*)` globs in declared order, which is wrong for
-typed-section placement. Phase 3d (the wrapper-retirement work) needs
-**explicit-address placement** for every typed section so that:
+Slinky emits per-`.o` `(.X*)` globs in declared file order, which
+doesn't honour the VMA-based placement that Phase 3d requires. This
+pass replaces the per-`.o` blob in each data output section with one
+explicit `KEEP(<o>(<section-pattern>))` slot per typed section,
+sorted by VMA-ascending. Slot sources (per data section):
 
-  1. attr-tagged defs that still exist land at their named VMA, and
-  2. promoted-TU plain defs land in the promoted TU's contiguous range
-     at the TU's `lo_vma`.
+  - **Typed slots**: every `.<sec>.0x<VMA>` (legacy attr-tag form) AND
+    `.<sec>.D_<VMA>` (ee-gcc -fdata-sections per-symbol form) section
+    that any `.o` contributes. Detected via `objdump -h` on each `.o`
+    in the link list parsed from build.ninja.
+  - **jtbl slots** (`.rodata` only): for each C-matched function with
+    a jtbl, emit a slot pulling the function's `.o(.rodata)` (exact
+    bare-name match, NOT `.rodata*`) at the jtbl's VMA. The asm-side
+    blanket entry was stripped by rewrite_data_named_sections.py;
+    gcc's emitted jtbl bytes take its place.
 
-We achieve both with one mechanism: **emit one explicit `. = ABS_VMA;
-KEEP(<.o>(.<sec>.<...>));` slot per byte-contributing section** between
-`<sec>_START` and `<sec>_END` in `ico.us.slinky.ld`.
+Sections whose name-encoded VMA falls outside the output block's
+[vma_lo, vma_hi) are skipped — ee-gcc's `-G 8` may place a symbol
+in the wrong default section (e.g. `const float[2]` in `.rodata`
+range → `.sdata.D_X` per -fdata-sections); the slot must only
+emit in the output block whose VMA range matches.
 
-Slot sources (per data section, all merged + sorted by VMA ascending):
-
-  - **Typed slots**: every `.<sec>.0x<VMA>` named section that any `.o`
-    contributes. Detected via `objdump -h` on each `.o` in the link
-    list parsed out of build.ninja.
-  - **Plain promoted slots**: for every (TU, section) in
-    `decomp/data_tu_boundaries.json` with `promotable=true &&
-    stripped=true && o_path is present && o_path's plain `.<sec>` is
-    non-empty`, emit one slot at `lo_vma` pulling `<o_path>(.<sec>*)`.
-
-Idempotent: each slot block is gated by `/* phase3d-slots <section> */`
-marker. Second run sees the marker and skips.
+Idempotent: each section's slot block is gated by `/* phase3d-slots
+<section> */` marker.
 
 Also strips slinky's trailing `. = ALIGN(., 16)` before `.sdata` end —
 baseelf's `.sdata` ends at exactly `0x633BC6` (not 16-aligned), so the
@@ -38,7 +36,6 @@ Run as part of `tools/build.sh slinky`.
 """
 from __future__ import annotations
 
-import json
 import re
 import subprocess
 import sys
@@ -47,7 +44,6 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 LD = REPO / "config" / "ico.us.slinky.ld"
 NINJA = REPO / "build.ninja"
-BOUNDARIES_JSON = REPO / "decomp" / "data_tu_boundaries.json"
 
 # (start_symbol, end_symbol, section_name, vram_symbol) per data section.
 SECTIONS = [
@@ -114,12 +110,6 @@ def parse_link_objs() -> list[str]:
             seen.add(o)
             objs.append(o)
     return objs
-
-
-def _load_boundaries() -> dict:
-    if BOUNDARIES_JSON.exists():
-        return json.loads(BOUNDARIES_JSON.read_text())
-    return {}
 
 
 _JTBL_REF_RE = re.compile(r'%hi\((jtbl_([0-9A-Fa-f]{8}))\)')
@@ -211,15 +201,15 @@ def _has_plain_section(secs: list[tuple[str, int]], base: str) -> bool:
 
 def collect_slots(objdump: str, base: str, vram_sym: str,
                   vma_lo: int, vma_hi: int,
-                  link_objs: list[str], boundaries: dict
+                  link_objs: list[str],
                   ) -> list[tuple[int, str, str, str]]:
     """Return [(vma, slot_kind, opath, section_glob), ...] for one
-    data section. `slot_kind` is "typed", "promoted", or "jtbl";
-    `section_glob` is the input-section pattern to use inside
-    KEEP(...). Sections whose name-encoded VMA falls outside the
-    output section's [vma_lo, vma_hi) are skipped — ee-gcc may
-    place a symbol's bytes in the wrong default section under -G 8
-    (e.g. `const float[2]` in `.rodata` range → `.sdata.D_X` per
+    data section. `slot_kind` is "typed" or "jtbl"; `section_glob`
+    is the input-section pattern to use inside KEEP(...). Sections
+    whose name-encoded VMA falls outside the output section's
+    [vma_lo, vma_hi) are skipped — ee-gcc may place a symbol's
+    bytes in the wrong default section under -G 8 (e.g.
+    `const float[2]` in `.rodata` range → `.sdata.D_X` per
     -fdata-sections), but the slot must only emit in the output
     block whose VMA range matches."""
     slots: list[tuple[int, str, str, str]] = []
@@ -248,51 +238,7 @@ def collect_slots(objdump: str, base: str, vram_sym: str,
                 continue
             slots.append((vma, "typed", o, name))
 
-    # 2. Promoted plain slots — one per (TU, section) flagged
-    #    promotable + stripped, whose .o has plain content AND whose
-    #    [lo_vma, hi_vma) is exclusively owned by the TU's own .o
-    #    (no other .o contributes a typed section inside the range).
-    #
-    # A promoted slot pulls `<o>(.<base>*)` placed at lo_vma. If
-    # another .o contributes a typed `.<base>.0x<V>` section with
-    # lo_vma <= V < hi_vma — be it a `_data.c` sidecar, an asm-side
-    # blanket (`453700.rodata.o`) carrying a jtbl/non-typed dlabel,
-    # or anything else — that section's bytes must land at V, which
-    # conflicts with the promoted slot's contiguous fill. Skip such
-    # TUs; their typed slots and external slots will own the bytes
-    # via the catch-all.
-    foreign_vmas_per_o: dict[str, set[int]] = {}
-    for o in link_objs:
-        vmas: set[int] = set()
-        for name, _sz in sections_of(objdump, o):
-            if not name.startswith(base + "."):
-                continue
-            suffix = name[len(base) + 1:]
-            v: int | None = None
-            if suffix.startswith("0x") or suffix.startswith("0X"):
-                try:
-                    v = int(suffix, 16)
-                except ValueError:
-                    v = None
-            elif suffix.startswith("D_") or suffix.startswith("d_"):
-                try:
-                    v = int(suffix[2:], 16)
-                except ValueError:
-                    v = None
-            if v is not None:
-                vmas.add(v)
-        foreign_vmas_per_o[o] = vmas
-
-    # Per-TU promoted `(.<base>*)` slots are obviated by per-symbol
-    # typed slots (`-fdata-sections` emits one `.<base>.D_<VMA>` per
-    # plain def). The promoted glob would double-claim the same
-    # bytes as the per-symbol slots and trigger a duplicate-VMA
-    # assertion. Leave the loop placeholder so future re-enable is
-    # a one-line revert.
-    _ = boundaries  # noqa: silence unused-arg lint
-    _ = foreign_vmas_per_o
-
-    # 3. jtbl slots — for each C-matched function with a jtbl, the
+    # 2. jtbl slots — for each C-matched function with a jtbl, the
     #    function's `.o` `.rodata` contains gcc's emitted jtbl bytes.
     #    The asm-blanket `.rodata.0x<jtbl_VMA>` block was stripped by
     #    rewrite_data_named_sections.py (see _load_matched_function_
@@ -400,24 +346,23 @@ def main() -> int:
         return 0
     objdump = find_objdump()
     link_objs = parse_link_objs()
-    boundaries = _load_boundaries()
     original = LD.read_text()
     text = original
 
     summary: list[str] = []
     for start_sym, end_sym, base, vram_sym, vma_lo, vma_hi in SECTIONS:
         slots = collect_slots(objdump, base, vram_sym, vma_lo, vma_hi,
-                              link_objs, boundaries)
+                              link_objs)
         text, changed = restructure_section_body(
             text, base, start_sym, end_sym, vram_sym, slots
         )
         if changed:
             typed_n = sum(1 for s in slots if s[1] == "typed")
-            prom_n = sum(1 for s in slots if s[1] == "promoted")
-            summary.append(
-                f"{base}: {len(slots)} slots ({typed_n} typed, "
-                f"{prom_n} promoted)"
-            )
+            jtbl_n  = sum(1 for s in slots if s[1] == "jtbl")
+            bits = [f"{typed_n} typed"]
+            if jtbl_n:
+                bits.append(f"{jtbl_n} jtbl")
+            summary.append(f"{base}: {len(slots)} slots ({', '.join(bits)})")
 
     text, killed = kill_sdata_end_align(text)
     if killed:
