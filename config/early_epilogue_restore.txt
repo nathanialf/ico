@@ -3,4 +3,12 @@
 # -fno-schedule-insns2, -O3 -fno-inline, 14 other -f flags, statement
 # reordering). gcc 2.9's epilogue scheduler keeps `ld $31`/`ld $16` late;
 # no C-level technique pulls them between body stores. Postprocess remains.
+# Retirement-trial 2026-05-21: 38 C-side attempts. Tried
+# KEEP_LIVE/KEEP_LIVE_MEM placement, memory barriers, clobbers on $31/$16,
+# -fno-schedule-insns{,2}, -O3 -fno-inline, -fno-sched-stalled-insns,
+# -fno-tree-cselim, -Os, -fcaller-saves, -fno-cse-skip-blocks,
+# statement reordering, if(1) wrapping, p_840 computation hoisting,
+# inline-asm ld $31 read at stack offset, dual KEEP_LIVE_MEM positions,
+# $f2 pin instead of $f0. gcc 2.9's epilogue scheduler keeps ld $31/$16
+# late; no source-level technique pulls them between body stores.
 girlForceField
