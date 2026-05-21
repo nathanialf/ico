@@ -531,6 +531,88 @@ def _parse_n_vf(tokens: list[str], n: int) -> tuple[int, ...] | None:
         return None
 
 
+_LSU_MEM_RE = re.compile(
+    r"^\s*(-?\w+)\s*\(\s*(vi[0-9]{1,2})\s*\)\s*$",
+    re.IGNORECASE,
+)
+
+
+def _parse_lsu_operand(text: str) -> tuple[int, int] | None:
+    """Parse `imm(viN)` memory operand. Returns (imm, vi_idx) or None."""
+    m = _LSU_MEM_RE.match(text)
+    if not m:
+        return None
+    try:
+        imm = _int(m.group(1))
+    except EncodeError:
+        return None
+    if imm < -1024 or imm > 1023:
+        raise EncodeError(f"lsu offset {imm} out of 11-bit signed range")
+    return (imm & 0x7FF, _vi(m.group(2)))
+
+
+def _enc_lower_lq(mask: str, ft_vf: int, fs_vi: int, imm: int) -> int:
+    """LQ.<mask> vft, imm(vis) — load quadword.
+    op7=0x00, _Ft_ at bits 16-20 = vf dest, _Fs_ at bits 11-15 = vi base."""
+    return ((0x00 << 25) | (_enc_dest_mask(mask) << 21)
+            | ((ft_vf & 0x1F) << 16) | ((fs_vi & 0xF) << 11)
+            | (imm & 0x7FF))
+
+
+def _enc_lower_sq(mask: str, fs_vf: int, ft_vi: int, imm: int) -> int:
+    """SQ.<mask> vfs, imm(vit) — store quadword.
+    op7=0x01, _Fs_ at bits 11-15 = vf source, _It_ at bits 16-20 = vi base."""
+    return ((0x01 << 25) | (_enc_dest_mask(mask) << 21)
+            | ((ft_vi & 0xF) << 16) | ((fs_vf & 0x1F) << 11)
+            | (imm & 0x7FF))
+
+
+def _enc_lower_ilw(mask: str, it: int, is_: int, imm: int) -> int:
+    """ILW.<mask> vit, imm(vis) — load int word from vi mem.
+    op7=0x04, _It_ = vi dest, _Is_ = vi base.  Mask selects which lane
+    of the quadword to read into the vi reg."""
+    return ((0x04 << 25) | (_enc_dest_mask(mask) << 21)
+            | ((it & 0xF) << 16) | ((is_ & 0xF) << 11)
+            | (imm & 0x7FF))
+
+
+def _enc_lower_isw(mask: str, it: int, is_: int, imm: int) -> int:
+    """ISW.<mask> vit, imm(vis) — store int word."""
+    return ((0x05 << 25) | (_enc_dest_mask(mask) << 21)
+            | ((it & 0xF) << 16) | ((is_ & 0xF) << 11)
+            | (imm & 0x7FF))
+
+
+def _enc_lower_iaddiu(it: int, is_: int, imm15: int) -> int:
+    """IADDIU vit, vis, imm15 — vit = vis + imm15 (unsigned 15-bit).
+    op7=0x08; imm15 split as upper 4 bits in bits 21-24, lower 11
+    bits in bits 0-10."""
+    if not 0 <= imm15 <= 0x7FFF:
+        raise EncodeError(f"iaddiu imm15 {imm15} out of 15-bit unsigned range")
+    return ((0x08 << 25)
+            | (((imm15 >> 11) & 0xF) << 21)
+            | ((it & 0xF) << 16) | ((is_ & 0xF) << 11)
+            | (imm15 & 0x7FF))
+
+
+def _enc_lower_isubiu(it: int, is_: int, imm15: int) -> int:
+    """ISUBIU vit, vis, imm15. Same encoding shape as IADDIU."""
+    if not 0 <= imm15 <= 0x7FFF:
+        raise EncodeError(f"isubiu imm15 {imm15} out of 15-bit unsigned range")
+    return ((0x09 << 25)
+            | (((imm15 >> 11) & 0xF) << 21)
+            | ((it & 0xF) << 16) | ((is_ & 0xF) << 11)
+            | (imm15 & 0x7FF))
+
+
+_LOWER_MEM_OPS = {
+    "lq":  ("lq",  _enc_lower_lq,  "vft_imm_vis"),
+    "sq":  ("sq",  _enc_lower_sq,  "vfs_imm_vit"),
+    "ilw": ("ilw", _enc_lower_ilw, "vit_imm_vis"),
+    "isw": ("isw", _enc_lower_isw, "vit_imm_vis"),
+}
+
+
 def _try_encode_lower_late(text: str, pc: int,
                            labels: dict[str, int]) -> int:
     """Encode a textual lower insn. Branches resolve labels here.
@@ -544,6 +626,49 @@ def _try_encode_lower_late(text: str, pc: int,
     head = tok[0].lower()
     if head == ".word":
         return _int(tok[1]) & 0xFFFFFFFF
+
+    # LSU + I-type mnemonics need access to the original comma-separated
+    # operand text, NOT the re.split tokens (which would lose comma
+    # boundaries inside `imm(viN)` operands).  Re-derive from `text`
+    # by stripping the leading mnemonic word.
+    head_match = re.match(r"^\s*(\S+)\s*(.*)$", text)
+    if head_match is None:
+        raise EncodeError(f"unparseable lower insn: {text!r}")
+    head_word, rest = head_match.group(1), head_match.group(2).strip()
+    m = _FMAC_MNEM_RE.match(head_word)
+    if m:
+        name = m.group(1).lower()
+        mask = m.group(2) or ""
+        if name in _LOWER_MEM_OPS:
+            _n, enc, shape = _LOWER_MEM_OPS[name]
+            # Operands: vfX, imm(viY)  — split on the first comma so
+            # the `imm(vi)` half stays intact (it has no top-level comma).
+            parts = [p.strip() for p in rest.split(",", 1)]
+            if len(parts) != 2:
+                raise EncodeError(f"{name}: expected `<reg>, imm(viN)`: {text!r}")
+            mem = _parse_lsu_operand(parts[1])
+            if mem is None:
+                raise EncodeError(f"{name}: malformed memory operand: {parts[1]!r}")
+            imm, vi_idx = mem
+            if shape == "vft_imm_vis":
+                ft = _vf(parts[0])
+                return enc(mask, ft, vi_idx, imm)
+            if shape == "vfs_imm_vit":
+                fs = _vf(parts[0])
+                return enc(mask, fs, vi_idx, imm)
+            if shape == "vit_imm_vis":
+                it = _vi(parts[0])
+                return enc(mask, it, vi_idx, imm)
+        if name in ("iaddiu", "isubiu"):
+            parts = [p.strip() for p in rest.split(",")]
+            if len(parts) != 3:
+                raise EncodeError(f"{name}: expected `vit, vis, imm15`: {text!r}")
+            it = _vi(parts[0])
+            is_ = _vi(parts[1])
+            imm15 = _int(parts[2])
+            if name == "iaddiu":
+                return _enc_lower_iaddiu(it, is_, imm15)
+            return _enc_lower_isubiu(it, is_, imm15)
     if head in _BRANCH_OPS:
         op6 = _BRANCH_OPS[head]
         # ibeq/ibne: ibeq vi_ft, vi_fs, target

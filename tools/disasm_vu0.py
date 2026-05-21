@@ -277,6 +277,31 @@ def decode_lower(w: int, pc: int, branch_targets: list[int] | None = None) -> st
         if op7 in (0x28, 0x29):
             return f"{op} {vi(ft)}, {vi(fs)}, L_{target:04X}"
         return f"{op} {vi(fs)}, L_{target:04X}"
+    # LSU + I-type — operand layout differs per op:
+    #   LQ  (0x00): vft = vf dest, vfs = vi base
+    #   SQ  (0x01): vfs = vf source, vft = vi base   (swapped vs LQ!)
+    #   ILW (0x04): vit = vi dest, vis = vi base
+    #   ISW (0x05): vit = vi src,  vis = vi base
+    dst_mask = bits(w, 21, 24)
+    dst_str_lsu = ""
+    if dst_mask:
+        dst_str_lsu = "." + ''.join(c for c, b in zip("xyzw", (8,4,2,1))
+                                    if dst_mask & b)
+    imm11 = signed(bits(w, 0, 10), 11)
+    if op7 == 0x00:
+        return f"lq{dst_str_lsu} {vf(ft)}, {imm11:+d}({vi(fs & 0xF)})"
+    if op7 == 0x01:
+        return f"sq{dst_str_lsu} {vf(fs)}, {imm11:+d}({vi(ft & 0xF)})"
+    if op7 == 0x04:
+        return f"ilw{dst_str_lsu} {vi(ft & 0xF)}, {imm11:+d}({vi(fs & 0xF)})"
+    if op7 == 0x05:
+        return f"isw{dst_str_lsu} {vi(ft & 0xF)}, {imm11:+d}({vi(fs & 0xF)})"
+    if op7 == 0x08:
+        imm15 = (bits(w, 21, 24) << 11) | bits(w, 0, 10)
+        return f"iaddiu {vi(ft & 0xF)}, {vi(fs & 0xF)}, {imm15}"
+    if op7 == 0x09:
+        imm15 = (bits(w, 21, 24) << 11) | bits(w, 0, 10)
+        return f"isubiu {vi(ft & 0xF)}, {vi(fs & 0xF)}, {imm15}"
     if op7 == 0x20:
         offset = signed(bits(w, 0, 10), 11) * 8
         target = pc + 8 + offset

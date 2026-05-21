@@ -248,6 +248,50 @@ def test_upper_fd_ftoi() -> None:
     print(f"  ok: ftoi4.xyzw vf10,vf09 → 0x{got:08X} (ft=dest, fs=source)")
 
 
+def test_lower_lsu() -> None:
+    """LQ/SQ load/store quadword. Note: LQ and SQ swap vf and vi
+    bit positions (vf at 11-15 for SQ, at 16-20 for LQ; vi at the
+    other position). All cases cross-validated against real ICO
+    bundles."""
+    src = (
+        ".vu0\n"
+        "nop ; lq.xyzw vf30, 2(vi00)\n"   # pc=0x01A0 → lower 0x01FE0002
+        "nop ; sq.xyzw vf30, 2(vi00)\n"   # pc=0x01B8 → lower 0x03E0F002
+    )
+    body = _assemble(src)
+    wants = [0x01FE0002, 0x03E0F002]
+    for i, want in enumerate(wants):
+        got = struct.unpack_from("<I", body, i * 8)[0]
+        assert got == want, f"bundle {i}: 0x{got:08X} != 0x{want:08X}"
+    print(f"  ok: lq + sq encodings validated against real ICO bundles")
+
+
+def test_lower_iaddiu_isubiu() -> None:
+    """IADDIU/ISUBIU integer add/subtract immediate. Imm15 splits
+    across bits 21-24 (upper 4) and bits 0-10 (lower 11)."""
+    src = (
+        ".vu0\n"
+        "nop ; iaddiu vi07, vi12, 191\n"  # pc=0x0120 → 0x100760BF
+        "nop ; isubiu vi10, vi10, 1\n"    # pc=0x2180 → 0x120A5001
+    )
+    body = _assemble(src)
+    wants = [0x100760BF, 0x120A5001]
+    for i, want in enumerate(wants):
+        got = struct.unpack_from("<I", body, i * 8)[0]
+        assert got == want, f"bundle {i}: 0x{got:08X} != 0x{want:08X}"
+    print(f"  ok: iaddiu + isubiu encodings validated against real ICO bundles")
+
+
+def test_iaddiu_imm15_split() -> None:
+    """Imm15 high-nibble survives the upper-bits split correctly."""
+    import assemble_vu0 as A
+    # imm15 = 0x4321: upper 4 bits = 0x8 (= 0x4321 >> 11), lower 11 = 0x321
+    got = A._enc_lower_iaddiu(0, 0, 0x4321)
+    expected = (0x08 << 25) | (0x8 << 21) | (0 << 16) | (0 << 11) | 0x321
+    assert got == expected, f"got 0x{got:08X} expected 0x{expected:08X}"
+    print(f"  ok: iaddiu imm15 0x4321 splits as 0x8<<21 | 0x321")
+
+
 def test_nop_swap() -> None:
     """The 0x8000033C BIOS-bug NOP pattern is its own mnemonic now.
 
@@ -370,6 +414,9 @@ def main(argv: list[str] | None = None) -> int:
     test_upper_iq_variants()
     test_upper_fd_acc_ops()
     test_upper_fd_ftoi()
+    test_lower_lsu()
+    test_lower_iaddiu_isubiu()
+    test_iaddiu_imm15_split()
     test_nop_swap()
     if args.against_textbin:
         test_against_textbin()
