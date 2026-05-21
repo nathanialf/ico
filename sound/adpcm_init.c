@@ -1,6 +1,7 @@
 /* sound/adpcm_init.c — __FILE__ anchor at .rodata 0x00557b78 */
 
 #include "include_asm.h"
+#include "matching.h"
 #include "regpin.h"
 
 __attribute__((section(".rodata.0x00557B78"))) const char D_00557B78[24] = "sound/adpcm_init.c";
@@ -95,7 +96,51 @@ int func_0013FF88(char *self_arg, int val5, int val6)
     return 0;
 }
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_0013FFD0);
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140048);
+
+extern char *D_006321DC;
+extern void func_0013E548(char *ctx);
+extern void func_0013F810(char *ctx);
+extern void func_0013F888(char *ctx);
+
+typedef struct __attribute__((packed)) { long long v; } PackedLL;
+
+int func_00140048(void (*cb)(long long)) {
+    char *ctx = D_006321DC;
+    char *base = ctx + 0x54;
+    int count;
+    int i;
+    char *entries_base;
+    count = *(int *)(base + 4);
+    if (count <= 0) return 0;
+    i = 0;
+    entries_base = ctx + 0x5C;
+    do {
+        int op;
+        char *entry_addr = (char *)((int)entries_base + (i << 3));
+        op = *(int *)entry_addr;
+        if ((unsigned)op < 5) {
+            switch (op) {
+                case 0: func_0013E548(ctx); break;
+                case 1: func_0013F810(ctx); break;
+                case 2: func_0013F888(ctx); break;
+                case 3: case 4: break;
+            }
+        } else {
+            char *addr = base + i * 8;
+            __asm__ __volatile__(
+                ".set push\n\t"
+                ".set noreorder\n\t"
+                "ldl $4, 15(%0)\n\t"
+                "ldr $4, 8(%0)\n\t"
+                "jalr %1\n\t"
+                "nop\n\t"
+                ".set pop"
+                : : "r"(addr), "r"(cb) : "$4", "$31", "memory");
+        }
+        i++;
+    } while (i < *(int *)(base + 4));
+    return 0;
+}
 
 void func_00140130(void)
 {

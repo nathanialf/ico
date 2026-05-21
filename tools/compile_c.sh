@@ -175,6 +175,9 @@ fi
 if [ "${BASE}" = "lodManager" ]; then
     "${PYTHON}" "${ROOT}/tools/postprocess_0D4BD0.py" "${S}"
 fi
+if [ "${BASE}" = "adpcm_init" ]; then
+    "${PYTHON}" "${ROOT}/tools/postprocess_040048.py" "${S}"
+fi
 if [ "${BASE}" = "14E4C8" ]; then
     "${PYTHON}" "${ROOT}/tools/postprocess_14E4C8.py" "${S}"
 fi

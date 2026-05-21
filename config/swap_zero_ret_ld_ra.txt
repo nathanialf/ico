@@ -10,3 +10,4 @@
 # Lines starting with # are comments; blank lines ignored.
 
 035BB8   # func_00135BB8: linked-list traversal
+adpcm_init   # func_00140048: daddu $2,$0 before ld $31 in epilogue
