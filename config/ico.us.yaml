@@ -2512,8 +2512,8 @@ segments:
       - [0x16F434, hasm, src/cod/16F434]
       - [0x16F560, c, src/cod/16F560]            # func_0026F560: tail call func_0026F438 with both args masked &~0x3F
       - [0x16F574, asm, src/cod/16F574]
-      - [0x16F5E0, hasm, src/cod/16F5E0]            # VU0 microcode — first 133 bundles hand-typed (assemble_vu0.py)
-      - [0x16FA08, textbin, src/cod/16FA08]         # VU0 microcode — remainder still incbin'd
+      - [0x16F5E0, hasm, src/cod/16F5E0]            # VU0 microcode — first 224 bundles hand-typed (assemble_vu0.py)
+      - [0x16FCE0, textbin, src/cod/16FCE0]         # VU0 microcode — remainder still incbin'd
       - [0x174700, data, src/cod/174700]
       - [0x453700, rodata, src/cod/453700]
       - [0x530900, lit4, src/cod/530900]

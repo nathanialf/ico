@@ -290,11 +290,191 @@ pad ; lqi.xyzw vf20, vi12              ; vf20 = *vi12++
 pad ; nop_swap                         ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
-; sub_0410 — trivial no-op entry (callable empty routine).
+; sub_0410 — trivial no-op entry (callable empty routine).  Also the
+; shared return target of sub_0428 (`b sub_0410` to terminate).
 ; -----------------------------------------------------------------------
 sub_0410:
 pad ; nop_swap                         ; do nothing
 .word 0x400002FF ; nop_swap            ; upper: E-bit pad (END)
 pad ; nop_swap                         ; E-bit delay slot
 
-.assert_pc 0x428
+; -----------------------------------------------------------------------
+; sub_0428 — skinned vertex transform with perspective divide,
+;   color quantization, and front-face/back-face slot selection.
+;
+; Top-level shape:
+;   Prologue (0x428..0x480):
+;     - Read count and header quad from VIF input at vi13.
+;     - Initialize input cursor vi02 = vi13+1 and output cursor
+;       vi01 = vi02+192; mirror the post-header cursor in vi03.
+;     - Seed vf26.w = 0, vf27.w = 0x8000 (sign-bit float — used as
+;       the "back-face" position-slot marker).
+;
+;   Per-vertex loop body (sub_0428_loop):
+;     1. Load two weight quads vf21,vf22 from the vi02 stream and
+;        two matrix-index ints (vi10 from .x lane, vi11 from .z
+;        lane) — these select two source matrices M, N from the
+;        constant pool at low mem.
+;     2. Compute M*vf21 → vf28, N*vf21 → vf29; M*vf22 → vf30,
+;        N*vf22 → vf31 (standard mulax / madday / maddaz / maddw
+;        accumulator chains, four times).
+;     3. Blend the two pairs by the bone-weights in vf23.y/.w:
+;          vf28 = M*vf21*vf23.y + N*vf21*vf23.w
+;          vf22 = M*vf22*vf23.y + N*vf22*vf23.w
+;     4. Transform skinned position by the model matrix
+;        [vf09..vf12]: vf28 = [vf09..vf12] * vf28.
+;     5. Transform skinned vector by [vf13..vf16]: vf30 = ... * vf22.
+;        Concurrently fire `div Q, vf00.w, vf28.w` to start the
+;        perspective-divide reciprocal.
+;     6. Clamp negatives, waitq, then mulq.xyz vf28 *= Q (perspective
+;        divide) and re-transform by [vf17..vf20]: vf30 = ... * vf30
+;        (post-divide screen-space position).
+;     7. Convert vf28 to fixed-point colors (ftoi4) into vf26, vf27;
+;        load I-register with 255.0 (via I-bit on a mul.xyz bundle)
+;        and use minii to saturate the post-mul color vf25 to 255.
+;        ftoi0 truncates to int.
+;     8. Use fmand to derive clip-flags into vi14; compare against
+;        a clip-mask in vi09 to select front-face vs back-face
+;        position slot (vf26 vs vf27).  vi07 is a 3-slot rotating
+;        decimator (skip 2 out of 3 back-face writes?).
+;     9. Store one output triplet (color, normal, position) at
+;        mem[vi03..vi03+2]; advance vi03 by 3.
+;
+;   Loop tail (0x6D0..0x6F8):
+;     - `ibne vi06, ..., sub_0428_loop` continues while count != 0.
+;     - After the loop: `xgkick vi01` kicks the GIF packet, then
+;       `b sub_0410` branches to the shared no-op terminator.
+;
+; The bundle at 0x0618 has the upper-half I-bit set (bit 31):
+;   upper = 0x81DECE6A  (mul.xyz vf25, vf25, vf30 with I-bit)
+;   lower = 0x437F0000  (= IEEE-754 255.0f, the I-register immediate)
+; assemble_vu0.py has no I-bit suffix yet, so the bundle is emitted
+; as two raw `.word`s with the byte sequence above.  The disassembler
+; mis-decodes the immediate as `bal vi31, L_0620` because it doesn't
+; track the I-bit — the iaddiu at 0x0620 is NOT a branch target.
+; -----------------------------------------------------------------------
+sub_0428:
+pad ; xtop vi13                        ; vi13 = VIF top
+pad ; iaddiu vi14, vi00, 32767         ; vi14 = 0x7FFF
+pad ; iaddiu vi02, vi13, 1             ; vi02 = vi13 + 1     (vertex-stream ptr)
+pad ; ilwr.x vi06, vi13                ; vi06 = *(int*)vi13  (count)
+pad ; lq.xyzw vf28, 0(vi13)            ; vf28 = mem[vi13]    (header quad)
+pad ; iand vi06, vi14, vi06            ; vi06 &= 0x7FFF
+pad ; iaddiu vi01, vi02, 192           ; vi01 = vi02 + 192   (output base)
+pad ; sq.xyzw vf28, 0(vi01)            ; mem[vi01] = vf28    (store header)
+pad ; iaddi vi14, vi14, 1              ; vi14 = 0x8000       (sign-bit pattern)
+pad ; iaddiu vi03, vi01, 1             ; vi03 = vi01 + 1     (output cursor)
+pad ; mfir.w vf26, vi00                ; vf26.w = 0          (front-face marker)
+pad ; mfir.w vf27, vi14                ; vf27.w = 0x8000     (back-face marker)
+
+sub_0428_loop:
+pad ; lqi.xyzw vf21, vi02              ; vf21 = *vi02++       (weight quad 0)
+pad ; lqi.xyzw vf22, vi02              ; vf22 = *vi02++       (weight quad 1)
+pad ; ilwr.x vi10, vi02                ; vi10 = (int)mem[vi02].x  (matrix M base)
+pad ; ilwr.z vi11, vi02                ; vi11 = (int)mem[vi02].z  (matrix N base)
+pad ; lq.xyzw vf01, 0(vi10)            ; vf01..vf04 = M
+pad ; lq.xyzw vf02, 1(vi10)
+pad ; lq.xyzw vf03, 2(vi10)
+pad ; lq.xyzw vf04, 3(vi10)
+
+; ACC = M * vf21 → vf28
+mulax.xyzw  vf01, vf21 ; lq.xyzw vf05, 0(vi11)    ; ACC.xyzw = vf01 * vf21.x; load N[0]
+madday.xyzw vf02, vf21 ; lq.xyzw vf06, 1(vi11)    ; ACC += vf02 * vf21.y;   load N[1]
+maddaz.xyzw vf03, vf21 ; lq.xyzw vf07, 2(vi11)    ; ACC += vf03 * vf21.z;   load N[2]
+maddw.xyzw  vf28, vf04, vf00 ; lq.xyzw vf08, 3(vi11) ; vf28 = ACC + vf04 * vf00.w; load N[3]
+
+; ACC = N * vf21 → vf29
+mulax.xyzw  vf05, vf21 ; iaddi vi06, vi06, -1     ; ACC.xyzw = vf05 * vf21.x; --count
+madday.xyzw vf06, vf21 ; lqi.xyzw vf23, vi02      ; ACC += vf06 * vf21.y; vf23 = *vi02++ (bone weights)
+maddaz.xyzw vf07, vf21 ; nop_swap                 ; ACC += vf07 * vf21.z
+maddw.xyzw  vf29, vf08, vf00 ; move.xyzw vf04, vf00 ; vf29 = ACC + vf08*vf00.w; vf04 = (0,0,0,1)
+
+; ACC = M * vf22 → vf30   (note: maddw uses vf22.w here, not vf00.w)
+mulax.xyzw  vf01, vf22 ; nop_swap                 ; ACC = vf01 * vf22.x
+madday.xyzw vf02, vf22 ; nop_swap                 ; ACC += vf02 * vf22.y
+maddaz.xyzw vf03, vf22 ; nop_swap                 ; ACC += vf03 * vf22.z
+maddw.xyzw  vf30, vf04, vf22 ; move.xyzw vf08, vf00 ; vf30 = ACC + (0,0,0,1)*vf22.w; vf08 = (0,0,0,1)
+
+; ACC = N * vf22 → vf31
+mulax.xyzw  vf05, vf22 ; move.w vf28, vf00        ; ACC = vf05 * vf22.x; vf28.w = 1
+madday.xyzw vf06, vf22 ; nop_swap                 ; ACC += vf06 * vf22.y
+maddaz.xyzw vf07, vf22 ; nop_swap                 ; ACC += vf07 * vf22.z
+maddw.xyzw  vf31, vf08, vf22 ; nop_swap           ; vf31 = ACC + vf08*vf22.w
+
+; Bone-weight blend by vf23.y / vf23.w → vf28 (from vf28, vf29) and vf22 (from vf30, vf31)
+mulay.xyz   vf28, vf23 ; move.w vf22, vf00        ; ACC.xyz = vf28 * vf23.y;  vf22.w = 1
+maddw.xyz   vf28, vf29, vf23 ; nop_swap           ; vf28.xyz = ACC + vf29*vf23.w
+mulay.xyz   vf30, vf23 ; nop_swap                 ; ACC.xyz = vf30 * vf23.y
+maddw.xyz   vf22, vf31, vf23 ; nop_swap           ; vf22.xyz = ACC + vf31*vf23.w
+
+; Apply per-model matrix [vf09..vf12] to vf28 (skinned color/light vector)
+mulax.xyzw  vf09, vf28 ; nop_swap                 ; ACC = vf09 * vf28.x
+madday.xyzw vf10, vf28 ; nop_swap                 ; ACC += vf10 * vf28.y
+maddaz.xyzw vf11, vf28 ; nop_swap                 ; ACC += vf11 * vf28.z
+maddw.xyzw  vf28, vf12, vf28 ; nop_swap           ; vf28 = ACC + vf12 * vf28.w
+
+; Apply [vf13..vf16] to vf22 (skinned position pre-divide) + start perspective divide
+mulax.xyzw  vf13, vf22 ; lqi.xyzw vf24, vi02      ; ACC = vf13*vf22.x; vf24 = *vi02++ (alt-color quad)
+madday.xyzw vf14, vf22 ; nop_swap                 ; ACC += vf14*vf22.y
+maddaz.xyzw vf15, vf22 ; nop_swap                 ; ACC += vf15*vf22.z
+maddw.xyzw  vf30, vf16, vf22 ; div Q, vf00.w, vf28.w ; vf30 = ACC + vf16*vf22.w; Q = 1.0/vf28.w
+
+; Cycle-pad while Q divides; meanwhile set up clip-flag accumulator
+sub.w       vf00, vf24, vf00 ; nop_swap          ; flag-set: vf24.w - 0
+pad ; nop_swap
+pad ; nop_swap
+maxx.xyzw   vf30, vf30, vf00 ; nop_swap          ; vf30 = max(vf30, vf00.x=0)  (clamp negatives)
+sub.w       vf24, vf24, vf24 ; fsand vi15, 0x2   ; vf24.w = 0; vi15 = MAC.flags & 0x02
+mulq.xyz    vf28, vf28 ; waitq                   ; vf28.xyz *= Q (perspective divide)
+
+; Apply [vf17..vf20] to vf30 (post-divide screen-space transform)
+mulax.xyzw  vf17, vf30 ; nop_swap                 ; ACC = vf17 * vf30.x
+madday.xyzw vf18, vf30 ; nop_swap                 ; ACC += vf18 * vf30.y
+maddaz.xyzw vf19, vf30 ; iaddiu vi13, vi00, 0     ; ACC += vf19*vf30.z; vi13 = 0 (clip slot)
+maddw.xyzw  vf30, vf20, vf30 ; lqi.xyzw vf25, vi02 ; vf30 = ACC + vf20*vf30.w; vf25 = *vi02++ (color)
+maxx.xyzw   vf30, vf30, vf00 ; nop_swap          ; clamp vf30 to ≥ 0
+
+; Quantize colors / set up clip-flag bits
+ftoi4.xyz   vf26, vf28 ; lq.xyzw vf29, 0(vi13)   ; vf26.xyz = float→fix4(vf28); vf29 = mem[0] (clip-x bounds)
+ftoi4.xyz   vf27, vf28 ; lq.xyzw vf31, 1(vi13)   ; vf27.xyz = float→fix4(vf28); vf31 = mem[1] (clip-y bounds)
+mulq.xyz    vf24, vf24 ; nop_swap                ; vf24.xyz *= Q (perspective on alt-color)
+; I-bit bundle: upper = mul.xyz vf25,vf25,vf30 with I-bit set; lower = 255.0f → I reg.
+; (disasm shows lower as `bal vi31, L_0620` — a misread.  The iaddiu at 0x0620 is
+;  the next sequential bundle, NOT a branch target.)
+.word 0x81DECE6A ; .word 0x437F0000   ; mul.xyz[I] vf25,vf25,vf30 + I = 255.0f
+
+pad ; iaddiu vi09, vi00, 208           ; vi09 = 0xD0  (clip-mask: bits .y/.z/.w?)
+sub.xyw     vf00, vf29, vf28 ; nop_swap          ; flag-set: clip(vf29 - vf28) on xyw
+sub.xyw     vf00, vf28, vf31 ; nop_swap          ; flag-set: clip(vf28 - vf31) on xyw
+minii.xyzw  vf25, vf25 ; sq.xyzw vf24, 0(vi03)   ; saturate vf25 ≤ I(=255); store alt-color
+pad ; nop_swap
+pad ; fmand vi14, vi09                 ; vi14 = MAC.flags & vi09 (clip bits)
+pad ; fmand vi14, vi14                 ; vi14 = MAC.flags & vi14 (combine)
+ftoi0.xyzw  vf25, vf25 ; ibeq vi15, vi00, L_0670 ; ftoi0 (round-to-int); if vi15==0 skip-reset
+pad ; nop_swap                         ;       (branch delay slot)
+pad ; iaddiu vi07, vi00, 3             ; vi07 = 3 (back-face slot counter)
+
+L_0670:
+pad ; iaddi vi07, vi07, -1             ; --vi07
+pad ; sq.xyzw vf25, 1(vi03)            ; mem[vi03+1] = vf25 (quantized color)
+pad ; ibne vi14, vi09, L_06B0          ; if clip-flags don't match, use back-face slot
+pad ; nop_swap                         ;       (branch delay slot)
+pad ; ibgtz vi07, L_06B8               ; if vi07 > 0, also use back-face slot
+pad ; sq.xyzw vf26, 2(vi03)            ; mem[vi03+2] = vf26 (front-face position)  (delay slot)
+pad ; b L_06C0                         ; skip back-face write
+pad ; nop_swap                         ;       (branch delay slot)
+L_06B0:
+pad ; iaddiu vi07, vi00, 3             ; reset vi07 = 3 (back-face slot triggered)
+L_06B8:
+pad ; sq.xyzw vf27, 2(vi03)            ; mem[vi03+2] = vf27 (back-face position)
+L_06C0:
+pad ; iaddiu vi03, vi03, 3             ; vi03 += 3 (advance output by 3 quads)
+pad ; nop_swap
+pad ; ibne vi06, vi00, sub_0428_loop   ; loop while count != 0
+pad ; nop_swap                         ;       (branch delay slot)
+pad ; xgkick vi01                      ; kick GIF packet at vi01
+pad ; nop_swap
+pad ; b sub_0410                       ; → sub_0410 (shared END stub)
+pad ; nop_swap                         ;       (branch delay slot)
+
+.assert_pc 0x700
