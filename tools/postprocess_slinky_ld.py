@@ -306,7 +306,13 @@ def collect_slots(objdump: str, base: str, vram_sym: str,
             secs = sections_of(objdump, jtbl_opath)
             if not _has_plain_section(secs, base):
                 continue
-            slots.append((jtbl_vma, "jtbl", jtbl_opath, f"{base}*"))
+            # Pull EXACT `.rodata` (no suffix) — using `.rodata*` would
+            # greedily claim the .o's per-symbol `.rodata.D_<VMA>` /
+            # `.rodata.0x<VMA>` sections that belong to later
+            # higher-VMA slots (ld's first-match-wins), shifting those
+            # symbols off-VMA. The function-owned jtbl lives in the
+            # bare `.rodata` section that gcc emits without a name.
+            slots.append((jtbl_vma, "jtbl", jtbl_opath, base))
 
     slots.sort(key=lambda s: (s[0], s[1]))
 

@@ -133,7 +133,20 @@ void func_0014B260(char *self) {
     *(volatile long long *)(sub + 0x58) = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014B270);
+void func_0014B270(char *self, int op, int int_val, float float_val) {
+    char *sub = *(char **)(self + 0x164);
+    *(long long *)(sub + 0x58) |= 1 << op;
+    switch (op) {
+        case 8:  *(float *)(sub + 0x68) = float_val; break;
+        case 5:  *(float *)(sub + 0x6C) = float_val; break;
+        case 15: *(float *)(sub + 0x70) = float_val; break;
+        case 16: *(int *)(sub + 0x74) = int_val; break;
+        case 10: *(int *)(sub + 0x78) = int_val; break;
+        case 2:  *(int *)(sub + 0x7C) = int_val; break;
+        case 11: *(int *)(sub + 0x88) = int_val; break;
+        default: break;
+    }
+}
 
 int func_0014B2F0(char *a0, int a1)
 {
