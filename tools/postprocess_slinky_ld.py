@@ -160,7 +160,30 @@ def collect_slots(objdump: str, base: str, vram_sym: str,
             slots.append((vma, "typed", o, name))
 
     # 2. Promoted plain slots — one per (TU, section) flagged
-    #    promotable + stripped, whose .o has plain content.
+    #    promotable + stripped, whose .o has plain content AND whose
+    #    range is FULLY covered by tracked typed defs in the TU's
+    #    source (no sidecar contribution within the range — see below).
+    #
+    # A promoted slot pulls `<o>(.<base>*)` placed at lo_vma. If part
+    # of the range is filled by a sidecar .o (which contributes
+    # typed `.<base>.0xVMA` sections at intermediate VMAs), the
+    # promoted slot's content would either double-define those bytes
+    # or shift the TU's other defs off-VMA. Skip such TUs — their
+    # typed slots will cover the bytes correctly via the catch-all
+    # (no promoted slot needed yet).
+    sidecar_vmas_in_range: set[int] = set()
+    for o in link_objs:
+        if not o.endswith("_data.o"):
+            continue
+        for name, _sz in sections_of(objdump, o):
+            if not (name.startswith(base + ".0x") or name.startswith(base + ".0X")):
+                continue
+            try:
+                v = int(name.split(".0x", 1)[-1].split(".0X", 1)[-1], 16)
+            except ValueError:
+                continue
+            sidecar_vmas_in_range.add(v)
+
     for tu, sections in boundaries.items():
         info = sections.get(base)
         if info is None:
@@ -177,6 +200,12 @@ def collect_slots(objdump: str, base: str, vram_sym: str,
         if not ranges:
             continue
         lo_vma = int(ranges[0]["lo_vma"], 16)
+        hi_vma = int(ranges[0]["hi_vma"], 16)
+        # If a sidecar .o contributes a typed section inside [lo, hi),
+        # the TU's plain .rodata isn't the sole owner of this range —
+        # skip promotion (typed slots will own the bytes).
+        if any(lo_vma <= v < hi_vma for v in sidecar_vmas_in_range):
+            continue
         slots.append((lo_vma, "promoted", opath, f"{base}*"))
 
     slots.sort(key=lambda s: (s[0], s[1]))
