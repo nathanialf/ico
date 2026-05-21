@@ -18,7 +18,7 @@
  */
 
 
-__attribute__((section(".rodata.0x00618DB0"))) const char D_00618DB0[24] = "src/enemyParts.c";
+const char D_00618DB0[24] = "src/enemyParts.c";
 
 #include "matching.h"
 #include "include_asm.h"

@@ -9,7 +9,7 @@ extern int D_00632784;
 extern char D_00632788[8];
 extern const char D_00632790[];
 
-__attribute__((section(".rodata.0x0055AE88"))) const char D_0055AE88[24] = "src/fightSound.c";
+const char D_0055AE88[24] = "src/fightSound.c";
 
 extern int D_00632780;
 extern int D_006D0D20[];

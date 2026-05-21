@@ -31,10 +31,14 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 BOUNDARIES_JSON = REPO / "decomp" / "data_tu_boundaries.json"
 
-# `__attribute__((section(".<sec>.0xVMA"))) ` — note the trailing space we
-# also consume so the rest of the line is the typed def proper.
+# `__attribute__((section(".<sec>.0xVMA"))) <type-prefix> <symbol>` — we
+# also capture the type prefix between the attr and the symbol so we
+# can patch read-only-string corner cases (e.g. force `const` on `char`
+# arrays when stripping `.rodata` attrs).
 ATTR_RE = re.compile(
     r'__attribute__\(\(section\("\.(?P<sec>\w+)\.0x(?P<vma>[0-9A-Fa-f]+)"\)\)\)\s+'
+    r'(?P<pre>(?:[A-Za-z_]\w*\s+)+\**\s*)'
+    r'(?P<name>D_[0-9A-Fa-f]{8})\b'
 )
 
 
@@ -83,7 +87,21 @@ def strip_file(path: Path, ranges: dict[str, list[tuple[int, int]]],
         for lo, hi in ranges[sec]:
             if lo <= vma < hi:
                 counts[sec] = counts.get(sec, 0) + 1
-                return ""
+                pre = m.group("pre")
+                name = m.group("name")
+                # When stripping `.rodata` attrs from a `char` (or
+                # `unsigned char`) array without `const`, ee-gcc would
+                # default-place it in `.data` (mutable) instead of
+                # `.rodata`, landing the bytes at the wrong VMA. Add
+                # `const` so the section choice matches the original.
+                if sec == ".rodata" and "const" not in pre:
+                    tokens = pre.split()
+                    if tokens and tokens[-1] in ("char", "wchar_t"):
+                        pre = "const " + pre
+                    elif (len(tokens) >= 2 and tokens[-2] == "unsigned"
+                          and tokens[-1] == "char"):
+                        pre = "const " + pre
+                return pre + name
         return m.group(0)
     new_text = ATTR_RE.sub(replacer, text)
     if new_text != text and not dry_run:

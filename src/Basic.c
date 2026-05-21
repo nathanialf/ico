@@ -11,8 +11,8 @@
 #include "regpin.h"
 #include "include_asm.h"
 
-__attribute__((section(".rodata.0x0061A890"))) char D_0061A890[24] = "set partition first!\n";
-__attribute__((section(".rodata.0x0061A8A8"))) char D_0061A8A8[24] = "src/Basic.c";
+const char D_0061A890[24] = "set partition first!\n";
+const char D_0061A8A8[24] = "src/Basic.c";
 
 extern int   D_00633780;
 extern int   D_00633784;
