@@ -162,6 +162,16 @@ def encode_upper_pad() -> int:
     return 0x000002FF
 
 
+def encode_upper_epad() -> int:
+    """E-bit-set upper-pad pattern (`0x400002FF`).  Same FD_11 NOP
+    encoding as `pad` but with bit 30 (E-bit) set, which marks the
+    end of the VU0 microprogram — execution halts after the
+    implicit one-bundle delay slot.  Written as `epad ; <lower>`
+    in source so the VU0 program terminator is symbolic instead of
+    a raw `.word 0x400002FF` literal."""
+    return 0x400002FF
+
+
 # ----------------------------- Upper FMAC encoders ----------------------------
 #
 # Bit layout (cross-checked against PCSX2 microVU_Tables.inl + Misc.h, GPL-3.0):
@@ -458,6 +468,8 @@ def _try_encode_upper(text: str) -> int | None:
     head = head_raw.lower()
     if head == "pad":
         return encode_upper_pad()
+    if head == "epad":
+        return encode_upper_epad()
     if head == ".word":
         if len(tok) != 2:
             raise EncodeError(f".word needs exactly one operand, got {text!r}")

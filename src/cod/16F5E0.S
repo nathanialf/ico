@@ -130,7 +130,7 @@ pad ; nop_swap
 ; -----------------------------------------------------------------------
 sub_0180:
 pad ; xgkick vi07                      ; kick GIF packet at mem[vi07]
-.word 0x400002FF ; nop_swap            ; upper: E-bit pad (END)
+epad ; nop_swap                        ; upper: E-bit pad (END)
 pad ; nop_swap                         ; E-bit delay slot — VU0 halts after
 
 ; -----------------------------------------------------------------------
@@ -146,7 +146,7 @@ pad ; lq.xyzw vf30, 2(vi00)            ; vf30 = mem[2]
 pad ; lqi.xyzw vf31, vi01              ; vf31 = *vi01++
 pad ; move.xy vf30, vf31               ; vf30.xy = vf31.xy
 pad ; sq.xyzw vf30, 2(vi00)            ; mem[2] = vf30
-.word 0x400002FF ; nop_swap            ; upper: E-bit pad (END)
+epad ; nop_swap                        ; upper: E-bit pad (END)
 pad ; nop_swap                         ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
@@ -168,7 +168,7 @@ pad ; sqi.xyzw vf18, vi13              ; mem[256] = vf18
 pad ; sqi.xyzw vf19, vi13              ; mem[257] = vf19
 pad ; sqi.xyzw vf16, vi13              ; mem[258] = vf16
 pad ; sqi.xyzw vf17, vi13              ; mem[259] = vf17
-.word 0x400002FF ; nop_swap            ; upper: E-bit pad (END)
+epad ; nop_swap                        ; upper: E-bit pad (END)
 pad ; nop_swap                         ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
@@ -179,7 +179,7 @@ pad ; nop_swap                         ; E-bit delay slot
 ; implicit delay slot.
 ; -----------------------------------------------------------------------
 exit_0230:
-.word 0x400002FF ; nop_swap            ; upper: E-bit pad (END)
+epad ; nop_swap                        ; upper: E-bit pad (END)
 pad ; nop_swap                         ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
@@ -266,7 +266,7 @@ pad ; lq.xyzw vf09, 4(vi00)            ; vf09 = mem[4]
 pad ; lq.xyzw vf10, 5(vi00)            ; vf10 = mem[5]
 pad ; lq.xyzw vf11, 6(vi00)            ; vf11 = mem[6]
 pad ; lq.xyzw vf12, 7(vi00)            ; vf12 = mem[7]
-.word 0x400002FF ; nop_swap            ; upper: E-bit pad (END)
+epad ; nop_swap                        ; upper: E-bit pad (END)
 pad ; nop_swap                         ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
@@ -286,7 +286,7 @@ pad ; lqi.xyzw vf17, vi12              ; vf17 = *vi12++
 pad ; lqi.xyzw vf18, vi12              ; vf18 = *vi12++
 pad ; lqi.xyzw vf19, vi12              ; vf19 = *vi12++
 pad ; lqi.xyzw vf20, vi12              ; vf20 = *vi12++
-.word 0x400002FF ; nop_swap            ; upper: E-bit pad (END)
+epad ; nop_swap                        ; upper: E-bit pad (END)
 pad ; nop_swap                         ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
@@ -295,7 +295,7 @@ pad ; nop_swap                         ; E-bit delay slot
 ; -----------------------------------------------------------------------
 sub_0410:
 pad ; nop_swap                         ; do nothing
-.word 0x400002FF ; nop_swap            ; upper: E-bit pad (END)
+epad ; nop_swap                        ; upper: E-bit pad (END)
 pad ; nop_swap                         ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
@@ -485,7 +485,7 @@ pad ; nop_swap                         ;       (branch delay slot)
 sub_0700:
 pad ; nop_swap                         ; do nothing (entry)
 L_0708:
-.word 0x400002FF ; nop_swap            ; upper: E-bit pad (END)
+epad ; nop_swap                        ; upper: E-bit pad (END)
 pad ; nop_swap                         ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
@@ -642,7 +642,7 @@ sub_0A30:
 pad ; nop_swap                         ; do nothing (entry / also sub_0718's branch delay slot)
 L_0A38:
 pad ; nop_swap                         ; sub_0A50's branch target
-.word 0x400002FF ; nop_swap            ; upper: E-bit pad (END)
+epad ; nop_swap                        ; upper: E-bit pad (END)
 pad ; nop_swap                         ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
@@ -876,7 +876,7 @@ pad ; ibne vi10, vi00, sub_0EA0_loop
 pad ; sqi.xyzw vf28, vi09                ; (branch delay slot)
 pad ; nop_swap
 pad ; xgkick vi07
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
@@ -889,7 +889,7 @@ pad ; lq.xyzw vf30, 2(vi00)
 pad ; lqi.xyzw vf31, vi01
 pad ; move.xy vf30, vf31
 pad ; sq.xyzw vf30, 2(vi00)
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
@@ -907,7 +907,7 @@ pad ; sqi.xyzw vf18, vi13
 pad ; sqi.xyzw vf19, vi13
 pad ; sqi.xyzw vf16, vi13
 pad ; sqi.xyzw vf17, vi13
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
@@ -915,7 +915,7 @@ pad ; nop_swap                           ; E-bit delay slot
 ; clone of exit_0230 in program 1.
 ; -----------------------------------------------------------------------
 exit_0FC0:
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
@@ -990,7 +990,7 @@ pad ; lqi.xyzw vf01, vi13
 pad ; lqi.xyzw vf02, vi13
 pad ; lqi.xyzw vf03, vi13
 pad ; lqi.xyzw vf04, vi13
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
@@ -1007,7 +1007,7 @@ pad ; lqi.xyzw vf09, vi13
 pad ; lqi.xyzw vf10, vi13
 pad ; lqi.xyzw vf11, vi13
 pad ; lqi.xyzw vf12, vi13
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
@@ -1018,7 +1018,7 @@ pad ; nop_swap                           ; E-bit delay slot
 ; -----------------------------------------------------------------------
 sub_1170:
 pad ; nop_swap                           ; do nothing (entry / branch delay slot)
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
@@ -1123,7 +1123,7 @@ pad ; nop_swap                           ; (branch delay slot)
 ; -----------------------------------------------------------------------
 sub_1398:
 pad ; nop_swap                           ; do nothing (entry)
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
@@ -1221,7 +1221,7 @@ sub_15D8:
 pad ; nop_swap                           ; do nothing (entry / branch delay slot)
 L_15E0:
 pad ; nop_swap                           ; sub_15F8's `b L_15E0` lands here
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
@@ -1373,7 +1373,7 @@ pad ; ibne vi10, vi00, sub_18F0_loop
 pad ; sqi.xyzw vf28, vi09                ; (branch delay slot)
 pad ; nop_swap
 pad ; xgkick vi07
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
@@ -1385,7 +1385,7 @@ pad ; lq.xyzw vf30, 2(vi00)
 pad ; lqi.xyzw vf31, vi01
 pad ; move.xy vf30, vf31
 pad ; sq.xyzw vf30, 2(vi00)
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
@@ -1402,14 +1402,14 @@ pad ; sqi.xyzw vf18, vi13
 pad ; sqi.xyzw vf19, vi13
 pad ; sqi.xyzw vf16, vi13
 pad ; sqi.xyzw vf17, vi13
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
 ; exit_1A10 — shared E-bit-only stub (clone of exit_0FC0).
 ; -----------------------------------------------------------------------
 exit_1A10:
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
@@ -1493,7 +1493,7 @@ pad ; lqi.xyzw vf31, vi01
 pad ; sq.xyzw vf31, 27(vi00)
 pad ; lq.xyzw vf31, 3(vi00)              ; vf31 = mem[3]
 pad ; sq.xyzw vf31, 37(vi00)             ; mem[37] = vf31
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
@@ -1520,7 +1520,7 @@ pad ; lqi.xyzw vf31, vi01
 pad ; sq.xyzw vf31, 34(vi00)
 pad ; lqi.xyzw vf31, vi01
 pad ; sq.xyzw vf31, 35(vi00)
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
@@ -1534,7 +1534,7 @@ addi.w vf14, vf00 ; move.xyzw vf13, vf00 ; vf14.w = I; vf13 = 0
 .word 0x800002FF ; .word 0x457FF000      ; pad[I] + I = 0x457FF000 (= 4094.0f)
 addi.xy vf14, vf00 ; nop_swap            ; vf14.xy = I
 pad ; lq.xyzw vf23, 2(vi00)              ; vf23 = mem[2]
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
@@ -1630,7 +1630,7 @@ addi.w vf14, vf00 ; move.xyzw vf13, vf00
 .word 0x800002FF ; .word 0x457FF000      ; pad[I] + I = 0x457FF000
 addi.xy vf14, vf00 ; nop_swap
 pad ; lq.xyzw vf23, 2(vi00)
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 ; --- sub_1EA0 transform body (0x1ED8..0x2078) ---
 ; Reached directly when the EE sets VU0_TPC=0x1ED8 (or a wrapper jumps
@@ -2250,7 +2250,7 @@ pad ; lq.xyzw vf15, 22(vi00)
 pad ; lq.xyzw vf16, 23(vi00)
 mulw.w vf17, vf00, vf00 ; iaddiu vi14, vi00, 256
 pad ; move.z vf17, vf00                  ; vf17.z = 0
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 
 ; -----------------------------------------------------------------------
 ; sub_2C00 — bone-blended vertex transform with clip-flag culling.
@@ -2444,7 +2444,7 @@ pad ; ibne vi10, vi00, sub_2FE0_loop
 pad ; sqi.xyzw vf28, vi09                ; (branch delay slot)
 pad ; nop_swap
 pad ; xgkick vi07
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 
 ; sub_3068 — mem[2].xy patch (clone of sub_0F28).
@@ -2454,7 +2454,7 @@ pad ; lq.xyzw vf30, 2(vi00)
 pad ; lqi.xyzw vf31, vi01
 pad ; move.xy vf30, vf31
 pad ; sq.xyzw vf30, 2(vi00)
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 
 ; sub_30A0 — 4-quad matrix upload to mem[256] (clone of sub_0F60).
@@ -2469,12 +2469,12 @@ pad ; sqi.xyzw vf18, vi13
 pad ; sqi.xyzw vf19, vi13
 pad ; sqi.xyzw vf16, vi13
 pad ; sqi.xyzw vf17, vi13
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 
 ; exit_3100 — shared E-bit stub (clone of exit_0FC0).
 exit_3100:
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 
 ; sub_3110 — palette-indexed vertex transform (clone of sub_0FD0);
@@ -2547,7 +2547,7 @@ pad ; lqi.xyzw vf31, vi01
 pad ; sq.xyzw vf31, 27(vi00)
 pad ; lq.xyzw vf31, 3(vi00)
 pad ; sq.xyzw vf31, 37(vi00)
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 
 ; sub_32E8 — bulk 8-quad upload via vf31 to mem[28..35] (clone of sub_1BF8).
@@ -2569,7 +2569,7 @@ pad ; lqi.xyzw vf31, vi01
 pad ; sq.xyzw vf31, 34(vi00)
 pad ; lqi.xyzw vf31, vi01
 pad ; sq.xyzw vf31, 35(vi00)
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 
 ; sub_3380 — I-register setup with extended bulk load (variant of sub_1C90
@@ -2588,7 +2588,7 @@ pad ; lq.xyzw vf09, 32(vi00)
 pad ; lq.xyzw vf10, 33(vi00)
 pad ; lq.xyzw vf11, 34(vi00)
 pad ; lq.xyzw vf12, 35(vi00)
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 pad ; xtop vi13
 
@@ -2691,7 +2691,7 @@ pad ; lq.xyzw vf09, 32(vi00)
 pad ; lq.xyzw vf10, 33(vi00)
 pad ; lq.xyzw vf11, 34(vi00)
 pad ; lq.xyzw vf12, 35(vi00)
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 
 ; --- sub_3620 transform body (0x3698..0x38B8) ---
@@ -2797,7 +2797,7 @@ pad ; lq.xyzw vf09, 12(vi00)
 pad ; lq.xyzw vf10, 13(vi00)
 pad ; lq.xyzw vf11, 14(vi00)
 pad ; lq.xyzw vf12, 15(vi00)
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
@@ -3387,7 +3387,7 @@ pad ; lq.xyzw vf11, 34(vi00)
 pad ; lq.xyzw vf12, 35(vi00)
 mulw.w vf17, vf00, vf00 ; iaddiu vi14, vi00, 256
 pad ; move.z vf17, vf00
-.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+epad ; nop_swap                          ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 
 ; -----------------------------------------------------------------------
@@ -3571,7 +3571,7 @@ pad ; ibne vi10, vi00, sub_4C40_loop
 pad ; sqi.xyzw vf28, vi09                ; (delay slot)
 pad ; nop_swap
 pad ; xgkick vi07
-.word 0x400002FF ; nop_swap              ; END
+epad ; nop_swap                          ; END
 pad ; nop_swap
 
 ; -----------------------------------------------------------------------
@@ -3583,7 +3583,7 @@ pad ; lq.xyzw vf30, 2(vi00)
 pad ; lqi.xyzw vf31, vi01
 pad ; move.xy vf30, vf31
 pad ; sq.xyzw vf30, 2(vi00)
-.word 0x400002FF ; nop_swap              ; END
+epad ; nop_swap                          ; END
 pad ; nop_swap
 
 ; -----------------------------------------------------------------------
@@ -3600,14 +3600,14 @@ pad ; sqi.xyzw vf18, vi13
 pad ; sqi.xyzw vf19, vi13
 pad ; sqi.xyzw vf16, vi13
 pad ; sqi.xyzw vf17, vi13
-.word 0x400002FF ; nop_swap              ; END
+epad ; nop_swap                          ; END
 pad ; nop_swap
 
 ; -----------------------------------------------------------------------
 ; exit_4D60 — shared E-bit stub (program-5 clone of exit_0FC0).
 ; -----------------------------------------------------------------------
 exit_4D60:
-.word 0x400002FF ; nop_swap              ; END
+epad ; nop_swap                          ; END
 pad ; nop_swap
 
 ; -----------------------------------------------------------------------
@@ -3674,7 +3674,7 @@ pad ; lqi.xyzw vf08, vi10
 ; -----------------------------------------------------------------------
 sub_4EA8:
 pad ; nop_swap                           ; entry / delay slot of sub_4E60's lqi chain
-.word 0x400002FF ; nop_swap              ; END
+epad ; nop_swap                          ; END
 pad ; nop_swap                           ; E-bit delay slot
 
 ; -----------------------------------------------------------------------

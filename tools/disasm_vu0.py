@@ -295,6 +295,8 @@ def decode_upper(w: int) -> str:
         return "nop"
     if w == 0x000002FF:
         return "pad"
+    if w == 0x400002FF:
+        return "epad"
     # Strip flag bits (25-30) for opcode classification; the bytes are
     # still emitted via .word for any bundle that has non-zero flags
     # so the round trip preserves them exactly.

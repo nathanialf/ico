@@ -170,18 +170,22 @@ def test_upper_fmac_plain() -> None:
 
 
 def test_upper_pad_and_nop() -> None:
-    """`pad` (0x000002FF) is FD_11 sub-op 0x0B = NOP. `nop` is true zero."""
+    """`pad` (0x000002FF) is FD_11 sub-op 0x0B = NOP. `nop` is true zero.
+    `epad` is `pad` with bit 30 (E-bit) set — VU0 end-of-program marker."""
     src = (
         ".vu0\n"
         "nop ; nop\n"
         "pad ; nop\n"
+        "epad ; nop\n"
     )
     body = _assemble(src)
     upper0 = struct.unpack_from("<I", body, 4)[0]
     upper1 = struct.unpack_from("<I", body, 12)[0]
+    upper2 = struct.unpack_from("<I", body, 20)[0]
     assert upper0 == 0x00000000, f"nop upper: 0x{upper0:08X}"
     assert upper1 == 0x000002FF, f"pad upper: 0x{upper1:08X}"
-    print(f"  ok: pad/nop distinct upper encodings preserved")
+    assert upper2 == 0x400002FF, f"epad upper: 0x{upper2:08X}"
+    print(f"  ok: nop/pad/epad upper encodings preserved")
 
 
 def test_dest_mask_parsing() -> None:
