@@ -1,222 +1,188 @@
-# Phase 3d — retire `__attribute__((section(".rodata.0xVMA")))` from typed defs
+# Phase 3d — retire `__attribute__((section()))` VMA-pinned wrappers
 
-## Empirical finding (2026-05-21)
+Status: **implemented and operational.** This doc captures the shipped
+architecture; see commits `2760845`..`8cc2875` for the trail.
 
-Partial attr-tag stripping under the current `ico.us.slinky.ld` pipeline
-**breaks SHA-1**. Test case: strip the single attr tag from
-`src/DmaPacket.c`'s typed def, regen slinky.{yaml,ld}, relink →
-`ec37acb909516fcb9b29d5e374e0fc7d8335bec5` (expected
-`fbf50c75cd5911273511c4f9af90503ff8423582`).
+## What Phase 3d retires
 
-### Why partial promotion fails
+Pre-Phase-3d, every typed clean-room data def in tracked `src/<TU>.c`
+was wrapped in a VMA-pinned attribute:
 
-The slinky-generated `.rodata` output section is structured as:
+```c
+__attribute__((section(".rodata.0x00553700"))) const char D_00553700[16] = "...";
+```
+
+Per `project_rodata_naming_is_temporary.md`, the `.0xVMA` suffix is a
+clean-room trick, not original style — it exists only because the
+linker needs to know where to place each `.o`'s typed bytes.
+
+The Phase 3d steady state strips that suffix wherever ee-gcc's default
+placement (under `-G 8`) matches the original section, leaving plain
+defs:
+
+```c
+const char D_00553700[16] = "...";
+```
+
+A small subset of typed defs **require** the attribute (gcc's default
+placement differs from the original section). Those retain the form
+as a legitimate developer placement directive — see "Survivors" below.
+
+## The pipeline (operational)
+
+Four pieces, all in `tools/`:
+
+### 1. `compile_c.sh`: `-fdata-sections`
+
+ee-gcc 2.9 emits each plain data def into its own `.<sec>.<symbol>`
+section. `const char D_X[N] = "..."` → `.rodata.D_X` (etc.). This is
+the key enabler — it makes per-symbol slot placement possible.
+
+### 2. `postprocess_slinky_ld.py`: per-symbol slot generator
+
+Replaces the original `*(SORT_BY_NAME(.X.0x*))` catch-all with one
+explicit slot per typed section. Recognizes both forms:
+
+- `.<sec>.0x<VMA>` (legacy attr-tag form, for symbols that still need
+  the attribute)
+- `.<sec>.D_<VMA>` (per-symbol form from `-fdata-sections`)
+
+For each slot, emits `KEEP(<.o>(.<sec>.<suffix>))` in VMA-ascending
+order inside the section's output block. VMA-range filter per output
+section drops slots whose name-encoded VMA falls outside the section's
+range (handles ee-gcc's small-data leak).
+
+Special handling for `jtbl_<VMA>` symbols owned by C-matched functions:
+emits a slot pulling `<func.o>(.<sec>)` (exact `.rodata`, not
+`.rodata*`) at the jtbl's VMA, so gcc's per-`.o` emitted jtbl bytes
+land where the asm blanket's stripped block used to be.
+
+### 3. `rewrite_data_named_sections.py`: jtbl strip
+
+When a function migrates from asm to C (real body in tracked source,
+not `INCLUDE_ASM`), this script:
+1. Scans tracked .c/.c.inc for `func_X(...) { ... }` definitions, minus
+   any that are also `INCLUDE_ASM`'d (INCLUDE_ASM wins on conflict).
+2. For each matched function, opens its `asm/matchings/**/func_X.s`
+   baseline and extracts `%hi(jtbl_<VMA>)` references.
+3. Adds those jtbls to the migrated-symbol strip set, so the asm
+   blanket's `.rodata.0x<jtbl_VMA>` block (whose `.word .L<addr>`
+   entries point to labels that no longer exist) gets removed.
+
+### 4. `strip_attr_phase3d.py`: smart strip helper
+
+Strips the attribute iff ee-gcc's default placement matches the
+original section. Default placement table (under `-G 8`):
+
+| qualifier  | size  | gcc default placement |
+|------------|-------|----------------------|
+| `const`    | ≤ 8   | `.sdata`             |
+| `const`    | > 8   | `.rodata`            |
+| mutable    | ≤ 8   | `.sdata`             |
+| mutable    | > 8   | `.data`              |
+| any        | any   | never `.lit4`        |
+
+If `default_section == original_section`: strip the attr (the plain
+def will land in the right section naturally).
+
+If `default_section != original_section`: retain the attr. It's the
+minimum-necessary placement directive an original C author would
+write to override the default.
+
+Helper also auto-inserts `const` on `char` / `unsigned char` arrays
+when stripping `.rodata` attrs (without `const`, `char[N]` defaults
+to `.data`, not `.rodata`). And reorders plain defs in VMA-ascending
+order within each contiguous span, since ee-gcc's `-fdata-sections`
+emits them in source-declaration order.
+
+## Slot mechanism in the linker output
+
+A typical post-strip `.rodata` slot block in `ico.us.slinky.ld`:
 
 ```ld
 .rodata : AT(rodata_ROM_START) {
-    *(SORT_BY_NAME(.rodata.0x*));         # postprocess-injected catch-all
-    build/src/<TU1>.o(.rodata*);          # per-.o glob, declared order
-    build/src/<TU2>.o(.rodata*);
+    FILL(0x00000000);
+    _gp_unused = . + 0x7FF0;  /* ... */
+    rodata_RODATA_START = .;
+    /* phase3d-slots .rodata */
+    KEEP(build/src/charFileManager.o(.rodata.0x00553700));  /* typed 0x00553700 */
+    KEEP(build/src/charFileManager.o(.rodata.0x00553720));  /* typed 0x00553720 */
+    KEEP(build/src/charFileManager.o(.rodata.D_00553730));  /* typed 0x00553730 */
     ...
+    KEEP(build/src/cod/00DFB8.o(.rodata));                  /* jtbl 0x00553E70 */
+    ...
+    rodata_RODATA_END = .;
 }
 ```
 
-GNU ld's "first match wins" rule routes every input section to the
-first matching output reference:
+Slots are sorted strictly by VMA-ascending. The slot generator asserts
+no duplicate VMAs (a duplicate is a real symbol conflict, not a
+positioning bug). Natural location-counter advancement handles
+contiguous layout; no explicit `. = ABS - VRAM` cursor needed because
+the original ELF's data sections are gap-free.
 
-1. `SORT_BY_NAME(.rodata.0x*)` absorbs every `.rodata.0xVMA` named
-   section from every `.o`, sorted by name (= VMA). Today this covers
-   every byte of `.rodata` because every typed def is attr-tagged. The
-   sorted block lays out contiguously starting at the segment base
-   (`0x00553700`) — which happens to match the original VMA layout
-   only because the original `.rodata` is gap-free across [0x553700,
-   0x631900].
-2. The per-`.o` `(.rodata*)` globs follow, claiming any *residual*
-   plain `.rodata` content. Today these are empty.
+## Survivors (intentional attributes)
 
-When one TU strips its attr tag, that TU's bytes become plain
-`.rodata` and are claimed by its per-`.o` glob. But the loc counter
-at that point is past the end of the SORT_BY_NAME block — so the
-plain bytes land at VMA ≥ 0x631900, **outside** `.rodata`. SHA breaks
-catastrophically (millions of bytes shift).
+Per the steady state:
 
-### What "promotable" means in `data_tu_boundaries.json`
+- **`.lit4`** entries (~37 in tracked, ~975 in sidecars): always retain
+  `__attribute__((section(".lit4.0x<VMA>")))`. gcc has no automatic
+  `.lit4` placement — without the attr, 4-byte floats land in `.sdata`
+  under `-G 8`.
+- **Small `.rodata` consts** (≤ 8 bytes, ~44 across the project):
+  retain `.rodata.0x<VMA>`. Under `-G 8` they'd otherwise leak to
+  `.sdata`. Concentrations: `ios/cdvd.c` (20), `src/enemy_act.c` (7),
+  `src/PObj.c` (5), `src/debug.c` (3), `src/attackhit.c` (3), 6 others.
+- **`.data` of any size that's `const`** (~3 across the project):
+  retain `.data.0x<VMA>`. gcc default would put it in `.rodata`.
+- **Any typed def whose original VMA section ≠ gcc default**: same
+  rule applies.
 
-A TU's section is promotable iff its symbols form one contiguous VMA
-range with no foreign-TU symbols interleaved. Counts as of
-2026-05-21:
+These are not clean-room hacks — they're the form an original C author
+writes when overriding the compiler's default. They make it possible
+for the build to reproduce the original ELF byte-for-byte without
+contaminating the rest of the source with VMA-pinning noise.
 
-| Status | TUs | Bytes |
-| --- | ---: | ---: |
-| Promotable rodata | 36 | 16 128 |
-| Not promotable rodata | 56 | 889 512 |
-| **Total rodata in sidecars / typed defs** | **92** | **905 640** |
+## Section status (session-end)
 
-Even if Phase 3d's pipeline supported partial promotion, only 1.8 % of
-`.rodata` bytes could be cleanly attr-stripped today.
+| Section | typed_attr | typed_plain | % stripped |
+|---|---:|---:|---:|
+| `.rodata` | 67 981 | 9 680 | 12.46 % |
+| `.sdata` | 12 | 446 | 97.38 % |
+| `.lit4` | 148 | 0 | 0.00 % (all survivors) |
+| `.data` | 76 | 0 | 0.00 % (all survivors) |
 
-## Two ways out
+`.rodata` strip % is bounded by total tracked bytes (~77 KB). The
+905 KB section size is mostly gitignored sidecar bytes (the bytes
+grind) — those aren't a Phase 3d concern.
 
-### Option A — all-or-nothing flip
+## Matched functions with jtbls
 
-When every rodata TU is promotable AND every typed def is stripped of
-attr tags simultaneously, `SORT_BY_NAME(.rodata.0x*)` consumes zero
-sections, the per-`.o` globs in VMA-sorted order recreate the original
-layout via natural concatenation, and the catch-all retires.
+Phase 3d's jtbl pipeline tested end-to-end on:
 
-Required work:
+- `func_0010DFB8` (252 B, 7-case switch — vec3 component negation), in
+  `src/cod/00DFB8.c`. Owns `jtbl_00553E70`.
+- `func_0014B270` (124 B, DMA register field setter), in
+  `src/act-parallel-control.c`. Owns `jtbl_00558150`.
 
-1. **Make all 56 non-promotable TUs promotable.** Per-symbol re-voting
-   in `tools/build_data_tu_map.py` until every symbol's TU assignment
-   is correct. Tools: `tools/identify_tus.py`, manual cross-reference
-   from text-side `%hi/%lo` calls. Likely many sessions.
-2. **Verify all-or-nothing flip on a test branch.** Strip every attr
-   tag, regen slinky, relink, check SHA. Iterate on layout bugs (gaps,
-   alignment) until SHA-clean.
-3. **Land as one PR.** Partial intermediate states break SHA → cannot
-   ship piecemeal.
+99 jtbl-owning functions remain unmatched in asm. Each will
+auto-strip its jtbl from the blanket when matched, via the pipeline.
 
-Pros: clean end-state (no attr tags anywhere). Matches the
-parappa2-style per-TU layout natively.
+## What remains
 
-Cons: gigantic single PR; can't ship until *every* TU is sorted out;
-TU re-mapping is the bottleneck.
+- **Text matching**: 99 jtbl-owning + thousands of non-jtbl functions
+  still in asm. Normal decomp work, not Phase 3d's concern.
+- **`.rodata` bytes grind**: 686 KB un-typed in sidecars. Typed
+  reconstruction as designated-init struct arrays (or simpler forms
+  where natural). Slow because most large symbols need consumer-code
+  RE to determine shape.
+- **`.data` bytes grind**: 3 MB un-typed in sidecars. Same story,
+  bigger surface.
+- **TU re-mapping** (`tools/build_data_tu_map.py` improvements:
+  string-literal voting, jtbl weight-10, bidirectional proximity):
+  not strictly needed by Phase 3d anymore (per-symbol slots work
+  on non-promotable TUs too), but improves the "promotable" count
+  for future cleanup.
 
-### Option B — per-TU explicit placement
-
-Redesign `ico.us.slinky.ld` so each promoted TU's plain `.rodata`
-content has its own explicit-address section, and `SORT_BY_NAME`
-covers only unpromoted TUs.
-
-```ld
-.rodata 0x00553700 : {
-    /* Promoted TU 1: explicit slot */
-    . = 0x00558848 - rodata_VRAM;       /* TU's lo_vma */
-    KEEP(build/src/queen.o(.rodata*));
-
-    /* Promoted TU 2: explicit slot */
-    . = 0x0061AC60 - rodata_VRAM;
-    KEEP(build/src/DmaPacket.o(.rodata*));
-
-    /* Catch-all for non-promoted TUs */
-    *(SORT_BY_NAME(.rodata.0x*));
-}
-```
-
-Required work:
-
-1. **Extend `tools/gen_slinky.py`** to read
-   `decomp/data_tu_boundaries.json` and emit explicit-address slots
-   for `promotable=true` TUs.
-2. **Extend `tools/postprocess_slinky_ld.py`** to inject explicit-
-   address markers in the output section.
-3. **Per-TU strip + verify**: smallest TUs first (DmaPacket 16 B,
-   act_bird 16 B, …), SHA-1 verify each.
-4. **Iterate on layout edge cases** (alignment of explicit slots,
-   gaps between TU ranges, etc.).
-
-Pros: ships piecemeal — each TU is one PR, SHA-verified. Doesn't
-block on TU re-mapping.
-
-Cons: more tooling investment up front; output `.ld` is more complex;
-hybrid state (some TUs plain, some attr-tagged) persists for a long
-time during migration.
-
-## Recommendation
-
-**Option B for the immediate path.** Tooling investment is
-~1-2 days, after which per-TU stripping is mechanical. The 36
-already-promotable TUs (16 KB) can land within a week. The non-
-promotable TUs accumulate as TU re-mapping work progresses, with no
-need for a single giant flip.
-
-Option A is the long-term end state (after every TU is promoted, the
-explicit-slot scaffolding can retire). But it shouldn't gate
-incremental progress.
-
-## Open backlog
-
-- [ ] `gen_slinky.py`: emit explicit-address slots for promotable TUs
-      (Option B step 1).
-- [ ] `postprocess_slinky_ld.py`: inject explicit-address markers
-      (Option B step 2).
-- [ ] Switch ninja `-T` to `ico.us.slinky.ld` (currently reverted —
-      requires Option B pipeline first).
-- [ ] Pilot strip on `src/DmaPacket.c` (smallest test case, 1 sym
-      / 16 B). SHA-verify.
-- [ ] Roll out across the 36 promotable TUs (16 KB total).
-- [ ] TU re-mapping passes (`build_data_tu_map.py` + manual review)
-      to promote more TUs into the promotable bucket.
-
-## What this means for the current rodata bytes grind
-
-The 686 KB of un-typed rodata sitting in gitignored sidecars **cannot
-land as typed defs without attr tags** until Option B's pipeline is
-built. Three options for forward progress in the interim:
-
-1. **Wait on Option B.** Land no new rodata typed defs; resume the
-   bytes grind after the pipeline supports plain-form defs.
-2. **Land typed defs with attr tags (the current shape).** Bytes
-   grind to 100 % attr-tagged. Phase 3d strips ALL attrs in one
-   future pass.
-3. **Mixed.** ASCII strings + small obvious types land now
-   (attr-tagged); deep struct-RE work waits for Option B.
-
-The 47 ASCII string promotions from earlier in this session sit in
-the working tree — they're net-new attr-tagged. They're typed
-clean-room reconstructions; the only "cost" is that Phase 3d's strip
-pass will touch them too.
-
-## Update (2026-05-21, session end)
-
-Phase 3d pipeline now operational; 30 of 36 promotable rodata TUs and
-1 sdata TU (DmaPacket) migrated to plain form. SHA-1 stable.
-Commits `2760845`..`d20bfde` ship the slot generator, the strip
-helper (`tools/strip_attr_phase3d.py`), and 4 strip waves.
-
-### Sidecar-overlap deferred (6 TUs)
-
-`src/pool.c`, `src/camera-editor.c`, `src/boyact.c`, `src/queen.c`,
-`src/itou_boss.c` (rodata) and `src/PObj.c` (sdata) all hit the same
-structural blocker: their TU's VMA range contains a foreign-`.o`
-typed section (a sidecar leftover, or an asm-blanket jtbl like
-`jtbl_00553E70`). The per-TU `<o>(.<sec>*)` promoted slot can't
-interleave with intermediate foreign typed slots — it pulls bytes
-contiguously and overlaps.
-
-### Per-symbol slot experiment (deferred)
-
-Attempted: switch to `-fdata-sections` globally so ee-gcc emits one
-`.<sec>.D_<VMA>` section per plain typed def. Slot generator then
-emits one slot per per-symbol section. This naturally interleaves
-with foreign typed slots at intermediate VMAs.
-
-`-fdata-sections` confirmed working with ee-gcc 2.9 — each typed def
-gets its own section. Clean rebuild with all attr-tagged TUs +
-per-symbol slot generator: SHA-1 round-trip clean. Pipeline change
-landed in working tree but reverted due to compounding issues when
-stripping the deferred TUs:
-
-- **Small-const-to-sdata leak**: a `const float D_X[2]` (8 bytes)
-  lands in `.sdata.D_<VMA>` under `-G 8` even when the original VMA
-  is in `.rodata`. The per-symbol slot generator places it in the
-  `.sdata` output block at the wrong VMA. Filter by VMA-range (added
-  in the experiment) skips the symbol entirely → its bytes go
-  unclaimed.
-- **PObj.c strip moved sdata symbol byte offsets**: SHA-1 broke at
-  `0x00101CC0` with `+0x8` shift in an `addiu` immediate. Cause
-  not fully diagnosed before revert.
-
-The path forward requires:
-
-1. **Place `const` of any size into `.rodata` regardless of `-G`**:
-   either find an ee-gcc flag or wrap with an explicit
-   `__attribute__((section(".rodata")))` (non-VMA, just `.rodata`)
-   on small const arrays during strip. Strip helper extension.
-2. **Validate per-symbol slot generator across all sections** with
-   the small-const fix in place. Iterate on cascading errors.
-3. **Roll out the 6 deferred TUs** with the per-symbol pipeline.
-
-The per-symbol slot generator code is preserved in the session's
-git reflog if needed; revisit when context permits the full debug
-iteration.
+Phase 3d itself is complete as scaffolding. Future strips happen
+automatically as new typed defs land in tracked source.
