@@ -340,6 +340,14 @@ def compute_progress() -> dict[str, tuple[int, int]]:
         matched[sec] = n
 
     totals = {sec: sizes.get(sec, 0) for sec in SECTION_TO_TYPES}
+    # Clamp matched against section total: subsegment spans (from yaml
+    # subseg-to-next-subseg distance) include any trailing alignment
+    # padding the linker absorbs between sections, but only the bytes
+    # inside the section header's `sh_size` are real section content.
+    # Without clamping, a hasm subseg that emits its own alignment pad
+    # (e.g. VU0's 64-byte trailing zeros) can credit slightly over 100%.
+    for sec in matched:
+        matched[sec] = min(matched[sec], totals[sec])
     return {sec: (matched[sec], totals[sec]) for sec in SECTION_TO_TYPES}
 
 
