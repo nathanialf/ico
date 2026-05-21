@@ -1,1 +1,6 @@
+# Retirement-trial 2026-05-21: 25 C-side attempts (KEEP_LIVE/KEEP_LIVE_MEM
+# placement, memory barriers, clobbers on $31/$16, -fno-schedule-insns,
+# -fno-schedule-insns2, -O3 -fno-inline, 14 other -f flags, statement
+# reordering). gcc 2.9's epilogue scheduler keeps `ld $31`/`ld $16` late;
+# no C-level technique pulls them between body stores. Postprocess remains.
 girlForceField
