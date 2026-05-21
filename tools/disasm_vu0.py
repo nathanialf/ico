@@ -113,29 +113,42 @@ _T3_INT_DEC = {
 }
 # T3 sub-table entries — (bc, sub5) → (mnemonic, shape).
 _T3_SUB_DEC = {
-    (0, 0x0C): ("move",   "v2f_mask"),
-    (0, 0x0D): ("lqi",    "v2lqi"),
-    (0, 0x0E): ("div",    "div2"),
-    (0, 0x0F): ("mtir",   "vmtir"),
-    (0, 0x10): ("rnext",  "vr_get"),
-    (0, 0x19): ("mfp",    "vmfp"),
-    (0, 0x1A): ("xtop",   "vi_x"),
-    (0, 0x1B): ("xgkick", "vi_xgkick"),
-    (1, 0x0C): ("mr32",   "v2f_mask"),
-    (1, 0x0D): ("sqi",    "v2sqi"),
-    (1, 0x0E): ("sqrt",   "div1"),
-    (1, 0x0F): ("mfir",   "v2mfir"),
-    (1, 0x10): ("rget",   "vr_get"),
-    (1, 0x1A): ("xitop",  "vi_x"),
-    (2, 0x0D): ("lqd",    "v2lqi"),
-    (2, 0x0E): ("rsqrt",  "div2"),
-    (2, 0x0F): ("ilwr",   "v2lqi"),
-    (2, 0x10): ("rinit",  "vr_init"),
-    (3, 0x0D): ("sqd",    "v2sqi"),
-    (3, 0x0E): ("waitq",  "no_op"),
-    (3, 0x0F): ("iswr",   "v2sqi"),
-    (3, 0x10): ("rxor",   "vr_init"),
-    (3, 0x1E): ("waitp",  "no_op"),
+    (0, 0x0C): ("move",    "v2f_mask"),
+    (0, 0x0D): ("lqi",     "v2lqi"),
+    (0, 0x0E): ("div",     "div2"),
+    (0, 0x0F): ("mtir",    "vmtir"),
+    (0, 0x10): ("rnext",   "vr_get"),
+    (0, 0x19): ("mfp",     "vmfp"),
+    (0, 0x1A): ("xtop",    "vi_x"),
+    (0, 0x1B): ("xgkick",  "vi_xgkick"),
+    (0, 0x1C): ("esadd",   "e_vfs"),    # VU1-only
+    (0, 0x1D): ("eatanxy", "e_vfs"),    # VU1-only
+    (0, 0x1E): ("esqrt",   "e_ftf"),    # VU1-only
+    (0, 0x1F): ("esin",    "e_ftf"),    # VU1-only
+    (1, 0x0C): ("mr32",    "v2f_mask"),
+    (1, 0x0D): ("sqi",     "v2sqi"),
+    (1, 0x0E): ("sqrt",    "div1"),
+    (1, 0x0F): ("mfir",    "v2mfir"),
+    (1, 0x10): ("rget",    "vr_get"),
+    (1, 0x1A): ("xitop",   "vi_x"),
+    (1, 0x1C): ("ersadd",  "e_vfs"),    # VU1-only
+    (1, 0x1D): ("eatanxz", "e_vfs"),    # VU1-only
+    (1, 0x1E): ("ersqrt",  "e_ftf"),    # VU1-only
+    (1, 0x1F): ("eatan",   "e_ftf"),    # VU1-only
+    (2, 0x0D): ("lqd",     "v2lqi"),
+    (2, 0x0E): ("rsqrt",   "div2"),
+    (2, 0x0F): ("ilwr",    "v2lqi"),
+    (2, 0x10): ("rinit",   "vr_init"),
+    (2, 0x1C): ("eleng",   "e_vfs"),    # VU1-only
+    (2, 0x1D): ("esum",    "e_vfs"),    # VU1-only
+    (2, 0x1E): ("ercpr",   "e_ftf"),    # VU1-only
+    (2, 0x1F): ("eexp",    "e_ftf"),    # VU1-only
+    (3, 0x0D): ("sqd",     "v2sqi"),
+    (3, 0x0E): ("waitq",   "no_op"),
+    (3, 0x0F): ("iswr",    "v2sqi"),
+    (3, 0x10): ("rxor",    "vr_init"),
+    (3, 0x1C): ("erleng",  "e_vfs"),    # VU1-only
+    (3, 0x1E): ("waitp",   "no_op"),
 }
 
 
@@ -197,6 +210,10 @@ def _decode_t3(w: int) -> str:
             return f"{n} Q, {vf(fs5)}.{'xyzw'[fsf]}, {vf(ft5)}.{'xyzw'[ftf]}"
         if shape == "div1":
             return f"{n} Q, {vf(ft5)}.{'xyzw'[ftf]}"
+        if shape == "e_vfs":
+            return f"{n} P, {vf(fs5)}"
+        if shape == "e_ftf":
+            return f"{n} P, {vf(ft5)}.{'xyzw'[ftf]}"
     return (f".word 0x{w:08X}  ; T3 sub6=0x{sub6:02X} (no decoder)")
 
 

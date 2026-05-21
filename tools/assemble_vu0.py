@@ -667,33 +667,54 @@ def _enc_lower_t3_int(mnem: str, **fields: int) -> int:
 #     "div1"       : Q, vft<ftf>            — SQRT
 _T3_SUB = {
     # T3_00 (sub6 = 0x3C)
-    "move":   (0, 0x0C, "v2f_mask"),
-    "lqi":    (0, 0x0D, "v2lqi"),
-    "div":    (0, 0x0E, "div2"),
-    "mtir":   (0, 0x0F, "vmtir"),
-    "rnext":  (0, 0x10, "vr_get"),
-    "mfp":    (0, 0x19, "vmfp"),
-    "xtop":   (0, 0x1A, "vi_x"),
-    "xgkick": (0, 0x1B, "vi_xgkick"),
+    "move":    (0, 0x0C, "v2f_mask"),
+    "lqi":     (0, 0x0D, "v2lqi"),
+    "div":     (0, 0x0E, "div2"),
+    "mtir":    (0, 0x0F, "vmtir"),
+    "rnext":   (0, 0x10, "vr_get"),
+    "mfp":     (0, 0x19, "vmfp"),
+    "xtop":    (0, 0x1A, "vi_x"),
+    "xgkick":  (0, 0x1B, "vi_xgkick"),
+    "esadd":   (0, 0x1C, "e_vfs"),    # VU1-only — VU0 treats as NOP
+    "eatanxy": (0, 0x1D, "e_vfs"),    # VU1-only
+    "esqrt":   (0, 0x1E, "e_ftf"),    # VU1-only
+    "esin":    (0, 0x1F, "e_ftf"),    # VU1-only
     # T3_01 (sub6 = 0x3D)
-    "mr32":   (1, 0x0C, "v2f_mask"),
-    "sqi":    (1, 0x0D, "v2sqi"),
-    "sqrt":   (1, 0x0E, "div1"),
-    "mfir":   (1, 0x0F, "v2mfir"),
-    "rget":   (1, 0x10, "vr_get"),
-    "xitop":  (1, 0x1A, "vi_x"),
+    "mr32":    (1, 0x0C, "v2f_mask"),
+    "sqi":     (1, 0x0D, "v2sqi"),
+    "sqrt":    (1, 0x0E, "div1"),
+    "mfir":    (1, 0x0F, "v2mfir"),
+    "rget":    (1, 0x10, "vr_get"),
+    "xitop":   (1, 0x1A, "vi_x"),
+    "ersadd":  (1, 0x1C, "e_vfs"),    # VU1-only
+    "eatanxz": (1, 0x1D, "e_vfs"),    # VU1-only
+    "ersqrt":  (1, 0x1E, "e_ftf"),    # VU1-only
+    "eatan":   (1, 0x1F, "e_ftf"),    # VU1-only
     # T3_10 (sub6 = 0x3E)
-    "lqd":    (2, 0x0D, "v2lqi"),
-    "rsqrt":  (2, 0x0E, "div2"),
-    "ilwr":   (2, 0x0F, "v2lqi"),  # (vit, vis) — same shape as LQI register-form
-    "rinit":  (2, 0x10, "vr_init"),
+    "lqd":     (2, 0x0D, "v2lqi"),
+    "rsqrt":   (2, 0x0E, "div2"),
+    "ilwr":    (2, 0x0F, "v2lqi"),   # (vit, vis) — same shape as LQI register-form
+    "rinit":   (2, 0x10, "vr_init"),
+    "eleng":   (2, 0x1C, "e_vfs"),    # VU1-only
+    "esum":    (2, 0x1D, "e_vfs"),    # VU1-only
+    "ercpr":   (2, 0x1E, "e_ftf"),    # VU1-only
+    "eexp":    (2, 0x1F, "e_ftf"),    # VU1-only
     # T3_11 (sub6 = 0x3F)
-    "sqd":    (3, 0x0D, "v2sqi"),
-    "waitq":  (3, 0x0E, "no_op"),
-    "iswr":   (3, 0x0F, "v2sqi"),  # (vfs, vit) — but ISWR's operands are (vit, vis); see encoder
-    "rxor":   (3, 0x10, "vr_init"),
-    "waitp":  (3, 0x1E, "no_op"),
+    "sqd":     (3, 0x0D, "v2sqi"),
+    "waitq":   (3, 0x0E, "no_op"),
+    "iswr":    (3, 0x0F, "v2sqi"),   # (vfs, vit) — but ISWR's operands are (vit, vis); see encoder
+    "rxor":    (3, 0x10, "vr_init"),
+    "erleng":  (3, 0x1C, "e_vfs"),    # VU1-only
+    "waitp":   (3, 0x1E, "no_op"),
 }
+
+# E-class encoder note: VU1-only. ICO is VU0 microcode; zero E-class
+# bundles appear in its textbin. PCSX2 microVU emits NOP for E-class
+# on VU0 (mVU_E*::pass1 sets mVUlow.isNOP = true when isVU0).
+# Encoders below preserve PCSX2's bit-field semantics for VU1 use:
+# operand shapes are 'e_vfs' (single full vfs reg, no subfield) and
+# 'e_ftf' (single vft.<lane> subfield).  Validation against real
+# bytes is deferred until a VU1 textbin lands in the project.
 
 
 def _t3_base(bc: int, sub5: int) -> int:
@@ -786,6 +807,23 @@ def _enc_lower_t3(mnem: str, mask: str, args: list[str]) -> int:
         if len(args) == 2 and args[0].lower() in ("q", "$q"):
             args = args[1:]
         if len(args) != 1: raise EncodeError(f"sqrt: needs Q, vft<lane>")
+        ft_idx, ftf = _parse_vf_subfield(args[0])
+        return base | (ftf << 23) | (ft_idx << 16)
+    if shape == "e_vfs":
+        # VU1-only E-class with full vfs reg (no subfield).
+        # Syntax: <mnem> P, vfs   — `P` is the implicit destination,
+        # may be omitted from the source line.
+        if len(args) == 2 and args[0].lower() in ("p", "$p"):
+            args = args[1:]
+        if len(args) != 1: raise EncodeError(f"{mnem}: needs [P,] vfs")
+        fs_idx = _vf(args[0])
+        return base | (fs_idx << 11)
+    if shape == "e_ftf":
+        # VU1-only E-class with single vft.<lane> subfield.
+        # Syntax: <mnem> P, vft.<x|y|z|w>
+        if len(args) == 2 and args[0].lower() in ("p", "$p"):
+            args = args[1:]
+        if len(args) != 1: raise EncodeError(f"{mnem}: needs [P,] vft.<lane>")
         ft_idx, ftf = _parse_vf_subfield(args[0])
         return base | (ftf << 23) | (ft_idx << 16)
     raise EncodeError(f"unimplemented T3 shape: {shape}")

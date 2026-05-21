@@ -355,6 +355,30 @@ def test_move_equiv_nop_swap() -> None:
     print(f"  ok: `move vf00, vf00` ≡ `nop_swap` ≡ 0x8000033C")
 
 
+def test_e_class_transcendentals() -> None:
+    """E-class (VU1-only) ops. Per PCSX2: `if (isVU0) isNOP = true`,
+    so these don't appear in ICO's VU0 textbin — coverage is for
+    forward-compat with VU1 textbins. Encodings checked against the
+    PCSX2 bit-layout tables (no real-bundle cross-check available)."""
+    import assemble_vu0 as A
+    # Spot-check each operand shape.
+    # ESADD P, vf03  → sub6=0x3C, sub5=0x1C, fs=3
+    expected_esadd = (0x40 << 25) | (0x1C << 6) | 0x3C | (3 << 11)
+    assert A._enc_lower_t3("esadd", "", ["vf03"]) == expected_esadd
+    # Also accept explicit `P,` prefix.
+    assert A._enc_lower_t3("esadd", "", ["P", "vf03"]) == expected_esadd
+    # ESQRT P, vf05.z → sub6=0x3C, sub5=0x1E, ft=5, ftf=2 at bits 23-24
+    expected_esqrt = (0x40 << 25) | (0x1E << 6) | 0x3C | (5 << 16) | (2 << 23)
+    assert A._enc_lower_t3("esqrt", "", ["vf05.z"]) == expected_esqrt
+    # ERLENG P, vf07 → sub6=0x3F, sub5=0x1C
+    expected_erleng = (0x40 << 25) | (0x1C << 6) | 0x3F | (7 << 11)
+    assert A._enc_lower_t3("erleng", "", ["vf07"]) == expected_erleng
+    # EATAN P, vf12.w → sub6=0x3D, sub5=0x1F, ft=12, ftf=3
+    expected_eatan = (0x40 << 25) | (0x1F << 6) | 0x3D | (12 << 16) | (3 << 23)
+    assert A._enc_lower_t3("eatan", "", ["vf12.w"]) == expected_eatan
+    print(f"  ok: 4 E-class transcendentals encode per PCSX2 bit layout")
+
+
 def test_nop_swap() -> None:
     """The 0x8000033C BIOS-bug NOP pattern is its own mnemonic now.
 
@@ -483,6 +507,7 @@ def main(argv: list[str] | None = None) -> int:
     test_t3_dispatch()
     test_lower_flag_ops()
     test_move_equiv_nop_swap()
+    test_e_class_transcendentals()
     test_nop_swap()
     if args.against_textbin:
         test_against_textbin()
