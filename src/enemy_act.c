@@ -154,33 +154,49 @@ extern int D_00632F78;
 extern int D_00632F7C;
 extern char D_00632F80[8];
 
-__attribute__((section(".rodata.0x00558E10"))) const char D_00558E10[16] = "src/enemy_act.c";
+const char D_00558E10[16] = "src/enemy_act.c";
 
-__attribute__((section(".rodata.0x00558E20"))) const char D_00558E20[32] = "*generator_gop!=NULL";
-__attribute__((section(".rodata.0x00558FB0"))) const char D_00558FB0[40] = "ASSERTMSG__GOP_IS_NOT_ENEMY(gop)";
-__attribute__((section(".rodata.0x00559030"))) const char D_00559030[24] = "to generator way error!";
-__attribute__((section(".rodata.0x00559060"))) const char D_00559060[16] = "not found";
+const char D_00558E20[32] = "*generator_gop!=NULL";
 
-/* String rodata migrated from enemy_act_data.c */
-__attribute__((section(".rodata.0x00558ED8"))) const char D_00558ED8[24] = "enter actEnemyStand\n";
-__attribute__((section(".rodata.0x00558EF0"))) const char D_00558EF0[24] = "enter motEnemyStand\n";
-__attribute__((section(".rodata.0x00558F08"))) const char D_00558F08[24] = "enter actEnemyWalk\n";
-__attribute__((section(".rodata.0x00558F20"))) const char D_00558F20[24] = "enter motEnemyWalk\n";
-__attribute__((section(".rodata.0x00558F38"))) const char D_00558F38[24] = "enter actEnemyRun\n";
-__attribute__((section(".rodata.0x00558F50"))) const char D_00558F50[24] = "enter motEnemyRun\n";
-__attribute__((section(".rodata.0x00558F68"))) const char D_00558F68[24] = "enter actEnemyJump\n";
-__attribute__((section(".rodata.0x00558F80"))) const char D_00558F80[32] = "enter actEnemyHang\n";
-__attribute__((section(".rodata.0x00558FE0"))) const char D_00558FE0[32] = "undefined mode [%d]\n";
-__attribute__((section(".rodata.0x00559080"))) const char D_00559080[40] = "**toboy function start :: count=[%d]\n";
-__attribute__((section(".rodata.0x005590A8"))) const char D_005590A8[16] = "await start\n";
-__attribute__((section(".rodata.0x005590B8"))) const char D_005590B8[24] = "!!! wwarning !!!\n";
-__attribute__((section(".rodata.0x005590D0"))) const char D_005590D0[48] = "return value error :: [Battle_isCurrentStatus]\n";
-__attribute__((section(".rodata.0x00559100"))) const char D_00559100[16] = "await end\n";
-__attribute__((section(".rodata.0x00559110"))) const char D_00559110[24] = "toboy ra is [%d]\n";
-__attribute__((section(".rodata.0x005591D8"))) const char D_005591D8[24] = "actEnemyStart:%p\n";
+const char D_00558ED8[24] = "enter actEnemyStand\n";
 
-/* Float rodata migrated from enemy_act_data.c */
-__attribute__((section(".rodata.0x00558FA0"))) const float D_00558FA0[4] = { 0.0f, 0.0f, -1e+06f, 0.0f };
+const char D_00558EF0[24] = "enter motEnemyStand\n";
+
+const char D_00558F08[24] = "enter actEnemyWalk\n";
+
+const char D_00558F20[24] = "enter motEnemyWalk\n";
+
+const char D_00558F38[24] = "enter actEnemyRun\n";
+
+const char D_00558F50[24] = "enter motEnemyRun\n";
+
+const char D_00558F68[24] = "enter actEnemyJump\n";
+
+const char D_00558F80[32] = "enter actEnemyHang\n";
+
+const float D_00558FA0[4] = { 0.0f, 0.0f, -1e+06f, 0.0f };
+
+const char D_00558FB0[40] = "ASSERTMSG__GOP_IS_NOT_ENEMY(gop)";
+
+const char D_00558FE0[32] = "undefined mode [%d]\n";
+
+const char D_00559030[24] = "to generator way error!";
+
+const char D_00559060[16] = "not found";
+
+const char D_00559080[40] = "**toboy function start :: count=[%d]\n";
+
+const char D_005590A8[16] = "await start\n";
+
+const char D_005590B8[24] = "!!! wwarning !!!\n";
+
+const char D_005590D0[48] = "return value error :: [Battle_isCurrentStatus]\n";
+
+const char D_00559100[16] = "await end\n";
+
+const char D_00559110[24] = "toboy ra is [%d]\n";
+
+const char D_005591D8[24] = "actEnemyStart:%p\n";
 __attribute__((section(".rodata.0x00558FD8"))) const float D_00558FD8[2] = { 89128.96f, 1.035f };
 __attribute__((section(".rodata.0x00559048"))) const float D_00559048[2] = { 4.172325e-08f, 1.9f };
 __attribute__((section(".rodata.0x00559050"))) const float D_00559050[2] = { 4.172325e-08f, 1.9f };
@@ -190,7 +206,7 @@ __attribute__((section(".rodata.0x00559078"))) const float D_00559078[2] = { 0.0
 __attribute__((section(".rodata.0x00559128"))) const float D_00559128[2] = { 4.172325e-08f, 1.9f };
 
 /* String-pool rodata migrated from enemy_act_data.c */
-__attribute__((section(".rodata.0x00559168"))) const char D_00559168[112] = "change to kidnap\000\000\000\000\000\000\000\000_ACTMotReqTimer wait\n\000\000\000_ACTMotReqTimer error loop\n\000\000\000\000\000\tmail[%d] can not accept\n\000\000\000\000\000\000";
+const char D_00559168[112] = "change to kidnap\000\000\000\000\000\000\000\000_ACTMotReqTimer wait\n\000\000\000_ACTMotReqTimer error loop\n\000\000\000\000\000\tmail[%d] can not accept\n\000\000\000\000\000\000";
 
 #include "include_asm.h"
 #include "matching.h"
