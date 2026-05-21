@@ -432,7 +432,7 @@ segments:
       - [0x00DDF8, c, src/cod/00DDF8]            # func_0010DDF8: stack-buf wrapper: f(buf, a2); f2(self, buf, a1)
       - [0x00DE40, asm, src/cod/00DE40]
       - [0x00DF70, c, src/cod/00DF70]            # func_0010DF70: f10D540(sp, src); r1=f105278(); r2=f105278(); f1185D0(r1, r2, sp)
-      - [0x00DFB8, asm, src/cod/00DFB8]
+      - [0x00DFB8, c, src/cod/00DFB8]            # func_0010DFB8: 7-way switch — negate vec3 components by mask
       - [0x00E708, c, src/cod/00E708]            # func_0010E708: vector magnitude — dot(v,v) then sqrt via func_00117C20
       - [0x00E744, asm, src/cod/00E744]
       - [0x00E928, c, src/cod/00E928]            # VU0 wrapper (vu0.h macros)

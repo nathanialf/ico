@@ -75,6 +75,82 @@ TARGETS = [
 ]
 
 
+JTBL_REF_RE = re.compile(r'%hi\((jtbl_[0-9A-Fa-f]{8})\)')
+
+# A function is "defined in C" when a tracked .c (or .c.inc) file has
+# an actual definition body: `func_<VMA>(...) { ... }`. INCLUDE_ASM
+# entries reference the function name but don't define a body.
+C_FUNC_DEF_RE = re.compile(
+    r'\b(func_[0-9A-Fa-f]{8})\s*\([^;{]*?\)\s*\{',
+)
+INCLUDE_ASM_FUNC_RE = re.compile(
+    r'\bINCLUDE_ASM\s*\([^)]*\b(func_[0-9A-Fa-f]{8})\b',
+)
+
+
+def _functions_matched_in_c() -> set[str]:
+    """Set of `func_<VMA>` names with a real C body in tracked source.
+
+    The asm blanket emits ALL functions; splat's `asm/matchings/<path>/`
+    mirrors expected baseline regardless of yaml subseg type. Reliable
+    "matched in C" signal is the source itself: a function has a real
+    body in some `src/**/*.c` or `*.c.inc` AND is not INCLUDE_ASM'd
+    elsewhere. INCLUDE_ASM wins on conflict (e.g. partial coalesce)."""
+    defined: set[str] = set()
+    via_include_asm: set[str] = set()
+    for root_name in ("src", "ios", "sound", "isys"):
+        root_dir = REPO_ROOT / root_name
+        if not root_dir.is_dir():
+            continue
+        for p in root_dir.rglob("*"):
+            if p.suffix not in (".c", ".inc"):
+                continue
+            try:
+                text = p.read_text(errors="replace")
+            except Exception:
+                continue
+            for m in C_FUNC_DEF_RE.finditer(text):
+                defined.add(m.group(1))
+            for m in INCLUDE_ASM_FUNC_RE.finditer(text):
+                via_include_asm.add(m.group(1))
+    return defined - via_include_asm
+
+
+def _load_matched_function_jtbls() -> set[str]:
+    """Find `jtbl_<VMA>` symbols owned by C-matched functions.
+
+    For each function with a real C body in src/ (not INCLUDE_ASM'd),
+    look up its splat-emitted expected baseline at
+    `asm/matchings/**/func_<VMA>.s` and scan for `%hi(jtbl_X)`
+    references. Those jtbls are gcc-emitted in the function's `.o`
+    `.rodata` once compiled — the asm blanket's `.rodata.0x<jtbl_VMA>`
+    block holds `.word .L<addr>` entries that reference labels which
+    no longer exist (the asm body is gone), breaking the link. Strip
+    the blanket entries; gcc's emitted jtbl bytes cover the VMA via
+    the function's `.o`.
+    """
+    matched_funcs = _functions_matched_in_c()
+    if not matched_funcs:
+        return set()
+    matchings_root = REPO_ROOT / "asm" / "matchings"
+    if not matchings_root.is_dir():
+        return set()
+    out: set[str] = set()
+    func_to_s: dict[str, Path] = {}
+    for s_file in matchings_root.rglob("func_*.s"):
+        name = s_file.stem
+        if name in matched_funcs and name not in func_to_s:
+            func_to_s[name] = s_file
+    for func_name, s_file in func_to_s.items():
+        try:
+            text = s_file.read_text()
+        except Exception:
+            continue
+        for m in JTBL_REF_RE.finditer(text):
+            out.add(m.group(1))
+    return out
+
+
 def _load_migrated_symbols() -> set[str]:
     """Collect every `D_<VMA>` symbol defined in any tracked source.
 
@@ -386,6 +462,11 @@ def rewrite_one(
 
 def main() -> int:
     migrated = _load_migrated_symbols()
+    jtbls = _load_matched_function_jtbls()
+    if jtbls:
+        migrated |= jtbls
+        print(f"rewrite_data_named_sections: striping {len(jtbls)} jtbl "
+              f"symbol(s) owned by C-matched functions")
     total = 0
     for fname, sect_name, sect_flags in TARGETS:
         path = DATA_DIR / fname

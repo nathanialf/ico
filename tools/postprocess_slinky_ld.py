@@ -122,6 +122,76 @@ def _load_boundaries() -> dict:
     return {}
 
 
+_JTBL_REF_RE = re.compile(r'%hi\((jtbl_([0-9A-Fa-f]{8}))\)')
+_C_FUNC_DEF_RE = re.compile(
+    r'\b(func_[0-9A-Fa-f]{8})\s*\([^;{]*?\)\s*\{',
+)
+_INCLUDE_ASM_FUNC_RE = re.compile(
+    r'\bINCLUDE_ASM\s*\([^)]*\b(func_[0-9A-Fa-f]{8})\b',
+)
+
+
+def _jtbl_opath_map(objdump: str, link_objs: list[str]) -> dict[int, str]:
+    """Return {jtbl_VMA: function_owner_opath} for every jtbl whose
+    owning function is C-matched (has a body in tracked source, not
+    INCLUDE_ASM'd). The owning function's `.o(.rodata*)` contains
+    gcc's emitted jtbl bytes; the asm-blanket entry was stripped by
+    rewrite_data_named_sections.py, so this slot must take over."""
+    # Map func name → opath. We rely on the conventional naming
+    # `build/<src_path>.o` for `src/<src_path>.c` sources; cross-check
+    # by reading each .c and matching func-def to opath.
+    matched: dict[str, str] = {}  # func_name → opath
+    via_include_asm: set[str] = set()
+    src_roots = ("src", "ios", "sound", "isys")
+    for root_name in src_roots:
+        root_dir = REPO / root_name
+        if not root_dir.is_dir():
+            continue
+        for p in root_dir.rglob("*"):
+            if p.suffix not in (".c", ".inc"):
+                continue
+            try:
+                text = p.read_text(errors="replace")
+            except Exception:
+                continue
+            for m in _INCLUDE_ASM_FUNC_RE.finditer(text):
+                via_include_asm.add(m.group(1))
+            if p.suffix == ".c":
+                # build/<rel_no_ext>.o
+                rel = p.relative_to(REPO)
+                opath = f"build/{rel.with_suffix('.o')}"
+                for m in _C_FUNC_DEF_RE.finditer(text):
+                    func = m.group(1)
+                    if func not in matched:
+                        matched[func] = opath
+            # .c.inc fragments contribute defs but no .o of their
+            # own; functions defined in includes belong to the
+            # parent .c's .o (handled by parent's pass).
+    # INCLUDE_ASM wins on conflict.
+    for f in via_include_asm:
+        matched.pop(f, None)
+    # Now find jtbls referenced by matched functions via the
+    # splat-emitted matchings .s.
+    matchings_root = REPO / "asm" / "matchings"
+    out: dict[int, str] = {}
+    if not matchings_root.is_dir():
+        return out
+    for s_file in matchings_root.rglob("func_*.s"):
+        func = s_file.stem
+        opath = matched.get(func)
+        if opath is None:
+            continue
+        try:
+            text = s_file.read_text()
+        except Exception:
+            continue
+        for m in _JTBL_REF_RE.finditer(text):
+            vma = int(m.group(2), 16)
+            if vma not in out:
+                out[vma] = opath
+    return out
+
+
 def _has_plain_section(secs: list[tuple[str, int]], base: str) -> bool:
     """True if the .o has at least one plain-form section for `base` —
     a section named exactly `<base>` or `<base>.<non-hex-suffix>`
@@ -213,6 +283,22 @@ def collect_slots(objdump: str, base: str, vram_sym: str,
         if overlap:
             continue
         slots.append((lo_vma, "promoted", opath, f"{base}*"))
+
+    # 3. jtbl slots — for each C-matched function with a jtbl, the
+    #    function's `.o` `.rodata` contains gcc's emitted jtbl bytes.
+    #    The asm-blanket `.rodata.0x<jtbl_VMA>` block was stripped by
+    #    rewrite_data_named_sections.py (see _load_matched_function_
+    #    jtbls there), leaving a gap at the jtbl's VMA. Emit a slot
+    #    pulling the function's `.o(.<base>*)` so gcc's bytes land at
+    #    the original VMA.
+    if base == ".rodata":
+        for jtbl_vma, jtbl_opath in _jtbl_opath_map(objdump, link_objs).items():
+            # Only emit if the .o actually has plain `.rodata` content
+            # (the function was actually compiled, not just declared).
+            secs = sections_of(objdump, jtbl_opath)
+            if not _has_plain_section(secs, base):
+                continue
+            slots.append((jtbl_vma, "jtbl", jtbl_opath, f"{base}*"))
 
     slots.sort(key=lambda s: (s[0], s[1]))
 

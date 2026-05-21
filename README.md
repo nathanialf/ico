@@ -25,7 +25,7 @@ Round-trip is byte-identical. `make setup && make` produces
 <!-- progress:begin -->
 | Section          | Matched | Total |
 | ---------------- | ------: | ----: |
-| `.text` |  7.96 % | 1.44 MB |
+| `.text` |  7.98 % | 1.44 MB |
 | `.vutext` | 100.00 % | 20.22 KB |
 
 Phase 3d (attr-tag retirement): 4.05 KB / 76.19 KB stripped (5.32%)
