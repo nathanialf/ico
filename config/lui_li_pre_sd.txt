@@ -1,1 +1,7 @@
+# Retirement-trial 2026-05-21: 30 C-side variants tried (MATERIALIZE,
+# KEEP_LIVE pin orderings, register pins to $v0/$v1/$v1, inline-asm
+# lui-then-sw, -fno-schedule-insns{,2}, 9 other -f flags, source
+# reorderings). gcc 2.9 emits the {lui,li} pair either BEFORE sd-ra
+# OR keeps the {daddu t0,a1} arg-setup before sd-ra — never both
+# simultaneously. Postprocess remains.
 14D9E8
