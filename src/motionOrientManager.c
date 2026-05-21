@@ -86,7 +86,60 @@ __attribute__((section(".rodata.0x00619B68"))) const char D_00619B68[72] = "\245
 extern void func_001E1AA0(int a0, int a1, int a2, int a3);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E0C98);
-INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E0D50);
+
+extern int D_00632CE0;
+extern char D_00565128[];
+extern char D_006196C8[];
+extern char D_00633480[], D_00633488[], D_00633490[], D_00633498[];
+extern char D_006334A0[], D_006334A8[], D_006334B0[], D_006334B8[];
+extern void func_00264DF8(void *buf, const char *name);
+extern void func_001A6B10(int flag, const char *fmt, void *copied, void *entry, void *full_buf);
+
+void func_001E0D50(char *self, int idx, int flag) {
+    char buf[0x120];
+    char *self_15C;
+    int v_4A0;
+    char *entry_p;
+    int op;
+    self_15C = *(char **)(self + 0x15C);
+    v_4A0 = *(int *)(self_15C + 0x4A0);
+    entry_p = (char *)D_00565060;
+    entry_p = entry_p + v_4A0 * 0x190;
+    op = *(int *)(entry_p + 0x118);
+
+    switch (op) {
+    default: func_00264DF8(buf, D_00633480); break;
+    case 1:  func_00264DF8(buf, D_00633488); break;
+    case 20: func_00264DF8(buf, D_00633490); break;
+    case 2:  func_00264DF8(buf, D_00619620); break;
+    case 17: func_00264DF8(buf, D_00619630); break;
+    case 7:  func_00264DF8(buf, D_00619640); break;
+    case 16: func_00264DF8(buf, D_00619658); break;
+    case 8:  func_00264DF8(buf, D_00619670); break;
+    case 9:  func_00264DF8(buf, D_00619688); break;
+    case 10: func_00264DF8(buf, D_00633498); break;
+    case 15: func_00264DF8(buf, D_00619698); break;
+    case 11: func_00264DF8(buf, D_006334A0); break;
+    case 5:  func_00264DF8(buf, D_006334A8); break;
+    case 4:  func_00264DF8(buf, D_006334B0); break;
+    case 3:  func_00264DF8(buf, D_006334B8); break;
+    case 0:  func_00264DF8(buf, D_006196A8); break;
+    case 6:  func_00264DF8(buf, D_006196B8); break;
+    }
+
+    if (D_00632CE0 == 0) return;
+
+    {
+        char *p2 = *(char *volatile *)(self + 0x15C);
+        int v2;
+        __builtin_memcpy(&buf[0x100], &D_005CF340[idx * 32], 32);
+        v2 = *(volatile int *)(p2 + 0x4A0);
+        func_001A6B10(flag, D_006196C8, &buf[0x100],
+                      &D_00565128[v2 * 0x190], buf);
+    }
+}
+
+
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E0FE8);
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E10F0);
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E11D0);
