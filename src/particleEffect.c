@@ -18,13 +18,13 @@
  */
 
 
-__attribute__((section(".rodata.0x00619E08"))) const char D_00619E08[24] = "src/particleEffect.c";
+const char D_00619DE0[24] = "PARTICLE EFFECT WRONG\n";
 
-__attribute__((section(".rodata.0x00619DF8"))) const char D_00619DF8[16] = "enemy_tex01";
+const char D_00619DF8[16] = "enemy_tex01";
 
-/* String rodata migrated from particleEffect_data.c */
-__attribute__((section(".rodata.0x00619DE0"))) const char D_00619DE0[24] = "PARTICLE EFFECT WRONG\n";
-__attribute__((section(".rodata.0x00619E20"))) const char D_00619E20[32] = "No more effect... Ignored.\n";
+const char D_00619E08[24] = "src/particleEffect.c";
+
+const char D_00619E20[32] = "No more effect... Ignored.\n";
 
 #include "include_asm.h"
 

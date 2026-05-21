@@ -46,7 +46,7 @@ extern void  func_00105F20(int a, int b);
 extern void  func_0010ECB8(int *self);
 
 /* String-pool rodata migrated from rotObject_data.c */
-__attribute__((section(".rodata.0x00619FC8"))) const char D_00619FC8[120] = "src/rotObject.c\000GetRotObjectHoldPoint\000\000\000\t%f, %f, %f\n\000\000\000\000MoveRotObjectWithHoldPoint\000\000\000\000\000\000GetRotObjectGlobalHoldGeometry\000";
+const char D_00619FC8[120] = "src/rotObject.c\000GetRotObjectHoldPoint\000\000\000\t%f, %f, %f\n\000\000\000\000MoveRotObjectWithHoldPoint\000\000\000\000\000\000GetRotObjectGlobalHoldGeometry\000";
 
 #include "include_asm.h"
 #include "matching.h"

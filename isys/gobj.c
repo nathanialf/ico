@@ -2,18 +2,18 @@
 
 #include "include_asm.h"
 
-__attribute__((section(".rodata.0x00557A10"))) const char D_00557A10[16] = "isys/gobj.c";
+const char D_00557A10[16] = "isys/gobj.c";
 
 /* String rodata migrated from gobj_data.c */
-__attribute__((section(".rodata.0x00557A20"))) const char D_00557A20[16] = "isys:null GObj\n";
-__attribute__((section(".rodata.0x00557A30"))) const char D_00557A30[40] = "isys:not enough memory for GObj\n";
-__attribute__((section(".rodata.0x00557A58"))) const char D_00557A58[16] = "isys:null GObj\n";
-__attribute__((section(".rodata.0x00557A68"))) const char D_00557A68[24] = "gobj dl added to tail\n";
-__attribute__((section(".rodata.0x00557A80"))) const char D_00557A80[16] = "no_entry %p\n";
-__attribute__((section(".rodata.0x00557A90"))) const char D_00557A90[16] = "add to head %p\n";
-__attribute__((section(".rodata.0x00557AA0"))) const char D_00557AA0[16] = "add to tail %p\n";
-__attribute__((section(".rodata.0x00557AB0"))) const char D_00557AB0[16] = "GObjLinkDL in\n";
-__attribute__((section(".rodata.0x00557AC0"))) const char D_00557AC0[16] = "GObjLinkDL out\n";
+const char D_00557A20[16] = "isys:null GObj\n";
+const char D_00557A30[40] = "isys:not enough memory for GObj\n";
+const char D_00557A58[16] = "isys:null GObj\n";
+const char D_00557A68[24] = "gobj dl added to tail\n";
+const char D_00557A80[16] = "no_entry %p\n";
+const char D_00557A90[16] = "add to head %p\n";
+const char D_00557AA0[16] = "add to tail %p\n";
+const char D_00557AB0[16] = "GObjLinkDL in\n";
+const char D_00557AC0[16] = "GObjLinkDL out\n";
 
 extern int D_006A93D0[];
 extern int D_006321CC;

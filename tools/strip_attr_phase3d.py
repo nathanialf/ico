@@ -70,6 +70,132 @@ def promotable_ranges(tu: str, sections_filter: set[str] | None,
     return out
 
 
+# Matches a complete plain-form typed def (post-strip):
+#   `<type-prefix> D_<VMA>[<size>]? = ... ;`
+# The body is allowed to contain balanced braces (designated-init
+# struct arrays, function-pointer tables) — we look for the closing
+# `;` after any matched braces by counting brace depth.
+PLAIN_DEF_HEADER_RE = re.compile(
+    r'(?m)^(?P<pre>(?:[A-Za-z_]\w*\s+)+\**\s*)'
+    r'(?P<name>D_(?P<vma>[0-9A-Fa-f]{8}))\b'
+    r'\s*(?:\[[^\]]*\])?\s*='
+)
+
+
+def _find_def_end(text: str, start: int) -> int:
+    """Given the start of a `=` in a def, find the matching `;` at brace
+    depth 0. Returns the index just past the `;`."""
+    depth = 0
+    i = start
+    while i < len(text):
+        c = text[i]
+        if c == '{':
+            depth += 1
+        elif c == '}':
+            depth -= 1
+        elif c == ';' and depth == 0:
+            return i + 1
+        i += 1
+    return len(text)
+
+
+def _extract_plain_defs(text: str, ranges: dict[str, list[tuple[int, int]]]
+                         ) -> list[tuple[int, int, int]]:
+    """Find every plain-form typed def whose VMA falls in any
+    promoted range. Returns [(vma, start, end), ...]. `start` is the
+    beginning of the line (after leading whitespace); `end` is just
+    past the `;`."""
+    out: list[tuple[int, int, int]] = []
+    for m in PLAIN_DEF_HEADER_RE.finditer(text):
+        try:
+            vma = int(m.group("vma"), 16)
+        except ValueError:
+            continue
+        in_range = False
+        for ranges_list in ranges.values():
+            for lo, hi in ranges_list:
+                if lo <= vma < hi:
+                    in_range = True
+                    break
+            if in_range:
+                break
+        if not in_range:
+            continue
+        # Rewind start to beginning of line (skip leading whitespace
+        # but keep the newline before so reordering preserves spacing).
+        start = m.start()
+        # Skip the `=` sign to find end of def body.
+        eq_pos = text.find('=', start)
+        if eq_pos == -1:
+            continue
+        end = _find_def_end(text, eq_pos + 1)
+        out.append((vma, start, end))
+    return out
+
+
+def reorder_plain_defs(path: Path, ranges: dict[str, list[tuple[int, int]]],
+                       dry_run: bool) -> int:
+    """Re-emit the file with plain-form typed defs (those whose VMA
+    falls in a promoted range) sorted by VMA ascending. Returns the
+    number of defs reordered (0 if already in order)."""
+    text = path.read_text()
+    defs = _extract_plain_defs(text, ranges)
+    if not defs:
+        return 0
+    # Group into contiguous spans. Two defs are in the same span if
+    # the gap between them contains ONLY whitespace and C comments
+    # (block or line). This lets us sort across decorative comments
+    # ("/* migrated from foo_data.c */") without dragging in code.
+    def _gap_is_safe(gap: str) -> bool:
+        # Strip C block comments and // line comments, see if what
+        # remains is pure whitespace.
+        stripped = re.sub(r'/\*.*?\*/', '', gap, flags=re.DOTALL)
+        stripped = re.sub(r'//[^\n]*', '', stripped)
+        return stripped.strip() == ""
+    spans: list[list[tuple[int, int, int]]] = []
+    for vma, s, e in defs:
+        if spans and _gap_is_safe(text[spans[-1][-1][2]:s]):
+            spans[-1].append((vma, s, e))
+        else:
+            spans.append([(vma, s, e)])
+    # Check whether any span is out of VMA order.
+    out_of_order = False
+    for span in spans:
+        vmas = [v for v, _, _ in span]
+        if vmas != sorted(vmas):
+            out_of_order = True
+            break
+    if not out_of_order:
+        return 0
+    # Rebuild: per-span, sort by VMA and rewrite that range.
+    new_text = text
+    # Process spans in reverse so earlier offsets stay valid.
+    for span in reversed(spans):
+        vmas = [v for v, _, _ in span]
+        if vmas == sorted(vmas):
+            continue
+        span_start = span[0][1]
+        span_end = span[-1][2]
+        # Extract each def body verbatim, sort by VMA, rejoin with the
+        # original interstitial whitespace (assumed uniform: newlines).
+        bodies = [(v, new_text[s:e]) for v, s, e in span]
+        bodies.sort(key=lambda x: x[0])
+        # Reuse the FIRST inter-def separator as the joiner. If the
+        # span has only one def this branch isn't taken.
+        sep_start = span[0][2]
+        sep_end = span[1][1] if len(span) > 1 else sep_start
+        sep = new_text[sep_start:sep_end]
+        reordered = sep.join(b for _, b in bodies)
+        new_text = new_text[:span_start] + reordered + new_text[span_end:]
+    if new_text == text:
+        return 0
+    if not dry_run:
+        path.write_text(new_text)
+    return sum(1 for span in spans
+               for vmas in [[v for v, _, _ in span]]
+               if vmas != sorted(vmas))
+
+
 def strip_file(path: Path, ranges: dict[str, list[tuple[int, int]]],
                dry_run: bool) -> dict[str, int]:
     """Strip attr wrappers whose `(sec, vma)` falls in a promotable
@@ -147,15 +273,25 @@ def main() -> int:
             print(f"{tu}: no tracked source files found", file=sys.stderr)
             continue
         tu_per_sec: dict[str, int] = {sec: 0 for sec in ranges}
+        reordered_total = 0
         for f in files:
             counts = strip_file(f, ranges, args.dry_run)
             for sec, n in counts.items():
                 tu_per_sec[sec] = tu_per_sec.get(sec, 0) + n
+            # After stripping, sort the now-plain defs in this file
+            # by VMA. ee-gcc emits .rodata input-section content in
+            # source declaration order; without VMA-ascending order,
+            # symbols inside the .o land at wrong output VMAs even
+            # though the slot itself starts at lo_vma correctly.
+            reordered_total += reorder_plain_defs(f, ranges, args.dry_run)
         verb = "would strip" if args.dry_run else "stripped"
         bits = ", ".join(f"{sec}={n}" for sec, n in tu_per_sec.items() if n)
         if not bits:
             bits = "0 attrs (already stripped)"
-        print(f"{tu}: {verb} {bits}")
+        suffix = ""
+        if reordered_total:
+            suffix = f" (+ reordered {reordered_total} span(s) by VMA)"
+        print(f"{tu}: {verb} {bits}{suffix}")
         for sec, n in tu_per_sec.items():
             total_per_sec[sec] = total_per_sec.get(sec, 0) + n
 

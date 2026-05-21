@@ -3,17 +3,15 @@
 #include "include_asm.h"
 #include "regpin.h"
 
-__attribute__((section(".rodata.0x00557540"))) const char D_00557540[16] = "ios/message.c";
-__attribute__((section(".rodata.0x005575D0"))) const char D_005575D0[16] = "FINDCTP1";
-__attribute__((section(".rodata.0x005575E0"))) const char D_005575E0[16] = "DISCONNECT";
-
-/* String rodata migrated from message_data.c */
-__attribute__((section(".rodata.0x00557550"))) const char D_00557550[16] = "sema[%d] = %p\n";
-__attribute__((section(".rodata.0x00557560"))) const char D_00557560[24] = "msg:null message queue\n";
-__attribute__((section(".rodata.0x00557578"))) const char D_00557578[16] = "MSG NO SEND\n";
-__attribute__((section(".rodata.0x00557588"))) const char D_00557588[24] = "evt:null message queue\n";
-__attribute__((section(".rodata.0x005575A0"))) const char D_005575A0[16] = "where is here\n";
-__attribute__((section(".rodata.0x005575B0"))) const char D_005575B0[32] = "evt:signal added\n";
+const char D_00557540[16] = "ios/message.c";
+const char D_00557550[16] = "sema[%d] = %p\n";
+const char D_00557560[24] = "msg:null message queue\n";
+const char D_00557578[16] = "MSG NO SEND\n";
+const char D_00557588[24] = "evt:null message queue\n";
+const char D_005575A0[16] = "where is here\n";
+const char D_005575B0[32] = "evt:signal added\n";
+const char D_005575D0[16] = "FINDCTP1";
+const char D_005575E0[16] = "DISCONNECT";
 
 extern int D_006A6990[];
 extern void func_001A6E28(const char *fmt, int *self);
