@@ -1,6 +1,8 @@
 /* src/lodManager.c — __FILE__ anchor at .rodata 0x00619060 */
 
 #include "include_asm.h"
+#include "matching.h"
+#include "regpin.h"
 
 __attribute__((section(".rodata.0x00619060"))) const char D_00619060[32] = "src/lodManager.c";
 
@@ -47,7 +49,67 @@ void func_001D49C0(int *p1, int *p2, int a2, int a3)
 }
 INCLUDE_ASM("asm/nonmatchings/src/lodManager", func_001D4A58);
 INCLUDE_ASM("asm/nonmatchings/src/lodManager", func_001D4B40);
-INCLUDE_ASM("asm/nonmatchings/src/lodManager", func_001D4BD0);
+
+extern int D_00633430;
+extern void func_001A6E28(const char *fmt);
+
+void func_001D4BD0(unsigned int *p, unsigned char *ops) {
+    register unsigned char *l_ops REG("$18") = ops;
+    register unsigned int *l_p REG("$16") = p;
+    register int i REG("$17");
+    unsigned int v;
+    v = *l_p;
+    if (v == 0) return;
+    i = 0;
+    do {
+        register unsigned int op REG("$5");
+        unsigned int op_minus_one;
+        op = l_ops[i];
+        op_minus_one = op - 1;
+        switch (op_minus_one) {
+            default:
+                func_001A6E28(D_00619080);
+                func_001A6E28(D_006190A0);
+                break;
+            case 0:
+            case 3: {
+                *l_p = D_00633430 + v;
+                break;
+            }
+            case 1:
+            case 4: {
+                int base = D_00633430;
+                unsigned int *q = (unsigned int *)(base + v);
+                unsigned int qv = *q;
+                *l_p = (unsigned int)q;
+                *q = base + qv;
+                break;
+            }
+            case 2:
+            case 5: {
+                int base = D_00633430;
+                unsigned int *q = (unsigned int *)(base + v);
+                unsigned int q0 = q[0];
+                unsigned int q1 = q[1];
+                *l_p = (unsigned int)q;
+                q[0] = base + q0;
+                q[1] = base + q1;
+                break;
+            }
+        }
+        l_p++;
+        i++;
+        {
+            register int t REG("$2");
+            t = *(int *)l_p;
+            v = (unsigned int)t;
+            if (t == 0) break;
+        }
+    } while (1);
+}
+
+__attribute__((section(".rodata.0x006190F8"))) static const long long pad_jtbl_006190E0 = 0;
+
 INCLUDE_ASM("asm/nonmatchings/src/lodManager", func_001D4CC8);
 
 void func_001D4D98(void) {
