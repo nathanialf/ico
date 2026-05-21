@@ -166,3 +166,57 @@ The 47 ASCII string promotions from earlier in this session sit in
 the working tree — they're net-new attr-tagged. They're typed
 clean-room reconstructions; the only "cost" is that Phase 3d's strip
 pass will touch them too.
+
+## Update (2026-05-21, session end)
+
+Phase 3d pipeline now operational; 30 of 36 promotable rodata TUs and
+1 sdata TU (DmaPacket) migrated to plain form. SHA-1 stable.
+Commits `2760845`..`d20bfde` ship the slot generator, the strip
+helper (`tools/strip_attr_phase3d.py`), and 4 strip waves.
+
+### Sidecar-overlap deferred (6 TUs)
+
+`src/pool.c`, `src/camera-editor.c`, `src/boyact.c`, `src/queen.c`,
+`src/itou_boss.c` (rodata) and `src/PObj.c` (sdata) all hit the same
+structural blocker: their TU's VMA range contains a foreign-`.o`
+typed section (a sidecar leftover, or an asm-blanket jtbl like
+`jtbl_00553E70`). The per-TU `<o>(.<sec>*)` promoted slot can't
+interleave with intermediate foreign typed slots — it pulls bytes
+contiguously and overlaps.
+
+### Per-symbol slot experiment (deferred)
+
+Attempted: switch to `-fdata-sections` globally so ee-gcc emits one
+`.<sec>.D_<VMA>` section per plain typed def. Slot generator then
+emits one slot per per-symbol section. This naturally interleaves
+with foreign typed slots at intermediate VMAs.
+
+`-fdata-sections` confirmed working with ee-gcc 2.9 — each typed def
+gets its own section. Clean rebuild with all attr-tagged TUs +
+per-symbol slot generator: SHA-1 round-trip clean. Pipeline change
+landed in working tree but reverted due to compounding issues when
+stripping the deferred TUs:
+
+- **Small-const-to-sdata leak**: a `const float D_X[2]` (8 bytes)
+  lands in `.sdata.D_<VMA>` under `-G 8` even when the original VMA
+  is in `.rodata`. The per-symbol slot generator places it in the
+  `.sdata` output block at the wrong VMA. Filter by VMA-range (added
+  in the experiment) skips the symbol entirely → its bytes go
+  unclaimed.
+- **PObj.c strip moved sdata symbol byte offsets**: SHA-1 broke at
+  `0x00101CC0` with `+0x8` shift in an `addiu` immediate. Cause
+  not fully diagnosed before revert.
+
+The path forward requires:
+
+1. **Place `const` of any size into `.rodata` regardless of `-G`**:
+   either find an ee-gcc flag or wrap with an explicit
+   `__attribute__((section(".rodata")))` (non-VMA, just `.rodata`)
+   on small const arrays during strip. Strip helper extension.
+2. **Validate per-symbol slot generator across all sections** with
+   the small-const fix in place. Iterate on cascading errors.
+3. **Roll out the 6 deferred TUs** with the per-symbol pipeline.
+
+The per-symbol slot generator code is preserved in the session's
+git reflog if needed; revisit when context permits the full debug
+iteration.
