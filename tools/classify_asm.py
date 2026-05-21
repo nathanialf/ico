@@ -607,7 +607,7 @@ RULES: list[Rule] = [
     R("8.17", "sw pair around j $31 (sw_pair)", "817",
       lambda s: s.has_sw_pair_around_j31,
       weight=0.7,
-      note="If diff is just two sw stores swapped around the jr, add to config/swap_sw_pair.txt"),
+      note="If diff is just two sw stores swapped around the jr, mark both stores with *(volatile T *)& casts"),
 
     R("8.19", "coalesce_v1_v0 candidate (`move $2,$3` near end)", "819",
       lambda s: s.has_v0_eq_v1_late,

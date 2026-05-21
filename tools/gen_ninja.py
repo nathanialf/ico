@@ -45,7 +45,6 @@ POSTPROCESS_TXTS = [
     "use_modern_as.txt",
     "swap_addu_operands.txt",
     "coalesce_v1_v0.txt",
-    "swap_sw_pair.txt",
     "no_trailing_nop.txt",
     "shared_sp_restore.txt",
     "shared_jr_restore.txt",

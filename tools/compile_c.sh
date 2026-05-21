@@ -200,9 +200,6 @@ if listed "${COALESCE_V1_V0_TXT}"; then
         -e '/^[[:space:]]*move[[:space:]]+\$2,\$3[[:space:]]*$/d' \
         -e 's/\$3\b/$2/g' "${S}"
 fi
-# Always runs — internal config/swap_sw_pair.txt gate, not a per-recipe `if`.
-"${PYTHON}" "${ROOT}/tools/postprocess_sw_pair.py" "${S}"
-
 # Always runs — internal config/bne_to_bnel.txt gate (per-function allowlist).
 "${PYTHON}" "${ROOT}/tools/postprocess_bne_to_bnel.py" "${S}"
 

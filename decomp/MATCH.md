@@ -456,8 +456,8 @@ Step 4 (header-macro hasm) instead — re-evaluate during refactor:
     *hasm-migration:* not really — single-instruction encoding tweak.
   - `config/coalesce_v1_v0.txt` → sed: drop redundant `move v0,v1`.
     *hasm-migration:* unlikely — register-allocation tweak per-function.
-  - `config/swap_sw_pair.txt` → `tools/postprocess_sw_pair.py`.
-    *hasm-migration:* unlikely — paired-store ordering inside C body.
+  - ~~`config/swap_sw_pair.txt` → `tools/postprocess_sw_pair.py`~~
+    **retired 2026-05-21** — use `*(volatile T *)&` cast on both stores.
   - `config/no_trailing_nop.txt` → `tools/postprocess_no_trailing_nop.py`:
     wraps the final `$L<N>: j $31` in `.set noreorder`/`.set reorder`
     so gas doesn't auto-fill the delay slot with a nop. Use when the

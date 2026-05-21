@@ -145,7 +145,7 @@ $CC $CFLAGS -o "$ASM_OUT" "$CSRC"
 
 # Stage 1b: run postprocesses listed in their gate files (match
 # compile_c.sh pipeline). Only the per-file postprocesses; the always-on
-# sw_pair + `move`→`daddu` translations are applied unconditionally.
+# `move`→`daddu` translation is applied unconditionally.
 qd_listed() {
     local txt="$ROOT/config/$1"
     [ -r "$txt" ] || return 1
@@ -186,7 +186,6 @@ qd_listed dummy_sp_prologue.txt     && python3 "$ROOT/tools/postprocess_dummy_sp
 [ "$(basename "$NAME")" = "fightSound" ] && python3 "$ROOT/tools/postprocess_191F50.py" "$ASM_OUT" || true
 qd_listed swap_addu_operands.txt && sed -i -E 's/(addu[[:space:]]+\$([0-9]+),)\$([0-9]+),\$\2\b/\1$\2,$\3/g' "$ASM_OUT" || true
 qd_listed coalesce_v1_v0.txt     && sed -i -E -e '/^[[:space:]]*move[[:space:]]+\$2,\$3[[:space:]]*$/d' -e 's/\$3\b/$2/g' "$ASM_OUT" || true
-python3 "$ROOT/tools/postprocess_sw_pair.py" "$ASM_OUT" || true
 python3 "$ROOT/tools/postprocess_swap_addu_to_rt.py" "$ASM_OUT" || true
 python3 "$ROOT/tools/postprocess_bne_to_bnel.py" "$ASM_OUT" || true
 sed -i -E 's/\bmove[[:space:]]+(\$[0-9a-zA-Z]+),[[:space:]]*(\$[0-9a-zA-Z]+)\b/daddu \1,\2,$0/g' "$ASM_OUT"

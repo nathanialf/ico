@@ -1108,17 +1108,32 @@ original interleaves the v0-store between the restores:
 Fix: per-func allowlist in `config/move_sw_v0_before_lds.txt`.
 Example: `13F030` → `func_0023F030`.
 
-### 8.17 `postprocess_sw_pair.py` — swap two `sw` stores around `j $31`
+### 8.17 sw pair around `j $31` — **RETIRED, use volatile cast**
 
 Symptom: original has `sw $Z,OFF2($Y); j $31; sw $X,OFF1($Y)` (one
 store before the tail-jr, one in the delay slot); gcc emits the same
 two stores in the opposite order. Different stores so no aliasing,
 identical semantics, different bytes.
 
-Fix: per-file_off allowlist in `config/swap_sw_pair.txt`. Both stores
-must share a base register.
-Examples: `14BB90` → `func_0024BB90` (getset on `D_00717758[5]/[6]`),
-`14BBA8` → `func_0024BBA8` (getset on `D_00717758[3]/[4]`).
+**Fix in C:** mark both stores with `*(volatile T *)&` casts. The
+volatile qualifier forces gcc to keep source order for both writes,
+which matches the original codegen.
+
+```c
+int func(int a0, int a1) {
+    int old = D_X[5];
+    *(volatile int *)&D_X[6] = a1;   // was: D_X[6] = a1;
+    *(volatile int *)&D_X[5] = a0;   // was: D_X[5] = a0;
+    return old;
+}
+```
+
+Examples (retired postprocess): `func_0024BB90` (`src/cod/14BB90.c`,
+getset on `D_00717758[5]/[6]`), `func_0024BBA8` (`src/cod/14BBA8.c`,
+getset on `D_00717758[3]/[4]`).
+
+Postprocess removed 2026-05-21 — `tools/postprocess_sw_pair.py` and
+`config/swap_sw_pair.txt` were deleted.
 
 ### 8.18 `postprocess_early_body_swap.py` — body insn between sp-adjust and ra-save
 

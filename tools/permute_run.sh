@@ -428,10 +428,6 @@ sed -i -E -e '/^[[:space:]]*move[[:space:]]+\$2,\$3[[:space:]]*$/d' \
           -e 's/\$3\b/$2/g' "${TMP_S}"
 EOF
 fi
-# postprocess_sw_pair.py runs unconditionally (it self-gates on
-# config/swap_sw_pair.txt internally).
-echo "${PYTHON} ${PROJECT_ROOT}/tools/postprocess_sw_pair.py \"\${TMP_S}\""
-
 # 3. Reg-name → numbered translation (always applied; ee-as 2.10 needs it).
 cat <<'EOF'
 sed -i -E -e 's/\$zero\b/$0/g'   -e 's/\$at\b/$1/g'  \
