@@ -2694,4 +2694,110 @@ pad ; lq.xyzw vf12, 35(vi00)
 .word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
 pad ; nop_swap                           ; E-bit delay slot
 
-.assert_pc 0x3698
+; --- sub_3620 transform body (0x3698..0x38B8) ---
+; Reached directly when EE sets VU0_TPC=0x3698.  Loop tail `b L_3628`
+; re-enters sub_3620's I-setup-tail at 0x3628 (the addi.w bundle),
+; which then falls through to the E-bit at 0x3688 and terminates.
+; This routine adds a specular-power chain (mul.xyz vf30 squared
+; twice) before quantizing, and has the I-bit 255.0f trick at 0x3810.
+pad ; xtop vi13
+.word 0x4A000100 ; nop                   ; upper: `add vf04, vf00, vf00` + flag bits (E/T/25-ish)
+pad ; iaddiu vi14, vi00, 32767
+pad ; iaddiu vi02, vi13, 1
+pad ; ilwr.x vi04, vi13
+pad ; lq.xyzw vf29, 0(vi13)
+pad ; iand vi04, vi14, vi04
+pad ; iaddiu vi01, vi13, 192
+pad ; sq.xyzw vf29, 0(vi01)
+pad ; iaddiu vi14, vi14, 1
+pad ; iaddiu vi03, vi01, 1
+pad ; mfir.w vf19, vi00
+pad ; mfir.w vf20, vi14
+pad ; iaddiu vi07, vi00, 208
+sub.w       vf21, vf21, vf21 ; lq.xyzw vf16, 1(vi02)
+pad ; lq.xyzw vf15, 0(vi02)
+pad ; lq.xyzw vf17, 2(vi02)
+pad ; lq.xyzw vf18, 3(vi02)
+mulax.xyzw  vf05, vf16 ; nop_swap
+madday.xyzw vf06, vf16 ; nop_swap
+maddaz.xyzw vf07, vf16 ; nop_swap
+maddw.xyzw  vf29, vf08, vf16 ; nop_swap
+sub.w       vf00, vf17, vf00 ; nop_swap
+mulax.xyzw  vf01, vf15 ; nop_swap
+madday.xyzw vf02, vf15 ; nop_swap
+maddaz.xyzw vf03, vf15 ; nop_swap
+maddw.xyzw  vf28, vf04, vf00 ; fsand vi15, 0x2
+maxx.xyzw   vf29, vf29, vf00 ; nop_swap
+add.xy      vf17, vf17, vf23 ; nop_swap
+pad ; nop_swap
+
+L_3788:
+mulax.xyzw  vf09, vf29 ; div Q, vf00.w, vf28.w
+madday.xyzw vf10, vf29 ; iaddiu vi02, vi02, 4
+maddaz.xyzw vf11, vf29 ; ibeq vi15, vi00, L_37B0
+maddw.xyzw  vf29, vf00, vf29 ; lq.xyzw vf16, 1(vi02)
+pad ; iaddiu vi05, vi00, 3
+L_37B0:
+maxx.xyzw   vf29, vf29, vf00 ; waitq
+mulq.xyz    vf28, vf28 ; nop_swap
+mulq.xyz    vf21, vf17 ; lq.xyzw vf15, 0(vi02)
+mulax.xyzw  vf05, vf16 ; lq.xyzw vf17, 2(vi02)
+mul.xyz     vf30, vf29, vf29 ; iaddi vi04, vi04, -1
+sub.xyw     vf00, vf13, vf28 ; nop_swap
+sub.xyw     vf00, vf28, vf14 ; sq.xyzw vf21, 0(vi03)
+madday.xyzw vf06, vf16 ; nop_swap
+mul.xyz     vf30, vf30, vf30 ; nop_swap
+maddaz.xyzw vf07, vf16 ; fmand vi14, vi07
+maddw.xyzw  vf29, vf08, vf16 ; fmand vi14, vi14
+sub.w       vf00, vf17, vf00 ; nop_swap
+; I-bit bundle: upper mul.xyz vf18,vf18,vf30 + I-bit; lower = 255.0f → I
+.word 0x81DE94AA ; .word 0x437F0000
+mulax.xyzw  vf01, vf15 ; nop_swap
+madday.xyzw vf02, vf15 ; nop_swap
+maddaz.xyzw vf03, vf15 ; fsand vi15, 0x2
+minii.xyzw  vf22, vf18 ; nop_swap
+ftoi4.xyz   vf19, vf28 ; iaddi vi05, vi05, -1
+ftoi4.xyz   vf20, vf28 ; lq.xyzw vf18, 3(vi02)
+maddw.xyzw  vf28, vf04, vf00 ; nop_swap
+ftoi0.xyzw  vf22, vf22 ; nop_swap
+maxx.xyzw   vf29, vf29, vf00 ; ibne vi14, vi07, L_3890
+add.xy      vf17, vf17, vf23 ; iaddiu vi03, vi03, 3
+pad ; ibgtz vi05, L_3898
+pad ; nop_swap
+pad ; sq.xyzw vf19, -1(vi03)
+pad ; b L_38A0
+pad ; nop_swap
+L_3890:
+pad ; iaddiu vi05, vi00, 3
+L_3898:
+pad ; sq.xyzw vf20, -1(vi03)
+L_38A0:
+pad ; ibne vi04, vi00, L_3788
+pad ; sq.xyzw vf22, -2(vi03)
+pad ; xgkick vi01
+pad ; b L_3628                           ; → sub_3620's E-bit
+
+; -----------------------------------------------------------------------
+; sub_38C0 — 1-bundle no-op entry (also delay slot of `b L_3628` above).
+; Falls through into sub_38C8's I-register setup.
+; -----------------------------------------------------------------------
+sub_38C0:
+pad ; nop_swap                           ; do nothing (entry / branch delay slot)
+L_38C8:
+.word 0x800002FF ; .word 0x4B7FFFFE      ; pad[I] + I = 0x4B7FFFFE
+addi.w vf14, vf00 ; move.xyzw vf13, vf00
+.word 0x800002FF ; .word 0x457FF000      ; pad[I] + I = 0x457FF000
+addi.xy vf14, vf00 ; nop_swap
+pad ; lq.xyzw vf23, 2(vi00)
+pad ; lq.xyzw vf05, 24(vi00)
+pad ; lq.xyzw vf06, 25(vi00)
+pad ; lq.xyzw vf07, 26(vi00)
+pad ; lq.xyzw vf08, 27(vi00)
+pad ; lq.xyzw vf09, 12(vi00)
+pad ; lq.xyzw vf10, 13(vi00)
+pad ; lq.xyzw vf11, 14(vi00)
+pad ; lq.xyzw vf12, 15(vi00)
+.word 0x400002FF ; nop_swap              ; upper: E-bit pad (END)
+pad ; nop_swap                           ; E-bit delay slot
+
+.assert_pc 0x3940
