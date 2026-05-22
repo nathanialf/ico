@@ -32,8 +32,6 @@ REPO = Path(__file__).resolve().parent.parent
 BOUNDARIES_JSON = REPO / "decomp" / "data_tu_boundaries.json"
 
 # `__attribute__((section(".<sec>.0xVMA"))) <type-prefix> <symbol>[N]?`
-# Captures type prefix + optional `[N]` array size so we can decide
-# between full strip and non-VMA-attribute rewrap.
 ATTR_RE = re.compile(
     r'__attribute__\(\(section\("\.(?P<sec>\w+)\.0x(?P<vma>[0-9A-Fa-f]+)"\)\)\)\s+'
     r'(?P<pre>(?:[A-Za-z_]\w*\s+)+\**\s*)'
@@ -41,46 +39,19 @@ ATTR_RE = re.compile(
     r'(?P<arr>\s*\[\s*(?P<n>\d+)\s*\])?'
 )
 
-# Base C type → size in bytes. ee-gcc 2.9 on R5900 EABI (default).
-_BASE_TYPE_SIZE = {
-    "char": 1, "uchar": 1, "u8": 1, "s8": 1, "int8_t": 1, "uint8_t": 1,
-    "short": 2, "ushort": 2, "u16": 2, "s16": 2, "int16_t": 2, "uint16_t": 2,
-    "int": 4, "uint": 4, "long": 4, "ulong": 4, "u32": 4, "s32": 4,
-    "int32_t": 4, "uint32_t": 4, "float": 4,
-    "double": 8, "u64": 8, "s64": 8, "int64_t": 8, "uint64_t": 8,
-}
-_TYPE_MODIFIERS = {"const", "static", "volatile", "signed", "unsigned",
-                   "register", "extern"}
 
-
-def _sizeof_def(pre: str, n_array: int | None) -> int | None:
-    """Best-effort sizeof for a typed def's storage. `pre` is the type
-    prefix between the attribute and the symbol name (e.g.
-    `const float `, `unsigned int `). `n_array` is the `[N]` count or
-    None for a scalar. Returns total byte size, or None if the type
-    isn't a recognized fundamental (e.g. a struct or pointer)."""
-    n = 1 if n_array is None else n_array
-    if "*" in pre:
-        return 4 * n  # pointer (ee R5900 = 32-bit ABI)
-    base = None
-    for tok in pre.split():
-        if tok in _TYPE_MODIFIERS:
-            continue
-        if tok in _BASE_TYPE_SIZE:
-            base = tok
-            break
-    if base is None:
-        return None
-    return _BASE_TYPE_SIZE[base] * n
-
-
-# Symbols ≤ this size land in `.sdata` under `-G 8` even when typed
-# `const` whose original VMA is in `.rodata`. The strip helper must
-# rewrite their VMA-pinned attr to a non-VMA `.rodata` placement
-# attribute (a legitimate developer directive) instead of fully
-# stripping — otherwise ee-gcc's small-data heuristic shifts the
-# bytes off-VMA.
-_SDATA_LEAK_THRESHOLD = 8
+# NOTE on small-data leak: under `-G 8`, ee-gcc places size-≤8 defs in
+# `.sdata` even when their original VMA is in `.rodata` / `.data` / `.lit4`.
+# With `-fdata-sections` ON (see tools/compile_c.sh CFLAGS), each typed
+# def lands in its OWN per-symbol section (`.sdata.D_<VMA>`); the
+# tools/postprocess_slinky_ld.py slot generator then routes each
+# per-symbol section to the output block whose VMA range contains it,
+# regardless of which input section ee-gcc chose. That makes stripping
+# the VMA-pinned attr safe even for size-≤8 consts in `.rodata` range
+# and for `const float[N]` in `.lit4` range — slinky picks them up by
+# VMA and emits them in the right output slot. So we strip every attr
+# whose `(sec, vma)` falls in a promotable range; no size-threshold
+# carve-out is needed.
 
 
 def load_boundaries() -> dict:
@@ -278,7 +249,6 @@ def strip_file(path: Path, ranges: dict[str, list[tuple[int, int]]],
                 pre = m.group("pre")
                 name = m.group("name")
                 arr = m.group("arr") or ""
-                n_arr = int(m.group("n")) if m.group("n") else None
                 # When stripping `.rodata` attrs from a `char` (or
                 # `unsigned char`) array without `const`, ee-gcc would
                 # default-place it in `.data` (mutable) instead of
@@ -291,32 +261,13 @@ def strip_file(path: Path, ranges: dict[str, list[tuple[int, int]]],
                     elif (len(tokens) >= 2 and tokens[-2] == "unsigned"
                           and tokens[-1] == "char"):
                         pre = "const " + pre
-                # Strip only when ee-gcc's default placement (under
-                # -G 8) would match the original section. Otherwise
-                # the attr is the legitimate placement directive
-                # that an original developer would write and must be
-                # retained.
-                #
-                # ee-gcc default placement table for `<pre> D_X = ...`:
-                #   const  size ≤ 8 → .sdata     (-G 8 small)
-                #   const  size > 8 → .rodata
-                #   mutable size ≤ 8 → .sdata
-                #   mutable size > 8 → .data
-                #   (no default emission to .lit4 without explicit attr)
-                size = _sizeof_def(pre, n_arr)
-                is_const = "const" in pre.split()
-                default_sec: str | None = None
-                if size is not None:
-                    if size <= _SDATA_LEAK_THRESHOLD:
-                        default_sec = ".sdata"
-                    elif is_const:
-                        default_sec = ".rodata"
-                    else:
-                        default_sec = ".data"
-                if default_sec != sec:
-                    # Keep attr — not a normal default placement.
-                    counts[sec] = counts.get(sec, 0) - 1
-                    return m.group(0)
+                # Strip unconditionally. `-fdata-sections` puts each
+                # def in its own `.<sec>.D_<VMA>` section; the slinky
+                # postprocess routes those by VMA range into the right
+                # output block, so ee-gcc's small-data leak (size-≤8
+                # consts go to `.sdata` instead of `.rodata`) is
+                # invisible at link time. See note at the top of this
+                # file.
                 return pre + name + arr
         return m.group(0)
     new_text = ATTR_RE.sub(replacer, text)
