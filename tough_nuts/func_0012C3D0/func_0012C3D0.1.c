@@ -209,8 +209,6 @@ void func_0012BEB0(unsigned char *_a0, unsigned char *_a1) {
 }
 #endif
 INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012C050);
-INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012C3D0);
-#if 0
 extern unsigned int D_00276268[];
 extern const char D_00556088[];
 extern const char D_00631DD8[];
@@ -292,7 +290,7 @@ void func_0012C3D0(unsigned char *a0, unsigned char *a1) {
 tail:
     func_0012C050(a0, a1);
 }
-#endif
+
 INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012C610);
 INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012C6F0);
 INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012C8F8);

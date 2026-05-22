@@ -209,90 +209,48 @@ void func_0012BEB0(unsigned char *_a0, unsigned char *_a1) {
 }
 #endif
 INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012C050);
-INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012C3D0);
-#if 0
 extern unsigned int D_00276268[];
 extern const char D_00556088[];
 extern const char D_00631DD8[];
-void func_0012C050(unsigned char *a0, unsigned char *a1);
+void func_0012C050(unsigned char *, unsigned char *);
 
 void func_0012C3D0(unsigned char *a0, unsigned char *a1) {
     int row;
-    int lbu13;
+    int slot13;
 
+    /* Zero out 7 rows × 6 shorts at a1[0x10C..0x10E + row*0x24] */
     for (row = 0; row < 7; row++) {
         int col;
-        unsigned char *p = a1 + 0x110 + row * 0x24;
         for (col = 12; col >= 0; col--) {
-            *(short *)(p - col * 2) = 0;
+            *(short *)(a1 + row * 0x24 + 0x10C + 0x18 - col * 2) = 0;
         }
     }
     *(short *)(a1 + 0xE8) = 0;
+    /* Zero out additional 12 shorts at a1[0xEC..0x108] */
     {
         int col;
-        unsigned char *p = a1 + 0xEC + 0x18;
         for (col = 12; col >= 0; col--) {
-            *(short *)(p - col * 2) = 0;
+            *(short *)(a1 + 0xEC + 0x18 - col * 2) = 0;
         }
     }
 
-    lbu13 = a0[0x13];
-    if (lbu13 == 0) goto tail;
-    if (lbu13 < 4) {
-        unsigned short n_levels = *(unsigned short *)(a1 + 0xE0);
-        int level = 0;
-        if (n_levels == 0) goto tail;
-        do {
-            unsigned int *entry = (unsigned int *)((unsigned char *)D_00276268 + lbu13 * 0xC);
-            int w = (int)*(unsigned short *)(a0 + 0x14) >> level;
-            int h = (int)*(unsigned short *)(a0 + 0x16) >> level;
-            int wh = w * h;
-            unsigned char *out = a1 + level * 0x24;
-            if (entry[1] == 0) __asm__ volatile("break 0,7");
-            {
-                int q = wh / (int)entry[1];
-                int q_avg = (q + ((unsigned)q >> 31)) >> 1;
-                *(short *)(out + 0x10E) = (short)((q_avg * (int)entry[2]) >> 6);
-            }
-            {
-                unsigned int *p2 = (unsigned int *)((unsigned char *)D_00276268 + a0[0x13] * 0xC);
-                int ws = (int)*(unsigned short *)(a0 + 0x14) >> level;
-                unsigned int fmt = p2[0];
-                int v;
-                if (fmt >= 0x3B) {
-                    v = 0;
-                } else {
-                    switch (fmt) {
-                    case 0: case 1: case 2: case 10: case 27: case 35: case 43: case 47: case 48: case 49: case 57:
-                        v = (int)((unsigned)(ws + 0x3F) >> 6);
-                        break;
-                    case 19: case 20: {
-                        int x = (int)((unsigned)(ws + 0x3F) >> 6);
-                        v = (x & 1) + x;
-                        break;
-                    }
-                    default:
-                        v = 0;
-                        break;
-                    }
-                }
-                *(short *)(out + 0x10C) = (short)v;
-            }
-            level++;
-        } while (level < (int)n_levels);
-        goto tail;
+    slot13 = a0[0x13];
+    if (slot13 == 0) {
+        func_0012C050(a0, a1);
+        return;
     }
-    if (lbu13 < 6) {
-        func_0012BEB0(a0, a1);
-        goto tail;
+
+    if (slot13 < 4) {
+        /* Loop, dispatch */
+    } else if (slot13 < 6) {
+        /* Other dispatch */
+    } else {
+        func_001A6E28(D_00556088, a1, a0[0x12], *(int *)(a1 + 0x108), *(int *)(a1 + 0xE4), a1);
+        func_001AD768("src/Texture.c", 0x443);
+        func_00263FF0("src/Texture.c", D_00631DD8, 0x443);
     }
-    func_001A6E28(D_00556088, a1, a0[0x12], *(int *)(a1 + 0x108), *(int *)(a1 + 0xE4), a1);
-    func_001AD768((const char *)D_00555ED8, 0x443);
-    func_00263FF0((const char *)D_00555ED8, D_00631DD8, 0x443);
-tail:
     func_0012C050(a0, a1);
 }
-#endif
 INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012C610);
 INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012C6F0);
 INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012C8F8);
