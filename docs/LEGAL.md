@@ -20,7 +20,7 @@ respective owners.
 
 - The ICO disc image (`.bin`/`.iso`/`.cue`/etc.), in whole or in any
   portion, in any encoding.
-- The extracted EE-side ELF (`SLUS-20218`) or any portion of it.
+- The extracted EE-side ELF (`SCUS-97113`) or any portion of it.
 - Audio (VAG/ADPCM), image (TM2/PNG-from-disc), texture, model, text, or
   other assets extracted from the disc.
 - Symbol tables, debug strings, or other identifiers lifted directly from

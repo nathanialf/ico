@@ -1,7 +1,7 @@
 # ico
 
 A clean-room decompilation of the PlayStation 2 game **ICO** (US release,
-SLUS-20218, 2001, Sony Computer Entertainment / Team Ico).
+SCUS-97113, 2001, Sony Computer Entertainment / Team Ico).
 
 The goal is to produce original source code that, compiled with the original
 build chain, reproduces a byte-for-byte identical EE-side ELF. No disc data

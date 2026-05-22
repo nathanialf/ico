@@ -9,7 +9,7 @@ End-to-end walkthrough from a fresh clone to a byte-identical EE ELF.
 - `git`, `python3` ≥ 3.10, `make`, `bash`, `gh` (GitHub CLI).
 - Optional but recommended: `docker` (for the pinned ps2dev EE toolchain
   image — avoids a long source build).
-- A legally-owned copy of *ICO* (PlayStation 2, USA release, SLUS-20218)
+- A legally-owned copy of *ICO* (PlayStation 2, USA release, SCUS-97113)
   as a `.bin` + `.cue` pair.
 
 ## 1. Run the host setup script
@@ -62,7 +62,7 @@ cp "/path/to/Ico (USA).cue" baserom/Ico_USA.cue
 ```
 
 Reads the ISO9660 filesystem from the disc image, extracts the boot ELF
-named in `SYSTEM.CNF` (`SLUS_202.18`), writes it to `baserom/baseelf.elf`,
+named in `SYSTEM.CNF` (`SCUS_971.13`), writes it to `baserom/baseelf.elf`,
 and records its SHA-1 to `config/sha1sums.txt` if the file is empty
 (otherwise verifies against the existing entry).
 
