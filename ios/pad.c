@@ -4,32 +4,70 @@
 #include "regpin.h"
 #include "include_asm.h"
 
-__attribute__((section(".rodata.0x005576B8"))) const char D_005576B8[24] = "ios/pad.c";
-__attribute__((section(".rodata.0x00557840"))) const char D_00557840[32] = "pad:checking controler... ";
+const char D_005575F0[24] = "pad:port:%d slot:%d %s\n";
+const char D_00557608[16] = "pad:?%d\n";
+const char D_00557618[16] = "phase %d\n";
+const char D_00557628[16] = "pad id:%d\n";
+const char D_00557638[16] = "pad: exid %d\n";
+const char D_00557648[24] = "pad:default 0x%x\n";
+const char D_00557660[16] = "pad:%03x\n";
+const char D_00557670[32] = "pad:switch to ANALOG mode\n";
+const char D_00557690[40] = "pad:switch to PRESSURE SENSE mode\n";
+const char D_005576B8[24] = "ios/pad.c";
+const char D_00557808[16] = "pad:init error\n";
+const char D_00557818[40] = "ERROR: scePadPortOpen port%d slot%d\n";
+const char D_00557840[32] = "pad:checking controler... ";
+const char D_00557860[24] = "port:%d, slot:%d\n";
+const char D_00557878[24] = "voice error? %d\n";
 
-/* String rodata migrated from pad_data.c */
-__attribute__((section(".rodata.0x005575F0"))) const char D_005575F0[24] = "pad:port:%d slot:%d %s\n";
-__attribute__((section(".rodata.0x00557608"))) const char D_00557608[16] = "pad:?%d\n";
-__attribute__((section(".rodata.0x00557618"))) const char D_00557618[16] = "phase %d\n";
-__attribute__((section(".rodata.0x00557628"))) const char D_00557628[16] = "pad id:%d\n";
-__attribute__((section(".rodata.0x00557638"))) const char D_00557638[16] = "pad: exid %d\n";
-__attribute__((section(".rodata.0x00557648"))) const char D_00557648[24] = "pad:default 0x%x\n";
-__attribute__((section(".rodata.0x00557660"))) const char D_00557660[16] = "pad:%03x\n";
-__attribute__((section(".rodata.0x00557670"))) const char D_00557670[32] = "pad:switch to ANALOG mode\n";
-__attribute__((section(".rodata.0x00557690"))) const char D_00557690[40] = "pad:switch to PRESSURE SENSE mode\n";
-__attribute__((section(".rodata.0x00557808"))) const char D_00557808[16] = "pad:init error\n";
-__attribute__((section(".rodata.0x00557818"))) const char D_00557818[40] = "ERROR: scePadPortOpen port%d slot%d\n";
-__attribute__((section(".rodata.0x00557860"))) const char D_00557860[24] = "port:%d, slot:%d\n";
-__attribute__((section(".rodata.0x00557878"))) const char D_00557878[24] = "voice error? %d\n";
+/* .data — pad-state zero buffers (two 1KB slot tables, voice/misc state). */
+unsigned char D_002811C0[1024] = { 0 };
+unsigned char D_002815C0[112]  = { 0 };
+unsigned char D_00281630[48]   = { 0 };
+unsigned char D_00281660[16]   = { 0 };
+unsigned char D_00281670[1024] = { 0 };
+
+/* .rodata — 23-entry button-mapping table. func_0013B610 indexes by row
+ * (shift left 3 → 8-byte stride), then reads `id` as s16 at +4 and
+ * `flag` as u16 at +6; offset 0 holds a u32 `kind`/count field. */
+typedef struct { unsigned int kind; short id; unsigned short flag; } T_005F2F00_rec;
+const T_005F2F00_rec D_005F2F00[23] = {
+    { 0, 0,    0 },
+    { 1, 0x00, 1 }, { 1, 0x01, 1 }, { 1, 0x02, 1 },
+    { 1, 0x0B, 0 }, { 1, 0x0C, 0 },
+    { 1, 0x0D, 1 }, { 1, 0x0E, 1 }, { 1, 0x0F, 1 },
+    { 1, 0x10, 0 }, { 1, 0x11, 0 }, { 1, 0x12, 0 },
+    { 1, 0x13, 1 }, { 1, 0x14, 1 }, { 1, 0x15, 1 },
+    { 1, 0x16, 1 }, { 1, 0x17, 1 }, { 1, 0x18, 1 },
+    { 1, 0x19, 1 }, { 1, 0x1A, 1 }, { 1, 0x1B, 1 },
+    { 1, 0x1C, 1 }, { 1, 0x1D, 1 },
+};
+
+/* .lit4 — alternating scalar/array form matches original section alignment
+ * (4-aligned VMAs use scalar `.align 2`, 8-aligned use `[1]` `.align 3`). */
+const float D_00630A94    = 3.14159274f;      /* PI */
+const float D_00630A98[1] = { 0.2f };
+const float D_00630A9C    = 0.1f;
+const float D_00630AA0[1] = { 0.05f };
+const float D_00630AA4    = -0.0027777778f;   /* -1/360 */
+const float D_00630AA8[1] = { 3000.0f };
+const float D_00630AAC    = 0.1f;
+const float D_00630AB0[1] = { 10000.0f };
+const float D_00630AB4    = 3000.0f;
+const float D_00630AB8[1] = { 0.1f };
+
+/* .sdata — small flags and 8-byte zero scratch buffers. */
+unsigned int  D_0063218C    = 0x00000001;
+unsigned char D_00632190[4] = { 0 };
+unsigned int  D_00632194    = 0x00000000;
+unsigned char D_00632198[8] = { 0 };
+unsigned char D_006321A0[8] = { 0 };
+unsigned char D_006321A8[8] = { 0 };
 
 extern const char D_00632140[8];
 extern const char D_00632148[8];
 extern unsigned int D_00632188;
-extern unsigned int D_0063218C;
-extern int D_00632190;
 
-extern int D_002811C0[];
-extern int D_00281630[];
 extern int D_006A6D90[];
 extern int D_006A6DB0[];
 extern int D_00631950;
@@ -46,7 +84,6 @@ extern void func_0013C958(int a0, int a1);
 extern void func_002439B0(void *dst, void *src);
 extern void func_002438B8(int *p17, void *mat, void *vec);
 extern int  D_00631970;
-extern int  D_00632194;
 extern void func_002641D8(void *dst, int val, int n);
 extern void func_0013CE48(void);
 extern void func_0013CF08(int a, int b);
