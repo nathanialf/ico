@@ -1,3 +1,4 @@
+#include "matching.h"
 #include "regpin.h"
 
 extern int D_00631AE4;
@@ -14,8 +15,20 @@ void func_002356D0(volatile int unused)
     one_v = 1;
     v0 = *(int * volatile *)(a1 + 0x15C);
     v0[0x4E8 / 4] = one_v;
-    v0 = *(int * volatile *)(a1 + 0x15C);
-    v0[0x4E8 / 4] = 0;
-    func_0017CD18(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
+    {
+        register float f1 REG("$f12") = 0.0f;
+        register float f2 REG("$f13") = 0.0f;
+        register float f3 REG("$f14") = 0.0f;
+        register float f4 REG("$f15") = 0.0f;
+        register float f5 REG("$f16") = 0.0f;
+        register float f6 REG("$f17") = 100.0f;
+        KEEP_LIVE_FP(f2);
+        KEEP_LIVE_FP(f3);
+        KEEP_LIVE_FP(f4);
+        KEEP_LIVE_FP(f5);
+        v0 = *(int * volatile *)(a1 + 0x15C);
+        v0[0x4E8 / 4] = 0;
+        func_0017CD18(f1, f2, f3, f4, f5, f6);
+    }
     func_00203AA0(60);
 }

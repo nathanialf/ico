@@ -173,9 +173,6 @@ fi
 if [ "${BASE}" = "0F1108" ]; then
     "${PYTHON}" "${ROOT}/tools/postprocess_0F1108.py" "${S}"
 fi
-if [ "${BASE}" = "1356D0" ]; then
-    "${PYTHON}" "${ROOT}/tools/postprocess_1356D0.py" "${S}"
-fi
 if [ "${BASE}" = "0EF9E0" ]; then
     "${PYTHON}" "${ROOT}/tools/postprocess_0EF9E0.py" "${S}"
 fi

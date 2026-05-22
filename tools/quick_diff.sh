@@ -178,7 +178,6 @@ qd_listed dummy_sp_prologue.txt     && python3 "$ROOT/tools/postprocess_dummy_sp
 [ "$(basename "$NAME")" = "14E4C8" ] && python3 "$ROOT/tools/postprocess_14E4C8.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "103A10" ] && python3 "$ROOT/tools/postprocess_103A10.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "0F1108" ] && python3 "$ROOT/tools/postprocess_0F1108.py" "$ASM_OUT" || true
-[ "$(basename "$NAME")" = "1356D0" ] && python3 "$ROOT/tools/postprocess_1356D0.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "0EF9E0" ] && python3 "$ROOT/tools/postprocess_0EF9E0.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "fightSound" ] && python3 "$ROOT/tools/postprocess_191F50.py" "$ASM_OUT" || true
 qd_listed swap_addu_operands.txt && sed -i -E 's/(addu[[:space:]]+\$([0-9]+),)\$([0-9]+),\$\2\b/\1$\2,$\3/g' "$ASM_OUT" || true
