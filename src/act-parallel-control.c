@@ -14,22 +14,145 @@
 
 /* __FILE__ anchor — migrated out of the trailing 32 bytes of
  * src/act-game_data.c's D_00558190[72] packed blob. */
-__attribute__((section(".rodata.0x005581B8"))) const char D_005581B8[32] = "src/act-parallel-control.c";
+const char D_005581B8[32] = "src/act-parallel-control.c";
 
 /* String + float rodata in apc's range (between apc and boyact
  * anchors). Migrated out of src/act-game.c and src/boyact.c. */
-__attribute__((section(".rodata.0x005581D8"))) const char D_005581D8[16] = "orient null";
+const char D_005581D8[16] = "orient null";
 __attribute__((section(".rodata.0x005581E8"))) const float D_005581E8[2] = { -107374184.0f, 1.8499999f };
-__attribute__((section(".rodata.0x005581F0"))) const char D_005581F0[16] = "boy after func\n";
-__attribute__((section(".rodata.0x00558200"))) const char D_00558200[24] = "enter actBoyHand50\n";
-__attribute__((section(".rodata.0x00558218"))) const char D_00558218[24] = "boy error flg get\n";
-__attribute__((section(".rodata.0x00558230"))) const char D_00558230[24] = "enter motBoyHand50\n";
-__attribute__((section(".rodata.0x00558248"))) const char D_00558248[24] = "enter actBoyHand100\n";
-__attribute__((section(".rodata.0x00558260"))) const char D_00558260[16] = "boy error\n";
-__attribute__((section(".rodata.0x00558270"))) const char D_00558270[24] = "enter motBoyHand100\n";
-__attribute__((section(".rodata.0x00558288"))) const char D_00558288[16] = "%s sync error\n";
-__attribute__((section(".rodata.0x00558298"))) const char D_00558298[24] = "enter actBoyHand200\n";
-__attribute__((section(".rodata.0x005582B0"))) const char D_005582B0[24] = "enter motBoyHand200\n";
+const char D_005581F0[16] = "boy after func\n";
+const char D_00558200[24] = "enter actBoyHand50\n";
+const char D_00558218[24] = "boy error flg get\n";
+const char D_00558230[24] = "enter motBoyHand50\n";
+const char D_00558248[24] = "enter actBoyHand100\n";
+const char D_00558260[16] = "boy error\n";
+const char D_00558270[24] = "enter motBoyHand100\n";
+const char D_00558288[16] = "%s sync error\n";
+const char D_00558298[24] = "enter actBoyHand200\n";
+const char D_005582B0[24] = "enter motBoyHand200\n";
+
+/* rodata D_005D1820 — 296-byte state table (296 / 4 = 74 ints worth
+ * of mostly-small enum codes interspersed with 0x0000043E / 0x00000038
+ * sentinels), kept as a flat byte array matching the original layout. */
+const unsigned char D_005D1820[296] = {
+    0x02, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00,
+    0x3E, 0x04, 0x00, 0x00, 0x14, 0x02, 0x00, 0x00, 0x15, 0x02, 0x00, 0x00,
+    0x16, 0x02, 0x00, 0x00, 0x3E, 0x04, 0x00, 0x00, 0x0E, 0x02, 0x00, 0x00,
+    0x0F, 0x02, 0x00, 0x00, 0x3E, 0x04, 0x00, 0x00, 0x3E, 0x02, 0x00, 0x00,
+    0x3E, 0x04, 0x00, 0x00, 0x42, 0x02, 0x00, 0x00, 0x43, 0x02, 0x00, 0x00,
+    0x3E, 0x04, 0x00, 0x00, 0x0E, 0x02, 0x00, 0x00, 0x0F, 0x02, 0x00, 0x00,
+    0x15, 0x02, 0x00, 0x00, 0x3E, 0x04, 0x00, 0x00, 0x0E, 0x02, 0x00, 0x00,
+    0x0F, 0x02, 0x00, 0x00, 0x14, 0x02, 0x00, 0x00, 0x15, 0x02, 0x00, 0x00,
+    0x3E, 0x04, 0x00, 0x00, 0x0E, 0x02, 0x00, 0x00, 0x0F, 0x02, 0x00, 0x00,
+    0x14, 0x02, 0x00, 0x00, 0x15, 0x02, 0x00, 0x00, 0x16, 0x02, 0x00, 0x00,
+    0x3E, 0x04, 0x00, 0x00, 0x0E, 0x02, 0x00, 0x00, 0x0F, 0x02, 0x00, 0x00,
+    0x14, 0x02, 0x00, 0x00, 0x15, 0x02, 0x00, 0x00, 0x16, 0x02, 0x00, 0x00,
+    0x3E, 0x04, 0x00, 0x00, 0x1B, 0x03, 0x00, 0x00, 0x1C, 0x03, 0x00, 0x00,
+    0x3E, 0x04, 0x00, 0x00, 0x1D, 0x03, 0x00, 0x00, 0x20, 0x03, 0x00, 0x00,
+    0x3E, 0x04, 0x00, 0x00, 0x71, 0x03, 0x00, 0x00, 0x72, 0x03, 0x00, 0x00,
+    0x73, 0x03, 0x00, 0x00, 0x3E, 0x04, 0x00, 0x00, 0x53, 0x03, 0x00, 0x00,
+    0x54, 0x03, 0x00, 0x00, 0x3E, 0x04, 0x00, 0x00, 0x55, 0x03, 0x00, 0x00,
+    0x56, 0x03, 0x00, 0x00, 0x3E, 0x04, 0x00, 0x00, 0x57, 0x03, 0x00, 0x00,
+    0x58, 0x03, 0x00, 0x00, 0x3E, 0x04, 0x00, 0x00, 0x59, 0x03, 0x00, 0x00,
+    0x5A, 0x03, 0x00, 0x00, 0x3E, 0x04, 0x00, 0x00, 0x5C, 0x03, 0x00, 0x00,
+    0x5D, 0x03, 0x00, 0x00, 0x3E, 0x04, 0x00, 0x00, 0x5F, 0x03, 0x00, 0x00,
+    0x60, 0x03, 0x00, 0x00, 0x3E, 0x04, 0x00, 0x00, 0x22, 0x03, 0x00, 0x00,
+    0x23, 0x03, 0x00, 0x00, 0x24, 0x03, 0x00, 0x00, 0x25, 0x03, 0x00, 0x00,
+    0x3E, 0x04, 0x00, 0x00, 0x8A, 0x03, 0x00, 0x00, 0x8B, 0x03, 0x00, 0x00,
+    0x8C, 0x03, 0x00, 0x00, 0x3E, 0x04, 0x00, 0x00,
+};
+
+/* lit4 migrated from act-parallel-control_data.c — typed floats. */
+const float D_00630AF8[1] = { 3.14159274f };
+const float D_00630AFC    = 25000000.0f;
+const float D_00630B00[1] = { 25000000.0f };
+const float D_00630B04    = 0.1f;
+const float D_00630B08[1] = { 0.1f };
+const float D_00630B0C    = 0.1f;
+const float D_00630B10[1] = { 0.1f };
+const float D_00630B14    = 0.1f;
+const float D_00630B18[1] = { 0.1f };
+const float D_00630B1C    = 0.1f;
+const float D_00630B20[1] = { 0.8f };
+const float D_00630B24    = 4900.0f;
+const float D_00630B28[1] = { 1.5707964f };
+const float D_00630B2C    = 850.0f;
+const float D_00630B30[1] = { 0.1f };
+const float D_00630B34    = 3.14159274f;
+const float D_00630B38[1] = { 750.0f };
+const float D_00630B3C    = 0.1f;
+const float D_00630B40[1] = { 0.99f };
+const float D_00630B44    = 0.1f;
+const float D_00630B48[1] = { 0.99f };
+const float D_00630B4C    = 0.1f;
+const float D_00630B50[1] = { 0.1f };
+const float D_00630B54    = 0.1f;
+const float D_00630B58[1] = { 0.1f };
+const float D_00630B5C    = 0.1f;
+const float D_00630B60[1] = { 0.1f };
+const float D_00630B64    = 0.1f;
+const float D_00630B68[1] = { 0.1f };
+const float D_00630B6C    = 0.1f;
+const float D_00630B70[1] = { 0.1f };
+const float D_00630B74    = 0.1f;
+const float D_00630B78[1] = { 0.1f };
+const float D_00630B7C    = 0.1f;
+const float D_00630B80[1] = { 0.1f };
+const float D_00630B84    = 0.1f;
+const float D_00630B88[1] = { 0.1f };
+const float D_00630B8C    = 0.1f;
+const float D_00630B90[1] = { 0.1f };
+const float D_00630B94    = 250000.0f;
+const float D_00630B98[1] = { 0.1f };
+const float D_00630B9C    = 0.1f;
+const float D_00630BA0[1] = { 0.1f };
+const float D_00630BA4    = 0.95f;
+const float D_00630BA8[1] = { 0.95f };
+const float D_00630BAC    = 0.1f;
+const float D_00630BB0[1] = { 0.1f };
+const float D_00630BB4    = 0.1f;
+const float D_00630BB8[1] = { 0.1f };
+const float D_00630BBC    = 0.1f;
+const float D_00630BC0[1] = { 0.99f };
+const float D_00630BC4    = 0.1f;
+const float D_00630BC8[1] = { 0.99f };
+const float D_00630BCC    = 0.1f;
+const float D_00630BD0[1] = { 0.1f };
+const float D_00630BD4    = 0.1f;
+const float D_00630BD8[1] = { 0.1f };
+const float D_00630BDC    = 0.1f;
+const float D_00630BE0[1] = { 0.1f };
+const float D_00630BE4    = 0.1f;
+const float D_00630BE8[1] = { 3.14159274f };
+const float D_00630BEC    = 0.1f;
+const float D_00630BF0[1] = { 3.14159274f };
+const float D_00630BF4    = 40000.0f;
+const float D_00630BF8[1] = { 0.99f };
+const float D_00630BFC    = 0.1f;
+const float D_00630C00[1] = { 0.1f };
+const float D_00630C04    = 0.2f;
+const float D_00630C08[1] = { 2500.0f };
+const float D_00630C0C    = 0.05f;
+const float D_00630C10[1] = { 250000.0f };
+const float D_00630C14    = 10000.0f;
+const float D_00630C18[1] = { 78400.0f };
+const float D_00630C1C    = 0.1f;
+const float D_00630C20[1] = { 10000000.0f };
+
+/* sdata migrated from act-parallel-control_data.c — typed.
+ * D_00631AF4 stays in the sidecar (8-byte _pad_00631AF8/AFC trailing
+ * gap that the migrator can only emit alongside the parent). */
+unsigned char D_00631AF0[4] = { 0 };
+unsigned int D_0063226C = 0x7F7FFFFFu;          /* FLT_MAX bit pattern */
+const char D_00632280[8] = "boy";
+const char D_00632288[8] = "girl";
+const char D_00632290[8] = "0";
+unsigned char D_00632298[8] = { 0 };
+const char D_006322A0[8] = "L = %f\n";
+unsigned char D_006322A8[8] = { 0 };
+
+/* data D_002E4E00[2628] (10 KB of state-table ints) remains in the
+ * sidecar — opaque enough that the hex form there is the right home. */
 
 #include "include_asm.h"
 #include "matching.h"
