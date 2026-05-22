@@ -6,3 +6,13 @@
 #                this is splat's input and the build oracle.
 a4d8fc1948fb2da2395f3863a94a3b93de55de14  baseelf.elf
 fbf50c75cd5911273511c4f9af90503ff8423582  baseelf.rom
+
+# --- assets/disc/* (extracted from user's disc image) ---
+eb5c90ed7a9091ee0093635e9e947c09ba273308  assets/disc/ioprp224.img
+49bbaf50d622b04c02dd645fde1b33972b16567f  assets/disc/libsd.irx
+53185d5a396523bba802e95acacd4c6bedc8cfa4  assets/disc/mcman.irx
+f11a58a4153607b0e73a2a461838a23e998d4d66  assets/disc/mcserv.irx
+7488c313cb93ef9c1e4e41c462e85c0b7de22a2a  assets/disc/padman.irx
+6ca814b16cf36dc1ce3a19316d91c1f8845be1fe  assets/disc/sio2man.irx
+f837c4bb8425ff3e97925d7e004360d9d66f1038  assets/disc/sndn2drv.irx
+14ab194af43e19f6656cf309ed7203f23d1ace71  assets/disc/system.cnf

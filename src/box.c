@@ -50,6 +50,7 @@ __attribute__((section(".rodata.0x006187E8"))) const char D_006187E8[16] = "\310
 __attribute__((section(".rodata.0x006187F8"))) const char D_006187F8[16] = "\310\242\275\351\264\374\304\314\276\357\307\333\303\326\n";
 
 #include "include_asm.h"
+#include "matching.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/box", func_001BCAF0);
 INCLUDE_ASM("asm/nonmatchings/src/box", func_001BCC18);
@@ -129,6 +130,80 @@ INCLUDE_ASM("asm/nonmatchings/src/box", func_001BEE60);
 INCLUDE_ASM("asm/nonmatchings/src/box", func_001BEF58);
 INCLUDE_ASM("asm/nonmatchings/src/box", func_001BF148);
 INCLUDE_ASM("asm/nonmatchings/src/box", func_001BF2C8);
+#if 0
+int func_001BF148(void *self, int code);
+void func_001BD138(void *self);
+void func_001BEF58(void *self);
+int func_001BE120(void *self);
+void func_001BE6A8(void *self);
+void func_001A6E28(const char *fmt, ...);
+void func_002641D8(int p, int q, int r);
+void func_00118648(void *a, int b, void *c);
+void func_0010D838(void *self, void *p);
+void func_00102870(void *self, void *p);
+extern float D_0063118C;
+
+void func_001BF2C8(int *self) {
+    int local[4];
+    int *sub = (int *)((int *)self[0x15C/4])[0x800/4];
+    register int state __asm__("$5");
+    state = sub[0x20/4];
+    if ((unsigned)(state + 1) >= 8) goto default_case;
+    switch (state + 1) {
+    case 0: goto default_case;
+    case 1: {
+        register int *q __asm__("$4");
+        register int *p15c __asm__("$2");
+        if (sub[0x58/4] == 0) goto end_no_reload;
+        func_001BF148(self, 6);
+        p15c = (int *)self[0x15C/4];
+        q = (int *)p15c[0x800/4];
+        if (q[0x11C/4] == 0) goto skip_body;
+        {
+            float v = *(float *)((char *)q + 0x48) * D_0063118C / *(float *)((char *)q + 0x124);
+            *(short *)((char *)q + 0x120) = (short)(int)((float)*(short *)((char *)q + 0x120) - v);
+        }
+    skip_body:
+        q = local;
+        func_002641D8((int)q, 0, 0x10);
+        *(float *)((char *)local + 0x8) = 1.0f;
+        {
+            int *p15c = (int *)self[0x15C/4];
+            func_00118648((char *)p15c + 0x520, p15c[0xC/4], local);
+        }
+        goto end_reload;
+    }
+    case 2:
+    case 7:
+        func_001BD138(self);
+        goto end_reload;
+    case 3:
+    case 4:
+        func_001BEF58(self);
+        goto end_reload;
+    case 5:
+        if (func_001BE120(self) != 0) {
+            ((int *)((int *)self[0x15C/4])[0x800/4])[0x20/4] = 0;
+            func_0010D838(self, (char *)(int *)self[0x15C/4] + 0x60);
+            func_00102870(self, local);
+            ((int *)self[0x15C/4])[0x78/4] = 1;
+        }
+        goto end_reload;
+    case 6:
+        func_001BE6A8(self);
+        goto end_reload;
+    }
+default_case:
+    func_001A6E28(D_00618708);
+end_reload:
+    state = sub[0x20/4];
+end_no_reload:
+    if (state != 6) {
+        int *p180 = (int *)sub[0x180/4];
+        if (p180[0x16C/4] != 0) p180[0x16C/4] = 0;
+    }
+}
+#endif
 INCLUDE_ASM("asm/nonmatchings/src/box", func_001BF460);
 INCLUDE_ASM("asm/nonmatchings/src/box", func_001BF6A0);
 INCLUDE_ASM("asm/nonmatchings/src/box", func_001BF7F8);

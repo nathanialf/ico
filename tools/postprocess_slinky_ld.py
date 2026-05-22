@@ -214,14 +214,24 @@ def collect_slots(objdump: str, base: str, vram_sym: str,
     block whose VMA range matches."""
     slots: list[tuple[int, str, str, str]] = []
 
-    # 1. Typed slots — one per per-symbol section. Two forms:
-    #    `.<base>.0x<VMA>` (attr-tag form) AND `.<base>.D_<VMA>`
-    #    (ee-gcc -fdata-sections per-symbol emission).
+    # 1. Typed slots — one per per-symbol section. The section's
+    #    NAME is parsed for an embedded VMA in either form:
+    #      `.<X>.0x<VMA>` (attr-tag form), or
+    #      `.<X>.D_<VMA>` (ee-gcc -fdata-sections per-symbol emission).
+    #    The `<X>` (e.g. `.sdata`, `.lit4`) is informational only —
+    #    routing is purely by VMA range, so a def the compiler placed
+    #    in `.sdata.D_<VMA>` whose VMA falls in `.lit4` range (because
+    #    ee-gcc's `-G 8` small-data default doesn't emit `.lit4`
+    #    without an explicit section attr) lands in the `.lit4`
+    #    output here. The KEEP() preserves the actual input-section
+    #    name so the linker pulls bytes from the right `.o` section.
     for o in link_objs:
         for name, _sz in sections_of(objdump, o):
-            if not name.startswith(base + "."):
+            # Need at least one `.X.<suffix>` split.
+            parts = name.split(".", 2)
+            if len(parts) < 3:
                 continue
-            suffix = name[len(base) + 1:]
+            suffix = parts[2]
             if suffix.startswith("0x") or suffix.startswith("0X"):
                 try:
                     vma = int(suffix, 16)

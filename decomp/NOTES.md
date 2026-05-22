@@ -1113,3 +1113,87 @@ shape-bucket of adjacent functions) into the typed TU while leaving
 the rest as `INCLUDE_ASM` neighbours. Don't lift the whole TU at
 once.
 
+## Asset extraction — DATA.DF container and inner archive format
+
+The ISO ships only `/DFDATAS/DATA.DF` (539 MiB) plus the EE ELF and a
+handful of IRX modules. Every game asset (model, texture, audio,
+script, level, FMV) lives inside DATA.DF. Format derived from the
+`ios/cdvd.c` family in the EE ELF — see the TOC parser at vaddr
+`0x1321c8` and the `DfOpen` lookup at `0x132388`.
+
+**Outer container `DATA.DF` (uncompressed):**
+
+```
+u32         count
+per entry (40 bytes):
+    bytes 0-31  : name           (null-terminated, garbage padding)
+    bytes 32-35 : byte offset    (within DATA.DF)
+    bytes 36-39 : size           (in bytes)
+```
+
+172 outer entries. 167 are `.DF` sub-archives (`COMMON.DF`,
+`MOTION1.DF`, `STG13A2.DF`, …); 4 are loose stage/script files
+(`.smb`/`.int`/`.jim`); 1 is the FMV stream (`advertise.pss`).
+
+**Inner archive `*.DF` (raw DEFLATE, `zlib.decompress(blob, -15)`):**
+
+```
+32-byte header:
+    u32[0]      : inner entry count
+    u32[1..7]   : misc (some 0xDDDDDDDD-uninit; u32[1] often a category boundary)
+per inner entry (548 bytes):
+    bytes 0-511 : filename       (null-terminated, 0xFF-padded; supports `..` paths)
+    u32 at 512  : entry index
+    u32 at 516  : data offset within inflated archive
+    bytes 520-543 : misc metadata (some 0xFF padding)
+    u32 at 544  : size of NEXT entry (one-step lookahead; unused for size derivation)
+```
+
+File data sizes: `size[i] = offset[i+1] - offset[i]`; last entry
+extends to the inflated-blob end. **Offsets are sorted** so the
+next-offset trick works directly.
+
+Tool: `tools/parse_data_df.py` cracks both layers in ~5s and dumps
+the full tree to `assets/disc/dfdatas/<archive>/<inner-path>` with a
+`MANIFEST.tsv`. Result on ICO US: **20,265 files, 811 MiB total.**
+`assets/` is gitignored — extracted content never enters the tree.
+
+## Asset formats — sub-file types under `assets/disc/dfdatas/`
+
+Inventory after a full DATA.DF crack:
+
+| ext | count | format | tool / status |
+| --- | ---: | --- | --- |
+| `.tm2` | 4 616 | Sony TIM2 (public spec) | `tools/decode_tm2.py` → PNG |
+| `.bd` / `.hd` | 57 / 149 | Sony SoundBank (`SShd` magic at offset 12 of `.hd`) | `tools/decode_vag.py` raw-VAG → WAV; full `SShd` parser TODO |
+| `.bd3` / `.bd4` | 46 / 46 | Variant VAG body files (compression tier?) | not yet investigated |
+| `.p2o` | 3 591 | **`PS2O` mesh** (proprietary) | `tools/scan_p2o.py` recon; full extraction needs VU1 RE |
+| `.p2s` | 611 | `PS2O` skinned-mesh / skeleton variant | as above |
+| `.p2c` | 213 | `PS2O` character mesh (multi-part, `header_field_1 == OBJH count`) | as above |
+| `.mob` | 6 753 | Binary motion data (no magic, size header `u32 le`) | not yet investigated |
+| `.bga` | 1 958 | `BGA` background animation | not yet investigated |
+| `.cl` | 684 | `CL <ver>` collision data | not yet investigated |
+| `.cam` | 255 | `SDF` camera path (floats) | not yet investigated |
+| `.skb` | 104 | Skeleton/bones (floats, ~1.7KB) | not yet investigated |
+| `.pef` | 53 | Particle effect | not yet investigated |
+| `.int` | 91 | Script/integer table | not yet investigated |
+| `.jim` | 2 | Jimaku (subtitles, rendered as TM2 textures) | use `decode_tm2` |
+
+`PS2O` mesh format **chunk structure** (derived from `tools/scan_p2o.py`):
+
+```
+offset  size   field
+   0    4      'PS2O' magic
+   4    4      file size in bytes
+   8    4      OBJH chunk count
+  12    20     reserved / padding
+  32    ...    mesh body (opaque binary — VU1-friendly vertex/strip data)
+  ...   ...    one or more 'OBJH' chunks (per-submesh metadata footer)
+```
+
+The body bytes are designed for direct VU1 microcode upload. Cracking
+them requires tracing the VU1 vertex shader in `cod/` and identifying
+the per-vertex stride (position + normal + UV + bone-weight). That's
+a separate multi-week RE target; the recon tool here is the
+foundation.
+

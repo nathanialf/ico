@@ -40,6 +40,65 @@ const char D_00618560[32] = "--- WARNING!! ----\n";
 /* Float rodata migrated from a_p_1_data.c */
 const float D_00618580[4] = { 5e+01f, 0.0f, 0.0f, 1.0f };
 
+/* lit4 migrated from a_p_1_data.c — 0x461C4000 == 10000.0f */
+const float D_0063112C = 10000.0f;
+const float D_00631130[1] = { 10000.0f };
+
+/* data migrated from a_p_1_data.c (plain defs, no section attr —
+ * mutable types >8 bytes default to .data under -G 8). */
+
+extern void func_001B94B0(int *self);
+extern void func_001BA7E8(int *self);
+extern void func_001BA838(int *self);
+extern void func_001BA880(int *self);
+extern void func_001BA928(int *self);
+
+typedef void (*FsmFn)(int *);
+
+/* State vtable indexed by `a1 * 2`; reader at func_001BA668. */
+FsmFn D_004BEE60[16] = {
+    0, func_001BA7E8,
+    0, func_001B94B0,
+    0, func_001BA838,
+    func_001BA880, func_001BA928,
+    0, 0,
+    0, 0,
+    0, 0,
+    0, 0,
+};
+
+/* Two 4x4 transforms (identity + translation rows). */
+float D_004BEEA0[32] = {
+    1.0f, 0.0f, 0.0f, 0.0f,
+    0.0f, 1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f, 0.0f,
+    0.0f, -20.0f, 30.0f, 1.0f,
+    1.0f, 0.0f, 0.0f, 0.0f,
+    0.0f, 1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f, 0.0f,
+    0.0f, -10.0f, 35.0f, 1.0f,
+};
+
+/* 4x4 uniform 2.0 scale. */
+float D_004BEF20[16] = {
+    2.0f, 0.0f, 0.0f, 0.0f,
+    0.0f, 2.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 2.0f, 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f,
+};
+
+/* Pointer table into the D_0063322X string-extern block above. */
+char *D_004BEF60[8] = {
+    (char *)D_00633240,
+    (char *)D_00633238,
+    (char *)D_00633230,
+    (char *)D_00633228,
+    (char *)D_00633220,
+    (char *)D_00633218,
+    0,
+    0,
+};
+
 /* EUC-JP debug strings — re-derived from EE rodata bytes via
  * EUC-JP decoding. Octal escapes preserve byte-identical layout
  * without requiring source-encoding compiler flags. */
@@ -67,7 +126,6 @@ INCLUDE_ASM("asm/nonmatchings/src/a_p_1", func_001BA090);
 extern void func_00104508(int p, int *self);
 extern void func_00102850(int p, int *self);
 extern void func_001CFA20(int x);
-extern int D_004BEE60[];
 extern void func_001B7FE8(int a, int b, int c, int d, int e, int f, int g, int h);
 extern int D_00623468[];
 
