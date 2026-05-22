@@ -288,16 +288,20 @@ BASE_C="${RUN_DIR}/base.c"
 # Use ee-gcc as the preprocessor so any compiler-specific predefined
 # macros (e.g. __EE__) are honored. Falls back to host cpp if -E fails.
 if ! "${EEGCC}" -B "${EEGCC_LIB}" -E -P -nostdinc \
+        -DPERMUTER \
         -D'__attribute__(x)=' \
         -D'_Static_assert(x, y)=' \
         -D'GLOBAL_ASM(...)=' \
         -I"${PROJECT_ROOT}/include" \
+        -I"${PROJECT_ROOT}/src" \
         "${SEED_C}" -o "${BASE_C}" 2>/dev/null; then
     cpp -P -undef -nostdinc \
+        -DPERMUTER \
         -D'__attribute__(x)=' \
         -D'_Static_assert(x, y)=' \
         -D'GLOBAL_ASM(...)=' \
         -I"${PROJECT_ROOT}/include" \
+        -I"${PROJECT_ROOT}/src" \
         "${SEED_C}" -o "${BASE_C}"
 fi
 

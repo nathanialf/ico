@@ -83,6 +83,12 @@ __asm__(".include \"include/labels.inc\"\n");
 #ifndef INCLUDE_ASM
 #define INCLUDE_ASM(FOLDER, NAME)
 #endif
+#ifndef INCLUDE_ASM_NOAT
+#define INCLUDE_ASM_NOAT(FOLDER, NAME)
+#endif
+#ifndef INCLUDE_ASM_NOP_PAD
+#define INCLUDE_ASM_NOP_PAD(LABEL)
+#endif
 #ifndef INCLUDE_RODATA
 #define INCLUDE_RODATA(FOLDER, NAME)
 #endif
