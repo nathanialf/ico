@@ -62,7 +62,66 @@ INCLUDE_ASM("asm/nonmatchings/src/box", func_001BDA70);
 INCLUDE_ASM("asm/nonmatchings/src/box", func_001BDC58);
 INCLUDE_ASM("asm/nonmatchings/src/box", func_001BE120);
 INCLUDE_ASM("asm/nonmatchings/src/box", func_001BE250);
-INCLUDE_ASM("asm/nonmatchings/src/box", func_001BE558);
+extern float D_00631168;
+void func_00104508(void *buf, void *self);
+void func_00105F00(void *dst, void *src);
+int func_001684C8(void *struct_arg);
+void func_00103C48(void *arg, void *self, int flag, float v, float maxv, float scale, float zero);
+void func_00102858(void *arg);
+
+void func_001BE558(int arg, int *self) {
+    int local[50];
+    int rc;
+    float v;
+    int *p_15C = (int *)self[0x15C/4];
+    float val_3D8 = *(float *)&p_15C[0x3D8/4];
+    float clamped = val_3D8;
+    if (!(30.0f < val_3D8)) clamped = 30.0f;
+
+    *(float *)((char *)local + 0x70) = clamped;
+    func_00104508((char *)local + 0xC0, self);
+
+    {
+        float val_270 = *(float *)&((int *)self[0x15C/4])[0x270/4];
+        float val_C4 = *(float *)((char *)local + 0xC4);
+        val_270 += 10.0f;
+        val_C4 += val_270;
+        *(float *)((char *)local + 0xC4) = val_C4;
+        func_00105F00((char *)local, (char *)local + 0xC0);
+    }
+    func_00105F00((char *)local + 0x10, (char *)local + 0xC0);
+
+    *(int *)((char *)local + 0x74) = arg;
+    *(int *)((char *)local + 0x78) = -1;
+    *(int *)((char *)local + 0x7C) = 0;
+    func_001684C8((char *)local);
+    {
+        register int chk __asm__("$2") = *(int *)((char *)local + 0x88);
+        if (chk == 0) return;
+    }
+
+    {
+        int *p2 = (int *)self[0x15C/4];
+        int state = p2[0x4D8/4];
+        if ((unsigned)(state - 7) >= 10) goto def;
+        switch (state) {
+        case 7: case 8: case 10: case 15: case 16:
+            rc = (p2[0x180/4] == arg);
+            goto done;
+        default: ;
+        }
+    def:
+        rc = 1;
+    done:
+        if (rc == 0) return;
+    }
+
+    v = *(float *)((char *)local + 0x70);
+    v += 50.0f;
+    v *= D_00631168;
+    func_00103C48((void *)arg, self, 1, v, 100.0f, 0.5f, 0.0f);
+    func_00102858((void *)arg);
+}
 INCLUDE_ASM("asm/nonmatchings/src/box", func_001BE6A8);
 INCLUDE_ASM("asm/nonmatchings/src/box", func_001BEC30);
 INCLUDE_ASM("asm/nonmatchings/src/box", func_001BED00);
