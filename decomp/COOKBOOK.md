@@ -1599,7 +1599,7 @@ that:
 
 | Script | Function | Pattern fixed |
 |--------|----------|----------------|
-| `postprocess_00A3A0.py` | `func_0010A3A0` | Swap which loop var goes in the jal delay slot (`i--` vs `p += 8`). |
+| ~~`postprocess_00A3A0.py`~~ | `func_0010A3A0` | **Retired 2026-05-22** — restructure as `goto loop;` with `p[0]=0` inside the loop body and `p += 8` between `call_arg=p+4` and the call. ee-gcc 2.9 then puts `--i` in the jal delay naturally. |
 | `postprocess_01BF60.py` | `func_0011BF60` | Inner loop schedule rewrite — `li $5,4` before jal, `addu $17,$17,16` in jal delay, `daddu $4,$17,$0` in bne delay. |
 | `postprocess_080550.py` | `func_00180550` | Move `li $5,1` into the tail-call `j SYM`'s delay slot, ahead of the `mov.s` setup. |
 | `postprocess_094630.py` | `func_00194630` | Move `sd $31; daddu $4,$sp,$0` before a `sw $0,4($sp)` in the prologue. |

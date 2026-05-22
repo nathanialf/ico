@@ -9,12 +9,13 @@ void func_0010A3A0(int *a0, int count)
     if (count <= 0) return;
     p = a0;
     i = count;
+loop:
     p[0] = 0;
-    do {
+    {
         int *call_arg = p + 4;
         p += 8;
         func_0010D530(call_arg);
-        --i;
-        if (i != 0) p[0] = 0;
-    } while (i != 0);
+    }
+    --i;
+    if (i != 0) goto loop;
 }

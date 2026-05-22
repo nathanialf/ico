@@ -170,12 +170,11 @@ qd_listed dummy_sp_prologue.txt     && python3 "$ROOT/tools/postprocess_dummy_sp
 [ "$(basename "$NAME")" = "080550" ] && python3 "$ROOT/tools/postprocess_080550.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "094630" ] && python3 "$ROOT/tools/postprocess_094630.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "105628" ] && python3 "$ROOT/tools/postprocess_105628.py" "$ASM_OUT" || true
-[ "$(basename "$NAME")" = "0FBBE0" ] && python3 "$ROOT/tools/postprocess_0FBBE0.py" "$ASM_OUT" || true
-[ "$(basename "$NAME")" = "00A3A0" ] && python3 "$ROOT/tools/postprocess_00A3A0.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "01BF60" ] && python3 "$ROOT/tools/postprocess_01BF60.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "09F530" ] && python3 "$ROOT/tools/postprocess_09F530.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "0D4E30" ] && python3 "$ROOT/tools/postprocess_0D4E30.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "0CE718" ] && python3 "$ROOT/tools/postprocess_0CE718.py" "$ASM_OUT" || true
+[ "$(basename "$NAME")" = "0FBBE0" ] && python3 "$ROOT/tools/postprocess_0FBBE0.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "14E4C8" ] && python3 "$ROOT/tools/postprocess_14E4C8.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "103A10" ] && python3 "$ROOT/tools/postprocess_103A10.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "0F1108" ] && python3 "$ROOT/tools/postprocess_0F1108.py" "$ASM_OUT" || true
