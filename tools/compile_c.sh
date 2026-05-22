@@ -88,6 +88,11 @@ EXTRA="$("${EXTRA_CFLAGS_LOOKUP}" "${SRC}" 2>/dev/null || true)"
 # shellcheck disable=SC2086
 "${CC}" -B "${EEGCC_LIB}" ${CFLAGS} ${EXTRA} -o "${S}" "${SRC}"
 
+# Split each gcc-emitted switch jtbl onto its own .rodata.0x<VMA>
+# section so the linker can place multi-jtbl TUs correctly. No-op on
+# single-jtbl TUs and on .s files with no `.rdata`/jtbl blocks.
+"${PYTHON}" "${ROOT}/tools/postprocess_split_jtbls.py" "${S}"
+
 if listed "${NO_TRAILING_NOP_TXT}"; then
     "${PYTHON}" "${ROOT}/tools/postprocess_no_trailing_nop.py" "${S}"
 fi

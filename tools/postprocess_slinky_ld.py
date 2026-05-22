@@ -239,25 +239,33 @@ def collect_slots(objdump: str, base: str, vram_sym: str,
             slots.append((vma, "typed", o, name))
 
     # 2. jtbl slots — for each C-matched function with a jtbl, the
-    #    function's `.o` `.rodata` contains gcc's emitted jtbl bytes.
-    #    The asm-blanket `.rodata.0x<jtbl_VMA>` block was stripped by
-    #    rewrite_data_named_sections.py (see _load_matched_function_
-    #    jtbls there), leaving a gap at the jtbl's VMA. Emit a slot
-    #    pulling the function's `.o(.<base>*)` so gcc's bytes land at
-    #    the original VMA.
+    #    function's `.o` typed `.rodata.0x<VMA>` section contains gcc's
+    #    emitted jtbl bytes (split off the plain `.rdata` by
+    #    postprocess_split_jtbls.py during compile). The asm-blanket
+    #    `.rodata.0x<jtbl_VMA>` block was stripped by
+    #    rewrite_data_named_sections.py.
+    #
+    #    This block is mostly redundant with block 1 (typed slots
+    #    already detects `.rodata.0x<VMA>`), but it acts as a safety
+    #    net: ensures the slot is emitted even if the .o hasn't been
+    #    built when slinky scans, AND skips duplicates by checking
+    #    whether the typed scan already saw this VMA.
     if base == ".rodata":
+        seen_typed = {s[0] for s in slots if s[1] == "typed"}
         for jtbl_vma, jtbl_opath in _jtbl_opath_map(objdump, link_objs).items():
-            # Only emit if the .o actually has plain `.rodata` content
-            # (the function was actually compiled, not just declared).
+            if jtbl_vma in seen_typed:
+                continue
             secs = sections_of(objdump, jtbl_opath)
+            # Look for the typed section the split postprocess emits.
+            typed_name = f"{base}.0x{jtbl_vma:08X}"
+            has_typed = any(name == typed_name for name, _ in secs)
+            if has_typed:
+                slots.append((jtbl_vma, "jtbl", jtbl_opath, typed_name))
+                continue
+            # Fall back to bare `.rodata` (single-jtbl TUs where the
+            # split postprocess hasn't run yet during this rebuild).
             if not _has_plain_section(secs, base):
                 continue
-            # Pull EXACT `.rodata` (no suffix) — using `.rodata*` would
-            # greedily claim the .o's per-symbol `.rodata.D_<VMA>` /
-            # `.rodata.0x<VMA>` sections that belong to later
-            # higher-VMA slots (ld's first-match-wins), shifting those
-            # symbols off-VMA. The function-owned jtbl lives in the
-            # bare `.rodata` section that gcc emits without a name.
             slots.append((jtbl_vma, "jtbl", jtbl_opath, base))
 
     slots.sort(key=lambda s: (s[0], s[1]))
