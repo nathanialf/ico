@@ -45,6 +45,7 @@ BASIC -fno-schedule-insns
 ATTACKCHECKBOUNDARY -fno-strength-reduce
 GOBJ_PROCESS -fno-strength-reduce
 
+
 # Coalesced TUs with matched function bodies sandwiched between
 # INCLUDE_ASM blocks need 4-byte function alignment to land their
 # matched bodies at the original VMA offset. ee-gcc 2.9 defaults to
