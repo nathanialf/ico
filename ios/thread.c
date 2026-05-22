@@ -36,6 +36,13 @@ const char D_005579C8[24] = "sem: wait error? %d\n";
 const char D_005579E0[24] = "sem: signal error? %d\n";
 const char D_005579F8[24] = "sem: refer error? %d\n";
 
+/* .sdata — only D_006321B0 migrates. D_006321B8 is referenced from
+ * three tracked C functions (func_0013DA00, _DA88, _DBB0) as
+ * `func_00263FF0(file, line, D_006321B8)`; in the original ELF those
+ * sites use `lui+addiu`, but a typed in-TU def lands in `.sdata` and
+ * makes ee-gcc switch to gp_rel addressing — leave it in the sidecar
+ * so the tracked side keeps seeing it as `extern`. */
+unsigned char D_006321B0[8] = { 0 };
 
 #include "include_asm.h"
 #include "regpin.h"
