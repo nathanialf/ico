@@ -17,9 +17,18 @@
  * asm-generated and sidecar definitions.
  */
 
+extern float D_0063319C;
+extern float D_006331A0;
 extern const char D_006331A8[11];
-extern char D_006331B3;
+extern unsigned char D_006331B3;
 extern int D_006331B4;
+extern int D_00633198;
+extern int D_004BD980[];   /* defined as unsigned char[16] in box_data.c */
+extern int D_00633EDC;
+extern float D_00633EE0;
+extern float D_00633EE4;
+extern int D_00633EE8;
+extern int D_00633EEC;
 extern const char D_006331B8[8];
 extern unsigned int D_006331C0;
 extern unsigned int D_006331C4;
@@ -34,6 +43,10 @@ extern const char D_00633200[8];
 extern const char D_00633208[8];
 
 __attribute__((section(".rodata.0x00617378"))) const char D_00617378[24] = "src/staffroll.c";
+
+/* Trailing .word 0 of jtbl_00617390 (gcc emits 7 entries; original ELF
+ * has 8 with trailing zero). Placed at offset 0x6173AC. */
+__attribute__((section(".rodata.0x006173AC"))) static const int pad_jtbl_00617390 = 0;
 
 __attribute__((section(".rodata.0x006173B0"))) const char D_006173B0[24] = "Masatsuka Saeki ";
 __attribute__((section(".rodata.0x006173C8"))) const char D_006173C8[16] = "Fumiya Takeno ";
@@ -252,5 +265,105 @@ __attribute__((section(".rodata.0x00617360"))) const char D_00617360[24] = "staf
 #include "include_asm.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/staffroll", func_001B8388);
-INCLUDE_ASM("asm/nonmatchings/src/staffroll", func_001B84C8);
+void func_001FB4A8(void);
+int func_001B8210(void);
+int func_001B8388(void);
+
+void func_001B84C8(void) {
+    int n;
+    int v;
+    float a, c;
+    int state;
+
+    if (D_00633EE8 != 0) {
+        register float fee0 __asm__("$f1") = D_00633EE0;
+        register int v0 __asm__("$2");
+        n = 0;
+        v0 = (int)((float)D_004BD980[0] - fee0);
+        D_004BD980[0] = v0;
+        if (v0 < -0x1400) {
+            D_004BD980[0] = -0x1400;
+            n = 1;
+        }
+        {
+            register float fee4 __asm__("$f1") = D_00633EE4;
+            v0 = (int)((float)D_00633EDC - fee4);
+        }
+        D_00633EDC = v0;
+        if (v0 < 0x280) {
+            D_00633EDC = 0x280;
+            n++;
+        }
+        if (n == 2) D_00633EE8 = 0;
+    }
+
+    {
+        int b3 = D_006331B3;
+        int b4 = D_006331B4;
+        int r;
+        if (b3 < b4) {
+            b3 += 2;
+            r = (b4 < b3) ? b4 : b3;
+        } else {
+            b3 -= 2;
+            r = (b3 < b4) ? b4 : b3;
+        }
+        a = D_006331A0;
+        c = D_0063319C;
+        *(volatile unsigned char *)&D_006331B3 = r;
+    }
+
+    if (c < a) {
+        c += 0.5f;
+        D_0063319C = c;
+        if (a < c) {
+            D_0063319C = a;
+        }
+    } else {
+        c -= 0.5f;
+        D_0063319C = c;
+        if (c < a) {
+            D_0063319C = a;
+        }
+    }
+
+    state = D_00633EEC;
+    if ((unsigned)state >= 7) return;
+
+    switch (state) {
+    case 0:
+        func_001FB4A8();
+        D_006331B3 = 0;
+        D_00633EEC = D_00633EEC + 1;
+        /* fallthrough */
+    case 1:
+        D_006331A0 = 0;
+        if (D_006331B3 != D_006331B4) return;
+        if (D_0063319C != D_006331A0) return;
+        D_00633EEC = D_00633EEC + 1;
+        return;
+    case 2:
+        func_001B8210();
+        if (func_001B8388() == 0) return;
+        D_00633EEC = D_00633EEC + 1;
+        return;
+    case 3:
+        if (func_001B8210() != 0) return;
+        D_00633EEC = D_00633EEC + 1;
+        return;
+    case 4:
+        D_006331B4 = 0;
+        D_006331A0 = 0;
+        if (D_006331B3 != 0) return;
+        D_00633EEC = state + 1;
+        return;
+    case 5:
+        if (D_0063319C != 0.0f) return;
+        D_00633EEC = state + 1;
+        return;
+    case 6:
+        D_00633198 = 0;
+        return;
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/staffroll", func_001B86C0);

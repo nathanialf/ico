@@ -25,6 +25,8 @@ from pathlib import Path
 
 FCC_RE = re.compile(r"^\s*c\.(lt|le|eq)\.[sd]\b")
 NOP_COMMENT_RE = re.compile(r"^\s*#nop\s*$")
+NOREORDER_RE = re.compile(r"^\s*\.set\s+noreorder\b")
+COMMENT_OR_BLANK_RE = re.compile(r"^\s*(#|$)")
 
 
 def transform(text: str) -> str:
@@ -34,9 +36,18 @@ def transform(text: str) -> str:
     while i < len(lines):
         out.append(lines[i])
         if FCC_RE.match(lines[i]) and i + 1 < len(lines) and NOP_COMMENT_RE.match(lines[i + 1]):
-            out.append("\tnop\n")
-            i += 2
-            continue
+            # Only promote `#nop` -> `nop` when gcc explicitly emitted a
+            # `.set noreorder` block around the following bc1[ft]l? — that's
+            # the case where the delay slot is filled and the FCC-update
+            # hazard nop must be inserted by hand. Otherwise (delay slot is
+            # nop / handled by gas), promoting adds a spurious nop.
+            j = i + 2
+            while j < len(lines) and COMMENT_OR_BLANK_RE.match(lines[j]):
+                j += 1
+            if j < len(lines) and NOREORDER_RE.match(lines[j]):
+                out.append("\tnop\n")
+                i += 2
+                continue
         i += 1
     return "".join(out)
 
