@@ -1,3 +1,11 @@
+# Retirement-trial 2026-05-21: 32+ attempts on 037F08. Inline asm at
+# function entry always goes AFTER gcc's sd-ra in the prologue. To
+# swap them requires modifying prologue emission, which gcc owns.
+# Tried 30 compiler flags (-fno-schedule-insns{,2}, -fno-defer-pop,
+# -fno-omit-frame-pointer, -O3, -Os, -fno-cse-skip-blocks, -fno-tree-pre,
+# -frename-registers, -fweb, -fno-cprop-registers, -O1, -fno-caller-saves,
+# -fforce-mem, -fno-function-cse, -fno-aggressive-loop-optimizations, etc.)
+# plus source rewrites (manual macro expansion). Postprocess remains.
 037F08
 037F48
 037F90
