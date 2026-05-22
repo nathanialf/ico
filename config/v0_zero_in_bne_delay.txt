@@ -10,5 +10,13 @@
 # Add an entry only when adding the -fno-schedule-insns extra_cflag
 # isn't enough on its own to produce the matching epilogue shape.
 
+# Retirement-trial 2026-05-21: 30+ attempts. Root cause is gas's
+# `.set reorder` refusing to fill bne delay with daddu $v0,$0,$0 because
+# the delay-slot insn writes bne's compare register (MIPS semantics
+# permit it but gas is conservative). Postprocess wraps with
+# `.set noreorder/nomacro` to force gas.
+# Tried: 9 source rewrites, 18 compiler flag combos, inline-asm-wrapped
+# branch. gcc owns branch generation; user asm can't inject .set noreorder
+# at gcc's branch emission point.
 165B28
 166870
