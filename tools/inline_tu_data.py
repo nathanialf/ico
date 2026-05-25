@@ -319,7 +319,7 @@ _EXT_OBJ = re.compile(
 )
 
 
-def emit_cref(sym: str, data: bytes, decl: str, mf) -> list[str] | None:
+def emit_cref(sym: str, vma: int, data: bytes, decl: str, mf) -> list[str] | None:
     """Emit a def for a C-referenced symbol that matches its existing
     `extern` declaration `decl` (which the caller keeps). Returns the def
     lines, or None if the shape isn't safely representable (caller skips).
@@ -350,13 +350,24 @@ def emit_cref(sym: str, data: bytes, decl: str, mf) -> list[str] | None:
         return (named[1:] if named and named.startswith("&")
                 else f"({pre})0x{w:08X}")
 
-    if not is_array:  # scalar
-        if size > 4:
+    if not is_array:  # scalar (possibly followed by trailing pad)
+        esz = 4 if is_ptr else {"char": 1, "short": 2, "int": 4,
+                                "long": 4, "float": 4}.get(base, 4)
+        if size < esz:
             return None
-        w = int.from_bytes(data, "little")
-        if is_ptr:
-            return [f"{pre} {sym} = {_ptr_elem(w)};"]
-        return [f"{pre} {sym} = 0x{w:0{size * 2}X};"]
+        w = int.from_bytes(data[:esz], "little")
+        head = (f"{pre} {sym} = {_ptr_elem(w)};" if is_ptr
+                else f"{pre} {sym} = 0x{w:0{esz * 2}X};")
+        if size == esz:
+            return [head]
+        # scalar + trailing padding (the merged extent ran past the
+        # scalar): emit the scalar (matching the extern), then chunk the
+        # remaining bytes under a VMA-named synthetic tail so the full
+        # extent is covered (slinky places gap-free).
+        tail = _emit_aligned_chunks(f"D_{vma + esz:08X}", vma + esz, data[esz:])
+        if tail is None:
+            return None
+        return [head] + tail
     # array
     if is_ptr:                       # pointer array
         if size % 4:
@@ -376,6 +387,38 @@ def emit_cref(sym: str, data: bytes, decl: str, mf) -> list[str] | None:
     vals = [int.from_bytes(data[i:i + esz], "little") for i in range(0, size, esz)]
     elems = ", ".join(f"0x{v:0{esz * 2}X}" for v in vals)
     return [f"{pre} {sym}[{n}] = {{ {elems} }};"]
+
+
+def _emit_aligned_chunks(sym: str, vma: int, data: bytes) -> list[str] | None:
+    """Emit `data` starting at (possibly misaligned) `vma` as aligned
+    scalar head chunks (word/short/byte at natural alignment) until the
+    cursor hits an 8-aligned VMA, then an 8-aligned tail array. First
+    chunk uses `sym`; later chunks get VMA-named synthetic symbols.
+    Returns lines, or None if the tail isn't representable."""
+    lines: list[str] = []
+    cursor, off, first = vma, 0, True
+    size = len(data)
+    while cursor % 8 != 0 and off < size:
+        rem = size - off
+        if cursor % 4 == 0 and rem >= 4:
+            sz, ty = 4, "unsigned int"
+            init = f"0x{int.from_bytes(data[off:off + 4], 'little'):08X}"
+        elif cursor % 2 == 0 and rem >= 2:
+            sz, ty = 2, "unsigned short"
+            init = f"0x{int.from_bytes(data[off:off + 2], 'little'):04X}"
+        else:
+            sz, ty = 1, "unsigned char"
+            init = f"0x{data[off]:02X}"
+        lines.append(f"{ty} {sym if first else f'D_{cursor:08X}'} = {init};")
+        first, cursor, off = False, cursor + sz, off + sz
+    if off < size:  # 8-aligned tail
+        _, tlines, teuc = _emit_array_value(f"D_{cursor:08X}", data[off:])
+        if not tlines:
+            return None
+        if teuc:
+            lines.append(f'/* EUC-JP: "{teuc}" */')
+        lines += tlines
+    return lines or None
 
 
 def _emit_array_value(sym: str, data: bytes) -> tuple[str, list[str], str | None]:
@@ -482,7 +525,7 @@ def classify(sym: str, vma: int, sect: str, data: bytes,
             r.reason = "small non-.sdata c-ref (gp_rel truncation risk)"
             return r
         decl = extern_decls.get(sym)
-        lines = (emit_cref(sym, data, decl, mf)
+        lines = (emit_cref(sym, vma, data, decl, mf)
                  if decl and not no_cref else None)
         if lines:
             r.category = "c-ref"
@@ -527,40 +570,11 @@ def classify(sym: str, vma: int, sect: str, data: bytes,
         return r
 
     # --- Array at a non-8-aligned VMA: ee-gcc forces .align 3 on any
-    # array → +shift. Split into aligned scalar head chunks (each at its
-    # natural alignment: word/short/byte, all safe) until the cursor
-    # reaches an 8-aligned VMA, then an 8-aligned tail array. Head chunks
-    # past the first get VMA-named synthetic symbols; the migrator skips
-    # the original symbol's whole extent once the head (D_X) is defined,
-    # so nothing is double-emitted. ---
-    lines: list[str] = []
-    cursor = vma
-    off = 0
-    first = True
-    while cursor % 8 != 0 and off < size:
-        rem = size - off
-        if cursor % 4 == 0 and rem >= 4:
-            sz, ty = 4, "unsigned int"
-            init = f"0x{int.from_bytes(data[off:off + 4], 'little'):08X}"
-        elif cursor % 2 == 0 and rem >= 2:
-            sz, ty = 2, "unsigned short"
-            init = f"0x{int.from_bytes(data[off:off + 2], 'little'):04X}"
-        else:
-            sz, ty = 1, "unsigned char"
-            init = f"0x{data[off]:02X}"
-        name = sym if first else f"D_{cursor:08X}"
-        lines.append(f"{ty} {name} = {init};")
-        first, cursor, off = False, cursor + sz, off + sz
-    if off < size:  # 8-aligned tail
-        tcat, tlines, teuc = _emit_array_value(f"D_{cursor:08X}", data[off:])
-        if not tlines:
-            r.category = "array-misaligned"
-            r.reason = "misaligned tail not representable"
-            return r
-        if teuc:
-            lines.append(f'/* EUC-JP: "{teuc}" */')
-        lines += tlines
-    if not lines:
+    # array → +shift. Split into aligned scalar head chunks + 8-aligned
+    # tail array (see _emit_aligned_chunks). The migrator skips the
+    # original symbol's whole extent once the head (D_X) is defined. ---
+    lines = _emit_aligned_chunks(sym, vma, data)
+    if lines is None:
         r.category = "array-misaligned"
         r.reason = f"unhandled (vma%8={vma % 8}, size={size})"
         return r

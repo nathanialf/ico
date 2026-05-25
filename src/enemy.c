@@ -159,6 +159,10 @@ unsigned short D_00633398 = 0x0000;
 unsigned short D_0063339A = 0x0000;
 int D_006333AC = 0x00000000;
 
+/* Inlined data (Phase 3e) — migrated from enemy_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
 #include "include_asm.h"
 
 extern unsigned short D_00633398;

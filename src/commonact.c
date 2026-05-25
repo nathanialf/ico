@@ -501,6 +501,10 @@ int D_002882D0[4] = { 0x00000000, 0x00000000, 0x00000000, 0x00000000 };
 void (*D_006323F0)(int a0, int a1) = (void (*)(int a0, int a1))0x00167230;
 void (*D_006323F4)(int, int) = (void (*)(int, int))0x00167258;
 
+/* Inlined data (Phase 3e) — migrated from commonact_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
 #include "include_asm.h"
 
 extern void (*D_006323F4)(int, int);

@@ -230,6 +230,14 @@ unsigned int D_006323BC = 0x00000000;
 /* C-referenced data (extern kept, def supplies bytes) */
 int D_00632398[1] = { 0x00000030 };
 
+/* Inlined data (Phase 3e) — migrated from enemy_act_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* C-referenced data (extern kept, def supplies bytes) */
+int D_00632390 = 0x00000000;
+unsigned int D_00632394 = 0x00000000;
+
 #include "include_asm.h"
 #include "matching.h"
 #include "regpin.h"

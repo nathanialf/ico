@@ -355,6 +355,16 @@ unsigned int D_00631100 = 0x40490FDB;
 unsigned int D_004B3D54 = 0x00000000;
 unsigned char D_004B3D58[11576] = { 0 };
 
+/* Inlined data (Phase 3e) — migrated from charFileManager_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* C-referenced data (extern kept, def supplies bytes) */
+int D_00632888 = 0x00000000;
+unsigned int D_0063288C = 0x00000000;
+int D_00632898 = 0x00000000;
+unsigned int D_0063289C = 0x00000000;
+
 #include "include_asm.h"
 
 extern int D_00632850;
