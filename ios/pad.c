@@ -173,7 +173,44 @@ int func_0013B870(void) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013B878);
-INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013B8F0);
+void func_0013B8F0(int key)
+{
+    if (key == 0)
+    {
+        return;
+    }
+    for (;;)
+    {
+        int *p = D_006A6DB0;
+        int *entry;
+        int i = 0xF;
+        while (1)
+        {
+            if (*p == key)
+            {
+                goto found;
+            }
+            i--;
+            if (i == -1)
+            {
+                goto notfound;
+            }
+            p = (int *)((char *) p + 0x18);
+        }
+    notfound:
+        entry = 0;
+        goto check;
+    found:
+        entry = p;
+    check:
+        if (entry == 0)
+        {
+            break;
+        }
+        func_0013C958(entry[0x4 / 4], key);
+        entry[0] = 0;
+    }
+}
 void func_0013B970(void)
 {
     int *p = D_006A6DB0;
