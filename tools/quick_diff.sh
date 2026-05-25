@@ -121,7 +121,7 @@ fi
 # accept -fno-optimize-sibling-calls (sibling-call defeat is per-function
 # via __asm__ volatile("") barriers in src/cod/). -S because the bundled
 # 2.9-era `as` chokes on modern flags — we re-assemble with ee-as 2.10.
-CFLAGS="${CFLAGS:--S -G 8 -O2 -mips3 -EL -fno-builtin -nostdinc -Iinclude}"
+CFLAGS="${CFLAGS:--S -G 8 -O2 -mips3 -EL -fno-builtin -nostdinc -fdata-sections -Iinclude}"
 
 # Per-file overrides from config/extra_cflags.txt (same lookup as the
 # Makefile src/.o rule), so quick_diff stays in sync with the full build.

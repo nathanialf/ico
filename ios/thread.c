@@ -70,7 +70,24 @@ void func_0013D0A0(unsigned char *p, int a1, int a2) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013D0D0);
-INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013D140);
+extern int D_006A6F30[];
+extern int func_00100410(void);
+void func_0013D440(int *a0, int a1);
+
+void func_0013D140(int a0)
+{
+    int idx = func_00100410();
+    int *obj = (int *) D_006A6F30[idx];
+    (*(void (**)(int))((char *) obj + 0x38))(a0);
+    if (*(int *)((char *) obj + 0x40) == 0)
+    {
+        func_0013D440(obj, 0x21);
+    }
+    else
+    {
+        func_0013D440(obj, 0x22);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013D1B0);
 
 
