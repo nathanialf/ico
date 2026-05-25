@@ -153,7 +153,30 @@ int func_0013B7C0(int a0, int a1, int a2, int a3)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013B7E0);
+struct Vec0013B7E0
+{
+    float x;
+    int z0;
+    float y;
+    int z1;
+} __attribute__((aligned(8)));
+
+void func_0013B7E0(int *a0, float *a1)
+{
+    struct Vec0013B7E0 v;
+    struct Vec0013B7E0 t;
+    unsigned char buf[0x40];
+    register unsigned char *a0arg __asm__("$4") = buf;
+    __asm__("" : "+r"(a0arg));
+    t.x = a1[0xC / 4];
+    t.z0 = 0;
+    t.y = -a1[0x10 / 4];
+    t.z1 = 0;
+    __asm__ __volatile__("" ::: "memory");
+    v = t;
+    func_002439B0(a0arg, (unsigned char *) D_00631970 + 0x80);
+    func_002438B8(a0, buf, &v);
+}
 
 int func_0013B858(void)
 {
