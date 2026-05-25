@@ -192,11 +192,19 @@ def _load_migrated_symbols() -> set[str]:
         r'\**\s*'
         r'(D_[0-9A-Fa-f]{8})\b\s*(?:\[[^\]]*\])*\s*='
     )
+    # Function-pointer def `void (*D_X)(...) = ...;` (from inline_tu_data
+    # emit_cref) — symbol is inside `(*...)`, missed by plain_re.
+    funcptr_re = re.compile(
+        r'(?m)^(?!\s*extern\b)[ \t]*[A-Za-z_][\w\s\*]*'
+        r'\(\s*\*\s*(D_[0-9A-Fa-f]{8})\s*\)\s*\([^)]*\)\s*='
+    )
     for c_path in src_paths:
         text = c_path.read_text()
         for m in typed_re.finditer(text):
             out.add(m.group(2))
         for m in plain_re.finditer(text):
+            out.add(m.group(1))
+        for m in funcptr_re.finditer(text):
             out.add(m.group(1))
     return out
 

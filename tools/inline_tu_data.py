@@ -60,6 +60,7 @@ import argparse
 import bisect
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -74,6 +75,18 @@ from migrate_data_per_tu import (  # noqa: E402  (shared helpers)
 )
 
 SDATA_LO, SDATA_HI = SECTION_RANGES[".sdata"]
+
+_OBJDUMP_CANDIDATES = ("mips64r5900el-ps2-elf-objdump", "mips-linux-gnu-objdump")
+
+
+def find_objdump() -> str:
+    for name in _OBJDUMP_CANDIDATES:
+        try:
+            subprocess.run([name, "--version"], capture_output=True, check=True)
+            return name
+        except (FileNotFoundError, subprocess.CalledProcessError):
+            continue
+    raise SystemExit("inline_tu_data: no objdump found")
 
 # Per-symbol inline cap. check_no_rom.sh now allows tracked C source up
 # to 8 MiB (its content is gated by the raw-byte-array rule), so the
@@ -458,6 +471,16 @@ def classify(sym: str, vma: int, sect: str, data: bytes,
     # so .text stays identical. Requires a parseable extern to match; if
     # we can't represent the def for that type, leave it in the sidecar.
     if sym in c_refs or sym in inc_externs:
+        # gp_rel-truncation guard: a <=8 B symbol outside the .sdata range,
+        # once given a local def, is treated by ee-gcc as small-data →
+        # %gp_rel reference → 16-bit offset overflow at link (it's far from
+        # _gp). The per-TU .text check can't see a link-time truncation, so
+        # gate it here. .sdata-range <=8 B c-ref is fine (near _gp); >8 B
+        # uses absolute addressing.
+        if size <= 8 and not (SDATA_LO <= vma < SDATA_HI):
+            r.category = "c-ref"
+            r.reason = "small non-.sdata c-ref (gp_rel truncation risk)"
+            return r
         decl = extern_decls.get(sym)
         lines = (emit_cref(sym, data, decl, mf)
                  if decl and not no_cref else None)
@@ -691,6 +714,9 @@ def main() -> int:
     ap.add_argument("--no-cref", action="store_true",
                     help="leave C-referenced symbols in the sidecar (use for TUs "
                          "where keep-extern still flips addressing → .text change)")
+    ap.add_argument("--verify-cref", action="store_true",
+                    help="inline c-ref symbols one at a time, keeping only those "
+                         "that leave the TU's .o .text size unchanged")
     args = ap.parse_args()
 
     tu_path = REPO / args.tu
@@ -790,8 +816,6 @@ def main() -> int:
               f"({len(skip)} skipped, {len(inline_already)} already inline)")
         return 0
 
-    # --- Build the migration block, grouped by category (every emit
-    # category must be listed here, else its defs are silently dropped). ---
     GROUPS = [
         ("scalar", "scalars"),
         ("all-zero", "zero-filled buffers"),
@@ -802,55 +826,89 @@ def main() -> int:
         ("c-ref", "C-referenced data (extern kept, def supplies bytes)"),
         ("lit4", "lit4 floats (section-pinned, raw bits)"),
     ]
-    known = {c for c, _ in GROUPS}
-    leftover = sorted({r.category for r in emit} - known)
-    for c in leftover:
-        GROUPS.append((c, c))
-    block: list[str] = [
-        f"/* Inlined data (Phase 3e) — migrated from {tu_path.stem}_data.c.",
-        " * Plain typed defs; ee-gcc -fdata-sections + slinky place each",
-        " * at its original VMA. See tools/inline_tu_data.py. */",
-    ]
-    for cat, label in GROUPS:
-        rs = [r for r in emit if r.category == cat]
-        if not rs:
-            continue
+    extern_decl_re = re.compile(r"^\s*extern\b[^;]*\b(D_[0-9A-Fa-f]{8})\b[^;]*;\s*$")
+
+    def write_tu(emit_results: list[Result]) -> None:
+        """Write tu_path with a migration block for `emit_results` and the
+        appropriate extern removals (keep c-ref externs)."""
+        groups = list(GROUPS)
+        known = {c for c, _ in groups}
+        for c in sorted({r.category for r in emit_results} - known):
+            groups.append((c, c))
+        block = [
+            f"/* Inlined data (Phase 3e) — migrated from {tu_path.stem}_data.c.",
+            " * Plain typed defs; ee-gcc -fdata-sections + slinky place each",
+            " * at its original VMA. See tools/inline_tu_data.py. */",
+        ]
+        for cat, label in groups:
+            rs = sorted([r for r in emit_results if r.category == cat],
+                        key=lambda x: x.vma)
+            if not rs:
+                continue
+            block.append("")
+            block.append(f"/* {label} */")
+            for r in rs:
+                if r.euc:
+                    block.append(f'/* EUC-JP: "{r.euc}" */')
+                block.extend(r.lines)
         block.append("")
-        block.append(f"/* {label} */")
-        for r in sorted(rs, key=lambda x: x.vma):
-            if r.euc:
-                block.append(f'/* EUC-JP: "{r.euc}" */')
-            block.extend(r.lines)
-    block.append("")
+        keep_ext = {r.sym for r in emit_results if r.keep_extern}
+        drop_ext = {r.sym for r in emit_results} - keep_ext
+        kept = [ln for ln in tu_c_text.splitlines()
+                if not ((m := extern_decl_re.match(ln)) and m.group(1) in drop_ext)]
+        insert_at = find_insertion_index(kept)
+        tu_path.write_text("\n".join(kept[:insert_at] + block + kept[insert_at:]) + "\n")
 
-    # --- Remove conflicting extern declarations for migrated symbols,
-    # EXCEPT c-ref defs (keep_extern): those rely on the extern staying
-    # in place so ee-gcc's addressing at reference sites is unchanged. ---
-    keep_extern_syms = {r.sym for r in emit if r.keep_extern}
-    migrated_syms = {r.sym for r in emit} - keep_extern_syms
-    lines = tu_c_text.splitlines()
-    kept: list[str] = []
-    extern_decl = re.compile(
-        r"^\s*extern\b[^;]*\b(D_[0-9A-Fa-f]{8})\b[^;]*;\s*$"
-    )
-    removed_externs = 0
-    for ln in lines:
-        m = extern_decl.match(ln)
-        if m and m.group(1) in migrated_syms:
-            removed_externs += 1
-            continue
-        kept.append(ln)
-    lines = kept
+    def tu_text_size() -> str | None:
+        """Compile the current tu_path and return its .o .text section size
+        (hex string), or None on failure."""
+        out = REPO / "build" / tu_path.with_suffix(".o").relative_to(REPO)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        r = subprocess.run([str(REPO / "tools" / "compile_c.sh"),
+                            str(tu_path.relative_to(REPO)), str(out)],
+                           cwd=REPO, capture_output=True, text=True)
+        if r.returncode != 0 or not out.exists():
+            return None
+        objdump = find_objdump()
+        h = subprocess.run([objdump, "-h", str(out)], cwd=REPO,
+                           capture_output=True, text=True)
+        for line in h.stdout.splitlines():
+            f = line.split()
+            if len(f) >= 3 and f[1] == ".text":
+                return f[2]
+        return "00000000"  # no .text section
 
-    insert_at = find_insertion_index(lines)
-    new_lines = lines[:insert_at] + block + lines[insert_at:]
-    tu_path.write_text("\n".join(new_lines) + "\n")
+    # --- --verify-cref: inline c-ref symbols one at a time, keeping only
+    # those that leave .text unchanged (revert the addressing-flippers). ---
+    if args.verify_cref:
+        non_cref = [r for r in emit if not r.keep_extern]
+        cref = sorted([r for r in emit if r.keep_extern], key=lambda x: x.vma)
+        write_tu(non_cref)
+        baseline = tu_text_size()
+        if baseline is None:
+            sys.exit(f"inline_tu_data: baseline compile failed for {args.tu}")
+        accepted: list[Result] = []
+        rejected = 0
+        for r in cref:
+            write_tu(non_cref + accepted + [r])
+            if tu_text_size() == baseline:
+                accepted.append(r)
+            else:
+                rejected += 1
+        write_tu(non_cref + accepted)
+        from collections import Counter
+        cats = Counter(r.category for r in (non_cref + accepted))
+        print(f"inline_tu_data: {args.tu} (verify-cref) — inlined "
+              f"{len(non_cref) + len(accepted)} ({len(accepted)} c-ref kept, "
+              f"{rejected} c-ref flipped→sidecar) {dict(cats)}; "
+              f"{len(skip) + rejected} left in sidecar")
+        return 0
 
+    write_tu(emit)
     from collections import Counter
     cats = Counter(r.category for r in emit)
     print(f"inline_tu_data: {args.tu} — inlined {len(emit)} symbols "
-          f"{dict(cats)}; removed {removed_externs} extern decl(s); "
-          f"{len(skip)} left in sidecar")
+          f"{dict(cats)}; {len(skip)} left in sidecar")
     return 0
 
 

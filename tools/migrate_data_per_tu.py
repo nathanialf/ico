@@ -562,6 +562,15 @@ def _scan_existing_definitions() -> set[str]:
         r'\**\s*'                                          # optional `*`s
         r'(D_[0-9A-Fa-f]{8})\b\s*(?:\[[^\]]*\])*\s*='      # name [N][M]... =
     )
+    # Function-pointer def: `void (*D_X)(int, int) = ...;` — the symbol is
+    # inside `(*...)`, which plain_re's leading type-token form misses.
+    # tools/inline_tu_data.py's emit_cref produces these for c-ref
+    # function-pointer externs; the sidecar must skip them or it double-
+    # defines (duplicate slot at link).
+    funcptr_re = re.compile(
+        r'(?m)^(?!\s*extern\b)[ \t]*[A-Za-z_][\w\s\*]*'
+        r'\(\s*\*\s*(D_[0-9A-Fa-f]{8})\s*\)\s*\([^)]*\)\s*='
+    )
     for c_path in src_paths:
         # Don't read our own _data sidecars — they're regenerated each
         # run, so symbols in them aren't a stable source-of-truth.
@@ -571,6 +580,8 @@ def _scan_existing_definitions() -> set[str]:
         for m in typed_re.finditer(text):
             out.add(m.group(2))
         for m in plain_re.finditer(text):
+            out.add(m.group(1))
+        for m in funcptr_re.finditer(text):
             out.add(m.group(1))
     return out
 

@@ -44,6 +44,10 @@ const char D_005579F8[24] = "sem: refer error? %d\n";
  * so the tracked side keeps seeing it as `extern`. */
 unsigned char D_006321B0[8] = { 0 };
 
+/* Inlined data (Phase 3e) — migrated from thread_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
 #include "include_asm.h"
 #include "regpin.h"
 #include "matching.h"

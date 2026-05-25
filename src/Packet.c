@@ -182,6 +182,10 @@ const char D_00631E00[8] = "%s.tm2";
 unsigned char D_00631D5B = 0x00;
 unsigned int D_00631D5C = 0x00000000;
 
+/* Inlined data (Phase 3e) — migrated from Packet_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
 #include "include_asm.h"
 
 extern int D_00672F90[];
