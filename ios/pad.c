@@ -319,7 +319,26 @@ void func_0013C510(int *a0, int a1, int a2, int a3)
     a0[3] = a3;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013C538);
+void func_0013C538(int *self)
+{
+    int *node = (int *) self[0];
+    if (self[0x8 / 4] == 0)
+    {
+        goto end;
+    }
+    if (node == 0)
+    {
+        goto end;
+    }
+    do
+    {
+        int *cur = node;
+        node = (int *) node[0x34 / 4];
+        (*(void (**)(int, int))((char *) self + 8))((int) cur, self[0xC / 4]);
+    } while (node != 0);
+end:
+    self[0] = 0;
+}
 
 struct PadNode {
     char pad[0x30];

@@ -56,7 +56,26 @@ unsigned char D_006321B0[8] = { 0 };
 #include "regpin.h"
 #include "matching.h"
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013CF80);
+void func_0013CF80(int *self)
+{
+    int *node = (int *) self[0];
+    if (self[0x8 / 4] == 0)
+    {
+        goto end;
+    }
+    if (node == 0)
+    {
+        goto end;
+    }
+    do
+    {
+        int *cur = node;
+        node = (int *) node[0x34 / 4];
+        (*(void (**)(int, int))((char *) self + 8))((int) cur, self[0xC / 4]);
+    } while (node != 0);
+end:
+    self[0] = 0;
+}
 extern int *D_00632190;
 extern int func_0013BE20(int *node, int arg);
 extern int func_0013BB80(int *node, int arg);
