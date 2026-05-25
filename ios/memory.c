@@ -198,7 +198,27 @@ INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00138BF0);
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00138C78);
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00138E30);
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_001392A8);
-INCLUDE_ASM("asm/nonmatchings/ios/memory", func_001394F0);
+extern int func_001007A0(int a0);
+
+void func_001394F0(int *a0, int a1, int a2)
+{
+    int *end = *(int **)((char *) a0 - 0x1C);
+    func_001007A0(0);
+    func_00139598(a0);
+    func_001A6E28(D_005572B8, a1, a2, a0, end);
+    {
+        register int g __asm__("$2") = (unsigned int) a0 < (unsigned int) end;
+        if (g)
+        {
+            do
+            {
+                *(unsigned int *) a0 = 0xFFFFFFFFu;
+                a0++;
+            } while ((unsigned int) a0 < (unsigned int) end);
+        }
+    }
+    func_001007A0(0);
+}
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00139598);
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00139A50);
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00139C30);
