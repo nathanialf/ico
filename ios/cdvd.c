@@ -302,7 +302,28 @@ void func_00131780(int a0, char *a1, int a2, int a3, int a4, int a5, int a6)
 }
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131818);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131C90);
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00132038);
+extern int func_00135580(int a0, void *buf, int n);
+
+void func_00132038(int *a0, void *buf, int n)
+{
+    char *p = (char *) buf;
+    long long ret;
+    for (;;)
+    {
+        ret = func_00135580(a0[0x15C / 4], p, n);
+        if (ret <= 0)
+        {
+            break;
+        }
+        p += ret;
+        n -= ret;
+    }
+    func_001A6E28(D_005569D0, a0[0x24 / 4]);
+    if (ret < 0)
+    {
+        func_001A6E28(D_005569F8);
+    }
+}
 extern void func_00132038(int *a0, void *buf, int n);
 extern void func_00131C90(int *a0, void *buf, int n);
 extern unsigned char D_006A64B8[];
