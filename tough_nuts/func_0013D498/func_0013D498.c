@@ -15,6 +15,7 @@ void func_0013D498(int a0)
     {
         int m;
         obj[0x48 / 4] = 1;
+        do { } while (0);
         m = func_0013A0F8(D_00632000, 0x50, D_005578D0, 0x1DE);
         obj[0x4C / 4] = m;
         func_0013A250(m, m + 0x30, 8);
