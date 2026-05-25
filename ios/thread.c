@@ -204,7 +204,7 @@ void func_0013D3F0(int a0, int a1, int a2, int a3)
 extern int D_006A6F30[];
 extern char D_006A7330[];
 extern int func_00100410(void);
-extern void func_0013A5B8(char *a, int b, int c);
+extern int func_0013A5B8(char *a, int b, int c);
 
 void func_0013D3F8(int a0)
 {
@@ -238,7 +238,33 @@ void func_0013D440(int *a0, int a1)
 
 INCLUDE_ASM_NOP_PAD(func_0013D494);
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013D498);
+extern int func_0013A0F8(int a0, int a1, const char *fmt, int line);
+extern void func_0013A250(int a0, int a1, int a2);
+extern int D_00632000;
+extern const char D_00557970[];
+
+void func_0013D498(int a0)
+{
+    int *obj = (int *) D_006A6F30[func_00100410()];
+    if (obj[0x48 / 4] == 0)
+    {
+        int m;
+        register int v REG("$2") = 1;
+        register int a0v REG("$4") = D_00632000;
+        register const char *msg REG("$6") = D_005578D0;
+        ANCHOR(v);
+        obj[0x48 / 4] = v;
+        ANCHOR(a0v);
+        ANCHOR(msg);
+        m = func_0013A0F8(a0v, 0x50, msg, 0x1DE);
+        obj[0x4C / 4] = m;
+        func_0013A250(m, m + 0x30, 8);
+    }
+    {
+        int q = func_0013A5B8((char *) obj[0x4C / 4], a0, 0);
+        func_001A6E28(D_00557970, q);
+    }
+}
 
 
 extern void func_00265168(int a0);
