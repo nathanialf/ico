@@ -51,19 +51,19 @@ extern int D_006335B0;
 extern int D_006335B4;
 extern const char D_006335B8[8];
 
-__attribute__((section(".rodata.0x00619C00"))) const char D_00619C00[24] = "src/motionViewer.c";
+const char D_00619C00[24] = "src/motionViewer.c";
 
-__attribute__((section(".rodata.0x00619C18"))) const char D_00619C18[16] = "Motion Viewer";
-__attribute__((section(".rodata.0x00619C28"))) const char D_00619C28[32] = "NO MOTION IN THIS STAGE.";
-__attribute__((section(".rodata.0x00619C48"))) const char D_00619C48[24] = "Frame : %1.1f/%d";
-__attribute__((section(".rodata.0x00619C60"))) const char D_00619C60[24] = "x%1.3f: %1.1f/%d";
-__attribute__((section(".rodata.0x00619C78"))) const char D_00619C78[32] = "ORIENT for \"%s\" Frame: %1.1f/%d";
-__attribute__((section(".rodata.0x00619C98"))) const char D_00619C98[16] = "  NO ORIENT.";
-__attribute__((section(".rodata.0x00619CA8"))) const char D_00619CA8[24] = "NO ORIENT for \"%s\"";
-__attribute__((section(".rodata.0x00619D00"))) const char D_00619D00[32] = "Left: Target direct orient.";
-__attribute__((section(".rodata.0x00619D20"))) const char D_00619D20[32] = "Left: Target with motion.";
-__attribute__((section(".rodata.0x00619D40"))) const char D_00619D40[32] = "Right: Target direct orient.";
-__attribute__((section(".rodata.0x00619D60"))) const char D_00619D60[32] = "Right: Target with motion.";
+const char D_00619C18[16] = "Motion Viewer";
+const char D_00619C28[32] = "NO MOTION IN THIS STAGE.";
+const char D_00619C48[24] = "Frame : %1.1f/%d";
+const char D_00619C60[24] = "x%1.3f: %1.1f/%d";
+const char D_00619C78[32] = "ORIENT for \"%s\" Frame: %1.1f/%d";
+const char D_00619C98[16] = "  NO ORIENT.";
+const char D_00619CA8[24] = "NO ORIENT for \"%s\"";
+const char D_00619D00[32] = "Left: Target direct orient.";
+const char D_00619D20[32] = "Left: Target with motion.";
+const char D_00619D40[32] = "Right: Target direct orient.";
+const char D_00619D60[32] = "Right: Target with motion.";
 
 #include "include_asm.h"
 

@@ -79,28 +79,43 @@ extern int D_00633714;
 extern int D_00633718;
 extern int D_0063371C;
 
-__attribute__((section(".rodata.0x0061A1F8"))) const char D_0061A1F8[32] = "src/spiderGroupManager.c";
+const char D_0061A1D8[32] = "LOCK %p for LABEL %d, ID:%d\n";
 
-__attribute__((section(".rodata.0x0061A288"))) const char D_0061A288[16] = "COUNTER %d/%d";
-__attribute__((section(".rodata.0x0061A298"))) const char D_0061A298[16] = "REMAIN %d";
-__attribute__((section(".rodata.0x0061A2A8"))) const char D_0061A2A8[24] = "NO GROUP WAKEUPED";
-__attribute__((section(".rodata.0x0061A340"))) const char D_0061A340[16] = "MBLUR %d";
-__attribute__((section(".rodata.0x0061A350"))) const char D_0061A350[16] = "BLUR R: %d";
-__attribute__((section(".rodata.0x0061A360"))) const char D_0061A360[16] = "BLUR G: %d";
-__attribute__((section(".rodata.0x0061A370"))) const char D_0061A370[16] = "BLUR B: %d";
-__attribute__((section(".rodata.0x0061A380"))) const char D_0061A380[16] = "BLUR BASE: %d";
-__attribute__((section(".rodata.0x0061A390"))) const char D_0061A390[16] = "NOEFFECT";
-__attribute__((section(".rodata.0x0061A3A0"))) const char D_0061A3A0[16] = "SBLUR+DEPTH";
-__attribute__((section(".rodata.0x0061A3B0"))) const char D_0061A3B0[16] = "GLOW+DEPTH";
-__attribute__((section(".rodata.0x0061A3C0"))) const char D_0061A3C0[16] = "BLSBLUR+DEPTH";
-__attribute__((section(".rodata.0x0061A3D0"))) const char D_0061A3D0[16] = "NO ACTION";
-__attribute__((section(".rodata.0x0061A3E0"))) const char D_0061A3E0[16] = "BLUR: %s";
-__attribute__((section(".rodata.0x0061A418"))) const char D_0061A418[24] = "FEED: %s";
+const char D_0061A1F8[32] = "src/spiderGroupManager.c";
 
-/* String rodata migrated from spiderGroupManager_data.c */
-__attribute__((section(".rodata.0x0061A1D8"))) const char D_0061A1D8[32] = "LOCK %p for LABEL %d, ID:%d\n";
-__attribute__((section(".rodata.0x0061A218"))) const char D_0061A218[88] = "No valid enemy layout data for spider.\n(Lack of enemy layout for spider revive.)\n";
-__attribute__((section(".rodata.0x0061A270"))) const char D_0061A270[24] = "UNLOCK %p: (id:%d)\n";
+const char D_0061A218[88] = "No valid enemy layout data for spider.\n(Lack of enemy layout for spider revive.)\n";
+
+const char D_0061A270[24] = "UNLOCK %p: (id:%d)\n";
+
+const char D_0061A288[16] = "COUNTER %d/%d";
+
+const char D_0061A298[16] = "REMAIN %d";
+
+const char D_0061A2A8[24] = "NO GROUP WAKEUPED";
+
+const char D_0061A340[16] = "MBLUR %d";
+
+const char D_0061A350[16] = "BLUR R: %d";
+
+const char D_0061A360[16] = "BLUR G: %d";
+
+const char D_0061A370[16] = "BLUR B: %d";
+
+const char D_0061A380[16] = "BLUR BASE: %d";
+
+const char D_0061A390[16] = "NOEFFECT";
+
+const char D_0061A3A0[16] = "SBLUR+DEPTH";
+
+const char D_0061A3B0[16] = "GLOW+DEPTH";
+
+const char D_0061A3C0[16] = "BLSBLUR+DEPTH";
+
+const char D_0061A3D0[16] = "NO ACTION";
+
+const char D_0061A3E0[16] = "BLUR: %s";
+
+const char D_0061A418[24] = "FEED: %s";
 
 #include "include_asm.h"
 

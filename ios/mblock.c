@@ -17,23 +17,6 @@
  * asm-generated and sidecar definitions.
  */
 
-int D_0063203C = 0;
-char D_00632040[8] = { 0 };
-__attribute__((section(".sdata.0x00632048"))) char D_00632048[12] = { 0 };
-unsigned int D_00632054 = 0xFFFFFFFF;
-const char D_00632058[8] = "game.";
-char D_00632060[8] = { 0 };
-int D_00632068 = 0x000A6425;
-int D_0063206C = 0x00000000;
-int D_00632070 = 0x332E3325;
-int D_00632074 = 0x00000064;
-const char D_00632078[8] = "*";
-const char D_00632088[8] = "format";
-const char D_00632090[8] = "chdir";
-const char D_00632098[8] = "getdir";
-const char D_006320A0[8] = "delete";
-const char D_006320A8[8] = "test";
-
 const char D_00556C08[24] = "ios/mblock.c";
 const char D_00556C20[16] = "boy_blk.ico";
 const char D_00556C30[16] = "icon.sys";
@@ -62,3 +45,19 @@ const char D_00556EB8[16] = "GameBlock save";
 const char D_00556EC8[16] = "GameBlock load";
 const char D_00556ED8[16] = "chdirproduct";
 const char D_00556EE8[40] = "iosMcManager: recv command %d error.";
+int D_0063203C = 0;
+char D_00632040[8] = { 0 };
+char D_00632048[12] = { 0 };
+unsigned int D_00632054 = 0xFFFFFFFF;
+const char D_00632058[8] = "game.";
+char D_00632060[8] = { 0 };
+int D_00632068 = 0x000A6425;
+int D_0063206C = 0x00000000;
+int D_00632070 = 0x332E3325;
+int D_00632074 = 0x00000064;
+const char D_00632078[8] = "*";
+const char D_00632088[8] = "format";
+const char D_00632090[8] = "chdir";
+const char D_00632098[8] = "getdir";
+const char D_006320A0[8] = "delete";
+const char D_006320A8[8] = "test";
