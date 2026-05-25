@@ -182,7 +182,27 @@ INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00141D18);
 
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00141E00);
 
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00141F58);
+extern char D_006A95B0[];
+extern void func_00141E00(char *p);
+extern void func_00141868(int a0, int a1);
+
+void func_00141F58(int a0, int a1)
+{
+    char *p = D_006A95B0;
+    char *end = D_006A95B0 + 0x300;
+    do {
+        if (*(int *)p != 0) {
+            if (*(unsigned short *)(p + 6) == a0) {
+                if (*(unsigned short *)(p + 4) == a1) {
+                    func_00141E00(p);
+                }
+            }
+        }
+        p += 0x30;
+    } while ((int)p < (int)end);
+    if (a1 == 2) return;
+    func_00141868(a0, a1);
+}
 
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00142008);
 
