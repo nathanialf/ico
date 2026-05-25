@@ -582,6 +582,36 @@ unsigned int D_006310F0 = 0x3A83126F;
 unsigned int D_006310F4 = 0x4B189680;
 unsigned int D_006310F8 = 0x3F4CCCCD;
 
+/* Inlined data (Phase 3e) — migrated from debug_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* pointer / address tables */
+void *D_004B3108[2] = { (void *)0x006328F0, (void *)0x006328E8 };
+void *D_004B3110[4] = { (void *)0x006158A0, (void *)0x00615890, (void *)0x00615880, (void *)0 };
+void *D_004B3278[6] = { (void *)0x00615AD8, (void *)0x00615AC0, (void *)0x00615AA0, (void *)0x00615A78, (void *)0, (void *)0 };
+void *D_004B3368[64] = { (void *)0, (void *)0x00632EC8, (void *)0, (void *)0x00632EC0, (void *)0, (void *)0x00632EB8, (void *)0, (void *)0x00632EB0, (void *)0, (void *)0x00632EA8, (void *)0, (void *)0x00632EA0, (void *)0, (void *)0x00632E98, (void *)0, (void *)0x00632E90, (void *)0, (void *)0x00632E88, (void *)0, (void *)0x00632E80, (void *)0, (void *)0x00632E78, (void *)0, (void *)0x00632E70, (void *)0, (void *)0x00632E68, (void *)0, (void *)0x00632E60, (void *)0, (void *)0x00632E58, (void *)0, (void *)0x00632E50, (void *)0, (void *)0x00632E48, (void *)0, (void *)0x00632E40, (void *)0, (void *)0x00632E38, (void *)0, (void *)0x00632E30, (void *)0, (void *)0x00632E28, (void *)0, (void *)0x00632E20, (void *)0, (void *)0x00632E18, (void *)0, (void *)0x00632E10, (void *)0, (void *)0x00632E08, (void *)0, (void *)0x00632E00, (void *)0, (void *)0x00632DF8, (void *)0, (void *)0x00632DF0, (void *)0, (void *)0x00632DE8, (void *)0, (void *)0x00632DE0, (void *)0, (void *)0x00632DD8, (void *)0, (void *)0x00632DD0 };
+void *D_004B3B28[16] = { (void *)0x001AE9A8, (void *)0x001AE9F0, (void *)0x0017B1F0, (void *)0x0017B1A8, (void *)0x001ADCB0, (void *)0x001ADC18, (void *)0x001AE258, (void *)0x001AE210, (void *)0x001AE308, (void *)0x001AE2C0, (void *)0x001A0F60, (void *)0x001A0EB8, (void *)0x00198428, (void *)0x00198430, (void *)0, (void *)0 };
+void *D_006156B8[12] = { (void *)0x00632B88, (void *)0x001A82B0, (void *)0x00632B90, (void *)0x001A80D0, (void *)0x00632B98, (void *)0x001A84F8, (void *)0x00632BA0, (void *)0x001AACA0, (void *)0x006156A8, (void *)0x001AAD88, (void *)0x00632BA8, (void *)0x001AAEA0 };
+void *D_00615848[10] = { (void *)0x00632C08, (void *)0x006EDF60, (void *)0x00632C10, (void *)0x006EDF64, (void *)0x00632C18, (void *)0x006EDF68, (void *)0x00632C50, (void *)0x00632C48, (void *)0, (void *)0 };
+
+/* misaligned arrays (scalar head + aligned tail) */
+unsigned int D_006329EC = 0x00000000;
+unsigned int D_006329F0[1] = { 0xFFFFFFFF };
+unsigned int D_00633854 = 0xFF7FFFFF;
+unsigned char D_00633858[4] = { 0 };
+
+/* C-referenced data (extern kept, def supplies bytes) */
+const char D_006329F8[8] = "e";
+const char D_00632A00[4] = "0";
+unsigned int D_00632A0C = 0xFFFFFFFF;
+int D_00632C90 = 0x00000000;
+int D_00632C94 = 0x00000000;
+int D_00632C98 = 0x00000000;
+int D_00632C9C = 0x00000000;
+int D_00632CA0 = 0x00000000;
+int D_00632D44 = 0x00000000;
+
 #include "include_asm.h"
 #include "matching.h"
 

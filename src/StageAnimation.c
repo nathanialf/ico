@@ -86,6 +86,18 @@ const char D_006124C8[48] = "object/sdf/demo/conte06/e3d6.smb";
 unsigned int D_00630A70 = 0x3FB504F3;
 unsigned int D_00630A74 = 0x3FB504F3;
 
+/* Inlined data (Phase 3e) — migrated from StageAnimation_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* pointer / address tables */
+void *D_00276240[2] = { (void *)0x00631D70, (void *)0x00631D68 };
+void *D_005559E8[2] = { (void *)0x00555B10, (void *)0x002751CC };
+
+/* misaligned arrays (scalar head + aligned tail) */
+unsigned int D_005559F4 = 0x00000080;
+unsigned int D_005559F8[28] = { 0x00555AF8, 0x002751E0, 0x00000000, 0x000000FF, 0x00555AE0, 0x002751E4, 0x00000000, 0x000000FF, 0x00555AC8, 0x002751E8, 0x00000000, 0x000000FF, 0x00555AB0, 0x002751D0, 0x00000000, 0x00000080, 0x00555A98, 0x002751D4, 0x00000000, 0x00000080, 0x00555A80, 0x002751D8, 0x00000000, 0x00000080, 0x00555A68, 0x002751DC, 0x00000000, 0x00000080 };
+
 #include "include_asm.h"
 #include "regpin.h"
 

@@ -251,6 +251,18 @@ unsigned char D_00632108[8] = { 0 };
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each
  * at its original VMA. See tools/inline_tu_data.py. */
 
+/* Inlined data (Phase 3e) — migrated from cdvd_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* misaligned arrays (scalar head + aligned tail) */
+unsigned int D_002751CC = 0x00000000;
+unsigned char D_002751D0[32] = { 0 };
+unsigned int D_005566A4 = 0x00000001;
+unsigned int D_005566A8[32] = { 0x00556798, 0x002751B0, 0x00000000, 0x000000FF, 0x00556788, 0x002751B4, 0x00000000, 0x000000FF, 0x00556778, 0x002751B8, 0x00000000, 0x000000FF, 0x00556768, 0x002751BC, 0x00000000, 0x000000FF, 0x00556758, 0x002751C0, 0x00000000, 0x000000FF, 0x00556748, 0x002751C4, 0x00000000, 0x000000FF, 0x00556738, 0x002751C8, 0x00000000, 0x000000FF, 0x00556728, 0x00275240, 0x00000000, 0x000000FF };
+unsigned int D_00564A6C = 0x6E6F6369;
+unsigned int D_00564A70[36] = { 0x6F63692F, 0x79732E6E, 0x00000073, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x000003C4, 0x6E6F6369, 0x796F622F, 0x6B6C625F, 0x6F63692E, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00017588, 0x6E6F6369, 0x796F622F, 0x6B6C625F, 0x6F63692E, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00017588, 0x6E6F6369, 0x796F622F, 0x6B6C625F, 0x6F63692E, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00017588, 0x00000000 };
+
 #include "include_asm.h"
 
 extern void func_0013A5B8(int *a0, int a1, int a2);

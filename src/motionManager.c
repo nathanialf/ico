@@ -865,6 +865,20 @@ unsigned int D_006313FC = 0x3F333333;
 unsigned int D_00631400 = 0x3F333333;
 unsigned int D_00631404 = 0x3F666666;
 
+/* Inlined data (Phase 3e) — migrated from motionManager_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* pointer / address tables */
+void *D_00619928[4] = { (void *)0x00633510, (void *)0x00633518, (void *)0x00633520, (void *)0x00633528 };
+
+/* misaligned arrays (scalar head + aligned tail) */
+unsigned int D_002752B4 = 0x00000000;
+unsigned char D_002752B8[1304] = { 0 };
+
+/* C-referenced data (extern kept, def supplies bytes) */
+int D_0063347C = 0x00000000;
+
 #include "include_asm.h"
 #include "matching.h"
 #include "regpin.h"

@@ -14,6 +14,14 @@
 /* scalars */
 unsigned int D_00633710 = 0x00000000;
 
+/* Inlined data (Phase 3e) — migrated from sugiTree_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* C-referenced data (extern kept, def supplies bytes) */
+int D_00633724 = 0x00000000;
+int D_00633728 = 0x00000000;
+
 #include "include_asm.h"
 #include "regpin.h"
 #include "matching.h"

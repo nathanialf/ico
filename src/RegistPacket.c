@@ -45,6 +45,16 @@ unsigned int D_00632CA4 = 0x00000000;
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each
  * at its original VMA. See tools/inline_tu_data.py. */
 
+/* Inlined data (Phase 3e) — migrated from RegistPacket_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* misaligned arrays (scalar head + aligned tail) */
+unsigned int D_005558AC = 0x00002000;
+unsigned int D_005558B0[12] = { 0xFFFFF7FC, 0xFFFFF7FC, 0x00001000, 0x00001000, 0xFFFFFBFC, 0xFFFFFBFC, 0x00000800, 0x00000800, 0xFFFFFDFC, 0xFFFFFDFC, 0x00000400, 0x00000400 };
+unsigned int D_005558EC = 0x00002000;
+unsigned int D_005558F0[12] = { 0x00000004, 0x00000004, 0x00001000, 0x00001000, 0x00000004, 0x00000004, 0x00000800, 0x00000800, 0x00000004, 0x00000004, 0x00000400, 0x00000400 };
+
 #include "include_asm.h"
 
 const char D_00555620[48] = "reg_setShape:illegal vertex index. %d/%d\n";

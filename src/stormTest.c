@@ -68,6 +68,13 @@ unsigned int D_00633730 = 0x00000000;
 
 unsigned int D_00633738 = 0x00000000;
 
+/* Inlined data (Phase 3e) — migrated from stormTest_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* C-referenced data (extern kept, def supplies bytes) */
+char D_0061A500[88] = "StandbyStreamMotion\244\254\270\306\244\320\244\354\244\306\244\336\244\273\244\363\241\243\272\306\300\270\244\317\244\265\244\354\244\336\244\273\244\363\244\307\244\267\244\277\241\243\n\000\000ADJUST %08x(%f)\n";
+
 #include "include_asm.h"
 #include "regpin.h"
 

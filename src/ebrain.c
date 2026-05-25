@@ -57,6 +57,13 @@ unsigned int D_00630F98 = 0x40490FDB;
 unsigned int D_00630F9C = 0x48742400;
 unsigned int D_00630FA0 = 0x48742400;
 
+/* Inlined data (Phase 3e) — migrated from ebrain_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* C-referenced data (extern kept, def supplies bytes) */
+int D_00632774 = 0x00000000;
+
 #include "include_asm.h"
 
 void func_00190698(char *self) {

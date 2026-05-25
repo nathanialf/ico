@@ -148,6 +148,20 @@ unsigned int D_00630A88 = 0x3727C5AC;
 unsigned int D_00630A8C = 0x3C23D70A;
 unsigned int D_00630A90 = 0xC4FFE000;
 
+/* Inlined data (Phase 3e) — migrated from Texture_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* pointer / address tables */
+void *D_002762B0[6] = { (void *)0x00631DC8, (void *)0x00631DC0, (void *)0x00631DB8, (void *)0x00631DB0, (void *)0x00631DA8, (void *)0x00631DA0 };
+void *D_002762C8[6] = { (void *)0x00631EE8, (void *)0x00631EE0, (void *)0x00631ED8, (void *)0x00631ED0, (void *)0x00631EC8, (void *)0x00631EC0 };
+void *D_002762E0[4] = { (void *)0x00631F08, (void *)0x00631F00, (void *)0x00631EF8, (void *)0x00631EF0 };
+void *D_002762F0[2] = { (void *)0x00631F18, (void *)0x00631F10 };
+
+/* misaligned arrays (scalar head + aligned tail) */
+unsigned int D_0027525C = 0x00000000;
+unsigned char D_00275260[76] = { 0 };
+
 #include "include_asm.h"
 
 extern void func_001FBAA8(int a0, int a1, int a2);

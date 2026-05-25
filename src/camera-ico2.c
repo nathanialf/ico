@@ -154,6 +154,13 @@ unsigned int D_00630F8C = 0x40490FDB;
 unsigned int D_00630F90 = 0xBE4CCCCD;
 unsigned int D_00630F94 = 0x3DCCCCCD;
 
+/* Inlined data (Phase 3e) — migrated from camera-ico2_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* pointer / address tables */
+void *D_002810B0[8] = { (void *)0x005575E0, (void *)0x00632138, (void *)0x005575D0, (void *)0x00632130, (void *)0x00632130, (void *)0x00632128, (void *)0x00632120, (void *)0x00632118 };
+
 #include "include_asm.h"
 #include "regpin.h"
 

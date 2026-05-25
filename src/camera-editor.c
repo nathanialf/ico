@@ -214,6 +214,18 @@ unsigned int D_006326E0 = 0x3F800000;
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each
  * at its original VMA. See tools/inline_tu_data.py. */
 
+/* Inlined data (Phase 3e) — migrated from camera-editor_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* misaligned arrays (scalar head + aligned tail) */
+unsigned int D_002752AC = 0x00000000;
+unsigned char D_002752B0[4] = { 0 };
+unsigned int D_0028AC0C = 0x00000003;
+unsigned int D_0028AC10[20] = { 0x00000001, 0x00000003, 0x00000005, 0x00000007, 0x00000002, 0x00000003, 0x00000006, 0x00000007, 0x00000000, 0x00000002, 0x00000004, 0x00000006, 0x00000005, 0x00000004, 0x00000007, 0x00000006, 0x00000001, 0x00000000, 0x00000005, 0x00000004 };
+unsigned int D_0028AD0C = 0x00000007;
+unsigned int D_0028AD10[20] = { 0x00000001, 0x00000000, 0x00000005, 0x00000004, 0x00000001, 0x00000003, 0x00000005, 0x00000007, 0x00000000, 0x00000002, 0x00000004, 0x00000006, 0x00000005, 0x00000004, 0x00000007, 0x00000006, 0x00000000, 0x00000001, 0x00000002, 0x00000003 };
+
 #include "include_asm.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", func_00182D20);

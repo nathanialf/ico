@@ -134,6 +134,15 @@ const char D_00633740[8] = " %d%%";
 " */
 unsigned int D_00633748 = 0x00000000;
 
+/* Inlined data (Phase 3e) — migrated from streamMotionManager_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* C-referenced data (extern kept, def supplies bytes) */
+int D_00633708 = 0x00000000;
+int D_0063370C = 0x00000000;
+unsigned int D_0063373C = 0x00000001;
+
 #include "include_asm.h"
 
 extern int D_00632010;

@@ -259,6 +259,14 @@ unsigned int D_00630C3C = 0x3F490FDB;
 unsigned int D_00630C40 = 0x40490FDB;
 unsigned int D_00630C44 = 0x3E4CCCCD;
 
+/* Inlined data (Phase 3e) — migrated from boyact_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* misaligned arrays (scalar head + aligned tail) */
+unsigned int D_004C5254 = 0x00000000;
+unsigned char D_004C5258[2120] = { 0 };
+
 #include "include_asm.h"
 #include "matching.h"
 #include "regpin.h"

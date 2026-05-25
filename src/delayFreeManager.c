@@ -323,6 +323,13 @@ unsigned int D_006309BC = 0x3FC90FDB;
 unsigned int D_006309C0 = 0x46800200;
 unsigned int D_006309C4 = 0x4622F983;
 
+/* Inlined data (Phase 3e) — migrated from delayFreeManager_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* pointer / address tables */
+void *D_00553888[6] = { (void *)0x00636A80, (void *)0x0063CAF0, (void *)0x0063DB60, (void *)0x0063FBD0, (void *)0x0065AC40, (void *)0x0065CCB0 };
+
 #include "include_asm.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/delayFreeManager", func_00102558);

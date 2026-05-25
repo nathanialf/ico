@@ -207,7 +207,7 @@ def parse_sidecar(sidecar_path: Path):
 
 class Result:
     __slots__ = ("sym", "vma", "sect", "size", "category", "action",
-                 "reason", "lines", "euc")
+                 "reason", "lines", "euc", "keep_extern")
 
     def __init__(self, sym, vma, sect, size):
         self.sym = sym
@@ -219,6 +219,7 @@ class Result:
         self.reason = ""
         self.lines: list[str] = []
         self.euc: str | None = None
+        self.keep_extern = False  # c-ref defs keep their extern (DmaPacket)
 
 
 def _c_string_literal(data: bytes) -> tuple[str, str | None]:
@@ -291,6 +292,79 @@ def _looks_like_address_table(data: bytes) -> bool:
     return all(0x00100000 <= w < 0x00700000 for w in nonzero)
 
 
+# Existing `extern` declaration shapes for a D_ symbol, used to emit a
+# type-matched def that KEEPS the extern (DmaPacket pattern) so ee-gcc's
+# addressing decision at reference sites is unchanged → .text identical.
+_EXT_FUNCPTR = re.compile(
+    r'extern\s+(?P<ret>[A-Za-z_][\w\s\*]*?)\(\s*\*\s*(?P<sym>D_[0-9A-Fa-f]{8})\s*\)'
+    r'\s*\((?P<args>[^)]*)\)\s*;'
+)
+_EXT_OBJ = re.compile(
+    r'extern\s+(?P<pre>(?:const\s+)?(?:unsigned\s+|signed\s+)?'
+    r'(?:char|short|int|long|float|double|void)(?:\s*\*)*)\s*'
+    r'(?P<sym>D_[0-9A-Fa-f]{8})\s*(?P<arr>\[[^\]]*\])?\s*;'
+)
+
+
+def emit_cref(sym: str, data: bytes, decl: str, mf) -> list[str] | None:
+    """Emit a def for a C-referenced symbol that matches its existing
+    `extern` declaration `decl` (which the caller keeps). Returns the def
+    lines, or None if the shape isn't safely representable (caller skips).
+    The extern fixes the addressing; this only supplies bytes."""
+    size = len(data)
+    m = _EXT_FUNCPTR.match(decl.strip())
+    if m:  # function pointer: extern RET (*D_X)(ARGS);
+        if size != 4:
+            return None
+        w = int.from_bytes(data, "little")
+        ret, args = m.group("ret").strip(), m.group("args").strip()
+        named = _resolve_word_as_pointer(w, mf) if mf else None
+        val = (named[1:] if named and named.startswith("&") else
+               f"({ret} (*)({args}))0x{w:08X}")
+        return [f"{ret} (*{sym})({args}) = {val};"]
+    m = _EXT_OBJ.match(decl.strip())
+    if not m:
+        return None
+    pre = " ".join(m.group("pre").split())   # normalize spacing
+    is_ptr = "*" in pre
+    is_array = m.group("arr") is not None
+    base = pre.replace("*", "").replace("const", "").strip()  # char/int/...
+
+    def _ptr_elem(w):
+        named = _resolve_word_as_pointer(w, mf) if mf else None
+        if w == 0:
+            return f"({pre})0"
+        return (named[1:] if named and named.startswith("&")
+                else f"({pre})0x{w:08X}")
+
+    if not is_array:  # scalar
+        if size > 4:
+            return None
+        w = int.from_bytes(data, "little")
+        if is_ptr:
+            return [f"{pre} {sym} = {_ptr_elem(w)};"]
+        return [f"{pre} {sym} = 0x{w:0{size * 2}X};"]
+    # array
+    if is_ptr:                       # pointer array
+        if size % 4:
+            return None
+        words = [int.from_bytes(data[i:i + 4], "little") for i in range(0, size, 4)]
+        elems = ", ".join(_ptr_elem(w) for w in words)
+        return [f"{pre} {sym}[{len(words)}] = {{ {elems} }};"]
+    if base == "char":               # char[] — only if it's a string
+        if not _looks_like_string(data):
+            return None
+        lit, _ = _c_string_literal(data)
+        return [f"{pre} {sym}[{size}] = {lit};"]
+    esz = {"short": 2, "int": 4, "long": 4, "float": 4}.get(base)
+    if esz is None or size % esz:
+        return None
+    n = size // esz
+    vals = [int.from_bytes(data[i:i + esz], "little") for i in range(0, size, esz)]
+    elems = ", ".join(f"0x{v:0{esz * 2}X}" for v in vals)
+    return [f"{pre} {sym}[{n}] = {{ {elems} }};"]
+
+
 def _emit_array_value(sym: str, data: bytes) -> tuple[str, list[str], str | None]:
     """Lines for an 8-aligned array def. Returns (category, lines, euc).
     Empty lines ⇒ couldn't represent (caller skips as opaque)."""
@@ -324,7 +398,8 @@ def _emit_array_value(sym: str, data: bytes) -> tuple[str, list[str], str | None
 
 def classify(sym: str, vma: int, sect: str, data: bytes,
              c_refs: set[str], inc_externs: set[str],
-             asm_gprel: set[str]) -> Result:
+             asm_gprel: set[str], extern_decls: dict[str, str],
+             mf, no_cref: bool = False) -> Result:
     r = Result(sym, vma, sect, len(data))
     size = len(data)
 
@@ -340,29 +415,61 @@ def classify(sym: str, vma: int, sect: str, data: bytes,
         r.reason = "%gp_rel in TU asm + >8 B (ee-as pseudo would flip)"
         return r
 
-    # Declared extern in an included .c.inc fragment (hand-matched code):
-    # inlining the def into this TU would clash with the fragment's extern
-    # type. Leave it in the sidecar's separate .o.
-    if sym in inc_externs:
-        r.category = "inc-extern"
-        r.reason = "extern in included .c.inc (type-conflict risk)"
+    # .lit4 floats: emit with an explicit `.lit4.0xVMA` attribute (the
+    # documented lit4 survivor form — ee-gcc has no automatic .lit4
+    # placement). Keeping a real `.lit4` input section is also required by
+    # the slinky pipeline (an empty lit4 segment crashes slinky-cli with
+    # EmptyValue). Byte-exact via the raw bits as unsigned int (avoids
+    # float-literal round-trip risk). Scalars are .align 2 (safe at any
+    # 4-aligned VMA); float arrays are 8-aligned in practice.
+    if sect == ".lit4":
+        # A lit4 float referenced by C: emitting the def in-TU (even
+        # attr-pinned) can flip the reference gp_rel↔absolute → .text
+        # change. Leave those in the sidecar (it still provides a .lit4
+        # input section, so the slinky segment stays non-empty).
+        if sym in c_refs:
+            r.category = "lit4"
+            r.reason = "lit4 referenced by C (kept in sidecar)"
+            return r
+        attr = f'__attribute__((section(".lit4.0x{vma:08X}")))'
+        if size == 4:
+            w = int.from_bytes(data, "little")
+            r.lines = [f"{attr} unsigned int {sym} = 0x{w:08X};"]
+            r.category, r.action = "lit4", "emit"
+            return r
+        if size % 4 == 0:
+            words = [int.from_bytes(data[i:i + 4], "little")
+                     for i in range(0, size, 4)]
+            parts = ", ".join(f"0x{w:08X}" for w in words)
+            r.lines = [f"{attr} unsigned int {sym}[{len(words)}] = {{ {parts} }};"]
+            r.category, r.action = "lit4", "emit"
+            return r
+        r.category = "lit4"
+        r.reason = f"lit4 odd size {size}"
         return r
 
-    # Symbol referenced by an ee-gcc-compiled C body in THIS TU → leave it
-    # in the sidecar's separate .o. Colocating the def changes what the
-    # compiler sees at the reference site (extern vs local def), which can
-    # change the addressing it emits — gp_rel vs absolute lui+addiu differ
-    # in INSTRUCTION COUNT (1 vs 2), so the referencing function's code
-    # size shifts, moving .text end → _gp → every gp_rel offset (total
-    # SHA divergence), and small non-.sdata symbols additionally hit
-    # "relocation truncated to fit R_MIPS_GPREL16". Size doesn't bound the
-    # risk. Asm (INCLUDE_ASM) references are immune: their instructions are
-    # pre-written and fixed; ee-as just resolves the symbol locally to the
-    # same bytes. So the safe boundary is: never inline a C-referenced
-    # symbol; only asm-referenced / unreferenced data migrates.
-    if sym in c_refs:
-        r.category = "c-ref"
-        r.reason = "referenced by tracked C body (codegen-size risk)"
+    # Symbol referenced by an ee-gcc-compiled C body in THIS TU (the `.c`
+    # OR an included `.c.inc`). Naively colocating the def would change
+    # what the compiler sees at the reference site (extern vs local def)
+    # and could flip gp_rel↔absolute (1 vs 2 insns) → .text shift →
+    # whole-binary SHA break. The DmaPacket fix: KEEP the existing extern
+    # (which is what decides addressing) and add a type-matched def that
+    # only supplies bytes — ee-gcc's view at reference sites is unchanged,
+    # so .text stays identical. Requires a parseable extern to match; if
+    # we can't represent the def for that type, leave it in the sidecar.
+    if sym in c_refs or sym in inc_externs:
+        decl = extern_decls.get(sym)
+        lines = (emit_cref(sym, data, decl, mf)
+                 if decl and not no_cref else None)
+        if lines:
+            r.category = "c-ref"
+            r.action = "emit"
+            r.keep_extern = True
+            r.lines = lines
+            return r
+        r.category = "c-ref" if sym in c_refs else "inc-extern"
+        r.reason = ("no parseable extern to match (kept in sidecar)" if decl is None
+                    else "extern type not safely representable")
         return r
 
     is_array = size > 4
@@ -567,6 +674,9 @@ def main() -> int:
                     help="print the classification table, change nothing")
     ap.add_argument("--sections", nargs="+",
                     help="restrict to these sections, e.g. --sections .data .rodata")
+    ap.add_argument("--no-cref", action="store_true",
+                    help="leave C-referenced symbols in the sidecar (use for TUs "
+                         "where keep-extern still flips addressing → .text change)")
     args = ap.parse_args()
 
     tu_path = REPO / args.tu
@@ -591,6 +701,19 @@ def main() -> int:
     c_refs = c_referenced(tu_c_text, inc_text, set(all_bytes))
     inc_externs = inc_extern_symbols(tu_path, tu_c_text)
     asm_gprel = asm_gprel_symbols(tu_path, tu_c_text, inc_text)
+    mf = _load_map()
+    # Existing extern declarations (in the .c only — we keep these in
+    # place for c-ref defs; .inc externs belong to hand-matched code we
+    # don't touch, and emit_cref matches them via the same decl text).
+    extern_decls: dict[str, str] = {}
+    _ext_line = re.compile(r'^\s*(extern\b[^;]*\bD_[0-9A-Fa-f]{8}\b[^;]*;)\s*$',
+                           re.MULTILINE)
+    for src in (tu_c_text, inc_text):
+        for m in _ext_line.finditer(src):
+            decl = m.group(1)
+            sm = re.search(r'(D_[0-9A-Fa-f]{8})', decl)
+            if sm and sm.group(1) not in extern_decls:
+                extern_decls[sm.group(1)] = decl
 
     results: list[Result] = []
     # void* pointer tables: always skipped, but surface them in the table.
@@ -611,7 +734,7 @@ def main() -> int:
         if sect_filter and sect not in sect_filter:
             continue
         results.append(classify(sym, vma, sect, data, c_refs, inc_externs,
-                                 asm_gprel))
+                                 asm_gprel, extern_decls, mf, args.no_cref))
 
     emit = [r for r in results if r.action == "emit"]
     skip = [r for r in results if r.action == "skip"]
@@ -653,13 +776,22 @@ def main() -> int:
               f"({len(skip)} skipped, {len(inline_already)} already inline)")
         return 0
 
-    # --- Build the migration block, grouped by category ---
+    # --- Build the migration block, grouped by category (every emit
+    # category must be listed here, else its defs are silently dropped). ---
     GROUPS = [
         ("scalar", "scalars"),
         ("all-zero", "zero-filled buffers"),
         ("string", "strings"),
         ("word-array", "numeric word tables"),
+        ("pointer-table", "pointer / address tables"),
+        ("misaligned-split", "misaligned arrays (scalar head + aligned tail)"),
+        ("c-ref", "C-referenced data (extern kept, def supplies bytes)"),
+        ("lit4", "lit4 floats (section-pinned, raw bits)"),
     ]
+    known = {c for c, _ in GROUPS}
+    leftover = sorted({r.category for r in emit} - known)
+    for c in leftover:
+        GROUPS.append((c, c))
     block: list[str] = [
         f"/* Inlined data (Phase 3e) — migrated from {tu_path.stem}_data.c.",
         " * Plain typed defs; ee-gcc -fdata-sections + slinky place each",
@@ -677,8 +809,11 @@ def main() -> int:
             block.extend(r.lines)
     block.append("")
 
-    # --- Remove conflicting extern declarations for migrated symbols ---
-    migrated_syms = {r.sym for r in emit}
+    # --- Remove conflicting extern declarations for migrated symbols,
+    # EXCEPT c-ref defs (keep_extern): those rely on the extern staying
+    # in place so ee-gcc's addressing at reference sites is unchanged. ---
+    keep_extern_syms = {r.sym for r in emit if r.keep_extern}
+    migrated_syms = {r.sym for r in emit} - keep_extern_syms
     lines = tu_c_text.splitlines()
     kept: list[str] = []
     extern_decl = re.compile(

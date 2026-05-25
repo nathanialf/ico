@@ -300,6 +300,17 @@ unsigned int D_0063146C = 0x45992000;
 unsigned int D_00631470 = 0x46AFC800;
 unsigned int D_00631474 = 0x463D1000;
 
+/* Inlined data (Phase 3e) — migrated from weapon_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* pointer / address tables */
+void *D_004C74F0[48] = { (void *)0x004C6F40, (void *)0x004C6EC0, (void *)0x004C7120, (void *)0x004C71B0, (void *)0x004C71D0, (void *)0x004C7210, (void *)0x004C7260, (void *)0x004C72A0, (void *)0x004C7340, (void *)0x004C73D0, (void *)0x004C7400, (void *)0x004C7490, (void *)0x004C6EC0, (void *)0x004C6EC0, (void *)0x004C6EC0, (void *)0x004C6EC0, (void *)0x004C6EC0, (void *)0x004C6EC0, (void *)0x004C6D10, (void *)0x004C6780, (void *)0x004C67C0, (void *)0x004C6850, (void *)0x004C68D0, (void *)0x004C6940, (void *)0x004C6990, (void *)0x004C69D0, (void *)0x004C6A70, (void *)0x004C6AB0, (void *)0x004C6AD0, (void *)0x004C6B20, (void *)0x004C6B60, (void *)0x004C6B90, (void *)0x004C6BE0, (void *)0x004C6C20, (void *)0x004C6CB0, (void *)0x004C6D10, (void *)0x004C6DB0, (void *)0x004C6E20, (void *)0x004C6F60, (void *)0x004C6F90, (void *)0x004C6FF0, (void *)0x004C7020, (void *)0x004C70B0, (void *)0x004C7070, (void *)0x004C70E0, (void *)0, (void *)0, (void *)0 };
+
+/* misaligned arrays (scalar head + aligned tail) */
+unsigned int D_005F3084 = 0x00000000;
+unsigned int D_005F3088[16] = { 0x00000000, 0x00000000, 0x3F800000, 0x3F800000, 0x3F800000, 0x42380000, 0x42400000, 0x42480000, 0x42200000, 0x42180000, 0x42100000, 0x41200000, 0xC1200000, 0x00000000, 0x00000000, 0x00000000 };
+
 #include "include_asm.h"
 #include "matching.h"
 #include "regpin.h"
