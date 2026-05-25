@@ -14,10 +14,18 @@
 
 /* __FILE__ anchor + neighboring debug strings — migrated out of
  * src/girl_brain_attract.c's D_00559770[96] packed blob. */
-__attribute__((section(".rodata.0x00559780"))) const char D_00559780[16] = "src/girl_act.c";
-__attribute__((section(".rodata.0x00559790"))) const char D_00559790[16] = "NOTARGET";
-__attribute__((section(".rodata.0x005597A0"))) const char D_005597A0[24] = "[%s] %4d %4d %4d";
-__attribute__((section(".rodata.0x005597B8"))) const char D_005597B8[24] = "delete wg 2\n";
+const char D_00559780[16] = "src/girl_act.c";
+const char D_00559790[16] = "NOTARGET";
+const char D_005597A0[24] = "[%s] %4d %4d %4d";
+const char D_005597B8[24] = "delete wg 2\n";
+
+/* Inlined data (Phase 3e) — migrated from girl_act_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* numeric word tables */
+unsigned int D_00632520[2] = { 0x80808080, 0x00000000 };
+unsigned int D_00632528[8] = { 0x00000030, 0x00000000, 0x0064253E, 0x00000000, 0x00642520, 0x00000000, 0x0000000A, 0x00000000 };
 
 #include "include_asm.h"
 #include "matching.h"

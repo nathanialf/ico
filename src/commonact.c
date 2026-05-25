@@ -17,43 +17,55 @@
  * asm-generated and sidecar definitions.
  */
 
-__attribute__((section(".lit4.0x00630C4C"))) float D_00630C4C = 0.3f;
-__attribute__((section(".lit4.0x00630C50"))) float D_00630C50 = 0.3f;
-__attribute__((section(".lit4.0x00630C54"))) float D_00630C54 = 0.1f;
-__attribute__((section(".lit4.0x00630C58"))) float D_00630C58 = 10000.0f;
-__attribute__((section(".lit4.0x00630C5C"))) float D_00630C5C = 0.005f;
-__attribute__((section(".lit4.0x00630C60"))) float D_00630C60 = 90000.0f;
-__attribute__((section(".lit4.0x00630C64"))) float D_00630C64 = 0.05f;
-__attribute__((section(".lit4.0x00630C68"))) float D_00630C68 = 0.005f;
-__attribute__((section(".lit4.0x00630C6C"))) float D_00630C6C = 360000.0f;
-__attribute__((section(".lit4.0x00630C70"))) float D_00630C70 = 10000.0f;
-__attribute__((section(".lit4.0x00630C74"))) float D_00630C74 = 0.005f;
-__attribute__((section(".lit4.0x00630C78"))) float D_00630C78 = 0.92f;
-__attribute__((section(".lit4.0x00630C7C"))) float D_00630C7C = 3.14159274f;
-__attribute__((section(".lit4.0x00630C80"))) float D_00630C80 = 3.14159274f;
-__attribute__((section(".lit4.0x00630C84"))) float D_00630C84 = 0.1f;
-__attribute__((section(".lit4.0x00630C88"))) float D_00630C88 = 0.1f;
-__attribute__((section(".lit4.0x00630C8C"))) float D_00630C8C = 0.1f;
-__attribute__((section(".lit4.0x00630C90"))) float D_00630C90 = 0.1f;
-__attribute__((section(".lit4.0x00630C94"))) float D_00630C94 = 0.1f;
-__attribute__((section(".lit4.0x00630C98"))) float D_00630C98 = 0.99f;
-__attribute__((section(".lit4.0x00630C9C"))) float D_00630C9C = 0.1f;
-__attribute__((section(".lit4.0x00630CA0"))) float D_00630CA0 = 0.99f;
-__attribute__((section(".lit4.0x00630CA4"))) float D_00630CA4 = 0.1f;
-__attribute__((section(".lit4.0x00630CA8"))) float D_00630CA8 = 0.1f;
-__attribute__((section(".lit4.0x00630CAC"))) float D_00630CAC = 0.99f;
-__attribute__((section(".lit4.0x00630CB0"))) float D_00630CB0 = 0.1f;
-__attribute__((section(".lit4.0x00630CB4"))) float D_00630CB4 = 0.99f;
-__attribute__((section(".lit4.0x00630CB8"))) float D_00630CB8 = -1.57079637f;
-__attribute__((section(".lit4.0x00630CBC"))) float D_00630CBC = 4225.0f;
-__attribute__((section(".lit4.0x00630CC0"))) float D_00630CC0 = 0.2f;
-__attribute__((section(".lit4.0x00630CC4"))) float D_00630CC4 = 0.2f;
-__attribute__((section(".lit4.0x00630CC8"))) float D_00630CC8 = 0.1f;
-__attribute__((section(".lit4.0x00630CCC"))) float D_00630CCC = 0.2f;
-__attribute__((section(".lit4.0x00630CD0"))) float D_00630CD0 = 0.1f;
-__attribute__((section(".lit4.0x00630CD4"))) float D_00630CD4 = 3.14159274f;
-__attribute__((section(".lit4.0x00630CD8"))) float D_00630CD8 = 0.1f;
-__attribute__((section(".lit4.0x00630CDC"))) float D_00630CDC = 3.14159274f;
+const char D_00558860[16] = "src/commonact.c";
+const char D_00558870[16] = "ROPE_GOBJ!=NULL";
+const char D_00558920[64] = "index>=ClingDataID_cling_start && index<ClingDataID_cling_end";
+const char D_00558AC0[24] = "EMERGENCY BY NOMOVE";
+const char D_00558AD8[24] = "EMERGENCY BY TIMEOUT";
+const char D_00558AF0[32] = "EMERGENCY BY DANGER LOOP";
+const char D_00558D90[24] = "girl becarry error";
+const char D_00558DC0[16] = "IRREGULAR";
+const char D_00558DD0[16] = "BODYSLAM";
+const char D_00558DE0[16] = "SHOULDER";
+const char D_00558DF0[16] = "BODYGUARD";
+const char D_00558E00[16] = "FIND_GIRL";
+float D_00630C4C = 0.3f;
+float D_00630C50 = 0.3f;
+float D_00630C54 = 0.1f;
+float D_00630C58 = 10000.0f;
+float D_00630C5C = 0.005f;
+float D_00630C60 = 90000.0f;
+float D_00630C64 = 0.05f;
+float D_00630C68 = 0.005f;
+float D_00630C6C = 360000.0f;
+float D_00630C70 = 10000.0f;
+float D_00630C74 = 0.005f;
+float D_00630C78 = 0.92f;
+float D_00630C7C = 3.14159274f;
+float D_00630C80 = 3.14159274f;
+float D_00630C84 = 0.1f;
+float D_00630C88 = 0.1f;
+float D_00630C8C = 0.1f;
+float D_00630C90 = 0.1f;
+float D_00630C94 = 0.1f;
+float D_00630C98 = 0.99f;
+float D_00630C9C = 0.1f;
+float D_00630CA0 = 0.99f;
+float D_00630CA4 = 0.1f;
+float D_00630CA8 = 0.1f;
+float D_00630CAC = 0.99f;
+float D_00630CB0 = 0.1f;
+float D_00630CB4 = 0.99f;
+float D_00630CB8 = -1.57079637f;
+float D_00630CBC = 4225.0f;
+float D_00630CC0 = 0.2f;
+float D_00630CC4 = 0.2f;
+float D_00630CC8 = 0.1f;
+float D_00630CCC = 0.2f;
+float D_00630CD0 = 0.1f;
+float D_00630CD4 = 3.14159274f;
+float D_00630CD8 = 0.1f;
+float D_00630CDC = 3.14159274f;
 unsigned int D_00632300 = 0x7F7FFFFF;
 unsigned int D_00632304 = 0x7F7FFFFF;
 const char D_00632308[8] = "%1.1f ";
@@ -117,20 +129,6 @@ int D_00633124 = 0;
 int D_00633128 = 0;
 unsigned int D_0063312C = 0x000000FF;
 int D_00633130 = 0;
-
-__attribute__((section(".rodata.0x00558860"))) const char D_00558860[16] = "src/commonact.c";
-
-__attribute__((section(".rodata.0x00558870"))) const char D_00558870[16] = "ROPE_GOBJ!=NULL";
-__attribute__((section(".rodata.0x00558920"))) const char D_00558920[64] = "index>=ClingDataID_cling_start && index<ClingDataID_cling_end";
-__attribute__((section(".rodata.0x00558AC0"))) const char D_00558AC0[24] = "EMERGENCY BY NOMOVE";
-__attribute__((section(".rodata.0x00558AD8"))) const char D_00558AD8[24] = "EMERGENCY BY TIMEOUT";
-__attribute__((section(".rodata.0x00558AF0"))) const char D_00558AF0[32] = "EMERGENCY BY DANGER LOOP";
-__attribute__((section(".rodata.0x00558D90"))) const char D_00558D90[24] = "girl becarry error";
-__attribute__((section(".rodata.0x00558DC0"))) const char D_00558DC0[16] = "IRREGULAR";
-__attribute__((section(".rodata.0x00558DD0"))) const char D_00558DD0[16] = "BODYSLAM";
-__attribute__((section(".rodata.0x00558DE0"))) const char D_00558DE0[16] = "SHOULDER";
-__attribute__((section(".rodata.0x00558DF0"))) const char D_00558DF0[16] = "BODYGUARD";
-__attribute__((section(".rodata.0x00558E00"))) const char D_00558E00[16] = "FIND_GIRL";
 
 #include "matching.h"
 
@@ -473,49 +471,47 @@ void func_0016AC20(int *self) {
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0016AC50);
 
 /* String rodata migrated from commonact_data.c */
-__attribute__((section(".rodata.0x00558848"))) const char D_00558848[24] = "common rope after func\n";
-__attribute__((section(".rodata.0x00558880"))) const char D_00558880[32] = "enter actCommonRope\n";
-__attribute__((section(".rodata.0x005588C0"))) const char D_005588C0[24] = "enter actCommonPlay\n";
-__attribute__((section(".rodata.0x005588D8"))) const char D_005588D8[24] = "enter actCommonDamage\n";
-__attribute__((section(".rodata.0x005588F0"))) const char D_005588F0[24] = "enter actCommonDown\n";
-__attribute__((section(".rodata.0x00558908"))) const char D_00558908[24] = "enter actCommonDie\n";
-__attribute__((section(".rodata.0x00558960"))) const char D_00558960[24] = "enter actCommonRevive\n";
-__attribute__((section(".rodata.0x00558978"))) const char D_00558978[16] = "count =(%d)\n";
-__attribute__((section(".rodata.0x00558988"))) const char D_00558988[16] = "level =(%d)\n";
-__attribute__((section(".rodata.0x00558998"))) const char D_00558998[16] = "0x%8x -> 0x%8x\n";
-__attribute__((section(".rodata.0x00558A90"))) const char D_00558A90[48] = "EMERGENCY COMPLETE CHECK : SPEEDSQ:%f LENSQ:%f\n";
-__attribute__((section(".rodata.0x00558B10"))) const char D_00558B10[40] = "EMERGENCY CHECK %d(%d): MAX: %f\n";
-__attribute__((section(".rodata.0x00558B80"))) const char D_00558B80[32] = "enter actCommonCliffdown\n";
-__attribute__((section(".rodata.0x00558BA0"))) const char D_00558BA0[16] = "act main shoal\n";
-__attribute__((section(".rodata.0x00558BB0"))) const char D_00558BB0[24] = "enter actCommonSwim\n";
-__attribute__((section(".rodata.0x00558BC8"))) const char D_00558BC8[24] = "enter actCommonDodge\n";
-__attribute__((section(".rodata.0x00558BE0"))) const char D_00558BE0[24] = "enter actCommonGuard\n";
-__attribute__((section(".rodata.0x00558BF8"))) const char D_00558BF8[32] = "enter motCommonHang None\n";
-__attribute__((section(".rodata.0x00558C18"))) const char D_00558C18[32] = "enter motCommonHang Wall\n";
-__attribute__((section(".rodata.0x00558C38"))) const char D_00558C38[32] = "enter motCommonHang Cliff\n";
-__attribute__((section(".rodata.0x00558C58"))) const char D_00558C58[24] = "enter motCommonNull\n";
-__attribute__((section(".rodata.0x00558C70"))) const char D_00558C70[24] = "ready begin %s to %s\n";
-__attribute__((section(".rodata.0x00558C88"))) const char D_00558C88[24] = "ready end %s to %s\n";
-__attribute__((section(".rodata.0x00558CA0"))) const char D_00558CA0[24] = "exec end %s to %s\n";
-__attribute__((section(".rodata.0x00558CB8"))) const char D_00558CB8[24] = "????error %s to %s\n";
-__attribute__((section(".rodata.0x00558CD0"))) const char D_00558CD0[16] = " ori  = [%s]\n";
-__attribute__((section(".rodata.0x00558CE0"))) const char D_00558CE0[16] = " mot  = [%s]\n";
-__attribute__((section(".rodata.0x00558CF0"))) const char D_00558CF0[16] = " mode = [%s]\n";
-__attribute__((section(".rodata.0x00558D00"))) const char D_00558D00[16] = "frame = [%f]\n";
-__attribute__((section(".rodata.0x00558D10"))) const char D_00558D10[16] = "maxry = [%d]\n";
-__attribute__((section(".rodata.0x00558D20"))) const char D_00558D20[16] = " file = [%s]\n";
-__attribute__((section(".rodata.0x00558D30"))) const char D_00558D30[16] = " life = [%d]\n";
-__attribute__((section(".rodata.0x00558D40"))) const char D_00558D40[24] = "   dw = [%d] [%d]\n";
-__attribute__((section(".rodata.0x00558D58"))) const char D_00558D58[24] = "   dc = [%d] [%d]\n";
-__attribute__((section(".rodata.0x00558D70"))) const char D_00558D70[16] = "wattr = [%x]\n";
-__attribute__((section(".rodata.0x00558D80"))) const char D_00558D80[16] = "bttype= [%d]\n";
-__attribute__((section(".rodata.0x00558DA8"))) const char D_00558DA8[16] = "timer=%2d/%2d\n";
-
-/* Float rodata migrated from commonact_data.c */
-__attribute__((section(".rodata.0x005588A0"))) const float D_005588A0[4] = { 0.0f, 0.0f, -2e+01f, 1.0f };
-__attribute__((section(".rodata.0x005588B0"))) const float D_005588B0[4] = { 0.0f, 0.0f, 2e+01f, 1.0f };
-__attribute__((section(".rodata.0x005589D0"))) const float D_005589D0[48] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 5e+01f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
-__attribute__((section(".rodata.0x00558DB8"))) const float D_00558DB8[2] = { 4.172325e-08f, 1.65f };
+const char D_00558848[24] = "common rope after func\n";
+const char D_00558880[32] = "enter actCommonRope\n";
+const float D_005588A0[4] = { 0.0f, 0.0f, -2e+01f, 1.0f };
+const float D_005588B0[4] = { 0.0f, 0.0f, 2e+01f, 1.0f };
+const char D_005588C0[24] = "enter actCommonPlay\n";
+const char D_005588D8[24] = "enter actCommonDamage\n";
+const char D_005588F0[24] = "enter actCommonDown\n";
+const char D_00558908[24] = "enter actCommonDie\n";
+const char D_00558960[24] = "enter actCommonRevive\n";
+const char D_00558978[16] = "count =(%d)\n";
+const char D_00558988[16] = "level =(%d)\n";
+const char D_00558998[16] = "0x%8x -> 0x%8x\n";
+const float D_005589D0[48] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 5e+01f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+const char D_00558A90[48] = "EMERGENCY COMPLETE CHECK : SPEEDSQ:%f LENSQ:%f\n";
+const char D_00558B10[40] = "EMERGENCY CHECK %d(%d): MAX: %f\n";
+const char D_00558B80[32] = "enter actCommonCliffdown\n";
+const char D_00558BA0[16] = "act main shoal\n";
+const char D_00558BB0[24] = "enter actCommonSwim\n";
+const char D_00558BC8[24] = "enter actCommonDodge\n";
+const char D_00558BE0[24] = "enter actCommonGuard\n";
+const char D_00558BF8[32] = "enter motCommonHang None\n";
+const char D_00558C18[32] = "enter motCommonHang Wall\n";
+const char D_00558C38[32] = "enter motCommonHang Cliff\n";
+const char D_00558C58[24] = "enter motCommonNull\n";
+const char D_00558C70[24] = "ready begin %s to %s\n";
+const char D_00558C88[24] = "ready end %s to %s\n";
+const char D_00558CA0[24] = "exec end %s to %s\n";
+const char D_00558CB8[24] = "????error %s to %s\n";
+const char D_00558CD0[16] = " ori  = [%s]\n";
+const char D_00558CE0[16] = " mot  = [%s]\n";
+const char D_00558CF0[16] = " mode = [%s]\n";
+const char D_00558D00[16] = "frame = [%f]\n";
+const char D_00558D10[16] = "maxry = [%d]\n";
+const char D_00558D20[16] = " file = [%s]\n";
+const char D_00558D30[16] = " life = [%d]\n";
+const char D_00558D40[24] = "   dw = [%d] [%d]\n";
+const char D_00558D58[24] = "   dc = [%d] [%d]\n";
+const char D_00558D70[16] = "wattr = [%x]\n";
+const char D_00558D80[16] = "bttype= [%d]\n";
+const char D_00558DA8[16] = "timer=%2d/%2d\n";
+const float D_00558DB8[2] = { 4.172325e-08f, 1.65f };
 
 /* girl_brain_{main,attract}.c.inc carry the rodata + chunk-1 function
  * bodies for the two .c.inc TUs whose __FILE__ anchors live at
@@ -651,8 +647,8 @@ void func_00175CB0(int a0)
 
 /* ASCII debug strings — re-derived from EE rodata bytes. */
 /* ASCII preview: "<ESC>[36mEMERGENCY WITH DANGER LOOP<ESC>[m<LF>" */
-__attribute__((section(".rodata.0x005589A8"))) const char D_005589A8[40] = "\033[36mEMERGENCY WITH DANGER LOOP\033[m\n";
+const char D_005589A8[40] = "\033[36mEMERGENCY WITH DANGER LOOP\033[m\n";
 /* ASCII preview: "<ESC>[36mEMERGENCY WITH NO MOVE<ESC>[m<LF>" */
-__attribute__((section(".rodata.0x00558B38"))) const char D_00558B38[32] = "\033[36mEMERGENCY WITH NO MOVE\033[m\n";
+const char D_00558B38[32] = "\033[36mEMERGENCY WITH NO MOVE\033[m\n";
 /* ASCII preview: "<ESC>[36mEMERGENCY WITH TIME OUT<ESC>[m<LF>" */
-__attribute__((section(".rodata.0x00558B58"))) const char D_00558B58[40] = "\033[36mEMERGENCY WITH TIME OUT\033[m\n";
+const char D_00558B58[40] = "\033[36mEMERGENCY WITH TIME OUT\033[m\n";

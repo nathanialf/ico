@@ -1,6 +1,69 @@
 /* src/switch.c — __FILE__ anchor at .rodata 0x00618630 */
 
-__attribute__((section(".rodata.0x00618630"))) const char D_00618630[16] = "src/switch.c";
+unsigned int D_0028A550[20] = { 0x00000000, 0x00000010, 0x00000020, 0x00000080, 0x00000178, 0x0017CFA0, 0x00000000, 0x00000000, 0x0000018C, 0x00000000, 0x00000000, 0x00000000, 0x00000179, 0x0017CFA0, 0x00000000, 0x00000000, 0x0000018C, 0x00000000, 0x00000000, 0x00000000 };
+
+/* Inlined data (Phase 3e) — migrated from switch_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_0028A640[84] = { 0x00000635, 0x00000000, 0x00000000, 0x00000000, 0xC2C80000, 0xC3480000, 0x00000000, 0x00000000, 0xC4B04000, 0x447A0000, 0x00000000, 0x00000000, 0x00060630, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0xC3480000, 0x42C80000, 0x00000000, 0x4430C000, 0x44FA0000, 0x440E8000, 0x44806000, 0x00060632, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0xC3480000, 0x42C80000, 0x00000000, 0x4430C000, 0x44FA0000, 0x440E8000, 0x44806000, 0x00060386, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0xC3480000, 0x42C80000, 0x00000000, 0xC4B2E000, 0x42D20000, 0xC3EB0000, 0xC3818000, 0x00080326, 0x00000000, 0x00000000, 0x00000000, 0xC2C80000, 0xC3480000, 0x00000000, 0x00000000, 0xC3AF0000, 0xC38E8000, 0xC3E10000, 0xC38C0000, 0x00080327, 0x00000000, 0x00000000, 0x00000000, 0xC2C80000, 0xC3480000, 0x00000000, 0x00000000, 0xC3AF0000, 0xC38E8000, 0xC3E10000, 0xC38C0000, 0x0007066B, 0x00000000, 0x00000000, 0x00000000, 0xC2C80000, 0xC3480000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000 };
+
+/* Inlined data (Phase 3e) — migrated from switch_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_0028A790[16] = { 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x3F800000, 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000 };
+
+/* Inlined data (Phase 3e) — migrated from switch_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_0055A010[4] = { 0x00000001, 0x00000002, 0x00000004, 0xFFFFFFFF };
+
+/* Inlined data (Phase 3e) — migrated from switch_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_0055A020[4] = { 0x00000001, 0x00000002, 0x00000004, 0x00000011 };
+
+/* Inlined data (Phase 3e) — migrated from switch_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+const char D_00618630[16] = "src/switch.c";
+
+/* Inlined data (Phase 3e) — migrated from switch_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_006188E0[4] = { 0x000000FF, 0x000000FF, 0x000000FF, 0x00000080 };
+
+/* Inlined data (Phase 3e) — migrated from switch_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_006188F0[4] = { 0x000000FF, 0x00000000, 0x00000000, 0x00000080 };
+
+/* Inlined data (Phase 3e) — migrated from switch_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_00632CD0 = 0x00000000;
+
+/* Inlined data (Phase 3e) — migrated from switch_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_00632CD4 = 0x00000000;
 
 #include "include_asm.h"
 #include "regpin.h"
@@ -173,4 +236,4 @@ int *func_001C0C40(char *self, void *arg1)
 
 /* ASCII debug strings — re-derived from EE rodata bytes. */
 /* ASCII preview: "<ESC>[33mInitialize candle geometries.<ESC>[m<LF>" */
-__attribute__((section(".rodata.0x00618868"))) const char D_00618868[40] = "\033[33mInitialize candle geometries.\033[m\n";
+const char D_00618868[40] = "\033[33mInitialize candle geometries.\033[m\n";

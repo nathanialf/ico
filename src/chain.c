@@ -18,47 +18,69 @@
  */
 
 
-__attribute__((section(".rodata.0x0055AA90"))) const char D_0055AA90[16] = "src/chain.c";
+const char D_0055AA90[16] = "src/chain.c";
 
-__attribute__((section(".rodata.0x0055AAA0"))) const char D_0055AAA0[16] = "nearestNode!=-1";
+const char D_0055AAA0[16] = "nearestNode!=-1";
 
-/* String rodata migrated from chain_data.c */
-__attribute__((section(".rodata.0x0055AAB0"))) const char D_0055AAB0[16] = "collision!!!\n";
-__attribute__((section(".rodata.0x0055AAC0"))) const char D_0055AAC0[32] = "chain_simulate_term_loop\n";
-__attribute__((section(".rodata.0x0055AAE0"))) const char D_0055AAE0[32] = "chain_simulate_term_swingready\n";
-__attribute__((section(".rodata.0x0055AB00"))) const char D_0055AB00[32] = "chain_simulate_term_swingstart\n";
-__attribute__((section(".rodata.0x0055AB28"))) const char D_0055AB28[32] = "chain_simulate_term_moveup\n";
-__attribute__((section(".rodata.0x0055AB58"))) const char D_0055AB58[32] = "chain_simulate_term_free\n";
-__attribute__((section(".rodata.0x0055AB88"))) const char D_0055AB88[32] = "chain_simulate_hangstart\n";
-__attribute__((section(".rodata.0x0055ABA8"))) const char D_0055ABA8[24] = "chain_simulate_term\n";
-__attribute__((section(".rodata.0x0055ABC0"))) const char D_0055ABC0[24] = "chain_simulate_stop\n";
-__attribute__((section(".rodata.0x0055ABD8"))) const char D_0055ABD8[24] = "chain_simulate_free\n";
-__attribute__((section(".rodata.0x0055ABF0"))) const char D_0055ABF0[16] = "time = %f\n";
-__attribute__((section(".rodata.0x0055AC00"))) const char D_0055AC00[16] = "rad  = %f\n";
-__attribute__((section(".rodata.0x0055AC10"))) const char D_0055AC10[16] = "max  = %f\n";
-__attribute__((section(".rodata.0x0055AC20"))) const char D_0055AC20[16] = "maxl = %f\n";
-__attribute__((section(".rodata.0x0055AC30"))) const char D_0055AC30[16] = "T    = %f\n";
-__attribute__((section(".rodata.0x0055AC40"))) const char D_0055AC40[16] = "d    = %f\n";
-__attribute__((section(".rodata.0x0055AC50"))) const char D_0055AC50[16] = "inc  = %d\n";
-__attribute__((section(".rodata.0x0055AD28"))) const char D_0055AD28[16] = "plumb = %d\n";
-__attribute__((section(".rodata.0x0055AD38"))) const char D_0055AD38[24] = "%f/%f, %d\n";
+const char D_0055AAB0[16] = "collision!!!\n";
 
-/* Float rodata migrated from chain_data.c */
-__attribute__((section(".rodata.0x0055AB20"))) const float D_0055AB20[2] = { 4.172325e-08f, 1.65f };
-__attribute__((section(".rodata.0x0055ACA0"))) const float D_0055ACA0[4] = { 0.0f, 0.0f, -25.0f, 1.0f };
-__attribute__((section(".rodata.0x0055ACB0"))) const float D_0055ACB0[4] = { 0.0f, 0.0f, 25.0f, 1.0f };
+const char D_0055AAC0[32] = "chain_simulate_term_loop\n";
 
-/* EUC-JP debug strings — re-derived from EE rodata bytes via
- * EUC-JP decoding. Octal escapes preserve byte-identical layout
- * without requiring source-encoding compiler flags. */
-/* EUC-JP: "鎖の長さが短かすぎます(配置表のY-scaleで指定します)" */
-__attribute__((section(".rodata.0x0055AC60"))) const char D_0055AC60[64] = "\272\277\244\316\304\271\244\265\244\254\303\273\244\253\244\271\244\256\244\336\244\271(\307\333\303\326\311\275\244\316Y-scale\244\307\273\330\304\352\244\267\244\336\244\271)";
-/* EUC-JP: "[33m鎖の上の壁を見付けることができません。
-方向が間違っているか、壁が無いところに置いていませんか?[m
-" */
-__attribute__((section(".rodata.0x0055ACC0"))) const char D_0055ACC0[104] = "\033[33m\272\277\244\316\276\345\244\316\312\311\244\362\270\253\311\325\244\261\244\353\244\263\244\310\244\254\244\307\244\255\244\336\244\273\244\363\241\243\n\312\375\270\376\244\254\264\326\260\343\244\303\244\306\244\244\244\353\244\253\241\242\312\311\244\254\314\265\244\244\244\310\244\263\244\355\244\313\303\326\244\244\244\306\244\244\244\336\244\273\244\363\244\253?\033[m\n";
+const char D_0055AAE0[32] = "chain_simulate_term_swingready\n";
+
+const char D_0055AB00[32] = "chain_simulate_term_swingstart\n";
+
+const float D_0055AB20[2] = { 4.172325e-08f, 1.65f };
+
+const char D_0055AB28[32] = "chain_simulate_term_moveup\n";
+
+const char D_0055AB58[32] = "chain_simulate_term_free\n";
+
+const char D_0055AB88[32] = "chain_simulate_hangstart\n";
+
+const char D_0055ABA8[24] = "chain_simulate_term\n";
+
+const char D_0055ABC0[24] = "chain_simulate_stop\n";
+
+const char D_0055ABD8[24] = "chain_simulate_free\n";
+
+const char D_0055ABF0[16] = "time = %f\n";
+
+const char D_0055AC00[16] = "rad  = %f\n";
+
+const char D_0055AC10[16] = "max  = %f\n";
+
+const char D_0055AC20[16] = "maxl = %f\n";
+
+const char D_0055AC30[16] = "T    = %f\n";
+
+const char D_0055AC40[16] = "d    = %f\n";
+
+const char D_0055AC50[16] = "inc  = %d\n";
+
+const char D_0055AC60[64] = "\272\277\244\316\304\271\244\265\244\254\303\273\244\253\244\271\244\256\244\336\244\271(\307\333\303\326\311\275\244\316Y-scale\244\307\273\330\304\352\244\267\244\336\244\271)";
+
+const float D_0055ACA0[4] = { 0.0f, 0.0f, -25.0f, 1.0f };
+
+const float D_0055ACB0[4] = { 0.0f, 0.0f, 25.0f, 1.0f };
+
+const char D_0055ACC0[104] = "\033[33m\272\277\244\316\276\345\244\316\312\311\244\362\270\253\311\325\244\261\244\353\244\263\244\310\244\254\244\307\244\255\244\336\244\273\244\363\241\243\n\312\375\270\376\244\254\264\326\260\343\244\303\244\306\244\244\244\353\244\253\241\242\312\311\244\254\314\265\244\244\244\310\244\263\244\355\244\313\303\326\244\244\244\306\244\244\244\336\244\273\244\363\244\253?\033[m\n";
+
+const char D_0055AD28[16] = "plumb = %d\n";
+
+const char D_0055AD38[24] = "%f/%f, %d\n";
 
 #include "matching.h"
+/* Inlined data (Phase 3e) — migrated from chain_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* zero-filled buffers */
+unsigned int D_0028B0D0[12] = { 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0xFFFFFFFF, 0x00000000 };
+
+/* numeric word tables */
+unsigned char D_0028B100[64] = { 0 };
+
 #include "include_asm.h"
 #include "regpin.h"
 

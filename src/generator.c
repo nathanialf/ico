@@ -47,13 +47,20 @@ extern int D_00632844;
 extern const char D_00632848[8];
 extern int D_00632850;
 
-__attribute__((section(".rodata.0x0055AEA0"))) const char D_0055AEA0[16] = "src/generator.c";
+const char D_0055AEA0[16] = "src/generator.c";
 
 /* String rodata migrated from generator_data.c */
-__attribute__((section(".rodata.0x0055AEB0"))) const char D_0055AEB0[32] = "call enemy! = %d (%p : %d)\n";
-__attribute__((section(".rodata.0x0055AED0"))) const char D_0055AED0[24] = "[%8s] %8f %8f %8f %8f\n";
-__attribute__((section(".rodata.0x0055AEE8"))) const char D_0055AEE8[16] = "lock! = %d\n";
-__attribute__((section(".rodata.0x0055AEF8"))) const char D_0055AEF8[16] = "unlock! = %d\n";
+const char D_0055AEB0[32] = "call enemy! = %d (%p : %d)\n";
+const char D_0055AED0[24] = "[%8s] %8f %8f %8f %8f\n";
+const char D_0055AEE8[16] = "lock! = %d\n";
+const char D_0055AEF8[16] = "unlock! = %d\n";
+
+/* Inlined data (Phase 3e) — migrated from generator_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* numeric word tables */
+unsigned int D_00564150[24] = { 0x44FBE000, 0x44F32000, 0xC5338000, 0x00000134, 0x44FC8000, 0x44F32000, 0xC5338000, 0x00000135, 0x44504000, 0xC3938000, 0x44D1E000, 0x0000038D, 0x4492C000, 0xC4956000, 0xC2AE0000, 0x0000062D, 0x44678000, 0xC4956000, 0xC4288000, 0x0000062E, 0xC1700000, 0xC478C000, 0xC3340000, 0x00000BFA };
 
 #include "include_asm.h"
 

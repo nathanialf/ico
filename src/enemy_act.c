@@ -71,11 +71,6 @@ extern int D_00632390;
 /* KEEP_DEF: D_00632398 must be declared as array (not scalar) so
  * ee-gcc's small-data gp_rel optimization stays off, matching original. */
 extern int D_00632398[];
-extern int D_0063239C;
-extern unsigned int D_006323A0;
-extern unsigned int D_006323A4;
-extern unsigned int D_006323A8;
-extern unsigned int D_006323AC;
 extern int D_006325B0;
 extern char D_00632DC0[8];
 extern int D_00632DC8;
@@ -178,11 +173,23 @@ const float D_00558FA0[4] = { 0.0f, 0.0f, -1e+06f, 0.0f };
 
 const char D_00558FB0[40] = "ASSERTMSG__GOP_IS_NOT_ENEMY(gop)";
 
+const float D_00558FD8[2] = { 89128.96f, 1.035f };
+
 const char D_00558FE0[32] = "undefined mode [%d]\n";
 
 const char D_00559030[24] = "to generator way error!";
 
+const float D_00559048[2] = { 4.172325e-08f, 1.9f };
+
+const float D_00559050[2] = { 4.172325e-08f, 1.9f };
+
+const float D_00559058[2] = { 4.172325e-08f, 1.9f };
+
 const char D_00559060[16] = "not found";
+
+const float D_00559070[2] = { 0.0f, 3.8515625f };
+
+const float D_00559078[2] = { 0.0f, 3.7636719f };
 
 const char D_00559080[40] = "**toboy function start :: count=[%d]\n";
 
@@ -196,17 +203,25 @@ const char D_00559100[16] = "await end\n";
 
 const char D_00559110[24] = "toboy ra is [%d]\n";
 
-const char D_005591D8[24] = "actEnemyStart:%p\n";
-__attribute__((section(".rodata.0x00558FD8"))) const float D_00558FD8[2] = { 89128.96f, 1.035f };
-__attribute__((section(".rodata.0x00559048"))) const float D_00559048[2] = { 4.172325e-08f, 1.9f };
-__attribute__((section(".rodata.0x00559050"))) const float D_00559050[2] = { 4.172325e-08f, 1.9f };
-__attribute__((section(".rodata.0x00559058"))) const float D_00559058[2] = { 4.172325e-08f, 1.9f };
-__attribute__((section(".rodata.0x00559070"))) const float D_00559070[2] = { 0.0f, 3.8515625f };
-__attribute__((section(".rodata.0x00559078"))) const float D_00559078[2] = { 0.0f, 3.7636719f };
-__attribute__((section(".rodata.0x00559128"))) const float D_00559128[2] = { 4.172325e-08f, 1.9f };
+const float D_00559128[2] = { 4.172325e-08f, 1.9f };
 
-/* String-pool rodata migrated from enemy_act_data.c */
 const char D_00559168[112] = "change to kidnap\000\000\000\000\000\000\000\000_ACTMotReqTimer wait\n\000\000\000_ACTMotReqTimer error loop\n\000\000\000\000\000\tmail[%d] can not accept\n\000\000\000\000\000\000";
+
+const char D_005591D8[24] = "actEnemyStart:%p\n";
+
+unsigned int D_0063239C = 0x00000000;
+
+unsigned int D_006323A0 = 0x7F7FFFFF;
+
+unsigned int D_006323A4 = 0x7F7FFFFF;
+
+unsigned int D_006323A8 = 0x7F7FFFFF;
+
+unsigned int D_006323AC = 0x7F7FFFFF;
+
+unsigned char D_006323B0[12] = { 0 };
+
+unsigned int D_006323BC = 0x00000000;
 
 #include "include_asm.h"
 #include "matching.h"

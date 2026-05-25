@@ -18,20 +18,19 @@
  */
 
 
-__attribute__((section(".rodata.0x006185E8"))) const char D_006185E8[32] = "src/attackCheckBoundary.c";
+unsigned int D_004BEF80[4] = { 0x00000000, 0xC1A00000, 0x40000000, 0x00000000 };
 
 /* Float rodata migrated from attackCheckBoundary_data.c */
-__attribute__((section(".rodata.0x0061E730"))) const float D_0061E730[6] = { 0.0f, -8e+01f, 15.0f, 0.0f, 1.8e+02f, 0.0f };
+const char D_006185E8[32] = "src/attackCheckBoundary.c";
 
-/* EUC-JP debug strings — re-derived from EE rodata bytes via
- * EUC-JP decoding. Octal escapes preserve byte-identical layout
- * without requiring source-encoding compiler flags. */
-/* EUC-JP: " - 剣で切られた
-" */
-__attribute__((section(".rodata.0x00618608"))) const char D_00618608[24] = " - \267\365\244\307\300\332\244\351\244\354\244\277\n";
-/* EUC-JP: " - きれない
-" */
-__attribute__((section(".rodata.0x00618620"))) const char D_00618620[16] = " - \244\255\244\354\244\312\244\244\n";
+/* Float rodata migrated from attackCheckBoundary_data.c */
+const char D_00618608[24] = " - \267\365\244\307\300\332\244\351\244\354\244\277\n";
+
+/* Float rodata migrated from attackCheckBoundary_data.c */
+const char D_00618620[16] = " - \244\255\244\354\244\312\244\244\n";
+
+/* Float rodata migrated from attackCheckBoundary_data.c */
+const float D_0061E730[6] = { 0.0f, -8e+01f, 15.0f, 0.0f, 1.8e+02f, 0.0f };
 
 #include "include_asm.h"
 #include "regpin.h"

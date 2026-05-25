@@ -1,35 +1,83 @@
 /* src/RegistPacket.c — __FILE__ anchor at .rodata 0x00555650 */
 
 #include "matching.h"
+/* Inlined data (Phase 3e) — migrated from RegistPacket_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_005555B8[26] = { 0x00000000, 0x00000001, 0x00000001, 0x00000003, 0x00000003, 0x00000002, 0x00000002, 0x00000000, 0x00000004, 0x00000005, 0x00000005, 0x00000007, 0x00000007, 0x00000006, 0x00000006, 0x00000004, 0x00000000, 0x00000004, 0x00000001, 0x00000005, 0x00000002, 0x00000006, 0x00000003, 0x00000007, 0x00000000, 0x00000000 };
+
+/* strings */
+const char D_005556A0[16] = "\377\000\000\000\377\000\000\000\377\000\000\000P";
+
+/* strings */
+unsigned int D_005556B0[24] = { 0x00000000, 0x00000001, 0x00000001, 0x00000003, 0x00000003, 0x00000002, 0x00000002, 0x00000000, 0x00000004, 0x00000005, 0x00000005, 0x00000007, 0x00000007, 0x00000006, 0x00000006, 0x00000004, 0x00000000, 0x00000004, 0x00000001, 0x00000005, 0x00000002, 0x00000006, 0x00000003, 0x00000007 };
+
+/* strings */
+unsigned int D_00555750[20] = { 0x00000000, 0x00000000, 0x00000000, 0x6C038000, 0x00008002, 0x10000000, 0x0000000E, 0x00000000, 0x00000000, 0x00000000, 0x00000049, 0x00000000, 0x00000048, 0x00000080, 0x00000042, 0x00000000, 0x15000000, 0x00000000, 0x00000000, 0x00000000 };
+
+/* strings */
+unsigned int D_005557A0[24] = { 0x00000000, 0x00000000, 0x00000000, 0x6C048000, 0x00008003, 0x10000000, 0x0000000E, 0x00000000, 0x00000005, 0x00000000, 0x00000008, 0x00000000, 0x00000000, 0x00000000, 0x00000049, 0x00000000, 0x00000048, 0x00000080, 0x00000042, 0x00000000, 0x15000000, 0x00000000, 0x00000000, 0x00000000 };
+
+/* strings */
+unsigned int D_00555830[16] = { 0x00000000, 0x00000000, 0x00000000, 0x6C028000, 0x00008001, 0x10000000, 0x0000000E, 0x00000000, 0x300000C0, 0x00000000, 0x0000004E, 0x00000000, 0x15000000, 0x00000000, 0x00000000, 0x00000000 };
+
+/* strings */
+unsigned int D_00555870[4] = { 0x15000010, 0x00000000, 0x00000000, 0x00000000 };
+
+/* strings */
+const char D_00555880[16] = "@\001\000\000\300\001\000\000\340\001\000\000\350\001";
+
+/* strings */
+const char D_00555890[16] = "\000(\000\000\0008\000\000\000<\000\000\000=";
+
+/* strings */
+const char D_005558A0[12] = "\374\357\377\377\374\357\377\377\000 ";
+
+/* strings */
+unsigned int D_005558E0[3] = { 0x00000004, 0x00000004, 0x00002000 };
+
+/* strings */
+unsigned int D_00632CA4 = 0x00000000;
+
 #include "include_asm.h"
 
-__attribute__((section(".rodata.0x00555650"))) const char D_00555650[24] = "src/RegistPacket.c";
+const char D_00555620[48] = "reg_setShape:illegal vertex index. %d/%d\n";
 
-__attribute__((section(".rodata.0x00555A68"))) const char D_00555A68[24] = " Shadow Blend 1/64 ";
-__attribute__((section(".rodata.0x00555A80"))) const char D_00555A80[24] = " Shadow Blend 1/16 ";
-__attribute__((section(".rodata.0x00555A98"))) const char D_00555A98[24] = " Shadow Blend 1/4  ";
-__attribute__((section(".rodata.0x00555AB0"))) const char D_00555AB0[24] = " Shadow Blend 1/1  ";
-__attribute__((section(".rodata.0x00555AC8"))) const char D_00555AC8[24] = " Shadow Color B    ";
-__attribute__((section(".rodata.0x00555AE0"))) const char D_00555AE0[24] = " Shadow Color G    ";
-__attribute__((section(".rodata.0x00555AF8"))) const char D_00555AF8[24] = " Shadow Color R    ";
-__attribute__((section(".rodata.0x00555B10"))) const char D_00555B10[24] = " Shadow Depth      ";
-__attribute__((section(".rodata.0x00555B30"))) const char D_00555B30[16] = "Shadow Tool";
+const char D_00555650[24] = "src/RegistPacket.c";
 
-/* String rodata migrated from RegistPacket_data.c */
-__attribute__((section(".rodata.0x00555620"))) const char D_00555620[48] = "reg_setShape:illegal vertex index. %d/%d\n";
-__attribute__((section(".rodata.0x00555668"))) const char D_00555668[56] = "reg_setShape:illegal normal index. %d/%d\n";
-__attribute__((section(".rodata.0x00555710"))) const char D_00555710[24] = "illegal clip type. %d\n";
-__attribute__((section(".rodata.0x00555728"))) const char D_00555728[40] = "no light calc cluster model %s\n";
-__attribute__((section(".rodata.0x00555920"))) const char D_00555920[24] = "shadow_Render called\n";
-__attribute__((section(".rodata.0x00555B40"))) const char D_00555B40[24] = "Shadow %s => %s\n";
-__attribute__((section(".rodata.0x00555B58"))) const char D_00555B58[24] = "Shadow %s => %d\n";
+const char D_00555668[56] = "reg_setShape:illegal normal index. %d/%d\n";
 
-/* EUC-JP debug strings — re-derived from EE rodata bytes via
- * EUC-JP decoding. Octal escapes preserve byte-identical layout
- * without requiring source-encoding compiler flags. */
-/* EUC-JP: "光源オフでリフレクションを表示.
-" */
-__attribute__((section(".rodata.0x00555800"))) const char D_00555800[48] = "\270\367\270\273\245\252\245\325\244\307\245\352\245\325\245\354\245\257\245\267\245\347\245\363\244\362\311\275\274\250.\n";
+const char D_00555710[24] = "illegal clip type. %d\n";
+
+const char D_00555728[40] = "no light calc cluster model %s\n";
+
+const char D_00555800[48] = "\270\367\270\273\245\252\245\325\244\307\245\352\245\325\245\354\245\257\245\267\245\347\245\363\244\362\311\275\274\250.\n";
+
+const char D_00555920[24] = "shadow_Render called\n";
+
+const char D_00555A68[24] = " Shadow Blend 1/64 ";
+
+const char D_00555A80[24] = " Shadow Blend 1/16 ";
+
+const char D_00555A98[24] = " Shadow Blend 1/4  ";
+
+const char D_00555AB0[24] = " Shadow Blend 1/1  ";
+
+const char D_00555AC8[24] = " Shadow Color B    ";
+
+const char D_00555AE0[24] = " Shadow Color G    ";
+
+const char D_00555AF8[24] = " Shadow Color R    ";
+
+const char D_00555B10[24] = " Shadow Depth      ";
+
+const char D_00555B30[16] = "Shadow Tool";
+
+const char D_00555B40[24] = "Shadow %s => %s\n";
+
+const char D_00555B58[24] = "Shadow %s => %d\n";
 
 extern int D_00632028;
 extern void func_0011D9A0(int a0, int a1, int a2, int a3, int a4);

@@ -19,7 +19,7 @@ const char D_005581B8[32] = "src/act-parallel-control.c";
 /* String + float rodata in apc's range (between apc and boyact
  * anchors). Migrated out of src/act-game.c and src/boyact.c. */
 const char D_005581D8[16] = "orient null";
-__attribute__((section(".rodata.0x005581E8"))) const float D_005581E8[2] = { -107374184.0f, 1.8499999f };
+const float D_005581E8[2] = { -107374184.0f, 1.8499999f };
 const char D_005581F0[16] = "boy after func\n";
 const char D_00558200[24] = "enter actBoyHand50\n";
 const char D_00558218[24] = "boy error flg get\n";

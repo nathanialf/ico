@@ -1,5 +1,18 @@
 /* isys/gobj.c — __FILE__ anchor at .rodata 0x00557a10 */
 
+/* Inlined data (Phase 3e) — migrated from gobj_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned char D_00281A70[32] = { 0 };
+unsigned char D_00281A90[32] = { 0 };
+unsigned int D_00632008 = 0x00000000;
+unsigned int D_0063200C = 0x00000000;
+unsigned char D_006321C0[8] = { 0 };
+unsigned int D_006321C8 = 0x00000030;
+unsigned int D_006321D0 = 0x00000000;
+
 #include "include_asm.h"
 
 const char D_00557A10[16] = "isys/gobj.c";

@@ -7,6 +7,13 @@
  * scope. D_00632010 is gp_rel; verified -0x68E0 from _gp (in range).
  */
 
+/* Inlined data (Phase 3e) — migrated from sugiTree_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_00633710 = 0x00000000;
+
 #include "include_asm.h"
 #include "regpin.h"
 #include "matching.h"

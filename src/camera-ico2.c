@@ -28,54 +28,83 @@ extern float D_00630EF4;
 extern float D_00630EF8;
 extern float D_00630EFC;
 extern float D_006326E0;
-extern unsigned int D_006326E4;
-extern char D_006326E8[8];
-extern const char D_006326F0[16];
-extern unsigned int D_00632700;
-extern int D_00632704;
-extern const char D_00632708[];
-extern const char D_00632710[];
-extern const char D_00632718[];
-extern const char D_00632720[];
-extern unsigned int D_00632728;
-extern unsigned int D_0063272C;
-extern int D_00632730;
-extern int D_00632734;
 extern int D_00632CF8;
 
-__attribute__((section(".rodata.0x0055A940"))) const char D_0055A940[24] = "src/camera-ico2.c";
+unsigned int D_00280FC0[60] = { 0x78057805, 0x78057805, 0x78057805, 0x78057805, 0x78057805, 0x78057805, 0x05050505, 0x05050505, 0x05050505, 0x05050505, 0x05050505, 0x05050505, 0x0000001E, 0x00000005, 0x0000001E, 0x00000005, 0x0000001E, 0x00000005, 0x0000001E, 0x00000005, 0x0000001E, 0x00000005, 0x0000001E, 0x00000005, 0x0000001E, 0x00000005, 0x0000001E, 0x00000005, 0x0000001E, 0x00000005, 0x0000001E, 0x00000005, 0x0000001E, 0x00000005, 0x0000001E, 0x00000005, 0x0000001E, 0x00000005, 0x0000001E, 0x00000005, 0x0000001E, 0x00000005, 0x0000001E, 0x00000005, 0x00000001, 0x00000002, 0x00000004, 0x00000008, 0x00000010, 0x00000020, 0x00000040, 0x00000080, 0x00000100, 0x00000200, 0x00000400, 0x00000800, 0x00001000, 0x00002000, 0x00004000, 0x00008000 };
 
-__attribute__((section(".rodata.0x0055AA50"))) const char D_0055AA50[16] = "%d,%d,%d %d";
+unsigned int D_0028AF50[8] = { 0x00000000, 0x42C80000, 0x00000000, 0x00000000, 0x00000000, 0x42500000, 0x00000000, 0x00000000 };
 
-/* String rodata migrated from camera-ico2_data.c */
-__attribute__((section(".rodata.0x0055A9A8"))) const char D_0055A9A8[32] = "camera data version = [%d]\n";
-__attribute__((section(".rodata.0x0055A9C8"))) const char D_0055A9C8[24] = "n_group[%d], n_pin[%d]\n";
-__attribute__((section(".rodata.0x0055AA28"))) const char D_0055AA28[40] = "illegal camera data version [%d]\n";
+unsigned int D_0028AF70[16] = { 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000100, 0x00000000, 0x00000000, 0x00000000 };
 
-/* Float rodata migrated from camera-ico2_data.c */
-__attribute__((section(".rodata.0x0055AA60"))) const float D_0055AA60[4] = { 0.0f, -2e+02f, -5e+02f, 0.0f };
+unsigned int D_0028AFB0[16] = { 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x43B40000, 0x42340000, 0x00000001, 0x00000000, 0x00000000, 0x00000000 };
 
-/* Trig constants — 2π (precise double) and π (float promoted to
- * double, hence the limited-precision tail). Two pairs presumably
- * for two unrelated callers in the camera-ico2 code. Two-element
- * unsigned-int form: 8-byte VMA is at the -G 8 threshold so the
- * VMA-pinned attr is the necessary placement directive. */
-__attribute__((section(".rodata.0x0055AB48"))) const double D_0055AB48 = 6.283185307179586;        /* 2π */
-__attribute__((section(".rodata.0x0055AB50"))) const double D_0055AB50 = 3.1415927410125732;       /* π via float */
-__attribute__((section(".rodata.0x0055AB78"))) const double D_0055AB78 = 6.283185307179586;        /* 2π */
-__attribute__((section(".rodata.0x0055AB80"))) const double D_0055AB80 = 3.1415927410125732;       /* π via float */
+unsigned int D_0028AFF0[56] = { 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0xFFFFFFFF, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000001, 0x00000000, 0x428C0000, 0x00000100, 0x00000000, 0x00000000, 0x00000000, 0x00000000 };
 
-/* EUC-JP debug strings — re-derived from EE rodata bytes via
- * EUC-JP decoding. Octal escapes preserve byte-identical layout
- * without requiring source-encoding compiler flags. */
-/* EUC-JP: "[%s]が見つかりません
-" */
-__attribute__((section(".rodata.0x0055A958"))) const char D_0055A958[24] = "[%s]\244\254\270\253\244\304\244\253\244\352\244\336\244\273\244\363\n";
-/* EUC-JP: "１ステージに登録できるカメラセットは、最大[%d]個です。" */
-__attribute__((section(".rodata.0x0055A970"))) const char D_0055A970[56] = "\243\261\245\271\245\306\241\274\245\270\244\313\305\320\317\277\244\307\244\255\244\353\245\253\245\341\245\351\245\273\245\303\245\310\244\317\241\242\272\307\302\347[%d]\270\304\244\307\244\271\241\243";
-/* EUC-JP: "カメラデータのバージョンに異常があります。大森まで知らせてください
-" */
-__attribute__((section(".rodata.0x0055A9E0"))) const char D_0055A9E0[72] = "\245\253\245\341\245\351\245\307\241\274\245\277\244\316\245\320\241\274\245\270\245\347\245\363\244\313\260\333\276\357\244\254\244\242\244\352\244\336\244\271\241\243\302\347\277\271\244\336\244\307\303\316\244\351\244\273\244\306\244\257\244\300\244\265\244\244\n";
+const char D_0055A940[24] = "src/camera-ico2.c";
+
+const char D_0055A958[24] = "[%s]\244\254\270\253\244\304\244\253\244\352\244\336\244\273\244\363\n";
+
+const char D_0055A970[56] = "\243\261\245\271\245\306\241\274\245\270\244\313\305\320\317\277\244\307\244\255\244\353\245\253\245\341\245\351\245\273\245\303\245\310\244\317\241\242\272\307\302\347[%d]\270\304\244\307\244\271\241\243";
+
+const char D_0055A9A8[32] = "camera data version = [%d]\n";
+
+const char D_0055A9C8[24] = "n_group[%d], n_pin[%d]\n";
+
+const char D_0055A9E0[72] = "\245\253\245\341\245\351\245\307\241\274\245\277\244\316\245\320\241\274\245\270\245\347\245\363\244\313\260\333\276\357\244\254\244\242\244\352\244\336\244\271\241\243\302\347\277\271\244\336\244\307\303\316\244\351\244\273\244\306\244\257\244\300\244\265\244\244\n";
+
+const char D_0055AA28[40] = "illegal camera data version [%d]\n";
+
+const char D_0055AA50[16] = "%d,%d,%d %d";
+
+const float D_0055AA60[4] = { 0.0f, -2e+02f, -5e+02f, 0.0f };
+
+const double D_0055AB48 = 6.283185307179586;
+
+const double D_0055AB50 = 3.1415927410125732;
+
+const double D_0055AB78 = 6.283185307179586;
+
+const double D_0055AB80 = 3.1415927410125732;
+
+unsigned int D_006326E4 = 0x7F7FFFFF;
+
+unsigned char D_006326E8[8] = { 0 };
+
+const char D_006326F0[16] = "0";
+
+unsigned int D_00632700 = 0x00000002;
+
+unsigned int D_00632704 = 0x00000000;
+
+const char D_00632708[8] = "FREECAM";
+
+const char D_00632710[8] = "GAMECAM";
+
+const char D_00632718[8] = "HANDCAM";
+
+const char D_00632720[8] = "PATHCAM";
+
+unsigned int D_00632728 = 0x00000001;
+
+unsigned int D_0063272C = 0x00000003;
+
+unsigned int D_00632730 = 0x00000000;
+
+unsigned int D_00632734 = 0x00000000;
+
+unsigned int D_00632738 = 0x00000000;
+
+unsigned int D_0063273C = 0x00000000;
+
+unsigned int D_00632CB4 = 0x00000000;
+
+unsigned int D_00632CC4 = 0x00000000;
+
+unsigned int D_00632D30 = 0x00000000;
+
+unsigned int D_00632D34 = 0x00000000;
+
+unsigned int D_00632D38 = 0x00000000;
 
 #include "include_asm.h"
 #include "regpin.h"

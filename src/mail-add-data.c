@@ -12,6 +12,20 @@ const char D_0055AF80[24] = "STOP NO FIN %d,%1.1f";
 const char D_0055AF98[24] = "bird reset\n";
 
 #include "matching.h"
+/* Inlined data (Phase 3e) — migrated from mail-add-data_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* strings */
+unsigned int D_006327B0[2] = { 0x7F7FFFFF, 0x00000000 };
+const char D_006327B8[8] = "EAT";
+const char D_006327C0[8] = "STEP";
+const char D_006327C8[8] = "GROOM";
+const char D_006327D0[8] = "FLY S";
+const char D_006327D8[8] = "FLY";
+const char D_006327E0[8] = "FLY E1";
+const char D_006327E8[8] = "FLY E2";
+
 #include "include_asm.h"
 
 extern float D_006D35C0[];

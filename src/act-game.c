@@ -35,72 +35,6 @@ extern int D_00632270;
 extern const char D_00632280[8];
 extern const char D_00632288[8];
 
-const char D_00557EE0[32] = "too many view check object";
-const char D_00557F00[16] = "src/act-game.c";
-const char D_00557F30[16] = "mode=[%d]\n";
-const char D_005580C0[16] = "shoal mail\n";
-const char D_005580D0[32] = "[%d] [%d] [%d] [%d] [%d]\n";
-
-/* EUC-JP debug strings — re-derived from EE rodata bytes via
- * EUC-JP decoding. Octal escapes preserve byte-identical layout
- * without requiring source-encoding compiler flags. */
-/* EUC-JP: "並列モーションが増えすぎました（大森）" */
-const char D_00558190[40] = "\312\302\316\363\245\342\241\274\245\267\245\347\245\363\244\254\301\375\244\250\244\271\244\256\244\336\244\267\244\277\241\312\302\347\277\271\241\313";
-
-/* D_005581D8 "orient null" and D_005581E8 float[2] moved to
- * src/act-parallel-control.c (they sit in apc's rodata range). */
-
-/* rodata migrated from act-game_data.c — plain defs, no section attr. */
-
-/* State-transition table: 76 ints. Values are mostly small enum-like
- * codes (event IDs?) with a few sentinel zeros — likely indexed by
- * actor state to look up the next-state code. */
-const int D_00564F30[76] = {
-    13, 0, 0,  6, 0, 0,  6, 0, 0,  6, 0, 0,
-     0, 3, 0, 11, 0, 0,  0, 2, 0,  1, 5, 0,
-     0, 1, 0,  0, 3, 0,  0,12, 0,  0, 3, 0,
-     4, 7, 0,  0, 5, 0,  0, 9, 0,  0, 8, 0,
-     0, 7, 0,  0, 7, 0,  0, 3, 0,  0, 3, 0,
-     0, 3, 0,  0,10, 0,  5, 0, 0,  5, 0, 0,
-     0, 0, 0, 0,
-};
-
-/* D_005650C4 = 19 plus a 96-byte trailing _pad chunk (containing four
- * {-1.0f, 19} pairs + the asset path "objects/fdb/mo/yotion/bascstan1.dmob"
- * (sic — "yotion" typo)). Migrator can't re-emit the pad without the
- * parent symbol, so D_005650C4 remains in the sidecar. */
-
-/* 7 rows × 4 fields. Each row appears to be (int, float, int, int).
- * Kept as raw unsigned int to preserve the mixed-type layout; the
- * 0x3F800000 entries are float 1.0f, -1 is 0xFFFFFFFF as int. */
-const unsigned int D_005CF2D0[28] = {
-    0,          0,          0, 0xFFFFFFFF,
-    0,          0x3F800000, 0, 2,
-    0x3F800000, 0,          0, 2,
-    0,          0x3F800000, 0, 3,
-    0,          0x3F800000, 0, 3,
-    0,          0x3F800000, 0, 3,
-    0,          0x3F800000, 0, 3,
-};
-
-/* lit4 migrated from act-game_data.c — typed floats, no section attr. */
-const float D_00630AD4    = -1.5707964f;           /* -π/2 */
-const float D_00630AD8[1] = { 1.5707964f };        /* π/2 */
-const float D_00630ADC    = 12100.0f;              /* 110² */
-const float D_00630AE0[1] = { 160000.0f };         /* 400² */
-const float D_00630AE4    = 0.3f;
-const float D_00630AE8[1] = { 0.2f };
-const float D_00630AEC    = 22500.0f;              /* 150² */
-const float D_00630AF0[1] = { 3.14159274f };       /* π */
-const float D_00630AF4    = 25000000.0f;           /* 5000² */
-
-/* sdata migrated from act-game_data.c — naturally lands in .sdata. */
-const char D_00632258[4]    = "0";                 /* "0\0\0\0" */
-float D_0063225C            = 3.4028235e38f;       /* FLT_MAX */
-const char D_00632260[8]    = "BOMB!!\n";          /* + trailing \0 */
-const char D_00632268[4]    = "!!\n";              /* + trailing \0 */
-
-/* data migrated from act-game_data.c (plain defs). */
 unsigned char D_00281B50[64] = { 0 };
 float D_002924D4 = 25.0f;
 float D_002924D8[26] = {
@@ -110,6 +44,43 @@ float D_002924D8[26] = {
     400.0f, 150.0f, 150.0f, 3600.0f, 4200.0f,
      20.0f, 30.0f, 105.0f,
 };
+const char D_00557EE0[32] = "too many view check object";
+const char D_00557F00[16] = "src/act-game.c";
+const char D_00557F30[16] = "mode=[%d]\n";
+const char D_005580C0[16] = "shoal mail\n";
+const char D_005580D0[32] = "[%d] [%d] [%d] [%d] [%d]\n";
+const char D_00558190[40] = "\312\302\316\363\245\342\241\274\245\267\245\347\245\363\244\254\301\375\244\250\244\271\244\256\244\336\244\267\244\277\241\312\302\347\277\271\241\313";
+const int D_00564F30[76] = {
+    13, 0, 0,  6, 0, 0,  6, 0, 0,  6, 0, 0,
+     0, 3, 0, 11, 0, 0,  0, 2, 0,  1, 5, 0,
+     0, 1, 0,  0, 3, 0,  0,12, 0,  0, 3, 0,
+     4, 7, 0,  0, 5, 0,  0, 9, 0,  0, 8, 0,
+     0, 7, 0,  0, 7, 0,  0, 3, 0,  0, 3, 0,
+     0, 3, 0,  0,10, 0,  5, 0, 0,  5, 0, 0,
+     0, 0, 0, 0,
+};
+const unsigned int D_005CF2D0[28] = {
+    0,          0,          0, 0xFFFFFFFF,
+    0,          0x3F800000, 0, 2,
+    0x3F800000, 0,          0, 2,
+    0,          0x3F800000, 0, 3,
+    0,          0x3F800000, 0, 3,
+    0,          0x3F800000, 0, 3,
+    0,          0x3F800000, 0, 3,
+};
+const float D_00630AD4    = -1.5707964f;
+const float D_00630AD8[1] = { 1.5707964f };
+const float D_00630ADC    = 12100.0f;
+const float D_00630AE0[1] = { 160000.0f };
+const float D_00630AE4    = 0.3f;
+const float D_00630AE8[1] = { 0.2f };
+const float D_00630AEC    = 22500.0f;
+const float D_00630AF0[1] = { 3.14159274f };
+const float D_00630AF4    = 25000000.0f;
+const char D_00632258[4]    = "0";
+float D_0063225C            = 3.4028235e38f;
+const char D_00632260[8]    = "BOMB!!\n";
+const char D_00632268[4]    = "!!\n";
 
 #include "include_asm.h"
 #include "regpin.h"

@@ -1,6 +1,13 @@
 /* src/EnemyInit.c — __FILE__ anchor at .rodata 0x0061AC70 */
 
 #include "matching.h"
+/* Inlined data (Phase 3e) — migrated from EnemyInit_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_006321D4 = 0x00000000;
+
 #include "include_asm.h"
 #include "regpin.h"
 

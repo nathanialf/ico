@@ -18,48 +18,61 @@
  */
 
 
-__attribute__((section(".rodata.0x00555BF8"))) const char D_00555BF8[24] = "src/StageAnimation.c";
+const char D_00276230[16] = "\000\000\000E\000\000\000E";
 
-__attribute__((section(".rodata.0x00612348"))) const char D_00612348[48] = "object/sdf/demo/conte06/d6.smb";
-__attribute__((section(".rodata.0x00612378"))) const char D_00612378[48] = "object/sdf/demo/conte09/d9.smb";
-__attribute__((section(".rodata.0x006123A8"))) const char D_006123A8[48] = "object/sdf/demo/conte09a/d9a.smb";
-__attribute__((section(".rodata.0x00612498"))) const char D_00612498[48] = "object/sdf/demo/conte13/d13.smb";
-__attribute__((section(".rodata.0x006124C8"))) const char D_006124C8[48] = "object/sdf/demo/conte06/e3d6.smb";
+unsigned int D_00276248[8] = { 0x00000000, 0x00000000, 0x00000020, 0x00000020, 0x00000020, 0x00000030, 0x00000030, 0x00000030 };
 
-/* String rodata migrated from StageAnimation_data.c */
-__attribute__((section(".rodata.0x00555BB0"))) const char D_00555BB0[32] = "Bga Object Already %d %d %d\n";
-__attribute__((section(".rodata.0x00555BD0"))) const char D_00555BD0[40] = "stage_MakeGObj:can't alloc gobj %d\n";
-__attribute__((section(".rodata.0x00555C10"))) const char D_00555C10[40] = "Too much Stage Animation Objects.\n";
-__attribute__((section(".rodata.0x00555C38"))) const char D_00555C38[48] = "stage_ApplyData:Data is not registered. \n\n%s\n";
-__attribute__((section(".rodata.0x00555CF8"))) const char D_00555CF8[40] = "Max Bga = %d // Max DObj %d\n";
-__attribute__((section(".rodata.0x00555D78"))) const char D_00555D78[56] = "stage_CheckAnimationFinish:illegal Animation No.\n";
-__attribute__((section(".rodata.0x00555DB0"))) const char D_00555DB0[48] = "stage_ContinueAnimation:illegal Animation No.\n";
+unsigned int D_00555938[22] = { 0x00000000, 0x00000001, 0x00000003, 0x00000004, 0x00000005, 0x00000001, 0x00000002, 0x00000000, 0x00000005, 0x00000003, 0x00000003, 0x00000004, 0x00000000, 0x00000001, 0x00000002, 0x00000004, 0x00000005, 0x00000003, 0x00000002, 0x00000000, 0x00000000, 0x00000000 };
 
-/* Float rodata migrated from StageAnimation_data.c */
-__attribute__((section(".rodata.0x00555B70"))) const float D_00555B70[16] = { 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+unsigned int D_005559F0 = 0x00000000;
 
-/* String-pool rodata migrated from StageAnimation_data.c */
-__attribute__((section(".rodata.0x006123D8"))) const char D_006123D8[96] = "object/sdf/demo/conte09a/d9b.smb\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000object/sdf/demo/conte12/d12.smb\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000";
-__attribute__((section(".rodata.0x00612438"))) const char D_00612438[96] = "object/sdf/demo/conte12x/d12x.smb\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000object/sdf/demo/conte12x/d12y.smb\000\000\000\000\000\000\000\000\000\000\000\000\000\000";
+unsigned int D_00555B28[2] = { 0xFFFFFF00, 0xFF000000 };
 
-/* EUC-JP debug strings — re-derived from EE rodata bytes via
- * EUC-JP decoding. Octal escapes preserve byte-identical layout
- * without requiring source-encoding compiler flags. */
-/* EUC-JP: "stgBgas が%d有り MAX_ANIM_KIND %dを越えました
-" */
-__attribute__((section(".rodata.0x00555C68"))) const char D_00555C68[48] = "stgBgas \244\254%d\315\255\244\352 MAX_ANIM_KIND %d\244\362\261\333\244\250\244\336\244\267\244\277\n";
-/* EUC-JP: "1ステージ中の BgAnimation の種類が多すぎます
-" */
-__attribute__((section(".rodata.0x00555C98"))) const char D_00555C98[48] = "1\245\271\245\306\241\274\245\270\303\346\244\316 BgAnimation \244\316\274\357\316\340\244\254\302\277\244\271\244\256\244\336\244\271\n";
-/* EUC-JP: "stgBgas が%d有り MAX_ANIM_GOBJ %dを越えました
-" */
-__attribute__((section(".rodata.0x00555CC8"))) const char D_00555CC8[48] = "stgBgas \244\254%d\315\255\244\352 MAX_ANIM_GOBJ %d\244\362\261\333\244\250\244\336\244\267\244\277\n";
-/* EUC-JP: "指定したIDが存在しないか、アニメーションが読み込まれていません.
-" */
-__attribute__((section(".rodata.0x00555DE0"))) const char D_00555DE0[72] = "\273\330\304\352\244\267\244\277ID\244\254\302\270\272\337\244\267\244\312\244\244\244\253\241\242\245\242\245\313\245\341\241\274\245\267\245\347\245\363\244\254\306\311\244\337\271\376\244\336\244\354\244\306\244\244\244\336\244\273\244\363.\n";
-/* EUC-JP: "ステージセグメントにメモリが確保できません.(ヒープメモリ不足)
-" */
-__attribute__((section(".rodata.0x00555E28"))) const char D_00555E28[72] = "\245\271\245\306\241\274\245\270\245\273\245\260\245\341\245\363\245\310\244\313\245\341\245\342\245\352\244\254\263\316\312\335\244\307\244\255\244\336\244\273\244\363.(\245\322\241\274\245\327\245\341\245\342\245\352\311\324\302\255)\n";
+const float D_00555B70[16] = { 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+
+const char D_00555BB0[32] = "Bga Object Already %d %d %d\n";
+
+const char D_00555BD0[40] = "stage_MakeGObj:can't alloc gobj %d\n";
+
+const char D_00555BF8[24] = "src/StageAnimation.c";
+
+const char D_00555C10[40] = "Too much Stage Animation Objects.\n";
+
+const char D_00555C38[48] = "stage_ApplyData:Data is not registered. \n\n%s\n";
+
+const char D_00555C68[48] = "stgBgas \244\254%d\315\255\244\352 MAX_ANIM_KIND %d\244\362\261\333\244\250\244\336\244\267\244\277\n";
+
+const char D_00555C98[48] = "1\245\271\245\306\241\274\245\270\303\346\244\316 BgAnimation \244\316\274\357\316\340\244\254\302\277\244\271\244\256\244\336\244\271\n";
+
+const char D_00555CC8[48] = "stgBgas \244\254%d\315\255\244\352 MAX_ANIM_GOBJ %d\244\362\261\333\244\250\244\336\244\267\244\277\n";
+
+const char D_00555CF8[40] = "Max Bga = %d // Max DObj %d\n";
+
+unsigned int D_00555D20[22] = { 0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x3F800000, 0x3F800000, 0x3F800000, 0x00000001, 0x00000000, 0x00000000, 0x00000000, 0x656C6C49, 0x206C6167, 0x756F7247, 0x6F4E2070, 0x6425202E, 0x0000000A };
+
+const char D_00555D78[56] = "stage_CheckAnimationFinish:illegal Animation No.\n";
+
+const char D_00555DB0[48] = "stage_ContinueAnimation:illegal Animation No.\n";
+
+const char D_00555DE0[72] = "\273\330\304\352\244\267\244\277ID\244\254\302\270\272\337\244\267\244\312\244\244\244\253\241\242\245\242\245\313\245\341\241\274\245\267\245\347\245\363\244\254\306\311\244\337\271\376\244\336\244\354\244\306\244\244\244\336\244\273\244\363.\n";
+
+const char D_00555E28[72] = "\245\271\245\306\241\274\245\270\245\273\245\260\245\341\245\363\245\310\244\313\245\341\245\342\245\352\244\254\263\316\312\335\244\307\244\255\244\336\244\273\244\363.(\245\322\241\274\245\327\245\341\245\342\245\352\311\324\302\255)\n";
+
+unsigned int D_00555E70[12] = { 0x00000000, 0x00000000, 0x00000000, 0x50000002, 0x00008001, 0x10000000, 0x0000000E, 0x00000000, 0x00000001, 0x00000000, 0x0000003F, 0x00000000 };
+
+const char D_00612348[48] = "object/sdf/demo/conte06/d6.smb";
+
+const char D_00612378[48] = "object/sdf/demo/conte09/d9.smb";
+
+const char D_006123A8[48] = "object/sdf/demo/conte09a/d9a.smb";
+
+const char D_006123D8[96] = "object/sdf/demo/conte09a/d9b.smb\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000object/sdf/demo/conte12/d12.smb\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000";
+
+const char D_00612438[96] = "object/sdf/demo/conte12x/d12x.smb\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000object/sdf/demo/conte12x/d12y.smb\000\000\000\000\000\000\000\000\000\000\000\000\000\000";
+
+const char D_00612498[48] = "object/sdf/demo/conte13/d13.smb";
+
+const char D_006124C8[48] = "object/sdf/demo/conte06/e3d6.smb";
 
 #include "include_asm.h"
 #include "regpin.h"
@@ -276,4 +289,4 @@ INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012AE40);
 
 /* ASCII debug strings — re-derived from EE rodata bytes. */
 /* ASCII preview: "2:%s<ESC>[0m<LF>" */
-__attribute__((section(".rodata.0x00556468"))) const char D_00556468[16] = "2:%s\033[0m\n";
+const char D_00556468[16] = "2:%s\033[0m\n";

@@ -22,23 +22,46 @@ extern unsigned int D_00631B38;
 extern int D_00631B3C;
 extern char D_00631B40[8];
 
-__attribute__((section(".rodata.0x00553AD0"))) const char D_00553AD0[24] = "src/geometryManager.c";
+unsigned int D_00275830[8] = { 0x00000007, 0x00000002, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000 };
 
 /* String rodata migrated from geometryManager_data.c */
-__attribute__((section(".rodata.0x00553AE8"))) const char D_00553AE8[96] = "Fatal error! Geometry localize function called with GObj\n    that already have parent.\nExit...\n";
-__attribute__((section(".rodata.0x00553B48"))) const char D_00553B48[48] = "TOO MANY CHARACTERS EXIST ON THIS STAGE(>64)\n";
-__attribute__((section(".rodata.0x00553B78"))) const char D_00553B78[24] = "InitKeyInput2() in\n";
-__attribute__((section(".rodata.0x00553B90"))) const char D_00553B90[16] = "PadInit\n";
-__attribute__((section(".rodata.0x00553BA0"))) const char D_00553BA0[24] = "InitKeyInput2() out\n";
-__attribute__((section(".rodata.0x00553BB8"))) const char D_00553BB8[24] = "signal to main\n";
-__attribute__((section(".rodata.0x00553BE0"))) const char D_00553BE0[48] = "Adjust Motion Height To Field. --------------\n";
+const char D_00553AD0[24] = "src/geometryManager.c";
 
-/* Float rodata migrated from geometryManager_data.c */
-__attribute__((section(".rodata.0x00553C10"))) const float D_00553C10[4] = { 0.0f, 5.0f, 0.0f, 0.0f };
-__attribute__((section(".rodata.0x00553C20"))) const float D_00553C20[4] = { 0.0f, 0.0f, 5.0f, 0.0f };
-__attribute__((section(".rodata.0x00553C30"))) const float D_00553C30[4] = { 5.0f, 0.0f, 0.0f, 0.0f };
-__attribute__((section(".rodata.0x00553C70"))) const float D_00553C70[4] = { 1e+01f, 0.0f, 0.0f, 0.0f };
-__attribute__((section(".rodata.0x00553C90"))) const float D_00553C90[4] = { 0.0f, 1.0f, 0.0f, 1.0f };
+/* String rodata migrated from geometryManager_data.c */
+const char D_00553AE8[96] = "Fatal error! Geometry localize function called with GObj\n    that already have parent.\nExit...\n";
+
+/* String rodata migrated from geometryManager_data.c */
+const char D_00553B48[48] = "TOO MANY CHARACTERS EXIST ON THIS STAGE(>64)\n";
+
+/* String rodata migrated from geometryManager_data.c */
+const char D_00553B78[24] = "InitKeyInput2() in\n";
+
+/* String rodata migrated from geometryManager_data.c */
+const char D_00553B90[16] = "PadInit\n";
+
+/* String rodata migrated from geometryManager_data.c */
+const char D_00553BA0[24] = "InitKeyInput2() out\n";
+
+/* String rodata migrated from geometryManager_data.c */
+const char D_00553BB8[24] = "signal to main\n";
+
+/* String rodata migrated from geometryManager_data.c */
+const char D_00553BE0[48] = "Adjust Motion Height To Field. --------------\n";
+
+/* String rodata migrated from geometryManager_data.c */
+const float D_00553C10[4] = { 0.0f, 5.0f, 0.0f, 0.0f };
+
+/* String rodata migrated from geometryManager_data.c */
+const float D_00553C20[4] = { 0.0f, 0.0f, 5.0f, 0.0f };
+
+/* String rodata migrated from geometryManager_data.c */
+const float D_00553C30[4] = { 5.0f, 0.0f, 0.0f, 0.0f };
+
+/* String rodata migrated from geometryManager_data.c */
+const float D_00553C70[4] = { 1e+01f, 0.0f, 0.0f, 0.0f };
+
+/* String rodata migrated from geometryManager_data.c */
+const float D_00553C90[4] = { 0.0f, 1.0f, 0.0f, 1.0f };
 
 #include "include_asm.h"
 #include "matching.h"

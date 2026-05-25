@@ -75,6 +75,12 @@ from migrate_data_per_tu import (  # noqa: E402  (shared helpers)
 
 SDATA_LO, SDATA_HI = SECTION_RANGES[".sdata"]
 
+# Per-symbol inline cap: a non-zero string / word array larger than this
+# would push the tracked .c past check_no_rom.sh's 256 KB per-file limit.
+# All-zero arrays are exempt (they emit as a one-line `{ 0 }`). Oversized
+# blobs stay in the gitignored sidecar.
+MAX_INLINE_BYTES = 32768
+
 
 # ---------------------------------------------------------------------------
 # Byte source: parse the TU's _data.c sidecar (already byte-typed),
@@ -281,12 +287,20 @@ def _looks_like_address_table(data: bytes) -> bool:
 
 
 def classify(sym: str, vma: int, sect: str, data: bytes,
-             sdata_c_refs: set[str]) -> Result:
+             c_refs: set[str], inc_externs: set[str]) -> Result:
     r = Result(sym, vma, sect, len(data))
     size = len(data)
 
     if size == 0:
         r.reason = "empty"
+        return r
+
+    # Declared extern in an included .c.inc fragment (hand-matched code):
+    # inlining the def into this TU would clash with the fragment's extern
+    # type. Leave it in the sidecar's separate .o.
+    if sym in inc_externs:
+        r.category = "inc-extern"
+        r.reason = "extern in included .c.inc (type-conflict risk)"
         return r
 
     # .lit4 floats — deferred (no clean ee-gcc default placement).
@@ -295,10 +309,21 @@ def classify(sym: str, vma: int, sect: str, data: bytes,
         r.reason = "lit4 float (deferred)"
         return r
 
-    # .sdata referenced by an ee-gcc C body in this TU → gp_rel-flip risk.
-    if sect == ".sdata" and sym in sdata_c_refs:
-        r.category = "sdata-cref"
-        r.reason = "referenced by tracked C body (gp_rel-flip risk)"
+    # Symbol referenced by an ee-gcc-compiled C body in THIS TU → leave it
+    # in the sidecar's separate .o. Colocating the def changes what the
+    # compiler sees at the reference site (extern vs local def), which can
+    # change the addressing it emits — gp_rel vs absolute lui+addiu differ
+    # in INSTRUCTION COUNT (1 vs 2), so the referencing function's code
+    # size shifts, moving .text end → _gp → every gp_rel offset (total
+    # SHA divergence), and small non-.sdata symbols additionally hit
+    # "relocation truncated to fit R_MIPS_GPREL16". Size doesn't bound the
+    # risk. Asm (INCLUDE_ASM) references are immune: their instructions are
+    # pre-written and fixed; ee-as just resolves the symbol locally to the
+    # same bytes. So the safe boundary is: never inline a C-referenced
+    # symbol; only asm-referenced / unreferenced data migrates.
+    if sym in c_refs:
+        r.category = "c-ref"
+        r.reason = "referenced by tracked C body (codegen-size risk)"
         return r
 
     is_array = size > 4
@@ -342,6 +367,13 @@ def classify(sym: str, vma: int, sect: str, data: bytes,
         return r
 
     if _looks_like_string(data):
+        # Size guard: a huge non-zero blob inlined verbatim would blow
+        # check_no_rom.sh's 256 KB per-file cap. Leave oversized ones in
+        # the sidecar (they're gitignored, so the cap doesn't apply there).
+        if size > MAX_INLINE_BYTES:
+            r.category = "too-large"
+            r.reason = f"string {size} B > {MAX_INLINE_BYTES} cap"
+            return r
         lit, euc = _c_string_literal(data)
         r.category = "string"
         r.action = "emit"
@@ -350,6 +382,10 @@ def classify(sym: str, vma: int, sect: str, data: bytes,
         return r
 
     if size % 4 == 0 and not _is_pointer_table(data):
+        if size > MAX_INLINE_BYTES:
+            r.category = "too-large"
+            r.reason = f"word-array {size} B > {MAX_INLINE_BYTES} cap"
+            return r
         words = [int.from_bytes(data[i:i + 4], "little")
                  for i in range(0, size, 4)]
         parts = ", ".join(f"0x{w:08X}" for w in words)
@@ -387,12 +423,50 @@ def _strip_for_cref(text: str) -> str:
     return "\n".join(kept)
 
 
-def sdata_c_referenced(tu_c_text: str, sdata_syms: set[str]) -> set[str]:
-    """Of `sdata_syms`, which appear in a tracked-C body in this file
-    (not in INCLUDE_ASM/extern/comments)? Those carry gp_rel-flip risk
-    if their def is colocated."""
-    body = _strip_for_cref(tu_c_text)
-    return {s for s in sdata_syms if re.search(rf"\b{s}\b", body)}
+def inc_extern_symbols(tu_path: Path, tu_c_text: str) -> set[str]:
+    """Symbols declared `extern` in any `.inc` / `.c.inc` fragment the TU
+    #includes. Those fragments are hand-matched code we must not edit, so
+    a def we inline must NOT conflict with their extern's type. Simplest
+    safe rule: skip inlining any such symbol (leave it in the sidecar's
+    separate .o, where the extern + def don't share a translation unit)."""
+    out: set[str] = set()
+    extern_re = re.compile(r'\bextern\b[^;]*\b(D_[0-9A-Fa-f]{8})\b')
+    for m in re.finditer(r'#include\s+"([^"]+\.inc)"', tu_c_text):
+        inc = (tu_path.parent / m.group(1)).resolve()
+        if not inc.exists():
+            continue
+        try:
+            itext = inc.read_text(errors="replace")
+        except Exception:
+            continue
+        for em in extern_re.finditer(itext):
+            out.add(em.group(1))
+    return out
+
+
+def _included_inc_text(tu_path: Path, tu_c_text: str) -> str:
+    """Concatenated text of every `.inc` / `.c.inc` fragment the TU
+    #includes. These are compiled as part of the TU, so a symbol they
+    reference is a real C reference for codegen purposes."""
+    parts: list[str] = []
+    for m in re.finditer(r'#include\s+"([^"]+\.inc)"', tu_c_text):
+        inc = (tu_path.parent / m.group(1)).resolve()
+        if inc.exists():
+            try:
+                parts.append(inc.read_text(errors="replace"))
+            except Exception:
+                pass
+    return "\n".join(parts)
+
+
+def c_referenced(tu_c_text: str, inc_text: str, syms: set[str]) -> set[str]:
+    """Of `syms`, which appear in a compiled-C body of this TU — the `.c`
+    OR any `.c.inc` fragment it #includes (excluding INCLUDE_ASM / extern
+    / comments)? A member of this set must NOT be inlined: colocating its
+    def can change the referencing function's addressing (gp_rel vs
+    absolute) and thus its code size (see classify)."""
+    body = _strip_for_cref(tu_c_text) + "\n" + _strip_for_cref(inc_text)
+    return {s for s in syms if re.search(rf"\b{s}\b", body)}
 
 
 def already_defined_inline(tu_c_text: str) -> set[str]:
@@ -458,10 +532,11 @@ def main() -> int:
 
     sect_filter = set(args.sections) if args.sections else None
 
-    # Which owned .sdata symbols are referenced by a tracked C body here?
-    owned_sdata = {s for s, (_v, sct, _b) in all_bytes.items()
-                   if sct == ".sdata"}
-    sdata_crefs = sdata_c_referenced(tu_c_text, owned_sdata)
+    # Which owned symbols are referenced by a tracked C body here? A
+    # <=8-byte one carries the gp_rel hazard if inlined (see classify).
+    inc_text = _included_inc_text(tu_path, tu_c_text)
+    c_refs = c_referenced(tu_c_text, inc_text, set(all_bytes))
+    inc_externs = inc_extern_symbols(tu_path, tu_c_text)
 
     results: list[Result] = []
     # void* pointer tables: always skipped, but surface them in the table.
@@ -481,7 +556,7 @@ def main() -> int:
         vma, sect, data = all_bytes[sym]
         if sect_filter and sect not in sect_filter:
             continue
-        results.append(classify(sym, vma, sect, data, sdata_crefs))
+        results.append(classify(sym, vma, sect, data, c_refs, inc_externs))
 
     emit = [r for r in results if r.action == "emit"]
     skip = [r for r in results if r.action == "skip"]

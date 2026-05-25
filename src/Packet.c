@@ -18,43 +18,161 @@
  */
 
 
-__attribute__((section(".rodata.0x00554FD0"))) const char D_00554FD0[16] = "src/Packet.c";
+const char D_00554EE0[48] = "IN %s\n%s:NoTexture Polygon(s) exist(s).\n";
 
-__attribute__((section(".rodata.0x00555038"))) const char D_00555038[24] = "pac_makeNormalStrip";
-__attribute__((section(".rodata.0x00555050"))) const char D_00555050[24] = "pac_getWeight(0)";
-__attribute__((section(".rodata.0x00555068"))) const char D_00555068[24] = "pac_getWeight(1)";
-__attribute__((section(".rodata.0x00555080"))) const char D_00555080[24] = "pac_getWeight(2)";
-__attribute__((section(".rodata.0x00555138"))) const char D_00555138[24] = "pac_makeClusterStrip";
-__attribute__((section(".rodata.0x005551E0"))) const char D_005551E0[16] = "GIFTAG    :";
-__attribute__((section(".rodata.0x00555308"))) const char D_00555308[32] = "pac_countOneVertexPacketSize";
+const char D_00554F10[48] = "IN %s\n%s:NoNormal Cluster Model exists.\n";
 
-/* String rodata migrated from Packet_data.c */
-__attribute__((section(".rodata.0x00554EE0"))) const char D_00554EE0[48] = "IN %s\n%s:NoTexture Polygon(s) exist(s).\n";
-__attribute__((section(".rodata.0x00554F10"))) const char D_00554F10[48] = "IN %s\n%s:NoNormal Cluster Model exists.\n";
-__attribute__((section(".rodata.0x00554F40"))) const char D_00554F40[48] = "IN %s\n%s:Abnormal Weight Data exist(s).\n";
-__attribute__((section(".rodata.0x00554F70"))) const char D_00554F70[56] = "IN %s\n%s:Too Much Weight (>=4) Vertex exist(s).\n";
-__attribute__((section(".rodata.0x00554FA8"))) const char D_00554FA8[40] = "IN %s\n%s:No Weight Vertex exist(s).\n";
-__attribute__((section(".rodata.0x00555098"))) const char D_00555098[56] = "vertex has 3 cluster-weights %d(%f) %d(%f) %d(%f)\n";
-__attribute__((section(".rodata.0x005550D0"))) const char D_005550D0[40] = "warning:weight total %f VtxIdx:%d\n";
-__attribute__((section(".rodata.0x00555150"))) const char D_00555150[32] = "over 60 skeltons exist.\n";
-__attribute__((section(".rodata.0x00555170"))) const char D_00555170[32] = "color table not exists.\n";
-__attribute__((section(".rodata.0x00555190"))) const char D_00555190[16] = "DMAOPEN   :%p\n";
-__attribute__((section(".rodata.0x005551A0"))) const char D_005551A0[32] = "VIFUNPACK :%08x %08x (%p:%d)\n";
-__attribute__((section(".rodata.0x005551F0"))) const char D_005551F0[40] = "pac_continueTag:Packet too small. %d\n";
-__attribute__((section(".rodata.0x00555218"))) const char D_00555218[40] = "Original Strip Too Long. Size %d\n";
-__attribute__((section(".rodata.0x00555240"))) const char D_00555240[24] = "size(0x%x) strips(%d)\n";
-__attribute__((section(".rodata.0x00555258"))) const char D_00555258[16] = "--- cut ---\n\n";
-__attribute__((section(".rodata.0x00555268"))) const char D_00555268[56] = "gif over! cut! %d/%d polys:%d/%d fchain:%d vif+gif:%d\n";
-__attribute__((section(".rodata.0x005552A0"))) const char D_005552A0[24] = "chain too long! cut!\n";
-__attribute__((section(".rodata.0x005552B8"))) const char D_005552B8[48] = "pac_copyStrip:No Enough Memory for Packet.\n";
-__attribute__((section(".rodata.0x005552E8"))) const char D_005552E8[32] = "ALL:src:%p => dst:%p (size:%x)\n";
-__attribute__((section(".rodata.0x00555328"))) const char D_00555328[40] = "pac_makeStrip:No Memory To Convert.\n";
-__attribute__((section(".rodata.0x00555350"))) const char D_00555350[40] = "pac_makeStrip:No Tex Poly Exists.%s\n";
-__attribute__((section(".rodata.0x00555398"))) const char D_00555398[88] = "IN OBJECT \"%s\"\nHUGE PACKET (SIZE:0x%x) APPEARED\nMAYBE INFLATE MEMORY AREA WAS BROKEN.\n";
-__attribute__((section(".rodata.0x005553F0"))) const char D_005553F0[48] = "pac_makeTextureTable:\n\tTexture not Found. %s\n";
-__attribute__((section(".rodata.0x00555420"))) const char D_00555420[56] = "pac_makePacket:Material Table Not Found. (%s:%s)\n";
-__attribute__((section(".rodata.0x00555458"))) const char D_00555458[24] = "illegal size = %d\n";
-__attribute__((section(".rodata.0x00555470"))) const char D_00555470[32] = "illegal vertex num %d\n";
+const char D_00554F40[48] = "IN %s\n%s:Abnormal Weight Data exist(s).\n";
+
+const char D_00554F70[56] = "IN %s\n%s:Too Much Weight (>=4) Vertex exist(s).\n";
+
+const char D_00554FA8[40] = "IN %s\n%s:No Weight Vertex exist(s).\n";
+
+const char D_00554FD0[16] = "src/Packet.c";
+
+const char D_00555038[24] = "pac_makeNormalStrip";
+
+const char D_00555050[24] = "pac_getWeight(0)";
+
+const char D_00555068[24] = "pac_getWeight(1)";
+
+const char D_00555080[24] = "pac_getWeight(2)";
+
+const char D_00555098[56] = "vertex has 3 cluster-weights %d(%f) %d(%f) %d(%f)\n";
+
+const char D_005550D0[40] = "warning:weight total %f VtxIdx:%d\n";
+
+const char D_00555138[24] = "pac_makeClusterStrip";
+
+const char D_00555150[32] = "over 60 skeltons exist.\n";
+
+const char D_00555170[32] = "color table not exists.\n";
+
+const char D_00555190[16] = "DMAOPEN   :%p\n";
+
+const char D_005551A0[32] = "VIFUNPACK :%08x %08x (%p:%d)\n";
+
+unsigned int D_005551C0[8] = { 0x00008000, 0x20004000, 0x00000051, 0x00000000, 0x00008000, 0x30004000, 0x00000512, 0x00000000 };
+
+const char D_005551E0[16] = "GIFTAG    :";
+
+const char D_005551F0[40] = "pac_continueTag:Packet too small. %d\n";
+
+const char D_00555218[40] = "Original Strip Too Long. Size %d\n";
+
+const char D_00555240[24] = "size(0x%x) strips(%d)\n";
+
+const char D_00555258[16] = "--- cut ---\n\n";
+
+const char D_00555268[56] = "gif over! cut! %d/%d polys:%d/%d fchain:%d vif+gif:%d\n";
+
+const char D_005552A0[24] = "chain too long! cut!\n";
+
+const char D_005552B8[48] = "pac_copyStrip:No Enough Memory for Packet.\n";
+
+const char D_005552E8[32] = "ALL:src:%p => dst:%p (size:%x)\n";
+
+const char D_00555308[32] = "pac_countOneVertexPacketSize";
+
+const char D_00555328[40] = "pac_makeStrip:No Memory To Convert.\n";
+
+const char D_00555350[40] = "pac_makeStrip:No Tex Poly Exists.%s\n";
+
+const char D_00555398[88] = "IN OBJECT \"%s\"\nHUGE PACKET (SIZE:0x%x) APPEARED\nMAYBE INFLATE MEMORY AREA WAS BROKEN.\n";
+
+const char D_005553F0[48] = "pac_makeTextureTable:\n\tTexture not Found. %s\n";
+
+const char D_00555420[56] = "pac_makePacket:Material Table Not Found. (%s:%s)\n";
+
+const char D_00555458[24] = "illegal size = %d\n";
+
+const char D_00555470[32] = "illegal vertex num %d\n";
+
+const char D_005554A0[16] = "\000\200\000\000\000@\0000\022\005";
+
+unsigned int D_005554D0[4] = { 0x00000000, 0x50004000, 0x00052521, 0x00000000 };
+
+const char D_00631CD8[8] = "%02x";
+
+const char D_00631CE0[8] = " ";
+
+const char D_00631CE8[8] = "%12f ";
+
+unsigned int D_00631CF0[2] = { 0x0000000A, 0x00000000 };
+
+const char D_00631D00[8] = " (%d)\n";
+
+const char D_00631D08[8] = "e";
+
+const char D_00631D10[8] = "%s";
+
+const char D_00631D18[8] = "%s_l";
+
+const char D_00631D20[8] = "%s_ref";
+
+const char D_00631D28[8] = "0";
+
+const char D_00631D30[8] = "%s";
+
+const char D_00631D38[8] = "FALSE";
+
+unsigned char D_00631D40[8] = { 0 };
+
+const char D_00631D48[8] = "0";
+
+unsigned int D_00631D50 = 0x00000000;
+
+unsigned int D_00631D54 = 0x00000000;
+
+unsigned char D_00631D58 = 0x00;
+
+unsigned char D_00631D59 = 0x00;
+
+unsigned char D_00631D5A = 0x00;
+
+unsigned int D_00631D60[2] = { 0x00000053, 0xFFFFFFFF };
+
+const char D_00631D68[8] = "On";
+
+unsigned int D_00631D70 = 0x0066664F;
+
+unsigned int D_00631D74 = 0x00000000;
+
+const char D_00631D78[8] = "%s : %s";
+
+const char D_00631D80[8] = "%s : %d";
+
+const char D_00631D88[8] = "0";
+
+const char D_00631D90[8] = "BGA";
+
+const char D_00631D98[8] = "e";
+
+const char D_00631DA0[8] = "PSMT8";
+
+const char D_00631DA8[8] = "PSMT4";
+
+const char D_00631DB0[8] = "PSMCT32";
+
+const char D_00631DB8[8] = "PSMCT24";
+
+const char D_00631DC0[8] = "PSMCT16";
+
+const char D_00631DC8[8] = "NONE";
+
+const char D_00631DD0[8] = "0";
+
+const char D_00631DD8[8] = "FALSE";
+
+const char D_00631DE0[8] = "ICO";
+
+const char D_00631DE8[8] = "e";
+
+const char D_00631DF0[8] = "%s";
+
+const char D_00631DF8[8] = "1:%s\n";
+
+const char D_00631E00[8] = "%s.tm2";
 
 #include "include_asm.h"
 
@@ -145,8 +263,8 @@ void func_0011BF40(int a0)
 
 /* ASCII debug strings — re-derived from EE rodata bytes. */
 /* ASCII preview: "<ESC>[31msorce normal model data broken! %f %f %f %f [%d]<ESC>[0m<LF>" */
-__attribute__((section(".rodata.0x00554FF8"))) const char D_00554FF8[64] = "\033[31msorce normal model data broken! %f %f %f %f [%d]\033[0m\n";
+const char D_00554FF8[64] = "\033[31msorce normal model data broken! %f %f %f %f [%d]\033[0m\n";
 /* ASCII preview: "<ESC>[31msorce cluster model data broken! %f %f %f %f [%d]<ESC>[0m<LF>" */
-__attribute__((section(".rodata.0x005550F8"))) const char D_005550F8[64] = "\033[31msorce cluster model data broken! %f %f %f %f [%d]\033[0m\n";
+const char D_005550F8[64] = "\033[31msorce cluster model data broken! %f %f %f %f [%d]\033[0m\n";
 /* ASCII preview: "<ESC>[31mMaxPacketSize = %d<ESC>[0m<LF>" */
-__attribute__((section(".rodata.0x00555378"))) const char D_00555378[32] = "\033[31mMaxPacketSize = %d\033[0m\n";
+const char D_00555378[32] = "\033[31mMaxPacketSize = %d\033[0m\n";

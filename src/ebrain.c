@@ -18,20 +18,35 @@
  */
 
 
-__attribute__((section(".rodata.0x0055AE08"))) const char D_0055AE08[16] = "src/ebrain.c";
+const char D_0055ADE0[40] = "eBrainStatusSet: ebrain area over\n";
 
-__attribute__((section(".rodata.0x0055AE18"))) const char D_0055AE18[16] = "UseStageNo>0";
-__attribute__((section(".rodata.0x0055AE28"))) const char D_0055AE28[24] = "GeneratorLabel>0";
-__attribute__((section(".rodata.0x005F2FB8"))) const char D_005F2FB8[32] = "NULL";
-__attribute__((section(".rodata.0x005F2FD8"))) const char D_005F2FD8[32] = "dummy";
+const char D_0055AE08[16] = "src/ebrain.c";
 
-/* String rodata migrated from ebrain_data.c */
-__attribute__((section(".rodata.0x0055ADE0"))) const char D_0055ADE0[40] = "eBrainStatusSet: ebrain area over\n";
+const char D_0055AE18[16] = "UseStageNo>0";
 
-/* Float rodata migrated from ebrain_data.c */
-__attribute__((section(".rodata.0x005F2FF8"))) const float D_005F2FF8[16] = { 5.356473e+07f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 255.0f, 255.0f, 255.0f, 255.0f, 0.0f, 128.0f, 255.0f };
+const char D_0055AE28[24] = "GeneratorLabel>0";
 
-/* Single-float rodata migrated from ebrain_data.c */
+const char D_005F2FB8[32] = "NULL";
+
+const char D_005F2FD8[32] = "dummy";
+
+const float D_005F2FF8[16] = { 5.356473e+07f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 255.0f, 255.0f, 255.0f, 255.0f, 0.0f, 128.0f, 255.0f };
+
+unsigned int D_00632770 = 0x7F7FFFFF;
+
+unsigned int D_00632780 = 0x00000000;
+
+unsigned int D_00632784 = 0x00000000;
+
+unsigned char D_00632788[8] = { 0 };
+
+const char D_00632790[8] = "0";
+
+const char D_00632798[8] = "0";
+
+const char D_006327A0[8] = "revive";
+
+const char D_006327A8[8] = "error!";
 
 #include "include_asm.h"
 
