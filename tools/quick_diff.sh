@@ -30,8 +30,10 @@ elif [[ -f "tough_nuts/$NAME/$NAME.c" ]]; then
     CSRC="tough_nuts/$NAME/$NAME.c"
 elif [[ -f "sound/$NAME.c" ]]; then
     CSRC="sound/$NAME.c"
+elif [[ -f "ios/$NAME.c" ]]; then
+    CSRC="ios/$NAME.c"
 else
-    echo "quick_diff: no src/$NAME.c, tough_nuts/$NAME/$NAME.c, or sound/$NAME.c" >&2
+    echo "quick_diff: no src/$NAME.c, tough_nuts/$NAME/$NAME.c, sound/$NAME.c, or ios/$NAME.c" >&2
     exit 3
 fi
 
@@ -46,9 +48,11 @@ for candidate in \
     "asm/matchings/$NAME" \
     "asm/matchings/src/$NAME" \
     "asm/matchings/sound/$NAME" \
+    "asm/matchings/ios/$NAME" \
     "asm/nonmatchings/$NAME" \
     "asm/nonmatchings/src/$NAME" \
-    "asm/nonmatchings/sound/$NAME"; do
+    "asm/nonmatchings/sound/$NAME" \
+    "asm/nonmatchings/ios/$NAME"; do
     if [[ -d "$candidate" ]]; then
         ASM_DIR="$candidate"
         break
