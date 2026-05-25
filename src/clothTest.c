@@ -62,6 +62,10 @@ const char D_00633380[8] = "%s";
 const char D_00633388[8] = "%s%s";
 unsigned int D_00633390 = 0x00000000;
 
+/* Inlined data (Phase 3e) — migrated from clothTest_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
 int *func_001C92D8(void)
 {
     int *p = func_0013A0F8(D_00632010, 0x290, (char *)D_00618960, 0x41);

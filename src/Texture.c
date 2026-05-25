@@ -131,6 +131,10 @@ unsigned int D_00631F18 = 0x00000020;
 unsigned int D_00631F1C = 0x00000000;
 unsigned char D_00631F20[8] = { 0 };
 
+/* Inlined data (Phase 3e) — migrated from Texture_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
 #include "include_asm.h"
 
 extern void func_001FBAA8(int a0, int a1, int a2);

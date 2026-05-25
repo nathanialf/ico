@@ -74,6 +74,10 @@ const char D_00612498[48] = "object/sdf/demo/conte13/d13.smb";
 
 const char D_006124C8[48] = "object/sdf/demo/conte06/e3d6.smb";
 
+/* Inlined data (Phase 3e) — migrated from StageAnimation_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
 #include "include_asm.h"
 #include "regpin.h"
 

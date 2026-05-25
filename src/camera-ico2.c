@@ -106,6 +106,10 @@ unsigned int D_00632D34 = 0x00000000;
 
 unsigned int D_00632D38 = 0x00000000;
 
+/* Inlined data (Phase 3e) — migrated from camera-ico2_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
 #include "include_asm.h"
 #include "regpin.h"
 

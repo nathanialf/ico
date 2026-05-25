@@ -374,10 +374,27 @@ def classify(sym: str, vma: int, sect: str, data: bytes,
         return r
 
     # Address tables before strings: pointer blobs typed as byte arrays
-    # in the sidecar can false-positive _looks_like_string.
+    # in the sidecar can false-positive _looks_like_string. Emit as a
+    # `void *[]` of literal addresses (byte-identical to the resolved
+    # pointers in the baseelf; no relocations/externs needed). Resolvable
+    # targets get a `/* &sym */` comment for readability. (Misaligned
+    # pointer tables were already routed to array-misaligned above.)
     if _looks_like_address_table(data) or _is_pointer_table(data):
+        mf = _load_map()
+        words = [int.from_bytes(data[i:i + 4], "little")
+                 for i in range(0, size, 4)]
+        parts = []
+        for w in words:
+            named = _resolve_word_as_pointer(w, mf) if mf else None
+            if w == 0:
+                parts.append("(void *)0")
+            elif named:
+                parts.append(f"(void *)0x{w:08X} /* {named} */")
+            else:
+                parts.append(f"(void *)0x{w:08X}")
         r.category = "pointer-table"
-        r.reason = "address/pointer table (needs hand-typing)"
+        r.action = "emit"
+        r.lines = [f"void *{sym}[{len(words)}] = {{ {', '.join(parts)} }};"]
         return r
 
     if _looks_like_string(data):

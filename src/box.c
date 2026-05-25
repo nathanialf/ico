@@ -82,6 +82,10 @@ const char D_00618818[16] = "b_mantle";
 
 const char D_00618828[16] = "tape_boro";
 
+/* Inlined data (Phase 3e) — migrated from box_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
 #include "include_asm.h"
 #include "matching.h"
 

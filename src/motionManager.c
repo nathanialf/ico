@@ -770,6 +770,10 @@ const char D_006336F8[8] = "AURA V2";
 /* String rodata migrated from motionManager_data.c */
 const char D_00633700[8] = "SUN";
 
+/* Inlined data (Phase 3e) — migrated from motionManager_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
 #include "include_asm.h"
 #include "matching.h"
 #include "regpin.h"

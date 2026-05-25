@@ -535,6 +535,10 @@ unsigned int D_006337B4 = 0x00000001;
 
 unsigned int D_006337B8 = 0x00000000;
 
+/* Inlined data (Phase 3e) — migrated from FileManager_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
 #include "include_asm.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/FileManager", func_0010EE90);

@@ -290,6 +290,10 @@ unsigned int D_00633058 = 0x00000000;
 /* scalars */
 unsigned int D_0063305C = 0x00000000;
 
+/* Inlined data (Phase 3e) — migrated from delayFreeManager_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
 #include "include_asm.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/delayFreeManager", func_00102558);

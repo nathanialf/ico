@@ -537,6 +537,10 @@ const char D_00633190[8] = "0";
 /* strings */
 const char D_00632138[8] = "FINDPAD";
 
+/* Inlined data (Phase 3e) — migrated from layout_texture_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
 #include "include_asm.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/layout_texture", func_001B6CD0);
