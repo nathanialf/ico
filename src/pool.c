@@ -74,6 +74,21 @@ unsigned int D_00631B78 = 0x80FFFFFF;
 
 unsigned int D_00631B7C = 0xFFFFFFFF;
 
+/* Inlined data (Phase 3e) — migrated from pool_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_00630998 = 0x3DCCCCCD;
+unsigned int D_0063099C = 0x3F4CCCCD;
+unsigned int D_006309A0 = 0x3F933333;
+unsigned int D_006309A4 = 0x3F4CCCCD;
+unsigned int D_006309A8 = 0x3E99999A;
+unsigned int D_006309AC = 0x3BA3D70A;
+unsigned int D_006309B0 = 0x3C23D70A;
+unsigned int D_006309B4 = 0x3C23D70A;
+unsigned int D_006309B8 = 0x3D4CCCCD;
+
 #include "include_asm.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/pool", func_0010B2D0);

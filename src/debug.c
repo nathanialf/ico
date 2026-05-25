@@ -569,6 +569,19 @@ unsigned int D_00633850 = 0x7F7FFFFF;
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each
  * at its original VMA. See tools/inline_tu_data.py. */
 
+/* Inlined data (Phase 3e) — migrated from debug_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_006310E0 = 0x38E90453;
+unsigned int D_006310E4 = 0x3C23D70A;
+unsigned int D_006310E8 = 0x38E90453;
+unsigned int D_006310EC = 0x3A83126F;
+unsigned int D_006310F0 = 0x3A83126F;
+unsigned int D_006310F4 = 0x4B189680;
+unsigned int D_006310F8 = 0x3F4CCCCD;
+
 #include "include_asm.h"
 #include "matching.h"
 

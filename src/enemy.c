@@ -110,6 +110,45 @@ unsigned char D_00633430[8] = { 0 };
 
 unsigned int D_00633438 = 0x00000000;
 
+/* Inlined data (Phase 3e) — migrated from enemy_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_00631230 = 0x3A83126F;
+unsigned int D_00631234 = 0x3EAAAA3B;
+unsigned int D_00631238 = 0x461C4000;
+unsigned int D_0063123C = 0x451C4000;
+unsigned int D_00631240 = 0x461C4000;
+unsigned int D_00631244 = 0x3727C5AC;
+unsigned int D_00631248 = 0x3F666666;
+unsigned int D_0063124C = 0x3D4CCCCD;
+unsigned int D_00631250 = 0x47C35000;
+unsigned int D_00631254 = 0x47C35000;
+unsigned int D_00631258 = 0x3F733333;
+unsigned int D_0063125C = 0x37800080;
+unsigned int D_00631260 = 0x3F7FFF58;
+unsigned int D_00631264 = 0x3C23D70A;
+unsigned int D_00631268 = 0x37800080;
+unsigned int D_0063126C = 0x3727C5AC;
+unsigned int D_00631270 = 0x3F7AE148;
+unsigned int D_00631274 = 0x3F7AE148;
+unsigned int D_00631278 = 0x3F7AE148;
+unsigned int D_0063127C = 0x3F7AE148;
+unsigned int D_00631280 = 0x3E99999A;
+unsigned int D_00631284 = 0x3DCCCCCD;
+unsigned int D_00631288 = 0x3DA3D70A;
+unsigned int D_0063128C = 0x3F99999A;
+unsigned int D_00631290 = 0x3F99999A;
+unsigned int D_00631294 = 0x3F6B851F;
+unsigned int D_00631298 = 0x3F4CCCCD;
+unsigned int D_0063129C = 0x3E99999A;
+unsigned int D_006312A0 = 0x3F4CCCCD;
+unsigned int D_006312A4 = 0x3F333333;
+unsigned int D_006312A8 = 0x44026136;
+unsigned int D_006312AC = 0x3D4CCCCD;
+unsigned int D_006312B0 = 0x461C4000;
+
 #include "include_asm.h"
 
 extern unsigned short D_00633398;

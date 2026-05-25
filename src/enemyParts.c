@@ -160,6 +160,10 @@ unsigned int D_004C48B0[54] = { 0x00000000, 0x00000001, 0x00000002, 0x00000003, 
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each
  * at its original VMA. See tools/inline_tu_data.py. */
 
+/* Inlined data (Phase 3e) — migrated from enemyParts_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
 #include "include_asm.h"
 
 extern char D_0061D560[];

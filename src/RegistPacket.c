@@ -41,6 +41,10 @@ unsigned int D_005558E0[3] = { 0x00000004, 0x00000004, 0x00002000 };
 /* strings */
 unsigned int D_00632CA4 = 0x00000000;
 
+/* Inlined data (Phase 3e) — migrated from RegistPacket_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
 #include "include_asm.h"
 
 const char D_00555620[48] = "reg_setShape:illegal vertex index. %d/%d\n";

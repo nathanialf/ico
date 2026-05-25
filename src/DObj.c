@@ -212,6 +212,10 @@ unsigned int D_00632880 = 0x00000000;
 
 unsigned int D_00632884 = 0x00000000;
 
+/* Inlined data (Phase 3e) — migrated from DObj_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
 #include "include_asm.h"
 
 extern int D_00632010;

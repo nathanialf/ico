@@ -247,6 +247,10 @@ const char D_006320F8[8] = "%d %d\n";
 const char D_00632100[8] = "evt:%d\n";
 unsigned char D_00632108[8] = { 0 };
 
+/* Inlined data (Phase 3e) — migrated from cdvd_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
 #include "include_asm.h"
 
 extern void func_0013A5B8(int *a0, int a1, int a2);

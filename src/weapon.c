@@ -266,6 +266,40 @@ unsigned int D_005FFDD8[16606] = { 0x656A626F, 0x732F7463, 0x732F6664, 0x6136327
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each
  * at its original VMA. See tools/inline_tu_data.py. */
 
+/* Inlined data (Phase 3e) — migrated from weapon_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_00631408 = 0x3DCCCCCD;
+unsigned int D_0063140C = 0x3DCCCCCD;
+unsigned int D_00631410 = 0x3C23D70A;
+unsigned int D_00631414 = 0x3DCCCCCD;
+unsigned int D_00631418 = 0x3F333333;
+unsigned int D_0063141C = 0x3F4CCCCD;
+unsigned int D_00631420 = 0x3CA3D70A;
+unsigned int D_00631424 = 0x3D4CCCCD;
+unsigned int D_00631428 = 0x410FFFF6;
+unsigned int D_0063142C = 0x410FFFF6;
+unsigned int D_00631430 = 0x402A3D71;
+unsigned int D_00631434 = 0x43360B61;
+unsigned int D_00631438 = 0x43360B61;
+unsigned int D_0063143C = 0x40490FDB;
+unsigned int D_00631440 = 0x4622F983;
+unsigned int D_00631444 = 0x3C23D70A;
+unsigned int D_00631448 = 0xC53B8000;
+unsigned int D_0063144C = 0x45992000;
+unsigned int D_00631450 = 0x3FC90FDB;
+unsigned int D_00631454 = 0x43B18000;
+unsigned int D_00631458 = 0x461C4000;
+unsigned int D_0063145C = 0x46AFC800;
+unsigned int D_00631460 = 0x461C4000;
+unsigned int D_00631464 = 0x471C4000;
+unsigned int D_00631468 = 0x3FC90FDB;
+unsigned int D_0063146C = 0x45992000;
+unsigned int D_00631470 = 0x46AFC800;
+unsigned int D_00631474 = 0x463D1000;
+
 #include "include_asm.h"
 #include "matching.h"
 #include "regpin.h"

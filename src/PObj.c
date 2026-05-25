@@ -1650,6 +1650,16 @@ unsigned int D_00531818[10384] = { 0x732F7463, 0x65676174, 0x74746573, 0x2F676E6
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each
  * at its original VMA. See tools/inline_tu_data.py. */
 
+/* Inlined data (Phase 3e) — migrated from PObj_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_006318C0 = 0x4B7FFFFF;
+unsigned int D_006318C4 = 0xCB7FFFFF;
+unsigned int D_006318C8 = 0x4B7FFFFF;
+unsigned int D_006318CC = 0xCB7FFFFF;
+
 #include "include_asm.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/PObj", func_002413F0);

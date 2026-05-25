@@ -350,6 +350,112 @@ unsigned int D_00590058[5247] = { 0xBF800000, 0x00000013, 0xBF800000, 0x00000013
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each
  * at its original VMA. See tools/inline_tu_data.py. */
 
+/* Inlined data (Phase 3e) — migrated from commonact_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_00630C48 = 0x3C23D70A;
+unsigned int D_00630CE0 = 0x47AFC800;
+unsigned int D_00630CE4 = 0x3A83126F;
+unsigned int D_00630CE8 = 0x3DCCCCCD;
+unsigned int D_00630CEC = 0x3F7D70A4;
+unsigned int D_00630CF0 = 0x3DCCCCCD;
+unsigned int D_00630CF4 = 0x3F7D70A4;
+unsigned int D_00630CF8 = 0x3DCCCCCD;
+unsigned int D_00630CFC = 0x3F7D70A4;
+unsigned int D_00630D00 = 0x3DCCCCCD;
+unsigned int D_00630D04 = 0x3DCCCCCD;
+unsigned int D_00630D08 = 0x3DCCCCCD;
+unsigned int D_00630D0C = 0x461C4000;
+unsigned int D_00630D10 = 0x38D1B717;
+unsigned int D_00630D14 = 0x3C23D70A;
+unsigned int D_00630D18 = 0x3DCCCCCD;
+unsigned int D_00630D1C = 0x40490FDB;
+unsigned int D_00630D20 = 0x3F333333;
+unsigned int D_00630D24 = 0x3F333333;
+unsigned int D_00630D28 = 0x3F333333;
+unsigned int D_00630D2C = 0x3F333333;
+unsigned int D_00630D30 = 0x481C4000;
+unsigned int D_00630D34 = 0x3F333333;
+unsigned int D_00630D38 = 0x481C4000;
+unsigned int D_00630D3C = 0x49AFC800;
+unsigned int D_00630D40 = 0x471C4000;
+unsigned int D_00630D44 = 0x43AA8000;
+unsigned int D_00630D48 = 0x3D4CCCCD;
+unsigned int D_00630D4C = 0x3D4CCCCD;
+unsigned int D_00630D50 = 0x3E99999A;
+unsigned int D_00630D54 = 0x461C4000;
+unsigned int D_00630D58 = 0x47AFC800;
+unsigned int D_00630D5C = 0x481C4000;
+unsigned int D_00630D60 = 0x471C4000;
+unsigned int D_00630D64 = 0x48742400;
+unsigned int D_00630D68 = 0x46AFC800;
+unsigned int D_00630D6C = 0x481C4000;
+unsigned int D_00630D70 = 0x3DCCCCCD;
+unsigned int D_00630D74 = 0x450FC000;
+unsigned int D_00630D78 = 0x44548000;
+unsigned int D_00630D7C = 0x450FC000;
+unsigned int D_00630D80 = 0x44548000;
+unsigned int D_00630D84 = 0x443B8000;
+unsigned int D_00630D88 = 0x44228000;
+unsigned int D_00630D8C = 0x446D8000;
+unsigned int D_00630D90 = 0x44ED8000;
+unsigned int D_00630D94 = 0x44598000;
+unsigned int D_00630D98 = 0x461C4000;
+unsigned int D_00630D9C = 0x471C4000;
+unsigned int D_00630DA0 = 0x47AFC800;
+unsigned int D_00630DA4 = 0x461C4000;
+unsigned int D_00630DA8 = 0x461C4000;
+unsigned int D_00630DAC = 0x461C4000;
+unsigned int D_00630DB0 = 0x461C4000;
+unsigned int D_00630DB4 = 0x461C4000;
+unsigned int D_00630DB8 = 0x47AFC800;
+unsigned int D_00630DBC = 0x461C4000;
+unsigned int D_00630DC0 = 0x40490FDB;
+unsigned int D_00630DC4 = 0x461C4000;
+unsigned int D_00630DC8 = 0x40490FDB;
+unsigned int D_00630DCC = 0x461C4000;
+unsigned int D_00630DD0 = 0x40490FDB;
+unsigned int D_00630DD4 = 0x44BB8000;
+unsigned int D_00630DD8 = 0x46AFC800;
+unsigned int D_00630DDC = 0x48742400;
+unsigned int D_00630DE0 = 0x3A83126F;
+unsigned int D_00630DE4 = 0x3DCCCCCD;
+unsigned int D_00630DE8 = 0x3DCCCCCD;
+unsigned int D_00630DEC = 0x3F7D70A4;
+unsigned int D_00630DF0 = 0x3DCCCCCD;
+unsigned int D_00630DF4 = 0x3F7D70A4;
+unsigned int D_00630DF8 = 0x3DCCCCCD;
+unsigned int D_00630DFC = 0x3DCCCCCD;
+unsigned int D_00630E00 = 0x3DCCCCCD;
+unsigned int D_00630E04 = 0x3DCCCCCD;
+unsigned int D_00630E08 = 0x3DCCCCCD;
+unsigned int D_00630E0C = 0x3DCCCCCD;
+unsigned int D_00630E10 = 0x3DCCCCCD;
+unsigned int D_00630E14 = 0x48742400;
+unsigned int D_00630E18 = 0x3E99999A;
+unsigned int D_00630E1C = 0x3F666666;
+unsigned int D_00630E20 = 0x3FA66666;
+unsigned int D_00630E24 = 0x3DCCCCCD;
+unsigned int D_00630E28 = 0xBFC90FDB;
+unsigned int D_00630E2C = 0x3DCCCCCD;
+unsigned int D_00630E30 = 0x3F333333;
+unsigned int D_00630E34 = 0x3F19999A;
+unsigned int D_00630E7C = 0x456FA000;
+unsigned int D_00630E80 = 0x3F4CCCCD;
+unsigned int D_00630E84 = 0x3EE66666;
+unsigned int D_00630E88 = 0x456FA000;
+unsigned int D_00630E8C = 0x3F7D70A4;
+unsigned int D_00630E90 = 0x3DCCCCCD;
+unsigned int D_00630E94 = 0x3F4CCCCD;
+unsigned int D_00630E98 = 0x3EE66666;
+unsigned int D_00630E9C = 0x441C4000;
+unsigned int D_00630EA0 = 0x44CE4000;
+unsigned int D_00630EA4 = 0x45834000;
+unsigned int D_00630EA8 = 0x4541C000;
+unsigned int D_00630EAC = 0x3C23D70A;
+
 #include "include_asm.h"
 
 extern void (*D_006323F4)(int, int);

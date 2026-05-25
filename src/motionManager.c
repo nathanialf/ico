@@ -774,6 +774,97 @@ const char D_00633700[8] = "SUN";
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each
  * at its original VMA. See tools/inline_tu_data.py. */
 
+/* Inlined data (Phase 3e) — migrated from motionManager_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_006312B4 = 0x3C23D70A;
+unsigned int D_006312B8 = 0x3C23D70A;
+unsigned int D_006312BC = 0x3C23D70A;
+unsigned int D_006312C0 = 0x3F99999A;
+unsigned int D_006312C4 = 0x3C23D70A;
+unsigned int D_006312C8 = 0x3C23D70A;
+unsigned int D_006312CC = 0x3C23D70A;
+unsigned int D_006312D0 = 0x3F666666;
+unsigned int D_006312D4 = 0x43509B89;
+unsigned int D_006312D8 = 0x3F19999A;
+unsigned int D_006312DC = 0x3F666666;
+unsigned int D_006312E0 = 0x3F666666;
+unsigned int D_006312E4 = 0x3F7D70A4;
+unsigned int D_006312E8 = 0x392EC33E;
+unsigned int D_006312EC = 0x3F4CCCCD;
+unsigned int D_006312F0 = 0x3C23D70A;
+unsigned int D_006312F4 = 0x3C23D70A;
+unsigned int D_006312F8 = 0x3C23D70A;
+unsigned int D_006312FC = 0x3C23D70A;
+unsigned int D_00631300 = 0x461C4000;
+unsigned int D_00631304 = 0x461C4000;
+unsigned int D_00631308 = 0x461C4000;
+unsigned int D_0063130C = 0x3C23D70A;
+unsigned int D_00631310 = 0xBF7D70A4;
+unsigned int D_00631314 = 0x47435000;
+unsigned int D_00631318 = 0xBE99999A;
+unsigned int D_0063131C = 0x3F68F5C2;
+unsigned int D_00631320 = 0xBE99999A;
+unsigned int D_00631324 = 0x3F68F5C2;
+unsigned int D_00631328 = 0x3DCCCCCD;
+unsigned int D_0063132C = 0x3F333333;
+unsigned int D_00631330 = 0x3F4CCCCD;
+unsigned int D_00631334 = 0x3F733333;
+unsigned int D_00631338 = 0x461C4000;
+unsigned int D_0063133C = 0x461C4000;
+unsigned int D_00631340 = 0x3F4CCCCD;
+unsigned int D_00631344 = 0x3F4CCCCD;
+unsigned int D_00631348 = 0x4622F983;
+unsigned int D_0063134C = 0x3E4CCCCD;
+unsigned int D_00631350 = 0xBDCCCCCD;
+unsigned int D_00631354 = 0x3F666666;
+unsigned int D_00631358 = 0x3D8F5C29;
+unsigned int D_0063135C = 0x3E4CCCCD;
+unsigned int D_00631360 = 0x461C4000;
+unsigned int D_00631364 = 0x461C4000;
+unsigned int D_00631368 = 0x4622F983;
+unsigned int D_0063136C = 0x3DCCCCCD;
+unsigned int D_00631370 = 0x358637BD;
+unsigned int D_00631374 = 0x358637BD;
+unsigned int D_00631378 = 0x358637BD;
+unsigned int D_0063137C = 0x4622F983;
+unsigned int D_00631380 = 0x3DCCCCCD;
+unsigned int D_00631384 = 0x3E4CCCCD;
+unsigned int D_00631388 = 0x3C23D70A;
+unsigned int D_0063138C = 0x38D1B717;
+unsigned int D_00631390 = 0x38D1B717;
+unsigned int D_00631394 = 0x3C23D70A;
+unsigned int D_00631398 = 0x38D1B717;
+unsigned int D_0063139C = 0x3C23D70A;
+unsigned int D_006313A0 = 0x3C23D70A;
+unsigned int D_006313A4 = 0x457FF000;
+unsigned int D_006313A8 = 0x3E4CCCCD;
+unsigned int D_006313AC = 0x457FF000;
+unsigned int D_006313B0 = 0x4622F983;
+unsigned int D_006313B4 = 0x4622F983;
+unsigned int D_006313B8 = 0x3C23D70A;
+unsigned int D_006313BC = 0x41FEA5DD;
+unsigned int D_006313C0 = 0x4622F983;
+unsigned int D_006313C4 = 0x4622F983;
+unsigned int D_006313C8 = 0x4622F983;
+unsigned int D_006313CC = 0x4622F983;
+unsigned int D_006313D0 = 0x40490FDB;
+unsigned int D_006313D4 = 0x461C4000;
+unsigned int D_006313D8 = 0x3F666666;
+unsigned int D_006313DC = 0x49742400;
+unsigned int D_006313E0 = 0x3E3A2E8C;
+unsigned int D_006313E4 = 0x3F666666;
+unsigned int D_006313E8 = 0x3DCCCCCD;
+unsigned int D_006313EC = 0x3DCCCCCD;
+unsigned int D_006313F0 = 0x44BB8000;
+unsigned int D_006313F4 = 0x3DCCCCCD;
+unsigned int D_006313F8 = 0x43360B61;
+unsigned int D_006313FC = 0x3F333333;
+unsigned int D_00631400 = 0x3F333333;
+unsigned int D_00631404 = 0x3F666666;
+
 #include "include_asm.h"
 #include "matching.h"
 #include "regpin.h"

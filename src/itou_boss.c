@@ -100,6 +100,23 @@ const float D_0055C260[12] = { 7.0f, 6.0f, 6.0f, 5.0f, 5.0f, 4.0f, 4.0f, 4.0f, 4
 
 const float D_0055C290[12] = { 5.0f, 5.0f, 5.0f, 5.0f, 5.0f, 5.0f, 5.0f, 5.0f, 5.0f, 5.0f, 5.0f, 0.0f };
 
+/* Inlined data (Phase 3e) — migrated from itou_boss_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_0063103C = 0x3F7AE148;
+unsigned int D_00631040 = 0x3F060A92;
+unsigned int D_00631044 = 0x3CA3D70A;
+unsigned int D_00631048 = 0x3F99999A;
+unsigned int D_0063104C = 0x40C90FDB;
+unsigned int D_00631050 = 0x4622F983;
+unsigned int D_00631054 = 0x3FC90FDB;
+unsigned int D_00631058 = 0x3FC90FDB;
+unsigned int D_0063105C = 0x4622F983;
+unsigned int D_00631060 = 0x40C90FDB;
+unsigned int D_00631064 = 0x4622F983;
+
 #include "include_asm.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/itou_boss", func_00198218);

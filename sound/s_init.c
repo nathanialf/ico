@@ -66,6 +66,18 @@ const char D_00632248[8] = "first\n";
 const char D_00632250[8] = "set\n";
 unsigned int D_00632CCC = 0x00000000;
 
+/* Inlined data (Phase 3e) — migrated from s_init_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_00630ABC = 0x453B8000;
+unsigned int D_00630AC0 = 0x3DCCCCCD;
+unsigned int D_00630AC4 = 0x3C8EFA35;
+unsigned int D_00630AC8 = 0x3F4CCCCD;
+unsigned int D_00630ACC = 0x3F4CCCCD;
+unsigned int D_00630AD0 = 0x459C4000;
+
 #include "include_asm.h"
 #include "matching.h"
 #include "regpin.h"

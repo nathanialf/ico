@@ -154,6 +154,38 @@ const char D_00632820[8] = "%s\n";
 
 unsigned int D_00632828[2] = { 0xB7010000, 0x00000000 };
 
+/* Inlined data (Phase 3e) — migrated from queen_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_00631068 = 0x3A83126F;
+unsigned int D_00631078 = 0x3D567750;
+unsigned int D_0063107C = 0x3DB2B8C3;
+unsigned int D_00631080 = 0x3DFA35DE;
+unsigned int D_00631084 = 0x3CA3D70A;
+unsigned int D_00631088 = 0x3D4CCCCD;
+unsigned int D_0063108C = 0x40C90FDB;
+unsigned int D_00631090 = 0x40490FDB;
+unsigned int D_00631094 = 0x40C90FDB;
+unsigned int D_00631098 = 0xC0490FDB;
+unsigned int D_0063109C = 0x40C90FDB;
+unsigned int D_006310A0 = 0x40C90FDB;
+unsigned int D_006310A4 = 0x40490FDB;
+unsigned int D_006310A8 = 0x40C90FDB;
+unsigned int D_006310AC = 0xC0490FDB;
+unsigned int D_006310B0 = 0x40C90FDB;
+unsigned int D_006310B4 = 0x40C90FDB;
+unsigned int D_006310B8 = 0x40490FDB;
+unsigned int D_006310BC = 0x40C90FDB;
+unsigned int D_006310C0 = 0xC0490FDB;
+unsigned int D_006310C4 = 0x40C90FDB;
+unsigned int D_006310C8 = 0x459C4000;
+unsigned int D_006310CC = 0x45124925;
+unsigned int D_006310D0 = 0x4622F983;
+unsigned int D_006310D4 = 0x3EAA7EFA;
+unsigned int D_006310D8 = 0x40490FDB;
+
 #include "include_asm.h"
 #include "regpin.h"
 #include "matching.h"

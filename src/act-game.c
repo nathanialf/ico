@@ -82,6 +82,10 @@ float D_0063225C            = 3.4028235e38f;
 const char D_00632260[8]    = "BOMB!!\n";
 const char D_00632268[4]    = "!!\n";
 
+/* Inlined data (Phase 3e) — migrated from act-game_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
 #include "include_asm.h"
 #include "regpin.h"
 #include "matching.h"

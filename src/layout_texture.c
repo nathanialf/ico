@@ -541,6 +541,22 @@ const char D_00632138[8] = "FINDPAD";
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each
  * at its original VMA. See tools/inline_tu_data.py. */
 
+/* Inlined data (Phase 3e) — migrated from layout_texture_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_00631104 = 0x3D4CCCCD;
+unsigned int D_00631108 = 0x3CCCCCCD;
+unsigned int D_0063110C = 0x3ECCCCCD;
+unsigned int D_00631110 = 0x40490FDB;
+unsigned int D_00631114 = 0x40490FDB;
+unsigned int D_00631118 = 0x461C4000;
+unsigned int D_0063111C = 0x3F4CCCCD;
+unsigned int D_00631120 = 0x3DCCCCCD;
+unsigned int D_00631124 = 0x451C4000;
+unsigned int D_00631128 = 0x3DCCCCCD;
+
 #include "include_asm.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/layout_texture", func_001B6CD0);

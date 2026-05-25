@@ -62,6 +62,20 @@ const char D_0055AEF8[16] = "unlock! = %d\n";
 /* numeric word tables */
 unsigned int D_00564150[24] = { 0x44FBE000, 0x44F32000, 0xC5338000, 0x00000134, 0x44FC8000, 0x44F32000, 0xC5338000, 0x00000135, 0x44504000, 0xC3938000, 0x44D1E000, 0x0000038D, 0x4492C000, 0xC4956000, 0xC2AE0000, 0x0000062D, 0x44678000, 0xC4956000, 0xC4288000, 0x0000062E, 0xC1700000, 0xC478C000, 0xC3340000, 0x00000BFA };
 
+/* Inlined data (Phase 3e) — migrated from generator_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_00630FA4 = 0x46AFC800;
+unsigned int D_00630FA8 = 0x46AFC800;
+unsigned int D_00630FAC = 0x46AFC800;
+unsigned int D_00630FB0 = 0x40490FDB;
+unsigned int D_00630FB4 = 0x40490FDB;
+unsigned int D_00630FB8 = 0x40490FDB;
+unsigned int D_00630FBC = 0x40490FDB;
+unsigned int D_00630FC0 = 0x40490FDB;
+
 #include "include_asm.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/generator", func_001920A8);

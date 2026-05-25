@@ -294,6 +294,35 @@ unsigned int D_0063305C = 0x00000000;
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each
  * at its original VMA. See tools/inline_tu_data.py. */
 
+/* Inlined data (Phase 3e) — migrated from delayFreeManager_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_00630900 = 0x3F9E0651;
+unsigned int D_00630904 = 0xC7C35000;
+unsigned int D_00630908 = 0x47C35000;
+unsigned int D_0063090C = 0x3C23D70A;
+unsigned int D_00630910 = 0x3C23D70A;
+unsigned int D_00630914 = 0x3C23D70A;
+unsigned int D_00630918 = 0x3C23D70A;
+unsigned int D_0063091C = 0x3C23D70A;
+unsigned int D_00630920 = 0x3C23D70A;
+unsigned int D_00630924 = 0x3C23D70A;
+unsigned int D_00630928 = 0x3C23D70A;
+unsigned int D_0063092C = 0x3C23D70A;
+unsigned int D_00630930 = 0x3C23D70A;
+unsigned int D_00630934 = 0x3C23D70A;
+unsigned int D_00630938 = 0x3C23D70A;
+unsigned int D_0063093C = 0x358637BE;
+unsigned int D_00630940 = 0x3F4CCCCD;
+unsigned int D_00630944 = 0x4622F983;
+unsigned int D_00630948 = 0x461C4000;
+unsigned int D_0063094C = 0x461C4000;
+unsigned int D_006309BC = 0x3FC90FDB;
+unsigned int D_006309C0 = 0x46800200;
+unsigned int D_006309C4 = 0x4622F983;
+
 #include "include_asm.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/delayFreeManager", func_00102558);

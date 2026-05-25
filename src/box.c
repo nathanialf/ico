@@ -86,6 +86,61 @@ const char D_00618828[16] = "tape_boro";
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each
  * at its original VMA. See tools/inline_tu_data.py. */
 
+/* Inlined data (Phase 3e) — migrated from box_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_00631140 = 0x3E4CCCCD;
+unsigned int D_00631144 = 0x3E4CCCCD;
+unsigned int D_00631148 = 0x3F34FDF4;
+unsigned int D_0063114C = 0x3F34FDF4;
+unsigned int D_00631150 = 0x3C23D70B;
+unsigned int D_00631154 = 0x4622F983;
+unsigned int D_00631158 = 0x3E4CCCCD;
+unsigned int D_0063115C = 0x3EA2F983;
+unsigned int D_00631160 = 0x3EA2F983;
+unsigned int D_00631164 = 0x3D4CCCCD;
+unsigned int D_0063116C = 0x428D6667;
+unsigned int D_00631170 = 0xBDCCCCCD;
+unsigned int D_00631174 = 0x3F666666;
+unsigned int D_00631178 = 0x3C23D70B;
+unsigned int D_0063117C = 0xBC23D70A;
+unsigned int D_00631180 = 0x3F733333;
+unsigned int D_00631184 = 0x41A3D70A;
+unsigned int D_00631188 = 0x3DCCCCCD;
+unsigned int D_00631190 = 0x3F59999A;
+unsigned int D_00631194 = 0x3F7AE148;
+unsigned int D_00631198 = 0x3F7AE148;
+unsigned int D_0063119C = 0x3D4CCCCD;
+unsigned int D_006311A0 = 0x47C35000;
+unsigned int D_006311A4 = 0x3F7AE148;
+unsigned int D_006311A8 = 0x3F59999A;
+unsigned int D_006311AC = 0x3F7AE148;
+unsigned int D_006311B0 = 0x3DCCCCCD;
+unsigned int D_006311B4 = 0x3C23D70A;
+unsigned int D_006311B8 = 0x3F666666;
+unsigned int D_006311BC = 0x3D4CCCCD;
+unsigned int D_006311C0 = 0x3ECCCCCD;
+unsigned int D_006311C4 = 0x4197FFF6;
+unsigned int D_006311C8 = 0x3D4CCCCD;
+unsigned int D_006311CC = 0x3ECCCCCD;
+unsigned int D_006311D0 = 0x3F666666;
+unsigned int D_006311D4 = 0x3F333333;
+unsigned int D_006311D8 = 0x3C23D70A;
+unsigned int D_006311DC = 0x3A83126F;
+unsigned int D_006311E0 = 0x3D75C28F;
+unsigned int D_006311E4 = 0x3F7EB852;
+unsigned int D_006311E8 = 0x4622F983;
+unsigned int D_006311EC = 0x452AA000;
+unsigned int D_006311F0 = 0x4622F983;
+unsigned int D_006311F4 = 0x3C23D70A;
+unsigned int D_006311F8 = 0x358637BD;
+unsigned int D_006311FC = 0x3F4CCCCD;
+unsigned int D_00631200 = 0x3F7AE148;
+unsigned int D_00631204 = 0x3E4CCCCD;
+unsigned int D_00631208 = 0x3E4CCCCD;
+
 #include "include_asm.h"
 #include "matching.h"
 

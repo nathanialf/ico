@@ -26,6 +26,42 @@ const char D_006327D8[8] = "FLY";
 const char D_006327E0[8] = "FLY E1";
 const char D_006327E8[8] = "FLY E2";
 
+/* Inlined data (Phase 3e) — migrated from mail-add-data_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_00630FC4 = 0x3DCCCCCD;
+unsigned int D_00630FC8 = 0x3C0EFA35;
+unsigned int D_00630FCC = 0x40490FDB;
+unsigned int D_00630FD0 = 0x40490FDB;
+unsigned int D_00630FD4 = 0x40490FDB;
+unsigned int D_00630FD8 = 0x4622F983;
+unsigned int D_00630FDC = 0x3F333333;
+unsigned int D_00630FE0 = 0x40C90FDB;
+unsigned int D_00630FE4 = 0x3DB2B8C3;
+unsigned int D_00630FE8 = 0x40C90FDB;
+unsigned int D_00630FEC = 0x3E8F5C29;
+unsigned int D_00630FF0 = 0x3E8F5C29;
+unsigned int D_00630FF4 = 0x3ECCCCCD;
+unsigned int D_00630FF8 = 0x3F333333;
+unsigned int D_00630FFC = 0x40C90FDB;
+unsigned int D_00631000 = 0x40C90FDB;
+unsigned int D_00631004 = 0x3E4CCCCD;
+unsigned int D_00631008 = 0x40C90FDB;
+unsigned int D_0063100C = 0x3C888889;
+unsigned int D_00631010 = 0x40C90FDB;
+unsigned int D_00631014 = 0x40C90FDB;
+unsigned int D_00631018 = 0x3D0EFA35;
+unsigned int D_0063101C = 0xBD0EFA35;
+unsigned int D_00631020 = 0x3F19999A;
+unsigned int D_00631024 = 0xBFA66666;
+unsigned int D_00631028 = 0x3F19999A;
+unsigned int D_0063102C = 0x3E124925;
+unsigned int D_00631030 = 0x3E4CCCCD;
+unsigned int D_00631034 = 0x3A83126F;
+unsigned int D_00631038 = 0x40C90FDB;
+
 #include "include_asm.h"
 
 extern float D_006D35C0[];

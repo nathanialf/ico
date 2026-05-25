@@ -210,6 +210,10 @@ unsigned char D_006326D8[8] = { 0 };
 
 unsigned int D_006326E0 = 0x3F800000;
 
+/* Inlined data (Phase 3e) — migrated from camera-editor_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
 #include "include_asm.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", func_00182D20);

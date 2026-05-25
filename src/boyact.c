@@ -79,15 +79,6 @@ extern float D_00630C14;
 extern float D_00630C18;
 extern float D_00630C1C;
 extern float D_00630C20;
-extern float D_00630C24;
-extern float D_00630C28;
-extern float D_00630C2C;
-extern float D_00630C30;
-extern float D_00630C34;
-extern float D_00630C38;
-extern float D_00630C3C;
-extern float D_00630C40;
-extern float D_00630C44;
 extern float D_00630C48;
 extern int D_00631AE4;
 extern int D_00631AE8;
@@ -252,6 +243,21 @@ unsigned int D_00632D9C = 0x00000000;
 unsigned int D_00632DA0 = 0x00000000;
 
 unsigned int D_00632DA4 = 0x00000000;
+
+/* Inlined data (Phase 3e) — migrated from boyact_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_00630C24 = 0x471C4000;
+unsigned int D_00630C28 = 0x40490FDB;
+unsigned int D_00630C2C = 0x40490FDB;
+unsigned int D_00630C30 = 0x40490FDB;
+unsigned int D_00630C34 = 0x40490FDB;
+unsigned int D_00630C38 = 0x40490FDB;
+unsigned int D_00630C3C = 0x3F490FDB;
+unsigned int D_00630C40 = 0x40490FDB;
+unsigned int D_00630C44 = 0x3E4CCCCD;
 
 #include "include_asm.h"
 #include "matching.h"

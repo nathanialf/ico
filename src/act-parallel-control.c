@@ -154,6 +154,10 @@ unsigned char D_006322A8[8] = { 0 };
 /* data D_002E4E00[2628] (10 KB of state-table ints) remains in the
  * sidecar — opaque enough that the hex form there is the right home. */
 
+/* Inlined data (Phase 3e) — migrated from act-parallel-control_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
 #include "include_asm.h"
 #include "matching.h"
 #include "regpin.h"

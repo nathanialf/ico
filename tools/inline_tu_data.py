@@ -291,6 +291,37 @@ def _looks_like_address_table(data: bytes) -> bool:
     return all(0x00100000 <= w < 0x00700000 for w in nonzero)
 
 
+def _emit_array_value(sym: str, data: bytes) -> tuple[str, list[str], str | None]:
+    """Lines for an 8-aligned array def. Returns (category, lines, euc).
+    Empty lines ⇒ couldn't represent (caller skips as opaque)."""
+    size = len(data)
+    if all(b == 0 for b in data):
+        return "all-zero", [f"unsigned char {sym}[{size}] = {{ 0 }};"], None
+    if _looks_like_address_table(data) or _is_pointer_table(data):
+        mf = _load_map()
+        words = [int.from_bytes(data[i:i + 4], "little")
+                 for i in range(0, size, 4)]
+        parts = []
+        for w in words:
+            named = _resolve_word_as_pointer(w, mf) if mf else None
+            if w == 0:
+                parts.append("(void *)0")
+            elif named:
+                parts.append(f"(void *)0x{w:08X} /* {named} */")
+            else:
+                parts.append(f"(void *)0x{w:08X}")
+        return "pointer-table", [f"void *{sym}[{len(words)}] = {{ {', '.join(parts)} }};"], None
+    if _looks_like_string(data):
+        lit, euc = _c_string_literal(data)
+        return "string", [f"const char {sym}[{size}] = {lit};"], euc
+    if size % 4 == 0:
+        words = [int.from_bytes(data[i:i + 4], "little")
+                 for i in range(0, size, 4)]
+        parts = ", ".join(f"0x{w:08X}" for w in words)
+        return "word-array", [f"unsigned int {sym}[{len(words)}] = {{ {parts} }};"], None
+    return "opaque", [], None
+
+
 def classify(sym: str, vma: int, sect: str, data: bytes,
              c_refs: set[str], inc_externs: set[str],
              asm_gprel: set[str]) -> Result:
@@ -315,12 +346,6 @@ def classify(sym: str, vma: int, sect: str, data: bytes,
     if sym in inc_externs:
         r.category = "inc-extern"
         r.reason = "extern in included .c.inc (type-conflict risk)"
-        return r
-
-    # .lit4 floats — deferred (no clean ee-gcc default placement).
-    if sect == ".lit4":
-        r.category = "lit4"
-        r.reason = "lit4 float (deferred)"
         return r
 
     # Symbol referenced by an ee-gcc-compiled C body in THIS TU → leave it
@@ -361,72 +386,43 @@ def classify(sym: str, vma: int, sect: str, data: bytes,
         r.action = "emit"
         return r
 
-    # --- Arrays: only safe at an 8-aligned VMA (.align 3 hazard) ---
-    if vma % 8 != 0:
-        r.category = "array-misaligned"
-        r.reason = f"array at 4-aligned VMA (.align 3 would shift +{8 - vma % 8})"
-        return r
-
-    if all(b == 0 for b in data):
-        r.category = "all-zero"
-        r.action = "emit"
-        r.lines = [f"unsigned char {sym}[{size}] = {{ 0 }};"]
-        return r
-
-    # Address tables before strings: pointer blobs typed as byte arrays
-    # in the sidecar can false-positive _looks_like_string. Emit as a
-    # `void *[]` of literal addresses (byte-identical to the resolved
-    # pointers in the baseelf; no relocations/externs needed). Resolvable
-    # targets get a `/* &sym */` comment for readability. (Misaligned
-    # pointer tables were already routed to array-misaligned above.)
-    if _looks_like_address_table(data) or _is_pointer_table(data):
-        mf = _load_map()
-        words = [int.from_bytes(data[i:i + 4], "little")
-                 for i in range(0, size, 4)]
-        parts = []
-        for w in words:
-            named = _resolve_word_as_pointer(w, mf) if mf else None
-            if w == 0:
-                parts.append("(void *)0")
-            elif named:
-                parts.append(f"(void *)0x{w:08X} /* {named} */")
-            else:
-                parts.append(f"(void *)0x{w:08X}")
-        r.category = "pointer-table"
-        r.action = "emit"
-        r.lines = [f"void *{sym}[{len(words)}] = {{ {', '.join(parts)} }};"]
-        return r
-
-    if _looks_like_string(data):
-        # Size guard: a huge non-zero blob inlined verbatim would blow
-        # check_no_rom.sh's 256 KB per-file cap. Leave oversized ones in
-        # the sidecar (they're gitignored, so the cap doesn't apply there).
-        if size > MAX_INLINE_BYTES:
-            r.category = "too-large"
-            r.reason = f"string {size} B > {MAX_INLINE_BYTES} cap"
+    # --- Arrays at an 8-aligned VMA: emit directly (no .align 3 shift) ---
+    if vma % 8 == 0:
+        cat, lines, euc = _emit_array_value(sym, data)
+        if lines:
+            r.category, r.action, r.lines, r.euc = cat, "emit", lines, euc
             return r
-        lit, euc = _c_string_literal(data)
-        r.category = "string"
-        r.action = "emit"
-        r.euc = euc
-        r.lines = [f"const char {sym}[{size}] = {lit};"]
+        r.category = "opaque"
+        r.reason = "opaque (not 4-divisible / no inferable shape)"
         return r
 
-    if size % 4 == 0 and not _is_pointer_table(data):
-        if size > MAX_INLINE_BYTES:
-            r.category = "too-large"
-            r.reason = f"word-array {size} B > {MAX_INLINE_BYTES} cap"
-            return r
-        words = [int.from_bytes(data[i:i + 4], "little")
-                 for i in range(0, size, 4)]
-        parts = ", ".join(f"0x{w:08X}" for w in words)
-        r.category = "word-array"
+    # --- Arrays at a 4-aligned-not-8 VMA: ee-gcc forces .align 3 on any
+    # array, shifting it +4. Split into a 4-byte scalar head (natural
+    # .align 2, safe at the 4-aligned VMA) + an 8-aligned tail array
+    # under a VMA-named synthetic symbol. The migrator skips the original
+    # symbol's whole extent once it sees the head defined, so the tail
+    # isn't double-emitted. ---
+    if vma % 8 == 4 and size >= 4:
+        head = int.from_bytes(data[0:4], "little")
+        lines = [f"unsigned int {sym} = 0x{head:08X};"]
+        tail = data[4:]
+        if tail:
+            tail_vma = vma + 4  # now 8-aligned
+            tcat, tlines, teuc = _emit_array_value(f"D_{tail_vma:08X}", tail)
+            if not tlines:
+                r.category = "array-misaligned"
+                r.reason = "misaligned tail not representable"
+                return r
+            if teuc:
+                lines.append(f'/* EUC-JP: "{teuc}" */')
+            lines += tlines
+        r.category = "misaligned-split"
         r.action = "emit"
-        r.lines = [f"unsigned int {sym}[{len(words)}] = {{ {parts} }};"]
+        r.lines = lines
         return r
 
-    r.category = "opaque"
-    r.reason = "opaque / record / pointer-table (needs RE)"
+    r.category = "array-misaligned"
+    r.reason = f"unhandled alignment (vma%8={vma % 8})"
     return r
 
 

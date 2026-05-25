@@ -17,22 +17,6 @@
  * asm-generated and sidecar definitions.
  */
 
-extern float D_00630E3C;
-extern float D_00630E40;
-extern float D_00630E44;
-extern float D_00630E48;
-extern float D_00630E4C;
-extern float D_00630E50;
-extern float D_00630E54;
-extern float D_00630E58;
-extern float D_00630E5C;
-extern float D_00630E60;
-extern float D_00630E64;
-extern float D_00630E68;
-extern float D_00630E6C;
-extern float D_00630E70;
-extern float D_00630E74;
-extern float D_00630E78;
 extern float D_00630E7C;
 extern float D_00630E80;
 extern float D_00630E84;
@@ -138,6 +122,29 @@ unsigned int D_006325BC = 0x00000000;
 unsigned char D_006325C0[8] = { 0 };
 unsigned int D_006325C8 = 0x00000000;
 unsigned int D_006325CC = 0x00000000;
+
+/* Inlined data (Phase 3e) — migrated from way_util_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_00630E38 = 0x461C4000;
+unsigned int D_00630E3C = 0x47C35000;
+unsigned int D_00630E40 = 0x47C35000;
+unsigned int D_00630E44 = 0x47C35000;
+unsigned int D_00630E48 = 0x47C35000;
+unsigned int D_00630E4C = 0x47C35000;
+unsigned int D_00630E50 = 0x47C35000;
+unsigned int D_00630E54 = 0x47C35000;
+unsigned int D_00630E58 = 0x47C35000;
+unsigned int D_00630E5C = 0x47C35000;
+unsigned int D_00630E60 = 0x47C35000;
+unsigned int D_00630E64 = 0x47C35000;
+unsigned int D_00630E68 = 0x47C35000;
+unsigned int D_00630E6C = 0x471C4000;
+unsigned int D_00630E70 = 0x471C4000;
+unsigned int D_00630E74 = 0x40490FDB;
+unsigned int D_00630E78 = 0x40490FDB;
 
 #include "include_asm.h"
 #include "matching.h"

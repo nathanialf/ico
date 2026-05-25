@@ -32,6 +32,15 @@ const char D_00618620[16] = " - \244\255\244\354\244\312\244\244\n";
 /* Float rodata migrated from attackCheckBoundary_data.c */
 const float D_0061E730[6] = { 0.0f, -8e+01f, 15.0f, 0.0f, 1.8e+02f, 0.0f };
 
+/* Inlined data (Phase 3e) — migrated from attackCheckBoundary_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_00631134 = 0x3D4CCCCD;
+unsigned int D_00631138 = 0x461C4000;
+unsigned int D_0063113C = 0x461C4000;
+
 #include "include_asm.h"
 #include "regpin.h"
 

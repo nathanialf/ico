@@ -48,6 +48,15 @@ const char D_006327A0[8] = "revive";
 
 const char D_006327A8[8] = "error!";
 
+/* Inlined data (Phase 3e) — migrated from ebrain_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_00630F98 = 0x40490FDB;
+unsigned int D_00630F9C = 0x48742400;
+unsigned int D_00630FA0 = 0x48742400;
+
 #include "include_asm.h"
 
 void func_00190698(char *self) {

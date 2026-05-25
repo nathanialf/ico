@@ -78,6 +78,14 @@ const char D_006124C8[48] = "object/sdf/demo/conte06/e3d6.smb";
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each
  * at its original VMA. See tools/inline_tu_data.py. */
 
+/* Inlined data (Phase 3e) — migrated from StageAnimation_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_00630A70 = 0x3FB504F3;
+unsigned int D_00630A74 = 0x3FB504F3;
+
 #include "include_asm.h"
 #include "regpin.h"
 

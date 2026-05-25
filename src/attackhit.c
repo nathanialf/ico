@@ -36,6 +36,28 @@ unsigned int D_00632604 = 0x7F7FFFFF;
 unsigned int D_00632608[2] = { 0x7F7FFFFF, 0x00000000 };
 unsigned int D_00632610 = 0x03000000;
 
+/* Inlined data (Phase 3e) — migrated from attackhit_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_00630EB0 = 0x44BB8000;
+unsigned int D_00630EB4 = 0x3F7D70A4;
+unsigned int D_00630EB8 = 0x3A83126F;
+unsigned int D_00630EBC = 0x3C23D70A;
+unsigned int D_00630EC0 = 0x3C8EFA35;
+unsigned int D_00630EC4 = 0x3DCCCCCD;
+unsigned int D_00630EC8 = 0x3FF33333;
+unsigned int D_00630ECC = 0x40490FDB;
+unsigned int D_00630ED0 = 0x38D1B717;
+unsigned int D_00630ED4 = 0x38D1B717;
+unsigned int D_00630ED8 = 0x40490FDB;
+unsigned int D_00630EDC = 0x3ECCCCCD;
+unsigned int D_00630EE0 = 0x3ECCCCCD;
+unsigned int D_00630EE4 = 0x3ECCCCCD;
+unsigned int D_00630EE8 = 0x3ECCCCCD;
+unsigned int D_00630EEC = 0x3ECCCCCD;
+
 #include "include_asm.h"
 
 /* sdata */

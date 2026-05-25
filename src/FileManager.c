@@ -539,6 +539,54 @@ unsigned int D_006337B8 = 0x00000000;
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each
  * at its original VMA. See tools/inline_tu_data.py. */
 
+/* Inlined data (Phase 3e) — migrated from FileManager_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_006309C8 = 0x3A83126F;
+unsigned int D_006309CC = 0x4DFFFFFF;
+unsigned int D_006309D0 = 0x3F7D70A4;
+unsigned int D_006309D4 = 0x3EAAA64C;
+unsigned int D_006309D8 = 0x3EAAA64C;
+unsigned int D_006309DC = 0x3DCCCCCD;
+unsigned int D_006309E0 = 0x40490FDB;
+unsigned int D_006309E4 = 0x40060A92;
+unsigned int D_006309E8 = 0x40860A92;
+unsigned int D_006309EC = 0x40490FDB;
+unsigned int D_006309F0 = 0x40490FDB;
+unsigned int D_006309F4 = 0xC0490FDB;
+unsigned int D_006309F8 = 0x40490FDB;
+unsigned int D_006309FC = 0xC0490FDB;
+unsigned int D_00630A00 = 0x40490FDB;
+unsigned int D_00630A04 = 0xC0490FDB;
+unsigned int D_00630A08 = 0x40490FDB;
+unsigned int D_00630A0C = 0x40060A92;
+unsigned int D_00630A10 = 0x3F99999A;
+unsigned int D_00630A14 = 0x3C23D70A;
+unsigned int D_00630A18 = 0x3C23D70A;
+unsigned int D_00630A1C = 0x3F8147AE;
+unsigned int D_00630A20 = 0x3F7D70A4;
+unsigned int D_00630A24 = 0x3C23D70A;
+unsigned int D_00630A28 = 0x3C23D70A;
+unsigned int D_00630A2C = 0x3F8147AE;
+unsigned int D_00630A30 = 0x3F7D70A4;
+unsigned int D_00630A34 = 0x3EAAA64C;
+unsigned int D_00630A38 = 0x3EAAA64C;
+unsigned int D_00630A3C = 0x3F7D70A4;
+unsigned int D_00630A40 = 0x4B7FFFFF;
+unsigned int D_00630A44 = 0xCB7FFFFF;
+unsigned int D_00630A48 = 0x3F008081;
+unsigned int D_00630A4C = 0x3F008081;
+unsigned int D_00630A50 = 0x3F008081;
+unsigned int D_00630A54 = 0x40C90FDB;
+unsigned int D_00630A58 = 0x4622F983;
+unsigned int D_00630A5C = 0x40C90FDB;
+unsigned int D_00630A60 = 0x4622F983;
+unsigned int D_00630A64 = 0x457FF000;
+unsigned int D_00630A68 = 0x40490FDB;
+unsigned int D_00630A6C = 0x4622F983;
+
 #include "include_asm.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/FileManager", func_0010EE90);

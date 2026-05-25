@@ -23,10 +23,6 @@ extern float D_00630EE0;
 extern float D_00630EE4;
 extern float D_00630EE8;
 extern float D_00630EEC;
-extern float D_00630EF0;
-extern float D_00630EF4;
-extern float D_00630EF8;
-extern float D_00630EFC;
 extern float D_006326E0;
 extern int D_00632CF8;
 
@@ -109,6 +105,54 @@ unsigned int D_00632D38 = 0x00000000;
 /* Inlined data (Phase 3e) — migrated from camera-ico2_data.c.
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each
  * at its original VMA. See tools/inline_tu_data.py. */
+
+/* Inlined data (Phase 3e) — migrated from camera-ico2_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_00630EF0 = 0x40490FDB;
+unsigned int D_00630EF4 = 0x40490FDB;
+unsigned int D_00630EF8 = 0x40490FDB;
+unsigned int D_00630EFC = 0x40490FDB;
+unsigned int D_00630F00 = 0xBE4CCCCD;
+unsigned int D_00630F04 = 0x3DCCCCCD;
+unsigned int D_00630F08 = 0x40490FDB;
+unsigned int D_00630F0C = 0x3F19999A;
+unsigned int D_00630F10 = 0xBC23D70A;
+unsigned int D_00630F14 = 0xBD4CCCCD;
+unsigned int D_00630F18 = 0xBE19999A;
+unsigned int D_00630F1C = 0xBC23D70A;
+unsigned int D_00630F20 = 0xBD4CCCCD;
+unsigned int D_00630F24 = 0xBE19999A;
+unsigned int D_00630F28 = 0xBC23D70A;
+unsigned int D_00630F2C = 0xBE4CCCCD;
+unsigned int D_00630F30 = 0xBE99999A;
+unsigned int D_00630F34 = 0xBD4CCCCD;
+unsigned int D_00630F38 = 0xBE19999A;
+unsigned int D_00630F3C = 0xBFC90FDB;
+unsigned int D_00630F40 = 0xBC23D70A;
+unsigned int D_00630F44 = 0xBD4CCCCD;
+unsigned int D_00630F48 = 0xBE19999A;
+unsigned int D_00630F4C = 0xBC23D70A;
+unsigned int D_00630F50 = 0xBD4CCCCD;
+unsigned int D_00630F54 = 0xBE19999A;
+unsigned int D_00630F58 = 0xBFC90FDB;
+unsigned int D_00630F5C = 0xBD4CCCCD;
+unsigned int D_00630F60 = 0x3F2CCCCD;
+unsigned int D_00630F64 = 0x40490FDB;
+unsigned int D_00630F68 = 0x3E4CCCCD;
+unsigned int D_00630F6C = 0x40490FDB;
+unsigned int D_00630F70 = 0x40490FDB;
+unsigned int D_00630F74 = 0xBE4CCCCD;
+unsigned int D_00630F78 = 0x3DCCCCCD;
+unsigned int D_00630F7C = 0xBE4CCCCD;
+unsigned int D_00630F80 = 0x3DCCCCCD;
+unsigned int D_00630F84 = 0x3DCCCCCD;
+unsigned int D_00630F88 = 0xBDCCCCCD;
+unsigned int D_00630F8C = 0x40490FDB;
+unsigned int D_00630F90 = 0xBE4CCCCD;
+unsigned int D_00630F94 = 0x3DCCCCCD;
 
 #include "include_asm.h"
 #include "regpin.h"

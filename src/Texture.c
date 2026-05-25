@@ -135,6 +135,19 @@ unsigned char D_00631F20[8] = { 0 };
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each
  * at its original VMA. See tools/inline_tu_data.py. */
 
+/* Inlined data (Phase 3e) — migrated from Texture_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_00630A78 = 0x40490FDB;
+unsigned int D_00630A7C = 0x4622F983;
+unsigned int D_00630A80 = 0x40490FDB;
+unsigned int D_00630A84 = 0x4622F983;
+unsigned int D_00630A88 = 0x3727C5AC;
+unsigned int D_00630A8C = 0x3C23D70A;
+unsigned int D_00630A90 = 0xC4FFE000;
+
 #include "include_asm.h"
 
 extern void func_001FBAA8(int a0, int a1, int a2);
