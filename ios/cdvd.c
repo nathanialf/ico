@@ -403,7 +403,19 @@ void func_001320E8(int *a0, void *a1, int a2)
 }
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001321C8);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00132388);
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001325D8);
+union U001325D8
+{
+    long long ll;
+    int i[2];
+};
+
+void func_001325D8(int a0, int a1)
+{
+    union U001325D8 *p = (union U001325D8 *) a0;
+    p->i[1] = 1;
+    p->ll = (p->ll & ~1LL) | (a1 & 1);
+    func_0013A5B8(D_0027E4C0, a0, 0);
+}
 
 void func_00132610(int a0)
 {
