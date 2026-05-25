@@ -55,3 +55,10 @@ SWITCH -malign-functions=2
 S_INIT -malign-functions=2
 145178 -fno-schedule-insns
 0D4E30 -fno-schedule-insns
+
+# ios/cdvd.c: func_00131560's if-merge label lands at VMA mod 8 == 4;
+# ee-gcc's default .p2align 3 (8-byte) jump/loop alignment pads it with a
+# stray nop (+4 bytes). -malign-loops=2 emits .p2align 2 instead. The other
+# C-bodied funcs (func_00132610, func_001331D8) have 8-aligned labels, so
+# the flag leaves their bytes unchanged.
+CDVD -malign-loops=2
