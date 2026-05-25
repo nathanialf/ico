@@ -172,7 +172,25 @@ int func_0013B870(void) {
     return D_00633C90;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013B878);
+void func_0013B878(void)
+{
+    int i = 1;
+    int *p;
+    func_002641D8(D_006A6DB0, 0, 0x180);
+    func_0013CE48();
+    func_0013CF08(0, D_00632194);
+    {
+        register unsigned char *base __asm__("$3") = D_002811C0;
+        p = (int *)(base + 0x1B8);
+    }
+    do
+    {
+        func_0013CF70(p);
+        i--;
+        func_0013CF38((int *)((char *) p - 0x14));
+        p = (int *)((char *) p + 0x200);
+    } while (i >= 0);
+}
 void func_0013B8F0(int key)
 {
     if (key == 0)
