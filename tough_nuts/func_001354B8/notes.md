@@ -26,3 +26,15 @@ slot. The barrier needed to prevent loop rotation also blocks that
 cross-block hoist. Without the barrier gcc hoists the lui but b-loops
 (6 diffs). Empty vs memory-clobber barrier, barrier-at-loop-top, literal
 nop, early-advance — none break the trade-off. Permuter should.
+
+## 20-iter update
+Ran the full 20. Confirmed the barrier↔hoist trade-off is gcc-coupled:
+- barrier (any form: empty / "memory" / "+r"(s0)) → correct `bne` do-while
+  loops but NO `lui` in the H-check beq delays → 2 diffs.
+- no barrier → gcc fills the beq delay from the branch target (the post-walk
+  base-recompute `lui v0,0x1`, the wanted insns) BUT also rotates the loop
+  to a `b`-loop → 4 diffs.
+gcc does both-or-neither (same scheduler pass). `-fno-schedule-insns` (6),
+barrier-at-loop-top (4), literal nop (3), s0 pin $16 (5), prev unpinned (2,
+same) all tried. The 2 missing insns are speculative target-fill `lui`s —
+permuter (randomizes scheduling) is the path. Best base = this seed.
