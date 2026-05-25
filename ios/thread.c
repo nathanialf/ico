@@ -316,7 +316,35 @@ void func_0013D928(int *self) {
 
 INCLUDE_ASM_NOP_PAD(func_0013D944);
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013D948);
+extern int func_0013A0F8(int a0, int a1, const char *fmt, int line);
+extern void func_0013A250(int a0, int a1, int a2);
+extern int func_0013A6C0(int *self, int *out, int a2);
+extern void func_001A6E28();
+extern int D_00632000;
+extern const char D_005578D0[];
+extern const char D_00557980[];
+
+int func_0013D948(int *self)
+{
+    int local;
+    if (self[0x48 / 4] == 0)
+    {
+        int m;
+        register int v __asm__("$2") = 1;
+        register int a0v __asm__("$4") = D_00632000;
+        register const char *msg __asm__("$6") = D_005578D0;
+        __asm__("" : "+r"(v));
+        self[0x48 / 4] = v;
+        __asm__("" : "+r"(a0v));
+        __asm__("" : "+r"(msg));
+        m = func_0013A0F8(a0v, 0x50, msg, 0x1FA);
+        self[0x4C / 4] = m;
+        func_0013A250(m, m + 0x30, 8);
+    }
+    func_0013A6C0((int *) self[0x4C / 4], &local, 1);
+    func_001A6E28(D_00557980);
+    return local;
+}
 
 
 
