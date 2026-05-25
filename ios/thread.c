@@ -117,7 +117,35 @@ void func_0013D0A0(unsigned char *p, int a1, int a2) {
     if (a2) *p &= 0xEF;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013D0D0);
+int func_0013D0D0(int *a0, int *a1)
+{
+    register int *node __asm__("$5") = a1;
+    int *next;
+    __asm__("" : "+r"(node));
+    if (node[0x30 / 4] != 0)
+    {
+        *(int *)(node[0x30 / 4] + 0x34) = node[0x34 / 4];
+        next = (int *) node[0x34 / 4];
+    }
+    else
+    {
+        next = (int *) node[0x34 / 4];
+        *a0 = (int) next;
+    }
+    if (next != 0)
+    {
+        next[0x30 / 4] = node[0x30 / 4];
+        next = (int *) node[0x34 / 4];
+    }
+    {
+        void (*fn)(int *, int) = (void (*)(int *, int)) a0[0x8 / 4];
+        if (fn != 0)
+        {
+            fn(node, a0[0xC / 4]);
+        }
+    }
+    return (int) next;
+}
 extern int D_006A6F30[];
 extern int func_00100410(void);
 void func_0013D440(int *a0, int a1);
