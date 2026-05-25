@@ -38,3 +38,12 @@ gcc does both-or-neither (same scheduler pass). `-fno-schedule-insns` (6),
 barrier-at-loop-top (4), literal nop (3), s0 pin $16 (5), prev unpinned (2,
 same) all tried. The 2 missing insns are speculative target-fill `lui`s —
 permuter (randomizes scheduling) is the path. Best base = this seed.
+
+## post-func_0013B7E0/D0D0 re-attempt (iter 21)
+Tried the non-volatile `__asm__("":"+r"(s0))` barrier that cracked
+func_0013B7E0 and func_0013D0D0 — still 2 diffs here. Reason: those two
+were VALUE-anchoring problems (stop gcc copying a pointer). func_001354B8's
+barrier prevents LOOP ROTATION (a structural transform); both volatile and
+non-volatile forms prevent the rotation AND block the lui-hoist equally —
+the rotation and the hoist are the same scheduler decision. early-advance
+idiom = 10 diffs (worse). Genuine floor at 2. Permuter.
