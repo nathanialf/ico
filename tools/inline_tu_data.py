@@ -81,6 +81,11 @@ SDATA_LO, SDATA_HI = SECTION_RANGES[".sdata"]
 # blobs stay in the gitignored sidecar.
 MAX_INLINE_BYTES = 32768
 
+# check_no_rom.sh fails any tracked file > 256 KiB. Keep the inlined .c
+# comfortably under that; the budget pass demotes the largest emits to
+# the sidecar once the projected file size would exceed this.
+FILE_CAP_BYTES = 250000
+
 
 # ---------------------------------------------------------------------------
 # Byte source: parse the TU's _data.c sidecar (already byte-typed),
@@ -287,12 +292,21 @@ def _looks_like_address_table(data: bytes) -> bool:
 
 
 def classify(sym: str, vma: int, sect: str, data: bytes,
-             c_refs: set[str], inc_externs: set[str]) -> Result:
+             c_refs: set[str], inc_externs: set[str],
+             asm_gprel: set[str]) -> Result:
     r = Result(sym, vma, sect, len(data))
     size = len(data)
 
     if size == 0:
         r.reason = "empty"
+        return r
+
+    # >8-byte symbol referenced via %gp_rel by this TU's INCLUDE_ASM:
+    # inlining an oversized local def flips ee-as's gp_rel pseudo to
+    # lui+addiu (1→2 insns), growing the asm function. Leave in sidecar.
+    if size > 8 and sym in asm_gprel:
+        r.category = "asm-gprel-oversized"
+        r.reason = "%gp_rel in TU asm + >8 B (ee-as pseudo would flip)"
         return r
 
     # Declared extern in an included .c.inc fragment (hand-matched code):
@@ -459,6 +473,32 @@ def _included_inc_text(tu_path: Path, tu_c_text: str) -> str:
     return "\n".join(parts)
 
 
+def asm_gprel_symbols(tu_path: Path, tu_c_text: str, inc_text: str) -> set[str]:
+    """Symbols referenced via `%gp_rel(D_X)` in the .s files this TU pulls
+    in through INCLUDE_ASM. ee-as expands that gp_rel pseudo based on the
+    symbol's *defined* size: extern (or <=8 B local) → real gp_rel load
+    (1 insn); a local def > 8 B → not small-data → lui+addiu (2 insns).
+    So inlining a >8-byte def for such a symbol grows the asm function by
+    an instruction per reference, shifting .text → _gp → SHA. Combined
+    with the size>8 gate in classify, this leaves those in the sidecar."""
+    out: set[str] = set()
+    text = tu_c_text + "\n" + inc_text
+    folders = set(re.findall(r'INCLUDE_ASM\w*\s*\(\s*"([^"]+)"', text))
+    gprel_re = re.compile(r'%gp_rel\((D_[0-9A-Fa-f]{8})\)')
+    for folder in folders:
+        d = REPO / folder
+        if not d.is_dir():
+            continue
+        for s in d.glob("*.s"):
+            try:
+                st = s.read_text(errors="replace")
+            except Exception:
+                continue
+            for m in gprel_re.finditer(st):
+                out.add(m.group(1))
+    return out
+
+
 def c_referenced(tu_c_text: str, inc_text: str, syms: set[str]) -> set[str]:
     """Of `syms`, which appear in a compiled-C body of this TU — the `.c`
     OR any `.c.inc` fragment it #includes (excluding INCLUDE_ASM / extern
@@ -537,6 +577,7 @@ def main() -> int:
     inc_text = _included_inc_text(tu_path, tu_c_text)
     c_refs = c_referenced(tu_c_text, inc_text, set(all_bytes))
     inc_externs = inc_extern_symbols(tu_path, tu_c_text)
+    asm_gprel = asm_gprel_symbols(tu_path, tu_c_text, inc_text)
 
     results: list[Result] = []
     # void* pointer tables: always skipped, but surface them in the table.
@@ -556,10 +597,28 @@ def main() -> int:
         vma, sect, data = all_bytes[sym]
         if sect_filter and sect not in sect_filter:
             continue
-        results.append(classify(sym, vma, sect, data, c_refs, inc_externs))
+        results.append(classify(sym, vma, sect, data, c_refs, inc_externs,
+                                 asm_gprel))
 
     emit = [r for r in results if r.action == "emit"]
     skip = [r for r in results if r.action == "skip"]
+
+    # --- Per-file size budget: keep the tracked .c under check_no_rom's
+    # 256 KiB cap. Skip the largest emits (by emitted text length) until
+    # the projected file fits, leaving them in the sidecar. all-zero /
+    # scalars are tiny so they survive; big word-arrays / strings yield. ---
+    def _emit_len(r: Result) -> int:
+        return sum(len(ln) + 1 for ln in r.lines) + (len(r.euc) + 16 if r.euc else 0)
+    projected = len(tu_c_text) + 600 + sum(_emit_len(r) for r in emit)
+    if projected > FILE_CAP_BYTES:
+        for r in sorted(emit, key=_emit_len, reverse=True):
+            if projected <= FILE_CAP_BYTES:
+                break
+            r.action = "skip"
+            r.reason = f"file-cap: would exceed {FILE_CAP_BYTES} B tracked-file limit"
+            projected -= _emit_len(r)
+        emit = [r for r in results if r.action == "emit"]
+        skip = [r for r in results if r.action == "skip"]
 
     # --- Dry-run / summary table ---
     if args.dry_run:
