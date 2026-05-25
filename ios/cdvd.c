@@ -443,5 +443,45 @@ void func_001331D8(int a0)
     return func_0024A1E0(s0[0x160 / 4]);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00133218);
+extern void func_00264DF8(unsigned char *buf, const char *fmt, int a0);
+extern int func_00265168(int a0, unsigned char *buf);
+extern char D_0062FC79[];
+extern char D_00631F70[];
+
+int func_00133218(int a0)
+{
+    unsigned char buf[0x100];
+    unsigned char *p = buf;
+    register unsigned char c __asm__("$3");
+    unsigned char nc;
+    func_00264DF8(buf, D_00631F70, a0);
+    c = buf[0];
+    do
+    {
+        register int t __asm__("$2");
+        int sc;
+        __asm__("" : "+r"(c));
+        t = (int) c << 24;
+        sc = t >> 24;
+        if (sc == '/')
+        {
+            *p = '\\';
+        }
+        else
+        {
+            int r = sc - 0x20;
+            if ((D_0062FC79[sc] & 2) == 0)
+            {
+                r = sc;
+            }
+            *p = r;
+        }
+        p++;
+        nc = *p;
+        c = nc;
+        __asm__("" : "+r"(c));
+    } while (nc != 0);
+    __asm__ __volatile__("" : : : "memory");
+    return func_00265168(a0, buf);
+}
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001332B8);
