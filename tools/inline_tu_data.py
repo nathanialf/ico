@@ -503,33 +503,47 @@ def classify(sym: str, vma: int, sect: str, data: bytes,
         r.reason = "opaque (not 4-divisible / no inferable shape)"
         return r
 
-    # --- Arrays at a 4-aligned-not-8 VMA: ee-gcc forces .align 3 on any
-    # array, shifting it +4. Split into a 4-byte scalar head (natural
-    # .align 2, safe at the 4-aligned VMA) + an 8-aligned tail array
-    # under a VMA-named synthetic symbol. The migrator skips the original
-    # symbol's whole extent once it sees the head defined, so the tail
-    # isn't double-emitted. ---
-    if vma % 8 == 4 and size >= 4:
-        head = int.from_bytes(data[0:4], "little")
-        lines = [f"unsigned int {sym} = 0x{head:08X};"]
-        tail = data[4:]
-        if tail:
-            tail_vma = vma + 4  # now 8-aligned
-            tcat, tlines, teuc = _emit_array_value(f"D_{tail_vma:08X}", tail)
-            if not tlines:
-                r.category = "array-misaligned"
-                r.reason = "misaligned tail not representable"
-                return r
-            if teuc:
-                lines.append(f'/* EUC-JP: "{teuc}" */')
-            lines += tlines
-        r.category = "misaligned-split"
-        r.action = "emit"
-        r.lines = lines
+    # --- Array at a non-8-aligned VMA: ee-gcc forces .align 3 on any
+    # array → +shift. Split into aligned scalar head chunks (each at its
+    # natural alignment: word/short/byte, all safe) until the cursor
+    # reaches an 8-aligned VMA, then an 8-aligned tail array. Head chunks
+    # past the first get VMA-named synthetic symbols; the migrator skips
+    # the original symbol's whole extent once the head (D_X) is defined,
+    # so nothing is double-emitted. ---
+    lines: list[str] = []
+    cursor = vma
+    off = 0
+    first = True
+    while cursor % 8 != 0 and off < size:
+        rem = size - off
+        if cursor % 4 == 0 and rem >= 4:
+            sz, ty = 4, "unsigned int"
+            init = f"0x{int.from_bytes(data[off:off + 4], 'little'):08X}"
+        elif cursor % 2 == 0 and rem >= 2:
+            sz, ty = 2, "unsigned short"
+            init = f"0x{int.from_bytes(data[off:off + 2], 'little'):04X}"
+        else:
+            sz, ty = 1, "unsigned char"
+            init = f"0x{data[off]:02X}"
+        name = sym if first else f"D_{cursor:08X}"
+        lines.append(f"{ty} {name} = {init};")
+        first, cursor, off = False, cursor + sz, off + sz
+    if off < size:  # 8-aligned tail
+        tcat, tlines, teuc = _emit_array_value(f"D_{cursor:08X}", data[off:])
+        if not tlines:
+            r.category = "array-misaligned"
+            r.reason = "misaligned tail not representable"
+            return r
+        if teuc:
+            lines.append(f'/* EUC-JP: "{teuc}" */')
+        lines += tlines
+    if not lines:
+        r.category = "array-misaligned"
+        r.reason = f"unhandled (vma%8={vma % 8}, size={size})"
         return r
-
-    r.category = "array-misaligned"
-    r.reason = f"unhandled alignment (vma%8={vma % 8})"
+    r.category = "misaligned-split"
+    r.action = "emit"
+    r.lines = lines
     return r
 
 

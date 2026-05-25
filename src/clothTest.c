@@ -89,6 +89,22 @@ unsigned int D_0063122C = 0x3C23D70A;
 void *D_004C09C0[2] = { (void *)0x00633330, (void *)0x00633328 };
 void *D_004C09C8[4] = { (void *)0x00633348, (void *)0x00633340, (void *)0x00633338, (void *)0 };
 
+/* Inlined data (Phase 3e) — migrated from clothTest_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* misaligned arrays (scalar head + aligned tail) */
+unsigned char D_006332DB = 0x00;
+unsigned int D_006332DC = 0x00000000;
+unsigned char D_006332EB = 0x80;
+unsigned int D_006332EC = 0x00000000;
+unsigned char D_006332F3 = 0x00;
+unsigned int D_006332F4 = 0x00000000;
+unsigned char D_006332FB = 0x50;
+unsigned int D_006332FC = 0x00000000;
+unsigned short D_00633302 = 0x80FF;
+unsigned int D_00633304 = 0x00000000;
+
 int *func_001C92D8(void)
 {
     int *p = func_0013A0F8(D_00632010, 0x290, (char *)D_00618960, 0x41);

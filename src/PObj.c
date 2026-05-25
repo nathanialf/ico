@@ -1814,6 +1814,16 @@ unsigned char D_005531F0[84] = { 0 };
 unsigned int D_0062F374 = 0x80000000;
 const char D_0062F378[8] = "\000\000\200?";
 
+/* Inlined data (Phase 3e) — migrated from PObj_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* misaligned arrays (scalar head + aligned tail) */
+unsigned char D_0062FC79 = 0x20;
+unsigned short D_0062FC7A = 0x2020;
+unsigned int D_0062FC7C = 0x20202020;
+const char D_0062FC80[256] = "  (((((                  \210\020\020\020\020\020\020\020\020\020\020\020\020\020\020\020\004\004\004\004\004\004\004\004\004\004\020\020\020\020\020\020\020AAAAAA\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\001\020\020\020\020\020\020BBBBBB\002\002\002\002\002\002\002\002\002\002\002\002\002\002\002\002\002\002\002\002\020\020\020\020 ";
+
 #include "include_asm.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/PObj", func_002413F0);
