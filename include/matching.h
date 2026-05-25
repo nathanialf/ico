@@ -14,6 +14,10 @@
 #ifndef MATCHING_H
 #define MATCHING_H
 
+/* Register pins (REG("$N")) live in regpin.h; pull them in so a TU that
+ * includes matching.h gets the full nudge toolkit (pins + barriers). */
+#include "regpin.h"
+
 /* Volatile-param reload + nop-barrier + 1-arg call.
  *
  * Pattern: a `volatile unsigned int a0` parameter is spilled to the
@@ -155,6 +159,16 @@
  * pair. */
 #define MATERIALIZE(x)              __asm__ __volatile__("" : "+r"(x))
 
+/* NON-volatile in/out anchor: same `"+r"` binding as MATERIALIZE but
+ * WITHOUT __volatile__, so it pins the value to its register / defeats a
+ * CSE of the held expression WITHOUT imposing a scheduling boundary. Use
+ * when MATERIALIZE fixes one diff but its volatility reshuffles nearby
+ * independent ops (e.g. it stops gcc copying a hard-reg-pinned pointer to
+ * a working reg for an lw base, or forces a redundant recompute, while
+ * leaving the surrounding schedule intact). func_0013D0D0/func_0013B7E0/
+ * func_00133218/func_0013D948. See decomp/COOKBOOK.md §2.8. */
+#define ANCHOR(x)                   __asm__("" : "+r"(x))
+
 /* Float-input barrier: forces gcc to materialize floating-point values
  * in $fN registers BEFORE the barrier point. Use when gcc emits the
  * integer arg-setup before the float-constant setup (lui/mtc1, lwc1)
@@ -167,6 +181,13 @@
  * Used as a scheduler barrier that prevents gas from reordering
  * across the directive pair without emitting anything. */
 #define NOREORDER_BARRIER()         __asm__ __volatile__(".set noreorder\n\t.set reorder" : : : "memory")
+
+/* Empty volatile memory clobber: a gcc-scheduler barrier that emits no
+ * instruction but prevents memory ops (and the surrounding schedule)
+ * from crossing it. Use to keep a trailing call's arg-setup OUT of a
+ * loop's branch-delay slot so the loop's own latch store fills it
+ * (func_00133218), or generally to pin store ordering across a point. */
+#define MEM_BARRIER()               __asm__ __volatile__("" : : : "memory")
 
 /* Emit one literal `nop`.  Use when the original codegen leaves the
  * `jr ra` delay slot empty (gas reorder in the original would not

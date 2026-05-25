@@ -119,9 +119,9 @@ void func_0013D0A0(unsigned char *p, int a1, int a2) {
 
 int func_0013D0D0(int *a0, int *a1)
 {
-    register int *node __asm__("$5") = a1;
+    register int *node REG("$5") = a1;
     int *next;
-    __asm__("" : "+r"(node));
+    ANCHOR(node);
     if (node[0x30 / 4] != 0)
     {
         *(int *)(node[0x30 / 4] + 0x34) = node[0x34 / 4];
@@ -330,13 +330,13 @@ int func_0013D948(int *self)
     if (self[0x48 / 4] == 0)
     {
         int m;
-        register int v __asm__("$2") = 1;
-        register int a0v __asm__("$4") = D_00632000;
-        register const char *msg __asm__("$6") = D_005578D0;
-        __asm__("" : "+r"(v));
+        register int v REG("$2") = 1;
+        register int a0v REG("$4") = D_00632000;
+        register const char *msg REG("$6") = D_005578D0;
+        ANCHOR(v);
         self[0x48 / 4] = v;
-        __asm__("" : "+r"(a0v));
-        __asm__("" : "+r"(msg));
+        ANCHOR(a0v);
+        ANCHOR(msg);
         m = func_0013A0F8(a0v, 0x50, msg, 0x1FA);
         self[0x4C / 4] = m;
         func_0013A250(m, m + 0x30, 8);

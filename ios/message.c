@@ -167,7 +167,7 @@ int func_0013A6C0(int *self, int *out, int a2)
     }
     func_00100590(self[0x2C / 4], buf);
     {
-        register int cnt __asm__("$3") = self[0x8 / 4];
+        register int cnt REG("$3") = self[0x8 / 4];
         if (cnt == 0)
         {
             if (a2 != 1)

@@ -93,7 +93,7 @@ int func_00138510(int *a0, int *a1)
         do
         {
             int cnt;
-            register int orig __asm__("$4");
+            register int orig REG("$4");
             state[1] = 0;
             do
             {
@@ -130,7 +130,7 @@ int func_00138618(int *a0, int *a1)
         do
         {
             int cnt;
-            register int orig __asm__("$4");
+            register int orig REG("$4");
             state[1] = 0;
             do
             {
@@ -174,7 +174,7 @@ int func_00138720(int a0, int *a1)
         func_00132B90(a0, buf, chunk);
         a1[0x4 / 4] = chunk;
         {
-            register int remaining __asm__("$3") = a1[0] - chunk;
+            register int remaining REG("$3") = a1[0] - chunk;
             KEEP_LIVE(remaining);
             a1[0] = remaining;
             *(int *) D_00631F50 = 1;
@@ -224,7 +224,7 @@ void func_001394F0(int *a0, int a1, int a2)
     func_00139598(a0);
     func_001A6E28(D_005572B8, a1, a2, a0, end);
     {
-        register int g __asm__("$2") = (unsigned int) a0 < (unsigned int) end;
+        register int g REG("$2") = (unsigned int) a0 < (unsigned int) end;
         if (g)
         {
             do

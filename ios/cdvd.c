@@ -263,6 +263,7 @@ unsigned int D_005566A8[32] = { 0x00556798, 0x002751B0, 0x00000000, 0x000000FF, 
 unsigned int D_00564A6C = 0x6E6F6369;
 unsigned int D_00564A70[36] = { 0x6F63692F, 0x79732E6E, 0x00000073, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x000003C4, 0x6E6F6369, 0x796F622F, 0x6B6C625F, 0x6F63692E, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00017588, 0x6E6F6369, 0x796F622F, 0x6B6C625F, 0x6F63692E, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00017588, 0x6E6F6369, 0x796F622F, 0x6B6C625F, 0x6F63692E, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00017588, 0x00000000 };
 
+#include "matching.h"
 #include "include_asm.h"
 
 extern void func_0013A5B8(int *a0, int a1, int a2);
@@ -302,7 +303,7 @@ void func_00131480(int *a0)
     a0[0x164 / 4] = rounded;
     func_0024D9B8(0x50, 5, rounded);
     {
-        register unsigned int limit __asm__("$2") = a0[0x138 / 4];
+        register unsigned int limit REG("$2") = a0[0x138 / 4];
         if (limit > (unsigned int)(D_00633C78 << 11))
         {
             int r;
@@ -452,15 +453,15 @@ int func_00133218(int a0)
 {
     unsigned char buf[0x100];
     unsigned char *p = buf;
-    register unsigned char c __asm__("$3");
+    register unsigned char c REG("$3");
     unsigned char nc;
     func_00264DF8(buf, D_00631F70, a0);
     c = buf[0];
     do
     {
-        register int t __asm__("$2");
+        register int t REG("$2");
         int sc;
-        __asm__("" : "+r"(c));
+        ANCHOR(c);
         t = (int) c << 24;
         sc = t >> 24;
         if (sc == '/')
@@ -479,9 +480,9 @@ int func_00133218(int a0)
         p++;
         nc = *p;
         c = nc;
-        __asm__("" : "+r"(c));
+        ANCHOR(c);
     } while (nc != 0);
-    __asm__ __volatile__("" : : : "memory");
+    MEM_BARRIER();
     return func_00265168(a0, buf);
 }
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001332B8);

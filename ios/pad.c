@@ -166,13 +166,13 @@ void func_0013B7E0(int *a0, float *a1)
     struct Vec0013B7E0 v;
     struct Vec0013B7E0 t;
     unsigned char buf[0x40];
-    register unsigned char *a0arg __asm__("$4") = buf;
-    __asm__("" : "+r"(a0arg));
+    register unsigned char *a0arg REG("$4") = buf;
+    ANCHOR(a0arg);
     t.x = a1[0xC / 4];
     t.z0 = 0;
     t.y = -a1[0x10 / 4];
     t.z1 = 0;
-    __asm__ __volatile__("" ::: "memory");
+    MEM_BARRIER();
     v = t;
     func_002439B0(a0arg, (unsigned char *) D_00631970 + 0x80);
     func_002438B8(a0, buf, &v);
@@ -203,7 +203,7 @@ void func_0013B878(void)
     func_0013CE48();
     func_0013CF08(0, D_00632194);
     {
-        register unsigned char *base __asm__("$3") = D_002811C0;
+        register unsigned char *base REG("$3") = D_002811C0;
         p = (int *)(base + 0x1B8);
     }
     do
@@ -344,7 +344,7 @@ void func_0013C4C0(unsigned char *self, int a, int b, unsigned char c, unsigned 
     *(short *)(self + 0x20) = 0;
     *(short *)(self + 0x1C) = 0;
     *(short *)(self + 0x1A) = 0;
-    __asm__ __volatile__("" : : "r"(self) : "memory");
+    KEEP_LIVE_MEM(self);
     self[0x27] = 0;
 }
 
