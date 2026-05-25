@@ -30,5 +30,29 @@ INCLUDE_ASM("asm/nonmatchings/ios/inflate", func_00134B50);
 INCLUDE_ASM("asm/nonmatchings/ios/inflate", func_00135468);
 INCLUDE_ASM("asm/nonmatchings/ios/inflate", func_001354B8);
 INCLUDE_ASM("asm/nonmatchings/ios/inflate", func_00135580);
-INCLUDE_ASM("asm/nonmatchings/ios/inflate", func_00135A48);
+extern int func_0013A0F8(int a0, int a1, const char *fmt, int line);
+extern void func_00135468(void *p);
+extern void func_001A6E28();
+extern int D_0063203C;
+extern int D_00632048;
+
+int func_00135A48(int a0, int a1)
+{
+    int g = *(int *) D_00632028;
+    int *s1;
+    D_0063203C = g;
+    D_00632048 = 0;
+    s1 = (int *) func_0013A0F8(g, 0x180A8, D_00556B00, 0x2E3);
+    func_00135468(s1);
+    s1[0] = a1;
+    if (a0 == 0)
+    {
+        func_001A6E28(D_00556B50);
+    }
+    else
+    {
+        s1[0x4 / 4] = a0;
+    }
+    return (int) s1;
+}
 INCLUDE_ASM("asm/nonmatchings/ios/inflate", func_00135AD8);
