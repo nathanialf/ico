@@ -4,21 +4,18 @@
 #include "matching.h"
 #include "regpin.h"
 
-__attribute__((section(".rodata.0x00557B78"))) const char D_00557B78[24] = "sound/adpcm_init.c";
-
-/* String rodata migrated from adpcm_init_data.c */
-__attribute__((section(".rodata.0x00557B90"))) const char D_00557B90[32] = "AdpcmIopBuffAlloc not alloc\n";
-__attribute__((section(".rodata.0x00557BF8"))) const char D_00557BF8[16] = "AdpcmPlay\n";
-__attribute__((section(".rodata.0x00557C08"))) const char D_00557C08[24] = "AdpcmOpen id%d \n";
-__attribute__((section(".rodata.0x00557C20"))) const char D_00557C20[16] = "AdpcmOpensync\n";
-__attribute__((section(".rodata.0x00557C30"))) const char D_00557C30[32] = "AdpcmOpensync done\n";
+const char D_00557B78[24] = "sound/adpcm_init.c";
+const char D_00557B90[32] = "AdpcmIopBuffAlloc not alloc\n";
 
 /* EUC-JP debug strings — re-derived from EE rodata bytes via
  * EUC-JP decoding. Octal escapes preserve byte-identical layout
  * without requiring source-encoding compiler flags. */
-/* EUC-JP: "IOP領域が確保されているのにもかかわらず,使われていなので解放します
-" */
-__attribute__((section(".rodata.0x00557BB0"))) const char D_00557BB0[72] = "IOP\316\316\260\350\244\254\263\316\312\335\244\265\244\354\244\306\244\244\244\353\244\316\244\313\244\342\244\253\244\253\244\357\244\351\244\272,\273\310\244\357\244\354\244\306\244\244\244\312\244\316\244\307\262\362\312\374\244\267\244\336\244\271\n";
+/* EUC-JP: "IOP領域が確保されているのにもかかわらず,使われていなので解放します\n" */
+const char D_00557BB0[72] = "IOP\316\316\260\350\244\254\263\316\312\335\244\265\244\354\244\306\244\244\244\353\244\316\244\313\244\342\244\253\244\253\244\357\244\351\244\272,\273\310\244\357\244\354\244\306\244\244\244\312\244\316\244\307\262\362\312\374\244\267\244\336\244\271\n";
+const char D_00557BF8[16] = "AdpcmPlay\n";
+const char D_00557C08[24] = "AdpcmOpen id%d \n";
+const char D_00557C20[16] = "AdpcmOpensync\n";
+const char D_00557C30[32] = "AdpcmOpensync done\n";
 
 extern int  D_00633CC0;
 extern int  D_00633CC4;
