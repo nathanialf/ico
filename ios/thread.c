@@ -57,7 +57,36 @@ unsigned char D_006321B0[8] = { 0 };
 #include "matching.h"
 
 INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013CF80);
-INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013CFE0);
+extern int *D_00632190;
+extern int func_0013BE20(int *node, int arg);
+extern int func_0013BB80(int *node, int arg);
+extern void func_0013C820(int a0);
+
+void func_0013CFE0(int a0, unsigned char *out_acc, unsigned char *out_cnt)
+{
+    int cnt = 0;
+    int acc = 0;
+    if (a0 != 0)
+    {
+        int *node = *(int **) a0;
+        if (node != 0)
+        {
+            do
+            {
+                int r;
+                cnt += func_0013BE20(node, D_00632190[0x8 / 4]);
+                r = func_0013BB80(node, D_00632190[0x8 / 4]);
+                node = (int *) node[0x34 / 4];
+                acc |= r;
+            } while (node != 0);
+        }
+        cnt = (cnt < 0x100) ? cnt : 0xFF;
+        *out_cnt = cnt;
+        *out_acc = acc;
+        func_0013C820(a0);
+        DEFEAT_TCO();
+    }
+}
 
 int func_0013D098(void)
 {
