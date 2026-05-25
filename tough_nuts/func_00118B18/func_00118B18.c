@@ -43,6 +43,7 @@ void func_00118B18(int count, int arg)
 {
   int *p;
   int v;
+  int *new_var2;
   int *new_var;
   int a;
   p = (int *) D_004C7710[4];
@@ -50,11 +51,11 @@ void func_00118B18(int count, int arg)
   D_004C7710[3] = (D_004C7710[5] = (int) p);
   D_004C7710[7] = 0;
   *((long long *) p) = 0x10000000LL;
-  D_004C7710[4] = (int) (p + 2);
+  D_004C7710[4] = (int) (p - (-2));
   if (((unsigned) (count - 1)) < 5)
   {
     int *cp;
-    cp = 0;
+    new_var2 = (cp = 0);
     switch (count - 1)
     {
       case 0:
@@ -71,13 +72,14 @@ void func_00118B18(int count, int arg)
         a = 0x02000180;
         asm __volatile__("" : "+r"(cp));
         break;
+        new_var = D_004C7710;
 
-      new_var = D_004C7710;
       case 3:
-        cp = (int *) new_var[4];
+        cp = new_var[4];
         *cp = 0x03000010;
         a = 0x020001F8;
         break;
+        cp += 1;
 
       case 4:
         cp = (int *) D_004C7710[4];
@@ -87,16 +89,16 @@ void func_00118B18(int count, int arg)
 
     }
 
-    cp += 1;
     D_004C7710[4] = (int) cp;
-    *cp = a;
+    *new_var2 = a;
     D_004C7710[4] = (int) (cp + 1);
+    D_004C7710[6] = 0;
   }
   {
     int *q = (int *) D_004C7710[4];
     D_004C7710[5] = (int) q;
     *q = 0x60000000LL;
-    D_004C7710[4] = (int) (q + 2);
+    D_004C7710[4] = q + 2;
     q[2] = 0;
     D_004C7710[4] = (int) (q + 3);
     q[3] = 0;
