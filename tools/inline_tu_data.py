@@ -75,16 +75,16 @@ from migrate_data_per_tu import (  # noqa: E402  (shared helpers)
 
 SDATA_LO, SDATA_HI = SECTION_RANGES[".sdata"]
 
-# Per-symbol inline cap: a non-zero string / word array larger than this
-# would push the tracked .c past check_no_rom.sh's 256 KB per-file limit.
-# All-zero arrays are exempt (they emit as a one-line `{ 0 }`). Oversized
-# blobs stay in the gitignored sidecar.
-MAX_INLINE_BYTES = 32768
+# Per-symbol inline cap. check_no_rom.sh now allows tracked C source up
+# to 8 MiB (its content is gated by the raw-byte-array rule), so the
+# only real limit is the per-file budget below. Keep a high per-symbol
+# ceiling purely as a sanity backstop against a single absurd blob.
+MAX_INLINE_BYTES = 4 * 1024 * 1024
 
-# check_no_rom.sh fails any tracked file > 256 KiB. Keep the inlined .c
-# comfortably under that; the budget pass demotes the largest emits to
-# the sidecar once the projected file size would exceed this.
-FILE_CAP_BYTES = 250000
+# Per-file budget: keep the inlined .c under check_no_rom.sh's 8 MiB
+# source ceiling (with margin). The budget pass demotes the largest
+# emits to the sidecar only if a TU would somehow exceed this.
+FILE_CAP_BYTES = 7 * 1024 * 1024
 
 
 # ---------------------------------------------------------------------------
