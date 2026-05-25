@@ -288,7 +288,28 @@ int func_00144178(int a0, int a1, int a2, int a3)
 INCLUDE_ASM_NOP_PAD(func_001441C4);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_001441C8);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00144208);
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00144240);
+void func_00144240(int arg)
+{
+    char *p = D_006A98B0;
+    int i = 0;
+    do {
+        int *e30 = *(int **)(p + 0x30);
+        if (e30 != 0) {
+            if (*(int *)(p + 8) == arg) {
+                int *e38 = *(int **)(p + 0x38);
+                if ((*(unsigned int *)((char *)e38 + 0x38) >> 6) & 1) {
+                    if (*(unsigned short *)((char *)e30 + 4) == 0) {
+                        func_00143240(((int)*(unsigned short *)p << 8) | i);
+                    }
+                }
+            }
+        }
+        i++;
+        p += 0x40;
+    } while (i < 0x30);
+}
+
+INCLUDE_ASM_NOP_PAD(func_001442DC);
 
 extern int D_0063223C;
 
@@ -299,7 +320,23 @@ int func_001442E0(void)
     return next;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00144308);
+void func_00144308(int arg)
+{
+    char *p = D_006A98B0;
+    int i = 0;
+    do {
+        int *e30 = *(int **)(p + 0x30);
+        if (e30 != 0) {
+            if (*(unsigned char *)(p + 6) == arg) {
+                if (*(unsigned short *)((char *)e30 + 4) == 0) {
+                    func_00143248(((int)*(unsigned short *)p << 8) | i);
+                }
+            }
+        }
+        i++;
+        p += 0x40;
+    } while (i < 0x30);
+}
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00144390);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_001444A0);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00144500);
