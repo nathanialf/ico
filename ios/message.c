@@ -18,7 +18,7 @@ extern void func_001A6E28(const char *fmt, ...);
 extern void func_001AD768(const char *file, int line);
 extern void func_00263FF0(const char *file, int line, const char *expr);
 extern int func_00100530(int x);
-extern int func_00100540(int a0, int *a1);
+extern int func_00100540();
 extern const char D_006320F0[];
 extern const char D_006320E8[];
 
@@ -101,8 +101,71 @@ void func_0013A580(void)
 }
 
 INCLUDE_ASM_NOP_PAD(func_0013A5B4);
-INCLUDE_ASM("asm/nonmatchings/ios/message", func_0013A5B8);
-INCLUDE_ASM("asm/nonmatchings/ios/message", func_0013A6C0);
+extern void func_00100590(int a0, int *buf);
+extern void func_00100560(int a0);
+
+int func_0013A5B8(int *self, int a1, int a2)
+{
+    int buf[8];
+    if (self == 0)
+    {
+        func_001A6E28(D_00557560);
+        func_001AD768(D_00557540, 0x125);
+        func_00263FF0(D_00557540, 0x125, D_006320E8);
+    }
+    func_00100590(self[0x2C / 4], buf);
+    if (self[0x8 / 4] == buf[0x4 / 4])
+    {
+        if (a2 != 1)
+        {
+            func_001A6E28(D_00557578);
+            return -1;
+        }
+        func_00100560(self[0x2C / 4]);
+    }
+    ((int *) self[0])[(self[0x4 / 4] + self[0x8 / 4]) % buf[0x4 / 4]] = a1;
+    self[0x8 / 4] += 1;
+    if (buf[0xC / 4] > 0)
+    {
+        func_00100540(self[0x2C / 4]);
+    }
+    return 0;
+}
+int func_0013A6C0(int *self, int *out, int a2)
+{
+    int buf[8];
+    int newcount;
+    if (self == 0)
+    {
+        func_001A6E28(D_00557560);
+        func_001AD768(D_00557540, 0x149);
+        func_00263FF0(D_00557540, 0x149, D_006320E8);
+    }
+    func_00100590(self[0x2C / 4], buf);
+    {
+        register int cnt __asm__("$3") = self[0x8 / 4];
+        if (cnt == 0)
+        {
+            if (a2 != 1)
+            {
+                return -1;
+            }
+            func_00100560(self[0x2C / 4]);
+        }
+    }
+    *out = ((int *) self[0])[self[0x4 / 4]];
+    self[0x4 / 4] = (self[0x4 / 4] + 1) % buf[0x4 / 4];
+    newcount = self[0x8 / 4] - 1;
+    self[0x8 / 4] = newcount;
+    if (newcount == buf[0x4 / 4])
+    {
+        if (buf[0xC / 4] > 0)
+        {
+            func_00100540(self[0x2C / 4]);
+        }
+    }
+    return 0;
+}
 
 void func_0013A7C8(void) {
     int *p;
