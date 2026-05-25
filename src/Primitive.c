@@ -2,23 +2,18 @@
 
 #include "include_asm.h"
 
-__attribute__((section(".rodata.0x00555490"))) const char D_00555490[16] = "src/Primitive.c";
-
-/* String rodata migrated from Primitive_data.c */
-__attribute__((section(".rodata.0x005554B0"))) const char D_005554B0[32] = "too large mesh packet. %d\n";
-__attribute__((section(".rodata.0x00555500"))) const char D_00555500[72] = "Particle Object too big (%d particles). (must be under %d particles)\n";
-__attribute__((section(".rodata.0x00555548"))) const char D_00555548[48] = "prim_InitParticle:illegal texture no. %s:%d\n";
-
-/* Float rodata migrated from Primitive_data.c */
-__attribute__((section(".rodata.0x005554E0"))) const float D_005554E0[4] = { 1024.0f, 1024.0f, 0.0f, 1.0f };
-__attribute__((section(".rodata.0x005554F0"))) const float D_005554F0[4] = { 3071.0f, 3071.0f, 0.0f, 16777215.0f };
+const char D_00555490[16] = "src/Primitive.c";
+const char D_005554B0[32] = "too large mesh packet. %d\n";
+const float D_005554E0[4] = { 1024.0f, 1024.0f, 0.0f, 1.0f };
+const float D_005554F0[4] = { 3071.0f, 3071.0f, 0.0f, 16777215.0f };
+const char D_00555500[72] = "Particle Object too big (%d particles). (must be under %d particles)\n";
+const char D_00555548[48] = "prim_InitParticle:illegal texture no. %s:%d\n";
 
 /* EUC-JP debug strings — re-derived from EE rodata bytes via
  * EUC-JP decoding. Octal escapes preserve byte-identical layout
  * without requiring source-encoding compiler flags. */
-/* EUC-JP: "prim_DispParticle:指定したテクスチャ番号が異常です. %s:%d
-" */
-__attribute__((section(".rodata.0x00555578"))) const char D_00555578[64] = "prim_DispParticle:\273\330\304\352\244\267\244\277\245\306\245\257\245\271\245\301\245\343\310\326\271\346\244\254\260\333\276\357\244\307\244\271. %s:%d\n";
+/* EUC-JP: "prim_DispParticle:指定したテクスチャ番号が異常です. %s:%d\n" */
+const char D_00555578[64] = "prim_DispParticle:\273\330\304\352\244\267\244\277\245\306\245\257\245\271\245\301\245\343\310\326\271\346\244\254\260\333\276\357\244\307\244\271. %s:%d\n";
 
 extern int D_00633C50;
 extern void func_00102558(int a0);

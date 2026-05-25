@@ -62,37 +62,30 @@ extern int D_00632D4C;
 extern int D_00632D50;
 extern int D_00632D54;
 
-__attribute__((section(".rodata.0x00554CA8"))) const char D_00554CA8[16] = "src/Light.c";
-
-__attribute__((section(".rodata.0x00554D70"))) const char D_00554D70[64] = "PUSH R2 SELECT LIGHT (%d/3) ('SELECT'RETURN MENU)";
-__attribute__((section(".rodata.0x00554DD0"))) const char D_00554DD0[24] = "(addr 0x%08x <fl) : ";
-__attribute__((section(".rodata.0x00554DE8"))) const char D_00554DE8[24] = "(addr 0x%08x <%2d>) : ";
-
-/* String rodata migrated from Light_data.c */
-__attribute__((section(".rodata.0x00554CD8"))) const char D_00554CD8[32] = "Flat Lights already exist.\n";
-__attribute__((section(".rodata.0x00554CF8"))) const char D_00554CF8[40] = "Added Light is illegal.\n";
-__attribute__((section(".rodata.0x00554E48"))) const char D_00554E48[24] = ":::VIFCODE:UNPACK\n";
-__attribute__((section(".rodata.0x00554E60"))) const char D_00554E60[24] = ":::VIFCODE:CAL/CNT END\n";
-__attribute__((section(".rodata.0x00554E78"))) const char D_00554E78[32] = ":::VIFCODE:CAL/CNT-UNPACK\n";
-__attribute__((section(".rodata.0x00554E98"))) const char D_00554E98[32] = ":::GIFTAG:NLOOP=%d(S:%d)\n";
-__attribute__((section(".rodata.0x00554EB8"))) const char D_00554EB8[24] = ":::PACKET:%s\n";
-
-/* Float rodata migrated from Light_data.c */
-__attribute__((section(".rodata.0x00554D20"))) const float D_00554D20[4] = { 0.0f, 0.0f, -1e+02f, 1.0f };
-__attribute__((section(".rodata.0x00554D30"))) const float D_00554D30[4] = { 1e+01f, 0.0f, -25.0f, 1.0f };
-__attribute__((section(".rodata.0x00554D40"))) const float D_00554D40[4] = { -1e+01f, 0.0f, -25.0f, 1.0f };
-__attribute__((section(".rodata.0x00554ED0"))) const float D_00554ED0[4] = { 3e+02f, 3e+02f, 3e+02f, 0.0f };
-__attribute__((section(".rodata.0x005D19E8"))) const float D_005D19E8[12] = { 0.0f, 0.0f, 0.0f, 0.0f, 255.0f, 2e+02f, 1.8e+02f, 1.5e+03f, 128.0f, 1e+02f, 9e+01f, 7.5e+02f };
-
 /* EUC-JP debug strings — re-derived from EE rodata bytes via
  * EUC-JP decoding. Octal escapes preserve byte-identical layout
  * without requiring source-encoding compiler flags. */
-/* EUC-JP: "Light:NULLになってんで
-" */
-__attribute__((section(".rodata.0x00554C90"))) const char D_00554C90[24] = "Light:NULL\244\313\244\312\244\303\244\306\244\363\244\307\n";
-/* EUC-JP: "AmbientVolume:NULLになってんで
-" */
-__attribute__((section(".rodata.0x00554CB8"))) const char D_00554CB8[32] = "AmbientVolume:NULL\244\313\244\312\244\303\244\306\244\363\244\307\n";
+/* EUC-JP: "Light:NULLになってんで\n" */
+const char D_00554C90[24] = "Light:NULL\244\313\244\312\244\303\244\306\244\363\244\307\n";
+const char D_00554CA8[16] = "src/Light.c";
+
+/* EUC-JP: "AmbientVolume:NULLになってんで\n" */
+const char D_00554CB8[32] = "AmbientVolume:NULL\244\313\244\312\244\303\244\306\244\363\244\307\n";
+const char D_00554CD8[32] = "Flat Lights already exist.\n";
+const char D_00554CF8[40] = "Added Light is illegal.\n";
+const float D_00554D20[4] = { 0.0f, 0.0f, -1e+02f, 1.0f };
+const float D_00554D30[4] = { 1e+01f, 0.0f, -25.0f, 1.0f };
+const float D_00554D40[4] = { -1e+01f, 0.0f, -25.0f, 1.0f };
+const char D_00554D70[64] = "PUSH R2 SELECT LIGHT (%d/3) ('SELECT'RETURN MENU)";
+const char D_00554DD0[24] = "(addr 0x%08x <fl) : ";
+const char D_00554DE8[24] = "(addr 0x%08x <%2d>) : ";
+const char D_00554E48[24] = ":::VIFCODE:UNPACK\n";
+const char D_00554E60[24] = ":::VIFCODE:CAL/CNT END\n";
+const char D_00554E78[32] = ":::VIFCODE:CAL/CNT-UNPACK\n";
+const char D_00554E98[32] = ":::GIFTAG:NLOOP=%d(S:%d)\n";
+const char D_00554EB8[24] = ":::PACKET:%s\n";
+const float D_00554ED0[4] = { 3e+02f, 3e+02f, 3e+02f, 0.0f };
+const float D_005D19E8[12] = { 0.0f, 0.0f, 0.0f, 0.0f, 255.0f, 2e+02f, 1.8e+02f, 1.5e+03f, 128.0f, 1e+02f, 9e+01f, 7.5e+02f };
 
 #include "include_asm.h"
 #include "matching.h"
