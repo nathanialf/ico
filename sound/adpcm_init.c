@@ -66,8 +66,36 @@ void func_0013FD10(int idx, void (*fn)(int *, int), int arg)
         } while (node != 0);
     }
 }
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_0013FD78);
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_0013FE18);
+void func_0013FD78(void (*fn)(int *, int), int arg)
+{
+    int i = 0;
+    do {
+        int *node = D_00281A70[i];
+        if (node != 0) {
+            do {
+                fn(node, arg);
+                node = (int *)node[0x10 / 4];
+            } while (node != 0);
+        }
+        i++;
+    } while (i < 8);
+}
+int func_0013FE18(int a0, int (*fn)(int *, int), int arg, int flag)
+{
+    int *node = D_00281A70[a0];
+    int ret = 0;
+    if (node != 0) {
+        do {
+            ret = fn(node, arg);
+            if (flag != 0) {
+                if (flag == 1) {
+                    if (ret != 0) return ret;
+                }
+            }
+        } while (node != 0);
+    }
+    return ret;
+}
 
 void func_0013FEB0(int a0, int a1)
 {
@@ -229,7 +257,32 @@ void func_00140B78(void)
 
 INCLUDE_ASM_NOP_PAD(func_00140BDC);
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140BE0);
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140CE0);
+extern int D_00633CB0;
+
+int func_00140CE0(void)
+{
+    register int *p REG("$4") = D_00633CB8;
+    register int *q REG("$6") = D_00633CB8;
+    int i = 0;
+    NOP();
+loop:
+    {
+        register int *qsave REG("$3") = q;
+        if (*p == 0) goto found;
+        i++;
+        q = qsave + 1;
+        p++;
+        if (i < 2) goto loop;
+    }
+    func_001A6E28((int *)D_00557B90);
+    return 0;
+found:
+    {
+        register int base_val REG("$3") = D_00633CB0;
+        *q = 1;
+        return base_val + i * 0x5C000;
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140D58);
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140E48);
 
