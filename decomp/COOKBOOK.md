@@ -358,6 +358,41 @@ See: [feedback_dual_pin_alternating].
 
 ---
 
+### 2.8 Non-volatile anchor barrier — `__asm__("" : "+r"(p))`
+
+**Diff fingerprint:** a register-pinned pointer (`register T *p
+__asm__("$N")`) is *copied* to a working reg before being used as an `lw`
+base — built has `daddu v0,$N; lw x,OFF(v0); …` where expected uses
+`lw x,OFF($N)` directly. ee-gcc 2.9 refuses to use a *fixed* register as a
+memory base and spills it to a pseudo.
+
+**Fix:** add a barrier on `p` after the pin — but **non-volatile**:
+
+```c
+register int *p __asm__("$5") = arg;
+__asm__("" : "+r"(p));          /* NOT __volatile__ */
+… p[OFF/4] …                    /* now reads via $5 directly */
+```
+
+**Why non-volatile matters:** `__asm__ __volatile__("" : "+r"(p))` also
+anchors `p`, but its volatile-ness imposes a *scheduling boundary* that
+shoves nearby independent ops out of the slot they belong in (e.g. a
+`daddu a2,a0` save that should sit in a beq delay slot gets pushed to
+function entry). The plain `__asm__("" : "+r"(p))` anchors the register
+binding without that boundary. In func_0013D0D0 (ios/thread.c) the volatile
+form gave 3 diffs, the non-volatile form gave 1 (then 0). Opposite intent
+to KEEP_LIVE/MATERIALIZE, which *want* the boundary.
+
+See: [feedback_nonvolatile_anchor_barrier].
+
+> **Match-effort note (top-level rule):** do **20** genuinely-distinct
+> iterations before parking any function — see CLAUDE.md "Match-effort
+> rule" and [feedback_20_iter_discipline]. func_0013D0D0 above cracked at
+> iter 17 after looking like a "3-diff floor" at iter 14. Near-misses are
+> not floors.
+
+---
+
 ## 3. Branch shape
 
 ### 3.1 Multi-fail null-chain → bool (force 2 distinct `jr ra`)
