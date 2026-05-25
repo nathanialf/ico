@@ -93,6 +93,10 @@ EXTRA="$("${EXTRA_CFLAGS_LOOKUP}" "${SRC}" 2>/dev/null || true)"
 # single-jtbl TUs and on .s files with no `.rdata`/jtbl blocks.
 "${PYTHON}" "${ROOT}/tools/postprocess_split_jtbls.py" "${S}"
 
+# Demote `.p2align 3` -> `.p2align 2` for functions listed in
+# config/demote_p2align.txt (per-function alternative to -malign-loops=2).
+"${PYTHON}" "${ROOT}/tools/postprocess_demote_p2align.py" "${S}"
+
 if listed "${NO_TRAILING_NOP_TXT}"; then
     "${PYTHON}" "${ROOT}/tools/postprocess_no_trailing_nop.py" "${S}"
 fi

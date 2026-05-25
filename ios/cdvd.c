@@ -292,7 +292,39 @@ INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131780);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131818);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131C90);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00132038);
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001320E8);
+extern void func_00132038(int *a0, void *buf, int n);
+extern void func_00131C90(int *a0, void *buf, int n);
+extern unsigned char D_006A64B8[];
+
+void func_001320E8(int *a0, void *a1, int a2)
+{
+    if (a1 != 0)
+    {
+        if ((*(long long *) a0 & 1) == 1)
+        {
+            func_00132038(a0, a1, a2);
+        }
+        else
+        {
+            func_00131C90(a0, a1, a2);
+        }
+        return;
+    }
+    while (a2 > 0)
+    {
+        int n = (a2 < 0x401) ? a2 : 0x400;
+        void *buf = D_006A64B8;
+        if ((*(long long *) a0 & 1) == 1)
+        {
+            func_00132038(a0, buf, n);
+        }
+        else
+        {
+            func_00131C90(a0, buf, n);
+        }
+        a2 -= n;
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001321C8);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00132388);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001325D8);
