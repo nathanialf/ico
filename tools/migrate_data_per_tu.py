@@ -336,6 +336,14 @@ def _resolve_word_as_pointer(w: int, mf) -> str | None:
     return f"&{name}"
 
 
+# NOTE: the byte-reconstruction + classification helpers below
+# (_walk_blocks, _extract_bytes, _looks_like_string, _load_map,
+# _resolve_word_as_pointer) plus the SECTION_RANGES / ASM_FILES /
+# LOAD_VMA_* constants are imported and reused by
+# tools/inline_tu_data.py (the Phase 3e inline-data migrator). Keep
+# their signatures stable; they are effectively a small shared library.
+
+
 def _looks_like_string(data: bytes) -> bool:
     """True if `data` plausibly contains text — NUL-terminated, at
     least one printable ASCII byte, no embedded zero-runs that

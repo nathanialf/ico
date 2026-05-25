@@ -82,6 +82,58 @@ __attribute__((section(".rodata.0x00556510"))) const char D_00556510[56] = "tex_
 __attribute__((section(".rodata.0x00556548"))) const char D_00556548[56] = "tex_TransTexture:\245\306\245\257\245\271\245\301\245\343\244\316\305\276\301\367\244\313\274\272\307\324\244\267\244\336\244\267\244\277. %d:%s\n";
 
 #include "matching.h"
+/* Inlined data (Phase 3e) — migrated from Texture_data.c.
+ * Plain typed defs; ee-gcc -fdata-sections + slinky place each
+ * at its original VMA. See tools/inline_tu_data.py. */
+
+/* scalars */
+unsigned int D_00275204 = 0x00000000;
+unsigned int D_00631F18 = 0x00000020;
+unsigned int D_00631F1C = 0x00000000;
+
+/* zero-filled buffers */
+unsigned char D_00275208[12] = { 0 };
+unsigned char D_00631F20[8] = { 0 };
+
+/* strings */
+const char D_005565F8[40] = "Texture List [%d] PUSH '\200' TO EDIT US.";
+const char D_00631E18[8] = "SELTEX";
+const char D_00631E20[8] = "SCRL-U";
+const char D_00631E28[8] = "SCRL-V";
+const char D_00631E30[8] = "AMP-U ";
+const char D_00631E38[8] = "AMP-V ";
+const char D_00631E40[8] = "CS-BGN";
+const char D_00631E48[8] = "CS-END";
+const char D_00631E50[8] = "CS-SPD";
+const char D_00631E58[8] = "CS-STP";
+const char D_00631E60[8] = "SHINE ";
+const char D_00631E68[8] = "SMPMAG";
+const char D_00631E70[8] = "SMPMIN";
+const char D_00631E78[8] = "TEXFNC";
+const char D_00631E80[8] = "ALPTST";
+const char D_00631E88[8] = "ALPFAI";
+const char D_00631E90[8] = "MIPMAPK";
+const char D_00631E98[8] = "MIPMAPL";
+const char D_00631EB0[8] = "%s:%d";
+const char D_00631EB8[8] = "%s:%f";
+const char D_00631EC0[8] = "C-8";
+const char D_00631EC8[8] = "C-4";
+const char D_00631ED0[8] = "D32";
+const char D_00631ED8[8] = "D24";
+const char D_00631EE0[8] = "D16";
+const char D_00631EE8[8] = "NON";
+const char D_00631EF0[8] = "32";
+const char D_00631EF8[8] = "24";
+const char D_00631F00[8] = "16";
+const char D_00631F08[8] = "--";
+
+/* numeric word tables */
+unsigned int D_00276268[18] = { 0x00000000, 0x00000000, 0x00000000, 0x00000002, 0x00000004, 0x00000004, 0x00000001, 0x00000003, 0x00000002, 0x00000000, 0x00000002, 0x00000002, 0x00000014, 0x00000001, 0x00000001, 0x00000013, 0x00000002, 0x00000001 };
+unsigned int D_00631E10[2] = { 0x80808080, 0x00000000 };
+unsigned int D_00631EA0[2] = { 0x00000001, 0x00000000 };
+unsigned int D_00631EA8[2] = { 0xFFFFFF00, 0xFFC0C000 };
+unsigned int D_00631F10[2] = { 0x00000080, 0x00000000 };
+
 #include "include_asm.h"
 
 extern void func_001FBAA8(int a0, int a1, int a2);
@@ -104,7 +156,6 @@ INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012BC0C);
 INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012BC10);
 INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012BEB0);
 #if 0
-extern unsigned int D_00276268[];
 
 void func_0012BEB0(unsigned char *_a0, unsigned char *_a1) {
     register unsigned char *a0 __asm__("$10") = _a0;
@@ -211,7 +262,6 @@ void func_0012BEB0(unsigned char *_a0, unsigned char *_a1) {
 INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012C050);
 INCLUDE_ASM("asm/nonmatchings/src/Texture", func_0012C3D0);
 #if 0
-extern unsigned int D_00276268[];
 extern const char D_00556088[];
 extern const char D_00631DD8[];
 void func_0012C050(unsigned char *a0, unsigned char *a1);

@@ -75,12 +75,27 @@ done
 
 # --- 5. raw byte-array initializers in tracked src/ ---
 # The auto-generated `src/<TU>_data.c` sidecars (gitignored) emit
-# `__attribute__((section(".X.0xVMA"))) unsigned char D_<VMA>[N] = { 0x..., ... }`
-# — that's raw bytes from the original ELF, not a developer reconstruction.
-# Tracked `src/**/*.c` must use TYPED forms (string literals, ints, floats,
-# named pointer arrays, struct literals). If a hand-promoted file slips in
-# a byte-array initializer, fail the commit — the bytes shouldn't be
-# laundered into the tracked tree by changing only the filename.
+# `unsigned char D_<VMA>[N] = { 0x..., ... }` — that's raw bytes from the
+# original ELF, not a developer reconstruction. Tracked `src/**/*.c` must
+# use TYPED forms (string literals, ints, floats, named pointer arrays,
+# struct literals). If a hand-promoted file slips in a byte-array
+# initializer, fail the commit — the bytes shouldn't be laundered into the
+# tracked tree.
+#
+# The match is on the byte-array SHAPE itself, with the
+# `__attribute__((section(...)))` prefix OPTIONAL: after a Phase 3d/3e
+# strip or inline-migration the attr is gone, but a plain
+# `unsigned char D_X[N] = { 0xAB, 0xCD, ... }` is just as much a raw dump
+# and must still be caught. The shape requires the first brace element to
+# be a hex byte AND at least one comma (>=2 elements), so the legitimate
+# inline forms tools/inline_tu_data.py emits all pass:
+#   - all-zero `{ 0 };`        (no comma — never matches)
+#   - strings `= "...";`       (no brace — never matches)
+#   - word/short `unsigned int D_X[N] = { 0x.., .. }`  (non-byte type)
+#   - struct/typedef arrays    (non-byte type)
+byte_type_re='(unsigned[[:space:]]+char|signed[[:space:]]+char|char|uint8_t|int8_t|u8|s8)'
+attr_opt_re='(__attribute__[[:space:]]*\(\([[:space:]]*section[[:space:]]*\([[:space:]]*"\.\w+\.0x[0-9A-Fa-f]+"[[:space:]]*\)[[:space:]]*\)\)[[:space:]]+)?'
+raw_byte_re="^[[:space:]]*${attr_opt_re}(const[[:space:]]+)?${byte_type_re}[[:space:]]+D_[0-9A-Fa-f]{8}[[:space:]]*\[[0-9]+\][[:space:]]*=[[:space:]]*\{[[:space:]]*0x[0-9A-Fa-f]{1,2}[[:space:]]*,[^}]*\}"
 for f in "${files[@]}"; do
     [[ -z "$f" ]] && continue
     [[ ! -f "$f" ]] && continue
@@ -93,16 +108,11 @@ for f in "${files[@]}"; do
     case "$f" in
         */[!/]*_data.c|*_data.c) continue ;;
     esac
-    # Detect `(unsigned char|char|uint8_t|u8|s8|int8_t) D_<8hex>[<N>] = { ... , ... }`
-    # in a per-VMA section. Word-typed initializers (`int D_X[2] = { 0x80, 0 }`)
-    # are fine — they're typed reconstructions. Byte arrays with multiple
-    # brace-init elements are the migrator's raw-bytes shape.
-    byte_type_re='(unsigned[[:space:]]+char|signed[[:space:]]+char|char|uint8_t|int8_t|u8|s8)'
-    if grep -nE "__attribute__[[:space:]]*\(\([[:space:]]*section[[:space:]]*\([[:space:]]*\"\.\w+\.0x[0-9A-Fa-f]+\"[[:space:]]*\)[[:space:]]*\)\)[[:space:]]+(const[[:space:]]+)?${byte_type_re}[[:space:]]+D_[0-9A-Fa-f]{8}[[:space:]]*\[[0-9]+\][[:space:]]*=[[:space:]]*\{[^}]*,[^}]*\}" "$f" >/dev/null 2>&1; then
+    if grep -nE "${raw_byte_re}" "$f" >/dev/null 2>&1; then
         note "raw byte-array initializer in tracked source: $f"
         note "  ICO data sections must be typed (string literal / int / float /"
         note "  named pointer array / struct), not raw bytes. See decomp/MATCH_DATA.md."
-        grep -nE "__attribute__[[:space:]]*\(\([[:space:]]*section[[:space:]]*\([[:space:]]*\"\.\w+\.0x[0-9A-Fa-f]+\"[[:space:]]*\)[[:space:]]*\)\)[[:space:]]+(const[[:space:]]+)?${byte_type_re}[[:space:]]+D_[0-9A-Fa-f]{8}[[:space:]]*\[[0-9]+\][[:space:]]*=[[:space:]]*\{[^}]*,[^}]*\}" "$f" 2>&1 | head -3 >&2
+        grep -nE "${raw_byte_re}" "$f" 2>&1 | head -3 >&2
     fi
 done
 
