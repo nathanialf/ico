@@ -75,8 +75,86 @@ int func_001383D8(int a0, int a1)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_001383F8);
-INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00138510);
-INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00138618);
+extern int func_00132630(int a0, void *handler, int *state, int a3, int a4, int a5, int a6, int a7);
+extern void func_00137E48(int *a0);
+extern void func_00133450(int a0);
+extern int func_00138720(int a0, int *a1);
+extern int D_00633C80;
+
+int func_00138510(int *a0, int *a1)
+{
+    int state[4];
+    int total = 0;
+    int block;
+    state[0] = ((a1[0x20 / 4] + 0x7FF) / 0x800) * 0x800;
+    block = func_00132630((int) a1, (void *) func_00138720, state, 0, 0, 0, 0, 0);
+    if (state[0] > 0)
+    {
+        do
+        {
+            int cnt;
+            register int orig __asm__("$4");
+            state[1] = 0;
+            do
+            {
+                func_00137E48(a0);
+                cnt = state[1];
+            } while (cnt == 0);
+            orig = cnt;
+            MATERIALIZE(orig);
+            total += cnt;
+            if (total > a1[0x20 / 4])
+            {
+                cnt -= (total - a1[0x20 / 4]);
+            }
+            else
+            {
+                cnt = orig;
+            }
+            func_00136280((int) a0, state[2], cnt);
+            D_00633C80 = 1;
+        } while (state[0] > 0);
+    }
+    func_00133450(block);
+    return 0;
+}
+int func_00138618(int *a0, int *a1)
+{
+    int state[4];
+    int total = 0;
+    int block;
+    state[0] = ((a1[0x20 / 4] + 0x7FF) / 0x800) * 0x800;
+    block = func_00132630((int) a1, (void *) func_00138720, state, 0, 0, 0, 0, 0);
+    if (state[0] > 0)
+    {
+        do
+        {
+            int cnt;
+            register int orig __asm__("$4");
+            state[1] = 0;
+            do
+            {
+                func_00137E48(a0);
+                cnt = state[1];
+            } while (cnt == 0);
+            orig = cnt;
+            MATERIALIZE(orig);
+            total += cnt;
+            if (total > a1[0x20 / 4])
+            {
+                cnt -= (total - a1[0x20 / 4]);
+            }
+            else
+            {
+                cnt = orig;
+            }
+            func_00136280((int) a0, state[2], cnt);
+            D_00633C80 = 1;
+        } while (state[0] > 0);
+    }
+    func_00133450(block);
+    return 0;
+}
 extern void func_00132B90(int a0, void *buf, int n);
 extern void func_0013D3F0(void);
 extern int D_00633C80;
