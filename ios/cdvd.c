@@ -288,7 +288,18 @@ void func_00131560(int a0)
     func_001354B8(s0[0x15C / 4]);
 }
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001315A8);
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131780);
+extern int D_00632024;
+extern void *func_0013A0F8(int a0, int a1, const char *fmt, int line);
+extern void func_00139598(void *p);
+extern void func_001A6E28();
+
+void func_00131780(int a0, char *a1, int a2, int a3, int a4, int a5, int a6)
+{
+    void *s1 = func_0013A0F8(D_00632024, a2, D_00556818, 0x33C);
+    func_001320E8((int *) a0, s1, a2);
+    func_001A6E28(D_005568E8, a1, a2, a6);
+    func_00139598(s1);
+}
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131818);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131C90);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00132038);
