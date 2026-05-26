@@ -67,14 +67,14 @@ unsigned int D_00564150[24] = { 0x44FBE000, 0x44F32000, 0xC5338000, 0x00000134, 
  * at its original VMA. See tools/inline_tu_data.py. */
 
 /* scalars */
-unsigned int D_00630FA4 = 0x46AFC800;
-unsigned int D_00630FA8 = 0x46AFC800;
-unsigned int D_00630FAC = 0x46AFC800;
-unsigned int D_00630FB0 = 0x40490FDB;
-unsigned int D_00630FB4 = 0x40490FDB;
-unsigned int D_00630FB8 = 0x40490FDB;
-unsigned int D_00630FBC = 0x40490FDB;
-unsigned int D_00630FC0 = 0x40490FDB;
+float D_00630FA4 = 22500.0f;
+float D_00630FA8 = 22500.0f;
+float D_00630FAC = 22500.0f;
+float D_00630FB0 = 3.1415927f;
+float D_00630FB4 = 3.1415927f;
+float D_00630FB8 = 3.1415927f;
+float D_00630FBC = 3.1415927f;
+float D_00630FC0 = 3.1415927f;
 
 #include "include_asm.h"
 

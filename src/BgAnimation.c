@@ -36,15 +36,18 @@ const char D_0061A958[32] = "Shadow Object not exists.\n";
 const char D_0061A978[32] = "OBJECT FILE \"%s\" NOT EXISTS.\n";
 
 /* String rodata migrated from BgAnimation_data.c */
+/* EUC-JP: "モデルデータファイル[%s]がありません.\n\n" */
 const char D_0061A998[40] = "\245\342\245\307\245\353\245\307\241\274\245\277\245\325\245\241\245\244\245\353[%s]\244\254\244\242\244\352\244\336\244\273\244\363.\n\n";
 
 /* String rodata migrated from BgAnimation_data.c */
 const char D_0061A9F8[40] = "Illegal Envelope Type : %p(%d)\n";
 
 /* String rodata migrated from BgAnimation_data.c */
+/* EUC-JP: "不明なパーティクル\n" */
 const char D_0061AA48[24] = "\311\324\314\300\244\312\245\321\241\274\245\306\245\243\245\257\245\353\n";
 
 /* String rodata migrated from BgAnimation_data.c */
+/* EUC-JP: "PBGAタイプのアニメーションではループのパーティクルは使用できません.\n" */
 const char D_0061AA60[80] = "PBGA\245\277\245\244\245\327\244\316\245\242\245\313\245\341\241\274\245\267\245\347\245\363\244\307\244\317\245\353\241\274\245\327\244\316\245\321\241\274\245\306\245\243\245\257\245\353\244\317\273\310\315\321\244\307\244\255\244\336\244\273\244\363.\n";
 
 /* String rodata migrated from BgAnimation_data.c */

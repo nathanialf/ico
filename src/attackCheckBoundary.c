@@ -18,15 +18,17 @@
  */
 
 
-unsigned int D_004BEF80[4] = { 0x00000000, 0xC1A00000, 0x40000000, 0x00000000 };
+float D_004BEF80[4] = { 0.0f, -20.0f, 2.0f, 0.0f };
 
 /* Float rodata migrated from attackCheckBoundary_data.c */
 const char D_006185E8[32] = "src/attackCheckBoundary.c";
 
 /* Float rodata migrated from attackCheckBoundary_data.c */
+/* EUC-JP: " - 剣で切られた\n" */
 const char D_00618608[24] = " - \267\365\244\307\300\332\244\351\244\354\244\277\n";
 
 /* Float rodata migrated from attackCheckBoundary_data.c */
+/* EUC-JP: " - きれない\n" */
 const char D_00618620[16] = " - \244\255\244\354\244\312\244\244\n";
 
 /* Float rodata migrated from attackCheckBoundary_data.c */
@@ -37,9 +39,9 @@ const float D_0061E730[6] = { 0.0f, -8e+01f, 15.0f, 0.0f, 1.8e+02f, 0.0f };
  * at its original VMA. See tools/inline_tu_data.py. */
 
 /* scalars */
-unsigned int D_00631134 = 0x3D4CCCCD;
-unsigned int D_00631138 = 0x461C4000;
-unsigned int D_0063113C = 0x461C4000;
+float D_00631134 = 0.05f;
+float D_00631138 = 10000.0f;
+float D_0063113C = 10000.0f;
 
 #include "include_asm.h"
 #include "regpin.h"

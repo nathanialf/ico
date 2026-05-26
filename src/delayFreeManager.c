@@ -43,28 +43,28 @@ const char D_00275818[24] = "\001\000\000\000\002\000\000\000\004\000\000\000.\0
  * at its original VMA. See tools/inline_tu_data.py. */
 
 /* scalars */
-unsigned int D_002758E0[16] = { 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000 };
+float D_002758E0[16] = { 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f };
 
 /* Inlined data (Phase 3e) — migrated from delayFreeManager_data.c.
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each
  * at its original VMA. See tools/inline_tu_data.py. */
 
 /* scalars */
-unsigned int D_00275920[16] = { 0x3F800000, 0x00000000, 0x3F800000, 0x00000000, 0x00000000, 0x3F800000, 0x00000000, 0x00000000, 0x3F800000, 0x00000000, 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000 };
+float D_00275920[16] = { 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f };
 
 /* Inlined data (Phase 3e) — migrated from delayFreeManager_data.c.
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each
  * at its original VMA. See tools/inline_tu_data.py. */
 
 /* scalars */
-unsigned int D_00275960[16] = { 0x3F800000, 0x3F800000, 0x00000000, 0x00000000, 0x3F800000, 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000 };
+float D_00275960[16] = { 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f };
 
 /* Inlined data (Phase 3e) — migrated from delayFreeManager_data.c.
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each
  * at its original VMA. See tools/inline_tu_data.py. */
 
 /* scalars */
-unsigned int D_002759A0[16] = { 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000 };
+float D_002759A0[16] = { 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f };
 
 /* Inlined data (Phase 3e) — migrated from delayFreeManager_data.c.
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each
@@ -127,7 +127,7 @@ const char D_00631918[8] = "NTSC";
  * at its original VMA. See tools/inline_tu_data.py. */
 
 /* scalars */
-unsigned int D_00631920 = 0x004C4150;
+char D_00631920[4] = "PAL";
 
 /* Inlined data (Phase 3e) — migrated from delayFreeManager_data.c.
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each
@@ -299,29 +299,29 @@ unsigned int D_0063305C = 0x00000000;
  * at its original VMA. See tools/inline_tu_data.py. */
 
 /* scalars */
-unsigned int D_00630900 = 0x3F9E0651;
-unsigned int D_00630904 = 0xC7C35000;
-unsigned int D_00630908 = 0x47C35000;
-unsigned int D_0063090C = 0x3C23D70A;
-unsigned int D_00630910 = 0x3C23D70A;
-unsigned int D_00630914 = 0x3C23D70A;
-unsigned int D_00630918 = 0x3C23D70A;
-unsigned int D_0063091C = 0x3C23D70A;
-unsigned int D_00630920 = 0x3C23D70A;
-unsigned int D_00630924 = 0x3C23D70A;
-unsigned int D_00630928 = 0x3C23D70A;
-unsigned int D_0063092C = 0x3C23D70A;
-unsigned int D_00630930 = 0x3C23D70A;
-unsigned int D_00630934 = 0x3C23D70A;
-unsigned int D_00630938 = 0x3C23D70A;
-unsigned int D_0063093C = 0x358637BE;
-unsigned int D_00630940 = 0x3F4CCCCD;
-unsigned int D_00630944 = 0x4622F983;
-unsigned int D_00630948 = 0x461C4000;
-unsigned int D_0063094C = 0x461C4000;
-unsigned int D_006309BC = 0x3FC90FDB;
-unsigned int D_006309C0 = 0x46800200;
-unsigned int D_006309C4 = 0x4622F983;
+float D_00630900 = 1.2345678f;
+float D_00630904 = -100000.0f;
+float D_00630908 = 100000.0f;
+float D_0063090C = 0.01f;
+float D_00630910 = 0.01f;
+float D_00630914 = 0.01f;
+float D_00630918 = 0.01f;
+float D_0063091C = 0.01f;
+float D_00630920 = 0.01f;
+float D_00630924 = 0.01f;
+float D_00630928 = 0.01f;
+float D_0063092C = 0.01f;
+float D_00630930 = 0.01f;
+float D_00630934 = 0.01f;
+float D_00630938 = 0.01f;
+float D_0063093C = 1.0000001e-06f;
+float D_00630940 = 0.8f;
+float D_00630944 = 10430.378f;
+float D_00630948 = 10000.0f;
+float D_0063094C = 10000.0f;
+float D_006309BC = 1.5707964f;
+float D_006309C0 = 16385.0f;
+float D_006309C4 = 10430.378f;
 
 /* Inlined data (Phase 3e) — migrated from delayFreeManager_data.c.
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each

@@ -62,21 +62,21 @@ unsigned int D_004C6240[44] = { 0x00000000, 0x00000000, 0x00000000, 0xFFFFFFFF, 
  * without requiring source-encoding compiler flags. */
 /* EUC-JP: "ストリーム用のバッファメモリが確保できませんでした
 " */
-unsigned int D_004C62F0[4] = { 0x00000000, 0x00000000, 0x3F800000, 0x3F800000 };
+float D_004C62F0[4] = { 0.0f, 0.0f, 1.0f, 1.0f };
 
 /* EUC-JP debug strings — re-derived from EE rodata bytes via
  * EUC-JP decoding. Octal escapes preserve byte-identical layout
  * without requiring source-encoding compiler flags. */
 /* EUC-JP: "ストリーム用のバッファメモリが確保できませんでした
 " */
-unsigned int D_004C6300[4] = { 0x00000000, 0x00000000, 0x3F800000, 0x3F800000 };
+float D_004C6300[4] = { 0.0f, 0.0f, 1.0f, 1.0f };
 
 /* EUC-JP debug strings — re-derived from EE rodata bytes via
  * EUC-JP decoding. Octal escapes preserve byte-identical layout
  * without requiring source-encoding compiler flags. */
 /* EUC-JP: "ストリーム用のバッファメモリが確保できませんでした
 " */
-unsigned int D_004C6310[4] = { 0x00000000, 0x00000000, 0x3F800000, 0x3F800000 };
+float D_004C6310[4] = { 0.0f, 0.0f, 1.0f, 1.0f };
 
 /* EUC-JP debug strings — re-derived from EE rodata bytes via
  * EUC-JP decoding. Octal escapes preserve byte-identical layout
@@ -97,6 +97,7 @@ const char D_0061A668[32] = "src/streamMotionManager.c";
  * without requiring source-encoding compiler flags. */
 /* EUC-JP: "ストリーム用のバッファメモリが確保できませんでした
 " */
+/* EUC-JP: "ストリーム用のバッファメモリが確保できませんでした\n" */
 const char D_0061A688[56] = "\245\271\245\310\245\352\241\274\245\340\315\321\244\316\245\320\245\303\245\325\245\241\245\341\245\342\245\352\244\254\263\316\312\335\244\307\244\255\244\336\244\273\244\363\244\307\244\267\244\277\n";
 
 /* EUC-JP debug strings — re-derived from EE rodata bytes via

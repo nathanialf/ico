@@ -35,7 +35,7 @@ unsigned char D_002761A8[16] = { 0 };
 
 unsigned int D_002761B8[6] = { 0x00000001, 0x00000001, 0x00000001, 0x00000000, 0x00000000, 0x00000000 };
 
-unsigned int D_002761D0[16] = { 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000 };
+float D_002761D0[16] = { 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f };
 
 unsigned int D_00276210 = 0x00000000;
 
@@ -107,23 +107,23 @@ unsigned int D_004CAD78 = 0x004CAD70;
 
 unsigned int D_004CAD7C = 0x00000001;
 
-unsigned int D_004CAD80[4] = { 0x43160000, 0x43570000, 0x439D8000, 0xBF800000 };
+float D_004CAD80[4] = { 150.0f, 215.0f, 315.0f, -1.0f };
 
-unsigned int D_004CAD90[4] = { 0x43160000, 0x436B0000, 0x439D8000, 0xBF800000 };
+float D_004CAD90[4] = { 150.0f, 235.0f, 315.0f, -1.0f };
 
-unsigned int D_004CADA0[4] = { 0x439D8000, 0x43A50000, 0x43AF0000, 0xBF800000 };
+float D_004CADA0[4] = { 315.0f, 330.0f, 350.0f, -1.0f };
 
-unsigned int D_004CADB0[4] = { 0x43160000, 0x43570000, 0x439D8000, 0xBF800000 };
+float D_004CADB0[4] = { 150.0f, 215.0f, 315.0f, -1.0f };
 
-unsigned int D_004CADC0[4] = { 0x43160000, 0x43570000, 0x439D8000, 0xBF800000 };
+float D_004CADC0[4] = { 150.0f, 215.0f, 315.0f, -1.0f };
 
-unsigned int D_004CADD0[4] = { 0x443AC000, 0xC56BF000, 0x45229000, 0x3F800000 };
+float D_004CADD0[4] = { 747.0f, -3775.0f, 2601.0f, 1.0f };
 
-unsigned int D_004CADE0[4] = { 0x44168000, 0xC56BF000, 0x451B0000, 0x3F800000 };
+float D_004CADE0[4] = { 602.0f, -3775.0f, 2480.0f, 1.0f };
 
-unsigned int D_004CADF0[4] = { 0x443B4000, 0xC56BF000, 0x4525A000, 0x3F800000 };
+float D_004CADF0[4] = { 749.0f, -3775.0f, 2650.0f, 1.0f };
 
-unsigned int D_004CAE00[4] = { 0x440BC000, 0xC56BF000, 0x451C7000, 0x3F800000 };
+float D_004CAE00[4] = { 559.0f, -3775.0f, 2503.0f, 1.0f };
 
 const char D_00554010[48] = "file_LoadCDFile:file is not exists? (%s)\n";
 
@@ -309,11 +309,11 @@ unsigned int D_00631BB8 = 0x00000000;
 
 unsigned int D_00631BBC = 0x00000000;
 
-unsigned int D_00631BC0 = 0x3F800000;
+float D_00631BC0 = 1.0f;
 
-unsigned int D_00631BC4 = 0x3F800000;
+float D_00631BC4 = 1.0f;
 
-unsigned int D_00631BC8 = 0x447A0000;
+float D_00631BC8 = 1000.0f;
 
 unsigned int D_00631BCC = 0x00000001;
 
@@ -351,7 +351,7 @@ unsigned char D_00631C18[8] = { 0 };
 
 const char D_00631C20[8] = "On";
 
-unsigned int D_00631C28 = 0x0066664F;
+char D_00631C28[4] = "Off";
 
 unsigned int D_00631C2C = 0x00000000;
 
@@ -363,7 +363,7 @@ unsigned int D_00631C40 = 0x00000000;
 
 unsigned int D_00631C44 = 0xFFFFFFFF;
 
-unsigned int D_00631C48 = 0x00007325;
+char D_00631C48[4] = "%s";
 
 unsigned int D_00631C4C = 0x00000000;
 
@@ -387,7 +387,7 @@ const char D_00631C78[8] = "0";
 
 const char D_00631C80[8] = "OBJ";
 
-unsigned int D_00631C88 = 0x00584946;
+char D_00631C88[4] = "FIX";
 
 unsigned int D_00631C8C = 0x00000000;
 
@@ -507,7 +507,7 @@ unsigned int D_006332A0 = 0x00000000;
 
 unsigned int D_006332A4 = 0x00000000;
 
-unsigned int D_006332A8 = 0x3F800000;
+float D_006332A8 = 1.0f;
 
 unsigned int D_006332AC = 0x004C0560;
 
@@ -544,48 +544,48 @@ unsigned int D_006337B8 = 0x00000000;
  * at its original VMA. See tools/inline_tu_data.py. */
 
 /* scalars */
-unsigned int D_006309C8 = 0x3A83126F;
-unsigned int D_006309CC = 0x4DFFFFFF;
-unsigned int D_006309D0 = 0x3F7D70A4;
-unsigned int D_006309D4 = 0x3EAAA64C;
-unsigned int D_006309D8 = 0x3EAAA64C;
-unsigned int D_006309DC = 0x3DCCCCCD;
-unsigned int D_006309E0 = 0x40490FDB;
-unsigned int D_006309E4 = 0x40060A92;
-unsigned int D_006309E8 = 0x40860A92;
-unsigned int D_006309EC = 0x40490FDB;
-unsigned int D_006309F0 = 0x40490FDB;
-unsigned int D_006309F4 = 0xC0490FDB;
-unsigned int D_006309F8 = 0x40490FDB;
-unsigned int D_006309FC = 0xC0490FDB;
-unsigned int D_00630A00 = 0x40490FDB;
-unsigned int D_00630A04 = 0xC0490FDB;
-unsigned int D_00630A08 = 0x40490FDB;
-unsigned int D_00630A0C = 0x40060A92;
-unsigned int D_00630A10 = 0x3F99999A;
-unsigned int D_00630A14 = 0x3C23D70A;
-unsigned int D_00630A18 = 0x3C23D70A;
-unsigned int D_00630A1C = 0x3F8147AE;
-unsigned int D_00630A20 = 0x3F7D70A4;
-unsigned int D_00630A24 = 0x3C23D70A;
-unsigned int D_00630A28 = 0x3C23D70A;
-unsigned int D_00630A2C = 0x3F8147AE;
-unsigned int D_00630A30 = 0x3F7D70A4;
-unsigned int D_00630A34 = 0x3EAAA64C;
-unsigned int D_00630A38 = 0x3EAAA64C;
-unsigned int D_00630A3C = 0x3F7D70A4;
-unsigned int D_00630A40 = 0x4B7FFFFF;
-unsigned int D_00630A44 = 0xCB7FFFFF;
-unsigned int D_00630A48 = 0x3F008081;
-unsigned int D_00630A4C = 0x3F008081;
-unsigned int D_00630A50 = 0x3F008081;
-unsigned int D_00630A54 = 0x40C90FDB;
-unsigned int D_00630A58 = 0x4622F983;
-unsigned int D_00630A5C = 0x40C90FDB;
-unsigned int D_00630A60 = 0x4622F983;
-unsigned int D_00630A64 = 0x457FF000;
-unsigned int D_00630A68 = 0x40490FDB;
-unsigned int D_00630A6C = 0x4622F983;
+float D_006309C8 = 0.001f;
+float D_006309CC = 536870880.0f;
+float D_006309D0 = 0.99f;
+float D_006309D4 = 0.3333f;
+float D_006309D8 = 0.3333f;
+float D_006309DC = 0.1f;
+float D_006309E0 = 3.1415927f;
+float D_006309E4 = 2.0943952f;
+float D_006309E8 = 4.1887903f;
+float D_006309EC = 3.1415927f;
+float D_006309F0 = 3.1415927f;
+float D_006309F4 = -3.1415927f;
+float D_006309F8 = 3.1415927f;
+float D_006309FC = -3.1415927f;
+float D_00630A00 = 3.1415927f;
+float D_00630A04 = -3.1415927f;
+float D_00630A08 = 3.1415927f;
+float D_00630A0C = 2.0943952f;
+float D_00630A10 = 1.2f;
+float D_00630A14 = 0.01f;
+float D_00630A18 = 0.01f;
+float D_00630A1C = 1.01f;
+float D_00630A20 = 0.99f;
+float D_00630A24 = 0.01f;
+float D_00630A28 = 0.01f;
+float D_00630A2C = 1.01f;
+float D_00630A30 = 0.99f;
+float D_00630A34 = 0.3333f;
+float D_00630A38 = 0.3333f;
+float D_00630A3C = 0.99f;
+float D_00630A40 = 16777215.0f;
+float D_00630A44 = -16777215.0f;
+float D_00630A48 = 0.5019608f;
+float D_00630A4C = 0.5019608f;
+float D_00630A50 = 0.5019608f;
+float D_00630A54 = 6.2831855f;
+float D_00630A58 = 10430.378f;
+float D_00630A5C = 6.2831855f;
+float D_00630A60 = 10430.378f;
+float D_00630A64 = 4095.0f;
+float D_00630A68 = 3.1415927f;
+float D_00630A6C = 10430.378f;
 
 /* Inlined data (Phase 3e) — migrated from FileManager_data.c.
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each

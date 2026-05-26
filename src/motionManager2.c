@@ -33,10 +33,10 @@ unsigned int D_00275FC0[4] = { 0x000000FF, 0x000000FF, 0x000000FF, 0x00000080 };
 unsigned int D_00275FD0[8] = { 0x00000000, 0x00000001, 0x00000003, 0x00000002, 0x00000000, 0x00000000, 0x00000000, 0x00000000 };
 
 /* String rodata migrated from motionManager2_data.c */
-unsigned int D_00275FF0[16] = { 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000 };
+float D_00275FF0[16] = { 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f };
 
 /* String rodata migrated from motionManager2_data.c */
-unsigned int D_00276030[4] = { 0x00000000, 0x00000000, 0xBF800000, 0x00000000 };
+float D_00276030[4] = { 0.0f, 0.0f, -1.0f, 0.0f };
 
 /* String rodata migrated from motionManager2_data.c */
 unsigned int D_00553BD0[4] = { 0x00000000, 0x00000080, 0x000000FF, 0x00000080 };
@@ -57,9 +57,11 @@ unsigned int D_00553C80[4] = { 0x000000FF, 0x000000FF, 0x000000FF, 0x00000080 };
 const char D_00553CA0[24] = "src/motionManager2.c";
 
 /* String rodata migrated from motionManager2_data.c */
+/* EUC-JP: "AdjustRootPositionToVerticalSidePlaneOfWallが壁の中に突入させようとしたのでクリップしました\n" */
 const char D_00553CB8[96] = "AdjustRootPositionToVerticalSidePlaneOfWall\244\254\312\311\244\316\303\346\244\313\306\315\306\376\244\265\244\273\244\350\244\246\244\310\244\267\244\277\244\316\244\307\245\257\245\352\245\303\245\327\244\267\244\336\244\267\244\277\n";
 
 /* String rodata migrated from motionManager2_data.c */
+/* EUC-JP: "AdjustVerticalSidePlaneOfWall:垂直壁が近接しているので補正位置をその中点としました\n" */
 const char D_00553D18[88] = "AdjustVerticalSidePlaneOfWall:\277\342\304\276\312\311\244\254\266\341\300\334\244\267\244\306\244\244\244\353\244\316\244\307\312\344\300\265\260\314\303\326\244\362\244\275\244\316\303\346\305\300\244\310\244\267\244\336\244\267\244\277\n";
 
 /* String rodata migrated from motionManager2_data.c */
@@ -85,24 +87,24 @@ unsigned int D_00631B60[2] = { 0x7F7FFFFF, 0x00000000 };
  * at its original VMA. See tools/inline_tu_data.py. */
 
 /* scalars */
-unsigned int D_00630950 = 0x4622F983;
-unsigned int D_00630954 = 0x3E4CCCCD;
-unsigned int D_00630958 = 0x3EE66666;
-unsigned int D_0063095C = 0x3F8CCCCD;
-unsigned int D_00630960 = 0x3E99999A;
-unsigned int D_00630964 = 0x3E99999A;
-unsigned int D_00630968 = 0x3E4CCCCD;
-unsigned int D_0063096C = 0x3EE66666;
-unsigned int D_00630970 = 0x3F8CCCCD;
-unsigned int D_00630974 = 0x3E99999A;
-unsigned int D_00630978 = 0x3DCCCCCD;
-unsigned int D_0063097C = 0xBDCCCCCD;
-unsigned int D_00630980 = 0x3A83126F;
-unsigned int D_00630984 = 0x40490FDB;
-unsigned int D_00630988 = 0x3A03126F;
-unsigned int D_0063098C = 0x3D4CCCCD;
-unsigned int D_00630990 = 0x3F4CCCCD;
-unsigned int D_00630994 = 0x3DCCCCCD;
+float D_00630950 = 10430.378f;
+float D_00630954 = 0.2f;
+float D_00630958 = 0.45f;
+float D_0063095C = 1.1f;
+float D_00630960 = 0.3f;
+float D_00630964 = 0.3f;
+float D_00630968 = 0.2f;
+float D_0063096C = 0.45f;
+float D_00630970 = 1.1f;
+float D_00630974 = 0.3f;
+float D_00630978 = 0.1f;
+float D_0063097C = -0.1f;
+float D_00630980 = 0.001f;
+float D_00630984 = 3.1415927f;
+float D_00630988 = 0.0005f;
+float D_0063098C = 0.05f;
+float D_00630990 = 0.8f;
+float D_00630994 = 0.1f;
 
 #include "include_asm.h"
 

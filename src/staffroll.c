@@ -48,6 +48,7 @@ const char D_00617378[24] = "src/staffroll.c";
  * has 8 with trailing zero). Placed at offset 0x6173AC. */
 __attribute__((section(".rodata.0x006173AC"))) static const int pad_jtbl_00617390 = 0;
 
+/* EUC-JP: "staff roll 領域不足\n" */
 const char D_00617360[24] = "staff roll \316\316\260\350\311\324\302\255\n";
 const char D_006173B0[24] = "Masatsuka Saeki ";
 const char D_006173C8[16] = "Fumiya Takeno ";

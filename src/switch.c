@@ -14,7 +14,7 @@ unsigned int D_0028A640[84] = { 0x00000635, 0x00000000, 0x00000000, 0x00000000, 
  * at its original VMA. See tools/inline_tu_data.py. */
 
 /* scalars */
-unsigned int D_0028A790[16] = { 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x3F800000, 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000 };
+float D_0028A790[16] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 
 /* Inlined data (Phase 3e) — migrated from switch_data.c.
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each

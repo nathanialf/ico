@@ -18,7 +18,7 @@
  */
 
 
-unsigned int D_0028C990[24] = { 0x44960000, 0xC47A0000, 0x43960000, 0x00000000, 0x44960000, 0xC47A0000, 0xC2C80000, 0x00000000, 0x44898000, 0xC47A0000, 0x42C80000, 0x00000000, 0x44480000, 0xC4660000, 0x43480000, 0x00000000, 0x44160000, 0xC4610000, 0xC3480000, 0x00000000, 0x43C80000, 0xC4610000, 0x42C80000, 0x00000000 };
+float D_0028C990[24] = { 1200.0f, -1000.0f, 300.0f, 0.0f, 1200.0f, -1000.0f, -100.0f, 0.0f, 1100.0f, -1000.0f, 100.0f, 0.0f, 800.0f, -920.0f, 200.0f, 0.0f, 600.0f, -900.0f, -200.0f, 0.0f, 400.0f, -900.0f, 100.0f, 0.0f };
 
 unsigned int D_0028C9F0[8] = { 0x00000000, 0x00000001, 0x00000002, 0x00000003, 0x00000004, 0x00000008, 0x00000009, 0x00000000 };
 
@@ -152,39 +152,39 @@ const char D_00632818[8] = "= %d =\n";
 
 const char D_00632820[8] = "%s\n";
 
-unsigned int D_00632828[2] = { 0xB7010000, 0x00000000 };
+float D_00632828[2] = { -7.688999e-06f, 0.0f };
 
 /* Inlined data (Phase 3e) — migrated from queen_data.c.
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each
  * at its original VMA. See tools/inline_tu_data.py. */
 
 /* scalars */
-unsigned int D_00631068 = 0x3A83126F;
-unsigned int D_00631078 = 0x3D567750;
-unsigned int D_0063107C = 0x3DB2B8C3;
-unsigned int D_00631080 = 0x3DFA35DE;
-unsigned int D_00631084 = 0x3CA3D70A;
-unsigned int D_00631088 = 0x3D4CCCCD;
-unsigned int D_0063108C = 0x40C90FDB;
-unsigned int D_00631090 = 0x40490FDB;
-unsigned int D_00631094 = 0x40C90FDB;
-unsigned int D_00631098 = 0xC0490FDB;
-unsigned int D_0063109C = 0x40C90FDB;
-unsigned int D_006310A0 = 0x40C90FDB;
-unsigned int D_006310A4 = 0x40490FDB;
-unsigned int D_006310A8 = 0x40C90FDB;
-unsigned int D_006310AC = 0xC0490FDB;
-unsigned int D_006310B0 = 0x40C90FDB;
-unsigned int D_006310B4 = 0x40C90FDB;
-unsigned int D_006310B8 = 0x40490FDB;
-unsigned int D_006310BC = 0x40C90FDB;
-unsigned int D_006310C0 = 0xC0490FDB;
-unsigned int D_006310C4 = 0x40C90FDB;
-unsigned int D_006310C8 = 0x459C4000;
-unsigned int D_006310CC = 0x45124925;
-unsigned int D_006310D0 = 0x4622F983;
-unsigned int D_006310D4 = 0x3EAA7EFA;
-unsigned int D_006310D8 = 0x40490FDB;
+float D_00631068 = 0.001f;
+float D_00631078 = 0.05235988f;
+float D_0063107C = 0.08726647f;
+float D_00631080 = 0.122173056f;
+float D_00631084 = 0.02f;
+float D_00631088 = 0.05f;
+float D_0063108C = 6.2831855f;
+float D_00631090 = 3.1415927f;
+float D_00631094 = 6.2831855f;
+float D_00631098 = -3.1415927f;
+float D_0063109C = 6.2831855f;
+float D_006310A0 = 6.2831855f;
+float D_006310A4 = 3.1415927f;
+float D_006310A8 = 6.2831855f;
+float D_006310AC = -3.1415927f;
+float D_006310B0 = 6.2831855f;
+float D_006310B4 = 6.2831855f;
+float D_006310B8 = 3.1415927f;
+float D_006310BC = 6.2831855f;
+float D_006310C0 = -3.1415927f;
+float D_006310C4 = 6.2831855f;
+float D_006310C8 = 5000.0f;
+float D_006310CC = 2340.5715f;
+float D_006310D0 = 10430.378f;
+float D_006310D4 = 0.333f;
+float D_006310D8 = 3.1415927f;
 
 #include "include_asm.h"
 #include "regpin.h"

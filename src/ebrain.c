@@ -53,9 +53,9 @@ const char D_006327A8[8] = "error!";
  * at its original VMA. See tools/inline_tu_data.py. */
 
 /* scalars */
-unsigned int D_00630F98 = 0x40490FDB;
-unsigned int D_00630F9C = 0x48742400;
-unsigned int D_00630FA0 = 0x48742400;
+float D_00630F98 = 3.1415927f;
+float D_00630F9C = 250000.0f;
+float D_00630FA0 = 250000.0f;
 
 /* Inlined data (Phase 3e) — migrated from ebrain_data.c.
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each

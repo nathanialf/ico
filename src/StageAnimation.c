@@ -40,10 +40,13 @@ const char D_00555C10[40] = "Too much Stage Animation Objects.\n";
 
 const char D_00555C38[48] = "stage_ApplyData:Data is not registered. \n\n%s\n";
 
+/* EUC-JP: "stgBgas が%d有り MAX_ANIM_KIND %dを越えました\n" */
 const char D_00555C68[48] = "stgBgas \244\254%d\315\255\244\352 MAX_ANIM_KIND %d\244\362\261\333\244\250\244\336\244\267\244\277\n";
 
+/* EUC-JP: "1ステージ中の BgAnimation の種類が多すぎます\n" */
 const char D_00555C98[48] = "1\245\271\245\306\241\274\245\270\303\346\244\316 BgAnimation \244\316\274\357\316\340\244\254\302\277\244\271\244\256\244\336\244\271\n";
 
+/* EUC-JP: "stgBgas が%d有り MAX_ANIM_GOBJ %dを越えました\n" */
 const char D_00555CC8[48] = "stgBgas \244\254%d\315\255\244\352 MAX_ANIM_GOBJ %d\244\362\261\333\244\250\244\336\244\267\244\277\n";
 
 const char D_00555CF8[40] = "Max Bga = %d // Max DObj %d\n";
@@ -54,8 +57,10 @@ const char D_00555D78[56] = "stage_CheckAnimationFinish:illegal Animation No.\n"
 
 const char D_00555DB0[48] = "stage_ContinueAnimation:illegal Animation No.\n";
 
+/* EUC-JP: "指定したIDが存在しないか、アニメーションが読み込まれていません.\n" */
 const char D_00555DE0[72] = "\273\330\304\352\244\267\244\277ID\244\254\302\270\272\337\244\267\244\312\244\244\244\253\241\242\245\242\245\313\245\341\241\274\245\267\245\347\245\363\244\254\306\311\244\337\271\376\244\336\244\354\244\306\244\244\244\336\244\273\244\363.\n";
 
+/* EUC-JP: "ステージセグメントにメモリが確保できません.(ヒープメモリ不足)\n" */
 const char D_00555E28[72] = "\245\271\245\306\241\274\245\270\245\273\245\260\245\341\245\363\245\310\244\313\245\341\245\342\245\352\244\254\263\316\312\335\244\307\244\255\244\336\244\273\244\363.(\245\322\241\274\245\327\245\341\245\342\245\352\311\324\302\255)\n";
 
 unsigned int D_00555E70[12] = { 0x00000000, 0x00000000, 0x00000000, 0x50000002, 0x00008001, 0x10000000, 0x0000000E, 0x00000000, 0x00000001, 0x00000000, 0x0000003F, 0x00000000 };
@@ -83,8 +88,8 @@ const char D_006124C8[48] = "object/sdf/demo/conte06/e3d6.smb";
  * at its original VMA. See tools/inline_tu_data.py. */
 
 /* scalars */
-unsigned int D_00630A70 = 0x3FB504F3;
-unsigned int D_00630A74 = 0x3FB504F3;
+float D_00630A70 = 1.4142135f;
+float D_00630A74 = 1.4142135f;
 
 /* Inlined data (Phase 3e) — migrated from StageAnimation_data.c.
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each

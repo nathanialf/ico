@@ -41,22 +41,22 @@ unsigned int D_00632610 = 0x03000000;
  * at its original VMA. See tools/inline_tu_data.py. */
 
 /* scalars */
-unsigned int D_00630EB0 = 0x44BB8000;
-unsigned int D_00630EB4 = 0x3F7D70A4;
-unsigned int D_00630EB8 = 0x3A83126F;
-unsigned int D_00630EBC = 0x3C23D70A;
-unsigned int D_00630EC0 = 0x3C8EFA35;
-unsigned int D_00630EC4 = 0x3DCCCCCD;
-unsigned int D_00630EC8 = 0x3FF33333;
-unsigned int D_00630ECC = 0x40490FDB;
-unsigned int D_00630ED0 = 0x38D1B717;
-unsigned int D_00630ED4 = 0x38D1B717;
-unsigned int D_00630ED8 = 0x40490FDB;
-unsigned int D_00630EDC = 0x3ECCCCCD;
-unsigned int D_00630EE0 = 0x3ECCCCCD;
-unsigned int D_00630EE4 = 0x3ECCCCCD;
-unsigned int D_00630EE8 = 0x3ECCCCCD;
-unsigned int D_00630EEC = 0x3ECCCCCD;
+float D_00630EB0 = 1500.0f;
+float D_00630EB4 = 0.99f;
+float D_00630EB8 = 0.001f;
+float D_00630EBC = 0.01f;
+float D_00630EC0 = 0.017453292f;
+float D_00630EC4 = 0.1f;
+float D_00630EC8 = 1.9f;
+float D_00630ECC = 3.1415927f;
+float D_00630ED0 = 0.0001f;
+float D_00630ED4 = 0.0001f;
+float D_00630ED8 = 3.1415927f;
+float D_00630EDC = 0.4f;
+float D_00630EE0 = 0.4f;
+float D_00630EE4 = 0.4f;
+float D_00630EE8 = 0.4f;
+float D_00630EEC = 0.4f;
 
 #include "include_asm.h"
 
@@ -89,6 +89,7 @@ const char D_0055A500[24] = "mail send ok [%d]\n";
 const char D_0055A518[16] = "src/attackhit.c";
 const char D_0055A528[16] = "gop!=NULL";
 const char D_0055A538[48] = "brainStatusDefaultSet: brain target area over\n";
+/* EUC-JP: "ブレインレベルのオーバーライドに失敗しました\n" */
 const char D_0055A568[48] = "\245\326\245\354\245\244\245\363\245\354\245\331\245\353\244\316\245\252\241\274\245\320\241\274\245\351\245\244\245\311\244\313\274\272\307\324\244\267\244\336\244\267\244\277\n";
 const double D_0055A598 = 1.9;
 const double D_0055A5A0 = 0.002;

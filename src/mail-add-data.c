@@ -31,36 +31,36 @@ const char D_006327E8[8] = "FLY E2";
  * at its original VMA. See tools/inline_tu_data.py. */
 
 /* scalars */
-unsigned int D_00630FC4 = 0x3DCCCCCD;
-unsigned int D_00630FC8 = 0x3C0EFA35;
-unsigned int D_00630FCC = 0x40490FDB;
-unsigned int D_00630FD0 = 0x40490FDB;
-unsigned int D_00630FD4 = 0x40490FDB;
-unsigned int D_00630FD8 = 0x4622F983;
-unsigned int D_00630FDC = 0x3F333333;
-unsigned int D_00630FE0 = 0x40C90FDB;
-unsigned int D_00630FE4 = 0x3DB2B8C3;
-unsigned int D_00630FE8 = 0x40C90FDB;
-unsigned int D_00630FEC = 0x3E8F5C29;
-unsigned int D_00630FF0 = 0x3E8F5C29;
-unsigned int D_00630FF4 = 0x3ECCCCCD;
-unsigned int D_00630FF8 = 0x3F333333;
-unsigned int D_00630FFC = 0x40C90FDB;
-unsigned int D_00631000 = 0x40C90FDB;
-unsigned int D_00631004 = 0x3E4CCCCD;
-unsigned int D_00631008 = 0x40C90FDB;
-unsigned int D_0063100C = 0x3C888889;
-unsigned int D_00631010 = 0x40C90FDB;
-unsigned int D_00631014 = 0x40C90FDB;
-unsigned int D_00631018 = 0x3D0EFA35;
-unsigned int D_0063101C = 0xBD0EFA35;
-unsigned int D_00631020 = 0x3F19999A;
-unsigned int D_00631024 = 0xBFA66666;
-unsigned int D_00631028 = 0x3F19999A;
-unsigned int D_0063102C = 0x3E124925;
-unsigned int D_00631030 = 0x3E4CCCCD;
-unsigned int D_00631034 = 0x3A83126F;
-unsigned int D_00631038 = 0x40C90FDB;
+float D_00630FC4 = 0.1f;
+float D_00630FC8 = 0.008726646f;
+float D_00630FCC = 3.1415927f;
+float D_00630FD0 = 3.1415927f;
+float D_00630FD4 = 3.1415927f;
+float D_00630FD8 = 10430.378f;
+float D_00630FDC = 0.7f;
+float D_00630FE0 = 6.2831855f;
+float D_00630FE4 = 0.08726647f;
+float D_00630FE8 = 6.2831855f;
+float D_00630FEC = 0.28f;
+float D_00630FF0 = 0.28f;
+float D_00630FF4 = 0.4f;
+float D_00630FF8 = 0.7f;
+float D_00630FFC = 6.2831855f;
+float D_00631000 = 6.2831855f;
+float D_00631004 = 0.2f;
+float D_00631008 = 6.2831855f;
+float D_0063100C = 0.016666668f;
+float D_00631010 = 6.2831855f;
+float D_00631014 = 6.2831855f;
+float D_00631018 = 0.034906585f;
+float D_0063101C = -0.034906585f;
+float D_00631020 = 0.6f;
+float D_00631024 = -1.3f;
+float D_00631028 = 0.6f;
+float D_0063102C = 0.14285715f;
+float D_00631030 = 0.2f;
+float D_00631034 = 0.001f;
+float D_00631038 = 6.2831855f;
 
 #include "include_asm.h"
 

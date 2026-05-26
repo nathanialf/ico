@@ -154,13 +154,13 @@ unsigned int D_0028CE10[402] = { 0x0015E6B0, 0x0015EED0, 0x00000000, 0x00000000,
 
 unsigned char D_004C49A8[2220] = { 0 };
 
-unsigned int D_004C5AA0[4] = { 0xC0400000, 0x00000000, 0xC0400000, 0x00000000 };
+float D_004C5AA0[4] = { -3.0f, 0.0f, -3.0f, 0.0f };
 
-unsigned int D_004C5AB0[4] = { 0x40400000, 0x00000000, 0x40400000, 0x00000000 };
+float D_004C5AB0[4] = { 3.0f, 0.0f, 3.0f, 0.0f };
 
-unsigned int D_004C5AC0[4] = { 0xC0400000, 0x00000000, 0x40400000, 0x00000000 };
+float D_004C5AC0[4] = { -3.0f, 0.0f, 3.0f, 0.0f };
 
-unsigned int D_004C5AD0[4] = { 0x40400000, 0x00000000, 0xC0400000, 0x00000000 };
+float D_004C5AD0[4] = { 3.0f, 0.0f, -3.0f, 0.0f };
 
 const char D_005582C8[16] = "src/boyact.c";
 
@@ -200,6 +200,7 @@ const float D_00558700[4] = { 0.0f, 0.0f, -5e+01f, 1.0f };
 
 const float D_00558710[4] = { 0.0f, 0.0f, 5e+01f, 1.0f };
 
+/* EUC-JP: "！！！ソファの壁を見付けることができません！！！\n" */
 const char D_00558720[56] = "\241\252\241\252\241\252\245\275\245\325\245\241\244\316\312\311\244\362\270\253\311\325\244\261\244\353\244\263\244\310\244\254\244\307\244\255\244\336\244\273\244\363\241\252\241\252\241\252\n";
 
 const char D_00558758[48] = "hand connect start\n\000\000\000\000\000WBP set [landing]\n\000\000\000\000\000";
@@ -249,15 +250,15 @@ unsigned int D_00632DA4 = 0x00000000;
  * at its original VMA. See tools/inline_tu_data.py. */
 
 /* scalars */
-unsigned int D_00630C24 = 0x471C4000;
-unsigned int D_00630C28 = 0x40490FDB;
-unsigned int D_00630C2C = 0x40490FDB;
-unsigned int D_00630C30 = 0x40490FDB;
-unsigned int D_00630C34 = 0x40490FDB;
-unsigned int D_00630C38 = 0x40490FDB;
-unsigned int D_00630C3C = 0x3F490FDB;
-unsigned int D_00630C40 = 0x40490FDB;
-unsigned int D_00630C44 = 0x3E4CCCCD;
+float D_00630C24 = 40000.0f;
+float D_00630C28 = 3.1415927f;
+float D_00630C2C = 3.1415927f;
+float D_00630C30 = 3.1415927f;
+float D_00630C34 = 3.1415927f;
+float D_00630C38 = 3.1415927f;
+float D_00630C3C = 0.7853982f;
+float D_00630C40 = 3.1415927f;
+float D_00630C44 = 0.2f;
 
 /* Inlined data (Phase 3e) — migrated from boyact_data.c.
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each

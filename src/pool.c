@@ -20,13 +20,13 @@
 
 /* World bounding box: { min_x, min_y, max_x, max_y } in fixed-point
  * stage coordinates (-2048..+4096 covers the stage extent). */
-unsigned int D_00276040[16] = { 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x3F800000, 0x3F800000, 0x00000000 };
+float D_00276040[16] = { 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f };
 
-unsigned int D_00276080[16] = { 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000 };
+float D_00276080[16] = { 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f };
 
-unsigned int D_002760C0[16] = { 0x3F34FDF4, 0x3F34FDF4, 0x00000000, 0x00000000, 0x3F34FDF4, 0x3F34FDF4, 0x00000000, 0x00000000, 0x3F34FDF4, 0x3F34FDF4, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000 };
+float D_002760C0[16] = { 0.707f, 0.707f, 0.0f, 0.0f, 0.707f, 0.707f, 0.0f, 0.0f, 0.707f, 0.707f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 
-unsigned int D_00276100[16] = { 0x3F800000, 0x3F800000, 0x3F800000, 0x00000000, 0x3F800000, 0x3F800000, 0x3F800000, 0x00000000, 0x3F800000, 0x3F800000, 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000 };
+float D_00276100[16] = { 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f };
 
 const int D_00553DD0[4] = { -2048, -2048, 4096, 4096 };
 
@@ -79,15 +79,15 @@ unsigned int D_00631B7C = 0xFFFFFFFF;
  * at its original VMA. See tools/inline_tu_data.py. */
 
 /* scalars */
-unsigned int D_00630998 = 0x3DCCCCCD;
-unsigned int D_0063099C = 0x3F4CCCCD;
-unsigned int D_006309A0 = 0x3F933333;
-unsigned int D_006309A4 = 0x3F4CCCCD;
-unsigned int D_006309A8 = 0x3E99999A;
-unsigned int D_006309AC = 0x3BA3D70A;
-unsigned int D_006309B0 = 0x3C23D70A;
-unsigned int D_006309B4 = 0x3C23D70A;
-unsigned int D_006309B8 = 0x3D4CCCCD;
+float D_00630998 = 0.1f;
+float D_0063099C = 0.8f;
+float D_006309A0 = 1.15f;
+float D_006309A4 = 0.8f;
+float D_006309A8 = 0.3f;
+float D_006309AC = 0.005f;
+float D_006309B0 = 0.01f;
+float D_006309B4 = 0.01f;
+float D_006309B8 = 0.05f;
 
 #include "include_asm.h"
 

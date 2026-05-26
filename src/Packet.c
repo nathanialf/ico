@@ -134,7 +134,7 @@ unsigned int D_00631D60[2] = { 0x00000053, 0xFFFFFFFF };
 
 const char D_00631D68[8] = "On";
 
-unsigned int D_00631D70 = 0x0066664F;
+char D_00631D70[4] = "Off";
 
 unsigned int D_00631D74 = 0x00000000;
 

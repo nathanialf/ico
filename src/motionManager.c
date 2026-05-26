@@ -21,13 +21,13 @@
 const char D_00275870[16] = "\000\000\200?";
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_00275880[4] = { 0x00000000, 0x3F800000, 0x00000000, 0x00000000 };
+float D_00275880[4] = { 0.0f, 1.0f, 0.0f, 0.0f };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_00276140[4] = { 0x00000000, 0x00000000, 0x00000000, 0x3F800000 };
+float D_00276140[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_00276150[4] = { 0x3F800000, 0x3F800000, 0x3F800000, 0x3FB504F3 };
+float D_00276150[4] = { 1.0f, 1.0f, 1.0f, 1.4142135f };
 
 /* String rodata migrated from motionManager_data.c */
 unsigned int D_00276160[4] = { 0x00000001, 0x00000002, 0x00000000, 0x00000000 };
@@ -36,37 +36,37 @@ unsigned int D_00276160[4] = { 0x00000001, 0x00000002, 0x00000000, 0x00000000 };
 unsigned int D_004C5AE0[4] = { 0x000000FF, 0x00000080, 0x00000000, 0x00000080 };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C5AF0[4] = { 0xC0800000, 0x00000000, 0xC0800000, 0x00000000 };
+float D_004C5AF0[4] = { -4.0f, 0.0f, -4.0f, 0.0f };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C5B00[4] = { 0x40800000, 0x00000000, 0x40800000, 0x00000000 };
+float D_004C5B00[4] = { 4.0f, 0.0f, 4.0f, 0.0f };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C5B10[4] = { 0xC0800000, 0x00000000, 0x40800000, 0x00000000 };
+float D_004C5B10[4] = { -4.0f, 0.0f, 4.0f, 0.0f };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C5B20[4] = { 0x40800000, 0x00000000, 0xC0800000, 0x00000000 };
+float D_004C5B20[4] = { 4.0f, 0.0f, -4.0f, 0.0f };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C5B30[4] = { 0x00000000, 0x00000000, 0x00000000, 0x3F800000 };
+float D_004C5B30[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C5B40[4] = { 0x00000000, 0x00000000, 0x00000000, 0x3F800000 };
+float D_004C5B40[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C5B50[4] = { 0x00000000, 0x00000000, 0x00000000, 0x3F800000 };
+float D_004C5B50[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C5B60[4] = { 0x00000000, 0xC2200000, 0x00000000, 0x3F800000 };
+float D_004C5B60[4] = { 0.0f, -40.0f, 0.0f, 1.0f };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C5B70[4] = { 0x00000000, 0x00000000, 0x43960000, 0x3F800000 };
+float D_004C5B70[4] = { 0.0f, 0.0f, 300.0f, 1.0f };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C5B80[4] = { 0x00000000, 0x41200000, 0x00000000, 0x3F800000 };
+float D_004C5B80[4] = { 0.0f, 10.0f, 0.0f, 1.0f };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C5B90[4] = { 0x00000000, 0x00000000, 0x43960000, 0x3F800000 };
+float D_004C5B90[4] = { 0.0f, 0.0f, 300.0f, 1.0f };
 
 /* String rodata migrated from motionManager_data.c */
 unsigned int D_004C5BA0[4] = { 0x000000FF, 0x00000080, 0x00000000, 0x00000080 };
@@ -78,31 +78,31 @@ unsigned int D_004C5BB0[4] = { 0x00000000, 0x00000080, 0x000000FF, 0x00000080 };
 unsigned char D_004C5BC0[16] = { 0 };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C5BD0[4] = { 0x00000000, 0x00000000, 0x41200000, 0x00000000 };
+float D_004C5BD0[4] = { 0.0f, 0.0f, 10.0f, 0.0f };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C5BE0[4] = { 0x00000000, 0x00000000, 0xC2480000, 0x3F800000 };
+float D_004C5BE0[4] = { 0.0f, 0.0f, -50.0f, 1.0f };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C5BF0[4] = { 0x00000000, 0x00000000, 0x42480000, 0x3F800000 };
+float D_004C5BF0[4] = { 0.0f, 0.0f, 50.0f, 1.0f };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C5C00[4] = { 0xC1F00000, 0x00000000, 0x00000000, 0x3F800000 };
+float D_004C5C00[4] = { -30.0f, 0.0f, 0.0f, 1.0f };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C5C10[4] = { 0x41F00000, 0x00000000, 0x00000000, 0x3F800000 };
+float D_004C5C10[4] = { 30.0f, 0.0f, 0.0f, 1.0f };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C5C20[4] = { 0x00000000, 0x00000000, 0xC2480000, 0x3F800000 };
+float D_004C5C20[4] = { 0.0f, 0.0f, -50.0f, 1.0f };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C5C30[4] = { 0x00000000, 0x00000000, 0x42480000, 0x3F800000 };
+float D_004C5C30[4] = { 0.0f, 0.0f, 50.0f, 1.0f };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C5C40[4] = { 0xC2200000, 0x00000000, 0x00000000, 0x3F800000 };
+float D_004C5C40[4] = { -40.0f, 0.0f, 0.0f, 1.0f };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C5C50[4] = { 0x42200000, 0x00000000, 0x00000000, 0x3F800000 };
+float D_004C5C50[4] = { 40.0f, 0.0f, 0.0f, 1.0f };
 
 /* String rodata migrated from motionManager_data.c */
 const char D_004C5C60[24] = "3\000\000\000/\000\000\0004\000\000\0000\000\000\000\377\377\377\377";
@@ -117,10 +117,10 @@ const char D_004C5CA0[16] = "@\000\000\000`\000\000\000\200\000\000\000\200";
 const char D_004C5CB0[16] = "\377\000\000\000`\000\000\000@\000\000\000\200";
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C5CC0[4] = { 0x00000000, 0x3F800000, 0x00000000, 0x00000000 };
+float D_004C5CC0[4] = { 0.0f, 1.0f, 0.0f, 0.0f };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C5CD0[16] = { 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000 };
+float D_004C5CD0[16] = { 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f };
 
 /* String rodata migrated from motionManager_data.c */
 const char D_004C5D10[16] = "\377\000\000\000`\000\000\000@\000\000\000\200";
@@ -159,7 +159,7 @@ unsigned int D_004C5F20[8] = { 0x00000000, 0x00000001, 0x00000000, 0x00000000, 0
 unsigned int D_004C5F40[40] = { 0x0000000B, 0x00000001, 0x00000001, 0x00000168, 0x40000000, 0x3DCCCCCD, 0x3F733333, 0xBDCCCCCD, 0x00000000, 0x3DCCCCCD, 0x3F733333, 0x41200000, 0x3DCCCCCD, 0x3E99999A, 0x3C23D70A, 0x3F800000, 0x00000050, 0x00000050, 0x3DCCCCCD, 0x3F800000, 0x3E4CCCCD, 0x3DCCCCCD, 0x00000050, 0x3DCCCCCD, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000080, 0x00000080, 0x00000080, 0x00000080, 0x00000000, 0x00000000, 0x00000000, 0x3DCCCCCD, 0x3F800000, 0x00000000, 0x00000000, 0x00000000 };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C5FE0[4] = { 0x00000000, 0x00000000, 0x3F800000, 0x00000000 };
+float D_004C5FE0[4] = { 0.0f, 0.0f, 1.0f, 0.0f };
 
 /* String rodata migrated from motionManager_data.c */
 unsigned char D_004C5FF0[16] = { 0 };
@@ -168,7 +168,7 @@ unsigned char D_004C5FF0[16] = { 0 };
 unsigned int D_004C6000[40] = { 0x00000037, 0x00000000, 0x00000000, 0x00000000, 0xFFFFFFFF, 0x41A00000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x41200000, 0x00000000, 0x00000000, 0x00000000, 0xFFFFFFFF, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000 };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C60A0[4] = { 0x00000000, 0x00000000, 0x3F800000, 0x00000000 };
+float D_004C60A0[4] = { 0.0f, 0.0f, 1.0f, 0.0f };
 
 /* String rodata migrated from motionManager_data.c */
 unsigned int D_004C60B0[4] = { 0x000000FF, 0x000000FF, 0x000000FF, 0x000000FF };
@@ -195,19 +195,19 @@ unsigned char D_004C6140[16] = { 0 };
 unsigned char D_004C6150[8] = { 0 };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C6158[2] = { 0x00000000, 0x3F800000 };
+float D_004C6158[2] = { 0.0f, 1.0f };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C6160[4] = { 0x3F800000, 0xBFC00000, 0xBF800000, 0x3F800000 };
+float D_004C6160[4] = { 1.0f, -1.5f, -1.0f, 1.0f };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C6170[4] = { 0xC5000000, 0xC5000000, 0x00000000, 0x00000000 };
+float D_004C6170[4] = { -2048.0f, -2048.0f, 0.0f, 0.0f };
 
 /* String rodata migrated from motionManager_data.c */
 unsigned int D_004C6180[4] = { 0xFFFFFC00, 0xFFFFFC00, 0x00000800, 0x00000800 };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C6190[4] = { 0x00000000, 0x00000000, 0x00000000, 0x3F800000 };
+float D_004C6190[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 /* String rodata migrated from motionManager_data.c */
 unsigned int D_004C61A0[4] = { 0xFFFFF800, 0xFFFFFC00, 0x00001000, 0x00000800 };
@@ -222,10 +222,10 @@ unsigned int D_004C61C0[4] = { 0xFFFFF800, 0xFFFFFC00, 0x00001000, 0x00000800 };
 unsigned int D_004C61D0[4] = { 0xFFFFF804, 0xFFFFF804, 0x00001000, 0x00001000 };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C61E0[4] = { 0x00000000, 0x00000000, 0x00000000, 0x3F800000 };
+float D_004C61E0[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_004C61F0[4] = { 0x00000000, 0x00000000, 0x3F800000, 0x00000000 };
+float D_004C61F0[4] = { 0.0f, 0.0f, 1.0f, 0.0f };
 
 /* String rodata migrated from motionManager_data.c */
 const char D_006192E0[24] = "src/motionManager.c";
@@ -237,27 +237,34 @@ const char D_006192F8[48] = "NOT ENTRY WCL\n\000\000regular height: %f (%f)\n\00
 unsigned int D_00619328[30] = { 0x4E414C50, 0xA5EAA545, 0xA5C3A5DF, 0xA4C7A4C8, 0x662520B9, 0xA4DEB520, 0xA4CEA4CA, 0xB2EECDC7, 0xA4B5A4BC, 0xA4DEA4BB, 0x00000AB9, 0x00000000, 0xCEA4B3A4, 0xC3A5E1A5, 0xBCA1BBA5, 0xF2A4B8A5, 0xBFA4ABB8, 0xCFA4CDBF, 0xC1A4BEC4, 0xB9A4CBA4, 0xE4A4AEA4, 0xCBA4DEA4, 0xF0B9F3CA, 0xC6A4B7A4, 0xECA4AFA4, 0x4E3ABCA1, 0x4C41574F, 0x5449484C, 0x434F5250, 0x0000000A };
 
 /* String rodata migrated from motionManager_data.c */
+/* EUC-JP: "壁の角度が急なので落下\n" */
 const char D_006193A0[24] = "\312\311\244\316\263\321\305\331\244\254\265\336\244\312\244\316\244\307\315\356\262\274\n";
 
 /* String rodata migrated from motionManager_data.c */
+/* EUC-JP: "壁属性により落下\n" */
 const char D_006193B8[24] = "\312\311\302\260\300\255\244\313\244\350\244\352\315\356\262\274\n";
 
 /* String rodata migrated from motionManager_data.c */
+/* EUC-JP: "壁がなくて落下\n" */
 const char D_006193D0[16] = "\312\311\244\254\244\312\244\257\244\306\315\356\262\274\n";
 
 /* String rodata migrated from motionManager_data.c */
+/* EUC-JP: "壁のつかまり先がなくて落下 (段差:%f)\n" */
 const char D_006193E0[40] = "\312\311\244\316\244\304\244\253\244\336\244\352\300\350\244\254\244\312\244\257\244\306\315\356\262\274 (\303\312\272\271:%f)\n";
 
 /* String rodata migrated from motionManager_data.c */
+/* EUC-JP: "強制落下の壁に当たったので落下\n" */
 const char D_00619408[32] = "\266\257\300\251\315\356\262\274\244\316\312\311\244\313\305\366\244\277\244\303\244\277\244\316\244\307\315\356\262\274\n";
 
 /* String rodata migrated from motionManager_data.c */
+/* EUC-JP: "下にDWATERの水底がないです。このメッセージが連続で\n出てるなら、泳ぎから遷移していない状態です\n\n" */
 const char D_00619428[96] = "\262\274\244\313DWATER\244\316\277\345\304\354\244\254\244\312\244\244\244\307\244\271\241\243\244\263\244\316\245\341\245\303\245\273\241\274\245\270\244\254\317\242\302\263\244\307\n\275\320\244\306\244\353\244\312\244\351\241\242\261\313\244\256\244\253\244\351\301\253\260\334\244\267\244\306\244\244\244\312\244\244\276\365\302\326\244\307\244\271\n\n";
 
 /* String rodata migrated from motionManager_data.c */
 unsigned int D_00619488[4] = { 0x00000000, 0xFFFFFFFF, 0x00000000, 0x00000000 };
 
 /* String rodata migrated from motionManager_data.c */
+/* EUC-JP: "拡張壁に当たった\n" */
 const char D_00619498[24] = "\263\310\304\245\312\311\244\313\305\366\244\277\244\303\244\277\n";
 
 /* String rodata migrated from motionManager_data.c */
@@ -396,7 +403,7 @@ unsigned int D_00632D8C = 0x00000000;
 unsigned int D_0063343C = 0x00000000;
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_00633440 = 0x3F800000;
+float D_00633440 = 1.0f;
 
 /* String rodata migrated from motionManager_data.c */
 unsigned short D_00633444 = 0x0000;
@@ -411,10 +418,10 @@ unsigned short D_00633448 = 0x0000;
 unsigned short D_0063344A = 0x0000;
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_0063344C = 0x3DCCCCCD;
+float D_0063344C = 0.1f;
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_00633450 = 0x3F7851EC;
+float D_00633450 = 0.97f;
 
 /* String rodata migrated from motionManager_data.c */
 unsigned int D_00633454 = 0x00000000;
@@ -534,7 +541,7 @@ unsigned int D_00633544 = 0x00000000;
 unsigned int D_00633548 = 0x00000000;
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_0063354C = 0x3F800000;
+float D_0063354C = 1.0f;
 
 /* String rodata migrated from motionManager_data.c */
 const char D_00633550[8] = "4T\300\200";
@@ -591,7 +598,7 @@ unsigned int D_006335A4 = 0x00000000;
 unsigned int D_006335A8 = 0x00000000;
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_006335AC = 0x42C80000;
+float D_006335AC = 100.0f;
 
 /* String rodata migrated from motionManager_data.c */
 unsigned int D_006335B0 = 0x00000000;
@@ -621,7 +628,7 @@ const char D_006335E0[8] = "SET %d\n";
 const char D_006335E8[8] = "YES";
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_006335F0 = 0x00004F4E;
+char D_006335F0[4] = "NO";
 
 /* String rodata migrated from motionManager_data.c */
 unsigned int D_006335F4 = 0x00000000;
@@ -681,10 +688,10 @@ unsigned int D_00633638 = 0x00000000;
 unsigned int D_0063363C = 0x00000000;
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_00633640 = 0x42C80000;
+float D_00633640 = 100.0f;
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_00633644 = 0x43C80000;
+float D_00633644 = 400.0f;
 
 /* String rodata migrated from motionManager_data.c */
 const char D_00633648[8] = "\000\000HC";
@@ -696,7 +703,7 @@ unsigned int D_00633650[2] = { 0x00808080, 0x00000000 };
 unsigned char D_00633658[8] = { 0 };
 
 /* String rodata migrated from motionManager_data.c */
-unsigned int D_00633660[2] = { 0xC0000000, 0x00000000 };
+float D_00633660[2] = { -2.0f, 0.0f };
 
 /* String rodata migrated from motionManager_data.c */
 unsigned int D_00633668[2] = { 0x80000000, 0x00000000 };
@@ -779,91 +786,91 @@ const char D_00633700[8] = "SUN";
  * at its original VMA. See tools/inline_tu_data.py. */
 
 /* scalars */
-unsigned int D_006312B4 = 0x3C23D70A;
-unsigned int D_006312B8 = 0x3C23D70A;
-unsigned int D_006312BC = 0x3C23D70A;
-unsigned int D_006312C0 = 0x3F99999A;
-unsigned int D_006312C4 = 0x3C23D70A;
-unsigned int D_006312C8 = 0x3C23D70A;
-unsigned int D_006312CC = 0x3C23D70A;
-unsigned int D_006312D0 = 0x3F666666;
-unsigned int D_006312D4 = 0x43509B89;
-unsigned int D_006312D8 = 0x3F19999A;
-unsigned int D_006312DC = 0x3F666666;
-unsigned int D_006312E0 = 0x3F666666;
-unsigned int D_006312E4 = 0x3F7D70A4;
-unsigned int D_006312E8 = 0x392EC33E;
-unsigned int D_006312EC = 0x3F4CCCCD;
-unsigned int D_006312F0 = 0x3C23D70A;
-unsigned int D_006312F4 = 0x3C23D70A;
-unsigned int D_006312F8 = 0x3C23D70A;
-unsigned int D_006312FC = 0x3C23D70A;
-unsigned int D_00631300 = 0x461C4000;
-unsigned int D_00631304 = 0x461C4000;
-unsigned int D_00631308 = 0x461C4000;
-unsigned int D_0063130C = 0x3C23D70A;
-unsigned int D_00631310 = 0xBF7D70A4;
-unsigned int D_00631314 = 0x47435000;
-unsigned int D_00631318 = 0xBE99999A;
-unsigned int D_0063131C = 0x3F68F5C2;
-unsigned int D_00631320 = 0xBE99999A;
-unsigned int D_00631324 = 0x3F68F5C2;
-unsigned int D_00631328 = 0x3DCCCCCD;
-unsigned int D_0063132C = 0x3F333333;
-unsigned int D_00631330 = 0x3F4CCCCD;
-unsigned int D_00631334 = 0x3F733333;
-unsigned int D_00631338 = 0x461C4000;
-unsigned int D_0063133C = 0x461C4000;
-unsigned int D_00631340 = 0x3F4CCCCD;
-unsigned int D_00631344 = 0x3F4CCCCD;
-unsigned int D_00631348 = 0x4622F983;
-unsigned int D_0063134C = 0x3E4CCCCD;
-unsigned int D_00631350 = 0xBDCCCCCD;
-unsigned int D_00631354 = 0x3F666666;
-unsigned int D_00631358 = 0x3D8F5C29;
-unsigned int D_0063135C = 0x3E4CCCCD;
-unsigned int D_00631360 = 0x461C4000;
-unsigned int D_00631364 = 0x461C4000;
-unsigned int D_00631368 = 0x4622F983;
-unsigned int D_0063136C = 0x3DCCCCCD;
-unsigned int D_00631370 = 0x358637BD;
-unsigned int D_00631374 = 0x358637BD;
-unsigned int D_00631378 = 0x358637BD;
-unsigned int D_0063137C = 0x4622F983;
-unsigned int D_00631380 = 0x3DCCCCCD;
-unsigned int D_00631384 = 0x3E4CCCCD;
-unsigned int D_00631388 = 0x3C23D70A;
-unsigned int D_0063138C = 0x38D1B717;
-unsigned int D_00631390 = 0x38D1B717;
-unsigned int D_00631394 = 0x3C23D70A;
-unsigned int D_00631398 = 0x38D1B717;
-unsigned int D_0063139C = 0x3C23D70A;
-unsigned int D_006313A0 = 0x3C23D70A;
-unsigned int D_006313A4 = 0x457FF000;
-unsigned int D_006313A8 = 0x3E4CCCCD;
-unsigned int D_006313AC = 0x457FF000;
-unsigned int D_006313B0 = 0x4622F983;
-unsigned int D_006313B4 = 0x4622F983;
-unsigned int D_006313B8 = 0x3C23D70A;
-unsigned int D_006313BC = 0x41FEA5DD;
-unsigned int D_006313C0 = 0x4622F983;
-unsigned int D_006313C4 = 0x4622F983;
-unsigned int D_006313C8 = 0x4622F983;
-unsigned int D_006313CC = 0x4622F983;
-unsigned int D_006313D0 = 0x40490FDB;
-unsigned int D_006313D4 = 0x461C4000;
-unsigned int D_006313D8 = 0x3F666666;
-unsigned int D_006313DC = 0x49742400;
-unsigned int D_006313E0 = 0x3E3A2E8C;
-unsigned int D_006313E4 = 0x3F666666;
-unsigned int D_006313E8 = 0x3DCCCCCD;
-unsigned int D_006313EC = 0x3DCCCCCD;
-unsigned int D_006313F0 = 0x44BB8000;
-unsigned int D_006313F4 = 0x3DCCCCCD;
-unsigned int D_006313F8 = 0x43360B61;
-unsigned int D_006313FC = 0x3F333333;
-unsigned int D_00631400 = 0x3F333333;
-unsigned int D_00631404 = 0x3F666666;
+float D_006312B4 = 0.01f;
+float D_006312B8 = 0.01f;
+float D_006312BC = 0.01f;
+float D_006312C0 = 1.2f;
+float D_006312C4 = 0.01f;
+float D_006312C8 = 0.01f;
+float D_006312CC = 0.01f;
+float D_006312D0 = 0.9f;
+float D_006312D4 = 208.60756f;
+float D_006312D8 = 0.6f;
+float D_006312DC = 0.9f;
+float D_006312E0 = 0.9f;
+float D_006312E4 = 0.99f;
+float D_006312E8 = 0.00016666666f;
+float D_006312EC = 0.8f;
+float D_006312F0 = 0.01f;
+float D_006312F4 = 0.01f;
+float D_006312F8 = 0.01f;
+float D_006312FC = 0.01f;
+float D_00631300 = 10000.0f;
+float D_00631304 = 10000.0f;
+float D_00631308 = 10000.0f;
+float D_0063130C = 0.01f;
+float D_00631310 = -0.99f;
+float D_00631314 = 50000.0f;
+float D_00631318 = -0.3f;
+float D_0063131C = 0.90999997f;
+float D_00631320 = -0.3f;
+float D_00631324 = 0.90999997f;
+float D_00631328 = 0.1f;
+float D_0063132C = 0.7f;
+float D_00631330 = 0.8f;
+float D_00631334 = 0.95f;
+float D_00631338 = 10000.0f;
+float D_0063133C = 10000.0f;
+float D_00631340 = 0.8f;
+float D_00631344 = 0.8f;
+float D_00631348 = 10430.378f;
+float D_0063134C = 0.2f;
+float D_00631350 = -0.1f;
+float D_00631354 = 0.9f;
+float D_00631358 = 0.07f;
+float D_0063135C = 0.2f;
+float D_00631360 = 10000.0f;
+float D_00631364 = 10000.0f;
+float D_00631368 = 10430.378f;
+float D_0063136C = 0.1f;
+float D_00631370 = 0.000001f;
+float D_00631374 = 0.000001f;
+float D_00631378 = 0.000001f;
+float D_0063137C = 10430.378f;
+float D_00631380 = 0.1f;
+float D_00631384 = 0.2f;
+float D_00631388 = 0.01f;
+float D_0063138C = 0.0001f;
+float D_00631390 = 0.0001f;
+float D_00631394 = 0.01f;
+float D_00631398 = 0.0001f;
+float D_0063139C = 0.01f;
+float D_006313A0 = 0.01f;
+float D_006313A4 = 4095.0f;
+float D_006313A8 = 0.2f;
+float D_006313AC = 4095.0f;
+float D_006313B0 = 10430.378f;
+float D_006313B4 = 10430.378f;
+float D_006313B8 = 0.01f;
+float D_006313BC = 31.830988f;
+float D_006313C0 = 10430.378f;
+float D_006313C4 = 10430.378f;
+float D_006313C8 = 10430.378f;
+float D_006313CC = 10430.378f;
+float D_006313D0 = 3.1415927f;
+float D_006313D4 = 10000.0f;
+float D_006313D8 = 0.9f;
+float D_006313DC = 1000000.0f;
+float D_006313E0 = 0.18181819f;
+float D_006313E4 = 0.9f;
+float D_006313E8 = 0.1f;
+float D_006313EC = 0.1f;
+float D_006313F0 = 1500.0f;
+float D_006313F4 = 0.1f;
+float D_006313F8 = 182.04445f;
+float D_006313FC = 0.7f;
+float D_00631400 = 0.7f;
+float D_00631404 = 0.9f;
 
 /* Inlined data (Phase 3e) — migrated from motionManager_data.c.
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each

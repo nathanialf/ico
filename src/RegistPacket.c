@@ -67,6 +67,7 @@ const char D_00555710[24] = "illegal clip type. %d\n";
 
 const char D_00555728[40] = "no light calc cluster model %s\n";
 
+/* EUC-JP: "光源オフでリフレクションを表示.\n" */
 const char D_00555800[48] = "\270\367\270\273\245\252\245\325\244\307\245\352\245\325\245\354\245\257\245\267\245\347\245\363\244\362\311\275\274\250.\n";
 
 const char D_00555920[24] = "shadow_Render called\n";

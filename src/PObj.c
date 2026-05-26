@@ -81,7 +81,7 @@ unsigned int D_005506D0[4] = { 0x06000000, 0x00000000, 0x00000000, 0x00000000 };
 /* 8-byte double constants. -G 8 would put doubles in `.sdata`
  * without the placement attribute; the VMA-pinned attr forces
  * `.rodata` placement. */
-unsigned int D_005506E0[4] = { 0x362E9C14, 0xB94FB21F, 0x3C08873E, 0xBE2AAAA4 };
+float D_005506E0[4] = { 2.601887e-06f, -0.00019807414f, 0.0083330255f, -0.16666657f };
 
 /* 8-byte double constants. -G 8 would put doubles in `.sdata`
  * without the placement attribute; the VMA-pinned attr forces
@@ -1655,10 +1655,10 @@ unsigned int D_00531818[10384] = { 0x732F7463, 0x65676174, 0x74746573, 0x2F676E6
  * at its original VMA. See tools/inline_tu_data.py. */
 
 /* scalars */
-unsigned int D_006318C0 = 0x4B7FFFFF;
-unsigned int D_006318C4 = 0xCB7FFFFF;
-unsigned int D_006318C8 = 0x4B7FFFFF;
-unsigned int D_006318CC = 0xCB7FFFFF;
+float D_006318C0 = 16777215.0f;
+float D_006318C4 = -16777215.0f;
+float D_006318C8 = 16777215.0f;
+float D_006318CC = -16777215.0f;
 
 /* Inlined data (Phase 3e) — migrated from PObj_data.c.
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each

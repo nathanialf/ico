@@ -17,7 +17,7 @@ extern int   func_001C5BA0(char *p);
  * at its original VMA. See tools/inline_tu_data.py. */
 
 /* scalars */
-unsigned int D_004C09B0[4] = { 0x00000000, 0x00000000, 0x00000000, 0x3F800000 };
+float D_004C09B0[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 unsigned int D_006332C0 = 0x00000000;
 unsigned int D_006332C4 = 0x00000000;
 unsigned char D_006332C8[8] = { 0 };
@@ -44,7 +44,7 @@ unsigned int D_0063330C = 0x00000000;
 unsigned int D_00633310 = 0x00000000;
 unsigned int D_00633314 = 0x00000000;
 unsigned int D_00633318 = 0x00000000;
-unsigned int D_0063331C = 0x41C80000;
+float D_0063331C = 25.0f;
 unsigned int D_00633320 = 0x00000000;
 unsigned int D_00633324 = 0x00000000;
 const char D_00633328[8] = "LOOP";
@@ -71,15 +71,15 @@ unsigned int D_00633390 = 0x00000000;
  * at its original VMA. See tools/inline_tu_data.py. */
 
 /* scalars */
-unsigned int D_0063120C = 0x457FF000;
-unsigned int D_00631210 = 0x3A83126F;
-unsigned int D_00631214 = 0x3F2AAAAB;
-unsigned int D_00631218 = 0x47435000;
-unsigned int D_0063121C = 0x3A83126F;
-unsigned int D_00631220 = 0x3F75C28F;
-unsigned int D_00631224 = 0x3E99999A;
-unsigned int D_00631228 = 0x3C23D70A;
-unsigned int D_0063122C = 0x3C23D70A;
+float D_0063120C = 4095.0f;
+float D_00631210 = 0.001f;
+float D_00631214 = 0.6666667f;
+float D_00631218 = 50000.0f;
+float D_0063121C = 0.001f;
+float D_00631220 = 0.96f;
+float D_00631224 = 0.3f;
+float D_00631228 = 0.01f;
+float D_0063122C = 0.01f;
 
 /* Inlined data (Phase 3e) — migrated from clothTest_data.c.
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each

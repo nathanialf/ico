@@ -70,6 +70,7 @@ const char D_00616DA0[16] = "memory over\n";
 const char D_00616DB0[32] = "memory card another err %d\n";
 
 /* String rodata migrated from kanban_data.c */
+/* EUC-JP: "debug_mcLoadMainBlock:既に設定された数以上のデータを保存してる\n" */
 const char D_00616E18[72] = "debug_mcLoadMainBlock:\264\373\244\313\300\337\304\352\244\265\244\354\244\277\277\364\260\312\276\345\244\316\245\307\241\274\245\277\244\362\312\335\302\270\244\267\244\306\244\353\n";
 
 /* String rodata migrated from kanban_data.c */
