@@ -74,7 +74,29 @@ int func_001383D8(int a0, int a1)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ios/memory", func_001383F8);
+extern unsigned int D_00274EEC_a[] __asm__("D_00274EEC");
+extern unsigned char D_00280C60[];
+extern unsigned char D_00281180[];
+extern unsigned int D_00632110;
+extern int func_00136678();
+extern void func_001412B8(int);
+typedef struct { long long x[8]; } __attribute__((packed)) Blk40_001383F8;
+typedef struct { char pad[0x140]; int f140; int f144; int f148; Blk40_001383F8 f14C; } Elem_001383F8;
+
+int func_001383F8(int *a0, int a1)
+{
+    func_00136678(a0, a1, 0x63FC);
+    D_00274EEC_a[0] = ((Elem_001383F8 *) D_00280C60)[a0[0x8 / 4]].f140;
+    func_001412B8(((Elem_001383F8 *) D_00280C60)[a0[0x8 / 4]].f144);
+    {
+        int i = a0[0x8 / 4];
+        int v = ((Elem_001383F8 *) D_00280C60)[i].f148;
+        *(Blk40_001383F8 *) D_00281180 =
+            *(Blk40_001383F8 *) (D_00280C60 + 0x14C + i * 0x18C);
+        D_00632110 = v;
+    }
+    return a0[0x10 / 4];
+}
 extern int func_00132630(int a0, void *handler, int *state, int a3, int a4, int a5, int a6, int a7);
 extern void func_00137E48(int *a0);
 extern void func_00133450(int a0);
