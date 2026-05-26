@@ -383,7 +383,17 @@ void func_00144308(int arg)
     } while (i < 0x30);
 }
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00144390);
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_001444A0);
+extern void func_00140138(char *p);
+void func_001444A0(void)
+{
+    int i;
+    for (i = 0; i < 0x300; i += 0x30) {
+        char *p = D_006A95B0 + i;
+        if (*(unsigned short *)(p + 2) == 0x11) {
+            func_00140138(p);
+        }
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00144500);
 
 extern int D_00632218;
