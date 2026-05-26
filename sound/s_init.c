@@ -306,8 +306,33 @@ int func_00144178(int a0, int a1, int a2, int a3)
 }
 
 INCLUDE_ASM_NOP_PAD(func_001441C4);
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_001441C8);
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00144208);
+float func_001441C8(int a0)
+{
+    int off = (a0 & 0xFF) * 64;
+    char *e = D_006A98B0 + off;
+    if (*(short *)(e + 0x10) >= 0) {
+        goto check;
+    }
+fail:
+    return 0.0f;
+check:
+    a0 = a0 >> 8;
+    if (a0 != *(unsigned short *)e) {
+        goto fail;
+    }
+    return *(float *)(D_006A98B0 + off + 0x18);
+}
+void func_00144208(int a0, float f)
+{
+    int off = (a0 & 0xFF) * 64;
+    char *e = D_006A98B0 + off;
+    if (*(short *)(e + 0x10) >= 0) {
+        a0 = a0 >> 8;
+        if (a0 == *(unsigned short *)e) {
+            *(float *)(D_006A98B0 + off + 0x18) = f;
+        }
+    }
+}
 void func_00144240(int arg)
 {
     char *p = D_006A98B0;
