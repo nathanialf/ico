@@ -616,6 +616,53 @@ Don't declare cross-TU data symbols `static`. Typed `D_<VMA>` defs that
 are referenced via `%hi/%lo` from another TU must have external linkage,
 or the relocation will go through `_gp` instead. See [feedback_data_symbols_extern].
 
+### 5.7 Far in-TU small global referenced from C — asm-label alias
+
+**Diff fingerprint:** link error `R_MIPS_GPREL16 truncated against D_X`, or a
+`sw $v,gp_rel(D_X)` where the original has `lui $h,%hi(D_X); sw $v,%lo(D_X)($h)`.
+Happens when a `≤ -G`-sized global is DEFINED in the same TU but lives at a FAR
+address (not near `_gp`, e.g. 0x274EEC vs `_gp`=0x6388f0): ee-gcc small-datas it →
+gp_rel → truncates. The original used `%hi/%lo` because the dev referenced it as
+`extern` from a code TU (data in a separate object).
+
+Do **not** move the def: `__attribute__((section(".data.D_X")))` and sidecar moves
+both *shift the .data VMA* (`.data.0x*` sorts in a different lexical group than
+`.data.D_*`, +0x100). Keep the def; reference through an incomplete-array
+asm-label alias:
+```c
+unsigned int D_X = 7;                              /* keep the .sdata def */
+extern unsigned int D_X_a[] __asm__("D_X");        /* alias: [] ⇒ %hi/%lo */
+...
+D_X_a[0] = v;                                      /* R_MIPS_HI16/LO16, no shift */
+```
+Verify: `objdump -dr build/<tu>.o | grep D_X` → want `R_MIPS_HI16/LO16`, not
+`R_MIPS_GPREL16`. Example: `func_001383F8` (ios/memory.c), `D_00274EEC`.
+See: [feedback_asm_label_alias_far_sdata], [feedback_sdata_small_symbol_force_data_section].
+
+### 5.8 Base-fold address arithmetic to control copy/coalesce registers
+
+**Diff fingerprint:** an array-of-structs element copy/access where the registers
+differ (copy temps, dest register, an `addu sX,sX,vN` that clobbers the array base
+vs `addu vN,vN,sX` that keeps it) — instructions otherwise identical.
+
+The *grouping* of the field-pointer arithmetic in C decides gcc's CSE and therefore
+the register coalescing:
+```c
+/* element-fold (naive): gcc CSEs the element ptr, reuses/clobbers the array base */
+*(Blk*)dst = ((Elem*)BASE)[i].field;        /* (BASE + i*stride) + field_off */
+
+/* base-fold (matches the dev): field offset folded into BASE early; gcc keeps the
+   array base live, coalesces element→dest into the original's register */
+*(Blk*)dst = *(Blk*)(BASE + field_off + i*stride);   /* (BASE+field_off) + i*stride */
+```
+Pair it correctly: keep *other* accesses to the same element struct-based
+(`((Elem*)BASE)[i].other`) so the array base stays in its callee-saved reg.
+Diagnostic harness: build the `.o`, grep first `sdl …(REG)` (dest reg) + first
+`ldl REG` (temp1), and check for a forbidden `addu sX,sX,…` (base clobber).
+Example: `func_001383F8` tail 0x40-byte copy — base-fold src + struct `f148`
+gives dest=`$v0`, temps `$a2/$a3/$t0`. See: [feedback_basefold_copy_coalesce].
+General method for these: [feedback_deterministic_source_shape_not_floors].
+
 For lit4 / gp_rel data symbols defined in the **same TU** as an
 `INCLUDE_ASM`'d function: declare them `extern` in a header and keep the
 definition out of that TU until all sibling funcs are decompiled.

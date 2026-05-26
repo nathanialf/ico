@@ -36,6 +36,56 @@ historical; some 2.96-specific workarounds (e.g. the inline-asm
 were unnecessary under 2.9 and have been removed. The rest of the
 file's quirks remain valid.
 
+## Matching mindset — determinism, not floors (read this first)
+
+ee-gcc 2.9 is **per-function deterministic**: no LTO, no cross-TU codegen.
+For a given function source + CFLAGS it emits exactly one byte sequence;
+`build/<tu>.o` in isolation already contains the function's final
+instructions, and the linker only fills in addresses. Two consequences
+that change how you approach a stubborn function:
+
+1. **A near-miss diff is a source-shape mismatch, never a "gcc floor."**
+   Register allocation, instruction scheduling, and register *coalescing*
+   are all decided from the source — so if the diff is regalloc/scheduling,
+   the original developer's C had a different *shape* than yours, and a
+   matching shape provably exists. Do **not** reach for the permuter, a
+   postprocess, or "this is a compiler floor" until you have exhausted the
+   source-structure search. (Real example: func_001383F8 was successively
+   mis-labeled data-infra-blocked, then a memcpy-expansion floor, then
+   "needs a postprocess" — it was a two-line source-shape fix.)
+
+2. **Compare in isolation; the linked diff lies.** A function that isn't
+   byte-exact has the wrong `.text` size, which shifts every later `.data`
+   symbol (slinky lays data with `.`-relative offsets) — so a *linked*
+   objdump shows bogus `%hi/%lo`, gp-offset, and "+0x100" address diffs that
+   are symptoms, not codegen causes. Judge codegen from
+   `objdump -d build/<tu>.o` on the one function, with address operands
+   stripped, looking only at opcodes/registers/order.
+
+**Method — sweep, don't fight.** Because the compiler is deterministic,
+matching is a *search over source structure*. Build a throwaway harness:
+compile the `.o`, extract the function, normalize away addresses, and rank
+candidate source variants by register/opcode/order distance to the target;
+sweep 5–15 variants, take the one whose registers converge, confirm with
+`ninja`. The source-side levers that move regalloc/scheduling/coalescing:
+
+- **declaration / first-use order** → pseudo birth order → which value gets
+  `$s0` vs `$s1`, `$v0` vs `$v1`;
+- **address-arithmetic grouping** — `(base+field_off)+idx*stride` vs
+  `(base+idx*stride)+field_off` changes CSE and which pointer stays live, so
+  it decides which registers coalesce (see COOKBOOK §"base-fold copy");
+- **pointer lifetime** — cache-in-local vs re-derive (re-derive forces the
+  post-call reloads); reuse one variable for two values to force one register;
+- **data-TU split** — a small far global referenced from C must be `extern`
+  (the dev kept data in separate objects); an in-TU small def gp_rel-truncates
+  (see COOKBOOK §"far in-TU small global");
+- **struct-member access vs explicit byte math** (offset on the load vs folded
+  into the base).
+
+The framing that unlocks it: picture the developer writing ordinary C and
+ee-gcc lowering it deterministically; ask "what source makes the compiler emit
+*this* register choice?" — not "how do I force gcc to do X."
+
 ## R5900-specific gotchas (to be cataloged)
 
 - MMI (Multimedia Instructions) — 128-bit ops the EE adds on top of
