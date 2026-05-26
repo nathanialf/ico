@@ -117,7 +117,27 @@ int *func_0013FEE0(int idx, int target)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_0013FF20);
+int *func_0013FF20(int a0)
+{
+    int *res;
+    int i = 0;
+    do {
+        int *p = D_00281A70[i];
+        if (p == 0) { res = 0; goto check; }
+        ANCHOR(p);
+        do {
+            if (p[0] == a0) { res = p; goto check; }
+            p = (int *)p[0x10 / 4];
+        } while (p != 0);
+        res = 0;
+    check:
+        if (res != 0) goto ret_res;
+        i++;
+    } while (i < 8);
+    return 0;
+ret_res:
+    return res;
+}
 
 void func_0013FF80(void) {}
 
