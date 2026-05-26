@@ -107,7 +107,112 @@ INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013AF88);
 INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013B160);
 INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013B298);
 INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013B450);
-INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013B610);
+extern int D_00632110;
+extern int func_0013C110(int a0, int a1, unsigned long long a2, int a3, int a4);
+
+struct U32_0013B610
+{
+    int v;
+} __attribute__((packed));
+
+typedef struct
+{
+    int f0;
+    int f4;
+    int f8;
+    unsigned char fC, fD, fE, fF;
+    short f10;
+    short f12;
+    unsigned char f14;
+    unsigned char pad[3];
+} PadSlot0013B610;
+
+int func_0013B610(int *a0, int a1)
+{
+    int *slot;
+    {
+        int *p = D_006A6DB0;
+        int i = 0xF;
+        while (1)
+        {
+            if (*p == 0)
+            {
+                goto found;
+            }
+            i--;
+            if (i == -1)
+            {
+                goto notfound;
+            }
+            p = (int *)((char *) p + 0x18);
+        }
+    notfound:
+        slot = 0;
+        goto have;
+    found:
+        slot = p;
+    have:;
+    }
+    if (a0 == 0)
+    {
+        goto fail;
+    }
+    {
+        int chk = D_00632110;
+        if (chk == 0)
+        {
+            return chk;
+        }
+    }
+    if (slot == 0)
+    {
+        goto fail;
+    }
+    {
+        PadSlot0013B610 *ps = (PadSlot0013B610 *) slot;
+        unsigned char *s = (unsigned char *) slot;
+        const T_005F2F00_rec *rec = &D_005F2F00[a1];
+        register int id REG("$7") = rec->id;
+        int base = *a0 + 0x1A4;
+        register unsigned short flag REG("$5") = rec->flag;
+        register int ff REG("$9") = 0xFF;
+        register unsigned long long mask REG("$3") = 0xFFFFFFFFULL;
+        int r;
+        ANCHOR(ff);
+        ps->fD = 0;
+        ps->fC = 0;
+        ps->fE = ff;
+        ps->f14 = ff;
+        ps->fF = 0x20;
+        ANCHOR(flag);
+        ps->f10 = flag;
+        ps->f8 = id;
+        ps->f12 = 0;
+        ps->f4 = base;
+        {
+            register int wi REG("$6") = ((struct U32_0013B610 *) (s + 0xC))->v;
+            r = func_0013C110(base, id, wi & mask, D_0063218C, 0);
+        }
+        if (r != 0)
+        {
+            goto store;
+        }
+    }
+fail:
+    return 0;
+store:
+    {
+        int idc = D_0063218C;
+        slot[0] = idc;
+        idc = idc + 1;
+        D_0063218C = idc;
+        if (idc == 0)
+        {
+            D_0063218C = 1;
+        }
+        return slot[0];
+    }
+}
 
 int func_0013B718(void)
 {
