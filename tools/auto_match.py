@@ -71,7 +71,14 @@ COD_FILE_OFF_TO_VRAM = 0x100000
 # appears as a real C definition / Pattern-C macro invocation in any of
 # these, it's claimed; if it's INCLUDE_ASM'd, it's the canonical
 # "unmatched inside coalesced TU" marker.
-SEARCH_ROOTS = ("src", "include", "tough_nuts")
+#
+# Must list every top-level TU dir the yaml references (src_path is "."),
+# else a matched func whose def lives in an omitted root is mis-classified
+# as a candidate — e.g. sound/s_init.c funcs were reported "no body found
+# in any source root" despite being matched. `decomp/source_tree` is a
+# reference COPY and is deliberately excluded. (Keep in sync with the
+# flattened repo-root TU dirs: src, sound, ios, isys.)
+SEARCH_ROOTS = ("src", "sound", "ios", "isys", "include", "tough_nuts")
 
 ICO_YAML = REPO_ROOT / "config" / "ico.us.yaml"
 _YAML_ENTRY_RE = re.compile(
@@ -103,12 +110,13 @@ def _find_include_asm_site(func_name: str) -> str:
     """If `func_name` is INCLUDE_ASM'd inside a coalesced TU, return a
     short `<path>:<line>` hint pointing at the line to replace. Returns
     empty string if no such site exists (pure asm subseg or otherwise)."""
-    src = REPO_ROOT / "src"
-    if not src.is_dir():
+    roots = [str(REPO_ROOT / r) for r in SEARCH_ROOTS
+             if (REPO_ROOT / r).is_dir()]
+    if not roots:
         return ""
     try:
         r = subprocess.run(
-            ["grep", "-rn", "-w", func_name, str(src)],
+            ["grep", "-rn", "-w", func_name, *roots],
             capture_output=True, text=True, check=False,
         )
     except FileNotFoundError:

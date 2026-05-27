@@ -28,6 +28,67 @@ if [[ "$1" == "--once" ]]; then
         | column -t -s '|'
     echo "$rule"
 
+    # Ten smallest unmatched functions (by instruction count), across all
+    # claimed TUs that still carry INCLUDE_ASM stubs under
+    # asm/nonmatchings/. These are the cheapest remaining matches — the
+    # matching loop's natural "grab next" shortlist. Each .s file's
+    # `nonmatching <fn>, 0x<size>` header gives the byte size; size/4 is
+    # the instruction count (mawk has no strtonum, so hex2dec parses it).
+    # Excluded: parked targets (tough_nuts/<fn>/ — those belong to the
+    # permuter section below), lone-`nop` alignment artifacts that
+    # splat labels as 1-insn "functions" (size < 8 bytes; no real EE
+    # function is shorter than a jr + delay slot), and ALREADY-MATCHED
+    # functions whose nonmatchings .s is a stale orphan.
+    #
+    # The orphan case: when a TU is re-laid-out (coalesce / yaml move) the
+    # function's asm is regenerated under its NEW TU dir, but the OLD
+    # asm/nonmatchings/<old-TU>/<fn>.s is left behind — `build.sh
+    # distclean` deliberately never prunes asm/nonmatchings (it's the
+    # tracked subtree). Those orphans are untracked and have a sibling
+    # under asm/matchings/, so a function present in BOTH trees is matched
+    # and its nonmatchings copy is stale. Skip by matchings-presence: it
+    # hides only stale orphans (every genuine target — a freshly-split
+    # INCLUDE_ASM stub — exists ONLY under nonmatchings). Without this the
+    # smallest orphan (e.g. a 2-insn tail-call) sorts to the top and gets
+    # handed out as a "match target" that is already done.
+    if [[ -d asm/nonmatchings ]]; then
+        parked=$(find tough_nuts -mindepth 1 -maxdepth 1 -type d \
+                      -name 'func_*' -printf '%f\n' 2>/dev/null)
+        matched=$(find asm/matchings -name 'func_*.s' -printf '%f\n' 2>/dev/null \
+                      | sed 's/\.s$//' | sort -u)
+        echo "Ten smallest unmatched functions (TU · instructions; parked, matched-orphans & nop-pads excluded):"
+        grep -rH '^nonmatching ' asm/nonmatchings 2>/dev/null \
+            | awk -v parked="$parked" -v matched="$matched" '
+                function hex2dec(s,   i,c,v,r) {
+                    sub(/^0[xX]/, "", s); r=0
+                    for (i=1;i<=length(s);i++) {
+                        c=tolower(substr(s,i,1))
+                        if (c>="0"&&c<="9") v=c+0; else v=index("abcdef",c)+9
+                        r=r*16+v
+                    }
+                    return r
+                }
+                BEGIN {
+                    n=split(parked,p,"\n")
+                    for (i=1;i<=n;i++) if (p[i]!="") skip[p[i]]=1
+                    m=split(matched,q,"\n")
+                    for (i=1;i<=m;i++) if (q[i]!="") skip[q[i]]=1
+                }
+                {
+                    ci=index($0,":nonmatching "); path=substr($0,1,ci-1)
+                    rest=substr($0,ci+13); comma=index(rest,",")
+                    fn=substr(rest,1,comma-1)
+                    if (fn in skip) next
+                    size=hex2dec(substr(rest,comma+2))
+                    if (size < 8) next
+                    np=split(path,pp,"/"); tu=pp[np-1]
+                    printf "%08d\t%s\t%s\t%d insn\n", size, fn, tu, size/4
+                }
+            ' | sort -n | head -10 | cut -f2- \
+            | column -t -s "$(printf '\t')"
+        echo "$rule"
+    fi
+
     # Lowest permuter score per parked function. Decomp-permuter writes
     # candidates to lib/decomp-permuter/runs/<func>/output-<score>-<n>/.
     # Lower score = better; 0 = matched. Source of truth for parked
