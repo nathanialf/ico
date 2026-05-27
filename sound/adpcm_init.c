@@ -377,7 +377,22 @@ extern void func_00133450(int x);
 extern int *func_00140340(int a0, int a1, int a2, int a3, int a4, int a5, int a6);
 extern void func_00133500(int a, int b);
 
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140E48);
+int *func_00140E48(int *self)
+{
+    int *r;
+    func_001A6E28((int *)D_00557C20);
+    if (self[5] != 0) goto body;
+    return 0;
+body:
+    if (((int *)self[5])[0x40] != 0) {
+        return (int *)-1;
+    }
+    func_001A6E28((int *)D_00557C30);
+    func_00133450(self[5]);
+    r = func_00140340(0, self[1], 0x11, self[2], 0, self[3], self[4]);
+    func_00133500(((int *)r[11])[10], 0x5C000);
+    return r;
+}
 
 void func_00140EE8(short a0)
 {
