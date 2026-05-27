@@ -372,7 +372,36 @@ found:
         return base_val + i * 0x5C000;
     }
 }
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140D58);
+int func_00140D58(void)
+{
+    unsigned char buf[4];
+    int count = 0;
+    char *p = (char *)D_006A94E0;
+    char *end = p + 0xB0;
+    int i;
+    *(short *)buf = 0;
+    do {
+        if (*(int *)p != 0) {
+            int idx = (*(int *)(p + 0x18) - D_00633CB0) / 0x5C000;
+            if (idx < 3) {
+                buf[idx] = 1;
+            }
+        }
+        p += 0x58;
+    } while ((int)p < (int)end);
+    i = 0;
+    do {
+        if (buf[i] == 0) {
+            if (D_00633CB8[i] != 0) {
+                func_001A6E28((int *)D_00557BB0);
+                count++;
+                D_00633CB8[i] = 0;
+            }
+        }
+        i++;
+    } while (i < 2);
+    return count;
+}
 extern void func_00133450(int x);
 extern int *func_00140340(int a0, int a1, int a2, int a3, int a4, int a5, int a6);
 extern void func_00133500(int a, int b);
