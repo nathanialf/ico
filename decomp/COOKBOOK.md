@@ -1088,6 +1088,38 @@ Use as the prelude when copying into/from the EE 16 KB scratchpad
 Examples: `grep -rn MAP_A0_TO_SPR src/` for current call sites.
 See: `include/r5900.h`.
 
+### 6.10 64-byte `ld`/`sd` struct copy — batch vs serial (NOT qword)
+
+ASM fingerprint: a `dst = *src` aggregate copy the original BATCHES (8×`ld`
+into distinct regs, THEN 8×`sd` — latency-hiding) but your build SERIALIZES
+(`ld $2,N($s); sd $2,M($sp); ld $3,...` reusing v0/v1). This is gcc
+`move_by_pieces` losing to register pressure; NOT a `lq`/`sq` qword copy (§6.7).
+
+Two independent levers, both required to batch (confirmed on ee-gcc 2.9):
+
+```c
+/* 1. type the SOURCE as a typed pointer PARAMETER (cast at the call site) */
+void f(int *self, int i, WBody *src) {     /* NOT `int arg1` then (WBody*)arg1 */
+    struct { ...; WBody body; } req;        /* stack-local dst */
+    req.body = *src;                        /* plain struct-assign batches */
+    ...
+}
+/* 2. do NOT pin the source pointer: a `register WBody *p REG("$18")` pin
+   combined with a loop later in the function FORCES move_by_pieces serial.
+   Drop it — gcc naturally allocates p→$18(s2) AND batches. */
+```
+
+Why: (1) ALIAS ANALYSIS — a typed pointer *parameter* is assumed not to alias
+the stack `dst`, so sched1 hoists all 8 loads above the stores (batch); a
+`(WBody*)int` cast or a typed *local* is treated conservatively → serial.
+(2) The `REG()` pin + a loop is the combination that flips batch→serial (pin
+alone, no loop, still batches). Do NOT use `__builtin_memcpy` — it takes the
+block-move path but emits unaligned `ldl/ldr` unless the src type itself is
+8-aligned (a cast-from-int isn't trusted).
+Example: `func_001F34C8` (weapon.c) 73→24; residual is a separate $a0/self
+coalescing tail (permuter). See `tough_nuts/func_001F34C8/notes.md`.
+See: [feedback_struct_copy_batch_typed_param].
+
 ---
 
 ## 7. Float
