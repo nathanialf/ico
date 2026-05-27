@@ -53,13 +53,14 @@ _TRAIL_HEX = re.compile(r"\b[0-9a-f]+\s*$")  # bare hex target (no 0x prefix)
 _CATN = re.compile(r"\s*\d+\t(.*)")          # `cat -n` prefix: ws + number + tab
 
 
-def run_quick_diff(tu: str, func: str) -> str:
+def run_quick_diff(tu: str, func: str | None) -> str:
     """Invoke quick_diff.sh; return combined stdout (it never exits nonzero
-    on a plain diff, only on usage/compile problems)."""
-    proc = subprocess.run(
-        ["bash", str(ROOT / "tools" / "quick_diff.sh"), tu, func],
-        capture_output=True, text=True, cwd=str(ROOT),
-    )
+    on a plain diff, only on usage/compile problems). `func` may be omitted
+    (single-arg form, mirroring quick_diff.sh's own <NAME> [func] signature)."""
+    cmd = ["bash", str(ROOT / "tools" / "quick_diff.sh"), tu]
+    if func:
+        cmd.append(func)
+    proc = subprocess.run(cmd, capture_output=True, text=True, cwd=str(ROOT))
     return proc.stdout + proc.stderr
 
 
@@ -143,7 +144,7 @@ def run_tag_diff(exp: list[str], blt: list[str]):
     return tags
 
 
-def analyze(tu: str, func: str) -> dict:
+def analyze(tu: str, func: str | None) -> dict:
     out = run_quick_diff(tu, func)
     if "COMPILE-FAIL" in out or "compile" in out.lower() and "error" in out.lower() and "===" not in out:
         return {"status": "compile-fail", "real_count": -1, "raw_count": -1,
@@ -168,7 +169,7 @@ def analyze(tu: str, func: str) -> dict:
 def main() -> int:
     ap = argparse.ArgumentParser(description="reloc-normalized structured diff")
     ap.add_argument("tu")
-    ap.add_argument("func")
+    ap.add_argument("func", nargs="?", default=None)
     ap.add_argument("--count", action="store_true",
                     help="print only the real_count integer")
     args = ap.parse_args()

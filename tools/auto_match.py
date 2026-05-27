@@ -40,6 +40,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import shutil
 import subprocess
@@ -422,11 +423,29 @@ def run_quick_diff(c: Candidate) -> None:
     if "MATCH (canonical instruction stream identical)" in r.stdout:
         c.outcome = "matched"
         return
+    # quick_diff's "MATCH" only fires on byte-IDENTICAL canonical streams; a
+    # real byte-match still shows ~15 cosmetic jal-symguess / branch-offset
+    # lines and would be FALSELY parked. Re-check with the reloc-normalized
+    # metric: match_diff real_count==0 means matched. Also gives a clean count.
+    md = subprocess.run(
+        [sys.executable, str(QUICK_DIFF.parent / "match_diff.py"), c.func_name],
+        cwd=REPO_ROOT, capture_output=True, text=True,
+    )
+    real = None
+    try:
+        real = json.loads(md.stdout).get("real_count")
+    except Exception:
+        pass
+    if real == 0:
+        c.outcome = "matched"
+        return
     c.outcome = "diffs"
-    # Extract approximate diff width to give a useful summary.
-    diff_lines = [l for l in r.stdout.splitlines()
-                  if " | " in l or " > " in l or " < " in l]
-    c.diff_summary = f"~{len(diff_lines)} differing lines"
+    if real is not None and real >= 0:
+        c.diff_summary = f"{real} real diffs (reloc-normalized)"
+    else:
+        diff_lines = [l for l in r.stdout.splitlines()
+                      if " | " in l or " > " in l or " < " in l]
+        c.diff_summary = f"~{len(diff_lines)} differing lines"
 
 
 def park_failed(cands: list[Candidate]) -> int:

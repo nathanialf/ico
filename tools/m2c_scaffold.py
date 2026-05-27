@@ -40,13 +40,13 @@ _DROP = re.compile(r"^\s*(\.extern|\.align|nonmatching|\.set|\.size|\.globl|\.gl
 def resolve_asm(arg: str) -> Path | None:
     p = Path(arg)
     if p.suffix == ".s" and p.exists():
-        return p
+        return p.resolve()
     # search the splat asm trees for func_X.s
     name = arg if arg.endswith(".s") else f"{arg}.s"
     for base in ("asm/nonmatchings", "asm/matchings"):
         hits = list((ROOT / base).rglob(name))
         if hits:
-            return hits[0]
+            return hits[0].resolve()
     return None
 
 

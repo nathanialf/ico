@@ -1000,6 +1000,17 @@ def scaffold(recipe: Recipe, func_name: str, signals: Signals | None = None) -> 
     return "\n".join(pieces)
 
 
+def _m2c_fallback(asm_path: Path) -> str | None:
+    """Phase 3: when no cookbook recipe template fits the function's shape,
+    generate a STRUCTURAL scaffold via the m2c adapter (tools/m2c_scaffold.py).
+    Returns the scaffold text, or None if m2c produced nothing usable."""
+    import subprocess
+    tool = Path(__file__).resolve().parent / "m2c_scaffold.py"
+    proc = subprocess.run([sys.executable, str(tool), str(asm_path)],
+                          capture_output=True, text=True)
+    return proc.stdout if proc.stdout.strip() else None
+
+
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("path", nargs="?", help="asm .s file (omit with --bucket)")
@@ -1063,25 +1074,29 @@ def main(argv: list[str]) -> int:
 
     if args.scaffold or args.write:
         hits = score(sig)
-        if not hits:
-            print("\n(--scaffold: no recipe matched, nothing to emit)",
-                  file=sys.stderr)
-            return 0
-        top_rule = hits[0][0]
-        cookbook = parse_cookbook()
-        recipe = cookbook.get(top_rule.id)
-        if recipe is None or not recipe.template:
-            print(f"\n(--scaffold: §{top_rule.id} has no C template in "
-                  f"{COOKBOOK_PATH.name}; refusing to fabricate)",
-                  file=sys.stderr)
-            return 0
-        out = scaffold(recipe, sig.name, signals=sig)
+        recipe = None
+        if hits:
+            recipe = parse_cookbook().get(hits[0][0].id)
+        if hits and recipe and recipe.template:
+            out = scaffold(recipe, sig.name, signals=sig)
+            src = f"§{hits[0][0].id} cookbook template"
+        else:
+            # No cookbook recipe/template fits (large/novel/FP) — fall back to
+            # the m2c structural scaffold (Phase 3) instead of fabricating.
+            reason = "no recipe matched" if not hits \
+                else f"§{hits[0][0].id} has no C template"
+            out = _m2c_fallback(p)
+            if out is None:
+                print(f"\n(--scaffold: {reason}; m2c fallback produced nothing)",
+                      file=sys.stderr)
+                return 0
+            src = f"m2c fallback ({reason})"
         if args.write:
             Path(args.write).write_text(out)
-            print(f"\nwrote {args.write}", file=sys.stderr)
+            print(f"\nwrote {args.write}  [{src}]", file=sys.stderr)
         else:
             print()
-            print(f"--- scaffold for §{top_rule.id} ({sig.name}) ---")
+            print(f"--- scaffold ({src}) for {sig.name} ---")
             sys.stdout.write(out)
     return 0
 
