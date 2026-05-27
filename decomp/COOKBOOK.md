@@ -177,6 +177,25 @@ Examples: `func_00264298` (2-named-args, sp+0x50 → -0x30 form), and the
 forwarder it calls `func_002669E8`.
 See: [feedback_varargs_builtin_next_arg].
 
+### 1.8 Void-tail TCO inside an int function (`j`, not `jal`)
+
+```
+ASM fingerprint:    trailing `j func_X` (callee-saved + ra + sp restored first) while
+                    other paths emit `daddu v0,$0,$0` / set v0 = N
+C recipe:
+    int f(int *a0, int a1) {
+        if (a0 == 0)          { func_log(MSG1); return 0; }  /* err paths set v0 */
+        if (func_check(...))  { func_log(MSG2); return 0; }
+        func_void_tail(a0 + 4, a1);   /* LAST statement, NO `return` after it  */
+    }                                  /* control falls off the end (gcc warns) */
+Why:                ee-gcc 2.9 has NO int sibling-call opt (`return g()` is always `jal`),
+                    but a trailing VOID call with no `return` after it becomes `j`, while
+                    the `return N` paths still emit v0 = N.
+Pitfalls:           declaring f `void` drops the `return 0` (loses v0); declaring the
+                    callee `int` + `return callee()` gives `jal`.
+See:                [feedback_void_tail_in_int_func], [feedback_void_return_tco]
+```
+
 ---
 
 ## 2. Regalloc nudges
@@ -391,6 +410,90 @@ See: [feedback_nonvolatile_anchor_barrier].
 > iter 17 after looking like a "3-diff floor" at iter 14. Near-misses are
 > not floors.
 
+### 2.9 Pin a computed value to the dead arg reg the original reuses
+
+```
+ASM fingerprint:    big "right insn, wrong register" cascade on ONE value (+ its
+                    dependents), the original holding it in a caller-saved arg reg
+                    (a0-a3 / $4-$7) that died at an early return
+C recipe:
+    if (size < 0xA0) { ...; return 0; }   /* a1 dies here */
+    register int count REG("$5");          /* reuse the now-dead a1 */
+    count = ...;                            /* assign normally */
+Why:                once the incoming arg is dead the allocator can legally bind the
+                    local to that reg; one pin re-seats the whole dependent chain
+                    (21 → 5 diffs in one shot). Fixes register ALLOCATION, not scheduling.
+Extension:          a temp-register ROTATION in an address cluster (v1↔a1↔a0, same
+                    values/order, only names rotate) — pin TWO things: a base to a dead
+                    arg reg, AND the `idx*STRIDE` INTERMEDIATE (not the final pointer):
+                    `register int off REG("$5") = idx*STRIDE; p = base + off;`
+See:                [feedback_pin_computed_var_to_dead_arg_reg], [feedback_keep_live_v1_pin]
+```
+
+### 2.10 Pin every cluster value + emit `ANCHOR()` in execution order
+
+```
+ASM fingerprint:    a small SCHEDULING cluster of independent ops (la lui/addiu, a gp_rel
+                    arg load, a store-value const, a store) ordered differently than the
+                    original; no single barrier fixes it (each change just trades one
+                    transposition for another → looks like a permuter floor)
+C recipe:
+    register int v   REG("$2") = 1;                /* store value */
+    register int a0v REG("$4") = D_GLOBAL;         /* gp_rel arg  */
+    register const char *msg REG("$6") = D_FMT;    /* la fmt      */
+    ANCHOR(v);  self[0x48/4] = v;                  /* anchor in the original's order */
+    ANCHOR(a0v); ANCHOR(msg);
+    m = func_alloc(a0v, 0x50, msg, line);
+Headers:            regpin.h (REG), matching.h (ANCHOR)
+Why:                gcc materializes anchored values in anchor order; pinning the regs +
+                    ordering the anchors reproduces the schedule. A multi-insn schedule
+                    near-miss is crackable by pinning EVERY participant — try before
+                    declaring any small-cluster schedule diff a permuter-only floor.
+See:                [feedback_triple_pin_ordered_anchors], [feedback_nonvolatile_anchor_barrier]
+```
+
+### 2.11 Dual-pin both operands of a masked unaligned read
+
+```
+ASM fingerprint:    `lwl a2,0xF(p); lwr a2,0xC(p); lui v1,0xffff; dsrl32 v1,v1,0; and a2,a2,v1`
+                    (an unaligned int read zero-extended into a 64-bit call arg)
+C recipe:
+    extern int func(int, int, unsigned long long a2, int, int);
+    struct U32 { int v; } __attribute__((packed));            /* SIGNED read */
+    register unsigned long long mask REG("$3") = 0xFFFFFFFFULL;
+    register int wi REG("$6") = ((struct U32 *)(s + 0xC))->v;  /* read -> a2 */
+    r = func(base, id, wi & mask, ...);
+Why:                pinning the MASK to $3 materializes 0xFFFFFFFF fresh as `lui;dsrl32`
+                    in v1; pinning the SIGNED int read to the arg reg gives in-place
+                    `and a2,a2,v1`. A single pin gives the right value in the wrong form.
+Related:            ANCHOR a stored constant (not the pointer/struct) to stop a store→load
+                    const-fold that deletes the lwl/lwr ([feedback_anchor_breaks_store_to_load_fold]);
+                    when hand store-orders plateau, BRUTE-FORCE all N! orders + ANCHOR a
+                    ready-early/stored-late value ([feedback_brute_force_store_order_plus_anchor]).
+See:                [feedback_dual_pin_read_and_mask_const], [feedback_dual_pin_alternating]
+```
+
+### 2.12 Force the `daddu` base-copy + keep a dead counter counting UP
+
+```
+ASM fingerprint:    `addiu $3,$3,%lo(SYM); daddu $16,$3; addiu $17,$3,0x20` (symbol address
+                    in a caller-saved temp, COPIED to a callee-saved reg, others derived
+                    from the temp) — ee-gcc coalesces SYM straight into the destination.
+                    Plus a dead count-UP loop counter (`sltiu $cnt,N; bnez`) that ee-gcc
+                    reverses to a count-DOWN dbra.
+C recipe:
+    register char *base REG("$3"); base = SYM; q = base + 0x20; e = base;
+    /* compute q from base BEFORE `e = base` so q reads $3 */
+    /* per-file `<UPPER_TU> -fno-strength-reduce` in config/extra_cflags.txt keeps count-up */
+Why:                a plain `char *base = SYM;` lets gcc coalesce (no copy); the pin forces
+                    materialize-into-temp-then-copy. -fno-strength-reduce keeps an explicit
+                    count-up counter alongside explicit pointer IVs (safe for single-fn TUs).
+Note:               permute_run's extra_cflags lookup is keyed to src/cod/<off>.c — for a
+                    src/<TU> function pass the flag via `CFLAGS=` env, or the permuter
+                    compiles count-down and never converges.
+See:                [feedback_base_copy_pin_and_countup_flag], [feedback_basefold_copy_coalesce]
+```
+
 ---
 
 ## 3. Branch shape
@@ -473,6 +576,97 @@ When the delay-slot op IS safe to annul, ee-gcc 2.9 now picks bnel
 natively for most cases — see §8.6 (postprocess retired). If gcc still
 disagrees, restructure the delay-slot operation to be a reload-for-next-iter.
 See: [feedback_branch_likely_emission].
+
+### 3.4 Single-cond skip-call loop → `bnel` via int-index for-loop
+
+```
+ASM fingerprint:    `bnel cond,skip / addiu p,stride (annulled delay)` then `jal f; daddu a0,p`
+                    — a single-condition "call f(p) when test" walk you keep getting as `bne`
+C recipe:
+    for (i = 0; i < LIMIT; i += STRIDE) {
+        T *p = base + i;                  /* pointer DERIVED INSIDE the body */
+        if (cond(p)) func(p);
+    }
+Why:                the natural pointer do-while lets sched1 hoist the call-arg (`a0=p`) to
+                    the loop top → only the advance fills the delay → reorg picks `bne`.
+                    Re-deriving `p` in the body blocks the hoist → reorg annuls → `bnel`.
+                    Multi-condition (nested-if) walks already give bnel from a plain do-while.
+See:                [feedback_int_index_loop_forces_bnel], [feedback_branch_likely_emission]
+```
+
+### 3.5 Search loop returning the matched pointer — dual parallel IVs
+
+```
+ASM fingerprint:    two pointer IVs always equal but kept separate (one loaded+tested, one
+                    only returned), the return-IV's increment SPLIT across the beq/bne delay
+                    slots via a lag temp
+C recipe:
+    char *p = BASE;                            /* free -> la-result, loaded/tested */
+    register char *end REG("$7") = p + N;      /* declare BEFORE r so bound is off p */
+    register char *r   REG("$6") = BASE;       /* the returned pointer */
+    do {
+        char *tmp = r;                         /* lag copy -> beq delay */
+        if (*(int *)p == key) goto found;      /* found OUT OF LINE */
+        p += STRIDE;
+        r = tmp + STRIDE;                       /* split increment -> bne delay */
+    } while ((int)p < (int)end);
+    return 0;
+found: return r;
+Why:                splitting r's increment across the delay slots frees the walk-advance to
+                    be a normal insn and pushes the pointers to $5/$6/$7 with a $3 lag temp.
+See:                [feedback_dual_iv_return_pointer]
+```
+
+### 3.6 Steer branch DIRECTION by physical block placement
+
+```
+ASM fingerprint:    original `bne r,BODY` (success body out-of-line, error falls through to
+                    ret-0), but ee-gcc emits `beq r,ret` (body inline) regardless of
+                    `if(r)` vs `if(r==0)`
+C recipe:
+        ...; if (r != 0) goto store;     /* r==0 falls through */
+    fail:
+        return 0;                         /* shared ret; early checks also `goto fail` */
+    store:                                /* BODY placed AFTER fail -> out-of-line bne target */
+        { ...body...; return slot[0]; }
+Why:                branch direction isn't fixed by flipping the C condition, but a block
+                    reached only by a forward goto, placed LAST, becomes the taken (`bne`)
+                    target — and its first op fills the delay.
+See:                [feedback_body_out_of_line_branch_direction], [feedback_goto_single_return]
+```
+
+### 3.7 Break a loop-entry / back-edge merge with `ANCHOR()`
+
+```
+ASM fingerprint:    nested search loop where the empty-container guard and the inner loop's
+                    back-edge test are the SAME condition, so gcc emits `b loop_cond` (enters
+                    at the condition) instead of a separate `beqz` guard + body entry
+C recipe:
+    if (head == 0) { res = 0; goto check; }
+    ANCHOR(head);                          /* forces a BB boundary -> separate beqz + body */
+    do { if (head[0]==a0){res=head;goto check;} head=head->next; } while (head != 0);
+    res = 0;
+    check: ...                             /* pair with out-of-line `goto ret_res` */
+Headers:            matching.h (ANCHOR / MEM_BARRIER)
+See:                [feedback_anchor_breaks_loop_entry_merge]
+```
+
+### 3.8 Body-out-of-line loop — default-flag + uninit + late assign
+
+```
+ASM fingerprint:    `if (count != 0x20) {flag=0; body} else {flag=-1}` where the original has
+                    the body OUT of line (`bne count,0x20,body`, `count*8` in the delay,
+                    rd==rt addu) but ee-gcc inlines the body (`beq`)
+C recipe:           default the SPECIAL value, leave the body flag UNINITIALIZED, assign late:
+    int full;                              /* NOT `= 0` */
+    ANCHOR(full);                          /* before the if -> displaces default move from bne delay */
+    if (count == 0x20) full = -1;
+    else { idx = count*8; ADDU_RT(addr,node,idx); full = 0; *store = val; }  /* full=0 AFTER the addu */
+Why:                setting full in either branch first collapses the body inline; the
+                    uninit+anchor+late-assign combo keeps it out-of-line. Last-insn placement
+                    is a Haifa tie-break — was permuter-only until this lever was found.
+See:                [feedback_loop_body_out_of_line_collapse], [feedback_branch_likely_emission]
+```
 
 ---
 
@@ -672,7 +866,7 @@ Examples: `src/motionManager2` (commit eccdc21), `src/sound/s_init`,
 the rule was finalized.
 See: [feedback_lit4_gp_rel], [feedback_data_symbols_extern].
 
-### 5.7 Eager rodata pointer materialization (split `lui+addiu` away from jal)
+### 5.9 Eager rodata pointer materialization (split `lui+addiu` away from jal)
 
 **Diff fingerprint:** built clusters `lui $aN, hi; addiu $aN, $aN, lo; jal`
 right at the call site; expected emits `lui+addiu` earlier (between the
@@ -706,6 +900,40 @@ Example: `func_001E9F08` (`rotObject.c`) — `D_00275860` passed to
 emitted right before jal; with the capture, emitted between the
 two preceding `swc1` stores (matching original).
 See: [feedback_eager_rodata_materialize].
+
+### 5.10 Far global across calls — direct array index hoists `%hi` to callee-saved
+
+```
+ASM fingerprint:    a far (non-gp_rel) global read in several BBs separated by calls; original
+                    keeps `%hi(D_X)` in a callee-saved reg (`lui $sN,%hi; addiu $r,$sN,%lo`
+                    per use). A cached pointer var collapses it to one reg → smaller frame →
+                    a -0x10 cascade through every stack offset & branch target (dozens of
+                    fake diffs, ONE root cause).
+C recipe:           access as a DIRECT indexed array, NOT a cached pointer:
+    extern int D_X[];
+    ... D_X[6] ...; D_X[5] ...;            /* NOT `char *p = &D_X; *(int*)(p+0x18)` */
+Why:                a pointer var caches the FULL address in one reg; direct `D_X[i]` keeps
+                    only %hi (callee-saved) and re-folds %lo per access — like an array.
+                    `(char*)&D_X + 0x18` does NOT work (still pointer arith); must be `D_X[i]`.
+See:                [feedback_far_global_direct_index_hoists_hi], [feedback_eager_rodata_materialize],
+                    [feedback_asm_label_alias_far_sdata]; for keeping a small .sdata sym
+                    addressed lui+addiu (extern, not gp_rel), [feedback_sdata_extern_keeps_lui_addiu]
+```
+
+### 5.11 Suppress 64-bit value canonicalization (`dsll32/dsra32`)
+
+```
+ASM fingerprint:    spurious `dsll32 r,x,0; dsra32 r,r,0` around a 64-bit op, OR a missing one
+C recipe:
+    bit test on a 64-bit field — compare to the bit value, not truthiness:
+        if ((*(long long *)p & BIT) == BIT)         /* NOT `& BIT` / `!= 0` */
+    value reused in 32-bit arithmetic that the asm sign-extends first:
+        long long ret = func(); p += ret; n -= ret; /* `long long` local reproduces the extend */
+Why:                `!=0`/truthy tests force a clean DImode boolean (→ extend); `== <nonzero
+                    const>` lets the combiner see the value is already canonical. A `long long`
+                    local reproduces the sign-extend of an int value reused in arithmetic.
+See:                [feedback_64bit_bittest_eq], [feedback_longlong_signext]
+```
 
 ---
 
@@ -922,6 +1150,41 @@ Examples: live in the EE math TU — grep `FABSF_BIT_TWIDDLE` /
 `COPYSIGNF_BIT_TWIDDLE` / `ISNANF_BIT_TWIDDLE` under `src/` for the
 current call sites.
 See: `include/matching.h`.
+
+### 7.4 FP branch (`bc1f`/`bc1t`) delay should be `nop` — extern-alias + dual barrier
+
+```
+ASM fingerprint:    ee-gcc fills a bc1f/bc1t delay by hoisting the branch-target's first insn
+                    — often a `lwc1 $fN, gp_rel` of a `const float` threshold — where the
+                    original left the delay a `nop`
+C recipe:
+    extern const float THRESH_a __asm__("D_0063112C");  /* alias -> real (non-rematerializable) load */
+    if (x < THRESH_a) { MEM_BARRIER(); ... }             /* barrier at branch-target START */
+    else { d = -d; MEM_BARRIER(); ... }                  /* and after the neg.s in the fall-through */
+Headers:            matching.h (MEM_BARRIER)
+Why:                a folded const is rematerializable, so MEM_BARRIER alone can't block it;
+                    the extern-alias makes it a real load, then both barriers force `nop`.
+Also:               discarded-return call before a read landing in v0 (expected v1)? declare
+                    that callee `int` (not `void`) to reserve v0 for the dead return.
+See:                [feedback_fp_branch_delay_alias_barrier], [feedback_fp_barrier_nop]
+```
+
+### 7.5 Pin FP args + `KEEP_LIVE_FP` before a volatile reload
+
+```
+ASM fingerprint:    a `lw $v0, OFF($a1)` volatile reload scheduled BETWEEN the `mov.s` ops for
+                    a call's FP args, where the original keeps the mov.s contiguous, then the
+                    reload, then the jal
+C recipe:
+    register float f1 REG("$f12") = a1;  register float f2 REG("$f13") = a2;  /* pin $f12..$f17 used */
+    KEEP_LIVE_FP(f2); KEEP_LIVE_FP(f3); ...
+    v0 = *(int * volatile *)(a1 + 0x15C);    /* reload AFTER the mov.s ops */
+    func(f1, f2, f3, ...);
+Headers:            regpin.h (REG), matching.h (KEEP_LIVE_FP)
+Why:                the KEEP_LIVE_FP barriers materialize each FP value at its source position
+                    so the later volatile load can't slide above them.
+See:                [feedback_pin_fp_args_before_volatile_reload], [feedback_keep_live_fp]
+```
 
 ---
 
@@ -1387,6 +1650,135 @@ See: [feedback_memory_barrier_before_call].
 > the answer is a postprocess. See §13 for one-off per-function
 > postprocesses that document the threshold for going custom.
 
+### 8.23 `MEM_BARRIER()` AFTER a loop — keep call-arg out of the bne delay
+
+```
+ASM fingerprint:    a loop whose back-edge delay should hold the loop's OWN latch copy
+                    (`daddu c,nc`), but ee-gcc hoists the following call's arg setup
+                    (`move a0,sN`) into the bne delay
+C recipe:
+    } while (nc != 0);
+    MEM_BARRIER();                 /* matching.h */
+    return func(a0, buf);
+Why:                opposite direction to §8.22 — that PUSHES call-arg setup INTO a delay;
+                    this KEEPS it OUT so the loop's own op wins the slot. (bne/beq are
+                    excluded from the fill_blez_delay postprocess, so this is a C fix.)
+See:                [feedback_barrier_after_loop_protect_bne_delay], §8.22
+```
+
+### 8.24 `MEM_BARRIER()` before the next loop's `la` — restore a `bgez` nop delay
+
+```
+ASM fingerprint:    back-to-back clear loops; original leaves `bgez $cnt` delay = NOP (the
+                    next loop's counter reset writes $cnt — a taken-path hazard), but ee-gcc
+                    emits the next loop's `la $reg` first → gas fills the delay → function
+                    short → ninja MISMATCH (quick_diff false-passes)
+C recipe:
+    i = 1; MEM_BARRIER(); q = (int *)(base + 0x58);   /* counter reset emitted before the la */
+    do { *q = 0; q = (int *)((char *)q - 0x58); } while (--i >= 0);
+Why:                only when the original's post-`bgez` insn is a same-register hazard.
+                    Confirm size shifts with a full-build `.o` byte/size compare — quick_diff
+                    can't see them.
+See:                [feedback_membar_counter_reset_bgez_nop], §8.5
+```
+
+### 8.25 Source-reorder the hoisted last store (zeroing-run + tail call)
+
+```
+ASM fingerprint:    a run of zeroing stores ending in a tail call (`j func` with a store in
+                    the delay); ee-gcc's first-pass scheduler HOISTS the source-last store to
+                    ~position 2
+C recipe:           read the expected emitted order; the store at expected position 2 is the
+                    hoist victim → put it LAST in source; keep every other store in order.
+Why:                emitted order ≠ source order — gcc moves exactly one store (the last) to
+                    the front, and the new source-last store falls into the branch delay.
+See:                [feedback_scheduler_hoist_last_store], [feedback_demote_p2align]
+```
+
+### 8.26 Union to force narrow-store / wide-access order (no barrier)
+
+```
+ASM fingerprint:    a narrow `*(int*)(p+4)=v` store and an overlapping `*(long long*)p`
+                    access that ee-gcc reorders (treats int vs long long as non-aliasing →
+                    floats the `ld` above the `sw`)
+C recipe:
+    union U { long long ll; int i[2]; } *p = (union U *)a0;
+    p->i[1] = 1;                              /* the +4 int store */
+    p->ll = (p->ll & ~1LL) | (a1 & 1);        /* the 64-bit access — stays AFTER */
+Why:                union members provably alias → gcc keeps source order WITHOUT a barrier
+                    (and a barrier would over-anchor the following and/or early). Cf §8.22.
+See:                [feedback_union_alias_order]
+```
+
+### 8.27 fn-ptr chain walk — node-first + early-advance → `beq` not `beql`
+
+```
+ASM fingerprint:    walk `node = node->next` calling `(*self[8])(node, self[0xC])`, then
+                    `self[0]=0`; the early exits + loop exit converge on the store, so gcc
+                    cross-jumps it into `beql` annul slots (expected: plain `beq`)
+C recipe:
+    int *node = self[0];                       /* load node BEFORE the fn==0 check */
+    if (self[8] == 0) goto done;
+    do {
+        int *cur = node;
+        node = (int *)node[0x34/4];             /* advance BEFORE the call */
+        (*(void(**)(int,int))((char *)self+8))((int)cur, self[0xC/4]);
+    } while (node != 0);
+    done: self[0] = 0;
+Why:                node-first fills the fn-check beq delay; early-advance rotates the loop so
+                    the node-check beq fills from the body and the advance lands in the jalr delay.
+See:                [feedback_fnptr_walk_early_advance], §8.14
+```
+
+### 8.28 goto-loop `{}` block to choose the jal-delay fill
+
+```
+ASM fingerprint:    per-iter call loop where `--i` (not `p += stride`) should fill the jal delay
+C recipe:
+    loop:
+        p[0] = 0;
+        { int *arg = p + N; p += stride; func(arg); }   /* advance is call SETUP -> before jal */
+        --i;                                             /* post-call body -> jal delay */
+        if (i != 0) goto loop;
+Why:                the brace block signals "advance is part of call setup"; `--i` after the
+                    call but before the test is independent of the args → cheap delay fill.
+See:                [feedback_goto_loop_jal_delay_choice], [feedback_jal_daddu_lw_loop_advance] (§8.14)
+```
+
+### 8.29 Separate base-ptr local beats self-mutation (bne-delay + regalloc)
+
+```
+ASM fingerprint:    "advance a base then index it twice" (`g = self+8; g[idx]; g[n]`) where
+                    `self += 4` self-mutation fills the bne-delay with `idx*4` and loses the
+                    s0/s1 param↔idx tie (expected: the advance fills the delay)
+C recipe:
+    int *voices = (int *)((char *)self + 8);          /* separate local, NOT self += */
+    ... voices[idx] ...;
+    voices = (int *)((char *)voices + n*4);           /* compound advance for the LAST access */
+    ... *voices ...;
+Why:                self-mutation fragments self's live range; a separate pointer local keeps
+                    it intact, flips the bne-delay to the advance, and fixes the v0/v1 pick.
+                    Combine with ADDU_RT (§8.11, rt==rd direction), an `int` (not `void`)
+                    discarded-return callee (§7.4) to push the next load to v1, and inverted
+                    cond so the partial path is inline (§3.6). MUST ninja-verify.
+See:                [feedback_voices_pointer_vs_self_mutation], [feedback_addu_rt_macro]
+```
+
+### 8.30 Feedback ↔ recipe index (techniques documented under existing sections)
+
+These memories map to recipes that already exist; cited here so a memory search resolves
+into the cookbook even though the section above doesn't name the feedback:
+
+- [feedback_jal_daddu_lw_loop_advance] → §8.14 (linked-list walk, early advance + `NOP()`)
+- [feedback_volatile_cast_paired_sw] → §8.17 (two `sw` swapped around `j $31`: `*(volatile T*)&` on both)
+- [feedback_la_split_macro] → §8.9 (`LA_SPLIT(reg, sym)` for `sd $ra` between `lui`/`addiu`)
+- [feedback_addu_rt_macro] → §8.11 (`ADDU_RT(dst,src)` for rd==rt commutative `addu`)
+- [feedback_goto_end_fuses_returns] → §8.3 (single `goto end` to fuse multiple `return 0`)
+- [feedback_fno_schedule_insns_native_beql] → §8.1 (per-file `-fno-schedule-insns` → native `beql`)
+- [feedback_fcc_nop_noreorder_guard] → §8.15 (`postprocess_fcc_nop` only fires under `.set noreorder`)
+- [feedback_compound_assignment] → §2 (prefer `+=`/`++` over `x = x + 1`)
+- [feedback_deterministic_source_shape_not_floors] → §11 (regalloc/sched diffs are SOURCE-SHAPE, not floors)
+
 ---
 
 ## 9. Frame and stack
@@ -1545,6 +1937,18 @@ stop iterating and switch tools:
    randomly. Check `lib/decomp-permuter/runs/<func>/output-0-N/score.txt`
    for `0` — score-0 outputs in `output-0-1` and higher are real matches
    that the dashboard silently misses. ([feedback_score0_promotion])
+   For a *single* near-match (esp. a store-then-clamp / branch-likely TAIL
+   that resists ~20 source forms), drive it directly:
+   `tools/permute_run.sh <func> tough_nuts/<func>/<func>.c -- --stop-on-zero -j 4`
+   — seed WITH the `REG()`/`ANCHOR()` pins + `#include "matching.h"/"regpin.h"`,
+   `git checkout` the tracked TU first to keep the tree green, background it.
+   It auto-resolves `asm/nonmatchings/<TU>/<func>.s` and uses the project
+   ee-gcc 2.9-991111, so a zero score is ninja-real; translate
+   `runs/<func>/output-0-1/source.c` (`asm("$N")`→`REG()`, `asm("":"+r"(x))`→
+   `ANCHOR(x)`) back in and ninja-verify. A typical lever it finds: reuse a
+   now-dead reg for a load placed BEFORE the dependent add.
+   ([feedback_permuter_cracks_reorg_tail]; for a count-down/-fno-strength-reduce
+   seed pass it via `CFLAGS=`, [feedback_base_copy_pin_and_countup_flag])
 3. **Defer.** Add to `docs/MATCHING_NOTES.md` with a short pattern
    description and move on. Class-level blockers (whole families) need
    one tough_nut as a representative, not one per function.
