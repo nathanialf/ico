@@ -234,7 +234,31 @@ void func_00141C28(int *a0, int a1, int a2, int a3, int a4)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00141D18);
+extern int *func_00140E48(int *self);
+int func_00141D18(int *a0)
+{
+    int r;
+    switch (*a0) {
+    case 0:
+        func_001AD768(D_00557CC8, 0x272);
+        func_00263FF0(D_00557CC8, 0x272, D_00632220_a);
+        r = 0;
+        break;
+    case 1:
+        func_001AD768(D_00557CC8, 0x275);
+        func_00263FF0(D_00557CC8, 0x275, D_00632220_a);
+        r = 0;
+        break;
+    case 2:
+        return (int)func_00140E48(a0);
+    default:
+        func_001AD768(D_00557CC8, 0x27B);
+        func_00263FF0(D_00557CC8, 0x27B, D_00632220_a);
+        r = 0;
+        break;
+    }
+    return r;
+}
 
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00141E00);
 
