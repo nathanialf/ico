@@ -424,7 +424,22 @@ int func_00140F58(void)
 }
 
 INCLUDE_ASM_NOP_PAD(func_00140F8C);
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140F90);
+void func_00140F90(void)
+{
+    int i;
+    for (i = 0; i < 0xB0; i += 0x58) {
+        int *p = (int *)((char *)D_006A94E0 + i);
+        if (*p != 0) {
+            int v = *(int *)((char *)p + 0x38);
+            if (v == 0x20000) goto call0;
+            if (v != 0x40000) goto skip;
+            func_00140A20((short *)p, 2);
+        call0:
+            func_00140A20((short *)p, 0);
+        skip: ;
+        }
+    }
+}
 
 short func_00141020(char *self, int idx) {
     char *base = *(char **)(self + 0x2C);
