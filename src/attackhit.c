@@ -98,18 +98,90 @@ const double D_0055A5B0[2] = { 1.9, 0.0 };
 
 /* Cross-TU symbols referenced from this TU */
 extern void func_00180F40(int *buf, int self, int arg);
-extern void func_001A6E28(const char *msg);
+extern void func_001A6E28(const char *msg, ...);
 extern void func_001AD768(const char *file, int line);
 extern void func_00263FF0(const char *file, int line, const char *expr);
 extern void func_00243AE8(float *dst, float *src, void *cb);
 
 /* Intra-TU forward decls (defined via INCLUDE_ASM or below) */
-void func_00181960(int *buf);
+int func_00181960(int *buf);
 void func_00181BB8(void);
 void func_00181BC0(void);
 void func_00181BC8(int a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/attackhit", func_00181960);
+extern int D_00631AE4;
+extern int D_00631AE8;
+extern int D_00632DBC;
+extern int func_0013ECA8(void);
+extern int func_0013ECF8(int e);
+extern int func_001811D0(int a, int b);
+extern int func_0014B800(int a);
+extern int func_0014B840(int a);
+extern int func_0014B858(int a);
+extern int func_00181670(int a, int b, int c);
+extern void func_00181368(int a, int b);
+extern void func_00194808(int a, int b, int c);
+
+int func_00181960(int *buf)
+{
+    int a0 = (int)buf;
+    int entity;
+    int result = 0;
+
+    if (*(unsigned char *)a0 == 0) return 0;
+    func_001A6E28(D_0055A4B0);
+    entity = func_0013ECA8();
+    if (entity != 0) {
+      do {
+        if (*(int *)(entity + 0x16C) == 0) goto next;
+        if (func_001811D0(*(int *)(a0 + 4), entity) != 0) goto next;
+        func_001A6E28(D_0055A4C0);
+        if (*(int *)(entity + 0x164) == 0) goto next;
+        if (*(int *)(*(int *)(entity + 0x164) + 0x670) == 0) goto next;
+        if (*(char *)(*(int *)(entity + 0x164) + 0x1CA) != 0) goto next;
+        func_001A6E28(D_0055A4D0);
+        if (entity == D_00631AE4) {
+            if (func_0014B800(entity) != 0) goto next;
+        }
+        if (entity == D_00631AE8) {
+            if (func_0014B840(entity) != 0) goto next;
+        }
+        if (*(int *)(entity + 0xC) == 4) {
+            if (func_0014B858(entity) != 0) goto next;
+        }
+        if (func_00181670(a0, entity, *(int *)(*(int *)(entity + 0x164) + 0x670) + 0xF0) == 0) goto next;
+        func_001A6E28(D_0055A4E0);
+        {
+            int e164 = *(int *)(entity + 0x164);
+            if (e164 != 0 && *(int *)(e164 + 0x1A0) != 0 &&
+                *(int *)(e164 + 0x1C4) == *(int *)(a0 + 0xC)) {
+                func_001A6E28(D_0055A4F0);
+                goto next;
+            }
+        }
+        if (D_00632DBC != 0) {
+            if (*(int *)(a0 + 4) == D_00631AE4 && *(int *)(entity + 0xC) == 4) {
+                int e2 = *(int *)(*(int *)(a0 + 4) + 0x164);
+                int t = (int)((*(long long *)(e2 + 0x20)) << 13 >> 32);
+                if ((t & 1) == 0) goto next;
+            }
+        }
+        func_00181368(entity, a0);
+        result = entity;
+        func_001A6E28(D_0055A500, *(int *)(a0 + 0xC));
+        {
+            int e164 = *(int *)(result + 0x164);
+            if (e164 == 0) goto next;
+            if (*(int *)(e164 + 0x1A0) == 0) goto next;
+            if (*(int *)(result + 0xC) != 4) goto next;
+            func_00194808(*(int *)(e164 + 0x670) + 0xE0, a0 + 0x10, a0 + 0x20);
+        }
+    next:
+        entity = func_0013ECF8(entity);
+      } while (entity != 0);
+    }
+    return result;
+}
 
 void func_00181BB8(void) {}
 
