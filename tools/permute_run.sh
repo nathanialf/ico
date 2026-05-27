@@ -404,6 +404,12 @@ trap 'rm -f "\${TMP_S}"' EXIT
 
 EOF
 
+# 1.5 FCC hazard nop — self-targeting (only promotes `#nop` followed by
+#     `.set noreorder`, i.e. filled-delay FP-compare branches). Safe to run
+#     unconditionally; needed for coalesced TUs (e.g. src/a_p_1) whose
+#     fcc_nop.txt entry keys on the TU name, not this run's FILE_OFF.
+echo "${PYTHON} ${PROJECT_ROOT}/tools/postprocess_fcc_nop.py \"\${TMP_S}\""
+
 # 2. Postprocess scripts (only the ones that apply to this FILE_OFF).
 if [[ " ${PP_FLAGS} " == *" no_trailing_nop "* ]]; then
     echo "${PYTHON} ${PROJECT_ROOT}/tools/postprocess_no_trailing_nop.py \"\${TMP_S}\""
