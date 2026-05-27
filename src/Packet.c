@@ -268,7 +268,21 @@ void func_0011A2A8(int a0)
         func_001A6E28(D_005551A0, p[0], p[1], (int *)p, a0);
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011A2F0);
+void func_0011A2F0(void)
+{
+    register char *base REG("$3") = D_00672FD0;
+    volatile int * volatile *curp = (volatile int * volatile *)(base + 0x2C);
+    volatile int *p = *curp;
+    *p++ = 0x17000000;
+    *curp = p;
+    p[0] = 0;
+    *curp = p + 1;
+    p[1] = 0;
+    *curp = p + 2;
+    p[2] = 0;
+    *curp = p + 3;
+    func_001A6E28((const char *)(p + 3));
+}
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011A338);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011A410);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011A520);
