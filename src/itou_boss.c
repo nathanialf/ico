@@ -119,4 +119,43 @@ float D_00631064 = 10430.378f;
 
 #include "include_asm.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/itou_boss", func_00198218);
+#include "matching.h"
+extern int D_00632010;
+extern char D_006D35F0[];
+extern int func_0013A0F8(int a, int b, const char *c, int d);
+extern void func_00202208(int x);
+extern void func_00202148(int x);
+extern void func_001A6E28();
+extern void func_00243B60(void *a, void *b);
+extern void func_001986D8(void *a, void *b);
+int func_00198218(int a0)
+{
+    int ret;
+    unsigned int i;
+    char *e, *q, *j, *k;
+    register char *base REG("$3");
+    ret = func_0013A0F8(D_00632010, 0, D_0055C178, 0x15E);
+    func_00202208(a0);
+    func_00202148(a0);
+    func_001A6E28(D_0055C188, 0x35);
+    j = (char *)D_0055B030;
+    k = (char *)D_0055BD40;
+    j++; j--; /* sched nudge: orders k %lo before base/q/e */
+    base = D_006D35F0;
+    q = base + 0x20;
+    e = base;
+    i = 0;
+    do {
+        *(int *)e = 0;
+        if (*(signed char *)(e + 4) == 1) { *(signed char *)(e + 4) = 2; }
+        func_00243B60(q, j);
+        i++;
+        func_001986D8(q - 0x10, j - 0x30);
+        j += 0x40;
+        *(int *)(e + 0x30) = (int)k;
+        q += 0x40;
+        k += 0x10;
+        e += 0x40;
+    } while (i < 0x35);
+    return ret;
+}
