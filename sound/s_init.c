@@ -247,9 +247,11 @@ INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00143290);
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_001434B0);
 
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00143948);
+extern void func_001007A0(int a);
+extern int func_001008E0(int p, int a);
+extern int func_001008C0(int h);
 
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00143AD0);
-
 extern int D_00632214;
 
 int func_00143B88(void) {
@@ -418,7 +420,21 @@ int func_001445C0(void) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_001445C8);
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_001446E8);
+int func_001446E8(void)
+{
+    char *e = D_006A98B0;
+    int sz = 0x3C;
+    int i = 0x2F;
+    do {
+        if (*(int *)(e + 0x30) != 0) {
+            func_001A6E28((int)D_00557E78, *(short *)(e + 0x10),
+                          (unsigned int)(*(int *)(e + 0x38) - (int)D_005D49E0) / sz);
+        }
+        e += 0x40;
+        i--;
+    } while (i >= 0);
+    __asm__ __volatile__("break");
+}
 
 extern void func_00141F58(int x, int y);
 extern void func_001434B0(int *a, int *b);

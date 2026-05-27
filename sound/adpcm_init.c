@@ -163,8 +163,41 @@ int func_0013FF88(char *self_arg, int val5, int val6)
     }
     return 0;
 }
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_0013FFD0);
-
+int func_0013FFD0(int a0, int val5, int val6)
+{
+    int *node = D_00281A70[a0];
+    int ret = 0;
+    if (node != 0) {
+        do {
+            int full;
+            int *p = (int *)((char *)node + 0x54);
+            int count = p[1];
+            ANCHOR(full);
+            if (count == 0x20) {
+                full = -1;
+            } else {
+                register int idx REG("$2");
+                register char *addr REG("$2");
+                idx = count * 8;
+                __asm__("addu %0, %1, %2" : "=r"(addr) : "r"(node), "0"(idx));
+                full = 0;
+                *(int *)(addr + 0x5C) = val5;
+                {
+                    int c2 = p[1];
+                    register int idx2 REG("$2");
+                    register char *addr2 REG("$2");
+                    p[1] = c2 + 1;
+                    idx2 = c2 * 8;
+                    __asm__("addu %0, %1, %2" : "=r"(addr2) : "r"(node), "0"(idx2));
+                    *(int *)(addr2 + 0x60) = val6;
+                }
+            }
+            node = (int *)node[0x10 / 4];
+            if (full != 0) ret = -1;
+        } while (node != 0);
+    }
+    return ret;
+}
 extern char *D_006321DC;
 extern void func_0013E548(char *ctx);
 extern void func_0013F810(char *ctx);
@@ -232,7 +265,43 @@ void func_00140740(int a0)
 
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140748);
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140888);
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140A20);
+extern int func_00143B88(void);
+extern int func_0025DDF0(long long mask, int a, int b);
+
+void func_00140A20(short *self, int idx)
+{
+    short v18, v19;
+    int n, oi, on;
+    n = idx + 1;
+    oi = idx * 2;
+    on = n * 2;
+    ADDU_RT(oi, (int)self);
+    v18 = *(short *)(oi + 0x3C);
+    ADDU_RT(on, (int)self);
+    v19 = *(short *)(on + 0x40);
+    if (D_006321E8[0] == 0) {
+        v19 = 0;
+        v18 = 0;
+    }
+    if (*(int *)((char *)self + 0x38) == 0x10000) {
+        return;
+    }
+    if (func_00143B88() == 0) {
+        int *voices = (int *)((char *)self + 8);
+        int gi = idx * 4;
+        ADDU_RT(gi, (int)voices);
+        func_0025DDF0(1LL << *(int *)gi, v18, 0);
+        voices = (int *)((char *)voices + n * 4);
+        func_0025DDF0(1LL << *voices, 0, v19);
+    } else {
+        int *voices = (int *)((char *)self + 8);
+        int gi = idx * 4;
+        ADDU_RT(gi, (int)voices);
+        func_0025DDF0(1LL << *(int *)gi, v18, v19);
+        voices = (int *)((char *)voices + n * 4);
+        func_0025DDF0(1LL << *voices, v18, v19);
+    }
+}
 
 void func_00140B30(int *self, int idx, int val)
 {
@@ -304,6 +373,10 @@ found:
     }
 }
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140D58);
+extern void func_00133450(int x);
+extern int *func_00140340(int a0, int a1, int a2, int a3, int a4, int a5, int a6);
+extern void func_00133500(int a, int b);
+
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140E48);
 
 void func_00140EE8(short a0)
