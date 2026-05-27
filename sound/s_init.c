@@ -251,7 +251,24 @@ extern void func_001007A0(int a);
 extern int func_001008E0(int p, int a);
 extern int func_001008C0(int h);
 
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00143AD0);
+int func_00143AD0(int a0, int a1, int a2)
+{
+    int buf[4];
+    int x;
+    func_001A6E28(D_00557C50);
+    func_001A6E28(D_00557C68, a0, a1, a2);
+    buf[0] = a0;
+    buf[1] = a1;
+    buf[2] = a2;
+    buf[3] = 0;
+    func_001007A0(0);
+    x = func_001008E0((int)buf, 1);
+    while (func_001008C0(x) >= 0) ;
+    func_001A6E28(D_00557C80);
+    func_001007A0(0);
+    return (x >= 0) ? 0 : -1;
+}
+INCLUDE_ASM_NOP_PAD(func_00143B84);
 extern int D_00632214;
 
 int func_00143B88(void) {
