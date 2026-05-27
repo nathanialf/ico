@@ -204,7 +204,42 @@ INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_001413A8);
 
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00141660);
 
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00141868);
+extern void func_001AD768(char *s, int code);
+extern void func_00263FF0(char *s, int code, unsigned int *p);
+extern unsigned int D_00632220_a[] __asm__("D_00632220");
+extern int D_00632200, D_00632204, D_00633CD0, D_00633CD4;
+void func_00141868(int a0, int a1)
+{
+    switch (a0) {
+    case 1:
+        switch (a1) {
+        case 1:
+            D_00633CD0 = D_00632200;
+            return;
+        case 0:
+            D_00632204 = 0x1D9020;
+            return;
+        case 2:
+            return;
+        default:
+            func_001AD768(D_00557CC8, 0x1D8);
+            func_00263FF0(D_00557CC8, 0x1D8, D_00632220_a);
+            return;
+        }
+    case 2:
+        if (a1 == 0) {
+            D_00633CD4 = D_00632200;
+            return;
+        }
+        func_001AD768(D_00557CC8, 0x1E2);
+        func_00263FF0(D_00557CC8, 0x1E2, D_00632220_a);
+        return;
+    default:
+        func_001AD768(D_00557CC8, 0x1E7);
+        func_00263FF0(D_00557CC8, 0x1E7, D_00632220_a);
+        return;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00141980);
 
