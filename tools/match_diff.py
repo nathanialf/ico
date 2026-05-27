@@ -134,7 +134,7 @@ def run_tag_diff(exp: list[str], blt: list[str]):
     tags = []
     cur = None
     for line in proc.stdout.splitlines():
-        m = re.match(r"\[§([0-9.]+)\]\s+(.*)", line.strip())
+        m = re.match(r"\[§([0-9A-Za-z.\-/ ]+)\]\s+(.*)", line.strip())
         if m:
             cur = {"id": m.group(1), "name": m.group(2), "hint": "", "section": m.group(1).replace(".", "")}
             tags.append(cur)

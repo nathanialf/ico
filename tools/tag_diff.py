@@ -325,6 +325,116 @@ def _rule_lui_addiu_late(pairs: list[DiffPair]) -> bool:
     return False
 
 
+# --- taxonomy expansion: codegen-shape tags for the agentic loop -----------
+# These complement the byte-pattern rules above with the structural shapes the
+# match_loop plateau policy keys on (regalloc-swap / fp-licm are "permuter
+# territory"; frame-size / far-global / branch-direction are hand-fixable).
+
+_OPRE = re.compile(r"^\s*([a-z][a-z0-9.]*)\s+(.*)$")
+_REGTOK = re.compile(r"^\$?(?:v[01]|a[0-3]|t[0-9]|s[0-7]|f[0-9]+)$")  # swappable regs
+_BRANCH = {"beq", "bne", "beqz", "bnez", "beql", "bnel", "blez", "bgez",
+           "bltz", "bgtz", "b", "j"}
+
+
+def _ops(line: str | None):
+    """(mnemonic, [operand tokens]) or (None, []) if not an instruction."""
+    if not line:
+        return None, []
+    m = _OPRE.match(line)
+    if not m:
+        mm = _mnem(line)
+        return mm, []
+    return m.group(1), [t for t in re.split(r"[,\s]+", m.group(2)) if t]
+
+
+def _rule_regalloc_swap(pairs: list[DiffPair]) -> bool:
+    """Same op/operands, ONE register token swapped, recurring ≥2× — a
+    register-allocation tie-break (sceneManager v0/v1, motionManager2 s5/s6)."""
+    from collections import Counter
+    swaps: Counter = Counter()
+    for e, b in pairs:
+        if not (e and b):
+            continue
+        em, eo = _ops(e); bm, bo = _ops(b)
+        if em is None or em != bm or len(eo) != len(bo):
+            continue
+        diffs = [(x, y) for x, y in zip(eo, bo) if x != y]
+        if len(diffs) == 1 and _REGTOK.match(diffs[0][0]) and _REGTOK.match(diffs[0][1]):
+            swaps[frozenset(diffs[0])] += 1
+    return any(c >= 2 for c in swaps.values())
+
+
+def _rule_fp_licm(pairs: list[DiffPair]) -> bool:
+    """A callee-saved $f20-$f23 the original keeps via `lwc1` but the build
+    fills via `mtc1` (or vice versa) — loop-invariant FP hoist mismatch. Global
+    scan (not pair-positional), since line zipping misaligns after insertions."""
+    fp = re.compile(r"\$f2[0-3]\b")
+    exp_lwc1, exp_mtc1, blt_lwc1, blt_mtc1 = set(), set(), set(), set()
+    for e, b in pairs:
+        for line, lw, mt in ((e, exp_lwc1, exp_mtc1), (b, blt_lwc1, blt_mtc1)):
+            if not line:
+                continue
+            m = fp.search(line)
+            if not m:
+                continue
+            if _mnem(line) == "lwc1":
+                lw.add(m.group(0))
+            elif _mnem(line) == "mtc1":
+                mt.add(m.group(0))
+    return bool((exp_lwc1 & blt_mtc1) or (blt_lwc1 & exp_mtc1))
+
+
+def _rule_delay_slot_occupant(pairs: list[DiffPair]) -> bool:
+    """A branch whose delay slot is the epilogue `ld ra`/`ld $31` on one side
+    but useful fall-through work on the other (sceneManager epilogue split)."""
+    def is_ld_ra(line):
+        return _mnem(line) == "ld" and re.search(r"\bld\s+(ra|\$31)\b", line or "")
+    for i in range(len(pairs) - 1):
+        e0, b0 = pairs[i]
+        e1, b1 = pairs[i + 1]
+        if _mnem(e0) in _BRANCH and _mnem(b0) in _BRANCH:
+            if is_ld_ra(e1) != is_ld_ra(b1):   # exactly one side fills with ld ra
+                return True
+    return False
+
+
+def _rule_branch_direction(pairs: list[DiffPair]) -> bool:
+    """Opposite branch sense (beq↔bne / beqz↔bnez / bc1f↔bc1t) on the same
+    compared operands — body-inline vs body-out-of-line (a C-structure call)."""
+    OPP = [{"beq", "bne"}, {"beqz", "bnez"}, {"bc1f", "bc1t"}, {"beql", "bnel"}]
+    for e, b in pairs:
+        if not (e and b):
+            continue
+        em, eo = _ops(e); bm, bo = _ops(b)
+        if em == bm:
+            continue
+        ereg = [o for o in eo if _REGTOK.match(o)]
+        breg = [o for o in bo if _REGTOK.match(o)]
+        if any({em, bm} == o for o in OPP) and ereg and ereg == breg:
+            return True
+    return False
+
+
+def _rule_frame_size(pairs: list[DiffPair]) -> bool:
+    """Prologue `addiu sp,sp,-N` with a different N — usually a missing
+    callee-saved reg / high-part hoist (→ §5.7) cascading the whole frame."""
+    fr = re.compile(r"^(?:d?addiu)\s+sp,sp,(-?\d+|-?0x[0-9a-f]+)")
+    for e, b in pairs:
+        if not (e and b):
+            continue
+        me, mb = fr.match(e), fr.match(b)
+        if me and mb and me.group(1) != mb.group(1):
+            return True
+    return False
+
+
+def _rule_far_global_gp_rel(pairs: list[DiffPair]) -> bool:
+    """Built reaches a global via gp_rel `(gp)` where the original materializes
+    it with `lui`+%lo — a far in-TU small global (asm-label alias, §5.7)."""
+    return _has_pair(pairs, lambda e, b: _mnem(e) == "lui" and "(gp)" in b) \
+        or _has_pair(pairs, lambda e, b: _mnem(b) == "lui" and "(gp)" in e)
+
+
 RULES: list[Rule] = [
     Rule("8.21", "beq/bne delay slot has nop where original packs a sw",
          _rule_beq_nop_fill,
@@ -384,6 +494,40 @@ RULES: list[Rule] = [
          "`register T *p_v1 REG(\"$3\")`), then alternate which alias each "
          "volatile re-deref assigns to. Single-reg pins won't work — gcc "
          "puts every load in one reg; you need two pins that take turns."),
+    # --- taxonomy expansion (codegen-shape tags) ---------------------------
+    Rule("regalloc-swap", "register-allocation swap (same op, one reg differs, recurring)",
+         _rule_regalloc_swap,
+         "REG() pin the swapped value — pin the multiply/offset INTERMEDIATE "
+         "or reuse the dead arg reg the original reuses (§2.x / "
+         "pin_computed_var_to_dead_arg_reg). If a couple pins stall, this is "
+         "permuter territory."),
+    Rule("fp-licm", "loop-invariant FP value kept in $f2x (lwc1) vs re-materialized (mtc1)",
+         _rule_fp_licm,
+         "gcc's FP loop-invariant hoist picked a different value to keep "
+         "callee-saved. Do NOT force it with a `float thresh = ...` var (it "
+         "regresses); this is usually permuter territory. §2.6 only if a single "
+         "fresh FP load is in the wrong register."),
+    Rule("delay-slot-occupant", "epilogue ld ra folded into an early-exit branch delay vs fall-through work",
+         _rule_delay_slot_occupant,
+         "gcc folded the epilogue `ld ra` into the early-exit branch delay where "
+         "the original fills it with fall-through work. Reshape the guards "
+         "(nested-if so the loop/work is the fall-through), or §8.2 unfold_ra_delay. "
+         "Often permuter territory after a couple structure tries."),
+    Rule("branch-direction", "opposite branch sense — body inline vs out-of-line",
+         _rule_branch_direction,
+         "flip the C structure so the body is the branch target the original "
+         "uses: `if (cond) { body }` vs early `if (!cond) return;`, or an "
+         "explicit `goto` (§3.x / body_out_of_line_branch_direction)."),
+    Rule("frame-size", "prologue sp delta differs (missing callee-saved reg / hoist)",
+         _rule_frame_size,
+         "a far global reached via a CACHED pointer collapsed a callee-saved "
+         "reg the original keeps; access it as a DIRECT indexed array `D_X[i]` "
+         "so gcc hoists its %hi into $sN and the frame matches (§5.7 / "
+         "far_global_direct_index_hoists_hi)."),
+    Rule("5.7", "far in-TU global via gp_rel where original uses %hi/%lo",
+         _rule_far_global_gp_rel,
+         "asm-label alias: `extern T D_alias[] __asm__(\"D_real\");` and "
+         "reference via the alias → %hi/%lo, not gp_rel (§5.7)."),
 ]
 
 
