@@ -191,6 +191,7 @@ unsigned int D_00631D5C = 0x00000000;
  * at its original VMA. See tools/inline_tu_data.py. */
 
 #include "include_asm.h"
+#include "matching.h"
 
 extern int D_00672F90[];
 extern int D_00633C3C;
@@ -255,7 +256,18 @@ INCLUDE_ASM("asm/nonmatchings/src/Packet", func_00119540);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_001199A0);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_00119CA0);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011A238);
-INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011A2A8);
+extern void func_001A6E28(const char *fmt, ...);
+
+void func_0011A2A8(int a0)
+{
+    register char *base REG("$6") = D_00672FD0;
+    (*(volatile int * volatile *)(base + 0x24))[0] = 0;
+    (*(volatile int * volatile *)(base + 0x24))[1] = (a0 << 16) | 0x6C008000;
+    {
+        volatile int *p = *(volatile int * volatile *)(base + 0x24);
+        func_001A6E28(D_005551A0, p[0], p[1], (int *)p, a0);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011A2F0);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011A338);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011A410);
