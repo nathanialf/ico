@@ -92,7 +92,21 @@ void func_00176198(int a0)
     func_0014A3A8(a0);
     DEFEAT_TCO();
 }
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001761B8);
+extern int D_00631AE4;
+extern int D_00631AE8;
+
+int func_001761B8(int a0, int a1)
+{
+    int p = D_00631AE4;
+    int q = D_00631AE8;
+    if ((a0 == p && a1 == q) || (a0 == q && a1 == p)) {
+        int *obj = *(int **)(q + 0x164);
+        if (*(int *)((int)obj + 0x30) == 0x4E)
+            return 1;
+    }
+    return 0;
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00176200);
 
 void func_00176398(int self, int a1, int size)
