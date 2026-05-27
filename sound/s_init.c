@@ -428,7 +428,30 @@ void func_001444A0(void)
         }
     }
 }
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", func_00144500);
+void func_00144500(int idx)
+{
+    char *base = (char *)D_002E7710;
+    short *q = (short *)(base + 0xAD8);
+    int i;
+    for (i = 0x56C; i >= 0; i--) {
+        *q = 0;
+        q--;
+    }
+    for (i = 0; i < 0x10; i++) {
+        char *entry = (char *)D_006A95B0 + i * 0x30;
+        if (*(unsigned short *)(entry + 2) == 0xB) {
+            unsigned short target = *(unsigned short *)entry;
+            int j;
+            for (j = 0; j < 0xEDE; j++) {
+                short *e2 = (short *)((char *)D_005EB810 + j * 8);
+                if (e2[0] == target) {
+                    *(short *)(D_002E7710 + e2[3] * 2) = j;
+                }
+            }
+        }
+    }
+}
+INCLUDE_ASM_NOP_PAD(func_001445BC);
 
 extern int D_00632218;
 
