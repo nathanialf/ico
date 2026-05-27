@@ -345,7 +345,47 @@ void func_00140B78(void)
 }
 
 INCLUDE_ASM_NOP_PAD(func_00140BDC);
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140BE0);
+extern int D_00633CBC;
+extern int D_006A9590[];
+extern int func_0025DAD8(int x);
+extern void func_0025DCF0(void);
+void func_00140BE0(void)
+{
+    int *p = D_006A9590;
+    int i;
+    int a;
+    char *qb;
+    int *q;
+    int *r;
+    for (i = 3; i >= 0; i--) {
+        *p = func_0025DAD8(1);
+        p++;
+    }
+    a = func_00135EB8(0xB8800, D_00557B78, 0x44);
+    D_00633CC4 = a;
+    if ((a & 0x7FF) != 0) {
+        D_00633CB0 = (a / 0x800 + 1) * 0x800;
+    } else {
+        D_00633CB0 = a;
+    }
+    func_0025DCF0();
+    i = 1;
+    MEM_BARRIER();
+    qb = (char *)D_006A94E0;
+    q = (int *)(qb + 0x58);
+    do {
+        *q = 0;
+        q = (int *)((char *)q - 0x58);
+    } while (--i >= 0);
+    i = 1;
+    MEM_BARRIER();
+    r = &D_00633CBC;
+    do {
+        *r = 0;
+        r--;
+    } while (--i >= 0);
+    D_00633CC0 = 0;
+}
 extern int D_00633CB0;
 
 int func_00140CE0(void)
