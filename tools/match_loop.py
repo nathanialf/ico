@@ -35,19 +35,21 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 STATE_DIR = ROOT / "build" / "match_loop"
 
-DEFAULT_STALL_LIMIT = 20
-# Pin attempts to allow before conceding a permuter-only tag set.
-PIN_PROBES_BEFORE_PERMUTE = 2
+DEFAULT_STALL_LIMIT = 12   # distinct hand hypotheses with NO real_count progress
 
-# Cookbook tags whose residual is a gcc regalloc/scheduling tie-break the
-# source barely controls — escalate to the permuter rather than grind.
-# (ids are COOKBOOK §N.M as emitted by tag_diff.py / match_diff.py)
-PERMUTER_TERRITORY = {
-    "2.7",   # alternating reload regalloc
-    "3.3",   # beql/bnel vs beq/bne — park, don't grind
-    "8.3",   # ld $31 / daddu $2,$0 epilogue swap (delay-slot occupant)
-    "regalloc-swap", "delay-slot-occupant", "fp-licm",
-}
+# HARD-WON LESSON (this project's history): the matches came from HAND
+# REASONING — including on regalloc-swap / fp-licm / frame-size, which were all
+# cracked by hand (sceneManager s5/s6 pin, fightSound s4 hoist). The permuter
+# matched ONCE (after 40 hand iters got it to a 1-slot scheduling tail) and
+# PLATEAUED on FP regalloc (motionManager2 1630->775, no match). It is also
+# token-heavy. So the permuter is NOT an interactive escape hatch: it runs
+# OFFLINE on PARKED seeds (tools/auto_permute.sh). The interactive loop reasons
+# until a genuine plateau, then PARKS. There is no early-permute.
+#
+# These scheduling-tail tags are the ONLY shapes a permuter reliably nudges
+# (and only once the count is already low). Even then, prefer park-for-batch.
+PERMUTER_SCHEDULING = {"3.3", "8.3", "delay-slot-occupant"}
+LOW_COUNT_FOR_PERMUTE = 8
 
 
 def state_path(func: str) -> Path:
@@ -135,27 +137,38 @@ def cmd_next(args) -> int:
         print(json.dumps(decision, indent=2)); return 0
 
     tags = set(st["last_tags"])
-    all_permuter = bool(tags) and tags <= PERMUTER_TERRITORY
+    scheduling_tail = bool(tags) and tags <= PERMUTER_SCHEDULING
 
     if st["permuted"]:
         decision["action"] = "park"
-        decision["reason"] = "permuter already run without a 0 — park the seed and move on"
+        decision["reason"] = "permuter already attempted without a 0 — park the seed and move on"
     elif st["stall"] >= limit:
-        decision["action"] = "permute"
-        decision["reason"] = f"plateau: {st['stall']} passes with no real_count progress (limit {limit})"
-    elif all_permuter and st["stall"] >= PIN_PROBES_BEFORE_PERMUTE:
-        decision["action"] = "permute"
-        decision["reason"] = (f"all residual tags are permuter-territory {sorted(tags)} "
-                              f"and {st['stall']} pin probes stalled — escalate early")
+        # Genuine plateau. The permuter is OFFLINE + unreliable, so the default
+        # is PARK (auto_permute will attempt the seed in the unattended batch).
+        # Only suggest an interactive permuter shot for a CLOSE pure-scheduling
+        # tail — the one shape it has cracked here.
+        if scheduling_tail and st["best"] is not None and st["best"] <= LOW_COUNT_FOR_PERMUTE:
+            decision["action"] = "permute"
+            decision["reason"] = (f"plateau at best={st['best']} (<= {LOW_COUNT_FOR_PERMUTE}) with a "
+                                  f"pure scheduling-tail residual {sorted(tags)} — worth one "
+                                  f"backgrounded permuter shot; else park")
+        else:
+            decision["action"] = "park"
+            decision["reason"] = (f"plateau: {st['stall']} distinct hand hypotheses, no real_count "
+                                  f"progress (best={st['best']}). Residual is regalloc/structural or "
+                                  f"count is high — the permuter would plateau. PARK for the offline "
+                                  f"batch (tools/auto_permute.sh); do NOT burn interactive tokens on it")
     else:
         decision["action"] = "iterate"
-        # surface untried tags as candidate levers (reasoning slot picks one)
         untried = [t for t in st["last_tags"] if t not in st["tried_levers"]]
-        decision["reason"] = (f"still making/awaiting progress (best={st['best']}, "
-                              f"stall={st['stall']}/{limit})")
+        decision["reason"] = (f"KEEP REASONING (best={st['best']}, stall={st['stall']}/{limit}). "
+                              f"A high count is usually ONE root cascade — fix the root.")
         decision["suggested_tags"] = untried or st["last_tags"]
-        decision["note"] = ("pick a DISTINCT untried tag; map it to a cookbook lever "
-                            "(see decomp/COOKBOOK.md), apply, then `record --lever`")
+        decision["note"] = ("pick a DISTINCT untried tag; apply its PLAYBOOK lever from the "
+                            "decomp-match skill (regalloc-swap/fp-licm/frame-size are HAND-FIXABLE "
+                            "here, not permuter food), then `record --lever`. Override with "
+                            "`next --override park|permute|keep-going` when your judgment is firmer "
+                            "than the counter.")
     print(json.dumps(decision, indent=2))
     return 0
 

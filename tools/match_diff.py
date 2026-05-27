@@ -172,12 +172,20 @@ def main() -> int:
     ap.add_argument("func", nargs="?", default=None)
     ap.add_argument("--count", action="store_true",
                     help="print only the real_count integer")
+    ap.add_argument("--full", action="store_true",
+                    help="emit ALL differing lines (default: a compact sample, to save tokens)")
     args = ap.parse_args()
     result = analyze(args.tu, args.func)
     if args.count:
         print(result["real_count"])
-    else:
-        print(json.dumps(result, indent=2))
+        return 0 if result["status"] in ("match", "diffs") else 2
+    # Token discipline: the cascade can be dozens of lines; the tags + a small
+    # representative sample are enough to pick a lever. Full dump behind --full.
+    if not args.full and len(result.get("lines", [])) > 8:
+        result["lines_total"] = len(result["lines"])
+        result["lines"] = result["lines"][:8]
+        result["lines_note"] = "sample (pass --full for all); reason from tags + sample"
+    print(json.dumps(result, indent=2))
     return 0 if result["status"] in ("match", "diffs") else 2
 
 
