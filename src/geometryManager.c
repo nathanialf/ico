@@ -121,8 +121,38 @@ INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00103B48);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00103C48);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00103D50);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00103F00);
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_001040C0);
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104140);
+extern void func_0010DEC0(void *a, void *b, void *c);
+
+void func_001040C0(void *a0, char *src)
+{
+    float *p = (float *)(src + 0xA0);
+    func_0010DEC0(a0, src + 0xD0, p);
+    {
+        int *g = *(int **)src;
+        if (g) {
+            func_002438E8(a0,
+                          (char *)(*(int *)(*(int *)((char *)g + 0x15C) + 0xC) + (*(int *)(src + 4) << 6)),
+                          (int)a0);
+        }
+    }
+    *(float *)((char *)a0 + 0x34) += p[0x30];
+}
+
+void func_00104140(void *a0, char *outer)
+{
+    char *src = *(char **)(outer + 0x15C);
+    float *p = (float *)(src + 0xA0);
+    func_0010DEC0(a0, src + 0xD0, p);
+    {
+        int *g = *(int **)src;
+        if (g) {
+            func_002438E8(a0,
+                          (char *)(*(int *)(*(int *)((char *)g + 0x15C) + 0xC) + (*(int *)(src + 4) << 6)),
+                          (int)a0);
+        }
+    }
+    *(float *)((char *)a0 + 0x34) += p[0x30];
+}
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_001041C0);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104240);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104360);
@@ -196,7 +226,26 @@ void func_001048C8(void *a0, void *a1, void *a2)
     func_00105F78(a0, a2, buf);
     *(float *)((char *)a0 + 0xC) = 1.0f;
 }
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104940);
+float func_00104940(void *a0, void *a1, void *a2)
+{
+    int buf[4];
+    float z = 0.0f;
+    register float dot __asm__("$f20");
+    VU0_LSV_R(lqc2, 1, 0x0, a2);
+    VU0_LSV(lqc2, 2, 0x0, a1);
+    VU0_V3OP(vmul.xyz, 3, 1, 2);
+    VU0_V3OP_BC(vaddy.x, 3, 3, 3, y);
+    VU0_V3OP_BC(vaddz.x, 3, 3, 3, z);
+    VU0_V3OP_BC(vaddw.x, 3, 3, 2, w);
+    VU0_QMFC2_NI(v0, 3);
+    VU0_MTC1(v0, 20);
+    {
+        register float nd __asm__("$f12") = -dot;
+        func_001183F0(buf, a1, nd + z);
+    }
+    func_00118388(a0, a2, buf);
+    return dot;
+}
 extern void func_00118388(void *a, void *b, void *c);
 float func_001049C0(void *a0, void *a1, void *a2, float t)
 {
