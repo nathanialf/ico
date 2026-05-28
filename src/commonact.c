@@ -742,7 +742,19 @@ float func_0016A2C8(float x, float y, float z) { return func_00105FE0(x*x + y*y 
 float func_0016A2F8(int a0) { return func_00105FE0(func_00243950(a0, a0)); }
 
 /* func_0016A31C nop pad absorbed into func_0016A320's .s. */
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0016A320);
+struct vec4_0016A320 { float x, y, z, w; } __attribute__((aligned(8)));
+
+float func_0016A320(float *a, float *b)
+{
+    struct vec4_0016A320 v;
+    struct vec4_0016A320 diff;
+    func_002641D8((int *)&diff, 0, 0x10);
+    diff.x = b[0] - a[0];
+    diff.y = b[1] - a[1];
+    diff.z = b[2] - a[2];
+    v = diff;
+    return func_00105FE0(func_00243950((int)&v, (int)&v));
+}
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0016A3B0);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0016A460);
 extern int func_00109F10(int *obj, int code);
