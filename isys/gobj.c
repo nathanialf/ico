@@ -107,12 +107,100 @@ void func_0013E868(int self, int other)
         *(int *)(D_00281A70 + *(unsigned char *)(self + 0x18) * 4) = self;
     }
 }
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E8D8);
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E9E0);
-
 struct GObj { int unk0; int unk4; int unk8; char pad[0x168]; };
 extern struct GObj *D_00633CA0;
 extern unsigned int D_00633CA4;
+extern void func_001A6E28(const char *fmt);
+
+struct GObj *func_0013E8D8(int a0, int a1, int a2)
+{
+    int s1 = a1 & 0xFF;
+    unsigned int n = D_00633CA4;
+    register unsigned int i REG("$4") = 0;
+    struct GObj *slot;
+    if (n != 0) {
+        struct GObj *p = D_00633CA0;
+        if (p->unk0 != 0) {
+            register unsigned int nl REG("$5") = n;
+            ANCHOR(i);
+            i++;
+            while (i < nl) {
+                p++;
+                if (p->unk0 == 0) break;
+                i++;
+            }
+        }
+    }
+    if (i == n) {
+        slot = 0;
+        func_001A6E28(D_00557A30);
+    } else {
+        register int prod REG("$2") = i * 0x174;
+        prod = prod + (int)D_00633CA0;
+        *(int *)(prod + 0x164) = 0;
+        *(int *)(prod + 0x170) = 0;
+        slot = (struct GObj *)prod;
+    }
+    if (slot == 0) {
+        func_001A6E28(D_00557A30);
+        return 0;
+    }
+    *(int *)((char *)slot + 0x28) = a0;
+    *(int *)((char *)slot + 0x0) = (int)slot;
+    func_0013DFF0((int)slot, s1, a2);
+    *(int *)((char *)slot + 0x15C) = 0;
+    *(int *)((char *)slot + 0x8) = -1;
+    *(int *)((char *)slot + 0x4) = -1;
+    *(int *)((char *)slot + 0x2C) = 0;
+    *(int *)((char *)slot + 0x30) = 0;
+    *(int *)((char *)slot + 0x58) = 0;
+    *(int *)((char *)slot + 0xC) = 0;
+    return slot;
+}
+struct GObj *func_0013E9E0(int a0, int a1, int a2)
+{
+    int s1 = a1 & 0xFF;
+    unsigned int n = D_00633CA4;
+    register unsigned int i REG("$4") = 0;
+    struct GObj *slot;
+    if (n != 0) {
+        struct GObj *p = D_00633CA0;
+        if (p->unk0 != 0) {
+            register unsigned int nl REG("$5") = n;
+            ANCHOR(i);
+            i++;
+            while (i < nl) {
+                p++;
+                if (p->unk0 == 0) break;
+                i++;
+            }
+        }
+    }
+    if (i == n) {
+        slot = 0;
+        func_001A6E28(D_00557A30);
+    } else {
+        register int prod REG("$2") = i * 0x174;
+        prod = prod + (int)D_00633CA0;
+        *(int *)(prod + 0x164) = 0;
+        *(int *)(prod + 0x170) = 0;
+        slot = (struct GObj *)prod;
+    }
+    if (slot == 0) {
+        func_001A6E28(D_00557A30);
+        return 0;
+    }
+    *(int *)((char *)slot + 0x28) = a0;
+    *(int *)((char *)slot + 0x0) = (int)slot;
+    func_0013E0C0((int)slot, s1, a2);
+    *(int *)((char *)slot + 0x15C) = 0;
+    *(int *)((char *)slot + 0x8) = -1;
+    *(int *)((char *)slot + 0x4) = -1;
+    *(int *)((char *)slot + 0x2C) = 0;
+    *(int *)((char *)slot + 0x30) = 0;
+    *(int *)((char *)slot + 0x58) = 0;
+    return slot;
+}
 
 struct GObj *func_0013EAE8(int key)
 {
