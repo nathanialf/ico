@@ -117,7 +117,26 @@ void func_00117750(void) {
 /* Matched body inlined from src/cod/017760.c during TU coalesce. */
 void func_00117760(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/src/Light", func_00117768);
+extern int D_00633C38;
+extern void func_00114FC8(char *node);
+
+void func_00117768(void)
+{
+    char *p = (char *)D_00633C30;
+    while (p != 0) {
+        short v = *(short *)(p + 0x44);
+        if (v < 4) {
+            if (v >= 2) {
+                char *node = p;
+                p = *(char **)(p + 0x4C);
+                func_00114FC8(node);
+                continue;
+            }
+        }
+        p = *(char **)(p + 0x4C);
+    }
+    D_00633C38 = 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/Light", func_001177C8);
 INCLUDE_ASM("asm/nonmatchings/src/Light", func_00117820);
 INCLUDE_ASM("asm/nonmatchings/src/Light", func_0011788C);
