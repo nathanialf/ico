@@ -555,7 +555,22 @@ int func_00165400(char *self) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165414);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165418);
+int func_00165418(char *self, int *out)
+{
+    char *sub = *(char **)(self + 0x164);
+    char *p = *(char **)(sub + 0x670);
+    if (*(int *)(p + 0x1FC) != 5)
+        return 0;
+    {
+        int v = *(int *)(*(char **)(sub + 0x678) + 0x420);
+        *out = v;
+        if (v == 0) {
+            func_001AD768((char *)D_00558E10, 0x2FA);
+            func_00263FF0((char *)D_00558E10, 0x2FA, (int *)D_00558E20);
+        }
+    }
+    return 1;
+}
 int func_00165488(char *self)
 {
     char *sub;
