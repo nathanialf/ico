@@ -730,6 +730,8 @@ segments:
       - [0x05B6D0, c, src/cod/05B6D0]            # func_0015B6D0: a0->164->D0 |= 8; printf("exec end %s to %s", a2==boyptr?boy:girl, a0==boyptr?boy:girl)
       - [0x05B728, c, src/cod/05B728]            # func_0015B728: a0->164->D0 |= 0x10; printf("????error %s to %s", a2==boyptr?boy:girl, a0==boyptr?boy:girl)
       - [0x05B780, asm, src/cod/05B780]
+      - [0x05BCC8, c, src/cod/05BCC8]            # func_0015BCC8: bit-test dispatch (0xA8/0xAD code) -> remap a1 to 0xA9/0xAA; tail call func_0013FF88
+      - [0x05BD48, asm, src/cod/05BD48]
       - [0x05D328, c, src/cod/05D328]            # func_0015D328: lazy-init D_00631AF4=1; tail call func_001B6FD8(0x3A)
       - [0x05D348, c, src/cod/05D348]            # func_0015D348: tail call func_0010ABD8(30.0f)
       - [0x05D358, asm, src/cod/05D358]
