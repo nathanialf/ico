@@ -668,6 +668,51 @@ Why:                setting full in either branch first collapses the body inlin
 See:                [feedback_loop_body_out_of_line_collapse], [feedback_branch_likely_emission]
 ```
 
+### 3.9 Count-guarded pointer search — pre-decremented base guard
+
+```
+ASM fingerprint:    table scan returning the first matching element's pointer. ee-gcc rotates
+                    the count==0 guard into a PRE-DECREMENTED pointer compare and advances in
+                    the guard's delay slot:
+                        addiu p,base,-STRIDE        # p = base - stride
+                        addu  end,base,(cnt-1)*STR  # end = LAST element (reuses base's reg)
+                        beq   p,end,ret0            # count==0 guard
+                         addiu p,p,STRIDE           # DELAY: first advance -> p = base
+                        nop                          # loop-alignment nop
+                      loop: lw v; bnez v,found; daddu ret,p (bnez delay); bne p,end,loop; addiu p (delay)
+C recipe:
+    T *base = SYM; T *p = base - 1;
+    T *end = (T *)((char *)base + (CNT * STRIDE - STRIDE));
+    ANCHOR(p);                              /* break (base-1)+1 -> base fold; see Why */
+    if (p == end) goto ret0;
+    p++;
+    NOP();                                  /* un-merge back-edge + supply alignment nop */
+  loop:
+    if (p->field != 0) return p;            /* DIRECT return -> reorg imports ret=p into bnez delay */
+    if (p != end) { p++; goto loop; }
+  ret0:
+    return 0;
+Why:                three coupled levers, each needed:
+                    (1) ANCHOR(p) before the guard makes p opaque so gcc can't fold
+                        (base-1)+1==base into a `daddu p,base` copy in the guard delay; with the
+                        fold gone, base dies into `end` (end reuses base's reg, e.g. a0, instead
+                        of a fresh a1) and the guard delay gets the real `addiu p,p,STRIDE`.
+                    (2) NOP() AFTER `p++` (not before — a barrier between guard and p++ blocks
+                        the advance from filling the beq delay) does double duty: volatile
+                        boundary that un-merges the loop back-edge from the entry test (else gcc
+                        collapses to `b loop_cond`, dropping 2 insns) AND emits the standalone
+                        loop-alignment nop.
+                    (3) DIRECT `return p` in the body (NOT `goto found; found: return p;`): the
+                        goto form makes the found block `jr;daddu(jr-delay)`, so reorg can't lift
+                        the daddu; the direct return leaves found as the importable first-op so
+                        reorg pulls `daddu ret,p` into the bnez delay, found becomes `jr;nop`.
+                    Was PARKED as a "pure regalloc/sched tail -> permuter" floor at rc 7; cracked
+                    BY HAND 7->5->4->3->2->0. Pinning `end`=$4 or a separate guard temp both
+                    rescramble the count/base loads — don't.
+Headers:            matching.h (ANCHOR / NOP)
+See:                [feedback_anchor_breaks_loop_entry_merge] (the inverse merge), [feedback_20_iter_discipline]
+```
+
 ---
 
 ## 4. Conditional store / clamp
