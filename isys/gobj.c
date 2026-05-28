@@ -78,12 +78,36 @@ INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E7F8);
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E868);
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E8D8);
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E9E0);
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013EAE8);
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013EB50);
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013EBE0);
-struct GObj { int unk0; int unk4; char pad[0x16C]; };
+
+struct GObj { int unk0; int unk4; int unk8; char pad[0x168]; };
 extern struct GObj *D_00633CA0;
 extern unsigned int D_00633CA4;
+
+struct GObj *func_0013EAE8(int key)
+{
+    register unsigned int n REG("$8") = D_00633CA4;
+    register unsigned int i REG("$6");
+    register struct GObj *base REG("$7");
+    register int stride REG("$2");
+    if (n == 0) goto ret0;
+    i = 0;
+    ANCHOR(i);
+    base = D_00633CA0;
+    do {
+        struct GObj *e;
+        register int f0 REG("$3");
+        stride = 0x174;
+        e = (struct GObj *)((char *)base + i * stride);
+        f0 = e->unk0;
+        stride = 1;
+        if (f0 != 0 && e->unk4 == stride && e->unk8 == key) return e;
+        i++;
+    } while (i < n);
+ret0:
+    return 0;
+}
+INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013EB50);
+INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013EBE0);
 
 struct GObj *func_0013EC50(int key)
 {
