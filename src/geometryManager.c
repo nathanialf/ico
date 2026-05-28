@@ -153,11 +153,60 @@ void func_00104140(void *a0, char *outer)
     }
     *(float *)((char *)a0 + 0x34) += p[0x30];
 }
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_001041C0);
+void func_001041C0(void *a0, char *src)
+{
+    float *p = (float *)(src + 0xA0);
+    float f0;
+    int *g = *(int **)src;
+    if (g) {
+        func_002438B8((int *)a0,
+                      *(int *)(*(int *)((char *)g + 0x15C) + 0xC) + (*(int *)(src + 4) << 6),
+                      (char *)p);
+    } else {
+        func_00105F00((int)a0, (int)p);
+    }
+    f0 = p[0x30];
+    *(float *)((char *)a0 + 0x4) += f0;
+    *(float *)((char *)a0 + 0xC) = 1.0f;
+}
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104240);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104360);
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104478);
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104508);
+void func_00104478(void *a0, int a1)
+{
+    int buf[16];
+    char *src = *(char **)((char *)a0 + 0x15C);
+    float *p = (float *)(src + 0xA0);
+    func_00105F00((int)p, a1);
+    *(float *)((char *)p + 0x4) -= *(float *)((char *)p + 0xC0);
+    *(float *)((char *)p + 0xC) = 1.0f;
+    MEM_BARRIER();
+    {
+        char *src2 = *(char **)((char *)a0 + 0x15C);
+        int *g = *(int **)src2;
+        if (g) {
+            func_00105E70((char *)buf,
+                          (char *)(*(int *)(*(int *)((char *)g + 0x15C) + 0xC) + (*(int *)(src2 + 4) << 6)));
+            func_002438B8((int *)p, (int)buf, (char *)p);
+        }
+    }
+}
+void func_00104508(void *a0, char *outer)
+{
+    char *src = *(char **)(outer + 0x15C);
+    float *p = (float *)(src + 0xA0);
+    float f0;
+    int *g = *(int **)src;
+    if (g) {
+        func_002438B8((int *)a0,
+                      *(int *)(*(int *)((char *)g + 0x15C) + 0xC) + (*(int *)(src + 4) << 6),
+                      (char *)p);
+    } else {
+        func_00105F00((int)a0, (int)p);
+    }
+    f0 = p[0x30];
+    *(float *)((char *)a0 + 0x4) += f0;
+    *(float *)((char *)a0 + 0xC) = 1.0f;
+}
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104590);
 
 extern float D_00630904;
