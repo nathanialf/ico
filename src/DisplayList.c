@@ -63,4 +63,24 @@ void func_001FB5E0(void)
 __asm__("nop");
 INCLUDE_ASM("asm/nonmatchings/src/DisplayList", func_001FB658);
 INCLUDE_ASM("asm/nonmatchings/src/DisplayList", func_001FB768);
-INCLUDE_ASM("asm/nonmatchings/src/DisplayList", func_001FB7F8);
+extern int D_00633810;
+extern int D_00633818[] __asm__("D_00633818");
+extern int D_00710F80[];
+extern void func_001A6E28(const char *s);
+extern void func_001AD768(const char *s, int n);
+extern void func_00263FF0(const char *s, int n, void *buf);
+
+void func_001FB7F8(void)
+{
+    int v = D_00633810;
+    register int new_var __asm__("$4") = v;
+    if (v <= 0) {
+        func_001A6E28(D_0061ABC8);
+        func_001AD768(D_0061AB88, 0x220);
+        func_00263FF0(D_0061AB88, 0x220, D_00633818);
+    } else {
+        int nv = new_var - 1;
+        D_00633F70 = D_00710F80[nv];
+        D_00633810 = nv;
+    }
+}
