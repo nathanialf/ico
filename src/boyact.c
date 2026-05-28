@@ -472,4 +472,15 @@ int func_001547B0(void) {
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001547B8);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001548F0);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001549B8);
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00154B20);
+extern void func_00149D60(int a0, int a1, int a2, int a3, int a4, int a5, int a6);
+extern void func_001A6E28(const char *fmt, ...);
+extern unsigned int D_00282660[];
+struct Blob12 { long long ll __attribute__((packed)); int w; };
+void func_00154B20(volatile int a0)
+{
+    int sub;
+    func_00149D60(a0, 0, 3, 0, 0, 0, 0);
+    sub = *(int *)(a0 + 0x15C);
+    *(struct Blob12 *)(sub + 0x1C0) = *(struct Blob12 *)D_00282660;
+    func_001A6E28((const char *)D_006322C0);
+}
