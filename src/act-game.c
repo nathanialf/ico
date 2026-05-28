@@ -294,7 +294,52 @@ end:
     return rv;
 }
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A4E0);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A560);
+int func_0014A560(void)
+{
+    int *player = D_00631AE4;
+    register int rv REG("$2");
+    int state;
+    int *sub;
+    char *entry;
+    if (player == 0) {
+        goto ret0;
+    }
+    state = *(int *)(*(char **)((char *)player + 0x164) + 0x30);
+    if (state == 0x4B) {
+        sub = *(int **)((char *)player + 0x15C);
+        goto body;
+    }
+    if (state != 0x55) {
+        goto reject;
+    }
+    sub = *(int **)((char *)player + 0x15C);
+body:
+    {
+        register int idx REG("$3");
+        register char *base REG("$5") = (char *)D_00565060;
+        register int stride REG("$4") = 0x190;
+        ANCHOR(base);
+        ANCHOR(stride);
+        MEM_BARRIER();
+        idx = *(int *)((char *)sub + 0x4A0);
+        entry = base + idx * stride;
+    }
+    rv = 1;
+    {
+        register int field REG("$4") = *(int *)(entry + 0x15C);
+        if (field == 1) {
+            goto end;
+        }
+    }
+ret0:
+    rv = 0;
+end:
+    ANCHOR(rv);
+    return rv;
+reject:
+    rv = 0;
+    goto end;
+}
 
 /* Matched body inlined from src/cod/04A5C0.c during TU coalesce. */
 void func_0014A5C0(float *a0, float *a1)
