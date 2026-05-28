@@ -38,3 +38,5 @@ tool (cf. [[permuter_cracks_reorg_tail]]). Seed is the 2-diff form. The
 permuter needs to find the statement ordering that places base[4]=p+0x18
 first while leaving its addiu late (a0 reuse) — a statement reorder it can
 explore. CFLAGS for permute_run = exact quick_diff CFLAGS (no per-file flag).
+
+## UPDATE 2026-05-28: in-loop permuter PLATEAUED at base score 30 (=2 diffs) after 5281 iters, no score-0. Left for offline auto_permute.sh (longer runs) or a fresh struct-based structural rewrite. Carve kept so the permuter has its target.
