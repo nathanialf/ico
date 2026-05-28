@@ -46,22 +46,38 @@ fi
 # asm at `asm/matchings/src/<TU>/`. We try a few shapes so the user
 # can pass either the bare TU name (`layout_texture`) or the path
 # (`src/layout_texture`).
-for candidate in \
-    "asm/matchings/$NAME" \
-    "asm/matchings/src/$NAME" \
-    "asm/matchings/sound/$NAME" \
-    "asm/matchings/ios/$NAME" \
-    "asm/matchings/isys/$NAME" \
-    "asm/nonmatchings/$NAME" \
-    "asm/nonmatchings/src/$NAME" \
-    "asm/nonmatchings/sound/$NAME" \
-    "asm/nonmatchings/ios/$NAME" \
-    "asm/nonmatchings/isys/$NAME"; do
-    if [[ -d "$candidate" ]]; then
-        ASM_DIR="$candidate"
-        break
-    fi
-done
+CANDIDATES=(
+    "asm/matchings/$NAME"
+    "asm/matchings/src/$NAME"
+    "asm/matchings/sound/$NAME"
+    "asm/matchings/ios/$NAME"
+    "asm/matchings/isys/$NAME"
+    "asm/nonmatchings/$NAME"
+    "asm/nonmatchings/src/$NAME"
+    "asm/nonmatchings/sound/$NAME"
+    "asm/nonmatchings/ios/$NAME"
+    "asm/nonmatchings/isys/$NAME"
+)
+# When a specific func is requested, prefer the candidate dir that actually
+# CONTAINS it — a stale gitignored layout dir (e.g. asm/matchings/<TU>/ left
+# behind when the TU moved under asm/matchings/src/<TU>/) otherwise shadows the
+# correct dir by sorting first, and the func is never found.
+if [[ -n "${1:-}" ]]; then
+    for candidate in "${CANDIDATES[@]}"; do
+        if [[ -f "$candidate/$1.s" ]]; then
+            ASM_DIR="$candidate"
+            break
+        fi
+    done
+fi
+if [[ -z "${ASM_DIR:-}" ]]; then
+    for candidate in "${CANDIDATES[@]}"; do
+        if [[ -d "$candidate" ]]; then
+            ASM_DIR="$candidate"
+            break
+        fi
+    done
+fi
 if [[ -z "${ASM_DIR:-}" ]]; then
     echo "quick_diff: no asm/matchings/$NAME (or src/$NAME) and no asm/nonmatchings/$NAME" >&2
     echo "  did you flip the yaml entry to 'c' and run 'tools/build.sh setup'?" >&2
