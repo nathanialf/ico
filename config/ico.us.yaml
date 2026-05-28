@@ -382,6 +382,7 @@ segments:
       - [0x00A550, c, src/cod/00A550]
       - [0x00A558, c, src/cod/00A558]            # func_0010A558: aligned 32B-block copy of a2 entries from a1 to a0 (4 ld+sd pairs)
       - [0x00A598, asm, src/cod/00A598]
+      - [0x00AAA0, c, src/cod/00AAA0]            # func_0010AAA0: dst[i] = arr[i] ? arr[i][idx%(n-1)] : 0
       - [0x00AB18, c, src/cod/00AB18]
       - [0x00AB20, c, src/cod/00AB20]
       - [0x00AB28, asm, src/cod/00AB28]
@@ -723,6 +724,8 @@ segments:
       - [0x05895C, asm, src/cod/05895C]
       - [0x059230, c, src/cod/059230]            # func_00159230: tail call func_00106AB8 (double-deref TCO)
       - [0x059240, asm, src/cod/059240]
+      - [0x059C38, c, src/cod/059C38]            # func_00159C38: call chain + tail func_00105268; float arg preserved in f20
+      - [0x059CB0, asm, src/cod/059CB0]
       - [0x05B678, c, src/cod/05B678]            # func_0015B678: a0->164->D0 |= 2; printf("ready end %s to %s", a2==boyptr?boy:girl, a0==boyptr?boy:girl)
       - [0x05B6D0, c, src/cod/05B6D0]            # func_0015B6D0: a0->164->D0 |= 8; printf("exec end %s to %s", a2==boyptr?boy:girl, a0==boyptr?boy:girl)
       - [0x05B728, c, src/cod/05B728]            # func_0015B728: a0->164->D0 |= 0x10; printf("????error %s to %s", a2==boyptr?boy:girl, a0==boyptr?boy:girl)
