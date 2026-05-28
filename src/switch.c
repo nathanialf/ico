@@ -77,7 +77,28 @@ int func_001C0690(char *self) {
     return *(int *)(p + 0x58);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C06A0);
+extern void func_001BC9B0(void);
+extern void func_001BC9B8(void);
+
+int func_001C06A0(char *self, int a1)
+{
+    register char *sub REG("$2") = *(char **)(self + 0x15C);
+    char *s0 = *(char **)(sub + 0x800);
+    register int f58 REG("$3") = *(int *)(s0 + 0x58);
+    if (f58 == 0 || *(int *)(s0 + 0x110) == 0) {
+        if (a1 >= 0) {
+            func_001BC9B0();
+        } else {
+            func_001BC9B8();
+        }
+        *(int *)(s0 + 0x114) = 0;
+    }
+    {
+        register int r REG("$2") = 1;
+        *(int *)(s0 + 0x110) = r;
+        return r;
+    }
+}
 extern void func_001D12D8(int *self);
 extern void func_001D12C0(int *self, int v);
 extern void func_001D12A8(int *self, int v);
