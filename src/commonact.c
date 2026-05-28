@@ -916,7 +916,22 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00175800);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001758F8);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00175A98);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00175B58);
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00175C18);
+
+int func_00175C18(void)
+{
+    char *sub = *(char **)((char *)D_00631AE8 + 0x164);
+    if (((*(unsigned long long *)(sub + 0x18) >> 36) & 1) == 0) {
+        return 1;
+    }
+    {
+        register int v REG("$4") = *(int *)(sub + 0x30);
+        register int r REG("$2") = 0;
+        if (v == 0x45 && D_002883D0[0x5D] != 0) {
+            r = D_002883D0[0x58] == 0;
+        }
+        return r;
+    }
+}
 
 void func_00175C70(int x) {
     char *p = (char *)D_00631AE8;
