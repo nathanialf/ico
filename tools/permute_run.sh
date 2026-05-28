@@ -220,8 +220,9 @@ TARGET_S="${RUN_DIR}/target.s"
 PER_FUNC_S="${PROJECT_ROOT}/asm/matchings/cod/${FILE_OFF_HEX}/${FUNC_NAME}.s"
 SEG_S=""
 if [ ! -f "${PER_FUNC_S}" ]; then
-    # Try INCLUDE_ASM TU dirs: asm/nonmatchings/<TU>/<func>.s.
-    NONMATCH_S="$(find "${PROJECT_ROOT}/asm/nonmatchings" -maxdepth 3 \
+    # Try INCLUDE_ASM TU dirs: asm/nonmatchings/<TU>/<func>.s and the
+    # deeper carved-cod layout asm/nonmatchings/src/cod/<file_off>/<func>.s.
+    NONMATCH_S="$(find "${PROJECT_ROOT}/asm/nonmatchings" -maxdepth 5 \
                        -name "${FUNC_NAME}.s" 2>/dev/null | head -1)"
     if [ -n "${NONMATCH_S}" ] && [ -f "${NONMATCH_S}" ]; then
         PER_FUNC_S="${NONMATCH_S}"
