@@ -455,6 +455,8 @@ segments:
       - [0x00EE90, c, src/FileManager]           # TU promotion: 0x10EE90..0x10F5B8 (1 INCLUDE_ASM)
       - [0x00F5B8, c, src/cod/00F5B8]            # func_0010F5B8
       - [0x00F5D4, asm, src/cod/00F5D4]
+      - [0x00F710, c, src/cod/00F710]            # func_0010F710: init D_004C7710 packet mgr (free ptr [4]; tag 0x11000000; qword 0xE)
+      - [0x00F768, asm, src/cod/00F768]
       - [0x0118B0, c, src/cod/0118B0]
       - [0x0118B8, c, src/cod/0118B8]            # func_001118B8: func_001FBA80(); func_0010F5D8(); D_00631BA0=1
       - [0x0118E4, hasm, src/cod/0118E4]
