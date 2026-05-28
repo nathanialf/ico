@@ -303,7 +303,27 @@ void func_00119470(char *self, int idx) {
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_00119540);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_001199A0);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_00119CA0);
-INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011A238);
+extern char D_00672FD0[];
+extern float D_00630A40;
+extern float D_00630A44;
+void func_0011A238(int a0)
+{
+    register int mask REG("$4") = 0x0FFFFFFF;
+    char *ctx = D_00672FD0;
+    float f0 = D_00630A40;
+    float f1 = D_00630A44;
+    *(int *)(ctx + 0x20) = a0 & mask;
+    *(int *)(ctx + 0x24) = (a0 + 0x8) & mask;
+    *(int *)(ctx + 0x28) = (a0 + 0x10) & mask;
+    *(int *)(ctx + 0x2C) = a0 + 0x20;
+    *(float *)(ctx + 0x48) = f0;
+    *(float *)(ctx + 0x44) = f0;
+    *(float *)(ctx + 0x40) = f0;
+    *(float *)(ctx + 0x58) = f1;
+    *(float *)(ctx + 0x54) = f1;
+    *(float *)(ctx + 0x50) = f1;
+    func_001A6E28(D_00555190, a0 & mask);
+}
 extern void func_001A6E28(const char *fmt, ...);
 
 void func_0011A2A8(int a0)
