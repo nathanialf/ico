@@ -713,6 +713,53 @@ Headers:            matching.h (ANCHOR / NOP)
 See:                [feedback_anchor_breaks_loop_entry_merge] (the inverse merge), [feedback_20_iter_discipline]
 ```
 
+### 3.10 Indexed table search — keep the per-iter MULT + fix the mult/elem regalloc swap
+
+```
+ASM fingerprint:    array-of-structs scan with a per-iteration `mult i,STRIDE; addu elem,mult,base`
+                    (NOT strength-reduced to a pointer walk), int index `i` with `sltu i,n`
+                    loop test and `beqz n` count==0 guard (n UNSIGNED). Returns &arr[i] on a
+                    multi-field match, else 0.
+C recipe:
+    register unsigned int n REG("$8") = COUNT; register unsigned int i REG("$6");
+    register T *base REG("$7"); register int stride REG("$2");
+    if (n == 0) goto ret0;
+    i = 0;
+    ANCHOR(i);                              /* (C) i=0 -> beqz delay slot, not the sunk base lw */
+    base = BASE;
+    do {
+        T *e; register int f0 REG("$3");    /* (B) pin the FIELD LOAD, not the offset/elem */
+        stride = 0x174;                     /* (A) in-loop reassign keeps the MULT */
+        e = (T *)((char *)base + i * stride);
+        f0 = e->unk0;
+        if (f0 != 0 && e->unk4 == key) return e;
+        i++;
+    } while (i < n);
+  ret0: return 0;
+Why:                (A) ee-gcc strength-reduces `base + i*C` to an additive pointer walk by
+                    default — but reassigning the multiplier INSIDE the loop (`stride=0x174`
+                    each iter) makes it non-loop-invariant, so the MULT stays WITHOUT a per-file
+                    `-fno-strength-reduce` (which would be the wrong tool — it's file-scoped and
+                    a sibling in the same TU may need strength reduction; here ECA8 §3.9 does).
+                    The hoisted first `stride=` lands before the loop; the per-iter reload fills
+                    the back-edge (`bnez`) delay since the unk4 load clobbers $2.
+                    (B) the original reuses the DEAD mult-result reg ($3/v1) for the unk0 load,
+                    which forces the elem pointer to $5/a1. Pinning the offset intermediate to
+                    $3 is IGNORED (the mflo reg is chosen before the pin coalesces) and pinning
+                    the elem pointer to $5 emits a spurious `daddu a1,v1` COPY (the addu dest is
+                    already allocated). Pin the FIELD LOAD instead: a load targets any reg
+                    directly (no copy), and reusing $3 for it cascades the whole v1<->a1 swap
+                    (mult->$3, elem->$5, both field loads, the returned ptr). rc 8 -> 2 in one line.
+                    (C) gcc sinks the loop-invariant base `lw` below the count guard and reorg
+                    hoists THAT (a load, latency) into the beqz delay; ANCHOR(i) right after `i=0`
+                    materializes the cheap `daddu i,0,0` first so reorg picks it for the delay
+                    and the base lw follows. rc 2 -> 0.
+                    Was PARKED as "v1<->a1 regalloc + sched -> permuter (needs -fno-strength-reduce)";
+                    cracked BY HAND with default flags.
+Headers:            matching.h (ANCHOR) + regpin.h (REG)
+See:                §3.9 (the pointer-walk sibling), [feedback_20_iter_discipline]
+```
+
 ---
 
 ## 4. Conditional store / clamp
