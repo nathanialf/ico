@@ -114,6 +114,32 @@ def count_and_pairs(a: list[str], b: list[str]):
     return count, pairs
 
 
+def divergence_summary(a: list[str], b: list[str], ctx: int = 3):
+    """Find the FIRST place the two normalized streams diverge and how many
+    distinct diff SITES there are.
+
+    The skill's core doctrine is "a high real_count is usually ONE root cause
+    cascading — fix the root." This makes that operational: it returns the
+    earliest non-equal opcode block (with `ctx` shared instructions of
+    leading context so the agent sees *where* in the function it is) and the
+    number of independent diff sites. `diff_sites == 1` means the whole
+    residual is a single root — fix that one block and the count collapses.
+    """
+    sm = difflib.SequenceMatcher(None, a, b, autojunk=False)
+    sites = [o for o in sm.get_opcodes() if o[0] != "equal"]
+    if not sites:
+        return None, 0
+    op, i1, i2, j1, j2 = sites[0]
+    first = {
+        "kind": op,                       # replace | insert | delete
+        "exp_index": i1,                  # 0-based position in expected stream
+        "context": a[max(0, i1 - ctx):i1],  # shared insns just before the split
+        "expected": a[i1:i2],
+        "built": b[j1:j2],
+    }
+    return first, len(sites)
+
+
 def run_tag_diff(exp: list[str], blt: list[str]):
     """Call tools/tag_diff.py on the two streams; parse `[§N.M] name` output
     into structured tags."""
@@ -160,9 +186,11 @@ def analyze(tu: str, func: str | None) -> dict:
     nexp = [normalize(l) for l in exp]
     nblt = [normalize(l) for l in blt]
     real_count, pairs = count_and_pairs(nexp, nblt)
+    first_div, diff_sites = divergence_summary(nexp, nblt)
     tags = run_tag_diff(exp, blt)
     status = "match" if real_count == 0 else "diffs"
     return {"status": status, "real_count": real_count, "raw_count": raw_count,
+            "diff_sites": diff_sites, "first_divergence": first_div,
             "tags": tags, "lines": pairs}
 
 

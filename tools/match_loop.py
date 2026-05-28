@@ -35,7 +35,30 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 STATE_DIR = ROOT / "build" / "match_loop"
 
-DEFAULT_STALL_LIMIT = 12   # distinct hand hypotheses with NO real_count progress
+DEFAULT_STALL_LIMIT = 30   # distinct hand hypotheses with NO real_count progress
+#                            (raised from 12 to match the 20-iter discipline with
+#                             headroom — regalloc/branch tails crack late, so the
+#                             loop must not bail to "permuter food" early.)
+
+# How the matching loop resolves a TU name to its editable source file —
+# mirrors tools/quick_diff.sh's own search order so the best-source snapshot
+# (and `revert`) write back to the exact file quick_diff compiles.
+_SRC_PATTERNS = ("src/{tu}.c", "tough_nuts/{tu}/{tu}.c",
+                 "sound/{tu}.c", "ios/{tu}.c", "isys/{tu}.c")
+
+
+def resolve_tu_path(tu: str | None) -> Path | None:
+    if not tu:
+        return None
+    for pat in _SRC_PATTERNS:
+        p = ROOT / pat.format(tu=tu)
+        if p.exists():
+            return p
+    return None
+
+
+def best_src_path(func: str) -> Path:
+    return STATE_DIR / f"{func}.best.c"
 
 # HARD-WON LESSON (this project's history): the matches came from HAND
 # REASONING — including on regalloc-swap / fp-licm / frame-size, which were all
@@ -88,15 +111,31 @@ def cmd_diff(args) -> int:
     st["last_tags"] = [t["id"] for t in res.get("tags", [])]
     rc = res["real_count"]
     st["history"].append(rc)
+    prev_best = st["best"]
     if res["status"] == "compile-fail":
         # don't move the plateau counter on a build break; surface it
         pass
-    elif st["best"] is None or rc < st["best"]:
+    elif prev_best is None or rc < prev_best:
         st["best"] = rc
         st["stall"] = 0
         st["tried_levers"] = []          # progress reopens the lever space
+        # Snapshot the WINNING source so a later regression can be undone.
+        # (Encodes feedback_revert_to_best_count_not_thrash into the tool:
+        #  the lowest-count state already has the right regalloc — never
+        #  keep iterating from a worse one.)
+        tp = resolve_tu_path(args.tu)
+        if tp:
+            best_src_path(args.func).write_text(tp.read_text())
+            st["best_src"] = str(tp.relative_to(ROOT))
     else:
         st["stall"] += 1
+        # Regression guard: the edit made things WORSE than the best so far.
+        if prev_best is not None and rc > prev_best and res["status"] == "diffs":
+            res["warning"] = (
+                f"REGRESSED to {rc} (best={prev_best}). Don't iterate from a worse "
+                f"state — the best-count source already has the right regalloc. "
+                f"Restore it first: `tools/match_loop.py revert {args.func}`, then "
+                f"apply ONE surgical change.")
     save_state(st)
     res["state"] = {k: st[k] for k in ("iter", "best", "stall", "permuted")}
     print(json.dumps(res, indent=2))
@@ -173,6 +212,26 @@ def cmd_next(args) -> int:
     return 0
 
 
+def cmd_revert(args) -> int:
+    """Restore the TU source to the best-count snapshot taken by `diff`."""
+    st = load_state(args.func)
+    snap = best_src_path(args.func)
+    if not snap.exists():
+        print(json.dumps({"error": "no snapshot yet — run `diff` until it records "
+                          "a best", "func": args.func}))
+        return 2
+    dst_rel = st.get("best_src")
+    dst = (ROOT / dst_rel) if dst_rel else resolve_tu_path(st.get("tu"))
+    if dst is None:
+        print(json.dumps({"error": "cannot resolve TU source path", "func": args.func}))
+        return 2
+    dst.write_text(snap.read_text())
+    print(json.dumps({"reverted": args.func, "to": str(Path(dst).relative_to(ROOT)),
+                      "best": st["best"],
+                      "note": "TU restored to best-count source; apply ONE surgical change"}))
+    return 0
+
+
 def cmd_reset(args) -> int:
     p = state_path(args.func)
     if p.exists():
@@ -202,6 +261,7 @@ def main() -> int:
     n.add_argument("--override", choices=["keep-going", "permute", "park"])
     n.set_defaults(fn=cmd_next)
 
+    rv = sub.add_parser("revert"); rv.add_argument("func"); rv.set_defaults(fn=cmd_revert)
     rs = sub.add_parser("reset"); rs.add_argument("func"); rs.set_defaults(fn=cmd_reset)
     sh = sub.add_parser("show"); sh.add_argument("func"); sh.set_defaults(fn=cmd_show)
 

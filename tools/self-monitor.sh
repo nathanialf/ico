@@ -34,11 +34,13 @@ if [[ "$1" == "--once" ]]; then
     # matching loop's natural "grab next" shortlist. Each .s file's
     # `nonmatching <fn>, 0x<size>` header gives the byte size; size/4 is
     # the instruction count (mawk has no strtonum, so hex2dec parses it).
-    # Excluded: parked targets (tough_nuts/<fn>/ — those belong to the
-    # permuter section below), lone-`nop` alignment artifacts that
-    # splat labels as 1-insn "functions" (size < 8 bytes; no real EE
-    # function is shorter than a jr + delay slot), and ALREADY-MATCHED
-    # functions whose nonmatchings .s is a stale orphan.
+    # Excluded: lone-`nop` alignment artifacts that splat labels as
+    # 1-insn "functions" (size < 8 bytes; no real EE function is shorter
+    # than a jr + delay slot), and ALREADY-MATCHED functions whose
+    # nonmatchings .s is a stale orphan. Parked targets (tough_nuts/<fn>/)
+    # are deliberately NOT excluded: a parked func is a near-miss, not a
+    # floor (per the 20-iter discipline), so it stays in the cheapest-
+    # remaining shortlist as a re-attempt candidate.
     #
     # The orphan case: when a TU is re-laid-out (coalesce / yaml move) the
     # function's asm is regenerated under its NEW TU dir, but the OLD
@@ -52,13 +54,11 @@ if [[ "$1" == "--once" ]]; then
     # smallest orphan (e.g. a 2-insn tail-call) sorts to the top and gets
     # handed out as a "match target" that is already done.
     if [[ -d asm/nonmatchings ]]; then
-        parked=$(find tough_nuts -mindepth 1 -maxdepth 1 -type d \
-                      -name 'func_*' -printf '%f\n' 2>/dev/null)
         matched=$(find asm/matchings -name 'func_*.s' -printf '%f\n' 2>/dev/null \
                       | sed 's/\.s$//' | sort -u)
-        echo "Ten smallest unmatched functions (TU · instructions; parked, matched-orphans & nop-pads excluded):"
+        echo "Ten smallest unmatched functions (TU · instructions; matched-orphans & nop-pads excluded; parked included):"
         grep -rH '^nonmatching ' asm/nonmatchings 2>/dev/null \
-            | awk -v parked="$parked" -v matched="$matched" '
+            | awk -v matched="$matched" '
                 function hex2dec(s,   i,c,v,r) {
                     sub(/^0[xX]/, "", s); r=0
                     for (i=1;i<=length(s);i++) {
@@ -69,8 +69,6 @@ if [[ "$1" == "--once" ]]; then
                     return r
                 }
                 BEGIN {
-                    n=split(parked,p,"\n")
-                    for (i=1;i<=n;i++) if (p[i]!="") skip[p[i]]=1
                     m=split(matched,q,"\n")
                     for (i=1;i<=m;i++) if (q[i]!="") skip[q[i]]=1
                 }
