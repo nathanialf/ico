@@ -114,30 +114,36 @@ def count_and_pairs(a: list[str], b: list[str]):
     return count, pairs
 
 
-def divergence_summary(a: list[str], b: list[str], ctx: int = 3):
-    """Find the FIRST place the two normalized streams diverge and how many
-    distinct diff SITES there are.
+def _mnem(line: str) -> str:
+    return line.split("\t", 1)[0].strip()
+
+
+def divergence_sites(a: list[str], b: list[str], ctx: int = 3):
+    """Map EVERY place the two normalized streams diverge.
 
     The skill's core doctrine is "a high real_count is usually ONE root cause
-    cascading — fix the root." This makes that operational: it returns the
-    earliest non-equal opcode block (with `ctx` shared instructions of
-    leading context so the agent sees *where* in the function it is) and the
-    number of independent diff sites. `diff_sites == 1` means the whole
-    residual is a single root — fix that one block and the count collapses.
+    cascading — fix the root." For a long function that residual is really N
+    sub-problems, so a scalar count hides the structure. This returns the full
+    list of non-equal opcode blocks, each tagged with:
+      * exp_index — 0-based position in the expected stream
+      * block     — basic-block number (count of branch/jump insns before it),
+                    so on a long func you see "sites at block 2, 9, 14"
+      * context   — `ctx` shared insns just before the split (the first site)
+      * expected / built — the diverging lines on each side
+    `len(sites) == 1` means the whole residual is a single root.
     """
     sm = difflib.SequenceMatcher(None, a, b, autojunk=False)
-    sites = [o for o in sm.get_opcodes() if o[0] != "equal"]
-    if not sites:
-        return None, 0
-    op, i1, i2, j1, j2 = sites[0]
-    first = {
-        "kind": op,                       # replace | insert | delete
-        "exp_index": i1,                  # 0-based position in expected stream
-        "context": a[max(0, i1 - ctx):i1],  # shared insns just before the split
-        "expected": a[i1:i2],
-        "built": b[j1:j2],
-    }
-    return first, len(sites)
+    sites = []
+    for op, i1, i2, j1, j2 in sm.get_opcodes():
+        if op == "equal":
+            continue
+        block = sum(1 for l in a[:i1] if _mnem(l) in JUMP_MNEMONICS)
+        site = {"kind": op, "exp_index": i1, "block": block,
+                "expected": a[i1:i2], "built": b[j1:j2]}
+        if not sites:                       # leading context on the FIRST site
+            site["context"] = a[max(0, i1 - ctx):i1]
+        sites.append(site)
+    return sites
 
 
 def run_tag_diff(exp: list[str], blt: list[str]):
@@ -186,11 +192,13 @@ def analyze(tu: str, func: str | None) -> dict:
     nexp = [normalize(l) for l in exp]
     nblt = [normalize(l) for l in blt]
     real_count, pairs = count_and_pairs(nexp, nblt)
-    first_div, diff_sites = divergence_summary(nexp, nblt)
+    sites = divergence_sites(nexp, nblt)
     tags = run_tag_diff(exp, blt)
     status = "match" if real_count == 0 else "diffs"
     return {"status": status, "real_count": real_count, "raw_count": raw_count,
-            "diff_sites": diff_sites, "first_divergence": first_div,
+            "diff_sites": len(sites),
+            "first_divergence": sites[0] if sites else None,
+            "divergence_map": sites,
             "tags": tags, "lines": pairs}
 
 
@@ -213,6 +221,13 @@ def main() -> int:
         result["lines_total"] = len(result["lines"])
         result["lines"] = result["lines"][:8]
         result["lines_note"] = "sample (pass --full for all); reason from tags + sample"
+    # The divergence_map (#5) can be long on a big func; keep a compact head
+    # unless --full. first_divergence already carries the root block in full.
+    dmap = result.get("divergence_map")
+    if not args.full and dmap and len(dmap) > 6:
+        result["divergence_map_total"] = len(dmap)
+        result["divergence_map"] = dmap[:6]
+        result["divergence_map_note"] = "first 6 sites (pass --full for all); see `block` for region"
     print(json.dumps(result, indent=2))
     return 0 if result["status"] in ("match", "diffs") else 2
 
