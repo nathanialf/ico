@@ -382,5 +382,19 @@ float func_0019BB40(int a0)
 
 INCLUDE_ASM_NOP_PAD(func_0019BB5C);
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019BB60);
-INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019BC58);
+int *func_0019BC58(int *self)
+{
+    register int *p REG("$18");
+    register int *s REG("$17") = self;
+    int *buf;
+    p = (int *)s[0x15C / 4];
+    buf = (int *)func_0013A0F8(D_00632010, 0x20, D_0055C690, 0x4F4);
+    p[0x800 / 4] = (int)buf;
+    func_002641D8(buf, 0, 0x20);
+    *((int *)((char *)buf + 0x14)) = 0;
+    func_00104508(buf, s);
+    func_00202208(s);
+    func_00202148(s);
+    return buf;
+}
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019BCE0);

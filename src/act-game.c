@@ -253,7 +253,13 @@ void func_0014A330(void)
     func_00149D60(D_00631AE4, 1, 4, 5, D_00631AE8, 0, 0);
     *(long long *)(s + 0x18) |= (long long)0x8000 << 21;
 }
-INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A3A8);
+void func_0014A3A8(void)
+{
+    char *s = *(char **)((char *)D_00631AE8 + 0x164);
+    func_00149D60(D_00631AE8, 0, 4, 0, 0, 0, 0);
+    func_00149D60(D_00631AE4, 1, 4, 0, 0, 0, 0);
+    *(long long *)(s + 0x18) &= ~((long long)0x8000 << 21);
+}
 
 /* Matched body inlined from src/cod/04A430.c during TU coalesce. */
 void func_0014A430(float *a0, float *a1)
