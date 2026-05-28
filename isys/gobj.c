@@ -74,8 +74,39 @@ INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E4D0);
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E548);
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E648);
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E728);
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E7F8);
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E868);
+void func_0013E7F8(int self, int other)
+{
+    int u, w;
+    unsigned char t;
+    func_0013DDF8(self);
+    t = *(unsigned char *)(other + 0x18);
+    *(int *)(self + 0x14) = other;
+    *(unsigned char *)(self + 0x18) = t;
+    u = *(int *)(other + 0x10);
+    w = *(int *)(other + 0x1C);
+    *(int *)(self + 0x10) = u;
+    *(int *)(other + 0x10) = self;
+    *(int *)(self + 0x1C) = w;
+    if (*(int *)(self + 0x10) == 0) {
+        *(int *)(D_00281A90 + *(unsigned char *)(self + 0x18) * 4) = self;
+    }
+}
+void func_0013E868(int self, int other)
+{
+    unsigned char t;
+    int u;
+    func_0013DDF8(self);
+    t = *(unsigned char *)(other + 0x18);
+    *(unsigned char *)(self + 0x18) = t;
+    u = *(int *)(other + 0x14);
+    *(int *)(self + 0x10) = other;
+    *(int *)(self + 0x14) = u;
+    *(int *)(other + 0x14) = self;
+    *(int *)(self + 0x1C) = *(int *)(other + 0x1C);
+    if (*(int *)(self + 0x14) == 0) {
+        *(int *)(D_00281A70 + *(unsigned char *)(self + 0x18) * 4) = self;
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E8D8);
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E9E0);
 
@@ -106,9 +137,36 @@ struct GObj *func_0013EAE8(int key)
 ret0:
     return 0;
 }
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013EB50);
+struct GObj *func_0013EB50(int key_param)
+{
+    register int key REG("$5") = key_param;
+    register struct GObj *p REG("$3");
+    if (*(int *)D_006321C0 == 0) goto alt;
+    {
+        register struct GObj *base REG("$4") = D_00633CA0;
+        register struct GObj *end REG("$4");
+        register int one REG("$6") = 1;
+        p = base - 1;
+        end = (struct GObj *)((char *)base + (D_00633CA4 * 0x174 - 0x174));
+        if (p == end) goto ret0;
+        p++;
+        NOP();
+    loop:
+        if (*(int *)((char *)p + 4) == one && *(int *)((char *)p + 0xC) == key) goto found;
+        if (p != end) { p++; goto loop; }
+    }
+ret0:
+    return 0;
+found:
+    return p;
+alt:
+    if ((unsigned int)(key - 1) < 0x43) {
+        register int idx REG("$3") = key * 4;
+        return (struct GObj *)*(int *)((char *)D_006A93D0 + idx);
+    }
+    goto ret0;
+}
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013EBE0);
-
 struct GObj *func_0013EC50(int key)
 {
     register unsigned int n REG("$8") = D_00633CA4;
