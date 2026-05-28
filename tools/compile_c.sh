@@ -186,7 +186,13 @@ if [ "${BASE}" = "fightSound" ]; then
     "${PYTHON}" "${ROOT}/tools/postprocess_191F50.py" "${S}"
 fi
 if listed "${SWAP_ADDU_TXT}"; then
-    sed -i -E 's/(addu[[:space:]]+\$([0-9]+),)\$([0-9]+),\$\2\b/\1$\2,$\3/g' "${S}"
+    # Optional 2nd field on the TU line restricts the swap to a single rd
+    # register, e.g. `motionOrientManager 3` swaps only `addu $3,$M,$3`.
+    # Needed when two funcs in one coalesced TU want OPPOSITE commutative-addu
+    # orders: func_001E0D50 needs rd==$3 swapped to rs, while func_001E44C0
+    # legitimately keeps gcc's natural rd==$2 (rt) form. No field = all rd.
+    swap_rd="$(awk -v b="${BASE}" '$1==b && $2 ~ /^\$?[0-9]+$/ {gsub(/\$/,"",$2); print $2; exit}' "${SWAP_ADDU_TXT}")"
+    sed -i -E "s/(addu[[:space:]]+\\\$(${swap_rd:-[0-9]+}),)\\\$([0-9]+),\\\$\\2\\b/\\1\$\\2,\$\\3/g" "${S}"
 fi
 if listed "${COALESCE_V1_V0_TXT}"; then
     sed -i -E \

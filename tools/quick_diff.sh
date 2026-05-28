@@ -205,7 +205,13 @@ qd_listed dummy_sp_prologue.txt     && python3 "$ROOT/tools/postprocess_dummy_sp
 [ "$(basename "$NAME")" = "0F1108" ] && python3 "$ROOT/tools/postprocess_0F1108.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "0EF9E0" ] && python3 "$ROOT/tools/postprocess_0EF9E0.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "fightSound" ] && python3 "$ROOT/tools/postprocess_191F50.py" "$ASM_OUT" || true
-qd_listed swap_addu_operands.txt && sed -i -E 's/(addu[[:space:]]+\$([0-9]+),)\$([0-9]+),\$\2\b/\1$\2,$\3/g' "$ASM_OUT" || true
+if qd_listed swap_addu_operands.txt; then
+    # Optional 2nd field on the TU line restricts the swap to one rd register
+    # (e.g. `motionOrientManager 3`), so two funcs in one coalesced TU can want
+    # opposite commutative-addu orders. Mirrors tools/compile_c.sh. No field = all rd.
+    qd_swap_rd="$(awk -v a="$NAME" -v b="$(basename "$NAME")" '($1==a||$1==b) && $2 ~ /^\$?[0-9]+$/ {gsub(/\$/,"",$2); print $2; exit}' "$ROOT/config/swap_addu_operands.txt")"
+    sed -i -E "s/(addu[[:space:]]+\\\$(${qd_swap_rd:-[0-9]+}),)\\\$([0-9]+),\\\$\\2\\b/\\1\$\\2,\$\\3/g" "$ASM_OUT" || true
+fi
 qd_listed coalesce_v1_v0.txt     && sed -i -E -e '/^[[:space:]]*move[[:space:]]+\$2,\$3[[:space:]]*$/d' -e 's/\$3\b/$2/g' "$ASM_OUT" || true
 sed -i -E 's/\bmove[[:space:]]+(\$[0-9a-zA-Z]+),[[:space:]]*(\$[0-9a-zA-Z]+)\b/daddu \1,\2,$0/g' "$ASM_OUT"
 

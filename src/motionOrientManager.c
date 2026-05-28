@@ -178,7 +178,30 @@ INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E3E20);
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E3F40);
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E3FC8);
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E4180);
-INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E44C0);
+extern int D_00292540[];
+
+int *func_001E44C0(int start, int end, int a2, int a3) {
+    int best = -1;
+    if (start < end) {
+        do {
+            int *p = (int *)(((char *)D_00292540) - (-(start * 0x18)));
+            if (p[1] == a3) {
+                int *q = (int *)(((char *)D_00292540) + (start * 0x18));
+                if (q[0] == a2) {
+                    return q;
+                }
+                if (q[0] == 0x43D) {
+                    best = start;
+                }
+            }
+            start++;
+        } while (start < end);
+    }
+    if (best != -1) {
+        return (int *)(((char *)D_00292540) + (best * 0x18));
+    }
+    return (int *)0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E4548);
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E45E0);
 
