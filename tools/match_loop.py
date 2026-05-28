@@ -125,6 +125,7 @@ def cmd_diff(args) -> int:
         #  keep iterating from a worse one.)
         tp = resolve_tu_path(args.tu)
         if tp:
+            STATE_DIR.mkdir(parents=True, exist_ok=True)
             best_src_path(args.func).write_text(tp.read_text())
             st["best_src"] = str(tp.relative_to(ROOT))
     else:
