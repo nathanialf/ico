@@ -137,7 +137,24 @@ void func_00117768(void)
     }
     D_00633C38 = 0;
 }
-INCLUDE_ASM("asm/nonmatchings/src/Light", func_001177C8);
+extern void func_00115068(char *node);
+
+void func_001177C8(void)
+{
+    char *p = (char *)D_00633C34;
+    while (p != 0) {
+        int v = *(int *)(p + 0x90);
+        if (v < 3) {
+            if (v >= 0) {
+                char *node = p;
+                p = *(char **)(p + 0x98);
+                func_00115068(node);
+                continue;
+            }
+        }
+        p = *(char **)(p + 0x98);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/Light", func_00117820);
 INCLUDE_ASM("asm/nonmatchings/src/Light", func_0011788C);
 INCLUDE_ASM("asm/nonmatchings/src/Light", func_00117890);
