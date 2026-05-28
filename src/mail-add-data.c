@@ -67,7 +67,24 @@ float D_00631038 = 6.2831855f;
 extern float D_006D35C0[];
 extern void func_001951A0(char *a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", func_00194840);
+extern void func_00243AE8(void *dst, int a0, int a1);
+extern void func_00243978(void *dst, void *src);
+extern int func_00194508(void *buf, int a2);
+int func_00194840(int a0, int a1, int a2, int a3)
+{
+    int *p;
+    int buf[8];
+    register int sa2 REG("$16") = a2;
+    register int sa3 REG("$17") = a3;
+    int r;
+    p = &buf[4];
+    func_00243AE8(p, a0, a1);
+    p = &buf[0];
+    buf[5] = 0;
+    func_00243978(p, &buf[4]);
+    r = func_00194508(p, sa2);
+    return __builtin_abs(r) < sa3;
+}
 
 void func_001948A8(float *a, float *b)
 {
