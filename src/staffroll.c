@@ -361,4 +361,15 @@ void func_001B84C8(void) {
         return;
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/staffroll", func_001B86C0);
+void func_001B86C0(void)
+{
+    register int a __asm__("$3") = D_004BD980[0] + 0x1400;
+    register int one __asm__("$2") = 1;
+    register int b4 __asm__("$6") = 0xFF;
+    int b;
+    D_00633EE8 = one;
+    D_00633EE0 = (float)(a / 30);
+    b = D_00633EDC - 0x280;
+    D_00633EE4 = (float)(b / 30);
+    D_006331B4 = b4;
+}
