@@ -205,7 +205,15 @@ long func_0014A0D8(void)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A100);
+extern int func_00109F10(void *a0, void *a1);
+
+void func_0014A100(float *dst, char *obj, void *a2)
+{
+    int idx = func_00109F10(obj, a2) << 6;
+    dst[0] = *(float *)(idx + *(int *)(*(int *)(obj + 0x15C) + 0xC) + 0x30);
+    dst[1] = *(float *)(idx + *(int *)(*(int *)(obj + 0x15C) + 0xC) + 0x34);
+    dst[2] = *(float *)(idx + *(int *)(*(int *)(obj + 0x15C) + 0xC) + 0x38);
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A178);
 
 /* Matched body inlined from src/cod/04A2B0.c during TU coalesce. */
@@ -236,7 +244,15 @@ void func_0014A308(char *a0)
     *p = *p | v1 | v2;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A330);
+extern void func_00149D60(void *a0, int a1, int a2, int a3, void *a4, int a5, int a6);
+
+void func_0014A330(void)
+{
+    char *s = *(char **)((char *)D_00631AE8 + 0x164);
+    func_00149D60(D_00631AE8, 0, 4, 6, D_00631AE4, 0, 0);
+    func_00149D60(D_00631AE4, 1, 4, 5, D_00631AE8, 0, 0);
+    *(long long *)(s + 0x18) |= (long long)0x8000 << 21;
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A3A8);
 
 /* Matched body inlined from src/cod/04A430.c during TU coalesce. */
@@ -293,7 +309,48 @@ ret0:
 end:
     return rv;
 }
-INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A4E0);
+int func_0014A4E0(void)
+{
+    void *g = D_00631AE8;
+    char *a = *(char **)((char *)g + 0x164);
+    unsigned int type = *(int *)(a + 0x30);
+    unsigned long bit;
+    int rv;
+    if (type == 0x45) {
+        return 1;
+    }
+    if (type >= 0x46) {
+        goto upper;
+    }
+    if (type >= 4) {
+        goto ret0;
+    }
+    if (type == 0) {
+        goto ret0;
+    }
+    if (g != 0) {
+        goto bittest;
+    }
+    bit = 0;
+    goto merge;
+upper:
+    if (type >= 0x4F) {
+        goto ret0;
+    }
+    if (type < 0x4D) {
+        goto ret0;
+    }
+    return 1;
+bittest:
+    bit = (*(unsigned long *)(a + 0x18) >> 36) & 1;
+merge:
+    if (bit & 0xFF) {
+        return 1;
+    }
+ret0:
+    rv = 0;
+    return rv;
+}
 int func_0014A560(void)
 {
     int *player = D_00631AE4;
