@@ -146,7 +146,21 @@ int func_001FA598(void *p)
 }
 
 INCLUDE_ASM_NOP_PAD(func_001FA5DC);
-INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001FA5E0);
+extern int func_002653B8(void *a0, const char *s, int n);
+extern void func_001A6E28(const char *msg);
+extern void func_001AD768(const char *file, int line);
+extern void func_00263FF0(const char *file, int line, const char *expr);
+extern const char D_006337D0_far[] __asm__("D_006337D0");
+extern const char D_006337C8_far[] __asm__("D_006337C8");
+void *func_001FA5E0(void *a0)
+{
+    if (func_002653B8(a0, D_006337D0_far, 3) != 0) {
+        func_001A6E28((char *)D_0061A918);
+        func_001AD768((char *)D_0061A8D8, 0x3E4);
+        func_00263FF0((char *)D_0061A8D8, 0x3E4, (char *)D_006337C8_far);
+    }
+    return a0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001FA658);
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001FA6D8);
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001FA760);
