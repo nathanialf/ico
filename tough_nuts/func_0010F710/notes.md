@@ -40,3 +40,23 @@ first while leaving its addiu late (a0 reuse) — a statement reorder it can
 explore. CFLAGS for permute_run = exact quick_diff CFLAGS (no per-file flag).
 
 ## UPDATE 2026-05-28: in-loop permuter PLATEAUED at base score 30 (=2 diffs) after 5281 iters, no score-0. Left for offline auto_permute.sh (longer runs) or a fresh struct-based structural rewrite. Carve kept so the permuter has its target.
+
+## UPDATE 2026-05-28 re-grind (user: don't park before 30 iters, tracked by match_loop)
+NOT a plateau — new progress. The **c$7/t$6/e$4 pins (drop f) on the
+all-volatile form** make the STORE ORDER fully correct (base[4]=p+0x18,
+base[6], base[7], sd, base[4]=p+0x20 all match) -> rc4. Remaining 4 = the
+addiu EMIT order: gcc computes p+0x18 (e) before p+0x10 (t) because e is
+stored first (base[4]=e), but the original computes ascending
+(p+0xC,p+0x10,p+0x18,p+0x20) interleaved with the base[3]/base[5]/tag
+stores. So store-order and addiu-emit-order are decoupled in the original;
+the volatile-store forms couple them via first-use.
+Ruled out this round: reorder lever on non-vol stores (best 9, DSEs);
+full 4-pin incl f=$5 (rc9, f displaces tag const to a1); ANCHOR(c/t/e)
+(rc12, disrupts tag); interleaved c/t/e assignment between early stores
+(rc4, gcc still sinks the base[5] store before the t addiu); dependency
+e=t+8 would change the addiu base p->t (won't match).
+NEXT (toward 30): force the p+0x10 addiu before the p+0x18 addiu while
+keeping e stored first — e.g. a non-volatile use/ANCHOR of t before e that
+doesn't touch the tag reg; or revisit whether base[6]/[7] stores can be
+non-volatile with only the sd+final-base[4] as the §8.17 pair. Best seed
+remains the rc2 form (regs right, one store mis-positioned).
