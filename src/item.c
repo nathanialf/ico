@@ -48,5 +48,20 @@ const char D_00619018[16] = "DEMO MODE";
 INCLUDE_ASM("asm/nonmatchings/src/item", func_001D2550);
 INCLUDE_ASM("asm/nonmatchings/src/item", func_001D2650);
 INCLUDE_ASM("asm/nonmatchings/src/item", func_001D26C8);
-INCLUDE_ASM("asm/nonmatchings/src/item", func_001D2738);
+
+extern void func_001D2650(void *self, int arg);
+extern void func_00105F00(void *p, int arg);
+extern void func_0010D530(void *p);
+
+void func_001D2738(void *self, int a1)
+{
+    void *s0 = *(void **)((char *)*(void **)((char *)self + 0x15C) + 0x800);
+    func_001D2650(self, *(int *)((char *)s0 + 0x14));
+    *(int *)((char *)s0 + 0xC) = 0;
+    *(int *)((char *)s0 + 0x8) = 1;
+    *(int *)((char *)s0 + 0x10) = 1;
+    func_00105F00((char *)*(int *)((char *)self + 0x15C) + 0x130, a1);
+    func_0010D530((char *)*(int *)((char *)self + 0x15C) + 0x150);
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/item", func_001D27A8);
