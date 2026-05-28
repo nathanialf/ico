@@ -114,7 +114,34 @@ INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104360);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104478);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104508);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104590);
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104638);
+
+extern float D_00630904;
+extern float D_00630908;
+
+int func_00104638(float *vals, int *flags)
+{
+    float lo = D_00630904;
+    int ret = 0;
+    int i;
+    for (i = 2; i >= 0; i--) {
+        register float v REG("$f0") = *vals;
+        if (v < lo) {
+            *vals = lo;
+            ret = 1;
+            *flags = 0;
+        } else {
+            MEM_BARRIER();
+            if (v > D_00630908) {
+                *vals = D_00630908;
+                ret = 1;
+                *flags = 0;
+            }
+        }
+        flags++;
+        vals++;
+    }
+    return ret;
+}
 extern void func_00105E70(char *dst, char *src);
 extern void func_002438E8(char *dst, char *src, int m);
 
