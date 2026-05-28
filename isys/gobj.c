@@ -14,6 +14,7 @@ unsigned int D_006321C8 = 0x00000030;
 unsigned int D_006321D0 = 0x00000000;
 
 #include "include_asm.h"
+#include "matching.h"
 
 const char D_00557A10[16] = "isys/gobj.c";
 
@@ -81,7 +82,25 @@ INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013EAE8);
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013EB50);
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013EBE0);
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013EC50);
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013ECA8);
+struct GObj { int unk0; char pad[0x170]; };
+extern struct GObj *D_00633CA0;
+extern int D_00633CA4;
+
+struct GObj *func_0013ECA8(void)
+{
+    struct GObj *base = D_00633CA0;
+    struct GObj *p = base - 1;
+    struct GObj *end = (struct GObj *)((char *)base + (D_00633CA4 * 0x174 - 0x174));
+    ANCHOR(p);
+    if (p == end) goto ret0;
+    p++;
+    NOP();
+loop:
+    if (p->unk0 != 0) return p;
+    if (p != end) { p++; goto loop; }
+ret0:
+    return 0;
+}
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013ECF8);
 
 void func_0013ED40(int bit, int set)
