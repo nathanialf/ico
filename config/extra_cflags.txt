@@ -67,3 +67,9 @@ ITOU_BOSS -fno-strength-reduce
 # restores the per-store reload. tools/tu_check.py confirms all matched
 # act-game funcs stay byte-identical with this flag.
 ACT-GAME -fno-strict-aliasing
+
+# act-env: func_00200970 copies the D_0061AD10 vec4 into a local then copies a
+# vec3 within the obj; the original orders the local-buf stores ahead of the
+# obj vec-loads (no TBAA reorder). -fno-strict-aliasing restores that order.
+# tu_check confirms the matched sibling stays byte-identical.
+ACT-ENV -fno-strict-aliasing

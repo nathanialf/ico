@@ -64,7 +64,31 @@ INCLUDE_ASM("asm/nonmatchings/src/act-env", func_001FC6C8);
 INCLUDE_ASM("asm/nonmatchings/src/act-env", func_001FC780);
 INCLUDE_ASM("asm/nonmatchings/src/act-env", func_001FCA20);
 INCLUDE_ASM("asm/nonmatchings/src/act-env", func_00200848);
-INCLUDE_ASM("asm/nonmatchings/src/act-env", func_00200970);
+extern int *D_00631AE4;
+extern void func_002438B8(void *a0, int a1, void *a2);
+
+void func_00200970(void *a0, void *a1)
+{
+    int *sub;
+    void *player = (void *)D_00631AE4;
+    float buf[4];
+    long long t0 = *(long long *)&D_0061AD10[0];
+    long long t1 = *(long long *)&D_0061AD10[2];
+    *(long long *)&buf[0] = t0;
+    *(long long *)&buf[2] = t1;
+    sub = *(int **)((char *)a0 + 0x164);
+    *(float *)((char *)sub + 0x550) = *(float *)((char *)sub + 0x4A0);
+    *(float *)((char *)sub + 0x554) = *(float *)((char *)sub + 0x4A4);
+    *(float *)((char *)sub + 0x558) = *(float *)((char *)sub + 0x4A8);
+    if (a0 == player) {
+        buf[0] = -buf[0];
+    }
+    {
+        int arg1 = *(int *)(*(char **)((char *)a1 + 0x15C) + 0xC);
+        buf[3] = 1.0f;
+        func_002438B8((char *)sub + 0x5A0, arg1, buf);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-env", func_002009F0);
 
 int func_00200A98(int a0)
