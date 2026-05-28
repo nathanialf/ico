@@ -56,3 +56,4 @@ S_INIT -malign-functions=2
 145178 -fno-schedule-insns
 0D4E30 -fno-schedule-insns
 ITOU_BOSS -fno-strength-reduce
+00F710 -fno-strict-aliasing
