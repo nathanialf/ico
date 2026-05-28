@@ -41,3 +41,20 @@ force rematerialization. Ideas: a structure that shortens &buf1's
 live range so it's recomputed; or investigate whether the original used
 the buffers in a different order/expression. Permuter seed is the rc17
 form. CFLAGS = exact quick_diff CFLAGS (no per-file flag).
+
+## Re-grind 2026-05-28 (still rc17 — allocator cache is stubborn)
+Confirmed the root is the register ALLOCATOR giving &buf1(sp+0x10) a
+callee-saved hardreg (s2) rather than rematerializing — gcc 2.9 only
+rematerializes a frame-address REG_EQUIV when the pseudo is SPILLED (denied
+a hardreg under pressure), and here it always gets one. Additional levers
+RULED OUT this session (all stayed rc17, s2 still cached):
+- `MAIL-ADD-DATA -fno-gcse` (per-file): NO effect — it's the allocator, not
+  GCSE. (Siblings stayed green, so the flag is safe if ever needed, but
+  useless here.)
+- Two ANCHOR()'d separate `&buf[4]` pointers declared at top: allocator
+  coalesces both into s2 (non-overlapping live ranges → same reg).
+- call2 pointer computed AFTER call1 + ANCHOR (to shorten live range so it
+  doesn't span a call): gcc still hoists &buf[4] to s2.
+To force remat I'd need to deny the allocator a free callee-saved reg at
+the point &buf1 is live (genuine pressure), but there's no 3rd surviving
+value to occupy s2-s7. Genuine permuter/structural-rewrite case.
