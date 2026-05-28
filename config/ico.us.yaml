@@ -721,6 +721,8 @@ segments:
       - [0x05895C, asm, src/cod/05895C]
       - [0x059230, c, src/cod/059230]            # func_00159230: tail call func_00106AB8 (double-deref TCO)
       - [0x059240, asm, src/cod/059240]
+      - [0x05B678, c, src/cod/05B678]            # func_0015B678: a0->164->D0 |= 2; printf("ready end %s to %s", a2==boyptr?boy:girl, a0==boyptr?boy:girl)
+      - [0x05B6D0, asm, src/cod/05B6D0]
       - [0x05D328, c, src/cod/05D328]            # func_0015D328: lazy-init D_00631AF4=1; tail call func_001B6FD8(0x3A)
       - [0x05D348, c, src/cod/05D348]            # func_0015D348: tail call func_0010ABD8(30.0f)
       - [0x05D358, asm, src/cod/05D358]
