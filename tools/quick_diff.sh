@@ -174,8 +174,18 @@ $CC $CFLAGS -o "$ASM_OUT" "$CSRC"
 qd_listed() {
     local txt="$ROOT/config/$1"
     [ -r "$txt" ] || return 1
-    local base="$(basename "$NAME")"
-    grep -qE "^[[:space:]]*(${NAME}|${base})([[:space:]]|\$|#)" "$txt"
+    local base; base="$(basename "$NAME")"
+    local line
+    line="$(awk -v a="$NAME" -v b="$base" '($1==a||$1==b){print; exit}' "$txt")"
+    [ -n "$line" ] || return 1
+    # If the matched line carries `@func_<hex>` scoping tokens, it only counts
+    # as "listed" when the func being diffed ($FUNC) is one of them — mirrors
+    # tools/compile_c.sh's funcs_for so quick_diff and the build agree on which
+    # funcs a postprocess touches. A line with no @func token = whole-TU.
+    case "$line" in
+        *@func_*) echo "$line" | grep -qE "@${FUNC}([[:space:]]|\$|#)" ;;
+        *)        return 0 ;;
+    esac
 }
 python3 "$ROOT/tools/postprocess_split_jtbls.py" "$ASM_OUT" || true
 python3 "$ROOT/tools/postprocess_demote_p2align.py" "$ASM_OUT" || true
@@ -206,16 +216,8 @@ qd_listed dummy_sp_prologue.txt     && python3 "$ROOT/tools/postprocess_dummy_sp
 [ "$(basename "$NAME")" = "0F1108" ] && python3 "$ROOT/tools/postprocess_0F1108.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "0EF9E0" ] && python3 "$ROOT/tools/postprocess_0EF9E0.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "fightSound" ] && python3 "$ROOT/tools/postprocess_191F50.py" "$ASM_OUT" || true
-if qd_listed swap_addu_operands.txt; then
-    # Scope to the TU line's @func tokens (mirrors compile_c.sh's funcs_for):
-    # apply only when the func being diffed is named, or when the entry names
-    # no func (single-func hex entry = whole-file). ASM_OUT is one func's
-    # disasm, so this is a per-func gate rather than a .ent/.end range.
-    qd_sf="$(awk -v a="$NAME" -v b="$(basename "$NAME")" '($1==a||$1==b){for(i=2;i<=NF;i++){if($i=="#")break; if($i ~ /^@func_/){sub(/^@/,"",$i);print $i}}}' "$ROOT/config/swap_addu_operands.txt")"
-    qd_do_swap=1
-    if [ -n "$qd_sf" ]; then qd_do_swap=0; for qf in $qd_sf; do [ "$qf" = "$FUNC" ] && qd_do_swap=1; done; fi
-    [ "$qd_do_swap" = 1 ] && sed -i -E 's/(addu[[:space:]]+\$([0-9]+),)\$([0-9]+),\$\2\b/\1$\2,$\3/g' "$ASM_OUT" || true
-fi
+# qd_listed is @func-aware, so this fires only for the func(s) the TU line scopes to.
+qd_listed swap_addu_operands.txt && sed -i -E 's/(addu[[:space:]]+\$([0-9]+),)\$([0-9]+),\$\2\b/\1$\2,$\3/g' "$ASM_OUT" || true
 qd_listed coalesce_v1_v0.txt     && sed -i -E -e '/^[[:space:]]*move[[:space:]]+\$2,\$3[[:space:]]*$/d' -e 's/\$3\b/$2/g' "$ASM_OUT" || true
 sed -i -E 's/\bmove[[:space:]]+(\$[0-9a-zA-Z]+),[[:space:]]*(\$[0-9a-zA-Z]+)\b/daddu \1,\2,$0/g' "$ASM_OUT"
 

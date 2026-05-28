@@ -56,12 +56,17 @@ CONFIGS = [
 
 
 def entries(cfg: Path) -> list[str]:
-    """First field (the gate key) of each non-comment line."""
+    """Gate key of each non-comment line, EXCEPT lines already scoped with
+    `@func_<hex>` tokens — those are explicitly limited to named funcs and so
+    cannot collide with siblings."""
     out = []
     for line in cfg.read_text(errors="replace").splitlines():
         s = line.split("#", 1)[0].strip()
-        if s:
-            out.append(s.split()[0])
+        if not s:
+            continue
+        if "@func_" in s:          # explicitly func-scoped -> safe
+            continue
+        out.append(s.split()[0])
     return out
 
 

@@ -11,4 +11,4 @@
 # inline-asm ld $31 read at stack offset, dual KEEP_LIVE_MEM positions,
 # $f2 pin instead of $f0. gcc 2.9's epilogue scheduler keeps ld $31/$16
 # late; no source-level technique pulls them between body stores.
-girlForceField
+girlForceField @func_001D1C78

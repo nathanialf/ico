@@ -1,2 +1,2 @@
-weapon
+weapon @func_001F4318
 009E48

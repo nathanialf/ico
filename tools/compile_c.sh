@@ -95,7 +95,7 @@ run_pp_scoped() {
         "${PYTHON}" "${ROOT}/tools/${tool}" "$@" "${S}"
     else
         "${PYTHON}" "${ROOT}/tools/scope_pp.py" "${S}" "${fns}" -- \
-            "${ROOT}/tools/${tool}" "$@"
+            "${PYTHON}" "${ROOT}/tools/${tool}" "$@"
     fi
 }
 
@@ -130,45 +130,22 @@ EXTRA="$("${EXTRA_CFLAGS_LOOKUP}" "${SRC}" 2>/dev/null || true)"
 # config/demote_p2align.txt (per-function alternative to -malign-loops=2).
 "${PYTHON}" "${ROOT}/tools/postprocess_demote_p2align.py" "${S}"
 
-if listed "${NO_TRAILING_NOP_TXT}"; then
-    "${PYTHON}" "${ROOT}/tools/postprocess_no_trailing_nop.py" "${S}"
-fi
-if listed "${SHARED_SP_RESTORE_TXT}"; then
-    "${PYTHON}" "${ROOT}/tools/postprocess_shared_sp_restore.py" --sp-only "${S}"
-fi
-if listed "${SHARED_JR_RESTORE_TXT}"; then
-    "${PYTHON}" "${ROOT}/tools/postprocess_shared_sp_restore.py" --jr-and-sp "${S}"
-fi
-if listed "${FCC_NOP_TXT}"; then
-    "${PYTHON}" "${ROOT}/tools/postprocess_fcc_nop.py" "${S}"
-fi
-if listed "${EARLY_BODY_SWAP_TXT}"; then
-    "${PYTHON}" "${ROOT}/tools/postprocess_early_body_swap.py" "${S}"
-fi
-if listed "${UNFOLD_RA_DELAY_TXT}"; then
-    "${PYTHON}" "${ROOT}/tools/postprocess_unfold_ra_delay.py" "${S}"
-fi
-if listed "${EARLY_EPILOGUE_RESTORE_TXT}"; then
-    "${PYTHON}" "${ROOT}/tools/postprocess_early_epilogue_restore.py" "${S}"
-fi
-if listed "${FILL_BLEZ_DELAY_TXT}"; then
-    "${PYTHON}" "${ROOT}/tools/postprocess_fill_blez_delay.py" "${S}"
-fi
-if listed "${FILL_BEQ_DELAY_TXT}"; then
-    "${PYTHON}" "${ROOT}/tools/postprocess_fill_beq_delay.py" "${S}"
-fi
-if listed "${V0_ZERO_IN_BNE_DELAY_TXT}"; then
-    "${PYTHON}" "${ROOT}/tools/postprocess_v0_zero_in_bne_delay.py" "${S}"
-fi
-if listed "${LUI_CONST_SWAP_TXT}"; then
-    "${PYTHON}" "${ROOT}/tools/postprocess_lui_const_swap.py" "${S}"
-fi
-if listed "${MOVE_SW_V0_BEFORE_LDS_TXT}"; then
-    "${PYTHON}" "${ROOT}/tools/postprocess_move_sw_v0_before_lds.py" "${S}"
-fi
-if listed "${LUI_LI_PRE_SD_TXT}"; then
-    "${PYTHON}" "${ROOT}/tools/postprocess_lui_li_pre_sd.py" "${S}"
-fi
+# Each runs whole-TU unless its config line carries `@func_<hex>` tokens, in
+# which case run_pp_scoped limits it to those funcs' .ent/.end blocks — so a
+# postprocess added for one func in a coalesced TU can't rewrite its siblings.
+listed "${NO_TRAILING_NOP_TXT}"      && run_pp_scoped "${NO_TRAILING_NOP_TXT}"      postprocess_no_trailing_nop.py
+listed "${SHARED_SP_RESTORE_TXT}"    && run_pp_scoped "${SHARED_SP_RESTORE_TXT}"    postprocess_shared_sp_restore.py --sp-only
+listed "${SHARED_JR_RESTORE_TXT}"    && run_pp_scoped "${SHARED_JR_RESTORE_TXT}"    postprocess_shared_sp_restore.py --jr-and-sp
+listed "${FCC_NOP_TXT}"              && run_pp_scoped "${FCC_NOP_TXT}"              postprocess_fcc_nop.py
+listed "${EARLY_BODY_SWAP_TXT}"      && run_pp_scoped "${EARLY_BODY_SWAP_TXT}"      postprocess_early_body_swap.py
+listed "${UNFOLD_RA_DELAY_TXT}"      && run_pp_scoped "${UNFOLD_RA_DELAY_TXT}"      postprocess_unfold_ra_delay.py
+listed "${EARLY_EPILOGUE_RESTORE_TXT}" && run_pp_scoped "${EARLY_EPILOGUE_RESTORE_TXT}" postprocess_early_epilogue_restore.py
+listed "${FILL_BLEZ_DELAY_TXT}"      && run_pp_scoped "${FILL_BLEZ_DELAY_TXT}"      postprocess_fill_blez_delay.py
+listed "${FILL_BEQ_DELAY_TXT}"       && run_pp_scoped "${FILL_BEQ_DELAY_TXT}"       postprocess_fill_beq_delay.py
+listed "${V0_ZERO_IN_BNE_DELAY_TXT}" && run_pp_scoped "${V0_ZERO_IN_BNE_DELAY_TXT}" postprocess_v0_zero_in_bne_delay.py
+listed "${LUI_CONST_SWAP_TXT}"       && run_pp_scoped "${LUI_CONST_SWAP_TXT}"       postprocess_lui_const_swap.py
+listed "${MOVE_SW_V0_BEFORE_LDS_TXT}" && run_pp_scoped "${MOVE_SW_V0_BEFORE_LDS_TXT}" postprocess_move_sw_v0_before_lds.py
+listed "${LUI_LI_PRE_SD_TXT}"        && run_pp_scoped "${LUI_LI_PRE_SD_TXT}"        postprocess_lui_li_pre_sd.py
 if listed "${DUMMY_SP_PROLOGUE_TXT}"; then
     "${PYTHON}" "${ROOT}/tools/postprocess_dummy_sp_prologue.py" "${S}"
 fi

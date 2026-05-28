@@ -13,8 +13,8 @@
 0287B8
 0E9810
 0902D8
-act-game
-chain
-staffroll
-box
-a_p_1
+act-game @func_0014A0A8
+chain @func_001902D8
+staffroll @func_001B84C8
+box @func_001BE558
+a_p_1 @func_001BA090 @func_001BA330
