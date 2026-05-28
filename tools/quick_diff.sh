@@ -22,6 +22,7 @@ fi
 
 NAME="$1"
 shift || true
+FUNC="${1:-}"   # target func (coalesced TU); used for @func postprocess scoping
 
 # Resolve C source: prefer src/, fall back to tough_nuts/, sound/.
 if [[ -f "src/$NAME.c" ]]; then
@@ -206,11 +207,14 @@ qd_listed dummy_sp_prologue.txt     && python3 "$ROOT/tools/postprocess_dummy_sp
 [ "$(basename "$NAME")" = "0EF9E0" ] && python3 "$ROOT/tools/postprocess_0EF9E0.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "fightSound" ] && python3 "$ROOT/tools/postprocess_191F50.py" "$ASM_OUT" || true
 if qd_listed swap_addu_operands.txt; then
-    # Optional 2nd field on the TU line restricts the swap to one rd register
-    # (e.g. `motionOrientManager 3`), so two funcs in one coalesced TU can want
-    # opposite commutative-addu orders. Mirrors tools/compile_c.sh. No field = all rd.
-    qd_swap_rd="$(awk -v a="$NAME" -v b="$(basename "$NAME")" '($1==a||$1==b) && $2 ~ /^\$?[0-9]+$/ {gsub(/\$/,"",$2); print $2; exit}' "$ROOT/config/swap_addu_operands.txt")"
-    sed -i -E "s/(addu[[:space:]]+\\\$(${qd_swap_rd:-[0-9]+}),)\\\$([0-9]+),\\\$\\2\\b/\\1\$\\2,\$\\3/g" "$ASM_OUT" || true
+    # Scope to the TU line's @func tokens (mirrors compile_c.sh's funcs_for):
+    # apply only when the func being diffed is named, or when the entry names
+    # no func (single-func hex entry = whole-file). ASM_OUT is one func's
+    # disasm, so this is a per-func gate rather than a .ent/.end range.
+    qd_sf="$(awk -v a="$NAME" -v b="$(basename "$NAME")" '($1==a||$1==b){for(i=2;i<=NF;i++){if($i=="#")break; if($i ~ /^@func_/){sub(/^@/,"",$i);print $i}}}' "$ROOT/config/swap_addu_operands.txt")"
+    qd_do_swap=1
+    if [ -n "$qd_sf" ]; then qd_do_swap=0; for qf in $qd_sf; do [ "$qf" = "$FUNC" ] && qd_do_swap=1; done; fi
+    [ "$qd_do_swap" = 1 ] && sed -i -E 's/(addu[[:space:]]+\$([0-9]+),)\$([0-9]+),\$\2\b/\1$\2,$\3/g' "$ASM_OUT" || true
 fi
 qd_listed coalesce_v1_v0.txt     && sed -i -E -e '/^[[:space:]]*move[[:space:]]+\$2,\$3[[:space:]]*$/d' -e 's/\$3\b/$2/g' "$ASM_OUT" || true
 sed -i -E 's/\bmove[[:space:]]+(\$[0-9a-zA-Z]+),[[:space:]]*(\$[0-9a-zA-Z]+)\b/daddu \1,\2,$0/g' "$ASM_OUT"

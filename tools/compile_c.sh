@@ -66,6 +66,39 @@ listed() {
     grep -qE "^[[:space:]]*${BASE}([[:space:]]|\$|#)" "$txt"
 }
 
+# Func-range SCOPING for TU-global postprocesses. A coalesced TU holds many
+# funcs; a postprocess added for ONE of them must not rewrite its siblings
+# (the func_001E0D50-vs-func_001E44C0 swap_addu collision). Annotate the TU's
+# config line with `@func_<hex>` tokens to scope the postprocess to just those
+# functions' `.ent`/`.end` blocks; with no @func token it stays whole-file
+# (unchanged — e.g. single-func hex entries). See lint_postprocess_collisions.py.
+funcs_for() {
+    awk -v b="${BASE}" '$1==b{for(i=2;i<=NF;i++){if($i=="#")break;
+        if($i ~ /^@func_/){sub(/^@/,"",$i); print $i}}}' "$1"
+}
+# apply_sed_scoped <sed -E program> [func...] — whole-file if no funcs given.
+apply_sed_scoped() {
+    local prog="$1"; shift
+    if [ $# -eq 0 ]; then sed -i -E "$prog" "${S}"; return; fi
+    local f
+    for f in "$@"; do
+        sed -i -E "/\.ent[[:space:]]+${f}\$/,/\.end[[:space:]]+${f}\$/ ${prog}" "${S}"
+    done
+}
+# run_pp_scoped <config.txt> <tool.py> [tool-args...] — run a python postprocess
+# on the whole .s, or (if the TU line names @funcs) on just those funcs' blocks
+# via tools/scope_pp.py.
+run_pp_scoped() {
+    local txt="$1" tool="$2"; shift 2
+    local fns; fns="$(funcs_for "$txt" | paste -sd, -)"
+    if [ -z "$fns" ]; then
+        "${PYTHON}" "${ROOT}/tools/${tool}" "$@" "${S}"
+    else
+        "${PYTHON}" "${ROOT}/tools/scope_pp.py" "${S}" "${fns}" -- \
+            "${ROOT}/tools/${tool}" "$@"
+    fi
+}
+
 # Replicates Makefile:162 ALIGN_FOR in pure shell — picks the largest
 # power-of-two ≤ 8 dividing the hex offset encoded in the .o basename.
 # Non-hex basenames (and offset 0) fall through to 8.
@@ -186,13 +219,12 @@ if [ "${BASE}" = "fightSound" ]; then
     "${PYTHON}" "${ROOT}/tools/postprocess_191F50.py" "${S}"
 fi
 if listed "${SWAP_ADDU_TXT}"; then
-    # Optional 2nd field on the TU line restricts the swap to a single rd
-    # register, e.g. `motionOrientManager 3` swaps only `addu $3,$M,$3`.
-    # Needed when two funcs in one coalesced TU want OPPOSITE commutative-addu
-    # orders: func_001E0D50 needs rd==$3 swapped to rs, while func_001E44C0
-    # legitimately keeps gcc's natural rd==$2 (rt) form. No field = all rd.
-    swap_rd="$(awk -v b="${BASE}" '$1==b && $2 ~ /^\$?[0-9]+$/ {gsub(/\$/,"",$2); print $2; exit}' "${SWAP_ADDU_TXT}")"
-    sed -i -E "s/(addu[[:space:]]+\\\$(${swap_rd:-[0-9]+}),)\\\$([0-9]+),\\\$\\2\\b/\\1\$\\2,\$\\3/g" "${S}"
+    # Scoped to the TU line's @func ranges (see funcs_for); whole-file for
+    # single-func hex entries. This is what keeps func_001E0D50's swap from
+    # touching its sibling func_001E44C0.
+    # shellcheck disable=SC2046
+    apply_sed_scoped 's/(addu[[:space:]]+\$([0-9]+),)\$([0-9]+),\$\2\b/\1$\2,$\3/g' \
+        $(funcs_for "${SWAP_ADDU_TXT}")
 fi
 if listed "${COALESCE_V1_V0_TXT}"; then
     sed -i -E \
