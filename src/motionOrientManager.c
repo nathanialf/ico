@@ -175,7 +175,20 @@ INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E3030);
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E39E8);
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E3D08);
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E3E20);
-INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E3F40);
+extern unsigned int func_001F10A8(void *p);
+extern void func_001F0A38(void *buf, void *p);
+extern void func_001E3D08(int *self, void *buf);
+extern void func_001E3E20(int *self, void *buf);
+
+void func_001E3F40(int *self)
+{
+    void *s0 = *(void **)(*(int *)((char *)self + 0x15C) + 0x470);
+    unsigned int n = func_001F10A8(s0);
+    void *buf = __builtin_alloca((n << 3) >> 3);
+    func_001F0A38(buf, s0);
+    func_001E3D08(self, buf);
+    func_001E3E20(self, buf);
+}
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E3FC8);
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E4180);
 extern int D_00292540[];
