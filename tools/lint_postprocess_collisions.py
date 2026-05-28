@@ -49,9 +49,14 @@ CONFIGS = [
     ("move_sw_v0_before_lds.txt", "med"),
     ("lui_li_pre_sd.txt",      "med"),
     ("dummy_sp_prologue.txt",  "med"),
-    ("use_modern_as.txt",      "low"),    # picks assembler for the whole TU
-    # unfold_ra_delay.txt is func-keyed (allowlist) -> auto-skipped below.
-    ("unfold_ra_delay.txt",    "low"),
+    # Intentionally NOT listed (not func-scoping collisions):
+    #  - use_modern_as.txt selects the assembler (ee-as vs modern mips-as) for
+    #    the whole .o, not a per-func .s mutation, so it can't clobber a
+    #    sibling's bytes and isn't func-scopable.
+    #  - unfold_ra_delay.txt's tool already iterates per-function (FUNC_PATTERN)
+    #    and only patches funcs carrying the exact beq+ld$31 fold, so it can't
+    #    affect a sibling that lacks the pattern.
+    # Both are whole-TU by nature; guard them with tu_check.py instead.
 ]
 
 
