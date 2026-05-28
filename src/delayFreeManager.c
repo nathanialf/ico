@@ -332,7 +332,27 @@ void *D_00553888[6] = { (void *)0x00636A80, (void *)0x0063CAF0, (void *)0x0063DB
 
 #include "include_asm.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/delayFreeManager", func_00102558);
+extern char D_0065ED40[];
+extern const char D_00553A78[64];
+extern const char D_00553AB8[24];
+extern const char D_00631B28_a[] __asm__("D_00631B28");
+extern void func_001A6E28(const char *s);
+extern void func_001AD768(const char *s, int n);
+extern void func_00263FF0(const char *s, int n, const char *ctx);
+
+void func_00102558(int a0)
+{
+    register int count __asm__("$5") = D_00631B24;
+    int next = count + 1;
+    int *slot = (int *)(D_0065ED40 + (count * 4 + (D_00631B20 << 10)));
+    D_00631B24 = next;
+    *slot = a0;
+    if (next >= 0x100) {
+        func_001A6E28(D_00553A78);
+        func_001AD768(D_00553AB8, 0x33);
+        func_00263FF0(D_00553AB8, 0x33, D_00631B28_a);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/delayFreeManager", func_001025E8);
 INCLUDE_ASM("asm/nonmatchings/src/delayFreeManager", func_00102680);
 

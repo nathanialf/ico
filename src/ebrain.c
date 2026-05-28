@@ -88,7 +88,22 @@ unsigned char func_001906A8(char *self) {
 
 INCLUDE_ASM("asm/nonmatchings/src/ebrain", func_001906B8);
 INCLUDE_ASM("asm/nonmatchings/src/ebrain", func_001907E0);
-INCLUDE_ASM("asm/nonmatchings/src/ebrain", func_001909B8);
+extern void func_00194020(char *elem, char *base, int a2, float a, float b);
+
+void func_001909B8(char *base, int n, int a2)
+{
+    char *p;
+    int i = 0;
+    if (n < 0) {
+        return;
+    }
+    p = base;
+    do {
+        func_00194020(p, base, a2, (float)i, (float)(n - i));
+        i++;
+        p += 0x20;
+    } while (i <= n);
+}
 INCLUDE_ASM("asm/nonmatchings/src/ebrain", func_00190A48);
 INCLUDE_ASM("asm/nonmatchings/src/ebrain", func_00190B30);
 INCLUDE_ASM("asm/nonmatchings/src/ebrain", func_00190D70);
