@@ -214,6 +214,14 @@ fi
 # uses daddu encoding. Force daddu explicitly so both assemblers agree.
 sed -i -E 's/\bmove[[:space:]]+(\$[0-9a-zA-Z]+),[[:space:]]*(\$[0-9a-zA-Z]+)\b/daddu \1,\2,$0/g' "${S}"
 
+# ee-gcc emits a single-operand `break 7` for its integer divide-by-zero
+# trap. ee-as 2.10 puts that code in the LOW field (break 0,7 → 0x000001cd,
+# the original ELF's encoding); modern gas puts a single operand in the HIGH
+# field (0x0007000d). Rewrite to the explicit two-operand `break 0,N` so both
+# assemblers emit the low-field encoding the ROM uses. (Already-explicit
+# `break a,b` from INCLUDE_ASM'd .s has a comma and is left untouched.)
+sed -i -E 's/\bbreak[[:space:]]+(0x[0-9a-fA-F]+|[0-9]+)[[:space:]]*$/break 0,\1/' "${S}"
+
 # ee-as 2.10 only accepts numbered MIPS registers; translate all aliases
 # (float regs $f0-$f31 and VU regs $vfN are already accepted as-is).
 sed -i -E \

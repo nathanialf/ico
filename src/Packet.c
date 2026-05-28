@@ -230,7 +230,55 @@ void func_00118F98(void)
 }
 
 INCLUDE_ASM_NOP_PAD(func_00118FD4);
-INCLUDE_ASM("asm/nonmatchings/src/Packet", func_00118FD8);
+
+extern void func_001A6E28(const char *fmt, ...);
+extern int func_00263FB0(float);
+extern const char D_00554DD0[];
+extern const char D_00554DE8[];
+/* Reference the in-TU format strings as incomplete-array externs so ee-gcc
+ * addresses them with %hi/%lo (hoisted into callee-saved regs across the
+ * loop) instead of gp_rel — they are 8-byte small-data objects defined just
+ * above, which -G8 would otherwise make gp-relative. */
+extern const char D_00631CD8_a[] __asm__("D_00631CD8");
+extern const char D_00631CE0_a[] __asm__("D_00631CE0");
+extern const char D_00631CE8_a[] __asm__("D_00631CE8");
+extern const char D_00631CF0_a[] __asm__("D_00631CF0");
+
+void func_00118FD8(unsigned char *arg, int slot_size) {
+    int is_float = 0;
+    int row;
+
+    switch (slot_size) {
+    case 0:
+        is_float = 1;
+        slot_size = 4;
+        func_001A6E28(D_00554DD0, arg);
+        break;
+    case 1:
+    case 2:
+    case 4:
+    case 8:
+    case 16:
+        func_001A6E28(D_00554DE8, arg, slot_size);
+        break;
+    default:
+        return;
+    }
+
+    for (row = 0; row < 0x10 / slot_size; row++) {
+        if (!is_float) {
+            int col;
+            for (col = 0x10 / (0x10 / slot_size) - 1; col >= 0; col--) {
+                func_001A6E28(D_00631CD8_a, arg[row * slot_size + col]);
+            }
+            func_001A6E28(D_00631CE0_a);
+        } else {
+            func_001A6E28(D_00631CE8_a, func_00263FB0(((float *)arg)[row]));
+        }
+    }
+    func_001A6E28(D_00631CF0_a);
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_001191C0);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_00119350);
 

@@ -220,6 +220,10 @@ qd_listed dummy_sp_prologue.txt     && python3 "$ROOT/tools/postprocess_dummy_sp
 qd_listed swap_addu_operands.txt && sed -i -E 's/(addu[[:space:]]+\$([0-9]+),)\$([0-9]+),\$\2\b/\1$\2,$\3/g' "$ASM_OUT" || true
 qd_listed coalesce_v1_v0.txt     && sed -i -E -e '/^[[:space:]]*move[[:space:]]+\$2,\$3[[:space:]]*$/d' -e 's/\$3\b/$2/g' "$ASM_OUT" || true
 sed -i -E 's/\bmove[[:space:]]+(\$[0-9a-zA-Z]+),[[:space:]]*(\$[0-9a-zA-Z]+)\b/daddu \1,\2,$0/g' "$ASM_OUT"
+# ee-gcc's single-operand `break 7` (integer divide-by-zero trap) → explicit
+# two-operand `break 0,7` so both ee-as and modern gas emit the ROM's
+# low-field encoding (0x000001cd, not 0x0007000d). Matches compile_c.sh.
+sed -i -E 's/\bbreak[[:space:]]+(0x[0-9a-fA-F]+|[0-9]+)[[:space:]]*$/break 0,\1/' "$ASM_OUT"
 
 # Stage 2: assemble. Prefer the project's ee-as 2.10 (matches the full
 # build's src/.o pipeline so `move` pseudos expand consistently — modern
