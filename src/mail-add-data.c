@@ -101,7 +101,15 @@ void func_001948A8(float *a, float *b)
     __asm__ __volatile__("" : : "r"(tmp) : "memory");
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", func_001948F0);
+extern float func_0010E9A0(int x);
+extern unsigned int D_006327B0_far[] __asm__("D_006327B0");
+float func_001948F0(int a0, float a1)
+{
+    float r = func_0010E9A0((short)((a0 << 15) / 0xB4));
+    if (r == 0.0f)
+        return *(float *)D_006327B0_far;
+    return a1 / r;
+}
 int func_00194960(int a0)
 {
     register int c REG("$2") = 360;

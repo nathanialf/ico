@@ -142,5 +142,11 @@ void func_00167258(int *self_arg)
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00167278);
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00167280);
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00167528);
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00167760);
+extern int func_00263FB0(float f);
+extern void func_001A6E28(const char *fmt, int a, int b, int c);
+void func_00167760(float *vec)
+{
+    return func_001A6E28(D_005592D0, func_00263FB0(vec[0]),
+                         func_00263FB0(vec[1]), func_00263FB0(vec[2]));
+}
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_001677D0);
