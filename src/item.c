@@ -46,12 +46,40 @@ const char D_00619018[16] = "DEMO MODE";
 #include "include_asm.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/item", func_001D2550);
-INCLUDE_ASM("asm/nonmatchings/src/item", func_001D2650);
-INCLUDE_ASM("asm/nonmatchings/src/item", func_001D26C8);
-
-extern void func_001D2650(void *self, int arg);
+extern unsigned char D_004C4740[16];
+extern float D_004C4760[48];
+extern void func_00104508(void *buf, int v);
+extern void func_001683C8(int arg);
+extern void func_00104360(void *self, char *spill);
 extern void func_00105F00(void *p, int arg);
 extern void func_0010D530(void *p);
+
+void func_001D2650(void *self, int arg)
+{
+    char *p;
+    if (arg == 0)
+        return;
+    p = (char *)D_004C4760;
+    func_00104508(p, arg);
+    func_00104508(p + 0x10, (int)self);
+    func_001683C8((int)p);
+    if (*(int *)(p + 0x88) == 0)
+        return;
+    func_00104360(self, p + 0x20);
+}
+
+void func_001D26C8(void *self)
+{
+    void *s0 = *(void **)((char *)*(void **)((char *)self + 0x15C) + 0x800);
+    func_001D2650(self, *(int *)((char *)s0 + 0x14));
+    *(int *)((char *)s0 + 0x10) = 0;
+    *(int *)((char *)s0 + 0xC) = 0;
+    *(int *)((char *)s0 + 0x14) = 0;
+    *(int *)((char *)s0 + 0x8) = 1;
+    *(int *)((char *)*(int *)((char *)self + 0x15C) + 0x74) = 1;
+    func_00105F00((char *)*(int *)((char *)self + 0x15C) + 0x130, (int)D_004C4740);
+    func_0010D530((char *)*(int *)((char *)self + 0x15C) + 0x150);
+}
 
 void func_001D2738(void *self, int a1)
 {
