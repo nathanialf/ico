@@ -252,7 +252,47 @@ void func_0014A430(float *a0, float *a1)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A46C);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A470);
+int func_0014A470(void)
+{
+    int *player = D_00631AE4;
+    unsigned int state = *(int *)(*(char **)((char *)player + 0x164) + 0x30);
+    void *o;
+    unsigned long *b;
+    unsigned long bit;
+    int rv;
+    if (state == 0) {
+        goto ret0;
+    }
+    if (state < 4) {
+        goto lt4;
+    }
+    if (state >= 0x4D) {
+        goto ret0;
+    }
+    if (state < 0x4B) {
+        rv = 0;
+        goto end;
+    }
+    return 1;
+lt4:
+    o = D_00631AE8;
+    if (o != 0) {
+        goto bittest;
+    }
+    bit = 0;
+    goto merge;
+bittest:
+    b = *(unsigned long **)((char *)o + 0x164);
+    bit = (b[3] >> 36) & 1;
+merge:
+    if (bit & 0xFF) {
+        return 1;
+    }
+ret0:
+    rv = 0;
+end:
+    return rv;
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A4E0);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A560);
 
