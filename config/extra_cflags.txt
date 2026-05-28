@@ -53,6 +53,8 @@ GOBJ_PROCESS -fno-strength-reduce
 # VMA mod 8 == 4, cascading SHA-1 mismatch.
 SWITCH -malign-functions=2
 S_INIT -malign-functions=2
+# func_001FB5E0 also has a loop top, so its .p2align 3 needs demoting too.
+DISPLAYLIST -malign-functions=2 -malign-loops=2
 145178 -fno-schedule-insns
 0D4E30 -fno-schedule-insns
 ITOU_BOSS -fno-strength-reduce

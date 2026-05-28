@@ -31,7 +31,36 @@ const char D_0061ABF0[80] = "dldma %d\n\000\000\000\000\000\000\000dl_CheckDLOve
 
 INCLUDE_ASM("asm/nonmatchings/src/DisplayList", func_001FB4C4);
 INCLUDE_ASM("asm/nonmatchings/src/DisplayList", func_001FB4C8);
-INCLUDE_ASM("asm/nonmatchings/src/DisplayList", func_001FB5E0);
+extern int D_00633F6C;
+extern int D_00633F70;
+extern int D_00710F18[];
+extern int D_00710D10[];
+extern void func_001FBBE0(void);
+extern void func_001118B0(void);
+extern void func_00118F58(void);
+void func_001FB5E0(void)
+{
+    int flag = D_00633F6C ^ 1;
+    int *src = (int *)((char *)D_00710F18 + flag * 0x34);
+    int *dst = D_00710D10;
+    int i;
+    D_00633F6C = flag;
+    D_00633F70 = 0;
+    for (i = 0xC; i >= 0; i--) {
+        int v = *src;
+        dst[0] = 0;
+        dst[9] = v;
+        dst[8] = v;
+        src++;
+        dst += 0xA;
+    }
+    func_001FBBE0();
+    func_001118B0();
+    func_00118F58();
+}
+/* Original 4-byte nop pad that 8-aligns func_001FB658 (dropped on C
+ * conversion; func_001FB658.s carries no .align of its own). */
+__asm__("nop");
 INCLUDE_ASM("asm/nonmatchings/src/DisplayList", func_001FB658);
 INCLUDE_ASM("asm/nonmatchings/src/DisplayList", func_001FB768);
 INCLUDE_ASM("asm/nonmatchings/src/DisplayList", func_001FB7F8);
