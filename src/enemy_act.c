@@ -582,7 +582,14 @@ int func_001654D8(void) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001654E0);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165540);
+int func_00165540(int *a0)
+{
+    if (a0 == 0 || a0[3] != 4) {
+        func_001AD768((char *)D_00558E10, 0x7D2);
+        func_00263FF0((char *)D_00558E10, 0x7D2, (int *)D_00558FB0);
+    }
+    return func_001652F8(a0);
+}
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001655B0);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165918);
 
