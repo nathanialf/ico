@@ -192,11 +192,37 @@ unsigned int D_00631D5C = 0x00000000;
 
 #include "include_asm.h"
 #include "matching.h"
+#include "vu0.h"
 
 extern int D_00672F90[];
 extern int D_00633C3C;
 
-INCLUDE_ASM("asm/nonmatchings/src/Packet", func_00118AB8);
+void func_00118AB8(void *p0, void *p1)
+{
+    VU0_LSV(lqc2, 8, 0x0, a1);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 8, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 8, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 8, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 10, 7, 8, w);
+    VU0_REG("vdiv $Q, $vf0w, $vf10w");
+    VU0_WAIT();
+    VU0_REG("vmulq.xyz $vf10, $vf10, $Q");
+    VU0_V2OP(vftoi4.xyz, 10, 10);
+    VU0_V3OP(vsub.xy, 14, 10, 11);
+    VU0_V3OP(vsub.xy, 15, 12, 11);
+    VU0_V3OP(vsub.zw, 14, 14, 14);
+    VU0_V3OP(vsub.zw, 15, 15, 15);
+    VU0_V3OP_ACC(vopmula.xyz, 14, 15);
+    VU0_V3OP(vopmsub.xyz, 16, 15, 14);
+    VU0_V2OP(vmr32.y, 16, 16);
+    VU0_V2OP(vmr32.x, 16, 16);
+    VU0_LSV(sqc2, 10, 0x0, a0);
+    VU0_QMFC2_NI(a3, 16);
+    VU0_MTC1(a3, 0);
+    VU0_V2OP(vmove.xy, 12, 11);
+    VU0_V2OP(vmove.xy, 11, 10);
+    VU0_NOP();
+}
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_00118B18);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_00118C68);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_00118E88);
