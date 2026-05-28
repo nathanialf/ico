@@ -65,6 +65,7 @@ const float D_00553C90[4] = { 0.0f, 1.0f, 0.0f, 1.0f };
 
 #include "include_asm.h"
 #include "matching.h"
+#include "vu0.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00102E08);
 extern void func_002438B8(int *self, int v, char *p);
@@ -177,9 +178,42 @@ void func_001046F0(char *dst, char *outer)
 }
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104748);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104818);
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_001048C8);
+extern void func_001183F0(void *buf, void *p1, float f);
+extern void func_00105F78(void *a, void *b, void *c);
+void func_001048C8(void *a0, void *a1, void *a2)
+{
+    int buf[4];
+    register float dot __asm__("$f12");
+    VU0_LSV_R(lqc2, 1, 0x0, a2);
+    VU0_LSV(lqc2, 2, 0x0, a1);
+    VU0_V3OP(vmul.xyz, 3, 1, 2);
+    VU0_V3OP_BC(vaddy.x, 3, 3, 3, y);
+    VU0_V3OP_BC(vaddz.x, 3, 3, 3, z);
+    VU0_V3OP_BC(vaddw.x, 3, 3, 2, w);
+    VU0_QMFC2_NI(v0, 3);
+    VU0_MTC1(v0, 12);
+    func_001183F0(buf, a1, -dot);
+    func_00105F78(a0, a2, buf);
+    *(float *)((char *)a0 + 0xC) = 1.0f;
+}
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104940);
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_001049C0);
+extern void func_00118388(void *a, void *b, void *c);
+float func_001049C0(void *a0, void *a1, void *a2, float t)
+{
+    int buf[4];
+    register float dot __asm__("$f20");
+    VU0_LSV_R(lqc2, 1, 0x0, a2);
+    VU0_LSV(lqc2, 2, 0x0, a1);
+    VU0_V3OP(vmul.xyz, 3, 1, 2);
+    VU0_V3OP_BC(vaddy.x, 3, 3, 3, y);
+    VU0_V3OP_BC(vaddz.x, 3, 3, 3, z);
+    VU0_V3OP_BC(vaddw.x, 3, 3, 2, w);
+    VU0_QMFC2_NI(v0, 3);
+    VU0_MTC1(v0, 20);
+    func_001183F0(buf, a1, -dot + t);
+    func_00118388(a0, a2, buf);
+    return dot;
+}
 
 /* Matched body inlined from src/cod/004A38.c during TU coalesce. */
 extern int D_0065F940[];

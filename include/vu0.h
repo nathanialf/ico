@@ -84,6 +84,14 @@
 #define VU0_LSV(mnem, vf, off, base)        VU0_MEM(#mnem " $vf" #vf ", " #off "($" #base ")")
 #define VU0_LSGP(mnem, gp, off, base)       VU0_MEM(#mnem " $" #gp ", " #off "($" #base ")")
 
+/* Like VU0_LSV but the base address is a C expression bound via an "r"
+ * constraint, so gcc sees the data dependency on `base`. Use when the
+ * base is a function argument/local that must stay in a callee-saved reg
+ * across calls: the explicit dependency makes the scheduler emit the
+ * base-setup move just before the load (filling the prologue's ra-save
+ * gap) instead of greedily up front. */
+#define VU0_LSV_R(mnem, vf, off, base)      __asm__ __volatile__(#mnem " $vf" #vf ", " #off "(%0)" : : "r"(base) : "memory")
+
 /* VU compute: 2-operand register-to-register (vmove, vmr32, vftoi*). */
 #define VU0_V2OP(mnem, d, a)                VU0_REG(#mnem " $vf" #d ", $vf" #a)
 
