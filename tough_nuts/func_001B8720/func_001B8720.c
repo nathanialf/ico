@@ -1,34 +1,6 @@
-typedef struct { float m[16]; } Mtx44;
-extern int *func_0013A0F8(int tag, int size, int name, int id);
-extern void func_00264D60(void);
-extern void func_00118678(int dst);
-extern int *func_0019F310(int n, int *arg1);
-extern void func_00139598(int x);
-extern int func_00109F10(int *self, int v);
-extern void func_001AD748(int a, int b, int c);
-extern void func_00263FF0(int a, int b, int c);
-extern int func_001CEF90(int a, int b, int c);
-extern void func_00105F00(int a, int b);
-extern void func_00102850(int p, int *self);
-extern void func_00104508(int p, int *self);
-extern void func_00104140(int dst, int *self);
-extern void func_00118648(int a, int b, int c);
-extern int D_00632010;
-extern int D_00632024;
-extern char D_004BEC00[];
-extern int D_00623468[];
-extern char D_004BEA80[];
-extern char D_00282660[];
-extern char D_004BEBA0[];
-extern int D_004BEAD0[];
-extern const char D_00618550[16];
-extern const char D_00618560[32];
-extern const char D_00633210[8];
-struct Tmpl50 { long long b[10]; };
-struct Tmpl12 { long long ll; int w; } __attribute__((packed, aligned(4)));
-struct E32 { char _0[0x18]; float f18; char _1c[4]; };
-int *func_001B8720(int *self, int *arg1)
-{
+/* func_001B8720 seed -- apply into src/a_p_1.c (TU already declares all
+   externs/types: Mtx44, struct Tmpl50/Tmpl12/E32, func_*/D_* used here).
+   Replace the INCLUDE_ASM line with the function below. */
 int *func_001B8720(int *self, int *arg1)
 {
     Mtx44 mtx;
