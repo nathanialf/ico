@@ -62,13 +62,31 @@ void func_001FB5E0(void)
  * conversion; func_001FB658.s carries no .align of its own). */
 __asm__("nop");
 INCLUDE_ASM("asm/nonmatchings/src/DisplayList", func_001FB658);
-INCLUDE_ASM("asm/nonmatchings/src/DisplayList", func_001FB768);
 extern int D_00633810;
 extern int D_00633818[] __asm__("D_00633818");
 extern int D_00710F80[];
 extern void func_001A6E28(const char *s);
 extern void func_001AD768(const char *s, int n);
 extern void func_00263FF0(const char *s, int n, void *buf);
+
+void func_001FB768(void)
+{
+    int new_var2;
+    register int new_var __asm__("$2") = D_00633810;
+    if ((new_var2 = new_var) >= 7) {
+        func_001A6E28(D_0061ABA0);
+        func_001AD768(D_0061AB88, 0x20E);
+        func_00263FF0(D_0061AB88, 0x20E, D_00633818);
+    } else {
+        register int val __asm__("$4") = D_00633F70;
+        register int next __asm__("$2") = new_var2 + 1;
+        D_00710F80[new_var2] = val;
+        D_00633810 = next;
+    }
+}
+/* Original 4-byte nop pad that 8-aligns func_001FB7F8 (dropped on C
+ * conversion; func_001FB768.s carried it inline). */
+__asm__("nop");
 
 void func_001FB7F8(void)
 {
