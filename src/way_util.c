@@ -142,7 +142,10 @@ unsigned int D_006325CC = 0x00000000;
 
 /* scalars */
 float D_00630E38 = 10000.0f;
-float D_00630E3C = 100000.0f;
+/* 0x630E3C (100000.0f) is func_0017A230's compiler .lit4 pool entry, not a
+ * named global — it is provided by the literal in func_0017A230 and placed
+ * via config/lit4_pool_slots.txt (.lit4 -> .lit4.0x00630E3C). See the
+ * ".lit4/.lit8 TU-pool migration" task. */
 float D_00630E40 = 100000.0f;
 float D_00630E44 = 100000.0f;
 float D_00630E48 = 100000.0f;
@@ -208,7 +211,34 @@ INCLUDE_ASM("asm/nonmatchings/src/way_util", func_00179878);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_00179B50);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_00179E10);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_00179F68);
-INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A230);
+extern char *func_00205A78(int handle);
+extern char *func_00205A98(char *node);
+extern void func_00243AE8(int *buf, int *p, int *q);
+extern float func_0016A2F8(int a0);
+
+char *func_0017A230(int *arg0, int handle)
+{
+    int buf[4];
+    char *result;
+    char *node;
+    float best;
+    result = func_00205A78(handle);
+    best = 100000.0f;
+    node = result;
+    if (result != 0) {
+        do {
+            float d;
+            func_00243AE8(buf, (int *)(node + 0x10), arg0);
+            d = func_0016A2F8((int)buf);
+            if (d < best) {
+                best = d;
+                result = node;
+            }
+            node = func_00205A98(node);
+        } while (node != 0);
+    }
+    return result;
+}
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A2C8);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A368);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A410);

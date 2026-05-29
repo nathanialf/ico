@@ -1,0 +1,21 @@
+# lit4_pool_slots.txt — TUs whose compiler `.lit4` constant pool must be
+# placed at a fixed VMA (re-naming the anonymous `.lit4` section to
+# `.lit4.0xVMA` so tools/gen_slinky.py can locate it by VMA).
+#
+# WHY: `.lit4` is the compiler's float/double constant pool. The original
+# code referenced these via INLINE LITERALS (e.g. 100000.0f sentinels),
+# so ee-gcc interns them into `.lit4` and the load schedules as a movable
+# constant. Reconstructing a pool slot as a named `float D_VMA` global and
+# referencing it by symbol makes ee-gcc emit a CONSERVATIVE global memory
+# load, scheduled later — a byte mismatch (e.g. func_0017A230's lwc1 one
+# slot late). So such functions use the literal; gas pools it into an
+# anonymous `.lit4`; compile_c.sh renames that section to `.lit4.0xVMA`
+# here so the linker places it at the original address.
+#
+# LIMITATION (see task: ".lit4/.lit8 TU-pool migration"): a single line
+# below renames the WHOLE `.lit4` section to ONE VMA — correct only when
+# the TU's compiler pool holds exactly ONE constant. Multi-entry pools
+# need per-entry splitting (the general migration).
+#
+# Format: <TU-basename> <VMA-hex-no-0x>
+way_util 00630E3C

@@ -263,3 +263,18 @@ else
     "${AS}" ${ASFLAGS} -o "${OUT}" "${S}"
     "${OBJCOPY}" --set-section-alignment ".text=${ALIGN}" "${OUT}"
 fi
+
+# .lit4 pool placement: gas interns inline float literals into an anonymous
+# `.lit4` section. tools/gen_slinky.py can only place a `.lit4` slot at its
+# original VMA when the section name carries the VMA (`.lit4.0xVMA`). Rename
+# this TU's pool section per config/lit4_pool_slots.txt so the constant lands
+# at its real address. (Single-entry pools only — see the config header and
+# the ".lit4/.lit8 TU-pool migration" task for the general multi-entry case.)
+LIT4_POOL_TXT="${ROOT}/config/lit4_pool_slots.txt"
+if [ -r "${LIT4_POOL_TXT}" ]; then
+    LIT4_VMA="$(awk -v b="${BASE}" '$1==b{print $2; exit}' "${LIT4_POOL_TXT}")"
+    if [ -n "${LIT4_VMA}" ] && \
+       "${MIPS_PREFIX}objdump" -h "${OUT}" 2>/dev/null | grep -qE '[[:space:]]\.lit4[[:space:]]'; then
+        "${OBJCOPY}" --rename-section ".lit4=.lit4.0x${LIT4_VMA}" "${OUT}"
+    fi
+fi
