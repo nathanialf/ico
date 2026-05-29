@@ -1,5 +1,6 @@
 #include "matching.h"
 #include "include_asm.h"
+#include "vu0.h"
 
 extern void func_0010D830(float *vec);
 
@@ -18,9 +19,80 @@ void func_0010DFB8(float *vec, int a1, int flip)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/00DFB8", func_0010E0B8);
-INCLUDE_ASM("asm/nonmatchings/src/cod/00DFB8", func_0010E158);
-INCLUDE_ASM("asm/nonmatchings/src/cod/00DFB8", func_0010E1F8);
+extern float func_0010E950(int);
+extern float func_0010E9A0(int);
+extern void func_001183D0(int dst, int src, float f);
+extern float D_00275870[];
+
+void func_0010E0B8(int dst, short v)
+{
+    float buf[4];
+    int angle = -(v << 16) >> 17;
+
+    func_001183D0((int)buf, (int)D_00275870, func_0010E950(angle));
+    buf[3] = func_0010E9A0(angle);
+    VU0_LSV_R(lqc2, 11, 0x0, dst);
+    VU0_LSV_R(lqc2, 12, 0x0, buf);
+    VU0_V3OP(vmul.xyzw, 13, 11, 12);
+    VU0_V3OP_BC(vaddy.x, 13, 13, 13, y);
+    VU0_V3OP_BC(vaddz.x, 13, 13, 13, z);
+    VU0_V3OP_BC(vsubx.w, 13, 13, 13, x);
+    VU0_V3OP_BC(vmulw.xyz, 14, 12, 11, w);
+    VU0_V3OP_BC(vmulw.xyz, 15, 11, 12, w);
+    VU0_V3OP_ACC(vopmula.xyz, 12, 11);
+    VU0_V3OP(vopmsub.xyz, 16, 11, 12);
+    VU0_V3OP(vadd.xyz, 13, 14, 15);
+    VU0_V3OP(vadd.xyz, 13, 13, 16);
+    VU0_LSV_R(sqc2, 13, 0x0, dst);
+}
+
+extern float D_00275880[];
+
+void func_0010E158(int dst, short v)
+{
+    float buf[4];
+    int angle = -(v << 16) >> 17;
+
+    func_001183D0((int)buf, (int)D_00275880, func_0010E950(angle));
+    buf[3] = func_0010E9A0(angle);
+    VU0_LSV_R(lqc2, 11, 0x0, dst);
+    VU0_LSV_R(lqc2, 12, 0x0, buf);
+    VU0_V3OP(vmul.xyzw, 13, 11, 12);
+    VU0_V3OP_BC(vaddy.x, 13, 13, 13, y);
+    VU0_V3OP_BC(vaddz.x, 13, 13, 13, z);
+    VU0_V3OP_BC(vsubx.w, 13, 13, 13, x);
+    VU0_V3OP_BC(vmulw.xyz, 14, 12, 11, w);
+    VU0_V3OP_BC(vmulw.xyz, 15, 11, 12, w);
+    VU0_V3OP_ACC(vopmula.xyz, 12, 11);
+    VU0_V3OP(vopmsub.xyz, 16, 11, 12);
+    VU0_V3OP(vadd.xyz, 13, 14, 15);
+    VU0_V3OP(vadd.xyz, 13, 13, 16);
+    VU0_LSV_R(sqc2, 13, 0x0, dst);
+}
+
+extern float D_00275890[];
+
+void func_0010E1F8(int dst, short v)
+{
+    float buf[4];
+    int angle = -(v << 16) >> 17;
+
+    func_001183D0((int)buf, (int)D_00275890, func_0010E950(angle));
+    buf[3] = func_0010E9A0(angle);
+    VU0_LSV_R(lqc2, 11, 0x0, dst);
+    VU0_LSV_R(lqc2, 12, 0x0, buf);
+    VU0_V3OP(vmul.xyzw, 13, 11, 12);
+    VU0_V3OP_BC(vaddy.x, 13, 13, 13, y);
+    VU0_V3OP_BC(vaddz.x, 13, 13, 13, z);
+    VU0_V3OP_BC(vsubx.w, 13, 13, 13, x);
+    VU0_V3OP_BC(vmulw.xyz, 14, 12, 11, w);
+    VU0_V3OP_BC(vmulw.xyz, 15, 11, 12, w);
+    VU0_V3OP_ACC(vopmula.xyz, 12, 11);
+    VU0_V3OP(vopmsub.xyz, 16, 11, 12);
+    VU0_V3OP(vadd.xyz, 13, 14, 15);
+    VU0_V3OP(vadd.xyz, 13, 13, 16);
+    VU0_LSV_R(sqc2, 13, 0x0, dst);
+}
 INCLUDE_ASM("asm/nonmatchings/src/cod/00DFB8", func_0010E298);
 INCLUDE_ASM("asm/nonmatchings/src/cod/00DFB8", func_0010E398);
 extern void func_001183F0(void *a0, void *buf, float f);
