@@ -639,8 +639,18 @@ int func_00165CE8(int a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165D18);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165DC0);
 extern char *func_001E29E8(unsigned int a0, int v, void *p);
+
+void func_00165DC0(volatile unsigned int arg)
+{
+    int *obj = *(int **)(arg + 0x164);
+    func_001A6E28((char *)D_00558EF0);
+    *(int *)((char *)obj + 0x120) = (int)func_001E29E8(arg, 1, (char *)obj + 0x610);
+    for (;;) {
+        func_00203AA0(1);
+    }
+}
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165E08);
 
 void func_00165E60(volatile unsigned int a0)
 {
