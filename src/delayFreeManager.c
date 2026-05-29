@@ -353,7 +353,29 @@ void func_00102558(int a0)
         func_00263FF0(D_00553AB8, 0x33, D_00631B28_a);
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/delayFreeManager", func_001025E8);
+extern int D_0065ED40_a[] __asm__("D_0065ED40");
+extern int D_0065ED40_b[] __asm__("D_0065ED40");
+
+void func_001025E8(void)
+{
+    int *p;
+    int i;
+    p = D_0065ED40;
+    p += 0xFF;
+    i = 0xFF;
+    do { *p = 0; i--; p--; } while (i >= 0);
+    p = D_0065ED40_a;
+    p += 0x1FF;
+    i = 0xFF;
+    do { *p = 0; i--; p--; } while (i >= 0);
+    p = D_0065ED40_b;
+    p += 0x2FF;
+    i = 0xFF;
+    do { *p = 0; i--; p--; } while (i >= 0);
+    D_00631B24 = 0;
+    D_00631B20 = 0;
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/delayFreeManager", func_00102680);
 
 /* ASCII debug strings — re-derived from EE rodata bytes. */
