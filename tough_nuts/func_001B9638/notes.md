@@ -268,3 +268,24 @@ glabel func_001B9638
     /* B99AC 001B99AC B000BD27 */   addiu     $29, $29, 0xB0
 endlabel func_001B9638
 ```
+
+## UPDATE (permuter Step-4b crack): best 108 -> 106, FRAME FIXED (-176)
+
+The 5-min permuter shot on the 108 seed found the m10 lever (score 5410):
+**reuse the $2-pinned `sel` variable to hold `(int)m10`** —
+`sel = (int)m10; func_00104140(sel,self); ... func_00118648(.., sel, ..)`.
+Because $2 is caller-saved, the calls clobber it, so gcc rematerializes
+`&m10` instead of parking it in a callee-saved -> frame -192 -> -176, the
+whole s4/s5 d-base renumber cascade gone. Re-applied cleanly by hand (the
+seed already pins bb/s1/k and sel=$2). Verified: inline `(int)m10` in the
+loop reverts to -192, so the loop MUST consume `sel` for the matrix.
+
+Residual 106 (scheduling/regalloc tail, NOT structural):
+ - v0->a1 copy each call (`daddu a1,v0` vs orig `addiu a1,sp,16`): 2 sites,
+   inherent to routing m10 through the $2 var; couldn't eliminate by hand
+   ($5-pin / per-call reassign both regressed).
+ - q-divide/0x134 block (blk2-4): self->15C lands in t0 vs orig a3; const
+   10 in a0 vs a2; div/lwc1 order; $f2 vs $f3. Caching self->15C didn't move it.
+ - buf.ll sdl/sdr store placement (blk8,10).
+Frame-fix was the headline; the rest is the low-yield scheduling tail.
+Left for offline auto_permute to chew the tail.

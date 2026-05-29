@@ -369,15 +369,16 @@ int func_001B9638(int *self)
     func_001B8CE0(self, (int)(D_004BECF0 + 0x80));
     func_0019F4E8(self, (int)&buf);
     func_00102858(self);
+    sel = (int)m10;
     {
         register char *bb REG("$16") = D_004BEBA0;
         register char *s1 REG("$17") = (char *)((int *)self[0x15C / 4])[0x800 / 4];
         register int k REG("$19");
-        func_00104140((int)m10, self);
+        func_00104140(sel, self);
         s1 += 0x20;
         for (k = 3; k >= 0; k--) {
-            func_00118648((int)s1, (int)m10, (int)bb);
-            func_00118648((int)(s1 + 0x10), (int)m10, (int)bb);
+            func_00118648((int)s1, sel, (int)bb);
+            func_00118648((int)(s1 + 0x10), sel, (int)bb);
             bb += 0x10;
             s1 += 0x50;
         }
