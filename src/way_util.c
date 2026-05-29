@@ -215,7 +215,28 @@ INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A410);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A4C0);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A578);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A638);
-INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A6F8);
+extern char *func_00205A78(int handle);
+extern char *func_00205A98(char *node);
+extern void func_00243AE8(int *buf, int *p, int *q);
+extern float func_0016A2F8(int a0);
+
+char *func_0017A6F8(int *arg0, float thresh)
+{
+    int buf[4];
+    char *node = func_00205A78(D_00633874);
+    if (node == 0) {
+        return 0;
+    }
+    __asm__ __volatile__("" ::: "memory");
+    do {
+        func_00243AE8(buf, (int *)(node + 0x10), arg0);
+        if (func_0016A2F8((int)buf) < thresh) {
+            return node;
+        }
+        node = func_00205A98(node);
+    } while (node != 0);
+    return 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A788);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A830);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A910);
