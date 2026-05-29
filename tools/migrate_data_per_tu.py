@@ -77,6 +77,27 @@ SECTION_RANGES = {
 }
 SRC_DIR = REPO_ROOT / "src" / "cod"
 USE_MODERN_AS = REPO_ROOT / "config" / "use_modern_as.txt"
+LIT4_POOL_SLOTS = REPO_ROOT / "config" / "lit4_pool_slots.txt"
+
+
+def _lit4_pool_slot_syms() -> set[str]:
+    """VMAs that are placed via a TU's renamed compiler `.lit4` pool
+    section (config/lit4_pool_slots.txt) rather than as a named global.
+    The pooled constant is anonymous in the TU .o (section renamed to
+    `.lit4.0xVMA`), so _scan_existing_definitions() can't see it by name
+    — but the sidecar must NOT also emit `D_<VMA>` or the linker double-
+    places the slot (slinky postprocess hard-errors on the duplicate)."""
+    out: set[str] = set()
+    if not LIT4_POOL_SLOTS.exists():
+        return out
+    for line in LIT4_POOL_SLOTS.read_text().splitlines():
+        line = line.split("#", 1)[0].strip()
+        if not line:
+            continue
+        parts = line.split()
+        if len(parts) >= 2:
+            out.add(f"D_{parts[1].upper().zfill(8)}")
+    return out
 
 
 def _section_for_vma(vma: int) -> str | None:
@@ -593,6 +614,9 @@ def main() -> int:
     tu_map = json.loads(TU_MAP.read_text())
     _check_basename_collisions(tu_map)
     already_defined = _scan_existing_definitions()
+    # Pooled .lit4 literals are owned by the TU's renamed pool section
+    # (config/lit4_pool_slots.txt); the sidecar must not re-emit them.
+    already_defined |= _lit4_pool_slot_syms()
 
     # Group symbol assignments by TU, skipping anything already defined
     # in a non-_data.c source (pool files, hand-typed TU sources).

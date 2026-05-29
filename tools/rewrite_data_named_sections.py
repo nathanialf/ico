@@ -206,6 +206,17 @@ def _load_migrated_symbols() -> set[str]:
             out.add(m.group(1))
         for m in funcptr_re.finditer(text):
             out.add(m.group(1))
+    # Pooled .lit4 literals (config/lit4_pool_slots.txt) live in the TU's
+    # renamed compiler `.lit4.0xVMA` section — an anonymous pool entry with
+    # no named `D_<VMA>` def to detect above. The asm-side blanket must
+    # still strip the VMA or it double-defines against the pool section.
+    pool_slots = REPO_ROOT / "config" / "lit4_pool_slots.txt"
+    if pool_slots.exists():
+        for line in pool_slots.read_text().splitlines():
+            line = line.split("#", 1)[0].strip()
+            parts = line.split()
+            if len(parts) >= 2:
+                out.add(f"D_{parts[1].upper().zfill(8)}")
     return out
 
 # Detect already-rewritten files.
