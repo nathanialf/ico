@@ -265,16 +265,35 @@ else
 fi
 
 # .lit4 pool placement: gas interns inline float literals into an anonymous
-# `.lit4` section. tools/gen_slinky.py can only place a `.lit4` slot at its
-# original VMA when the section name carries the VMA (`.lit4.0xVMA`). Rename
-# this TU's pool section per config/lit4_pool_slots.txt so the constant lands
-# at its real address. (Single-entry pools only — see the config header and
-# the ".lit4/.lit8 TU-pool migration" task for the general multi-entry case.)
+# `.lit4` section (flags WAp — note the MIPS-GPREL `p` flag). tools/gen_slinky.py
+# can only place a `.lit4` slot at its original VMA when the section name carries
+# the VMA (`.lit4.0xVMA`). Rename this TU's pool section per
+# config/lit4_pool_slots.txt so the constant lands at its real address.
+#
+# SINGLE-ENTRY ONLY: `objcopy --rename-section` renames the WHOLE `.lit4` to one
+# VMA, which is correct only when the compiler pooled exactly ONE constant for
+# this TU (4 bytes). A multi-entry pool needs per-word splitting that PRESERVES
+# the WAp/GPREL flag (which `--add-section` cannot set) — the ".lit4/.lit8
+# TU-pool migration" task. The guard below HARD-ERRORS on a multi-entry pool so
+# a second matched literal can never silently rename to one VMA and corrupt the
+# layout (the kind of mismatch ninja would catch only at the final SHA).
 LIT4_POOL_TXT="${ROOT}/config/lit4_pool_slots.txt"
 if [ -r "${LIT4_POOL_TXT}" ]; then
     LIT4_VMA="$(awk -v b="${BASE}" '$1==b{print $2; exit}' "${LIT4_POOL_TXT}")"
-    if [ -n "${LIT4_VMA}" ] && \
-       "${MIPS_PREFIX}objdump" -h "${OUT}" 2>/dev/null | grep -qE '[[:space:]]\.lit4[[:space:]]'; then
-        "${OBJCOPY}" --rename-section ".lit4=.lit4.0x${LIT4_VMA}" "${OUT}"
+    if [ -n "${LIT4_VMA}" ]; then
+        # .lit4 size in bytes from objdump -h (field 3 is the hex size), 0 if absent.
+        LIT4_SZ_HEX="$("${MIPS_PREFIX}objdump" -h "${OUT}" 2>/dev/null \
+            | awk '$2==".lit4"{print $3; exit}')"
+        LIT4_SZ=$(( 16#${LIT4_SZ_HEX:-0} ))
+        if [ "${LIT4_SZ}" -eq 4 ]; then
+            "${OBJCOPY}" --rename-section ".lit4=.lit4.0x${LIT4_VMA}" "${OUT}"
+        elif [ "${LIT4_SZ}" -gt 4 ]; then
+            echo "compile_c.sh: ERROR — ${BASE} has a ${LIT4_SZ}-byte .lit4 pool" \
+                 "(>1 entry) but lit4_pool_slots.txt lists a single VMA. Multi-entry" \
+                 ".lit4 splitting is not yet implemented (see the .lit4/.lit8 TU-pool" \
+                 "migration task). Refusing to rename the whole pool to one VMA." >&2
+            exit 1
+        fi
+        # LIT4_SZ == 0: configured TU emitted no pool this build — nothing to rename.
     fi
 fi
