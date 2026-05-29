@@ -229,7 +229,30 @@ int func_0014B090(void) {
 }
 
 /* func_0014B0B4 is a 4-byte nop pad absorbed into func_0014B0B8's .s. */
-INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014B0B8);
+extern const float D_0063226C_flt[] __asm__("D_0063226C");
+extern int *func_0013EB50(int);
+extern int *func_0015EFF8(int *);
+extern float func_00194398(int *, int);
+extern int *func_0013EBE0(int *);
+
+int *func_0014B0B8(int a0, int a1) {
+    float best_val = D_0063226C_flt[0];
+    int *best = 0;
+    int *node;
+
+    node = func_0013EB50(a1);
+    if (node != 0) {
+        do {
+            float val = func_00194398(func_0015EFF8(node), a0);
+            if (val < best_val) {
+                best_val = val;
+                best = node;
+            }
+            node = func_0013EBE0(node);
+        } while (node != 0);
+    }
+    return best;
+}
 
 void func_0014B150(char *self) {
     char *sub = *(char **)(self + 0x164);
