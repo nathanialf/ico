@@ -46,6 +46,7 @@ SHARED_SP_RESTORE_TXT="${ROOT}/config/shared_sp_restore.txt"
 SHARED_JR_RESTORE_TXT="${ROOT}/config/shared_jr_restore.txt"
 EARLY_BODY_SWAP_TXT="${ROOT}/config/early_body_swap.txt"
 FCC_NOP_TXT="${ROOT}/config/fcc_nop.txt"
+FCC_NOREORDER_TXT="${ROOT}/config/fcc_noreorder.txt"
 UNFOLD_RA_DELAY_TXT="${ROOT}/config/unfold_ra_delay.txt"
 EARLY_EPILOGUE_RESTORE_TXT="${ROOT}/config/early_epilogue_restore.txt"
 FILL_BLEZ_DELAY_TXT="${ROOT}/config/fill_blez_delay.txt"
@@ -138,6 +139,7 @@ listed "${NO_TRAILING_NOP_TXT}"      && run_pp_scoped "${NO_TRAILING_NOP_TXT}"  
 listed "${SHARED_SP_RESTORE_TXT}"    && run_pp_scoped "${SHARED_SP_RESTORE_TXT}"    postprocess_shared_sp_restore.py --sp-only
 listed "${SHARED_JR_RESTORE_TXT}"    && run_pp_scoped "${SHARED_JR_RESTORE_TXT}"    postprocess_shared_sp_restore.py --jr-and-sp
 listed "${FCC_NOP_TXT}"              && run_pp_scoped "${FCC_NOP_TXT}"              postprocess_fcc_nop.py
+listed "${FCC_NOREORDER_TXT}"        && run_pp_scoped "${FCC_NOREORDER_TXT}"        postprocess_fcc_noreorder.py
 listed "${EARLY_BODY_SWAP_TXT}"      && run_pp_scoped "${EARLY_BODY_SWAP_TXT}"      postprocess_early_body_swap.py
 listed "${UNFOLD_RA_DELAY_TXT}"      && run_pp_scoped "${UNFOLD_RA_DELAY_TXT}"      postprocess_unfold_ra_delay.py
 listed "${EARLY_EPILOGUE_RESTORE_TXT}" && run_pp_scoped "${EARLY_EPILOGUE_RESTORE_TXT}" postprocess_early_epilogue_restore.py
