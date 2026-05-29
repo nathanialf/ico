@@ -195,6 +195,9 @@ fi
 if [ "${BASE}" = "fightSound" ]; then
     "${PYTHON}" "${ROOT}/tools/postprocess_191F50.py" "${S}"
 fi
+if [ "${BASE}" = "boyact" ]; then
+    "${PYTHON}" "${ROOT}/tools/postprocess_054390.py" "${S}"
+fi
 if listed "${SWAP_ADDU_TXT}"; then
     # Scoped to the TU line's @func ranges (see funcs_for); whole-file for
     # single-func hex entries. This is what keeps func_001E0D50's swap from

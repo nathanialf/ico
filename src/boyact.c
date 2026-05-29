@@ -356,7 +356,31 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00153FF0);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001540A8);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00154160);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00154218);
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00154390);
+extern int D_00631990;
+extern int D_006AAB48[];
+extern void func_001F4098(int a0);
+extern void func_002641D8(int *dst, int val, int size);
+extern void func_00104360(int a0, int *buf);
+extern int func_001AE420(int a0, int a1, int a2, int a3);
+
+void func_00154390(void)
+{
+    if (D_00631AE4 != 0) {
+        int s0 = *(int *)(D_00631AE4 + 0x164);
+        if (*(int *)(s0 + 0x140) != 0) {
+            int buf[4];
+            func_001F4098(*(int *)(s0 + 0x140));
+            func_002641D8(buf, 0, 0x10);
+            *(float *)&buf[0] = D_00630C20;
+            func_00104360(*(int *)(s0 + 0x140), buf);
+            func_001AE420(*(int *)(s0 + 0x140), 0, 0, D_00631990);
+            *(int *)(*(int *)(s0 + 0x140) + 0x16C) = 0;
+        }
+        D_006AAB48[0] = 0;
+        *(int *)D_006AAAE0 = 0;
+        *(int *)(s0 + 0x140) = 0;
+    }
+}
 
 /* Matched body inlined from src/cod/054420.c during TU coalesce. */
 int func_00154420(void)
