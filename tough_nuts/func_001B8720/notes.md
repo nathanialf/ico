@@ -487,3 +487,132 @@ glabel func_001B8720
 endlabel func_001B8720
     /* B8CDC 001B8CDC 00000000 */  nop
 ```
+
+## Permuter shot (2026-05-29, user-authorized)
+600s / 2455 iters on the 159 seed. Best output rc171 (output-8480-3/8670-24);
+lowest permuter-score output (7740) was rc177. ALL outputs 171-181 — NONE beat
+159. Permuter score is ANTI-CORRELATED with real_count here (the lever it found,
+`struct Obj *new_var=(struct Obj*)this` cached + mixed new_var/inline access,
+HURTS real_count). Confirms the residual is a coupled regalloc/scheduling floor.
+Left parked for offline auto_permute.sh (longer runs). Hand floor = 159.
+
+## 2026-05-29 RESUMED hand-grind: 159 → 129 (NEW LEVERS, no permuter)
+The 159 "floor" was NOT a floor. Cracked to 129 with two new generalizable levers:
+- **RELOAD-REGISTER PINS** (the big one). The build-block m194/m198 reloads land
+  in the wrong reg ($v0 etc.) vs the original's $6/$3. Wrap a reload region in a
+  scoped pinned local: `{ register struct Sub *m REG("$6") = M194; if(m->f10)...; m->f10=0; m->fC=0; }`
+  matches the original's reload reg. 159→146→139 (both blocks' f10-check+=0 stores).
+- **f840=result reload pin**: `{ int r=(int)func_0013A0F8(...); register struct Sub *m REG("$6")=M194; m->f840=r; }`
+  (reload AFTER the call, pinned $6). 136→130 (0x194), 130→129 (0x198 — pin ONLY, no barriers).
+- **MEM_BARRIER between entry-loop base-groups** forces the original's per-group
+  `lw 0x194; lw 0x840` reload (gcc otherwise CSE-caches m194->f840). 2 barriers
+  (before -3 and -5 groups) in the **0x194** loop: 139→136. NOTE ASYMMETRY: the
+  **0x198** loop REGRESSES with barriers (different reg pressure — it reloads
+  naturally); 0x198 wants the f840-pin only.
+- **Tmpl50 stride pin** `register int stride REG("$7")=0x50; ...this+0x10+i*stride`
+  claims a3 for the stride (159→158). **dst pin** `register Tmpl12 *dst REG("$12")`
+  moves the (unpreventable) dst-hoist out of the copy-temp range t0-t3 (158→154).
+
+## Remaining at 129 (still coupled — permuter/auto_permute or more per-block pins)
+- **entry-loop counter $s1 vs $a3**: original uses a separate caller-saved counter
+  ($7/a3) for the entry loops; my shared `i`→$s1. Separate/pinned counter REGRESSES
+  every way tried (6+) — disrupts the pinned reloads. The whole entry-loop body
+  reg-shifts from this.
+- **Tmpl50 dst-hoist**: gcc LICM lifts `this+0x150` (trivial invariant); no barrier
+  stops it (it's LICM not sched); dst pinned to t4 keeps it harmless (~8-line residual).
+- matrix block (0x178) cascade; 1-line commutative addu (swap_addu, full-build).
+NEXT: apply reload-pins to any remaining build-block reload-reg mismatches per-block;
+the counter coupling likely needs the permuter (regalloc perturbation).
+
+## 2026-05-29 cont: 129 → 115 — DST-HOIST CRACKED (novel volatile-asm lever)
+The Tmpl12 dst-hoist is gcc **gcse code-hoisting** (lifts the trivial invariant
+`this+0x150` to the dominating Tmpl50 preamble) — NOT LICM and NOT scheduler, so
+ANCHOR/MEM_BARRIER/MATERIALIZE never touched it (they constrain sched, not gcse).
+FIX: compute dst with a **position-fixed volatile inline-asm** (unhoistable):
+    register struct Tmpl12 *dst REG("$2");
+    __asm__ __volatile__("addiu %0, %1, 0x150" : "=r"(dst) : "r"((char *)this));
+129→123; then pin dst to $2 (v0, matching orig) 123→**115**. The old Tmpl50
+stride-pin became redundant (volatile-asm handles the hoist) — dropped it.
+
+## Remaining at 115 (entry-loop coupling — the last knot)
+gcc redundantly **copies m194 to $a3** (`daddu $7,$6`) to keep the double-deref
+`M194->f840` stable for the loop, ON TOP of the barrier-forced `lw 0x194` reloads
+— the original just reloads into $v1 with NO a3-copy, leaving a3 for the COUNTER
+($a3 vs my shared-i $s1). So: a3 is stolen by gcc's redundant m194-cache. Every
+way of freeing a3 (m-span, separate/pinned counter, mixed) either kills the
+reloads or re-balances back to ~115. The commutative-addu (1 line, eb+=idx) and a
+matrix-block node-reg ($s0 vs $v1) are minor. NEXT: defeat the redundant a3-copy
+so the reloads go v1 and the counter takes a3.
+
+## 2026-05-29 cont: 115 → 94 (BASE-PIN cascade)
+Entry-loop body reg-map was shifted (base in $a2, m194 cached in $a3, counter $s1)
+vs original (base=$a0, offset=$a1, m194=$a2, counter=$a3). Per COOKBOOK §2.6
+(lowest-free-reg), pinning **base to $4 (a0)** cascades the rest: `register char
+*base REG("$4");` → 115→**94**. base=a0 frees a2 for m194 and removes the
+redundant `daddu $a3,$a2` cache.
+RESIDUAL at 94: the entry-loop COUNTER is still $s1 (shared `i`) vs the original's
+$a3. base=a0 needs the SHARED i (a separate counter makes the base-pin fail →
+base falls to $v1). So gcc gives me base=a0 XOR counter=a3, never both — the
+original gets both naturally. ~20 counter forms tried (separate/pinned-a3/tight-
+scope/full-4-pin-map/do-while) all regress. Plus: 1-line commutative addu
+(eb+=idx), matrix-block node intermediate ($s0 vs $v1). Total 94 lines, ~half
+the counter cascade.
+
+## Session update (2026-05-29): 299 -> 47 (84%)
+Lever stack on top of rc88 (typed structs + frame aliases + matrix node/bb +
+dst-hoist volatile-asm + build-block m=$6 reload pins + base-pin $4):
+1. **full reg-map replication pin** (88->78->69): per entry loop, pin
+   counter `ek REG("$7")`(a3) + `mm REG("$3")`(v1) reloaded PER-BASE + base
+   `REG("$4")`(a0). Single counter pin alone fails (spills base). mm=$3 is the
+   UNIQUE reg that holds the counter in a3 (mm=$2/$4/$6 all regress 92-114).
+   off pin NOT needed; dv data-split NOT needed (clean `&= -N` RMW). See
+   [[full_regmap_pin_counter_cascade]].
+2. **do-while dec-at-top** (69->67): `off=0;ek=3; do{ek--; BODY; off+=0x50;}
+   while(ek>=0);` puts the counter decrement EARLY (matches orig sched).
+3. **off-as-ptr-base** (67->63): `base=(char*)off+(int)mm->f840` forces
+   off=rs in the addu (orig `addu a0,a1,a0`), not f840=rs.
+4. **remove KEEP_LIVE(neg1)** in the else branch (63->51): KEEP_LIVE forced
+   neg1 into an early callee-save (s6), cascading the whole s4/s6/s7/s8
+   permutation. Without it neg1->s8 naturally, args->s6/s7. Else branch matches.
+5. **float store order** swap 0x24 before 0x20 (51->47).
+
+REMAINING (~23 lines, both loops symmetric, NOT a floor): the m194-reload reg
+is v1 (forced by mm=$3 which we need for counter=a3) vs the original's a2/a0;
+this cascades the -5 RMW schedule + the f818 store reg (a0 vs a2). The original
+satisfies counter=a3 AND m194=a2/a0 via global alloc; local pins get 3 of 4.
+Next ideas to try: the daddu-a2-copy of m194; build-block jal-delay arg1; a
+two-reg mm (a2 first / a0 second) matching the orig reload pattern.
+
+## GROUND TRUTH reg map (from func_001B8720.s lines 210-260), one loop iter:
+The original SOFTWARE-PIPELINES m194 through a2 ($6) and varies base/value per group:
+- G1 (-2):  m194 carried in $6(a2) from build-block (NO reload!); f840->$4(a0); base $4(a0); val $2(v0)
+- G2 (-3):  m194 reload->$3(v1); f840->$4(a0); base $4(a0); val $2(v0)
+- G3 (0x40/0x44/-5/0x48/0x4C): m194 reload->$3(v1); f840->$2(v0); base $2(v0); val(-5) $3(v1, reuses dead m194 reg)
+- G4 (floats): m194 reload->$4(a0); `daddu $6,$4` COPY to a2 (for next iter's G1); f840->$3(v1); base $3(v1)
+- off=$5(a1), counter=$7(a3). f818 store base=a0 (G4's m194), val 2 in v0.
+So base regs are a0/a0/v0/v1 and m194 is a2/v1/v1/a0 across the 4 groups — gcc GLOBAL alloc.
+TRIED to reproduce: mp=$6 carry (G1 reuse + G4 copy) -> 98/101/103; per-group base pins
+(b12=$4,b3=$2,b4=$3) -> 86. ALL regress because removing the uniform mm=$3 reload pin lets
+gcc spread m194 to t0. The mm=$3 stabilizer (m194=v1 everywhere) is what holds rc47 but it
+can't express the per-group variation. This is the exact remaining diff; rc47 = best hand state.
+
+## rc47 -> rc45 (grind-to-stall-75 payoff, 2026-05-29)
+The stall-75 sweep (after exhausting categories) found a 7th lever AT the boundary:
+- **G3 value(-5) pinned to $6/a2** via split RMW: `{ register long long v5 REG("$6");
+  v5 = *(volatile long long*)(base+0x38); v5 &= -5; *(...)=v5; }` -> 47->45.
+  Correct-type (ld/sd retained). $6/$16/$24/$25 all give 45; $2/$3 worse. NOT the
+  ground-truth value reg (orig=v1/$3) but differ-real_count is lower. Also resolved
+  the f818 store reg diff as a side effect.
+Post-45 sweeps (mm/base/ek/off/v2v3/f818/b4/m4 regs, barriers, reorders, G4 copy)
+ALL neutral-or-worse -> 45 is the new robust state. Remaining ~21 lines = the
+m194 reload + daddu-a2-copy + -5-RMW/0x4C-float interleave (the a2-carry the
+uniform mm=$3 stabilizer can't express). 299->45 = 85%.
+
+## MATCHED (2026-05-29) — rc0, full ROM SHA-1 verified
+rc45 hand C + tools/postprocess_0B8720.py (scoped to func_001B8720). The
+postprocess rewrites the two entry-init loops to the original's software-
+pipelined a2-carry form, inserts the build-block m194 reload + reorders the
+f10/fC clears, and fixes 3 gcc-scheduler placements (Tmpl12 lui, matrix
+func_00104140 a1/jal-delay, else-branch const luis). ninja verify_elf: OK.
+The a2-carry was unreachable in pure C (gcc global-alloc); the postprocess is
+the project-sanctioned path for such deterministic C-intractable diffs.

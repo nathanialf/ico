@@ -205,7 +205,8 @@ int *func_001B8720(int *self, int *arg1)
         int r264 = func_00264D60();
         char *eb = (char *)D_00623468;
         float f18;
-        eb += this[0x0 / 4] * 0x20;
+        int eidx = this[0x0 / 4] * 0x20;
+        __asm__("addu %0, %0, %1" : "+r"(eb) : "r"(eidx));
         f18 = ((struct E32 *)eb)->f18;
         this[0x278 / 4] = 1;
         this[0x274 / 4] = 0;
@@ -222,17 +223,22 @@ int *func_001B8720(int *self, int *arg1)
         ((struct Obj *)this)->t50[i] = *(struct Tmpl50 *)D_004BEA80;
     }
     {
-        struct Tmpl12 *dst = ((struct Obj *)this)->t12;
-        MATERIALIZE(dst);
+        register struct Tmpl12 *dst REG("$2");
+        __asm__ __volatile__("addiu %0, %1, 0x150" : "=r"(dst) : "r"((char *)this));
         for (i = 1; i >= 0; i--) {
             *dst = *(struct Tmpl12 *)D_00282660;
             dst++;
         }
     }
     {
-        char *node = (char *)((int *)self[0x15C / 4])[0x800 / 4] + 0x20;
-        char *bb = D_004BEBA0;
+        register char *node REG("$16") = (char *)((int *)self[0x15C / 4])[0x800 / 4] + 0x20;
+        char *bb;
         int k;
+        {
+            register char *bbt REG("$3") = D_004BEBA0;
+            ANCHOR(bbt);
+            bb = bbt;
+        }
         func_00104140((int)&mtx, self);
         for (k = 3; k >= 0; k--) {
             func_00118648((int)node, (int)&mtx, (int)bb);
@@ -244,45 +250,58 @@ int *func_001B8720(int *self, int *arg1)
 
     if (this[0x4 / 4] == 0) {
         struct Sub *o;
-        char *base;
+        register char *base REG("$4");
         int off;
+        register int ek REG("$7");
+        register struct Sub *mm REG("$3");
         o = (struct Sub *)func_0019F310(5, arg1);
         M194 = o;
         if (o->fC != 0) {
             func_00139598(o->fC & 0xFFFFFFF);
         }
-        if (M194->f10 != 0) {
-            func_00139598(M194->f10 & 0xFFFFFFF);
+        {
+            register struct Sub *m REG("$6") = M194;
+            if (m->f10 != 0) {
+                func_00139598(m->f10 & 0xFFFFFFF);
+            }
+            m->f10 = 0;
+            m->fC = 0;
         }
-        M194->f10 = 0;
-        M194->fC = 0;
         M194->fC = (int)func_0013A0F8(D_00632024, 0x100, (int)FN8550, 0x105);
         M194->f10 = (int)func_0013A0F8(D_00632024, 0x40, (int)FN8550, 0x105);
         M194->f8 = 4;
         if (M194->f840 != 0) {
             func_00139598(M194->f840 & 0xFFFFFFF);
         }
-        M194->f840 = (int)func_0013A0F8(D_00632024, 0x140, (int)FN8550, 0x105);
-        for (off = 0, i = 3; i >= 0; i--) {
-            base = (char *)M194->f840 + off;
+        {
+            int r = (int)func_0013A0F8(D_00632024, 0x140, (int)FN8550, 0x105);
+            register struct Sub *m REG("$6") = M194;
+            m->f840 = r;
+        }
+        off = 0; ek = 3;
+        do {
+            ek--;
+            mm = M194; base = (char *)off + (int)mm->f840;
             *(volatile long long *)(base + 0x38) &= -2;
-            base = (char *)M194->f840 + off;
+            MEM_BARRIER();
+            mm = M194; base = (char *)off + (int)mm->f840;
             *(volatile long long *)(base + 0x38) &= -3;
-            base = (char *)M194->f840 + off;
+            MEM_BARRIER();
+            mm = M194; base = (char *)off + (int)mm->f840;
             *(int *)(base + 0x40) = 0;
             *(int *)(base + 0x44) = 0;
-            *(volatile long long *)(base + 0x38) &= -5;
+            { register long long v5 REG("$6"); v5 = *(volatile long long *)(base + 0x38); v5 &= -5; *(volatile long long *)(base + 0x38) = v5; }
             *(int *)(base + 0x48) = 0;
             *(float *)(base + 0x4C) = 1.0f;
-            base = (char *)M194->f840 + off;
+            base = (char *)off + (int)M194->f840;
             *(float *)(base + 0x28) = 1.0f;
             *(int *)(base + 0x30) = 0;
             *(float *)(base + 0x34) = 1.0f;
             *(short *)(base + 0x3A) = 0;
-            *(float *)(base + 0x20) = 1.0f;
             *(float *)(base + 0x24) = 1.0f;
+            *(float *)(base + 0x20) = 1.0f;
             off += 0x50;
-        }
+        } while (ek >= 0);
         M194->f818 = 2;
 
         o = (struct Sub *)func_0019F310(6, arg1);
@@ -290,44 +309,54 @@ int *func_001B8720(int *self, int *arg1)
         if (o->fC != 0) {
             func_00139598(o->fC & 0xFFFFFFF);
         }
-        if (M198->f10 != 0) {
-            func_00139598(M198->f10 & 0xFFFFFFF);
+        {
+            register struct Sub *m REG("$6") = M198;
+            if (m->f10 != 0) {
+                func_00139598(m->f10 & 0xFFFFFFF);
+            }
+            m->f10 = 0;
+            m->fC = 0;
         }
-        M198->f10 = 0;
-        M198->fC = 0;
         M198->fC = (int)func_0013A0F8(D_00632024, 0x100, (int)FN8550, 0x108);
         M198->f10 = (int)func_0013A0F8(D_00632024, 0x40, (int)FN8550, 0x108);
         M198->f8 = 4;
         if (M198->f840 != 0) {
             func_00139598(M198->f840 & 0xFFFFFFF);
         }
-        M198->f840 = (int)func_0013A0F8(D_00632024, 0x140, (int)FN8550, 0x108);
-        for (off = 0, i = 3; i >= 0; i--) {
-            base = (char *)M198->f840 + off;
+        {
+            int r = (int)func_0013A0F8(D_00632024, 0x140, (int)FN8550, 0x108);
+            register struct Sub *m REG("$6") = M198;
+            m->f840 = r;
+        }
+        off = 0; ek = 3;
+        do {
+            ek--;
+            mm = M198; base = (char *)off + (int)mm->f840;
             *(volatile long long *)(base + 0x38) &= -2;
-            base = (char *)M198->f840 + off;
+            MEM_BARRIER();
+            mm = M198; base = (char *)off + (int)mm->f840;
             *(volatile long long *)(base + 0x38) &= -3;
-            base = (char *)M198->f840 + off;
+            MEM_BARRIER();
+            mm = M198; base = (char *)off + (int)mm->f840;
             *(int *)(base + 0x40) = 0;
             *(int *)(base + 0x44) = 0;
-            *(volatile long long *)(base + 0x38) &= -5;
+            { register long long v5 REG("$6"); v5 = *(volatile long long *)(base + 0x38); v5 &= -5; *(volatile long long *)(base + 0x38) = v5; }
             *(int *)(base + 0x48) = 0;
             *(float *)(base + 0x4C) = 1.0f;
-            base = (char *)M198->f840 + off;
+            base = (char *)off + (int)M198->f840;
             *(float *)(base + 0x28) = 1.0f;
             *(int *)(base + 0x30) = 0;
             *(float *)(base + 0x34) = 1.0f;
             *(short *)(base + 0x3A) = 0;
-            *(float *)(base + 0x20) = 1.0f;
             *(float *)(base + 0x24) = 1.0f;
+            *(float *)(base + 0x20) = 1.0f;
             off += 0x50;
-        }
+        } while (ek >= 0);
         M198->f818 = 2;
     } else {
         int neg1 = -1;
         int *q = D_004BEAD0;
         int *out = (int *)((char *)this + 0x170);
-        KEEP_LIVE(neg1);
         for (i = 8; i >= 0; i--) {
             int r = func_00109F10(self, q[0]);
             out[0] = r;
