@@ -1945,6 +1945,8 @@ segments:
       - [0x139750, c, src/cod/139750]            # func_00239750: func_00239750: 2 if/else branches calling func_001297A0+func_00205B30 with different ids
       - [0x1397F8, c, src/cod/1397F8]            # func_002397F8: guard+func_X+tail-call sibling (arg 0x31)
       - [0x139830, asm, src/cod/139830]
+      - [0x13A8E8, c, src/cod/13A8E8]            # func_0023A8E8: arg-spill + while(!f17B230(0x32)) + call sequence
+      - [0x13A978, asm, src/cod/13A978]
       - [0x13A9E0, c, src/cod/13A9E0]            # func_0023A9E0: store-arg-discard
       - [0x13A9F0, asm, src/cod/13A9F0]
       - [0x13AA88, c, src/cod/13AA88]            # func_0023AA88: store-arg-discard
