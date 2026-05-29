@@ -289,3 +289,15 @@ Residual 106 (scheduling/regalloc tail, NOT structural):
  - buf.ll sdl/sdr store placement (blk8,10).
 Frame-fix was the headline; the rest is the low-yield scheduling tail.
 Left for offline auto_permute to chew the tail.
+
+## 2nd permuter shot (at the 106 30-stall): no VALID improvement -> chase terminated
+Lower-real_count outputs were all semantically invalid false-minima:
+ - output-4975 (rc102): moves func_00102858 into the q-block (early). Original
+   calls it LATE (B97C8, after func_0019F4E8, before func_00104140) -> permanent
+   >=2-line call-position diff, cannot reach 0.
+ - output-5090 (rc96): drops the (float*) cast on the 0x134 store
+   (`*(char*)(p+0x134) = floatexpr`) -> emits sb+convert instead of swc1; wrong.
+On-path outputs (correct call order + correct store) did not beat 106.
+=> Valid floor for hand+permuter is 106 (frame fixed; scheduling/regalloc tail:
+   self->15C temp choice, FP $f2/$f3, prologue self->s2 timing, v0->a1 copy).
+   Left for offline auto_permute.
