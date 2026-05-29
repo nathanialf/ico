@@ -2043,7 +2043,35 @@ unsigned int D_00621828[468] = { 0x00000127, 0xBF800000, 0x00000128, 0xBF800000,
 
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", func_00206D18);
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", func_00206F38);
-INCLUDE_ASM("asm/nonmatchings/src/way_tool", func_00207018);
+extern int D_00632CBC;
+extern int D_0071257C[];
+extern unsigned char D_0061B668[];
+extern void func_001A6A30(int, int, int, void *);
+extern char *func_0017A6F8(int *, float);
+
+int func_00207018(void) {
+    int *p;
+    int v;
+
+    if (D_00632CBC & 1) {
+        unsigned int color = 0xFF000000;
+        func_001A6A30(0x12, 0x36, color, D_0061B668);
+    }
+    v = D_0071257C[0];
+    if (v & 0x20) {
+        p = (int *)func_0017A6F8((int *)D_004D06A0, 60.0f);
+        if (p == 0) {
+            return 0;
+        }
+        D_00633878 = p[1];
+        if (p[1] >= 0) {
+            p[10] ^= 1;
+        }
+    } else if (v & 0x40) {
+        return -1;
+    }
+    return 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", func_002070B0);
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", func_00207168);
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", func_00207348);
