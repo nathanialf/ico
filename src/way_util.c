@@ -263,5 +263,42 @@ void func_0017A9D8(int a0)
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017AA04);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017AA08);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017AB20);
-INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017AC48);
+extern unsigned char D_004CAEC0[];
+
+void *func_0017AC48(int arg0, int arg1)
+{
+    char *a = (char *)D_004CAEC0;
+    char *b = (char *)D_004CC1E0;
+    char *end = (char *)D_004CAEC0 + 0x1318;
+    register int va __asm__("$7");
+    register int vb __asm__("$6");
+    char *bA;
+    char *bB;
+    int new_var;
+    int f;
+loop:
+    if (*(int *)(a + 0x0) == 0) { a += 0x34; goto check; }
+    if (*(int *)(a + 0x18) == 0) { a += 0x34; goto check; }
+    __asm__ __volatile__("" ::: "memory");
+    bA = (char *)(*(int *)(a + 0x20) * 0x40 + (int)b);
+    new_var = *(int *)(a + 0x24) * 0x40;
+    bB = (char *)(new_var + (int)b);
+    va = *(int *)(bA + 0x20);
+    if (va != arg0) goto skipA;
+    vb = *(int *)(bB + 0x20);
+    if (vb != arg1) goto chkB;
+    return bB;
+skipA:
+    vb = *(int *)(bB + 0x20);
+chkB:
+    a += 0x34;
+    if (vb != arg0) goto check;
+    if (va != arg1) goto chk2;
+    return bA;
+check:
+    ;
+chk2:
+    if ((int)a < (int)end) { f = *(int *)(a + 0x0); goto loop; }
+    return 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017ACD8);
