@@ -212,7 +212,7 @@ void func_001CED28(int *self)
     func_00104508(local, self);
     func_00102850(&local[4], self);
     func_001E8B48(0x31, local, &local[4]);
-    self[0x16C / 4] = 0;
+    ((GObj *)self)->f_16C = 0;
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/enemyParts", func_001CED80);

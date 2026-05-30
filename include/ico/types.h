@@ -69,7 +69,9 @@ struct Obj800 {
     int     f_20;  /* 0x20 */
     void   *p_24;  /* 0x24 */
     int     f_28;  /* 0x28 */
-    char    _pad2C[0x2C];
+    char    _pad2C[0x24];
+    int     f_50;  /* 0x50 */
+    char    _pad54[0x4];
     int     f_58;  /* 0x58 */
     char    _pad5C[0x44];
     int     f_A0;  /* 0xA0 */

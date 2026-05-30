@@ -90,8 +90,8 @@ extern void func_001AE460(int *self);
 extern void func_0013FF88(int a0, int a1, int a2);
 
 void func_00192B58(int *self) {
-    int *p = (int *)((int *)((GObj *)(self))->p_15C)[0x800/4];
-    p[0x50/4] = 1;
+    Obj800 *p = ((Sub15C *)((GObj *)(self))->p_15C)->p_800;
+    p->f_50 = 1;
     func_001AE460(self);
     func_0013FF88((int)self, 1, (int)self);
 }
