@@ -27,10 +27,7 @@
 # per-file. tools/global_flag_sweep.py `prune` verified this is the load-bearing
 # remainder — redundant entries (BASIC, 090408, 0B5958, 145120, 145178) were
 # removed when they began matching without the flag.
-163F48 -fno-schedule-insns
 0EF9A8 -fno-schedule-insns
-163FB0 -fno-schedule-insns
-07E838 -fno-schedule-insns
 0ADBC0 -fno-schedule-insns
 14DA80 -fno-schedule-insns
 0AA4F0 -fno-schedule-insns
@@ -61,3 +58,4 @@ DISPLAYLIST -malign-functions=2 -malign-loops=2
 # vec3 within the obj; the original orders the local-buf stores ahead of the
 # obj vec-loads (no TBAA reorder). -fno-strict-aliasing restores that order.
 # tu_check confirms the matched sibling stays byte-identical.
+07E838 -fno-schedule-insns
