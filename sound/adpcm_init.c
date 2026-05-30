@@ -370,7 +370,7 @@ void func_00140BE0(void)
     }
     func_0025DCF0();
     i = 1;
-    MEM_BARRIER();
+
     qb = (char *)D_006A94E0;
     q = (int *)(qb + 0x58);
     do {

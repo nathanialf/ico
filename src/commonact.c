@@ -138,7 +138,7 @@ extern int D_00633D34;
 void func_001683A8(int a0)
 {
     D_006323F0(a0, 0);
-    DEFEAT_TCO();
+
 }
 
 void func_001683C8(int arg)
@@ -190,7 +190,7 @@ void func_001684E8(int a0, int a1)
 {
     D_00633D34 = a1;
     D_006323F0(a0, 8);
-    DEFEAT_TCO();
+
 }
 
 /* ====================================================================
@@ -543,7 +543,7 @@ void func_00168510(int a0, int a1)
 {
     D_00633D34 = a1;
     D_006323F0(a0, 9);
-    DEFEAT_TCO();
+
 }
 
 /* func_00168534 is a 4-byte nop pad absorbed into the .s for func_00168538. */
@@ -556,7 +556,7 @@ void func_001685B8(int a0, int a1)
 {
     D_00633D34 = a1;
     D_006323F4(a0, 0x10);
-    DEFEAT_TCO();
+
 }
 
 /* func_001685DC (4-byte nop pad) absorbed into func_001685E0's .s. */
@@ -647,7 +647,7 @@ void func_00168C58(void) {
     tmp = *(volatile int *)0x10000000;
     D_00633D0C = 0;
     D_00633D18 = tmp;
-    DEFEAT_TCO();
+
     D_00633D10 = 0;
     D_00633D14 = 0;
     D_00633D1C = 0;
