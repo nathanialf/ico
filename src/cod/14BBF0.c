@@ -1,7 +1,9 @@
-#include "regpin.h"
+#include "matching.h"
 extern char D_00717764[];
 extern char D_0071776C[];
 
+/* See 14BBC0.c: ADDU_RS forces the original's rd==rs `addu $3, $3, $4`
+ * operand order, dropping the swap_addu postprocess (COOKBOOK §8.11). */
 void func_0024BBF0(int a0)
 {
     register int idx_off REG("$3");
@@ -12,5 +14,6 @@ void func_0024BBF0(int a0)
     } else {
         base = *(char **)D_0071776C;
     }
-    *(int *)(base + idx_off) = 0;
+    ADDU_RS(idx_off, base);              /* addu $3, $3, $4 */
+    *(int *)(char *)idx_off = 0;
 }
