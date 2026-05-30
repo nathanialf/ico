@@ -179,9 +179,6 @@ fi
 if [ "${BASE}" = "09F530" ]; then
     "${PYTHON}" "${ROOT}/tools/postprocess_09F530.py" "${S}"
 fi
-if [ "${BASE}" = "lodManager" ]; then
-    "${PYTHON}" "${ROOT}/tools/postprocess_0D4BD0.py" "${S}"
-fi
 if [ "${BASE}" = "adpcm_init" ]; then
     "${PYTHON}" "${ROOT}/tools/postprocess_040048.py" "${S}"
 fi

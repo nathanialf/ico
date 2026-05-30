@@ -405,11 +405,23 @@ trap 'rm -f "\${TMP_S}"' EXIT
 
 EOF
 
-# 1.5 FCC hazard nop — self-targeting (only promotes `#nop` followed by
-#     `.set noreorder`, i.e. filled-delay FP-compare branches). Safe to run
-#     unconditionally; needed for coalesced TUs (e.g. src/a_p_1) whose
-#     fcc_nop.txt entry keys on the TU name, not this run's FILE_OFF.
-echo "${PYTHON} ${PROJECT_ROOT}/tools/postprocess_fcc_nop.py \"\${TMP_S}\""
+# 1.5 FCC hazard nop + jr/j-$31 FP-delay nop — inline universal awk rules
+#     (these were retired from postprocess_fcc_nop.py into compile_c.sh; mirror
+#     them here so the permuter's pipeline matches the real build). Safe to run
+#     unconditionally.
+cat <<'AWKPP'
+awk '
+{ ln[NR]=$0 }
+END { i=1; while (i<=NR) { print ln[i];
+  if (ln[i] ~ /^[ \t]*c\.(lt|le|eq)\.[sd]([ \t]|$)/ && (i+1)<=NR && ln[i+1] ~ /^[ \t]*#nop[ \t]*$/) {
+    j=i+2; while (j<=NR && ln[j] ~ /^[ \t]*(#|$)/) j++;
+    if (j<=NR && ln[j] ~ /^[ \t]*\.set[ \t]+noreorder([ \t]|$)/) { print "\tnop"; i+=2; continue } }
+  i++ } }' "${TMP_S}" > "${TMP_S}.fcc" && mv "${TMP_S}.fcc" "${TMP_S}"
+awk '{ ln[NR]=$0 } END { i=1; while (i<=NR) {
+  if ((ln[i] ~ /^[ \t]*jr?[ \t]+\$31[ \t]*$/) && i>1 && ln[i-1] ~ /^[ \t]*(s\.s|swc1)[ \t]/) {
+    print "\t.set noreorder"; print ln[i]; print "\tnop"; print "\t.set reorder"
+  } else print ln[i]; i++ } }' "${TMP_S}" > "${TMP_S}.jrfp" && mv "${TMP_S}.jrfp" "${TMP_S}"
+AWKPP
 
 # 2. Postprocess scripts (only the ones that apply to this FILE_OFF).
 if [[ " ${PP_FLAGS} " == *" no_trailing_nop "* ]]; then
