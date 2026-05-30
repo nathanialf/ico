@@ -59,23 +59,25 @@ struct Sub15C {
 };
 
 struct Obj800 {
-    char    _pad0[0x4];
-    int     f_4;              /* 0x4   */
-    char    _pad8[0x4];       /* 0x8 .. 0xB */
-    int     f_C;              /* 0xC   */
-    int     f_10;             /* 0x10  */
-    char    _pad14[0x8];      /* 0x14 .. 0x1B */
-    int     f_1C;             /* 0x1C  */
-    int     f_20;             /* 0x20  */
-    void   *p_24;             /* 0x24  */
-    int     f_28;             /* 0x28  */
-    char    _pad2c[0x2C];     /* 0x2C .. 0x57 */
-    int     f_58;             /* 0x58  */
-    char    _pad5c[0xB4];     /* 0x5C .. 0x10F */
-    int     f_110;            /* 0x110 */
-    int     f_114;            /* 0x114 */
-    char    _pad118[0x28];    /* 0x118 .. 0x13F */
-    int     f_140;            /* 0x140 */
+    int     f_0;  /* 0x0 */
+    int     f_4;  /* 0x4 */
+    char    _pad8[0x4];
+    int     f_C;  /* 0xC */
+    int     f_10;  /* 0x10 */
+    char    _pad14[0x8];
+    int     f_1C;  /* 0x1C */
+    int     f_20;  /* 0x20 */
+    void   *p_24;  /* 0x24 */
+    int     f_28;  /* 0x28 */
+    char    _pad2C[0x2C];
+    int     f_58;  /* 0x58 */
+    char    _pad5C[0x44];
+    int     f_A0;  /* 0xA0 */
+    char    _padA4[0x6C];
+    int     f_110;  /* 0x110 */
+    int     f_114;  /* 0x114 */
+    char    _pad118[0x28];
+    int     f_140;  /* 0x140 */
 };
 
 #endif /* ICO_TYPES_H */

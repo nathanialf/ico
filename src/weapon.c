@@ -366,9 +366,9 @@ void func_001F4098(int *self)
 
 
 int func_001F40C8(char *self) {
-    char *sub = ((GObj *)(self))->p_15C;
-    char *p = ((Sub15C *)(sub))->p_800;
-    return *(int *)(p + 0x0);
+    Sub15C *sub = ((GObj *)(self))->p_15C;
+    Obj800 *p = sub->p_800;
+    return p->f_0;
 }
 
 extern void func_001F2388(int x);
@@ -469,9 +469,9 @@ void func_001F4250(int *self, int arg1, int a2)
 }
 
 int func_001F42D0(char *self) {
-    char *sub = ((GObj *)(self))->p_15C;
-    char *p = ((Sub15C *)(sub))->p_800;
-    *(int *)(p + 0xA0) = 0;
+    Sub15C *sub = ((GObj *)(self))->p_15C;
+    Obj800 *p = sub->p_800;
+    p->f_A0 = 0;
     return 1;
 }
 
