@@ -207,7 +207,6 @@ qd_listed lui_li_pre_sd.txt         && python3 "$ROOT/tools/postprocess_lui_li_p
 qd_listed dummy_sp_prologue.txt     && python3 "$ROOT/tools/postprocess_dummy_sp_prologue.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "0AE420" ] && python3 "$ROOT/tools/postprocess_0AE420.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "080550" ] && python3 "$ROOT/tools/postprocess_080550.py" "$ASM_OUT" || true
-[ "$(basename "$NAME")" = "094630" ] && python3 "$ROOT/tools/postprocess_094630.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "105628" ] && python3 "$ROOT/tools/postprocess_105628.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "01BF60" ] && python3 "$ROOT/tools/postprocess_01BF60.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "09F530" ] && python3 "$ROOT/tools/postprocess_09F530.py" "$ASM_OUT" || true
