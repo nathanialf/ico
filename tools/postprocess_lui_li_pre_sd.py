@@ -65,6 +65,21 @@ def patch(path: Path) -> bool:
         )
 
     new = pat.sub(repl, text, count=1)
+
+    # Sibling shape (func_0024DA80): a zero-store + dead-la-in-$8 prologue where
+    # ee-gcc schedules `sd $31` AFTER the store and la-%lo; the original keeps it
+    # right after the two lui's. Move `sd $31` up before them. Same family as the
+    # primary pattern above (func_0024DD30 wrappers), same prologue-order fixup.
+    SP = r"(?:\$29|\$sp)"
+    pat2 = re.compile(
+        r"([ \t]*lui[ \t]+\$8,%hi\([^)]+\)[^\n]*\n)"
+        r"([ \t]*sw[ \t]+\$0,%lo\([^)]+\)\(\$\d+\)[^\n]*\n)"
+        r"([ \t]*addiu[ \t]+\$8,\$8,%lo\([^)]+\)[^\n]*\n)"
+        rf"([ \t]*sd[ \t]+\$31,\d+\({SP}\)\n)"
+    )
+    new = pat2.sub(lambda m: m.group(1) + m.group(4) + m.group(2) + m.group(3),
+                   new, count=1)
+
     if new == text:
         return False
     path.write_text(new)
