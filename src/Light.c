@@ -125,7 +125,35 @@ cont_path:
     }
     func_001F6D90(self);
 }
-INCLUDE_ASM("asm/nonmatchings/src/Light", func_00115068);
+extern int D_00633C34;
+
+void func_00115068(char *self)
+{
+    char *next;
+    char *prev;
+    if (self == 0) {
+        func_001A6E28((char *)D_00554CB8);
+        func_001AD768((char *)D_00554CA8, 0x1C3);
+        func_00263FF0((char *)D_00554CA8, 0x1C3, D_00631C78_alias);
+    }
+    next = *(char **)(self + 0x94);
+    if (next == 0) goto eq_path;
+    prev = *(char **)(self + 0x98);
+    *(char **)(next + 0x98) = prev;
+    goto cont_path;
+eq_path:
+    prev = *(char **)(self + 0x98);
+    D_00633C34 = (int)prev;
+cont_path:
+    prev = *(char **)(self + 0x98);
+    if (prev != 0) {
+        *(char **)(prev + 0x94) = *(char **)(self + 0x94);
+    }
+    if (D_00633C34 != 0) {
+        *(int *)(D_00633C34 + 0x94) = 0;
+    }
+    func_001F6D90(self);
+}
 INCLUDE_ASM("asm/nonmatchings/src/Light", func_00115108);
 INCLUDE_ASM("asm/nonmatchings/src/Light", func_00115410);
 INCLUDE_ASM("asm/nonmatchings/src/Light", func_00115878);
