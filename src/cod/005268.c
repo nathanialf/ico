@@ -1,10 +1,8 @@
-#include "regpin.h"
-
 extern int D_00631B40;
 
-int func_00105268(void)
+/* Declared void (see 005258.c): keeps the decrement in $v0 with the store
+ * in the jr delay slot — matches WITHOUT the coalesce_v1_v0 postprocess. */
+void func_00105268(void)
 {
-    register int r REG("$2") = D_00631B40 - 1;
-    D_00631B40 = r;
-    return r;
+    D_00631B40--;
 }

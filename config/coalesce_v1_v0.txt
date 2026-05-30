@@ -11,5 +11,3 @@
 #
 # Format: <FILE_OFF_HEX> [# optional comment]
 
-005258  # func_00105258: ++D_00631B40
-005268  # func_00105268: --D_00631B40
