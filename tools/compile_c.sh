@@ -195,7 +195,6 @@ if [ "${BASE}" = "fightSound" ]; then
     "${PYTHON}" "${ROOT}/tools/postprocess_191F50.py" "${S}"
 fi
 if [ "${BASE}" = "way_util" ]; then
-    "${PYTHON}" "${ROOT}/tools/postprocess_07AC48.py" "${S}"
     "${PYTHON}" "${ROOT}/tools/postprocess_07ACD8.py" "${S}"
 fi
 if listed "${SWAP_ADDU_TXT}"; then

@@ -297,38 +297,29 @@ extern unsigned char D_004CAEC0[];
 
 void *func_0017AC48(int arg0, int arg1)
 {
-    char *a = (char *)D_004CAEC0;
+    unsigned char *base = D_004CAEC0;
     char *b = (char *)D_004CC1E0;
-    char *end = (char *)D_004CAEC0 + 0x1318;
-    register int va __asm__("$7");
-    register int vb __asm__("$6");
-    char *bA;
-    char *bB;
-    int new_var;
-    int f;
-loop:
-    if (*(int *)(a + 0x0) == 0) { a += 0x34; goto check; }
-    if (*(int *)(a + 0x18) == 0) { a += 0x34; goto check; }
-    __asm__ __volatile__("" ::: "memory");
-    bA = (char *)(*(int *)(a + 0x20) * 0x40 + (int)b);
-    new_var = *(int *)(a + 0x24) * 0x40;
-    bB = (char *)(new_var + (int)b);
-    va = *(int *)(bA + 0x20);
-    if (va != arg0) goto skipA;
-    vb = *(int *)(bB + 0x20);
-    if (vb != arg1) goto chkB;
-    return bB;
-skipA:
-    vb = *(int *)(bB + 0x20);
-chkB:
-    a += 0x34;
-    if (vb != arg0) goto check;
-    if (va != arg1) goto chk2;
-    return bA;
-check:
-    ;
-chk2:
-    if ((int)a < (int)end) { f = *(int *)(a + 0x0); goto loop; }
+    int va, vb, new_var, i;
+    char *bA, *bB, *a;
+    for (i = 0; i < 0x1318; i += 0x34) {
+        a = (char *)base + i;
+        if (*(int *)(a + 0x0) == 0) continue;
+        if (*(int *)(a + 0x18) == 0) continue;
+        bA = (char *)(*(int *)(a + 0x20) * 0x40 + (int)b);
+        new_var = *(int *)(a + 0x24) * 0x40;
+        va = *(int *)(bA + 0x20);
+        bB = (char *)(new_var + (int)b);
+        if (va != arg0) goto skipA;
+        vb = *(int *)(bB + 0x20);
+        if (vb != arg1) goto chkB;
+        return bB;
+    skipA:
+        vb = *(int *)(bB + 0x20);
+    chkB:
+        if (vb != arg0) continue;
+        if (va != arg1) continue;
+        return bA;
+    }
     return 0;
 }
 int func_0017ACD8(int arg0, int arg1)
