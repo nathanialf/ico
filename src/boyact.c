@@ -369,11 +369,11 @@ void func_00154390(void)
     if (D_00631AE4 != 0) {
         int s0 = *(int *)(D_00631AE4 + 0x164);
         if (*(int *)(s0 + 0x140) != 0) {
-            int buf[4];
+            union { int i[4]; float f[4]; } buf;
             func_001F4098(*(int *)(s0 + 0x140));
-            func_002641D8(buf, 0, 0x10);
-            *(float *)&buf[0] = D_00630C20;
-            func_00104360(*(int *)(s0 + 0x140), buf);
+            func_002641D8(buf.i, 0, 0x10);
+            buf.f[0] = D_00630C20;
+            func_00104360(*(int *)(s0 + 0x140), buf.i);
             func_001AE420(*(int *)(s0 + 0x140), 0, 0, D_00631990);
             *(int *)(*(int *)(s0 + 0x140) + 0x16C) = 0;
         }

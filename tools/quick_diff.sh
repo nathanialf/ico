@@ -215,7 +215,6 @@ qd_listed dummy_sp_prologue.txt     && python3 "$ROOT/tools/postprocess_dummy_sp
 [ "$(basename "$NAME")" = "103A10" ] && python3 "$ROOT/tools/postprocess_103A10.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "0EF9E0" ] && python3 "$ROOT/tools/postprocess_0EF9E0.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "fightSound" ] && python3 "$ROOT/tools/postprocess_191F50.py" "$ASM_OUT" || true
-[ "$(basename "$NAME")" = "boyact" ] && python3 "$ROOT/tools/postprocess_054390.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "way_util" ] && python3 "$ROOT/tools/postprocess_07AC48.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "way_util" ] && python3 "$ROOT/tools/postprocess_07ACD8.py" "$ASM_OUT" || true
 # qd_listed is @func-aware, so this fires only for the func(s) the TU line scopes to.
