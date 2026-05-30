@@ -200,6 +200,15 @@ END { i=1; while (i<=NR) { print ln[i];
     j=i+2; while (j<=NR && ln[j] ~ /^[ \t]*(#|$)/) j++;
     if (j<=NR && ln[j] ~ /^[ \t]*\.set[ \t]+noreorder([ \t]|$)/) { print "\tnop"; i+=2; continue } }
   i++ } }' "$ASM_OUT" > "$ASM_OUT.fcc" && mv "$ASM_OUT.fcc" "$ASM_OUT"
+
+# ee-as 2.96 fills a jr/j $31 delay slot with a preceding FP store (s.s/swc1),
+# but the R5900 FP-store→cvt hazard means the original assembler left a nop there.
+# Wrap such a return in .set noreorder + explicit nop. Universal assembler-adaptation.
+awk '{ ln[NR]=$0 } END { i=1; while (i<=NR) {
+  if ((ln[i] ~ /^[ \t]*jr?[ \t]+\$31[ \t]*$/) && i>1 && ln[i-1] ~ /^[ \t]*(s\.s|swc1)[ \t]/) {
+    print "\t.set noreorder"; print ln[i]; print "\tnop"; print "\t.set reorder"
+  } else print ln[i]; i++ } }' "$ASM_OUT" > "$ASM_OUT.jrfp" && mv "$ASM_OUT.jrfp" "$ASM_OUT"
+
 qd_listed fcc_noreorder.txt      && python3 "$ROOT/tools/postprocess_fcc_noreorder.py" "$ASM_OUT" || true
 qd_listed unfold_ra_delay.txt    && python3 "$ROOT/tools/postprocess_unfold_ra_delay.py" "$ASM_OUT" || true
 qd_listed early_epilogue_restore.txt && python3 "$ROOT/tools/postprocess_early_epilogue_restore.py" "$ASM_OUT" || true

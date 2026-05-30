@@ -27,7 +27,6 @@
 # per-file. tools/global_flag_sweep.py `prune` verified this is the load-bearing
 # remainder — redundant entries (BASIC, 090408, 0B5958, 145120, 145178) were
 # removed when they began matching without the flag.
-0EF9A8 -fno-schedule-insns
 0ADBC0 -fno-schedule-insns
 14DA80 -fno-schedule-insns
 
