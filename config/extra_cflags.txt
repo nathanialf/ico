@@ -57,4 +57,3 @@ DISPLAYLIST -malign-functions=2 -malign-loops=2
 # vec3 within the obj; the original orders the local-buf stores ahead of the
 # obj vec-loads (no TBAA reorder). -fno-strict-aliasing restores that order.
 # tu_check confirms the matched sibling stays byte-identical.
-07E838 -fno-schedule-insns

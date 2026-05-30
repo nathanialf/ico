@@ -1,12 +1,11 @@
 #include "ico/types.h"
-extern void func_00105F00(char *dst, void *src);
-
-void func_0017E838(char *a0, float f12, float f13, float f14)
+extern int func_00105F00(void *p, void *buf);
+int func_0017E838(char *a0, float f12, float f13, float f14)
 {
-    int local[4];
-    *(float *)&local[0] = f12;
-    *(float *)&local[1] = f13;
-    *(float *)&local[2] = f14;
-    local[3] = 0;
-    return func_00105F00((char *)((GObj *)(a0))->p_15C + 0x670, local);
+    union { float f[4]; int i[4]; } local;
+    local.f[0] = f12;
+    local.f[1] = f13;
+    local.f[2] = f14;
+    local.i[3] = 0;
+    return func_00105F00((char *)GOBJ_SUB(a0) + 0x670, local.f);
 }
