@@ -32,6 +32,7 @@ const char D_0061AB50[56] = "\000@\001\000\0008\000\000\000x\000\000\000\020\000
 unsigned int D_00632024 = 0x00000000;
 
 #include "include_asm.h"
+#include "ico/types.h"
 #include "regpin.h"
 
 extern void func_00104508(int *buf, int *p);
@@ -52,34 +53,37 @@ INCLUDE_ASM("asm/nonmatchings/src/torch", func_001F2048);
 
 void func_001F2140(void) {}
 
-int func_001F2148(char *self) {
-    char *sub = *(char **)(self + 0x15C);
-    char *p = *(char **)(sub + 0x800);
-    return *(int *)(p + 0x4);
+int func_001F2148(char *self_) {
+    GObj *self = (GObj *)self_;
+    Sub15C *sub = self->p_15C;
+    Obj800 *p = sub->p_800;
+    return p->f_4;
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/torch", func_001F2158);
 
-void func_001F2230(char *self, int val) {
-    char *sub = *(char **)(self + 0x15C);
-    char *p = *(char **)(sub + 0x800);
-    *(int *)(p + 0xC) = val;
+void func_001F2230(char *self_, int val) {
+    GObj *self = (GObj *)self_;
+    Sub15C *sub = self->p_15C;
+    Obj800 *p = sub->p_800;
+    p->f_C = val;
 }
 
-void func_001F2240(char *self, int val) {
-    char *sub = *(char **)(self + 0x15C);
-    char *p = *(char **)(sub + 0x800);
-    *(int *)(p + 0x10) = val;
+void func_001F2240(char *self_, int val) {
+    GObj *self = (GObj *)self_;
+    Sub15C *sub = self->p_15C;
+    Obj800 *p = sub->p_800;
+    p->f_10 = val;
 }
 
 void func_001F2250(int *self)
 {
     int buf[4];
-    int *p;
+    Sub15C *p;
     func_00104508(buf, self);
-    p = (int *)self[0x15C/4];
+    p = ((GObj *)self)->p_15C;
     func_00243AE8((int *)((char *)p + 0x130), buf, (int *)((char *)p + 0x1F0));
-    p = (int *)self[0x15C/4];
+    p = ((GObj *)self)->p_15C;
     func_00105F00((int *)((char *)p + 0x1F0), buf);
 }
 

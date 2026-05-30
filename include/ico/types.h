@@ -47,7 +47,10 @@ struct Sub15C {
 struct Obj800 {
     char    _pad0[0x4];
     int     f_4;              /* 0x4   */
-    char    _pad8[0x14];      /* 0x8 .. 0x1B */
+    char    _pad8[0x4];       /* 0x8 .. 0xB */
+    int     f_C;              /* 0xC   */
+    int     f_10;             /* 0x10  */
+    char    _pad14[0x8];      /* 0x14 .. 0x1B */
     int     f_1C;             /* 0x1C  */
     int     f_20;             /* 0x20  */
     void   *p_24;             /* 0x24  */
