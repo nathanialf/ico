@@ -72,13 +72,13 @@ typedef struct { void *sub; int field4; } BBDD8Entry;
 int func_001BBDD8(void *obj)
 {
     register void *temp1 REG("$3");
-    register int *t1 REG("$9");
-    register int count REG("$2");
+    register int *t1;
+    register int count;
     register int i REG("$8");
-    register BBDD8Entry *entries REG("$10");
+    register BBDD8Entry *entries;
     register int const_one REG("$7");
-    register BBDD8Entry *e REG("$5");
-    register void *sub REG("$6");
+    register BBDD8Entry *e;
+    register void *sub;
     int saved;
     int *inner;
     int *inner2;

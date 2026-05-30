@@ -108,7 +108,7 @@ int func_00149E70(int *a0)
 {
     int *inner;
     long long val;
-    register int ret REG("$2");
+    register int ret;
     if (a0 == 0) goto fail;
     if (a0 != D_00631AE4) goto fail;
     inner = (int *)a0[0x164 / 4];
@@ -164,8 +164,8 @@ int func_00149F20(char *a, char *b)
     _E190 *e2 = (_E190 *)((char *)D_00565060 + idx2 * 0x190);
     int b1 = ((unsigned int)e1->_188 >> 15) & 1;
     int b2 = ((unsigned int)e2->_188 >> 15) & 1;
-    MATERIALIZE(b1);
-    MATERIALIZE(b2);
+
+
     return b1 & b2;
 }
 extern int D_00561928[][10];
@@ -182,7 +182,7 @@ void func_00149F70(char *self, char *other, int idx)
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_00149FF0);
 int func_0014A0A8(int *a0)
 {
-    register int *sub REG("$3");
+    register int *sub;
     register int rv REG("$2");
     sub = (int *)a0[0x164 / 4];
     rv = 0;
@@ -379,18 +379,18 @@ int func_0014A560(void)
     sub = ((GObj *)((char *)player))->p_15C;
 body:
     {
-        register int idx REG("$3");
+        register int idx;
         register char *base REG("$5") = (char *)D_00565060;
-        register int stride REG("$4") = 0x190;
+        register int stride = 0x190;
         ANCHOR(base);
-        ANCHOR(stride);
+
         MEM_BARRIER();
         idx = *(int *)((char *)sub + 0x4A0);
         entry = base + idx * stride;
     }
     rv = 1;
     {
-        register int field REG("$4") = (int)((GObj *)(entry))->p_15C;
+        register int field = (int)((GObj *)(entry))->p_15C;
         if (field == 1) {
             goto end;
         }

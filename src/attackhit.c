@@ -202,9 +202,9 @@ typedef struct {
 void func_00181BF8(void *self, int p1, float *vec, void *cb, float scale)
 {
     AttackBuf_181BF8 buf;
-    register char *buf_base REG("$16");
-    register float vx REG("$f2");
-    register float vy REG("$f0");
+    register char *buf_base;
+    register float vx;
+    register float vy;
     register float vz REG("$f1");
     float *vp = vec;
     if (self == 0) {
@@ -251,10 +251,10 @@ void func_00181BF8(void *self, int p1, float *vec, void *cb, float scale)
 void func_00181D88(void *self, int p1, float *vec, void *cb, float scale)
 {
     AttackBuf_181BF8 buf;
-    register char *buf_base REG("$16");
-    register float vx REG("$f2");
-    register float vy REG("$f0");
-    register float vz REG("$f1");
+    register char *buf_base;
+    register float vx;
+    register float vy;
+    register float vz;
     float *vp = vec;
     if (self == 0) {
         func_001AD768(D_0055A518, 0x300);

@@ -85,7 +85,7 @@ extern void func_001BC9B8(void);
 int func_001C06A0(char *self_, int a1)
 {
     GObj *self = (GObj *)self_;
-    register Sub15C *sub REG("$2") = self->p_15C;
+    register Sub15C *sub = self->p_15C;
     Obj800 *s0 = sub->p_800;
     register int f58 REG("$3") = s0->f_58;
     if (f58 == 0 || s0->f_110 == 0) {
@@ -141,7 +141,7 @@ void func_001C0860(char *self_, int val) {
 void func_001C0870(int *self, int x)
 {
     GObj *g = (GObj *)self;
-    register Sub15C *t REG("$2");
+    register Sub15C *t;
     Obj800 *q;
     register int v REG("$3");
     t = g->p_15C;
@@ -181,10 +181,10 @@ int *func_001C09C8(char *self, void *arg1)
     }
     entry = (int *)((char *)D_0028CA88 + (*(int **)(self + 0x15C))[0x814 / 4] * 0x28);
     buf[0xC / 4] = func_0019F310(entry[0], arg1);
-    KEEP_LIVE_MEM(buf);
+
     {
         register void *a1 REG("$5") = arg1;
-        register int *t1 REG("$3");
+        register int *t1;
         register int idx2 REG("$2");
         KEEP_LIVE(a1);
         t1 = *(int **)(self + 0x15C);
@@ -226,7 +226,7 @@ int func_001C0BF8(char *self)
     }
     accum = 1;
 done:
-    MATERIALIZE(accum);
+
     return accum;
 }
 TRAILING_PAD_NOP();
@@ -248,10 +248,10 @@ int *func_001C0C40(char *self, void *arg1)
     }
     entry = (int *)((char *)D_0028CA88 + (*(int **)(self + 0x15C))[0x814 / 4] * 0x28);
     buf[0xC / 4] = func_0019F310(entry[0], arg1);
-    KEEP_LIVE_MEM(buf);
+
     {
         register void *a1 REG("$5") = arg1;
-        register int *t1 REG("$3");
+        register int *t1;
         register int idx2 REG("$2");
         KEEP_LIVE(a1);
         t1 = *(int **)(self + 0x15C);

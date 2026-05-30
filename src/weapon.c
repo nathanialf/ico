@@ -425,8 +425,8 @@ void func_001F41C8(int *self)
 
 long func_001F4228(int *a0)
 {
-    register int *v REG("$2") = (int *)a0[0x57];
-    register int *v1 REG("$3");
+    register int *v = (int *)a0[0x57];
+    register int *v1;
     v = (int *)v[0x200];
     v1 = (int *)v[0x14];
     if (0 == v1) goto fail;
@@ -481,7 +481,7 @@ float func_001F42E8(char *a0)
 {
     Sub15C *p = *(char **)((char *)((GObj *)(a0))->p_15C + 0x800);
     int idx = *(int *)p;
-    register float v REG("$f0");
+    register float v;
     v = (float)D_006124F8[idx].field;
     __asm__ __volatile__("" : "+f"(v));
     NOP();
@@ -493,14 +493,14 @@ extern int func_0013EBE0(int handle);
 extern void func_001F2240(int item, int arg0);
 void func_001F4318(int arg0)
 {
-    register int i REG("$16");
+    register int i;
     register int *self REG("$17");
     int handle = func_0013EB50(0xE);
     if (handle != 0) {
         do {
             self = (int *)(((int *)((int *)handle)[0x15C / 4])[0x800 / 4]);
             if (*self == 1 && self[0x50 / 4] > 0) {
-                register int count REG("$2");
+                register int count;
                 i = 0;
                 do {
                     func_001F2240(((int *)self[0x54 / 4])[i], arg0);
@@ -521,7 +521,7 @@ typedef struct { long long w[22]; } WeaponBuf_B0;
 int func_001F43D0(int *self, int arg1)
 {
     int s2 = func_0013A0F8(D_00632010, 0xB0, D_0061A850, 0x2F2);
-    register int count_outer REG("$3");
+    register int count_outer;
     int i;
     ((int *)((GObj *)(self))->p_15C)[0x800 / 4] = s2;
     *(WeaponBuf_B0 *)s2 = *(WeaponBuf_B0 *)D_004C6240;
