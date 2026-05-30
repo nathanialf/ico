@@ -133,10 +133,10 @@ void func_00149EA8(volatile int *self)
 /* Matched body inlined from src/cod/049ED0.c during TU coalesce. */
 void func_00149ED0(int *a0)
 {
-    ((int *)((GObj *)(a0))->p_15C)[0x544 / 4] = 0;
-    ((int *)((GObj *)(a0))->p_15C)[0x54C / 4] = 0;
-    ((int *)((GObj *)(a0))->p_15C)[0x548 / 4] = 0;
-    ((int *)((GObj *)(a0))->p_15C)[0x7C / 4] = 0;
+    ((int *)GOBJ_SUB(a0))[0x544 / 4] = 0;
+    ((int *)GOBJ_SUB(a0))[0x54C / 4] = 0;
+    ((int *)GOBJ_SUB(a0))[0x548 / 4] = 0;
+    ((int *)GOBJ_SUB(a0))[0x7C / 4] = 0;
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_00149EF4);
@@ -208,12 +208,19 @@ long func_0014A0D8(void)
 
 extern int func_00109F10(void *a0, void *a1);
 
+/* The output cell is one the engine reads back as an int elsewhere, so each
+ * write may-aliases the int mesh-pointer chain and the dev's build re-reads the
+ * chain per component. Storing through the int/float union spells that alias out
+ * in the type system (still a single swc1) instead of a per-file
+ * -fno-strict-aliasing override. */
+typedef union { int i; float f; } IntFloat;
+
 void func_0014A100(float *dst, char *obj, void *a2)
 {
     int idx = func_00109F10(obj, a2) << 6;
-    dst[0] = *(float *)(idx + *(int *)((int)((GObj *)(obj))->p_15C + 0xC) + 0x30);
-    dst[1] = *(float *)(idx + *(int *)((int)((GObj *)(obj))->p_15C + 0xC) + 0x34);
-    dst[2] = *(float *)(idx + *(int *)((int)((GObj *)(obj))->p_15C + 0xC) + 0x38);
+    ((IntFloat *)dst)[0].f = *(float *)(idx + *(int *)((int)((GObj *)(obj))->p_15C + 0xC) + 0x30);
+    ((IntFloat *)dst)[1].f = *(float *)(idx + *(int *)((int)((GObj *)(obj))->p_15C + 0xC) + 0x34);
+    ((IntFloat *)dst)[2].f = *(float *)(idx + *(int *)((int)((GObj *)(obj))->p_15C + 0xC) + 0x38);
 }
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A178);
 
