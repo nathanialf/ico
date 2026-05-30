@@ -17,33 +17,28 @@
 # moved to ee-gcc 2.9-991111 (whose default scheduler already produces the
 # matching shape).
 #
-# `BASIC -fno-schedule-insns`: src/Basic.c TU bundles 5 functions and
-# was missing func_001F6E00 because the first-pass scheduler picked an
-# `addiu a2; sd ra` prologue order whereas the original (and the
-# standalone-TU build) emits `sd ra` between `lui a2` and `addiu a2`.
-# Disabling only the first-pass scheduler for this TU restores the
-# matching prologue without breaking the other 4 functions (which depend
-# on the default second-pass scheduling that remains enabled).
+# `-fno-schedule-insns` (first-pass scheduler off) per-file: ee-gcc's first-pass
+# scheduler picks an `addiu a2; sd ra` prologue order whereas the original emits
+# `sd ra` between `lui a2` and `addiu a2`. Disabling only the first-pass
+# scheduler for these TUs restores the matching prologue.
 #
-# Tested promoting to global CFLAGS — broke 2.2M bytes of matched .text,
-# so the first-pass scheduler is load-bearing for the rest of the codebase.
-
-BASIC -fno-schedule-insns
+# Tested promoting to global CFLAGS — broke 2.2M bytes of matched .text, so the
+# first-pass scheduler is load-bearing for the rest of the codebase; these stay
+# per-file. tools/global_flag_sweep.py `prune` verified this is the load-bearing
+# remainder — redundant entries (BASIC, 090408, 0B5958, 145120, 145178) were
+# removed when they began matching without the flag.
 163F48 -fno-schedule-insns
 0EF9A8 -fno-schedule-insns
 163FB0 -fno-schedule-insns
 07E838 -fno-schedule-insns
-090408 -fno-schedule-insns
-0B5958 -fno-schedule-insns
 0ADBC0 -fno-schedule-insns
 14DA80 -fno-schedule-insns
 0AA4F0 -fno-schedule-insns
 165B28 -fno-schedule-insns
 166870 -fno-schedule-insns
-145120 -fno-schedule-insns
 
-ATTACKCHECKBOUNDARY -fno-strength-reduce
-GOBJ_PROCESS -fno-strength-reduce
+# (no -fno-strength-reduce overrides remain: ATTACKCHECKBOUNDARY, GOBJ_PROCESS,
+# and ITOU_BOSS all began matching under the default and were pruned.)
 
 
 # Coalesced TUs with matched function bodies sandwiched between
@@ -55,9 +50,7 @@ SWITCH -malign-functions=2
 S_INIT -malign-functions=2
 # func_001FB5E0 also has a loop top, so its .p2align 3 needs demoting too.
 DISPLAYLIST -malign-functions=2 -malign-loops=2
-145178 -fno-schedule-insns
 0D4E30 -fno-schedule-insns
-ITOU_BOSS -fno-strength-reduce
 00F710 -fno-strict-aliasing
 
 # act-game: func_0014A100 writes a vec3 to a float* dst while re-reading the
