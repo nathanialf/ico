@@ -195,7 +195,6 @@ qd_listed shared_sp_restore.txt  && python3 "$ROOT/tools/postprocess_shared_sp_r
 qd_listed shared_jr_restore.txt  && python3 "$ROOT/tools/postprocess_shared_sp_restore.py" --jr-and-sp "$ASM_OUT" || true
 qd_listed fcc_nop.txt            && python3 "$ROOT/tools/postprocess_fcc_nop.py" "$ASM_OUT" || true
 qd_listed fcc_noreorder.txt      && python3 "$ROOT/tools/postprocess_fcc_noreorder.py" "$ASM_OUT" || true
-qd_listed early_body_swap.txt    && python3 "$ROOT/tools/postprocess_early_body_swap.py" "$ASM_OUT" || true
 qd_listed unfold_ra_delay.txt    && python3 "$ROOT/tools/postprocess_unfold_ra_delay.py" "$ASM_OUT" || true
 qd_listed early_epilogue_restore.txt && python3 "$ROOT/tools/postprocess_early_epilogue_restore.py" "$ASM_OUT" || true
 qd_listed fill_blez_delay.txt        && python3 "$ROOT/tools/postprocess_fill_blez_delay.py" "$ASM_OUT" || true
