@@ -1,7 +1,8 @@
 #include "matching.h"
+#include "ico/types.h"
 
 int func_00109BA8(char *self) {
-    return *(int *)(*(char **)(self + 0x15C) + 0x1E0);
+    return ((GObj *)(self))->p_15C->f_1E0;
 }
 
 TRAILING_PAD_NOP();

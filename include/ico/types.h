@@ -33,15 +33,29 @@ struct GObj {
 
 struct Sub15C {
     char    _pad0[0xC];
-    int     f_C;              /* 0xC   */
-    char    _pad10[0x64];     /* 0x10 .. 0x73 */
-    int     f_74;             /* 0x74  */
-    char    _pad78[0x428];    /* 0x78 .. 0x49F */
-    int     f_4A0;            /* 0x4A0 — index (motionOrient stride base) */
-    char    _pad4a4[0x35C];   /* 0x4A4 .. 0x7FF */
-    Obj800 *p_800;            /* 0x800 */
-    char    _pad804[0x10];    /* 0x804 .. 0x813 */
-    int     f_814;            /* 0x814 */
+    int     f_C;  /* 0xC */
+    char    _pad10[0x64];
+    int     f_74;  /* 0x74 */
+    char    _pad78[0xC];
+    int     f_84;  /* 0x84 */
+    char    _pad88[0x158];
+    int     f_1E0;  /* 0x1E0 */
+    char    _pad1E4[0x2BC];
+    int     f_4A0;  /* 0x4A0 — index (motionOrient) */
+    char    _pad4A4[0x8];
+    int     f_4AC;  /* 0x4AC */
+    char    _pad4B0[0x8];
+    int     f_4B8;  /* 0x4B8 */
+    char    _pad4BC[0x1C];
+    int     f_4D8;  /* 0x4D8 */
+    char    _pad4DC[0x8];
+    int     f_4E4;  /* 0x4E4 */
+    char    _pad4E8[0x44];
+    int     f_52C;  /* 0x52C */
+    char    _pad530[0x2D0];
+    Obj800 *p_800;  /* 0x800 */
+    char    _pad804[0x10];
+    int     f_814;  /* 0x814 */
 };
 
 struct Obj800 {

@@ -1,3 +1,4 @@
+#include "ico/types.h"
 void func_0010A038(char *self) {
-    *(int *)(*(char **)(self + 0x15C) + 0x4E4) = 1;
+    ((GObj *)(self))->p_15C->f_4E4 = 1;
 }
