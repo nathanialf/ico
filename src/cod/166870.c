@@ -7,8 +7,8 @@ int func_00266870(int a0, int *self)
         goto end;
     }
     func_0026AC40(a0, self);
-    self[1] = 0;
     self[2] = 0;
+    self[1] = 0;
 end:
     return 0;
 }
