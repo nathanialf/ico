@@ -91,7 +91,40 @@ const float D_005D19E8[12] = { 0.0f, 0.0f, 0.0f, 0.0f, 255.0f, 2e+02f, 1.8e+02f,
 #include "matching.h"
 #include "vu0.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/Light", func_00114FC8);
+extern void func_001A6E28(char *p);
+extern void func_001AD768(char *buf, int sz);
+extern void func_00263FF0(char *buf, int sz, int *list);
+extern void func_001F6D90(void *p);
+extern int D_00633C30;
+extern int D_00631C78_alias[] __asm__("D_00631C78");
+
+void func_00114FC8(char *self)
+{
+    char *next;
+    char *prev;
+    if (self == 0) {
+        func_001A6E28((char *)D_00554C90);
+        func_001AD768((char *)D_00554CA8, 0x1A8);
+        func_00263FF0((char *)D_00554CA8, 0x1A8, D_00631C78_alias);
+    }
+    next = *(char **)(self + 0x48);
+    if (next == 0) goto eq_path;
+    prev = *(char **)(self + 0x4C);
+    *(char **)(next + 0x4C) = prev;
+    goto cont_path;
+eq_path:
+    prev = *(char **)(self + 0x4C);
+    D_00633C30 = (int)prev;
+cont_path:
+    prev = *(char **)(self + 0x4C);
+    if (prev != 0) {
+        *(char **)(prev + 0x48) = *(char **)(self + 0x48);
+    }
+    if (D_00633C30 != 0) {
+        *(int *)(D_00633C30 + 0x48) = 0;
+    }
+    func_001F6D90(self);
+}
 INCLUDE_ASM("asm/nonmatchings/src/Light", func_00115068);
 INCLUDE_ASM("asm/nonmatchings/src/Light", func_00115108);
 INCLUDE_ASM("asm/nonmatchings/src/Light", func_00115410);
