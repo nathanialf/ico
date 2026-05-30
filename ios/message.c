@@ -24,7 +24,7 @@ extern const char D_006320E8[];
 
 void func_0013A220(int *a0)
 {
-    register int *v1 REG("$3") = a0;
+    register int *v1 = a0;
     register int *a1 REG("$5") = (int *)v1[0x10 / 4];
     int v0;
     int new_a0;

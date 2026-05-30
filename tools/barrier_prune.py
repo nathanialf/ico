@@ -39,6 +39,14 @@ COMPILE = ROOT / "tools" / "compile_c.sh"
 OBJDUMP = "mips-linux-gnu-objdump"
 
 BARRIER_RE = re.compile(r'\b(DEFEAT_TCO|MEM_BARRIER|KEEP_LIVE_MEM)\s*\([^;]*\)\s*;')
+# Register-crutch patterns (used with --include-reg); object-self-diff verifies
+# them just as soundly as barriers, so this also handles the files crutch_prune
+# had to skip (matched func nonzero at baseline / postprocess-dependent).
+REG_STMT_RE = re.compile(
+    r'\b(KEEP_LIVE_FP2|KEEP_LIVE_FP|KEEP_LIVE|MATERIALIZE|ANCHOR)\s*\([^;]*\)\s*;')
+REG_PIN_RE = re.compile(r'\s*REG\("\$[0-9a-zA-Z]+"\)')
+
+INCLUDE_REG = False  # set by main when --include-reg
 
 _ADDR = re.compile(r'^\s*[0-9a-f]+:\s+[0-9a-f]+\s+')      # instruction addr+bytes
 _RELOC = re.compile(r'^\s*[0-9a-f]+:\s+(R_[A-Z0-9_]+\s+\S+)')  # reloc line
@@ -72,8 +80,15 @@ def compile_text(src: Path) -> list[str] | None:
 
 
 def occurrences(text: str):
-    return [(m.start(), m.end(), m.group(1), m.group(0).strip())
-            for m in BARRIER_RE.finditer(text)]
+    occ = [(m.start(), m.end(), m.group(1), m.group(0).strip())
+           for m in BARRIER_RE.finditer(text)]
+    if INCLUDE_REG:
+        occ += [(m.start(), m.end(), m.group(1), m.group(0).strip())
+                for m in REG_STMT_RE.finditer(text)]
+        occ += [(m.start(), m.end(), "REG", m.group(0).strip())
+                for m in REG_PIN_RE.finditer(text)]
+        occ.sort()
+    return occ
 
 
 def process_file(path: Path, apply: bool):
@@ -146,8 +161,14 @@ def main() -> int:
     ap.add_argument("--apply-all", action="store_true")
     ap.add_argument("--files", default=None)
     ap.add_argument("--exclude", default="")
+    ap.add_argument("--include-reg", action="store_true",
+                    help="also prune register crutches (REG/KEEP_LIVE/ANCHOR/"
+                         "MATERIALIZE) via the same object-self-diff")
     ap.add_argument("--jobs", type=int, default=8)
     args = ap.parse_args()
+
+    global INCLUDE_REG
+    INCLUDE_REG = args.include_reg
 
     if args.apply:
         print(json.dumps(process_file(ROOT / args.apply, apply=True), indent=2))

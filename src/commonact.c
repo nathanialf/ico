@@ -774,7 +774,7 @@ void func_0016A5F0(int *a0, int *a1)
     MEM_BARRIER();
     *(int *)((char *)a0 + 0xC) = 0;
     {
-        register int base REG("$2") =
+        register int base =
             *(int *)(*(int *)((char *)a1 + 0x15C) + 0xC);
         func_002438B8(a0, base + (idx << 6), (char *)a0);
     }
@@ -957,7 +957,7 @@ int func_00175C18(void)
         return 1;
     }
     {
-        register int v REG("$4") = *(int *)(sub + 0x30);
+        register int v = *(int *)(sub + 0x30);
         register int r REG("$2") = 0;
         if (v == 0x45 && D_002883D0[0x5D] != 0) {
             r = D_002883D0[0x58] == 0;

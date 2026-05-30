@@ -246,7 +246,7 @@ void func_001394F0(int *a0, int a1, int a2)
     func_00139598(a0);
     func_001A6E28(D_005572B8, a1, a2, a0, end);
     {
-        register int g REG("$2") = (unsigned int) a0 < (unsigned int) end;
+        register int g = (unsigned int) a0 < (unsigned int) end;
         if (g)
         {
             do

@@ -143,19 +143,19 @@ void func_0013FF80(void) {}
 
 int func_0013FF88(char *self_arg, int val5, int val6)
 {
-    register char *self REG("$8") = self_arg;
+    register char *self = self_arg;
     int *p = (int *)(self + 0x54);
     int count = p[1];
-    register int idx REG("$3");
-    register char *addr REG("$3");
+    register int idx;
+    register char *addr;
     if (count == 0x20) return -1;
     idx = count * 8;
     __asm__("addu %0, %1, %2" : "=r"(addr) : "r"(self), "0"(idx));
     *(int *)(addr + 0x5C) = val5;
     {
         int c2 = p[1];
-        register int idx2 REG("$3");
-        register char *addr2 REG("$3");
+        register int idx2;
+        register char *addr2;
         p[1] = c2 + 1;
         idx2 = c2 * 8;
         __asm__("addu %0, %1, %2" : "=r"(addr2) : "r"(self), "0"(idx2));
@@ -172,20 +172,20 @@ int func_0013FFD0(int a0, int val5, int val6)
             int full;
             int *p = (int *)((char *)node + 0x54);
             int count = p[1];
-            ANCHOR(full);
+
             if (count == 0x20) {
                 full = -1;
             } else {
-                register int idx REG("$2");
-                register char *addr REG("$2");
+                register int idx;
+                register char *addr;
                 idx = count * 8;
                 __asm__("addu %0, %1, %2" : "=r"(addr) : "r"(node), "0"(idx));
                 full = 0;
                 *(int *)(addr + 0x5C) = val5;
                 {
                     int c2 = p[1];
-                    register int idx2 REG("$2");
-                    register char *addr2 REG("$2");
+                    register int idx2;
+                    register char *addr2;
                     p[1] = c2 + 1;
                     idx2 = c2 * 8;
                     __asm__("addu %0, %1, %2" : "=r"(addr2) : "r"(node), "0"(idx2));
@@ -390,13 +390,13 @@ extern int D_00633CB0;
 
 int func_00140CE0(void)
 {
-    register int *p REG("$4") = D_00633CB8;
+    register int *p = D_00633CB8;
     register int *q REG("$6") = D_00633CB8;
     int i = 0;
     NOP();
 loop:
     {
-        register int *qsave REG("$3") = q;
+        register int *qsave = q;
         if (*p == 0) goto found;
         i++;
         q = qsave + 1;

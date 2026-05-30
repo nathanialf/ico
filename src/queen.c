@@ -362,7 +362,7 @@ extern void func_002641D8(int *buf, int val, int size);
 extern void func_00104508(int *buf, int *self);
 int *func_0019BAA8(int *self)
 {
-    register int *p REG("$18");
+    register int *p;
     int *buf;
     p = (int *)((GObj *)(self))->p_15C;
     buf = (int *)func_0013A0F8(D_00632010, 0x30, D_0055C690, 0x3DA);
@@ -385,8 +385,8 @@ INCLUDE_ASM_NOP_PAD(func_0019BB5C);
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019BB60);
 int *func_0019BC58(int *self)
 {
-    register int *p REG("$18");
-    register int *s REG("$17") = self;
+    register int *p;
+    register int *s = self;
     int *buf;
     p = (int *)((GObj *)(s))->p_15C;
     buf = (int *)func_0013A0F8(D_00632010, 0x20, D_0055C690, 0x4F4);
