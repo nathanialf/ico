@@ -6,5 +6,5 @@ void func_00101C08(int a0)
 {
     int local = a0;
     func_00100950(-8, &local);
-    KEEP_LIVE(&local);
+
 }

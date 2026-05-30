@@ -453,13 +453,13 @@ int func_00133218(int a0)
 {
     unsigned char buf[0x100];
     unsigned char *p = buf;
-    register unsigned char c REG("$3");
+    register unsigned char c;
     unsigned char nc;
     func_00264DF8(buf, D_00631F70, a0);
     c = buf[0];
     do
     {
-        register int t REG("$2");
+        register int t;
         int sc;
         ANCHOR(c);
         t = (int) c << 24;

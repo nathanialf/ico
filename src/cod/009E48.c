@@ -4,7 +4,7 @@
 
 void func_00109E48(char *self)
 {
-    register int i REG("$5") = 0;
+    register int i = 0;
     Sub15C *sub = ((GObj *)(self))->p_15C;
     int count;
     char *p;

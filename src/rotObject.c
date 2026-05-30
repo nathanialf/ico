@@ -91,7 +91,7 @@ int *func_001E9F08(int *a0, int *a1)
         v28_p = *(float *)((char *)a1 + 0x28);
         src275860 = D_00275860;
         *(volatile float *)((char *)obj + 0x28) = v28_p;
-        KEEP_LIVE(src275860);
+
         v20 = *(float *)((char *)a1 + 0x20);
         *(volatile float *)((char *)obj + 0x2C) = v20;
         __asm__ __volatile__("" : : : "memory");

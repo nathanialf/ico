@@ -20,7 +20,7 @@ int *func_00197240(int *a0, int *a1)
 {
     int *obj;
     register int *p_v1 REG("$3");
-    register int *p_v0 REG("$2");
+    register int *p_v0;
     float f;
     register int one_val REG("$4");
 
@@ -33,7 +33,7 @@ int *func_00197240(int *a0, int *a1)
 
     p_v1 = (int *)((volatile GObj *)a0)->p_15C;
     one_val = 1;
-    KEEP_LIVE(one_val);
+
     *(volatile int *)((char *)p_v1 + 0x544) = one_val;
     p_v0 = (int *)((volatile GObj *)a0)->p_15C;
     *(volatile int *)((char *)p_v0 + 0x54C) = 0;

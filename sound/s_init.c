@@ -412,7 +412,7 @@ char *func_00143CD0(int *a0)
 {
     int key = *a0;
     char *p = D_006A95B0;
-    register char *end REG("$7") = p + 0x300;
+    register char *end = p + 0x300;
     register char *r REG("$6") = D_006A95B0;
     do {
         char *tmp = r;

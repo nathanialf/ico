@@ -14,5 +14,5 @@ void func_00229D30(volatile int unused)
     func_0017E2E8(D_00631AE4);
     D_00633FAC = 1;
     func_00203AA0(0);
-    DEFEAT_TCO();
+
 }

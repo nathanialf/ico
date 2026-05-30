@@ -323,7 +323,7 @@ void func_001538C0(int a0)
     int buf[4];
     func_00203C40(buf);
     func_00194508(buf, a0);
-    KEEP_LIVE(buf);
+
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001538F4);

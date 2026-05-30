@@ -6,7 +6,7 @@ extern char D_0071776C[];
  * operand order, dropping the swap_addu postprocess (COOKBOOK §8.11). */
 void func_0024BBF0(int a0)
 {
-    register int idx_off REG("$3");
+    register int idx_off;
     register char *base REG("$4");
     idx_off = a0 * 8;
     if (a0 < 0) {

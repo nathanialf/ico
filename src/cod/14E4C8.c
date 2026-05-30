@@ -7,7 +7,7 @@ extern int func_0026F3A0(int, int);
 int *func_0024E4C8(int a0_idx, int a1_idx)
 {
     int a0_prod;
-    register int *s0_ptr REG("$16");
+    register int *s0_ptr;
     int v_lt;
     int *result;
     __asm__("mult1 %0, %1, %2" : "=r"(a0_prod) : "r"(a0_idx), "r"(0x70));

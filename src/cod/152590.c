@@ -8,9 +8,9 @@ void func_00252590(int *a0)
 {
     char *p = D_005524A4[0];
     if (p != 0) {
-        register int q REG("$2") = *(int *)(p + 0x40);
+        register int q = *(int *)(p + 0x40);
         if (q != 0) {
-            register int r REG("$2") = *(int *)(q + 0xC);
+            register int r = *(int *)(q + 0xC);
             if (r != 0) {
                 int local[2];
                 local[0] = 0;

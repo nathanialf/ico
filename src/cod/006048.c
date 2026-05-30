@@ -16,6 +16,6 @@ float func_00106048(void *a, void *b)
     VU0_WAIT();
     VU0_CFC2_NI(v0, 22);
     VU0_MTC1(v0, 0);
-    KEEP_LIVE_FP(result);
+
     return result;
 }

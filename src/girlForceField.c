@@ -11,14 +11,14 @@ extern int D_00632010;
 extern int func_0013A0F8(int handle, int size, const char *file, int line);
 int *func_001D1C78(int *self, int *src)
 {
-    register int *ret REG("$2") = (int *)func_0013A0F8(D_00632010, 0xC, D_00618F08, 0x17);
-    register float val REG("$f0") = *(float *)((char *)src + 0x28);
-    register int *buf REG("$3");
+    register int *ret = (int *)func_0013A0F8(D_00632010, 0xC, D_00618F08, 0x17);
+    register float val = *(float *)((char *)src + 0x28);
+    register int *buf;
     buf = ret;
     MATERIALIZE(buf);
-    KEEP_LIVE(ret);
+
     {
-        register float one REG("$f1") = 1.0f;
+        register float one = 1.0f;
         int *p_840;
         *(float *)((char *)buf + 0) = val;
         *(int *)((char *)buf + 8) = 0;

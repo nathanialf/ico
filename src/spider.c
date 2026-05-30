@@ -60,7 +60,7 @@ extern void func_001D12A8(int *self, int y);
 
 void func_001EA3E0(int *self)
 {
-    register int i REG("$17") = 0;
+    register int i = 0;
     Sub15C *sub = ((GObj *)self)->p_15C;
     register Obj800 *s2 REG("$18") = sub->p_800;
     int count = s2->f_20;

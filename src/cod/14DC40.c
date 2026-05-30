@@ -18,7 +18,7 @@ void func_0024DC40(void)
     }
     a0_arg = 0;
     t0 = D_00717BD8;
-    KEEP_LIVE(a0_arg);
+
     KEEP_LIVE(t0);
     func_0024DD30(0, 0, 0, 7);
     DEFEAT_TCO();

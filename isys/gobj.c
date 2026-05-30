@@ -116,7 +116,7 @@ struct GObj *func_0013E8D8(int a0, int a1, int a2)
 {
     int s1 = a1 & 0xFF;
     unsigned int n = D_00633CA4;
-    register unsigned int i REG("$4") = 0;
+    register unsigned int i = 0;
     struct GObj *slot;
     if (n != 0) {
         struct GObj *p = D_00633CA0;
@@ -135,7 +135,7 @@ struct GObj *func_0013E8D8(int a0, int a1, int a2)
         slot = 0;
         func_001A6E28(D_00557A30);
     } else {
-        register int prod REG("$2") = i * 0x174;
+        register int prod = i * 0x174;
         prod = prod + (int)D_00633CA0;
         *(int *)(prod + 0x164) = 0;
         *(int *)(prod + 0x170) = 0;
@@ -161,7 +161,7 @@ struct GObj *func_0013E9E0(int a0, int a1, int a2)
 {
     int s1 = a1 & 0xFF;
     unsigned int n = D_00633CA4;
-    register unsigned int i REG("$4") = 0;
+    register unsigned int i = 0;
     struct GObj *slot;
     if (n != 0) {
         struct GObj *p = D_00633CA0;
@@ -180,7 +180,7 @@ struct GObj *func_0013E9E0(int a0, int a1, int a2)
         slot = 0;
         func_001A6E28(D_00557A30);
     } else {
-        register int prod REG("$2") = i * 0x174;
+        register int prod = i * 0x174;
         prod = prod + (int)D_00633CA0;
         *(int *)(prod + 0x164) = 0;
         *(int *)(prod + 0x170) = 0;
@@ -204,8 +204,8 @@ struct GObj *func_0013E9E0(int a0, int a1, int a2)
 
 struct GObj *func_0013EAE8(int key)
 {
-    register unsigned int n REG("$8") = D_00633CA4;
-    register unsigned int i REG("$6");
+    register unsigned int n = D_00633CA4;
+    register unsigned int i;
     register struct GObj *base REG("$7");
     register int stride REG("$2");
     if (n == 0) goto ret0;
@@ -214,7 +214,7 @@ struct GObj *func_0013EAE8(int key)
     base = D_00633CA0;
     do {
         struct GObj *e;
-        register int f0 REG("$3");
+        register int f0;
         stride = 0x174;
         e = (struct GObj *)((char *)base + i * stride);
         f0 = e->unk0;
@@ -227,13 +227,13 @@ ret0:
 }
 struct GObj *func_0013EB50(int key_param)
 {
-    register int key REG("$5") = key_param;
-    register struct GObj *p REG("$3");
+    register int key = key_param;
+    register struct GObj *p;
     if (*(int *)D_006321C0 == 0) goto alt;
     {
         register struct GObj *base REG("$4") = D_00633CA0;
         register struct GObj *end REG("$4");
-        register int one REG("$6") = 1;
+        register int one = 1;
         p = base - 1;
         end = (struct GObj *)((char *)base + (D_00633CA4 * 0x174 - 0x174));
         if (p == end) goto ret0;
@@ -249,19 +249,19 @@ found:
     return p;
 alt:
     if ((unsigned int)(key - 1) < 0x43) {
-        register int idx REG("$3") = key * 4;
+        register int idx = key * 4;
         return (struct GObj *)*(int *)((char *)D_006A93D0 + idx);
     }
     goto ret0;
 }
 struct GObj *func_0013EBE0(struct GObj *obj)
 {
-    register struct GObj *p REG("$5");
-    register int key REG("$3");
+    register struct GObj *p;
+    register int key;
     if (*(int *)D_006321C0 == 0) goto alt;
     {
         register struct GObj *base REG("$4") = D_00633CA0;
-        register struct GObj *end REG("$4");
+        register struct GObj *end;
         int one;
         p = obj;
         ANCHOR(p);
@@ -269,7 +269,7 @@ struct GObj *func_0013EBE0(struct GObj *obj)
         key = *(int *)((char *)obj + 0xC);
         if (obj == end) goto ret0;
         one = 1;
-        ANCHOR(p);
+
         p++;
     loop:
         if (*(int *)((char *)p + 4) == one && *(int *)((char *)p + 0xC) == key) goto found;
@@ -284,8 +284,8 @@ alt:
 }
 struct GObj *func_0013EC50(int key)
 {
-    register unsigned int n REG("$8") = D_00633CA4;
-    register unsigned int i REG("$6");
+    register unsigned int n = D_00633CA4;
+    register unsigned int i;
     register struct GObj *base REG("$7");
     register int stride REG("$2");
     if (n == 0) goto ret0;

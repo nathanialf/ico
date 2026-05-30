@@ -5,8 +5,8 @@
 int func_001903E0(int *self)
 {
     register int *p REG("$5");      /* a1 */
-    register char *q REG("$4");     /* a0 */
-    register int r REG("$2") = 0;   /* v0 */
+    register char *q;     /* a0 */
+    register int r = 0;   /* v0 */
     register int b REG("$3");       /* v1 */
     p = (int *)((GObj *)(self))->p_15C;
     q = (char *)((Sub15C *)(p))->p_800;

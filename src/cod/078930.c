@@ -6,7 +6,7 @@ extern int func_00205498(int x);
 
 void func_00178930(int *self)
 {
-    register int *self_save REG("$16");
+    register int *self_save;
     register int idx_a1 REG("$5");
     int idx;
     char *base;

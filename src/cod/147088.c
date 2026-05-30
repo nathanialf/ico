@@ -4,7 +4,7 @@ extern int func_00100520(int *buf);
 
 void func_00247088(void)
 {
-    register int *base REG("$16");
+    register int *base;
     register int one REG("$2");
     int v;
     int buf[8];

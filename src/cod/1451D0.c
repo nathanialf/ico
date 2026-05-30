@@ -3,9 +3,9 @@ extern void func_00245318(int *self, int a1, int a2);
 
 void func_002451D0(int *self, int flag)
 {
-    register int *p REG("$5");        /* a1 */
+    register int *p;        /* a1 */
     register int *new_p REG("$3");    /* v1 */
-    register int tag REG("$4");       /* a0 */
+    register int tag;       /* a0 */
     register int tag_alt REG("$2");   /* v0 */
     func_00245318(self, 2, 3);
     p = (int *)self[0];

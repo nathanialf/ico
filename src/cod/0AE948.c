@@ -6,8 +6,8 @@ typedef void (*Fn)(int *buf, int a2);
 void func_001AE948(int **self, int a1, int a2)
 {
     int buf[2];
-    register Fn fn REG("$3");  /* v1 */
-    register Fn next REG("$2"); /* v0 */
+    register Fn fn;  /* v1 */
+    register Fn next; /* v0 */
     buf[0] = a1;
     buf[1] = 0;
     fn = (Fn)self[0];

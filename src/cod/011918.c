@@ -5,7 +5,7 @@ extern int D_004C7710[];
 
 void func_00111918(long long a0, long long a1)
 {
-    register long long *p REG("$3");
+    register long long *p;
     register long long a1_out REG("$5");
     p = (long long *)D_004C7710[4];
     *p = a1;

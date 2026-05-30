@@ -287,7 +287,7 @@ void func_0017A9D8(int a0)
     int locals[4];
     func_00104508(locals, a0);
     func_00178990(locals, -1);
-    KEEP_LIVE(locals);
+
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017AA04);

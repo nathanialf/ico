@@ -76,7 +76,7 @@ short *func_001F16A0(void)
     if (v < 0) {
         KEEP_LIVE(v + 0xFFFF);
     }
-    KEEP_LIVE(local_pad);
+
     return buf;
 }
 
@@ -117,7 +117,7 @@ __asm__(".skip 4");
 
 short *func_001F17B0(int *self)
 {
-    register int s3 REG("$19");
+    register int s3;
     int  pad[8];
     int *p = (int *)((GObj *)(self))->p_15C;
     int *q = (int *)p[0x820 / 4];
@@ -132,7 +132,7 @@ short *func_001F17B0(int *self)
             b++;
         } while (i != 0);
     }
-    KEEP_LIVE(pad);
+
     KEEP_LIVE(s3);
     return buf;
 }

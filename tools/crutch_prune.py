@@ -37,9 +37,16 @@ sys.path.insert(0, str(ROOT / "tools"))
 import global_flag_sweep as gfs  # noqa: E402
 import tu_check  # noqa: E402
 
+# NOTE: memory-clobber barriers (DEFEAT_TCO / MEM_BARRIER / KEEP_LIVE_MEM,
+# all `:::"memory"`) are DELIBERATELY excluded. Their real effect is often
+# store ORDERING, and quick_diff masks gp-relative store offsets to `0(gp)`
+# (tools/mask_gp_rel.py) — so a reorder of stores to gp globals is INVISIBLE to
+# the measurement and would false-pass as redundant (func_001FB4A8 lost its
+# DEFEAT_TCO store barriers this way; only the linked SHA caught it). Auto-remove
+# only register-liveness/regalloc crutches, whose effect IS visible in the
+# (register-operand-preserving) disassembly diff.
 STMT_RE = re.compile(
-    r'\b(DEFEAT_TCO|KEEP_LIVE_MEM|KEEP_LIVE_FP2|KEEP_LIVE_FP|KEEP_LIVE'
-    r'|MATERIALIZE|ANCHOR|MEM_BARRIER)\s*\([^;]*\)\s*;')
+    r'\b(KEEP_LIVE_FP2|KEEP_LIVE_FP|KEEP_LIVE|MATERIALIZE|ANCHOR)\s*\([^;]*\)\s*;')
 REG_RE = re.compile(r'\s*REG\("\$[0-9a-zA-Z]+"\)')
 
 
@@ -164,12 +171,41 @@ def main() -> int:
     ap.add_argument("--apply", default=None,
                     help="greedily remove redundant crutches from ONE file, keeping "
                          "the match; leaves the file edited for ninja-confirm")
+    ap.add_argument("--apply-all", action="store_true",
+                    help="run --apply on every crutch file (parallel across files)")
+    ap.add_argument("--exclude", default="",
+                    help="comma-separated file paths to skip in --apply-all")
     ap.add_argument("--jobs", type=int, default=8)
     args = ap.parse_args()
 
     if args.apply:
         out = apply_file(ROOT / args.apply)
         print(json.dumps(out, indent=2))
+        return 0
+
+    if args.apply_all:
+        excl = {(ROOT / e).resolve() for e in args.exclude.split(",") if e}
+        files = [f for f in find_crutch_files() if f.resolve() not in excl]
+        print(f"apply-all over {len(files)} file(s)", file=sys.stderr)
+        results = []
+        with ThreadPoolExecutor(max_workers=args.jobs) as ex:
+            futs = {ex.submit(apply_file, f): f for f in files}
+            done = 0
+            for fut in as_completed(futs):
+                r = fut.result(); results.append(r); done += 1
+                if r.get("removed_count") or r.get("error"):
+                    print(f"  [{done}/{len(files)}] {r['file']}: "
+                          f"removed={r.get('removed_count', 0)} "
+                          f"clean={r.get('quick_diff_clean')}"
+                          f"{' ERROR:' + r['error'] if r.get('error') else ''}",
+                          file=sys.stderr)
+        gfs.CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        (gfs.CACHE_DIR / "crutch_apply_all.json").write_text(json.dumps(results, indent=2))
+        tot = sum(r.get("removed_count", 0) for r in results)
+        edited = [r["file"] for r in results if r.get("removed_count")]
+        errs = [r for r in results if r.get("error")]
+        print(json.dumps({"files": len(results), "total_removed": tot,
+                          "files_edited": edited, "errors": errs}, indent=2))
         return 0
 
     if args.files:

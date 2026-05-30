@@ -7,7 +7,7 @@ void func_001FBBE0(void)
 {
     register int *full REG("$5") = D_004C7710;
     register int flag REG("$3");
-    register int offset REG("$2");
+    register int offset;
     int next;
     flag = D_004C7710[0];
     flag ^= 1;

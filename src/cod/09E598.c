@@ -4,7 +4,7 @@
 int func_0019E598(int *a0)
 {
     if (a0[3] != a0[4]) {
-        register int x REG("$3");
+        register int x;
         register int k REG("$2");
         register int base REG("$4");
         x = a0[2];

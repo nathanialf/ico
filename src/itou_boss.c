@@ -133,7 +133,7 @@ int func_00198218(int a0)
     int ret;
     unsigned int i;
     char *e, *q, *j, *k;
-    register char *base REG("$3");
+    register char *base;
     ret = func_0013A0F8(D_00632010, 0, D_0055C178, 0x15E);
     func_00202208(a0);
     func_00202148(a0);

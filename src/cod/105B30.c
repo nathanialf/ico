@@ -5,9 +5,9 @@ extern int D_004CAEC0[];
  * the swap_addu postprocess; COOKBOOK §8.11). */
 void func_00205B30(int idx, int val)
 {
-    register int s REG("$3") = 0x34;
-    register int prod REG("$4") = idx * s;
-    register int *b REG("$2") = D_004CAEC0;
+    register int s = 0x34;
+    register int prod = idx * s;
+    register int *b = D_004CAEC0;
     ADDU_RS(b, prod);
     *(int *)((char *)b + 0x28) = val;
 }

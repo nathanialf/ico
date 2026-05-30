@@ -7,9 +7,9 @@ extern void func_001A1008(void);
 
 void func_001ADBC0(void)
 {
-    register char *p REG("$2") = D_004B3D10;
-    register unsigned int v REG("$4") = 0xFFFF;
-    register int i REG("$3") = 0xB5;
+    register char *p = D_004B3D10;
+    register unsigned int v = 0xFFFF;
+    register int i = 0xB5;
     do {
         *(short *)(p + 2) = 0;
         *(unsigned short *)(p + 4) = v;

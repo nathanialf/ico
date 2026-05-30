@@ -5,7 +5,7 @@ extern int func_0018B0A0(void);
 
 int func_0023C17C(void)
 {
-    register int v1 REG("$3");
+    register int v1;
     int v0_local;
     v1 = func_0018B0A0();
     if (v1 == 3) goto L1;

@@ -31,23 +31,23 @@ int func_001F6CB0(int size)
     int rv = 0;
     if (D_00633780 == -1) {
         func_001A6E28(D_0061A890);
-        DEFEAT_TCO();
+
         func_001AD768(D_0061A8A8, 0x174);
-        DEFEAT_TCO();
+
         {
             register char *buf REG("$4") = D_0061A8A8;
-            register int *list REG("$6") = D_00633788;
-            DEFEAT_TCO();
+            register int *list = D_00633788;
+
             func_00263FF0(buf, 0x174, list);
         }
-        DEFEAT_TCO();
+
     }
     switch (D_00633780) {
     case 0: {
         int ret;
         D_00633784 += 0x30 + size;
         ret = func_0013A0F8(D_00632014, size, D_0061A8A8, 0x17B);
-        DEFEAT_TCO();
+
         rv = ret;
         break;
     }

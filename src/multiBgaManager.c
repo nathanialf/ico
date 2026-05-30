@@ -37,7 +37,7 @@ void func_001E6C30(char *base, int idx, char *a7)
 {
     char *g = D_00276140;
     register int neg REG("$3") = -1;
-    register int prod REG("$7") = idx * 0x50;
+    register int prod = idx * 0x50;
     char *p = base + prod;
     *(int *)(p + 0x40) = neg;
     func_00105F00(p + 0x10, a7);

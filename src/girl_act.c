@@ -91,7 +91,7 @@ void func_00176198(int a0)
     __asm__ volatile("" : : "r"(&s), "r"(s) : "memory");
     NOP();
     func_0014A3A8(a0);
-    DEFEAT_TCO();
+
 }
 extern int D_00631AE4;
 extern int D_00631AE8;

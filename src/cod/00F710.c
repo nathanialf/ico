@@ -5,8 +5,8 @@ extern int D_004C7710[];
 
 void func_0010F710(void)
 {
-    register int *base REG("$3") = D_004C7710;
-    register int *p REG("$2") = (int *)base[4];
+    register int *base = D_004C7710;
+    register int *p = (int *)base[4];
     base[6] = 0;
     base[7] = 0;
     base[4] = (int)(p + 2);

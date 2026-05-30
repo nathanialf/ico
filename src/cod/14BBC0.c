@@ -10,7 +10,7 @@ extern char D_0071776C[];
  */
 void func_0024BBC0(int a0, int a1, int a2)
 {
-    register int idx_off REG("$3");
+    register int idx_off;
     register char *base REG("$4");
     char *p;
     idx_off = a0 * 8;

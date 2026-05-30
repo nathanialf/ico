@@ -17,7 +17,7 @@ void func_00229E48(volatile int unused)
     func_00203AA0(1);
     D_00633FAC = 1;
     func_00203AA0(0);
-    DEFEAT_TCO();
+
 }
 
 TRAILING_PAD_NOP();

@@ -10,9 +10,9 @@ extern int D_00292540[];
  */
 void func_0015F228(int idx, int val)
 {
-    register int s REG("$3") = 0x18;
-    register int prod REG("$4") = idx * s;
-    register int *b REG("$2") = D_00292540;
+    register int s = 0x18;
+    register int prod = idx * s;
+    register int *b = D_00292540;
     ADDU_RS(b, prod);
     *(int *)((char *)b + 8) = val;
 }

@@ -5,8 +5,8 @@ extern int func_002450C8(int *self, int tag);
 
 void func_00245178(int *self, int tag)
 {
-    register int r REG("$2");
-    register int *p REG("$4");
+    register int r;
+    register int *p;
     register int tag_v REG("$16");
 
     tag_v = tag;

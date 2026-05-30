@@ -6,5 +6,5 @@ void func_0024A718(int a0, int a1, int a2)
 {
     char buf[0x10];
     func_0024A510(a0, a1, a2, buf);
-    KEEP_LIVE(buf);
+
 }

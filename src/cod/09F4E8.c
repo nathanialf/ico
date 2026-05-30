@@ -7,7 +7,7 @@ typedef struct __attribute__((packed)) { long long w; } UB8;
 
 void func_0019F4E8(int *a0, int *a1)
 {
-    register int *src REG("$17");
+    register int *src;
     register int *self REG("$16");
     src = a1;
     self = a0;

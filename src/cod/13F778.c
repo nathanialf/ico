@@ -4,7 +4,7 @@
 int *func_0023F778(int *a0, long long a1, long long a2)
 {
     register int *ret REG("$2");
-    register int v1_const REG("$3");
+    register int v1_const;
     __asm__ ("dsll32 %0, %0, 0" : "+r"(a1));
     __asm__ ("dsll32 %0, %0, 0" : "+r"(a2));
     __asm__ ("dsrl32 %0, %0, 0" : "+r"(a1));
@@ -14,8 +14,8 @@ int *func_0023F778(int *a0, long long a1, long long a2)
     __asm__ ("dsll32 %0, %0, 0" : "+r"(a1));
     __asm__ volatile("dsra32 %0, %0, 0" : "+r"(a1));
     __asm__ volatile("dsra32 %0, %0, 0" : "+r"(a2));
-    KEEP_LIVE(ret);
-    KEEP_LIVE(v1_const);
+
+
     __asm__ volatile("sw %1, 0(%0)" : : "r"(a0), "r"(a1) : "memory");
     __asm__ volatile("sw %1, 4(%0)" : : "r"(a0), "r"(a2) : "memory");
     __asm__ volatile("sw %1, 8(%0)" : : "r"(a0), "r"(v1_const) : "memory");

@@ -249,12 +249,12 @@ void func_0013D498(int a0)
     if (obj[0x48 / 4] == 0)
     {
         int m;
-        register int v REG("$2") = 1;
-        register int a0v REG("$4") = D_00632000;
-        register const char *msg REG("$6") = D_005578D0;
+        register int v = 1;
+        register int a0v = D_00632000;
+        register const char *msg = D_005578D0;
         ANCHOR(v);
         obj[0x48 / 4] = v;
-        ANCHOR(a0v);
+
         ANCHOR(msg);
         m = func_0013A0F8(a0v, 0x50, msg, 0x1DE);
         obj[0x4C / 4] = m;
@@ -298,7 +298,7 @@ INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013D700);
 
 int func_0013D8A0(int *a0)
 {
-    register int **base REG("$16");  /* s0 */
+    register int **base;  /* s0 */
     if (a0 == 0) {
         int idx;
         base = D_006A6F30;
@@ -356,12 +356,12 @@ int func_0013D948(int *self)
     if (self[0x48 / 4] == 0)
     {
         int m;
-        register int v REG("$2") = 1;
-        register int a0v REG("$4") = D_00632000;
-        register const char *msg REG("$6") = D_005578D0;
+        register int v = 1;
+        register int a0v = D_00632000;
+        register const char *msg = D_005578D0;
         ANCHOR(v);
         self[0x48 / 4] = v;
-        ANCHOR(a0v);
+
         ANCHOR(msg);
         m = func_0013A0F8(a0v, 0x50, msg, 0x1FA);
         self[0x4C / 4] = m;

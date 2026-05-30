@@ -114,7 +114,7 @@ void func_00167230(int *self_arg)
 {
     register int *self __asm__("$2") = self_arg;
     register long long val __asm__("$3");
-    KEEP_LIVE(self);
+
     *(int *)((char *)self + 0xB0) = 0;
     *(int *)((char *)self + 0x94) = 0;
     *(int *)((char *)self + 0x88) = 0;
@@ -130,7 +130,7 @@ void func_00167258(int *self_arg)
 {
     register int *self __asm__("$2") = self_arg;
     register long long val __asm__("$3");
-    KEEP_LIVE(self);
+
     *(int *)((char *)self + 0x94) = 0;
     __asm__ volatile("ldl %0, %%gp_rel(D_006323C7)($28)" : "=r"(val));
     __asm__ volatile("ldr %0, %%gp_rel(D_006323C0)($28)" : "+r"(val));

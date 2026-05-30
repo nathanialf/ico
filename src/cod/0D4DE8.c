@@ -6,11 +6,11 @@ extern int D_00633F1C;
 void func_001D4DE8(void)
 {
     register int *D_base REG("$2");  /* v0 - holds D_00565060 */
-    register int *base REG("$5");    /* a1 */
-    register int *out REG("$3");     /* v1 */
-    register int target REG("$6");   /* a2 */
-    register int i REG("$4");        /* a0 */
-    
+    register int *base;    /* a1 */
+    register int *out;     /* v1 */
+    register int target;   /* a2 */
+    register int i;        /* a0 */
+
     D_base = D_00565060;
     out = D_004C49A8;
     base = (int *)((char *)D_base + 0x134);

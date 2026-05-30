@@ -11,9 +11,9 @@ extern int D_0070D4D8[];
  */
 void func_001F1148(int idx, int val)
 {
-    register int s REG("$3") = 0x18;
-    register int prod REG("$4") = idx * s;
-    register int *b REG("$2") = D_0070D4D8;
+    register int s = 0x18;
+    register int prod = idx * s;
+    register int *b = D_0070D4D8;
     ADDU_RS(b, prod);
     *(int *)((char *)b + 0x14) = val;
 }

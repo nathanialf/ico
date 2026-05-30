@@ -8,7 +8,7 @@ extern void func_00203AA0(int x);
 void func_002356D0(volatile int unused)
 {
     register int a1 REG("$5");
-    register int *v0 REG("$2");
+    register int *v0;
     register int one_v REG("$3");
 
     a1 = D_00631AE4;
@@ -21,7 +21,7 @@ void func_002356D0(volatile int unused)
         register float f3 REG("$f14") = 0.0f;
         register float f4 REG("$f15") = 0.0f;
         register float f5 REG("$f16") = 0.0f;
-        register float f6 REG("$f17") = 100.0f;
+        register float f6 = 100.0f;
         KEEP_LIVE_FP(f2);
         KEEP_LIVE_FP(f3);
         KEEP_LIVE_FP(f4);

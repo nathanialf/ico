@@ -14,9 +14,9 @@ extern int D_007097F0[];
  */
 int func_001E8D30(int idx)
 {
-    register int s REG("$2") = 0x18;
-    register int prod REG("$4") = idx * s;
-    register int *b REG("$3") = D_007097F0;
+    register int s = 0x18;
+    register int prod = idx * s;
+    register int *b = D_007097F0;
     ADDU_RS(b, prod);
     return *(int *)((char *)b + 0x14);
 }

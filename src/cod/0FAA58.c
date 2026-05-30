@@ -8,8 +8,8 @@ extern void func_001F6D90(int *);
 
 void func_001FAA58(void)
 {
-    register int *s0 REG("$16");
-    register int *prev REG("$4");
+    register int *s0;
+    register int *prev;
     D_00633F64 = 0;
     if (D_00274ED4[0] != 0) return;
     s0 = D_006337BC;

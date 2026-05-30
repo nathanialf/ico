@@ -51,11 +51,11 @@ extern void func_001E73A8(int *p);
  * swap_addu postprocess for this func (COOKBOOK §8.11). */
 void func_001E85D8(int a0, float v)
 {
-    register int idx REG("$2") = a0;
+    register int idx = a0;
     if (idx >= 0) {
-        register int prod REG("$4") = idx * 0x18;
-        register char *base REG("$3") = D_007097F0;
-        register int one REG("$5") = 1;
+        register int prod = idx * 0x18;
+        register char *base = D_007097F0;
+        register int one = 1;
         KEEP_LIVE(one);
         ADDU_RS(base, prod);
         {

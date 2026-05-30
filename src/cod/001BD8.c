@@ -8,5 +8,5 @@ void func_00101BD8(int a0, char a1)
     locals[0] = a0;
     locals[1] = a1;
     func_00100950(-7, locals);
-    KEEP_LIVE(locals);
+
 }

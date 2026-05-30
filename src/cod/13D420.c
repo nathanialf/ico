@@ -13,6 +13,6 @@ void func_0023D420(int idx)
         p = (int *)((char *)D_005F3038 + idx * 0x194);
     }
     func_0023D468(p);
-    KEEP_LIVE(dummy);
-    DEFEAT_TCO();
+
+
 }

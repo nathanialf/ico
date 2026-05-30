@@ -27,7 +27,7 @@ extern void  func_0013F3F0(int, int, int, unsigned char, int, int);
 
 void func_0013F700(int count)
 {
-    register int *ptr REG("$5");
+    register int *ptr;
     register int stride REG("$2");
     unsigned int i;
     ptr = (int *)func_0013A0F8(D_00632008, count * 0x94, D_00557AD0, 0x49);

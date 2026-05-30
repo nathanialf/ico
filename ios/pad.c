@@ -172,11 +172,11 @@ int func_0013B610(int *a0, int a1)
         PadSlot0013B610 *ps = (PadSlot0013B610 *) slot;
         unsigned char *s = (unsigned char *) slot;
         const T_005F2F00_rec *rec = &D_005F2F00[a1];
-        register int id REG("$7") = rec->id;
+        register int id = rec->id;
         int base = *a0 + 0x1A4;
         register unsigned short flag REG("$5") = rec->flag;
         register int ff REG("$9") = 0xFF;
-        register unsigned long long mask REG("$3") = 0xFFFFFFFFULL;
+        register unsigned long long mask = 0xFFFFFFFFULL;
         int r;
         ANCHOR(ff);
         ps->fD = 0;

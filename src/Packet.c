@@ -334,7 +334,7 @@ extern float D_00630A40;
 extern float D_00630A44;
 void func_0011A238(int a0)
 {
-    register int mask REG("$4") = 0x0FFFFFFF;
+    register int mask = 0x0FFFFFFF;
     char *ctx = D_00672FD0;
     float f0 = D_00630A40;
     float f1 = D_00630A44;
@@ -354,7 +354,7 @@ extern void func_001A6E28(const char *fmt, ...);
 
 void func_0011A2A8(int a0)
 {
-    register char *base REG("$6") = D_00672FD0;
+    register char *base = D_00672FD0;
     (*(volatile int * volatile *)(base + 0x24))[0] = 0;
     (*(volatile int * volatile *)(base + 0x24))[1] = (a0 << 16) | 0x6C008000;
     {
@@ -364,7 +364,7 @@ void func_0011A2A8(int a0)
 }
 void func_0011A2F0(void)
 {
-    register char *base REG("$3") = D_00672FD0;
+    register char *base = D_00672FD0;
     volatile int * volatile *curp = (volatile int * volatile *)(base + 0x2C);
     volatile int *p = *curp;
     *p++ = 0x17000000;

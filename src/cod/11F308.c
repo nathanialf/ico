@@ -7,7 +7,7 @@ extern void func_00205B30(int, int);
 void func_0021F308(int a0)
 {
     int s;
-    DEFEAT_TCO();
+
     s = a0;
     __asm__ volatile("" : : "r"(&s), "r"(s) : "memory");
     NOP();
@@ -15,5 +15,5 @@ void func_0021F308(int a0)
         func_00203AA0(1);
     }
     func_00205B30(3, 1);
-    DEFEAT_TCO();
+
 }

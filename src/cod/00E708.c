@@ -14,6 +14,6 @@ float func_0010E708(float *v)
     VU0_V3OP_BC(vaddw.x, 15, 15, 15, w);
     VU0_QMFC2_NI(v0, 15);
     VU0_MTC1(v0, 12);
-    KEEP_LIVE_FP(dot);
+
     return func_00117C20(dot);
 }

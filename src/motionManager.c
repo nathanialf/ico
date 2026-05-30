@@ -907,7 +907,7 @@ void func_001D9BB8(void)
 {
     int v;
     float f1;
-    register char *s REG("$16");
+    register char *s;
     v = func_00105278();
     func_00118678(v);
     s = (char *)D_00633F3C;
@@ -1007,7 +1007,7 @@ void func_001DC938(void)
     v = func_00105278();
     func_00243BD8(v);
     {
-        register float *p REG("$3") = (float *)D_00633F3C;
+        register float *p = (float *)D_00633F3C;
         func_00105308(p[0], p[1] - D_007097C4[0], p[2]);
     }
     func_0010DF70((char *)D_00633F3C + 0x30);

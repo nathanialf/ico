@@ -5,7 +5,7 @@ extern void func_00100540(int x);
 
 void func_00240600(int *self)
 {
-    register int v REG("$3");
+    register int v;
     register int neg1 REG("$2");
     int adjusted;
     int rounded;

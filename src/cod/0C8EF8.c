@@ -20,7 +20,7 @@ void func_001C8EF8(void *a0, void *a1, void *a2, float f12)
     VU0_MTC1(v0, 0);
     VU0_REG("mul.s $f12, $f12, $f0");
     VU0_NOREORDER_END();
-    KEEP_LIVE_FP(scaled);
+
     VU0_LSV(lqc2, 4, 0x0, a2);
     VU0_LSV(lqc2, 5, 0x0, sp);
     VU0_NOREORDER_BEGIN();

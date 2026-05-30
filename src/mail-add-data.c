@@ -74,8 +74,8 @@ int func_00194840(int a0, int a1, int a2, int a3)
 {
     int *p;
     int buf[8];
-    register int sa2 REG("$16") = a2;
-    register int sa3 REG("$17") = a3;
+    register int sa2 = a2;
+    register int sa3 = a3;
     int r;
     p = &buf[4];
     func_00243AE8(p, a0, a1);
