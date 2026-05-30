@@ -30,7 +30,6 @@
 0EF9A8 -fno-schedule-insns
 0ADBC0 -fno-schedule-insns
 14DA80 -fno-schedule-insns
-0AA4F0 -fno-schedule-insns
 
 # (no -fno-strength-reduce overrides remain: ATTACKCHECKBOUNDARY, GOBJ_PROCESS,
 # and ITOU_BOSS all began matching under the default and were pruned.)
