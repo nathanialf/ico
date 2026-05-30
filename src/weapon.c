@@ -350,18 +350,18 @@ INCLUDE_ASM("asm/nonmatchings/src/weapon", func_001F3FB0);
 
 void func_001F4098(int *self)
 {
-    int *p = (int *)((GObj *)(self))->p_15C;
-    int *q = (int *)((Sub15C *)(p))->p_800;
-    int v = q[0x8 / 4];
+    Sub15C *p = ((GObj *)(self))->p_15C;
+    Obj800 *q = ((Sub15C *)(p))->p_800;
+    int v = q->f_8;
     int ret = -1;
     if (v != 0)
     {
         int *r = (int *) ((int *) v)[0x15C / 4];
         r[0x630 / 4] = 0;
     }
-    q[0x4 / 4] = 0;
-    q[0xC / 4] = ret;
-    do { q[0x8 / 4] = 0; } while (0);
+    q->f_4 = 0;
+    q->f_C = ret;
+    do { q->f_8 = 0; } while (0);
 }
 
 
@@ -375,49 +375,49 @@ extern void func_001F2388(int x);
 extern void func_001F1868(int x);
 void func_001F40D8(int *self)
 {
-    int *p = (int *)((int *)((GObj *)(self))->p_15C)[0x800 / 4];
+    Sub15C *p = ((int *)((GObj *)(self))->p_15C)[0x800 / 4];
     register int count REG("$2");
     int i;
-    count = p[0x50 / 4];
+    count = p->f_50;
     if (count == 0) goto exit;
-    func_001F2388(((int *)p[0x54 / 4])[0]);
-    if (p[0x50 / 4] <= 0) goto exit;
+    func_001F2388(((int *)p->f_54)[0]);
+    if (p->f_50 <= 0) goto exit;
     i = 0;
     __asm__ __volatile__("" : "+r"(i));
     do {
-        int *arr = (int *)p[0x54 / 4];
+        int *arr = (int *)p->f_54;
         func_001F1868(arr[i]);
         i++;
-    } while (i < p[0x50 / 4]);
+    } while (i < p->f_50);
 exit:
     ;
 }
 void func_001F4150(int *self)
 {
-    int *p = (int *)((int *)((GObj *)(self))->p_15C)[0x800 / 4];
+    Sub15C *p = ((int *)((GObj *)(self))->p_15C)[0x800 / 4];
     register int count REG("$2");
     int i;
-    count = p[0x50 / 4];
+    count = p->f_50;
     if (count == 0) goto exit;
-    func_001F2388(((int *)p[0x54 / 4])[0]);
-    if (p[0x50 / 4] <= 0) goto exit;
+    func_001F2388(((int *)p->f_54)[0]);
+    if (p->f_50 <= 0) goto exit;
     i = 0;
     __asm__ __volatile__("" : "+r"(i));
     do {
-        int *arr = (int *)p[0x54 / 4];
+        int *arr = (int *)p->f_54;
         func_001F1868(arr[i]);
         i++;
-    } while (i < p[0x50 / 4]);
+    } while (i < p->f_50);
 exit:
     ;
 }
 
 void func_001F41C8(int *self)
 {
-    int *p = (int *)((int *)((GObj *)(self))->p_15C)[0x800 / 4];
+    Sub15C *p = ((int *)((GObj *)(self))->p_15C)[0x800 / 4];
     int i;
-    for (i = 0; i < p[0x50 / 4]; i++) {
-        int *arr = (int *)p[0x54 / 4];
+    for (i = 0; i < p->f_50; i++) {
+        int *arr = (int *)p->f_54;
         func_001F19F0(arr[i]);
     }
 }
@@ -479,7 +479,7 @@ INCLUDE_ASM_NOP_PAD(func_001F42E4);
 
 float func_001F42E8(char *a0)
 {
-    char *p = *(char **)((char *)((GObj *)(a0))->p_15C + 0x800);
+    Sub15C *p = *(char **)((char *)((GObj *)(a0))->p_15C + 0x800);
     int idx = *(int *)p;
     register float v REG("$f0");
     v = (float)D_006124F8[idx].field;

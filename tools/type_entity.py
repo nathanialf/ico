@@ -131,6 +131,40 @@ def transforms(text: str, fields: set):
     return text
 
 
+def retype_locals(body: str, fields: set) -> str:
+    """Dataflow-lite (single function body): retype locals declared+assigned
+    from ->p_800 / ->p_15C to Obj800*/Sub15C*, and convert their field reads
+    (`*(T*)(v+N)`, `v[N/4]`) to `v->f_N`. Bare `v + N` pointer math is cast to
+    char* to stay byte-identical."""
+    decl_re = re.compile(
+        rf"(?P<decl>(?P<ty>{PTRC})\s*\*\s*(?P<v>\w+)\s*=\s*"
+        rf"(?P<init>[^;]*?->p_(?P<lvl>800|15C)\b[^;]*));")
+    found = {}  # v -> struct
+    for m in decl_re.finditer(body):
+        v, lvl = m.group("v"), m.group("lvl")
+        struct = "Obj800" if lvl == "800" else "Sub15C"
+        init = re.sub(rf"^\(\s*{PTRC}\s*\*\)\s*", "", m.group("init").strip())
+        found[v] = struct
+        body = body.replace(m.group("decl"), f"{struct} *{v} = {init}", 1)
+    for v, struct in found.items():
+        ev = re.escape(v)
+        def fa(m, v=v, struct=struct):
+            off = int(m.group("off"), 16)
+            fields.add((struct, off, WIDTH.get(m.group("t").strip(), 4)))
+            return f"{v}->{field_name(off)}"
+        body = re.sub(
+            rf"\*\(\s*(?P<t>{PTRC})\s*\*\)\(\s*{ev}\s*\+\s*(?P<off>{HEX})\s*\)",
+            fa, body)
+        def ia(m, v=v, struct=struct):
+            off = int(m.group("off"), 16)
+            fields.add((struct, off, 4))
+            return f"{v}->{field_name(off)}"
+        body = re.sub(rf"(?<![.\w]){ev}\[\s*(?P<off>{HEX})\s*/\s*4\s*\]", ia, body)
+        body = re.sub(rf"(?<![.\w\)]){ev}\s*\+\s*(?P<off>{HEX})",
+                      lambda m, v=v: f"(char *){v} + {m.group('off')}", body)
+    return body
+
+
 # -------- per-function file segmentation (so one sensitive func doesn't
 # -------- revert a whole multi-func TU) --------
 FUNC_START = re.compile(r"^[A-Za-z_][\w \*]*?\b(func_[0-9A-Fa-f]+)\s*\(", re.M)
@@ -241,7 +275,9 @@ def main():
     if args and args[0] == "--collect":
         fields = set()
         for p in targets:
-            transforms(p.read_text(errors="replace"), fields)
+            for name, txt in split_functions(p.read_text(errors="replace")):
+                if name:
+                    retype_locals(transforms(txt, fields), fields)
         for struct in ("Sub15C", "Obj800"):
             fs = gen_fields(fields, struct)
             print(f"{struct}: {len(fs)} fields")
@@ -271,7 +307,7 @@ def main():
             if name is None:
                 continue
             fs = set()
-            nt = transforms(txt, fs)
+            nt = retype_locals(transforms(txt, fs), fs)
             if nt != txt:
                 cands.append((name, nt, fs))
         if not cands:

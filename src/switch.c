@@ -209,9 +209,9 @@ short func_001C0AD8(char *self) {
 INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C0AE8);
 
 int func_001C0BE0(char *self) {
-    char *sub = ((GObj *)(self))->p_15C;
-    char *p = ((Sub15C *)(sub))->p_800;
-    return *(int *)(p + 0x4) == 0;
+    Sub15C *sub = ((GObj *)(self))->p_15C;
+    Obj800 *p = ((Sub15C *)(sub))->p_800;
+    return p->f_4 == 0;
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C0BF4);

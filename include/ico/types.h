@@ -32,54 +32,106 @@ struct GObj {
 };
 
 struct Sub15C {
-    char    _pad0[0xC];
-    int     f_C;  /* 0xC */
-    char    _pad10[0x64];
-    int     f_74;  /* 0x74 */
+    char    _pad0[0x4];
+    int     f_4; /* 0x4 */
+    int     f_8; /* 0x8 */
+    int     f_C; /* 0xC */
+    char    _pad10[0x8];
+    int     f_18; /* 0x18 */
+    int     f_1C; /* 0x1C */
+    int     f_20; /* 0x20 */
+    int     f_24; /* 0x24 */
+    int     f_28; /* 0x28 */
+    char    _pad2C[0x4];
+    int     f_30; /* 0x30 */
+    char    _pad34[0x8];
+    int     f_3C; /* 0x3C */
+    char    _pad40[0x4];
+    int     f_44; /* 0x44 */
+    char    _pad48[0x8];
+    int     f_50; /* 0x50 */
+    int     f_54; /* 0x54 */
+    int     f_58; /* 0x58 */
+    char    _pad5C[0x10];
+    char    f_6C; /* 0x6C */
+    char    _pad6D[0x3];
+    int     f_70; /* 0x70 */
+    int     f_74; /* 0x74 */
     char    _pad78[0xC];
-    int     f_84;  /* 0x84 */
-    char    _pad88[0x158];
-    int     f_1E0;  /* 0x1E0 */
-    char    _pad1E4[0x2BC];
-    int     f_4A0;  /* 0x4A0 — index (motionOrient) */
+    int     f_84; /* 0x84 */
+    int     f_88; /* 0x88 */
+    char    _pad8C[0x44];
+    int     f_D0; /* 0xD0 */
+    char    _padD4[0xAC];
+    int     f_180; /* 0x180 */
+    char    _pad184[0x10];
+    int     f_194; /* 0x194 */
+    int     f_198; /* 0x198 */
+    int     f_19C; /* 0x19C */
+    char    _pad1A0[0x24];
+    int     f_1C4; /* 0x1C4 */
+    int     f_1C8; /* 0x1C8 */
+    char    _pad1CC[0x14];
+    int     f_1E0; /* 0x1E0 */
+    char    _pad1E4[0x8C];
+    int     f_270; /* 0x270 */
+    int     f_274; /* 0x274 */
+    int     f_278; /* 0x278 */
+    char    _pad27C[0x15C];
+    int     f_3D8; /* 0x3D8 */
+    char    _pad3DC[0xC4];
+    int     f_4A0; /* 0x4A0 index */
     char    _pad4A4[0x8];
-    int     f_4AC;  /* 0x4AC */
+    int     f_4AC; /* 0x4AC */
     char    _pad4B0[0x8];
-    int     f_4B8;  /* 0x4B8 */
+    int     f_4B8; /* 0x4B8 */
     char    _pad4BC[0x1C];
-    int     f_4D8;  /* 0x4D8 */
+    int     f_4D8; /* 0x4D8 */
     char    _pad4DC[0x8];
-    int     f_4E4;  /* 0x4E4 */
+    int     f_4E4; /* 0x4E4 */
     char    _pad4E8[0x44];
-    int     f_52C;  /* 0x52C */
+    int     f_52C; /* 0x52C */
     char    _pad530[0x2D0];
-    Obj800 *p_800;  /* 0x800 */
+    Obj800 *p_800; /* 0x800 */
     char    _pad804[0x10];
-    int     f_814;  /* 0x814 */
+    int     f_814; /* 0x814 */
 };
 
 struct Obj800 {
-    int     f_0;  /* 0x0 */
-    int     f_4;  /* 0x4 */
-    char    _pad8[0x4];
-    int     f_C;  /* 0xC */
-    int     f_10;  /* 0x10 */
-    char    _pad14[0x8];
-    int     f_1C;  /* 0x1C */
-    int     f_20;  /* 0x20 */
-    void   *p_24;  /* 0x24 */
-    int     f_28;  /* 0x28 */
-    char    _pad2C[0x24];
-    int     f_50;  /* 0x50 */
+    int     f_0; /* 0x0 */
+    int     f_4; /* 0x4 */
+    int     f_8; /* 0x8 */
+    int     f_C; /* 0xC */
+    int     f_10; /* 0x10 */
+    int     f_14; /* 0x14 */
+    char    _pad18[0x4];
+    int     f_1C; /* 0x1C */
+    int     f_20; /* 0x20 */
+    void   *p_24; /* 0x24 */
+    int     f_28; /* 0x28 */
+    char    _pad2C[0x18];
+    int     f_44; /* 0x44 */
+    char    _pad48[0x8];
+    int     f_50; /* 0x50 */
     char    _pad54[0x4];
-    int     f_58;  /* 0x58 */
-    char    _pad5C[0x44];
-    int     f_A0;  /* 0xA0 */
+    int     f_58; /* 0x58 */
+    char    _pad5C[0x4];
+    char    f_60; /* 0x60 */
+    char    _pad61[0x3F];
+    int     f_A0; /* 0xA0 */
     char    _padA4[0x6C];
-    int     f_110;  /* 0x110 */
-    int     f_114;  /* 0x114 */
+    int     f_110; /* 0x110 */
+    int     f_114; /* 0x114 */
     char    _pad118[0x28];
-    int     f_140;  /* 0x140 */
+    int     f_140; /* 0x140 */
+    char    _pad144[0x7C];
+    int     f_1C0; /* 0x1C0 */
+    int     f_1C4; /* 0x1C4 */
+    int     f_1C8; /* 0x1C8 */
+    char    _pad1CC[0xA4];
+    int     f_270; /* 0x270 */
+    char    _pad274[0x4];
+    int     f_278; /* 0x278 */
 };
 
 #endif /* ICO_TYPES_H */

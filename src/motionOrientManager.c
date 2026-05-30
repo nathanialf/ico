@@ -183,7 +183,7 @@ extern void func_001E3E20(int *self, void *buf);
 
 void func_001E3F40(int *self)
 {
-    void *s0 = *(void **)((int)((GObj *)((char *)self))->p_15C + 0x470);
+    Sub15C *s0 = *(void **)((int)((GObj *)((char *)self))->p_15C + 0x470);
     unsigned int n = func_001F10A8(s0);
     void *buf = __builtin_alloca((n << 3) >> 3);
     func_001F0A38(buf, s0);
@@ -221,12 +221,12 @@ INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E45E0);
 
 void func_001E4700(int *a0, int a1, int a2)
 {
-    int *v1 = (int *)(((char *)((GObj *)(a0))->p_15C) + 0x470);
-    if (v1[0x18 / 4] != 0) {
+    Sub15C *v1 = (((char *)((GObj *)(a0))->p_15C) + 0x470);
+    if (v1->f_18 != 0) {
         return;
     }
-    v1[0x1C / 4] = a2;
-    v1[0x20 / 4] = a1;
+    v1->f_1C = a2;
+    v1->f_20 = a1;
 }
 
 INCLUDE_ASM_NOP_PAD(func_001E4724);
@@ -259,8 +259,8 @@ extern void func_001E4180(int *self, int x, int y);
 
 void func_001E4798(int *self, int a1, int a2, int a3, int a4, int a5)
 {
-    char *sub = ((GObj *)((char *)self))->p_15C;
-    char *p1 = sub + 0x470;
+    Sub15C *sub = ((GObj *)((char *)self))->p_15C;
+    char *p1 = (char *)sub + 0x470;
     if (a3 >= 0) {
         if (a4 >= 0) {
             func_001E4180(self, a3, a4);

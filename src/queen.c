@@ -247,15 +247,15 @@ void func_0019A9A0(int *self)
     func_0010ECD8();
     func_0010ECB8(self);
     {
-        char *sub = ((GObj *)((char *)self))->p_15C;
-        int *inner = ((Sub15C *)(sub))->p_800;
+        Sub15C *sub = ((GObj *)((char *)self))->p_15C;
+        Obj800 *inner = ((Sub15C *)(sub))->p_800;
         if (*(int *)((char *)inner + 0xC) != 0) {
-            char *q = *(char **)(sub + 0x844);
+            char *q = *(char **)((char *)sub + 0x844);
             func_001C62D0(*(int *)((char *)inner + 0x10), q + 0x40, q);
             sub = ((GObj *)((char *)self))->p_15C;
         }
         {
-            char *q = *(char **)(sub + 0x844);
+            char *q = *(char **)((char *)sub + 0x844);
             func_001C62D0(*(int *)((char *)inner + 0x14), q + 0x40, q);
         }
     }
@@ -264,10 +264,10 @@ INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019AA20);
 extern void func_0019C280(float x);
 void func_0019AE50(int *self)
 {
-    int *p = (int *)((int *)((GObj *)(self))->p_15C)[0x800 / 4];
+    Sub15C *p = ((int *)((GObj *)(self))->p_15C)[0x800 / 4];
     if (*(signed char *)((char *)p + 0x12) == 0) return;
     {
-        float f = (float)p[0x18 / 4];
+        float f = (float)p->f_18;
         func_0019C280(1.0f - f / 5.0f);
     }
 }

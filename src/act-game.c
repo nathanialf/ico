@@ -156,10 +156,10 @@ typedef struct { char _0[0x188]; int _188; } _E190;
 
 int func_00149F20(char *a, char *b)
 {
-    char *sub1 = ((GObj *)(a))->p_15C;
-    char *sub2 = ((GObj *)(b))->p_15C;
-    int idx1 = *(int *)(sub1 + 0x4A0);
-    int idx2 = *(int *)(sub2 + 0x4A0);
+    Sub15C *sub1 = ((GObj *)(a))->p_15C;
+    Sub15C *sub2 = ((GObj *)(b))->p_15C;
+    int idx1 = sub1->f_4A0;
+    int idx2 = sub2->f_4A0;
     _E190 *e1 = (_E190 *)((char *)D_00565060 + idx1 * 0x190);
     _E190 *e2 = (_E190 *)((char *)D_00565060 + idx2 * 0x190);
     int b1 = ((unsigned int)e1->_188 >> 15) & 1;

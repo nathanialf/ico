@@ -590,10 +590,10 @@ extern int D_00623468[];
 
 void func_001BA2E0(int *self)
 {
-    int *p = (int *)((int *)((GObj *)(self))->p_15C)[0x800 / 4];
+    Sub15C *p = ((int *)((GObj *)(self))->p_15C)[0x800 / 4];
     func_00104508((int)((char *)p + 0x1E0), self);
     func_00102850((int)((char *)p + 0x1D0), self);
-    func_001CFA20(p[0x19C / 4]);
+    func_001CFA20(p->f_19C);
 }
 
 extern void func_001B99B0(int *self);
@@ -607,35 +607,35 @@ extern void func_001A6E28(int a);
 
 void func_001BA330(int *self)
 {
-    int *p = (int *)((int *)((GObj *)(self))->p_15C)[0x800 / 4];
-    int state = p[0x8 / 4];
+    Sub15C *p = ((int *)((GObj *)(self))->p_15C)[0x800 / 4];
+    int state = p->f_8;
 
     switch (state) {
     default:
-        if (p[0x274 / 4] < 10) {
-            p[0x274 / 4] = p[0x274 / 4] + 1;
+        if (p->f_274 < 10) {
+            p->f_274 = p->f_274 + 1;
             func_001BA2E0(self);
-            state = p[0x8 / 4];
+            state = p->f_8;
         }
         {
             char *vp = (char *)D_004BEE60;
             vp += state * 8;
-            p[0x8 / 4] = ((int (*)(int *))((FsmPair *)vp)->b)(self);
+            p->f_8 = ((int (*)(int *))((FsmPair *)vp)->b)(self);
         }
         {
-            int *pp = (int *)((int *)((GObj *)(self))->p_15C)[0x800 / 4];
-            int t = pp[0x270 / 4] + 1;
-            pp[0x270 / 4] = t;
+            Sub15C *pp = ((int *)((GObj *)(self))->p_15C)[0x800 / 4];
+            int t = pp->f_270 + 1;
+            pp->f_270 = t;
             if (t >= 0x21) {
-                pp[0x270 / 4] = 0;
+                pp->f_270 = 0;
             }
         }
         break;
     case 5:
-        p[0x8 / 4] = 4;
+        p->f_8 = 4;
         break;
     case 4:
-        p[0x8 / 4] = 6;
+        p->f_8 = 6;
         break;
     case 6:
         self[0x16C / 4] = 0;
@@ -652,23 +652,23 @@ void func_001BA330(int *self)
     }
     {
         int r = func_00105278();
-        func_001CF930(p[0x19C / 4], r, 1.0f);
+        func_001CF930(p->f_19C, r, 1.0f);
     }
-    if (p[0x4 / 4] != 0) {
+    if (p->f_4 != 0) {
         int r3 = func_00105278();
         func_00105F20(r3, ((int *)((GObj *)(self))->p_15C)[0xC / 4]);
         func_00105038(0x4000);
         func_00104F48(0x4000);
         {
-            int *sub = (int *)((GObj *)(self))->p_15C;
+            Sub15C *sub = ((GObj *)(self))->p_15C;
             int r4 = func_00105278();
-            func_001185D0(sub[0xC / 4], r4, (int)D_004BEF20);
+            func_001185D0(sub->f_C, r4, (int)D_004BEF20);
         }
     }
     {
-        int *sub = (int *)((GObj *)(self))->p_15C;
+        Sub15C *sub = ((GObj *)(self))->p_15C;
         float diff = *(float *)((char *)sub + 0x54)
-                   - *(float *)((char *)((int *)sub[0xC / 4]) + 0x34);
+                   - *(float *)((char *)((int *)sub->f_C) + 0x34);
         if (diff < 0.0f) {
             diff = -diff;
             MEM_BARRIER();
@@ -694,32 +694,32 @@ extern void func_001CF998(int x);
 
 void func_001BA530(int *self)
 {
-    int *p = (int *)((int *)((GObj *)(self))->p_15C)[0x800 / 4];
-    if (p[0x8 / 4] >= 5) {
+    Sub15C *p = ((int *)((GObj *)(self))->p_15C)[0x800 / 4];
+    if (p->f_8 >= 5) {
         return;
     }
-    if (p[0x278 / 4] == 0) {
+    if (p->f_278 == 0) {
         return;
     }
     func_0010ECD8();
     func_0010ECB8(self);
-    if (p[0x4 / 4] == 0) {
-        func_0010ECA0(p[0x194 / 4]);
-        func_0010ECA0(p[0x198 / 4]);
+    if (p->f_4 == 0) {
+        func_0010ECA0(p->f_194);
+        func_0010ECA0(p->f_198);
     }
-    func_001CF998(p[0x19C / 4]);
+    func_001CF998(p->f_19C);
 }
 
 int func_001BA5C0(char *self) {
-    char *sub = ((GObj *)(self))->p_15C;
-    char *p = ((Sub15C *)(sub))->p_800;
-    return *(int *)(p + 0x0);
+    Sub15C *sub = ((GObj *)(self))->p_15C;
+    Obj800 *p = ((Sub15C *)(sub))->p_800;
+    return p->f_0;
 }
 
 void func_001BA5D0(char *self, int val) {
-    char *sub = ((GObj *)(self))->p_15C;
-    char *p = ((Sub15C *)(sub))->p_800;
-    *(int *)(p + 0x278) = val;
+    Sub15C *sub = ((GObj *)(self))->p_15C;
+    Obj800 *p = ((Sub15C *)(sub))->p_800;
+    p->f_278 = val;
 }
 
 extern void func_0010E158(int dst, int v);
@@ -731,8 +731,8 @@ int func_001BA5E0(int *self, int a1)
 {
     int buf[4];
     short s = (short)a1;
-    int *p = (int *)((int *)((GObj *)(self))->p_15C)[0x800 / 4];
-    int x = p[0x8 / 4];
+    Sub15C *p = ((int *)((GObj *)(self))->p_15C)[0x800 / 4];
+    int x = p->f_8;
     if (x < 6) {
         if (x >= 2) {
             goto ret0;
@@ -775,8 +775,8 @@ int func_001BA6B0(int *self)
 
 int func_001BA6F0(int *self, int a1, int a2)
 {
-    int *p = (int *)((int *)((GObj *)(self))->p_15C)[0x800 / 4];
-    int x = p[0x8 / 4];
+    Sub15C *p = ((int *)((GObj *)(self))->p_15C)[0x800 / 4];
+    int x = p->f_8;
     int ok;
     if (x < 6) {
         if (x >= 2) {
@@ -791,9 +791,9 @@ check:
         goto ret0;
     }
     {
-        char *sub = (char *)((GObj *)(self))->p_15C;
-        char *q = ((Sub15C *)(sub))->p_800;
-        func_00118648((int)(sub + 0x130), (int)(q + 0x230), a2);
+        Sub15C *sub = ((GObj *)(self))->p_15C;
+        Obj800 *q = ((Sub15C *)(sub))->p_800;
+        func_00118648((int)((char *)sub + 0x130), (int)((char *)q + 0x230), a2);
     }
     return 1;
 ret0:

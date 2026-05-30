@@ -13,8 +13,8 @@ void func_00199A08(void) {
     p = (int *)d[0x164/4];
     q = (int *)p[0x140/4];
     if (a) {
-        int *r = (int *)((int *)((GObj *)(a))->p_15C)[0x800/4];
-        r[0x4/4] = r[0x4/4] + 1;
+        Sub15C *r = ((int *)((GObj *)(a))->p_15C)[0x800/4];
+        r->f_4 = r->f_4 + 1;
     }
     if (q) {
         func_001F40D8(q);

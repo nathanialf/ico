@@ -110,7 +110,7 @@ void func_00193818(int a0)
 }
 
 void func_00193830(char *self) {
-    char *sub = ((GObj *)(self))->p_15C;
-    char *p = ((Sub15C *)(sub))->p_800;
-    *(p + 0xE) = 1;
+    Sub15C *sub = ((GObj *)(self))->p_15C;
+    Obj800 *p = ((Sub15C *)(sub))->p_800;
+    *((char *)p + 0xE) = 1;
 }
