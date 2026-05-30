@@ -96,6 +96,7 @@ unsigned int D_005650C4 = 0x00000013;
 unsigned int D_005650C8[24] = { 0xBF800000, 0x00000013, 0xBF800000, 0x00000013, 0xBF800000, 0x00000013, 0xBF800000, 0x00000013, 0x656A626F, 0x732F7463, 0x622F6664, 0x6D2F796F, 0x6F69746F, 0x61622F6E, 0x61747363, 0x2E31646E, 0x00626F6D, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000 };
 
 #include "include_asm.h"
+#include "ico/types.h"
 #include "regpin.h"
 #include "matching.h"
 
@@ -132,10 +133,10 @@ void func_00149EA8(volatile int *self)
 /* Matched body inlined from src/cod/049ED0.c during TU coalesce. */
 void func_00149ED0(int *a0)
 {
-    ((int *)a0[0x15C / 4])[0x544 / 4] = 0;
-    ((int *)a0[0x15C / 4])[0x54C / 4] = 0;
-    ((int *)a0[0x15C / 4])[0x548 / 4] = 0;
-    ((int *)a0[0x15C / 4])[0x7C / 4] = 0;
+    ((int *)((GObj *)(a0))->p_15C)[0x544 / 4] = 0;
+    ((int *)((GObj *)(a0))->p_15C)[0x54C / 4] = 0;
+    ((int *)((GObj *)(a0))->p_15C)[0x548 / 4] = 0;
+    ((int *)((GObj *)(a0))->p_15C)[0x7C / 4] = 0;
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_00149EF4);
@@ -155,8 +156,8 @@ typedef struct { char _0[0x188]; int _188; } _E190;
 
 int func_00149F20(char *a, char *b)
 {
-    char *sub1 = *(char **)(a + 0x15C);
-    char *sub2 = *(char **)(b + 0x15C);
+    char *sub1 = ((GObj *)(a))->p_15C;
+    char *sub2 = ((GObj *)(b))->p_15C;
     int idx1 = *(int *)(sub1 + 0x4A0);
     int idx2 = *(int *)(sub2 + 0x4A0);
     _E190 *e1 = (_E190 *)((char *)D_00565060 + idx1 * 0x190);
@@ -210,9 +211,9 @@ extern int func_00109F10(void *a0, void *a1);
 void func_0014A100(float *dst, char *obj, void *a2)
 {
     int idx = func_00109F10(obj, a2) << 6;
-    dst[0] = *(float *)(idx + *(int *)(*(int *)(obj + 0x15C) + 0xC) + 0x30);
-    dst[1] = *(float *)(idx + *(int *)(*(int *)(obj + 0x15C) + 0xC) + 0x34);
-    dst[2] = *(float *)(idx + *(int *)(*(int *)(obj + 0x15C) + 0xC) + 0x38);
+    dst[0] = *(float *)(idx + *(int *)((int)((GObj *)(obj))->p_15C + 0xC) + 0x30);
+    dst[1] = *(float *)(idx + *(int *)((int)((GObj *)(obj))->p_15C + 0xC) + 0x34);
+    dst[2] = *(float *)(idx + *(int *)((int)((GObj *)(obj))->p_15C + 0xC) + 0x38);
 }
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A178);
 
@@ -369,13 +370,13 @@ int func_0014A560(void)
     }
     state = *(int *)(*(char **)((char *)player + 0x164) + 0x30);
     if (state == 0x4B) {
-        sub = *(int **)((char *)player + 0x15C);
+        sub = ((GObj *)((char *)player))->p_15C;
         goto body;
     }
     if (state != 0x55) {
         goto reject;
     }
-    sub = *(int **)((char *)player + 0x15C);
+    sub = ((GObj *)((char *)player))->p_15C;
 body:
     {
         register int idx REG("$3");

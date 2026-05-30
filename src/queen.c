@@ -187,6 +187,7 @@ float D_006310D4 = 0.333f;
 float D_006310D8 = 3.1415927f;
 
 #include "include_asm.h"
+#include "ico/types.h"
 #include "regpin.h"
 #include "matching.h"
 
@@ -210,7 +211,7 @@ void func_0019A8F0(int *self)
     }
     func_001E3FC8(self);
     func_001BB8C0(self, 0x23, 0x2C, 0x199);
-    p_800 = (int *)((int *)self[0x15C / 4])[0x800 / 4];
+    p_800 = (int *)((int *)((GObj *)(self))->p_15C)[0x800 / 4];
     if (p_800[0xC / 4] != 0) {
         NOREORDER_BARRIER();
         {
@@ -246,12 +247,12 @@ void func_0019A9A0(int *self)
     func_0010ECD8();
     func_0010ECB8(self);
     {
-        char *sub = *(char **)((char *)self + 0x15C);
+        char *sub = ((GObj *)((char *)self))->p_15C;
         int *inner = *(int **)(sub + 0x800);
         if (*(int *)((char *)inner + 0xC) != 0) {
             char *q = *(char **)(sub + 0x844);
             func_001C62D0(*(int *)((char *)inner + 0x10), q + 0x40, q);
-            sub = *(char **)((char *)self + 0x15C);
+            sub = ((GObj *)((char *)self))->p_15C;
         }
         {
             char *q = *(char **)(sub + 0x844);
@@ -263,7 +264,7 @@ INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019AA20);
 extern void func_0019C280(float x);
 void func_0019AE50(int *self)
 {
-    int *p = (int *)((int *)self[0x15C / 4])[0x800 / 4];
+    int *p = (int *)((int *)((GObj *)(self))->p_15C)[0x800 / 4];
     if (*(signed char *)((char *)p + 0x12) == 0) return;
     {
         float f = (float)p[0x18 / 4];
@@ -295,10 +296,10 @@ void func_0019B888(void)
 {
     int *obj1 = func_0013EB50(0x2E);
     int *iter;
-    *((char *)((int *)obj1[0x15C / 4])[0x800 / 4] + 1) = 1;
+    *((char *)((int *)((GObj *)(obj1))->p_15C)[0x800 / 4] + 1) = 1;
     iter = func_0013EB50(0x35);
     while (iter != 0) {
-        *((char *)((int *)iter[0x15C / 4])[0x800 / 4] + 0x12) = 1;
+        *((char *)((int *)((GObj *)(iter))->p_15C)[0x800 / 4] + 0x12) = 1;
         iter = (int *)func_0013EBE0((int)iter);
     }
 }
@@ -320,7 +321,7 @@ int func_0019B910(void)
 }
 
 float func_0019B938(char *self) {
-    char *sub = *(char **)(self + 0x15C);
+    char *sub = ((GObj *)(self))->p_15C;
     char *p = *(char **)(sub + 0x800);
     return *(float *)(p + 0x14);
 }
@@ -346,7 +347,7 @@ int func_0019BA60(void)
     int *r;
     p = func_0013EB50(0x35);
     if (p != 0) {
-        q = (int *)p[0x15C / 4];
+        q = (int *)((GObj *)(p))->p_15C;
         r = (int *)q[0x800 / 4];
         ret = r[0x18 / 4] < 5;
     }
@@ -363,7 +364,7 @@ int *func_0019BAA8(int *self)
 {
     register int *p REG("$18");
     int *buf;
-    p = (int *)self[0x15C / 4];
+    p = (int *)((GObj *)(self))->p_15C;
     buf = (int *)func_0013A0F8(D_00632010, 0x30, D_0055C690, 0x3DA);
     func_002641D8(buf, 0, 0x30);
     p[0x800 / 4] = (int)buf;
@@ -377,7 +378,7 @@ int *func_0019BAA8(int *self)
 
 float func_0019BB40(int a0)
 {
-    return *(float *)(*(int *)(*(int *)(a0 + 0x15C) + 0x800) + 0x14) * 100.0f;
+    return *(float *)(*(int *)((int)((GObj *)(a0))->p_15C + 0x800) + 0x14) * 100.0f;
 }
 
 INCLUDE_ASM_NOP_PAD(func_0019BB5C);
@@ -387,7 +388,7 @@ int *func_0019BC58(int *self)
     register int *p REG("$18");
     register int *s REG("$17") = self;
     int *buf;
-    p = (int *)s[0x15C / 4];
+    p = (int *)((GObj *)(s))->p_15C;
     buf = (int *)func_0013A0F8(D_00632010, 0x20, D_0055C690, 0x4F4);
     p[0x800 / 4] = (int)buf;
     func_002641D8(buf, 0, 0x20);

@@ -77,7 +77,63 @@ def transforms(text: str, fields: set):
         lambda m: f"((GObj *)({m.group('x')}))->p_15C",
         text)
 
+    # 5) int-array idiom field:  *(int*)( (T*)VAR[0x15C/4] + N )  isn't common;
+    #    handle  (T *)VAR[0x15C / 4]  ->  (T *)((GObj*)(VAR))->p_15C
+    text = re.sub(
+        rf"\(\s*(?P<t>{PTRC})\s*\*\)\s*(?P<x>[A-Za-z_]\w*)\[\s*0x15C\s*/\s*4\s*\]",
+        lambda m: f"({m.group('t')} *)((GObj *)({m.group('x')}))->p_15C",
+        text)
+    # 6) bare int-array value:  VAR[0x15C / 4]  ->  (int)((GObj*)(VAR))->p_15C
+    text = re.sub(
+        rf"(?<![.\w])(?P<x>[A-Za-z_]\w*)\[\s*0x15C\s*/\s*4\s*\]",
+        lambda m: f"(int)((GObj *)({m.group('x')}))->p_15C",
+        text)
+
     return text
+
+
+# -------- per-function file segmentation (so one sensitive func doesn't
+# -------- revert a whole multi-func TU) --------
+FUNC_START = re.compile(r"^[A-Za-z_][\w \*]*?\b(func_[0-9A-Fa-f]+)\s*\(", re.M)
+
+
+def split_functions(text: str):
+    """Yield (kind, chunk) where kind is 'func'(name) or None. Brace-matched."""
+    segs = []
+    i = 0
+    for m in FUNC_START.finditer(text):
+        # find the opening brace of the body
+        b = text.find("{", m.start())
+        if b < 0:
+            continue
+        # skip prototypes: `func_X(...);` before any '{'
+        semi = text.find(";", m.start())
+        if 0 <= semi < b:
+            continue
+        depth = 0
+        j = b
+        while j < len(text):
+            c = text[j]
+            if c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+                if depth == 0:
+                    j += 1
+                    break
+            j += 1
+        segs.append((m.group(1), m.start(), j))
+    # stitch into ordered (name|None, text) list
+    out = []
+    pos = 0
+    for name, s, e in segs:
+        if s > pos:
+            out.append((None, text[pos:s]))
+        out.append((name, text[s:e]))
+        pos = e
+    if pos < len(text):
+        out.append((None, text[pos:]))
+    return out
 
 
 def gen_sub15c_fields(all_fields: set) -> str:
@@ -103,7 +159,7 @@ def find_targets():
             t = p.read_text(errors="replace")
         except OSError:
             continue
-        if "0x15C" in t and "+ 0x15C" in t:
+        if "0x15C" in t:
             out.append(p)
     return out
 
@@ -156,36 +212,53 @@ def main():
         print(f"{len(targets)} files, {len(gen_sub15c_fields(fields))} distinct Sub15C fields")
         return 0
 
-    # --apply
+    # --apply : per-function, so one sensitive func can't block a whole TU.
     explicit = [ROOT / a for a in args if a != "--apply"]
     files = explicit or targets
-    converted, skipped, reverted = [], [], []
+    py = str(ROOT / ".venv" / "bin" / "python")
+
+    def verify_func(tu, fn):
+        r = subprocess.run([py, str(ROOT / "tools" / "match_diff.py"),
+                            "--count", tu, fn], capture_output=True, text=True,
+                           cwd=str(ROOT))
+        return r.stdout.strip() == "0"
+
+    nfunc_ok = nfunc_bad = nfiles = 0
     for p in files:
         orig = p.read_text(errors="replace")
-        fields = set()
-        new = transforms(orig, fields)
-        if new == orig:
-            skipped.append(p.name)
+        segs = split_functions(orig)
+        tu = tu_name(p)
+        transformed = {}     # name -> new text
+        cands = []
+        for name, txt in segs:
+            if name is None:
+                continue
+            fs = set()
+            nt = transforms(txt, fs)
+            if nt != txt:
+                cands.append((name, nt, fs))
+        if not cands:
             continue
-        new = ensure_include(new)
-        p.write_text(new)
-        if verify(p):
-            converted.append((p, fields))
-        else:
-            p.write_text(orig)
-            reverted.append(p.name)
-    print(f"converted: {len(converted)}  reverted(unsafe): {len(reverted)}  "
-          f"unchanged: {len(skipped)}")
-    if reverted:
-        print("  reverted:", " ".join(reverted[:30]))
-    # report the union of fields the kept conversions need
-    allf = set()
-    for _p, fs in converted:
-        allf |= fs
-    if allf:
-        print("Sub15C fields needed by kept conversions:")
-        for off, w in sorted(gen_sub15c_fields(allf).items()):
-            print(f"  0x{off:X} w{w}")
+
+        def build():
+            return ensure_include("".join(
+                transformed.get(name, txt) for name, txt in segs))
+
+        kept = False
+        for name, nt, _fs in cands:
+            transformed[name] = nt
+            p.write_text(build())
+            if verify_func(tu, name):
+                nfunc_ok += 1
+                kept = True
+            else:
+                del transformed[name]
+                nfunc_bad += 1
+        p.write_text(build() if transformed else orig)
+        if transformed:
+            nfiles += 1
+    print(f"files touched: {nfiles}  funcs converted: {nfunc_ok}  "
+          f"funcs left (sensitive): {nfunc_bad}")
     return 0
 
 

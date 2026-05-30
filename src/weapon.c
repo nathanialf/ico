@@ -312,6 +312,7 @@ unsigned int D_005F3084 = 0x00000000;
 float D_005F3088[16] = { 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 46.0f, 48.0f, 50.0f, 40.0f, 38.0f, 36.0f, 10.0f, -10.0f, 0.0f, 0.0f, 0.0f };
 
 #include "include_asm.h"
+#include "ico/types.h"
 #include "matching.h"
 #include "regpin.h"
 
@@ -349,7 +350,7 @@ INCLUDE_ASM("asm/nonmatchings/src/weapon", func_001F3FB0);
 
 void func_001F4098(int *self)
 {
-    int *p = (int *) self[0x15C / 4];
+    int *p = (int *)((GObj *)(self))->p_15C;
     int *q = (int *) p[0x800 / 4];
     int v = q[0x8 / 4];
     int ret = -1;
@@ -365,7 +366,7 @@ void func_001F4098(int *self)
 
 
 int func_001F40C8(char *self) {
-    char *sub = *(char **)(self + 0x15C);
+    char *sub = ((GObj *)(self))->p_15C;
     char *p = *(char **)(sub + 0x800);
     return *(int *)(p + 0x0);
 }
@@ -374,7 +375,7 @@ extern void func_001F2388(int x);
 extern void func_001F1868(int x);
 void func_001F40D8(int *self)
 {
-    int *p = (int *)((int *)self[0x15C / 4])[0x800 / 4];
+    int *p = (int *)((int *)((GObj *)(self))->p_15C)[0x800 / 4];
     register int count REG("$2");
     int i;
     count = p[0x50 / 4];
@@ -393,7 +394,7 @@ exit:
 }
 void func_001F4150(int *self)
 {
-    int *p = (int *)((int *)self[0x15C / 4])[0x800 / 4];
+    int *p = (int *)((int *)((GObj *)(self))->p_15C)[0x800 / 4];
     register int count REG("$2");
     int i;
     count = p[0x50 / 4];
@@ -413,7 +414,7 @@ exit:
 
 void func_001F41C8(int *self)
 {
-    int *p = (int *)((int *)self[0x15C / 4])[0x800 / 4];
+    int *p = (int *)((int *)((GObj *)(self))->p_15C)[0x800 / 4];
     int i;
     for (i = 0; i < p[0x50 / 4]; i++) {
         int *arr = (int *)p[0x54 / 4];
@@ -445,7 +446,7 @@ void func_001F4250(int *self, int arg1, int a2)
     int v;
     int *s1;
     a2_check = a2;
-    s0 = (int *) self[0x15C / 4];
+    s0 = (int *)((GObj *)(self))->p_15C;
     p = (int *) s0[0x800 / 4];
     v = p[0x8 / 4];
     s1 = s0 + 0xA0 / 4;
@@ -468,7 +469,7 @@ void func_001F4250(int *self, int arg1, int a2)
 }
 
 int func_001F42D0(char *self) {
-    char *sub = *(char **)(self + 0x15C);
+    char *sub = ((GObj *)(self))->p_15C;
     char *p = *(char **)(sub + 0x800);
     *(int *)(p + 0xA0) = 0;
     return 1;
@@ -478,7 +479,7 @@ INCLUDE_ASM_NOP_PAD(func_001F42E4);
 
 float func_001F42E8(char *a0)
 {
-    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x800);
+    char *p = *(char **)((char *)((GObj *)(a0))->p_15C + 0x800);
     int idx = *(int *)p;
     register float v REG("$f0");
     v = (float)D_006124F8[idx].field;
@@ -522,15 +523,15 @@ int func_001F43D0(int *self, int arg1)
     int s2 = func_0013A0F8(D_00632010, 0xB0, D_0061A850, 0x2F2);
     register int count_outer REG("$3");
     int i;
-    ((int *)self[0x15C / 4])[0x800 / 4] = s2;
+    ((int *)((GObj *)(self))->p_15C)[0x800 / 4] = s2;
     *(WeaponBuf_B0 *)s2 = *(WeaponBuf_B0 *)D_004C6240;
-    count_outer = ((int *)self[0x15C / 4])[0x8 / 4];
+    count_outer = ((int *)((GObj *)(self))->p_15C)[0x8 / 4];
     if (count_outer > 0) {
         i = 0;
         do {
             func_001F34C8(self, i, arg1);
             i++;
-        } while (i < ((int *)self[0x15C / 4])[0x8 / 4]);
+        } while (i < ((int *)((GObj *)(self))->p_15C)[0x8 / 4]);
     }
     return s2;
 }

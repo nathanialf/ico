@@ -1,3 +1,4 @@
+#include "ico/types.h"
 extern int D_00631990;
 extern void func_0010ECC0(int *self);
 extern int func_0012A7F8(int *p);
@@ -7,7 +8,7 @@ void func_00197080(int *self)
 {
     int *q;
     func_0010ECC0(self);
-    q = (int *)((int *)self[0x15C/4])[0x800/4];
+    q = (int *)((int *)((GObj *)(self))->p_15C)[0x800/4];
     if (q[0x30/4] != 0) {
         if (func_0012A7F8(q + 0x30/4) != 0) {
             q[0x30/4] = 0;

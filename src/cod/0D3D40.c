@@ -1,6 +1,7 @@
+#include "ico/types.h"
 int func_001D3D40(int *self)
 {
-    int *p = (int *)self[0x15C / 4];
+    int *p = (int *)((GObj *)(self))->p_15C;
     int *q = (int *)p[0x800 / 4];
     int ret = 0;
     if (self[0x16C / 4] != 0) {

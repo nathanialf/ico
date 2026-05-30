@@ -64,6 +64,7 @@ const float D_00553C70[4] = { 1e+01f, 0.0f, 0.0f, 0.0f };
 const float D_00553C90[4] = { 0.0f, 1.0f, 0.0f, 1.0f };
 
 #include "include_asm.h"
+#include "ico/types.h"
 #include "matching.h"
 #include "vu0.h"
 
@@ -75,10 +76,10 @@ void func_00102FA0(int *self, int *other, char *p)
 {
     func_00105F00((int)self, (int)p);
     {
-        char *sub = *(char **)((char *)other + 0x15C);
+        char *sub = ((GObj *)((char *)other))->p_15C;
         char *a = *(char **)sub;
         if (a != 0) {
-            char *inner_struct = *(char **)(a + 0x15C);
+            char *inner_struct = ((GObj *)(a))->p_15C;
             int inner_field = *(int *)(inner_struct + 0xC);
             int idx = *(int *)(sub + 0x4);
             func_002438B8(self, inner_field + (idx << 6), p);
@@ -93,7 +94,7 @@ INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00103018);
 extern void func_00105F00(int a0, int a1);
 void func_00103110(int a0, int a1)
 {
-    func_00105F00(a0, *(int *)(a1 + 0x15C) + 0x130);
+    func_00105F00(a0, (int)((GObj *)(a1))->p_15C + 0x130);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_0010311C);
@@ -108,14 +109,14 @@ void func_00103AD0(int *self, int *a1)
 {
     int buf[16];
     char *obj = (char *)a1[0];
-    char *ctx = *(char **)(obj + 0x15C);
+    char *ctx = ((GObj *)(obj))->p_15C;
     func_00105F20(buf, (void *)(*(int *)(ctx + 0xC) + (a1[1] << 6)));
     func_00105E70((char *)buf, (char *)buf);
-    func_002438B8((int *)(*(char **)((char *)self + 0x15C) + 0x520), (int)buf,
-                  *(char **)((char *)self + 0x15C) + 0x520);
-    func_00243978((int *)(*(char **)((char *)self + 0x15C) + 0x520),
-                  (int *)(*(char **)((char *)self + 0x15C) + 0x520));
-    *(int *)(*(char **)((char *)self + 0x15C) + 0x52C) = 0;
+    func_002438B8((int *)((char *)((GObj *)((char *)self))->p_15C + 0x520), (int)buf,
+                  (char *)((GObj *)((char *)self))->p_15C + 0x520);
+    func_00243978((int *)((char *)((GObj *)((char *)self))->p_15C + 0x520),
+                  (int *)((char *)((GObj *)((char *)self))->p_15C + 0x520));
+    ((GObj *)((char *)self))->p_15C->f_52C = 0;
 }
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00103B48);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00103C48);
@@ -131,7 +132,7 @@ void func_001040C0(void *a0, char *src)
         int *g = *(int **)src;
         if (g) {
             func_002438E8(a0,
-                          (char *)(*(int *)(*(int *)((char *)g + 0x15C) + 0xC) + (*(int *)(src + 4) << 6)),
+                          (char *)(*(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) + (*(int *)(src + 4) << 6)),
                           (int)a0);
         }
     }
@@ -140,14 +141,14 @@ void func_001040C0(void *a0, char *src)
 
 void func_00104140(void *a0, char *outer)
 {
-    char *src = *(char **)(outer + 0x15C);
+    char *src = ((GObj *)(outer))->p_15C;
     float *p = (float *)(src + 0xA0);
     func_0010DEC0(a0, src + 0xD0, p);
     {
         int *g = *(int **)src;
         if (g) {
             func_002438E8(a0,
-                          (char *)(*(int *)(*(int *)((char *)g + 0x15C) + 0xC) + (*(int *)(src + 4) << 6)),
+                          (char *)(*(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) + (*(int *)(src + 4) << 6)),
                           (int)a0);
         }
     }
@@ -160,7 +161,7 @@ void func_001041C0(void *a0, char *src)
     int *g = *(int **)src;
     if (g) {
         func_002438B8((int *)a0,
-                      *(int *)(*(int *)((char *)g + 0x15C) + 0xC) + (*(int *)(src + 4) << 6),
+                      *(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) + (*(int *)(src + 4) << 6),
                       (char *)p);
     } else {
         func_00105F00((int)a0, (int)p);
@@ -174,31 +175,31 @@ INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104360);
 void func_00104478(void *a0, int a1)
 {
     int buf[16];
-    char *src = *(char **)((char *)a0 + 0x15C);
+    char *src = ((GObj *)((char *)a0))->p_15C;
     float *p = (float *)(src + 0xA0);
     func_00105F00((int)p, a1);
     *(float *)((char *)p + 0x4) -= *(float *)((char *)p + 0xC0);
     *(float *)((char *)p + 0xC) = 1.0f;
     MEM_BARRIER();
     {
-        char *src2 = *(char **)((char *)a0 + 0x15C);
+        char *src2 = ((GObj *)((char *)a0))->p_15C;
         int *g = *(int **)src2;
         if (g) {
             func_00105E70((char *)buf,
-                          (char *)(*(int *)(*(int *)((char *)g + 0x15C) + 0xC) + (*(int *)(src2 + 4) << 6)));
+                          (char *)(*(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) + (*(int *)(src2 + 4) << 6)));
             func_002438B8((int *)p, (int)buf, (char *)p);
         }
     }
 }
 void func_00104508(void *a0, char *outer)
 {
-    char *src = *(char **)(outer + 0x15C);
+    char *src = ((GObj *)(outer))->p_15C;
     float *p = (float *)(src + 0xA0);
     float f0;
     int *g = *(int **)src;
     if (g) {
         func_002438B8((int *)a0,
-                      *(int *)(*(int *)((char *)g + 0x15C) + 0xC) + (*(int *)(src + 4) << 6),
+                      *(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) + (*(int *)(src + 4) << 6),
                       (char *)p);
     } else {
         func_00105F00((int)a0, (int)p);
@@ -249,7 +250,7 @@ void func_00104698(char *dst, char *src)
 
 void func_001046F0(char *dst, char *outer)
 {
-    char *src = *(char **)(outer + 0x15C);
+    char *src = ((GObj *)(outer))->p_15C;
     char tmp[0x40];
     func_00105E70(tmp, src + 0x20);
     func_002438E8(tmp, tmp, *(int *)(src + 0xC));

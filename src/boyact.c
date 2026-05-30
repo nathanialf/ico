@@ -269,6 +269,7 @@ unsigned int D_004C5254 = 0x00000000;
 unsigned char D_004C5258[2120] = { 0 };
 
 #include "include_asm.h"
+#include "ico/types.h"
 #include "matching.h"
 #include "regpin.h"
 
@@ -287,7 +288,7 @@ void func_001502D8(void)
     int *obj_ptr = *(int **)(base + 0x20);
     char *sub;
     if (obj_ptr == 0) return;
-    sub = *(char **)((char *)obj_ptr + 0x15C);
+    sub = ((GObj *)((char *)obj_ptr))->p_15C;
     func_00107270(sub + 0xA0,
                   *(float *)(base + 0x30),
                   *(float *)(base + 0x34),

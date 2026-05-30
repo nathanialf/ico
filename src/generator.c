@@ -77,6 +77,7 @@ float D_00630FBC = 3.1415927f;
 float D_00630FC0 = 3.1415927f;
 
 #include "include_asm.h"
+#include "ico/types.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/generator", func_001920A8);
 INCLUDE_ASM("asm/nonmatchings/src/generator", func_001921F8);
@@ -89,7 +90,7 @@ extern void func_001AE460(int *self);
 extern void func_0013FF88(int a0, int a1, int a2);
 
 void func_00192B58(int *self) {
-    int *p = (int *)((int *)self[0x15C/4])[0x800/4];
+    int *p = (int *)((int *)((GObj *)(self))->p_15C)[0x800/4];
     p[0x50/4] = 1;
     func_001AE460(self);
     func_0013FF88((int)self, 1, (int)self);
@@ -105,11 +106,11 @@ INCLUDE_ASM("asm/nonmatchings/src/generator", func_00193730);
 
 void func_00193818(int a0)
 {
-    *(int *)(*(int *)(*(int *)(a0 + 0x15C) + 0x800) + 0x8) += 1;
+    *(int *)(*(int *)((int)((GObj *)(a0))->p_15C + 0x800) + 0x8) += 1;
 }
 
 void func_00193830(char *self) {
-    char *sub = *(char **)(self + 0x15C);
+    char *sub = ((GObj *)(self))->p_15C;
     char *p = *(char **)(sub + 0x800);
     *(p + 0xE) = 1;
 }

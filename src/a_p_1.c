@@ -117,6 +117,7 @@ const char D_006185B8[32] = "\264\373\244\313\273\340\244\363\244\307\244\244\24
 const char D_006185D8[16] = "\266\257\300\251\273\340\313\264\n";
 
 #include "include_asm.h"
+#include "ico/types.h"
 #include "matching.h"
 
 typedef struct { float m[4]; } Vec4;
@@ -191,7 +192,7 @@ int *func_001B8720(int *self, int *arg1)
     int i;
 
     register int a30 REG("$3") = arg1[0x30 / 4];
-    int sc = self[0x15C / 4];
+    int sc = (int)((GObj *)(self))->p_15C;
     this[0x4 / 4] = 1;
     this[0x16C / 4] = 0;
     this[0x168 / 4] = 0;
@@ -231,7 +232,7 @@ int *func_001B8720(int *self, int *arg1)
         }
     }
     {
-        register char *node REG("$16") = (char *)((int *)self[0x15C / 4])[0x800 / 4] + 0x20;
+        register char *node REG("$16") = (char *)((int *)((GObj *)(self))->p_15C)[0x800 / 4] + 0x20;
         char *bb;
         int k;
         {
@@ -444,7 +445,7 @@ extern float D_00631120;
 
 int func_001B94B0(int *self)
 {
-    char *p = (char *)(((int *)self[0x15C / 4])[0x800 / 4]);
+    char *p = (char *)(((int *)((GObj *)(self))->p_15C)[0x800 / 4]);
     int ret = func_001B8EB0(self, 1);
     Vec4 l0;
     Vec4 l10;
@@ -471,17 +472,17 @@ int func_001B94B0(int *self)
     }
     func_001183D0((int)&l10, (int)&l10, ((float)i * 0.25f + 0.5f) * 0.5f);
 
-    func_001183D0((int)((char *)self[0x15C / 4] + 0x130),
-                  (int)((char *)self[0x15C / 4] + 0x130), D_0063111C);
-    func_00118388((int)((char *)self[0x15C / 4] + 0x130),
-                  (int)((char *)self[0x15C / 4] + 0x130), (int)&l10);
+    func_001183D0((int)((char *)((GObj *)(self))->p_15C + 0x130),
+                  (int)((char *)((GObj *)(self))->p_15C + 0x130), D_0063111C);
+    func_00118388((int)((char *)((GObj *)(self))->p_15C + 0x130),
+                  (int)((char *)((GObj *)(self))->p_15C + 0x130), (int)&l10);
 
     func_00105E70((int)&l60, (int)&l20);
-    func_00118648((int)&lA0, (int)&l60, (int)((char *)self[0x15C / 4] + 0x130));
+    func_00118648((int)&lA0, (int)&l60, (int)((char *)((GObj *)(self))->p_15C + 0x130));
 
     *(float *)(p + 0x1C4) = lA0.m[0];
     MEM_BARRIER();
-    r = func_00106000((int)((char *)self[0x15C / 4] + 0x130));
+    r = func_00106000((int)((char *)((GObj *)(self))->p_15C + 0x130));
     *(volatile float *)(p + 0x1C0) = r * D_00631120;
 
     func_00118388((int)&l0, (int)&l0,
@@ -544,7 +545,7 @@ extern float D_00631128;
 
 void func_001BA090(int *self)
 {
-    int *sub = (int *)self[0x15C / 4];
+    int *sub = (int *)((GObj *)(self))->p_15C;
     char *p = (char *)sub[0x800 / 4];
     Vec4 l0;
     Vec4 l10;
@@ -553,7 +554,7 @@ void func_001BA090(int *self)
 
     func_00105F00((int)((char *)sub + 0x1F0), (int)((char *)sub + 0xA0));
     func_00102858(self);
-    func_00105F20((int)(p + 0x230), ((int *)self[0x15C / 4])[0xC / 4]);
+    func_00105F20((int)(p + 0x230), ((int *)((GObj *)(self))->p_15C)[0xC / 4]);
 
     f3 = (float)*(int *)(p + 0x270) * 0.03125f;
     D_004BEE10[1] = ((float)*(int *)(p + 0x270) * 0.03125f < 0.5f)
@@ -577,7 +578,7 @@ void func_001BA090(int *self)
         func_001184B8((int)q1e0, (int)&l0, (int)q1e0, 0.5f);
         func_0010DA78((int)q1d0, (int)&l10, (int)q1d0, D_00631128);
         func_0010DEC0((int)q1f0, (int)q1d0, (int)q1e0);
-        func_001185D0(((int *)self[0x15C / 4])[0xC / 4], (int)q1f0, (int)D_004BEE20);
+        func_001185D0(((int *)((GObj *)(self))->p_15C)[0xC / 4], (int)q1f0, (int)D_004BEE20);
     }
 }
 
@@ -589,7 +590,7 @@ extern int D_00623468[];
 
 void func_001BA2E0(int *self)
 {
-    int *p = (int *)((int *)self[0x15C / 4])[0x800 / 4];
+    int *p = (int *)((int *)((GObj *)(self))->p_15C)[0x800 / 4];
     func_00104508((int)((char *)p + 0x1E0), self);
     func_00102850((int)((char *)p + 0x1D0), self);
     func_001CFA20(p[0x19C / 4]);
@@ -606,7 +607,7 @@ extern void func_001A6E28(int a);
 
 void func_001BA330(int *self)
 {
-    int *p = (int *)((int *)self[0x15C / 4])[0x800 / 4];
+    int *p = (int *)((int *)((GObj *)(self))->p_15C)[0x800 / 4];
     int state = p[0x8 / 4];
 
     switch (state) {
@@ -622,7 +623,7 @@ void func_001BA330(int *self)
             p[0x8 / 4] = ((int (*)(int *))((FsmPair *)vp)->b)(self);
         }
         {
-            int *pp = (int *)((int *)self[0x15C / 4])[0x800 / 4];
+            int *pp = (int *)((int *)((GObj *)(self))->p_15C)[0x800 / 4];
             int t = pp[0x270 / 4] + 1;
             pp[0x270 / 4] = t;
             if (t >= 0x21) {
@@ -647,7 +648,7 @@ void func_001BA330(int *self)
     func_001B99B0(self);
     {
         int r = func_00105278();
-        func_001185D0(r, ((int *)self[0x15C / 4])[0xC / 4], (int)D_004BEEA0);
+        func_001185D0(r, ((int *)((GObj *)(self))->p_15C)[0xC / 4], (int)D_004BEEA0);
     }
     {
         int r = func_00105278();
@@ -655,17 +656,17 @@ void func_001BA330(int *self)
     }
     if (p[0x4 / 4] != 0) {
         int r3 = func_00105278();
-        func_00105F20(r3, ((int *)self[0x15C / 4])[0xC / 4]);
+        func_00105F20(r3, ((int *)((GObj *)(self))->p_15C)[0xC / 4]);
         func_00105038(0x4000);
         func_00104F48(0x4000);
         {
-            int *sub = (int *)self[0x15C / 4];
+            int *sub = (int *)((GObj *)(self))->p_15C;
             int r4 = func_00105278();
             func_001185D0(sub[0xC / 4], r4, (int)D_004BEF20);
         }
     }
     {
-        int *sub = (int *)self[0x15C / 4];
+        int *sub = (int *)((GObj *)(self))->p_15C;
         float diff = *(float *)((char *)sub + 0x54)
                    - *(float *)((char *)((int *)sub[0xC / 4]) + 0x34);
         if (diff < 0.0f) {
@@ -693,7 +694,7 @@ extern void func_001CF998(int x);
 
 void func_001BA530(int *self)
 {
-    int *p = (int *)((int *)self[0x15C / 4])[0x800 / 4];
+    int *p = (int *)((int *)((GObj *)(self))->p_15C)[0x800 / 4];
     if (p[0x8 / 4] >= 5) {
         return;
     }
@@ -710,13 +711,13 @@ void func_001BA530(int *self)
 }
 
 int func_001BA5C0(char *self) {
-    char *sub = *(char **)(self + 0x15C);
+    char *sub = ((GObj *)(self))->p_15C;
     char *p = *(char **)(sub + 0x800);
     return *(int *)(p + 0x0);
 }
 
 void func_001BA5D0(char *self, int val) {
-    char *sub = *(char **)(self + 0x15C);
+    char *sub = ((GObj *)(self))->p_15C;
     char *p = *(char **)(sub + 0x800);
     *(int *)(p + 0x278) = val;
 }
@@ -730,7 +731,7 @@ int func_001BA5E0(int *self, int a1)
 {
     int buf[4];
     short s = (short)a1;
-    int *p = (int *)((int *)self[0x15C / 4])[0x800 / 4];
+    int *p = (int *)((int *)((GObj *)(self))->p_15C)[0x800 / 4];
     int x = p[0x8 / 4];
     if (x < 6) {
         if (x >= 2) {
@@ -762,7 +763,7 @@ int func_001BA668(int *self, int a1)
 
 int func_001BA6B0(int *self)
 {
-    int x = ((int *)((int *)self[0x15C/4])[0x800/4])[0x8/4];
+    int x = ((int *)((int *)((GObj *)(self))->p_15C)[0x800/4])[0x8/4];
     if (x < 6) {
         if (x >= 2) {
             return 0;
@@ -774,7 +775,7 @@ int func_001BA6B0(int *self)
 
 int func_001BA6F0(int *self, int a1, int a2)
 {
-    int *p = (int *)((int *)self[0x15C / 4])[0x800 / 4];
+    int *p = (int *)((int *)((GObj *)(self))->p_15C)[0x800 / 4];
     int x = p[0x8 / 4];
     int ok;
     if (x < 6) {
@@ -790,7 +791,7 @@ check:
         goto ret0;
     }
     {
-        char *sub = (char *)self[0x15C / 4];
+        char *sub = (char *)((GObj *)(self))->p_15C;
         char *q = *(char **)(sub + 0x800);
         func_00118648((int)(sub + 0x130), (int)(q + 0x230), a2);
     }

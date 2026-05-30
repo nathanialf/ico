@@ -239,6 +239,7 @@ int D_00632390 = 0x00000000;
 unsigned int D_00632394 = 0x00000000;
 
 #include "include_asm.h"
+#include "ico/types.h"
 #include "matching.h"
 #include "regpin.h"
 
@@ -279,7 +280,7 @@ void func_0015FB60(int *self) {
     unsigned int v;
     if (D_00631AE4 != 0) {
         func_0014B228(self, 0x1B);
-        p = (int *)self[0x15C / 4];
+        p = (int *)((GObj *)(self))->p_15C;
         idx = p[0x4A0 / 4] * 0x190;
         entry = (int *)(D_00565060 + idx);
         v = entry[0x188 / 4];
@@ -297,7 +298,7 @@ void func_0015FBD8(int *self) {
     unsigned int v;
     if (D_00631AE8 != 0) {
         func_0014B228(self, 0x1B);
-        p = (int *)self[0x15C / 4];
+        p = (int *)((GObj *)(self))->p_15C;
         idx = p[0x4A0 / 4] * 0x190;
         entry = (int *)(D_00565060 + idx);
         v = entry[0x188 / 4];

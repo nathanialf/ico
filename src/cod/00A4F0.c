@@ -1,10 +1,11 @@
+#include "ico/types.h"
 
 extern char D_00275850[];
 extern void func_00105F00(int *p, char *q);
 extern void func_00243AD0(int *a, int *b, int *c);
 void func_0010A4F0(int *self)
 {
-  int *p = (int *) self[0x15C / 4];
+  int *p = (int *)((GObj *)(self))->p_15C;
   int *p1 = (int *) (((char *) p) + 0x230);
   int *p2 = (int *) (((char *) p) + 0xA0);
   int ret;

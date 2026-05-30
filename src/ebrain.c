@@ -73,15 +73,16 @@ int D_00632778 = 0x00000000;
 unsigned int D_0063277C = 0x00000000;
 
 #include "include_asm.h"
+#include "ico/types.h"
 
 void func_00190698(char *self) {
-    char *sub = *(char **)(self + 0x15C);
+    char *sub = ((GObj *)(self))->p_15C;
     char *p = *(char **)(sub + 0x800);
     *(char *)(p + 0xCD) = 0;
 }
 
 unsigned char func_001906A8(char *self) {
-    char *sub = *(char **)(self + 0x15C);
+    char *sub = ((GObj *)(self))->p_15C;
     char *p = *(char **)(sub + 0x800);
     return *(unsigned char *)(p + 0xCD);
 }

@@ -3,6 +3,7 @@
 const char D_00618F08[24] = "src/girlForceField.c";
 
 #include "include_asm.h"
+#include "ico/types.h"
 #include "matching.h"
 #include "regpin.h"
 
@@ -24,7 +25,7 @@ int *func_001D1C78(int *self, int *src)
         val = one / val;
         *(float *)((char *)buf + 4) = val;
         KEEP_LIVE_MEM(buf);
-        p_840 = (int *)((int *)self[0x15C / 4])[0x840 / 4];
+        p_840 = (int *)((int *)((GObj *)(self))->p_15C)[0x840 / 4];
         *(float volatile *)((char *)p_840 + 0x20) = one;
         *(float volatile *)((char *)p_840 + 0x28) = one;
         *(float volatile *)((char *)p_840 + 0x24) = one;

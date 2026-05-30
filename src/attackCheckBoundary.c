@@ -44,6 +44,7 @@ float D_00631138 = 10000.0f;
 float D_0063113C = 10000.0f;
 
 #include "include_asm.h"
+#include "ico/types.h"
 #include "regpin.h"
 
 extern int func_001BA6B0(int a0, int a1);
@@ -81,7 +82,7 @@ int func_001BBDD8(void *obj)
     int saved;
     int *inner;
     int *inner2;
-    temp1 = *(void **)((char *)obj + 0x15C);
+    temp1 = ((GObj *)((char *)obj))->p_15C;
     t1 = *(int **)((char *)temp1 + 0x800);
     count = *t1;
     if (count > 0) {
@@ -133,7 +134,7 @@ int func_001BBE50(int unused, void *obj)
 
 void func_001BBEA0(int *a0)
 {
-    int *p = (int *)a0[0x15C / 4];
+    int *p = (int *)((GObj *)(a0))->p_15C;
     int *q = (int *)p[0];
     if (q == 0) {
         return;

@@ -1,3 +1,4 @@
+#include "ico/types.h"
 
 extern void func_00243978(int x);
 extern void func_0015B780(int *self, int y, float t);
@@ -15,7 +16,7 @@ void func_0017B398(int *self, int y)
   y++;
   y--;
   func_00243978(new_var3);
-  new_var4 = (int *) self[0x15C / 4];
+  new_var4 = (int *)((GObj *)(self))->p_15C;
   p = new_var4;
   idx = p[0x4A0 / 4];
   new_var2 = (new_var = 0x138);

@@ -49,6 +49,7 @@ extern void  func_0010ECB8(int *self);
 const char D_00619FC8[120] = "src/rotObject.c\000GetRotObjectHoldPoint\000\000\000\t%f, %f, %f\n\000\000\000\000MoveRotObjectWithHoldPoint\000\000\000\000\000\000GetRotObjectGlobalHoldGeometry\000";
 
 #include "include_asm.h"
+#include "ico/types.h"
 #include "matching.h"
 #include "regpin.h"
 
@@ -94,11 +95,11 @@ int *func_001E9F08(int *a0, int *a1)
         v20 = *(float *)((char *)a1 + 0x20);
         *(volatile float *)((char *)obj + 0x2C) = v20;
         __asm__ __volatile__("" : : : "memory");
-        p15c = (int *)a0[0x15C / 4];
+        p15c = (int *)((GObj *)(a0))->p_15C;
         func_00105F00((int *)((char *)p15c + 0xA0), src275860);
     }
 
-    vmtx = (int *)((int *)a0[0x15C / 4])[0x840 / 4];
+    vmtx = (int *)((int *)((GObj *)(a0))->p_15C)[0x840 / 4];
     *(volatile float *)((char *)vmtx + 0x20) = 1.0f;
     *(volatile float *)((char *)vmtx + 0x28) = 1.0f;
     *(volatile float *)((char *)vmtx + 0x24) = 1.0f;
@@ -115,7 +116,7 @@ void func_001EA030(int *self)
     int v0;
     float f;
 
-    s1 = (int *)self[0x15C / 4];
+    s1 = (int *)((GObj *)(self))->p_15C;
     actor = (short *)s1[0x800 / 4];
     KEEP_LIVE(actor);
     c_field = s1[0xC / 4];

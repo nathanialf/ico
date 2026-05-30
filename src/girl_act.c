@@ -28,6 +28,7 @@ unsigned int D_00632520[2] = { 0x80808080, 0x00000000 };
 unsigned int D_00632528[8] = { 0x00000030, 0x00000000, 0x0064253E, 0x00000000, 0x00642520, 0x00000000, 0x0000000A, 0x00000000 };
 
 #include "include_asm.h"
+#include "ico/types.h"
 #include "matching.h"
 
 extern void func_0014A3A8(unsigned int a0);
@@ -63,7 +64,7 @@ void func_00176130(char *p) {
     char *sub;
     *(volatile int *)&local = (int)p;
     q = (char *)*(volatile int *)&local;
-    sub = *(char **)(q + 0x15C);
+    sub = ((GObj *)(q))->p_15C;
     *(int *)(sub + 0x634) = 0;
 }
 

@@ -35,7 +35,7 @@ extern void func_001A6E28(const char *s);
 
 int func_001C2FF0(int self, int a1)
 {
-    int *obj = *(int **)(self + 0x15C);
+    int *obj = ((GObj *)(self))->p_15C;
     int count = obj[2];
     int *base;
     int i;

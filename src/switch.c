@@ -201,7 +201,7 @@ int *func_001C09C8(char *self, void *arg1)
 __asm__(".align 2");
 
 short func_001C0AD8(char *self) {
-    char *sub = *(char **)(self + 0x15C);
+    char *sub = ((GObj *)(self))->p_15C;
     char *p = *(char **)(sub + 0x800);
     return *(short *)(p + 0x2);
 }
@@ -209,7 +209,7 @@ short func_001C0AD8(char *self) {
 INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C0AE8);
 
 int func_001C0BE0(char *self) {
-    char *sub = *(char **)(self + 0x15C);
+    char *sub = ((GObj *)(self))->p_15C;
     char *p = *(char **)(sub + 0x800);
     return *(int *)(p + 0x4) == 0;
 }
@@ -218,7 +218,7 @@ INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C0BF4);
 int func_001C0BF8(char *self)
 {
     register int accum REG("$4");
-    short *p = *(short **)(*(char **)(self + 0x15C) + 0x800);
+    short *p = *(short **)((char *)((GObj *)(self))->p_15C + 0x800);
     if (__builtin_abs((int)p[1]) < 0xBB9) {
         accum = 0;
         MATERIALIZE(accum);

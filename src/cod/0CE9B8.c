@@ -1,9 +1,10 @@
 #include "matching.h"
+#include "ico/types.h"
 #include "regpin.h"
 
 int func_001CE9B8(int *self)
 {
-    int *sub = (int *)self[0x15C / 4];
+    int *sub = (int *)((GObj *)(self))->p_15C;
     register int n REG("$4");
     register int count_zero REG("$5") = 0;
     register int *p REG("$4");

@@ -1,4 +1,5 @@
 #include "regpin.h"
+#include "ico/types.h"
 #include "matching.h"
 
 extern void func_001BF2C8(int *self);
@@ -12,7 +13,7 @@ void func_001C0538(int *self)
     register int v_copy REG("$3");
     int next;
 
-    p = (int *)((int *)self[0x15C / 4])[0x800 / 4];
+    p = (int *)((int *)((GObj *)(self))->p_15C)[0x800 / 4];
     func_001BF2C8(self);
     func_00102858(self);
     v_load = p[0];

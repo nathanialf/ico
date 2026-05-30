@@ -1,8 +1,9 @@
+#include "ico/types.h"
 
 extern int func_001B8EB0(int *self, int zero);
 int func_001BA7E8(int *self)
 {
-  int *p = (int *) ((int *) self[0x15C / 4])[0x800 / 4];
+  int *p = (int *) ((int *)((GObj *)(self))->p_15C)[0x800 / 4];
   int ret = func_001B8EB0(self, 0);
   unsigned short new_var;
   if (ret == (-1))

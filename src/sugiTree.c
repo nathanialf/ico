@@ -23,6 +23,7 @@ int D_00633724 = 0x00000000;
 int D_00633728 = 0x00000000;
 
 #include "include_asm.h"
+#include "ico/types.h"
 #include "regpin.h"
 #include "matching.h"
 
@@ -84,7 +85,7 @@ __asm__(".skip 4");
 void func_001F16F8(int *self)
 {
     register int   final_v REG("$2");
-    int *s1 = (int *)self[0x15C / 4];
+    int *s1 = (int *)((GObj *)(self))->p_15C;
     short *s0 = (short *)s1[0x800 / 4];
     float scale = 256.0f;
     int v0;
@@ -118,7 +119,7 @@ short *func_001F17B0(int *self)
 {
     register int s3 REG("$19");
     int  pad[8];
-    int *p = (int *)self[0x15C / 4];
+    int *p = (int *)((GObj *)(self))->p_15C;
     int *q = (int *)p[0x820 / 4];
     int  count = *((signed char *)q + 0x2E);
     short *buf = func_0013A0F8(D_00632010, count * 2, (char *)D_0061A6D8, 0x23);

@@ -173,6 +173,7 @@ void *D_004C4988[4] = { (void *)0x004C4830, (void *)0x004C4838, (void *)0x004C48
 void *D_004C4998[4] = { (void *)0x00619018, (void *)0x00619008, (void *)0x00618FF8, (void *)0x00618FE8 };
 
 #include "include_asm.h"
+#include "ico/types.h"
 
 extern char D_0061D560[];
 extern void func_0010EC98(int);
@@ -186,7 +187,7 @@ extern void func_0010F630(void);
 
 int func_001CEC30(char *self)
 {
-    char *p = *(char **)(*(char **)(self + 0x15C) + 0x800);
+    char *p = *(char **)((char *)((GObj *)(self))->p_15C + 0x800);
     int idx = *(int *)(p + 8);
     int new_var = 3;
     char *new_var3 = D_0061D560;
@@ -196,7 +197,7 @@ int func_001CEC30(char *self)
 
 float func_001CEC60(char *self)
 {
-    char *p = *(char **)(*(char **)(self + 0x15C) + 0x800);
+    char *p = *(char **)((char *)((GObj *)(self))->p_15C + 0x800);
     char *new_var;
     int idx = *(int *)(p + 8);
     new_var = D_0061D560 - (-(idx * 0x14));

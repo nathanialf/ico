@@ -1,4 +1,5 @@
 #include "regpin.h"
+#include "ico/types.h"
 
 extern void func_00102E08(int *a0);
 
@@ -11,5 +12,5 @@ void func_0019F4E8(int *a0, int *a1)
     src = a1;
     self = a0;
     func_00102E08(self);
-    *(UB8 *)((char *)self[0x15C / 4]) = *(UB8 *)src;
+    *(UB8 *)((char *)((GObj *)(self))->p_15C) = *(UB8 *)src;
 }
