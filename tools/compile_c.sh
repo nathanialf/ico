@@ -169,9 +169,6 @@ listed "${LUI_LI_PRE_SD_TXT}"        && run_pp_scoped "${LUI_LI_PRE_SD_TXT}"    
 if listed "${DUMMY_SP_PROLOGUE_TXT}"; then
     "${PYTHON}" "${ROOT}/tools/postprocess_dummy_sp_prologue.py" "${S}"
 fi
-if [ "${BASE}" = "0AE420" ]; then
-    "${PYTHON}" "${ROOT}/tools/postprocess_0AE420.py" "${S}"
-fi
 if [ "${BASE}" = "080550" ]; then
     "${PYTHON}" "${ROOT}/tools/postprocess_080550.py" "${S}"
 fi
