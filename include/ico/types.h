@@ -16,6 +16,14 @@
  * Structs grow as TUs are typed; only add a field with a verified access.
  */
 
+/* The 0x15C sub-object slot is an INT handle the engine casts to a pointer at
+ * use — not a clean Sub15C*. Reading it int-typed reproduces the developer's
+ * TBAA: it may-alias adjacent int writes, so the load reloads (not hoisted),
+ * matching byte-for-byte WITHOUT the per-function int-typed-reload hacks
+ * (COOKBOOK §8.22). Pointer-chain users still match (no aliasing trigger).
+ * Use this accessor for 0x15C; keep p_15C in the struct for layout only. */
+#define GOBJ_SUB(o)  ((Sub15C *)*(int *)&((GObj *)(o))->p_15C)
+
 typedef struct GObj    GObj;
 typedef struct Sub15C  Sub15C;   /* *(GObj   + 0x15C) — per-object sub state */
 typedef struct Obj800  Obj800;   /* *(Sub15C + 0x800) */

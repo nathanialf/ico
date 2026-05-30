@@ -44,6 +44,7 @@ const char D_00619008[16] = "GAMEMODE HIGH";
 const char D_00619018[16] = "DEMO MODE";
 
 #include "include_asm.h"
+#include "ico/types.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/item", func_001D2550);
 extern unsigned char D_004C4740[16];
@@ -70,26 +71,26 @@ void func_001D2650(void *self, int arg)
 
 void func_001D26C8(void *self)
 {
-    void *s0 = *(void **)((char *)*(void **)((char *)self + 0x15C) + 0x800);
-    func_001D2650(self, *(int *)((char *)s0 + 0x14));
-    *(int *)((char *)s0 + 0x10) = 0;
-    *(int *)((char *)s0 + 0xC) = 0;
-    *(int *)((char *)s0 + 0x14) = 0;
-    *(int *)((char *)s0 + 0x8) = 1;
-    *(int *)((char *)*(int *)((char *)self + 0x15C) + 0x74) = 1;
-    func_00105F00((char *)*(int *)((char *)self + 0x15C) + 0x130, (int)D_004C4740);
-    func_0010D530((char *)*(int *)((char *)self + 0x15C) + 0x150);
+    Obj800 *s0 = GOBJ_SUB(self)->p_800;
+    func_001D2650(self, s0->f_14);
+    s0->f_10 = 0;
+    s0->f_C = 0;
+    s0->f_14 = 0;
+    s0->f_8 = 1;
+    GOBJ_SUB(self)->f_74 = 1;
+    func_00105F00((char *)GOBJ_SUB(self) + 0x130, (int)D_004C4740);
+    func_0010D530((char *)GOBJ_SUB(self) + 0x150);
 }
 
 void func_001D2738(void *self, int a1)
 {
-    void *s0 = *(void **)((char *)*(void **)((char *)self + 0x15C) + 0x800);
-    func_001D2650(self, *(int *)((char *)s0 + 0x14));
-    *(int *)((char *)s0 + 0xC) = 0;
-    *(int *)((char *)s0 + 0x8) = 1;
-    *(int *)((char *)s0 + 0x10) = 1;
-    func_00105F00((char *)*(int *)((char *)self + 0x15C) + 0x130, a1);
-    func_0010D530((char *)*(int *)((char *)self + 0x15C) + 0x150);
+    Obj800 *s0 = GOBJ_SUB(self)->p_800;
+    func_001D2650(self, s0->f_14);
+    s0->f_C = 0;
+    s0->f_8 = 1;
+    s0->f_10 = 1;
+    func_00105F00((char *)GOBJ_SUB(self) + 0x130, a1);
+    func_0010D530((char *)GOBJ_SUB(self) + 0x150);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/item", func_001D27A8);
