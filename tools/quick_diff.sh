@@ -208,7 +208,6 @@ qd_listed dummy_sp_prologue.txt     && python3 "$ROOT/tools/postprocess_dummy_sp
 [ "$(basename "$NAME")" = "0AE420" ] && python3 "$ROOT/tools/postprocess_0AE420.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "080550" ] && python3 "$ROOT/tools/postprocess_080550.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "105628" ] && python3 "$ROOT/tools/postprocess_105628.py" "$ASM_OUT" || true
-[ "$(basename "$NAME")" = "01BF60" ] && python3 "$ROOT/tools/postprocess_01BF60.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "09F530" ] && python3 "$ROOT/tools/postprocess_09F530.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "0CE718" ] && python3 "$ROOT/tools/postprocess_0CE718.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "0FBBE0" ] && python3 "$ROOT/tools/postprocess_0FBBE0.py" "$ASM_OUT" || true
