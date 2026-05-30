@@ -94,12 +94,12 @@ int func_001BBDD8(void *obj)
             e = (BBDD8Entry *)((long)e + (long)entries);
             i += 1;
             sub = e->sub;
-            inner = *(int * volatile *)((char *)*(void * volatile *)((char *)sub + 0x15C) + 0x800);
+            inner = (int *)((volatile Sub15C *)((volatile GObj *)sub)->p_15C)->p_800;
             e->field4 = inner[1];
             __asm__ __volatile__("" ::: "memory");
-            inner2 = *(int * volatile *)((char *)*(void * volatile *)((char *)sub + 0x15C) + 0x800);
+            inner2 = (int *)((volatile Sub15C *)((volatile GObj *)sub)->p_15C)->p_800;
             inner2[1] = 0;
-            *(int *)((char *)sub + 0x16C) = const_one;
+            ((GObj *)sub)->f_16C = const_one;
             count = *t1;
         } while (i < count);
     }

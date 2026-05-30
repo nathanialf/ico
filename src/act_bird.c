@@ -3,6 +3,7 @@
 const char D_0055AFD8[16] = "src/act_bird.c";
 
 #include "include_asm.h"
+#include "ico/types.h"
 #include "matching.h"
 #include "regpin.h"
 
@@ -30,24 +31,24 @@ int *func_00197240(int *a0, int *a1)
 
     func_001E4798(a0, 0x847, 0x875, -1, -1, 0x431);
 
-    p_v1 = (int *)*(int * volatile *)((char *)a0 + 0x15C);
+    p_v1 = (int *)((volatile GObj *)a0)->p_15C;
     one_val = 1;
     KEEP_LIVE(one_val);
     *(volatile int *)((char *)p_v1 + 0x544) = one_val;
-    p_v0 = (int *)*(int * volatile *)((char *)a0 + 0x15C);
+    p_v0 = (int *)((volatile GObj *)a0)->p_15C;
     *(volatile int *)((char *)p_v0 + 0x54C) = 0;
-    p_v1 = (int *)*(int * volatile *)((char *)a0 + 0x15C);
+    p_v1 = (int *)((volatile GObj *)a0)->p_15C;
     *(volatile int *)((char *)p_v1 + 0x548) = one_val;
-    p_v0 = (int *)*(int * volatile *)((char *)a0 + 0x15C);
+    p_v0 = (int *)((volatile GObj *)a0)->p_15C;
     *(volatile int *)((char *)p_v0 + 0x550) = 0;
 
     f = func_00118A68();
 
-    p_v0 = (int *)*(int * volatile *)((char *)a0 + 0x15C);
+    p_v0 = (int *)((volatile GObj *)a0)->p_15C;
     *(volatile float *)((char *)p_v0 + 0x4AC) = f * 100.0f;
-    p_v1 = (int *)*(int * volatile *)((char *)a0 + 0x15C);
+    p_v1 = (int *)((volatile GObj *)a0)->p_15C;
     *(volatile float *)((char *)p_v1 + 0x4B0) = *(volatile float *)((char *)p_v1 + 0x4AC);
-    p_v0 = (int *)*(int * volatile *)((char *)a0 + 0x15C);
+    p_v0 = (int *)((volatile GObj *)a0)->p_15C;
     *(volatile int *)((char *)p_v0 + 0x4C4) = 0;
 
     func_001D4B40(a0, 3);
