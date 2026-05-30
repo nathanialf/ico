@@ -15,6 +15,5 @@
 # observable side effect on the return path (typically standard
 # prologue setup of the next function — ld/sd/addiu, etc.).
 
-03A220
 0B7218
 011918
