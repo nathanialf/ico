@@ -98,59 +98,80 @@ extern void func_001F6D90(void *p);
 extern int D_00633C30;
 extern int D_00631C78_alias[] __asm__("D_00631C78");
 
-void func_00114FC8(char *self)
+/* Two intrusive doubly-linked-list node types in the lighting system.
+ * Names from the unlink asserts: "Light:NULL" (D_00554C90) and
+ * "AmbientVolume:NULL" (D_00554CB8). next/prev read off the standard
+ * unlink pattern; non-link fields keep offset names (no semantic evidence). */
+typedef struct Light {
+    char _pad0[0x44];
+    short f_44;                 /* 0x44 */
+    char _pad46[2];
+    struct Light *next;         /* 0x48 */
+    struct Light *prev;         /* 0x4C */
+} Light;
+
+typedef struct AmbientVolume {
+    char _pad0[0x90];
+    int f_90;                   /* 0x90 */
+    struct AmbientVolume *next; /* 0x94 */
+    struct AmbientVolume *prev; /* 0x98 */
+} AmbientVolume;
+
+void func_00114FC8(char *self_)
 {
-    char *next;
-    char *prev;
+    Light *self = (Light *)self_;
+    Light *next;
+    Light *prev;
     if (self == 0) {
         func_001A6E28((char *)D_00554C90);
         func_001AD768((char *)D_00554CA8, 0x1A8);
         func_00263FF0((char *)D_00554CA8, 0x1A8, D_00631C78_alias);
     }
-    next = *(char **)(self + 0x48);
+    next = self->next;
     if (next == 0) goto eq_path;
-    prev = *(char **)(self + 0x4C);
-    *(char **)(next + 0x4C) = prev;
+    prev = self->prev;
+    next->prev = prev;
     goto cont_path;
 eq_path:
-    prev = *(char **)(self + 0x4C);
+    prev = self->prev;
     D_00633C30 = (int)prev;
 cont_path:
-    prev = *(char **)(self + 0x4C);
+    prev = self->prev;
     if (prev != 0) {
-        *(char **)(prev + 0x48) = *(char **)(self + 0x48);
+        prev->next = self->next;
     }
     if (D_00633C30 != 0) {
-        *(int *)(D_00633C30 + 0x48) = 0;
+        ((Light *)D_00633C30)->next = 0;
     }
     func_001F6D90(self);
 }
 extern int D_00633C34;
 
-void func_00115068(char *self)
+void func_00115068(char *self_)
 {
-    char *next;
-    char *prev;
+    AmbientVolume *self = (AmbientVolume *)self_;
+    AmbientVolume *next;
+    AmbientVolume *prev;
     if (self == 0) {
         func_001A6E28((char *)D_00554CB8);
         func_001AD768((char *)D_00554CA8, 0x1C3);
         func_00263FF0((char *)D_00554CA8, 0x1C3, D_00631C78_alias);
     }
-    next = *(char **)(self + 0x94);
+    next = self->next;
     if (next == 0) goto eq_path;
-    prev = *(char **)(self + 0x98);
-    *(char **)(next + 0x98) = prev;
+    prev = self->prev;
+    next->prev = prev;
     goto cont_path;
 eq_path:
-    prev = *(char **)(self + 0x98);
+    prev = self->prev;
     D_00633C34 = (int)prev;
 cont_path:
-    prev = *(char **)(self + 0x98);
+    prev = self->prev;
     if (prev != 0) {
-        *(char **)(prev + 0x94) = *(char **)(self + 0x94);
+        prev->next = self->next;
     }
     if (D_00633C34 != 0) {
-        *(int *)(D_00633C34 + 0x94) = 0;
+        ((AmbientVolume *)D_00633C34)->next = 0;
     }
     func_001F6D90(self);
 }
@@ -183,18 +204,18 @@ extern void func_00114FC8(char *node);
 
 void func_00117768(void)
 {
-    char *p = (char *)D_00633C30;
+    Light *p = (Light *)D_00633C30;
     while (p != 0) {
-        short v = *(short *)(p + 0x44);
+        short v = p->f_44;
         if (v < 4) {
             if (v >= 2) {
-                char *node = p;
-                p = *(char **)(p + 0x4C);
-                func_00114FC8(node);
+                Light *node = p;
+                p = p->prev;
+                func_00114FC8((char *)node);
                 continue;
             }
         }
-        p = *(char **)(p + 0x4C);
+        p = p->prev;
     }
     D_00633C38 = 0;
 }
@@ -202,18 +223,18 @@ extern void func_00115068(char *node);
 
 void func_001177C8(void)
 {
-    char *p = (char *)D_00633C34;
+    AmbientVolume *p = (AmbientVolume *)D_00633C34;
     while (p != 0) {
-        int v = *(int *)(p + 0x90);
+        int v = p->f_90;
         if (v < 3) {
             if (v >= 0) {
-                char *node = p;
-                p = *(char **)(p + 0x98);
-                func_00115068(node);
+                AmbientVolume *node = p;
+                p = p->prev;
+                func_00115068((char *)node);
                 continue;
             }
         }
-        p = *(char **)(p + 0x98);
+        p = p->prev;
     }
 }
 INCLUDE_ASM("asm/nonmatchings/src/Light", func_00117820);
