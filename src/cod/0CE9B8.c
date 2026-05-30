@@ -12,7 +12,7 @@ int func_001CE9B8(int *self)
     n = sub[0x88 / 4];
     if (n > 0) {
         rem = n;
-        p = (int *)((int *)sub[0x800 / 4])[5];
+        p = (int *)((int *)((Sub15C *)(sub))->p_800)[5];
         KEEP_LIVE(count_zero);
         KEEP_LIVE(rem);
         do {

@@ -202,7 +202,7 @@ __asm__(".align 2");
 
 short func_001C0AD8(char *self) {
     char *sub = ((GObj *)(self))->p_15C;
-    char *p = *(char **)(sub + 0x800);
+    char *p = ((Sub15C *)(sub))->p_800;
     return *(short *)(p + 0x2);
 }
 
@@ -210,7 +210,7 @@ INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C0AE8);
 
 int func_001C0BE0(char *self) {
     char *sub = ((GObj *)(self))->p_15C;
-    char *p = *(char **)(sub + 0x800);
+    char *p = ((Sub15C *)(sub))->p_800;
     return *(int *)(p + 0x4) == 0;
 }
 

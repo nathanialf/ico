@@ -248,7 +248,7 @@ void func_0019A9A0(int *self)
     func_0010ECB8(self);
     {
         char *sub = ((GObj *)((char *)self))->p_15C;
-        int *inner = *(int **)(sub + 0x800);
+        int *inner = ((Sub15C *)(sub))->p_800;
         if (*(int *)((char *)inner + 0xC) != 0) {
             char *q = *(char **)(sub + 0x844);
             func_001C62D0(*(int *)((char *)inner + 0x10), q + 0x40, q);
@@ -322,7 +322,7 @@ int func_0019B910(void)
 
 float func_0019B938(char *self) {
     char *sub = ((GObj *)(self))->p_15C;
-    char *p = *(char **)(sub + 0x800);
+    char *p = ((Sub15C *)(sub))->p_800;
     return *(float *)(p + 0x14);
 }
 
@@ -348,7 +348,7 @@ int func_0019BA60(void)
     p = func_0013EB50(0x35);
     if (p != 0) {
         q = (int *)((GObj *)(p))->p_15C;
-        r = (int *)q[0x800 / 4];
+        r = (int *)((Sub15C *)(q))->p_800;
         ret = r[0x18 / 4] < 5;
     }
     return ret;
@@ -367,7 +367,7 @@ int *func_0019BAA8(int *self)
     p = (int *)((GObj *)(self))->p_15C;
     buf = (int *)func_0013A0F8(D_00632010, 0x30, D_0055C690, 0x3DA);
     func_002641D8(buf, 0, 0x30);
-    p[0x800 / 4] = (int)buf;
+    (int)((Sub15C *)(p))->p_800 = (int)buf;
     *((float *)((char *)buf + 0x14)) = 300.0f;
     func_00104508(buf, self);
     func_00202208(self);
@@ -390,7 +390,7 @@ int *func_0019BC58(int *self)
     int *buf;
     p = (int *)((GObj *)(s))->p_15C;
     buf = (int *)func_0013A0F8(D_00632010, 0x20, D_0055C690, 0x4F4);
-    p[0x800 / 4] = (int)buf;
+    (int)((Sub15C *)(p))->p_800 = (int)buf;
     func_002641D8(buf, 0, 0x20);
     *((int *)((char *)buf + 0x14)) = 0;
     func_00104508(buf, s);

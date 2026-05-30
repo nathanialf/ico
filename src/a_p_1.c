@@ -546,7 +546,7 @@ extern float D_00631128;
 void func_001BA090(int *self)
 {
     int *sub = (int *)((GObj *)(self))->p_15C;
-    char *p = (char *)sub[0x800 / 4];
+    char *p = (char *)((Sub15C *)(sub))->p_800;
     Vec4 l0;
     Vec4 l10;
     Mtx44 l20;
@@ -712,13 +712,13 @@ void func_001BA530(int *self)
 
 int func_001BA5C0(char *self) {
     char *sub = ((GObj *)(self))->p_15C;
-    char *p = *(char **)(sub + 0x800);
+    char *p = ((Sub15C *)(sub))->p_800;
     return *(int *)(p + 0x0);
 }
 
 void func_001BA5D0(char *self, int val) {
     char *sub = ((GObj *)(self))->p_15C;
-    char *p = *(char **)(sub + 0x800);
+    char *p = ((Sub15C *)(sub))->p_800;
     *(int *)(p + 0x278) = val;
 }
 
@@ -792,7 +792,7 @@ check:
     }
     {
         char *sub = (char *)((GObj *)(self))->p_15C;
-        char *q = *(char **)(sub + 0x800);
+        char *q = ((Sub15C *)(sub))->p_800;
         func_00118648((int)(sub + 0x130), (int)(q + 0x230), a2);
     }
     return 1;

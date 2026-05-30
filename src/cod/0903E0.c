@@ -9,7 +9,7 @@ int func_001903E0(int *self)
     register int r REG("$2") = 0;   /* v0 */
     register int b REG("$3");       /* v1 */
     p = (int *)((GObj *)(self))->p_15C;
-    q = (char *)p[0x800/4];
+    q = (char *)((Sub15C *)(p))->p_800;
     b = *(unsigned char *)(q + 0xA0);
     if (b) {
         r = *(int *)(q + 0x68) < 3;

@@ -83,7 +83,7 @@ int func_001BBDD8(void *obj)
     int *inner;
     int *inner2;
     temp1 = ((GObj *)((char *)obj))->p_15C;
-    t1 = *(int **)((char *)temp1 + 0x800);
+    t1 = ((Sub15C *)((char *)temp1))->p_800;
     count = *t1;
     if (count > 0) {
         i = 0;

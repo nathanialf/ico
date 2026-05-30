@@ -111,6 +111,6 @@ void func_00193818(int a0)
 
 void func_00193830(char *self) {
     char *sub = ((GObj *)(self))->p_15C;
-    char *p = *(char **)(sub + 0x800);
+    char *p = ((Sub15C *)(sub))->p_800;
     *(p + 0xE) = 1;
 }

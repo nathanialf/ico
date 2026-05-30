@@ -117,7 +117,7 @@ void func_001EA030(int *self)
     float f;
 
     s1 = (int *)((GObj *)(self))->p_15C;
-    actor = (short *)s1[0x800 / 4];
+    actor = (short *)((Sub15C *)(s1))->p_800;
     KEEP_LIVE(actor);
     c_field = s1[0xC / 4];
 

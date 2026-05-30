@@ -47,13 +47,13 @@ def transforms(text: str, fields: set):
     """Apply the 0x15C transforms to `text`; record Sub15C (off,width) in
     `fields`. Returns rewritten text."""
 
-    def rec(off, width):
-        fields.add((off, width))
+    def rec(struct, off, width):
+        fields.add((struct, off, width))
 
     # 1) field access: *(T *)(*(C **)(X + 0x15C) + N)
     def f1(m):
         t, x, off = m.group("t"), m.group("x"), int(m.group("off"), 16)
-        rec(off, WIDTH.get(t.strip(), 4))
+        rec("Sub15C", off, WIDTH.get(t.strip(), 4))
         return f"((GObj *)({x}))->p_15C->{field_name(off)}"
     text = re.sub(
         rf"\*\(\s*(?P<t>{PTRC})\s*\*\)\(\s*\*\(\s*{PTRC}\s*\*\*\)\(\s*(?P<x>{SELF})\s*\+\s*0x15C\s*\)\s*\+\s*(?P<off>{HEX})\s*\)",
@@ -87,6 +87,35 @@ def transforms(text: str, fields: set):
     text = re.sub(
         rf"(?<![.\w])(?P<x>[A-Za-z_]\w*)\[\s*0x15C\s*/\s*4\s*\]",
         lambda m: f"(int)((GObj *)({m.group('x')}))->p_15C",
+        text)
+
+    # ---- 0x800 level: Sub15C -> p_800 -> Obj800 (X is the sub pointer) ----
+    def f7(m):
+        t, x, off = m.group("t"), m.group("x"), int(m.group("off"), 16)
+        rec("Obj800", off, WIDTH.get(t.strip(), 4))
+        return f"((Sub15C *)({x}))->p_800->{field_name(off)}"
+    text = re.sub(
+        rf"\*\(\s*(?P<t>{PTRC})\s*\*\)\(\s*\*\(\s*{PTRC}\s*\*\*\)\(\s*(?P<x>{SELF})\s*\+\s*0x800\s*\)\s*\+\s*(?P<off>{HEX})\s*\)",
+        f7, text)
+    text = re.sub(
+        rf"\*\(\s*{PTRC}\s*\*\*\)\(\s*(?P<x>{SELF})\s*\+\s*0x800\s*\)\s*\+\s*(?P<off>{HEX})",
+        lambda m: f"(char *)((Sub15C *)({m.group('x')}))->p_800 + {m.group('off')}",
+        text)
+    text = re.sub(
+        rf"\*\(\s*int\s*\*\)\(\s*(?P<x>{SELF})\s*\+\s*0x800\s*\)\s*\+\s*(?P<off>{HEX})",
+        lambda m: f"(int)((Sub15C *)({m.group('x')}))->p_800 + {m.group('off')}",
+        text)
+    text = re.sub(
+        rf"\*\(\s*{PTRC}\s*\*\*\)\(\s*(?P<x>{SELF})\s*\+\s*0x800\s*\)",
+        lambda m: f"((Sub15C *)({m.group('x')}))->p_800",
+        text)
+    text = re.sub(
+        rf"\(\s*(?P<t>{PTRC})\s*\*\)\s*(?P<x>[A-Za-z_]\w*)\[\s*0x800\s*/\s*4\s*\]",
+        lambda m: f"({m.group('t')} *)((Sub15C *)({m.group('x')}))->p_800",
+        text)
+    text = re.sub(
+        rf"(?<![.\w])(?P<x>[A-Za-z_]\w*)\[\s*0x800\s*/\s*4\s*\]",
+        lambda m: f"(int)((Sub15C *)({m.group('x')}))->p_800",
         text)
 
     return text
@@ -136,17 +165,13 @@ def split_functions(text: str):
     return out
 
 
-def gen_sub15c_fields(all_fields: set) -> str:
-    """Emit the Sub15C field list (offset-ordered, auto-padded). Keeps the
-    known p_800/p_24-style pointer fields handled in the static header; here we
-    only emit scalar f_<off> members the converter discovered."""
-    # widest access wins; drop fields inside a wider field's span
+def gen_fields(all_fields: set, struct: str) -> dict:
+    """offset -> widest width, for the given struct."""
     by_off = {}
-    for off, w in sorted(all_fields):
-        if off in by_off:
-            by_off[off] = max(by_off[off], w)
-        else:
-            by_off[off] = w
+    for s, off, w in all_fields:
+        if s != struct:
+            continue
+        by_off[off] = max(by_off.get(off, 0), w)
     return by_off
 
 
@@ -159,7 +184,7 @@ def find_targets():
             t = p.read_text(errors="replace")
         except OSError:
             continue
-        if "0x15C" in t:
+        if "0x15C" in t or "0x800" in t:
             out.append(p)
     return out
 
@@ -207,9 +232,11 @@ def main():
         fields = set()
         for p in targets:
             transforms(p.read_text(errors="replace"), fields)
-        for off, w in sorted(gen_sub15c_fields(fields).items()):
-            print(f"  Sub15C 0x{off:X} (w{w})")
-        print(f"{len(targets)} files, {len(gen_sub15c_fields(fields))} distinct Sub15C fields")
+        for struct in ("Sub15C", "Obj800"):
+            fs = gen_fields(fields, struct)
+            print(f"{struct}: {len(fs)} fields")
+            for off, w in sorted(fs.items()):
+                print(f"  0x{off:X} w{w}")
         return 0
 
     # --apply : per-function, so one sensitive func can't block a whole TU.

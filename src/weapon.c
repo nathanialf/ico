@@ -351,7 +351,7 @@ INCLUDE_ASM("asm/nonmatchings/src/weapon", func_001F3FB0);
 void func_001F4098(int *self)
 {
     int *p = (int *)((GObj *)(self))->p_15C;
-    int *q = (int *) p[0x800 / 4];
+    int *q = (int *)((Sub15C *)(p))->p_800;
     int v = q[0x8 / 4];
     int ret = -1;
     if (v != 0)
@@ -367,7 +367,7 @@ void func_001F4098(int *self)
 
 int func_001F40C8(char *self) {
     char *sub = ((GObj *)(self))->p_15C;
-    char *p = *(char **)(sub + 0x800);
+    char *p = ((Sub15C *)(sub))->p_800;
     return *(int *)(p + 0x0);
 }
 
@@ -447,7 +447,7 @@ void func_001F4250(int *self, int arg1, int a2)
     int *s1;
     a2_check = a2;
     s0 = (int *)((GObj *)(self))->p_15C;
-    p = (int *) s0[0x800 / 4];
+    p = (int *)((Sub15C *)(s0))->p_800;
     v = p[0x8 / 4];
     s1 = s0 + 0xA0 / 4;
     if (v != 0) {
@@ -470,7 +470,7 @@ void func_001F4250(int *self, int arg1, int a2)
 
 int func_001F42D0(char *self) {
     char *sub = ((GObj *)(self))->p_15C;
-    char *p = *(char **)(sub + 0x800);
+    char *p = ((Sub15C *)(sub))->p_800;
     *(int *)(p + 0xA0) = 0;
     return 1;
 }

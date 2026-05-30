@@ -86,7 +86,7 @@ void func_001F16F8(int *self)
 {
     register int   final_v REG("$2");
     int *s1 = (int *)((GObj *)(self))->p_15C;
-    short *s0 = (short *)s1[0x800 / 4];
+    short *s0 = (short *)((Sub15C *)(s1))->p_800;
     float scale = 256.0f;
     int v0;
     int v0_b;
