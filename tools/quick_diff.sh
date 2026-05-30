@@ -225,7 +225,6 @@ qd_listed dummy_sp_prologue.txt     && python3 "$ROOT/tools/postprocess_dummy_sp
 [ "$(basename "$NAME")" = "14E4C8" ] && python3 "$ROOT/tools/postprocess_14E4C8.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "0EF9E0" ] && python3 "$ROOT/tools/postprocess_0EF9E0.py" "$ASM_OUT" || true
 [ "$(basename "$NAME")" = "fightSound" ] && python3 "$ROOT/tools/postprocess_191F50.py" "$ASM_OUT" || true
-[ "$(basename "$NAME")" = "way_util" ] && python3 "$ROOT/tools/postprocess_07ACD8.py" "$ASM_OUT" || true
 # qd_listed is @func-aware, so this fires only for the func(s) the TU line scopes to.
 qd_listed swap_addu_operands.txt && sed -i -E 's/(addu[[:space:]]+\$([0-9]+),)\$([0-9]+),\$\2\b/\1$\2,$\3/g' "$ASM_OUT" || true
 qd_listed coalesce_v1_v0.txt     && sed -i -E -e '/^[[:space:]]*move[[:space:]]+\$2,\$3[[:space:]]*$/d' -e 's/\$3\b/$2/g' "$ASM_OUT" || true
