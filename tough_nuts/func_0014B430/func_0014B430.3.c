@@ -376,7 +376,30 @@ float func_0014B358(int idx)
 
 INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014B370);
 
-INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014B430);
+typedef struct { char _0[0x180]; short _180; short _182; char _pad[0xC]; } _ECtlB;
+extern _ECtlB D_00565060[];
+
+int func_0014B430(char *self)
+{
+    volatile float *new_var2;
+    register char *obj REG("$6");
+    register int n REG("$4") = 0x190;
+    int idx = *(int *)(*(char **)(self + 0x15C) + 0x4A0);
+    short v = ((_ECtlB *)((char *)D_00565060 + idx * n))->_180;
+    volatile float *new_var;
+    new_var = (volatile float *)(obj + 0x4AC);
+    if ((float)v < *new_var) {
+        if (v != -1) return 1;
+    }
+    new_var2 = (volatile float *)(obj + 0x4AC);
+    {
+        register int idx2 REG("$3") = *(int *)(*(char **)(self + 0x15C) + 0x4A0);
+        short v2 = ((_ECtlB *)((char *)D_00565060 + idx2 * 0x190))->_182;
+        if (v2 == -1) return 0;
+        if (*new_var2 < (float)v2) return 1;
+    }
+    return 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014B4C8);
 
 void func_0014B580(int a0)

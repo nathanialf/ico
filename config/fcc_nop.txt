@@ -14,6 +14,7 @@
 0E9810
 0902D8
 act-game @func_0014A0A8
+act-parallel-control @func_0014B430
 chain @func_001902D8
 staffroll @func_001B84C8
 box @func_001BE558
