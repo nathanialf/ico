@@ -49,7 +49,6 @@ POSTPROCESS_TXTS = [
     # swap_addu_to_rt.txt retired 2026-05-21 (inline asm in C)
     "shared_sp_restore.txt",
     "shared_jr_restore.txt",
-    "fcc_nop.txt",
     "unfold_ra_delay.txt",
     "early_epilogue_restore.txt",
     "fill_blez_delay.txt",

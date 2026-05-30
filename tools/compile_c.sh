@@ -44,7 +44,6 @@ COALESCE_V1_V0_TXT="${ROOT}/config/coalesce_v1_v0.txt"
 NO_TRAILING_NOP_TXT="${ROOT}/config/no_trailing_nop.txt"
 SHARED_SP_RESTORE_TXT="${ROOT}/config/shared_sp_restore.txt"
 SHARED_JR_RESTORE_TXT="${ROOT}/config/shared_jr_restore.txt"
-FCC_NOP_TXT="${ROOT}/config/fcc_nop.txt"
 FCC_NOREORDER_TXT="${ROOT}/config/fcc_noreorder.txt"
 UNFOLD_RA_DELAY_TXT="${ROOT}/config/unfold_ra_delay.txt"
 EARLY_EPILOGUE_RESTORE_TXT="${ROOT}/config/early_epilogue_restore.txt"
@@ -137,7 +136,18 @@ EXTRA="$("${EXTRA_CFLAGS_LOOKUP}" "${SRC}" 2>/dev/null || true)"
 listed "${NO_TRAILING_NOP_TXT}"      && run_pp_scoped "${NO_TRAILING_NOP_TXT}"      postprocess_no_trailing_nop.py
 listed "${SHARED_SP_RESTORE_TXT}"    && run_pp_scoped "${SHARED_SP_RESTORE_TXT}"    postprocess_shared_sp_restore.py --sp-only
 listed "${SHARED_JR_RESTORE_TXT}"    && run_pp_scoped "${SHARED_JR_RESTORE_TXT}"    postprocess_shared_sp_restore.py --jr-and-sp
-listed "${FCC_NOP_TXT}"              && run_pp_scoped "${FCC_NOP_TXT}"              postprocess_fcc_nop.py
+# Promote gcc's `#nop` hazard-hint comment after an FCC compare to a real `nop`
+# when the following branch sits in a `.set noreorder` block — ee-as 2.96 ignores
+# the comment, so the R5900 FCC-update hazard slot would otherwise be unfilled.
+# Universal assembler-adaptation (retired postprocess_fcc_nop.py + its allowlist),
+# same category as the move→daddu / break sed rewrites below.
+awk '
+{ ln[NR]=$0 }
+END { i=1; while (i<=NR) { print ln[i];
+  if (ln[i] ~ /^[ \t]*c\.(lt|le|eq)\.[sd]([ \t]|$)/ && (i+1)<=NR && ln[i+1] ~ /^[ \t]*#nop[ \t]*$/) {
+    j=i+2; while (j<=NR && ln[j] ~ /^[ \t]*(#|$)/) j++;
+    if (j<=NR && ln[j] ~ /^[ \t]*\.set[ \t]+noreorder([ \t]|$)/) { print "\tnop"; i+=2; continue } }
+  i++ } }' "${S}" > "${S}.fcc" && mv "${S}.fcc" "${S}"
 listed "${FCC_NOREORDER_TXT}"        && run_pp_scoped "${FCC_NOREORDER_TXT}"        postprocess_fcc_noreorder.py
 listed "${UNFOLD_RA_DELAY_TXT}"      && run_pp_scoped "${UNFOLD_RA_DELAY_TXT}"      postprocess_unfold_ra_delay.py
 listed "${EARLY_EPILOGUE_RESTORE_TXT}" && run_pp_scoped "${EARLY_EPILOGUE_RESTORE_TXT}" postprocess_early_epilogue_restore.py
