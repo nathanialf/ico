@@ -233,4 +233,16 @@
 #define ADDU_RT(dst, src)                                                       \
     __asm__("addu %0, %1, %2" : "+r"(dst) : "r"(src))
 
+/* Mirror of ADDU_RT for the opposite commutative order: force rd into the
+ * `rs` slot — `addu $X, $X, $Y` — where ee-gcc 2.9 would canonicalize the
+ * source `dst = src + dst` to `addu $X, $Y, $X` (rd==rt). Lets a function
+ * emit the original's rd==rs encoding in pure C, retiring its entry in
+ * config/swap_addu_operands.txt. See COOKBOOK §8.11.
+ *
+ *   int *b = D_X;
+ *   ADDU_RS(b, prod);      // encoded as: addu b, b, prod (rd==rs)
+ */
+#define ADDU_RS(dst, src)                                                       \
+    __asm__("addu %0, %0, %1" : "+r"(dst) : "r"(src))
+
 #endif /* MATCHING_H */
