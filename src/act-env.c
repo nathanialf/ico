@@ -1,6 +1,7 @@
 /* src/act-env.c — __FILE__ anchor at .rodata 0x0061AE10 */
 
 #include "include_asm.h"
+#include "ico/types.h"
 
 extern float D_0063144C;
 extern float D_00631450;
@@ -84,7 +85,7 @@ void func_00200970(void *a0, void *a1)
         buf[0] = -buf[0];
     }
     {
-        int arg1 = *(int *)(*(char **)((char *)a1 + 0x15C) + 0xC);
+        int arg1 = ((GObj *)a1)->p_15C->f_C;
         buf[3] = 1.0f;
         func_002438B8((char *)sub + 0x5A0, arg1, buf);
     }

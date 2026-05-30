@@ -5,6 +5,8 @@
  * alignment padding supplied by the linker --gap-fill.
  */
 
+#include "ico/types.h"
+
 const char D_00619EC0[32] = "src/particleLayout.c";
 
 extern int   D_00632010;
@@ -14,9 +16,9 @@ extern int   func_001E8B48(int x, int *p, char *q);
 int *func_001E8EB8(int *self, int *other)
 {
     int *r;
-    int *p_15c;
+    Sub15C *p_15c;
     r = func_0013A0F8(D_00632010, 0x4, (char *)D_00619EC0, 0xC);
-    p_15c = (int *)self[0x15C / 4];
+    p_15c = ((GObj *)self)->p_15C;
     *r = func_001E8B48(other[0x30 / 4], other, (char *)p_15c + 0x60);
     return r;
 }

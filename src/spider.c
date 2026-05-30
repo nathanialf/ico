@@ -49,6 +49,7 @@ const char D_0061A1C8[16] = "   REVIVE: %d\n";
 
 #include "include_asm.h"
 #include "matching.h"
+#include "ico/types.h"
 #include "regpin.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/spider", func_001EA278);
@@ -60,16 +61,16 @@ extern void func_001D12A8(int *self, int y);
 void func_001EA3E0(int *self)
 {
     register int i REG("$17") = 0;
-    int *sub = *(int **)((char *)self + 0x15C);
-    register int *s2 REG("$18") = *(int **)((char *)sub + 0x800);
-    int count = *(int *)((char *)s2 + 0x20);
-    *(int *)((char *)s2 + 0x28) = 1;
+    Sub15C *sub = ((GObj *)self)->p_15C;
+    register Obj800 *s2 REG("$18") = sub->p_800;
+    int count = s2->f_20;
+    s2->f_28 = 1;
     if (count > 0) {
         do {
             int *arr;
-            arr = *(int **)((char *)s2 + 0x24);
+            arr = (int *)s2->p_24;
             func_001BAF48(arr[i]);
-            arr = *(int **)((char *)s2 + 0x24);
+            arr = (int *)s2->p_24;
             func_001BA5D0(arr[i], 1);
             i++;
         } while (i < count);

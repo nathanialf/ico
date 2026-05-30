@@ -1,6 +1,7 @@
 /* src/candle.c — __FILE__ anchor at .rodata 0x00618858 */
 
 #include "include_asm.h"
+#include "ico/types.h"
 
 const char D_00618858[16] = "src/candle.c";
 
@@ -67,9 +68,9 @@ print:
 
 void func_001C3130(int a0)
 {
-    int s0 = *(int *)(a0 + 0x15C);
-    if (*(int *)(s0 + 0x74)) {
+    Sub15C *s0 = ((GObj *)a0)->p_15C;
+    if (s0->f_74) {
         func_0010ECD8();
-        func_0010ECA0(s0);
+        func_0010ECA0((int)s0);
     }
 }
