@@ -49,6 +49,11 @@ def listed_funcs() -> set[str]:
 def patch(path: Path, funcs: set[str]) -> bool:
     if not funcs:
         return False
+    # A non-func_ entry naming this TU's basename (e.g. `DisplayList`) demotes
+    # EVERY .p2align 3 in the file — the exact effect of -malign-functions=2
+    # -malign-loops=2 (both function-start and loop-top alignments), letting a
+    # whole-TU `-malign` cflag be expressed through this same per-file PP.
+    whole_file = path.stem in funcs
     lines = path.read_text().splitlines(keepends=True)
     cur = None  # current function symbol whose body we are inside
     changed = False
@@ -61,7 +66,7 @@ def patch(path: Path, funcs: set[str]) -> bool:
         if e:
             cur = None
             continue
-        if cur in funcs:
+        if whole_file or cur in funcs:
             p = P2ALIGN3_RE.match(line)
             if p:
                 lines[i] = f"{p.group(1)}.p2align 2{p.group(2)}\n"

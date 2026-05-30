@@ -11,3 +11,4 @@
 # cdvd.c can build under default flags (which func_001320E8's read-chunk
 # loop needs for its 8-byte loop-top pad).
 func_00131560
+DisplayList
