@@ -23,8 +23,12 @@ respective owners.
 - The extracted EE-side ELF (`SCUS-97113`) or any portion of it.
 - Audio (VAG/ADPCM), image (TM2/PNG-from-disc), texture, model, text, or
   other assets extracted from the disc.
-- Symbol tables, debug strings, or other identifiers lifted directly from
-  the original binary or from leaked development materials.
+- Symbol tables, MAP/symbol files, or other identifier *tables* — and any
+  debug-string, asset, or code blob — copied verbatim or in bulk out of the
+  original binary, the disc, or any leaked development material. (Using an
+  *individual* fact — a name, an offset, a `__FILE__` path — as a reference is
+  governed below, under "Identifiers as references"; copying a *table* of them
+  into the repo is what this bullet forbids.)
 - Any code believed to have been derived from leaked source code.
 
 The `.gitignore` and `tools/check_no_rom.sh` script make it harder to commit
@@ -45,6 +49,34 @@ Published, public reverse-engineering material **may** be consulted as
 The rule: **treat them like academic papers**. Read, internalize, then
 re-derive from the disassembly. Never paste their code, comments, or
 symbol names verbatim into this repo.
+
+## Identifiers as references — facts vs. expression
+
+Facts observable by reverse-engineering a copy you legally own — function and
+symbol *names*, struct field offsets and sizes, array strides, `__FILE__`
+source-path strings embedded in `.rodata` — are not copyrightable expression.
+They **may** be used as *references* to inform original code, on the same terms
+as the public RE writeups above: read, internalize, re-derive; never commit the
+source artifact, and never paste a *table* of identifiers in bulk. This is
+already how the project recovers original file names (the `__FILE__` census →
+`decomp/source_tree.md`) and types data structures
+(`tools/dump_struct_accesses.py`).
+
+- **Allowed (reference):** reading the legally-owned binary/disc, or a
+  clean-provenance public decomp, and re-deriving names/shapes into your own
+  clean code. A name you re-derive this way is your own naming choice, not a
+  committed copy of a symbol table.
+- **Forbidden (reproduction):** committing the disc image, the extracted ELF,
+  asset bytes, or a symbol / MAP / debug *table* — in whole or in bulk — into
+  this repository; and any use of leaked source, leaked SDKs, or
+  prototype/debug builds (see *Forbidden inputs* below). A clean *retail* disc
+  you own is never in this forbidden category; a leaked prototype or debug
+  build is, regardless of what it contains.
+
+This line keeps the project clean **by construction**: the repository still
+distributes only original source and zero copyrighted tables/assets, while the
+reverse-engineering that produces that source may consult the facts in the
+product you legally own.
 
 ## Forbidden inputs
 
