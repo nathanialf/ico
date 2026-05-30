@@ -146,6 +146,40 @@ def divergence_sites(a: list[str], b: list[str], ctx: int = 3):
     return sites
 
 
+def detect_scheduling(nexp: list[str], nblt: list[str]):
+    """Flag a PURE SCHEDULING diff: the differing instructions on each side are
+    the SAME multiset, just reordered (incl. moved into/out of a delay slot).
+    This is the signature that the residual is an ORDERING problem, not codegen
+    — so the lever is source-order / live-range / -fno-schedule-insns2 (per the
+    pass that moved it), NOT a fresh C operation. Points at tools/sched_diff.py
+    to see which pass did the move."""
+    import collections
+    sm = difflib.SequenceMatcher(None, nexp, nblt, autojunk=False)
+    exp_diff, blt_diff = [], []
+    for op, i1, i2, j1, j2 in sm.get_opcodes():
+        if op == "equal":
+            continue
+        exp_diff += nexp[i1:i2]
+        blt_diff += nblt[j1:j2]
+    if not exp_diff:
+        return None
+    ce, cb = collections.Counter(exp_diff), collections.Counter(blt_diff)
+    if ce != cb:
+        return None
+    # pure permutation: every differing insn on one side appears on the other
+    moved = sorted(set(exp_diff))
+    return {
+        "permutation": True,
+        "moved_insns": moved[:8],
+        "moved_total": len(moved),
+        "hint": "pure reorder (same insns, different slots) — ordering, not "
+                "codegen. Run `tools/sched_diff.py <TU> <func>` and read the "
+                "move map: moved@sched -> source-order/live-range lever; "
+                "moved@sched2 -> -fno-schedule-insns2; moved@dbr -> delay-slot "
+                "readiness (keep the insn's inputs live to the branch).",
+    }
+
+
 def run_tag_diff(exp: list[str], blt: list[str]):
     """Call tools/tag_diff.py on the two streams; parse `[§N.M] name` output
     into structured tags."""
@@ -194,12 +228,16 @@ def analyze(tu: str, func: str | None) -> dict:
     real_count, pairs = count_and_pairs(nexp, nblt)
     sites = divergence_sites(nexp, nblt)
     tags = run_tag_diff(exp, blt)
+    sched = detect_scheduling(nexp, nblt)
     status = "match" if real_count == 0 else "diffs"
-    return {"status": status, "real_count": real_count, "raw_count": raw_count,
-            "diff_sites": len(sites),
-            "first_divergence": sites[0] if sites else None,
-            "divergence_map": sites,
-            "tags": tags, "lines": pairs}
+    result = {"status": status, "real_count": real_count, "raw_count": raw_count,
+              "diff_sites": len(sites),
+              "first_divergence": sites[0] if sites else None,
+              "divergence_map": sites,
+              "tags": tags, "lines": pairs}
+    if sched:
+        result["scheduling"] = sched
+    return result
 
 
 def main() -> int:
