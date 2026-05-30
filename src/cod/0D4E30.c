@@ -1,24 +1,11 @@
-#include "matching.h"
-#include "regpin.h"
-
 extern int D_004C49A8[];
 extern char D_00565060[];
 
 void func_001D4E30(int target)
 {
-    register char *base;
-    register int *out REG("$3");
-    register char *p;
-    register int i;
-    base = D_00565060;
-    out = D_004C49A8;
-    p = base + 0x134;
-    i = 0x43D;
-
-    do {
-        if (*(int *)p == target) *out = 0;
-        out++;
-        i--;
-        p += 0x190;
-    } while (i >= 0);
+    int i;
+    int (*data)[100] = (int (*)[100])D_00565060;
+    for (i = 0; i <= 0x43D; i++) {
+        if (data[i][77] == target) D_004C49A8[i] = 0;
+    }
 }

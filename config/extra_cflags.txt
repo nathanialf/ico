@@ -40,7 +40,6 @@
 # .p2align 3 (8-byte) which adds +4 byte pad when the matched body's
 # VMA mod 8 == 4, cascading SHA-1 mismatch.
 # func_001FB5E0 also has a loop top, so its .p2align 3 needs demoting too.
-0D4E30 -fno-schedule-insns
 
 # act-game: func_0014A100 writes a vec3 to a float* dst while re-reading the
 # obj->0x15C->0xC mesh-base pointer chain for each component. The original
