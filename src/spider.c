@@ -48,9 +48,35 @@ const char D_0061A1B8[16] = "    ALIVE: %d\n";
 const char D_0061A1C8[16] = "   REVIVE: %d\n";
 
 #include "include_asm.h"
+#include "matching.h"
+#include "regpin.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/spider", func_001EA278);
-INCLUDE_ASM("asm/nonmatchings/src/spider", func_001EA3E0);
+
+extern void func_001BAF48(int x);
+extern void func_001BA5D0(int x, int y);
+extern void func_001D12A8(int *self, int y);
+
+void func_001EA3E0(int *self)
+{
+    register int i REG("$17") = 0;
+    int *sub = *(int **)((char *)self + 0x15C);
+    register int *s2 REG("$18") = *(int **)((char *)sub + 0x800);
+    int count = *(int *)((char *)s2 + 0x20);
+    *(int *)((char *)s2 + 0x28) = 1;
+    if (count > 0) {
+        do {
+            int *arr;
+            arr = *(int **)((char *)s2 + 0x24);
+            func_001BAF48(arr[i]);
+            arr = *(int **)((char *)s2 + 0x24);
+            func_001BA5D0(arr[i], 1);
+            i++;
+        } while (i < count);
+    }
+    return func_001D12A8(self, 0x65);
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/spider", func_001EA480);
 INCLUDE_ASM("asm/nonmatchings/src/spider", func_001EA5E8);
 INCLUDE_ASM("asm/nonmatchings/src/spider", func_001EA9C8);
