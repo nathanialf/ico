@@ -18,6 +18,5 @@
 # The MULT_LW / MULT_SW cluster: ee-gcc 2.9 emits the wrong canonical
 # operand order for the `addu` that combines `idx*stride` with the
 # `lui+addiu` of the base address. Original keeps result in $dst-with-rs.
-particleEffect @func_001E85D8        # D_007097F0[idx*0x18 + 0x14] read+tail call
 motionOrientManager @func_001E0D50   # entry_p = D_00565060 + v_4A0*0x190; preserves sibling func_001E44C0 (rd==$2)
 a_p_1 @func_001BA330                  # func_001BA330 (rd==$3); preserves the other 13 a_p_1 funcs

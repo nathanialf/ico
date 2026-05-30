@@ -27,6 +27,7 @@ const char D_00619E08[24] = "src/particleEffect.c";
 const char D_00619E20[32] = "No more effect... Ignored.\n";
 
 #include "include_asm.h"
+#include "matching.h"
 
 extern void func_00105F00(int a0);
 extern int func_0010D830(int a0, int a1);
@@ -45,14 +46,21 @@ INCLUDE_ASM("asm/nonmatchings/src/particleEffect", func_001E8598);
 extern char D_007097F0[];
 extern void func_001E73A8(int *p);
 
+/* ADDU_RS forces the original's rd==rs `addu $3, $3, $4` operand order for
+ * the base+offset add (ee-gcc canonicalizes to rd==rt), dropping the scoped
+ * swap_addu postprocess for this func (COOKBOOK §8.11). */
 void func_001E85D8(int a0, float v)
 {
-    if (a0 >= 0) {
-        char *base = D_007097F0;
-        base += a0 * 0x18;
+    register int idx REG("$2") = a0;
+    if (idx >= 0) {
+        register int prod REG("$4") = idx * 0x18;
+        register char *base REG("$3") = D_007097F0;
+        register int one REG("$5") = 1;
+        KEEP_LIVE(one);
+        ADDU_RS(base, prod);
         {
             int *entry = *(int **)(base + 0x14);
-            entry[0x38 / 4] = 1;
+            entry[0x38 / 4] = one;
             *(float *)((char *)entry + 0x3C) = v;
             func_001E73A8(entry);
         }
