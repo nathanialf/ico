@@ -51,7 +51,6 @@ S_INIT -malign-functions=2
 # func_001FB5E0 also has a loop top, so its .p2align 3 needs demoting too.
 DISPLAYLIST -malign-functions=2 -malign-loops=2
 0D4E30 -fno-schedule-insns
-00F710 -fno-strict-aliasing
 
 # act-game: func_0014A100 writes a vec3 to a float* dst while re-reading the
 # obj->0x15C->0xC mesh-base pointer chain for each component. The original

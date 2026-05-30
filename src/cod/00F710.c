@@ -3,6 +3,12 @@
 
 extern int D_004C7710[];
 
+/* The packet's 64-bit tag word overlaps the int cells the ring pointers also
+ * address, so the store must may-alias those int writes (else gcc DSEs the
+ * earlier base[4]=p+6 update). A union spells that alias out in the type system
+ * — and still lowers to a single `sd` — instead of a per-file -fno-strict-aliasing. */
+typedef union { int w[2]; long long d; } DmaTag;
+
 void func_0010F710(void)
 {
     register int *base = D_004C7710;
@@ -16,6 +22,6 @@ void func_0010F710(void)
     base[6] = (int)(p + 3);
     base[7] = (int)(p + 4);
     base[4] = (int)(p + 6);
-    *(long long *)(p + 6) = 0xE;
+    ((DmaTag *)(p + 6))->d = 0xE;
     base[4] = (int)(p + 8);
 }
