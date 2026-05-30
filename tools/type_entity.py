@@ -88,6 +88,12 @@ def transforms(text: str, fields: set):
         rf"(?<![.\w])(?P<x>[A-Za-z_]\w*)\[\s*0x15C\s*/\s*4\s*\]",
         lambda m: f"(int)((GObj *)({m.group('x')}))->p_15C",
         text)
+    # 6b) bare pointer-as-int load (no +N; runs after #3):
+    #     *(int *)(X + 0x15C)  ->  (int)((GObj*)(X))->p_15C
+    text = re.sub(
+        rf"\*\(\s*int\s*\*\)\(\s*(?P<x>{SELF})\s*\+\s*0x15C\s*\)",
+        lambda m: f"(int)((GObj *)({m.group('x')}))->p_15C",
+        text)
 
     # ---- 0x800 level: Sub15C -> p_800 -> Obj800 (X is the sub pointer) ----
     def f7(m):
@@ -115,6 +121,10 @@ def transforms(text: str, fields: set):
         text)
     text = re.sub(
         rf"(?<![.\w])(?P<x>[A-Za-z_]\w*)\[\s*0x800\s*/\s*4\s*\]",
+        lambda m: f"(int)((Sub15C *)({m.group('x')}))->p_800",
+        text)
+    text = re.sub(
+        rf"\*\(\s*int\s*\*\)\(\s*(?P<x>{SELF})\s*\+\s*0x800\s*\)",
         lambda m: f"(int)((Sub15C *)({m.group('x')}))->p_800",
         text)
 

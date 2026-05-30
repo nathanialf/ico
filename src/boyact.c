@@ -505,7 +505,7 @@ void func_00154B20(volatile int a0)
 {
     int sub;
     func_00149D60(a0, 0, 3, 0, 0, 0, 0);
-    sub = *(int *)(a0 + 0x15C);
+    sub = (int)((GObj *)(a0))->p_15C;
     *(struct Blob12 *)(sub + 0x1C0) = *(struct Blob12 *)D_00282660;
     func_001A6E28((const char *)D_006322C0);
 }

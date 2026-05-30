@@ -390,7 +390,7 @@ body:
     }
     rv = 1;
     {
-        register int field REG("$4") = *(int *)(entry + 0x15C);
+        register int field REG("$4") = (int)((GObj *)(entry))->p_15C;
         if (field == 1) {
             goto end;
         }

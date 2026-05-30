@@ -307,16 +307,16 @@ void func_0019B888(void)
 int func_0019B8E8(void)
 {
     int v0 = (int)func_0013EB50(0x2E);
-    int v1 = *(int *)(v0 + 0x15C);
-    int a0 = *(int *)(v1 + 0x800);
+    int v1 = (int)((GObj *)(v0))->p_15C;
+    int a0 = (int)((Sub15C *)(v1))->p_800;
     return *(signed char *)(a0 + 0x3);
 }
 
 int func_0019B910(void)
 {
     int v0 = (int)func_0013EB50(0x2E);
-    int v1 = *(int *)(v0 + 0x15C);
-    int a0 = *(int *)(v1 + 0x800);
+    int v1 = (int)((GObj *)(v0))->p_15C;
+    int a0 = (int)((Sub15C *)(v1))->p_800;
     return *(int *)(a0 + 0x4);
 }
 
