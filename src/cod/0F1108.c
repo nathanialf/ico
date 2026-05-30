@@ -1,20 +1,16 @@
-#include "matching.h"
-#include "regpin.h"
-
 extern unsigned int D_00633718;
 extern unsigned int D_0063371C;
 
 int func_001F1108(void)
 {
-    register unsigned int p;
-    register unsigned int q REG("$3");
-    register unsigned int end;
-    p = D_00633718;
-    q = D_0063371C;
-    end = p + 0x1000;
-    if (q < p) {
+    unsigned int p = D_00633718;
+    unsigned int q = D_0063371C;
+    unsigned int end = p + 0x1000;
+    int r;
+    if (q < p)
         q += 0x28000;
-        if (q < p) return 1;
-    }
-    return !((int)q < (int)end);
+    r = 1;
+    if (!(q < p) && (int)q < (int)end)
+        r = 0;
+    return r;
 }
