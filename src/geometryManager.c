@@ -190,7 +190,28 @@ void func_00104508(void *a0, char *outer)
     *(float *)((char *)a0 + 0x4) += f0;
     *(float *)((char *)a0 + 0xC) = 1.0f;
 }
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104590);
+extern char D_00275890[];
+
+void func_00104590(int *self, int *container)
+{
+    char buf[0x40];
+    char *sub = ((GObj *)container)->p_15C;
+    char *s2 = sub + 0xA0;
+    func_0010DEC0(buf, sub + 0xD0, s2);
+    {
+        char *a = *(char **)sub;
+        if (a != 0) {
+            char *inner_struct = ((GObj *)a)->p_15C;
+            int inner_field = *(int *)(inner_struct + 0xC);
+            int idx = *(int *)(sub + 0x4);
+            func_002438E8(buf, inner_field + (idx << 6), buf);
+        }
+    }
+    *(float *)(buf + 0x34) += *(float *)(s2 + 0xC0);
+    func_002438B8(self, (int)buf, D_00275890);
+    *(int *)((char *)self + 0x4) = 0;
+    func_00243978(self, self);
+}
 
 extern float D_00630904;
 extern float D_00630908;
