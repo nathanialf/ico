@@ -208,9 +208,6 @@ awk '{ ln[NR]=$0 } END { i=1; while (i<=NR) {
 
 qd_listed fcc_noreorder.txt      && python3 "$ROOT/tools/postprocess_fcc_noreorder.py" "$ASM_OUT" || true
 qd_listed unfold_ra_delay.txt    && python3 "$ROOT/tools/postprocess_unfold_ra_delay.py" "$ASM_OUT" || true
-qd_listed early_epilogue_restore.txt && python3 "$ROOT/tools/postprocess_early_epilogue_restore.py" "$ASM_OUT" || true
-qd_listed fill_blez_delay.txt        && python3 "$ROOT/tools/postprocess_fill_blez_delay.py" "$ASM_OUT" || true
-qd_listed fill_beq_delay.txt         && python3 "$ROOT/tools/postprocess_fill_beq_delay.py" "$ASM_OUT" || true
 # qd_listed is @func-aware, so this fires only for the func(s) the TU line scopes to.
 qd_listed swap_addu_operands.txt && sed -i -E 's/(addu[[:space:]]+\$([0-9]+),)\$([0-9]+),\$\2\b/\1$\2,$\3/g' "$ASM_OUT" || true
 qd_listed coalesce_v1_v0.txt     && sed -i -E -e '/^[[:space:]]*move[[:space:]]+\$2,\$3[[:space:]]*$/d' -e 's/\$3\b/$2/g' "$ASM_OUT" || true

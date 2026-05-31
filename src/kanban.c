@@ -151,20 +151,4 @@ INCLUDE_ASM("asm/nonmatchings/src/kanban", func_001B0200);
 INCLUDE_ASM("asm/nonmatchings/src/kanban", func_001B0348);
 extern int *D_00633E6C;
 
-void func_001B04E0(int *a0)
-{
-    int *next = (int *)a0[7];
-    int *prev = (int *)a0[6];
-    if (next == 0) {
-        D_00633E6C = prev;
-        if (prev != 0) {
-            prev[7] = 0;
-        }
-    } else {
-        if (prev != 0) {
-            next[6] = (int)prev;
-            ((int *)a0[6])[7] = a0[7];
-        }
-    }
-    a0[0] = 0;
-}
+INCLUDE_ASM("asm/nonmatchings/src/kanban", func_001B04E0);

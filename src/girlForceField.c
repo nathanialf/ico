@@ -9,26 +9,4 @@ const char D_00618F08[24] = "src/girlForceField.c";
 
 extern int D_00632010;
 extern int func_0013A0F8(int handle, int size, const char *file, int line);
-int *func_001D1C78(int *self, int *src)
-{
-    register int *ret = (int *)func_0013A0F8(D_00632010, 0xC, D_00618F08, 0x17);
-    register float val = *(float *)((char *)src + 0x28);
-    register int *buf;
-    buf = ret;
-    MATERIALIZE(buf);
-
-    {
-        register float one = 1.0f;
-        int *p_840;
-        *(float *)((char *)buf + 0) = val;
-        *(int *)((char *)buf + 8) = 0;
-        val = one / val;
-        *(float *)((char *)buf + 4) = val;
-        KEEP_LIVE_MEM(buf);
-        p_840 = (int *)((int *)((GObj *)(self))->p_15C)[0x840 / 4];
-        *(float volatile *)((char *)p_840 + 0x20) = one;
-        *(float volatile *)((char *)p_840 + 0x28) = one;
-        *(float volatile *)((char *)p_840 + 0x24) = one;
-    }
-    return ret;
-}
+INCLUDE_ASM("asm/nonmatchings/src/girlForceField", func_001D1C78);

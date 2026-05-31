@@ -43,9 +43,6 @@ SWAP_ADDU_TXT="${ROOT}/config/swap_addu_operands.txt"
 COALESCE_V1_V0_TXT="${ROOT}/config/coalesce_v1_v0.txt"
 FCC_NOREORDER_TXT="${ROOT}/config/fcc_noreorder.txt"
 UNFOLD_RA_DELAY_TXT="${ROOT}/config/unfold_ra_delay.txt"
-EARLY_EPILOGUE_RESTORE_TXT="${ROOT}/config/early_epilogue_restore.txt"
-FILL_BLEZ_DELAY_TXT="${ROOT}/config/fill_blez_delay.txt"
-FILL_BEQ_DELAY_TXT="${ROOT}/config/fill_beq_delay.txt"
 
 BASE="$(basename "${SRC}" .c)"
 S="${OUT%.o}.s"
@@ -148,9 +145,6 @@ awk '{ ln[NR]=$0 } END { i=1; while (i<=NR) {
 
 listed "${FCC_NOREORDER_TXT}"        && run_pp_scoped "${FCC_NOREORDER_TXT}"        postprocess_fcc_noreorder.py
 listed "${UNFOLD_RA_DELAY_TXT}"      && run_pp_scoped "${UNFOLD_RA_DELAY_TXT}"      postprocess_unfold_ra_delay.py
-listed "${EARLY_EPILOGUE_RESTORE_TXT}" && run_pp_scoped "${EARLY_EPILOGUE_RESTORE_TXT}" postprocess_early_epilogue_restore.py
-listed "${FILL_BLEZ_DELAY_TXT}"      && run_pp_scoped "${FILL_BLEZ_DELAY_TXT}"      postprocess_fill_blez_delay.py
-listed "${FILL_BEQ_DELAY_TXT}"       && run_pp_scoped "${FILL_BEQ_DELAY_TXT}"       postprocess_fill_beq_delay.py
 
 if listed "${SWAP_ADDU_TXT}"; then
     # Scoped to the TU line's @func ranges (see funcs_for); whole-file for

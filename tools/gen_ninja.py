@@ -48,8 +48,6 @@ POSTPROCESS_TXTS = [
     # no_trailing_nop / shared_sp_restore / shared_jr_restore retired
     # 2026-05-31 (funcs parked to asm).
     "unfold_ra_delay.txt",
-    "early_epilogue_restore.txt",
-    "fill_blez_delay.txt",
 ]
 
 OUTPUT = ROOT / "build.ninja"
