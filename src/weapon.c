@@ -373,44 +373,8 @@ int func_001F40C8(char *self) {
 
 extern void func_001F2388(int x);
 extern void func_001F1868(int x);
-void func_001F40D8(int *self)
-{
-    Sub15C *p = ((int *)((GObj *)(self))->p_15C)[0x800 / 4];
-    register int count REG("$2");
-    int i;
-    count = p->f_50;
-    if (count == 0) goto exit;
-    func_001F2388(((int *)p->f_54)[0]);
-    if (p->f_50 <= 0) goto exit;
-    i = 0;
-    __asm__ __volatile__("" : "+r"(i));
-    do {
-        int *arr = (int *)p->f_54;
-        func_001F1868(arr[i]);
-        i++;
-    } while (i < p->f_50);
-exit:
-    ;
-}
-void func_001F4150(int *self)
-{
-    Sub15C *p = ((int *)((GObj *)(self))->p_15C)[0x800 / 4];
-    register int count REG("$2");
-    int i;
-    count = p->f_50;
-    if (count == 0) goto exit;
-    func_001F2388(((int *)p->f_54)[0]);
-    if (p->f_50 <= 0) goto exit;
-    i = 0;
-    __asm__ __volatile__("" : "+r"(i));
-    do {
-        int *arr = (int *)p->f_54;
-        func_001F1868(arr[i]);
-        i++;
-    } while (i < p->f_50);
-exit:
-    ;
-}
+INCLUDE_ASM("asm/nonmatchings/src/weapon", func_001F40D8);
+INCLUDE_ASM("asm/nonmatchings/src/weapon", func_001F4150);
 
 void func_001F41C8(int *self)
 {

@@ -47,7 +47,6 @@ POSTPROCESS_TXTS = [
     "coalesce_v1_v0.txt",
     # no_trailing_nop / shared_sp_restore / shared_jr_restore retired
     # 2026-05-31 (funcs parked to asm).
-    "unfold_ra_delay.txt",
 ]
 
 OUTPUT = ROOT / "build.ninja"
