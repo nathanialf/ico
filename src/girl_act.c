@@ -31,7 +31,7 @@ unsigned int D_00632528[8] = { 0x00000030, 0x00000000, 0x0064253E, 0x00000000, 0
 #include "ico/types.h"
 #include "matching.h"
 
-extern void func_0014A3A8(unsigned int a0);
+extern void func_0014A3A8(void);
 extern void func_001A6E28(char *a0);
 extern void func_0013B8F0(int a0);
 extern void func_00201DC8(unsigned int a0);
@@ -55,7 +55,7 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00175F80);
 void func_001760F0(unsigned int a0)
 {
   volatile unsigned int local = a0;
- do { func_0014A3A8(a0); func_001A6E28(D_005598F0); func_0013B8F0(7); func_00201DC8(local); } while (0);
+ do { func_0014A3A8(); func_001A6E28(D_005598F0); func_0013B8F0(7); func_00201DC8(local); } while (0);
 }
 
 void func_00176130(char *p) {
@@ -83,7 +83,11 @@ void func_00176150(volatile unsigned int a0)
 }
 
 /* func_00176194 is a 4-byte nop pad absorbed into func_00176198's .s. */
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00176198);
+void func_00176198(unsigned int a0)
+{
+    volatile unsigned int local = a0;
+    func_0014A3A8();
+}
 extern int D_00631AE4;
 extern int D_00631AE8;
 
