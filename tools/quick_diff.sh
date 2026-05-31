@@ -205,7 +205,6 @@ awk '{ ln[NR]=$0 } END { i=1; while (i<=NR) {
     print "\t.set noreorder"; print ln[i]; print "\tnop"; print "\t.set reorder"
   } else print ln[i]; i++ } }' "$ASM_OUT" > "$ASM_OUT.jrfp" && mv "$ASM_OUT.jrfp" "$ASM_OUT"
 
-qd_listed fcc_noreorder.txt      && python3 "$ROOT/tools/postprocess_fcc_noreorder.py" "$ASM_OUT" || true
 # qd_listed is @func-aware, so this fires only for the func(s) the TU line scopes to.
 qd_listed swap_addu_operands.txt && sed -i -E 's/(addu[[:space:]]+\$([0-9]+),)\$([0-9]+),\$\2\b/\1$\2,$\3/g' "$ASM_OUT" || true
 qd_listed coalesce_v1_v0.txt     && sed -i -E -e '/^[[:space:]]*move[[:space:]]+\$2,\$3[[:space:]]*$/d' -e 's/\$3\b/$2/g' "$ASM_OUT" || true

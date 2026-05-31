@@ -41,7 +41,6 @@ EXTRA_CFLAGS_LOOKUP="${ROOT}/tools/extra_cflags.sh"
 USE_MODERN_AS_TXT="${ROOT}/config/use_modern_as.txt"
 SWAP_ADDU_TXT="${ROOT}/config/swap_addu_operands.txt"
 COALESCE_V1_V0_TXT="${ROOT}/config/coalesce_v1_v0.txt"
-FCC_NOREORDER_TXT="${ROOT}/config/fcc_noreorder.txt"
 
 BASE="$(basename "${SRC}" .c)"
 S="${OUT%.o}.s"
@@ -141,7 +140,6 @@ awk '{ ln[NR]=$0 } END { i=1; while (i<=NR) {
     print "\t.set noreorder"; print ln[i]; print "\tnop"; print "\t.set reorder"
   } else print ln[i]; i++ } }' "${S}" > "${S}.jrfp" && mv "${S}.jrfp" "${S}"
 
-listed "${FCC_NOREORDER_TXT}"        && run_pp_scoped "${FCC_NOREORDER_TXT}"        postprocess_fcc_noreorder.py
 
 if listed "${SWAP_ADDU_TXT}"; then
     # Scoped to the TU line's @func ranges (see funcs_for); whole-file for
