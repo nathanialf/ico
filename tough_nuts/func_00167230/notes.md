@@ -34,3 +34,31 @@ glabel func_00167230
     /* 67254 00167254 00000000 */   nop
 endlabel func_00167230
 ```
+
+## Update 2026-05-31 (clean-C, no crutch)
+
+Clean C reaches **rc6**, and EVERYTHING matches except the gp_rel-unaligned-fold:
+`daddu v0,a0,zero` (base copy, a0 kept for tail-call), the 3 `sw zero` field
+zeroes, the `sdl/sdr` packed store to self+0x80, and the `j func_00166E10` void
+tail-call ALL align. Sole residual:
+```
+exp: ldl v1,%gp_rel(D_006323C7); ldr v1,%gp_rel(D_006323C0)   (direct gp_rel)
+got: addiu at,gp,%gp_rel(D_006323C0); ldl v1,7(at); ldr v1,0(at)
+```
+Clean shape that gets rc6:
+```c
+struct PackedLL_67230 { long long v; } __attribute__((packed));
+extern struct PackedLL_67230 D_006323C0;
+void func_00167230(int *self) {
+    *(int*)((char*)self+0xB0)=0; *(int*)((char*)self+0x94)=0; *(int*)((char*)self+0x88)=0;
+    *(struct PackedLL_67230*)((char*)self+0x80) = D_006323C0;   /* ldl/ldr + sdl/sdr */
+    func_00166E10(self);
+}
+```
+WALL: ee-gcc 2.9 folds %gp_rel into an ALIGNED `ld` (aligned(1) typedef → `ld
+v1,0(gp)` direct, but wrong — ROM uses ldl/ldr) but NOT into the unaligned
+`ldl/ldr` (materializes `addiu at,gp` first). The ROM compiler folded it. Tried:
+whole-struct-copy, aligned(1) typedef, member-to-member, explicit ll local — all
+keep the addiu base. This is the gp_rel-unaligned-fold wall; the original parked
+seed forced it with raw `__asm__("ldl %0,%%gp_rel(...)($28)")`. Same idiom in
+sibling func_00167258. Leave for offline auto_permute / a future gp_rel-fold lever.
