@@ -248,7 +248,29 @@ void func_0012AD40(int key, int arg1, int arg2)
         e += 0x290;
     } while (i < count);
 }
-INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012ADE8);
+typedef struct AnimNode {
+    long field0;            /* 0x00 */
+    char _pad[0x14 - 0x8];
+    struct AnimNode *next;  /* 0x14 */
+} AnimNode;
+
+void func_0012ADE8(int a0, int a1)
+{
+    AnimNode *p = (AnimNode *)D_00633C58;
+    int count = 0;
+    while (p != 0) {
+        long v = p->field0;
+        if ((((unsigned short)v << 18) >> 18) == a0) {
+            if (!(v & 0x8000)) {
+                count++;
+                if (a1 < count) {
+                    p->field0 = v | 0x8000;
+                }
+            }
+        }
+        p = p->next;
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012AE40);
 
 /* ASCII debug strings — re-derived from EE rodata bytes. */
