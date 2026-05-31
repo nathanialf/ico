@@ -110,7 +110,16 @@ float func_001948F0(int a0, float a1)
         return *(float *)D_006327B0_far;
     return a1 / r;
 }
-INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", func_00194960);
+int func_00194960(int a0)
+{
+    if (a0 > 0) {
+        a0 = a0 % 360;
+    } else {
+        int a = a0 < 0 ? -a0 : a0;
+        a0 = (a / 360 + 1) * 360 + a0;
+    }
+    return (a0 < 181) ? a0 : a0 - 360;
+}
 int func_001949B8(int a0)
 {
     if (a0 < -135) a0 = 180;
