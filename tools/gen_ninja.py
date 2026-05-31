@@ -43,8 +43,6 @@ EXTRA_SYMS = ROOT / "config" / "undefined_funcs_extra.us.txt"
 POSTPROCESS_TXTS = [
     "extra_cflags.txt",
     "use_modern_as.txt",
-    "swap_addu_operands.txt",
-    "coalesce_v1_v0.txt",
     # no_trailing_nop / shared_sp_restore / shared_jr_restore retired
     # 2026-05-31 (funcs parked to asm).
 ]

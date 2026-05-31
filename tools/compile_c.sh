@@ -39,8 +39,6 @@ PYTHON="${ROOT}/.venv/bin/python"
 
 EXTRA_CFLAGS_LOOKUP="${ROOT}/tools/extra_cflags.sh"
 USE_MODERN_AS_TXT="${ROOT}/config/use_modern_as.txt"
-SWAP_ADDU_TXT="${ROOT}/config/swap_addu_operands.txt"
-COALESCE_V1_V0_TXT="${ROOT}/config/coalesce_v1_v0.txt"
 
 BASE="$(basename "${SRC}" .c)"
 S="${OUT%.o}.s"
@@ -140,19 +138,6 @@ awk '{ ln[NR]=$0 } END { i=1; while (i<=NR) {
   } else print ln[i]; i++ } }' "${S}" > "${S}.jrfp" && mv "${S}.jrfp" "${S}"
 
 
-if listed "${SWAP_ADDU_TXT}"; then
-    # Scoped to the TU line's @func ranges (see funcs_for); whole-file for
-    # single-func hex entries. This is what keeps func_001E0D50's swap from
-    # touching its sibling func_001E44C0.
-    # shellcheck disable=SC2046
-    apply_sed_scoped 's/(addu[[:space:]]+\$([0-9]+),)\$([0-9]+),\$\2\b/\1$\2,$\3/g' \
-        $(funcs_for "${SWAP_ADDU_TXT}")
-fi
-if listed "${COALESCE_V1_V0_TXT}"; then
-    sed -i -E \
-        -e '/^[[:space:]]*move[[:space:]]+\$2,\$3[[:space:]]*$/d' \
-        -e 's/\$3\b/$2/g' "${S}"
-fi
 # ee-gcc emits `move $r,$s` for parameter-passing moves. ee-as 2.10
 # encodes `move` as `daddu $r,$s,$0` (function code 0x2D); modern gas
 # encodes `move` as `or $r,$s,$0` (function code 0x25). Original ELF

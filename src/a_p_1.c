@@ -40,11 +40,11 @@ const char D_00618560[32] = "--- WARNING!! ----\n";
 /* Float rodata migrated from a_p_1_data.c */
 const float D_00618580[4] = { 5e+01f, 0.0f, 0.0f, 1.0f };
 
-/* lit4 migrated from a_p_1_data.c — 0x461C4000 == 10000.0f */
+/* lit4 migrated from a_p_1_data.c â 0x461C4000 == 10000.0f */
 const float D_0063112C = 10000.0f;
 const float D_00631130[1] = { 10000.0f };
 
-/* data migrated from a_p_1_data.c (plain defs, no section attr —
+/* data migrated from a_p_1_data.c (plain defs, no section attr â
  * mutable types >8 bytes default to .data under -G 8). */
 
 extern int func_001B94B0(int *self);
@@ -100,20 +100,20 @@ char *D_004BEF60[8] = {
     0,
 };
 
-/* EUC-JP debug strings — re-derived from EE rodata bytes via
+/* EUC-JP debug strings â re-derived from EE rodata bytes via
  * EUC-JP decoding. Octal escapes preserve byte-identical layout
  * without requiring source-encoding compiler flags. */
-/* EUC-JP: "蜘蛛の抜けによる落下死リクエスト
+/* EUC-JP: "èèã®æãã«ããè½ä¸æ­»ãªã¯ã¨ã¹ã
 " */
-/* EUC-JP: "蜘蛛の抜けによる落下死リクエスト\n" */
+/* EUC-JP: "èèã®æãã«ããè½ä¸æ­»ãªã¯ã¨ã¹ã\n" */
 const char D_00618590[40] = "\303\330\351\341\244\316\310\264\244\261\244\313\244\350\244\353\315\356\262\274\273\340\245\352\245\257\245\250\245\271\245\310\n";
-/* EUC-JP: "既に死んでいるので起こしません
+/* EUC-JP: "æ¢ã«æ­»ãã§ããã®ã§èµ·ããã¾ãã
 " */
-/* EUC-JP: "既に死んでいるので起こしません\n" */
+/* EUC-JP: "æ¢ã«æ­»ãã§ããã®ã§èµ·ããã¾ãã\n" */
 const char D_006185B8[32] = "\264\373\244\313\273\340\244\363\244\307\244\244\244\353\244\316\244\307\265\257\244\263\244\267\244\336\244\273\244\363\n";
-/* EUC-JP: "強制死亡
+/* EUC-JP: "å¼·å¶æ­»äº¡
 " */
-/* EUC-JP: "強制死亡\n" */
+/* EUC-JP: "å¼·å¶æ­»äº¡\n" */
 const char D_006185D8[16] = "\266\257\300\251\273\340\313\264\n";
 
 #include "include_asm.h"
@@ -416,87 +416,7 @@ extern void func_00105038(int a);
 extern void func_00104F48(int a);
 extern void func_001A6E28(int a);
 
-void func_001BA330(int *self)
-{
-    Sub15C *p = ((int *)((GObj *)(self))->p_15C)[0x800 / 4];
-    int state = p->f_8;
-
-    switch (state) {
-    default:
-        if (p->f_274 < 10) {
-            p->f_274 = p->f_274 + 1;
-            func_001BA2E0(self);
-            state = p->f_8;
-        }
-        {
-            char *vp = (char *)D_004BEE60;
-            vp += state * 8;
-            p->f_8 = ((int (*)(int *))((FsmPair *)vp)->b)(self);
-        }
-        {
-            Sub15C *pp = ((int *)((GObj *)(self))->p_15C)[0x800 / 4];
-            int t = pp->f_270 + 1;
-            pp->f_270 = t;
-            if (t >= 0x21) {
-                pp->f_270 = 0;
-            }
-        }
-        break;
-    case 5:
-        p->f_8 = 4;
-        break;
-    case 4:
-        p->f_8 = 6;
-        break;
-    case 6:
-        self[0x16C / 4] = 0;
-        break;
-    case 7:
-        break;
-    }
-
-    func_001BA090(self);
-    func_001B99B0(self);
-    {
-        int r = func_00105278();
-        func_001185D0(r, ((int *)((GObj *)(self))->p_15C)[0xC / 4], (int)D_004BEEA0);
-    }
-    {
-        int r = func_00105278();
-        func_001CF930(p->f_19C, r, 1.0f);
-    }
-    if (p->f_4 != 0) {
-        int r3 = func_00105278();
-        func_00105F20(r3, ((int *)((GObj *)(self))->p_15C)[0xC / 4]);
-        func_00105038(0x4000);
-        func_00104F48(0x4000);
-        {
-            Sub15C *sub = ((GObj *)(self))->p_15C;
-            int r4 = func_00105278();
-            func_001185D0(sub->f_C, r4, (int)D_004BEF20);
-        }
-    }
-    {
-        Sub15C *sub = ((GObj *)(self))->p_15C;
-        float diff = *(float *)((char *)sub + 0x54)
-                   - *(float *)((char *)((int *)sub->f_C) + 0x34);
-        if (diff < 0.0f) {
-            diff = -diff;
-            MEM_BARRIER();
-            if (D_0063112C_a < diff) {
-                goto hit;
-            }
-            return;
-        }
-        MEM_BARRIER();
-        if (!(D_00631130_a < diff)) {
-            return;
-        }
-    hit:
-        *(int *)((char *)sub + 0x5F8) = 0x800;
-        func_001A6E28((int)D_00618590);
-    }
-}
+INCLUDE_ASM("asm/nonmatchings/src/a_p_1", func_001BA330);
 
 extern void func_0010ECD8(void);
 extern void func_0010ECB8(int *self);
