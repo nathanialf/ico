@@ -259,9 +259,12 @@ INCLUDE_ASM_NOP_PAD(func_0013D924);
 
 
 
-extern void func_00100450(int);
+extern int func_00100450(int);
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013D928);
+int func_0013D928(int *self)
+{
+    return func_00100450(self[0x30 / 4]);
+}
 
 
 extern int func_0013A0F8(int a0, int a1, const char *fmt, int line);
