@@ -303,7 +303,17 @@ void func_0014B320(char *self, float val) {
     *(float *)(p + 0x334) = val;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014B330);
+void func_0014B330(char *self, unsigned int a1, float v)
+{
+    char *sub = *(char **)(self + 0x164);
+    char *p = *(char **)(sub + 0x670);
+    if (a1 < *(unsigned int *)(p + 0x54))
+    {
+        return;
+    }
+    *(float *)(p + 0x58) = v;
+    *(unsigned int *)(p + 0x54) = a1;
+}
 
 float func_0014B358(int idx)
 {
