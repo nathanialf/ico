@@ -67,16 +67,20 @@ INCLUDE_ASM("asm/nonmatchings/src/sugiTree", func_001F1260);
 INCLUDE_ASM("asm/nonmatchings/src/sugiTree", func_001F1330);
 INCLUDE_ASM("asm/nonmatchings/src/sugiTree", func_001F1508);
 
+/* CLEAN rc1 seed (no KEEP_LIVE). The biased `v + 0xFFFF` is a deliberately
+ * DEAD value the original computes into $v0 then overwrites with buf. Pure C
+ * cannot keep a dead value live without an instruction: the store-to-local
+ * below pins the bias into $v0 correctly (matching the original's `addu v0`)
+ * but emits one extra `sw v0,0(sp)` the original lacks (it used KEEP_LIVE =
+ * a zero-cost asm("":: "r"(x)) barrier). rc1 = that single sw. See notes.md. */
 short *func_001F16A0(void)
 {
     int  local_pad[4];
     short *buf = func_0013A0F8(D_00632010, 2, (char *)D_0061A6D8, 0xC);
     int v = func_00264D60();
     *buf = (short)v;
-    if (v < 0) {
-        KEEP_LIVE(v + 0xFFFF);
-    }
-
+    if (v < 0)
+        local_pad[0] = v + 0xFFFF;
     return buf;
 }
 
