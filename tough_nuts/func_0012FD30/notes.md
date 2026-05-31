@@ -27,3 +27,20 @@ glabel func_0012FD30
     /* 2FD48 0012FD48 1000BD27 */   addiu     $29, $29, 0x10
 endlabel func_0012FD30
 ```
+
+## Re-attempt 2026-05-31 (loop) — BLOCKED by toolchain, not a near-miss
+
+Confirmed via plain-C `void func_0012FD30(void){ func_0012CEF8(); }`:
+ee-gcc 2.9 emits `j func_0012CEF8` (sibling call, no frame), real_count=6.
+Original keeps the full frame (`addiu sp,-0x10; sd ra; jal; ld ra; jr; addiu sp,+0x10`).
+
+ee-gcc 2.9-991111 hardcodes sibling-call opt ON at -O2 and REJECTS
+`-fno-optimize-sibling-calls`. There is NO zero-instruction pure-C defeat
+(a volatile read/store adds an insn the asm doesn't have; an empty stmt
+doesn't block sibcall). The ONLY mechanism is the empty `__asm__ __volatile__("")`
+barrier == the deleted DEFEAT_TCO crutch (133 funcs parked for its removal).
+
+Per current skill (no inline-asm matching nudges) this stays PARKED until
+the real ICO compiler is identified (which presumably does not sibcall this
+shape, making the plain wrapper match) or a sanctioned ROM-parity postprocess
+is added. Do NOT re-introduce the barrier for a single func.
