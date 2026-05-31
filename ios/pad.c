@@ -174,7 +174,10 @@ struct Vec0013B7E0
 
 INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013B7E0);
 
-INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013B858);
+void func_0013B858(void)
+{
+    D_00633C90 = 1;
+}
 
 void func_0013B868(void) {
     D_00633C90 = 0;
