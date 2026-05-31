@@ -129,11 +129,13 @@ END { i=1; while (i<=NR) { print ln[i];
     if (j<=NR && ln[j] ~ /^[ \t]*\.set[ \t]+noreorder([ \t]|$)/) { print "\tnop"; i+=2; continue } }
   i++ } }' "${S}" > "${S}.fcc" && mv "${S}.fcc" "${S}"
 
-# ee-as 2.96 fills a jr/j $31 delay slot with a preceding FP store (s.s/swc1),
-# but the R5900 FP-store→cvt hazard means the original assembler left a nop there.
-# Wrap such a return in .set noreorder + explicit nop. Universal assembler-adaptation.
+# ee-as 2.96 fills a jr/j $31 delay slot with a preceding FP store (s.s/swc1)
+# or FP convert (cvt.*), but the R5900 FP→return hazard means the original
+# assembler left a nop there (verified universal: 0 ROM funcs have cvt in a jr
+# delay). Wrap such a return in .set noreorder + explicit nop. Universal
+# assembler-adaptation.
 awk '{ ln[NR]=$0 } END { i=1; while (i<=NR) {
-  if ((ln[i] ~ /^[ \t]*jr?[ \t]+\$31[ \t]*$/) && i>1 && ln[i-1] ~ /^[ \t]*(s\.s|swc1)[ \t]/) {
+  if ((ln[i] ~ /^[ \t]*jr?[ \t]+\$31[ \t]*$/) && i>1 && ln[i-1] ~ /^[ \t]*(s\.s|swc1|cvt\.[swd]\.[swd])[ \t]/) {
     print "\t.set noreorder"; print ln[i]; print "\tnop"; print "\t.set reorder"
   } else print ln[i]; i++ } }' "${S}" > "${S}.jrfp" && mv "${S}.jrfp" "${S}"
 

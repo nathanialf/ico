@@ -413,7 +413,12 @@ int func_001F42D0(char *self) {
 
 INCLUDE_ASM_NOP_PAD(func_001F42E4);
 
-INCLUDE_ASM("asm/nonmatchings/src/weapon", func_001F42E8);
+float func_001F42E8(char *self)
+{
+    char *p = *(char **)(*(char **)(self + 0x15C) + 0x800);
+    int idx = *(int *)p;
+    return (float)D_006124F8[idx].field;
+}
 
 extern int func_0013EB50(int kind);
 extern int func_0013EBE0(int handle);
