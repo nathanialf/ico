@@ -170,7 +170,17 @@ void *D_002810B0[8] = { (void *)0x005575E0, (void *)0x00632138, (void *)0x005575
 /* Matched body inlined from src/cod/0886D0.c during TU coalesce. */
 extern char D_006D04B4[];
 extern void func_0018CFE0(int a0);
-INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", func_001886D0);
+void func_001886D0(int a0)
+{
+    register char *p = D_006D04B4;
+    register int one __asm__("$3") = 1;
+    int masked = a0 & 0xFF;
+    *p = (char)one;
+    if (masked == 0) {
+        return;
+    }
+    func_0018CFE0(masked);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", func_001886F4);
 INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", func_001886F8);
