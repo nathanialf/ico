@@ -611,7 +611,17 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165918);
 
 extern int func_00163D60(int a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165B50);
+void func_00165B50(char *self, int a1, int *a2)
+{
+    *(int *)(*(int *)(*(int *)(self + 0x164) + 0x670) + 0x200) = a1;
+    if (a2) {
+        int v = *a2;
+        *(int *)(*(int *)(*(int *)(self + 0x164) + 0x670) + 0x20C) = v;
+    } else {
+        int v = D_00632390;
+        *(int *)(*(int *)(*(int *)(self + 0x164) + 0x670) + 0x20C) = v;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165B80);
 
