@@ -180,7 +180,14 @@ void func_00149F70(char *self, char *other, int idx)
     func_001AE4C8(self, other, D_00561928[idx][9], tmp_a, tmp_b);
 }
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_00149FF0);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A0A8);
+int func_0014A0A8(char *self)
+{
+    char *sub = *(char **)(self + 0x164);
+    if (*(float *)(sub + 0x1D0) <= 20.0f) {
+        return 1;
+    }
+    return 0;
+}
 
 /* Matched body inlined from src/cod/04A0D8.c during TU coalesce. */
 extern void *D_00631AE8;
