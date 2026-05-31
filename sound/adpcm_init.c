@@ -208,12 +208,9 @@ typedef struct __attribute__((packed)) { long long v; } PackedLL;
 int func_00140048(void (*cb)(long long)) {
     char *ctx = D_006321DC;
     char *base = ctx + 0x54;
-    int count;
-    int i;
+    int i = 0;
     char *entries_base;
-    count = *(int *)(base + 4);
-    if (count <= 0) goto end;
-    i = 0;
+    if (*(int *)(base + 4) <= 0) goto end;
     entries_base = ctx + 0x5C;
     do {
         int op;
