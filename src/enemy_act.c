@@ -634,7 +634,18 @@ void func_00165DC0(volatile unsigned int arg)
         func_00203AA0(1);
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165E08);
+void func_00165E08(volatile unsigned int a0)
+{
+    volatile int local;
+    int *sub;
+    char *r;
+    sub = *((int **)(a0 + 0x164));
+    func_001A6E28((char *)D_00558F20);
+    r = func_001E29E8(a0, 7, (char *)sub + 0x610);
+    sub[0x120 / 4] = (int)r;
+    *(int *)(r + 0x114) = 0;
+    func_00203AA0(0);
+}
 
 void func_00165E60(volatile unsigned int a0)
 {
