@@ -62,3 +62,12 @@ it materializes the base every time. Packed struct is the ONLY way to get ldl/ld
 The DEST store (sdl/sdr 147/140(v0)) + flow + tail-call are ALL CORRECT with the packed struct.
 NEXT: this is the gp_rel-unaligned-fold the inline-asm seed exists for; clean lever unknown after 7 forms.
 Candidate for a permuter shot at 30-stall (currently ~7 distinct hyps). DEST-side is solved; only SOURCE base-fold remains.
+
+## 2026-05-31 (turn 4, resume) — 8th form: __builtin_memcpy also base-mats
+`__builtin_memcpy((char*)self+0x8C, D_006323C0, 8)` (extern char D_006323C0[8])
+→ STILL `addiu a3,gp,0; ldl v1,7(a3); ldr v1,0(a3)` (base-mat) AND reorders the
+tail-call j (rc6, worse than the packed-struct rc). The gp_rel→ldl/ldr fold is a
+genuine ee-gcc-2.9-build addressing-mode limitation (8 clean forms now ruled
+out); the real ICO compiler folded it but ours CSEs the base across ldl+ldr.
+Clean shape unreachable in this build; inline-asm seed is the only match. Leave
+parked for the DEFERRED crutch-strip workstream — NOT worth more heartbeat grind.

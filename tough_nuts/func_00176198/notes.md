@@ -34,3 +34,11 @@ Expected: frame 0x20, `sw a0,0(sp)` DIRECT before jal, nop in delay, jal(not j) 
 `volatile unsigned int s=a0; func_0014A3A8(a0);` gave extra `daddu v0,a0` copy + store IN delay slot (§8.22).
 Sibling func_001760F0 uses `volatile unsigned int local=a0;` pattern. NEXT: get direct sw a0 (no v0 copy) +
 nop delay — try non-volatile addr-taken local used post-call, or different local type/placement; permuter after 30-stall.
+
+## 2026-05-31 (turn 4, resume) — volatile-cast store also rc3 (store-in-delay)
+`int local; *(volatile int*)&local = a0; func_0014A3A8(a0);` (the sibling
+func_00176130 spelling) ALSO → `daddu v0,a0; jal; sw v0,0(sp)` (store in jal
+delay + v0 copy), rc3 — identical to the volatile-variable form. Confirmed §8.22
+store-in-jal-delay scheduling tail on a minimal write-only spill; the dbr pass
+fills the delay with the store. No clean source lever found (2 volatile forms).
+Genuine permuter/30-stall candidate (scheduling-only tail). Left parked.
