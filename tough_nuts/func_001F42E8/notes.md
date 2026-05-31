@@ -1,34 +1,16 @@
-# func_001F42E8 — parked
+# func_001F42E8 (weapon) — near-miss, jr-delay FP-hazard
 
-VRAM: 0x001F42E8 (file_off 0x0F42E8)
-Asm source: asm/matchings/cod/0F42E8/func_001F42E8.s
-
-## Attempt at 2026-05-31
-
-**Reason parked:** crutch-removal: deleting bucket A/B matching macros (NOP)
-
-**TU:** `src/weapon.c`
-
-**Seed:** `tough_nuts/func_001F42E8/func_001F42E8.c`
-
-Disassembly:
-
-```
-.align 3
-nonmatching func_001F42E8, 0x30
-
-glabel func_001F42E8
-    /* F42E8 001F42E8 5C01828C */  lw         $2, 0x15C($4)
-    /* F42EC 001F42EC 24000524 */  addiu      $5, $0, 0x24
-    /* F42F0 001F42F0 6100033C */  lui        $3, %hi(D_006124F8)
-    /* F42F4 001F42F4 0008448C */  lw         $4, 0x800($2)
-    /* F42F8 001F42F8 F8246324 */  addiu      $3, $3, %lo(D_006124F8)
-    /* F42FC 001F42FC 0000828C */  lw         $2, 0x0($4)
-    /* F4300 001F4300 18104500 */  mult       $2, $2, $5
-    /* F4304 001F4304 21186200 */  addu       $3, $3, $2
-    /* F4308 001F4308 0C0060C4 */  lwc1       $f0, 0xC($3)
-    /* F430C 001F430C 20008046 */  cvt.s.w    $f0, $f0
-    /* F4310 001F4310 0800E003 */  jr         $31
-    /* F4314 001F4314 00000000 */   nop
-endlabel func_001F42E8
-```
+WORKING C (rc3, ONLY the cvt placement differs):
+  float func_001F42E8(char *self) {
+      char *sub = *(char **)(self + 0x15C);
+      int *q = *(int **)(sub + 0x800);
+      int idx = q[0];
+      return (float)D_006124F8[idx].field;   // E36 stride 0x24, field@0xC
+  }
+Built: lwc1 $f0,12(v1); jr ra; cvt.s.w $f0,$f0 (IN jr delay)
+Expected: lwc1 $f0,12(v1); cvt.s.w $f0,$f0; jr ra; nop  (cvt BEFORE jr, nop delay)
+ee-gcc fills the jr delay with the FP cvt; ROM keeps it before jr (FP-to-jr hazard).
+Tried: named `float f=...; return f;` -> no change. No auto postprocess applies (ninja MISMATCH).
+NEXT: needs the jr-delay FP-hazard nop (assembler-quirk class per reference_assembler_versions) —
+either a source shape that stops gcc filling the jr delay with cvt, or an assembler-parity postprocess.
+Everything else (deref chain, mult-by-0x24, table index, lwc1) is EXACT.
