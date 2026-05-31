@@ -114,7 +114,6 @@ EXTRA="$("${EXTRA_CFLAGS_LOOKUP}" "${SRC}" 2>/dev/null || true)"
 
 # Demote `.p2align 3` -> `.p2align 2` for functions listed in
 # config/demote_p2align.txt (per-function alternative to -malign-loops=2).
-"${PYTHON}" "${ROOT}/tools/postprocess_demote_p2align.py" "${S}"
 
 # Each runs whole-TU unless its config line carries `@func_<hex>` tokens, in
 # which case run_pp_scoped limits it to those funcs' .ent/.end blocks — so a

@@ -38,29 +38,9 @@ extern int D_00710D10[];
 extern void func_001FBBE0(void);
 extern void func_001118B0(void);
 extern void func_00118F58(void);
-void func_001FB5E0(void)
-{
-    int flag = D_00633F6C ^ 1;
-    int *src = (int *)((char *)D_00710F18 + flag * 0x34);
-    int *dst = D_00710D10;
-    int i;
-    D_00633F6C = flag;
-    D_00633F70 = 0;
-    for (i = 0xC; i >= 0; i--) {
-        int v = *src;
-        dst[0] = 0;
-        dst[9] = v;
-        dst[8] = v;
-        src++;
-        dst += 0xA;
-    }
-    func_001FBBE0();
-    func_001118B0();
-    func_00118F58();
-}
+INCLUDE_ASM("asm/nonmatchings/src/DisplayList", func_001FB5E0);
 /* Original 4-byte nop pad that 8-aligns func_001FB658 (dropped on C
  * conversion; func_001FB658.s carries no .align of its own). */
-__asm__("nop");
 INCLUDE_ASM("asm/nonmatchings/src/DisplayList", func_001FB658);
 extern int D_00633810;
 extern int D_00633818[] __asm__("D_00633818");
@@ -69,36 +49,8 @@ extern void func_001A6E28(const char *s);
 extern void func_001AD768(const char *s, int n);
 extern void func_00263FF0(const char *s, int n, void *buf);
 
-void func_001FB768(void)
-{
-    int new_var2;
-    register int new_var __asm__("$2") = D_00633810;
-    if ((new_var2 = new_var) >= 7) {
-        func_001A6E28(D_0061ABA0);
-        func_001AD768(D_0061AB88, 0x20E);
-        func_00263FF0(D_0061AB88, 0x20E, D_00633818);
-    } else {
-        register int val __asm__("$4") = D_00633F70;
-        register int next __asm__("$2") = new_var2 + 1;
-        D_00710F80[new_var2] = val;
-        D_00633810 = next;
-    }
-}
+INCLUDE_ASM("asm/nonmatchings/src/DisplayList", func_001FB768);
 /* Original 4-byte nop pad that 8-aligns func_001FB7F8 (dropped on C
  * conversion; func_001FB768.s carried it inline). */
-__asm__("nop");
 
-void func_001FB7F8(void)
-{
-    int v = D_00633810;
-    register int new_var __asm__("$4") = v;
-    if (v <= 0) {
-        func_001A6E28(D_0061ABC8);
-        func_001AD768(D_0061AB88, 0x220);
-        func_00263FF0(D_0061AB88, 0x220, D_00633818);
-    } else {
-        int nv = new_var - 1;
-        D_00633F70 = D_00710F80[nv];
-        D_00633810 = nv;
-    }
-}
+INCLUDE_ASM("asm/nonmatchings/src/DisplayList", func_001FB7F8);
