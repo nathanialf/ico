@@ -5,7 +5,9 @@ Asm source: asm/nonmatchings/src/StageAnimation/func_0012ACD8.s
 
 ## Attempt at 2026-05-31
 
-**Reason parked:** crutch-removal: deleting bucket A/B matching macros (REG)
+**Reason parked:** genuine 30-stall (next=park, best=rc10). Clean for-loop seed
+(no REG pins). TWIN of func_0012AC70 — for-loop cracks count/i, residual is the
+identical entry1/target v0/v1 deref tie (func_00175C18 class). See seed header.
 
 **TU:** `src/StageAnimation.c`
 

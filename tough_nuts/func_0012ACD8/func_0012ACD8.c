@@ -262,22 +262,24 @@ void func_0012AC70(int key, char *src)
         e += 0x290;
     } while (i < count);
 }
+/* CLEAN rc10 seed (no REG pins). TWIN of func_0012AC70 (this is the same loop
+ * with a `value` arg stored at target[0x28] instead of the constant 1). The
+ * `for (i=0;i<count;)` form fixes the count/i swap REG("$9") pinned; the rc10
+ * residual is the IDENTICAL entry1/target v0/v1 deref tie as AC70 (func_00175C18
+ * class, old REG($2)entry1 + REG($3)target). ~30 distinct clean shapes here +
+ * ~30 on AC70 all plateau at rc10. volatile read + _packed64_sa are
+ * TU-consistent dev idioms. Crack AC70's deref tie and this one falls too. */
 void func_0012ACD8(int key, char *src, int value)
 {
-    register int count REG("$9");
+    int count = *(volatile int *)&D_00633C54;
     int i;
     char *e = (char *)D_00674058;
-    count = *(volatile int *)&D_00633C54;
-    i = 0;
-    if (count <= 0) return;
-    do {
-        register int *entry1 REG("$2") = *(int **)(e + 0x280);
+    for (i = 0; i < count; ) {
+        int *entry1 = *(int **)(e + 0x280);
         i++;
         if (key == entry1[0x58 / 4]) {
-            int *entry2;
-            register char *target REG("$3");
-            entry2 = *(int **)(e + 0x284);
-            target = *(char **)((char *)entry2 + 0x24);
+            int *entry2 = *(int **)(e + 0x284);
+            char *target = *(char **)((char *)entry2 + 0x24);
             *(_packed64_sa *)(target + 0x20) = *(_packed64_sa *)src;
             entry2 = *(int **)(e + 0x284);
             target = *(char **)((char *)entry2 + 0x24);
@@ -285,7 +287,7 @@ void func_0012ACD8(int key, char *src, int value)
             count = *(volatile int *)&D_00633C54;
         }
         e += 0x290;
-    } while (i < count);
+    }
 }
 extern void func_00118460(char *target, int arg1);
 extern void func_0010D830(char *target, int arg2);
