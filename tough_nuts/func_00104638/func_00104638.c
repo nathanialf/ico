@@ -213,27 +213,32 @@ INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104590);
 extern float D_00630904;
 extern float D_00630908;
 
-int func_00104638(float *vals, int *flags)
+/* CLEAN rc3 seed (no REG/MEM_BARRIER). Loading `min` per-iteration BEFORE the
+ * `if` (so v commits to $f0 first) fixes the FP reg allocation: v=$f0, min=$f1,
+ * max=$f2 — EXACTLY matching. The ONLY residual (rc3) is a delay-slot
+ * scheduling choice: gcc fills the first `bc1f` delay with the speculative
+ * `min` load, where the original has a NOP there and loads `min` in the else
+ * block. The retired MEM_BARRIER() created the BB boundary that forced the
+ * nop. No clean-C blocker found (volatile over-serializes → rc5). See notes. */
+int func_00104638(float *a0, int *a1)
 {
-    float lo = D_00630904;
     int ret = 0;
     int i;
+    float max = D_00630904;
     for (i = 2; i >= 0; i--) {
-        register float v REG("$f0") = *vals;
-        if (v < lo) {
-            *vals = lo;
+        float v = *a0;
+        float min = D_00630908;
+        if (v < max) {
+            *a0 = max;
             ret = 1;
-            *flags = 0;
-        } else {
-            MEM_BARRIER();
-            if (v > D_00630908) {
-                *vals = D_00630908;
-                ret = 1;
-                *flags = 0;
-            }
+            *a1 = 0;
+        } else if (min < v) {
+            *a0 = min;
+            ret = 1;
+            *a1 = 0;
         }
-        flags++;
-        vals++;
+        a1++;
+        a0++;
     }
     return ret;
 }
