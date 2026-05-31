@@ -66,7 +66,7 @@ unsigned char D_00631F50[4] = { 0 };
 unsigned int  D_00631F54    = 0x00000000;
 
 extern void func_00136280(int a0, int a1, int a2);
-extern void func_00138E30(void);
+extern int func_00138E30(void);
 
 int func_001383D8(int a0, int a1)
 {
@@ -161,7 +161,10 @@ INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00139D78);
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00139FE8);
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_0013A0F8);
 
-INCLUDE_ASM("asm/nonmatchings/ios/memory", func_0013A200);
+int func_0013A200(void)
+{
+    return func_00138E30();
+}
 
 
 /* === BEGIN recovered struct shapes (tools/place_struct_shapes.py) === */
