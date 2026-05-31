@@ -50,3 +50,10 @@
 # vec3 within the obj; the original orders the local-buf stores ahead of the
 # obj vec-loads (no TBAA reorder). -fno-strict-aliasing restores that order.
 # tu_check confirms the matched sibling stays byte-identical.
+
+# DisplayList: coalesced TU; the C func_001FB5E0's `.p2align 3` bumps the
+# whole .o .text alignment 4->8, shifting the TU placement +4 (0x1FB4C4 ->
+# 0x1FB4C8) and cascading into a +0x100 .data shift. -malign-functions/loops=2
+# keeps .text 4-aligned (layout parity, not a matching lever). Pairs with the
+# TRAILING_PAD_NOP after func_001FB5E0 that restores func_001FB658's 8-align.
+DISPLAYLIST  -malign-functions=2 -malign-loops=2
