@@ -238,7 +238,13 @@ int *func_0014B0B8(int a0, int a1) {
     return best;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014B150);
+void func_0014B150(char *self)
+{
+    char *sub = *(char **)(self + 0x164);
+    *(int *)(sub + 0x98) = 0;
+    *(int *)(sub + 0xA0) = 0;
+    *(int *)(sub + 0x9C) = 0;
+}
 
 /* func_0014B164 is a 4-byte nop pad absorbed into func_0014B168's .s. */
 INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014B168);
