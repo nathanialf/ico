@@ -41,3 +41,17 @@ single-return form -> gcc if-converts to sltu/sltiu/MOVN (built) vs expected BRA
 two-return goto forms branch but bne+swapped layout + wrong regalloc (expected keeps v in a0, built v in v0/v1).
 NEXT levers: defeat noce if-conversion (make THEN-block >1 insn, or value not 1-insn); force v into a0;
 match expected single-jr+delay-slot-v0=1 exactly; permuter after 30-stall.
+
+## 2026-05-31 (turn 5) — seed PROVES REG("$2") need; 7 clean forms fail
+Parked seed's solution: two named ptr vars (v0=D_00631AE4, v1=v0[0x164/4], a=v1[0x30/4]) +
+goto-end + `register int ret REG("$2")`. The $2 pin does DOUBLE DUTY: (a) reserves v0 for ret early
+→ deref uses v1/a0 (expected regalloc), (b) defeats the movn if-conversion.
+Clean forms tried (all fail to reproduce BOTH):
+ - single-return goto-end (ret=1 default)        -> movn, base->v0
+ - single-return goto-end, ret=1 BEFORE deref    -> movn, base->v0 (ret-first does NOT reserve v0)
+ - two-return `if(a>=0x5D)return 1; return a<0x5B`-> bne+swapped, base->v0
+ - two-return `if(a<0x5D)return a<0x5B; return 1` -> bne+swapped, base->v0
+ - one intermediate ptr vs two named ptrs        -> no change
+CONCLUSION: needs REG("$2") (retired). Two-returns defeat movn but give bne+base->v0; the $2 pin is
+what cascades to beq + base->v1/value->a0. Clean source-shape NOT found in 7 forms. REG-pin-dependent
+like camera-ico2($3). Permuter/offline candidate; or scoped-pin exception if user allows.
