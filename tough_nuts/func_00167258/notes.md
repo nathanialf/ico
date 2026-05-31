@@ -32,3 +32,16 @@ glabel func_00167258
     /* 67274 00167274 00000000 */   nop
 endlabel func_00167258
 ```
+
+## 2026-05-31 near-miss — packed-struct gets unaligned ops, gp_rel base-fold remains
+Clean shape (NO inline asm) gets STRUCTURE correct:
+  typedef struct { long long v; } __attribute__((packed)) U64_fc;
+  extern U64_fc D_006323C0;
+  void func_00167258(int *self){ *(int*)((char*)self+0x94)=0;
+    *(U64_fc*)((char*)self+0x8C)=D_006323C0; func_00166E10(self); }
+→ emits daddu v0,a0; sw zero,148(v0); ldl/ldr (load); sdl/sdr 147/140(v0) (store); j func_00166E10. CORRECT ops+offsets.
+ONLY diff: SOURCE load base-fold. Built: `addiu a3,gp,%gp_rel(D); ldl v1,7(a3); ldr v1,0(a3)`.
+Expected: `ldl v1,%gp_rel(D_006323C7)($gp); ldr v1,%gp_rel(D_006323C0)($gp)` (symbol folded directly into ldl/ldr off $gp).
+Tried: extern long long (8-aligned)->aligned ld (worse); extern int + &cast -> base-fold; packed struct direct read -> base-fold (same).
+NEXT: make gcc fold gp_rel into the unaligned ldl/ldr (no intermediate base reg). The OLD seed used inline asm for exactly this;
+clean lever not yet found. Maybe a 4-aligned char[8] global, or a different small-global access pattern. Permuter after 30-stall.

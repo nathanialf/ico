@@ -40,3 +40,11 @@ Clean shape MATCHES structure: `void f(unsigned char a0){ D_006D04B4[0]=1; if(a0
 Tried: pointer-var (`char*flag=D;*flag=1`) no change; scalar global -> WORSE (gp_rel collapse, far global needs []).
 NEXT levers: make address pseudo created first (compute &D into var used before const exists);
 try value-from-reused-reg; try func returning int to free/reserve v0; permuter only after 30-stall.
+
+## 2026-05-31 (turn 2) — 4th hypothesis, swap persists (4/30 stall)
+Tried condition-temp + int-return: `int f(unsigned char a0){int t=a0; D_006D04B4[0]=1; if(t)func_0018CFE0(t);}`
+→ STILL addr->v1, const->v0 (want addr->v0, const->v1). The j tail-call stays correct throughout.
+Root: gcc expands store RHS(const 1) pseudo before LHS(%hi addr) pseudo → const gets lower reg v0.
+4 distinct hyps failed (baseline/pointer-var/scalar-worse/cond-temp). NOT a floor (4/30).
+NEXT untried: force %hi addr pseudo to be created first (read the global before storing?); store value derived
+from a longer-lived expr; or permuter after 30-stall (this is the classic 1-reg store addr/const swap REG() pin solved).
