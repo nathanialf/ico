@@ -19,7 +19,7 @@ extern int   D_00633784;
 extern int   D_00632014;
 extern int   D_00632024;
 extern int   D_00633788[];
-extern void  func_00139598(void *p);
+extern int   func_00139598(void *p);
 extern void  func_001A6E28(char *p);
 extern void  func_001AD768(char *buf, int sz);
 extern void  func_00263FF0(char *buf, int sz, int *list);
@@ -28,7 +28,13 @@ extern void  func_00139D78(int a0, int a1, char *a2, int a3);
 
 INCLUDE_ASM("asm/nonmatchings/src/Basic", func_001F6CB0);
 
-INCLUDE_ASM("asm/nonmatchings/src/Basic", func_001F6D90);
+int func_001F6D90(void *a0)
+{
+    if (a0 != 0)
+    {
+        return func_00139598(a0);
+    }
+}
 
 void func_001F6DB0(void) {}
 
