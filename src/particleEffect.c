@@ -46,6 +46,18 @@ INCLUDE_ASM("asm/nonmatchings/src/particleEffect", func_001E8598);
 extern char D_007097F0[];
 extern void func_001E73A8(int *p);
 
-INCLUDE_ASM("asm/nonmatchings/src/particleEffect", func_001E85D8);
+struct E24_pe { char pad[0x14]; int *f14; };
+void func_001E85D8(int a0, float f)
+{
+    struct E24_pe *new_var;
+    int *p;
+    if (a0 < 0) return;
+    new_var = (struct E24_pe *)D_007097F0;
+    new_var = (struct E24_pe *)((char *)new_var - (-(a0 * 0x18)));
+    p = new_var->f14;
+    p[0x38 / 4] = 1;
+    *(float *)((char *)p + 0x3C) = f;
+    func_001E73A8(p);
+}
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", func_001E8618);
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", func_001E8810);
