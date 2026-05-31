@@ -236,23 +236,26 @@ void func_0012AC28(int target, int val)
 
 typedef struct { long long w; } __attribute__((packed)) _packed64_sa;
 
+/* CLEAN rc10 seed (no REG pins). The `for (i = 0; i < count; )` loop form
+ * (NOT do-while) fixes the count/i regalloc swap that REG("$8") used to pin
+ * (count->$t0, i->$a3). Residual rc10 is the deref-chain v0/v1 tie: entry1
+ * should claim $v0 (reusing the slt's reg), target stay $v1 across the packed
+ * copy, but clean gcc swaps them — the func_00175C18 class (old REG($2)entry1
+ * + REG($3)target). ~30 distinct clean shapes (deref forms, cmp operand order,
+ * array idx, char*/int* typing) all plateau at rc10. volatile read + packed64
+ * are TU-consistent dev idioms (matched siblings use them), NOT crutches. */
 void func_0012AC70(int key, char *src)
 {
-    register int count REG("$8");
+    int count = *(volatile int *)&D_00633C54;
     int one = 1;
     int i;
     char *e = (char *)D_00674058;
-    count = *(volatile int *)&D_00633C54;
-    i = 0;
-    if (count <= 0) return;
-    do {
-        register int *entry1 REG("$2") = *(int **)(e + 0x280);
+    for (i = 0; i < count; ) {
+        int *entry1 = *(int **)(e + 0x280);
         i++;
         if (key == entry1[0x58 / 4]) {
-            int *entry2;
-            register char *target REG("$3");
-            entry2 = *(int **)(e + 0x284);
-            target = *(char **)((char *)entry2 + 0x24);
+            int *entry2 = *(int **)(e + 0x284);
+            char *target = *(char **)((char *)entry2 + 0x24);
             *(_packed64_sa *)(target + 0x20) = *(_packed64_sa *)src;
             entry2 = *(int **)(e + 0x284);
             target = *(char **)((char *)entry2 + 0x24);
@@ -260,7 +263,7 @@ void func_0012AC70(int key, char *src)
             count = *(volatile int *)&D_00633C54;
         }
         e += 0x290;
-    } while (i < count);
+    }
 }
 void func_0012ACD8(int key, char *src, int value)
 {
