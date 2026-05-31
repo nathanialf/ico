@@ -237,7 +237,21 @@ void func_001177C8(void)
         p = p->prev;
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/Light", func_00117820);
+extern int D_00632024;
+extern int func_0013A0F8(int handle, int size, const char *file, int line);
+int func_00117820(int a0)
+{
+    AmbientVolume *r = (AmbientVolume *)func_0013A0F8(D_00632024, 0xA0, D_00554CA8, 0x2D3);
+    r->f_90 = a0;
+    *(float *)((char *)r + 0x80) = 1.0f;
+    if (D_00633C34 != 0) {
+        ((AmbientVolume *)D_00633C34)->next = r;
+    }
+    r->prev = (AmbientVolume *)D_00633C34;
+    r->next = 0;
+    D_00633C34 = (int)r;
+    return (int)r;
+}
 INCLUDE_ASM("asm/nonmatchings/src/Light", func_0011788C);
 INCLUDE_ASM("asm/nonmatchings/src/Light", func_00117890);
 INCLUDE_ASM("asm/nonmatchings/src/Light", func_00117950);
