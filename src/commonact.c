@@ -894,7 +894,21 @@ void func_001752D0(int *self)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00175308);
+int func_00175308(void)
+{
+    extern unsigned int D_0028829C_far[] __asm__("D_0028829C");
+    int *a, *b, *sub, *sub2, *p;
+    b = D_00631AE8;
+    if (D_0028829C_far[0] != 7) goto ret0;
+    a = D_00631AE4;
+    sub = (int *)a[0x164 / 4];
+    if (sub[0x30 / 4] != 0x4B) goto ret0;
+    sub2 = (int *)b[0x164 / 4];
+    p = (int *)sub2[0x678 / 4];
+    return p[0x374 / 4];
+ret0:
+    return 0;
+}
 /* func_0017534C nop pad absorbed into func_00175350's .s. */
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00175350);
 
