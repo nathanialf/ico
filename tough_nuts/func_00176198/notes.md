@@ -28,3 +28,9 @@ glabel func_00176198
     /* 761B4 001761B4 2000BD27 */   addiu     $29, $29, 0x20
 endlabel func_00176198
 ```
+
+## 2026-05-31 near-miss (address-taken local spill)
+Expected: frame 0x20, `sw a0,0(sp)` DIRECT before jal, nop in delay, jal(not j) func_0014A3A8(a0).
+`volatile unsigned int s=a0; func_0014A3A8(a0);` gave extra `daddu v0,a0` copy + store IN delay slot (§8.22).
+Sibling func_001760F0 uses `volatile unsigned int local=a0;` pattern. NEXT: get direct sw a0 (no v0 copy) +
+nop delay — try non-volatile addr-taken local used post-call, or different local type/placement; permuter after 30-stall.

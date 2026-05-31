@@ -32,3 +32,11 @@ glabel func_001886D0
 endlabel func_001886D0
     /* 886F4 001886F4 00000000 */  nop
 ```
+
+## 2026-05-31 near-miss (rc3, NOT a floor — stall well under 30)
+Clean shape MATCHES structure: `void f(unsigned char a0){ D_006D04B4[0]=1; if(a0) func_0018CFE0(a0); }`
+→ correct `j func_0018CFE0` tail-call + andi + beq. ONLY diff: addr/const v0<->v1 swap
+(expected addr→v0, const→v1; built reversed). gcc expands store RHS(const) first → const gets v0.
+Tried: pointer-var (`char*flag=D;*flag=1`) no change; scalar global -> WORSE (gp_rel collapse, far global needs []).
+NEXT levers: make address pseudo created first (compute &D into var used before const exists);
+try value-from-reused-reg; try func returning int to free/reserve v0; permuter only after 30-stall.

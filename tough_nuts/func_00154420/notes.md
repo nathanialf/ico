@@ -34,3 +34,10 @@ glabel func_00154420
     /* 54440 00154440 00000000 */   nop
 endlabel func_00154420
 ```
+
+## 2026-05-31 near-miss (§3.1 movn, NOT a floor)
+Shape: `unsigned int v=*(int*)(*(int*)(D_00631AE4+0x164)+0x30); ret=1; if(v<0x5D) ret=(v<0x5B); return ret;`
+single-return form -> gcc if-converts to sltu/sltiu/MOVN (built) vs expected BRANCH (beq v1,0;v0=1 in delay;sltiu fallthrough).
+two-return goto forms branch but bne+swapped layout + wrong regalloc (expected keeps v in a0, built v in v0/v1).
+NEXT levers: defeat noce if-conversion (make THEN-block >1 insn, or value not 1-insn); force v into a0;
+match expected single-jr+delay-slot-v0=1 exactly; permuter after 30-stall.
