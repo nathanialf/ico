@@ -169,25 +169,7 @@ listed "${LUI_LI_PRE_SD_TXT}"        && run_pp_scoped "${LUI_LI_PRE_SD_TXT}"    
 if listed "${DUMMY_SP_PROLOGUE_TXT}"; then
     "${PYTHON}" "${ROOT}/tools/postprocess_dummy_sp_prologue.py" "${S}"
 fi
-if [ "${BASE}" = "080550" ]; then
-    "${PYTHON}" "${ROOT}/tools/postprocess_080550.py" "${S}"
-fi
-if [ "${BASE}" = "105628" ]; then
-    "${PYTHON}" "${ROOT}/tools/postprocess_105628.py" "${S}"
-fi
 
-if [ "${BASE}" = "09F530" ]; then
-    "${PYTHON}" "${ROOT}/tools/postprocess_09F530.py" "${S}"
-fi
-if [ "${BASE}" = "14E4C8" ]; then
-    "${PYTHON}" "${ROOT}/tools/postprocess_14E4C8.py" "${S}"
-fi
-if [ "${BASE}" = "0EF9E0" ]; then
-    "${PYTHON}" "${ROOT}/tools/postprocess_0EF9E0.py" "${S}"
-fi
-if [ "${BASE}" = "fightSound" ]; then
-    "${PYTHON}" "${ROOT}/tools/postprocess_191F50.py" "${S}"
-fi
 if listed "${SWAP_ADDU_TXT}"; then
     # Scoped to the TU line's @func ranges (see funcs_for); whole-file for
     # single-func hex entries. This is what keeps func_001E0D50's swap from

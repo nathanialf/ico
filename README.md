@@ -22,7 +22,7 @@ Round-trip is byte-identical. `tools/build.sh setup && ninja` produces
 <!-- progress:begin -->
 | Section          | Matched | Total |
 | ---------------- | ------: | ----: |
-| `.text` |  9.85 % | 1.44 MB |
+| `.text` |  9.84 % | 1.44 MB |
 | `.vutext` | 100.00 % | 20.22 KB |
 
 Phase 3d (attr-tag retirement): 3.74 MB / 3.74 MB stripped (99.97%)
@@ -80,7 +80,7 @@ data work).
 
 ```
 config/         splat yaml, linker scripts (ico.us.ld, ico.us.slinky.ld),
-                symbol files, ELF SHA-1, postprocess allowlists
+                symbol files, ELF SHA-1, assembler/layout-pass allowlists
 src/            decompiled C — main game code (.text + typed data defs)
 ios/            decompiled C — IOS subsystem (cdvd, pad, thread, …)
 sound/          decompiled C — sound subsystem
@@ -91,7 +91,7 @@ assets/         extracted disc data (gitignored)
 baserom/        local-only: user's disc + extracted ELF (gitignored)
 build/          build artifacts (gitignored)
 lib/            submodules (splat, asm-differ, decomp-permuter, m2c)
-tools/          build orchestration, matching aids, postprocess passes
+tools/          build orchestration, matching aids, asm/linker fixup passes
 decomp/         agent-facing prompts (MATCH.md), pattern catalogs
                 (NOTES.md, COOKBOOK.md), and TU/data analysis JSONs
 docs/           contributor docs (BUILDING, LEGAL, PROGRESS, …)
@@ -136,8 +136,9 @@ baserom/baseelf.{elf,rom}  ←──── SHA-1 oracle for every build
 ninja
    │
    │  ee-gcc 2.9 (src/*.c) + ee-as 2.10 (asm/*.s)
+   │  + always-on asm/ROM-encoding fixups (move→daddu, break 0,N,
+   │    fcc-nop, jr-FP nop, .lit4 placement; config/*.txt allowlists)
    │  link via config/ico.us.ld
-   │  + Phase 3d postprocesses (config/*.txt allowlists)
    ▼
 build/ico.elf → objcopy → build/ico.rom
                               │

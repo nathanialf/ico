@@ -97,12 +97,42 @@ L_F0C:
     D_00632784 = 2;
 }
 
-/* func_00191F50: parked (tough_nuts/). rc=3 reorg b-delay-fill floor —
- * dbr steals the file la-%lo into the two goto-b delay slots where the ROM
- * copies the redundant line const (a1=#255). Not source-reachable without
- * widening the file %hi live range (reg-pins disallowed; no asm goto in
- * gcc 2.9). Full analysis + clean-C seed in tough_nuts/func_00191F50/. */
-INCLUDE_ASM("asm/nonmatchings/src/fightSound", func_00191F50);
+void func_00191F50(void) {
+    int d = D_00632784;
+    if (d == 1) goto case_1;
+    if (d < 2) {
+        if (d == 0) goto case_0;
+        goto default_case;
+    } else {
+        if (d == 2) goto case_2;
+        goto default_case;
+    }
+case_0:
+    func_00191D70();
+    return;
+case_1:
+    {
+        int *p = &D_006D0D28[0];
+        int ret = func_00141D18(p);
+        p[-2] = ret;
+        if ((unsigned int)ret == 0xFFFFFFFFu) return;
+        if (ret != 0) {
+            func_00140710(((int *)ret)[11]);
+        }
+        D_00632784 = 0;
+        return;
+    }
+case_2:
+    if (D_006D0D20[0] != 0) {
+        func_00141E00(D_006D0D20[0]);
+    }
+    D_006D0D20[0] = 0;
+    D_00632784 = 0;
+    return;
+default_case:
+    func_001AD768(D_0055AE88);
+    func_00263FF0(D_0055AE88, 0xFF, D_00632790);
+}
 
 int func_00192040(void)
 {
