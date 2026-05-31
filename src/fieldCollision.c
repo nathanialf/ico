@@ -110,10 +110,16 @@ INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00166BB0);
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00166E10);
 extern void func_00166E10(int *self);
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00167230);
-
 typedef struct { unsigned int lo; unsigned char m[3]; unsigned char hi; } FcBlk8;
 extern FcBlk8 D_006323C0;
+void func_00167230(int *self)
+{
+    *(int *)((char *)self + 0xB0) = 0;
+    *(int *)((char *)self + 0x94) = 0;
+    *(int *)((char *)self + 0x88) = 0;
+    *(FcBlk8 *)((char *)self + 0x80) = D_006323C0;
+    func_00166E10(self);
+}
 void func_00167258(int *self)
 {
     *(int *)((char *)self + 0x94) = 0;
