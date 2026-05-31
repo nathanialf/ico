@@ -57,3 +57,13 @@ glabel func_0014A560
     /* 4A5BC 0014A5BC 00000000 */   nop
 endlabel func_0014A560
 ```
+
+
+## Permuter harvest 2026-05-31 (5-min shot)
+Best output rc8 (vs parked rc18) but it REQUIRES `register int rv asm("$2")`
+(the rv->$v0 pin) — and even then the beql/bnel branch-likely diffs remain
+(rc8, not 0). Its clean structural ideas (read player+0x164 once into a shared
+var, RE-READ *(new_var+0x30) for the 0x55 check, sub loaded once at a shared
+have_sub) applied WITHOUT the pin give rc18 — no change. So the branch-likely
+emission is the dominant wall; the rv pin has no clean massage that helps here.
+Clean floor stays rc18.
