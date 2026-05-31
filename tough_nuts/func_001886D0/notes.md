@@ -87,3 +87,16 @@ comma, do-block, etc.) all rc2 — gcc orders the two independent immediates thi
 way regardless of source. Same class as COOKBOOK 105628 two-materialization sched
 tie-break. match_loop next = action:park at stall=31/30. Seed = rc2 char-one-var
 for offline auto_permute (sched tie-break is permuter territory).
+
+## 2026-05-31 (unsupervised, FINAL) — sched1 li/lui tie: hand+permuter exhausted
+Confirmed THE genuine floor of the original-10. rc2 residual = pure sched1 order of
+two independent 1-insn immediates (lui %hi(addr) vs li/addiu const-1) feeding the
+same `sb`; ROM schedules addr-hi first, gcc schedules const first. UID-tie-break,
+no source decoupling. Exhausted: 36 hand forms (decl-order, ptr-first, no-op
+bumps p++/p--, value-from-addr, masked-var, etc.) AND 3 diverse permuter seeds
+(char-one, base/m/one rich, named+no-op rich2) — all best-score-20, NEVER score-0.
+Contrast: sibling 1C0870 (v0/v1 coloring) cracked via a richer permuter seed
+because it had a loadable value to recolor; this sched-tie has NO such handle.
+Matches the COOKBOOK 105628 class ("no valid decoupling, ~30 forms + permuter").
+Only fixes are the retired REG pin / sched postprocess (forbidden) or a compiler
+change. Leave for offline auto_permute (low odds). See [[permuter_at_30stall_cracks_floors]].
