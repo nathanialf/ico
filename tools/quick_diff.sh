@@ -189,7 +189,6 @@ qd_listed() {
 }
 python3 "$ROOT/tools/postprocess_split_jtbls.py" "$ASM_OUT" || true
 python3 "$ROOT/tools/postprocess_demote_p2align.py" "$ASM_OUT" || true
-python3 "$ROOT/tools/postprocess_0B8720.py" "$ASM_OUT" || true
 awk '
 { ln[NR]=$0 }
 END { i=1; while (i<=NR) { print ln[i];
