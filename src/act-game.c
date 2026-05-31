@@ -397,7 +397,29 @@ int func_0014A700(int *self)
 
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A748);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A850);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A980);
+typedef struct { long long w; } __attribute__((packed)) U64ag;
+
+extern void func_002641D8(void *dst, int val, int n);
+extern void func_00243B60(void *buf, int x);
+extern void func_001683C8(void *buf);
+
+int func_0014A980(int a0, int a1, int *a2, char *a3)
+{
+    char buf[0xC0];
+    func_002641D8(buf, 0, 0xC0);
+    *(int *)(buf + 0x70) = 0;
+    func_00243B60(buf, a0);
+    func_00243B60(buf + 0x10, a1);
+    func_001683C8(buf);
+    if (a2 != 0) {
+        *a2 = *(int *)(buf + 0x98);
+    }
+    if (a3 != 0) {
+        *(U64ag *)a3 = *(U64ag *)(buf + 0x80);
+        *(int *)(a3 + 8) = *(int *)(buf + 0x88);
+    }
+    return *(int *)(buf + 0x88) != 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014AA28);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014AB30);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014AC78);
