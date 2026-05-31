@@ -29,6 +29,13 @@ AS="${MIPS_PREFIX}as"
 OBJCOPY="${MIPS_PREFIX}objcopy"
 
 EE_AS="${ROOT}/tools/cc/ee-gcc2.96/bin/as"
+# Period assembler whose delay-slot reorder is LESS aggressive than 2.96: it
+# does not hoist a preceding unaligned store (sdl/sdr/...) into a `j <func>`
+# tail-call delay slot, matching the original ICO toolchain (verified universal:
+# 0 of 783 ROM tail-calls carry an unaligned store in the delay). Selected
+# per-TU via config/use_old_as.txt for the rare TU that needs it; the gcc-emitted
+# .s is byte-for-byte the same input — only the assembler binary differs.
+EE_AS_OLD="${ROOT}/tools/cc/ee-gcc2.9-991111/bin/as"
 
 INCLUDE_DIR="${ROOT}/include"
 CFLAGS="-S -G 8 -O2 -mips3 -EL -fno-builtin -nostdinc -fdata-sections -I${INCLUDE_DIR}"
@@ -39,6 +46,7 @@ PYTHON="${ROOT}/.venv/bin/python"
 
 EXTRA_CFLAGS_LOOKUP="${ROOT}/tools/extra_cflags.sh"
 USE_MODERN_AS_TXT="${ROOT}/config/use_modern_as.txt"
+USE_OLD_AS_TXT="${ROOT}/config/use_old_as.txt"
 
 BASE="$(basename "${SRC}" .c)"
 S="${OUT%.o}.s"
@@ -175,12 +183,20 @@ sed -i -E \
     -e 's/\$fp\b/$30/g'   -e 's/\$ra\b/$31/g' \
     "${S}"
 
+# Per-TU assembler selection. Default ee-as is 2.96; a TU listed in
+# use_old_as.txt assembles with the less-aggressive 2.9-991111 instead (same
+# .s input, different reorder behavior — see EE_AS_OLD above).
+SELECTED_EE_AS="${EE_AS}"
+if listed "${USE_OLD_AS_TXT}"; then
+    SELECTED_EE_AS="${EE_AS_OLD}"
+fi
+
 if listed "${USE_MODERN_AS_TXT}"; then
     # shellcheck disable=SC2086
     "${AS}" ${ASFLAGS} -o "${OUT}" "${S}"
     "${OBJCOPY}" --set-section-alignment ".text=${ALIGN}" "${OUT}"
 # shellcheck disable=SC2086
-elif "${EE_AS}" ${EE_ASFLAGS} -o "${OUT}" "${S}" 2>/dev/null; then
+elif "${SELECTED_EE_AS}" ${EE_ASFLAGS} -o "${OUT}" "${S}" 2>/dev/null; then
     "${OBJCOPY}" "${OUT}" "${OUT}"
 else
     echo "  → consider adding ${BASE} to ${USE_MODERN_AS_TXT}" >&2

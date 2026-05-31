@@ -1,0 +1,7 @@
+# TUs assembled with ee-as 2.9-991111 instead of the default 2.96.
+# 2.96 hoists a preceding unaligned store (sdl/sdr) into a `j <func>` tail-call
+# delay slot; the original ICO toolchain (and 2.9-991111) leave a nop there
+# (verified universal: 0/783 ROM tail-calls carry an unaligned store in the
+# delay). The gcc-emitted .s is identical input; only the assembler differs.
+# One TU basename per line.
+fieldCollision
