@@ -45,10 +45,8 @@ POSTPROCESS_TXTS = [
     "use_modern_as.txt",
     "swap_addu_operands.txt",
     "coalesce_v1_v0.txt",
-    "no_trailing_nop.txt",
-    # swap_addu_to_rt.txt retired 2026-05-21 (inline asm in C)
-    "shared_sp_restore.txt",
-    "shared_jr_restore.txt",
+    # no_trailing_nop / shared_sp_restore / shared_jr_restore retired
+    # 2026-05-31 (funcs parked to asm).
     "unfold_ra_delay.txt",
     "early_epilogue_restore.txt",
     "fill_blez_delay.txt",

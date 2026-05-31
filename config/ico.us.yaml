@@ -345,7 +345,7 @@ segments:
       - [0x009B98, c, src/cod/009B98]            # func_00109B98: return *(self+0x15C) + 0x680
       - [0x009BA8, c, src/cod/009BA8]            # func_00109BA8: return *(*(self+0x15C) + 0x1E0)
       - [0x009BB8, asm, src/cod/009BB8]
-      - [0x009E48, c, src/cod/009E48]
+      - [0x009E48, asm, cod/009E48]
       - [0x009E88, c, src/cod/009E88]            # func_00109E88: memcpy(self, D_00275DB0, 0x1F0); +2 calls to func_001442E0
       - [0x009F10, c, src/cod/009F10]            # func_00109F10
       - [0x009F28, asm, src/cod/009F28]
@@ -463,7 +463,7 @@ segments:
       - [0x0118E4, hasm, src/cod/0118E4]
       - [0x0118E8, c, src/cod/0118E8]            # func_001118E8: sibling: func_0010F710 instead of F5D8
       - [0x011914, hasm, src/cod/011914]
-      - [0x011918, c, src/cod/011918]
+      - [0x011918, asm, cod/011918]
       - [0x01193C, hasm, src/cod/01193C]
       - [0x011940, c, src/cod/011940]
       - [0x011948, asm, src/cod/011948]
@@ -602,21 +602,21 @@ segments:
       - [0x037EF0, c, src/cod/037EF0]            # func_00137EF0: promote: score-0 from permuter (char trunc trick)
       - [0x037F04, hasm, src/cod/037F04]
       - [0x037F08, c, src/cod/037F08]            # func_00137F08: dispatch wrapper, type-0
-      - [0x037F48, c, src/cod/037F48]            # dispatch wrapper, 137F08-family
+      - [0x037F48, asm, cod/037F48]
       - [0x037F88, hasm, src/cod/037F88]
-      - [0x037F90, c, src/cod/037F90]            # dispatch wrapper, 137F08-family
+      - [0x037F90, asm, cod/037F90]
       - [0x037FD0, hasm, src/cod/037FD0]
-      - [0x037FD8, c, src/cod/037FD8]            # dispatch wrapper, 137F08-family
+      - [0x037FD8, asm, cod/037FD8]
       - [0x038018, hasm, src/cod/038018]
-      - [0x038020, c, src/cod/038020]            # dispatch wrapper, 137F08-family
+      - [0x038020, asm, cod/038020]
       - [0x038060, hasm, src/cod/038060]
-      - [0x038068, c, src/cod/038068]            # dispatch wrapper, 137F08-family
+      - [0x038068, asm, cod/038068]
       - [0x0380A8, hasm, src/cod/0380A8]
-      - [0x0380B0, c, src/cod/0380B0]            # dispatch wrapper, 137F08-family
+      - [0x0380B0, asm, cod/0380B0]
       - [0x0380F0, hasm, src/cod/0380F0]
-      - [0x0380F8, c, src/cod/0380F8]            # dispatch wrapper, 137F08-family
+      - [0x0380F8, asm, cod/0380F8]
       - [0x038138, hasm, src/cod/038138]
-      - [0x038140, c, src/cod/038140]
+      - [0x038140, asm, cod/038140]
       - [0x038180, hasm, src/cod/038180]
       - [0x038188, c, src/cod/038188]
       - [0x0381D0, c, src/cod/0381D0]
@@ -1054,10 +1054,10 @@ segments:
       - [0x093FA4, asm, src/cod/093FA4]
       - [0x094360, c, src/cod/094360]            # func_00194360: buf[4] init via func + zero one slot + 2nd call
       - [0x094394, hasm, src/cod/094394]
-      - [0x094398, c, src/cod/094398]            # func_00194398: buf+2-call (shared jr+sp restore via 0943C0 stub)
+      - [0x094398, asm, cod/094398]
       - [0x0943C0, hasm, src/cod/0943C0]
       - [0x0943C8, c, src/cod/0943C8]            # func_001943C8: buf+2-call+chained float-call (3 jals)
-      - [0x094400, c, src/cod/094400]            # func_00194400: buf+2-call+chained-float-call (no-trailing-nop fix)
+      - [0x094400, asm, cod/094400]
       - [0x094438, asm, src/cod/094438]
       - [0x094590, c, src/cod/094590]            # func_00194590: abs(func_00194508(a0..a3))
       - [0x0945B4, asm, src/cod/0945B4]
@@ -1340,7 +1340,7 @@ segments:
       - [0x0B7100, asm, src/cod/0B7100]
       - [0x0B718C, hasm, src/cod/0B718C]
       - [0x0B7190, asm, src/cod/0B7190]
-      - [0x0B7218, c, src/cod/0B7218]              # func_001B7218: D_002E81F0[idx*108]._68 bit-1 set/clear
+      - [0x0B7218, asm, cod/0B7218]
       - [0x0B7250, c, src/cod/0B7250]            # func_001B7250: D_002E81F0[idx*108]._68 bit-0 set/clear
       - [0x0B7280, c, src/cod/0B7280]            # func_001B7280: return D_00633158
       - [0x0B7288, c, src/cod/0B7288]            # func_001B7288: D_00633164 = val
@@ -1819,7 +1819,7 @@ segments:
       - [0x11F2D8, c, src/cod/11F2D8]            # func_0021F2D8: store-arg-discard
       - [0x11F2E8, c, src/cod/11F2E8]            # func_0021F2E8: store-arg-discard
       - [0x11F2F8, c, src/cod/11F2F8]            # func_0021F2F8: store-arg-discard
-      - [0x11F308, c, src/cod/11F308]
+      - [0x11F308, asm, cod/11F308]
       - [0x11F348, asm, src/cod/11F348]
       - [0x11F3A8, c, src/cod/11F3A8]            # func_0021F3A8: store-arg-discard
       - [0x11F3B8, asm, src/cod/11F3B8]
@@ -1967,8 +1967,8 @@ segments:
       - [0x13B518, asm, src/cod/13B518]
       - [0x13C090, c, src/cod/13C090]            # func_0023C090: permuter score-0 promotion (fader gp_rel)
       - [0x13C0E8, c, src/cod/13C0E8]            # func_0023C0E8: permuter score-0 promotion (sibling 23C090)
-      - [0x13C148, c, src/cod/13C148]            # func_0023C148: v=func_0018B0A0(); return (v==3 || v==9) ? -1 : 0
-      - [0x13C17C, c, src/cod/13C17C]
+      - [0x13C148, asm, cod/13C148]
+      - [0x13C17C, asm, cod/13C17C]
       - [0x13C1C0, asm, src/cod/13C1C0]
       - [0x13C290, c, src/cod/13C290]            # func_0023C290: cache D_00633B48 update keyed by D_00633B4C; ret -1
       - [0x13C2F0, asm, src/cod/13C2F0]
@@ -2019,7 +2019,7 @@ segments:
       - [0x13EFB8, c, src/cod/13EFB8]            # func_0023EFB8: HW reg writes (NOP() trailing)
       - [0x13EFF4, hasm, src/cod/13EFF4]
       - [0x13EFF8, c, src/cod/13EFF8]            # func_0023EFF8: cond call + gp_rel zero + SYNC + EI + ret 0
-      - [0x13F030, c, src/cod/13F030]
+      - [0x13F030, asm, cod/13F030]
       - [0x13F06C, hasm, src/cod/13F06C]
       - [0x13F070, c, src/cod/13F070]            # func_0023F070
       - [0x13F07C, asm, src/cod/13F07C]
@@ -2306,7 +2306,7 @@ segments:
       - [0x151E4C, asm, src/cod/151E4C]
       - [0x151EB8, c, src/cod/151EB8]            # func_00251EB8: return p[0] + p[1] - p[2]
       - [0x151ED0, asm, src/cod/151ED0]
-      - [0x152180, c, src/cod/152180]
+      - [0x152180, asm, cod/152180]
       - [0x1521BC, asm, src/cod/1521BC]
       - [0x1523A0, c, src/cod/1523A0]            # func_002523A0: tail call func_00254CF8(1) + sdata-set 0
       - [0x1523B0, c, src/cod/1523B0]            # func_002523B0: if(D1) f1(D2,a0); elif(D3==3) f2(D4,a0-1); else f3(D5,D6,a0-1); D1=0
@@ -2468,9 +2468,9 @@ segments:
       - [0x165814, asm, src/cod/165814]
       - [0x165AF0, c, src/cod/165AF0]            # func_00265AF0: D[0] + 3-arg passthrough (sibling of 26D430 family)
       - [0x165B24, hasm, src/cod/165B24]
-      - [0x165B28, c, src/cod/165B28]            # func_00265B28: if (self->_8) func_0026AC40(passthrough, self); zero _4/_8
+      - [0x165B28, asm, cod/165B28]
       - [0x165B6C, asm, src/cod/165B6C]
-      - [0x166870, c, src/cod/166870]            # func_00266870: byte-identical twin of 0x165B28
+      - [0x166870, asm, cod/166870]
       - [0x1668B4, asm, src/cod/1668B4]
       - [0x168F08, c, src/cod/168F08]            # func_00268F08: infinite loop calling 2 funcs
       - [0x168F28, c, src/cod/168F28]            # func_00268F28: wrap func_0026E5C8(a0, 0)

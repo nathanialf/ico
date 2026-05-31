@@ -172,3 +172,17 @@ glabel func_0023F030
     /* 13F068 0023F068 2000BD27 */   addiu     $sp, $sp, 0x20
 endlabel func_0023F030
 ```
+
+---
+
+## Attempt at 2026-05-31
+
+**Reason parked:** remove-all-postprocesses: park to asm (ROM bytes); retires its emission postprocess
+
+Seed: `tough_nuts/func_0023F030/13F030.c.new`
+
+Disassembly excerpt:
+
+```
+(no asm/cod/*.s found for func_0023F030; check asm/matchings/cod/13F030/)
+```

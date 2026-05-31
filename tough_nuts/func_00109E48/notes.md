@@ -82,3 +82,17 @@ glabel func_00109E48
     /* 9E84 00109E84 00000000 */   nop
 endlabel func_00109E48
 ```
+
+---
+
+## Attempt at 2026-05-31
+
+**Reason parked:** remove-all-postprocesses: park to asm (ROM bytes); retires its emission postprocess
+
+Seed: `tough_nuts/func_00109E48/009E48.c.new`
+
+Disassembly excerpt:
+
+```
+(no asm/cod/*.s found for func_00109E48; check asm/matchings/cod/009E48/)
+```

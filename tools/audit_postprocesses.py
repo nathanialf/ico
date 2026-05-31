@@ -11,7 +11,6 @@ report whether it still matches (redundant) or breaks (load-bearing).
 quick_diff is INTRA-FUNCTION, so this is authoritative only for postprocesses
 that change a function's own instruction stream (scheduling / operand order /
 delay-slot fills). Cross-function / layout postprocesses (shared_sp_restore,
-shared_jr_restore, dummy_sp_prologue, demote_p2align, no_trailing_nop) are
 NINJA-ONLY and excluded by default — pass --include-layout to test them anyway
 (redundant verdicts there MUST be ninja-confirmed before trusting).
 
@@ -39,7 +38,6 @@ INTRA_FUNC = [
     "unfold_ra_delay", "fcc_nop", "fcc_noreorder",
 ]
 # Cross-function / layout — ninja-only; quick_diff verdicts here are unreliable.
-LAYOUT = ["shared_sp_restore", "shared_jr_restore", "dummy_sp_prologue",
           "demote_p2align", "no_trailing_nop"]
 
 

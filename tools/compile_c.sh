@@ -41,18 +41,11 @@ EXTRA_CFLAGS_LOOKUP="${ROOT}/tools/extra_cflags.sh"
 USE_MODERN_AS_TXT="${ROOT}/config/use_modern_as.txt"
 SWAP_ADDU_TXT="${ROOT}/config/swap_addu_operands.txt"
 COALESCE_V1_V0_TXT="${ROOT}/config/coalesce_v1_v0.txt"
-NO_TRAILING_NOP_TXT="${ROOT}/config/no_trailing_nop.txt"
-SHARED_SP_RESTORE_TXT="${ROOT}/config/shared_sp_restore.txt"
-SHARED_JR_RESTORE_TXT="${ROOT}/config/shared_jr_restore.txt"
 FCC_NOREORDER_TXT="${ROOT}/config/fcc_noreorder.txt"
 UNFOLD_RA_DELAY_TXT="${ROOT}/config/unfold_ra_delay.txt"
 EARLY_EPILOGUE_RESTORE_TXT="${ROOT}/config/early_epilogue_restore.txt"
 FILL_BLEZ_DELAY_TXT="${ROOT}/config/fill_blez_delay.txt"
 FILL_BEQ_DELAY_TXT="${ROOT}/config/fill_beq_delay.txt"
-V0_ZERO_IN_BNE_DELAY_TXT="${ROOT}/config/v0_zero_in_bne_delay.txt"
-MOVE_SW_V0_BEFORE_LDS_TXT="${ROOT}/config/move_sw_v0_before_lds.txt"
-LUI_CONST_SWAP_TXT="${ROOT}/config/lui_const_swap.txt"
-DUMMY_SP_PROLOGUE_TXT="${ROOT}/config/dummy_sp_prologue.txt"
 
 BASE="$(basename "${SRC}" .c)"
 S="${OUT%.o}.s"
@@ -132,9 +125,6 @@ EXTRA="$("${EXTRA_CFLAGS_LOOKUP}" "${SRC}" 2>/dev/null || true)"
 # Each runs whole-TU unless its config line carries `@func_<hex>` tokens, in
 # which case run_pp_scoped limits it to those funcs' .ent/.end blocks — so a
 # postprocess added for one func in a coalesced TU can't rewrite its siblings.
-listed "${NO_TRAILING_NOP_TXT}"      && run_pp_scoped "${NO_TRAILING_NOP_TXT}"      postprocess_no_trailing_nop.py
-listed "${SHARED_SP_RESTORE_TXT}"    && run_pp_scoped "${SHARED_SP_RESTORE_TXT}"    postprocess_shared_sp_restore.py --sp-only
-listed "${SHARED_JR_RESTORE_TXT}"    && run_pp_scoped "${SHARED_JR_RESTORE_TXT}"    postprocess_shared_sp_restore.py --jr-and-sp
 # Promote gcc's `#nop` hazard-hint comment after an FCC compare to a real `nop`
 # when the following branch sits in a `.set noreorder` block — ee-as 2.96 ignores
 # the comment, so the R5900 FCC-update hazard slot would otherwise be unfilled.
@@ -161,12 +151,6 @@ listed "${UNFOLD_RA_DELAY_TXT}"      && run_pp_scoped "${UNFOLD_RA_DELAY_TXT}"  
 listed "${EARLY_EPILOGUE_RESTORE_TXT}" && run_pp_scoped "${EARLY_EPILOGUE_RESTORE_TXT}" postprocess_early_epilogue_restore.py
 listed "${FILL_BLEZ_DELAY_TXT}"      && run_pp_scoped "${FILL_BLEZ_DELAY_TXT}"      postprocess_fill_blez_delay.py
 listed "${FILL_BEQ_DELAY_TXT}"       && run_pp_scoped "${FILL_BEQ_DELAY_TXT}"       postprocess_fill_beq_delay.py
-listed "${V0_ZERO_IN_BNE_DELAY_TXT}" && run_pp_scoped "${V0_ZERO_IN_BNE_DELAY_TXT}" postprocess_v0_zero_in_bne_delay.py
-listed "${LUI_CONST_SWAP_TXT}"       && run_pp_scoped "${LUI_CONST_SWAP_TXT}"       postprocess_lui_const_swap.py
-listed "${MOVE_SW_V0_BEFORE_LDS_TXT}" && run_pp_scoped "${MOVE_SW_V0_BEFORE_LDS_TXT}" postprocess_move_sw_v0_before_lds.py
-if listed "${DUMMY_SP_PROLOGUE_TXT}"; then
-    "${PYTHON}" "${ROOT}/tools/postprocess_dummy_sp_prologue.py" "${S}"
-fi
 
 if listed "${SWAP_ADDU_TXT}"; then
     # Scoped to the TU line's @func ranges (see funcs_for); whole-file for
