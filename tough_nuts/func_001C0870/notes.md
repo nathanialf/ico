@@ -12,3 +12,11 @@ ONLY diff: v0/v1 swap. Expected sub(self->0x15C)->v0, p->f_4->v1; built sub->v1,
 Tried: inline deref, named sub/p, reversed cmp (a1!=p[1]), typed structs — all same swap.
 Recurring v0/v1 deref-temp-vs-compared-value tie-break (same family as 165B50/E85D8/A0A8).
 NEXT: force the compared value into v1 / the deref temp into v0; or permuter.
+
+## 2026-05-31 (unsupervised) — DUP-STORE drops rc4->rc3
+Duplicating the `p[1]=a1` store into both if/else arms (`if(p[1]!=a1){call();p[1]=a1;}
+else{p[1]=a1;}`) removes one diff (rc4->rc3). Residual rc3 = the compared value
+p[1] colors to v0 (gcc reuses v0 freed after the ->0x800 deref) vs ROM's v1, which
+cascades into the beql operand + the delay-slot store using the reused v0 instead
+of s1. 3 dup-store combos (named-cur, sub-ptr, eq-first) all rc3. Pure v0/v1
+deref-temp coloring floor (family of 165B50/E85D8). Seed = dup-store rc3 for permuter.

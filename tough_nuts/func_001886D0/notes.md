@@ -68,3 +68,12 @@ char*p pointer-first, int-param-masked, separate `char v=1`, assignment-in-lvalu
 no clean source shape found to make gcc evaluate the address pseudo first. Same
 class as [[multireturn_reserves_v0]] but NO return value to leverage. Leave for
 offline auto_permute.
+
+## 2026-05-31 (loop fire) — 2 more distinct CFG forms, swap robust (rc3)
+Re-confirmed rc3 baseline (`D_006D04B4[0]=1; if(a0) func()`). Two new distinct hyps:
+ - store DUPLICATED in both if/else arms (force addr as hoisted common-subexpr born before branch) -> rc7 WORSE (restructured/dup store).
+ - early-return CFG `D[0]=1; if(!a0) return; func(a0)` -> rc3, SAME v0/v1 swap.
+The lui(addr)/addiu(const-1) coloring is invariant across all CFG shapes: gcc births
+the store-value const pseudo before the address pseudo regardless of structure. Confirms
+the REG("$3") tie-break class; no clean lever in 10 cumulative forms. Stall accumulating
+toward 30 across loop fires; permuter shot already produced no output once.

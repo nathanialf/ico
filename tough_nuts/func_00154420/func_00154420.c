@@ -386,15 +386,9 @@ void func_00154390(void)
 /* Matched body inlined from src/cod/054420.c during TU coalesce. */
 int func_00154420(void)
 {
-    int *v0 = (int *)D_00631AE4;
-    int *v1 = (int *)v0[0x164 / 4];
-    unsigned int a = v1[0x30 / 4];
-    register int ret REG("$2");
-    ret = 1;
-    if (a >= 0x5D) goto end;
-    ret = a < 0x5B;
-end:
-    return ret;
+    unsigned int a = *(unsigned int *)(*(int *)(D_00631AE4 + 0x164) + 0x30);
+    if (a >= 0x5D) return 1;
+    return a < 0x5B;
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00154444);

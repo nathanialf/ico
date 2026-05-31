@@ -80,3 +80,14 @@ func_0014B2F0 (cracked by multi-return), there is NO value-reuse (no shift base)
 to extend v0's web, so the allocator won't reserve v0 for the short return web.
 The now-INERT `REG("$2")` stub also reaches only rc7 → confirms no clean lever.
 Leave for offline auto_permute. See memory [[multireturn_reserves_v0]].
+
+## 2026-05-31 (unsupervised resume) — rc7 regalloc floor re-confirmed
+6 more distinct clean-C forms this session (flip-complement, ternary, gobj-deref,
+signed-cmp, early-one-return-late, not-in-range) — ALL rc7-9, none beats the prior
+rc7. Residual is the pure chain-register transposition: gcc loads D_00631AE4 into
+v0 and reuses it for the return; ROM reserves v0 for the return and runs the
+chain through v1/a0 (`lw v1,0(gp); lw a0,356(v1); lw a0,48(a0); sltiu v1,a0,93;
+beq v1,zero,T; sltiu v0,a0,91`). No value-web lever (the return is a bare sltiu,
+nothing to extend v0's live range — unlike [[multireturn_reserves_v0]]'s sllv base).
+Historically pin-only (retired REG("$2")). Seed updated to clean flip-complement
+for offline auto_permute (permuter is the designed escape for this regalloc class).

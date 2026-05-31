@@ -198,18 +198,12 @@ INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014AFB8);
 int func_0014B000(int a0)
 {
     char *base;
-    int idx;
     int rv;
-    if (a0 == 0) goto done;
-    base = D_006124F8;
-    MATERIALIZE(base);
-    idx = func_001F40C8(a0);
-    base += idx * 0x24;
-    rv = *(int *)(base + 0x1C);
-    goto end;
-done:
-    rv = 0;
-end:
+    if (a0 != 0) {
+        base = D_006124F8;
+        base = base + func_001F40C8(a0) * 0x24;
+        rv = *(int *)(base + 0x1C);
+    } else rv = 0;
     return rv;
 }
 

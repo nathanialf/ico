@@ -17,3 +17,12 @@ The usual fix "declare prod-mult BEFORE base ptr" is BLOCKED: the func_001F40C8 
 base-materialization and the add, so base must precede the call (for s0) — can't put prod first.
 ADDU_RS macro retired. Tried: base[idx], base+=idx, char* byte off — all give rd==rt.
 NEXT: permuter, or a source form that makes base the rs of the commutative add despite call-ordering.
+
+## 2026-05-31 (unsupervised) — rc1 swap_addu floor, clean seed (no MATERIALIZE)
+Confirmed rc1 = the single commutative `addu` operand order: gcc `addu s0,v0,s0`
+(rd==rt, prod=v0 lower-regno canonicalized as rs); ROM `addu s0,s0,v0` (rd==rs,
+base first). base must be callee-saved (s0) across the func_001F40C8 call, so the
+"declare prod before base" lever is blocked (prod is computed after the call).
+3 forms (struct-array rc15, base+prod explicit rc1, base-off-first rc3). ADDU_RS
+macro + swap_addu postprocess both retired; this TU (ap1) was excluded from the
+clean retirement. Genuine swap_addu floor — offline permuter. Seed = clean rc1.

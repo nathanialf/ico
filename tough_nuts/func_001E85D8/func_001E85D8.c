@@ -49,22 +49,15 @@ extern void func_001E73A8(int *p);
 /* ADDU_RS forces the original's rd==rs `addu $3, $3, $4` operand order for
  * the base+offset add (ee-gcc canonicalizes to rd==rt), dropping the scoped
  * swap_addu postprocess for this func (COOKBOOK §8.11). */
-void func_001E85D8(int a0, float v)
+struct E24_pe { char pad[0x14]; int *f14; };
+void func_001E85D8(int a0, float f)
 {
-    register int idx = a0;
-    if (idx >= 0) {
-        register int prod = idx * 0x18;
-        register char *base = D_007097F0;
-        register int one = 1;
-        KEEP_LIVE(one);
-        ADDU_RS(base, prod);
-        {
-            int *entry = *(int **)(base + 0x14);
-            entry[0x38 / 4] = one;
-            *(float *)((char *)entry + 0x3C) = v;
-            func_001E73A8(entry);
-        }
-    }
+    int *p;
+    if (a0 < 0) return;
+    p = ((struct E24_pe *)D_007097F0)[a0].f14;
+    p[0x38 / 4] = 1;
+    *(float *)((char *)p + 0x3C) = f;
+    func_001E73A8(p);
 }
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", func_001E8618);
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", func_001E8810);
