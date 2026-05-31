@@ -69,7 +69,19 @@ void func_0013E1D8(int a0, int a1, int a2)
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E220);
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E350);
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E488);
+extern struct GObj *D_00633CA0;
+extern unsigned int D_00633CA4;
+int func_0013E488(void)
+{
+    int result = 0;
+    unsigned int i;
+    for (i = 0; i < D_00633CA4; i++) {
+        if (*(int *)((char *)D_00633CA0 + i * 0x174) != 0) {
+            result++;
+        }
+    }
+    return result;
+}
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E4D0);
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E548);
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013E648);
