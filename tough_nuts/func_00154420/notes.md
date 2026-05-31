@@ -55,3 +55,28 @@ Clean forms tried (all fail to reproduce BOTH):
 CONCLUSION: needs REG("$2") (retired). Two-returns defeat movn but give bne+base->v0; the $2 pin is
 what cascades to beq + base->v1/value->a0. Clean source-shape NOT found in 7 forms. REG-pin-dependent
 like camera-ico2($3). Permuter/offline candidate; or scoped-pin exception if user allows.
+
+## Update 2026-05-31 (session resume, clean-C)
+
+**rc7 is the clean floor — CONFIRMED.** The CORRECT structure is the multi-return
+COMPLEMENT form (not the accumulator, which if-converts to movz/movn):
+```c
+int func_00154420(void) {
+    unsigned int x = *(unsigned int *)(*(int *)(D_00631AE4 + 0x164) + 0x30);
+    if (x >= 0x5D) { return 1; }
+    return x < 0x5B;
+}
+```
+This gives the exact `beq` (not bne) + `addiu v0,1` in the beq delay slot +
+single exit. 6 distinct forms tried this session: multi-return-direct (bne, rc8),
+accumulator-default-1 (movn if-conv, rc8), flip-complement (beq CORRECT, rc7),
+named-sub (rc7), ret-first-override (movz if-conv, rc8), goto-CFG (movn, rc8).
+
+**Residual (rc7) = pure chain register allocation:** built puts the
+global→sub→x chain in v0 (then reuses v0 for the return), original RESERVES v0
+for the return value and puts the chain in v1/a0 (`lw v1,0(gp); lw a0,356(v1);
+lw a0,48(a0); sltiu v1,a0,93; beq v1,zero,T; sltiu v0,a0,91`). Unlike
+func_0014B2F0 (cracked by multi-return), there is NO value-reuse (no shift base)
+to extend v0's web, so the allocator won't reserve v0 for the short return web.
+The now-INERT `REG("$2")` stub also reaches only rc7 → confirms no clean lever.
+Leave for offline auto_permute. See memory [[multireturn_reserves_v0]].
