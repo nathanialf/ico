@@ -5,7 +5,11 @@ Asm source: asm/nonmatchings/src/act-game/func_0014A560.s
 
 ## Attempt at 2026-05-31
 
-**Reason parked:** crutch-removal: deleting bucket A/B matching macros (ANCHOR,MEM_BARRIER,REG)
+**Reason parked:** genuine 30-stall (match_loop next=park, best=rc18). Clean
+goto-CFG seed (no crutches). Multi-crutch wall: (1) branch-likely beql/bnel
+emission [uncontrollable per branch_likely_emission], (2) base/idx entry
+scheduling [old MEM_BARRIER+REG($5)], (3) rv->$a2+move not $v0 [old REG($2)].
+~30 distinct clean shapes plateau at rc18. See seed header for full lever log.
 
 **TU:** `src/act-game.c`
 

@@ -365,51 +365,46 @@ ret0:
     rv = 0;
     return rv;
 }
+/* CLEAN rc18 seed (no REG/ANCHOR/MEM_BARRIER). goto-CFG mirror with a shared
+ * rv. Residual (rc18) is a MULTI-crutch wall, three stacked issues:
+ *  1. branch-likely: the state guards emit beq/bne, original beql/bnel (with
+ *     the speculative sub load in the beql delay). Per branch_likely_emission
+ *     this is ee-gcc's uncontrollable heuristic — flipping ==/!= / structure
+ *     does not move it.
+ *  2. entry scheduling: base(D_00565060)-vs-idx materialization order (the old
+ *     MEM_BARRIER + REG("$5") base job).
+ *  3. rv lands in $a2 with a trailing move, not $v0 (the old REG("$2") job) —
+ *     a result-var v0/v1-style tie (cf. func_00175C18).
+ * ~30 distinct clean shapes (guards: ||,&&,switch,subtract,nested; rv: init-0,
+ * goto-end,ternary,direct; entry: base-var,decimal stride,array idx; sub:
+ * once/twice) all plateau at rc18. Offline auto_permute runs this seed. */
 int func_0014A560(void)
 {
     int *player = D_00631AE4;
-    register int rv REG("$2");
+    int rv;
     int state;
-    int *sub;
+    char *sub;
+    int idx;
     char *entry;
-    if (player == 0) {
+    if (player == 0)
         goto ret0;
-    }
     state = *(int *)(*(char **)((char *)player + 0x164) + 0x30);
-    if (state == 0x4B) {
-        sub = ((GObj *)((char *)player))->p_15C;
-        goto body;
-    }
-    if (state != 0x55) {
-        goto reject;
-    }
+    if (state == 0x4B)
+        goto ok;
+    if (state == 0x55)
+        goto ok;
+    goto ret0;
+ok:
     sub = ((GObj *)((char *)player))->p_15C;
-body:
-    {
-        register int idx;
-        register char *base REG("$5") = (char *)D_00565060;
-        register int stride = 0x190;
-        ANCHOR(base);
-
-        MEM_BARRIER();
-        idx = *(int *)((char *)sub + 0x4A0);
-        entry = base + idx * stride;
-    }
+    idx = *(int *)((char *)sub + 0x4A0);
+    entry = (char *)D_00565060 + idx * 0x190;
     rv = 1;
-    {
-        register int field = (int)((GObj *)(entry))->p_15C;
-        if (field == 1) {
-            goto end;
-        }
-    }
+    if (*(int *)(entry + 0x15C) == 1)
+        goto end;
 ret0:
     rv = 0;
 end:
-    ANCHOR(rv);
     return rv;
-reject:
-    rv = 0;
-    goto end;
 }
 
 /* Matched body inlined from src/cod/04A5C0.c during TU coalesce. */
