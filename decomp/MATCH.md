@@ -25,7 +25,7 @@ If this prompt is firing from `/loop 30m decomp/MATCH.md unsupervised`
 (or similar), the 30-minute cadence is a **failsafe re-entry mechanism**
 in case the agent itself ever winds down — not a per-iteration work
 cap. Each fire of the loop should burn many minutes of agent work
-(many batches, many candidates, retries, postprocess additions,
+(many batches, many candidates, retries, clean-C reshapes,
 header-macro promotions) before it naturally terminates at the usage
 cap or a user prompt.
 
@@ -74,8 +74,8 @@ text.** No bullet lists recapping matches and tough-nuts at the end of
 a chunk of work, no "build green at SHA X" sign-off, no totals. That
 summary text functions as a self-imposed stopping point. The only
 acceptable end-of-stream is the cap or a user prompt; the work itself
-(commits, `decomp/NOTES.md` edits, new postprocesses, header-macro
-additions) is the record. Brief mid-stream status notes ("matched
+(commits, `decomp/NOTES.md` edits, header-macro additions) is the
+record. Brief mid-stream status notes ("matched
 func_X", "iterating on func_Y", "moving on to subseg Z") are fine —
 but the moment a listed/numbered
 recap shows up, the session has bugged out. Just keep matching.
@@ -122,7 +122,7 @@ What to do based on the outcome column, in priority order:
     `--scaffold-only` it and iterate by hand.
   - **`no-template` rows** — recipe matched but its entry is a PARK
     (§1.3, §3.3) or branch-likely-only diff. These need direct Step
-    4 / Step 5 work (header-macro hasm or new postprocess); don't
+    4 work (header-macro hasm for C-inexpressible R5900 ops); don't
     iterate C on them.
   - **`no-recipe` rows** — natural-C territory. Open the `.s`, write
     naive C, quick_diff. These are the slowest per-function but often
@@ -197,8 +197,8 @@ over time.
   to the originating `feedback_*.md` memory. Recipes are grouped:
   §1 wrappers, §2 regalloc nudges, §3 branch shape, §4 conditional,
   §5 pointer/gp_rel, §6 unaligned/MMI, §7 float, §8 scheduler
-  postprocesses, §9 frame/stack, §12 build gotchas, §13 one-off
-  per-function postprocesses. Appendix A inventories every header macro.
+  delay-slot shapes, §9 frame/stack, §12 build gotchas, §13 historical
+  one-off postprocesses. Appendix A inventories every header macro.
 - `tools/classify_asm.py <file.s>` — fingerprints a single `.s` and
   prints the top-N matching recipes from the cookbook. Add `--scaffold`
   to also emit a starter C template with the wrapper name substituted
@@ -257,8 +257,9 @@ above):
 - `lib/decomp-permuter/` — randomized C rewrites; useful when a
   near-miss is regalloc/scheduling and you've exhausted Steps 2–4.
   Launch with `lib/decomp-permuter/import.py` then `permuter.py`.
-- Postprocess passes (`tools/postprocess_*.py`) — last resort for
-  gas-reorder or inter-function-layout issues; see Step 5.
+- Inter-function-layout passes (`shared_sp_restore`/`shared_jr_restore`)
+  — for shared epilogue stubs C can't express; see Step 5. A
+  scheduling/regalloc diff is NOT this — re-derive the clean-C shape.
 
 ### Step 0: Classify (always first)
 
@@ -288,8 +289,9 @@ recipe tells you what to do directly:
   - §3.3 (branch-likely-only diff) → ee-gcc 2.9 now usually picks bnel
     naturally for known-safe-to-annul shapes; if not, restructure the
     delay-slot operation. See §8.6 (retired postprocess).
-  - Any §8.x detector firing → check that postprocess's config gate
-    and add the function to its allowlist.
+  - Any §8.x detector firing → re-derive the clean-C shape for that
+    pattern (cookbook §8). Do NOT add the function to a postprocess
+    allowlist.
 
 ### Step 2: Read the ee-gcc backend source
 
@@ -377,13 +379,12 @@ use only when Pattern C is impossible or impractical.
     with 14+ unique instructions in a specific schedule), OR Pattern C
     requires `__attribute__((naked))` that ee-gcc 2.9 doesn't support.
 
-This is the **preferred escape hatch over Step 5 (postprocess)**.
-Reach for a postprocess only when *gcc CAN emit the correct shape but
-gas reorders it*, or when *the original codegen depends on
-inter-function layout gcc can't know about*. If the body is genuinely
-not expressible in C (e.g. needs `syscall`, `vrnext`, `qmfc2`, or a
-specific delay-slot fill), promote to a header macro (Pattern C);
-postprocesses are still last resort.
+If the body is genuinely not expressible in C (e.g. needs `syscall`,
+`vrnext`, `qmfc2`), promote to a header macro (Pattern C). Note a
+scheduling / regalloc / delay-slot diff is NOT "inexpressible in C" —
+it is a source-shape mismatch (ee-gcc 2.9 is per-function
+deterministic), so it has a clean-C answer; keep re-deriving (Step 4,
+cookbook §8).
 
 Existing examples:
 
@@ -412,31 +413,23 @@ If the macro abstraction would be a one-off (only one function uses
 this shape), prefer Step 3 (raw inline asm in the single .c file with
 register pins) over a single-use header.
 
-### Step 5: Postprocess the .s file (and check adjacent functions)
+### Step 5: Inter-function layout (shared epilogue stubs)
 
-**Last resort.** Only reach for postprocessing when gcc CAN emit the
-right instructions but gas reorders or expands them differently, OR
-when the original codegen relies on inter-function layout that gcc
-doesn't know about (shared-epilogue / fall-through stubs). If the
-issue is "this isn't expressible in C," go back to Step 4 instead —
-header-macro hasm is preferred over a new postprocess pass.
+  Per-func/per-file `.s` postprocesses are **not** a matching step —
+that machinery is retired as a matching tool. A scheduling /
+branch-mnemonic / operand-swap / delay-slot diff is a SOURCE-SHAPE
+mismatch: go back to Step 4 and re-derive the dev's C (the §8.x
+patterns are now clean-C shapes — macros, store/decl order, signatures,
+goto-CFG, unions). Do NOT add functions to a postprocess allowlist and
+do NOT write a new `postprocess_<hex>.py`.
 
-When **adding** a new postprocess, first ask: can the same effect be
-expressed as a header-macro hasm pattern (Step 4)? If yes, do that
-instead. Postprocesses are accepted only when the transformation
-depends on cross-function layout (shared epilogue stubs, jr-ra
-delay-slot fall-through to next function) or on assembler-level
-quirks (gas-reorder pulling spills into delay slots) that would
-require contorting C to defeat.
-
-When **revisiting** an existing postprocess: if the function(s) it
-covers are structurally handwritten leaves (single-purpose, narrow
-opcode set, repeated shape across siblings), migrate to a
-header-macro hasm in `include/<topic>.h`. Postprocess passes that
-guard inter-function layout (`shared_sp_restore`, `shared_jr_restore`,
-`no_trailing_nop`) typically can't migrate; passes that compensate
-for a single-function gas-reorder quirk (`la_sd_interleave`) usually
-can.
+  The one genuine exception this step covers is **inter-function
+layout** that C cannot express: the original Pro-DG / CodeWarrior
+emitted "shared epilogue stubs" — 1- to 4-instruction functions whose
+body is just the missing prologue/epilogue piece, reached by
+fall-through from the preceding function. No C shape reproduces that
+(handled by the `shared_sp_restore` / `shared_jr_restore` machinery
+passes).
 
 **Always check what's adjacent to your function in the linker.**
 The original Pro-DG / CodeWarrior emitted "shared epilogue stubs":
@@ -449,45 +442,20 @@ function immediately AFTER it in `config/ico.us.yaml` (and its
 your function is supposed to fall into it — strip the corresponding
 suffix from your function's `.s`.
 
-Existing postprocess passes (each driven by a per-file allowlist).
-**hasm-migration column** flags whether the pattern is a candidate for
-Step 4 (header-macro hasm) instead — re-evaluate during refactor:
+  The inter-function-layout machinery passes (the only ones that
+survive as genuinely C-inexpressible):
 
-  - `config/swap_addu_operands.txt` → sed: addu rs/rt swap.
-    *hasm-migration:* not really — single-instruction encoding tweak.
-  - `config/coalesce_v1_v0.txt` → sed: drop redundant `move v0,v1`.
-    *hasm-migration:* unlikely — register-allocation tweak per-function.
-  - ~~`config/swap_sw_pair.txt` → `tools/postprocess_sw_pair.py`~~
-    **retired 2026-05-21** — use `*(volatile T *)&` cast on both stores.
-  - `config/no_trailing_nop.txt` → `tools/postprocess_no_trailing_nop.py`:
-    wraps the final `$L<N>: j $31` in `.set noreorder`/`.set reorder`
-    so gas doesn't auto-fill the delay slot with a nop. Use when the
-    original codegen leaves the jr ra delay slot empty (next function's
-    first instruction acts as the implicit delay slot).
-    *hasm-migration:* no — depends on inter-function layout.
-  - `config/shared_sp_restore.txt` → `tools/postprocess_shared_sp_restore.py --sp-only`:
-    strips the `addu sp, +N` from the delay slot of `j $31`. Use
-    when the next adjacent function is a 4-byte `addiu sp, +N` stub.
-    *hasm-migration:* no — depends on inter-function layout.
-  - `config/shared_jr_restore.txt` → `tools/postprocess_shared_sp_restore.py --jr-and-sp`:
-    strips both the `j $31` and the `addu sp` from the gcc-emitted
-    epilogue. Use when the next adjacent function is an 8-byte
-    `jr ra; addiu sp, +N` stub.
-    *hasm-migration:* no — depends on inter-function layout.
-  - ~~`config/la_sd_interleave.txt` → `tools/postprocess_la_sd_interleave.py`~~
-    **retired 2026-05-21** — use the `LA_SPLIT` macro from
-    `include/matching.h`, which emits `lui` and `addiu` in two
-    separate `#APP/#NO_APP` blocks with an interior `KEEP_LIVE`. ee-gcc
-    2.9 then schedules `sd $ra` in the gap, matching the original.
+  - `config/shared_sp_restore.txt` → `--sp-only`: strips the
+    `addu sp,+N` from the `j $31` delay slot when the next adjacent
+    function is a 4-byte `addiu sp,+N` stub.
+  - `config/shared_jr_restore.txt` → `--jr-and-sp`: strips the whole
+    `j $31; addu sp` block when the next function is an 8-byte
+    `jr ra; addiu sp` stub.
 
-To add a new postprocess:
-
-  1. Write `tools/postprocess_<name>.py` that takes a `.s` path and
-     edits in place. Make it idempotent.
-  2. Add a per-file allowlist in `config/<name>.txt`.
-  3. Add a Makefile clause modeled on the existing ones.
-  4. Document the precondition (when it's safe to apply, what
-     adjacent functions or call patterns are required).
+  Everything else that once lived here is retired into a clean-C shape:
+`swap_addu`→`ADDU_RT`/`ADDU_RS` (§8.11), `swap_sw_pair`→`*(volatile
+T*)&` (§8.17), `la_sd_interleave`→`LA_SPLIT` (§8.9), epilogue-swap→
+goto-end (§8.3). Don't write a new postprocess — re-derive in C.
 
 ### Step 6: Permuter as the next-to-last resort
 
@@ -506,7 +474,7 @@ or scheduling shape), run `lib/decomp-permuter/`:
   4. Stop after 60–300 s of permuter runtime if no score-0 emerges
      and the running best is plateaued; investigate the specific
      near-miss shape and feed back into Step 3 (new C idiom) or
-     Step 5 (new postprocess).
+     Step 5 (inter-function layout).
 
 The auto-permuter (`tools/auto_permute*.sh`) IS the escape hatch for
 live work. After 1 quick_diff iteration with no cheat-sheet recipe and
@@ -515,7 +483,7 @@ coalesced TUs, `tools/park.sh` for legacy `src/cod/`). The permuter
 chews on the seed across passes; score-0 hits land in
 `lib/decomp-permuter/runs/<func>/output-0-*/source.c` and get
 promoted back into the TU by hand or via promote tooling. Step 4
-(header-macro hasm) and Step 5 (new postprocess) are still the right
+(header-macro hasm) and Step 5 (inter-function layout) are still the right
 moves when you can SEE the gap class — but for "permuter-shaped"
 shapes (reg shuffle, branch likely, scheduling), park is faster.
 
@@ -699,7 +667,7 @@ location and the don't-coalesce-the-giants-yet rule".
    §2/§3/§4 (REG pins, MATERIALIZE/KEEP_LIVE barriers, volatile casts,
    goto labels, single-vs-multi return points). If no C formulation
    reaches the target, escalate to Step 4 (header-macro hasm) or Step
-   5 (new postprocess) of the investigation loop. **Do not park.**
+   5 (inter-function layout) of the investigation loop. **Do not park.**
 7. Once it matches, run `./tools/check_no_rom.sh`, commit. No AI
    co-author trailer. (The progress tables are refreshed by
    `tools/self-monitor.sh` on its 10 s tick — don't run `make progress`
@@ -824,7 +792,7 @@ one) as the match itself:
    id (e.g. `"4.3"` to anchor to §4.3). If the rule needs a multi-line
    pattern (e.g. "bltzl followed by negu"), add a derived signal in
    `_derive_signals()` first.
-4. **If a new postprocess was needed**, also add a §8.x or §13 entry
+4. **If a new clean-C shape was needed**, also add a §8.x entry
    in the cookbook with: pattern (gcc-emit shape), fix (config file +
    tu/func entry), example function. Cross-reference the script
    filename.

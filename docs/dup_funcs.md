@@ -99,6 +99,12 @@ stale `.s` files from a path-scheme migration.
 
 ### New match: 68B `func_00265B28` / `func_00266870`
 
+**HISTORICAL — not a tactic to copy.** The per-file cflag mechanism is
+retired (`config/extra_cflags.txt` is empty); do NOT add a new cflag
+entry for this shape. The surviving fix is the v0-zero-in-bne-delay
+machinery pass (or a clean-C re-derive of the delay-slot shape). The
+record below is kept for context only.
+
 Both ends of the cross-TU pair now compile from C bodies in
 `src/cod/165B28.c` and `src/cod/166870.c`. The match needed two
 infrastructure additions:

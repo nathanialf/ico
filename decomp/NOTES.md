@@ -201,35 +201,20 @@ match the actual content. Must run on **every** .o (asm and src) —
 otherwise the boundary after the lowered .o still pads the next .o
 up to its 16-byte requirement.
 
-## Per-file CFLAGS overrides — `config/extra_cflags.txt`
+## Per-file CFLAGS overrides — RETIRED
 
-A handful of functions need compiler flags that would break the global
-SHA-1 if applied across all of `src/`. Examples seen so far:
-
-- `func_001F4C00` matches with `-fno-schedule-insns2`, but a global
-  flip breaks the hot-path scheduling in many other functions and the
-  rebuild SHA-1 diverges by a few bytes.
-- The 4-insn / 0x10 leaf bucket (e.g. `func_0010B2C0`, `func_00159230`,
-  `func_001F6C88`) is mostly tail-call wrappers that need the inverse
-  of the global `-fno-optimize-sibling-calls`.
-
-Mechanism: `config/extra_cflags.txt` maps file-offset → extra flags.
-`tools/extra_cflags.sh <src/cod/X.c>` extracts the file_off from the
-basename, looks it up, and prints the flags (empty if no override).
-The Makefile `src/.o` rule and `tools/quick_diff.sh` both splice the
-output into the CC command line, so the two pipelines stay in sync.
-
-To add an entry:
-
-1. Add `<FILE_OFF_HEX>  <flags...>` to `config/extra_cflags.txt`
-   (one entry per line, `#` for comments).
-2. `tools/build.sh clean && ninja` — confirm the global SHA-1 still passes (the
-   override is per-file, but verify nothing leaked).
-3. `tools/quick_diff.sh cod/<FILE_OFF>` — confirm the target now
-   matches with the override applied.
-
-Remove an entry the moment the underlying need disappears (e.g. the
-matching compiler is identified and the flag becomes default).
+Per-function compiler flags (`config/extra_cflags.txt`) are **no
+longer a matching tool**. The override file is empty and the mechanism
+is retired: the first-pass scheduler is load-bearing globally, so a
+per-file `-fno-schedule-insns` / `-fno-strict-aliasing` /
+`-fno-strength-reduce` is never the answer to a near-miss. Every flag
+once carried here was retired into a clean dev-C shape (direct-indexed
+typed arrays, exact store types, unions, in-loop multiplier
+reassignment to keep a count-up counter) or an always-on assembler
+rule. A regalloc/scheduling/coalescing diff is a SOURCE-SHAPE
+mismatch — recover the dev's C. See cookbook §8 and the
+`deterministic_source_shape_not_floors` / `union_retires_strict_aliasing`
+memories.
 
 ## Make CC override
 

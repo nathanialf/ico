@@ -28,7 +28,14 @@ Entries here are functions whose match was reverted with an explicit
 reading the skip rationale and addressing it.
 
 - **func_00198218** (`src/itou_boss.c`, capsule-array initializer) —
-  reverted in commit `c5d5bf6` (revert of `634bfd3`). The C body in
+  **HISTORICAL / rejected approach.** Bespoke per-function postprocesses
+  are not a sanctioned tactic: the `postprocess_itou_boss.py` referenced
+  below was reverted as unsafe, and the per-file cflag involved is from
+  the now-retired `extra_cflags` mechanism. The sanctioned fix is to
+  re-derive the shape in clean C (e.g. reassign the loop multiplier
+  inside the loop body to keep the count-up counter without a
+  file-scoped flag). The record below is kept for context only.
+  Reverted in commit `c5d5bf6` (revert of `634bfd3`). The C body in
   the reverted commit was structurally correct (alloc via
   `func_0013A0F8`, then `func_00202208(self)` + `func_00202148(self)`
   + `func_001A6E28("N_CAPSULE %d\n", 53)`, then a 53-iter loop over

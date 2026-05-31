@@ -31,7 +31,7 @@ document — add to it whenever a new shape gets cracked.
 5. [Pointer/address arithmetic & gp_rel](#5-pointer-arithmetic)
 6. [Unaligned 64-bit loads, packed structs, sq/lq](#6-unaligned-and-mmi)
 7. [Float-related (mfc1, mtc1, lwc1 ordering, FP delay slots)](#7-float)
-8. [Scheduler / delay-slot fixes (postprocesses)](#8-scheduler-and-postprocesses)
+8. [Scheduler / delay-slot shapes (clean-C, not cflags/postprocesses)](#8-scheduler-and-delay-slot-shapes)
 9. [Frame size & stack-spill control](#9-frame-and-stack)
 10. [Classifier contract — `tools/classify_asm.py`](#10-classifier)
 11. [When nothing works — park, permute, defer](#11-park-permute-defer)
@@ -484,13 +484,14 @@ ASM fingerprint:    `addiu $3,$3,%lo(SYM); daddu $16,$3; addiu $17,$3,0x20` (sym
 C recipe:
     register char *base REG("$3"); base = SYM; q = base + 0x20; e = base;
     /* compute q from base BEFORE `e = base` so q reads $3 */
-    /* per-file `<UPPER_TU> -fno-strength-reduce` in config/extra_cflags.txt keeps count-up */
 Why:                a plain `char *base = SYM;` lets gcc coalesce (no copy); the pin forces
-                    materialize-into-temp-then-copy. -fno-strength-reduce keeps an explicit
-                    count-up counter alongside explicit pointer IVs (safe for single-fn TUs).
-Note:               permute_run's extra_cflags lookup is keyed to src/cod/<off>.c — for a
-                    src/<TU> function pass the flag via `CFLAGS=` env, or the permuter
-                    compiles count-down and never converges.
+                    materialize-into-temp-then-copy.
+Count-up counter:   the original keeps a dead count-UP counter that ee-gcc otherwise reverses
+                    to a count-DOWN dbra. This used to be forced with a per-file
+                    `-fno-strength-reduce` cflag — that cflag is RETIRED. Keep the counter
+                    count-up in clean C the way §3.10 does: reassign the loop multiplier
+                    INSIDE the loop body so it's not loop-invariant, which blocks the
+                    strength-reduction surgically (no file-scoped flag affecting other loops).
 See:                [feedback_base_copy_pin_and_countup_flag], [feedback_basefold_copy_coalesce]
 ```
 
@@ -1312,30 +1313,85 @@ See:                [feedback_pin_fp_args_before_volatile_reload], [feedback_kee
 
 ---
 
-## 8. Scheduler and postprocesses
+## 8. Scheduler and delay-slot shapes
 
-When source-level tricks won't budge gcc's RTL-level decisions, fall back
-to per-file flags or per-TU postprocesses. Both are gated by config files,
-so a single bad fit doesn't pollute the whole build.
+> **Per-function cflags and per-func/per-file `.s` postprocess allowlists
+> are NOT matching options.** That machinery is retired: `config/extra_cflags.txt`
+> is empty, and the per-func/per-file postprocess allowlists are not a lever
+> you reach for. A regalloc / scheduling / coalescing diff is a SOURCE-SHAPE
+> mismatch (ee-gcc 2.9 is per-function deterministic — no LTO), so recover the
+> 2000-era dev's C and re-derive the shape in clean C: store/decl order,
+> signatures, goto-CFG, unions, the macros in `include/matching.h` / `r5900.h`.
+> See [feedback_dev_shapes_crack_postprocesses],
+> [feedback_deterministic_source_shape_not_floors].
+>
+> Several §8.x entries below were already retired into a clean-C shape — those
+> recipes are the sanctioned fix (§8.3 goto-end, §8.6 native bnel, §8.9
+> `LA_SPLIT`, §8.11 `ADDU_RT`/`ADDU_RS`, §8.14 early-advance loop, §8.17
+> volatile-cast, §8.22–8.24 `MEM_BARRIER`). The remaining §8.x that still name
+> a `config/*.txt` allowlist describe **machinery** — assembler-quirk fills,
+> inter-function-layout stubs, coalesced-TU alignment — not a matching lever:
+> do NOT add new functions to those allowlists; recover the source shape. The
+> truly inter-function-layout cases (shared epilogue stubs) are the narrow
+> exception where C genuinely can't express the result; even those are a last
+> resort, not a first reach.
 
-### 8.1 `-fno-schedule-insns` for TU-context regressions
+### 8.0 Postprocess-removal campaign — source-shape vs emission residue
+
+The per-function `postprocess_<hex>.py` scripts are being driven to zero
+(only `a_p_1`'s `0B8720` is the keeper). **Scope:** "postprocess" means
+*any* compile-step rewrite of the emitted `.s`, including inline awk/sed in
+`compile_c.sh` — relocating a script's body inline does NOT retire it.
+The only legitimate inline rules are genuine *assembler*-adaptation (the
+dev's own ee-as produces those bytes; modern gas differs), never
+compiler-codegen rewrites.
+
+Two classes, split by whether clean C can reach the bytes:
+
+- **SOURCE-SHAPE (retire with clean dev C — done):** signature /
+  void-mis-reconstruction (return the call result → reserves `$2`,
+  reshapes regalloc + TCO); store/decl order; out-of-line `goto` for rare
+  exits (→ `bne` not `beqz`); int-index `for`-loop with the entry pointer
+  derived inside the body (→ native `beql`/`bnel` + the ROM regalloc;
+  retired `way_util` 07AC48/07ACD8 *and* their REG pins); and the
+  **prologue-save-order** lever — declare the loop counter `int i = 0;` up
+  front and load the guard value *inside* the loop body (not a hoisted
+  pre-load), so ee-gcc emits the ROM's interleaved saves and fills the
+  branch delay with `i=0` itself (retired `postprocess_0D4BD0.py` and
+  `postprocess_040048.py`). See [feedback_dev_shapes_crack_postprocesses].
+
+- **EMISSION RESIDUE (genuine compiler reorg/sched2/addressing — still
+  PP'd):** single-BB `sched2` ties where two independent address/return
+  materializations reorder and the order is coupled to source position with
+  no valid decoupling (`105628` two-`la` order — verified across ~30 source
+  forms + a permuter pass that only "improves" by making a real store dead
+  code); reorg delay-slot fill (`080550` tail-call `j` delay, `191F50`
+  switch default-jump `b` delays, `0EF9E0` 2nd-of-two identical calls);
+  inline-asm-vs-prologue ordering (`14E4C8` `mult1`); compiler-bound
+  addressing (`09F530` — ee-gcc always materialises an unaligned small-data
+  base into a GPR instead of folding `%gp_rel` into `ldl/ldr`). These
+  resist clean source; do not add new functions to them.
+
+Diagnose the class with `tools/sched_diff.py <TU> <func>`: a diff tagged
+`moved@sched2`/`moved@dbr` with both candidates independent and ready is
+emission residue, not a decl-order miss.
+
+### 8.1 first-pass-scheduler prologue shift in TU context — clean-C, not a cflag
 
 Symptom: function matches standalone but diverges when bundled into a
 multi-function TU. Prologue order shifts (e.g. `sd ra` lands between `lui`
 and `addiu` in standalone, after both in TU).
 
-Fix: add to `config/extra_cflags.txt`:
-
-```
-BASIC -fno-schedule-insns
-```
-
-Disables the *first-pass* scheduler only; second pass still runs.
-Don't reach for `-fno-schedule-insns2` first — too coarse.
-Examples (from current `config/extra_cflags.txt`): `BASIC` (covers
-`func_001F6E00` in `src/Basic.c`), `func_00263F48` (`163F48`),
-`func_001EF9A8` (`0EF9A8`).
-See: [feedback_no_schedule_insns_for_tu_context].
+This used to be patched with a per-file `-fno-schedule-insns` in
+`config/extra_cflags.txt` — that cflag is **retired** (extra_cflags is
+empty). The first-pass scheduler is load-bearing for the rest of the
+codebase, so the fix is to find the source shape that produces the
+matching prologue under it: match the dev's decl/store order and the
+`la`-emission shape (§8.9 `LA_SPLIT`), reduce register pressure with the
+exact arg/local types, and diff the `.s` with the rest of the TU to see
+which earlier function's pressure shifts the slot.
+See: [feedback_deterministic_source_shape_not_floors],
+[feedback_four_sched_cflags_evidenced_floor].
 
 ### 8.2 `postprocess_unfold_ra_delay.py`
 
@@ -1763,16 +1819,21 @@ moved it before the jal and let the `addiu a0, a0, 160` (= the
 helper's 2nd-arg construction) fill the slot.
 See: [feedback_memory_barrier_before_call].
 
-> All postprocesses are run by both `tools/compile_c.sh` and
-> `tools/quick_diff.sh`, so quick_diff sees the same bytes ninja will.
-> ([feedback_matching_quick_diff_only], [feedback_early_epilogue_restore])
+> The always-on assembler/layout passes (and any surviving machinery
+> passes) are run by both `tools/compile_c.sh` and `tools/quick_diff.sh`,
+> so quick_diff sees the same bytes ninja will.
+> ([feedback_matching_quick_diff_only])
 
-> **When to write a new postprocess vs. fight gcc with C tricks:** if
-> the diff is purely an instruction ordering / branch-mnemonic /
-> operand-swap issue and at least 3 unrelated source-level attempts
-> (register pins, MATERIALIZE, volatile, goto reshape) have failed,
-> the answer is a postprocess. See §13 for one-off per-function
-> postprocesses that document the threshold for going custom.
+> **There is no "write a new postprocess" escape hatch and no "add a cflag"
+> escape hatch.** An instruction-ordering / branch-mnemonic / operand-swap
+> diff is a source-shape mismatch — keep generating clean-C hypotheses
+> (decl/store order, signature, goto-CFG, union, the §8.x macros) past the
+> point it looks stuck; functions in this repo crack at iterations 9/17/18/20
+> with one new idea. The only genuine exceptions are (a) always-on
+> assembler/ROM-encoding parity (move→daddu, `break 0,N`, fcc-nop, jr-FP nop,
+> `.lit4`, the `postprocess_{ld,asm}.py` quirks) and (b) true inter-function
+> layout (shared epilogue stubs) that C cannot express. Neither is a tactic
+> you apply to a near-miss; both are structural facts of the build.
 
 ### 8.23 `MEM_BARRIER()` AFTER a loop — keep call-arg out of the bne delay
 
@@ -2219,20 +2280,14 @@ that:
 | `postprocess_0FBBE0.py` | `func_001FBBE0` | Register rename in prologue: `$v0` → `$a0` for four specific occurrences of the HI base, leaving later $v0 uses unchanged. |
 | `postprocess_105628.py` | `func_00205628` | Prologue ordering: emit `lui %hi(D_004CAEC0)` before `lui %hi(D_004CC1E0)`. |
 
-**Threshold to write a new one.** Before adding a `postprocess_<OFF>.py`:
-
-1. Confirm the diff is purely a deterministic mechanical rewrite — no
-   regalloc choices, no branch-mnemonic flips, just instruction order
-   or operand-rename.
-2. Confirm at least 3 source-level approaches failed (write them in
-   the script's docstring so future sessions know what's been tried).
-3. Confirm no general postprocess (§8.x) covers it. If a similar shape
-   shows up in a second function, promote to a general postprocess
-   keyed by an allowlist.
-
-These scripts are essentially encoded "I gave up on the compiler" — but
-they're disciplined: idempotent, pattern-matched (not blind line
-replacement), and the diff is auditable.
+**Don't write a new one.** A bespoke `postprocess_<OFF>.py` is no longer a
+sanctioned outcome for a near-miss — the existing ones are being retired,
+not extended. ee-gcc 2.9 is per-function deterministic, so an
+instruction-order / operand-rename / branch diff is a source-shape
+mismatch: re-derive the dev's C (signature, decl/store order, goto-CFG,
+union, the §8.x macros) and keep going past the point it looks stuck.
+If you genuinely believe a shape is C-inexpressible, that's a
+finding to raise with the user, not a license to add a script.
 
 ---
 

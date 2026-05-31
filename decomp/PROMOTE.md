@@ -188,7 +188,7 @@ For each member function, record:
 - Is `src/cod/<file_off>.c` present (matched) or `asm/cod/<file_off>.s`
   (unmatched)?
 - The YAML subseg line: `grep -n "0x<file_off>" config/ico.us.yaml`.
-- Any entry in `config/extra_cflags.txt` for that file_off.
+- Per-file cflags are retired (`config/extra_cflags.txt` is empty) — nothing to carry here.
 
 If any function has a per-file CFLAG override, **hold that function out**
 as a separate subseg (Failure mode A pattern). Combining loses the
