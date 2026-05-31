@@ -159,7 +159,21 @@ int func_001C0BE0(char *self) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C0BF4);
-INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C0BF8);
+int func_001C0BF8(char *self)
+{
+    short *p = (short *)*(int *)(*(int *)(self + 0x15C) + 0x800);
+    int ret = 0;
+    if (__builtin_abs(p[1]) < 0xBB9)
+    {
+        if (__builtin_abs(p[0]) < 0xBB9)
+        {
+            goto end;
+        }
+    }
+    ret = 1;
+end:
+    return ret;
+}
 extern int D_00632010;
 extern int func_0013A0F8(int handle, int size, const char *file, int line);
 extern unsigned char D_004BEFD0[];
