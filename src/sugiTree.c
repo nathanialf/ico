@@ -56,7 +56,30 @@ void func_001F1168(void)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/sugiTree", func_001F11A0);
+typedef struct {
+    char _pad[0x10];
+    int data;            /* 0x10 */
+    void (*fp)(int);     /* 0x14 */
+} SugiCb;                /* stride 0x18 */
+
+extern SugiCb D_0070D4D8[];
+extern int D_00633708;
+extern void func_001F0878(int x);
+
+void func_001F11A0(void)
+{
+    int i;
+    if (D_00633708 == 0) {
+        return;
+    }
+    for (i = 0; i < D_00633708; i++) {
+        func_001F0878(D_0070D4D8[i].data);
+        if (D_0070D4D8[i].fp != 0) {
+            D_0070D4D8[i].fp(D_0070D4D8[i].data);
+        }
+    }
+    D_00633708 = 0;
+}
 
 int func_001F1240(void) {
     func_001F08D8();
