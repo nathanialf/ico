@@ -27,3 +27,12 @@ glabel func_0013A200
     /* 3A218 0013A218 1000BD27 */   addiu     $29, $29, 0x10
 endlabel func_0013A200
 ```
+
+## Re-attempt 2026-05-31 (loop) — BLOCKED by toolchain (same as func_0012FD30)
+
+Plain-C `void func_0013A200(void){ func_00138E30(); }` → ee-gcc 2.9 emits
+`j func_00138E30` (sibling call, no frame), real_count=6; original keeps the
+full frame. ee-gcc 2.9 hardcodes sibcall opt at -O2, rejects
+`-fno-optimize-sibling-calls`; only the deleted DEFEAT_TCO barrier defeats it.
+Stays parked pending the real compiler / a sanctioned ROM-parity pass. See
+func_0012FD30 notes for the full rationale.
