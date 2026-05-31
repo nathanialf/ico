@@ -199,7 +199,20 @@ int func_0012AA80(int key)
     return 0;
 }
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012AB50);
-INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012ABE0);
+void func_0012ABE0(int key, int a1)
+{
+    int count = *(volatile int *)&D_00633C54;
+    int i;
+    char *e = (char *)D_00674058;
+    for (i = 0; i < count; i++, e += 0x290) {
+        int *p = *(int **)(e + 0x280);
+        if (key == p[0x58 / 4]) {
+            p[0x50 / 4] = a1;
+            p = &(*((volatile int *)(&D_00633C54)));
+            count = *p;
+        }
+    }
+}
 
 void func_0012AC28(int target, int val)
 {
