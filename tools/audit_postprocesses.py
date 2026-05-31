@@ -33,7 +33,7 @@ import global_flag_sweep as gfs  # noqa: E402
 
 # Postprocesses whose effect is intra-function (quick_diff can judge redundancy).
 INTRA_FUNC = [
-    "swap_addu_operands", "lui_const_swap", "lui_li_pre_sd",
+    "swap_addu_operands", "lui_const_swap",
     "move_sw_v0_before_lds", "early_body_swap", "v0_zero_in_bne_delay",
     "fill_beq_delay", "fill_blez_delay", "early_epilogue_restore",
     "unfold_ra_delay", "fcc_nop", "fcc_noreorder",

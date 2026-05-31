@@ -217,7 +217,6 @@ qd_listed fill_beq_delay.txt         && python3 "$ROOT/tools/postprocess_fill_be
 qd_listed v0_zero_in_bne_delay.txt   && python3 "$ROOT/tools/postprocess_v0_zero_in_bne_delay.py" "$ASM_OUT" || true
 qd_listed lui_const_swap.txt        && python3 "$ROOT/tools/postprocess_lui_const_swap.py" "$ASM_OUT" || true
 qd_listed move_sw_v0_before_lds.txt && python3 "$ROOT/tools/postprocess_move_sw_v0_before_lds.py" "$ASM_OUT" || true
-qd_listed lui_li_pre_sd.txt         && python3 "$ROOT/tools/postprocess_lui_li_pre_sd.py" "$ASM_OUT" || true
 qd_listed dummy_sp_prologue.txt     && python3 "$ROOT/tools/postprocess_dummy_sp_prologue.py" "$ASM_OUT" || true
 # qd_listed is @func-aware, so this fires only for the func(s) the TU line scopes to.
 qd_listed swap_addu_operands.txt && sed -i -E 's/(addu[[:space:]]+\$([0-9]+),)\$([0-9]+),\$\2\b/\1$\2,$\3/g' "$ASM_OUT" || true

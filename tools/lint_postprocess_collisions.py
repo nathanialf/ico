@@ -47,7 +47,6 @@ CONFIGS = [
     ("v0_zero_in_bne_delay.txt", "med"),
     ("lui_const_swap.txt",     "med"),
     ("move_sw_v0_before_lds.txt", "med"),
-    ("lui_li_pre_sd.txt",      "med"),
     ("dummy_sp_prologue.txt",  "med"),
     # Intentionally NOT listed (not func-scoping collisions):
     #  - use_modern_as.txt selects the assembler (ee-as vs modern mips-as) for

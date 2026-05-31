@@ -52,7 +52,6 @@ FILL_BEQ_DELAY_TXT="${ROOT}/config/fill_beq_delay.txt"
 V0_ZERO_IN_BNE_DELAY_TXT="${ROOT}/config/v0_zero_in_bne_delay.txt"
 MOVE_SW_V0_BEFORE_LDS_TXT="${ROOT}/config/move_sw_v0_before_lds.txt"
 LUI_CONST_SWAP_TXT="${ROOT}/config/lui_const_swap.txt"
-LUI_LI_PRE_SD_TXT="${ROOT}/config/lui_li_pre_sd.txt"
 DUMMY_SP_PROLOGUE_TXT="${ROOT}/config/dummy_sp_prologue.txt"
 
 BASE="$(basename "${SRC}" .c)"
@@ -165,7 +164,6 @@ listed "${FILL_BEQ_DELAY_TXT}"       && run_pp_scoped "${FILL_BEQ_DELAY_TXT}"   
 listed "${V0_ZERO_IN_BNE_DELAY_TXT}" && run_pp_scoped "${V0_ZERO_IN_BNE_DELAY_TXT}" postprocess_v0_zero_in_bne_delay.py
 listed "${LUI_CONST_SWAP_TXT}"       && run_pp_scoped "${LUI_CONST_SWAP_TXT}"       postprocess_lui_const_swap.py
 listed "${MOVE_SW_V0_BEFORE_LDS_TXT}" && run_pp_scoped "${MOVE_SW_V0_BEFORE_LDS_TXT}" postprocess_move_sw_v0_before_lds.py
-listed "${LUI_LI_PRE_SD_TXT}"        && run_pp_scoped "${LUI_LI_PRE_SD_TXT}"        postprocess_lui_li_pre_sd.py
 if listed "${DUMMY_SP_PROLOGUE_TXT}"; then
     "${PYTHON}" "${ROOT}/tools/postprocess_dummy_sp_prologue.py" "${S}"
 fi
