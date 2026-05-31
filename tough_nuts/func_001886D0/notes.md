@@ -48,3 +48,11 @@ Root: gcc expands store RHS(const 1) pseudo before LHS(%hi addr) pseudo → cons
 4 distinct hyps failed (baseline/pointer-var/scalar-worse/cond-temp). NOT a floor (4/30).
 NEXT untried: force %hi addr pseudo to be created first (read the global before storing?); store value derived
 from a longer-lived expr; or permuter after 30-stall (this is the classic 1-reg store addr/const swap REG() pin solved).
+
+## 2026-05-31 (turn 4) — seed reveals REG("$3") need; decl-order does NOT substitute
+The PARKED SEED's matching solution used `register int one REG("$3")=1` to pin the const to $3(=v1),
+letting the addr take v0. REG is retired (no-op). Clean decl-order equivalent FAILS:
+  `char *p=D; int one=1; int masked=a0&0xFF; *p=(char)one; if(!masked)return; func_0018CFE0(masked);`
+→ STILL addr->v1, const->v0 (5th distinct form). gcc allocates const->v0 regardless of decl order /
+named-var / pointer-first. This genuinely needs the $3 pin; clean source-shape NOT found in 5 forms.
+→ Firing permuter (target: force const into $3). Tree reverted to INCLUDE_ASM.
