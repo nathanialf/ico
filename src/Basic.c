@@ -24,7 +24,7 @@ extern void  func_001A6E28(char *p);
 extern void  func_001AD768(char *buf, int sz);
 extern void  func_00263FF0(char *buf, int sz, int *list);
 extern int   func_0013A0F8(int a0, int a1, char *file, int line);
-extern void  func_00139D78(int a0, int a1, char *a2, int a3);
+extern int   func_00139D78(int a0, int a1, char *a2, int a3);
 
 INCLUDE_ASM("asm/nonmatchings/src/Basic", func_001F6CB0);
 
@@ -48,4 +48,7 @@ int func_001F6DB8(int a0)
     return rv;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/Basic", func_001F6E00);
+int func_001F6E00(int a0, int a1)
+{
+    return func_00139D78(a0, a1, D_0061A8A8, 0x1A8);
+}
