@@ -77,3 +77,13 @@ The lui(addr)/addiu(const-1) coloring is invariant across all CFG shapes: gcc bi
 the store-value const pseudo before the address pseudo regardless of structure. Confirms
 the REG("$3") tie-break class; no clean lever in 10 cumulative forms. Stall accumulating
 toward 30 across loop fires; permuter shot already produced no output once.
+
+## 2026-05-31 (unsupervised, 30-stall reached) — char-one-var rc3->rc2; next=PARK
+31 distinct hand forms this session. `char one=1; D_006D04B4[0]=one;` FIXES the
+v0/v1 coloring (const 1 now correctly in v1, addr in v0) — rc3->rc2. Residual rc2
+is a pure sched1 tie-break: gcc schedules `li $3,1` (const) BEFORE `lui $2`(addr);
+ROM is `lui;addiu` (addr first). 31 forms (ptr-first, decl-order, val-from-addr,
+comma, do-block, etc.) all rc2 — gcc orders the two independent immediates this
+way regardless of source. Same class as COOKBOOK 105628 two-materialization sched
+tie-break. match_loop next = action:park at stall=31/30. Seed = rc2 char-one-var
+for offline auto_permute (sched tie-break is permuter territory).

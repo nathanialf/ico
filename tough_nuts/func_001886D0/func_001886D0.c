@@ -172,14 +172,9 @@ extern char D_006D04B4[];
 extern void func_0018CFE0(int a0);
 void func_001886D0(int a0)
 {
-    char *p = D_006D04B4;
-    int one = 1;
-    int masked = a0 & 0xFF;
-    *p = (char)one;
-    if (masked == 0) {
-        return;
-    }
-    func_0018CFE0(masked);
+    char one = 1;
+    D_006D04B4[0] = one;
+    if (a0 & 0xFF) func_0018CFE0(a0 & 0xFF);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", func_001886F4);
