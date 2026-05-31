@@ -293,7 +293,16 @@ void func_0014B270(char *self, int op, int int_val, float float_val) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014B2F0);
+int func_0014B2F0(char *self, int a1)
+{
+    char *sub = *(char **)(self + 0x164);
+    if (sub) {
+        if ((1 << a1) & *(long long *)(sub + 0x58)) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
 void func_0014B318(void) {}
 
