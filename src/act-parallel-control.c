@@ -195,7 +195,19 @@ extern void func_0014BC30(int *a, int b, int c);
 INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014AF70);
 INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014AFB8);
 
-INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014B000);
+int func_0014B000(int a0)
+{
+    char *base;
+    int rv;
+    if (a0 != 0) {
+        base = D_006124F8;
+        base = base - (-(func_001F40C8(a0) * 0x24));
+        rv = *(int *)(base + 0x1C);
+    } else {
+        rv = 0;
+    }
+    return rv;
+}
 
 int func_0014B048(int *a0)
 {
