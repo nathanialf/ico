@@ -591,29 +591,7 @@ INCLUDE_ASM("asm/nonmatchings/src/layout_texture", func_001B6E58);
 extern unsigned int D_00633EC0;
 extern void func_001B5C38(int a, int b);
 
-void func_001B6FD8(int a0)
-{
-    if (D_00633158 == 2) {
-        if (a0 != D_0063314C) {
-            goto do_call;
-        }
-    }
-    if (a0 != 0x3A) {
-        return;
-    }
-do_call:
-    D_00633EC0 = a0;
-    func_001B5C38(D_0063314C, a0);
-    {
-        register int v REG("$2") = 1;
-        if (D_0063315C != v) {
-            v = 3;
-        } else {
-            v = 5;
-        }
-        D_00633158 = v;
-    }
-}
+INCLUDE_ASM("asm/nonmatchings/src/layout_texture", func_001B6FD8);
 
 /* ASCII debug strings — re-derived from EE rodata bytes. */
 /* ASCII preview: "[<ESC>[42m scene %d <ESC>[m ]<LF>" */

@@ -80,3 +80,17 @@ glabel func_00187950
     /* 87988 00187988 2D10C000 */   daddu     $v0, $a2, $zero
 endlabel func_00187950
 ```
+
+---
+
+## Attempt at 2026-05-31
+
+**Reason parked:** crutch-removal: deleting bucket A/B macros (MATERIALIZE,REG)
+
+Seed: `tough_nuts/func_00187950/087950.c.new`
+
+Disassembly excerpt:
+
+```
+(no asm/cod/*.s found for func_00187950; check asm/matchings/cod/087950/)
+```

@@ -36,6 +36,10 @@
 #ifndef REGPIN_H
 #define REGPIN_H
 
-#define REG(reg)  __asm__(reg)
+/* REG() was deleted as a matching crutch (Bucket A: explicit-register
+ * regalloc nudge). A regalloc diff is a SOURCE-SHAPE mismatch — recover the
+ * dev's C (decl order, signatures, pointer lifetime) instead of pinning.
+ * Functions that depended on REG() were parked to tough_nuts/. This header
+ * is retained as an empty stub because TUs still #include it. */
 
 #endif /* REGPIN_H */

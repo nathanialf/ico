@@ -132,3 +132,17 @@ glabel func_0019E598
     /* 9E5C8 0019E5C8 2D100000 */   daddu     $v0, $zero, $zero
 endlabel func_0019E598
 ```
+
+---
+
+## Attempt at 2026-05-31
+
+**Reason parked:** crutch-removal: deleting bucket A/B macros (MATERIALIZE,REG)
+
+Seed: `tough_nuts/func_0019E598/09E598.c.new`
+
+Disassembly excerpt:
+
+```
+(no asm/cod/*.s found for func_0019E598; check asm/matchings/cod/09E598/)
+```

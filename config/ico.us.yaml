@@ -319,7 +319,7 @@ segments:
       - [0x005F48, c, src/cod/005F48]            # func_00105F48: dst |= 0x20000000 (scratchpad), QCOPY64_SERIAL
       - [0x005F78, c, src/cod/005F78]            # VU0 wrapper (vu0.h macros)
       - [0x005F90, c, src/cod/005F90]            # VU0 wrapper (vu0.h macros)
-      - [0x005FA8, c, src/cod/005FA8]            # func_00105FA8: save 16 bytes at a0+0x30 to stack, call func_00243BD8(a0), restore
+      - [0x005FA8, asm, cod/005FA8]
       - [0x005FE0, c, src/cod/005FE0]            # VU0 wrapper (vu0.h macros)
       - [0x006000, c, src/cod/006000]            # VU0 wrapper (vu0.h macros)
       - [0x006028, c, src/cod/006028]            # VU0 wrapper (vu0.h macros)
@@ -333,7 +333,7 @@ segments:
       - [0x006B7C, asm, src/cod/006B7C]
       - [0x006D20, c, src/cod/006D20]            # func_00106D20: permuter score-0 (parked seed)
       - [0x006D64, hasm, src/cod/006D64]
-      - [0x006D68, c, src/cod/006D68]            # func_00106D68: r=fC18(p+0x1D0,p+0x250); *(p+0x254)=r; tail fE28(&D_)
+      - [0x006D68, asm, cod/006D68]
       - [0x006DA4, hasm, src/cod/006DA4]
       - [0x006DA8, c, src/cod/006DA8]            # func_00106DA8: f(a0,a1); f(a0+0x10,a0); *(float*)(a0+0x14)+=D; tail f3(a0)
       - [0x006DEC, hasm, src/cod/006DEC]
@@ -363,8 +363,8 @@ segments:
       - [0x00A15C, hasm, src/cod/00A15C]
       - [0x00A160, c, src/cod/00A160]            # func_0010A160: Same as 10A120 sibling but offset 0x1D0
       - [0x00A19C, asm, src/cod/00A19C]
-      - [0x00A200, c, src/cod/00A200]            # func_0010A200: self->_15C->_810[idx] (sbyte b); f1080F8(buf,0,buf+0x10,p+0x180,1); f168BD0(buf, p->_C + b*0x40 + 0x30)
-      - [0x00A270, c, src/cod/00A270]            # func_0010A270: sibling with flag=0
+      - [0x00A200, asm, cod/00A200]
+      - [0x00A270, asm, cod/00A270]
       - [0x00A2E0, c, src/cod/00A2E0]
       - [0x00A2F0, c, src/cod/00A2F0]            # func_0010A2F0
       - [0x00A300, c, src/cod/00A300]            # func_0010A300
@@ -410,11 +410,11 @@ segments:
       - [0x00D448, c, src/cod/00D448]            # func_0010D448: tail call func_0010E0B8(&D_00660A40[D_00631B7C*4], short(a0))
       - [0x00D468, c, src/cod/00D468]            # func_0010D468: tail call func_0010E158(&D_00660A40[D_00631B7C*4], short(a0))
       - [0x00D488, c, src/cod/00D488]            # func_0010D488: tail call func_0010E1F8(&D_00660A40[D_00631B7C*4], short(a0))
-      - [0x00D4A8, c, src/cod/00D4A8]            # func_0010D4A8: stack push wrapper with bounds check
+      - [0x00D4A8, asm, cod/00D4A8]
       - [0x00D520, c, src/cod/00D520]            # func_0010D520: tail call func_0010D530(&D_00660A40) + gp_rel-set 0
       - [0x00D530, c, src/cod/00D530]            # func_0010D530: tail call func_0010D830(a0, &D_00276140)
       - [0x00D53C, asm, src/cod/00D53C]
-      - [0x00D7F8, c, src/cod/00D7F8]            # func_0010D7F8: 64-byte buf staging + two-call wrapper
+      - [0x00D7F8, asm, cod/00D7F8]
       - [0x00D830, c, src/cod/00D830]            # func_0010D830: tail call func_00105F00 passthrough
       - [0x00D838, c, src/cod/00D838]            # func_0010D838: func_0010D830(a0,a1); tail call func_001183F0(a0,a1,-1.0f)
       - [0x00D878, asm, src/cod/00D878]
@@ -433,7 +433,7 @@ segments:
       - [0x00DDF8, c, src/cod/00DDF8]            # func_0010DDF8: stack-buf wrapper: f(buf, a2); f2(self, buf, a1)
       - [0x00DE40, asm, src/cod/00DE40]
       - [0x00DF70, c, src/cod/00DF70]            # func_0010DF70: f10D540(sp, src); r1=f105278(); r2=f105278(); f1185D0(r1, r2, sp)
-      - [0x00DFB8, c, src/cod/00DFB8]            # func_0010DFB8: 7-way switch — negate vec3 components by mask
+      - [0x00DFB8, asm, cod/00DFB8]
       - [0x00E708, c, src/cod/00E708]            # func_0010E708: vector magnitude — dot(v,v) then sqrt via func_00117C20
       - [0x00E744, asm, src/cod/00E744]
       - [0x00E928, c, src/cod/00E928]            # VU0 wrapper (vu0.h macros)
@@ -454,7 +454,7 @@ segments:
       - [0x00ECD8, c, src/cod/00ECD8]
       - [0x00ECE0, asm, src/cod/00ECE0]
       - [0x00EE90, c, src/FileManager]           # TU promotion: 0x10EE90..0x10F5B8 (1 INCLUDE_ASM)
-      - [0x00F5B8, c, src/cod/00F5B8]            # func_0010F5B8
+      - [0x00F5B8, asm, cod/00F5B8]
       - [0x00F5D4, asm, src/cod/00F5D4]
       - [0x00F710, c, src/cod/00F710]            # func_0010F710: init D_004C7710 packet mgr (free ptr [4]; tag 0x11000000; qword 0xE)
       - [0x00F768, asm, src/cod/00F768]
@@ -551,7 +551,7 @@ segments:
       - [0x022C80, c, src/cod/022C80]            # func_00122C80: D_00631D40 = 0
       - [0x022C88, c, src/cod/022C88]            # func_00122C88: switch(a0) {2→8, 3→9, default→7}
       - [0x022CD8, asm, src/cod/022CD8]
-      - [0x023C00, c, src/cod/023C00]            # func_00123C00: wrap func_001A6E28(&D_00555920)
+      - [0x023C00, asm, cod/023C00]
       - [0x023C20, c, src/cod/023C20]            # func_00123C20: chain f118460, f117FE8(D+0x80), f117CE0, f1180C0(self,self), tail f1182F0(self,self)
       - [0x023C70, asm, src/cod/023C70]
       - [0x028708, c, src/cod/028708]            # func_00128708: D_00631D54 = val
@@ -560,7 +560,7 @@ segments:
       - [0x0287E8, asm, src/cod/0287E8]
       - [0x028868, c, src/StageAnimation]        # TU promotion: 0x128868..0x12AED0 (22 INCLUDE_ASM + 3 matched funcs)
       - [0x02AED0, c, src/Texture]               # TU promotion: 0x12AED0..0x12FD50 (28 INCLUDE_ASM + 2 matched)
-      - [0x02FD50, c, src/cod/02FD50]            # func_0012FD50: wrap func_0012D218(a0, 0)
+      - [0x02FD50, asm, cod/02FD50]
       - [0x02FD6C, asm, src/cod/02FD6C]
       - [0x02FE08, c, src/cod/02FE08]            # func_0012FE08: &D_006812D0[idx*0x2E8] (la-macro mult)
       - [0x02FE20, c, src/cod/02FE20]            # func_0012FE20: &D_006812D0[idx*0x2E8] (la-macro mult)
@@ -576,12 +576,12 @@ segments:
       - [0x0333C8, asm, src/cod/0333C8]
       - [0x033448, c, src/cod/033448]            # func_00133448: return D_00631F64
       - [0x033450, c, src/cod/033450]            # func_00133450: self[0x108] OR= 2
-      - [0x033460, c, src/cod/033460]            # func_00133460: a0->108 bit-4 = (a1 & 1)
+      - [0x033460, asm, cod/033460]
       - [0x033480, c, src/cod/033480]            # func_00133480: func_00133480: walk D_006A5C80[0..0x834] in 0x12C strides; sum (*(int*)(p+0x108) >> 1) & 1 for non-zero entries
       - [0x0334C8, c, src/cod/0334C8]            # func_001334C8
       - [0x033500, c, src/cod/033500]            # func_00133500: sw_arg +0x110
       - [0x033508, c, src/cod/033508]            # func_00133508: return D_00633C7C
-      - [0x033510, c, src/cod/033510]            # func_00133510: v=fDAB8(a2>>11,a1,1,&buf); buf?fE28(&D_); ret v<<11
+      - [0x033510, asm, cod/033510]
       - [0x033570, asm, src/cod/033570]
       - [0x0335CC, hasm, src/cod/0335CC]
       - [0x0335D0, c, src/cod/0335D0]            # func_001335D0: zero D_006A5C80[0x708 - i*0x12C] for i=0..6; clear D_00633C7C
@@ -638,7 +638,7 @@ segments:
       - [0x03CB84, asm, src/cod/03CB84]
       - [0x03CBD0, c, src/cod/03CBD0]            # func_0013CBD0: bound-checked table read
       - [0x03CBFC, asm, src/cod/03CBFC]
-      - [0x03CC60, c, src/cod/03CC60]            # func_0013CC60: zero 2 halfwords
+      - [0x03CC60, asm, cod/03CC60]
       - [0x03CC6C, hasm, src/cod/03CC6C]
       - [0x03CC70, c, src/cod/03CC70]            # func_0013CC70: auto-batch
       - [0x03CC78, asm, src/cod/03CC78]
@@ -647,7 +647,7 @@ segments:
       - [0x03CD78, asm, src/cod/03CD78]
       - [0x03CF08, c, src/cod/03CF08]            # func_0013CF08: idx<base[0] ? base[1][idx]=val : -1
       - [0x03CF38, c, src/cod/03CF38]              # func_0013CF38: init 4-int struct with fn ptrs + D_006321A8 addr
-      - [0x03CF70, c, src/cod/03CF70]            # func_0013CF70: zero 2 halfwords
+      - [0x03CF70, asm, cod/03CF70]
       - [0x03CF7C, hasm, src/cod/03CF7C]
       - [0x03CF80, c, ios/thread]                # TU promotion: 0x13CF80..0x13DD88 (18 INCLUDE_ASM + 15 matched)
       - [0x03DD88, c, isys/gobj]                 # TU promotion: isys/gobj.c covers 0x13DD88..0x13ED78 (24 INCLUDE_ASM + 3 nop-pads + 4 matched funcs)
@@ -668,13 +668,13 @@ segments:
       - [0x03F6FC, hasm, src/cod/03F6FC]
       - [0x03F700, c, isys/gobj_process]         # TU promotion: isys/gobj_process.c covers 0x13F700..0x13F7A8 (2 matched funcs + nop pad)
       - [0x03F7A8, c, src/cod/03F7A8]            # func_0013F7A8: tail call func_0013F3F0(a, a, b, c & 0xFF, d, e)
-      - [0x03F7D8, c, src/cod/03F7D8]            # func_0013F7D8: wrapper for func_0013F3F0(a, 0, b, c, d, 0x1800)
+      - [0x03F7D8, asm, cod/03F7D8]
       - [0x03F804, hasm, src/cod/03F804]
       - [0x03F808, c, src/cod/03F808]            # func_0013F808: sw_zero +0x18
       - [0x03F810, c, src/cod/03F810]            # func_0013F810
       - [0x03F848, c, src/cod/03F848]            # func_0013F848: linked-list traverse, set _18=0 if _1C==a1
       - [0x03F874, hasm, src/cod/03F874]
-      - [0x03F878, c, src/cod/03F878]            # func_0013F878: self[6] = 1, return 1
+      - [0x03F878, asm, cod/03F878]
       - [0x03F884, hasm, src/cod/03F884]
       - [0x03F888, c, src/cod/03F888]            # func_0013F888: linked-list traverse, set _18=1
       - [0x03F8BC, hasm, src/cod/03F8BC]
@@ -730,7 +730,7 @@ segments:
       - [0x05B6D0, c, src/cod/05B6D0]            # func_0015B6D0: a0->164->D0 |= 8; printf("exec end %s to %s", a2==boyptr?boy:girl, a0==boyptr?boy:girl)
       - [0x05B728, c, src/cod/05B728]            # func_0015B728: a0->164->D0 |= 0x10; printf("????error %s to %s", a2==boyptr?boy:girl, a0==boyptr?boy:girl)
       - [0x05B780, asm, src/cod/05B780]
-      - [0x05BCC8, c, src/cod/05BCC8]            # func_0015BCC8: bit-test dispatch (0xA8/0xAD code) -> remap a1 to 0xA9/0xAA; tail call func_0013FF88
+      - [0x05BCC8, asm, cod/05BCC8]
       - [0x05BD48, asm, src/cod/05BD48]
       - [0x05D328, c, src/cod/05D328]            # func_0015D328: lazy-init D_00631AF4=1; tail call func_001B6FD8(0x3A)
       - [0x05D348, c, src/cod/05D348]            # func_0015D348: tail call func_0010ABD8(30.0f)
@@ -741,20 +741,20 @@ segments:
       - [0x05E6AC, asm, src/cod/05E6AC]
       - [0x05E7C0, c, src/cod/05E7C0]            # func_0015E7C0: spill+reload + 2-deref + store -1 + call
       - [0x05E7F4, asm, src/cod/05E7F4]
-      - [0x05EA50, c, src/cod/05EA50]            # func_0015EA50: wrap func_001A6E28(&D_00558C18); func_00203AA0(0)
+      - [0x05EA50, asm, cod/05EA50]
       - [0x05EA7C, hasm, src/cod/05EA7C]
-      - [0x05EA80, c, src/cod/05EA80]            # func_0015EA80: sibling: D_00558C38 instead
+      - [0x05EA80, asm, cod/05EA80]
       - [0x05EAAC, asm, src/cod/05EAAC]
       - [0x05EE68, c, src/cod/05EE68]            # func_0015EE68: *(int*)(*(char**)(self+0x164)+0x180) = val
       - [0x05EE74, hasm, src/cod/05EE74]
       - [0x05EE78, asm, src/cod/05EE78]
       - [0x05EED0, asm, src/cod/05EED0]
       - [0x05EF40, c, src/cod/05EF40]            # func_0015EF40
-      - [0x05EF50, c, src/cod/05EF50]              # func_0015EF50: alloc via func_001E29E8, save ptr, return bool of _C field
+      - [0x05EF50, asm, cod/05EF50]
       - [0x05EF88, asm, src/cod/05EF88]
       - [0x05F208, c, src/cod/05F208]            # func_0015F208: lwu via inline asm (ee-gcc 2.9 doesn't emit lwu natively)
       - [0x05F224, hasm, src/cod/05F224]
-      - [0x05F228, c, src/cod/05F228]            # func_0015F228: D_00292540[idx*0x18] +0x8 = a1 (la mult sw)
+      - [0x05F228, asm, cod/05F228]
       - [0x05F244, hasm, src/cod/05F244]
       - [0x05F248, asm, src/cod/05F248]
       - [0x05F294, hasm, src/cod/05F294]
@@ -803,10 +803,10 @@ segments:
       - [0x076B38, asm, src/cod/076B38]
       - [0x076BB8, c, src/cod/076BB8]            # func_00176BB8: D_00274EE8=0; tail call func_00176AA0
       - [0x076BC4, asm, src/cod/076BC4]
-      - [0x078908, c, src/cod/078908]            # func_00178908: wrap func_00176DE0(a0, a1, a2, 0)
+      - [0x078908, asm, cod/078908]
       - [0x078924, hasm, src/cod/078924]
       - [0x078928, c, src/cod/078928]
-      - [0x078930, c, src/cod/078930]            # func_00178930: idx=self[0x64]; idx>=0?{f6E28(&D_); f5498(D_004CC1E0[idx*0x40+0x20]); self[0x64]=-1}
+      - [0x078930, asm, cod/078930]
       - [0x07898C, hasm, src/cod/07898C]
       - [0x078990, c, src/way_util]              # TU promotion: 0x178990..0x17AD68 (29 INCLUDE_ASM + 4 matched)
       - [0x07AD68, asm, src/cod/07AD68]
@@ -858,7 +858,7 @@ segments:
       - [0x07CAA0, c, src/cod/07CAA0]            # func_0017CAA0: while-loop func_0013EBE0 chain, set [0x16C]=1
       - [0x07CAE0, c, src/cod/07CAE0]            # func_0017CAE0: Same as 17CA18 but offset 0x16C
       - [0x07CB1C, hasm, src/cod/07CB1C]
-      - [0x07CB20, c, src/cod/07CB20]              # func_0017CB20: v=f(a0); if v: g(a1, {v, 0})
+      - [0x07CB20, asm, cod/07CB20]
       - [0x07CB5C, asm, src/cod/07CB5C]
       - [0x07D098, c, src/cod/07D098]            # func_0017D098: count non-zero of D_006CF910[i*0x14] for i=0..1
       - [0x07D0CC, hasm, src/cod/07D0CC]
@@ -866,7 +866,7 @@ segments:
       - [0x07D0F8, c, src/cod/07D0F8]
       - [0x07D128, asm, src/cod/07D128]
       - [0x07D1D0, c, src/cod/07D1D0]            # func_0017D1D0: func_00203AA0(10); scan D_0028A640 table x 7 entries (stride 0x30) for short==a0->_8; call func_0017BB98(a0) on match
-      - [0x07D230, c, src/cod/07D230]            # func_0017D230: func_0017E188(a0); func_0017E188(0); set _16C=1 on result; call func_001F2148(first)
+      - [0x07D230, asm, cod/07D230]
       - [0x07D270, c, src/cod/07D270]            # func_0017D270
       - [0x07D2C8, c, src/cod/07D2C8]            # func_0017D2C8: r=func_0017E188(); if r: ret func_001EA108(r); else: func_001A6E28(D_00559EA8); ret 0.0f
       - [0x07D308, asm, src/cod/07D308]
@@ -875,23 +875,23 @@ segments:
       - [0x07DE98, c, src/cod/07DE98]            # func_0017DE98: while ((p = func_0013EB50(0x21))) f193848(p); p = f13EBE0(p);
       - [0x07DEE0, c, src/cod/07DEE0]            # func_0017DEE0: permuter score-0 (parked seed)
       - [0x07DF38, asm, src/cod/07DF38]
-      - [0x07E160, c, src/cod/07E160]            # func_0017E160: set sub fields: 0x328/0x32C=0x7F, 0x33C/0x110/0x114/0x118=0
+      - [0x07E160, asm, cod/07E160]
       - [0x07E184, hasm, src/cod/07E184]
-      - [0x07E188, c, src/cod/07E188]            # func_0017E188
+      - [0x07E188, asm, cod/07E188]
       - [0x07E1A4, asm, src/cod/07E1A4]
       - [0x07E240, c, src/cod/07E240]            # func_0017E240: s0 = a0->164; s0+0x120 = func_001E29E8(a0, a1, s0+0x610)
       - [0x07E26C, asm, src/cod/07E26C]
       - [0x07E2E8, c, src/cod/07E2E8]            # func_0017E2E8: while ((self->_164->_120->_5C & 1) == 0) func_00203AA0(1)
       - [0x07E328, c, src/cod/07E328]            # func_0017E328: D_00633D40 = 0
-      - [0x07E330, c, src/cod/07E330]            # func_0017E330: wrap func_0017E358(a0,a1,a2,0,0,0)
+      - [0x07E330, asm, cod/07E330]
       - [0x07E354, asm, src/cod/07E354]
       - [0x07E4A0, c, src/cod/07E4A0]            # func_0017E4A0: if(!D1 && !D2) { f(a0, a1&FF, a2&FF, a3&FF); D2=1; return 1; } return 0;
       - [0x07E4F0, c, src/cod/07E4F0]            # func_0017E4F0: f1(self); f2(self); copy 16 bytes from D to buf; f3(self, buf); f4(self, 0x27, self)
-      - [0x07E550, c, src/cod/07E550]            # func_0017E550: set 6 sdata fields (1 float, 1 int, 3 bytes, 1 int)
+      - [0x07E550, asm, cod/07E550]
       - [0x07E570, c, src/cod/07E570]            # func_0017E570: set 3 sdata: D_633798=1, D_6337A0=0, D_63379C=-f
       - [0x07E588, c, src/cod/07E588]            # func_0017E588
       - [0x07E5B0, c, src/cod/07E5B0]            # func_0017E5B0: gp_rel D + 2-deref + cond call
-      - [0x07E5E0, c, src/cod/07E5E0]            # func_0017E5E0
+      - [0x07E5E0, asm, cod/07E5E0]
       - [0x07E5FC, hasm, src/cod/07E5FC]
       - [0x07E600, c, src/cod/07E600]            # func_0017E600
       - [0x07E620, c, src/cod/07E620]            # func_0017E620: p=fA6B8(a0); p?p[2]^b<1:0
@@ -915,7 +915,7 @@ segments:
       - [0x080550, c, src/cod/080550]
       - [0x080580, c, src/cod/080580]            # func_00180580: 1-jal wrapper w/ spill+reload
       - [0x0805A4, asm, src/cod/0805A4]
-      - [0x0807F0, c, src/cod/0807F0]            # func_001807F0
+      - [0x0807F0, asm, cod/0807F0]
       - [0x080830, asm, src/cod/080830]
       - [0x080B28, c, src/cod/080B28]            # func_00180B28: store-arg-discard
       - [0x080B38, asm, src/cod/080B38]
@@ -960,7 +960,7 @@ segments:
       - [0x087904, hasm, src/cod/087904]
       - [0x087908, c, src/cod/087908]            # func_00187908: p=f(a0); q=f(a0); return p->3C - q->38
       - [0x08794C, hasm, src/cod/08794C]
-      - [0x087950, c, src/cod/087950]
+      - [0x087950, asm, cod/087950]
       - [0x087990, c, src/cod/087990]            # func_00187990: D_00632614[1] + a0*0x4C
       - [0x0879A8, c, src/cod/0879A8]            # func_001879A8: D_00632614->_4[a0]._48 + a1*0x5C
       - [0x0879D0, asm, src/cod/0879D0]
@@ -993,18 +993,18 @@ segments:
       - [0x08CC18, asm, src/cod/08CC18]
       - [0x08CEC0, c, src/cod/08CEC0]            # func_0018CEC0: return &D_006D0680
       - [0x08CECC, hasm, src/cod/08CECC]
-      - [0x08CED0, c, src/cod/08CED0]            # func_0018CED0: D_00633D9C = 1, return 1
+      - [0x08CED0, asm, cod/08CED0]
       - [0x08CEDC, hasm, src/cod/08CEDC]
-      - [0x08CEE0, c, src/cod/08CEE0]            # func_0018CEE0: D_00633D8C = 1, return 1
+      - [0x08CEE0, asm, cod/08CEE0]
       - [0x08CEEC, hasm, src/cod/08CEEC]
       - [0x08CEF0, c, src/cod/08CEF0]            # func_0018CEF0: return D_006D06C8 < 2
       - [0x08CF00, c, src/cod/08CF00]            # func_0018CF00: func_0018CF00: if (D_00633D90 != 3): copy 3 floats from src to D_006D0680 and D_006D06A0
       - [0x08CF58, c, src/cod/08CF58]
       - [0x08CF60, c, src/cod/08CF60]              # func_0018CF60: D_00632730 ? &D_006D0680 : 0
       - [0x08CF80, c, src/cod/08CF80]            # func_0018CF80: copy D_006D0680 (0x20 bytes); *out = (float)D_00632D30 / 100.0f
-      - [0x08CFD0, c, src/cod/08CFD0]            # func_0018CFD0: D_00633D8D = 1, return 1
+      - [0x08CFD0, asm, cod/08CFD0]
       - [0x08CFDC, hasm, src/cod/08CFDC]
-      - [0x08CFE0, c, src/cod/08CFE0]            # func_0018CFE0: D_00632704 = 1, return 1
+      - [0x08CFE0, asm, cod/08CFE0]
       - [0x08CFEC, hasm, src/cod/08CFEC]
       - [0x08CFF0, c, src/chain]                 # TU promotion: 0x18CFF0..0x19032C (23 INCLUDE_ASM + 6 matched)
       - [0x09032C, hasm, src/cod/09032C]
@@ -1016,8 +1016,8 @@ segments:
       - [0x0903A8, c, src/cod/0903A8]            # func_001903A8: return *(uchar)(sub->800 + 0xC0)
       - [0x0903B8, c, src/cod/0903B8]            # func_001903B8: copy 3 floats from sub2+0xB0 to a0
       - [0x0903DC, hasm, src/cod/0903DC]
-      - [0x0903E0, c, src/cod/0903E0]            # func_001903E0: q=*self->p; q[A0] ? q[68]<3 : 0
-      - [0x090408, c, src/cod/090408]            # retry with fno-sched
+      - [0x0903E0, asm, cod/0903E0]
+      - [0x090408, asm, cod/090408]
       - [0x090430, c, src/cod/090430]            # func_00190430: sub_15C->800 = a1
       - [0x090440, c, src/cod/090440]            # func_00190440: permuter score-0
       - [0x090478, asm, src/cod/090478]
@@ -1049,7 +1049,7 @@ segments:
       - [0x093EC8, c, src/cod/093EC8]            # func_00193EC8
       - [0x093EDC, asm, src/cod/093EDC]
       - [0x093F48, c, src/cod/093F48]            # func_00193F48: promote-test: subagent seed (unscored, may match)
-      - [0x093F68, c, src/cod/093F68]            # func_00193F68: p[0]=p[1]=1
+      - [0x093F68, asm, cod/093F68]
       - [0x093F78, c, src/cod/093F78]            # func_00193F78: promoted from permuter score-0
       - [0x093FA4, asm, src/cod/093FA4]
       - [0x094360, c, src/cod/094360]            # func_00194360: buf[4] init via func + zero one slot + 2nd call
@@ -1088,7 +1088,7 @@ segments:
       - [0x098218, c, src/itou_boss]             # TU promotion: 0x198218..0x198328 (1 INCLUDE_ASM)
       - [0x098328, c, src/cod/098328]            # func_00198328
       - [0x098338, asm, src/cod/098338]
-      - [0x0983F8, c, src/cod/0983F8]            # func_001983F8: rc=func_001E8D30; *(rc->60) = 1; ret 1 ($v0 pinned)
+      - [0x0983F8, asm, cod/0983F8]
       - [0x098420, c, src/cod/098420]            # func_00198420: tail call func_00197FE8 passthrough
       - [0x098428, c, src/cod/098428]            # func_00198428: sibling: tail call func_00197FE8 passthrough
       - [0x098430, c, src/cod/098430]
@@ -1121,12 +1121,12 @@ segments:
       - [0x09DAC8, c, src/cod/09DAC8]
       - [0x09DB08, c, src/cod/09DB08]            # func_0019DB08: if (a0[3]!=0): *out = a0[0] + ((a0[2]-a0[3]+a0[1]) % a0[1]); return a0[3]
       - [0x09DB4C, hasm, src/cod/09DB4C]
-      - [0x09DB50, c, src/cod/09DB50]            # func_0019DB50: sat-subtract: a0->C -= min(a0->C, a1)
+      - [0x09DB50, asm, cod/09DB50]
       - [0x09DB6C, hasm, src/cod/09DB6C]
       - [0x09DB70, c, src/cod/09DB70]            # func_0019DB70: func_00265168(a0+0x34); func_00132FF0(a0); ret 1
       - [0x09DBA4, hasm, src/cod/09DBA4]
       - [0x09DBA8, c, src/cod/09DBA8]            # func_0019DBA8
-      - [0x09DBC8, c, src/cod/09DBC8]            # func_0019DBC8: func_00133510() passthrough
+      - [0x09DBC8, asm, cod/09DBC8]
       - [0x09DBE4, hasm, src/cod/09DBE4]
       - [0x09DBE8, c, src/cod/09DBE8]            # func_0019DBE8: auto-batch
       - [0x09DBF0, asm, src/cod/09DBF0]
@@ -1137,7 +1137,7 @@ segments:
       - [0x09E160, c, src/cod/09E160]            # func_0019E160: 3-call wrapper, returns 1
       - [0x09E19C, hasm, src/cod/09E19C]
       - [0x09E1A0, c, src/cod/09E1A0]            # func_0019E1A0
-      - [0x09E1C0, c, src/cod/09E1C0]            # func_0019E1C0: self[46] = 1, return 1
+      - [0x09E1C0, asm, cod/09E1C0]
       - [0x09E1CC, hasm, src/cod/09E1CC]
       - [0x09E1D0, c, src/cod/09E1D0]            # func_0019E1D0: auto-batch
       - [0x09E1D8, c, src/cod/09E1D8]            # func_0019E1D8: ret=0; if(!f1(self+0x50)) ret = f2(self) != 0; return ret
@@ -1152,15 +1152,15 @@ segments:
       - [0x09E37C, asm, src/cod/09E37C]
       - [0x09E4E0, c, src/cod/09E4E0]            # func_0019E4E0: tail call func_0019E350 passthrough
       - [0x09E4E8, c, src/cod/09E4E8]            # func_0019E4E8: tail call func_00139598(a0 & 0x0FFFFFFF)
-      - [0x09E4F8, c, src/cod/09E4F8]            # func_0019E4F8: zero p[2..3]
+      - [0x09E4F8, asm, cod/09E4F8]
       - [0x09E508, c, src/cod/09E508]            # func_0019E508: self[3] == self[4]
       - [0x09E51C, hasm, src/cod/09E51C]
-      - [0x09E598, c, src/cod/09E598]
+      - [0x09E598, asm, cod/09E598]
       - [0x09E5CC, asm, src/cod/09E5CC]
       - [0x09E628, c, src/cod/09E628]            # func_0019E628: if p[3]>0, --p[3]
       - [0x09E648, c, src/DObj]                  # TU promotion: 0x19E648..0x19F4E0 (5 INCLUDE_ASM + 1 matched func)
       - [0x09F4E0, c, src/cod/09F4E0]
-      - [0x09F4E8, c, src/cod/09F4E8]              # func_0019F4E8: call func_00102E08(a0); unaligned 8-byte copy a1 -> a0->_15C
+      - [0x09F4E8, asm, cod/09F4E8]
       - [0x09F52C, hasm, src/cod/09F52C]
       - [0x09F530, c, src/cod/09F530]
       - [0x09F568, asm, src/cod/09F568]
@@ -1196,7 +1196,7 @@ segments:
       - [0x0A7838, c, src/cod/0A7838]            # func_001A7838: tail call func_00264DF8(a0, &D_00632B00)
       - [0x0A7844, asm, src/cod/0A7844]
       - [0x0A9D88, c, src/cod/0A9D88]            # func_001A9D88: D_00632C74 = 0
-      - [0x0A9D90, c, src/cod/0A9D90]            # func_001A9D90: GIF_PATH? hardcoded HW writes
+      - [0x0A9D90, asm, cod/0A9D90]
       - [0x0A9DB4, asm, src/cod/0A9DB4]
       - [0x0A9EE8, c, src/cod/0A9EE8]            # func_001A9EE8: zero bytes D_006F1930[0x5B4 - i*0x38] for i=0..0x1A; clear D_006329E4
       - [0x0A9F1C, hasm, src/cod/0A9F1C]
@@ -1211,9 +1211,9 @@ segments:
       - [0x0AA260, asm, src/cod/0AA260]
       - [0x0AA4E8, c, src/cod/0AA4E8]            # func_001AA4E8: return -1
       - [0x0AA4F0, c, src/cod/0AA4F0]            # func_001AA4F0: 2-call wrapper + v0->v1 copy via KEEP_LIVE
-      - [0x0AA550, c, src/cod/0AA550]            # func_001AA550: if (a0 == D_00632C80) { D_00632C80 = -1; func_00247608(); }
+      - [0x0AA550, asm, cod/0AA550]
       - [0x0AA57C, hasm, src/cod/0AA57C]
-      - [0x0AA580, c, src/cod/0AA580]            # func_001AA580: guard + call + double-clear (rv-lift attempt)
+      - [0x0AA580, asm, cod/0AA580]
       - [0x0AA5B8, c, src/cod/0AA5B8]
       - [0x0AA5C0, c, src/cod/0AA5C0]
       - [0x0AA604, hasm, src/cod/0AA604]
@@ -1297,7 +1297,7 @@ segments:
       - [0x0B05A8, asm, src/cod/0B05A8]
       - [0x0B0A38, c, src/cod/0B0A38]            # func_001B0A38: init 5 globals to 0
       - [0x0B0A54, hasm, src/cod/0B0A54]
-      - [0x0B0A58, c, src/cod/0B0A58]            # func_001B0A58: D_00633024 = 1, return 1
+      - [0x0B0A58, asm, cod/0B0A58]
       - [0x0B0A64, hasm, src/cod/0B0A64]
       - [0x0B0A68, c, src/cod/0B0A68]            # func_001B0A68: tail call func_00144120(0x190, -2, 0, 0)
       - [0x0B0A80, c, src/cod/0B0A80]            # func_001B0A80: sibling: tail call func_00144120(0x191, -2u, 0, 0)
@@ -1329,7 +1329,7 @@ segments:
       - [0x0B57B0, asm, src/cod/0B57B0]
       - [0x0B5870, c, src/cod/0B5870]            # func_001B5870: if a0 set flag; bail unless bit 0x800 set; then call+clear+return 0x33
       - [0x0B58B8, asm, src/cod/0B58B8]
-      - [0x0B5958, c, src/cod/0B5958]            # retry fno-sched
+      - [0x0B5958, asm, cod/0B5958]
       - [0x0B5994, hasm, src/cod/0B5994]
       - [0x0B5998, c, src/cod/0B5998]            # func_001B5998: D_00275254 & 0x10 ? func_001B7040() : -1
       - [0x0B59D0, c, src/cod/0B59D0]            # func_001B59D0: D[idx*0x58+4] & (0x40|0x10) -> 1 else 0
@@ -1392,7 +1392,7 @@ segments:
       - [0x0BC9C0, c, src/cod/0BC9C0]            # func_001BC9C0: auto-batch
       - [0x0BC9C8, asm, src/cod/0BC9C8]
       - [0x0BCAF0, c, src/box]                   # TU promotion: 0x1BCAF0..0x1C0538 (23 INCLUDE_ASM funcs)
-      - [0x0C0538, c, src/cod/0C0538]            # func_001C0538: dispatch + p->_0 bump-mod-31; on overflow tail-call func_001AE460(self)
+      - [0x0C0538, asm, cod/0C0538]
       - [0x0C05A8, c, src/cod/0C05A8]            # func_001C05A8: 4-insn lw
       - [0x0C05B8, c, src/cod/0C05B8]            # func_001C05B8: == 0
       - [0x0C05CC, asm, src/cod/0C05CC]
@@ -1424,7 +1424,7 @@ segments:
       - [0x0C34B8, c, src/cod/0C34B8]            # func_001C34B8: auto
       - [0x0C34C0, asm, src/cod/0C34C0]
       - [0x0C36E0, c, src/cod/0C36E0]            # func_001C36E0: func_00240EA0(0,0,0,0,&func_001C3760,0,0); store result to D_006332A4
-      - [0x0C3720, c, src/cod/0C3720]            # func_001C3720: register a callback and link self
+      - [0x0C3720, asm, cod/0C3720]
       - [0x0C375C, asm, src/cod/0C375C]
       - [0x0C3970, c, src/cod/0C3970]            # func_001C3970: tail call func_00105F00(a0, a1 + a2*0x50 + 0x30)
       - [0x0C3988, c, src/clothAnimation]        # TU promotion: 0x1C3988..0x1C8A18 (19 INCLUDE_ASM + 1 matched + nop pad)
@@ -1468,7 +1468,7 @@ segments:
       - [0x0CBE88, c, src/enemy]                 # TU promotion: 0x1CBE88..0x1CE6EC (15 INCLUDE_ASM + 2 matched)
       - [0x0CE6EC, hasm, src/cod/0CE6EC]
       - [0x0CE6F0, c, src/cod/0CE6F0]              # func_001CE6F0: zero 4 fields of self->_15C; tail call
-      - [0x0CE718, c, src/cod/0CE718]
+      - [0x0CE718, asm, cod/0CE718]
       - [0x0CE75C, hasm, src/cod/0CE75C]
       - [0x0CE760, c, src/cod/0CE760]
       - [0x0CE768, c, src/cod/0CE768]            # func_001CE768
@@ -1476,7 +1476,7 @@ segments:
       - [0x0CE978, c, src/cod/0CE978]            # func_001CE978: arr[idx] = 0
       - [0x0CE994, hasm, src/cod/0CE994]
       - [0x0CE998, c, src/cod/0CE998]            # func_001CE998: return arr[idx] == 0
-      - [0x0CE9B8, c, src/cod/0CE9B8]
+      - [0x0CE9B8, asm, cod/0CE9B8]
       - [0x0CE9FC, asm, src/cod/0CE9FC]
       - [0x0CEB08, c, src/cod/0CEB08]            # func_001CEB08
       - [0x0CEB18, c, src/cod/0CEB18]            # func_001CEB18: func_001CEB18: func_001E4798(self,0x71C,0x839,-1,-1,0x39A); func_001D4B40(self,0); self->_16C=0; ret 0
@@ -1537,7 +1537,7 @@ segments:
       - [0x0D4DA8, c, src/cod/0D4DA8]            # func_001D4DA8: promote-test: subagent seed (unscored, may match)
       - [0x0D4DCC, hasm, src/cod/0D4DCC]
       - [0x0D4DD0, c, src/cod/0D4DD0]            # func_001D4DD0: a0 ? D_00633F1C : D_00633F18
-      - [0x0D4DE8, c, src/cod/0D4DE8]            # func_001D4DE8: permuter score-0 (REG pin loop)
+      - [0x0D4DE8, asm, cod/0D4DE8]
       - [0x0D4E30, c, src/cod/0D4E30]
       - [0x0D4E6C, hasm, src/cod/0D4E6C]
       - [0x0D4E70, c, src/cod/0D4E70]            # func_001D4E70: return p<self[2]?0:-1 (p=self+0x10)
@@ -1570,7 +1570,7 @@ segments:
       - [0x0E8B68, asm, src/cod/0E8B68]
       - [0x0E8BD8, c, src/cod/0E8BD8]            # func_001E8BD8: &D_0070A3F0[a0*0xA0]
       - [0x0E8BF0, asm, src/cod/0E8BF0]
-      - [0x0E8D30, c, src/cod/0E8D30]            # func_001E8D30: D_007097F0[idx*0x18] +0x14 (la mult lw)
+      - [0x0E8D30, asm, cod/0E8D30]
       - [0x0E8D4C, hasm, src/cod/0E8D4C]
       - [0x0E8D50, c, src/cod/0E8D50]            # func_001E8D50: promote: score-0 from permuter (parked tough_nut)
       - [0x0E8D6C, asm, src/cod/0E8D6C]
@@ -1641,7 +1641,7 @@ segments:
       - [0x0F10F4, hasm, src/cod/0F10F4]
       - [0x0F10F8, c, src/cod/0F10F8]            # func_001F10F8
       - [0x0F1108, c, src/cod/0F1108]
-      - [0x0F1148, c, src/cod/0F1148]            # func_001F1148: D_0070D4D8[idx*0x18] +0x14 = a1 (la mult sw)
+      - [0x0F1148, asm, cod/0F1148]
       - [0x0F1164, hasm, src/cod/0F1164]
       - [0x0F1168, c, src/sugiTree]              # TU promotion: 0x1F1168..0x1F1868 (4 INCLUDE_ASM + 7 matched + .skip 4 pads)
       - [0x0F1868, c, src/torch]                 # TU promotion: 0x1F1868..0x1F2320 (8 INCLUDE_ASM + 7 matched + nop pad)
@@ -1684,17 +1684,17 @@ segments:
       - [0x0F6CA8, c, src/cod/0F6CA8]              # func_001F6CA8: return D_00633780
       - [0x0F6CB0, c, src/Basic]                 # TU promotion: src/Basic.c covers 0x1F6CB0..0x1F6E28 (5 matched funcs); 4-byte nop pad at 0x1F6E24 supplied by linker --gap-fill
       - [0x0F6E28, c, src/BgAnimation]           # TU promotion: 0x1F6E28..0x1FAA30 (24 INCLUDE_ASM + 2 matched + 1 nop-pad funcs)
-      - [0x0FAA30, c, src/cod/0FAA30]            # func_001FAA30: D_006337B8 = 1, return 1
+      - [0x0FAA30, asm, cod/0FAA30]
       - [0x0FAA3C, hasm, src/cod/0FAA3C]
       - [0x0FAA40, c, src/cod/0FAA40]            # func_001FAA40: D_006337B8 = D_006337BC = 0
       - [0x0FAA4C, hasm, src/cod/0FAA4C]
       - [0x0FAA50, c, src/cod/0FAA50]            # func_001FAA50: D_006337B4 = val
-      - [0x0FAA58, c, src/cod/0FAA58]
+      - [0x0FAA58, asm, cod/0FAA58]
       - [0x0FAAA8, c, src/cod/0FAAA8]            # func_001FAAA8: return D_006337B0 (float)
       - [0x0FAAB0, asm, src/cod/0FAAB0]
       - [0x0FB478, c, src/cod/0FB478]            # func_001FB478: auto
       - [0x0FB480, c, src/cod/0FB480]            # func_001FB480: 0x3200 / D / 2 (signed)
-      - [0x0FB4A8, c, src/cod/0FB4A8]            # func_001FB4A8: init 5 sdata: 0; 0x80 x4
+      - [0x0FB4A8, asm, cod/0FB4A8]
       - [0x0FB4C4, c, src/DisplayList]           # TU promotion: 0x1FB4C4..0x1FB880 (4-byte pad func_001FB4C4 + 5 INCLUDE_ASM funcs)
       - [0x0FB880, c, src/cod/0FB880]
       - [0x0FB8B8, asm, src/cod/0FB8B8]
@@ -1702,7 +1702,7 @@ segments:
       - [0x0FBAA8, asm, src/cod/0FBAA8]
       - [0x0FBB40, c, src/cod/0FBB40]            # func_001FBB40: return D_00633F70
       - [0x0FBB48, c, src/DmaPacket]             # func_001FBB48: init D_004C7710 packet slots (DmaPacket TU)
-      - [0x0FBBE0, c, src/cod/0FBBE0]
+      - [0x0FBBE0, asm, cod/0FBBE0]
       - [0x0FBC14, hasm, src/cod/0FBC14]
       - [0x0FBC18, c, src/EnemyInit]             # TU promotion: 0x1FBC18..0x1FC278 (4 INCLUDE_ASM + 5 matched)
       - [0x0FC278, c, src/cod/0FC278]            # func_001FC278: byte-identical twin of func_001FC220
@@ -1727,7 +1727,7 @@ segments:
       - [0x103C40, asm, src/cod/103C40]
       - [0x103CB8, c, src/cod/103CB8]            # func_00203CB8: if(sub) sub->438 = val
       - [0x103CCC, asm, src/cod/103CCC]
-      - [0x103EE8, c, src/cod/103EE8]            # func_00203EE8: volatile a0 wrapper, dead read
+      - [0x103EE8, asm, cod/103EE8]
       - [0x103F18, c, src/cod/103F18]            # func_00203F18: bounded ringbuffer push w/ TCO panic
       - [0x103F48, asm, src/cod/103F48]
       - [0x104E90, c, src/cod/104E90]            # func_00204E90: return D_0063385C
@@ -1743,13 +1743,13 @@ segments:
       - [0x10566C, hasm, src/cod/10566C]
       - [0x105670, c, src/cod/105670]            # func_00205670: LL insert in D_004CC1E0: node_a.p12=node_b; node_b.p8=node_a; node_b.p12=old; old.p8=node_b
       - [0x1056A4, asm, src/cod/1056A4]
-      - [0x105A78, c, src/cod/105A78]            # func_00205A78: D_004CAEC0[idx*0x34] +0x8 (la mult lw)
+      - [0x105A78, asm, cod/105A78]
       - [0x105A94, hasm, src/cod/105A94]
-      - [0x105A98, c, src/cod/105A98]            # func_00205A98: D_004CAEC0[self[8]].8 == self[3] ? 0 : self[3] (null-guard, speculative idx load)
+      - [0x105A98, asm, cod/105A98]
       - [0x105AD4, hasm, src/cod/105AD4]
       - [0x105AD8, c, src/cod/105AD8]            # func_00205AD8: if(!self) return 0; log(D,self); return which ? self[3] : self[2]
       - [0x105B2C, hasm, src/cod/105B2C]
-      - [0x105B30, c, src/cod/105B30]            # func_00205B30: D_004CAEC0[idx*0x34] +0x28 = a1 (la mult sw)
+      - [0x105B30, asm, cod/105B30]
       - [0x105B4C, hasm, src/cod/105B4C]
       - [0x105B50, c, src/cod/105B50]            # func_00205B50: promote: score-0 from permuter (parked tough_nut)
       - [0x105B70, asm, src/cod/105B70]
@@ -1758,22 +1758,22 @@ segments:
       - [0x108780, asm, src/cod/108780]
       - [0x109AB0, c, src/cod/109AB0]            # func_00209AB0: tail call func_001297A0(0xA2, 0, -1)
       - [0x109AC0, asm, src/cod/109AC0]
-      - [0x109F28, c, src/cod/109F28]            # func_00209F28: same shape as 103EE8
+      - [0x109F28, asm, cod/109F28]
       - [0x109F58, asm, src/cod/109F58]
-      - [0x10D208, c, src/cod/10D208]            # func_0020D208: func_0017B258(0x138); func_00203B78(&func_0020D238, 0x15)
+      - [0x10D208, asm, cod/10D208]
       - [0x10D238, asm, src/cod/10D238]
       - [0x10D2B8, c, src/cod/10D2B8]            # func_0020D2B8: spill+3-call (2 calls same callee, 3rd takes func ptr)
       - [0x10D2F0, asm, src/cod/10D2F0]
-      - [0x10D5A8, c, src/cod/10D5A8]            # func_0020D5A8: sibling: 0x13E
+      - [0x10D5A8, asm, cod/10D5A8]
       - [0x10D5D8, asm, src/cod/10D5D8]
-      - [0x10D660, c, src/cod/10D660]            # func_0020D660: sibling: 0x13F
+      - [0x10D660, asm, cod/10D660]
       - [0x10D690, asm, src/cod/10D690]
-      - [0x10D718, c, src/cod/10D718]            # func_0020D718: sibling: 0x140, B7D8
-      - [0x10D748, c, src/cod/10D748]            # func_0020D748: wrap func_00203B78(&func_0020B8D8, 0x15)
+      - [0x10D718, asm, cod/10D718]
+      - [0x10D748, asm, cod/10D748]
       - [0x10D770, c, src/cod/10D770]            # func_0020D770: spill + 3-call w/ func-ptr arg (sibling of 0020D2B8)
-      - [0x10D7A8, c, src/cod/10D7A8]            # func_0020D7A8: 2 fp-passing calls: 0BF88 + D7E0
+      - [0x10D7A8, asm, cod/10D7A8]
       - [0x10D7E0, asm, src/cod/10D7E0]
-      - [0x10D850, c, src/cod/10D850]            # func_0020D850: sibling: 0x141, C3A0
+      - [0x10D850, asm, cod/10D850]
       - [0x10D880, asm, src/cod/10D880]
       - [0x10FB00, c, src/cod/10FB00]            # func_0020FB00: guard+func_X+tail-call (void+return TCO trick)
       - [0x10FB38, asm, src/cod/10FB38]
@@ -1795,9 +1795,9 @@ segments:
       - [0x113E90, asm, src/cod/113E90]
       - [0x114030, c, src/cod/114030]            # func_00214030: store-arg-discard
       - [0x114040, asm, src/cod/114040]
-      - [0x117B48, c, src/cod/117B48]            # func_00217B48: volatile-spill a0 + 3-call wrapper
+      - [0x117B48, asm, cod/117B48]
       - [0x117B88, asm, src/cod/117B88]
-      - [0x1189E0, c, src/cod/1189E0]            # func_002189E0: volatile-spill a0 + 3-call wrapper (arg 0xDD)
+      - [0x1189E0, asm, cod/1189E0]
       - [0x118A20, asm, src/cod/118A20]
       - [0x118DC0, c, src/cod/118DC0]            # func_00218DC0: store-arg-discard
       - [0x118DD0, asm, src/cod/118DD0]
@@ -1834,13 +1834,13 @@ segments:
       - [0x11F578, c, src/cod/11F578]            # func_0021F578: store-arg-discard
       - [0x11F588, c, src/cod/11F588]            # func_0021F588: spill arg, call(0x40A), p->16C = 0
       - [0x11F5AC, hasm, src/cod/11F5AC]
-      - [0x11F5B0, c, src/cod/11F5B0]
+      - [0x11F5B0, asm, cod/11F5B0]
       - [0x11F5F4, hasm, src/cod/11F5F4]
-      - [0x11F5F8, c, src/cod/11F5F8]
+      - [0x11F5F8, asm, cod/11F5F8]
       - [0x11F63C, hasm, src/cod/11F63C]
-      - [0x11F640, c, src/cod/11F640]
+      - [0x11F640, asm, cod/11F640]
       - [0x11F684, hasm, src/cod/11F684]
-      - [0x11F688, c, src/cod/11F688]
+      - [0x11F688, asm, cod/11F688]
       - [0x11F6CC, asm, src/cod/11F6CC]
       - [0x11F7F0, c, src/cod/11F7F0]            # func_0021F7F0: guard+func_X+tail-call (different D, different callee)
       - [0x11F828, asm, src/cod/11F828]
@@ -1851,7 +1851,7 @@ segments:
       - [0x123E20, c, src/cod/123E20]            # func_00223E20: store-arg-discard
       - [0x123E30, c, src/cod/123E30]            # func_00223E30: store-arg-discard
       - [0x123E40, c, src/cod/123E40]            # func_00223E40: store-arg-discard
-      - [0x123E50, c, src/cod/123E50]
+      - [0x123E50, asm, cod/123E50]
       - [0x123E94, asm, src/cod/123E94]
       - [0x123EF0, c, src/cod/123EF0]            # func_00223EF0: store-arg-discard
       - [0x123F00, c, src/cod/123F00]            # func_00223F00: store-arg-discard
@@ -1864,7 +1864,7 @@ segments:
       - [0x123F70, asm, src/cod/123F70]
       - [0x124960, c, src/cod/124960]            # func_00224960: store-arg-discard
       - [0x124970, asm, src/cod/124970]
-      - [0x124E30, c, src/cod/124E30]
+      - [0x124E30, asm, cod/124E30]
       - [0x124E7C, asm, src/cod/124E7C]
       - [0x1251E0, c, src/cod/1251E0]            # func_002251E0: store-arg-discard
       - [0x1251F0, asm, src/cod/1251F0]
@@ -1908,7 +1908,7 @@ segments:
       - [0x12F880, asm, src/cod/12F880]
       - [0x1315C8, c, src/cod/1315C8]            # func_002315C8: store-arg-discard
       - [0x1315D8, asm, src/cod/1315D8]
-      - [0x131A98, c, src/cod/131A98]            # func_00231A98: volatile a0 -> two-call wrapper
+      - [0x131A98, asm, cod/131A98]
       - [0x131AC8, c, src/cod/131AC8]            # func_00231AC8: if func_0017B230(0x14): tail call func_00205B30(9, 0)
       - [0x131AF8, c, src/cod/131AF8]            # func_00231AF8
       - [0x131B38, asm, src/cod/131B38]
@@ -1923,14 +1923,14 @@ segments:
       - [0x134AB0, c, src/cod/134AB0]
       - [0x134AB8, asm, src/cod/134AB8]
       - [0x1356C0, c, src/cod/1356C0]            # func_002356C0: store-arg-discard
-      - [0x1356D0, c, src/cod/1356D0]            # func_002356D0: pulse-set obj->_4E8 (1 then 0) via D_00631AE4->_15C; then func_0017CD18(0,0,0,0,0,100.0) + func_00203AA0(60)
+      - [0x1356D0, asm, cod/1356D0]
       - [0x135728, c, src/cod/135728]            # func_00235728: store-arg-discard
       - [0x135738, asm, src/cod/135738]
       - [0x1358F8, c, src/cod/1358F8]            # func_002358F8: store-arg-discard
       - [0x135908, asm, src/cod/135908]
       - [0x1359C8, c, src/cod/1359C8]            # func_002359C8: build buf with D_0061C300 16-byte struct + a0; call func_0017DF38(D_00631AE8, 0, &buf[4], 2, 100.0f)
       - [0x135A14, hasm, src/cod/135A14]
-      - [0x135A18, c, src/cod/135A18]            # func_00235A18: same shape as 103EE8
+      - [0x135A18, asm, cod/135A18]
       - [0x135A48, asm, src/cod/135A48]
       - [0x135B68, c, src/cod/135B68]            # func_00235B68: Sibling of 22F850 with last-arg = 0x20
       - [0x135B98, asm, src/cod/135B98]
@@ -1941,11 +1941,11 @@ segments:
       - [0x137B78, c, src/cod/137B78]            # func_00237B78: dispatch f1297A0+f205B30 based on f17B230(0x120)
       - [0x137BD0, c, src/cod/137BD0]            # func_00237BD0: if(D && f(0x120) && !f(0x123)) tail f2(0x166)
       - [0x137C18, asm, src/cod/137C18]
-      - [0x139710, c, src/cod/139710]            # func_00239710: volatile-spill a0 + 3-call wrapper (arg 0x83)
+      - [0x139710, asm, cod/139710]
       - [0x139750, c, src/cod/139750]            # func_00239750: func_00239750: 2 if/else branches calling func_001297A0+func_00205B30 with different ids
       - [0x1397F8, c, src/cod/1397F8]            # func_002397F8: guard+func_X+tail-call sibling (arg 0x31)
       - [0x139830, asm, src/cod/139830]
-      - [0x13A8E8, c, src/cod/13A8E8]            # func_0023A8E8: arg-spill + while(!f17B230(0x32)) + call sequence
+      - [0x13A8E8, asm, cod/13A8E8]
       - [0x13A978, asm, src/cod/13A978]
       - [0x13A9E0, c, src/cod/13A9E0]            # func_0023A9E0: store-arg-discard
       - [0x13A9F0, asm, src/cod/13A9F0]
@@ -1963,23 +1963,23 @@ segments:
       - [0x13AD68, asm, src/cod/13AD68]
       - [0x13AEA0, c, src/cod/13AEA0]            # func_0023AEA0: promote-test: subagent seed (unscored, may match)
       - [0x13AED4, asm, src/cod/13AED4]
-      - [0x13B4F0, c, src/cod/13B4F0]            # func_0023B4F0: sibling: &func_0023B518 instead
+      - [0x13B4F0, asm, cod/13B4F0]
       - [0x13B518, asm, src/cod/13B518]
       - [0x13C090, c, src/cod/13C090]            # func_0023C090: permuter score-0 promotion (fader gp_rel)
       - [0x13C0E8, c, src/cod/13C0E8]            # func_0023C0E8: permuter score-0 promotion (sibling 23C090)
       - [0x13C148, asm, cod/13C148]
       - [0x13C17C, asm, cod/13C17C]
       - [0x13C1C0, asm, src/cod/13C1C0]
-      - [0x13C290, c, src/cod/13C290]            # func_0023C290: cache D_00633B48 update keyed by D_00633B4C; ret -1
+      - [0x13C290, asm, cod/13C290]
       - [0x13C2F0, asm, src/cod/13C2F0]
       - [0x13C540, c, src/cod/13C540]            # func_0023C540: 2-cmp range check (FCC nop via postprocess)
       - [0x13C598, c, src/cod/13C598]            # func_0023C598: 2-cmp range check (FCC nop via postprocess)
       - [0x13C5F0, asm, src/cod/13C5F0]
-      - [0x13CA08, c, src/cod/13CA08]
+      - [0x13CA08, asm, cod/13CA08]
       - [0x13CA3C, asm, src/cod/13CA3C]
-      - [0x13CC18, c, src/cod/13CC18]            # func_0023CC18: same cache-update pattern as 23C290 family
+      - [0x13CC18, asm, cod/13CC18]
       - [0x13CC78, c, src/cod/13CC78]            # func_0023CC78: 4 const float writes: v1[0]=118, v1[1]=-192, v1[2]=-46; a0+0x1C=0.5; return 1
-      - [0x13CCB8, c, src/cod/13CCB8]
+      - [0x13CCB8, asm, cod/13CCB8]
       - [0x13CCE0, c, src/cod/13CCE0]            # func_0023CCE0: 1-cmp range check (FCC nop via postprocess)
       - [0x13CD1C, asm, src/cod/13CD1C]
       - [0x13D030, c, src/cod/13D030]            # func_0023D030: copy 2 sdata floats to *self->34, return 1
@@ -1987,10 +1987,10 @@ segments:
       - [0x13D050, asm, src/cod/13D050]
       - [0x13D0C8, c, src/cod/13D0C8]            # func_0023D0C8: promote permuter score-0
       - [0x13D0F0, asm, src/cod/13D0F0]
-      - [0x13D170, c, src/cod/13D170]            # func_0023D170: same cache-update pattern (sister of 23D2E8)
+      - [0x13D170, asm, cod/13D170]
       - [0x13D1D0, asm, src/cod/13D1D0]
-      - [0x13D2E8, c, src/cod/13D2E8]            # func_0023D2E8: cache-update (same pattern as 23C290) ret -1
-      - [0x13D348, c, src/cod/13D348]
+      - [0x13D2E8, asm, cod/13D2E8]
+      - [0x13D348, asm, cod/13D348]
       - [0x13D370, c, src/cod/13D370]            # func_0023D370: copy 2 sdata floats to *self->34, return 1
       - [0x13D38C, asm, src/cod/13D38C]
       - [0x13D420, c, src/cod/13D420]            # func_0023D420: idx==-1?&D_00633B60:D_005F3038[idx]; tail fD468
@@ -2016,24 +2016,24 @@ segments:
       - [0x13EDF0, c, src/cod/13EDF0]            # func_0023EDF0: score-0 promotion
       - [0x13EE24, hasm, src/cod/13EE24]            # func_0023EE24/E28: handwritten 0x18C bytes
       - [0x13EFB0, c, src/cod/13EFB0]
-      - [0x13EFB8, c, src/cod/13EFB8]            # func_0023EFB8: HW reg writes (NOP() trailing)
+      - [0x13EFB8, asm, cod/13EFB8]
       - [0x13EFF4, hasm, src/cod/13EFF4]
       - [0x13EFF8, c, src/cod/13EFF8]            # func_0023EFF8: cond call + gp_rel zero + SYNC + EI + ret 0
       - [0x13F030, asm, cod/13F030]
       - [0x13F06C, hasm, src/cod/13F06C]
       - [0x13F070, c, src/cod/13F070]            # func_0023F070
       - [0x13F07C, asm, src/cod/13F07C]
-      - [0x13F130, c, src/cod/13F130]            # func_0023F130: promote permuter score-0
+      - [0x13F130, asm, cod/13F130]
       - [0x13F160, c, src/cod/13F160]            # func_0023F160: init struct: [0]=0, [4]=0, [8]=0x3F, [C]=0; return p+0x10
       - [0x13F17C, asm, src/cod/13F17C]
-      - [0x13F598, c, src/cod/13F598]
+      - [0x13F598, asm, cod/13F598]
       - [0x13F5D0, c, src/cod/13F5D0]
       - [0x13F5FC, asm, src/cod/13F5FC]
       - [0x13F708, c, src/cod/13F708]            # func_0023F708: pack: write (a3<<24|a2<<16|a1) at a0[1], 0x50 at a0[2], 0 at a0[0], 0 at a0[3]
       - [0x13F73C, hasm, src/cod/13F73C]
       - [0x13F740, c, src/cod/13F740]            # func_0023F740: pack: write (a1<<27|a3<<16|a2) at a0[1], 0x51 at a0[2], 0/0 at a0[0]/a0[3]
       - [0x13F774, hasm, src/cod/13F774]
-      - [0x13F778, c, src/cod/13F778]
+      - [0x13F778, asm, cod/13F778]
       - [0x13F7B0, c, src/cod/13F7B0]
       - [0x13F7E0, c, src/cod/13F7E0]            # func_0023F7E0: tail call func_001A6E28(&D_0061C6B8, a0)
       - [0x13F7F0, asm, src/cod/13F7F0]
@@ -2041,7 +2041,7 @@ segments:
       - [0x13F95C, hasm, src/cod/13F95C]
       - [0x13FDA0, c, src/cod/13FDA0]            # func_0023FDA0: permuter score-0 (parked seed)
       - [0x13FDF0, hasm, src/cod/13FDF0]            # 3 handwritten functions: f23FDF0 (0x2A0), f240090 (0x184), f240218 (0x3E8)
-      - [0x140600, c, src/cod/140600]            # func_00240600: round-up self->_14 to 0x800 boundary (with sign correction), bracketed by func_00100560/func_00100540(self->_40)
+      - [0x140600, asm, cod/140600]
       - [0x140650, asm, src/cod/140650]
       - [0x140950, c, src/cod/140950]            # func_00240950: tail call func_00139598(a0 & 0x0FFFFFFF)
       - [0x140960, hasm, src/cod/140960]
@@ -2054,7 +2054,7 @@ segments:
       - [0x140BD0, c, src/cod/140BD0]            # func_00240BD0: scan D_00712CC0[0..D_00633B98) for self; for each match, log via func_001A6E28(&D,i)
       - [0x140C50, asm, src/cod/140C50]
       - [0x1413F0, c, src/PObj]                  # TU promotion: 0x2413F0..0x241A00 (2 INCLUDE_ASM)
-      - [0x141A00, c, src/cod/141A00]            # func_00241A00: wrap func_001A6E28(&D_0062E020)
+      - [0x141A00, asm, cod/141A00]
       - [0x141A20, asm, src/cod/141A20]
       - [0x141AE8, c, src/cod/141AE8]            # func_00241AE8
       - [0x141B28, asm, src/cod/141B28]
@@ -2062,7 +2062,7 @@ segments:
       - [0x141C44, asm, src/cod/141C44]
       - [0x143600, c, src/cod/143600]            # func_00243600: 2-call wrapper, save 1st result return last
       - [0x14363C, asm, src/cod/14363C]
-      - [0x1436C8, c, src/cod/1436C8]            # func_002436C8
+      - [0x1436C8, asm, cod/1436C8]
       - [0x1436E4, asm, src/cod/1436E4]
       - [0x1438B8, c, src/cod/1438B8]            # VU0 wrapper (vu0.h macros)
       - [0x1438E4, hasm, src/cod/1438E4]            # func_002438E4 + func_002438E8: handwritten 4-iter VU0 matrix*vec batch using addi (not addiu)
@@ -2104,7 +2104,7 @@ segments:
       - [0x144444, hasm, src/cod/144444]
       - [0x144448, c, src/cod/144448]            # VU0 wrapper (vu0.h macros)
       - [0x144460, hasm, src/cod/144460]
-      - [0x1445F8, c, src/cod/1445F8]            # func_002445F8: memset(p,0,n)
+      - [0x1445F8, asm, cod/1445F8]
       - [0x144630, c, src/cod/144630]            # func_00244630: bound-checked table lookup D_00550710[a0] for a0<10
       - [0x144658, asm, src/cod/144658]
       - [0x144738, c, src/cod/144738]            # func_00244738: getset D_00550738 (shared lui)
@@ -2119,10 +2119,10 @@ segments:
       - [0x1450A8, c, src/cod/1450A8]            # func_002450A8: 0/8/4 stores
       - [0x1450B8, c, src/cod/1450B8]            # func_002450B8
       - [0x1450C8, asm, src/cod/1450C8]
-      - [0x145120, c, src/cod/145120]            # func_00245120: alloc(self,tag); self->_8=r; ring/cmd setup at *self->_0 then bump _0+=8
-      - [0x145178, c, src/cod/145178]            # func_00245178: ring push helper variant of func_00245120 (mask 0x70000000 instead of 0x10000000)
-      - [0x1451D0, c, src/cod/1451D0]            # func_002451D0: f5318(self,2,3); enqueue tag using flag (0xD0M or 0x50M)
-      - [0x145228, c, src/cod/145228]            # func_00245228: *a0[3] += (a0[0] - a0[3] - 1) / 4; clear a0[3]
+      - [0x145120, asm, cod/145120]
+      - [0x145178, asm, cod/145178]
+      - [0x1451D0, asm, cod/1451D0]
+      - [0x145228, asm, cod/145228]
       - [0x145254, hasm, src/cod/145254]
       - [0x145258, c, src/cod/145258]            # func_00245258: bump alloc: *(qword*)p=a1; p+=0x10; q[5]=old_p
       - [0x145270, asm, src/cod/145270]
@@ -2165,7 +2165,7 @@ segments:
       - [0x146B38, c, src/cod/146B38]
       - [0x146B78, c, src/cod/146B78]            # func_00246B78: permuter score-0 promotion (lazy init from sentinel -1)
       - [0x146BD4, asm, src/cod/146BD4]
-      - [0x147088, c, src/cod/147088]            # func_00247088: permuter score-0 (parked seed)
+      - [0x147088, asm, cod/147088]
       - [0x1470D4, hasm, src/cod/1470D4]
       - [0x1470D8, c, src/cod/1470D8]            # func_002470D8: func_00247088(); func_00100560(D_00550864); ret 0
       - [0x147104, hasm, src/cod/147104]
@@ -2173,28 +2173,28 @@ segments:
       - [0x147114, asm, src/cod/147114]
       - [0x147348, c, src/cod/147348]            # func_00247348: D_00550860=0; func_002641D8(&D_00715F28, 0, 4); ret 0
       - [0x14737C, asm, src/cod/14737C]
-      - [0x1485C0, c, src/cod/1485C0]            # func_002485C0
+      - [0x1485C0, asm, cod/1485C0]
       - [0x1485DC, asm, src/cod/1485DC]
-      - [0x148790, c, src/cod/148790]            # func_00248790
+      - [0x148790, asm, cod/148790]
       - [0x1487AC, asm, src/cod/1487AC]
-      - [0x148B40, c, src/cod/148B40]            # func_00248B40
+      - [0x148B40, asm, cod/148B40]
       - [0x148B5C, asm, src/cod/148B5C]
-      - [0x149490, c, src/cod/149490]            # func_00249490
+      - [0x149490, asm, cod/149490]
       - [0x1494AC, asm, src/cod/1494AC]
-      - [0x1498B8, c, src/cod/1498B8]            # func_002498B8
+      - [0x1498B8, asm, cod/1498B8]
       - [0x1498D4, asm, src/cod/1498D4]
       - [0x14A4D8, c, src/cod/14A4D8]            # func_0024A4D8: set D_00550878 = -1; call func_002641D8(&D_007163A8, 0, 4); return 0
       - [0x14A510, asm, src/cod/14A510]
       - [0x14A718, c, src/cod/14A718]            # func_0024A718: wrap func_0024A510(a0, a1, a2, &buf[16])
       - [0x14A734, hasm, src/cod/14A734]
-      - [0x14A738, c, src/cod/14A738]            # func_0024A738
+      - [0x14A738, asm, cod/14A738]
       - [0x14A754, asm, src/cod/14A754]
       - [0x14A980, c, src/cod/14A980]            # func_0024A980: wrap func_0024A758(a0,a1,a2, &buf[16], 0)
-      - [0x14A9A0, c, src/cod/14A9A0]            # func_0024A9A0: wrap func_0024A758(a0..a3, 0)
+      - [0x14A9A0, asm, cod/14A9A0]
       - [0x14A9BC, asm, src/cod/14A9BC]
-      - [0x14AAC8, c, src/cod/14AAC8]            # func_0024AAC8
+      - [0x14AAC8, asm, cod/14AAC8]
       - [0x14AAE4, hasm, src/cod/14AAE4]
-      - [0x14AAE8, c, src/cod/14AAE8]            # func_0024AAE8: wrap func_0024A9C0(a0, &D_0062E668, a1, 1)
+      - [0x14AAE8, asm, cod/14AAE8]
       - [0x14AB10, asm, src/cod/14AB10]
       - [0x14AE10, c, src/cod/14AE10]            # func_0024AE10: return (func_00100930(4) & 0x10000) != 0
       - [0x14AE38, hasm, src/cod/14AE38]
@@ -2221,9 +2221,9 @@ segments:
       - [0x14BB8C, hasm, src/cod/14BB8C]
       - [0x14BB90, c, src/cod/14BB90]            # func_0024BB90: getset D_00717758[5]; sw a1 to [6]
       - [0x14BBA8, c, src/cod/14BBA8]            # func_0024BBA8: getset D_00717758[3]; sw a1 to [4]
-      - [0x14BBC0, c, src/cod/14BBC0]            # func_0024BBC0: signed a0?D_00717764[a0]:D_0071776C[a0]; sw a1, sw a2
+      - [0x14BBC0, asm, cod/14BBC0]
       - [0x14BBEC, hasm, src/cod/14BBEC]
-      - [0x14BBF0, c, src/cod/14BBF0]            # func_0024BBF0: signed a0 selects D_00717764/D_0071776C; *base[a0*8] = 0
+      - [0x14BBF0, asm, cod/14BBF0]
       - [0x14BC18, asm, src/cod/14BC18]
       - [0x14BD50, c, src/cod/14BD50]
       - [0x14BD8C, hasm, src/cod/14BD8C]
@@ -2241,16 +2241,16 @@ segments:
       - [0x14D9E4, hasm, src/cod/14D9E4]
       - [0x14D9E8, c, src/cod/14D9E8]
       - [0x14DA1C, hasm, src/cod/14DA1C]
-      - [0x14DA20, c, src/cod/14DA20]            # func_0024DA20: 5-arg via $t0=D_00717BD8 (3rd-arg=9)
+      - [0x14DA20, asm, cod/14DA20]
       - [0x14DA4C, hasm, src/cod/14DA4C]
-      - [0x14DA50, c, src/cod/14DA50]            # func_0024DA50: 5-arg via $t0=D_00717BD8
+      - [0x14DA50, asm, cod/14DA50]
       - [0x14DA7C, hasm, src/cod/14DA7C]
       - [0x14DA80, c, src/cod/14DA80]            # func_0024DA80: 5-arg via $t0=D_00717BD8 (3rd-arg=3)
       - [0x14DAB8, asm, src/cod/14DAB8]
-      - [0x14DC40, c, src/cod/14DC40]
-      - [0x14DC90, c, src/cod/14DC90]
+      - [0x14DC40, asm, cod/14DC40]
+      - [0x14DC90, asm, cod/14DC90]
       - [0x14DCE4, hasm, src/cod/14DCE4]
-      - [0x14DCE8, c, src/cod/14DCE8]
+      - [0x14DCE8, asm, cod/14DCE8]
       - [0x14DD30, asm, src/cod/14DD30]
       - [0x14E4C8, c, src/cod/14E4C8]
       - [0x14E528, asm, src/cod/14E528]
@@ -2269,7 +2269,7 @@ segments:
       - [0x150F90, asm, src/cod/150F90]
       - [0x151AB0, c, src/cod/151AB0]            # func_00251AB0: auto
       - [0x151AB8, c, src/cod/151AB8]            # func_00251AB8: promote permuter score-0
-      - [0x151AF0, c, src/cod/151AF0]            # func_00251AF0: DMA-tag setup wrapper: p[0xB0]=1; p[0xD8]=a1|0x20000000; p[0xE4]=a2; p[0xDC]=0; p[0xE0]=0; f(self)
+      - [0x151AF0, asm, cod/151AF0]
       - [0x151B38, c, src/cod/151B38]
       - [0x151B7C, hasm, src/cod/151B7C]
       - [0x151B80, c, src/cod/151B80]
@@ -2336,7 +2336,7 @@ segments:
       - [0x153F9C, hasm, src/cod/153F9C]
       - [0x154CF8, c, src/cod/154CF8]            # func_00254CF8: RMW MMIO 0x10002010: replace bit-23 with (a0 << 23)
       - [0x154D20, asm, src/cod/154D20]
-      - [0x154F08, c, src/cod/154F08]            # func_00254F08: func_002560D8(3)
+      - [0x154F08, asm, cod/154F08]
       - [0x154F24, asm, src/cod/154F24]
       - [0x155F50, c, src/cod/155F50]            # func_00255F50: *(0x10002000)=a0; D_005524E4=((int*)D_00552DC8)[a0>>28]
       - [0x155F80, asm, src/cod/155F80]
@@ -2432,11 +2432,11 @@ segments:
       - [0x15E2E8, asm, src/cod/15E2E8]
       - [0x160610, c, src/cod/160610]            # func_00260610: wrap func_00263110(ll, ll); return 0
       - [0x160634, asm, src/cod/160634]
-      - [0x1608E0, c, src/cod/1608E0]            # func_002608E0: fabsf via FABSF_BIT_TWIDDLE
+      - [0x1608E0, asm, cod/1608E0]
       - [0x160900, asm, src/cod/160900]
-      - [0x1609E8, c, src/cod/1609E8]            # retry isnan with REG pin
+      - [0x1609E8, asm, cod/1609E8]
       - [0x160A0C, asm, src/cod/160A0C]
-      - [0x160B70, c, src/cod/160B70]            # retry copysign via macro
+      - [0x160B70, asm, cod/160B70]
       - [0x160BA0, asm, src/cod/160BA0]
       - [0x160BF4, asm, src/cod/160BF4]
       - [0x160CA8, c, src/cod/160CA8]            # func_00260CA8: guard + tail-call (void+return TCO trick)
@@ -2464,7 +2464,7 @@ segments:
       - [0x164D90, asm, src/cod/164D90]
       - [0x164E68, c, src/cod/164E68]            # func_00264E68: auto
       - [0x164E70, asm, src/cod/164E70]
-      - [0x1657F0, c, src/cod/1657F0]            # func_002657F0: wrap func_00265818(a0,a1,D_00553244+0x5C)
+      - [0x1657F0, asm, cod/1657F0]
       - [0x165814, asm, src/cod/165814]
       - [0x165AF0, c, src/cod/165AF0]            # func_00265AF0: D[0] + 3-arg passthrough (sibling of 26D430 family)
       - [0x165B24, hasm, src/cod/165B24]
@@ -2473,7 +2473,7 @@ segments:
       - [0x166870, asm, cod/166870]
       - [0x1668B4, asm, src/cod/1668B4]
       - [0x168F08, c, src/cod/168F08]            # func_00268F08: infinite loop calling 2 funcs
-      - [0x168F28, c, src/cod/168F28]            # func_00268F28: wrap func_0026E5C8(a0, 0)
+      - [0x168F28, asm, cod/168F28]
       - [0x168F44, asm, src/cod/168F44]
       - [0x16A5E0, c, src/cod/16A5E0]            # func_0026A5E0: tail call func_0026B018(a0, &func_0026A330)
       - [0x16A5EC, hasm, src/cod/16A5EC]
@@ -2483,7 +2483,7 @@ segments:
       - [0x16B144, hasm, src/cod/16B144]
       - [0x16B148, c, src/cod/16B148]            # func_0026B148: promote-test: subagent seed (unscored, may match)
       - [0x16B174, hasm, src/cod/16B174]
-      - [0x16B178, c, src/cod/16B178]            # func_0026B178: wrap func_0026B138(D_00553244)
+      - [0x16B178, asm, cod/16B178]
       - [0x16B19C, asm, src/cod/16B19C]
       - [0x16BEE0, c, src/cod/16BEE0]
       - [0x16BEE8, c, src/cod/16BEE8]
@@ -2492,24 +2492,24 @@ segments:
       - [0x16BFC4, asm, src/cod/16BFC4]
       - [0x16C370, c, src/cod/16C370]            # func_0026C370: alloc + init flag/ptr; return base
       - [0x16C3A8, asm, src/cod/16C3A8]
-      - [0x16CF10, c, src/cod/16CF10]            # func_0026CF10: func_0026A330() passthrough
+      - [0x16CF10, asm, cod/16CF10]
       - [0x16CF2C, asm, src/cod/16CF2C]
       - [0x16D128, c, src/cod/16D128]            # func_0026D128: GIF-tag-on-fail wrapper, unsigned variant: D=0; ret=f(a1); if(ret==0xFFFFFFFF && D!=0) self[0]=D
       - [0x16D184, asm, src/cod/16D184]
       - [0x16D430, c, src/cod/16D430]            # func_0026D430: D_00553244[0] + 1-arg passthrough (sibling of 16B148 family)
       - [0x16D458, c, src/cod/16D458]            # func_0026D458: promote-test: subagent seed (unscored, may match)
       - [0x16D484, hasm, src/cod/16D484]
-      - [0x16D488, c, src/cod/16D488]            # func_0026D488: wrap func_0026D188(D_00553244)
+      - [0x16D488, asm, cod/16D488]
       - [0x16D4AC, hasm, src/cod/16D4AC]
       - [0x16D4B0, c, src/cod/16D4B0]            # func_0026D4B0: D_00553244[0] + 1-arg passthrough (sibling of 16B148 family)
       - [0x16D4D8, c, src/cod/16D4D8]            # func_0026D4D8: clones func_0026ECC8 shape for func_00245680(a1, a2)
-      - [0x16D538, c, src/cod/16D538]            # func_0026D538: func_00245678() passthrough
+      - [0x16D538, asm, cod/16D538]
       - [0x16D554, asm, src/cod/16D554]
-      - [0x16D6A8, c, src/cod/16D6A8]            # func_0026D6A8: func(p->54, (short)p->E)
+      - [0x16D6A8, asm, cod/16D6A8]
       - [0x16D6C8, asm, src/cod/16D6C8]
       - [0x16E5C8, c, src/cod/16E5C8]            # func_0026E5C8: promote-test: subagent seed (unscored, may match)
       - [0x16E5F4, hasm, src/cod/16E5F4]
-      - [0x16E5F8, c, src/cod/16E5F8]            # func_0026E5F8: func_002633B8(func_0026E5C8(a0, a1))
+      - [0x16E5F8, asm, cod/16E5F8]
       - [0x16E61C, asm, src/cod/16E61C]
       - [0x16E840, c, src/cod/16E840]            # func_0026E840: D[0] + 3-arg passthrough sibling of 265AF0
       - [0x16E874, asm, src/cod/16E874]

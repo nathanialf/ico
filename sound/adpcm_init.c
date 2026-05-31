@@ -117,27 +117,7 @@ int *func_0013FEE0(int idx, int target)
     return 0;
 }
 
-int *func_0013FF20(int a0)
-{
-    int *res;
-    int i = 0;
-    do {
-        int *p = D_00281A70[i];
-        if (p == 0) { res = 0; goto check; }
-        ANCHOR(p);
-        do {
-            if (p[0] == a0) { res = p; goto check; }
-            p = (int *)p[0x10 / 4];
-        } while (p != 0);
-        res = 0;
-    check:
-        if (res != 0) goto ret_res;
-        i++;
-    } while (i < 8);
-    return 0;
-ret_res:
-    return res;
-}
+INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_0013FF20);
 
 void func_0013FF80(void) {}
 
@@ -265,40 +245,7 @@ INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140888);
 extern int func_00143B88(void);
 extern int func_0025DDF0(long long mask, int a, int b);
 
-void func_00140A20(short *self, int idx)
-{
-    short v18, v19;
-    int n, oi, on;
-    n = idx + 1;
-    oi = idx * 2;
-    on = n * 2;
-    ADDU_RT(oi, (int)self);
-    v18 = *(short *)(oi + 0x3C);
-    ADDU_RT(on, (int)self);
-    v19 = *(short *)(on + 0x40);
-    if (D_006321E8[0] == 0) {
-        v19 = 0;
-        v18 = 0;
-    }
-    if (*(int *)((char *)self + 0x38) == 0x10000) {
-        return;
-    }
-    if (func_00143B88() == 0) {
-        int *voices = (int *)((char *)self + 8);
-        int gi = idx * 4;
-        ADDU_RT(gi, (int)voices);
-        func_0025DDF0(1LL << *(int *)gi, v18, 0);
-        voices = (int *)((char *)voices + n * 4);
-        func_0025DDF0(1LL << *voices, 0, v19);
-    } else {
-        int *voices = (int *)((char *)self + 8);
-        int gi = idx * 4;
-        ADDU_RT(gi, (int)voices);
-        func_0025DDF0(1LL << *(int *)gi, v18, v19);
-        voices = (int *)((char *)voices + n * 4);
-        func_0025DDF0(1LL << *voices, v18, v19);
-    }
-}
+INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140A20);
 
 void func_00140B30(int *self, int idx, int val)
 {
@@ -346,69 +293,10 @@ extern int D_00633CBC;
 extern int D_006A9590[];
 extern int func_0025DAD8(int x);
 extern void func_0025DCF0(void);
-void func_00140BE0(void)
-{
-    int *p = D_006A9590;
-    int i;
-    int a;
-    char *qb;
-    int *q;
-    int *r;
-    for (i = 3; i >= 0; i--) {
-        *p = func_0025DAD8(1);
-        p++;
-    }
-    a = func_00135EB8(0xB8800, D_00557B78, 0x44);
-    D_00633CC4 = a;
-    if ((a & 0x7FF) != 0) {
-        D_00633CB0 = (a / 0x800 + 1) * 0x800;
-    } else {
-        D_00633CB0 = a;
-    }
-    func_0025DCF0();
-    i = 1;
-
-    qb = (char *)D_006A94E0;
-    q = (int *)(qb + 0x58);
-    do {
-        *q = 0;
-        q = (int *)((char *)q - 0x58);
-    } while (--i >= 0);
-    i = 1;
-    MEM_BARRIER();
-    r = &D_00633CBC;
-    do {
-        *r = 0;
-        r--;
-    } while (--i >= 0);
-    D_00633CC0 = 0;
-}
+INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140BE0);
 extern int D_00633CB0;
 
-int func_00140CE0(void)
-{
-    register int *p = D_00633CB8;
-    register int *q REG("$6") = D_00633CB8;
-    int i = 0;
-    NOP();
-loop:
-    {
-        register int *qsave = q;
-        if (*p == 0) goto found;
-        i++;
-        q = qsave + 1;
-        p++;
-        if (i < 2) goto loop;
-    }
-    func_001A6E28((int *)D_00557B90);
-    return 0;
-found:
-    {
-        register int base_val REG("$3") = D_00633CB0;
-        *q = 1;
-        return base_val + i * 0x5C000;
-    }
-}
+INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140CE0);
 int func_00140D58(void)
 {
     unsigned char buf[4];

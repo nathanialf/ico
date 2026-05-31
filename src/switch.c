@@ -82,26 +82,7 @@ int func_001C0690(char *self_) {
 extern void func_001BC9B0(void);
 extern void func_001BC9B8(void);
 
-int func_001C06A0(char *self_, int a1)
-{
-    GObj *self = (GObj *)self_;
-    register Sub15C *sub = self->p_15C;
-    Obj800 *s0 = sub->p_800;
-    register int f58 REG("$3") = s0->f_58;
-    if (f58 == 0 || s0->f_110 == 0) {
-        if (a1 >= 0) {
-            func_001BC9B0();
-        } else {
-            func_001BC9B8();
-        }
-        s0->f_114 = 0;
-    }
-    {
-        register int r REG("$2") = 1;
-        s0->f_110 = r;
-        return r;
-    }
-}
+INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C06A0);
 extern void func_001D12D8(int *self);
 extern void func_001D12C0(int *self, int v);
 extern void func_001D12A8(int *self, int v);
@@ -138,20 +119,7 @@ void func_001C0860(char *self_, int val) {
     p->f_1C = val;
 }
 
-void func_001C0870(int *self, int x)
-{
-    GObj *g = (GObj *)self;
-    register Sub15C *t;
-    Obj800 *q;
-    register int v REG("$3");
-    t = g->p_15C;
-    q = t->p_800;
-    v = q->f_4;
-    if (v != x) {
-        func_001BC0A8();
-    }
-    q->f_4 = x;
-}
+INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C0870);
 
 INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C08B8);
 
@@ -169,31 +137,7 @@ extern unsigned char D_004BEFD0[];
 extern unsigned int D_0028CA88[];
 extern int func_0019F310(int x, void *y);
 typedef struct { long long w[4]; } __attribute__((packed)) SwitchBuf20_09C8;
-int *func_001C09C8(char *self, void *arg1)
-{
-    int *buf = (int *)func_0013A0F8(D_00632010, 0x20, D_00618630, 0x8D);
-    int *entry;
-    *(SwitchBuf20_09C8 *)buf = *(SwitchBuf20_09C8 *)D_004BEFD0;
-    if (((int *)arg1)[0x30 / 4] != 0) {
-        buf[0x14 / 4] = 1;
-    } else {
-        buf[0x14 / 4] = 0;
-    }
-    entry = (int *)((char *)D_0028CA88 + (*(int **)(self + 0x15C))[0x814 / 4] * 0x28);
-    buf[0xC / 4] = func_0019F310(entry[0], arg1);
-
-    {
-        register void *a1 REG("$5") = arg1;
-        register int *t1;
-        register int idx2 REG("$2");
-        KEEP_LIVE(a1);
-        t1 = *(int **)(self + 0x15C);
-        idx2 = t1[0x814 / 4];
-        entry = (int *)((char *)D_0028CA88 + idx2 * 0x28);
-        buf[0x10 / 4] = func_0019F310(entry[1], a1);
-    }
-    return buf;
-}
+INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C09C8);
 
 /* Override ee-gcc's default .align 3 (8-byte) function alignment so the
  * matched body lands at its expected 4-aligned VMA offset 0x114 (the
@@ -215,52 +159,14 @@ int func_001C0BE0(char *self) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C0BF4);
-int func_001C0BF8(char *self)
-{
-    register int accum REG("$4");
-    short *p = *(short **)((char *)((GObj *)(self))->p_15C + 0x800);
-    if (__builtin_abs((int)p[1]) < 0xBB9) {
-        accum = 0;
-        MATERIALIZE(accum);
-        if (__builtin_abs((int)p[0]) < 0xBB9) goto done;
-    }
-    accum = 1;
-done:
-
-    return accum;
-}
-TRAILING_PAD_NOP();
+INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C0BF8);
 extern int D_00632010;
 extern int func_0013A0F8(int handle, int size, const char *file, int line);
 extern unsigned char D_004BEFD0[];
 extern unsigned int D_0028CA88[];
 extern int func_0019F310(int x, void *y);
 typedef struct { long long w[4]; } __attribute__((packed)) SwitchBuf20;
-int *func_001C0C40(char *self, void *arg1)
-{
-    int *buf = (int *)func_0013A0F8(D_00632010, 0x20, D_00618630, 0x12C);
-    int *entry;
-    *(SwitchBuf20 *)buf = *(SwitchBuf20 *)D_004BEFD0;
-    if (((int *)arg1)[0x30 / 4] != 0) {
-        buf[0x14 / 4] = 1;
-    } else {
-        buf[0x14 / 4] = 0;
-    }
-    entry = (int *)((char *)D_0028CA88 + (*(int **)(self + 0x15C))[0x814 / 4] * 0x28);
-    buf[0xC / 4] = func_0019F310(entry[0], arg1);
-
-    {
-        register void *a1 REG("$5") = arg1;
-        register int *t1;
-        register int idx2 REG("$2");
-        KEEP_LIVE(a1);
-        t1 = *(int **)(self + 0x15C);
-        idx2 = t1[0x814 / 4];
-        entry = (int *)((char *)D_0028CA88 + idx2 * 0x28);
-        buf[0x10 / 4] = func_0019F310(entry[1], a1);
-    }
-    return buf;
-}
+INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C0C40);
 
 /* ASCII debug strings — re-derived from EE rodata bytes. */
 /* ASCII preview: "<ESC>[33mInitialize candle geometries.<ESC>[m<LF>" */

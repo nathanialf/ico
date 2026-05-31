@@ -26,45 +26,9 @@ extern void  func_00263FF0(char *buf, int sz, int *list);
 extern int   func_0013A0F8(int a0, int a1, char *file, int line);
 extern void  func_00139D78(int a0, int a1, char *a2, int a3);
 
-int func_001F6CB0(int size)
-{
-    int rv = 0;
-    if (D_00633780 == -1) {
-        func_001A6E28(D_0061A890);
+INCLUDE_ASM("asm/nonmatchings/src/Basic", func_001F6CB0);
 
-        func_001AD768(D_0061A8A8, 0x174);
-
-        {
-            register char *buf REG("$4") = D_0061A8A8;
-            register int *list = D_00633788;
-
-            func_00263FF0(buf, 0x174, list);
-        }
-
-    }
-    switch (D_00633780) {
-    case 0: {
-        int ret;
-        D_00633784 += 0x30 + size;
-        ret = func_0013A0F8(D_00632014, size, D_0061A8A8, 0x17B);
-
-        rv = ret;
-        break;
-    }
-    case 1:
-        rv = func_0013A0F8(D_00632024, size, D_0061A8A8, 0x17E);
-        break;
-    }
-    return rv;
-}
-
-void func_001F6D90(void *p)
-{
-    if (p != 0) {
-        func_00139598(p);
-        DEFEAT_TCO();
-    }
-}
+INCLUDE_ASM("asm/nonmatchings/src/Basic", func_001F6D90);
 
 void func_001F6DB0(void) {}
 
@@ -78,10 +42,4 @@ int func_001F6DB8(int a0)
     return rv;
 }
 
-void func_001F6E00(int a0, int a1)
-{
-    register int *a2_arg __asm__("$6");
-    LA_SPLIT(a2_arg, D_0061A8A8);
-    func_00139D78(a0, a1, (int *)a2_arg, 0x1A8);
-    DEFEAT_TCO();
-}
+INCLUDE_ASM("asm/nonmatchings/src/Basic", func_001F6E00);

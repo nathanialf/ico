@@ -195,23 +195,7 @@ extern void func_0014BC30(int *a, int b, int c);
 INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014AF70);
 INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014AFB8);
 
-int func_0014B000(int a0)
-{
-    char *base;
-    int idx;
-    int rv;
-    if (a0 == 0) goto done;
-    base = D_006124F8;
-    MATERIALIZE(base);
-    idx = func_001F40C8(a0);
-    base += idx * 0x24;
-    rv = *(int *)(base + 0x1C);
-    goto end;
-done:
-    rv = 0;
-end:
-    return rv;
-}
+INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014B000);
 
 int func_0014B048(int *a0)
 {
@@ -254,41 +238,10 @@ int *func_0014B0B8(int a0, int a1) {
     return best;
 }
 
-void func_0014B150(char *self) {
-    char *sub = *(char **)(self + 0x164);
-    *(volatile int *)(sub + 0x9C) = 0;
-    *(volatile int *)(sub + 0x98) = 0;
-    KEEP_LIVE_MEM(sub);
-    *(int *)(sub + 0xA0) = 0;
-}
+INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014B150);
 
 /* func_0014B164 is a 4-byte nop pad absorbed into func_0014B168's .s. */
-int func_0014B168(char *self, int a1, float *a2, int a3, int a4)
-{
-    char *sub = *(char **)(self + 0x164);
-    register int rv REG("$4") = 0;
-    if (a3 == 6) {
-        *(volatile int *)(sub + 0x9C) = 0;
-        *(volatile int *)(sub + 0x98) = 0;
-        *(volatile int *)(sub + 0xA0) = 0;
-        goto end;
-    }
-    if (a3 < *(int *)(sub + 0x9C)) {
-        goto end;
-    }
-    *(int *)(sub + 0x98) = a1;
-    if (a2 != 0) {
-        *(float *)(sub + 0xB0) = a2[0];
-        *(float *)(sub + 0xB4) = a2[1];
-        *(float *)(sub + 0xB8) = a2[2];
-    }
-    *(volatile int *)(sub + 0x9C) = a3;
-    rv = 1;
-    *(volatile int *)(sub + 0xA0) = a4;
-end:
-    ANCHOR(rv);
-    return rv;
-}
+INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014B168);
 
 void func_0014B1D0(int *self)
 {
@@ -334,22 +287,7 @@ void func_0014B270(char *self, int op, int int_val, float float_val) {
     }
 }
 
-int func_0014B2F0(char *a0, int a1)
-{
-    char *p;
-    long long val;
-    int mask;
-    register int ret REG("$2");
-    p = *(char **)(a0 + 0x164);
-    ret = 0;
-    if (p == 0) goto end;
-    ret = 1;
-    val = *(long long *)(p + 0x58);
-    mask = 1 << a1;
-    if ((val & mask) == 0) ret = 0;
-end:
-    return ret;
-}
+INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014B2F0);
 
 void func_0014B318(void) {}
 
@@ -359,15 +297,7 @@ void func_0014B320(char *self, float val) {
     *(float *)(p + 0x334) = val;
 }
 
-void func_0014B330(char *self, unsigned int x, float f) {
-    char *sub = *(char **)(self + 0x164);
-    char *p = *(char **)(sub + 0x670);
-    if (x >= *(unsigned int *)(p + 0x54)) {
-        *(unsigned int *)(p + 0x54) = x;
-        DEFEAT_TCO();
-        *(float *)(p + 0x58) = f;
-    }
-}
+INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014B330);
 
 float func_0014B358(int idx)
 {

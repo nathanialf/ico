@@ -83,16 +83,7 @@ void func_00176150(volatile unsigned int a0)
 }
 
 /* func_00176194 is a 4-byte nop pad absorbed into func_00176198's .s. */
-void func_00176198(int a0)
-{
-    int s;
-    DEFEAT_TCO();
-    s = a0;
-    __asm__ volatile("" : : "r"(&s), "r"(s) : "memory");
-    NOP();
-    func_0014A3A8(a0);
-
-}
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00176198);
 extern int D_00631AE4;
 extern int D_00631AE8;
 

@@ -58,25 +58,7 @@ extern void func_001BAF48(int x);
 extern void func_001BA5D0(int x, int y);
 extern void func_001D12A8(int *self, int y);
 
-void func_001EA3E0(int *self)
-{
-    register int i = 0;
-    Sub15C *sub = ((GObj *)self)->p_15C;
-    register Obj800 *s2 REG("$18") = sub->p_800;
-    int count = s2->f_20;
-    s2->f_28 = 1;
-    if (count > 0) {
-        do {
-            int *arr;
-            arr = (int *)s2->p_24;
-            func_001BAF48(arr[i]);
-            arr = (int *)s2->p_24;
-            func_001BA5D0(arr[i], 1);
-            i++;
-        } while (i < count);
-    }
-    return func_001D12A8(self, 0x65);
-}
+INCLUDE_ASM("asm/nonmatchings/src/spider", func_001EA3E0);
 
 INCLUDE_ASM("asm/nonmatchings/src/spider", func_001EA480);
 INCLUDE_ASM("asm/nonmatchings/src/spider", func_001EA5E8);

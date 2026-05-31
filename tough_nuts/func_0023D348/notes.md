@@ -223,3 +223,17 @@ glabel func_0023D348
     /* 13D36C 0023D36C 1C0081E4 */   swc1      $f1, 0x1C($a0)
 endlabel func_0023D348
 ```
+
+---
+
+## Attempt at 2026-05-31
+
+**Reason parked:** crutch-removal: deleting bucket A/B macros (KEEP_LIVE)
+
+Seed: `tough_nuts/func_0023D348/13D348.c.new`
+
+Disassembly excerpt:
+
+```
+(no asm/cod/*.s found for func_0023D348; check asm/matchings/cod/13D348/)
+```

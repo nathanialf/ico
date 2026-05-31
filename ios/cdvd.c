@@ -281,42 +281,7 @@ extern int func_0024D9E8(int a0, int a1);
 extern int func_00135A48(int a0, int a1);
 extern void func_00133570(void);
 
-void func_00131480(int *a0)
-{
-    int s1 = a0[0x134 / 4];
-    int g = D_00632870;
-    int sz, rounded;
-    D_00633C78 = g;
-    a0[0x30 / 4] = 0;
-    a0[0xC / 4] = 0;
-    if (s1 == D_0063286C)
-    {
-        s1 += g;
-    }
-    else
-    {
-        D_00633C78 = 0;
-    }
-    sz = func_00135EB8(0x28010, D_00556818, 0x235);
-    a0[0x160 / 4] = sz;
-    rounded = (sz + 0xF) & 0xFFFFFFF0u;
-    a0[0x164 / 4] = rounded;
-    func_0024D9B8(0x50, 5, rounded);
-    {
-        register unsigned int limit REG("$2") = a0[0x138 / 4];
-        if (limit > (unsigned int)(D_00633C78 << 11))
-        {
-            int r;
-            a0[0x14 / 4] = s1;
-            r = func_0024D9E8(s1, (int)((char *) a0 + 0x158));
-            if (r == 0)
-            {
-                a0[0xC / 4] = func_0024D7B0();
-            }
-        }
-    }
-    a0[0x15C / 4] = func_00135A48((int) func_00133570, (int) a0);
-}
+INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131480);
 extern void func_001354B8(int a0);
 
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131560);
@@ -437,40 +402,5 @@ extern int func_00265168(int a0, unsigned char *buf);
 extern char D_0062FC79[];
 extern char D_00631F70[];
 
-int func_00133218(int a0)
-{
-    unsigned char buf[0x100];
-    unsigned char *p = buf;
-    register unsigned char c;
-    unsigned char nc;
-    func_00264DF8(buf, D_00631F70, a0);
-    c = buf[0];
-    do
-    {
-        register int t;
-        int sc;
-        ANCHOR(c);
-        t = (int) c << 24;
-        sc = t >> 24;
-        if (sc == '/')
-        {
-            *p = '\\';
-        }
-        else
-        {
-            int r = sc - 0x20;
-            if ((D_0062FC79[sc] & 2) == 0)
-            {
-                r = sc;
-            }
-            *p = r;
-        }
-        p++;
-        nc = *p;
-        c = nc;
-        ANCHOR(c);
-    } while (nc != 0);
-    MEM_BARRIER();
-    return func_00265168(a0, buf);
-}
+INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00133218);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001332B8);

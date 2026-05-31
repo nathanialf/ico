@@ -760,25 +760,7 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0016A460);
 extern int func_00109F10(int *obj, int code);
 extern void func_002438B8(int *self, int v, char *p);
 
-void func_0016A5F0(int *a0, int *a1)
-{
-    int idx = func_00109F10(a1, 0x23);
-    int c = *(int *)((char *)a1 + 0xC);
-    *(int *)a0 = 0;
-    if (c == 4) {
-        *(float *)((char *)a0 + 0x4) = -1.0f;
-    } else {
-        *(float *)((char *)a0 + 0x4) = 1.0f;
-    }
-    *(int *)((char *)a0 + 0x8) = 0;
-    MEM_BARRIER();
-    *(int *)((char *)a0 + 0xC) = 0;
-    {
-        register int base =
-            *(int *)(*(int *)((char *)a1 + 0x15C) + 0xC);
-        func_002438B8(a0, base + (idx << 6), (char *)a0);
-    }
-}
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0016A5F0);
 
 void func_0016A678(void) {
     func_0014A3A8();
@@ -950,21 +932,7 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001758F8);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00175A98);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00175B58);
 
-int func_00175C18(void)
-{
-    char *sub = *(char **)((char *)D_00631AE8 + 0x164);
-    if (((*(unsigned long long *)(sub + 0x18) >> 36) & 1) == 0) {
-        return 1;
-    }
-    {
-        register int v = *(int *)(sub + 0x30);
-        register int r REG("$2") = 0;
-        if (v == 0x45 && D_002883D0[0x5D] != 0) {
-            r = D_002883D0[0x58] == 0;
-        }
-        return r;
-    }
-}
+INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00175C18);
 
 void func_00175C70(int x) {
     char *p = (char *)D_00631AE8;

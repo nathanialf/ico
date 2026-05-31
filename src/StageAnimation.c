@@ -199,23 +199,7 @@ int func_0012AA80(int key)
     return 0;
 }
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012AB50);
-void func_0012ABE0(int key, int new_val)
-{
-    register int count REG("$7");
-    int i = 0;
-    char *e = (char *)D_00674058;
-    count = *(volatile int *)&D_00633C54;
-    if (count <= 0) return;
-    do {
-        int *p = *(int **)(e + 0x280);
-        i++;
-        if (key == p[0x58 / 4]) {
-            p[0x50 / 4] = new_val;
-            count = *(volatile int *)&D_00633C54;
-        }
-        e += 0x290;
-    } while (i < count);
-}
+INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012ABE0);
 
 void func_0012AC28(int target, int val)
 {
@@ -236,57 +220,8 @@ void func_0012AC28(int target, int val)
 
 typedef struct { long long w; } __attribute__((packed)) _packed64_sa;
 
-void func_0012AC70(int key, char *src)
-{
-    register int count REG("$8");
-    int one = 1;
-    int i;
-    char *e = (char *)D_00674058;
-    count = *(volatile int *)&D_00633C54;
-    i = 0;
-    if (count <= 0) return;
-    do {
-        register int *entry1 REG("$2") = *(int **)(e + 0x280);
-        i++;
-        if (key == entry1[0x58 / 4]) {
-            int *entry2;
-            register char *target REG("$3");
-            entry2 = *(int **)(e + 0x284);
-            target = *(char **)((char *)entry2 + 0x24);
-            *(_packed64_sa *)(target + 0x20) = *(_packed64_sa *)src;
-            entry2 = *(int **)(e + 0x284);
-            target = *(char **)((char *)entry2 + 0x24);
-            *(int *)(target + 0x28) = one;
-            count = *(volatile int *)&D_00633C54;
-        }
-        e += 0x290;
-    } while (i < count);
-}
-void func_0012ACD8(int key, char *src, int value)
-{
-    register int count REG("$9");
-    int i;
-    char *e = (char *)D_00674058;
-    count = *(volatile int *)&D_00633C54;
-    i = 0;
-    if (count <= 0) return;
-    do {
-        register int *entry1 REG("$2") = *(int **)(e + 0x280);
-        i++;
-        if (key == entry1[0x58 / 4]) {
-            int *entry2;
-            register char *target REG("$3");
-            entry2 = *(int **)(e + 0x284);
-            target = *(char **)((char *)entry2 + 0x24);
-            *(_packed64_sa *)(target + 0x20) = *(_packed64_sa *)src;
-            entry2 = *(int **)(e + 0x284);
-            target = *(char **)((char *)entry2 + 0x24);
-            *(int *)(target + 0x28) = value;
-            count = *(volatile int *)&D_00633C54;
-        }
-        e += 0x290;
-    } while (i < count);
-}
+INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012AC70);
+INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", func_0012ACD8);
 extern void func_00118460(char *target, int arg1);
 extern void func_0010D830(char *target, int arg2);
 

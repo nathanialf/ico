@@ -106,11 +106,7 @@ INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011E0B8);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011E220);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011E4F8);
 
-void func_0011E708(int a0, int a1, int a2, int a3)
-{
-    func_0011D9A0(a0, a1, a2, a3, D_00632028);
-    DEFEAT_TCO();
-}
+INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011E708);
 
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011E728);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011EB50);

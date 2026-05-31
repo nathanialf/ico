@@ -103,117 +103,13 @@ extern void func_00133450(int a0);
 extern int func_00138720(int a0, int *a1);
 extern int D_00633C80;
 
-int func_00138510(int *a0, int *a1)
-{
-    int state[4];
-    int total = 0;
-    int block;
-    state[0] = ((a1[0x20 / 4] + 0x7FF) / 0x800) * 0x800;
-    block = func_00132630((int) a1, (void *) func_00138720, state, 0, 0, 0, 0, 0);
-    if (state[0] > 0)
-    {
-        do
-        {
-            int cnt;
-            register int orig REG("$4");
-            state[1] = 0;
-            do
-            {
-                func_00137E48(a0);
-                cnt = state[1];
-            } while (cnt == 0);
-            orig = cnt;
-            MATERIALIZE(orig);
-            total += cnt;
-            if (total > a1[0x20 / 4])
-            {
-                cnt -= (total - a1[0x20 / 4]);
-            }
-            else
-            {
-                cnt = orig;
-            }
-            func_00136280((int) a0, state[2], cnt);
-            D_00633C80 = 1;
-        } while (state[0] > 0);
-    }
-    func_00133450(block);
-    return 0;
-}
-int func_00138618(int *a0, int *a1)
-{
-    int state[4];
-    int total = 0;
-    int block;
-    state[0] = ((a1[0x20 / 4] + 0x7FF) / 0x800) * 0x800;
-    block = func_00132630((int) a1, (void *) func_00138720, state, 0, 0, 0, 0, 0);
-    if (state[0] > 0)
-    {
-        do
-        {
-            int cnt;
-            register int orig REG("$4");
-            state[1] = 0;
-            do
-            {
-                func_00137E48(a0);
-                cnt = state[1];
-            } while (cnt == 0);
-            orig = cnt;
-            MATERIALIZE(orig);
-            total += cnt;
-            if (total > a1[0x20 / 4])
-            {
-                cnt -= (total - a1[0x20 / 4]);
-            }
-            else
-            {
-                cnt = orig;
-            }
-            func_00136280((int) a0, state[2], cnt);
-            D_00633C80 = 1;
-        } while (state[0] > 0);
-    }
-    func_00133450(block);
-    return 0;
-}
+INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00138510);
+INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00138618);
 extern void func_00132B90(int a0, void *buf, int n);
 extern void func_0013D3F0(void);
 extern int D_00633C80;
 
-int func_00138720(int a0, int *a1)
-{
-    char buf[0xC800];
-    int done = 1;
-    a1[0x8 / 4] = (int) buf;
-    do
-    {
-        int chunk = a1[0];
-        if (chunk > 0xC800)
-        {
-            chunk = 0xC800;
-        }
-        func_00132B90(a0, buf, chunk);
-        a1[0x4 / 4] = chunk;
-        {
-            register int remaining REG("$3") = a1[0] - chunk;
-            KEEP_LIVE(remaining);
-            a1[0] = remaining;
-            *(int *) D_00631F50 = 1;
-            D_00633C80 = 0;
-            if (remaining <= 0)
-            {
-                done = 0;
-            }
-        }
-        do
-        {
-            func_0013D3F0();
-        } while (D_00633C80 == 0);
-        *(int *) D_00631F50 = 0;
-    } while (done);
-    return 1;
-}
+INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00138720);
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_001387F0);
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00138A10);
 extern int func_00265024(int *a0, const char *a1);
@@ -265,7 +161,4 @@ INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00139D78);
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00139FE8);
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_0013A0F8);
 
-void func_0013A200(void) {
-    func_00138E30();
-    DEFEAT_TCO();
-}
+INCLUDE_ASM("asm/nonmatchings/ios/memory", func_0013A200);

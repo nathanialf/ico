@@ -110,35 +110,9 @@ INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00166BB0);
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00166E10);
 extern void func_00166E10(int *self);
 
-void func_00167230(int *self_arg)
-{
-    register int *self __asm__("$2") = self_arg;
-    register long long val __asm__("$3");
+INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00167230);
 
-    *(int *)((char *)self + 0xB0) = 0;
-    *(int *)((char *)self + 0x94) = 0;
-    *(int *)((char *)self + 0x88) = 0;
-    __asm__ volatile("ldl %0, %%gp_rel(D_006323C7)($28)" : "=r"(val));
-    __asm__ volatile("ldr %0, %%gp_rel(D_006323C0)($28)" : "+r"(val));
-    __asm__ volatile("sdl %1, 0x87(%0)" : : "r"(self), "r"(val) : "memory");
-    __asm__ volatile("sdr %1, 0x80(%0)" : : "r"(self), "r"(val) : "memory");
-    NOP();
-    func_00166E10(self);
-}
-
-void func_00167258(int *self_arg)
-{
-    register int *self __asm__("$2") = self_arg;
-    register long long val __asm__("$3");
-
-    *(int *)((char *)self + 0x94) = 0;
-    __asm__ volatile("ldl %0, %%gp_rel(D_006323C7)($28)" : "=r"(val));
-    __asm__ volatile("ldr %0, %%gp_rel(D_006323C0)($28)" : "+r"(val));
-    __asm__ volatile("sdl %1, 0x93(%0)" : : "r"(self), "r"(val) : "memory");
-    __asm__ volatile("sdr %1, 0x8C(%0)" : : "r"(self), "r"(val) : "memory");
-    NOP();
-    func_00166E10(self);
-}
+INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00167258);
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00167278);
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00167280);
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00167528);

@@ -51,3 +51,17 @@ glabel func_001FAA58
     /* FAAA4 001FAAA4 2000BD27 */   addiu     $sp, $sp, 0x20
 endlabel func_001FAA58
 ```
+
+---
+
+## Attempt at 2026-05-31
+
+**Reason parked:** crutch-removal: deleting bucket A/B macros (NOP)
+
+Seed: `tough_nuts/func_001FAA58/0FAA58.c.new`
+
+Disassembly excerpt:
+
+```
+(no asm/cod/*.s found for func_001FAA58; check asm/matchings/cod/0FAA58/)
+```

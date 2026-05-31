@@ -11,3 +11,17 @@ first-pick from $v1+$a0 to $a0+$a1 for the address-load pair.
 
 This may need permuter to find a regalloc-shifting C form, or may need
 to absorb into DmaPacket.c while accepting the regalloc miss.
+
+---
+
+## Attempt at 2026-05-31
+
+**Reason parked:** crutch-removal: deleting bucket A/B macros (ADDU_RT,KEEP_LIVE,REG)
+
+Seed: `tough_nuts/func_001FBBE0/0FBBE0.c.new`
+
+Disassembly excerpt:
+
+```
+(no asm/cod/*.s found for func_001FBBE0; check asm/matchings/cod/0FBBE0/)
+```

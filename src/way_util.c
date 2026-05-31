@@ -273,10 +273,7 @@ INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A910);
 
 /* Matched body inlined from src/cod/07A9B8.c during TU coalesce. */
 extern void func_00178990(int *a0, int a1);
-void func_0017A9B8(int x) {
-    func_00178990((int *)x, -1);
-    DEFEAT_TCO();
-}
+INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A9B8);
 
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A9D4);
 

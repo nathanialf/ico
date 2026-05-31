@@ -81,31 +81,7 @@ extern int func_0013BE20(int *node, int arg);
 extern int func_0013BB80(int *node, int arg);
 extern void func_0013C820(int a0);
 
-void func_0013CFE0(int a0, unsigned char *out_acc, unsigned char *out_cnt)
-{
-    int cnt = 0;
-    int acc = 0;
-    if (a0 != 0)
-    {
-        int *node = *(int **) a0;
-        if (node != 0)
-        {
-            do
-            {
-                int r;
-                cnt += func_0013BE20(node, D_00632190[0x8 / 4]);
-                r = func_0013BB80(node, D_00632190[0x8 / 4]);
-                node = (int *) node[0x34 / 4];
-                acc |= r;
-            } while (node != 0);
-        }
-        cnt = (cnt < 0x100) ? cnt : 0xFF;
-        *out_cnt = cnt;
-        *out_acc = acc;
-        func_0013C820(a0);
-        DEFEAT_TCO();
-    }
-}
+INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013CFE0);
 
 int func_0013D098(void)
 {
@@ -117,35 +93,7 @@ void func_0013D0A0(unsigned char *p, int a1, int a2) {
     if (a2) *p &= 0xEF;
 }
 
-int func_0013D0D0(int *a0, int *a1)
-{
-    register int *node REG("$5") = a1;
-    int *next;
-    ANCHOR(node);
-    if (node[0x30 / 4] != 0)
-    {
-        *(int *)(node[0x30 / 4] + 0x34) = node[0x34 / 4];
-        next = (int *) node[0x34 / 4];
-    }
-    else
-    {
-        next = (int *) node[0x34 / 4];
-        *a0 = (int) next;
-    }
-    if (next != 0)
-    {
-        next[0x30 / 4] = node[0x30 / 4];
-        next = (int *) node[0x34 / 4];
-    }
-    {
-        void (*fn)(int *, int) = (void (*)(int *, int)) a0[0x8 / 4];
-        if (fn != 0)
-        {
-            fn(node, a0[0xC / 4]);
-        }
-    }
-    return (int) next;
-}
+INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013D0D0);
 extern int D_006A6F30[];
 extern int func_00100410(void);
 void func_0013D440(int *a0, int a1);
@@ -243,28 +191,7 @@ extern void func_0013A250(int a0, int a1, int a2);
 extern int D_00632000;
 extern const char D_00557970[];
 
-void func_0013D498(int a0)
-{
-    int *obj = (int *) D_006A6F30[func_00100410()];
-    if (obj[0x48 / 4] == 0)
-    {
-        int m;
-        register int v = 1;
-        register int a0v = D_00632000;
-        register const char *msg = D_005578D0;
-        ANCHOR(v);
-        obj[0x48 / 4] = v;
-
-        ANCHOR(msg);
-        m = func_0013A0F8(a0v, 0x50, msg, 0x1DE);
-        obj[0x4C / 4] = m;
-        func_0013A250(m, m + 0x30, 8);
-    }
-    {
-        int q = func_0013A5B8((char *) obj[0x4C / 4], a0, 0);
-        func_001A6E28(D_00557970, q);
-    }
-}
+INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013D498);
 
 
 extern void func_00265168(int a0);
@@ -334,13 +261,8 @@ INCLUDE_ASM_NOP_PAD(func_0013D924);
 
 extern void func_00100450(int);
 
-void func_0013D928(int *self) {
-    func_00100450(self[12]);  // 0x30/4 = 12
-    DEFEAT_TCO();
-}
+INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013D928);
 
-
-INCLUDE_ASM_NOP_PAD(func_0013D944);
 
 extern int func_0013A0F8(int a0, int a1, const char *fmt, int line);
 extern void func_0013A250(int a0, int a1, int a2);
@@ -350,27 +272,7 @@ extern int D_00632000;
 extern const char D_005578D0[];
 extern const char D_00557980[];
 
-int func_0013D948(int *self)
-{
-    int local;
-    if (self[0x48 / 4] == 0)
-    {
-        int m;
-        register int v = 1;
-        register int a0v = D_00632000;
-        register const char *msg = D_005578D0;
-        ANCHOR(v);
-        self[0x48 / 4] = v;
-
-        ANCHOR(msg);
-        m = func_0013A0F8(a0v, 0x50, msg, 0x1FA);
-        self[0x4C / 4] = m;
-        func_0013A250(m, m + 0x30, 8);
-    }
-    func_0013A6C0((int *) self[0x4C / 4], &local, 1);
-    func_001A6E28(D_00557980);
-    return local;
-}
+INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013D948);
 
 
 

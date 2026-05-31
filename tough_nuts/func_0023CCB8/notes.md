@@ -137,3 +137,17 @@ glabel func_0023CCB8
     /* 13CCDC 0023CCDC 040062E4 */   swc1      $f2, 0x4($v1)
 endlabel func_0023CCB8
 ```
+
+---
+
+## Attempt at 2026-05-31
+
+**Reason parked:** crutch-removal: deleting bucket A/B macros (KEEP_LIVE)
+
+Seed: `tough_nuts/func_0023CCB8/13CCB8.c.new`
+
+Disassembly excerpt:
+
+```
+(no asm/cod/*.s found for func_0023CCB8; check asm/matchings/cod/13CCB8/)
+```

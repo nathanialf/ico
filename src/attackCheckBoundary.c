@@ -69,45 +69,7 @@ INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BBB20);
 
 typedef struct { void *sub; int field4; } BBDD8Entry;
 
-int func_001BBDD8(void *obj)
-{
-    register void *temp1 REG("$3");
-    register int *t1;
-    register int count;
-    register int i REG("$8");
-    register BBDD8Entry *entries;
-    register int const_one REG("$7");
-    register BBDD8Entry *e;
-    register void *sub;
-    int saved;
-    int *inner;
-    int *inner2;
-    temp1 = ((GObj *)((char *)obj))->p_15C;
-    t1 = ((Sub15C *)((char *)temp1))->p_800;
-    count = *t1;
-    if (count > 0) {
-        i = 0;
-        entries = *(BBDD8Entry **)((char *)t1 + 0xC);
-        do {
-            e = (BBDD8Entry *)(i << 3);
-            const_one = 1;
-            e = (BBDD8Entry *)((long)e + (long)entries);
-            i += 1;
-            sub = e->sub;
-            inner = (int *)((volatile Sub15C *)((volatile GObj *)sub)->p_15C)->p_800;
-            e->field4 = inner[1];
-            __asm__ __volatile__("" ::: "memory");
-            inner2 = (int *)((volatile Sub15C *)((volatile GObj *)sub)->p_15C)->p_800;
-            inner2[1] = 0;
-            ((GObj *)sub)->f_16C = const_one;
-            count = *t1;
-        } while (i < count);
-    }
-    saved = t1[1];
-    t1[1] = 0;
-    t1[2] = saved;
-    return saved;
-}
+INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BBDD8);
 
 void func_001BBE48(void) {}
 

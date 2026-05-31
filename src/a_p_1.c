@@ -254,54 +254,7 @@ extern void func_00104478(int *self, int src);
 extern float D_0063111C;
 extern float D_00631120;
 
-int func_001B94B0(int *self)
-{
-    char *p = (char *)(((int *)((GObj *)(self))->p_15C)[0x800 / 4]);
-    int ret = func_001B8EB0(self, 1);
-    Vec4 l0;
-    Vec4 l10;
-    Mtx44 l20;
-    Mtx44 l60;
-    Vec4 lA0;
-    int i;
-    int k;
-    float r;
-
-    if (ret != -1) {
-        return ret;
-    }
-
-    func_00104508((int)&l0, self);
-    func_00104140((int)&l20, self);
-    func_00118648((int)&l10, (int)&l20, (int)(p + 0x1B0));
-
-    i = 0;
-    for (k = 0; k < 4; k++) {
-        if (*(int *)(p + 0x10 + k * 0x50) == 0) {
-            i++;
-        }
-    }
-    func_001183D0((int)&l10, (int)&l10, ((float)i * 0.25f + 0.5f) * 0.5f);
-
-    func_001183D0((int)((char *)((GObj *)(self))->p_15C + 0x130),
-                  (int)((char *)((GObj *)(self))->p_15C + 0x130), D_0063111C);
-    func_00118388((int)((char *)((GObj *)(self))->p_15C + 0x130),
-                  (int)((char *)((GObj *)(self))->p_15C + 0x130), (int)&l10);
-
-    func_00105E70((int)&l60, (int)&l20);
-    func_00118648((int)&lA0, (int)&l60, (int)((char *)((GObj *)(self))->p_15C + 0x130));
-
-    *(float *)(p + 0x1C4) = lA0.m[0];
-    MEM_BARRIER();
-    r = func_00106000((int)((char *)((GObj *)(self))->p_15C + 0x130));
-    *(volatile float *)(p + 0x1C0) = r * D_00631120;
-
-    func_00118388((int)&l0, (int)&l0,
-                  (int)((char *)(*(volatile int *)((char *)self + 0x15C)) + 0x130));
-    func_00104478(self, (int)&l0);
-    *(int *)(p + 0x1C8) = 0;
-    return 1;
-}
+INCLUDE_ASM("asm/nonmatchings/src/a_p_1", func_001B94B0);
 extern void func_0019F530(void);
 extern void func_001685E0(int dst);
 extern void func_0019F4E8(int *self, int buf);

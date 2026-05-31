@@ -203,36 +203,7 @@ extern void func_001E3FC8(int *self);
 extern void func_001BB8C0(int *self, int a, int b, int c);
 extern void func_001C8218(int x, float a, float b);
 extern void func_00103D50(int *self, int a, float b, float c, float d);
-void func_0019A8F0(int *self)
-{
-    int *p_800;
-    if (*(int *)D_00274ED4 == 0) {
-        D_00633DD8 += 1;
-    }
-    func_001E3FC8(self);
-    func_001BB8C0(self, 0x23, 0x2C, 0x199);
-    p_800 = (int *)((int *)((GObj *)(self))->p_15C)[0x800 / 4];
-    if (p_800[0xC / 4] != 0) {
-        NOREORDER_BARRIER();
-        {
-            int x;
-            float f12 = 3.0f;
-            float f13 = D_0063106C;
-            KEEP_LIVE_FP2(f12, f13);
-            x = p_800[0x10 / 4];
-            func_001C8218(x, f12, f13);
-        }
-        {
-            int x;
-            float f12 = 5.0f;
-            float f13 = D_00631070;
-            KEEP_LIVE_FP2(f12, f13);
-            x = p_800[0x14 / 4];
-            func_001C8218(x, f12, f13);
-        }
-    }
-    func_00103D50(self, 1, 100.0f, 100.0f, D_00631074);
-}
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019A8F0);
 extern int *D_00631AE4;
 extern void func_001504D8(int *p);
 extern void func_0010ECD8(void);

@@ -93,10 +93,4 @@ int func_001F22A0(void) {
     return v;
 }
 
-void func_001F22E0(int *self)
-{
-    register int *q REG("$3") = func_00203B40(func_001F2320, 0x15);
-    KEEP_LIVE(q);
-    *self = 0;
-    q[8] = (int)self;
-}
+INCLUDE_ASM("asm/nonmatchings/src/torch", func_001F22E0);

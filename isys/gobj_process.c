@@ -9,6 +9,7 @@
  *     pointer increment. Compiled with -fno-strength-reduce.
  */
 
+#include "include_asm.h"
 #include "matching.h"
 #include "regpin.h"
 
@@ -25,25 +26,6 @@ extern int   D_00633CAC;
 extern int   func_0013A0F8(int a0, int a1, char *file, int line);
 extern void  func_0013F3F0(int, int, int, unsigned char, int, int);
 
-void func_0013F700(int count)
-{
-    register int *ptr;
-    register int stride REG("$2");
-    unsigned int i;
-    ptr = (int *)func_0013A0F8(D_00632008, count * 0x94, D_00557AD0, 0x49);
-    D_00633CAC = count;
-    D_00633CA8 = (int)ptr;
-    i = 0;
-    if (count != 0) {
-        do {
-            stride = 0x94;
-            *(int *)((char *)ptr + i * stride) = 0;
-            i += 1;
-        } while (i < (unsigned int)count);
-    }
-}
+INCLUDE_ASM("asm/nonmatchings/isys/gobj_process", func_0013F700);
 
-void func_0013F778(int a, int b, int c, int d) {
-    func_0013F3F0(a, a, b, c, d, 0x1800);
-    DEFEAT_TCO();
-}
+INCLUDE_ASM("asm/nonmatchings/isys/gobj_process", func_0013F778);

@@ -12,3 +12,17 @@ Disassembly excerpt:
 ```
 (no asm/cod/*.s found for func_0021F5F8; check asm/matchings/cod/11F5F8/)
 ```
+
+---
+
+## Attempt at 2026-05-31
+
+**Reason parked:** crutch-removal: deleting bucket A/B macros (NOP)
+
+Seed: `tough_nuts/func_0021F5F8/11F5F8.c.new`
+
+Disassembly excerpt:
+
+```
+(no asm/cod/*.s found for func_0021F5F8; check asm/matchings/cod/11F5F8/)
+```

@@ -180,17 +180,7 @@ void func_00149F70(char *self, char *other, int idx)
     func_001AE4C8(self, other, D_00561928[idx][9], tmp_a, tmp_b);
 }
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_00149FF0);
-int func_0014A0A8(int *a0)
-{
-    register int *sub;
-    register int rv REG("$2");
-    sub = (int *)a0[0x164 / 4];
-    rv = 0;
-    if (*(float *)((char *)sub + 0x1D0) <= 20.0f) {
-        rv = 1;
-    }
-    return rv;
-}
+INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A0A8);
 
 /* Matched body inlined from src/cod/04A0D8.c during TU coalesce. */
 extern void *D_00631AE8;
@@ -365,52 +355,7 @@ ret0:
     rv = 0;
     return rv;
 }
-int func_0014A560(void)
-{
-    int *player = D_00631AE4;
-    register int rv REG("$2");
-    int state;
-    int *sub;
-    char *entry;
-    if (player == 0) {
-        goto ret0;
-    }
-    state = *(int *)(*(char **)((char *)player + 0x164) + 0x30);
-    if (state == 0x4B) {
-        sub = ((GObj *)((char *)player))->p_15C;
-        goto body;
-    }
-    if (state != 0x55) {
-        goto reject;
-    }
-    sub = ((GObj *)((char *)player))->p_15C;
-body:
-    {
-        register int idx;
-        register char *base REG("$5") = (char *)D_00565060;
-        register int stride = 0x190;
-        ANCHOR(base);
-
-        MEM_BARRIER();
-        idx = *(int *)((char *)sub + 0x4A0);
-        entry = base + idx * stride;
-    }
-    rv = 1;
-    {
-        register int field = (int)((GObj *)(entry))->p_15C;
-        if (field == 1) {
-            goto end;
-        }
-    }
-ret0:
-    rv = 0;
-end:
-    ANCHOR(rv);
-    return rv;
-reject:
-    rv = 0;
-    goto end;
-}
+INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A560);
 
 /* Matched body inlined from src/cod/04A5C0.c during TU coalesce. */
 void func_0014A5C0(float *a0, float *a1)

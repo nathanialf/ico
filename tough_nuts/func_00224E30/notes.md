@@ -48,3 +48,17 @@ glabel func_00224E30
     /* 124E78 00224E78 2000BD27 */   addiu     $sp, $sp, 0x20
 endlabel func_00224E30
 ```
+
+---
+
+## Attempt at 2026-05-31
+
+**Reason parked:** crutch-removal: deleting bucket A/B macros (NOP)
+
+Seed: `tough_nuts/func_00224E30/124E30.c.new`
+
+Disassembly excerpt:
+
+```
+(no asm/cod/*.s found for func_00224E30; check asm/matchings/cod/124E30/)
+```

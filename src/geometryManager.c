@@ -172,25 +172,7 @@ void func_001041C0(void *a0, char *src)
 }
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104240);
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104360);
-void func_00104478(void *a0, int a1)
-{
-    int buf[16];
-    char *src = ((GObj *)((char *)a0))->p_15C;
-    float *p = (float *)(src + 0xA0);
-    func_00105F00((int)p, a1);
-    *(float *)((char *)p + 0x4) -= *(float *)((char *)p + 0xC0);
-    *(float *)((char *)p + 0xC) = 1.0f;
-    MEM_BARRIER();
-    {
-        char *src2 = ((GObj *)((char *)a0))->p_15C;
-        int *g = *(int **)src2;
-        if (g) {
-            func_00105E70((char *)buf,
-                          (char *)(*(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) + (*(int *)(src2 + 4) << 6)));
-            func_002438B8((int *)p, (int)buf, (char *)p);
-        }
-    }
-}
+INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104478);
 void func_00104508(void *a0, char *outer)
 {
     char *src = ((GObj *)(outer))->p_15C;
@@ -213,30 +195,7 @@ INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104590);
 extern float D_00630904;
 extern float D_00630908;
 
-int func_00104638(float *vals, int *flags)
-{
-    float lo = D_00630904;
-    int ret = 0;
-    int i;
-    for (i = 2; i >= 0; i--) {
-        register float v REG("$f0") = *vals;
-        if (v < lo) {
-            *vals = lo;
-            ret = 1;
-            *flags = 0;
-        } else {
-            MEM_BARRIER();
-            if (v > D_00630908) {
-                *vals = D_00630908;
-                ret = 1;
-                *flags = 0;
-            }
-        }
-        flags++;
-        vals++;
-    }
-    return ret;
-}
+INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00104638);
 extern void func_00105E70(char *dst, char *src);
 extern void func_002438E8(char *dst, char *src, int m);
 

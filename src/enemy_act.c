@@ -611,24 +611,7 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165918);
 
 extern int func_00163D60(int a0);
 
-void func_00165B50(char *self, int a1, int *a2)
-{
-    char *first;
-    register char *second REG("$3");
-    register int new_a0 REG("$4");
-    first = *(char * volatile *)(self + 0x164);
-    second = *(char **)(first + 0x670);
-    *(int *)(second + 0x200) = a1;
-    if (a2 != 0) {
-        first = *(char * volatile *)(self + 0x164);
-        new_a0 = *a2;
-    } else {
-        first = *(char * volatile *)(self + 0x164);
-        new_a0 = D_00632390;
-    }
-    second = *(char **)(first + 0x670);
-    *(int *)(second + 0x20C) = new_a0;
-}
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165B50);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165B80);
 

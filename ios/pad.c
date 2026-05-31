@@ -90,16 +90,7 @@ extern void func_0013CF08(int a, int b);
 extern void func_0013CF38(int *p);
 extern void func_0013CF70(int *p);
 
-int func_0013A820(int a0)
-{
-    if (a0 == 2) {
-        register unsigned long long v REG("$3") = *(volatile unsigned long long *)0x12001000;
-        register int *p REG("$5") = (int *)D_00632108;
-        D_00631950 = ((v >> 13) & 1) ^ 1;
-        func_00100F18(p[0xC], p);
-    }
-    return 0;
-}
+INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013A820);
 
 INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013A868);
 INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013AD58);
@@ -127,92 +118,7 @@ typedef struct
     unsigned char pad[3];
 } PadSlot0013B610;
 
-int func_0013B610(int *a0, int a1)
-{
-    int *slot;
-    {
-        int *p = D_006A6DB0;
-        int i = 0xF;
-        while (1)
-        {
-            if (*p == 0)
-            {
-                goto found;
-            }
-            i--;
-            if (i == -1)
-            {
-                goto notfound;
-            }
-            p = (int *)((char *) p + 0x18);
-        }
-    notfound:
-        slot = 0;
-        goto have;
-    found:
-        slot = p;
-    have:;
-    }
-    if (a0 == 0)
-    {
-        goto fail;
-    }
-    {
-        int chk = D_00632110;
-        if (chk == 0)
-        {
-            return chk;
-        }
-    }
-    if (slot == 0)
-    {
-        goto fail;
-    }
-    {
-        PadSlot0013B610 *ps = (PadSlot0013B610 *) slot;
-        unsigned char *s = (unsigned char *) slot;
-        const T_005F2F00_rec *rec = &D_005F2F00[a1];
-        register int id = rec->id;
-        int base = *a0 + 0x1A4;
-        register unsigned short flag REG("$5") = rec->flag;
-        register int ff REG("$9") = 0xFF;
-        register unsigned long long mask = 0xFFFFFFFFULL;
-        int r;
-        ANCHOR(ff);
-        ps->fD = 0;
-        ps->fC = 0;
-        ps->fE = ff;
-        ps->f14 = ff;
-        ps->fF = 0x20;
-        ANCHOR(flag);
-        ps->f10 = flag;
-        ps->f8 = id;
-        ps->f12 = 0;
-        ps->f4 = base;
-        {
-            register int wi REG("$6") = ((struct U32_0013B610 *) (s + 0xC))->v;
-            r = func_0013C110(base, id, wi & mask, D_0063218C, 0);
-        }
-        if (r != 0)
-        {
-            goto store;
-        }
-    }
-fail:
-    return 0;
-store:
-    {
-        int idc = D_0063218C;
-        slot[0] = idc;
-        idc = idc + 1;
-        D_0063218C = idc;
-        if (idc == 0)
-        {
-            D_0063218C = 1;
-        }
-        return slot[0];
-    }
-}
+INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013B610);
 
 int func_0013B718(void)
 {
@@ -266,31 +172,9 @@ struct Vec0013B7E0
     int z1;
 } __attribute__((aligned(8)));
 
-void func_0013B7E0(int *a0, float *a1)
-{
-    struct Vec0013B7E0 v;
-    struct Vec0013B7E0 t;
-    unsigned char buf[0x40];
-    register unsigned char *a0arg REG("$4") = buf;
-    ANCHOR(a0arg);
-    t.x = a1[0xC / 4];
-    t.z0 = 0;
-    t.y = -a1[0x10 / 4];
-    t.z1 = 0;
-    MEM_BARRIER();
-    v = t;
-    func_002439B0(a0arg, (unsigned char *) D_00631970 + 0x80);
-    func_002438B8(a0, buf, &v);
-}
+INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013B7E0);
 
-int func_0013B858(void)
-{
-    register int v REG("$2") = 1;
-    D_00633C90 = v;
-    return v;
-}
-
-INCLUDE_ASM_NOP_PAD(func_0013B864);
+INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013B858);
 
 void func_0013B868(void) {
     D_00633C90 = 0;
@@ -300,25 +184,7 @@ int func_0013B870(void) {
     return D_00633C90;
 }
 
-void func_0013B878(void)
-{
-    int i = 1;
-    int *p;
-    func_002641D8(D_006A6DB0, 0, 0x180);
-    func_0013CE48();
-    func_0013CF08(0, D_00632194);
-    {
-        register unsigned char *base REG("$3") = D_002811C0;
-        p = (int *)(base + 0x1B8);
-    }
-    do
-    {
-        func_0013CF70(p);
-        i--;
-        func_0013CF38((int *)((char *) p - 0x14));
-        p = (int *)((char *) p + 0x200);
-    } while (i >= 0);
-}
+INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013B878);
 void func_0013B8F0(int key)
 {
     if (key == 0)
@@ -418,40 +284,9 @@ INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013BE20);
 INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013C110);
 INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013C320);
 
-void func_0013C488(int *out, unsigned short *q)
-{
-    unsigned int v3;
-    out[0] = (int)q;
-    KEEP_LIVE_MEM(out[0]);
-    out[3] = (int)q + (unsigned int)q[5] * 4;
-    out[1] = (int)q + (unsigned int)q[1] * 4;
-    v3 = q[3];
-    q = (unsigned short *)((char *)q + v3 * 4);
-    out[2] = (int)q;
-}
+INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013C488);
 
-void func_0013C4C0(unsigned char *self, int a, int b, unsigned char c, unsigned char d)
-{
-    self[0x3] = d;
-    self[0x0] = 0x11;
-    *(int *)(self + 0x4) = a;
-    *(int *)(self + 0x14) = b;
-    self[0x2] = c;
-    self[0x24] = 0;
-    *(short *)(self + 0x8) = 0;
-    *(short *)(self + 0x12) = 0;
-    *(short *)(self + 0x10) = 0;
-    *(short *)(self + 0xC) = 0;
-    *(short *)(self + 0xA) = 0;
-    self[0x26] = 0;
-    *(short *)(self + 0x18) = 0;
-    *(short *)(self + 0x22) = 0;
-    *(short *)(self + 0x20) = 0;
-    *(short *)(self + 0x1C) = 0;
-    *(short *)(self + 0x1A) = 0;
-    KEEP_LIVE_MEM(self);
-    self[0x27] = 0;
-}
+INCLUDE_ASM("asm/nonmatchings/ios/pad", func_0013C4C0);
 
 void func_0013C510(int *a0, int a1, int a2, int a3)
 {

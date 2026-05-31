@@ -49,3 +49,17 @@ glabel func_00245120
     /* 145174 00245174 3000BD27 */   addiu     $sp, $sp, 0x30
 endlabel func_00245120
 ```
+
+---
+
+## Attempt at 2026-05-31
+
+**Reason parked:** crutch-removal: deleting bucket A/B macros (KEEP_LIVE,REG)
+
+Seed: `tough_nuts/func_00245120/145120.c.new`
+
+Disassembly excerpt:
+
+```
+(no asm/cod/*.s found for func_00245120; check asm/matchings/cod/145120/)
+```

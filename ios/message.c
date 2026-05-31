@@ -22,23 +22,8 @@ extern int func_00100540();
 extern const char D_006320F0[];
 extern const char D_006320E8[];
 
-void func_0013A220(int *a0)
-{
-    register int *v1 = a0;
-    register int *a1 REG("$5") = (int *)v1[0x10 / 4];
-    int v0;
-    int new_a0;
-    if (a1 == 0) {
-        return;
-    }
-    v0 = a1[0x44 / 4];
-    new_a0 = v1[0x2C / 4];
-    v1[0x10 / 4] = v0;
-    a1[0x44 / 4] = 0;
-    return func_00100540(new_a0, a1);
-}
+INCLUDE_ASM("asm/nonmatchings/ios/message", func_0013A220);
 
-INCLUDE_ASM_NOP_PAD(func_0013A248);
 extern int func_00100520(int *p);
 
 void func_0013A250(int *self, int a1, int a2)
@@ -155,41 +140,7 @@ int func_0013A5B8(int *self, int a1, int a2)
     }
     return 0;
 }
-int func_0013A6C0(int *self, int *out, int a2)
-{
-    int buf[8];
-    int newcount;
-    if (self == 0)
-    {
-        func_001A6E28(D_00557560);
-        func_001AD768(D_00557540, 0x149);
-        func_00263FF0(D_00557540, 0x149, D_006320E8);
-    }
-    func_00100590(self[0x2C / 4], buf);
-    {
-        register int cnt REG("$3") = self[0x8 / 4];
-        if (cnt == 0)
-        {
-            if (a2 != 1)
-            {
-                return -1;
-            }
-            func_00100560(self[0x2C / 4]);
-        }
-    }
-    *out = ((int *) self[0])[self[0x4 / 4]];
-    self[0x4 / 4] = (self[0x4 / 4] + 1) % buf[0x4 / 4];
-    newcount = self[0x8 / 4] - 1;
-    self[0x8 / 4] = newcount;
-    if (newcount == buf[0x4 / 4])
-    {
-        if (buf[0xC / 4] > 0)
-        {
-            func_00100540(self[0x2C / 4]);
-        }
-    }
-    return 0;
-}
+INCLUDE_ASM("asm/nonmatchings/ios/message", func_0013A6C0);
 
 void func_0013A7C8(void) {
     int *p;
