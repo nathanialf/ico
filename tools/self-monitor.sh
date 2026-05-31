@@ -56,9 +56,21 @@ if [[ "$1" == "--once" ]]; then
     if [[ -d asm/nonmatchings ]]; then
         matched=$(find asm/matchings -name 'func_*.s' -printf '%f\n' 2>/dev/null \
                       | sed 's/\.s$//' | sort -u)
+        # GENUINE-UNMATCHED filter: the asm/nonmatchings/<fn>.s files are NEVER
+        # pruned on a match, and the matched= (asm/matchings presence) set only
+        # populates on the next `build.sh setup` — so between a match and that
+        # setup a freshly-matched func still appears here (stale). The live
+        # signal is "is the func still referenced by an INCLUDE_ASM in a tracked
+        # .c?" — a genuinely-unmatched (or parked-back-to-INCLUDE_ASM) func is;
+        # a matched one is not. Intersect with that set so the list is current
+        # without waiting for a setup. (tough_nuts/source_tree are parked seeds,
+        # excluded so their INCLUDE_ASM stubs don't resurrect matched funcs.)
+        included=$(grep -rhoE 'INCLUDE_ASM(_NOAT)?\("[^"]*",[[:space:]]*func_[0-9A-Fa-f]+' \
+                       --include=*.c src/ --exclude-dir=tough_nuts --exclude-dir=source_tree 2>/dev/null \
+                       | grep -oE 'func_[0-9A-Fa-f]+$' | sort -u)
         echo "Ten smallest unmatched functions (TU · instructions; matched-orphans & nop-pads excluded; parked included):"
         grep -rH '^nonmatching ' asm/nonmatchings 2>/dev/null \
-            | awk -v matched="$matched" '
+            | awk -v matched="$matched" -v included="$included" '
                 function hex2dec(s,   i,c,v,r) {
                     sub(/^0[xX]/, "", s); r=0
                     for (i=1;i<=length(s);i++) {
@@ -71,12 +83,15 @@ if [[ "$1" == "--once" ]]; then
                 BEGIN {
                     m=split(matched,q,"\n")
                     for (i=1;i<=m;i++) if (q[i]!="") skip[q[i]]=1
+                    n=split(included,r,"\n")
+                    for (i=1;i<=n;i++) if (r[i]!="") inc[r[i]]=1
                 }
                 {
                     ci=index($0,":nonmatching "); path=substr($0,1,ci-1)
                     rest=substr($0,ci+13); comma=index(rest,",")
                     fn=substr(rest,1,comma-1)
                     if (fn in skip) next
+                    if (!(fn in inc)) next
                     size=hex2dec(substr(rest,comma+2))
                     if (size < 8) next
                     np=split(path,pp,"/"); tu=pp[np-1]
