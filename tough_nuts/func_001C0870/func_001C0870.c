@@ -138,19 +138,11 @@ void func_001C0860(char *self_, int val) {
     p->f_1C = val;
 }
 
-void func_001C0870(int *self, int x)
+void func_001C0870(char *self, int a1)
 {
-    GObj *g = (GObj *)self;
-    register Sub15C *t;
-    Obj800 *q;
-    register int v REG("$3");
-    t = g->p_15C;
-    q = t->p_800;
-    v = q->f_4;
-    if (v != x) {
-        func_001BC0A8();
-    }
-    q->f_4 = x;
+    int *p = (int *)*(int *)(*(int *)((char *)self + 0x15C) + 0x800);
+    if (p[1] != a1) { func_001BC0A8(); p[1] = a1; }
+    else { p[1] = a1; }
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C08B8);
