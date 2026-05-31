@@ -56,3 +56,15 @@ letting the addr take v0. REG is retired (no-op). Clean decl-order equivalent FA
 → STILL addr->v1, const->v0 (5th distinct form). gcc allocates const->v0 regardless of decl order /
 named-var / pointer-first. This genuinely needs the $3 pin; clean source-shape NOT found in 5 forms.
 → Firing permuter (target: force const into $3). Tree reverted to INCLUDE_ASM.
+
+## Update 2026-05-31 (clean-C resume)
+rc3 confirmed: instruction order IDENTICAL to ROM (lui,addiu,andi,beq,sb,j,jr),
+ONLY v0/v1 coloring swapped — ROM: addr(lui)->v0, const(1)->v1, `sb v1,0(v0)`;
+gcc: addr->v1, const->v0, `sb v0,0(v1)`. Root: gcc expands the store RHS (const 1)
+before the LHS address, so the const pseudo is born first -> gets v0. The ROM
+compiler created the address pseudo first. 5 clean forms all rc3: array store,
+char*p pointer-first, int-param-masked, separate `char v=1`, assignment-in-lvalue
+`*(p=D)=1`. This is the v0/v1 birth-order tie-break the removed REG("$3") pinned;
+no clean source shape found to make gcc evaluate the address pseudo first. Same
+class as [[multireturn_reserves_v0]] but NO return value to leverage. Leave for
+offline auto_permute.
