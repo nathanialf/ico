@@ -24,8 +24,11 @@ extern int   D_00632008;
 extern int   D_00633CA8;
 extern int   D_00633CAC;
 extern int   func_0013A0F8(int a0, int a1, char *file, int line);
-extern void  func_0013F3F0(int, int, int, unsigned char, int, int);
+extern int   func_0013F3F0(int, int, int, unsigned char, int, int);
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj_process", func_0013F700);
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj_process", func_0013F778);
+int func_0013F778(int a0, int a1, int a2, int a3)
+{
+    return func_0013F3F0(a0, a0, a1, a2, a3, 0x1800);
+}
