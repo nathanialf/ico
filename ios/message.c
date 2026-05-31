@@ -22,7 +22,19 @@ extern int func_00100540();
 extern const char D_006320F0[];
 extern const char D_006320E8[];
 
-INCLUDE_ASM("asm/nonmatchings/ios/message", func_0013A220);
+void func_0013A220(int *self)
+{
+    int *p = (int *)self[0x10 / 4];
+    int arg;
+    if (p == 0)
+    {
+        return;
+    }
+    arg = self[0x2C / 4];
+    self[0x10 / 4] = p[0x44 / 4];
+    p[0x44 / 4] = 0;
+    func_00100540(arg);
+}
 
 extern int func_00100520(int *p);
 
