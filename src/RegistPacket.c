@@ -95,7 +95,7 @@ const char D_00555B40[24] = "Shadow %s => %s\n";
 const char D_00555B58[24] = "Shadow %s => %d\n";
 
 extern int D_00632028;
-extern void func_0011D9A0(int a0, int a1, int a2, int a3, int a4);
+extern int func_0011D9A0(int a0, int a1, int a2, int a3, int a4);
 extern void func_00118E88(int);
 extern void func_00118C68(int a0, int a1, int a2, int a3, int a4);
 extern int func_001FBAA8(int a0, int v, int n);
@@ -106,7 +106,10 @@ INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011E0B8);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011E220);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011E4F8);
 
-INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011E708);
+int func_0011E708(int a0, int a1, int a2, int a3)
+{
+    return func_0011D9A0(a0, a1, a2, a3, D_00632028);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011E728);
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011EB50);
