@@ -215,3 +215,26 @@ INCLUDE_ASM("asm/nonmatchings/src/act", func_00203130);
 void func_00203910(void) {}
 
 INCLUDE_ASM("asm/nonmatchings/src/act", func_00203918);
+
+
+/* === BEGIN recovered struct shapes (tools/place_struct_shapes.py) === */
+/* Field layouts mined from load/store access patterns; SPARSE
+ * (only touched offsets, no padding). Unused typedefs — they add
+ * no symbol and cannot affect codegen. Cast as ((S_<VMA> *)D_<VMA>).
+ */
+
+typedef struct {
+    unsigned int     f_30;  /* 0x30  x1 */
+    unsigned int     f_34;  /* 0x34  x2 */
+    short            f_42;  /* 0x42  x5 */
+    unsigned short   f_44;  /* 0x44  x1 */
+    unsigned char    f_46;  /* 0x46  x2 */
+    unsigned int     f_48;  /* 0x48  x27 */
+} S_002A4C48;  /* stride 0x4C, 38 accesses */
+
+typedef struct {
+    short            f_42;  /* 0x42  x2 */
+    unsigned int     f_48;  /* 0x48  x4 */
+} S_002E4D64;  /* 6 accesses */
+
+/* === END recovered struct shapes === */

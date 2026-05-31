@@ -2086,3 +2086,82 @@ INCLUDE_ASM("asm/nonmatchings/src/way_tool", func_002080A0);
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", func_00208228);
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", func_002083B0);
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", func_00208550);
+
+
+/* === BEGIN recovered struct shapes (tools/place_struct_shapes.py) === */
+/* Field layouts mined from load/store access patterns; SPARSE
+ * (only touched offsets, no padding). Unused typedefs — they add
+ * no symbol and cannot affect codegen. Cast as ((S_<VMA> *)D_<VMA>).
+ */
+
+typedef struct {
+    unsigned int     f_4;  /* 0x4  x113 */
+    unsigned int     f_8;  /* 0x8  x2 */
+    unsigned int     f_C;  /* 0xC  x2 */
+    unsigned int     f_14;  /* 0x14  x11 */
+    unsigned int     f_18;  /* 0x18  x6 */
+    unsigned int     f_1C;  /* 0x1C  x2 */
+    unsigned int     f_20;  /* 0x20  x61 */
+    unsigned int     f_28;  /* 0x28  x2 */
+} S_00274EC0;  /* 199 accesses */
+
+typedef struct {
+    short            f_A0;  /* 0xA0  x3 */
+    unsigned int     f_108;  /* 0x108  x1 */
+    unsigned int     f_10C;  /* 0x10C  x1 */
+    unsigned int     f_110;  /* 0x110  x1 */
+    unsigned int     f_114;  /* 0x114  x1 */
+    unsigned int     f_118;  /* 0x118  x2 */
+    unsigned int     f_128;  /* 0x128  x5 */
+    unsigned int     f_12C;  /* 0x12C  x5 */
+    unsigned int     f_130;  /* 0x130  x2 */
+    unsigned int     f_134;  /* 0x134  x2 */
+    unsigned int     f_14C;  /* 0x14C  x4 */
+    unsigned int     f_154;  /* 0x154  x2 */
+    unsigned short   f_18C;  /* 0x18C  x3 */
+    unsigned short   f_18E;  /* 0x18E  x2 */
+    unsigned int     f_190;  /* 0x190  x3 */
+} S_005F2FB8;  /* stride 0x194, 37 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x4 */
+    unsigned int     f_8;  /* 0x8  x14 */
+    unsigned int     f_C;  /* 0xC  x2 */
+    unsigned int     f_14;  /* 0x14  x4 */
+    unsigned int     f_18;  /* 0x18  x3 */
+    unsigned int     f_28;  /* 0x28  x4 */
+} S_004CAEC0;  /* stride 0x34, 31 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x1 */
+    unsigned int     f_10;  /* 0x10  x5 */
+} S_0061D560;  /* stride 0x14, 6 accesses */
+
+typedef struct {
+    unsigned int     f_38;  /* 0x38  x1 */
+    unsigned int     f_40;  /* 0x40  x1 */
+    unsigned int     f_44;  /* 0x44  x1 */
+} S_0061DCD8;  /* stride 0x50, 3 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x2 */
+} S_0061C710;  /* stride 0x10, 2 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x1 */
+    unsigned int     f_4;  /* 0x4  x1 */
+} S_0061DAE0;  /* stride 0x8, 2 accesses */
+
+typedef struct {
+    unsigned int     f_20;  /* 0x20  x2 */
+} S_0061E730;  /* stride 0x24, 2 accesses */
+
+typedef struct {
+    unsigned int     f_4;  /* 0x4  x1 */
+} S_004D0940;  /* stride 0x8, 1 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x1 */
+} S_0061DB88;  /* stride 0x4, 1 accesses */
+
+/* === END recovered struct shapes === */

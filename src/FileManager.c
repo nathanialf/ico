@@ -622,3 +622,65 @@ INCLUDE_ASM("asm/nonmatchings/src/FileManager", func_0010EE90);
 /* ASCII debug strings — re-derived from EE rodata bytes. */
 /* ASCII preview: "loading:"<ESC>[33m%s<ESC>[m" (address:<ESC>[35m%p<ESC>[m/size:<ESC>[35m%d<ESC>[m)" */
 const char D_00553FD0[64] = "loading:\"\033[33m%s\033[m\" (address:\033[35m%p\033[m/size:\033[35m%d\033[m)";
+
+
+/* === BEGIN recovered struct shapes (tools/place_struct_shapes.py) === */
+/* Field layouts mined from load/store access patterns; SPARSE
+ * (only touched offsets, no padding). Unused typedefs — they add
+ * no symbol and cannot affect codegen. Cast as ((S_<VMA> *)D_<VMA>).
+ */
+
+typedef struct {
+    unsigned int     f_4;  /* 0x4  x14 */
+    unsigned int     f_8;  /* 0x8  x4 */
+    unsigned int     f_C;  /* 0xC  x9 */
+    unsigned int     f_10;  /* 0x10  x220 */
+    unsigned int     f_14;  /* 0x14  x20 */
+    unsigned int     f_18;  /* 0x18  x23 */
+    unsigned int     f_1C;  /* 0x1C  x15 */
+} S_004C7710;  /* stride 0x4, 305 accesses */
+
+typedef struct {
+    unsigned int     f_4;  /* 0x4  x7 */
+    unsigned int     f_8;  /* 0x8  x5 */
+} S_002761B8;  /* 12 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x6  mixed-width */
+} S_00633C48;  /* 6 accesses */
+
+typedef struct {
+    unsigned char    f_4;  /* 0x4  x2 */
+    unsigned char    f_8;  /* 0x8  x2 */
+    unsigned char    f_C;  /* 0xC  x2 */
+} S_00672E90;  /* 6 accesses */
+
+typedef struct {
+    unsigned char    f_0;  /* 0x0  x5 */
+} S_006331B3;  /* 5 accesses */
+
+typedef struct {
+    unsigned char    f_0;  /* 0x0  x3 */
+} S_0063328C;  /* 3 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x2  mixed-width */
+} S_00633C28;  /* 2 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x2  mixed-width */
+} S_00633C2C;  /* 2 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x1 */
+} S_bl_00554330;  /* stride 0x4, 1 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x1 */
+} S_bl_00554360;  /* stride 0x4, 1 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x1 */
+} S_bl_00554DB0;  /* stride 0x4, 1 accesses */
+
+/* === END recovered struct shapes === */

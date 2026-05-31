@@ -404,3 +404,44 @@ extern char D_00631F70[];
 
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00133218);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001332B8);
+
+
+/* === BEGIN recovered struct shapes (tools/place_struct_shapes.py) === */
+/* Field layouts mined from load/store access patterns; SPARSE
+ * (only touched offsets, no padding). Unused typedefs — they add
+ * no symbol and cannot affect codegen. Cast as ((S_<VMA> *)D_<VMA>).
+ */
+
+typedef struct {
+    char             f_0;  /* 0x0  x2 */
+    unsigned int     f_100;  /* 0x100  x1 */
+    unsigned int     f_104;  /* 0x104  x1 */
+    unsigned int     f_108;  /* 0x108  x2 */
+    unsigned int     f_118;  /* 0x118  x1 */
+    unsigned int     f_11C;  /* 0x11C  x1 */
+    unsigned int     f_120;  /* 0x120  x1 */
+    unsigned int     f_124;  /* 0x124  x1 */
+    unsigned int     f_128;  /* 0x128  x1 */
+} S_006A5C80;  /* 11 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x5 */
+    unsigned int     f_4;  /* 0x4  x3 */
+} S_0027E520;  /* stride 0x30, 8 accesses */
+
+typedef struct {
+    short            f_0;  /* 0x0  x6 */
+} S_00681278;  /* stride 0x6, 6 accesses */
+
+typedef struct {
+    unsigned char    f_D0;  /* 0xD0  x1 */
+    unsigned char    f_D4;  /* 0xD4  x1 */
+    unsigned char    f_D8;  /* 0xD8  x1 */
+    unsigned int     f_F8;  /* 0xF8  x2 */
+} S_00275120;  /* 5 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x5 */
+} S_006A6990;  /* stride 0x4, 5 accesses */
+
+/* === END recovered struct shapes === */

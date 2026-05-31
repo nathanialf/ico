@@ -720,3 +720,26 @@ const char D_00614D68[64] = "loading:\"\033[33m%s\033[m\"\n\t(address:\033[35m%p
 const char D_00616590[56] = "Init line trace table. (\033[36mEntry: %ddatas\033[m)\n";
 /* ASCII preview: "----------------------------------------------<ESC>[m<LF>" */
 const char D_00616848[56] = "----------------------------------------------\033[m\n";
+
+
+/* === BEGIN recovered struct shapes (tools/place_struct_shapes.py) === */
+/* Field layouts mined from load/store access patterns; SPARSE
+ * (only touched offsets, no padding). Unused typedefs — they add
+ * no symbol and cannot affect codegen. Cast as ((S_<VMA> *)D_<VMA>).
+ */
+
+typedef struct {
+    unsigned int     f_44;  /* 0x44  x1 */
+    unsigned int     f_58;  /* 0x58  x2 */
+} S_002A31B8;  /* stride 0x64, 3 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x1 */
+    unsigned int     f_8;  /* 0x8  x1 */
+} S_00613BA0;  /* 2 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x1 */
+} S_bl_00614F10;  /* stride 0x4, 1 accesses */
+
+/* === END recovered struct shapes === */

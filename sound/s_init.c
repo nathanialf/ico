@@ -574,3 +574,72 @@ void func_001447E0(int idx)
 }
 
 INCLUDE_ASM_NOP_PAD(func_00144824);
+
+
+/* === BEGIN recovered struct shapes (tools/place_struct_shapes.py) === */
+/* Field layouts mined from load/store access patterns; SPARSE
+ * (only touched offsets, no padding). Unused typedefs — they add
+ * no symbol and cannot affect codegen. Cast as ((S_<VMA> *)D_<VMA>).
+ */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x22  mixed-width */
+    unsigned int     f_4;  /* 0x4  x4 */
+    short            f_10;  /* 0x10  x12 */
+    unsigned int     f_30;  /* 0x30  x1 */
+} S_006A98B0;  /* stride 0x40, 39 accesses */
+
+typedef struct {
+    char             f_0;  /* 0x0  x7 */
+} S_00633CF1;  /* 7 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x3 */
+    unsigned short   f_2;  /* 0x2  x3 */
+} S_006A95B0;  /* 6 accesses */
+
+typedef struct {
+    unsigned int     f_60;  /* 0x60  x5 */
+} S_005E8F70;  /* stride 0x64, 5 accesses */
+
+typedef struct {
+    char             f_0;  /* 0x0  x4 */
+} S_00633CE8;  /* 4 accesses */
+
+typedef struct {
+    char             f_0;  /* 0x0  x4 */
+} S_00633CED;  /* 4 accesses */
+
+typedef struct {
+    unsigned int     f_20;  /* 0x20  x3 */
+} S_005D49E0;  /* stride 0x3C, 3 accesses */
+
+typedef struct {
+    char             f_0;  /* 0x0  x3 */
+} S_00633CE9;  /* 3 accesses */
+
+typedef struct {
+    char             f_0;  /* 0x0  x3 */
+} S_00633CEA;  /* 3 accesses */
+
+typedef struct {
+    char             f_0;  /* 0x0  x3 */
+} S_00633CEE;  /* 3 accesses */
+
+typedef struct {
+    char             f_0;  /* 0x0  x3 */
+} S_00633CEF;  /* 3 accesses */
+
+typedef struct {
+    char             f_0;  /* 0x0  x3 */
+} S_00633CF0;  /* 3 accesses */
+
+typedef struct {
+    unsigned short   f_0;  /* 0x0  x2 */
+} S_002E7710;  /* stride 0x2, 2 accesses */
+
+typedef struct {
+    unsigned short   f_0;  /* 0x0  x1 */
+} S_005EB810;  /* stride 0x8, 1 accesses */
+
+/* === END recovered struct shapes === */

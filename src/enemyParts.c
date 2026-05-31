@@ -237,3 +237,16 @@ int func_001CF8D0(int *self)
     func_0010F630();
     return 1;
 }
+
+
+/* === BEGIN recovered struct shapes (tools/place_struct_shapes.py) === */
+/* Field layouts mined from load/store access patterns; SPARSE
+ * (only touched offsets, no padding). Unused typedefs — they add
+ * no symbol and cannot affect codegen. Cast as ((S_<VMA> *)D_<VMA>).
+ */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x2 */
+} S_004C4998;  /* stride 0x4, 2 accesses */
+
+/* === END recovered struct shapes === */

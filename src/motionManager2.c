@@ -109,3 +109,16 @@ float D_00630994 = 0.1f;
 #include "include_asm.h"
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", func_00107B28);
+
+
+/* === BEGIN recovered struct shapes (tools/place_struct_shapes.py) === */
+/* Field layouts mined from load/store access patterns; SPARSE
+ * (only touched offsets, no padding). Unused typedefs — they add
+ * no symbol and cannot affect codegen. Cast as ((S_<VMA> *)D_<VMA>).
+ */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x2 */
+} S_00275FD0;  /* stride 0x4, 2 accesses */
+
+/* === END recovered struct shapes === */

@@ -416,3 +416,21 @@ INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014D6B0);
 INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014D868);
 INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014E300);
 INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014E488);
+
+
+/* === BEGIN recovered struct shapes (tools/place_struct_shapes.py) === */
+/* Field layouts mined from load/store access patterns; SPARSE
+ * (only touched offsets, no padding). Unused typedefs — they add
+ * no symbol and cannot affect codegen. Cast as ((S_<VMA> *)D_<VMA>).
+ */
+
+typedef struct {
+    unsigned int     f_4B0;  /* 0x4B0  x7 */
+    unsigned int     f_4B4;  /* 0x4B4  x3 */
+} S_006AA4B0;  /* 10 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x2 */
+} S_bl_00558150;  /* stride 0x4, 2 accesses */
+
+/* === END recovered struct shapes === */

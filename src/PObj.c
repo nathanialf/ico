@@ -1846,3 +1846,69 @@ const char D_0062FF80[16] = "                ";
 const char D_0062FF90[16] = "0000000000000000";
 /* ASCII preview: "bug in vfprintf: bad bas" */
 const char D_0062FFE8[24] = "bug in vfprintf: bad bas";
+
+
+/* === BEGIN recovered struct shapes (tools/place_struct_shapes.py) === */
+/* Field layouts mined from load/store access patterns; SPARSE
+ * (only touched offsets, no padding). Unused typedefs — they add
+ * no symbol and cannot affect codegen. Cast as ((S_<VMA> *)D_<VMA>).
+ */
+
+typedef struct {
+    unsigned int     f_C;  /* 0xC  x4 */
+    unsigned int     f_10;  /* 0x10  x2 */
+    unsigned int     f_14;  /* 0x14  x4 */
+    unsigned int     f_18;  /* 0x18  x2 */
+} S_00717758;  /* 12 accesses */
+
+typedef struct {
+    unsigned int     f_4;  /* 0x4  x2 */
+    unsigned int     f_8;  /* 0x8  x2 */
+    unsigned int     f_C;  /* 0xC  x2 */
+} S_00713000;  /* 6 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x2 */
+    unsigned int     f_10;  /* 0x10  x4 */
+} S_00717C50;  /* 6 accesses */
+
+typedef struct {
+    unsigned int     f_4;  /* 0x4  x1 */
+    unsigned int     f_140;  /* 0x140  x1 */
+    unsigned int     f_144;  /* 0x144  x1 */
+    unsigned int     f_280;  /* 0x280  x1 */
+} S_00552AB8;  /* 4 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x4 */
+} S_00717880;  /* stride 0x4, 4 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x4 */
+} S_0071E900;  /* stride 0x4, 4 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x2 */
+} S_00550710;  /* stride 0x4, 2 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x2 */
+} S_00552390;  /* stride 0x4, 2 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x2 */
+} S_005523B0;  /* stride 0x4, 2 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x2 */
+} S_00552DC8;  /* stride 0x4, 2 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x2 */
+} S_00712CC0;  /* stride 0x4, 2 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x1 */
+} S_00552E38;  /* stride 0x4, 1 accesses */
+
+/* === END recovered struct shapes === */

@@ -596,3 +596,51 @@ INCLUDE_ASM("asm/nonmatchings/src/layout_texture", func_001B6FD8);
 /* ASCII debug strings — re-derived from EE rodata bytes. */
 /* ASCII preview: "[<ESC>[42m scene %d <ESC>[m ]<LF>" */
 const char D_00617348[24] = "[\033[42m scene %d \033[m ]\n";
+
+
+/* === BEGIN recovered struct shapes (tools/place_struct_shapes.py) === */
+/* Field layouts mined from load/store access patterns; SPARSE
+ * (only touched offsets, no padding). Unused typedefs — they add
+ * no symbol and cannot affect codegen. Cast as ((S_<VMA> *)D_<VMA>).
+ */
+
+typedef struct {
+    unsigned int     f_4;  /* 0x4  x17 */
+    unsigned int     f_C;  /* 0xC  x9 */
+    unsigned char    f_54;  /* 0x54  x1 */
+    unsigned char    f_55;  /* 0x55  x1 */
+    unsigned int     f_58;  /* 0x58  x4 */
+    unsigned char    f_AC;  /* 0xAC  x2 */
+    unsigned char    f_AD;  /* 0xAD  x4 */
+    unsigned char    f_AE;  /* 0xAE  x1 */
+    unsigned char    f_AF;  /* 0xAF  x1 */
+} S_00275250;  /* stride 0x58, 40 accesses */
+
+typedef struct {
+    unsigned int     f_38;  /* 0x38  x1 */
+    unsigned int     f_64;  /* 0x64  x2 */
+    unsigned int     f_68;  /* 0x68  x8 */
+} S_002E81F0;  /* stride 0x6C, 11 accesses */
+
+typedef struct {
+    unsigned int     f_140;  /* 0x140  x2 */
+    unsigned int     f_148;  /* 0x148  x2 */
+} S_00280C60;  /* stride 0x18C, 4 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x2 */
+} S_004BEFA8;  /* stride 0x4, 2 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x2 */
+} S_004BF460;  /* stride 0x4, 2 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x2 */
+} S_bl_00617390;  /* stride 0x4, 2 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x1 */
+} S_bl_006171B0;  /* stride 0x4, 1 accesses */
+
+/* === END recovered struct shapes === */

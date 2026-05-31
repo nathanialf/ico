@@ -371,3 +371,29 @@ int func_0013DBB0(int *self)
 }
 
 INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013DC30);
+
+
+/* === BEGIN recovered struct shapes (tools/place_struct_shapes.py) === */
+/* Field layouts mined from load/store access patterns; SPARSE
+ * (only touched offsets, no padding). Unused typedefs — they add
+ * no symbol and cannot affect codegen. Cast as ((S_<VMA> *)D_<VMA>).
+ */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x19 */
+} S_006A6F30;  /* stride 0x4, 19 accesses */
+
+typedef struct {
+    unsigned int     f_4;  /* 0x4  x1 */
+    unsigned int     f_8;  /* 0x8  x1 */
+    unsigned int     f_C;  /* 0xC  x1 */
+    unsigned int     f_10;  /* 0x10  x1 */
+    unsigned int     f_14;  /* 0x14  x1 */
+    unsigned int     f_18;  /* 0x18  x1 */
+    unsigned int     f_30;  /* 0x30  x1 */
+    unsigned int     f_34;  /* 0x34  x1 */
+    unsigned int     f_38;  /* 0x38  x1 */
+    unsigned int     f_40;  /* 0x40  x1 */
+} S_006A7360;  /* 10 accesses */
+
+/* === END recovered struct shapes === */

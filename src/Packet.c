@@ -404,3 +404,33 @@ const char D_00554FF8[64] = "\033[31msorce normal model data broken! %f %f %f %f
 const char D_005550F8[64] = "\033[31msorce cluster model data broken! %f %f %f %f [%d]\033[0m\n";
 /* ASCII preview: "<ESC>[31mMaxPacketSize = %d<ESC>[0m<LF>" */
 const char D_00555378[32] = "\033[31mMaxPacketSize = %d\033[0m\n";
+
+
+/* === BEGIN recovered struct shapes (tools/place_struct_shapes.py) === */
+/* Field layouts mined from load/store access patterns; SPARSE
+ * (only touched offsets, no padding). Unused typedefs — they add
+ * no symbol and cannot affect codegen. Cast as ((S_<VMA> *)D_<VMA>).
+ */
+
+typedef struct {
+    unsigned int     f_20;  /* 0x20  x5 */
+    unsigned int     f_24;  /* 0x24  x9 */
+    unsigned int     f_28;  /* 0x28  x9 */
+    unsigned int     f_2C;  /* 0x2C  x39 */
+    unsigned int     f_30;  /* 0x30  x3 */
+    unsigned long long f_38;  /* 0x38  x4 */
+} S_00672FD0;  /* 69 accesses */
+
+typedef struct {
+    unsigned long long f_0;  /* 0x0  x2 */
+} S_005551C0;  /* stride 0x10, 2 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x2 */
+} S_bl_00554E00;  /* stride 0x4, 2 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x2 */
+} S_bl_00554FE0;  /* stride 0x4, 2 accesses */
+
+/* === END recovered struct shapes === */

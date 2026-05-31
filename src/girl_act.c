@@ -115,3 +115,17 @@ void func_00176398(int self, int a1, int size)
 /* func_001763F4 is a 4-byte nop pad absorbed into func_001763F8's .s. */
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001763F8);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00176600);
+
+
+/* === BEGIN recovered struct shapes (tools/place_struct_shapes.py) === */
+/* Field layouts mined from load/store access patterns; SPARSE
+ * (only touched offsets, no padding). Unused typedefs — they add
+ * no symbol and cannot affect codegen. Cast as ((S_<VMA> *)D_<VMA>).
+ */
+
+typedef struct {
+    unsigned int     f_4;  /* 0x4  x2 */
+    unsigned int     f_10;  /* 0x10  x1 */
+} S_006ABE40;  /* stride 0x18, 3 accesses */
+
+/* === END recovered struct shapes === */

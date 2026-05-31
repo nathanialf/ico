@@ -346,3 +346,37 @@ int func_0017ACD8(int arg0, int arg1)
     }
     return 0;
 }
+
+
+/* === BEGIN recovered struct shapes (tools/place_struct_shapes.py) === */
+/* Field layouts mined from load/store access patterns; SPARSE
+ * (only touched offsets, no padding). Unused typedefs — they add
+ * no symbol and cannot affect codegen. Cast as ((S_<VMA> *)D_<VMA>).
+ */
+
+typedef struct {
+    unsigned char    f_44;  /* 0x44  x2 */
+    unsigned long long f_50;  /* 0x50  x3 */
+    unsigned long long f_58;  /* 0x58  x3 */
+    unsigned long long f_60;  /* 0x60  x3 */
+    unsigned long long f_68;  /* 0x68  x3 */
+    unsigned long long f_70;  /* 0x70  x3 */
+    unsigned long long f_78;  /* 0x78  x3 */
+    unsigned int     f_80;  /* 0x80  x1 */
+    unsigned int     f_84;  /* 0x84  x1 */
+    unsigned int     f_88;  /* 0x88  x1 */
+    unsigned int     f_90;  /* 0x90  x1 */
+    unsigned int     f_94;  /* 0x94  x1 */
+    unsigned int     f_98;  /* 0x98  x1 */
+    unsigned int     f_A0;  /* 0xA0  x1 */
+    unsigned int     f_A4;  /* 0xA4  x1 */
+} S_006D0470;  /* 28 accesses */
+
+typedef struct {
+    unsigned int     f_8;  /* 0x8  x4 */
+    unsigned int     f_C;  /* 0xC  x8 */
+    unsigned int     f_20;  /* 0x20  x5 */
+    unsigned int     f_28;  /* 0x28  x2 */
+} S_004CC1E0;  /* stride 0x40, 19 accesses */
+
+/* === END recovered struct shapes === */

@@ -235,3 +235,17 @@ unsigned int D_0028AD10[20] = { 0x00000001, 0x00000000, 0x00000005, 0x00000004, 
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", func_00182D20);
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", func_00182DD8);
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", func_00182F20);
+
+
+/* === BEGIN recovered struct shapes (tools/place_struct_shapes.py) === */
+/* Field layouts mined from load/store access patterns; SPARSE
+ * (only touched offsets, no padding). Unused typedefs — they add
+ * no symbol and cannot affect codegen. Cast as ((S_<VMA> *)D_<VMA>).
+ */
+
+typedef struct {
+    unsigned int     f_4;  /* 0x4  x1 */
+    unsigned int     f_8;  /* 0x8  x1 */
+} S_0028AF40;  /* 2 accesses */
+
+/* === END recovered struct shapes === */

@@ -336,3 +336,22 @@ void func_0013C598(struct PadNode **head, struct PadNode *new_node) {
     }
     *head = new_node;
 }
+
+
+/* === BEGIN recovered struct shapes (tools/place_struct_shapes.py) === */
+/* Field layouts mined from load/store access patterns; SPARSE
+ * (only touched offsets, no padding). Unused typedefs — they add
+ * no symbol and cannot affect codegen. Cast as ((S_<VMA> *)D_<VMA>).
+ */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x3 */
+    unsigned int     f_4;  /* 0x4  x3 */
+} S_002811C0;  /* stride 0x200, 6 accesses */
+
+typedef struct {
+    short            f_4;  /* 0x4  x2 */
+    unsigned short   f_6;  /* 0x6  x3 */
+} S_005F2F00;  /* stride 0x8, 5 accesses */
+
+/* === END recovered struct shapes === */

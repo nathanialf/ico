@@ -222,3 +222,18 @@ int func_001F1058(volatile int *self)
 /* ASCII debug strings — re-derived from EE rodata bytes. */
 /* ASCII preview: "<ESC>[36mWait!!!<ESC>[m<LF>" */
 const char D_0061A6C0[24] = "\033[36mWait!!!\033[m\n";
+
+
+/* === BEGIN recovered struct shapes (tools/place_struct_shapes.py) === */
+/* Field layouts mined from load/store access patterns; SPARSE
+ * (only touched offsets, no padding). Unused typedefs — they add
+ * no symbol and cannot affect codegen. Cast as ((S_<VMA> *)D_<VMA>).
+ */
+
+typedef struct {
+    unsigned int     f_C;  /* 0xC  x3 */
+    unsigned int     f_10;  /* 0x10  x3 */
+    unsigned int     f_14;  /* 0x14  x2 */
+} S_0070D4D8;  /* stride 0x18, 8 accesses */
+
+/* === END recovered struct shapes === */

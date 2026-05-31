@@ -162,3 +162,16 @@ INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00139FE8);
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_0013A0F8);
 
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_0013A200);
+
+
+/* === BEGIN recovered struct shapes (tools/place_struct_shapes.py) === */
+/* Field layouts mined from load/store access patterns; SPARSE
+ * (only touched offsets, no padding). Unused typedefs — they add
+ * no symbol and cannot affect codegen. Cast as ((S_<VMA> *)D_<VMA>).
+ */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x1 */
+} S_bl_005576D0;  /* stride 0x4, 1 accesses */
+
+/* === END recovered struct shapes === */

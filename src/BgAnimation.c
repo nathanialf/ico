@@ -168,3 +168,34 @@ INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001FA7F8);
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001FA898);
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001FA910);
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001FA998);
+
+
+/* === BEGIN recovered struct shapes (tools/place_struct_shapes.py) === */
+/* Field layouts mined from load/store access patterns; SPARSE
+ * (only touched offsets, no padding). Unused typedefs — they add
+ * no symbol and cannot affect codegen. Cast as ((S_<VMA> *)D_<VMA>).
+ */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x1 */
+    unsigned int     f_4;  /* 0x4  x2 */
+    unsigned long long f_8;  /* 0x8  x1 */
+    unsigned int     f_10;  /* 0x10  x1 */
+    unsigned long long f_18;  /* 0x18  x1 */
+    unsigned int     f_24;  /* 0x24  x3 */
+} S_00710D10;  /* stride 0x28, 9 accesses */
+
+typedef struct {
+    short            f_0;  /* 0x0  x5 */
+} S_00633F68;  /* 5 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x4 */
+} S_00710F80;  /* stride 0x4, 4 accesses */
+
+typedef struct {
+    unsigned int     f_4;  /* 0x4  x1 */
+    unsigned int     f_8;  /* 0x8  x1 */
+} S_00710CB0;  /* 2 accesses */
+
+/* === END recovered struct shapes === */

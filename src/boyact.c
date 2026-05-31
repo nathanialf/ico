@@ -498,3 +498,45 @@ void func_00154B20(volatile int a0)
     *(struct Blob12 *)(sub + 0x1C0) = *(struct Blob12 *)D_00282660;
     func_001A6E28((const char *)D_006322C0);
 }
+
+
+/* === BEGIN recovered struct shapes (tools/place_struct_shapes.py) === */
+/* Field layouts mined from load/store access patterns; SPARSE
+ * (only touched offsets, no padding). Unused typedefs — they add
+ * no symbol and cannot affect codegen. Cast as ((S_<VMA> *)D_<VMA>).
+ */
+
+typedef struct {
+    unsigned int     f_4;  /* 0x4  x1 */
+    unsigned long long f_8;  /* 0x8  x16  mixed-width */
+    unsigned int     f_10;  /* 0x10  x1 */
+    unsigned int     f_20;  /* 0x20  x5 */
+    unsigned int     f_24;  /* 0x24  x3 */
+} S_006AAAE0;  /* 26 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x19 */
+} S_004C49A8;  /* stride 0x4, 19 accesses */
+
+typedef struct {
+    unsigned int     f_8;  /* 0x8  x2 */
+    unsigned int     f_C;  /* 0xC  x1 */
+    unsigned int     f_10;  /* 0x10  x1 */
+    unsigned char    f_14;  /* 0x14  x1 */
+    unsigned char    f_15;  /* 0x15  x1 */
+    unsigned short   f_16;  /* 0x16  x1 */
+} S_006AAB40;  /* 7 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x1 */
+} S_bl_00558300;  /* stride 0x4, 1 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x1 */
+} S_bl_005584D0;  /* stride 0x4, 1 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x1 */
+} S_bl_00558510;  /* stride 0x4, 1 accesses */
+
+/* === END recovered struct shapes === */

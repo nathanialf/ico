@@ -212,3 +212,21 @@ const char D_00612658[32] = "\033[35mINITED POLYGONSTATE\033[m\n";
 const char D_00612678[32] = "\033[35mINITED GEOMETRYSTATE\033[m\n";
 /* ASCII preview: "<ESC>[35mEND OF INIT DOBJ<ESC>[m<LF>" */
 const char D_00612698[32] = "\033[35mEND OF INIT DOBJ\033[m\n";
+
+
+/* === BEGIN recovered struct shapes (tools/place_struct_shapes.py) === */
+/* Field layouts mined from load/store access patterns; SPARSE
+ * (only touched offsets, no padding). Unused typedefs — they add
+ * no symbol and cannot affect codegen. Cast as ((S_<VMA> *)D_<VMA>).
+ */
+
+typedef struct {
+    unsigned int     f_14;  /* 0x14  x1 */
+    unsigned char    f_18;  /* 0x18  x1 */
+    unsigned char    f_19;  /* 0x19  x1 */
+    unsigned char    f_1A;  /* 0x1A  x1 */
+    unsigned char    f_1B;  /* 0x1B  x1 */
+    unsigned int     f_1C;  /* 0x1C  x3 */
+} S_006124F8;  /* stride 0x24, 8 accesses */
+
+/* === END recovered struct shapes === */

@@ -417,3 +417,31 @@ short func_00141020(char *self, int idx) {
 }
 
 INCLUDE_ASM_NOP_PAD(func_00141034);
+
+
+/* === BEGIN recovered struct shapes (tools/place_struct_shapes.py) === */
+/* Field layouts mined from load/store access patterns; SPARSE
+ * (only touched offsets, no padding). Unused typedefs — they add
+ * no symbol and cannot affect codegen. Cast as ((S_<VMA> *)D_<VMA>).
+ */
+
+typedef struct {
+    unsigned int     f_30;  /* 0x30  x2 */
+    unsigned int     f_34;  /* 0x34  x2 */
+    unsigned int     f_38;  /* 0x38  x4 */
+    unsigned int     f_3C;  /* 0x3C  x2 */
+} S_0055F468;  /* 10 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x3 */
+} S_00281AD0;  /* stride 0x4, 3 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x2 */
+} S_006A9590;  /* stride 0x4, 2 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x2 */
+} S_bl_00557B60;  /* stride 0x4, 2 accesses */
+
+/* === END recovered struct shapes === */
