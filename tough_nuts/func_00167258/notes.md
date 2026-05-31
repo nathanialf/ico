@@ -45,3 +45,20 @@ Expected: `ldl v1,%gp_rel(D_006323C7)($gp); ldr v1,%gp_rel(D_006323C0)($gp)` (sy
 Tried: extern long long (8-aligned)->aligned ld (worse); extern int + &cast -> base-fold; packed struct direct read -> base-fold (same).
 NEXT: make gcc fold gp_rel into the unaligned ldl/ldr (no intermediate base reg). The OLD seed used inline asm for exactly this;
 clean lever not yet found. Maybe a 4-aligned char[8] global, or a different small-global access pattern. Permuter after 30-stall.
+
+## 2026-05-31 (turn 3) — gp_rel base-fold wall: 7 source forms, ee-gcc always materializes base
+Goal remaining: SOURCE load must be `ldl v1,%gp_rel(D_006323C7)($gp); ldr v1,%gp_rel(D_006323C0)($gp)`
+(symbol folded into ldl/ldr off $gp directly). Built always materializes base into a reg first.
+Forms tried for the source (all wrong):
+ 1. extern long long (8-aligned)            -> aligned `ld` (no ldl/ldr)
+ 2. extern int + *(packed*)&D               -> ldl/ldr but `addiu a3,gp; ldl 7(a3)` (base-mat, gp_rel)
+ 3. packed struct, direct `=D`              -> ldl/ldr base-mat (gp_rel)
+ 4. typedef long long aligned(1), cast      -> aligned `ld`
+ 5. extern long long __attribute__(aligned1)-> aligned `ld`
+ 6. packed member scalar via `long long t=D.v` -> ldl/ldr base-mat (`addiu at,gp; ldl 7(at)`)
+ 7. extern char[] __asm__("D_006323C0") cast -> ldl/ldr but `lui a1,%hi` (FAR addr, WORSE)
+CONCLUSION: ee-gcc 2.9 in THIS build never folds a gp_rel symbol into an unaligned ldl/ldr displacement;
+it materializes the base every time. Packed struct is the ONLY way to get ldl/ldr at all (forms 2,3,6).
+The DEST store (sdl/sdr 147/140(v0)) + flow + tail-call are ALL CORRECT with the packed struct.
+NEXT: this is the gp_rel-unaligned-fold the inline-asm seed exists for; clean lever unknown after 7 forms.
+Candidate for a permuter shot at 30-stall (currently ~7 distinct hyps). DEST-side is solved; only SOURCE base-fold remains.
