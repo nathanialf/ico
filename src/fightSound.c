@@ -39,7 +39,10 @@ INCLUDE_ASM("asm/nonmatchings/src/fightSound", func_00191D70);
  * gcc 2.9). Full analysis + clean-C seed in tough_nuts/func_00191F50/. */
 INCLUDE_ASM("asm/nonmatchings/src/fightSound", func_00191F50);
 
-INCLUDE_ASM("asm/nonmatchings/src/fightSound", func_00192040);
+void func_00192040(void)
+{
+    D_00632780 = 1;
+}
 
 void func_00192050(void)
 {
