@@ -1,6 +1,7 @@
 /* func_00175C18 - parked seed: single function extracted from its coalesced
  * TU snapshot (the full-TU seed exceeded the check_no_rom 256KiB cap).
- * Externs/typedefs for permuter context live in the TU itself. */
+ * Externs/typedefs for permuter context live in the TU itself.
+ * Clean (no REG pin) 11-diff seed; the retired REG("$2") form is gone. */
 
 int func_00175C18(void)
 {
@@ -9,8 +10,8 @@ int func_00175C18(void)
         return 1;
     }
     {
-        register int v = *(int *)(sub + 0x30);
-        register int r REG("$2") = 0;
+        int v = *(int *)(sub + 0x30);
+        int r = 0;
         if (v == 0x45 && D_002883D0[0x5D] != 0) {
             r = D_002883D0[0x58] == 0;
         }
