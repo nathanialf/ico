@@ -121,7 +121,17 @@ INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013EBE0);
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013EC50);
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013ECA8);
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", func_0013ECF8);
+struct GObj *func_0013ECF8(struct GObj *start)
+{
+    struct GObj *end = (struct GObj *)((char *)D_00633CA0 + (D_00633CA4 * 0x174 - 0x174));
+    while (start != end) {
+        start++;
+        if (start->unk0 != 0) {
+            return start;
+        }
+    }
+    return 0;
+}
 
 void func_0013ED40(int bit, int set)
 {
