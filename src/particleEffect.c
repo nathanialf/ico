@@ -32,7 +32,11 @@ const char D_00619E20[32] = "No more effect... Ignored.\n";
 extern void func_00105F00(int a0);
 extern int func_0010D830(int a0, int a1);
 
-INCLUDE_ASM("asm/nonmatchings/src/particleEffect", func_001E6D68);
+void func_001E6D68(int a0, int a1, int a2)
+{
+    func_00105F00(a0);
+    func_0010D830(a0 + 0x10, a2);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", func_001E6DA0);
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", func_001E73A8);
