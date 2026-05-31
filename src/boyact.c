@@ -384,7 +384,13 @@ void func_00154390(void)
 }
 
 /* Matched body inlined from src/cod/054420.c during TU coalesce. */
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00154420);
+int func_00154420(void)
+{
+    unsigned int a = *(unsigned int *)(*(int *)(D_00631AE4 + 0x164) + 0x30);
+    if (a >= 0x5D) return 1;
+    if (a < 0x5B) return 1;
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00154444);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00154448);
