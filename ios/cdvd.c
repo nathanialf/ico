@@ -246,7 +246,92 @@ extern int func_0024DA80(int a0);
 extern int func_0024D7B0(void);
 extern void func_0024A1E0(int a0);
 
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001312F0);
+/* 0x30-stride record at the far .sdata table D_0027E520 (file id / size + a
+ * 0x28-byte name). Shared with func_001332B8 below. */
+struct E001332B8
+{
+    int f0;
+    int f1;
+    unsigned char pad[0x28];
+};
+/* D_0027E520 is an 8-byte .sdata symbol at a FAR VMA — a gp_rel C ref
+ * truncates at link. Alias it as an incomplete struct array so ee-gcc emits
+ * %hi/%lo absolute addressing (matches the ROM), with no .data shift. */
+extern struct E001332B8 D_tbl_0027E520[] __asm__("D_0027E520");
+
+extern int D_00631F54;
+extern void func_001A6E28();
+extern int func_0026527C(int *name);
+extern int func_00265024(int *name, const char *entry);
+extern int func_0024C6B8(int *dst, int *name);
+/* int return (value discarded) so $v0 stays reserved across the call and the
+ * following D_00631F54 reload lands in $v1, as in the ROM. */
+extern int func_00265570(void *dst, int *src, int n);
+
+/* iosCdvdMgrSearchFile request object: name string at 0x34, recovered id/size
+ * at 0x134/0x138. */
+typedef struct
+{
+    unsigned char _pad0[0xC];
+    int unk_C;          /* 0xC */
+    unsigned char _pad10[0x24];
+    char name[0x28];    /* 0x34 */
+    unsigned char _pad5C[0xD8];
+    int fileId;         /* 0x134 */
+    int fileSize;       /* 0x138 */
+} CdvdReq;
+
+/* iosCdvdMgrSearchFile: length-check req->name, linear-search the D_0027E528
+ * name table; on a hit copy the existing id/size into req, else register a new
+ * entry in D_0027E520 / D_0027E528. */
+void func_001312F0(int *self)
+{
+    CdvdReq *req = (CdvdReq *) self;
+    int found = 1;
+    volatile int i; /* the loop index lives on the stack (reloaded each pass) */
+
+    if ((unsigned int) func_0026527C((int *) req->name) < 0x28)
+    {
+        for (i = 0; i < D_00631F54; i++)
+        {
+            found = func_00265024((int *) req->name, (const char *) &D_0027E528[i * 0x30]);
+            if (found == 0)
+            {
+                break;
+            }
+        }
+    }
+    else
+    {
+        func_001A6E28(D_00556828);
+    }
+
+    if (found == 0)
+    {
+        req->fileId = D_tbl_0027E520[i].f0;
+        req->fileSize = D_tbl_0027E520[i].f1;
+    }
+    else
+    {
+        req->unk_C = 0;
+        if (func_0024C6B8(&req->fileId, (int *) req->name) == 0)
+        {
+            req->unk_C = 0x64;
+        }
+        if (D_00631F54 < 0xC8)
+        {
+            int n = D_00631F54;
+            D_tbl_0027E520[n].f0 = req->fileId;
+            D_tbl_0027E520[n].f1 = req->fileSize;
+            func_00265570(D_tbl_0027E520[n].pad, (int *) req->name, 0x28);
+            D_00631F54 = D_00631F54 + 1;
+        }
+        else
+        {
+            func_001A6E28(D_00556860);
+        }
+    }
+}
 extern int D_00632870;
 extern int D_00633C78;
 extern int D_0063286C;
@@ -426,22 +511,9 @@ int func_00133218(int a0)
     } while (nc != 0);
     return func_00265168(a0, buf);
 }
-extern unsigned int D_00631F54;
 extern const char D_00631F68[];
-extern int func_00265024(int *name, const char *entry);
 extern void func_001AD768(const char *file, int line);
 extern void func_00263FF0(const char *file, int line, const char *expr);
-
-struct E001332B8
-{
-    int f0;
-    int f1;
-    unsigned char pad[0x28];
-};
-/* D_0027E520 is an 8-byte .sdata symbol at a FAR VMA — a gp_rel C ref
- * truncates at link. Alias it as an incomplete struct array so ee-gcc emits
- * %hi/%lo absolute addressing (matches the ROM), with no .data shift. */
-extern struct E001332B8 D_tbl_0027E520[] __asm__("D_0027E520");
 
 int func_001332B8(int *name, int *out)
 {
