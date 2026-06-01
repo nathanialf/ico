@@ -464,7 +464,87 @@ void func_001320E8(int *a0, void *a1, int a2)
         a2 -= n;
     }
 }
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001321C8);
+extern void func_00264DF8(unsigned char *buf, const char *fmt, int a0);
+extern int func_00265168(int a0, unsigned char *buf);
+extern char D_0062FC79[];
+extern char D_00631F70[];
+
+/* normalise+register helper (== func_00133218); static-inlined into the
+ * ReadDir loop so gcc's inliner handles the buf address (testing remat). */
+static inline int cdvd_normpath(int a0)
+{
+    unsigned char buf[0x100];
+    unsigned char *p = buf;
+    unsigned char c;
+    unsigned char nc;
+    func_00264DF8(buf, D_00631F70, a0);
+    c = buf[0];
+    do
+    {
+        int t = ((int) c) << (nc = 24);
+        int sc = t >> 24;
+        if (sc == '/')
+        {
+            *p = '\\';
+        }
+        else
+        {
+            int r = sc - 0x20;
+            if ((D_0062FC79[sc] & 2) == 0)
+            {
+                r = sc;
+            }
+            *p = r;
+        }
+        p++;
+        nc = *p;
+        c = nc;
+    } while (nc != 0);
+    return func_00265168(a0, buf);
+}
+
+/* iosCdvdMgrReadDir: read the dir-entry count, then for each entry read its
+ * raw record, build "DFDATAS/<name>", normalise the path, register the name in
+ * D_0027E528 and the rounded size/id in D_0027E520. */
+int func_001321C8(int *self)
+{
+    unsigned char entry[0x20];
+    const char *new_var;
+    int count;
+    int size;
+    char *name;
+    int n;
+
+    func_001320E8(self, &count, 4);
+    if (count-- <= 0)
+    {
+        goto end;
+    }
+    name = (char *) self + 0x34;
+loop:
+    {
+        func_001320E8(self, entry, 0x20);
+        new_var = D_00556A10;
+        func_00264DF8((unsigned char *) name, new_var, (int) entry);
+        cdvd_normpath((int) name);
+        func_00265168((int) &D_0027E528[D_00631F54 * 0x30], (unsigned char *) name);
+
+        func_001320E8(self, &size, 4);
+        n = D_00631F54;
+        {
+            int rounded = size / 0x800;
+            *(int *) &D_0027E528[n * 0x30 - 8] = rounded + self[0x134 / 4];
+        }
+        func_001320E8(self, &D_0027E528[n * 0x30 - 4], 4);
+        D_00631F54 = D_00631F54 + 1;
+    }
+    if (count-- > 0)
+    {
+        goto loop;
+    }
+end:
+    return 1;
+}
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00132388);
 union U001325D8
 {
