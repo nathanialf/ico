@@ -426,7 +426,43 @@ int func_00133218(int a0)
     } while (nc != 0);
     return func_00265168(a0, buf);
 }
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001332B8);
+extern unsigned int D_00631F54;
+extern const char D_00631F68[];
+extern int func_00265024(int *name, const char *entry);
+extern void func_001AD768(const char *file, int line);
+extern void func_00263FF0(const char *file, int line, const char *expr);
+
+struct E001332B8
+{
+    int f0;
+    int f1;
+    unsigned char pad[0x28];
+};
+/* D_0027E520 is an 8-byte .sdata symbol at a FAR VMA — a gp_rel C ref
+ * truncates at link. Alias it as an incomplete struct array so ee-gcc emits
+ * %hi/%lo absolute addressing (matches the ROM), with no .data shift. */
+extern struct E001332B8 D_tbl_0027E520[] __asm__("D_0027E520");
+
+int func_001332B8(int *name, int *out)
+{
+    int i = 0;
+    if ((int) D_00631F54 > 0)
+    {
+        do
+        {
+            if (func_00265024(name, (const char *) &D_0027E528[i * 0x30]) == 0)
+            {
+                goto found;
+            }
+            i++;
+        } while (i < (int) D_00631F54);
+    }
+    func_001AD768(D_00556818, 0x1E3);
+    func_00263FF0(D_00556818, 0x1E3, D_00631F68);
+found:
+    out[0] = D_tbl_0027E520[i].f1;
+    return D_tbl_0027E520[i].f0;
+}
 
 /* === Recovered struct shapes ===
  * Field layouts inferred from the load/store offsets each base is accessed
