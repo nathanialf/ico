@@ -251,10 +251,6 @@ unsigned char D_00632108[8] = { 0 };
  * Plain typed defs; ee-gcc -fdata-sections + slinky place each
  * at its original VMA. See tools/inline_tu_data.py. */
 
-/* Inlined data (Phase 3e) — migrated from cdvd_data.c.
- * Plain typed defs; ee-gcc -fdata-sections + slinky place each
- * at its original VMA. See tools/inline_tu_data.py. */
-
 /* misaligned arrays (scalar head + aligned tail) */
 unsigned int D_002751CC = 0x00000000;
 unsigned char D_002751D0[32] = { 0 };
@@ -291,12 +287,12 @@ extern void *func_0013A0F8(int a0, int a1, const char *fmt, int line);
 extern void func_00139598(void *p);
 extern void func_001A6E28();
 
-void func_00131780(int a0, char *a1, int a2, int a3, int a4, int a5, int a6)
+void func_00131780(int a0, char *name, int size, int a3, int a4, int a5, int segid)
 {
-    void *s1 = func_0013A0F8(D_00632024, a2, D_00556818, 0x33C);
-    func_001320E8((int *) a0, s1, a2);
-    func_001A6E28(D_005568E8, a1, a2, a6);
-    func_00139598(s1);
+    void *buf = func_0013A0F8(D_00632024, size, D_00556818, 0x33C);
+    func_001320E8((int *) a0, buf, size);
+    func_001A6E28(D_005568E8, name, size, segid);
+    func_00139598(buf);
 }
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131818);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131C90);
@@ -322,7 +318,6 @@ void func_00132038(int *a0, void *buf, int n)
         func_001A6E28(D_005569F8);
     }
 }
-extern void func_00132038(int *a0, void *buf, int n);
 extern void func_00131C90(int *a0, void *buf, int n);
 extern unsigned char D_006A64B8[];
 
@@ -386,15 +381,17 @@ INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00132FF0);
 
 void func_001331D8(int a0)
 {
-    int *s0 = (int *) a0;
-    int v0;
-    do { s0[0xC / 4] = 0; } while (0);
-    v0 = func_0024DA80(a0);
-    if (v0 == 0)
+    int *self = (int *) a0;
+    int err;
+    /* statement boundary: keep this store out of the following call's
+     * setup so it isn't reordered into the jal delay slot. */
+    do { self[0xC / 4] = 0; } while (0);
+    err = func_0024DA80(a0);
+    if (err == 0)
     {
-        s0[0xC / 4] = func_0024D7B0();
+        self[0xC / 4] = func_0024D7B0();
     }
-    return func_0024A1E0(s0[0x160 / 4]);
+    return func_0024A1E0(self[0x160 / 4]);
 }
 
 extern void func_00264DF8(unsigned char *buf, const char *fmt, int a0);
@@ -404,7 +401,6 @@ extern char D_00631F70[];
 
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00133218);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001332B8);
-
 
 /* === BEGIN recovered struct shapes (tools/place_struct_shapes.py) === */
 /* Field layouts mined from load/store access patterns; SPARSE
