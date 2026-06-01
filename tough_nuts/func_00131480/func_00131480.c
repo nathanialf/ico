@@ -116,19 +116,12 @@ extern void func_001383F8(int *a0);
 extern void func_00138510(int *a0);
 extern void func_00138618(int *a0);
 
-/* Data migrated from cdvd_data.c. */
-
-/* .data — zero buffers and typed tables. D_002751CC and its
- * 32-byte trailing zero pad are NOT migrated here — the symbol's
- * VMA is 4-aligned but ee-gcc forces `.align 3` (8-byte) on every
- * typed def under -mips3, so any tracked def would pad +4 and break
- * SHA-1. The legacy sidecar handles the 4-aligned scalar via its
- * own non-C asm-style emission path. */
 unsigned char D_00275120[16] = { 0 };
 unsigned char D_00275130[32] = { 0 };
 unsigned char D_00275150[48] = { 0 };
 unsigned char D_00275180[76] = { 0 };
-/* D_002751CC = 0  --  stays in sidecar (4-aligned VMA, see above). */
+/* D_002751CC (4-aligned VMA) stays in the sidecar — a typed def here would
+ * take ee-gcc's forced .align 3 and pad +4, breaking SHA-1. */
 
 /* Pointers to the "On"/"Off" sdata labels further down in this TU. */
 extern const char D_00631F30[8];  /* "On"  (forward, defined below) */
@@ -208,24 +201,12 @@ T_00280C18_rec D_00280C18[6] = {
 };
 unsigned char D_00280F88[56] = { 0 };
 
-/* .rodata — typed pointer/mask tables + a couple of in-place
- * structures whose original sidecar typing split the head and tail
- * into D_X + `_pad_X`. We absorb the full extent into one array.
- *
- * D_00556698[2] holds two pointers that fall *inside* arrays owned
- * by this TU rather than at typed-symbol boundaries:
- *   0x005567A8 → inside D_005566A4's follow-on table below
- *   0x002751A0 → `&D_00275180[0x20]` (offset 0x20 into the 76-byte
- *               zero buffer above)
- * The mid-array offsets can't be expressed as `&D_X`, so we keep
- * them as integer literals. */
+/* Two pointers that land mid-array (inside D_005566A4's table and at
+ * &D_00275180[0x20]); &D_X can't name them, so they stay integer literals. */
 const unsigned int D_00556698[2] = { 0x005567A8, 0x002751A0 };
 const unsigned char D_005566A0[4] = { 0 };
-/* D_005566A4 and D_00564A6C are 4-aligned VMAs — stay in the sidecar
- * (same align-3-forced-by-ee-gcc issue as D_002751CC). */
 const unsigned int D_005567B8[2] = { 0xFFFFFF00, 0xFF000000 };  /* byte masks */
 
-/* .sdata — small mutable scratch buffers + format strings. */
 unsigned char D_00631E08[8] = { 0 };
 const char D_00631F28[8] = "Z";
 const char D_00631F30[8] = "On";
@@ -247,15 +228,9 @@ const char D_006320F8[8] = "%d %d\n";
 const char D_00632100[8] = "evt:%d\n";
 unsigned char D_00632108[8] = { 0 };
 
-/* Inlined data (Phase 3e) — migrated from cdvd_data.c.
- * Plain typed defs; ee-gcc -fdata-sections + slinky place each
- * at its original VMA. See tools/inline_tu_data.py. */
-
-/* Inlined data (Phase 3e) — migrated from cdvd_data.c.
- * Plain typed defs; ee-gcc -fdata-sections + slinky place each
- * at its original VMA. See tools/inline_tu_data.py. */
-
-/* misaligned arrays (scalar head + aligned tail) */
+/* Misaligned data — each scalar head is a 4-aligned VMA kept as its own
+ * def so ee-gcc's forced `.align 3` on the following array can't pad over
+ * it and break SHA-1 (the head + its aligned tail are one logical table). */
 unsigned int D_002751CC = 0x00000000;
 unsigned char D_002751D0[32] = { 0 };
 unsigned int D_005566A4 = 0x00000001;
@@ -281,6 +256,8 @@ extern int func_0024D9E8(int a0, int a1);
 extern int func_00135A48(int a0, int a1);
 extern void func_00133570(void);
 
+extern int func_0024D7B0(void);
+
 void func_00131480(int *a0)
 {
     int s1 = a0[0x134 / 4];
@@ -303,7 +280,7 @@ void func_00131480(int *a0)
     a0[0x164 / 4] = rounded;
     func_0024D9B8(0x50, 5, rounded);
     {
-        register unsigned int limit REG("$2") = a0[0x138 / 4];
+        unsigned int limit = a0[0x138 / 4];
         if (limit > (unsigned int)(D_00633C78 << 11))
         {
             int r;
@@ -319,19 +296,31 @@ void func_00131480(int *a0)
 }
 extern void func_001354B8(int a0);
 
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131560);
+void func_00131560(int a0)
+{
+    int *self = (int *) a0;
+    long long err;
+    self[0xC / 4] = 0;
+    err = func_0024DA80(a0);
+    if (err == 0)
+    {
+        self[0xC / 4] = func_0024D7B0();
+    }
+    func_0024A1E0(self[0x160 / 4]);
+    func_001354B8(self[0x15C / 4]);
+}
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001315A8);
 extern int D_00632024;
 extern void *func_0013A0F8(int a0, int a1, const char *fmt, int line);
 extern void func_00139598(void *p);
 extern void func_001A6E28();
 
-void func_00131780(int a0, char *a1, int a2, int a3, int a4, int a5, int a6)
+void func_00131780(int a0, char *name, int size, int a3, int a4, int a5, int segid)
 {
-    void *s1 = func_0013A0F8(D_00632024, a2, D_00556818, 0x33C);
-    func_001320E8((int *) a0, s1, a2);
-    func_001A6E28(D_005568E8, a1, a2, a6);
-    func_00139598(s1);
+    void *buf = func_0013A0F8(D_00632024, size, D_00556818, 0x33C);
+    func_001320E8((int *) a0, buf, size);
+    func_001A6E28(D_005568E8, name, size, segid);
+    func_00139598(buf);
 }
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131818);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131C90);
@@ -357,7 +346,6 @@ void func_00132038(int *a0, void *buf, int n)
         func_001A6E28(D_005569F8);
     }
 }
-extern void func_00132038(int *a0, void *buf, int n);
 extern void func_00131C90(int *a0, void *buf, int n);
 extern unsigned char D_006A64B8[];
 
@@ -421,15 +409,17 @@ INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00132FF0);
 
 void func_001331D8(int a0)
 {
-    int *s0 = (int *) a0;
-    int v0;
-    do { s0[0xC / 4] = 0; } while (0);
-    v0 = func_0024DA80(a0);
-    if (v0 == 0)
+    int *self = (int *) a0;
+    int err;
+    /* statement boundary: keep this store out of the following call's
+     * setup so it isn't reordered into the jal delay slot. */
+    do { self[0xC / 4] = 0; } while (0);
+    err = func_0024DA80(a0);
+    if (err == 0)
     {
-        s0[0xC / 4] = func_0024D7B0();
+        self[0xC / 4] = func_0024D7B0();
     }
-    return func_0024A1E0(s0[0x160 / 4]);
+    return func_0024A1E0(self[0x160 / 4]);
 }
 
 extern void func_00264DF8(unsigned char *buf, const char *fmt, int a0);
@@ -437,21 +427,23 @@ extern int func_00265168(int a0, unsigned char *buf);
 extern char D_0062FC79[];
 extern char D_00631F70[];
 
+/* DFDATAS path normaliser: format "DFDATAS/%s" into a stack buffer, then
+ * in-place map '/'→'\\' and uppercase ASCII letters (ctype table bit 2). */
 int func_00133218(int a0)
 {
     unsigned char buf[0x100];
     unsigned char *p = buf;
-    register unsigned char c;
+    unsigned char c;
     unsigned char nc;
     func_00264DF8(buf, D_00631F70, a0);
     c = buf[0];
     do
     {
-        register int t;
-        int sc;
-        ANCHOR(c);
-        t = (int) c << 24;
-        sc = t >> 24;
+        /* `nc = 24` (the sign-extend shift count) writes the next-char temp at
+         * the loop top, splitting its live range from `c` so the carried byte
+         * keeps its own register with the copy in the bnez delay slot. */
+        int t = ((int) c) << (nc = 24);
+        int sc = t >> 24;
         if (sc == '/')
         {
             *p = '\\';
@@ -468,9 +460,47 @@ int func_00133218(int a0)
         p++;
         nc = *p;
         c = nc;
-        ANCHOR(c);
     } while (nc != 0);
-    MEM_BARRIER();
     return func_00265168(a0, buf);
 }
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001332B8);
+
+/* === Recovered struct shapes ===
+ * Field layouts inferred from the load/store offsets each base is accessed
+ * at — sparse (only touched offsets, no padding). Reference only: unused
+ * typedefs emit no symbol and can't affect codegen. Cast as
+ * ((S_<VMA> *)D_<VMA>) at the use site. */
+
+typedef struct {
+    char             f_0;  /* 0x0  x2 */
+    unsigned int     f_100;  /* 0x100  x1 */
+    unsigned int     f_104;  /* 0x104  x1 */
+    unsigned int     f_108;  /* 0x108  x2 */
+    unsigned int     f_118;  /* 0x118  x1 */
+    unsigned int     f_11C;  /* 0x11C  x1 */
+    unsigned int     f_120;  /* 0x120  x1 */
+    unsigned int     f_124;  /* 0x124  x1 */
+    unsigned int     f_128;  /* 0x128  x1 */
+} S_006A5C80;  /* 11 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x5 */
+    unsigned int     f_4;  /* 0x4  x3 */
+} S_0027E520;  /* stride 0x30, 8 accesses */
+
+typedef struct {
+    short            f_0;  /* 0x0  x6 */
+} S_00681278;  /* stride 0x6, 6 accesses */
+
+typedef struct {
+    unsigned char    f_D0;  /* 0xD0  x1 */
+    unsigned char    f_D4;  /* 0xD4  x1 */
+    unsigned char    f_D8;  /* 0xD8  x1 */
+    unsigned int     f_F8;  /* 0xF8  x2 */
+} S_00275120;  /* 5 accesses */
+
+typedef struct {
+    unsigned int     f_0;  /* 0x0  x5 */
+} S_006A6990;  /* stride 0x4, 5 accesses */
+
+/* === end recovered struct shapes === */

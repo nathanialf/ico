@@ -1,89 +1,56 @@
-# func_00131480 — parked
+# func_00131480 — parked (isolated v0↔v1 regalloc swap)
 
-VRAM: 0x00131480 (file_off 0x031480)
-Asm source: asm/nonmatchings/ios/cdvd/func_00131480.s
+VRAM: 0x00131480  TU: `ios/cdvd.c`
+Asm: asm/nonmatchings/ios/cdvd/func_00131480.s
 
-## Attempt at 2026-05-31
+## Status: rc5, diff_sites=1 — one v0↔v1 swap on the capacity check
 
-**Reason parked:** crutch-removal: bucket A/B macros (REG)
-
-**TU:** `ios/cdvd.c`
-
-**Seed:** `tough_nuts/func_00131480/func_00131480.c`
-
-Disassembly:
+Algorithm fully recovered and CLEAN (de-crutched, no REG/ANCHOR). The only
+diff is a register swap in the `a0[0x138/4] > (D_00633C78 << 11)` capacity
+check:
 
 ```
-/* Symbols accessed via $gp register */
-.extern D_00632870, 1
-.extern D_0063286C, 1
-.extern D_00633C78, 1
-
-.align 3
-nonmatching func_00131480, 0xE0
-
-glabel func_00131480
-    /* 31480 00131480 D0FFBD27 */  addiu      $29, $29, -0x30
-    /* 31484 00131484 809F838F */  lw         $3, (D_00632870) /* gp_rel: (D_00632870) */
-    /* 31488 00131488 0000B0FF */  sd         $16, 0x0($29)
-    /* 3148C 0013148C 2000BFFF */  sd         $31, 0x20($29)
-    /* 31490 00131490 2D808000 */  daddu      $16, $4, $0
-    /* 31494 00131494 1000B1FF */  sd         $17, 0x10($29)
-    /* 31498 00131498 3401118E */  lw         $17, 0x134($16)
-    /* 3149C 0013149C 88B383AF */  sw         $3, (D_00633C78) /* gp_rel: (D_00633C78) */
-    /* 314A0 001314A0 7C9F828F */  lw         $2, (D_0063286C) /* gp_rel: (D_0063286C) */
-    /* 314A4 001314A4 300000AE */  sw         $0, 0x30($16)
-    /* 314A8 001314A8 03002216 */  bne        $17, $2, .L001314B8
-    /* 314AC 001314AC 0C0000AE */   sw        $0, 0xC($16)
-    /* 314B0 001314B0 02000010 */  b          .L001314BC
-    /* 314B4 001314B4 21882302 */   addu      $17, $17, $3
-.align 2
-  .L001314B8:
-    /* 314B8 001314B8 88B380AF */  sw         $0, (D_00633C78) /* gp_rel: (D_00633C78) */
-.align 2
-  .L001314BC:
-    /* 314BC 001314BC 5500053C */  lui        $5, %hi(D_00556818)
-    /* 314C0 001314C0 0200043C */  lui        $4, (0x28010 >> 16)
-    /* 314C4 001314C4 1868A524 */  addiu      $5, $5, %lo(D_00556818)
-    /* 314C8 001314C8 10808434 */  ori        $4, $4, (0x28010 & 0xFFFF)
-    /* 314CC 001314CC AED7040C */  jal        func_00135EB8
-    /* 314D0 001314D0 35020624 */   addiu     $6, $0, 0x235
-    /* 314D4 001314D4 FFFF033C */  lui        $3, (0xFFFFFFF0 >> 16)
-    /* 314D8 001314D8 0F004424 */  addiu      $4, $2, 0xF
-    /* 314DC 001314DC F0FF6334 */  ori        $3, $3, (0xFFFFFFF0 & 0xFFFF)
-    /* 314E0 001314E0 600102AE */  sw         $2, 0x160($16)
-    /* 314E4 001314E4 24208300 */  and        $4, $4, $3
-    /* 314E8 001314E8 05000524 */  addiu      $5, $0, 0x5
-    /* 314EC 001314EC 2D308000 */  daddu      $6, $4, $0
-    /* 314F0 001314F0 640104AE */  sw         $4, 0x164($16)
-    /* 314F4 001314F4 6E36090C */  jal        func_0024D9B8
-    /* 314F8 001314F8 50000424 */   addiu     $4, $0, 0x50
-    /* 314FC 001314FC 88B3838F */  lw         $3, (D_00633C78) /* gp_rel: (D_00633C78) */
-    /* 31500 00131500 3801028E */  lw         $2, 0x138($16)
-    /* 31504 00131504 C01A0300 */  sll        $3, $3, 11
-    /* 31508 00131508 2B186200 */  sltu       $3, $3, $2
-    /* 3150C 0013150C 0B006010 */  beqz       $3, .L0013153C
-    /* 31510 00131510 1300043C */   lui       $4, %hi(func_00133570)
-    /* 31514 00131514 140011AE */  sw         $17, 0x14($16)
-    /* 31518 00131518 2D202002 */  daddu      $4, $17, $0
-    /* 3151C 0013151C 7A36090C */  jal        func_0024D9E8
-    /* 31520 00131520 58010526 */   addiu     $5, $16, 0x158
-    /* 31524 00131524 05004054 */  bnel       $2, $0, .L0013153C
-    /* 31528 00131528 1300043C */   lui       $4, %hi(func_00133570)
-    /* 3152C 0013152C EC35090C */  jal        func_0024D7B0
-    /* 31530 00131530 00000000 */   nop
-    /* 31534 00131534 0C0002AE */  sw         $2, 0xC($16)
-    /* 31538 00131538 1300043C */  lui        $4, %hi(func_00133570)
-.align 2
-  .L0013153C:
-    /* 3153C 0013153C 2D280002 */  daddu      $5, $16, $0
-    /* 31540 00131540 92D6040C */  jal        func_00135A48
-    /* 31544 00131544 70358424 */   addiu     $4, $4, %lo(func_00133570)
-    /* 31548 00131548 5C0102AE */  sw         $2, 0x15C($16)
-    /* 3154C 0013154C 2000BFDF */  ld         $31, 0x20($29)
-    /* 31550 00131550 1000B1DF */  ld         $17, 0x10($29)
-    /* 31554 00131554 0000B0DF */  ld         $16, 0x0($29)
-    /* 31558 00131558 0800E003 */  jr         $31
-    /* 3155C 0013155C 3000BD27 */   addiu     $29, $29, 0x30
-endlabel func_00131480
+expected:                 built:
+  lw   v1, D_00633C78        lw   v0, D_00633C78
+  lw   v0, 312(s0)  ; limit  lw   v1, 312(s0)  ; limit
+  sll  v1, v1, 0xb           sll  v0, v0, 0xb
+  sltu v1, v1, v0            sltu v0, v0, v1
+  beq  v1, zero, T           beq  v0, zero, T
 ```
+
+Originally matched ONLY with `register unsigned int limit REG("$2")` (retired).
+
+## Mechanism (precise)
+
+- `limit` is ALWAYS the sltu **rt**; thresh (`D_00633C78<<11`) is ALWAYS **rs**;
+  the sltu result reuses **rs**'s register. So limit→$2 requires the thresh
+  chain to land in $3.
+- gcc sched1 hoists the gp-relative `D_00633C78` load FIRST (it starts the
+  longer critical chain load→sll→sltu), and local-alloc gives the first-
+  scheduled value $2 → thresh in $2, limit in $3 (built). Expected is reversed:
+  limit must load first / out-prioritise thresh for $2.
+- Operand order can't help: "limit > thresh" / "thresh < limit" / "thresh >=
+  limit" all emit the SAME `sltu(thresh, limit)` (limit = rt).
+
+## 12 hand shapes tried, ALL rc5 (none moved the swap)
+
+swap cmp operands; named thresh after limit; thresh before limit; flatten
+block + inline unsigned cmp; pages-local cache; limit-named-first inline
+threshold; reuse `limit` var for the func_0024D9E8 result (ranges split, no
+coalesce); explicit bool `over` temp; int return type + return-store; comma to
+sequence limit's load before D_00633C78 (sched still hoists D_00633C78);
+goto-inverted out-of-line body.
+
+## Permuter: USELESS here — scorer MISFIRES
+
+5-min shot ran 52 iters and EXITED on a **spurious score-0** (output is
+whitespace-identical to the rc5 seed; true rc still 5). `--stop-on-zero` makes
+it quit on the false 0. Do NOT trust its score for this func.
+
+## Next levers (fresh eyes)
+
+- Force limit's load to be scheduled FIRST without adding an instruction (the
+  whole game): shorten thresh's chain off the critical path, or give limit a
+  non-folding extra use that extends its live range past the D_00633C78 load.
+- This is NOT a floor — a shape exists. Deferred at hand-stall ~12 (NOT a
+  30-stall) to keep throughput on the rest of ios/cdvd; return with fresh ideas.
