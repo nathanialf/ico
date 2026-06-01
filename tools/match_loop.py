@@ -28,6 +28,7 @@ The diff result and the next-decision are plain JSON for easy consumption.
 from __future__ import annotations
 import argparse
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -74,6 +75,44 @@ def best_src_path(func: str) -> Path:
 PERMUTER_SCHEDULING = {"3.3", "8.3", "delay-slot-occupant"}
 LOW_COUNT_FOR_PERMUTE = 8
 
+# Retired matching crutches. A `best` measured from a source carrying any of
+# these is NOT a clean floor — recording it pollutes the discipline (a pinned
+# permuter output once set best=8 and triggered a hand `reset`). `diff` refuses
+# to fold a crutch-tainted source into `best` unless `--allow-crutch`. Narrow to
+# the unambiguous retired tokens + register-string pins; sanctioned
+# `TRAILING_PAD_NOP()` / `__asm__("D_real")` far-sdata aliases do NOT match (no
+# `asm("$`), so byte/layout-parity uses stay allowed.
+CRUTCH_RE = re.compile(
+    r'\bREG\s*\(|\bANCHOR\s*\(|\bMEM_BARRIER\b|\bKEEP_LIVE|'
+    r'\bMATERIALIZE\b|\bNOREORDER_BARRIER\b|asm\s*\(\s*"\$')
+
+
+def func_body(src: str, func: str) -> str:
+    """Return the brace-matched C text of `func`'s definition in `src`, or '' if
+    it is still an INCLUDE_ASM stub / not found. Scopes the crutch scan to the
+    measured function (the TU may hold sanctioned asm in siblings)."""
+    start = -1
+    for m in re.finditer(r'\b' + re.escape(func) + r'\s*\(', src):
+        p = m.start()
+        anchor = max(src.rfind(';', 0, p), src.rfind('}', 0, p)) + 1
+        if 'INCLUDE_ASM' in src[anchor:p]:
+            continue
+        start = anchor
+    if start < 0:
+        return ''
+    b = src.find('{', start)
+    if b < 0:
+        return ''
+    depth = 0
+    for i in range(b, len(src)):
+        if src[i] == '{':
+            depth += 1
+        elif src[i] == '}':
+            depth -= 1
+            if depth == 0:
+                return src[start:i + 1]
+    return ''
+
 
 def state_path(func: str) -> Path:
     return STATE_DIR / f"{func}.json"
@@ -104,6 +143,30 @@ def cmd_diff(args) -> int:
     except json.JSONDecodeError:
         print(proc.stdout or proc.stderr, file=sys.stderr)
         return 2
+
+    # Crutch guard: a clean floor cannot contain a retired matching crutch.
+    # Scope the scan to the measured function (siblings may carry sanctioned
+    # asm). A tainted source is flagged `crutch` and (unless --allow-crutch) is
+    # NOT allowed to set `best` — exactly like a compile-fail, so a pinned
+    # permuter output can never silently pollute the discipline.
+    tp0 = resolve_tu_path(args.tu)
+    body = func_body(tp0.read_text(), args.func) if tp0 else ''
+    crutch = bool(body) and bool(CRUTCH_RE.search(body))
+    res["crutch"] = crutch
+    if crutch and not args.allow_crutch:
+        res["crutch_warning"] = (
+            "CRUTCH DETECTED (REG/ANCHOR/MEM_BARRIER/KEEP_LIVE/asm-pin) — NOT "
+            "counted toward best/stall. A clean floor must be crutch-free; "
+            "re-derive the shape. (--allow-crutch measures anyway but it still "
+            "cannot become a committable match.)")
+
+    # --dry: measure and print but never touch persisted state. Use when
+    # harvesting permuter outputs so a stray measurement can't move best.
+    if args.dry:
+        res["dry"] = True
+        print(json.dumps(res, indent=2))
+        return 0 if res["status"] in ("match", "diffs") else 2
+
     st = load_state(args.func)
     st["tu"] = args.tu
     st["iter"] += 1
@@ -115,6 +178,10 @@ def cmd_diff(args) -> int:
     if res["status"] == "compile-fail":
         # don't move the plateau counter on a build break; surface it
         pass
+    elif crutch and not args.allow_crutch:
+        # tainted: count as a non-improving iteration (stall advances) but
+        # NEVER let it set the clean best.
+        st["stall"] += 1
     elif prev_best is None or rc < prev_best:
         st["best"] = rc
         st["stall"] = 0
@@ -159,22 +226,35 @@ def cmd_next(args) -> int:
     limit = args.stall_limit
     decision = {"func": args.func, "iter": st["iter"], "best": st["best"],
                 "stall": st["stall"], "tried_levers": st["tried_levers"]}
+    if st.get("reset_log"):
+        decision["reset_log"] = st["reset_log"]
+        decision["reset_warning"] = ("⚠ stall was hand-RESET — the counter "
+                                     "is not continuous; treat this plateau with "
+                                     "suspicion")
+
+    def _authorize(d):
+        # Stamp the verdict so park/permute tools can require it be FRESH (run
+        # `next` immediately before a terminal action). Kills hand-counting.
+        st["auth"] = {"iter": st["iter"], "action": d["action"]}
+        save_state(st)
+        print(json.dumps(d, indent=2))
+        return 0
 
     if args.override:
         decision["action"] = {"keep-going": "iterate", "permute": "permute",
                               "park": "park"}[args.override]
         decision["reason"] = f"override={args.override}"
-        print(json.dumps(decision, indent=2)); return 0
+        return _authorize(decision)
 
     if st["best"] == 0:
         decision["action"] = "commit"
         decision["reason"] = "real_count == 0 — verify (ninja) and commit"
-        print(json.dumps(decision, indent=2)); return 0
+        return _authorize(decision)
 
     if st["iter"] == 0:
         decision["action"] = "diff"
         decision["reason"] = "no diff yet — run `match_loop.py diff` first"
-        print(json.dumps(decision, indent=2)); return 0
+        return _authorize(decision)
 
     tags = set(st["last_tags"])
     scheduling_tail = bool(tags) and tags <= PERMUTER_SCHEDULING
@@ -209,8 +289,7 @@ def cmd_next(args) -> int:
                             "here, not permuter food), then `record --lever`. Override with "
                             "`next --override park|permute|keep-going` when your judgment is firmer "
                             "than the counter.")
-    print(json.dumps(decision, indent=2))
-    return 0
+    return _authorize(decision)
 
 
 def cmd_revert(args) -> int:
@@ -234,10 +313,22 @@ def cmd_revert(args) -> int:
 
 
 def cmd_reset(args) -> int:
+    # reset clears the stall the tool tracks for you — a discipline OVERRIDE,
+    # sanctioned only when resuming a parked seed (skill Step 0). Require a
+    # reason and leave a permanent audit breadcrumb (state.reset_log) that
+    # `next` surfaces forever after, so a mid-loop reset can't be silent.
+    st = load_state(args.func)
+    prev = {"iter": st.get("iter"), "best": st.get("best"), "stall": st.get("stall")}
+    log = st.get("reset_log", []) + [{"at": prev, "reason": args.reason}]
     p = state_path(args.func)
     if p.exists():
         p.unlink()
-    print(json.dumps({"reset": args.func}))
+    fresh = load_state(args.func)
+    fresh["reset_log"] = log
+    save_state(fresh)
+    print(json.dumps({"reset": args.func, "cleared": prev, "reason": args.reason,
+                      "note": "reset is for resume Step 0 only; logged in "
+                              "state.reset_log and surfaced by `next`"}))
     return 0
 
 
@@ -251,6 +342,10 @@ def main() -> int:
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     d = sub.add_parser("diff"); d.add_argument("tu"); d.add_argument("func")
+    d.add_argument("--dry", action="store_true",
+                   help="measure only; never mutate loop state (use for harvest)")
+    d.add_argument("--allow-crutch", action="store_true",
+                   help="count a crutch-tainted source toward best (discouraged)")
     d.set_defaults(fn=cmd_diff)
 
     r = sub.add_parser("record"); r.add_argument("func")
@@ -263,7 +358,10 @@ def main() -> int:
     n.set_defaults(fn=cmd_next)
 
     rv = sub.add_parser("revert"); rv.add_argument("func"); rv.set_defaults(fn=cmd_revert)
-    rs = sub.add_parser("reset"); rs.add_argument("func"); rs.set_defaults(fn=cmd_reset)
+    rs = sub.add_parser("reset"); rs.add_argument("func")
+    rs.add_argument("--reason", required=True,
+                    help="why (reset is a discipline override — resume Step 0 only)")
+    rs.set_defaults(fn=cmd_reset)
     sh = sub.add_parser("show"); sh.add_argument("func"); sh.set_defaults(fn=cmd_show)
 
     args = ap.parse_args()

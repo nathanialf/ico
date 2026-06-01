@@ -221,6 +221,14 @@ sed -i -E 's/\bbreak[[:space:]]+(0x[0-9a-fA-F]+|[0-9]+)[[:space:]]*$/break 0,\1/
 # ops it doesn't know).
 EE_AS="$ROOT/tools/cc/ee-gcc2.96/bin/as"
 EE_ASFLAGS="-EL -mcpu=5900 -G 8 -I$ROOT/include"
+# Honor config/use_old_as.txt (same as compile_c.sh): the rare TU whose ROM
+# left a jr/j-delay nop that 2.96 over-fills is assembled with the less
+# aggressive 2.9-991111. Without this, quick_diff/match_diff would show a
+# PHANTOM delay-fill the real ninja build doesn't have. One TU basename/line.
+USE_OLD_AS_TXT="$ROOT/config/use_old_as.txt"
+if [[ -r "$USE_OLD_AS_TXT" ]] && grep -qE "^[[:space:]]*${NAME}([[:space:]]|\$|#)" "$USE_OLD_AS_TXT"; then
+    EE_AS="$ROOT/tools/cc/ee-gcc2.9-991111/bin/as"
+fi
 AS_MODERN="${AS_FOR_QD:-mips-linux-gnu-as}"
 ASFLAGS_MODERN="${ASFLAGS_QD:--EL -march=r5900 -mabi=eabi -G 8 -no-pad-sections -Iinclude}"
 
