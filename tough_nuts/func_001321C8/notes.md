@@ -1,32 +1,30 @@
-# func_001321C8 — near-miss rc54 (iosCdvdMgrReadDir)
+# func_001321C8 — near-miss rc51 (iosCdvdMgrReadDir)
 
-VRAM 0x001321C8  TU ios/cdvd.c  (111 insns, frame 0x1d0, 8 jal)
-Seed: func_001321C8.c (full TU at rc54).
+VRAM 0x001321C8  TU ios/cdvd.c (111 insns, frame 0x1d0). Seed = full TU at rc51.
+ALGORITHM + FRAME correct. Drove rc54->51 following the regimen.
 
-## Status: ALGORITHM + FRAME correct, rc54, ~6 regalloc/order diffs
+## Progress this pass
+- **count cluster CRACKED**: `if (count-- <= 0) return 1;` (post-decrement in the
+  test) gives the ROM's "copy count, count-1, blez original, store count-1".
+  This cleared blk1 (rc54->51).
+- `name = self+0x34` AFTER the count check (clears block 0).
 
-Reads dir-entry count via func_001320E8, then per entry: read 32B record,
-sprintf "DFDATAS/%s" into self+0x34, sprintf again into a stack namebuf,
-normalise the path (D_0062FC79 ctype idiom, same as func_00133218), register
-the name in D_0027E528[n*0x30] (func_00265168) and the rounded size/id at
-D_0027E528[n*0x30]-8/-4 (= D_0027E520[n]), bump D_00631F54. Returns 1.
+## Remaining: ONE cluster (blk2) — loop-invariant hoist register assignment
+ROM hoists (in loop-preheader): name=$19, %hi(D_00556A10)=$30, namebuf(sp+0x20)
+=$21, %hi(D_00631F70)=$23, %hi(D_0027E528)=$22, sizebuf(sp+0x124)=$20.
+rc51 (D_tbl_0027E520 form): self CORRECT($18) but does NOT hoist %hi(A10)
+(computes it inline) and DOES hoist an extra %hi(D_0027E520)=$22, shifting
+E528->$23, F70->$30, and swapping namebuf/sizebuf into $20/$21. 6 diffs.
 
-Fixed so far: frame 0x1d0 (matches); moved `name = self+0x34` AFTER the count
-check (cleared block-0 diffs, rc57->54).
+## The fork (both are ~6-diff local optima)
+- D_tbl_0027E520[n].f0/.f1 (rc51): self right, extra E520 hi-reg -> buffer swap.
+- single base D_0027E528[n*0x30]-8 / -4 with SEPARATE store/read addr (no shared
+  `e`): removes E520 (rc65) BUT shifts self $18->$19. `e`-shared was worse (rc77).
 
-## Remaining diffs (2 clusters)
-
-1. **count copy (blk1):** ROM loads count, copies to $3, computes count-1 in
-   $2, `blez $3`, stores count-1 (delay). Built tests count in $v0 directly.
-   Tried `int c=count; count=c-1; if(c<=0)` → rc55 (v0/v1 reload shifts). Open.
-2. **namebuf/sizebuf register swap (blk2):** ROM hoists namebuf(sp+0x20)=$21,
-   sizebuf(sp+0x124)=$20; built has them swapped ($20/$21). Can't reorder decls
-   (stack layout 0x20/0x124 is fixed). gcc LICM/alloc-order detail.
-
-## NOT yet tried
-- Single D_0027E528 base + neg offsets gave rc80 (worse than D_tbl_0027E520 form
-  — the address-arith order regressed); revisit with the right `e-8`/`e-4`
-  computation order (ROM computes `base-4` BEFORE adding n*0x30).
-- The int-return v0/v1 lever ([[int_return_pushes_v0_to_v1]]) if any swap is a
-  post-call reload.
-- NOT a floor — algorithm is correct; the tail is hoist-order/regalloc.
+## Next levers (fresh eyes)
+- The real ROM uses the SINGLE D_0027E528 base (id/size at -8/-4 = D_0027E520[n]);
+  D_tbl form can't reach rc0. Need single-base + get %hi(A10) hoisted + keep self
+  in $18. The A10-not-hoisted + self-shift are the two coupled blockers.
+- Try forcing %hi(D_00556A10) into a callee-saved reg; investigate why F70 hoists
+  but A10 (first func_00264DF8) doesn't (entry sp+0 3rd-arg interaction?).
+- NOT a floor. Pure LICM/regalloc hoist. Regimen verified: count cluster cracked.

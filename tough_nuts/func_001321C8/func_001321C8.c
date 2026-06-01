@@ -481,11 +481,10 @@ int func_001321C8(int *self)
     char *name;
 
     func_001320E8(self, &count, 4);
-    if (count <= 0)
+    if (count-- <= 0)
     {
         return 1;
     }
-    count--;
     name = (char *) self + 0x34;
 loop:
     {
