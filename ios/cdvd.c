@@ -116,19 +116,12 @@ extern void func_001383F8(int *a0);
 extern void func_00138510(int *a0);
 extern void func_00138618(int *a0);
 
-/* Data migrated from cdvd_data.c. */
-
-/* .data — zero buffers and typed tables. D_002751CC and its
- * 32-byte trailing zero pad are NOT migrated here — the symbol's
- * VMA is 4-aligned but ee-gcc forces `.align 3` (8-byte) on every
- * typed def under -mips3, so any tracked def would pad +4 and break
- * SHA-1. The legacy sidecar handles the 4-aligned scalar via its
- * own non-C asm-style emission path. */
 unsigned char D_00275120[16] = { 0 };
 unsigned char D_00275130[32] = { 0 };
 unsigned char D_00275150[48] = { 0 };
 unsigned char D_00275180[76] = { 0 };
-/* D_002751CC = 0  --  stays in sidecar (4-aligned VMA, see above). */
+/* D_002751CC (4-aligned VMA) stays in the sidecar — a typed def here would
+ * take ee-gcc's forced .align 3 and pad +4, breaking SHA-1. */
 
 /* Pointers to the "On"/"Off" sdata labels further down in this TU. */
 extern const char D_00631F30[8];  /* "On"  (forward, defined below) */
@@ -208,24 +201,12 @@ T_00280C18_rec D_00280C18[6] = {
 };
 unsigned char D_00280F88[56] = { 0 };
 
-/* .rodata — typed pointer/mask tables + a couple of in-place
- * structures whose original sidecar typing split the head and tail
- * into D_X + `_pad_X`. We absorb the full extent into one array.
- *
- * D_00556698[2] holds two pointers that fall *inside* arrays owned
- * by this TU rather than at typed-symbol boundaries:
- *   0x005567A8 → inside D_005566A4's follow-on table below
- *   0x002751A0 → `&D_00275180[0x20]` (offset 0x20 into the 76-byte
- *               zero buffer above)
- * The mid-array offsets can't be expressed as `&D_X`, so we keep
- * them as integer literals. */
+/* Two pointers that land mid-array (inside D_005566A4's table and at
+ * &D_00275180[0x20]); &D_X can't name them, so they stay integer literals. */
 const unsigned int D_00556698[2] = { 0x005567A8, 0x002751A0 };
 const unsigned char D_005566A0[4] = { 0 };
-/* D_005566A4 and D_00564A6C are 4-aligned VMAs — stay in the sidecar
- * (same align-3-forced-by-ee-gcc issue as D_002751CC). */
 const unsigned int D_005567B8[2] = { 0xFFFFFF00, 0xFF000000 };  /* byte masks */
 
-/* .sdata — small mutable scratch buffers + format strings. */
 unsigned char D_00631E08[8] = { 0 };
 const char D_00631F28[8] = "Z";
 const char D_00631F30[8] = "On";
@@ -247,11 +228,9 @@ const char D_006320F8[8] = "%d %d\n";
 const char D_00632100[8] = "evt:%d\n";
 unsigned char D_00632108[8] = { 0 };
 
-/* Inlined data (Phase 3e) — migrated from cdvd_data.c.
- * Plain typed defs; ee-gcc -fdata-sections + slinky place each
- * at its original VMA. See tools/inline_tu_data.py. */
-
-/* misaligned arrays (scalar head + aligned tail) */
+/* Misaligned data — each scalar head is a 4-aligned VMA kept as its own
+ * def so ee-gcc's forced `.align 3` on the following array can't pad over
+ * it and break SHA-1 (the head + its aligned tail are one logical table). */
 unsigned int D_002751CC = 0x00000000;
 unsigned char D_002751D0[32] = { 0 };
 unsigned int D_005566A4 = 0x00000001;
@@ -280,7 +259,19 @@ extern void func_00133570(void);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131480);
 extern void func_001354B8(int a0);
 
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131560);
+void func_00131560(int a0)
+{
+    int *self = (int *) a0;
+    long long err;
+    self[0xC / 4] = 0;
+    err = func_0024DA80(a0);
+    if (err == 0)
+    {
+        self[0xC / 4] = func_0024D7B0();
+    }
+    func_0024A1E0(self[0x160 / 4]);
+    func_001354B8(self[0x15C / 4]);
+}
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001315A8);
 extern int D_00632024;
 extern void *func_0013A0F8(int a0, int a1, const char *fmt, int line);
@@ -402,11 +393,11 @@ extern char D_00631F70[];
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00133218);
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001332B8);
 
-/* === BEGIN recovered struct shapes (tools/place_struct_shapes.py) === */
-/* Field layouts mined from load/store access patterns; SPARSE
- * (only touched offsets, no padding). Unused typedefs — they add
- * no symbol and cannot affect codegen. Cast as ((S_<VMA> *)D_<VMA>).
- */
+/* === Recovered struct shapes ===
+ * Field layouts inferred from the load/store offsets each base is accessed
+ * at — sparse (only touched offsets, no padding). Reference only: unused
+ * typedefs emit no symbol and can't affect codegen. Cast as
+ * ((S_<VMA> *)D_<VMA>) at the use site. */
 
 typedef struct {
     char             f_0;  /* 0x0  x2 */
@@ -440,4 +431,4 @@ typedef struct {
     unsigned int     f_0;  /* 0x0  x5 */
 } S_006A6990;  /* stride 0x4, 5 accesses */
 
-/* === END recovered struct shapes === */
+/* === end recovered struct shapes === */
