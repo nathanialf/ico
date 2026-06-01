@@ -336,12 +336,50 @@ extern int D_00632870;
 extern int D_00633C78;
 extern int D_0063286C;
 extern int func_00135EB8(int a0, const char *fmt, int line);
-extern void func_0024D9B8(int a0, int a1, int a2);
+/* int return (discarded): keeps $v0 reserved across the call so the following
+ * D_00633C78 reload lands in $v1, as in the ROM. */
+extern int func_0024D9B8(int a0, int a1, int a2);
 extern int func_0024D9E8(int a0, int a1);
 extern int func_00135A48(int a0, int a1);
 extern void func_00133570(void);
+extern int func_0024D7B0(void);
 
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131480);
+void func_00131480(int *a0)
+{
+    int s1 = a0[0x134 / 4];
+    int g = D_00632870;
+    int sz, rounded;
+    D_00633C78 = g;
+    a0[0x30 / 4] = 0;
+    a0[0xC / 4] = 0;
+    if (s1 == D_0063286C)
+    {
+        s1 += g;
+    }
+    else
+    {
+        D_00633C78 = 0;
+    }
+    sz = func_00135EB8(0x28010, D_00556818, 0x235);
+    a0[0x160 / 4] = sz;
+    rounded = (sz + 0xF) & 0xFFFFFFF0u;
+    a0[0x164 / 4] = rounded;
+    func_0024D9B8(0x50, 5, rounded);
+    {
+        unsigned int limit = a0[0x138 / 4];
+        if (limit > (unsigned int)(D_00633C78 << 11))
+        {
+            int r;
+            a0[0x14 / 4] = s1;
+            r = func_0024D9E8(s1, (int)((char *) a0 + 0x158));
+            if (r == 0)
+            {
+                a0[0xC / 4] = func_0024D7B0();
+            }
+        }
+    }
+    a0[0x15C / 4] = func_00135A48((int) func_00133570, (int) a0);
+}
 extern void func_001354B8(int a0);
 
 void func_00131560(int a0)
