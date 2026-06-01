@@ -5,7 +5,12 @@ Asm source: asm/nonmatchings/src/act-game/func_0014A560.s
 
 ## Attempt at 2026-05-31
 
-**Reason parked:** genuine 30-stall (match_loop next=park, best=rc18). Clean
+**Reason parked:** genuine 35-stall (match_loop next=park, best=**rc8**, clean,
+no pins). IMPROVED rc18->rc8 by hand-massaging the permuter's pinned rc8: the
+beql/bnel branch-likely "wall" cracked (rv->$v0 direct field==1 return; load
+p_15C in EACH state branch; entry base-fold). Equals the permuter's only sub-12
+result with ZERO crutches. Residual rc8 = entry idx->$v1 load-dest/scheduler
+tie. See seed header for the full lever chain.
 goto-CFG seed (no crutches). Multi-crutch wall: (1) branch-likely beql/bnel
 emission [uncontrollable per branch_likely_emission], (2) base/idx entry
 scheduling [old MEM_BARRIER+REG($5)], (3) rv->$a2+move not $v0 [old REG($2)].

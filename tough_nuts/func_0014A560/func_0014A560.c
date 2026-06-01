@@ -365,23 +365,24 @@ ret0:
     rv = 0;
     return rv;
 }
-/* CLEAN rc18 seed (no REG/ANCHOR/MEM_BARRIER). goto-CFG mirror with a shared
- * rv. Residual (rc18) is a MULTI-crutch wall, three stacked issues:
- *  1. branch-likely: the state guards emit beq/bne, original beql/bnel (with
- *     the speculative sub load in the beql delay). Per branch_likely_emission
- *     this is ee-gcc's uncontrollable heuristic — flipping ==/!= / structure
- *     does not move it.
- *  2. entry scheduling: base(D_00565060)-vs-idx materialization order (the old
- *     MEM_BARRIER + REG("$5") base job).
- *  3. rv lands in $a2 with a trailing move, not $v0 (the old REG("$2") job) —
- *     a result-var v0/v1-style tie (cf. func_00175C18).
- * ~30 distinct clean shapes (guards: ||,&&,switch,subtract,nested; rv: init-0,
- * goto-end,ternary,direct; entry: base-var,decimal stride,array idx; sub:
- * once/twice) all plateau at rc18. Offline auto_permute runs this seed. */
+/* CLEAN rc8 seed (no pins) — IMPROVED from rc18 by hand massage of the
+ * permuter's pinned rc8 (2026-05-31, full 35-stall). Matches the permuter's
+ * ONLY sub-12 result but with ZERO crutches (it needed register asm("$2")).
+ * The whole branch-likely "wall" cracked via clean levers, in order:
+ *   rc18->15  rv->$v0: tail `if(*(int*)(entry+0x15C)==1) return 1; ret0: return 0;`
+ *             (direct branch on field==1, not a materialized bool).
+ *   rc15->12  load p_15C (sub) in EACH state branch (0x4B and 0x55), matching
+ *             the asm's double load -> the beql/bnel branch-likely now EMIT.
+ *   rc12->8   entry base-fold: `entry = (char*)D_00565060; idx = *(int*)(sub+
+ *             0x4A0); entry += idx*0x190;` (base var first).
+ * Residual rc8 = the entry-block schedule/regalloc ONLY (lines 1-19 of the asm
+ * now match incl. beql/bnel): exp materializes Dbase first so the idx load
+ * reuses the freed $v1 (const-0x4B's reg); gcc hoists the idx load (latency)
+ * so it takes $a1 and Dbase reuses $v1. A load-dest/scheduler tie (cousin of
+ * func_00175C18's v->$a0); ~35 clean entry-computation shapes hold at rc8. */
 int func_0014A560(void)
 {
     int *player = D_00631AE4;
-    int rv;
     int state;
     char *sub;
     int idx;
@@ -389,23 +390,24 @@ int func_0014A560(void)
     if (player == 0)
         goto ret0;
     state = *(int *)(*(char **)((char *)player + 0x164) + 0x30);
-    if (state == 0x4B)
-        goto ok;
-    if (state == 0x55)
-        goto ok;
-    goto ret0;
-ok:
+    if (state == 0x4B) {
+        sub = ((GObj *)((char *)player))->p_15C;
+        goto have;
+    }
+    if (state != 0x55)
+        goto ret0;
     sub = ((GObj *)((char *)player))->p_15C;
+have:
+    entry = (char *)D_00565060;
     idx = *(int *)((char *)sub + 0x4A0);
-    entry = (char *)D_00565060 + idx * 0x190;
-    rv = 1;
+    entry += idx * 0x190;
     if (*(int *)(entry + 0x15C) == 1)
-        goto end;
+        return 1;
 ret0:
-    rv = 0;
-end:
-    return rv;
+    return 0;
 }
+
+
 
 /* Matched body inlined from src/cod/04A5C0.c during TU coalesce. */
 void func_0014A5C0(float *a0, float *a1)
