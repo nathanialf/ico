@@ -475,6 +475,7 @@ extern char D_00631F70[];
 int func_001321C8(int *self)
 {
     unsigned char entry[0x20];
+    const char *new_var;
     unsigned char namebuf[0x100];
     int count;
     int size;
@@ -483,24 +484,26 @@ int func_001321C8(int *self)
     func_001320E8(self, &count, 4);
     if (count-- <= 0)
     {
-        return 1;
+        goto end;
     }
     name = (char *) self + 0x34;
 loop:
     {
         unsigned char *p;
         unsigned char c;
+        unsigned char nc;
         int n;
 
         func_001320E8(self, entry, 0x20);
-        func_00264DF8((unsigned char *) name, D_00556A10, (int) entry);
-        func_00264DF8(namebuf, D_00631F70, (int) name);
-
+        new_var = D_00556A10;
         p = namebuf;
+        func_00264DF8((unsigned char *) name, new_var, (int) entry);
+        func_00264DF8(p, D_00631F70, (int) name);
+
         c = namebuf[0];
         do
         {
-            int t = (int) c << 24;
+            int t = ((int) c) << (nc = 24);
             int sc = t >> 24;
             if (sc == '/')
             {
@@ -516,32 +519,28 @@ loop:
                 *p = r;
             }
             p++;
-            c = *p;
-        } while (c != 0);
+            nc = *p;
+            c = nc;
+        } while (nc != 0);
 
-        func_00265168((int) name, namebuf);
-        n = D_00631F54;
-        func_00265168((int) &D_0027E528[n * 0x30], (unsigned char *) name);
+        p = namebuf;
+        func_00265168((int) name, p);
+        func_00265168((int) &D_0027E528[D_00631F54 * 0x30], (unsigned char *) name);
 
         func_001320E8(self, &size, 4);
         n = D_00631F54;
         {
-            int adj = size + 0x7FF;
-            int rounded;
-            if (size >= 0)
-            {
-                adj = size;
-            }
-            rounded = adj >> 11;
-            D_tbl_0027E520[n].f0 = rounded + self[0x134 / 4];
+            int rounded = size / 0x800;
+            *(int *) &D_0027E528[n * 0x30 - 8] = rounded + self[0x134 / 4];
         }
-        func_001320E8(self, &D_tbl_0027E520[n].f1, 4);
-        D_00631F54 = n + 1;
+        func_001320E8(self, &D_0027E528[n * 0x30 - 4], 4);
+        D_00631F54 = D_00631F54 + 1;
     }
     if (count-- > 0)
     {
         goto loop;
     }
+end:
     return 1;
 }
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00132388);
