@@ -120,6 +120,40 @@ if ! [[ "${FUNC_NAME}" =~ ^func_([0-9A-Fa-f]{8})$ ]]; then
     echo "ERROR: function name must be func_XXXXXXXX (8 hex digits): ${FUNC_NAME}" >&2
     exit 2
 fi
+# --- Stall gate -------------------------------------------------------------
+# The permuter is fired AT a genuine 30-stall, gated by `match_loop next`, not
+# by "it feels stuck". If an interactive match_loop state exists for this func
+# and it is mid-loop (still improving / stall below the limit, best != 0),
+# REFUSE — an improvement you just made reset the counter, so hand-iterate.
+# Allowed silently when: no state (offline auto_permute / first run), at a
+# plateau (stall >= limit), or PERMUTE_FORCE=1. Set PERMUTE_FORCE=1 to override.
+_GATE_STATE="$(cd "$(dirname "$0")/.." && pwd)/build/match_loop/${FUNC_NAME}.json"
+if [ "${PERMUTE_FORCE:-0}" != "1" ] && [ -r "${_GATE_STATE}" ]; then
+    _GATE_MSG="$("$(cd "$(dirname "$0")/.." && pwd)/.venv/bin/python" - "${_GATE_STATE}" <<'PYG'
+import json, sys
+LIMIT = 30
+try:
+    st = json.load(open(sys.argv[1]))
+except Exception:
+    sys.exit(0)
+best, stall = st.get("best"), st.get("stall", 0)
+if best in (None, 0):          # never measured, or already matched
+    sys.exit(0)
+if stall >= LIMIT:             # genuine plateau — permuter is authorized
+    sys.exit(0)
+print(f"stall={stall}/{LIMIT}, best={best}")
+PYG
+)"
+    if [ -n "${_GATE_MSG}" ]; then
+        echo "REFUSING permuter: ${FUNC_NAME} is mid-loop (${_GATE_MSG})." >&2
+        echo "  The permuter is gated by 'match_loop next' (fire only at a 30-stall)." >&2
+        echo "  An improvement you just made reset the counter — hand-iterate, or run" >&2
+        echo "  'tools/match_loop.py next ${FUNC_NAME}' to confirm the verdict." >&2
+        echo "  Override (offline batch / deliberate) with PERMUTE_FORCE=1." >&2
+        exit 3
+    fi
+fi
+
 VRAM_HEX="${BASH_REMATCH[1]}"
 VRAM_DEC=$((16#${VRAM_HEX}))
 VRAM_BASE_DEC=$((16#100000))

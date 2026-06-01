@@ -374,7 +374,9 @@ worker() {
     local rc=0
     local out_dir="${RUNS_DIR}/${name}"
 
-    "${PERMUTE_RUN}" "${name}" "${seed}" "${extra[@]}" \
+    # Offline batch is the sanctioned permuter context: it runs PARKED seeds,
+    # so bypass permute_run.sh's interactive mid-loop stall gate.
+    PERMUTE_FORCE=1 "${PERMUTE_RUN}" "${name}" "${seed}" "${extra[@]}" \
         >>"${ACTIVITY_LOG}" 2>&1 &
     local permuter_pid=$!
 
