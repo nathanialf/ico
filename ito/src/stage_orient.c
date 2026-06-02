@@ -1,6 +1,11 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/stage_orient", GetStageDifferenceMatrix);
+extern void *D_0062C0E8;
+extern void func_001003D0(void *a0);
+
+void GetStageDifferenceMatrix(void) {
+    func_001003D0(D_0062C0E8);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/stage_orient", StageOrientGet2);
 
