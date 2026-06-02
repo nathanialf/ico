@@ -20,9 +20,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/delayFreeManager", func_00102760)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/delayFreeManager", func_00102798);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/delayFreeManager", func_00102820);
+extern void func_00102760(void *a0, void *a1);
+extern void func_00102798(void *a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/delayFreeManager", func_00102828);
+void func_00102820(void *a0, int a1) {
+    func_00102760(a0, *(void **)(a1 + 0x15C));
+}
+
+void func_00102828(int a0) {
+    func_00102798(*(void **)(a0 + 0x15C));
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/delayFreeManager", func_00102830);
 
