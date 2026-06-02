@@ -44,7 +44,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonRopeCliff);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", TestCageUpDown);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonRopeSpecial);
+extern void dispPlane(void *a0, void *a1);
+
+void actCommonRopeSpecial(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x164);
+    void *x = *(void **)((char *)p + 0x678);
+    dispPlane(a0, (char *)x + 0x350);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", lever_nego1);
 
@@ -169,7 +175,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", WithMailFunc_FallDead);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonRevive);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonReviveAir);
+void actCommonReviveAir(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonPlay);
 

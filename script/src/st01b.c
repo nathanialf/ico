@@ -22,13 +22,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st01b", actSt01bEnemy5);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st01b", actSt01bEnemy6);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st01b", actSt01bFloor);
+void actSt01bFloor(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st01b", actSt01bWay);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st01b", actSt01bEnd);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st01b", actSt01bSekizoEvent);
+void actSt01bSekizoEvent(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st01b", actSt01bFloorEvent);
 

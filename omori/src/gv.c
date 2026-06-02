@@ -22,7 +22,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/gv", _AbsRotyGV);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/gv", _ApplyRyGV);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/gv", _GetDirection);
+void _GetDirection(short *a0) {
+    a0[0] = 1;
+    a0[1] = 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/gv", _RotGV);
 

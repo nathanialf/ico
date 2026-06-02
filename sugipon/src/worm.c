@@ -20,4 +20,8 @@ void GetWormCaptureVector(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/worm", WormGeo);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/worm", WormDL);
+void WormDL(void *a0, float a1) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    *(float *)((char *)q + 0x8) = a1;
+}

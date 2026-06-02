@@ -112,7 +112,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", EnemyBrainStatus_Girl);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyFlagCheckDead);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyFlagCheckActive);
+int actEnemyFlagCheckActive(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x164);
+    int *q = *(int **)((char *)p + 0x670);
+    return q[0x77];
+}
 
 int ACTEnemyForceSwitchToCarry(void) {
     return 1;

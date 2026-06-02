@@ -108,7 +108,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyRescueSrc);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoySupportGBBegin);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoySupportGBLoop);
+void actBoySupportGBLoop(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoySupportGBEnd);
 
