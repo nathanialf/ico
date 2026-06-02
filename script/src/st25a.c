@@ -22,7 +22,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actSt25aGenerator);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actSt25aQueenBefore);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actSt25aQueenTalk);
+extern int D_0062C030;
+
+void actSt25aQueenTalk(void) {
+    D_0062C030 = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actSt25aQueenDead);
 
