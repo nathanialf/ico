@@ -1,6 +1,8 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_videodec", free_buf);
+int free_buf(int a0) {
+    return *(int *)(a0 + 0xB8);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_videodec", videoDecCreate);
 
