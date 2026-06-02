@@ -23,22 +23,21 @@ options:
   platform: ps2
   compiler: EEGCC
 
-  # _gp from MAIN.MAP (authoritative: this is what crt0 loads at runtime).
-  # splat's create_config heuristic guessed 0x632A70 (cod_LIT4_START+0x7FF0);
-  # the real linker assigned _gp=(ALIGN(0x80)+0x7FF0)=0x630BF0. The
-  # ld_gp_expression below is a placeholder for the eventual link round-trip
-  # and must be re-derived to reproduce 0x630BF0 (TODO: link milestone).
+  # _gp from MAIN.MAP (authoritative: what crt0 loads at runtime). splat's
+  # create_config heuristic guessed cod_LIT4_START+0x7FF0=0x632A70; the real
+  # linker assigned _gp=0x630BF0. Pin the literal so the link reproduces it
+  # (verified: pinning fixes the GPREL16 overflow).
   gp_value: 0x00630BF0
-  ld_gp_expression: cod_LIT4_START + 0x7FF0
+  ld_gp_expression: "0x00630BF0"
 
-  asm_path: asm
+  asm_path: asm/aug6
   src_path: .
   build_path: build
   hasm_in_src_path: True
 
   generate_asm_macros_files: False
 
-  ld_script_path: config/ico.us.ld
+  ld_script_path: config/ico.aug6.ld
   ld_dependencies: True
   ld_wildcard_sections: True
   ld_bss_contains_common: True
@@ -54,12 +53,12 @@ options:
   o_as_suffix: True
 
   symbol_addrs_path:
-    - config/symbol_addrs.us.txt
+    - config/symbol_addrs.aug6.txt
   reloc_addrs_path:
-    - config/reloc_addrs.us.txt
+    - config/reloc_addrs.aug6.txt
 
-  undefined_funcs_auto_path: config/undefined_funcs_auto.us.txt
-  undefined_syms_auto_path: config/undefined_syms_auto.us.txt
+  undefined_funcs_auto_path: config/undefined_funcs_auto.aug6.txt
+  undefined_syms_auto_path: config/undefined_syms_auto.aug6.txt
 
   string_encoding: ASCII
   data_string_encoding: ASCII

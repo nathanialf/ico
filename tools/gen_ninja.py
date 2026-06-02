@@ -33,12 +33,20 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DEPS_FILE = ROOT / "config" / "ico.us.d"
-LDSCRIPT = ROOT / "config" / "ico.us.slinky.ld"
-LDSCRIPT_EXTRA = ROOT / "config" / "ico.us.linker_script_extra.ld"
-AUTO_FUNCS = ROOT / "config" / "undefined_funcs_auto.us.txt"
-AUTO_SYMS = ROOT / "config" / "undefined_syms_auto.us.txt"
-EXTRA_SYMS = ROOT / "config" / "undefined_funcs_extra.us.txt"
+# Version slug selects the target's config namespace. Defaults to 'us' (retail)
+# so the retail build is unaffected; the aug6 prototype branch sets VERSION=aug6.
+VERSION = os.environ.get("VERSION", "us")
+DEPS_FILE = ROOT / "config" / f"ico.{VERSION}.d"
+# Prefer the slinky linker script when it exists (coalesced-TU jtbl reroute),
+# else fall back to splat's plain ld — e.g. a fresh target with no coalesced C
+# TUs yet (aug6). Keeps slinky in the pipeline without forcing it prematurely.
+_SLINKY_LD = ROOT / "config" / f"ico.{VERSION}.slinky.ld"
+_PLAIN_LD = ROOT / "config" / f"ico.{VERSION}.ld"
+LDSCRIPT = _SLINKY_LD if _SLINKY_LD.exists() else _PLAIN_LD
+LDSCRIPT_EXTRA = ROOT / "config" / f"ico.{VERSION}.linker_script_extra.ld"
+AUTO_FUNCS = ROOT / "config" / f"undefined_funcs_auto.{VERSION}.txt"
+AUTO_SYMS = ROOT / "config" / f"undefined_syms_auto.{VERSION}.txt"
+EXTRA_SYMS = ROOT / "config" / f"undefined_funcs_extra.{VERSION}.txt"
 
 POSTPROCESS_TXTS = [
     "extra_cflags.txt",
@@ -228,7 +236,7 @@ def emit_link(out, objs: list[str]) -> None:
             ld_inputs.append(rel)
             ldflag_parts.extend(["-T", rel])
     ldflag_parts.extend(
-        ["--no-check-sections", "--no-warn-mismatch", "-Map", "build/ico.us.map"]
+        ["--no-check-sections", "--no-warn-mismatch", "-Map", f"build/ico.{VERSION}.map"]
     )
 
     objs_line = " ".join(objs)
