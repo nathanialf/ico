@@ -2,7 +2,11 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", UpdatePointBlur);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", InitEnemyEye);
+void InitEnemyEye(void *a0, int a1) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    q[0xE] = a1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", InitEnemyFootPrint);
 
@@ -16,7 +20,11 @@ int EntryEnemyFootPrint(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", DispEnemyFootPrints);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", InitPointBlur);
+void InitPointBlur(void *a0, float a1) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    *(float *)((char *)q + 0x44) = a1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", DispPointBlur);
 

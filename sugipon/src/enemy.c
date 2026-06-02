@@ -35,7 +35,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemy", EnemySetfDisappear);
 void enemySetParticleDie(void) {
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemy", ReviveEnemyParticle);
+void ReviveEnemyParticle(void *a0, int a1) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    q[0xB] = a1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemy", isExistEnemyParticle);
 

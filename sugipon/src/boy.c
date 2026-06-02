@@ -18,4 +18,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/boy", BoyDL);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/boy", SelectBoyCrown);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/boy", LightLineGeo);
+void LightLineGeo(void *a0, int a1) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    q[0] = a1;
+}

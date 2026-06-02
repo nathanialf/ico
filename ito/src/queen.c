@@ -30,7 +30,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", QueenBallDL);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", actQueenStart);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", QueenStartAttack);
+float QueenStartAttack(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    return *(float *)((char *)q + 0x14);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", QueenInqDead);
 

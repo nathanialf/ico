@@ -1,4 +1,5 @@
 #include "common.h"
+#include "r5900.h"
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/matrixDrive", InitMatrixDrive);
 
@@ -26,9 +27,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/matrixDrive", MatrixDrive_TransMa
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/matrixDrive", MatrixDrive_TransMatrix);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/matrixDrive", MatrixDrive_TurnObjectMatrix);
+void MatrixDrive_TurnObjectMatrix(void *a0, void *a1) {
+    QCOPY16("$a2");
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/matrixDrive", MatrixDrive_TurnXObjectMatrixZY);
+void MatrixDrive_TurnXObjectMatrixZY(void *a0, void *a1) {
+    QCOPY16("$a2");
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/matrixDrive", MatrixDrive_TurnXObjectMatrixYZ);
 
