@@ -2,7 +2,11 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", ErrMessage);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", copy2area);
+extern void func_0023A6D0(void *a0);
+
+void copy2area(int a0) {
+    func_0023A6D0(*(void **)(a0 + 0x30));
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_00239E18);
 
