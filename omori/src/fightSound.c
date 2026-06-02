@@ -12,4 +12,8 @@ int fightSoundProcessRequestPause(void) {
     return D_0062AA58;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/fightSound", fightSoundClose);
+extern int D_006CA600[];
+
+int fightSoundClose(void) {
+    return D_006CA600[0];
+}

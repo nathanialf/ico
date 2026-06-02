@@ -18,7 +18,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_00104740);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_001047C0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_00104838);
+extern int D_006594C0[];
+
+void *func_00104838(void) {
+    return D_006594C0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_00104848);
 

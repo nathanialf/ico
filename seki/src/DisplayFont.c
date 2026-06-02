@@ -6,9 +6,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayFont", func_001F7578);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayFont", font_Print);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayFont", font_GetWidth);
+extern int D_0062BAA0;
+extern int D_0062BAA4;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayFont", font_GetHeight);
+void font_GetWidth(void) {
+    D_0062BAA0 = 1;
+}
+
+void font_GetHeight(void) {
+    D_0062BAA0 = 0;
+    D_0062BAA4 = 0;
+}
 
 extern int D_0062BA9C;
 

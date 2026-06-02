@@ -8,7 +8,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/darkVolume", renderViewCoordZSphe
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/darkVolume", sonic);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/darkVolume", darkVolume);
+extern void MatrixDrive_TurnObjectMatrix(int a0, void *a1);
+extern int D_004BBC80[];
+
+void darkVolume(int a0) {
+    MatrixDrive_TurnObjectMatrix(a0, D_004BBC80);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/darkVolume", SetDarkVolumeEffect);
 

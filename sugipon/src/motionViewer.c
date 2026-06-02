@@ -4,7 +4,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionViewer", setRootUpdateMode)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionViewer", setMotionSpeed);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionViewer", dispProgressBar);
+extern void ClearMotionBlendlessNode(void *a0, int a1);
+extern void *D_0062B820;
+extern int D_0062B828;
+
+void dispProgressBar(void) {
+    ClearMotionBlendlessNode(D_0062B820, D_0062B828);
+}
 
 extern void *D_0062B820;
 extern void GetHeightOfCliffFromGObj(void *a0);

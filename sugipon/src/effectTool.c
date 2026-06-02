@@ -4,7 +4,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/effectTool", _dispParam);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/effectTool", editParam);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/effectTool", dispXZYZCircle);
+extern int D_0062B5CC;
+extern int D_0062B5D4;
+
+void dispXZYZCircle(void) {
+    D_0062B5CC = 0;
+    D_0062B5D4 = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/effectTool", dispCircle2);
 

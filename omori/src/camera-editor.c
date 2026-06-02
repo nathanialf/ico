@@ -76,4 +76,10 @@ void debug_Arrow(void) {
 void InitCameraEditor(void) {
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", debug_CameraEditor);
+extern int D_0062A9B0;
+extern unsigned char D_0062A9B8;
+
+void debug_CameraEditor(void) {
+    D_0062A9B0 = 0;
+    D_0062A9B8 = 0;
+}

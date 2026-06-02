@@ -1,4 +1,5 @@
 #include "common.h"
+#include "vu0.h"
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", light_killLinkLight);
 
@@ -68,6 +69,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_001180D8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_001180F8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_00118108);
+void func_00118108(void) {
+    VU0_V2OP(vmove.xyzw, 7, 0);
+    VU0_NOP();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_00118118);

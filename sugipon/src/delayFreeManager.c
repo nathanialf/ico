@@ -31,6 +31,10 @@ void func_00102828(int a0) {
     func_00102798(*(void **)(a0 + 0x15C));
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/delayFreeManager", func_00102830);
+extern void GetInverseQuaternion(void *a0, void *a1);
+
+void func_00102830(int **a0, void *a1) {
+    GetInverseQuaternion((char *)a0[0x57] + 0xC0, a1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/delayFreeManager", func_00102840);
