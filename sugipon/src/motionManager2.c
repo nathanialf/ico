@@ -128,7 +128,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetHeightOfCliff
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", InitMotionRotElem);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", SetMotionNodeFixModeParameter);
+extern int D_00629E4C;
+
+void SetMotionNodeFixModeParameter(int a0) {
+    D_00629E4C = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetRootProjectionPosOfGObj);
 
