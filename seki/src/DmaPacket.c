@@ -4,7 +4,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DmaPacket", dpk_SwapBuffer);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DmaPacket", dpk_Init);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DmaPacket", dpk_CheckBufferSize);
+extern int D_0062C260;
+
+int dpk_CheckBufferSize(void) {
+    return D_0062C260;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DmaPacket", func_001F87B0);
 
