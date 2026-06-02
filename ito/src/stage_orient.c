@@ -7,7 +7,12 @@ void GetStageDifferenceMatrix(void) {
     func_001003D0(D_0062C0E8);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/stage_orient", StageOrientGet2);
+extern void func_0023A410(void *a0);
+extern int D_006D5F98[];
+
+void StageOrientGet2(void) {
+    func_0023A410(D_006D5F98);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/stage_orient", OtherStagePositionGet);
 

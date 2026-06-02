@@ -34,7 +34,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", GetRootMatrixRo
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", SetRootMatrixRotOffsetByDObj);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", SetRootMatrixRotOffset);
+extern void MatrixDrive_TurnObjectMatrix(int a0, void *a1);
+
+void SetRootMatrixRotOffset(int a0, char *a1) {
+    MatrixDrive_TurnObjectMatrix(a0, *(char **)(a1 + 0x15C) + 0x120);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", SetDirectRootPositionNoFittingWithNodePoint);
 

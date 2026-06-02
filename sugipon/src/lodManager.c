@@ -1,6 +1,11 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lodManager", SetLodLevel);
+extern void gif_SpriteOrg(int a0, int a1);
+extern int D_0062B708;
+
+void SetLodLevel(void) {
+    gif_SpriteOrg(0, D_0062B708);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lodManager", func_001D16F0);
 

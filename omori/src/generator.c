@@ -38,7 +38,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", SetMotherGenerator);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", Generator_Init);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", GetbufpGeneratorPacket);
+extern int D_006CA620[];
+
+void *GetbufpGeneratorPacket(void) {
+    return D_006CA620;
+}
 
 int GetsizeGeneratorPacket(void) {
     return 0x280B;

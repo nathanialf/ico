@@ -1,6 +1,10 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetWaterReaction);
+extern void MatrixDrive_TurnObjectMatrix(int a0, void *a1);
+
+void GetWaterReaction(int a0, char *a1) {
+    MatrixDrive_TurnObjectMatrix(a0, *(char **)(a1 + 0x15C) + 0x5B0);
+}
 
 extern void MatrixDrive_TurnObjectMatrix(int a0, void *a1);
 
@@ -66,7 +70,9 @@ void *GetFloatingMotion(int **a0) {
     return (char *)a0[0x57] + 0x670;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", MakeMirrorMotion);
+int MakeMirrorMotion(int **a0) {
+    return a0[0x57][0x74];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetFloatingShapeMotion);
 
@@ -87,9 +93,14 @@ void ClearMotionBlendlessNode(int **a0, int a1) {
     p[0x132] = a1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", InitMotionStateInfo);
+float InitMotionStateInfo(int **a0) {
+    int *p = a0[0x57];
+    return *(float *)((char *)p + 0x49C);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetSkeltonFocusNode);
+int GetSkeltonFocusNode(int **a0) {
+    return a0[0x57][0x124];
+}
 
 void AdjustMotionHeightToNearestField(int **a0) {
     int *p = a0[0x57];
@@ -140,7 +151,10 @@ int DisableChangeRootUpdateMode(int **a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", EnableChangeRootUpdateMode);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetRopeHangablePos);
+float GetRopeHangablePos(int **a0) {
+    int *p = a0[0x57];
+    return *(float *)((char *)p + 0x590);
+}
 
 float GetMotionFrameFlag1(int **a0) {
     int *p = a0[0x57];
