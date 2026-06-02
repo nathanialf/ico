@@ -1,9 +1,0 @@
-# Per-file: strip both the `j $31` and the `addu $sp` from the function
-# epilogue, leaving the function to end at the preceding `ld $31`. The
-# next adjacent function must be an 8-byte shared `jr ra; addiu sp, +N`
-# stub (e.g. func_001943C0 for 094398).
-#
-# Format: <FILE_OFF_HEX> on its own line. # comments OK.
-
-094398
-038140
