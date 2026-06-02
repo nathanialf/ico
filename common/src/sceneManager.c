@@ -2,7 +2,11 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/sceneManager", GetRealModelId);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/sceneManager", InitStageLight);
+extern int D_0062B418;
+
+int InitStageLight(void) {
+    return D_0062B418;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/sceneManager", initSceneGObj);
 
