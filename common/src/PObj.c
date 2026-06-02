@@ -1,4 +1,5 @@
 #include "common.h"
+#include "r5900.h"
 
 extern int D_0062BEA0;
 
@@ -38,7 +39,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023E008);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023E048);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023E158);
+extern int D_0054A960[];
+
+void *func_0023E158(void) {
+    return D_0054A960;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023E168);
 
@@ -110,7 +115,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240038);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240050);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240080);
+void func_00240080(void *a0, void *a1) {
+    QCOPY16_NO_NOP("$a2");
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240090);
 
@@ -220,7 +227,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00241838);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002418B8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002418E0);
+extern int D_0054AA90[];
+extern void func_00242078(int a0);
+
+void func_002418E0(int a0) {
+    D_0054AA90[0] = 0;
+    func_00242078(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002418F0);
 
@@ -332,7 +345,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002435A8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002435F8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00243628);
+extern int D_0054AB24[];
+extern void func_00100540(int a0);
+
+void func_00243628(void) {
+    func_00100540(D_0054AB24[0]);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00243638);
 

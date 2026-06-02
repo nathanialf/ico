@@ -33,6 +33,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanban", func_001ADE70);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanban", func_001ADFC8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanban", func_001ADFE8);
+extern int D_0062B2E4;
+
+void func_001ADFE8(void) {
+    D_0062B2E4 = 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanban", func_001ADFF8);

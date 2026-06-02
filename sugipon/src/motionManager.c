@@ -94,4 +94,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", func_001DDB10);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", func_001DDB68);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", func_001DDC28);
+extern int D_0062B718;
+extern int D_0062B71C;
+
+void func_001DDC28(int a0, int a1) {
+    D_0062B718 = a0;
+    D_0062B71C = a1;
+}

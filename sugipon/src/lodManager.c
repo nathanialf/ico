@@ -23,7 +23,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lodManager", func_001D1F68);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lodManager", func_001D2060);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lodManager", func_001D2130);
+extern int D_0062C20C;
+extern int D_0062C210;
+
+void func_001D2130(void) {
+    D_0062C20C = 0;
+    D_0062C210 = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lodManager", func_001D2140);
 

@@ -30,6 +30,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", func_001B8BD8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", func_001B8D08);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", func_001B8D28);
+void func_001B8D28(int **a0, int a1) {
+    int *p = a0[0x59];
+    p[0x22] = a1;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", func_001B8D38);
+void func_001B8D38(int **a0, int a1) {
+    int *p = a0[0x59];
+    p[0x23] = a1;
+}
