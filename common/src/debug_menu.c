@@ -12,7 +12,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7420);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7480);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A74B8);
+extern int D_0062ACFC;
+
+void func_001A74B8(int a0) {
+    D_0062ACFC = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A74C0);
 
@@ -31,7 +35,9 @@ void func_001A77F0(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A77F8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7A80);
+int func_001A7A80(void) {
+    return -1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7A88);
 
