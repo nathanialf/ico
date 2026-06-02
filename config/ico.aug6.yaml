@@ -94,6 +94,7 @@ segments:
     vram: 0x00100000
     bss_size: 0xEA48C
     subalign: null
+    align: 0x80   # original linker 0x80-aligns every section start (.data/.rodata/.lit4/.sdata/.sbss/.bss); splat default is 16
     subsegments:
       - [0x000000, asm, src/cod/000000]      # .text
       - [0x16B970, textbin, src/cod/16B970]  # .vutext (VU microcode)
