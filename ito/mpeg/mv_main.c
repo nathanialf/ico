@@ -2,9 +2,15 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_main", switchThread);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_main", proceedAudio);
+extern void initAll(void *a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_main", readMpeg);
+void proceedAudio(void **a0) {
+    initAll(*a0);
+}
+
+void readMpeg(void **a0) {
+    proceedAudio(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_main", initAll);
 

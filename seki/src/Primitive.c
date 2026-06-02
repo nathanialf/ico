@@ -1,6 +1,10 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Primitive", prim_InitFan2D);
+extern int D_0062BF50;
+
+void prim_InitFan2D(void) {
+    D_0062BF50 = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Primitive", prim_SetFan2D);
 

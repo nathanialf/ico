@@ -4,7 +4,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/frameDependSequence", playSE);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/frameDependSequence", playSERandomID);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/frameDependSequence", playSEConditionID);
+extern void playSERandomID(int a0, int a1, int a2);
+
+void playSEConditionID(int a0, int a1) {
+    playSERandomID(a0, a1, 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/frameDependSequence", playEff);
 

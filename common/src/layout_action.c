@@ -48,7 +48,9 @@ int la_save_game_memory_card_check(void) {
     return -1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", progressive_bar);
+int progressive_bar(void) {
+    return -1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_mc_save_file_select);
 

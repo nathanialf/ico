@@ -4,7 +4,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/seMail", setMailTarget);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/seMail", seMail);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/seMail", seMailTargetDistCheck);
+extern int D_0062BB64;
+
+int seMailTargetDistCheck(void) {
+    return D_0062BB64;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/seMail", func_00202578);
 

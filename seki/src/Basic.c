@@ -6,7 +6,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Basic", matrix_init);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Basic", malloc_MemCpy);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Basic", malloc_SetPartition);
+extern void func_002604B8(void);
+
+void malloc_SetPartition(void) {
+    func_002604B8();
+}
 
 extern int D_0062BA60;
 
@@ -14,7 +18,9 @@ void malloc_GetPartition(int a0) {
     D_0062BA60 = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Basic", mallocseki);
+int mallocseki(void) {
+    return D_0062BA60;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Basic", freeseki);
 
