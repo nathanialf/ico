@@ -2,7 +2,11 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", GetRootQuaternionByDObj);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", UpdateRootMatrixByDObj);
+extern void GetRootQuaternionByDObj(void *a0);
+
+void UpdateRootMatrixByDObj(int a0) {
+    GetRootQuaternionByDObj(*(void **)(a0 + 0x15C));
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", GetRootQuaternion);
 
