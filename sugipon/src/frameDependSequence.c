@@ -10,7 +10,13 @@ void playSEConditionID(int a0, int a1) {
     playSERandomID(a0, a1, 0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/frameDependSequence", playEff);
+extern float D_0062B6B4;
+extern void func_001CE340(int a0, int a1, int a2);
+
+void playEff(int a0, int a1, float f) {
+    D_0062B6B4 = f;
+    func_001CE340(a0, a1, 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/frameDependSequence", execEff);
 

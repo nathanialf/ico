@@ -1,4 +1,5 @@
 #include "common.h"
+#include "vu0.h"
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", mc_setBaseOffset);
 
@@ -8,7 +9,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", mc_TransMicroCode);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", mc_Reset);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", mc_Init);
+void mc_Init(void *a0) {
+    VU0_LSV_R(sqc2, 0, 0x0, a0);
+    VU0_NOP();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", func_001188B8);
 

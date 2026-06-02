@@ -6,7 +6,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mblock", reuse_mblock1);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mblock", init_mblock);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mblock", new_segment);
+void new_segment(int *a0) {
+    a0[0] = 0;
+    a0[1] = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mblock", reuse_mblock);
 

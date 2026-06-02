@@ -18,4 +18,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/StageManager", stgmgrForceSwitch);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/StageManager", stgmgrForceSwitchWithFade);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/StageManager", stgmgrForceSwitchWithFadeColor);
+extern int D_0062AB28;
+extern int D_0062AB2C;
+
+void stgmgrForceSwitchWithFadeColor(void) {
+    D_0062AB28 = 0;
+    D_0062AB2C = 0;
+}

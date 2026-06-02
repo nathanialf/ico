@@ -6,7 +6,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundOutputModeSet);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundReverbDepthSet);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundAllocIopHeap);
+extern int D_0062A4FC;
+extern void func_002590B8(int a0);
+
+void soundAllocIopHeap(int a0) {
+    D_0062A4FC = a0;
+    func_002590B8(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundAllocIopFree);
 

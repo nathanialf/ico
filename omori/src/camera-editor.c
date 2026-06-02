@@ -2,7 +2,11 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", EnterMenu);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", saveEditedDataBinary);
+extern int D_00286A98[];
+
+void saveEditedDataBinary(void) {
+    D_00286A98[0] = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", saveEditedData);
 
@@ -28,7 +32,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", CameraEdit_DispBoxT
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", CameraEdit_DispBoxType2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", menuGroupSelect);
+extern void CameraEdit_DispBoxType2(int a0, int a1, int a2, int a3);
+
+void menuGroupSelect(int a0, int a1, int a2) {
+    CameraEdit_DispBoxType2(a0, a1, a1 + 1, a2);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", menuGroupEdit);
 

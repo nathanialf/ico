@@ -13,7 +13,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", light_getAmbientLight);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", light_MakeLightMatrix);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", light_DispVolume);
+extern float D_00629EC0;
+extern float D_00629EC8;
+
+void light_DispVolume(float a0, float a1) {
+    D_00629EC0 = a0;
+    D_00629EC8 = a1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", light_GetColorAnalog);
 

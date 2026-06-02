@@ -22,7 +22,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_CalcAnimation
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_DispAnimation);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_SetScale);
+extern int D_0062A050;
+
+void stage_SetScale(void) {
+    D_0062A050 = 0;
+    D_0062A054 = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_PlayBgAnimation);
 
