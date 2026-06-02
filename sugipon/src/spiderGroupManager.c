@@ -1,6 +1,8 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", EntrySpiderGroupManager);
+int EntrySpiderGroupManager(void) {
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", tryToRevive);
 
