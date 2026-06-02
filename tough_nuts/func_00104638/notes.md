@@ -41,3 +41,23 @@ subtraction compares, pointer-to-min. volatile (rc5/9, over-serializes).
 Needs a zero-cost BB-boundary / non-speculatable load before the `bc1f` (the
 MEM_BARRIER's job). Offline `tools/auto_permute.sh` runs the clean seed; per
 `next`, no interactive permuter tokens.
+
+## 2026-06-01 — rc3 -> rc2 (permuter), chase terminated (barrier casualty)
+
+Confirmed via gcc .s: the min-load (`l.s $f1,D_00630908`) is emitted right after
+`bc1f` in `.set reorder` mode, so the assembler fills the delay with it — but
+it's gcc's EMISSION ORDER, not an assembler hoist (use_old_as tested: rc3
+unchanged; old as fills the bc1f delay identically). The min-in-else placement
+that the original uses triggers a v<->min FP reg-swap (v->$f1) — the retired
+MEM_BARRIER created the BB boundary that placed min in the else WHILE keeping
+v->$f0.
+
+Permuter shot #1 found rc2: declare `min` and load D_00630908 LOOP-CARRIED at the
+loop tail (read-before-assign). This makes gcc treat min as a stable $f1 var AND
+NOPs the bc1f delay (min not loaded before the branch). Adopted. NOTE: this reads
+min uninitialized on iteration 0 (UB) — a lower-scoring shape whose 2 residual
+diffs are the min-load POSITION (loop-tail built vs else-block expected); it
+likely cannot reach rc0 (moving the load to the else regresses, all ~46 hand
+forms). The correct-semantics floor is rc3. Permuter shot #2 (on the rc2 seed):
+NO improvement below rc2 -> chase terminated per procedure. True rc0 needs the
+retired MEM_BARRIER. Parked at rc2 for offline auto_permute.

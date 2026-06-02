@@ -1,16 +1,31 @@
-/* func_00175C18 - parked seed: single function extracted from its coalesced
- * TU snapshot (the full-TU seed exceeded the check_no_rom 256KiB cap).
- * Externs/typedefs for permuter context live in the TU itself.
- * Clean (no REG pin) rc9 seed — IMPROVED from rc11 by a 5-min permuter shot
- * (2026-05-31). The lever the permuter surfaced: an ASSIGNMENT-IN-CONDITION
- * that reuses `r` for D[0x5D] (`(r = D_002883D0[0x5D]) != 0`) plus an r/v
- * live-range swap (`r=v; …; v=r; return v;`). That cleanly fixes the const
- * -> $v1 allocation (the old rc11 had const stuck in $v0). The remaining
- * rc9 residual is the v-load -> $a0 vs $v0 coalesce tie (the load wants $a0
- * = the `register v asm("$4")` pin); no clean massage found — dummy param,
- * early-read, and the permuter's own 5-min randomization all plateau at rc9.
- * The two cleaned forms (without the r/v swap) regress to rc11, so keep the
- * swap verbatim. */
+/* func_00175C18 - parked seed (CORRECTED TOPOLOGY, 2026-06-01).
+ *
+ * IMPORTANT: the previous rc9 seed (r=v chain) was SEMANTICALLY WRONG — on the
+ * v!=0x45 path it returned v (raw sub->0x30) instead of 0 (the real fn's
+ * `daddu v0,zero,zero`). It was a false floor that structurally could not reach
+ * rc0. This seed is the semantically-correct && topology (rc11): bne + beq +
+ * single shared jr, exactly matching the expected branch structure.
+ *
+ * Sole remaining defect (pure 3-cycle regalloc rotation, tag_diff §regalloc-swap;
+ * instruction stream is byte-identical): the speculative delay-slot load
+ * *(int*)(sub+0x30) coalesces into the dying $v1 (sub) base (`lw v1,48(v1)`)
+ * instead of landing in $a0 (`lw a0,48(v1)`). That cascades: const 0x45 -> $v0
+ * (should be $v1), result r -> $a0 + trailing `daddu v0,a0,zero` copy (should be
+ * $v0, no copy).
+ *
+ * Hand levers exhausted on the CORRECT topology (~10 distinct, all rc11-13):
+ * decl order, r-decl-pre-branch, ternary, nested-if, multi-return(17),
+ * assignment-in-condition, goto-body(13), scratch-var reuse, lazy/eager cfg ptr.
+ * Empirical finding: the load leaves $v1 ONLY under register pressure AT the load
+ * (explicit cfg=D ptr held live -> load->$v0, rc12) but that hoists the Dptr
+ * early (reorders, wrong). A lazy cfg loses the pressure and the coalesce
+ * returns. To land the load in $a0 specifically, $v0 must also be busy at the
+ * load (so it's steered to $a0, reserving $v0 for the return) — which needs the
+ * flag value held live across the bnel, impossible without a semantic-changing
+ * use or extra instruction. The historical match used REG("$4")(load)+REG("$2")(r)
+ * scoped pins — both RETIRED. This is a graph-perturbation coloring tie =
+ * permuter territory; the prior permuter shot ran on the WRONG seed, so the
+ * permuter has never seen this correct topology. Seed it WITH --stop-on-zero. */
 
 extern int D_00631AE8;
 extern unsigned char D_002883D0[];
@@ -24,11 +39,9 @@ int func_00175C18(void)
     {
         int v = *(int *)(sub + 0x30);
         int r = 0;
-        r = v;
-        if (r == 0x45 && (r = D_002883D0[0x5D]) != 0) {
+        if (v == 0x45 && (r = D_002883D0[0x5D]) != (r = 0)) {
             r = D_002883D0[0x58] == 0;
         }
-        v = r;
-        return v;
+        return r;
     }
 }

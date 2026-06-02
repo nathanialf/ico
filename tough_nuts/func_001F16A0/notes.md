@@ -101,3 +101,12 @@ glabel func_001F16A0
     /* F16F0 001F16F0 3000BD27 */   addiu     $29, $29, 0x30
 endlabel func_001F16A0
 ```
+
+## 2026-06-01 — full procedure re-run, rc1 CONFIRMED (user: leave parked)
+
+Re-ran the complete procedure on the rc1 seed: 30-stall hand grind (~40 distinct
+DCE-defeating shapes — all DCE the bias to rc5/11 or store it to rc1/6/7),
+`use_old_as` assembler check (no effect — the extra `sw` is gcc-emitted, not an
+assembler-fill), and a 600s permuter shot (65k+ iterations, ZERO improvement
+below rc1). Conclusively a KEEP_LIVE casualty: rc0 requires re-adding the retired
+zero-cost dead-value barrier. User elected to leave it parked at rc1.
