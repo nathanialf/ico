@@ -2,7 +2,9 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/candle", InitCandleGeo);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/candle", CandleDL);
+int CandleDL(void) {
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/candle", CandleGeo);
 
