@@ -28,7 +28,11 @@ void eBrainGetTargetGeneratorFromLabelStage(void *a0) {
     *((char *)q + 0xCD) = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018DFA8);
+int func_0018DFA8(void *a0) {
+    void *p = *(void **)((char *)a0 + 0x15C);
+    void *q = *(void **)((char *)p + 0x7F0);
+    return *(unsigned char *)((char *)q + 0xCD);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018DFB8);
 

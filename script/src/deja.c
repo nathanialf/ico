@@ -32,7 +32,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/deja", func_00206A20);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/deja", func_00206D70);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/deja", func_00206F18);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+
+void func_00206F18(void) {
+    stage_KillPlayBgAnimation(0xA1, 0, -1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/deja", func_00206F28);
 

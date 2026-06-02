@@ -12,6 +12,10 @@ void InitCageFixGeo(void *a0, float a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/cageFix", func_001C0138);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/cageFix", func_001C0180);
+void func_001C0180(void *a0, int a1) {
+    void *p = *(void **)((char *)a0 + 0x15C);
+    void *q = *(void **)((char *)p + 0x7F0);
+    *(int *)((char *)q + 0x40) = a1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/cageFix", func_001C0190);

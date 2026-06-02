@@ -12,7 +12,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_strfile", strFileRead);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_strfile", func_0019B508);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_strfile", func_0019B720);
+extern int iosMallocCheckLeak2(int a0);
+
+void func_0019B720(int a0) {
+    iosMallocCheckLeak2(a0 & 0xFFFFFFF);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_strfile", func_0019B730);
 
