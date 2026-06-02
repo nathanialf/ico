@@ -5194,7 +5194,3 @@ argc_copy = 0x0062C2E4;
 __CTOR_LIST__ = 0x0062C2E8;
 __DTOR_LIST__ = 0x0062C2F0;
 errno = 0x0062C2F8;
-
-// Trailing .sdata string "FALSE\0" (6 bytes). Splat rounds the last data
-// symbol down to a 4-byte word ("FALS") and drops 2 bytes; declare true size.
-D_0062DD48 = 0x0062DD48; // type:asciz size:0x6

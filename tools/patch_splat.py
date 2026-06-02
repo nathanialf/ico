@@ -80,7 +80,130 @@ INC_PATCH = """
 """
 
 
+# --- aug6 byte-perfect round-trip patches (linker_entry.py + data.py) ---
+# Reproduce the original SCE linker's exact layout for the aug6 prototype target
+# with NO output postprocessing. All gated on the cod segment's align >= 0x40
+# (aug6 sets `align: 0x80`; retail uses splat's default 16), so the retail build
+# is provably unaffected.
+LE_MARKER = "# ICO_PATCH: aug6 layout"
+LE_OLD_1 = '''    def _end_section(self, seg_name: str, cur_section: str, segment: Segment) -> None:
+        section_start = get_segment_section_start(seg_name, cur_section)
+        section_end = get_segment_section_end(seg_name, cur_section)
+        section_size = get_segment_section_size(seg_name, cur_section)
+        if options.opts.ld_align_section_vram_end and segment.align is not None:
+            self._writeln(f". = ALIGN(., {segment.align});")'''
+LE_NEW_1 = '''    def _end_section(self, seg_name: str, cur_section: str, segment: Segment, emit_align: bool = True) -> None:  # ICO_PATCH: aug6 layout
+        section_start = get_segment_section_start(seg_name, cur_section)
+        section_end = get_segment_section_end(seg_name, cur_section)
+        section_size = get_segment_section_size(seg_name, cur_section)
+        if emit_align and options.opts.ld_align_section_vram_end and segment.align is not None:
+            self._writeln(f". = ALIGN(., {segment.align});")'''
+LE_OLD_2 = '''        if not is_first:
+            self._end_block()
+
+        self._begin_segment(segment, seg_name, noload=noload, is_first=is_first)
+
+        for section_name, entries in section_entries.items():
+            if len(entries) == 0:
+                continue
+
+            first_entry = entries[0]
+            if first_entry.noload != noload:
+                continue
+
+            self._begin_section(seg_name, section_name)
+            for entry in entries:
+                entry.emit_entry(self)
+            self._end_section(seg_name, section_name, segment)'''
+LE_NEW_2 = '''        # ICO_PATCH: aug6 layout (cod align>=0x40). End the loadable segment at
+        # its last section's content (no trailing rom pad), and align the NOLOAD
+        # bss segment EXTERNALLY so it aligns without rom-padding.
+        _ico_aug6 = (segment.align is not None and segment.align >= 0x40
+                     and options.opts.ld_align_section_vram_end)
+        if not is_first:
+            self._end_block()
+            if _ico_aug6 and noload:
+                self._writeln(f". = ALIGN(., {segment.align});")
+
+        self._begin_segment(segment, seg_name, noload=noload, is_first=is_first)
+
+        _ico_last = None
+        for _sn, _en in section_entries.items():
+            if len(_en) > 0 and _en[0].noload == noload:
+                _ico_last = _sn
+
+        for section_name, entries in section_entries.items():
+            if len(entries) == 0:
+                continue
+
+            first_entry = entries[0]
+            if first_entry.noload != noload:
+                continue
+
+            self._begin_section(seg_name, section_name)
+            for entry in entries:
+                entry.emit_entry(self)
+            self._end_section(seg_name, section_name, segment,
+                              emit_align=not (_ico_aug6 and section_name == _ico_last))'''
+
+DP_MARKER = "# ICO_PATCH: trailing sub-word"
+DP_OLD = '''        self.split_as_asm_file(self.asm_out_path())
+
+    def should_self_split(self) -> bool:'''
+DP_NEW = '''        self.split_as_asm_file(self.asm_out_path())
+
+        # ICO_PATCH: trailing sub-word data bytes spimdisasm's word-array model
+        # drops (a non-word-aligned data section at the rom end, e.g. the final
+        # .sdata string). Gated to the aug6 cod segment (align>=0x40) so retail
+        # is untouched. Reads the authoritative rom bytes.
+        _ico_p = self.get_most_parent()
+        if getattr(_ico_p, "align", None) and _ico_p.align >= 0x40:
+            _ico_tail = (self.rom_end - self.rom_start) % 4
+            if _ico_tail:
+                _ico_bytes = rom_bytes[self.rom_end - _ico_tail : self.rom_end]
+                with open(self.asm_out_path(), "a") as _ico_f:
+                    _ico_f.write("\\n/* ICO_PATCH: trailing sub-word bytes spimdisasm drops */\\n")
+                    for _ico_b in _ico_bytes:
+                        _ico_f.write(f".byte 0x{_ico_b:02X}\\n")
+
+    def should_self_split(self) -> bool:'''
+
+
+def _splat_file(rel: str) -> Path | None:
+    try:
+        import splat
+    except ImportError:
+        return None
+    cand = Path(splat.__file__).parent / rel
+    return cand if cand.exists() else None
+
+
+def patch_aug6_layout() -> None:
+    """aug6 byte-perfect linker layout + sub-word data tail (gated align>=0x40)."""
+    le = _splat_file("segtypes/linker_entry.py")
+    if le is not None:
+        t = le.read_text()
+        if LE_MARKER in t:
+            print(f"patch_splat: {le} aug6 layout already patched.")
+        elif LE_OLD_1 in t and LE_OLD_2 in t:
+            le.write_text(t.replace(LE_OLD_1, LE_NEW_1, 1).replace(LE_OLD_2, LE_NEW_2, 1))
+            print(f"patch_splat: aug6 linker layout applied to {le}")
+        else:
+            print(f"patch_splat: aug6 linker_entry anchors not found in {le}; skipping.", file=sys.stderr)
+    dp = _splat_file("segtypes/common/data.py")
+    if dp is not None:
+        t = dp.read_text()
+        if DP_MARKER in t:
+            print(f"patch_splat: {dp} aug6 data tail already patched.")
+        elif DP_OLD in t:
+            dp.write_text(t.replace(DP_OLD, DP_NEW, 1))
+            print(f"patch_splat: aug6 data sub-word tail applied to {dp}")
+        else:
+            print(f"patch_splat: aug6 data.py anchor not found in {dp}; skipping.", file=sys.stderr)
+
+
 def main() -> int:
+    patch_aug6_layout()
     c_py = find_splat_c_py()
     if c_py is None:
         print("patch_splat: splat not importable; nothing to patch.")

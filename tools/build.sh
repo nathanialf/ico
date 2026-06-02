@@ -20,7 +20,15 @@ cd "${ROOT}"
 VENV_PY="${ROOT}/.venv/bin/python"
 SPLAT="${ROOT}/.venv/bin/splat"
 
-VERSION="${VERSION:-us}"
+# Version slug: explicit env wins; else auto-detect from which config exists
+# (retail main has config/ico.us.yaml; the aug6 prototype branch has
+# config/ico.aug6.yaml). Exported so child tools (gen_ninja.py) see it.
+if [ -z "${VERSION:-}" ]; then
+    if [ -f config/ico.us.yaml ]; then VERSION=us
+    elif [ -f config/ico.aug6.yaml ]; then VERSION=aug6
+    else VERSION=us; fi
+fi
+export VERSION
 # aug6 branch: the prototype baseelf lives under baserom/aug6/ so it does not
 # collide with retail's baserom/baseelf.rom in the (gitignored, branch-shared)
 # working tree. Overridable via env for ad-hoc targets.
@@ -43,6 +51,15 @@ split() {
     "${VENV_PY}" tools/patch_splat.py
     echo "==> running splat against ${SPLAT_YAML}"
     "${SPLAT}" split "${SPLAT_YAML}"
+    if [ "${VERSION}" = "aug6" ]; then
+        # aug6 is a clean, raw round-trip: splat reproduces the original layout
+        # byte-for-byte via config (align: 0x80, .reginfo subseg) + the
+        # patch_splat.py aug6 layout/sub-word-tail patches. NO output
+        # postprocessing and NO data->typed-C migration (both deliberately
+        # deferred — see the aug6 design notes). Stop here.
+        echo "==> aug6: raw pipeline (skipping postprocess + data-migration)"
+        return 0
+    fi
     echo "==> postprocessing linker script (sbss/bss alignment fix)"
     "${VENV_PY}" tools/postprocess_ld.py
     echo "==> postprocessing asm (R5900 mnemonic fixups)"
@@ -84,8 +101,12 @@ setup() {
             --label "__src_cod_${stem}_textbin" --out "$out"
     done
     split
-    echo "==> scanning for orphan src/cod/*.{c,s} (post-coalesce stale files)"
-    "${VENV_PY}" tools/clean_orphan_src.py --delete
+    if [ "${VERSION}" != "aug6" ]; then
+        # Orphan-scan is a coalesced-TU cleanup; aug6 is raw all-asm with no
+        # coalesced src/cod TUs, and clean_orphan_src.py is us-slug-specific.
+        echo "==> scanning for orphan src/cod/*.{c,s} (post-coalesce stale files)"
+        "${VENV_PY}" tools/clean_orphan_src.py --delete
+    fi
     regen_ninja
 }
 
