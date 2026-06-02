@@ -4,9 +4,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", UpdateRootPosition);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", StartPendulum);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", collisionCheck);
+extern unsigned char D_0062C07D;
+extern int D_0062A9E4;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", chain_simulate_term_simple);
+void collisionCheck(void) {
+    D_0062C07D = 1;
+}
+
+void chain_simulate_term_simple(void) {
+    D_0062A9E4 = 1;
+}
 
 extern int D_0062AA20;
 

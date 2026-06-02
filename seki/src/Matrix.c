@@ -1,4 +1,5 @@
 #include "common.h"
+#include "vu0.h"
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _RemakeNormal);
 
@@ -8,7 +9,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _InitCurrentMatrix);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _UnitCurrentMatrix);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _PushCurrentMatrix);
+void _PushCurrentMatrix(void *a0) {
+    VU0_LSV_R(sqc2, 7, 0x0, a0);
+    VU0_NOP();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _PopCurrentMatrix);
 

@@ -83,9 +83,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyFall);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyCall);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyItem);
+extern unsigned char D_006A45F0[];
+extern int D_006A4600[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyItemAfter);
+int actBoyItem(void) {
+    return D_006A45F0[0];
+}
+
+void *actBoyItemAfter(void) {
+    return D_006A4600;
+}
 
 int actBoyCliffHesitate(void) {
     return 0x18;

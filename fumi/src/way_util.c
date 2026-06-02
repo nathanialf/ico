@@ -17,9 +17,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", short_direction_between_w
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", wgid_next);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", WayUtilWorkAlloc);
+void WayUtilWorkAlloc(void) {
+    unsigned char work[0x30];
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", WayUtilWorkFree);
+void WayUtilWorkFree(void) {
+    unsigned char work[0x30];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", shortest_path);
 

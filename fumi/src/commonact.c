@@ -128,7 +128,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", funcCommonError);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", SetMotionDirectionSmooze);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", _ACTDebugPrint);
+void _ACTDebugPrint(int **a0, int a1, int a2) {
+    int *p = a0[0x59];
+    p[0x60] = a2;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ACTSendMailCorrect);
 

@@ -12,7 +12,11 @@ void ClipStormByCamera(int a0) {
     D_0062B98C = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stormTest", UpdateStormPackage);
+extern int D_00271588[];
+
+void UpdateStormPackage(int a0) {
+    D_00271588[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stormTest", DispStormPackage);
 
