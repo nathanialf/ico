@@ -26,7 +26,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", func_0012FD70);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", func_0012FE30);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", func_0012FEC0);
+extern int D_0062BF68;
+
+int func_0012FEC0(void) {
+    return D_0062BF68;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", func_0012FEC8);
 
