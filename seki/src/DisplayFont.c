@@ -10,7 +10,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayFont", font_GetWidth);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayFont", font_GetHeight);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayFont", font_Init);
+extern int D_0062BA9C;
+
+void font_Init(int a0) {
+    D_0062BA9C = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayFont", func_001F76C0);
 
