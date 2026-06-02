@@ -2,7 +2,11 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/obj_manager", iosOmInit);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/obj_manager", _iosOmMain);
+extern void iosOmInit(void);
+
+void _iosOmMain(void) {
+    iosOmInit();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/obj_manager", iosOmMain);
 
