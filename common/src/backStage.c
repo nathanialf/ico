@@ -1,6 +1,10 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/backStage", backStageProcessOutStage);
+extern int D_0062AB2C;
+
+void backStageProcessOutStage(int a0) {
+    D_0062AB2C = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/backStage", backStageProcessMain);
 
