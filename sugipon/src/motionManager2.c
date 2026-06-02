@@ -10,7 +10,11 @@ void CheckFieldContact(int a0, char *a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", dispPlane);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetOrientOfWallOfGObj);
+extern void GetRootMatrixRotOffset(int a0, void *a1, void *a2);
+
+void GetOrientOfWallOfGObj(int a0, int **a1) {
+    GetRootMatrixRotOffset(a0, a1, (char *)a1[0x57] + 0x510);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetOrientOfCliffOfGObj);
 
@@ -58,7 +62,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", copyMotionWithNo
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", CopyMotionWithNodeHrc);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetFloatingMotion);
+void *GetFloatingMotion(int **a0) {
+    return (char *)a0[0x57] + 0x670;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", MakeMirrorMotion);
 
@@ -76,7 +82,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", DebugDisp1Collis
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", SetMotionBlendlessNode);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", ClearMotionBlendlessNode);
+void ClearMotionBlendlessNode(int **a0, int a1) {
+    int *p = a0[0x57];
+    p[0x132] = a1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", InitMotionStateInfo);
 
@@ -111,19 +120,32 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetDifferenceFro
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetDifferenceFromLastField);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetDifferenceFromLowerField);
+void GetDifferenceFromLowerField(int **a0) {
+    int *p = a0[0x57];
+    p[0x130] = 0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetDifferenceFromWallLowerPlane);
+float GetDifferenceFromWallLowerPlane(int **a0) {
+    int *p = a0[0x57];
+    return *(float *)((char *)p + 0x608);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetDifferenceFromWallUpperPlane);
+int GetDifferenceFromWallUpperPlane(int **a0) {
+    return a0[0x57][0x17C];
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", DisableChangeRootUpdateMode);
+int DisableChangeRootUpdateMode(int **a0) {
+    return a0[0x57][0x17D];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", EnableChangeRootUpdateMode);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetRopeHangablePos);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetMotionFrameFlag1);
+float GetMotionFrameFlag1(int **a0) {
+    int *p = a0[0x57];
+    return *(float *)((char *)p + 0x570);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetMotionFrameFlag2);
 
@@ -131,7 +153,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetHeightOfField
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetHeightOfWallFromGObj);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetHeightOfCliffFromGObj);
+void GetHeightOfCliffFromGObj(int **a0, float a1) {
+    int *p = a0[0x57];
+    *(float *)((char *)p + 0x4A8) = a1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", InitMotionRotElem);
 
