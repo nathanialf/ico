@@ -6,7 +6,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", UpdateRootMatri
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", GetRootQuaternion);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", UpdateRootMatrix);
+extern void GetRootQuaternion(void *a0, void *a1);
+
+void UpdateRootMatrix(void *a0, int a1) {
+    GetRootQuaternion(a0, *(void **)(a1 + 0x15C));
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", SetRootBaseQuaternion);
 
