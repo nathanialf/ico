@@ -21,7 +21,10 @@ VENV_PY="${ROOT}/.venv/bin/python"
 SPLAT="${ROOT}/.venv/bin/splat"
 
 VERSION="${VERSION:-us}"
-BASEROM="baserom/baseelf.rom"
+# aug6 branch: the prototype baseelf lives under baserom/aug6/ so it does not
+# collide with retail's baserom/baseelf.rom in the (gitignored, branch-shared)
+# working tree. Overridable via env for ad-hoc targets.
+BASEROM="${BASEROM:-baserom/aug6/baseelf.rom}"
 SPLAT_YAML="config/ico.${VERSION}.yaml"
 LDSCRIPT="config/ico.${VERSION}.ld"
 DEPS_FILE="config/ico.${VERSION}.d"
