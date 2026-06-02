@@ -114,7 +114,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyFlagCheckDead);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyFlagCheckActive);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", ACTEnemyForceSwitchToCarry);
+int ACTEnemyForceSwitchToCarry(void) {
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemy_GetClingTarget);
 
