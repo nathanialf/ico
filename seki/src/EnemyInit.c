@@ -8,4 +8,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/EnemyInit", func_001F8BF0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/EnemyInit", func_001F8C30);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/EnemyInit", func_001F8CA8);
+extern void func_001F8C30(void);
+
+void func_001F8CA8(void) {
+    func_001F8C30();
+}

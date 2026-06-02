@@ -18,7 +18,11 @@ void font_Init(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayFont", func_001F76C0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayFont", func_001F7710);
+extern float D_0062BA98;
+
+float func_001F7710(void) {
+    return D_0062BA98;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayFont", func_001F7718);
 
