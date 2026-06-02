@@ -2,7 +2,9 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayList", dl_Init);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayList", dl_Clear);
+int dl_Clear(void) {
+    return 0x14;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayList", dl_Swap);
 
