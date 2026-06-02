@@ -6,7 +6,11 @@ void InitStormPackage(void) {
 void ClipStormByVolume(void) {
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stormTest", ClipStormByCamera);
+extern int D_0062B98C;
+
+void ClipStormByCamera(int a0) {
+    D_0062B98C = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stormTest", UpdateStormPackage);
 
