@@ -8,9 +8,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcard", iosMcMgrChdirProduct);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcard", iosMcMgrSaveSeg);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcard", iosMcMgrLoadSeg);
+extern void iosMcMgrChdirProduct(void *a0, int a1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcard", iosMcMgrSaveProductBlock);
+void iosMcMgrLoadSeg(void *a0) {
+    *(int *)((char *)a0 + 0x24) = 0;
+    iosMcMgrChdirProduct(a0, 0);
+}
+
+extern void iosMcMgrSaveSeg(void *a0, int a1);
+
+void iosMcMgrSaveProductBlock(void *a0) {
+    *(int *)((char *)a0 + 0x24) = 0;
+    iosMcMgrSaveSeg(a0, 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcard", iosMcMgrLoadProductBlock);
 

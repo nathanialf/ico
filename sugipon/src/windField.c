@@ -12,6 +12,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/windField", GetWindVector);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/windField", dummyGetWindVector);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/windField", getParallelWindVector);
+extern void ExecWindField(void);
+extern void (*D_0062BA30)(void);
+
+void getParallelWindVector(void) {
+    D_0062BA30 = ExecWindField;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/windField", getRadiateWindVector);

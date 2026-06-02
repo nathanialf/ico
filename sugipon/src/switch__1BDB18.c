@@ -34,7 +34,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/switch__1BDB18", InitWallLeverGeo
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/switch__1BDB18", GetWallLeverAngle);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/switch__1BDB18", initParentize);
+int initParentize(void *a0) {
+    void *p = *(void **)((char *)a0 + 0x15C);
+    void *q = *(void **)((char *)p + 0x7F0);
+    return *(short *)((char *)q + 0x2);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/switch__1BDB18", func_001BDE70);
 

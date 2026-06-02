@@ -12,7 +12,11 @@ void readMpeg(void **a0) {
     proceedAudio(a0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_main", initAll);
+extern int iosMallocCheckLeak2(int a0);
+
+void initAll(void *a0) {
+    iosMallocCheckLeak2((int)a0 & 0xFFFFFFF);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_main", termAll);
 

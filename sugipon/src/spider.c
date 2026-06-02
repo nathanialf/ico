@@ -4,7 +4,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spider", InitSpiderLayoutGeo);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spider", WakeUpLayoutedSpiders);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spider", getCallPoint);
+void getCallPoint(void *a0, int a1) {
+    void *p = *(void **)((char *)a0 + 0x15C);
+    void *q = *(void **)((char *)p + 0x7F0);
+    *(int *)((char *)q + 0x34) = a1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spider", CallSpidersToReviveEnemy);
 

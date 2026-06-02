@@ -4,7 +4,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Basic", dma_init);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Basic", matrix_init);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Basic", malloc_MemCpy);
+extern void *D_00629C70;
+extern void func_00118AA0(void *a0);
+
+void malloc_MemCpy(void) {
+    D_00629C70 = (void *)0x70000000;
+    func_00118AA0((void *)0x70000000);
+}
 
 extern void func_002604B8(void);
 

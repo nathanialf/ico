@@ -52,7 +52,10 @@ int iosCdvdBackGroundMgrDeleteRequestGet(void) {
     return D_0062A26C;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", iosCdvdBackGroundMgrEntryNum);
+int iosCdvdBackGroundMgrEntryNum(void *a0) {
+    int *p = (int *)((char *)a0 + 0x108);
+    return *p |= 2;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", iosCdvdBackGroundMgrSeek);
 
