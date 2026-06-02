@@ -35,4 +35,6 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act", actCreateSubThreadGOppArg);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act", actCreateSubThread);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act", actSetInterrupt);
+void actSetInterrupt(int *a0, int a1) {
+    *a0 = a1;
+}
