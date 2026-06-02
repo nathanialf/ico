@@ -34,7 +34,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", lt_default_mask_p
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", lt_fade_status);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", lt_set_item_select_func);
+extern int D_0062B410;
+
+int lt_set_item_select_func(void) {
+    return D_0062B410;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", lt_set_fade_mode);
 

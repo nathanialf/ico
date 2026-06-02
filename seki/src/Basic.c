@@ -8,7 +8,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Basic", malloc_MemCpy);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Basic", malloc_SetPartition);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Basic", malloc_GetPartition);
+extern int D_0062BA60;
+
+void malloc_GetPartition(int a0) {
+    D_0062BA60 = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Basic", mallocseki);
 

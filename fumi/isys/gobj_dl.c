@@ -12,7 +12,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", isysGObjMoveObjDL);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", isysGObjMoveObjDLHead);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", isysGObjLinkObjDL);
+extern void isysGObjMoveObjDLHead(void);
+
+void isysGObjLinkObjDL(void) {
+    isysGObjMoveObjDLHead();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", isysGObjLinkObjDLHead);
 

@@ -22,7 +22,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_vibe_select);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_title_continue_or_new);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_title_new_game_only);
+int la_title_new_game_only(void) {
+    return -1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", _la_set_preview_info);
 
@@ -42,7 +44,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_load_processing
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_mc_confirm_save_file);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_save_game_memory_card_check);
+int la_save_game_memory_card_check(void) {
+    return -1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", progressive_bar);
 
@@ -52,7 +56,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_save_start_chec
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_save_confirm_overwrite);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_format_confirm);
+int la_format_confirm(void) {
+    return -1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_system_save_processing);
 

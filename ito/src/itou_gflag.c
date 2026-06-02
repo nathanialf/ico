@@ -2,9 +2,15 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/itou_gflag", itouGFlagInit);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/itou_gflag", itouGflagLoad);
+extern void effect_end_func(void);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/itou_gflag", itouGflagSave);
+void itouGflagLoad(void) {
+    effect_end_func();
+}
+
+void itouGflagSave(void) {
+    effect_end_func();
+}
 
 void func_00195B80(void) {
 }
