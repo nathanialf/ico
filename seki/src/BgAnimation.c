@@ -32,7 +32,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_CalcSdfCamera);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_addLightning);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_DispLightning);
+extern int D_0062C254;
+
+void bga_DispLightning(void) {
+    D_0062C254 = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_ResetCamera);
 
