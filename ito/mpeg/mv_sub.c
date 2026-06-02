@@ -18,7 +18,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_0023A410);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_0023A5E8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_0023A6D0);
+extern int iosMallocCheckLeak2(int a0);
+
+void func_0023A6D0(void *a0) {
+    iosMallocCheckLeak2((int)a0 & 0xFFFFFFF);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_0023A6E0);
 
@@ -36,7 +40,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_0023A920);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_0023AA98);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_0023AC90);
+extern int func_0023AA98(void *a0, int a1, int a2);
+
+void func_0023AC90(void *a0, int a1, int a2) {
+    int v = *(int *)((char *)a0 + 0x3C);
+    func_0023AA98(a0, a1, v < a2 ? a2 : v);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_0023ACA0);
 

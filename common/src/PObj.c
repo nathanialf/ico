@@ -1,5 +1,6 @@
 #include "common.h"
 #include "r5900.h"
+#include "vu0.h"
 
 extern int D_0062BEA0;
 
@@ -121,11 +122,23 @@ void func_00240080(void *a0, void *a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240090);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002400B8);
+void func_002400B8(void *a0, void *a1) {
+    VU0_LSV(lqc2, 4, 0x0, 5);
+    VU0_V2OP(vftoi4.xyzw, 5, 4);
+    VU0_LSV(sqc2, 5, 0x0, 4);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002400C8);
+void func_002400C8(void *a0, void *a1) {
+    VU0_LSV(lqc2, 4, 0x0, 5);
+    VU0_V2OP(vftoi0.xyzw, 5, 4);
+    VU0_LSV(sqc2, 5, 0x0, 4);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002400D8);
+void func_002400D8(void *a0, void *a1) {
+    VU0_LSV(lqc2, 4, 0x0, 5);
+    VU0_V2OP(vitof4.xyzw, 5, 4);
+    VU0_LSV(sqc2, 5, 0x0, 4);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002400E8);
 

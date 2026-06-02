@@ -41,7 +41,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/GobjProc", func_0023CB70);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/GobjProc", func_0023CCE0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/GobjProc", func_0023CE70);
+extern int iosMallocCheckLeak2(int a0);
+
+void func_0023CE70(int a0) {
+    iosMallocCheckLeak2(a0 & 0xFFFFFFF);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/GobjProc", func_0023CE80);
 
