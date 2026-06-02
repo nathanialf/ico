@@ -8,7 +8,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", collisionCheck);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", chain_simulate_term_simple);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", chain_simulate_term_loop);
+extern int D_0062AA20;
+
+void chain_simulate_term_loop(void) {
+    D_0062AA20 = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", chain_simulate_term_swingready);
 
