@@ -14,7 +14,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmOpen);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmClose);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmInterStereoVolumeSet);
+extern void func_0025A2E0(long long a0);
+
+void AdpcmInterStereoVolumeSet(int a0) {
+    func_0025A2E0(*(long long *)(a0 + 0x30));
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmInterLeaveVolumeSet);
 
@@ -26,7 +30,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmIopBuffAlloc);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmOpenSync);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmFadeCloseAll);
+extern int D_0062C278;
+
+void AdpcmFadeCloseAll(int a0) {
+    D_0062C278 = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmUseAreaGet);
 
