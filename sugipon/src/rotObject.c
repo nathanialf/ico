@@ -16,4 +16,6 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/rotObject", MoveRotObjectWithHold
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/rotObject", ExecRotObjectMoveStartReaction);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/rotObject", ExecRotObjectMoveEndReaction);
+int ExecRotObjectMoveEndReaction(void) {
+    return 1;
+}
