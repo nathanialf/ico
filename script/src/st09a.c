@@ -24,7 +24,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st09a", actSt09aSekizoEvent);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st09a", actSt09aIntroChk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st09a", actSt09aBrgMain);
+void actSt09aBrgMain(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st09a", actSt09aBrgSwitch);
 

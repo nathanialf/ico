@@ -26,7 +26,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bSekizo);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bSekizo2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bBossAfter);
+void actSt13bBossAfter(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bStoneGirl);
 

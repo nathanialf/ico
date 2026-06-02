@@ -26,11 +26,20 @@ void actSt08aEnemy3(int a0) {
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aEnemy4);
+void actSt08aEnemy4(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aIntro);
+void actSt08aIntro(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aInit);
+void actSt08aInit(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 void actSt08aDoorMain(int a0) {
     int buf[4];

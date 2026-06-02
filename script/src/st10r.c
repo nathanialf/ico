@@ -22,13 +22,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10r", actSt10rFenceDownChk2);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10r", actSt10rFenceUpChk2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10r", actSt10rFloor);
+void actSt10rFloor(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10r", actSt10rCage);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10r", actSt10rTower);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10r", actSt10rExit);
+void actSt10rExit(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10r", actSt10rChain);
 

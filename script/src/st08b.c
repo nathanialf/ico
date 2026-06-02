@@ -1,10 +1,19 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", actSt08bKurenSwitch);
+void actSt08bKurenSwitch(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", actSt08bKurenLeft);
+void actSt08bKurenLeft(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", actSt08bKurenRight);
+void actSt08bKurenRight(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", actSt08bDoor);
 
