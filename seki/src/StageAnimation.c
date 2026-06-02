@@ -50,7 +50,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_KillPlayBgAni
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_CheckAnimationFrameIn);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", func_0012A950);
+extern void font_GetWidth(void);
+
+void func_0012A950(void) {
+    font_GetWidth();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", func_0012A958);
 
