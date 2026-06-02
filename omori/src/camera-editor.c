@@ -54,7 +54,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", CameraEdit_del_pin)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", CameraEdit_DispBox);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", CameraEdit_Reflect);
+extern void dispCameraGroupType2(int a0, unsigned char a1);
+
+void CameraEdit_Reflect(int a0, unsigned char a1) {
+    dispCameraGroupType2(a0, a1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", CameraEdit_Save);
 
