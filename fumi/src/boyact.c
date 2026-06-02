@@ -107,7 +107,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoySupportBGBegin);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyDitch3mExec);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyHangG3M);
+extern void GetCylinderCollisionWithExceptOwnCollision(void *a0, void *a1);
+
+void actBoyHangG3M(void *a0, void *a1) {
+    GetCylinderCollisionWithExceptOwnCollision(a0, a1);
+}
 
 extern void SetRootMatrixWithTransOffset(void *a0);
 
