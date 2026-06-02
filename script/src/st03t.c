@@ -24,7 +24,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tSekizo);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tWay);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tEne);
+void actSt03tEne(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tGene);
 
@@ -38,6 +41,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tSekizoEvent);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tEneChk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tWayOnChk);
+void actSt03tWayOnChk(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tWayOffChk);

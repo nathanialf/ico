@@ -4,7 +4,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", actSt05dDoor2);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", actSt05dDoor2UpChk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", actSt05dDoor2DownChk);
+void actSt05dDoor2DownChk(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", actSt05dEne);
 
@@ -16,7 +19,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", actSt05dDoor2Event);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", actSt05dDoor2UpEffect);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", actSt05dDoor2DownEffect);
+void actSt05dDoor2DownEffect(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", actSt05dEneChk);
 

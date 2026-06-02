@@ -4,7 +4,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04d", actSt04dDoor1);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04d", actSt04dDoor1UpChk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04d", actSt04dDoor1DownChk);
+void actSt04dDoor1DownChk(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04d", actSt04dDoor2);
 

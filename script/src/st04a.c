@@ -36,10 +36,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04a", actSt04aTorchAllFlagfChk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04a", actSt04aGateL);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04a", actSt04aGateR);
+void actSt04aGateR(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04a", actSt04aTorchXL);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04a", actSt04aGateOpen2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04a", actSt04aGateOpen3);
+void actSt04aGateOpen3(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}

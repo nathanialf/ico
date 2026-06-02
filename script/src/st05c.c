@@ -24,9 +24,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", actSt05cEnemy2);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", actSt05cDoorDownEvent);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", actSt05cDoorDownEffect);
+void actSt05cDoorDownEffect(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", actSt05cEneChk);
+void actSt05cEneChk(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", func_0021C2C0);
 
