@@ -322,10 +322,20 @@ canon_func() {
         canon "$obj"
     fi
 }
+# Isolate the requested function in the (coalesced) built .o. Retail matched
+# funcs are named func_<hex>; the aug6 prototype tree uses the dev's REAL
+# symbol names, so gating isolation on `func_*` would dump the whole TU object
+# against a single-func expected .s (thousands of phantom diffs). Whenever a
+# specific func is requested (match_diff/match_loop always pass it, and so does
+# the agent for coalesced TUs), isolate to THAT symbol regardless of its name.
 TGT_FN=""
-case "$TARGET_ASM" in
-    */func_*.s) TGT_FN="$(basename "$TARGET_ASM" .s)" ;;
-esac
+if [[ -n "${1:-}" ]]; then
+    TGT_FN="$1"
+else
+    case "$TARGET_ASM" in
+        */func_*.s) TGT_FN="$(basename "$TARGET_ASM" .s)" ;;
+    esac
+fi
 canon_func "$TARGET_OBJ" "$TGT_FN" > "$RIGHT"
 canon_func "$OBJ"        "$TGT_FN" > "$LEFT"
 

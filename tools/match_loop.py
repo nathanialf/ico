@@ -44,8 +44,14 @@ DEFAULT_STALL_LIMIT = 30   # distinct hand hypotheses with NO real_count progres
 # How the matching loop resolves a TU name to its editable source file —
 # mirrors tools/quick_diff.sh's own search order so the best-source snapshot
 # (and `revert`) write back to the exact file quick_diff compiles.
-_SRC_PATTERNS = ("src/{tu}.c", "tough_nuts/{tu}/{tu}.c",
-                 "sound/{tu}.c", "ios/{tu}.c", "isys/{tu}.c")
+_SRC_PATTERNS = ("{tu}.c",                              # tu already a repo-rel path (aug6 subseg name)
+                 "src/{tu}.c", "tough_nuts/{tu}/{tu}.c",
+                 "sound/{tu}.c", "ios/{tu}.c", "isys/{tu}.c",
+                 # aug6 dev tree (mirror tools/quick_diff.sh CSRC roots)
+                 "common/src/{tu}.c",
+                 "fumi/src/{tu}.c", "fumi/ios/{tu}.c", "fumi/sound/{tu}.c", "fumi/isys/{tu}.c",
+                 "sugipon/src/{tu}.c", "seki/src/{tu}.c", "omori/src/{tu}.c",
+                 "script/src/{tu}.c", "ito/src/{tu}.c", "ito/mpeg/{tu}.c")
 
 
 def resolve_tu_path(tu: str | None) -> Path | None:

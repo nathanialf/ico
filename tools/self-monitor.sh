@@ -80,7 +80,7 @@ if [[ "$1" == "--once" ]]; then
                        | grep -oE '[A-Za-z_][A-Za-z0-9_]*$' | sort -u)
         echo "Ten smallest unmatched functions (TU · instructions; matched & nop-pads excluded):"
         grep -rH '^nonmatching ' "$_NM" 2>/dev/null \
-            | awk -v matched="$matched" -v included="$included" '
+            | awk -v matched="$matched" -v included="$included" -v nm="$_NM" -v ver="$_sm_version" '
                 function hex2dec(s,   i,c,v,r) {
                     sub(/^0[xX]/, "", s); r=0
                     for (i=1;i<=length(s);i++) {
@@ -104,7 +104,17 @@ if [[ "$1" == "--once" ]]; then
                     if (!(fn in inc)) next
                     size=hex2dec(substr(rest,comma+2))
                     if (size < 8) next
-                    np=split(path,pp,"/"); tu=pp[np-1]
+                    # The matching tools (match_diff/quick_diff) resolve a TU by
+                    # its full subseg path on aug6 (e.g. fumi/src/boyact), so emit
+                    # the path between the nonmatchings root and the <func>.s, not
+                    # just the basename. Retail (us) keeps the proven basename.
+                    if (ver != "us") {
+                        rel=path; sub("^"nm"/","",rel)
+                        nr=split(rel,rp,"/"); tu=""
+                        for (k=1;k<nr;k++) tu=(tu==""?rp[k]:tu"/"rp[k])
+                    } else {
+                        np=split(path,pp,"/"); tu=pp[np-1]
+                    }
                     printf "%08d\t%s\t%s\t%d insn\n", size, fn, tu, size/4
                 }
             ' | sort -n | head -10 | cut -f2- \
