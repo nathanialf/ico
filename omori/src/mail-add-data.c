@@ -24,7 +24,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/mail-add-data", func_001929A0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/mail-add-data", func_00192A08);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/mail-add-data", func_00192A30);
+extern void func_0010F9D0(void);
+
+void func_00192A30(void) {
+    func_0010F9D0();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/mail-add-data", func_00192A38);
 
