@@ -508,6 +508,18 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00248290);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002482D0);
 
+/* Hand-written EE assembly (NOT a C-match target) — a cache / INTC
+ * critical-section module:
+ *   func_002483F8  DCache hit-writeback-invalidate loop (cache 0x18 / sync).
+ *   func_002484A4  + func_002484AC are ONE routine splat over-split: the ISR.
+ *                  Its real entry is func_002484A4 + 0x4 (the addiu $sp,-0x10),
+ *                  which func_002484D0 installs via %hi/%lo(func_002484A4 + 0x4);
+ *                  the body ends with `ei` (enable interrupts, COP0).
+ *   func_002484D0  installs that ISR and toggles INTC enable.
+ * `ei`, `cache`, and the address-of-instruction callback cannot be emitted by
+ * ee-gcc, so these stay as assembled .s (already byte-identical via INCLUDE_ASM).
+ * Self-monitor's smallest-func heuristic re-surfaces func_002484A4 because its
+ * `addiu` counts as a "real" instruction; it is complete, not a pending match. */
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002483F8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002484A4);
