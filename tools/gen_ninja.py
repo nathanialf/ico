@@ -181,7 +181,11 @@ def emit_header(out, prefix: str) -> None:
 
 def emit_rules(out) -> None:
     out.write("rule gen_ninja\n")
-    out.write("  command = .venv/bin/python tools/gen_ninja.py\n")
+    # Pin the active VERSION into the self-regen command. Without this the
+    # ninja-triggered regen runs gen_ninja.py with no env and falls back to
+    # VERSION=us (line 38), rebuilding the manifest for retail and breaking the
+    # aug6 build (references asm/src/cod/*.s that don't exist on this branch).
+    out.write(f"  command = VERSION={VERSION} .venv/bin/python tools/gen_ninja.py\n")
     out.write("  description = GEN build.ninja\n")
     out.write("  generator = 1\n\n")
 

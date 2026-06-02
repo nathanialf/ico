@@ -72,7 +72,13 @@ void CameraEdit_Reflect(int a0, unsigned char a1) {
     dispCameraGroupType2(a0, a1);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", CameraEdit_Save);
+extern int *D_0062A8F0;
+extern void func_00186CA8(int a0, int a1);
+
+void CameraEdit_Save(void) {
+    int *p = D_0062A8F0;
+    func_00186CA8(p[1], p[0]);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", debug_NMarker);
 

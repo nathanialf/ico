@@ -8,7 +8,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", ActPara_GetDe
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", ActPara_StatusToFlag);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", ActPara_DebugOut);
+void ActPara_DebugOut(int **a0) {
+    int *p = a0[0x59];
+    p[0x15] = 0;
+    p[0x16] = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", func_00149C20);
 

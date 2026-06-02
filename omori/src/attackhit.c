@@ -2,7 +2,10 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/attackhit", MakeAttackPack_Actor);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/attackhit", AttackCheckSameGroup);
+void AttackCheckSameGroup(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/attackhit", AttackMail);
 

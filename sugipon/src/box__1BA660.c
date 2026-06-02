@@ -46,7 +46,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", GetBoxMode);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", AlignBox);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", CanHoldBox);
+int CanHoldBox(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    return q[8];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", BoxDL);
 

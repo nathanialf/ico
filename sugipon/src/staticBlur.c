@@ -18,7 +18,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", blurBlendFeedBackAre
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", testAA);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", subWork1ToCurrentFB);
+extern void _SetCurrentMatrix(int a0, void *a1);
+extern int D_004C2250[];
+
+void subWork1ToCurrentFB(int a0) {
+    _SetCurrentMatrix(a0, D_004C2250);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", auraInspireAfter);
 

@@ -9,7 +9,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vibuf", viBufReset);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vibuf", viBufBeginPut);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vibuf", viBufEndPut);
+extern int D_0062BE90;
+extern int D_0062C2DC;
+
+void viBufEndPut(void) {
+    D_0062BE90 = 0;
+    D_0062C2DC = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vibuf", viBufAddDMA);
 

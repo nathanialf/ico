@@ -8,7 +8,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/itou_boss", BossEnemyFunc);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/itou_boss", gene_enemy);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/itou_boss", BossCtrlGeo);
+extern unsigned char D_006CCE50[];
+
+void BossCtrlGeo(void) {
+    D_006CCE50[0] = 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/itou_boss", itou_boss_gflag_init);
 
