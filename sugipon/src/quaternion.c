@@ -26,7 +26,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", GetQuaternionFromMat
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", CopyQuaternion);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", GetInverseQuaternion);
+extern void MatrixDrive_TurnObjectMatrix(void *a0, void *a1);
+
+void GetInverseQuaternion(void *a0, void *a1) {
+    MatrixDrive_TurnObjectMatrix(a0, a1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", RegularizeQuaternion);
 
