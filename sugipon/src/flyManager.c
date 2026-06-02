@@ -1,6 +1,10 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/flyManager", DispFlyInfo);
+extern int D_0062B698;
+
+void DispFlyInfo(void) {
+    D_0062B698 = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/flyManager", InitFlyInfo);
 
