@@ -97,6 +97,7 @@ segments:
     subsegments:
       - [0x000000, asm, src/cod/000000]      # .text
       - [0x16B970, textbin, src/cod/16B970]  # .vutext (VU microcode)
+      - [0x170A50, textbin, src/cod/170A50]  # .reginfo (0x18) + align pad to 0x30; raw bytes for exact layout
       - [0x170A80, data, src/cod/170A80]     # .data
       - [0x44D980, rodata, src/cod/44D980]   # .rodata
       - [0x52AA80, lit4, src/cod/52AA80]     # .lit4
