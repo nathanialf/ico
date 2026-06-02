@@ -2,7 +2,11 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/act_bird", interp_vector_sa);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/act_bird", birdBeforeFunc);
+extern void iosOmBeforeFuncStandard(void *a0);
+
+void birdBeforeFunc(void *a0) {
+    iosOmBeforeFuncStandard(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/act_bird", trans_bird);
 
