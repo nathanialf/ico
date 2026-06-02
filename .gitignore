@@ -178,3 +178,28 @@ build.ninja
 decomp/placement_plan.json
 docs/tu_candidates.json
 decomp/placement_plan.md
+
+# --- Cross-target knowledge docs — shared across branches, local-only ---
+# These are the accumulated, target-INDEPENDENT matching wisdom (cookbook,
+# notes, matching guides, legal/build references). They apply equally to the
+# retail SLUS-20218 target (this branch, `main`) and the Aug-6-2001 prototype
+# retarget (`aug6` branch). To avoid divergence/merge pain and keep a single
+# physical copy that `git checkout` never clobbers, they are gitignored +
+# untracked (same convention as CLAUDE.md / .claude/). Edit them freely on any
+# branch; the one working-tree copy is shared. History up to the untrack commit
+# lives in the repo; go-forward changes are local-only.
+decomp/COOKBOOK.md
+decomp/NOTES.md
+decomp/MATCH.md
+decomp/MATCH-FAST.md
+decomp/MATCH_DATA.md
+decomp/MATCH_VU.md
+decomp/PROMOTE.md
+decomp/struct_shapes.md
+decomp/header_candidates.md
+decomp/RODATA_PHASE3D.md
+decomp/RODATA_ROADMAP.md
+decomp/multi_tu_slices.md
+docs/LEGAL.md
+docs/BUILDING.md
+docs/MATCHING_NOTES.md
