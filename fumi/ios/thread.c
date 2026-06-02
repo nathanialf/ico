@@ -1,12 +1,19 @@
 #include "common.h"
 
+extern void func_00100440(void);
+extern void func_00100490(void *a0);
+extern void func_001004B0(void *a0);
+extern void func_002614F8(void *a0);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadMain);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadCreateS);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadStart);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadStop);
+void iosThreadStop(unsigned char *a0) {
+    *a0 = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadSleep);
 
@@ -22,7 +29,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadSuspend);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadResume);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadInit);
+int iosThreadInit(void) {
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadCreate);
 
@@ -36,7 +45,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadJoin);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadCancelWakeup);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosSemaCreate);
+void iosSemaCreate(void) {
+    func_00100440();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosSemaDelete);
 
@@ -44,11 +55,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosSemaWait);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosSemaSignal);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosSemaReferStatus);
+void iosSemaReferStatus(void *a0) {
+    func_002614F8((char *)a0 + 0x50);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadDestroyMgr);
+void iosThreadDestroyMgr(void *a0) {
+    func_00100490(*(void **)((char *)a0 + 0x30));
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadAllQuit);
+void iosThreadAllQuit(void *a0) {
+    func_001004B0(*(void **)((char *)a0 + 0x30));
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", func_0013D038);
 

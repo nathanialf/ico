@@ -6,4 +6,6 @@ void execAutoMove(int a0) {
     playSEConditionID(a0, 0xD);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1B9EE0", initWheels);
+void initWheels(int a0) {
+    playSEConditionID(a0, 0x1E);
+}

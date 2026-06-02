@@ -2,7 +2,11 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", debug_TargetGObj);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", init_debug_menu);
+extern int D_0062AF3C;
+
+void init_debug_menu(void) {
+    D_0062AF3C = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", debug_TargetGObj_Func);
 

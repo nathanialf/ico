@@ -30,8 +30,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/pad", iosPadEnable);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/pad", iosPadDisable);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/pad", iosPadEnableGet);
+extern int D_0062BF98;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/pad", iosPadActInit);
+void iosPadEnableGet(void) {
+    D_0062BF98 = 0;
+}
+
+int iosPadActInit(void) {
+    return D_0062BF98;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/pad", iosPadActStop);
