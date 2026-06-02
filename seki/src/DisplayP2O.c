@@ -34,6 +34,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", func_0010EF98);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", func_0010EFE0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", func_0010EFF0);
+extern void func_00123AA8(void *a0);
+
+void func_0010EFF0(int a0) {
+    func_00123AA8(*(void **)(a0 + 0x15C));
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", func_0010EFF8);
