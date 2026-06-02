@@ -12,7 +12,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/worm", GetWormRoute);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/worm", InitWormGeo);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/worm", GetWormCaptureVector);
+extern void simulate(void);
+
+void GetWormCaptureVector(void) {
+    simulate();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/worm", WormGeo);
 
