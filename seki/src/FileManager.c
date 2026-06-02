@@ -14,11 +14,17 @@ void file_LoadFile(int a0) {
     file_LoadCDFile(*(void **)(a0 + 0x15C));
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", func_0010F040);
+void func_0010F040(int a0) {
+    file_LoadFile(a0);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", func_0010F048);
+void func_0010F048(int a0) {
+    file_Init(*(void **)(a0 + 0x15C));
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", func_0010F050);
+void func_0010F050(int a0) {
+    func_0010F048(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", func_0010F058);
 
