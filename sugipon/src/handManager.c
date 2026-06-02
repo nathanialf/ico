@@ -6,4 +6,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/handManager", connectToTarget);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/handManager", _handManager);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/handManager", HandManager);
+extern void playSEConditionID(int a0, int a1);
+
+void HandManager(int a0) {
+    playSEConditionID(a0, 0x30);
+}
