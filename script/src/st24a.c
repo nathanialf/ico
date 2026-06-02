@@ -14,11 +14,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st24a", func_00231D28);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st24a", func_00231DF0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st24a", func_00231E68);
+void func_00231E68(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st24a", func_00231E78);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st24a", func_00231ED0);
+void func_00231ED0(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st24a", func_00231EE0);
 

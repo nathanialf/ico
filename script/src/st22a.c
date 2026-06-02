@@ -20,9 +20,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", func_00230B20);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", func_00230B70);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", func_00230BF0);
+void func_00230BF0(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", func_00230C00);
+void func_00230C00(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", func_00230C10);
 
@@ -32,7 +38,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", func_00230E00);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", func_00230EC8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", func_00230F70);
+void func_00230F70(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", func_00230F80);
 

@@ -49,4 +49,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", func_002215C8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", func_00221630);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", func_00221690);
+void func_00221690(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}

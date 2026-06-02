@@ -70,6 +70,12 @@ void func_00220C48(int a0) {
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", func_00220C58);
+void func_00220C58(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", func_00220C68);
+void func_00220C68(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
