@@ -1,0 +1,135 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", setBattleStatus);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", boss_effect_start);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", boss_effect_check_parts);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", boss_effect_process);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", _DoAwait);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", _DoAwaitGirl);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", _MustChase);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", subEnemyControl);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", subEnemyCollision);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyAttack);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyRestart);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", PairSetGeometry);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyForceSwitchToCarry);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyKidnapEnd);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyKidnapBegin);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", MoveChestForCatchBoy);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyBodylift);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_0015F2A8);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyPickupBegin);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_0015F9C0);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", CheckEnemyBrainMode);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", BrainMode_Requset);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", subEnemyBrainMain);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", enemy_dodge);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", Battle_isCurrentStatus);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", GetFlyPosition);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", NakaBoss);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_001616E8);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", ChangeBrain_ToAttack);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", subEnemyBrain_ToBoy);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", ChangeBrain_ToKidnap);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", subEnemyBrain_ToGirl);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", _ApproachTarget_Boss);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", flyMailCore);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", _ApproachTarget_Way);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyStart);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", subEnemyBrain_Irregular);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", subEnemyBrain_Attack);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", subEnemyBrain_Cling);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", funcEnemyAiGetGirl);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyStand);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyWalk);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyRun);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyHang);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyCarry);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyBodyslam);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyBodyslamFail);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyNest);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", funcEnemyCarryFail);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyHyde);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyFlagOnFree);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", afterCommonCarry);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyFlagOnDead);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", EnemyBrainStatus_Boy);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", EnemyBrainStatus_Girl);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyFlagCheckDead);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyFlagCheckActive);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", ACTEnemyForceSwitchToCarry);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemy_GetClingTarget);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemy_isNormalEnemy);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemy_isLargeEnemy);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemy_isSmallEnemy);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_00163988);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", IsEnemyBrainToGenerator);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", IsEnemyBrainToBoy);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", GetEnemyTypeFromGObj);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", GetEnemyType);

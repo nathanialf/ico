@@ -53,34 +53,33 @@ if [[ "$1" == "--once" ]]; then
     # INCLUDE_ASM stub — exists ONLY under nonmatchings). Without this the
     # smallest orphan (e.g. a 2-insn tail-call) sorts to the top and gets
     # handed out as a "match target" that is already done.
-    # aug6 prototype branch: .text is carved per-TU along MAIN.MAP boundaries,
-    # not per-function — there are no per-func nonmatchings .s files. Use the
-    # TU-boundary candidate lister instead.
+    # Version-aware lowest-10. Retail (us) emits to asm/; the aug6 prototype
+    # branch to asm/aug6/ and its TUs live in the dev-developer tree. Now that
+    # aug6's whole .text is carved per-function, the per-function nonmatchings
+    # exist, so the same smallest-unmatched logic applies (named INCLUDE_ASMs,
+    # not just func_).
     _sm_version="${VERSION:-}"
     if [[ -z "$_sm_version" ]]; then
         if [[ -f config/ico.us.yaml ]]; then _sm_version=us
         elif [[ -f config/ico.aug6.yaml ]]; then _sm_version=aug6; fi
     fi
-    if [[ "$_sm_version" == "aug6" ]]; then
-        .venv/bin/python tools/list_candidates.py 10 2>/dev/null || true
-        echo "$rule"
-    elif [[ -d asm/nonmatchings ]]; then
-        matched=$(find asm/matchings -name 'func_*.s' -printf '%f\n' 2>/dev/null \
+    if [[ "$_sm_version" == "us" ]]; then
+        _NM="asm/nonmatchings"; _MA="asm/matchings"; _ROOTS="src"
+    else
+        _NM="asm/${_sm_version}/nonmatchings"; _MA="asm/${_sm_version}/matchings"
+        _ROOTS="common fumi sugipon seki omori script ito src ios sound isys"
+    fi
+    if [[ -d "$_NM" ]]; then
+        matched=$(find "$_MA" -name '*.s' -printf '%f\n' 2>/dev/null \
                       | sed 's/\.s$//' | sort -u)
-        # GENUINE-UNMATCHED filter: the asm/nonmatchings/<fn>.s files are NEVER
-        # pruned on a match, and the matched= (asm/matchings presence) set only
-        # populates on the next `build.sh setup` — so between a match and that
-        # setup a freshly-matched func still appears here (stale). The live
-        # signal is "is the func still referenced by an INCLUDE_ASM in a tracked
-        # .c?" — a genuinely-unmatched (or parked-back-to-INCLUDE_ASM) func is;
-        # a matched one is not. Intersect with that set so the list is current
-        # without waiting for a setup. (tough_nuts/source_tree are parked seeds,
-        # excluded so their INCLUDE_ASM stubs don't resurrect matched funcs.)
-        included=$(grep -rhoE 'INCLUDE_ASM(_NOAT)?\("[^"]*",[[:space:]]*func_[0-9A-Fa-f]+' \
-                       --include=*.c src/ --exclude-dir=tough_nuts --exclude-dir=source_tree 2>/dev/null \
-                       | grep -oE 'func_[0-9A-Fa-f]+$' | sort -u)
-        echo "Ten smallest unmatched functions (TU · instructions; matched-orphans & nop-pads excluded; parked included):"
-        grep -rH '^nonmatching ' asm/nonmatchings 2>/dev/null \
+        # GENUINE-UNMATCHED filter: a func is a target iff it's still referenced
+        # by an INCLUDE_ASM in a tracked .c (named OR func_) and not already in
+        # the matchings tree. (tough_nuts/source_tree excluded as parked seeds.)
+        included=$(grep -rhoE 'INCLUDE_ASM(_NOAT)?\("[^"]*",[[:space:]]*[A-Za-z_][A-Za-z0-9_]*' \
+                       --include=*.c $_ROOTS --exclude-dir=tough_nuts --exclude-dir=source_tree 2>/dev/null \
+                       | grep -oE '[A-Za-z_][A-Za-z0-9_]*$' | sort -u)
+        echo "Ten smallest unmatched functions (TU · instructions; matched & nop-pads excluded):"
+        grep -rH '^nonmatching ' "$_NM" 2>/dev/null \
             | awk -v matched="$matched" -v included="$included" '
                 function hex2dec(s,   i,c,v,r) {
                     sub(/^0[xX]/, "", s); r=0

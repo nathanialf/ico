@@ -1,0 +1,25 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lineManager", Draw2DLine);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lineManager", Draw2DLineSeg_Start);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lineManager", Draw2DLineSeg_Loop);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lineManager", Draw2DLineG);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lineManager", _getLine);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lineManager", DrawLine);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lineManager", DrawLineG);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lineManager", func_001D1310);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lineManager", func_001D1438);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lineManager", func_001D1470);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lineManager", func_001D1508);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lineManager", func_001D15C0);

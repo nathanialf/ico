@@ -54,7 +54,9 @@ PROGRESS_DOC = REPO_ROOT / "docs" / "PROGRESS.md"
 # Source roots that contribute to the "matched" tally. Phase 1
 # flattened ios/, sound/, isys/ out of src/ to repo-root siblings;
 # their compiled .o files live at build/<root>/ alongside build/src/.
-SOURCE_ROOTS = ("src", "ios", "sound", "isys")
+SOURCE_ROOTS = ("src", "ios", "sound", "isys",
+                # aug6 prototype branch: the dev's per-developer module tree.
+                "common", "fumi", "sugipon", "seki", "omori", "script", "ito")
 BUILD_OBJ_DIRS = tuple(REPO_ROOT / "build" / r for r in SOURCE_ROOTS)
 
 # Yaml subsegment types that correspond to each ELF section. Splat lumps

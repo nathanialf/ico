@@ -34,19 +34,22 @@ if [[ -z "${VERSION:-}" ]]; then
 fi
 if [[ "$VERSION" == "us" ]]; then ASM_ROOT="asm"; else ASM_ROOT="asm/${VERSION}"; fi
 
-# Resolve C source: prefer src/, fall back to tough_nuts/, sound/.
-if [[ -f "src/$NAME.c" ]]; then
-    CSRC="src/$NAME.c"
+# Resolve C source. Accept a full path/TU stem (e.g. sugipon/src/pool) directly,
+# or a bare basename searched across the retail + aug6 dev-tree roots.
+CSRC=""
+if [[ -f "$NAME.c" ]]; then
+    CSRC="$NAME.c"                       # full dev-tree path: sugipon/src/pool
 elif [[ -f "tough_nuts/$NAME/$NAME.c" ]]; then
     CSRC="tough_nuts/$NAME/$NAME.c"
-elif [[ -f "sound/$NAME.c" ]]; then
-    CSRC="sound/$NAME.c"
-elif [[ -f "ios/$NAME.c" ]]; then
-    CSRC="ios/$NAME.c"
-elif [[ -f "isys/$NAME.c" ]]; then
-    CSRC="isys/$NAME.c"
 else
-    echo "quick_diff: no src/$NAME.c, tough_nuts/$NAME/$NAME.c, sound/$NAME.c, ios/$NAME.c, or isys/$NAME.c" >&2
+    for _root in src ios sound isys \
+                 common/src fumi/src fumi/ios fumi/sound fumi/isys \
+                 sugipon/src seki/src omori/src script/src ito/src ito/mpeg; do
+        if [[ -f "$_root/$NAME.c" ]]; then CSRC="$_root/$NAME.c"; break; fi
+    done
+fi
+if [[ -z "$CSRC" ]]; then
+    echo "quick_diff: no C source for '$NAME' (tried $NAME.c, tough_nuts/, and src/dev-tree roots)" >&2
     exit 3
 fi
 
