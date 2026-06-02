@@ -44,7 +44,10 @@ void actSt05dEneChk(int a0) {
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", func_0021C570);
+void func_0021C570(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", func_0021C580);
 

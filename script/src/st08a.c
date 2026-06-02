@@ -55,11 +55,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aIntroChk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", func_00220BD0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", func_00220C28);
+void func_00220C28(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", func_00220C38);
+void func_00220C38(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", func_00220C48);
+void func_00220C48(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", func_00220C58);
 

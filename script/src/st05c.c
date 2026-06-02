@@ -34,16 +34,31 @@ void actSt05cEneChk(int a0) {
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", func_0021C2C0);
+void func_0021C2C0(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", func_0021C2D0);
+void func_0021C2D0(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", func_0021C2E0);
+void func_0021C2E0(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", func_0021C2F0);
+void func_0021C2F0(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", func_0021C300);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", func_0021C348);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", func_0021C3A0);
+void func_0021C3A0(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
