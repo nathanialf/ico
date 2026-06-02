@@ -18,7 +18,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stormTest", DispStormPackage);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stormTest", StormTestGeo);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stormTest", StormTestDL);
+extern int D_0062B91C;
+
+void StormTestDL(void) {
+    D_0062B91C = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stormTest", InitStormTestGeo);
 
