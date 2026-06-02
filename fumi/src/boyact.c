@@ -117,4 +117,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", isLiftBoyEnable);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", BoyInfoUpdate_StageChange);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", ACTChkAttackIgnore_BOY);
+extern void ACTWay_SetBeginPositionIllegal(void *g);
+
+void ACTChkAttackIgnore_BOY(void *g) {
+    ACTWay_SetBeginPositionIllegal(g);
+}
