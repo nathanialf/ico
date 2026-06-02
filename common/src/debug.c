@@ -30,7 +30,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug", debug_FlushFontWindow);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug", debug_FlushFont);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug", draw_batsu);
+extern void debug_FlushFont(void);
+
+void draw_batsu(void) {
+    debug_FlushFont();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug", draw_shikaku);
 
