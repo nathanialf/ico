@@ -4,7 +4,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/brain", brainAddLevelGirl);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/brain", brainInit);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/brain", OverrideBrainStatusByGObj);
+void OverrideBrainStatusByGObj(int *p) {
+    *p = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/brain", brainStatusDefaultSet);
 
