@@ -16,7 +16,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stormTest", UpdateStormPackage);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stormTest", DispStormPackage);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stormTest", StormTestGeo);
+extern float D_0062B928;
+
+void StormTestGeo(float a0) {
+    D_0062B928 = a0;
+}
 
 extern int D_0062B91C;
 
