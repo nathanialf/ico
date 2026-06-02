@@ -64,4 +64,6 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", Reset_ShockRequestStru
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockRevice_Wave);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", Init_Shock);
+int Init_Shock(int a0, int a1) {
+    return a1;
+}
