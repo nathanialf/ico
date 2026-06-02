@@ -23,7 +23,12 @@ options:
   platform: ps2
   compiler: EEGCC
 
-  gp_value: 0x00632A70
+  # _gp from MAIN.MAP (authoritative: this is what crt0 loads at runtime).
+  # splat's create_config heuristic guessed 0x632A70 (cod_LIT4_START+0x7FF0);
+  # the real linker assigned _gp=(ALIGN(0x80)+0x7FF0)=0x630BF0. The
+  # ld_gp_expression below is a placeholder for the eventual link round-trip
+  # and must be re-derived to reproduce 0x630BF0 (TODO: link milestone).
+  gp_value: 0x00630BF0
   ld_gp_expression: cod_LIT4_START + 0x7FF0
 
   asm_path: asm
