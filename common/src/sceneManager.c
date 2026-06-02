@@ -16,7 +16,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/sceneManager", HotInitSceneObjects
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/sceneManager", ChangeStageStartInfo);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/sceneManager", CreateLayoutedGObj);
+extern void group_select(int a0);
+
+void CreateLayoutedGObj(int a0) {
+    group_select(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/sceneManager", MoveNextStage_Set);
 
