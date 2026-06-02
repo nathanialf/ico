@@ -1,10 +1,18 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", file_Init);
+extern void shadow_RenderVolumeMulti(void *a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", file_LoadCDFile);
+void file_Init(void *a0) {
+    shadow_RenderVolumeMulti(a0);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", file_LoadFile);
+void file_LoadCDFile(void *a0) {
+    shadow_RenderVolumeMulti(a0);
+}
+
+void file_LoadFile(int a0) {
+    file_LoadCDFile(*(void **)(a0 + 0x15C));
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", func_0010F040);
 
