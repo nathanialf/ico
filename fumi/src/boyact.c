@@ -83,7 +83,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyItem);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyItemAfter);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyCliffHesitate);
+int actBoyCliffHesitate(void) {
+    return 0x18;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyHangBefore);
 
