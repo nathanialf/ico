@@ -104,6 +104,27 @@ if [[ "$1" == "--once" ]]; then
                     if (!(fn in inc)) next
                     size=hex2dec(substr(rest,comma+2))
                     if (size < 8) next
+                    # Dead splat padding (extends the size<8 nop-pad skip above
+                    # to >=8-byte cases): a "function" whose entire body is nop
+                    # plus a relative `b` to a DIFFERENT symbol is not compiled
+                    # C — clean C cannot emit a cross-function `b` (ee-gcc tail
+                    # calls emit `j`), and a bare-nop entry has no `jr`. These
+                    # are nop-fill regions splat mis-labeled as functions (e.g.
+                    # func_001AACF4 -> func_001AACE0, a dead 0x20 nop region).
+                    # A genuine `for(;;)` self-loop (b to SELF) IS matchable, so
+                    # keep those (crossb stays 0); exclude only cross-branch pads.
+                    real=0; crossb=0
+                    while ((getline line < path) > 0) {
+                        if (line !~ /\*\//) continue
+                        mn=line; sub(/.*\*\/[[:space:]]*/,"",mn)
+                        op=mn; sub(/^[^[:space:]]+[[:space:]]*/,"",op)
+                        sub(/[[:space:]].*/,"",mn)
+                        if (mn=="" || mn=="nop") continue
+                        if (mn=="b") { if (op!=fn) crossb=1; continue }
+                        real=1
+                    }
+                    close(path)
+                    if (!real && crossb) next
                     # The matching tools (match_diff/quick_diff) resolve a TU by
                     # its full subseg path on aug6 (e.g. fumi/src/boyact), so emit
                     # the path between the nonmatchings root and the <func>.s, not
