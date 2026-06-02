@@ -8,7 +8,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/streamMotionManager", ClearStream
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/streamMotionManager", _deleteStreamMotionManager);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/streamMotionManager", GetStreamMotionData);
+extern int D_0062B9EC;
+
+void GetStreamMotionData(void) {
+    D_0062B9EC = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/streamMotionManager", _transRingBuf);
 
