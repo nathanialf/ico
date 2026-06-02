@@ -8,4 +8,6 @@ void CheckReadyAllSwitches(int a0) {
     playSEConditionID(a0, 0x24);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/switch__1B9EC8", InitBoxGeo);
+void InitBoxGeo(int a0) {
+    playSEConditionID(a0, 0x4);
+}
