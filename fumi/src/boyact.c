@@ -69,7 +69,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", CorrectStickInfo);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", GetBoyWeaponGObj);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyStand);
+extern unsigned char D_0062BFDC;
+
+int actBoyStand(void) {
+    return D_0062BFDC;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyHang);
 
