@@ -1,12 +1,18 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", huft_build);
+void huft_build(int *a0, int a1) {
+    a0[68] = a1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", inflate_codes);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", inflate_stored);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", inflate_fixed);
+extern int D_0062BF84;
+
+int inflate_fixed(void) {
+    return D_0062BF84;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", inflate_dynamic);
 

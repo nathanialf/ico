@@ -8,9 +8,17 @@ int InitStageLight(void) {
     return D_0062B418;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/sceneManager", initSceneGObj);
+extern int D_0062B424;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/sceneManager", initParentLink);
+void initSceneGObj(int a0) {
+    D_0062B424 = a0;
+}
+
+extern int D_0062B41C;
+
+void initParentLink(int a0) {
+    D_0062B41C = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/sceneManager", initWayData);
 

@@ -10,7 +10,11 @@ void RotObjectGeo(int a0) {
     func_001E6B78(a0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/rotObject", getRootMatrix);
+extern void func_001E6B80(void);
+
+void getRootMatrix(void) {
+    func_001E6B80();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/rotObject", RotObjectDL);
 

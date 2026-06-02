@@ -22,7 +22,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GifPacket", gif_Line);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GifPacket", gif_Sprite);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GifPacket", gif_SpriteSensitive);
+extern int D_00629EA0;
+
+void gif_SpriteSensitive(void) {
+    D_00629EA0 = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GifPacket", gif_SpriteOffset);
 
@@ -30,7 +34,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GifPacket", gif_SpriteSensitiveOffse
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GifPacket", gif_SpriteOrg);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GifPacket", gif_SpriteSensitiveOrg);
+int gif_SpriteSensitiveOrg(void) {
+    return D_00629EA0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GifPacket", gif_SetDrawEnviroment);
 
