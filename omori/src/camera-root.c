@@ -24,4 +24,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-root", Camctrl_ExitEveRock);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-root", Camctrl_SetTarget);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-root", GetCameraDefaultTargetGObj);
+extern int D_0062C074;
+
+int GetCameraDefaultTargetGObj(void) {
+    return D_0062C074;
+}
