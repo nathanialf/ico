@@ -1,6 +1,10 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/charFileManager", InitCharFileManager);
+extern int D_0062C118;
+
+void InitCharFileManager(void) {
+    D_0062C118 = 0;
+}
 
 void ResetCharFileManager(void) {
 }
