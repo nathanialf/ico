@@ -6,7 +6,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionViewer", setMotionSpeed);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionViewer", dispProgressBar);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionViewer", dispMotFrameProgress);
+extern void *D_0062B820;
+extern void GetHeightOfCliffFromGObj(void *a0);
+
+void dispMotFrameProgress(void) {
+    GetHeightOfCliffFromGObj(D_0062B820);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionViewer", objMenuProc);
 
