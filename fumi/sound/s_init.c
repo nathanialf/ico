@@ -90,4 +90,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSeSemiCommonLoadChk)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSeEnvDefaultSet);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", debug_req);
+extern int D_0062A500;
+
+int debug_req(void) {
+    return D_0062A500;
+}
