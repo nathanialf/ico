@@ -4,7 +4,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-set-manager", InitCameraSetM
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-set-manager", func_0018A0D8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-set-manager", func_0018A0E8);
+extern int D_0062C080;
+
+int func_0018A0E8(void) {
+    return D_0062C080;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-set-manager", func_0018A0F0);
 
