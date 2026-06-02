@@ -1,5 +1,8 @@
 #include "common.h"
 
+extern void func_00102828(int a0);
+extern void func_0010F048(int a0);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/icoMisc", disp_memory_partition_bar);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/icoMisc", disp_memory_partition);
@@ -22,11 +25,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/icoMisc", func_001ABF40);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/icoMisc", func_001ABF88);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/icoMisc", func_001ABFE8);
+void func_001ABFE8(int a0) {
+    func_00102828(a0);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/icoMisc", func_001ABFF0);
+void func_001ABFF0(int a0) {
+    func_0010F048(a0);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/icoMisc", func_001ABFF8);
+int func_001ABFF8(void) {
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/icoMisc", func_001AC000);
 

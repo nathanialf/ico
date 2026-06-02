@@ -1,5 +1,7 @@
 #include "common.h"
 
+extern void playSEConditionID(int a0, int a1);
+
 void RopeFixGeo(void) {
 }
 
@@ -9,9 +11,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/ropeFix", InitRopeFixGeo);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/ropeFix", func_001E6B28);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/ropeFix", func_001E6B70);
+int func_001E6B70(void) {
+    return 0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/ropeFix", func_001E6B78);
+void func_001E6B78(int a0) {
+    playSEConditionID(a0, 0x33);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/ropeFix", func_001E6B80);
 

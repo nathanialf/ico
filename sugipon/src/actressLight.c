@@ -1,5 +1,7 @@
 #include "common.h"
 
+extern void SetAP1DeadStatus(int a0, int a1);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", SetActressLight);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", func_001B7E50);
@@ -16,7 +18,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", func_001B8470);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", func_001B84F8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", func_001B88B8);
+void func_001B88B8(int a0) {
+    SetAP1DeadStatus(a0, 5);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", func_001B88C0);
 
