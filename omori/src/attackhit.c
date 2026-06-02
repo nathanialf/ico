@@ -8,7 +8,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/attackhit", AttackMail);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/attackhit", AttackCheckHit);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/attackhit", AttackGenerate);
+extern int D_0062A8E0;
+
+void AttackGenerate(void) {
+    D_0062A8E0 = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/attackhit", EnemyAttackCenter);
 
