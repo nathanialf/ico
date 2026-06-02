@@ -9,22 +9,40 @@ void actSt05dDoor2DownChk(int a0) {
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", actSt05dEne);
+void actSt05dEne(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", actSt05dEnemy1);
+void actSt05dEnemy1(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", actSt05dEnemy2);
+void actSt05dEnemy2(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", actSt05dDoor2Event);
+void actSt05dDoor2Event(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", actSt05dDoor2UpEffect);
+void actSt05dDoor2UpEffect(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 void actSt05dDoor2DownEffect(int a0) {
     int buf[4];
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", actSt05dEneChk);
+void actSt05dEneChk(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", func_0021C570);
 

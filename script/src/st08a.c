@@ -16,9 +16,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aEne2);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aEnemy1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aEnemy2);
+void actSt08aEnemy2(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aEnemy3);
+void actSt08aEnemy3(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aEnemy4);
 
@@ -26,9 +32,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aIntro);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aInit);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aDoorMain);
+void actSt08aDoorMain(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aDoorSwitch);
+void actSt08aDoorSwitch(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aIntroChk);
 
