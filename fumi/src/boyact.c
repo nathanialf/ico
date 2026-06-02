@@ -107,7 +107,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyDitch3mExec);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyHangG3M);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", IsAbleBoyControl);
+extern void SetRootMatrixWithTransOffset(void *a0);
+
+void IsAbleBoyControl(void *a0) {
+    SetRootMatrixWithTransOffset(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", ACTSearchEnemy);
 
