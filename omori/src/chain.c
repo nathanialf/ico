@@ -95,6 +95,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", InitPendulum);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", LockChainGeo);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", UnLockChainGeo);
+void UnLockChainGeo(void *a0, int a1) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    q[0] = a1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", GetChainHangRange);

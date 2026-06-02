@@ -7,7 +7,10 @@ void LwsKyomiGeo(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/lws_kyomi", CreateKyomiGObj);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/lws_kyomi", SetParamKyomiGObj);
+void SetParamKyomiGObj(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/lws_kyomi", func_00236ED0);
 

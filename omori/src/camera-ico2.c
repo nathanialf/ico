@@ -51,7 +51,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", MakeCameraSetBinary);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", GetSizeOfCameraSetBinary);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", SetCameraTargetPosition);
+extern unsigned char D_006C9D94[];
+extern void chain_simulate_term_simple(void);
+
+void SetCameraTargetPosition(void) {
+    D_006C9D94[0] = 1;
+    chain_simulate_term_simple();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00185BF8);
 

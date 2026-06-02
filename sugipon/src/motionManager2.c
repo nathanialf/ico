@@ -107,7 +107,10 @@ void AdjustMotionHeightToNearestField(int **a0) {
     p[0x135] = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", SetRootUpdateMode);
+void SetRootUpdateMode(int **a0) {
+    int *p = a0[0x57];
+    p[0x135] = 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", ForMotionViewer_GetCurrentAnimationFrame);
 

@@ -12,7 +12,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/StageManager", stgmgrNextStagePreL
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/StageManager", stgmgrNextStagePreLoadEntry);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/StageManager", StageManager);
+extern void stgmgrForceSwitch(int a0, int a1, int a2, int a3);
+
+void StageManager(int a0) {
+    stgmgrForceSwitch(a0, 0, 0, 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/StageManager", stgmgrForceSwitch);
 

@@ -16,7 +16,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", PushQuaternion);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", InitQuaternionDrive);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", SetIdentityQuaternion);
+extern int D_00629E7C;
+extern int D_0065A5C0[];
+extern void GetMatrixFromQuaternion(void *a0);
+
+void SetIdentityQuaternion(void) {
+    D_00629E7C = 0;
+    GetMatrixFromQuaternion(D_0065A5C0);
+}
 
 extern void GetInverseQuaternion(void *a0, void *a1);
 extern int D_002724B0[];

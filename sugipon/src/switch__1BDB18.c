@@ -20,7 +20,11 @@ void InitFloorLeverGeo(void) {
 void GetFloorLeverAngle(void) {
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/switch__1BDB18", SetWallLeverWithNodePoint);
+void SetWallLeverWithNodePoint(void *a0, int a1) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    q[7] = a1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/switch__1BDB18", CanWallLeverPull);
 
