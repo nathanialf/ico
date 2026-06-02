@@ -18,13 +18,22 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Shadow", shadow_RenderVolume);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Shadow", shadow_RenderVolumeMulti);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Shadow", shadow_MakeObjectData);
+extern void reg_DispAccessoryWithShadow(void);
+extern int D_0062A040;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Shadow", shadow_Tool);
+void shadow_MakeObjectData(void) {
+    reg_DispAccessoryWithShadow();
+}
+
+void shadow_Tool(int a0) {
+    D_0062A040 = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Shadow", shadow_KillShadow);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Shadow", shadow_DispCancel);
+void shadow_DispCancel(void) {
+    D_0062A040 = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Shadow", shadow_SetLength);
 

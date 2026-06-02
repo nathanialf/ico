@@ -12,7 +12,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundAllocIopFree);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundDataOpenChk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundBufAlloc);
+extern void func_00246700(int a0);
+extern int D_0062A528;
+
+void soundBufAlloc(void) {
+    func_00246700(D_0062A528);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundBufSegFree);
 
@@ -40,9 +45,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSeDefStop);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSeDefStopNoRelease);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSeDefPitchSet);
+extern void soundSeDefStopNoRelease(int a0, int a1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundReqTickProc);
+void soundSeDefPitchSet(int a0) {
+    soundSeDefStopNoRelease(a0, 0);
+}
+
+void soundReqTickProc(int a0) {
+    soundSeDefStopNoRelease(a0, 1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSeEnvPlay);
 
@@ -54,9 +65,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", Ee2Iop);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundOutputModeGet);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundReverbDepthGet);
+extern int D_0062A4FC;
+extern int D_0062A4F0;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundBufAdpcmChAlloc);
+int soundReverbDepthGet(void) {
+    return D_0062A4FC;
+}
+
+int soundBufAdpcmChAlloc(void) {
+    return D_0062A4F0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundBufAdpcmFree);
 

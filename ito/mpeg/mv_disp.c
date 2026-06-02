@@ -34,7 +34,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", setGIFad);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", setTEXFLUSH);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", setTEX1_1);
+extern void func_00201470(void);
+
+void setTEX1_1(void) {
+    func_00201470();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", setTEX0_1);
 

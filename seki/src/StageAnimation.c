@@ -12,7 +12,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_ContinueAnima
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_ResetAnimation);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_CalcAnimationNoParent);
+extern int D_0062A054;
+
+void stage_CalcAnimationNoParent(int a0) {
+    D_0062A054 = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_CalcAnimationParent);
 
