@@ -517,12 +517,24 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002482D0);
  *                  the body ends with `ei` (enable interrupts, COP0).
  *   func_002484D0  installs that ISR and toggles INTC enable.
  * `ei`, `cache`, and the address-of-instruction callback cannot be emitted by
- * ee-gcc, so these stay as assembled .s (already byte-identical via INCLUDE_ASM).
- * Self-monitor's smallest-func heuristic re-surfaces func_002484A4 because its
- * `addiu` counts as a "real" instruction; it is complete, not a pending match. */
+ * ee-gcc. func_002484A4 is short enough to author inline below; the rest stay
+ * as assembled .s (byte-identical via INCLUDE_ASM). */
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002483F8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002484A4);
+/* func_002484A4 — hand-written: bare-return entry whose delay slot doubles as
+ * the prologue (addiu $sp,-0x10) of the ISR installed at func_002484A4+0x4.
+ * .set noreorder keeps the addiu in the jr delay slot as written. */
+__asm__(
+    ".section .text\n"
+    "    .set at\n"
+    "    .set noreorder\n"
+    "glabel func_002484A4\n"
+    "    jr         $31\n"
+    "    addiu      $29, $29, -0x10\n"
+    "endlabel func_002484A4\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002484AC);
 
