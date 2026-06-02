@@ -1,8 +1,14 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/item", bombSparkStartSE);
+extern void playSEConditionID(int a0, int a1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/item", bombSparkSE);
+void bombSparkStartSE(int a0) {
+    playSEConditionID(a0, 0x31);
+}
+
+void bombSparkSE(int a0) {
+    playSEConditionID(a0, 0x32);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/item", bombExplodeSE);
 
