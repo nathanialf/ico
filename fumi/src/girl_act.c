@@ -8,7 +8,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", GirlBrainClearTarget);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", girlBrainMain_DecideMode);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_00168A40);
+extern void brainLevelProcess(void *a0);
+extern int D_00286A90[];
+
+void func_00168A40(void) {
+    brainLevelProcess(D_00286A90);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", subGirlBrainMain);
 

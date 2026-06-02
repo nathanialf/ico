@@ -14,7 +14,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/mail-add-data", func_001926A8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/mail-add-data", func_001926C0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/mail-add-data", func_001927E8);
+extern void func_001929A0(void *a0);
+
+void func_001927E8(int **a0, int a1) {
+    int *p = a0[0x59];
+    p[0x19D] = a1;
+    func_001929A0(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/mail-add-data", func_001927F8);
 

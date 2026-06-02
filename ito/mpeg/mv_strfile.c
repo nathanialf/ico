@@ -18,4 +18,6 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_strfile", func_0019B730);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_strfile", func_0019B770);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_strfile", func_0019B790);
+void func_0019B790(int *a0) {
+    a0[0x2E] = 1;
+}

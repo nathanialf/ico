@@ -10,7 +10,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_00143298);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_001432E0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_001433E0);
+extern void ExecIcoMisc(int a0, int a1);
+
+void func_001433E0(int *a0) {
+    ExecIcoMisc(a0[3], a0[2]);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_001433F0);
 

@@ -2,7 +2,9 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/isys", isysInitialize);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/isys", func_0013F360);
+void func_0013F360(int *a0) {
+    a0[6] = 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/isys", func_0013F370);
 
