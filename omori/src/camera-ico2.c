@@ -65,9 +65,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00187268);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_001878E0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188578);
+extern float D_0062A9C0;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188580);
+void func_00188578(float a0) {
+    D_0062A9C0 = a0;
+}
+
+extern int D_0062C054;
+
+int func_00188580(void) {
+    return D_0062C054;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188588);
 
@@ -75,7 +83,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188660);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188728);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_001887D8);
+extern int D_0062C064;
+
+void func_001887D8(void) {
+    D_0062C064 = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_001887E0);
 
