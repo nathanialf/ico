@@ -63,6 +63,7 @@ if [[ "$1" == "--once" ]]; then
     fi
     if [[ "$_sm_version" == "aug6" ]]; then
         .venv/bin/python tools/list_candidates.py 10 2>/dev/null || true
+        echo "$rule"
     elif [[ -d asm/nonmatchings ]]; then
         matched=$(find asm/matchings -name 'func_*.s' -printf '%f\n' 2>/dev/null \
                       | sed 's/\.s$//' | sort -u)
