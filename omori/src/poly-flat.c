@@ -1,6 +1,10 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/poly-flat", before_DrawPolygon);
+extern void func_0010F9D0(void);
+
+void before_DrawPolygon(void) {
+    func_0010F9D0();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/poly-flat", after_DrawPolygon);
 
