@@ -8,7 +8,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", InitEnemyFootPrint);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", ExecEnemyFootPrints);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", EntryEnemyFootPrint);
+int EntryEnemyFootPrint(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    return q[5];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", DispEnemyFootPrints);
 

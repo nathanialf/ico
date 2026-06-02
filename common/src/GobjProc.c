@@ -10,7 +10,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/GobjProc", GetGObjId);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/GobjProc", PrintGObjID);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/GobjProc", InitCameraGObjs);
+extern int D_00615180[];
+extern void debug_assertMessage(void *a0, int a1);
+
+void InitCameraGObjs(int a0) {
+    debug_assertMessage(D_00615180, a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/GobjProc", CreateGObj);
 

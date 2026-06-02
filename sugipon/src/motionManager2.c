@@ -129,7 +129,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetStreamShapeMo
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetDifferenceFromWallUpperField);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetDifferenceFromLastField);
+void GetDifferenceFromLastField(int **a0) {
+    int *p = a0[0x57];
+    p[0x130] = 1;
+}
 
 void GetDifferenceFromLowerField(int **a0) {
     int *p = a0[0x57];

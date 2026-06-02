@@ -60,7 +60,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", IsThisBoxTruck);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", ExecBoxMoveStartReaction);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", ExecBoxMoveEndReaction);
+int ExecBoxMoveEndReaction(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    return q[0x16];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", BoxGeoRestore);
 

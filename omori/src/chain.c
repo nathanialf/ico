@@ -83,7 +83,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", GetChainClimbCollision);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", SetChainParentGObj);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", GetChainDirCorrectVal);
+int GetChainDirCorrectVal(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    return *(unsigned char *)((char *)q + 0xC0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", GetRootPositionHandExtra);
 

@@ -1,6 +1,10 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", EnterMenu);
+extern int D_00286A98[];
+
+void EnterMenu(void) {
+    D_00286A98[0] = 1;
+}
 
 extern int D_00286A98[];
 

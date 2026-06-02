@@ -137,7 +137,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ACTSendMailCorrect);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", _ACTCommonMailTest);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", E3_LeverCheck);
+void E3_LeverCheck(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x164);
+    int *q = *(int **)((char *)p + 0x670);
+    q[0x94] = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonBecarry);
 

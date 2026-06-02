@@ -32,7 +32,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", Generator_ResetCount);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", Generator_Mask);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", Generator_MaskOff);
+void Generator_MaskOff(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    *((char *)q + 0xC) = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", SetMotherGenerator);
 
