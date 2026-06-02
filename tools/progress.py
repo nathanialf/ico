@@ -143,7 +143,7 @@ def _claim_size(subs: list[tuple[int, str, str]], idx: int, default_end: int) ->
 
 
 _INCLUDE_ASM_RE = re.compile(
-    r'\bINCLUDE_ASM\s*\(\s*"[^"]+"\s*,\s*(\w+)\s*\)'
+    r'\bINCLUDE_ASM(?:_NOAT)?\s*\(\s*"([^"]+)"\s*,\s*(\w+)\s*\)'
 )
 
 
@@ -162,8 +162,13 @@ def _include_asm_bytes(name: str) -> int:
     except Exception:
         return 0
     total = 0
-    for func in _INCLUDE_ASM_RE.findall(text):
-        s = REPO_ROOT / "asm" / "nonmatchings" / name / f"{func}.s"
+    # Use the asm dir from the INCLUDE_ASM directive itself (e.g.
+    # "asm/aug6/nonmatchings/sugipon/src/pool") so it works for any version's
+    # asm_path, not just retail's asm/nonmatchings/.
+    for asmdir, func in _INCLUDE_ASM_RE.findall(text):
+        s = REPO_ROOT / asmdir / f"{func}.s"
+        if not s.exists():
+            s = REPO_ROOT / "asm" / "nonmatchings" / name / f"{func}.s"  # legacy fallback
         if not s.exists():
             continue
         try:
