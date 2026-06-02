@@ -28,7 +28,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/pad", iosPadStickCameraCoord);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/pad", iosPadEnable);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/pad", iosPadDisable);
+extern int D_0062BF98;
+
+void iosPadDisable(void) {
+    D_0062BF98 = 1;
+}
 
 extern int D_0062BF98;
 

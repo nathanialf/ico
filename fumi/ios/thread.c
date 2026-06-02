@@ -23,7 +23,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadSetPri);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadMessage);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadName);
+void iosThreadName(short *a0) {
+    a0[1] = 0;
+    a0[0] = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadSuspend);
 
@@ -41,7 +44,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosGetIOSThreadFromId);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadWakeup);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadJoin);
+extern void func_00100340(void *a0, int a1);
+
+void iosThreadJoin(int *a0) {
+    func_00100340((void *)a0[0xC], a0[0xD]);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadCancelWakeup);
 

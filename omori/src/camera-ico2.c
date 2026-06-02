@@ -10,7 +10,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", ico2camera_GetTargetP
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", ico2camera_GetGroupNearest);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", initMonitorCamera);
+extern int *D_0062A8F4;
+
+int initMonitorCamera(void) {
+    return *D_0062A8F4;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", monitorMonitorCamera);
 

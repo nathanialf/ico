@@ -4,7 +4,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanbanBoot", kanbanBootMcCheck);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanbanBoot", kanbanBootMain);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanbanBoot", kanbanBootInit);
+extern int D_0060F6E0[];
+extern void debug_assertMessage(void *a0);
+
+void kanbanBootInit(void) {
+    debug_assertMessage(D_0060F6E0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanbanBoot", kanbanBootStart);
 

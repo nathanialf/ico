@@ -32,7 +32,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", getMotionGe
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", getShapeGeometry);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", getStreamMotionGeometry);
+extern void getNodeBlendedFloatingMotion(int a0, int a1, int a2, int a3);
+
+void getStreamMotionGeometry(int a0, int a1) {
+    getNodeBlendedFloatingMotion(a0, a1, a1, 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", getStreamShapeGeometry);
 
