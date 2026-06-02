@@ -140,7 +140,11 @@ void func_002400D8(void *a0, void *a1) {
     VU0_LSV(sqc2, 5, 0x0, 4);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002400E8);
+void func_002400E8(void *a0, void *a1) {
+    VU0_LSV(lqc2, 4, 0x0, 5);
+    VU0_V2OP(vitof0.xyzw, 5, 4);
+    VU0_LSV(sqc2, 5, 0x0, 4);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002400F8);
 
@@ -190,7 +194,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240B50);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240B78);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240C58);
+extern int D_0054A9F8_alias[] __asm__("D_0054A9F8");
+
+int func_00240C58(int a0) {
+    int old = D_0054A9F8_alias[0];
+    D_0054A9F8_alias[0] = a0;
+    return old;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240C68);
 
@@ -218,9 +228,18 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00241588);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002415A8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002415C8);
+void func_002415C8(int *a0, int a1) {
+    a0[1] = a1;
+    a0[0] = a1;
+    a0[2] = 0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002415D8);
+int func_002415D8(int *a0) {
+    int v = a0[1];
+    a0[2] = 0;
+    a0[0] = v;
+    return v;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002415E8);
 
@@ -487,19 +506,98 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00247820);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00247880);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00247908);
+/* func_00247908 — hand-written PS2 EE syscall stub: syscall number in $v1,
+ * then `syscall 0`. .set noreorder keeps the bare nop in the jr delay slot. */
+__asm__(
+    ".section .text\n"
+    "    .set at\n"
+    "    .set noreorder\n"
+    "glabel func_00247908\n"
+    "    addiu      $3, $0, 0x74\n"
+    "    syscall    0\n"
+    "    jr         $31\n"
+    "    nop\n"
+    "endlabel func_00247908\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00247918);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00247968);
+/* func_00247968 — hand-written PS2 EE syscall stub (syscall number in $v1). */
+__asm__(
+    ".section .text\n"
+    "    .set at\n"
+    "    .set noreorder\n"
+    "glabel func_00247968\n"
+    "    addiu      $3, $0, 0x55\n"
+    "    syscall    0\n"
+    "    jr         $31\n"
+    "    nop\n"
+    "endlabel func_00247968\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00247978);
+/* func_00247978 — hand-written PS2 EE syscall stub (syscall number in $v1). */
+__asm__(
+    ".section .text\n"
+    "    .set at\n"
+    "    .set noreorder\n"
+    "glabel func_00247978\n"
+    "    addiu      $3, $0, -0x55\n"
+    "    syscall    0\n"
+    "    jr         $31\n"
+    "    nop\n"
+    "endlabel func_00247978\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00247988);
+/* func_00247988 — hand-written PS2 EE syscall stub (syscall number in $v1). */
+__asm__(
+    ".section .text\n"
+    "    .set at\n"
+    "    .set noreorder\n"
+    "glabel func_00247988\n"
+    "    addiu      $3, $0, 0x56\n"
+    "    syscall    0\n"
+    "    jr         $31\n"
+    "    nop\n"
+    "endlabel func_00247988\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00247998);
+/* func_00247998 — hand-written PS2 EE syscall stub (syscall number in $v1). */
+__asm__(
+    ".section .text\n"
+    "    .set at\n"
+    "    .set noreorder\n"
+    "glabel func_00247998\n"
+    "    addiu      $3, $0, -0x56\n"
+    "    syscall    0\n"
+    "    jr         $31\n"
+    "    nop\n"
+    "endlabel func_00247998\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002479A8);
+/* func_002479A8 — hand-written PS2 EE syscall stub (syscall number in $v1). */
+__asm__(
+    ".section .text\n"
+    "    .set at\n"
+    "    .set noreorder\n"
+    "glabel func_002479A8\n"
+    "    addiu      $3, $0, 0x57\n"
+    "    syscall    0\n"
+    "    jr         $31\n"
+    "    nop\n"
+    "endlabel func_002479A8\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002479B8);
 
