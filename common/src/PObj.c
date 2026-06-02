@@ -1,6 +1,10 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", MakeBoundingBox);
+extern int D_0062BEA0;
+
+void MakeBoundingBox(void) {
+    D_0062BEA0 = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", MakePacket);
 
