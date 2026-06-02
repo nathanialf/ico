@@ -96,7 +96,9 @@ segments:
     subalign: null
     align: 0x80   # original linker 0x80-aligns every section start (.data/.rodata/.lit4/.sdata/.sbss/.bss); splat default is 16
     subsegments:
-      - [0x000000, asm, src/cod/000000]      # .text
+      - [0x000000, asm, src/cod/000000]      # .text (before copyToWork)
+      - [0xAE10, c, sugipon/src/pool]        # copyToWork @0x10AE10 — first match (smoke test)
+      - [0xAE18, asm, src/cod/00AE18]        # .text (after copyToWork)
       - [0x16B970, textbin, src/cod/16B970]  # .vutext (VU microcode)
       - [0x170A50, textbin, src/cod/170A50]  # .reginfo (0x18) + align pad to 0x30; raw bytes for exact layout
       - [0x170A80, data, src/cod/170A80]     # .data

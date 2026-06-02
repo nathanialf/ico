@@ -66,6 +66,12 @@ for f in "${files[@]}"; do
     [[ -z "$f" ]] && continue
     [[ ! -f "$f" ]] && continue
     if [[ "$f" =~ $allow_large_re ]]; then continue; fi
+    # Symbol-address files (config/symbol_addrs.<ver>.txt) are `Name = 0xADDR;
+    # // type:func` declarations — no byte data. The aug6 prototype's is large
+    # (>256 KiB) only because that build is fully named (5k+ functions), unlike
+    # retail's sparse file. Format-verified text, not laundered ROM; exempt the
+    # size cap (content is still subject to the byte-array rules below).
+    case "$f" in config/symbol_addrs.*.txt) continue ;; esac
     size=$(wc -c < "$f")
     if [[ "$f" =~ $src_large_re ]]; then
         if (( size > 8388608 )); then

@@ -60,9 +60,11 @@ OUTPUT = ROOT / "build.ninja"
 
 ASM_RE = re.compile(r"^build/asm/(.+)\.o$")
 # Source roots that map to repo-root subdirs (matches splat's src_path: .).
-# `src/` is the catchall; `ios/`, `sound/`, `isys/` are sibling subsystems
-# from the original ICO source layout.
-SRC_RE = re.compile(r"^build/((?:src|ios|sound|isys)/.+)\.o$")
+# retail (us): src/ + ios/ sound/ isys/. The aug6 prototype branch mirrors the
+# dev's per-developer module tree (TRFILE: common/ fumi/ sugipon/ seki/ omori/
+# script/ ito/, each with src/ and subsystem subdirs).
+_SRC_ROOTS = "src|ios|sound|isys|common|fumi|sugipon|seki|omori|script|ito"
+SRC_RE = re.compile(rf"^build/((?:{_SRC_ROOTS})/.+)\.o$")
 
 
 def mips_prefix() -> str:
@@ -103,7 +105,8 @@ def discover_sidecar_objs(splat_objs: set[str]) -> list[str]:
     # Walk every source root the project lays out at repo top-level.
     # `src/` plus the original ICO sibling subsystems `ios/`, `sound/`,
     # `isys/` (relocated out of `src/` to mirror the original tree).
-    for root_name in ("src", "ios", "sound", "isys"):
+    for root_name in ("src", "ios", "sound", "isys", "common", "fumi",
+                       "sugipon", "seki", "omori", "script", "ito"):
         root_dir = ROOT / root_name
         if not root_dir.is_dir():
             continue
