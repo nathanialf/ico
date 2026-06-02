@@ -14,8 +14,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/isys", func_0013F418);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/isys", func_0013F448);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/isys", func_0013F478);
+void func_0013F478(int *p) {
+    *p = 0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/isys", func_0013F480);
+extern void func_0013F488(void);
+
+void func_0013F480(void) {
+    func_0013F488();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/isys", func_0013F488);
