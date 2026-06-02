@@ -1,8 +1,5 @@
-# TUs assembled with ee-as 2.9-991111 instead of the default 2.96.
-# 2.96 hoists a preceding unaligned store (sdl/sdr) into a `j <func>` tail-call
-# delay slot; the original ICO toolchain (and 2.9-991111) leave a nop there
-# (verified universal: 0/783 ROM tail-calls carry an unaligned store in the
-# delay). The gcc-emitted .s is identical input; only the assembler differs.
-# One TU basename per line.
-fieldCollision
-girl_act
+// aug6 branch: empty by design. These are retail-specific compile bandaids
+// (per-TU modern/old assembler forcing, per-func cflags, lit4 pool slots, data
+// migration symbols). aug6 starts with ZERO bandaids — default ee-as 2.96
+// natively emits the ROM encodings (move->daddu, break 0,N verified). Entries
+// are added only if an actual aug6 match proves one is needed.

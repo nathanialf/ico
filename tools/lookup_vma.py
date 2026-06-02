@@ -29,8 +29,10 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
+from ico_version import detect_version  # noqa: E402
+_VERSION = detect_version(REPO)
 DATA_TU_MAP = REPO / "decomp" / "data_tu_map.json"
-SYMBOL_ADDRS = REPO / "config" / "symbol_addrs.us.txt"
+SYMBOL_ADDRS = REPO / "config" / f"symbol_addrs.{_VERSION}.txt"
 
 
 def load_data_map() -> dict[int, tuple[str, str]]:

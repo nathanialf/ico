@@ -53,7 +53,17 @@ if [[ "$1" == "--once" ]]; then
     # INCLUDE_ASM stub — exists ONLY under nonmatchings). Without this the
     # smallest orphan (e.g. a 2-insn tail-call) sorts to the top and gets
     # handed out as a "match target" that is already done.
-    if [[ -d asm/nonmatchings ]]; then
+    # aug6 prototype branch: .text is carved per-TU along MAIN.MAP boundaries,
+    # not per-function — there are no per-func nonmatchings .s files. Use the
+    # TU-boundary candidate lister instead.
+    _sm_version="${VERSION:-}"
+    if [[ -z "$_sm_version" ]]; then
+        if [[ -f config/ico.us.yaml ]]; then _sm_version=us
+        elif [[ -f config/ico.aug6.yaml ]]; then _sm_version=aug6; fi
+    fi
+    if [[ "$_sm_version" == "aug6" ]]; then
+        .venv/bin/python tools/list_candidates.py 10 2>/dev/null || true
+    elif [[ -d asm/nonmatchings ]]; then
         matched=$(find asm/matchings -name 'func_*.s' -printf '%f\n' 2>/dev/null \
                       | sed 's/\.s$//' | sort -u)
         # GENUINE-UNMATCHED filter: the asm/nonmatchings/<fn>.s files are NEVER

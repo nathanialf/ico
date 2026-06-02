@@ -18,6 +18,7 @@ Output format: two-decimal-place percentages (e.g. `0.42 %`).
 
 from __future__ import annotations
 
+import os
 import re
 import sys
 from pathlib import Path
@@ -34,8 +35,19 @@ except ImportError:
              "`.venv/bin/pip install -r tools/requirements.txt`.")
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-YAML = REPO_ROOT / "config" / "ico.us.yaml"
-BASEELF = REPO_ROOT / "baserom" / "baseelf.elf"
+# Version-aware: retail main has config/ico.us.yaml + baserom/baseelf.elf; the
+# aug6 prototype branch has config/ico.aug6.yaml + baserom/aug6/baseelf.elf.
+# Explicit VERSION env wins; else auto-detect from which config exists.
+VERSION = os.environ.get("VERSION")
+if not VERSION:
+    if (REPO_ROOT / "config" / "ico.us.yaml").exists():
+        VERSION = "us"
+    elif (REPO_ROOT / "config" / "ico.aug6.yaml").exists():
+        VERSION = "aug6"
+    else:
+        VERSION = "us"
+YAML = REPO_ROOT / "config" / f"ico.{VERSION}.yaml"
+BASEELF = REPO_ROOT / "baserom" / ("baseelf.elf" if VERSION == "us" else f"{VERSION}/baseelf.elf")
 README = REPO_ROOT / "README.md"
 PROGRESS_DOC = REPO_ROOT / "docs" / "PROGRESS.md"
 

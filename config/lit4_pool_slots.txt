@@ -1,36 +1,5 @@
-# lit4_pool_slots.txt — TUs whose compiler `.lit4` constant pool must be
-# placed at a fixed VMA (re-naming the anonymous `.lit4` section to
-# `.lit4.0xVMA` so tools/gen_slinky.py can locate it by VMA).
-#
-# WHY: `.lit4` is the compiler's float/double constant pool. The original
-# code referenced these via INLINE LITERALS (e.g. 100000.0f sentinels),
-# so ee-gcc interns them into `.lit4` and the load schedules as a movable
-# constant. Reconstructing a pool slot as a named `float D_VMA` global and
-# referencing it by symbol makes ee-gcc emit a CONSERVATIVE global memory
-# load, scheduled later — a byte mismatch (e.g. func_0017A230's lwc1 one
-# slot late). So such functions use the literal; gas pools it into an
-# anonymous `.lit4`; compile_c.sh renames that section to `.lit4.0xVMA`
-# here so the linker places it at the original address.
-#
-# LIMITATION (see task: ".lit4/.lit8 TU-pool migration"): a single line
-# below renames the WHOLE `.lit4` section to ONE VMA — correct only when
-# the TU's compiler pool holds exactly ONE constant (4 bytes). compile_c.sh
-# HARD-ERRORS if a listed TU's pool is larger, so a second matched literal
-# can never silently corrupt the layout.
-#
-# MULTI-ENTRY DESIGN (not yet implemented): a TU's pool is a contiguous run
-# of 4-byte words in compiler first-use order; each must become its own
-# `.lit4.0xVMA` section. The blocker is the section FLAGS: `.lit4` is `WAp`
-# (the `p` = SHF_MIPS_GPREL processor flag drives gp-relative placement).
-# `objcopy --rename-section` PRESERVES WAp but cannot split; `--add-section`
-# can split but CANNOT set the `p` flag (not in objcopy's flag vocabulary),
-# and dropping `p` moves the slot out of the gp group → wrong addresses.
-# So the splitter needs flag-preserving ELF surgery (pyelftools) or an
-# .s-level emission of explicit `.section .lit4.0xVMA,"a"` blocks. Until then
-# a TU may carry at most ONE pooled literal; remaining slots stay named
-# `.sdata.D_VMA` globals (correct DATA; only matched readers schedule late).
-# Note: the same applies to `.lit8` (doubles) — add a parallel mechanism if
-# a matched function reads a pooled double.
-#
-# Format: <TU-basename> <VMA-hex-no-0x>
-way_util 00630E3C
+// aug6 branch: empty by design. These are retail-specific compile bandaids
+// (per-TU modern/old assembler forcing, per-func cflags, lit4 pool slots, data
+// migration symbols). aug6 starts with ZERO bandaids — default ee-as 2.96
+// natively emits the ROM encodings (move->daddu, break 0,N verified). Entries
+// are added only if an actual aug6 match proves one is needed.

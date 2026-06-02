@@ -43,7 +43,9 @@ except ImportError:
     sys.exit("tu_status: missing PyYAML. Run `.venv/bin/pip install pyyaml`.")
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-YAML = REPO_ROOT / "config" / "ico.us.yaml"
+from ico_version import detect_version  # noqa: E402
+_VERSION = detect_version(REPO_ROOT)
+YAML = REPO_ROOT / "config" / f"ico.{_VERSION}.yaml"
 TU_MAP_JSON = REPO_ROOT / "decomp" / "tu_map.json"
 TU_MAP_MD = REPO_ROOT / "decomp" / "tu_map.md"
 DATA_TU_MAP = REPO_ROOT / "decomp" / "data_tu_map.json"

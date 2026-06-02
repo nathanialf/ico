@@ -33,9 +33,11 @@ except ImportError as exc:  # pragma: no cover
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_BASE = REPO_ROOT / "baserom" / "baseelf.elf"
+from ico_version import detect_version, baseelf_path  # noqa: E402
+_VERSION = detect_version(REPO_ROOT)
+DEFAULT_BASE = baseelf_path(REPO_ROOT, _VERSION)
 DEFAULT_BUILT = REPO_ROOT / "build" / "baseelf.elf"
-DEFAULT_MAP = REPO_ROOT / "build" / "ico.us.map"
+DEFAULT_MAP = REPO_ROOT / "build" / f"ico.{_VERSION}.map"
 
 
 def _word_le(buf: bytes) -> int:

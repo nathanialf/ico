@@ -24,6 +24,16 @@ NAME="$1"
 shift || true
 FUNC="${1:-}"   # target func (coalesced TU); used for @func postprocess scoping
 
+# Version-aware asm root. Retail (us) emits baselines to asm/; the aug6
+# prototype branch sets asm_path: asm/aug6 (config/ico.aug6.yaml). Explicit
+# VERSION env wins; else auto-detect from which config exists.
+if [[ -z "${VERSION:-}" ]]; then
+    if [[ -f config/ico.us.yaml ]]; then VERSION=us
+    elif [[ -f config/ico.aug6.yaml ]]; then VERSION=aug6
+    else VERSION=us; fi
+fi
+if [[ "$VERSION" == "us" ]]; then ASM_ROOT="asm"; else ASM_ROOT="asm/${VERSION}"; fi
+
 # Resolve C source: prefer src/, fall back to tough_nuts/, sound/.
 if [[ -f "src/$NAME.c" ]]; then
     CSRC="src/$NAME.c"
@@ -48,16 +58,16 @@ fi
 # can pass either the bare TU name (`layout_texture`) or the path
 # (`src/layout_texture`).
 CANDIDATES=(
-    "asm/matchings/$NAME"
-    "asm/matchings/src/$NAME"
-    "asm/matchings/sound/$NAME"
-    "asm/matchings/ios/$NAME"
-    "asm/matchings/isys/$NAME"
-    "asm/nonmatchings/$NAME"
-    "asm/nonmatchings/src/$NAME"
-    "asm/nonmatchings/sound/$NAME"
-    "asm/nonmatchings/ios/$NAME"
-    "asm/nonmatchings/isys/$NAME"
+    "$ASM_ROOT/matchings/$NAME"
+    "$ASM_ROOT/matchings/src/$NAME"
+    "$ASM_ROOT/matchings/sound/$NAME"
+    "$ASM_ROOT/matchings/ios/$NAME"
+    "$ASM_ROOT/matchings/isys/$NAME"
+    "$ASM_ROOT/nonmatchings/$NAME"
+    "$ASM_ROOT/nonmatchings/src/$NAME"
+    "$ASM_ROOT/nonmatchings/sound/$NAME"
+    "$ASM_ROOT/nonmatchings/ios/$NAME"
+    "$ASM_ROOT/nonmatchings/isys/$NAME"
 )
 # When a specific func is requested, prefer the candidate dir that actually
 # CONTAINS it — a stale gitignored layout dir (e.g. asm/matchings/<TU>/ left
@@ -93,8 +103,8 @@ if [[ -n "${1:-}" ]]; then
     # nonmatchings sibling dir if the file isn't in the chosen ASM_DIR.
     if [[ ! -f "$TARGET_ASM" ]]; then
         case "$ASM_DIR" in
-            asm/matchings/src/*) ALT_DIR="asm/nonmatchings/src/${ASM_DIR#asm/matchings/src/}" ;;
-            asm/matchings/*)     ALT_DIR="asm/nonmatchings/${ASM_DIR#asm/matchings/}" ;;
+            "$ASM_ROOT"/matchings/src/*) ALT_DIR="$ASM_ROOT/nonmatchings/src/${ASM_DIR#$ASM_ROOT/matchings/src/}" ;;
+            "$ASM_ROOT"/matchings/*)     ALT_DIR="$ASM_ROOT/nonmatchings/${ASM_DIR#$ASM_ROOT/matchings/}" ;;
             *)                   ALT_DIR="" ;;
         esac
         if [[ -n "$ALT_DIR" && -f "$ALT_DIR/$1.s" ]]; then
