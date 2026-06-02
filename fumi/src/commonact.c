@@ -94,7 +94,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonBar);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015B4C8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", funcCommonJumpDircorrect);
+extern void setNodePursueParticleEffectWithUpperLimit(int a0, int a1, float a2);
+
+void funcCommonJumpDircorrect(int a0, int a1) {
+    setNodePursueParticleEffectWithUpperLimit(a0, a1, 30.0f);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", funcCommonFallDircorrect);
 

@@ -6,7 +6,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", boss_effect_start);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", boss_effect_check_parts);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", boss_effect_process);
+void boss_effect_process(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", _DoAwait);
 

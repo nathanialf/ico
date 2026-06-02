@@ -30,7 +30,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", WeaponHitEffect);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", ExecWeaponHitReaction);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", checkHit);
+int checkHit(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    return q[0];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", initializeQueenzSword);
 

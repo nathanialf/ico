@@ -84,7 +84,12 @@ void CameraEdit_Save(void) {
     func_00186CA8(p[1], p[0]);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", debug_NMarker);
+extern void drawXZArrow(int a0, int a1, int a2);
+
+void debug_NMarker(int a0) {
+    int *p = D_0062A8F0;
+    drawXZArrow(a0, p[1], p[0]);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", debug_Marker);
 

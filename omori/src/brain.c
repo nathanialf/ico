@@ -22,4 +22,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/brain", brainGetLevel);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/brain", brainClsTargetLevel);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/brain", brainInitGirlSet);
+extern int D_00286A9C[];
+
+void brainInitGirlSet(void) {
+    D_00286A9C[0] = 1;
+}

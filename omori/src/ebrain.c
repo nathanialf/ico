@@ -6,15 +6,27 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", eBrainGetTargetGeneratorFr
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", eBrainGetTarget);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", eBrainInit);
+void eBrainInit(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    *((char *)q + 0xCC) = 0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", eBrainStatusSet);
+float eBrainStatusSet(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    return *(float *)((char *)q + 0xC8);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", eBrainSendMes);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", GetStageFromLabel);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", eBrainGetTargetGeneratorFromLabelStage);
+void eBrainGetTargetGeneratorFromLabelStage(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    *((char *)q + 0xCD) = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018DFA8);
 
