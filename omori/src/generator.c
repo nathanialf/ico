@@ -40,4 +40,6 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", Generator_Init);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", GetbufpGeneratorPacket);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", GetsizeGeneratorPacket);
+int GetsizeGeneratorPacket(void) {
+    return 0x280B;
+}
