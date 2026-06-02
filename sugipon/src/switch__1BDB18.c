@@ -4,7 +4,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/switch__1BDB18", SetSwitchTrigger
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/switch__1BDB18", SetSwitchState);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/switch__1BDB18", SetFloorLeverWithNodePoint);
+int SetFloorLeverWithNodePoint(void) {
+    return 1;
+}
 
 int CanFloorLeverPull(void) {
     return 0;
