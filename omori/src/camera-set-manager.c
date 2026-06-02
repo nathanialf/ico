@@ -2,7 +2,13 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-set-manager", InitCameraSetManager);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-set-manager", func_0018A0D8);
+extern int D_0062C080;
+extern int D_006C9F98[];
+
+void func_0018A0D8(int a0) {
+    D_0062C080 = a0;
+    D_006C9F98[0] = 0;
+}
 
 extern int D_0062C080;
 
@@ -34,7 +40,11 @@ void func_0018A390(void) {
     D_0062C07C = 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-set-manager", func_0018A3A0);
+extern int D_006C9FA8[];
+
+int func_0018A3A0(void) {
+    return D_006C9FA8[0] < 2;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-set-manager", func_0018A3B0);
 

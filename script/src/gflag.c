@@ -18,7 +18,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_001790A8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_001790E8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_00179120);
+extern void UpdateRootMatrixByDObj(int a0, float a1, float a2, float a3);
+
+void func_00179120(int a0, float *a1) {
+    UpdateRootMatrixByDObj(a0, a1[0], a1[1], a1[2]);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_00179130);
 

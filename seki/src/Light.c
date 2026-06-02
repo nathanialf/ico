@@ -49,7 +49,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_00116CB8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_00117038);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_00117B80);
+extern int D_0062BF30;
+extern int D_0062BF34;
+extern int D_00629F70;
+
+void func_00117B80(void) {
+    D_0062BF30 = 0;
+    D_0062BF34 = 0;
+    D_00629F70 = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_00117B90);
 
@@ -73,7 +81,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_001180C0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_001180D8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_001180F8);
+void func_001180F8(void *a0) {
+    VU0_LSV_R(lqc2, 8, 0x0, a0);
+    VU0_V2OP(vmove.xyzw, 7, 8);
+    VU0_NOP();
+}
 
 void func_00118108(void) {
     VU0_V2OP(vmove.xyzw, 7, 0);

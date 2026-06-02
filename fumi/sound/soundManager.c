@@ -38,7 +38,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_00143DE0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_00143FB0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_001440F0);
+extern void ActPara_GetDefTbl(void *a0, int a1);
+
+void func_001440F0(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x164);
+    p[0x20] = 0;
+    ActPara_GetDefTbl(a0, 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_00144100);
 

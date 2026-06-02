@@ -26,7 +26,13 @@ void func_0010F050(int a0) {
     func_0010F048(a0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", func_0010F058);
+extern int D_0062BA6C;
+extern int D_00272584[];
+extern void func_00240EA0(int a0, int a1);
+
+void func_0010F058(void) {
+    func_00240EA0(D_0062BA6C, D_00272584[0]);
+}
 
 void func_0010F068(void) {
 }

@@ -21,7 +21,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", func_00149CA0
 void func_00149CC0(void) {
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", func_00149CC8);
+void func_00149CC8(void *a0, float a1) {
+    int *p = *(int **)((char *)a0 + 0x164);
+    int *q = *(int **)((char *)p + 0x678);
+    *(float *)((char *)q + 0x334) = a1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", func_00149CD8);
 
