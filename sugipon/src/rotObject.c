@@ -4,7 +4,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/rotObject", moveStartSE);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/rotObject", moveEndSE);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/rotObject", RotObjectGeo);
+extern void func_001E6B78(int a0);
+
+void RotObjectGeo(int a0) {
+    func_001E6B78(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/rotObject", getRootMatrix);
 
