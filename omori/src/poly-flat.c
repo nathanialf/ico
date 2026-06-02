@@ -24,4 +24,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/poly-flat", func_001945F8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/poly-flat", func_001946F8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/poly-flat", func_001947F8);
+extern void InitMotionOrient(void);
+
+void func_001947F8(void) {
+    InitMotionOrient();
+}
