@@ -34,7 +34,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_KillPlayBgAni
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_DispBgAnimation);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_SetCameraForceOff);
+extern void func_001F76C0(void);
+
+void stage_SetCameraForceOff(void) {
+    func_001F76C0();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_CheckAnimationFinish);
 

@@ -6,7 +6,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vobuf", voBufCreate);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vobuf", voBufDelete);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vobuf", voBufReset);
+extern void voBufCreate(void);
+
+void voBufReset(void) {
+    voBufCreate();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vobuf", voBufIsFull);
 

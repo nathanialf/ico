@@ -36,7 +36,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", menuPinSelect);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", menuPinEdit);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", wakeup_cameraedit);
+extern void menuGroupEdit(int a0, int a1);
+
+void wakeup_cameraedit(int a0, int a1) {
+    menuGroupEdit(a0, a1 & 0xFF);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", test_camedit);
 

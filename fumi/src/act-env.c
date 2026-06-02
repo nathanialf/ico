@@ -4,7 +4,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-env", GetDitchPosition);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-env", DebugActOrientFlag);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-env", ACTGetEnvironment);
+int ACTGetEnvironment(char *a0) {
+    char *p = *(char **)(a0 + 0x2C);
+    return *(short *)(p + 0x3C);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-env", ACTSetEnvAllmighty);
 

@@ -20,7 +20,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-root", InitCamera);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-root", SetCameraMatrix);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-root", Camctrl_ExitEveRock);
+extern int D_0062C074;
+extern int D_0062C078;
+
+void Camctrl_ExitEveRock(int a0, int a1) {
+    D_0062C074 = a0;
+    D_0062C078 = a1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-root", Camctrl_SetTarget);
 

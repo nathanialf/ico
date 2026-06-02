@@ -6,7 +6,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", torchOffOfWeaponSE);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", weaponHitReactionSE);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", weaponFumbleSE);
+extern void func_001EF3B0(int a0);
+
+void weaponFumbleSE(int a0) {
+    func_001EF3B0(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", weaponStickSE);
 

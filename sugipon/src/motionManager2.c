@@ -2,7 +2,11 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetWaterReaction);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", CheckFieldContact);
+extern void MatrixDrive_TurnObjectMatrix(int a0, void *a1);
+
+void CheckFieldContact(int a0, char *a1) {
+    MatrixDrive_TurnObjectMatrix(a0, *(char **)(a1 + 0x15C) + 0x580);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", dispPlane);
 
@@ -78,7 +82,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", InitMotionStateI
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetSkeltonFocusNode);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", AdjustMotionHeightToNearestField);
+void AdjustMotionHeightToNearestField(int **a0) {
+    int *p = a0[0x57];
+    p[0x135] = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", SetRootUpdateMode);
 

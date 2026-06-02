@@ -28,7 +28,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", adpcmPauseRequest);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmIopBuffAlloc);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmOpenSync);
+extern void AdpcmIopBuffAlloc(int a0, int a1, int a2);
+
+void AdpcmOpenSync(int a0, int a1) {
+    AdpcmIopBuffAlloc(a0, 0, a1);
+}
 
 extern int D_0062C278;
 
