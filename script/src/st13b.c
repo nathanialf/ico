@@ -16,7 +16,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bBoss);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actConte10b);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bElevDown);
+void actSt13bElevDown(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bElevUp);
 
@@ -35,7 +38,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bStoneGirl);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bExit);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bElev);
+void actSt13bElev(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bDoor);
 

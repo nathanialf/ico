@@ -32,7 +32,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st47a", actSt47aRope);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st47a", actSt47aBarricade);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st47a", actSt47aExit);
+void actSt47aExit(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st47a", actSt47aExit2);
 

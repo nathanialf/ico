@@ -12,7 +12,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aHasiEffect);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actLinkTest);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aSekizo);
+void actSt17aSekizo(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aHasi);
 

@@ -6,7 +6,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cEnd);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cBmg1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cBmg1Chk);
+void actSt13cBmg1Chk(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cConte04);
 
@@ -32,7 +35,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cHandChk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cHandJimaku);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cSleep);
+void actSt13cSleep(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cCageDown);
 

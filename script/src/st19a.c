@@ -12,7 +12,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19aChainDown);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19aChainUp);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19aOri);
+void actSt19aOri(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19aOriXL);
 

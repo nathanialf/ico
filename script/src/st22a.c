@@ -2,9 +2,15 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", actSt22aLightningVolime);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", actSt22aIntro);
+void actSt22aIntro(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", actSt22aIntroChk);
+void actSt22aIntroChk(int a0) {
+    int buf[4];
+    buf[0] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", actSt22aIntroSub);
 
