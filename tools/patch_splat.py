@@ -44,7 +44,7 @@ PATCH = """
         if options.opts.platform == "ps2":
             import re as _ico_re
             _ico_text = outpath.read_text()
-            _ico_text = _ico_re.sub(r'([\\t ,])(ACC|Q)\\b', r'\\1$\\2', _ico_text)
+            _ico_text = _ico_re.sub(r'([\\t ,])(ACC|Q|R)\\b', r'\\1$\\2', _ico_text)
             outpath.write_text(_ico_text)
 """
 
