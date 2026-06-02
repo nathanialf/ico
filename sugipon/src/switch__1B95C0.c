@@ -2,6 +2,12 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/switch__1B95C0", FloorLeverTriStateGeo);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/switch__1B95C0", FloorLeverGeo);
+extern void playSEConditionID(int a0, int a1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/switch__1B95C0", FloorLeverDL);
+void FloorLeverGeo(int a0) {
+    playSEConditionID(a0, 0x3D);
+}
+
+void FloorLeverDL(int a0) {
+    playSEConditionID(a0, 0x3E);
+}
