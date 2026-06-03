@@ -25,12 +25,17 @@ glabel voBufIncCount
 endlabel voBufIncCount
 ```
 
-## Permuter status (user-requested shot, this session)
-Permuter CANNOT run on this function: tools/permute_run.sh is hardwired for the
-retail `cod` segment layout (asm/matchings/cod/<file_off>/func_<hex>.s, func_XXXXXXXX
-names). aug6 uses asm/aug6/matchings/<module>/<TU>/<name>.s with NAMED functions, so
-the script can locate neither the named form (name-guard reject) nor the hex form
-(func_0019BAC8 -> looks for asm/matchings/cod/09BAC8/, which doesn't exist on aug6).
-=> auto_permute.sh / the Step-4 offline batch is a NO-OP for aug6 named funcs.
-Independently, the permuter builds under -O2/2.96 and the residual is a module
-build-flag issue (-O1/-fno-delayed-branch/old-as), so it could not help even if ported.
+## FINAL — parked for good (2 honest 30-stalls + permuter, all clean)
+- 1st 30-stall: 30 distinct clean-source hypotheses, best rc2, no crutches.
+- Permuter: tools/permute_run.sh FIXED this session to support aug6 named
+  funcs (delegates the build to compile_c.sh for byte-parity; validated —
+  known-match setGIFtag base-scores 0). Ran 5 min on this seed: base score
+  60, NEVER improved, zero output dirs (a true match = score 0, never hit).
+- 2nd 30-stall: 30 MORE distinct hypotheses (static-inline helper, memset,
+  xor/and-zero, int/ptr-return, FP/double/packed-ll stores, struct/union/
+  compound-literal, control-flow if/switch/goto/loop, volatile-param,
+  const-ptr, partial guards, 2D-cast, ...). Best still rc2.
+=> 60 distinct hand attempts + a real permuter run cannot reach the ROM bytes
+   under -O2/2.96. CONFIRMED: voBufIncCount needs the ito/mpeg module build
+   flags (-O1 -fno-delayed-branch + old assembler). Not a source-shape floor;
+   a module-level build-config decision. Parked permanently pending that.
