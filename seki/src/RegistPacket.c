@@ -16,7 +16,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/RegistPacket", reg_chooseReflectionM
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/RegistPacket", func_0011F1C8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/RegistPacket", func_0011F1F0);
+extern void pac_getWeight(int a0, int a1, int a2, int a3, int a4);
+
+void func_0011F1F0(int a0, int a1, int a2) {
+    pac_getWeight(a0, 1, 1, a1, a2);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/RegistPacket", reg_setNMatrixPacket);
 
