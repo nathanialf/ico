@@ -28,3 +28,13 @@ glabel func_0025CC70
 endlabel func_0025CC70
     /* 15CC8C 0025CC8C 00000000 */  nop
 ```
+
+## In-loop permuter shot (full park procedure) — FAILED to run
+Fired the Step-4 10-min permuter shot at park (CFLAGS = exact quick_diff flags).
+It could not even compile the base: `Error: unrecognized opcode 'endlabel
+func_002484A4'` — the permuter's standalone assembler doesn't define the repo's
+`endlabel` asm-macro present in the extracted PObj TU context. Exited "no
+permutation matched (permuter exit=0)". This is a permuter-infra limitation for
+this coalesced TU, NOT a matching result. offline auto_permute will likely hit
+the same import error. Hand 30-stall stands (mfc1 reg-pick invariant; even
+__builtin_fabsf is rc2). §7.3 fabsf — needs the retired FABSF_BIT_TWIDDLE idiom.
