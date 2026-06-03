@@ -28,7 +28,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_0023A6E0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_0023A748);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_0023A7A0);
+int func_0023A7A0(void *a0) {
+    int *p = (int *)a0;
+    return p[0x15] >= p[0x12];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_0023A7B8);
 
