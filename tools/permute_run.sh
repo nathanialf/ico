@@ -431,8 +431,15 @@ while [ "\$#" -gt 0 ]; do
 done
 [ -n "\${OUTPUT}" ] || { echo "compile.sh: missing -o" >&2; exit 2; }
 # Name the source after the TU so compile_c.sh's basename-keyed config
-# lookups (use_old_as.txt / extra_cflags.txt) match the real build.
-SRC_TU="\$(dirname "\${OUTPUT}")/${AUG6_TU_BASE}.c"
+# lookups (use_old_as.txt / extra_cflags.txt) match the real build. Place it in
+# a per-OUTPUT subdir: parallel permuter workers (-j N) share the temp dir, so a
+# single shared <TU>.c next to OUTPUT RACES (one worker overwrites another's
+# candidate before it compiles → the scored .o is some other candidate → false
+# score-0). The unique OUTPUT name keys the dir; the basename stays <TU> so the
+# config lookups still match.
+SRC_TU_DIR="\${OUTPUT%.o}.srcdir"
+mkdir -p "\${SRC_TU_DIR}"
+SRC_TU="\${SRC_TU_DIR}/${AUG6_TU_BASE}.c"
 cp "\${INPUT}" "\${SRC_TU}"
 VERSION=aug6 "${PROJECT_ROOT}/tools/compile_c.sh" "\${SRC_TU}" "\${OUTPUT}"
 EOF
