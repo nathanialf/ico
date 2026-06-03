@@ -50,6 +50,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", InitQueenBarrierGeo);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", QueenBallRadius);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", queenBallBeforeFunc);
+extern int D_0062C0CC;
+extern char D_005568E0[];
+extern void debug_assertMessage(char *a0);
+
+void queenBallBeforeFunc(void) {
+    D_0062C0CC = 0x3C;
+    debug_assertMessage(D_005568E0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", InitQueenBallGeo);
