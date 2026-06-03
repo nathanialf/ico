@@ -62,6 +62,13 @@ int la_format_confirm(void) {
     return -1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_system_save_processing);
+extern int D_00271258[];
+
+int la_system_save_processing(int a0) {
+    if (a0) {
+        D_00271258[0] = 1;
+    }
+    return -1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_save_processing);

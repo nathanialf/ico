@@ -18,9 +18,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/pad", iosPadDevRead);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/pad", iosPadGetPort);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/pad", iosPadGetSlot);
+extern unsigned char D_0027D540[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/pad", iosPadGetDevice);
+int iosPadGetSlot(int a0, int a1) {
+    return *(int *)&D_0027D540[a1 * 0x200];
+}
+
+int iosPadGetDevice(int a0, int a1) {
+    int *base = (int *)&D_0027D540[a1 * 0x200];
+    return base[1];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/pad", iosPadConnect);
 

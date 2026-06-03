@@ -50,7 +50,16 @@ void iosThreadJoin(int *a0) {
     func_00100340((void *)a0[0xC], a0[0xD]);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadCancelWakeup);
+extern void func_00100350(void);
+extern void func_00100370(void *a0);
+
+void iosThreadCancelWakeup(void *a0) {
+    if (a0 == 0) {
+        func_00100350();
+        return;
+    }
+    func_00100370(*(void **)((char *)a0 + 0x30));
+}
 
 void iosSemaCreate(void) {
     func_00100440();

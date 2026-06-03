@@ -1,7 +1,18 @@
 #include "common.h"
 #include "vu0.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_DispQW);
+float pac_DispQW(void) {
+    register float ret __asm__("$f0");
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "vrnext.x $vf1, $R\n"
+        "vsubw.x $vf1, $vf1, $vf0w\n"
+        "qmfc2.ni $7, $vf1\n"
+        "mtc1 $7, $f0\n"
+        ".set reorder\n"
+        : "=f"(ret) :: "$7");
+    return ret;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_DumpPac);
 

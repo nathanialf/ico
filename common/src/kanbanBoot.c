@@ -1,8 +1,14 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanbanBoot", kanbanBootMcCheck);
+extern void soundSeDefPlayWithVolumeRate(int a0, unsigned int a1, int a2, int a3);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanbanBoot", kanbanBootMain);
+void kanbanBootMcCheck(void) {
+    soundSeDefPlayWithVolumeRate(0x191, 0xFFFFFFFE, 0, 0);
+}
+
+void kanbanBootMain(void) {
+    soundSeDefPlayWithVolumeRate(0x18F, 0xFFFFFFFE, 0, 0);
+}
 
 extern int D_0060F6E0[];
 extern void debug_assertMessage(void *a0);
