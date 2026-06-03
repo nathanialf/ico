@@ -165,9 +165,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ContinueCorrectPosition)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonTurn);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonBackhand);
+int actCommonBackhand(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x164);
+    int *q = *(int **)((char *)p + 0x670);
+    long long v = ((unsigned int *)q)[0x2F];
+    return (int)v & 1;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonSlowrun);
+typedef struct { int w[6]; } SlowrunRec;
+extern SlowrunRec D_0028E680[];
+
+void actCommonSlowrun(int a0, int a1) {
+    D_0028E680[a0].w[2] = a1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ACT_LAYOUT_GAMEOVER);
 

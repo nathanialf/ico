@@ -12,7 +12,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actConte12);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actConte12Jimaku);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actSt25aQueenDeadChk);
+extern void isysGObjAddHead(void);
+
+void actSt25aQueenDeadChk(void) {
+    isysGObjAddHead();
+    /* ROM keeps a non-tail frame here (stripped debug code); block the sibcall */
+    __asm__ __volatile__("");
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actConte13Jimaku);
 

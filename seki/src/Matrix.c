@@ -84,8 +84,20 @@ void _TransposeRotationCurrentMatrix(void *a0, void *a1, void *a2) {
     VU0_NOP();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _InverseCurrentMatrix);
+void _InverseCurrentMatrix(void *a0, void *a1, float a2) {
+    VU0_LSV(lqc2, 1, 0x0, 5);
+    __asm__ __volatile__(".set noreorder\n mfc1 $8,$f12\n qmtc2.ni $8,$vf2\n .set reorder" ::: "memory");
+    VU0_V3OP_BC(vmulx.xyzw, 3, 1, 2, x);
+    VU0_LSV(sqc2, 3, 0x0, 4);
+    VU0_NOP();
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _PushVu0Registers);
+void _PushVu0Registers(void *a0, void *a1, float a2) {
+    VU0_LSV(lqc2, 1, 0x0, 5);
+    __asm__ __volatile__(".set noreorder\n mfc1 $8,$f12\n qmtc2.ni $8,$vf2\n .set reorder" ::: "memory");
+    VU0_V3OP_BC(vmulx.xyz, 1, 1, 2, x);
+    VU0_LSV(sqc2, 1, 0x0, 4);
+    VU0_NOP();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _PopVu0Registers);

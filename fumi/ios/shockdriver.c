@@ -32,7 +32,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockRequestBox_VoiceS
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockRequestBox_GetRequest);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockRequestBox_RequestCancel);
+void ShockRequestBox_RequestCancel(void *a0, void *a1) {
+    void *head = *(void **)a0;
+    *(int *)((char *)a1 + 0x30) = 0;
+    *(void **)((char *)a1 + 0x34) = head;
+    if (head) {
+        *(void **)((char *)head + 0x30) = a1;
+    }
+    *(void **)a0 = a1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockRequestBox_RequestDirectCancel);
 

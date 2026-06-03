@@ -86,7 +86,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", subEnemyBrain_Cling);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", funcEnemyAiGetGirl);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyStand);
+void actEnemyStand(void *a0) {
+    long long *p = *(long long **)((char *)a0 + 0x164);
+    *(long long *)((char *)p + 0x140) |= 0x100000000LL;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyWalk);
 

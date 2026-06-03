@@ -4,7 +4,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", MultiCurrentQuaterni
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", InvertCurrentQuaternion);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", SetCurrentQuaternion);
+extern int D_00629E7C;
+extern int D_0065A5C0[];
+extern void RegularizeQuaternion(void *a0, void *a1);
+
+void SetCurrentQuaternion(void) {
+    void *p = &D_0065A5C0[D_00629E7C * 4];
+    RegularizeQuaternion(p, p);
+}
 
 extern int D_00629E7C;
 extern int D_0065A5C0[];

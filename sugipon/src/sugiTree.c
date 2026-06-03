@@ -1,6 +1,11 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/sugiTree", SugiLeafGeo2);
+typedef struct { int w[6]; } SugiRec;
+extern SugiRec D_00706DA8[];
+
+void SugiLeafGeo2(int a0, int a1) {
+    D_00706DA8[a0].w[5] = a1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/sugiTree", SugiLeafDL2);
 

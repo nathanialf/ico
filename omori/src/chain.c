@@ -1,6 +1,14 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", UpdateRootPosition);
+extern int D_0062AA10;
+extern int D_006C9F60[];
+
+void *UpdateRootPosition(void) {
+    if (D_0062AA10 == 0) {
+        return 0;
+    }
+    return D_006C9F60;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", StartPendulum);
 
