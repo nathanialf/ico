@@ -59,7 +59,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", func_0010D3B8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", func_0010D3F8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", func_0010D510);
+int func_0010D510(char *a0) {
+    return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x7F0) + 0x30) != 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", func_0010D528);
 
