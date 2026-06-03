@@ -1,6 +1,10 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", warpGirlOutStage);
+extern int execNormalMove(void);
+
+int warpGirlOutStage(void) {
+    return execNormalMove() != 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", warpGirlInStage);
 
