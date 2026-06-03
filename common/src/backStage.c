@@ -36,9 +36,41 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/backStage", backStageLoad);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/backStage", backStageProcessInit);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/backStage", backStageDebugTimeZero);
+extern int func_001AB750(void *, void *, int);
+extern int func_001ABE38(void *, void *, int);
+extern int D_0062AB50;
+extern int D_0062C114;
+extern int D_0062C118;
+extern int D_0062C11C;
+extern int D_0062C120;
+extern int D_0062C124;
+extern int D_0062C128;
+extern int D_0062C12C;
+extern int D_0062C130;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/backStage", backStageTsuresariReturn);
+void backStageDebugTimeZero(void *a0) {
+    func_001AB750(a0, &D_0062AB50, 4);
+    func_001AB750(a0, &D_0062C114, 4);
+    func_001AB750(a0, &D_0062C118, 4);
+    func_001AB750(a0, &D_0062C11C, 4);
+    func_001AB750(a0, &D_0062C120, 4);
+    func_001AB750(a0, &D_0062C124, 4);
+    func_001AB750(a0, &D_0062C128, 4);
+    func_001AB750(a0, &D_0062C12C, 4);
+    func_001AB750(a0, &D_0062C130, 4);
+}
+
+void backStageTsuresariReturn(void *a0) {
+    func_001ABE38(a0, &D_0062AB50, 4);
+    func_001ABE38(a0, &D_0062C114, 4);
+    func_001ABE38(a0, &D_0062C118, 4);
+    func_001ABE38(a0, &D_0062C11C, 4);
+    func_001ABE38(a0, &D_0062C120, 4);
+    func_001ABE38(a0, &D_0062C124, 4);
+    func_001ABE38(a0, &D_0062C128, 4);
+    func_001ABE38(a0, &D_0062C12C, 4);
+    func_001ABE38(a0, &D_0062C130, 4);
+}
 
 extern int D_0062AB50;
 extern int D_0062C120;
