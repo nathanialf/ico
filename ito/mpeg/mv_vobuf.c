@@ -41,6 +41,8 @@ __asm__(
     "    .set at\n"
 );
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vobuf", voBufGetData);
+int voBufGetData(int *a0) {
+    return a0[3] == a0[4];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vobuf", voBufGetTag);
