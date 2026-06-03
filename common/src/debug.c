@@ -4,7 +4,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug", debug_Assert);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug", debug_openLog);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug", debug_LogPrintf);
+extern int D_0062ACCC;
+
+void debug_LogPrintf(void) {
+    char buf[0x100];
+    D_0062ACCC = -1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug", debug_SaveDebugOptionFile);
 
