@@ -28,7 +28,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", endDisplay);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", setDMAscTag);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", setGIFtag);
+extern float D_00629BA4;
+extern void brainStatusDel(float a0);
+
+void setGIFtag(void) {
+    brainStatusDel(*(volatile float *)&D_00629BA4);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", setGIFad);
 

@@ -2,9 +2,3 @@
 # shortlist: proven NOT clean-C-matchable with the current toolchain (they
 # stay byte-perfect as INCLUDE_ASM). One bare function name per line.
 #
-# setGIFtag (ito/mpeg/mv_disp): `lwc1 $f12; j brainStatusDel; nop`. The ROM
-#   left a nop in the j tail-call delay (FP-load-delay-slot avoidance). objdump
-#   confirms BOTH ee-as 2.96 and 2.9-991111 fill the lwc1 into the delay, so
-#   use_old_as is disproven and the permuter (2.9-991111) would fill it too.
-#   Toolchain gap, not a clean-C miss. Commit 29c1771 has the full analysis.
-setGIFtag
