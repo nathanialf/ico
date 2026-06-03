@@ -28,9 +28,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", InitGeneratorGeo);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", Generator_Call);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", Generator_ResetCount);
+void Generator_ResetCount(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    *((char *)q + 0xE) = 1;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", Generator_Mask);
+void Generator_Mask(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    *((char *)q + 0xC) = 1;
+}
 
 void Generator_MaskOff(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
