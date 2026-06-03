@@ -31,7 +31,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", GetEdgeOfFloor);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", DrawCollisionRay);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", MakeExitAttributeIndex);
+extern int GetEdgeOfFloor(void *a0);
+typedef struct { unsigned int lo; unsigned char m[3]; unsigned char hi; } FcBlk8;
+extern FcBlk8 D_0062A6A0;
+
+void MakeExitAttributeIndex(void *a0) {
+    *(int *)((char *)a0 + 0x94) = 0;
+    *(FcBlk8 *)((char *)a0 + 0x8C) = D_0062A6A0;
+    GetEdgeOfFloor(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipFloorByGObj);
 

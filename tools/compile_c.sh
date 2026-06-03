@@ -144,6 +144,19 @@ awk '{ ln[NR]=$0 } END { i=1; while (i<=NR) {
     print "\t.set noreorder"; print ln[i]; print "\tnop"; print "\t.set reorder"
   } else print ln[i]; i++ } }' "${S}" > "${S}.jrfp" && mv "${S}.jrfp" "${S}"
 
+# A `j <func>` TAIL CALL with a preceding unaligned store (sdl/sdr/swl/swr): ee-as
+# 2.96 and modern-as both hoist that store into the j delay slot, but the original
+# assembler left it nop (verified universal: 0 of 783 ROM tail-calls carry an
+# unaligned store in the delay — see use_old_as note above). Wrap the tail call in
+# .set noreorder + explicit nop so the store stays BEFORE the j and the delay is
+# nop — universally and per-FUNCTION (the `.set` pair is local), so it does NOT
+# require switching the whole TU to ee-as (which regresses modern-as-matched
+# siblings, e.g. fieldCollision). Assembler-parity, byte-correct everywhere.
+awk '{ ln[NR]=$0 } END { i=1; while (i<=NR) {
+  if ((ln[i] ~ /^[ \t]*j[ \t]+[A-Za-z_.]/) && i>1 && ln[i-1] ~ /^[ \t]*(sdl|sdr|swl|swr)[ \t]/) {
+    print "\t.set noreorder"; print ln[i]; print "\tnop"; print "\t.set reorder"
+  } else print ln[i]; i++ } }' "${S}" > "${S}.jtc" && mv "${S}.jtc" "${S}"
+
 
 # ee-gcc emits `move $r,$s` for parameter-passing moves. ee-as 2.10
 # encodes `move` as `daddu $r,$s,$0` (function code 0x2D); modern gas

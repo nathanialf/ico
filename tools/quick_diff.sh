@@ -219,6 +219,14 @@ awk '{ ln[NR]=$0 } END { i=1; while (i<=NR) {
     print "\t.set noreorder"; print ln[i]; print "\tnop"; print "\t.set reorder"
   } else print ln[i]; i++ } }' "$ASM_OUT" > "$ASM_OUT.jrfp" && mv "$ASM_OUT.jrfp" "$ASM_OUT"
 
+# `j <func>` tail-call with a preceding unaligned store (sdl/sdr/swl/swr): wrap in
+# .set noreorder + nop so the store stays before the j and the delay is nop (ROM
+# never carries the store in a tail-call delay). Mirrors compile_c.sh.
+awk '{ ln[NR]=$0 } END { i=1; while (i<=NR) {
+  if ((ln[i] ~ /^[ \t]*j[ \t]+[A-Za-z_.]/) && i>1 && ln[i-1] ~ /^[ \t]*(sdl|sdr|swl|swr)[ \t]/) {
+    print "\t.set noreorder"; print ln[i]; print "\tnop"; print "\t.set reorder"
+  } else print ln[i]; i++ } }' "$ASM_OUT" > "$ASM_OUT.jtc" && mv "$ASM_OUT.jtc" "$ASM_OUT"
+
 # qd_listed is @func-aware, so this fires only for the func(s) the TU line scopes to.
 sed -i -E 's/\bmove[[:space:]]+(\$[0-9a-zA-Z]+),[[:space:]]*(\$[0-9a-zA-Z]+)\b/daddu \1,\2,$0/g' "$ASM_OUT"
 # ee-gcc's single-operand `break 7` (integer divide-by-zero trap) → explicit
