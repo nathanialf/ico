@@ -11,7 +11,10 @@ void boss_effect_process(int a0) {
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", _DoAwait);
+int _DoAwait(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x164);
+    return p[0xC] == 0xF;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", _DoAwaitGirl);
 
