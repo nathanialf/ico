@@ -1525,15 +1525,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025A2E0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025A340);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025A3B0);
+void func_0025A3B0(void) {
+    func_00255580(0x46, 0, 0, 0);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025A3C8);
+void func_0025A3C8(void) {
+    func_00255580(0x47, 0, 0, 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025A3E0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025A450);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025A490);
+void func_0025A490(int a0) {
+    func_00255580(0x4E, a0, 0, 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025A4A8);
 
@@ -1937,12 +1943,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0026B688);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0026B730);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0026B7B0);
+extern void func_0026B688(int a0, int a1);
+
+void func_0026B7B0(int a0, int a1) {
+    func_0026B688(a0 & 0xFFFFFFC0, a1 & 0xFFFFFFC0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0026B7C8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0026B870);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0026B8F0);
+extern void func_0026B7C8(int a0, int a1);
+
+void func_0026B8F0(int a0, int a1) {
+    func_0026B7C8(a0 & 0xFFFFFFC0, a1 & 0xFFFFFFC0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0026B908);
