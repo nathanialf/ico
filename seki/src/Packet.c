@@ -1,10 +1,16 @@
 #include "common.h"
+#include "vu0.h"
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_DispQW);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_DumpPac);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_makeBoundingBox);
+void pac_makeBoundingBox(void *a0) {
+    VU0_REG("vrnext.xyz $vf1, $R");
+    VU0_V3OP_BC(vsubw.xyz, 1, 1, 0, w);
+    VU0_LSV(sqc2, 1, 0x0, 4);
+    VU0_NOP();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_error);
 
