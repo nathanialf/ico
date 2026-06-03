@@ -41,7 +41,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Shadow", shadow_Init);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Shadow", func_00122FE8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Shadow", func_00123AA8);
+extern void debug_assertMessage(void *a0);
+extern unsigned char D_0054FCD0[];
+
+void func_00123AA8(void) {
+    volatile int frame_pad[2];  /* reserves the o32 arg-save area the ROM keeps */
+    debug_assertMessage(D_0054FCD0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Shadow", func_00123AC8);
 
