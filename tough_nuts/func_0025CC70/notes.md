@@ -38,3 +38,15 @@ permutation matched (permuter exit=0)". This is a permuter-infra limitation for
 this coalesced TU, NOT a matching result. offline auto_permute will likely hit
 the same import error. Hand 30-stall stands (mfc1 reg-pick invariant; even
 __builtin_fabsf is rc2). §7.3 fabsf — needs the retired FABSF_BIT_TWIDDLE idiom.
+
+## Resume 2026-06-03 (aug6 /loop)
+Re-applied seed; baseline rc2 confirmed. Three fresh distinct attempts:
+ptr-cast-on-param `*(int*)&a0` (rc3, spills f12→stack, loses mfc1),
+`static inline` helper via RTL inliner (rc2), `~0x80000000` complement
+mask (rc2, folds to same lui 0x7FFF/ori). Structural read: diff is a gcc-2.9
+cross-class-move (FP→GP) coalescing miss — `mfc1` dest pseudo won't coalesce
+into the and-result reg, so it parks in a0 + adds `daddu v1,a0,zero`. MIPS
+`and` is 3-operand so even killing the copy only reaches rc1; the `mfc1 a0`
+vs `mfc1 v1` choice is the irreducible part. Resume permuter shot (Step 0.3)
+NOT runnable: permuter standalone-as lacks the `endlabel` macro for this TU
+(documented above). Left parked for offline auto_permute; no new clean-C lever.
