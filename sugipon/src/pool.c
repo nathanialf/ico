@@ -30,7 +30,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", InitLimitedPoolReflactionM
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", SetLayoutedPoolReflactionMesh);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", SetLimitedPoolReflactionMesh);
+extern void MatrixDrive_TurnObjectMatrix(int a0, void *a1);
+
+void SetLimitedPoolReflactionMesh(int a0, char *a1) {
+    MatrixDrive_TurnObjectMatrix(a0, *(char **)(*(char **)(a1 + 0x15C) + 0x7F0) + 0x10);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", DispLimitedPoolReflactionMesh);
 
