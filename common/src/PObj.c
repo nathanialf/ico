@@ -1726,7 +1726,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025C9A0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025C9C8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025CC70);
+float func_0025CC70(float a0) {
+    float t;
+    union { float f; int i; } u;
+    do {
+        t = a0;
+        u.f = t;
+        u.i &= 0x7FFFFFFF;
+        t = u.f;
+    } while (0);
+    return t;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025CC90);
 
