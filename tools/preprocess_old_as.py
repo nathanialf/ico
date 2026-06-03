@@ -28,7 +28,16 @@ import os
 import re
 import sys
 
+# address-take form: `addiu $d, $28, %gp_rel(SYM)` -> `la $d, SYM`.
+# MUST use the `la` macro, NOT `addiu $d,$28,SYM`: the period assembler expands
+# `la $d,SYM` (SYM gp-addressable via `.extern SYM,<=G>`) to `addiu $d,$gp,SYM`
+# with R_MIPS_GPREL16 — the ROM's 32-bit form. A literal `addiu $d,$28,SYM`
+# resolves SYM as R_MIPS_LO16 (absolute) in-context, which is wrong.
+GP_REL_ADDR = re.compile(r"addiu\s+(\$\w+),\s*\$28,\s*%gp_rel\(([^)]+)\)")
+# load/store form: `lw $d, %gp_rel(SYM)($28)` -> `lw $d, SYM`
 GP_REL = re.compile(r"%gp_rel\(([^)]+)\)\(\$\d+\)")
+# any remaining bare %gp_rel(SYM) -> SYM (fallback)
+GP_REL_ANY = re.compile(r"%gp_rel\(([^)]+)\)")
 INCLUDE = re.compile(r'^\s*\.include\s+"([^"]+)"')
 
 
@@ -45,7 +54,13 @@ def flatten(path, out, syms, seen):
                 continue
             out.append(line)
             continue
-        out.append(GP_REL.sub(lambda mm: syms.add(mm.group(1)) or mm.group(1), line))
+        # address-take `addiu $d,$28,%gp_rel(SYM)` -> `la $d, SYM` (GPREL16);
+        # then load/store `%gp_rel(SYM)($28)` -> `SYM`; then any bare remainder.
+        line = GP_REL_ADDR.sub(
+            lambda mm: syms.add(mm.group(2)) or "la\t%s, %s" % (mm.group(1), mm.group(2)), line)
+        line = GP_REL.sub(lambda mm: syms.add(mm.group(1)) or mm.group(1), line)
+        line = GP_REL_ANY.sub(lambda mm: syms.add(mm.group(1)) or mm.group(1), line)
+        out.append(line)
 
 
 def main():

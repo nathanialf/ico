@@ -227,7 +227,14 @@ ASM_INPUT="${S}"
 SELECTED_EE_AS="${EE_AS}"
 if listed "${USE_OLD_AS_TXT}"; then
     SELECTED_EE_AS="${EE_AS_OLD}"
-    "${PYTHON}" "${ROOT}/tools/preprocess_old_as.py" "${S}" "${S}.oldas" && ASM_INPUT="${S}.oldas"
+fi
+# Flatten INCLUDE_ASM siblings + translate splat's gp_rel spellings to the bare
+# gp-addressable form the PERIOD assembler accepts, so the ROM's contemporary
+# assembler (ee-as 2.10, or 2.9-991111 for use_old_as) assembles mixed C+asm TUs
+# directly instead of silently falling back to modern gas (which mis-encodes
+# `la sdata` as daddiu where the ROM has addiu). See decomp/NOTES.md.
+if "${PYTHON}" "${ROOT}/tools/preprocess_old_as.py" "${S}" "${S}.pp" 2>/dev/null; then
+    ASM_INPUT="${S}.pp"
 fi
 
 if listed "${USE_MODERN_AS_TXT}"; then
