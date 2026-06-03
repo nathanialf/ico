@@ -118,3 +118,20 @@ bytes are not reproducible with any toolchain config present in the repo →
 genuine outlier; the matching toolchain/flag for this object is not in the tree.
 TERMINAL for current toolchain. Offline auto_permute will keep it (now scoring
 correctly) but cannot reach it in clean C. Needs a user-level toolchain decision.
+
+## Resume 2026-06-03 (cont., mechanical-gate drive) — stall ~20, hunting continues
+Driving to match/30-stall per the gate. Recorded genuine byte-distinct codegens
+(verified by hashing emitted asm; NO byte-identical padding): union(mfc1$4+move),
+8-byte-ll/double/aligned(mfc1$3+dsll/dsra), spill(lw/sw via struct/packed/ptr-cast),
+abs.s(builtin), c.lt.s/neg.s(compare), shift(sll/srl), static-global(lw),
+branch-abs(mfc1$2+move), cond-ne0(branch), read-twice(mtc1$2), vol-float(swc1/lwc1),
+8byte-struct(spill), neg-then-mask(neg.s+in-place-and, no move but reg $4).
+CONCRETE git evidence (fact, not a notes-opinion): the historical match of this
+shape used `register int _i __asm__("$3")` + inline-asm `mfc1 %0,$f12` (the old
+FABSF_BIT_TWIDDLE macro in include/matching.h, removed in commit 0730a316 "remove
+unused crutch/stub headers"). COOKBOOK §7.3 still documents that (now-deleted)
+macro. The pin FORCED mfc1→$3; clean C (no pin) across ~90 forms lands the mfc1 in
+$4 (+move) for 4-byte unions, or $3-with-dsll/dsra for 8-byte. The in-place `and`
+(no move) is reachable via neg-then-mask but keeps reg $4 + an extra neg.s.
+NEXT levers: forms that extend the loaded-bits live range so gcc allocates it to
+$3 before the and-result (so they coalesce); permuter is fixed and runs offline.
