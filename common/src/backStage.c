@@ -6,7 +6,17 @@ void backStageProcessOutStage(int a0) {
     D_0062AB2C = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/backStage", backStageProcessMain);
+extern int D_00271240[];
+extern int D_004AEE28[];
+extern int D_004B1D90[];
+extern void func_001ABE88(int *, int *, int);
+
+void backStageProcessMain(void) {
+    if (D_00271240[2] != 0) {
+        func_001ABE88(D_004AEE28, D_004B1D90, 0);
+        D_00271240[3] = 1;
+    }
+}
 
 extern int D_0062AB18;
 extern int D_0062AB24;
