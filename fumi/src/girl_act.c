@@ -27,7 +27,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", WayTest);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", subGirlControl);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", subGirlCollision);
+extern unsigned char D_0027EE30[];
+extern void func_00260568(void *a0, int a1, int a2);
+
+void subGirlCollision(void) {
+    func_00260568(D_0027EE30, 0, 0x5910);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", GetBoyMode);
 
