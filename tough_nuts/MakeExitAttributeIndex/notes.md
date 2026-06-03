@@ -104,3 +104,12 @@ subtle codegen differences from ROM's compiler in edge cases. A la→gp_rel-fold
 dbr-nop parity postprocess COULD crack it (+~9 fieldCollision siblings) but both
 CHANGE instruction count/scheduling (beyond encoding-parity like move→daddu) — a
 project-policy decision deferred to the user. NOT a clean-C match at current flags.
+
+## Resume 2026-06-03 (post func_0025CC70 match) — permuter resume shot, no improvement
+Fired the now-FIXED permuter (5-min) on the rc4 seed. Best score 460 (base 600)
+but ANTI-CORRELATED: its output dropped __attribute__((packed)) (→ aligned ld, not
+ldl/ldr), and applied with packed its `new_var->v=(*(new_var=&D_0062A6A0)).v`
+assignment-in-expr idea measures rc7 (worse). Nothing beat rc4. Left for offline
+auto_permute (which cracked func_0025CC70's coalesce the same way). Next: reset +
+hand-drive the gp_rel-ldl/ldr-fold + dbr residual to a tool-verdict, OR a longer
+permuter shot finds the addressing/live-split lever like it did for fabsf.
