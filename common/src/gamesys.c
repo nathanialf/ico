@@ -2,7 +2,13 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysObjInfoInit);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysObjInfoSave);
+extern int iosMcManager(void);
+
+int gamesysObjInfoSave(void)
+{
+    iosMcManager();
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysObjInfoLoad);
 
@@ -14,13 +20,29 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysBackStageProcess)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysGeneratorInfoLoad);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysCharacterInfoLoad);
+extern int init_debug_menu(void);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysNObjInfoInit);
+int gamesysCharacterInfoLoad(void)
+{
+    init_debug_menu();
+    return -1;
+}
+
+int gamesysNObjInfoInit(void)
+{
+    init_debug_menu();
+    return -1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysObjInfoStageInitFlagCls);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysObjInfoStageInitPosSaveUnlock);
+extern int InitCharFileManager(void);
+
+int gamesysObjInfoStageInitPosSaveUnlock(void)
+{
+    InitCharFileManager();
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysObjInfoPosSetStage);
 
