@@ -33,6 +33,8 @@ void func_001D2130(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lodManager", func_001D2140);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lodManager", func_001D2168);
+int func_001D2168(int a0) {
+    return a0 ? D_0062C210 : D_0062C20C;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lodManager", func_001D2180);

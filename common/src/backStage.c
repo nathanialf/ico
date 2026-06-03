@@ -30,4 +30,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/backStage", backStageDebugTimeZero
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/backStage", backStageTsuresariReturn);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/backStage", func_0019E5A8);
+extern int D_0062AB50;
+extern int D_0062C120;
+extern int D_0062C114;
+extern int D_0062C134;
+
+void func_0019E5A8(void) {
+    D_0062AB50 = 0;
+    D_0062C120 = -1;
+    D_0062C114 = 0;
+    D_0062C134 = 0;
+}

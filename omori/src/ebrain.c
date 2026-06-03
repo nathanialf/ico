@@ -68,4 +68,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018F470);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018F580);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018F608);
+extern int D_0062C0A4;
+extern int D_0062C0A8;
+extern int D_0062C0AC;
+
+int func_0018F608(void) {
+    D_0062C0A4 = 0;
+    D_0062C0A8 = -1;
+    D_0062C0AC = 0;
+    return 0;
+}

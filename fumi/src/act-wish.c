@@ -30,4 +30,8 @@ void *func_0014A6A8(void) {
     return D_006A4428;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", func_0014A6B8);
+int func_0014A6B8(int a0, int a1) {
+    int r = a0 ? 9 : 1;
+    int t = r | 4;
+    return a1 ? t : r;
+}

@@ -39,4 +39,8 @@ void func_001ADFE8(void) {
     D_0062B2E4 = 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanban", func_001ADFF8);
+extern void soundSeDefPlayWithVolumeRate(int a0, unsigned int a1, int a2, int a3);
+
+void func_001ADFF8(void) {
+    soundSeDefPlayWithVolumeRate(0x190, 0xFFFFFFFE, 0, 0);
+}

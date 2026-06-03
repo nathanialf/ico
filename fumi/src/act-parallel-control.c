@@ -32,7 +32,11 @@ void func_00149CC8(void *a0, float a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", func_00149CD8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", func_00149D00);
+extern float D_0028E5F0[];
+
+float func_00149D00(int a0) {
+    return D_0028E5F0[a0];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", func_00149D18);
 
