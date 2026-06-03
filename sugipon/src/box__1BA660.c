@@ -54,7 +54,11 @@ int CanHoldBox(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", BoxDL);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", GetBoxGlobalHoldPoint);
+int GetBoxGlobalHoldPoint(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    return q[8] == 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", IsThisBoxTruck);
 
