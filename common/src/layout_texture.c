@@ -47,3 +47,29 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", func_001B4628);
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", func_001B46B8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", func_001B4740);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_1C;  /* 0x1C */
+    unsigned int       f_20;  /* 0x20 */
+    unsigned int       f_24;  /* 0x24 */
+    unsigned int       f_28;  /* 0x28 */
+    unsigned int       f_38;  /* 0x38 */
+    unsigned int       f_64;  /* 0x64 */
+    unsigned int       f_68;  /* 0x68 */
+    unsigned int       f_2140;  /* 0x2140 */
+    unsigned int       f_21AC;  /* 0x21AC */
+} S_002E34F0;  /* stride 0x6C */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_20;  /* 0x20 */
+    unsigned int       f_2C;  /* 0x2C */
+} S_00536530;  /* stride 0x38 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_0060FBE0;  /* stride 0x4 */
+
+/* end struct shapes */

@@ -32,3 +32,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionViewer", lookAtTest);
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionViewer", MotionViewer);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionViewer", func_001E2D78);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_8;  /* 0x08 */
+    unsigned int       f_C;  /* 0x0C */
+} S_004C1E30;  /* stride 0x18 */
+
+/* end struct shapes */

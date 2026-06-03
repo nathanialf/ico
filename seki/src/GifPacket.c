@@ -51,3 +51,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GifPacket", gif_Draw2DStripG);
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GifPacket", gif_Draw2DUVStripG);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GifPacket", gif_Init);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_4;  /* 0x04 */
+    unsigned int       f_8;  /* 0x08 */
+    unsigned int       f_C;  /* 0x0C */
+    unsigned int       f_10;  /* 0x10 */
+    unsigned int       f_14;  /* 0x14 */
+    unsigned int       f_18;  /* 0x18 */
+    unsigned int       f_1C;  /* 0x1C */
+} S_004C3850;  /* stride 0x4 */
+
+/* end struct shapes */

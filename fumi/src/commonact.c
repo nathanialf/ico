@@ -211,3 +211,29 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonPlay);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonOne);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonDelete);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_4;  /* 0x04 */
+    unsigned int       f_8;  /* 0x08 */
+    unsigned int       f_C;  /* 0x0C */
+    unsigned int       f_10;  /* 0x10 */
+} S_00288FD0;  /* stride 0x14 */
+
+typedef struct {
+    unsigned int       f_20;  /* 0x20 */
+    unsigned int       f_28;  /* 0x28 */
+} S_0027E700;
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_8;  /* 0x08 */
+} S_0028E680;  /* stride 0x18 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_0055D4B0;  /* stride 0x4 */
+
+/* end struct shapes */

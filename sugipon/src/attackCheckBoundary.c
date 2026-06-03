@@ -25,3 +25,13 @@ void GetAttackCheckBoundaryRadius(void) {
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/attackCheckBoundary", CreateAttackCheckBoundary);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/attackCheckBoundary", GetAttackCheckBoundaryManagerStatus);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_38;  /* 0x38 */
+    unsigned int       f_40;  /* 0x40 */
+    unsigned int       f_44;  /* 0x44 */
+} S_00617FA0;  /* stride 0x50 */
+
+/* end struct shapes */

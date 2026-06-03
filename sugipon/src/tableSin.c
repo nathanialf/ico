@@ -40,3 +40,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", func_0010E4E8);
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", func_0010E588);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", func_0010E628);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_0054E220;  /* stride 0x4 */
+
+/* end struct shapes */

@@ -27,13 +27,26 @@ Usage:
 from __future__ import annotations
 
 import json
+import os
 import re
 import sys
 from collections import defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-ASM_DIRS = [ROOT / "asm" / "matchings", ROOT / "asm" / "nonmatchings"]
+# Version-aware asm layout: the aug6 prototype branch splits under
+# asm/aug6/{matchings,nonmatchings}; the retail branch uses asm/{...}.
+# Pick whichever exists so this runs unmodified on either target.
+_VERSION = os.environ.get("VERSION", "aug6")
+_AUG6_DIRS = [ROOT / "asm" / _VERSION / "matchings", ROOT / "asm" / _VERSION / "nonmatchings"]
+if all(d.exists() for d in _AUG6_DIRS):
+    ASM_DIRS = _AUG6_DIRS
+else:
+    ASM_DIRS = [ROOT / "asm" / "matchings", ROOT / "asm" / "nonmatchings"]
+# NOTE: decomp/tu_map.json on aug6 is the STALE retail map (generic func_XXXX
+# names, no MAIN.MAP symbols) — do NOT use it. The aug6 .s files already encode
+# their owning TU in the path (asm/<ver>/nonmatchings/<tu>/<func>.s), so TU
+# attribution is derived from the path instead (see owning_tu_from_path).
 TU_MAP = ROOT / "decomp" / "tu_map.json"
 
 # one disasm line: `/* off vma word */  mnem  ops`
@@ -271,18 +284,25 @@ def analyze_function(text: str, accesses, arg_accesses, func_name: str):
             reg[int(md.group(1))] = None
 
 
-def owning_tus():
-    if not TU_MAP.exists():
-        return {}
-    try:
-        data = json.loads(TU_MAP.read_text())
-    except Exception:
-        return {}
-    # tu_map.json: {func_name or vram: tu} — accept a few shapes
+def tu_from_path(p: Path) -> str | None:
+    """Derive the owning TU from an aug6 .s path:
+    asm/<ver>/{matchings,nonmatchings}/<tu...>/<func>.s -> '<tu...>'."""
+    parts = p.parts
+    for anchor in ("matchings", "nonmatchings"):
+        if anchor in parts:
+            i = parts.index(anchor)
+            tu = parts[i + 1:-1]  # drop the anchor and the <func>.s leaf
+            return "/".join(tu) if tu else None
+    return None
+
+
+def owning_tus(sym_tu_counts):
+    """Per-symbol owning-TU hint = the TU that references it most.
+    Built from the .s paths (sym_tu_counts), NOT the stale retail tu_map.json."""
     out = {}
-    if isinstance(data, dict):
-        for k, v in data.items():
-            out[k] = v if isinstance(v, str) else (v.get("tu") if isinstance(v, dict) else None)
+    for sym, counts in sym_tu_counts.items():
+        if counts:
+            out[sym] = max(counts.items(), key=lambda kv: kv[1])[0]
     return out
 
 
@@ -330,14 +350,22 @@ def main():
 
     files = []
     for d in ASM_DIRS:
-        files += list(d.rglob("func_*.s"))
+        # aug6 .s files are named by their MAIN.MAP dev name (backStageSave.s),
+        # not just func_<vma>.s — glob ALL .s, not only func_*.s.
+        files += list(d.rglob("*.s"))
     sys.stderr.write(f"scanning {len(files)} function .s files...\n")
+    sym_tu_counts = defaultdict(lambda: defaultdict(int))  # sym -> {tu: refcount}
+    symref = re.compile(r"%(?:hi|lo|gp_rel)\(([A-Za-z_]\w*)\)|\(([A-Za-z_]\w*)\)\s*/\*\s*gp_rel")
     for i, f in enumerate(files):
         if i % 1000 == 0:
             sys.stderr.write(f"  {i}/{len(files)}\n")
         try:
-            analyze_function(f.read_text(errors="replace"), accesses,
-                             arg_accesses, f.stem)
+            text = f.read_text(errors="replace")
+            analyze_function(text, accesses, arg_accesses, f.stem)
+            tu = tu_from_path(f)
+            if tu:
+                for m in symref.finditer(text):
+                    sym_tu_counts[m.group(1) or m.group(2)][tu] += 1
         except Exception as e:
             sys.stderr.write(f"  WARN {f.name}: {e}\n")
 
@@ -353,7 +381,7 @@ def main():
                   f"strides={sorted(rec['stride'])})")
         return 0
 
-    tus = owning_tus()
+    tus = owning_tus(sym_tu_counts)
     # rank globals by total access count
     ranked = sorted(accesses.items(), key=lambda kv: -sum(kv[1]["fields"].values()))
     out_json = {"globals": {}, "arg_params": {}}

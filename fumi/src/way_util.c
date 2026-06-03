@@ -114,3 +114,23 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", func_00178DB0);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", func_00178DD8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", func_00178E08);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_8;  /* 0x08 */
+    unsigned int       f_C;  /* 0x0C */
+    unsigned int       f_20;  /* 0x20 */
+    unsigned int       f_28;  /* 0x28 */
+} S_004C7CF0;  /* stride 0x40 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_4;  /* 0x04 */
+} S_006C8B28;  /* stride 0x8 */
+
+typedef struct {
+    unsigned char      f_0;  /* 0x00 */
+} S_00286890;
+
+/* end struct shapes */

@@ -49,3 +49,18 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmInterStereoVolum
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmInterLeaveVolumeGet);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmVolumeGet);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_30;  /* 0x30 */
+    unsigned int       f_34;  /* 0x34 */
+    unsigned int       f_38;  /* 0x38 */
+    unsigned int       f_3C;  /* 0x3C */
+} S_006151D8;
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_0070A970;  /* stride 0x4 */
+
+/* end struct shapes */

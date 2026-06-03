@@ -48,3 +48,15 @@ void func_001B8D38(int **a0, int a1) {
     int *p = a0[0x59];
     p[0x23] = a1;
 }
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_004BA2B8;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_004BA2A0;  /* stride 0x4 */
+
+/* end struct shapes */

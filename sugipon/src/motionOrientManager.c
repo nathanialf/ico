@@ -73,3 +73,40 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", func_001E19
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", func_001E1A18);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", func_001E1AB8);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_100;  /* 0x100 */
+    unsigned int       f_118;  /* 0x118 */
+    unsigned int       f_11C;  /* 0x11C */
+    unsigned int       f_130;  /* 0x130 */
+    unsigned int       f_134;  /* 0x134 */
+    unsigned int       f_148;  /* 0x148 */
+    unsigned int       f_15C;  /* 0x15C */
+    short              f_180;  /* 0x180 */
+    unsigned int       f_184;  /* 0x184 */
+    unsigned short     f_186;  /* 0x186 */
+    unsigned int       f_188;  /* 0x188 */
+    unsigned short     f_18A;  /* 0x18A */
+    unsigned int       f_18C;  /* 0x18C */
+} S_0055DA10;  /* stride 0x190 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_004C0A98;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_006169D8;  /* stride 0x10 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00612010;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00612290;  /* stride 0x4 */
+
+/* end struct shapes */

@@ -41,3 +41,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", isysGObjAddHead);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", isysGObjSearchFromObjLayoutID);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", isysGObjSearchFromObjKindID_begin);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_006A2F50;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_0027DE10;  /* stride 0x4 */
+
+/* end struct shapes */

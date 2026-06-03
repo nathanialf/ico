@@ -41,3 +41,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00238730);
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00238800);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00238860);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned long long f_8;  /* 0x08 */
+    unsigned long long f_10;  /* 0x10 */
+    unsigned long long f_18;  /* 0x18 */
+} S_00614EA0;
+
+/* end struct shapes */

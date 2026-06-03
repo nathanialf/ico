@@ -21,3 +21,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/wireLetter", func_001F2610);
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/wireLetter", func_001F26F0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/wireLetter", func_001F2818);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_4;  /* 0x04 */
+    unsigned int       f_8;  /* 0x08 */
+} S_004C36B0;
+
+typedef struct {
+    unsigned int       f_4;  /* 0x04 */
+    unsigned int       f_8;  /* 0x08 */
+} S_004C36A0;
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_004C35E0;  /* stride 0x4 */
+
+/* end struct shapes */

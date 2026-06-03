@@ -50,3 +50,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st02a", actSt02aSecretItem);
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st02a", actSt02aDoorEvent);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st02a", actSt02aDoorUpEffect);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned long long f_8;  /* 0x08 */
+    unsigned long long f_10;  /* 0x10 */
+    unsigned long long f_18;  /* 0x18 */
+} S_006145D0;
+
+/* end struct shapes */

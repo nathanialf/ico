@@ -181,3 +181,44 @@ extern void ACTWay_SetBeginPositionIllegal(void *g);
 void ACTChkAttackIgnore_BOY(void *g) {
     ACTWay_SetBeginPositionIllegal(g);
 }
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_4;  /* 0x04 */
+    unsigned long long f_8;  /* 0x08 */
+    unsigned int       f_10;  /* 0x10 */
+    unsigned int       f_20;  /* 0x20 */
+    unsigned int       f_24;  /* 0x24 */
+} S_006A45A0;
+
+typedef struct {
+    unsigned int       f_8;  /* 0x08 */
+    unsigned int       f_C;  /* 0x0C */
+    unsigned int       f_10;  /* 0x10 */
+    unsigned char      f_14;  /* 0x14 */
+    unsigned char      f_15;  /* 0x15 */
+    unsigned short     f_16;  /* 0x16 */
+} S_006A4600;
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_0027E0F0;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00552600;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_005527D0;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00552810;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_0062A590;  /* stride 0x4 */
+
+/* end struct shapes */

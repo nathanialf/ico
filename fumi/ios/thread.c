@@ -120,3 +120,24 @@ extern void func_00260568(void *a0, int a1, int a2);
 void func_0013D870(void) {
     func_00260568(D_006A2F50, 0, 0x10C);
 }
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_4;  /* 0x04 */
+    unsigned int       f_8;  /* 0x08 */
+    unsigned int       f_C;  /* 0x0C */
+    unsigned int       f_10;  /* 0x10 */
+    unsigned int       f_14;  /* 0x14 */
+    unsigned int       f_18;  /* 0x18 */
+    unsigned int       f_30;  /* 0x30 */
+    unsigned int       f_34;  /* 0x34 */
+    unsigned int       f_38;  /* 0x38 */
+    unsigned int       f_40;  /* 0x40 */
+} S_006A0EE0;
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_006A0AB0;  /* stride 0x4 */
+
+/* end struct shapes */

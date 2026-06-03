@@ -40,3 +40,25 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", makeMaskPatternToWor
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", makeFullScreenFlareBefore);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", reduceWork2ToWork0);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_4;  /* 0x04 */
+    unsigned int       f_8;  /* 0x08 */
+    unsigned int       f_C;  /* 0x0C */
+} S_004C2220;
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00612DE0;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00612E20;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00612E40;  /* stride 0x4 */
+
+/* end struct shapes */

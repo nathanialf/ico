@@ -56,3 +56,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-set-manager", func_0018A3B0)
 
 void func_0018A408(void) {
 }
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_4;  /* 0x04 */
+    unsigned long long f_8;  /* 0x08 */
+    unsigned long long f_10;  /* 0x10 */
+    unsigned long long f_18;  /* 0x18 */
+    unsigned long long f_20;  /* 0x20 */
+    unsigned long long f_28;  /* 0x28 */
+    unsigned long long f_30;  /* 0x30 */
+    char               f_31;  /* 0x31 */
+    char               f_32;  /* 0x32 */
+    unsigned long long f_38;  /* 0x38 */
+} S_006C9FB0;
+
+/* end struct shapes */

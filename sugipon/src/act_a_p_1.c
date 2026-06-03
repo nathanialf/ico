@@ -35,3 +35,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", SetAP1HostGObj);
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", SetAP1PriorLevel);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", GetAP1AIMode);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_4;  /* 0x04 */
+} S_004BA160;  /* stride 0x8 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_004B9D50;  /* stride 0x4 */
+
+/* end struct shapes */

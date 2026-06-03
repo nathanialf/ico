@@ -24,3 +24,13 @@ void StopStreamMotion(void) {
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/streamMotionManager", DeleteStreamMotionManager);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_C;  /* 0x0C */
+    unsigned int       f_10;  /* 0x10 */
+    unsigned int       f_14;  /* 0x14 */
+} S_00706DA8;  /* stride 0x18 */
+
+/* end struct shapes */

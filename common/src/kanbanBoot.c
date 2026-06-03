@@ -68,3 +68,63 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanbanBoot", func_001B1230);
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanbanBoot", func_001B14B8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanbanBoot", func_001B1760);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_8;  /* 0x08 */
+    unsigned int       f_C;  /* 0x0C */
+    unsigned int       f_1C;  /* 0x1C */
+    unsigned int       f_40;  /* 0x40 */
+    unsigned long long f_9C0;  /* 0x9C0 */
+} S_004B8240;
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_140;  /* 0x140 */
+    unsigned int       f_144;  /* 0x144 */
+    unsigned int       f_148;  /* 0x148 */
+} S_0027CFE0;  /* stride 0x18C */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    short              f_4;  /* 0x04 */
+    char               f_5;  /* 0x05 */
+} S_0062D1A8;
+
+typedef struct {
+    unsigned int       f_4;  /* 0x04 */
+    unsigned int       f_8;  /* 0x08 */
+} S_0027D2F8;
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_8;  /* 0x08 */
+} S_00700700;  /* stride 0x8 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_4;  /* 0x04 */
+} S_bl_0060F860;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_0060F7D0;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_0060F8C0;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_0060F9D0;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_0060FB00;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_0060FB40;  /* stride 0x4 */
+
+/* end struct shapes */

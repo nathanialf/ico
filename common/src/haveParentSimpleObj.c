@@ -72,3 +72,23 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AB98
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AB9B8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AB9F8);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned short     f_2;  /* 0x02 */
+    unsigned long long f_40;  /* 0x40 */
+    unsigned short     f_42;  /* 0x42 */
+    unsigned short     f_44;  /* 0x44 */
+} S_004AF010;  /* stride 0x40 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_4;  /* 0x04 */
+} S_004AE610;  /* stride 0x8 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_004AEE68;  /* stride 0x4 */
+
+/* end struct shapes */

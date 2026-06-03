@@ -57,3 +57,25 @@ int iosPadActInit(void) {
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/pad", iosPadActStop);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_4;  /* 0x04 */
+} S_0027D540;  /* stride 0x200 */
+
+typedef struct {
+    short              f_4;  /* 0x04 */
+    unsigned short     f_6;  /* 0x06 */
+} S_005EBB90;  /* stride 0x8 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_0027D430;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00551AA0;  /* stride 0x4 */
+
+/* end struct shapes */

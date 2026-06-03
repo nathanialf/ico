@@ -25,3 +25,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionFileManager", func_001D5AF0
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionFileManager", func_001D5C50);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionFileManager", func_001D5D00);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00611A30;  /* stride 0x4 */
+
+/* end struct shapes */

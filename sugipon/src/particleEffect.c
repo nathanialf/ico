@@ -39,3 +39,16 @@ void *DeleteParticleEffectsByID(int a0) {
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", GetParticleEffectData);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_4;  /* 0x04 */
+    unsigned int       f_8;  /* 0x08 */
+    unsigned int       f_C;  /* 0x0C */
+    unsigned int       f_10;  /* 0x10 */
+    unsigned int       f_14;  /* 0x14 */
+} S_007030C0;  /* stride 0x18 */
+
+/* end struct shapes */

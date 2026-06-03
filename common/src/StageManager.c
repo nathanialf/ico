@@ -37,3 +37,15 @@ void stgmgrForceSwitchWithFadeColor(void) {
     D_0062AB28 = 0;
     D_0062AB2C = 0;
 }
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_4;  /* 0x04 */
+    unsigned int       f_C;  /* 0x0C */
+    char               f_14;  /* 0x14 */
+    char               f_15;  /* 0x15 */
+    char               f_16;  /* 0x16 */
+} S_00271B50;
+
+/* end struct shapes */

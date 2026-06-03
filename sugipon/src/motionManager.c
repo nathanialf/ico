@@ -101,3 +101,15 @@ void func_001DDC28(int a0, int a1) {
     D_0062B718 = a0;
     D_0062B71C = a1;
 }
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00611DE0;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00611E60;  /* stride 0x4 */
+
+/* end struct shapes */

@@ -124,3 +124,24 @@ void UnLockChainGeo(void *a0, int a1) {
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", GetChainHangRange);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_20;  /* 0x20 */
+    unsigned int       f_28;  /* 0x28 */
+} S_002872D0;
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00554F10;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00554F50;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00554F80;  /* stride 0x4 */
+
+/* end struct shapes */

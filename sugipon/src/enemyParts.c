@@ -57,3 +57,28 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", func_001CCA20);
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", func_001CCB60);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", func_001CCBC0);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned long long f_8;  /* 0x08 */
+    unsigned long long f_10;  /* 0x10 */
+    unsigned long long f_18;  /* 0x18 */
+    unsigned long long f_20;  /* 0x20 */
+    unsigned long long f_28;  /* 0x28 */
+    unsigned long long f_30;  /* 0x30 */
+    unsigned long long f_38;  /* 0x38 */
+} S_004BC0C0;
+
+typedef struct {
+    unsigned char      f_4;  /* 0x04 */
+    unsigned char      f_8;  /* 0x08 */
+    unsigned char      f_C;  /* 0x0C */
+} S_004BC160;
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_10;  /* 0x10 */
+} S_00617828;  /* stride 0x14 */
+
+/* end struct shapes */

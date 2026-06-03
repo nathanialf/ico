@@ -64,3 +64,16 @@ int HotInitDemoMotionGeo(void *a0, int a1) {
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemy", GetEnemyHitNodeFlag);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_4;  /* 0x04 */
+} S_00617DA8;  /* stride 0x8 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_00617E50;  /* stride 0x4 */
+
+/* end struct shapes */

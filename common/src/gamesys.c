@@ -79,3 +79,22 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysGeneratorInfoSave
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", func_001A98E0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", func_001A99D0);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned long long f_8;  /* 0x08 */
+    unsigned short     f_10;  /* 0x10 */
+    unsigned char      f_12;  /* 0x12 */
+} S_0060E1A8;
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    char               f_4;  /* 0x04 */
+} S_006F2890;
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_0060EED0;  /* stride 0x4 */
+
+/* end struct shapes */

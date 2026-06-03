@@ -2188,3 +2188,273 @@ void func_0026B8F0(int a0, int a1) {
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0026B908);
+
+
+/* recovered struct shapes */
+typedef struct {
+    /* width 16 */ unsigned char f_10;  /* 0x10 */
+    /* width 16 */ unsigned char f_20;  /* 0x20 */
+    /* width 16 */ unsigned char f_30;  /* 0x30 */
+    /* width 16 */ unsigned char f_40;  /* 0x40 */
+    /* width 16 */ unsigned char f_50;  /* 0x50 */
+    /* width 16 */ unsigned char f_60;  /* 0x60 */
+    /* width 16 */ unsigned char f_70;  /* 0x70 */
+    /* width 16 */ unsigned char f_80;  /* 0x80 */
+    /* width 16 */ unsigned char f_90;  /* 0x90 */
+    /* width 16 */ unsigned char f_A0;  /* 0xA0 */
+    /* width 16 */ unsigned char f_B0;  /* 0xB0 */
+    /* width 16 */ unsigned char f_C0;  /* 0xC0 */
+    /* width 16 */ unsigned char f_D0;  /* 0xD0 */
+    /* width 16 */ unsigned char f_E0;  /* 0xE0 */
+    /* width 16 */ unsigned char f_F0;  /* 0xF0 */
+    /* width 16 */ unsigned char f_100;  /* 0x100 */
+    /* width 16 */ unsigned char f_110;  /* 0x110 */
+    /* width 16 */ unsigned char f_120;  /* 0x120 */
+    /* width 16 */ unsigned char f_130;  /* 0x130 */
+    /* width 16 */ unsigned char f_140;  /* 0x140 */
+    /* width 16 */ unsigned char f_150;  /* 0x150 */
+    /* width 16 */ unsigned char f_160;  /* 0x160 */
+    /* width 16 */ unsigned char f_170;  /* 0x170 */
+    /* width 16 */ unsigned char f_180;  /* 0x180 */
+    /* width 16 */ unsigned char f_190;  /* 0x190 */
+    /* width 16 */ unsigned char f_1C0;  /* 0x1C0 */
+    /* width 16 */ unsigned char f_1D0;  /* 0x1D0 */
+    /* width 16 */ unsigned char f_1E0;  /* 0x1E0 */
+    /* width 16 */ unsigned char f_1F0;  /* 0x1F0 */
+} S_00710AC0;
+
+typedef struct {
+    unsigned int       f_4;  /* 0x04 */
+    unsigned int       f_8;  /* 0x08 */
+    unsigned int       f_C;  /* 0x0C */
+    unsigned int       f_10;  /* 0x10 */
+    unsigned int       f_14;  /* 0x14 */
+    unsigned int       f_1C;  /* 0x1C */
+} S_007115C0;
+
+typedef struct {
+    unsigned int       f_4;  /* 0x04 */
+    unsigned int       f_8;  /* 0x08 */
+    unsigned int       f_C;  /* 0x0C */
+    unsigned int       f_10;  /* 0x10 */
+    unsigned int       f_14;  /* 0x14 */
+    unsigned int       f_18;  /* 0x18 */
+    unsigned int       f_1C;  /* 0x1C */
+} S_00710DD8;
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_4;  /* 0x04 */
+    unsigned int       f_C;  /* 0x0C */
+    unsigned int       f_10;  /* 0x10 */
+} S_007112D0;
+
+typedef struct {
+    unsigned int       f_4;  /* 0x04 */
+    unsigned int       f_8;  /* 0x08 */
+    unsigned int       f_C;  /* 0x0C */
+    unsigned int       f_10;  /* 0x10 */
+    unsigned int       f_14;  /* 0x14 */
+    unsigned int       f_18;  /* 0x18 */
+    unsigned int       f_1C;  /* 0x1C */
+    unsigned int       f_20;  /* 0x20 */
+    unsigned int       f_24;  /* 0x24 */
+    unsigned int       f_28;  /* 0x28 */
+} S_0070E240;
+
+typedef struct {
+    unsigned int       f_8;  /* 0x08 */
+    unsigned int       f_C;  /* 0x0C */
+} S_0054D520;  /* stride 0x8 */
+
+typedef struct {
+    /* width 16 */ unsigned char f_0;  /* 0x00 */
+    /* width 16 */ unsigned char f_10;  /* 0x10 */
+    /* width 16 */ unsigned char f_20;  /* 0x20 */
+    /* width 16 */ unsigned char f_30;  /* 0x30 */
+    /* width 16 */ unsigned char f_40;  /* 0x40 */
+} S_0054D160;
+
+typedef struct {
+    unsigned int       f_4;  /* 0x04 */
+    unsigned int       f_8;  /* 0x08 */
+    unsigned int       f_C;  /* 0x0C */
+} S_0054C918;
+
+typedef struct {
+    unsigned long long f_0;  /* 0x00 */
+} S_0062A870;  /* stride 0x8 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_0070C340;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_00710F00;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_4;  /* 0x04 */
+    unsigned int       f_8;  /* 0x08 */
+    unsigned int       f_C;  /* 0x0C */
+    unsigned int       f_10;  /* 0x10 */
+} S_00710FC8;
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_00717F80;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_108;  /* 0x108 */
+} S_004CED88;  /* stride 0x10C */
+
+typedef struct {
+    unsigned long long f_8;  /* 0x08 */
+} S_0054C698;  /* stride 0x10 */
+
+typedef struct {
+    unsigned short     f_0;  /* 0x00 */
+} S_0054D1D0;  /* stride 0x2 */
+
+typedef struct {
+    unsigned int       f_4;  /* 0x04 */
+    unsigned int       f_8;  /* 0x08 */
+    unsigned int       f_C;  /* 0x0C */
+} S_0070C680;
+
+typedef struct {
+    unsigned int       f_C;  /* 0x0C */
+    unsigned int       f_10;  /* 0x10 */
+} S_0070C790;
+
+typedef struct {
+    /* width 16 */ unsigned char f_0;  /* 0x00 */
+    /* width 16 */ unsigned char f_10;  /* 0x10 */
+} S_0054A970;
+
+typedef struct {
+    /* width 16 */ unsigned char f_0;  /* 0x00 */
+    /* width 16 */ unsigned char f_10;  /* 0x10 */
+} S_0054A9B0;
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_0054AB48;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_4;  /* 0x04 */
+    unsigned int       f_8;  /* 0x08 */
+} S_0054C968;
+
+typedef struct {
+    unsigned int       f_4;  /* 0x04 */
+    unsigned int       f_8;  /* 0x08 */
+} S_0054C978;
+
+typedef struct {
+    /* width 16 */ unsigned char f_0;  /* 0x00 */
+    /* width 16 */ unsigned char f_10;  /* 0x10 */
+} S_0054D1B0;
+
+typedef struct {
+    short              f_0;  /* 0x00 */
+} S_0062A350;  /* stride 0x2 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_4;  /* 0x04 */
+} S_0062E160;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_0054A940;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_0054A9D0;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_0054C650;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_0054C670;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_0054D048;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_0054D068;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_0054D088;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_0054D0F8;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_00629860;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_00629930;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_0062A860;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_007113C0;  /* stride 0x100 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00628430;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00628640;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_006287C0;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00628E90;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_006292A0;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00629430;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_0062A1E0;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_0062A380;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_0062A570;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_0062A800;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_0062A990;  /* stride 0x4 */
+
+/* end struct shapes */

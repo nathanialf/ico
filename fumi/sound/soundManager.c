@@ -66,3 +66,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_001446F8);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_001449B8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_00144C10);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00552210;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00552240;  /* stride 0x4 */
+
+/* end struct shapes */

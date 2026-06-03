@@ -19,3 +19,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/message", iosMsgSend);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/message", iosMsgRecv);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/message", iosMsgQueueDestroyAll);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_006A0510;  /* stride 0x4 */
+
+/* end struct shapes */

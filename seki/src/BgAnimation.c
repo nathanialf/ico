@@ -49,3 +49,31 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_SetCamFrame);
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_CheckAnimationFinish);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_CheckAnimationFrame);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned long long f_8;  /* 0x08 */
+    unsigned long long f_10;  /* 0x10 */
+    unsigned long long f_18;  /* 0x18 */
+    unsigned long long f_20;  /* 0x20 */
+    unsigned long long f_28;  /* 0x28 */
+} S_004C3710;
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00613400;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_006134D0;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00613530;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_006135C0;  /* stride 0x4 */
+
+/* end struct shapes */

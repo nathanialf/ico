@@ -211,3 +211,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", SetSkeltonDispSw
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", CopyMotion);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetMotionRootPos);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_00272340;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_0054E0E0;  /* stride 0x4 */
+
+/* end struct shapes */

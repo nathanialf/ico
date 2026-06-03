@@ -31,8 +31,8 @@ ROOT = Path(__file__).resolve().parent.parent
 SHAPES = ROOT / "decomp" / "struct_shapes.json"
 TU_MAP = ROOT / "decomp" / "data_tu_map.json"
 
-BEGIN = "/* === BEGIN recovered struct shapes (tools/place_struct_shapes.py) === */"
-END = "/* === END recovered struct shapes === */"
+BEGIN = "/* recovered struct shapes */"
+END = "/* end struct shapes */"
 
 
 def c_type(width: int, signed: bool) -> str:
@@ -81,30 +81,15 @@ def render_typedef(sym: str, info: dict) -> str:
     for f in merge_fields(info["fields"]):
         off = f["off"]
         ct = c_type(f["width"], f["signed"])
-        hint = "  mixed-width" if f.get("mixed") else ""
-        lines.append(
-            f"    {ct:<16} f_{off:X};"
-            f"  /* 0x{off:X}  x{f['count']}{hint} */"
-        )
-    closer = f"}} S_{vma};"
+        lines.append(f"    {ct:<18} f_{off:X};  /* 0x{off:02X} */")
     stride = info.get("stride")
-    note = []
-    if stride:
-        note.append(f"stride 0x{stride:X}")
-    note.append(f"{info['accesses']} accesses")
-    lines.append(closer + f"  /* {', '.join(note)} */")
+    trailer = f"  /* stride 0x{stride:X} */" if stride else ""
+    lines.append(f"}} S_{vma};{trailer}")
     return "\n".join(lines)
 
 
 def render_block(syms: list[tuple[str, dict]]) -> str:
-    out = [
-        BEGIN,
-        "/* Field layouts mined from load/store access patterns; SPARSE",
-        " * (only touched offsets, no padding). Unused typedefs — they add",
-        " * no symbol and cannot affect codegen. Cast as ((S_<VMA> *)D_<VMA>).",
-        " */",
-        "",
-    ]
+    out = [BEGIN]
     for sym, info in syms:
         out.append(render_typedef(sym, info))
         out.append("")
@@ -132,7 +117,13 @@ def main(argv: list[str]) -> int:
     only = [a for a in argv if not a.startswith("--")]
 
     globals_ = json.loads(SHAPES.read_text())["globals"]
-    tumap = json.loads(TU_MAP.read_text())
+    # data_tu_map.json is the explicit data->TU assignment (populated on the
+    # retail branch). On aug6 it is empty, so we fall back to the per-symbol
+    # path-derived `tu` hint that dump_all_struct_shapes.py now records in
+    # struct_shapes.json. Tolerate a missing/empty map.
+    tumap = json.loads(TU_MAP.read_text()) if TU_MAP.exists() else {}
+    if not isinstance(tumap, dict):
+        tumap = {}
 
     keep_all = "--all" in argv
     by_tu: dict[str, list[tuple[str, dict]]] = defaultdict(list)
@@ -150,9 +141,16 @@ def main(argv: list[str]) -> int:
         if any(f["off"] < 0 for f in info["fields"]):
             skipped_neg += 1
             continue
-        tu = tumap.get(sym, {}).get("tu")
+        # owning TU: prefer an explicit data_tu_map entry, else the per-symbol
+        # path-derived hint from struct_shapes.json. Normalize to the .c path.
+        entry = tumap.get(sym)
+        tu = entry.get("tu") if isinstance(entry, dict) else None
+        if not tu:
+            tu = info.get("tu")
         if not tu or tu == "_unassigned":
             continue
+        if not tu.endswith(".c"):
+            tu += ".c"
         by_tu[tu].append((sym, info))
 
     # stable order: most-accessed first within a TU

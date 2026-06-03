@@ -98,3 +98,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00168128);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00168150);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_001681E0);
+
+
+/* recovered struct shapes */
+typedef struct {
+    short              f_0;  /* 0x00 */
+} S_006A4B40;  /* stride 0x2 */
+
+/* end struct shapes */

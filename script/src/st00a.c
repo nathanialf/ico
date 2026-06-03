@@ -43,3 +43,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aDoor1Event);
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aDoor1UpEffect);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aDoor1DownEffect);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_1C;  /* 0x1C */
+    unsigned int       f_20;  /* 0x20 */
+} S_0055A2D8;  /* stride 0x28 */
+
+/* end struct shapes */

@@ -60,3 +60,11 @@ extern void soundSeDefPlayWithVolumeRate(int a0, unsigned int a1, int a2, int a3
 void func_001ADFF8(void) {
     soundSeDefPlayWithVolumeRate(0x190, 0xFFFFFFFE, 0, 0);
 }
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_0060F6C0;  /* stride 0x4 */
+
+/* end struct shapes */

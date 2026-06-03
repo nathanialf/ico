@@ -166,3 +166,34 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", IsEnemyBrainToBoy);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", GetEnemyTypeFromGObj);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", GetEnemyType);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_4;  /* 0x04 */
+    unsigned int       f_20;  /* 0x20 */
+    unsigned int       f_58;  /* 0x58 */
+    unsigned int       f_74;  /* 0x74 */
+    unsigned int       f_90;  /* 0x90 */
+    unsigned int       f_AC;  /* 0xAC */
+    unsigned int       f_C8;  /* 0xC8 */
+    unsigned int       f_170;  /* 0x170 */
+} S_0027E770;  /* stride 0x1C */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00553140;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_005532F0;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00553420;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00553440;  /* stride 0x4 */
+
+/* end struct shapes */

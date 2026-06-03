@@ -47,3 +47,11 @@ void func_0010EFF0(int a0) {
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", func_0010EFF8);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned short     f_0;  /* 0x00 */
+} S_0066A9D0;  /* stride 0x2 */
+
+/* end struct shapes */

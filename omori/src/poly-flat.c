@@ -29,3 +29,11 @@ extern void InitMotionOrient(void);
 void func_001947F8(void) {
     InitMotionOrient();
 }
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00555170;  /* stride 0x4 */
+
+/* end struct shapes */

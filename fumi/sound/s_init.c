@@ -125,3 +125,35 @@ extern int D_0062A500;
 int debug_req(void) {
     return D_0062A500;
 }
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_4;  /* 0x04 */
+    short              f_10;  /* 0x10 */
+    unsigned int       f_30;  /* 0x30 */
+} S_006A3370;  /* stride 0x40 */
+
+typedef struct {
+    unsigned int       f_60;  /* 0x60 */
+} S_005E1C00;  /* stride 0x64 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned short     f_2;  /* 0x02 */
+} S_006A3070;
+
+typedef struct {
+    unsigned short     f_0;  /* 0x00 */
+} S_002E2A10;  /* stride 0x2 */
+
+typedef struct {
+    unsigned short     f_0;  /* 0x00 */
+} S_005E44A0;  /* stride 0x8 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00551F30;  /* stride 0x4 */
+
+/* end struct shapes */

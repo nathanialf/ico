@@ -145,3 +145,64 @@ void func_00118108(void) {
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_00118118);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_4;  /* 0x04 */
+    unsigned int       f_C;  /* 0x0C */
+    unsigned char      f_54;  /* 0x54 */
+    unsigned char      f_55;  /* 0x55 */
+    unsigned char      f_57;  /* 0x57 */
+    unsigned int       f_58;  /* 0x58 */
+    unsigned int       f_5C;  /* 0x5C */
+    unsigned char      f_AC;  /* 0xAC */
+    unsigned char      f_AD;  /* 0xAD */
+    unsigned char      f_AE;  /* 0xAE */
+    unsigned char      f_AF;  /* 0xAF */
+} S_002715D0;  /* stride 0x58 */
+
+typedef struct {
+    unsigned int       f_80;  /* 0x80 */
+    unsigned int       f_90;  /* 0x90 */
+    unsigned int       f_94;  /* 0x94 */
+    unsigned int       f_98;  /* 0x98 */
+    unsigned int       f_9C;  /* 0x9C */
+    unsigned int       f_A0;  /* 0xA0 */
+    unsigned int       f_A4;  /* 0xA4 */
+    unsigned int       f_A8;  /* 0xA8 */
+    unsigned char      f_D0;  /* 0xD0 */
+    unsigned char      f_D4;  /* 0xD4 */
+    unsigned char      f_D8;  /* 0xD8 */
+    unsigned int       f_E8;  /* 0xE8 */
+    unsigned int       f_F8;  /* 0xF8 */
+    unsigned int       f_FC;  /* 0xFC */
+    unsigned int       f_100;  /* 0x100 */
+    unsigned int       f_104;  /* 0x104 */
+    unsigned char      f_110;  /* 0x110 */
+    unsigned char      f_114;  /* 0x114 */
+    unsigned char      f_118;  /* 0x118 */
+    unsigned char      f_11C;  /* 0x11C */
+    unsigned char      f_120;  /* 0x120 */
+} S_002714A0;
+
+typedef struct {
+    unsigned int       f_4;  /* 0x04 */
+    unsigned int       f_8;  /* 0x08 */
+} S_00272528;
+
+typedef struct {
+    unsigned int       f_4;  /* 0x04 */
+    unsigned int       f_8;  /* 0x08 */
+    unsigned int       f_C;  /* 0x0C */
+} S_0066CA10;
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_002724E0;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_4;  /* 0x04 */
+} S_002724E8;  /* stride 0x8 */
+
+/* end struct shapes */

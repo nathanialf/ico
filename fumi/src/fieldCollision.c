@@ -132,3 +132,26 @@ void ClipPlane(void *a0) {
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", GetOrientOfWall);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", SetSimplePlane);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_4;  /* 0x04 */
+    unsigned int       f_8;  /* 0x08 */
+    unsigned int       f_C;  /* 0x0C */
+} S_0027EA00;  /* stride 0x10 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_006A4740;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_006A4BC0;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_0062A6D0;  /* stride 0x4 */
+
+/* end struct shapes */

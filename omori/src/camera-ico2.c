@@ -131,3 +131,35 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188BE0);
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188C18);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188D60);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned char      f_44;  /* 0x44 */
+    unsigned long long f_50;  /* 0x50 */
+    unsigned long long f_58;  /* 0x58 */
+    unsigned long long f_60;  /* 0x60 */
+    unsigned long long f_68;  /* 0x68 */
+    unsigned long long f_70;  /* 0x70 */
+    unsigned long long f_78;  /* 0x78 */
+    unsigned int       f_80;  /* 0x80 */
+    unsigned int       f_84;  /* 0x84 */
+    unsigned int       f_88;  /* 0x88 */
+    unsigned int       f_90;  /* 0x90 */
+    unsigned int       f_94;  /* 0x94 */
+    unsigned int       f_98;  /* 0x98 */
+    unsigned int       f_A0;  /* 0xA0 */
+    unsigned int       f_A4;  /* 0xA4 */
+} S_006C9D50;
+
+typedef struct {
+    unsigned int       f_4;  /* 0x04 */
+    unsigned int       f_8;  /* 0x08 */
+} S_00287140;
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_4;  /* 0x04 */
+} S_006C9EE0;  /* stride 0x8 */
+
+/* end struct shapes */

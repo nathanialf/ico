@@ -52,3 +52,23 @@ void func_00123AA8(void) {
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Shadow", func_00123AC8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Shadow", func_00123B18);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_0054FC30;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_0054FC40;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_0054FC5C;  /* stride 0x10 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_0054FC9C;  /* stride 0x10 */
+
+/* end struct shapes */

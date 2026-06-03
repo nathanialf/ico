@@ -49,3 +49,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/icoMisc", func_001AC5E8);
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/icoMisc", func_001AC728);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/icoMisc", func_001ACA38);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned short     f_2;  /* 0x02 */
+    unsigned short     f_4;  /* 0x04 */
+} S_004AF050;
+
+/* end struct shapes */

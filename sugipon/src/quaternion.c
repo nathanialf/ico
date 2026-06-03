@@ -86,3 +86,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", GetCurrentQuaternion
 void *GetLastQuaternion(void) {
     return &D_0065A5C0[D_00629E7C * 4];
 }
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_002724D0;  /* stride 0x4 */
+
+/* end struct shapes */

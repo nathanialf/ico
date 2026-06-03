@@ -71,3 +71,39 @@ int iosCdvdBackGroundMgrSeek(void *a0, int a1) {
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", iosCdvdBackGroundRead);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", iosCdvdBackGroundReadIOPm);
+
+
+/* recovered struct shapes */
+typedef struct {
+    char               f_0;  /* 0x00 */
+    unsigned int       f_100;  /* 0x100 */
+    unsigned int       f_104;  /* 0x104 */
+    unsigned int       f_108;  /* 0x108 */
+    unsigned int       f_118;  /* 0x118 */
+    unsigned int       f_11C;  /* 0x11C */
+    unsigned int       f_120;  /* 0x120 */
+    unsigned int       f_124;  /* 0x124 */
+    unsigned int       f_128;  /* 0x128 */
+} S_0069F800;
+
+typedef struct {
+    unsigned int       f_18;  /* 0x18 */
+    unsigned int       f_1C;  /* 0x1C */
+    unsigned int       f_20;  /* 0x20 */
+    unsigned int       f_160;  /* 0x160 */
+} S_00272680;
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_4;  /* 0x04 */
+} S_0027A8A0;  /* stride 0x30 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_00272668;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_00550A54;  /* stride 0x10 */
+
+/* end struct shapes */

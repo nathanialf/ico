@@ -38,3 +38,15 @@ int func_001D2168(int a0) {
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lodManager", func_001D2180);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_004C0A88;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00611A10;  /* stride 0x4 */
+
+/* end struct shapes */

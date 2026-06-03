@@ -48,3 +48,15 @@ int RestoreSpiderLayoutGeo(void *a0, int a1) {
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spider", RestoreSpiderLayoutExtGeo);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spider", MemorySpiderLayout);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_10;  /* 0x10 */
+} S_0061D730;  /* stride 0x20 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00612B70;  /* stride 0x4 */
+
+/* end struct shapes */

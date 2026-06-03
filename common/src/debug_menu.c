@@ -76,3 +76,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7F90);
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A8238);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A8320);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_4;  /* 0x04 */
+} S_006F26D0;
+
+typedef struct {
+    unsigned int       f_4;  /* 0x04 */
+    unsigned int       f_8;  /* 0x08 */
+} S_004AE440;  /* stride 0xC */
+
+/* end struct shapes */

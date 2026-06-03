@@ -48,3 +48,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/charFileManager", ReadSoundAdpcmFi
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/charFileManager", GetPObjAddress);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/charFileManager", func_001A01B8);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_14;  /* 0x14 */
+} S_006DE110;  /* stride 0x18 */
+
+/* end struct shapes */

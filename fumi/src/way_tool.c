@@ -31,3 +31,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_tool", cursor_control);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_tool", func_00204EF0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_tool", func_002050B0);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_4;  /* 0x04 */
+} S_004CB550;  /* stride 0x8 */
+
+/* end struct shapes */

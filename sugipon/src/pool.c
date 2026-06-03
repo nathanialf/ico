@@ -66,3 +66,17 @@ int func_0010D510(char *a0) {
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", func_0010D528);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", func_0010D6C8);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned long long f_8;  /* 0x08 */
+    unsigned long long f_10;  /* 0x10 */
+    unsigned long long f_18;  /* 0x18 */
+    unsigned long long f_20;  /* 0x20 */
+    unsigned long long f_28;  /* 0x28 */
+    unsigned long long f_30;  /* 0x30 */
+    unsigned long long f_38;  /* 0x38 */
+} S_004B8C40;
+
+/* end struct shapes */

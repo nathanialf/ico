@@ -73,3 +73,24 @@ int ExecBoxMoveEndReaction(void *a0) {
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", BoxGeoRestore);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", BoxExtGeoRestore);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_8;  /* 0x08 */
+} S_00288C88;  /* stride 0x28 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_004BA770;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00610FF0;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00611030;  /* stride 0x4 */
+
+/* end struct shapes */

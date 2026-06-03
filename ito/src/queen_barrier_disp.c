@@ -15,3 +15,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen_barrier_disp", queen_barrier_an
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen_barrier_disp", func_0019A3C8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen_barrier_disp", func_0019A4B8);
+
+
+/* recovered struct shapes */
+typedef struct {
+    short              f_0;  /* 0x00 */
+} S_006CDC20;  /* stride 0x2 */
+
+/* end struct shapes */

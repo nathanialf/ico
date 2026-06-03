@@ -111,3 +111,33 @@ void PAIR_IsStatus_BOY_PULL(void *a0) {
     p[0x24] = 0;
     p[0x23] = 0;
 }
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_190;  /* 0x190 */
+    unsigned int       f_320;  /* 0x320 */
+    unsigned int       f_4B0;  /* 0x4B0 */
+    unsigned int       f_4B4;  /* 0x4B4 */
+} S_006A3F70;  /* stride 0x4 */
+
+typedef struct {
+    unsigned long long f_8;  /* 0x08 */
+    unsigned long long f_10;  /* 0x10 */
+    unsigned long long f_18;  /* 0x18 */
+    unsigned long long f_20;  /* 0x20 */
+    unsigned long long f_28;  /* 0x28 */
+    unsigned long long f_30;  /* 0x30 */
+    unsigned long long f_38;  /* 0x38 */
+} S_0027DED0;
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_005523F0;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00552430;  /* stride 0x4 */
+
+/* end struct shapes */

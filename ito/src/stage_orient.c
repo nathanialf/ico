@@ -23,3 +23,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/stage_orient", StageOrientGet);
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/stage_orient", func_0019AC48);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/stage_orient", func_0019AE20);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_C0;  /* 0xC0 */
+    unsigned int       f_C4;  /* 0xC4 */
+} S_006D5ED0;
+
+/* end struct shapes */

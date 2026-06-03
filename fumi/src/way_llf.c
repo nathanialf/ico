@@ -34,3 +34,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", WayGroup_begin);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", WayGroup_next);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", WayBridge_begin);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_8;  /* 0x08 */
+    unsigned int       f_C;  /* 0x0C */
+    unsigned int       f_10;  /* 0x10 */
+    unsigned int       f_14;  /* 0x14 */
+    unsigned int       f_18;  /* 0x18 */
+    unsigned int       f_1C;  /* 0x1C */
+    unsigned int       f_20;  /* 0x20 */
+    unsigned int       f_24;  /* 0x24 */
+    unsigned int       f_28;  /* 0x28 */
+} S_004C6FF0;  /* stride 0x34 */
+
+/* end struct shapes */

@@ -35,3 +35,36 @@ extern int D_0062C074;
 int GetCameraDefaultTargetGObj(void) {
     return D_0062C074;
 }
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned long long f_8;  /* 0x08 */
+    unsigned long long f_10;  /* 0x10 */
+    short              f_12;  /* 0x12 */
+    unsigned long long f_18;  /* 0x18 */
+} S_006C9F60;
+
+typedef struct {
+    unsigned long long f_8;  /* 0x08 */
+    unsigned long long f_10;  /* 0x10 */
+    unsigned long long f_18;  /* 0x18 */
+} S_006C9F80;
+
+typedef struct {
+    unsigned int       f_4;  /* 0x04 */
+    unsigned int       f_8;  /* 0x08 */
+    unsigned int       f_C;  /* 0x0C */
+} S_006C9FA0;
+
+typedef struct {
+    unsigned long long f_8;  /* 0x08 */
+    unsigned long long f_10;  /* 0x10 */
+    unsigned long long f_18;  /* 0x18 */
+} S_00287150;
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00554C30;  /* stride 0x4 */
+
+/* end struct shapes */

@@ -47,3 +47,17 @@ void actSt03tWayOnChk(int a0) {
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tWayOffChk);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned long long f_8;  /* 0x08 */
+    unsigned long long f_10;  /* 0x10 */
+    unsigned long long f_18;  /* 0x18 */
+    unsigned long long f_20;  /* 0x20 */
+    unsigned long long f_28;  /* 0x28 */
+    unsigned long long f_30;  /* 0x30 */
+    unsigned long long f_38;  /* 0x38 */
+} S_00614610;
+
+/* end struct shapes */

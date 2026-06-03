@@ -33,3 +33,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", isysGObjMoveObjDLBeforeGO
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", func_0013ECE0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", func_0013ED48);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_0027DE30;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_0027DE50;  /* stride 0x4 */
+
+/* end struct shapes */

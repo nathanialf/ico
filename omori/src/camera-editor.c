@@ -111,3 +111,23 @@ void debug_CameraEditor(void) {
     D_0062A9B0 = 0;
     D_0062A9B8 = 0;
 }
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_00286F00;  /* stride 0x10 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_00286F04;  /* stride 0x10 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_00286F08;  /* stride 0x10 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_00286F0C;  /* stride 0x10 */
+
+/* end struct shapes */

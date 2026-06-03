@@ -76,3 +76,17 @@ void LightTorchOnOfWeapon(void *a0) {
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", LightTorchOnOfWeaponWithNoSE);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", LightTorchOffOfWeapon);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_14;  /* 0x14 */
+    unsigned char      f_18;  /* 0x18 */
+    unsigned char      f_19;  /* 0x19 */
+    unsigned char      f_1A;  /* 0x1A */
+    unsigned char      f_1B;  /* 0x1B */
+    unsigned int       f_1C;  /* 0x1C */
+    unsigned int       f_20;  /* 0x20 */
+} S_0060AF70;  /* stride 0x24 */
+
+/* end struct shapes */

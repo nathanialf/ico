@@ -38,3 +38,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act", actCreateSubThread);
 void actSetInterrupt(int *a0, int a1) {
     *a0 = a1;
 }
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_4C;  /* 0x4C */
+} S_00557188;  /* stride 0x50 */
+
+/* end struct shapes */

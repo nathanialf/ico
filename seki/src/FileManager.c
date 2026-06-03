@@ -69,3 +69,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", func_001102C8);
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", func_001103F0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", func_00110580);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_0054E6E0;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_0054E710;  /* stride 0x4 */
+
+/* end struct shapes */

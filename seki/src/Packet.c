@@ -97,3 +97,36 @@ void func_0011C308(void *a0) {
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", func_0011C328);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_20;  /* 0x20 */
+    unsigned int       f_24;  /* 0x24 */
+    unsigned int       f_28;  /* 0x28 */
+    unsigned int       f_2C;  /* 0x2C */
+    unsigned int       f_30;  /* 0x30 */
+    unsigned long long f_38;  /* 0x38 */
+} S_0066CB50;
+
+typedef struct {
+    unsigned long long f_0;  /* 0x00 */
+} S_0054F570;  /* stride 0x10 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_0054F160;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_0054F1B0;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_0054F390;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00629FD0;  /* stride 0x4 */
+
+/* end struct shapes */

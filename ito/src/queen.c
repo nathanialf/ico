@@ -64,3 +64,11 @@ void queenBallBeforeFunc(void) {
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", InitQueenBallGeo);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00556830;  /* stride 0x4 */
+
+/* end struct shapes */

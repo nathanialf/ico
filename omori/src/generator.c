@@ -63,3 +63,18 @@ void *GetbufpGeneratorPacket(void) {
 int GetsizeGeneratorPacket(void) {
     return 0x280B;
 }
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_2C;  /* 0x2C */
+    unsigned int       f_30;  /* 0x30 */
+    unsigned int       f_34;  /* 0x34 */
+    unsigned short     f_40;  /* 0x40 */
+    short              f_42;  /* 0x42 */
+    unsigned short     f_44;  /* 0x44 */
+    unsigned char      f_46;  /* 0x46 */
+    unsigned int       f_48;  /* 0x48 */
+} S_002A0A90;  /* stride 0x4C */
+
+/* end struct shapes */

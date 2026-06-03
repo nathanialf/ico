@@ -29,3 +29,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/seMail", func_00202868);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/seMail", func_00202900);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/seMail", func_00202980);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_004C7018;  /* stride 0x34 */
+
+/* end struct shapes */

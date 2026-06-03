@@ -26,3 +26,11 @@ void iosOmSearchGObjIdAll(void) {
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/obj_manager", iosOmBeforeFuncStandard);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_0027DDF0;  /* stride 0x4 */
+
+/* end struct shapes */

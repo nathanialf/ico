@@ -72,3 +72,11 @@ int la_system_save_processing(int a0) {
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_save_processing);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_0060FBB0;  /* stride 0x4 */
+
+/* end struct shapes */

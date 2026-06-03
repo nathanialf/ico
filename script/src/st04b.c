@@ -41,3 +41,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04b", func_00214950);
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04b", func_00214B20);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04b", func_00214CF0);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00614810;  /* stride 0x4 */
+
+/* end struct shapes */

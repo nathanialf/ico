@@ -16,3 +16,13 @@ void ACTWay_SetBeginPositionIllegal(void *a0) {
     long long *p = *(long long **)((char *)a0 + 0x164);
     *(long long *)((char *)p + 0x428) |= 0x200000;
 }
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned long long f_8;  /* 0x08 */
+    unsigned long long f_10;  /* 0x10 */
+    unsigned long long f_18;  /* 0x18 */
+} S_004C6FD0;
+
+/* end struct shapes */

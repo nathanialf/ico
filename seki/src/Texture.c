@@ -53,3 +53,42 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Texture", tex_Tool);
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Texture", tex_ListTool);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Texture", tex_GetTWTH);
+
+
+/* recovered struct shapes */
+typedef struct {
+    short              f_0;  /* 0x00 */
+    short              f_2;  /* 0x02 */
+    short              f_4;  /* 0x04 */
+} S_0067ADF8;  /* stride 0x6 */
+
+typedef struct {
+    short              f_0;  /* 0x00 */
+    unsigned int       f_4;  /* 0x04 */
+} S_002725D8;  /* stride 0xC */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_002725B8;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_00272620;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_005502D0;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00550480;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00550570;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00550660;  /* stride 0x4 */
+
+/* end struct shapes */

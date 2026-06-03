@@ -26,3 +26,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act2", func_00201840);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act2", func_002018E0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act2", func_00201AF0);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_0070B520;  /* stride 0x8 */
+
+/* end struct shapes */

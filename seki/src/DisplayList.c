@@ -33,3 +33,29 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayList", dl_OpenDma);
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayList", dl_GetPri);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayList", func_001F8660);
+
+
+/* recovered struct shapes */
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+    unsigned int       f_4;  /* 0x04 */
+    unsigned long long f_8;  /* 0x08 */
+    unsigned int       f_10;  /* 0x10 */
+    unsigned long long f_18;  /* 0x18 */
+    unsigned int       f_24;  /* 0x24 */
+} S_0070A5C0;  /* stride 0x28 */
+
+typedef struct {
+    char               f_0;  /* 0x00 */
+    char               f_1;  /* 0x01 */
+} S_004C3750;  /* stride 0x2 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_0070A830;  /* stride 0x4 */
+
+typedef struct {
+    unsigned int       f_0;  /* 0x00 */
+} S_bl_00613750;  /* stride 0x4 */
+
+/* end struct shapes */
