@@ -49,13 +49,18 @@ USE_MODERN_AS_TXT="${ROOT}/config/use_modern_as.txt"
 USE_OLD_AS_TXT="${ROOT}/config/use_old_as.txt"
 
 BASE="$(basename "${SRC}" .c)"
+# Relative TU path without the .c (e.g. fumi/src/jimaku), with any leading
+# ROOT/ prefix stripped — the alternate config key form quick_diff.sh accepts.
+REL="${SRC%.c}"; REL="${REL#"${ROOT}/"}"
 S="${OUT%.o}.s"
 
-# Match the Makefile's `^[[:space:]]*<BASE>(<space>|<eol>|#)` pattern.
+# Match the Makefile's `^[[:space:]]*<KEY>(<space>|<eol>|#)` pattern. KEY may be
+# the TU BASENAME (canonical) or the full TU path — both forms are honored here
+# and in quick_diff.sh so a single config line agrees across diff and build.
 listed() {
     local txt="$1"
     [ -r "$txt" ] || return 1
-    grep -qE "^[[:space:]]*${BASE}([[:space:]]|\$|#)" "$txt"
+    grep -qE "^[[:space:]]*(${BASE}|${REL})([[:space:]]|\$|#)" "$txt"
 }
 
 # Func-range SCOPING for TU-global postprocesses. A coalesced TU holds many

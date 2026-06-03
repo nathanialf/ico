@@ -258,9 +258,13 @@ EE_ASFLAGS="-EL -mcpu=5900 -G 8 -I$ROOT/include"
 # Honor config/use_old_as.txt (same as compile_c.sh): the rare TU whose ROM
 # left a jr/j-delay nop that 2.96 over-fills is assembled with the less
 # aggressive 2.9-991111. Without this, quick_diff/match_diff would show a
-# PHANTOM delay-fill the real ninja build doesn't have. One TU basename/line.
+# PHANTOM delay-fill the real ninja build doesn't have. The canonical key is
+# the TU BASENAME (what compile_c.sh's `listed` matches), but a full-path entry
+# (`fumi/src/jimaku`) is accepted too — same dual-key rule as qd_listed above,
+# so a single config line agrees across quick_diff AND the ninja build.
 USE_OLD_AS_TXT="$ROOT/config/use_old_as.txt"
-if [[ -r "$USE_OLD_AS_TXT" ]] && grep -qE "^[[:space:]]*${NAME}([[:space:]]|\$|#)" "$USE_OLD_AS_TXT"; then
+if [[ -r "$USE_OLD_AS_TXT" ]] && \
+   awk -v a="$NAME" -v b="$(basename "$NAME")" '($1==a||$1==b){f=1} END{exit !f}' "$USE_OLD_AS_TXT"; then
     EE_AS="$ROOT/tools/cc/ee-gcc2.9-991111/bin/as"
 fi
 AS_MODERN="${AS_FOR_QD:-mips-linux-gnu-as}"

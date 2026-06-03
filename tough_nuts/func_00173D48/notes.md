@@ -64,3 +64,41 @@ brackets (lead/mid/trail) either keep the store too early, push it into the jal
 delay, or fill the delay with ld ra — none yields `sd ra; sw a0; jal; nop`.
 use_old_as did NOT help (both assemblers fill the jal delay from the preceding
 store). Parked for offline auto_permute per the next verdict.
+
+---
+
+## Resume 2026-06-03 (cont. #2) — ROOT CAUSE CORRECTED; assembler-parity blocker
+
+Prior sessions mislabelled this an "rc2 prologue store-order source floor" and
+said "use_old_as did not help." Both conclusions were WRONG. Re-derived from the
+.s and the assemblers themselves:
+
+* The clean dev shape is `void *volatile q = a0; ACTLookTargetSystem_Exec();`
+  (NO __asm__ barrier — that was a crutch, now removed). `ACTLookTargetSystem_Exec`
+  takes no args.
+* gcc 2.9-991111 -O2 emits the CORRECT order: `sd ra` BEFORE `sw a0`, jal, then
+  the epilogue. Assembled by **ee-as 2.9-991111** this is **byte-identical to
+  ROM** (verified: jal delay = nop, sw a0 stays before jal). So the SOURCE IS
+  SOLVED — there is no rc2, no store-order problem at the C level.
+* The match is broken purely at ASSEMBLY time. jimaku is a mixed TU: its
+  still-INCLUDE_ASM siblings (e.g. display_texture, iosCdvdBackGroundReadJimaku)
+  contain splat's `%gp_rel(D_xxx)($28)`. BOTH period assemblers — ee-as 2.96 AND
+  ee-as 2.9-991111 — reject `%gp_rel` ("Bad expression"; %hi/%lo are fine). So
+  compile_c.sh falls back to **modern mips-linux-gnu-as**, which (like 2.96)
+  fills the jal delay with the preceding `sw a0`. ROM (period assembler) left it
+  nop. THIS is the only diff.
+* `use_old_as jimaku` cannot help while those %gp_rel siblings exist (old-as
+  can't even parse the TU). A universal `sw`-before-`jal` → nop postprocess is
+  NOT legitimate: ROM jal delays are frequently filled with stores, so it is not
+  the "0 of N" universal that the existing j-tailcall / FP-store parity awks are.
+
+RESOLUTION PATH (no source work needed):
+  (a) match all of jimaku's %gp_rel-bearing INCLUDE_ASM siblings → the TU is pure
+      gcc output (gcc emits %hi/%lo, never %gp_rel) → add `jimaku` to
+      config/use_old_as.txt → ee-as 2.9-991111 assembles it and the delay stays
+      nop → byte match; OR
+  (b) teach the old-as path to parse/translate `%gp_rel` (would unblock the whole
+      assembler-parity match class on every mixed TU at once).
+
+Status: tooling-blocked, NOT a 30-stall source park. Leave parked; revisit after
+the jimaku %gp_rel siblings are done.
