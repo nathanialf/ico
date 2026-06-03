@@ -22,7 +22,14 @@ void ActPara_DebugOut(int **a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", func_00149C20);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", func_00149CA0);
+int func_00149CA0(void *a0, int a1) {
+    int *p = *(int **)((char *)a0 + 0x164);
+    int ret = 0;
+    if (p) {
+        ret = (*(int *)((char *)p + 0x54) >> a1) & 1;
+    }
+    return ret;
+}
 
 void func_00149CC0(void) {
 }

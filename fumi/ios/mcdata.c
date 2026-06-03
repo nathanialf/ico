@@ -22,7 +22,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcdata", func_00137F68);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcdata", func_00138098);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcdata", func_001380E0);
+extern void func_00135F88(void *a0, int a1, int a2);
+
+int func_001380E0(void *a0, int a1) {
+    func_00135F88(a0, a1, 0x63FC);
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcdata", func_00138100);
 

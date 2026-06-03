@@ -22,9 +22,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_001434C0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_00143610);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_001438A8);
+extern void *D_00629DE4, *D_00629DE8;
+extern void _ACTGame_SearchGObj(void *a0, int a1, int a2, int a3, void *a4, int a5, int a6);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_001438C8);
+void func_001438A8(void) {
+    _ACTGame_SearchGObj(D_00629DE4, 1, 4, 5, D_00629DE8, 0, 0);
+}
+
+void func_001438C8(void) {
+    _ACTGame_SearchGObj(D_00629DE4, 1, 4, 0, 0, 0, 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_001438E8);
 

@@ -46,7 +46,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_0017A078);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_0017A0A8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_0017A0D8);
+extern void *isysGObjAddHead(void);
+extern void EntryRevivedSpiderGroupManager(void *a0);
+
+void func_0017A0D8(void) {
+    EntryRevivedSpiderGroupManager(isysGObjAddHead());
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_0017A0F8);
 

@@ -92,7 +92,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015AF10);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonBar);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015B4C8);
+extern int D_00629DF4;
+extern void lt_fade_status(int a0);
+
+void func_0015B4C8(void) {
+    if (D_00629DF4 == 0) {
+        D_00629DF4 = 1;
+        lt_fade_status(0x3A);
+    }
+}
 
 extern void setNodePursueParticleEffectWithUpperLimit(int a0, int a1, float a2);
 

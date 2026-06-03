@@ -76,7 +76,11 @@ void func_0017BCC0(void) {
     __asm__ __volatile__("");
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", func_0017BCE0);
+extern int ACTGameCollisionOn(void);
+
+int func_0017BCE0(void) {
+    return ACTGameCollisionOn() != 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", func_0017BD00);
 
