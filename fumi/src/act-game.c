@@ -46,7 +46,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ActOrientTest);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", GetGirlHandlinkClInfo);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", hand_able_connect);
+extern int D_006A3F70[];
+
+void hand_able_connect(void) {
+    D_006A3F70[0x12C] = 0;
+    D_006A3F70[0x12D] = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_CommonLoop);
 
