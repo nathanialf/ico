@@ -10,7 +10,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", fzMagnitude3f);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", fzMagnitudefv);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", fzMagnitude2fv);
+void fzMagnitude2fv(float *a0, float a1, float a2, float a3, float a4) {
+    a0[0] = a1;
+    a0[1] = a2;
+    a0[2] = a3;
+    a0[3] = a4;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", fzMagnitudeByLine);
 
