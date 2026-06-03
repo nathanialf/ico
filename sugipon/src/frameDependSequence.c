@@ -36,7 +36,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/frameDependSequence", executeSEPa
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/frameDependSequence", executeSEPackageWithNoGObj);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/frameDependSequence", ExecuteSEPackageWithGroupVariation);
+int ExecuteSEPackageWithGroupVariation(void *a0, int a1) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    return (int)(*(float *)((char *)p + 0x634)) < a1;
+}
 
 int ExecuteSEPackage(void *a0, int a1) {
     int *p = *(int **)((char *)a0 + 0x15C);

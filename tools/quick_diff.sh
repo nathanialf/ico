@@ -225,6 +225,19 @@ sed -i -E 's/\bmove[[:space:]]+(\$[0-9a-zA-Z]+),[[:space:]]*(\$[0-9a-zA-Z]+)\b/d
 # two-operand `break 0,7` so both ee-as and modern gas emit the ROM's
 # low-field encoding (0x000001cd, not 0x0007000d). Matches compile_c.sh.
 sed -i -E 's/\bbreak[[:space:]]+(0x[0-9a-fA-F]+|[0-9]+)[[:space:]]*$/break 0,\1/' "$ASM_OUT"
+# COP1 cvt.w.s → identical .word: gas's r5900 (mips3) modern-as fallback rejects
+# the mnemonic though the EE FPU implements it (ROM holds the raw COP1 encoding;
+# splat emits the target side as .word too). Assembler parity, matches compile_c.sh.
+python3 - "$ASM_OUT" <<'PYEOF'
+import re, sys
+p = sys.argv[1]; s = open(p).read()
+def _repl(m):
+    fd, fs = int(m.group(1)), int(m.group(2))
+    return "\t.word 0x%08X" % (0x46000000 | (fs << 11) | (fd << 6) | 0x24)
+s2 = re.sub(r"\tcvt\.w\.s\s+\$f(\d+)\s*,\s*\$f(\d+)\b", _repl, s)
+if s2 != s:
+    open(p, "w").write(s2)
+PYEOF
 
 # Stage 2: assemble. Prefer the project's ee-as 2.10 (matches the full
 # build's src/.o pipeline so `move` pseudos expand consistently — modern

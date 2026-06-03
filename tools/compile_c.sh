@@ -118,9 +118,6 @@ EXTRA="$("${EXTRA_CFLAGS_LOOKUP}" "${SRC}" 2>/dev/null || true)"
 # single-jtbl TUs and on .s files with no `.rdata`/jtbl blocks.
 "${PYTHON}" "${ROOT}/tools/postprocess_split_jtbls.py" "${S}"
 
-# Demote `.p2align 3` -> `.p2align 2` for functions listed in
-# config/demote_p2align.txt (per-function alternative to -malign-loops=2).
-
 # Each runs whole-TU unless its config line carries `@func_<hex>` tokens, in
 # which case run_pp_scoped limits it to those funcs' .ent/.end blocks — so a
 # postprocess added for one func in a coalesced TU can't rewrite its siblings.
@@ -161,6 +158,24 @@ sed -i -E 's/\bmove[[:space:]]+(\$[0-9a-zA-Z]+),[[:space:]]*(\$[0-9a-zA-Z]+)\b/d
 # assemblers emit the low-field encoding the ROM uses. (Already-explicit
 # `break a,b` from INCLUDE_ASM'd .s has a comma and is left untouched.)
 sed -i -E 's/\bbreak[[:space:]]+(0x[0-9a-fA-F]+|[0-9]+)[[:space:]]*$/break 0,\1/' "${S}"
+
+# COP1 cvt.w.s: gas's r5900 (mips3) port — the modern-as fallback used for TUs
+# whose INCLUDE_ASM siblings only modern gas can parse — REJECTS the cvt.w.s
+# mnemonic, although the EE FPU implements it and the ROM holds the raw COP1
+# encoding (splat emits it as `.word 0x46......` on the target side too).
+# Rewrite gcc's `cvt.w.s $fD,$fS` to the identical `.word` so either assembler
+# emits the exact bytes. Pure assembler parity; a no-op for any TU that never
+# emits cvt.w.s, and byte-identical where it does.
+"${PYTHON}" - "${S}" <<'PYEOF'
+import re, sys
+p = sys.argv[1]; s = open(p).read()
+def _repl(m):
+    fd, fs = int(m.group(1)), int(m.group(2))
+    return "\t.word 0x%08X" % (0x46000000 | (fs << 11) | (fd << 6) | 0x24)
+s2 = re.sub(r"\tcvt\.w\.s\s+\$f(\d+)\s*,\s*\$f(\d+)\b", _repl, s)
+if s2 != s:
+    open(p, "w").write(s2)
+PYEOF
 
 # ee-as 2.10 only accepts numbered MIPS registers; translate all aliases
 # (float regs $f0-$f31 and VU regs $vfN are already accepted as-is).
