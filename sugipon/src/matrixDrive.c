@@ -1,5 +1,6 @@
 #include "common.h"
 #include "r5900.h"
+#include "vu0.h"
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/matrixDrive", InitMatrixDrive);
 
@@ -39,9 +40,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/matrixDrive", MatrixDrive_TurnXOb
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/matrixDrive", MatrixDrive_TurnYObjectMatrixXZ);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/matrixDrive", MatrixDrive_TurnZObjectMatrixXY);
+void MatrixDrive_TurnZObjectMatrixXY(void *a0, void *a1, void *a2) {
+    VU0_LSV(lqc2, 4, 0x0, 5);
+    VU0_LSV(lqc2, 5, 0x0, 6);
+    VU0_V3OP(vadd.xyz, 4, 4, 5);
+    VU0_LSV(sqc2, 4, 0x0, 4);
+    VU0_NOP();
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/matrixDrive", MatrixDrive_GetTurnXAngleZY);
+void MatrixDrive_GetTurnXAngleZY(void *a0, void *a1, void *a2) {
+    VU0_LSV(lqc2, 4, 0x0, 5);
+    VU0_LSV(lqc2, 5, 0x0, 6);
+    VU0_V3OP(vsub.xyz, 4, 4, 5);
+    VU0_LSV(sqc2, 4, 0x0, 4);
+    VU0_NOP();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/matrixDrive", MatrixDrive_GetTurnXAngleYZ);
 
