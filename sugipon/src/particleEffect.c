@@ -32,6 +32,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", GetParticleEffec
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", DeleteParticleEffectsByPackage);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", DeleteParticleEffectsByID);
+extern unsigned char D_00703CC0[];
+
+void *DeleteParticleEffectsByID(int a0) {
+    return &D_00703CC0[a0 * 0xA0];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", GetParticleEffectData);
