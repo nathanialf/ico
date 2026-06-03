@@ -4,7 +4,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", torchOnOfWeaponSE);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", torchOffOfWeaponSE);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", weaponHitReactionSE);
+extern void DemoMotionGeo(int a0, int a1, int a2, int a3);
+
+void weaponHitReactionSE(void *a0, int a1) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int x = *(int *)((char *)p + 0x7F0);
+    DemoMotionGeo(a1, x + 0x20, x + 0x30, x + 0x40);
+}
 
 extern void func_001EF3B0(int a0);
 

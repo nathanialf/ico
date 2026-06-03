@@ -23,7 +23,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vibuf", viBufStopDMA);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vibuf", viBufRestartDMA);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vibuf", viBufFlush);
+void *viBufFlush(void *a0) {
+    int *p = (int *)a0;
+    p[0] = 0;
+    p[2] = 0x3F;
+    p[1] = 0;
+    p[3] = 0;
+    return (char *)a0 + 0x10;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vibuf", viBufModifyPts);
 

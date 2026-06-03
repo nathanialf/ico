@@ -30,7 +30,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", iosCdvdBackGroundMgrAdd);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", iosCdvdBackGroundMgr);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", iosCdvdDirectStOpen);
+extern void iosMsgSend(void *a0, void *a1, int a2);
+extern unsigned char D_0027A840[];
+
+void iosCdvdDirectStOpen(void *a0) {
+    *(int *)((char *)a0 + 4) = 2;
+    iosMsgSend(D_0027A840, a0, 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", iosCdvdChgFileName);
 

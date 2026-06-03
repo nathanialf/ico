@@ -6,7 +6,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_readbuf", readBufDelete);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_readbuf", readBufCreate);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_readbuf", readBufBeginPut);
+extern void inflate_start(void *a0);
+
+void readBufBeginPut(void *a0) {
+    inflate_start(a0);
+    __asm__ __volatile__("");
+}
 
 extern void func_0019B720(void *a0);
 

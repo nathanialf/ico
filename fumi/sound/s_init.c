@@ -84,7 +84,13 @@ int soundBufAdpcmChAlloc(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundBufAdpcmFree);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundDataAreaSearch);
+extern unsigned long long D_0062BFC8;
+
+void soundDataAreaSearch(void *a0) {
+    unsigned long long *p = (unsigned long long *)((char *)a0 + 0x18);
+    D_0062BFC8 &= ~*p;
+    *p = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundDataAreaGet);
 
