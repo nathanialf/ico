@@ -13,7 +13,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/icoMisc", InitIcoMisc);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/icoMisc", DispIcoMisc);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/icoMisc", ExitIcoMisc);
+extern int D_004AEE68[];
+extern int D_0062B234;
+
+void ExitIcoMisc(int a0) {
+    D_004AEE68[a0] = D_0062B234;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/icoMisc", func_001ABE38);
 

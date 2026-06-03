@@ -6,7 +6,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", InvertCurrentQuatern
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", SetCurrentQuaternion);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", RotCurrentQuaternionX);
+extern int D_00629E7C;
+extern int D_0065A5C0[];
+extern void GetInverseQuaternion(void *a0, void *a1);
+
+void RotCurrentQuaternionX(void *a0) {
+    GetInverseQuaternion(&D_0065A5C0[D_00629E7C * 4], a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", RotCurrentQuaternionY);
 

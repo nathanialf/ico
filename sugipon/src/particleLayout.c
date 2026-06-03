@@ -2,9 +2,16 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleLayout", DeleteParticleLayout);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleLayout", InitParticleLayoutGeo);
+typedef struct { int w[6]; } ParticleRec;
+extern ParticleRec D_007030C0[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleLayout", ParticleLayoutGeo);
+int InitParticleLayoutGeo(int a0) {
+    return D_007030C0[a0].w[5];
+}
+
+void ParticleLayoutGeo(int a0) {
+    D_007030C0[a0].w[1] = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleLayout", ParticleLayoutDL);
 

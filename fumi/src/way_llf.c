@@ -8,13 +8,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", CreateTempWayGroup);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", DeleteWayGroup);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", CloseWayGroup);
+typedef struct { int w[13]; } WayRec;
+extern WayRec D_004C6FF0[];
+
+int CloseWayGroup(int a0) {
+    return D_004C6FF0[a0].w[2];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", CreateWayPoint);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", AddWayPoint);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", AddWayPointTop);
+void AddWayPointTop(int a0, int a1) {
+    D_004C6FF0[a0].w[10] = a1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", InsertWayPointAfter);
 

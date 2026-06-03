@@ -47,7 +47,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", AddPluralCameraSet);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", InitPluralCameraSet);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", GetPluralCameraSet);
+extern int D_00629DE4;
+extern void actBoySupportBGBegin(void *a0, int a1);
+extern void GetRootMatrixByDObj(void *a0, int a1);
+
+void GetPluralCameraSet(void *a0, int a1) {
+    if (a1 == D_00629DE4) {
+        actBoySupportBGBegin(a0, a1);
+        return;
+    }
+    GetRootMatrixByDObj(a0, a1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", MakeCameraSetBinary);
 

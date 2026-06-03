@@ -42,7 +42,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", QueenBoysWeaponPower);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", QueenBarrierRadius);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", QueenBarrierInqBreakable);
+float QueenBarrierInqBreakable(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    return *(float *)((char *)q + 0x14) * 100.0f;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", queenBarrierBeforeFunc);
 
