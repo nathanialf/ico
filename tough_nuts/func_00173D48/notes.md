@@ -23,3 +23,44 @@ to the frame / different local layout); (b) kill the arg-version a0->v0 copy so
 `sw $4` stores directly while $4 stays the call arg. Both are scheduling/regalloc
 order nuances — a clean shape should exist (rc2, one swapped pair). NOT 30-stalled
 (only ~8 hand iters); resume and continue to match or a formal 30-stall.
+
+---
+
+## Attempt at 2026-06-03
+
+**Reason parked:** genuine 30-stall park per match_loop next (best=rc2). Only diff: prologue sw a0 / sd ra order (volatile store floats ahead of callee-save) + the jal-delay store-vs-nop; ~30 distinct volatile/barrier/struct forms tried. Left for offline auto_permute.
+
+**TU:** `fumi/src/jimaku.c`
+
+**Seed:** `tough_nuts/func_00173D48/func_00173D48.c`
+
+Disassembly:
+
+```
+.align 3
+nonmatching func_00173D48, 0x20
+
+glabel func_00173D48
+    /* 73D48 00173D48 E0FFBD27 */  addiu      $29, $29, -0x20
+    /* 73D4C 00173D4C 1000BFFF */  sd         $31, 0x10($29)
+    /* 73D50 00173D50 0000A4AF */  sw         $4, 0x0($29)
+    /* 73D54 00173D54 5623050C */  jal        ACTLookTargetSystem_Exec
+    /* 73D58 00173D58 00000000 */   nop
+    /* 73D5C 00173D5C 1000BFDF */  ld         $31, 0x10($29)
+    /* 73D60 00173D60 0800E003 */  jr         $31
+    /* 73D64 00173D64 2000BD27 */   addiu     $29, $29, 0x20
+endlabel func_00173D48
+```
+
+## Resume 2026-06-03 (cont.) — genuine 30-stall PARK (match_loop next verdict)
+Resumed at rc2; fired the (now-fixed) 5-min permuter shot (base score 60, NO
+improvement, 0 errors — confirms the permuter race-fix). Hand-iterated ~30
+DISTINCT forms from the reset baseline; `match_loop next` printed
+`action: park` at `stall=30/30` (best=2), reason "the permuter would plateau;
+PARK for the offline batch". Determined: ACTLookTargetSystem_Exec takes NO args
+(sets $4 itself) → no-arg call is correct; the a0-home store needs a volatile
+local, which floats the `sw a0` ahead of `sd ra` (ROM has sd ra first). Barrier
+brackets (lead/mid/trail) either keep the store too early, push it into the jal
+delay, or fill the delay with ld ra — none yields `sd ra; sw a0; jal; nop`.
+use_old_as did NOT help (both assemblers fill the jal delay from the preceding
+store). Parked for offline auto_permute per the next verdict.
