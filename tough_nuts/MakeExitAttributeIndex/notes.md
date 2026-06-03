@@ -113,3 +113,30 @@ assignment-in-expr idea measures rc7 (worse). Nothing beat rc4. Left for offline
 auto_permute (which cracked func_0025CC70's coalesce the same way). Next: reset +
 hand-drive the gp_rel-ldl/ldr-fold + dbr residual to a tool-verdict, OR a longer
 permuter shot finds the addressing/live-split lever like it did for fabsf.
+
+## Resume 2026-06-03 — RETAIL CROSS-REFERENCE (user idea) → rc4->rc3 + j-delay diagnosed
+The retail (main branch) src/fieldCollision.c has the debug string
+"MakeExitAttributeIndex() %d\n" AND a sibling func_00167230 of the SAME shape that
+reveals the dev's actual struct type:
+    typedef struct { unsigned int lo; unsigned char m[3]; unsigned char hi; } FcBlk8;
+NOT the `__attribute__((packed)) long long` I'd been guessing. Applying it:
+    typedef struct { unsigned int lo; unsigned char m[3]; unsigned char hi; } FcBlk8;
+    extern FcBlk8 D_0062A6A0;
+    void MakeExitAttributeIndex(void *a0) {
+        *(int *)((char *)a0 + 0x94) = 0;
+        *(FcBlk8 *)((char *)a0 + 0x8C) = D_0062A6A0;
+        GetEdgeOfFloor(a0);
+    }
+FIXED the gp_rel fold (gcc now emits direct-symbol `ldl D_0062A6A0` which folds to
+%gp_rel) → rc4 -> rc3. The SOLE remaining diff is the assembler hoisting `sdr` into
+the `j GetEdgeOfFloor` tail-call delay (ROM: sdr;j;nop). VERIFIED: ee-as 2.9-991111
+leaves that delay nop (matches ROM); ee-as 2.96 + modern-as both fill it. This IS
+the use_old_as case (compile_c.sh:31-38 documents it). BLOCKER: fieldCollision's
+INCLUDE_ASM siblings use `%gp_rel(SYM)($28)` which ee-as REJECTS ("Bad expression"),
+so the TU falls through to modern-as and use_old_as never takes effect. A rewrite
+`%gp_rel(SYM)($28)->SYM` (byte-identical R_MIPS_GPREL16) lets ee-as assemble the
+siblings — but switching the WHOLE TU to ee-as REGRESSED the build (ninja MISMATCH:
+other decompiled fieldCollision/girl_act funcs that matched under modern-as differ
+under ee-as). So the clean fix needs per-function assembler granularity (or to
+confirm all fieldCollision funcs match under ee-as, as they do in retail). FcBlk8
+struct is the validated win; the j-delay is a tooling follow-up.
