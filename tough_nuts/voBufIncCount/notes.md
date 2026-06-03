@@ -39,3 +39,18 @@ endlabel voBufIncCount
    under -O2/2.96. CONFIRMED: voBufIncCount needs the ito/mpeg module build
    flags (-O1 -fno-delayed-branch + old assembler). Not a source-shape floor;
    a module-level build-config decision. Parked permanently pending that.
+
+## CORRECTION + RESOLUTION (supersedes the -O1 finding above)
+The "-O1 -fno-delayed-branch module" conclusion above was REFUTED. viBufFlush
+(a third ito/mpeg TU, mv_vibuf) matches at default -O2: its non-ascending store
+order comes from -O2 scheduling once a return-value `addu` interleaves, so
+"-O2 always sorts ascending" was wrong — -O2 is shape-sensitive. ito/mpeg is -O2
+like the rest of the game (modules differ by AUTHOR, not flags — see
+decomp/PROGRAMMERS.md; ito = Toshihiro Ito, credited Scripting + the IPU/movie
+layer).
+=> voBufIncCount is NOT a compiler-flag case. In an -O2 module, a trivial
+   counter-reset emitted `sw 12; sw 8; jr; nop` (descending, unfilled delay) is a
+   human hand-scheduling signature (compilers fill that slot). RESOLVED as Ito's
+   hand-written asm: reproduced as an inline __asm__ glabel block in
+   ito/mpeg/mv_vobuf.c (same class as the PObj syscall stubs / ISR cluster).
+   ninja verify_elf OK. No longer parked.
