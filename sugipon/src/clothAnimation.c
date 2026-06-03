@@ -38,7 +38,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", getCloth4D);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", getCloth4D_postProcess);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", GetCloth4D);
+float GetCloth4D(void *a0, float a1) {
+    return a1 / *(float *)((char *)a0 + 0x14);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", InitCloth4D);
 
