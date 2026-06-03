@@ -1291,7 +1291,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00251088);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002510B0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00251298);
+extern void func_00252468(int a0);
+
+void func_00251298(void) {
+    func_00252468(3);
+    __asm__ __volatile__("");
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002512B8);
 
