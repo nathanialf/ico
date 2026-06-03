@@ -18,7 +18,13 @@ void playEff(int a0, int a1, float f) {
     func_001CE340(a0, a1, 0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/frameDependSequence", execEff);
+extern void soundSeGroupGet(int a0);
+
+void execEff(int a0, int a1) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    p += a1;
+    soundSeGroupGet(p[0x183]);
+}
 
 extern void execEff(int a0, int a1);
 
