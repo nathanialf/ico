@@ -63,7 +63,10 @@ int iosCdvdBackGroundMgrEntryNum(void *a0) {
     return *p |= 2;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", iosCdvdBackGroundMgrSeek);
+int iosCdvdBackGroundMgrSeek(void *a0, int a1) {
+    int *p = (int *)((char *)a0 + 0x108);
+    return *p = (*p & ~0x10) | ((a1 & 1) << 4);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", iosCdvdBackGroundRead);
 
