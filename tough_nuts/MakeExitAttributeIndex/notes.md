@@ -86,3 +86,21 @@ glabel MakeExitAttributeIndex
     /* 650A4 001650A4 00000000 */   nop
 endlabel MakeExitAttributeIndex
 ```
+
+## Resume 2026-06-03 (cont.) — concrete la/dbr characterization (gcc-version gap)
+Inspected actual gcc 2.9-991111 .s (real flags). The packed-struct LOAD shape is
+CORRECT (emits ldl/ldr). The two rc4 diffs are both gcc-VERSION emission gaps:
+(1) gp_rel fold: gcc emits `la $7,D_0062A6A0 ; ldl $3,7($7) ; ldr $3,0($7)`
+    (materializes the addr) vs ROM `ldl %gp_rel(SYM+7)($28) ; ldr %gp_rel(SYM)($28)`
+    (folded, no la). TESTED: gcc's ALIGNED `ld` DOES fold gp_rel (`ld $2,SYM`),
+    but the UNALIGNED ldl/ldr pattern does NOT — it always materializes via la/hi-lo.
+    Fundamental conflict: ROM's ldl/ldr needs a packed source (else aligned ld),
+    but packed forces the la. No source shape yields folded ldl/ldr → gcc-version gap.
+(2) dbr: gcc fills the `j GetEdgeOfFloor` delay with `sw $0,0x94($2)` (independent
+    of the tail call); ROM leaves the delay nop. gcc-version dbr behavior; no source
+    lever leaves the delay nop.
+Same CLASS as func_0025CC70 (mfc1 $3 coalesce): the project ee-gcc 2.9-991111 has
+subtle codegen differences from ROM's compiler in edge cases. A la→gp_rel-fold +
+dbr-nop parity postprocess COULD crack it (+~9 fieldCollision siblings) but both
+CHANGE instruction count/scheduling (beyond encoding-parity like move→daddu) — a
+project-policy decision deferred to the user. NOT a clean-C match at current flags.
