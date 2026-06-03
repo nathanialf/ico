@@ -26,7 +26,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", GeneratorDL);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", InitGeneratorGeo);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", Generator_Call);
+void Generator_Call(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    q[2]++;
+}
 
 void Generator_ResetCount(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
