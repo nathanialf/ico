@@ -140,3 +140,20 @@ other decompiled fieldCollision/girl_act funcs that matched under modern-as diff
 under ee-as). So the clean fix needs per-function assembler granularity (or to
 confirm all fieldCollision funcs match under ee-as, as they do in retail). FcBlk8
 struct is the validated win; the j-delay is a tooling follow-up.
+
+## Resume 2026-06-03 (cont.) — regression isolated to fieldCollision's OWN funcs
+Re-tested the ee-as path: removed girl_act from use_old_as (its build is unchanged
+either way — it falls through to modern-as), kept only fieldCollision. ninja STILL
+MISMATCHED (same SHA b42127e5...). So the regression is NOT girl_act — it is
+fieldCollision's OTHER functions: they match under modern-as but differ under ee-as
+(either the decompiled ClipWall*/etc. are tuned to modern-as delay-fill, or the
+sibling `%gp_rel($28)->SYM` rewrite is not byte-identical for some instruction
+beyond `sw`, which I only verified for `sw`). compile_c.sh's assembler choice is
+PER-TU, so a TU-wide switch to ee-as can't give MakeExitAttributeIndex its nop
+j-delay without regressing the siblings. NEXT (tooling follow-up, separate from the
+match loop): (a) verify which fieldCollision funcs differ under ee-as and whether
+the gp_rel rewrite is byte-exact for ldl/ldr/lw/sd (not just sw); (b) if the
+siblings DO match under ee-as, the conflict is real → needs per-FUNCTION assembler
+granularity in compile_c.sh/gen_ninja (split the TU .o, assemble MakeExitAttribute
+Index's range with ee-as). FcBlk8 (rc3) stays the committed best; offline
+auto_permute has the seed.
