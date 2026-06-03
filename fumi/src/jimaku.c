@@ -10,9 +10,23 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuMgrBegin);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuMgrNext);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuMgrJump);
+extern void *D_00629DE8;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuMgrEnd);
+void jimakuMgrJump(int a0) {
+    if (D_00629DE8) {
+        void *p = *(void **)((char *)D_00629DE8 + 0x164);
+        void *q = *(void **)((char *)p + 0x678);
+        *(int *)((char *)q + 0x3A4) = a0;
+    }
+}
+
+void jimakuMgrEnd(void) {
+    if (D_00629DE8) {
+        void *p = *(void **)((char *)D_00629DE8 + 0x164);
+        void *q = *(void **)((char *)p + 0x678);
+        *(int *)((char *)q + 0x3A4) = 0;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuBegin);
 
