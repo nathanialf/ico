@@ -63,4 +63,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", func_00118D68);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", func_00118E38);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", func_00118E70);
+void func_00118E70(float a0) {
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "mfc1 $6, $f12\n"
+        "qmtc2.ni $6, $vf1\n"
+        "vaddw.x $vf2, $vf1, $vf0w\n"
+        "vadd.x $vf1, $vf1, $vf1\n"
+        "vrinit $R, $vf2x\n"
+        "vrxor $R, $vf1x\n"
+        ".set reorder\n" : : : "$6", "memory");
+}

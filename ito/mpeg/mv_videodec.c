@@ -14,4 +14,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_videodec", videoDecFlush);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_videodec", videoCallback);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_videodec", decBitStrm0);
+extern void func_0023C738(void *a0);
+
+int decBitStrm0(void *a0, void *a1, void *a2) {
+    func_0023C738((char *)a2 + 0x50);
+    return 1;
+}

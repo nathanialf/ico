@@ -42,7 +42,18 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actSwordEff);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actSwordEffXL);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actSt25aQueenBeforeChk);
+extern float D_0062BA7C;
+extern int D_0062BA80, D_0062BA78;
+extern unsigned char D_0062BA88, D_0062BA89, D_0062BA8A;
+
+void actSt25aQueenBeforeChk(float a0, int a1, int a2, int a3) {
+    D_0062BA78 = 1;
+    D_0062BA7C = a0;
+    D_0062BA80 = 1;
+    D_0062BA88 = a1;
+    D_0062BA89 = a2;
+    D_0062BA8A = a3;
+}
 
 extern int D_0062BA78;
 extern float D_0062BA7C;

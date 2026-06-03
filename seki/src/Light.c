@@ -69,7 +69,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_00117CB8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_00117D78);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_00118048);
+float func_00118048(float a0) {
+    register float ret __asm__("$f0");
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "mfc1 $6, $f12\n"
+        "qmtc2.ni $6, $vf1\n"
+        ".word 0x4A0103BD\n"
+        "vwaitq\n"
+        "cfc2.ni $7, $vi22\n"
+        "mtc1 $7, $f0\n"
+        ".set reorder\n"
+        : "=f"(ret) :: "$6", "$7");
+    return ret;
+}
 
 void func_00118068(void) {
     __asm__ __volatile__(

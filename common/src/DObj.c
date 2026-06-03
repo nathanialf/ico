@@ -4,7 +4,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/DObj", initGeometryState);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/DObj", initMatrixDObj);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/DObj", allocObjectData);
+void allocObjectData(void *a0) {
+    if (*(volatile int *)((char *)a0 + 0xC) > 0) {
+        *(volatile int *)((char *)a0 + 0xC) = *(volatile int *)((char *)a0 + 0xC) - 1;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/DObj", initInitialInverseMatrix);
 

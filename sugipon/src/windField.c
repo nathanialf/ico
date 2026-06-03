@@ -6,7 +6,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/windField", InitWindField);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/windField", drawSenpuukiHaneUnit);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/windField", drawSenpuuki);
+extern void (*D_0062BA30)(void);
+
+void drawSenpuuki(void) {
+    D_0062BA30();
+    __asm__ __volatile__("");
+}
 
 void *ExecWindField(int *a0) {
     if (a0) {
