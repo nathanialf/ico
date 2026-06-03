@@ -20,7 +20,15 @@ void StageManager(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/StageManager", stgmgrForceSwitch);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/StageManager", stgmgrForceSwitchWithFade);
+extern int D_0062C110;
+extern int D_0062AB28;
+extern int D_0062AB2C;
+
+void stgmgrForceSwitchWithFade(int a0) {
+    D_0062C110 = a0;
+    D_0062AB28 = 1;
+    D_0062AB2C = 0;
+}
 
 extern int D_0062AB28;
 extern int D_0062AB2C;
