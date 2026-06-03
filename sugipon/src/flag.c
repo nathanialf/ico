@@ -18,4 +18,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/flag", func_001CD478);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/flag", func_001CD630);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/flag", func_001CD658);
+extern void *D_0062B698;
+
+int func_001CD658(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    D_0062B698 = a0;
+    p[0x1D] = 0;
+    return 0;
+}
