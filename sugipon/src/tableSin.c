@@ -1,6 +1,11 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", GetTableSin);
+extern int D_00629E7C;
+extern int D_0065A5B0[];
+
+void *GetTableSin(void) {
+    return &D_0065A5B0[D_00629E7C * 4];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", GetTableCos);
 

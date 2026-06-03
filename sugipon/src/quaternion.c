@@ -52,4 +52,6 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", GetSlerpQuaternion);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", GetCurrentQuaternion);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", GetLastQuaternion);
+void *GetLastQuaternion(void) {
+    return &D_0065A5C0[D_00629E7C * 4];
+}
