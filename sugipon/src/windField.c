@@ -1,18 +1,24 @@
 #include "common.h"
 
+extern int D_00271BD0[];
+
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/windField", InitWindField);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/windField", drawSenpuukiHaneUnit);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/windField", drawSenpuuki);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/windField", ExecWindField);
+void *ExecWindField(int *a0) {
+    if (a0) {
+        *a0 = 0;
+    }
+    return D_00271BD0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/windField", GetWindVector);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/windField", dummyGetWindVector);
 
-extern void ExecWindField(void);
 extern void (*D_0062BA30)(void);
 
 void getParallelWindVector(void) {
