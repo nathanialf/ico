@@ -135,3 +135,19 @@ $4 (+move) for 4-byte unions, or $3-with-dsll/dsra for 8-byte. The in-place `and
 (no move) is reachable via neg-then-mask but keeps reg $4 + an extra neg.s.
 NEXT levers: forms that extend the loaded-bits live range so gcc allocates it to
 $3 before the and-result (so they coalesce); permuter is fixed and runs offline.
+
+## Resume 2026-06-03 (cont.) — PADDING CAUGHT by self-hashing (stall is hollow at 30)
+Drove the match_loop stall to 30 but then HASH-VERIFIED the last 3 records
+(modulo `%0x80000000`, `&mask|(x>>31&0)`, `x-=(x&0x80000000)`) — ALL hash to
+2960df, BYTE-IDENTICAL to the union baseline `&0x7FFFFFFF`. They are padding (the
+skill's HOLLOW stall). So the tool's stall=30 is NOT a legitimate 30; I will not
+park on it. Genuine BYTE-DISTINCT codegens recorded (by unique asm hash): union
+(mfc1$4+move), 8-byte-ll/double/aligned (mfc1$3+dsll/dsra), spill (lw/sw),
+abs.s, c.lt.s/neg.s, sll/srl shift, static-global, branch-abs (mfc1$2), cond-ne0,
+read-twice, vol-float, ll-low-mask, 8byte-src+4byte, struct-spill x2, neg-then-mask,
+64bit-mask hi-id/low-only (dli), ll-int-mix, ll-clearhi, shl-shr (mfc1$3), dsll32,
+shl33-shr33 — ~24 unique outputs. NONE is ROM's clean `mfc1 $3 + single and + no
+move`. Mechanism (re-derived + re-tested this fire): the 4-byte union RMW splits
+into mfc1-result + and-result pseudos; gcc's coalescer won't merge them (→ move).
+8-byte avoids the split (one 64-bit pseudo → mfc1$3) but adds dsll/dsra. The
+historical match FORCED $3 via `register int __asm__("$3")` (git 0730a316, retired).
