@@ -1463,8 +1463,7 @@ int func_00255070(void) {
 extern unsigned char D_00715D40[];
 
 void *func_00255080(int a0, int a1) {
-    unsigned char *p = &D_00715D40[a1 * 0x10];
-    return (void *)(a0 * 0x1000 + (int)p);
+    return &D_00715D40[a0 * 0x1000 + a1 * 0x10];
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002550A0);
@@ -1721,7 +1720,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025C9A0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025C9C8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025CC70);
+float func_0025CC70(float a0) {
+    union { float f; int i; } u;
+    u.f = a0;
+    u.i &= 0x7FFFFFFF;
+    return u.f;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025CC90);
 

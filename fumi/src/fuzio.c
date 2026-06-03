@@ -17,9 +17,15 @@ void fzMagnitude2fv(float *a0, float a1, float a2, float a3, float a4) {
     a0[3] = a4;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", fzMagnitudeByLine);
+int fzMagnitudeByLine(void *a0) {
+    if (*(int *)((char *)a0 + 0x88) == 0) return 0;
+    return *(int *)((char *)a0 + 0x98);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", fzMagnitudeByLineSeg);
+int fzMagnitudeByLineSeg(void *a0) {
+    if (*(int *)((char *)a0 + 0x94) == 0) return 0;
+    return *(int *)((char *)a0 + 0x98);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_001668B0);
 
