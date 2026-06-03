@@ -1,6 +1,15 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_readbuf", free_buffer);
+int free_buffer(void *a0, int a1) {
+    int *p = (int *)a0;
+    int n = p[3];
+    int t = n;
+    if (a1 < n) {
+        n = a1;
+    }
+    p[3] = t - n;
+    return n;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_readbuf", readBufDelete);
 
