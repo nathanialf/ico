@@ -29,7 +29,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AAE8
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AAFA0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AB108);
+extern int D_0062C14C;
+extern int D_0062C150;
+extern int D_0062C154;
+
+void func_001AB108(void) {
+    D_0062C14C = 0;
+    D_0062C150 = 1;
+    D_0062C154 = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AB120);
 
