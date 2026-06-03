@@ -20,7 +20,11 @@ void func_0019B720(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_strfile", func_0019B730);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_strfile", func_0019B770);
+extern void func_0024D320(void);
+int func_0019B770(void) {
+    func_0024D320();
+    return 1;
+}
 
 void func_0019B790(int *a0) {
     a0[0x2E] = 1;

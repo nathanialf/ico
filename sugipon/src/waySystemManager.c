@@ -10,7 +10,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/waySystemManager", actWaySystemCo
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/waySystemManager", func_001EF310);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/waySystemManager", func_001EF360);
+extern void _ACTWait(int a0);
+void func_001EF360(void) {
+    for (;;) {
+        _ACTWait(1);
+    }
+}
+
+void func_001EF378(int a0) {
+    playSEConditionID(a0, 0x40);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/waySystemManager", func_001EF380);
 

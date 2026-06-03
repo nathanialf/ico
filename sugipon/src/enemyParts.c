@@ -46,7 +46,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", func_001CC7D8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", func_001CC950);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", func_001CCA00);
+extern void file_Init(void *a0);
+int func_001CCA00(void *a0) {
+    file_Init(*(void **)((char *)a0 + 4));
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", func_001CCA20);
 

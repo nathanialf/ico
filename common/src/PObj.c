@@ -36,7 +36,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023D910);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023DDC0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023DF20);
+extern void *D_006281F8[];
+extern void debug_assertMessage(void *a0);
+void func_0023DF20(void) {
+    do {
+        debug_assertMessage(D_006281F8);
+    } while (0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023DF40);
 
@@ -87,8 +93,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023FB60);
 extern void func_00100840(void);
 
 void func_0023FBE8(void) {
-    func_00100840();
-    __asm__ __volatile__("");
+    do {
+        func_00100840();
+    } while (0);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023FC08);
@@ -116,9 +123,29 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023FED0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023FF18);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023FF88);
+void func_0023FF88(void *a0, void *a1, float a2) {
+    VU0_LSV(lqc2, 4, 0x0, 5);
+    VU0_NOREORDER_BEGIN();
+    VU0_MFC1(8, 12);
+    VU0_QMTC2_NI(8, 5);
+    VU0_NOREORDER_END();
+    VU0_REG("vdiv $Q, $vf0w, $vf5x");
+    VU0_WAIT();
+    VU0_REG("vmulq.xyzw $vf4, $vf4, $Q");
+    VU0_LSV(sqc2, 4, 0x0, 4);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023FFA8);
+void func_0023FFA8(void *a0, void *a1, float a2) {
+    VU0_LSV(lqc2, 4, 0x0, 5);
+    VU0_NOREORDER_BEGIN();
+    VU0_MFC1(8, 12);
+    VU0_QMTC2_NI(8, 5);
+    VU0_NOREORDER_END();
+    VU0_REG("vdiv $Q, $vf0w, $vf5x");
+    VU0_WAIT();
+    VU0_REG("vmulq.xyz $vf4, $vf4, $Q");
+    VU0_LSV(sqc2, 4, 0x0, 4);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023FFC8);
 

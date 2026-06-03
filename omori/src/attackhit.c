@@ -39,7 +39,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/attackhit", func_0017F110);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/attackhit", func_0017F2A0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/attackhit", func_0017F450);
+extern void *D_00286A94[];
+extern void saveEditedData(void *a0);
+void func_0017F450(void) {
+    if (D_00286A94[0]) {
+        saveEditedData(D_00286A94[0]);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/attackhit", func_0017F470);
 

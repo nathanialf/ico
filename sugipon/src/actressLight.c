@@ -10,7 +10,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", func_001B7ED8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", func_001B8090);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", func_001B8408);
+extern void *D_004BA2B8[];
+extern void debug_assertMessage(void *a0);
+void func_001B8408(void *a0) {
+    void *p = *(void **)((char *)a0 + 0x164);
+    debug_assertMessage(D_004BA2B8[*(int *)((char *)p + 0x30)]);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", func_001B8428);
 

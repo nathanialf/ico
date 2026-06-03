@@ -67,7 +67,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stormTest", func_001ED718);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stormTest", func_001ED7B8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stormTest", func_001ED9E8);
+extern int D_0062B9F4;
+extern int D_0062B9EC;
+extern void *D_00612EF0[];
+extern void debug_assertMessage(void *a0);
+void func_001ED9E8(void) {
+    if (D_0062B9F4 != 0) {
+        D_0062B9EC = 1;
+        return;
+    }
+    debug_assertMessage(D_00612EF0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stormTest", func_001EDA08);
 
