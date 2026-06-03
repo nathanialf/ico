@@ -2,9 +2,19 @@
 #include "vu0.h"
 #include "r5900.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", mc_setBaseOffset);
+void mc_setBaseOffset(void *a0, void *a1) {
+    VU0_LSV(lqc2, 1, 0x0, 5);
+    VU0_V2OP(vftoi4.xyzw, 2, 1);
+    VU0_LSV(sqc2, 2, 0x0, 4);
+    VU0_NOP();
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", mc_SetMicroCode);
+void mc_SetMicroCode(void *a0, void *a1) {
+    VU0_LSV(lqc2, 1, 0x0, 5);
+    VU0_V2OP(vftoi0.xyzw, 2, 1);
+    VU0_LSV(sqc2, 2, 0x0, 4);
+    VU0_NOP();
+}
 
 void mc_TransMicroCode(void *a0, void *a1) {
     QCOPY16("$t0");
