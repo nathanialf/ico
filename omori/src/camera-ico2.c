@@ -20,7 +20,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", monitorMonitorCamera)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", ChaseCamera);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", CameraMove);
+int CameraMove(int a0) {
+    return D_0062A8F4[1] + a0 * 0x4C;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", ReflectCameraSetBinary);
 
