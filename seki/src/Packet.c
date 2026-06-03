@@ -14,7 +14,16 @@ float pac_DispQW(void) {
     return ret;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_DumpPac);
+void pac_DumpPac(void *a0) {
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "vrnext.x $vf1, $R\n"
+        "vrnext.y $vf1, $R\n"
+        "vrnext.z $vf1, $R\n"
+        "vsubw.xyz $vf1, $vf1, $vf0w\n"
+        "sqc2 $vf1, 0x0($4)\n"
+        ".set reorder\n" : : : "memory");
+}
 
 void pac_makeBoundingBox(void *a0) {
     VU0_REG("vrnext.xyz $vf1, $R");

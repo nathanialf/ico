@@ -20,13 +20,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuNext);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuJump);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuEnd);
+int jimakuEnd(void *a0, void *a1) {
+    return (int)(*(float *)((char *)a0 + 0x20) - *(float *)((char *)a1 + 0x20));
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuDisp);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuManager);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuUndisp);
+void jimakuUndisp(void *a0) {
+    void *volatile q = a0;
+    int *p = *(int **)((char *)q + 0x15C);
+    *(int *)((char *)p + 0x624) = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", func_00173D00);
 

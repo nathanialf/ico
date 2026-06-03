@@ -20,7 +20,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", dispDelete);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", loadImage);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", handler_endimage);
+extern float D_00629B94, D_00629B98;
+
+int handler_endimage(void *a0) {
+    float *p = *(float **)((char *)a0 + 0x34);
+    float a = D_00629B94;
+    float b = D_00629B98;
+    p[0] = a;
+    p[2] = b;
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", startDisplay);
 
