@@ -19,7 +19,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanban", kanbanReqDelFade);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanban", kanbanReqAllDel);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanban", kanbanReqAllDelFade);
+extern void *D_0062C160;
+
+void kanbanReqAllDelFade(void *a0) {
+    *(int *)((char *)a0 + 0xC) |= 1;
+    if (a0 == D_0062C160) {
+        D_0062C160 = 0;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanban", kanbanExec);
 
