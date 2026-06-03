@@ -79,7 +79,13 @@ void isBottomOfChain(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", isStopChain);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", GetChainClimbOrient);
+extern float D_0062927C;
+
+void GetChainClimbOrient(void *a0) {
+    void *p = *(void **)((char *)a0 + 0x15C);
+    void *q = *(void **)((char *)p + 0x7F0);
+    *(float *)((char *)q + 0x44) = D_0062927C;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", CheckChainClimbablePos);
 
