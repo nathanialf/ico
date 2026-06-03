@@ -28,3 +28,16 @@ glabel free_buffer
 endlabel free_buffer
     /* 9B13C 0019B13C 00000000 */  nop
 ```
+
+## Update — genuine 30-stall reached (correcting premature park)
+
+Prior park was logged at stall 18/30 — PREMATURE. Resumed and hand-iterated
+to a real `match_loop next` verdict of `action: park` at `stall=30/30`,
+best=4. Levers tried & ruled out (all leave the copy in v1, cond in a2;
+original wants copy/result in a2, cond in v1, n/min in v0):
+assignment-in-condition `if((t=n)>a1)`, struct-member access, req-modified
+(amount as movn target), n=ternary-modify-in-place, branch-r, subtract-first
+clamp, unsigned variant, ptr-q-for-store, volatile-load. gcc's local-alloc
+pins the copy to v1 regardless of source shape — the retired REG("$6") pin is
+what historically fixed this class. `next` reason: "permuter would plateau;
+PARK for the offline batch (auto_permute.sh)". Left for offline permutation.
