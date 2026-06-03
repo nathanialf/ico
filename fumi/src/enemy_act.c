@@ -114,9 +114,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyHyde);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyFlagOnFree);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", afterCommonCarry);
+int afterCommonCarry(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x164);
+    int *q = *(int **)((char *)p + 0x670);
+    return q[0x78] == 1;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyFlagOnDead);
+int actEnemyFlagOnDead(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x164);
+    int *q = *(int **)((char *)p + 0x670);
+    return q[0x78] == 2;
+}
 
 int EnemyBrainStatus_Boy(void *a0) {
     int *p = *(int **)((char *)a0 + 0x164);

@@ -104,7 +104,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", funcCommonFallDircorrect
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", correctJumpOrientByChain);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonJump);
+void actCommonJump(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x164);
+    int *q = *(int **)((char *)p + 0x670);
+    q[0x81]--;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonFall);
 
