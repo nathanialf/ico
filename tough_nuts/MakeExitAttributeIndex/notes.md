@@ -42,3 +42,19 @@ Remaining rc5 diff = the irreducible uld core (gcc `uld $3,D_0062A6A0` ->
 uld emission invariant. Continuing to formal 30-stall (currently 7/30 from rc5).
 Next levers to try: forms that remove the extra a0-copy (base-var used for both
 stores while a0 stays for the tail call).
+
+## Resume progress cont. (rc5 -> rc4)
+Double zero-store bracket REMOVED the round-trip a0<->v0 copy:
+    *(int *)((char *)a0 + 0x94) = 0;
+    *((struct PackedLL *)((char *)a0 + 0x8C)) = D_0062A6A0;   // deref-assign (NOT [0])
+    *(int *)((char *)a0 + 0x94) = 0;                          // 2nd zero (gcc DCEs one)
+    GetEdgeOfFloor(a0);
+rc4 remaining = TWO gcc-emission diffs, both compiler-difference (ee-gcc vs ROM):
+  (1) uld core: gcc `uld $3,SYM` -> `daddiu a3,gp; ldl 7(a3); ldr 0(a3)` vs ROM
+      folded `ldl/ldr %gp_rel(gp)` (+1 insn). use_old_as does NOT fix (re-tested).
+  (2) dbr delay-fill: gcc's dbr hoists the `sw zero` into the `j GetEdgeOfFloor`
+      delay; ROM leaves the delay `nop` (zero stored early). use_old_as does NOT
+      fix (it's gcc dbr, not assembler-reorg). No source lever found to leave the
+      j-delay nop (zero-store is an independent fillable candidate).
+Both are emission-level (not regalloc/source-shape) -> rc4 is the ee-gcc floor;
+rc0 needs the period compiler. Continuing to formal 30-stall per user directive.
