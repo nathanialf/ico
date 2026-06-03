@@ -14,7 +14,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", func_0014A150);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", func_0014A250);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", func_0014A3E0);
+void func_0014A3E0(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x164);
+    int *q = *(int **)((char *)p + 0x670);
+    *(float *)((char *)q + 0x58) = 1.0f;
+    q[0x15] = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", func_0014A400);
 

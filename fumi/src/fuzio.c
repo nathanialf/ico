@@ -73,7 +73,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00167F60);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00167F88);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00167FE8);
+void func_00167FE8(void *a0) {
+    int *p = (int *)a0;
+    p[4] = (int)a0 + p[4];
+    p[5] = (int)a0 + p[5];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00168008);
 

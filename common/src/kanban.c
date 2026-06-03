@@ -31,7 +31,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanban", func_001ADC68);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanban", func_001ADE70);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanban", func_001ADFC8);
+extern int D_0062B2DC, D_0062B2E4, D_0062B2E8, D_0062BA78;
+extern int D_0027126C[];
+
+void func_001ADFC8(void) {
+    D_0062B2DC = 0;
+    D_0027126C[0] = 0;
+    D_0062B2E8 = 0;
+    D_0062BA78 = 0;
+    D_0062B2E4 = 0;
+}
 
 extern int D_0062B2E4;
 

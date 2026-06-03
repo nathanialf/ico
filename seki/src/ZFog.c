@@ -13,7 +13,12 @@ void func_0012FC08(void) {
     __asm__ __volatile__("");
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", func_0012FC28);
+extern void tex_textureAnimation(void *a0, int a1);
+
+void func_0012FC28(void *a0) {
+    tex_textureAnimation(a0, 0);
+    __asm__ __volatile__("");
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", func_0012FC48);
 
@@ -35,7 +40,11 @@ void *func_0012FD38(int a0) {
     return &D_0067B0B8[a0 * 0x2E8];
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", func_0012FD50);
+extern unsigned char D_0067ADF8[];
+
+short func_0012FD50(int a0) {
+    return *(short *)(D_0067ADF8 + a0 * 6);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", func_0012FD70);
 

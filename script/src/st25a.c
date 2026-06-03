@@ -58,7 +58,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actSt25aQueenDeadEvent);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actItouQueenAttackChk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", func_0017BCC0);
+extern void func_001BDF80(void);
+
+void func_0017BCC0(void) {
+    func_001BDF80();
+    __asm__ __volatile__("");
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", func_0017BCE0);
 

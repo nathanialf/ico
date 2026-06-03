@@ -48,6 +48,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", func_00174580);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", func_00174650);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", func_00174698);
+extern int D_00286810[];
+extern void iosMsgSend(void *a0, void *a1, int a2);
+
+void func_00174698(void *a0) {
+    *(int *)a0 = 0;
+    iosMsgSend(D_00286810, a0, 1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", func_001746B8);
