@@ -1,6 +1,12 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spider", InitSpiderLayoutGeo);
+int InitSpiderLayoutGeo(void *a0, void *a1) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    void *q = *(void **)((char *)p + 0x7F0);
+    *(unsigned short *)((char *)q + 0x20) = *(unsigned short *)((char *)a1 + 0x30);
+    *(int *)((char *)q + 0x24) = *(short *)((char *)a1 + 0x32);
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spider", WakeUpLayoutedSpiders);
 

@@ -58,11 +58,37 @@ void MatrixDrive_GetTurnXAngleZY(void *a0, void *a1, void *a2) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/matrixDrive", MatrixDrive_GetTurnXAngleYZ);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/matrixDrive", MatrixDrive_GetTurnYAngleXZ);
+float MatrixDrive_GetTurnYAngleXZ(float a0) {
+    register float ret __asm__("$f0");
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "mfc1 $8, $f12\n"
+        "qmtc2.ni $8, $vf4\n"
+        ".word 0x4A0403BD\n"
+        "vwaitq\n"
+        "cfc2.ni $2, $vi22\n"
+        "mtc1 $2, $f0\n"
+        ".set reorder\n"
+        : "=f"(ret) :: "$2", "$8");
+    return ret;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/matrixDrive", MatrixDrive_GetTurnYEAngleXZ);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/matrixDrive", MatrixDrive_GetTurnZAngleXY);
+float MatrixDrive_GetTurnZAngleXY(void *a0) {
+    register float ret __asm__("$f0");
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf3, 0x0($4)\n"
+        "vmul.xyz $vf3, $vf3, $vf3\n"
+        "vaddy.x $vf3, $vf3, $vf3y\n"
+        "vaddz.x $vf3, $vf3, $vf3z\n"
+        "qmfc2.ni $2, $vf3\n"
+        "mtc1 $2, $f0\n"
+        ".set reorder\n"
+        : "=f"(ret) :: "$2");
+    return ret;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/matrixDrive", MatrixDrive_GetTurnZAngleYX);
 

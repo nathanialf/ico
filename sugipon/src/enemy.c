@@ -56,6 +56,11 @@ void InitDemoMotionGeo(void *a0, int a1) {
     base[a1] = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemy", HotInitDemoMotionGeo);
+int HotInitDemoMotionGeo(void *a0, int a1) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    int *r = *(int **)((char *)q + 0x14);
+    return r[a1] == 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemy", GetEnemyHitNodeFlag);

@@ -45,7 +45,14 @@ void GetCameraGroupFromPosition(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", AddPluralCameraSet);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", InitPluralCameraSet);
+extern int D_00629C90;
+extern unsigned char D_005EBC48[];
+extern void AddPluralCameraSet(int a0);
+
+extern int D_005EBC48_arr[][0x64] __asm__("D_005EBC48");
+void InitPluralCameraSet(void) {
+    AddPluralCameraSet(D_005EBC48_arr[D_00629C90][0x46]);
+}
 
 extern int D_00629DE4;
 extern void actBoySupportBGBegin(void *a0, int a1);

@@ -48,7 +48,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", GetChainNodeGlob
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", MoveChainExtendedWeight);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", InitChainVelocity);
+float InitChainVelocity(float a0) {
+    register float ret __asm__("$f0");
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "mfc1 $8, $f12\n"
+        "qmtc2.ni $8, $vf4\n"
+        "vrsqrt $Q, $vf0w, $vf4x\n"
+        "vwaitq\n"
+        "cfc2.ni $2, $vi22\n"
+        "mtc1 $2, $f0\n"
+        ".set reorder\n"
+        : "=f"(ret) :: "$2", "$8");
+    return ret;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", DeleteChainExtendedWeight);
 

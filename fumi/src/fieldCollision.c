@@ -106,7 +106,10 @@ void ChangeFieldCollisionDebugMode(void *a0) {
     __asm__ __volatile__("");
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", LoadCollision);
+void LoadCollision(void *a0) {
+    D_0062A6D4(a0, 0xD);
+    __asm__ __volatile__("");
+}
 
 void DrawCollision(void *a0) {
     D_0062A6D4(a0, 0xE);

@@ -9,7 +9,12 @@ void SugiLeafGeo2(int a0, int a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/sugiTree", SugiLeafDL2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/sugiTree", InitSugiLeafGeo);
+extern void func_001EDA68(void);
+
+int InitSugiLeafGeo(void) {
+    func_001EDA68();
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/sugiTree", SugiLeafGeo);
 

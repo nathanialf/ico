@@ -23,7 +23,9 @@ void AddWayPointTop(int a0, int a1) {
     D_004C6FF0[a0].w[10] = a1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", InsertWayPointAfter);
+int InsertWayPointAfter(int a0) {
+    return D_004C6FF0[a0].w[10] != 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", DeleteWayPoint);
 
