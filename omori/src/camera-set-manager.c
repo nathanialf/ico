@@ -1,6 +1,12 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-set-manager", InitCameraSetManager);
+extern int D_0062C074;
+extern int D_0062C078;
+
+void InitCameraSetManager(int *a0, int *a1) {
+    *a0 = D_0062C074;
+    *a1 = D_0062C078;
+}
 
 extern int D_0062C080;
 extern int D_006C9F98[];
