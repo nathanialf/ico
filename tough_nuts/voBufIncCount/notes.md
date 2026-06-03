@@ -24,3 +24,13 @@ glabel voBufIncCount
     /* 9BAD4 0019BAD4 00000000 */   nop
 endlabel voBufIncCount
 ```
+
+## Permuter status (user-requested shot, this session)
+Permuter CANNOT run on this function: tools/permute_run.sh is hardwired for the
+retail `cod` segment layout (asm/matchings/cod/<file_off>/func_<hex>.s, func_XXXXXXXX
+names). aug6 uses asm/aug6/matchings/<module>/<TU>/<name>.s with NAMED functions, so
+the script can locate neither the named form (name-guard reject) nor the hex form
+(func_0019BAC8 -> looks for asm/matchings/cod/09BAC8/, which doesn't exist on aug6).
+=> auto_permute.sh / the Step-4 offline batch is a NO-OP for aug6 named funcs.
+Independently, the permuter builds under -O2/2.96 and the residual is a module
+build-flag issue (-O1/-fno-delayed-branch/old-as), so it could not help even if ported.
