@@ -8,7 +8,11 @@ int Draw2DLineSeg_Start(void *a0) {
     return q[1];
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lineManager", Draw2DLineSeg_Loop);
+int Draw2DLineSeg_Loop(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    return q[0] == 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lineManager", Draw2DLineG);
 
