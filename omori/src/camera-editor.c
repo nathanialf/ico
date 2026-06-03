@@ -56,7 +56,12 @@ void wakeup_cameraedit(int a0, int a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", test_camedit);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", _CameraEdit_del_box);
+extern int test_camedit[];
+extern void DispCameraGroup(void *a0, int a1, int a2);
+
+void _CameraEdit_del_box(void) {
+    DispCameraGroup(test_camedit, 0, 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", _CameraEdit_del_pin);
 
