@@ -1,4 +1,5 @@
 #include "common.h"
+#include "vu0.h"
 
 float InitClothTestGeo(void *a0) {
     register float ret __asm__("$f0");
@@ -18,7 +19,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothTest", ClothTestGeo);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothTest", ClothTestDL);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothTest", func_001C6148);
+void func_001C6148(void *a0, void *a1, float a2) {
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf4, 0x0($5)\n"
+        "mfc1 $8, $f12\n"
+        "qmtc2.ni $8, $vf5\n"
+        "vmulx.xz $vf4, $vf4, $vf5x\n"
+        "sqc2 $vf4, 0x0($4)\n"
+        ".set reorder\n" : : : "memory");
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothTest", func_001C6168);
 

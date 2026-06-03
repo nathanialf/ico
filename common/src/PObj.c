@@ -84,7 +84,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023FB20);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023FB60);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023FBE8);
+extern void func_00100840(void);
+
+void func_0023FBE8(void) {
+    func_00100840();
+    __asm__ __volatile__("");
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023FC08);
 
@@ -94,7 +99,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023FDD8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023FE08);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023FE50);
+void func_0023FE50(void *a0, void *a1, void *a2) {
+    VU0_LSV(lqc2, 4, 0x0, 5);
+    VU0_LSV(lqc2, 5, 0x0, 6);
+    VU0_V3OP_ACC(vopmula.xyz, 4, 5);
+    VU0_V3OP(vopmsub.xyz, 6, 5, 4);
+    VU0_V3OP(vsub.w, 6, 6, 6);
+    VU0_LSV(sqc2, 6, 0x0, 4);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023FE70);
 
@@ -198,7 +210,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240878);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002408D0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240918);
+void func_00240918(void *a0, void *a1) {
+    ((float *)a0)[0] = ((float *)a1)[0];
+    ((float *)a0)[1] = ((float *)a1)[1];
+    ((float *)a0)[2] = ((float *)a1)[2];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240938);
 
@@ -253,9 +269,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002413F0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002414B8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00241588);
+int func_00241588(void *a0) {
+    int v = *(int *)a0;
+    *(int *)a0 = v & ~0x100;
+    return ((unsigned int)v >> 8) & 1;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002415A8);
+int func_002415A8(void *a0) {
+    int v = *(int *)a0;
+    *(int *)a0 = v & ~0x100;
+    return ((unsigned int)v >> 8) & 1;
+}
 
 void func_002415C8(int *a0, int a1) {
     a0[1] = a1;
@@ -368,7 +392,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002422D8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00242300);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002423A8);
+void func_002423A8(void *a0) {
+    int *p = (int *)a0;
+    p[6] = 0;
+    p[4] &= 0xFFFFFFFE;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002423C8);
 
@@ -447,7 +475,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00244760);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00244938);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00244AE0);
+extern void func_00244938(void *a0, int a1);
+
+void func_00244AE0(void *a0) {
+    func_00244938(a0, 6);
+    __asm__ __volatile__("");
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00244B00);
 

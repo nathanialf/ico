@@ -28,7 +28,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", func_001B8908);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", func_001B8BD8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", func_001B8D08);
+int func_001B8D08(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x164);
+    long long v = ((unsigned int *)p)[7];
+    return ((int)v & 1) ^ 1;
+}
 
 void func_001B8D28(int **a0, int a1) {
     int *p = a0[0x59];
