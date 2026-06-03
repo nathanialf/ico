@@ -58,3 +58,31 @@ rc4 remaining = TWO gcc-emission diffs, both compiler-difference (ee-gcc vs ROM)
       j-delay nop (zero-store is an independent fillable candidate).
 Both are emission-level (not regalloc/source-shape) -> rc4 is the ee-gcc floor;
 rc0 needs the period compiler. Continuing to formal 30-stall per user directive.
+
+---
+
+## Attempt at 2026-06-03
+
+**Reason parked:** GENUINE 30-stall park (best rc4, down from rc6 this resume). Earnest hand-grind per user directive: ~50 byte-distinct forms total. rc4 = TWO irreducible gcc-EMISSION diffs (compiler-difference, ee-gcc vs ROM's likely Pro-DG/CodeWarrior): (1) uld macro -> daddiu+ldl/ldr materialized base vs ROM folded ldl/ldr %gp_rel; (2) gcc dbr hoists 'sw zero' into the 'j GetEdgeOfFloor' delay vs ROM nop. use_old_as fixes neither (both gcc emission, not assembler). Levers found this resume: struct[0]+copy-first (rc6->5), double zero-store removes a0<->v0 round-trip (rc5->4). Needs period compiler / uld-fold peephole. See uld_gprel_fold_gap memory.
+
+**TU:** `fumi/src/fieldCollision.c`
+
+**Seed:** `tough_nuts/MakeExitAttributeIndex/MakeExitAttributeIndex.1.c`
+
+Disassembly:
+
+```
+.align 3
+nonmatching MakeExitAttributeIndex, 0x20
+
+glabel MakeExitAttributeIndex
+    /* 65088 00165088 2D108000 */  daddu      $2, $4, $0
+    /* 6508C 0016508C 940040AC */  sw         $0, 0x94($2)
+    /* 65090 00165090 B79A836B */  ldl        $3, %gp_rel(D_0062A6A7)($28)
+    /* 65094 00165094 B09A836F */  ldr        $3, %gp_rel(D_0062A6A0)($28)
+    /* 65098 00165098 930043B0 */  sdl        $3, 0x93($2)
+    /* 6509C 0016509C 8C0043B4 */  sdr        $3, 0x8C($2)
+    /* 650A0 001650A0 10930508 */  j          GetEdgeOfFloor
+    /* 650A4 001650A4 00000000 */   nop
+endlabel MakeExitAttributeIndex
+```
