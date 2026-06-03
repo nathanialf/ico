@@ -30,7 +30,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", DispCloth4D);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", getCloth4D_preProcess);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", proc);
+void proc(void *a0, int a1, float a2) {
+    *(float *)((char *)a0 + a1 * 0x50 + 0x10) = a2;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", getCloth4D);
 
