@@ -30,7 +30,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/switch__1BDB18", CanWallLeverPull
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/switch__1BDB18", IsWallLeverStatus);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/switch__1BDB18", InitWallLeverGeo);
+int InitWallLeverGeo(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    return q[1] == 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/switch__1BDB18", GetWallLeverAngle);
 
