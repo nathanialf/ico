@@ -8,7 +8,23 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", dispSource);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", display);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", debugEEExceptionMain);
+/* debugEEExceptionMain — hand-asm register-capture stub: snapshots the
+ * caller's $t0-$t3 to a scratch frame (no C expression names $t0-$t3). */
+__asm__(
+    ".section .text\n"
+    "    .set noreorder\n"
+    "glabel debugEEExceptionMain\n"
+    "    addiu $29, $29, -0x60\n"
+    "    sd $8, 0x40($29)\n"
+    "    sd $9, 0x48($29)\n"
+    "    sd $10, 0x50($29)\n"
+    "    sd $11, 0x58($29)\n"
+    "    jr $31\n"
+    "    addiu $29, $29, 0x60\n"
+    "endlabel debugEEExceptionMain\n"
+    "    nop\n"
+    "    .set reorder\n"
+);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", debugIOPExceptionMain);
 
