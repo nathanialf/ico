@@ -1,9 +1,0 @@
-extern void func_00118C68(int a0, int a1, int a2, int a3, int t0);
-
-void func_0011EE30(char *self, int a1, int a2)
-{
-    long long val = *(long long *)(self + 0x60);
-    int low = *(int *)(self + 0x60);
-    int bits = (int)((val << 27) >> 32) & 3;
-    func_00118C68(low & 1, bits, 0, a1, a2);
-}

@@ -1,3 +1,0 @@
-void func_0021F2D8(int x) {
-    volatile int local = x;
-}
