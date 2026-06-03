@@ -13,7 +13,13 @@ int free_buffer(void *a0, int a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_readbuf", readBufDelete);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_readbuf", readBufCreate);
+extern int inflate_dynamic(void);
+
+int readBufCreate(void)
+{
+    inflate_dynamic();
+    return 1;
+}
 
 extern void inflate_start(void *a0);
 
