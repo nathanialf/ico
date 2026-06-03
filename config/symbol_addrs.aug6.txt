@@ -5168,3 +5168,4 @@ func_0026B7C8 = 0x0026B7C8; // type:func  // common/src/PObj.c
 func_0026B870 = 0x0026B870; // type:func  // common/src/PObj.c
 func_0026B8F0 = 0x0026B8F0; // type:func  // common/src/PObj.c
 func_0026B908 = 0x0026B908; // type:func  // common/src/PObj.c
+D_007181E8 = 0x007181E8;

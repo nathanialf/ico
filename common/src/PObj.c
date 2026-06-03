@@ -589,13 +589,17 @@ void func_00246C58(void *a0, int a1, int a2, void *a3) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00246C78);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00246EA0);
-
 extern void func_00246C78(void *a0, int a1, int a2, int a3, int a4);
 
+void func_00246EA0(void *a0, int a1, int a2) {
+    int local;
+    func_00246C78(a0, a1, a2, (int)&local, 0);
+}
+
 void func_00246EC0(void *a0, int a1, int a2, int a3) {
-    func_00246C78(a0, a1, a2, a3, 0);
-    __asm__ __volatile__("");
+    do {
+        func_00246C78(a0, a1, a2, a3, 0);
+    } while (0);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00246EE0);
@@ -1062,7 +1066,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024CE10);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024D010);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024D300);
+extern void func_0024D010(void *a0, int a1, int a2, int a3, int a4);
+void func_0024D300(void *a0, int a1, int a2) {
+    do {
+        func_0024D010(a0, a1, a2, 0, -1);
+    } while (0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024D320);
 
@@ -1095,7 +1104,12 @@ void func_0024DF60(void *a0, int a1, int a2, int a3) {
     p[0x27] = a3;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024DF78);
+void func_0024DF78(void *a0, int *a1, int *a2, int *a3) {
+    int *p = *(int **)((char *)a0 + 0x40);
+    *a1 = *(int *)((char *)p + 0x94);
+    *a2 = *(int *)((char *)p + 0x98);
+    *a3 = *(int *)((char *)p + 0x9C);
+}
 
 int func_0024DF98(int **a0) {
     return a0[0x10][0];
@@ -1222,7 +1236,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024E920);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024E978);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024EA50);
+int func_0024EA50(int *a0, int a1, int a2) {
+    a0[0x4 / 4] = a1;
+    a0[0x8 / 4] = a2;
+    a0[0xC / 4] = a1 >> 4;
+    a0[0x10 / 4] = a2 >> 4;
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024EA70);
 
@@ -1777,7 +1797,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025CF30);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025CF88);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025D038);
+/* D_007181E8 is a .bss global splat left as a raw lui/lw (no name); declared in
+ * symbol_addrs + defined for the linker in undefined_funcs_extra.aug6.txt so the
+ * %hi/%lo base reuses one reg like the ROM. Byte-identical in the link
+ * (ninja verify_elf OK); match_diff shows a residual only because the reference
+ * .s keeps the raw value rather than %hi(D_007181E8). */
+extern int D_007181E8[];
+extern void func_0025CF88(void);
+void func_0025D038(void) {
+    if (D_007181E8[0] == 0) {
+        D_007181E8[0] = 1;
+        func_0025CF88();
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025D058);
 
@@ -1948,7 +1980,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00265130);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00265188);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00265298);
+extern void func_002697C0(int a0);
+extern void InitDelayFree(int a0);
+void func_00265298(void) {
+    for (;;) {
+        func_002697C0(6);
+        InitDelayFree(1);
+    }
+}
 
 extern void func_0026A958(void *a0, int a1);
 
