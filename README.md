@@ -22,7 +22,7 @@ Round-trip is byte-identical. `tools/build.sh setup && ninja` produces
 <!-- progress:begin -->
 | Section          | Matched | Total |
 | ---------------- | ------: | ----: |
-| `.text` |  0.65 % | 1.42 MB |
+| `.text` |  1.51 % | 1.42 MB |
 | `.vutext` |  0.00 % | 20.22 KB |
 <!-- progress:end -->
 
@@ -76,13 +76,25 @@ data work).
 
 ## Layout
 
+Decompiled C is organized into **per-programmer** top-level directories,
+mirroring the original ICO source tree (each 2000-era dev owned a subtree).
+Every one holds a `src/` of translation units plus any subsystem dirs that
+programmer authored. See [`decomp/PROGRAMMERS.md`](decomp/PROGRAMMERS.md) for
+the author→subsystem mapping (validated against the public staff roll).
+
 ```
-config/         splat yaml, linker scripts (ico.us.ld, ico.us.slinky.ld),
-                symbol files, ELF SHA-1, assembler/layout-pass allowlists
-src/            decompiled C — main game code (.text + typed data defs)
-ios/            decompiled C — IOS subsystem (cdvd, pad, thread, …)
-sound/          decompiled C — sound subsystem
-isys/           decompiled C — interactive system
+config/         splat yaml + linker scripts (ico.aug6.{yaml,ld,d},
+                symbol_addrs.aug6.txt; us variants too), ELF SHA-1,
+                assembler/layout-pass allowlists (use_old_as.txt …)
+common/src/     shared engine — PObj, DObj, sceneManager, debug, gamesys, kanban …
+fumi/           src/ (jimaku, fieldCollision, act-*, way_* …), ios/ (cdvd, pad,
+                thread …), isys/ (gobj …), sound/
+sugipon/src/    Hajime Sugiyama — matrix/motion/physics (actressLight, enemyParts,
+                waySystemManager, motionManager, rope …)
+omori/src/      Shotaro Omori — camera/AI (attackhit, brain, camera-*, fightSound …)
+seki/src/       Takuya Seki — GS/draw (Packet, Primitive, Texture, DisplayList …)
+ito/            Toshihiro Ito — scripting/IPU-movie: src/ + mpeg/ (mv_*)
+script/src/     stage scripts (st*, op, end, deja …)
 include/        headers: matching.h, r5900.h, regpin.h, vu0.h, common.h
 asm/            splat output (gitignored except asm/nonmatchings/)
 assets/         extracted disc data (gitignored)
@@ -90,8 +102,9 @@ baserom/        local-only: user's disc + extracted ELF (gitignored)
 build/          build artifacts (gitignored)
 lib/            submodules (splat, asm-differ, decomp-permuter, m2c)
 tools/          build orchestration, matching aids, asm/linker fixup passes
+                (compile_c.sh, quick_diff.sh, match_loop.py, preprocess_old_as.py …)
 decomp/         agent-facing prompts (MATCH.md), pattern catalogs
-                (NOTES.md, COOKBOOK.md), and TU/data analysis JSONs
+                (NOTES.md, COOKBOOK.md, PROGRAMMERS.md), and TU/data analysis JSONs
 docs/           contributor docs (BUILDING, LEGAL, PROGRESS, …)
 tough_nuts/     parked near-misses, one dir per deferred function
 expected/       reference build outputs for diff comparison
@@ -99,16 +112,17 @@ expected/       reference build outputs for diff comparison
 
 ### File-structure conventions
 
-- **`src/<TU>.c`** — tracked clean-room C for one translation unit. Typed
-  data defs (e.g. `const char D_00553700[16] = "...";`) live alongside
-  the functions that reference them.
-- **`src/<TU>_data.c`** — gitignored per-TU **data sidecar**, auto-generated
+- **`<prog>/src/<TU>.c`** — tracked clean-room C for one translation unit
+  (`<prog>` is the owning programmer dir, e.g. `fumi/src/jimaku.c`,
+  `common/src/PObj.c`). Typed data defs (e.g. `const char D_00553700[16] =
+  "...";`) live alongside the functions that reference them.
+- **`<prog>/src/<TU>_data.c`** — gitignored per-TU **data sidecar**, auto-generated
   by `tools/migrate_data_per_tu.py` from the splat-emitted asm-side data.
   Sidecar bytes get promoted into the tracked `<TU>.c` incrementally; see
   [`decomp/RODATA_PHASE3D.md`](decomp/RODATA_PHASE3D.md).
-- **`src/cod/<HEX>.c`** — coalesced one-function-per-file landing pad for
-  functions whose TU hasn't been identified yet. `tools/park_tu.py` and
-  `tools/identify_tus.py` migrate these into named `src/<TU>.c` files.
+- **`retail_seed/src/cod/<HEX>.c`** — matched-retail reference source (the
+  numbered-cod retail build), kept as a dev-shape oracle: when a clean shape is
+  unclear, the retail twin shows the idiom the 2000-era dev actually wrote.
 - **`tough_nuts/<func>/<func>.c`** — parked near-misses. Each dir has a
   README explaining the diff shape; the permuter pool runs on these.
 
