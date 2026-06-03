@@ -139,7 +139,16 @@ void actBoySupportGBLoop(int a0) {
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoySupportGBEnd);
+extern void _ACTWait(int);
+
+void actBoySupportGBEnd(int a0) {
+    volatile int buf[4];
+    buf[0] = a0;
+    buf[0];
+    while (1) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_001531E8);
 
