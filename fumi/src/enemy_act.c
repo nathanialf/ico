@@ -96,9 +96,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyHang);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyCarry);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyBodyslam);
+int actEnemyBodyslam(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x164);
+    return p[0x10C] == 2;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyBodyslamFail);
+int actEnemyBodyslamFail(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x164);
+    return p[0x10C] == 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyNest);
 
