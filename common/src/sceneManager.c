@@ -38,7 +38,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/sceneManager", MoveNextStage_Set);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/sceneManager", test_nextstage_firstwalk_set);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/sceneManager", GetStageStartInfo);
+extern int D_0062C1B4, D_0062C1B8, D_0062C1BC;
+
+void GetStageStartInfo(int a0, int a1, int a2, int a3, int a4) {
+    if (a2 >= 0) D_0062C1B4 = a2;
+    if (a3 >= 0) D_0062C1B8 = a3;
+    if (a4 >= 0) D_0062C1BC = a4;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/sceneManager", MoveNextStage_Clear);
 

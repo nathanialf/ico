@@ -47,7 +47,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallFuchiHangWa
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallField);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallEField);
+void ClipWallEField(void *a0) {
+    jtbl_0062A6D0(a0, 0);
+    __asm__ __volatile__("");
+}
 
 void ClipWallBoxStop(void *a0) {
     jtbl_0062A6D0(a0, 0x1);
@@ -59,11 +62,20 @@ void ClipWallAdjustPos(void *a0) {
     __asm__ __volatile__("");
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallE);
+void ClipWallE(void *a0) {
+    jtbl_0062A6D0(a0, 0x6);
+    __asm__ __volatile__("");
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallCheckCB);
+void ClipWallCheckCB(void *a0) {
+    jtbl_0062A6D0(a0, 0x7);
+    __asm__ __volatile__("");
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallFieldCheckCB);
+void ClipWallFieldCheckCB(void *a0) {
+    jtbl_0062A6D0(a0, 0x3);
+    __asm__ __volatile__("");
+}
 
 void ClipFloor(void *a0) {
     jtbl_0062A6D0(a0, 0x5);
@@ -96,7 +108,10 @@ void ChangeFieldCollisionDebugMode(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", LoadCollision);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", DrawCollision);
+void DrawCollision(void *a0) {
+    D_0062A6D4(a0, 0xE);
+    __asm__ __volatile__("");
+}
 
 void ClipPlane(void *a0) {
     D_0062A6D4(a0, 0xF);

@@ -112,13 +112,27 @@ void SetRootUpdateMode(int **a0) {
     p[0x135] = 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", ForMotionViewer_GetCurrentAnimationFrame);
+int ForMotionViewer_GetCurrentAnimationFrame(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    return func_001668B0(*(int *)((char *)p + 0x5E8));
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", ForMotionViewer_GetCurrentMotion);
+extern int func_001668B0(int a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", EnableMotionOrientUpdate);
+int ForMotionViewer_GetCurrentMotion(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    return func_001668B0(*(int *)((char *)p + 0x5E4));
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", DisableMotionOrientUpdate);
+int EnableMotionOrientUpdate(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    return func_001668B0(*(int *)((char *)p + 0x5DC));
+}
+
+int DisableMotionOrientUpdate(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    return func_001668B0(*(int *)((char *)p + 0x5E0));
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", CheckFloorAttribute);
 
