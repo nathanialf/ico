@@ -24,9 +24,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", debugIOPExceptio
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", func_001A4C58);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", func_001A4DC0);
+extern void func_00261188(int a0, void *a1, ...);
+extern int D_0062CC58[];
 
-extern void func_00261188(int a0, void *a1);
+void func_001A4DC0(int a0, int a1, int a2) {
+    func_00261188(a0, D_0062CC58, a1, a2);
+}
+
 extern int D_0062CC48[];
 
 void func_001A4DD8(int a0) {
