@@ -16,7 +16,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", GetPoolGlobalDrainVector);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", InitPoolGeo);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", updatePoolGeo);
+extern void playSEConditionID(int a0, int a1);
+
+void updatePoolGeo(int a0) {
+    return playSEConditionID(a0, 0x51);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", dispPool);
 
