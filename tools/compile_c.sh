@@ -218,10 +218,16 @@ sed -i -E \
 
 # Per-TU assembler selection. Default ee-as is 2.96; a TU listed in
 # use_old_as.txt assembles with the less-aggressive 2.9-991111 instead (same
-# .s input, different reorder behavior — see EE_AS_OLD above).
+# .s input, different reorder behavior — see EE_AS_OLD above). 2.9-991111 is the
+# ROM's contemporary assembler: it leaves a jal/jr delay as `nop` where 2.96 /
+# modern-as over-fill it with a preceding store. But it rejects splat's
+# `%gp_rel(SYM)($28)` spelling, so a MIXED TU (C + INCLUDE_ASM siblings) is first
+# flattened + gp_rel-translated by preprocess_old_as.py (byte-identical GPREL16).
+ASM_INPUT="${S}"
 SELECTED_EE_AS="${EE_AS}"
 if listed "${USE_OLD_AS_TXT}"; then
     SELECTED_EE_AS="${EE_AS_OLD}"
+    "${PYTHON}" "${ROOT}/tools/preprocess_old_as.py" "${S}" "${S}.oldas" && ASM_INPUT="${S}.oldas"
 fi
 
 if listed "${USE_MODERN_AS_TXT}"; then
@@ -229,7 +235,7 @@ if listed "${USE_MODERN_AS_TXT}"; then
     "${AS}" ${ASFLAGS} -o "${OUT}" "${S}"
     "${OBJCOPY}" --set-section-alignment ".text=${ALIGN}" "${OUT}"
 # shellcheck disable=SC2086
-elif "${SELECTED_EE_AS}" ${EE_ASFLAGS} -o "${OUT}" "${S}" 2>/dev/null; then
+elif "${SELECTED_EE_AS}" ${EE_ASFLAGS} -I"${INCLUDE_DIR}" -o "${OUT}" "${ASM_INPUT}" 2>/dev/null; then
     "${OBJCOPY}" "${OUT}" "${OUT}"
 else
     echo "  → consider adding ${BASE} to ${USE_MODERN_AS_TXT}" >&2

@@ -263,9 +263,11 @@ EE_ASFLAGS="-EL -mcpu=5900 -G 8 -I$ROOT/include"
 # (`fumi/src/jimaku`) is accepted too — same dual-key rule as qd_listed above,
 # so a single config line agrees across quick_diff AND the ninja build.
 USE_OLD_AS_TXT="$ROOT/config/use_old_as.txt"
+OLD_AS_SELECTED=0
 if [[ -r "$USE_OLD_AS_TXT" ]] && \
    awk -v a="$NAME" -v b="$(basename "$NAME")" '($1==a||$1==b){f=1} END{exit !f}' "$USE_OLD_AS_TXT"; then
     EE_AS="$ROOT/tools/cc/ee-gcc2.9-991111/bin/as"
+    OLD_AS_SELECTED=1
 fi
 AS_MODERN="${AS_FOR_QD:-mips-linux-gnu-as}"
 ASFLAGS_MODERN="${ASFLAGS_QD:--EL -march=r5900 -mabi=eabi -G 8 -no-pad-sections -Iinclude}"
@@ -295,7 +297,14 @@ canon_regnames() {
 
 assemble() {
     local out="$1" in="$2"
-    if [[ -x "$EE_AS" ]] && "$EE_AS" $EE_ASFLAGS -o "$out" "$in" 2>/dev/null; then
+    # The period assembler (2.9-991111) rejects splat's %gp_rel spelling; flatten
+    # + translate the mixed-TU .s first so it can assemble (byte-identical), which
+    # is what lets it set the ROM's jal/jr delay nops compile_c.sh relies on.
+    if [[ "$OLD_AS_SELECTED" == 1 ]] && [[ -x "$EE_AS" ]]; then
+        python3 "$ROOT/tools/preprocess_old_as.py" "$in" "$in.oldas" \
+            && canon_regnames "$in.oldas" \
+            && "$EE_AS" $EE_ASFLAGS -o "$out" "$in.oldas" 2>/dev/null && return 0
+    elif [[ -x "$EE_AS" ]] && "$EE_AS" $EE_ASFLAGS -o "$out" "$in" 2>/dev/null; then
         return 0
     fi
     $AS_MODERN $ASFLAGS_MODERN -o "$out" "$in"

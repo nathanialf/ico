@@ -36,7 +36,11 @@ void jimakuUndisp(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", func_00173D00);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", func_00173D48);
+extern void ACTLookTargetSystem_Exec(void);
+void func_00173D48(void *a0) {
+    void *volatile q = a0;
+    ACTLookTargetSystem_Exec();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", func_00173D68);
 

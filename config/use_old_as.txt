@@ -3,3 +3,4 @@
 // migration symbols). aug6 starts with ZERO bandaids — default ee-as 2.96
 // natively emits the ROM encodings (move->daddu, break 0,N verified). Entries
 // are added only if an actual aug6 match proves one is needed.
+jimaku
