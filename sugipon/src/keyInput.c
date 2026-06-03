@@ -56,9 +56,17 @@ void func_00105068(void) {
     D_00629E40--;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_00105078);
+extern unsigned char D_006595C0[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_00105090);
+void *func_00105078(void) {
+    return &D_006595C0[D_00629E40 * 64];
+}
+
+extern unsigned char D_00659580[];
+
+void *func_00105090(void) {
+    return &D_00659580[D_00629E40 * 64];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_001050A8);
 
