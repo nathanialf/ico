@@ -20,7 +20,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/rotObject", RotObjectDL);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/rotObject", GetRotObjectHoldPoint);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/rotObject", MoveRotObjectWithHoldPoint);
+float MoveRotObjectWithHoldPoint(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    return (float)*(int *)((char *)q + 0x24) * (1.0f / 65536.0f);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/rotObject", ExecRotObjectMoveStartReaction);
 

@@ -99,7 +99,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", CheckChainClimbablePos);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", GetChainClimbCollision);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", SetChainParentGObj);
+int SetChainParentGObj(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    return *(int *)((char *)q + 0x68) == *(int *)((char *)q + 0x74) - 1;
+}
 
 int GetChainDirCorrectVal(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);

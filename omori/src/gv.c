@@ -1,6 +1,11 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/gv", _InterGV);
+int _InterGV(void *a0, void *a1) {
+    *(float *)a0 = *(float *)((char *)a1 + 0x10);
+    *(float *)((char *)a0 + 4) = *(float *)((char *)a1 + 0x14);
+    *(float *)((char *)a0 + 8) = *(float *)((char *)a1 + 0x18);
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/gv", GetMatrixDirectionToZ);
 

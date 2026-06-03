@@ -32,7 +32,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _TransCurrentMatrix);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _SetTransCurrentMatrix);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _ClearTransCurrentMatrix);
+void _ClearTransCurrentMatrix(void *a0, void *a1) {
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf8, 0x0($5)\n"
+        "vmulax.xyzw $ACC, $vf4, $vf8x\n"
+        "vmadday.xyzw $ACC, $vf5, $vf8y\n"
+        "vmaddaz.xyzw $ACC, $vf6, $vf8z\n"
+        "vmaddw.xyzw $vf10, $vf7, $vf8w\n"
+        "sqc2 $vf10, 0x0($4)\n"
+        ".set reorder\n" : : : "memory");
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _RotCurrentMatrixX);
 
@@ -50,7 +60,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _SetCurrentMatrix);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _MulCurrentMatrixR);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _MulCurrentMatrixL);
+void _MulCurrentMatrixL(void *a0, void *a1, void *a2) {
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf1, 0x0($5)\n"
+        "lqc2 $vf2, 0x0($6)\n"
+        "vopmula.xyz $ACC, $vf1, $vf2\n"
+        "vopmsub.xyz $vf3, $vf2, $vf1\n"
+        "vsub.w $vf3, $vf3, $vf3\n"
+        "sqc2 $vf3, 0x0($4)\n"
+        ".set reorder\n" : : : "memory");
+}
 
 void _ApplyCurrentMatrix(void *a0, void *a1, void *a2) {
     VU0_LSV(lqc2, 1, 0x0, 5);
