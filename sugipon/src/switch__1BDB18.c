@@ -46,7 +46,11 @@ int initParentize(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/switch__1BDB18", func_001BDE70);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/switch__1BDB18", func_001BDF68);
+int func_001BDF68(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    return q[1] == 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/switch__1BDB18", func_001BDF80);
 
