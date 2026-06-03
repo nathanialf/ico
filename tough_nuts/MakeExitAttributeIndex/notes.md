@@ -28,3 +28,17 @@ glabel MakeExitAttributeIndex
     /* 650A4 001650A4 00000000 */   nop
 endlabel MakeExitAttributeIndex
 ```
+
+## Resume progress (user directive: earnest attempts to formal 30-stall)
+Un-parked the premature override-park. Best improved rc6 -> rc5 via the
+`struct[0]` assignment + copy-before-zero reorder:
+    ((struct PackedLL *)((char *)a0 + 0x8C))[0] = D_0062A6A0;
+    *(int *)((char *)a0 + 0x94) = 0;
+    GetEdgeOfFloor(a0);   // tail-call (j), void
+(`[0]` indexing matters: plain `*(T*)dst = D` regresses to rc11.)
+Remaining rc5 diff = the irreducible uld core (gcc `uld $3,D_0062A6A0` ->
+`daddiu a2,gp; ldl 7(a2); ldr 0(a2)` vs ROM folded `ldl/ldr %gp_rel(gp)`) plus a
+`daddu a0,v0` copy-placement line. ~30 byte-distinct source forms tried total;
+uld emission invariant. Continuing to formal 30-stall (currently 7/30 from rc5).
+Next levers to try: forms that remove the extra a0-copy (base-var used for both
+stores while a0 stays for the tail call).
