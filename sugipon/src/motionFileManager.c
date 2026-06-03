@@ -2,7 +2,9 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionFileManager", pursueNodeList);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionFileManager", InitMotionFile);
+int InitMotionFile(void *a0) {
+    return (char *)a0 + 0x10 < *(char **)((char *)a0 + 0x8) ? 0 : -1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionFileManager", InitMotionMemorySize);
 
