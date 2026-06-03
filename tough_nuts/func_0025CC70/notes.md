@@ -106,3 +106,15 @@ The remaining lever is the mfc1-result→$3 coalesce, which is unreachable in cl
 -mips3 C and not produced by any arch/ABI/opt flag tried → appears to need a
 per-TU flag delta or a compiler-version nuance (decision deferred to user;
 per-file cflags are retired). Offline auto_permute will now score correctly.
+
+## Resume 2026-06-03 (cont.4) — compiler-version hypothesis TESTED & ruled out
+Both available ee-gcc builds tested with the real project flags:
+- ee-gcc 2.9-991111 (project default): `mfc1 $4 ; move $3,$4 ; and $3,$3,$2 ; mtc1 $3` (rc2)
+- ee-gcc 2.96: STACK SPILL `s.s $f12,0(sp) ; lw $3,0(sp) ; and $3,$3,$2 ; mtc1 $3` + frame (worse)
+NEITHER produces ROM's `mfc1 $3 ; and $3,$3,$2 ; mtc1 $3` (in-place coalesce, no frame).
+EVERY dimension now exhausted & TESTED (not reasoned): 40+ source shapes, all
+arch/ABI/opt flags, both compilers, the (now-fixed) permuter. ROM's exact fabs
+bytes are not reproducible with any toolchain config present in the repo →
+genuine outlier; the matching toolchain/flag for this object is not in the tree.
+TERMINAL for current toolchain. Offline auto_permute will keep it (now scoring
+correctly) but cannot reach it in clean C. Needs a user-level toolchain decision.
