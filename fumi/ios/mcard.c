@@ -29,7 +29,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcard", iosMcMgrGetBlockSaveInfo);
 void iosMcManager(void) {
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcard", iosMcMgrSync);
+int iosMcMgrSync(void *a0) {
+    unsigned long long x = *(unsigned long long *)a0;
+    return -((unsigned char)x & 1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcard", iosMcTest);
 
