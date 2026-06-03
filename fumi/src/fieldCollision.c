@@ -1,5 +1,8 @@
 #include "common.h"
 
+extern void (*jtbl_0062A6D0)(void *a0, int a1);
+extern void (*D_0062A6D4)(void *a0, int a1);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", MakeCollisionDependGObjList);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", GetReflectionElement);
@@ -46,9 +49,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallField);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallEField);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallBoxStop);
+void ClipWallBoxStop(void *a0) {
+    jtbl_0062A6D0(a0, 0x1);
+    __asm__ __volatile__("");
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallAdjustPos);
+void ClipWallAdjustPos(void *a0) {
+    jtbl_0062A6D0(a0, 0x2);
+    __asm__ __volatile__("");
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallE);
 
@@ -56,25 +65,43 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallCheckCB);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallFieldCheckCB);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipFloor);
+void ClipFloor(void *a0) {
+    jtbl_0062A6D0(a0, 0x5);
+    __asm__ __volatile__("");
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipFloorE);
+void ClipFloorE(void *a0) {
+    jtbl_0062A6D0(a0, 0xA);
+    __asm__ __volatile__("");
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipFloorR);
+void ClipFloorR(void *a0) {
+    jtbl_0062A6D0(a0, 0xB);
+    __asm__ __volatile__("");
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipFloorIH);
+void ClipFloorIH(void *a0) {
+    jtbl_0062A6D0(a0, 0x4);
+    __asm__ __volatile__("");
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipFloorCheckCB);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipCollision);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ChangeFieldCollisionDebugMode);
+void ChangeFieldCollisionDebugMode(void *a0) {
+    D_0062A6D4(a0, 0xC);
+    __asm__ __volatile__("");
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", LoadCollision);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", DrawCollision);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipPlane);
+void ClipPlane(void *a0) {
+    D_0062A6D4(a0, 0xF);
+    __asm__ __volatile__("");
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", GetOrientOfWall);
 
