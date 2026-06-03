@@ -131,7 +131,12 @@ void func_00240020(void *a0, void *a1, void *a2) {
     VU0_LSV(sqc2, 6, 0x0, 4);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240038);
+void func_00240038(void *a0, void *a1, float a2) {
+    VU0_LSV(lqc2, 4, 0x0, 5);
+    __asm__ __volatile__(".set noreorder\n mfc1 $8,$f12\n qmtc2.ni $8,$vf5\n .set reorder" ::: "memory");
+    VU0_V3OP_BC(vmulx.xyzw, 6, 4, 5, x);
+    VU0_LSV(sqc2, 6, 0x0, 4);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240050);
 
@@ -197,7 +202,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240918);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240938);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240968);
+void func_00240968(void *a0, void *a1, float a2) {
+    VU0_LSV(lqc2, 4, 0x0, 5);
+    __asm__ __volatile__(".set noreorder\n mfc1 $8,$f12\n qmtc2.ni $8,$vf5\n .set reorder" ::: "memory");
+    VU0_V3OP_BC(vmulx.xyz, 4, 4, 5, x);
+    VU0_LSV(sqc2, 4, 0x0, 4);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240980);
 
