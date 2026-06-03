@@ -32,4 +32,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/frameDependSequence", executeSEPa
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/frameDependSequence", ExecuteSEPackageWithGroupVariation);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/frameDependSequence", ExecuteSEPackage);
+int ExecuteSEPackage(void *a0, int a1) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    return p[0x21] == a1;
+}
