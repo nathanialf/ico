@@ -280,7 +280,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002416F0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00241748);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00241778);
+typedef unsigned int u128_241778 __attribute__((mode(TI)));
+
+void func_00241778(void *a0, u128_241778 a1) {
+    void **pp = (void **)a0;
+    void *p = *pp;
+    *(u128_241778 *)p = a1;
+    *(void **)((char *)a0 + 0x14) = p;
+    *pp = (char *)p + 0x10;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00241790);
 
@@ -701,7 +709,11 @@ void func_00247D80(int *a0, int *a1) {
     a1[2] = a0[4];
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00247D90);
+extern int D_00710F00[];
+
+int func_00247D90(int a0) {
+    return D_00710F00[a0];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00247DA8);
 
@@ -715,9 +727,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00247DD8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00248058);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00248090);
+extern int D_00710DD8[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002480A8);
+int func_00248090(int a0, int a1) {
+    int old = D_00710DD8[5];
+    D_00710DD8[5] = a0;
+    D_00710DD8[6] = a1;
+    return old;
+}
+
+int func_002480A8(int a0, int a1) {
+    int old = D_00710DD8[3];
+    D_00710DD8[3] = a0;
+    D_00710DD8[4] = a1;
+    return old;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002480C0);
 
@@ -1064,7 +1088,9 @@ void func_0024E1D0(int *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024E1E0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024E248);
+int func_0024E248(int *a0) {
+    return a0[0] + a0[1] - a0[2];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024E260);
 
@@ -1315,9 +1341,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00254D28);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00254D90);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00254FC8);
+extern unsigned char D_00713C80[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00254FE0);
+void *func_00254FC8(int a0) {
+    return &D_00713C80[a0 * 0x58];
+}
+
+extern unsigned char D_00714D00[];
+
+void *func_00254FE0(int a0) {
+    return &D_00714D00[a0 * 0x54];
+}
 
 extern int D_00715CC0[];
 
@@ -1325,11 +1359,21 @@ void *func_00254FF8(void) {
     return D_00715CC0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00255008);
+extern unsigned char D_00713680[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00255020);
+void *func_00255008(int a0) {
+    return &D_00713680[a0 * 0xC];
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00255038);
+extern int D_00717F80[];
+
+void func_00255020(int a0, int a1) {
+    D_00717F80[a0] = a1;
+}
+
+int func_00255038(int a0) {
+    return D_00717F80[a0];
+}
 
 extern int D_00717F80[];
 extern int D_00718180[];
