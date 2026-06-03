@@ -1,6 +1,11 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug", debug_Assert);
+typedef struct { int w[6]; } AssertRec;
+extern AssertRec D_006DE110[];
+
+int debug_Assert(int a0) {
+    return D_006DE110[a0].w[0];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug", debug_openLog);
 

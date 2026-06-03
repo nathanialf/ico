@@ -71,9 +71,27 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_00117D78);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_00118048);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_00118068);
+void func_00118068(void) {
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "vmove.xyzw $vf7, $vf0\n"
+        "vmr32.xyzw $vf6, $vf7\n"
+        "vmr32.xyzw $vf5, $vf6\n"
+        "vmr32.xyzw $vf4, $vf5\n"
+        "viaddi $vi15, $vi0, 0x0\n"
+        ".set reorder\n");
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_00118088);
+void func_00118088(void) {
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "vmove.xyzw $vf7, $vf0\n"
+        "vmr32.xyzw $vf6, $vf7\n"
+        "vmr32.xyzw $vf5, $vf6\n"
+        "vmr32.xyzw $vf4, $vf5\n"
+        "viaddi $vi15, $vi0, 0x0\n"
+        ".set reorder\n");
+}
 
 void func_001180A8(void) {
     VU0_MEM("vsqi.xyzw $vf4, ($vi15++)");
@@ -91,7 +109,16 @@ void func_001180C0(void) {
     VU0_NOP();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_001180D8);
+void func_001180D8(void *a0) {
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf8, 0x0($4)\n"
+        "vmulax.xyzw $ACC, $vf4, $vf8x\n"
+        "vmadday.xyzw $ACC, $vf5, $vf8y\n"
+        "vmaddaz.xyzw $ACC, $vf6, $vf8z\n"
+        "vmaddw.xyzw $vf7, $vf7, $vf8w\n"
+        ".set reorder\n" : : : "memory");
+}
 
 void func_001180F8(void *a0) {
     VU0_LSV_R(lqc2, 8, 0x0, a0);

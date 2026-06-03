@@ -79,6 +79,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", func_0011B788);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", func_0011BB00);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", func_0011C308);
+extern void func_0011BB00(void *a0, int a1, int a2);
+
+void func_0011C308(void *a0) {
+    void *p = *(void **)((char *)a0 + 0x810);
+    void *q = *(void **)((char *)a0 + 0x834);
+    func_0011BB00(p, *(int *)((char *)q + 0xF0), *(signed char *)((char *)p + 0x2F) > 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", func_0011C328);

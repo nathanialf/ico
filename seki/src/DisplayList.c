@@ -8,7 +8,15 @@ int dl_Clear(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayList", dl_Swap);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayList", dl_PushPriority);
+extern int D_0062BAE0, D_0062BAE4, D_0062BAE8, D_0062BAEC, D_0062BAF0;
+
+void dl_PushPriority(void) {
+    D_0062BAE0 = 0;
+    D_0062BAF0 = 0x80;
+    D_0062BAEC = 0x80;
+    D_0062BAE8 = 0x80;
+    D_0062BAE4 = 0x80;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayList", dl_PopPriority);
 

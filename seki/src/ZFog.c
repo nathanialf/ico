@@ -6,7 +6,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", fog_DrawFog);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", fog_FogTool);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", func_0012FC08);
+extern void tex_scrollClut(void);
+
+void func_0012FC08(void) {
+    tex_scrollClut();
+    __asm__ __volatile__("");
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", func_0012FC28);
 
