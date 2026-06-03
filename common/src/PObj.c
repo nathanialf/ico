@@ -106,11 +106,26 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023FFA8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023FFC8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023FFF0);
+void func_0023FFF0(void *a0, void *a1, void *a2) {
+    VU0_LSV(lqc2, 4, 0x0, 5);
+    VU0_LSV(lqc2, 5, 0x0, 6);
+    VU0_V3OP(vadd.xyzw, 6, 4, 5);
+    VU0_LSV(sqc2, 6, 0x0, 4);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240008);
+void func_00240008(void *a0, void *a1, void *a2) {
+    VU0_LSV(lqc2, 4, 0x0, 5);
+    VU0_LSV(lqc2, 5, 0x0, 6);
+    VU0_V3OP(vsub.xyzw, 6, 4, 5);
+    VU0_LSV(sqc2, 6, 0x0, 4);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240020);
+void func_00240020(void *a0, void *a1, void *a2) {
+    VU0_LSV(lqc2, 4, 0x0, 5);
+    VU0_LSV(lqc2, 5, 0x0, 6);
+    VU0_V3OP(vmul.xyzw, 6, 4, 5);
+    VU0_LSV(sqc2, 6, 0x0, 4);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240038);
 
@@ -295,7 +310,11 @@ int func_00241B78(void) {
     return 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00241B80);
+int func_00241B80(void *a0, void *a1) {
+    *(long long *)((char *)a1 + 0x48) = 0;
+    *(int *)((char *)a1 + 0x4) = 0x2000;
+    return 0;
+}
 
 int func_00241B98(void) {
     return 1;
@@ -938,7 +957,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024DEC8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024DF10);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024DF60);
+void func_0024DF60(void *a0, int a1, int a2, int a3) {
+    int *p = *(int **)((char *)a0 + 0x40);
+    p[0x25] = a1;
+    p[0x26] = a2;
+    p[0x27] = a3;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024DF78);
 
@@ -961,7 +985,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024E088);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024E0D8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024E100);
+void func_0024E100(void *a0, long long a1) {
+    int *p = *(int **)((char *)a0 + 0x40);
+    p[0x1C] = 1;
+    *(long long *)((char *)p + 0x78) = a1;
+}
 
 void func_0024E118(void *a0) {
     void *p = *(void **)((char *)a0 + 0x40);
