@@ -12,7 +12,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", func_0012FC28);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", func_0012FC48);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", func_0012FCE0);
+extern unsigned char D_0067AE50[];
+
+void *func_0012FCE0(int a0) {
+    return &D_0067AE50[a0 * 0x2E8];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", func_0012FCF8);
 
