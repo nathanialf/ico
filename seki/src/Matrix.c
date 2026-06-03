@@ -7,7 +7,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _Sqrt);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _InitCurrentMatrix);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _UnitCurrentMatrix);
+void _UnitCurrentMatrix(void *a0) {
+    VU0_LSV(sqc2, 4, 0x0, 4);
+    VU0_LSV(sqc2, 5, 0x10, 4);
+    VU0_LSV(sqc2, 6, 0x20, 4);
+    VU0_LSV(sqc2, 7, 0x30, 4);
+    VU0_NOP();
+}
 
 void _PushCurrentMatrix(void *a0) {
     VU0_LSV_R(sqc2, 7, 0x0, a0);

@@ -75,9 +75,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_00118068);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_00118088);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_001180A8);
+void func_001180A8(void) {
+    VU0_MEM("vsqi.xyzw $vf4, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf5, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf6, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf7, ($vi15++)");
+    VU0_NOP();
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_001180C0);
+void func_001180C0(void) {
+    VU0_MEM("vlqd.xyzw $vf7, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf6, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf5, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf4, (--$vi15)");
+    VU0_NOP();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_001180D8);
 
