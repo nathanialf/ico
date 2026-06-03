@@ -2,7 +2,18 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/frameDependSequence", playSE);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/frameDependSequence", playSERandomID);
+extern float D_0062B6B4;
+extern void func_001CE340(int a0, int a1, int a2);
+extern void playSE(int a0);
+
+void playSERandomID(int a0, int a1, int a2) {
+    D_0062B6B4 = 1.0f;
+    if (a0) {
+        func_001CE340(a0, a1, a2);
+    } else {
+        playSE(a1);
+    }
+}
 
 extern void playSERandomID(int a0, int a1, int a2);
 
