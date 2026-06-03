@@ -20,7 +20,11 @@ float eBrainStatusSet(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", eBrainSendMes);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", GetStageFromLabel);
+void GetStageFromLabel(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    *((char *)q + 0xCD) = 1;
+}
 
 void eBrainGetTargetGeneratorFromLabelStage(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
