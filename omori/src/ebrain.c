@@ -4,7 +4,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", eBrainProcess);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", eBrainGetTargetGeneratorFromLabel);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", eBrainGetTarget);
+void eBrainGetTarget(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    *((char *)q + 0xCC) = 1;
+}
 
 void eBrainInit(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
