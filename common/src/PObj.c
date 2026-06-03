@@ -12,7 +12,11 @@ int MakePacket(void) {
     return D_0062BEA0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", AllocPObj);
+extern int D_0070C340[];
+
+int AllocPObj(int a0) {
+    return D_0070C340[a0];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", InitPObj);
 
