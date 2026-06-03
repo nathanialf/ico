@@ -10,7 +10,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/mail-add-data", ClearMailAdditional
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/mail-add-data", func_00192628);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/mail-add-data", func_001926A8);
+extern float D_006CCE30[];
+
+void func_001926A8(float a0, float a1) {
+    D_006CCE30[5] = a0;
+    D_006CCE30[6] = a1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/mail-add-data", func_001926C0);
 
