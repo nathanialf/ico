@@ -100,4 +100,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_DisconnectHand);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", PAIR_GetPosition_BOY);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", PAIR_IsStatus_BOY_PULL);
+void PAIR_IsStatus_BOY_PULL(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x164);
+    p[0x22] = 0;
+    p[0x24] = 0;
+    p[0x23] = 0;
+}
