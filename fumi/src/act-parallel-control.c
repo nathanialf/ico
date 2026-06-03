@@ -6,7 +6,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", ActPara_InitS
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", ActPara_GetDefTbl);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", ActPara_StatusToFlag);
+int ActPara_StatusToFlag(void *a0, int a1) {
+    int *p = *(int **)((char *)a0 + 0x164);
+    return (p[0x20] >> a1) & 1;
+}
 
 void ActPara_DebugOut(int **a0) {
     int *p = a0[0x59];

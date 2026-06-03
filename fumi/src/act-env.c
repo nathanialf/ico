@@ -2,7 +2,11 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-env", GetDitchPosition);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-env", DebugActOrientFlag);
+int DebugActOrientFlag(void *a0, int a1) {
+    int *p = *(int **)((char *)a0 + 0x2C);
+    p += a1;
+    return *(short *)((char *)p + 0x3C);
+}
 
 int ACTGetEnvironment(char *a0) {
     char *p = *(char **)(a0 + 0x2C);

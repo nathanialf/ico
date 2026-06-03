@@ -2,7 +2,11 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clipCollisionManager", actClipCollisionCore);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clipCollisionManager", CreateClipCollisionManagerGObj);
+extern void MatrixDrive_TurnObjectMatrix(void *a0, int a1);
+
+void CreateClipCollisionManagerGObj(void *a0, int a1, int a2) {
+    MatrixDrive_TurnObjectMatrix(a0, a1 + a2 * 0x50 + 0x30);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clipCollisionManager", RequestClipCollision);
 

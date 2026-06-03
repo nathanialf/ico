@@ -14,7 +14,11 @@ int WakeUpAP1(void *a0) {
     return q[0];
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", subAP1BrainMain);
+void subAP1BrainMain(void *a0, int a1) {
+    void *p = *(void **)((char *)a0 + 0x15C);
+    void *q = *(void **)((char *)p + 0x7F0);
+    *(int *)((char *)q + 0x278) = a1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", hitProc);
 

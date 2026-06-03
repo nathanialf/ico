@@ -1,10 +1,24 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/staffroll", staffRollStart);
+extern int D_0062C1B4;
+extern int D_0062C1B8;
+extern int D_0062C1BC;
+
+void staffRollStart(int a0, int a1, int a2, int a3) {
+    D_0062C1B4 = a1;
+    D_0062C1B8 = a2;
+    D_0062C1BC = a3;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/staffroll", staffRollScroll);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/staffroll", staffRollNameOut);
+extern char D_0062B448;
+extern int D_0062B44C;
+
+void staffRollNameOut(void) {
+    D_0062B448 = 0;
+    D_0062B44C = -1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/staffroll", staffRollMain);
 

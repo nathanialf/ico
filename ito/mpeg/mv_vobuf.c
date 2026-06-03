@@ -12,7 +12,11 @@ void voBufReset(void) {
     voBufCreate();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vobuf", voBufIsFull);
+extern int iosMallocCheckLeak2(int a0);
+
+void voBufIsFull(int a0) {
+    iosMallocCheckLeak2(a0 & 0xFFFFFFF);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vobuf", voBufIncCount);
 

@@ -6,7 +6,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", mc_setBaseOffset);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", mc_SetMicroCode);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", mc_TransMicroCode);
+void mc_TransMicroCode(void *a0, void *a1) {
+    QCOPY16("$t0");
+}
 
 void mc_Reset(void *a0, void *a1) {
     QCOPY16("$t0");
