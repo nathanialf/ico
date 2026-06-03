@@ -9,7 +9,13 @@ int _InterGV(void *a0, void *a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/gv", GetMatrixDirectionToZ);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/gv", _InterRotGV);
+int _InterRotGV(void *a0, void *a1) {
+    int *p = *(int **)((char *)a1 + 0x15C);
+    unsigned short *q = *(unsigned short **)((char *)p + 0x7F0);
+    *(unsigned short *)a0 = *(unsigned short *)((char *)q + 0x50);
+    *(unsigned short *)((char *)a0 + 2) = *(unsigned short *)((char *)q + 0x8);
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/gv", _DistxzSqGV);
 

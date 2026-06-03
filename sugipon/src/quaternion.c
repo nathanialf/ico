@@ -21,11 +21,29 @@ void RotCurrentQuaternionX(void *a0) {
     GetInverseQuaternion(&D_0065A5C0[D_00629E7C * 4], a0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", RotCurrentQuaternionY);
+extern int D_00629E7C;
+extern int D_0065A5C0[];
+extern void func_0010E448(void *a0, int a1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", RotCurrentQuaternionZ);
+void RotCurrentQuaternionY(int a0) {
+    func_0010E448(&D_0065A5C0[D_00629E7C * 4], (short)a0);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", PushQuaternion);
+extern int D_00629E7C;
+extern int D_0065A5C0[];
+extern void func_0010E4E8(void *a0, int a1);
+
+void RotCurrentQuaternionZ(int a0) {
+    func_0010E4E8(&D_0065A5C0[D_00629E7C * 4], (short)a0);
+}
+
+extern int D_00629E7C;
+extern int D_0065A5C0[];
+extern void func_0010E588(void *a0, int a1);
+
+void PushQuaternion(int a0) {
+    func_0010E588(&D_0065A5C0[D_00629E7C * 4], (short)a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", InitQuaternionDrive);
 

@@ -41,7 +41,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyWalk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyRun);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyAttack);
+extern void *D_00629DE4;
+
+int actBoyAttack(void) {
+    void *p = D_00629DE4;
+    void *q;
+    if (p == 0) goto ret0;
+    q = *(void **)((char *)p + 0x164);
+    return *(int *)((char *)q + 0x130);
+ret0:
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyTakeWeaponReady);
 
@@ -81,11 +91,23 @@ int actBoyStand(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyHang);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyBHang);
+extern unsigned char D_006A45A0[];
+
+extern long long D_006A45A0_ll[] __asm__("D_006A45A0");
+void actBoyBHang(void) {
+    D_006A45A0_ll[1] |= 0x800000000LL;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyFall);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyCall);
+extern unsigned char D_006A45F0[];
+
+int actBoyCall(void) {
+    if (D_006A45F0[0] == 0) goto ret0;
+    return *(int *)(D_006A45F0 + 4);
+ret0:
+    return 0;
+}
 
 extern unsigned char D_006A45F0[];
 extern int D_006A4600[];

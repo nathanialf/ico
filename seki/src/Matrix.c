@@ -120,4 +120,14 @@ void _PushVu0Registers(void *a0, void *a1, float a2) {
     VU0_NOP();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _PopVu0Registers);
+void _PopVu0Registers(void *a0, void *a1, void *a2) {
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf1, 0x0($5)\n"
+        "lqc2 $vf2, 0x0($6)\n"
+        "vmulx.x $vf1, $vf1, $vf2x\n"
+        "vmuly.y $vf1, $vf1, $vf2y\n"
+        "vmulz.z $vf1, $vf1, $vf2z\n"
+        "sqc2 $vf1, 0x0($4)\n"
+        ".set reorder\n" : : : "memory");
+}
