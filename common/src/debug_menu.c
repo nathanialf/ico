@@ -60,7 +60,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7BD0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7BF8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7C20);
+extern int D_0062ACB0;
+
+int func_001A7C20(void) {
+    D_0062ACB0 = *(volatile int *)0x10000000;
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7C38);
 
