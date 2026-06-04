@@ -10,7 +10,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", warpGirlInStage);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", warpGirlInit);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017C0B8);
+extern void *D_00629DE4;
+
+void func_0017C0B8(void) {
+    void *o = D_00629DE4;
+    if (o) {
+        void *s = *(void **)((char *)o + 0x164);
+        *(long *)((char *)s + 0x20) &= -0x201;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017C0E0);
 
