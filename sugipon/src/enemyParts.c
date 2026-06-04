@@ -30,7 +30,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", DispPointBlur);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", UpdateEnemyEye);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", DispEnemyEye);
+typedef struct { int _0, _4; float f8; int _c, _10; } EyeParam;
+extern EyeParam D_00617828[];
+
+float DispEnemyEye(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    int idx = q[2];
+    return D_00617828[idx].f8;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", ResetEnemyEye);
 
