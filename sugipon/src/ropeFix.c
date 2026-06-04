@@ -19,7 +19,12 @@ void func_001E6B78(int a0) {
     playSEConditionID(a0, 0x33);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/ropeFix", func_001E6B80);
+extern void ExecFrameDependSequence(int a0);
+
+void func_001E6B80(int a0) {
+    ExecFrameDependSequence(a0);
+    playSEConditionID(a0, 0x38);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/ropeFix", func_001E6BB0);
 
