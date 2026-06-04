@@ -385,7 +385,17 @@ int func_00240C58(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240C68);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240E40);
+struct __attribute__((packed)) S_240E40 {
+    long long a;
+    long long b;
+    int c __attribute__((aligned(4)));
+};
+extern struct S_240E40 D_0054AA68;
+
+void *func_00240E40(void *a0) {
+    *(struct S_240E40 *)a0 = D_0054AA68;
+    return a0;
+}
 
 int func_00240E78(unsigned int a0) {
     int old = *(volatile int *)0x1000E060;
