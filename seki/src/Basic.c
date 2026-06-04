@@ -42,6 +42,11 @@ void mallocsekistage(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Basic", reallocseki);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Basic", func_001F3DF0);
+extern char D_00613278[];
+extern void *iosMallocAlignDebug(int a0, int a1, char *a2, int a3);
+
+void *func_001F3DF0(int a0, int a1) {
+    return iosMallocAlignDebug(a0, a1, D_00613278, 0x1A8);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Basic", func_001F3E18);
