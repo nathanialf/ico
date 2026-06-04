@@ -146,9 +146,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonDodge);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonEdgeHang);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", funcCommonBeginReady);
+extern void debug_assertMessage(void *a0);
+extern void _ACTWait(int a0);
+extern char D_00552F18[];
+extern char D_00552F38[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", funcCommonEndReady);
+void funcCommonBeginReady(volatile int a0) {
+    debug_assertMessage(D_00552F18);
+    _ACTWait(0);
+}
+
+void funcCommonEndReady(volatile int a0) {
+    debug_assertMessage(D_00552F38);
+    _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", funcCommonEndExec);
 

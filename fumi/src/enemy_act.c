@@ -102,7 +102,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyRun);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyHang);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyCarry);
+typedef struct { char _[0x48]; unsigned int f48; } NestEntry;
+extern NestEntry D_002A0A90[];
+
+void actEnemyCarry(int *a0) {
+    NestEntry *t = D_002A0A90;
+    int idx = a0[2];
+    t[idx].f48 |= 0x40000;
+}
 
 int actEnemyBodyslam(void *a0) {
     int *p = *(int **)((char *)a0 + 0x164);
@@ -113,9 +120,6 @@ int actEnemyBodyslamFail(void *a0) {
     int *p = *(int **)((char *)a0 + 0x164);
     return p[0x10C] == 1;
 }
-
-typedef struct { char _[0x48]; unsigned int f48; } NestEntry;
-extern NestEntry D_002A0A90[];
 
 int actEnemyNest(int *a0) {
     NestEntry *t = D_002A0A90;
