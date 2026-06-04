@@ -10,7 +10,14 @@ void gflagInit(void) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", gflagSave);
+extern void func_001EEB10(void *a0);
+
+void gflagSave(void) {
+    void *r = actSt25aQueenDeadChk();
+    if (r) {
+        func_001EEB10(r);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", gflagLoad);
 
@@ -66,7 +73,14 @@ void func_0017A078(void) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_0017A0A8);
+extern void EntryToSpiderGroupManagerForReviveMaster(void *a0);
+
+void func_0017A0A8(void) {
+    void *r = isysGObjAddHead();
+    if (r) {
+        EntryToSpiderGroupManagerForReviveMaster(r);
+    }
+}
 
 extern void *isysGObjAddHead(void);
 extern void EntryRevivedSpiderGroupManager(void *a0);
