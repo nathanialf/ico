@@ -369,7 +369,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240C68);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240E40);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240E78);
+int func_00240E78(unsigned int a0) {
+    int old = *(volatile int *)0x1000E060;
+    if (a0 != 0xFFFFFFFF) {
+        *(volatile int *)0x1000E060 = a0;
+    }
+    return old;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240EA0);
 
