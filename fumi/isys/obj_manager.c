@@ -16,7 +16,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/obj_manager", iosOmExeEachGObj);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/obj_manager", iosOmExeEachGObjAll);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/obj_manager", iosOmReturnExeEachGObj);
+extern int isysGObjAddBeforeGObj(void *a0);
+
+void iosOmReturnExeEachGObj(int *a0, int *a1) {
+    *a0 = 0x140;
+    *a1 = isysGObjAddBeforeGObj(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/obj_manager", iosOmGetGObjStatus);
 

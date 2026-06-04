@@ -13,9 +13,27 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act2", func_002013B0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act2", func_00201470);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act2", func_002015C8);
+extern void actInitialize(int a0);
+extern void _ACTWait(int a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act2", func_002015F8);
+void func_002015C8(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+}
+
+extern void debug_assertMessage(void *a0);
+extern char D_00613C00[];
+
+void func_002015F8(int a0, int *a1, int *a2) {
+    int idx = a2[0];
+    if (idx < 0x10) {
+        a2[0] = idx + 1;
+        a1[idx] = a0;
+        return;
+    }
+    debug_assertMessage(D_00613C00);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act2", func_00201628);
 
