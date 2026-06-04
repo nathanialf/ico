@@ -16,7 +16,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actOpDemo02);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actSt24aConte01_2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actOpDemo03Chk);
+extern void func_00178DD8(int a0);
+extern void actCreateSubThread(void *entry, int a1);
+extern void actSt13aConte01_3(void);
+
+void actOpDemo03Chk(volatile int a0) {
+    func_00178DD8(0x137);
+    actCreateSubThread(actSt13aConte01_3, 0x15);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actSt13aConte01_3);
 
@@ -32,7 +39,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actSt24aConte01_2_Jimaku);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", func_0020AA00);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", func_0020AA88);
+extern void func_0020AAB8(void);
+
+void func_0020AA88(volatile int a0) {
+    func_00178DD8(0x13E);
+    actCreateSubThread(func_0020AAB8, 0x15);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", func_0020AAB8);
 
