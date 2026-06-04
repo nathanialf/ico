@@ -20,7 +20,15 @@ int Draw2DLineG(void *a0) {
     return q[0x12] == 2;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lineManager", _getLine);
+int _getLine(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    int t = q[1] ^ 1;
+    if (t) goto zero;
+    return q[0x10];
+zero:
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lineManager", DrawLine);
 
