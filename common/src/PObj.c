@@ -1195,11 +1195,27 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024DFB8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024DFF8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024E060);
+int func_0024E060(void *a0, int a1, int a2, int a3) {
+    char *p = *(char **)((char *)a0 + 0x40);
+    char *q0 = p + 0xC;
+    int *q = (int *)(q0 + a1 * 8);
+    int old;
+    p += a1 * 8;
+    ((int *)p)[4] = a3;
+    old = *q;
+    *q = a2;
+    return old;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024E088);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024E0D8);
+extern void func_0024E088(void *a0, void *a1);
+
+void func_0024E0D8(void *a0) {
+    int buf[8];
+    buf[0] = 1;
+    func_0024E088(a0, buf);
+}
 
 void func_0024E100(void *a0, long long a1) {
     int *p = *(int **)((char *)a0 + 0x40);
