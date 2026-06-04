@@ -7,7 +7,16 @@ void effect_end_func(void) {
     func_00260568(D_006CCE50, 0, 0xD50);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/itou_boss", bossCtrlBeforeFunc);
+extern int D_00629C90;
+
+int bossCtrlBeforeFunc(void) {
+    int x = D_00629C90;
+    int r = 0;
+    if (x == 0x54 || x == 3 || x == 0x2E) {
+        r = 1;
+    }
+    return r;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/itou_boss", BossEnemyFunc);
 
