@@ -47,7 +47,7 @@ unsigned int loadImage(char *a0) {
     LoadImg *p = *(LoadImg **)(a0 + 0x34);
     p->f0 = D_00629B8C;
     p->f8 = D_00629B90;
-    *(float *)(a0 + 0x1C) = 0.5f;
+    *(volatile float *)(a0 + 0x1C) = 0.5f;
     return 1;
 }
 

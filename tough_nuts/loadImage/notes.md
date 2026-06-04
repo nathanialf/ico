@@ -42,3 +42,13 @@ honors source order, regresses), int-return (rc6), 0.5f-temp-first (rc6), Disp-t
 a0 fields (rc6). Same FP-scheduler-tie class as func_00239228. The 0.5f lui/mtc1 is
 the perturbing extra vs the clean 2-float siblings (setDispEnv/handler_endimage match
 with the temps idiom). Continue toward 30 then permuter.
+
+## Progress 2026-06-04 (loop): rc6 -> rc5 via volatile 0.5f store
+`*(volatile float *)(a0+0x1C)=0.5f` pushes the 0.5 store late (matches ROM's
+jr-delay swc1 f1) -> rc5. Sibling setGIFtag uses the same volatile-float idiom
+(sanctioned, not a crutch). NEW residual at rc5: volatile over-serializes the
+p-load — ROM has `lw v1,52(a0); addiu v0,1` EARLY (addiu in lw-delay), built
+pushes `lw p` + `addiu v0,1` LATE (after the volatile store). Seed updated to
+this rc5 form. Next: stop the p-load over-serialization without losing the
+late-0.5 (volatile-q-first and int-rv-first both stay rc5; temps regress rc16
+via float swap). stall 4/30.
