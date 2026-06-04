@@ -73,7 +73,22 @@ float MatrixDrive_GetTurnYAngleXZ(float a0) {
     return ret;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/matrixDrive", MatrixDrive_GetTurnYEAngleXZ);
+float MatrixDrive_GetTurnYEAngleXZ(void *a0) {
+    register float ret __asm__("$f0");
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf4, 0x0($4)\n"
+        "vmul.xyz $vf4, $vf4, $vf4\n"
+        "vaddy.x $vf4, $vf4, $vf4y\n"
+        "vaddz.x $vf4, $vf4, $vf4z\n"
+        ".word 0x4A0403BD\n"
+        "vwaitq\n"
+        "cfc2.ni $2, $vi22\n"
+        "mtc1 $2, $f0\n"
+        ".set reorder\n"
+        : "=f"(ret) :: "$2");
+    return ret;
+}
 
 float MatrixDrive_GetTurnZAngleXY(void *a0) {
     register float ret __asm__("$f0");
