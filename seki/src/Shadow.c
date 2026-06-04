@@ -29,7 +29,14 @@ void shadow_Tool(int a0) {
     D_0062A040 = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Shadow", shadow_KillShadow);
+extern int tex_SetClutAnimation(int a0);
+extern int D_0062AF6C;
+
+void shadow_KillShadow(int a0) {
+    if (a0 >= 0) {
+        D_0062AF6C += tex_SetClutAnimation(a0);
+    }
+}
 
 void shadow_DispCancel(void) {
     D_0062A040 = 0;
