@@ -2,7 +2,14 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/GobjProc", ResetGObjProc);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/GobjProc", GetMaxGObj);
+void *GetMaxGObj(int *a0, int a1, int a2, int a3) {
+    long long v = ((long long)a3 << 56) | ((long long)a2 << 48) | ((long long)a1 << 32);
+    a0[1] = v >> 32;
+    a0[2] = 0x50;
+    a0[0] = 0;
+    a0[3] = 0;
+    return (char *)a0 + 0x10;
+}
 
 void *GetGObjP(int *a0, int a1, int a2, int a3) {
     long long v = ((long long)a1 << 59) | ((long long)a3 << 48) | ((long long)a2 << 32);
