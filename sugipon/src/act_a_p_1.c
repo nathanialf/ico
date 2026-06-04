@@ -30,7 +30,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", actAP1Start);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", IsActCharDead);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", SetAP1HostGObj);
+extern int D_004B9D50[];
+int SetAP1HostGObj(void *a0) {
+    void *p = *(void **)((char *)a0 + 0x15C);
+    void *q = *(void **)((char *)p + 0x7F0);
+    return D_004B9D50[*(int *)((char *)q + 0x8)];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", SetAP1PriorLevel);
 
