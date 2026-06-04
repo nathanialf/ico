@@ -12,7 +12,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmStop);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmOpen);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmClose);
+extern void debug_assertMessage(void *a0);
+extern char D_00613878[];
+extern void func_0025A280(long long a0);
+
+void AdpcmClose(void *a0) {
+    debug_assertMessage(D_00613878);
+    func_0025A280(*(long long *)((char *)a0 + 0x30));
+}
 
 extern void func_0025A2E0(long long a0);
 
