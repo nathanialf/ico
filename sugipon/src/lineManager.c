@@ -1,6 +1,19 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lineManager", Draw2DLine);
+int Draw2DLine(void *a0) {
+    int rv = 0;
+    char *p = *(char **)((char *)a0 + 0x15C);
+    char *q = *(char **)(p + 0x7F0);
+    if (*(int *)((char *)a0 + 0x16C) == 0) {
+        goto end;
+    }
+    if (*(long long *)(q + 8) != 0) {
+        goto end;
+    }
+    rv = *(int *)(q + 0x48) < 2;
+end:
+    return rv;
+}
 
 int Draw2DLineSeg_Start(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
