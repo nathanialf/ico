@@ -1805,7 +1805,10 @@ void func_002590B8(int a0) {
     *(short *)((char *)r + 0x38) = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002590E0);
+void func_002590E0(int a0) {
+    void *r = func_00254FF8();
+    *(short *)((char *)r + 0x3A) = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00259108);
 
