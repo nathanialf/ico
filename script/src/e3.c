@@ -4,7 +4,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/e3", actE3WarningChk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/e3", actE3Title);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/e3", actE3TitleChk);
+extern void actInitialize(int a0);
+extern void _ACTWait(int a0);
+
+void actE3TitleChk(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/e3", actE3TitleFrameChk);
 
