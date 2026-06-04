@@ -1992,7 +1992,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00258438);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00258490);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00258650);
+int func_00258650(int a0, int a1, int a2, int a3) {
+    return ((a0 & 0xFF) + ((a1 & 0xFF) - (a0 & 0xFF)) * (a3 & 0xFF) / (a2 & 0xFF)) & 0xFF;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00258688);
 
