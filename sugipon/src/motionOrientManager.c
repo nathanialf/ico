@@ -8,7 +8,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", GetMotionPl
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", execFrameTrigger);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", UpdateFrameCounter);
+extern void MatrixDrive_TurnObjectMatrix(int a0, void *a1);
+
+void UpdateFrameCounter(int a0, char *a1) {
+    MatrixDrive_TurnObjectMatrix(a0, a1 + 0xA0);
+    *(int *)(a0 + 0xC) = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", sendStateMail);
 
