@@ -10,7 +10,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actSt25aQueenTalkChk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actConte12);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actConte12Jimaku);
+void actConte12Jimaku(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x164);
+    *(int *)((char *)p + 0x33C) = 0;
+    *(int *)((char *)p + 0x100) = 0;
+    *(int *)((char *)p + 0x104) = 0;
+    *(int *)((char *)p + 0x108) = 0;
+    *(int *)((char *)p + 0x32C) = 0x7F;
+    *(int *)((char *)p + 0x328) = 0x7F;
+}
 
 extern void isysGObjAddHead(void);
 
@@ -65,7 +73,20 @@ void actConte11Jimaku(float a0) {
     D_0062BA80 = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actSt25aQueenDeadEvent);
+extern int D_0062BA78;
+int actSt25aQueenDeadEvent(void) {
+    int g = D_0062BA78;
+    if (g == 0) {
+        goto ret0;
+    }
+    if (g != 3) {
+        goto ret1;
+    }
+ret0:
+    return 0;
+ret1:
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actItouQueenAttackChk);
 
