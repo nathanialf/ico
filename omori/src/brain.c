@@ -8,7 +8,12 @@ void OverrideBrainStatusByGObj(int *p) {
     *p = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/brain", brainStatusDefaultSet);
+float brainStatusDefaultSet(void *a0, void *a1) {
+    if (*(void **)((char *)a0 + 0x4) == a1) {
+        return *(float *)((char *)a1 + 0x4) + *(float *)((char *)a0 + 0x14);
+    }
+    return *(float *)((char *)a1 + 0x4);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/brain", brainLevelProcess);
 
