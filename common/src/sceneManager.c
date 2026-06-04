@@ -1,6 +1,12 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/sceneManager", GetRealModelId);
+typedef struct { char _0[0x68]; int f_68; } RealModel;
+extern RealModel D_002E34F0[];
+
+void GetRealModelId(int a0, int a1) {
+    RealModel *m = &D_002E34F0[a0];
+    m->f_68 = (m->f_68 & ~1) | (a1 & 1);
+}
 
 extern int D_0062B418;
 
