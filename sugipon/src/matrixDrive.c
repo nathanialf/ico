@@ -36,7 +36,9 @@ void MatrixDrive_TurnXObjectMatrixZY(void *a0, void *a1) {
     QCOPY16("$a2");
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/matrixDrive", MatrixDrive_TurnXObjectMatrixYZ);
+void MatrixDrive_TurnXObjectMatrixYZ(void *dst, void *src) {
+    QCOPY64_SERIAL("$6");
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/matrixDrive", MatrixDrive_TurnYObjectMatrixXZ);
 
