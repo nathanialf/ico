@@ -59,3 +59,12 @@ emits the const block BEFORE the loads. Store batching (0x0, 0x8, 0x4 with the
   and copy its idiom.
 - the const block loses sched priority to the higher-latency loads; look for a
   source shape where the const's value is on a longer/equal critical path.
+
+## Re-test 2026-06-04 (loop): in-flight working-tree attempt was `volatile float *p`
+form (rc5) — volatile OVER-SERIALIZES (forces swc1 after each lwc1, blocking
+ROM's load-all-3-then-store latency-hiding). Plain `float*` order 0,1,2 = rc7,
+order 0,2,1 = rc6, load-into-temps-first = rc5. Residual across all: const
+materialized to $f0 (built) vs $f1 (ROM), and the lwc1/swc1 interleave. Not a
+volatile problem to add — needs the regalloc/sched shape that puts const in $f1
+with all three FP loads hoisted before the three stores (p[1] store in jr-delay).
+Reverted working tree to INCLUDE_ASM (stays parked); seed = temps form (rc5).

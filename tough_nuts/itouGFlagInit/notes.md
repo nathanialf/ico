@@ -30,3 +30,29 @@ glabel itouGFlagInit
     /* 95B6C 00195B6C 1000BD27 */   addiu     $29, $29, 0x10
 endlabel itouGFlagInit
 ```
+
+## Resume 2026-06-04 (loop) — stall 13/30 from reset
+Precise diff (rc4): ROM single-materializes const 1 in v0 AFTER the lw (reuse
+dead call-result v0): `lw v1,96(v0); addiu v0,1; ld ra; sw v0,0(v1); jr`.
+gcc DOUBLE-materializes: `addiu a0,1` (store) + separate `addiu v0,1` (return)
+— a cheap-constant remat that won't coalesce. ptr=v1 only when rv spans the
+call; rv-after-call → ptr=a0 (rc5). NEW forms ruled out this session:
+assignment-expr `return *p=1` (rc4/5, still double-mats), int** pp temp,
+register int rv, and dummy-param register pressure (rc5 — dummy does NOT push
+ptr to v1; only rv-spanning does). Tension confirmed: ptr=v1 ⇔ rv-spans-call ⇔
+const-remat double. Likely needs a non-rematerializable spelling of 1 or the
+permuter (constant-coalescing is its strength). Continue toward 30-stall then
+the one permuter shot. Contrast: the sibling scheduling-tie class
+(func_0011F1C8 >>5, func_001E8D10 post-inc) cracked by idiom — this is regalloc
+coalescing of a constant, a harder sub-class.
+
+## stall 21/30 (loop, more forms ruled out)
+Also tried (all rc4 rv-spans / rc5 rv-after, none reuse v0): store-then-reload
+`return *p`, int** pp double-deref, comma `(*p=1,1)`, static-inline-helper
+(rc5), array-of-ptrs r[0][0], register int rv, (*pp)[0]. Root cause firmly:
+rv spanning the call → gcc REMATERIALIZES const 1 at both store+return
+(double addiu, never reuses dead call-result v0); rv-after-call removes the
+double-mat but moves ptr off v1 (rc5). The two are linked through register
+pressure; no clean-C form decouples them. This is the func_001FB768-class
+constant-coalescing regalloc tie → permuter at 30-stall (it surfaces the
+`if((x2=x))`-style live-range split hand forms can't). Continue toward 30.
