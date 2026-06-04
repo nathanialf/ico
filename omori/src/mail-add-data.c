@@ -49,4 +49,10 @@ void func_00192A30(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/mail-add-data", func_00192A38);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/mail-add-data", func_00192B50);
+extern void MatrixDrive_TurnXObjectMatrixYZ(void *dst, void *src);
+extern char D_00287300[];
+
+void func_00192B50(void *a0) {
+    MatrixDrive_TurnXObjectMatrixYZ(D_00287300, a0);
+    gif_SpriteOffset(0xB);
+}
