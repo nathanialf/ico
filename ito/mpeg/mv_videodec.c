@@ -8,7 +8,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_videodec", videoDecCreate);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_videodec", videoDecBeginPut);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_videodec", videoDecEndPut);
+extern void debug_assertMessage(void *a0, int a1);
+extern char D_0062C968[];
+
+int videoDecEndPut(void *a0, int *a1) {
+    debug_assertMessage(D_0062C968, a1[1]);
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_videodec", videoDecFlush);
 
