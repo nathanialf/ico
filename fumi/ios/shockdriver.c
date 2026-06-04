@@ -28,7 +28,18 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockRequestBox_Decode
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockRequestBox_EndRequestFree);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockRequestBox_VoiceSetUseRequestFree);
+extern void iosThreadInit(void);
+
+void ShockRequestBox_VoiceSetUseRequestFree(int *a0, int a1, int a2, int a3) {
+    a0[0] = 0;
+    if (a1) {
+        a0[1] = a1;
+    } else {
+        a0[1] = (int)iosThreadInit;
+    }
+    a0[2] = a2;
+    a0[3] = a3;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockRequestBox_GetRequest);
 
