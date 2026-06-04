@@ -8,7 +8,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", EXITDATA_GetNextPosition)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_StageChangeGObj);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_SetActors_Debug);
+extern int InitIcoMisc(void *a0);
+extern int D_00629C90;
+extern void func_0019A4B8(void *a0, int a1, int a2);
+
+void ACTGame_SetActors_Debug(void *a0) {
+    int r = InitIcoMisc(a0);
+    func_0019A4B8(a0, D_00629C90, r);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_TryConnectHand);
 
