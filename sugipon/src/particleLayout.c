@@ -15,7 +15,17 @@ void ParticleLayoutGeo(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleLayout", ParticleLayoutDL);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleLayout", func_001E6040);
+typedef struct { char _0[4]; int f_4; char _8[0x98]; } ParticleLayout;
+extern ParticleLayout D_00703CC0[];
+
+int func_001E6040(int a0) {
+    ParticleLayout *p;
+    if (a0 < 0) {
+        return -1;
+    }
+    p = &D_00703CC0[a0];
+    return p->f_4 == 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleLayout", func_001E6070);
 
