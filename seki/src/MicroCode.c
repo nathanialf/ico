@@ -135,7 +135,39 @@ void func_001189D0(void *dst, void *src) {
     QCOPY64_PARALLEL("$6", "$7", "$8", "$9");
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", func_001189F8);
+void func_001189F8(void *a0, void *a1, void *a2) {
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf14, 0x0($5)\n"
+        "lqc2 $vf15, 0x10($5)\n"
+        "lqc2 $vf16, 0x20($5)\n"
+        "lqc2 $vf17, 0x30($5)\n"
+        "lqc2 $vf24, 0x0($6)\n"
+        "lqc2 $vf25, 0x10($6)\n"
+        "lqc2 $vf26, 0x20($6)\n"
+        "lqc2 $vf27, 0x30($6)\n"
+        "vmulax.xyzw $ACC, $vf14, $vf24x\n"
+        "vmadday.xyzw $ACC, $vf15, $vf24y\n"
+        "vmaddaz.xyzw $ACC, $vf16, $vf24z\n"
+        "vmaddw.xyzw $vf24, $vf17, $vf24w\n"
+        "vmulax.xyzw $ACC, $vf14, $vf25x\n"
+        "vmadday.xyzw $ACC, $vf15, $vf25y\n"
+        "vmaddaz.xyzw $ACC, $vf16, $vf25z\n"
+        "vmaddw.xyzw $vf25, $vf17, $vf25w\n"
+        "vmulax.xyzw $ACC, $vf14, $vf26x\n"
+        "vmadday.xyzw $ACC, $vf15, $vf26y\n"
+        "vmaddaz.xyzw $ACC, $vf16, $vf26z\n"
+        "vmaddw.xyzw $vf26, $vf17, $vf26w\n"
+        "vmulax.xyzw $ACC, $vf14, $vf27x\n"
+        "vmadday.xyzw $ACC, $vf15, $vf27y\n"
+        "vmaddaz.xyzw $ACC, $vf16, $vf27z\n"
+        "vmaddw.xyzw $vf27, $vf17, $vf27w\n"
+        "sqc2 $vf24, 0x0($4)\n"
+        "sqc2 $vf25, 0x10($4)\n"
+        "sqc2 $vf26, 0x20($4)\n"
+        "sqc2 $vf27, 0x30($4)\n"
+        ".set reorder\n" : : : "memory");
+}
 
 void func_00118A70(void *a0, void *a1, void *a2) {
     __asm__ __volatile__(
