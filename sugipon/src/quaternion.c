@@ -88,7 +88,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", GetSlerpQuaternionNo
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", GetSlerpQuaternion);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", GetCurrentQuaternion);
+extern void GetSlerpQuaternion(void *a0);
+extern void GetSlerpQuaternionNoRegularize(void *a0);
+
+void GetCurrentQuaternion(void *a0) {
+    GetSlerpQuaternion(a0);
+    GetSlerpQuaternionNoRegularize(a0);
+}
 
 void *GetLastQuaternion(void) {
     return &D_0065A5C0[D_00629E7C * 4];
