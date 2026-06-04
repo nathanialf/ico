@@ -1212,7 +1212,10 @@ int func_00249D48(int a0, int a1, int a2) {
     return func_0024A0C0(a0, a1, a2, 5, D_00711258);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00249D78);
+int func_00249D78(int a0, void *a1) {
+    D_0054C630[0] = 1;
+    return func_0024A0C0(a0, 0, 0, 1, a1);
+}
 
 int func_00249DB0(int a0) {
     return func_0024A0C0(a0, 0, 0, 9, D_00711258);
