@@ -22,7 +22,14 @@ void lw_pos_to_ico_pos(void *a0, void *a1, void *a2) {
     VU0_NOP();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/itou_sub", apply_matrix_w1);
+extern void func_0023FED0(void *a0);
+extern void func_00195B88(void *a0, void *a1);
+
+void apply_matrix_w1(void *a0) {
+    char buf[0x40];
+    func_0023FED0(buf);
+    func_00195B88(a0, buf);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/itou_sub", ico_m33_to_quat);
 
