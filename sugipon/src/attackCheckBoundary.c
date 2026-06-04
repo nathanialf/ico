@@ -2,9 +2,11 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/attackCheckBoundary", AttackCheckBoundaryBeforeFunc);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/attackCheckBoundary", InitAttackCheckBoundaryManagerGeo);
-
 extern int AP1BeforeFunc(void *a0, int a1);
+
+int InitAttackCheckBoundaryManagerGeo(void *a0) {
+    return AP1BeforeFunc(a0, 0) ? 0 : -1;
+}
 
 int AttackCheckBoundaryManagerGeo(void *a0) {
     return AP1BeforeFunc(a0, 0) ? 0 : -1;
