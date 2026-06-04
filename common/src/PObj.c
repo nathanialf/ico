@@ -143,7 +143,20 @@ float func_0023FE70(void *a0, void *a1) {
     return ret;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023FE98);
+void func_0023FE98(void *a0, void *a1) {
+    VU0_LSV(lqc2, 4, 0x0, 5);
+    VU0_REG("vmul.xyz $vf5, $vf4, $vf4");
+    VU0_REG("vaddy.x $vf5, $vf5, $vf5y");
+    VU0_REG("vaddz.x $vf5, $vf5, $vf5z");
+    VU0_REG(".word 0x4A0503BD");
+    VU0_WAIT();
+    VU0_REG("vaddq.x $vf5, $vf0, $Q");
+    VU0_REG("vdiv $Q, $vf0w, $vf5x");
+    VU0_REG("vsub.xyzw $vf6, $vf0, $vf0");
+    VU0_WAIT();
+    VU0_REG("vmulq.xyz $vf6, $vf4, $Q");
+    VU0_LSV(sqc2, 6, 0x0, 4);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023FED0);
 
