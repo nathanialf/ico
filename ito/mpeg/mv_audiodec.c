@@ -1,5 +1,7 @@
 #include "common.h"
 
+typedef struct { float f0; float f4; float f8; } AudFrame;
+
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", func_002388F0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", audioDecCreate);
@@ -22,7 +24,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", audioDecStart);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", audioDecPause);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", audioDecResume);
+extern const float D_00629B24, D_00629B28;
+
+int audioDecResume(char *a0) {
+    AudFrame *p = *(AudFrame **)(a0 + 0x34);
+    p->f0 = 1800.0f;
+    p->f4 = D_00629B24;
+    p->f8 = D_00629B28;
+    *(float *)(a0 + 0x18) = 1.0f;
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", func_00238FB0);
 
@@ -34,7 +45,6 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", func_002391E8);
 
 extern const float D_00629B34, D_00629B38;
 
-typedef struct { float f0; float f4; float f8; } AudFrame;
 
 int func_00239228(void *a0) {
     AudFrame *p = *(AudFrame **)((char *)a0 + 0x34);
