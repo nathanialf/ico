@@ -45,7 +45,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_BeforeFunc);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", FunctionAboutClingedStatus);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTEnvGetTest);
+extern void *D_00629DE8;
+int ACTEnvGetTest(void) {
+    void *q;
+    if (D_00629DE8 == 0) return 0;
+    q = *(void **)((char *)D_00629DE8 + 0x164);
+    return (int)(*(unsigned long long *)((char *)q + 0x18) >> 36) & 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ActOrientTest);
 
