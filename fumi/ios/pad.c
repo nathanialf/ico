@@ -16,7 +16,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/pad", iosPadActRequest);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/pad", iosPadDevRead);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/pad", iosPadGetPort);
+extern int iosMsgSend(void *a0, int a1, int a2);
+extern unsigned char D_0027D9B0[];
+
+int iosPadGetPort(void) {
+    iosMsgSend(D_0027D9B0, 0, 0);
+    return 0;
+}
 
 extern unsigned char D_0027D540[];
 

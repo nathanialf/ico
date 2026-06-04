@@ -2,7 +2,18 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/message", deq_mes_th);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/message", iosMsgQueueCreate);
+extern void func_00100540(int a0);
+
+void iosMsgQueueCreate(int *a0) {
+    int *node = (int *)a0[4];
+    if (node) {
+        int next = node[0x11];
+        int arg = a0[0xB];
+        a0[4] = next;
+        node[0x11] = 0;
+        func_00100540(arg);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/message", iosMsgQueueDestroy);
 

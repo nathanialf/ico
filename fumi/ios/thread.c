@@ -19,7 +19,18 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadSleep);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadDestroy);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadSetPri);
+extern int *D_0062A490;
+
+int iosThreadSetPri(int a0, int a1) {
+    int *p = D_0062A490;
+    if ((unsigned int)a0 < (unsigned int)p[0]) goto store;
+    a0 = -1;
+    goto end;
+store:
+    ((int *)p[1])[a0] = a1;
+end:
+    return a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadMessage);
 
@@ -36,7 +47,14 @@ int iosThreadInit(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadCreate);
+void iosThreadCreate(unsigned char *a0, int a1, int a2) {
+    if (a1) {
+        a0[0] &= 0xFE;
+    }
+    if (a2) {
+        a0[0] &= 0xEF;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadGetPri);
 

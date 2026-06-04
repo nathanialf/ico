@@ -48,7 +48,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", iosCdvdLoadPackFile);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", iosCdvdDiskStatusGet);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", iosCdvdBackGroundMgrDelete);
+extern int iosMsgRecv(void *a0, void *a1, int a2);
+extern unsigned char D_0027A870[];
+
+int iosCdvdBackGroundMgrDelete(int a0) {
+    int buf[4];
+    buf[0] = a0;
+    iosMsgRecv(D_0027A870, buf, 1);
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", iosCdvdBackGroundMgrNotDiskReadyPauseSet);
 
