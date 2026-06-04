@@ -39,7 +39,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoySwim);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyWalk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyRun);
+extern void BeforeFunc2(void *a0);
+extern void HandCameraCorrect(void *a0, void *a1);
+
+void actBoyRun(void *a0) {
+    char buf[0x10];
+    BeforeFunc2(buf);
+    HandCameraCorrect(buf, a0);
+}
 
 extern void *D_00629DE4;
 
