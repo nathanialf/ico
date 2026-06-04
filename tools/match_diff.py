@@ -50,6 +50,30 @@ JUMP_MNEMONICS = {
 
 _ANNOT = re.compile(r"\s*<[^>]*>")          # strip "<func+0xNN>" / "<sym>"
 _TRAIL_HEX = re.compile(r"\b[0-9a-f]+\s*$")  # bare hex target (no 0x prefix)
+
+# %hi/%lo address-materialization pair: `lui rX, H` then `addiu rX, rX, L`. The
+# H/L immediates are a symbol's %hi/%lo, resolved differently in the isolated
+# quick_diff .o than in the per-function target .s (a SAME-TU symbol is an
+# external reloc on the target side -> addend 0, but a resolved local .text
+# offset on the built side). That is a relocation difference the linker fixes
+# (verify_elf is byte-identical), NOT a real diff — so normalize both immediates
+# to "T", exactly as jal targets are normalized. SAFE: a frame adjust
+# (`addiu sp,sp,-16`) is never preceded by `lui sp`, so this never masks a
+# frame-size diff. See the getParallelWindVector false-rc1 (ExecWindField, 2026-06-04).
+_LUI_RE   = re.compile(r"^lui\t([^,]+),")
+_ADDIU_RE = re.compile(r"^addiu\t([^,]+),([^,]+),")
+def normalize_lui_addiu(lines: list[str]) -> list[str]:
+    out = list(lines)
+    for i in range(len(out) - 1):
+        m = _LUI_RE.match(out[i])
+        if not m:
+            continue
+        reg = m.group(1)
+        m2 = _ADDIU_RE.match(out[i + 1])
+        if m2 and m2.group(1) == reg and m2.group(2) == reg:
+            out[i]     = f"lui\t{reg},T"
+            out[i + 1] = f"addiu\t{reg},{reg},T"
+    return out
 _CATN = re.compile(r"\s*\d+\t(.*)")          # `cat -n` prefix: ws + number + tab
 
 
@@ -223,8 +247,8 @@ def analyze(tu: str, func: str | None) -> dict:
         return {"status": "match", "real_count": 0, "raw_count": 0, "tags": [], "lines": []}
 
     raw_count, _ = count_and_pairs(exp, blt)
-    nexp = [normalize(l) for l in exp]
-    nblt = [normalize(l) for l in blt]
+    nexp = normalize_lui_addiu([normalize(l) for l in exp])
+    nblt = normalize_lui_addiu([normalize(l) for l in blt])
     real_count, pairs = count_and_pairs(nexp, nblt)
     sites = divergence_sites(nexp, nblt)
     tags = run_tag_diff(exp, blt)
