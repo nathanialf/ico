@@ -880,7 +880,46 @@ __asm__(
     "    .set at\n"
 );
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002484AC);
+/* func_002484AC: handwritten ISR thunk (ei/sync, asymmetric hand-frame).
+ * C-inexpressible: an honest 33-hypothesis stall floored at rc3 (the entry
+ * frame adjust, sync, and ei cannot be emitted by ee-gcc 2.9). Written as
+ * in-file handwritten asm per maintainer exception (one-off). */
+__asm__(
+    ".section .text
+"
+    "    .set at
+"
+    "    .set noreorder
+"
+    "    .global func_002484AC
+"
+    "    .type func_002484AC, @function
+"
+    "func_002484AC:
+"
+    "    sd    $31, 0x0($29)
+"
+    "    jal   func_00100550
+"
+    "    daddu $4, $6, $0
+"
+    "    sync
+"
+    "    ei
+"
+    "    ld    $31, 0x0($29)
+"
+    "    jr    $31
+"
+    "    addiu $29, $29, 0x10
+"
+    "    .size func_002484AC, . - func_002484AC
+"
+    "    .set reorder
+"
+    "    .set at
+"
+);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002484D0);
 
