@@ -22,7 +22,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-root", DebugCameraSemiAuto);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-root", BackToGameCamera);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-root", GetCameraInfomationFromGlobalPosition);
+extern int D_006C9FA0[];
+extern int D_0062AA14;
+
+void GetCameraInfomationFromGlobalPosition(void) {
+    if (D_006C9FA0[2] < 4) {
+        D_006C9FA0[0] = D_0062AA14;
+        D_006C9FA0[2] = 0;
+        D_006C9FA0[1] = 0;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-root", InitCamera);
 
