@@ -18,7 +18,13 @@ void UpdateStormPackage(int a0) {
     D_00271588[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stormTest", DispStormPackage);
+extern int D_002714A0[];
+
+void DispStormPackage(int a0, float a1, float a2) {
+    D_002714A0[0x3B] = (int)a1;
+    D_002714A0[0x3C] = (int)a2;
+    D_002714A0[0x3E] = a0;
+}
 
 extern float D_0062B928;
 
