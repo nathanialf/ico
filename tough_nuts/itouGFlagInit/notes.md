@@ -56,3 +56,12 @@ double-mat but moves ptr off v1 (rc5). The two are linked through register
 pressure; no clean-C form decouples them. This is the func_001FB768-class
 constant-coalescing regalloc tie → permuter at 30-stall (it surfaces the
 `if((x2=x))`-style live-range split hand forms can't). Continue toward 30.
+
+## Permuter shot (loop, after 30-stall) — NO real_count improvement
+Fired 10-min permuter (quick_diff CFLAGS). Best candidate output-10-1 scored
+110→10 in PERMUTER units but measures rc4 via match_diff (--dry) — the same as
+the parked best (classic permuter-score vs real_count anti-correlation). Its
+lever (`int **new_var; new_var=(int**)(r+0x60); *(*new_var)=rv;`) does NOT
+beat rc4. Terminal for this pass: tool-verdict park (next=park @30/30) +
+permuter no-improvement. Re-attack on a FUTURE resume with a fresh HAND
+hypothesis (the const-1 double-mat / v0-reuse remains the sole residual).
