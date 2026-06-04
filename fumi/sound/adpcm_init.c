@@ -33,9 +33,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmVolumeSet);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", adpcmPauseRequest);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmIopBuffAlloc);
+extern void adpcmPauseRequest(void *a0, int a1, int a2);
 
-extern void AdpcmIopBuffAlloc(int a0, int a1, int a2);
+void AdpcmIopBuffAlloc(int a0, int a1, int a2) {
+    char *b = *(char **)(a0 + 0x2C);
+    short *q = (short *)(b + (a1 * 2 + 1) * 2);
+    short *r = (short *)(b + a1 * 4);
+    q[0x20] = a2;
+    r[0x1E] = a2;
+    adpcmPauseRequest(b, a1 * 2, a2);
+}
 
 void AdpcmOpenSync(int a0, int a1) {
     AdpcmIopBuffAlloc(a0, 0, a1);
