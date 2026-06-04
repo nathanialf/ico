@@ -59,7 +59,15 @@ int func_001A7A80(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7A88);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7AE8);
+extern int D_0062AF48;
+extern int func_00243B28(void);
+
+int func_001A7AE8(int a0) {
+    if (a0 == D_0062AF48) {
+        D_0062AF48 = -1;
+    }
+    return func_00243B28();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7B18);
 
@@ -68,7 +76,12 @@ void func_001A7B50(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7B58);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7BA0);
+extern int D_006F26D0_fwd[] __asm__("D_006F26D0");
+
+void func_001A7BA0(int a0, int a1, int a2) {
+    int *p = (int *)(a1 * 8 + a0 * 0xD0 + (int)(char *)D_006F26D0_fwd);
+    *p += a2;
+}
 
 extern int D_006F26D0[];
 
