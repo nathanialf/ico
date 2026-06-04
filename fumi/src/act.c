@@ -31,7 +31,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act", _ACTRun);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act", _ACTWait);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act", actCreateSubThreadGOppArg);
+extern void *D_0062A4DC;
+extern void *isysGObjProcPausePtr(void *a0, void *a1, int a2, void *a3);
+
+void actCreateSubThreadGOppArg(void *a0, void *a1) {
+    void *p = isysGObjProcPausePtr(D_0062A4DC, a0, 0, a1);
+    *(int *)((char *)p + 0x64) = 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act", actCreateSubThread);
 
