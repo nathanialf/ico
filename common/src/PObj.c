@@ -1423,7 +1423,16 @@ int func_0024DE40(void) {
     return 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024DE48);
+extern int D_0054C768[];
+extern int D_0054C880[];
+extern void func_0024E978(int a0, int a1);
+
+void func_0024DE48(int a0, int a1, int a2) {
+    int rounded = (a2 + 0x13) / 16 * 16;
+    D_0054C768[0] = a1;
+    D_0054C880[0] = rounded;
+    func_0024E978(a1, rounded);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024DE80);
 
