@@ -26,7 +26,13 @@ void SetRootQuaternion(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", SetRootMatrixWithTransOffsetByDObj);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", SetRootMatrixWithTransOffset);
+extern void SetRootMatrixWithTransOffsetByDObj(void *a0);
+extern void SetMotionBlendlessNode(void *a0);
+
+void SetRootMatrixWithTransOffset(void *a0) {
+    SetRootMatrixWithTransOffsetByDObj(a0);
+    SetMotionBlendlessNode(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", GetRootMatrixRotOffsetByDObj);
 
