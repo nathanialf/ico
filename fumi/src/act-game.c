@@ -62,7 +62,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_InnerVelocityUpda
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_BeforeFunc);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", FunctionAboutClingedStatus);
+int FunctionAboutClingedStatus(void *a0) {
+    float f = *(float *)(*(char **)((char *)a0 + 0x164) + 0x1D0);
+    if (f <= 20.0f) {
+        return 1;
+    }
+    return 0;
+}
 
 extern void *D_00629DE8;
 int ACTEnvGetTest(void) {
