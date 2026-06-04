@@ -24,7 +24,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", ReleaseWeaponWithFumbleT
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", ReleaseWeaponWithFumbleSequential);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", calcDynamicPathGeometry);
+extern void torchOnOfWeaponSE(void *a0);
+extern void weaponStickSE(void *a0);
+
+void calcDynamicPathGeometry(void *a0) {
+    torchOnOfWeaponSE(a0);
+    weaponStickSE(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", calcDynamicGeometry);
 
