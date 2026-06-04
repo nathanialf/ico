@@ -32,7 +32,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GifPacket", gif_SpriteOffset);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GifPacket", gif_SpriteSensitiveOffset);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GifPacket", gif_SpriteOrg);
+typedef struct { char _pad[0x10]; long long *cur; } GifBuf;
+extern GifBuf D_004C3850;
+
+void gif_SpriteOrg(long long a0, long long a1) {
+    *D_004C3850.cur++ = a1;
+    *D_004C3850.cur++ = a0;
+}
 
 int gif_SpriteSensitiveOrg(void) {
     return D_00629EA0;
