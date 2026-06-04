@@ -8,7 +8,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-root", MakeCameraMatrix);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-root", CameraEditManual);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-root", DebugCameraManual);
+extern int D_0062AFF8;
+extern float D_006C9F74[];
+extern void func_0018A0F0(int a0, int a1, int a2);
+
+void DebugCameraManual(int a0, int a1, int a2, int a3, int a4) {
+    *(float *)a3 = D_006C9F74[0];
+    *(float *)a4 = (float)D_0062AFF8 / 100.0f;
+    func_0018A0F0(a0, a1, a2);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-root", DebugCameraSemiAuto);
 
