@@ -2,7 +2,14 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/hand-camera", RotateAccordingToStick_PatternThree);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/hand-camera", HandyCamera_TargetMoveType);
+extern void func_00240008(void *a0, void *a1, void *a2);
+extern void func_0023FE70(void *a0, void *a1);
+
+void HandyCamera_TargetMoveType(void *a0, void *a1) {
+    char buf[0x10];
+    func_00240008(buf, a0, a1);
+    func_0023FE70(buf, buf);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/hand-camera", ClearHandCameraCorrect);
 
