@@ -40,7 +40,14 @@ void func_00149CC8(void *a0, float a1) {
     *(float *)((char *)q + 0x334) = a1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", func_00149CD8);
+void func_00149CD8(void *a0, unsigned int a1, float f) {
+    int *p = *(int **)((char *)a0 + 0x164);
+    int *q = *(int **)((char *)p + 0x670);
+    if (a1 >= (unsigned int)q[0x15]) {
+        *(float *)((char *)q + 0x58) = f;
+        q[0x15] = a1;
+    }
+}
 
 extern float D_0028E5F0[];
 
