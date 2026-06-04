@@ -74,7 +74,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysMemorySave);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysMemoryLoad);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysVersionLoad);
+extern void func_00240AB8(void);
+extern void gsb_antiAlias(void *a0);
+extern int D_00271270[];
+
+void gamesysVersionLoad(void) {
+    func_00240AB8();
+    gsb_antiAlias(D_00271270);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysVersionSave);
 
