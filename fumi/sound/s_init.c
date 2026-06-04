@@ -110,7 +110,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSeGroupStop);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSeGroupGet);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSePlayModeStop);
+extern int D_0062A524;
+
+int soundSePlayModeStop(void) {
+    return D_0062A524 = ((D_0062A524 + 1) & 0x0FFFFFFF) | 0x10000000;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundVBlank);
 
