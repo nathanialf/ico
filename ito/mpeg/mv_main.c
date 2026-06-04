@@ -20,7 +20,13 @@ void initAll(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_main", termAll);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_main", movie_init);
+int movie_init(volatile int *a0, int *a1) {
+    int diff = a0[1] - a0[3];
+    if (diff != 0) {
+        a1[0] = a0[0] + a0[2];
+    }
+    return diff;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_main", movie_end);
 
