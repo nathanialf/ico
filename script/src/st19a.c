@@ -35,7 +35,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19aOriUp);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19aChainMain);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19aChainSwitch);
+extern void Generator_Mask(int a0);
+extern void Generator_ResetCount(int a0);
+
+void actSt19aChainSwitch(volatile int a0) {
+    Generator_Mask(a0);
+    Generator_ResetCount(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19bIntroChk);
 

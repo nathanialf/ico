@@ -34,7 +34,16 @@ succ:
     return 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpTriggerBallTargetMan);
+int scpTriggerBallTargetMan(int *a0) {
+    if (a0 == 0) goto fail;
+    a0 = (int *)a0[0xB];
+    if (a0 == 0) goto fail;
+    if (a0[0xA] != 0) goto succ;
+fail:
+    return 0;
+succ:
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpDoorTypeUpDown);
 

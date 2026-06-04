@@ -10,7 +10,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st18a", actSt18aSwitchRChk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st18a", actSt18aSwitchRUpChk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st18a", actSt18aDoorChk);
+extern void _ACTWait(int a0);
+extern void backStageProcessMain(void);
+extern void func_00178DD8(int a0);
+
+void actSt18aDoorChk(volatile int a0) {
+    _ACTWait(1);
+    backStageProcessMain();
+    func_00178DD8(0x129);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st18a", actSt18aDoorDownChk);
 
