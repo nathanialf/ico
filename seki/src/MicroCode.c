@@ -41,7 +41,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", func_00118970);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", func_001189A0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", func_001189D0);
+void func_001189D0(void *dst, void *src) {
+    QCOPY64_PARALLEL("$6", "$7", "$8", "$9");
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", func_001189F8);
 
