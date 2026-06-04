@@ -10,7 +10,12 @@ int gamesysObjInfoSave(void)
     return 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysObjInfoLoad);
+extern void staffRollMain(int a0, float a1);
+
+int gamesysObjInfoLoad(void) {
+    staffRollMain(0x80, 1.0f);
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysObjInfoEmptyAreaSearch);
 
