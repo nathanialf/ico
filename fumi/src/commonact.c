@@ -182,7 +182,14 @@ void E3_LeverCheck(void *a0) {
     q[0x94] = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonBecarry);
+extern void *ExecMotionOrient(void *a0, void *a1, void *a2);
+
+int actCommonBecarry(void *a0, void *a1) {
+    char *s = *(char **)((char *)a0 + 0x164);
+    void *r = ExecMotionOrient(a0, a1, s + 0x610);
+    *(void **)(s + 0x110) = r;
+    return *(int *)((char *)r + 0xC) != 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", subCommonIdle);
 
