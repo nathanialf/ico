@@ -43,7 +43,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", motCommonRopeTurnL);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_00156D18);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonRopeClimbEnd1);
+extern void BoxExtGeoRestore(void *a0);
+extern void getRootMatrix(void *a0);
+
+void actCommonRopeClimbEnd1(void *a0) {
+    char *s = *(char **)((char *)a0 + 0x164);
+    int state = *(int *)(s + 0x30);
+    if (state == 0x31) goto l1;
+    if (state == 0x33) goto l2;
+    return;
+l1:
+    BoxExtGeoRestore(*(void **)(s + 0x138));
+    return;
+l2:
+    getRootMatrix(*(void **)(s + 0x5E8));
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonRopeCliff);
 
