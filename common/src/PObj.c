@@ -1866,7 +1866,7 @@ int func_0025C9A0(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025C9C8);
 
-/* fabsf(x) — fdlibm bit-twiddle: clear the sign bit. */
+/* fabsf(x) via the standard IEEE-754 bit twiddle: clear the sign bit. */
 float func_0025CC70(float a0) {
     unsigned int ix;
     GET_FLOAT_WORD(ix, a0);
@@ -1876,7 +1876,7 @@ float func_0025CC70(float a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025CC90);
 
-/* isnanf(x) — fdlibm bit-twiddle: NaN iff (|x| as bits) > 0x7F800000 (+inf). */
+/* isnanf(x) via the standard IEEE-754 bit test: NaN iff |x| bits > 0x7F800000 (+inf). */
 int func_0025CD78(float x) {
     int hx;
     GET_FLOAT_WORD(hx, x);

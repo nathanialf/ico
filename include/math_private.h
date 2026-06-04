@@ -1,11 +1,13 @@
 #ifndef MATH_PRIVATE_H
 #define MATH_PRIVATE_H
 
-/* fdlibm float<->word access, as shipped in the PS2 SDK libm (sys/fdlibm).
- * The do{}while(0) is the standard macro idiom — it is NOT a codegen bandaid:
- * the union store/read it wraps is the natural source of the basic-block
- * boundary the ROM's isnanf/fabsf/copysignf bit-twiddles were compiled with.
- * Mirror fdlibm exactly so those functions recover in clean, faithful C. */
+/* Float<->word access macros, re-derived clean-room from the public-domain
+ * fdlibm reference (freely published, e.g. netlib's fdlibm) — NOT copied from
+ * any SDK or other proprietary source. This is the well-known IEEE-754 idiom:
+ * a union store/read whose do{}while(0) wrapper is the standard multi-statement
+ * macro form, and also the natural source of the basic-block boundary the ROM's
+ * isnanf/fabsf/copysignf bit-twiddles were compiled with. Recovering the
+ * canonical public idiom lets those functions match in clean, faithful C. */
 
 typedef union {
     float value;
