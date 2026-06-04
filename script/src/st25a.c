@@ -40,7 +40,10 @@ void actSt25aQueenTalk(void) {
     D_0062C030 = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actSt25aQueenDead);
+extern int actItouQueenAttack(int a0, int a1, int a2, int a3, int a4, int a5);
+int actSt25aQueenDead(int a0, int a1, int a2) {
+    return actItouQueenAttack(a0, a1, a2, 0, 0, 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actItouQueenAttack);
 
