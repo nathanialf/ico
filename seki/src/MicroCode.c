@@ -43,7 +43,19 @@ void func_001188B8(void *a0, void *a1, void *a2, float t) {
         ".set reorder\n" : : : "$8", "memory");
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", func_001188E0);
+void func_001188E0(void *a0, void *a1, void *a2, float t) {
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "mfc1 $8, $f12\n"
+        "qmtc2.ni $8, $vf3\n"
+        "lqc2 $vf1, 0x0($5)\n"
+        "lqc2 $vf2, 0x0($6)\n"
+        "vsubx.w $vf8, $vf0, $vf3x\n"
+        "vmulax.xyz $ACC, $vf1, $vf3x\n"
+        "vmaddw.xyz $vf1, $vf2, $vf8w\n"
+        "sqc2 $vf1, 0x0($4)\n"
+        ".set reorder\n" : : : "$8", "memory");
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", func_00118908);
 
