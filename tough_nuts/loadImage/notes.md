@@ -52,3 +52,16 @@ pushes `lw p` + `addiu v0,1` LATE (after the volatile store). Seed updated to
 this rc5 form. Next: stop the p-load over-serialization without losing the
 late-0.5 (volatile-q-first and int-rv-first both stay rc5; temps regress rc16
 via float swap). stall 4/30.
+
+## Resume 2026-06-04 (loop) stall=18/30 — lw-p-first residual confirmed sticky
+rc5 best (volatile 0.5). Core residual on BOTH rc5(volatile) and rc6(non-vol):
+ROM schedules `lw p` FIRST with addiu v0,1 in its load-delay, then both lwc1;
+gcc front-loads the two lwc1 (latency-hiding) and pushes lw-p + addiu late. The
+disruptor is a0's 2nd use (0.5 store @a0+0x1C) — the matched 2-float siblings
+(handler_endimage) use a0 once and get lw-p-first naturally. Float alloc
+f2=B8C/f0=B90/f1=0.5 ONLY correct in the struct form (float* swaps -> rc9/16).
+Ruled out this session: q-first(rc6), nested-block f8(rc5), Disp*-typed(rc6),
+reversed-store p[2]-first struct(rc8)/float*(rc7/16), h-first(rc9-12), volatile
+p-load(rc6). Same FP-sched-tie class as cousin func_00239228 (also rc5 parked).
+Next levers: force lw-p ahead of the lwc1 (anchor p's load earliest) without
+breaking f2/f0/f1; toward 30 then permuter.
