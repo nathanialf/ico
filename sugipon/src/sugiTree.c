@@ -28,7 +28,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/sugiTree", func_001EE838);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/sugiTree", func_001EE8F0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/sugiTree", func_001EE978);
+extern void ExecFrameDependSequence(int a0);
+extern void playSEConditionID(int a0, int a1);
+
+void func_001EE978(int a0) {
+    ExecFrameDependSequence(a0);
+    playSEConditionID(a0, 0x41);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/sugiTree", func_001EE9A8);
 
