@@ -33,7 +33,14 @@ void func_001438C8(void) {
     _ACTGame_SearchGObj(D_00629DE4, 1, 4, 0, 0, 0, 0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_001438E8);
+extern void ACTLookTargetSystem_Exec(void);
+extern void debug_assertMessage(char *a0);
+extern char D_005521D0[];
+
+void func_001438E8(void) {
+    ACTLookTargetSystem_Exec();
+    debug_assertMessage(D_005521D0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_00143910);
 
