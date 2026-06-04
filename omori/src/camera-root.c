@@ -2,7 +2,14 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-root", SetWSMatrix);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-root", ConvertCameraSet);
+extern int D_006C9F60[];
+extern void SetWSMatrix(int *a0, int a1);
+extern void func_00188D60(int *a0);
+
+void ConvertCameraSet(void) {
+    SetWSMatrix(D_006C9F60, 0);
+    func_00188D60(D_006C9F60);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-root", MakeCameraMatrix);
 
