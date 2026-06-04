@@ -77,7 +77,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockEmulator_Emulatio
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", Init_ShockRequestAlloc);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", Get_ShockRequestStruct);
+typedef struct { int count; int *arr; } ShockMgr;
+extern ShockMgr *D_0062A490;
+
+int Get_ShockRequestStruct(int a0) {
+    if ((unsigned int)a0 < (unsigned int)D_0062A490->count) {
+        goto body;
+    }
+    return 0;
+body:
+    return D_0062A490->arr[a0];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", Reset_ShockRequestStruct);
 
