@@ -65,7 +65,14 @@ int func_0010D510(char *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", func_0010D528);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", func_0010D6C8);
+int func_0010D6C8(char *a0, char *a1) {
+    char *x = *(char **)a0;
+    char *b = *(char **)(a1 + 0x15C);
+    char *c = *(char **)(x + 0x15C);
+    char *d = *(char **)(c + 0x7F0);
+    *(float *)(b + 0x634) = *(float *)(b + 0xA4) - *(float *)(d + 4);
+    return 1;
+}
 
 
 /* recovered struct shapes */
