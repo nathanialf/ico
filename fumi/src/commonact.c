@@ -242,7 +242,12 @@ void actCommonPlay(volatile int a0) {
     ACTParaStatus_Clear(a0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonOne);
+void actCommonOne(volatile int a0) {
+    int x = a0;
+    int y = a0;
+    *(int *)(*(int *)(*(int *)(x + 0x164) + 0x670) + 0x2A0) = -1;
+    *(int *)(*(int *)(*(int *)(y + 0x164) + 0x670) + 0x2A4) = 0;
+}
 
 extern void actCommonRopeCliff(int a0, int a1);
 
