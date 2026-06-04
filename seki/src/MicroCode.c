@@ -75,11 +75,61 @@ float func_00118908(void *a0) {
     return ret;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", func_00118938);
+float func_00118938(void *a0, void *a1) {
+    register float ret __asm__("$f0");
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf1, 0x0($4)\n"
+        "lqc2 $vf2, 0x0($5)\n"
+        "vsub.xyzw $vf3, $vf1, $vf2\n"
+        "vmul.xyz $vf3, $vf3, $vf3\n"
+        "vmulax.w $ACC, $vf0, $vf3x\n"
+        "vmadday.w $ACC, $vf0, $vf3y\n"
+        "vmaddz.w $vf3, $vf0, $vf3z\n"
+        ".word 0x4B8303BD\n"
+        "vwaitq\n"
+        "cfc2.ni $2, $vi22\n"
+        "mtc1 $2, $f0\n"
+        ".set reorder\n"
+        : "=f"(ret) :: "$2");
+    return ret;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", func_00118970);
+float func_00118970(void *a0, void *a1) {
+    register float ret __asm__("$f0");
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf1, 0x0($4)\n"
+        "lqc2 $vf2, 0x0($5)\n"
+        "vsub.xyzw $vf3, $vf1, $vf2\n"
+        "vmul.xy $vf3, $vf3, $vf3\n"
+        "vaddy.x $vf3, $vf3, $vf3y\n"
+        ".word 0x4A0303BD\n"
+        "vwaitq\n"
+        "cfc2.ni $2, $vi22\n"
+        "mtc1 $2, $f0\n"
+        ".set reorder\n"
+        : "=f"(ret) :: "$2");
+    return ret;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", func_001189A0);
+float func_001189A0(void *a0, void *a1) {
+    register float ret __asm__("$f0");
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf1, 0x0($4)\n"
+        "lqc2 $vf2, 0x0($5)\n"
+        "vsub.xyzw $vf3, $vf1, $vf2\n"
+        "vmul.xz $vf3, $vf3, $vf3\n"
+        "vaddz.x $vf3, $vf3, $vf3z\n"
+        ".word 0x4A0303BD\n"
+        "vwaitq\n"
+        "cfc2.ni $2, $vi22\n"
+        "mtc1 $2, $f0\n"
+        ".set reorder\n"
+        : "=f"(ret) :: "$2");
+    return ret;
+}
 
 void func_001189D0(void *dst, void *src) {
     QCOPY64_PARALLEL("$6", "$7", "$8", "$9");
