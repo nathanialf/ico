@@ -75,7 +75,13 @@ int get_wp_nearest_bridge_side_me(void *a0) {
     return ez_line(a0, -1);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", get_wp_nearest_bridge_side_bridge);
+extern void GetRootMatrixByDObj(void *a0, void *a1);
+
+int get_wp_nearest_bridge_side_bridge(void *a0) {
+    int buf[4];
+    GetRootMatrixByDObj(buf, a0);
+    return ez_line(buf, -1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", direction_across_bridge);
 
@@ -113,9 +119,13 @@ int func_00178DB0(int a0) {
     return (D_00286890[a0 >> 3] >> (a0 & 7)) & 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", func_00178DD8);
+void func_00178DD8(int a0) {
+    D_00286890[a0 >> 3] |= 1 << (a0 & 7);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", func_00178E08);
+void func_00178E08(int a0) {
+    D_00286890[a0 >> 3] &= ~(1 << (a0 & 7));
+}
 
 
 /* recovered struct shapes */

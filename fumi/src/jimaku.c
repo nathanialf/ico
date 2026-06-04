@@ -28,7 +28,13 @@ void jimakuMgrEnd(void) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuBegin);
+extern void _ACTWait(int a0);
+
+void jimakuBegin(volatile int a0) {
+    int *p = *(int **)(a0 + 0x164);
+    p[0xCF] = 0;
+    _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuNext);
 

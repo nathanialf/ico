@@ -28,7 +28,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/seMail", func_00202868);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/seMail", func_00202900);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/seMail", func_00202980);
+extern char D_004C6FF0[];
+
+void func_00202980(int a0) {
+    int *elem = (int *)(D_004C6FF0 + a0 * 0x34);
+    int *next = (int *)elem[2];
+    int *prev = (int *)elem[3];
+    elem[5] = 1;
+    next[2] = (int)prev;
+    prev[3] = (int)next;
+}
 
 
 /* recovered struct shapes */
