@@ -72,7 +72,14 @@ int PickupWeapon(void *a0) {
     return 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", CheckSwapableWeapon);
+typedef struct { char _0[0xC]; int f_C; char _10[0x14]; } WeaponEntry;
+extern WeaponEntry D_0060AF70[];
+
+float CheckSwapableWeapon(void *a0) {
+    char *p = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x7F0);
+    int idx = *(int *)p;
+    return (float)D_0060AF70[idx].f_C;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", ReleaseWeapon);
 
