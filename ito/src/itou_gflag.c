@@ -1,6 +1,11 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/itou_gflag", itouGFlagInit);
+extern void *InitParticleLayoutGeo(void);
+
+void itouGFlagInit(void) {
+    void *r = InitParticleLayoutGeo();
+    **(int **)((char *)r + 0x60) = 1;
+}
 
 extern void effect_end_func(void);
 
