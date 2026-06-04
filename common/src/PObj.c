@@ -2157,7 +2157,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025F640);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025F6E0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025F718);
+extern void func_0025EAA8(void *s);
+
+void func_0025F718(int a0, int a1, int a2, long long a3) {
+    struct { int a, b, c, pad; long long d; } s;
+    s.a = a0;
+    s.b = a1;
+    s.c = a2;
+    s.d = a3;
+    func_0025EAA8(&s);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025F748);
 
@@ -2187,7 +2196,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00260240);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002602D8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00260310);
+extern void func_0025F7A0(void *s);
+
+void func_00260310(int a0, int a1, int a2, int a3) {
+    int buf[4];
+    buf[0] = a0;
+    buf[1] = a1;
+    buf[2] = a2;
+    buf[3] = a3;
+    func_0025F7A0(buf);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00260340);
 
@@ -2226,7 +2244,12 @@ void func_002610E0(int a0) {
     *(int *)(p + 0x58) = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002610F0);
+int func_002610F0(void) {
+    char *p = (char *)D_0054D504_alias[0];
+    int s = *(int *)(p + 0x58) * 0x41C64E6D + 0x3039;
+    *(int *)(p + 0x58) = s;
+    return s & 0x7fffffff;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00261120);
 
