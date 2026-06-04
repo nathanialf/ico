@@ -22,7 +22,11 @@ float eBrainStatusSet(void *a0) {
     return *(float *)((char *)q + 0xC8);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", eBrainSendMes);
+float eBrainSendMes(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    return (float)(q[0x1D] - 1) * 50.0f;
+}
 
 void GetStageFromLabel(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
