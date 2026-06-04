@@ -19,3 +19,14 @@ arg in $f12, a0 unused.
 
 ## Next levers: permuter Step-4 shot (v0/v1/a0 swaps are its strength, cf
 func_001FB768 rc7->0). Or a 32-bit source form that seeds mfc1 into v1.
+
+## Cycle 2 findings (resume)
+- CONFIRMED isnanf bit-twiddle (COOKBOOK §7.3: mfc1+lui0x7fff+ori0xffff+and...).
+  Canonical ISNANF_BIT_TWIDDLE macro is RETIRED (include/matching.h deleted) -> pure clean-C only.
+- KEY LEVER FOUND but conflicting: the OUTER subtraction direction flips mfc1 reg.
+    `(u.i & mask) - const`  -> mfc1 $3 (v1), mask a0, copy v0  [ROM front!] but tail = addu+sra (abs-const)
+    `const - (u.i & mask)`  -> mfc1 $4 (a0)                    [wrong front] but tail = subu+srl  [ROM tail!]
+  ROM needs BOTH: v1-front AND subu+srl tail (inf - abs). No 32-bit form yields both.
+- permuter REFUSED at stall 4/30 (gate working). next=iterate. ~35 distinct forms total.
+- NEXT: find a source form giving `(u.i&mask)` as left-operand of the outer op while
+  computing `inf - abs` (subu) — or fire permuter at a real 30-stall / PERMUTE_FORCE override.
