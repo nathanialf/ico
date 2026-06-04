@@ -6,7 +6,11 @@ int dl_Clear(void) {
     return 0x14;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayList", dl_Swap);
+extern int D_00629F5C;
+
+int dl_Swap(void) {
+    return (0x3200 / D_00629F5C) / 2;
+}
 
 extern int D_0062BAE0, D_0062BAE4, D_0062BAE8, D_0062BAEC, D_0062BAF0;
 
