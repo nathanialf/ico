@@ -2,7 +2,14 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", MultiCurrentQuaternion);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", InvertCurrentQuaternion);
+extern int D_00629E7C;
+extern int D_0065A5C0[];
+extern void func_0010E148(void *a0, void *a1, void *a2);
+
+void InvertCurrentQuaternion(void *a0) {
+    void *p = &D_0065A5C0[D_00629E7C * 4];
+    func_0010E148(p, p, a0);
+}
 
 extern int D_00629E7C;
 extern int D_0065A5C0[];
