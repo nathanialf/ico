@@ -97,7 +97,13 @@ void GetChainClimbOrient(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", CheckChainClimbablePos);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", GetChainClimbCollision);
+void GetChainClimbCollision(void *a0, float *a1) {
+    void *p = *(void **)((char *)a0 + 0x15C);
+    void *q = *(void **)((char *)p + 0x7F0);
+    *(float *)((char *)q + 0x20) = a1[0];
+    *(float *)((char *)q + 0x24) = a1[1];
+    *(float *)((char *)q + 0x28) = a1[2];
+}
 
 int SetChainParentGObj(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
