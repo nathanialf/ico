@@ -2308,7 +2308,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025F5A8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025F640);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025F6E0);
+extern void func_0025EBD8(void *in, void *out);
+extern void func_0025EAA8(void *s);
+
+void func_0025F6E0(long long a0) {
+    struct { int a, b, c, pad; long long d; } s;
+    long long t = a0;
+    func_0025EBD8(&t, &s);
+    s.b = (s.b == 0);
+    func_0025EAA8(&s);
+}
 
 extern void func_0025EAA8(void *s);
 
