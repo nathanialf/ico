@@ -32,7 +32,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", func_00239188);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", func_002391E8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", func_00239228);
+extern const float D_00629B34, D_00629B38;
+
+typedef struct { float f0; float f4; float f8; } AudFrame;
+
+int func_00239228(void *a0) {
+    AudFrame *p = *(AudFrame **)((char *)a0 + 0x34);
+    p->f0 = -133.0f;
+    p->f4 = D_00629B34;
+    p->f8 = D_00629B38;
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", func_00239250);
 

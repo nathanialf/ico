@@ -38,7 +38,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", vblankHandler);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", dispDelete);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", loadImage);
+extern const float D_00629B8C, D_00629B90;
+
+typedef struct { float f0; float f4; float f8; } LoadImg;
+
+unsigned int loadImage(char *a0) {
+    LoadImg *p = *(LoadImg **)(a0 + 0x34);
+    p->f0 = D_00629B8C;
+    p->f8 = D_00629B90;
+    *(float *)(a0 + 0x1C) = 0.5f;
+    return 1;
+}
 
 extern float D_00629B94, D_00629B98;
 
