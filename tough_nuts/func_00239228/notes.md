@@ -68,3 +68,55 @@ materialized to $f0 (built) vs $f1 (ROM), and the lwc1/swc1 interleave. Not a
 volatile problem to add — needs the regalloc/sched shape that puts const in $f1
 with all three FP loads hoisted before the three stores (p[1] store in jr-delay).
 Reverted working tree to INCLUDE_ASM (stays parked); seed = temps form (rc5).
+
+## Resume 2026-06-04 (loop set "10 smallest") — 8 more distinct forms, rc5 root confirmed
+
+Re-attacked with 8 genuinely-distinct hand hypotheses, ALL rc5+:
+- inline all, store order p0,p2,p1 → rc6 (const-first but eager/unbatched stores)
+- temp load-order c-before-b, seed store order → rc7
+- union{int;float} const (a.i=0xC3050000) → rc7 (forces integer `sw`, not `swc1` — WRONG)
+- struct Vec3 {x,y,z} members → rc7 (eager 0,4,8 stores)
+- `*(volatile float*)&D_…` loads → rc6 (hoists loads even EARLIER, wrong dir)
+- `*(volatile float*)&p[0]` store → rc5 (const still materialized after loads; no pin)
+- array D_00629B34[0]/[1] → rc5 (equivalent to two symbols, no sched change)
+- decl order c(B38),a(const),b(B34) to target reg-alloc f0=B38 → rc7 (got B38→f1, wrong)
+
+ROOT (single, robust): gcc sched1 ranks the two single-insn `%gp_rel lwc1` loads
+ahead of the 2-insn `lui+mtc1` const chain; ROM emits the const block first.
+The dependent swc1 p0/p2 swap is a CONSEQUENCE of that one ordering decision.
+No pure-C hand lever flips a 2-insn const-chain ahead of single-insn loads here
+(latency-priority floor). This is the textbook decomp-permuter case.
+
+DEFER: permuter is a USER-GATED one-shot (permuter-hand-grind-discipline) — NOT
+fired in this unsupervised /loop. Seed below is the rc5 best. Next user-present
+session: `tools/permute_run.sh func_00239228 <seed> -- --stop-on-zero -j 4`.
+
+---
+
+## Attempt at 2026-06-04
+
+**Reason parked:** rc5 plateau @stall=30: single root = gcc sched1 ranks 2x single-insn gp_rel lwc1 loads ahead of 2-insn lui+mtc1 const chain; ROM emits const block first. 14 distinct hand forms ruled out (store/decl/regalloc order, volatile loads/stores/ptr, union, struct, array, char*-arith, nested-block, return-temp). next->park, routed to offline auto_permute batch.
+
+**TU:** `ito/mpeg/mv_audiodec.c`
+
+**Seed:** `tough_nuts/func_00239228/func_00239228.1.c`
+
+Disassembly:
+
+```
+.align 3
+nonmatching func_00239228, 0x28
+
+glabel func_00239228
+    /* 139228 00239228 3400838C */  lw         $3, 0x34($4)
+    /* 13922C 0023922C 01000224 */  addiu      $2, $0, 0x1
+    /* 139230 00239230 05C3013C */  lui        $1, (0xC3050000 >> 16)
+    /* 139234 00239234 00088144 */  mtc1       $1, $f1
+    /* 139238 00239238 448F82C7 */  lwc1       $f2, %gp_rel(D_00629B34)($28)
+    /* 13923C 0023923C 488F80C7 */  lwc1       $f0, %gp_rel(D_00629B38)($28)
+    /* 139240 00239240 000061E4 */  swc1       $f1, 0x0($3)
+    /* 139244 00239244 080060E4 */  swc1       $f0, 0x8($3)
+    /* 139248 00239248 0800E003 */  jr         $31
+    /* 13924C 0023924C 040062E4 */   swc1      $f2, 0x4($3)
+endlabel func_00239228
+```
