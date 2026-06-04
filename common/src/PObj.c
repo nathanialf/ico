@@ -2052,7 +2052,14 @@ int func_002603E0(void) {
     return D_0054D504[0];
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002603F0);
+extern void func_00261FB8(int a0, int a1, void *args);
+
+/* printf-style forwarder: va_start points at the homed vararg GP regs
+ * (the 6 slots, 6*8 = 48 bytes, just below __builtin_next_arg). */
+void func_002603F0(int a0, int a1, ...) {
+    char *ap = (char *)__builtin_next_arg(a1) - 48;
+    func_00261FB8(a0, a1, ap);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00260424);
 
