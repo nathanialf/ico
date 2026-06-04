@@ -24,7 +24,14 @@ void GetAttackCheckBoundaryRadius(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/attackCheckBoundary", CreateAttackCheckBoundary);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/attackCheckBoundary", GetAttackCheckBoundaryManagerStatus);
+void GetAttackCheckBoundaryManagerStatus(void *a0) {
+    int *a = *(int **)((char *)a0 + 0x15C);
+    int *b = *(int **)a;
+    if (b == 0) return;
+    if (*(int *)((char *)b + 0x16C) == 0) {
+        *(int *)((char *)a0 + 0x16C) = 0;
+    }
+}
 
 
 /* recovered struct shapes */
