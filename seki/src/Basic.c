@@ -30,7 +30,12 @@ int mallocseki(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Basic", freeseki);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Basic", resetmallocseki);
+extern int iosMallocCheckLeak2(int a0);
+int resetmallocseki(int a0) {
+    if (a0) {
+        return iosMallocCheckLeak2(a0);
+    }
+}
 
 void mallocsekistage(void) {
 }
