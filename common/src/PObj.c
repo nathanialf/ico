@@ -1474,7 +1474,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00250FC8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00251028);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00251088);
+void func_00251088(int a0) {
+    volatile int *reg = (volatile int *)0x10002010;
+    *reg = (*reg & 0xFF7FFFFF) | (a0 << 23);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002510B0);
 
