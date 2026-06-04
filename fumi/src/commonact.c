@@ -142,7 +142,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonFly);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonLadder);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonDodge);
+extern void _ACTWait(int a0);
+
+void actCommonDodge(volatile int a0) {
+    char *s = *(char **)(a0 + 0x164);
+    *(unsigned int *)(s + 0x34) = 0xFFFFFFFF;
+    _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonEdgeHang);
 
