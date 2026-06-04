@@ -49,7 +49,12 @@ void func_0021C570(int a0) {
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", func_0021C580);
+extern void *actSt25aQueenDeadChk(int a0);
+
+void func_0021C580(volatile int a0) {
+    void *p = actSt25aQueenDeadChk(0x407);
+    *(int *)((char *)p + 0x16C) = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", func_0021C5A8);
 
