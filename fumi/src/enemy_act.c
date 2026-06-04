@@ -2,7 +2,10 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", setBattleStatus);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", boss_effect_start);
+void boss_effect_start(volatile int a0) {
+    long long *p = *(long long **)(a0 + 0x164);
+    p[4] &= ~0x40000LL;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", boss_effect_check_parts);
 
@@ -98,12 +101,16 @@ void actEnemyStand(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyWalk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyRun);
-
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyHang);
-
 typedef struct { char _[0x48]; unsigned int f48; } NestEntry;
 extern NestEntry D_002A0A90[];
+
+void actEnemyRun(int *a0) {
+    NestEntry *t = D_002A0A90;
+    int idx = a0[2];
+    t[idx].f48 &= 0xFFDFFFFF;
+}
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyHang);
 
 void actEnemyCarry(int *a0) {
     NestEntry *t = D_002A0A90;
@@ -131,7 +138,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", funcEnemyCarryFail);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyHyde);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyFlagOnFree);
+int actEnemyFlagOnFree(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x164);
+    int *q = *(int **)((char *)p + 0x670);
+    if (q[0x78] == 0 && p[0xC] == 0x10) {
+        return q[0x86];
+    }
+    return 0;
+}
 
 int afterCommonCarry(void *a0) {
     int *p = *(int **)((char *)a0 + 0x164);
@@ -173,7 +187,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemy_isLargeEnemy);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemy_isSmallEnemy);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_00163988);
+extern int D_0062A670;
+
+void func_00163988(int *a0, int a1, int *a2) {
+    *(int *)(*(int *)(a0[0x59] + 0x670) + 0x200) = a1;
+    if (a2 == 0) goto elsebr;
+    *(int *)(*(int *)(a0[0x59] + 0x670) + 0x20C) = a2[0];
+    return;
+elsebr:
+    *(int *)(*(int *)(a0[0x59] + 0x670) + 0x20C) = D_0062A670;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", IsEnemyBrainToGenerator);
 
