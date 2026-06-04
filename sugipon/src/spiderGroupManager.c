@@ -26,9 +26,27 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", func_001E87F
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", func_001E89E8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", func_001E8C18);
+extern int D_0062B8D8, D_0062B8DC, D_0062B8E0, D_0062B8E4;
+extern int D_0062B8E8, D_0062B8EC, D_0062B8F0, D_0062B8F4;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", func_001E8C40);
+void func_001E8C18(void) {
+    D_0062B8DC = 0;
+    D_0062B8E4 = 0;
+    D_0062B8E0 = 0;
+    D_0062B8EC = 0;
+    D_0062B8D8 = 0;
+    D_0062B8E8 = 0;
+    D_0062B8F0 = 0;
+    D_0062B8F4 = 0;
+}
+
+extern int D_00705F98[];
+
+void func_001E8C40(int a0) {
+    int i = D_0062B8DC;
+    D_0062B8DC = i + 1;
+    D_00705F98[i] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", func_001E8C68);
 
