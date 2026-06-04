@@ -16,7 +16,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Texture", tex_transTM2);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Texture", tex_initClutTexture);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Texture", tex_setRegisters);
+extern void dpk_Init(int a0, void *a1, int a2);
+extern int dl_GetPri(void);
+
+void tex_setRegisters(void *a0) {
+    dpk_Init(2, (char *)a0 + 0x58, 5);
+    dl_GetPri();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Texture", tex_initTM2);
 
