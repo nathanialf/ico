@@ -78,7 +78,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", CameraEdit_add_pin)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", CameraEdit_del_box);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", CameraEdit_del_pin);
+extern int *D_0062A8F0;
+extern int *D_0062A8F4;
+extern void _CameraEdit_del_pin(int *a0, void *a1);
+
+void CameraEdit_del_pin(void *a0) {
+    _CameraEdit_del_pin(D_0062A8F0, a0);
+    _CameraEdit_del_pin(D_0062A8F4, a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", CameraEdit_DispBox);
 
