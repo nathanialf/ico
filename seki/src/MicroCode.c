@@ -29,7 +29,19 @@ void mc_Init(void *a0) {
     VU0_NOP();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", func_001188B8);
+void func_001188B8(void *a0, void *a1, void *a2, float t) {
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "mfc1 $8, $f12\n"
+        "qmtc2.ni $8, $vf3\n"
+        "lqc2 $vf1, 0x0($5)\n"
+        "lqc2 $vf2, 0x0($6)\n"
+        "vsubx.w $vf8, $vf0, $vf3x\n"
+        "vmulax.xyzw $ACC, $vf1, $vf3x\n"
+        "vmaddw.xyzw $vf9, $vf2, $vf8w\n"
+        "sqc2 $vf9, 0x0($4)\n"
+        ".set reorder\n" : : : "$8", "memory");
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", func_001188E0);
 
