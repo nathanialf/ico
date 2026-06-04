@@ -24,7 +24,9 @@ int CameraMove(int a0) {
     return D_0062A8F4[1] + a0 * 0x4C;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", ReflectCameraSetBinary);
+int ReflectCameraSetBinary(int a0, int a1) {
+    return *(int *)(D_0062A8F4[1] + a0 * 0x4C + 0x48) + a1 * 0x5C;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", InitIco2Camera);
 
