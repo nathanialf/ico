@@ -30,3 +30,15 @@ glabel loadImage
     /* 1398DC 002398DC 1C0081E4 */   swc1      $f1, 0x1C($4)
 endlabel loadImage
 ```
+
+## Resume 2026-06-04 (loop) — stall 8/30 from reset (NOTE: reset cleared prior rc5 best; seed is rc6)
+Struct-direct seed measures rc6; floats correct (B8C=f2,B90=f0,0.5=f1). Residual
+is purely the addiu(return-1) delay placement: ROM = `addiu v0,1; lwc1 f2; lwc1 f0`
+(return-1 fills the lw-p load-delay, both float loads consecutive); built interleaves
+`lwc1 f2; addiu v0,1; lwc1 f0`. New forms ruled out: temps-like-sibling (rc9 floats
+swap — the extra 0.5f perturbs FP regalloc vs the 2-float matched siblings), rv-temp
+first (rc6), 0.5f-store-first (rc11), all-temps (rc9), store-f8-before-f0 (rc8, gcc
+honors source order, regresses), int-return (rc6), 0.5f-temp-first (rc6), Disp-typed
+a0 fields (rc6). Same FP-scheduler-tie class as func_00239228. The 0.5f lui/mtc1 is
+the perturbing extra vs the clean 2-float siblings (setDispEnv/handler_endimage match
+with the temps idiom). Continue toward 30 then permuter.
