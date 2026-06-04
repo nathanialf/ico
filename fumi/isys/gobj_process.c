@@ -20,11 +20,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_process", isysGObjProcAddS);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_process", isysGObjProcAddGOppArg);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_process", isysGObjProcPause);
+extern int isysGObjProcessAlloc(int a0, int a1, int a2, int a3, int a4, int a5);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_process", isysGObjProcPauseAll);
+int isysGObjProcPause(int a0, int a1, int a2, int a3) {
+    return isysGObjProcessAlloc(a0, a0, a1, a2 & 0xFF, a3, 0x1800);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_process", isysGObjProcPausePtr);
+int isysGObjProcPauseAll(int a0, int a1, int a2, int a3, int a4) {
+    return isysGObjProcessAlloc(a0, a0, a1, a2 & 0xFF, a3, a4);
+}
+
+int isysGObjProcPausePtr(int a0, int a1, int a2, int a3) {
+    return isysGObjProcessAlloc(a0, 0, a1, a2 & 0xFF, a3, 0x1800);
+}
 
 void isysGObjProcActive(int *a0) {
     a0[6] = 0;
