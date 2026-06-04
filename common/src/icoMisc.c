@@ -9,7 +9,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/icoMisc", disp_memory_partition);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/icoMisc", ExecIcoMisc);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/icoMisc", InitIcoMisc);
+extern unsigned short D_004AF050[];
+int InitIcoMisc(void) {
+    unsigned short *p = D_004AF050;
+    if (p[1] != 0) {
+        return p[2];
+    }
+    return 4;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/icoMisc", DispIcoMisc);
 
