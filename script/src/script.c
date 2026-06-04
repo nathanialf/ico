@@ -18,7 +18,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpPlayStart);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpPlayEnd);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpTrans);
+int scpTrans(void *a0, short a1) {
+    char *p;
+    if (a0 == 0) {
+        goto fail;
+    }
+    p = *(char **)((char *)a0 + 0x2C);
+    if (p != 0) {
+        goto succ;
+    }
+fail:
+    return 0;
+succ:
+    *(short *)(p + 0x44) = a1;
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpTriggerBallTargetMan);
 
