@@ -112,7 +112,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTCharctrl_Unlock);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_ConnectHand);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_DisconnectHand);
+extern int checkHit(void);
+int ACTGame_DisconnectHand(void) {
+    return checkHit() == 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", PAIR_GetPosition_BOY);
 
