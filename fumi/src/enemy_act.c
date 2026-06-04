@@ -168,7 +168,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_00163988);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", IsEnemyBrainToGenerator);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", IsEnemyBrainToBoy);
+extern int subEnemyBrain_ToBoy(void *a0);
+
+int IsEnemyBrainToBoy(void *a0) {
+    int x = *(int *)(*(char **)((char *)a0 + 0x164) + 0x10);
+    if (x < 0xC) {
+        return -1;
+    }
+    return subEnemyBrain_ToBoy(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", GetEnemyTypeFromGObj);
 
