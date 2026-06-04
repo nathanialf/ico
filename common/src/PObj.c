@@ -1613,7 +1613,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00252020);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002521A0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002522E0);
+extern int D_0054D088[];
+extern int D_0054C7A4[];
+
+void func_002522E0(unsigned int a0) {
+    *(volatile unsigned int *)0x10002000 = a0;
+    D_0054C7A4[0] = D_0054D088[a0 >> 28];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00252310);
 
@@ -1694,7 +1700,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002548E8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00254930);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00254988);
+int func_00254988(int *a0, int a1) {
+    int v = a0[2] + (a1 >> 3);
+    if ((unsigned int)v >= (unsigned int)a0[9]) {
+        v -= a0[10];
+    }
+    return v;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002549B8);
 
@@ -1851,7 +1863,14 @@ void func_00258950(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00258958);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002589C8);
+extern void func_002550A0(void);
+
+void func_002589C8(void) {
+    void *r = func_00254FF8();
+    if (*(int *)((char *)r + 0x44)) {
+        func_002550A0();
+    }
+}
 
 extern void func_00255580(int a0, int a1, int a2, int a3);
 
@@ -1859,7 +1878,12 @@ void func_002589F8(int a0) {
     func_00255580(0x32, 0xA, a0, 0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00258A10);
+extern void func_00258A68(int a0, int a1, void *a2, void *a3);
+
+int func_00258A10(int a0, void *a1, void *a2) {
+    func_00258A68(0x20, a0, a1, a2);
+    return 0;
+}
 
 extern void func_00258A68(int a0, int a1, void *a2, void *a3);
 
@@ -1928,7 +1952,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002593F8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00259668);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00259710);
+int func_00259710(unsigned int a0) {
+    int ret = -1;
+    if (a0 < 0x30) {
+        void *r = func_00254FE0(a0);
+        ret = *(unsigned short *)((char *)r + 0x1E);
+    }
+    return ret;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00259740);
 
@@ -2059,7 +2090,14 @@ int func_0025CD78(float x) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025CDA0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025CF00);
+/* copysignf(x, y): magnitude of x with the sign of y, via IEEE-754 bit twiddle. */
+float func_0025CF00(float a0, float a1) {
+    unsigned int ix, iy;
+    GET_FLOAT_WORD(ix, a0);
+    GET_FLOAT_WORD(iy, a1);
+    SET_FLOAT_WORD(a0, (ix & 0x7fffffff) | (iy & 0x80000000));
+    return a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025CF30);
 
