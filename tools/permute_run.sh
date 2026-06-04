@@ -410,10 +410,14 @@ OBJCOPY="${OBJCOPY:-mips-linux-gnu-objcopy}"
 
 if [ "${AUG6_MODE}" = "1" ]; then
     # aug6: delegate the per-iteration build to tools/compile_c.sh so the
-    # permuter's candidate bytes are IDENTICAL to the real ninja build
-    # (same ee-gcc 2.96, the universal awk/sed rewrites — move→daddu,
-    # break 0,N, FCC nop, jr-FP nop, split_jtbls — and per-TU use_old_as /
-    # extra_cflags keyed on the TU basename). We copy the permuter's mutated
+    # permuter's candidate bytes are IDENTICAL to the real ninja build — SAME
+    # compiler (ee-gcc 2.9-991111) AND same DEFAULT PERIOD ASSEMBLER
+    # (ee-gcc2.9-991111/bin/as), NOT the 2.10/"2.96" EE_AS_BIN hardcoded above
+    # (that is only the retail/non-aug6 branch). Because it routes through
+    # compile_c.sh, the assembler-default fix applies to the permuter
+    # automatically — do NOT hardcode an assembler in this aug6 path. Plus the
+    # universal awk/sed rewrites (move→daddu, break 0,N, FCC nop, jr-FP nop,
+    # split_jtbls). We copy the permuter's mutated
     # base.c to a TU-basename-named file so compile_c.sh's config lookups
     # (which key on basename) match the real build for this TU.
     cat > "${COMPILE_SH}" <<EOF

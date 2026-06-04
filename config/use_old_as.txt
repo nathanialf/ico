@@ -1,6 +1,10 @@
-// aug6 branch: empty by design. These are retail-specific compile bandaids
-// (per-TU modern/old assembler forcing, per-func cflags, lit4 pool slots, data
-// migration symbols). aug6 starts with ZERO bandaids — default ee-as 2.96
-// natively emits the ROM encodings (move->daddu, break 0,N verified). Entries
-// are added only if an actual aug6 match proves one is needed.
+// REDUNDANT as of 2026-06-04. The DEFAULT assembler is now the period
+// ee-as 2.9-991111 (the ROM's contemporary assembler, matching the 2.9-991111
+// compiler) — see compile_c.sh SELECTED_EE_AS and decomp/NOTES.md "Assembler
+// selection reality". Listing a TU here is a no-op (it already gets the period
+// assembler). Kept only for back-compat with the `listed` gate. To force modern
+// gas for a TU that genuinely needs it, use config/use_modern_as.txt instead.
+//
+// (Previously this was the opt-in for the period assembler while the default was
+// the LATER ee-as 2.96 — a stale mismatch that faked jr/jal-delay over-fills.)
 jimaku

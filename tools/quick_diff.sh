@@ -253,7 +253,7 @@ PYEOF
 # `daddu`, which would otherwise show up as spurious diffs). Fall back
 # to mips-linux-gnu-as if ee-as rejects the input (typically on VU0/MMI
 # ops it doesn't know).
-EE_AS="$ROOT/tools/cc/ee-gcc2.96/bin/as"
+EE_AS="$ROOT/tools/cc/ee-gcc2.9-991111/bin/as"
 EE_ASFLAGS="-EL -mcpu=5900 -G 8 -I$ROOT/include"
 # Honor config/use_old_as.txt (same as compile_c.sh): the rare TU whose ROM
 # left a jr/j-delay nop that 2.96 over-fills is assembled with the less
@@ -297,15 +297,19 @@ canon_regnames() {
 
 assemble() {
     local out="$1" in="$2"
-    # The period assembler (2.9-991111) rejects splat's %gp_rel spelling; flatten
-    # + translate the mixed-TU .s first so it can assemble (byte-identical), which
-    # is what lets it set the ROM's jal/jr delay nops compile_c.sh relies on.
-    if [[ "$OLD_AS_SELECTED" == 1 ]] && [[ -x "$EE_AS" ]]; then
+    # DEFAULT = the period assembler (ee-gcc 2.9-991111's `as`), the ROM's
+    # contemporary assembler — it matches the 2.9-991111 COMPILER and leaves the
+    # jal/jr delay-slot NOPs that 2.96 / modern-as wrongly over-fill (e.g.
+    # debug_TargetGObj_Func). It rejects splat's %gp_rel spelling + reg aliases,
+    # so flatten+translate the .s first (byte-identical GPREL16) — UNCONDITIONALLY,
+    # exactly as compile_c.sh does, so quick_diff and the ninja build agree.
+    # Do NOT reinstate a bare-2.96 default path: that silently fell back to modern
+    # gas and faked phantom delay-fills the real build never had. (use_old_as.txt
+    # is now redundant — the period assembler IS the default.)
+    if [[ -x "$EE_AS" ]]; then
         python3 "$ROOT/tools/preprocess_old_as.py" "$in" "$in.oldas" \
             && canon_regnames "$in.oldas" \
             && "$EE_AS" $EE_ASFLAGS -o "$out" "$in.oldas" 2>/dev/null && return 0
-    elif [[ -x "$EE_AS" ]] && "$EE_AS" $EE_ASFLAGS -o "$out" "$in" 2>/dev/null; then
-        return 0
     fi
     $AS_MODERN $ASFLAGS_MODERN -o "$out" "$in"
 }

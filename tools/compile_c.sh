@@ -224,7 +224,17 @@ sed -i -E \
 # `%gp_rel(SYM)($28)` spelling, so a MIXED TU (C + INCLUDE_ASM siblings) is first
 # flattened + gp_rel-translated by preprocess_old_as.py (byte-identical GPREL16).
 ASM_INPUT="${S}"
-SELECTED_EE_AS="${EE_AS}"
+# ASSEMBLER DEFAULT = the period assembler EE_AS_OLD (ee-gcc 2.9-991111's `as`).
+# This is the ROM's CONTEMPORARY assembler: it pairs with the 2.9-991111 COMPILER
+# (EEGCC_DIR above) and leaves the jal/jr delay-slot NOPs that the later 2.96 and
+# modern gas wrongly OVER-FILL with a preceding store. The whole aug6 ELF verifies
+# byte-identical under it (proven 2026-06-04 — a full rebuild kept sha1 2b4d7de4).
+# Do NOT revert this default to ${EE_AS} (2.96): that was a stale mismatch that
+# forced per-func use_old_as.txt bandaids and faked phantom jr-delay fills.
+# use_old_as.txt is now REDUNDANT (its TUs already get the period assembler);
+# kept only for back-compat. If a TU ever genuinely needs modern gas, list it in
+# use_modern_as.txt (handled below). See decomp/NOTES.md "Assembler" section.
+SELECTED_EE_AS="${EE_AS_OLD}"
 if listed "${USE_OLD_AS_TXT}"; then
     SELECTED_EE_AS="${EE_AS_OLD}"
 fi
