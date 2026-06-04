@@ -685,7 +685,11 @@ int func_00246FE8(void *a0, int a1, int a2) {
     return func_00246EE0(a0, a1, a2, 1);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00247008);
+extern char D_00628838[];
+
+int func_00247008(void *a0, int a1) {
+    return func_00246EE0(a0, (int)D_00628838, a1, 1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00247030);
 
