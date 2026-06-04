@@ -4,7 +4,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", GetEyeDirection);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", funcGirlHandDisconnect);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", GirlBrainClearTarget);
+extern void ACTLookTargetSystem_Exec(void);
+extern void debug_assertMessage(void *a0);
+extern char D_00553720[];
+void GirlBrainClearTarget(void) {
+    ACTLookTargetSystem_Exec();
+    debug_assertMessage(D_00553720);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", girlBrainMain_DecideMode);
 
