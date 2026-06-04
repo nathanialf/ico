@@ -28,7 +28,12 @@ int actSt25aQueenDeadChk(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actConte13Jimaku);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", BoySekikaTexScroll);
+extern int ExecMotionOrient(void *a0, int a1, void *a2);
+
+void BoySekikaTexScroll(void *a0, int a1) {
+    char *p = *(char **)((char *)a0 + 0x164);
+    *(int *)(p + 0x110) = ExecMotionOrient(a0, a1, p + 0x610);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actSt25aGenerator);
 
