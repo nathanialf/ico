@@ -162,7 +162,19 @@ void func_0023FFA8(void *a0, void *a1, float a2) {
     VU0_LSV(sqc2, 4, 0x0, 4);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023FFC8);
+void func_0023FFC8(void *a0, void *a1, void *a2, float t) {
+    VU0_LSV(lqc2, 4, 0x0, 5);
+    VU0_LSV(lqc2, 5, 0x0, 6);
+    VU0_NOREORDER_BEGIN();
+    VU0_MFC1(8, 12);
+    VU0_QMTC2_NI(8, 6);
+    VU0_NOREORDER_END();
+    VU0_REG("vaddw.x $vf7, $vf0, $vf0w");
+    VU0_REG("vsub.x $vf8, $vf7, $vf6");
+    VU0_REG("vmulax.xyzw $ACC, $vf4, $vf6x");
+    VU0_REG("vmaddx.xyzw $vf9, $vf5, $vf8x");
+    VU0_LSV(sqc2, 9, 0x0, 4);
+}
 
 void func_0023FFF0(void *a0, void *a1, void *a2) {
     VU0_LSV(lqc2, 4, 0x0, 5);
@@ -322,7 +334,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240C68);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240E40);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240E78);
+int func_00240E78(unsigned int a0) {
+    int old = *(volatile int *)0x1000E060;
+    if (a0 != 0xFFFFFFFF) {
+        *(volatile int *)0x1000E060 = a0;
+    }
+    return old;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240EA0);
 
