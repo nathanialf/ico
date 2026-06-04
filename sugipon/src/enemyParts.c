@@ -35,11 +35,18 @@ void InitPointBlur(void *a0, float a1) {
     *(float *)((char *)q + 0x44) = a1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", DispPointBlur);
+typedef struct { int _0, _4; float f8; int _c, _10; } EyeParam;
+extern EyeParam D_00617828[];
+
+int DispPointBlur(void *a0) {
+    EyeParam *base = D_00617828;
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    return base[q[2]]._10 & 3;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", UpdateEnemyEye);
 
-typedef struct { int _0, _4; float f8; int _c, _10; } EyeParam;
 extern EyeParam D_00617828[];
 
 float DispEnemyEye(void *a0) {
