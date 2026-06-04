@@ -31,7 +31,14 @@ void func_001D2130(void) {
     D_0062C210 = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lodManager", func_001D2140);
+extern int D_0062C20C, D_0062C210;
+
+void func_001D2140(int a0, int a1) {
+    if (a1)
+        D_0062C210 += a0;
+    else
+        D_0062C20C += a0;
+}
 
 int func_001D2168(int a0) {
     return a0 ? D_0062C210 : D_0062C20C;
