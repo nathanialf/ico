@@ -12,7 +12,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/hand-camera", SetLimitHandCameraCor
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/hand-camera", HandCameraCorrect);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/hand-camera", func_00191D90);
+extern int HandCameraCorrect(void);
+
+int func_00191D90(void) {
+    int r = HandCameraCorrect();
+    return r < 0 ? -r : r;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/hand-camera", func_00191DB8);
 
