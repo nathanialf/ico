@@ -28,7 +28,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemy", SetEnemyFootPrintSwitch);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemy", EnemySetfAppearAll);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemy", EnemySetfDisappearAll);
+extern void InitMotionOrient(int a0);
+
+void EnemySetfDisappearAll(int a0) {
+    *(int *)(*(int *)(a0 + 0x15C) + 0x2A0) = 0;
+    *(int *)(*(int *)(a0 + 0x15C) + 0x300) = 0;
+    *(int *)(*(int *)(a0 + 0x15C) + 0x3A8) = 0;
+    *(int *)(*(int *)(a0 + 0x15C) + 0x3AC) = 0;
+    InitMotionOrient(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemy", EnemySetfDisappear);
 
