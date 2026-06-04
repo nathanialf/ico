@@ -14,7 +14,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", clip_floor_1);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", DispCollisionPC);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", makeCollisionBlockTable);
+void makeCollisionBlockTable(int a0) {
+    int base = *(volatile int *)&a0;
+    *(int *)(*(int *)(base + 0x15C) + 0x540) = 0;
+    *(int *)(*(int *)(base + 0x15C) + 0x370) = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", _Clip);
 
