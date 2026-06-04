@@ -22,7 +22,7 @@ Round-trip is byte-identical. `tools/build.sh setup && ninja` produces
 <!-- progress:begin -->
 | Section          | Matched | Total |
 | ---------------- | ------: | ----: |
-| `.text` |  2.29 % | 1.42 MB |
+| `.text` |  2.30 % | 1.42 MB |
 | `.vutext` |  0.00 % | 20.22 KB |
 <!-- progress:end -->
 
