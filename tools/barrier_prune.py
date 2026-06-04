@@ -54,7 +54,10 @@ _RELOC = re.compile(r'^\s*[0-9a-f]+:\s+(R_[A-Z0-9_]+\s+\S+)')  # reloc line
 
 def objdump_text(o: Path) -> list[str] | None:
     """Reloc-annotated, address-stripped .text stream of the .o. None on failure."""
-    r = subprocess.run([OBJDUMP, "-dr", "-j", ".text", str(o)],
+    # -z: don't collapse runs of >=3 identical instructions (padding nops) to a
+    # single '...' line, which would silently drop them from the compared stream
+    # (same bug fixed in quick_diff.sh 2026-06-04).
+    r = subprocess.run([OBJDUMP, "-drz", "-j", ".text", str(o)],
                        capture_output=True, text=True)
     if r.returncode != 0:
         return None

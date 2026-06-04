@@ -17,9 +17,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AAC6
 void func_001AACD8(void) {
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AACE0);
-
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AACF4);
+void func_001AACE0(void) {
+    for (;;) {
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AAD00);
 
