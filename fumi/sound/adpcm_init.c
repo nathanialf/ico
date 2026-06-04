@@ -75,7 +75,18 @@ int AdpcmInterLeaveVolumeGet(void) {
     return count;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmVolumeGet);
+int AdpcmVolumeGet(void) {
+    int count = 0;
+    int *p = D_0062C270;
+    int i = 1;
+    do {
+        if (!*p) {
+            count++;
+        }
+        p++;
+    } while (--i >= 0);
+    return count;
+}
 
 
 /* recovered struct shapes */
