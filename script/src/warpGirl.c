@@ -62,7 +62,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017DA68);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017DC10);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017DC40);
+extern void Generator_Mask(int a0);
+
+void func_0017DC40(volatile int a0) {
+    Generator_Mask(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017DC68);
 
