@@ -1102,7 +1102,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024BCC0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024BDE0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024BF60);
+extern void func_00100F18(int a0);
+
+void func_0024BF60(int a0, int a1, int a2) {
+    func_00100F18(a2);
+    SYNC();
+    EI();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024BF88);
 
