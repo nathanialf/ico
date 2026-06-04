@@ -40,7 +40,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", WeaponCurPos);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", WeaponHitEffect);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", ExecWeaponHitReaction);
+void ExecWeaponHitReaction(void *a0) {
+    char *p = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x7F0);
+    int x = *(int *)(p + 0x8);
+    if (x != 0) {
+        *(int *)(*(char **)((char *)x + 0x15C) + 0x620) = 0;
+    }
+    *(int *)(p + 0x8) = 0;
+    *(int *)(p + 0xC) = -1;
+    *(int *)(p + 0x4) = 0;
+}
 
 int checkHit(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
