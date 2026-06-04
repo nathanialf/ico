@@ -46,7 +46,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_00143910);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_00143B00);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_00143DB8);
+extern void setParticleEffect(int a0, int a1, int a2);
+
+void func_00143DB8(void *a0) {
+    int x = *(int *)(*(int *)(*(int *)((char *)a0 + 0x164) + 0x670) + 0x1B8);
+    if (x) {
+        setParticleEffect(0x1B0, x, 1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_00143DE0);
 
