@@ -4,7 +4,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/attackCheckBoundary", AttackCheck
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/attackCheckBoundary", InitAttackCheckBoundaryManagerGeo);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/attackCheckBoundary", AttackCheckBoundaryManagerGeo);
+extern int AP1BeforeFunc(void *a0, int a1);
+
+int AttackCheckBoundaryManagerGeo(void *a0) {
+    return AP1BeforeFunc(a0, 0) ? 0 : -1;
+}
 
 void AttackCheckBoundaryManagerDL(int a0) {
     int buf[4];
