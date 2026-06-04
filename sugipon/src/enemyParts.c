@@ -18,7 +18,16 @@ int EntryEnemyFootPrint(void *a0) {
     return q[5];
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", DispEnemyFootPrints);
+extern int EnemyGeo(void *a0, int a1, void *a2);
+
+int DispEnemyFootPrints(void *a0) {
+    char *p = *(char **)((char *)a0 + 0x15C);
+    int *q = *(int **)(p + 0x7F0);
+    int val = q[0];
+    char *r = *(char **)(p + 0x830);
+    *(int *)(r + 0x30) = 0;
+    return EnemyGeo(a0, val, q + 1);
+}
 
 void InitPointBlur(void *a0, float a1) {
     int *p = *(int **)((char *)a0 + 0x15C);
