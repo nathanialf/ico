@@ -1824,7 +1824,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00254478);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00254550);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002547A8);
+extern void func_00254800(int *a0, int a1);
+
+void func_002547A8(int *a0, int a1, int a2, int a3) {
+    a0[2] = a1;
+    a0[3] = a1;
+    *(long long *)a0 = 0;
+    a0[4] = 0;
+    *(long long *)(a0 + 6) = 0;
+    a0[8] = a2;
+    a0[9] = a2 + a3;
+    a0[0xA] = a3;
+    func_00254800(a0, 0);
+}
 
 int func_002547E0(void *a0, int a1) {
     unsigned long long v = *(unsigned long long *)a0;
