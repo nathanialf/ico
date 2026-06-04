@@ -45,7 +45,12 @@ int DispPointBlur(void *a0) {
     return base[q[2]]._10 & 3;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", UpdateEnemyEye);
+int UpdateEnemyEye(void *a0) {
+    EyeParam *base = D_00617828;
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    return ((unsigned int)base[q[2]]._10 >> 2) & 3;
+}
 
 extern EyeParam D_00617828[];
 
