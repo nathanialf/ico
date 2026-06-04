@@ -16,7 +16,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/flag", func_001CD388);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/flag", func_001CD478);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/flag", func_001CD630);
+extern int D_0062B07C;
+extern void *D_0062B698;
+extern void ClipWallDebug(void *a0, int a1);
+
+void func_001CD630(void) {
+    if (D_0062B07C && D_0062B698)
+        ClipWallDebug(D_0062B698, 0);
+}
 
 extern void *D_0062B698;
 
