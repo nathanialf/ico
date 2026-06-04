@@ -83,7 +83,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", func_001E19
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", func_001E1A18);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", func_001E1AB8);
+extern char D_0055DA10[];
+
+int func_001E1AB8(char *a0) {
+    int idx = *(int *)(*(char **)(a0 + 0x15C) + 0x490);
+    char *e = D_0055DA10 + idx * 0x190;
+    unsigned int v = *(unsigned int *)(e + 0x184);
+    return (v >> 28) & 3;
+}
 
 
 /* recovered struct shapes */
