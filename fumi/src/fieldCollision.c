@@ -10,7 +10,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", GetReflectionElemen
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", clip_wall_1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", clip_floor_1);
+typedef struct { char _[0x48]; unsigned int f48; } NestEntry;
+extern NestEntry D_002A0A90[];
+
+int clip_floor_1(int *a0) {
+    NestEntry *t = D_002A0A90;
+    int idx = a0[2];
+    return ((t[idx].f48 >> 21) & 1) ^ 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", DispCollisionPC);
 

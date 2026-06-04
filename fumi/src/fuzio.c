@@ -31,13 +31,37 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_001668B0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00166910);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_001669D0);
+extern float func_0023FE70(int a0, int a1);
+
+float func_001669D0(int a0, int a1) {
+    return func_0023FE70(a0, a1) + *(float *)(a0 + 0xC);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00166A00);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00166A48);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00166A88);
+extern int D_0062BFF8;
+extern int D_0062BFFC;
+extern int D_0062C000;
+extern int D_0062C004;
+extern int D_0062C008;
+extern int D_0062C00C;
+extern int D_0062C010;
+extern int D_0062C014;
+extern int D_0062C018;
+
+void func_00166A88(void) {
+    D_0062BFF8 = 0;
+    D_0062BFFC = 0;
+    D_0062C008 = *(volatile int *)0x10000000;
+    D_0062C000 = 0;
+    D_0062C004 = 0;
+    D_0062C00C = 0;
+    D_0062C010 = 0;
+    D_0062C014 = 0;
+    D_0062C018 = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00166AB8);
 
@@ -102,7 +126,9 @@ float func_001680D0(float a0, float a1) {
     return MatrixDrive_GetTurnYAngleXZ(a0 * a0 + a1 * a1);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_001680F8);
+float func_001680F8(float a0, float a1, float a2) {
+    return MatrixDrive_GetTurnYAngleXZ(a0 * a0 + a1 * a1 + a2 * a2);
+}
 
 extern float func_0023FE70(int a0, int a1);
 

@@ -21,7 +21,14 @@ void func_00168A40(void) {
     brainLevelProcess(D_00286A90);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", subGirlBrainMain);
+extern void func_00149CD8(void *a0, int a1, float a2);
+
+void subGirlBrainMain(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x164);
+    if (p[0xC] == 0xA) {
+        func_00149CD8(a0, 5, 1.5f);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", subGirlBrain_Pulledup);
 

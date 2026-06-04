@@ -80,7 +80,14 @@ void func_00174698(void *a0) {
     iosMsgSend(D_00286810, a0, 1);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", func_001746B8);
+extern int D_00271268[];
+
+void func_001746B8(int *a0) {
+    if (D_00271268[0]) {
+        a0[0] = 1;
+        iosMsgSend(D_00286810, a0, 0);
+    }
+}
 
 
 /* recovered struct shapes */
