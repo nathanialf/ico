@@ -76,6 +76,23 @@ def normalize_lui_addiu(lines: list[str]) -> list[str]:
     return out
 _CATN = re.compile(r"\s*\d+\t(.*)")          # `cat -n` prefix: ws + number + tab
 
+# objdump renders `nop` as `sll zero,zero,0x0`; accept both spellings.
+_NOP_RE = re.compile(r"^(nop|sll\tzero,zero,0x0|sll\tzero,zero,0)$")
+def strip_trailing_align_nops(exp: list[str], blt: list[str]):
+    """Drop EXCESS trailing nops from whichever stream is longer. The function's
+    real body ends at its declared size; a `nop` past that (the isolated quick_diff
+    .o pads the .text section, while the per-function target .s stops at `endlabel`)
+    is alignment padding, not a code diff — it false-rc1's a last/only-func TU
+    (e.g. ACTGetWish_FromPad). Only the EXCESS is stripped, so an intra-body nop
+    that lines up with a real insn in the other stream is untouched; ninja
+    verify_elf remains the final authority."""
+    e, b = list(exp), list(blt)
+    while len(b) > len(e) and b and _NOP_RE.match(b[-1].strip()):
+        b.pop()
+    while len(e) > len(b) and e and _NOP_RE.match(e[-1].strip()):
+        e.pop()
+    return e, b
+
 
 def run_quick_diff(tu: str, func: str | None) -> str:
     """Invoke quick_diff.sh; return combined stdout (it never exits nonzero
@@ -246,6 +263,7 @@ def analyze(tu: str, func: str | None) -> dict:
     if "MATCH (canonical instruction stream identical)" in out:
         return {"status": "match", "real_count": 0, "raw_count": 0, "tags": [], "lines": []}
 
+    exp, blt = strip_trailing_align_nops(exp, blt)
     raw_count, _ = count_and_pairs(exp, blt)
     nexp = normalize_lui_addiu([normalize(l) for l in exp])
     nblt = normalize_lui_addiu([normalize(l) for l in blt])
