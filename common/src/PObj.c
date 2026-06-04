@@ -1225,7 +1225,10 @@ int func_00249DE0(int a0) {
     return func_0024A0C0(a0, 0, 0, 4, D_00711258);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00249E10);
+int func_00249E10(void) {
+    D_0054C630[0] = 0;
+    return func_0024A0C0(0, 0, 0, 3, D_00711258);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00249E48);
 
