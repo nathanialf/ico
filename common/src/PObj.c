@@ -461,7 +461,10 @@ int func_00241BC8(void) {
     return -1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00241BF0);
+int func_00241BF0(void) {
+    *(int *)func_002603E0() = 5;
+    return -1;
+}
 
 extern volatile int D_0070C680[];
 
