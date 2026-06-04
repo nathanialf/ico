@@ -20,7 +20,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", WithMailFunc_WayBeginPos
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", WithMailFunc_AttackFail);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_001561E8);
+extern void func_0018F2A0(void *a0);
+
+void func_001561E8(void *a0) {
+    if (a0 && *(int *)((char *)a0 + 0xC) == 4)
+        func_0018F2A0(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", WithMailFunc_AttackRejectInQueen);
 
