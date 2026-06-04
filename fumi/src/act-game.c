@@ -40,7 +40,14 @@ void ACTParaStatus_Exec(void *a0) {
     *(int *)(*(int *)((char *)a0 + 0x15C) + 0x7C) = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", _ACTCharStatus_Clear);
+typedef struct { char _[0x186]; unsigned short f186; char _pad[8]; } ACTCharStat;
+extern ACTCharStat D_0055DA10[];
+
+int _ACTCharStatus_Clear(void *a0) {
+    ACTCharStat *t = D_0055DA10;
+    int idx = *(int *)(*(int *)((char *)a0 + 0x15C) + 0x490);
+    return t[idx].f186 & 7;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", GetSkeltonOrient);
 
