@@ -32,10 +32,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_00104998);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_00104A80);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_00104CF0);
-
 extern int D_00629E40;
 extern unsigned char D_006595C0[];
+extern void func_002400F8(void *a0);
+extern void func_0010ED88(void);
+extern void SetIdentityQuaternion(void);
+
+void func_00104CF0(void) {
+    D_00629E40 = 0;
+    func_002400F8(D_006595C0);
+    func_0010ED88();
+    SetIdentityQuaternion();
+}
+
 extern void MatrixDrive_TurnXObjectMatrixYZ(void *dst, void *src);
 
 void func_00104D20(void) {
