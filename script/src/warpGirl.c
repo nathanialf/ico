@@ -66,7 +66,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017D560);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017DA68);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017DC10);
+extern void func_0012FEC8(void *a0, float a1, float a2, float a3, float a4, float a5, float a6, int a7);
+extern char D_00554540[];
+extern float D_00629198;
+
+void func_0017DC10(void) {
+    func_0012FEC8(D_00554540, 0.0f, 0.0f, 0.0f, D_00629198, 0.0f, 0.5f, 1);
+}
 
 extern void Generator_Mask(int a0);
 

@@ -39,7 +39,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st24a", func_002320B0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st24a", func_00232170);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st24a", func_002321C0);
+extern void actInitialize(int a0);
+extern void _ACTWait(int a0);
+
+void func_002321C0(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st24a", func_002321F0);
 

@@ -43,9 +43,25 @@ void actSt19aChainSwitch(volatile int a0) {
     Generator_ResetCount(a0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19bIntroChk);
+extern int func_00178DB0(int a0);
+extern void AddWayPointTop(int a0, int a1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", func_0022E2E8);
+void actSt19bIntroChk(void) {
+    if (func_00178DB0(0x14)) {
+        AddWayPointTop(9, 0);
+    }
+}
+
+extern void func_00178DD8(int a0);
+extern void func_00178E08(int a0);
+
+void func_0022E2E8(void) {
+    if (func_00178DB0(0x1D) == 0) {
+        func_00178DD8(0x164);
+    } else {
+        func_00178E08(0x164);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", func_0022E318);
 
