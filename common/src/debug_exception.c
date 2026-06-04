@@ -26,7 +26,8 @@ __asm__(
     "    .set reorder\n"
 );
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", debugIOPExceptionMain);
+void debugIOPExceptionMain(int a0, int a1, ...) {
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", debug_assertMessage);
 
