@@ -19,7 +19,13 @@ void InitCameraGObjs(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/GobjProc", CreateGObj);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/GobjProc", CreateGObjByFuncSet);
+extern void func_0023CE70(int a0);
+
+void CreateGObjByFuncSet(int *a0) {
+    func_0023CE70(a0[0]);
+    func_0023CE70(a0[1]);
+    func_0023CE70(a0[20]);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/GobjProc", func_0023BE80);
 
