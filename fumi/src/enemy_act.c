@@ -109,7 +109,14 @@ int actEnemyBodyslamFail(void *a0) {
     return p[0x10C] == 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyNest);
+typedef struct { char _[0x48]; unsigned int f48; } NestEntry;
+extern NestEntry D_002A0A90[];
+
+int actEnemyNest(int *a0) {
+    NestEntry *t = D_002A0A90;
+    int idx = a0[2];
+    return (t[idx].f48 >> 18) & 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", funcEnemyCarryFail);
 
