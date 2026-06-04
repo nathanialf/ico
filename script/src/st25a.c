@@ -20,12 +20,10 @@ void actConte12Jimaku(void *a0) {
     *(int *)((char *)p + 0x328) = 0x7F;
 }
 
-extern void isysGObjAddHead(void);
+extern int isysGObjAddHead(void);
 
-void actSt25aQueenDeadChk(void) {
-    isysGObjAddHead();
-    /* ROM keeps a non-tail frame here (stripped debug code); block the sibcall */
-    __asm__ __volatile__("");
+int actSt25aQueenDeadChk(void) {
+    return isysGObjAddHead();
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actConte13Jimaku);
@@ -90,11 +88,10 @@ ret1:
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actItouQueenAttackChk);
 
-extern void func_001BDF80(void);
+extern int func_001BDF80(void);
 
-void func_0017BCC0(void) {
-    func_001BDF80();
-    __asm__ __volatile__("");
+int func_0017BCC0(void) {
+    return func_001BDF80();
 }
 
 extern int ACTGameCollisionOn(void);

@@ -6,18 +6,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", fog_DrawFog);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", fog_FogTool);
 
-extern void tex_scrollClut(void);
+extern int tex_scrollClut(void);
 
-void func_0012FC08(void) {
-    tex_scrollClut();
-    __asm__ __volatile__("");
+int func_0012FC08(void) {
+    return tex_scrollClut();
 }
 
-extern void tex_textureAnimation(void *a0, int a1);
+extern int tex_textureAnimation(void *a0, int a1);
 
-void func_0012FC28(void *a0) {
-    tex_textureAnimation(a0, 0);
-    __asm__ __volatile__("");
+int func_0012FC28(void *a0) {
+    return tex_textureAnimation(a0, 0);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", func_0012FC48);

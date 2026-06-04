@@ -21,11 +21,10 @@ int readBufCreate(void)
     return 1;
 }
 
-extern void inflate_start(void *a0);
+extern int inflate_start(void *a0);
 
-void readBufBeginPut(void *a0) {
-    inflate_start(a0);
-    __asm__ __volatile__("");
+int readBufBeginPut(void *a0) {
+    return inflate_start(a0);
 }
 
 extern void func_0019B720(void *a0);

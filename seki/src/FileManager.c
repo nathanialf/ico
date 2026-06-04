@@ -41,11 +41,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", func_0010F070);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", func_0010F220);
 
-extern void func_0010F220(void);
+extern int func_0010F220(void);
 
-void func_0010F958(void) {
-    func_0010F220();
-    __asm__ __volatile__("");
+int func_0010F958(void) {
+    return func_0010F220();
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", func_0010F978);

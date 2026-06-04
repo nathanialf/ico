@@ -91,11 +91,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", func_0013D388);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", func_0013D3C8);
 
-extern void func_00100450(void *a0);
+extern int func_00100450(void *a0);
 
-void func_0013D410(void *a0) {
-    func_00100450(*(void **)((char *)a0 + 0x30));
-    __asm__ __volatile__("");
+int func_0013D410(void *a0) {
+    return func_00100450(*(void **)((char *)a0 + 0x30));
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", func_0013D430);

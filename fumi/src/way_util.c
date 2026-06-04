@@ -2,11 +2,10 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", visible_waypoint_of_all_except_gid);
 
-extern void GetNearNigePointN(void *a0, int a1, int a2, int a3);
+extern int GetNearNigePointN(void *a0, int a1, int a2, int a3);
 
-void visible_waypoint_of_all_except_gid_ThreadVersion(void *a0, int a1, int a2) {
-    GetNearNigePointN(a0, a1, a2, 0);
-    __asm__ __volatile__("");
+int visible_waypoint_of_all_except_gid_ThreadVersion(void *a0, int a1, int a2) {
+    return GetNearNigePointN(a0, a1, a2, 0);
 }
 
 void visible_waypoint_of_all_except_temp(void) {
@@ -70,11 +69,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", visible_waypoint);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", visible_waypoint_from_gobj);
 
-extern void ez_line(void *a0, int a1);
+extern int ez_line(void *a0, int a1);
 
-void get_wp_nearest_bridge_side_me(void *a0) {
-    ez_line(a0, -1);
-    __asm__ __volatile__("");
+int get_wp_nearest_bridge_side_me(void *a0) {
+    return ez_line(a0, -1);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", get_wp_nearest_bridge_side_bridge);
