@@ -447,7 +447,14 @@ int func_00241B98(void) {
     return 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00241BA0);
+extern void func_00100140(void *a0);
+
+int func_00241BA0(int a0, void *a1) {
+    if (a0 == 1) {
+        func_00100140(a1);
+    }
+    return 0;
+}
 
 int func_00241BC8(void) {
     *(int *)func_002603E0() = 5;
