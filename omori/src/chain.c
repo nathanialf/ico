@@ -117,7 +117,13 @@ int GetChainDirCorrectVal(void *a0) {
     return *(unsigned char *)((char *)q + 0xC0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", GetRootPositionHandExtra);
+void GetRootPositionHandExtra(float *a0, void *a1) {
+    void *p = *(void **)((char *)a1 + 0x15C);
+    void *q = *(void **)((char *)p + 0x7F0);
+    a0[0] = *(float *)((char *)q + 0xB0);
+    a0[1] = *(float *)((char *)q + 0xB4);
+    a0[2] = *(float *)((char *)q + 0xB8);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", InitPendulum);
 
