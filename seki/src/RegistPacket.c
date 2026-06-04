@@ -14,7 +14,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/RegistPacket", reg_chooseSpecularMic
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/RegistPacket", reg_chooseReflectionMicroCode);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/RegistPacket", func_0011F1C8);
+void func_0011F1C8(void *a0, int a1, int a2) {
+    long long v = *(long long *)((char *)a0 + 0x60);
+    pac_getWeight(*(int *)((char *)a0 + 0x60) & 1, (int)(v >> 5) & 3, 0, a1, a2);
+}
 
 extern void pac_getWeight(int a0, int a1, int a2, int a3, int a4);
 
