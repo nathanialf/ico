@@ -16,7 +16,14 @@ int videoDecEndPut(void *a0, int *a1) {
     return 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_videodec", videoDecFlush);
+extern void GetStageDifferenceMatrix(void *a0, void *a1, void *a2);
+extern void func_0023C310(void *a0);
+
+int videoDecFlush(void *a0, void *a1, char *a2) {
+    GetStageDifferenceMatrix(a0, a1, a2);
+    func_0023C310(a2 + 0x50);
+    return 1;
+}
 
 extern void func_0023C5B0(void *a0);
 

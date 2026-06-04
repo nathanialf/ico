@@ -21,7 +21,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vibuf", viBufAddDMA);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vibuf", viBufStopDMA);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vibuf", viBufRestartDMA);
+void *viBufRestartDMA(int *a0, int a1, long long a2) {
+    a0[0] = (int)(a2 & 0xFFFFFFFFLL);
+    a0[1] = (int)(a2 >> 32);
+    a0[2] = a1;
+    a0[3] = 0;
+    return (char *)a0 + 0x10;
+}
 
 void *viBufFlush(void *a0) {
     int *p = (int *)a0;
