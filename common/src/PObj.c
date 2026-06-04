@@ -357,7 +357,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240A28);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240AB8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240B18);
+void func_00240B18(unsigned char *a0, int a1) {
+    int i;
+    for (i = a1 - 1; i != -1; i--) {
+        *a0++ = 0;
+    }
+}
 
 extern int D_0054A9D0[];
 
