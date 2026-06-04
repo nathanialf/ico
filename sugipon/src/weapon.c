@@ -54,7 +54,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", InitWeaponGeo);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", WeaponGeo);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", dispInsectNet);
+int dispInsectNet(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    if (q[0x14]) {
+        return **(int **)((char *)q + 0x54);
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", WeaponDL);
 
