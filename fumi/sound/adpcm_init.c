@@ -60,7 +60,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmFreeAreaGet);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmInterStereoVolumeSetAll);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmInterLeaveVolumeGet);
+extern int D_0062C270[2];
+
+int AdpcmInterLeaveVolumeGet(void) {
+    int count = 0;
+    int *p = D_0062C270;
+    int i = 1;
+    do {
+        if (*p) {
+            count++;
+        }
+        p++;
+    } while (--i >= 0);
+    return count;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmVolumeGet);
 
