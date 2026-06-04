@@ -37,7 +37,13 @@ void gif_SpriteOffset(void) {
     D_00629EA0 = 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GifPacket", gif_SpriteSensitiveOffset);
+extern void func_0010FAB0(void);
+
+void gif_SpriteSensitiveOffset(void) {
+    dpk_SwapBuffer();
+    func_0010FAB0();
+    D_00629EA0 = 1;
+}
 
 typedef struct { char _pad[0x10]; long long *cur; } GifBuf;
 extern GifBuf D_004C3850;
