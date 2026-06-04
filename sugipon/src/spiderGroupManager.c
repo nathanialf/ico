@@ -50,7 +50,12 @@ void func_001E8C40(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", func_001E8C68);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", func_001E8D10);
+extern int D_00706298[];
+
+void func_001E8D10(int a0, int a1) {
+    D_0062B8EC = a1;
+    D_00706298[D_0062B8E4++] = a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", func_001E8D38);
 
