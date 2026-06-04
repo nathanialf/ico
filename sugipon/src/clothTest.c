@@ -15,7 +15,25 @@ float InitClothTestGeo(void *a0) {
     return ret;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothTest", ClothTestGeo);
+float ClothTestGeo(void *a0, void *a1, void *a2) {
+    register float ret __asm__("$f0");
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf1, 0x0($5)\n"
+        "lqc2 $vf2, 0x0($6)\n"
+        "vsub.xyzw $vf4, $vf1, $vf2\n"
+        "vmul.xyz $vf3, $vf4, $vf4\n"
+        "vaddy.x $vf3, $vf3, $vf3y\n"
+        "vaddz.x $vf3, $vf3, $vf3z\n"
+        "vrsqrt $Q, $vf0w, $vf3x\n"
+        "sqc2 $vf4, 0x0($4)\n"
+        "vwaitq\n"
+        "cfc2.ni $2, $vi22\n"
+        "mtc1 $2, $f0\n"
+        ".set reorder\n"
+        : "=f"(ret) :: "$2");
+    return ret;
+}
 
 void ClothTestDL(void *a0, void *a1, void *a2, float a3) {
     __asm__ __volatile__(
