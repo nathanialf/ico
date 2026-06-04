@@ -125,7 +125,16 @@ void GetRootPositionHandExtra(float *a0, void *a1) {
     a0[2] = *(float *)((char *)q + 0xB8);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", InitPendulum);
+int InitPendulum(void *a0) {
+    void *p = *(void **)((char *)a0 + 0x15C);
+    void *q = *(void **)((char *)p + 0x7F0);
+    if (*(unsigned char *)((char *)q + 0xA0)) {
+        if (*(int *)((char *)q + 0x68) < 3) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", LockChainGeo);
 
