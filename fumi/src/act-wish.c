@@ -1,6 +1,14 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", ACTGetWish_FromPad);
+typedef struct { char _0[0x1B8]; int f1B8; } WishC;
+typedef struct { char _0[0x670]; WishC *f670; } WishB;
+typedef struct { char _0[0x164]; WishB *f164; } WishA;
+extern int InitMultiBgaManager(int a0);
+
+void ACTGetWish_FromPad(WishA *a0) {
+    int v = InitMultiBgaManager(1);
+    a0->f164->f670->f1B8 = v;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", func_00149F60);
 
