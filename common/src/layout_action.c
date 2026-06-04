@@ -14,9 +14,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", _la_memory_card_ch
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", _la_set_current_port_2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", _la_set_current_port_lock_2);
+extern void debug_assertMessage(void *a0);
+extern char D_0060F8D8[];
+extern char D_0060F8E8[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", _la_set_current_port_new);
+int _la_set_current_port_lock_2(void *a0, int a1) {
+    debug_assertMessage(D_0060F8D8);
+    return a1;
+}
+
+int _la_set_current_port_new(void *a0, int a1) {
+    debug_assertMessage(D_0060F8E8);
+    return a1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_vibe_select);
 
