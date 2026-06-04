@@ -16,7 +16,12 @@ int _DoAwait(void *a0) {
     return p[0xC] == 0xF;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", _DoAwaitGirl);
+extern int CanWallLeverPull(int a0, int a1);
+
+int _DoAwaitGirl(volatile int a0) {
+    int p = *(int *)(a0 + 0x164);
+    return CanWallLeverPull(*(int *)(p + 0x5EC), 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", _MustChase);
 
