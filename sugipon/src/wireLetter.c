@@ -6,7 +6,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/wireLetter", DispWireString);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/wireLetter", DefaultColorWireString);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/wireLetter", ChangeColorWireString);
+extern int D_004C36A0[];
+extern int D_004C36B0[];
+
+void ChangeColorWireString(void) {
+    D_004C36B0[0] = D_004C36A0[0];
+    D_004C36B0[1] = D_004C36A0[1];
+    D_004C36B0[2] = D_004C36A0[2];
+}
 
 extern int D_004C36B0[];
 
