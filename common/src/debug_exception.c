@@ -29,7 +29,8 @@ __asm__(
 void debugIOPExceptionMain(int a0, int a1, ...) {
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", debug_assertMessage);
+void debug_assertMessage(int a0, ...) {
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", debug_assert);
 
