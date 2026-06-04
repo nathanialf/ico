@@ -58,7 +58,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_00104DC0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_00104E38);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_00104EB0);
+extern float D_00271D20[];
+extern void func_0023FE08(void *dest, void *src, float *vec);
+
+void func_00104EB0(float x, float y, float z) {
+    D_00271D20[0] = x;
+    D_00271D20[5] = y;
+    D_00271D20[10] = z;
+    func_0023FE08(&D_006595C0[D_00629E40 * 64], &D_006595C0[D_00629E40 * 64], D_00271D20);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_00104EE0);
 
