@@ -44,7 +44,20 @@ void _ClearTransCurrentMatrix(void *a0, void *a1) {
         ".set reorder\n" : : : "memory");
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _RotCurrentMatrixX);
+void _RotCurrentMatrixX(void *a0, void *a1) {
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf8, 0x0($5)\n"
+        "vmulax.xyzw $ACC, $vf4, $vf8x\n"
+        "vmadday.xyzw $ACC, $vf5, $vf8y\n"
+        "vmaddaz.xyzw $ACC, $vf6, $vf8z\n"
+        "vmaddw.xyzw $vf10, $vf7, $vf8w\n"
+        "vdiv $Q, $vf0w, $vf10w\n"
+        "vwaitq\n"
+        "vmulq.xyz $vf10, $vf10, $Q\n"
+        "sqc2 $vf10, 0x0($4)\n"
+        ".set reorder\n" : : : "memory");
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _RotCurrentMatrixY);
 
