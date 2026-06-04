@@ -1,6 +1,13 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/cageFix", CageFixGeo);
+extern void func_0010F048(int a0);
+extern void file_LoadCDFile(void *a0);
+
+void CageFixGeo(void *a0) {
+    void *p = *(void **)(*(char **)((char *)a0 + 0x15C) + 0x7F0);
+    func_0010F048((int)a0);
+    file_LoadCDFile(*(void **)p);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/cageFix", CageFixDL);
 
