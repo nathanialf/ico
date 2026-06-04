@@ -71,7 +71,11 @@ void hand_able_connect(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_CommonLoop);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", GetOtherStageGirlOrient);
+void GetOtherStageGirlOrient(void *a0) {
+    long long *p = (long long *)((char *)*(void **)((char *)a0 + 0x164) + 0x18);
+    *p |= (long long)0x8000 << 28;
+    *p |= (long long)0x8000 << 29;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", GetTarget);
 
