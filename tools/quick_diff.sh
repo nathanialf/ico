@@ -342,10 +342,16 @@ trap 'rm -f "$LEFT" "$RIGHT"' EXIT
 # Pipe each through objdump → strip leading addr / opcode columns → keep
 # only the mnemonic + operand columns. Tabs delimit; columns 3+ are the
 # instruction text.
+# -z (--disassemble-zeroes): WITHOUT it, objdump collapses any run of >=3
+# identical instructions (e.g. padding nops) to a single '...' line, which the
+# sed below drops (no addr/hex prefix) -> the collapsed instructions VANISH from
+# the compared stream, FALSE-PASSING a function whose built/expected sizes differ
+# only by such a run (e.g. for(;;) padding -> phantom rc0, ninja MISMATCH). -z
+# emits every instruction so the diff is faithful. (Investigated via func_001AACF4, 2026-06-04.)
 canon() {
     # objdump lines have shape:  "  ADDR:\tHEXBYTES\tMNEMONIC\tOPERANDS"
     # Strip leading whitespace + addr+colon + hex bytes; keep the rest.
-    "$OBJDUMP" -d -M no-aliases "$1" 2>/dev/null \
+    "$OBJDUMP" -dz -M no-aliases "$1" 2>/dev/null \
         | sed -nE 's/^[[:space:]]*[0-9a-f]+:[[:space:]]+[0-9a-f]+[[:space:]]+//p'
 }
 # For multi-function .o files (coalesced TUs), --disassemble=<func> limits
@@ -354,7 +360,7 @@ canon() {
 canon_func() {
     local obj="$1" fn="${2:-}"
     if [[ -n "$fn" ]]; then
-        "$OBJDUMP" -d -M no-aliases --disassemble="$fn" "$obj" 2>/dev/null \
+        "$OBJDUMP" -dz -M no-aliases --disassemble="$fn" "$obj" 2>/dev/null \
             | sed -nE 's/^[[:space:]]*[0-9a-f]+:[[:space:]]+[0-9a-f]+[[:space:]]+//p'
     else
         canon "$obj"
