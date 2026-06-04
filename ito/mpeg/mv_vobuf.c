@@ -2,11 +2,16 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vobuf", func_0019B8E0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vobuf", voBufCreate);
+extern void voBufIsFull(int a0);
+
+void voBufCreate(a0)
+int *a0;
+{
+    voBufIsFull(a0[0]);
+    voBufIsFull(a0[1]);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vobuf", voBufDelete);
-
-extern void voBufCreate(void);
 
 void voBufReset(void) {
     voBufCreate();
