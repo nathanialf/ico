@@ -136,7 +136,14 @@ int InitPendulum(void *a0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", LockChainGeo);
+typedef struct { unsigned int lo; unsigned char m[3]; unsigned char hi; } Blk8;
+typedef struct { Blk8 a; int b; } Geo12;
+
+void LockChainGeo(char *a0, void *a1) {
+    int *p = *(int **)((char *)a1 + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    *(Geo12 *)a0 = *(Geo12 *)((char *)q + 0xA4);
+}
 
 void UnLockChainGeo(void *a0, int a1) {
     int *p = *(int **)((char *)a0 + 0x15C);
