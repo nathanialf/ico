@@ -28,7 +28,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTLookTarget_Exec);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTParaStatus_Clear);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTParaStatus_Exec);
+void ACTParaStatus_Exec(void *a0) {
+    *(int *)(*(int *)((char *)a0 + 0x15C) + 0x534) = 0;
+    *(int *)(*(int *)((char *)a0 + 0x15C) + 0x53C) = 0;
+    *(int *)(*(int *)((char *)a0 + 0x15C) + 0x538) = 0;
+    *(int *)(*(int *)((char *)a0 + 0x15C) + 0x7C) = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", _ACTCharStatus_Clear);
 
