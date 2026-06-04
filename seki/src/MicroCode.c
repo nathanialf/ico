@@ -137,7 +137,21 @@ void func_001189D0(void *dst, void *src) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", func_001189F8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", func_00118A70);
+void func_00118A70(void *a0, void *a1, void *a2) {
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf8, 0x0($6)\n"
+        "lqc2 $vf14, 0x0($5)\n"
+        "lqc2 $vf15, 0x10($5)\n"
+        "lqc2 $vf16, 0x20($5)\n"
+        "lqc2 $vf17, 0x30($5)\n"
+        "vmulax.xyzw $ACC, $vf14, $vf8x\n"
+        "vmadday.xyzw $ACC, $vf15, $vf8y\n"
+        "vmaddaz.xyzw $ACC, $vf16, $vf8z\n"
+        "vmaddw.xyzw $vf10, $vf17, $vf8w\n"
+        "sqc2 $vf10, 0x0($4)\n"
+        ".set reorder\n" : : : "memory");
+}
 
 void func_00118AA0(void *a0) {
     __asm__ __volatile__(
