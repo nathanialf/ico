@@ -30,3 +30,32 @@ glabel func_00239228
     /* 13924C 0023924C 040062E4 */   swc1      $f2, 0x4($3)
 endlabel func_00239228
 ```
+
+## Resume 2026-06-04 (hand iteration; matchings refreshed via build.sh setup)
+
+Confirmed best **rc5** still; residual is ONE block: the FP const `-133.0f`
+(`lui 0xc305; mtc1 $f1`) is scheduled AFTER the two `%gp_rel lwc1` loads; ROM
+emits the const block BEFORE the loads. Store batching (0x0, 0x8, 0x4 with the
+0x4 store in the jr-ra delay) and regalloc otherwise match.
+
+**Diagnostics this resume:**
+- The `int` return value `1` is REQUIRED and correct: `li v0,1` lands 2nd
+  (matches ROM) and putting `1` in v0 is exactly what forces the pointer into
+  `v1` (`lw v1,0x34(a0)`). Dropping it (void form) → rc8 and loses `addiu v0,1`.
+  So the func is `int func(void*){...; return 1;}` — not void, not pointer-return.
+- 8 dev-plausible hand forms all rc5–8, const-after-loads robust:
+  seed(temps a/b/c) rc5; inline-all natural order rc7 (const-FIRST but eager
+  stores break batch/delay); volatile-p rc5-variant (const-first but kills
+  jr-delay → trailing nop); temps+ROM-store-order(p0,p2,p1) rc8; const-temp
+  declared-last rc5; const-inline+global-temps rc5.
+- `tools/sched_diff.py` is NOT aug6-aware ("no source for TU") — can't introspect
+  the per-pass RTL here.
+
+**Next levers to try (hand, do NOT force the permuter — gated by `next` only):**
+- recover the dev's actual struct type for a0->field34 (a 3-float vector
+  setter in Ito's mv_audiodec; -133.0 + 2 gp globals) — maybe a named struct
+  assignment changes the const-vs-load sched priority.
+- find a sibling in the ito/mpeg TUs that sets an FP const before gp_rel loads
+  and copy its idiom.
+- the const block loses sched priority to the higher-latency loads; look for a
+  source shape where the const's value is on a longer/equal critical path.
