@@ -16,7 +16,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", saveEditedData);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", gif_test);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", DebugDispBox);
+extern int ACTGameView_Init(int a0, int a1);
+
+int DebugDispBox(void *a0, char *a1) {
+    if (*(unsigned char *)(a1 + 0x19) != 0) {
+        return 1;
+    }
+    return ACTGameView_Init(*(int *)a0, *(int *)a1) != 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", DispCameraGroup);
 
