@@ -220,7 +220,11 @@ void actCommonPlay(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonOne);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonDelete);
+extern void actCommonRopeCliff(int a0, int a1);
+
+void actCommonDelete(volatile int a0) {
+    actCommonRopeCliff(a0, 0);
+}
 
 
 /* recovered struct shapes */
