@@ -107,7 +107,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", func_00178D28);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", func_00178D70);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", func_00178DB0);
+extern unsigned char D_00286890[];
+
+int func_00178DB0(int a0) {
+    return (D_00286890[a0 >> 3] >> (a0 & 7)) & 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", func_00178DD8);
 
