@@ -234,7 +234,37 @@ void func_00118AF0(void *a0, void *a1) {
         ".set reorder\n" : : : "$8","$9","$10","$11","$12","$13","$14","$15","memory");
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", func_00118B38);
+void func_00118B38(void *a0, void *a1) {
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lq $8, 0x0($5)\n"
+        "lq $9, 0x10($5)\n"
+        "lq $10, 0x20($5)\n"
+        "lqc2 $vf4, 0x30($5)\n"
+        "vmove.xyzw $vf5, $vf4\n"
+        "vsub.xyz $vf4, $vf4, $vf4\n"
+        "vmove.xyzw $vf9, $vf4\n"
+        "qmfc2.ni $11, $vf4\n"
+        "pextlw $12, $9, $8\n"
+        "pextuw $13, $9, $8\n"
+        "pextlw $14, $11, $10\n"
+        "pextuw $15, $11, $10\n"
+        "pcpyld $8, $14, $12\n"
+        "pcpyud $9, $12, $14\n"
+        "pcpyld $10, $15, $13\n"
+        "qmtc2.ni $8, $vf6\n"
+        "qmtc2.ni $9, $vf7\n"
+        "qmtc2.ni $10, $vf8\n"
+        "vmulax.xyz $ACC, $vf6, $vf5x\n"
+        "vmadday.xyz $ACC, $vf7, $vf5y\n"
+        "vmaddz.xyz $vf4, $vf8, $vf5z\n"
+        "vsub.xyz $vf4, $vf9, $vf4\n"
+        "sq $8, 0x0($4)\n"
+        "sq $9, 0x10($4)\n"
+        "sq $10, 0x20($4)\n"
+        "sqc2 $vf4, 0x30($4)\n"
+        ".set reorder\n" : : : "$8","$9","$10","$11","$12","$13","$14","$15","memory");
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", func_00118BA8);
 
