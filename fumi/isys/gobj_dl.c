@@ -28,7 +28,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", isysGObjDlInit);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", isysGObjMoveObjDLAfterGObj);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", isysGObjMoveObjDLBeforeGObj);
+extern void isysGObjLinkObjDLAfterGObj(void *a0, unsigned char a1, void *a2);
+
+void isysGObjMoveObjDLBeforeGObj(void *a0, void *a1, unsigned char a2, void *a3, void *a4) {
+    if (a1 != 0) {
+        *(void **)((char *)a0 + 0x48) = a1;
+        *(void **)((char *)a0 + 0x50) = a4;
+        isysGObjLinkObjDLAfterGObj(a0, a2, a3);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", func_0013ECE0);
 
