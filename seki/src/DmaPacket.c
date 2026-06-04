@@ -1,6 +1,16 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DmaPacket", dpk_SwapBuffer);
+extern int D_0062C260;
+
+void dpk_SwapBuffer(int a0) {
+    if (a0 < 0) {
+        D_0062C260 = 0;
+    } else if (a0 >= 0xD) {
+        D_0062C260 = 0xC;
+    } else {
+        D_0062C260 = a0;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DmaPacket", dpk_Init);
 
