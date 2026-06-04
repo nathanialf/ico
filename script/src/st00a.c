@@ -4,7 +4,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aInit);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aEnd);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aEneChk);
+extern void func_00178DD8(int a0);
+extern void actCreateSubThread(void *entry, int a1);
+extern void actConte14_13(void);
+
+void actSt00aEneChk(volatile int a0) {
+    func_00178DD8(0x140);
+    actCreateSubThread(actConte14_13, 0x15);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aStairChk);
 
