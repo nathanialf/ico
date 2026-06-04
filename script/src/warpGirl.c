@@ -20,9 +20,21 @@ void func_0017C0B8(void) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017C0E0);
+void func_0017C0E0(void) {
+    void *o = D_00629DE4;
+    if (o) {
+        void *s = *(void **)((char *)o + 0x164);
+        *(long *)((char *)s + 0x20) |= 0x200;
+    }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017C108);
+void func_0017C108(void) {
+    void *o = D_00629DE4;
+    if (o) {
+        void *s = *(void **)((char *)o + 0x164);
+        *(long *)((char *)s + 0x20) &= -0x401;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017C130);
 
