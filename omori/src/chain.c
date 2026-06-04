@@ -77,7 +77,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", IncreasePdlChain);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", DecreasePdlChain);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", PlumbOrientUpdateChain);
+extern void chain_simulate_term_swingstart(void *a0);
+
+void PlumbOrientUpdateChain(void *a0) {
+    char *p = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x7F0);
+    chain_simulate_term_swingstart(a0);
+    *(char *)(p + 0x60) = 1;
+}
 
 void isBottomOfChain(void *a0) {
     void *p = *(void **)((char *)a0 + 0x15C);
