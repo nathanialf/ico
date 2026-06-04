@@ -226,7 +226,18 @@ void func_002400E8(void *a0, void *a1) {
     VU0_LSV(sqc2, 5, 0x0, 4);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002400F8);
+void func_002400F8(void *a0) {
+    __asm__ __volatile__(
+        "vsub.xyzw $vf4, $vf0, $vf0\n"
+        "vadd.w $vf4, $vf4, $vf0\n"
+        "vmr32.xyzw $vf5, $vf4\n"
+        "vmr32.xyzw $vf6, $vf5\n"
+        "vmr32.xyzw $vf7, $vf6\n"
+        "sqc2 $vf4, 0x30($4)\n"
+        "sqc2 $vf5, 0x20($4)\n"
+        "sqc2 $vf6, 0x10($4)\n"
+        "sqc2 $vf7, 0x0($4)\n" : : : "memory");
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240120);
 
