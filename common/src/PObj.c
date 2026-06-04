@@ -1879,7 +1879,16 @@ float func_0025CC70(float a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025CC90);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025CD78);
+int func_0025CD78(float x) {
+    float t;
+    union { float f; int i; } u;
+    unsigned long long mask;
+    int r;
+    do { t = x; mask = 0x7FFFFFFF; u.f = t; r = u.i; } while (0);
+    r &= mask;
+    r = 0x7F800000 - r;
+    return (unsigned)r >> 31;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025CDA0);
 

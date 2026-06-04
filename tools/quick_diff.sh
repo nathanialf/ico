@@ -209,6 +209,23 @@ END { i=1; while (i<=NR) { print ln[i];
     if (j<=NR && ln[j] ~ /^[ \t]*\.set[ \t]+noreorder([ \t]|$)/) { print "\tnop"; i+=2; continue } }
   i++ } }' "$ASM_OUT" > "$ASM_OUT.fcc" && mv "$ASM_OUT.fcc" "$ASM_OUT"
 
+# mfc1 COP1-move-out hazard: gcc emits `mfc1 $r,$f` + `#nop` comment + the
+# dependent insn it scheduled into the slot. modern gas (the fallback for TUs
+# whose VU0 siblings the period assembler can't parse, e.g. PObj) FILLS that slot
+# with a spurious nop; the period assembler and the ROM leave mfc1+dependent
+# adjacent. The `#nop` COMMENT marks the slot as filled (vs gcc's REAL nops which
+# stay). Wrap in .set noreorder so modern gas does not insert the nop. Mirrors
+# compile_c.sh; universal assembler-adaptation.
+awk '
+{ ln[NR]=$0 }
+END { i=1; while (i<=NR) {
+  if (ln[i] ~ /^[ \t]*mfc1[ \t]/ && (i+1)<=NR && ln[i+1] ~ /^[ \t]*#nop[ \t]*$/) {
+    j=i+2; while (j<=NR && ln[j] ~ /^[ \t]*(#|$)/) j++;
+    if (j<=NR && ln[j] !~ /^[ \t]*\./ && ln[j] !~ /:[ \t]*$/) {
+      print "\t.set noreorder"; print ln[i]; print ln[j]; print "\t.set reorder";
+      i=j+1; continue } }
+  print ln[i]; i++ } }' "$ASM_OUT" > "$ASM_OUT.mfc1nop" && mv "$ASM_OUT.mfc1nop" "$ASM_OUT"
+
 # ee-as 2.96 fills a jr/j $31 delay slot with a preceding FP store (s.s/swc1)
 # or FP convert (cvt.*), but the R5900 FP→return hazard means the original
 # assembler left a nop there (verified universal: 0 ROM funcs have cvt in a jr
