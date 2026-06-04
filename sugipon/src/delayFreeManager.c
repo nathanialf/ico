@@ -16,7 +16,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/delayFreeManager", func_001025B8)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/delayFreeManager", func_00102650);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/delayFreeManager", func_00102760);
+extern void func_0010E148(void *a0, void *a1, void *a2);
+extern void GetInverseQuaternion(void *a0, void *a1);
+
+void func_00102760(void *a0, void *a1) {
+    char *p = *(char **)a1;
+    if (p != 0) {
+        char *q = *(char **)(p + 0x15C);
+        int idx = *(int *)((char *)a1 + 0x4);
+        char *base = *(char **)(q + 0x10);
+        func_0010E148(a0, base + idx * 16, (char *)a1 + 0xD0);
+    } else {
+        GetInverseQuaternion(a0, (char *)a1 + 0xD0);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/delayFreeManager", func_00102798);
 
