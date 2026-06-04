@@ -12,7 +12,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", ObjAction_Init);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00237A20);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00237AD0);
+extern void actCreateSubThread(void *entry, int a1);
+extern void func_00237AF8(void);
+
+void func_00237AD0(volatile int a0) {
+    actCreateSubThread(func_00237AF8, 0x15);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00237AF8);
 
