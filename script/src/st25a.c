@@ -94,7 +94,17 @@ ret1:
     return 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actItouQueenAttackChk);
+extern int *D_00629DE4;
+extern int checkHit(int a0);
+
+int actItouQueenAttackChk(void) {
+    int *p = (int *)D_00629DE4[0x59];
+    int v = p[0x4C];
+    if (v == 0) {
+        return 0;
+    }
+    return checkHit(v);
+}
 
 extern int func_001BDF80(void);
 
