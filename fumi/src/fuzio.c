@@ -75,7 +75,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00167DB0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00167E88);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00167F60);
+extern int D_0062A69C;
+extern void ClipWallBoxStop(void);
+
+void func_00167F60(void) {
+    D_0062A69C = 1;
+    ClipWallBoxStop();
+    D_0062A69C = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00167F88);
 
@@ -89,11 +96,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00168008);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00168070);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_001680D0);
+extern float MatrixDrive_GetTurnYAngleXZ(float a0);
+
+float func_001680D0(float a0, float a1) {
+    return MatrixDrive_GetTurnYAngleXZ(a0 * a0 + a1 * a1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_001680F8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00168128);
+extern float func_0023FE70(int a0, int a1);
+
+float func_00168128(int a0) {
+    return MatrixDrive_GetTurnYAngleXZ(func_0023FE70(a0, a0));
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00168150);
 
