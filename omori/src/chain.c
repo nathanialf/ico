@@ -95,7 +95,13 @@ void GetChainClimbOrient(void *a0) {
     *(float *)((char *)q + 0x44) = D_0062927C;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", CheckChainClimbablePos);
+extern int D_0062B060;
+extern float D_00629280;
+
+void CheckChainClimbablePos(void *a0) {
+    char *p = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x7F0);
+    *(float *)(p + 0x44) = (float)D_0062B060 * 0.5f * D_00629280;
+}
 
 void GetChainClimbCollision(void *a0, float *a1) {
     void *p = *(void **)((char *)a0 + 0x15C);
