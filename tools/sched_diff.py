@@ -47,14 +47,39 @@ PASS_SUFFIX = {"sched": "sched", "sched2": "sched2", "dbr": "dbr"}
 DUMP_FLAG = {"sched": "-dS", "sched2": "-dR", "dbr": "-dd"}
 
 
+# aug6 is the `main` layout: TUs live under per-programmer roots and are
+# addressed by their full subseg path (e.g. `ito/mpeg/mv_disp`). Retail (us)
+# addressed them by bare basename under src/. Resolve both.
+SRC_ROOTS = ("", "src", "common", "fumi", "sugipon", "seki", "omori",
+             "script", "ito", "ios", "sound", "isys")
+
+
 def resolve_src(tu: str) -> Path:
-    for cand in (f"src/{tu}.c", f"tough_nuts/{tu}/{tu}.c",
-                 f"sound/{tu}.c", f"ios/{tu}.c", f"isys/{tu}.c"):
+    # 1. Full subseg path (aug6): `ito/mpeg/mv_disp` -> `ito/mpeg/mv_disp.c`.
+    #    Also covers any root-relative path the caller already qualified.
+    direct = ROOT / f"{tu}.c"
+    if direct.is_file():
+        return direct
+    # 2. Bare-name forms under each known root (+ the parked-seed layout).
+    cands = [f"tough_nuts/{tu}/{tu}.c"]
+    cands += [f"{root}/{tu}.c" if root else f"{tu}.c" for root in SRC_ROOTS]
+    for cand in cands:
         p = ROOT / cand
         if p.is_file():
             return p
+    # 3. Recursive fallback: a bare basename anywhere under a known root
+    #    (handles nested subsegs like `ito/mpeg/<name>` given just `<name>`).
+    base = tu.split("/")[-1]
+    for root in SRC_ROOTS:
+        rdir = ROOT / root if root else ROOT
+        if not rdir.is_dir():
+            continue
+        for hit in rdir.rglob(f"{base}.c"):
+            if "/build/" not in str(hit) and "/asm/" not in str(hit):
+                return hit
     sys.exit(f"sched_diff: no source for TU '{tu}' "
-             f"(tried src/, tough_nuts/, sound/, ios/, isys/)")
+             f"(tried <tu>.c, src/, tough_nuts/, and aug6 roots "
+             f"{', '.join(r for r in SRC_ROOTS if r)})")
 
 
 def extra_cflags(src: Path) -> list[str]:
