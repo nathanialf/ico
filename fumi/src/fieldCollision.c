@@ -111,7 +111,10 @@ void ClipFloorCheckCB(void *a0, int a1) {
     jtbl_0062A6D0(a0, 8);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipCollision);
+void ClipCollision(void *a0, int a1) {
+    D_0062C024 = a1;
+    jtbl_0062A6D0(a0, 9);
+}
 
 void ChangeFieldCollisionDebugMode(void *a0) {
     D_0062A6D4(a0, 0xC);
@@ -133,7 +136,10 @@ void ClipPlane(void *a0) {
     __asm__ __volatile__("");
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", GetOrientOfWall);
+void GetOrientOfWall(void *a0, int a1) {
+    D_0062C024 = a1;
+    D_0062A6D4(a0, 0x10);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", SetSimplePlane);
 
