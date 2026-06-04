@@ -1866,16 +1866,12 @@ int func_0025C9A0(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025C9C8);
 
+/* fabsf(x) — fdlibm bit-twiddle: clear the sign bit. */
 float func_0025CC70(float a0) {
-    float t;
-    union { float f; int i; } u;
-    do {
-        t = a0;
-        u.f = t;
-        u.i &= 0x7FFFFFFF;
-        t = u.f;
-    } while (0);
-    return t;
+    unsigned int ix;
+    GET_FLOAT_WORD(ix, a0);
+    SET_FLOAT_WORD(a0, ix & 0x7fffffff);
+    return a0;
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025CC90);
