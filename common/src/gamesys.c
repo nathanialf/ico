@@ -34,7 +34,13 @@ int gamesysNObjInfoInit(void)
     return -1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysObjInfoStageInitFlagCls);
+extern float D_006293EC;
+extern void backStageProcessInit(float a0);
+
+int gamesysObjInfoStageInitFlagCls(void) {
+    backStageProcessInit(D_006293EC);
+    return 1;
+}
 
 extern int InitCharFileManager(void);
 
