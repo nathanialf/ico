@@ -59,9 +59,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7B58);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7BA0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7BD0);
+extern int D_006F26D0[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7BF8);
+void func_001A7BD0(int a0, int a1) {
+    *(int *)((char *)D_006F26D0 + a1 * 8 + a0 * 0xD0) = 0;
+}
+
+extern char D_00271270[];
+extern void gsb_antiAlias(void *a0);
+
+int func_001A7BF8(void) {
+    gsb_antiAlias(D_00271270);
+    return 1;
+}
 
 extern int D_0062ACB0;
 
