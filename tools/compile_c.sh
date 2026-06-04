@@ -139,23 +139,25 @@ END { i=1; while (i<=NR) { print ln[i];
     if (j<=NR && ln[j] ~ /^[ \t]*\.set[ \t]+noreorder([ \t]|$)/) { print "\tnop"; i+=2; continue } }
   i++ } }' "${S}" > "${S}.fcc" && mv "${S}.fcc" "${S}"
 
-# COP1-move-out (mfc1) hazard, opposite of the FCC case above. gcc emits an
-# `mfc1 $r,$f` immediately followed by a `#nop` COMMENT and then the DEPENDENT
-# instruction it scheduled into that hazard slot. The period assembler (ee-as
-# 2.9-991111) and the ROM leave the dependent insn directly after mfc1 (the R5900
-# interlocks the COP1 move-out — verified: the ROM has `mfc1;daddu` adjacent), but
-# ee-as 2.96 / modern gas in `.set reorder` mode FILL that slot with a real nop.
-# The `#nop` comment is gcc's marker that the slot is already filled — distinct
-# from the cases where gcc emits a REAL `nop` it couldn't fill (those stay, e.g.
-# the 71 ROM `mfc1;nop` sites). Wrap mfc1 + its dependent use in `.set noreorder`
-# so modern gas does NOT insert the spurious nop; under the period assembler the
-# wrap is a byte no-op. Universal assembler-adaptation (same category as the FCC /
-# jr-fp / move→daddu rewrites). Fixes coalesced TUs (e.g. PObj) whose VU0 siblings
-# force the modern-as fallback so the period assembler can't be used wholesale.
+# COP1-move (mfc1 / mtc1) hazard, opposite of the FCC case above. gcc emits an
+# `mfc1 $r,$f` (move-out) OR `mtc1 $r,$f` (move-in) immediately followed by a
+# `#nop` COMMENT and then the DEPENDENT instruction it scheduled into that hazard
+# slot. The period assembler (ee-as 2.9-991111) and the ROM leave the dependent
+# insn directly after the move (the R5900 interlocks the COP1 move — verified: the
+# ROM has `mfc1;daddu` and `mtc1;c.lt.s` adjacent), but ee-as 2.96 / modern gas in
+# `.set reorder` mode FILL that slot with a real nop. The `#nop` comment is gcc's
+# marker that the slot is already filled — distinct from the cases where gcc emits
+# a REAL `nop` it couldn't fill (those stay, e.g. the 71 ROM `mfc1;nop` sites).
+# Wrap the move + its dependent use in `.set noreorder` so modern gas does NOT
+# insert the spurious nop; under the period assembler the wrap is a byte no-op.
+# Universal assembler-adaptation (same category as the FCC / jr-fp / move→daddu
+# rewrites). Fixes coalesced TUs (e.g. PObj) whose VU0 siblings force the modern-as
+# fallback so the period assembler can't be used wholesale, and FP compares whose
+# 0.0 operand is materialized via `mtc1 $0,$fN` (e.g. stage_DispAnimation).
 awk '
 { ln[NR]=$0 }
 END { i=1; while (i<=NR) {
-  if (ln[i] ~ /^[ \t]*mfc1[ \t]/ && (i+1)<=NR && ln[i+1] ~ /^[ \t]*#nop[ \t]*$/) {
+  if (ln[i] ~ /^[ \t]*m[ft]c1[ \t]/ && (i+1)<=NR && ln[i+1] ~ /^[ \t]*#nop[ \t]*$/) {
     j=i+2; while (j<=NR && ln[j] ~ /^[ \t]*(#|$)/) j++;
     if (j<=NR && ln[j] !~ /^[ \t]*\./ && ln[j] !~ /:[ \t]*$/) {
       print "\t.set noreorder"; print ln[i]; print ln[j]; print "\t.set reorder";

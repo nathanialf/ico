@@ -20,7 +20,16 @@ void stage_CalcAnimationNoParent(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_CalcAnimationParent);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_DispAnimation);
+typedef struct { char _0[0x3C]; float f3C; } AnimNode;
+typedef struct { char _0[0x810]; AnimNode *f810; AnimNode *f814; } Stage;
+
+void stage_DispAnimation(Stage *a0, float f) {
+    if (f > 0.0f) {
+        a0->f814->f3C = f;
+    } else {
+        a0->f814->f3C = a0->f810->f3C;
+    }
+}
 
 extern int D_0062A050;
 
