@@ -15,7 +15,18 @@ int setDispEnv(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", setImageSize);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", sendDispEnv);
+extern float D_00629B6C, D_00629B70, D_00629B74;
+
+int sendDispEnv(void *a0) {
+    float *p = *(float **)((char *)a0 + 0x34);
+    float a = D_00629B6C;
+    float b = D_00629B70;
+    float c = D_00629B74;
+    p[0] = a;
+    p[1] = b;
+    p[2] = c;
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", dispCreate);
 
