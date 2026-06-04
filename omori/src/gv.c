@@ -42,7 +42,12 @@ void _GetDirection(short *a0) {
     a0[1] = 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/gv", _RotGV);
+typedef struct { char _[0x48]; int f48; } GVState;
+extern GVState D_002E0064;
+
+void _RotGV(void) {
+    D_002E0064.f48 = (D_002E0064.f48 | 0x200000) & 0xFFFBFFFF;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/gv", _RotGVF);
 
