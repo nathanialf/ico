@@ -1,8 +1,8 @@
 #include "common.h"
 
-extern void (*jtbl_0062A6D0)(void *a0, int a1);
+extern int (*jtbl_0062A6D0)(void *a0, int a1);
 extern int D_0062C024;
-extern void (*D_0062A6D4)(void *a0, int a1);
+extern int (*D_0062A6D4)(void *a0, int a1);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", MakeCollisionDependGObjList);
 
@@ -56,54 +56,44 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallFuchiHangWa
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallField);
 
-void ClipWallEField(void *a0) {
-    jtbl_0062A6D0(a0, 0);
-    __asm__ __volatile__("");
+int ClipWallEField(void *a0) {
+    return jtbl_0062A6D0(a0, 0);
 }
 
-void ClipWallBoxStop(void *a0) {
-    jtbl_0062A6D0(a0, 0x1);
-    __asm__ __volatile__("");
+int ClipWallBoxStop(void *a0) {
+    return jtbl_0062A6D0(a0, 0x1);
 }
 
-void ClipWallAdjustPos(void *a0) {
-    jtbl_0062A6D0(a0, 0x2);
-    __asm__ __volatile__("");
+int ClipWallAdjustPos(void *a0) {
+    return jtbl_0062A6D0(a0, 0x2);
 }
 
-void ClipWallE(void *a0) {
-    jtbl_0062A6D0(a0, 0x6);
-    __asm__ __volatile__("");
+int ClipWallE(void *a0) {
+    return jtbl_0062A6D0(a0, 0x6);
 }
 
-void ClipWallCheckCB(void *a0) {
-    jtbl_0062A6D0(a0, 0x7);
-    __asm__ __volatile__("");
+int ClipWallCheckCB(void *a0) {
+    return jtbl_0062A6D0(a0, 0x7);
 }
 
-void ClipWallFieldCheckCB(void *a0) {
-    jtbl_0062A6D0(a0, 0x3);
-    __asm__ __volatile__("");
+int ClipWallFieldCheckCB(void *a0) {
+    return jtbl_0062A6D0(a0, 0x3);
 }
 
-void ClipFloor(void *a0) {
-    jtbl_0062A6D0(a0, 0x5);
-    __asm__ __volatile__("");
+int ClipFloor(void *a0) {
+    return jtbl_0062A6D0(a0, 0x5);
 }
 
-void ClipFloorE(void *a0) {
-    jtbl_0062A6D0(a0, 0xA);
-    __asm__ __volatile__("");
+int ClipFloorE(void *a0) {
+    return jtbl_0062A6D0(a0, 0xA);
 }
 
-void ClipFloorR(void *a0) {
-    jtbl_0062A6D0(a0, 0xB);
-    __asm__ __volatile__("");
+int ClipFloorR(void *a0) {
+    return jtbl_0062A6D0(a0, 0xB);
 }
 
-void ClipFloorIH(void *a0) {
-    jtbl_0062A6D0(a0, 0x4);
-    __asm__ __volatile__("");
+int ClipFloorIH(void *a0) {
+    return jtbl_0062A6D0(a0, 0x4);
 }
 
 void ClipFloorCheckCB(void *a0, int a1) {
@@ -116,24 +106,20 @@ void ClipCollision(void *a0, int a1) {
     jtbl_0062A6D0(a0, 9);
 }
 
-void ChangeFieldCollisionDebugMode(void *a0) {
-    D_0062A6D4(a0, 0xC);
-    __asm__ __volatile__("");
+int ChangeFieldCollisionDebugMode(void *a0) {
+    return D_0062A6D4(a0, 0xC);
 }
 
-void LoadCollision(void *a0) {
-    D_0062A6D4(a0, 0xD);
-    __asm__ __volatile__("");
+int LoadCollision(void *a0) {
+    return D_0062A6D4(a0, 0xD);
 }
 
-void DrawCollision(void *a0) {
-    D_0062A6D4(a0, 0xE);
-    __asm__ __volatile__("");
+int DrawCollision(void *a0) {
+    return D_0062A6D4(a0, 0xE);
 }
 
-void ClipPlane(void *a0) {
-    D_0062A6D4(a0, 0xF);
-    __asm__ __volatile__("");
+int ClipPlane(void *a0) {
+    return D_0062A6D4(a0, 0xF);
 }
 
 void GetOrientOfWall(void *a0, int a1) {
