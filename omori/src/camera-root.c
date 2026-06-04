@@ -33,7 +33,13 @@ void GetCameraInfomationFromGlobalPosition(void) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-root", InitCamera);
+void InitCamera(int a0, int a1, int a2) {
+    if (a2 >= D_006C9FA0[2]) {
+        D_006C9FA0[0] = a0;
+        D_006C9FA0[1] = a1;
+        D_006C9FA0[2] = a2;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-root", SetCameraMatrix);
 
