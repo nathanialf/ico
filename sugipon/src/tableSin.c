@@ -9,7 +9,15 @@ void *GetTableSin(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", GetTableCos);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", InitTableSin);
+extern unsigned char D_0054E1F8[];
+extern void debug_assertMessage(unsigned char *a0);
+
+void InitTableSin(void) {
+    if (--D_00629E7C < 0) {
+        debug_assertMessage(D_0054E1F8);
+        D_00629E7C = 0;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", GetTableArcSin);
 
