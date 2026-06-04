@@ -42,9 +42,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", dispSkelton);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", SkelTest);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", SkelTestGeo);
+extern int D_0062B75C;
+extern int D_0062C230;
+extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+extern void MatrixDrive_TurnObjectMatrix(int a0, int a1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", SetHitCollisionDisplay);
+void SkelTestGeo(void) {
+    iosOmBeforeFuncStandard(D_0062B75C, 0x18, D_0062B75C);
+    MatrixDrive_TurnObjectMatrix(D_0062C230 + 0x140, D_0062C230);
+}
+
+void SetHitCollisionDisplay(void) {
+    iosOmBeforeFuncStandard(D_0062B75C, 0xF0, D_0062B75C);
+    MatrixDrive_TurnObjectMatrix(D_0062C230 + 0x140, D_0062C230);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", GetWallVector);
 
