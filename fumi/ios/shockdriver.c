@@ -84,7 +84,15 @@ body:
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockEmulator_EmulationShot);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockEmulator_EmulationWave);
+int ShockEmulator_EmulationWave(int a0) {
+    if ((unsigned int)a0 < (unsigned int)D_0062A490->count) {
+        goto body;
+    }
+    return -1;
+body:
+    D_0062A490->arr[a0] = 0;
+    return a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", Init_ShockRequestAlloc);
 
