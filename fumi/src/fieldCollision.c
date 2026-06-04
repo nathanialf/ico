@@ -1,6 +1,7 @@
 #include "common.h"
 
 extern void (*jtbl_0062A6D0)(void *a0, int a1);
+extern int D_0062C024;
 extern void (*D_0062A6D4)(void *a0, int a1);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", MakeCollisionDependGObjList);
@@ -105,7 +106,10 @@ void ClipFloorIH(void *a0) {
     __asm__ __volatile__("");
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipFloorCheckCB);
+void ClipFloorCheckCB(void *a0, int a1) {
+    D_0062C024 = a1;
+    jtbl_0062A6D0(a0, 8);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipCollision);
 
