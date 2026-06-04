@@ -19,7 +19,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleLayout", func_001E6040);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleLayout", func_001E6070);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleLayout", func_001E60E0);
+void func_001E60E0(int a0, int a1) {
+    if (a0 >= 0) {
+        int *q = (int *)D_007030C0[a0].w[5];
+        q[0xD] = a1;
+    }
+}
 
 extern int GetParticleEffectPackage(int a0);
 
