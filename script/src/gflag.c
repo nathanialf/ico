@@ -1,6 +1,14 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", gflagInit);
+extern void *actSt25aQueenDeadChk(void);
+extern void func_001EE9A8(void *a0);
+
+void gflagInit(void) {
+    void *r = actSt25aQueenDeadChk();
+    if (r) {
+        func_001EE9A8(r);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", gflagSave);
 
@@ -48,7 +56,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_0017A008);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_0017A040);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_0017A078);
+extern void *isysGObjAddHead(void);
+extern void DispAllSpiderGroups(void *a0);
+
+void func_0017A078(void) {
+    void *r = isysGObjAddHead();
+    if (r) {
+        DispAllSpiderGroups(r);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_0017A0A8);
 

@@ -33,7 +33,15 @@ void func_0017F0D0(void) {
 void func_0017F0D8(void) {
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/attackhit", func_0017F0E0);
+extern void EnemyAttackCenter(void *a0, void *a1, int a2);
+extern void AttackCenter_WithDir(void *a0);
+
+void func_0017F0E0(void *a0) {
+    char buf[0x70];
+    int *p = *(int **)((char *)a0 + 0x164);
+    EnemyAttackCenter(buf, a0, p[0x4C]);
+    AttackCenter_WithDir(buf);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/attackhit", func_0017F110);
 
