@@ -69,15 +69,12 @@ def best_src_path(func: str) -> Path:
 
 # HARD-WON LESSON (this project's history): the matches came from HAND
 # REASONING — including on regalloc-swap / fp-licm / frame-size, which were all
-# cracked by hand (sceneManager s5/s6 pin, fightSound s4 hoist). The permuter
-# matched ONCE (after 40 hand iters got it to a 1-slot scheduling tail) and
-# PLATEAUED on FP regalloc (motionManager2 1630->775, no match). It is also
-# token-heavy. So the permuter is NOT an interactive escape hatch: it runs
-# OFFLINE on PARKED seeds (tools/auto_permute.sh). The interactive loop reasons
-# until a genuine plateau, then PARKS. There is no early-permute.
-#
-# These scheduling-tail tags are the ONLY shapes a permuter reliably nudges
-# (and only once the count is already low). Even then, prefer park-for-batch.
+# cracked by hand (sceneManager s5/s6 pin, fightSound s4 hoist). So the permuter
+# is NOT an interactive escape hatch DURING iteration: the loop reasons by hand
+# until a genuine stall-limit plateau. But the plateau is NOT the end —
+# **park, then permute**: park the seed and fire ONE bounded permuter shot on it
+# (decomp-match REFERENCE Step 4), then harvest by TRUE real_count and adopt any
+# improvement. There is no "offline-only batch" deferral and no early-permute.
 PERMUTER_SCHEDULING = {"3.3", "8.3", "delay-slot-occupant"}
 LOW_COUNT_FOR_PERMUTE = 8
 
@@ -269,21 +266,15 @@ def cmd_next(args) -> int:
         decision["action"] = "park"
         decision["reason"] = "permuter already attempted without a 0 — park the seed and move on"
     elif st["stall"] >= limit:
-        # Genuine plateau. The permuter is OFFLINE + unreliable, so the default
-        # is PARK (auto_permute will attempt the seed in the unattended batch).
-        # Only suggest an interactive permuter shot for a CLOSE pure-scheduling
-        # tail — the one shape it has cracked here.
-        if scheduling_tail and st["best"] is not None and st["best"] <= LOW_COUNT_FOR_PERMUTE:
-            decision["action"] = "permute"
-            decision["reason"] = (f"plateau at best={st['best']} (<= {LOW_COUNT_FOR_PERMUTE}) with a "
-                                  f"pure scheduling-tail residual {sorted(tags)} — worth one "
-                                  f"backgrounded permuter shot; else park")
-        else:
-            decision["action"] = "park"
-            decision["reason"] = (f"plateau: {st['stall']} distinct hand hypotheses, no real_count "
-                                  f"progress (best={st['best']}). Residual is regalloc/structural or "
-                                  f"count is high — the permuter would plateau. PARK for the offline "
-                                  f"batch (tools/auto_permute.sh); do NOT burn interactive tokens on it")
+        # Genuine plateau. PARK the seed, THEN fire ONE bounded permuter shot on
+        # it (decomp-match REFERENCE Step 4): park, then permute. This is an
+        # interactive turn action, not an offline-only batch — the permuter runs
+        # on the parked seed now and the harvest is read by TRUE real_count.
+        decision["action"] = "permute"
+        decision["reason"] = (f"plateau: {st['stall']} distinct hand hypotheses, no real_count "
+                              f"progress (best={st['best']}). PARK the seed, then fire ONE bounded "
+                              f"permuter shot on it (REFERENCE Step 4); harvest by true real_count and "
+                              f"adopt any improvement (resolution b only if nothing beats best).")
     else:
         decision["action"] = "iterate"
         untried = [t for t in st["last_tags"] if t not in st["tried_levers"]]
