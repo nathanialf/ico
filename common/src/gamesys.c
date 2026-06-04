@@ -1,6 +1,14 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysObjInfoInit);
+extern char D_0062CC90[];
+extern char D_0062CC98[];
+
+void *gamesysObjInfoInit(int a0, void *a1) {
+    if ((1 << a0) & *(long long *)((char *)a1 + 0x9C0)) {
+        return D_0062CC90;
+    }
+    return D_0062CC98;
+}
 
 extern int iosMcManager(void);
 

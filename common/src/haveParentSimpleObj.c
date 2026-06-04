@@ -52,7 +52,18 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AB29
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AB470);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AB720);
+extern unsigned short D_004AF010[];
+extern int D_0062B234;
+extern short D_0062B238;
+extern void backStageSave(void);
+
+void func_001AB720(void) {
+    if (D_004AF010[0x21] == 0x82) {
+        D_0062B238 = D_004AF010[0x22];
+    }
+    D_0062B234++;
+    backStageSave();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AB750);
 
