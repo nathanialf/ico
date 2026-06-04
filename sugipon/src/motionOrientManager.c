@@ -66,7 +66,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", ExecutePaus
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", func_001E1860);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", func_001E1980);
+void func_001E1980(void *a0, int a1, int a2) {
+    char *p = *(char **)((char *)a0 + 0x15C) + 0x460;
+    if (*(int *)(p + 0x18) == 0) {
+        *(int *)(p + 0x1C) = a2;
+        *(int *)(p + 0x20) = a1;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", func_001E19A8);
 

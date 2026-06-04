@@ -22,7 +22,7 @@ Round-trip is byte-identical. `tools/build.sh setup && ninja` produces
 <!-- progress:begin -->
 | Section          | Matched | Total |
 | ---------------- | ------: | ----: |
-| `.text` |  1.51 % | 1.42 MB |
+| `.text` |  1.73 % | 1.42 MB |
 | `.vutext` |  0.00 % | 20.22 KB |
 <!-- progress:end -->
 
@@ -103,8 +103,8 @@ build/          build artifacts (gitignored)
 lib/            submodules (splat, asm-differ, decomp-permuter, m2c)
 tools/          build orchestration, matching aids, asm/linker fixup passes
                 (compile_c.sh, quick_diff.sh, match_loop.py, preprocess_old_as.py …)
-decomp/         agent-facing prompts (MATCH.md), pattern catalogs
-                (NOTES.md, COOKBOOK.md, PROGRAMMERS.md), and TU/data analysis JSONs
+decomp/         pattern catalogs (NOTES.md, COOKBOOK.md, PROGRAMMERS.md)
+                and TU/data analysis JSONs (matching is driven by the decomp-match skill)
 docs/           contributor docs (BUILDING, LEGAL, PROGRESS, …)
 tough_nuts/     parked near-misses, one dir per deferred function
 expected/       reference build outputs for diff comparison
