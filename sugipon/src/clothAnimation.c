@@ -36,7 +36,10 @@ void proc(void *a0, int a1, float a2) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", getCloth4D);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", getCloth4D_postProcess);
+void getCloth4D_postProcess(char *a0, int a1) {
+    *(float *)(a0 + a1 * 0x50 + 0x10) = -1.0f;
+    *(int *)(a0 + 0xC) -= 1;
+}
 
 float GetCloth4D(void *a0, float a1) {
     return a1 / *(float *)((char *)a0 + 0x14);
