@@ -8,7 +8,13 @@ int warpGirlOutStage(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", warpGirlInStage);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", warpGirlInit);
+extern float D_006C9220[];
+
+void warpGirlInit(float *a0) {
+    a0[0] = D_006C9220[0];
+    a0[1] = D_006C9220[1];
+    a0[2] = D_006C9220[2];
+}
 
 extern void *D_00629DE4;
 
