@@ -33,7 +33,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/mail-add-data", func_001928F8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/mail-add-data", func_001929A0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/mail-add-data", func_00192A08);
+extern void gif_SpriteOffset(int a0);
+extern void gsb_SetFrame(int a0, int a1, int a2);
+
+void func_00192A08(void) {
+    gif_SpriteOffset(0xB);
+    gsb_SetFrame(1, 2, 0x40);
+}
 
 extern void func_0010F9D0(void);
 
