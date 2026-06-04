@@ -61,7 +61,21 @@ void _RotCurrentMatrixX(void *a0, void *a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _RotCurrentMatrixY);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _RotCurrentMatrixZ);
+void _RotCurrentMatrixZ(void) {
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "vsub.xyzw $vf1, $vf0, $vf0\n"
+        "vaddx.y $vf14, $vf1, $vf5x\n"
+        "vaddx.z $vf14, $vf1, $vf6x\n"
+        "vaddy.x $vf15, $vf1, $vf4y\n"
+        "vaddy.z $vf15, $vf1, $vf6y\n"
+        "vaddz.x $vf16, $vf1, $vf4z\n"
+        "vaddz.y $vf16, $vf1, $vf5z\n"
+        "vmove.yz $vf4, $vf14\n"
+        "vmove.xz $vf5, $vf15\n"
+        "vmove.xy $vf6, $vf16\n"
+        ".set reorder\n" : : : "memory");
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _ScaleCurrentMatrix);
 
@@ -69,9 +83,38 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _GetCurrentMatrix);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _GetCurrentMatrixTrans);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _SetCurrentMatrix);
+void _SetCurrentMatrix(void *a0, void *a1) {
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf1, 0x0($5)\n"
+        "vmul.xyz $vf3, $vf1, $vf1\n"
+        "vmulax.w $ACC, $vf0, $vf3x\n"
+        "vmadday.w $ACC, $vf0, $vf3y\n"
+        "vmaddz.w $vf3, $vf0, $vf3z\n"
+        "vrsqrt $Q, $vf0w, $vf3w\n"
+        "vwaitq\n"
+        "vmulq.xyz $vf1, $vf1, $Q\n"
+        "sqc2 $vf1, 0x0($4)\n"
+        ".set reorder\n" : : : "memory");
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _MulCurrentMatrixR);
+float _MulCurrentMatrixR(void *a0, void *a1) {
+    register float ret __asm__("$f0");
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf1, 0x0($4)\n"
+        "lqc2 $vf2, 0x0($5)\n"
+        "vaddw.x $vf3, $vf0, $vf0w\n"
+        "vmul.xyz $vf2, $vf1, $vf2\n"
+        "vaddax.x $ACC, $vf0, $vf2x\n"
+        "vmadday.x $ACC, $vf3, $vf2y\n"
+        "vmaddz.x $vf2, $vf3, $vf2z\n"
+        "qmfc2.ni $2, $vf2\n"
+        "mtc1 $2, $f0\n"
+        ".set reorder\n"
+        : "=f"(ret) :: "$2");
+    return ret;
+}
 
 void _MulCurrentMatrixL(void *a0, void *a1, void *a2) {
     __asm__ __volatile__(
