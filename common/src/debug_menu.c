@@ -29,7 +29,18 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A74C0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7578);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7630);
+extern int D_0062AF58, D_0062AF5C, D_0062AF60, D_0062AF64, D_0062AF68, D_0062AF6C, D_0062C148;
+
+void func_001A7630(void) {
+    D_0062AF68 = 0;
+    *(volatile int *)0x10000000 = 0;
+    D_0062AF64 = 0;
+    D_0062AF60 = 0;
+    D_0062AF5C = 0;
+    D_0062AF58 = 0;
+    D_0062AF6C = 0;
+    D_0062C148 = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7658);
 
