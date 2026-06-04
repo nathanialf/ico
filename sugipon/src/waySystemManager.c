@@ -21,7 +21,12 @@ void func_001EF378(int a0) {
     playSEConditionID(a0, 0x40);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/waySystemManager", func_001EF380);
+extern void ExecFrameDependSequence(int a0);
+
+void func_001EF380(int a0) {
+    ExecFrameDependSequence(a0);
+    playSEConditionID(a0, 0x41);
+}
 
 void func_001EF3B0(int a0) {
     playSEConditionID(a0, 0x42);
