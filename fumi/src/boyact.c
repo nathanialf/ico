@@ -69,7 +69,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyBelift);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyRescueReady);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyDitch3mReady);
+int actBoyDitch3mReady(void) {
+    void *p = *(void **)((char *)D_00629DE4 + 0x164);
+    unsigned int v = *(unsigned int *)((char *)p + 0x30);
+    if (v >= 0x5D) {
+        return 1;
+    }
+    if (v < 0x5B) {
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", SetStatusBoy_OtherStageGirlPinch);
 
