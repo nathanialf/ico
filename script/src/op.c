@@ -38,6 +38,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", func_0020AAB8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", func_0020AB40);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", func_0020AB70);
+extern void actCreateSubThread(void *entry, int a1);
+extern void actEndDemo07(void);
+
+void func_0020AB70(volatile int a0) {
+    actCreateSubThread(actEndDemo07, 0x15);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", func_0020AB98);
