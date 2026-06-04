@@ -1,6 +1,7 @@
 #include "common.h"
 #include "r5900.h"
 #include "vu0.h"
+#include "math_private.h"
 
 extern int D_0062BEA0;
 
@@ -1879,15 +1880,13 @@ float func_0025CC70(float a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025CC90);
 
+/* isnanf(x) — fdlibm bit-twiddle: NaN iff (|x| as bits) > 0x7F800000 (+inf). */
 int func_0025CD78(float x) {
-    float t;
-    union { float f; int i; } u;
-    unsigned long long mask;
-    int r;
-    do { t = x; mask = 0x7FFFFFFF; u.f = t; r = u.i; } while (0);
-    r &= mask;
-    r = 0x7F800000 - r;
-    return (unsigned)r >> 31;
+    int hx;
+    GET_FLOAT_WORD(hx, x);
+    hx &= 0x7fffffff;
+    hx = 0x7f800000 - hx;
+    return (unsigned)hx >> 31;
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025CDA0);
