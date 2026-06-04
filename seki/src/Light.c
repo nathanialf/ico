@@ -11,7 +11,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", light_getNearLight);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", light_getAmbientLight);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", light_MakeLightMatrix);
+extern unsigned char D_0066CA10[];
+
+void light_MakeLightMatrix(unsigned char *a0) {
+    a0[0] = D_0066CA10[0];
+    a0[1] = D_0066CA10[4];
+    a0[2] = D_0066CA10[8];
+    a0[3] = D_0066CA10[0xC];
+}
 
 extern float D_00629EC0;
 extern float D_00629EC8;

@@ -28,7 +28,14 @@ void gif_SpriteSensitive(void) {
     D_00629EA0 = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GifPacket", gif_SpriteOffset);
+extern void dpk_SwapBuffer(void);
+extern void func_0010F978(void);
+
+void gif_SpriteOffset(void) {
+    dpk_SwapBuffer();
+    func_0010F978();
+    D_00629EA0 = 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GifPacket", gif_SpriteSensitiveOffset);
 
