@@ -26,7 +26,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", QueenBarrierDL);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", QueenBallGeo);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", QueenBallDL);
+extern void *isysGObjSearchFromObjLayoutID(int id);
+
+int QueenBallDL(void) {
+    void *obj = isysGObjSearchFromObjLayoutID(0x2E);
+    int *p = *(int **)((char *)obj + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    return *(signed char *)((char *)q + 3);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", actQueenStart);
 
