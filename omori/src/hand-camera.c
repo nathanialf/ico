@@ -42,7 +42,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/hand-camera", func_00191F18);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/hand-camera", func_00191FD0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/hand-camera", func_00192008);
+extern void func_0023FE98(void *a0, void *a1);
+
+void func_00192008(void *a0, void *a1, void *a2) {
+    char buf[0x10];
+    func_00240008(buf, a1, a2);
+    func_0023FE98(a0, buf);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/hand-camera", func_00192040);
 
