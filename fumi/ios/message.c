@@ -23,7 +23,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/message", iosMsgSetEvent);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/message", func_00139F80);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/message", iosMsgInit);
+extern int D_006A0510[];
+
+void iosMsgInit(void) {
+    int i;
+    for (i = 0xFF; i >= 0; i--) {
+        D_006A0510[i] = 0;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/message", iosMsgSend);
 
