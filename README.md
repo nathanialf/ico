@@ -3,6 +3,10 @@
 A clean-room decompilation of the PlayStation 2 game **ICO** (US release,
 SCUS-97113, 2001, Sony Computer Entertainment / Team Ico).
 
+This targets the Aug-6-2001 US Preview prototype. For a catalogue of how it
+differs from the shipped retail build, see The Cutting Room Floor:
+<https://tcrf.net/Proto:ICO/US_Preview_Version>.
+
 The goal is to produce original source code that, compiled with the original
 build chain (ee-gcc 2.9-991111-01 + ee-as 2.10), reproduces a byte-for-byte
 identical EE-side ELF. No disc data or extracted assets ship with this
@@ -22,7 +26,7 @@ Round-trip is byte-identical. `tools/build.sh setup && ninja` produces
 <!-- progress:begin -->
 | Section          | Matched | Total |
 | ---------------- | ------: | ----: |
-| `.text` |  2.45 % | 1.42 MB |
+| `.text` |  2.66 % | 1.42 MB |
 | `.vutext` |  0.00 % | 20.22 KB |
 <!-- progress:end -->
 

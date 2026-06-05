@@ -36,3 +36,12 @@ glabel initGeometryState
 endlabel initGeometryState
     /* 9BB9C 0019BB9C 00000000 */  nop
 ```
+
+## Convergence (resolution b, 2 permuter passes)
+rc6 (hand floor) -> rc5 (permuter pass1: value-before-if `int count` + `long long`
+result temp fixed const->v0). Pass2 (seeded from rc5) found nothing below rc5 ->
+permuter-exhausted. Residual at rc5: value->a1, base->v1, product->a0 vs ROM
+value->v1, base->a0, product->v1 (regalloc coalescing coupling — same class as
+[[feedback_zero_reuse_store_unfolds_index]] / func_001F8848). Re-attack: a value
+reuse trick that keeps the count in v1 (the freed a0->0xC compare reg) while const
+stays v0. The if(!=)compute shape (not if(==)return0, which gives bnel) is required.
