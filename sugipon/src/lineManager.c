@@ -49,7 +49,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lineManager", DrawLineG);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lineManager", func_001D1310);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lineManager", func_001D1438);
+int func_001D1438(char *self) {
+    char *a = *(char **)(self + 0x15C);
+    int *b = *(int **)(a + 0x7F0);
+    int ret = 0;
+    if (*b != 1) {
+        if (*(int *)(self + 0x16C) != 0) {
+            goto end;
+        }
+    }
+    ret = 1;
+end:
+    return ret;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lineManager", func_001D1470);
 
