@@ -1,10 +1,6 @@
-/* fumi/ios/thread.c — iosThreadMessage parked seed (rc5).
-   Struct-filler: f0=0; f4 = iosThreadStart ? &iosThreadStart : &iosThreadInit;
-   f8 = &iosThreadStop; fC = &D_0062A4A8 (gp_rel). Registers match (start=v0,
-   stop=v1) via if/else + stop-temp + f8-store-early; residual = lui order
-   (stop-first vs start-first) + f8 store position (early vs late). Apply, then
-   match_loop.py reset iosThreadMessage. */
+/* fumi/ios/thread.c — iosThreadMessage parked seed (rc5). */
 extern void iosThreadStart(void);
+extern void iosThreadStop(unsigned char *a0);
 extern int iosThreadInit(void);
 extern int D_0062A4A8;
 
