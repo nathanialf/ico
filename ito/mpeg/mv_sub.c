@@ -56,6 +56,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_0023AD08);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_0023ADB0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_0023B310);
+extern void func_0023E440(void *a0);
+
+void func_0023B310(char *a0, int a1) {
+    int val;
+    if (a1) {
+        val = *(int *)(a0 + 0x2C);
+    } else {
+        val = *(int *)(a0 + 0x28);
+    }
+    *(int *)(a0 + 0x10) = (*(int *)(a0 + 0x10) & ~0x1FF) | (val & 0x1FF);
+    func_0023E440(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_0023B348);
