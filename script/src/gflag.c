@@ -65,7 +65,14 @@ void func_00179F60(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_00179F88);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_0017A008);
+extern void *isysGObjAddHead(void);
+
+void func_0017A008(void) {
+    void *p = isysGObjAddHead();
+    if (p != 0) {
+        iosOmBeforeFuncStandard(p, 0x1F, p);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_0017A040);
 
