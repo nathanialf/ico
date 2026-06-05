@@ -18,7 +18,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/seMail", func_00202688);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/seMail", func_002026E0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/seMail", func_00202728);
+int func_00202728(int a0, int a1) {
+    float x = *(float *)(a0 + 4);
+    float y = *(float *)(a1 + 4);
+    if (x < y) {
+        return -1;
+    }
+    if (x > y) {
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/seMail", func_00202760);
 
