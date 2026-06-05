@@ -46,7 +46,17 @@ int jimakuEnd(void *a0, void *a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuDisp);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuManager);
+extern void ACTLookTargetSystem_Exec(void);
+extern void debug_assertMessage(void *a0);
+extern void Vibration_ShotDecode(int a0);
+extern char D_00553BE0[];
+
+void jimakuManager(int a0) {
+    volatile int home = a0;
+    ACTLookTargetSystem_Exec();
+    debug_assertMessage(D_00553BE0);
+    Vibration_ShotDecode(7);
+}
 
 void jimakuUndisp(void *a0) {
     void *volatile q = a0;
