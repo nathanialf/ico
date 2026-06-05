@@ -11,7 +11,14 @@ int free_buffer(void *a0, int a1) {
     return n;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_readbuf", readBufDelete);
+extern void func_002614F8(void *a0);
+extern void iosCdvdSync(void *a0);
+
+int readBufDelete(char *a0) {
+    func_002614F8(a0 + 0x34);
+    iosCdvdSync(a0);
+    return 1;
+}
 
 extern int inflate_dynamic(void);
 
