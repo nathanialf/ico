@@ -131,7 +131,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188B00);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188B48);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188BE0);
+extern int D_006C9F60[];
+extern void func_00188C18(int *a0, void *a1);
+extern void func_00188D60(int *a0);
+
+void func_00188BE0(void *a0) {
+    func_00188C18(D_006C9F60, a0);
+    func_00188D60(D_006C9F60);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188C18);
 
