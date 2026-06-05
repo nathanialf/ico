@@ -2708,7 +2708,11 @@ int func_0026A988(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0026A9B0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0026ABD0);
+extern long long func_0026A9B0(void *a0, void *a1, int a2, int a3);
+
+long long func_0026ABD0(void *a0, int a1, int a2) {
+    return func_0026A9B0((void *)D_0054D504[0], a0, a1, a2);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0026AC08);
 
