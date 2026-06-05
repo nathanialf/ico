@@ -41,4 +41,10 @@ void func_001E6BB0(RopeA *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/ropeFix", func_001E6BE0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/ropeFix", func_001E6C48);
+extern void func_001E6BE0(int a0, void *a1);
+extern void func_0010F048(void *a0);
+
+void func_001E6C48(char *self) {
+    func_001E6BE0(*(int *)(*(char **)(self + 0x15C) + 0xC), self);
+    func_0010F048(self);
+}
