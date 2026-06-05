@@ -124,6 +124,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", func_0017BD40);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", func_0017BE60);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", func_0017BF18);
+extern void MatrixDrive_TurnObjectMatrix(void *a0, float *a1);
+
+void func_0017BF18(char *a0, float x, float y, float z) {
+    float v[4] = {x, y, z, 0};
+    int p = *(int *)(a0 + 0x15C);
+    MatrixDrive_TurnObjectMatrix((void *)(p + 0x660), v);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", func_0017BF50);
