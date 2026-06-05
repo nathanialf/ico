@@ -17,7 +17,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7350);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7420);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7480);
+typedef struct { char pad0[4]; char f4; char pad5[0x33]; } Entry;
+extern Entry D_006EB120[];
+extern int D_0062ACAC;
+
+void func_001A7480(void) {
+    int i;
+    for (i = 0x1A; i >= 0; i--) {
+        D_006EB120[i].f4 = 0;
+    }
+    D_0062ACAC = 0;
+}
 
 extern int D_0062ACFC;
 
