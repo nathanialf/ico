@@ -117,7 +117,18 @@ int func_0013D410(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", func_0013D430);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", func_0013D4B0);
+extern int func_00100410(void);
+extern int func_00100470(int a0);
+
+int func_0013D4B0(void *a0) {
+    int id;
+    if (a0 == 0) {
+        id = func_00100410();
+    } else {
+        id = *(int *)((char *)a0 + 0x30);
+    }
+    return func_00100470(id);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", func_0013D4E8);
 
