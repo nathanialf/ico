@@ -83,7 +83,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AB8A
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AB908);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AB948);
+void func_001AB948(void) {
+    long long *p = (long long *)D_004AF010;
+    long long mask = -2;
+    int i;
+    for (i = 0xB5; i >= 0; i--) {
+        *p &= mask;
+        p = (long long *)((char *)p + 0x40);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AB980);
 
