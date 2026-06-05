@@ -46,7 +46,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", func_001B4628);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", func_001B46B8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", func_001B4740);
+typedef struct { char _0[0x68]; int f_68; } RealModel;
+extern RealModel D_002E34F0[];
+
+void func_001B4740(int a0, int a1) {
+    RealModel *e = &D_002E34F0[a0];
+    e->f_68 = (e->f_68 & ~2) | ((a1 & 1) << 1);
+}
 
 
 /* recovered struct shapes */
