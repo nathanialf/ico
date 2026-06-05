@@ -1,6 +1,18 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/access", GetDataFileName);
+extern void *D_00629DE8;
+extern int func_00178DB0(int a0);
+extern void func_00178DD8(int a0);
+
+void GetDataFileName(void) {
+    if (D_00629DE8 == 0) {
+        return;
+    }
+    if (func_00178DB0(0x31) != 0) {
+        return;
+    }
+    func_00178DD8(0x165);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/access", GetDataFileName2);
 
