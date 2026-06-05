@@ -2,7 +2,16 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionViewer", setRootUpdateMode);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionViewer", setMotionSpeed);
+extern int D_00271254[];
+extern void execEff(void *a0, int a1);
+
+int setMotionSpeed(char *a0) {
+    if (D_00271254[0] != 0) {
+        *(int *)(*(char **)(a0 + 0x15C) + 0x618) = 0;
+        execEff(a0, 1);
+    }
+    return 1;
+}
 
 extern void ClearMotionBlendlessNode(void *a0, int a1);
 extern void *D_0062B820;
