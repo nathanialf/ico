@@ -40,7 +40,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", _la_set_preview_in
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_load_game_memory_card_check);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_mc_load_current_slot_select);
+extern int D_0062B2F8;
+extern void func_001B4740(int a0, int a1);
+
+int la_mc_load_current_slot_select(void) {
+    func_001B4740(0x8C, D_0062B2F8);
+    func_001B4740(0x8D, D_0062B2F8 ^ 1);
+    return -1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_mc_load_file_select);
 
