@@ -34,3 +34,23 @@ glabel func_00118E38
 endlabel func_00118E38
     /* 18E6C 00118E6C 00000000 */  nop
 ```
+
+## Permuter shot (2026-06-05) — resolution (b), exhausted this set
+
+Fired the tool-gated bounded permuter at the genuine stall=30/30. ~800 iters,
+plateaued at permuter-score 1700 (base 1900), NO score-0. Harvested all
+output-1700-* and output-1800-* by true real_count via `diff --dry`: every one
+== rc12, nothing beat the parked best.
+
+**Tooling finding (important for resume):** decomp-permuter's import STRIPS the
+GNU `__attribute__((mode(TI)))` — its base.c became `typedef int Qw128;` (plain
+32-bit int). So the permuter never actually explored the 128-bit lq/sq space;
+its candidates can't express qword copies. This run is not a fair permuter test
+of the regalloc-coloring tie.
+
+**Resume strategy:** hand-only. The tie is purely the coloring of the 4 loaded
+values into a2/a3/t0/t1 ($6-$9) with src-ptr pre-saves. Fresh hand hypotheses to
+try next time: (a) a 6th dummy/used arg to shift the arg-register frontier;
+(b) feeding the 4 values onward to a call expecting $6-$9; (c) QCOPY64-style
+macro from include/r5900.h if one spells this exact 4-qword gather; (d) fixing
+the permuter import to preserve mode(TI), then re-firing.
