@@ -45,7 +45,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/lws_kyomi", func_002373C0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/lws_kyomi", func_00237480);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/lws_kyomi", func_002374F8);
+extern void *actSt25aQueenDeadChk(int a0);
+
+void func_002374F8(int a0) {
+    volatile int home = a0;
+    *(int *)((char *)actSt25aQueenDeadChk(0x1B4) + 0x16C) = 1;
+    *(int *)((char *)actSt25aQueenDeadChk(0x1B5) + 0x16C) = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/lws_kyomi", func_00237530);
 
