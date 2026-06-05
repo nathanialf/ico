@@ -14,7 +14,13 @@ void func_0013F360(int *a0) {
     a0[6] = 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/isys", func_0013F370);
+void func_0013F370(int a0) {
+    int p = *(int *)(a0 + 0x2C);
+    while (p != 0) {
+        *(int *)(p + 0x18) = 1;
+        p = *(int *)(p + 0x8);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/isys", func_0013F3A8);
 
