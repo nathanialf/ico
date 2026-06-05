@@ -34,6 +34,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Primitive", prim_DeleteParticle);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Primitive", drawDisc);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Primitive", prim_DispWireYCylinder);
+extern void func_00102528(void *a0);
+
+void prim_DispWireYCylinder(void *a0) {
+    func_00102528(*(void **)((char *)a0 + 0x18C));
+    func_00102528(*(void **)((char *)a0 + 0x188));
+    func_00102528(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Primitive", prim_DispWireSphere);
