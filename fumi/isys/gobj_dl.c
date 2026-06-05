@@ -16,7 +16,15 @@ void func_0013E828(int a0, int a1) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", isysGObjMoveObjDL);
+extern unsigned int D_0062A4D0;
+
+void isysGObjMoveObjDL(int a0, int a1) {
+    if (a1 == 0) {
+        D_0062A4D0 &= ~(1 << a0);
+    } else {
+        D_0062A4D0 |= (1 << a0);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", isysGObjMoveObjDLHead);
 
