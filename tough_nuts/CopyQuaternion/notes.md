@@ -6,3 +6,9 @@ ends writing via $6/a2). Standard C/gcc never passes an arg in v0 → not clean-
 ~25 hand forms (buffer sizes/types, struct-return slot 0x8/0x10/0x20/0x40, func ret void*,
 ptr temps, a2 passthrough) all rc1+. Likely permuter-exhausted; resume candidate for the
 raw-__asm__ fallback (mirror INCLUDE_ASM) if permuter can't synthesize the v0 setup.
+
+## Resolution (b) — permuter-exhausted (stall=31, permuter ran)
+Permuter best score 85 but harvest by real_count: nothing below the parked rc1
+(score-85/115 outputs all rc2). Confirms the v0-hidden-arg can't be synthesized by
+permuter either. Resume: raw-__asm__ fallback (mirror INCLUDE_ASM, no leading .align /
+trailing nop) is the legitimate next step per feedback_handwritten_hasm_exception.
