@@ -6,7 +6,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", isysGObjRemoveObjDL);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", func_0013E7E0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", func_0013E828);
+extern unsigned int D_0062A4CC;
+
+void func_0013E828(int a0, int a1) {
+    if (a1 == 0) {
+        D_0062A4CC &= ~(1 << a0);
+    } else {
+        D_0062A4CC |= (1 << a0);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", isysGObjMoveObjDL);
 
