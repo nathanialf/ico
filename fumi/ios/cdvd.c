@@ -78,7 +78,19 @@ int iosCdvdBackGroundMgrSeek(void *a0, int a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", iosCdvdBackGroundRead);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", iosCdvdBackGroundReadIOPm);
+typedef struct { char f0; char pad[0x12B]; } CdEntry;
+extern CdEntry D_0069F800[];
+
+int iosCdvdBackGroundReadIOPm(void) {
+    int count = 0;
+    int i;
+    for (i = 0; i < 7; i++) {
+        if (D_0069F800[i].f0) {
+            count++;
+        }
+    }
+    return count;
+}
 
 
 /* recovered struct shapes */
