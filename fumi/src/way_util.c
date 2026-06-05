@@ -105,7 +105,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", func_00178BB8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", func_00178C00);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", func_00178C58);
+int func_00178C58(int a0, int a1) {
+    float x = *(float *)(a0 + 4);
+    float y = *(float *)(a1 + 4);
+    if (x < y) {
+        return -1;
+    }
+    if (x > y) {
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", func_00178C90);
 
