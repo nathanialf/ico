@@ -20,7 +20,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", inflate_start);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", close_inflate_handler);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", inflate);
+typedef struct { char f0; char pad[0x12B]; } InfEntry;
+extern InfEntry D_0069F800[];
+
+void inflate(void) {
+    int i;
+    for (i = 6; i >= 0; i--) {
+        D_0069F800[i].f0 = 0;
+    }
+    D_0062BF84 = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", open_inflate_handler);
 
