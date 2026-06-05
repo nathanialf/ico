@@ -74,7 +74,12 @@ void func_0017A008(void) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_0017A040);
+void func_0017A040(void) {
+    void *p = isysGObjAddHead();
+    if (p != 0) {
+        iosOmBeforeFuncStandard(p, 0x20, p);
+    }
+}
 
 extern void *isysGObjAddHead(void);
 extern void DispAllSpiderGroups(void *a0);
