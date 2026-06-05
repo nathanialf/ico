@@ -16,7 +16,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpPlayJump);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpPlayStart);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpPlayEnd);
+typedef struct { int f0; char pad[0x10]; } ScpEntry;
+extern ScpEntry D_006C91F0[];
+
+int scpPlayEnd(void) {
+    int count = 0;
+    int i;
+    for (i = 0; i < 2; i++) {
+        if (D_006C91F0[i].f0) {
+            count++;
+        }
+    }
+    return count;
+}
 
 int scpTrans(void *a0, short a1) {
     char *p;
