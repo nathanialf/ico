@@ -40,7 +40,13 @@ void func_001AB108(void) {
     D_0062C154 = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AB120);
+extern void *AllocPObj(void);
+extern char D_0029F060[];
+
+char *func_001AB120(void) {
+    int idx = *(int *)((char *)AllocPObj() + 0xC);
+    return D_0029F060 + idx * 0x64;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AB158);
 
