@@ -163,7 +163,14 @@ void UnLockChainGeo(void *a0, int a1) {
     q[0] = a1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", GetChainHangRange);
+extern float D_00629284;
+
+int GetChainHangRange(char *a0, int *a1) {
+    char *p = *(char **)(a0 + 0x15C);
+    char *v = *(char **)(p + 0x7F0);
+    *a1 = (int)(*(float *)(v + 0x70) * 180.0f / D_00629284);
+    return *(unsigned char *)(v + 0x6C);
+}
 
 
 /* recovered struct shapes */
