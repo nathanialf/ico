@@ -38,4 +38,10 @@ void isysGObjProcActive(int *a0) {
     a0[6] = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_process", isysGObjProcActiveAll);
+void isysGObjProcActiveAll(int a0) {
+    int p = *(int *)(a0 + 0x2C);
+    while (p != 0) {
+        *(int *)(p + 0x18) = 0;
+        p = *(int *)(p + 0x8);
+    }
+}
