@@ -58,7 +58,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmUseAreaGet);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmFreeAreaGet);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmInterStereoVolumeSetAll);
+typedef struct { int f0; char pad[0x40]; short f44; char pad2[0x12]; } AdpcmVolEntry;
+extern AdpcmVolEntry D_0070A8C0[];
+
+void AdpcmInterStereoVolumeSetAll(short a0) {
+    int i;
+    for (i = 0; i < 2; i++) {
+        if (D_0070A8C0[i].f0 != 0) {
+            D_0070A8C0[i].f44 = a0;
+        }
+    }
+}
 
 extern int D_0062C270[2];
 
