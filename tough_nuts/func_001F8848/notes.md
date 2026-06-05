@@ -34,3 +34,20 @@ glabel func_001F8848
 endlabel func_001F8848
     /* F887C 001F887C 00000000 */  nop
 ```
+
+## Convergence log (resolution b, 3 permuter passes this session)
+
+best: rc4 (hand) -> rc3 (permuter pass1, short-index) -> rc2 (hand, narrow-array)
+-> rc1 (permuter pass2, zero-reuse store structure). Pass3 (seeded from rc1)
+found NOTHING below rc1 -> permuter-exhausted.
+
+**rc1 floor residual:** a single redundant `andi v0,v0,0xfc` (= (idx*4)&252)
+inserted AFTER a correct `sll v0,v1,0x2`. ROM has the clean sll2 with no mask.
+Present in EVERY rc1 form (int/uint/long/char/short index; ptr/array/struct slot;
+all store orders). §5.11-class redundant canonicalization.
+
+**Key lever found (reusable):** the slot read `D[idx+1]` only stops folding to
+(idx+1)*4 (and stops the a0/a1 %hi/&base coloring flip) when the four zero stores
+are written as `idx = 0; D[5]=idx; D[6]=idx; D[7]=idx;` (reuse the idx register
+set to 0) instead of literal `D[5]=0; ...`. That zero-reuse collapsed rc4->rc1.
+Resume: re-attack the andi-mask with a §5.11 non-equivalent rewrite.
