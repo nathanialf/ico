@@ -1,10 +1,12 @@
-/* common/src/DObj.c — initGeometryState parked seed (rc6 regalloc coalescing tie).
-   ROM keeps value/product in v1 + const in v0; built coalesces value->v0 (return reg)
-   and fills the beq delay with the const lui. if(!=)compute gives the correct beq;
-   ~20 distinct shapes all rc6. Permuter-class. Apply + match_loop.py reset. */
+/* common/src/DObj.c — initGeometryState parked seed (rc5, after 1 permuter pass).
+   value-before-if (int count) + long long result temp fixed const->v0; residual is
+   value->a1/base->v1/product->a0 vs ROM value->v1/base->a0/product->v1 (coalescing
+   coupling, same class as func_001F8848). Apply + match_loop.py reset. */
 int initGeometryState(int *a0) {
+    int count = a0[2];
     if (a0[3] != a0[4]) {
-        return a0[0] + a0[2] * 0x151800;
+        long long r = a0[0] + count * 0x151800;
+        return r;
     }
     return 0;
 }
