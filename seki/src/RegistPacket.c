@@ -12,7 +12,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/RegistPacket", reg_chooseMicroCode);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/RegistPacket", reg_chooseSpecularMicroCode);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/RegistPacket", reg_chooseReflectionMicroCode);
+extern int pac_makeClusterStrip(int a0);
+
+void reg_chooseReflectionMicroCode(char *a0) {
+    if (*(signed char *)(*(char **)(a0 + 0x810) + 0x2F) != 0) {
+        pac_makeClusterStrip(3);
+        return;
+    }
+    if (*(int *)(*(char **)(a0 + 0x834) + 0xF0) == 0) {
+        pac_makeClusterStrip(1);
+        return;
+    }
+    pac_makeClusterStrip(2);
+}
 
 void func_0011F1C8(void *a0, int a1, int a2) {
     long long v = *(long long *)((char *)a0 + 0x60);
