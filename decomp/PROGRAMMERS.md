@@ -23,7 +23,7 @@ credit-string data or any other disc data is committed** — only this analysis.
 | `sugipon`  | Hajime Sugiyama ("Sugipon")| Draw Engine / YORDA A.I. Program | matrixDrive, motionManager, geometryManager, quaternion, a_p_1  | high     |
 | `omori`    | Shotaro Omori              | Motion System Program            | camera-*, brain, attackhit, fightSound, generator               | high     |
 | `ito`      | Toshihiro Ito              | Scripting                        | queen, **itou_boss/itou_sub/itou_gflag**, mpeg (IPU movie layer) | high     |
-| `fumi`     | **uncertain**              | —                                | character/object action: boyact, girl_act, commonact, enemy_act | LOW        |
+| `fumi`     | Fumiaki Hara?              | System Program                   | character/object action: boyact, girl_act, commonact, enemy_act | low        |
 
 Functional / shared dirs (not a single person): `common`, `script`, `sound`,
 `ios` (cdvd/mcard/pad I/O), `isys` (gobj/object-system infra).
@@ -31,11 +31,11 @@ Functional / shared dirs (not a single person): `common`, `script`, `sound`,
 ## Caveats — read before relying on this
 
 - **Fumito Ueda is NOT credited as a programmer.** He is Director / Game Design /
-  Planner. The dir name `fumi` likely references his given name (**Fumi**to, who
-  was famously hands-on with the boy/Yorda character animation that lives in
-  `fumi/`), but the *formal* "Characters & Objects Program" credit goes to
-  **Jinji Horagai**. So `fumi`'s authorship is the one unresolved mapping — do not
-  assert "fumi = Ueda the programmer."
+  Planner. The better public-credit candidate for `fumi` is **Fumiaki Hara**,
+  who MobyGames lists under System Program for the PlayStation 2 credits:
+  <https://www.mobygames.com/game/5158/ico/credits/ps2/>.
+  Treat this as a plausible name match, not proof: the `fumi/` directory is
+  character/object action-heavy, while Hara's public credit is system-level.
 - Raw `strings` hits for "seki" are dominated by the game word 石 *seki* = "stone"
   (`sekizo` = stone statue, `sekika` = petrification), **not** the name. The clean
   source is the `{R}`-formatted credit block, not a substring count.

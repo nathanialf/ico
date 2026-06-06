@@ -138,7 +138,7 @@ if [[ "$1" == "--once" ]]; then
                     }
                     printf "%08d\t%s\t%s\t%d insn\n", size, fn, tu, size/4
                 }
-            ' | sort -n | head -10 | cut -f2- \
+            ' | sort -n | sed -n '1,10p' | cut -f2- \
             | column -t -s "$(printf '\t')"
         echo "$rule"
     fi

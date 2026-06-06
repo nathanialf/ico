@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-progress.py — regenerate README.md / docs/PROGRESS.md status tables.
+progress.py — regenerate README.md progress badges and docs/PROGRESS.md.
 
-Reads config/ico.us.yaml + the current src/ tree, computes per-section
+Reads the active splat yaml + the current src/ tree, computes per-section
 matched-bytes ratios from claimed `c` subsegments, and rewrites the
 status tables in README.md and docs/PROGRESS.md.
 
@@ -22,6 +22,7 @@ import os
 import re
 import sys
 from pathlib import Path
+from urllib.parse import quote
 
 try:
     import yaml
@@ -40,10 +41,10 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 # Explicit VERSION env wins; else auto-detect from which config exists.
 VERSION = os.environ.get("VERSION")
 if not VERSION:
-    if (REPO_ROOT / "config" / "ico.us.yaml").exists():
-        VERSION = "us"
-    elif (REPO_ROOT / "config" / "ico.aug6.yaml").exists():
+    if (REPO_ROOT / "config" / "ico.aug6.yaml").exists():
         VERSION = "aug6"
+    elif (REPO_ROOT / "config" / "ico.us.yaml").exists():
+        VERSION = "us"
     else:
         VERSION = "us"
 YAML = REPO_ROOT / "config" / f"ico.{VERSION}.yaml"
@@ -292,9 +293,8 @@ def _walk_built_objects() -> tuple[dict[str, int], dict[str, int]]:
 
     Returns (attr_form_bytes, plain_form_bytes), each a dict keyed by
     section base name. attr_form_bytes counts `.X.0x<VMA>` named
-    sections (Phase 3d's pre-strip form). plain_form_bytes counts
-    bare `.X` or ee-gcc sub-sections (`.rodata.str1.4`) — the
-    post-strip form. Sum across both keys equals the total tracked
+    sections. plain_form_bytes counts bare `.X` or ee-gcc sub-sections
+    (`.rodata.str1.4`). Sum across both keys equals the total tracked
     bytes for that section.
 
     Returns zeros if the build tree is missing — running progress
@@ -376,8 +376,8 @@ def compute_progress() -> dict[str, tuple[int, int]]:
     # will reach the same bytes via the same .o, so we drop the YAML
     # contribution there to avoid double counting.
     attr_form, plain_form = _walk_built_objects()
-    # Cache the split so callers can render Phase 3d strip progress
-    # without re-walking the build tree.
+    # Cache the split for callers that need to distinguish explicit
+    # VMA-pinned sections from normal compiler-emitted sections.
     compute_progress.attr_form = dict(attr_form)
     compute_progress.plain_form = dict(plain_form)
     for sec in OBJECT_SECTION_PREFIXES:
@@ -401,7 +401,7 @@ def _fmt_pct(matched: int, total: int) -> str:
     return f"{(100.0 * matched / total):.2f} %"
 
 
-# ----- README table ---------------------------------------------------
+# ----- README badges --------------------------------------------------
 
 README_BEGIN = "<!-- progress:begin -->"
 README_END = "<!-- progress:end -->"
@@ -416,31 +416,37 @@ README_END = "<!-- progress:end -->"
 README_SECTIONS = [".text", ".vutext"]
 
 
-def _render_readme_table(progress: dict[str, tuple[int, int]]) -> str:
-    lines = [
-        "| Section          | Matched | Total |",
-        "| ---------------- | ------: | ----: |",
-    ]
+def _badge_color(matched: int, total: int) -> str:
+    if total == 0:
+        return "lightgrey"
+    pct = 100.0 * matched / total
+    if pct >= 100.0:
+        return "brightgreen"
+    if pct >= 75.0:
+        return "green"
+    if pct >= 50.0:
+        return "yellowgreen"
+    if pct >= 25.0:
+        return "yellow"
+    if pct > 0.0:
+        return "orange"
+    return "red"
+
+
+def _badge_url(label: str, matched: int, total: int) -> str:
+    pct = quote(_fmt_pct(matched, total), safe="")
+    return (
+        "https://img.shields.io/badge/"
+        f"{label}-{pct}-{_badge_color(matched, total)}.svg"
+    )
+
+
+def _render_readme_badges(progress: dict[str, tuple[int, int]]) -> str:
+    lines = []
     for sec in README_SECTIONS:
         matched, total = progress.get(sec, (0, 0))
-        lines.append(
-            f"| `{sec}` | {_fmt_pct(matched, total):>7} | {_human_bytes(total)} |"
-        )
-
-    # Phase 3d one-line summary appended below the .text/.vutext table.
-    attr = getattr(compute_progress, "attr_form", None)
-    plain = getattr(compute_progress, "plain_form", None)
-    if attr is not None and plain is not None:
-        tot_attr = sum(attr.values())
-        tot_plain = sum(plain.values())
-        denom = tot_attr + tot_plain
-        if denom > 0:
-            pct = f"{(100.0 * tot_plain / denom):.2f}%"
-            lines.append(
-                f"\nPhase 3d (attr-tag retirement): "
-                f"{_human_bytes(tot_plain)} / {_human_bytes(denom)} stripped "
-                f"({pct})"
-            )
+        label = sec.lstrip(".")
+        lines.append(f"![{sec} progress]({_badge_url(label, matched, total)})")
     return "\n".join(lines)
 
 
@@ -458,10 +464,10 @@ def _update_readme(progress: dict[str, tuple[int, int]]) -> bool:
     if not README.exists():
         return False
     text = README.read_text()
-    table = _render_readme_table(progress)
+    badges = _render_readme_badges(progress)
 
     if README_BEGIN in text:
-        new = _splice_block(text, README_BEGIN, README_END, table)
+        new = _splice_block(text, README_BEGIN, README_END, badges)
     else:
         # First-time: replace the seed table block and insert markers.
         # Match the table whose header row matches the README seed.
@@ -471,7 +477,7 @@ def _update_readme(progress: dict[str, tuple[int, int]]) -> bool:
             r"(?:\|[^\n]*\|\n)+",
             re.MULTILINE,
         )
-        replacement = README_BEGIN + "\n" + table + "\n" + README_END + "\n"
+        replacement = README_BEGIN + "\n" + badges + "\n" + README_END + "\n"
         if seed.search(text):
             new = seed.sub(replacement, text, count=1)
         else:
@@ -504,28 +510,14 @@ def _render_progress_table(progress: dict[str, tuple[int, int]]) -> str:
             f"| `{sec}` | {matched} | {total} | {_fmt_pct(matched, total)} |"
         )
 
-    # Phase 3d strip-progress: per-data-section attr-tagged vs plain
-    # byte breakdown. attr_form / plain_form are populated by
-    # compute_progress() on the most recent walk.
-    attr = getattr(compute_progress, "attr_form", None)
-    plain = getattr(compute_progress, "plain_form", None)
-    if attr is None or plain is None:
-        return "\n".join(lines)
-    lines += [
-        "",
-        "## Phase 3d strip progress (attr-tagged → plain)",
-        "",
-        "| Section | Total | Typed (attr) | Typed (plain) | % stripped |",
-        "| --- | ---: | ---: | ---: | ---: |",
-    ]
-    for sec in OBJECT_SECTION_PREFIXES:
-        total = progress.get(sec, (0, 0))[1]
-        a = attr.get(sec, 0)
-        p = plain.get(sec, 0)
-        typed_total = a + p
-        pct = f"{(100.0 * p / typed_total):.2f} %" if typed_total else "-"
-        lines.append(f"| `{sec}` | {total} | {a} | {p} | {pct} |")
     return "\n".join(lines)
+
+
+def _progress_tail() -> str:
+    return (
+        "\n\nPer-overlay or per-file breakdown will appear here once "
+        f"`config/ico.{VERSION}.yaml`\ndeclares boundaries.\n"
+    )
 
 
 def _update_progress_doc(progress: dict[str, tuple[int, int]]) -> bool:
@@ -549,6 +541,11 @@ def _update_progress_doc(progress: dict[str, tuple[int, int]]) -> bool:
         else:
             return False
 
+    tail = re.compile(
+        r"\n\nPer-overlay or per-file breakdown will appear here once "
+        r"`config/ico\.[^.]+\.yaml`\ndeclares boundaries\.\n?$"
+    )
+    new = tail.sub(_progress_tail(), new)
     if new == text:
         return False
     PROGRESS_DOC.write_text(new)
@@ -564,16 +561,6 @@ def main() -> int:
     print("progress (matched / total):")
     for sec, (m, t) in progress.items():
         print(f"  {sec:<10} {m:>10} / {t:<10} {_fmt_pct(m, t):>8}")
-
-    attr = getattr(compute_progress, "attr_form", None)
-    plain = getattr(compute_progress, "plain_form", None)
-    if attr is not None and plain is not None:
-        print("phase3d (attr-tagged / plain):")
-        for sec in OBJECT_SECTION_PREFIXES:
-            a = attr.get(sec, 0)
-            p = plain.get(sec, 0)
-            pct = f"{(100.0 * p / (a + p)):.2f} %" if (a + p) else "-"
-            print(f"  {sec:<10} attr={a:<8} plain={p:<8} stripped={pct}")
 
     changed_readme = _update_readme(progress)
     changed_doc = _update_progress_doc(progress)
