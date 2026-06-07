@@ -91,8 +91,8 @@ config/         splat yaml + linker scripts (ico.aug6.{yaml,ld,d},
                 symbol_addrs.aug6.txt; us variants too), ELF SHA-1,
                 assembler/layout-pass allowlists (use_old_as.txt …)
 common/src/     shared engine — PObj, DObj, sceneManager, debug, gamesys, kanban …
-fumi/           src/ (jimaku, fieldCollision, act-*, way_* …), ios/ (cdvd, pad,
-                thread …), isys/ (gobj …), sound/
+fumi/           Fumiaki Hara? — src/ (jimaku, fieldCollision, act-*, way_* …),
+                ios/ (cdvd, pad, thread …), isys/ (gobj …), sound/
 sugipon/src/    Hajime Sugiyama — matrix/motion/physics (actressLight, enemyParts,
                 waySystemManager, motionManager, rope …)
 omori/src/      Shotaro Omori — camera/AI (attackhit, brain, camera-*, fightSound …)
