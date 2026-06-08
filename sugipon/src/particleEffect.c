@@ -1,10 +1,19 @@
 #include "common.h"
 
+struct E24_pe { char pad[0x14]; int *f14; };
+
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", setParticleEffectGeometry);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", setParticleEffect);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", execParticleEffect);
+extern void MatrixDrive_TurnObjectMatrix(int a0);
+extern int GetInverseQuaternion(int a0, int a1);
+
+void execParticleEffect(int a0, int a1, int a2)
+{
+    MatrixDrive_TurnObjectMatrix(a0);
+    GetInverseQuaternion(a0 + 0x10, a2);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", dispParticleEffect);
 
@@ -16,7 +25,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", SetParticleEffec
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", ExecParticleEffects);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", ResetParticleEffectPackages);
+extern char D_007030C0[];
+extern void SetParticleEffect(int *p);
+
+void ResetParticleEffectPackages(int a0, float f)
+{
+    struct E24_pe *new_var;
+    int *p;
+    if (a0 < 0) return;
+    new_var = (struct E24_pe *)D_007030C0;
+    new_var = (struct E24_pe *)((char *)new_var - (-(a0 * 0x18)));
+    p = new_var->f14;
+    p[0x38 / 4] = 1;
+    *(float *)((char *)p + 0x3C) = f;
+    SetParticleEffect(p);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", SetParticleEffectPackage);
 
@@ -26,7 +49,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", InitParticleEffe
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", DeleteParticleEffect);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", SetParticleEffectActiveSensing);
+extern void SetParticleEffectGeometry(int);
+
+void SetParticleEffectActiveSensing(void)
+{
+    char *p = D_007030C0;
+    char *end = p + 0xC00;
+    do {
+        if (*(int *)p != 0) {
+            SetParticleEffectGeometry(*(int *)(p + 0x14));
+        }
+        p += 0x18;
+    } while ((int)p < (int)end);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", GetParticleEffectPackage);
 

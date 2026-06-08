@@ -6,7 +6,6 @@ void EnterMenu(void) {
     D_00286A98[0] = 1;
 }
 
-extern int D_00286A98[];
 
 void saveEditedDataBinary(void) {
     D_00286A98[0] = 0;
@@ -87,7 +86,13 @@ void CameraEdit_del_pin(void *a0) {
     _CameraEdit_del_pin(D_0062A8F4, a0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", CameraEdit_DispBox);
+extern void CameraEdit_add_box(int a0, int a1, int a2);
+
+void CameraEdit_DispBox(int a0, int a1)
+{
+    CameraEdit_add_box(D_0062A8F0, a0, a1);
+    CameraEdit_add_box(D_0062A8F4, a0, a1);
+}
 
 extern void dispCameraGroupType2(int a0, unsigned char a1);
 
@@ -95,7 +100,6 @@ void CameraEdit_Reflect(int a0, unsigned char a1) {
     dispCameraGroupType2(a0, a1);
 }
 
-extern int *D_0062A8F0;
 extern void func_00186CA8(int a0, int a1);
 
 void CameraEdit_Save(void) {
@@ -110,10 +114,12 @@ void debug_NMarker(int a0) {
     drawXZArrow(a0, p[1], p[0]);
 }
 
+extern void func_00240038(int *buf, int *p, float t);
+extern void debug_Arrow();
+
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", debug_Marker);
 
-void debug_Arrow(void) {
-}
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", debug_Arrow);
 
 void InitCameraEditor(void) {
 }
@@ -121,10 +127,7 @@ void InitCameraEditor(void) {
 extern int D_0062A9B0;
 extern unsigned char D_0062A9B8;
 
-void debug_CameraEditor(void) {
-    D_0062A9B0 = 0;
-    D_0062A9B8 = 0;
-}
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", debug_CameraEditor);
 
 
 /* recovered struct shapes */
