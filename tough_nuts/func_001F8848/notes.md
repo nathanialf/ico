@@ -51,3 +51,10 @@ all store orders). §5.11-class redundant canonicalization.
 are written as `idx = 0; D[5]=idx; D[6]=idx; D[7]=idx;` (reuse the idx register
 set to 0) instead of literal `D[5]=0; ...`. That zero-reuse collapsed rc4->rc1.
 Resume: re-attack the andi-mask with a §5.11 non-equivalent rewrite.
+
+## Re-confirm 2026-06-08 (this pass)
+Resumed; reset; ran ~28 fresh distinct shapes (idx-expr × read-form × zero-store ×
+order). Array `D[idx+1]` form = rc4 best (the index/coloring coupling holds);
+pointer/`*(D+idx+1)` forms = rc10-11 (fix the scale but flip %hi/&base coloring).
+30-stall reached; fired permuter (150s, ~1000 iters), NO rc0. (b) re-confirmed.
+Note: ee-gcc 2.9 is C89 — mid-block `int x=0;` is a compile error (rc=-1 false).
