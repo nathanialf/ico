@@ -45,6 +45,8 @@ extern void soundAllocIopHeap(int);
 typedef struct { long long x[8]; } __attribute__((packed)) Blk40_001383F8;
 typedef struct { char pad[0x140]; int f140; int f144; int f148; Blk40_001383F8 f14C; } Elem_001383F8;
 
+/* parked: needs real matching (packed-struct copy regalloc, stride 0x18C).
+ * See tough_nuts/func_00138100/notes.md */
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcdata", func_00138100);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcdata", func_00138218);

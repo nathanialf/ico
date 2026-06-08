@@ -26,6 +26,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/staffroll", staffRollWide);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/staffroll", func_001B58B0);
 
+/* parked: needs jtbl carve + crutch-free rederivation.
+ * See tough_nuts/func_001B59F0/notes.md */
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/staffroll", func_001B59F0);
 
 

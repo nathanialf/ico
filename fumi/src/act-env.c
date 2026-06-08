@@ -63,6 +63,8 @@ extern void func_0023FDD8(void *a0, int a1, void *a2);
 
 extern char D_006138D0[];
 
+/* parked: needs real matching (unaligned ld offset / struct shape).
+ * See tough_nuts/func_001FE1D0/notes.md */
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-env", func_001FE1D0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-env", func_001FE250);

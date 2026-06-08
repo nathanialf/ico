@@ -164,11 +164,8 @@ extern void func_00261188(unsigned char *buf, const char *fmt, int a0);
 extern int func_002614F8(int a0, unsigned char *buf);
 extern char D_00550D98[];
 
-/* NOTE: the retail-branch C for the retail twin (func_001321C8) is a silent
- * regression there — the binary (both versions, hash-equal) has a 0x1D0
- * frame, two func_00261188 sprintf calls (D_00550D98 + D_0062C0F8) and an
- * inline D_00629E39-table normpath; the retail source has none of that.
- * Needs real matching work, not a port. */
+/* parked: needs real matching (retail twin is a silent regression).
+ * See tough_nuts/iosCdvdPackLoad/notes.md */
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", iosCdvdPackLoad);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", iosCdvdBackGroundMgrAdd);
