@@ -1,11 +1,14 @@
 #include "common.h"
 
+/* act2 0x164 actor-state view (local) */
+typedef struct { char _0[0x438]; int f_438; } Act2State;
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act2", BeforeFunc2);
 
 void actDummy(void *a0, int a1) {
-    int *p = *(int **)((char *)a0 + 0x164);
+    Act2State *p = *(Act2State **)((char *)a0 + 0x164);
     if (p) {
-        p[0x10E] = a1;
+        p->f_438 = a1;
     }
 }
 

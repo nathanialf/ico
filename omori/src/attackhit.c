@@ -1,5 +1,8 @@
 #include "common.h"
 
+/* attackhit 0x164 actor-state view (local) */
+typedef struct { char _0[0x130]; int f_130; } AtkState;
+
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/attackhit", MakeAttackPack_Actor);
 
 void AttackCheckSameGroup(int a0) {
@@ -38,8 +41,8 @@ extern void AttackCenter_WithDir(void *a0);
 
 void func_0017F0E0(void *a0) {
     char buf[0x70];
-    int *p = *(int **)((char *)a0 + 0x164);
-    EnemyAttackCenter(buf, a0, p[0x4C]);
+    AtkState *p = *(AtkState **)((char *)a0 + 0x164);
+    EnemyAttackCenter(buf, a0, p->f_130);
     AttackCenter_WithDir(buf);
 }
 
