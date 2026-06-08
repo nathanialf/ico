@@ -1,6 +1,40 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundInit);
+extern int *D_0027DDF0[];
+
+int soundInit(int a0, int val5, int val6)
+{
+    int *node = D_0027DDF0[a0];
+    int ret = 0;
+    if (node != 0) {
+        do {
+            int full;
+            int *p = (int *)((char *)node + 0x54);
+            int count = p[1];
+
+            if (count == 0x20) {
+                full = -1;
+            } else {
+                register int idx = count * 8;
+                char *addr = (char *)node + idx;
+                full = 0;
+                *(int *)(addr + 0x5C) = val5;
+                {
+                    int c2 = p[1];
+                    register int idx2;
+                    char *addr2;
+                    p[1] = c2 + 1;
+                    idx2 = c2 * 8;
+                    addr2 = (char *)node + idx2;
+                    *(int *)(addr2 + 0x60) = val6;
+                }
+            }
+            node = (int *)node[0x10 / 4];
+            if (full != 0) ret = -1;
+        } while (node != 0);
+    }
+    return ret;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundOutputModeSet);
 
@@ -14,7 +48,20 @@ void soundAllocIopHeap(int a0) {
     func_002590B8(a0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundAllocIopFree);
+extern int D_0062A4F0;
+extern int func_00259070(int a, int b, int c);
+extern int func_00259208(int a, int b, int c);
+
+void soundAllocIopFree(int a0)
+{
+    int val;
+    D_0062A4F0 = a0;
+    val = (a0 * 32767) / 100;
+    func_00259070(0, val, val);
+    func_00259070(1, val, val);
+    func_00259208(0, 0x3FFF, 0x3FFF);
+    func_00259208(1, 0x3FFF, 0x3FFF);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundDataOpenChk);
 
@@ -39,7 +86,27 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundDataSegAllClose);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSeVolSet);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", debug_DispSEInfo);
+extern char D_006A3070[];
+extern void soundSeVolSet(char *p);
+extern void soundDataOpen(int a0, int a1);
+
+void debug_DispSEInfo(int a0, int a1)
+{
+    char *p = D_006A3070;
+    char *end = D_006A3070 + 0x300;
+    do {
+        if (*(int *)p != 0) {
+            if (*(unsigned short *)(p + 6) == a0) {
+                if (*(unsigned short *)(p + 4) == a1) {
+                    soundSeVolSet(p);
+                }
+            }
+        }
+        p += 0x30;
+    } while ((int)p < (int)end);
+    if (a1 == 2) return;
+    soundDataOpen(a0, a1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", sound3DParamSet);
 
@@ -61,7 +128,20 @@ void soundReqTickProc(int a0) {
     soundSeDefStopNoRelease(a0, 1);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSeEnvPlay);
+extern char D_006A3370[];
+extern int func_00259DF8(int a0);
+
+void soundSeEnvPlay(int a0)
+{
+    char *entry;
+    short id;
+    entry = &D_006A3370[(a0 & 0xFF) * 64];
+    id = *(short *)(entry + 0x10);
+    if (id < 0) return;
+    a0 = a0 >> 8;
+    if (a0 != *(unsigned short *)entry) return;
+    func_00259DF8(id);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSeEnvNotUseClose);
 
@@ -69,7 +149,32 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundDataSegNextStageNotU
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", Ee2Iop);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundOutputModeGet);
+extern void debug_assertMessage();
+extern void func_001007A0(int a);
+extern int func_001008E0(int p, int a);
+extern int func_001008C0(int h);
+
+extern char D_00551F50[];
+extern char D_00551F68[];
+extern char D_00551F80[];
+
+int soundOutputModeGet(int a0, int a1, int a2)
+{
+    int buf[4];
+    int x;
+    debug_assertMessage(D_00551F50);
+    debug_assertMessage(D_00551F68, a0, a1, a2);
+    buf[0] = a0;
+    buf[1] = a1;
+    buf[2] = a2;
+    buf[3] = 0;
+    func_001007A0(0);
+    x = func_001008E0((int)buf, 1);
+    while (func_001008C0(x) >= 0) ;
+    debug_assertMessage(D_00551F80);
+    func_001007A0(0);
+    return (x >= 0) ? 0 : -1;
+}
 
 extern int D_0062A4FC;
 extern int D_0062A4F0;
@@ -100,15 +205,76 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSQDataSet);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSeDefPlay);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSeDefPlayWithVolumeRate);
+extern int soundSeDefStop(int a0, int a1, int a2, int a3, float f, int t0, int t1);
+extern void _soundSeDefStop(int *p);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSeDefVolumeRateGet);
+int soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3)
+{
+    int idx = soundSeDefStop(a0, a1, a2, a3, -1.0f, 0, 0);
+    if (idx >= 0) {
+        _soundSeDefStop((int *)((char *)D_006A3370 + (idx & 0xFF) * 64));
+    }
+    return idx;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSeDefVolumeRateSet);
+int soundSeDefVolumeRateGet(int a0, int a1, int a2, int a3)
+{
+    int idx = ((int (*)(int, int, int, int, int, int))soundSeDefStop)(a0, a1, a2, a3, 0, 0);
+    if (idx >= 0) {
+        _soundSeDefStop((int *)((char *)D_006A3370 + (idx & 0xFF) * 64));
+    }
+    return idx;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSeGroupStop);
+float soundSeDefVolumeRateSet(int a0)
+{
+    int off = (a0 & 0xFF) * 64;
+    char *e = D_006A3370 + off;
+    if (*(short *)(e + 0x10) >= 0) {
+        goto check;
+    }
+fail:
+    return 0.0f;
+check:
+    a0 = a0 >> 8;
+    if (a0 != *(unsigned short *)e) {
+        goto fail;
+    }
+    return *(float *)(D_006A3370 + off + 0x18);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSeGroupGet);
+void soundSeGroupStop(int a0, float f)
+{
+    int off = (a0 & 0xFF) * 64;
+    char *e = D_006A3370 + off;
+    if (*(short *)(e + 0x10) >= 0) {
+        a0 = a0 >> 8;
+        if (a0 == *(unsigned short *)e) {
+            *(float *)(D_006A3370 + off + 0x18) = f;
+        }
+    }
+}
+
+void soundSeGroupGet(int arg)
+{
+    char *p = D_006A3370;
+    int i = 0;
+    do {
+        int *e30 = *(int **)(p + 0x30);
+        if (e30 != 0) {
+            if (*(int *)(p + 8) == arg) {
+                int *e38 = *(int **)(p + 0x38);
+                if ((*(unsigned int *)((char *)e38 + 0x38) >> 6) & 1) {
+                    if (*(unsigned short *)((char *)e30 + 4) == 0) {
+                        soundSeDefPitchSet(((int)*(unsigned short *)p << 8) | i);
+                    }
+                }
+            }
+        }
+        i++;
+        p += 0x40;
+    } while (i < 0x30);
+}
 
 extern int D_0062A524;
 
@@ -116,13 +282,65 @@ int soundSePlayModeStop(void) {
     return D_0062A524 = ((D_0062A524 + 1) & 0x0FFFFFFF) | 0x10000000;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundVBlank);
+void soundVBlank(int arg)
+{
+    char *p = D_006A3370;
+    int i = 0;
+    do {
+        int *e30 = *(int **)(p + 0x30);
+        if (e30 != 0) {
+            if (*(unsigned char *)(p + 6) == arg) {
+                if (*(unsigned short *)((char *)e30 + 4) == 0) {
+                    soundReqTickProc(((int)*(unsigned short *)p << 8) | i);
+                }
+            }
+        }
+        i++;
+        p += 0x40;
+    } while (i < 0x30);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSeKindBuild);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSeSemiCommonLoadChk);
+extern void AdpcmStop(char *p);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSeEnvDefaultSet);
+void soundSeSemiCommonLoadChk(void)
+{
+    int i;
+    for (i = 0; i < 0x300; i += 0x30) {
+        char *p = D_006A3070 + i;
+        if (*(unsigned short *)(p + 2) == 0x11) {
+            AdpcmStop(p);
+        }
+    }
+}
+
+extern char D_002E2A10[];
+extern char D_005E44A0[];
+
+void soundSeEnvDefaultSet(int idx)
+{
+    char *base = (char *)D_002E2A10;
+    short *q = (short *)(base + 0xAD8);
+    int i;
+    for (i = 0x56C; i >= 0; i--) {
+        *q = 0;
+        q--;
+    }
+    for (i = 0; i < 0x10; i++) {
+        char *entry = (char *)D_006A3070 + i * 0x30;
+        if (*(unsigned short *)(entry + 2) == 0xB) {
+            unsigned short target = *(unsigned short *)entry;
+            int j;
+            for (j = 0; j < 0xEDE; j++) {
+                short *e2 = (short *)((char *)D_005E44A0 + j * 8);
+                if (e2[0] == target) {
+                    *(short *)(D_002E2A10 + e2[3] * 2) = j;
+                }
+            }
+        }
+    }
+}
 
 extern int D_0062A500;
 
