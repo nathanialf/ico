@@ -166,7 +166,18 @@ void GetOrientOfWall(void *a0, int a1) {
     D_0062A6D4(a0, 0x10);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", SetSimplePlane);
+extern void func_00240080(int *dst, int *src);
+
+void SetSimplePlane(int *self)
+{
+    int buf[4];
+    int *p10 = self + 4;
+    func_00240080(buf, p10);
+    jtbl_0062A6D0((int)self, 1);
+    func_00240080(p10, self + 8);
+    D_0062A6D4((int)self, 0xC);
+    func_00240080(p10, buf);
+}
 
 
 /* recovered struct shapes */

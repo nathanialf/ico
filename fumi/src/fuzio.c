@@ -1,6 +1,25 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", fzShowV);
+/* near-gp function-pointer table slots (splat named them jtbl_*); set by
+ * fzShowV, called indirectly by func_00167F88 — not a switch jump table. */
+extern void (*jtbl_0062A6D0)(int, int);
+extern void (*D_0062A6D4)(int, int);
+
+extern void DrawCollisionRay(int *a0);
+extern void MakeExitAttributeIndex(int *a0);
+extern void func_00167DB0(int *a0);
+extern void func_00167E88(int *a0);
+
+int fzShowV(int a0)
+{
+    *(int *)&jtbl_0062A6D0 = (int)&DrawCollisionRay;
+    *(int *)&D_0062A6D4 = (int)&MakeExitAttributeIndex;
+    if (a0 != 0) {
+        *(int *)&jtbl_0062A6D0 = (int)&func_00167DB0;
+        *(int *)&D_0062A6D4 = (int)&func_00167E88;
+    }
+    return 0;
+}
 
 extern void (*D_006323F0)(int a0, int a1);
 extern void (*D_006323F4)(int, int);
@@ -142,7 +161,16 @@ void func_00167F60(void) {
     D_0062A69C = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00167F88);
+extern void func_00240080(int *dst, int *src);
+
+int func_00167F88(int *a0, int *a1) {
+    int buf[48];
+    *(float *)&buf[28] = 50.0f;
+    func_00240080(buf, a0);
+    func_00240080(buf + 4, a1);
+    ((int (*)(int *, int))jtbl_0062A6D0)(buf, 1);
+    return buf[34];
+}
 
 void func_00167FE8(void *a0) {
     int *p = (int *)a0;
