@@ -1,6 +1,9 @@
 #include "common.h"
 #include "vu0.h"
 
+typedef struct Light { char _pad0[0x44]; short f_44; char _pad46[2]; struct Light *next; struct Light *prev; } Light;
+typedef struct AmbientVolume { char _pad0[0x90]; int f_90; struct AmbientVolume *next; struct AmbientVolume *prev; } AmbientVolume;
+
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", light_killLinkLight);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", light_killLinkAmbient);
@@ -66,9 +69,45 @@ void func_00117B80(void) {
     D_00629F70 = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_00117B90);
+extern int D_0062BF38;
+extern void light_KillAllFixLight(char *node);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_00117BF0);
+void func_00117B90(void)
+{
+    Light *p = (Light *)D_0062BF30;
+    while (p != 0) {
+        short v = p->f_44;
+        if (v < 4) {
+            if (v >= 2) {
+                Light *node = p;
+                p = p->prev;
+                light_KillAllFixLight((char *)node);
+                continue;
+            }
+        }
+        p = p->prev;
+    }
+    D_0062BF38 = 0;
+}
+
+extern void light_KillAllAmbient(char *node);
+
+void func_00117BF0(void)
+{
+    AmbientVolume *p = (AmbientVolume *)D_0062BF34;
+    while (p != 0) {
+        int v = p->f_90;
+        if (v < 3) {
+            if (v >= 0) {
+                AmbientVolume *node = p;
+                p = p->prev;
+                light_KillAllAmbient((char *)node);
+                continue;
+            }
+        }
+        p = p->prev;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_00117C48);
 

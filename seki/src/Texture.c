@@ -1,8 +1,55 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Texture", tex_AllocVramAuto);
+extern int D_0062BF54;
+extern char D_0066DBD8[];
+extern void mc_TransMicroCode(char *target, int arg1);
+extern void GetInverseQuaternion(char *target, int arg2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Texture", tex_loadImage);
+void tex_AllocVramAuto(int key, int arg1, int arg2)
+{
+    int count = *(volatile int *)&D_0062BF54;
+    int i = 0;
+    char *e = (char *)D_0066DBD8;
+    if (count <= 0) return;
+    do {
+        int *entry1 = *(int **)(e + 0x280);
+        if (key == entry1[0x58 / 4]) {
+            int *entry2;
+            char *target;
+            entry2 = *(int **)(e + 0x284);
+            target = *(char **)((char *)entry2 + 0x24);
+            mc_TransMicroCode(target, arg1);
+            entry2 = *(int **)(e + 0x284);
+            target = *(char **)((char *)entry2 + 0x24);
+            GetInverseQuaternion(target + 0x10, arg2);
+            count = *(volatile int *)&D_0062BF54;
+        }
+        i++;
+        e += 0x290;
+    } while (i < count);
+}
+
+extern int D_0062BF58;
+
+typedef struct AnimNode { long field0; char _pad[0x14 - 0x8]; struct AnimNode *next; } AnimNode;
+
+void tex_loadImage(int a0, int a1)
+{
+    AnimNode *p = (AnimNode *)D_0062BF58;
+    int count = 0;
+    while (p != 0) {
+        long v = p->field0;
+        if ((((unsigned short)v << 18) >> 18) == a0) {
+            if (!(v & 0x8000)) {
+                count++;
+                if (a1 < count) {
+                    p->field0 = v | 0x8000;
+                }
+            }
+        }
+        p = p->next;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Texture", tex_setTexReg);
 
