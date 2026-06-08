@@ -32,7 +32,32 @@ void pac_makeBoundingBox(void *a0) {
     VU0_NOP();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_error);
+void pac_error(void *p0, void *p1)
+{
+    VU0_LSV(lqc2, 8, 0x0, a1);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 8, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 8, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 8, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 10, 7, 8, w);
+    VU0_REG("vdiv $Q, $vf0w, $vf10w");
+    VU0_WAIT();
+    VU0_REG("vmulq.xyz $vf10, $vf10, $Q");
+    VU0_V2OP(vftoi4.xyz, 10, 10);
+    VU0_V3OP(vsub.xy, 14, 10, 11);
+    VU0_V3OP(vsub.xy, 15, 12, 11);
+    VU0_V3OP(vsub.zw, 14, 14, 14);
+    VU0_V3OP(vsub.zw, 15, 15, 15);
+    VU0_V3OP_ACC(vopmula.xyz, 14, 15);
+    VU0_V3OP(vopmsub.xyz, 16, 15, 14);
+    VU0_V2OP(vmr32.y, 16, 16);
+    VU0_V2OP(vmr32.x, 16, 16);
+    VU0_LSV(sqc2, 10, 0x0, a0);
+    VU0_QMFC2_NI(a3, 16);
+    VU0_MTC1(a3, 0);
+    VU0_V2OP(vmove.xy, 12, 11);
+    VU0_V2OP(vmove.xy, 11, 10);
+    VU0_NOP();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_makeNormalStrip);
 
@@ -40,10 +65,43 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_getWeight);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_makeClusterStrip);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_openDmaTag);
+extern int D_0066CB10[];
+extern int D_0062BF3C;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_setVifCode);
+void pac_openDmaTag(void)
+{
+    int *p = D_0066CB10;
+    int i = 0xC;
+    D_0062BF3C = 0;
+    p += 0xC;
+    do {
+        *p = 0;
+        i--;
+        p--;
+    } while (i >= 0);
+}
 
+void pac_setVifCode(void)
+{
+    int *p = D_0066CB10;
+    int i = 0xC;
+    D_0062BF3C = 0;
+    p += 0xC;
+    do {
+        *p = 0;
+        i--;
+        p--;
+    } while (i >= 0);
+}
+
+extern void debug_assertMessage(const char *fmt, ...);
+
+/* NOT PORTED: pac_setVifEndCode is a switch with a .rodata jump table.
+ * The original jtbl in the data blob references the function's internal
+ * .L0011947C label, which vanishes once the function is compiled C ->
+ * link error. aug6 has no jtbl strip/reroute mechanism yet (see the data
+ * investigation); port this once that lands. A clean C body is ready in
+ * decomp/retail_port (portmap pac_setVifEndCode). */
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_setVifEndCode);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_setGifTag);
@@ -58,11 +116,59 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_countOneVertexPacketSiz
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_makeStrip);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_setMaterialPacket);
+extern char D_0066CB50[];
+extern float D_00628D40;
+extern float D_00628D44;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_makeMaterialTable);
+extern char D_0054F540[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_makeMaterialTableLine);
+void pac_setMaterialPacket(int a0)
+{
+    register int mask = 0x0FFFFFFF;
+    char *ctx = D_0066CB50;
+    float f0 = D_00628D40;
+    float f1 = D_00628D44;
+    *(int *)(ctx + 0x20) = a0 & mask;
+    *(int *)(ctx + 0x24) = (a0 + 0x8) & mask;
+    *(int *)(ctx + 0x28) = (a0 + 0x10) & mask;
+    *(int *)(ctx + 0x2C) = a0 + 0x20;
+    *(float *)(ctx + 0x48) = f0;
+    *(float *)(ctx + 0x44) = f0;
+    *(float *)(ctx + 0x40) = f0;
+    *(float *)(ctx + 0x58) = f1;
+    *(float *)(ctx + 0x54) = f1;
+    *(float *)(ctx + 0x50) = f1;
+    debug_assertMessage(D_0054F540, a0 & mask);
+}
+
+extern char D_0054F550[];
+
+void pac_makeMaterialTable(int a0)
+{
+    register char *base = D_0066CB50;
+    (*(volatile int * volatile *)(base + 0x24))[0] = 0;
+    (*(volatile int * volatile *)(base + 0x24))[1] = (a0 << 16) | 0x6C008000;
+    {
+        volatile int *p = *(volatile int * volatile *)(base + 0x24);
+        debug_assertMessage(D_0054F550, p[0], p[1], (int *)p, a0);
+    }
+}
+
+void pac_makeMaterialTableLine(void)
+{
+    register char *base = D_0066CB50;
+    volatile int * volatile *curp = (volatile int * volatile *)(base + 0x2C);
+    volatile int *p = *curp;
+    *p++ = 0x17000000;
+    *curp = p;
+    p[0] = 0;
+    *curp = p + 1;
+    p[1] = 0;
+    *curp = p + 2;
+    p[2] = 0;
+    *curp = p + 3;
+    debug_assertMessage((const char *)(p + 3));
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_getTextureInfo);
 
@@ -96,7 +202,21 @@ void func_0011C308(void *a0) {
     func_0011BB00(p, *(int *)((char *)q + 0xF0), *(signed char *)((char *)p + 0x2F) > 0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", func_0011C328);
+void func_0011C328(int *a0, int size)
+{
+    int *p = a0;
+    int count;
+    size >>= 4;
+    if (size <= 0)
+        return;
+    count = size;
+    do {
+        int *arg = p;
+        p += 4;
+        pac_setVifEndCode(arg, 4);
+        count--;
+    } while (count != 0);
+}
 
 
 /* recovered struct shapes */
