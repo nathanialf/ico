@@ -73,7 +73,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothTest", func_001C6398);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothTest", func_001C6420);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothTest", func_001C6548);
+extern int   D_0062A310;
+extern char  D_004BBC40[];
+extern int  *iosFree(int handle, int size, char *file, int line);
+extern int   calc2(char *p);
+
+extern char D_00611260[];
+
+int *func_001C6548(void)
+{
+    int *p = iosFree(D_0062A310, 0x290, (char *)D_00611260, 0x41);
+    *p = calc2(D_004BBC40);
+    return p;
+}
 
 void func_001C6598(void) {
 }

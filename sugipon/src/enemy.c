@@ -6,7 +6,22 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemy", setEnemyObject);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemy", dispEnemyObject);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemy", EnemyCheckHit);
+extern int D_0062B654;
+extern int D_0062B66C;
+extern int D_0062A894;
+extern char D_0062D4F8[];
+extern void GetParticleEffectPackage(int x);
+extern void InitCamera(int x, int y, int z);
+extern void debug_assertMessage(char *p);
+
+void EnemyCheckHit(void)
+{
+    GetParticleEffectPackage(D_0062B654);
+    D_0062B654 = -1;
+    InitCamera(D_0062B66C, 0, 3);
+    D_0062A894 = 0;
+    debug_assertMessage(D_0062D4F8);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemy", CheckEnemyHit);
 
@@ -26,7 +41,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemy", EnemyAI);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemy", SetEnemyFootPrintSwitch);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemy", EnemySetfAppearAll);
+extern int clip_floor_1(int *self);
+extern void func_001B8D08(void);
+extern void SetEnemyFootPrintSwitch(int *self);
+
+void EnemySetfAppearAll(int *self)
+{
+    char *sub = *(char **)((char *)self + 0x164);
+    unsigned long long flag = *(unsigned long long *)(sub + 0x18);
+    if (((flag >> 33) & 1) == 0) return;
+    func_001B8D08();
+    if (clip_floor_1(self) != 0) return;
+    SetEnemyFootPrintSwitch(self);
+}
 
 extern void InitMotionOrient(int a0);
 

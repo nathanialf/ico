@@ -45,7 +45,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", func_0010EE60);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", func_0010EEF0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", func_0010EF98);
+extern int func_0010EEF0(float x);
+
+int func_0010EF98(float f12, float f13)
+{
+    if (f12 < 0.0f) {
+        int r = func_0010EEF0(f13);
+        return (short)(-r);
+    }
+    return func_0010EEF0(f13);
+}
 
 extern void func_0011C308(void *a0);
 

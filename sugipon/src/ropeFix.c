@@ -1,4 +1,5 @@
 #include "common.h"
+#include "ico/types.h"
 
 extern void playSEConditionID(int a0, int a1);
 
@@ -7,9 +8,28 @@ void RopeFixGeo(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/ropeFix", RopeFixDL);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/ropeFix", InitRopeFixGeo);
+extern int isysGObjSearchFromObjLayoutID(int a0);
+extern int UnLockChainGeo(int a0, int a1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/ropeFix", func_001E6B28);
+void InitRopeFixGeo(int a0)
+{
+    int v0 = isysGObjSearchFromObjLayoutID(0x15);
+    if (v0 != 0) {
+        return UnLockChainGeo(v0, a0);
+    }
+}
+
+extern int func_0010F068(int a0);
+extern int file_LoadCDFile(int a0);
+
+void func_001E6B28(int a0)
+{
+    int *s0 = ((GObj *)((char *)a0))->p_15C;
+    if (s0[0x74 / 4] != 0) {
+        func_0010F068(a0);
+        return file_LoadCDFile((int)s0);
+    }
+}
 
 int func_001E6B70(void) {
     return 0;

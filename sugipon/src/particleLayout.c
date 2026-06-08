@@ -1,4 +1,5 @@
 #include "common.h"
+#include "ico/types.h"
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleLayout", DeleteParticleLayout);
 
@@ -44,7 +45,21 @@ void func_001E6108(void *a0) {
     GetParticleEffectPackage(*(int *)q);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleLayout", func_001E6118);
+extern int   D_0062A310;
+extern int  *iosFree(int handle, int size, char *file, int line);
+extern int   SetParticleEffectUpperLimit(int x, int *p, char *q);
+
+extern char D_006128B0[];
+
+int *func_001E6118(int *self, int *other)
+{
+    int *r;
+    Sub15C *p_15c;
+    r = iosFree(D_0062A310, 0x4, (char *)D_006128B0, 0xC);
+    p_15c = ((GObj *)self)->p_15C;
+    *r = SetParticleEffectUpperLimit(other[0x30 / 4], other, (char *)p_15c + 0x60);
+    return r;
+}
 
 void func_001E6188(void) {
 }

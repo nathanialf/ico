@@ -1,4 +1,5 @@
 #include "common.h"
+#include "ico/types.h"
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", UpdatePointBlur);
 
@@ -52,7 +53,6 @@ int UpdateEnemyEye(void *a0) {
     return ((unsigned int)base[q[2]]._10 >> 2) & 3;
 }
 
-extern EyeParam D_00617828[];
 
 float DispEnemyEye(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
@@ -63,7 +63,18 @@ float DispEnemyEye(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", ResetEnemyEye);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", moveDataElements);
+extern void GetRootMatrixByDObj(void *dst, int *src);
+extern void func_00102820(void *dst, int *src);
+extern int SetParticleEffectUpperLimit(int a, void *b, void *c);
+
+void moveDataElements(int *self)
+{
+    int local[8];
+    GetRootMatrixByDObj(local, self);
+    func_00102820(&local[4], self);
+    SetParticleEffectUpperLimit(0x31, local, &local[4]);
+    ((GObj *)self)->f_16C = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", func_001CC020);
 
@@ -83,7 +94,19 @@ int func_001CCA00(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", func_001CCA20);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", func_001CCB60);
+extern void gif_SpriteOffset(int x);
+extern void gsb_SetFrame(int x, int y, int z);
+extern void gif_Line(int a, int b, int c, int d);
+extern void func_0010F9D0(void);
+
+int func_001CCB60(int *self)
+{
+    gif_SpriteOffset(self[0]);
+    gsb_SetFrame(1, self[0xD], 0x80);
+    gif_Line(self[3], self[4], self[1] * 2, 1);
+    func_0010F9D0();
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", func_001CCBC0);
 

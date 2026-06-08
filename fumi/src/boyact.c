@@ -1,4 +1,5 @@
 #include "common.h"
+#include "ico/types.h"
 
 void findChainInJump(void) {
 }
@@ -25,7 +26,26 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", subBoyControl);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_0014E858);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", InitSwapWeapon);
+extern long long D_006A45A0[];
+extern void GetLowerPlaneCollision(char *p, float a, float b, float c, float d, float e, float f);
+extern void func_00102828(int obj);
+
+void InitSwapWeapon(void)
+{
+    char *base = (char *)D_006A45A0;
+    int *obj_ptr = *(int **)(base + 0x20);
+    char *sub;
+    if (obj_ptr == 0) return;
+    sub = ((GObj *)((char *)obj_ptr))->p_15C;
+    GetLowerPlaneCollision(sub + 0xA0,
+                  *(float *)(base + 0x30),
+                  *(float *)(base + 0x34),
+                  *(float *)(base + 0x38),
+                  -*(float *)(base + 0x40),
+                  -*(float *)(base + 0x44),
+                  -*(float *)(base + 0x48));
+    func_00102828(*(int *)(base + 0x20));
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", PutWeapon);
 
@@ -108,7 +128,6 @@ int actBoyStand(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyHang);
 
-extern unsigned char D_006A45A0[];
 
 extern long long D_006A45A0_ll[] __asm__("D_006A45A0");
 void actBoyBHang(void) {
@@ -126,7 +145,6 @@ ret0:
     return 0;
 }
 
-extern unsigned char D_006A45F0[];
 extern int D_006A4600[];
 
 int actBoyItem(void) {

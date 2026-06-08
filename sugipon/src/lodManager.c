@@ -13,7 +13,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lodManager", func_001D1790);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lodManager", func_001D1948);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lodManager", func_001D1D58);
+extern int func_001D1948(int *t0, int *t1, int *p1, int *p2);
+extern void mc_setBaseOffset(int *out, int *src);
+extern void func_001D15C0(int *a, int *b, int x, int y);
+
+void func_001D1D58(int *p1, int *p2, int a2, int a3)
+{
+    int t0[4];
+    int t1[4];
+    int t2[4];
+    int t3[4];
+    if (func_001D1948(t0, t1, p1, p2) < 0) return;
+    mc_setBaseOffset(t2, t0);
+    mc_setBaseOffset(t3, t1);
+    func_001D15C0(t2, t3, a2, a3);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lodManager", func_001D1DF0);
 
