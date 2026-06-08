@@ -1,14 +1,12 @@
-# CopyQuaternion — parked (rc1, sugipon/src/quaternion)
-2-call: func_00118AF0(buf, a1) transpose; GetQuaternionFromMatrix(a0, buf).
-Residual rc1 = a missing `daddu v0,sp` (&buf) before the 2nd call. GetQuaternionFromMatrix
-reads $2/v0 as a HIDDEN input arg (confirmed: sw $2,0(sp) at its start, no prior $2 set;
-ends writing via $6/a2). Standard C/gcc never passes an arg in v0 → not clean-C-expressible.
-~25 hand forms (buffer sizes/types, struct-return slot 0x8/0x10/0x20/0x40, func ret void*,
-ptr temps, a2 passthrough) all rc1+. Likely permuter-exhausted; resume candidate for the
-raw-__asm__ fallback (mirror INCLUDE_ASM) if permuter can't synthesize the v0 setup.
+# CopyQuaternion — parked (b) rc1
 
-## Resolution (b) — permuter-exhausted (stall=31, permuter ran)
-Permuter best score 85 but harvest by real_count: nothing below the parked rc1
-(score-85/115 outputs all rc2). Confirms the v0-hidden-arg can't be synthesized by
-permuter either. Resume: raw-__asm__ fallback (mirror INCLUDE_ASM, no leading .align /
-trailing nop) is the legitimate next step per feedback_handwritten_hasm_exception.
+VRAM 0x0010DB88. Local-buffer wrapper (like _ACTMotDirSmzDirect / MatrixDrive):
+a0 saved in s0; func_00118AF0(local, a1) fills a 0x40 stack buffer (sp+0);
+GetQuaternionFromMatrix(a0, local) reads it.
+
+## Pass 2 (2026-06-08): empty seed -> rc1
+Best clean form (void, no return) misses ONE insn: ROM emits `daddu v0,sp`
+(redundant &local into v0) BEFORE the GetQ call. `return local` adds v0=sp but
+at the END (rc2, wrong position). Permuter (180s, no mode-TI) found NO rc0.
+RESUME: the v0=sp-before-GetQ is a regalloc artifact — try func_00118AF0 returning
+void* (the buffer) reused as GetQ's arg + returned; or a 3rd local materialization.
