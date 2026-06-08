@@ -188,7 +188,22 @@ void actBoySupportGBEnd(int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_001531E8);
+void func_001531E8(int *a0, int *a1) {
+    int n;
+    int i;
+    if (a0 != 0) {
+        ((int *)D_006A45A0)[0] = a0[2];
+    } else {
+        ((int *)D_006A45A0)[0] = 0;
+    }
+    i = 0;
+    n = 1;
+    if (a1 != i) {
+        ((int *)D_006A45A0)[n] = a1[2];
+    } else {
+        ((int *)D_006A45A0)[n] = i;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoySupportBGBegin);
 
