@@ -72,6 +72,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", func_0021C758);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", func_0021C7A0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", func_0021C7E8);
+extern int D_0062BD08;
+extern int func_00178DB0(int a0);
+extern void soundSeVolSet(int a0);
+
+void func_0021C7E8(void) {
+    if (D_0062BD08 != 0) {
+        if (func_00178DB0(0xD1) == 0) {
+            soundSeVolSet(D_0062BD08);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", func_0021C820);
