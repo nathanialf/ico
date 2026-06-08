@@ -1,6 +1,9 @@
 #include "common.h"
 #include "ico/types.h"
 
+/* act-game 0x164 actor-state view (local) */
+typedef struct { char _0[0x30]; int f_30; char _pad34[0x54]; int f_88, f_8C, f_90; } AGState;
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_SaveActorInformation);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_DeleteActorInformation);
@@ -220,8 +223,8 @@ end:
 int ACTGame_InsertCamera_GirlIsPinch(void)
 {
     void *g = D_00629DE8;
-    char *a = *(char **)((char *)g + 0x164);
-    unsigned int type = *(int *)(a + 0x30);
+    AGState *a = *(AGState **)((char *)g + 0x164);
+    unsigned int type = a->f_30;
     unsigned long bit;
     int rv;
     if (type == 0x45) {
@@ -250,7 +253,7 @@ upper:
     }
     return 1;
 bittest:
-    bit = (*(unsigned long *)(a + 0x18) >> 36) & 1;
+    bit = (*(unsigned long *)((char *)a + 0x18) >> 36) & 1;
 merge:
     if (bit & 0xFF) {
         return 1;
@@ -384,10 +387,10 @@ int *PAIR_GetPosition_BOY(int a0, int a1) {
 }
 
 void PAIR_IsStatus_BOY_PULL(void *a0) {
-    int *p = *(int **)((char *)a0 + 0x164);
-    p[0x22] = 0;
-    p[0x24] = 0;
-    p[0x23] = 0;
+    AGState *p = *(AGState **)((char *)a0 + 0x164);
+    p->f_88 = 0;
+    p->f_90 = 0;
+    p->f_8C = 0;
 }
 
 

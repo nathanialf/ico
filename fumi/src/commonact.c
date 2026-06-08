@@ -1,5 +1,8 @@
 #include "common.h"
 
+/* commonact 0x164 actor-state view (local) */
+typedef struct { char _0[0x30]; int f_30; unsigned int f_34; } CommonActState;
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ACTSetPositionWithFitting);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ACTSetPositionNodeWithFitting);
@@ -45,8 +48,8 @@ extern void BoxGeoRestore(int a0, int a1);
 extern void RotObjectGeo(int a0);
 
 void func_00156D18(void *a0) {
-    int *s = *(int **)((char *)a0 + 0x164);
-    int x = *(int *)((char *)s + 0x30);
+    CommonActState *s = *(CommonActState **)((char *)a0 + 0x164);
+    int x = s->f_30;
     if (x == 0x31) goto h1;
     if (x == 0x33) goto h2;
     return;
@@ -61,16 +64,16 @@ extern void BoxExtGeoRestore(void *a0);
 extern void getRootMatrix(void *a0);
 
 void actCommonRopeClimbEnd1(void *a0) {
-    char *s = *(char **)((char *)a0 + 0x164);
-    int state = *(int *)(s + 0x30);
+    CommonActState *s = *(CommonActState **)((char *)a0 + 0x164);
+    int state = s->f_30;
     if (state == 0x31) goto l1;
     if (state == 0x33) goto l2;
     return;
 l1:
-    BoxExtGeoRestore(*(void **)(s + 0x138));
+    BoxExtGeoRestore(*(void **)((char *)s + 0x138));
     return;
 l2:
-    getRootMatrix(*(void **)(s + 0x5E8));
+    getRootMatrix(*(void **)((char *)s + 0x5E8));
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonRopeCliff);
@@ -173,8 +176,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonLadder);
 extern void _ACTWait(int a0);
 
 void actCommonDodge(volatile int a0) {
-    char *s = *(char **)(a0 + 0x164);
-    *(unsigned int *)(s + 0x34) = 0xFFFFFFFF;
+    CommonActState *s = *(CommonActState **)(a0 + 0x164);
+    s->f_34 = 0xFFFFFFFF;
     _ACTWait(0);
 }
 

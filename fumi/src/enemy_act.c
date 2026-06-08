@@ -1,5 +1,8 @@
 #include "common.h"
 
+/* enemy_act 0x164 actor-state view (local) */
+typedef struct { char _0[0x30]; int f_30; char _pad34[0x10C]; long long f_140; char _pad148[0x2E8]; int f_430; } EnemyActState;
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", setBattleStatus);
 
 void boss_effect_start(volatile int a0) {
@@ -15,8 +18,8 @@ void boss_effect_process(int a0) {
 }
 
 int _DoAwait(void *a0) {
-    int *p = *(int **)((char *)a0 + 0x164);
-    return p[0xC] == 0xF;
+    EnemyActState *p = *(EnemyActState **)((char *)a0 + 0x164);
+    return p->f_30 == 0xF;
 }
 
 extern int CanWallLeverPull(int a0, int a1);
@@ -166,8 +169,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", subEnemyBrain_Cling);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", funcEnemyAiGetGirl);
 
 void actEnemyStand(void *a0) {
-    long long *p = *(long long **)((char *)a0 + 0x164);
-    *(long long *)((char *)p + 0x140) |= 0x100000000LL;
+    EnemyActState *p = *(EnemyActState **)((char *)a0 + 0x164);
+    p->f_140 |= 0x100000000LL;
 }
 
 extern void CylinderCollision(int *self, char *spill);
@@ -204,13 +207,13 @@ void actEnemyCarry(int *a0) {
 }
 
 int actEnemyBodyslam(void *a0) {
-    int *p = *(int **)((char *)a0 + 0x164);
-    return p[0x10C] == 2;
+    EnemyActState *p = *(EnemyActState **)((char *)a0 + 0x164);
+    return p->f_430 == 2;
 }
 
 int actEnemyBodyslamFail(void *a0) {
-    int *p = *(int **)((char *)a0 + 0x164);
-    return p[0x10C] == 1;
+    EnemyActState *p = *(EnemyActState **)((char *)a0 + 0x164);
+    return p->f_430 == 1;
 }
 
 int actEnemyNest(int *a0) {
