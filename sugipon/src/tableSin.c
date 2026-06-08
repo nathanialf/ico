@@ -1,4 +1,5 @@
 #include "common.h"
+#include "vu0.h"
 
 extern int D_00629E7C;
 extern int D_0065A5B0[];
@@ -7,10 +8,29 @@ void *GetTableSin(void) {
     return &D_0065A5B0[D_00629E7C * 4];
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", GetTableCos);
+extern char D_0054E1B0[];
+extern char D_0054E1D8[];
+extern void debug_assertMessage(char *p);
+extern void SetIdentityQuaternion(void);
+
+void GetTableCos(void)
+{
+    int v = D_00629E7C;
+    if (v < 0) {
+        debug_assertMessage(D_0054E1B0);
+        SetIdentityQuaternion();
+        v = D_00629E7C;
+    }
+    v++;
+    D_00629E7C = v;
+    if (v >= 0x40) {
+        debug_assertMessage(D_0054E1D8);
+        v = 0x3F;
+        D_00629E7C = v;
+    }
+}
 
 extern unsigned char D_0054E1F8[];
-extern void debug_assertMessage(unsigned char *a0);
 
 void InitTableSin(void) {
     if (--D_00629E7C < 0) {
@@ -25,11 +45,50 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", GetTableArcCos);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", GetTableArcTan2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", func_0010E088);
+extern void _SetCurrentMatrix(void *out, int *p);
+extern float p2o_SetDefaultEnviroment(int x);
+extern float _InverseCurrentMatrix(int *self, void *p, float arg);
+extern float func_0010ED30(int x);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", func_0010E0E8);
+void func_0010E088(int *self, int a1, int *p)
+{
+    char buf[0x10];
+    int half_pre = a1 << 16;
+    int half;
+    float f;
+    _SetCurrentMatrix(buf, p);
+    half = half_pre >> 17;
+    f = p2o_SetDefaultEnviroment(half);
+    _InverseCurrentMatrix(self, buf, f);
+    *(float *)((char *)self + 0xC) = func_0010ED30(half);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", func_0010E148);
+
+void func_0010E0E8(int *self, int a1, int *param)
+{
+    int half = ((int)(short)a1) >> 1;
+    float f = p2o_SetDefaultEnviroment(half);
+    _InverseCurrentMatrix(self, param, f);
+    *(float *)((char *)self + 0xC) = func_0010ED30(half);
+}
+
+void func_0010E148(void *p0, void *p1, void *p2, void *p3)
+{
+    VU0_LSV(lqc2, 11, 0x0, a1);
+    VU0_LSV(lqc2, 12, 0x0, a2);
+    VU0_V3OP(vmul.xyzw, 13, 11, 12);
+    VU0_V3OP_BC(vaddy.x, 13, 13, 13, y);
+    VU0_V3OP_BC(vaddz.x, 13, 13, 13, z);
+    VU0_V3OP_BC(vsubx.w, 13, 13, 13, x);
+    VU0_V3OP_BC(vmulw.xyz, 14, 12, 11, w);
+    VU0_V3OP_BC(vmulw.xyz, 15, 11, 12, w);
+    VU0_V3OP_ACC(vopmula.xyz, 12, 11);
+    VU0_V3OP(vopmsub.xyz, 16, 11, 12);
+    VU0_V3OP(vadd.xyz, 13, 14, 15);
+    VU0_V3OP(vadd.xyz, 13, 13, 16);
+    VU0_LSV(sqc2, 13, 0x0, a0);
+    VU0_NOP();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", func_0010E188);
 

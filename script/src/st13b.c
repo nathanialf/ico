@@ -23,11 +23,48 @@ void actSt13bElevDown(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bElevUp);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bElevUpChk);
+extern int *D_00629DE4;
+extern int D_0062C2AC;
+extern void gflagOff(int *p, int n);
+extern void actSt25aQueenBefore(int *p);
+extern void _ACTWait(int x);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bSekizo);
+void actSt13bElevUpChk(volatile int unused)
+{
+    gflagOff(D_00629DE4, 0x1D0);
+    actSt25aQueenBefore(D_00629DE4);
+    gflagOff(D_00629DE4, 0x1D1);
+    actSt25aQueenBefore(D_00629DE4);
+    D_0062C2AC = 1;
+    _ACTWait(0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bSekizo2);
+}
+
+extern void actSt25aQueenTalkChk(int a0, int a1, int *buf, int a3, float f);
+extern int D_00629DE8;
+extern long long D_00614AA0[];
+
+void actSt13bSekizo(volatile unsigned int a0)
+{
+    volatile int local;
+    long long buf[2];
+    buf[0] = D_00614AA0[0];
+    buf[1] = D_00614AA0[1];
+    actSt25aQueenTalkChk(D_00629DE8, 0, (int *)buf, 0, 100.0f);
+    _ACTWait(0);
+}
+
+extern long long D_00614AB0[];
+
+void actSt13bSekizo2(volatile unsigned int a0)
+{
+    volatile int local;
+    long long buf[2];
+    buf[0] = D_00614AB0[0];
+    buf[1] = D_00614AB0[1];
+    actSt25aQueenTalkChk(D_00629DE8, 0, (int *)buf, 0, 100.0f);
+    _ACTWait(0);
+}
 
 void actSt13bBossAfter(int a0) {
     int buf[4];
@@ -36,7 +73,17 @@ void actSt13bBossAfter(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bStoneGirl);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bExit);
+extern long long D_00614AC0[];
+
+void actSt13bExit(volatile unsigned int a0)
+{
+    volatile int local;
+    long long buf[2];
+    buf[0] = D_00614AC0[0];
+    buf[1] = D_00614AC0[1];
+    actSt25aQueenTalkChk(D_00629DE8, 0, (int *)buf, 0, 100.0f);
+    _ACTWait(0);
+}
 
 void actSt13bElev(int a0) {
     int buf[4];

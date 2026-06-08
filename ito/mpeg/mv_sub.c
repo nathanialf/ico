@@ -26,18 +26,69 @@ void func_0023A6D0(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_0023A6E0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_0023A748);
+extern void func_0025A578(int a, int b, int c);
+extern void func_0025A4E8();
+
+void func_0023A748(int *self)
+{
+    func_0025A578(3, 0, 0);
+    func_0025A4E8(3);
+    *(volatile int *)((char *)self + 0x50) = 0;
+    *(volatile int *)((char *)self + 0) = 0;
+    *(volatile int *)((char *)self + 0x2C) = 0;
+    *(volatile int *)((char *)self + 0x34) = 0;
+    *(volatile int *)((char *)self + 0x38) = 0;
+    *(volatile int *)((char *)self + 0x40) = 0;
+    *(volatile int *)((char *)self + 0x54) = 0;
+    *(volatile int *)((char *)self + 0x4C) = 0;
+}
 
 int func_0023A7A0(void *a0) {
     int *p = (int *)a0;
     return p[0x15] >= p[0x12];
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_0023A7B8);
+extern int func_0025A528(int a, int b);
+extern int func_0025A4A8(int a);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_0023A850);
+void func_0023A7B8(int *self)
+{
+    func_0025A528(0, 0);
+    func_0025A528(1, 0);
+    if (*(signed char *)((char *)self + 0x58)) {
+        int half = self[0x5C / 4] / 2;
+        func_0025A578(3, half, half);
+    } else {
+        func_0025A578(1, 0, self[0x5C / 4]);
+        func_0025A578(2, self[0x5C / 4], 0);
+    }
+    func_0025A4A8(3);
+    self[0] = 2;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_0023A888);
+int func_0023A850(int a0)
+{
+    *(int *)a0 = 3;
+    func_0025A578(3, 0, 0);
+    func_0025A4E8(3);
+    return 0;
+}
+
+
+void func_0023A888(int *self)
+{
+    func_0025A528(0, 0);
+    func_0025A528(1, 0);
+    if (*(signed char *)((char *)self + 0x58)) {
+        int half = self[0x5C / 4] / 2;
+        func_0025A578(3, half, half);
+    } else {
+        func_0025A578(1, 0, self[0x5C / 4]);
+        func_0025A578(2, self[0x5C / 4], 0);
+    }
+    func_0025A4A8(3);
+    self[0] = 2;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_0023A920);
 

@@ -48,7 +48,21 @@ void InitCamera(int a0, int a1, int a2) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-root", SetCameraMatrix);
+extern int actBoyCall(void);
+extern int isysGObjAddHead(int a0);
+extern int D_00629DE4;
+
+int SetCameraMatrix(void) {
+    int v = actBoyCall();
+    if (v == 0) {
+        return D_00629DE4;
+    }
+    v = isysGObjAddHead(v);
+    if (v != 0) {
+        return v;
+    }
+    return D_00629DE4;
+}
 
 extern int D_0062C074;
 extern int D_0062C078;
@@ -60,7 +74,6 @@ void Camctrl_ExitEveRock(int a0, int a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-root", Camctrl_SetTarget);
 
-extern int D_0062C074;
 
 int GetCameraDefaultTargetGObj(void) {
     return D_0062C074;
