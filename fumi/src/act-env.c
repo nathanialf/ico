@@ -1,6 +1,25 @@
 #include "common.h"
+#include "ico/types.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-env", GetDitchPosition);
+extern int  D_0070A8C0[];
+extern void adpcmPauseRequest(short *p, int doubled_idx);
+
+void GetDitchPosition(void)
+{
+    int i;
+    for (i = 0; i < 0xB0; i += 0x58) {
+        int *p = (int *)((char *)D_0070A8C0 + i);
+        if (*p != 0) {
+            int v = *(int *)((char *)p + 0x38);
+            if (v == 0x20000) goto call0;
+            if (v != 0x40000) goto skip;
+            adpcmPauseRequest((short *)p, 2);
+        call0:
+            adpcmPauseRequest((short *)p, 0);
+        skip: ;
+        }
+    }
+}
 
 int DebugActOrientFlag(void *a0, int a1) {
     int *p = *(int **)((char *)a0 + 0x2C);
@@ -38,6 +57,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-env", func_001FA130);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-env", func_001FA3D0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-env", func_001FE0A8);
+
+extern int *D_00629DE4;
+extern void func_0023FDD8(void *a0, int a1, void *a2);
+
+extern char D_006138D0[];
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-env", func_001FE1D0);
 

@@ -2,11 +2,25 @@
 
 extern int (*jtbl_0062A6D0)(void *a0, int a1);
 extern int D_0062C024;
-extern int (*D_0062A6D4)(void *a0, int a1);
 
+extern int (*D_0062A6D4)(void *a0, int a1);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", MakeCollisionDependGObjList);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", GetReflectionElement);
+extern void debug_assertMessage();
+extern void _ACTWait(int a0);
+extern char D_00553268[];
+
+void GetReflectionElement(volatile unsigned int a0)
+{
+  volatile int local;
+  int *new_var;
+  int *s0;
+  new_var = *((int **) (a0 + 0x164));
+  debug_assertMessage(D_00553268);
+  s0 = new_var;
+  s0[0x30 / 4] = 0x4;
+  _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", clip_wall_1);
 
@@ -63,7 +77,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipFloorByGObj);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallDebug);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWall);
+extern int func_00260340(float f);
+
+extern char D_005535C0[];
+
+void ClipWall(float *vec)
+{
+    return debug_assertMessage(D_005535C0, func_00260340(vec[0]),
+                         func_00260340(vec[1]), func_00260340(vec[2]));
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallR);
 

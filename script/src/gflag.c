@@ -19,9 +19,30 @@ void gflagSave(void) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", gflagLoad);
+extern void InitCageFixGeo(int *p, float f12);
+extern int D_00554140[];
+extern void debug_assertMessage(int *a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", gflagChk);
+void gflagLoad(float f12) {
+    int *v = actSt25aQueenDeadChk();
+    if (v) {
+        InitCageFixGeo(v, f12);
+    }
+    debug_assertMessage(D_00554140);
+}
+
+extern void func_0023FE98(int a0);
+extern int dispPlane(int a0, int a1);
+
+void gflagChk(int a0, int a1)
+{
+    int new_var;
+    new_var = 1;
+    if (new_var) {
+        func_0023FE98(a1);
+    }
+    return dispPlane(a0, (0, a1));
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", gflagOn);
 
@@ -81,7 +102,6 @@ void func_0017A040(void) {
     }
 }
 
-extern void *isysGObjAddHead(void);
 extern void DispAllSpiderGroups(void *a0);
 
 void func_0017A078(void) {
@@ -100,7 +120,6 @@ void func_0017A0A8(void) {
     }
 }
 
-extern void *isysGObjAddHead(void);
 extern void EntryRevivedSpiderGroupManager(void *a0);
 
 void func_0017A0D8(void) {
@@ -109,10 +128,39 @@ void func_0017A0D8(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_0017A0F8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_0017A158);
+extern int isysGObjSearchFromObjLayoutID();
+extern int isysGObjSearchFromObjKindID_begin(int a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_0017A198);
+void func_0017A158(void)
+{
+    int v0 = isysGObjSearchFromObjLayoutID();
+    while (v0 != 0) {
+        *(int *)(v0 + 0x50) = 0;
+        v0 = isysGObjSearchFromObjKindID_begin(v0);
+    }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_0017A1E0);
+
+void func_0017A198(int x)
+{
+  unsigned int new_var;
+  int *p = isysGObjSearchFromObjLayoutID(x);
+  while (p != 0)
+  {
+    new_var = (int) 0xFFFFFFFFU;
+    p[0x50 / 4] = new_var;
+    p = isysGObjSearchFromObjKindID_begin(p);
+  }
+
+}
+
+void func_0017A1E0(void)
+{
+    int *p = isysGObjSearchFromObjLayoutID();
+    while (p != 0) {
+        p[0x16C / 4] = 1;
+        p = isysGObjSearchFromObjKindID_begin(p);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_0017A220);
