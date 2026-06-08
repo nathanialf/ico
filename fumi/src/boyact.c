@@ -82,7 +82,10 @@ ret0:
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyTakeWeaponReady);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyTakeWeapon);
+void actBoyTakeWeapon(int *volatile a0) {
+    funcCommonJumpDircorrect(a0, *(int *)(*(int *)((char *)a0 + 0x164) + 0x678) + 0x7C0);
+    _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", pullup_check_heroin_position);
 
