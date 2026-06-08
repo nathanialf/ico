@@ -51,7 +51,37 @@ void initLanding(void *self) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", execFallDown);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", inertiaMove);
+extern void GetPureVerticalPlaneOfCurrentPosition(int a0, void *a1, int a2, void *a3, int a4);
+extern float func_001669D0(void *a0, void *a1);
+extern void func_00240968(void *a0, void *a1, float a2);
+extern void MatrixDrive_TurnZObjectMatrixXY(void *a0, void *a1, void *a2);
+extern void func_0010E250(void *a0, void *a1, void *a2);
+extern void execFallDown(void *a0);
+
+struct vec4_iner { float x, y, z, w; } __attribute__((aligned(8)));
+
+void inertiaMove(void *self) {
+    struct vec4_iner m;
+    struct vec4_iner v1;
+    struct vec4_iner v2;
+    char *box = (char *)*(int *)((char *)*(int *)((char *)self + 0x15C) + 0x7F0);
+    int cond;
+    GetRootMatrixByDObj(&m, self);
+    MatrixDrive_TurnObjectMatrix((char *)*(int *)((char *)self + 0x15C) + 0x120, D_00271BD0);
+    cond = *(int *)(box + 0x68);
+    *(int *)((char *)*(int *)((char *)self + 0x15C) + 0x49C) = 0;
+    *(int *)((char *)*(int *)((char *)self + 0x15C) + 0x490) = 0x43D;
+    if (cond != 0) {
+        float t;
+        GetPureVerticalPlaneOfCurrentPosition(0, &v1, 0, box + 0x60, 1);
+        t = func_001669D0(&v1, &m);
+        *(int *)((char *)&v1 + 0xC) = 0;
+        func_00240968(&v2, &v1, -(t - 50.0f));
+        MatrixDrive_TurnZObjectMatrixXY(&m, &m, &v2);
+    }
+    execFallDown(&m);
+    func_0010E250(box + 0x70, (char *)*(int *)((char *)self + 0x15C) + 0xC0, &m);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", action);
 
