@@ -6,7 +6,6 @@ void GetWaterReaction(int a0, char *a1) {
     MatrixDrive_TurnObjectMatrix(a0, *(char **)(a1 + 0x15C) + 0x5B0);
 }
 
-extern void MatrixDrive_TurnObjectMatrix(int a0, void *a1);
 
 void CheckFieldContact(int a0, char *a1) {
     MatrixDrive_TurnObjectMatrix(a0, *(char **)(a1 + 0x15C) + 0x580);
@@ -26,9 +25,27 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", SetMotionDirecti
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", _GetMotionDirection);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", SetMotionDirectionWithLimit);
+extern void ChangeFieldCollisionDebugMode(int a0);
+extern float D_00628C48;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetRootPosOfNextFrame);
+void SetMotionDirectionWithLimit(int a0, int a1)
+{
+    MatrixDrive_TurnObjectMatrix(a0, a1);
+    MatrixDrive_TurnObjectMatrix(a0 + 0x10, a0);
+    *(float *)(a0 + 0x14) = *(float *)(a0 + 0x14) + D_00628C48;
+    ChangeFieldCollisionDebugMode(a0);
+}
+
+extern void LoadCollision(int a0);
+extern float D_00628C4C;
+
+void GetRootPosOfNextFrame(int a0, int a1)
+{
+    MatrixDrive_TurnObjectMatrix(a0, a1);
+    MatrixDrive_TurnObjectMatrix(a0 + 0x10, a0);
+    *(float *)(a0 + 0x14) = *(float *)(a0 + 0x14) + D_00628C4C;
+    LoadCollision(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", AdjustMotionHeightToField);
 
@@ -82,7 +99,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetMotionPointer
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetCollisionOfLastActiveField);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", DebugDisp1Collision);
+extern int soundSePlayModeStop(void);
+typedef struct { long long w[62]; } _0x1F0;
+extern _0x1F0 D_00272120;
+
+void DebugDisp1Collision(_0x1F0 *self) {
+    *self = D_00272120;
+    *(int *)((char *)self + 0x1AC) = soundSePlayModeStop();
+    *(int *)((char *)self + 0x1B0) = soundSePlayModeStop();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", DebugDisp1CollisionWithColor);
 
@@ -210,7 +235,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", SetSkeltonDispSw
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", CopyMotion);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetMotionRootPos);
+void GetMotionRootPos(float *dst, char *a1, int idx, int count)
+{
+    int i = 0;
+    int m = *(int *)a1 - 1;
+    int rem = idx - m * (idx / m);
+    for (; i < count; i++) {
+        char *t = *(char **)(a1 + 0x10);
+        int *elem = *(int **)(*(char **)(t + 4) + i * 4);
+        if (elem != 0) {
+            dst[i] = ((float *)elem)[rem];
+        } else {
+            dst[i] = 0;
+        }
+    }
+}
 
 
 /* recovered struct shapes */

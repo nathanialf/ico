@@ -4,7 +4,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", cut_gobj_dl_link);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", isysGObjRemoveObjDL);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", func_0013E7E0);
+struct GObj { int unk0; int unk4; int unk8; char pad[0x168]; };
+extern struct GObj *D_0062BFA8;
+extern unsigned int D_0062BFAC;
+
+struct GObj *func_0013E7E0(struct GObj *start)
+{
+    struct GObj *end = (struct GObj *)((char *)D_0062BFA8 + (D_0062BFAC * 0x174 - 0x174));
+    while (start != end) {
+        start++;
+        if (start->unk0 != 0) {
+            return start;
+        }
+    }
+    return 0;
+}
 
 extern unsigned int D_0062A4CC;
 
@@ -28,7 +42,7 @@ void isysGObjMoveObjDL(int a0, int a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", isysGObjMoveObjDLHead);
 
-extern void isysGObjMoveObjDLHead(void);
+extern void isysGObjMoveObjDLHead();
 
 void isysGObjLinkObjDL(void) {
     isysGObjMoveObjDLHead();
@@ -38,13 +52,50 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", isysGObjLinkObjDLHead);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", isysGObjLinkObjDLAfterGObj);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", isysGObjLinkObjDLBeforeGObj);
+extern int  isysGObjLinkObjDLHead(int a0, int a1, int a2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", isysGObjDlInit);
+void isysGObjLinkObjDLBeforeGObj(int a0, int a1, int a2)
+{
+    int s1 = a1 & 0xFF;
+    int new_var;
+    new_var = a2;
+    isysGObjMoveObjDLHead(a0);
+    return isysGObjLinkObjDLHead(a0, s1, new_var);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", isysGObjMoveObjDLAfterGObj);
+extern int  isysGObjLinkObjDLAfterGObj(int a0, int a1, int a2);
 
-extern void isysGObjLinkObjDLAfterGObj(void *a0, unsigned char a1, void *a2);
+void isysGObjDlInit(int a0, int a1, int a2)
+{
+    int s1 = a1 & 0xFF;
+    int new_var;
+    new_var = a2;
+    isysGObjMoveObjDLHead(a0);
+    return isysGObjLinkObjDLAfterGObj(a0, s1, new_var);
+}
+
+extern char D_00551E80[];
+extern char D_00551E90[];
+extern void debug_assertMessage(char *p);
+
+void isysGObjMoveObjDLAfterGObj(int *self, int *p, unsigned char q, int r, int t0)
+{
+  int new_var2;
+  int new_var;
+  int *new_var3;
+  new_var = q & 0xFF;
+  debug_assertMessage(D_00551E80);
+  new_var3 = p;
+  if (new_var3 != 0)
+  {
+    self[0x48 / 4] = (int) new_var3;
+    new_var2 = 0x50;
+    self[new_var2 / 4] = t0;
+    isysGObjLinkObjDLHead(self, new_var, r);
+    debug_assertMessage(D_00551E90);
+  }
+}
+
 
 void isysGObjMoveObjDLBeforeGObj(void *a0, void *a1, unsigned char a2, void *a3, void *a4) {
     if (a1 != 0) {
@@ -54,9 +105,57 @@ void isysGObjMoveObjDLBeforeGObj(void *a0, void *a1, unsigned char a2, void *a3,
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", func_0013ECE0);
+extern char D_00551E28[];
+extern int D_0027DE50[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", func_0013ED48);
+void func_0013ECE0(int *self, int *a1, int a2, int *a3)
+{
+    int *t0;
+    int v34, v44;
+    if (a1 == 0) return;
+    t0 = self;
+    if (a3 == 0) {
+        debug_assertMessage(D_00551E28);
+        return;
+    }
+    t0[0x14] = a2;
+    t0[0x12] = (int)a1;
+    *((unsigned char *)t0 + 0x40) = *((unsigned char *)a3 + 0x40);
+    t0[0xE] = (int)a3;
+    v34 = a3[0xD];
+    v44 = a3[0x11];
+    t0[0xD] = v34;
+    a3[0xD] = (int)t0;
+    t0[0x11] = v44;
+    if (t0[0xD] == 0) {
+        D_0027DE50[*((unsigned char *)t0 + 0x40)] = (int)t0;
+    }
+}
+
+
+void func_0013ED48(int *self, int *a1, int a2, int *a3)
+{
+    int *t0;
+    int v34, v44;
+    if (a1 == 0) return;
+    t0 = self;
+    if (a3 == 0) {
+        debug_assertMessage(D_00551E28);
+        return;
+    }
+    t0[0x14] = a2;
+    t0[0x12] = (int)a1;
+    *((unsigned char *)t0 + 0x40) = *((unsigned char *)a3 + 0x40);
+    t0[0xE] = (int)a3;
+    v34 = a3[0xD];
+    v44 = a3[0x11];
+    t0[0xD] = v34;
+    a3[0xD] = (int)t0;
+    t0[0x11] = v44;
+    if (t0[0xD] == 0) {
+        D_0027DE50[*((unsigned char *)t0 + 0x40)] = (int)t0;
+    }
+}
 
 
 /* recovered struct shapes */
