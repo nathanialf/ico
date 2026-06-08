@@ -56,7 +56,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7658);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7700);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A77A8);
+extern void initLineTraceTable(int *p, int a1);
+
+void func_001A77A8(int *a0)
+{
+    int *p = a0;
+    int i;
+    for (i = 3; i >= 0; i--) {
+        initLineTraceTable(p, 0);
+        p = (int *)((char *)p + 0x10);
+    }
+}
 
 void func_001A77F0(void) {
 }
@@ -84,7 +94,26 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7B18);
 void func_001A7B50(void) {
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7B58);
+extern int D_006F26D0[];
+
+void func_001A7B58(int idx)
+{
+  int *p;
+  char *new_var2;
+  int new_var;
+  int i;
+  new_var2 = (char *) D_006F26D0;
+  p = (int *) ((new_var2 + (idx * 0xD0)) + 0xC8);
+  if (1)
+  {
+    for (i = 0x19; i >= 0; i--)
+    {
+      new_var = (*p = 0);
+      p = (p = (int *) (((char *) p) - 8));
+    }
+
+  }
+}
 
 extern int D_006F26D0_fwd[] __asm__("D_006F26D0");
 
@@ -93,7 +122,6 @@ void func_001A7BA0(int a0, int a1, int a2) {
     *p += a2;
 }
 
-extern int D_006F26D0[];
 
 void func_001A7BD0(int a0, int a1) {
     *(int *)((char *)D_006F26D0 + a1 * 8 + a0 * 0xD0) = 0;

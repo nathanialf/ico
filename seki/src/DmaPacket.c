@@ -14,12 +14,23 @@ void dpk_SwapBuffer(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DmaPacket", dpk_Init);
 
-extern int D_0062C260;
 
 int dpk_CheckBufferSize(void) {
     return D_0062C260;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DmaPacket", func_001F87B0);
+extern int D_0062A314;
+extern int D_004C3850[];
+extern int iosFree(int handle, int size, char *file, int line);
+
+extern char D_00613770[];
+
+void func_001F87B0(void)
+{
+    D_004C3850[0] = 0;
+    D_004C3850[1] = iosFree(D_0062A314, 0x80000, D_00613770, 0x86) | 0x30000000;
+    D_004C3850[2] = iosFree(D_0062A314, 0x80000, D_00613770, 0x87) | 0x30000000;
+    D_004C3850[4] = (D_004C3850 + D_004C3850[0])[1];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DmaPacket", func_001F8848);

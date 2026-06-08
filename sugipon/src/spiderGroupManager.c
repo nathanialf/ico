@@ -48,7 +48,33 @@ void func_001E8C40(int a0) {
     D_00705F98[i] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", func_001E8C68);
+extern int D_002715D4[];
+extern int D_0062B8D4;
+extern int D_0062B8BC;
+extern unsigned char D_004C21B0[];
+extern void GetNearestOfLayoutSpiders(int p, unsigned char *q);
+
+void func_001E8C68(void)
+{
+  int v = D_002715D4[0];
+  D_0062B8D4 = 0;
+  if (v & 0x1000)
+  {
+    D_0062B8BC = D_0062B8BC - 1;
+  }
+  if (v & 0x4000)
+  {
+    D_0062B8BC = D_0062B8BC + 1;
+  }
+  {
+    int i;
+    for (i = 0; i < D_0062B8DC; i++)
+    {
+      GetNearestOfLayoutSpiders(D_00705F98[i], &D_004C21B0[i * 0x10]);
+    }
+
+  }
+}
 
 extern int D_00706298[];
 

@@ -56,7 +56,30 @@ void AdpcmFadeCloseAll(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmUseAreaGet);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmFreeAreaGet);
+extern void iosCdvdBackGroundMgrEntryNum(int x);
+extern int *AdpcmOpen(int a0, int a1, int a2, int a3, int a4, int a5, int a6);
+extern void huft_build(int a, int b);
+
+extern char D_006138A0[];
+
+extern char D_006138B0[];
+
+int *AdpcmFreeAreaGet(int *self)
+{
+    int *r;
+    debug_assertMessage((int *)D_006138A0);
+    if (self[5] != 0) goto body;
+    return 0;
+body:
+    if (((int *)self[5])[0x40] != 0) {
+        return (int *)-1;
+    }
+    debug_assertMessage((int *)D_006138B0);
+    iosCdvdBackGroundMgrEntryNum(self[5]);
+    r = AdpcmOpen(0, self[1], 0x11, self[2], 0, self[3], self[4]);
+    huft_build(((int *)r[11])[10], 0x5C000);
+    return r;
+}
 
 typedef struct { int f0; char pad[0x40]; short f44; char pad2[0x12]; } AdpcmVolEntry;
 extern AdpcmVolEntry D_0070A8C0[];

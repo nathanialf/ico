@@ -117,9 +117,32 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlAttractAction);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", NotNeedBackHand);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", afterGirlHand);
+extern unsigned int _ACTWait(int a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", afterGirlPulledGo);
+extern char D_00553DA8[];
+
+void afterGirlHand(volatile unsigned int a0)
+{
+    volatile int local;
+    int *s0;
+    s0 = *((int **) (a0 + 0x164));
+    debug_assertMessage((char *)D_00553DA8);
+    s0[0x30 / 4] = 0x2;
+    _ACTWait(0);
+}
+
+
+extern char D_00553DC0[];
+
+void afterGirlPulledGo(volatile unsigned int a0)
+{
+    volatile int local;
+    int *s0;
+    s0 = *((int **) (a0 + 0x164));
+    debug_assertMessage((char *)D_00553DC0);
+    s0[0x30 / 4] = 0x3;
+    _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlJump);
 

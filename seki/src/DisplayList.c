@@ -24,7 +24,34 @@ void dl_PushPriority(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayList", dl_PopPriority);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayList", dl_Debug);
+extern int D_0062C25C;
+extern int D_0062C260;
+extern int D_0070A7C8[];
+extern int D_0070A5C0[];
+extern void func_001F8848(void);
+extern void gif_SpriteSensitive(void);
+extern void pac_openDmaTag(void);
+
+void dl_Debug(void)
+{
+    int flag = D_0062C25C ^ 1;
+    int *src = (int *)((char *)D_0070A7C8 + flag * 0x34);
+    char *dst = (char *)D_0070A5C0;
+    int i;
+    D_0062C25C = flag;
+    D_0062C260 = 0;
+    for (i = 0xC; i >= 0; i--) {
+        int v = *src;
+        *(int *)dst = 0;
+        src++;
+        *(int *)(dst + 0x24) = v;
+        *(int *)(dst + 0x20) = v;
+        dst += 0x28;
+    }
+    func_001F8848();
+    gif_SpriteSensitive();
+    pac_openDmaTag();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayList", dl_CloseDma);
 
@@ -32,7 +59,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayList", dl_Out);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayList", dl_SetDLPriority);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayList", dl_OpenDma);
+extern int D_00613700[];
+extern void debug_assertMessage(int *a0, int a1);
+
+void dl_OpenDma(void)
+{
+    int *entry = &D_0070A5C0[D_0062C260 * 10];
+    unsigned int end = entry[9];
+    unsigned int start = entry[1];
+    unsigned int count = (end - start) >> 4;
+    return debug_assertMessage(D_00613700, count - 1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayList", dl_GetPri);
 
