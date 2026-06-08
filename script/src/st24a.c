@@ -63,4 +63,13 @@ void func_00232310(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st24a", func_00232340);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st24a", func_002323E0);
+extern int D_00629DE8;
+extern int func_00178DB0(int a0);
+
+void func_002323E0(void) {
+    if (D_00629DE8 != 0) {
+        if (func_00178DB0(0x39) == 0) {
+            func_00178DD8(0x165);
+        }
+    }
+}
