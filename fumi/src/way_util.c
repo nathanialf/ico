@@ -35,7 +35,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", shortest_path_ThreadVersi
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", GetWgAll);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", set_check_wp);
+extern void iosMallocCheckLeak2(int x);
+
+void set_check_wp(int *self)
+{
+    iosMallocCheckLeak2(self[0]);
+    iosMallocCheckLeak2(self[2]);
+    iosMallocCheckLeak2(self[1]);
+    iosMallocCheckLeak2(self[3]);
+    iosMallocCheckLeak2(self[4]);
+    iosMallocCheckLeak2(self[5]);
+    iosMallocCheckLeak2(self[6]);
+    iosMallocCheckLeak2((int)self);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", set_bridge);
 
@@ -46,6 +58,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", nearest_waypoint);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", nearest_waypoint_from_gobj);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", nearest_waypoint_by_lineseg_of_group);
+
+extern char *CloseWayGroup(int handle);
+extern char *CreateWayPoint(char *node);
+extern void func_00240008(int *buf, int *p, int *q);
+extern float func_00168128(int a0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", nearest_waypoint_by_lineseg);
 
@@ -61,7 +78,25 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", nearest_waypoint_of_all_n
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", nearest_waypoint_of_all);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", visible_waypoint_of_all);
+extern int D_0062BB7C;
+
+char *visible_waypoint_of_all(int *arg0, float thresh)
+{
+    int buf[4];
+    char *node = CloseWayGroup(D_0062BB7C);
+    if (node == 0) {
+        return 0;
+    }
+    __asm__ __volatile__("" ::: "memory");
+    do {
+        func_00240008(buf, (int *)(node + 0x10), arg0);
+        if (func_00168128((int)buf) < thresh) {
+            return node;
+        }
+        node = CreateWayPoint(node);
+    } while (node != 0);
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", visible_waypoint_of_all_from_gobj);
 
@@ -119,15 +154,27 @@ int func_00178C58(int a0, int a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", func_00178C90);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", func_00178D28);
+extern int D_00629C90;
+extern int D_0062A890;
+extern char D_00286890[];
+extern int func_001AB750(int a0, int *a1, int a2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", func_00178D70);
-
-extern unsigned char D_00286890[];
-
-int func_00178DB0(int a0) {
-    return (D_00286890[a0 >> 3] >> (a0 & 7)) & 1;
+void func_00178D28(int a0)
+{
+    D_0062A890 = D_00629C90;
+    func_001AB750(a0, &D_0062A890, 4);
+    return func_001AB750(a0, (int *)D_00286890, 0x2E);
 }
+
+extern void func_001ABE38(int a0, int *a1, int a2);
+
+void func_00178D70(int a0) {
+    func_001ABE38(a0, &D_0062A890, 4);
+    func_001ABE38(a0, (int *)D_00286890, 0x2E);
+}
+
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", func_00178DB0);
 
 void func_00178DD8(int a0) {
     D_00286890[a0 >> 3] |= 1 << (a0 & 7);
