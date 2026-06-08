@@ -1,6 +1,50 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", initLineTraceTable);
+extern void debug_assertMessage(int a0, ...);
+extern int func_00260340(float);
+extern char D_0060DA60[];
+extern char D_0060DA78[];
+extern const char D_00631CD8_a[] __asm__("D_0062CC00");
+extern const char D_00631CE0_a[] __asm__("D_0062CC08");
+extern const char D_00631CE8_a[] __asm__("D_0062CC10");
+extern const char D_00631CF0_a[] __asm__("D_0062CC18");
+
+/* switch jump table jtbl_0060DA90 migrated into debug_exception.o via the
+ * per-TU .rodata carve in config/ico.aug6.yaml + migrate_rodata_to_functions. */
+void initLineTraceTable(unsigned char *arg, int slot_size) {
+    int is_float = 0;
+    int row;
+
+    switch (slot_size) {
+    case 0:
+        is_float = 1;
+        slot_size = 4;
+        debug_assertMessage((int)D_0060DA60, arg);
+        break;
+    case 1:
+    case 2:
+    case 4:
+    case 8:
+    case 16:
+        debug_assertMessage((int)D_0060DA78, arg, slot_size);
+        break;
+    default:
+        return;
+    }
+
+    for (row = 0; row < 0x10 / slot_size; row++) {
+        if (!is_float) {
+            int col;
+            for (col = 0x10 / (0x10 / slot_size) - 1; col >= 0; col--) {
+                debug_assertMessage((int)D_00631CD8_a, arg[row * slot_size + col]);
+            }
+            debug_assertMessage((int)D_00631CE0_a);
+        } else {
+            debug_assertMessage((int)D_00631CE8_a, func_00260340(((float *)arg)[row]));
+        }
+    }
+    debug_assertMessage((int)D_00631CF0_a);
+}
 
 extern int func_00265130(void *out, int x, void *args);
 extern void debug_FlushFontWindow(int *a, int *b, int *c, void *p);
