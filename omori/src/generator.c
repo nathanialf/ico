@@ -1,5 +1,8 @@
 #include "common.h"
 
+/* Generator 0x7F0 view (local) */
+typedef struct { char _0[8]; int f_8; char f_C; char _pad_d; char f_E; } GenGeo;
+
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", CheckGeneratorCollision);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", GetGeneratorSafePosition);
@@ -28,26 +31,26 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", InitGeneratorGeo);
 
 void Generator_Call(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    q[2]++;
+    GenGeo *q = *(GenGeo **)((char *)p + 0x7F0);
+    q->f_8++;
 }
 
 void Generator_ResetCount(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    *((char *)q + 0xE) = 1;
+    GenGeo *q = *(GenGeo **)((char *)p + 0x7F0);
+    q->f_E = 1;
 }
 
 void Generator_Mask(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    *((char *)q + 0xC) = 1;
+    GenGeo *q = *(GenGeo **)((char *)p + 0x7F0);
+    q->f_C = 1;
 }
 
 void Generator_MaskOff(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    *((char *)q + 0xC) = 0;
+    GenGeo *q = *(GenGeo **)((char *)p + 0x7F0);
+    q->f_C = 0;
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", SetMotherGenerator);

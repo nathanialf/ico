@@ -1,5 +1,8 @@
 #include "common.h"
 
+/* AP1 0x7F0 view (local) */
+typedef struct { int f_0; char _pad4[4]; int f_8; char _pad_c[0x26C]; int f_278; } AP1Geo;
+
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", standAI);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", walkAI);
@@ -10,14 +13,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", SleepAP1);
 
 int WakeUpAP1(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    return q[0];
+    AP1Geo *q = *(AP1Geo **)((char *)p + 0x7F0);
+    return q->f_0;
 }
 
 void subAP1BrainMain(void *a0, int a1) {
     void *p = *(void **)((char *)a0 + 0x15C);
-    void *q = *(void **)((char *)p + 0x7F0);
-    *(int *)((char *)q + 0x278) = a1;
+    AP1Geo *q = *(AP1Geo **)((char *)p + 0x7F0);
+    q->f_278 = a1;
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", hitProc);
@@ -33,8 +36,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", IsActCharDead);
 extern int D_004B9D50[];
 int SetAP1HostGObj(void *a0) {
     void *p = *(void **)((char *)a0 + 0x15C);
-    void *q = *(void **)((char *)p + 0x7F0);
-    return D_004B9D50[*(int *)((char *)q + 0x8)];
+    AP1Geo *q = *(AP1Geo **)((char *)p + 0x7F0);
+    return D_004B9D50[q->f_8];
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", SetAP1PriorLevel);

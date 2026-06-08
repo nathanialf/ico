@@ -1,49 +1,52 @@
 #include "common.h"
 
+/* eBrain 0x7F0 view (local) */
+typedef struct { char _0[0x74]; int f_74; char _pad78[0x50]; float f_C8; char f_CC; unsigned char f_CD; } EGeo;
+
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", eBrainProcess);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", eBrainGetTargetGeneratorFromLabel);
 
 void eBrainGetTarget(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    *((char *)q + 0xCC) = 1;
+    EGeo *q = *(EGeo **)((char *)p + 0x7F0);
+    q->f_CC = 1;
 }
 
 void eBrainInit(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    *((char *)q + 0xCC) = 0;
+    EGeo *q = *(EGeo **)((char *)p + 0x7F0);
+    q->f_CC = 0;
 }
 
 float eBrainStatusSet(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    return *(float *)((char *)q + 0xC8);
+    EGeo *q = *(EGeo **)((char *)p + 0x7F0);
+    return q->f_C8;
 }
 
 float eBrainSendMes(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    return (float)(q[0x1D] - 1) * 50.0f;
+    EGeo *q = *(EGeo **)((char *)p + 0x7F0);
+    return (float)(q->f_74 - 1) * 50.0f;
 }
 
 void GetStageFromLabel(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    *((char *)q + 0xCD) = 1;
+    EGeo *q = *(EGeo **)((char *)p + 0x7F0);
+    q->f_CD = 1;
 }
 
 void eBrainGetTargetGeneratorFromLabelStage(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    *((char *)q + 0xCD) = 0;
+    EGeo *q = *(EGeo **)((char *)p + 0x7F0);
+    q->f_CD = 0;
 }
 
 int func_0018DFA8(void *a0) {
     void *p = *(void **)((char *)a0 + 0x15C);
-    void *q = *(void **)((char *)p + 0x7F0);
-    return *(unsigned char *)((char *)q + 0xCD);
+    EGeo *q = *(EGeo **)((char *)p + 0x7F0);
+    return q->f_CD;
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018DFB8);

@@ -1,5 +1,8 @@
 #include "common.h"
 
+/* Queen 0x7F0 view (local; 0x7F0 target is per-object-type) */
+typedef struct { char _0[3]; signed char f_3; int f_4; char _pad8[0xC]; float f_14; } QGeo;
+
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", scale_m34);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", func_001971B0);
@@ -31,21 +34,21 @@ extern void *isysGObjSearchFromObjLayoutID(int id);
 int QueenBallDL(void) {
     void *obj = isysGObjSearchFromObjLayoutID(0x2E);
     int *p = *(int **)((char *)obj + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    return *(signed char *)((char *)q + 3);
+    QGeo *q = *(QGeo **)((char *)p + 0x7F0);
+    return q->f_3;
 }
 
 int actQueenStart(void) {
     void *obj = isysGObjSearchFromObjLayoutID(0x2E);
     int *p = *(int **)((char *)obj + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    return q[1];
+    QGeo *q = *(QGeo **)((char *)p + 0x7F0);
+    return q->f_4;
 }
 
 float QueenStartAttack(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    return *(float *)((char *)q + 0x14);
+    QGeo *q = *(QGeo **)((char *)p + 0x7F0);
+    return q->f_14;
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", QueenInqDead);
@@ -56,8 +59,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", QueenBarrierRadius);
 
 float QueenBarrierInqBreakable(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    return *(float *)((char *)q + 0x14) * 100.0f;
+    QGeo *q = *(QGeo **)((char *)p + 0x7F0);
+    return q->f_14 * 100.0f;
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", queenBarrierBeforeFunc);
