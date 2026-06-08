@@ -406,14 +406,14 @@ def _fmt_pct(matched: int, total: int) -> str:
 README_BEGIN = "<!-- progress:begin -->"
 README_END = "<!-- progress:end -->"
 
-# Only .text rolls up as decomp progress. Data sections (.data/.rodata/
-# .lit4/.sdata) are tracked via the gitignored auto-gen `_data.c`
-# sidecar pattern (raw bytes extracted from baserom at build time, not
-# committed). Their "matched" percentage is misleading — it conflates
-# auto-gen byte fidelity with hand-typed clean-room reconstruction.
-# Drop the data rows; resurrect if we ever start tracking typed-data
-# promotion as a metric.
-README_SECTIONS = [".text", ".vutext"]
+# Code and data are separate progress axes (MM-decomp style). The data
+# rows (.data/.rodata/.lit4/.sdata) count only bytes emitted from
+# compiled *git-tracked* sources — i.e. hand-typed clean-room defs and
+# matched functions' embedded constants — so they start at 0% and move
+# as the aug6 per-TU data carving / dot-form migration lands. (The old
+# retail `_data.c` sidecar pattern that made these numbers misleading
+# is gone; sidecars were never tracked and are excluded anyway.)
+README_SECTIONS = [".text", ".vutext", ".data", ".rodata", ".lit4", ".sdata"]
 
 
 def _badge_color(matched: int, total: int) -> str:
@@ -500,11 +500,11 @@ def _render_progress_table(progress: dict[str, tuple[int, int]]) -> str:
         "| Section | Matched bytes | Total bytes | % |",
         "| --- | ---: | ---: | ---: |",
     ]
-    # `.rodata` reflects bytes emitted from compiled tracked sources
-    # (typed `D_<VMA>` defs in src/*.c, .c.inc fragments, and matched
-    # function bodies' embedded constants). Auto-generated `_data.c`
-    # sidecars are excluded from the matched tally (see _walk_built_objects).
-    for sec in [".text", ".vutext", ".rodata"]:
+    # Data rows reflect bytes emitted from compiled tracked sources
+    # (typed defs in tracked TUs and matched function bodies' embedded
+    # constants). Untracked sources are excluded from the matched tally
+    # (see _walk_built_objects).
+    for sec in README_SECTIONS:
         matched, total = progress.get(sec, (0, 0))
         lines.append(
             f"| `{sec}` | {matched} | {total} | {_fmt_pct(matched, total)} |"

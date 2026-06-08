@@ -64,27 +64,10 @@ split() {
     "${VENV_PY}" tools/postprocess_ld.py
     echo "==> postprocessing asm (R5900 mnemonic fixups)"
     "${VENV_PY}" tools/postprocess_asm.py
-    # Order matters: build_data_tu_map reads the just-emitted asm
-    # blocks; migrate_data_per_tu writes per-TU _data.c files based
-    # on that mapping; rewrite_data_named_sections then strips any
-    # symbol that's defined in a *_pool.c or *_data.c from the asm,
-    # avoiding duplicate-definition link errors.
-    echo "==> mapping data symbols to TUs"
-    "${VENV_PY}" tools/build_data_tu_map.py >/dev/null \
-        || echo "WARN: build_data_tu_map.py failed; continuing without per-TU data"
-    echo "==> deriving per-TU section boundaries"
-    "${VENV_PY}" tools/build_data_tu_boundaries.py >/dev/null \
-        || echo "WARN: build_data_tu_boundaries.py failed; continuing"
-    echo "==> emitting per-TU data sidecar .c files (gitignored)"
-    "${VENV_PY}" tools/migrate_data_per_tu.py >/dev/null \
-        || echo "WARN: migrate_data_per_tu.py failed; continuing"
-    echo "==> splitting misaligned array defs in per-TU sidecars"
-    "${VENV_PY}" tools/fix_sidecar_align.py >/dev/null \
-        || echo "WARN: fix_sidecar_align.py failed; continuing"
-    echo "==> wrapping data symbols in per-VMA named sections (and stripping migrated)"
-    "${VENV_PY}" tools/rewrite_data_named_sections.py
-    echo "==> trimming splat over-emission past section boundaries"
-    "${VENV_PY}" tools/trim_splat_data_pads.py
+    # The retail per-TU data-migration pipeline (sidecars + per-VMA named
+    # sections) lived here; it was removed from main 2026-06-08 — the aug6
+    # data phase uses per-TU yaml carving + dot-form subsegments instead
+    # (see the retail branch for the old machinery).
 }
 
 setup() {
@@ -101,12 +84,6 @@ setup() {
             --label "__src_cod_${stem}_textbin" --out "$out"
     done
     split
-    if [ "${VERSION}" != "aug6" ]; then
-        # Orphan-scan is a coalesced-TU cleanup; aug6 is raw all-asm with no
-        # coalesced src/cod TUs, and clean_orphan_src.py is us-slug-specific.
-        echo "==> scanning for orphan src/cod/*.{c,s} (post-coalesce stale files)"
-        "${VENV_PY}" tools/clean_orphan_src.py --delete
-    fi
     regen_ninja
 }
 
@@ -161,11 +138,11 @@ usage: $0 <subcommand>
 
   setup       verify base ROM, run splat, regenerate build.ninja
   split       re-run splat only (no baserom verify, no build.ninja regen)
-  regen       regenerate build.ninja from config/ico.us.d
+  regen       regenerate build.ninja from config/ico.${VERSION}.d
   clean       rm -rf build/
   distclean   clean + delete splat-emitted asm and config artifacts
   progress    regenerate README + docs/PROGRESS.md tables
-  slinky      regenerate config/ico.us.slinky.{yaml,ld} (parallel artifact)
+  slinky      regenerate config/ico.${VERSION}.slinky.{yaml,ld} (parallel artifact)
 
 Build with: ninja
 EOF
