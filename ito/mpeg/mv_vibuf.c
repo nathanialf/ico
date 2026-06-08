@@ -1,11 +1,24 @@
 #include "common.h"
+#include "r5900.h"
 
 void func_0023B4D0(void) {
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vibuf", viBufCreate);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vibuf", viBufReset);
+extern int D_0062BE94;
+extern char D_00288C30[];
+extern void allocObjectData(void *a0);
+
+int viBufReset(void) {
+    if (D_0062BE94) {
+        allocObjectData(D_00288C30);
+        D_0062BE94 = 0;
+    }
+    SYNC();
+    EI();
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vibuf", viBufBeginPut);
 
