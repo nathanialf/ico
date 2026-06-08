@@ -57,7 +57,19 @@ int bga_ResetCamera(void *p)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_GetCameraMatrix);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_InitSdfCamera);
+extern int D_00629CF0;
+extern int D_0062C254;
+
+void bga_InitSdfCamera(int *a0, int a1, int a2) {
+    a0[3] = a2;
+    D_0062C254 = 1;
+    D_00629CF0 = 1;
+    if (a1 == -1) {
+        *(float *)(a0 + 2) = (float)a0[1];
+    } else {
+        *(float *)(a0 + 2) = (float)a1;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_SetCamFrame);
 
