@@ -237,7 +237,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ACT_LAYOUT_GAMEOVER);
 /* parked: needs real matching. See tough_nuts/ACTAdjustPlane/notes.md */
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ACTAdjustPlane);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", _ACTMotDirSmzDirect);
+extern void ChangeMailInLadder(void *buf, void *obj);
+
+void _ACTMotDirSmzDirect(void *a0) {
+    int local[4];
+    ChangeMailInLadder(local, a0);
+    dispPlane(a0, local);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", WithMailFunc_Idling);
 
