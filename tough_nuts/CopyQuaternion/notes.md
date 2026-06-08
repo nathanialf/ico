@@ -10,3 +10,4 @@ Best clean form (void, no return) misses ONE insn: ROM emits `daddu v0,sp`
 at the END (rc2, wrong position). Permuter (180s, no mode-TI) found NO rc0.
 RESUME: the v0=sp-before-GetQ is a regalloc artifact — try func_00118AF0 returning
 void* (the buffer) reused as GetQ's arg + returned; or a 3rd local materialization.
+## Fire 6: re-attack rc1 dead-daddu-v0,sp artifact; void* return/voidptr-reuse/getq-return all rc2; ~30 distinct all rc1; stall=32 permute, valid run (3 out) no rc0. (b)

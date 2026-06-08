@@ -34,3 +34,4 @@ glabel MatrixDrive_GetTurnXAngleYZ
     /* 5DDC 00105DDC 3000BD27 */   addiu     $29, $29, 0x30
 endlabel MatrixDrive_GetTurnXAngleYZ
 ```
+## Fire 6: re-attack rc7 qword save/restore; explicit ptr/byte-offset/pad-type ~35 forms all rc7-12; mode-TI strips permuter; stall=31 permute, valid run 18 out no rc0. (b)

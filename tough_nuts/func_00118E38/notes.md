@@ -88,3 +88,4 @@ glabel func_00118E38
 endlabel func_00118E38
     /* 18E6C 00118E6C 00000000 */  nop
 ```
+## Fire 6: re-attack rc12->rc9 (reverse decl+swap store best); ~35 fresh decl/store perms all rc9-12; stall=30 permute; mode-TI strips permuter, valid run no rc0. (b)

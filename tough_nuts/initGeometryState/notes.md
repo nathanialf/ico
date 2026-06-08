@@ -45,3 +45,4 @@ value->v1, base->a0, product->v1 (regalloc coalescing coupling — same class as
 [[feedback_zero_reuse_store_unfolds_index]] / func_001F8848). Re-attack: a value
 reuse trick that keeps the count in v1 (the freed a0->0xC compare reg) while const
 stays v0. The if(!=)compute shape (not if(==)return0, which gives bnel) is required.
+## Fire 6: re-attack rc5 coalescing (v1-reuse+nop-delay); ~33 distinct forms all rc5-20; seed best rc5; stall=30 permute, valid run no rc0. (b)

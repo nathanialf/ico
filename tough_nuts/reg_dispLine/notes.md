@@ -57,3 +57,15 @@ if(D){} rc2 form (best now rc2). Permuter seeded WITH the rc2 form (closer start
 ~7400 iters, NO rc0. Best harvest = score-15 UB artifact `dpk_Init(nv, D, nv=(nv=4))`
 which yields a0=4 (WRONG value) — real_count 2 but semantically broken, does NOT
 beat rc2. Genuine floor stays rc2 (a0/a2 left-to-right gap-filler swap). (b).
+
+## Fire 6 (2026-06-08): re-attack, rc2 floor re-confirmed
+Reset + 28 fresh distinct forms this pass: local-ptr-temp(13), ternary-a0(4),
+four-temp(2), scalar-addrof(2), enum-a0(2), explicit-ne/hex/arith consts(2),
+long/voidptr/int return(5), charptr-cast(5), register-two(2), guard-deref(13),
+negated-guard(4), ptr-no-guard(13), ptr+0(2), two-locals(2), unsigned(2),
+dowhile0(4), void-cast-ref(4), guard-both-swap(18), addr-elem0(2), bare-return(2),
+comma-return(2). All rc2 or worse. stall=30 -> permute. Bounded permuter (seeded
+rc2 if-guard form): best output-15 = rc2, NO output-0 (no rc0). a0=2/a2=4
+gap-filler swap floor holds; no clean $4-WAR exists for void(void). (b).
+## Fire 7: re-attack rc2 a0/a2 swap; ~30 fresh forms (comma/sub/add/sizeof/cast/guard variants) all rc2; stall=31 permute, valid run no rc0. (b)
+## Fire 8: re-attack rc2; ~30 forms all rc2; stall=31 permute, valid run no rc0. (b)

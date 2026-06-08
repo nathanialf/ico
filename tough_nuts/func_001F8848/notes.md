@@ -58,3 +58,4 @@ order). Array `D[idx+1]` form = rc4 best (the index/coloring coupling holds);
 pointer/`*(D+idx+1)` forms = rc10-11 (fix the scale but flip %hi/&base coloring).
 30-stall reached; fired permuter (150s, ~1000 iters), NO rc0. (b) re-confirmed.
 Note: ee-gcc 2.9 is C89 — mid-block `int x=0;` is a compile error (rc=-1 false).
+## Fire 6: re-attack; base-fold ptr forms rc11 (coloring flip), array form rc4 best hand, ~35 distinct; rc1 is permuter-only §5.11 andi floor; stall=31 permute, valid run no rc0. (b)
