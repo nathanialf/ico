@@ -68,7 +68,9 @@ struct Sub15C {
     char    _pad6D[0x3];
     int     f_70; /* 0x70 */
     int     f_74; /* 0x74 */
-    char    _pad78[0xC];
+    char    _pad78[0x4];
+    int     f_7C; /* 0x7C */
+    char    _pad80[0x4];
     int     f_84; /* 0x84 */
     int     f_88; /* 0x88 */
     char    _pad8C[0x44];
@@ -88,9 +90,13 @@ struct Sub15C {
     int     f_270; /* 0x270 */
     int     f_274; /* 0x274 */
     int     f_278; /* 0x278 */
-    char    _pad27C[0x15C];
+    char    _pad27C[0xF4];
+    int     f_370; /* 0x370 */
+    char    _pad374[0x64];
     int     f_3D8; /* 0x3D8 */
-    char    _pad3DC[0xC4];
+    char    _pad3DC[0xB4];
+    int     f_490; /* 0x490 — char-status index */
+    char    _pad494[0xC];
     int     f_4A0; /* 0x4A0 index */
     char    _pad4A4[0x8];
     int     f_4AC; /* 0x4AC */
@@ -102,7 +108,12 @@ struct Sub15C {
     int     f_4E4; /* 0x4E4 */
     char    _pad4E8[0x44];
     int     f_52C; /* 0x52C */
-    char    _pad530[0x2C0];
+    char    _pad530[0x4];
+    int     f_534; /* 0x534 */
+    int     f_538; /* 0x538 */
+    int     f_53C; /* 0x53C */
+    int     f_540; /* 0x540 */
+    char    _pad544[0x2AC];
     Obj7F0 *p_7F0; /* 0x7F0 — cage-fix geometry */
     char    _pad7F4[0xC];
     Obj800 *p_800; /* 0x800 */

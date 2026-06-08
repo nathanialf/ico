@@ -1,4 +1,5 @@
 #include "common.h"
+#include "ico/types.h"
 
 extern int (*jtbl_0062A6D0)(void *a0, int a1);
 extern int D_0062C024;
@@ -37,8 +38,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", DispCollisionPC);
 
 void makeCollisionBlockTable(int a0) {
     int base = *(volatile int *)&a0;
-    *(int *)(*(int *)(base + 0x15C) + 0x540) = 0;
-    *(int *)(*(int *)(base + 0x15C) + 0x370) = 0;
+    GOBJ_SUB(base)->f_540 = 0;
+    GOBJ_SUB(base)->f_370 = 0;
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", _Clip);

@@ -54,17 +54,17 @@ ret0:
 }
 
 void ACTParaStatus_Clear(int a0) {
-    *(int *)(*(int *)(a0 + 0x15C) + 0x534) = 1;
-    *(int *)(*(int *)(a0 + 0x15C) + 0x53C) = 1;
-    *(int *)(*(int *)(a0 + 0x15C) + 0x538) = 1;
-    *(int *)(*(int *)(a0 + 0x15C) + 0x7C) = 1;
+    GOBJ_SUB(a0)->f_534 = 1;
+    GOBJ_SUB(a0)->f_53C = 1;
+    GOBJ_SUB(a0)->f_538 = 1;
+    GOBJ_SUB(a0)->f_7C = 1;
 }
 
 void ACTParaStatus_Exec(void *a0) {
-    *(int *)(*(int *)((char *)a0 + 0x15C) + 0x534) = 0;
-    *(int *)(*(int *)((char *)a0 + 0x15C) + 0x53C) = 0;
-    *(int *)(*(int *)((char *)a0 + 0x15C) + 0x538) = 0;
-    *(int *)(*(int *)((char *)a0 + 0x15C) + 0x7C) = 0;
+    GOBJ_SUB(a0)->f_534 = 0;
+    GOBJ_SUB(a0)->f_53C = 0;
+    GOBJ_SUB(a0)->f_538 = 0;
+    GOBJ_SUB(a0)->f_7C = 0;
 }
 
 typedef struct { char _[0x186]; unsigned short f186; char _pad[8]; } ACTCharStat;
@@ -72,7 +72,7 @@ extern ACTCharStat D_0055DA10[];
 
 int _ACTCharStatus_Clear(void *a0) {
     ACTCharStat *t = D_0055DA10;
-    int idx = *(int *)(*(int *)((char *)a0 + 0x15C) + 0x490);
+    int idx = GOBJ_SUB(a0)->f_490;
     return t[idx].f186 & 7;
 }
 
