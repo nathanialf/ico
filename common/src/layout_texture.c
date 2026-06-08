@@ -6,7 +6,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", lt_analog2Pad);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", default_item_select);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", texture_fading);
+extern int D_002715D4[];
+extern int lt_set_item_select_func(void);
+
+int texture_fading(void)
+{
+    if (D_002715D4[0] & 0x10) {
+        return lt_set_item_select_func();
+    }
+    return -1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", func_001B2EF8);
 

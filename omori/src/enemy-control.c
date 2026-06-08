@@ -1,6 +1,22 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/enemy-control", EnemyCtrlBeforeFunc);
+extern int D_0062C0A4;
+extern int D_0062C0A8;
+extern int D_006CA470[];
+
+int EnemyCtrlBeforeFunc(int a0)
+{
+    if (D_0062C0A8 < 0) goto init;
+    if (a0 != D_0062C0A8) goto append;
+    return 1;
+init:
+    D_0062C0A8 = a0;
+    return 1;
+append:
+    D_006CA470[D_0062C0A4] = a0;
+    D_0062C0A4++;
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/enemy-control", InitEnemyCtrlGeo);
 

@@ -39,7 +39,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/charFileManager", ReadEndCheckFile
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/charFileManager", ReadStageSettingFile);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/charFileManager", CSVSYSTEM_ReadCharFiles);
+extern int D_0062A328;
+extern int D_00271240[];
+extern int iosFree(int a0, char *q, const char *src, int code);
+extern void iosCdvdLoad(int *self, int p, char *q);
+extern void iosMallocCheckLeak2(int p);
+
+extern char D_0060B4E0[];
+
+void CSVSYSTEM_ReadCharFiles(int *self, int unused, char *q)
+{
+    int p = iosFree(D_0062A328, q, D_0060B4E0, 0x349);
+    D_00271240[8]++;
+    iosCdvdLoad(self, p, q);
+    iosMallocCheckLeak2(p);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/charFileManager", ReadSoundSqFile);
 

@@ -10,7 +10,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", flushWork);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", setNodePursueParticleEffectWithUpperLimit);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", SetFallDownSplash);
+extern float func_00166A48(int *buf, int *dest);
+
+void SetFallDownSplash(long long *src, int *dest) {
+    long long buf[2];
+    buf[0] = src[0];
+    buf[1] = src[1];
+    *(float *)((char *)dest + 4) = func_00166A48((int *)buf, dest);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", GetPoolGlobalDrainVector);
 

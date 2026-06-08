@@ -20,4 +20,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/girl", GirlDL);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/girl", GirlAI);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/girl", SetGirlClothDispSwitch);
+extern void func_0010F068(int a0);
+extern void func_0010F048(int a0);
+extern void GirlGeo(int a0);
+extern int GirlAI(int a0);
+
+void SetGirlClothDispSwitch(int a0)
+{
+    func_0010F068(a0);
+    func_0010F048(a0);
+    GirlGeo(a0);
+    return GirlAI(a0);
+}

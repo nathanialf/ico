@@ -1,6 +1,14 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vobuf", func_0019B8E0);
+extern int func_0023CCE0(int *a, int *b);
+
+int func_0019B8E0(int a0_unused, int *a1, char *a2) {
+    long long buf[4];
+    func_0023CCE0((int *)(a2 + 0x50), (int *)buf);
+    *(long long *)((char *)a1 + 0x8) = buf[0];
+    *(long long *)((char *)a1 + 0x10) = buf[1];
+    return 1;
+}
 
 extern void voBufIsFull(int a0);
 

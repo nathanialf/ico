@@ -55,7 +55,33 @@ void func_0017F450(void) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/attackhit", func_0017F470);
+extern char D_00286A90[];
+extern void func_0018F1A8(void);
+
+void func_0017F470(void)
+{
+    char *new_var;
+    char *p = D_00286A90;
+    char *q;
+    int i = 0x13;
+    *((int *) (p + 0)) = 0;
+    *((int *) (p + 0x4)) = 0;
+    new_var = p;
+    q = new_var + 0x23C;
+    *((int *) (p + 0xC)) = 0;
+    *((int *) (p + 0x10)) = 0;
+    do {
+        *((int *) q) = 0;
+        i--;
+        q -= 0x1C;
+    } while (i >= 0);
+    *((int *) (new_var + 0x8)) = 0;
+    *((short *) (new_var + 0x24)) = (short) (-1);
+    *((int *) (new_var + 0x14)) = 0;
+    do { } while (0);
+    *((short *) (new_var + 0x1C)) = 0;
+    func_0018F1A8();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/attackhit", func_0017F4C8);
 

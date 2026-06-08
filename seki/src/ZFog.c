@@ -4,7 +4,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", fog_MakeFogClut);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", fog_DrawFog);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/ZFog", fog_FogTool);
+int fog_FogTool(int a0)
+{
+    int ret = -1;
+    int i;
+    for (i = 0; i < 11; i++)
+    {
+        if ((1 << i) >= a0)
+        {
+            ret = i;
+            break;
+        }
+    }
+    return ret;
+}
 
 extern int tex_scrollClut(void);
 

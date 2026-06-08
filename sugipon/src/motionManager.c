@@ -57,7 +57,29 @@ void SetHitCollisionDisplay(void) {
     MatrixDrive_TurnObjectMatrix(D_0062C230 + 0x140, D_0062C230);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", GetWallVector);
+extern void func_00105108(float, float, float);
+extern int func_00105078(void);
+extern void func_0010E300(char *p);
+extern float D_00703094[];
+extern int func_00104D20(void);
+extern int func_002400F8(int);
+extern void checkActPointWithHeight(void);
+extern void func_00105068(void);
+
+void GetWallVector(void)
+{
+    int v;
+    func_00104D20();
+    v = func_00105078();
+    func_002400F8(v);
+    {
+        register float *p = (float *)D_0062C230;
+        func_00105108(p[0], p[1] - D_00703094[0], p[2]);
+    }
+    func_0010E300((char *)D_0062C230 + 0x30);
+    checkActPointWithHeight();
+    func_00105068();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", getGeometryOfMotion);
 

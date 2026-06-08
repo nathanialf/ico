@@ -51,7 +51,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", correct_vector);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", pendulum_Process);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", InitChainGeo);
+extern int D_0062AF84;
+extern int D_0062C090;
+extern void traceLine(int a, int b, int c, const char *d);
+extern void chain_simulate_term_free(int a0);
+
+extern char D_00554D68[];
+
+void InitChainGeo(int a0)
+{
+    if (D_0062AF84 & 1) {
+        D_0062C090 = D_0062C090 + 0xA;
+        traceLine(0xA, D_0062C090, 0x0FFFFFFF, D_00554D68);
+    }
+    chain_simulate_term_free(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", chain_simulate_climb);
 

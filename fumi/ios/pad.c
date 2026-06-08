@@ -35,7 +35,21 @@ int iosPadGetDevice(int a0, int a1) {
     return base[1];
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/pad", iosPadConnect);
+int iosPadConnect(int a, int b)
+{
+    int *p = D_0027D540;
+    int count = 0;
+    do {
+        count++;
+        if (p[0] == a) {
+            if (p[1] == b) {
+                return p[2];
+            }
+        }
+        p = (int *)((char *)p + 0x200);
+    } while (count < 2);
+    return -1;
+}
 
 int iosPadStickCameraCoord(void *a0, int a1, int a2, int a3) {
     int *p = (int *)a0;
@@ -52,7 +66,6 @@ void iosPadDisable(void) {
     D_0062BF98 = 1;
 }
 
-extern int D_0062BF98;
 
 void iosPadEnableGet(void) {
     D_0062BF98 = 0;

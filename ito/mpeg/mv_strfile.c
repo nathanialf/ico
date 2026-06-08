@@ -18,7 +18,17 @@ void func_0019B720(int a0) {
     iosMallocCheckLeak2(a0 & 0xFFFFFFF);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_strfile", func_0019B730);
+extern void func_0023CE80(int a0);
+extern void func_0024DE40(int a0);
+extern void readBufEndPut(int a0);
+
+int func_0019B730(int a0)
+{
+    func_0023CE80(a0 + 0x50);
+    func_0024DE40(a0);
+    readBufEndPut(a0);
+    return 1;
+}
 
 extern void func_0024D320(void);
 int func_0019B770(void) {

@@ -22,9 +22,26 @@ void func_0013F370(int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/isys", func_0013F3A8);
+extern void isysGObjProcAddS(void *a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/isys", func_0013F3E0);
+void func_0013F3A8(void *a0)
+{
+    void *p = *(void **)((char *)a0 + 0x2C);
+    while (p != 0) {
+        isysGObjProcAddS(p);
+        p = *(void **)((char *)p + 0x8);
+    }
+}
+
+extern void iosThreadCancelWakeup(int a0);
+
+void func_0013F3E0(int a0)
+{
+    while (a0 != 0) {
+        iosThreadCancelWakeup(0);
+        a0--;
+    }
+}
 
 extern int isysGObjProcessAlloc(int a0, int a1, int a2, int a3, int a4, int a5);
 

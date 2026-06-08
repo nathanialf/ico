@@ -6,7 +6,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", func_002388F0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", audioDecCreate);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", audioDecEndPut);
+extern int UpdateRootPosition(int x);
+
+int audioDecEndPut(int *self)
+{
+  float *p = (float *) UpdateRootPosition((int) self);
+  int v0 = 0;
+  if (p[0] < 300.0f)
+  {
+    if (848.0f < p[2])
+    {
+      v0 = -1;
+    }
+  }
+ do { return v0; } while (0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", sendToIOP2area);
 

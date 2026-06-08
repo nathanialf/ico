@@ -16,7 +16,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/DObj", initPolygonState);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/DObj", CSVSYSTEM_InitDObj);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/DObj", FreeDObj);
+extern int D_0062A310;
+extern int iosFree(int a0, int a1, int *a2, int a3);
+extern void SetDirectRootPositionNoFittingWithNodePoint(int v, int *self);
+
+extern char D_0060B090[];
+
+void FreeDObj(int *self) {
+    int v = iosFree(D_0062A310, self[0x88/4] << 6, (int*)D_0060B090, 0x14C);
+    self[0x90/4] = v;
+    SetDirectRootPositionNoFittingWithNodePoint(v, self);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/DObj", LinkParentOfDObj);
 

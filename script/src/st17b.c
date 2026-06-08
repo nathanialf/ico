@@ -20,7 +20,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17b", func_0022B2E0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17b", func_0022B360);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17b", func_0022B3B0);
+extern void actSt25aQueenTalkChk(int a0, int a1, int *buf, int a3, float f);
+extern void _ACTWait(int x);
+extern int D_00629DE8;
+extern long long D_00614BD0[];
+
+void func_0022B3B0(volatile unsigned int a0)
+{
+    volatile int local;
+    long long buf[2];
+    buf[0] = D_00614BD0[0];
+    buf[1] = D_00614BD0[1];
+    actSt25aQueenTalkChk(D_00629DE8, 0, (int *)buf, 0, 100.0f);
+    _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17b", func_0022B408);
 

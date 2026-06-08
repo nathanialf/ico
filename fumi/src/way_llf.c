@@ -17,7 +17,19 @@ int CloseWayGroup(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", CreateWayPoint);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", AddWayPoint);
+extern char D_00613D40[];
+extern void debug_assertMessage(char *p, int *self);
+
+int AddWayPoint(int *self, int which) {
+    if (self == 0) {
+        return 0;
+    }
+    debug_assertMessage(D_00613D40, self);
+    if (which == 0) {
+        return self[0x8 / 4];
+    }
+    return self[0xC / 4];
+}
 
 void AddWayPointTop(int a0, int a1) {
     D_004C6FF0[a0].w[10] = a1;

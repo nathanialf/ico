@@ -1,6 +1,15 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/fightSound", fightSoundProcessMain);
+extern int D_006CA600[];
+extern void soundSeVolSet(int a0);
+
+void fightSoundProcessMain(void)
+{
+    if (D_006CA600[0] != 0) {
+        soundSeVolSet(D_006CA600[0]);
+        D_006CA600[0] = 0;
+    }
+}
 
 extern int D_0062AA58;
 
@@ -12,7 +21,6 @@ int fightSoundProcessRequestPause(void) {
     return D_0062AA58;
 }
 
-extern int D_006CA600[];
 
 int fightSoundClose(void) {
     return D_006CA600[0];

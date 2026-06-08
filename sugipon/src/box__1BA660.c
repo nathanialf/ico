@@ -62,7 +62,15 @@ int GetBoxGlobalHoldPoint(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", IsThisBoxTruck);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", ExecBoxMoveStartReaction);
+extern void LocalizeDirectionOrient(int *buf);
+extern void func_0023FDD8(int a, int *buf, int c);
+
+void ExecBoxMoveStartReaction(int a0, int a1, int a2)
+{
+    int buf[16];
+    LocalizeDirectionOrient(buf);
+    func_0023FDD8(a0, buf, a2);
+}
 
 int ExecBoxMoveEndReaction(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);

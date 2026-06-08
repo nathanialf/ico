@@ -17,7 +17,25 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanban", kanbanReqDel);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanban", kanbanReqDelFade);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanban", kanbanReqAllDel);
+extern int *D_0062C15C;
+
+void kanbanReqAllDel(int *self)
+{
+    int *next = (int *)self[0x1C / 4];
+    int *prev = (int *)self[0x18 / 4];
+    if (next == 0) {
+        D_0062C15C = prev;
+        if (prev != 0) {
+            prev[0x1C / 4] = 0;
+        }
+    } else {
+        next[0x18 / 4] = (int)prev;
+        if (prev != 0) {
+            ((int *)self[0x18 / 4])[0x1C / 4] = self[0x1C / 4];
+        }
+    }
+    self[0] = 0;
+}
 
 extern void *D_0062C160;
 
@@ -28,7 +46,17 @@ void kanbanReqAllDelFade(void *a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanban", kanbanExec);
+extern int D_006FF910[];
+
+void kanbanExec(void)
+{
+    int i;
+    for (i = 0x1D; i >= 0; i--) {
+        D_006FF910[i * 8] = 0;
+    }
+    D_0062C15C = 0;
+    D_0062C160 = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanban", func_001ADB00);
 

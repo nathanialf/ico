@@ -12,7 +12,24 @@ void bombSparkSE(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/item", bombExplodeSE);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/item", HoldItem);
+extern float D_004C0850[48];
+extern void GetRootMatrixByDObj(void *buf, int v);
+extern void ClipWallBoxStop(int arg);
+extern void CylinderCollision(void *self, char *spill);
+
+void HoldItem(void *self, int arg)
+{
+    char *p;
+    if (arg == 0)
+        return;
+    p = (char *)D_004C0850;
+    GetRootMatrixByDObj(p, arg);
+    GetRootMatrixByDObj(p + 0x10, (int)self);
+    ClipWallBoxStop((int)p);
+    if (*(int *)(p + 0x88) == 0)
+        return;
+    CylinderCollision(self, p + 0x20);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/item", avoidInsideOfWall);
 

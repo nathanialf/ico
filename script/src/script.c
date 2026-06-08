@@ -61,7 +61,23 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpDoorTypeUpDown);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpDoorTypeUpUp);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpSubAdpcmPlay);
+extern int *isysGObjSearchFromObjLayoutID(int x);
+extern int Draw2DLineG(int *p);
+extern int *isysGObjSearchFromObjKindID_begin(int *p);
+
+int *scpSubAdpcmPlay(int x)
+{
+    int *p = isysGObjSearchFromObjLayoutID(x);
+    if (p != 0) {
+        do {
+            if (Draw2DLineG(p) != 0) {
+                return p;
+            }
+            p = isysGObjSearchFromObjKindID_begin(p);
+        } while (p != 0);
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpSekizou);
 

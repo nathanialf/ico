@@ -16,7 +16,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_process", isysGObjProcessAlloc
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_process", isysGObjProcAdd);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_process", isysGObjProcAddS);
+extern void isysGObjProcAdd(int a0);
+extern int iosSemaDelete(int a0);
+
+void isysGObjProcAddS(int *a0)
+{
+    int v0;
+    isysGObjProcAdd((int)a0);
+    v0 = a0[4];
+    a0[0] = 0;
+    if (v0 != 0) {
+        return;
+    }
+    return iosSemaDelete((int)a0 + 0x24);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_process", isysGObjProcAddGOppArg);
 

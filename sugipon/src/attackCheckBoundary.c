@@ -28,7 +28,28 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/attackCheckBoundary", actAttackCh
 void GetAttackCheckBoundaryRadius(void) {
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/attackCheckBoundary", CreateAttackCheckBoundary);
+extern int D_0062A310;
+extern int iosFree(int handle, int size, char *file, int line);
+
+extern char D_00610EF8[];
+
+int CreateAttackCheckBoundary(int unused, void *obj)
+{
+  int buf = iosFree(D_0062A310, 0xC, D_00610EF8, 0x1B);
+  int *p = *((int **) (((char *) obj) + 0x30));
+  int new_var4;
+  int *new_var2;
+  int *new_var3;
+  int new_var;
+  new_var2 = p;
+ do { new_var4 = (int) p; ; } while (0);
+  *((int *) (buf + 4)) = 0;
+  new_var3 = (int *) buf;
+  *new_var2 = 0;
+  *new_var3 = new_var4;
+  *((int *) (buf + 8)) = 0;
+  return buf;
+}
 
 void GetAttackCheckBoundaryManagerStatus(void *a0) {
     int *a = *(int **)((char *)a0 + 0x15C);

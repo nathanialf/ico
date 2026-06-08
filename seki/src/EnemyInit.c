@@ -10,7 +10,16 @@ int enemy_Initialize(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/EnemyInit", enemy_GetPositionTable);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/EnemyInit", func_001F8BF0);
+extern char D_0062BB18[8];
+extern int D_0070A850[];
+
+int func_001F8BF0(int idx, int sub_idx)
+{
+    register int factor;
+    if (idx < 0 || idx >= *(int *)D_0062BB18) return 0;
+    factor = 0x6C;
+    return *(int *)((char *)D_0070A850 + idx * factor + sub_idx * 4);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/EnemyInit", func_001F8C30);
 

@@ -65,9 +65,30 @@ int gamesysObjInfoStageInitPosSaveUnlock(void)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysObjInfoPosSetStage);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysObjInfoUniqDataSet);
+extern int D_002715D4[];
+extern void func_0018A0D8(int a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysObjInfoPosNewStageSet);
+int gamesysObjInfoUniqDataSet(int a0)
+{
+    if (a0 != 0) {
+        func_0018A0D8(1);
+    }
+    func_0018A0D8(1);
+    return (D_002715D4[0] & 0x100) ? -1 : 0;
+}
+
+extern void func_00241790(int a0);
+extern void func_00241748(int a0);
+extern void func_00241698(int a0, int a1);
+extern void func_002415E8(int a0);
+
+void gamesysObjInfoPosNewStageSet(int a0)
+{
+    func_00241790(a0);
+    func_00241748(a0);
+    func_00241698(a0, 0);
+    func_002415E8(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysObjInfoGet);
 

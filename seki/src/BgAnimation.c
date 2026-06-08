@@ -38,7 +38,22 @@ void bga_DispLightning(void) {
     D_0062C254 = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_ResetCamera);
+extern int D_0062BA98;
+extern int D_0062BAA0;
+extern int D_0070A4B0[];
+extern void func_001189D0(void *dst, void *src);
+
+int bga_ResetCamera(void *p)
+{
+    int v = D_0062C254;
+    if (v != 0) {
+        func_001189D0(p, D_0070A4B0);
+        v = D_0062C254;
+    } else {
+        D_0062BA98 = 0;
+    }
+    return v != 0 && D_0062BAA0 == 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_GetCameraMatrix);
 

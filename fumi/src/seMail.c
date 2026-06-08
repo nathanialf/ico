@@ -16,7 +16,18 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/seMail", func_00202638);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/seMail", func_00202688);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/seMail", func_002026E0);
+extern void GetRootMatrixByDObj(int *buf, int x);
+extern int func_00201AF0(int *buf, int zero, float f);
+
+int func_002026E0(int a0, float f)
+{
+    int buf[4];
+    if (a0 == 0) {
+        return -1;
+    }
+    GetRootMatrixByDObj(buf, a0);
+    return func_00201AF0(buf, 0, f);
+}
 
 int func_00202728(int a0, int a1) {
     float x = *(float *)(a0 + 4);
