@@ -1,5 +1,8 @@
 #include "common.h"
 
+/* gflag 0x164 actor-state view (local) */
+typedef struct { char _0[0x18]; long long f_18; } GflagState;
+
 extern void *actSt25aQueenDeadChk(void);
 extern void func_001EE9A8(void *a0);
 
@@ -79,8 +82,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_00179D00);
 extern void GetOtherStageGirlOrient(void *a0);
 
 void func_00179F60(void *a0) {
-    char *p = *(char **)((char *)a0 + 0x164);
-    *(long long *)(p + 0x18) &= 0xFFFFFBFFFFFFFFFFLL;
+    GflagState *p = *(GflagState **)((char *)a0 + 0x164);
+    p->f_18 &= 0xFFFFFBFFFFFFFFFFLL;
     GetOtherStageGirlOrient(a0);
 }
 

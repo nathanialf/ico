@@ -1,5 +1,8 @@
 #include "common.h"
 
+/* st25a 0x164 actor-state view (local) */
+typedef struct { char _0[0x100]; int f_100, f_104, f_108; char _pad10c[0x21C]; int f_328, f_32C; char _pad330[0xC]; int f_33C; } St25State;
+
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actSt25aQueenAppear);
 
 extern int *isysGObjSearchFromObjLayoutID(int x);
@@ -36,13 +39,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actSt25aQueenTalkChk);
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actConte12);
 
 void actConte12Jimaku(void *a0) {
-    int *p = *(int **)((char *)a0 + 0x164);
-    *(int *)((char *)p + 0x33C) = 0;
-    *(int *)((char *)p + 0x100) = 0;
-    *(int *)((char *)p + 0x104) = 0;
-    *(int *)((char *)p + 0x108) = 0;
-    *(int *)((char *)p + 0x32C) = 0x7F;
-    *(int *)((char *)p + 0x328) = 0x7F;
+    St25State *p = *(St25State **)((char *)a0 + 0x164);
+    p->f_33C = 0;
+    p->f_100 = 0;
+    p->f_104 = 0;
+    p->f_108 = 0;
+    p->f_32C = 0x7F;
+    p->f_328 = 0x7F;
 }
 
 

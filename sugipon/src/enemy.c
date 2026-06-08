@@ -1,5 +1,8 @@
 #include "common.h"
 
+/* enemy 0x164 actor-state view (local) */
+typedef struct { char _0[0x18]; unsigned long long f_18; } EnemyState;
+
 /* enemy 0x7F0 view (local) */
 typedef struct { char _0[0x2C]; int f_2C; } EnemyGeo;
 
@@ -50,8 +53,8 @@ extern void SetEnemyFootPrintSwitch(int *self);
 
 void EnemySetfAppearAll(int *self)
 {
-    char *sub = *(char **)((char *)self + 0x164);
-    unsigned long long flag = *(unsigned long long *)(sub + 0x18);
+    EnemyState *sub = *(EnemyState **)((char *)self + 0x164);
+    unsigned long long flag = sub->f_18;
     if (((flag >> 33) & 1) == 0) return;
     func_001B8D08();
     if (clip_floor_1(self) != 0) return;

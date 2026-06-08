@@ -1,5 +1,8 @@
 #include "common.h"
 
+/* jimaku 0x164 actor-state view (local) */
+typedef struct { char _0[0x30]; int f_30; char _pad34[0x308]; int f_33C; } JimakuState;
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", display_texture);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", iosCdvdBackGroundReadJimaku);
@@ -31,8 +34,8 @@ void jimakuMgrEnd(void) {
 extern void _ACTWait(int a0);
 
 void jimakuBegin(volatile int a0) {
-    int *p = *(int **)(a0 + 0x164);
-    p[0xCF] = 0;
+    JimakuState *p = *(JimakuState **)(a0 + 0x164);
+    p->f_33C = 0;
     _ACTWait(0);
 }
 
@@ -91,8 +94,8 @@ int func_00173D68(int a0, int a1)
     int p = D_00629DE4;
     int q = (int)D_00629DE8;
     if ((a0 == p && a1 == q) || (a0 == q && a1 == p)) {
-        int *obj = *(int **)(q + 0x164);
-        if (*(int *)((int)obj + 0x30) == 0x4E)
+        JimakuState *obj = *(JimakuState **)(q + 0x164);
+        if (obj->f_30 == 0x4E)
             return 1;
     }
     return 0;

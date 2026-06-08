@@ -1,4 +1,7 @@
 #include "common.h"
+
+/* boyact 0x164 actor-state view (local) */
+typedef struct { char _0[0x30]; int f_30; } BoyState;
 #include "ico/types.h"
 
 void findChainInJump(void) {
@@ -100,8 +103,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyBelift);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyRescueReady);
 
 int actBoyDitch3mReady(void) {
-    void *p = *(void **)((char *)D_00629DE4 + 0x164);
-    unsigned int v = *(unsigned int *)((char *)p + 0x30);
+    BoyState *p = *(BoyState **)((char *)D_00629DE4 + 0x164);
+    unsigned int v = p->f_30;
     if (v >= 0x5D) {
         return 1;
     }

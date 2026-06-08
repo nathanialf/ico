@@ -1,5 +1,8 @@
 #include "common.h"
 
+/* girl_act 0x164 actor-state view (local) */
+typedef struct { char _0[0x30]; int f_30; } GirlState;
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", GetEyeDirection);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", funcGirlHandDisconnect);
@@ -24,8 +27,8 @@ void func_00168A40(void) {
 extern void func_00149CD8(void *a0, int a1, float a2);
 
 void subGirlBrainMain(void *a0) {
-    int *p = *(int **)((char *)a0 + 0x164);
-    if (p[0xC] == 0xA) {
+    GirlState *p = *(GirlState **)((char *)a0 + 0x164);
+    if (p->f_30 == 0xA) {
         func_00149CD8(a0, 5, 1.5f);
     }
 }

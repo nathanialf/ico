@@ -1,17 +1,20 @@
 #include "common.h"
 
+/* act-parallel-control 0x164 actor-state view (local) */
+typedef struct { char _0[0x80]; int f_80; } APCState;
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", ActPara_MakeTbl);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", ActPara_InitSystem);
 
 void ActPara_GetDefTbl(void *a0, int a1) {
-    int *p = *(int **)((char *)a0 + 0x164);
-    p[0x20] |= 1 << a1;
+    APCState *p = *(APCState **)((char *)a0 + 0x164);
+    p->f_80 |= 1 << a1;
 }
 
 int ActPara_StatusToFlag(void *a0, int a1) {
-    int *p = *(int **)((char *)a0 + 0x164);
-    return (p[0x20] >> a1) & 1;
+    APCState *p = *(APCState **)((char *)a0 + 0x164);
+    return (p->f_80 >> a1) & 1;
 }
 
 void ActPara_DebugOut(int **a0) {

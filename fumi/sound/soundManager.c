@@ -1,5 +1,8 @@
 #include "common.h"
 
+/* soundManager 0x164 actor-state view (local) */
+typedef struct { char _0[0x80]; int f_80; } SndState;
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", sndBgmReadyNextStage);
 
 extern void debug_assertMessage();
@@ -94,8 +97,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_00143FB0);
 extern void ActPara_GetDefTbl(void *a0, int a1);
 
 void func_001440F0(void *a0) {
-    int *p = *(int **)((char *)a0 + 0x164);
-    p[0x20] = 0;
+    SndState *p = *(SndState **)((char *)a0 + 0x164);
+    p->f_80 = 0;
     ActPara_GetDefTbl(a0, 0);
 }
 
