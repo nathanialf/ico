@@ -74,4 +74,12 @@ void func_0020AB70(volatile int a0) {
     actCreateSubThread(actEndDemo07, 0x15);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", func_0020AB98);
+extern void shadow_Tool(int a0);
+extern void UpdateStormPackage(int a0);
+extern void actConte14_7(void);
+
+void func_0020AB98(volatile int a0) {
+    shadow_Tool(1);
+    UpdateStormPackage(0);
+    actCreateSubThread(actConte14_7, 0x15);
+}
