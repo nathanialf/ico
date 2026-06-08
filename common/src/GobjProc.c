@@ -22,7 +22,14 @@ void *GetGObjP(int *a0, int a1, int a2, int a3) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/GobjProc", GetGObjId);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/GobjProc", PrintGObjID);
+void *PrintGObjID(char *a0, unsigned int a1) {
+    unsigned long long v = (unsigned int)a1;
+    *(int *)(a0 + 8) = 0x53;
+    *(int *)(a0 + 0) = (int)v;
+    *(int *)(a0 + 4) = (int)(v >> 32);
+    *(int *)(a0 + 0xC) = 0;
+    return a0 + 0x10;
+}
 
 extern int D_00615180[];
 extern void debug_assertMessage(void *a0, int a1);
