@@ -12,7 +12,23 @@ void dpk_SwapBuffer(int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DmaPacket", dpk_Init);
+extern int D_0070A5C0[];
+extern int dl_GetPri(void);
+
+void dpk_Init(int a0, int a1, int a2) {
+    int *entry = &D_0070A5C0[D_0062C260 * 10];
+    int old;
+    if (entry[0]) {
+        dl_GetPri();
+    }
+    old = entry[9];
+    *(long long *)(entry + 6) = a0;
+    entry[4] = a2;
+    entry[0] = 1;
+    *(long long *)(entry + 2) = (long long)a1 & 0xFFFFFFFLL;
+    entry[1] = old;
+    entry[9] = old + 0x10;
+}
 
 
 int dpk_CheckBufferSize(void) {
