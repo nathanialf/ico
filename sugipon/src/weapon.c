@@ -1,5 +1,8 @@
 #include "common.h"
 
+/* weapon 0x7F0 view (local) */
+typedef struct { int f_0, f_4, f_8, f_C; char _pad10[0x40]; int f_50; char _pad54[0x4C]; int f_A0; } WGeo;
+
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", torchOnOfWeaponSE);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", torchOffOfWeaponSE);
@@ -41,20 +44,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", WeaponCurPos);
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", WeaponHitEffect);
 
 void ExecWeaponHitReaction(void *a0) {
-    char *p = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x7F0);
-    int x = *(int *)(p + 0x8);
+    WGeo *p = *(WGeo **)(*(char **)((char *)a0 + 0x15C) + 0x7F0);
+    int x = p->f_8;
     if (x != 0) {
         *(int *)(*(char **)((char *)x + 0x15C) + 0x620) = 0;
     }
-    *(int *)(p + 0x8) = 0;
-    *(int *)(p + 0xC) = -1;
-    *(int *)(p + 0x4) = 0;
+    p->f_8 = 0;
+    p->f_C = -1;
+    p->f_4 = 0;
 }
 
 int checkHit(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    return q[0];
+    WGeo *q = *(WGeo **)((char *)p + 0x7F0);
+    return q->f_0;
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", initializeQueenzSword);
@@ -65,8 +68,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", WeaponGeo);
 
 int dispInsectNet(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    if (q[0x14]) {
+    WGeo *q = *(WGeo **)((char *)p + 0x7F0);
+    if (q->f_50) {
         return **(int **)((char *)q + 0x54);
     }
     return 0;
@@ -76,8 +79,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", WeaponDL);
 
 int PickupWeapon(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    q[0x28] = 0;
+    WGeo *q = *(WGeo **)((char *)p + 0x7F0);
+    q->f_A0 = 0;
     return 1;
 }
 
@@ -85,8 +88,8 @@ typedef struct { char _0[0xC]; int f_C; char _10[0x14]; } WeaponEntry;
 extern WeaponEntry D_0060AF70[];
 
 float CheckSwapableWeapon(void *a0) {
-    char *p = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x7F0);
-    int idx = *(int *)p;
+    WGeo *p = *(WGeo **)(*(char **)((char *)a0 + 0x15C) + 0x7F0);
+    int idx = p->f_0;
     return (float)D_0060AF70[idx].f_C;
 }
 

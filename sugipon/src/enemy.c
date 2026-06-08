@@ -1,5 +1,8 @@
 #include "common.h"
 
+/* enemy 0x7F0 view (local) */
+typedef struct { char _0[0x2C]; int f_2C; } EnemyGeo;
+
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemy", setEnemyParticleObject);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemy", setEnemyObject);
@@ -72,8 +75,8 @@ void enemySetParticleDie(void) {
 
 void ReviveEnemyParticle(void *a0, int a1) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    q[0xB] = a1;
+    EnemyGeo *q = *(EnemyGeo **)((char *)p + 0x7F0);
+    q->f_2C = a1;
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemy", isExistEnemyParticle);

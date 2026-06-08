@@ -1,5 +1,8 @@
 #include "common.h"
 
+/* gv 0x7F0 view (local; 0x8/0x50 also read as ushort in _InterRotGV) */
+typedef struct { char _0[8]; int f_8; } GVGeo;
+
 int _InterGV(void *a0, void *a1) {
     *(float *)a0 = *(float *)((char *)a1 + 0x10);
     *(float *)((char *)a0 + 4) = *(float *)((char *)a1 + 0x14);
@@ -31,8 +34,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/gv", _RotyGV);
 
 int _AbsRotyGV(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    return q[2] == 0;
+    GVGeo *q = *(GVGeo **)((char *)p + 0x7F0);
+    return q->f_8 == 0;
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/gv", _ApplyRyGV);

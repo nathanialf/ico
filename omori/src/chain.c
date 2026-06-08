@@ -1,5 +1,18 @@
 #include "common.h"
 
+/* chain 0x7F0 view (local) */
+typedef struct {
+    int f_0; char _pad4[0x1C];
+    float f_20, f_24, f_28; char _pad2C[0x18];
+    float f_44; char _pad48[0x18];
+    char f_60; char _pad61[7];
+    int f_68; unsigned char f_6C; char _pad6D[3];
+    float f_70; int f_74; char _pad78[0x28];
+    unsigned char f_A0; char _padA1[0xF];
+    float f_B0, f_B4, f_B8; char _padBC[4];
+    unsigned char f_C0;
+} ChainGeo;
+
 extern int D_0062AA10;
 extern int D_006C9F60[];
 
@@ -94,15 +107,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", DecreasePdlChain);
 extern void chain_simulate_term_swingstart(void *a0);
 
 void PlumbOrientUpdateChain(void *a0) {
-    char *p = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x7F0);
+    ChainGeo *p = *(ChainGeo **)(*(char **)((char *)a0 + 0x15C) + 0x7F0);
     chain_simulate_term_swingstart(a0);
-    *(char *)(p + 0x60) = 1;
+    p->f_60 = 1;
 }
 
 void isBottomOfChain(void *a0) {
     void *p = *(void **)((char *)a0 + 0x15C);
-    void *q = *(void **)((char *)p + 0x7F0);
-    *(char *)((char *)q + 0x60) = 0;
+    ChainGeo *q = *(ChainGeo **)((char *)p + 0x7F0);
+    q->f_60 = 0;
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", isStopChain);
@@ -111,51 +124,51 @@ extern float D_0062927C;
 
 void GetChainClimbOrient(void *a0) {
     void *p = *(void **)((char *)a0 + 0x15C);
-    void *q = *(void **)((char *)p + 0x7F0);
-    *(float *)((char *)q + 0x44) = D_0062927C;
+    ChainGeo *q = *(ChainGeo **)((char *)p + 0x7F0);
+    q->f_44 = D_0062927C;
 }
 
 extern int D_0062B060;
 extern float D_00629280;
 
 void CheckChainClimbablePos(void *a0) {
-    char *p = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x7F0);
-    *(float *)(p + 0x44) = (float)D_0062B060 * 0.5f * D_00629280;
+    ChainGeo *p = *(ChainGeo **)(*(char **)((char *)a0 + 0x15C) + 0x7F0);
+    p->f_44 = (float)D_0062B060 * 0.5f * D_00629280;
 }
 
 void GetChainClimbCollision(void *a0, float *a1) {
     void *p = *(void **)((char *)a0 + 0x15C);
-    void *q = *(void **)((char *)p + 0x7F0);
-    *(float *)((char *)q + 0x20) = a1[0];
-    *(float *)((char *)q + 0x24) = a1[1];
-    *(float *)((char *)q + 0x28) = a1[2];
+    ChainGeo *q = *(ChainGeo **)((char *)p + 0x7F0);
+    q->f_20 = a1[0];
+    q->f_24 = a1[1];
+    q->f_28 = a1[2];
 }
 
 int SetChainParentGObj(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    return *(int *)((char *)q + 0x68) == *(int *)((char *)q + 0x74) - 1;
+    ChainGeo *q = *(ChainGeo **)((char *)p + 0x7F0);
+    return q->f_68 == q->f_74 - 1;
 }
 
 int GetChainDirCorrectVal(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    return *(unsigned char *)((char *)q + 0xC0);
+    ChainGeo *q = *(ChainGeo **)((char *)p + 0x7F0);
+    return q->f_C0;
 }
 
 void GetRootPositionHandExtra(float *a0, void *a1) {
     void *p = *(void **)((char *)a1 + 0x15C);
-    void *q = *(void **)((char *)p + 0x7F0);
-    a0[0] = *(float *)((char *)q + 0xB0);
-    a0[1] = *(float *)((char *)q + 0xB4);
-    a0[2] = *(float *)((char *)q + 0xB8);
+    ChainGeo *q = *(ChainGeo **)((char *)p + 0x7F0);
+    a0[0] = q->f_B0;
+    a0[1] = q->f_B4;
+    a0[2] = q->f_B8;
 }
 
 int InitPendulum(void *a0) {
     void *p = *(void **)((char *)a0 + 0x15C);
-    void *q = *(void **)((char *)p + 0x7F0);
-    if (*(unsigned char *)((char *)q + 0xA0)) {
-        if (*(int *)((char *)q + 0x68) < 3) {
+    ChainGeo *q = *(ChainGeo **)((char *)p + 0x7F0);
+    if (q->f_A0) {
+        if (q->f_68 < 3) {
             return 1;
         }
     }
@@ -167,23 +180,23 @@ typedef struct { Blk8 a; int b; } Geo12;
 
 void LockChainGeo(char *a0, void *a1) {
     int *p = *(int **)((char *)a1 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
+    ChainGeo *q = *(ChainGeo **)((char *)p + 0x7F0);
     *(Geo12 *)a0 = *(Geo12 *)((char *)q + 0xA4);
 }
 
 void UnLockChainGeo(void *a0, int a1) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    q[0] = a1;
+    ChainGeo *q = *(ChainGeo **)((char *)p + 0x7F0);
+    q->f_0 = a1;
 }
 
 extern float D_00629284;
 
 int GetChainHangRange(char *a0, int *a1) {
     char *p = *(char **)(a0 + 0x15C);
-    char *v = *(char **)(p + 0x7F0);
-    *a1 = (int)(*(float *)(v + 0x70) * 180.0f / D_00629284);
-    return *(unsigned char *)(v + 0x6C);
+    ChainGeo *v = *(ChainGeo **)(p + 0x7F0);
+    *a1 = (int)(v->f_70 * 180.0f / D_00629284);
+    return v->f_6C;
 }
 
 
