@@ -1,5 +1,8 @@
 #include "common.h"
 
+/* lineManager 0x7F0 view (local) */
+typedef struct { int f_0; int f_4; char _pad8[0x38]; int f_40; char _pad44[4]; int f_48; } LineGeo;
+
 int Draw2DLine(void *a0) {
     int rv = 0;
     char *p = *(char **)((char *)a0 + 0x15C);
@@ -17,28 +20,28 @@ end:
 
 int Draw2DLineSeg_Start(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    return q[1];
+    LineGeo *q = *(LineGeo **)((char *)p + 0x7F0);
+    return q->f_4;
 }
 
 int Draw2DLineSeg_Loop(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    return q[0] == 0;
+    LineGeo *q = *(LineGeo **)((char *)p + 0x7F0);
+    return q->f_0 == 0;
 }
 
 int Draw2DLineG(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    return q[0x12] == 2;
+    LineGeo *q = *(LineGeo **)((char *)p + 0x7F0);
+    return q->f_48 == 2;
 }
 
 int _getLine(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    int t = q[1] ^ 1;
+    LineGeo *q = *(LineGeo **)((char *)p + 0x7F0);
+    int t = q->f_4 ^ 1;
     if (t) goto zero;
-    return q[0x10];
+    return q->f_40;
 zero:
     return 0;
 }

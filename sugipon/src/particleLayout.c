@@ -1,4 +1,7 @@
 #include "common.h"
+
+/* particleLayout 0x7F0 view (local) */
+typedef struct { int f_0; } PLGeo;
 #include "ico/types.h"
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleLayout", DeleteParticleLayout);
@@ -41,8 +44,8 @@ extern int GetParticleEffectPackage(int a0);
 
 void func_001E6108(void *a0) {
     void *p = *(void **)((char *)a0 + 0x15C);
-    void *q = *(void **)((char *)p + 0x7F0);
-    GetParticleEffectPackage(*(int *)q);
+    PLGeo *q = *(PLGeo **)((char *)p + 0x7F0);
+    GetParticleEffectPackage(q->f_0);
 }
 
 extern int   D_0062A310;

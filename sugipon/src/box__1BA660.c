@@ -1,5 +1,8 @@
 #include "common.h"
 
+/* box__1BA660 0x7F0 view (local) */
+typedef struct { char _0[0x20]; int f_20; char _pad24[0x34]; int f_58; } BoxGeo2;
+
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", dispWheels);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", getNearestPosition);
@@ -48,16 +51,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", AlignBox);
 
 int CanHoldBox(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    return q[8];
+    BoxGeo2 *q = *(BoxGeo2 **)((char *)p + 0x7F0);
+    return q->f_20;
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", BoxDL);
 
 int GetBoxGlobalHoldPoint(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    return q[8] == 0;
+    BoxGeo2 *q = *(BoxGeo2 **)((char *)p + 0x7F0);
+    return q->f_20 == 0;
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", IsThisBoxTruck);
@@ -74,8 +77,8 @@ void ExecBoxMoveStartReaction(int a0, int a1, int a2)
 
 int ExecBoxMoveEndReaction(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    return q[0x16];
+    BoxGeo2 *q = *(BoxGeo2 **)((char *)p + 0x7F0);
+    return q->f_58;
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", BoxGeoRestore);
