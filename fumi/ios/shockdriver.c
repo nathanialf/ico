@@ -117,7 +117,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockRequestBox_Regst)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockRequestBox_Request);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockRequestBox_DecodeRequest);
+void ShockRequestBox_DecodeRequest(int **a0, int *a1) {
+    do { } while (0);
+    a0[0] = a1;
+    a0[3] = a1 + *(unsigned short *)((char *)a1 + 0xA);
+    a0[1] = a1 + *(unsigned short *)((char *)a1 + 0x2);
+    a1 = a1 + *(unsigned short *)((char *)a1 + 0x6);
+    a0[2] = a1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockRequestBox_EndRequestFree);
 
