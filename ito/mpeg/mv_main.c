@@ -46,4 +46,10 @@ void movie_end(int *a0, int a1)
   a0[3] = cum;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_main", movie_proc);
+int movie_proc(int *a0, int *a1) {
+    int cum = a0[3];
+    if (cum != 0) {
+        a1[0] = a0[0] + ((a0[2] - cum + a0[1]) % a0[1]);
+    }
+    return cum;
+}
