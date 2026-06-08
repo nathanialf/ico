@@ -23,7 +23,31 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", initFloating);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", _checkItemBreak);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", initLanding);
+extern void GetInverseQuaternion(void *a0, void *a1);
+extern void func_00102840(void *self, void *src);
+extern int func_002610F0(void);
+extern void MatrixDrive_TurnObjectMatrix(void *a0, void *a1);
+extern void GetRootMatrixByDObj(void *a0, void *a1);
+extern void _checkItemBreak(void *a0);
+extern int D_002724B0[];
+extern int D_00271BD0[];
+extern int D_004BAAC0[];
+
+void initLanding(void *self) {
+    char *d = (char *)*(int *)((char *)self + 0x15C);
+    char *box = (char *)*(int *)(d + 0x7F0);
+    *(int *)(d + 0x70) = *(int *)((char *)*(int *)(box + 0x160) + 0x70);
+    *(int *)((char *)*(int *)((char *)self + 0x15C) + 0x78) = 1;
+    GetInverseQuaternion((char *)*(int *)((char *)self + 0x15C) + 0xC0, D_002724B0);
+    func_00102840(self, D_002724B0);
+    MatrixDrive_TurnObjectMatrix(box + 0xE0, D_00271BD0);
+    MatrixDrive_TurnObjectMatrix(box + 0xC0, D_00271BD0);
+    MatrixDrive_TurnObjectMatrix(box + 0xD0, D_00271BD0);
+    GetRootMatrixByDObj(box + 0x100, self);
+    MatrixDrive_TurnObjectMatrix((char *)*(int *)((char *)self + 0x15C) + 0x510, D_004BAAC0);
+    *(short *)(box + 0x118) = (short)func_002610F0();
+    _checkItemBreak(self);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", execFallDown);
 
