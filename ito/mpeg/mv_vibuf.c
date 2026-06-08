@@ -56,7 +56,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vibuf", func_0023B9D0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vibuf", func_0023BA60);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vibuf", func_0023BAB8);
+void *func_0023BAB8(int *a0, unsigned int a1, unsigned int a2) {
+    unsigned long long v = (unsigned int)a1 | ((unsigned long long)a2 << 32);
+    int new_var;
+    a0[0] = (int)(v << 32 >> 32);
+    new_var = (int)(v >> 32);
+    a0[1] = new_var;
+    a0[2] = 0x18;
+    a0[3] = 0;
+    return (char *)a0 + 0x10;
+}
 
 void *func_0023BAF0(int *a0, unsigned int a1) {
     unsigned long long v = (unsigned int)a1;
