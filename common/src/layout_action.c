@@ -89,7 +89,14 @@ int la_mc_load_current_slot_select(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_mc_load_file_select);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_load_confirm_no_memory_card);
+extern int lt_set_item_select_func(void);
+
+int la_load_confirm_no_memory_card(void) {
+    if (D_002715D4[0] & 0x40) {
+        return lt_set_item_select_func();
+    }
+    return -1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_load_confirm_no_data);
 
