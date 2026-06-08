@@ -9,7 +9,17 @@ void CageFixGeo(void *a0) {
     file_LoadCDFile(*(void **)p);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/cageFix", CageFixDL);
+extern void MatrixDrive_TurnObjectMatrix(int a0, int a1);
+
+int CageFixDL(int a0, int a1, int a2)
+{
+    int *base = *(int **)(*(int **)(a2 + 0x15C) + (0x7F0 / 4));
+    MatrixDrive_TurnObjectMatrix(a0, *(int *)(*(int **)((char *)*(int **)((char *)base + 0x20) + 8)));
+    MatrixDrive_TurnObjectMatrix(a1, *(int *)(*(int **)((char *)*(int **)((char *)base + 0x20) + 8)) + 0x10);
+    *(float *)(a0 + 4) += 50.0f;
+    *(float *)(a1 + 4) -= 150.0f;
+    return *(int *)((char *)base + 0x40);
+}
 
 void InitCageFixGeo(void *a0, float a1) {
     int *p = *(int **)((char *)a0 + 0x15C);
