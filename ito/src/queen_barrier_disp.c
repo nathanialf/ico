@@ -4,7 +4,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen_barrier_disp", MakeRefractTextu
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen_barrier_disp", queen_barrier_set_damage);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen_barrier_disp", makeRefractST);
+extern unsigned short D_0062AACC;
+extern int D_0062C0D0;
+extern int D_0062C0CC;
+
+void makeRefractST(void) {
+    D_0062AACC += 0x7D0;
+    D_0062C0D0 += 0x1000;
+    if (D_0062C0CC > 0) {
+        if (--D_0062C0CC < 0) {
+            D_0062C0CC = 0;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen_barrier_disp", queen_barrier_disp_proc);
 
