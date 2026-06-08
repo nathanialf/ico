@@ -49,3 +49,11 @@ The `if(D){}` is a permuter artifact, NOT clean dev C, and still only rc2.
 Permuter found NO rc0 (no output-0-*). RESUME idea: find the dev construct that
 creates a $4 WAR (an arg/temp using $4 before dpk_Init) — that is the only known
 lever that defers a const arg0.
+
+## Pass 2 (2026-06-08): rc4->rc2 adopted, (b) re-confirmed
+Fresh levers tried: do{}while(0)/empty-block anchor (no effect on arg-sched),
+const-form variants (1<<2, 4>>1, 2+2, type changes — all fold, rc2). Adopted the
+if(D){} rc2 form (best now rc2). Permuter seeded WITH the rc2 form (closer start):
+~7400 iters, NO rc0. Best harvest = score-15 UB artifact `dpk_Init(nv, D, nv=(nv=4))`
+which yields a0=4 (WRONG value) — real_count 2 but semantically broken, does NOT
+beat rc2. Genuine floor stays rc2 (a0/a2 left-to-right gap-filler swap). (b).
