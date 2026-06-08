@@ -3,13 +3,103 @@
 typedef struct { int count; int *arr; } ShockMgr;
 extern ShockMgr *D_0062A490;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", Vibration_ShotDecode);
+extern int D_006A0930[];
+extern void ShockDriver_GetShockVoiceMax(int a0, int a1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", Vibration_WaveDecode);
+void Vibration_ShotDecode(int key)
+{
+    if (key == 0)
+    {
+        return;
+    }
+    for (;;)
+    {
+        int *p = D_006A0930;
+        int *entry;
+        int i = 0xF;
+        while (1)
+        {
+            if (*p == key)
+            {
+                goto found;
+            }
+            i--;
+            if (i == -1)
+            {
+                goto notfound;
+            }
+            p = (int *)((char *) p + 0x18);
+        }
+    notfound:
+        entry = 0;
+        goto check;
+    found:
+        entry = p;
+    check:
+        if (entry == 0)
+        {
+            break;
+        }
+        ShockDriver_GetShockVoiceMax(entry[0x4 / 4], key);
+        entry[0] = 0;
+    }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", Shock_Request);
+void Vibration_WaveDecode(void)
+{
+    int *p = D_006A0930;
+    int i;
+    for (i = 0xF; i != -1; i--) {
+        int x = p[0];
+        if (x != 0) {
+            ShockDriver_GetShockVoiceMax(p[1], x);
+            p[0] = 0;
+        }
+        p = (int *)((char *)p + 0x18);
+    }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", Shock_SetMotor);
+int *Shock_Request(int key, unsigned int val)
+{
+    int *p = D_006A0930;
+    int *rv;
+    int i;
+    val = val & 0xFF;
+    i = 0xF;
+    while (1) {
+        if (*p == key) goto found;
+        i--;
+        if (i == -1) goto notfound;
+        p = (int *)((char *)p + 0x18);
+    }
+notfound:
+    rv = 0;
+    goto end;
+found:
+    rv = p;
+end:
+    if (rv != 0) {
+        *(unsigned char *)((char *)rv + 0x14) = val;
+    }
+    return rv;
+}
+
+extern int D_006A0910[];
+extern void iosMsgQueueDestroy(int *a, int *b, int c);
+extern void iosMsgRecv(int *a, void *b, int c);
+extern void iosPadRead(void);
+
+extern char D_0027D9B0[];
+
+void Shock_SetMotor(void)
+{
+    int local_buf;
+    iosMsgQueueDestroy(D_0027D9B0, D_006A0910, 8);
+    while (1) {
+        iosMsgRecv(D_0027D9B0, &local_buf, 1);
+        iosPadRead();
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", func_0013B550);
 
@@ -44,7 +134,26 @@ void ShockRequestBox_VoiceSetUseRequestFree(int *a0, int a1, int a2, int a3) {
     a0[3] = a3;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockRequestBox_GetRequest);
+void ShockRequestBox_GetRequest(int *self)
+{
+    int *node = (int *) self[0];
+    if (self[0x8 / 4] == 0)
+    {
+        goto end;
+    }
+    if (node == 0)
+    {
+        goto end;
+    }
+    do
+    {
+        int *cur = node;
+        node = (int *) node[0x34 / 4];
+        (*(void (**)(int, int))((char *) self + 8))((int) cur, self[0xC / 4]);
+    } while (node != 0);
+end:
+    self[0] = 0;
+}
 
 void ShockRequestBox_RequestCancel(void *a0, void *a1) {
     void *head = *(void **)a0;
@@ -64,7 +173,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockDriver_VoiceSet_N
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockDriver_VoiceSet_Regist);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockDriver_VoiceSet_Remove);
+int *ShockDriver_VoiceSet_Remove(int **head_ptr, int key)
+{
+    int *p;
+    if (head_ptr == 0) goto fail;
+    p = *head_ptr;
+    if (p == 0) goto fail;
+    do {
+        if (p[0x28 / 4] == key) {
+            return p;
+        }
+        p = (int *)p[0x34 / 4];
+    } while (p != 0);
+fail:
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockDriver_GetShockVoiceMax);
 
