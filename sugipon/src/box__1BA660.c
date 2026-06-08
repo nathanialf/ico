@@ -1,7 +1,7 @@
 #include "common.h"
 
 /* box__1BA660 0x7F0 view (local) */
-typedef struct { char _0[0x20]; int f_20; char _pad24[0x34]; int f_58; } BoxGeo2;
+typedef struct { char _0[0x20]; int f_20; char _pad24[0x34]; int f_58; char _pad5C[0xB4]; int f_110; int f_114; } BoxGeo2;
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", dispWheels);
 
@@ -81,7 +81,27 @@ int ExecBoxMoveEndReaction(void *a0) {
     return q->f_58;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", BoxGeoRestore);
+extern void InitBoxGeo(void *a0);
+extern void execAutoMove(void *a0);
+
+void BoxGeoRestore(void *a0, int a1) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    BoxGeo2 *q = *(BoxGeo2 **)((char *)p + 0x7F0);
+    if (q->f_58 != 0) {
+        if (q->f_110 != 0) {
+            goto end;
+        }
+    }
+    if (a1 >= 0) {
+        InitBoxGeo(a0);
+        q->f_114 = 0;
+    } else {
+        execAutoMove(a0);
+        q->f_114 = 0;
+    }
+end:
+    q->f_110 = 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", BoxExtGeoRestore);
 
