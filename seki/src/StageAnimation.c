@@ -82,7 +82,24 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", func_0012A958);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", func_0012AA28);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", func_0012AAB8);
+extern int D_0062BF54;
+extern char D_0066DBD8[];
+
+void func_0012AAB8(int key, int a1)
+{
+    int count = *(volatile int *)&D_0062BF54;
+    int i;
+    char *e = (char *)D_0066DBD8;
+    for (i = 0; i < count; i++, e += 0x290) {
+        int *p = *(int **)(e + 0x280);
+        if (key == p[0x58 / 4]) {
+            p[0x50 / 4] = a1;
+            p = &(*((volatile int *)(&D_0062BF54)));
+            count = *p;
+        }
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", func_0012AB00);
 

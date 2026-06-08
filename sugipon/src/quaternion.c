@@ -1,5 +1,9 @@
 #include "common.h"
 
+extern float D_00628CAC;
+extern float D_00628CB0;
+extern float D_00628CB4;
+
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", MultiCurrentQuaternion);
 
 extern int D_00629E7C;
@@ -11,41 +15,31 @@ void InvertCurrentQuaternion(void *a0) {
     func_0010E148(p, p, a0);
 }
 
-extern int D_00629E7C;
-extern int D_0065A5C0[];
-extern void RegularizeQuaternion(void *a0, void *a1);
+extern void RegularizeQuaternion(int a0, int a1);
 
 void SetCurrentQuaternion(void) {
     void *p = &D_0065A5C0[D_00629E7C * 4];
     RegularizeQuaternion(p, p);
 }
 
-extern int D_00629E7C;
-extern int D_0065A5C0[];
 extern void GetInverseQuaternion(void *a0, void *a1);
 
 void RotCurrentQuaternionX(void *a0) {
     GetInverseQuaternion(&D_0065A5C0[D_00629E7C * 4], a0);
 }
 
-extern int D_00629E7C;
-extern int D_0065A5C0[];
 extern void func_0010E448(void *a0, int a1);
 
 void RotCurrentQuaternionY(int a0) {
     func_0010E448(&D_0065A5C0[D_00629E7C * 4], (short)a0);
 }
 
-extern int D_00629E7C;
-extern int D_0065A5C0[];
 extern void func_0010E4E8(void *a0, int a1);
 
 void RotCurrentQuaternionZ(int a0) {
     func_0010E4E8(&D_0065A5C0[D_00629E7C * 4], (short)a0);
 }
 
-extern int D_00629E7C;
-extern int D_0065A5C0[];
 extern void func_0010E588(void *a0, int a1);
 
 void PushQuaternion(int a0) {
@@ -54,8 +48,6 @@ void PushQuaternion(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", InitQuaternionDrive);
 
-extern int D_00629E7C;
-extern int D_0065A5C0[];
 extern void GetMatrixFromQuaternion(void *a0);
 
 void SetIdentityQuaternion(void) {
@@ -63,7 +55,6 @@ void SetIdentityQuaternion(void) {
     GetMatrixFromQuaternion(D_0065A5C0);
 }
 
-extern void GetInverseQuaternion(void *a0, void *a1);
 extern int D_002724B0[];
 
 void GetMatrixFromQuaternion(void *a0) {
@@ -82,7 +73,13 @@ void GetInverseQuaternion(void *a0, void *a1) {
     MatrixDrive_TurnObjectMatrix(a0, a1);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", RegularizeQuaternion);
+extern void _PushVu0Registers(int a0, int a1, float f);
+
+void RegularizeQuaternion(int a0, int a1)
+{
+    GetInverseQuaternion(a0, a1);
+    _PushVu0Registers(a0, a1, -1.0f);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", GetSlerpQuaternionNoRegularize);
 
