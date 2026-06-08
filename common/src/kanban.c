@@ -58,7 +58,16 @@ void kanbanExec(void)
     D_0062C160 = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanban", func_001ADB00);
+void func_001ADB00(void) {
+    int *p = D_006FF910;
+    int i;
+    for (i = 0x1D; i >= 0; i--) {
+        if (p[0] != 0) {
+            p[3] |= 1;
+        }
+        p += 8;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanban", func_001ADB38);
 
