@@ -9,7 +9,7 @@ extern float D_0062C1D0;
 extern float D_0062C1D4;
 extern int D_0062C1D8;
 
-extern char D_004B8C80[];
+extern int D_004B8C80[];
 
 void InitAP1(void)
 {
