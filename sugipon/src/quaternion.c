@@ -4,6 +4,7 @@ extern float D_00628CAC;
 extern float D_00628CB0;
 extern float D_00628CB4;
 
+/* parked: needs real matching. See tough_nuts/MultiCurrentQuaternion/notes.md */
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", MultiCurrentQuaternion);
 
 extern int D_00629E7C;

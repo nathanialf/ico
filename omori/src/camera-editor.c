@@ -117,6 +117,7 @@ void debug_NMarker(int a0) {
 extern void func_00240038(int *buf, int *p, float t);
 extern void debug_Arrow();
 
+/* parked: needs real matching. See tough_nuts/debug_Marker/notes.md */
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", debug_Marker);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", debug_Arrow);

@@ -77,6 +77,7 @@ extern char D_00550EF0[];
 
 extern char D_0062A328[];
 
+/* parked: needs real matching. See tough_nuts/func_001356A8/notes.md */
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", func_001356A8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", func_00135738);

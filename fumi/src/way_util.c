@@ -64,6 +64,7 @@ extern char *CreateWayPoint(char *node);
 extern void func_00240008(int *buf, int *p, int *q);
 extern float func_00168128(int a0);
 
+/* parked: needs real matching. See tough_nuts/nearest_waypoint_by_lineseg/notes.md */
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", nearest_waypoint_by_lineseg);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", nearest_waypoint_by_lineseg_of_group_from_gobj);

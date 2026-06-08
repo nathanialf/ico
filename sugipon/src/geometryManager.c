@@ -29,6 +29,7 @@ extern void MatrixDrive_TurnXObjectMatrixYZ(void *dst, void *src);
 extern void func_0010E300(void *p);
 extern int *func_00105068(void);
 
+/* parked: needs real matching. See tough_nuts/SetRootBaseQuaternion/notes.md */
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", SetRootBaseQuaternion);
 
 

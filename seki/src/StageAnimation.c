@@ -101,6 +101,7 @@ void func_0012AAB8(int key, int a1)
 }
 
 
+/* parked: needs real matching. See tough_nuts/func_0012AB00/notes.md */
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", func_0012AB00);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", func_0012AB48);

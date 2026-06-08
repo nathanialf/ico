@@ -52,6 +52,7 @@ int func_0018A3A0(void) {
     return D_006C9FA8[0] < 2;
 }
 
+/* parked: needs real matching. See tough_nuts/func_0018A3B0/notes.md */
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-set-manager", func_0018A3B0);
 
 void func_0018A408(void) {
