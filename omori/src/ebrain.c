@@ -50,7 +50,22 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018DFB8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018E0E0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018E2B8);
+extern void _OrientXZGV(char *elem, char *base, int a2, float a, float b);
+
+void func_0018E2B8(char *base, int n, int a2)
+{
+    char *p;
+    int i = 0;
+    if (n < 0) {
+        return;
+    }
+    p = base;
+    do {
+        _OrientXZGV(p, base, a2, (float)i, (float)(n - i));
+        i++;
+        p += 0x20;
+    } while (i <= n);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018E348);
 
@@ -60,7 +75,28 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018E670);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018E830);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018F1A8);
+extern int D_0062AA50;
+extern int D_0062AA4C;
+extern int D_0062C09C;
+extern int D_0062C0A0;
+extern int D_006C9FF0[];
+
+void func_0018F1A8(void)
+{
+    int *p = D_006C9FF0;
+    int i;
+    D_0062AA50 = 0;
+    D_0062AA4C = 0;
+    D_0062C09C = 0;
+    p = (int *)((char *)p + 0x37C);
+    D_0062C0A0 = 0;
+    i = 0x1F;
+    do {
+        *p = 0;
+        p = (int *)((char *)p - 0x1C);
+        i--;
+    } while (i >= 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018F1F0);
 
