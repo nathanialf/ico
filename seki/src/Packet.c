@@ -95,14 +95,51 @@ void pac_setVifCode(void)
 }
 
 extern void debug_assertMessage(const char *fmt, ...);
+extern int func_00260340(float);
+extern const char D_0054F180[];
+extern const char D_0054F198[];
+extern const char D_00631CD8_a[] __asm__("D_0062BE58");
+extern const char D_00631CE0_a[] __asm__("D_0062BE60");
+extern const char D_00631CE8_a[] __asm__("D_0062BE68");
+extern const char D_00631CF0_a[] __asm__("D_0062BE70");
 
-/* NOT PORTED: pac_setVifEndCode is a switch with a .rodata jump table.
- * The original jtbl in the data blob references the function's internal
- * .L0011947C label, which vanishes once the function is compiled C ->
- * link error. aug6 has no jtbl strip/reroute mechanism yet (see the data
- * investigation); port this once that lands. A clean C body is ready in
- * decomp/retail_port (portmap pac_setVifEndCode). */
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_setVifEndCode);
+/* The switch jump table (jtbl_0054F1B0) is migrated into Packet.o via the
+ * per-TU `.rodata` subseg carve in config/ico.aug6.yaml + splat's
+ * migrate_rodata_to_functions; gcc emits its own jtbl here. */
+void pac_setVifEndCode(unsigned char *arg, int slot_size) {
+    int is_float = 0;
+    int row;
+
+    switch (slot_size) {
+    case 0:
+        is_float = 1;
+        slot_size = 4;
+        debug_assertMessage(D_0054F180, arg);
+        break;
+    case 1:
+    case 2:
+    case 4:
+    case 8:
+    case 16:
+        debug_assertMessage(D_0054F198, arg, slot_size);
+        break;
+    default:
+        return;
+    }
+
+    for (row = 0; row < 0x10 / slot_size; row++) {
+        if (!is_float) {
+            int col;
+            for (col = 0x10 / (0x10 / slot_size) - 1; col >= 0; col--) {
+                debug_assertMessage(D_00631CD8_a, arg[row * slot_size + col]);
+            }
+            debug_assertMessage(D_00631CE0_a);
+        } else {
+            debug_assertMessage(D_00631CE8_a, func_00260340(((float *)arg)[row]));
+        }
+    }
+    debug_assertMessage(D_00631CF0_a);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_setGifTag);
 
