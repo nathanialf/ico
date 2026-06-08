@@ -1,11 +1,11 @@
 #include "common.h"
 
 extern void actEndDemo10(void);
-extern void actSt00aEnd(void);
+extern void actSt00aEnd_ext(void);
 
 void actSt00aInit(volatile int a0) {
     actCreateSubThread(actEndDemo10, 0x15);
-    actCreateSubThread(actSt00aEnd, 0x15);
+    actCreateSubThread(actSt00aEnd_ext, 0x15);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aEnd);
