@@ -1,7 +1,7 @@
 #include "common.h"
 
 /* box__1BA660 0x7F0 view (local) */
-typedef struct { char _0[0x20]; int f_20; char _pad24[0x34]; int f_58; char _pad5C[0xB4]; int f_110; int f_114; } BoxGeo2;
+typedef struct { int f_0; char _4[0x1C]; int f_20; char _pad24[0x34]; int f_58; char _pad5C[0xB4]; int f_110; int f_114; } BoxGeo2;
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", dispWheels);
 
@@ -47,7 +47,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", BoxGeo);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", GetBoxMode);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", AlignBox);
+extern void _checkItemCollision(void *a0);
+extern void func_00102828(void *a0);
+extern void func_001AB9F8(void *a0);
+
+void AlignBox(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    BoxGeo2 *q = *(BoxGeo2 **)((char *)p + 0x7F0);
+    _checkItemCollision(a0);
+    func_00102828(a0);
+    if (q->f_0++ >= 0x1F) {
+        q->f_0 = 0;
+        func_001AB9F8(a0);
+    }
+}
 
 int CanHoldBox(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
