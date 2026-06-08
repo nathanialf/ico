@@ -62,15 +62,23 @@ siblings for the author's idioms before writing C:
 - **sugipon** — matrix/quaternion/motion-manager conventions.
 - **omori** — camera/brain/AI structures.
 - **ito** — IPU/movie idioms, occasional hand-asm.
-- **fumi** — `a0->0x164->...` action-object deref chains, character state machines.
+- **fumi** — character/action state machines (heaviest user of the `0x164`
+  actor-state field, but the field itself is engine-wide — see below).
 
-**Not an author idiom — engine-wide:** the `a0->0x15C->0x7F0` chain is the
-DObj→geometry-object accessor, used by ~25 TUs across sugipon/omori/ito/fumi
-(weapon, torch, boy, rope, enemy, box, spider, chain, ebrain, queen, …). Prefer
-the typed form `GOBJ_SUB(o)->p_7F0->...` (`include/ico/types.h`: `GObj`,
-`Sub15C`=DObj@0x15C, `Obj7F0`=geometry@0x7F0). NOTE the `0x7F0` *target* is
-POLYMORPHIC per object type — the same offset is a pointer in one object and a
-packed `unsigned short` in another (cage's `0x20` is a `GeoNode*`; spider's is a
-`ushort`). Only the `Sub15C.p_7F0` pointer is a shared fact; type each TU's
-`0x7F0` view LOCALLY (as `ropeFix.c` does with `RopeA/RopeB/RopeC`), not as one
-shared field map.
+**Deref chains are engine-wide, NOT author idioms.** Two object slots recur
+across the whole codebase; attribute the *subsystem* to an author, never the
+chain:
+- `a0->0x15C->0x7F0` — the DObj→geometry-object accessor, ~25 TUs across
+  sugipon/omori/ito/fumi (weapon, torch, boy, rope, enemy, box, spider, chain,
+  ebrain, queen, …). Typed form: `GOBJ_SUB(o)->p_7F0->...` (`include/ico/types.h`:
+  `GObj`, `Sub15C`=DObj@0x15C, `Obj7F0`=geometry@0x7F0).
+- `a0->0x164->...` — an actor/action-state object, 20 TUs across
+  sugipon/fumi/omori/script (fumi owns 12 of them but it is not fumi-only).
+  `0x164` is not yet typed in `GObj`; recovering it is Item C.
+
+Both `0x7F0` and `0x164` *targets* are POLYMORPHIC per object type — the same
+offset is a pointer in one object and a packed `unsigned short` in another
+(cage's `0x7F0+0x20` is a `GeoNode*`; spider's is a `ushort`). Only the parent
+pointer (`Sub15C.p_7F0`, `GObj+0x164`) is a shared fact; type each TU's view
+LOCALLY (as `ropeFix.c` does with `RopeA/RopeB/RopeC`), not as one shared field
+map.
