@@ -93,7 +93,7 @@ string literals).
 ## Update — header materialized (func_ naming) + build mechanism + open match
 
 - The header now exists at `ito/include/mv_defs.h`. The inline is named
-  `func_mvDeqMes` (placeholder — inlined everywhere, no MAIN.MAP symbol; per
+  `deq_movie_mes` (placeholder — inlined everywhere, no MAIN.MAP symbol; per
   user, `func_`-style not an invented API name).
 - **Build mechanism** (in `tools/compile_c.sh`, opt-in via `config/include_ito.txt`):
   to bake `__FILE__` as exactly `"../ito/include/mv_defs.h"`, the listed TU is
@@ -104,9 +104,35 @@ string literals).
   proven byte-neutral as a plain blob split; with the header the strings come
   from `mv_main.o` and the blob is carved.
 - **OPEN — permuter-class regalloc swap.** A consumer (`termAll`) rewritten to
-  call `func_mvDeqMes` does NOT byte-match: ee-gcc's inliner gives the `__FILE__`
+  call `deq_movie_mes` does NOT byte-match: ee-gcc's inliner gives the `__FILE__`
   pointer `$s1` and the struct param `$s2`, the reverse of the ROM (struct `$s1`,
   file `$s2`), costing one `move`. The swap is invariant across ~15 reshapes
   (store order ×6, caller CFG ×5, inline keyword ×3, queue-as-param). The
   hand-written `termAll` (extern `D_005570xx`) matches and is what's committed;
   the inline form is parked pending a permuter/structural crack.
+
+## RESOLVED — the inline matches (the `fp = __FILE__` lever)
+
+The $s1/$s2 regalloc swap is cracked. Root cause: when ee-gcc inlines the
+accessor, an inline-body `__FILE__` used directly at the deq + asserts gets a
+live range that out-prioritises the struct param for $s1. **Materialising the
+file pointer into a local once, before the deq, fixes it:**
+
+```c
+static __inline int deq_movie_mes(int size)
+{
+    int p; const char *fp = __FILE__;
+    p = deq_mes_th(D_0062A340, size, 0x40, fp, __LINE__);   /* line 42 */
+    if (p == NULL) { func_001AAD00(fp, __LINE__);           /* line 43 */
+                     func_00260380(fp, __LINE__, "p != NULL"); }
+    func_00260568(p, 0, size);
+    return p;
+}
+```
+
+With this, `termAll` rewritten as `int rv = deq_movie_mes(0x50000); ...` and the
+`[0x457060,0x457090)` rodata carve, the whole ELF is byte-identical (sha1
+2b4d7de4). The line numbers (deq=42, assert=43) are the dev's own __LINE__
+instrumentation -- the header must keep those statements on those physical
+lines. This is the template for the other four consumers (readBufBeginGet,
+voBufDelete, func_00239E18, func_0023BE80) when they're matched.

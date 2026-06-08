@@ -321,6 +321,8 @@ segments:
       - [0x44D980, rodata,  src/cod/44D980]      # .rodata blob, part 1
       - [0x44F1B0, .rodata, seki/src/Packet]     # carved jtbl_0054F1B0 -> Packet.o (dot-form, migrated)
       - [0x44F1F8, rodata,  src/cod/44F1F8]      # .rodata blob, part 2a
+      - [0x457060, .rodata, ito/mpeg/mv_main]    # carved deq_movie_mes assert strings (file + "p != NULL")
+      - [0x457090, rodata,  src/cod/457090]      # .rodata blob, part 2a (resume after mv_main)
       - [0x50DA90, .rodata, common/src/debug_exception]  # carved jtbl_0060DA90 (migrated)
       - [0x50DAD8, rodata,  src/cod/50DAD8]      # .rodata blob, part 2b (resume)
       - [0x52AA80, lit4, src/cod/52AA80]     # .lit4

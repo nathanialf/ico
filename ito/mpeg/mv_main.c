@@ -1,4 +1,5 @@
 #include "common.h"
+#include "mv_defs.h"
 
 extern void debug_assertMessage(char *fmt, int n);
 extern int OtherStagePositionGet(void *a, void *b, void *c, void *d);
@@ -33,21 +34,8 @@ void initAll(void *a0) {
     iosMallocCheckLeak2((int)a0 & 0xFFFFFFF);
 }
 
-extern int deq_mes_th(int a0, int a1, int a2, void *a3, int a4);
-extern void func_001AAD00(void *a0, int a1);
-extern void func_00260380(void *a0, int a1, void *a2);
-extern void func_00260568(int a0, int a1, int a2);
-extern int D_0062A340;
-extern char D_00557060[];
-extern char D_00557080[];
-
 int termAll(int *a0) {
-    int rv = deq_mes_th(D_0062A340, 0x50000, 0x40, D_00557060, 0x2A);
-    if (rv == 0) {
-        func_001AAD00(D_00557060, 0x2B);
-        func_00260380(D_00557060, 0x2B, D_00557080);
-    }
-    func_00260568(rv, 0, 0x50000);
+    int rv = deq_movie_mes(0x50000);
     a0[0] = rv;
     if (rv == 0) {
         return -1;
