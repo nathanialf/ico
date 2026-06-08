@@ -33,7 +33,30 @@ void initAll(void *a0) {
     iosMallocCheckLeak2((int)a0 & 0xFFFFFFF);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_main", termAll);
+extern int deq_mes_th(int a0, int a1, int a2, void *a3, int a4);
+extern void func_001AAD00(void *a0, int a1);
+extern void func_00260380(void *a0, int a1, void *a2);
+extern void func_00260568(int a0, int a1, int a2);
+extern int D_0062A340;
+extern char D_00557060[];
+extern char D_00557080[];
+
+int termAll(int *a0) {
+    int rv = deq_mes_th(D_0062A340, 0x50000, 0x40, D_00557060, 0x2A);
+    if (rv == 0) {
+        func_001AAD00(D_00557060, 0x2B);
+        func_00260380(D_00557060, 0x2B, D_00557080);
+    }
+    func_00260568(rv, 0, 0x50000);
+    a0[0] = rv;
+    if (rv == 0) {
+        return -1;
+    }
+    a0[3] = 0;
+    a0[1] = 0x50000;
+    a0[2] = 0;
+    return 0;
+}
 
 int movie_init(volatile int *a0, int *a1) {
     int diff = a0[1] - a0[3];
