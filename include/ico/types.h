@@ -37,7 +37,8 @@ struct GObj {
     char    _pad_c[0x150];    /* 0xC .. 0x15B */
     Sub15C *p_15C;            /* 0x15C — sub-object pointer */
     char    _pad160[0x4];
-    int     f_164;            /* 0x164 */
+    void   *p_164;           /* 0x164 — actor/action-state object (engine-wide,
+                                polymorphic target; type each TU's view locally) */
     char    _pad168[0x4];
     int     f_16C;            /* 0x16C */
 };
