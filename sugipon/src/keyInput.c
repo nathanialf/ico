@@ -1,22 +1,98 @@
 #include "common.h"
+#include "ico/types.h"
+#include "vu0.h"
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", InitKeyInput);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", ExecKeyInput);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_00104498);
+extern void MatrixDrive_TurnObjectMatrix(int a0, int a1);
+extern void MatrixDrive_TransMatrix(char *dst, char *src);
+extern void func_0023FE08(char *dst, char *src, int m);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_001044F0);
+void func_00104498(char *dst, char *src)
+{
+    char tmp[0x40];
+    MatrixDrive_TransMatrix(tmp, src + 0x20);
+    func_0023FE08(tmp, tmp, *(int *)(src + 0xC));
+    MatrixDrive_TurnObjectMatrix((int)dst, (int)(tmp + 0x30));
+}
+
+extern void MatrixDrive_TransMatrix(char *dst, char *src);
+
+void func_001044F0(char *dst, char *outer)
+{
+    char *src = ((GObj *)(outer))->p_15C;
+    char tmp[0x40];
+    MatrixDrive_TransMatrix(tmp, src + 0x20);
+    func_0023FE08(tmp, tmp, *(int *)(src + 0xC));
+    MatrixDrive_TurnObjectMatrix((int)dst, (int)(tmp + 0x30));
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_00104548);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_00104618);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_001046C8);
+extern void _PushVu0Registers(void *buf, void *p1, float f);
+extern void MatrixDrive_TurnZObjectMatrixXY(void *a, void *b, void *c);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_00104740);
+void func_001046C8(void *a0, void *a1, void *a2)
+{
+    int buf[4];
+    register float dot __asm__("$f12");
+    VU0_LSV_R(lqc2, 1, 0x0, a2);
+    VU0_LSV(lqc2, 2, 0x0, a1);
+    VU0_V3OP(vmul.xyz, 3, 1, 2);
+    VU0_V3OP_BC(vaddy.x, 3, 3, 3, y);
+    VU0_V3OP_BC(vaddz.x, 3, 3, 3, z);
+    VU0_V3OP_BC(vaddw.x, 3, 3, 2, w);
+    VU0_QMFC2_NI(v0, 3);
+    VU0_MTC1(v0, 12);
+    _PushVu0Registers(buf, a1, -dot);
+    MatrixDrive_TurnZObjectMatrixXY(a0, a2, buf);
+    *(float *)((char *)a0 + 0xC) = 1.0f;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_001047C0);
+extern void _PushVu0Registers(void *buf, void *p1, float f);
+extern void _RotTransPersCurrentMatrix(void *a, void *b, void *c);
+
+float func_00104740(void *a0, void *a1, void *a2)
+{
+    int buf[4];
+    float z = 0.0f;
+    register float dot __asm__("$f20");
+    VU0_LSV_R(lqc2, 1, 0x0, a2);
+    VU0_LSV(lqc2, 2, 0x0, a1);
+    VU0_V3OP(vmul.xyz, 3, 1, 2);
+    VU0_V3OP_BC(vaddy.x, 3, 3, 3, y);
+    VU0_V3OP_BC(vaddz.x, 3, 3, 3, z);
+    VU0_V3OP_BC(vaddw.x, 3, 3, 2, w);
+    VU0_QMFC2_NI(v0, 3);
+    VU0_MTC1(v0, 20);
+    {
+        register float nd __asm__("$f12") = -dot;
+        _PushVu0Registers(buf, a1, nd + z);
+    }
+    _RotTransPersCurrentMatrix(a0, a2, buf);
+    return dot;
+}
+
+float func_001047C0(void *a0, void *a1, void *a2, float t)
+{
+    int buf[4];
+    register float dot __asm__("$f20");
+    VU0_LSV_R(lqc2, 1, 0x0, a2);
+    VU0_LSV(lqc2, 2, 0x0, a1);
+    VU0_V3OP(vmul.xyz, 3, 1, 2);
+    VU0_V3OP_BC(vaddy.x, 3, 3, 3, y);
+    VU0_V3OP_BC(vaddz.x, 3, 3, 3, z);
+    VU0_V3OP_BC(vaddw.x, 3, 3, 2, w);
+    VU0_QMFC2_NI(v0, 3);
+    VU0_MTC1(v0, 20);
+    _PushVu0Registers(buf, a1, -dot + t);
+    _RotTransPersCurrentMatrix(a0, a2, buf);
+    return dot;
+}
 
 extern int D_006594C0[];
 
@@ -59,7 +135,6 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_00104DC0);
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_00104E38);
 
 extern float D_00271D20[];
-extern void func_0023FE08(void *dest, void *src, float *vec);
 
 void func_00104EB0(float x, float y, float z) {
     D_00271D20[0] = x;
@@ -92,6 +167,14 @@ void *func_00105090(void) {
     return &D_00659580[D_00629E40 * 64];
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_001050A8);
+extern void func_0023FDD8(int *buf, char *p, int x);
+
+void func_001050A8(int a0)
+{
+    int buf[4];
+    func_0023FDD8(buf, &D_006595C0[D_00629E40 * 64], a0);
+    *(float *)&buf[3] = 1.0f;
+    MatrixDrive_TurnObjectMatrix(&D_006595C0[D_00629E40 * 64 + 0x30], buf);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_00105108);
