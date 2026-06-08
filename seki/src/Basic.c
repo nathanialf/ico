@@ -1,5 +1,7 @@
 #include "common.h"
 
+extern char D_00613278[];
+
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Basic", dma_init);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Basic", matrix_init);
@@ -40,7 +42,18 @@ int resetmallocseki(int a0) {
 void mallocsekistage(void) {
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Basic", reallocseki);
+extern int   D_0062A324;
+extern int   iosFree(int a0, int a1, char *file, int line);
+
+int reallocseki(int a0)
+{
+    int saved = D_0062BA60;
+    int rv;
+    D_0062BA60 = 1;
+    rv = iosFree(D_0062A324, a0, D_00613278, 0x17E);
+    D_0062BA60 = saved;
+    return rv;
+}
 
 extern char D_00613278[];
 extern void *iosMallocAlignDebug(int a0, int a1, char *a2, int a3);

@@ -1,5 +1,7 @@
 #include "common.h"
 
+extern int D_006A4428[];
+
 typedef struct { char _0[0x1B8]; int f1B8; } WishC;
 typedef struct { char _0[0x670]; WishC *f670; } WishB;
 typedef struct { char _0[0x164]; WishB *f164; } WishA;
@@ -31,11 +33,34 @@ void func_0014A3E0(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", func_0014A400);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", func_0014A4D0);
+extern int DispIcoMisc(int *buf);
+extern void queen_barrier_anim(int a0, int a1, int a2, int *buf);
+extern int D_00629C90;
+
+void func_0014A4D0(int a0)
+{
+    int buf[4];
+    int v0 = DispIcoMisc(buf);
+    queen_barrier_anim(a0, D_00629C90, v0, buf);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", func_0014A510);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", func_0014A668);
+extern int D_002E0100[];
+
+void func_0014A668(int *unused)
+{
+    int *dst = D_006A4428;
+    char *src = (char *)D_002E0100;
+    int i = 0x46;
+    (void)unused;
+    do {
+        *dst = *(int *)src;
+        i--;
+        src += 0x94;
+        dst++;
+    } while (i >= 0);
+}
 
 extern int D_006A4428[];
 
