@@ -113,7 +113,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlBecall);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlBehanged);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlAttractAction);
+extern int D_006A58A0[];
+
+void actGirlAttractAction(void *a0) {
+    int *s = *(int **)((char *)a0 + 0x164);
+    do { } while (0);
+    D_006A58A0[0] = 0;
+    D_006A58A0[1] = 0;
+    if (*(int *)((char *)s + 0x30) != 0x45) {
+        *(long long *)((char *)s + 0x20) &= ~0x40;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", NotNeedBackHand);
 
