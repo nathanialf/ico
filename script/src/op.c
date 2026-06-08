@@ -27,7 +27,14 @@ void actOpDemo03Chk(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actSt13aConte01_3);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actOpDemo03);
+extern void func_00178E08(int a0);
+extern void actEndDemo01(void);
+
+void actOpDemo03(volatile int a0) {
+    func_00178E08(0x133);
+    func_00178E08(0x137);
+    actCreateSubThread(actEndDemo01, 0x15);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actSubMpegReturnPreload);
 
