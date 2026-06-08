@@ -39,6 +39,25 @@
 #endif
 
 #endif
+
+/* INCLUDE_ASM_FS — function-section variant: place the included asm function
+ * in its own `.text.<NAME>` section (mirroring gcc's -ffunction-sections for C
+ * functions) so a TU whose final link order differs from source order (e.g. a
+ * trace-reordered unit like box.o) can have its function sections placed
+ * explicitly by VMA in the linker script. Byte-identical to INCLUDE_ASM modulo
+ * the section name. Used in box.c/switch.c (see config/extra_cflags.txt BOX). */
+#ifndef INCLUDE_ASM_FS
+#define INCLUDE_ASM_FS(FOLDER, NAME) \
+    __asm__( \
+        ".section .text." #NAME ",\"ax\",@progbits\n" \
+        "    .set at\n" \
+        "    .set noreorder\n" \
+        "    .include \"" FOLDER "/" #NAME ".s\"\n" \
+        "    .set reorder\n" \
+        "    .set at\n" \
+    )
+#endif
+
 #ifndef INCLUDE_RODATA
 #define INCLUDE_RODATA(FOLDER, NAME) \
     __asm__( \
@@ -85,6 +104,9 @@ __asm__(".include \"include/labels.inc\"\n");
 #endif
 #ifndef INCLUDE_ASM_NOAT
 #define INCLUDE_ASM_NOAT(FOLDER, NAME)
+#endif
+#ifndef INCLUDE_ASM_FS
+#define INCLUDE_ASM_FS(FOLDER, NAME)
 #endif
 #ifndef INCLUDE_ASM_NOP_PAD
 #define INCLUDE_ASM_NOP_PAD(LABEL)
