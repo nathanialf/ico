@@ -2,9 +2,24 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", initLineTraceTable);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", traceLine);
+extern int func_00265130(void *out, int x, void *args);
+extern void debug_FlushFontWindow(int *a, int *b, int *c, void *p);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", dispSource);
+void traceLine(int *a, int *b, int *c, int x, ...)
+{
+    char buf[0x100];
+    void *args = (char *)__builtin_next_arg(x) - 0x20;
+    func_00265130(buf, x, args);
+    debug_FlushFontWindow(a, b, c, buf);
+}
+
+void dispSource(int *a, int *b, int *c, int x, ...)
+{
+    char buf[0x100];
+    void *args = (char *)__builtin_next_arg(x) - 0x20;
+    func_00265130(buf, x, args);
+    debug_FlushFontWindow(a, b, c, buf);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", display);
 
