@@ -81,9 +81,18 @@ void func_001E6BB0(RopeA *a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/ropeFix", func_001E6BE0);
+extern int func_00105078(void);
+extern void LocalizeDirectionOrient(int a0, void *a1);
+extern void func_00104DC0(int a0);
+extern void MatrixDrive_TurnXObjectMatrixYZ(int a0, int a1);
 
-extern void func_001E6BE0(int a0, void *a1);
+void func_001E6BE0(int a0, void *a1) {
+    Obj7F0 *obj = GOBJ_SUB(a1)->p_7F0;
+    LocalizeDirectionOrient(func_00105078(), a1);
+    func_00104DC0(*(short *)((char *)obj + 0x20));
+    MatrixDrive_TurnXObjectMatrixYZ(a0, func_00105078());
+}
+
 extern void func_0010F048(void *a0);
 
 void func_001E6C48(char *self) {
