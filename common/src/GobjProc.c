@@ -20,8 +20,15 @@ void *GetGObjP(int *a0, int a1, int a2, int a3) {
     return (char *)a0 + 0x10;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/GobjProc", GetGObjId);
-
+void *GetGObjId(int *a0, int a1, int a2) {
+    unsigned long long v = (unsigned int)a1;
+    unsigned long long packed = ((unsigned long long)a2 << 32) | v;
+    a0[0] = (int)v;
+    a0[1] = (int)(packed >> 32);
+    a0[2] = 0x52;
+    a0[3] = 0;
+    return (char *)a0 + 0x10;
+}
 void *PrintGObjID(char *a0, unsigned int a1) {
     unsigned long long v = (unsigned int)a1;
     *(int *)(a0 + 8) = 0x53;
