@@ -172,8 +172,12 @@ struct GeoNode {
 };
 
 struct Obj7F0 {
-    void    *p_0;         /* 0x00 — model / CD-file pointer */
-    char     _pad4[0x1C];
+    void    *p_0;         /* 0x00 — model / geometry node pointer */
+    int      f_4;         /* 0x04 */
+    int      f_8;         /* 0x08 */
+    int      f_C;         /* 0x0C */
+    int      f_10;        /* 0x10 */
+    char     _pad14[0xC];
     GeoNode *p_20;        /* 0x20 */
     char     _pad24[0x18];
     float    f_3C;        /* 0x3C */

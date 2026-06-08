@@ -1,4 +1,5 @@
 #include "common.h"
+#include "ico/types.h"
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/boy", dispClothes);
 
@@ -19,7 +20,5 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/boy", BoyDL);
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/boy", SelectBoyCrown);
 
 void LightLineGeo(void *a0, int a1) {
-    int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    q[0] = a1;
+    GOBJ_SUB(a0)->p_7F0->p_0 = (void *)a1;
 }
