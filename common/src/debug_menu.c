@@ -80,7 +80,7 @@ int func_001A7A80(void) {
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7A88);
 
 extern int D_0062AF48;
-extern int func_00243B28(void);
+extern int func_00243B28();
 
 int func_001A7AE8(int a0) {
     if (a0 == D_0062AF48) {
@@ -89,7 +89,16 @@ int func_001A7AE8(int a0) {
     return func_00243B28();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7B18);
+int func_001A7B18(void) {
+    int h = D_0062AF48;
+    int r = 0;
+    if (h != -1) {
+        D_0062AF48 = -1;
+        r = func_00243B28(h);
+        D_0062AF48 = -1;
+    }
+    return r;
+}
 
 void func_001A7B50(void) {
 }
