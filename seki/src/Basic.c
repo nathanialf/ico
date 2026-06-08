@@ -62,4 +62,14 @@ void *func_001F3DF0(int a0, int a1) {
     return iosMallocAlignDebug(a0, a1, D_00613278, 0x1A8);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Basic", func_001F3E18);
+extern int D_0062C254;
+extern int D_0070A4B0[];
+extern void _ScaleCurrentMatrix(void);
+extern void _UnitCurrentMatrix(void *a0);
+
+void func_001F3E18(void) {
+    if (D_0062C254 != 0) {
+        _ScaleCurrentMatrix();
+        _UnitCurrentMatrix(D_0070A4B0);
+    }
+}
