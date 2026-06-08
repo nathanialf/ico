@@ -26,7 +26,6 @@
 
 typedef struct GObj    GObj;
 typedef struct Sub15C  Sub15C;   /* *(GObj   + 0x15C) — per-object sub state */
-typedef struct Obj800  Obj800;   /* *(Sub15C + 0x800) */
 typedef struct Obj7F0  Obj7F0;   /* *(Sub15C + 0x7F0) — shared geometry/model obj (~25 TUs) */
 typedef struct GeoNode GeoNode;  /* *(Obj7F0  + 0x20) */
 typedef struct GeoSub  GeoSub;   /* *(GeoNode + 0x8)  */
@@ -117,46 +116,9 @@ struct Sub15C {
     char    _pad544[0x2AC];
     Obj7F0 *p_7F0; /* 0x7F0 — cage-fix geometry */
     char    _pad7F4[0xC];
-    Obj800 *p_800; /* 0x800 */
+    void   *p_800; /* 0x800 — untyped (no consumers yet) */
     char    _pad804[0x10];
     int     f_814; /* 0x814 */
-};
-
-struct Obj800 {
-    int     f_0; /* 0x0 */
-    int     f_4; /* 0x4 */
-    int     f_8; /* 0x8 */
-    int     f_C; /* 0xC */
-    int     f_10; /* 0x10 */
-    int     f_14; /* 0x14 */
-    char    _pad18[0x4];
-    int     f_1C; /* 0x1C */
-    int     f_20; /* 0x20 */
-    void   *p_24; /* 0x24 */
-    int     f_28; /* 0x28 */
-    char    _pad2C[0x18];
-    int     f_44; /* 0x44 */
-    char    _pad48[0x8];
-    int     f_50; /* 0x50 */
-    char    _pad54[0x4];
-    int     f_58; /* 0x58 */
-    char    _pad5C[0x4];
-    char    f_60; /* 0x60 */
-    char    _pad61[0x3F];
-    int     f_A0; /* 0xA0 */
-    char    _padA4[0x6C];
-    int     f_110; /* 0x110 */
-    int     f_114; /* 0x114 */
-    char    _pad118[0x28];
-    int     f_140; /* 0x140 */
-    char    _pad144[0x7C];
-    int     f_1C0; /* 0x1C0 */
-    int     f_1C4; /* 0x1C4 */
-    int     f_1C8; /* 0x1C8 */
-    char    _pad1CC[0xA4];
-    int     f_270; /* 0x270 */
-    char    _pad274[0x4];
-    int     f_278; /* 0x278 */
 };
 
 /* Geometry/model object hanging off Sub15C + 0x7F0. The p_7F0 field is read

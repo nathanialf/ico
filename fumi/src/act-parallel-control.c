@@ -1,7 +1,9 @@
 #include "common.h"
 
 /* act-parallel-control 0x164 actor-state view (local) */
-typedef struct { char _0[0x80]; int f_80; } APCState;
+typedef struct { char _0[0x54]; int f_54; float f_58; } APCBrain670;
+typedef struct { char _0[0x334]; float f_334; } APCSub678;
+typedef struct { char _0[0x80]; int f_80; char _pad84[0x5EC]; APCBrain670 *p_670; char _pad674[4]; APCSub678 *p_678; } APCState;
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", ActPara_MakeTbl);
 
@@ -38,17 +40,17 @@ void func_00149CC0(void) {
 }
 
 void func_00149CC8(void *a0, float a1) {
-    int *p = *(int **)((char *)a0 + 0x164);
-    int *q = *(int **)((char *)p + 0x678);
-    *(float *)((char *)q + 0x334) = a1;
+    APCState *p = *(APCState **)((char *)a0 + 0x164);
+    APCSub678 *q = p->p_678;
+    q->f_334 = a1;
 }
 
 void func_00149CD8(void *a0, unsigned int a1, float f) {
-    int *p = *(int **)((char *)a0 + 0x164);
-    int *q = *(int **)((char *)p + 0x670);
-    if (a1 >= (unsigned int)q[0x15]) {
-        *(float *)((char *)q + 0x58) = f;
-        q[0x15] = a1;
+    APCState *p = *(APCState **)((char *)a0 + 0x164);
+    APCBrain670 *q = p->p_670;
+    if (a1 >= (unsigned int)q->f_54) {
+        q->f_58 = f;
+        q->f_54 = a1;
     }
 }
 

@@ -1,7 +1,8 @@
 #include "common.h"
 
 /* enemy_act 0x164 actor-state view (local) */
-typedef struct { char _0[0x30]; int f_30; char _pad34[0x10C]; long long f_140; char _pad148[0x2E8]; int f_430; } EnemyActState;
+typedef struct { char _0[0x1DC]; int f_1DC, f_1E0; char _pad1e4[0x34]; int f_218; } EBrain670;
+typedef struct { char _0[0x30]; int f_30; char _pad34[0x10C]; long long f_140; char _pad148[0x2E8]; int f_430; char _pad434[0x23C]; EBrain670 *p_670; } EnemyActState;
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", setBattleStatus);
 
@@ -240,30 +241,30 @@ one:
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyHyde);
 
 int actEnemyFlagOnFree(void *a0) {
-    int *p = *(int **)((char *)a0 + 0x164);
-    int *q = *(int **)((char *)p + 0x670);
-    if (q[0x78] == 0 && p[0xC] == 0x10) {
-        return q[0x86];
+    EnemyActState *p = *(EnemyActState **)((char *)a0 + 0x164);
+    EBrain670 *q = p->p_670;
+    if (q->f_1E0 == 0 && p->f_30 == 0x10) {
+        return q->f_218;
     }
     return 0;
 }
 
 int afterCommonCarry(void *a0) {
-    int *p = *(int **)((char *)a0 + 0x164);
-    int *q = *(int **)((char *)p + 0x670);
-    return q[0x78] == 1;
+    EnemyActState *p = *(EnemyActState **)((char *)a0 + 0x164);
+    EBrain670 *q = p->p_670;
+    return q->f_1E0 == 1;
 }
 
 int actEnemyFlagOnDead(void *a0) {
-    int *p = *(int **)((char *)a0 + 0x164);
-    int *q = *(int **)((char *)p + 0x670);
-    return q[0x78] == 2;
+    EnemyActState *p = *(EnemyActState **)((char *)a0 + 0x164);
+    EBrain670 *q = p->p_670;
+    return q->f_1E0 == 2;
 }
 
 int EnemyBrainStatus_Boy(void *a0) {
-    int *p = *(int **)((char *)a0 + 0x164);
-    int *q = *(int **)((char *)p + 0x670);
-    return q[0x78] == 0;
+    EnemyActState *p = *(EnemyActState **)((char *)a0 + 0x164);
+    EBrain670 *q = p->p_670;
+    return q->f_1E0 == 0;
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", EnemyBrainStatus_Girl);
@@ -284,9 +285,9 @@ int actEnemyFlagCheckDead(char *self)
 }
 
 int actEnemyFlagCheckActive(void *a0) {
-    int *p = *(int **)((char *)a0 + 0x164);
-    int *q = *(int **)((char *)p + 0x670);
-    return q[0x77];
+    EnemyActState *p = *(EnemyActState **)((char *)a0 + 0x164);
+    EBrain670 *q = p->p_670;
+    return q->f_1DC;
 }
 
 int ACTEnemyForceSwitchToCarry(void) {

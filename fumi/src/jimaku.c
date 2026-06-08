@@ -1,7 +1,8 @@
 #include "common.h"
 
 /* jimaku 0x164 actor-state view (local) */
-typedef struct { char _0[0x30]; int f_30; char _pad34[0x308]; int f_33C; } JimakuState;
+typedef struct { char _0[0x3A4]; int f_3A4; } JSub678;
+typedef struct { char _0[0x30]; int f_30; char _pad34[0x308]; int f_33C; char _pad340[0x338]; JSub678 *p_678; } JimakuState;
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", display_texture);
 
@@ -17,17 +18,17 @@ extern void *D_00629DE8;
 
 void jimakuMgrJump(int a0) {
     if (D_00629DE8) {
-        void *p = *(void **)((char *)D_00629DE8 + 0x164);
-        void *q = *(void **)((char *)p + 0x678);
-        *(int *)((char *)q + 0x3A4) = a0;
+        JimakuState *p = *(JimakuState **)((char *)D_00629DE8 + 0x164);
+        JSub678 *q = p->p_678;
+        q->f_3A4 = a0;
     }
 }
 
 void jimakuMgrEnd(void) {
     if (D_00629DE8) {
-        void *p = *(void **)((char *)D_00629DE8 + 0x164);
-        void *q = *(void **)((char *)p + 0x678);
-        *(int *)((char *)q + 0x3A4) = 0;
+        JimakuState *p = *(JimakuState **)((char *)D_00629DE8 + 0x164);
+        JSub678 *q = p->p_678;
+        q->f_3A4 = 0;
     }
 }
 

@@ -1,7 +1,8 @@
 #include "common.h"
 
 /* commonact 0x164 actor-state view (local) */
-typedef struct { char _0[0x30]; int f_30; unsigned int f_34; } CommonActState;
+typedef struct { char _0[0xBC]; unsigned int f_BC; char _padc0[0x144]; int f_204; char _pad208[0x48]; int f_250; } CBrain670;
+typedef struct { char _0[0x30]; int f_30; unsigned int f_34; char _pad38[0x638]; CBrain670 *p_670; char _pad674[4]; void *p_678; } CommonActState;
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ACTSetPositionWithFitting);
 
@@ -84,8 +85,8 @@ extern void dispPlane(void *a0, void *a1);
 
 extern void ACTParaStatus_Clear(int a0);
 void actCommonRopeSpecial(void *a0) {
-    int *p = *(int **)((char *)a0 + 0x164);
-    void *x = *(void **)((char *)p + 0x678);
+    CommonActState *p = *(CommonActState **)((char *)a0 + 0x164);
+    void *x = p->p_678;
     dispPlane(a0, (char *)x + 0x350);
 }
 
@@ -150,9 +151,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", funcCommonFallDircorrect
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", correctJumpOrientByChain);
 
 void actCommonJump(void *a0) {
-    int *p = *(int **)((char *)a0 + 0x164);
-    int *q = *(int **)((char *)p + 0x670);
-    q[0x81]--;
+    CommonActState *p = *(CommonActState **)((char *)a0 + 0x164);
+    CBrain670 *q = p->p_670;
+    q->f_204--;
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonFall);
@@ -214,9 +215,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ACTSendMailCorrect);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", _ACTCommonMailTest);
 
 void E3_LeverCheck(void *a0) {
-    int *p = *(int **)((char *)a0 + 0x164);
-    int *q = *(int **)((char *)p + 0x670);
-    q[0x94] = 0;
+    CommonActState *p = *(CommonActState **)((char *)a0 + 0x164);
+    CBrain670 *q = p->p_670;
+    q->f_250 = 0;
 }
 
 extern void *ExecMotionOrient(void *a0, void *a1, void *a2);
@@ -235,9 +236,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ContinueCorrectPosition)
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonTurn);
 
 int actCommonBackhand(void *a0) {
-    int *p = *(int **)((char *)a0 + 0x164);
-    int *q = *(int **)((char *)p + 0x670);
-    long long v = ((unsigned int *)q)[0x2F];
+    CommonActState *p = *(CommonActState **)((char *)a0 + 0x164);
+    CBrain670 *q = p->p_670;
+    long long v = q->f_BC;
     return (int)v & 1;
 }
 
