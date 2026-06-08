@@ -61,5 +61,16 @@ siblings for the author's idioms before writing C:
 - **seki** — GS/DMA packet building, VU0 (`VU0_LSV`/`VU0_V2OP`) and `QCOPY16`.
 - **sugipon** — matrix/quaternion/motion-manager conventions.
 - **omori** — camera/brain/AI structures.
-- **ito** — `a0->0x15C->0x7F0` deref chains, IPU/movie idioms, occasional hand-asm.
-- **fumi** — `a0->0x164->0x678` action-object deref chains, character state machines.
+- **ito** — IPU/movie idioms, occasional hand-asm.
+- **fumi** — `a0->0x164->...` action-object deref chains, character state machines.
+
+**Not an author idiom — engine-wide:** the `a0->0x15C->0x7F0` chain is the
+DObj→geometry-object accessor, used by ~25 TUs across sugipon/omori/ito/fumi
+(weapon, torch, boy, rope, enemy, box, spider, chain, ebrain, queen, …). Prefer
+the typed form `GOBJ_SUB(o)->p_7F0->...` (`include/ico/types.h`: `GObj`,
+`Sub15C`=DObj@0x15C, `Obj7F0`=geometry@0x7F0). NOTE the `0x7F0` *target* is
+POLYMORPHIC per object type — the same offset is a pointer in one object and a
+packed `unsigned short` in another (cage's `0x20` is a `GeoNode*`; spider's is a
+`ushort`). Only the `Sub15C.p_7F0` pointer is a shared fact; type each TU's
+`0x7F0` view LOCALLY (as `ropeFix.c` does with `RopeA/RopeB/RopeC`), not as one
+shared field map.
