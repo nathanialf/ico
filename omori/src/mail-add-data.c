@@ -1,5 +1,8 @@
 #include "common.h"
 
+/* mail-add-data 0x164 actor-state view (local) */
+typedef struct { char _0[0x674]; int *p_674; } MailState;
+
 int InitMailAdditionalData(int a0)
 {
     if (a0 < -135) a0 = 180;
@@ -79,14 +82,14 @@ extern char D_005550E0[];
 
 void func_001929A0(char *self)
 {
-    char *sub_a = *(char **)(self + 0x164);
+    MailState *sub_a = *(MailState **)(self + 0x164);
     int *sub_b;
     if (sub_a == 0) {
         func_001AAD00(D_005550C8, 0x47);
         func_00260380(D_005550C8, 0x47, D_005550E0);
-        sub_a = *(char **)(self + 0x164);
+        sub_a = *(MailState **)(self + 0x164);
     }
-    sub_b = *(int **)(sub_a + 0x674);
+    sub_b = sub_a->p_674;
     *sub_b = 0;
 }
 

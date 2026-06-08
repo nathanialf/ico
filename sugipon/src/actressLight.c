@@ -1,5 +1,8 @@
 #include "common.h"
 
+/* actressLight 0x164 actor-state view (local) */
+typedef struct { char _0[0x30]; int f_30; } ALState;
+
 extern void SetAP1DeadStatus(int a0, int a1);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", SetActressLight);
@@ -13,8 +16,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", func_001B8090);
 extern void *D_004BA2B8[];
 extern void debug_assertMessage(void *a0);
 void func_001B8408(void *a0) {
-    void *p = *(void **)((char *)a0 + 0x164);
-    debug_assertMessage(D_004BA2B8[*(int *)((char *)p + 0x30)]);
+    ALState *p = *(ALState **)((char *)a0 + 0x164);
+    debug_assertMessage(D_004BA2B8[p->f_30]);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", func_001B8428);

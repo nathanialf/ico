@@ -1,5 +1,8 @@
 #include "common.h"
 
+/* warpGirl 0x164 actor-state view (local) */
+typedef struct { char _0[0x20]; long f_20; } WarpState;
+
 extern int execNormalMove(void);
 
 int warpGirlOutStage(void) {
@@ -21,24 +24,24 @@ extern void *D_00629DE4;
 void func_0017C0B8(void) {
     void *o = D_00629DE4;
     if (o) {
-        void *s = *(void **)((char *)o + 0x164);
-        *(long *)((char *)s + 0x20) &= -0x201;
+        WarpState *s = *(WarpState **)((char *)o + 0x164);
+        s->f_20 &= -0x201;
     }
 }
 
 void func_0017C0E0(void) {
     void *o = D_00629DE4;
     if (o) {
-        void *s = *(void **)((char *)o + 0x164);
-        *(long *)((char *)s + 0x20) |= 0x200;
+        WarpState *s = *(WarpState **)((char *)o + 0x164);
+        s->f_20 |= 0x200;
     }
 }
 
 void func_0017C108(void) {
     void *o = D_00629DE4;
     if (o) {
-        void *s = *(void **)((char *)o + 0x164);
-        *(long *)((char *)s + 0x20) &= -0x401;
+        WarpState *s = *(WarpState **)((char *)o + 0x164);
+        s->f_20 &= -0x401;
     }
 }
 
