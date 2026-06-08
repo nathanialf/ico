@@ -32,3 +32,20 @@ glabel reg_dispLine
     /* 202C4 001202C4 1000BD27 */   addiu     $29, $29, 0x10
 endlabel reg_dispLine
 ```
+
+## Permuter harvest 2026-06-08 (this pass)
+
+Fired bounded permuter (8445 iters). Best = `output-20-1` (score 20 = **rc2**,
+improving the clean-C rc4): the mutation is an empty `if (D_0054FBE0) {}` BEFORE
+the calls, which materializes `%hi(D)` (lui a1) early so `a1lo` no longer falls
+into the dpk_Init delay slot. Residual rc2 is then purely the `a0=2`/`a2=4`
+transposition: ROM emits `a2=4` into the a1 hi/lo gap and defers `a0=2` to the
+delay; ee-gcc 2.9 emits call args LEFT-TO-RIGHT so `a0` (arg0) fills the gap and
+`a2` (arg2) is deferred. No clean source reorders two plain immediates across a
+fixed-position call. arg0-const-in-delay needs a WAR hazard on $4 (cf.
+func_002590A0 `f(0x18,a0,a1,0)` where an incoming param copied to a1 forces the
+const write last) — reg_dispLine is `void(void)`, no incoming arg, so no WAR.
+The `if(D){}` is a permuter artifact, NOT clean dev C, and still only rc2.
+Permuter found NO rc0 (no output-0-*). RESUME idea: find the dev construct that
+creates a $4 WAR (an arg/temp using $4 before dpk_Init) — that is the only known
+lever that defers a const arg0.
