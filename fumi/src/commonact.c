@@ -245,8 +245,13 @@ void actCommonSlowrun(int a0, int a1) {
     D_0028E680[a0].w[2] = a1;
 }
 
-/* parked: needs real matching. See tough_nuts/ACT_LAYOUT_GAMEOVER/notes.md */
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ACT_LAYOUT_GAMEOVER);
+extern void func_00240038(void *a0, float f);
+
+void ACT_LAYOUT_GAMEOVER(void *a0) {
+    int local[4];
+    func_00240038(local, -1.0f);
+    dispPlane(a0, local);
+}
 
 /* parked: needs real matching. See tough_nuts/ACTAdjustPlane/notes.md */
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ACTAdjustPlane);
