@@ -43,7 +43,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aDoor2Event);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aDoor2UpEffect);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aDoor2DownEffect);
+extern int D_00629DE8;
+extern int func_00178DB0(int a0);
+extern void func_00178DD8(int a0);
+
+void actSt00aDoor2DownEffect(void) {
+    if (D_00629DE8 == 0) return;
+    if (func_00178DB0(0x27) != 0) return;
+    func_00178DD8(0x165);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aDoor1Event);
 
