@@ -2,9 +2,42 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", sndBgmReadyNextStage);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", sndInit);
+extern void debug_assertMessage();
+extern char D_006A3370[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", sndManager);
+extern char D_00552178[];
+
+extern char D_005CD670[];
+
+int sndInit(void)
+{
+    char *e = D_006A3370;
+    int sz = 0x3C;
+    int i = 0x2F;
+    do {
+        if (*(int *)(e + 0x30) != 0) {
+            debug_assertMessage((int)D_00552178, *(short *)(e + 0x10),
+                          (unsigned int)(*(int *)(e + 0x38) - (int)D_005CD670) / sz);
+        }
+        e += 0x40;
+        i--;
+    } while (i >= 0);
+    __asm__ __volatile__("break");
+}
+
+extern void debug_DispSEInfo(int x, int y);
+extern void soundDataSegNextStageNotUseClose(int *a, int *b);
+extern void Ee2Iop(int x, int *p);
+extern void soundVBlank(int x);
+
+void sndManager(int *a, int *b)
+{
+    Ee2Iop(1, a);
+    Ee2Iop(2, a);
+    soundVBlank(1);
+    debug_DispSEInfo(1, 0);
+    soundDataSegNextStageNotUseClose(a, b);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_00143298);
 
@@ -34,7 +67,6 @@ void func_001438C8(void) {
 }
 
 extern void ACTLookTargetSystem_Exec(void);
-extern void debug_assertMessage(char *a0);
 extern char D_005521D0[];
 
 void func_001438E8(void) {

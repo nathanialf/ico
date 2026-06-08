@@ -2,9 +2,34 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actSt25aQueenAppear);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actSt25aQueenAppearChk);
+extern int *isysGObjSearchFromObjLayoutID(int x);
+extern void Generator_Mask(int *p);
+extern int *isysGObjSearchFromObjKindID_begin(int *p);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actConte11);
+void actSt25aQueenAppearChk(void)
+{
+    int *p = isysGObjSearchFromObjLayoutID(0x21);
+    while (p != 0) {
+        Generator_Mask(p);
+        p = isysGObjSearchFromObjKindID_begin(p);
+    }
+}
+
+extern int *isysGObjAddHead(void);
+extern void iosOmBeforeFuncStandard(int a, int b, int c);
+extern unsigned char D_002A0A90[];
+
+void actConte11(void)
+{
+  char *new_var;
+  int *p = isysGObjAddHead();
+  if (p != 0)
+  {
+    iosOmBeforeFuncStandard((int) p, 0x26, (int) p);
+    new_var = (char *) D_002A0A90;
+    *((unsigned short *) ((new_var + (p[0x8 / 4] * 0x4C)) + 0x42)) = 0;
+  }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actSt25aQueenTalkChk);
 
@@ -20,7 +45,6 @@ void actConte12Jimaku(void *a0) {
     *(int *)((char *)p + 0x328) = 0x7F;
 }
 
-extern int isysGObjAddHead(void);
 
 int actSt25aQueenDeadChk(void) {
     return isysGObjAddHead();
@@ -52,7 +76,24 @@ int actSt25aQueenDead(int a0, int a1, int a2) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actItouQueenAttack);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actSwordEff);
+extern int D_00629DF0;
+extern void stgmgrForceSwitch(int a0, int a1, int a2, int a3);
+
+int actSwordEff(int a0, int a1, int a2, int a3)
+{
+    int ret = 0;
+    a1 = a1 & 0xFF;
+    a2 = a2 & 0xFF;
+    a3 = a3 & 0xFF;
+    if (D_00629DF0 == 0) {
+        if (D_0062C030 == 0) {
+            stgmgrForceSwitch(a0, a1, a2, a3);
+            D_0062C030 = 1;
+            ret = 1;
+        }
+    }
+    return ret;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actSwordEffXL);
 
@@ -70,7 +111,6 @@ void actSt25aQueenBeforeChk(float a0, int a1, int a2, int a3) {
 }
 
 extern int D_0062BA78;
-extern float D_0062BA7C;
 extern int D_0062BA80;
 
 void actConte11Jimaku(float a0) {
@@ -79,7 +119,6 @@ void actConte11Jimaku(float a0) {
     D_0062BA80 = 0;
 }
 
-extern int D_0062BA78;
 int actSt25aQueenDeadEvent(void) {
     int g = D_0062BA78;
     if (g == 0) {

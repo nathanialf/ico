@@ -16,17 +16,62 @@ void debug_LogPrintf(void) {
     D_0062ACCC = -1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug", debug_SaveDebugOptionFile);
+extern void func_00265130(char *buf, const char *fmt, void *va);
+extern void *func_0026160C(char *buf);
+extern void func_00244150(int target, char *buf, void *info);
+
+void debug_SaveDebugOptionFile(const char *fmt, ...) {
+    char buf[0x100];
+    void *info;
+    func_00265130(buf, fmt, (char *)__builtin_next_arg(fmt) - 0x38);
+    info = func_0026160C(buf);
+    func_00244150(D_0062ACCC, buf, info);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug", debug_GetDebugOption);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug", debug_SetDmaCallback);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug", debug_VariableInit);
+extern unsigned int D_0062ACD4;
+extern int func_00100230(int a, int b, int c);
+extern void func_00100250(int a, int b);
+extern void func_001A7C20(void);
+extern void func_00100B40(int a);
+
+void debug_VariableInit(void)
+{
+    if ((int)D_0062ACD4 != -1) {
+        func_00100250(1, D_0062ACD4);
+    }
+    D_0062ACD4 = func_00100230(1, (int)func_001A7C20, -1);
+    func_00100B40(1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug", debug_Init);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug", debug_Load);
+extern int D_0062AF58;
+extern int D_0062AF5C;
+extern int D_0062AF60;
+extern int D_0062B00C;
+extern int D_0062AF64;
+extern int D_0062AF68;
+extern int D_0062AF6C;
+extern void func_001A7480(void);
+extern void debug_PrintCharacter(void);
+
+void debug_Load(void) {
+    func_001A7480();
+    D_0062AF58 = 0;
+    D_0062AF5C = 0;
+    D_0062AF60 = 0;
+    D_0062AF64 = 0;
+    D_0062AF68 = 0;
+    D_0062AF6C = 0;
+    D_0062B00C = 0;
+    *(volatile int *)0x10000010 = 0x82;
+    *(volatile int *)0x10000810 = 0x82;
+    debug_PrintCharacter();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug", debug_MakeFont);
 
