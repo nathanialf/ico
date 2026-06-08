@@ -1,10 +1,13 @@
 #include "common.h"
 
+/* spider 0x7F0 view (local; 0x20/0x24 also read as packed ushort elsewhere) */
+typedef struct { char _0[0x20]; unsigned short f_20; char _pad22[2]; int f_24; char _pad28[0xC]; int f_34; } SpiderGeo;
+
 int InitSpiderLayoutGeo(void *a0, void *a1) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    void *q = *(void **)((char *)p + 0x7F0);
-    *(unsigned short *)((char *)q + 0x20) = *(unsigned short *)((char *)a1 + 0x30);
-    *(int *)((char *)q + 0x24) = *(short *)((char *)a1 + 0x32);
+    SpiderGeo *q = *(SpiderGeo **)((char *)p + 0x7F0);
+    q->f_20 = *(unsigned short *)((char *)a1 + 0x30);
+    q->f_24 = *(short *)((char *)a1 + 0x32);
     return 1;
 }
 
@@ -18,8 +21,8 @@ int WakeUpLayoutedSpiders(void *a0, void *a1) {
 
 void getCallPoint(void *a0, int a1) {
     void *p = *(void **)((char *)a0 + 0x15C);
-    void *q = *(void **)((char *)p + 0x7F0);
-    *(int *)((char *)q + 0x34) = a1;
+    SpiderGeo *q = *(SpiderGeo **)((char *)p + 0x7F0);
+    q->f_34 = a1;
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spider", CallSpidersToReviveEnemy);

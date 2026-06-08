@@ -1,12 +1,15 @@
 #include "common.h"
 #include "ico/types.h"
 
+/* enemyParts 0x7F0 view (local) */
+typedef struct { int f_0; char _pad4[4]; int f_8; char _pad_c[8]; int f_14; char _pad18[0x20]; int f_38; char _pad3c[8]; float f_44; } EPGeo;
+
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", UpdatePointBlur);
 
 void InitEnemyEye(void *a0, int a1) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    q[0xE] = a1;
+    EPGeo *q = *(EPGeo **)((char *)p + 0x7F0);
+    q->f_38 = a1;
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", InitEnemyFootPrint);
@@ -15,8 +18,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", ExecEnemyFootPrints)
 
 int EntryEnemyFootPrint(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    return q[5];
+    EPGeo *q = *(EPGeo **)((char *)p + 0x7F0);
+    return q->f_14;
 }
 
 extern int EnemyGeo(void *a0, int a1, void *a2);
@@ -32,8 +35,8 @@ int DispEnemyFootPrints(void *a0) {
 
 void InitPointBlur(void *a0, float a1) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    *(float *)((char *)q + 0x44) = a1;
+    EPGeo *q = *(EPGeo **)((char *)p + 0x7F0);
+    q->f_44 = a1;
 }
 
 typedef struct { int _0, _4; float f8; int _c, _10; } EyeParam;
@@ -42,22 +45,22 @@ extern EyeParam D_00617828[];
 int DispPointBlur(void *a0) {
     EyeParam *base = D_00617828;
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    return base[q[2]]._10 & 3;
+    EPGeo *q = *(EPGeo **)((char *)p + 0x7F0);
+    return base[q->f_8]._10 & 3;
 }
 
 int UpdateEnemyEye(void *a0) {
     EyeParam *base = D_00617828;
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    return ((unsigned int)base[q[2]]._10 >> 2) & 3;
+    EPGeo *q = *(EPGeo **)((char *)p + 0x7F0);
+    return ((unsigned int)base[q->f_8]._10 >> 2) & 3;
 }
 
 
 float DispEnemyEye(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    int idx = q[2];
+    EPGeo *q = *(EPGeo **)((char *)p + 0x7F0);
+    int idx = q->f_8;
     return D_00617828[idx].f8;
 }
 
