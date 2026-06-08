@@ -118,3 +118,16 @@ glabel func_001F8848
 endlabel func_001F8848
     /* F887C 001F887C 00000000 */  nop
 ```
+
+## Fire 7 RESULT: rc4 -> rc2 (permuter, adopted)
+The bounded permuter shot (seeded from the rc4 array form) found output-105-1 at
+TRUE real_count rc2 (its perm_score 105 is unrelated). Structural idea adopted:
+SHORT-narrowed array index `(short)idx + 1` + base-alias `(p = D_004C3850)[...]`.
+This is the FIRST form to get BOTH correct %hi->a0 coloring AND correct
+scale/addu/disp (lw 4) — see seed header. Residual rc2 = the 2-insn sign-extend
+`sll 0x10; sra 0xe` vs ROM's `sll 0x2`. Confirmed irreducible by hand: ~20
+post-adopt distinct shapes (2D `int(*)[1]` views rc11, base-alias+int rc11,
+ushort rc5, mask 0x7FFF/0xFFFF rc2, short-via-int-var rc2, p-first rc3). The
+narrowing is what triggers the disp-fold; removing it loses the fold. New best
+seed = rc2. Re-attack on resume: seed permuter from the rc2 short form (better
+start than the old rc4) to hunt the sext->sll2 elimination.
