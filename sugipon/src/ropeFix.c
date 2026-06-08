@@ -6,7 +6,29 @@ extern void playSEConditionID(int a0, int a1);
 void RopeFixGeo(void) {
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/ropeFix", RopeFixDL);
+struct vec4_rope { float x, y, z, w; } __attribute__((aligned(8)));
+
+extern void RopeDL(GObj *o);
+extern void GetRootMatrixByDObj(void *dst, void *src);
+extern float MoveChainExtendedWeight(void *a0, void *a1, float w);
+extern GObj *D_00629DE4;
+
+void RopeFixDL(GObj *a0) {
+    struct vec4_rope m;
+    Obj7F0 *obj;
+    GObj *g;
+    float w;
+    RopeDL(a0);
+    g = D_00629DE4;
+    obj = GOBJ_SUB(a0)->p_7F0;
+    GetRootMatrixByDObj(&m, g);
+    w = MoveChainExtendedWeight(obj->p_0, &m, 200.0f);
+    do {
+        if (0.0f < w) {
+            GOBJ_SUB(g)->f_608 = w;
+        }
+    } while (0);
+}
 
 extern int isysGObjSearchFromObjLayoutID(int a0);
 extern int UnLockChainGeo(int a0, int a1);

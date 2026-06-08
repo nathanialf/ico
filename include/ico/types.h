@@ -113,7 +113,9 @@ struct Sub15C {
     int     f_538; /* 0x538 */
     int     f_53C; /* 0x53C */
     int     f_540; /* 0x540 */
-    char    _pad544[0x2AC];
+    char    _pad544[0xC4];
+    float   f_608; /* 0x608 */
+    char    _pad60C[0x1E4];
     Obj7F0 *p_7F0; /* 0x7F0 — cage-fix geometry */
     char    _pad7F4[0xC];
     void   *p_800; /* 0x800 — untyped (no consumers yet) */
