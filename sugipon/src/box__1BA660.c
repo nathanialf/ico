@@ -1,7 +1,7 @@
 #include "common.h"
 
 /* box__1BA660 0x7F0 view (local) */
-typedef struct { int f_0; char _4[0x1C]; int f_20; char _pad24[0x34]; int f_58; char _pad5C[0xB4]; int f_110; int f_114; char _pad118[0x20]; int f_138; } BoxGeo2;
+typedef struct { int f_0; char _4[0x1C]; int f_20; char _pad24[0x34]; int f_58; char _pad5C[0xB4]; int f_110; int f_114; char _pad118[0x20]; int f_138; char _pad13C[0x4]; int f_140; } BoxGeo2;
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", dispWheels);
 
@@ -135,7 +135,24 @@ end:
     q->f_110 = 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", BoxExtGeoRestore);
+extern void ExecFrameDependSequence(void *a0);
+extern void playSEConditionID(void *a0, int a1);
+extern void initWheels(void *a0);
+
+void BoxExtGeoRestore(void *self) {
+    int *p = *(int **)((char *)self + 0x15C);
+    BoxGeo2 *q = *(BoxGeo2 **)((char *)p + 0x7F0);
+    if (q->f_58 == 0 || q->f_110 != 0) {
+        ExecFrameDependSequence(self);
+        execEff(self, 1);
+        playSEConditionID(self, 0x16);
+        if (q->f_140 != 0) {
+            initWheels(self);
+            q->f_140 = 0;
+        }
+    }
+    q->f_110 = 0;
+}
 
 
 /* recovered struct shapes */
