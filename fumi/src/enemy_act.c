@@ -30,7 +30,25 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", _MustChase);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", subEnemyControl);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", subEnemyCollision);
+extern void subEnemyControl(int *self, int a1);
+
+void subEnemyCollision(int *self, int a1)
+{
+    char *p;
+    int i;
+    p = (char *)((int *)self[0x59])[0x19C] + 0x360;
+    i = 0;
+    do {
+        if (*(signed char *)(p + 0x1D) != 0) {
+            if (*(int *)(p + 0x14) == a1) {
+                return;
+            }
+        }
+        i++;
+        p += 0x20;
+    } while (i < 5);
+    subEnemyControl(self, a1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyAttack);
 
@@ -82,13 +100,66 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", _ApproachTarget_Boss);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", flyMailCore);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", _ApproachTarget_Way);
+extern void debug_assertMessage(char *p);
+extern unsigned int _ACTWait(int a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyStart);
+extern char D_005531D8[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", subEnemyBrain_Irregular);
+void _ApproachTarget_Way(volatile unsigned int a0)
+{
+    volatile int local;
+    int *new_var;
+    int *s0;
+    new_var = *((int **) (a0 + 0x164));
+    debug_assertMessage((char *)D_005531D8);
+    s0 = new_var;
+    s0[0x30 / 4] = 0x1;
+    _ACTWait(0);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", subEnemyBrain_Attack);
+extern void debug_assertMessage(char *p);
+extern unsigned int _ACTWait(int a0);
+
+extern char D_00553208[];
+
+void actEnemyStart(volatile unsigned int a0)
+{
+    volatile int local;
+    int *s0;
+    s0 = *((int **) (a0 + 0x164));
+    debug_assertMessage((char *)D_00553208);
+    s0[0x30 / 4] = 0x2;
+    _ACTWait(0);
+}
+
+extern void debug_assertMessage(char *p);
+extern unsigned int _ACTWait(int a0);
+
+extern char D_00553238[];
+
+void subEnemyBrain_Irregular(volatile unsigned int a0)
+{
+    volatile int local;
+    int *s0;
+    s0 = *((int **) (a0 + 0x164));
+    debug_assertMessage((char *)D_00553238);
+    s0[0x30 / 4] = 0x3;
+    _ACTWait(0);
+}
+
+extern char D_00553280[];
+
+void subEnemyBrain_Attack(volatile unsigned int a0)
+{
+    int *new_var;
+    volatile int local;
+    int *s0;
+    new_var = *((int **) (a0 + 0x164));
+    debug_assertMessage((char *)D_00553280);
+    s0 = new_var;
+    s0[0x30 / 4] = 0x1C;
+    _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", subEnemyBrain_Cling);
 
@@ -99,7 +170,21 @@ void actEnemyStand(void *a0) {
     *(long long *)((char *)p + 0x140) |= 0x100000000LL;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyWalk);
+extern void CylinderCollision(int *self, char *spill);
+extern void ResetEnemyEye(int *self);
+extern void actEnemyRun(int *self);
+
+extern char D_005532A0[];
+
+void actEnemyWalk(int *self)
+{
+    char spill[16];
+    *(long long *)(spill + 0) = *(long long *)((char *)D_005532A0 + 0);
+    *(long long *)(spill + 8) = *(long long *)((char *)D_005532A0 + 8);
+    CylinderCollision(self, spill);
+    ResetEnemyEye(self);
+    actEnemyRun(self);
+}
 
 typedef struct { char _[0x48]; unsigned int f48; } NestEntry;
 extern NestEntry D_002A0A90[];
@@ -134,7 +219,20 @@ int actEnemyNest(int *a0) {
     return (t[idx].f48 >> 18) & 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", funcEnemyCarryFail);
+int funcEnemyCarryFail(int *a0)
+{
+    unsigned int *p = (unsigned int *)((char *)D_002A0A90 + a0[2] * 0x4C);
+    unsigned int field = p[0x48 / 4];
+    unsigned int v0 = (field >> 18) & 1;
+    if (v0 != 0) goto zero;
+    v0 = (field >> 21) & 1;
+    v0 = v0 ^ 1;
+    if (v0 == 0) goto one;
+zero:
+    return 0;
+one:
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyHyde);
 
@@ -167,7 +265,20 @@ int EnemyBrainStatus_Boy(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", EnemyBrainStatus_Girl);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyFlagCheckDead);
+extern int D_00629DE8;
+
+int actEnemyFlagCheckDead(char *self)
+{
+    char *sub;
+    char *sub2;
+    if (D_00629DE8 != 0) {
+        char *sub_d = *(char **)((char *)D_00629DE8 + 0x164);
+        if (*(int *)(sub_d + 0x30) != 0x6B) return 0;
+    }
+    sub = *(char **)((char *)self + 0x164);
+    sub2 = *(char **)(sub + 0x670);
+    return *(int *)(sub2 + 0x1FC) == 3;
+}
 
 int actEnemyFlagCheckActive(void *a0) {
     int *p = *(int **)((char *)a0 + 0x164);
