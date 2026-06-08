@@ -89,3 +89,24 @@ string literals).
    opened path is `../ito/include/mv_defs.h` (build CWD = `ito/mpeg/`).
    That include-path plumbing is the open task before this can be the
    real source form.
+
+## Update — header materialized (func_ naming) + build mechanism + open match
+
+- The header now exists at `ito/include/mv_defs.h`. The inline is named
+  `func_mvDeqMes` (placeholder — inlined everywhere, no MAIN.MAP symbol; per
+  user, `func_`-style not an invented API name).
+- **Build mechanism** (in `tools/compile_c.sh`, opt-in via `config/include_ito.txt`):
+  to bake `__FILE__` as exactly `"../ito/include/mv_defs.h"`, the listed TU is
+  compiled from CWD `${ROOT}/ito` with a *relative* `-I../ito/include` (ee-gcc
+  records the `-I` spelling verbatim into `__FILE__`; an absolute `-I` gives an
+  absolute string). Proven: emits the exact string + deq@L42/assert@L43.
+- **Rodata carve** `[0x457060, 0x457090)` (mv_main's file + "p != NULL") is
+  proven byte-neutral as a plain blob split; with the header the strings come
+  from `mv_main.o` and the blob is carved.
+- **OPEN — permuter-class regalloc swap.** A consumer (`termAll`) rewritten to
+  call `func_mvDeqMes` does NOT byte-match: ee-gcc's inliner gives the `__FILE__`
+  pointer `$s1` and the struct param `$s2`, the reverse of the ROM (struct `$s1`,
+  file `$s2`), costing one `move`. The swap is invariant across ~15 reshapes
+  (store order ×6, caller CFG ×5, inline keyword ×3, queue-as-param). The
+  hand-written `termAll` (extern `D_005570xx`) matches and is what's committed;
+  the inline form is parked pending a permuter/structural crack.

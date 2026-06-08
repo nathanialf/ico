@@ -115,8 +115,23 @@ mkdir -p "$(dirname "${OUT}")"
 
 EXTRA="$("${EXTRA_CFLAGS_LOOKUP}" "${SRC}" 2>/dev/null || true)"
 
-# shellcheck disable=SC2086
-"${CC}" -B "${EEGCC_LIB}" ${CFLAGS} ${EXTRA} -o "${S}" "${SRC}"
+# TUs that include a header under `ito/include/` (e.g. mv_defs.h) must be
+# compiled so the `__FILE__` literal resolves to "../ito/include/<h>" exactly
+# as the original build did: a *relative* `-I../ito/include` evaluated from a
+# CWD one level below ROOT (so `../ito/include` == `${ROOT}/ito/include`).
+# ee-gcc records the -I spelling verbatim into __FILE__, so an absolute -I (or
+# a different CWD) would change the baked rodata string. Opt-in per TU via
+# config/include_ito.txt; all paths are made absolute since CWD changes.
+INCLUDE_ITO_TXT="${ROOT}/config/include_ito.txt"
+if listed "${INCLUDE_ITO_TXT}"; then
+    SRC_ABS="${SRC}"; case "${SRC_ABS}" in /*) ;; *) SRC_ABS="${ROOT}/${SRC_ABS}";; esac
+    S_ABS="${S}";    case "${S_ABS}"   in /*) ;; *) S_ABS="${ROOT}/${S_ABS}";; esac
+    # shellcheck disable=SC2086
+    ( cd "${ROOT}/ito" && "${CC}" -B "${EEGCC_LIB}" ${CFLAGS} ${EXTRA} -I../ito/include -o "${S_ABS}" "${SRC_ABS}" )
+else
+    # shellcheck disable=SC2086
+    "${CC}" -B "${EEGCC_LIB}" ${CFLAGS} ${EXTRA} -o "${S}" "${SRC}"
+fi
 
 # Split each gcc-emitted switch jtbl onto its own .rodata.0x<VMA>
 # section so the linker can place multi-jtbl TUs correctly. No-op on
