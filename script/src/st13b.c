@@ -99,6 +99,14 @@ void actBossTest(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bConte02Jimaku);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bSekizo2Event);
+extern int D_00629DE8;
+extern int func_00178DB0(int a0);
+extern void func_00178DD8(int a0);
+
+void actSt13bSekizo2Event(void) {
+    if (D_00629DE8 == 0) return;
+    if (func_00178DB0(0x45) != 0) return;
+    func_00178DD8(0x165);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bMeetAgainChk);
