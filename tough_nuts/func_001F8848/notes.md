@@ -59,3 +59,62 @@ pointer/`*(D+idx+1)` forms = rc10-11 (fix the scale but flip %hi/&base coloring)
 30-stall reached; fired permuter (150s, ~1000 iters), NO rc0. (b) re-confirmed.
 Note: ee-gcc 2.9 is C89 — mid-block `int x=0;` is a compile error (rc=-1 false).
 ## Fire 6: re-attack; base-fold ptr forms rc11 (coloring flip), array form rc4 best hand, ~35 distinct; rc1 is permuter-only §5.11 andi floor; stall=31 permute, valid run no rc0. (b)
+
+## Fire 7 re-attack (2026-06-08, second pass this day) — PRECISE COUPLING MODEL
+Reset; ran ~30 fresh distinct shapes via match_loop (stall 30/30, best=4 on aug6).
+Harvested ALL existing permuter outputs by true real_count: best is output-220-1
+= rc4 (== hand best); output-195-1 = rc6; nothing < rc4. (b) re-confirmed.
+
+NEW root-cause model (supersedes "index/coloring coupled, permuter-class"):
+- The diff is a register-allocation tie on the %hi(D_004C3850) pseudo: expected
+  puts %hi->a0 (addresses in a0/a1, data in v0/v1, loaded value REUSES idx's v1);
+  every scale-correct form puts %hi->v1.
+- WHY: in pointer/address-domain forms (`(D+idx)[1]`, struct `s->buf[idx]`,
+  `*(D+idx+1)`, byte-ptr `(char*)D+idx*4+4`, addr-temp `p=D+idx;p[1]`) the
+  store-back `D[0]=idx` is scheduled right after the xori, BEFORE the sll, so gcc
+  reuses idx's register in-place for `scaled` (sll v0,v0) -> only 3 regs -> %hi=v1.
+  Confirmed via tools/sched_diff.py: the store is in the initial stream before the
+  sll, not moved by a later pass; no clean lever delays it past the sll.
+- The ONLY form that lands %hi->a0 is the bare-array `D[idx+1]`, because the
+  `idx+1` temp forces `scaled` into a SEPARATE reg from idx (4 regs) -> %hi=a0 —
+  but that same `idx+1` mis-scales to (idx+1)*4 (addiu+sll, lw 0) instead of
+  idx*4 + load-disp 4. So coloring (needs the extra idx pseudo) and scale (needs
+  address-domain lowering) are mutually exclusive across every C spelling.
+- Need: a scale-correct form whose store-back lands BETWEEN the sll and the load
+  (idx dies there: scaled separate, loaded value reuses idx's reg, 4 regs, %hi=a0).
+  No hand source places it there — the scheduler always hoists the store before
+  the sll. Genuine permuter-class register/schedule tie. SEED = rc4 bare-array.
+
+---
+
+## Attempt at 2026-06-08
+
+**Reason parked:** rc4 aug6 hand-best (bare-array form, correct %hi->a0 coloring, residual (idx+1)*4 scale); 30-stall + permuter harvest (all outputs) beat nothing<rc4. Register/schedule tie: scale-correct forms flip %hi->v1.
+
+**TU:** `seki/src/DmaPacket.c`
+
+**Seed:** `tough_nuts/func_001F8848/func_001F8848.1.c`
+
+Disassembly:
+
+```
+.align 3
+nonmatching func_001F8848, 0x34
+
+glabel func_001F8848
+    /* F8848 001F8848 4C00043C */  lui        $4, %hi(D_004C3850)
+    /* F884C 001F884C 5038838C */  lw         $3, %lo(D_004C3850)($4)
+    /* F8850 001F8850 50388524 */  addiu      $5, $4, %lo(D_004C3850)
+    /* F8854 001F8854 01006338 */  xori       $3, $3, 0x1
+    /* F8858 001F8858 80100300 */  sll        $2, $3, 2
+    /* F885C 001F885C 503883AC */  sw         $3, %lo(D_004C3850)($4)
+    /* F8860 001F8860 2110A200 */  addu       $2, $5, $2
+    /* F8864 001F8864 0400438C */  lw         $3, 0x4($2)
+    /* F8868 001F8868 1C00A0AC */  sw         $0, 0x1C($5)
+    /* F886C 001F886C 1000A3AC */  sw         $3, 0x10($5)
+    /* F8870 001F8870 1400A0AC */  sw         $0, 0x14($5)
+    /* F8874 001F8874 0800E003 */  jr         $31
+    /* F8878 001F8878 1800A0AC */   sw        $0, 0x18($5)
+endlabel func_001F8848
+    /* F887C 001F887C 00000000 */  nop
+```
