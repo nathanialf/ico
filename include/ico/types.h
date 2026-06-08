@@ -27,7 +27,7 @@
 typedef struct GObj    GObj;
 typedef struct Sub15C  Sub15C;   /* *(GObj   + 0x15C) — per-object sub state */
 typedef struct Obj800  Obj800;   /* *(Sub15C + 0x800) */
-typedef struct Obj7F0  Obj7F0;   /* *(Sub15C + 0x7F0) — cage-fix geometry */
+typedef struct Obj7F0  Obj7F0;   /* *(Sub15C + 0x7F0) — shared geometry/model obj (~25 TUs) */
 typedef struct GeoNode GeoNode;  /* *(Obj7F0  + 0x20) */
 typedef struct GeoSub  GeoSub;   /* *(GeoNode + 0x8)  */
 
@@ -147,8 +147,10 @@ struct Obj800 {
     int     f_278; /* 0x278 */
 };
 
-/* Cage-fix geometry, reached via Sub15C + 0x7F0 (sugipon/cageFix.c).
- * Field names are offset-derived (no binary string evidence). */
+/* Geometry/model object hanging off Sub15C + 0x7F0. The p_7F0 field is read
+ * in ~25 TUs (weapon, torch, boy, rope, enemy, box, spider, chain, ...), so
+ * this is shared-core; only cageFix.c walks the +0x20 matrix chain so far.
+ * Fields grow as TUs are typed; names are offset-derived (no string evidence). */
 struct GeoSub {
     void   *p_0;          /* 0x0 — object matrix passed to TurnObjectMatrix */
 };
