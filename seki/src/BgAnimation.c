@@ -16,7 +16,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_GetGizmoMotion);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_setCounter);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_calcEnvelope);
+extern void func_001180D8(void *a0);
+extern void _RemakeNormal(int a0);
+extern void func_00118118(int a0);
+extern int _Sqrt(int a0);
+
+void bga_calcEnvelope(void *a0, short *a1) {
+    func_001180D8(a0);
+    _RemakeNormal(a1[2]);
+    func_00118118(a1[0]);
+    _Sqrt(a1[4]);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", _RotTransCurrentMatrixYXZ);
 
