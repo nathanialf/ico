@@ -1,7 +1,7 @@
 #include "common.h"
 
 /* box__1BA660 0x7F0 view (local) */
-typedef struct { int f_0; char _4[0x1C]; int f_20; char _pad24[0x34]; int f_58; char _pad5C[0xB4]; int f_110; int f_114; } BoxGeo2;
+typedef struct { int f_0; char _4[0x1C]; int f_20; char _pad24[0x34]; int f_58; char _pad5C[0xB4]; int f_110; int f_114; char _pad118[0x20]; int f_138; } BoxGeo2;
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", dispWheels);
 
@@ -76,7 +76,26 @@ int GetBoxGlobalHoldPoint(void *a0) {
     return q->f_20 == 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box__1BA660", IsThisBoxTruck);
+extern void func_0010F068(void *a0);
+extern void func_0010F048(void *a0);
+extern void onPathInitialize(void *a0);
+extern void execEff(void *a0, int a1);
+extern int D_00271254[];
+
+void IsThisBoxTruck(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    BoxGeo2 *q = *(BoxGeo2 **)((char *)p + 0x7F0);
+    func_0010F068(a0);
+    func_0010F048(a0);
+    if (q->f_58 != 0)
+        onPathInitialize(a0);
+    if (D_00271254[0] != 0) {
+        BoxGeo2 *q2;
+        execEff(a0, 1);
+        q2 = *(BoxGeo2 **)((char *)(*(int **)((char *)a0 + 0x15C)) + 0x7F0);
+        q2->f_138 = 0;
+    }
+}
 
 extern void LocalizeDirectionOrient(int *buf);
 extern void func_0023FDD8(int a, int *buf, int c);
