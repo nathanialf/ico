@@ -1,6 +1,12 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aInit);
+extern void actEndDemo10(void);
+extern void actSt00aEnd(void);
+
+void actSt00aInit(volatile int a0) {
+    actCreateSubThread(actEndDemo10, 0x15);
+    actCreateSubThread(actSt00aEnd, 0x15);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aEnd);
 
