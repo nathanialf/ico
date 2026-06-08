@@ -78,8 +78,11 @@ if [[ "$1" == "--once" ]]; then
         included=$(grep -rhoE 'INCLUDE_ASM(_NOAT)?\("[^"]*",[[:space:]]*[A-Za-z_][A-Za-z0-9_]*' \
                        --include=*.c $_ROOTS --exclude-dir=tough_nuts --exclude-dir=source_tree 2>/dev/null \
                        | grep -oE '[A-Za-z_][A-Za-z0-9_]*$' | sort -u)
-        echo "Ten smallest unmatched functions (TU · instructions; matched & nop-pads excluded):"
-        grep -rH '^nonmatching ' "$_NM" 2>/dev/null \
+        # Compute the genuine-unmatched per-function rows ONCE, then render
+        # two tables from them: the cheapest individual functions, and the
+        # TUs with the least total remaining work. Each row is
+        # tab-separated `<paddedsize>\t<fn>\t<tu>\t<N insn>`.
+        _sm_rows=$(grep -rH '^nonmatching ' "$_NM" 2>/dev/null \
             | awk -v matched="$matched" -v included="$included" -v nm="$_NM" -v ver="$_sm_version" '
                 function hex2dec(s,   i,c,v,r) {
                     sub(/^0[xX]/, "", s); r=0
@@ -138,8 +141,31 @@ if [[ "$1" == "--once" ]]; then
                     }
                     printf "%08d\t%s\t%s\t%d insn\n", size, fn, tu, size/4
                 }
-            ' | sort -n | sed -n '1,10p' | cut -f2- \
-            | column -t -s "$(printf '\t')"
+            ')
+        # Render two tables SIDE BY SIDE: the cheapest individual functions on
+        # the left, and the TUs with the least remaining work on the right.
+        #   left  = smallest unmatched functions (fn / TU / insn)
+        #   right = TUs summed by remaining unmatched instructions, smallest
+        #           total first — the TUs closest to fully matched, the natural
+        #           "finish this off" shortlist. The `fn` column counts the
+        #           still-unmatched functions contributing to that TU's total.
+        # Each side is laid out with its own `column -t` (emits spaces, no
+        # tabs), a header line is prepended, and the two blocks are pasted with
+        # a TAB gutter; the final `column -t -s <tab>` splits ONLY on that tab
+        # so each side keeps its own internal alignment. Headers stay ASCII so
+        # `column` measures their width correctly regardless of locale.
+        _fn_tbl=$(printf '%s\n' "$_sm_rows" | sort -n | sed -n '1,10p' | cut -f2- \
+            | column -t -s "$(printf '\t')")
+        _tu_tbl=$(printf '%s\n' "$_sm_rows" \
+            | awk -F'\t' 'NF>=4 { tot[$3]+=$1; cnt[$3]++ }
+                          END { for (t in tot) printf "%012d\t%s\t%d insn\t%d fn\n", tot[t], t, tot[t]/4, cnt[t] }' \
+            | sort -n | sed -n '1,10p' | cut -f2- \
+            | column -t -s "$(printf '\t')")
+        _tab=$(printf '\t')
+        paste -d "$_tab" \
+            <(printf '10 smallest unmatched funcs (fn / TU / insn):\n%s\n' "$_fn_tbl") \
+            <(printf '10 TUs, least remaining work (TU / insn / fns):\n%s\n' "$_tu_tbl") \
+            | column -t -s "$_tab"
         echo "$rule"
     fi
 
