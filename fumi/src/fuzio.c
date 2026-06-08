@@ -2,7 +2,20 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", fzShowV);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", fzShowM);
+extern void (*D_006323F0)(int a0, int a1);
+extern void (*D_006323F4)(int, int);
+extern volatile int func_0010F958(int a0, int a1, int a2);
+
+void fzShowM(int *self, int a1)
+{
+    int new_var;
+    int *p;
+    func_0010F958((int) self, a1, 0);
+    p = (int *) self[0];
+    new_var = 0x14 / 4;
+    p[0x10 / 4] = (int) (((char *) p) + p[0x10 / 4]);
+    p[0x14 / 4] = (int) (((char *) p) + p[new_var]);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", fzMagnitude2f);
 
@@ -27,7 +40,17 @@ int fzMagnitudeByLineSeg(void *a0) {
     return *(int *)((char *)a0 + 0x98);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_001668B0);
+int func_001668B0(unsigned int a, unsigned int b)
+{
+    int i;
+    if ((a & b) == 0) return 0;
+    for (i = 0; i < 8; i++) {
+        unsigned int da = (a >> (i * 4)) & 0xF;
+        unsigned int db = (b >> (i * 4)) & 0xF;
+        if (da != 0 && db != 0 && da == db) return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00166910);
 
@@ -37,9 +60,13 @@ float func_001669D0(int a0, int a1) {
     return func_0023FE70(a0, a1) + *(float *)(a0 + 0xC);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00166A00);
+float func_00166A00(float *a0, float *a1) {
+    return a1[1] - (-(a0[0] * a1[0] + a0[2] * a1[2] + a0[3]) / a0[1]);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00166A48);
+float func_00166A48(float *a0, float *a1) {
+    return -(a0[0] * a1[0] + a0[2] * a1[2] + a0[3]) / a0[1];
+}
 
 extern int D_0062BFF8;
 extern int D_0062BFFC;
@@ -63,7 +90,14 @@ void func_00166A88(void) {
     D_0062C018 = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00166AB8);
+extern int D_006A4BC0[];
+extern void MatrixDrive_TurnObjectMatrix(int a0, int a1);
+
+int func_00166AB8(int a0, int a1) {
+    int v = D_006A4BC0[a1 & 0xF];
+    if (v != 0) { MatrixDrive_TurnObjectMatrix(a0, v); return 0; }
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00166AF8);
 
@@ -116,9 +150,33 @@ void func_00167FE8(void *a0) {
     p[5] = (int)a0 + p[5];
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00168008);
+extern char D_0062C578[];
+extern char D_0062C580[];
+extern int func_00260340(float f);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00168070);
+void func_00168008(float *p)
+{
+    int i = 3;
+    do {
+        int s = func_00260340(*p);
+        debug_assertMessage(D_0062C578, s);
+        p++;
+        i--;
+    } while (i >= 0);
+    debug_assertMessage(D_0062C580);
+}
+
+extern char D_0062C588[];
+
+void func_00168070(int *p) {
+    int i = 0;
+    do {
+        debug_assertMessage(D_0062C588, i);
+        i++;
+        func_00168008(p);
+        p = (int *)((char *)p + 0x10);
+    } while (i < 4);
+}
 
 extern float MatrixDrive_GetTurnYAngleXZ(float a0);
 
@@ -136,7 +194,19 @@ float func_00168128(int a0) {
     return MatrixDrive_GetTurnYAngleXZ(func_0023FE70(a0, a0));
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00168150);
+struct vec4_0016A320 { float x, y, z, w; } __attribute__((aligned(8)));
+
+float func_00168150(float *a, float *b)
+{
+    struct vec4_0016A320 v;
+    struct vec4_0016A320 diff;
+    func_00260568((int *)&diff, 0, 0x10);
+    diff.x = b[0] - a[0];
+    diff.y = b[1] - a[1];
+    diff.z = b[2] - a[2];
+    v = diff;
+    return MatrixDrive_GetTurnYAngleXZ(func_0023FE70((int)&v, (int)&v));
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_001681E0);
 
