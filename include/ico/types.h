@@ -27,6 +27,9 @@
 typedef struct GObj    GObj;
 typedef struct Sub15C  Sub15C;   /* *(GObj   + 0x15C) — per-object sub state */
 typedef struct Obj800  Obj800;   /* *(Sub15C + 0x800) */
+typedef struct Obj7F0  Obj7F0;   /* *(Sub15C + 0x7F0) — cage-fix geometry */
+typedef struct GeoNode GeoNode;  /* *(Obj7F0  + 0x20) */
+typedef struct GeoSub  GeoSub;   /* *(GeoNode + 0x8)  */
 
 struct GObj {
     char    _pad0[0x8];
@@ -99,7 +102,9 @@ struct Sub15C {
     int     f_4E4; /* 0x4E4 */
     char    _pad4E8[0x44];
     int     f_52C; /* 0x52C */
-    char    _pad530[0x2D0];
+    char    _pad530[0x2C0];
+    Obj7F0 *p_7F0; /* 0x7F0 — cage-fix geometry */
+    char    _pad7F4[0xC];
     Obj800 *p_800; /* 0x800 */
     char    _pad804[0x10];
     int     f_814; /* 0x814 */
@@ -140,6 +145,26 @@ struct Obj800 {
     int     f_270; /* 0x270 */
     char    _pad274[0x4];
     int     f_278; /* 0x278 */
+};
+
+/* Cage-fix geometry, reached via Sub15C + 0x7F0 (sugipon/cageFix.c).
+ * Field names are offset-derived (no binary string evidence). */
+struct GeoSub {
+    void   *p_0;          /* 0x0 — object matrix passed to TurnObjectMatrix */
+};
+
+struct GeoNode {
+    char    _pad0[0x8];
+    GeoSub *p_8;          /* 0x8 */
+};
+
+struct Obj7F0 {
+    void    *p_0;         /* 0x00 — model / CD-file pointer */
+    char     _pad4[0x1C];
+    GeoNode *p_20;        /* 0x20 */
+    char     _pad24[0x18];
+    float    f_3C;        /* 0x3C */
+    int      f_40;        /* 0x40 */
 };
 
 #endif /* ICO_TYPES_H */

@@ -1,30 +1,29 @@
 #include "common.h"
+#include "ico/types.h"
 
 extern void func_0010F048(int a0);
 extern void file_LoadCDFile(void *a0);
 
-void CageFixGeo(void *a0) {
-    void *p = *(void **)(*(char **)((char *)a0 + 0x15C) + 0x7F0);
+void CageFixGeo(GObj *a0) {
+    Obj7F0 *base = GOBJ_SUB(a0)->p_7F0;
     func_0010F048((int)a0);
-    file_LoadCDFile(*(void **)p);
+    file_LoadCDFile(base->p_0);
 }
 
 extern void MatrixDrive_TurnObjectMatrix(int a0, int a1);
 
-int CageFixDL(int a0, int a1, int a2)
+int CageFixDL(int a0, int a1, GObj *ctx)
 {
-    int *base = *(int **)(*(int **)(a2 + 0x15C) + (0x7F0 / 4));
-    MatrixDrive_TurnObjectMatrix(a0, *(int *)(*(int **)((char *)*(int **)((char *)base + 0x20) + 8)));
-    MatrixDrive_TurnObjectMatrix(a1, *(int *)(*(int **)((char *)*(int **)((char *)base + 0x20) + 8)) + 0x10);
+    Obj7F0 *base = GOBJ_SUB(ctx)->p_7F0;
+    MatrixDrive_TurnObjectMatrix(a0, (int)base->p_20->p_8->p_0);
+    MatrixDrive_TurnObjectMatrix(a1, (int)base->p_20->p_8->p_0 + 0x10);
     *(float *)(a0 + 4) += 50.0f;
     *(float *)(a1 + 4) -= 150.0f;
-    return *(int *)((char *)base + 0x40);
+    return base->f_40;
 }
 
-void InitCageFixGeo(void *a0, float a1) {
-    int *p = *(int **)((char *)a0 + 0x15C);
-    int *q = *(int **)((char *)p + 0x7F0);
-    *(float *)((char *)q + 0x3C) = a1;
+void InitCageFixGeo(GObj *a0, float a1) {
+    GOBJ_SUB(a0)->p_7F0->f_3C = a1;
 }
 
 extern int *isysGObjSearchFromObjLayoutID(int x);
@@ -42,10 +41,8 @@ void func_001C0138(void)
     }
 }
 
-void func_001C0180(void *a0, int a1) {
-    void *p = *(void **)((char *)a0 + 0x15C);
-    void *q = *(void **)((char *)p + 0x7F0);
-    *(int *)((char *)q + 0x40) = a1;
+void func_001C0180(GObj *a0, int a1) {
+    GOBJ_SUB(a0)->p_7F0->f_40 = a1;
 }
 
 extern int func_00105078(void);
