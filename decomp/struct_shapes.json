@@ -3,7 +3,7 @@
   "D_004C3850": {
    "tu": "seki/src/GifPacket",
    "stride": 4,
-   "accesses": 1166,
+   "accesses": 1175,
    "n_fields": 7,
    "gp_rel": false,
    "fields": [
@@ -11,13 +11,13 @@
      "off": 4,
      "width": 4,
      "signed": false,
-     "count": 4
+     "count": 7
     },
     {
      "off": 8,
      "width": 4,
      "signed": false,
-     "count": 1
+     "count": 2
     },
     {
      "off": 12,
@@ -29,7 +29,7 @@
      "off": 16,
      "width": 4,
      "signed": false,
-     "count": 941
+     "count": 946
     },
     {
      "off": 20,
@@ -54,7 +54,7 @@
   "D_00271240": {
    "tu": "fumi/src/girl_act",
    "stride": null,
-   "accesses": 208,
+   "accesses": 213,
    "n_fields": 9,
    "gp_rel": false,
    "fields": [
@@ -62,19 +62,19 @@
      "off": 4,
      "width": 4,
      "signed": false,
-     "count": 149
+     "count": 151
     },
     {
      "off": 8,
      "width": 4,
      "signed": false,
-     "count": 1
+     "count": 2
     },
     {
      "off": 12,
      "width": 4,
      "signed": false,
-     "count": 1
+     "count": 2
     },
     {
      "off": 20,
@@ -98,7 +98,7 @@
      "off": 32,
      "width": 4,
      "signed": false,
-     "count": 31
+     "count": 32
     },
     {
      "off": 40,
@@ -297,6 +297,51 @@
     }
    ]
   },
+  "D_0066CB50": {
+   "tu": "seki/src/Packet",
+   "stride": null,
+   "accesses": 69,
+   "n_fields": 6,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 32,
+     "width": 4,
+     "signed": false,
+     "count": 5
+    },
+    {
+     "off": 36,
+     "width": 4,
+     "signed": false,
+     "count": 9
+    },
+    {
+     "off": 40,
+     "width": 4,
+     "signed": false,
+     "count": 9
+    },
+    {
+     "off": 44,
+     "width": 4,
+     "signed": false,
+     "count": 39
+    },
+    {
+     "off": 48,
+     "width": 4,
+     "signed": false,
+     "count": 3
+    },
+    {
+     "off": 56,
+     "width": 8,
+     "signed": false,
+     "count": 4
+    }
+   ]
+  },
   "D_002715D0": {
    "tu": "seki/src/Light",
    "stride": 88,
@@ -372,55 +417,10 @@
     }
    ]
   },
-  "D_0066CB50": {
-   "tu": "seki/src/Packet",
-   "stride": null,
-   "accesses": 57,
-   "n_fields": 6,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 32,
-     "width": 4,
-     "signed": false,
-     "count": 4
-    },
-    {
-     "off": 36,
-     "width": 4,
-     "signed": false,
-     "count": 5
-    },
-    {
-     "off": 40,
-     "width": 4,
-     "signed": false,
-     "count": 8
-    },
-    {
-     "off": 44,
-     "width": 4,
-     "signed": false,
-     "count": 33
-    },
-    {
-     "off": 48,
-     "width": 4,
-     "signed": false,
-     "count": 3
-    },
-    {
-     "off": 56,
-     "width": 8,
-     "signed": false,
-     "count": 4
-    }
-   ]
-  },
   "D_004C6FF0": {
    "tu": "fumi/src/way_llf",
    "stride": 52,
-   "accesses": 52,
+   "accesses": 57,
    "n_fields": 10,
    "gp_rel": false,
    "fields": [
@@ -434,13 +434,13 @@
      "off": 8,
      "width": 4,
      "signed": false,
-     "count": 14
+     "count": 17
     },
     {
      "off": 12,
      "width": 4,
      "signed": false,
-     "count": 4
+     "count": 5
     },
     {
      "off": 16,
@@ -452,7 +452,7 @@
      "off": 20,
      "width": 4,
      "signed": false,
-     "count": 4
+     "count": 5
     },
     {
      "off": 24,
@@ -483,6 +483,105 @@
      "width": 4,
      "signed": false,
      "count": 6
+    }
+   ]
+  },
+  "D_0055DA10": {
+   "tu": "sugipon/src/motionOrientManager",
+   "stride": 400,
+   "accesses": 53,
+   "n_fields": 14,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 3
+    },
+    {
+     "off": 256,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 280,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 284,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 304,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 308,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    },
+    {
+     "off": 328,
+     "width": 4,
+     "signed": false,
+     "count": 4
+    },
+    {
+     "off": 348,
+     "width": 4,
+     "signed": false,
+     "count": 3
+    },
+    {
+     "off": 384,
+     "width": 2,
+     "signed": true,
+     "count": 1
+    },
+    {
+     "off": 388,
+     "width": 1,
+     "signed": true,
+     "count": 1
+    },
+    {
+     "off": 388,
+     "width": 4,
+     "signed": false,
+     "count": 7
+    },
+    {
+     "off": 390,
+     "width": 2,
+     "signed": false,
+     "count": 6
+    },
+    {
+     "off": 392,
+     "width": 4,
+     "signed": false,
+     "count": 18
+    },
+    {
+     "off": 394,
+     "width": 2,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 396,
+     "width": 4,
+     "signed": false,
+     "count": 3
     }
    ]
   },
@@ -645,109 +744,10 @@
     }
    ]
   },
-  "D_0055DA10": {
-   "tu": "sugipon/src/motionOrientManager",
-   "stride": 400,
-   "accesses": 51,
-   "n_fields": 14,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 4,
-     "signed": false,
-     "count": 3
-    },
-    {
-     "off": 256,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 280,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 284,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 304,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 308,
-     "width": 4,
-     "signed": false,
-     "count": 2
-    },
-    {
-     "off": 328,
-     "width": 4,
-     "signed": false,
-     "count": 4
-    },
-    {
-     "off": 348,
-     "width": 4,
-     "signed": false,
-     "count": 3
-    },
-    {
-     "off": 384,
-     "width": 2,
-     "signed": true,
-     "count": 1
-    },
-    {
-     "off": 388,
-     "width": 1,
-     "signed": true,
-     "count": 1
-    },
-    {
-     "off": 388,
-     "width": 4,
-     "signed": false,
-     "count": 6
-    },
-    {
-     "off": 390,
-     "width": 2,
-     "signed": false,
-     "count": 5
-    },
-    {
-     "off": 392,
-     "width": 4,
-     "signed": false,
-     "count": 18
-    },
-    {
-     "off": 394,
-     "width": 2,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 396,
-     "width": 4,
-     "signed": false,
-     "count": 3
-    }
-   ]
-  },
   "D_002A0A90": {
    "tu": "omori/src/generator",
    "stride": 76,
-   "accesses": 43,
+   "accesses": 51,
    "n_fields": 8,
    "gp_rel": false,
    "fields": [
@@ -785,7 +785,7 @@
      "off": 66,
      "width": 2,
      "signed": true,
-     "count": 5
+     "count": 6
     },
     {
      "off": 68,
@@ -803,7 +803,7 @@
      "off": 72,
      "width": 4,
      "signed": false,
-     "count": 22
+     "count": 29
     }
    ]
   },
@@ -924,10 +924,61 @@
     }
    ]
   },
+  "D_004B8C40": {
+   "tu": "sugipon/src/box",
+   "stride": null,
+   "accesses": 35,
+   "n_fields": 7,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 8,
+     "width": 8,
+     "signed": false,
+     "count": 5
+    },
+    {
+     "off": 16,
+     "width": 8,
+     "signed": false,
+     "count": 5
+    },
+    {
+     "off": 24,
+     "width": 8,
+     "signed": false,
+     "count": 5
+    },
+    {
+     "off": 32,
+     "width": 8,
+     "signed": false,
+     "count": 5
+    },
+    {
+     "off": 40,
+     "width": 8,
+     "signed": false,
+     "count": 5
+    },
+    {
+     "off": 48,
+     "width": 8,
+     "signed": false,
+     "count": 5
+    },
+    {
+     "off": 56,
+     "width": 8,
+     "signed": false,
+     "count": 5
+    }
+   ]
+  },
   "D_002714A0": {
    "tu": "seki/src/Light",
    "stride": null,
-   "accesses": 31,
+   "accesses": 32,
    "n_fields": 21,
    "gp_rel": false,
    "fields": [
@@ -1031,7 +1082,7 @@
      "off": 248,
      "width": 4,
      "signed": false,
-     "count": 1
+     "count": 2
     },
     {
      "off": 252,
@@ -1083,54 +1134,81 @@
     }
    ]
   },
-  "D_004B8C40": {
-   "tu": "sugipon/src/pool",
-   "stride": null,
-   "accesses": 28,
-   "n_fields": 7,
+  "D_006A3370": {
+   "tu": "fumi/sound/s_init",
+   "stride": 64,
+   "accesses": 31,
+   "n_fields": 4,
    "gp_rel": false,
    "fields": [
     {
-     "off": 8,
-     "width": 8,
+     "off": 0,
+     "width": 2,
+     "signed": false,
+     "count": 10
+    },
+    {
+     "off": 0,
+     "width": 2,
+     "signed": true,
+     "count": 3
+    },
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 5
+    },
+    {
+     "off": 4,
+     "width": 4,
      "signed": false,
      "count": 4
     },
     {
      "off": 16,
-     "width": 8,
-     "signed": false,
-     "count": 4
-    },
-    {
-     "off": 24,
-     "width": 8,
-     "signed": false,
-     "count": 4
-    },
-    {
-     "off": 32,
-     "width": 8,
-     "signed": false,
-     "count": 4
-    },
-    {
-     "off": 40,
-     "width": 8,
-     "signed": false,
-     "count": 4
+     "width": 2,
+     "signed": true,
+     "count": 8
     },
     {
      "off": 48,
-     "width": 8,
+     "width": 4,
      "signed": false,
-     "count": 4
+     "count": 1
+    }
+   ]
+  },
+  "D_004C7CF0": {
+   "tu": "fumi/src/way_util",
+   "stride": 64,
+   "accesses": 30,
+   "n_fields": 4,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 8,
+     "width": 4,
+     "signed": false,
+     "count": 5
     },
     {
-     "off": 56,
-     "width": 8,
+     "off": 12,
+     "width": 4,
      "signed": false,
-     "count": 4
+     "count": 9
+    },
+    {
+     "off": 32,
+     "width": 4,
+     "signed": false,
+     "count": 14
+    },
+    {
+     "off": 40,
+     "width": 4,
+     "signed": false,
+     "count": 2
     }
    ]
   },
@@ -1347,55 +1425,10 @@
     }
    ]
   },
-  "D_006A3370": {
-   "tu": "fumi/sound/s_init",
-   "stride": 64,
-   "accesses": 25,
-   "n_fields": 4,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 2,
-     "signed": false,
-     "count": 7
-    },
-    {
-     "off": 0,
-     "width": 2,
-     "signed": true,
-     "count": 3
-    },
-    {
-     "off": 0,
-     "width": 4,
-     "signed": false,
-     "count": 5
-    },
-    {
-     "off": 4,
-     "width": 4,
-     "signed": false,
-     "count": 4
-    },
-    {
-     "off": 16,
-     "width": 2,
-     "signed": true,
-     "count": 5
-    },
-    {
-     "off": 48,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
   "D_006A45A0": {
    "tu": "fumi/src/boyact",
    "stride": null,
-   "accesses": 24,
+   "accesses": 26,
    "n_fields": 5,
    "gp_rel": false,
    "fields": [
@@ -1427,7 +1460,7 @@
      "off": 32,
      "width": 4,
      "signed": false,
-     "count": 4
+     "count": 6
     },
     {
      "off": 36,
@@ -1437,36 +1470,48 @@
     }
    ]
   },
-  "D_004C7CF0": {
-   "tu": "fumi/src/way_util",
-   "stride": 64,
+  "D_007030C0": {
+   "tu": "sugipon/src/particleEffect",
+   "stride": 24,
    "accesses": 24,
-   "n_fields": 4,
+   "n_fields": 6,
    "gp_rel": false,
    "fields": [
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 13
+    },
+    {
+     "off": 4,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    },
     {
      "off": 8,
      "width": 4,
      "signed": false,
-     "count": 3
+     "count": 1
     },
     {
      "off": 12,
      "width": 4,
      "signed": false,
-     "count": 5
+     "count": 1
     },
     {
-     "off": 32,
+     "off": 16,
      "width": 4,
      "signed": false,
-     "count": 14
+     "count": 1
     },
     {
-     "off": 40,
+     "off": 20,
      "width": 4,
      "signed": false,
-     "count": 2
+     "count": 6
     }
    ]
   },
@@ -1653,51 +1698,6 @@
     }
    ]
   },
-  "D_007030C0": {
-   "tu": "sugipon/src/particleEffect",
-   "stride": 24,
-   "accesses": 19,
-   "n_fields": 6,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 4,
-     "signed": false,
-     "count": 10
-    },
-    {
-     "off": 4,
-     "width": 4,
-     "signed": false,
-     "count": 2
-    },
-    {
-     "off": 8,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 12,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 16,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 20,
-     "width": 4,
-     "signed": false,
-     "count": 4
-    }
-   ]
-  },
   "D_00710DD8": {
    "tu": "common/src/PObj",
    "stride": null,
@@ -1863,6 +1863,69 @@
     }
    ]
   },
+  "D_002E34F0": {
+   "tu": "common/src/layout_texture",
+   "stride": 108,
+   "accesses": 18,
+   "n_fields": 9,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 28,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 32,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 36,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 40,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 56,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    },
+    {
+     "off": 100,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    },
+    {
+     "off": 104,
+     "width": 4,
+     "signed": false,
+     "count": 8
+    },
+    {
+     "off": 8512,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 8620,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    }
+   ]
+  },
   "D_007112D0": {
    "tu": "common/src/PObj",
    "stride": null,
@@ -2007,6 +2070,81 @@
     }
    ]
   },
+  "D_0027DDF0": {
+   "tu": "fumi/isys/obj_manager",
+   "stride": 4,
+   "accesses": 15,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 15
+    }
+   ]
+  },
+  "D_006C9FA0": {
+   "tu": "omori/src/camera-root",
+   "stride": null,
+   "accesses": 14,
+   "n_fields": 3,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 4,
+     "width": 4,
+     "signed": false,
+     "count": 4
+    },
+    {
+     "off": 8,
+     "width": 4,
+     "signed": false,
+     "count": 9
+    },
+    {
+     "off": 12,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    }
+   ]
+  },
+  "D_004AF010": {
+   "tu": "common/src/haveParentSimpleObj",
+   "stride": 64,
+   "accesses": 14,
+   "n_fields": 4,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 2,
+     "width": 2,
+     "signed": false,
+     "count": 4
+    },
+    {
+     "off": 64,
+     "width": 8,
+     "signed": false,
+     "count": 4
+    },
+    {
+     "off": 66,
+     "width": 2,
+     "signed": false,
+     "count": 2
+    },
+    {
+     "off": 68,
+     "width": 2,
+     "signed": false,
+     "count": 4
+    }
+   ]
+  },
   "D_004BC0C0": {
    "tu": "sugipon/src/enemyParts",
    "stride": null,
@@ -2058,69 +2196,6 @@
     }
    ]
   },
-  "D_002E34F0": {
-   "tu": "common/src/layout_texture",
-   "stride": 108,
-   "accesses": 14,
-   "n_fields": 9,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 28,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 32,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 36,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 40,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 56,
-     "width": 4,
-     "signed": false,
-     "count": 2
-    },
-    {
-     "off": 100,
-     "width": 4,
-     "signed": false,
-     "count": 2
-    },
-    {
-     "off": 104,
-     "width": 4,
-     "signed": false,
-     "count": 4
-    },
-    {
-     "off": 8512,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 8620,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
   "D_006A3F70": {
    "tu": "fumi/src/act-game",
    "stride": 4,
@@ -2157,6 +2232,57 @@
      "width": 4,
      "signed": false,
      "count": 3
+    }
+   ]
+  },
+  "D_00286A90": {
+   "tu": "fumi/src/girl_act",
+   "stride": 28,
+   "accesses": 13,
+   "n_fields": 7,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 4,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    },
+    {
+     "off": 12,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    },
+    {
+     "off": 16,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    },
+    {
+     "off": 24,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 28,
+     "width": 2,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 36,
+     "width": 2,
+     "signed": true,
+     "count": 3
+    },
+    {
+     "off": 40,
+     "width": 4,
+     "signed": false,
+     "count": 2
     }
    ]
   },
@@ -2262,6 +2388,21 @@
     }
    ]
   },
+  "D_006A0AB0": {
+   "tu": "fumi/ios/thread",
+   "stride": 4,
+   "accesses": 12,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 12
+    }
+   ]
+  },
   "D_00272528": {
    "tu": "seki/src/Light",
    "stride": null,
@@ -2280,21 +2421,6 @@
      "width": 4,
      "signed": false,
      "count": 5
-    }
-   ]
-  },
-  "D_0027DDF0": {
-   "tu": "fumi/isys/obj_manager",
-   "stride": 4,
-   "accesses": 12,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 4,
-     "signed": false,
-     "count": 12
     }
    ]
   },
@@ -2361,39 +2487,6 @@
     }
    ]
   },
-  "D_004AF010": {
-   "tu": "common/src/haveParentSimpleObj",
-   "stride": 64,
-   "accesses": 12,
-   "n_fields": 4,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 2,
-     "width": 2,
-     "signed": false,
-     "count": 4
-    },
-    {
-     "off": 64,
-     "width": 8,
-     "signed": false,
-     "count": 4
-    },
-    {
-     "off": 66,
-     "width": 2,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 68,
-     "width": 2,
-     "signed": false,
-     "count": 3
-    }
-   ]
-  },
   "D_0054D520": {
    "tu": "common/src/PObj",
    "stride": 8,
@@ -2412,6 +2505,69 @@
      "width": 4,
      "signed": false,
      "count": 2
+    }
+   ]
+  },
+  "D_0069F800": {
+   "tu": "fumi/ios/cdvd",
+   "stride": null,
+   "accesses": 11,
+   "n_fields": 9,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 1,
+     "signed": true,
+     "count": 2
+    },
+    {
+     "off": 256,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 260,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 264,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    },
+    {
+     "off": 280,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 284,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 288,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 292,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 296,
+     "width": 4,
+     "signed": false,
+     "count": 1
     }
    ]
   },
@@ -2523,6 +2679,72 @@
     }
    ]
   },
+  "D_0070A5C0": {
+   "tu": "seki/src/DisplayList",
+   "stride": 40,
+   "accesses": 10,
+   "n_fields": 6,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    },
+    {
+     "off": 4,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    },
+    {
+     "off": 8,
+     "width": 8,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 16,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 24,
+     "width": 8,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 36,
+     "width": 4,
+     "signed": false,
+     "count": 3
+    }
+   ]
+  },
+  "D_00286890": {
+   "tu": "fumi/src/way_util",
+   "stride": null,
+   "accesses": 10,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 1,
+     "signed": false,
+     "count": 6
+    },
+    {
+     "off": 0,
+     "width": 1,
+     "signed": true,
+     "count": 4
+    }
+   ]
+  },
   "D_0069F3F0": {
    "tu": "fumi/ios/cdvd",
    "stride": null,
@@ -2586,69 +2808,6 @@
     },
     {
      "off": 1036,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
-  "D_0069F800": {
-   "tu": "fumi/ios/cdvd",
-   "stride": null,
-   "accesses": 10,
-   "n_fields": 9,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 1,
-     "signed": true,
-     "count": 1
-    },
-    {
-     "off": 256,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 260,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 264,
-     "width": 4,
-     "signed": false,
-     "count": 2
-    },
-    {
-     "off": 280,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 284,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 288,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 292,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 296,
      "width": 4,
      "signed": false,
      "count": 1
@@ -2721,57 +2880,6 @@
      "width": 4,
      "signed": false,
      "count": 1
-    }
-   ]
-  },
-  "D_00286A90": {
-   "tu": "fumi/src/girl_act",
-   "stride": 28,
-   "accesses": 10,
-   "n_fields": 7,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 4,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 12,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 16,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 24,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 28,
-     "width": 2,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 36,
-     "width": 2,
-     "signed": true,
-     "count": 3
-    },
-    {
-     "off": 40,
-     "width": 4,
-     "signed": false,
-     "count": 2
     }
    ]
   },
@@ -2880,6 +2988,165 @@
     }
    ]
   },
+  "D_0066CA10": {
+   "tu": "seki/src/Light",
+   "stride": null,
+   "accesses": 9,
+   "n_fields": 3,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 4,
+     "width": 1,
+     "signed": false,
+     "count": 2
+    },
+    {
+     "off": 4,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 8,
+     "width": 1,
+     "signed": false,
+     "count": 2
+    },
+    {
+     "off": 8,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 12,
+     "width": 1,
+     "signed": false,
+     "count": 2
+    },
+    {
+     "off": 12,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    }
+   ]
+  },
+  "D_004C36B0": {
+   "tu": "sugipon/src/wireLetter",
+   "stride": null,
+   "accesses": 8,
+   "n_fields": 2,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 4,
+     "width": 4,
+     "signed": false,
+     "count": 4
+    },
+    {
+     "off": 8,
+     "width": 4,
+     "signed": false,
+     "count": 4
+    }
+   ]
+  },
+  "D_0027A8A0": {
+   "tu": "fumi/ios/cdvd",
+   "stride": 48,
+   "accesses": 8,
+   "n_fields": 2,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 5
+    },
+    {
+     "off": 4,
+     "width": 4,
+     "signed": false,
+     "count": 3
+    }
+   ]
+  },
+  "D_0060AF70": {
+   "tu": "sugipon/src/weapon",
+   "stride": 36,
+   "accesses": 8,
+   "n_fields": 7,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 20,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 24,
+     "width": 1,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 25,
+     "width": 1,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 26,
+     "width": 1,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 27,
+     "width": 1,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 28,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    },
+    {
+     "off": 32,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    }
+   ]
+  },
+  "D_006F26D0": {
+   "tu": "common/src/debug_menu",
+   "stride": null,
+   "accesses": 8,
+   "n_fields": 2,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 7
+    },
+    {
+     "off": 4,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    }
+   ]
+  },
   "D_006A0498": {
    "tu": "fumi/ios/mcard",
    "stride": null,
@@ -2952,33 +3219,6 @@
      "width": 4,
      "signed": false,
      "count": 5
-    }
-   ]
-  },
-  "D_006C9FA0": {
-   "tu": "omori/src/camera-root",
-   "stride": null,
-   "accesses": 8,
-   "n_fields": 3,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 4,
-     "width": 4,
-     "signed": false,
-     "count": 2
-    },
-    {
-     "off": 8,
-     "width": 4,
-     "signed": false,
-     "count": 5
-    },
-    {
-     "off": 12,
-     "width": 4,
-     "signed": false,
-     "count": 1
     }
    ]
   },
@@ -3141,6 +3381,21 @@
     }
    ]
   },
+  "D_0027DE50": {
+   "tu": "fumi/isys/gobj_dl",
+   "stride": 4,
+   "accesses": 7,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 7
+    }
+   ]
+  },
   "D_006DE110": {
    "tu": "common/src/charFileManager",
    "stride": 24,
@@ -3156,57 +3411,6 @@
     },
     {
      "off": 20,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
-  "D_0060AF70": {
-   "tu": "sugipon/src/weapon",
-   "stride": 36,
-   "accesses": 7,
-   "n_fields": 7,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 20,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 24,
-     "width": 1,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 25,
-     "width": 1,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 26,
-     "width": 1,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 27,
-     "width": 1,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 28,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 32,
      "width": 4,
      "signed": false,
      "count": 1
@@ -3264,51 +3468,6 @@
     }
    ]
   },
-  "D_0070A5C0": {
-   "tu": "seki/src/DisplayList",
-   "stride": 40,
-   "accesses": 7,
-   "n_fields": 6,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 4,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 8,
-     "width": 8,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 16,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 24,
-     "width": 8,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 36,
-     "width": 4,
-     "signed": false,
-     "count": 2
-    }
-   ]
-  },
   "D_0054FF20": {
    "tu": "seki/src/StageAnimation",
    "stride": null,
@@ -3357,21 +3516,6 @@
      "width": 8,
      "signed": false,
      "count": 1
-    }
-   ]
-  },
-  "D_006A0AB0": {
-   "tu": "fumi/ios/thread",
-   "stride": 4,
-   "accesses": 7,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 4,
-     "signed": false,
-     "count": 7
     }
    ]
   },
@@ -3618,29 +3762,56 @@
     }
    ]
   },
-  "D_004C36B0": {
-   "tu": "sugipon/src/wireLetter",
+  "D_00706DA8": {
+   "tu": "sugipon/src/streamMotionManager",
+   "stride": 24,
+   "accesses": 6,
+   "n_fields": 3,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 12,
+     "width": 4,
+     "signed": false,
+     "count": 3
+    },
+    {
+     "off": 16,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 20,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    }
+   ]
+  },
+  "D_004AF050": {
+   "tu": "common/src/icoMisc",
    "stride": null,
    "accesses": 6,
    "n_fields": 2,
    "gp_rel": false,
    "fields": [
     {
-     "off": 4,
-     "width": 4,
+     "off": 2,
+     "width": 2,
      "signed": false,
      "count": 3
     },
     {
-     "off": 8,
-     "width": 4,
+     "off": 4,
+     "width": 2,
      "signed": false,
      "count": 3
     }
    ]
   },
-  "D_0066CA10": {
-   "tu": "seki/src/Light",
+  "D_0070C680": {
+   "tu": "common/src/PObj",
    "stride": null,
    "accesses": 6,
    "n_fields": 3,
@@ -3648,39 +3819,21 @@
    "fields": [
     {
      "off": 4,
-     "width": 1,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 4,
      "width": 4,
      "signed": false,
-     "count": 1
-    },
-    {
-     "off": 8,
-     "width": 1,
-     "signed": false,
-     "count": 1
+     "count": 2
     },
     {
      "off": 8,
      "width": 4,
      "signed": false,
-     "count": 1
-    },
-    {
-     "off": 12,
-     "width": 1,
-     "signed": false,
-     "count": 1
+     "count": 2
     },
     {
      "off": 12,
      "width": 4,
      "signed": false,
-     "count": 1
+     "count": 2
     }
    ]
   },
@@ -3963,6 +4116,27 @@
     }
    ]
   },
+  "D_00617828": {
+   "tu": "sugipon/src/enemyParts",
+   "stride": 20,
+   "accesses": 5,
+   "n_fields": 2,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    },
+    {
+     "off": 16,
+     "width": 4,
+     "signed": false,
+     "count": 4
+    }
+   ]
+  },
   "D_0062B010": {
    "tu": "sugipon/src/pool",
    "stride": null,
@@ -3993,27 +4167,78 @@
     }
    ]
   },
-  "D_00706DA8": {
-   "tu": "sugipon/src/streamMotionManager",
+  "D_0027DE10": {
+   "tu": "fumi/isys/gobj",
+   "stride": 4,
+   "accesses": 5,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 5
+    }
+   ]
+  },
+  "D_006A3070": {
+   "tu": "fumi/sound/s_init",
+   "stride": null,
+   "accesses": 5,
+   "n_fields": 2,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 3
+    },
+    {
+     "off": 2,
+     "width": 2,
+     "signed": false,
+     "count": 2
+    }
+   ]
+  },
+  "D_006A58A0": {
+   "tu": "fumi/src/girl_act",
+   "stride": null,
+   "accesses": 5,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 4,
+     "width": 4,
+     "signed": false,
+     "count": 5
+    }
+   ]
+  },
+  "D_006A5900": {
+   "tu": "fumi/src/jimaku",
    "stride": 24,
    "accesses": 5,
    "n_fields": 3,
    "gp_rel": false,
    "fields": [
     {
-     "off": 12,
+     "off": 4,
      "width": 4,
      "signed": false,
      "count": 2
     },
     {
-     "off": 16,
+     "off": 12,
      "width": 4,
      "signed": false,
      "count": 1
     },
     {
-     "off": 20,
+     "off": 16,
      "width": 4,
      "signed": false,
      "count": 2
@@ -4119,42 +4344,6 @@
     }
    ]
   },
-  "D_0027A8A0": {
-   "tu": "fumi/ios/cdvd",
-   "stride": 48,
-   "accesses": 5,
-   "n_fields": 2,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 4,
-     "signed": false,
-     "count": 3
-    },
-    {
-     "off": 4,
-     "width": 4,
-     "signed": false,
-     "count": 2
-    }
-   ]
-  },
-  "D_0027DE50": {
-   "tu": "fumi/isys/gobj_dl",
-   "stride": 4,
-   "accesses": 5,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 4,
-     "signed": false,
-     "count": 5
-    }
-   ]
-  },
   "D_006151D8": {
    "tu": "fumi/sound/adpcm_init",
    "stride": null,
@@ -4185,27 +4374,6 @@
      "width": 4,
      "signed": false,
      "count": 1
-    }
-   ]
-  },
-  "D_00286890": {
-   "tu": "fumi/src/way_util",
-   "stride": null,
-   "accesses": 5,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 1,
-     "signed": false,
-     "count": 3
-    },
-    {
-     "off": 0,
-     "width": 1,
-     "signed": true,
-     "count": 2
     }
    ]
   },
@@ -4248,27 +4416,6 @@
     }
    ]
   },
-  "D_006F26D0": {
-   "tu": "common/src/debug_menu",
-   "stride": null,
-   "accesses": 5,
-   "n_fields": 2,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 4,
-     "signed": false,
-     "count": 4
-    },
-    {
-     "off": 4,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
   "D_0062A870": {
    "tu": "common/src/PObj",
    "stride": 8,
@@ -4285,7 +4432,7 @@
    ]
   },
   "D_00288C88": {
-   "tu": "sugipon/src/box__1BA660",
+   "tu": "sugipon/src/box",
    "stride": 40,
    "accesses": 4,
    "n_fields": 2,
@@ -4320,6 +4467,27 @@
     }
    ]
   },
+  "D_004C36A0": {
+   "tu": "sugipon/src/wireLetter",
+   "stride": null,
+   "accesses": 4,
+   "n_fields": 2,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 4,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    },
+    {
+     "off": 8,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    }
+   ]
+  },
   "D_0027D540": {
    "tu": "fumi/ios/pad",
    "stride": 512,
@@ -4341,6 +4509,36 @@
     }
    ]
   },
+  "D_006A0510": {
+   "tu": "fumi/ios/message",
+   "stride": 4,
+   "accesses": 4,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 4
+    }
+   ]
+  },
+  "D_0070A8C0": {
+   "tu": "fumi/sound/adpcm_init",
+   "stride": null,
+   "accesses": 4,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 4
+    }
+   ]
+  },
   "D_0028E680": {
    "tu": "fumi/src/commonact",
    "stride": 24,
@@ -4359,6 +4557,51 @@
      "width": 4,
      "signed": false,
      "count": 2
+    }
+   ]
+  },
+  "D_005532A0": {
+   "tu": "fumi/src/enemy_act",
+   "stride": null,
+   "accesses": 4,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 8,
+     "width": 8,
+     "signed": false,
+     "count": 4
+    }
+   ]
+  },
+  "D_002E0064": {
+   "tu": "omori/src/gv",
+   "stride": null,
+   "accesses": 4,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 72,
+     "width": 4,
+     "signed": false,
+     "count": 4
+    }
+   ]
+  },
+  "D_006CCE30": {
+   "tu": "omori/src/mail-add-data",
+   "stride": null,
+   "accesses": 4,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 4,
+     "width": 4,
+     "signed": false,
+     "count": 4
     }
    ]
   },
@@ -4545,36 +4788,6 @@
     }
    ]
   },
-  "D_0027DE10": {
-   "tu": "fumi/isys/gobj",
-   "stride": 4,
-   "accesses": 4,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 4,
-     "signed": false,
-     "count": 4
-    }
-   ]
-  },
-  "D_006A58A0": {
-   "tu": "fumi/src/girl_act",
-   "stride": null,
-   "accesses": 4,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 4,
-     "width": 4,
-     "signed": false,
-     "count": 4
-    }
-   ]
-  },
   "D_00280DB0": {
    "tu": "fumi/src/girl_act",
    "stride": null,
@@ -4617,33 +4830,6 @@
     },
     {
      "off": 12,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
-  "D_006A5900": {
-   "tu": "fumi/src/jimaku",
-   "stride": 24,
-   "accesses": 4,
-   "n_fields": 3,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 4,
-     "width": 4,
-     "signed": false,
-     "count": 2
-    },
-    {
-     "off": 12,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 16,
      "width": 4,
      "signed": false,
      "count": 1
@@ -4758,27 +4944,6 @@
     }
    ]
   },
-  "D_004AF050": {
-   "tu": "common/src/icoMisc",
-   "stride": null,
-   "accesses": 4,
-   "n_fields": 2,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 2,
-     "width": 2,
-     "signed": false,
-     "count": 2
-    },
-    {
-     "off": 4,
-     "width": 2,
-     "signed": false,
-     "count": 2
-    }
-   ]
-  },
   "D_00710FC8": {
    "tu": "common/src/PObj",
    "stride": null,
@@ -4812,6 +4977,21 @@
     }
    ]
   },
+  "D_00614AC0": {
+   "tu": "script/src/st13b",
+   "stride": null,
+   "accesses": 3,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 8,
+     "width": 8,
+     "signed": false,
+     "count": 3
+    }
+   ]
+  },
   "D_006A45F0": {
    "tu": "fumi/src/boyact",
    "stride": null,
@@ -4821,6 +5001,21 @@
    "fields": [
     {
      "off": 4,
+     "width": 4,
+     "signed": false,
+     "count": 3
+    }
+   ]
+  },
+  "D_0054AA68": {
+   "tu": "common/src/PObj",
+   "stride": null,
+   "accesses": 3,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 16,
      "width": 4,
      "signed": false,
      "count": 3
@@ -4866,27 +5061,6 @@
      "width": 4,
      "signed": false,
      "count": 1
-    }
-   ]
-  },
-  "D_00617828": {
-   "tu": "sugipon/src/enemyParts",
-   "stride": 20,
-   "accesses": 3,
-   "n_fields": 2,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 16,
-     "width": 4,
-     "signed": false,
-     "count": 2
     }
    ]
   },
@@ -5041,7 +5215,7 @@
    ]
   },
   "D_005CD670": {
-   "tu": "sugipon/src/flyManager",
+   "tu": "fumi/sound/soundManager",
    "stride": 60,
    "accesses": 3,
    "n_fields": 2,
@@ -5056,27 +5230,6 @@
     {
      "off": 56,
      "width": 4,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
-  "D_006A3070": {
-   "tu": "fumi/sound/s_init",
-   "stride": null,
-   "accesses": 3,
-   "n_fields": 2,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 4,
-     "signed": false,
-     "count": 2
-    },
-    {
-     "off": 2,
-     "width": 2,
      "signed": false,
      "count": 1
     }
@@ -5134,21 +5287,6 @@
     {
      "off": 0,
      "width": 4,
-     "signed": false,
-     "count": 3
-    }
-   ]
-  },
-  "D_005532A0": {
-   "tu": "fumi/src/enemy_act",
-   "stride": null,
-   "accesses": 3,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 8,
-     "width": 8,
      "signed": false,
      "count": 3
     }
@@ -5310,33 +5448,6 @@
     }
    ]
   },
-  "D_0070C680": {
-   "tu": "common/src/PObj",
-   "stride": null,
-   "accesses": 3,
-   "n_fields": 3,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 4,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 8,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 12,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
   "D_00629B08": {
    "tu": "common/src/PObj",
    "stride": null,
@@ -5466,6 +5577,36 @@
     }
    ]
   },
+  "D_00706298": {
+   "tu": "sugipon/src/spiderGroupManager",
+   "stride": 4,
+   "accesses": 2,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    }
+   ]
+  },
+  "D_00705F98": {
+   "tu": "sugipon/src/spiderGroupManager",
+   "stride": 4,
+   "accesses": 2,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    }
+   ]
+  },
   "D_004BA2B8": {
    "tu": "sugipon/src/actressLight",
    "stride": 4,
@@ -5511,6 +5652,216 @@
     }
    ]
   },
+  "D_004B9D50": {
+   "tu": "sugipon/src/act_a_p_1",
+   "stride": 4,
+   "accesses": 2,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    }
+   ]
+  },
+  "D_004C0850": {
+   "tu": "sugipon/src/item",
+   "stride": null,
+   "accesses": 2,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 136,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    }
+   ]
+  },
+  "D_00703CC0": {
+   "tu": "sugipon/src/particleEffect",
+   "stride": null,
+   "accesses": 2,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 4,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    }
+   ]
+  },
+  "D_00614BD0": {
+   "tu": "script/src/st17b",
+   "stride": null,
+   "accesses": 2,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 8,
+     "width": 8,
+     "signed": false,
+     "count": 2
+    }
+   ]
+  },
+  "D_00614AB0": {
+   "tu": "script/src/st13b",
+   "stride": null,
+   "accesses": 2,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 8,
+     "width": 8,
+     "signed": false,
+     "count": 2
+    }
+   ]
+  },
+  "D_00614AA0": {
+   "tu": "script/src/st13b",
+   "stride": null,
+   "accesses": 2,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 8,
+     "width": 8,
+     "signed": false,
+     "count": 2
+    }
+   ]
+  },
+  "D_0070A850": {
+   "tu": "seki/src/EnemyInit",
+   "stride": null,
+   "accesses": 2,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    }
+   ]
+  },
+  "jtbl_0054F1B0": {
+   "tu": "seki/src/Packet",
+   "stride": 4,
+   "accesses": 2,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    }
+   ]
+  },
+  "D_006A4BC0": {
+   "tu": "fumi/src/fuzio",
+   "stride": 4,
+   "accesses": 2,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    }
+   ]
+  },
+  "D_00614E90": {
+   "tu": "omori/src/lws_kyomi",
+   "stride": null,
+   "accesses": 2,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 8,
+     "width": 8,
+     "signed": false,
+     "count": 2
+    }
+   ]
+  },
+  "D_00614E80": {
+   "tu": "omori/src/lws_kyomi",
+   "stride": null,
+   "accesses": 2,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 8,
+     "width": 8,
+     "signed": false,
+     "count": 2
+    }
+   ]
+  },
+  "D_00614E70": {
+   "tu": "omori/src/lws_kyomi",
+   "stride": null,
+   "accesses": 2,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 8,
+     "width": 8,
+     "signed": false,
+     "count": 2
+    }
+   ]
+  },
+  "D_006CA470": {
+   "tu": "omori/src/enemy-control",
+   "stride": 4,
+   "accesses": 2,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    }
+   ]
+  },
+  "jtbl_0060DA90": {
+   "tu": "common/src/debug_exception",
+   "stride": 4,
+   "accesses": 2,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    }
+   ]
+  },
   "D_004AEE68": {
    "tu": "common/src/haveParentSimpleObj",
    "stride": 4,
@@ -5526,8 +5877,83 @@
     }
    ]
   },
-  "D_004BA770": {
-   "tu": "sugipon/src/box__1BA660",
+  "D_0054C670": {
+   "tu": "common/src/PObj",
+   "stride": 4,
+   "accesses": 2,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    }
+   ]
+  },
+  "D_00712C00": {
+   "tu": "common/src/PObj",
+   "stride": null,
+   "accesses": 2,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 60,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    }
+   ]
+  },
+  "D_0054D088": {
+   "tu": "common/src/PObj",
+   "stride": 4,
+   "accesses": 2,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    }
+   ]
+  },
+  "D_0054AB88": {
+   "tu": "common/src/PObj",
+   "stride": null,
+   "accesses": 2,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    }
+   ]
+  },
+  "D_0054C650": {
+   "tu": "common/src/PObj",
+   "stride": 4,
+   "accesses": 2,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    }
+   ]
+  },
+  "D_0054A9D0": {
+   "tu": "common/src/PObj",
    "stride": 4,
    "accesses": 2,
    "n_fields": 1,
@@ -5637,27 +6063,6 @@
     }
    ]
   },
-  "D_004C36A0": {
-   "tu": "sugipon/src/wireLetter",
-   "stride": null,
-   "accesses": 2,
-   "n_fields": 2,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 4,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    },
-    {
-     "off": 8,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
   "D_00617DA8": {
    "tu": "sugipon/src/enemy",
    "stride": 8,
@@ -5730,6 +6135,21 @@
     }
    ]
   },
+  "D_004BA770": {
+   "tu": "sugipon/src/box",
+   "stride": 4,
+   "accesses": 2,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 2
+    }
+   ]
+  },
   "D_00272340": {
    "tu": "sugipon/src/motionManager2",
    "stride": 4,
@@ -5770,21 +6190,6 @@
     {
      "off": 8,
      "width": 4,
-     "signed": false,
-     "count": 2
-    }
-   ]
-  },
-  "D_00614AC0": {
-   "tu": "script/src/st13a",
-   "stride": null,
-   "accesses": 2,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 8,
-     "width": 8,
      "signed": false,
      "count": 2
     }
@@ -5976,21 +6381,6 @@
     }
    ]
   },
-  "D_006A0510": {
-   "tu": "fumi/ios/message",
-   "stride": 4,
-   "accesses": 2,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 4,
-     "signed": false,
-     "count": 2
-    }
-   ]
-  },
   "D_0055A2D8": {
    "tu": "script/src/st00a",
    "stride": 40,
@@ -6009,21 +6399,6 @@
      "width": 4,
      "signed": false,
      "count": 1
-    }
-   ]
-  },
-  "D_0070A8C0": {
-   "tu": "fumi/sound/adpcm_init",
-   "stride": null,
-   "accesses": 2,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 4,
-     "signed": false,
-     "count": 2
     }
    ]
   },
@@ -6053,21 +6428,6 @@
      "off": 0,
      "width": 2,
      "signed": true,
-     "count": 2
-    }
-   ]
-  },
-  "D_002E0064": {
-   "tu": "omori/src/gv",
-   "stride": null,
-   "accesses": 2,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 72,
-     "width": 4,
-     "signed": false,
      "count": 2
     }
    ]
@@ -6201,21 +6561,6 @@
    "fields": [
     {
      "off": 0,
-     "width": 4,
-     "signed": false,
-     "count": 2
-    }
-   ]
-  },
-  "D_006CCE30": {
-   "tu": "omori/src/mail-add-data",
-   "stride": null,
-   "accesses": 2,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 4,
      "width": 4,
      "signed": false,
      "count": 2
@@ -6549,21 +6894,6 @@
     }
    ]
   },
-  "D_0054AA68": {
-   "tu": "common/src/PObj",
-   "stride": null,
-   "accesses": 2,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 16,
-     "width": 4,
-     "signed": false,
-     "count": 2
-    }
-   ]
-  },
   "D_0070E2C0": {
    "tu": "common/src/PObj",
    "stride": null,
@@ -6768,36 +7098,6 @@
     }
    ]
   },
-  "jtbl_00610FF0": {
-   "tu": "sugipon/src/box__1BA660",
-   "stride": 4,
-   "accesses": 1,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
-  "jtbl_00611030": {
-   "tu": "sugipon/src/box__1BA660",
-   "stride": 4,
-   "accesses": 1,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
   "D_006111E0": {
    "tu": "sugipon/src/clipCollisionManager",
    "stride": null,
@@ -6888,21 +7188,6 @@
     }
    ]
   },
-  "D_00706298": {
-   "tu": "sugipon/src/spiderGroupManager",
-   "stride": 4,
-   "accesses": 1,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
   "D_00706098": {
    "tu": "sugipon/src/spiderGroupManager",
    "stride": 8,
@@ -6912,21 +7197,6 @@
    "fields": [
     {
      "off": 4,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
-  "D_00705F98": {
-   "tu": "sugipon/src/spiderGroupManager",
-   "stride": 4,
-   "accesses": 1,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
      "width": 4,
      "signed": false,
      "count": 1
@@ -7353,21 +7623,6 @@
     }
    ]
   },
-  "D_004B9D50": {
-   "tu": "sugipon/src/act_a_p_1",
-   "stride": 4,
-   "accesses": 1,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
   "D_004C35E0": {
    "tu": "sugipon/src/wireLetter",
    "stride": 4,
@@ -7503,21 +7758,6 @@
     }
    ]
   },
-  "D_004C0850": {
-   "tu": "sugipon/src/item",
-   "stride": null,
-   "accesses": 1,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 136,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
   "jtbl_006118E0": {
    "tu": "sugipon/src/item",
    "stride": 4,
@@ -7572,6 +7812,36 @@
    "fields": [
     {
      "off": 16,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    }
+   ]
+  },
+  "jtbl_00610FF0": {
+   "tu": "sugipon/src/box",
+   "stride": 4,
+   "accesses": 1,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
+     "width": 4,
+     "signed": false,
+     "count": 1
+    }
+   ]
+  },
+  "jtbl_00611030": {
+   "tu": "sugipon/src/box",
+   "stride": 4,
+   "accesses": 1,
+   "n_fields": 1,
+   "gp_rel": false,
+   "fields": [
+    {
+     "off": 0,
      "width": 4,
      "signed": false,
      "count": 1
@@ -7737,21 +8007,6 @@
    "fields": [
     {
      "off": 0,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
-  "D_00703CC0": {
-   "tu": "sugipon/src/particleEffect",
-   "stride": null,
-   "accesses": 1,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 4,
      "width": 4,
      "signed": false,
      "count": 1
@@ -8238,21 +8493,6 @@
     }
    ]
   },
-  "D_00614BD0": {
-   "tu": "script/src/st17b",
-   "stride": null,
-   "accesses": 1,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 8,
-     "width": 8,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
   "D_004CDCB0": {
    "tu": "script/src/st17b",
    "stride": null,
@@ -8628,36 +8868,6 @@
     }
    ]
   },
-  "D_00614AB0": {
-   "tu": "script/src/st13b",
-   "stride": null,
-   "accesses": 1,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 8,
-     "width": 8,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
-  "D_00614AA0": {
-   "tu": "script/src/st13b",
-   "stride": null,
-   "accesses": 1,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 8,
-     "width": 8,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
   "D_006143B0": {
    "tu": "script/src/deja",
    "stride": null,
@@ -8961,21 +9171,6 @@
   "D_0054FC5C": {
    "tu": "seki/src/Shadow",
    "stride": 16,
-   "accesses": 1,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
-  "D_0070A850": {
-   "tu": "seki/src/EnemyInit",
-   "stride": null,
    "accesses": 1,
    "n_fields": 1,
    "gp_rel": false,
@@ -9418,21 +9613,6 @@
     {
      "off": 8,
      "width": 8,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
-  "jtbl_0054F1B0": {
-   "tu": "seki/src/Packet",
-   "stride": 4,
-   "accesses": 1,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 4,
      "signed": false,
      "count": 1
     }
@@ -10473,21 +10653,6 @@
     }
    ]
   },
-  "D_006A4BC0": {
-   "tu": "fumi/src/fieldCollision",
-   "stride": 4,
-   "accesses": 1,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
   "jtbl_00553420": {
    "tu": "fumi/src/enemy_act",
    "stride": 4,
@@ -10578,52 +10743,7 @@
     }
    ]
   },
-  "D_00614E90": {
-   "tu": "omori/src/lws_kyomi",
-   "stride": null,
-   "accesses": 1,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 8,
-     "width": 8,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
   "D_00614E60": {
-   "tu": "omori/src/lws_kyomi",
-   "stride": null,
-   "accesses": 1,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 8,
-     "width": 8,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
-  "D_00614E80": {
-   "tu": "omori/src/lws_kyomi",
-   "stride": null,
-   "accesses": 1,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 8,
-     "width": 8,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
-  "D_00614E70": {
    "tu": "omori/src/lws_kyomi",
    "stride": null,
    "accesses": 1,
@@ -10662,21 +10782,6 @@
    "fields": [
     {
      "off": 4,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
-  "D_006CA470": {
-   "tu": "omori/src/enemy-control",
-   "stride": 4,
-   "accesses": 1,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
      "width": 4,
      "signed": false,
      "count": 1
@@ -11118,21 +11223,6 @@
     }
    ]
   },
-  "jtbl_0060DA90": {
-   "tu": "common/src/debug_exception",
-   "stride": 4,
-   "accesses": 1,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
   "jtbl_0060FBB0": {
    "tu": "common/src/layout_action",
    "stride": 4,
@@ -11253,21 +11343,6 @@
     }
    ]
   },
-  "D_0054C670": {
-   "tu": "common/src/PObj",
-   "stride": 4,
-   "accesses": 1,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
   "D_007116A0": {
    "tu": "common/src/PObj",
    "stride": null,
@@ -11373,37 +11448,7 @@
     }
    ]
   },
-  "D_00712C00": {
-   "tu": "common/src/PObj",
-   "stride": null,
-   "accesses": 1,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 60,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
   "D_0062A860": {
-   "tu": "common/src/PObj",
-   "stride": 4,
-   "accesses": 1,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
-  "D_0054D088": {
    "tu": "common/src/PObj",
    "stride": 4,
    "accesses": 1,
@@ -11541,21 +11586,6 @@
   "jtbl_0062A990": {
    "tu": "common/src/PObj",
    "stride": 4,
-   "accesses": 1,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
-  "D_0054AB88": {
-   "tu": "common/src/PObj",
-   "stride": null,
    "accesses": 1,
    "n_fields": 1,
    "gp_rel": false,
@@ -11743,36 +11773,6 @@
     {
      "off": 0,
      "width": 16,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
-  "D_0054C650": {
-   "tu": "common/src/PObj",
-   "stride": 4,
-   "accesses": 1,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 4,
-     "signed": false,
-     "count": 1
-    }
-   ]
-  },
-  "D_0054A9D0": {
-   "tu": "common/src/PObj",
-   "stride": 4,
-   "accesses": 1,
-   "n_fields": 1,
-   "gp_rel": false,
-   "fields": [
-    {
-     "off": 0,
-     "width": 4,
      "signed": false,
      "count": 1
     }
