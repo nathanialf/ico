@@ -138,4 +138,48 @@ void isysGObjLinkCameraDLAfterGObj(void) {
     D_0062A4D8 = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_cam_dl", isysGObjLinkCameraDLBeforeGObj);
+void isysGObjLinkCameraDLBeforeGObj(int a0, int a1)
+{
+    int *self = (int *)a0;
+    int key = a1;
+    int *head;
+    int *tail;
+    int *cur;
+    int *next;
+
+    func_001F8C30(self);
+    self[0x11] = key;
+    head = D_0062A4D4;
+    if (head == 0) {
+        *(int *)&D_0062A4D8 = (int)self;
+        self[0xE] = 0;
+        self[0xD] = 0;
+        *(int *)&D_0062A4D4 = (int)self;
+        return;
+    }
+    if ((unsigned int)head[0x11] >= (unsigned int)key) {
+        self[0xE] = 0;
+        self[0xD] = (int)head;
+        head[0xE] = (int)self;
+        D_0062A4D4 = self;
+        return;
+    }
+    tail = D_0062A4D8;
+    if ((unsigned int)tail[0x11] < (unsigned int)key) {
+        self[0xE] = (int)tail;
+        self[0xD] = 0;
+        tail[0xD] = (int)self;
+        D_0062A4D8 = self;
+        return;
+    }
+    cur = head;
+    next = (int *)cur[0xD];
+    while ((unsigned int)next[0x11] < (unsigned int)key) {
+        cur = next;
+        next = (int *)cur[0xD];
+    }
+    self[0xE] = (int)cur;
+    self[0xD] = cur[0xD];
+    cur[0xD] = (int)self;
+    ((int *)self[0xD])[0xE] = (int)self;
+}
