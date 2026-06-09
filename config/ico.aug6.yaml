@@ -327,6 +327,8 @@ segments:
       - [0x50DAD8, rodata,  src/cod/50DAD8]      # .rodata blob, part 2b (resume)
       - [0x52AA80, lit4, src/cod/52AA80]     # .lit4
       - [0x52BA80, sdata, src/cod/52BA80]    # .sdata
+      - [0x52C960, .sdata, ito/mpeg/mv_main]  # carved "= %d =\n" (switchThread debug fmt)
+      - [0x52C968, sdata, src/cod/52C968]    # .sdata (resume after mv_main)
       - { type: sbss, vram: 0x0062DD80, name: src/cod/62DD80 }  # .sbss
       - { type: bss,  vram: 0x0062E180, name: src/cod/62E180 }  # .bss
   - [0x52DD4E]
