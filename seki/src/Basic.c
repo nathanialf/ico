@@ -4,7 +4,27 @@ extern char D_00613278[];
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Basic", dma_init);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Basic", matrix_init);
+extern void func_00240B78(int a0);
+extern int *func_00240B50(int a0);
+extern void debug_VariableInit(void);
+extern int *D_0062BA6C;
+extern int *D_0062BA70;
+extern int *D_0062BA74;
+
+void matrix_init(void) {
+    union U { int i; } *p;
+    func_00240B78(1);
+    D_0062BA6C = func_00240B50(1);
+    p = (union U *)D_0062BA6C;
+    p->i |= 0x40;
+    D_0062BA70 = func_00240B50(2);
+    p = (union U *)D_0062BA70;
+    p->i |= 0x40;
+    D_0062BA74 = func_00240B50(8);
+    p = (union U *)D_0062BA74;
+    p->i |= 0x40;
+    debug_VariableInit();
+}
 
 extern void *D_00629C70;
 extern void func_00118AA0(void *a0);
