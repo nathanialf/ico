@@ -329,6 +329,8 @@ segments:
       - [0x50DAD8, rodata,  src/cod/50DAD8]      # .rodata blob, part 2b (resume)
       - [0x5126F8, .rodata, sugipon/src/multiBgaManager]  # carved D_006126F8 ("src/multiBgaManager.c" __FILE__, VMA 0x6126F8)
       - [0x512710, rodata,  src/cod/512710]      # .rodata blob, part 2b (resume after multiBgaManager)
+      - [0x5128B0, .rodata, sugipon/src/particleLayout]  # carved D_006128B0 ("src/particleLayout.c" __FILE__, VMA 0x6128B0)
+      - [0x5128D0, rodata,  src/cod/5128D0]      # .rodata blob, part 2b (resume after particleLayout)
       - [0x52AA80, lit4, src/cod/52AA80]     # .lit4
       - [0x52BA80, sdata, src/cod/52BA80]    # .sdata
       - [0x52C960, .sdata, ito/mpeg/mv_main]  # carved "= %d =\n" (switchThread debug fmt)

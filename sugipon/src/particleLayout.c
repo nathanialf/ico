@@ -96,7 +96,7 @@ extern int   D_0062A310;
 extern int  *iosFree(int handle, int size, char *file, int line);
 extern int   SetParticleEffectUpperLimit(int x, int *p, char *q);
 
-extern char D_006128B0[];
+const char D_006128B0[0x20] = "src/particleLayout.c";
 
 int *func_001E6118(int *self, int *other)
 {
