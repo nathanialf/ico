@@ -1,10 +1,15 @@
 #include "common.h"
 
 extern void debug_assertMessage();
-extern char D_006137A0[];
-extern char D_006137B0[];
-extern char D_006137C0[];
-extern char D_006137D8[];
+
+const char D_00613790[0x10] = "isys:null GObj\n";
+const char D_006137A0[0x10] = "camera gop:%x\n";
+const char D_006137B0[0x10] = "first entry\n";
+const char D_006137C0[0x18] = "entry into head\n";
+const char D_006137D8[0x18] = "entry into tail\n";
+const char D_006137F0[0x18] = "LinkCameraDL in\n";
+const char D_00613808[0x18] = "LinkCameraDL out\n";
+
 extern int *D_0062A4D4;
 extern int *D_0062A4D8;
 
@@ -63,12 +68,6 @@ void isysGObjRemoveCameraDL(int a0, int a1)
     return cut_gobj_camera_dl_link(a0, a1);
 }
 
-extern void debug_assertMessage();
-
-extern char D_006137F0[];
-
-extern char D_00613808[];
-
 void func_001F8E08(char *self, int a1, int a2, int a3, int a4)
 {
     debug_assertMessage(D_006137F0);
@@ -80,8 +79,6 @@ void func_001F8E08(char *self, int a1, int a2, int a3, int a4)
 }
 
 extern int *D_0062A4D8;
-
-extern char D_00613790[];
 
 void isysGObjMoveCameraDL(int *self, int a1, int a2, int a3, int *t0)
 {

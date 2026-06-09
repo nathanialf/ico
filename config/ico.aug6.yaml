@@ -331,6 +331,8 @@ segments:
       - [0x512710, rodata,  src/cod/512710]      # .rodata blob, part 2b (resume after multiBgaManager)
       - [0x5128B0, .rodata, sugipon/src/particleLayout]  # carved D_006128B0 ("src/particleLayout.c" __FILE__, VMA 0x6128B0)
       - [0x5128D0, rodata,  src/cod/5128D0]      # .rodata blob, part 2b (resume after particleLayout)
+      - [0x513790, .rodata, fumi/isys/gobj_cam_dl]  # carved camera-DL assert strings D_00613790..D_00613808 (VMA 0x613790)
+      - [0x513820, rodata,  src/cod/513820]      # .rodata blob, part 2c (resume after gobj_cam_dl strings)
       - [0x52AA80, lit4, src/cod/52AA80]     # .lit4
       - [0x52BA80, sdata, src/cod/52BA80]    # .sdata
       - [0x52C960, .sdata, ito/mpeg/mv_main]  # carved "= %d =\n" (switchThread debug fmt)
