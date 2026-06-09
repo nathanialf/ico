@@ -23,6 +23,23 @@ RESIDUAL (rc3, all PURE SCHEDULING TIES, confirmed robust across ~10 hand forms)
 - B6: loop2 preheader two independent `addiu` consts — ROM `addiu s2,60; addiu s1,1` vs built `s1,1; s2,60` (counter vs 0x3C name-stride order).
 Both are gcc sched1/sched2 ties → permuter food (it cracked the v0/v1 mflo the same way). Re-permute from this rc3 seed at the next 30-stall.
 
+## RESOLUTION (b) — permuter-exhausted at rc2 (2026-06-09)
+
+Reached the genuine 30-stall at **best=rc2** (the rc3 notes above were superseded:
+the permuter's `stride=i*(stride=12)` fixed v0/v1 → rc9; the hand compound
+`term!=-1 && term!=end` gave the loop1 double-test → rc3; the permuter's
+`base-(-product)` negate-subtract fixed the guard `addu` order → **rc2**).
+
+The seed (`playSE.c`) is the rc2 form. THREE permuter shots (~50k iterations
+total, incl. one at the stall-30 gate) found **nothing below rc2** — the lone
+residual is B6: loop2's two independent preheader consts `addiu 1` (counter) and
+`addiu 60` (D_005CD670 name stride) emit in swapped order vs ROM. It's a pure
+sched2 register-order tie ($17 vs $18): the counter is RTL-early (for-init), the
+60 RTL-late (assert-hoisted), so source-order can't reorder them, and the
+permuter's mutation space doesn't include flipping two independent `li`s. A true
+floor at rc2 (like func_001354B8 @2). RESUME: re-attack B6 with a fresh idea that
+makes the 60 RTL-early or the counter RTL-late.
+
 **TU:** `sugipon/src/frameDependSequence.c`
 
 **Seed:** `tough_nuts/playSE/playSE.c`
