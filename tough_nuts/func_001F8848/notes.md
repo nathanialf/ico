@@ -146,3 +146,8 @@ binary distributes (idx+1)*4 -> idx*4+disp4 for plain int where ours keeps
 (idx+1)<<2; our only route to the distribution is a narrowing op whose sext pair
 IS the rc2. If a second ee-gcc 2.9-991111 build surfaces, retest plain
 `D[idx+1]`.
+### Fire 8 permuter shot (2026-06-09) — resolution (b)
+Bounded run (~600s) seeded from rc2 short form. ~100 outputs; harvested all
+score<=120 by TRUE real_count: best rc2 (output-105-* = the seed form itself);
+score-80/85/95 candidates are semantically divergent (e.g. D[4] never written)
+and rc4-12 true. No score-0, nothing < rc2. (b) permuter-exhausted.
