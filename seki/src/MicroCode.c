@@ -266,7 +266,12 @@ void func_00118B38(void *a0, void *a1) {
         ".set reorder\n" : : : "$8","$9","$10","$11","$12","$13","$14","$15","memory");
 }
 
-extern float D_00272540[];
+float D_00272540[16] __attribute__((aligned(16))) = {
+    1.0f, 0.0f, 0.0f, 0.0f,
+    0.0f, 1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f, 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f,
+};
 
 void func_00118BA8(void *a0, void *a1, float *a2) {
     D_00272540[0] = a2[0];

@@ -318,6 +318,8 @@ segments:
       - [0x16B970, textbin, src/cod/16B970]  # .vutext (VU microcode)
       - [0x170A50, textbin, src/cod/170A50]  # .reginfo + pad
       - [0x170A80, data, src/cod/170A80]     # .data
+      - [0x172540, .data, seki/src/MicroCode]  # carved D_00272540 (identity 4x4 matrix scratch, VMA 0x272540, 0x40)
+      - [0x172580, data, src/cod/172580]     # .data (resume after MicroCode)
       - [0x3C1EE0, .data, sugipon/src/multiBgaManager]  # carved D_004C1EE0 (InitMultiBgaManager entry template, VMA 0x4C1EE0, 0x50)
       - [0x3C1F30, data, src/cod/3C1F30]     # .data (resume after multiBgaManager)
       - [0x44D980, rodata,  src/cod/44D980]      # .rodata blob, part 1
