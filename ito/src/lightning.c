@@ -22,7 +22,19 @@ int apply_m34(int *a0, int *a1) {
     return a0[4] - a1[4];
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/lightning", DrawLightning);
+extern void func_00240090(void *a0, void *a1);
+extern void func_00240038(void *a0, void *a1, float a2);
+
+typedef struct {
+    float v[4];
+} LVec;
+
+void DrawLightning(LVec *a0, void *a1, float f) {
+    func_00240090(a0, a1);
+    func_00240038(a0, a0, f);
+    func_00240038(a0 + 1, a0 + 1, f);
+    return func_00240038(a0 + 2, a0 + 2, f);
+}
 
 
 /* recovered struct shapes */
