@@ -89,3 +89,70 @@ endlabel func_00118E38
     /* 18E6C 00118E6C 00000000 */  nop
 ```
 ## Fire 6: re-attack rc12->rc9 (reverse decl+swap store best); ~35 fresh decl/store perms all rc9-12; stall=30 permute; mode-TI strips permuter, valid run no rc0. (b)
+
+## Attempt at 2026-06-09 (resume, reset re-baselined)
+
+**Reason parked (again, b):** stall=594/30, `next`→permute. EXHAUSTIVE 576-combo
+decl×store sweep (tools/perm_sweep.py over all 4!×4! orderings) → floor **rc9**,
+4 combos tie (e.g. decl(3,1,0,2)/store(1,0,3,2)); NO combo < 9. Plus ~13 fresh
+STRUCTURAL hypotheses this session, all ≥ rc9:
+- type LOCKED to `mode(TI)` scalar: `__int128` keyword REJECTED by ee-gcc 2.9
+  (parse error); 16-byte aligned struct → ld/sd 64-bit pairs (rc16); any aggregate
+  (array Qw t[4] / struct{4 Qw}) → STACK SPILL (addiu sp,-64, rc14/26).
+- `restrict`/`volatile` on ptrs: no-op / locks load+store order forward but coloring
+  unchanged (rc12). int-return adds `daddu v0,a0` ROM lacks. `static inline` helper:
+  inliner discards call-ABI arg setup → canonical. Pair-blocking → serial.
+
+**Near-PROOF this is unreachable by clean C:** ROM's signature move is the live-arg
+EVICTION — value0(*a1) colored into $6 (a2's reg) while a2 still needed → `daddu
+t2,a2` save. gcc only forces a value into a SPECIFIC hard reg ($6) for call-ABI
+args / return / asm-constraint. NONE present (leaf, void, no asm). With free scratch
+($2,$3,$9) available gcc NEVER evicts a live arg reg. The contiguous $6,$7,$8,$9
+value block is exactly call-arg-setup coloring (args 3-6 on this n32-ish ELF) — but
+a real call leaves a jal/j and ROM ends `jr ra` with no call. So the eviction is a
+regalloc trigger with no clean-C surface; permuter-class.
+
+**Permuter STILL invalid for this func:** import strips `__attribute__((mode(TI)))`
+→ base becomes 32-bit int → candidates compile to ld/sd, can't express qword lq/sq.
+Confirmed again: ee-gcc 2.9 has no `__int128` spelling to substitute. Firing it per
+the stall gate is mechanical (b); harvest cannot beat rc9.
+
+**Resume strategy (next session, fresh HAND idea):** (a) union-param reinterpret to
+make a source-ptr var get reassigned to a value (force register reuse) — untested,
+ABI murky; (b) fix decomp-permuter import to preserve mode(TI) (pycparser limitation
+— hard); (c) re-examine whether a sibling matched func in another TU has this exact
+3×daddu+4×lq gather shape and copy its winning C (none found this session).
+
+---
+
+## Attempt at 2026-06-09
+
+**Reason parked:** stall=594/30; 576-combo sweep floor rc9 + 13 structural hyps; live-arg eviction is call-ABI artifact unreachable in clean C; permuter strips mode(TI)
+
+**TU:** `seki/src/MicroCode.c`
+
+**Seed:** `tough_nuts/func_00118E38/func_00118E38.1.c`
+
+Disassembly:
+
+```
+.align 3
+nonmatching func_00118E38, 0x34
+
+glabel func_00118E38
+    /* 18E38 00118E38 2D50C000 */  daddu      $10, $6, $0
+    /* 18E3C 00118E3C 2D18E000 */  daddu      $3, $7, $0
+    /* 18E40 00118E40 2D100001 */  daddu      $2, $8, $0
+    /* 18E44 00118E44 0000A678 */  lq         $6, 0x0($5)
+    /* 18E48 00118E48 00004779 */  lq         $7, 0x0($10)
+    /* 18E4C 00118E4C 00006878 */  lq         $8, 0x0($3)
+    /* 18E50 00118E50 00004978 */  lq         $9, 0x0($2)
+    /* 18E54 00118E54 0000867C */  sq         $6, 0x0($4)
+    /* 18E58 00118E58 1000877C */  sq         $7, 0x10($4)
+    /* 18E5C 00118E5C 2000887C */  sq         $8, 0x20($4)
+    /* 18E60 00118E60 3000897C */  sq         $9, 0x30($4)
+    /* 18E64 00118E64 0800E003 */  jr         $31
+    /* 18E68 00118E68 00000000 */   nop
+endlabel func_00118E38
+    /* 18E6C 00118E6C 00000000 */  nop
+```
