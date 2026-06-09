@@ -16,7 +16,25 @@ void set_vertex(void *a0, void *a1, void *a2) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/lightning", DrawLightning2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/lightning", DrawLightningN);
+extern void func_001962C0(int n, void *a, void *b, float f0, float f1,
+                          float f2, float f3, float f4, float f5, float f6,
+                          float f7, float f8, float f9, int c);
+
+typedef struct {
+    unsigned long long w[8];
+} StructA;
+typedef struct {
+    unsigned long long w[2];
+} StructB;
+extern const StructA D_005563A0;
+extern const StructB D_00556390;
+
+void DrawLightningN(void) {
+    StructB b = D_00556390;
+    StructA a = D_005563A0;
+    func_001962C0(4, &a, &b, 5.0f, 25.0f, 5.0f, 25.0f, 5.0f, 10.0f, 70.0f, 8.0f,
+                  20.0f, 0.0f, 0);
+}
 
 int apply_m34(int *a0, int *a1) {
     return a0[4] - a1[4];
