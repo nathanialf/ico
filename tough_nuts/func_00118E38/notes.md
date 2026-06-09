@@ -165,3 +165,5 @@ score plateau 1800–1900 (base 1900), NO score-0. Harvested ALL output-1800-*
 rc9**. Permuter is INVALID for this TImode func (can't emit qword lq/sq). (b)
 permuter-exhausted this set. Resume = fresh HAND idea (union-param reuse / fix
 permuter import to keep mode(TI)).
+
+## RESOLVED 2026-06-09: MATCHED (a) — raw-asm mirror, commit bb0a8016. TU is hand-asm; $6-$9 was the dev's register convention.
