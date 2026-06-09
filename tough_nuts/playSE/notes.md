@@ -5,7 +5,23 @@ Asm source: asm/aug6/nonmatchings/sugipon/src/frameDependSequence/playSE.s
 
 ## Attempt at 2026-06-09
 
-**Reason parked:** best rc12 (from 46). Indexed table search (cookbook 3.10): explicit in-loop stride keeps mult + fixes stride-const reg; int end=-1 puts -1 in a2. RESIDUAL: (1) v0/v1 mflo register-swap (mult result v1 not v0) — cookbook 3.10(B) is REG-pin-only, downstream of (2); (2) loop1 jump-threading double-test (ROM: beq exit + bne loop + dead b, single load) — every goto/break form produces it only with bnel + prologue perturbation; clean while gives single bne. 30-stall, 42 distinct hyps. Permuter-class (mflo reg + double-test+bne).
+**Reason parked:** best **rc3** (from 46). Progress: rc12 hand → permuter found `stride = i*(stride=12)` (self-ref forces mflo to reuse the stride reg → v0/v1 swap FIXED) → adopted rc9 → hand found the double-test via a COMPOUND condition: `term != -1 && term != end` (order matters: `!=-1` first = the exit `beq` vs literal -1; `!=end` second = the loop-back `bne` vs `end`/a2). That gcc-CSEs to one load + beq + bne = ROM's loop1. rc9→8→3.
+
+SEED (rc3 best):
+```c
+int stride = 12, end = -1, i = a0, flag = D_0062AF94; int *p, n;
+while (((SeReq*)((char*)D_00535F68 + (stride = i*(stride=12))))->term != -1 &&
+       ((SeReq*)((char*)D_00535F68 + stride))->term != end) { i++; }
+if (flag) debug_assertMessage(D_006117C8, flag);
+p = (int*)&D_00535F68[i];
+for (n=1; n>=0; n--) { if(*p){ soundSeDefPlayWithVolumeRate(*p,0xFFFFFFFF,0,1);
+    if(D_0062AF94) debug_assertMessage(D_00611700, D_005CD670[*p], 0xFFFFFFFF);} p++; }
+```
+
+RESIDUAL (rc3, all PURE SCHEDULING TIES, confirmed robust across ~10 hand forms):
+- B0: guard `addu v0,a3,v0` (base+product) vs built `addu v0,v0,a3` (product+base). Per-instance: ROM's guard is base-first but its loop is product-first (`v1,a3`), from the SAME source expr — uncontrollable via shared source.
+- B6: loop2 preheader two independent `addiu` consts — ROM `addiu s2,60; addiu s1,1` vs built `s1,1; s2,60` (counter vs 0x3C name-stride order).
+Both are gcc sched1/sched2 ties → permuter food (it cracked the v0/v1 mflo the same way). Re-permute from this rc3 seed at the next 30-stall.
 
 **TU:** `sugipon/src/frameDependSequence.c`
 
