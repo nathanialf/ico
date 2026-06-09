@@ -19,4 +19,12 @@ void Debug_StickControl(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/act_bird", BirdGeo);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/act_bird", BirdDL);
+extern void *InitParticleLayoutGeo(void);
+extern void func_00240080(void *a0, void *a1);
+
+void BirdDL(int a0, void *a1) {
+    if (a0 >= 0) {
+        void *r = InitParticleLayoutGeo();
+        func_00240080((char *)r + 0x40, a1);
+    }
+}
