@@ -179,7 +179,17 @@ ASM_OUT="build/quick_diff/$NAME.s"
 mkdir -p "$(dirname "$OBJ")"
 
 # Stage 1: ee-gcc → assembly
-$CC $CFLAGS -o "$ASM_OUT" "$CSRC"
+# TUs that include a header under ito/include/ (e.g. mv_defs.h) must be compiled
+# from a CWD one level below ROOT with a *relative* -I../ito/include so the
+# baked __FILE__ literal reads "../ito/include/<h>" — exactly as compile_c.sh
+# does (opt-in per TU via config/include_ito.txt). Keeps quick_diff in sync.
+if grep -qxF "$NAME" "$ROOT/config/include_ito.txt" 2>/dev/null; then
+    CSRC_ABS="$CSRC"; case "$CSRC_ABS" in /*) ;; *) CSRC_ABS="$ROOT/$CSRC_ABS";; esac
+    ASM_ABS="$ASM_OUT"; case "$ASM_ABS" in /*) ;; *) ASM_ABS="$ROOT/$ASM_ABS";; esac
+    ( cd "$ROOT/ito" && $CC $CFLAGS -I"$ROOT/include" -I../ito/include -o "$ASM_ABS" "$CSRC_ABS" )
+else
+    $CC $CFLAGS -o "$ASM_OUT" "$CSRC"
+fi
 
 # Stage 1b: run postprocesses listed in their gate files (match
 # compile_c.sh pipeline). Only the per-file postprocesses; the always-on

@@ -1,4 +1,5 @@
 #include "common.h"
+#include "r5900.h"
 
 extern int func_0023CCE0(int *a, int *b);
 
@@ -31,15 +32,7 @@ void voBufIsFull(int a0) {
     iosMallocCheckLeak2(a0 & 0xFFFFFFF);
 }
 
-/* voBufIncCount — hand-written assembly in Ito's movie/IPU buffer layer.
- * Resets the ring-buffer's two counters (offsets 0xC, 0x8) and returns with
- * the jr delay slot left as an explicit nop. This module (ito/mpeg) builds at
- * -O2 (proven: viBufFlush matches at -O2), and ee-gcc -O2 sorts the two
- * independent zero-stores ascending (8 then 12) and fills the jr delay — it
- * cannot emit this descending order with an unfilled delay (60 distinct clean-C
- * shapes tried, none match). A bare nop delay on trivial code is a compiler-
- * atypical, human-scheduling signature, so this is reproduced as the dev's
- * hand asm — same class as the PObj syscall stubs / ISR cluster. */
+/* voBufIncCount — hand-written assembly in Ito's movie/IPU buffer layer. */
 __asm__(
     ".section .text\n"
     "    .set at\n"
@@ -58,4 +51,20 @@ int voBufGetData(int *a0) {
     return a0[3] == a0[4];
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vobuf", voBufGetTag);
+extern void func_00101A40(volatile int *a0);
+
+/* voBufGetTag — critical-section update of the shared (volatile) movie output
+ * ring: tags the current frame, bumps writeIdx, advances readIdx mod numFrames,
+ * then SYNC + EI. The volatile struct pointer orders the field accesses to match
+ * Ito's hand-scheduled IPU code. */
+void voBufGetTag(volatile int *a0) {
+    int w, n;
+    func_00101A40(a0);
+    *(int *)(a0[1] + a0[2] * 0xA0A40) = 2;
+    w = a0[3];
+    n = a0[4];
+    a0[3] = w + 1;
+    a0[2] = (a0[2] + 1) % n;
+    SYNC();
+    EI();
+}
