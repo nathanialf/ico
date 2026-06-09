@@ -45,7 +45,19 @@ void ExecFrameDependSequence(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/frameDependSequence", executeSEPackageByGObj);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/frameDependSequence", executeSEPackageWithNoGObj);
+extern int GetFlyLimitHeight(void);
+extern int GetFlyLimitClearance(int a0);
+extern int func_001CDBB0(int a0);
+
+int executeSEPackageWithNoGObj(int a0) {
+    if (a0 <= 0xFFFF) {
+        return GetFlyLimitHeight();
+    } else if (a0 <= 0x1FFFF) {
+        return GetFlyLimitClearance(a0 - 0x10000);
+    } else {
+        return func_001CDBB0(a0 - 0x20000);
+    }
+}
 
 int ExecuteSEPackageWithGroupVariation(void *a0, int a1) {
     int *p = *(int **)((char *)a0 + 0x15C);
