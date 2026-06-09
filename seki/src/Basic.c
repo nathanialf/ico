@@ -1,7 +1,8 @@
 #include "common.h"
 #include "ico/types.h"
 
-extern char D_00613278[];
+const char D_00613260[0x18] = "set partition first!\n";
+const char D_00613278[0x18] = "src/Basic.c";
 
 extern float D_0062970C;
 extern void func_00240938(void *a0, void *a1, void *a2, float a3);
@@ -85,7 +86,6 @@ int mallocseki(void) {
 extern int D_0062BA64;
 extern int D_0062A314;
 extern int D_0062A324;
-extern char D_00613260[];
 extern unsigned int D_0062D8E8[];
 extern void debug_assertMessage(char *p);
 extern int func_001AAD00(const char *, int);
@@ -137,7 +137,6 @@ int reallocseki(int a0)
     return rv;
 }
 
-extern char D_00613278[];
 extern void *iosMallocAlignDebug(int a0, int a1, char *a2, int a3);
 
 void *func_001F3DF0(int a0, int a1) {
