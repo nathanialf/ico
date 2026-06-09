@@ -76,7 +76,41 @@ extern signed char D_006CCE60[];
 extern char D_005551F0[];
 extern char D_00555F00[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/itou_boss", gene_enemy);
+int gene_enemy(void *a0) {
+    int ret;
+    unsigned int k;
+    signed char *base;
+    signed char *e;
+    char *m;
+    char *q;
+    char *r;
+
+    ret = iosFree(D_0062A310, 0, D_00556348, 0x16F);
+    actInitialize(a0);
+    actInitialize_ext_charcter(a0);
+    debug_assertMessage(D_00556358, 0x35);
+
+    base = D_006CCE60;
+    m = base + 0x20;
+    q = D_005551F0;
+    r = D_00555F00;
+    k = 0;
+    do {
+        e = base + k * 0x40;
+        *(int *)e = 0;
+        if (e[4] == 1) {
+            e[4] = 2;
+        }
+        func_00240080(m, q);
+        apply_matrix_w1(m - 0x10, q - 0x30);
+        *(char **)(e + 0x30) = r;
+        q += 0x40;
+        m += 0x40;
+        r += 0x10;
+        k++;
+    } while (k < 0x35);
+    return ret;
+}
 
 extern unsigned char D_006CCE50[];
 
