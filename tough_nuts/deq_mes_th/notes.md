@@ -76,3 +76,15 @@ glabel deq_mes_th
 endlabel deq_mes_th
     /* 39D04 00139D04 00000000 */  nop
 ```
+
+## Permuter run 1 (2026-06-09) — EXHAUSTED, no improvement
+- 24,617 iterations, --stop-on-zero -j4, 2.9-991111 CFLAGS.
+- min permuter score = 10 (= base rc2); ZERO iterations below base; no output-* saved.
+- Confirms the rc2 floor: subu temp (aligned-rem) colors v0; ROM uses freed
+  arg reg $6 with rem kept in v0 (decoupled). Pure register-coloring tie.
+- RESUME idea (fresh HAND hypothesis): the decoupling (rem=v0 AND temp=$6, NOT
+  coalesced) is the crux. reassign_a3 reaches $6 but coalesces rem into $6.
+  Try a shape that keeps rem's def (mfhi) pinned to v0 by an independent v0
+  consumer scheduled between mfhi and the subtraction, while the subtraction
+  result flows to a freed arg reg. Or re-fire permuter saving improvements
+  (drop --stop-on-zero) and rc-check each saved output by real_count.
