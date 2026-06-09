@@ -84,3 +84,7 @@ CONCLUSION: dev binary's tie-break (sched rank or load_register_parameters order
 ours for this configuration. Candidate: different ee-gcc 2.9-991111 sub-build. The 121-site
 unmatched cluster is the falsifiable fingerprint. If a second 2.9 binary ever surfaces, test
 probe: dpk_Init(2, D_0054FBE0, 4) after a void call — expect lui,a2,lo,jal,[a0].
+### Fire 9 permuter shot (2026-06-09) — resolution (b)
+Bounded run at stall=30/30 (~600s). Single harvest output-15-1 = UB artifact
+(new_var4 overwritten 2→4 before use → dpk_Init(4,D,4), WRONG a0 value — same
+class as fire-2's score-15). No output-0. Nothing beats rc2. (b) re-confirmed.
