@@ -1,7 +1,23 @@
 #include "common.h"
 #include "ico/types.h"
-#undef INCLUDE_ASM
-#define INCLUDE_ASM(FOLDER, NAME) INCLUDE_ASM_FS(FOLDER, NAME)
+
+/* src/box.c — pushable box + interactable lever/switch gameplay (sugipon).
+ *
+ * SITUATION: box.o is a UNITY build — this file #includes src/switch.c.inc.
+ * The shipped function order is plain source order (ee-gcc 2.9 does not
+ * reorder functions; no -ffunction-sections, matching parappa2's period
+ * model), so the switch and box functions interleave by VMA exactly as the
+ * source is laid out here. Each switch block is pulled in at its VMA slot via
+ * `#define BOX_SWBLK n` + `#include "switch.c.inc"`; the surrounding
+ * `#line "src/switch.c"` / `#line "src/box.c"` directives keep each function's
+ * __FILE__ correct ("src/box.c" @ D_00610FB0, "src/switch.c" @ D_00610F40)
+ * even though both live in one translation unit. This replaces the former
+ * -ffunction-sections + postprocess_box_order.py machinery. */
+
+#undef BOX_SWBLK
+#define BOX_SWBLK 0
+#include "switch.c.inc"
+#line 1 "src/box.c"
 
 typedef struct {
     float f_0;
@@ -31,6 +47,11 @@ void landingSE(void *a0, float f0, float f1, float f2, float f3) {
 int fallDownStartSE(void *a0) {
     return GOBJ_SUB(a0)->p_7F0->f_8;
 }
+
+#undef BOX_SWBLK
+#define BOX_SWBLK 1
+#include "switch.c.inc"
+#line 32 "src/box.c"
 
 typedef struct { int f_0; int f_4; char _8[0x14]; void (*f_1C)(int, int); } BoxB1B95E0;
 
@@ -69,6 +90,11 @@ void pullStartSE(void *self) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box", wallHitSE);
 
+#undef BOX_SWBLK
+#define BOX_SWBLK 2
+#include "switch.c.inc"
+#line 72 "src/box.c"
+
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box", initFallDown);
 
 typedef struct { short f_0; short f_2; char _4[0xC]; void *f_10; } BoxC1B9A58;
@@ -102,6 +128,15 @@ void checkFieldContact(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box", execNormalMove);
 
+#undef BOX_SWBLK
+#define BOX_SWBLK 3
+#include "switch.c.inc"
+#line 108 "src/box.c"
+
+void InitBoxGeo(int a0) {
+    playSEConditionID(a0, 0x4);
+}
+
 extern void playSEConditionID(int a0, int a1);
 
 void execAutoMove(int a0) {
@@ -112,9 +147,10 @@ void initWheels(int a0) {
     playSEConditionID(a0, 0x1E);
 }
 
-void InitBoxGeo(int a0) {
-    playSEConditionID(a0, 0x4);
-}
+#undef BOX_SWBLK
+#define BOX_SWBLK 4
+#include "switch.c.inc"
+#line 125 "src/box.c"
 
 /* box__1BA660 0x7F0 view (local) */
 typedef struct { int f_0; char _4[0x1C]; int f_20; char _pad24[0x34]; int f_58; char _pad5C[0xB4]; int f_110; int f_114; char _pad118[0x20]; int f_138; char _pad13C[0x4]; int f_140; } BoxGeo2;
@@ -324,6 +360,10 @@ void BoxExtGeoRestore(void *self) {
     q->f_110 = 0;
 }
 
+#undef BOX_SWBLK
+#define BOX_SWBLK 5
+#include "switch.c.inc"
+#line 364 "src/box.c"
 
 /* recovered struct shapes */
 typedef struct {
@@ -477,4 +517,3 @@ end:
     return rv;
 }
 
-#include "switch.c.inc"

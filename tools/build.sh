@@ -58,11 +58,10 @@ split() {
         # postprocessing and NO data->typed-C migration (both deliberately
         # deferred — see the aug6 design notes). Stop here.
         #
-        # EXCEPTION: box.o is a trace-reordered unit (box.c #include switch.c.inc,
-        # built -ffunction-sections); reproduce the shipped function order by
-        # rewriting its .text glob into a per-function VMA-ordered list.
-        echo "==> aug6: reproduce box.o trace-reorder (per-function ld section ordering)"
-        "${VENV_PY}" tools/postprocess_box_order.py
+        # box.o: functions written in shipped-VMA order across box.c + the
+        # block-#included src/switch.c (BOX_SWBLK guards), so the default single
+        # .text glob lays them out correctly — no -ffunction-sections, no
+        # trace-reorder postprocess.
         echo "==> aug6: raw pipeline (skipping postprocess + data-migration)"
         return 0
     fi
