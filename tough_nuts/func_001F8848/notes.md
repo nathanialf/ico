@@ -131,3 +131,18 @@ ushort rc5, mask 0x7FFF/0xFFFF rc2, short-via-int-var rc2, p-first rc3). The
 narrowing is what triggers the disp-fold; removing it loses the fold. New best
 seed = rc2. Re-attack on resume: seed permuter from the rc2 short form (better
 start than the old rc4) to hunt the sext->sll2 elimination.
+
+## Fire 8 (2026-06-09): rc2 floor re-confirmed, 30 fresh combos
+Matched-sibling idiom (func_001F87B0 `(D+idx)[1]`) + addr-temp-before-storeback,
+base+1 association `(D+1)[idx]` (NEW: rc11), q-temp `q=D+1` (rc8 but %lo(D+4)
+reloc-base ✗), byte-domain × zero-reuse combos (rc11), struct × zero-reuse ×
+storeback-position (rc10-11), (long long)/(unsigned) index casts (fold away, rc4),
+short × {alias, no-alias, lit0, p-stores, storeback-after, ptr-domain, +0-alias},
+ushort/mask+alias+zr (all rc2). Coupling model holds exactly.
+NEW CONTEXT (cf. tough_nuts/reg_dispLine/notes.md fire 9): the rc2 residual
+(plain `sll 2` + disp-4 fold for an int (idx+1) index, with 4-reg coloring) is a
+plausible SECOND fingerprint of the same compiler-sub-build divergence — dev
+binary distributes (idx+1)*4 -> idx*4+disp4 for plain int where ours keeps
+(idx+1)<<2; our only route to the distribution is a narrowing op whose sext pair
+IS the rc2. If a second ee-gcc 2.9-991111 build surfaces, retest plain
+`D[idx+1]`.
