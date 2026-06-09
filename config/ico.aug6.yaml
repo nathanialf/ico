@@ -323,6 +323,8 @@ segments:
       - [0x44D980, rodata,  src/cod/44D980]      # .rodata blob, part 1
       - [0x44F1B0, .rodata, seki/src/Packet]     # carved jtbl_0054F1B0 -> Packet.o (dot-form, migrated)
       - [0x44F1F8, rodata,  src/cod/44F1F8]      # .rodata blob, part 2a
+      - [0x456390, .rodata, ito/src/lightning]   # carved D_00556390 (color) + D_005563A0 (4 verts), VMA 0x556390
+      - [0x4563E0, rodata,  src/cod/4563E0]      # .rodata blob, part 2a (resume after lightning data)
       - [0x457060, .rodata, ito/mpeg/mv_main]    # carved deq_movie_mes assert strings (file + "p != NULL")
       - [0x457090, rodata,  src/cod/457090]      # .rodata blob, part 2a (resume after mv_main)
       - [0x50DA90, .rodata, common/src/debug_exception]  # carved jtbl_0060DA90 (migrated)

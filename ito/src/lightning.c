@@ -20,8 +20,18 @@ typedef struct {
 typedef struct {
     unsigned long long w[2];
 } StructB;
-extern const StructA D_005563A0;
-extern const StructB D_00556390;
+/* lightning effect data (.rodata, VMA 0x556390..0x5563E0) */
+const StructB D_00556390 = {
+    {0x000000FF00000080ULL, 0x00000080000000FFULL}, /* color bytes 80 FF FF 80 */
+};
+const StructA D_005563A0 = {
+    {
+        0x443B800000000000ULL, 0x3F80000000000000ULL, /* vert0 {0, 750, 0, 1} */
+        0x43FA000000000000ULL, 0x3F800000C3480000ULL, /* vert1 {0, 500, -200, 1} */
+        0x437A000000000000ULL, 0x3F80000043480000ULL, /* vert2 {0, 250, 200, 1} */
+        0x0000000000000000ULL, 0x3F80000000000000ULL, /* vert3 {0, 0, 0, 1} */
+    },
+};
 
 extern void func_001962C0(int n, void *a, void *b, float f0, float f1,
                           float f2, float f3, float f4, float f5, float f6,
