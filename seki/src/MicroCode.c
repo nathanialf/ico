@@ -440,7 +440,22 @@ void func_00118D68(void *a0, void *a1, void *a2, void *a3) {
         ".set reorder\n" : : "r"(a0), "r"(a1), "r"(p2), "r"(p3) : "memory");
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", func_00118E38);
+void func_00118E38(void *a0, void *a1, void *a2, void *a3, void *a4) {
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "daddu $10, $6, $0\n"
+        "daddu $3, $7, $0\n"
+        "daddu $2, $8, $0\n"
+        "lq $6, 0x0($5)\n"
+        "lq $7, 0x0($10)\n"
+        "lq $8, 0x0($3)\n"
+        "lq $9, 0x0($2)\n"
+        "sq $6, 0x0($4)\n"
+        "sq $7, 0x10($4)\n"
+        "sq $8, 0x20($4)\n"
+        "sq $9, 0x30($4)\n"
+        ".set reorder\n" : : : "$2","$3","$6","$7","$8","$9","$10","memory");
+}
 
 void func_00118E70(float a0) {
     __asm__ __volatile__(
