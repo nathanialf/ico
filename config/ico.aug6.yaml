@@ -324,7 +324,8 @@ segments:
       - [0x44F1B0, .rodata, seki/src/Packet]     # carved jtbl_0054F1B0 -> Packet.o (dot-form, migrated)
       - [0x44F1F8, rodata,  src/cod/44F1F8]      # .rodata blob, part 2a
       - [0x4551C0, .rodata, ito/src/itou_boss]   # carved matrix table (53x0x40) + position table (53x0x10), VMA 0x5551C0..0x556250
-      - [0x456250, rodata,  src/cod/456250]      # .rodata blob, part 2a (resume: jtbl_00556250 + strings, VMA 0x556250)
+      - [0x456250, .rodata, ito/src/gather_effect]  # gcc-emitted jtbl_00556250 (func_001951A8 switch), VMA 0x556250
+      - [0x456318, rodata,  src/cod/456318]      # .rodata blob, part 2a (resume: strings 0x556318..0x556368)
       - [0x456368, .rodata, ito/src/itou_gflag]  # carved nxt[3]={1,2,0} (mat->quat index table), VMA 0x556368
       - [0x456374, rodata,  src/cod/456374]      # .rodata blob, part 2a (resume after itou_gflag nxt)
       - [0x456390, .rodata, ito/src/lightning]   # carved D_00556390 (color) + D_005563A0 (4 verts), VMA 0x556390

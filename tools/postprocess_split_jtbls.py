@@ -33,6 +33,7 @@ Idempotent: re-applies harmlessly because any block already on a
 """
 from __future__ import annotations
 
+import os
 import re
 import sys
 from pathlib import Path
@@ -51,9 +52,14 @@ JTBL_REF_RE = re.compile(r"%hi\(jtbl_([0-9A-Fa-f]{8})\)")
 
 def _function_jtbl_refs(func_name: str) -> list[str]:
     """Return jtbl VMAs (hex, no '0x') referenced by `func_name`, in
-    source order. Looks in asm/matchings then asm/nonmatchings."""
-    for ext in ("matchings", "nonmatchings"):
-        base = ROOT / "asm" / ext
+    source order. Looks in asm/[<version>/]{matchings,nonmatchings}."""
+    version = os.environ.get("VERSION", "")
+    bases = []
+    if version:
+        bases += [ROOT / "asm" / version / "matchings",
+                  ROOT / "asm" / version / "nonmatchings"]
+    bases += [ROOT / "asm" / "matchings", ROOT / "asm" / "nonmatchings"]
+    for base in bases:
         if not base.is_dir():
             continue
         for s_file in base.rglob(f"{func_name}.s"):
