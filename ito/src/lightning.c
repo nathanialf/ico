@@ -14,12 +14,6 @@ void set_vertex(void *a0, void *a1, void *a2) {
         ".set reorder\n" : : : "memory");
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/lightning", DrawLightning2);
-
-extern void func_001962C0(int n, void *a, void *b, float f0, float f1,
-                          float f2, float f3, float f4, float f5, float f6,
-                          float f7, float f8, float f9, int c);
-
 typedef struct {
     unsigned long long w[8];
 } StructA;
@@ -28,6 +22,20 @@ typedef struct {
 } StructB;
 extern const StructA D_005563A0;
 extern const StructB D_00556390;
+
+extern void func_001962C0(int n, void *a, void *b, float f0, float f1,
+                          float f2, float f3, float f4, float f5, float f6,
+                          float f7, float f8, float f9, int c);
+extern void func_00240080(void *a0, void *a1);
+
+void DrawLightning2(void *p0, void *p1, void *a2, float f0, float f1, float f2,
+                    float f3, float f4, float f5, float f6, float f7, float f8,
+                    float f9, int a3) {
+    StructB buf[2];
+    func_00240080(&buf[0], p0);
+    func_00240080(&buf[1], p1);
+    func_001962C0(2, &buf[0], a2, f0, f1, f2, f3, f4, f5, f6, f7, f8, f9, a3);
+}
 
 void DrawLightningN(void) {
     StructB b = D_00556390;
