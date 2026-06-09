@@ -22,8 +22,8 @@ void playSE(int a0) {
     int i = a0;
     int flag = D_0062AF94;
 
-    while (((SeReq *)((char *)D_00535F68 + (stride = i * (stride = 12))))->term != -1 &&
-           ((SeReq *)((char *)D_00535F68 + stride))->term != end) {
+    while (((SeReq *)((char *)D_00535F68 - (-(stride = i * (stride = 12)))))->term != -1 &&
+           ((SeReq *)((char *)D_00535F68 - (-stride)))->term != end) {
         i++;
     }
     if (flag) {
