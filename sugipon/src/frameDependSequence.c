@@ -43,7 +43,15 @@ void ExecFrameDependSequence(int a0) {
     execEff(a0, 0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/frameDependSequence", executeSEPackageByGObj);
+typedef struct {
+    int b[0x13];
+} SEPackage;
+
+extern SEPackage D_004BC220;
+
+void executeSEPackageByGObj(void *a0) {
+    *(SEPackage *)a0 = D_004BC220;
+}
 
 extern int GetFlyLimitHeight(void);
 extern int GetFlyLimitClearance(int a0);
