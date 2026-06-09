@@ -156,3 +156,12 @@ glabel func_00118E38
 endlabel func_00118E38
     /* 18E6C 00118E6C 00000000 */  nop
 ```
+
+### Permuter shot result (2026-06-09) — resolution (b)
+Fired bounded permuter at stall=594/30 on the rc9 seed. base.c confirms
+`typedef int Qw128 ;` (mode(TI) STRIPPED → plain 32-bit int). ~17.8k iters,
+score plateau 1800–1900 (base 1900), NO score-0. Harvested ALL output-1800-*
+(49) + output-1900-* sample by TRUE real_count: **every candidate rc12 > parked
+rc9**. Permuter is INVALID for this TImode func (can't emit qword lq/sq). (b)
+permuter-exhausted this set. Resume = fresh HAND idea (union-param reuse / fix
+permuter import to keep mode(TI)).
