@@ -1,8 +1,40 @@
 #include "common.h"
+#include "ico/types.h"
 
 extern char D_00613278[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Basic", dma_init);
+extern float D_0062970C;
+extern void func_00240938(void *a0, void *a1, void *a2, float a3);
+
+struct DmaArec {
+    void *p0;   /* 0x0 */
+    int count;  /* 0x4 */
+    void *p8;   /* 0x8 */
+};
+
+void dma_init(void *gobj, float t) {
+    Obj7F0 *o7 = GOBJ_SUB(gobj)->p_7F0;
+    struct DmaArec *A = (struct DmaArec *)o7->p_0;
+    int i;
+    float f20 = t * D_0062970C;
+    int rowcount, j, dn, k;
+    float fj, frac;
+    char *cp, *node;
+    for (i = 0; i < A->count; i++) {
+        rowcount = *(int *)((char *)A->p0 + i * 0x50);
+        for (j = 1; j < rowcount; j++) {
+            dn = rowcount - 1;
+            fj = f20 * (float)j / dn;
+            k = (int)fj;
+            frac = fj - (float)k;
+            cp = (char *)((void **)o7->f_4)[i];
+            node = *(char **)((char *)A->p8 + i * 0x1A0) + j * 16;
+            func_00240938(node, cp + (k * 16 + 0x10), cp + k * 16, frac);
+            node = *(char **)((char *)A->p8 + i * 0x1A0);
+            *(float *)(node + j * 16 + 0xC) = 1.0f;
+        }
+    }
+}
 
 extern void func_00240B78(int a0);
 extern int *func_00240B50(int a0);
