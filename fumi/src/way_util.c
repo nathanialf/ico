@@ -175,7 +175,9 @@ void func_00178D70(int a0) {
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", func_00178DB0);
+int func_00178DB0(int a0) {
+    return (((unsigned char *)D_00286890)[a0 >> 3] >> (a0 & 7)) & 1;
+}
 
 void func_00178DD8(int a0) {
     D_00286890[a0 >> 3] |= 1 << (a0 & 7);

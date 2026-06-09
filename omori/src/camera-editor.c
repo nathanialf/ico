@@ -120,7 +120,8 @@ extern void debug_Arrow();
 /* parked: needs real matching. See tough_nuts/debug_Marker/notes.md */
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", debug_Marker);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", debug_Arrow);
+void debug_Arrow() {
+}
 
 void InitCameraEditor(void) {
 }
@@ -128,7 +129,10 @@ void InitCameraEditor(void) {
 extern int D_0062A9B0;
 extern unsigned char D_0062A9B8;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", debug_CameraEditor);
+void debug_CameraEditor(void) {
+    D_0062A9B0 = 0;
+    D_0062A9B8 = 0;
+}
 
 
 /* recovered struct shapes */
