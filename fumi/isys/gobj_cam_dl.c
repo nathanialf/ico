@@ -1,9 +1,61 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_cam_dl", cut_gobj_camera_dl_link);
+extern void debug_assertMessage();
+extern char D_006137A0[];
+extern char D_006137B0[];
+extern char D_006137C0[];
+extern char D_006137D8[];
+extern int *D_0062A4D4;
+extern int *D_0062A4D8;
+
+void cut_gobj_camera_dl_link(int a0, int a1)
+{
+    int *self = (int *)a0;
+    int key = a1;
+    int *head;
+    int *tail;
+    int *cur;
+
+    debug_assertMessage(D_006137A0, self);
+    self[0x11] = key;
+    head = D_0062A4D4;
+    if (head == 0) {
+        self[0xE] = 0;
+        self[0xD] = 0;
+        D_0062A4D4 = self;
+        D_0062A4D8 = self;
+        debug_assertMessage(D_006137B0);
+        return;
+    }
+    if ((unsigned int)key < (unsigned int)head[0x11]) {
+        self[0xE] = 0;
+        self[0xD] = (int)head;
+        head[0xE] = (int)self;
+        D_0062A4D4 = self;
+        debug_assertMessage(D_006137C0);
+        return;
+    }
+    tail = D_0062A4D8;
+    if ((unsigned int)key >= (unsigned int)tail[0x11]) {
+        self[0xE] = (int)tail;
+        self[0xD] = 0;
+        tail[0xD] = (int)self;
+        D_0062A4D8 = self;
+        debug_assertMessage(D_006137D8);
+        return;
+    }
+    cur = head;
+    while ((unsigned int)key >= (unsigned int)((int *)cur[0xD])[0x11]) {
+        cur = (int *)cur[0xD];
+    }
+    self[0xE] = (int)cur;
+    self[0xD] = cur[0xD];
+    cur[0xD] = (int)self;
+    ((int *)self[0xD])[0xE] = (int)self;
+}
 
 extern void func_001F8C30();
-extern int cut_gobj_camera_dl_link(int a0, int a1);
+extern void cut_gobj_camera_dl_link(int a0, int a1);
 
 void isysGObjRemoveCameraDL(int a0, int a1)
 {
@@ -79,7 +131,7 @@ void isysGObjLinkCameraDL(int *self, int a1, int a2, int a3, int *t0)
     }
 }
 
-extern int D_0062A4D4;
+extern int *D_0062A4D4;
 
 void isysGObjLinkCameraDLAfterGObj(void) {
     D_0062A4D4 = 0;
