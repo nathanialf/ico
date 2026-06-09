@@ -1,6 +1,21 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/multiBgaManager", InitMultiBgaManager);
+extern int D_0062A310;
+extern char D_006126F8[];
+extern void *iosFree(int handle, int size, char *file, int line);
+
+typedef struct { double d[10]; } BgaEntry;
+extern BgaEntry D_004C1EE0;
+
+void *InitMultiBgaManager(int n)
+{
+    BgaEntry *base = (BgaEntry *)iosFree(D_0062A310, n * 0x50, D_006126F8, 0xB);
+    int i;
+    for (i = 0; i < n; i++) {
+        base[i] = D_004C1EE0;
+    }
+    return base;
+}
 
 extern char D_00271BD0[];
 extern void MatrixDrive_TurnObjectMatrix(char *dst, char *src);
