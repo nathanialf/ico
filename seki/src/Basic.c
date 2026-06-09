@@ -50,7 +50,37 @@ int mallocseki(void) {
     return D_0062BA60;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Basic", freeseki);
+extern int D_0062BA64;
+extern int D_0062A314;
+extern int D_0062A324;
+extern char D_00613260[];
+extern unsigned int D_0062D8E8[];
+extern void debug_assertMessage(char *p);
+extern int func_001AAD00(const char *, int);
+extern int func_00260380(const char *, int, void *);
+extern int iosFree(int a0, int a1, char *file, int line);
+
+int freeseki(int a0) {
+    int rv = 0;
+    if (D_0062BA60 == -1) {
+        debug_assertMessage(D_00613260);
+        func_001AAD00(D_00613278, 0x174);
+        func_00260380(D_00613278, 0x174, D_0062D8E8);
+    }
+    switch (D_0062BA60) {
+    case 0:
+        {
+            int t = D_0062BA64 + 0x30;
+            D_0062BA64 = t + a0;
+        }
+        rv = iosFree(D_0062A314, a0, D_00613278, 0x17B);
+        break;
+    case 1:
+        rv = iosFree(D_0062A324, a0, D_00613278, 0x17E);
+        break;
+    }
+    return rv;
+}
 
 extern int iosMallocCheckLeak2(int a0);
 int resetmallocseki(int a0) {
