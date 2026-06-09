@@ -75,13 +75,12 @@ extern void func_00260568(void *a0, int a1, int a2);
 extern void MatrixDrive_TurnObjectMatrix(void *a0, void *a1);
 extern void func_001E1A18(void *a0, int a1, int a2, int a3, int a4, int a5);
 extern int D_0062A310;
-extern const char D_00555198[];
 extern float pac_DispQW(void);
 
 #define BIRD_HDR(o) (*(volatile int *)((char *)(o) + 0x15C))
 
 void *Debug_WireString_Bird(void *a0, void *a1) {
-    void *obj = iosFree(D_0062A310, 0x40, D_00555198, 0x3BF);
+    void *obj = iosFree(D_0062A310, 0x40, "src/act_bird.c", 0x3BF);
     func_00260568(obj, 0, 0x40);
     MatrixDrive_TurnObjectMatrix(obj, a1);
     *(char *)((char *)obj + 0x10) = 0;

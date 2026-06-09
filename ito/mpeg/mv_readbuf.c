@@ -1,4 +1,5 @@
 #include "common.h"
+#include "mv_defs.h"
 
 int free_buffer(void *a0, int a1) {
     int *p = (int *)a0;
@@ -40,13 +41,6 @@ void readBufEndPut(void *a0) {
     func_0019B720(*(void **)((char *)a0 + 0x48));
 }
 
-extern int D_0062A340;
-extern char D_005570C0[];
-extern char D_005570E0[];
-extern int deq_mes_th(int a0, int a1, int a2, void *a3, int a4);
-extern void func_001AAD00(void *a0, int a1);
-extern void func_00260380(void *a0, int a1, void *a2);
-extern void func_00260568(int a0, int a1, int a2);
 extern void func_0024DC00(void *a0, int a1, int a2);
 extern void func_0024E060(void *a0, int a1, void *a2, void *a3);
 extern int func_0023BE80(void *a0);
@@ -57,12 +51,7 @@ extern int decBitStrm0();
 extern int func_0019B8E0();
 
 int readBufBeginGet(void *a0) {
-    int mes = deq_mes_th(D_0062A340, 0x17C300, 0x40, D_005570C0, 0x2A);
-    if (mes == 0) {
-        func_001AAD00(D_005570C0, 0x2B);
-        func_00260380(D_005570C0, 0x2B, D_005570E0);
-    }
-    func_00260568(mes, 0, 0x17C300);
+    int mes = deq_movie_mes(0x17C300);
     *(int *)((char *)a0 + 0x48) = mes;
     if (mes == 0) {
         return -1;
