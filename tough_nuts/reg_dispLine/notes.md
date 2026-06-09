@@ -69,3 +69,18 @@ rc2 if-guard form): best output-15 = rc2, NO output-0 (no rc0). a0=2/a2=4
 gap-filler swap floor holds; no clean $4-WAR exists for void(void). (b).
 ## Fire 7: re-attack rc2 a0/a2 swap; ~30 fresh forms (comma/sub/add/sizeof/cast/guard variants) all rc2; stall=31 permute, valid run no rc0. (b)
 ## Fire 8: re-attack rc2; ~30 forms all rc2; stall=31 permute, valid run no rc0. (b)
+## Fire 9 (2026-06-09): SYSTEMATIC ANALYSIS — tie is compiler-level, 30 fresh hyps, all rc2+
+Root-caused the residual: ROM emits call args [consts a1..an fwd][computed][a0-const LAST];
+our 2.9-991111-01 emits [a0-const FIRST][consts fwd][computed last]. Swept the whole ROM:
+121 sites share (const-a0 + >=1 computed arg → a0 in jal delay); **0 of 121 are matched**.
+371 FWD sites (all-const, e.g. gsb_SetFrame(1,n,0x80), or WAR like tex_setRegisters) match fine.
+Probes: proto/varargs/K&R, a0/a2 param types (char..long long), ptrdiff late-fold, mask+trunc
+combine games, do-while(0)/while(1)/for loop contexts (preserve_subexpressions_p), static
+inline wrappers (incl. REVERSED param order), comma-call-in-arg0, shared-local derived consts
+(n-2/n>>1/n/2 with a2=n), 2D-decay/union a1 decls, int-return comma tail — ALL collapse to the
+same order: sched1 re-sorts hard-reg arg sets with a forward-luid tie-break, erasing every
+expand/cse-level luid game. Only a real $4 dependence flips it; impossible in void(void) clean C.
+CONCLUSION: dev binary's tie-break (sched rank or load_register_parameters order) differs from
+ours for this configuration. Candidate: different ee-gcc 2.9-991111 sub-build. The 121-site
+unmatched cluster is the falsifiable fingerprint. If a second 2.9 binary ever surfaces, test
+probe: dpk_Init(2, D_0054FBE0, 4) after a void call — expect lui,a2,lo,jal,[a0].
