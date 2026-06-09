@@ -307,7 +307,60 @@ void func_00118BA8(void *a0, void *a1, float *a2) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", func_00118C40);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", func_00118D68);
+void func_00118D68(void *a0, void *a1, void *a2, void *a3) {
+    register void *p2 __asm__("$3") = a2;
+    register void *p3 __asm__("$2") = a3;
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "vsubw.x $vf1, $vf0, $vf0w\n"
+        "lqc2 $vf24, 0x0(%1)\n"
+        "lqc2 $vf25, 0x0(%2)\n"
+        "lqc2 $vf26, 0x0(%3)\n"
+        "vmulx.xyz $vf24, $vf24, $vf1x\n"
+        "vmulx.xyz $vf25, $vf25, $vf1x\n"
+        "vmulx.xyz $vf26, $vf26, $vf1x\n"
+        "vmul.xyz $vf14, $vf24, $vf24\n"
+        "vaddy.x $vf14, $vf14, $vf14y\n"
+        "vaddz.x $vf14, $vf14, $vf14z\n"
+        "vrsqrt $Q, $vf0w, $vf14x\n"
+        "vmul.xyz $vf15, $vf25, $vf25\n"
+        "vaddy.x $vf15, $vf15, $vf15y\n"
+        "vaddz.x $vf15, $vf15, $vf15z\n"
+        "vwaitq\n"
+        "vmulq.xyz $vf24, $vf24, $Q\n"
+        "vrsqrt $Q, $vf0w, $vf15x\n"
+        "vmul.xyz $vf16, $vf26, $vf26\n"
+        "vaddy.x $vf16, $vf16, $vf16y\n"
+        "vaddz.x $vf16, $vf16, $vf16z\n"
+        "vwaitq\n"
+        "vmulq.xyz $vf25, $vf25, $Q\n"
+        "vrsqrt $Q, $vf0w, $vf16x\n"
+        "vwaitq\n"
+        "vmulq.xyz $vf26, $vf26, $Q\n"
+        "vmove.xyzw $vf27, $vf0\n"
+        "vmove.xyzw $vf14, $vf24\n"
+        "vmove.xyzw $vf15, $vf25\n"
+        "vmove.xyzw $vf16, $vf26\n"
+        "vmove.xyzw $vf17, $vf27\n"
+        "vsub.xyzw $vf1, $vf0, $vf0\n"
+        "vaddx.y $vf14, $vf1, $vf25x\n"
+        "vaddx.z $vf14, $vf1, $vf26x\n"
+        "vaddx.w $vf14, $vf1, $vf27x\n"
+        "vaddy.x $vf15, $vf1, $vf24y\n"
+        "vaddy.z $vf15, $vf1, $vf26y\n"
+        "vaddy.w $vf15, $vf1, $vf27y\n"
+        "vaddz.x $vf16, $vf1, $vf24z\n"
+        "vaddz.y $vf16, $vf1, $vf25z\n"
+        "vaddz.w $vf16, $vf1, $vf27z\n"
+        "vaddw.x $vf17, $vf1, $vf24w\n"
+        "vaddw.y $vf17, $vf1, $vf25w\n"
+        "vaddw.z $vf17, $vf1, $vf26w\n"
+        "sqc2 $vf14, 0x0(%0)\n"
+        "sqc2 $vf15, 0x10(%0)\n"
+        "sqc2 $vf16, 0x20(%0)\n"
+        "sqc2 $vf17, 0x30(%0)\n"
+        ".set reorder\n" : : "r"(a0), "r"(a1), "r"(p2), "r"(p3) : "memory");
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/MicroCode", func_00118E38);
 
