@@ -72,7 +72,21 @@ void isysGObjProcAddS(int *a0)
     return iosSemaDelete((int)a0 + 0x24);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_process", isysGObjProcAddGOppArg);
+extern int iosFree(int a0, int a1, const char *fmt, int line);
+extern int D_0062A308;
+extern int D_0062BFB0;
+extern int D_0062BFB4;
+extern char D_00551EA0[];
+
+void isysGObjProcAddGOppArg(unsigned int a0) {
+    int ret = iosFree(D_0062A308, a0 * 0x94, D_00551EA0, 0x49);
+    unsigned int i;
+    D_0062BFB4 = a0;
+    D_0062BFB0 = ret;
+    for (i = 0; i < a0; i++) {
+        *(int *)(ret + i * 0x94) = 0;
+    }
+}
 
 extern int isysGObjProcessAlloc(int a0, int a1, int a2, int a3, int a4, int a5);
 
