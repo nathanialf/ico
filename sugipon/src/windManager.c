@@ -51,6 +51,21 @@ void InitWindManager(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/windManager", GetRegularizedWindSpeed);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/windManager", func_001F2130);
+extern float D_0062BA40;
+extern float D_0062BA48;
+extern void LightTorchOnOfWeaponWithNoSE(int a0, float *a1, float *a2, float a3);
+
+void func_001F2130(float a, float b, float c, float d, float e, float f, float g, float h) {
+    float buf1[4] = {a, b, c, 1.0f};
+    float buf2[4] = {d, e, f, 0.0f};
+
+    D_0062BA3C = g;
+    D_0062BA40 = 1.0f / g;
+    D_0062BA44 = h;
+    D_0062BA48 = 1.0f / h;
+    D_0062BA4C = g;
+    D_0062BA50 = g;
+    LightTorchOnOfWeaponWithNoSE(1, buf1, buf2, g);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/windManager", func_001F21B0);
