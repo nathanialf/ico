@@ -119,3 +119,10 @@ all-const calls always emit a0-first on this binary (probes: siteC/D/E in
 configs with a reg-copy arg DO defer li-a0 naturally (func_001CC518-style) —
 reg_dispLine's all-const config is the hard one. Crutch rc0 fallback preserved
 in crutch_rc0.c (pinned $5/$6 + volatile barrier).
+
+### Fire 11 permuter shot (2026-06-10) — resolution (b)
+Bounded 600s run, base score 20, two output-15 harvests. Both measure TRUE
+rc2 (equal to parked best, the same a0/a2 li transposition; output-15-2 is
+the fire-8 UB class again: `dpk_Init(new_var, p, new_var = 4)` unsequenced).
+Nothing beats best. (b) re-confirmed on clean-C; crutch rc0 remains the
+only byte-exact form known for this site.
