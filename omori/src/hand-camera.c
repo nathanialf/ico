@@ -25,7 +25,12 @@ void ClearHandCameraCorrect(void *a0, void *a1) {
     MatrixDrive_GetTurnYAngleXZ(func_0023FE70(buf, buf));
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/hand-camera", InitHandCameraCorrect);
+void InitHandCameraCorrect(void *a0, void *a1) {
+    char buf[0x10];
+    func_00240008(buf, a0, a1);
+    *(int *)(buf + 4) = 0;
+    MatrixDrive_GetTurnYAngleXZ(func_0023FE70(buf, buf));
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/hand-camera", SetLimitHandCameraCorrect);
 
