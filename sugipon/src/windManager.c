@@ -13,7 +13,14 @@ void ExecWindManager(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/windManager", ReinitWindManager);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/windManager", SetWindManager);
+extern float D_004C27A0[];
+
+void SetWindManager(void) {
+    float *p;
+    for (p = D_004C27A0; -1000.0f < *p; p += 8) {
+        func_001D1DF0(p, D_004C2490, p + 4, D_004C2490, -1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/windManager", InitWindManager);
 
