@@ -28,7 +28,34 @@ void _PopCurrentMatrix(void *a0) {
     VU0_NOP();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _TransCurrentMatrix);
+void _TransCurrentMatrix(void *a0)
+{
+    VU0_LSV(lqc2, 14, 0x0, 4);
+    VU0_LSV(lqc2, 15, 0x10, 4);
+    VU0_LSV(lqc2, 16, 0x20, 4);
+    VU0_LSV(lqc2, 17, 0x30, 4);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 14, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 14, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 14, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 14, 7, 14, w);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 15, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 15, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 15, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 15, 7, 15, w);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 16, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 16, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 16, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 16, 7, 16, w);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 17, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 17, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 17, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 17, 7, 17, w);
+    VU0_V2OP(vmove.xyzw, 4, 14);
+    VU0_V2OP(vmove.xyzw, 5, 15);
+    VU0_V2OP(vmove.xyzw, 6, 16);
+    VU0_V2OP(vmove.xyzw, 7, 17);
+    VU0_NOP();
+}
 
 void _SetTransCurrentMatrix(void *m)
 {
