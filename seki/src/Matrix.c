@@ -205,7 +205,41 @@ void _GetCurrentMatrix(void)
     VU0_NOP();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _GetCurrentMatrixTrans);
+void _GetCurrentMatrixTrans(void)
+{
+    VU0_MEM("vlqd.xyzw $vf31, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf30, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf29, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf28, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf27, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf26, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf25, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf24, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf23, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf22, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf21, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf20, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf19, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf18, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf17, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf16, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf15, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf14, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf13, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf12, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf11, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf10, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf9, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf8, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf7, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf6, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf5, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf4, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf3, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf2, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf1, (--$vi15)");
+    VU0_NOP();
+}
 
 void _SetCurrentMatrix(void *a0, void *a1) {
     __asm__ __volatile__(
