@@ -3,11 +3,21 @@
 /* act-parallel-control 0x164 actor-state view (local) */
 typedef struct { char _0[0x54]; int f_54; float f_58; } APCBrain670;
 typedef struct { char _0[0x334]; float f_334; } APCSub678;
-typedef struct { char _0[0x80]; int f_80; char _pad84[0x5EC]; APCBrain670 *p_670; char _pad674[4]; APCSub678 *p_678; } APCState;
+typedef struct { char _0[0x80]; int f_80; int f_84; char _pad88[0x5E8]; APCBrain670 *p_670; char _pad674[4]; APCSub678 *p_678; } APCState;
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", ActPara_MakeTbl);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", ActPara_InitSystem);
+extern void func_0014A668(void *);
+extern void func_001440F0(void *);
+extern void func_0014A510(APCSub678 *, int, int);
+
+void ActPara_InitSystem(void *a0) {
+    APCState *p = *(APCState **)((char *)a0 + 0x164);
+    func_0014A668(a0);
+    func_001440F0(a0);
+    func_0014A510((*(APCState **)((char *)a0 + 0x164))->p_678, p->f_80, 0);
+    p->f_84 = p->f_80;
+}
 
 void ActPara_GetDefTbl(void *a0, int a1) {
     APCState *p = *(APCState **)((char *)a0 + 0x164);
