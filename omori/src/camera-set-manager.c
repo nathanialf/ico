@@ -22,7 +22,28 @@ int func_0018A0E8(void) {
     return D_0062C080;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-set-manager", func_0018A0F0);
+extern int D_006C9F60[];
+extern float D_006291E8;
+extern float ClearHandCameraCorrect(void *a0, int a1);
+extern void func_00240008();
+extern void func_0023FE98(void *dst, void *src);
+extern float func_00191E30(void *a0);
+
+void func_0018A0F0(int a0, float *a1, int *a2) {
+    int *base = D_006C9F60;
+    float buf[4];
+    int deg;
+    *a1 = ClearHandCameraCorrect(base, a0);
+    func_00240008(buf, a0, base);
+    func_0023FE98(buf, buf);
+    deg = (int)(func_00191E30(buf) / D_006291E8 * 180.0f) -
+          *(short *)((char *)base + 0x12) * 180 / 32768;
+    if (deg >= 181)
+        deg -= 360;
+    if (deg <= -180)
+        deg += 360;
+    *a2 = deg;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-set-manager", func_0018A1D8);
 
