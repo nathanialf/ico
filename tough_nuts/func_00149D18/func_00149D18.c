@@ -131,7 +131,27 @@ float func_00149D00(int a0) {
 typedef struct { char _0[0x180]; short f_180; short f_182; unsigned int f_184; char _188[8]; } APCAnim; /* stride 0x190 */
 extern APCAnim D_0055DA10[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", func_00149D18);
+int func_00149D18(void *a0) {
+    void *sub = *(void **)((char *)a0 + 0x15C);
+    char *p = *(char **)((char *)a0 + 0x164);
+    switch ((int)((*(int *)((char *)sub + 0x490))[D_0055DA10].f_184 >> 19) & 7) {
+    case 1: return 1;
+    case 2: return 2;
+    case 3: return 0;
+    }
+    {
+        int ret = 2;
+        unsigned long long b1 = *(unsigned long long *)(p + 0x468) >> 44 & 1;
+        if (b1) {
+            unsigned long long b2 = *(unsigned long long *)(p + 0x478) >> 44 & 1;
+            if (b2) {
+                unsigned int x = *(unsigned int *)(p + 0x30);
+                if (x < 4 && x != 0) return ret;
+            }
+        }
+        return 0;
+    }
+}
 
 int func_00149DD8(void *a0) {
     short h = (*(int *)((char *)*(void **)((char *)a0 + 0x15C) + 0x490))[D_0055DA10].f_180;
