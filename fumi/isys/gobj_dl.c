@@ -20,7 +20,18 @@ struct GObj *cut_gobj_dl_link(int a0)
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", isysGObjRemoveObjDL);
+struct GObj *isysGObjRemoveObjDL(void)
+{
+    struct GObj *start = D_0062BFA8 - 1;
+    struct GObj *end = (struct GObj *)((char *)D_0062BFA8 + (D_0062BFAC * 0x174 - 0x174));
+    while (start != end) {
+        start++;
+        if (start->unk0 != 0) {
+            return start;
+        }
+    }
+    return 0;
+}
 
 struct GObj *func_0013E7E0(struct GObj *start)
 {
