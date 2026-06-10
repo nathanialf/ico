@@ -151,3 +151,16 @@ Bounded run (~600s) seeded from rc2 short form. ~100 outputs; harvested all
 score<=120 by TRUE real_count: best rc2 (output-105-* = the seed form itself);
 score-80/85/95 candidates are semantically divergent (e.g. D[4] never written)
 and rc4-12 true. No score-0, nothing < rc2. (b) permuter-exhausted.
+
+## Fire 9 (2026-06-10) — 30-stall re-confirmed at rc2, clean-C
+Crutch rc0 exists (crutch_rc0.c: int byte-arith + __asm__ "+r"(off) barrier;
+ninja-verified this session) — proves the byte sequence is reachable on our
+binary; the barrier's effect = (a) blocks combine refolding off+4 -> (idx+1)*4,
+(b) gives off refs=4/len=4 (greg density 2.0) so it allocates FIRST: scaled->$2,
+idx->$3, %hi->$4, base->$5 (ROM rotation). 30 clean hypotheses: every int form
+(byte-arith both groupings, biased base, q-temp, 2-level array, union, char-D,
+dual-root, root-swap, register, volatile load, unsigned idx/off, off-split,
+stretch-idx-len statement orders) = rc11 rotation (scaled ties idx at density
+1.0, loses allocno-number tie-break -> idx takes $2); every narrowing that
+fixes coloring (short decl/use, cast-after-add, biased+short) emits the sext
+pair = rc2/rc5/rc13. Coloring and no-ext remain mutually exclusive in clean C.

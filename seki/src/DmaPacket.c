@@ -49,4 +49,6 @@ void func_001F87B0(void)
     D_004C3850[4] = (D_004C3850 + D_004C3850[0])[1];
 }
 
+/* parked: fire-9 30-stall at rc2 (sext-pair vs plain sll2). Crutch rc0 in
+ * tough_nuts/func_001F8848/crutch_rc0.c (MATERIALIZE off-barrier). */
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DmaPacket", func_001F8848);
