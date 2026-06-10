@@ -37,7 +37,7 @@ int WayPointWithRangeFromPos2(int a0, int a1, int a2) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_kidnap", NearestEnemyFromGirl);
 
-typedef struct WpNode { int f0; char _4[0x14]; int f18; char _1C[0x18]; } WpNode;
+typedef struct WpNode { int f0; char _4[0x14]; int f18; char _1C[0x0C]; int f28; char _2C[0x08]; } WpNode;
 extern WpNode D_004C6FBC;
 
 WpNode *NumOfWpPos(void)
@@ -70,7 +70,18 @@ WpNode *CopyWpPos(WpNode *p)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_kidnap", WayLengthOfGObj_Pos);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_kidnap", WayLengthOfGObj_GObj);
+WpNode *WayLengthOfGObj_GObj(WpNode *p)
+{
+    WpNode *end = &D_004C7CBC;
+    if (p != 0 && p != end) {
+        WpNode *q = p;
+        do {
+            q++;
+            if (q->f0 != 0 && q->f18 != 0 && q->f28 != 0) return q;
+        } while (q != end);
+    }
+    return 0;
+}
 
 WpNode *WayPointWithRangeFromGObj(void)
 {
