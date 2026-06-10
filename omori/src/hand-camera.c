@@ -88,7 +88,22 @@ float func_00191E30(float *a0)
     return func_0025A968(buf[0], buf[2]);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/hand-camera", func_00191E78);
+extern int func_0010EEF0(float a0);
+
+int func_00191E78(float *a0, float *a1)
+{
+    float buf[4];
+    float buf2[4];
+    buf[0] = a0[0];
+    buf[1] = a0[1];
+    buf[2] = a0[2];
+    buf2[0] = a1[0];
+    buf2[1] = a1[1];
+    buf2[2] = a1[2];
+    func_0023FE98((int)buf, (int *)buf);
+    func_0023FE98((int)buf2, (int *)buf2);
+    return func_0010EEF0(func_0023FE70(buf, buf2)) * 180 / 32768;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/hand-camera", func_00191F18);
 
