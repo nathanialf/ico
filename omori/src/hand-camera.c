@@ -43,7 +43,22 @@ int func_00191D90(void) {
     return r < 0 ? -r : r;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/hand-camera", func_00191DB8);
+extern void func_002400F8(float *m);
+extern void func_002402E8(float *dst, float *src, float a);
+extern void func_0023FDD8(float *dst, float *m, float *v);
+
+void func_00191DB8(float *a0, float a1)
+{
+    float m0[16];
+    float m1[16];
+    float v[4];
+    func_002400F8(m0);
+    func_002402E8(m1, m0, a1);
+    func_0023FDD8(v, m1, a0);
+    a0[0] = v[0];
+    a0[1] = v[1];
+    a0[2] = v[2];
+}
 
 extern float func_0025A968(float a0, float a1);
 extern void func_0023FE98(int a0, int *buf);
