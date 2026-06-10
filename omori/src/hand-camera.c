@@ -17,7 +17,7 @@ void HandyCamera_TargetMoveType(void *a0, void *a1) {
     func_0023FE70(buf, buf);
 }
 
-extern void MatrixDrive_GetTurnYAngleXZ(float a0);
+extern float MatrixDrive_GetTurnYAngleXZ(float a0);
 
 void ClearHandCameraCorrect(void *a0, void *a1) {
     char buf[0x10];
@@ -32,7 +32,23 @@ void InitHandCameraCorrect(void *a0, void *a1) {
     MatrixDrive_GetTurnYAngleXZ(func_0023FE70(buf, buf));
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/hand-camera", SetLimitHandCameraCorrect);
+extern void _OrientXZGV(float *a0, float *a1, float *a2, float a3, float a4);
+
+float SetLimitHandCameraCorrect(float *a0, float *a1, float *a2, float a3)
+{
+    float buf[4];
+    float ang;
+    func_00240008(buf, a2, a1);
+    ang = MatrixDrive_GetTurnYAngleXZ(buf[0] * buf[0] + buf[1] * buf[1] + buf[2] * buf[2]);
+    if (ang < a3) {
+        a0[0] = a2[0];
+        a0[1] = a2[1];
+        a0[2] = a2[2];
+    } else {
+        _OrientXZGV(a0, a1, a2, a3, ang - a3);
+    }
+    return ang;
+}
 
 extern float func_0025A968(float a0, float a1);
 extern float D_006292B4;
