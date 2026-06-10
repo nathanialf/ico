@@ -11,7 +11,29 @@ void isysGObjProcessInit(void) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_process", isysGObjProcAdd_);
+typedef struct DLN {
+    char _p0[0x34];
+    struct DLN *next;
+    struct DLN *prev;
+    char _p1[0x4];
+    unsigned char id;
+    char _p2[0x3];
+    int key;
+} DLN;
+
+extern void isysGObjMoveObjDLHead(int *self);
+
+void isysGObjProcAdd_(DLN *self, DLN *obj) {
+    isysGObjMoveObjDLHead((int *)self);
+    self->id = obj->id;
+    self->prev = obj;
+    self->next = obj->next;
+    obj->next = self;
+    self->key = obj->key;
+    if (self->next == 0) {
+        ((DLN **)D_0027DE50)[self->id] = self;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_process", cut_gobj_process_link);
 
