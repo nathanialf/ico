@@ -45,7 +45,41 @@ void func_0018A0F0(int a0, float *a1, int *a2) {
     *a2 = deg;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-set-manager", func_0018A1D8);
+typedef struct {
+    int           f_00;  /* 0x00 */
+    int           f_04;  /* 0x04 */
+    char          pad08[8];
+    float         f_10;  /* 0x10 */
+    float         f_14;  /* 0x14 */
+    float         f_18;  /* 0x18 */
+    char          pad1C[4];
+    float         f_20;  /* 0x20 */
+    float         f_24;  /* 0x24 */
+    float         f_28;  /* 0x28 */
+    char          pad2C[4];
+    unsigned char f_30;  /* 0x30 */
+    unsigned char f_31;  /* 0x31 */
+    unsigned char f_32;  /* 0x32 */
+} S_006C9FB0;
+
+extern S_006C9FB0 D_006C9FB0;
+extern int func_0018A3A0(void);
+
+void func_0018A1D8(float *a0, float *a1, int a2) {
+    if (func_0018A3A0()) {
+        D_006C9FB0.f_00 = a2;
+        D_006C9FB0.f_04 = 0;
+        D_006C9FB0.f_10 = a0[0];
+        D_006C9FB0.f_14 = a0[1];
+        D_006C9FB0.f_18 = a0[2];
+        D_006C9FB0.f_20 = a1[0];
+        D_006C9FB0.f_24 = a1[1];
+        D_006C9FB0.f_28 = a1[2];
+        D_006C9FB0.f_30 = 1;
+        D_006C9FB0.f_31 = 1;
+        D_006C9FB0.f_32 = 1;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-set-manager", func_0018A268);
 
@@ -78,20 +112,3 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-set-manager", func_0018A3B0)
 
 void func_0018A408(void) {
 }
-
-
-/* recovered struct shapes */
-typedef struct {
-    unsigned int       f_4;  /* 0x04 */
-    unsigned long long f_8;  /* 0x08 */
-    unsigned long long f_10;  /* 0x10 */
-    unsigned long long f_18;  /* 0x18 */
-    unsigned long long f_20;  /* 0x20 */
-    unsigned long long f_28;  /* 0x28 */
-    unsigned long long f_30;  /* 0x30 */
-    char               f_31;  /* 0x31 */
-    char               f_32;  /* 0x32 */
-    unsigned long long f_38;  /* 0x38 */
-} S_006C9FB0;
-
-/* end struct shapes */
