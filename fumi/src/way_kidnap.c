@@ -68,7 +68,18 @@ WpNode *CopyWpPos(WpNode *p)
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_kidnap", WayLengthOfGObj_Pos);
+WpNode *WayLengthOfGObj_Pos(void)
+{
+    WpNode *p = &D_004C6FBC;
+    WpNode *end = p + 64;
+    if (p != 0 && p != end) {
+        do {
+            p++;
+            if (p->f0 != 0 && p->f18 != 0 && p->f28 != 0) return p;
+        } while (p != end);
+    }
+    return 0;
+}
 
 WpNode *WayLengthOfGObj_GObj(WpNode *p)
 {
