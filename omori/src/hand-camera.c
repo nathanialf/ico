@@ -76,7 +76,7 @@ void func_00191DB8(float *a0, float a1)
 }
 
 extern float func_0025A968(float a0, float a1);
-extern void func_0023FE98(int a0, int *buf);
+extern void func_0023FE98(void *dst, void *src);
 
 float func_00191E30(float *a0)
 {
@@ -84,11 +84,26 @@ float func_00191E30(float *a0)
     buf[1] = 0;
     buf[0] = a0[0];
     buf[2] = a0[2];
-    func_0023FE98((int)buf, (int *)buf);
+    func_0023FE98(buf, buf);
     return func_0025A968(buf[0], buf[2]);
 }
 
 extern int func_0010EEF0(float a0);
+
+static inline int GetAngleBetweenVectorsXYZ(float *a0, float *a1)
+{
+    float v0[4];
+    float v1[4];
+    v0[0] = a0[0];
+    v0[1] = a0[1];
+    v0[2] = a0[2];
+    v1[0] = a1[0];
+    v1[1] = a1[1];
+    v1[2] = a1[2];
+    func_0023FE98(v0, v0);
+    func_0023FE98(v1, v1);
+    return func_0010EEF0(func_0023FE70(v0, v1)) * 180 / 32768;
+}
 
 int func_00191E78(float *a0, float *a1)
 {
@@ -100,14 +115,17 @@ int func_00191E78(float *a0, float *a1)
     buf2[0] = a1[0];
     buf2[1] = a1[1];
     buf2[2] = a1[2];
-    func_0023FE98((int)buf, (int *)buf);
-    func_0023FE98((int)buf2, (int *)buf2);
+    func_0023FE98(buf, buf);
+    func_0023FE98(buf2, buf2);
     return func_0010EEF0(func_0023FE70(buf, buf2)) * 180 / 32768;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/hand-camera", func_00191F18);
+extern float D_006292B8;
 
-extern void func_0023FE98(int a0, int *buf);
+float func_00191F18(float *a0, float *a1)
+{
+    return (float)GetAngleBetweenVectorsXYZ(a0, a1) * D_006292B8 / 180.0f;
+}
 
 void func_00191FD0(int a0)
 {
