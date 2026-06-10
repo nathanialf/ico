@@ -4,6 +4,14 @@ struct GObj { int unk0; int unk4; int unk8; char pad[0x168]; };
 extern struct GObj *D_0062BFA8;
 extern unsigned int D_0062BFAC;
 
+const char D_00551E28[0x10] = "isys:null GObj\n";
+const char D_00551E38[0x18] = "gobj dl added to tail\n";
+const char D_00551E50[0x10] = "no_entry %p\n";
+const char D_00551E60[0x10] = "add to head %p\n";
+const char D_00551E70[0x10] = "add to tail %p\n";
+const char D_00551E80[0x10] = "GObjLinkDL in\n";
+const char D_00551E90[0x10] = "GObjLinkDL out\n";
+
 struct GObj *cut_gobj_dl_link(int a0)
 {
     unsigned int count = D_0062BFAC;
@@ -66,11 +74,6 @@ void isysGObjMoveObjDL(int a0, int a1) {
 }
 
 extern void debug_assertMessage();
-extern char D_00551E28[];
-extern char D_00551E38[];
-extern char D_00551E50[];
-extern char D_00551E60[];
-extern char D_00551E70[];
 extern int D_0027DE30[];
 extern int D_0027DE50[];
 
@@ -222,8 +225,6 @@ void isysGObjDlInit(int a0, int a1, int a2)
     return isysGObjLinkObjDLAfterGObj(a0, s1, new_var);
 }
 
-extern char D_00551E80[];
-extern char D_00551E90[];
 extern void debug_assertMessage();
 
 void isysGObjMoveObjDLAfterGObj(int *self, int *p, unsigned char q, int r, int t0)
@@ -253,7 +254,6 @@ void isysGObjMoveObjDLBeforeGObj(void *a0, void *a1, unsigned char a2, void *a3,
     }
 }
 
-extern char D_00551E28[];
 extern int D_0027DE50[];
 
 void func_0013ECE0(int *self, int *a1, int a2, int *a3)
