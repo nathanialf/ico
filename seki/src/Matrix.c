@@ -1,7 +1,46 @@
 #include "common.h"
 #include "vu0.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _RemakeNormal);
+extern float func_0010ED30(int x);
+extern float p2o_SetDefaultEnviroment(int x);
+
+void _RemakeNormal(short a0)
+{
+    float c = func_0010ED30(a0);
+    float s = p2o_SetDefaultEnviroment(a0);
+    __asm__ __volatile__("mfc1 $8, %0" : : "f"(c) : "$8");
+    __asm__ __volatile__("mfc1 $9, %0" : : "f"(s) : "$9");
+    VU0_QMTC2_NI(8, 1);
+    VU0_QMTC2_NI(9, 2);
+    VU0_V2OP(vmove.xyzw, 17, 0);
+    VU0_V2OP(vmr32.xyzw, 16, 17);
+    VU0_V2OP(vmr32.xyzw, 15, 16);
+    VU0_V2OP(vmr32.xyzw, 14, 15);
+    VU0_V3OP_BC(vaddx.x, 14, 0, 1, x);
+    VU0_V3OP_BC(vaddx.x, 16, 0, 2, x);
+    VU0_V3OP_BC(vsubx.z, 14, 0, 2, x);
+    VU0_V3OP_BC(vaddx.z, 16, 0, 1, x);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 14, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 14, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 14, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 14, 7, 14, w);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 15, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 15, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 15, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 15, 7, 15, w);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 16, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 16, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 16, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 16, 7, 16, w);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 17, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 17, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 17, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 17, 7, 17, w);
+    VU0_V2OP(vmove.xyzw, 4, 14);
+    VU0_V2OP(vmove.xyzw, 5, 15);
+    VU0_V2OP(vmove.xyzw, 6, 16);
+    VU0_V2OP(vmove.xyzw, 7, 17);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _Sqrt);
 
