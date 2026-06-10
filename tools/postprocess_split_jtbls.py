@@ -26,7 +26,8 @@ This pass:
 
 If no matchings .s exists yet (first compile pass) or the function has
 no jtbl references, the block is left as `.rdata` — matches the
-single-jtbl-per-TU behavior already supported by postprocess_slinky_ld.
+single-jtbl-per-TU behavior the per-TU section glob in the linker
+script already handles.
 
 Idempotent: re-applies harmlessly because any block already on a
 `.rodata.0x<VMA>` section is left alone.

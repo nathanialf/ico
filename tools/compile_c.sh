@@ -302,7 +302,7 @@ else
 fi
 
 # .lit4 pool placement: gas interns inline float literals into an anonymous
-# `.lit4` section (flags WAp — note the MIPS-GPREL `p` flag). tools/gen_slinky.py
+# `.lit4` section (flags WAp — note the MIPS-GPREL `p` flag). The linker script
 # can only place a `.lit4` slot at its original VMA when the section name carries
 # the VMA (`.lit4.0xVMA`). Rename this TU's pool section per
 # config/lit4_pool_slots.txt so the constant lands at its real address.

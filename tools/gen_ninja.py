@@ -35,14 +35,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 # Version slug selects the target's config namespace. Defaults to 'us' (retail)
 # so the retail build is unaffected; the aug6 prototype branch sets VERSION=aug6.
-VERSION = os.environ.get("VERSION", "us")
+VERSION = os.environ.get("VERSION", "aug6")
 DEPS_FILE = ROOT / "config" / f"ico.{VERSION}.d"
-# Prefer the slinky linker script when it exists (coalesced-TU jtbl reroute),
-# else fall back to splat's plain ld — e.g. a fresh target with no coalesced C
-# TUs yet (aug6). Keeps slinky in the pipeline without forcing it prematurely.
-_SLINKY_LD = ROOT / "config" / f"ico.{VERSION}.slinky.ld"
-_PLAIN_LD = ROOT / "config" / f"ico.{VERSION}.ld"
-LDSCRIPT = _SLINKY_LD if _SLINKY_LD.exists() else _PLAIN_LD
+# main is aug6-only: link directly against splat's one-pass linker script.
+# Noncontiguous data blocks are placed by the carved subsegments splat emits
+# (no postprocess pass). A hand-written `linker_script_extra.ld` may add
+# per-symbol selectors for #include-coalesced TUs. The retail slinky.ld
+# pipeline lives on the `retail` branch.
+LDSCRIPT = ROOT / "config" / f"ico.{VERSION}.ld"
 LDSCRIPT_EXTRA = ROOT / "config" / f"ico.{VERSION}.linker_script_extra.ld"
 AUTO_FUNCS = ROOT / "config" / f"undefined_funcs_auto.{VERSION}.txt"
 AUTO_SYMS = ROOT / "config" / f"undefined_syms_auto.{VERSION}.txt"
@@ -92,14 +92,13 @@ def parse_objs(deps_path: Path) -> list[str]:
 
 
 def discover_sidecar_objs(splat_objs: set[str]) -> list[str]:
-    """Find data-sidecar `.c` files that splat does NOT list in ico.us.d.
+    """Find `.c`/`.s` source files that splat does NOT list in ico.<VERSION>.d.
 
-    `tools/migrate_data_per_tu.py` emits per-TU `src/<TU>_data.c` (and
-    related) files outside splat's awareness. The linker script picks
-    up their `.data.0x*` / `.rodata.0x*` sections via SORT_BY_NAME
-    globs, but ld still needs the `.o` listed on the command line, so
-    the build graph must build them too. Match Make's `find src -name
-    '*.c'` discovery for everything outside the splat manifest.
+    Any object under a source root that isn't already emitted from the
+    splat manifest (e.g. a hand-added TU not yet wired as a subsegment)
+    still needs its `.o` listed on the link command line, so the build
+    graph must build it too. Match Make's `find src -name '*.c'`
+    discovery for everything outside the splat manifest.
     """
     extras: list[str] = []
     # Walk every source root the project lays out at repo top-level.
