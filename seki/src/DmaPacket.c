@@ -39,7 +39,8 @@ extern int D_0062A314;
 extern int D_004C3850[];
 extern int iosFree(int handle, int size, char *file, int line);
 
-extern char D_00613770[];
+/* .rodata carved from blob 0x513290 (VMA 0x613770) */
+const char D_00613770[0x10] = "src/DmaPacket.c";
 
 void func_001F87B0(void)
 {

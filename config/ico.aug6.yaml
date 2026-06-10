@@ -348,6 +348,8 @@ segments:
       - [0x5128D0, rodata,  src/cod/5128D0]      # .rodata blob, part 2b (resume after particleLayout)
       - [0x513260, .rodata, seki/src/Basic]      # carved D_00613260 ("set partition first!\n") + D_00613278 ("src/Basic.c" __FILE__), VMA 0x613260..0x613290
       - [0x513290, rodata,  src/cod/513290]      # .rodata blob, part 2b (resume after Basic strings)
+      - [0x513770, .rodata, seki/src/DmaPacket]  # carved __FILE__ "src/DmaPacket.c" (VMA 0x613770)
+      - [0x513780, rodata,  src/cod/513780]      # .rodata blob, part 2b (resume after DmaPacket __FILE__)
       - [0x513790, .rodata, fumi/isys/gobj_cam_dl]  # carved camera-DL assert strings D_00613790..D_00613808 (VMA 0x613790)
       - [0x513820, rodata,  src/cod/513820]      # .rodata blob, part 2c (resume after gobj_cam_dl strings)
       - [0x52AA80, lit4, src/cod/52AA80]     # .lit4
