@@ -36,7 +36,32 @@ void DeleteLayoutedCandleParticleEffect(int a0)
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/candle", _deleteLayoutedCandleParticleEffect);
+extern int func_00105078(void);
+extern void func_00105108(float a0, float a1, float a2);
+extern void MatrixDrive_TurnXObjectMatrixYZ(int a0, int a1);
+extern void ExecParticleEffects(int a0, int a1, int *a2);
+extern int D_002724B0[];
+
+void _deleteLayoutedCandleParticleEffect(GObj *self)
+{
+    Sub15C *sub = self->p_15C;
+    CandleElem *arr = (CandleElem *)sub->p_7F0;
+    if (sub->f_74 != 0) {
+        if (sub->f_8 > 1) {
+            int i;
+            for (i = 0; i < sub->f_8; i++) {
+                MatrixDrive_TurnXObjectMatrixYZ((int)func_00105078(),
+                                                GOBJ_SUB(self)->f_C + i * 0x40);
+                func_00105108(0.0f, -40.0f, 0.0f);
+                if (arr[i].id != -1) {
+                    ExecParticleEffects(arr[i].id,
+                                        (int)func_00105078() + 0x30,
+                                        D_002724B0);
+                }
+            }
+        }
+    }
+}
 
 void func_001C04E0(void)
 {
