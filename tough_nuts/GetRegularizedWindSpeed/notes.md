@@ -120,3 +120,15 @@ avoid it).
 `base+idx*0x190` for the position load separately from the scales. Re-apply by
 hand once found. **func_001F21B0 is the IDENTICAL body** sourced from arg `a0`
 instead of `D_0062BA38` — the same fix transfers directly.
+
+## Permuter pass #1 (2026-06-10) — EXHAUSTED (resolution b)
+Bounded run (600s, -j4, ~22.7k iters) from the rc17 seed. Harvested the 20
+lowest-score outputs by TRUE real_count: best was **rc15** (output-3515-3),
+none reached rc0, none beat the parked count. The rc15 form accesses position
+& scales via FRESH `(&D_005EBD14[idx*100])[k]` expressions (not cached `p`) to
+remat the base — BUT it depends on UNDEFINED BEHAVIOR (`new_var3` passed to
+windApply before its `= p[0]` assignment, which reorders the load). Re-applied
+CLEANLY (valid C, fresh-base per element) → rc26 (WORSE) — the UB was load-
+bearing, so not re-applicable. The 3-reg base remat still not reproduced.
+NEXT permuter pass: seed with a longer run or feed the rc15 UB form to study
+the exact load-reorder it exploits, then find a valid-C equivalent.
