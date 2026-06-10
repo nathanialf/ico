@@ -1,6 +1,15 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_process", isysGObjProcessInit);
+extern int D_0027DE30[];
+extern int D_0027DE50[];
+
+void isysGObjProcessInit(void) {
+    int i;
+    for (i = 0; i < 8; i++) {
+        D_0027DE30[i] = 0;
+        D_0027DE50[i] = 0;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_process", isysGObjProcAdd_);
 
