@@ -327,6 +327,8 @@ segments:
       - [0x44F1F8, rodata,  src/cod/44F1F8]      # .rodata blob, part 2a
       - [0x451910, .rodata, fumi/ios/message]    # carved message strings __FILE__+debug (VMA 0x551910..0x551994)
       - [0x451994, rodata,  src/cod/451994]      # .rodata blob, part 2a (resume after message strings)
+      - [0x452450, .rodata, fumi/src/act-parallel-control]  # gcc-emitted jtbl_00552450 (func_00149C20 switch), VMA 0x552450
+      - [0x45248C, rodata,  src/cod/45248C]      # .rodata blob resume (pad + D_00552490 ...)
       - [0x455198, .rodata, ito/src/act_bird]   # carved __FILE__ "src/act_bird.c" (iosFree site)
       - [0x4551A8, rodata,  src/cod/4551A8]      # resume ("gather effect end\n" string)
       - [0x4551C0, .rodata, ito/src/itou_boss]   # carved matrix table (53x0x40) + position table (53x0x10), VMA 0x5551C0..0x556250

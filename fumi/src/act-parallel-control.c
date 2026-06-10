@@ -4,7 +4,17 @@
 typedef struct { char _0[0x54]; int f_54; float f_58; } APCBrain670;
 typedef struct { char _0[0x334]; float f_334; } APCSub678;
 typedef struct {
-    char _0[0x80];
+    char _0[0x54];
+    int f_54;   /* 0x54 */
+    char _58[0x4];
+    float f_5C; /* 0x5C */
+    float f_60; /* 0x60 */
+    float f_64; /* 0x64 */
+    int f_68;   /* 0x68 */
+    int f_6C;   /* 0x6C */
+    int f_70;   /* 0x70 */
+    char _74[0x8];
+    int f_7C;   /* 0x7C */
     int f_80;   /* 0x80 */
     int f_84;   /* 0x84 */
     int f_88;   /* 0x88 */
@@ -71,7 +81,19 @@ void ActPara_DebugOut(int **a0) {
     p[0x16] = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", func_00149C20);
+void func_00149C20(void *a0, int a1, int a2, float f12) {
+    APCState *p = *(APCState **)((char *)a0 + 0x164);
+    p->f_54 |= 1 << a1;
+    switch (a1) {
+    case 8:  p->f_5C = f12; break;
+    case 5:  p->f_60 = f12; break;
+    case 15: p->f_64 = f12; break;
+    case 16: p->f_68 = a2; break;
+    case 10: p->f_6C = a2; break;
+    case 2:  p->f_70 = a2; break;
+    case 11: p->f_7C = a2; break;
+    }
+}
 
 int func_00149CA0(void *a0, int a1) {
     int *p = *(int **)((char *)a0 + 0x164);
