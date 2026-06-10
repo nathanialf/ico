@@ -61,8 +61,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/RegistPacket", reg_dispCObj);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/RegistPacket", reg_dispPoint);
 
-/* parked: arg-order compiler-fingerprint cluster (const-a0 + %hi/%lo arg,
- * a0 in jal delay) — see project_arg_order_compiler_fingerprint. */
+/* parked: fire-11 30-stall at rc2 (a0/a2 li transposition). See
+ * tough_nuts/reg_dispLine/notes.md; crutch rc0 fallback in crutch_rc0.c. */
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/RegistPacket", reg_dispLine);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/RegistPacket", reg_dispPointLineObj);

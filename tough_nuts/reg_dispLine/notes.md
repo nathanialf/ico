@@ -88,3 +88,34 @@ probe: dpk_Init(2, D_0054FBE0, 4) after a void call — expect lui,a2,lo,jal,[a0
 Bounded run at stall=30/30 (~600s). Single harvest output-15-1 = UB artifact
 (new_var4 overwritten 2→4 before use → dpk_Init(4,D,4), WRONG a0 value — same
 class as fire-2's score-15). No output-0. Nothing beats rc2. (b) re-confirmed.
+
+## Fire 10 analysis (2026-06-10) — compiler theory REFUTED
+
+Value-tracked whole-ROM scan (final a0=const + final arg-reg=%lo ptr):
+21 sites have %lo in the jal delay (OUR compiler's style) vs 9 with
+const-a0 in the delay (this site + PObj trio 248BB8/248EB8/2491D0 →
+func_002490C0(1,&D_00710F98) + MakeBarString/fog_DrawFog/CandleGeo/
+lookAtTest/func_001CC518). Same binary, both orders → context-controlled,
+not a sub-build. decompme ee-gcc2.9-991111 (pre-01) and 991111a probe
+identically to ours; 2.96 = third order. Old "121-site cluster" was a
+loose-pattern overcount. Leads: a0=0 sites (daddu $4,$0,$0) go early in
+ROM exactly like ours; the 9 are nonzero-li + %lo-in-$5 + 2-3 args.
+WORKING fallback (rc0 + ninja-verified, in tree uncommitted): pin p/$5,
+n/$6 via register asm, volatile barrier reading both, then the call —
+forces only li $4 after the barrier → delay slot. See probe harness
+tools/probe_compiler.sh.
+
+## Fire 11 (2026-06-10) — 30-stall re-confirmed at rc2, clean-C
+Resumed post-refutation (compiler vindicated). 30 distinct hypotheses recorded
+in match_loop state: ptr-diff folds (a0/a2), shared-local n derived consts,
+DImode/HImode/enum const modes, varargs/fn-ptr/implicit protos, guard position/
+double-guard/guarded-call/folded-else, call-in-arg evaluation (a1/a2), comma
+returns, statement-exprs, builtin-vanishing call-exprs. ALL collapse to rc2
+(guard form) or worse. Mechanism (sched_diff): both const li's re-materialize
+at the call in arg order (cse erases every earlier def); sched1 luid tie keeps
+li-a0 first; dbr fills the jal delay with the last pre-jal insn. Non-tail
+all-const calls always emit a0-first on this binary (probes: siteC/D/E in
+/tmp lost; reproduce via tools/probe_compiler.sh-style probe). ROM's sibling
+configs with a reg-copy arg DO defer li-a0 naturally (func_001CC518-style) —
+reg_dispLine's all-const config is the hard one. Crutch rc0 fallback preserved
+in crutch_rc0.c (pinned $5/$6 + volatile barrier).
