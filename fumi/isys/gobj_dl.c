@@ -65,8 +65,12 @@ void isysGObjMoveObjDL(int a0, int a1) {
     }
 }
 
-extern void debug_assertMessage(char *p);
+extern void debug_assertMessage();
 extern char D_00551E28[];
+extern char D_00551E38[];
+extern char D_00551E50[];
+extern char D_00551E60[];
+extern char D_00551E70[];
 extern int D_0027DE30[];
 extern int D_0027DE50[];
 
@@ -98,11 +102,65 @@ void isysGObjLinkObjDL(int *self) {
     isysGObjMoveObjDLHead(self);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", isysGObjLinkObjDLHead);
+typedef struct DLN {
+    char _p0[0x34];
+    struct DLN *next;
+    struct DLN *prev;
+    char _p1[0x4];
+    unsigned char id;
+    char _p2[0x3];
+    int key;
+} DLN;
+
+void isysGObjLinkObjDLHead(int a0, int a1, int a2)
+{
+    DLN *self = (DLN *)a0;
+    unsigned char idx = a1 & 0xFF;
+    DLN *head;
+    DLN *tail;
+    DLN *cur;
+    debug_assertMessage(D_00551E38);
+    self->id = idx;
+    self->key = a2;
+    head = ((DLN **)D_0027DE30)[idx];
+    if (head == 0) {
+        self->prev = 0;
+        self->next = 0;
+        ((DLN **)D_0027DE30)[idx] = self;
+        ((DLN **)D_0027DE50)[idx] = self;
+        debug_assertMessage(D_00551E50, 0);
+        return;
+    }
+    if ((unsigned int)a2 < (unsigned int)head->key) {
+        self->next = head;
+        self->prev = 0;
+        head->prev = self;
+        ((DLN **)D_0027DE30)[idx] = self;
+        debug_assertMessage(D_00551E60, (int)self->next);
+        return;
+    }
+    tail = ((DLN **)D_0027DE50)[idx];
+    if ((unsigned int)a2 >= (unsigned int)tail->key) {
+        self->next = 0;
+        self->prev = tail;
+        tail->next = self;
+        ((DLN **)D_0027DE50)[idx] = self;
+        debug_assertMessage(D_00551E70, (int)self->next);
+        return;
+    }
+    cur = head;
+    while ((unsigned int)a2 >= (unsigned int)cur->next->key) {
+        cur = cur->next;
+    }
+    self->prev = cur;
+    self->next = cur->next;
+    cur->next = self;
+    self->next->prev = self;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", isysGObjLinkObjDLAfterGObj);
 
-extern int  isysGObjLinkObjDLHead(int a0, int a1, int a2);
+extern void isysGObjLinkObjDLHead(int a0, int a1, int a2);
 
 void isysGObjLinkObjDLBeforeGObj(int a0, int a1, int a2)
 {
@@ -126,7 +184,7 @@ void isysGObjDlInit(int a0, int a1, int a2)
 
 extern char D_00551E80[];
 extern char D_00551E90[];
-extern void debug_assertMessage(char *p);
+extern void debug_assertMessage();
 
 void isysGObjMoveObjDLAfterGObj(int *self, int *p, unsigned char q, int r, int t0)
 {
