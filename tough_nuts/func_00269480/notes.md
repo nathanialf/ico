@@ -67,3 +67,10 @@ glabel func_00269480
     /* 1694B4 002694B4 C2170400 */   srl       $2, $4, 31
 endlabel func_00269480
 ```
+
+## Permuter result (2026-06-10 resume)
+Fired bounded permuter (quick_diff CFLAGS, -j4, --stop-on-zero, seed=.1.c):
+"no permutation matched (permuter exit=0)" — no improving output this pass.
+Stale Fire-9 outputs (score 175..270) are semantically-broken mutations
+(e.g. output-175 does `hx=lx` clobber), all ≫ rc4. Resolution (b): permuter-
+exhausted. Re-attack on a future resume with a fresh regalloc-perturbing idea.
