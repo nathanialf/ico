@@ -3,9 +3,45 @@
 /* act-parallel-control 0x164 actor-state view (local) */
 typedef struct { char _0[0x54]; int f_54; float f_58; } APCBrain670;
 typedef struct { char _0[0x334]; float f_334; } APCSub678;
-typedef struct { char _0[0x80]; int f_80; int f_84; char _pad88[0x5E8]; APCBrain670 *p_670; char _pad674[4]; APCSub678 *p_678; } APCState;
+typedef struct {
+    char _0[0x80];
+    int f_80;   /* 0x80 */
+    int f_84;   /* 0x84 */
+    int f_88;   /* 0x88 */
+    int f_8C;   /* 0x8C */
+    int f_90;   /* 0x90 */
+    char _pad94[0xC];
+    float f_A0; /* 0xA0 */
+    float f_A4; /* 0xA4 */
+    float f_A8; /* 0xA8 */
+    char _padAC[0x5C4];
+    APCBrain670 *p_670; /* 0x670 */
+    char _pad674[4];
+    APCSub678 *p_678;   /* 0x678 */
+} APCState;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", ActPara_MakeTbl);
+int ActPara_MakeTbl(void *a0, int a1, float *a2, int a3, int a4) {
+    APCState *p = *(APCState **)((char *)a0 + 0x164);
+    int ret = 0;
+    if (a3 == 6) {
+        p->f_88 = 0;
+        p->f_90 = 0;
+        p->f_8C = 0;
+        goto end;
+    }
+    if (a3 < p->f_8C) goto end;
+    p->f_88 = a1;
+    if (a2) {
+        p->f_A0 = a2[0];
+        p->f_A4 = a2[1];
+        p->f_A8 = a2[2];
+    }
+    p->f_90 = a4;
+    p->f_8C = a3;
+    ret = 1;
+end:
+    return ret;
+}
 
 extern void func_0014A668(void *);
 extern void func_001440F0(void *);
