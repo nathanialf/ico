@@ -37,9 +37,22 @@ int WayPointWithRangeFromPos2(int a0, int a1, int a2) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_kidnap", NearestEnemyFromGirl);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_kidnap", NumOfWpPos);
-
 typedef struct WpNode { int f0; char pad[0x30]; } WpNode;
+extern WpNode D_004C6FBC;
+
+WpNode *NumOfWpPos(void)
+{
+    WpNode *p = &D_004C6FBC;
+    WpNode *end = p + 64;
+    if (p != 0 && p != end) {
+        do {
+            p++;
+            if (p->f0 != 0) return p;
+        } while (p != end);
+    }
+    return 0;
+}
+
 extern WpNode D_004C7CBC;
 
 WpNode *CopyWpPos(WpNode *p)
