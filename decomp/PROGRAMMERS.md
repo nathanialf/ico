@@ -30,15 +30,33 @@ Functional / shared dirs (not a single person): `common`, `script`, `sound`,
 
 ## Caveats — read before relying on this
 
-- **Fumito Ueda is NOT credited as a programmer.** He is Director / Game Design /
-  Planner. The better public-credit candidate for `fumi` is **Fumiaki Hara**,
-  who MobyGames lists under System Program for the PlayStation 2 credits:
+- The public-credit candidate for `fumi` is **Fumiaki Hara**, who MobyGames lists
+  under System Program for the PlayStation 2 credits:
   <https://www.mobygames.com/game/5158/ico/credits/ps2/>.
   Treat this as a plausible name match, not proof: the `fumi/` directory is
   character/object action-heavy, while Hara's public credit is system-level.
 - Raw `strings` hits for "seki" are dominated by the game word 石 *seki* = "stone"
   (`sekizo` = stone statue, `sekika` = petrification), **not** the name. The clean
   source is the `{R}`-formatted credit block, not a substring count.
+
+## Retail vs prototype tree shape (work the prototype first)
+
+The per-programmer layout above describes the **prototype** (the `aug6` tree,
+now `main`). The **retail** build (`retail` branch, SLUS-20218) does **not**
+preserve those directory boundaries: its source tree appears to be a
+**collapsed/flattened** version of the prototype — the per-programmer folders
+have been merged together, so the clean `seki`/`sugipon`/`omori`/`ito`/`fumi`
+split is no longer legible from the retail TU layout, and the TU↔function
+mapping there is correspondingly **murkier** (function boundaries and file
+ownership are harder to infer directly).
+
+Practical consequence for matching strategy: **match everything in the
+prototype first**, where the author dirs and TU boundaries are clear and the
+per-author idioms above are most useful. Once the prototype is fully matched,
+that recovered TU mapping and source-shape knowledge can be **back-ported** to
+retail — re-using the prototype's matched C as the starting point for the
+collapsed retail TUs rather than re-deriving boundaries blind. Don't burn effort
+reverse-engineering retail's TU split up front; let the prototype supply it.
 
 ## What this does and does NOT tell us about the build
 
