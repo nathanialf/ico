@@ -1,12 +1,36 @@
 #include "common.h"
 
-typedef struct Nd { int pad[2]; struct Nd *f8; struct Nd *fC; char _10[0x10]; int f20; char _24[0x1C]; } Nd;
+typedef struct Nd {
+    int f0; int _4;
+    struct Nd *f8; struct Nd *fC;
+    int f10; char _14[0xC];
+    int f20; char _24[0x4];
+    int f28; char _2C[0x14];
+} Nd;
 typedef struct Head { char _0[8]; Nd *f8; Nd *fC; int f10; char _14[0x20]; } Head;
 
 extern char D_004C6FF0[];
 extern Nd D_004C7CF0[];
+extern void func_00240080(int *, int);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_kidnap", add_wp_pos);
+int add_wp_pos(int a0)
+{
+    Nd *node = &D_004C7CF0[0];
+    int i;
+    for (i = 0; i < 0xD7; i++) {
+        if (node->f0 == 0) {
+            node->f0 = 1;
+            node->f20 = -1;
+            node->f8 = 0;
+            node->fC = 0;
+            node->f28 = 0;
+            func_00240080(&node->f10, a0);
+            return i;
+        }
+        node++;
+    }
+    return -1;
+}
 
 int WayLengthOfPos_Pos(int a0, int a1)
 {
