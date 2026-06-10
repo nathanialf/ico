@@ -35,7 +35,17 @@ void isysGObjProcAdd_(DLN *self, DLN *obj) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_process", cut_gobj_process_link);
+void cut_gobj_process_link(DLN *self, DLN *obj) {
+    isysGObjMoveObjDLHead((int *)self);
+    self->id = obj->id;
+    self->prev = obj->prev;
+    self->next = obj;
+    obj->prev = self;
+    self->key = obj->key;
+    if (self->prev == 0) {
+        ((DLN **)D_0027DE30)[self->id] = self;
+    }
+}
 
 extern void isysGObjProcAddGOppArg(void);
 
