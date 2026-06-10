@@ -34,7 +34,22 @@ void InitHandCameraCorrect(void *a0, void *a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/hand-camera", SetLimitHandCameraCorrect);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/hand-camera", HandCameraCorrect);
+extern float func_0025A968(float a0, float a1);
+extern float D_006292B4;
+
+int HandCameraCorrect(a0, a1)
+float *a0;
+float *a1;
+{
+    float r1 = func_0025A968(a0[0], a0[2]);
+    float r2 = func_0025A968(a1[0], a1[2]);
+    int v = (int)((r1 - r2) * 180.0f / D_006292B4);
+    if (v >= 181)
+        v -= 360;
+    if (v <= -180)
+        v += 360;
+    return v;
+}
 
 extern int HandCameraCorrect();
 
