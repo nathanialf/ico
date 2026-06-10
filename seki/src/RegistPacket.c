@@ -66,11 +66,13 @@ extern void dpk_Init(int a0, void *a1, int a2);
 extern int dl_GetPri(void);
 extern char D_0054FBE0[];
 
-/* CRUTCH (zero-byte asm): the $5/$6 pins + barrier force p and n to load
- * before the call so the a0=2 li lands last (jal delay), the one arg order
- * this binary never emits for all-const args from clean C. Two 30-stall
- * fires + permuter shots found no clean shape (tough_nuts/reg_dispLine/).
- * Candidate for the crutch-strip workstream if a clean form surfaces. */
+/* CRUTCH (zero-byte asm) — ACCEPTED EXCEPTION FOR NOW, pending a clean shape.
+ * The $5/$6 pins + barrier force p and n to load before the call so the a0=2
+ * li lands last (jal delay), the one arg order this binary never emits for
+ * all-const args from clean C. Two 30-stall fires + permuter shots found no
+ * clean shape (tough_nuts/reg_dispLine/). This crutch is knowingly retained
+ * as a temporary exception until a suitable clean-C solution is found; it is
+ * a standing candidate for the crutch-strip workstream. */
 void reg_dispLine(void) {
     register void *p __asm__("$5");
     register int n __asm__("$6");
