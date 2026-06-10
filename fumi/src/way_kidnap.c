@@ -39,7 +39,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_kidnap", NearestEnemyFromGirl);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_kidnap", NumOfWpPos);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_kidnap", CopyWpPos);
+typedef struct WpNode { int f0; char pad[0x30]; } WpNode;
+extern WpNode D_004C7CBC;
+
+WpNode *CopyWpPos(WpNode *p)
+{
+    WpNode *end = &D_004C7CBC;
+    if (p != 0 && p != end) {
+        WpNode *q = p;
+        do {
+            q++;
+            if (q->f0 != 0) return q;
+        } while (q != end);
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_kidnap", WayLengthOfGObj_Pos);
 
