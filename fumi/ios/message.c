@@ -1,5 +1,14 @@
 #include "common.h"
 
+/* .rodata carved from blob 0x44F1F8 (VMA 0x551910..0x551994) */
+const char D_00551910[0x10] = "ios/message.c";
+const char D_00551920[0x10] = "sema[%d] = %p\n";
+const char D_00551930[0x18] = "msg:null message queue\n";
+const char D_00551948[0x10] = "MSG NO SEND\n";
+const char D_00551958[0x18] = "evt:null message queue\n";
+const char D_00551970[0x10] = "where is here\n";
+const char D_00551980[0x14] = "evt:signal added\n";
+
 extern int iosFree(int a0, int a1, const char *fmt, int line);
 extern void func_00261188(unsigned int addr, const char *fmt, ...);
 extern const char D_00551678[];
@@ -42,9 +51,7 @@ extern void func_00260380(const char *file, int line, const char *expr);
 extern const char D_0062C268[];
 extern int func_00100520(int *p);
 
-extern char D_00551910[];
 
-extern char D_00551920[];
 
 void iosMsgQueueDestroy(int *self, int a1, int a2)
 {
@@ -92,8 +99,6 @@ extern int func_0013D3C8(unsigned int a0);
 extern void iosSemaCreate(void);
 extern const char D_0062C278[];
 extern int D_0062A408;
-extern char D_00551930[];
-extern char D_00551948[];
 extern int func_00100590(int a0, int *buf);
 
 void iosMsgSetEvent(void)
@@ -142,11 +147,8 @@ extern int controler_stable_check(int a0);
 extern const char D_0062C280[];
 extern int D_0062A304;
 
-extern char D_00551958[];
 
-extern char D_00551970[];
 
-extern char D_00551980[];
 
 void func_00139F80(int a0, int a1, int a2)
 {
@@ -187,9 +189,7 @@ extern const char D_0062C268[];
 extern int func_00100590(int a0, int *buf);
 extern void func_00100560(int a0);
 
-extern char D_00551930[];
 
-extern char D_00551948[];
 
 int iosMsgSend(int *self, int a1, int a2)
 {
