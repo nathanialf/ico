@@ -49,6 +49,19 @@ void func_001F87B0(void)
     D_004C3850[4] = (D_004C3850 + D_004C3850[0])[1];
 }
 
-/* parked: fire-9 30-stall at rc2 (sext-pair vs plain sll2). Crutch rc0 in
- * tough_nuts/func_001F8848/crutch_rc0.c (MATERIALIZE off-barrier). */
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DmaPacket", func_001F8848);
+/* CRUTCH (zero-byte asm): the empty "+r" barrier keeps `off` materialized
+ * so combine can't refold off+4 into (idx+1)*4, and its extra refs give the
+ * scaled value first allocno pick — both needed for the ROM register
+ * rotation. Two 30-stall fires + permuter shots found no clean shape
+ * (tough_nuts/func_001F8848/). Candidate for the crutch-strip workstream. */
+void func_001F8848(void) {
+    int idx = D_004C3850[0] ^ 1;
+    int off;
+    D_004C3850[0] = idx;
+    off = idx * 4;
+    __asm__("" : "+r"(off));
+    D_004C3850[4] = *(int *)((char *)D_004C3850 + off + 4);
+    D_004C3850[5] = 0;
+    D_004C3850[6] = 0;
+    D_004C3850[7] = 0;
+}
