@@ -1,6 +1,26 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/message", deq_mes_th);
+extern int iosFree(int a0, int a1, const char *fmt, int line);
+extern void func_00261188(unsigned int addr, const char *fmt, ...);
+extern const char D_00551678[];
+
+int deq_mes_th(int a0, int a1, int size, const char *file, int line)
+{
+    unsigned int p;
+
+    if (size <= 16) {
+        return iosFree(a0, a1, file, line);
+    }
+    a1 -= 0x10;
+    size = ((size + 15) / 16) * 16;
+    p = iosFree(a0, a1 + size, file, line);
+    if (p % size) {
+        unsigned int q = size - p % size;
+        p += q;
+        func_00261188(p - 0x10, D_00551678, q);
+    }
+    return p;
+}
 
 extern void func_00100540(int a0);
 
