@@ -29,7 +29,25 @@ void SetWindManager(void) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/windManager", InitWindManager);
+extern int D_0062BA54;
+extern float D_0062BA3C;
+extern float D_0062BA44;
+extern float D_0062BA4C;
+extern float D_0062BA50;
+extern float D_006296F4;
+extern float pac_DispQW(void);
+extern void drawSenpuukiHaneUnit(float a0);
+
+void InitWindManager(void) {
+    float v;
+    if (++D_0062BA54 >= 0x33) {
+        D_0062BA4C = D_0062BA3C * ((pac_DispQW() * 2.0f - 1.0f) * D_0062BA44 + 1.0f);
+        D_0062BA54 = 0;
+    }
+    v = D_0062BA50 + (D_0062BA4C - D_0062BA50) * D_006296F4;
+    D_0062BA50 = v;
+    drawSenpuukiHaneUnit(v);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/windManager", GetRegularizedWindSpeed);
 
