@@ -158,7 +158,47 @@ void isysGObjLinkObjDLHead(int a0, int a1, int a2)
     self->next->prev = self;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", isysGObjLinkObjDLAfterGObj);
+void isysGObjLinkObjDLAfterGObj(int a0, int a1, int a2)
+{
+    DLN *self = (DLN *)a0;
+    unsigned char idx = a1 & 0xFF;
+    DLN *head;
+    DLN *tail;
+    DLN *cur;
+    self->id = idx;
+    self->key = a2;
+    head = ((DLN **)D_0027DE30)[idx];
+    if (head == 0) {
+        ((DLN **)D_0027DE30)[idx] = self;
+        self->prev = 0;
+        self->next = 0;
+        ((DLN **)D_0027DE50)[idx] = self;
+        return;
+    }
+    if ((unsigned int)head->key >= (unsigned int)a2) {
+        self->prev = 0;
+        self->next = head;
+        head->prev = self;
+        ((DLN **)D_0027DE30)[idx] = self;
+        return;
+    }
+    tail = ((DLN **)D_0027DE50)[idx];
+    if ((unsigned int)tail->key < (unsigned int)a2) {
+        self->prev = tail;
+        self->next = 0;
+        tail->next = self;
+        ((DLN **)D_0027DE50)[idx] = self;
+        return;
+    }
+    cur = head;
+    while ((unsigned int)cur->next->key < (unsigned int)a2) {
+        cur = cur->next;
+    }
+    self->prev = cur;
+    self->next = cur->next;
+    cur->next = self;
+    self->next->prev = self;
+}
 
 extern void isysGObjLinkObjDLHead(int a0, int a1, int a2);
 
@@ -171,7 +211,7 @@ void isysGObjLinkObjDLBeforeGObj(int a0, int a1, int a2)
     return isysGObjLinkObjDLHead(a0, s1, new_var);
 }
 
-extern int  isysGObjLinkObjDLAfterGObj(int a0, int a1, int a2);
+extern void isysGObjLinkObjDLAfterGObj(int a0, int a1, int a2);
 
 void isysGObjDlInit(int a0, int a1, int a2)
 {
