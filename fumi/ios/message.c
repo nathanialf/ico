@@ -87,7 +87,49 @@ void send_signal_message(int *self)
     func_00100530(idx);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/message", iosMsgSetEvent);
+extern int func_00100410(void);
+extern int func_0013D3C8(unsigned int a0);
+extern void iosSemaCreate(void);
+extern const char D_0062C278[];
+extern int D_0062A408;
+extern char D_00551930[];
+extern char D_00551948[];
+extern int func_00100590(int a0, int *buf);
+
+void iosMsgSetEvent(void)
+{
+    int buf[8];
+    int *ret = (int *) func_0013D3C8(func_00100410());
+    int *base = (int *) ret[0x34 / 4];
+
+    D_0062A408 = (int) ret;
+    debug_assertMessage(D_0062C278, ret[0x30 / 4], base[0x4094 / 4]);
+
+    for (;;) {
+        int *self;
+        int val;
+        iosSemaCreate();
+        self = (int *) base[0x4090 / 4];
+        val = base[0x4094 / 4];
+        if (self == 0) {
+            debug_assertMessage(D_00551930);
+            func_001AAD00(D_00551910, 0x125);
+            func_00260380(D_00551910, 0x125, D_0062C268);
+        }
+        func_00100590(self[0x2C / 4], buf);
+        if (self[0x8 / 4] == buf[0x4 / 4]) {
+            debug_assertMessage(D_00551948);
+            continue;
+        }
+        ((int *) self[0])[(self[0x4 / 4] + self[0x8 / 4]) % buf[0x4 / 4]] = val;
+        self[0x8 / 4] += 1;
+        if (buf[0xC / 4] > 0) {
+            func_00100540(self[0x2C / 4]);
+        }
+        if (!D_00551910) {
+        }
+    }
+}
 
 extern void debug_assertMessage(const char *fmt, ...);
 extern int iosFree(int a0, int a1, const char *fmt, int line);
