@@ -93,3 +93,10 @@ merges value-equal addr exprs; no branch to force a non-coalesced copy).
 variants); none triggered the 3-reg split. Permuter-class. **Whatever cracks
 GetRegularizedWindSpeed's remat transfers here directly** — re-apply the same
 clean shape with `idx = a0`.
+
+## Permuter pass #1 (2026-06-10) — EXHAUSTED (resolution b)
+Bounded 600s run from the rc15 q-first seed. Harvested 20 lowest-score outputs
+by TRUE real_count: best was rc31 — WORSE than the parked rc15 hand floor, none
+reached rc0. Same outcome as GetRegularizedWindSpeed: the permuter does not
+reproduce the 3-register base-address remat. Re-attack on resume with a fresh
+HAND hypothesis (or a longer permuter run seeded to study the load-reorder).
