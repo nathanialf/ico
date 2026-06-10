@@ -135,8 +135,19 @@ int func_0018A3A0(void) {
     return D_006C9FA8[0] < 2;
 }
 
-/* parked: needs real matching. See tough_nuts/func_0018A3B0/notes.md */
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-set-manager", func_0018A3B0);
+extern float D_006C9F60_f[] __asm__("D_006C9F60");
+extern float D_006C9F80_f[] __asm__("D_006C9F80");
+
+void func_0018A3B0(float *src) {
+    if (D_0062C080 != 3) {
+        D_006C9F60_f[0] = src[0];
+        D_006C9F60_f[1] = src[1];
+        D_006C9F60_f[2] = src[2];
+        D_006C9F80_f[0] = src[0];
+        D_006C9F80_f[1] = src[1];
+        D_006C9F80_f[2] = src[2];
+    }
+}
 
 void func_0018A408(void) {
 }
