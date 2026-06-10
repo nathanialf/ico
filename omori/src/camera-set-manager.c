@@ -81,7 +81,19 @@ void func_0018A1D8(float *a0, float *a1, int a2) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-set-manager", func_0018A268);
+extern void func_00240038(void *a0, void *a1, float a2);
+
+void func_0018A268(float *a0, float *a1, int a2) {
+    if (func_0018A3A0()) {
+        D_006C9FB0.f_00 = a2;
+        D_006C9FB0.f_04 = 0;
+        func_00240038(&D_006C9FB0.f_10, a0, -1.0f);
+        func_00240038(&D_006C9FB0.f_20, a1, -1.0f);
+        D_006C9FB0.f_30 = 1;
+        D_006C9FB0.f_31 = 1;
+        D_006C9FB0.f_32 = 1;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-set-manager", func_0018A300);
 
