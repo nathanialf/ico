@@ -130,7 +130,18 @@ float func_00149D00(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", func_00149D18);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", func_00149DD8);
+typedef struct { char _0[0x180]; short f_180; short f_182; char _184[0xC]; } APCAnim; /* stride 0x190 */
+extern APCAnim D_0055DA10[];
+
+int func_00149DD8(void *a0) {
+    short h = (*(int *)((char *)*(void **)((char *)a0 + 0x15C) + 0x490))[D_0055DA10].f_180;
+    if ((float)h < *(float *)((char *)*(void **)((char *)a0 + 0x15C) + 0x49C) && h != -1) return 1;
+    {
+        short h2 = (*(int *)((char *)*(void **)((char *)a0 + 0x15C) + 0x490))[D_0055DA10].f_182;
+        if (h2 != -1 && *(float *)((char *)*(void **)((char *)a0 + 0x15C) + 0x49C) < (float)h2) return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", func_00149E70);
 
