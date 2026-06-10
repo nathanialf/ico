@@ -85,4 +85,15 @@ WpNode *WayPointWithRangeFromGObj(void)
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_kidnap", func_00202D68);
+WpNode *func_00202D68(WpNode *p)
+{
+    WpNode *end = &D_004C7CBC;
+    if (p != 0 && p != end) {
+        WpNode *q = p;
+        do {
+            q++;
+            if (q->f0 != 0 && q->f18 != 0) return q;
+        } while (q != end);
+    }
+    return 0;
+}
