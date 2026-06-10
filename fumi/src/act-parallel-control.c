@@ -143,7 +143,32 @@ int func_00149DD8(void *a0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-parallel-control", func_00149E70);
+extern int iosOmBeforeFuncStandard(void *, int);
+
+void func_00149E70(void *a0, int a1, int a2, int a3, int a4) {
+    switch (a1) {
+    case 0x17E:
+        if (a4 != 0) {
+            APCState *p = *(APCState **)((char *)a0 + 0x164);
+            if (*(short *)((char *)p + 0x11A) > 0) return;
+        }
+        iosOmBeforeFuncStandard(a0, 0x17E);
+        if (a3 != 0) {
+            APCState *p = *(APCState **)((char *)a0 + 0x164);
+            long long d = *(long long *)((char *)p + 0x118);
+            *(int *)((char *)p + 0x114) = a3;
+            *(long long *)((char *)p + 0x118) = (d & ~1LL) | (a4 & 1);
+        }
+        break;
+    case 0x17F:
+        iosOmBeforeFuncStandard(a0, 0x17F);
+        {
+            APCState *p = *(APCState **)((char *)a0 + 0x164);
+            *(int *)((char *)p + 0x114) = a3;
+        }
+        break;
+    }
+}
 
 
 /* recovered struct shapes */
