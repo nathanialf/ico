@@ -4,7 +4,21 @@ struct GObj { int unk0; int unk4; int unk8; char pad[0x168]; };
 extern struct GObj *D_0062BFA8;
 extern unsigned int D_0062BFAC;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", cut_gobj_dl_link);
+struct GObj *cut_gobj_dl_link(int a0)
+{
+    unsigned int count = D_0062BFAC;
+    unsigned int i = 0;
+    if (count != 0) {
+        do {
+            struct GObj *e = &D_0062BFA8[i];
+            if (e->unk0 != 0 && e->unk4 == a0) {
+                return e;
+            }
+            i++;
+        } while (i < count);
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", isysGObjRemoveObjDL);
 
