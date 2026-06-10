@@ -31,10 +31,11 @@ extern void MatrixDrive_TurnXObjectMatrixYZ(int a0, int a1);
 extern int D_002724B0[];
 extern int *iosFree(int handle, int size, const char *file, int line);
 extern int SetParticleEffectUpperLimit(int a, void *b, void *c);
-extern void debug_assertMessage(char *p);
+extern void debug_assertMessage(const char *p);
 extern int D_0062A310;
-extern char D_00611160[];
-extern char D_00611170[];
+
+const char D_00611160[0x10] = "src/candle.c";
+const char D_00611170[0x28] = "\x1B[33mInitialize candle geometries.\x1B[m\n";
 
 int *CandleGeo(GObj *self, int a1)
 {

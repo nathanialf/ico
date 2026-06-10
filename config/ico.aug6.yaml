@@ -346,6 +346,8 @@ segments:
       - [0x4570F0, rodata,  src/cod/4570F0]      # resume ("pts buffer overf..." string)
       - [0x50DA90, .rodata, common/src/debug_exception]  # carved jtbl_0060DA90 (migrated)
       - [0x50DAD8, rodata,  src/cod/50DAD8]      # .rodata blob, part 2b (resume)
+      - [0x511160, .rodata, sugipon/src/candle]  # carved D_00611160 ("src/candle.c" __FILE__) + D_00611170 (debug log), VMA 0x611160..0x611198
+      - [0x511198, rodata,  src/cod/511198]      # .rodata blob resume after candle strings
       - [0x5126F8, .rodata, sugipon/src/multiBgaManager]  # carved D_006126F8 ("src/multiBgaManager.c" __FILE__, VMA 0x6126F8)
       - [0x512710, rodata,  src/cod/512710]      # .rodata blob, part 2b (resume after multiBgaManager)
       - [0x5128B0, .rodata, sugipon/src/particleLayout]  # carved D_006128B0 ("src/particleLayout.c" __FILE__, VMA 0x6128B0)
