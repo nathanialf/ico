@@ -164,3 +164,12 @@ stretch-idx-len statement orders) = rc11 rotation (scaled ties idx at density
 1.0, loses allocno-number tie-break -> idx takes $2); every narrowing that
 fixes coloring (short decl/use, cast-after-add, biased+short) emits the sext
 pair = rc2/rc5/rc13. Coloring and no-ext remain mutually exclusive in clean C.
+
+### Fire 9 permuter shot (2026-06-10) — resolution (b)
+Bounded 600s, ~100 outputs harvested by true rc (top 8 measured via diff
+--dry): best output-80-1 = rc4, rest rc7-12. Nothing beats the parked rc2.
+(b) re-confirmed on clean-C; crutch rc0 (crutch_rc0.c) remains the only
+byte-exact form. NOTE this fire's hazard: a python-replace captured the
+SIBLING func_001F87B0 instead of the crutch and silently deleted it from
+the TU (caught by ninja undefined-reference, restored same session) —
+always grep the captured block for the right function name before replace.
