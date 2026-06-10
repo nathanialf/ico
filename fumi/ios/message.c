@@ -142,7 +142,7 @@ extern void debug_assertMessage(const char *fmt, ...);
 extern void func_001AAD00(const char *file, int line);
 extern void func_00260380(const char *file, int line, const char *expr);
 extern const char D_0062C268[];
-extern void func_00100590(int a0, int *buf);
+extern int func_00100590(int a0, int *buf);
 extern void func_00100560(int a0);
 
 extern char D_00551930[];
@@ -177,7 +177,33 @@ int iosMsgSend(int *self, int a1, int a2)
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/message", iosMsgRecv);
+int iosMsgRecv(int *self, int *a1, int a2)
+{
+    int buf[8];
+    if (self == 0)
+    {
+        debug_assertMessage(D_00551930);
+        func_001AAD00(D_00551910, 0x149);
+        func_00260380(D_00551910, 0x149, D_0062C268);
+    }
+    func_00100590(self[0x2C / 4], buf);
+    if (self[0x8 / 4] == 0)
+    {
+        if (a2 != 1)
+        {
+            return -1;
+        }
+        func_00100560(self[0x2C / 4]);
+    }
+    *a1 = ((int *) self[0])[self[0x4 / 4]];
+    self[0x4 / 4] = (self[0x4 / 4] + 1) % buf[0x4 / 4];
+    self[0x8 / 4] -= 1;
+    if (self[0x8 / 4] == buf[0x4 / 4] && buf[0xC / 4] > 0)
+    {
+        func_00100540(self[0x2C / 4]);
+    }
+    return 0;
+}
 
 void iosMsgQueueDestroyAll(void) {
     int *p;
