@@ -65,12 +65,37 @@ void isysGObjMoveObjDL(int a0, int a1) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", isysGObjMoveObjDLHead);
+extern void debug_assertMessage(char *p);
+extern char D_00551E28[];
+extern int D_0027DE30[];
+extern int D_0027DE50[];
 
-extern void isysGObjMoveObjDLHead();
+void isysGObjMoveObjDLHead(int *self)
+{
+    if (self == 0) {
+        debug_assertMessage(D_00551E28);
+        return;
+    }
+    if (self[0xE] != 0) goto do_prev;
+    if (self[0xD] == 0) goto head;
+    goto merge;
+do_prev:
+    ((int *)self[0xE])[0xD] = self[0xD];
+merge:
+    if (self[0xD] != 0) {
+        ((int *)self[0xD])[0xE] = self[0xE];
+    }
+head:
+    if ((int)self == D_0027DE30[*((unsigned char *)self + 0x40)]) {
+        D_0027DE30[*((unsigned char *)self + 0x40)] = self[0xD];
+    }
+    if ((int)self == D_0027DE50[*((unsigned char *)self + 0x40)]) {
+        D_0027DE50[*((unsigned char *)self + 0x40)] = self[0xE];
+    }
+}
 
-void isysGObjLinkObjDL(void) {
-    isysGObjMoveObjDLHead();
+void isysGObjLinkObjDL(int *self) {
+    isysGObjMoveObjDLHead(self);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_dl", isysGObjLinkObjDLHead);
