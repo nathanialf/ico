@@ -169,7 +169,41 @@ void _ScaleCurrentMatrix(void)
     VU0_NOP();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _GetCurrentMatrix);
+void _GetCurrentMatrix(void)
+{
+    VU0_MEM("vsqi.xyzw $vf1, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf2, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf3, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf4, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf5, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf6, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf7, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf8, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf9, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf10, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf11, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf12, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf13, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf14, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf15, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf16, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf17, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf18, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf19, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf20, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf21, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf22, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf23, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf24, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf25, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf26, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf27, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf28, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf29, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf30, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf31, ($vi15++)");
+    VU0_NOP();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Matrix", _GetCurrentMatrixTrans);
 
