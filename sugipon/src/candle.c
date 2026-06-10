@@ -25,7 +25,39 @@ int CandleDL(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/candle", CandleGeo);
+extern int func_00105078(void);
+extern void func_00105108(float a0, float a1, float a2);
+extern void MatrixDrive_TurnXObjectMatrixYZ(int a0, int a1);
+extern int D_002724B0[];
+extern int *iosFree(int handle, int size, const char *file, int line);
+extern int SetParticleEffectUpperLimit(int a, void *b, void *c);
+extern void debug_assertMessage(char *p);
+extern int D_0062A310;
+extern char D_00611160[];
+extern char D_00611170[];
+
+int *CandleGeo(GObj *self, int a1)
+{
+    Sub15C *sub = self->p_15C;
+    int *r;
+    if (sub->f_8 >= 2) {
+        int i;
+        r = iosFree(D_0062A310, sub->f_8 * 8, D_00611160, 0x18);
+        for (i = 0; i < sub->f_8; i++) {
+            int v = func_00105078();
+            MatrixDrive_TurnXObjectMatrixYZ(v, sub->f_C + i * 0x40);
+            func_00105108(0.0f, -40.0f, 0.0f);
+            r[i * 2] = SetParticleEffectUpperLimit(4, (void *)(func_00105078() + 0x30), D_002724B0);
+            r[i * 2 + 1] = 0;
+        }
+    } else {
+        r = iosFree(D_0062A310, 8, D_00611160, 0x23);
+        r[0] = SetParticleEffectUpperLimit(4, (void *)a1, D_002724B0);
+        r[1] = 0;
+    }
+    debug_assertMessage(D_00611170);
+    return r;
+}
 
 void DeleteLayoutedCandleParticleEffect(int a0)
 {
@@ -36,11 +68,7 @@ void DeleteLayoutedCandleParticleEffect(int a0)
     }
 }
 
-extern int func_00105078(void);
-extern void func_00105108(float a0, float a1, float a2);
-extern void MatrixDrive_TurnXObjectMatrixYZ(int a0, int a1);
 extern void ExecParticleEffects(int a0, int a1, int *a2);
-extern int D_002724B0[];
 
 void _deleteLayoutedCandleParticleEffect(GObj *self)
 {
