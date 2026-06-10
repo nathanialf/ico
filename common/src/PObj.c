@@ -47,7 +47,14 @@ void func_0023DF20(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023DF40);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023E008);
+extern void *func_00105078(void);
+extern void func_001050A8(int a0);
+
+void func_0023E008(int a0, void *a1) {
+    func_002400F8(func_00105078());
+    *(float *)((char *)a1 + 0xC) = 1.0f;
+    func_001050A8((int)a1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023E048);
 
