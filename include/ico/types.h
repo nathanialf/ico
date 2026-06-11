@@ -142,7 +142,9 @@ struct Obj7F0 {
     int      f_8;         /* 0x08 */
     int      f_C;         /* 0x0C */
     int      f_10;        /* 0x10 */
-    char     _pad14[0xC];
+    char     _pad14[0x4];
+    int      f_18;        /* 0x18 */
+    char     _pad1C[0x4];
     GeoNode *p_20;        /* 0x20 */
     char     _pad24[0x18];
     float    f_3C;        /* 0x3C */

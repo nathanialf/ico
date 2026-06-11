@@ -1,9 +1,23 @@
 #include "common.h"
+#include "ico/types.h"
 
 void GirlForceFieldGeo(void) {
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/girlForceField", InitGirlForceFieldGeo);
+void InitGirlForceFieldGeo(void *a0, int a1, int a2) {
+    Obj7F0 *o = GOBJ_SUB(a0)->p_7F0;
+    switch (a1) {
+    case 0:
+        o->f_4 = a2;
+        break;
+    case 1:
+        o->f_C = a2;
+        break;
+    case 2:
+        o->f_18 = a2;
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/girlForceField", GirlForceFieldDL);
 
