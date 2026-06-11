@@ -23,9 +23,23 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", SetParticleEffec
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", SetParticleEffectUpperLimit);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", ExecParticleEffects);
-
 extern char D_007030C0[];
+extern void debug_assertMessage(char *fmt);
+extern char D_00612830[];
+
+struct PE_elem { int f0; char pad[0x10]; int f14; };
+
+extern struct PE_elem D_007030C0a[] __asm__("D_007030C0");
+
+void ExecParticleEffects(int a0, int a1, int a2) {
+    if (a0 >= 0) {
+        if (D_007030C0a[a0].f0 == 0) {
+            debug_assertMessage(D_00612830);
+        } else {
+            execParticleEffect(D_007030C0a[a0].f14, a1, a2);
+        }
+    }
+}
 extern void SetParticleEffect(int *p);
 
 void ResetParticleEffectPackages(int a0, float f)
