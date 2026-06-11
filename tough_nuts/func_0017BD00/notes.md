@@ -47,3 +47,9 @@ beql annulling the p->0x8 load [rc3, residual=copy+beq vs beql], or (if-form) pu
 moves $2,$5 at the end [rc6]. ~25 distinct hand forms all rc3-13; the copy of the call-result into
 $3 (freeing $2 for ret) never appears. Same return-value-coalescing class as actWaySystemCore
 (there store-first forced the copy; no store here). Permuter pass 1.
+
+## Permuter harvest 2026-06-11: nothing below rc3 -> (b)
+"no permutation matched". Lowest scores 260-280 (base 305) but diff --dry: output-260-1=rc9,
+270-1/280-1=rc8 — all WORSE than parked rc3 (score/real_count anti-correlation; outputs are
+new_var pointer-indirection mutations). Nothing beats rc3. RESOLUTION (b). Re-attack future resume
+with a fresh idea to force the call-result copy into $3 (freeing $2 for ret) without the beql annul.
