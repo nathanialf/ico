@@ -96,3 +96,26 @@ glabel func_00138218
     /* 3831C 0013831C 7000BD27 */   addiu     $29, $29, 0x70
 endlabel func_00138218
 ```
+
+## Resume session 2 — name/twin investigation + 21-form grind (still rc3)
+
+- Confirmed ANONYMOUS: `func_00138218` has no dev name in symbol_addrs.aug6.txt
+  (only the iosMcIcon* siblings are named). No matched twin: retail near-addr
+  funcs (func_00138510/138618/138720) are the ios/memory.c partition manager,
+  not this CD chunked-read loop. memory.c only *references* iosCdvdChgFileName.
+- Identity is clear from callees + the 0x800(=CD sector) round-up: a CD-file
+  chunked read/copy loop. Reconstruction matches 81/84 instructions.
+- Residual = 3-insn register-alloc artifact ONLY: ROM keeps a redundant backup
+  of the original chunk (`daddu a0,a2` in the inner-loop beqz delay) + `b` +
+  else-restore (`daddu a2,a0`); gcc proves the else-value == chunk and just
+  conditionally reduces it in place. Value flow is provably byte-identical.
+- DISTINCT-SEMANTIC space exhausted (per dev-data-model discipline — if/ternary/
+  goto/temp costume-changes fold to ONE rc3 RTL): in-place(rc3), two-call(rc19,
+  2 jals — no cross-jump), acc-inside-inner-loop(rc4, shifts lim-load),
+  pf-int*-cache(rc22, displaces a1's s2), char*-cache(rc4, permuter), volatile
+  chunk(rc3), volatile buf(rc6), function-scope decls(rc3), saved+over(rc11 movn),
+  goto-CFG-explicit-backup(rc4). Forced permuter (PERMUTE_FORCE=1, ~1000 iters):
+  best output-360-1 = rc4 (anti-correlated score). Nothing beats rc3.
+- VERDICT: genuine register-allocation near-floor. The redundant backup is not
+  produced by any clean C tried. Needs either a fresh allocator-perturbing idea
+  on resume, or a longer/seeded permuter run at a real 30-stall.
