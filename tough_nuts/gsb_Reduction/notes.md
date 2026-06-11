@@ -1,71 +1,90 @@
-# gsb_Reduction (seki/src/GsBase) — parked at rc13 (stall=30 + permuter)
+# gsb_Reduction (seki/src/GsBase) — RESUMED rc13 -> rc7 (2026-06-11)
 
-15-insn GS display-list writer. **CFG fully recovered**; residual is pure
-regalloc/scheduling/addressing-folding within the correct control flow.
+15-insn GS display-list writer. **CFG + regalloc fully recovered.** Residual
+is TWO coupled reorg/sched ties (see below). Was parked rc13; this session
+cracked rc13->11->8->7 with the param-reuse + volatile-tail-order levers.
 
 ## Behaviour (from asm)
 ```
-p = D_004C3850.cur                      # ptr field at +0x10
-*p = (a0 ? 0x50000 : 0x30000)           # 8-byte (sd) store
-cur = p+1 (store-back)
-*(p+1) = 0x47
-cur = p+2 (store-back)
+value = a0 ? 0x50000 : 0x30000     # branch INTO $4 (dead arg reg), single luis
+*cur = value                        # sd $4
+cur += 1 (8 bytes); commit cur      # sw $2  (store-back 1)
+*cur = 0x47                         # sd $5
+cur += 1; commit cur                # sw $4  (store-back 2, in jr delay)
 ```
-Two 8-byte writes to the current GIF/packet pointer, each followed by advancing
-and storing the pointer back to `D_004C3850+0x10`. `0x47` is likely a GS reg addr.
+`cur` = ptr field at D_004C3850+0x10 (32-bit ptr -> store-back is `sw`).
+Data writes are 8-byte `sd`. Two committed advances of cur.
 
-## Best seed (rc13)
+## Best seed (rc7) — current best.c
 ```c
 typedef struct { unsigned char pad[0x10]; unsigned long long *cur; } GsBaseRed;
 extern GsBaseRed D_004C3850;
 void gsb_Reduction(int a0) {
-    unsigned long long *p = D_004C3850.cur;
-    if (a0) { *p = 0x50000; } else { *p = 0x30000; }
+    unsigned long long *p;
+    if (a0) { a0 = 0x50000; } else { a0 = 0x30000; }   // param-reuse -> value in $4
+    p = D_004C3850.cur;
+    *p = a0;
     p++;
-    *(unsigned long long *volatile *)&D_004C3850.cur = p;     // volatile WRITE keeps both store-backs
-    *p = 0x47;
-    *(unsigned long long *volatile *)&D_004C3850.cur = p + 1;
+    D_004C3850.cur = p;
+    *(volatile unsigned long long *)p = 0x47;            // volatile pins tail order
+    D_004C3850.cur = p + 1;
 }
 ```
+NOTE: rc7 has PERFECT regalloc (value=$4, base=$3/v1, cur=$2/v0, 0x47=$5/a1)
+but is MISSING store-back-1 (gcc DSEs it; only 1 sw emitted). A true match
+needs BOTH store-backs -> the structurally-complete seed is combo C/B (rc8,
+sb1 volatile). Permuter should seed from the rc8 (sb1-present) form.
 
-## What's solved
-- **`sd` 8-byte stores**: `unsigned long long` (the TU's 64-bit idiom).
-- **Two store-backs**: gcc dead-store-eliminates the first `cur=p`. Casting only
-  the store-back WRITES to `volatile` (`*(ull *volatile *)&cur = p`) keeps both,
-  while leaving the `cur` READ non-volatile so it stays schedulable.
-- **The branch (not movn)**: value-in-reg (`v = a0?C1:C2`, or any if/else writing
-  a register) ALWAYS gets ifcvt'd to `movn` by ee-gcc 2.9. Storing the constant
-  THROUGH the pointer in each arm (`if(a0) *p=C1; else *p=C2;`) is the ONLY form
-  that keeps the `beqz/b/lui` diamond — gcc can't cmove a memory destination, then
-  store-sinks to one `sd` after the merge. Confirmed: ~6 value-in-reg variants
-  (ternary, if/else int, if/else ull, goto-diamond, single-sided) all → movn.
-- **`p+1` final advance** (vs `*p++`): lets gcc compute cur+16 before the last
-  store, filling the jr delay (rc16→rc14).
-- **Direct `D_004C3850.cur`** (vs cached `GsBaseRed *d`): rc14→rc13.
+## Cracks this session (the wins)
+- **param-reuse `a0 = const` in both arms** (rc13->11): puts value in $4 (dead
+  arg reg) AND defeats movn-ifcvt (movn would clobber the condition reg a0).
+  Gave the PERFECT register allocation. Old note "value-in-reg always -> movn"
+  was true ONLY without param-reuse.
+- **`*(volatile ull*)p = 0x47`** (rc11->8): the non-volatile 0x47 store was being
+  hoisted DOWN past the store-backs. Making it volatile PINS source order -> the
+  whole tail body now matches ROM exactly.
+- **plain store-backs** (rc8->7): with volatile 0x47 as a barrier, plain
+  store-backs let reorg fill the jr delay with store-back-2 — BUT gcc then DSEs
+  store-back-1. rc7 = jr-delay-filled but sb1 gone.
 
-## The rc13 residual (one cascade)
-ROM: value selected via branch INTO A REGISTER ($4, reusing the dead arg reg a0),
-THEN `cur` loaded (lw) AFTER the branch, base `&D` kept in $3 with `0x10`
-displacement (split `lui %hi` in the beq delay slot, `addiu %lo` after). Built:
-memory-dest forces `cur` (lw) BEFORE/IN the branch delay (the arms need `p`), and
-folds `+16` into `%hi/%lo(D+16)` (recomputed). **Root**: ROM's arms set a value
-register; ours store. That requires value-in-reg-via-branch, which ee-gcc cmoves —
-so cur can't be deferred past the branch by any clean source. Register numbers
-(value $2 vs ROM $4, cur $5 vs $2, base $6 vs $3) also differ — the same dead-arg-
-reg-reuse tiebreak as func_0024E510.
+## The rc7 residual = TWO coupled ties (permuter-class)
 
-## Hypotheses tried (~30, all rc13–19) — stall=30
-if/else memory-dest, ternary, goto-diamond, single-sided, cached-`d`, char*-base,
-slot-ptr, array-view, p++/p+1/p[1]/++p/p2-temp store-backs, volatile field / write-
-only / buffer-ptr, value as literal/5<<16/UL/named-const, unsigned/bool/==0 cond,
-long long vs ull, (void)a0. WORSE: full-volatile-field → single `bne` (rc14);
-volatile buffer ptr → rc15; goto/double-adv → rc19; value-in-reg → movn (rc13–14).
+### Tie 1: branch DIAMOND vs value-in-$4 (mutually exclusive by hand)
+- param-reuse (`a0=const`): value stays in $4 (perfect regalloc) BUT reorg
+  COLLAPSES the if/else to a 2-insn `bnez`+delay (no `b`, no base-hi in beqz
+  delay). ROM has the diamond: `beqz [delay: lui %hi(D)]; b [delay: lui then];
+  else; merge`.
+- memory-dest (`*p=const` in arms): PREVENTS collapse -> DIAMOND + base-%hi
+  pre-branch — but value -> v0 (not $4) and cur loads in beqz delay (early). rc13.
+- hybrid (`a0=const; *p=a0` in arms): gcc drops the dead a0-assign -> value to v0.
+  rc14.
+- ANY &D reference before the branch (cached `d=&D`, cur-before-branch, early
+  const) -> full `la` pre-branch + value out of $4. rc12-18.
+- => value-in-$4 (needs single post-merge `*p=a0`, which collapses) XOR diamond
+  (needs memory-dest, which frees value to v0). ROM has BOTH. Coupled.
+
+### Tie 2: store-back-1 survival vs store-back-2-in-jr-delay
+- sb1 needs anti-DSE: only volatile keeps it (plain -> gcc proves *p !alias
+  &D.cur, DSEs it; *p++ fuses both; reading cur back fuses via value-numbering).
+- but volatile sb2 can NOT enter the jr delay (combo B: nop). plain sb2 -> reorg
+  fills delay BUT either reorders before 0x47 (combo C) or sb1 DSE'd (combo D).
+- ROM: sb1 kept AND sb2 plain-in-delay. Not hand-reproducible.
+
+## Volatile-combo map (all tried)
+- A (sb1 vol, 0x47 plain, sb2 vol): rc11, 0x47 -> jr delay.
+- B (all vol): rc8, CORRECT order, sb2 not in delay (nop).
+- C (sb1 vol, 0x47 vol, sb2 plain): rc8, sb2 reordered before 0x47, nop delay.
+- D / fully-plain: rc7, sb1 DSE'd, sb2 in delay. **best count**
+- G (sb1 vol, 0x47 plain, sb2 plain): rc11.
+
+## Resume levers to try fresh (next session)
+- Tie 1 is the func_0024E510 / func_001FB768-class dead-arg-reg + diamond tie:
+  permuter found `if((new_var2=new_var)>=7)` for a sibling — look for a
+  condition-embedded assignment forcing value-in-$4 WITHOUT a post-merge single
+  store. SEED permuter from combo C (rc8, sb1 present = structurally complete).
+- Tie 2: a may-alias trick making the 0x47 store provably-alias &D.cur to block
+  sb1 DSE while keeping stores plain (sd-vs-sw size mismatch blocks the naive
+  same-type cast).
 
 ## Permuter
-`permute_run.sh gsb_Reduction <seed> -- --stop-on-zero -j 4` fired at the 30-stall.
-
-## Resume levers to try fresh
-- Defeat the ifcvt cmove for value-in-reg (would unlock cur-after-branch + base+disp
-  + dead-arg-reg reuse in one shot). Look for an arm shape ifcvt won't unify.
-- Force the compare-constant value into $4 (dead arg reg) — func_0024E510-class tie.
-- Make gcc keep `&D` base in one reg with split `%hi`(delay)/`%lo`(after-branch).
+Fire at the genuine stall=30 gate, seeded from the combo-C rc8 form.
