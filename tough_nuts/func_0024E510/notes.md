@@ -99,3 +99,10 @@ glabel func_0024E510
 endlabel func_0024E510
     /* 14E54C 0024E54C 00000000 */  nop
 ```
+
+## Pass 2 harvest (2026-06-11): two-temp seed base=215, no sub-base -> (b)
+Permuter (~2577 iters, two-temp c=3/d=D[0] seed, base 215) produced NO output below base. The
+const-3 $4-vs-$2 local-alloc tiebreak is not reachable by the permuter's randomization (same as
+pass 1). RESOLUTION (b) pass 2. Best stays rc2. Future resume: a non-equivalent rewrite that makes
+the const pseudo coalesce with the dead %hi-base reg ($2) without reserving v0 — or accept it as a
+local-alloc reg-order difference (the permuter twice can't reach it).
