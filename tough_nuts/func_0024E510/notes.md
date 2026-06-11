@@ -49,3 +49,53 @@ reach the $2-reuse — needs a targeted non-equivalent rewrite.
 - A rewrite that makes the const pseudo coalesce with the %hi-base pseudo (same qty)
   WITHOUT extending its live range across the calls (which `r=3` did → callee-saved).
 - Re-seed permuter with a variant that already has an extra dead pseudo near the compare.
+
+## Pass 2 (2026-06-11): resume, ~15 fresh forms -> rc2, stall=30 -> permute pass 2
+Re-confirmed the sole residual: const 3 in $4 (free arg reg) vs ROM $2 (reused dead %hi base);
+gcc reserves $2/v0 for the int return value so the const avoids it. Fresh this pass (all rc2):
+a0-passthrough (rc6, adds a0-save), a0-unused param, const-var/named-3, temp-d, ptr-var/&deref,
+switch(case3), if-else-r, !=-inverted, 3==D swap, (d&0xff)==3, goto-shared-epilogue, register d,
+ternary. The (x^y)==0 lever (func_0017BD00) does NOT apply (would change beq-with-const to
+xor+beqz, byte-different). a0 can't be made live without a save (passthrough) or it stays dead
+(unused->still $4). Pure local-alloc reg-preference tiebreak. Firing permuter pass 2 re-seeded
+with the two-temp (c=3,d=D[0]) variant (extra dead pseudos near the compare, per resume lever 3).
+
+---
+
+## Attempt at 2026-06-11
+
+**Reason parked:** rc2 const-3 in $4 vs ROM $2 (dead %hi reuse; gcc reserves v0 for int return); ~15 fresh forms pass2 all rc2; pure local-alloc tiebreak. Pass 2.
+
+**TU:** `common/src/PObj.c`
+
+**Seed:** `tough_nuts/func_0024E510/func_0024E510.1.c`
+
+Disassembly:
+
+```
+.align 3
+nonmatching func_0024E510, 0x3C
+
+glabel func_0024E510
+    /* 14E510 0024E510 5500023C */  lui        $2, %hi(D_0054C92C)
+    /* 14E514 0024E514 F0FFBD27 */  addiu      $29, $29, -0x10
+    /* 14E518 0024E518 2CC9438C */  lw         $3, %lo(D_0054C92C)($2)
+    /* 14E51C 0024E51C 03000224 */  addiu      $2, $0, 0x3
+    /* 14E520 0024E520 05006210 */  beq        $3, $2, .L0024E538
+    /* 14E524 0024E524 0000BFFF */   sd        $31, 0x0($29)
+    /* 14E528 0024E528 5439090C */  jal        func_0024E550
+    /* 14E52C 0024E52C 00000000 */   nop
+    /* 14E530 0024E530 04000010 */  b          .L0024E544
+    /* 14E534 0024E534 0000BFDF */   ld        $31, 0x0($29)
+.align 2
+  .L0024E538:
+    /* 14E538 0024E538 FA38090C */  jal        func_0024E3E8
+    /* 14E53C 0024E53C 00000000 */   nop
+    /* 14E540 0024E540 0000BFDF */  ld         $31, 0x0($29)
+.align 2
+  .L0024E544:
+    /* 14E544 0024E544 0800E003 */  jr         $31
+    /* 14E548 0024E548 1000BD27 */   addiu     $29, $29, 0x10
+endlabel func_0024E510
+    /* 14E54C 0024E54C 00000000 */  nop
+```
