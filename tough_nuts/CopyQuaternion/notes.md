@@ -120,3 +120,12 @@ glabel CopyQuaternion
     /* DBBC 0010DBBC 6000BD27 */   addiu     $29, $29, 0x60
 endlabel CopyQuaternion
 ```
+
+## Pass 4 harvest (2026-06-11): permuter base=115, NO sub-base, exhausted -> (b)
+Ran ~9min (-j4, --stop-on-zero), best score=115 (== base, NO improvement). Only sub-base score
+outputs were output-85-{1,2}; by TRUE real_count (diff --dry) they are rc2/rc3 (WORSE than rc1) —
+both "win" their score by mis-routing a0 into func_00118AF0's 2nd arg (semantically broken, the
+same anti-correlated score trap as pass 3). Nothing beats parked rc1. RESOLUTION (b) pass 4.
+Future resume: the dead daddu v0,sp is a reload/dbr ghost needing a held &local pseudo + extra
+reg pressure; no clean 14-insn shape supplies it. Try a fundamentally different angle (e.g. is
+func_00118AF0 actually a 3-arg/return-buffer fn whose retval legitimately occupies v0 pre-GetQ?).
