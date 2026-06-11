@@ -36,7 +36,7 @@ typedef struct DoorSub {
     void *field_B4;
 } DoorSub;
 
-extern void *D_004CCAA0[];
+extern int D_004CCAA0[];
 extern void actSt05eSolar(void);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", func_00220918);

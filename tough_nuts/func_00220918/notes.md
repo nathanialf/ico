@@ -1,44 +1,25 @@
-# func_00220918 — parked
+# func_00220918 (script/src/st08a) — parked at rc4
 
-VRAM: 0x00220918 (file_off 0x120918)
-Asm source: asm/aug6/nonmatchings/script/src/st08a/func_00220918.s
+Door-open setup: GObj sub at +0x164; sets sub->field_B4=&D_004CCAA0,
+D_004CCAA0[1]=&actSt05eSolar, D_0062A894=1, sub->field_B0=0;
+BoxBarSoundOn(obj,0x189); _ACTWait(0).
 
-## Attempt at 2026-06-11
+## Best seed (rc4) — capture form from permuter output-125
+- struct DoorSub for `s` (deref result -> a2, not a3)
+- int[] D_004CCAA0; new_var2 = (D_004CCAA0[1] = (int)solar, (void*)solar);
+  + new_var = new_var2 copy => keeps solar (v1) live -> FIXES prologue %hi grouping.
+- store order brute-forced (all 120 perms of the 5 stores): current order is the floor.
 
-**Reason parked:** rc9: struct s + void*[] D. CORRECT: const placement, v0/v1, store order, reads, frame. RESIDUAL: a2/a3 swap (const->a2 vs a3, deref s->a3 vs a2) coupled with v0/v1 via D_004CCAA0 typing (int[] flips a2/a3 correct but reorders [1] store + swaps v0/v1; void*[] keeps v0/v1+order but swaps a2/a3). Ruled out: 3/4-arg BoxBarSoundOn (copies s), hoisted addr locals (rematerialized), ptr-to-array pseudos (folded). Coupled regalloc/sched tie.
+## CORRECT at rc4: prologue %hi grouping, a2/a3 (const->a3, deref s->a2),
+## v0/v1 (D_004CCAA0->v0, solar->v1), const placement, reads, frame.
 
-**TU:** `script/src/st08a.c`
+## RESIDUAL (4 diffs): store SCHEDULE only.
+- [1] store (sw v1,4(v0)) hoisted to right after the deref (should be 3rd store).
+- gp store (sw a3,0(gp)) pushed after 0xB4 (should be 1st store).
+- Built order: [1], 0xB4, gp ; Expected: gp, 0xB4, [1].
+- The [1] hoist is intrinsic to the capture form (capture must be early for the
+  prologue fix); store-order reordering can't move it (brute-forced). Need a
+  permuter perturbation that defers the [1] store while keeping solar live early.
 
-**Seed:** `tough_nuts/func_00220918/func_00220918.c`
-
-Disassembly:
-
-```
-.align 3
-nonmatching func_00220918, 0x58
-
-glabel func_00220918
-    /* 120918 00220918 E0FFBD27 */  addiu      $29, $29, -0x20
-    /* 12091C 0022091C 4D00023C */  lui        $2, %hi(D_004CCAA0)
-    /* 120920 00220920 0000A4AF */  sw         $4, 0x0($29)
-    /* 120924 00220924 2200033C */  lui        $3, %hi(actSt05eSolar)
-    /* 120928 00220928 1000BFFF */  sd         $31, 0x10($29)
-    /* 12092C 0022092C A0CA4224 */  addiu      $2, $2, %lo(D_004CCAA0)
-    /* 120930 00220930 0000A58F */  lw         $5, 0x0($29)
-    /* 120934 00220934 B0CD6324 */  addiu      $3, $3, %lo(actSt05eSolar)
-    /* 120938 00220938 0000A48F */  lw         $4, 0x0($29)
-    /* 12093C 0022093C 01000724 */  addiu      $7, $0, 0x1
-    /* 120940 00220940 6401A68C */  lw         $6, 0x164($5)
-    /* 120944 00220944 89010524 */  addiu      $5, $0, 0x189
-    /* 120948 00220948 A49C87AF */  sw         $7, %gp_rel(D_0062A894)($28)
-    /* 12094C 0022094C B400C2AC */  sw         $2, 0xB4($6)
-    /* 120950 00220950 040043AC */  sw         $3, 0x4($2)
-    /* 120954 00220954 F867050C */  jal        BoxBarSoundOn
-    /* 120958 00220958 B000C0AC */   sw        $0, 0xB0($6)
-    /* 12095C 0022095C 6004080C */  jal        _ACTWait
-    /* 120960 00220960 2D200000 */   daddu     $4, $0, $0
-    /* 120964 00220964 1000BFDF */  ld         $31, 0x10($29)
-    /* 120968 00220968 0800E003 */  jr         $31
-    /* 12096C 0022096C 2000BD27 */   addiu     $29, $29, 0x20
-endlabel func_00220918
-```
+## Coupling history: rc9 (struct s + void*[] D, a2/a3 swap) -> permuter new_var
+## (rc8) -> hand rc6 -> permuter output-125 capture (rc4). Re-seed permuter from rc4.
