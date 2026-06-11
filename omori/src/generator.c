@@ -13,7 +13,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", IsNeedGenerator);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", CallEnemy);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", Generator_QuickCall);
+extern void func_001AB9F8(void *a0);
+extern void iosOmBeforeFuncStandard(void *a0, int a1, void *a2);
+
+void Generator_QuickCall(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    GenGeo *q = *(GenGeo **)((char *)p + 0x7F0);
+    *(int *)((char *)q + 0x50) = 1;
+    func_001AB9F8(a0);
+    iosOmBeforeFuncStandard(a0, 1, a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", GetMotherGenerator);
 
