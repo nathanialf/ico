@@ -20,7 +20,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ACTRunIntrCorrect);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_00155FF8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", WithMailFunc_WayBeginPosError);
+extern void *ContinueCorrectPosition(void *a0);
+extern void CylinderCollision(void *a0, void *a1);
+
+void WithMailFunc_WayBeginPosError(void *a0, void *a1) {
+    void *ret = ContinueCorrectPosition(a0);
+    *(float *)((char *)a1 + 4) = *(float *)((char *)ret + 4);
+    CylinderCollision(a0, a1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", WithMailFunc_AttackFail);
 
