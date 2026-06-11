@@ -67,3 +67,56 @@ output-85-2=rc3 — WORSE than parked rc1 (score/real_count anti-correlation). I
 optimizes away (rc1); verbatim only "wins" by mis-passing a0 to func1. Nothing beats rc1.
 RESOLUTION (b): permuter-exhausted pass 3. Re-attack future resume with a FRESH hand idea on
 the dead pre-call v0=sp regalloc rematerialize.
+
+## Pass 4 (2026-06-11): resume, reset stall, ~30 NEW distinct clean shapes -> rc1 floor, stall=30 -> permute
+Re-confirmed the ONLY diff is a single DEAD `daddu v0,sp,zero` at exp_index 7 (between the two
+calls, after `daddu a0,s0`); built is otherwise byte-identical. The v0 copy is provably DEAD:
+GetQuaternionFromMatrix clobbers v0, so it cannot be a live return value — it is a reload/dbr
+rematerialize ghost with NO source-level meaning. `return local`-family puts the SAME insn at
+exp_index 11 (END), where it IS the live return value (rc2). Cookbook has a dedicated CRUTCH
+macro `DEAD_DADDU_V0_SP(a)` (matching.h) that injects exactly this `daddu $2,$29,$0` — its very
+existence is the repo's admission no clean C reproduces it (and the differ rejects the crutch).
+
+NEW shapes ruled out this pass (all fold to the clean one-step `daddu a1,sp`, rc1 unless noted):
+CqMatrix struct + &local; single `char *p` reused; nested `GetQ(a0, func1ret(local,a1))`
+(void* return -> a1,v0 rc2); temp-renames (src/dst/both); a0-cast; volatile-local; nested-scope;
+u64[8]; alloca (rc12, frame-ptr); 2d-array `local[0]`; ptr-to-array `*pa`; deref `&*local`;
+comma-nest call1-inside-GetQ-arg (x2); a0-reload; noproto-both; union{b[];p} member; float* sig;
+static-inline identity (rc4); ptr-3use w/ dead branch (rc15); xor-self-addr; second-buffer (rc10).
+gcc collapses every address expression to a single rematerializable leaf -> never a held pseudo
+-> never the two-step (set v0 P)(set a1 v0) that orphans v0. Mechanism needs register PRESSURE to
+spill &local, but the 14-insn budget admits no extra live value. Firing permuter pass 4 at stall=30.
+
+---
+
+## Attempt at 2026-06-11
+
+**Reason parked:** rc1 floor: single DEAD daddu v0,sp reload ghost between 2 calls (GetQ clobbers v0 -> not a return value); ~30 distinct clean shapes all fold to one-step daddu a1,sp; needs reg-pressure spill the 14-insn budget can't supply; DEAD_DADDU_V0_SP crutch exists for this exact pattern. Pass 4.
+
+**TU:** `sugipon/src/quaternion.c`
+
+**Seed:** `tough_nuts/CopyQuaternion/CopyQuaternion.2.c`
+
+Disassembly:
+
+```
+.align 3
+nonmatching CopyQuaternion, 0x38
+
+glabel CopyQuaternion
+    /* DB88 0010DB88 A0FFBD27 */  addiu      $29, $29, -0x60
+    /* DB8C 0010DB8C 4000B0FF */  sd         $16, 0x40($29)
+    /* DB90 0010DB90 2D808000 */  daddu      $16, $4, $0
+    /* DB94 0010DB94 5000BFFF */  sd         $31, 0x50($29)
+    /* DB98 0010DB98 BC62040C */  jal        func_00118AF0
+    /* DB9C 0010DB9C 2D20A003 */   daddu     $4, $29, $0
+    /* DBA0 0010DBA0 2D200002 */  daddu      $4, $16, $0
+    /* DBA4 0010DBA4 2D10A003 */  daddu      $2, $29, $0
+    /* DBA8 0010DBA8 5636040C */  jal        GetQuaternionFromMatrix
+    /* DBAC 0010DBAC 2D28A003 */   daddu     $5, $29, $0
+    /* DBB0 0010DBB0 5000BFDF */  ld         $31, 0x50($29)
+    /* DBB4 0010DBB4 4000B0DF */  ld         $16, 0x40($29)
+    /* DBB8 0010DBB8 0800E003 */  jr         $31
+    /* DBBC 0010DBBC 6000BD27 */   addiu     $29, $29, 0x60
+endlabel CopyQuaternion
+```
