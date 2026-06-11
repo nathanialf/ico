@@ -48,3 +48,10 @@ Residual rc5 = COUPLED coloring+layout: gcc's dbr fills the beqz delay with the 
 else block + `b` to merge vs ROM's ret=0-in-delay + shared return. sched2 schedules ret=0 early
 (no deps) so it's never the dbr delay candidate. ~30 distinct hand forms (ternary/movn/sub-cmp/
 goto/decl-order/branch-direction/ptr-vs-arr) all rc5-13. Permuter (reorg-tail class).
+
+## Permuter harvest 2026-06-11: nothing below rc5 -> (b)
+Permuter ran ~6000 iters, best score 180 (base 220) BUT diff --dry: output-180-1/185-1=rc7,
+190-1=rc9, 205-1=rc8 — all WORSE than parked rc5 (score/real_count anti-correlation; the
+"wins" are broken `ret=ret` uninitialized-else mutations). Nothing beats rc5. RESOLUTION (b).
+Re-attack future resume with a fresh idea to get ret=0 into the beqz delay slot (vs the
+deferred element-addu) without the separate else block.
