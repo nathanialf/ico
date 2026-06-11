@@ -232,7 +232,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetMotionFrameFl
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetHeightOfFieldPlaneDifference);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetHeightOfWallFromGObj);
+extern void GetRootMatrixByDObj(int *a0);
+
+void GetHeightOfWallFromGObj(int *a0, int **a1) {
+    do {
+        GetRootMatrixByDObj(a0);
+    } while (0);
+    *(float *)((char *)a0 + 0x4) += *(float *)((char *)a1[0x57] + 0x260);
+}
 
 void GetHeightOfCliffFromGObj(int **a0, float a1) {
     int *p = a0[0x57];
