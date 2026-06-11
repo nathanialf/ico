@@ -90,7 +90,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetStreamMotion)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", copyMotionWithNodeHrc);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", CopyMotionWithNodeHrc);
+typedef struct { long long x; int y; } __attribute__((packed, aligned(4))) HrcNode;
+
+void CopyMotionWithNodeHrc(void *a0) {
+    char *p = *(char **)((char *)a0 + 0x15C);
+    char *d = *(char **)((char *)a0 + 0x164);
+    *(HrcNode *)(p + 0x170) = *(HrcNode *)(p + 0x190);
+    *(HrcNode *)(d + 0x610) = *(HrcNode *)(p + 0x190);
+}
 
 void *GetFloatingMotion(int **a0) {
     return (char *)a0[0x57] + 0x670;
