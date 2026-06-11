@@ -118,3 +118,9 @@ glabel func_00269480
     /* 1694B4 002694B4 C2170400 */   srl       $2, $4, 31
 endlabel func_00269480
 ```
+
+## Pass 3 harvest (2026-06-11): permuter found nothing below rc4 -> (b)
+"no permutation matched". Only stale outputs (score 175-270) present, all semantically broken
+(output-175-1: `hx=lx` clobber -> diff --dry real_count=14). Nothing beats rc4. RESOLUTION (b)
+permuter-exhausted pass 3. This remains the strongest sched2-priority-bound candidate in the repo
+(-fno-sched2 = exact ROM). Re-attack future resume only with a genuinely novel hx-priority idea.
