@@ -139,4 +139,27 @@ extern int func_00137B50(void *a0);
 extern int iosCdvdBackGroundMgrEntryNum(void *a0);
 extern int D_0062BF88;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcdata", func_00138218);
+int func_00138218(void *a0, void *a1) {
+    int buf[4];
+    int s3;
+    int acc = 0;
+    buf[0] = (*(int *)((char *)a1 + 0x20) + 0x7FF) / 0x800 * 0x800;
+    s3 = iosCdvdChgFileName(a1, iosMallocResetPartition, buf, 0, 0, 0, 0, 0);
+    if (buf[0] > 0) {
+        do {
+            int chunk;
+            buf[1] = 0;
+            do {
+                func_00137B50(a0);
+                chunk = buf[1];
+            } while (chunk == 0);
+            acc += chunk;
+            if (*(int *)((char *)a1 + 0x20) < acc)
+                chunk -= acc - *(int *)((char *)a1 + 0x20);
+            func_00135F88(a0, buf[2], chunk);
+            D_0062BF88 = 1;
+        } while (buf[0] > 0);
+    }
+    iosCdvdBackGroundMgrEntryNum((void *)s3);
+    return 0;
+}
