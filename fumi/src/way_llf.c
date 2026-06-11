@@ -4,7 +4,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", InitWayPointSystem);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", CreateWayGroup);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", CreateTempWayGroup);
+typedef struct { int w[16]; } WayGroup_CT;
+extern WayGroup_CT D_004C7CB0[];
+
+void *CreateTempWayGroup(void) {
+    WayGroup_CT *p = D_004C7CB0;
+    WayGroup_CT *end = D_004C7CB0 + 215;
+    if (p == 0) goto ret0;
+    if (p == end) goto ret0;
+    for (p++;; p++) {
+        if (p->w[0] != 0) return p;
+        if (p == end) break;
+    }
+ret0:
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", DeleteWayGroup);
 
