@@ -60,7 +60,14 @@ void actSt08aIntroChk(int a0) {
     AddWayPointTop(3, 1);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", func_00220BD0);
+void func_00220BD0(int a0) {
+    volatile int buf[4];
+    buf[0] = a0;
+    while (func_00178DB0(0xEA) == 0 || func_00178DB0(0xEB) == 0) {
+        _ACTWait(1);
+    }
+    AddWayPointTop(4, 1);
+}
 
 void func_00220C28(int a0) {
     int buf[4];
