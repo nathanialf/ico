@@ -68,7 +68,14 @@ void actSt08bEnemy2(int a0) {
     func_00178DD8(0xF7);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", actSt08bKurenMain);
+void actSt08bKurenMain(int a0) {
+    volatile int buf[4];
+    buf[0] = a0;
+    while (scpDoorTypeUpUp(0x563) == 0) {
+        _ACTWait(1);
+    }
+    func_00178DD8(0xF8);
+}
 
 extern int scpDoorTypeUpUp(int a0);
 extern void _ACTWait(int a0);
