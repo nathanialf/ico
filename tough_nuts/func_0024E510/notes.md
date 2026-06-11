@@ -106,3 +106,29 @@ const-3 $4-vs-$2 local-alloc tiebreak is not reachable by the permuter's randomi
 pass 1). RESOLUTION (b) pass 2. Best stays rc2. Future resume: a non-equivalent rewrite that makes
 the const pseudo coalesce with the dead %hi-base reg ($2) without reserving v0 — or accept it as a
 local-alloc reg-order difference (the permuter twice can't reach it).
+
+## Pass 3 (2026-06-11): asm-crutch session (user authorized small asm crutches)
+Re-confirmed rc2 const-reg/%hi-reg local-alloc tiebreak. Clean form's beq-delay is
+filled by gcc's OWN dbr (sd $31 inside .set noreorder/nomacro), not the assembler.
+Asm crutches tried this pass, all rc2 or fatal — each TRADES one diff for another:
+- **pin $2** (`register int three __asm__("$2")=3`): const $2 ✓, beq ✓, sd-in-delay ✓,
+  but the pin reserves $2 function-wide → %hi base forced to $4 (lui a0/lw,0(a0)). rc2.
+  Nested-block scoping the pin does NOT free $2 for the %hi base — still $4.
+- **#APP const-asm after load** (`int d=D[0]; asm("addiu $2,$0,3":"=r"(three):"r"(d))`):
+  EXACT reg layout — %hi $2 ✓, const $2 ✓ (sequential reuse), beq ✓ — BUT the #APP/#NO_APP
+  boundary blocks gcc's dbr from placing sd $31 in the beq delay → nop in delay + sd
+  misplaced. rc2. memory-clobber moves sd even earlier (worse). The #APP barrier is
+  fundamental: ANY inline asm between load and beq breaks the gcc-dbr delay fill.
+- **full-asm body** (.set noreorder, manual frame+jals+jr): instructions BYTE-PERFECT
+  through 0x38, but ee-gcc 2.9 appends an unsuppressable epilogue (`j $31`+nop). `naked`
+  → "attribute directive ignored"; `noreturn` → epilogue still emitted; `for(;;)` →
+  adds a loop back-branch. The trailing j+nop shifts func_0024E550 by 0x8 → ninja-fatal.
+- Frame interleaving (lui; sp-adjust; lw + sd-$31-in-beq-delay + per-branch ld-$31) is
+  gcc-NATURAL only when gcc owns the load+branches (= clean form), which is exactly what
+  carries the const→$4 defect. Letting gcc own the frame forces gcc's sp-adjust BEFORE any
+  #APP lui → order mismatch. The three constraints (const-reg, delay-fill, frame-interleave)
+  are mutually exclusive under ee-gcc 2.9's #APP-barrier + unsuppressable-epilogue rules.
+RESOLUTION: genuine floor. Best clean form (rc2) preserved as seed .1.c; reverted TU to
+INCLUDE_ASM. Not crackable by clean C (30-stall x2 + permuter x2) NOR the available asm
+crutches. Future: a real demote/postprocess for the const-reg, or a toolchain that lets
+inline asm participate in delay-slot fill, would be needed.
