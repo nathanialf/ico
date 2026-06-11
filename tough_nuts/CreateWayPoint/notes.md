@@ -171,3 +171,11 @@ glabel CreateWayPoint
 endlabel CreateWayPoint
     /* 102F3C 00202F3C 00000000 */  nop
 ```
+
+## Pass 3 harvest (2026-06-11): both-arms seed, outputs rc5/7/9, none < rc1 -> (b)
+Permuter (both-arms rc5 seed, base 220) outputs: output-220-1=rc5, 180-1=rc7, 190-1=rc9 by true
+real_count. NONE beats the parked rc1 (do-while-0). The permuter could not find a non-loop reorder
+that triggers gcc's dbr eager-fill (ret=0 into the beqz delay). RESOLUTION (b) pass 3. Best stays
+rc1 do-while-0 (blocked by .p2align3 nop). The genuine blocker is a compiler dbr/alignment flag
+difference, not a source shape — strongest candidate for the retired demote_p2align rule if it
+ever returns. Future resume: attack the dbr eager-fill from the both-arms rc5 (correct p2align2).
