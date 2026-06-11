@@ -27,7 +27,10 @@ int texture_fading(void)
     return -1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", func_001B2EF8);
+typedef struct { int _0; int f4; char pad[0x50]; } LTItem_B2EF8;
+extern LTItem_B2EF8 D_002715D0[];
+
+int func_001B2EF8(int a0){int v=D_002715D0[a0].f4;if(v&0x40)goto ret1;if(v&0x10)goto ret1;goto ret0;ret1:return 1;ret0:return 0;}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", display_primary_texture_layout);
 
