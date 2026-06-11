@@ -2987,7 +2987,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002692C0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00269438);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00269480);
+int func_00269480(long long x)
+{
+    int lx, hx;
+    do { lx = (int)x; hx = (int)(x >> 32); } while (0);
+    hx &= 0x7fffffff;
+    hx |= ((unsigned int)(lx | (-lx))) >> 31;
+    hx = 0x7ff00000 - hx;
+    do { return ((unsigned int)hx) >> 31; } while (0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002694B8);
 
