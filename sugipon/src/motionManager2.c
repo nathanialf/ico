@@ -21,7 +21,14 @@ void GetOrientOfWallOfGObj(int a0, int **a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetOrientOfCliffOfGObj);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", SetMotionDirection);
+extern void MatrixDrive_GetTurnXAngleZY(void *a0, void *a1, void *a2);
+
+void SetMotionDirection(int a0, char *a1) {
+    char *sub = *(char **)(a1 + 0x15C);
+    char *t = sub + 0xA0;
+    MatrixDrive_TurnObjectMatrix(a0, sub + 0x120);
+    MatrixDrive_GetTurnXAngleZY((void *)a0, (void *)a0, t);
+}
 
 extern float func_00166A48(void *a0, void *a1);
 extern void debug_assertMessage(void *msg);
