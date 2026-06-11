@@ -6,7 +6,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aEne1Chk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aEne2Chk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aDoorUp);
+void actSt08aDoorUp(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x94) != 0 && func_00178DB0(0xD1) == 0) {
+        stage_KillPlayBgAnimation(0x139, 0, -1);
+    }
+    if (func_00178DB0(0x94) == 0 || func_00178DB0(0xD1) != 0) {
+        stage_KillPlayBgAnimation(0x139, 0, 0);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aDoor);
 
