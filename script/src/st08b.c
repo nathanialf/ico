@@ -31,7 +31,18 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", actSt08bEnemy2);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", actSt08bKurenMain);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", actSt08aGirlYoro);
+extern int scpDoorTypeUpUp(int a0);
+extern void _ACTWait(int a0);
+extern void func_00178DD8(int a0);
+
+void actSt08aGirlYoro(int a0) {
+    volatile int buf[4];
+    buf[0] = a0;
+    while (scpDoorTypeUpUp(0x518) == 0) {
+        _ACTWait(1);
+    }
+    func_00178DD8(0xF5);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", actSt08bDoorEvent);
 
