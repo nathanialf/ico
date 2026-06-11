@@ -264,8 +264,14 @@ void ACT_LAYOUT_GAMEOVER(void *a0) {
     dispPlane(a0, local);
 }
 
-/* parked: needs real matching. See tough_nuts/ACTAdjustPlane/notes.md */
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ACTAdjustPlane);
+extern void func_00240038_p(void *a0, int a1, float f) __asm__("func_00240038");
+
+void ACTAdjustPlane(int *self)
+{
+    int buf[4];
+    func_00240038_p(buf, (int)((char *)self[0x164 / 4] + 0x4A0), -1.0f);
+    dispPlane((void *)self, buf);
+}
 
 extern void ChangeMailInLadder(void *buf, void *obj);
 
