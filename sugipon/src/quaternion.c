@@ -66,7 +66,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", getQuaternionFromMat
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", GetQuaternionFromMatrix);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", CopyQuaternion);
+extern void func_00118AF0(void *a0, void *a1);
+extern void GetQuaternionFromMatrix(void *a0, void *a1);
+void CopyQuaternion(void *a0, void *a1) {
+    char local[0x40];
+    register void *aa __asm__("$4");
+    func_00118AF0(local, a1);
+    aa = a0;
+    __asm__ volatile ("daddu $2,$sp,$0" :: "r"(aa));
+    GetQuaternionFromMatrix(aa, local);
+}
 
 extern void MatrixDrive_TurnObjectMatrix(void *a0, void *a1);
 
