@@ -10,7 +10,24 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", p2o_DispVU1DObj);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", p2o_DispVU1DObjMulti);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", p2o_DispVU1Multi);
+extern int func_00118048(float arg);
+
+int p2o_DispVU1Multi(void *a0) {
+    register float arg __asm__("$f12");
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf14, 0x0($4)\n"
+        "lqc2 $vf15, 0x0($4)\n"
+        "vmul.xyzw $vf15, $vf14, $vf15\n"
+        "vaddy.x $vf15, $vf15, $vf15y\n"
+        "vaddz.x $vf15, $vf15, $vf15z\n"
+        "vaddw.x $vf15, $vf15, $vf15w\n"
+        "qmfc2.ni $2, $vf15\n"
+        "mtc1 $2, $f12\n"
+        ".set reorder\n"
+        : "=f"(arg) :: "$2");
+    return func_00118048(arg);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", p2o_DispVU1MultiDefault);
 
