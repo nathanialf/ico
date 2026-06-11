@@ -247,7 +247,15 @@ void SetMotionNodeFixModeParameter(int a0) {
     D_00629E4C = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetRootProjectionPosOfGObj);
+typedef struct { long long a, b, c, d; } Block20;
+
+void GetRootProjectionPosOfGObj(Block20 *dst, Block20 *src, int n) {
+    if (n > 0) {
+        do {
+            *dst++ = *src++;
+        } while (--n);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", SetMotionPlaySpeedRatio);
 
