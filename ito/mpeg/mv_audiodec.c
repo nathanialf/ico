@@ -55,7 +55,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", func_002390F0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", func_00239188);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", func_002391E8);
+int func_002391E8(int *a0) {
+    float *p = (float *)a0[0xD];
+    p[0] = 118.0f;
+    p[1] = -192.0f;
+    p[2] = -46.0f;
+    *(float *)((char *)a0 + 0x1C) = 0.5f;
+    return 1;
+}
 
 extern const float D_00629B34, D_00629B38;
 
