@@ -1,6 +1,15 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpTorchLightOn);
+extern int actSt25aQueenDeadChk(int a0);
+extern void func_0012AB48(int a0, int *a1);
+
+void scpTorchLightOn(int a0, int a1) {
+    int ret = actSt25aQueenDeadChk(a0);
+    if (ret != 0) {
+        int msg[2] = { ret, 0 };
+        func_0012AB48(a1, msg);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpTorchLightOff);
 
