@@ -69,4 +69,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-env", func_001FE1D0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-env", func_001FE250);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-env", func_001FE2F8);
+extern int D_00629C90;
+extern int EnableMotionOrientUpdate(int a0, int a1);
+extern int ForMotionViewer_GetCurrentMotion(int a0, int a1);
+
+int func_001FE2F8(int a0) {
+    if (D_00629C90 == 4) {
+        return (unsigned char)EnableMotionOrientUpdate(a0, 0x1000);
+    }
+    return (unsigned char)ForMotionViewer_GetCurrentMotion(a0, 0x1000);
+}
