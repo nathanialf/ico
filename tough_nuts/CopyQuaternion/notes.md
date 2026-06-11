@@ -226,3 +226,13 @@ glabel CopyQuaternion
     /* DBBC 0010DBBC 6000BD27 */   addiu     $29, $29, 0x60
 endlabel CopyQuaternion
 ```
+
+## Pass 6 harvest (2026-06-11): rc2-seed base=60, NO sub-base output -> (b)
+Permuter ran ~3400 iters from the rc2 return-local seed (base score 60, much closer than the
+clean-seed 115). NO output below base — the `daddu v0,sp` in the rc2 seed is the RETURN VALUE,
+semantically pinned to the function END; no source mutation moves it to the dead middle without
+breaking the return, so the permuter can't reorder it any more than it can inject it. Confirms the
+dead v0=&local is genuinely unreachable by clean C OR permuter (both injection AND reorder fail).
+RESOLUTION (b) pass 6. This is the strongest-evidenced (b) in the repo now (callee-grounded +
+3 permuter strategies exhausted). Future resume: only a fundamentally different model of what the
+dead v0 IS (not &local? a frame artifact of a larger original frame?) could open it.
