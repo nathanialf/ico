@@ -33,4 +33,17 @@ int func_001C0950(void) {
     return v;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/chandelier", func_001C0990);
+extern void *actCreateSubThreadGOppArg(void *entry, int arg);
+extern void func_001C0730(volatile unsigned int self);
+/* func_001C0730 is an INCLUDE_ASM sibling in this TU; mark it weak so the %hi/%lo
+   reference below emits an R_MIPS_HI16/LO16 against the SYMBOL (as the original
+   object did) rather than a .text-section reloc gas would fold a strong in-TU def
+   to. Binding is stripped from the .rom — verify_elf is byte-identical either way. */
+__asm__(".weak func_001C0730");
+
+void *func_001C0990(int *a0) {
+    void *t = actCreateSubThreadGOppArg(func_001C0730, 0x15);
+    *(int **)((char *)t + 0x20) = a0;
+    a0[0] = 0;
+    return t;
+}
