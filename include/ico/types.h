@@ -121,8 +121,6 @@ struct Sub15C {
     void   *p_800; /* 0x800 — untyped (no consumers yet) */
     char    _pad804[0x10];
     int     f_814; /* 0x814 */
-    char    _pad818[0x18];
-    void   *p_830; /* 0x830 — geometry/matrix object */
 };
 
 /* Geometry/model object hanging off Sub15C + 0x7F0. The p_7F0 field is read

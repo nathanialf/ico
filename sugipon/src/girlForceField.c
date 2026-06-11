@@ -76,7 +76,27 @@ void GirlForceFieldDL(GObj *self) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/girlForceField", func_001CF010);
+extern int D_0062A310;
+extern char D_00611830[];
+extern int *iosFree(int heap, int size, const char *file, int line);
+
+int *func_001CF010(int *self, int *src) {
+    int *ret = iosFree(D_0062A310, 0xC, D_00611830, 0x17);
+    float val = *(float *)((char *)src + 0x28);
+    float one = 1.0f;
+    int *new_var;
+    int *p = ret;
+    *(float *)((char *)p + 0x0) = val;
+    *(int *)((char *)p + 0x8) = 0;
+    val = one / val;
+    *(float *)((char *)p + 0x4) = val;
+    p = *(int **)((char *)*(long *)((char *)self + 0x15C) + 0x830);
+    *(volatile float *)((char *)p + 0x20) = one;
+    *(volatile float *)((char *)p + 0x28) = one;
+    *(volatile float *)((char *)p + 0x24) = one;
+    new_var = ret;
+    return new_var;
+}
 
 void func_001CF090(void) {
 }
