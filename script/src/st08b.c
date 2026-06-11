@@ -19,7 +19,18 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", actSt08bDoor);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", actSt08bDoorUpChk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", actSt08bDoorDownChk);
+extern int scpDoorTypeUpUp(int a0);
+extern void _ACTWait(int a0);
+extern void func_00178DD8(int a0);
+
+void actSt08bDoorDownChk(int a0) {
+    volatile int buf[4];
+    buf[0] = a0;
+    while (scpDoorTypeUpUp(0x514) == 0) {
+        _ACTWait(1);
+    }
+    func_00178DD8(0xF1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", actSt08bKuren);
 
