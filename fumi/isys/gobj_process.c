@@ -47,10 +47,10 @@ void cut_gobj_process_link(DLN *self, DLN *obj) {
     }
 }
 
-extern void isysGObjProcAddGOppArg(void);
+extern void isysGObjProcAddGOppArg(unsigned int a0);
 
-void isysGObjProcRemove(void) {
-    isysGObjProcAddGOppArg();
+void isysGObjProcRemove(unsigned int a0) {
+    isysGObjProcAddGOppArg(a0);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj_process", isysGObjProcessAlloc);
@@ -74,7 +74,7 @@ void isysGObjProcAddS(int *a0)
 
 extern int iosFree(int a0, int a1, const char *fmt, int line);
 extern int D_0062A308;
-extern int D_0062BFB0;
+extern char *D_0062BFB0;
 extern int D_0062BFB4;
 extern char D_00551EA0[];
 
@@ -82,9 +82,9 @@ void isysGObjProcAddGOppArg(unsigned int a0) {
     int ret = iosFree(D_0062A308, a0 * 0x94, D_00551EA0, 0x49);
     unsigned int i;
     D_0062BFB4 = a0;
-    D_0062BFB0 = ret;
+    D_0062BFB0 = (char *)ret;
     for (i = 0; i < a0; i++) {
-        *(int *)(ret + i * 0x94) = 0;
+        *(int *)(D_0062BFB0 + i * 0x94) = 0;
     }
 }
 
