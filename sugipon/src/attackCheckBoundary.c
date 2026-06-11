@@ -1,6 +1,19 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/attackCheckBoundary", AttackCheckBoundaryBeforeFunc);
+extern int D_0062D388[];
+extern void *D_004BA260[];
+
+void *AttackCheckBoundaryBeforeFunc(void *a0) {
+    void *p = *(void **)((char *)a0 + 0x164);
+    unsigned int idx;
+    if (p != 0) {
+        idx = *(unsigned int *)((char *)p + 0x30);
+        if (idx < 6) goto arr;
+    }
+    return D_0062D388;
+arr:
+    return D_004BA260[idx];
+}
 
 extern int AP1BeforeFunc(void *a0, int a1);
 
