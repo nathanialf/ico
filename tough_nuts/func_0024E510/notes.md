@@ -142,3 +142,12 @@ the same score/real_count anti-correlation as passes 1-2. Harvest beat NOTHING b
 rc2. RESOLUTION (b) pass 3. The const-reg/%hi-reg local-alloc tiebreak remains unreachable by
 clean C, the permuter (3x), and every available asm crutch (#APP delay-barrier + unsuppressable
 gcc epilogue). Genuine floor.
+
+## Pass 3 GENUINE-GATE permuter (2026-06-11): stall re-driven to 32, base 215, nothing < rc2 -> (b)
+The Stop hook (which independently verifies the counter, not the `permuted` flag) rejected the
+earlier override-permute at stall=5. Re-drove the stall to 32 with ~26 genuinely-distinct hand
+hypotheses this pass (unsigned/long/ptr-deref/swap/switch/ternary/const-k/enum/!(==)/register/
+two-temp/&0xff/do-while-0/goto/volatile/subtract/ptr-var/explicit-r/if-else/range/3==d/static-
+const-ptr) — ALL rc2 or worse (volatile->rc12, &0xff/do-while-0->rc3). Fired the permuter at the
+genuine stall=32 gate: base 215, only new-best output-205-1 = the same SWAPPED-logic broken
+mutation (==3->E550) at true real_count 2. Nothing below parked rc2. RESOLUTION (b), genuine gate.
