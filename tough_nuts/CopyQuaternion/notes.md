@@ -236,3 +236,53 @@ dead v0=&local is genuinely unreachable by clean C OR permuter (both injection A
 RESOLUTION (b) pass 6. This is the strongest-evidenced (b) in the repo now (callee-grounded +
 3 permuter strategies exhausted). Future resume: only a fundamentally different model of what the
 dead v0 IS (not &local? a frame artifact of a larger original frame?) could open it.
+
+## Pass 7 (2026-06-11): DEV-INTENT grounding of BOTH callees — conclusive (b)
+Per user feedback (reason from the dev's data model + the function's GOAL, not syntax), grounded
+the second callee for the first time:
+- func_00118AF0 = void 4x4 matrix TRANSPOSE (pextlw/pextuw/pcpyld/pcpyud), dst=$4 src=$5, NO return.
+- GetQuaternionFromMatrix(dst=$4, matrix=$5) = trace-based quaternion extraction (reads m[0]+m[0x14]
+  +m[0x28] diagonal, c.lt.s 0, the classic algo). Its prologue does `sw $2, 0x0($29)` (spills the
+  INCOMING $2/v0) but sp+0 is NEVER read back — a dead spill in GetQ's OWN frame, NOT a real v0 param.
+GOAL: CopyQuaternion(dst,src) = quaternion-from-transposed-matrix. Tested the semantic hypotheses the
+grounding suggested (NOT costumes): GetQ 3rd-arg -> lands in a2($6) not v0 (rc2); func_00118AF0
+returns-buffer + ignore -> gcc ELIDES the dead return (rc1, no v0 at all); returns-buffer nested as
+GetQ 3rd arg -> daddu a2,v0 (rc1); typed Mtx struct -> rc1. CONCLUSION: the dead `daddu v0,sp` at the
+mid position is reachable by NO clean C — v0 is not an arg reg (args go $4-$7/$8-$9 n32), so a value
+lands in v0 only as an unconsumed return, which gcc elides. It is a pure reload/regalloc artifact.
+This is now the strongest-evidenced (b) in the repo (both callees grounded, all semantic axes ruled
+out, 3 permuter strategies exhausted). NOT a costume-floor — a conclusively-grounded compiler artifact.
+
+---
+
+## Attempt at 2026-06-11
+
+**Reason parked:** rc1 dead v0=&local; pass7 DEV-INTENT grounded both callees conclusively (void transpose + trace-quaternion that dead-stores incoming v0); all semantic axes (3rd-arg->a2, retbuf-elided, struct/types) ruled out; reload artifact. Pass 7.
+
+**TU:** `sugipon/src/quaternion.c`
+
+**Seed:** `tough_nuts/CopyQuaternion/CopyQuaternion.5.c`
+
+Disassembly:
+
+```
+.align 3
+nonmatching CopyQuaternion, 0x38
+
+glabel CopyQuaternion
+    /* DB88 0010DB88 A0FFBD27 */  addiu      $29, $29, -0x60
+    /* DB8C 0010DB8C 4000B0FF */  sd         $16, 0x40($29)
+    /* DB90 0010DB90 2D808000 */  daddu      $16, $4, $0
+    /* DB94 0010DB94 5000BFFF */  sd         $31, 0x50($29)
+    /* DB98 0010DB98 BC62040C */  jal        func_00118AF0
+    /* DB9C 0010DB9C 2D20A003 */   daddu     $4, $29, $0
+    /* DBA0 0010DBA0 2D200002 */  daddu      $4, $16, $0
+    /* DBA4 0010DBA4 2D10A003 */  daddu      $2, $29, $0
+    /* DBA8 0010DBA8 5636040C */  jal        GetQuaternionFromMatrix
+    /* DBAC 0010DBAC 2D28A003 */   daddu     $5, $29, $0
+    /* DBB0 0010DBB0 5000BFDF */  ld         $31, 0x50($29)
+    /* DBB4 0010DBB4 4000B0DF */  ld         $16, 0x40($29)
+    /* DBB8 0010DBB8 0800E003 */  jr         $31
+    /* DBBC 0010DBBC 6000BD27 */   addiu     $29, $29, 0x60
+endlabel CopyQuaternion
+```
