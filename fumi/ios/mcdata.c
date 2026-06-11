@@ -62,7 +62,12 @@ int func_00137ED8(void *a0) {
     return iosMsgSend(D_0027D308, a0, 0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcdata", func_00137F20);
+int func_00137F20(void *a0) {
+    McHdr *v = (McHdr *)a0;
+    v->w.hi = 0xD;
+    v->ll = v->ll & -2;
+    return iosMsgSend(D_0027D308, a0, 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcdata", func_00137F68);
 
