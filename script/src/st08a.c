@@ -48,9 +48,31 @@ extern void actSt05eSolar(void);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", func_00220918);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aEne1);
+extern int D_004CCAC0[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aEne2);
+void actSt08aEne1(volatile int a0) {
+    int s = *(int*)(a0 + 0x164);
+    D_0062A894 = 0;
+    *(int*)(s + 0xB0) = (int)D_004CCAC0;
+    while (1) {
+        _ACTWait(1);
+    }
+}
+
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", func_002209A8);
+
+extern int D_004CCB20[];
+
+void actSt08aEne2(volatile int a0) {
+    int s = *(int*)(a0 + 0x164);
+    D_0062A894 = 0;
+    *(int*)(s + 0xB0) = (int)D_004CCB20;
+    while (1) {
+        _ACTWait(1);
+    }
+}
+
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", func_00220A38);
 
 extern int D_00629DE4;
 extern int D_00629DE8;
