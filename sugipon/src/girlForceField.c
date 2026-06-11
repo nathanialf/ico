@@ -101,4 +101,57 @@ int *func_001CF010(int *self, int *src) {
 void func_001CF090(void) {
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/girlForceField", func_001CF098);
+extern int DebugDisp1CollisionWithColor(void *a0, int code);
+
+typedef struct {
+    char  _0[0x10];
+    float f_10; /* 0x10 */
+    char  _14[0x1C];
+    int   f_30; /* 0x30 */
+    char  _34[0xC];
+} BoneEnt; /* 0x40 */
+
+void func_001CF098(float *out, void *self) {
+    register int refbuf __asm__("$2");
+    volatile int keep;
+    char *sub;
+    BoneEnt *arr;
+    float f21;
+    int idx;
+
+    keep = refbuf;
+    sub = (char *)*(int *)((char *)self + 0x15C);
+    arr = (BoneEnt *)*(int *)(sub + 0x8C);
+    f21 = *(float *)((char *)*(int *)(sub + 0x830) + 0x20);
+
+    idx = DebugDisp1CollisionWithColor(self, 0x13);
+    {
+        float v = arr[arr[idx].f_30].f_10;
+        if (v < 0.0f) {
+            v = -v;
+        }
+        out[0] = v * f21;
+    }
+
+    idx = DebugDisp1CollisionWithColor(self, 0x14);
+    {
+        float v = arr[arr[idx].f_30].f_10;
+        if (v < 0.0f) {
+            v = -v;
+        }
+        out[1] = v;
+    }
+
+    idx = DebugDisp1CollisionWithColor(self, 0x16);
+    {
+        float v = arr[arr[idx].f_30].f_10;
+        float o1 = out[1];
+        float t;
+        if (v < 0.0f) {
+            t = o1 - v;
+        } else {
+            t = o1 + v;
+        }
+        out[1] = t * f21;
+    }
+}
