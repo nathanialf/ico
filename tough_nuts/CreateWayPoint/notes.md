@@ -55,3 +55,9 @@ Permuter ran ~6000 iters, best score 180 (base 220) BUT diff --dry: output-180-1
 "wins" are broken `ret=ret` uninitialized-else mutations). Nothing beats rc5. RESOLUTION (b).
 Re-attack future resume with a fresh idea to get ret=0 into the beqz delay slot (vs the
 deferred element-addu) without the separate else block.
+
+## RETRY IDEA (from DeleteStreamMotionManager match 2026-06-11)
+The both-arms-set-default lever [[feedback_both_branches_set_default_late_reg]] cracked the sibling
+default-in-delay tie rc12->0. Retry: `if(a0){ret=a0[3];if(a0[3]==e->w[2])ret=0;}else{ret=0;}` is the
+rc5 form; try variants where the ELSE also redundantly sets ret and the body re-sets it, to push
+ret=0 into the beqz delay reusing $4.
