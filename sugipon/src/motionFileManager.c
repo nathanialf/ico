@@ -1,6 +1,21 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionFileManager", pursueNodeList);
+typedef struct {
+    char pad[0x134];
+    int node_id;  /* 0x134 */
+    char pad2[0x190 - 0x134 - 4];
+} MotionNode;
+extern MotionNode D_0055DA10[];
+extern int D_004C0A98[];
+
+void pursueNodeList(int a0) {
+    int i;
+    for (i = 0; i <= 0x43F; i++) {
+        if (D_0055DA10[i].node_id == a0) {
+            D_004C0A98[i] = 0;
+        }
+    }
+}
 
 int InitMotionFile(void *a0) {
     return (char *)a0 + 0x10 < *(char **)((char *)a0 + 0x8) ? 0 : -1;
