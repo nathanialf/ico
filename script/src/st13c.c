@@ -17,7 +17,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cConte04Jimaku);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cCage1stDownDemoCancel);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cCage1stDown);
+extern int func_00178DB0(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+
+void actSt13cCage1stDown(void) {
+    if (func_00178DB0(0x4F) == 0) {
+        stage_KillPlayBgAnimation(0x156, 0, 0);
+    } else {
+        stage_KillPlayBgAnimation(0x156, 0, -1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cCageFall);
 
