@@ -1,8 +1,20 @@
-# gsb_Reduction (seki/src/GsBase) — RESUMED rc13 -> rc7 (2026-06-11)
+# gsb_Reduction (seki/src/GsBase) — RESUMED rc13 -> rc6 (2026-06-11)
 
 15-insn GS display-list writer. **CFG + regalloc fully recovered.** Residual
 is TWO coupled reorg/sched ties (see below). Was parked rc13; this session
-cracked rc13->11->8->7 with the param-reuse + volatile-tail-order levers.
+cracked rc13->11->8->7 (param-reuse + volatile-tail-order), then the permuter
+found rc7->rc6.
+
+## rc7 -> rc6 (permuter, output-425-1, 2nd stall)
+Make the FIRST data store volatile too: `*(volatile ull*)p = a0` (not just the
+0x47 store). This groups the base `lui v1 / addiu v1` together (in rc7 the
+`li a1,0x47` split them). Current best.c / seed = this rc6 form.
+NOTE the permuter's rc4/rc5 outputs are DEGENERATE (dead-conditional: store
+0x30000 unconditionally / a0=0x50000 unconditional) — the "improve by deleting
+real code" trap; rc6 (425-1) is the lowest LEGIT output. Re-stalled 30 from rc6
+(another ~26 distinct forms, none < rc6); permuter re-fired from the rc6 seed.
+Residual rc6 diffs = branch region (bnez-collapse vs beqz+b+base-hi-delay
+diamond) + missing store-back-1 (still DSE'd). Same two coupled ties as rc7.
 
 ## Behaviour (from asm)
 ```

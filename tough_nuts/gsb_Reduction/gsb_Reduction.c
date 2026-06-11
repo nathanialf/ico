@@ -12,7 +12,7 @@ void gsb_Reduction(int a0) {
         a0 = 0x30000;
     }
     p = D_004C3850.cur;
-    *p = a0;
+    *(volatile unsigned long long *)p = a0;
     p++;
     D_004C3850.cur = p;
     *(volatile unsigned long long *)p = 0x47;
