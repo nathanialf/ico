@@ -4,7 +4,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", display_texture_f
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", lt_analog2Pad);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", default_item_select);
+extern int fightSoundClose(void);
+extern void StageManager(float a0, float a1, int a2);
+extern float D_00629404;
+extern int D_0062B304;
+
+int default_item_select(void) {
+    if (fightSoundClose() == 0) {
+        StageManager(D_00629404, 4.0f, D_0062B304);
+    }
+    return -1;
+}
 
 extern int D_002715D4[];
 extern int lt_set_item_select_func(void);
