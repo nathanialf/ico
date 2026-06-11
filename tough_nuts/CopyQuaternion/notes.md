@@ -180,3 +180,49 @@ endlabel CopyQuaternion
 than rc1; the 85 mis-routes a0 again). Nothing beats rc1. RESOLUTION (b) pass 5. Same as pass 4 —
 a dead-insn injection is not permuter-reorderable. Future resume needs a fundamentally new angle on
 func_00118AF0's real signature/return (does it return the buffer, legitimately occupying v0 pre-GetQ?).
+
+## Pass 6 (2026-06-11): callee grounded + NEW permuter-seed strategy
+GROUNDED callees from asm: func_00118AF0 = void 4x4 matrix TRANSPOSE(dst=$4, src=$5) via
+pextlw/pextuw/pcpyld/pcpyud, NO return value (refutes the pass-5 "returns buffer→v0" angle —
+the dead v0=&local has NO callee basis). GetQuaternionFromMatrix(dst,src) void. ~30 fresh shapes
+(typed Mtx struct, a0/dst/src temps, stmt-expr, transpose-grounded, u64/double/float/int/void*
+locals, dw0/goto/while1/if1 CFG, 2d-array, ptr-to-array, union, second-buffer) ALL rc1.
+NEW STRATEGY for permuter pass 6: seed with the rc2 `return local` form (void* return) which HAS
+the `daddu v0,sp` instruction PRESENT (at function END) — ROM has the SAME insn in the dead MIDDLE
+position. Clean rc1 (12 insns) MISSES the insn entirely so the permuter can't inject it; the rc2
+seed (13 insns, insn present) lets the permuter REORDER it end→middle = potential rc0. This is a
+pure reorder (permuter-tractable) vs injection (not). Passes 4,5 wrongly seeded the clean rc1.
+
+---
+
+## Attempt at 2026-06-11
+
+**Reason parked:** rc1 dead v0=&local; pass6 callee-grounded (func_00118AF0=void transpose, no return); ~30 fresh shapes rc1; NEW permuter strategy: seed rc2 return-local (has v0=sp insn to REORDER not inject)
+
+**TU:** `sugipon/src/quaternion.c`
+
+**Seed:** `tough_nuts/CopyQuaternion/CopyQuaternion.4.c`
+
+Disassembly:
+
+```
+.align 3
+nonmatching CopyQuaternion, 0x38
+
+glabel CopyQuaternion
+    /* DB88 0010DB88 A0FFBD27 */  addiu      $29, $29, -0x60
+    /* DB8C 0010DB8C 4000B0FF */  sd         $16, 0x40($29)
+    /* DB90 0010DB90 2D808000 */  daddu      $16, $4, $0
+    /* DB94 0010DB94 5000BFFF */  sd         $31, 0x50($29)
+    /* DB98 0010DB98 BC62040C */  jal        func_00118AF0
+    /* DB9C 0010DB9C 2D20A003 */   daddu     $4, $29, $0
+    /* DBA0 0010DBA0 2D200002 */  daddu      $4, $16, $0
+    /* DBA4 0010DBA4 2D10A003 */  daddu      $2, $29, $0
+    /* DBA8 0010DBA8 5636040C */  jal        GetQuaternionFromMatrix
+    /* DBAC 0010DBAC 2D28A003 */   daddu     $5, $29, $0
+    /* DBB0 0010DBB0 5000BFDF */  ld         $31, 0x50($29)
+    /* DBB4 0010DBB4 4000B0DF */  ld         $16, 0x40($29)
+    /* DBB8 0010DBB8 0800E003 */  jr         $31
+    /* DBBC 0010DBBC 6000BD27 */   addiu     $29, $29, 0x60
+endlabel CopyQuaternion
+```
