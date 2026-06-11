@@ -69,10 +69,31 @@ int func_00137F20(void *a0) {
     return iosMsgSend(D_0027D308, a0, 0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcdata", func_00137F68);
+typedef struct { long long x[8]; } __attribute__((packed)) Blk40_001383F8;
+typedef struct { char pad[0x140]; int f140; int f144; int f148; Blk40_001383F8 f14C; } Elem_001383F8;
+typedef struct { char p[8]; int idx; } McSelf_F68;
 
+extern Elem_001383F8 D_0027CFE0[];
+extern void func_00135F88(void *a0, int a1, int a2);
+extern unsigned int D_iconParam[] __asm__("D_0027126C");
+extern unsigned char D_0027D500[];
+extern unsigned int D_0062A410;
+extern int soundReverbDepthGet(void);
 extern void iosMcHandlerWrite(int self, int p, int sz);
-extern int D_0027CFE0[];
+
+int func_00137F68(void *self) {
+    {
+        int e = ((int *)self)[2] * 0x18C;
+        e += (int)D_0027CFE0;
+        *(int *)(e + 0x140) = D_iconParam[0];
+    }
+    D_0027CFE0[((int *)self)[2]].f144 = soundReverbDepthGet();
+    D_0027CFE0[((int *)self)[2]].f148 = D_0062A410;
+    *(Blk40_001383F8 *)((char *)&D_0027CFE0[0].f14C + ((int *)self)[2] * 0x18C) =
+        *(Blk40_001383F8 *)D_0027D500;
+    func_00135F88(self, (int)&D_0027CFE0[((int *)self)[2]], 0x18C);
+    return 0;
+}
 
 int func_00138098(int *self)
 {
@@ -92,9 +113,6 @@ extern unsigned int D_00274EEC_a[] __asm__("D_0027126C");
 extern unsigned char D_0027D500[];
 extern unsigned int D_0062A410;
 extern void soundAllocIopHeap(int);
-
-typedef struct { long long x[8]; } __attribute__((packed)) Blk40_001383F8;
-typedef struct { char pad[0x140]; int f140; int f144; int f148; Blk40_001383F8 f14C; } Elem_001383F8;
 
 /* parked: needs real matching (packed-struct copy regalloc, stride 0x18C).
  * See tough_nuts/func_00138100/notes.md */
