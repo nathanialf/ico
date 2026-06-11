@@ -124,3 +124,51 @@ endlabel func_00269480
 (output-175-1: `hx=lx` clobber -> diff --dry real_count=14). Nothing beats rc4. RESOLUTION (b)
 permuter-exhausted pass 3. This remains the strongest sched2-priority-bound candidate in the repo
 (-fno-sched2 = exact ROM). Re-attack future resume only with a genuinely novel hx-priority idea.
+
+## Pass 4 (2026-06-11): resume, ~30 fresh distinct shapes -> rc4 floor, stall=30 -> permute
+Re-confirmed via built .s side-by-side: TWO coupled sched2 displacements off one root —
+(1) hx-extract `dsra32 a0,a0` ROM-pos2 vs gcc-pos6 (hoisted behind mask-lui/negu/ori);
+(2) the 0x7ff00000 `lui v1` ROM-emits-before `or a0,a0,v0` vs gcc-after (scheduled as late as
+possible before its only consumer `subu`). Both are list-scheduler critical-path effects:
+priority(mask-lui)=priority(negu)=6 strictly > priority(hx-extract)=5; no byte-preserving source
+lengthens hx's chain (+1 insn) or shortens the 0x7fffffff lui+ori (2-insn const). Fresh shapes
+this pass (all rc4 unless noted): embed-assign-bit(rc10)/ret-assign, mask=~0x80000000, neg-subu,
+hx-first/bit-first decl, ull/uint-hx params, named/temp consts(m1/m2/mask), bit/neg temps, reg-qual,
+neg-paren/unsigned, lx-from-ll(<<32>>32), dummy-locals, do-while(rc15), comma-stmts, long-subu,
+subu-rev(rc6), single-return-expr(rc17). Same conclusion as passes 1-3: pure sched2 priority bind,
+-fno-schedule-insns2 gives EXACT ROM. No mode-TI here so the permuter explores the real DAG (it
+found nothing in passes 2,3). Firing permuter pass 4.
+
+---
+
+## Attempt at 2026-06-11
+
+**Reason parked:** rc4 sched2 hx-priority floor: hx-extract(pri5) strictly outranked by mask-lui+negu(pri6); -fno-sched2=exact ROM; ~30 fresh shapes pass4 all rc4; no-TI so permuter explores fully (found nothing pass2,3). Pass 4.
+
+**TU:** `common/src/PObj.c`
+
+**Seed:** `tough_nuts/func_00269480/func_00269480.3.c`
+
+Disassembly:
+
+```
+.align 3
+nonmatching func_00269480, 0x38
+
+glabel func_00269480
+    /* 169480 00269480 3C100400 */  dsll32     $2, $4, 0
+    /* 169484 00269484 3F100200 */  dsra32     $2, $2, 0
+    /* 169488 00269488 3F200400 */  dsra32     $4, $4, 0
+    /* 16948C 0026948C FF7F033C */  lui        $3, (0x7FFFFFFF >> 16)
+    /* 169490 00269490 23280200 */  negu       $5, $2
+    /* 169494 00269494 FFFF6334 */  ori        $3, $3, (0x7FFFFFFF & 0xFFFF)
+    /* 169498 00269498 25104500 */  or         $2, $2, $5
+    /* 16949C 0026949C 24208300 */  and        $4, $4, $3
+    /* 1694A0 002694A0 C2170200 */  srl        $2, $2, 31
+    /* 1694A4 002694A4 F07F033C */  lui        $3, (0x7FF00000 >> 16)
+    /* 1694A8 002694A8 25208200 */  or         $4, $4, $2
+    /* 1694AC 002694AC 23206400 */  subu       $4, $3, $4
+    /* 1694B0 002694B0 0800E003 */  jr         $31
+    /* 1694B4 002694B4 C2170400 */   srl       $2, $4, 31
+endlabel func_00269480
+```
