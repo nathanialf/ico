@@ -64,7 +64,14 @@ void BoySekikaTexScroll(void *a0, int a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actSt25aGenerator);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actSt25aQueenBefore);
+extern void _ACTWait(int a0);
+
+void actSt25aQueenBefore(void *a0) {
+    char *p = *(char **)((char *)a0 + 0x164);
+    while ((*(int *)(*(char **)(p + 0x110) + 0x5C) & 1) == 0) {
+        _ACTWait(1);
+    }
+}
 
 extern int D_0062C030;
 
