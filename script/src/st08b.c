@@ -34,7 +34,14 @@ void actSt08bDoorDownChk(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", actSt08bKuren);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", actSt08bEne);
+void actSt08bEne(int a0) {
+    volatile int buf[4];
+    buf[0] = a0;
+    while (scpDoorTypeUpUp(0x560) == 0) {
+        _ACTWait(1);
+    }
+    func_00178DD8(0xF3);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", actSt08bEnemy1);
 
