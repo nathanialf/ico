@@ -516,7 +516,13 @@ void func_002418E0(int a0) {
     func_00242078(a0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002418F0);
+void func_002418F0(void) {
+    volatile int *p = (volatile int *)0x1000F000;
+    *p = 4;
+    while ((*p & 4) == 0) {
+    }
+    *p = 4;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00241930);
 
