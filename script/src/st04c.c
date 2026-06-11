@@ -2,7 +2,16 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cEnd);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cDoorDownChk);
+extern void actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+
+void actSt04cDoorDownChk(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    stage_KillPlayBgAnimation(0x101, 0, 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04lDoorChk);
 
