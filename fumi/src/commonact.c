@@ -4,7 +4,27 @@
 typedef struct { char _0[0xBC]; unsigned int f_BC; char _padc0[0x144]; int f_204; char _pad208[0x48]; int f_250; } CBrain670;
 typedef struct { char _0[0x30]; int f_30; unsigned int f_34; char _pad38[0x638]; CBrain670 *p_670; char _pad674[4]; void *p_678; } CommonActState;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ACTSetPositionWithFitting);
+extern void weaponFumbleSE(void *);
+extern char *D_00629DE4;
+
+void ACTSetPositionWithFitting(char *self) {
+    char *s164 = *(char **)(self + 0x164);
+    int *p2C = *(int **)(s164 + 0x2C);
+    int a1;
+    if (p2C != 0) {
+        a1 = *p2C;
+    } else {
+        a1 = *(int *)(s164 + 0x5D0);
+    }
+    if (self == D_00629DE4) {
+        char *p130 = *(char **)(s164 + 0x130);
+        if (p130 != 0) {
+            char *p15C = *(char **)(p130 + 0x15C);
+            *(int *)(p15C + 0x5E4) = a1;
+            weaponFumbleSE(p130);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ACTSetPositionNodeWithFitting);
 
