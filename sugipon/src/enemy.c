@@ -113,7 +113,26 @@ int HotInitDemoMotionGeo(void *a0, int a1) {
     return r[a1] == 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemy", GetEnemyHitNodeFlag);
+int GetEnemyHitNodeFlag(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int zero;
+    int n;
+    int count = *(int *)((char *)p + 0x88);
+    int result = 0;
+    zero = 0;
+    n = count;
+    if (n > zero) {
+        int *q = *(int **)((char *)p + 0x7F0);
+        int *base = *(int **)((char *)q + 0x14);
+        int i;
+        for (i = zero; i < count; i++) {
+            if (base[i] == zero) {
+                result++;
+            }
+        }
+    }
+    return result;
+}
 
 
 /* recovered struct shapes */
