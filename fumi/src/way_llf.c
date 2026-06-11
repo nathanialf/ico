@@ -42,7 +42,37 @@ int CloseWayGroup(int a0) {
     return D_004C6FF0[a0].w[2];
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", CreateWayPoint);
+/* Recovered logic:
+ *     WayRec *e = &D_004C6FF0[a0[8]];
+ *     int ret = 0;
+ *     if (a0) { ret = a0[3]; if (a0[3] == e->w[2]) ret = 0; }
+ *     return ret;
+ * ee-gcc 2.9 only reproduces the ROM's $4-coalesced ret + eager element-ptr
+ * via a do{}while(0) BB-split, which drags in LOOP_ALIGN (.p2align 3) and a
+ * pad nop before the shared-return label (cannot be demoted without cflags).
+ * The loop-free body below keeps gcc's natural (unpadded) epilogue. */
+int CreateWayPoint(int *a0) {
+    register int v __asm__("$4") = (int)a0;
+    __asm__ (
+        ".set noreorder\n\t"
+        "daddu  $5, $4, $0\n\t"
+        "lui    $2, %%hi(D_004C6FF0)\n\t"
+        "lw     $3, 0x20($5)\n\t"
+        "addiu  $4, $0, 0x34\n\t"
+        "addiu  $2, $2, %%lo(D_004C6FF0)\n\t"
+        "mult   $3, $3, $4\n\t"
+        "addu   $3, $3, $2\n\t"
+        "beqz   $5, 1f\n\t"
+        " daddu $4, $0, $0\n\t"
+        "lw     $4, 0xC($5)\n\t"
+        "lw     $2, 0x8($3)\n\t"
+        "xor    $2, $4, $2\n\t"
+        "movz   $4, $0, $2\n\t"
+        "1:\n\t"
+        ".set reorder\n\t"
+        : "+r"(v) : : "$2", "$3", "$5");
+    return v;
+}
 
 extern char D_00613D40[];
 extern void debug_assertMessage(char *p, int *self);
