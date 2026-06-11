@@ -132,3 +132,13 @@ RESOLUTION: genuine floor. Best clean form (rc2) preserved as seed .1.c; reverte
 INCLUDE_ASM. Not crackable by clean C (30-stall x2 + permuter x2) NOR the available asm
 crutches. Future: a real demote/postprocess for the const-reg, or a toolchain that lets
 inline asm participate in delay-slot fill, would be needed.
+
+## Pass 3 permuter harvest (2026-06-11): override gate, base 215, NOTHING below rc2 -> (b)
+Fired at the `next --override permute` gate (PERMUTE_FORCE=1; judgment firmer than counter —
+const-reg floor confirmed by 2 prior stall=30 + 2 permuter runs + this pass's full crutch sweep).
+~iterations to timeout, base score 215, ONE "new best" output-205-1 (score 205) but it is a
+SWAPPED-LOGIC broken mutation (`==3 -> func_0024E550()` instead of E3E8) at true real_count 2 —
+the same score/real_count anti-correlation as passes 1-2. Harvest beat NOTHING below the parked
+rc2. RESOLUTION (b) pass 3. The const-reg/%hi-reg local-alloc tiebreak remains unreachable by
+clean C, the permuter (3x), and every available asm crutch (#APP delay-barrier + unsuppressable
+gcc epilogue). Genuine floor.
