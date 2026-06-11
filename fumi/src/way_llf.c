@@ -20,7 +20,20 @@ ret0:
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", DeleteWayGroup);
+typedef struct { int w[16]; } WayGroup_DW;
+extern WayGroup_DW D_004CB270;
+
+void *DeleteWayGroup(WayGroup_DW *a0) {
+    WayGroup_DW *end = &D_004CB270;
+    if (a0 == 0) goto ret0;
+    if (a0 == end) goto ret0;
+    for (a0++; ; a0++) {
+        if (a0->w[0] != 0) return a0;
+        if (a0 == end) break;
+    }
+ret0:
+    return 0;
+}
 
 typedef struct { int w[13]; } WayRec;
 extern WayRec D_004C6FF0[];
