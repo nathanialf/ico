@@ -604,7 +604,15 @@ void func_00241C40(int *q)
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00241C80);
+typedef struct { int f0; int f4; char *f8; } RingBuf_241C80;
+
+void func_00241C80(RingBuf_241C80 *a0) {
+    a0->f4--;
+    a0->f8++;
+    if (a0->f8 == (char *)a0 + (a0->f0 + 0x10)) {
+        a0->f8 = (char *)a0 + 0x10;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00241CC0);
 
