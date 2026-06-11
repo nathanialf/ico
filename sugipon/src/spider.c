@@ -37,7 +37,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spider", DeleteSpiderFromLayoutGr
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spider", GetNearestOfLayoutSpiders);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spider", CheckSpidersInsideOfReviveRange);
+extern void func_001AB9F8(void *a0);
+extern void debug_assertMessage(char *fmt, int val);
+extern char D_0062D740[];
+
+void CheckSpidersInsideOfReviveRange(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    SpiderGeo *q = *(SpiderGeo **)((char *)p + 0x7F0);
+    *(int *)((char *)q + 0x3C) = 1;
+    func_001AB9F8(a0);
+    debug_assertMessage(D_0062D740, *(int *)((char *)a0 + 0x8));
+}
 
 int RestoreSpiderLayoutGeo(void *a0, int a1) {
     int *p = *(int **)((char *)a0 + 0x15C);
