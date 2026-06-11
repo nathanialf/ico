@@ -3799,6 +3799,7 @@ actSt08aEne1Chk = 0x00220728; // type:func  // script/src/st08a.c
 actSt08aEne2Chk = 0x002207C0; // type:func  // script/src/st08a.c
 actSt08aDoorUp = 0x00220858; // type:func  // script/src/st08a.c
 actSt08aDoor = 0x002208E0; // type:func  // script/src/st08a.c
+func_00220918 = 0x00220918; // type:func  // script/src/st08a.c
 actSt08aEne1 = 0x00220970; // type:func  // script/src/st08a.c
 actSt08aEne2 = 0x00220A00; // type:func  // script/src/st08a.c
 actSt08aEnemy1 = 0x00220A90; // type:func  // script/src/st08a.c

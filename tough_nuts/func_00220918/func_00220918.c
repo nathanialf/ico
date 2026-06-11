@@ -39,7 +39,18 @@ typedef struct DoorSub {
 extern void *D_004CCAA0[];
 extern void actSt05eSolar(void);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", func_00220918);
+void func_00220918(volatile int a0) {
+    DoorSub *s;
+    int g;
+    s = *(DoorSub**)(a0 + 0x164);
+    g = a0;
+    s->field_B4 = (void*)D_004CCAA0;
+    D_004CCAA0[1] = (void*)actSt05eSolar;
+    D_0062A894 = 1;
+    s->field_B0 = (void*)0;
+    BoxBarSoundOn(g, 0x189);
+    _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aEne1);
 
