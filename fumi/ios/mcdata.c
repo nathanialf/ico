@@ -1,6 +1,15 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcdata", iosMcIconWriteIconsys);
+extern int iosMsgSend(void *a, void *b, int c);
+extern int D_0027D308[];
+typedef union { long long ll; struct { int lo, hi; } w; } McHdr;
+
+int iosMcIconWriteIconsys(void *a0) {
+    McHdr *v = (McHdr *)a0;
+    v->w.hi = 6;
+    v->ll = v->ll & -2;
+    return iosMsgSend(D_0027D308, a0, 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcdata", iosMcIconWriteIcon);
 
