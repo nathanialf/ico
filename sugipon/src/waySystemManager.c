@@ -14,7 +14,19 @@ int RequestGetWayBegin(void) {
     return v;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/waySystemManager", actWaySystemCore);
+extern void *actCreateSubThreadGOppArg(void *entry, int arg);
+/* weak => the %hi/%lo below emits an R_MIPS_HI16/LO16 against the func_001EF310
+   SYMBOL (as the original object did), not a `.text + offset` section reloc that
+   the in-TU-defined sibling otherwise folds to. Both link byte-identically
+   (verify_elf OK); the symbol binding is stripped from the .rom. */
+extern __attribute__((weak)) void func_001EF310(volatile unsigned int self);
+
+void *actWaySystemCore(int *a0) {
+    void *t = actCreateSubThreadGOppArg(func_001EF310, 0x15);
+    *(int **)((char *)t + 0x20) = a0;
+    a0[0] = 0;
+    return t;
+}
 
 extern int GetNearNigePointN(int a, int b, int c, int d);
 
