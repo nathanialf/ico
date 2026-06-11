@@ -113,7 +113,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", FeedbackWallWork
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetMotionPointer);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetCollisionOfLastActiveField);
+void GetCollisionOfLastActiveField(void *a0) {
+    char *base = *(char **)((char *)*(int **)((char *)a0 + 0x15C) + 0x7E0);
+    int i;
+    for (i = 0; i < *(int *)((char *)*(int **)((char *)a0 + 0x15C) + 0x88); i++) {
+        base[i] = 0;
+    }
+}
 
 extern int soundSePlayModeStop(void);
 typedef struct { long long w[62]; } _0x1F0;
