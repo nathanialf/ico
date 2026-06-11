@@ -224,7 +224,22 @@ body:
     return a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", Init_ShockRequestAlloc);
+int Init_ShockRequestAlloc(int a0) {
+    int p;
+    if ((unsigned int)a0 < (unsigned int)D_0062A490->count) {
+        goto body;
+    }
+    p = 0;
+    goto check;
+body:
+    p = D_0062A490->arr[a0];
+check:
+    if (p != 0) {
+        p = *(int *)p;
+        return *(unsigned short *)(p + 8);
+    }
+    return 0;
+}
 
 
 int Get_ShockRequestStruct(int a0) {
