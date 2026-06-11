@@ -27,7 +27,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", hitProc);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", SetAP1DeadStatus);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", AP1BeforeFunc);
+extern void SetAP1DeadStatus(void);
+
+int AP1BeforeFunc(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    AP1Geo *q = *(AP1Geo **)((char *)p + 0x7F0);
+    if (q->f_8 < 6) {
+        if (q->f_8 >= 2) {
+            return 0;
+        }
+    }
+    SetAP1DeadStatus();
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", actAP1Start);
 
