@@ -18,7 +18,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", func_0014A008);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", func_0014A0B0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", func_0014A110);
+extern void avoidInsideOfWall(void *p);
+
+void func_0014A110(int *a0) {
+    volatile int *o = (volatile int *)a0[0x59];
+    void *p = (void *)o[0x58];
+    if (p != 0) {
+        avoidInsideOfWall(p);
+        o[0x59] = 0;
+        o[0x58] = 0;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", func_0014A150);
 
