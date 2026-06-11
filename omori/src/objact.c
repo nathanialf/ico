@@ -66,7 +66,16 @@ int func_002386B8(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_002386F0);
+int func_002386F0(void) {
+    int r = func_00188580();
+    int flag;
+    if (r == 3 || r == 9) {
+        flag = -1;
+    } else {
+        flag = 0;
+    }
+    return flag ? 0 : -1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00238730);
 
