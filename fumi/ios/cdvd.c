@@ -92,7 +92,17 @@ void iosCdvdMgrPackLoad(int *self)
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", iosCdvdHandlerReadNoInflate);
+extern int func_00249E10(void);
+extern int func_00249CB0(void);
+extern void func_00135118(int a0);
+
+void iosCdvdHandlerReadNoInflate(int *a0) {
+    a0[3] = 0;
+    if (func_00249E10() == 0) {
+        a0[3] = func_00249CB0();
+    }
+    func_00135118(a0[0x57]);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", iosCdvdHandlerReadInflate);
 
