@@ -167,7 +167,12 @@ int func_0017BCE0(void) {
     return ACTGameCollisionOn() != 0;
 }
 
-typedef struct{int _0,_4,f8;}S;INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", func_0017BD00);
+int func_0017BD00(int a0, int a1) {
+    int p = ACTGameCollisionOn();
+    int ret = 0;
+    if (p) ret = (*(int *)(p + 8) ^ a1) == 0;
+    return ret;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", func_0017BD40);
 
