@@ -1626,7 +1626,22 @@ int func_0024DFA8(void *a0) {
     return *(int *)((char *)p + 0x4) == 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024DFB8);
+extern void func_0024E818(void);
+extern void func_0024E730(void);
+extern int D_0054C884_b[] __asm__("D_0054C884");
+
+void func_0024DFB8(int *a0) {
+    int *p = (int *)a0[0x10];
+    p[0] = 0;
+    p[1] = 0;
+    p[2] = 0;
+    a0[2] = 0;
+    p[0x20] = -1;
+    p[0x2B] = 0;
+    func_0024E818();
+    D_0054C884_b[0] = 0;
+    func_0024E730();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024DFF8);
 
