@@ -81,3 +81,10 @@ glabel MatrixDrive_GetTurnXAngleYZ
     /* 5DDC 00105DDC 3000BD27 */   addiu     $29, $29, 0x30
 endlabel MatrixDrive_GetTurnXAngleYZ
 ```
+
+## Pass 3 harvest (2026-06-11): permuter TI-stripped, all outputs worse -> (b)
+Permuter import stripped mode(TI) -> `typedef int Qw128` (4-byte, no lq/sq) and reordered the
+call before the load. 21 outputs scored 700-1105; lowest (output-700-1) measures real_count=12
+by diff --dry (vs parked rc7) — all structurally invalid (int loads not qword). Confirms
+[[feedback_permuter_strips_mode_TI]]: this func is HAND-ONLY. RESOLUTION (b) pass 3. Re-attack
+on resume with a FRESH hand idea for the addiu-0disp / qword-reg-a2 / jal-delay-nop knot.
