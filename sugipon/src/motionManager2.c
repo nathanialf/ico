@@ -23,7 +23,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetOrientOfCliff
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", SetMotionDirection);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", _GetMotionDirection);
+extern float func_00166A48(void *a0, void *a1);
+extern void debug_assertMessage(void *msg);
+extern int D_0054DF28[];
+
+void _GetMotionDirection(int *a0) {
+    char *o = (char *)a0[0x57];
+    char *sub = o + 0xA0;
+    *(float *)(sub + 0x1A4) = func_00166A48(o + 0x1C0, o + 0x240);
+    debug_assertMessage(D_0054DF28);
+}
 
 extern void ChangeFieldCollisionDebugMode(int a0);
 extern float D_00628C48;
