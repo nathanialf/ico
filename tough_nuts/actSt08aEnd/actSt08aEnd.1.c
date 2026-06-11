@@ -4,7 +4,24 @@ extern int actInitialize(int a0);
 extern void *D_004CCDE0[];
 extern void actSt06aSuimonChk(void);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aEnd);
+void actSt08aEnd(volatile int a0) {
+    int x = a0;
+    int s0 = actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0xFD) == 0) {
+        void *new_var;
+        int g;
+        stage_KillPlayBgAnimation(0x133, 0, 0);
+        g = a0;
+        new_var = (void *)actSt06aSuimonChk;
+        D_004CCDE0[1] = new_var;
+        *(int *)(s0 + 0xB4) = (int)D_004CCDE0;
+        BoxBarSoundOn(g, 0x189);
+        _ACTWait(0);
+    } else {
+        stage_KillPlayBgAnimation(0x133, 0, -1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aEne1Chk);
 
