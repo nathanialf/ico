@@ -174,4 +174,11 @@ void func_0017A1E0(void)
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_0017A220);
+void func_0017A220(void)
+{
+    int v0 = isysGObjSearchFromObjLayoutID();
+    while (v0 != 0) {
+        *(int *)(v0 + 0x16C) = 0;
+        v0 = isysGObjSearchFromObjKindID_begin(v0);
+    }
+}
