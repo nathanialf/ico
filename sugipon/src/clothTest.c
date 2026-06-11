@@ -65,7 +65,29 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothTest", func_001C61C0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothTest", func_001C6228);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothTest", func_001C62E8);
+int func_001C62E8(void *a0, void *a1) {
+    register int result __asm__("$2");
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf1, 0x0($4)\n"
+        "lqc2 $vf2, 0x0($5)\n"
+        "vmul.xyz $vf3, $vf1, $vf2\n"
+        "vaddy.x $vf3, $vf3, $vf3y\n"
+        "vaddz.x $vf3, $vf3, $vf3z\n"
+        "vaddw.x $vf3, $vf3, $vf2w\n"
+        "qmfc2.ni $2, $vf3\n"
+        "mtc1 $2, $f1\n"
+        "mtc1 $0, $f0\n"
+        "c.lt.s $f0, $f1\n"
+        "nop\n"
+        "bc1f 1f\n"
+        "daddu $2, $0, $0\n"
+        "addiu $2, $0, 0x1\n"
+        "1:\n"
+        ".set reorder\n"
+        : "=r"(result) :: "$f0", "$f1");
+    return result;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothTest", func_001C6328);
 
