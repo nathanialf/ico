@@ -24,7 +24,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aEne1);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aEne2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aEnemy1);
+extern int D_00629DE4;
+extern int D_00629DE8;
+extern void actSt25aQueenDead(int a0, int a1, int a2, float a3, float a4);
+
+void actSt08aEnemy1(int a0) {
+    volatile int buf[4];
+    buf[0] = a0;
+    while (func_00178DB0(0xDA) == 0 || func_00178DB0(0xDB) == 0 ||
+           func_00178DB0(0xDC) == 0 || func_00178DB0(0xCF) == 0) {
+        _ACTWait(1);
+    }
+    actSt25aQueenDead(8, D_00629DE4, D_00629DE8, 2.0f, 8.0f);
+}
 
 void actSt08aEnemy2(int a0) {
     int buf[4];
