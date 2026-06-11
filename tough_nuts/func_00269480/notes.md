@@ -74,3 +74,47 @@ Fired bounded permuter (quick_diff CFLAGS, -j4, --stop-on-zero, seed=.1.c):
 Stale Fire-9 outputs (score 175..270) are semantically-broken mutations
 (e.g. output-175 does `hx=lx` clobber), all ≫ rc4. Resolution (b): permuter-
 exhausted. Re-attack on a future resume with a fresh regalloc-perturbing idea.
+
+## Pass 3 (2026-06-11): resume, ~25 fresh distinct hand shapes -> rc4 floor, stall=30 -> permute
+Re-confirmed via built .s diff: gcc sched2 hoists mask `li`(0x7fff0000) + `negu` (both
+critical-path priority 6) ahead of the hx-extract `dsra $4,$4,32` (priority 5), displacing hx
+from ROM-pos3 to pos6. ROM = the -fno-sched2 (source) order (priority inversion: hx-5 before
+mask-6). Tried this session: reassoc (hx|bit)&mask (rc11, breaks and/or DAG), single-return-expr
+(rc17, the separate `hx=0x7ff00000-hx;` stmt is required), ull/uint-hx params, operand swaps,
+mask/neg/bit temps, decl reorder, explicit casts, longlong-mid, reg-qual, paren forms — ALL rc4
+(structure-preserving) or worse. No source change raises hx's priority by the needed +1 nor
+shortens the mask's lui+ori path (0x7fffffff needs 2 insns). Permuter pass 3 (was no-rc0 in pass 2).
+
+---
+
+## Attempt at 2026-06-11
+
+**Reason parked:** rc4: fdlibm isnan sched2 priority tie (mask li+negu pri6 hoisted ahead of hx-extract pri5; -fno-sched2=ROM order). ~25 fresh hand shapes pass3 all rc4. Permuter-class.
+
+**TU:** `common/src/PObj.c`
+
+**Seed:** `tough_nuts/func_00269480/func_00269480.2.c`
+
+Disassembly:
+
+```
+.align 3
+nonmatching func_00269480, 0x38
+
+glabel func_00269480
+    /* 169480 00269480 3C100400 */  dsll32     $2, $4, 0
+    /* 169484 00269484 3F100200 */  dsra32     $2, $2, 0
+    /* 169488 00269488 3F200400 */  dsra32     $4, $4, 0
+    /* 16948C 0026948C FF7F033C */  lui        $3, (0x7FFFFFFF >> 16)
+    /* 169490 00269490 23280200 */  negu       $5, $2
+    /* 169494 00269494 FFFF6334 */  ori        $3, $3, (0x7FFFFFFF & 0xFFFF)
+    /* 169498 00269498 25104500 */  or         $2, $2, $5
+    /* 16949C 0026949C 24208300 */  and        $4, $4, $3
+    /* 1694A0 002694A0 C2170200 */  srl        $2, $2, 31
+    /* 1694A4 002694A4 F07F033C */  lui        $3, (0x7FF00000 >> 16)
+    /* 1694A8 002694A8 25208200 */  or         $4, $4, $2
+    /* 1694AC 002694AC 23206400 */  subu       $4, $3, $4
+    /* 1694B0 002694B0 0800E003 */  jr         $31
+    /* 1694B4 002694B4 C2170400 */   srl       $2, $4, 31
+endlabel func_00269480
+```
