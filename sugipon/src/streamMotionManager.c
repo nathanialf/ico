@@ -53,7 +53,28 @@ int StandbyStreamMotion(int idx)
 void StopStreamMotion(void) {
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/streamMotionManager", DeleteStreamMotionManager);
+extern unsigned int D_0062B9F8;
+extern unsigned int D_0062B9FC;
+
+int DeleteStreamMotionManager(void) {
+    unsigned int a = D_0062B9F8;
+    unsigned int b = D_0062B9FC;
+    int lim = a + 0x1000;
+    int ret;
+    int c = b < a;
+    if (c) {
+        b += 0x28000;
+        c = b < a;
+    }
+    if (c)
+        ret = 1;
+    else {
+        ret = 1;
+        if ((int)b < lim)
+            ret = 0;
+    }
+    return ret;
+}
 
 
 /* recovered struct shapes */
