@@ -111,3 +111,10 @@ glabel CreateWayPoint
 endlabel CreateWayPoint
     /* 102F3C 00202F3C 00000000 */  nop
 ```
+
+## Pass 2 harvest (2026-06-11): permuter best score 180 (base 220), all worse -> (b)
+output-180-1=rc7, output-190-1=rc9 by true real_count (score/real_count anti-correlation again).
+Nothing beats rc5. RESOLUTION (b) pass 2. The reorg-tail delay-slot candidate (ret=0 vs sunk
+element-addu in the beqz delay) was not crackable by permuter this pass. Future resume: a fresh
+CFG idea that keeps $4 ret-coloring (needs the both-arms if-else) AND forces ret=0 into the beqz
+delay with a shared return (the goto-merge breaks coloring to $6 — that coupling is the knot).
