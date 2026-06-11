@@ -41,7 +41,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cIntroChk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04lDoorEvent);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", func_00215CD0);
+void func_00215CD0(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    stage_KillPlayBgAnimation(0xDC, 0, 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", func_00215D10);
 
