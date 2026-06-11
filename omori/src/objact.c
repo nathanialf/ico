@@ -4,7 +4,17 @@ typedef struct { float a0; float a4; float a8; } S;
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", ObjectBeforeFunc);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", ObjAction_CorrectGeo);
+extern void actInitialize(void *a0);
+extern void _ACTWait(int a0);
+extern void scpSetCageVelocityFriction(int a0, int a1, int a2, int a3);
+
+void ObjAction_CorrectGeo(void *a0) {
+    void *volatile p = a0;
+    (void)p;
+    actInitialize(p);
+    _ACTWait(1);
+    scpSetCageVelocityFriction(0xC8B, 0, 0x1E3, 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", ObjAction_Mail);
 
