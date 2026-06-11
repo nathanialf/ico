@@ -1,6 +1,23 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/ios", ios_init_plus);
+extern void iosMallocCheckLeak2(void *a0);
+
+int ios_init_plus(char *a0) {
+    char *p = a0;
+    if (p != 0) {
+        p -= 8;
+        for (;;) {
+            char *node = p;
+            p = *(char **)(p + 4);
+            iosMallocCheckLeak2(node);
+            if (p == 0) {
+                break;
+            }
+            p -= 8;
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/ios", iosInitialize);
 
