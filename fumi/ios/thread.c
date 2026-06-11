@@ -9,7 +9,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadMain);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadCreateS);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadStart);
+void *iosThreadStart(int *a0) {
+    unsigned char *p = (unsigned char *)a0[1];
+    int i;
+    for (i = 0; i < a0[0]; i++) {
+        if (*p == 0) {
+            return p;
+        }
+        p += 0x40;
+    }
+    return 0;
+}
 
 void iosThreadStop(unsigned char *a0) {
     *a0 = 0;
@@ -32,13 +42,12 @@ end:
     return a0;
 }
 
-extern void iosThreadStart(void);
 extern int iosThreadInit(void);
 extern int D_0062A4A8;
 
 void iosThreadMessage(int *a0)
 {
-    void (*fn1)(void) = iosThreadStart;
+    void (*fn1)(void) = (void (*)(void))iosThreadStart;
     void (*fn2)(void) = (void (*)(void)) iosThreadStop;
     a0[0] = 0;
     if (fn1 != 0) {
