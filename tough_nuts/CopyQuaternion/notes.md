@@ -59,3 +59,11 @@ local -> v0=sp at END = rc2). Confirmed rc1 with: typed Mtx/Quat structs, union 
 double[8]/int[16], &local[0], two-var d/m, arg-order swap, char* params, comma operator,
 nested func ret, void* return reuse (rc2), struct-return (hidden ptr -> $4 not v0, rc3).
 Firing permuter pass 3 at the genuine stall=30.
+
+## Pass 3 harvest (2026-06-11): permuter score-85 outputs measure rc2/rc3 by true real_count
+Permuter ran ~10k iters, best score=85 (base 115) BUT `diff --dry` shows output-85-1=rc2,
+output-85-2=rc3 — WORSE than parked rc1 (score/real_count anti-correlation). Idea it surfaced:
+`GetQuaternionFromMatrix(a0, new_var2 = local)` (assign-in-arg) — but cleaned to semantics it
+optimizes away (rc1); verbatim only "wins" by mis-passing a0 to func1. Nothing beats rc1.
+RESOLUTION (b): permuter-exhausted pass 3. Re-attack future resume with a FRESH hand idea on
+the dead pre-call v0=sp regalloc rematerialize.
