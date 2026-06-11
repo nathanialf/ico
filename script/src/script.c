@@ -95,7 +95,18 @@ int *scpSubAdpcmPlay(int x)
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpSekizou);
+extern float MoveRotObjectWithHoldPoint(int a0);
+extern void debug_assertMessage(char *fmt);
+extern char D_00554188[];
+
+float scpSekizou(int a0) {
+    int ret = actSt25aQueenDeadChk(a0);
+    if (ret != 0) {
+        return MoveRotObjectWithHoldPoint(ret);
+    }
+    debug_assertMessage(D_00554188);
+    return 0.0f;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", _SCPBoySupportGirl);
 
