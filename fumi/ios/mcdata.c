@@ -114,8 +114,23 @@ extern unsigned char D_0027D500[];
 extern unsigned int D_0062A410;
 extern void soundAllocIopHeap(int);
 
-/* parked: needs real matching (packed-struct copy regalloc, stride 0x18C).
- * See tough_nuts/func_00138100/notes.md */
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcdata", func_00138100);
+int func_00138100(void *self, int a1) {
+    iosMcHandlerWrite((int)self, a1, 0x63FC);
+    {
+        int e = ((int *)self)[2] * 0x18C;
+        e += (int)D_0027CFE0;
+        D_iconParam[0] = *(int *)(e + 0x140);
+    }
+    soundAllocIopHeap(D_0027CFE0[((int *)self)[2]].f144);
+    {
+        int p = ((int *)self)[2] * 0x18C;
+        int e = p + (int)D_0027CFE0;
+        int v = *(int *)(e + 0x148);
+        *(Blk40_001383F8 *)D_0027D500 =
+            *(Blk40_001383F8 *)((char *)&D_0027CFE0[0].f14C + p);
+        D_0062A410 = v;
+    }
+    return ((int *)self)[4];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcdata", func_00138218);
