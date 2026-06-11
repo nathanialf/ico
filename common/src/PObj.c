@@ -653,7 +653,18 @@ int func_002423C8(int *a0) {
     return ret;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002423F8);
+int func_002423F8(int *a0, int a1) {
+    if (a1 < 0) {
+        goto err;
+    }
+    if (a1 < a0[8]) {
+        goto elem;
+    }
+err:
+    return func_002423C8(a0);
+elem:
+    return a0[7] + a1 * 64;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00242438);
 
