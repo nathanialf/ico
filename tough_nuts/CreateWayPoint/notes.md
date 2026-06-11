@@ -118,3 +118,56 @@ Nothing beats rc5. RESOLUTION (b) pass 2. The reorg-tail delay-slot candidate (r
 element-addu in the beqz delay) was not crackable by permuter this pass. Future resume: a fresh
 CFG idea that keeps $4 ret-coloring (needs the both-arms if-else) AND forces ret=0 into the beqz
 delay with a shared return (the goto-merge breaks coloring to $6 — that coupling is the knot).
+
+## Pass 3 (2026-06-11): rc5->rc1 via do-while-0, but rc1 is a .p2align DEAD-END
+KEY FINDING: `do{ret=0;}while(0)` BB-barrier placed AFTER `e=&D[a0[8]]` and BEFORE the `if`
+FIXES the element-addu sink (rc5->rc1): gcc now emits the addu EAGER + ret=0 in the beqz delay +
+shared return — STRUCTURALLY EXACT. BUT the do-while loop makes gcc align $L34 (beqz target) with
+`.p2align 3` (8B); $L34 sits at func+0x34 (4-mod-8) so it PADS one nop -> ninja MISMATCH. The
+loop-free both-arms form (rc5) emits `.p2align 2` (4B, == ROM .align 2, NO pad) but SINKS the addu.
+COUPLED: every loop construct (do-while-0/for-once/while-once) = eager-addu + p2align3-nop (rc1);
+every non-loop (block/goto/plain ret=0) = addu-sink (rc5/8). The addu-sink is a dbr eager-fill
+heuristic diff (the dev's gcc filled the beqz delay from the TARGET=ret0; my ee-gcc fills SIMPLE
+from before=addu). demote_p2align would fix the rc1 nop but is RETIRED per-func machinery
+(config/demote_p2align.txt + postprocess_demote_p2align.py absent from aug6 tree). No clean source
+breaks the coupling. SEEDS: best=rc1 do-while-0 (p2align dead-end); RESUME from the rc5 both-arms
+(genuine clean form, correct alignment) and attack the dbr eager-fill. Permuter pass 3 seeded with
+both-arms rc5 (looking for a non-loop reorder that triggers eager-fill -> rc0 with correct p2align2).
+
+---
+
+## Attempt at 2026-06-11
+
+**Reason parked:** rc1 do-while-0 (eager-addu but .p2align3 nop dead-end) / rc5 both-arms (clean .p2align2 but dbr addu-sink); coupled loop-vs-alignment; demote_p2align retired. Pass 3.
+
+**TU:** `fumi/src/way_llf.c`
+
+**Seed:** `tough_nuts/CreateWayPoint/CreateWayPoint.2.c`
+
+Disassembly:
+
+```
+.align 3
+nonmatching CreateWayPoint, 0x3C
+
+glabel CreateWayPoint
+    /* 102F00 00202F00 2D288000 */  daddu      $5, $4, $0
+    /* 102F04 00202F04 4C00023C */  lui        $2, %hi(D_004C6FF0)
+    /* 102F08 00202F08 2000A38C */  lw         $3, 0x20($5)
+    /* 102F0C 00202F0C 34000424 */  addiu      $4, $0, 0x34
+    /* 102F10 00202F10 F06F4224 */  addiu      $2, $2, %lo(D_004C6FF0)
+    /* 102F14 00202F14 18186400 */  mult       $3, $3, $4
+    /* 102F18 00202F18 21186200 */  addu       $3, $3, $2
+    /* 102F1C 00202F1C 0500A010 */  beqz       $5, .L00202F34
+    /* 102F20 00202F20 2D200000 */   daddu     $4, $0, $0
+    /* 102F24 00202F24 0C00A48C */  lw         $4, 0xC($5)
+    /* 102F28 00202F28 0800628C */  lw         $2, 0x8($3)
+    /* 102F2C 00202F2C 26108200 */  xor        $2, $4, $2
+    /* 102F30 00202F30 0A200200 */  movz       $4, $0, $2
+.align 2
+  .L00202F34:
+    /* 102F34 00202F34 0800E003 */  jr         $31
+    /* 102F38 00202F38 2D108000 */   daddu     $2, $4, $0
+endlabel CreateWayPoint
+    /* 102F3C 00202F3C 00000000 */  nop
+```
