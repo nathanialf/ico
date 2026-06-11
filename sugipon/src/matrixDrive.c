@@ -61,7 +61,19 @@ void MatrixDrive_GetTurnXAngleZY(void *a0, void *a1, void *a2) {
     VU0_NOP();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/matrixDrive", MatrixDrive_GetTurnXAngleYZ);
+typedef int Qw128 __attribute__((mode(TI)));
+typedef struct { char pad[0x30]; Qw128 q; } MatDrive;
+extern void func_002400F8(void *);
+
+void MatrixDrive_GetTurnXAngleYZ(MatDrive *a0) {
+    Qw128 tmp[1];
+    void *p = &a0->q;
+    LQ16_FROM(p);
+    SQ16_TO(tmp);
+    func_002400F8(a0);
+    LQ16_FROM(tmp);
+    SQ16_TO(p);
+}
 
 float MatrixDrive_GetTurnYAngleXZ(float a0) {
     register float ret __asm__("$f0");
