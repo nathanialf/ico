@@ -174,3 +174,9 @@ glabel CopyQuaternion
     /* DBBC 0010DBBC 6000BD27 */   addiu     $29, $29, 0x60
 endlabel CopyQuaternion
 ```
+
+## Pass 5 harvest (2026-06-11): permuter base=115 no sub-base -> (b)
+~2000 iters, best=115 (==base). output-85-1=rc3, output-115-1=rc2 by true real_count (both worse
+than rc1; the 85 mis-routes a0 again). Nothing beats rc1. RESOLUTION (b) pass 5. Same as pass 4 —
+a dead-insn injection is not permuter-reorderable. Future resume needs a fundamentally new angle on
+func_00118AF0's real signature/return (does it return the buffer, legitimately occupying v0 pre-GetQ?).
