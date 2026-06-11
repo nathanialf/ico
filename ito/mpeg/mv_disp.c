@@ -63,7 +63,21 @@ int handler_endimage(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", startDisplay);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", endDisplay);
+extern int setDMAscTag(void *p);
+typedef struct { char pad[0x190]; } DispBuf;
+extern DispBuf D_005EBCC8[];
+extern char D_0062DCE8[];
+
+int endDisplay(int a0) {
+    int buf[0x40];
+    void *p;
+    if (a0 == -1) {
+        p = D_0062DCE8;
+    } else {
+        p = (void *)&D_005EBCC8[a0];
+    }
+    return setDMAscTag(p);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", setDMAscTag);
 
