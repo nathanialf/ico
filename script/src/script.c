@@ -68,7 +68,14 @@ succ:
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpDoorTypeUpDown);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpDoorTypeUpUp);
+extern int TorchGeo(int a0);
+
+int scpDoorTypeUpUp(int a0) {
+    int ret1 = actSt25aQueenDeadChk(a0);
+    int *ret2 = (int *)actSt25aQueenDeadChk(0);
+    ret2[0x16C / 4] = 1;
+    return TorchGeo(ret1);
+}
 
 extern int *isysGObjSearchFromObjLayoutID(int x);
 extern int Draw2DLineG(int *p);
