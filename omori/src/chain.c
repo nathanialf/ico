@@ -118,7 +118,15 @@ void isBottomOfChain(void *a0) {
     q->f_60 = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", isStopChain);
+void isStopChain(void *a0, float *a1, float *a2, float *a3) {
+    ChainGeo *p = *(ChainGeo **)(*(char **)((char *)a0 + 0x15C) + 0x7F0);
+    *a1 = *(float *)((char *)p + 0x30);
+    *a2 = *(float *)((char *)p + 0x34);
+    if (*(float *)((char *)p + 0x48) < *(float *)((char *)p + 0x34)) {
+        *a2 = *(float *)((char *)p + 0x48);
+    }
+    *a3 = *(float *)((char *)p + 0x40);
+}
 
 extern float D_0062927C;
 
