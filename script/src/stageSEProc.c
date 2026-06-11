@@ -40,6 +40,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", stageSE08astrong);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", stageSE08astrong2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", stageSE08anoise3);
+extern void actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+
+void stageSE08anoise3(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    stage_KillPlayBgAnimation(0x82, 0, 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", stageSE08ataimatsu);
