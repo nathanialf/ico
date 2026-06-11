@@ -1,6 +1,8 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/DObj", initGeometryState);
+int initGeometryState(volatile int *a0) {
+    return a0[3] != a0[4] ? a0[0] + a0[2] * 0x151800 : 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/DObj", initMatrixDObj);
 
