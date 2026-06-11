@@ -91,7 +91,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017DD70);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017DDD8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017DE40);
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern void scpTorchLightOn(int a0, int a1);
+
+void func_0017DE40(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    scpTorchLightOn(0x76E, 0x1A6);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017DE80);
 
