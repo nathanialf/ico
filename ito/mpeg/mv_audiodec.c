@@ -75,7 +75,14 @@ int func_00239228(void *a0) {
     return 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", func_00239250);
+int func_00239250(int *self) {
+    float *p = (float *)UpdateRootPosition((int)self);
+    int v0 = -1;
+    if (-1000.0f < p[1]) {
+        v0 = 0;
+    }
+    return v0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", func_00239290);
 
