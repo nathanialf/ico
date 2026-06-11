@@ -34,7 +34,17 @@ int iosMcMgrSync(void *a0) {
     return -((unsigned char)x & 1);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcard", iosMcTest);
+extern int iosMsgSend(void *a0, void *a1, int a2);
+extern char D_0027D308[];
+
+typedef union { long long ll; struct { int lo, hi; } w; } McTestVal;
+
+int iosMcTest(void *a0) {
+    McTestVal *v = (McTestVal *)a0;
+    v->w.hi = 0;
+    v->ll = v->ll & -2;
+    return iosMsgSend(D_0027D308, a0, 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcard", iosMcSync);
 
