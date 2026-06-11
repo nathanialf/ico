@@ -116,7 +116,21 @@ int actBoyDitch3mReady(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", SetStatusBoy_OtherStageGirlPinch);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyStart);
+extern int D_0062A894;
+
+int actBoyStart(int *a0) {
+    int *o = (int *)a0[0x59];
+    if (o[0xC] == 0x35) goto ret1;
+    {
+        int *p = (int *)o[0x19E];
+        if (p[0xE0] == 0) goto ret0;
+        if (D_0062A894 == 0) goto ret0;
+    }
+ret1:
+    return 1;
+ret0:
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", CorrectStickInfo);
 
