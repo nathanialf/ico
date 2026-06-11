@@ -20,7 +20,17 @@ int viBufReset(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vibuf", viBufBeginPut);
+extern int D_0062BE90;
+extern int D_0062C2DC;
+extern int D_0062BE8C;
+extern int func_0023EAC8(int a0);
+
+void viBufBeginPut(int a0) {
+    while (func_0023EAC8(0) == a0);
+    *(volatile int *)&D_0062BE90 = 1;
+    D_0062C2DC = 0;
+    *(volatile int *)&D_0062BE8C = 0;
+}
 
 extern int D_0062BE90;
 extern int D_0062C2DC;
