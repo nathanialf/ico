@@ -71,7 +71,16 @@ void EnemySetfDisappearAll(int a0) {
     InitMotionOrient(a0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemy", EnemySetfDisappear);
+void EnemySetfDisappear(char *self, float arg) {
+    char *s = *(char **)(self + 0x15C);
+    *(float *)(*(char **)(s + 0x830) + 0x30) = arg;
+    if (arg < 0.0f) {
+        *(float *)(*(char **)(s + 0x830) + 0x30) = 0.0f;
+    }
+    if (1.0f < *(float *)(*(char **)(s + 0x830) + 0x30)) {
+        *(float *)(*(char **)(s + 0x830) + 0x30) = 1.0f;
+    }
+}
 
 void enemySetParticleDie(void) {
 }
