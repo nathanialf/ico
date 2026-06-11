@@ -354,7 +354,14 @@ int ACTCharctrl_Unlock(int a0)
     return rv;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_ConnectHand);
+int ACTGame_ConnectHand(char *a0) {
+    int r = 0;
+    void *next = *(void **)(*(char **)(a0 + 0x164) + 0x130);
+    if (next == 0 || checkHit(next) == 0) {
+        r = 1;
+    }
+    return r;
+}
 
 extern int checkHit(void);
 int ACTGame_DisconnectHand(void) {
