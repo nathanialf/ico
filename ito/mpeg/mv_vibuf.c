@@ -4,7 +4,11 @@
 void func_0023B4D0(void) {
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vibuf", viBufCreate);
+void viBufCreate(int a0) {
+    *(volatile unsigned int *)0x1000A030 = a0 & 0x0FFFFFFF;
+    *(volatile unsigned int *)0x1000A020 = 0;
+    *(volatile unsigned int *)0x1000A000 = 0x105;
+}
 
 extern int D_0062BE94;
 extern char D_00288C30[];
