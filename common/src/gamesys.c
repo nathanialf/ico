@@ -25,7 +25,17 @@ int gamesysObjInfoLoad(void) {
     return 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysObjInfoEmptyAreaSearch);
+typedef struct { char pad[0x20]; int f20; char pad2[0x18]; } GsObjInfo;
+extern GsObjInfo D_005CD670[];
+extern unsigned short D_002E2A10[];
+
+int gamesysObjInfoEmptyAreaSearch(int a0) {
+    int ret = 0x80808000;
+    if (D_002E2A10[D_005CD670[a0].f20] != 0) {
+        ret = -0x100;
+    }
+    return ret;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysObjInfoBaseSet);
 
