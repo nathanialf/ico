@@ -129,3 +129,48 @@ same anti-correlated score trap as pass 3). Nothing beats parked rc1. RESOLUTION
 Future resume: the dead daddu v0,sp is a reload/dbr ghost needing a held &local pseudo + extra
 reg pressure; no clean 14-insn shape supplies it. Try a fundamentally different angle (e.g. is
 func_00118AF0 actually a 3-arg/return-buffer fn whose retval legitimately occupies v0 pre-GetQ?).
+
+## Pass 5 (2026-06-11): resume, ~30 fresh shapes incl. do-while-0 BB-split lever -> rc1, stall=30 -> permute
+Applied the [[feedback_dowhile0_bb_split_sched2_priority]] lever (cracked func_00269480 same session):
+do-while-0/if(1)/while-break BB boundaries around either call, both calls, return-style — ALL rc1.
+BB-splits move SCHEDULING-priority ties; they do NOT inject a DEAD reload (the v0=&local ghost has
+no source basis to reorder). Also fresh this pass: ret-store-dw0(rc2), second-dummy-qword(rc7,frame),
+goto-getq, ptr-pre/two-getq-arg, void*/double/int/ll/u128(TI)/struct-member locals, arg-swap,
+aligned32, char80, comma/plus0/long-cast arg forms — all rc1. Confirms pass-4 conclusion: the dead
+`daddu v0,sp` between the 2 calls is a reload/dbr rematerialize with no clean source basis (GetQ
+clobbers v0 so it's not a return value). Firing permuter pass 5 (pass 4 base=115 found only broken-
+semantics 85s; a dead-insn INJECTION is not permuter-reorderable, unlike func_00269480's reorder).
+
+---
+
+## Attempt at 2026-06-11
+
+**Reason parked:** rc1 dead daddu v0,sp reload ghost; pass5 ~30 fresh shapes incl do-while-0 BB-split all rc1; permuter pass5
+
+**TU:** `sugipon/src/quaternion.c`
+
+**Seed:** `tough_nuts/CopyQuaternion/CopyQuaternion.3.c`
+
+Disassembly:
+
+```
+.align 3
+nonmatching CopyQuaternion, 0x38
+
+glabel CopyQuaternion
+    /* DB88 0010DB88 A0FFBD27 */  addiu      $29, $29, -0x60
+    /* DB8C 0010DB8C 4000B0FF */  sd         $16, 0x40($29)
+    /* DB90 0010DB90 2D808000 */  daddu      $16, $4, $0
+    /* DB94 0010DB94 5000BFFF */  sd         $31, 0x50($29)
+    /* DB98 0010DB98 BC62040C */  jal        func_00118AF0
+    /* DB9C 0010DB9C 2D20A003 */   daddu     $4, $29, $0
+    /* DBA0 0010DBA0 2D200002 */  daddu      $4, $16, $0
+    /* DBA4 0010DBA4 2D10A003 */  daddu      $2, $29, $0
+    /* DBA8 0010DBA8 5636040C */  jal        GetQuaternionFromMatrix
+    /* DBAC 0010DBAC 2D28A003 */   daddu     $5, $29, $0
+    /* DBB0 0010DBB0 5000BFDF */  ld         $31, 0x50($29)
+    /* DBB4 0010DBB4 4000B0DF */  ld         $16, 0x40($29)
+    /* DBB8 0010DBB8 0800E003 */  jr         $31
+    /* DBBC 0010DBBC 6000BD27 */   addiu     $29, $29, 0x60
+endlabel CopyQuaternion
+```
