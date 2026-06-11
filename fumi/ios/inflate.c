@@ -14,7 +14,16 @@ int inflate_fixed(void) {
     return D_0062BF84;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", inflate_dynamic);
+extern int func_00249E10(void);
+extern int func_00249CB0(void);
+
+void inflate_dynamic(void *a0) {
+    int *p = (int *)a0;
+    p[3] = 0;
+    if (func_00249E10() == 0) {
+        p[3] = func_00249CB0();
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", inflate_start);
 
