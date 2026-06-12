@@ -343,7 +343,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240408);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002404B8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240578);
+void func_00240578(void *a0, void *a1, void *a2, void *a3, void *a4) {
+    func_00240080(a0, a1);
+    func_00240080((char *)a0 + 0x10, a2);
+    func_00240080((char *)a0 + 0x20, a3);
+    func_00240080((char *)a0 + 0x30, a4);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002405E0);
 
