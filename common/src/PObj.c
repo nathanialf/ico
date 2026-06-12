@@ -386,7 +386,30 @@ void func_00240968(void *a0, void *a1, float a2) {
     VU0_LSV(sqc2, 4, 0x0, 4);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240980);
+int func_00240980(void *a0) {
+    register int r __asm__("$2");
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "vsub.xyzw $vf4, $vf0, $vf0\n"
+        "lui $2, 0x4580\n"
+        "dsll $2, $2, 16\n"
+        "ori $2, $2, 0x4580\n"
+        "dsll $2, $2, 16\n"
+        "lqc2 $vf7, 0x0($4)\n"
+        "qmtc2.ni $2, $vf6\n"
+        "ctc2.ni $0, $vi16\n"
+        "vsub.xyw $vf5, $vf7, $vf4\n"
+        "vsub.xy $vf5, $vf6, $vf7\n"
+        "vnop\n"
+        "vnop\n"
+        "vnop\n"
+        "vnop\n"
+        "vnop\n"
+        "cfc2.ni $2, $vi16\n"
+        ".set reorder\n"
+        : "=r"(r));
+    return r & 0xC0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002409C8);
 
