@@ -202,7 +202,24 @@ void func_0023FE98(void *a0, void *a1) {
     VU0_LSV(sqc2, 6, 0x0, 4);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023FED0);
+void func_0023FED0(void *a0, void *a1) {
+    VU0_LSGP(lq, 8, 0x0, 5);
+    VU0_LSGP(lq, 9, 0x10, 5);
+    VU0_LSGP(lq, 10, 0x20, 5);
+    VU0_LSGP(lq, 11, 0x30, 5);
+    VU0_REG("pextlw $12, $9, $8");
+    VU0_REG("pextuw $13, $9, $8");
+    VU0_REG("pextlw $14, $11, $10");
+    VU0_REG("pextuw $15, $11, $10");
+    VU0_REG("pcpyld $8, $14, $12");
+    VU0_REG("pcpyud $9, $12, $14");
+    VU0_REG("pcpyld $10, $15, $13");
+    VU0_REG("pcpyud $11, $13, $15");
+    VU0_LSGP(sq, 8, 0x0, 4);
+    VU0_LSGP(sq, 9, 0x10, 4);
+    VU0_LSGP(sq, 10, 0x20, 4);
+    VU0_LSGP(sq, 11, 0x30, 4);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023FF18);
 
