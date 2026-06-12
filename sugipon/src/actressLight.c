@@ -129,7 +129,15 @@ void func_001B8408(void *a0) {
     debug_assertMessage(D_004BA2B8[p->f_30]);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", func_001B8428);
+void func_001B8428(int *a0)
+{
+    typedef union { int i; long long ll; } U;
+    int s = ((U *)((char *)a0 + 0x164))->i;
+    *(int *)(s + 0x30) = 5;
+    ((U *)(s + 0x18))->ll &= ~(1LL << 32);
+    *(char *)(((U *)((char *)a0 + 0x164))->i + 0x1CA) = 1;
+    SetAP1DeadStatus((int)a0, 7);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", func_001B8470);
 
