@@ -16,7 +16,11 @@ int initMonitorCamera(void) {
     return *D_0062A8F4;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", monitorMonitorCamera);
+int monitorMonitorCamera(int a0) {
+    int r1 = CameraMove(a0);
+    int r2 = CameraMove(a0);
+    return *(int *)(r1 + 0x3C) - *(int *)(r2 + 0x38);
+}
 
 int ChaseCamera(int *a0, int a1) {
     int sum = 0;
