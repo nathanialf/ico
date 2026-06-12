@@ -134,7 +134,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_001887E0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188888);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188B00);
+int func_00188B00(char *p, int n)
+{
+    int acc = n * 0x4C;
+    int i = n;
+    if (i > 0) {
+        do {
+            acc += (*(int *)(p + 0x3C) - *(int *)(p + 0x38)) * 0x5C;
+            p += 0x4C;
+            i--;
+        } while (i != 0);
+    }
+    return acc;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188B48);
 
