@@ -2604,7 +2604,28 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00257220);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002572F0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00257380);
+void func_00257380(int *a0)
+{
+  int *p;
+  unsigned short idx;
+  char *base;
+  char *v2;
+  if ((*(a0 + 0)) & 2)
+  {
+    p = (int *) func_00255060();
+    idx = *((unsigned short *) (((char *) a0) + 0x4E));
+    v2 = (char *) (*((int *) (((char *) p) + 0x10)));
+    ;
+    *((((char *) (*((int *) (((char *) p) + 8)))) + (idx << 4)) + 0x12) = *((unsigned char *) (v2 + 1));
+    idx = *((unsigned short *) (((char *) a0) + 0x4E));
+    base = ((char *) (*((int *) (((char *) p) + 8)))) + (idx << 4);
+    *(base + 0x1A) = 0x40;
+    idx = *((unsigned short *) (((char *) a0) + 0x4E));
+    base = ((char *) (*((int *) (((char *) p) + 8)))) + (idx << 4);
+    *(base + 0x1B) = 0x40;
+  }
+  *(a0 + 1) += 2;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00257410);
 
