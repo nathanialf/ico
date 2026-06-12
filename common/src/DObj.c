@@ -37,9 +37,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/DObj", UnlinkParentOfDObj);
 void func_0019CAA0(void) {
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/DObj", func_0019CAA8);
-
 typedef struct { long long x; } __attribute__((packed, aligned(4))) PackedLL_19CAF0;
+extern void GetRootMatrixRotOffsetByDObj();
+
+void func_0019CAA8(void *a0, PackedLL_19CAF0 *a1) {
+    PackedLL_19CAF0 *p;
+    GetRootMatrixRotOffsetByDObj(a0, a1);
+    p = *(PackedLL_19CAF0 **)((char *)a0 + 0x15C);
+    *p = *a1;
+}
+
 extern PackedLL_19CAF0 D_0062A6A0;
 extern void SetRootMatrixRotOffsetByDObj(void *a0);
 void func_0019CAF0(void *a0) {
