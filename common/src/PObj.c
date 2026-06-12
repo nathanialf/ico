@@ -902,7 +902,24 @@ void func_00243628(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00243638);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002437D8);
+extern char D_00270A8C[];
+extern char D_0070F5A8[];
+extern int D_0054AB30[];
+
+int func_002437D8(void) {
+    char *s3 = D_00270A8C;
+    char *s1 = D_0070F5A8;
+    int s2 = 0;
+    int v0;
+    v0 = func_00260424(s1, s3, 4);
+    if (v0 == 0) goto done;
+    v0 = func_00260424(s1, (char *)D_0054AB30[0], 4);
+    if (v0 == 0) goto done;
+    v0 = func_00260424(s3, (char *)D_0054AB30[0], 4);
+    s2 = (unsigned)0 < (unsigned)v0;
+done:
+    return s2;
+}
 
 extern int D_0054AB20[];
 extern char D_0070F5A8[];
