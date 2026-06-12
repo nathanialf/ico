@@ -1895,7 +1895,16 @@ void func_0024DE48(int a0, int a1, int a2) {
     func_0024E978(a1, rounded);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024DE80);
+int func_0024DE80(int *a0, unsigned int a1, int a2) {
+    int *p = (int *)a0[0x40/4];
+    a1 = (a1 & 0x0FFFFFFF) | 0x20000000;
+    p[0xB0/4] = 1;
+    p[0xD8/4] = a1;
+    p[0xE4/4] = a2;
+    p[0xE0/4] = 0;
+    p[0xDC/4] = 0;
+    return func_0024E260((int)a0);
+}
 
 void func_0024DEC8(int *self, unsigned int a1, int a2, int a3)
 {
