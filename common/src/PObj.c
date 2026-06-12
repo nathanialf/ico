@@ -394,7 +394,25 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002406E8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240878);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002408D0);
+void func_002408D0(void *a0, void *a1, void *a2, int a3) {
+    VU0_LSV(lqc2, 4, 0x0, 5);
+    VU0_LSV(lqc2, 5, 0x10, 5);
+    VU0_LSV(lqc2, 6, 0x20, 5);
+    VU0_LSV(lqc2, 7, 0x30, 5);
+    VU0_LSV(lqc2, 8, 0x0, 6);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 8, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 8, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 8, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 9, 7, 8, w);
+    VU0_REG("vdiv $Q, $vf0w, $vf9w");
+    VU0_WAIT();
+    VU0_REG("vmulq.xyz $vf9, $vf9, $Q");
+    VU0_REG("vftoi4.xyzw $vf10, $vf9");
+    if (a3) {
+        VU0_REG("vftoi0.zw $vf10, $vf9");
+    }
+    VU0_LSV(sqc2, 10, 0x0, 4);
+}
 
 void func_00240918(void *a0, void *a1) {
     ((float *)a0)[0] = ((float *)a1)[0];
