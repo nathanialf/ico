@@ -76,7 +76,18 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023E6E8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023E7D0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023EA68);
+int func_0023EA68(void *a0, int a1) {
+    int s0 = a1 & 1;
+    int ret;
+    func_0023E440((char *)a0 + s0 * 0x28);
+    if (!s0) goto zero_path;
+    ret = func_0023E6E8((char *)a0 + 0x140);
+    goto done;
+zero_path:
+    ret = func_0023E6E8((char *)a0 + 0x50);
+done:
+    return ret;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023EAC8);
 
