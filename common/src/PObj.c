@@ -785,7 +785,35 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002426F8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002427A8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002428E8);
+void func_002428E8(int *a0) {
+    int *a5 = (int *)a0[13];
+    int *a6 = (int *)a5[16];
+    int *a2 = (int *)a6[3];
+    if (a2 == 0) {
+        a6[3] = (int)a5;
+    } else {
+        ((int *)a6[4])[15] = (int)a5;
+    }
+    a6[4] = (int)a5;
+    {
+        int t5 = a0[5], t7 = a0[7];
+        a5[8] = t5;
+        a5[7] = t7;
+    }
+    a5[9] = a0[8];
+    a5[3] = a0[9];
+    a5[10] = a0[10];
+    a5[11] = a0[11];
+    a5[12] = a0[12];
+    a5[13] = a0[4];
+    if ((int)a6[0] < 0) {
+        return;
+    }
+    if (a6[1] != 0) {
+        return;
+    }
+    func_00100F18(a6[0]);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00242978);
 
