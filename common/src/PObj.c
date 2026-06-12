@@ -3303,7 +3303,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002654F0);
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002666C0);
 
 extern void func_002698E8(void);
-extern void func_00269950(void);
+extern long func_00269950(void *a0, int a1, int a2);
 extern void func_002699D0(void);
 extern int func_00269A38(void *a0);
 
