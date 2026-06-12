@@ -1138,14 +1138,35 @@ void *func_00247820(void *a0) {
     return a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00247880);
+extern int D_0054AB48[];
+extern char D_00247C40[];
+
+int func_00247880(int a0, int a1) {
+    int old;
+    int orig = a0;
+    unsigned int err = 0xFFFFFFFF;
+    if ((unsigned)(a0 - 1) >= 13) {
+        return (int)err;
+    }
+    old = D_0054AB48[orig];
+    D_0054AB48[orig] = a1;
+    if ((unsigned)(a0 - 1) < 3) {
+        func_001001D0(orig, (void *)D_00247C40);
+    } else {
+        func_001001E0(orig, (void *)D_00247C40);
+    }
+    return old;
+}
 
 /* func_00247908 — hand-written PS2 EE syscall stub: syscall number in $v1,
- * then `syscall 0`. .set noreorder keeps the bare nop in the jr delay slot. */
+ * then `syscall 0`. .set noreorder keeps the bare nop in the jr delay slot.
+ * The leading nop is func_00247880's trailing 16-align padding (dropped by gcc
+ * when that function is C). */
 __asm__(
     ".section .text\n"
     "    .set at\n"
     "    .set noreorder\n"
+    "    nop\n"
     "glabel func_00247908\n"
     "    addiu      $3, $0, 0x74\n"
     "    syscall    0\n"
