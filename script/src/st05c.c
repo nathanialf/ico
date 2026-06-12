@@ -54,7 +54,18 @@ void func_0021C2F0(int a0) {
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", func_0021C300);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void AddWayPointTop(int a0, int a1);
+
+void func_0021C300(int a0) {
+    volatile int buf[4];
+    buf[0] = a0;
+    while (func_00178DB0(0xA3) == 0) {
+        _ACTWait(1);
+    }
+    AddWayPointTop(3, 1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", func_0021C348);
 
