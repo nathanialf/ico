@@ -2303,7 +2303,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00252758);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00252870);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002529D8);
+extern void func_00252310(void);
+void func_002529D8(void) {
+    int v;
+    func_00252310();
+    v = (-(*(volatile int *)0x10002020 & 7)) & 7;
+    if (v) func_00252758(v);
+    while (func_00252620(0x18) != 1) {
+        func_00252758(8);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00252A40);
 
