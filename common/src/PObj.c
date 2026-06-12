@@ -1753,7 +1753,12 @@ int func_0024B2B0(int a0, int a1) {
     return func_0024B1A0(a0, a1, 0xFFF);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024B308);
+int func_0024B308(int a0, int a1) {
+    if (D_007112D0[a0][a1].f10 == 0) {
+        return 0;
+    }
+    return func_0024B1A0(a0, a1, 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024B360);
 
