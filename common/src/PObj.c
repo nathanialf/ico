@@ -2116,7 +2116,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024E7C8);
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024E818);
 
 extern int D_00628EC8_alias[] __asm__("D_00628EC8");
-extern void func_00260668(void *a0, int a1);
+extern void func_00260668(void *a0, ...);
 
 void func_0024E8E0(int a0) {
     func_00260668(D_00628EC8_alias, a0);
@@ -3178,7 +3178,12 @@ int func_00260628(int *self, int b, ...)
     return func_00262D78(self, self[2], b, args);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00260668);
+void func_00260668(void *a0, ...) {
+    void *args = (char *)__builtin_next_arg(a0) - 0x38;
+    int s = D_0054D504[0];
+    *(int *)(*(int *)(s + 8) + 0x54) = s;
+    func_00262D00(*(int *)(s + 8), a0, args);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002606B8);
 
