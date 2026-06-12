@@ -336,7 +336,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", SetDirectRootPositionWith
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGameView_Init);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTCharctrl_Lock);
+int ACTCharctrl_Lock(int a0, int a1) {
+    int i;
+    for (i = 0; i < D_006A3F70[0x12C]; i++) {
+        if (D_006A3F70[i] == a1) {
+            return *(unsigned char *)((char *)D_006A3F70 + i * 4 + 0x320);
+        }
+    }
+    return 0;
+}
 
 extern char D_0060AF70[];
 
