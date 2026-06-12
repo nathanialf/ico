@@ -78,7 +78,14 @@ void func_0021C5F0(int a0) {
     func_00178DD8(0xB9);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", func_0021C638);
+void func_0021C638(int a0) {
+    volatile int buf[4];
+    buf[0] = a0;
+    while (scpDoorTypeUpUp(0x451) == 0) {
+        _ACTWait(1);
+    }
+    func_00178DD8(0xBA);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", func_0021C680);
 
