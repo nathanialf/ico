@@ -411,7 +411,36 @@ int func_00240980(void *a0) {
     return r & 0xC0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002409C8);
+int func_002409C8(void *a0, void *a1, void *a2) {
+    register int ret __asm__("$2");
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "vsub.xyzw $vf4, $vf0, $vf0\n"
+        "lui $2, 0x4580\n"
+        "dsll $2, $2, 16\n"
+        "ori $2, $2, 0x4580\n"
+        "dsll $2, $2, 16\n"
+        "lqc2 $vf6, 0x0($4)\n"
+        "lqc2 $vf8, 0x0($5)\n"
+        "lqc2 $vf9, 0x0($6)\n"
+        "qmtc2.ni $2, $vf7\n"
+        "ctc2.ni $0, $vi16\n"
+        "vsub.xyw $vf5, $vf6, $vf4\n"
+        "vsub.xy $vf5, $vf7, $vf6\n"
+        "vsub.xyw $vf5, $vf8, $vf4\n"
+        "vsub.xy $vf5, $vf7, $vf8\n"
+        "vsub.xyw $vf5, $vf9, $vf4\n"
+        "vsub.xy $vf5, $vf7, $vf9\n"
+        "vnop\n"
+        "vnop\n"
+        "vnop\n"
+        "vnop\n"
+        "vnop\n"
+        "cfc2.ni $2, $vi16\n"
+        ".set reorder\n"
+        : "=r"(ret));
+    return ret & 0xC0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240A28);
 
