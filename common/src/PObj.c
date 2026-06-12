@@ -444,7 +444,33 @@ int func_002409C8(void *a0, void *a1, void *a2) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240A28);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00240AB8);
+extern int D_0054A9B0[];
+
+void func_00240AB8(void) {
+    typedef unsigned int u128 __attribute__((mode(TI)));
+    register int v __asm__("$8");
+
+    *(volatile int *)0x10003830 = 0;
+    *(volatile int *)0x10003820 = 0;
+    *(volatile int *)0x10003810 = 1;
+
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "cfc2.ni $8, $vi28\n"
+        "ori $8, $8, 0x2\n"
+        "ctc2.ni $8, $vi28\n"
+        "sync.p\n"
+        ".set reorder\n"
+        : "=r"(v) : : "memory"
+    );
+
+    {
+        volatile u128 *dst = (volatile u128 *)0x10004000;
+        u128 *src = (u128 *)D_0054A9B0;
+        *dst = src[0];
+        *dst = src[1];
+    }
+}
 
 void func_00240B18(unsigned char *a0, int a1) {
     int i;
