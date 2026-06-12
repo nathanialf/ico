@@ -1658,7 +1658,15 @@ int func_0024A8B8(int a0, int a1) {
     return *(int *)(func_0024A858(a0, a1) + 0x58);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024A908);
+int func_0024A908(int a0, int a1, int a2) {
+    int s0;
+    if (D_007112D0[a0][a1].f10 == 0) {
+        return 0;
+    }
+    s0 = func_0024A858(a0, a1);
+    func_002604B8(a2, s0, *(int *)(s0 + 0x60));
+    return *(int *)(s0 + 0x60);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024A988);
 
