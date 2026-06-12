@@ -38,7 +38,22 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_00155738);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ACTRunIntrCorrect);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_00155FF8);
+extern void IsWallLeverStatus(void *a, void *b, int c);
+extern void func_001BDE70(void *a, void *b, int c);
+
+void func_00155FF8(void *a0, void *a1)
+{
+    int n = *(int *)((char *)a1 + 0xC);
+    if (n >= 0x16) {
+        if (n >= 0x18) {
+            if (n < 0x1A) {
+                func_001BDE70(a1, a0, 0x16);
+            }
+        } else {
+            IsWallLeverStatus(a1, a0, 0x16);
+        }
+    }
+}
 
 extern void *ContinueCorrectPosition(void *a0);
 extern void CylinderCollision(void *a0, void *a1);
