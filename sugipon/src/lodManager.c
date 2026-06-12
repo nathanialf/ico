@@ -58,7 +58,25 @@ int func_001D2168(int a0) {
     return a0 ? D_0062C210 : D_0062C20C;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lodManager", func_001D2180);
+extern int D_004C0A98[];
+
+typedef struct {
+    char _pad0[0x134];
+    int  f_134;
+    char _pad1[0x190 - 0x138];
+} LodEnt; /* stride 0x190 */
+extern LodEnt D_0055DA10[];
+
+void func_001D2180(void)
+{
+    int i;
+    for (i = 0; i <= 0x43F; i++) {
+        if (D_0055DA10[i].f_134 == 4) {
+            D_004C0A98[i] = 0;
+        }
+    }
+    D_0062C210 = 0;
+}
 
 
 /* recovered struct shapes */
