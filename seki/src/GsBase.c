@@ -4,7 +4,26 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GsBase", gsb_SetFrame);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GsBase", gsb_Init);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GsBase", gsb_Reduction);
+typedef struct { unsigned char pad[0x10]; unsigned long long *cur; } GsBaseRed;
+extern GsBaseRed D_004C3850;
+
+void gsb_Reduction(int a0) {
+    int new_var;
+    unsigned long long *p, *q;
+    if (a0) {
+        a0 = 0x50000;
+        new_var = 0; do { } while (new_var);
+    } else {
+        a0 = 0x30000;
+    }
+    p = D_004C3850.cur;
+    *(volatile unsigned long long *)p = a0;
+    p++;
+    *(unsigned long long * volatile *)&D_004C3850.cur = p;
+    q = p + 1;
+    *(volatile unsigned long long *)p = 0x47;
+    D_004C3850.cur = q;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GsBase", gsb_KeepFrameBuffer);
 
