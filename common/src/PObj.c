@@ -565,7 +565,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002415E8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00241640);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00241698);
+void func_00241698(int *a1, unsigned int a2) {
+    int *a0;
+    int s0;
+    int v0;
+    v0 = func_002415E8(a1);
+    a0 = (int *)a1[0];
+    do { s0 = a2 | 0x70000000; } while (0);
+    a1[2] = v0;
+    a0[0] = s0;
+    a0++;
+    a1[3] = 0;
+    a1[0] = (int)(a0 + 1);
+    a0[0] = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002416F0);
 
