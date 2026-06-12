@@ -2740,7 +2740,24 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00259CB0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00259D58);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00259DF8);
+void func_00259DF8(unsigned int a0, int a1) {
+    volatile int *p;
+    int v, v2, v3;
+    if (a0 >= 0x30) return;
+    if (a1 < 0) return;
+    if (a1 >= 0x4000) return;
+    p = (volatile int *)func_00254FE0(a0);
+    v = p[0];
+    *(int *)((char *)p + 0x40) = a1;
+    v |= 0x2000;
+    p[0] = v;
+    v2 = p[0];
+    v2 |= 0x400;
+    p[0] = v2;
+    v3 = p[0];
+    v3 = (int)((unsigned int)v3 & 0xFFFFDFFFU);
+    p[0] = v3;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00259E68);
 
