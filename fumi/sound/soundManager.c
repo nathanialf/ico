@@ -42,7 +42,26 @@ void sndManager(int *a, int *b)
     soundDataSegNextStageNotUseClose(a, b);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_00143298);
+extern void soundSeEnvDefaultSet(int id);
+extern void AdpcmFadeCloseAll(int x);
+extern void soundAllocIopFree(int x);
+
+typedef struct {
+    char           _pad[0x188];
+    unsigned short f_188;
+    char           _pad2[6];
+} SndEnt; /* stride 0x190 */
+extern SndEnt D_005EBC48[];
+
+void func_00143298(int id)
+{
+    unsigned int p;
+    soundSeEnvDefaultSet(id);
+    AdpcmFadeCloseAll(0);
+    p = id * 0x190;
+    p += (unsigned int)D_005EBC48;
+    soundAllocIopFree(*(unsigned short *)(p + 0x188));
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_001432E0);
 
