@@ -2482,7 +2482,12 @@ int func_00254898(int *self, int a1)
     return ret;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002548E8);
+int func_002548E8(int *self)
+{
+    int ret = func_002547E0(self, 1);
+    func_00254800(self, 1);
+    return ret;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00254930);
 
