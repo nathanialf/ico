@@ -7,7 +7,20 @@ extern void func_002614F8(void *a0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadMain);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadCreateS);
+void iosThreadCreateS(int *a0, char *a1, int a2) {
+    if (a0 != 0 && a1 != 0) {
+        a0[0] = a2;
+        a0[1] = (int)a1;
+        if (a2 > 0) {
+            do {
+                *a1 = 0;
+                a1 += 0x40;
+            } while (--a2 != 0);
+        }
+    } else {
+        a0[0] = 0;
+    }
+}
 
 void *iosThreadStart(int *a0) {
     unsigned char *p = (unsigned char *)a0[1];
