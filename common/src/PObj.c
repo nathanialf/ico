@@ -1636,7 +1636,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024A5B8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024A7A0);
 
-extern char D_007112D0[];
+typedef struct { char pad0[0x10]; int f10; char pad14[0x8]; } PObjA8B8Ent; /* 0x1C */
+extern PObjA8B8Ent D_007112D0[][4];
 
 int func_0024A858(int a0, int a1) {
     int s0;
@@ -1649,7 +1650,13 @@ int func_0024A858(int a0, int a1) {
     return s0 + (r << 7);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024A8B8);
+int func_0024A8B8(int a0, int a1) {
+    int ret = 0;
+    if (D_007112D0[a0][a1].f10 == 0) {
+        return ret;
+    }
+    return *(int *)(func_0024A858(a0, a1) + 0x58);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024A908);
 
