@@ -2,7 +2,14 @@
 #include "ico/types.h"
 
 /* actressLight 0x164 actor-state view (local) */
-typedef struct { char _0[0x30]; int f_30; } ALState;
+typedef struct {
+    char      _0[0x20];
+    long long f_20;   /* 0x20 */
+    char      _28[0x8];
+    int       f_30;   /* 0x30 */
+    char      _34[0x58];
+    int       f_8C;   /* 0x8C */
+} ALState;
 typedef struct { float m[4]; } Vec4;
 typedef struct { float m[16]; } Mtx44;
 
@@ -55,7 +62,63 @@ int func_001B7E50(GObj *a0) {
     return r;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", func_001B7ED8);
+extern short D_0062C1E4, D_0062C1E6, D_0062C1F0;
+extern float D_0062C1E0, D_0062C1EC;
+extern int AP1BeforeFunc(GObj *self, int a1);
+extern int hitProc(GObj *self, int a1);
+
+int func_001B7ED8(GObj *a0) {
+    GObj *self = a0;
+    ALState *st = (ALState *)self->p_164;
+    short r3;
+    int r2, r5;
+
+    if ((int)(st->f_20 << 25 >> 32) & 1) {
+        r3 = D_0062C1E6;
+        goto Lclamp;
+    }
+    r2 = st->f_8C;
+    if (!(D_0062C1E0 < 500.0f)) goto L7FD8;
+    if (r2 != 0) {
+        if (AP1BeforeFunc(self, 1) != 0) return 1;
+    }
+    if (100.0f < D_0062C1EC) {
+        if (AP1BeforeFunc(self, 1) != 0) return 1;
+    }
+    r2 = D_0062C1E4;
+    if (r2 < 0x4000 && 300.0f < D_0062C1E0) {
+        r3 = D_0062C1E6;
+        if (r3 < 0x1001) {
+            r5 = (short)(r3 < -0x1000 ? -0x1000 : r3);
+        } else {
+            r5 = 0x1000;
+        }
+        goto Lhit;
+    }
+    if (AP1BeforeFunc(self, 1) != 0) return 1;
+    r2 = st->f_8C;
+L7FD8:
+    if (r2 != 0) {
+        if (D_0062C1EC < 50.0f) {
+            r3 = D_0062C1F0;
+            goto Lclamp;
+        }
+        if (AP1BeforeFunc(self, 1) != 0) return 1;
+    }
+    if (!(D_0062C1EC < 100.0f)) goto L8060;
+    r3 = D_0062C1E6;
+Lclamp:
+    if (r3 < 0x801) {
+        r5 = (short)(r3 < -0x800 ? -0x800 : r3);
+    } else {
+        r5 = 0x800;
+    }
+Lhit:
+    hitProc(self, r5);
+    return -1;
+L8060:
+    return AP1BeforeFunc(self, 1) ? 1 : -1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", func_001B8090);
 
