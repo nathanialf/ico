@@ -139,7 +139,28 @@ void func_0023FDD8(void *a0, void *a1, void *a2) {
     VU0_LSV(sqc2, 9, 0x0, 4);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023FE08);
+void func_0023FE08(void *a0, void *a1, void *a2) {
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf4, 0x0($5)\n"
+        "lqc2 $vf5, 0x10($5)\n"
+        "lqc2 $vf6, 0x20($5)\n"
+        "lqc2 $vf7, 0x30($5)\n"
+        "addiu $7, $0, 0x4\n"
+        "1:\n"
+        "lqc2 $vf8, 0x0($6)\n"
+        "vmulax.xyzw $ACC, $vf4, $vf8x\n"
+        "vmadday.xyzw $ACC, $vf5, $vf8y\n"
+        "vmaddaz.xyzw $ACC, $vf6, $vf8z\n"
+        "vmaddw.xyzw $vf9, $vf7, $vf8w\n"
+        "sqc2 $vf9, 0x0($4)\n"
+        "addi $7, $7, -0x1\n"
+        "addi $6, $6, 0x10\n"
+        "bne $0, $7, 1b\n"
+        "addi $4, $4, 0x10\n"
+        ".set reorder\n"
+        ::: "$7", "memory");
+}
 
 void func_0023FE50(void *a0, void *a1, void *a2) {
     VU0_LSV(lqc2, 4, 0x0, 5);
