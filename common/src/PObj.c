@@ -1883,7 +1883,13 @@ void func_0024BF60(int a0, int a1, int a2) {
     EI();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024BF88);
+extern int func_00100410(void);
+extern int func_001002A0(int a0, void *a1, int a2);
+
+void func_0024BF88(int a0) {
+    func_001002A0(a0 & 0xFFFF, func_0024BF60, func_00100410());
+    func_00100440();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024BFD0);
 
