@@ -48,7 +48,12 @@ int iosMcTest(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcard", iosMcSync);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcard", iosMcGetInfo);
+int iosMcGetInfo(void *a0) {
+    McTestVal *v = (McTestVal *)a0;
+    v->w.hi = 4;
+    v->ll = v->ll & -2;
+    return iosMsgSend(D_0027D308, a0, 0);
+}
 
 
 /* recovered struct shapes */
