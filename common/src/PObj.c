@@ -1691,7 +1691,12 @@ void func_0024AA00(int a0, char *a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024AA38);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024AAA0);
+int func_0024AAA0(int a0, int a1) {
+    if (D_007112D0[a0][a1].f10 == 0) {
+        return 0;
+    }
+    return ((unsigned char *)func_0024A858(a0, a1))[0x71];
+}
 
 extern int D_0054C670[];
 
