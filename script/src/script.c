@@ -126,7 +126,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpKillSpiderGroup);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", preload);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpDispOffAllWithKind);
+void scpDispOffAllWithKind(int a0, int a1) {
+    int buf[4];
+    GetMatrixFromQuaternion(buf);
+    SetParticleEffectUpperLimit(a1, a0, buf);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpDispOnAllWithKind);
 
