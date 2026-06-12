@@ -1668,7 +1668,14 @@ int func_0024A908(int a0, int a1, int a2) {
     return *(int *)(s0 + 0x60);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024A988);
+int func_0024A988(int a0, int a1) {
+    unsigned char *p;
+    if (D_007112D0[a0][a1].f10 == 0) return 0x63;
+    p = (unsigned char *)func_0024A858(a0, a1);
+    if (p[0x70] != 6) return p[0x70];
+    if (p[0x71] == 2) return 5;
+    return p[0x70];
+}
 
 extern int D_0054C650[];
 extern unsigned char D_00628D28[];
