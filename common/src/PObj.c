@@ -2840,7 +2840,24 @@ void func_0025A3C8(void) {
     func_00255580(0x47, 0, 0, 0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025A3E0);
+int func_0025A3E0(int *a0) {
+    unsigned int n1, n2;
+    int v, v2, ret;
+    ret = -1;
+    n1 = a0[2];
+    if ((unsigned int)0x1FFFFF < n1) goto done;
+    n2 = a0[3];
+    if ((unsigned int)0x1FFFFF < n2) goto done;
+    v = a0[0];
+    if (v < 0) goto done;
+    if (v < 0x10) {
+        v2 = a0[1];
+        func_00255580(0x48, (v << 24) | v2, n1, n2);
+        ret = 0;
+    }
+    done:
+    return ret;
+}
 
 int func_0025A450(unsigned int a0) {
     int ret = -1;
