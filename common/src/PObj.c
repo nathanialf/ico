@@ -2546,7 +2546,36 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00257D28);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00257DE8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00258168);
+void func_00258168(void *a0) {
+    void *s0 = a0;
+    void *p = func_00255060();
+    int t = *(unsigned short *)((char *)s0 + 0x28);
+    int val;
+    int pval;
+    if (t == 1) goto case1;
+    if (t >= 2) goto ge2;
+    if (t == 0) goto case0;
+    goto done;
+ge2:
+    if (t == 2) goto case12;
+    goto done;
+case0: {
+    int q0 = *(int *)((char *)p + 0x10);
+    int b0 = *(unsigned char *)((char *)q0 + 0x2);
+    *(short *)((char *)s0 + 0x2A) = 0;
+    *(short *)((char *)s0 + 0x26) = b0;
+    goto done;
+}
+case1:
+case12: {
+    int q12 = *(int *)((char *)p + 0x10);
+    int b12 = *(unsigned char *)((char *)q12 + 0x2);
+    *(short *)((char *)s0 + 0x2A) = b12;
+}
+done:
+    val = *(int *)((char *)s0 + 0x4);
+    *(int *)((char *)s0 + 0x4) = val + 3;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002581F0);
 
