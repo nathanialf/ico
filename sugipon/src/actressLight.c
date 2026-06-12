@@ -32,7 +32,28 @@ void SetActressLight(GObj *a0) {
     p60[1] = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", func_001B7E50);
+extern int walkMot(GObj *a0, int a1);
+extern float D_0062942C;
+
+int func_001B7E50(GObj *a0) {
+    char *o = (char *)GOBJ_SUB(a0)->p_7F0;
+    int r = walkMot(a0, 0);
+    if (r == -1) {
+        float f = *(float *)(o + 0x1C8) + D_0062942C;
+        *(int *)(o + 0x1C0) = 0;
+        *(int *)(o + 0x1C4) = 0;
+        *(float *)(o + 0x1C8) = f;
+        if (1.0f < f) {
+            *(int *)(o + 0x64) = 0;
+            *(int *)(o + 0x10) = 2;
+            *(int *)(o + 0x14) = 0;
+            *(int *)(o + 0x60) = 2;
+            return 0;
+        }
+        return 3;
+    }
+    return r;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", func_001B7ED8);
 
