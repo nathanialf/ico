@@ -1015,7 +1015,16 @@ int func_00246690(int a0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00246700);
+extern int D_0070F6C0[];
+
+int func_00246700(int a0) {
+    int v2 = D_0054AB34[0];
+    if (v2 < 0) return 0;
+    D_0070F6C0[0] = a0;
+    v2 = func_00242978(D_0070F600, 2, 0, D_0070F6C0, 4, D_0070F640, 4, 0, 0);
+    if (v2 < 0) return -1;
+    return D_0070F640[0];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00246778);
 
