@@ -87,15 +87,50 @@ void func_0021C638(int a0) {
     func_00178DD8(0xBA);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", func_0021C680);
+void func_0021C680(int a0) {
+    volatile int buf[4];
+    buf[0] = a0;
+    while (scpDoorTypeUpUp(0x452) == 0) {
+        _ACTWait(1);
+    }
+    func_00178DD8(0xBB);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", func_0021C6C8);
+void func_0021C6C8(int a0) {
+    volatile int buf[4];
+    buf[0] = a0;
+    while (scpDoorTypeUpUp(0x453) == 0) {
+        _ACTWait(1);
+    }
+    func_00178DD8(0xBE);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", func_0021C710);
+void func_0021C710(int a0) {
+    volatile int buf[4];
+    buf[0] = a0;
+    while (scpDoorTypeUpUp(0x454) == 0) {
+        _ACTWait(1);
+    }
+    func_00178DD8(0xBF);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", func_0021C758);
+void func_0021C758(int a0) {
+    volatile int buf[4];
+    buf[0] = a0;
+    while (scpDoorTypeUpUp(0x403) == 0) {
+        _ACTWait(1);
+    }
+    func_00178DD8(0xBC);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", func_0021C7A0);
+void func_0021C7A0(int a0) {
+    volatile int buf[4];
+    buf[0] = a0;
+    while (scpDoorTypeUpUp(0x404) == 0) {
+        _ACTWait(1);
+    }
+    func_00178DD8(0xBD);
+}
 
 extern int D_0062BD08;
 extern int func_00178DB0(int a0);
