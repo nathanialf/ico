@@ -2761,7 +2761,11 @@ int func_00258650(int a0, int a1, int a2, int a3) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00258688);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00258820);
+extern char D_007181C0[];
+
+int func_00258820(int a0, int a1, int a2, int a3, int a4, int a5) {
+    return func_00242978(D_007181C0, a0, a1, a2, a4, a3, a5, 0, 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00258870);
 
