@@ -33,7 +33,22 @@ void stop_free_resources(void)
     return func_00100A70(2);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/StageManager", stage_initialize);
+extern int D_00629C90;
+extern void ExitIcoMisc(int a0);
+extern void func_0017E160(int a0, int a1);
+extern void AttackCheckHit(int a0);
+extern void backStageProcessInStage(void);
+extern void sndManager(int a0, int a1);
+extern void _transRingBuf(void);
+
+void stage_initialize(int a0) {
+    ExitIcoMisc(D_00629C90);
+    func_0017E160(D_00629C90, 0);
+    AttackCheckHit(a0);
+    backStageProcessInStage();
+    sndManager(a0, D_00629C90);
+    _transRingBuf();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/StageManager", exit_stage);
 
