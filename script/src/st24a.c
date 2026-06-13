@@ -37,7 +37,17 @@ void func_002320A0(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st24a", func_002320B0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st24a", func_00232170);
+extern void actSt25aQueenTalkChk(int a0, int a1, int *buf, int a3, float f);
+extern int D_00629DE8;
+extern long long D_00614E10[];
+
+void func_00232170(volatile unsigned int a0) {
+    volatile int local;
+    long long buf[2];
+    buf[0] = D_00614E10[0];
+    buf[1] = D_00614E10[1];
+    actSt25aQueenTalkChk(D_00629DE8, 0, (int *)buf, 2, 100.0f);
+}
 
 extern void actInitialize(int a0);
 extern void _ACTWait(int a0);
