@@ -4,7 +4,14 @@ int initGeometryState(volatile int *a0) {
     return a0[3] != a0[4] ? a0[0] + a0[2] * 0x151800 : 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/DObj", initMatrixDObj);
+int initMatrixDObj(volatile int *self) {
+    if (self[3] != 0) {
+        int e = self[2] - self[3];
+        int d = self[4];
+        return self[1] + (e + d) % d * 0xA0A40;
+    }
+    return 0;
+}
 
 void allocObjectData(void *a0) {
     if (*(volatile int *)((char *)a0 + 0xC) > 0) {
