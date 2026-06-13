@@ -25,7 +25,19 @@ void actInitialize_geo(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act", actInitialize_only_charcter);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act", ACTReserveTarget);
+extern int iosOmBeforeFuncStandard(void *self, int val5, int val6);
+
+int ACTReserveTarget(void *a0, int a1, int a2)
+{
+    char *s = *(char **)((char *)a0 + 0x164);
+    if (*(int *)(s + 0x11C) == 0) {
+        *(void **)(s + 0x11C) = a0;
+        *(int *)(s + 0x120) = a2;
+        iosOmBeforeFuncStandard(a0, a2, a1);
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act", _ACTRun);
 
