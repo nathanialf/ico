@@ -1296,7 +1296,69 @@ __asm__(
 "
 );
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00247650);
+/* func_00247650: handwritten TLB-read routine (mtc0/tlbr/mfc0/sync.p).
+ * C-inexpressible privileged COP0 ops; in-file handwritten asm per maintainer
+ * exception (cf. func_00247608, func_002484AC). */
+__asm__(
+    ".section .text
+"
+    "    .set noat
+"
+    "    .set noreorder
+"
+    "    .global func_00247650
+"
+    "    .type func_00247650, @function
+"
+    "func_00247650:
+"
+    "    sltiu $2, $4, 0x30
+"
+    "    bnez  $2, 1f
+"
+    "    nop
+"
+    "    jr    $31
+"
+    "    addiu $2, $0, -0x1
+"
+    "1:
+"
+    "    mtc0  $4, $0
+"
+    "    sync.p
+"
+    "    tlbr
+"
+    "    sync.p
+"
+    "    mfc0  $2, $5
+"
+    "    sw    $2, 0x0($5)
+"
+    "    mfc0  $3, $10
+"
+    "    sw    $3, 0x0($6)
+"
+    "    mfc0  $2, $2
+"
+    "    sw    $2, 0x0($7)
+"
+    "    mfc0  $3, $3
+"
+    "    sw    $3, 0x0($8)
+"
+    "    jr    $31
+"
+    "    daddu $2, $4, $0
+"
+    "    .size func_00247650, . - func_00247650
+"
+    "    .set reorder
+"
+    "    .set at
+"
+);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002476A0);
 
