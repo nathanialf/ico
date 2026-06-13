@@ -25,7 +25,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04d", actSt04dDoor2DownChk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04d", actSt04dDoor1Event);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04d", actSt04dDoor1UpEffect);
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void *actSt25aQueenDeadChk(int a0);
+
+void actSt04dDoor1UpEffect(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x7C) == 0) {
+        stage_KillPlayBgAnimation(0x10C, -1, -2);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04d", actSt04dDoor1DownEffect);
 
@@ -39,7 +51,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04d", func_00216648);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04d", func_002166D8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04d", func_00216768);
+void func_00216768(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0xCD) != 0) {
+        ((int *)actSt25aQueenDeadChk(0x3EB))[0x16C / 4] = 0;
+    }
+}
 
 void func_002167B8(int a0) {
     int buf[4];
