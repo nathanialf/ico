@@ -1066,9 +1066,9 @@ int func_00246608(void)
     int val;
     goto no_delay;
 again:
-    i = 0x100000;
+    __asm__ volatile ("lui %0,%%hi(D_FFFFF)" : "=r"(i));
     do {
-        __asm__ volatile ("addiu %0,%0,-1" : "+r"(i));
+        __asm__ volatile ("addiu %0,%0,%%lo(D_FFFFF)" : "+r"(i));
     } while (i != -1);
 no_delay:
     ret = func_002427A8(D_0070F600, 0x80000003, 0);
