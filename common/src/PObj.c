@@ -950,7 +950,18 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00243180);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002431F0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002435A8);
+extern int D_0054AB24[];
+extern int func_00100520(int *self);
+
+void func_002435A8(void) {
+    int self[8];
+    if (D_0054AB24[0] == -1) {
+        self[0x8 / 4] = 1;
+        self[0x4 / 4] = 1;
+        self[0x14 / 4] = 0;
+        D_0054AB24[0] = func_00100520(self);
+    }
+}
 
 extern void func_002435A8(void);
 extern void func_00100560(int a0);
