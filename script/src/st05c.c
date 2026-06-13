@@ -4,7 +4,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", actSt05cDoorDownChk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", actSt04rDoorChk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", actSt04rDoor2Chk);
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void gflagInit(int a0);
+
+void actSt04rDoor2Chk(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0xBF)) {
+        gflagInit(0x4A0);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", actSt05cSolarXL);
 
