@@ -78,3 +78,26 @@ endlabel func_00246608
   timing nops), THEN attack the $v0/$v1 counter tie. Until measurable, neither
   hand-iteration nor a fair stall count is possible.
 - Still owed by the stop-hook (best=8, stall<30, no match).
+
+## Session 2026-06-13 BREAKTHROUGH (differ unblocked, counter tie solved)
+1. The "compile-fail" was NOT the inline asm — it was MISSING EXTERNS. D_0070F600
+   and D_0054AB34 are declared in the TU AFTER func_00246608 (lines ~1060-62),
+   so they're undeclared at this function. FIX: add `extern int D_0070F600[];
+   extern int D_0054AB34[];` (plus `extern char D_FFFFF[];`) immediately before
+   the function. With those, match_loop diff WORKS (measurable, rc9/rc10).
+2. COUNTER-REG TIE SOLVED: the goto/do-while-via-goto form puts the loop counter
+   in $v1 (wrong); a `for (i=0x100000; i!=-1; i--)` OR a structured `do{}while`
+   puts it in $v0 (matches ROM) with `-1` in $v1. `i=0x100000` (literal) is
+   byte-equal to `lui %hi(D_FFFFF)` / `addiu %lo(D_FFFFF)` (the assembler
+   reloc-matches; differ shows false 0x10-vs-reloc diffs).
+3. REMAINING (2 real diffs, ninja still fails):
+   (a) busy-wait NOP PLACEMENT: ROM loop = `addiu i--; nop×4; bne; nop(delay)`.
+       Built reorders the bare `__asm__("nop\nnop\nnop\nnop")` to the loop TOP
+       (nop×4 BEFORE the addiu) and pads 3 extra nops after — total 7-8 nops vs
+       ROM's 4+delay. Tying the asm to i via `: : "r"(i)` did NOT fix it (loop
+       rotation / bne-delay-fill places the asm first). NEXT: find the construct
+       that emits exactly `addiu; nop×4; bne; nop` — maybe a specific asm form,
+       or block gcc's bne-delay-fill so the addiu stays at the loop head.
+   (b) final store `D_0054AB34[0]=0; return 0`: ROM puts the %hi addr in $v0
+       (reused for the return-0), built uses $v1 (return-0 set before the store).
+- Now MEASURABLE + counter tie solved → close. Still owed (no match, stall<30).
