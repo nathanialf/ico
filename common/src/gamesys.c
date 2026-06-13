@@ -131,7 +131,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysVersionSave);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysCharacterInfoSave);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysGeneratorInfoSave);
+extern void gamesysMemoryHandlerWrite(int a0);
+extern void gamesysMemoryHandlerRead(int a0, int a1, int a2, int a3, int a4,
+                                     int a5, int a6, int a7, int a8);
+
+void gamesysGeneratorInfoSave(void)
+{
+    gamesysMemoryHandlerWrite(1);
+    gamesysMemoryHandlerRead(0x10, 0x20, 0x30, 0x40, -0x136, -0x6B, 0x136, 0x6B, 0);
+    gamesysMemoryHandlerWrite(1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", func_001A98E0);
 
