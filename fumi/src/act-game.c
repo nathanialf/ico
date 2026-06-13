@@ -349,7 +349,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", GetSkeltonPosition);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", SetDirectRootPositionWithNodePointLimit);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGameView_Init);
+int ACTGameView_Init(int a0, int a1)
+{
+    int i;
+    for (i = 0; i < D_006A3F70[0x4B0 / 4]; i++) {
+        if (D_006A3F70[i] == a1) {
+            return *((unsigned char *)&D_006A3F70[i] + 0x190);
+        }
+    }
+    return 0;
+}
 
 int ACTCharctrl_Lock(int a0, int a1) {
     int i;
