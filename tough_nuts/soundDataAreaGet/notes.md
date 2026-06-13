@@ -19,7 +19,29 @@ L: lw v0,0(a1); beq v0,key,found [v1=a2]        # COPY in beq-delay
 found: return a2
 ```
 
-## Best: rc5 (was rc7 parked) — SEED = soundDataAreaGet.c
+## RESUME 2026-06-13: rc5 -> rc2 via ANCHOR lever (regalloc-swap root fixed)
+The parked rc5 had a full register-role swap (base materialized into the
+RETURN ptr a2 instead of the COMPARE ptr a1 — first 3 divergences). FIX:
+anchor base through `p` so end and r DERIVE from p:
+```c
+char *p = D_006A3070;
+char *end = p + 0x300;   // end from p  -> p owns the materialized base ($5/a1)
+char *r = p;             // r is the copy ($6/a2)
+```
+This collapsed rc5 -> **rc2**: role swap gone; base->compare-ptr a1, copy->
+return-ptr a2, end from a1, exactly like ROM. NEW BEST SEED = soundDataAreaGet.c.
+Residual rc2 = ONLY the copy/add delay-slot split direction (the original
+tie), isolated and clean:
+  ROM:   v1=a2 (COPY, beq-delay) ; a2=v1+0x30 (ADD, bne-delay)
+  built: v1=a2+0x30 (ADD, beq-delay) ; a2=v1 (COPY, bne-delay)
+PROVEN unreachable in clean C: the ADD-temp (next=r+0x30) survives as
+scheduler-hoisted arithmetic; any COPY-first form (cur=r; r=cur+0x30) is
+value-identical to r across its lifetime so copy-prop deletes it BEFORE
+scheduling. Reconfirmed: snapshot-form -> rc11; index-loop base+i twice ->
+rc12 (gcc CSEs to ONE giv + bnel; two givs come ONLY from explicit p/r pair).
+=> permuter-class (instruction-order artifact source can't express).
+
+## (old) Best: rc5 (was rc7 parked) — superseded by rc2 anchor above
 ```c
 char *p=D_006A3070, *r=D_006A3070, *end=D_006A3070+0x300;
 do { char *next = r + 0x30;            // pre-hoist (fills beq-delay)
