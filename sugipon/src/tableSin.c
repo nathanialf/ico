@@ -90,7 +90,14 @@ void func_0010E148(void *p0, void *p1, void *p2, void *p3)
     VU0_NOP();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", func_0010E188);
+extern void RegularizeQuaternion(void *a0, void *a1);
+
+void func_0010E188(void *a0, void *a1, void *a2)
+{
+    char buf[0x10];
+    RegularizeQuaternion(buf, a2);
+    ((void (*)(void *, void *, void *))func_0010E148)(a0, buf, a1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", func_0010E1D0);
 
