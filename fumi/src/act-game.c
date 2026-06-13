@@ -2,7 +2,7 @@
 #include "ico/types.h"
 
 /* act-game 0x164 actor-state view (local) */
-typedef struct { char _0[0x30]; int f_30; char _pad34[0x54]; int f_88, f_8C, f_90; } AGState;
+typedef struct { char _0[0x30]; int f_30; char _pad34[0x54]; int f_88, f_8C, f_90; char _pad94[0xEC]; int f_180; } AGState;
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_SaveActorInformation);
 
@@ -278,7 +278,22 @@ void RequestChangeHandMode(float *a0, float *a1)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTNotNeedCameraOffset);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGameCollisionOn);
+/* per-action-state attribute table (stride 0x50), indexed by AGState.f_30 */
+typedef struct { char _pad0[0x4C]; unsigned int f_4C; } ActStateAttr;
+extern ActStateAttr D_00557188[];
+
+int ACTGameCollisionOn(void *a0)
+{
+    AGState *s = *(AGState **)((char *)a0 + 0x164);
+    if (a0 == D_00629DE4) {
+        unsigned int off = s->f_30 * 0x50;
+        off += (unsigned int)D_00557188;
+        if ((((ActStateAttr *)off)->f_4C >> 6) & 1) {
+            return s->f_180;
+        }
+    }
+    return 0;
+}
 
 extern int ACTGame_DisconnectHand(void);
 extern int dispInsectNet(int *self);
