@@ -19,7 +19,15 @@ int AllocPObj(int a0) {
     return D_0070C340[a0];
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", InitPObj);
+int InitPObj(int a0) {
+    int i;
+    for (i = 0; i < D_0062BEA0; i++) {
+        if (a0 == D_0070C340[i]) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", FreePObj);
 
