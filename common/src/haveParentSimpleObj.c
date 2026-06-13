@@ -48,7 +48,22 @@ char *func_001AB120(void) {
     return D_0029F060 + idx * 0x64;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AB158);
+extern unsigned short D_004AF010[];
+extern unsigned char D_004AEE68[];
+extern void func_00260568(void *a0, int a1, int a2);
+extern void func_0019E5A8(void);
+
+void func_001AB158(void) {
+    char *p = D_004AF010;
+    int i;
+    for (i = 0; i < 0xB6; i++) {
+        *(unsigned short *)(p + 2) = 0;
+        *(unsigned short *)(p + 4) = 0xFFFF;
+        p += 0x40;
+    }
+    func_00260568(D_004AEE68, 0, 0x1A0);
+    func_0019E5A8();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AB1B0);
 
