@@ -42,3 +42,19 @@ glabel func_0025F748
 endlabel func_0025F748
     /* 15F79C 0025F79C 00000000 */  nop
 ```
+
+## Permuter run (2026-06-13) — resolution (b), rc1 near-miss is semantics-deviating
+- ~780 iterations on clean seed; harvest by real_count: output-200-1 = rc1.
+- rc1 form = my rc5 seed with `d = (int)out.d` (truncate out.d to 32-bit then
+  sign-extend) instead of `d = out.d`. This FLIPS the movz (rc5's movn→movz,
+  fixing the coalescing) BUT changes the load from `ld` (ROM, full 64-bit) to
+  `lw` → the sole remaining rc1 diff is `ld v0,16(sp)` (E) vs `lw v0,16(sp)` (B).
+- CATCH-22 (confirmed ~40 hand forms + permuter): `ld` (full 64-bit out.d, the
+  dev's shape) REQUIRES `long long d; d = out.d;` → gcc coalesces hi into a3 →
+  **movn** (rc5). Getting **movz** requires truncating d (`(int)`/`unsigned int`
+  field) → **lw** (rc1, wrong load). No hand/permuter form found full-`ld` + movz.
+- rc1 is semantics-deviating (truncates out.d), like func_002416F0's rc7 — NOT a
+  valid match path. Valid floor = rc5 (full d, movn). Parked at rc5.
+- RESUME: the dev's source has full `ld` + movz simultaneously — find what keeps
+  `hi` in a separate reg (uncoalesced from a3) WITHOUT truncating d. Maybe hi is
+  used elsewhere, or a3 is the func-arg reg forcing hi to a scratch.
