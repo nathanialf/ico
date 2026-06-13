@@ -1231,7 +1231,70 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002474B0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00247548);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00247608);
+/* func_00247608: handwritten TLB-write routine (mfc0/mtc0/tlbwi/sync.p).
+ * C-inexpressible: privileged COP0 TLB ops have no ee-gcc 2.9 / r5900.h
+ * intrinsic, and the mtc0 sources must stay in the arg regs $4-$8. Written
+ * as in-file handwritten asm per maintainer exception (cf. func_002484AC). */
+__asm__(
+    ".section .text
+"
+    "    .set noat
+"
+    "    .set noreorder
+"
+    "    .global func_00247608
+"
+    "    .type func_00247608, @function
+"
+    "func_00247608:
+"
+    "    mfc0  $2, $6
+"
+    "    slt   $2, $4, $2
+"
+    "    bnez  $2, 1f
+"
+    "    slti  $2, $4, 0x30
+"
+    "    bnez  $2, 2f
+"
+    "    nop
+"
+    "1:
+"
+    "    jr    $31
+"
+    "    addiu $2, $0, -0x1
+"
+    "2:
+"
+    "    mtc0  $4, $0
+"
+    "    mtc0  $5, $5
+"
+    "    mtc0  $6, $10
+"
+    "    mtc0  $7, $2
+"
+    "    mtc0  $8, $3
+"
+    "    sync.p
+"
+    "    tlbwi
+"
+    "    sync.p
+"
+    "    jr    $31
+"
+    "    daddu $2, $4, $0
+"
+    "    .size func_00247608, . - func_00247608
+"
+    "    .set reorder
+"
+    "    .set at
+"
+);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00247650);
 
