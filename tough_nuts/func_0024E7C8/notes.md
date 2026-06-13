@@ -40,3 +40,20 @@ glabel func_0024E7C8
 endlabel func_0024E7C8
     /* 14E814 0024E814 00000000 */  nop
 ```
+
+## Permuter run (2026-06-13) — resolution (b) permuter-exhausted
+- Seed replaced with CLEAN MINIMAL standalone (the whole-TU seed broke the
+  permuter: a sibling's raw `__asm__` block (func_002484AC) survived
+  strip_other_fns and corrupted base.c → "no permutation matched" with zero
+  real iterations). Re-ran on the minimal seed: ~300 iterations, 54 outputs.
+- Harvest by TRUE real_count (score is anti-correlated): best output score=200
+  → rc6; score=130 → rc12. NOTHING beat the parked best (rc5). Permuter
+  mutations were semantically invalid (it only chases the asm score), so no
+  byte-match (no output-0-*).
+- Residual is a pure sched2 instruction-priority tie: all registers match;
+  ROM hoists the epilogue `ld ra` into the `lw v0` (base) load-delay slot,
+  gcc fills that slot with the independent `sw zero` ([2].f0=0) and defers
+  `ld ra` to the tail. Order/temp/do-while/ptr/struct/volatile all floor rc5.
+- RESUME idea: needs a shape that makes `sw zero` un-ready during the load
+  delay (genuine dep on base) OR raises `ld ra` priority — neither found by
+  hand or permuter. Re-attack with a fresh hypothesis, NOT a re-run.
