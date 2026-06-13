@@ -1,6 +1,19 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", InitWayPointSystem);
+typedef struct { int w[13]; } WayRecInit;
+extern WayRecInit D_004C6FBC[];
+void *InitWayPointSystem(void) {
+    WayRecInit *p = D_004C6FBC;
+    WayRecInit *end = D_004C6FBC + 64;
+    if (p == 0) goto ret0;
+    if (p == end) goto ret0;
+    for (p++; ; p++) {
+        if (p->w[0] != 0 && p->w[6] != 0 && p->w[10] != 0) return p;
+        if (p == end) break;
+    }
+ret0:
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", CreateWayGroup);
 

@@ -165,7 +165,15 @@ void subEnemyBrain_Attack(volatile unsigned int a0)
     _ACTWait(0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", subEnemyBrain_Cling);
+extern void func_00260380(void *a0, int a1, void *a2);
+extern char D_00553110[];
+extern char D_0062C4F8[];
+void subEnemyBrain_Cling(int a0) {
+    volatile int local;
+    local = a0;
+    func_001AAD00(D_00553110, 0xACB);
+    func_00260380(D_00553110, 0xACB, D_0062C4F8);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", funcEnemyAiGetGirl);
 
@@ -319,7 +327,24 @@ int ACTEnemyForceSwitchToCarry(void) {
     return 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemy_GetClingTarget);
+int actEnemy_GetClingTarget(int *a0) {
+    unsigned int *p;
+    unsigned int field;
+    unsigned int v0;
+    if (*(int *)(*(int *)(*(int *)((char *)a0 + 0x164) + 0x670) + 0x1DC) == 0)
+        return 0;
+    p = (unsigned int *)((char *)D_002A0A90 + a0[2] * 0x4C);
+    field = p[0x48 / 4];
+    v0 = (field >> 18) & 1;
+    if (v0 != 0) goto zero;
+    v0 = (field >> 21) & 1;
+    v0 = v0 ^ 1;
+    if (v0 == 0) goto one;
+zero:
+    return 0;
+one:
+    return 1;
+}
 
 extern void func_001AAD00(void *a0, int a1);
 extern void func_00260380(void *a0, int a1, void *a2);

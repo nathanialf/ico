@@ -105,7 +105,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", isysGObjMoveBeforeGObj);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", isysGObjAdd);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", isysGObjAddHead);
+void *isysGObjAddHead(int a0) {
+    unsigned int i;
+    for (i = 0; i < D_0062BFAC; i++) {
+        char *e = (char *)D_0062BFA8 + i * 0x174;
+        if (*(int *)e != 0 && *(int *)(e + 4) == 1 && *(int *)(e + 8) == a0)
+            return e;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", isysGObjSearchFromObjLayoutID);
 
