@@ -42,3 +42,17 @@ glabel func_002416F0
     /* 141744 00241744 3000BD27 */   addiu     $29, $29, 0x30
 endlabel func_002416F0
 ```
+
+## Permuter run (2026-06-13) — resolution (b) permuter-exhausted
+- ~250 iterations on the clean minimal seed; lowest score 45 → rc7 (output-45-1).
+- BUT the rc7 is SEMANTICS-INVALID: it does `a0[3] = (int)((int*)a0[0])` AFTER
+  `a0[0] = ptr+1`, i.e. stores ptr+1 to a0[3] (ROM stores the pre-advance ptr).
+  Its only "win" is a regalloc flip enabled by letting ptr die early — illegal
+  because ROM needs ptr live for both a0[3]=ptr and *ptr=val.
+- Re-applied the structural idea CLEANLY (new_var=ptr+1 copy; a0[3]=a0[0] BEFORE
+  advancing a0[0]; etc.) → all rc8, no improvement over the parked best.
+- CONFIRMED: rc8 is the correct-semantics floor for hand shapes. Pure v0/v1<->a0/a1
+  allocator tie (ROM reuses dead arg regs $4/$5 for result/ptr; gcc uses v0/v1).
+- RESUME: needs a shape that makes gcc reuse the dead arg regs while keeping ptr
+  live through the final store. Permuter can't (only finds it by dropping ptr's
+  liveness illegally). Try a genuinely new hand hypothesis on resume.
