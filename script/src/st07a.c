@@ -30,7 +30,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st07a", actSt07aGene1);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st07a", actSt07aGene2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st07a", actSt07aGene3);
+void actSt07aGene3(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0xF7)) {
+        gflagInit(0x5AD);
+    }
+}
 
 extern int actInitialize(int a0);
 extern void _ACTWait(int a0);
