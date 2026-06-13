@@ -20,7 +20,18 @@ int InitIcoMisc(void) {
     return 4;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/icoMisc", DispIcoMisc);
+extern void MatrixDrive_TurnObjectMatrix(void *a0, void *a1);
+extern unsigned char D_00271BE0[];
+
+int DispIcoMisc(void *a0) {
+    unsigned short *p = D_004AF050;
+    if (p[1] != 0) {
+        MatrixDrive_TurnObjectMatrix(a0, p + 8);
+        return p[2];
+    }
+    MatrixDrive_TurnObjectMatrix(a0, D_00271BE0);
+    return 4;
+}
 
 extern int D_004AEE68[];
 extern int D_0062B234;
