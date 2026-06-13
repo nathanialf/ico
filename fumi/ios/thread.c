@@ -186,7 +186,26 @@ void iosSemaWait(int *a0, int a1)
   func_001003B0(v[0x30 / 4], a1);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosSemaSignal);
+extern int func_00100410(void);
+extern void *iosFree(void *a, int n, void *c, int d);
+extern void iosMsgQueueDestroy(void *a, void *b, int c);
+extern void debug_assertMessage();
+extern void *D_0062A300;
+extern const char D_00551CA0[];
+extern char D_00551D40[];
+void iosSemaSignal(int a0) {
+    void *obj = (void *)D_006A0AB0[func_00100410()];
+    int q;
+    if (*(int *)((char *)obj + 0x48) == 0) {
+        void *r;
+        *(int *)((char *)obj + 0x48) = 1;
+        r = iosFree(D_0062A300, 0x50, (void *)D_00551CA0, 0x1DE);
+        *(void **)((char *)obj + 0x4C) = r;
+        iosMsgQueueDestroy(r, (char *)r + 0x30, 8);
+    }
+    q = iosMsgSend((char *)*(void **)((char *)obj + 0x4C), a0, 0);
+    debug_assertMessage(D_00551D40, q);
+}
 
 void iosSemaReferStatus(void *a0) {
     func_002614F8((char *)a0 + 0x50);
@@ -239,7 +258,26 @@ int func_0013D410(void *a0) {
     return func_00100450(*(void **)((char *)a0 + 0x30));
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", func_0013D430);
+extern void *iosFree(void *a, int n, void *c, int d);
+extern void iosMsgQueueDestroy(void *a, void *b, int c);
+extern void iosMsgRecv(void *a, void *b, int c);
+extern void debug_assertMessage();
+extern void *D_0062A300;
+extern const char D_00551CA0[];
+extern char D_00551D50[];
+int func_0013D430(void *a0) {
+    int buf[4];
+    if (*(int *)((char *)a0 + 0x48) == 0) {
+        void *r;
+        *(int *)((char *)a0 + 0x48) = 1;
+        r = iosFree(D_0062A300, 0x50, (void *)D_00551CA0, 0x1FA);
+        *(void **)((char *)a0 + 0x4C) = r;
+        iosMsgQueueDestroy(r, (char *)r + 0x30, 8);
+    }
+    iosMsgRecv(*(void **)((char *)a0 + 0x4C), buf, 1);
+    debug_assertMessage(D_00551D50);
+    return buf[0];
+}
 
 extern int func_00100410(void);
 extern int func_00100470(int a0);

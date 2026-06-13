@@ -146,7 +146,21 @@ int actBoyStand(void) {
     return D_0062BFDC;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyHang);
+extern void *D_00629DE8;
+int actBoyHang(void) {
+    if (D_00629DE4 != 0 && D_00629DE8 != 0) {
+        BoyState *p5 = *(BoyState **)((char *)D_00629DE4 + 0x164);
+        int v4 = p5->f_30;
+        if (v4 == 0x2D) {
+            BoyState *p2 = *(BoyState **)((char *)D_00629DE8 + 0x164);
+            if (p2->f_30 == v4) {
+                int *q = *(int **)((char *)p5 + 0x140);
+                return q[2];
+            }
+        }
+    }
+    return -1;
+}
 
 
 extern long long D_006A45A0_ll[] __asm__("D_006A45A0");

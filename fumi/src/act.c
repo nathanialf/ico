@@ -39,7 +39,22 @@ int ACTReserveTarget(void *a0, int a1, int a2)
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act", _ACTRun);
+extern void iosSemaCreate(void);
+void _ACTRun(int n) {
+    int i;
+    if (n == 0) {
+        for (;;) {
+            iosSemaCreate();
+        }
+    }
+    if (n > 0) {
+        i = n;
+        do {
+            iosSemaCreate();
+            i--;
+        } while (i != 0);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act", _ACTWait);
 

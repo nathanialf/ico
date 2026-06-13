@@ -238,7 +238,16 @@ one:
     return 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyHyde);
+extern int MoveChestForCatchBoy(void *a0);
+extern void BoxBarSoundOn(void *a0, int a1);
+int actEnemyHyde(void *a0) {
+    int r = MoveChestForCatchBoy(a0);
+    if (r != 0) {
+        func_00163988((int *)a0, 0, 0);
+    }
+    BoxBarSoundOn(a0, 0xF1);
+    return r;
+}
 
 int actEnemyFlagOnFree(void *a0) {
     EnemyActState *p = *(EnemyActState **)((char *)a0 + 0x164);
@@ -267,7 +276,23 @@ int EnemyBrainStatus_Boy(void *a0) {
     return q->f_1E0 == 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", EnemyBrainStatus_Girl);
+extern void func_001AAD00(void *a0, int a1);
+extern void func_00260380(void *a0, int a1, void *a2);
+extern char D_00553110[];
+extern char D_00553120[];
+int EnemyBrainStatus_Girl(void *a0, int *a1) {
+    void *p = *(char **)((char *)a0 + 0x164);
+    int v = *(int *)(*(char **)((char *)p + 0x670) + 0x1FC);
+    int w;
+    if (v != 5) return 0;
+    w = *(int *)(*(char **)((char *)p + 0x678) + 0x400);
+    *a1 = w;
+    if (w == 0) {
+        func_001AAD00(D_00553110, 0x2E8);
+        func_00260380(D_00553110, 0x2E8, D_00553120);
+    }
+    return 1;
+}
 
 extern int D_00629DE8;
 

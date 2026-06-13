@@ -23,7 +23,20 @@ void GetReflectionElement(volatile unsigned int a0)
   _ACTWait(0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", clip_wall_1);
+extern void *isysGObjSearchFromObjLayoutID(int a0);
+extern void *isysGObjSearchFromObjKindID_begin(void *a0);
+void *clip_wall_1(void *a0) {
+    void *obj = isysGObjSearchFromObjLayoutID(4);
+    while (obj != 0) {
+        if (obj != a0) {
+            char *p = *(char **)((char *)obj + 0x164);
+            if (*(int *)(p + 0x30) == 0xF) return obj;
+            if (*(int *)(p + 0x20) & 1) return obj;
+        }
+        obj = isysGObjSearchFromObjKindID_begin(obj);
+    }
+    return 0;
+}
 
 typedef struct { char _[0x48]; unsigned int f48; } NestEntry;
 extern NestEntry D_002A0A90[];

@@ -12,7 +12,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/obj_manager", iosOmMain);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/obj_manager", iosOmCreateDL);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/obj_manager", iosOmExeEachGObj);
+extern int *D_0027DDF0[];
+void iosOmExeEachGObj(void (*func)(int *, void *), void *arg) {
+    int i;
+    for (i = 0; i < 8; i++) {
+        int *node = D_0027DDF0[i];
+        while (node != 0) {
+            func(node, arg);
+            node = (int *)node[4];
+        }
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/obj_manager", iosOmExeEachGObjAll);
 

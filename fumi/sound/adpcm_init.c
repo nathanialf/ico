@@ -2,7 +2,20 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmStreamInit);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", adpcmTickProc2);
+typedef struct { char p[0x34]; void *f34; void *f38; char p2[4]; unsigned char f40; char p3[3]; int f44; } AdpT;
+extern void func_001F8C30(void *a0);
+extern AdpT *D_0062A4D8;
+void adpcmTickProc2(AdpT *a0, AdpT *a1) {
+    func_001F8C30(a0);
+    a0->f40 = a1->f40;
+    a0->f38 = a1;
+    a0->f34 = a1->f34;
+    a1->f34 = a0;
+    a0->f44 = a1->f44;
+    if (a0->f34 == 0) {
+        D_0062A4D8 = a0;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", adpcmDataSet);
 

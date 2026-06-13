@@ -79,7 +79,15 @@ int _ACTCharStatus_Clear(void *a0) {
     return t[idx].f186 & 7;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", GetSkeltonOrient);
+int GetSkeltonOrient(void *a0, void *a1) {
+    int i0 = (*(int **)((char *)a0 + 0x15C))[0x490 / 4];
+    int i1 = (*(int **)((char *)a1 + 0x15C))[0x490 / 4];
+    ACTCharStat *e0 = &D_0055DA10[i0];
+    ACTCharStat *e1 = &D_0055DA10[i1];
+    int b0 = (*(unsigned int *)((char *)e0 + 0x188) >> 15) & 1;
+    int b1 = (*(unsigned int *)((char *)e1 + 0x188) >> 15) & 1;
+    return b0 & b1;
+}
 
 extern int D_0055A2D8[][10];
 extern void func_001433F0(int idx, char *tmp_a, char *tmp_b);

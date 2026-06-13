@@ -41,7 +41,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", subGirlBrain_Attract);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", WayTest);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", subGirlControl);
+extern char D_00284640[];
+extern void *D_00629DE4, *D_00629DE8;
+extern void GetRootMatrixByDObj(void *out, void *obj);
+extern void GetHeightOfWallFromGObj(void *out, void *obj);
+void subGirlControl(void) {
+    GetRootMatrixByDObj(D_00284640 + 0x00, D_00629DE8);
+    GetRootMatrixByDObj(D_00284640 + 0x20, D_00629DE4);
+    GetHeightOfWallFromGObj(D_00284640 + 0x10, D_00629DE8);
+    GetHeightOfWallFromGObj(D_00284640 + 0x30, D_00629DE4);
+}
 
 extern unsigned char D_0027EE30[];
 extern void func_00260568(void *a0, int a1, int a2);

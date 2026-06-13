@@ -63,7 +63,21 @@ void soundAllocIopFree(int a0)
     func_00259208(1, 0x3FFF, 0x3FFF);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundDataOpenChk);
+extern int new_mblock_node(int a, void *b, int c);
+extern void debug_assertMessage();
+extern int D_0062A528;
+extern char D_00551FC8[];
+extern char D_00551FD8[];
+extern char D_00551FF0[];
+void soundDataOpenChk(void) {
+    int r = new_mblock_node(0x78000, D_00551FC8, 0xE6);
+    D_0062A528 = r;
+    if (r < 0) {
+        debug_assertMessage(D_00551FD8);
+    } else {
+        debug_assertMessage(D_00551FF0, r, 0x78000);
+    }
+}
 
 extern void func_00246700(int a0);
 extern int D_0062A528;

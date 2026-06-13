@@ -133,11 +133,27 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", waypoint_connect_group_si
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", NearestWgFromTarget);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", wpsort_compfnc);
+typedef struct { int pad[8]; int f20; int pad2[7]; } WPElem; /* 0x40 */
+typedef struct { char pad[0x20]; int i20; int i24; } WPNode;
+extern WPElem D_004C7CF0[];
+
+WPElem *wpsort_compfnc(WPNode *a0, int a1) {
+    WPElem *e = &D_004C7CF0[a0->i20];
+    if (e->f20 == a1) return e;
+    e = &D_004C7CF0[a0->i24];
+    return e->f20 == a1 ? e : 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", func_00178B08);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", func_00178BB8);
+typedef struct { char p0[8]; int f8; int fc; char p1[0x10]; int i20; int i24; } WPNode2;
+int func_00178BB8(WPNode2 *a0, int a1) {
+    WPElem *e = &D_004C7CF0[a0->i20];
+    if (e->f20 == a1) return a0->f8;
+    e = &D_004C7CF0[a0->i24];
+    if (e->f20 == a1) return a0->fc;
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", func_00178C00);
 

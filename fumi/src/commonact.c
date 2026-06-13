@@ -159,11 +159,50 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonDown);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonDie);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", Cling);
+extern void debug_assertMessage();
+extern char D_00552F88[];
+extern char D_0062C478[];
+extern char D_0062C480[];
+void Cling(char *a0, void *a1, char *a2) {
+    char *str = D_00552F88;
+    void *p = *(void **)(a0 + 0x164);
+    char *arg5;
+    char *arg6;
+    *(int *)((char *)p + 0xC0) |= 2;
+    arg5 = (a2 == D_00629DE4) ? D_0062C478 : D_0062C480;
+    arg6 = (a0 == D_00629DE4) ? D_0062C478 : D_0062C480;
+    debug_assertMessage(str, arg5, arg6);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonCling);
+extern void debug_assertMessage();
+extern char D_00552FA0[];
+extern char D_0062C478[];
+extern char D_0062C480[];
+void actCommonCling(char *a0, void *a1, char *a2) {
+    char *str = D_00552FA0;
+    void *p = *(void **)(a0 + 0x164);
+    char *arg5;
+    char *arg6;
+    *(int *)((char *)p + 0xC0) |= 8;
+    arg5 = (a2 == D_00629DE4) ? D_0062C478 : D_0062C480;
+    arg6 = (a0 == D_00629DE4) ? D_0062C478 : D_0062C480;
+    debug_assertMessage(str, arg5, arg6);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonSlip);
+extern void debug_assertMessage();
+extern char D_00552FB8[];
+extern char D_0062C478[];
+extern char D_0062C480[];
+void actCommonSlip(char *a0, void *a1, char *a2) {
+    char *str = D_00552FB8;
+    void *p = *(void **)(a0 + 0x164);
+    char *arg5;
+    char *arg6;
+    *(int *)((char *)p + 0xC0) |= 0x10;
+    arg5 = (a2 == D_00629DE4) ? D_0062C478 : D_0062C480;
+    arg6 = (a0 == D_00629DE4) ? D_0062C478 : D_0062C480;
+    debug_assertMessage(str, arg5, arg6);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonStoneDead);
 
