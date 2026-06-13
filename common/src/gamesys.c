@@ -100,7 +100,17 @@ void gamesysObjInfoPosNewStageSet(int a0)
     func_002415E8(a0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysObjInfoGet);
+extern void func_0023EB60(int a0, int a1);
+extern int func_00240B50(unsigned int a0);
+extern int func_00240EA0(int *a0, int a1);
+
+void gamesysObjInfoGet(int *a0) {
+    int *p;
+    func_0023EB60(0, 0);
+    p = (int *)func_00240B50(1);
+    *p |= 0x40;
+    func_00240EA0(p, (a0[1] & 0x3FF0) | 0x80000000);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysObjInfoCls);
 
