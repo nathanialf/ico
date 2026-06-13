@@ -51,7 +51,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", gflagOn);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", gflagOff);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_00179060);
+extern void func_0014A110(void *a0);
+extern void iosOmBeforeFuncStandard(void *a0, int a1, void *a2);
+
+void func_00179060(void *a0, int a1) {
+    func_0014A110(a0);
+    *(int *)(*(int *)(*(int *)((char *)a0 + 0x164) + 0x670) + 0xC0) = a1;
+    iosOmBeforeFuncStandard(a0, 0x2C, a0);
+}
 
 extern void func_0014A110(void *a0);
 extern void iosOmBeforeFuncStandard(void *a0, int a1, void *a2);
