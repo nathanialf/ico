@@ -864,7 +864,14 @@ elem:
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00242438);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002424F0);
+void func_002424F0(int *a0, int *a1) {
+    int *ret = (int *)func_002423C8(a1);
+    int f14 = a0[5], f1c = a0[7];
+    ret[5] = f14;
+    ret[7] = f1c;
+    ret[8] = 0x8000000C;
+    func_00248290(0x80000008, (int)ret, 0x40, a0[8], a0[9], a0[10]);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00242550);
 
