@@ -77,7 +77,17 @@ int func_001A7A80(void) {
     return -1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7A88);
+extern void func_00261188(void *a0, void *a1, void *a2, int a3);
+extern int func_002438A0(void *a0, int a1);
+extern int D_006E7820[];
+extern int D_0062CDD0[];
+extern int D_0060E548[];
+extern int D_0062AF48;
+
+int func_001A7A88(int a0, int a1) {
+    func_00261188(D_006E7820, D_0062CDD0, D_0060E548, a0);
+    return D_0062AF48 = func_002438A0(D_006E7820, a1);
+}
 
 extern int D_0062AF48;
 extern int func_00243B28();
