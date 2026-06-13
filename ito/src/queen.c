@@ -19,7 +19,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", func_00198080);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", InitQueenGeo);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", QueenGeo);
+extern void MakeRefractTexture(float a0);
+
+void QueenGeo(void *a0)
+{
+    int q = *(int *)(*(int *)((char *)a0 + 0x15C) + 0x7F0);
+    if (*(signed char *)(q + 0x12) != 0) {
+        MakeRefractTexture(1.0f - (float)*(int *)(q + 0x18) / 5.0f);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", QueenDL);
 

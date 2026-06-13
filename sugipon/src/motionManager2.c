@@ -271,7 +271,21 @@ void GetRootProjectionPosOfGObj(Block20 *dst, Block20 *src, int n) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", SetMotionPlaySpeedRatio);
+void SetMotionPlaySpeedRatio(float *dst, void *a1, int idx)
+{
+    float *src = (float *)(*(int *)((char *)a1 + 4) + idx * 0xC);
+    float t1, t0;
+    t0 = src[0];
+    dst[0] = t0;
+    t0 = -t0;
+    t1 = src[1];
+    dst[1] = t1;
+    t1 = -t1;
+    dst[2] = src[2];
+    dst[3] = 1.0f;
+    dst[0] = t0;
+    dst[1] = t1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", ClearMotionGeometryInfo);
 

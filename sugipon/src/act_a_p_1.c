@@ -1,7 +1,7 @@
 #include "common.h"
 
 /* AP1 0x7F0 view (local) */
-typedef struct { int f_0; char _pad4[4]; int f_8; char _pad_c[0x26C]; int f_278; } AP1Geo;
+typedef struct { int f_0; char _pad4[4]; int f_8; char _pad_c[0x1B4]; int f_1C0; int f_1C4; int f_1C8; char _pad1cc[0xAC]; int f_278; } AP1Geo;
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", standAI);
 
@@ -25,9 +25,22 @@ void subAP1BrainMain(void *a0, int a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", hitProc);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", SetAP1DeadStatus);
+typedef struct { int (*fp)(); int _4; } DeadProc;
+extern DeadProc D_004BA160[];
 
-extern void SetAP1DeadStatus(void);
+int SetAP1DeadStatus(a0, a1)
+void *a0;
+int a1;
+{
+    int *p = *(int **)((char *)a0 + 0x15C);
+    AP1Geo *q = *(AP1Geo **)((char *)p + 0x7F0);
+    int (*fp)() = D_004BA160[a1].fp;
+    q->f_8 = a1;
+    if (fp) {
+        fp(a0);
+    }
+    return 1;
+}
 
 int AP1BeforeFunc(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
@@ -54,7 +67,21 @@ int SetAP1HostGObj(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", SetAP1PriorLevel);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", GetAP1AIMode);
+extern int calcSubMission(void *a0);
+
+int GetAP1AIMode(void *a0)
+{
+    int *p = *(int **)((char *)a0 + 0x15C);
+    AP1Geo *q = *(AP1Geo **)((char *)p + 0x7F0);
+    int ret = calcSubMission(a0);
+    if (ret != -1) {
+        return ret;
+    }
+    q->f_1C0 = 0;
+    q->f_1C4 = 0;
+    q->f_1C8 = 0;
+    return 2;
+}
 
 
 /* recovered struct shapes */

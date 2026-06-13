@@ -68,14 +68,23 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", WithMailFunc_AttackFail)
 
 extern void func_0018F2A0(void *a0);
 
-void func_001561E8(void *a0) {
+void func_001561E8(void *a0, int a1) {
     if (a0 && *(int *)((char *)a0 + 0xC) == 4)
         func_0018F2A0(a0);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", WithMailFunc_AttackRejectInQueen);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", GetCorrectOrientOfChain);
+extern void WithMailFunc_AttackRejectInQueen(void *a0);
+
+void GetCorrectOrientOfChain(void *a0)
+{
+    WithMailFunc_AttackRejectInQueen(a0);
+    if (*(int *)((char *)a0 + 0xC) == 1) {
+        void *p = *(void **)((char *)a0 + 0x164);
+        func_001561E8(*(void **)((char *)p + 0x1A0), 6);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", CollisCheckInRope);
 
