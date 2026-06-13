@@ -97,6 +97,13 @@ void func_0023CE70(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/GobjProc", func_0023CE80);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/GobjProc", func_0023CF40);
+int func_0023CF40(int *self)
+{
+  int r;
+  func_00100560(self[0x40 / 4]);
+  r = (self[0x10 / 4] << 11) + self[0x14 / 4];
+  func_00100540(self[0x40 / 4]);
+  return r;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/GobjProc", func_0023CF90);
