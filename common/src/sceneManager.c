@@ -54,7 +54,24 @@ void GetStageStartInfo(int a0, int a1, int a2, int a3, int a4) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/sceneManager", MoveNextStage_Clear);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/sceneManager", func_001B55D8);
+extern float D_00700750[];
+extern float D_00700760[];
+extern int D_0062B44C;
+extern char D_0062B448;
+
+void func_001B55D8(float *a0, float *a1, int a2, int a3, int a4, int a5) {
+    D_00700750[0] = a0[0];
+    D_00700750[1] = a0[1];
+    D_00700750[2] = a0[2];
+    D_0062C1B4 = a2;
+    D_0062C1B8 = a3;
+    D_0062C1BC = a4;
+    D_0062B44C = a5;
+    D_00700760[0] = a1[0];
+    D_00700760[1] = a1[1];
+    D_00700760[2] = a1[2];
+    D_0062B448 = 1;
+}
 
 
 /* recovered struct shapes */
