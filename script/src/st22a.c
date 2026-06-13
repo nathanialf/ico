@@ -16,7 +16,23 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", actSt22aIntroSub);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", func_00230A78);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", func_00230B20);
+extern void *D_00629DE4;
+extern int D_0062C2C4;
+extern void func_001790A8(void *a0);
+extern void gflagOff(void *a0, int a1);
+extern void actSt25aQueenBefore(void *a0);
+extern void _ACTWait(int a0);
+
+void func_00230B20(int a0) {
+    int buf[4];
+    buf[0] = a0;
+    func_001790A8(D_00629DE4);
+    gflagOff(D_00629DE4, 0x133);
+    actSt25aQueenBefore(D_00629DE4);
+    _ACTWait(0xF0);
+    D_0062C2C4 = 1;
+    _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", func_00230B70);
 
