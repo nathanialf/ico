@@ -26,7 +26,25 @@ void ACTSetPositionWithFitting(char *self) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ACTSetPositionNodeWithFitting);
+extern void func_001EF4F0(int a0);
+extern int isysGObjSearchFromObjLayoutID(int a0);
+extern int iosOmBeforeFuncStandard(void *a0, int a1, void *a2);
+extern int D_00629C90, D_0062B058;
+void ACTSetPositionNodeWithFitting(void *a0) {
+    char *p = *(char **)((char *)a0 + 0x164);
+    int v = *(int *)(p + 0x130);
+    void *obj;
+    if (v != 0) {
+        func_001EF4F0(v);
+        *(int *)(p + 0x130) = 0;
+    }
+    if (D_00629C90 == 0x53 || D_0062B058 != 0) {
+        obj = (void *)isysGObjSearchFromObjLayoutID(0x35);
+        if (obj != 0) {
+            iosOmBeforeFuncStandard(obj, 0xD, a0);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ChangeMailInLadder);
 
