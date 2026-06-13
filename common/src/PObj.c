@@ -3648,7 +3648,15 @@ int func_002692A0(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002692C0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00269438);
+int func_00269438(long long x)
+{
+    int lx, hx;
+    do { lx = (int)x; hx = (int)(x >> 32); } while (0);
+    hx &= 0x7fffffff;
+    hx |= ((unsigned int)(lx | (-lx))) >> 31;
+    hx = 0x7ff00000 - hx;
+    return 1 - (int)(((unsigned int)(hx | (-hx))) >> 31);
+}
 
 int func_00269480(long long x)
 {
