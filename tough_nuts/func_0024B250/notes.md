@@ -18,3 +18,15 @@ The a0-save/reuse regalloc is INVARIANT to source shape.
 
 ## Verdict: permuter-domain regalloc swap (same class as staffRollMain, which the permuter cracked
 via store reorder + shared-const). RESUME: apply seed, reset, permuter or fresh non-source idiom.
+
+## PERMUTER PASS 1 (240s, -j4, from rc7 seed): best = rc4 (output-20), NO clean rc0.
+The rc4 came via UB (uninitialized `new_var` used as the col index → phantom register
+pressure that makes gcc SAVE a0 like ROM). The rc4 diff is now TINY — only the register
+for the saved a0: ROM `daddu a2,a0` + `mult1 v1,a2` + `daddu a0,a2` (saved a0 in a2);
+built puts it in a1 and shifts the col (a1) to v0. So the save-a0 STRUCTURE is correct;
+only an a1<->a2 register-rename remains.
+CLEAN reproductions of the save (orig=a0 before/after the if) are ELIDED by gcc → rc7;
+the UB phantom var is what forces the save, so rc4 is not a valid seed.
+RESUME LEVER: find a clean way to (a) force gcc to materialize the a0-copy (not elide it)
+AND (b) keep the col in a1 so the saved a0 lands in a2 — e.g. a valid extra live int that
+mimics the phantom new_var's pressure, or pin-free reg steering. Then permute from there.
