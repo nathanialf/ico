@@ -1,6 +1,21 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", display_texture_fade_cancel_chk);
+extern int D_00271254[];
+extern int D_002715D4[];
+extern int D_0062B30C;
+extern void initSceneGObj(int a0);
+
+int display_texture_fade_cancel_chk(int a0) {
+    if (a0) {
+        D_00271254[0] = 1;
+    }
+    if (D_002715D4[0] & 0x800) {
+        initSceneGObj(0);
+        D_0062B30C = 0;
+        return 0x33;
+    }
+    return -1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", lt_analog2Pad);
 
