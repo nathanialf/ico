@@ -106,7 +106,19 @@ void iosCdvdHandlerReadNoInflate(int *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", iosCdvdHandlerReadInflate);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", iosCdvdHandlerRead);
+extern void *iosFree(void *a, int n, void *c, int d);
+extern void iosCdvdLoad(int *a0, void *a1, int a2);
+extern void debug_assertMessage();
+extern void iosMallocCheckLeak2(void *a0);
+extern void *D_0062A324;
+extern char D_00550BC8[];
+extern char D_00550C70[];
+void iosCdvdHandlerRead(void *a0, void *a1, int a2, int a3, int a4, int a5, int a6) {
+    void *r = iosFree(D_0062A324, a2, D_00550BC8, 0x322);
+    iosCdvdLoad((int *)a0, r, a2);
+    debug_assertMessage(D_00550C70, a1, a2, a6);
+    iosMallocCheckLeak2(r);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", unifile_read_func);
 

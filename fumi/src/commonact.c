@@ -91,7 +91,27 @@ void func_001561E8(void *a0, int a1) {
         func_0018F2A0(a0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", WithMailFunc_AttackRejectInQueen);
+extern char *D_00629DE8;
+extern void debug_assertMessage();
+extern void func_001561E8(void *a0, int a1);
+extern void UpdatePointBlur(void *a0, void *a1, void *a2);
+extern char D_0062C450[];
+void WithMailFunc_AttackRejectInQueen(void *a0) {
+    char *p = *(char **)((char *)a0 + 0x164);
+    int v;
+    debug_assertMessage(D_0062C450);
+    if (a0 != (void *)D_00629DE8) {
+        char *q = *(char **)((char *)a0 + 0x164);
+        *(float *)(p + 0x1D0) -= (float)*(int *)(q + 0x1C0);
+    }
+    v = *(int *)((char *)a0 + 0xC);
+    if (v == 4) {
+        char *s;
+        func_001561E8(a0, 5);
+        s = *(char **)(*(char **)((char *)a0 + 0x164) + 0x670);
+        UpdatePointBlur(a0, s + 0xE0, s + 0xF0);
+    }
+}
 
 extern void WithMailFunc_AttackRejectInQueen(void *a0);
 
