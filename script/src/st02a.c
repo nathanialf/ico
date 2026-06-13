@@ -35,7 +35,18 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st02a", actSt02aBoxEvent2);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st02a", actSt02aEne);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st02a", actSt02aEnemy1);
+extern int func_00178DB0(int a0);
+extern void AddWayPointTop(int a0, int a1);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+
+void actSt02aEnemy1(void) {
+    if (func_00178DB0(0x69) == 0) {
+        AddWayPointTop(0x1A, 0);
+        stage_KillPlayBgAnimation(0x54, 0, 0);
+    } else {
+        stage_KillPlayBgAnimation(0x54, 0, -1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st02a", actSt02aEnemy2);
 
