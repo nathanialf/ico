@@ -64,3 +64,17 @@ glabel func_00246608
     /* 14668C 0024668C 3000BD27 */   addiu     $29, $29, 0x30
 endlabel func_00246608
 ```
+
+## Session 2026-06-13 findings (could not resolve)
+- Permuter fired REAL run (3600+ iterations, 88KB log, base score ~80): NO
+  score-0 crack. The counter-register tie ($v0 vs $v1) survives permutation.
+- match_loop/match_diff COMPILE-FAILS on this seed (real_count -1): quick_diff
+  output has no `===` diff blocks → parse_blocks() returns None → reported as
+  compile-fail. compile_c.sh itself SUCCEEDS (only unrelated warnings). The
+  inline `__asm__("nop\nnop\nnop\nnop")` 4-nop timing block is the likely cause —
+  the asm-differ can't align/emit blocks for the func, so it cannot be measured
+  or hand-iterated via the loop. NEXT SESSION: first fix the quick_diff/differ
+  path for inline-asm coalesced-TU funcs (or find a non-asm way to emit the 4
+  timing nops), THEN attack the $v0/$v1 counter tie. Until measurable, neither
+  hand-iteration nor a fair stall count is possible.
+- Still owed by the stop-hook (best=8, stall<30, no match).

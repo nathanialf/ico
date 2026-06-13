@@ -8,6 +8,11 @@
  * stores/`sd ra`), gcc sinks it past the `sw v0,16(sp)` / `sd ra`. a1 must be
  * saved to a callee-saved reg before the func_0026160C call (a1=$5 is clobbered);
  * the WHEN is the open question. Open: force the a1->s0 copy early w/o the pin. */
+extern int D_0054D504[];
+extern int func_0026160C(int);
+extern void func_002611F8();
+extern void func_00264520();
+
 void func_00261200(int a0, int a1, ...) {
     int buf[22];
     int r;
