@@ -8,9 +8,29 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st09a", actSt09aSekizo);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st09a", actSt09aBrgDown);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st09a", actSt09aElv);
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void *actSt25aQueenDeadChk(int a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st09a", actSt09aIntro);
+void actSt09aElv(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x7D) == 0) {
+        stage_KillPlayBgAnimation(0x10E, -1, -2);
+    }
+}
+
+void actSt09aIntro(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0xCE) != 0) {
+        ((int *)actSt25aQueenDeadChk(0x4F8))[0x16C / 4] = 0;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st09a", actSt09aBrg);
 
