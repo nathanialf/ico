@@ -8,7 +8,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tSwitchLUpChk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tSwitchR);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tSwitchRChk);
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void *actSt25aQueenDeadChk(int a0);
+
+void actSt03tSwitchRChk(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x63) == 0) {
+        ((int *)actSt25aQueenDeadChk(0x62A))[0x16C / 4] = 0;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tSwitchRUpChk);
 
