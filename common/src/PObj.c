@@ -1055,7 +1055,30 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00246260);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00246440);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00246608);
+extern char D_FFFFF[];
+extern int D_0070F600[];
+extern int D_0054AB34[];
+
+int func_00246608(void)
+{
+    int i;
+    int ret;
+    int val;
+    goto no_delay;
+again:
+    i = 0x100000;
+    do {
+        __asm__ volatile ("addiu %0,%0,-1" : "+r"(i));
+    } while (i != -1);
+no_delay:
+    ret = func_002427A8(D_0070F600, 0x80000003, 0);
+    if (ret < 0) return -1;
+    val = D_0070F600[0x24 / 4];
+    if (val == 0) goto again;
+    D_0054AB34[0] = 0;
+    __asm__ volatile ("");
+    return 0;
+}
 
 extern int D_0054AB34[];
 extern int D_0070F600[];
