@@ -197,7 +197,22 @@ void soundDataAreaSearch(void *a0) {
     *p = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundDataAreaGet);
+char *soundDataAreaGet(int *a0) {
+    int key = *a0;
+    char *p = D_006A3070;
+    char *end = p + 0x300;
+    char *r = p;
+    do {
+        char *snap = r;
+        if (*(int *)p == key) goto found;
+        r += 0x30;
+        p += 0x30;
+        r = snap + 0x30;
+    } while ((int)p < (int)end);
+    return 0;
+found:
+    return r;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundHDDataSet);
 
