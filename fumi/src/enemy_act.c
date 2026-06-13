@@ -321,7 +321,16 @@ int ACTEnemyForceSwitchToCarry(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemy_GetClingTarget);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemy_isNormalEnemy);
+extern void func_001AAD00(void *a0, int a1);
+extern void func_00260380(void *a0, int a1, void *a2);
+extern char D_005532B0[];
+int actEnemy_isNormalEnemy(void *a0) {
+    if (a0 == 0 || *(int *)((char *)a0 + 0xC) != 4) {
+        func_001AAD00(D_00553110, 0x7C0);
+        func_00260380(D_00553110, 0x7C0, D_005532B0);
+    }
+    return funcEnemyCarryFail((int *)a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemy_isLargeEnemy);
 

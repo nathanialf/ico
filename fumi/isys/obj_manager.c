@@ -10,7 +10,14 @@ void _iosOmMain(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/obj_manager", iosOmMain);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/obj_manager", iosOmCreateDL);
+extern int *D_0027DDF0[];
+void iosOmCreateDL(int idx, void (*func)(int *, void *), void *arg) {
+    int *node = D_0027DDF0[idx];
+    while (node != 0) {
+        func(node, arg);
+        node = (int *)node[4];
+    }
+}
 
 extern int *D_0027DDF0[];
 void iosOmExeEachGObj(void (*func)(int *, void *), void *arg) {

@@ -169,7 +169,36 @@ int func_00178C58(int a0, int a1) {
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", func_00178C90);
+extern int func_00178DB0(int a0);
+extern void func_00178DD8(int a0);
+extern void func_00260568(void *a, int b, int c);
+extern void actBoyDitch3mExec(void);
+extern void func_0019A3C8(void);
+extern void func_001AB158(void);
+extern void Generator_Init(void);
+extern void AttackGenerate(void);
+extern void itouGflagLoad(void);
+extern int D_00629CA0, D_0062B240;
+extern int D_0027124C[3];
+extern char D_00286890[];
+extern char D_0027D2F8[];
+void func_00178C90(void) {
+    int r = func_00178DB0(0x159);
+    func_00260568(D_00286890, 0, 0x2E);
+    D_00629CA0 = 0;
+    if (r != 0) {
+        func_00178DD8(0x159);
+    }
+    actBoyDitch3mExec();
+    func_0019A3C8();
+    func_001AB158();
+    Generator_Init();
+    AttackGenerate();
+    D_0027124C[0] = 0;
+    func_00260568(D_0027D2F8, 0, 0x10);
+    D_0062B240 = 0;
+    itouGflagLoad();
+}
 
 extern int D_00629C90;
 extern int D_0062A890;

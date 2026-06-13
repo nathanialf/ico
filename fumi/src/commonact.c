@@ -319,7 +319,20 @@ int actCommonBecarry(void *a0, void *a1) {
     return *(int *)((char *)r + 0xC) != 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", subCommonIdle);
+extern char *D_00629DE8;
+extern char D_006A4620[];
+extern void InitKeyInput(void *a0, void *a1);
+extern int GetOrientOfWallOfGObj(void *a0, void *a1);
+void *subCommonIdle(char *a0) {
+    char *p;
+    if (a0 != D_00629DE4 && a0 != D_00629DE8 && *(int *)(a0 + 0xC) != 4) {
+        InitKeyInput(D_006A4620, a0);
+        return D_006A4620;
+    }
+    p = *(char **)(a0 + 0x164) + 0xD0;
+    GetOrientOfWallOfGObj(p, a0);
+    return p;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ContinueCorrectPosition);
 
