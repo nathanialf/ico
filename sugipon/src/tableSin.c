@@ -99,9 +99,80 @@ void func_0010E188(void *a0, void *a1, void *a2)
     ((void (*)(void *, void *, void *))func_0010E148)(a0, buf, a1);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", func_0010E1D0);
+extern char D_002724C0[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", func_0010E250);
+void func_0010E1D0(void *a0, void *a1)
+{
+    __asm__ __volatile__(
+        "lqc2 $vf11, 0x0($5)\n"
+        "lqc2 $vf12, 0x0(%0)\n"
+        "vmr32.w $vf14, $vf0\n"
+        "vmr32.w $vf15, $vf0\n"
+        "vmr32.w $vf16, $vf0\n"
+        "vopmula.xyz $ACC, $vf11, $vf12\n"
+        "vmadd.xyz $vf11, $vf0, $vf0\n"
+        "vmulw.xyzw $vf11, $vf11, $vf12w\n"
+        "vmul.xyz $vf13, $vf11, $vf11\n"
+        "vopmula.xyz $ACC, $vf11, $vf11\n"
+        "vmaddw.xyz $vf15, $vf11, $vf11w\n"
+        "vmsubw.xyz $vf16, $vf11, $vf11w\n"
+        "vopmula.xyz $ACC, $vf13, $vf12\n"
+        "vmadd.xyz $vf17, $vf13, $vf12\n"
+        "vopmula.xyz $ACC, $vf15, $vf12\n"
+        "vmadd.xyz $vf15, $vf0, $vf0\n"
+        "vsub.xyz $vf14, $vf12, $vf17\n"
+        "vmove.y $vf17, $vf14\n"
+        "vmove.y $vf14, $vf16\n"
+        "vmove.y $vf16, $vf15\n"
+        "vmove.y $vf15, $vf17\n"
+        "vmove.z $vf17, $vf14\n"
+        "vmove.z $vf14, $vf15\n"
+        "vmove.z $vf15, $vf16\n"
+        "vmove.z $vf16, $vf17\n"
+        "sqc2 $vf14, 0x0($4)\n"
+        "sqc2 $vf15, 0x10($4)\n"
+        "sqc2 $vf16, 0x20($4)\n"
+        : : "r"(D_002724C0) : "memory");
+    VU0_NOP();
+}
+
+extern void MatrixDrive_TurnObjectMatrix(void *a0, void *a1);
+
+void func_0010E250(void *a0, void *a1, void *a2)
+{
+    __asm__ __volatile__(
+        "lqc2 $vf11, 0x0(%2)\n"
+        "lqc2 $vf12, 0x0(%1)\n"
+        "vmr32.w $vf14, $vf0\n"
+        "vmr32.w $vf15, $vf0\n"
+        "vmr32.w $vf16, $vf0\n"
+        "vopmula.xyz $ACC, $vf11, $vf12\n"
+        "vmadd.xyz $vf11, $vf0, $vf0\n"
+        "vmulw.xyzw $vf11, $vf11, $vf12w\n"
+        "vmul.xyz $vf13, $vf11, $vf11\n"
+        "vopmula.xyz $ACC, $vf11, $vf11\n"
+        "vmaddw.xyz $vf15, $vf11, $vf11w\n"
+        "vmsubw.xyz $vf16, $vf11, $vf11w\n"
+        "vopmula.xyz $ACC, $vf13, $vf12\n"
+        "vmadd.xyz $vf17, $vf13, $vf12\n"
+        "vopmula.xyz $ACC, $vf15, $vf12\n"
+        "vmadd.xyz $vf15, $vf0, $vf0\n"
+        "vsub.xyz $vf14, $vf12, $vf17\n"
+        "vmove.y $vf17, $vf14\n"
+        "vmove.y $vf14, $vf16\n"
+        "vmove.y $vf16, $vf15\n"
+        "vmove.y $vf15, $vf17\n"
+        "vmove.z $vf17, $vf14\n"
+        "vmove.z $vf14, $vf15\n"
+        "vmove.z $vf15, $vf16\n"
+        "vmove.z $vf16, $vf17\n"
+        "sqc2 $vf14, 0x0(%0)\n"
+        "sqc2 $vf15, 0x10(%0)\n"
+        "sqc2 $vf16, 0x20(%0)\n"
+        : : "r"(a0), "r"(D_002724C0), "r"(a1) : "memory");
+    MatrixDrive_TurnObjectMatrix((char *)a0 + 0x30, a2);
+    *(float *)((char *)a0 + 0x3C) = 1.0f;
+}
 
 extern void getQuaternionFromMatrix(void *dst, void *src);
 extern void *func_00105078(void);
