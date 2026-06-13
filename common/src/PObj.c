@@ -1874,7 +1874,15 @@ int func_00249FD0(void) {
     return func_0024A0C0(0, 0, 0, 7, D_00711258);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024A020);
+extern char D_00628B98[];
+
+int func_0024A020(void) {
+    D_0054C630[0] = 1;
+    if (D_0054ABD0[0] > 0) {
+        func_001019E0(D_00628B98);
+    }
+    return func_0024A0C0(0, 0, 0, 8, D_00711258);
+}
 
 extern int D_00628BB0[];
 
