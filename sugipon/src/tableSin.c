@@ -103,7 +103,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", func_0010E1D0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", func_0010E250);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", func_0010E300);
+extern void getQuaternionFromMatrix(void *dst, void *src);
+extern void *func_00105078(void);
+extern void func_001189F8(void *a0, void *a1, void *a2);
+
+void func_0010E300(void *a0)
+{
+    char buf[0x40];
+    void *r1, *r2;
+    getQuaternionFromMatrix(buf, a0);
+    r1 = func_00105078();
+    r2 = func_00105078();
+    func_001189F8(r1, r2, buf);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", func_0010E348);
 
