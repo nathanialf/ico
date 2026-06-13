@@ -37,7 +37,14 @@ int clip_floor_1(int *a0) {
 extern int ChangeBrain_ToKidnap(void *a0, int a1, int a2, int a3, unsigned char a4);
 extern int func_00161998(void *a0, int a1, int a2, int a3, unsigned char a4);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", DispCollisionPC);
+int DispCollisionPC(void *a0, int a1, int a2, int a3, unsigned char a4)
+{
+    void *obj = *(void **)(*(char **)((char *)a0 + 0x164) + 0x670);
+    if (*(int *)((char *)obj + 0x1DC) != 3) {
+        return ChangeBrain_ToKidnap(a0, a1, a2, a3, a4);
+    }
+    return func_00161998(a0, a1, a2, a3, a4);
+}
 
 void makeCollisionBlockTable(int a0) {
     int base = *(volatile int *)&a0;
