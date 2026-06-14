@@ -55,7 +55,26 @@ void dl_Debug(void)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayList", dl_CloseDma);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayList", dl_Out);
+extern int D_0062BB00;
+extern int D_0070A830[];
+extern void debug_assertMessage();
+extern void func_001AAD00(char *file, int line);
+extern void func_00260380(char *file, int line, void *expr);
+extern char D_006136B0[];
+extern char D_00613698[];
+extern char D_0062D988[];
+
+void dl_Out(void) {
+    if (D_0062BB00 < 7) {
+        int i = D_0062BB00;
+        D_0070A830[i] = D_0062C260;
+        D_0062BB00 = i + 1;
+    } else {
+        debug_assertMessage(D_006136B0);
+        func_001AAD00(D_00613698, 0x20E);
+        func_00260380(D_00613698, 0x20E, D_0062D988);
+    }
+}
 
 extern int D_0062BB00;
 extern int D_0070A830[];

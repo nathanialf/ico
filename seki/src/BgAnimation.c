@@ -106,7 +106,17 @@ int bga_SetCamFrame(void *a0) {
     return (f1 * ((float)n / 30.0f) < f2) || (*(signed char *)((char *)a0 + 0xA) != 1);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_CheckAnimationFinish);
+extern int D_00271240[];
+
+int bga_CheckAnimationFinish(void *a0, int a1, int a2) {
+    int n = (0x3C - D_00271240[0] * 0xA) / D_00271240[1];
+    int cond = (float)a1 * ((float)n / 30.0f) < *(float *)((char *)a0 + 0x20)
+            || *(signed char *)((char *)a0 + 0xA) != 1;
+    if (cond && a2 != 0) {
+        *(signed char *)((char *)a0 + 0xA) = 0;
+    }
+    return cond;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_CheckAnimationFrame);
 
