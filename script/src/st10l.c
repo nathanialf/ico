@@ -18,7 +18,23 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10l", actSt10lChain);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10l", actSt10lFloor);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10l", actSt10lGondola);
+extern int func_00178DB0(int a0);
+extern void AddWayPointTop(int a0, int a1);
+
+void actSt10lGondola(void) {
+    if (func_00178DB0(0x5F) == 0) {
+        AddWayPointTop(0x9, 0);
+        AddWayPointTop(0xA, 0);
+    } else {
+        AddWayPointTop(0x9, 1);
+        AddWayPointTop(0xA, 1);
+    }
+    if (func_00178DB0(0x60) == 0) {
+        AddWayPointTop(0xC, 0);
+    } else {
+        AddWayPointTop(0xC, 1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10l", actSt10lSekizo);
 

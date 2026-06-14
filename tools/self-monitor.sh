@@ -18,6 +18,28 @@ if [[ "$1" == "--once" ]]; then
     fi
 
     echo "$rule"
+    # Sweep remaining targets per author scope (very top of the dashboard).
+    # Mirrors tools/sweep_targets.sh: a func is a sweep target iff it still
+    # carries an INCLUDE_ASM stub with a real .s and isn't parked under
+    # tough_nuts/. SPILL = a0 spilled to its stack home in the first 8 .s
+    # lines (known one-pass MISS class the sweep skips); actionable =
+    # targets - SPILL (what a one-pass sweep would actually attempt).
+    echo "Sweep remaining (targets / SPILL / actionable):"
+    {
+        printf 'scope\ttargets\tSPILL\tactionable\n'
+        _sw_tt=0; _sw_ts=0; _sw_ta=0
+        for _sw_sc in fumi script common sugipon seki omori ito; do
+            [[ -d "$_sw_sc" ]] || continue
+            _sw_o=$(tools/sweep_targets.sh "$_sw_sc" 2>/dev/null)
+            _sw_t=$(printf '%s\n' "$_sw_o" | grep -c .)
+            _sw_s=$(printf '%s\n' "$_sw_o" | awk '$4=="SPILL"' | grep -c .)
+            _sw_a=$((_sw_t - _sw_s))
+            _sw_tt=$((_sw_tt + _sw_t)); _sw_ts=$((_sw_ts + _sw_s)); _sw_ta=$((_sw_ta + _sw_a))
+            printf '%s\t%d\t%d\t%d\n' "$_sw_sc" "$_sw_t" "$_sw_s" "$_sw_a"
+        done
+        printf 'TOTAL\t%d\t%d\t%d\n' "$_sw_tt" "$_sw_ts" "$_sw_ta"
+    } | column -t -s "$(printf '\t')"
+    echo "$rule"
     # Render the markdown table as a fixed-width table. Pull the rows
     # between the `progress:begin` / `progress:end` markers so adding
     # a new section row in tools/progress.py doesn't drift this range.
@@ -69,7 +91,9 @@ if [[ "$1" == "--once" ]]; then
         _NM="asm/${_sm_version}/nonmatchings"; _MA="asm/${_sm_version}/matchings"
         _ROOTS="common fumi sugipon seki omori script ito src ios sound isys"
     fi
-    if [[ -d "$_NM" ]]; then
+    # Insn-count shortlists (smallest unmatched funcs / least-remaining TUs)
+    # disabled for now — re-enable by flipping `false &&` back off.
+    if false && [[ -d "$_NM" ]]; then
         matched=$(find "$_MA" -name '*.s' -printf '%f\n' 2>/dev/null \
                       | sed 's/\.s$//' | sort -u)
         # GENUINE-UNMATCHED filter: a func is a target iff it's still referenced

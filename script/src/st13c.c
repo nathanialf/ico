@@ -53,7 +53,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cCageDown);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cCageFallReady);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cEnemy);
+extern void AddWayPointTop(int a0, int a1);
+
+void actSt13cEnemy(void) {
+    if (func_00178DB0(0x107) != 0) {
+        AddWayPointTop(0x16, 1);
+        AddWayPointTop(0x17, 1);
+        stage_KillPlayBgAnimation(0x157, 0, 0x59);
+    } else {
+        AddWayPointTop(0x14, 1);
+        AddWayPointTop(0x15, 1);
+        stage_KillPlayBgAnimation(0x157, 0, 0);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cEnemyNull);
 

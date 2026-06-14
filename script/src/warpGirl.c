@@ -45,9 +45,34 @@ void func_0017C108(void) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017C130);
+extern void GetRootMatrixByDObj(void *a0, void *a1);
+extern void GetCylinderCollisionWithExceptOwnCollision(void *a0, void *a1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017C1B0);
+void func_0017C130(void *a0, float f12, float f13, float f14) {
+    float buf[4];
+    GetRootMatrixByDObj(buf, a0);
+    buf[0] = buf[0] + f12;
+    buf[1] = buf[1] + f13;
+    buf[2] = buf[2] + f14;
+    GetCylinderCollisionWithExceptOwnCollision(a0, buf);
+}
+
+extern void *isysGObjSearchFromObjLayoutID(int id);
+extern void *isysGObjSearchFromObjKindID_begin(void *o);
+extern int Draw2DLineSeg_Start(void *o);
+extern int func_001D1438(void *o);
+extern void ItemDL(void *o);
+
+void func_0017C1B0(void) {
+    void *o = isysGObjSearchFromObjLayoutID(0x13);
+    while (o) {
+        if (Draw2DLineSeg_Start(o) == 6 && func_001D1438(o) == 0) {
+            ItemDL(o);
+            return;
+        }
+        o = isysGObjSearchFromObjKindID_begin(o);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017C230);
 
@@ -104,4 +129,21 @@ void func_0017DE40(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017DE80);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017DEE8);
+extern int D_0062A8B0;
+extern int D_00286840[];
+extern int scpSleepSpiderGroupOne(void *a0, int a1);
+extern void func_00178DD8(int a0);
+extern void func_00174698(void *a0);
+extern int scpPlayStart(int a0, void *a1, int a2, int a3, int a4);
+
+void func_0017DEE8(int a0) {
+    volatile int x;
+    x = a0;
+    D_0062A8B0 = 0;
+    while (scpSleepSpiderGroupOne(D_00629DE4, 0x1000000) == 0) {
+        _ACTWait(1);
+    }
+    func_00178DD8(0x12C);
+    func_00174698(D_00286840);
+    scpPlayStart(0x26, &D_0062A8B0, 1, 1, 0);
+}

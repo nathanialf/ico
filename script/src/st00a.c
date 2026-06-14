@@ -39,7 +39,18 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aEnemy1);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aEnemy2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aStair);
+extern int D_00271240[];
+extern void _ACTWait(int a0);
+extern void stgmgrForceSwitchWithFade(int a0);
+extern void backStageProcessOutStage(int a0);
+
+void actSt00aStair(int a0) {
+    volatile int x;
+    x = a0;
+    _ACTWait((int)((float)((0x3C - D_00271240[0] * 0xA) / D_00271240[1]) * 5.0f));
+    stgmgrForceSwitchWithFade(1);
+    backStageProcessOutStage(1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aAtr2);
 
@@ -47,7 +58,18 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aAtr2Chk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aDoor2Event);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aDoor2UpEffect);
+extern int func_00178DB0(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+
+void actSt00aDoor2UpEffect(void) {
+    if (func_00178DB0(0x26) == 0) {
+        stage_KillPlayBgAnimation(0x4C, 0, 0);
+        stage_KillPlayBgAnimation(0x49, 0, 0);
+    } else {
+        stage_KillPlayBgAnimation(0x4A, 0, -1);
+        stage_KillPlayBgAnimation(0x49, 0, -1);
+    }
+}
 
 extern int D_00629DE8;
 extern int func_00178DB0(int a0);

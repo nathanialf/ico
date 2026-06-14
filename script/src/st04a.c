@@ -24,7 +24,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04a", actSt04aGateOpen3Chk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04a", actConte09_3);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04a", actSt04aGateLChk);
+extern int func_00178DB0(int a0);
+extern void AddWayPointTop(int a0, int a1);
+
+void actSt04aGateLChk(void) {
+    if (!func_00178DB0(0x52)) {
+        AddWayPointTop(7, 0);
+    }
+    if (func_00178DB0(0x53)) {
+        AddWayPointTop(5, 1);
+    } else {
+        AddWayPointTop(5, 0);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04a", actSt04aGateRChk);
 

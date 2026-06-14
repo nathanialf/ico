@@ -144,4 +144,21 @@ void func_0021C7E8(void) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", func_0021C820);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void AddWayPointTop(int a0, int a1);
+
+void func_0021C820(void) {
+    if (func_00178DB0(0xF9) == 0) stage_KillPlayBgAnimation(0x12F, 0, 0); else stage_KillPlayBgAnimation(0x12F, 0, -1);
+    if (func_00178DB0(0xFA) == 0) stage_KillPlayBgAnimation(0x130, 0, 0); else stage_KillPlayBgAnimation(0x130, 0, -1);
+    if (func_00178DB0(0xFB) == 0) stage_KillPlayBgAnimation(0x131, 0, 0); else stage_KillPlayBgAnimation(0x131, 0, -1);
+    if (func_00178DB0(0xFC) == 0) stage_KillPlayBgAnimation(0x132, 0, 0); else stage_KillPlayBgAnimation(0x132, 0, -1);
+    if (func_00178DB0(0xFD) == 0) stage_KillPlayBgAnimation(0x133, 0, 0); else stage_KillPlayBgAnimation(0x133, 0, -1);
+    if (func_00178DB0(0xFE) == 0) stage_KillPlayBgAnimation(0x134, 0, 0); else stage_KillPlayBgAnimation(0x134, 0, -1);
+    if (func_00178DB0(0xFF) == 0) stage_KillPlayBgAnimation(0x135, 0, 0); else stage_KillPlayBgAnimation(0x135, 0, -1);
+    if (func_00178DB0(0xE5) == 0) AddWayPointTop(1, 0); else AddWayPointTop(1, 1);
+    if (func_00178DB0(0xEA) == 0) stage_KillPlayBgAnimation(0x126, 0, 0); else stage_KillPlayBgAnimation(0x126, 0, -1);
+    if (func_00178DB0(0xEB) == 0) stage_KillPlayBgAnimation(0x127, 0, 0); else stage_KillPlayBgAnimation(0x127, 0, -1);
+    if (func_00178DB0(0xE4) == 0) {
+        *(int *)((char *)actSt25aQueenDeadChk(0x4FB) + 0x16C) = 0;
+    }
+}

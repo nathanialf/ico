@@ -2,7 +2,27 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05e", actSt05eSolarChk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05e", actSt05eWater);
+extern int func_00178DB0(int a0);
+extern void AddWayPointTop(int a0, int a1);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+
+void actSt05eWater(void) {
+    if (func_00178DB0(0xCE) == 0) {
+        AddWayPointTop(5, 0);
+    } else {
+        AddWayPointTop(5, 1);
+    }
+    if (func_00178DB0(0xEA) == 0) {
+        stage_KillPlayBgAnimation(0x126, 0, 0);
+    } else {
+        stage_KillPlayBgAnimation(0x126, 0, -1);
+    }
+    if (func_00178DB0(0xEB) == 0) {
+        stage_KillPlayBgAnimation(0x127, 0, 0);
+    } else {
+        stage_KillPlayBgAnimation(0x127, 0, -1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05e", actSt05eSolar);
 

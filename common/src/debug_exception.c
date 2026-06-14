@@ -93,7 +93,20 @@ void debug_assertMessage(int a0, ...) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", debug_assert);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", debug_SetExceptionMessage);
+extern const char D_0060DAF0_a[] __asm__("D_0060DAF0");
+
+void debug_SetExceptionMessage(float *arg) {
+    int i;
+    for (i = 3; i >= 0; i--) {
+        int v0 = func_00260340(arg[0]);
+        int v1 = func_00260340(arg[1]);
+        int v2 = func_00260340(arg[2]);
+        int v3 = func_00260340(arg[3]);
+        debug_assertMessage((int)D_0060DAF0_a, v0, v1, v2, v3);
+        arg += 4;
+    }
+    debug_assertMessage((int)D_00631CF0_a);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", debugExceptionInit);
 

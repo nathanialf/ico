@@ -53,7 +53,17 @@ int actSt25aQueenDeadChk(void) {
     return isysGObjAddHead();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actConte13Jimaku);
+extern void func_00260568(void *a0, int a1, int a2);
+extern void GetHeightOfFieldPlaneDifference(void *a0, void *a1, int a2, int a3, void *a4, float f12, float f13, float f14, float f15);
+extern void gflagOff(void *a0, int a1);
+
+void actConte13Jimaku(void *a0, int a1, void *a2, int a3) {
+    float buf[4];
+    func_00260568(buf, 0, 0x10);
+    buf[3] = 1.0f;
+    GetHeightOfFieldPlaneDifference(a0, a2, 0, a3, buf, 0.0f, 0.0f, 0.0f, 1.0f);
+    gflagOff(a0, a1);
+}
 
 extern int ExecMotionOrient(void *a0, int a1, void *a2);
 
@@ -62,7 +72,19 @@ void BoySekikaTexScroll(void *a0, int a1) {
     *(int *)(p + 0x110) = ExecMotionOrient(a0, a1, p + 0x610);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actSt25aGenerator);
+extern void func_00260568(void *a0, int a1, int a2);
+extern void GetCylinderCollisionWithExceptOwnCollision(void *a0, void *a1);
+extern void InitMotionRotElem(void *a0);
+
+void actSt25aGenerator(void *a0, float f12, float f13, float f14) {
+    float buf[4];
+    func_00260568(buf, 0, 0x10);
+    buf[0] = f12;
+    buf[1] = f13;
+    buf[2] = f14;
+    GetCylinderCollisionWithExceptOwnCollision(a0, buf);
+    InitMotionRotElem(a0);
+}
 
 extern void _ACTWait(int a0);
 
@@ -105,7 +127,21 @@ int actSwordEff(int a0, int a1, int a2, int a3)
     return ret;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", actSwordEffXL);
+extern void ACTGame_BeforeFunc(void *a0);
+extern void ACTGame_CommonLoop(void *a0);
+extern void GetCylinderCollisionWithExceptOwnCollision(void *a0, void *a1);
+
+typedef struct { long long _0; long long _8; } SwordEffParam;
+extern SwordEffParam D_00554440;
+
+void actSwordEffXL(void *a0) {
+    SwordEffParam tmp;
+    ACTGame_BeforeFunc(a0);
+    ACTGame_CommonLoop(a0);
+    tmp = D_00554440;
+    GetCylinderCollisionWithExceptOwnCollision(a0, &tmp);
+    iosOmBeforeFuncStandard((int)a0, 0x27, (int)a0);
+}
 
 extern float D_0062BA7C;
 extern int D_0062BA80, D_0062BA78;

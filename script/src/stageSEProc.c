@@ -51,4 +51,22 @@ void stageSE08anoise3(volatile int a0) {
     stage_KillPlayBgAnimation(0x82, 0, 0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", stageSE08ataimatsu);
+extern int func_00178DB0(int a0);
+extern void AddWayPointTop(int a0, int a1);
+
+void stageSE08ataimatsu(void) {
+    if (func_00178DB0(0x2C) != 0) {
+        stage_KillPlayBgAnimation(0x90, 0, 0);
+        AddWayPointTop(0x21, 1);
+    } else {
+        stage_KillPlayBgAnimation(0x8F, 0, 0);
+        AddWayPointTop(0x21, 0);
+    }
+    if (func_00178DB0(0x2D) != 0) {
+        stage_KillPlayBgAnimation(0x92, 0, 0);
+        AddWayPointTop(0x22, 1);
+    } else {
+        stage_KillPlayBgAnimation(0x91, 0, 0);
+        AddWayPointTop(0x22, 0);
+    }
+}

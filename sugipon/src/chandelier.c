@@ -3,7 +3,20 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/chandelier", ChandelierGeo);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/chandelier", ChandelierDL);
+extern int isysGObjSearchFromObjLayoutID();
+extern int func_00105078();
+extern void MatrixDrive_TurnXObjectMatrixYZ();
+extern void func_00105108(float, float, float);
+extern void HoldRope();
+
+void ChandelierDL(char *a0) {
+    int obj = isysGObjSearchFromObjLayoutID(0x14);
+    if (obj != 0) {
+        MatrixDrive_TurnXObjectMatrixYZ(func_00105078(), *(int *)(*(char **)(a0 + 0x15C) + 0xC));
+        func_00105108(0.0f, 50.0f, 250.0f);
+        HoldRope(obj, func_00105078() + 0x30, 0);
+    }
+}
 
 extern int func_0010F068(int a0);
 extern int file_LoadCDFile(int a0);

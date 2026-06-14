@@ -74,7 +74,25 @@ void func_001ABE88(int *self, int a1, int a2)
   }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/icoMisc", func_001ABEE0);
+extern int func_00178DD8(int a0);
+
+void func_001ABEE0(int *a0, int a1, int a2) {
+    int buf[2];
+    void (*f)(int *, int);
+    int next;
+    buf[0] = a1;
+    buf[1] = 0;
+    f = (void (*)(int *, int))a0[0];
+    if (f != 0) {
+        do {
+            f(buf, a2);
+            a0 += 2;
+            next = a0[0];
+            f = (void (*)(int *, int))next;
+        } while (next != 0);
+    }
+    func_00178DD8(0x168);
+}
 
 extern int func_002613B4(int *p, int *buf);
 extern int D_0062B240;

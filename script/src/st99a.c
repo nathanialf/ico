@@ -28,9 +28,33 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st99a", actWave1);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st99a", actSt27aWaveChk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st99a", actSt27aWave1);
+extern int func_00178DB0(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void AddWayPointTop(int a0, int a1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st99a", actSpiderChk);
+void actSt27aWave1(void) {
+    if (func_00178DB0(0x11F) == 0) {
+        stage_KillPlayBgAnimation(0x7F, 0, 0);
+        AddWayPointTop(4, 0);
+    } else {
+        stage_KillPlayBgAnimation(0x7F, 0, -1);
+        AddWayPointTop(4, 1);
+    }
+}
+
+extern int D_00629DE8;
+extern int func_00178DB0(int a0);
+extern void func_00178DD8(int a0);
+
+void actSpiderChk(void) {
+    if (D_00629DE8) {
+        if (func_00178DB0(0x11F)) {
+            if (!func_00178DB0(0x122)) {
+                func_00178DD8(0x165);
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st99a", func_002343C0);
 

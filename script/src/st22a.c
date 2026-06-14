@@ -52,14 +52,46 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", func_00230C70);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", func_00230E00);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", func_00230EC8);
+extern void *D_00629DE8;
+extern int D_0062A894;
+extern void func_00178DD8(int a0);
+
+void func_00230EC8(int a0) {
+    volatile int x;
+    x = a0;
+    if (D_00629DE8 == 0) {
+        _ACTWait(0);
+    }
+    while (*(int *)((char *)*(void **)((char *)D_00629DE8 + 0x164) + 0x30) != 0x6A) {
+        _ACTWait(1);
+    }
+    func_00178DD8(0x1B);
+    D_0062A894 = 1;
+    _ACTWait(0xC8);
+    func_001790A8(D_00629DE8);
+    gflagOff(D_00629DE8, 0x229);
+    _ACTWait(0x78);
+    func_00178DD8(0x1C);
+}
 
 void func_00230F70(int a0) {
     int buf[4];
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", func_00230F80);
+extern void *D_00629DE4;
+extern int GetSkeltonFocusNode(void *a0);
+extern void _ACTWait(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+
+void func_00230F80(int a0) {
+    volatile int x;
+    x = a0;
+    while (GetSkeltonFocusNode(D_00629DE4) != 0xE3) {
+        _ACTWait(1);
+    }
+    stage_KillPlayBgAnimation(0x3F, -1, -2);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", func_00230FD8);
 

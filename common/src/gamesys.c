@@ -126,7 +126,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysMemoryHandlerRead
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysMemorySave);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysMemoryLoad);
+extern void func_00240B78(int a0);
+extern void func_002413F0(int *a0, int a1, int a2);
+extern void func_0023E168(void);
+
+void gamesysMemoryLoad(void) {
+    func_00240B78(1);
+    func_002413F0((int *)func_00240B50(0), 0, 0x64);
+    func_002413F0((int *)func_00240B50(1), 0, 0x64);
+    func_002413F0((int *)func_00240B50(2), 0, 0x64);
+    *(int *)func_00240B50(0) |= 0x40;
+    *(int *)func_00240B50(1) |= 0x40;
+    *(int *)func_00240B50(2) |= 0x40;
+    func_0023E168();
+}
 
 extern void func_00240AB8(void);
 extern void gsb_antiAlias(void *a0);
@@ -154,7 +167,26 @@ void gamesysGeneratorInfoSave(void)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", func_001A98E0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", func_001A99D0);
+extern void func_001007A0(int a0);
+extern int func_0023EAC8(int a0);
+extern void gsb_setNormalReg(void);
+extern void func_0023EA68(void *a0, int a1);
+extern void gamesysObjInfoCls(void *a0, int a1, int a2);
+extern int D_00629C40;
+extern int D_00629C50;
+extern int D_00629C60;
+
+void func_001A99D0(void) {
+    func_001007A0(0);
+    func_0023EB60(1, 0);
+    D_00629C50 = func_0023EAC8(0);
+    D_00629C60++;
+    D_00629C40 = D_00629C60 & 1;
+    gsb_setNormalReg();
+    func_0023EA68(D_00271270, D_00629C40);
+    gamesysObjInfoCls(D_00271270, D_00629C40, D_00629C50);
+    gamesysMemoryHandlerWrite(1);
+}
 
 
 /* recovered struct shapes */

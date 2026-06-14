@@ -132,6 +132,40 @@ void scpDispOffAllWithKind(int a0, int a1) {
     SetParticleEffectUpperLimit(a1, a0, buf);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpDispOnAllWithKind);
+extern void iosOmBeforeFuncStandard(int *a0, int a1, int *a2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpActivateAllWithKind);
+void scpDispOnAllWithKind(void) {
+    int *o = isysGObjSearchFromObjLayoutID(4);
+    if (o != 0) {
+        do {
+            iosOmBeforeFuncStandard(o, 0x20, o);
+            o = isysGObjSearchFromObjKindID_begin(o);
+        } while (o != 0);
+    }
+    o = isysGObjSearchFromObjLayoutID(0x3C);
+    if (o != 0) {
+        do {
+            iosOmBeforeFuncStandard(o, 0x20, o);
+            o = isysGObjSearchFromObjKindID_begin(o);
+        } while (o != 0);
+    }
+}
+
+extern void iosOmBeforeFuncStandard(int *a0, int a1, int *a2);
+
+void scpActivateAllWithKind(void) {
+    int *o = isysGObjSearchFromObjLayoutID(4);
+    if (o != 0) {
+        do {
+            iosOmBeforeFuncStandard(o, 0x1F, o);
+            o = isysGObjSearchFromObjKindID_begin(o);
+        } while (o != 0);
+    }
+    o = isysGObjSearchFromObjLayoutID(0x3C);
+    if (o != 0) {
+        do {
+            iosOmBeforeFuncStandard(o, 0x1F, o);
+            o = isysGObjSearchFromObjKindID_begin(o);
+        } while (o != 0);
+    }
+}

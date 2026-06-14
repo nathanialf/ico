@@ -102,7 +102,28 @@ void func_00179F60(void *a0) {
     GetOtherStageGirlOrient(a0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_00179F88);
+extern void *D_00629DE8;
+extern void *D_00629DE4;
+extern int D_00629C90;
+extern void func_001AB9B8(void *a0, int a1, int a2, int a3);
+extern int func_00178DB0(int a0);
+extern void func_00178DD8(int a0);
+extern void func_00178E08(int a0);
+extern void backStageProcessMain(void);
+
+void func_00179F88(void) {
+    int s0;
+    if (D_00629DE8) {
+        func_001AB9B8(D_00629DE8, *(int *)((char *)*(void **)((char *)D_00629DE8 + 0x164) + 0x434), 0, D_00629C90);
+    }
+    func_001AB9B8(D_00629DE4, *(int *)((char *)*(void **)((char *)D_00629DE4 + 0x164) + 0x434), 0, D_00629C90);
+    s0 = func_00178DB0(0x15B);
+    func_00178DD8(0x15B);
+    backStageProcessMain();
+    if (s0 == 0) {
+        func_00178E08(0x15B);
+    }
+}
 
 extern void *isysGObjAddHead(void);
 
@@ -144,7 +165,19 @@ void func_0017A0D8(void) {
     EntryRevivedSpiderGroupManager(isysGObjAddHead());
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_0017A0F8);
+typedef struct { char _0[0xA0]; short arr[0x78]; } OuterRec0F8;
+typedef struct { char _0[0x24]; int f24; } Rec28_0F8;
+extern int D_00629C90;
+extern OuterRec0F8 D_005EBC48[];
+extern Rec28_0F8 D_0055A2D8[];
+extern void stgmgrForceSwitchWithFade(int a0);
+extern void backStageProcessOutStage(int a0);
+
+void func_0017A0F8(int a0) {
+    short v = D_005EBC48[D_00629C90].arr[a0 - 1];
+    stgmgrForceSwitchWithFade(D_0055A2D8[v].f24);
+    backStageProcessOutStage(1);
+}
 
 extern int isysGObjSearchFromObjLayoutID();
 extern int isysGObjSearchFromObjKindID_begin(int a0);

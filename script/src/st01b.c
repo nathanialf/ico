@@ -40,7 +40,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st01b", actSt01bFloorEvent);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st01b", actSt01bWayOnChk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st01b", actSt01bWayOffChk);
+extern int func_00178DB0(int a0);
+extern void AddWayPointTop(int a0, int a1);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+
+void actSt01bWayOffChk(void) {
+    if (func_00178DB0(0x42) == 0) {
+        AddWayPointTop(0x2, 0);
+        stage_KillPlayBgAnimation(0xA1, 0, 0);
+        stage_KillPlayBgAnimation(0x9E, 0, 0);
+    } else {
+        AddWayPointTop(0x2, 1);
+        stage_KillPlayBgAnimation(0xA1, 0, -1);
+        stage_KillPlayBgAnimation(0x9E, 0, -1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st01b", func_0020E210);
 

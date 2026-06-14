@@ -25,7 +25,22 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cDoorDown);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cEne);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cEnemy1);
+typedef struct { long long q[8]; } Mtx64;
+extern Mtx64 D_004CC120;
+extern int D_00271C00[];
+extern void func_00118A70(int *a0, int a1, void *a2);
+extern void _SetCurrentMatrix(void *a0, int *a1);
+
+void actSt04cEnemy1(void *a0) {
+    int m[4];
+    int i;
+    func_00118A70(m, *(int *)((char *)*(void **)((char *)a0 + 0x15C) + 0xC), D_00271C00);
+    m[1] = 0;
+    _SetCurrentMatrix((char *)*(void **)((char *)a0 + 0x15C) + 0x510, m);
+    for (i = 0; i < *(int *)((char *)*(void **)((char *)a0 + 0x15C) + 0x88); i++) {
+        ((Mtx64 *)*(void **)((char *)*(void **)((char *)a0 + 0x15C) + 0x7CC))[i] = D_004CC120;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cEnemy2);
 

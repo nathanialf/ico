@@ -18,9 +18,42 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13a", actSt13aCheck);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13a", actSt13aChain);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13a", actSt13aElevMain);
+extern int func_00178DB0(int a0);
+extern void AddWayPointTop(int a0, int a1);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13a", actSt13aElevSwitch);
+void actSt13aElevMain(void) {
+    if (func_00178DB0(0x71) != 0) {
+        if (func_00178DB0(0x72) != 0) {
+            AddWayPointTop(0xB, 0);
+            AddWayPointTop(0xC, 0);
+            stage_KillPlayBgAnimation(0x142, 0, -1);
+        } else {
+            AddWayPointTop(0xD, 0);
+            AddWayPointTop(0xE, 0);
+            AddWayPointTop(0xF, 0);
+            stage_KillPlayBgAnimation(0x141, 0, -1);
+        }
+    } else {
+        AddWayPointTop(0xD, 0);
+        AddWayPointTop(0xE, 0);
+        AddWayPointTop(0xF, 0);
+        stage_KillPlayBgAnimation(0x141, 0, 0);
+    }
+}
+
+extern int D_00629DE8;
+extern int func_00178DB0(int a0);
+extern void func_00178DD8(int a0);
+
+void actSt13aElevSwitch(void) {
+    if (D_00629DE8 && func_00178DB0(0x75) == 0 && func_00178DB0(0x72)) {
+        func_00178DD8(0x165);
+    }
+    if (D_00629DE8 && func_00178DB0(0x78) == 0 && func_00178DB0(0x9B)) {
+        func_00178DD8(0x165);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13a", actSt13aExitChk);
 

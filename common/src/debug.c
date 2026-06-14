@@ -7,7 +7,22 @@ int debug_Assert(int a0) {
     return D_006DE110[a0].w[0];
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug", debug_openLog);
+extern void func_00265130(char *buf, const char *fmt, void *va);
+extern void func_001AACE0(char *a0, int a1, char *a2);
+extern void func_00260380(char *a0, int a1, char *a2);
+extern void func_001AAD00(char *a0, int a1);
+extern char D_0060D3B0[];
+extern char D_0062CB40[];
+extern char D_0062CB48[];
+
+void debug_openLog(const char *fmt, ...) {
+    char buf[0x100];
+    func_00265130(buf, fmt, (char *)__builtin_next_arg(fmt) - 0x38);
+    func_001AACE0(D_0060D3B0, 0x4F4, buf);
+    func_00260380(D_0060D3B0, 0x4F4, D_0062CB40);
+    func_001AAD00(D_0060D3B0, 0x4F5);
+    func_00260380(D_0060D3B0, 0x4F5, D_0062CB48);
+}
 
 extern int D_0062ACCC;
 
