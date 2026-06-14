@@ -185,7 +185,24 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", SetDirectRootPositionXZ)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_00157E70);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonLever);
+extern void func_00104D20(void);
+extern int func_00105078(void);
+extern void func_00118AA0(int a0);
+extern void gif_SpriteOffset(int a0);
+extern void func_001050A8(void *a0);
+extern void reg_dispBoxLine(void *a0, int a1, int a2, float f);
+extern void func_0010F9D0(void);
+extern void func_00105068(void);
+
+void actCommonLever(void *a0, void *a1, float f) {
+    func_00104D20();
+    func_00118AA0(func_00105078());
+    gif_SpriteOffset(0xB);
+    func_001050A8(a0);
+    reg_dispBoxLine(a1, 4, 4, f);
+    func_0010F9D0();
+    func_00105068();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", EBRAIN_SEND_MES);
 

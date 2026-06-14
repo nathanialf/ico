@@ -95,9 +95,41 @@ int func_002386F0(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00238730);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00238800);
+extern int D_0062BE54;
+extern int D_00629C60;
+extern float D_0062BE50;
+extern void *UpdateRootPosition(void);
+extern float DispWireLetter(void *a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00238860);
+int func_00238800(void *a0) {
+    float f;
+    if (D_0062BE54 == D_00629C60) {
+        f = D_0062BE50;
+    } else {
+        D_0062BE54 = D_00629C60;
+        f = DispWireLetter(UpdateRootPosition());
+        f = f * 0.5f + 0.5f;
+        D_0062BE50 = f;
+    }
+    *(float *)((char *)a0 + 0x18) = f;
+    return -1;
+}
+
+extern float D_00629AE0, D_00629AE4, D_00629AE8;
+
+int func_00238860(void *a0) {
+    float x = *(float *)((char *)UpdateRootPosition() + 8);
+    float f;
+    if (x < D_00629AE0) {
+        f = 0.0f;
+    } else if (x > *(volatile float *)&D_00629AE4) {
+        f = 1.0f;
+    } else {
+        f = (x - D_00629AE0) / D_00629AE8;
+    }
+    *(float *)((char *)a0 + 0x18) = 1.0f - f;
+    return -1;
+}
 
 
 /* recovered struct shapes */

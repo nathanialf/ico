@@ -17,7 +17,29 @@ float brainStatusDefaultSet(void *a0, void *a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/brain", brainLevelProcess);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/brain", brainGetTarget);
+extern int D_00286A90[];
+extern void SetDirectRootPositionWithNodePointLimit(void *a0, int a1);
+
+void brainGetTarget(void *a0, int a1) {
+    int *base = D_00286A90;
+    int *p = (int *)((char *)base + 0x28);
+    int key;
+    int t;
+    D_00286A90[0] = (int)a0;
+    key = *p;
+    if (key == 0) {
+        return;
+    }
+    do {
+        if (key == a1) {
+            base[1] = (int)p;
+        }
+        SetDirectRootPositionWithNodePointLimit(a0, *p);
+        p = (int *)((char *)p + 0x1C);
+        t = *p;
+        key = t;
+    } while (t != 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/brain", brainStatusSet);
 

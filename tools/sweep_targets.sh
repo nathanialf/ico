@@ -20,6 +20,10 @@ find "$SCOPE" -name '*.c' -print | while read -r f; do
     while read -r fn; do
         s="asm/aug6/nonmatchings/$tu/$fn.s"
         [ -f "$s" ] || continue
+        # Parked funcs (deep-pass owned) live under tough_nuts/<func>/ — drop
+        # them so neither the to-do list nor the stop-hook's remaining-count
+        # traps the sweep on a func a human already declared a tough nut.
+        [ -d "tough_nuts/$fn" ] && continue
         sz=$(stat -c%s "$s")
         if head -8 "$s" | grep -q 'sw .*\$4, 0x0(\$29)'; then sp="SPILL"; else sp="."; fi
         printf '%s %s %s %s\n' "$sz" "$tu" "$fn" "$sp"

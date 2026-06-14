@@ -22,9 +22,28 @@ int audioDecEndPut(int *self)
  do { return v0; } while (0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", sendToIOP2area);
+int sendToIOP2area(int *self) {
+    float *p = (float *)UpdateRootPosition((int)self);
+    int v0 = -1;
+    if (p[0] < 300.0f) {
+        if (848.0f < p[2]) {
+            v0 = 0;
+        }
+    }
+    do { return v0; } while (0);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", audioDecSendToIOP);
+extern int func_00237C98(int a0);
+
+int audioDecSendToIOP(int *self) {
+    float *p = (float *)UpdateRootPosition((int)self);
+    if (p[0] < 300.0f) {
+        if (848.0f < p[2]) {
+            return func_00237C98((int)self);
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", pcmCallback);
 
@@ -51,7 +70,22 @@ int audioDecResume(char *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", func_00238FB0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", func_002390F0);
+extern float D_00629B30;
+
+int func_002390F0(int self) {
+    float *p = (float *)UpdateRootPosition(self);
+    float x = p[2];
+    float r;
+    if (x < -300.0f) {
+        r = 0.0f;
+    } else if (400.0f < x) {
+        r = 1.0f;
+    } else {
+        r = (x - (-300.0f)) / 700.0f;
+    }
+    *(float *)(self + 0x18) = r * *(volatile float *)&D_00629B30;
+    return -1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", func_00239188);
 

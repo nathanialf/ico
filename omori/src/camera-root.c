@@ -11,7 +11,29 @@ void ConvertCameraSet(void) {
     func_00188D60(D_006C9F60);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-root", MakeCameraMatrix);
+extern float SetLimitHandCameraCorrect(int *a0, int *a1, int *a2, float t);
+extern void GetRootMatrixByDObj(void *buf, int obj);
+extern void func_00188C18(int *a0, void *a1);
+extern int D_006C9F80[];
+extern int D_0062C074;
+
+void MakeCameraMatrix(void) {
+    if (D_006C9F80[6] != 0) {
+        if (SetLimitHandCameraCorrect(D_006C9F60, D_006C9F60, D_006C9F80, 50.0f) < 1.0f) {
+            D_006C9F80[6] = 0;
+        }
+    } else {
+        float buf[10];
+        SetWSMatrix(D_006C9F60, 1);
+        buf[0] = ((float *)D_006C9F60)[0];
+        buf[1] = ((float *)D_006C9F60)[1];
+        buf[2] = ((float *)D_006C9F60)[2];
+        buf[8] = ((float *)D_006C9F60)[5];
+        GetRootMatrixByDObj(&buf[4], D_0062C074);
+        func_00188C18(D_006C9F60, buf);
+    }
+    func_00188D60(D_006C9F60);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-root", CameraEditManual);
 

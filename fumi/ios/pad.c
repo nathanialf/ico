@@ -1,6 +1,17 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/pad", controler_stable_check);
+extern int *D_0062A408;
+extern int D_00629C50;
+extern void func_00100F18(int);
+
+int controler_stable_check(int a0) {
+    if (a0 == 2) {
+        volatile unsigned long long *reg = (volatile unsigned long long *)0x12001000;
+        D_00629C50 = (int)(((*reg >> 13) & 1) ^ 1);
+        func_00100F18(D_0062A408[12]);
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/pad", iosPadDevInit);
 

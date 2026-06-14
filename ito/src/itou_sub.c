@@ -31,7 +31,15 @@ void apply_matrix_w1(void *a0) {
     func_00195B88(a0, buf);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/itou_sub", ico_m33_to_quat);
+extern void stage_KillPlayBgAnimationIfOverMaxCount(void);
+extern int stage_SetLocalizeGeometry(int a0);
+
+void ico_m33_to_quat(int *a0, int a1) {
+    if (*a0) {
+        stage_KillPlayBgAnimationIfOverMaxCount();
+    }
+    *a0 = stage_SetLocalizeGeometry(a1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/itou_sub", pbga_start);
 

@@ -17,7 +17,21 @@ void adpcmTickProc2(AdpT *a0, AdpT *a1) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", adpcmDataSet);
+extern int D_0062A4D4;
+
+void adpcmDataSet(char *a0, char *a1) {
+    int next;
+    func_001F8C30(a0);
+    *(unsigned char *)(a0 + 0x40) = *(unsigned char *)(a1 + 0x40);
+    next = *(int *)(a1 + 0x38);
+    *(int *)(a0 + 0x34) = (int)a1;
+    *(int *)(a0 + 0x38) = next;
+    *(int *)(a1 + 0x38) = (int)a0;
+    *(int *)(a0 + 0x44) = *(int *)(a1 + 0x44);
+    if (*(int *)(a0 + 0x38) == 0) {
+        D_0062A4D4 = (int)a0;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmPlay);
 

@@ -24,13 +24,39 @@ int DebugDispBox(void *a0, char *a1) {
     return ACTGameView_Init(*(int *)a0, *(int *)a1) != 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", DispCameraGroup);
+extern void *iosFree(int heap, int size, const char *file, int line);
+extern void iosThreadWakeup(void *a0, int a1, void *a2, void *a3, int a4, int a5, int a6);
+extern void iosThreadJoin(void *a0);
+extern void iosSemaCreate(int a0);
+extern int D_0062A328;
+extern int D_0062A9B0;
+extern char D_00554780[];
+
+void DispCameraGroup(void *a0, int a1, int a2) {
+    void *r = iosFree(D_0062A328, 0x78, D_00554780, 0xD9);
+    iosThreadWakeup(r, 1, a0, r, D_0062A328, 0x1000, 0x17);
+    *(int *)((char *)r + 0x74) = a1;
+    *(int *)((char *)r + 0x70) = a2;
+    iosThreadJoin(r);
+    D_0062A9B0 = (int)r;
+    if (a2 != 0) {
+        iosSemaCreate(a2);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", drawXZArrow);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", DispAxisArrow);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", dispCameraPinType2);
+extern void gif_SpriteOrg(int code, long data);
+
+void dispCameraPinType2(int *a0, int *a1, int *a2, unsigned char *a3) {
+    gif_SpriteOrg(0, 3);
+    gif_SpriteOrg(1, (long)a3[0] | ((long)a3[1] << 8) | ((long)a3[2] << 16) | ((long)a3[3] << 24));
+    gif_SpriteOrg(4, (long)a0[0] | ((long)a0[1] << 16) | ((long)a0[2] << 32));
+    gif_SpriteOrg(4, (long)a1[0] | ((long)a1[1] << 16) | ((long)a1[2] << 32));
+    gif_SpriteOrg(4, (long)a2[0] | ((long)a2[1] << 16) | ((long)a2[2] << 32));
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", CameraEdit_DispPinType2);
 

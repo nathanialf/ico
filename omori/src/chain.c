@@ -23,7 +23,13 @@ void *UpdateRootPosition(void) {
     return D_006C9F60;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", StartPendulum);
+extern int D_0062AFF8;
+typedef struct { long q[4]; } StartPendulumBlk;
+
+void StartPendulum(void *a0, float *a1) {
+    *(StartPendulumBlk *)a0 = *(StartPendulumBlk *)D_006C9F60;
+    *a1 = (float)D_0062AFF8 / 100.0f;
+}
 
 extern unsigned char D_0062C07D;
 extern int D_0062A9E4;
@@ -62,7 +68,23 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", chain_simulate_free);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", correct_vector);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/chain", pendulum_Process);
+extern int D_0062AF84;
+extern int D_0062C090;
+extern void traceLine(int a, int b, int c, const char *d);
+extern void chain_simulate_term_free(int a0);
+extern float D_00629248;
+extern char D_00554D48[];
+
+void pendulum_Process(int a0) {
+    void *p = *(void **)((char *)a0 + 0x15C);
+    void *q = *(void **)((char *)p + 0x7F0);
+    if (D_0062AF84 & 1) {
+        D_0062C090 = D_0062C090 + 0xA;
+        traceLine(0xA, D_0062C090, 0x0FFFFFFF, D_00554D48);
+    }
+    *(float *)((char *)q + 0x44) = D_00629248;
+    chain_simulate_term_free(a0);
+}
 
 extern int D_0062AF84;
 extern int D_0062C090;

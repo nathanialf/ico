@@ -76,7 +76,28 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/seMail", func_002027F0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/seMail", func_00202868);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/seMail", func_00202900);
+extern char D_004C6FF0[];
+extern int D_0062BB78;
+extern void NearestEnemyFromGirl(int a0);
+
+int func_00202900(int a0) {
+    char *e = &D_004C6FF0[a0 * 0x34];
+    char *head;
+    if (*(int *)e != 1) {
+        return 1;
+    }
+    head = *(char **)(e + 8);
+    if (head != 0) {
+        char *node = head;
+        do {
+            NearestEnemyFromGirl(*(int *)(node + 4));
+            node = *(char **)(node + 0xC);
+        } while (node != 0);
+    }
+    *(int *)e = 0;
+    D_0062BB78--;
+    return 0;
+}
 
 extern char D_004C6FF0[];
 

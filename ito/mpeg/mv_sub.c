@@ -1,6 +1,16 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", ErrMessage);
+extern void *isysGObjRemoveObjDL(void);
+extern void setTEX0_1(int a0, int a1);
+extern void *func_0013E7E0(void *a0);
+
+void ErrMessage(void) {
+    int *p = (int *)isysGObjRemoveObjDL();
+    while (p != 0) {
+        setTEX0_1(p[2], 0);
+        p = (int *)func_0013E7E0(p);
+    }
+}
 
 extern void func_0023A6D0(void *a0);
 
@@ -24,7 +34,22 @@ void func_0023A6D0(void *a0) {
     iosMallocCheckLeak2((int)a0 & 0xFFFFFFF);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_0023A6E0);
+extern void func_0025A450(int a0);
+extern void func_0025A3C8(void);
+
+int func_0023A6E0(char *self) {
+    copy2area((int)self);
+    if (self[0x61]) {
+        func_0025A450(0);
+    }
+    if (self[0x62]) {
+        func_0025A450(1);
+    }
+    if (self[0x60]) {
+        func_0025A3C8();
+    }
+    return 1;
+}
 
 extern void func_0025A578(int a, int b, int c);
 extern void func_0025A4E8();

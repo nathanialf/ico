@@ -1,10 +1,43 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act", actChangeActBrain);
+extern void debug_assertMessage();
+extern void isysGObjProcAddS();
+extern int actCreateSubThread(void *a0, int a1);
+extern char D_00613A70[];
+extern char D_00613A90[];
+
+void actChangeActBrain(void *a0, void *a1, void **a2) {
+    void *old = *a2;
+    int ret = actCreateSubThread(a1, 0x14);
+    *a2 = (void *)ret;
+    if (old != 0) {
+        debug_assertMessage(D_00613A70, a0, ret);
+        isysGObjProcAddS(old);
+    } else {
+        debug_assertMessage(D_00613A90, a0, ret);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act", actChangeActMain);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act", actCreateMotionThread);
+extern void debug_assertMessage();
+extern void isysGObjProcAddS();
+extern int isysGObjProcPause(void *a0, void *a1, int a2, void *a3);
+extern void *D_0062A4DC;
+extern char D_00613AF0[];
+extern char D_00613B10[];
+
+void actCreateMotionThread(void *a0, void *a1, void **a2) {
+    void *old = *a2;
+    int ret = isysGObjProcPause(D_0062A4DC, a0, 0, a1);
+    *a2 = (void *)ret;
+    if (old != 0) {
+        debug_assertMessage(D_00613AF0, *(int *)((char *)old + 4), ret);
+        isysGObjProcAddS(old);
+    } else {
+        debug_assertMessage(D_00613B10, ret, ret);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act", after_func_exec);
 

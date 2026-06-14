@@ -1,6 +1,27 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", CameraSetCameraSet);
+extern int D_0062A9B0;
+extern int D_0062AF84;
+extern unsigned char D_0062A9B8;
+extern void _CameraEdit_del_box(void);
+extern void func_00183E90(void);
+extern void func_0018A0D8(int a0);
+extern void CameraEdit_Save(void);
+
+int CameraSetCameraSet(void) {
+    D_0062AF84 = 1;
+    if (D_0062A9B0 == 0) {
+        _CameraEdit_del_box();
+    }
+    func_00183E90();
+    func_0018A0D8(1);
+    if (D_0062A9B8 == 0) {
+        return 0;
+    }
+    D_0062A9B8 = 0;
+    CameraEdit_Save();
+    return -1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", CameraSetCameraSet_Default);
 
@@ -126,7 +147,30 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188588);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188660);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188728);
+extern int D_0062C064;
+extern int D_00629C90;
+extern char D_0062C850[];
+extern char D_00554B00[];
+extern char D_00554B30[];
+extern void debug_assertMessage(char *a0, void *a1);
+extern void func_001AAD00(char *a0, int a1);
+extern void func_00260380(char *a0, int a1, void *a2);
+extern int func_001878E0(void *a0, int a1);
+typedef struct { void *key; int f_4; } RegEntry;
+extern RegEntry D_006C9EE0_arr[] __asm__("D_006C9EE0");
+
+void func_00188728(void *a0, void *a1) {
+    RegEntry *slot;
+    if (D_0062C064 >= 10) {
+        debug_assertMessage(D_00554B30, (void *)10);
+        func_001AAD00(D_00554B00, 0x7BE);
+        func_00260380(D_00554B00, 0x7BE, D_0062C850);
+    }
+    slot = &D_006C9EE0_arr[D_0062C064];
+    slot->key = a0;
+    slot->f_4 = func_001878E0(a1, D_00629C90);
+    D_0062C064 = D_0062C064 + 1;
+}
 
 extern int D_0062C064;
 
@@ -134,7 +178,29 @@ void func_001887D8(void) {
     D_0062C064 = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_001887E0);
+extern void debug_assertMessage(char *a0, void *a1);
+extern void func_001AAD00(char *a0, int a1);
+extern void func_00260380(char *a0, int a1, void *a2);
+typedef struct { int key; int f_4; } Lookup;
+extern Lookup D_006C9EE0[];
+extern char D_0028DB10[];
+extern char D_0062C850[];
+extern char D_00554B18[];
+extern char D_00554B00[];
+
+int func_001887E0(int key) {
+    int n = D_0062C064;
+    int i;
+    for (i = 0; i < n; i++) {
+        if (D_006C9EE0[i].key == key) {
+            return D_006C9EE0[i].f_4;
+        }
+    }
+    debug_assertMessage(D_00554B18, D_0028DB10 + key * 0x20);
+    func_001AAD00(D_00554B00, 0x7B5);
+    func_00260380(D_00554B00, 0x7B5, D_0062C850);
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188888);
 
@@ -152,7 +218,19 @@ int func_00188B00(char *p, int n)
     return acc;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188B48);
+extern void func_00240038(void *a0, float f);
+extern void func_00240038_p(void *a0, void *a1, float f) __asm__("func_00240038");
+extern char D_006C9DA0[];
+extern char D_006C9EC0[];
+extern char D_006C9ED0[];
+
+void func_00188B48(void *a0, float a1) {
+    func_00240038(D_006C9DA0, -1.0f);
+    func_00240038_p(D_006C9DA0 + 0x10, a0, -1.0f);
+    func_00240038_p(D_006C9EC0, a0, -1.0f);
+    func_00240038_p(D_006C9ED0, a0, -1.0f);
+    *(float *)(D_006C9DA0 + 0x20) = a1;
+}
 
 extern int D_006C9F60[];
 extern void func_00188C18(int *a0, void *a1);

@@ -3,7 +3,14 @@
 /* eBrain 0x7F0 view (local) */
 typedef struct { char _0[0x74]; int f_74; char _pad78[0x50]; float f_C8; char f_CC; unsigned char f_CD; } EGeo;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", eBrainProcess);
+extern float *ContinueCorrectPosition(void *a0);
+
+void eBrainProcess(void *a0, float *a1) {
+    a1[0] = ContinueCorrectPosition(a0)[0];
+    a1[1] = ContinueCorrectPosition(a0)[1];
+    a1[2] = ContinueCorrectPosition(a0)[2];
+    a1[1] -= 50.0f;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", eBrainGetTargetGeneratorFromLabel);
 
