@@ -42,7 +42,32 @@ void CreateLayoutedGObj(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/sceneManager", MoveNextStage_Set);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/sceneManager", test_nextstage_firstwalk_set);
+extern int *isysGObjRemoveObjDL(int a0);
+extern int *func_0013E7E0(int *a0);
+extern void iosOmBeforeFuncStandard(int *a0, int a1, int *a2);
+extern char D_0029F060[];
+
+int test_nextstage_firstwalk_set(int a0) {
+    int *node = isysGObjRemoveObjDL(a0);
+    if (node != 0) {
+        do {
+            int idx = node[3];
+            if (idx >= 0) {
+                char *e = D_0029F060 + idx * 0x64;
+                void (*fn)(int *);
+                if (*(int *)(e + 0x60) != 0) {
+                    iosOmBeforeFuncStandard(node, 0x2E, node);
+                }
+                fn = *(void (**)(int *))(e + 0x54);
+                if (fn != 0) {
+                    fn(node);
+                }
+            }
+            node = func_0013E7E0(node);
+        } while (node != 0);
+    }
+    return 1;
+}
 
 extern int D_0062C1B4, D_0062C1B8, D_0062C1BC;
 
