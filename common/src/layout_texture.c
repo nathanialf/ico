@@ -17,7 +17,40 @@ int display_texture_fade_cancel_chk(int a0) {
     return -1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", lt_analog2Pad);
+extern int InitStageLight(void);
+extern int lt_set_item_select_func(void);
+extern void kanbanBootMcCheck(int a0);
+extern void AdpcmFadeCloseAll(int a0);
+extern void initSceneGObj(int a0);
+extern int D_002715D0_a[] __asm__("D_002715D0");
+
+int lt_analog2Pad(int a0) {
+    int v;
+    if (a0 != 0) {
+        D_00271254[0] = 1;
+    }
+    if (InitStageLight() != 2) {
+        return -1;
+    }
+    v = D_002715D0_a[1];
+    if (v & 0x40) {
+        if (lt_set_item_select_func() != 0x108) {
+            v = D_002715D0_a[1];
+            if ((v & 0x810) == 0) {
+                return -1;
+            }
+        }
+    } else {
+        if ((v & 0x810) == 0) {
+            return -1;
+        }
+    }
+    kanbanBootMcCheck(0);
+    AdpcmFadeCloseAll(0);
+    initSceneGObj(0);
+    D_0062B30C = 0;
+    return 0x32;
+}
 
 extern int fightSoundClose(void);
 extern void StageManager(float a0, float a1, int a2);

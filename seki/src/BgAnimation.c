@@ -97,7 +97,14 @@ void bga_InitSdfCamera(int *a0, int a1, int a2) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_SetCamFrame);
+extern int D_00271240[];
+
+int bga_SetCamFrame(void *a0) {
+    int n = (0x3C - D_00271240[0] * 0xA) / D_00271240[1];
+    float f1 = *(float *)((char *)a0 + 0x18);
+    float f2 = *(float *)((char *)a0 + 0x20);
+    return (f1 * ((float)n / 30.0f) < f2) || (*(signed char *)((char *)a0 + 0xA) != 1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_CheckAnimationFinish);
 

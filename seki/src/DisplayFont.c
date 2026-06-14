@@ -9,9 +9,25 @@ int font_CheckAlign(void *a0) {
     return f1 * ((float)n / 30.0f) <= f2;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayFont", func_001F7578);
+extern int D_00271240[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayFont", font_Print);
+int func_001F7578(void *a0, int a1, int a2) {
+    int n = (0x3C - D_00271240[0] * 0xA) / D_00271240[1];
+    float f2 = *(float *)((char *)a0 + 8);
+    int cond = (float)a1 * ((float)n / 30.0f) <= f2;
+    if (cond && a2 != 0) {
+        *(int *)((char *)a0 + 0xC) = 0;
+    }
+    return cond;
+}
+
+extern int D_00271240[];
+
+int font_Print(void *a0, int a1, int a2) {
+    int n = 0x3C - D_00271240[0] * 0xA;
+    return (float)a1 * ((float)(n / D_00271240[1]) / 30.0f) <= *(float *)((char *)a0 + 8)
+        && *(float *)((char *)a0 + 8) < (float)a2 * ((float)(n / D_00271240[1]) / 30.0f);
+}
 
 extern int D_0062BAA0;
 extern int D_0062BAA4;

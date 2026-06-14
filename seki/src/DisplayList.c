@@ -57,7 +57,26 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayList", dl_CloseDma);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayList", dl_Out);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayList", dl_SetDLPriority);
+extern int D_0062BB00;
+extern int D_0070A830[];
+extern void debug_assertMessage();
+extern void func_001AAD00(char *file, int line);
+extern void func_00260380(char *file, int line, void *expr);
+extern char D_006136D8[];
+extern char D_00613698[];
+extern char D_0062D988[];
+
+void dl_SetDLPriority(void) {
+    if (D_0062BB00 > 0) {
+        int i = D_0062BB00 - 1;
+        D_0062BB00 = i;
+        D_0062C260 = D_0070A830[i];
+    } else {
+        debug_assertMessage(D_006136D8);
+        func_001AAD00(D_00613698, 0x220);
+        func_00260380(D_00613698, 0x220, D_0062D988);
+    }
+}
 
 extern int D_00613700[];
 extern void debug_assertMessage(int *a0, int a1);
@@ -73,7 +92,19 @@ void dl_OpenDma(void)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayList", dl_GetPri);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayList", func_001F8660);
+extern void iosMallocCheckLeak2(int a0);
+
+void func_001F8660(void) {
+    int i;
+    for (i = 0; i < 2; i++) {
+        int *p = (int *)((char *)D_0070A7C8 + i * 0x34);
+        int j;
+        for (j = 0xC; j >= 0; j--) {
+            iosMallocCheckLeak2(*p);
+            p++;
+        }
+    }
+}
 
 
 /* recovered struct shapes */
