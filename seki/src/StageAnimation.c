@@ -2,7 +2,25 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_MakeGObj);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_ApplyData);
+extern void func_001180A8(void *a0);
+extern void _PopCurrentMatrix(void *a0);
+extern void func_00118108(void);
+extern void _RotCurrentMatrixY(void);
+extern void _ClearTransCurrentMatrix(void *a0, void *a1);
+extern void _InverseCurrentMatrix(void *a0, void *a1, float a2);
+extern void func_001180C0(void);
+extern char *D_00629C70;
+
+void stage_ApplyData(void *a0) {
+    func_001180A8(a0);
+    _PopCurrentMatrix(D_00629C70 + 0x80);
+    func_00118108();
+    _RotCurrentMatrixY();
+    _ClearTransCurrentMatrix(a0, D_00629C70 + 0xB0);
+    _InverseCurrentMatrix(a0, a0, -1.0f);
+    *(float *)((char *)a0 + 0xC) = 1.0f;
+    func_001180C0();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_Init);
 
@@ -104,9 +122,37 @@ void func_0012AAB8(int key, int a1)
 /* parked: needs real matching. See tough_nuts/func_0012AB00/notes.md */
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", func_0012AB00);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", func_0012AB48);
+struct B8 { char _b[8]; };
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", func_0012ABB0);
+void func_0012AB48(int a0, void *a1) {
+    int i;
+    int one = 1;
+    char *e = D_0066DBD8;
+    for (i = 0; i < D_0062BF54; i++) {
+        if (a0 == *(int *)(*(char **)(e + 0x280) + 0x58)) {
+            *(struct B8 *)(*(char **)(*(char **)(e + 0x284) + 0x24) + 0x20) = *(struct B8 *)a1;
+            *(int *)(*(char **)(*(char **)(e + 0x284) + 0x24) + 0x28) = one;
+        }
+        e += 0x290;
+    }
+}
+
+extern char D_0066DBD8[];
+extern int D_0062BF54;
+
+typedef struct { char _b[8]; } Blob8;
+
+void func_0012ABB0(int a0, void *a1, int a2) {
+    int i;
+    char *e = D_0066DBD8;
+    for (i = 0; i < D_0062BF54; i++) {
+        if (a0 == *(int *)(*(char **)(e + 0x280) + 0x58)) {
+            *(Blob8 *)(*(char **)(*(char **)(e + 0x284) + 0x24) + 0x20) = *(Blob8 *)a1;
+            *(int *)(*(char **)(*(char **)(e + 0x284) + 0x24) + 0x28) = a2;
+        }
+        e += 0x290;
+    }
+}
 
 
 /* recovered struct shapes */

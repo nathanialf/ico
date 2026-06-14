@@ -42,7 +42,14 @@ void shadow_DispCancel(void) {
     D_0062A040 = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Shadow", shadow_SetLength);
+int shadow_SetLength(int a0) {
+    switch (a0) {
+    case 1: return 7;
+    case 2: return 8;
+    case 3: return 9;
+    }
+    return 7;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Shadow", shadow_Init);
 
@@ -56,7 +63,20 @@ void func_00123AA8(void) {
     debug_assertMessage(D_0054FCD0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Shadow", func_00123AC8);
+extern void mc_TransMicroCode(int a0, int a1);
+extern void _PopCurrentMatrix(void *a0);
+extern void func_00118108(void);
+extern void _ClearTransCurrentMatrix(void *a0, void *a1);
+extern void _SetCurrentMatrix(int a0, int a1);
+extern char *D_00629C70;
+
+void func_00123AC8(int a0, int a1) {
+    mc_TransMicroCode(a0, a1 + 0x820);
+    _PopCurrentMatrix(D_00629C70 + 0x80);
+    func_00118108();
+    _ClearTransCurrentMatrix((void *)a0, (void *)a0);
+    _SetCurrentMatrix(a0, a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Shadow", func_00123B18);
 

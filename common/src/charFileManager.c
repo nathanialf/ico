@@ -29,7 +29,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/charFileManager", ReadParticleEffe
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/charFileManager", ReadSoundBdFile);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/charFileManager", ReadSoundHdFile);
+extern int D_00271240[];
+extern int iosFree(int a0, char *q, const char *src, int code);
+extern void iosCdvdLoad(int *self, int p, char *q);
+extern void iosMallocCheckLeak2(int p);
+extern char D_0060B4E0[];
+extern int D_0062A310;
+extern void InitParticleEffects(int a0, int p, char *q);
+
+void ReadSoundHdFile(int *self, int unused, char *q, int a3) {
+    int p = iosFree(D_0062A310, q, D_0060B4E0, 0x21B);
+    D_00271240[8]++;
+    iosCdvdLoad(self, p, q);
+    InitParticleEffects(a3, p, q);
+    iosMallocCheckLeak2(p);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/charFileManager", ReadShockFile);
 

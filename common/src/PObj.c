@@ -29,7 +29,19 @@ int InitPObj(int a0) {
     return -1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", FreePObj);
+extern int D_0062BEA0;
+extern int D_0070C340[];
+extern void debug_assertMessage();
+extern char D_0062DD28[];
+
+void FreePObj(int a0) {
+    int i;
+    for (i = 0; i < D_0062BEA0; i++) {
+        if (a0 == D_0070C340[i]) {
+            debug_assertMessage(D_0062DD28, i);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023D170);
 
@@ -875,7 +887,18 @@ void func_002424F0(int *a0, int *a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00242550);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002426A8);
+void *func_002426A8(int a0, void *a1) {
+    void *n5;
+    void *n3;
+    for (n5 = *(void **)((char *)a1 + 0x28); n5 != 0; n5 = *(void **)((char *)n5 + 0x14)) {
+        for (n3 = *(void **)((char *)n5 + 0x8); n3 != 0; n3 = *(void **)((char *)n3 + 0x38)) {
+            if (*(int *)n3 == a0) {
+                return n3;
+            }
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002426F8);
 
@@ -930,7 +953,31 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00242C40);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00242D10);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00242DA8);
+extern int D_0070E240[];
+
+int func_00242DA8(int *a0) {
+    int *node;
+    func_00101A40(a0);
+    node = (int *)D_0070E240[0x28 / 4];
+    if (node == a0) {
+        D_0070E240[0x28 / 4] = a0[0x14 / 4];
+    } else if (node != 0) {
+        if (node[0x14 / 4] == (int)a0) {
+            node[0x14 / 4] = a0[0x14 / 4];
+        } else {
+            do {
+                node = (int *)node[0x14 / 4];
+                if (node == 0) {
+                    goto done;
+                }
+            } while (node[0x14 / 4] != (int)a0);
+            node[0x14 / 4] = a0[0x14 / 4];
+        }
+    }
+done:
+    func_00101A88();
+    return (int)node;
+}
 
 extern void func_00101A40(int *self);
 extern void func_00101A88(void);
@@ -2078,7 +2125,15 @@ int func_0024B308(int a0, int a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024B360);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024B430);
+int func_0024B430(void) {
+    int ret;
+    D_007115C0[0] = 0xC;
+    ret = func_00242978(D_00711280, 1, 0, D_007115C0, 0x80, D_007115C0, 0x80, 0, 0);
+    if (ret < 0) {
+        return 0;
+    }
+    return D_007115C0[3];
+}
 
 int func_0024B498(int a0) {
     int ret;
@@ -2091,9 +2146,26 @@ int func_0024B498(int a0) {
     return D_007115C0[3];
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024B500);
+int func_0024B500(void) {
+    int ret;
+    D_007115C0[0] = 0x12;
+    ret = func_00242978(D_00711280, 1, 0, D_007115C0, 0x80, D_007115C0, 0x80, 0, 0);
+    if (ret < 0) {
+        return 0;
+    }
+    return D_007115C0[3];
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024B568);
+int func_0024B568(int a0) {
+    int ret;
+    D_007115C0[0] = 0x14;
+    D_007115C0[1] = a0;
+    ret = func_00242978(D_00711280, 1, 0, D_007115C0, 0x80, D_007115C0, 0x80, 0, 0);
+    if (ret < 0) {
+        return 0;
+    }
+    return D_007115C0[2];
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024B5D0);
 
@@ -2194,7 +2266,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024D320);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024D418);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024D568);
+int func_0024D568(int *a0) {
+    func_00254898(a0, 0x38);
+    func_00254898(a0, 0x28);
+    while (func_002547E0(a0, 1) == 1) {
+        func_00254898(a0, 0x18);
+    }
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024D5D8);
 
@@ -2299,7 +2378,22 @@ void func_0024DFB8(int *a0) {
     func_0024E730();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024DFF8);
+extern int D_0054C780[];
+extern int D_0054C784[];
+extern int D_0054C78C[];
+extern int D_0054C790[];
+extern int D_0054C798[];
+extern int D_0054C79C[];
+
+int func_0024DFF8(void) {
+    if (D_0054C780[0] != 0) *(int *)(D_0054C780[0] + 0x28) = 0;
+    if (D_0054C78C[0] != 0) *(int *)(D_0054C78C[0] + 0x28) = 0;
+    if (D_0054C798[0] != 0) *(int *)(D_0054C798[0] + 0x28) = 0;
+    if (D_0054C784[0] != 0) *(int *)(D_0054C784[0] + 0x28) = 0;
+    if (D_0054C790[0] != 0) *(int *)(D_0054C790[0] + 0x28) = 0;
+    if (D_0054C79C[0] != 0) *(int *)(D_0054C79C[0] + 0x28) = 0;
+    return 1;
+}
 
 int func_0024E060(void *a0, int a1, int a2, int a3) {
     char *p = *(char **)((char *)a0 + 0x40);
@@ -2386,7 +2480,21 @@ void func_0024E1D0(int *a0) {
     a0[2] = a0[3];
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024E1E0);
+extern void func_0024E920(void *a0);
+extern int D_00628E28[];
+
+int func_0024E1E0(unsigned int *a0, int a1, unsigned int a2) {
+    unsigned int rounded;
+    unsigned int total;
+    rounded = ((a0[2] + a2 - 1) / a2) * a2;
+    total = rounded + a1;
+    if (a0[0] + a0[1] >= total) {
+        a0[2] = total;
+        return rounded;
+    }
+    func_0024E920(D_00628E28);
+    return 0;
+}
 
 int func_0024E248(int *a0) {
     return a0[0] + a0[1] - a0[2];
@@ -2759,9 +2867,21 @@ int func_00254988(int *a0, int a1) {
     return v;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002549B8);
+void func_002549B8(int *a0) {
+    func_00101A40(a0);
+    *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 | 0x10000;
+    *(volatile int *)0x1000B000 = (int)a0;
+    *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 & 0xFFFEFFFF;
+    func_00101A88();
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00254A20);
+void func_00254A20(int *a0) {
+    func_00101A40(a0);
+    *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 | 0x10000;
+    *(volatile int *)0x1000B400 = (int)a0;
+    *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 & 0xFFFEFFFF;
+    func_00101A88();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00254A88);
 
@@ -2769,7 +2889,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00254B70);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00254CC0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00254D28);
+void func_00254D28(int *a0) {
+    func_00101A40(a0);
+    *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 | 0x10000;
+    *(volatile int *)0x1000B400 = (int)a0;
+    *(volatile int *)0x1000F590 = *(volatile int *)0x1000F520 & 0xFFFEFFFF;
+    func_00101A88();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00254D90);
 
@@ -3028,7 +3154,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00258A68);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00258AF8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00258B88);
+extern int func_00258BF8(int *a0, int a1);
+
+int func_00258B88(int a0, int *a1, int a2) {
+    int r;
+    r = func_00258BF8(a1, a2);
+    if (r != -1) {
+        func_00258A10(a0, (void *)a2, (void *)a1[1]);
+    }
+    return r;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00258BF8);
 
@@ -3036,7 +3171,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00258CF0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00258E50);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00258FB8);
+int func_00258FB8(int a0) {
+    volatile int *p;
+    int ret = -1;
+    if ((unsigned int)a0 < 0x30) {
+        p = (volatile int *)func_00254FE0(a0);
+        p[0] |= 0x2000;
+        if ((p[0] & 3) == 1) {
+            func_00260568((char *)p + 4, 0, 0x50);
+            p[0] = 0;
+            ret = 0;
+        }
+        p[0] &= 0xFFFFDFFF;
+    }
+    return ret;
+}
 
 void func_00259040(int a0, int a1) {
     func_00255580(0x14, a0, a1, 0);
@@ -3076,7 +3225,19 @@ void func_00259208(int a0, int a1, int a2) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00259220);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002592C8);
+int func_002592C8(int a0, int a1) {
+    int ret = -1;
+    if ((unsigned int)(a0 - 1) < 0x7F && a1 >= 0) {
+        if (a1 < 0x80) {
+            int *p = (int *)func_00255008(a0);
+            if (p[2] != 0) {
+                ret = func_00255038(a0) & 0x7F;
+                func_00255020(a0, a1 | 0x80);
+            }
+        }
+    }
+    return ret;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00259350);
 
@@ -3093,7 +3254,22 @@ int func_00259710(unsigned int a0) {
     return ret;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00259740);
+int func_00259740(int a0) {
+    volatile int *p;
+    int ret = -1;
+    if ((unsigned int)a0 < 0x30) {
+        p = (volatile int *)func_00254FE0(a0);
+        p[0] |= 0x2000;
+        if (p[0] & 1) {
+            ret = (p[0] >> 1) & 1;
+            if (p[0] & 0x20) {
+                ret |= 2;
+            }
+        }
+        p[0] &= 0xFFFFDFFF;
+    }
+    return ret;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002597C8);
 
@@ -3197,7 +3373,16 @@ int func_0025A2E0(unsigned long long a0)
     return ret;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025A340);
+extern int func_00255070(void);
+
+int func_0025A340(int a0) {
+    int ret = 0;
+    if ((unsigned int)a0 < 0x30) {
+        int base = func_00255070();
+        ret = *(int *)(base + (a0 % 0x18) * 4 + (a0 / 0x18) * 0x60 + 0xC0);
+    }
+    return ret;
+}
 
 void func_0025A3B0(void) {
     func_00255580(0x46, 0, 0, 0);
@@ -3400,7 +3585,13 @@ void func_0025EEB8(long a0, long a1) {
     func_0025EAA8(func_0025EC78(&x, &y, &z));
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025EF10);
+void func_0025EF10(long a0, long a1) {
+    struct { int a, b, c, pad; long long d; } x, y, z;
+    func_0025EBD8(&a0, &x);
+    func_0025EBD8(&a1, &y);
+    y.b ^= 1;
+    func_0025EAA8(func_0025EC78(&x, &y, &z));
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025EF78);
 
@@ -3757,7 +3948,24 @@ void func_002667C8(char *a0, short a1, short a2, int a3) {
     *(int *)(a0 + 0x0) = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00266820);
+extern void *func_002678D8(void *a0, int a1);
+
+void *func_00266820(void *a0, int a1) {
+    int sz;
+    char *p;
+    char *body;
+    sz = a1 * 0x58;
+    p = (char *)func_002678D8(a0, sz + 0xC);
+    if (p == 0) {
+        return 0;
+    }
+    body = p + 0xC;
+    *(int *)(p + 0x4) = a1;
+    *(int *)(p + 0x0) = 0;
+    *(int *)(p + 0x8) = (int)body;
+    func_00260568(body, 0, sz);
+    return p;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00266890);
 
@@ -3772,7 +3980,19 @@ void func_00266980(void) {
     func_00266970(D_0054D504[0]);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00266990);
+extern void func_00266970(int a0);
+
+void func_00266990(char *a0) {
+    char *p = a0 + 0x1E4;
+    *(void **)(a0 + 0x3C) = (void *)func_00266970;
+    *(int *)(a0 + 0x38) = 1;
+    func_002667C8(p, 4, 0, (int)a0);
+    func_002667C8(a0 + 0x23C, 9, 1, (int)a0);
+    func_002667C8(a0 + 0x294, 0xA, 2, (int)a0);
+    *(char **)(a0 + 0x1E0) = p;
+    *(int *)(a0 + 0x1DC) = 3;
+    *(int *)(a0 + 0x1D8) = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00266A20);
 
@@ -3862,7 +4082,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00268358);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00268470);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002685B8);
+int func_002685B8(unsigned int a0) {
+    int n = 0;
+    if ((a0 & 0xFFFF0000) == 0) { n = 16; a0 <<= 16; }
+    if ((a0 & 0xFF000000) == 0) { n += 8; a0 <<= 8; }
+    if ((a0 & 0xF0000000) == 0) { n += 4; a0 <<= 4; }
+    if ((a0 & 0xC0000000) == 0) { n += 2; a0 <<= 2; }
+    if ((int)a0 >= 0) {
+        n += 1;
+        if ((a0 & 0x40000000) == 0) {
+            return 0x20;
+        }
+    }
+    return n;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00268640);
 
@@ -3921,7 +4154,21 @@ int func_00269480(long long x)
     do { return ((unsigned int)hx) >> 31; } while (0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002694B8);
+extern int D_0062E170[];
+extern unsigned int func_00241AC8(int a0);
+
+int func_002694B8(int *self, int a1)
+{
+    unsigned int ret;
+    D_0062E170[0] = 0;
+    ret = func_00241AC8(a1);
+    if (ret == 0xFFFFFFFF) {
+        if (D_0062E170[0] != 0) {
+            self[0] = D_0062E170[0];
+        }
+    }
+    return ret;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00269518);
 

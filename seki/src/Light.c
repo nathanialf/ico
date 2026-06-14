@@ -31,7 +31,24 @@ void light_DispVolume(float a0, float a1) {
     D_00629EC8 = a1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", light_GetColorAnalog);
+extern int func_0023EB60(int a0, int a1);
+extern void debug_assertMessage();
+extern void gsb_SetBGColor(void);
+extern int D_00629F18;
+extern char D_0054EB30[];
+
+int light_GetColorAnalog(void) {
+    if (func_0023EB60(1, 0)) {
+        if (++D_00629F18 >= 0xB) {
+            debug_assertMessage(D_0054EB30);
+            gsb_SetBGColor();
+            D_00629F18 = 0;
+        }
+        return 1;
+    }
+    D_00629F18 = 0;
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", light_DrawCursor);
 

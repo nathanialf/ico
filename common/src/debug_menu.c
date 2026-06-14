@@ -15,7 +15,12 @@ void debug_TargetGObj_Func(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7350);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7420);
+float func_001A7420(void) {
+    if ((*(volatile int *)0x10000810) & 0x800) {
+        return -1.0f;
+    }
+    return (float)(*(volatile unsigned int *)0x10000800);
+}
 
 typedef struct { char pad0[4]; char f4; char pad5[0x33]; } Entry;
 extern Entry D_006EB120[];

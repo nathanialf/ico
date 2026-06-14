@@ -56,7 +56,28 @@ int la_vibe_select(void)
     return -1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_title_continue_or_new);
+extern void stgmgrForceSwitchWithFade(int a0);
+extern void iosPadDisable(void);
+extern void func_0013E828(int a0, int a1);
+extern void func_00178E08(int a0);
+extern int D_00629D00;
+extern int D_0062C18C;
+extern int D_00271254[];
+
+int la_title_continue_or_new(int a0) {
+    if (a0 != 0) {
+        stgmgrForceSwitchWithFade(0);
+        D_0062C18C = D_00629D00;
+        D_00271254[0] = 1;
+        iosPadDisable();
+        func_0013E828(0, 0);
+        func_00178E08(0x160);
+        if (D_0062B31C == 0) {
+            D_0062B31C = 1;
+        }
+    }
+    return -1;
+}
 
 int la_title_new_game_only(void) {
     return -1;

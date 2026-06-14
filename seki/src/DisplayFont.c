@@ -1,6 +1,13 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayFont", font_CheckAlign);
+extern int D_00271240[];
+
+int font_CheckAlign(void *a0) {
+    int n = (0x3C - D_00271240[0] * 0xA) / D_00271240[1];
+    float f1 = (float)*(int *)((char *)a0 + 4);
+    float f2 = *(float *)((char *)a0 + 8);
+    return f1 * ((float)n / 30.0f) <= f2;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayFont", func_001F7578);
 

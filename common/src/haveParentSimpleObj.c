@@ -211,7 +211,25 @@ int *func_001AB9B8(int a0, int a1, int a2, int a3)
     return p;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AB9F8);
+extern int D_00629C90;
+extern char D_0029F060[];
+extern int *func_001AB470(int a0, int a3);
+
+int *func_001AB9F8(int a0) {
+    int *p;
+    void (*fn)(int *, int);
+    char *elem;
+    int idx;
+
+    p = func_001AB470(a0, D_00629C90);
+    idx = *(int *)((char *)a0 + 0xC);
+    elem = D_0029F060 + idx * 0x64;
+    fn = *(void (**)(int *, int))(elem + 0x3C);
+    if (fn != 0) {
+        fn(p + 12, a0);
+    }
+    return p;
+}
 
 
 /* recovered struct shapes */

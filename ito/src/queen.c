@@ -27,7 +27,38 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", queenBeforeFunc);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", func_00197DE0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", func_00197EE0);
+extern void *D_0062A310;
+extern char D_00556850[];
+extern char D_006CDC10[];
+extern char D_00287380[], D_00288A10[], D_00287E80[];
+extern void *iosFree(void *a0, int a1, char *a2, int a3);
+extern int func_00260568(void *a0, int a1, int a2);
+extern int DispCloth4D(void *a0, void *a1, void *a2);
+extern void func_001E1A18(void *a0, int a1, int a2, int a3, int a4, int a5);
+extern void func_001D1ED8(void *a0, int a1);
+extern void actInitialize(void *a0);
+extern void actInitialize_ext_charcter(void *a0);
+
+void *func_00197EE0(void *self) {
+    int *p = *(int **)((char *)self + 0x15C);
+    void *r = iosFree(D_0062A310, 0x18, D_00556850, 0x2C5);
+    int i;
+    int t;
+    func_00260568(r, 0, 0x18);
+    for (i = 3; i >= 0; i--) {
+        ((int *)D_006CDC10)[i] = 0;
+    }
+    *(int *)((char *)r + 0xC) = 1;
+    *(int *)((char *)r + 0x10) = DispCloth4D(self, D_00287380, D_00288A10);
+    t = DispCloth4D(self, D_00287E80, 0);
+    *(void **)((char *)p + 0x7F0) = r;
+    *(int *)((char *)r + 0x14) = t;
+    func_001E1A18(self, 0x820, 0x82E, 0xC, 0x18, 0x3F5);
+    func_001D1ED8(self, 2);
+    actInitialize(self);
+    actInitialize_ext_charcter(self);
+    return r;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", subQueenBrainMain);
 

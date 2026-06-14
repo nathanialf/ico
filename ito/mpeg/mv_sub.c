@@ -20,7 +20,34 @@ void copy2area(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_00239E18);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_00239FC0);
+extern void debug_assertMessage();
+extern char D_00614F70[], D_00614FA8[], D_006150E8[];
+
+void func_00239FC0(void *self, int a1) {
+    char *s = (char *)self;
+    if (*(int *)s == 0) {
+        int v2C = *(int *)(s + 0x2C);
+        unsigned int space = (unsigned int)(0x28 - v2C);
+        int take = (space < (unsigned int)a1) ? (int)space : a1;
+        int nv = v2C + take;
+        *(int *)(s + 0x2C) = nv;
+        if ((unsigned int)nv >= 0x28) {
+            *(int *)s = 1;
+            debug_assertMessage(D_00614F70);
+            debug_assertMessage(D_00614FA8, s[4], s[5], s[6], s[7],
+                                *(int *)(s + 0x8), *(int *)(s + 0xC), *(int *)(s + 0x10),
+                                *(int *)(s + 0x14), *(int *)(s + 0x18), *(int *)(s + 0x1C), *(int *)(s + 0x20));
+            debug_assertMessage(D_006150E8, s[0x24], s[0x25], s[0x26], s[0x27], *(int *)(s + 0x28));
+        }
+        a1 -= take;
+    }
+    {
+        int m = (*(int *)(s + 0x34) + a1) % *(int *)(s + 0x3C);
+        *(int *)(s + 0x38) += a1;
+        *(int *)(s + 0x40) += a1;
+        *(int *)(s + 0x34) = m;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_0023A0E0);
 

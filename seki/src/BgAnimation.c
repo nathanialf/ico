@@ -65,7 +65,23 @@ int bga_ResetCamera(void *p)
     return v != 0 && D_0062BAA0 == 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_GetCameraMatrix);
+extern int func_00261748(void *a0, void *a1, int a2);
+extern void debug_assertMessage();
+extern void func_001AAD00(char *file, int line);
+extern void func_00260380(char *file, int line, void *expr);
+extern char D_0062D938[];
+extern char D_0062D930[];
+extern char D_006133E0[];
+extern char D_00613428[];
+
+void *bga_GetCameraMatrix(void *a0) {
+    if (func_00261748(a0, D_0062D938, 3) != 0) {
+        debug_assertMessage(D_00613428);
+        func_001AAD00(D_006133E0, 0x383);
+        func_00260380(D_006133E0, 0x383, D_0062D930);
+    }
+    return a0;
+}
 
 extern int D_00629CF0;
 extern int D_0062C254;
