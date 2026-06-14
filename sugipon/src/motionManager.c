@@ -14,13 +14,85 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", checkWallSideStat
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", checkWallState);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", checkCliffState);
+extern void func_00118AA0(int a0);
+extern int func_00105078(void);
+extern float func_00166A48(int a0, int a1);
+extern void func_00105108(float, float, float);
+extern void func_0010E300(char *p);
+extern int func_00104D20(void);
+extern void checkWallState(void);
+extern void func_00105068(void);
+extern void clearCollisionStatus(void);
+extern int D_0062C230;
+extern int D_0062C234;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", _checkCliffAndWall);
+void checkCliffState(void)
+{
+    func_00118AA0(func_00105078());
+    {
+        register float *p = (float *)D_0062C230;
+        float r = func_00166A48(D_0062C230 + 0x120, D_0062C230);
+        func_00105108(p[0], r, *(float *)(D_0062C230 + 8));
+    }
+    func_0010E300((char *)D_0062C230 + 0x30);
+    func_00104D20();
+    checkWallState();
+    func_00105068();
+    if (*(int *)(D_0062C234 + 0xE4) != 0) {
+        func_00104D20();
+        clearCollisionStatus();
+        func_00105068();
+    }
+}
+
+extern int D_0062C230;
+extern int func_00105078(void);
+extern void func_00105108(float, float, float);
+extern void func_0010E300(char *p);
+extern void func_00118AA0(int a0);
+extern void checkWallState(void);
+
+void _checkCliffAndWall(void)
+{
+    func_00118AA0(func_00105078());
+    {
+        register float *p = (float *)D_0062C230;
+        func_00105108(p[0], p[1] + p[112] + 10.0f, p[2]);
+    }
+    func_0010E300((char *)D_0062C230 + 0x30);
+    checkWallState();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", checkCliffAndWallStateOfLastPlane);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", checkCliffAndWallStateAtJump);
+extern void gif_SpriteOffset();
+extern void gsb_SetFrame();
+extern int func_00104D20(void);
+extern int func_00105078(void);
+extern void f2400F8(int) __asm__("func_002400F8");
+extern void func_00105108(float, float, float);
+extern void func_00104EB0(float, float, float);
+extern void InitMotionMemorySize(int);
+extern void func_00105068(void);
+extern void func_0010F9D0();
+extern int D_0062C230;
+
+void checkCliffAndWallStateAtJump(void)
+{
+    register float *p;
+    int v;
+    gif_SpriteOffset(0xB);
+    gsb_SetFrame(1, 5, 0x80);
+    func_00104D20();
+    v = func_00105078();
+    f2400F8(v);
+    p = (float *)D_0062C230;
+    func_00105108(p[104], p[105], p[106]);
+    func_00104EB0(8.0f, 8.0f, 8.0f);
+    InitMotionMemorySize(0xFF);
+    func_00105068();
+    func_0010F9D0();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", dispActNode);
 

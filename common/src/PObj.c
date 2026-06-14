@@ -5263,7 +5263,18 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00257190);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00257220);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002572F0);
+extern void *func_00254FF8(void);
+
+void func_002572F0(int *a0) {
+    unsigned char *p = (unsigned char *)(a0[2] + a0[1]);
+    void *q = func_00254FF8();
+    *(unsigned short *)((char *)a0 + 0x1E) = p[2] | (p[3] << 8);
+    *(int *)((char *)a0 + 0x10) =
+        ((((int)*(unsigned short *)((char *)a0 + 0x20)
+           * *(unsigned short *)((char *)a0 + 0x1E)) << 12)
+         / *(unsigned short *)((char *)q + 0x3A)) / 0x3C;
+    a0[1] += 4;
+}
 
 void func_00257380(int *a0)
 {
@@ -5492,7 +5503,27 @@ void func_00259208(int a0, int a1, int a2) {
     func_00255580(0x28, a0, a1, a2);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00259220);
+extern void *func_00254FE0(int a0);
+
+int func_00259220(unsigned int a0, int a1, int a2) {
+    int ret = -1;
+    if (a0 < 0x30 && a1 >= 0 && a1 < 0x80) {
+        int *p = (int *)func_00254FE0(a0);
+        *(volatile int *)p |= 0x2000;
+        if (a2 == 0xFFFF) {
+            ret = p[0x34 / 4];
+            p[0x30 / 4] = a2;
+            p[0x34 / 4] = a1;
+        } else {
+            p[0x38 / 4] = a2;
+            ret = 0;
+            p[0x3C / 4] = a1;
+        }
+        *(volatile int *)p |= 0x200;
+        *(volatile int *)p &= 0xFFFFDFFF;
+    }
+    return ret;
+}
 
 int func_002592C8(int a0, int a1) {
     int ret = -1;
@@ -5512,7 +5543,22 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00259350);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002593F8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00259668);
+extern void *func_00254FE0(int a0);
+extern void *func_00254FF8(void);
+
+void func_00259668(unsigned int a0, int a1) {
+    if (a0 < 0x30 && a1 >= 0 && a1 < 0x3C0) {
+        int *p = (int *)func_00254FE0(a0);
+        void *q = func_00254FF8();
+        *(short *)((char *)p + 0x1E) = a1;
+        *(volatile int *)p |= 0x2000;
+        *(int *)((char *)p + 0x10) =
+            ((((int)*(unsigned short *)((char *)p + 0x20)
+               * *(unsigned short *)((char *)p + 0x1E)) << 12)
+             / *(unsigned short *)((char *)q + 0x3A)) / 0x3C;
+        *(volatile int *)p &= 0xFFFFDFFF;
+    }
+}
 
 int func_00259710(unsigned int a0) {
     int ret = -1;
@@ -5564,7 +5610,20 @@ void func_00259CB0(int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00259D58);
+extern void *func_00254FE0(int a0);
+
+void func_00259D58(unsigned int a0, int a1, int a2) {
+    if (a0 < 0x30 &&
+        a1 >= -0x1000 && a1 < 0x1001 &&
+        a2 >= -0x1000 && a2 < 0x1001) {
+        int *p = (int *)func_00254FE0(a0);
+        p[0x44 / 4] = a1;
+        p[0x48 / 4] = a2;
+        *(volatile int *)p |= 0x2000;
+        *(volatile int *)p |= 0x800;
+        *(volatile int *)p &= 0xFFFFDFFF;
+    }
+}
 
 void func_00259DF8(unsigned int a0, int a1) {
     volatile int *p;

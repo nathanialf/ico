@@ -103,7 +103,28 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", InitMotionO
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", GetCurrentMotionDirectionAdjustFlag);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", ExecuteSlipProc);
+typedef struct { int f_0; int f_4; char pad[0x10]; } Slip;
+extern Slip D_0028E680[];
+
+void *ExecuteSlipProc(int i, int limit, int a2, int a3)
+{
+    int found = -1;
+    while (i < limit) {
+        if (D_0028E680[i].f_4 == a3) {
+            if (D_0028E680[i].f_0 == a2) {
+                return &D_0028E680[i];
+            }
+            if (D_0028E680[i].f_0 == 0x43F) {
+                found = i;
+            }
+        }
+        i++;
+    }
+    if (found != -1) {
+        return &D_0028E680[found];
+    }
+    return (void *)0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", ExecutePauseSlipProc);
 

@@ -31,9 +31,36 @@ void HoldItem(void *self, int arg)
     CylinderCollision(self, p + 0x20);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/item", avoidInsideOfWall);
+extern void MatrixDrive_TurnObjectMatrix(int a0, int a1);
+extern void GetMatrixFromQuaternion(int a0);
+extern char D_004C0830[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/item", ReleaseItem);
+void avoidInsideOfWall(char *a0)
+{
+    int *q = *(int **)(*(char **)(a0 + 0x15C) + 0x7F0);
+    HoldItem(a0, q[5]);
+    q[2] = 1;
+    q[3] = 0;
+    q[5] = 0;
+    q[4] = 0;
+    *(int *)(*(int *)(a0 + 0x15C) + 0x74) = 1;
+    MatrixDrive_TurnObjectMatrix(*(int *)(a0 + 0x15C) + 0x120, (int)D_004C0830);
+    GetMatrixFromQuaternion(*(int *)(a0 + 0x15C) + 0x140);
+}
+
+extern void MatrixDrive_TurnObjectMatrix(int a0, int a1);
+extern void GetMatrixFromQuaternion(int a0);
+
+void ReleaseItem(char *a0, int a1)
+{
+    int *q = *(int **)(*(char **)(a0 + 0x15C) + 0x7F0);
+    HoldItem(a0, q[5]);
+    q[3] = 0;
+    q[2] = 1;
+    q[4] = 1;
+    MatrixDrive_TurnObjectMatrix(*(int *)(a0 + 0x15C) + 0x120, a1);
+    GetMatrixFromQuaternion(*(int *)(a0 + 0x15C) + 0x140);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/item", ThrowItem);
 

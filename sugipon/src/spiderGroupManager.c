@@ -12,7 +12,23 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", InitSpiderGr
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", EntryRevivedSpiderGroupManager);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", DispAllSpiderGroups);
+extern void iosOmBeforeFuncStandard();
+
+void DispAllSpiderGroups(char *a0) {
+    char *sub = *(char **)(*(char **)(a0 + 0x15C) + 0x7F0);
+    int n = *(int *)(sub + 0x20);
+    int i = 0;
+    if (n > 0) {
+        do {
+            int elem = *(int *)(*(int *)(sub + 0x24) + i * 4);
+            if (elem != 0) {
+                iosOmBeforeFuncStandard(elem, 0x20, elem);
+                n = *(int *)(sub + 0x20);
+            }
+            i++;
+        } while (i < n);
+    }
+}
 
 extern void iosOmBeforeFuncStandard();
 

@@ -15,3 +15,119 @@ func_00241A10       # rc15 init-once guard + tail; func_00242078 void-decl needs
 func_001AAC60       # rc7 callback loop; gcc reverses up-count to bgez countdown, walking-ptr+index both fail
 stgmgrForceSwitch   # rcNA SIGNATURE CONFLICT: existing 4-int decl+caller cannot take the float params asm reads; needs out-of-region decl fix
 ResetGObjProc       # rcNA 64-bit bitfield-pack of 7 args; deep-pass/permuter class
+ReadModelFile       # rc16 struct-fill matches; end-ptr is base+size-reg vs absolute %hi/%lo fold (far_global addr-form)
+func_00241838       # rc10 align+zfill: end+1+mask reassoc + loop rotation (b-into-check); both insns present
+func_00241990       # rc15 logic exact; callee-save s0/s1 swap (a1 vs D_0054AA90 base); regalloc-tiebreak class
+func_00257190       # rc21 logic+clamp exact; a0/a1 s0/s1 swap + byte-read schedule
+ReadVolumeModelFile # rc99 scan-class bnel reorg + far-global end-ptr addr-form; deep pass only
+staffRollScroll     # rc2 rc2: lone gp-rel load scheduled one slot off; movz/bnel/const-reuse all match
+func_0024CD88       # rc35 use f8>A (sltu A<f8 + bnel) not f8<A; B=0xFF00000000 in beq; corrected seed in notes
+func_00258A68       # rc15 packing logic exact; sched order of srl/sll/or + field48 reload position
+ExecStreamMotionManager# rc11 needs per-store reload of *(a0+0x15C) (gcc CSEs to 1 load; ROM reloads each); +v1/a1 regalloc swap on idx*0x18 base; keep +0x10 in sw disp not folded into %lo addiu
+GetMotionFrameFlag2 # rc6 loop body MATCHES; residual=prologue sched only (ROM: sd ra; sd s1; blez a1(raw arg); sd s0; daddu s0; daddu s1). Built copies a1->s1 + sd ra before blez. split-temp i=n got rc7->6. seed=/tmp do-while *p=0;GetMatrixFromQuaternion(p+0x10);p+=0x20;while(--i)
+func_001B46B8       # rc30 logic exact; mult result reg (a1 vs a0) + D_0062B40C store deferral into branch delay
+CheckFloorAttribute # rc4 rc4 branch-form tiebreak; nested-if while seed in /tmp
+la_mc_load_file_select# rc3 logic exact; D_00700700 %hi/%lo addiu sched (split after sll)
+func_0025F8B0       # rc13 float-classify; logic structured, sched/regalloc residual
+func_001EE7E0       # rc11 dead-looking addu v+0xFFFF (DCE'd); iosFree+func_002610F0 alloc/init returning short* buf
+func_0023EAC8       # rc13 GS-csr classify; structure ok, sched/canon residual
+ExecKeyInput        # rc14 3-elem clamp loop, bc1fl on upper bound; a1++ in branch-likely delay; do-while --i>=0 seed in /tmp
+func_002601B0       # rc22 soft float->int via func_0025F8B0; stack layout/branch struct residual
+func_0025D838       # rc6 i64->double swfloat; const 65536 not kept in s1 (gcc remats vs ROM CSE)
+func_00242BA8       # rc11 locked list-append; logic ok, walk-loop branch-form/sched residual
+GetTableArcSin      # rc17 two stack bufs (vec sp+0, mat sp+0x10); gcc caches mat addr in extra callee-saved s2, ROM remats addiu sp,16. pointer-reuse-forces-remat class. sibling=GetTableArcCos/func_0010E088
+func_00242D10       # rc13 locked list-remove; logic ok, loop rotation/beql residual
+actAttackCheckBoundaryStart# rc22 list-walk: g=*(*(a0+0x15C)+0x7F0); 8-byte elems at g[3]; copy eg->4 into elem.val, zero eg->4, entry->0x16C=1; count g[0] reloaded each iter; tail g8=g4;g4=0
+func_00269588       # rc9 table-set ret old; -1 wants lui+ori (unsigned) but decl forces int return; +beql
+func_001B4628       # rc33 decrement sibling of func_001B46B8 (rc30); same mult-reg + D_0062B40C store-defer root
+func_001E19A8       # rc9 s=*(a0+0x15C)+0x460 kept(0xD0/0x24/0x28/0x44); separate reload p for 0x18/0x20/0x1C; bnel delay=s->0x24=a3; save/restore 0xD0 around getStreamMotion. int-typed reload didnt force it; seed in /tmp
+func_001AB1B0       # rc21 3x func_001AB750 + bit1 save/restore on D_004AF010+0x40; dsll31/dsra32 extract canon residual
+DeleteParticleEffectsByPackage# rc15 SetParticleEffectUpperLimit->idx; D_007030C0[idx] stride0x18 stores 0x10=a2,0x8=1,0xC=a1; try sibling -(-(idx*0x18)) mult idiom from ResetParticleEffectPackages
+setParticleEffectGeometry# rc12 e=a0+a1*0x50(mult); e->0x40=-1; md_turn(e+0x10,a2); md_turn(e+0x20,&D_00271BD0); GetInverseQuaternion(e+0x30,&D_002724B0); e->0=0. md_turn aliased __asm__. seed /tmp
+func_0024BC30       # rc6 2x byte-copy from uncached p=a0|0x20000000; src wants %lo(D_20000010)/%lo(D_20000050) scratchpad-symbol reloc vs literal +0x10/+0x50; logic exact
+func_00254800       # rc19 bitstream refill (64-bit accum); logic plausible, loop sched/field10 handling residual
+func_00268DD8       # rc99 fdlibm-class double bit-manip (exp mask 0x7FF00000, denormal/ulp); multi-branch, deep-pass
+func_002673A8       # rc12 nested list-walk + cb, OR result (int via asm-alias, decl void); loop branch-likely/counter residual
+InitWeaponGeo       # rc3 rc3: func_001EF378(base[0]); do-while func_001EE9A8(base[i]); base=g[21],count=g[20] reread. residual=first early-return makes separate epilogue (built v1, target+0x68) vs shared+i=0-in-delay. i=0-at-top made it WORSE(15); keep i=0 after 2nd check
+func_0025EBD8       # rc19 double-classify (sibling of func_0025F8B0 rc13); bnel + sched residual
+initializeQueenzSword# rc3 byte-identical twin of InitWeaponGeo; same rc3 epilogue-sharing residual; same seed in /tmp
+ReadSoundSqFile     # rc30 call-seq loader; iosFree/iosCdvdLoad/func_002604B8/light_AddAmbientObject + tail iosCdvdMgrSearchFile(0); 30 (callee arg/tail sig?)
+func_00248868       # rc7 guarded 3x func_00100520 init (sibling func_00243098 idiom); residual=store-defer into jal delay + D_0054ABF0 %hi reg (a0 vs v0)
+func_0024DB60       # rc7 HW-reg RMW + lock + tail func_00254D90; residual=final 2 stores split across ld ra (epilogue sched)
+gamesysObjInfoBaseSet# rc32 multi-call + flag-cond adjust (movn ternary); structure/sched residual
+func_001A7658       # rc99 VU0 (ctc2/vlqi/sqc2) VU0-mem dump to debug_assertMessage varargs; VU0-class deep-pass
+func_001A7700       # rc99 VU0 sibling of func_001A7658; VU0-mem dump to debug_assertMessage; deep-pass
+func_0024F220       # rc32 func_00252870 call-seq storing to D_0054C8xx; %hi reg reuse/sched across calls residual
+func_0024A498       # rc99 init: scattered-field zero loop (stride 0x1C, 6 fields) + 9-arg func_00242978 + bgezl ret; complex, deep-pass
+calcFootIK          # rc2 rc2: only p-load(lw v0,348) vs D_0062BF10=a1 store order swapped (sched tiebreak, independent load/store). int-typed p made WORSE(4). orig ptr-version best; seed /tmp w/ int*p
+InitQuaternionDrive # rc12 bgez idx<0 assert+SetIdentity+reload; idx++; store; if>=0x40 assert+clamp0x3F; reload; tail GetInverseQuaternion(&D_0065A5C0[idx*4],[idx*4-4]). seed /tmp
+func_00253950       # rc3 bounds-check flag + 2 calls; logic exact; residual=xori in b-to-merge delay slot (branch layout)
+gamesysGirlStageGet # rc99 scratchpad-symbol overlay (D_004AEB70|0x20000000 + %lo(D_200000xx)) like func_0024BC30 + movn; deep-pass
+func_002426F8       # rc31 struct-build copy fields + cond r-deref + tail func_00248290; bnel field24-store + sched residual
+WeaponDL            # rc4 rc4: ROM copies a2->a1 reg (daddu a1,a2) + tests beq a1; -1/1 const materialized reverse order. regalloc/const tiebreaks. seed /tmp (WeaponDL(char*a0,void*a1,int a2); r=p+0xA0)
+func_00241790       # rc99 GIF-tag buffer builder: divu+div0-check, movn/movz, dsrl32 bit-extract, tail zero-fill; complex deep-pass
+func_00245080       # rc19 dispatcher (func_002430F8/func_00244938 + D_0054AB28 lock + D_0070F380 index); %hi-reg reload sched residual
+actAP1Start         # rc5 rc5 AP1BeforeFunc-style (if(q8<6){if(q8>=2)return 0;} SetAP1DeadStatus(a0); reload p/q; func_00118A70(p+0x120,q+0x230,a2); return 1). ROM uses flag-merge $2; &&-rewrite WORSE(26). seed /tmp
+func_00260240       # rc99 float->int sibling of func_002601B0 (rc22); func_0025F8B0 classify+class-switch+bnel/stack-layout; deep-pass
+MatrixDrive_TransMatrix# rc22 neg-vec buf {-src->0x30,-0x34,-0x38,0} built at sp+0x10 then ld/sd COPIED to sp+0 (two-buffer struct copy); func_0023FED0(dst,src); dst->0xC/0x2C/0x1C=0; func_0023FDD8(dst+0x30,dst,buf); dst->0x3C=1.0. need 2-buf copy shape
+func_00261BA8       # rc99 string-search/tokenizer, multiple bnel/beql reorg loops; scan-class skip
+hitProc             # rc3 rc3 AP1BeforeFunc-style: if(q8<6){if(q8>=2)return 0;} process(func_00102820(buf,a0);func_0010E4E8(buf,(short)a1);GetSlerpQuaternionNoRegularize(buf);func_00102840(a0,buf);standAI(a0)); return 1. residual=inner branch-dir (built bne+b vs beq). ||-form WORSE(11). buf[0x10] seed /tmp
+func_001EE8F0       # rc13 count=(s8)*(*(p+0x810)+0x2E); buf=iosFree(D_0062A310,count*2,&D_006130A8,0x23); if(count>0)do{*q=func_002610F0();q++;}while(--i); return buf. buf in $18 kept, walker $16. seed /tmp
+func_00259350       # rc7 reg-setter (like func_00259D58); residual=field18 read interleave into field0 |=0x2000 RMW gap (1 site)
+func_0025F640       # rc99 double->long sibling of func_002601B0 (rc22); func_0025EBD8 classify+switch+bnel; deep-pass
+func_001B8470       # rc11 STRUCTURE CORRECT; only v0/v1 swap in 64-bit OR (expected ld g->0x18->v1,const->v0; built reversed). try const-first: |= -> = 0x100000000LL | *(ll*); seed /tmp
+func_001C6398       # rc43 nested loop: outer i<a0->4 base=a0->0 stride0x50; inner j<m, p=*(a0->8+i*0x1A0+4); *(p+j*0x10+8)=0. gcc strength-reduces mults differently (mult kept in ROM). seed /tmp
+SetParallelMotionTable# rc18 alloca pattern (fp $30): size=StandbyStreamMotion(*(*(a0+0x15C)+0x460)); buf=__builtin_alloca(size); _infoUpdate(buf); CopyBlendMotionDataSource(a0,buf); SetParallelMotionTableWithNoRequest(a0,buf). alloca size/frame lowering differs (ROM sll3/srl3 mask). seed /tmp
+func_00102528       # rc12 STRUCTURE CORRECT; addressing-form only: ROM counter*4+index*0x200 distributed, built factored (index*0x80+counter)*4. FIX: *(int*)((char*)D_00658EC0+index*0x200+counter*4)=a0. then assert+func_001AAD00(D_0054DD38,0x33)+tail func_00260380(D_0054DD38,0x33,D_0062BCA8). seed /tmp
+func_002597C8       # rc9 setter w/ movn(b!=0xFF); logic exact; residual=p scratch reg a1-vs-a2 + field8 add-operand order (regalloc cascade)
+func_00257D28       # rc39 byte-parser via func_00255060; ROM duplicates off-compute block (not goto-shared) + bnel; deep-pass
+SetEnemyFootPrintSwitch# rc7 rc7 regalloc swaps (p-load a0 vs v0, q->0x38 v0 vs v1) + bc1f delay placement. q=*(*(self+0x15C)+0x7F0); if(q[14]){shadow_RenderVolume();if(*(float*)(*(self+0x15C)->0x830+0x30)==0)InitFlagGeo(q[6]);InitFlagGeo(q[8]);} func_001CCA00(q[10]); if(q[4])DisplayEnemy(self). int* param. seed /tmp
+func_00248590       # rc18 global-state dispatch (D_0054AC14 reloads); volatile/&&/reload-model residual
+gamesysGetGirlStageIDAndPosition# rc99 scratchpad-symbol overlay (D_004AEC10|0x20000020 + %lo(D_20000010/20)) + movn; like func_0024BC30; deep-pass
+func_002487C8       # rc99 scratchpad-symbol overlay sibling of func_0024BC30 (rc6); 2 byte-copies + tail func_00248590; deep-pass
+InitLightLineGeo    # rc14 5x DispMeshWire(q[6/7/9/8/10],3.0f,D_006294A4) last=tail. ROM caches D_006294A4 in callee-saved f20 (built reloads from gp each call) + 3.0 in f21 vs f20 reg swap. local-cache made WORSE(15). seed /tmp
+func_00252310       # rc12 VIF1_STAT busy-wait + timeout counter; ROM hoists 0x10002010/masks to s-regs across loop; sched residual
+func_00268280       # rc11 free-list allocator/insert via func_0026AEE0; logic ok, bnel field4-store + a0 reload sched residual
+GetParticleEffectPackage# rc28 diamond+reloads: entry=D_007030C0[idx](0x18); if(entry->0==0&&entry->0x14==0)return; p=entry->0x14 (reloaded each access): prim_DispWireYCylinder(p->0x28);p->0x28=0;iosMallocCheckLeak2(p->0x24);iosMallocCheckLeak2(p);entry->0x14=0;entry->0=0. branch/reload shape needs work
+func_0025CF88       # rc99 callback-array dispatcher: count-search loop + reverse jalr loop over D_0062E160 fn-ptrs + bnel/dsll32-canon; deep-pass
+EntryStageMultiBgaManager# rc18 30-iter do-while: p=D_00706D00(stride4),q=D_007063C0(stride0x50); if(*p){if(stage_CheckAnimationFrameIn(p)==0)_ApplyCurrentMatrix(*p+0x20,*p+0x20,q);else *p=0;} q+=0x50;p++;i--;while(i>=0). beql/branch-likely loop shape differs. seed /tmp
+func_00242300       # rc19 locked array-search-alloc; bnel in-use-skip loop + field0 id-seq logic; deep-pass
+EntryRevivedSpiderGroupManager# rc20 DispAllSpiderGroups-class but: func_001B88C0(elem); base[i]=0 (asm reloads p/g/base from a0 fresh, count via cached sub $18); after loop sub->0x20=0. reload/deref shape off. seed /tmp
+la_mc_save_file_select# rc7 switch(r){-1,1,default} dispatch; rc7 residual=r==0/bgtz compare-order; switch form better than nested-if
+func_001D1470       # rc13 GObj scan: obj=isysGObjSearchFromObjLayoutID(0x13); do{geo=*(*(obj+0x15C)+0x7F0); if(geo->4==1&&geo->0x48==3&&stage_CheckAnimationFrameIn(geo+0x60)==0)debug_assertMessage(D_006118F8); obj=isysGObjSearchFromObjKindID_begin(obj);}while(obj). scan-class bnel. seed /tmp
+func_0024AF58       # rc11 mult/mult1 dual-mul idx into D_007112D0 + 6-byte copy; residual=mult1 emission/copy sched
+GetParticleEffectData# rc3 rc3: scan D_007030C0 stride0x18 to +0xC00, (int)e<(int)end signed; if(*e&&(*(e+0x14))->0x20==a0){cleanup: prim_DispWireYCylinder,2x iosMallocCheckLeak2,zero 0x14+0}. residual=base-addr daddu(v0->s0) vs folded lui/addiu. seed /tmp
+func_00261F00       # rc99 0x490 stack-struct builder (0x400 buf@0x60, field copies from a0) + func_00261FB8/func_002666C0 + movn + flag; deep-pass
+ExecutePauseSlipProc# rc16 = matched ExecuteSlipProc search + default &D_0029AEF0 when result==0. residual: result-local adds moves(t4), ROM keeps result in v0 throughout (§branch-direction). need v0-flow not separate var. seed /tmp; sibling ExecuteSlipProc matched
+func_0024B0E8       # rc22 byte-getter from D_007112D0; assemble r[0x79..7C] needs LONG (dsll/daddu) not int(sll/or); + beql field72==1; mult/mult1 idx
+func_0010E448       # rc99 VU0 quaternion-mult (lqc2/sqc2/vmul/vaddy/vopmula/vopmsub) + p2o_SetDefaultEnviroment/_InverseCurrentMatrix/func_0010ED30 + table; h=-(a1<<16)>>17. needs vu0.h intrinsics — deep-pass
+func_0010E4E8       # rc99 VU0 quaternion-mult (lqc2/sqc2/vmul/vaddy/vopmula/vopmsub) + p2o_SetDefaultEnviroment/_InverseCurrentMatrix/func_0010ED30 + table; h=-(a1<<16)>>17. needs vu0.h intrinsics — deep-pass
+func_0010E588       # rc99 VU0 quaternion-mult (lqc2/sqc2/vmul/vaddy/vopmula/vopmsub) + p2o_SetDefaultEnviroment/_InverseCurrentMatrix/func_0010ED30 + table; h=-(a1<<16)>>17. needs vu0.h intrinsics — deep-pass
+func_00262C48       # rc13 0x490 stack-struct builder (char[0x460], buf@0x60, field copies + 0xFFFD mask) + func_00262D00/func_002666C0 aliases + movn; rc13 residual=field-write sched/frame; SAME shape unlocks func_00261F00
+func_001E1A18       # rc18 6-arg: s=*(a0+0x15C)+0x460; if(a3>=0&&a4>=0)GetCurrentMotionDirectionAdjustFlag(); s->4=a1;s->8=a2; ret=getNodeBlendedFloatingMotion(a0,a5,a5,0)[alias int-ret]; 2x soundSePlayModeStop; s->0x1AC=s->0x1B0=ret. bltz/bltzl+$5=a5 flow differs. seed /tmp
+func_00253328       # rc27 func_00252870 call-seq to D_0054C98x globals (some discarded); %hi-reg-reuse sched class (like func_0024F220 rc32)
+func_00252CA8       # rc99 input-loop dispatcher: poll func_00252620, switch 0x1B5/0x1B2, fn-ptr table D_0054D0C0 jalr + movn clamp; deep-pass
+ResetEnemyEye       # rc11 FlagGeo(q[6]);FlagGeo(q[8]); v=(0x3C-D_00271240[0]*10)/D_00271240[1] (div+break-guard); *(int*)(p+0x504)=(int)((float)v/60.0f*0.0f) (cvt.w.s+swc1, mul-by-0). float pipeline/div shape off. seed /tmp
+func_001A7C38       # rc11 debug init seq: assertMessage+func_001A7A88 branch+func_00261188/0026160C/00244150; logic ok, varargs/buf-frame sched residual
+lt_set_fade_mode    # rc28 switch-getter D_002E34F0[D_0062B410](stride 0x6C) fields 0x28/24/20/1C per case 0-3; switch lowering (cmp-tree vs jtbl) residual
+reduceWork2ToWork0  # rc16 MatrixDrive_TurnObjectMatrix(D_004C2250);D_004C2250[3]=0; 2x D_0062B914/918=prim_DispFan2D(0x10,D_00271BE0,0xFFFFFF80,0,80.0f);D_0062B91C=1;return 0. ROM remats 80.0f+0xFFFFFF80 per call (built CSEs 80.0->f20 +bigger frame, folds 0xFFFFFF80->addiu -128). seed /tmp
+func_001E8D98       # rc45 for(i=0;i<0x1E;i++){D_007063A0[i]=D_004C1EE0(0x50 struct copy);D_00706D00[i]=0;} D_0062B8FC=0. ROM uses inner-loop(2x0x20)+trailing0x10 for the copy; gcc emits different struct-copy lowering. seed /tmp
+func_0024A7A0       # rc10 sibling of func_0024A538; field10 guard + D_007115C0 setup + 9-arg func_00242978; mult1 idx/store-sched residual
+func_001E9B38       # rc99 ldl/ldr/sdl/sdr unaligned copy of D_00612CE0 to stack; $2-at-entry stored sp+0; gif_MakeSprite/gsb_SetFrame/gif_MakeLine2DOffset/func_001E9888(sp)/func_001E9750(sp). unaligned-copy+entry-$2 deep-pass
+func_001A74C0       # rc15 debug entry-recorder: D_006EB6D0[D_0062C148] elem, func_00261188(3-arg alias), byte-split a1, HW *0x10000000; sched residual
+func_001A7578       # rc15 sibling of func_001A74C0 (rc15), inverted guard (D_0062B01C==0 returns); same byte-store/sched residual
+func_0024A5B8       # rc99 large(0x1E4) complex dispatcher: a2&0x3F guard, mult1 idx D_007112D0, multiple func_00260668 branches; deep-pass
+func_002523B8       # rc12 VIF0 HW-poll busy-wait sibling of func_00252310 (rc12); 0x10002000/10 + func_0024E0D8 timeout; %hi-hoist sched residual
+findActPoint        # rc23 ~23-store field reset of D_0062C234 base: p->0x14&=~0x10 (store), &=~0x20&~0x1000 (store); f=D_0062D5BC stored to 0x170/0x110/0x114/0x138/0x130/0x134/0x174; many int=0; p->0x1B8=old p->0x1B4; D_0062C230->0x134=0. store-order scheduling heavy. seed /tmp
+func_001023E8       # rc99 ret=func_00100410(); ldl/ldr copy D_0054DB08(0x18,unaligned 6-ptr) to stack buf; for(i=0;i<6;i++){e=buf[i]; if(e->0x30!=ret)iosSemaDelete(e);}. unaligned-copy class (cf func_001E9B38) deep-pass
+func_002404B8       # rc5 float quat-builder 3x(func_00240038(-1.0f)+func_0023FE98)+identity{0,0,0,1}+func_0023FED0; rc5 via float-temp fzero (swc1 not sw); try fone temp too + store order 0x30/3C/38/34
+func_00269170       # rc15 64-bit hi/lo fixed-pt adjust: func_00268E70 x2 + d=(buf0-buf1)+((f10diff)<<5); if(d>0)hi(r1)+=d<<20 else hi(r2)-=; tail func_0025F220; dsra32/dsll32 packing residual
+func_00260568       # rc99 EE-SIMD memset: pcpyh/pcpyld/sq quadword fast path + byte tail; needs EE multimedia intrinsics; deep-pass
+InitPoolGeo         # rc13 STRUCTURE CORRECT; only float-regalloc in mag=x*x+y*y+z*z (ROM x->f0 accum f0; built x->f2 accum f2), cascades 13 diffs. then clamp 1.0,r=MatrixDrive_GetTurnYAngleXZ(1.0f-mag),a0->0=lbu a1,floats 0x10/14/18=a1->4/8/C,0x1C=r/-r by (s8)a1->1. seed /tmp
+func_0024B7B8       # rc99 lock+alloc dispatcher: func_00100570 guard, D_00711640.f24 check, func_00242978(D_00711640,0x14,1,D_007116C0,0x30,D_00712C00,4,0,0), err -0xC8/-0x64, D_0054C690=0x14; alloc-class deep-pass
+func_002600F8       # rc99 swfloat int->float: build classify-struct on stack, normalize-shift loop (>0x3FFFFFFF), INT_MIN special (0xCF000000), func_0025F7A0 assemble; deep-pass
+func_00269708       # rc99 callback-table dispatch (func_00269588 family): tbl=a0[0x1D4], sentinels h==0->1/h==1->3/h==-1->2, else clear slot + jalr h(a1)->0, func_00269518 init; deep-pass
+func_001048F0       # rc11 recursive tree-walk: do{node=*(a0+0x8C)+idx*0x40; func_00104D20();func_001050A8(node+0x10);func_0010E300(node+0x20);MatrixDrive_TurnXObjectMatrixYZ(*(a0+0xC)+idx*0x40,func_00105078()); if(node->0x30!=-1)func_001048F0(a0,node->0x30); func_00105068(); idx=node->0x34;}while(idx!=-1). func_00105078=void*. seed /tmp
+func_00104848       # rc15 3-arg recursive tree-walk sibling of func_001048F0: node1=a0+idx*0x40; node2=*(a1+0x8C)+idx*0x40; func_00104D20;func_001050A8(node2+0x10);func_0010E300(node2+0x20);MatrixDrive_TransMatrix(node1,func_00105078()); if(node2->0x30!=-1)recurse(a0,a1,node2->0x30); func_00105068();idx=node2->0x34. seed /tmp
+MoveNextStage_Clear # rc6 8-arg seq exact: func_0023D260+UnlinkParentOfDObj(r->15C=u, u->804=a2)+light_AddAmbientObject+cond entry->58 jalr; residual=u->804 store vs light arg-move order (2 sites, sched)
+InitFlyManager      # rc7 rc7: if(D_0062B698){func_00260568(buf,0,0xC0);2x MatrixDrive_TurnObjectMatrix(buf/buf+0x10,a0);buf->0x14+=D_00629548;ClipWallField(buf,D_0062B698);if(buf->0x94){v=buf->0x98&0xF;if(v==1)v=0;else v*=0x64;return -v;}}return -0x2710. residual=v==1 branch-dir + tail share. buf[0xC0]. seed /tmp

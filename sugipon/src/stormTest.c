@@ -113,6 +113,16 @@ void func_001ED9E8(void) {
     debug_assertMessage(D_00612EF0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stormTest", func_001EDA08);
+extern void MatrixDrive_TurnObjectMatrix(int a0, int a1);
+extern char D_00271BD0[];
+
+void func_001EDA08(char *a0)
+{
+    volatile int pad[4];
+    *(int *)(*(int *)(a0 + 0x15C) + 0x460) = -1;
+    *(int *)(*(int *)(a0 + 0x15C) + 0x650) = 1;
+    MatrixDrive_TurnObjectMatrix(*(int *)(a0 + 0x15C) + 0x660, (int)D_00271BD0);
+    *(int *)(*(int *)(a0 + 0x15C) + 0x540) = 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stormTest", func_001EDA68);

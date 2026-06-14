@@ -2,7 +2,29 @@
 #include "ico/types.h"
 #include "vu0.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", InitKeyInput);
+extern void func_0010E250(void *a0, void *a1, void *a2);
+extern void func_0023FE08(char *dst, char *src, int m);
+extern void func_0023FDD8(int *buf, char *p, int x);
+extern void func_0023FE98(char *a0, char *a1);
+extern char D_00271C10[];
+
+void InitKeyInput(char *a0, char *a1)
+{
+    char buf[0x40];
+    char *sub = *(char **)(a1 + 0x15C);
+    char *p = sub + 0xA0;
+    func_0010E250(buf, sub + 0xD0, p);
+    {
+        char *q = *(char **)sub;
+        if (q != 0) {
+            func_0023FE08(buf, (char *)(*(int *)(*(char **)(q + 0x15C) + 0xC) + (*(int *)(sub + 4) << 6)), (int)buf);
+        }
+    }
+    *(float *)(buf + 0x34) = *(float *)(buf + 0x34) + *(float *)(p + 0xB0);
+    func_0023FDD8((int *)a0, buf, (int)D_00271C10);
+    *(int *)(a0 + 4) = 0;
+    func_0023FE98(a0, a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", ExecKeyInput);
 
@@ -128,11 +150,53 @@ void func_00104D20(void) {
     MatrixDrive_TurnXObjectMatrixYZ(&D_006595C0[n * 64], &D_006595C0[n * 64 - 0x40]);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_00104D48);
+extern float func_0010ED30(int x);
+extern float p2o_SetDefaultEnviroment(int x);
+extern float D_00271C60[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_00104DC0);
+void func_00104D48(int a0)
+{
+    int h = (short)a0;
+    float r1 = func_0010ED30(h);
+    float r2 = p2o_SetDefaultEnviroment(h);
+    D_00271C60[10] = r1;
+    D_00271C60[5] = r1;
+    D_00271C60[9] = -r2;
+    D_00271C60[6] = r2;
+    func_0023FE08((char *)&D_006595C0[D_00629E40 * 64], (char *)&D_006595C0[D_00629E40 * 64], (int)D_00271C60);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_00104E38);
+extern float func_0010ED30(int x);
+extern float p2o_SetDefaultEnviroment(int x);
+extern float D_00271CA0[];
+
+void func_00104DC0(int a0)
+{
+    int h = (short)a0;
+    float r1 = func_0010ED30(h);
+    float r2 = p2o_SetDefaultEnviroment(h);
+    D_00271CA0[10] = r1;
+    D_00271CA0[0] = r1;
+    D_00271CA0[2] = -r2;
+    D_00271CA0[8] = r2;
+    func_0023FE08((char *)&D_006595C0[D_00629E40 * 64], (char *)&D_006595C0[D_00629E40 * 64], (int)D_00271CA0);
+}
+
+extern float func_0010ED30(int x);
+extern float p2o_SetDefaultEnviroment(int x);
+extern float D_00271CE0[];
+
+void func_00104E38(int a0)
+{
+    int h = (short)a0;
+    float r1 = func_0010ED30(h);
+    float r2 = p2o_SetDefaultEnviroment(h);
+    D_00271CE0[5] = r1;
+    D_00271CE0[0] = r1;
+    D_00271CE0[4] = -r2;
+    D_00271CE0[1] = r2;
+    func_0023FE08((char *)&D_006595C0[D_00629E40 * 64], (char *)&D_006595C0[D_00629E40 * 64], (int)D_00271CE0);
+}
 
 extern float D_00271D20[];
 

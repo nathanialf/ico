@@ -99,7 +99,21 @@ int SetAP1HostGObj(void *a0) {
     return D_004B9D50[q->f_8];
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", SetAP1PriorLevel);
+extern int walkMot();
+
+int SetAP1PriorLevel(void *a0)
+{
+    int *p = *(int **)((char *)a0 + 0x15C);
+    AP1Geo *q = *(AP1Geo **)((char *)p + 0x7F0);
+    int ret = walkMot(a0, 0);
+    if (ret != -1) {
+        return ret;
+    }
+    q->f_1C0 = 0;
+    q->f_1C4 = 0;
+    q->f_1C8 = 0;
+    return 0;
+}
 
 extern int calcSubMission(void *a0);
 

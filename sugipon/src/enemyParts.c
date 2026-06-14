@@ -124,7 +124,19 @@ int func_001CCB60(int *self)
     return 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", func_001CCBC0);
+extern void func_001189F8(void *a0, int a1, void *a2);
+extern void func_001CC020(int a0, void *a1, void *a2, float a3);
+extern char D_004BC180[];
+extern char D_004BC1C0[];
+
+int func_001CCBC0(char *a0, int a1, float f)
+{
+    func_001189F8(a0 + 0x10, a1, D_004BC180);
+    if (*(int *)a0 != 0) {
+        func_001CC020(*(int *)(a0 + 0x4), a0 + 0x40, D_004BC1C0, f * 3.0f);
+    }
+    return 1;
+}
 
 
 /* recovered struct shapes */

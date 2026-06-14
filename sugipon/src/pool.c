@@ -38,7 +38,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", dispPool);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", PoolDL);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", InitLimitedPoolReflactionMesh);
+extern int DebugDisp1CollisionWithColor(char *a0, int a1);
+extern int DeleteParticleEffectsByPackage(int a0, int a1, int a2);
+extern void ResetParticleEffectPackages(int a0, float f);
+extern char D_002724B0[];
+
+void InitLimitedPoolReflactionMesh(char *a0, char *a1, int a2, float f)
+{
+    int ret = DebugDisp1CollisionWithColor(a1, a2);
+    if (ret != -1) {
+        char *p = *(char **)(a1 + 0x15C);
+        int r = DeleteParticleEffectsByPackage((int)a0, *(int *)(p + 0xC) + ret * 0x40 + 0x30, (int)D_002724B0);
+        ResetParticleEffectPackages(r, f);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", SetLayoutedPoolReflactionMesh);
 

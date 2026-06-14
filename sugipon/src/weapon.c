@@ -46,7 +46,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", calcDynamicGeometry);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", getGeometry);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", WeaponCurPos);
+extern int DebugDisp1CollisionWithColor(char *a0, int a1);
+
+void WeaponCurPos(void *a0, char *a1, int a2)
+{
+    WGeo *q = *(WGeo **)(*(char **)((char *)a0 + 0x15C) + 0x7F0);
+    q->f_8 = (int)a1;
+    q->f_C = DebugDisp1CollisionWithColor(a1, a2);
+    *(int *)(*(int *)((char *)a1 + 0x15C) + 0x620) = (int)a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", WeaponHitEffect);
 

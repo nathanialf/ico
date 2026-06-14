@@ -39,7 +39,24 @@ int gamesysObjInfoEmptyAreaSearch(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysObjInfoBaseSet);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysBackStageProcess);
+extern int D_0062AEA8;
+extern int D_0062AEA4;
+extern char D_0060E170[];
+extern char D_006151D8[];
+extern int func_001A4DE8(void *, int, int, int, void *, int, int, int, int, int *);
+extern void scpPlayStart(int, int, int, int, int);
+
+int gamesysBackStageProcess(int a0) {
+    int ret;
+    if (a0 != 0) {
+        D_0062AEA8 = -1;
+    }
+    ret = func_001A4DE8(D_0060E170, 0xA, 0x3C, 0xA, D_006151D8, 0x40, 0, 0, 0x60, &D_0062AEA4);
+    if (ret > 0 && D_0062AEA4 != 0) {
+        scpPlayStart(D_0062AEA4, 0, 1, 1, 1);
+    }
+    return ret;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysGeneratorInfoLoad);
 
