@@ -18,26 +18,27 @@ if [[ "$1" == "--once" ]]; then
     fi
 
     echo "$rule"
-    # Sweep remaining targets per author scope (very top of the dashboard).
-    # Mirrors tools/sweep_targets.sh: a func is a sweep target iff it still
-    # carries an INCLUDE_ASM stub with a real .s and isn't parked under
-    # tough_nuts/. SPILL = a0 spilled to its stack home in the first 8 .s
-    # lines (known one-pass MISS class the sweep skips); actionable =
-    # targets - SPILL (what a one-pass sweep would actually attempt).
-    echo "Sweep remaining (targets / SPILL / actionable):"
+    # Sweep remaining ACTIONABLE per author scope (very top of the dashboard).
+    # Mirrors tools/sweep_targets.sh --counts. A func is a sweep target iff it
+    # still carries an INCLUDE_ASM stub with a real .s and isn't parked under
+    # tough_nuts/. actionable (= "fresh") is what a one-pass sweep would really
+    # attempt = unmatched − SPILL (a0-spill one-pass MISS class) − PARKED
+    # (already attempted+parked in a prior sweep: named in docs/MATCHING_NOTES.md
+    # or config/sweep_parked.txt). SPILL is intentionally NOT shown.
+    echo "Sweep remaining actionable (fresh = unmatched - SPILL - parked):"
     {
-        printf 'scope\ttargets\tSPILL\tactionable\n'
-        _sw_tt=0; _sw_ts=0; _sw_ta=0
+        printf 'scope\tactionable\tparked\n'
+        _sw_ta=0; _sw_tp=0
         for _sw_sc in fumi script common sugipon seki omori ito; do
             [[ -d "$_sw_sc" ]] || continue
-            _sw_o=$(tools/sweep_targets.sh "$_sw_sc" 2>/dev/null)
-            _sw_t=$(printf '%s\n' "$_sw_o" | grep -c .)
-            _sw_s=$(printf '%s\n' "$_sw_o" | awk '$4=="SPILL"' | grep -c .)
-            _sw_a=$((_sw_t - _sw_s))
-            _sw_tt=$((_sw_tt + _sw_t)); _sw_ts=$((_sw_ts + _sw_s)); _sw_ta=$((_sw_ta + _sw_a))
-            printf '%s\t%d\t%d\t%d\n' "$_sw_sc" "$_sw_t" "$_sw_s" "$_sw_a"
+            _sw_c=$(tools/sweep_targets.sh "$_sw_sc" --counts 2>/dev/null)
+            _sw_a=$(printf '%s' "$_sw_c" | grep -oE 'fresh=[0-9]+'  | cut -d= -f2)
+            _sw_p=$(printf '%s' "$_sw_c" | grep -oE 'PARKED=[0-9]+' | cut -d= -f2)
+            _sw_a=${_sw_a:-0}; _sw_p=${_sw_p:-0}
+            _sw_ta=$((_sw_ta + _sw_a)); _sw_tp=$((_sw_tp + _sw_p))
+            printf '%s\t%d\t%d\n' "$_sw_sc" "$_sw_a" "$_sw_p"
         done
-        printf 'TOTAL\t%d\t%d\t%d\n' "$_sw_tt" "$_sw_ts" "$_sw_ta"
+        printf 'TOTAL\t%d\t%d\n' "$_sw_ta" "$_sw_tp"
     } | column -t -s "$(printf '\t')"
     echo "$rule"
     # Render the markdown table as a fixed-width table. Pull the rows

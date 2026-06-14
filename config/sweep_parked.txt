@@ -1,0 +1,17 @@
+# sweep_parked.txt — funcs already ATTEMPTED + PARKED in a single-pass sweep.
+#
+# tools/sweep_targets.sh EXCLUDES these from the default fresh-only list so a
+# later sweep never re-treads recorded ground (one wasted shot per re-tread).
+# func_XXXXXXXX names are also auto-harvested from docs/MATCHING_NOTES.md; this
+# file is for named-symbol funcs (gamesysObjInfoCls, …) and quick appends.
+#
+# Format: one name per line; trailing "# rcN <residual>" note optional.
+# Append via: tools/sweep_park.sh <tu_stem> <func> <rc> [note]
+# To re-attempt one: tools/sweep_targets.sh <scope> --include-parked  (or delete its line)
+
+gamesysObjInfoCls   # rc5 symbol-reloc: shared %hi(D_20000060)+per-access %lo vs immediate offsets
+func_00261FB8       # rc13 object lazy-init + tail call func_00262030; reload-vs-reuse of a0->unk54
+func_00241A10       # rc15 init-once guard + tail; func_00242078 void-decl needs int return (cast=jalr)
+func_001AAC60       # rc7 callback loop; gcc reverses up-count to bgez countdown, walking-ptr+index both fail
+stgmgrForceSwitch   # rcNA SIGNATURE CONFLICT: existing 4-int decl+caller cannot take the float params asm reads; needs out-of-region decl fix
+ResetGObjProc       # rcNA 64-bit bitfield-pack of 7 args; deep-pass/permuter class

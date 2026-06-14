@@ -102,7 +102,23 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", lt_mask_property)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", lt_default_mask_property);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", lt_fade_status);
+extern int D_0062B418;
+extern int D_0062B40C;
+extern int D_0062B41C;
+extern int D_0062C1B0;
+extern void func_001B3160(int, int);
+
+void lt_fade_status(int a0) {
+    if ((D_0062B418 == 2 && a0 != D_0062B40C) || a0 == 0x3A) {
+        D_0062C1B0 = a0;
+        func_001B3160(D_0062B40C, a0);
+        if (D_0062B41C == 1) {
+            D_0062B418 = 5;
+        } else {
+            D_0062B418 = 3;
+        }
+    }
+}
 
 extern int D_0062B410;
 
