@@ -19,7 +19,12 @@ void SetFallDownSplash(long long *src, int *dest) {
     *(float *)((char *)dest + 4) = func_00166A48((int *)buf, dest);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", GetPoolGlobalDrainVector);
+void GetPoolGlobalDrainVector(float *a0, float *a1, float *a2, float t) {
+    float s = 1.0f - t;
+    a0[0] = a1[0] * t + a2[0] * s;
+    a0[1] = a1[1] * t + a2[1] * s;
+    a0[2] = a1[2] * t + a2[2] * s;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", InitPoolGeo);
 
@@ -62,7 +67,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", getWave);
 void func_0010D3B0(void) {
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", func_0010D3B8);
+extern void debug_assertMessage();
+extern char D_0054E110[];
+
+float func_0010D3B8(char *a0) {
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x7F0);
+    if (p == 0) {
+        debug_assertMessage(D_0054E110);
+        return 0.0f;
+    }
+    return *(float *)(p + 0x4);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", func_0010D3F8);
 

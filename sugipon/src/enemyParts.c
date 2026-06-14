@@ -12,7 +12,12 @@ void InitEnemyEye(void *a0, int a1) {
     q->f_38 = a1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", InitEnemyFootPrint);
+int InitEnemyFootPrint(void *a0) {
+    func_001E1A18(a0, 0x705, 0x820, -1, -1, 0x39C);
+    func_001D1ED8(a0, 0);
+    *(int *)((char *)a0 + 0x16C) = 0;
+    return 0;
+}
 
 extern void func_001E1A18(void *a0, int a1, int a2, int a3, int a4, int a5);
 extern void func_001D1ED8(void *a0, int a1);

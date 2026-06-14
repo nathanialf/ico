@@ -14,11 +14,44 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", EntryRevived
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", DispAllSpiderGroups);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", EntryToSpiderGroupManagerForReviveMaster);
+extern void iosOmBeforeFuncStandard();
+
+void EntryToSpiderGroupManagerForReviveMaster(char *a0) {
+    char *sub = *(char **)(*(char **)(a0 + 0x15C) + 0x7F0);
+    int n = *(int *)(sub + 0x20);
+    int i = 0;
+    if (n > 0) {
+        do {
+            int elem = *(int *)(*(int *)(sub + 0x24) + i * 4);
+            if (elem != 0) {
+                iosOmBeforeFuncStandard(elem, 0x1F, elem);
+                n = *(int *)(sub + 0x20);
+            }
+            i++;
+        } while (i < n);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", getReviveEnemyGObj);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", func_001E8638);
+extern void iosOmBeforeFuncStandard();
+
+int func_001E8638(char *a0) {
+    char *sub = *(char **)(*(char **)(a0 + 0x15C) + 0x7F0);
+    int n = *(int *)(sub + 0x20);
+    int i = 0;
+    if (n > 0) {
+        do {
+            int elem = *(int *)(*(int *)(sub + 0x24) + i * 4);
+            if (elem != 0) {
+                iosOmBeforeFuncStandard(elem, 0x26, elem);
+                n = *(int *)(sub + 0x20);
+            }
+            i++;
+        } while (i < n);
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", func_001E86B0);
 
@@ -83,7 +116,25 @@ void func_001E8D10(int a0, int a1) {
     D_00706298[D_0062B8E4++] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", func_001E8D38);
+extern int isysGObjSearchFromObjLayoutID();
+extern int isysGObjSearchFromObjKindID_begin();
+
+int func_001E8D38(int arg) {
+    register int n __asm__("$17");
+    int i;
+    int obj;
+    n = arg;
+    obj = isysGObjSearchFromObjLayoutID(4);
+    i = 0;
+    if (n > 0) {
+        do {
+            if (obj == 0) return 0;
+            obj = isysGObjSearchFromObjKindID_begin(obj);
+            i++;
+        } while (i < n);
+    }
+    return obj;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", func_001E8D98);
 

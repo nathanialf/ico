@@ -75,7 +75,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", InitMotionGeoInf
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", dispSkeltonHierarchy);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", DispSkelton);
+extern void func_00166910();
+extern void _SetCurrentMatrix();
+
+void DispSkelton(int a0, char *a1, char *a2) {
+    func_00166910(a0, a1, *(int *)(a2 + 8),
+        *(int *)(*(char **)(*(char **)a2 + 0x15C) + 0xC) + (*(int *)(a2 + 4) << 6));
+    *(int *)(a1 + 4) = 0;
+    _SetCurrentMatrix(a1, a1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", SlopeIKControl);
 
@@ -223,7 +231,10 @@ int DisableChangeRootUpdateMode(int **a0) {
     return a0[0x57][0x17D];
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", EnableChangeRootUpdateMode);
+float EnableChangeRootUpdateMode(char *a0, char *a1) {
+    float x = func_00166A48(*(char **)(a0 + 0x15C) + 0x1C0, *(char **)(a0 + 0x15C) + 0xA0);
+    return x - func_00166A48(*(char **)(a1 + 0x15C) + 0x1C0, *(char **)(a1 + 0x15C) + 0xA0);
+}
 
 float GetRopeHangablePos(int **a0) {
     int *p = a0[0x57];
@@ -253,7 +264,17 @@ void GetHeightOfCliffFromGObj(int **a0, float a1) {
     *(float *)((char *)p + 0x4A8) = a1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", InitMotionRotElem);
+extern void func_0023FFF0();
+extern char D_00271BD0[];
+
+void InitMotionRotElem(char *a0) {
+    char *sub = *(char **)(a0 + 0x15C);
+    char *q = sub + 0x220;
+    char *p = sub + 0xA0;
+    MatrixDrive_TurnObjectMatrix((int)q, D_00271BD0);
+    func_0023FFF0(sub + 0x240, p, q);
+    *(int *)(p + 0x170) = -1;
+}
 
 extern int D_00629E4C;
 

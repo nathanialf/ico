@@ -29,4 +29,15 @@ void getParallelWindVector(void) {
     D_0062BA30 = ExecWindField;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/windField", getRadiateWindVector);
+extern void func_001D1DF0();
+extern char D_004C2490[];
+
+void getRadiateWindVector(char *a0) {
+    char *cur = a0;
+    if (-1000.0f < *(float *)cur) {
+        do {
+            func_001D1DF0(cur, D_004C2490, cur + 0x10, D_004C2490, -1);
+            cur += 0x20;
+        } while (-1000.0f < *(float *)cur);
+    }
+}

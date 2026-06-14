@@ -91,13 +91,40 @@ void ReviveEnemyParticle(void *a0, int a1) {
     q->f_2C = a1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemy", isExistEnemyParticle);
+void isExistEnemyParticle(char *a0) {
+    int i;
+    int n = *(int *)(*(int *)(a0 + 0x15C) + 0x88);
+    for (i = 0; i < n; i++) {
+        int *p = *(int **)(*(int *)(a0 + 0x15C) + 0x7F0);
+        *(int *)(*(int *)((char *)p + 0x14) + i * 4) = 0;
+    }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemy", EnemyGetNSafeParts);
+void EnemyGetNSafeParts(char *a0) {
+    int i;
+    int n = *(int *)(*(int *)(a0 + 0x15C) + 0x88);
+    for (i = 0; i < n; i++) {
+        int *p = *(int **)(*(int *)(a0 + 0x15C) + 0x7F0);
+        *(int *)(*(int *)((char *)p + 0x14) + i * 4) = 1;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemy", EnemyDeleteParticle);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemy", SetEnemyHitGeometryAction);
+extern void MatrixDrive_GetMatrix(void *a0, void *a1, float f12, float f13, float f14);
+extern void GetMatrixFromQuaternion(void *a0);
+extern void func_0010E448(void *a0, int a1);
+extern void func_0010E4E8(void *a0, int a1);
+extern void SetParticleEffectUpperLimit(int a0, void *a1, void *a2);
+
+void SetEnemyHitGeometryAction(void *a0, float *a1) {
+    char buf[0x20];
+    MatrixDrive_GetMatrix(buf + 0x10, buf + 0x12, a1[0], a1[1], -a1[2]);
+    GetMatrixFromQuaternion(buf);
+    func_0010E448(buf, (short)(-*(unsigned short *)(buf + 0x10)));
+    func_0010E4E8(buf, (short)(-*(unsigned short *)(buf + 0x12)));
+    SetParticleEffectUpperLimit(0xC, a0, buf);
+}
 
 void InitDemoMotionGeo(void *a0, int a1) {
     int *p = *(int **)((char *)a0 + 0x15C);

@@ -1,9 +1,37 @@
 #include "common.h"
 #include "ico/types.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", orientDebug);
+extern int DebugDisp1CollisionWithColor(void *a0);
+extern void GetInverseQuaternion(void *a0, void *a1);
+extern char D_002724B0[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", GetNbMotionFrames);
+int orientDebug(void *a0) {
+    int r = DebugDisp1CollisionWithColor(a0);
+    char *p = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x7CC) + r * 0x40;
+    if (r < 0) {
+        return 0;
+    }
+    *(int *)p = 0;
+    GetInverseQuaternion(p + 0x20, D_002724B0);
+    GetInverseQuaternion(p + 0x30, D_002724B0);
+    return 1;
+}
+
+extern int DebugDisp1CollisionWithColor(void *a0);
+extern void GetInverseQuaternion(void *a0, void *a1);
+extern char D_002724B0[];
+
+int GetNbMotionFrames(void *a0, float f12) {
+    int r = DebugDisp1CollisionWithColor(a0);
+    char *p = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x7CC) + r * 0x40;
+    if (r < 0) {
+        return 0;
+    }
+    *(float *)p = f12;
+    GetInverseQuaternion(p + 0x20, D_002724B0);
+    GetInverseQuaternion(p + 0x30, D_002724B0);
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", GetMotionPlaySpeedRatio);
 
@@ -16,7 +44,16 @@ void UpdateFrameCounter(int a0, char *a1) {
     *(int *)(a0 + 0xC) = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", sendStateMail);
+extern void ChangeFieldCollisionDebugMode();
+
+int sendStateMail(char *a0, float f) {
+    char buf[0xC0] __attribute__((aligned(16)));
+    MatrixDrive_TurnObjectMatrix((int)buf, a0);
+    MatrixDrive_TurnObjectMatrix((int)(buf + 0x10), a0);
+    *(float *)(buf + 0x14) = *(float *)(buf + 0x14) + f;
+    ChangeFieldCollisionDebugMode(buf);
+    return *(int *)(buf + 0x94);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", shiftMotionData);
 

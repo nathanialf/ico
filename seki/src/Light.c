@@ -50,9 +50,57 @@ int light_GetColorAnalog(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", light_DrawCursor);
+extern int D_00629C90;
+extern char D_005EBC88[];
+extern char D_0054EB50[];
+extern char D_0054EB70[];
+extern char D_0054EBA0[];
+extern char D_002714A0[];
+extern void func_00261188(void *a0, void *a1, void *a2);
+extern int func_001A7A88(void *a0, int a1);
+extern void func_00243EE0(int a0, void *a1, int a2);
+extern void func_001A7AE8(int a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", light_Tool);
+int light_DrawCursor(void) {
+    char buf[0x100];
+    int s0;
+    func_00261188(buf, D_0054EB50, &D_005EBC88[D_00629C90 * 0x190]);
+    s0 = func_001A7A88(buf, 1);
+    if (s0 < 0) {
+        debug_assertMessage(D_0054EB70);
+    } else {
+        debug_assertMessage(D_0054EBA0, buf);
+        func_00243EE0(s0, D_002714A0, 0x130);
+        func_001A7AE8(s0);
+    }
+    return -1;
+}
+
+extern int D_00629C90;
+extern char D_005EBC88[];
+extern char D_0054EB50[];
+extern char D_0054EBC0[];
+extern char D_0054EBF0[];
+extern char D_002714A0[];
+extern void func_00261188(void *a0, void *a1, void *a2);
+extern int func_001A7A88(void *a0, int a1);
+extern void func_00244150(int a0, void *a1, int a2);
+extern void func_001A7AE8(int a0);
+
+int light_Tool(void) {
+    char buf[0x100];
+    int s0;
+    func_00261188(buf, D_0054EB50, &D_005EBC88[D_00629C90 * 0x190]);
+    s0 = func_001A7A88(buf, 0x602);
+    if (s0 < 0) {
+        debug_assertMessage(D_0054EBC0);
+    } else {
+        func_00244150(s0, D_002714A0, 0x130);
+        debug_assertMessage(D_0054EBF0, buf);
+        func_001A7AE8(s0);
+    }
+    return -1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", light_InitLight);
 

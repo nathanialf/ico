@@ -87,7 +87,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", GetGlobalDirect
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", GlobalizeGeometry);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", GetRootVelocity);
+extern void MatrixDrive_TransMatrix(void *out, void *src);
+
+void GetRootVelocity(char *a0, int *a1) {
+    char buf[0x40];
+    char *m = *(char **)(a1[0] + 0x15C);
+    MatrixDrive_TurnXObjectMatrixYZ(buf, (void *)(*(int *)(m + 0xC) + a1[1] * 0x40));
+    MatrixDrive_TransMatrix(buf, buf);
+    func_0023FDD8((int *)(*(char **)(a0 + 0x15C) + 0x510), (int)buf, (char *)(*(char **)(a0 + 0x15C) + 0x510));
+    func_0023FE98((int *)(*(char **)(a0 + 0x15C) + 0x510), (int *)(*(char **)(a0 + 0x15C) + 0x510));
+    *(int *)(*(char **)(a0 + 0x15C) + 0x51C) = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", GetInitialInverseMatrixByDObj);
 
@@ -99,7 +109,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", MakeCharGObjLis
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", cylinderCollisionCheck);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", LocalizeDirectionOrient);
+extern void func_0010E250();
+extern void func_0023FE08();
+
+void LocalizeDirectionOrient(char *a0, char *a1) {
+    char *sub = *(char **)(a1 + 0x15C);
+    char *p = sub + 0xA0;
+    func_0010E250(a0, sub + 0xD0, p);
+    {
+        char *q = *(char **)sub;
+        if (q != 0) {
+            func_0023FE08(a0, *(int *)(*(char **)(q + 0x15C) + 0xC) + (*(int *)(sub + 0x4) << 6), a0);
+        }
+    }
+    *(float *)(a0 + 0x34) = *(float *)(a0 + 0x34) + *(float *)(p + 0xB0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", GetCylinderCollision);
 
@@ -109,4 +133,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", CylinderCollisi
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", CylinderCollisionWithControlDynamics);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", GetRootMatrixByDObj);
+void GetRootMatrixByDObj(char *a0, char *a1) {
+    char *sub = *(char **)(a1 + 0x15C);
+    char *p = sub + 0xA0;
+    char *a = *(char **)sub;
+    if (a != 0) {
+        char *inner_struct = *(char **)(a + 0x15C);
+        int inner_field = *(int *)(inner_struct + 0xC);
+        int idx = *(int *)(sub + 0x4);
+        func_0023FDD8((int *)a0, inner_field + (idx << 6), p);
+    } else {
+        MatrixDrive_TurnObjectMatrix((int)a0, (int)p);
+    }
+    {
+        float sum = *(float *)(a0 + 0x4) + *(float *)(p + 0xB0);
+        *(float *)(a0 + 0xC) = 1.0f;
+        *(float *)(a0 + 0x4) = sum;
+    }
+}

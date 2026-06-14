@@ -118,7 +118,14 @@ int bga_CheckAnimationFinish(void *a0, int a1, int a2) {
     return cond;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_CheckAnimationFrame);
+extern int D_00271240[];
+
+int bga_CheckAnimationFrame(void *a0, int a1, int a2) {
+    int n = 0x3C - D_00271240[0] * 0xA;
+    return (float)a1 * ((float)(n / D_00271240[1]) / 30.0f) < *(float *)((char *)a0 + 0x20)
+        && *(float *)((char *)a0 + 0x20) < (float)a2 * ((float)(n / D_00271240[1]) / 30.0f)
+        && *(signed char *)((char *)a0 + 0xA) == 1;
+}
 
 
 /* recovered struct shapes */

@@ -2,7 +2,19 @@
 
 extern void playSEConditionID(int a0, int a1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/waySystemManager", CreateWaySystemManagerGObj);
+extern void GetRootMatrixByDObj();
+extern void func_00240008();
+extern void MatrixDrive_TurnObjectMatrix();
+
+void CreateWaySystemManagerGObj(char *a0) {
+    int buf[4];
+    char *sub;
+    GetRootMatrixByDObj(buf, a0);
+    sub = *(char **)(a0 + 0x15C);
+    func_00240008(sub + 0x120, buf, sub + 0x1E0);
+    sub = *(char **)(a0 + 0x15C);
+    MatrixDrive_TurnObjectMatrix(sub + 0x1E0, buf);
+}
 
 extern int func_0023D3C0(int a, int b, int c, int d, int e, int f, int g);
 extern void func_001EF360(void);

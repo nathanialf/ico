@@ -55,7 +55,26 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/RegistPacket", reg_dispNObj);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/RegistPacket", reg_dispMObj);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/RegistPacket", reg_dispSObj);
+extern void dpk_SwapBuffer();
+extern void dpk_Init(int a0, void *a1, int a2);
+extern int dl_GetPri(void);
+extern int tex_SetClutAnimation(int a0, int a1);
+extern int D_0062AF6C;
+extern char D_0054FB00[];
+
+void reg_dispSObj(char *a0, int a1, int a2) {
+    short h;
+    dpk_SwapBuffer(4);
+    h = *(short *)(a0 + 0x86);
+    if (h >= 0) {
+        D_0062AF6C += tex_SetClutAnimation(h, 4);
+    }
+    dpk_Init(2, D_0054FB00, 5);
+    dl_GetPri();
+    func_0011F1F0(a2, a1, 4);
+    dpk_Init(2, *(void **)(a0 + 0x98), (*(int *)(a0 + 0x90) & 0xFFFFFF) >> 4);
+    dl_GetPri();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/RegistPacket", reg_dispCObj);
 

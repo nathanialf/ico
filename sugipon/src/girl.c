@@ -8,7 +8,19 @@ int func_001CE7D8(void *a0) {
     return 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/girl", func_001CE800);
+extern int checkHit();
+extern void WeaponGeo();
+extern char *D_0062B6B0;
+
+int func_001CE800(void) {
+    char *p = *(char **)(D_0062B6B0 + 0x15C);
+    int v = *(int *)(p + 0x620);
+    if (v != 0 && checkHit(v) == 1) {
+        char *q = *(char **)(D_0062B6B0 + 0x15C);
+        WeaponGeo(*(int *)(q + 0x620));
+    }
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/girl", InitGirlGeo);
 

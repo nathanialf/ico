@@ -5,7 +5,14 @@ typedef struct { int f_0, f_4, f_8, f_C; char _pad10[0x40]; int f_50; char _pad5
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", torchOnOfWeaponSE);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", torchOffOfWeaponSE);
+extern void MatrixDrive_TurnObjectMatrix(int a0, void *a1);
+
+void torchOffOfWeaponSE(char *a0, int a1, int a2, int a3) {
+    char *sub = *(char **)(*(char **)(a0 + 0x15C) + 0x7F0);
+    MatrixDrive_TurnObjectMatrix(a1, sub + 0x20);
+    MatrixDrive_TurnObjectMatrix(a2, sub + 0x30);
+    MatrixDrive_TurnObjectMatrix(a3, sub + 0x40);
+}
 
 extern void DemoMotionGeo(int a0, int a1, int a2, int a3);
 
@@ -64,7 +71,15 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", initializeQueenzSword);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", InitWeaponGeo);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", WeaponGeo);
+extern void func_001EEB10();
+
+void WeaponGeo(char *a0) {
+    char *sub = *(char **)(*(char **)(a0 + 0x15C) + 0x7F0);
+    int i;
+    for (i = 0; i < *(int *)(sub + 0x50); i++) {
+        func_001EEB10(*(int *)(*(int *)(sub + 0x54) + i * 4));
+    }
+}
 
 int dispInsectNet(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);

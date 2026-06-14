@@ -177,4 +177,15 @@ void func_001050A8(int a0)
     MatrixDrive_TurnObjectMatrix(&D_006595C0[D_00629E40 * 64 + 0x30], buf);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_00105108);
+void func_00105108(float f12, float f13, float f14) {
+    float buf[4];
+    float buf2[4];
+    float *q = buf2;
+    buf[0] = f12;
+    buf[1] = f13;
+    buf[2] = f14;
+    buf[3] = 1.0f;
+    func_0023FDD8((int *)q, (char *)&D_006595C0[D_00629E40 * 0x40], (int)buf);
+    q[3] = 1.0f;
+    MatrixDrive_TurnObjectMatrix((int)(&D_006595C0[D_00629E40 * 0x40] + 0x30), (int)q);
+}

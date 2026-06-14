@@ -1,6 +1,24 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/flag", InitFlagGeo);
+extern void func_001189D0();
+extern void file_Init();
+extern void gif_SpriteOffset();
+extern void gsb_SetFrame();
+extern void gif_Line();
+extern void func_0010F9D0();
+
+int InitFlagGeo(char *a0) {
+    func_001189D0(*(int *)(*(char **)(a0 + 0x50) + 0xC), a0 + 0x10);
+    file_Init(*(int *)(a0 + 0x50));
+    if (*(int *)a0 != 0) {
+        char *fobj = *(char **)(a0 + 0x4);
+        gif_SpriteOffset(*(int *)fobj);
+        gsb_SetFrame(1, *(int *)(fobj + 0x34), 0x80);
+        gif_Line(*(int *)(fobj + 0xC), *(int *)(fobj + 0x10), *(int *)(fobj + 0x4) << 1, 1);
+        func_0010F9D0();
+    }
+    return 1;
+}
 
 int FlagGeo(void *a0) {
     int *t = *(int **)((char *)a0 + 0x4);

@@ -41,7 +41,22 @@ void InitTableSin(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", GetTableArcSin);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", GetTableArcCos);
+extern float p2o_SetDefaultEnviroment(int x);
+extern float _InverseCurrentMatrix(int *self, void *p, float arg);
+extern float func_0010ED30(int x);
+
+void GetTableArcCos(int *self, int a1, float x, float y, float z) {
+    char buf[0x10];
+    int half = (a1 << 16) >> 17;
+    float f;
+    *(float *)(buf + 0) = x;
+    *(float *)(buf + 4) = y;
+    *(float *)(buf + 8) = z;
+    *(int *)(buf + 0xC) = 0;
+    f = p2o_SetDefaultEnviroment(half);
+    _InverseCurrentMatrix(self, buf, f);
+    *(float *)((char *)self + 0xC) = func_0010ED30(half);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", GetTableArcTan2);
 

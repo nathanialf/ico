@@ -121,9 +121,41 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", func_001DD6E8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", func_001DD9B8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", func_001DDAB8);
+extern void gif_SpriteOffset();
+extern void gsb_SetFrame();
+extern void func_001DD6E8();
+extern void func_0010F9D0();
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", func_001DDB10);
+void func_001DDAB8(void) {
+    int v;
+    gif_SpriteOffset(0xB);
+    gsb_SetFrame(1, 5, 0x80);
+    func_00104D20();
+    v = func_00105078();
+    func_002400F8(v);
+    func_001DD6E8(0);
+    func_00105068();
+    func_0010F9D0();
+}
+
+extern int D_0062B758;
+extern int D_0062AF90;
+extern void func_0010F048();
+extern void func_001DDAB8_a(char *) __asm__("func_001DDAB8");
+
+void func_001DDB10(char *a0) {
+    int sub = *(int *)(a0 + 0x15C);
+    int v;
+    D_0062B75C = (int)a0;
+    v = *(int *)(sub + 0x8C);
+    D_0062B758 = v;
+    if (v != 0) {
+        func_0010F048();
+        if (D_0062AF90 != 0) {
+            func_001DDAB8_a(a0);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", func_001DDB68);
 

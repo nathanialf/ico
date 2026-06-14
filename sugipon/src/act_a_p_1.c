@@ -5,11 +5,38 @@ typedef struct { int f_0; char _pad4[4]; int f_8; char _pad_c[0x1B4]; int f_1C0;
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", standAI);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", walkAI);
+extern void GetRootMatrixByDObj();
+extern void func_00102820();
+extern void FlagGeo();
+
+void walkAI(char *a0) {
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x7F0);
+    GetRootMatrixByDObj(p + 0x1E0, a0);
+    func_00102820(p + 0x1D0, a0);
+    FlagGeo(*(int *)(p + 0x19C));
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", hehehe);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", SleepAP1);
+extern void func_0010F068();
+extern void func_0010F048();
+extern void file_LoadCDFile();
+extern void InitFlagGeo();
+
+void SleepAP1(char *a0) {
+    char *sub = *(char **)(*(char **)(a0 + 0x15C) + 0x7F0);
+    if (*(int *)(sub + 0x8) < 5) {
+        if (*(int *)(sub + 0x278) != 0) {
+            func_0010F068();
+            func_0010F048(a0);
+            if (*(int *)(sub + 0x4) == 0) {
+                file_LoadCDFile(*(int *)(sub + 0x194));
+                file_LoadCDFile(*(int *)(sub + 0x198));
+            }
+            InitFlagGeo(*(int *)(sub + 0x19C));
+        }
+    }
+}
 
 int WakeUpAP1(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
@@ -56,7 +83,14 @@ int AP1BeforeFunc(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", actAP1Start);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", IsActCharDead);
+typedef struct { char _pad[0xC]; int f; char _pad2[0x10]; } S;
+extern S D_0061D730[];
+extern int MoveNextStage_Clear(int a0, int a1, int a2, int a3, void *a4, int a5, int a6, int a7);
+
+int IsActCharDead(void *a0) {
+    return MoveNextStage_Clear(0x3C, D_0061D730[*(int *)((char *)a0 + 0x30)].f,
+        -1, 0, a0, -1, 7, 1);
+}
 
 extern int D_004B9D50[];
 int SetAP1HostGObj(void *a0) {

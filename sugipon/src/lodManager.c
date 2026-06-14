@@ -7,7 +7,13 @@ void SetLodLevel(void) {
     gif_SpriteOrg(0, D_0062B708);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lodManager", func_001D16F0);
+extern void gif_SpriteOrg_ll(int a0, long long a1) __asm__("gif_SpriteOrg");
+
+void func_001D16F0(int *a0, int *a1, int *a2) {
+    gif_SpriteOrg_ll(1, (long long)a2[0] | ((long long)a2[1] << 8) | ((long long)a2[2] << 16) | ((long long)a2[3] << 24));
+    gif_SpriteOrg_ll(5, (long long)a0[0] | ((long long)a0[1] << 16) | ((long long)a0[2] << 32));
+    gif_SpriteOrg_ll(5, (long long)a1[0] | ((long long)a1[1] << 16) | ((long long)a1[2] << 32));
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lodManager", func_001D1790);
 
@@ -31,7 +37,22 @@ void func_001D1D58(int *p1, int *p2, int a2, int a3)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lodManager", func_001D1DF0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lodManager", func_001D1ED8);
+extern void debug_assertMessage();
+extern void GetMotionPointer();
+extern char D_004C0A88[];
+extern char D_004C0A78[];
+extern char D_0029F060[];
+extern char D_00611958[];
+extern char D_00611990[];
+
+void func_001D1ED8(char *a0, int a1) {
+    if (*(int *)(a0 + 0xC) >= 0) {
+        debug_assertMessage(D_00611958, D_00611990,
+            D_0029F060 + *(int *)(a0 + 0xC) * 0x64,
+            *(int *)(D_004C0A88 + a1 * 4));
+    }
+    GetMotionPointer(a0, *(int *)(D_004C0A78 + a1 * 4));
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lodManager", func_001D1F68);
 

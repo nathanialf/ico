@@ -61,7 +61,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", DispParticleEffe
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", InitParticleEffects);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", DeleteParticleEffect);
+extern struct E24_pe D_004C2010;
+
+void DeleteParticleEffect(void) {
+    struct E24_pe *p = (struct E24_pe *)D_007030C0;
+    struct E24_pe *end = (struct E24_pe *)(D_007030C0 + 0xC00);
+    do {
+        *p = D_004C2010;
+        p++;
+    } while ((int)p < (int)end);
+}
 
 extern void SetParticleEffectGeometry(int);
 
