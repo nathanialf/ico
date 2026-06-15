@@ -1,7 +1,12 @@
 # CheckFloorAttribute (sugipon/src/motionManager2) — RESUME
 
-Best: **rc4** (seed `CheckFloorAttribute.c`, goto-ret0-last + do-while form,
-correct ret1/ret0 layout).
+Best: **rc3** (seed `CheckFloorAttribute.c`). Permuter (2026-06-15) improved rc4→rc3
+via the **multiplier-as-variable** lever: `int mul = 8; sp = (float*)((src + idx*mul)
++ 0x10);` — holding the `8` in a variable fixes the address-op ordering (the `addu
+src` lands right). The 3 remaining diffs are ALL the dead guard2 (missing `beq $3`,
+a nop in its place, the `addu` that belongs in its delay).
+
+PREVIOUS best rc4 (goto-ret0-last + do-while, literal `*8`).
 
 ## What it is (recovered)
 ```c
@@ -69,6 +74,13 @@ The register-keeping retention is exactly the permuter's `new_var` assigned-in-
 condition (func_001FB768 rc7->0 kept values in regs via a copy gcc's range pass
 couldn't see through). Hand C cannot manufacture an optimizer-opaque register value
 here (count|0, +0, *1, copies, two-reads, assign-in-cond all fold). LEVER = permuter.
+
+## Permuter run 1 result (2026-06-15)
+~460 iters, base score 260 (=rc4). Best harvest = output-260-1 → **true rc3** (scores
+were tied-260 but anti-correlated with real_count, per the playbook). Adopted as seed.
+The permuter's `new_var=8` only touched the MULTIPLIER, not the guard — so guard2 is
+STILL the residual. A future run should seed THIS rc3 and target the count guard
+(it needs a register-keeping `new_var` copy of count in the guard, func_001FB768-style).
 
 ## On resume after permuter
 If permuter found a `new_var`/assigned-in-condition form that retains guard2,
