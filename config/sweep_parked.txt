@@ -131,3 +131,171 @@ func_001048F0       # rc11 recursive tree-walk: do{node=*(a0+0x8C)+idx*0x40; fun
 func_00104848       # rc15 3-arg recursive tree-walk sibling of func_001048F0: node1=a0+idx*0x40; node2=*(a1+0x8C)+idx*0x40; func_00104D20;func_001050A8(node2+0x10);func_0010E300(node2+0x20);MatrixDrive_TransMatrix(node1,func_00105078()); if(node2->0x30!=-1)recurse(a0,a1,node2->0x30); func_00105068();idx=node2->0x34. seed /tmp
 MoveNextStage_Clear # rc6 8-arg seq exact: func_0023D260+UnlinkParentOfDObj(r->15C=u, u->804=a2)+light_AddAmbientObject+cond entry->58 jalr; residual=u->804 store vs light arg-move order (2 sites, sched)
 InitFlyManager      # rc7 rc7: if(D_0062B698){func_00260568(buf,0,0xC0);2x MatrixDrive_TurnObjectMatrix(buf/buf+0x10,a0);buf->0x14+=D_00629548;ClipWallField(buf,D_0062B698);if(buf->0x94){v=buf->0x98&0xF;if(v==1)v=0;else v*=0x64;return -v;}}return -0x2710. residual=v==1 branch-dir + tail share. buf[0xC0]. seed /tmp
+ShockRequestBox_EndRequestFree# rc26 struct-init store scheduling; field-order C misorders 26 stores
+func_00253188       # rc19 ROM hoists %hi(D_0054D020) into s0 across 1st jal (frame 0x20); clean C drops s0 -> frame 0x10 cascade
+ShockDriver_GetShockVoice# rc13 guard+zerofill loop; rc13 likely regalloc/sched of $8 copy + loop
+jimakuMgrNext       # rc19 bnel branch-likely + bit36 extract; rc19 branch/sched
+CreateWayGroup      # rc99 SKIP scan-class (array-walk search, bne reorg)
+func_0025F4F0       # rc99 needs func_0025EAA8 retyped void->unsigned long TU-wide (passthrough return of int->double bits); conflicts w/ sibling void decls
+func_00242438       # rc27 tag-dispatch on a0->f20 (0x8000000A/9) w/ bnel/beql reorg + sltu compare-tree ordering; clean if-else mismatches branch-likely
+isysGObjKindTableInit# rc9 regalloc-swap: counter a0 vs ROM a1 + loop store/dec interleave; permuter territory
+func_0026AEE0       # rc35 alloc+Duff-style size-class unrolled clear (sltiu 0x14/0x1C/0x24/0x25 fall-through, q-base tracked); nested-if reconstruction mismatches gcc fall-through
+close_inflate_handler# rc14 min via if branched not movz; needs ternary min + sched (rc14)
+ShockDriver_VoiceSet_NumberRegist# rc10 bnel list-walk scan-class; branch-likely reorg rc10
+iosOmSearchGObjId   # rc22 nested bnel search; result-var CFG misshapes rc22 scan-class
+inflate_start       # rc5 ret<<11 deferred past assert call vs ROM early sll s0 + buf[0] in a1; sched
+Reset_ShockRequestStruct# rc2 rc2 shared-return form: gcc cross-jumps the two return-0 blocks ROM keeps separate (L738/L740)
+updateHMC           # rc14 beql+bnel branch-likely dup f15C load; rc14 branch reorg
+funcCommonFallDircorrect# rc24 float-copy+stat-index+call; rc24 likely a0 liveness/frame mismatch
+WithMailFunc_FallDead# rc19 two-div (div/div1) + a0 spill-reload; rc19 sched/spill
+func_0024C108       # rc4 5-param+callback template (a2/a3/a4 flag stores, func_002483F8 init, func_0024C0B0 cb arg8, D_00711B40 arg9); residual=%hi(D_00711640) reg color s7-held vs v0-copy + addiu/daddu on obj arg1
+visible_waypoint_of_all_except_temp_ThreadVersion# rc5 rc5: f64 load regalloc v0 vs a1 + WPElem.f20 offset-as-disp; char* form best
+func_0024BDE0       # rc42 lock template w/ alignment-clamp (a2<0x11 split) + byte-copy loop (a1->D_007116C0+0x20, reloaded limit) + func_001007A0; loop SR + clamp order mismatch
+iosThreadMain       # rc24 clamp+divu+(3t)>>2 store ordering & branch-likely; rc24
+iosThreadGetPri     # rc17 dll-unlink+callback beql reorg+reloads; rc17
+iosPadEnable        # rc23 by-value vec-struct stack-pass + ld/sd shuffle to 2 calls; rc23 hard class
+ACTWay_IsMustWalkFromWay# rc13 float guards bc1tl/bc1t + 2 calls; rc13 branch-likely/sched
+BeforeFunc2         # rc23 identical asm to iosPadEnable: by-value vec-struct stack-pass to func_0023FED0/FDD8; hard class
+isysGObjSearchFromObjKindID_begin# rc99 SKIP scan-class isysGObjSearchFrom* (array search, bne reorg)
+func_00241148       # rc47 wait-loop state machine: 0xFFFFFF(D_FFFFFF imm) timeout counter, bgez-gated func_00260668 yield, degenerate do-while clear-bit8 loop, final bit-mask; CFG/loop soup mismatch
+func_002413F0       # rc45 sibling of func_00241148 wait-loop soup + movz(a2==0->0x1000000); a1==1 early bit-return; same degenerate clear-loop CFG mismatch; deep-pass class
+iosPadActStop       # rc4 rc4: only diff is base materialization (ROM v1=&D_0027D540 then +0x1B8 giv-init + entry nop); walking-ptr form best
+gamesysMemoryHandlerWrite# rc2 STRUCTURE+JTBL MATCH (jtbl compiles clean in isolation, NOT a carve job); switch(a0<5) sd 0x48/0x44/0x42/0x2800000064/0x68 at uncached(p=D_004AED40|0x20000000)+0x20; func_0023EB60(0,0); void-TCO func_0023E6E8(p); residual=single sltiu bound-check temp v0-vs-v1 regalloc tiebreak (jtbl base wants v0). seed in skill notes
+func_0023DF40       # rc8 FP-tagged list walk (tag@+0xC ==0/==2.0, func_001D1D58(prev,p,a1,0x800000), tail func_0010F9D0(p+0x10)); residual=bc1tl-vs-bc1f branch-likely + j/jr tailcall + 2 FP-sched nops
+AdpcmUseAreaGet     # rc26 free-slot scan dual read/write IV + i*0x5C000 return; rc26
+isysGetNbAllocedGObjs# rc2 rc2: alloc+init loop; residual 2 store/copy sched after split-ret refinement
+func_0023FC08       # rc40 short-arg fixed-point scale: movn-based clamp (x+0x3F>=0?x+0x3F:x+0x7E)>>6 per a0&2 (>>5/0x1F else); prod=x*y; masked-ld(*p&0xFFFF0000FFFF==1) selects <<16 vs <<17 then sra16. ternary->branches not movn; needs movn idiom
+BoxBarSoundOn       # rc15 flag-dispatch movn + 64-bit bit-tests + tail-call; rc15
+iosCdvdMgrSearchFile# rc49 per-elem bit-pack loop, far-globals+0x2E8 stride; rc49 structure off
+func_001A7350       # rc2 float HW-reg: unaligned 16B struct-copy(D_0060D738)->buf; ret -1.0 if *0x10000810&0x800; f2=(float)(unsigned)*0x10000800; f2/buf[*0x10000810&3]/60.0f. ALL MATCH except 1 addu operand-order (sp+idx->v1 vs idx+sp->v0) regalloc tiebreak. seed=/tmp
+gamesysStageExitTimeSet# rc34 uncached-mirror(D_004AECA0|0x20000000) + scratchpad-symbol %lo(D_20000xx) reloc class (like gamesysGirlStageGet/ObjInfoCls deep-pass) + movn clamp((c>=0?c:c+0x3F)<<10>>16) that ternary->branches; 12-arg func_0023EE78; void-TCO func_0023E6E8(p)
+func_002534B8       # rc17 flag-dispatch (D_0054C92C/8FC==3 -> func_00253DB0(Dxxx[0],a0-1) or func_00253EC8(2 globals,a0-1)); obj=*(D_0054C764[0]+0x40), obj->0xF8 1->2. LOGIC EXACT; residual=global-value-load sched (before-jal vs after) + obj->f8 reload placement + %lo-fold addr form
+_FUNC_GetWay_begin  # rc7 rc7: f44 via a0+0xC split + bnel vs beq branch-likely tiebreak
+func_00242C40       # rc27 locked node-init(7 args->a0 fields f0/4/8/10/14/40=a6) + list-append walk(p=a6->f8, beql p->f38==0 else do-while walk, p->f38=a0); func_00101A40(a0) lock, tail func_00101A88. residual=7-param-spill callee-reg order + a6->f8 load interleave sched
+funcGirlHandDisconnect# rc11 setup+flag-cond float +-1.0f+tail-call; rc11 store-order/sched
+ShockEmulator_EmulationShot# rc24 claim-free-slot beql/bnel scan + count reload; rc24
+func_00241FA8       # rc22 read-char loop into buf[i] until \n/\r or i>=count; busy-wait D_0070C7A8->f4; char=D_0070C790.f18->f8[0]; func_00241C80(f18); index i1=i+1 carry + f18 double-load + busy-wait nop-padding sched residual
+iosOmExeEachGObjAll # rc7 rc7: prologue sched tiebreak (save/idx-shift/ret-init order + beqz-delay nop)
+func_002414B8       # rc34 wait-loop soup sibling of func_00241148/002413F0 (cond a0->f10<a1 unsigned); a2==1 early-return sltu; movz(a3==0->0x1000000)+degenerate clear-bit8 do-while; same CFG class deep-pass
+func_00202868       # rc26 free-slot scan + big struct-init sched + bnel; rc26
+func_001443B8       # rc13 twin of funcGirlHandDisconnect: setup+flag-cond+tail-call; rc13
+func_00249818       # rc27 lock-init: func_002491D0(0x22) guard w/ bnel D_0054C200=a0 store IN annul-delay (result!=0); func_002483F8(&D_0054C200,4); func_00242978(D_0054C608,0x22,0,&D_0054C200,4,D_0054BDC0,4,0,0); uncached return D_0054BDC0|0x20000000. residual=%hi held s2 + bnel-delay-store + frame
+bridge_waypoint_side_me# rc10 bidir waypoint-connection scan; beql/bnel reorg rc10
+actBoyRescueReady   # rc6 rc6: CylinderCollision arg-in-delay sched + v0/v1 regalloc on f130 reload (far-alias fixed gp-rel)
+func_0024E818       # rc22 HW-reg init (0x1000xxxx writes F590=F520|0x10000 then &~0x10000, B000/B400/D400/B020/B420/D420=0, 0x10002010=0x40000000) + lock D_0054C7A4=1; tail func_00254CC0(0,0). BLOCKER: func_00101A40 called NO-ARG ($4=leftover %hi(D_0054C7A4)=0x550000) but TU prototype requires int*self -> can't reproduce no-proto call
+func_00252BD8       # rc42 LOGIC EXACT: 3x func_00252870 store globals; if((u)(D_0054C8FC-2)<2){2 more}; if(==3){2 more}; func_00252F88/CA8 + tail func_00252FC0. residual=ROM hoists each global %hi into callee s0/s1/s2 BEFORE call (store-addr-before-call), frame 0x40 vs 0x20 cascade
+func_00201840       # rc12 append-to-arrays + tail call; dual-addr index*8 + sched rc12
+func_00257220       # rc37 flag-update(a0->f0 bits per &4, set 0x40)+scan p=func_00254FC8(0) stride0x58 x48: if(p->f50==a0->f4C(reload) && p->f51==1){p->f0&=~0x10;p->f26=0x40}; a0->f51=a0->f50. scan-class double-bnel + i-- in annul-delay; deep pass
+reuse_mblock        # rc20 bump-allocator align+room-check+maybe-alloc+bump; rc20 cond/branch layout
+func_002519A0       # rc37 flag-dispatch: e=D_0054CD78+D_0054CD78[0xA0]*0x140; e->0x13C=1; D_0054C9BC=1; if(D_0054C8FC==2) zero a0 fields; D_0054C92C==3?a1=2:(a1=1,a2[0,1]=(==2)); if(D_0054C8FC==1){func_0024E920;ret=0}; a3->f0&=~1. 3x bnel branch-likely + mult idx; deep pass
+func_00149F60       # rc13 long call-seq; buf sizes/arg-eval-order/delay sched rc13
+func_00240EA0       # rc49 wait-loop soup sibling (func_00241148 family); + bnel if(a0->f30!=-1)a0->f30=a1; a0->f20=0; a0->f0=(a0->f0&~0xC)|0x105. degenerate clear-loop CFG class deep-pass
+func_0014A008       # rc12 float->angle conv, div180 guard + float-const sched; rc12
+func_001FE250       # rc6 rc6: pure reorder - (a1->f15C)->fC load not in jal delay slot (dbr readiness)
+func_001A5070       # rc14 STRUCTURE EXACT: D_00271258 guard; a0>0 -> debug_assertMessage((int)D_0060DC28,a1); a1!=0 -> if(func_00261B10(D_005EBCC8+a1*0x190,D_0062CC60)==0){8 calls + D_0062AB00=D_00629C90,B320/A4F8=1,A894=0}; ret a0. residual=a0/one s2-vs-s1 callee-reg swap + late-materialize one=1 (regalloc tiebreak). seed=/tmp w/ int one=1
+correctJumpOrientByChain# rc48 multi-mult index+fill loop; rc48 structure/strength-reduce off
+func_0023C1D8       # rc37 LOGIC RECOVERED: lock func_00100560(a0->f40); num=((a0->fC+a0->f10)<<11)+a0->f14; rem=num%a0->f18(div+break); X=a0->f18-rem; Y=((a0->f8-(a0->f10+2))<<11)-a0->f14; if(X<Y) bnel branch stores; tail func_00100540. residual=f10+2 CSE( reused) + value-reg reuse + bnel-vs-beq; deep pass
+ContinueCorrectPosition# rc22 switch-like fC dispatch (1/2/4 vs 0/3/2B/default); rc22 branch layout
+func_00264440       # rc46 signed itoa: buf[0]=fill, buf[1]=+/-, digits reverse-built in stack buf (sp+0x134 down) via %10/10 div-loop then copied fwd to buf+2; val<10 special 0X; ret out-buf. loop/ptr/reverse-copy CFG reconstruction off; deep pass
+actCommonFall       # rc2 rc2: D_005530B8 64-bit load gp-rel vs ROM far %hi/%lo (alias overcorrects to 3)
+func_0026808C       # rc52 VU0/MMI SIMD memchr(buf,c,n): aligned 16B blocks via lq/pcpyh/pcpyld/pxor/pnor/psubb/pand/pcpyud has-byte test (bnel found), scalar lbu tail. needs 128-bit MMI intrinsics/hand-asm; VU0-class deep-pass (scalar-only=rc52)
+isysGObjSearchFromObjLayoutID# rc28 scan + range-table lookup; scan-class rc28
+waypoint_connect_group_side_me# rc24 scan-class twin of bridge_waypoint_side_me; rc24
+GetEnemyTypeFromGObj# rc10 nested iterator scan + inner 5-loop bnel; rc10
+func_00259878       # rc17 LOGIC RECOVERED: bounds(a0<0x30,0<=a1<0x80) else -1; obj=func_00254FE0(a0); obj->f0|=0x2000; if((obj->f0&5)==1){r=func_00255008(obj->f18);b=*(int*)r; b+=b->f10; if(*(u16*)b+1!=0)loop i: *(b+*(u16*)(b+2+i*2)+2)=a1; ret=0}; obj->f0&=~0x2000. residual=beql-vs-beq count check + &5==1 branch-form + ~0x2000 wants 0xFFFFDFFF lui+ori not addiu
+new_mblock_node     # rc36 retry-loop allocator + global counter + arg-forward after assert; rc36
+func_0024E978       # rc29 DMA-chain builder: sp=uncached(D_00712E40|0x20000000); loop chunk=min(count,0xFFF40)(movz); qc=(chunk+15)>>4(movn signed-div); tag3=count?3:0(movn); *(u64)sp=(src&0xFFFFFFF<<32)|(tag3<<28)|qc; sp+=0x10(%lo(D_20000010) reloc); DMA regs B430/B420/B400. movz/movn + scratchpad-symbol + 64bit-pack deep-pass
+isysGObjInit        # rc21 dll-unlink 2 head-arrays + beql + tail-call assert; rc21
+waypoint_connect_group_side_bridge# rc2 rc2 (2-arg WayLengthOfGObj_Pos): 1-insn reorder of a1->s0 save in prologue
+func_00266890       # rc17 free-slot allocator: list=a0+0x1D8; if(a0->f38==0)func_00266990(a0); retry: i=list->f4-1; if(i>=0) search slot(stride0x58) for ->fC==0 -> found; else if(list->f0)list=list->f0 retry; else nl=func_00266820(a0,4),list->f0=nl,if(nl)retry else a0->f0=0xC ret0. found:init slot(fC=1,fE=-1,f54=a0,zero f0/8/4/10/14/18/30/34/44/48). LOGIC EXACT; residual=goto-CFG block layout + bltzl/bnel branch-likely forms
+ShockDriver_VoiceSet_Regist# rc28 outer-loop unlink+callback per match, beql reorg; rc28
+AdpcmStreamInit     # rc11 4-case dll sorted insert (empty/head/tail/mid); rc11 sched/regalloc
+func_00240B78       # rc8 GS/DMA channel-reset: saved=*0x1000E000&1; loop i=9..0 over D_0054AA10(flags)/D_0054A9D0(chan ptrs): if(*flags) zero ch f80/f0/f30/f10/f50/f40; *0x1000E010=0xFF1F then &=0xFF1F0000(RMW); func_00240B18(buf,0x14)/func_00240C68(buf); if(a0==1)*0x1000E000|=1; ret saved. STRUCT EXACT; residual=loop-setup sched + field-store order + a0==1 v0/v1 tiebreak. seed=/tmp (chanp++ before flags++ order)
+func_001681E0       # rc20 dense geometry float math + MatrixDrive call + abs/div; rc20 float sched
+func_0024EF10       # rc69 12-arg uncached-addr calc: n=(D_0054C88C*D_0054C890); movn clamp(n>=0?n:n+0x1FF)>>9; m=n*0x180 (inline 3x mult); 9 outputs unc(x)=(x&0xFFFFFFF)|0x20000000 for a9/a10/a11 + a9+m/a10+m/a11+m. movn-ternary->branches + scratchpad-uncached + 12-arg/stack-arg sched; deep-pass
+func_00178B08       # rc10 iterator-scan twin of side_bridge, returns p->fC/f8; rc10
+func_00240F78       # rc51 wait-loop soup sibling (func_00240EA0 family); +bnel if(a0->f10!=-1)a0->f10=a1; a0->f20=a2; a0->f0=(a0->f0&~0xC)|0x101. degenerate clear-loop deep-pass
+func_00241060       # rc51 wait-loop soup sibling (func_00240EA0 family); identical to func_00240F78 but |0x109. deep-pass
+la_load_processing  # rc12 JTBL state-machine loader (needs case 4:return -1 to force jtbl not cmp-tree): if(a0)D_0062B3C8=0; sw(state)>=5 ret-1; jtbl c0:D_004B8240[2]=D_0062B2F8,[3]=0,iosMcSync,state++,ret-1; c1:iosMcMgrSync==0?ret-1:state++ret-1; c2:kanbanBootStart>0?state++ret-1:initSceneGObj(0),D_0062B30C=0,ret0x29; c3:D_0062B3C8=state+1(saved),initSceneGObj(0),D_0062B30C=0,ret0x23. residual=shared-tail D_0062B3C8 reload v0/v1 + state+1 form. seed=/tmp
+actBoySupportBGBegin# rc4 rc4: else-branch buf[1]/buf[2] load reg swap (f1/f2); temps overcorrect
+func_001A62D8       # rc39 debug formatter: elem=D_006F26D0+a0*8+a1*0xD0(a0*8 CSE'd/a1*0xD0 recomputed); diff=elem[0]-elem[1]; sprintf(buf, diff<0?D_0062CD30/-diff:D_0062CD38/diff); func_00261188(D_006E7710,D_0060E180,D_0055D538+a0*0x24,e2[0],e2[1],buf); ret D_006E7710. varargs arg-pass + 2D-index sched; deep-pass
+SetDirectRootPositionWithNodePointLimit# rc6 rc6: dual base+idx*4 addr-reg pattern (swapped-operand addu) partially split
+func_001AAD88       # rc12 GObj-info builder: func_002415C8(buf,(D_0062B190<<13)|0x70000000); 415D8/241640(,0)/2416F0(,0); D_0062B190=(D_0062B190+1)&1; func_00241778(buf,*(Q)D_0060EEF0)[lq WORKS via 16B struct]; func_002418B8(buf,a0|0x40); func_002418B8(buf, a1|a2<<8|a3<<16|a4<<24|D_0062B194<<32); gamesysObjInfoPosNewStageSet/Get. residual=param->callee-reg alloc order (a2/a3/a4 s1/s0/s2) + dsll sched. seed=/tmp (restructured OR-grouping)
+iosThreadResume     # rc10 list-walk accumulate (Clear/Init) + movz clamp + 2 byte stores; rc10
+_boxbar_set_sound   # rc3 rc3: bgez vs bltz + negu position branch-direction tiebreak
+CorrectStickInfo    # rc11 multi-range state-machine sltiu + L_B00 merge + branch-likely; rc11
+ACTNotNeedCameraOffset# rc49 large state-machine dispatch (0x55/0x56/0x59/ranges + bit36); rc49 structure off
+la_load_confirm_no_data# rc31 confirm-no-data: if(D_002715D4&0x50){kanbanBootMcCheck(D_004B8240);initSceneGObj(0);D_0062B30C=0;ret0x19}; r=func_001AE800(D_004B8240); r==0->-1; bgtz/beq split r==1/r==-1: both check (*D_0062B2F0>>1)&1 -> SHARED initSceneGObj,ret0x1A; r==1 else -1; r==-1 else D_0062B340=1,-1. nested bgtz/beq + shared-block layout deep-pass
+iosThreadDestroy    # rc37 double-block init w/ dead if(&global) checks; rc37 hard to reproduce
+fade_exec           # rc15 two-path loop: a0!=0 -> row=D_005EBC48+a0*0x190, loop i=row->f130..row->f134 func_001AD258(elem->f0,elem->f4) elem=D_00536530+i*0x38; a0==0 -> loop p=D_00536530..+0xE0 same call, then zero-loop z=D_006FF910+0x3A0 stride-0x20 x0x1E, D_0062C15C=0/D_0062B2B8=1/D_0062C160=0. LOGIC EXACT; residual=dual-pointer GCSE (row+elem each want 2 addr regs, identical roots) deep-pass regalloc
+func_0025CC90       # rc87 fdlibm rintf (float round-to-int): j0=((bits>>23)&0xFF)-0x7F; j0>=23: j0==0x80?x+x:x; j0<0: magic-test(0<x+0x7149F2CA) then bits>=0?0:movn(-1.0f); else msk=0x7FFFFF>>j0, (bits&msk)==0?x: round(bits<0?+0x800000>>j0)&~msk. fdlibm-class + movn + bc1f/beql/bgezl branch-likely; deep-pass (like func_00268DD8)
+add_gobj_to_tail    # rc22 4-case sorted dll insert head/tail arrays; rc22 (int-return garbage + insert sched)
+isysGObjRemoveAll   # rc18 sorted dll insert (twin of add_gobj_to_tail, flipped cmp); rc18 insert sched
+func_00247120       # rc4 size-dispatch template: func_00246868()<0->0xFFFF0000; D_0070F800[0]=a0,[4]=a2; a2==0/1/2->byte/half/word store *(D_0070F800+8)=*a1 else 0xFFFEFFFE; r=func_00242978(D_0070FA00,2,0,D_0070F800,0x20,D_0070F800,0x10,0,0); ret (r>=0?0:0xFFFEFFFF). residual=movn-vs-movz direction (ROM const-default movn-to-0) + reg order. ternary=rc4 (best), explicit-if=rc6
+iosMallocResetPartition# rc5 rc5: r-temp v0 vs ROM v1 regalloc tiebreak (frame fixed to 0xC800)
+iosThreadSleep      # rc62 piecewise interpolation math div/div1 3-branch; rc62 structure off (decomp-match class)
+func_0023CF90       # rc29 lock ring-enqueue: func_00100560(a0->f40); if(a0->f58<a0->f54){func_0023CB70(a0,a1); d0=*(long)a1; if(d0<0){ret=1; if(*(long)(a1+8)<0)goto unlock}; e=a0->f50+a0->f5C*0x18; e->f10=a1->f10,e->f0=d0,e->f14=a1->f14,e->f8=a1->f8(dual-ptr recompute); a0->f58++; a0->f5C=(a0->f5C+1)%a0->f54(div+break); ret=1} unlock:func_00100540; ret. dual-ptr+bgezl/bltz+div deep-pass
+func_0025D748       # rc99 soft-float 64-bit accumulate: func_0025F4A0(a0,0)<0->0; func_0025EF78(a0,0xF7C0<<46); v=func_0025F640()<<32; sign-split -> func_0025D838(i64->double, parked rc6)/func_0025EEB8; func_0025EF10; 2nd phase func_0025F4A0 sign -> +/- (u32)func_0025F640 into v. BLOCKER: func_0025F4A0 defined void but asm uses $2 return; soft-float deep-pass family (func_0025F8B0/D838/EBD8)
+func_00241210       # rc52 wait-loop soup sibling (func_00240EA0 family); bnel if(a0->f10!=-1)a0->f10=a1; a0->f20=a2; a0->f0=(a0->f0&~0xD)|0x100. degenerate clear-loop deep-pass
+EXITDATA_GetNextPosition# rc23 conditional traceLine(8 args)+unusual $2-entry+byte boolean tree; rc23 decomp-match class
+func_002530A0       # rc62 init: D_0054C764[0]->f40->0xE8=0; D_0054D0B0=D_0054D0B4+1; D_0054D0B8=1; 8x func_00252870(1/5/6/1-discard/6/6/1/1) stored to D_0054C99C/A0/A4/A8/AC/B0/B4; tail func_00252CA8. residual=8 globals each %hi-hoisted to callee reg BEFORE call (store-addr-before-call), same class as func_00252BD8 rc42
+func_00241300       # rc54 wait-loop soup sibling (func_00240EA0 family); bnel a0->f10=a1; a0->f20=a2; a0->f0=(((f0&~0xC)|8)&~1)|0x100. degenerate clear-loop deep-pass
+func_0026AC08       # rc32 growable-buffer: old=a0->f30; if(old==&a0->f40){newbuf=func_002678D8(a0->f54,0x400);a0->f30=newbuf,f34=0x400; copy old[2..0]->newbuf[0x3FD+i]; a0->f0=newbuf+0x3FD; 0} else {nsz=f34<<1; newbuf=func_0026B118(f54,old,nsz); p=newbuf+oldsize; func_002604B8(p,newbuf,oldsize); f34=nsz,f0=p,f30=newbuf; 0}. LOGIC EXACT; residual=callee-reg-alloc order (a0->s3-not-s2,newbuf->s1) + f34(bnel-delay)/f54 early reads
+func_001433F0       # rc55 float transform-copy + staffRollStart + tail-call; rc55 structure off
+func_0023E6E8       # rc9 DMA-chan-start (tail target): busy-wait *0x1000A000&0x100 do{if((u)counter>0x1000000){func_00260668(D_00628240);ret-1}counter++}while(busy); *0x1000A020=(int)(*(long)a0&0x7FFF)+1; (a0&0x70000000)==0x70000000?*0x1000A010=(a0&0xFFFFFFF)|0x80000000:&0xFFFFFFF; *0x1000A000=0x101; 0. LOGIC EXACT; residual=timeout bnel-vs-bne + counter daddu-copy (busy-wait branch-likely tiebreak). seed=/tmp
+func_00252FC0       # rc31 state-update: if(D_0054C8FC!=3 && D_0054C8F8!=D_0054D0F0){ if(D_0054D0EC)D_0054D0EC=0,D_0054D0B0+=0x400; if(D_0054C8F8<D_0054D0F0 && D_0054D0B8==0)D_0054D0EC=1; D_0054D0B8=0; D_0054D0F0=D_0054C8F8 }; D_0054C9B8=D_0054D0B0+D_0054C8F8; if(D_0054D0EC && D_0054D0F0>=D_0054C8F8)D_0054C9B8=D_0054D0B4+0x400; D_0054D0B4=max(D_0054D0B4,D_0054C9B8)(movn). %hi-hoist+movn+bnel deep-pass (sibling func_00252BD8/002530A0)
+func_001A8238       # rc33 debug-menu state machine on D_0062ADE8: 0->debugEEExceptionMain(5args)+combo=(D_002715D4&0x40?-1:(&0x20?1:0))movz, if(combo==1)iosMcSync,inc; 1->D_0062ADEC++,if(old&0x10)capture(4args),iosMcMgrSync!=0->inc; else=0. movz flag-combo (ternary->branches) + debugEEExceptionMain hand-asm varargs; deep-pass
+func_0024D320       # rc52 linear-search-or-insert: tbl=a0->f40; key=func_0024CD88(a1,a2)[parked rc35]; arr=tbl->f44,count=tbl->f48; scan(special-case arr[0] then bnel loop i=1..count for key==elem->f0 -> ret=elem->f10); if(i<0x40) insert elem at i: f0=key,f14=a4,f10=a3,f8=D_0054C698[a1].f8, tbl->f48++. scan-class bnel + 64-bit key + dual-index; deep-pass
+actChangeActMain    # rc2 rc2: e->f40 test wants 64-bit dsll+bnez; my shift folds to beq (bitfield-form tiebreak)
+func_00246778       # rc34 strncpy+template: D_0054AB34<0->0; copy a0->D_0070F700[4+i] until null or i>=0xFC (bnel loop); *(int)D_0070F700=a1; if(i==0xFC)i=0xFB; D_0070F700[0xFF]=0; r=func_00242978(D_0070F600,3,0,D_0070F700,i+5,D_0070F640,4,0,0); r<0?-1:D_0070F640[0]. scan-class bnel copy + index/cap flow deep-pass
+func_00167DB0       # rc26 9-call render seq + by-value structs to gsb_SetFrame; rc26
+func_00135118       # rc44 double free-list walk (header -8) + base recompute + tail; rc44
+Init_ShockDriver    # rc6 rc6: prologue sched tiebreak (a0->s3 copy / s2 save / count-init order + acc17<<16 hoist)
+func_00246868       # rc2 poll/retry: D_0054AB38<0 -> loop{r=func_002427A8(D_0070FA00,0x80000006,0); r<0->-1; if(D_0070FA00->f24){D_0054AB38=0; func_00242978(D_0070FA00,0xFF,0,0,0,D_0070F800,4,0,0)<0->0xFFFEFFFF; __builtin_memcpy(D_0070FA28,D_0070F800,4); 0} else delay i=(int)D_FFFFF;do i--;while(i!=-1)}. KEY: D_FFFFF as SYMBOL (extern char D_FFFFF[]; i=(int)D_FFFFF) -> lui%hi/addiu%lo reloc (rc3->2). residual=delay-loop nop/decrement scheduling. seed=/tmp
+isysGObjRemove      # rc45 iterator-scan + chain-append; rc45 scan-class
+func_0023FCD0       # rc62 GS sprite-packet builder(a0=long* buf, a1-a5 short, a6-a7 int-byte, a8-a9 stack-byte, a10 stack-uword): a0[0]=0x30000,[1]/[11]=0x47,[2]=6(ret),[3]=0,[5]=1,[7]/[9]=5; [4]=color(a6|a7<<8|a8<<16|a9<<24|0xFE00<<46); [6]=xyz1(a2<<4|a3<<20|a10<<32); [8]=xyz2((a2+a4)<<4|(a3+a5)<<20|a10<<32); [10]=a1==0?0x30000:((a1&3)<<17|0x10000); SYNC(); ret 6. residual=packing-expr/arg-type + sd-schedule; deep-pass mechanical. seed=/tmp
+GetSkeltonPosition  # rc6 rc6: dual base+idx*4 swapped-operand addu (same class as SetDirectRootPosition); scan loop matched
+func_0023EE78       # rc99 GS-packet builder (same class as attempted func_0023FCD0 rc62): many short args sign-ext sll16/sra16, intricate bitfield packing dsll32/dsra (13/22/28/19/5/6/29) into GS register slots a0[0..7], a1==0?0x3F:0x7F at [1], SYNC, ret 4. mechanical-but-scheduling deep-pass; GS-builder class
+func_0026816C       # rc99 memmove(dst=a0,src=a1,n=a2): overlap-check sltu (backward byte-copy if overlapping); else if n>=0x20 && ((src|dst)&0xF)==0 -> lq/sq 128-bit blocks; ld/sd 64-bit; byte tail. BLOCKER: lq/sq need u_long128 (not in include/), like VU0 memchr func_0026808C; 128-bit deep-pass
+func_00265028       # rc99 format-string scanner(out=a0,fmt=a1): handles '^'(0x5E flag),'-'(0x2D),'.'(0x2E),']'(0x5D); fills a0[0..0xFF] backward with flag byte; multi-label goto-soup CFG + beql/slti branches; complex-parser deep-pass
+func_00135EA0       # rc52 reuse_mblock allocator family + sizing/finalize; rc52 cond-layout (decomp-match class)
+func_00135738       # rc47 callback fill-loop + 0x18000 offset + casts; rc47
+func_0024C688       # rc5 lock-template sibling of func_0024CC70(MATCHED): a2-string variant; buffer symbol D_00711704 is at string offset (base=D_00711704-0x14); strncpy func_00261900(s,a2,0x3FF); base[0]=a0,[1]=a1,[2]=0,+0x413=0; func_00242978(obj,0xF,1,base,0x414,D_00712C00,4,0,0); D_0054C690=0xF. residual=base-ptr v0-vs-v1 regalloc + store-schedule tiebreak. seed=/tmp
+GetBoyMode          # rc99 complex math: div-by-3 + modulo + cvt + 2 array lookups + 2 calls; decomp-match class
+func_0024AB28       # rc54 2D-array field lookup: elem=D_007112D0(PObjA8B8Ent[][4])+a0*0x70(mult1)+a1*0x1C(mult); if(!elem->f10)0; func_0024A858(a0,a1); checks f72==1,f64>=2,a2<f6A; a2==-1->f6A; dispatch a3: ==2->elem[0x31+a2*4],<3&&==f72->0x30,==3->0x32,==4->0x33,else 0. residual=mult1/mult pipe-assignment + binary-switch dispatch struct; deep-pass
+fzMagnitude2f       # rc47 clamp + 3 calls + 2 array-walk loops w/ global counter; rc47
+iosCdvdDiskStatusGet# rc99 bnel search-loop (stride 0x30, func_002613B4 compare) + D_0027A8A0 part; scan-class
+func_00252758       # rc82 DMA poll: if((*0x10002010&0x80004000)==0x80000000) busy-wait do{counter<0x1389?counter++:func_0024E0D8(D_0054C764[0]),counter=0}while(busy); *0x10002000=a0|0x40000000; idx=(u)(a0|0x40000000)>>28; elem=&D_0054D088[idx]; D_0054C7A4=*elem; func_002523B8(*elem); D_0054D018=(int)elem(dsll32/dsra32); D_0054D01C=0x20. residual=4-global %hi-hoist-to-callee + busy-wait struct; deep-pass
+GetWay_next         # rc99 iosMsgRecv dispatch loop + multi-case state machine; decomp-match class
+func_00252870       # rc99 larger sibling of func_00252758 (rc82 %hi-hoist class): same busy-wait poll(0x10002010&0x80004000==0x80000000, func_0024E0D8 reset every 0x1389) + DMA writes 0x10002000 + D_0054D088[idx] extract w/ srlv + 2x func_002523B8 + D_0054C7A4/D018/D01C updates. 4-global %hi-hoist-to-callee deep-pass
+func_00254B70       # rc10 DMA-xfer setup: f1C=(unsigned)a0->f1C; b=((f1C>>16)&3)+((f1C>>8)&0xF); v18=a0->f8+b; v17=a0->f0-(b<<4); if(f10&&f14){*0x1000B010=f10,*0x1000B020=f14,func_002549B8(f18|0x100)}; busy-wait*0x10002010<0; *0x10002000=f1C&0x7F; busy-wait; if(v17&&v18){*0x1000B410=v17,*0x1000B430=f4,*0x1000B420=v18,tail func_00254A20(fC|0x100)}. LOGIC EXACT (unsigned f1C fixes srl); residual=field-extract regalloc (f8/f0->a0/a1) + b-comp schedule. seed=/tmp
+nearest_waypoint_by_lineseg_of_group_from_gobj# rc2 rc2: 1-insn reorder of cur=best (s1=v0 copy); min-search loop otherwise exact
+debug_Init          # rc99 large pure-init: ~70 gp-rel globals (D_0062AF7x..D_0062B08x) set to 0/1/2/3/4/5/6/7/0xF/0x19/0x64 with register-constant reuse ($2=1,$3=0xF->4,$4=0x64->0,$5=3,$6=5,$7=0x19); tail fzShowV w/ D_00629D20=0 in delay. mechanical but store-order+reg-reuse scheduling-dependent + 70 gp-rel decls; large-init class
+func_00252620       # rc99 %hi-hoist DMA family (sibling func_00252758 rc82/252870): if(!D_0054C7A4 && D_0054D01C>=a0) skip; busy-wait poll(0x10002010&0x80004000==0x80000000, func_0024E0D8 reset @0x1389); *0x10002000=0x40000000; D_0054C7A4=D_0054D088[2].f10; func_002523B8; D_0054D018/D01C update; ret D_0054D018 srlv (-a0). 4-global %hi-hoist-to-callee deep-pass
+nearest_waypoint_by_lineseg_from_gobj# rc14 min-search + GetRootMatrixByDObj front + 2 bufs; rc14
+func_0025CDA0       # rc99 fdlibm float-class (like func_0025CC90 rintf rc87): exp=(bits&0x7F800000)>>23; exp==0 paths (denormal: mul.s by 0x4C000000 scale); mantissa 0x7FFFFFFF; bc/c.lt.s float compares + f20 callee-FP. soft-float/fdlibm deep-pass
+func_00268E70       # rc99 soft-float bignum->double: digits at a0+0x14[a0->f10]; func_002685B8(exp); builds IEEE double bits in $17 (0x3FF00000 exp, mantissa srlv/sllv from digit words, dsll32/dsrl32 pack); cases exp<0xB / >=0xB / ==0. soft-float family (func_0025D748/0025F8B0 parked); deep-pass
+visible_waypoint_of_all_from_gobj# rc8 rc8: a0/a1 callee-saved s2/s3 regalloc swap (one root cause)
+draw_shikaku        # rc99 rect-draw: stores leftover $2 to sp+0 at ENTRY (non-arg reg, can't reproduce from C); unaligned copy D_0062CB80->sp+0x10; builds 4 vertices (loop $8=3..0) from a0->f0/f4/f8 + offset arrays sp+0x70/0x74; 2x func_001103F0(line-draw, ~8 args, color -1). BLOCKER: $2-at-entry leftover-reg dep; deep-pass
+visible_waypoint_from_gobj# rc4 rc4: cur=best (s1=v0) 1-insn reorder, same way_util min-search family tiebreak
+disp_memory_partition_bar# rc58 display bar: local[2]=a0,[3]=D_00629C90; switch(a1){0/default:0x2A,0xB6; 1:0,1; 2:1,2; 4:2,0x16; 0xF:0x16,2}->local[0],[1]; r=func_001AB298(local); if(r){r->f4(short)=a2; r->f10/14/18=a3[0..2]; r->f20/24/28=a4[0..2]; *(long)r|=2}; ret r. residual=sparse-switch cmp-tree(==2 first) + FP-fill order; deep-pass
+NearestWgFromTarget # rc8 rc8: scan-class branch-dir tiebreak (bne vs beq on i2==a0) + a1->s0 reorder
+func_0025F940       # rc99 fixed-point/rational normalizer(a0,a1,out): type-dispatch a0->f0/a1->f0 (0/1/2/4); copy+AND for type-match; movz abs-diff exponent align; shift-normalize loops (srl by exp-diff); 0x3FFFFFFE range clamp loops; out f0/f4/f8/fC mantissa/exp. movz + normalize-loops; soft-float deep-pass
+func_00240C68       # rc99 large GS-config(a0=cfg struct): validate a0[0..2]<0xA(ret -1/-2/-3),a0[3]<7(-4); table lookups D_0054AA38/48/58[a0[0..2]]; bit-pack into *0x1000E000 (masks 0xFFFFFFCF/FF3F/FFF3/FCFF, shifts 4/6/2); a0[3]?bit2:clear; write 0x1000E020/30/40/50 from a0 halfwords/words; unaligned copy a0[0..0x14]->D_0054AA68; ret 0. large mechanical bit-pack; deep-pass (careful-reconstruction seed)
+actInitialize_ext_charcter# rc36 init chain: iosFree+memset+reloaded (a0->f164)->f670 stores+tail; rc36
+gamesysVersionSave  # rc99 varargs printf-logger: saves varargs($6-$11) to sp+0x190; func_00265130/func_0026160C parse buffer; per-char: \t(9)->col+=2, \n(0xA)->row++/col=0, else write to D_006F2890[row][col](sll col,3|row,11), col++; col>=0x100 clamp 0xFF; row>=0x1A scroll-up (ldl/ldr copy rows, fill last w/ D_0062B1A8); bnel parse-loop. varargs+parse+scroll deep-pass
+way_toolDL          # rc4 rc4: fill-loop addr form (base+i index vs single walking ptr)
+func_00166910       # rc99 by-value struct build+shuffle + func_0023FDD8 loop; hard class
+func_0023D170       # rc7 GObj-create loop: g=0; if(a1<a2) do{g=isysGObjMoveBeforeGObj(BackToGameCamera,0,0); a1++; g->f164=0,f4=0,fC=-1,f16C=1,f8=-1; isysGObjMoveObjDLAfterGObj(g,kanbanReqAdd,0,0,0xFFFFFFFF)}while(a1<a2); h=isysGObjMoveBeforeGObj(0,0,0); h->f164=0; func_001F8E08(h,0,0,1,0xFFFFFFFF); ret g. residual=0xFFFFFFFF 5th arg wants lui+ori (try UNSIGNED INT param not int/long; int->addiu-1, long->WORSE rc15). a0 unused. seed=/tmp
+func_00202578       # rc34 bounds-checked copy loop + index/break; rc34
+func_001616E8       # rc99 unusual $2-reg arg spill + dead if(&global) + multi-path dispatch; hard class
+func_00269618       # rc35 handler-table dispatcher: (u)a1>=0x20->self->f0=0x16,ret-1; if(!self->f1D4)func_00269518(a0)!=0->-1; h=tbl[a1](tbl=self->f1D4); h==0->r=func_002698C8(),return func_00269868(self,r,a1); bgtz h: h==1?ret0:fnptr; h<0: h==-1?self->f0=0x16,ret1:fnptr; fnptr:tbl[a1]=0,((void(*)(int))h)(a1),ret0. residual=bgtz/beq fn-ptr dispatch tree + shared-return CFG + jalr; deep-pass
+func_00167E88       # rc99 render-setup twin of func_00167DB0 (rc26); hard class
+SetStatusBoy_OtherStageGirlPinch# rc99 64-bit bitfield masks on D_006A45A0[1] + conditional calls; GsBase-style hard
+soundOutputModeSet  # rc99 jump-table switch (jtbl_00551F30) over loop entries; needs .rodata jtbl carve (data-carve class)
+func_002533D8       # rc6 state-switch: if(D_0054C92C==3 && D_0054C89C){func_0024E920(D_00629218);D_0054C89C=0}; switch(D_0054C92C){1:p=D_0054C9C8[0];2:p=D_0054C9CC[0];3:p=D_0054C9C4[0];default:p=D_0054C9C4[0],func_0024E920(D_00629238)}; r=func_00251550(a0); if(r)p->f28=1; ret r. SWITCH form=rc6 (best); residual=case3/default bne-vs-beq branch-sense (ROM: if(!=3)default else case3). explicit if-else=WORSE rc20. seed=/tmp switch-form
+func_002405E0       # rc99 FP matrix/projection builder: 8 float args f12-f19 + stack FP (sp+0xA0); neg/mul/add/div chains build transform (f21=(stk*f19)*(-f17+f18), f20=(-f18*f19)+(f17*stk), div by (f1-f19)...); mov f12-f15->f22-f26 callee-FP; 2x func_002400F8; matrix to sp, func_0023FE08(a0,sp,a0). heavy-FP + FP-regalloc + sched; deep-pass (sugipon/omori matrix class)
+func_00268358       # rc30 bignum mul-add-carry+grow: p=&a1->digits(a1+0x14); count=a1->f10; do{d=*p; lo=(d&0xFFFF)*a2+carry; hi=(d>>16)*a2+(lo>>16); *p=(hi<<16)|(lo&0xFFFF); carry=hi>>16; p++}while(++i<count); if(carry){if(count>=a1->f8){nb=func_00268280(a0,a1->f4+1); func_002604B8(nb+0xC,a1+0xC,count*4+8); func_00268328(a0,a1); a1=nb} a1->digits[count]=carry; a1->f10++} ret a1. residual=carry mult/shift seq + grow-path sched + do-while; deep-pass
+actBoyReadyMove     # rc55 64-bit bitfield pack (3 bits) + unaligned 8-byte copy; rc55
+ACTSetEnvAllmighty  # rc99 func_0025A340 + field arithmetic + inflate_stored + branches; involved, decomp-match class
+func_0023E048       # rc16 GS-CRTC config: short args; a0==0: s=func_0023E158(); *0x12001000=0x200; s->f0=a1,f2=a2,f6=((u)*0x12001000>>16)&0xFF(dsrl needs unsigned long); func_00100860(0xFF00); s->f4=(a3!=0); if(s->f8){func_00100A08(2);func_00100220(2,s->fC);s->fC=0;s->f8=0}; tail func_00100120(a1&1,a2&0xFF,a3&1). a0==1: *0x12001000=0x100. residual=code-layout(a0==0 work placement) + regalloc + store-order. seed=/tmp

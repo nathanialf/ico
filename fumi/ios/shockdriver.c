@@ -4,7 +4,7 @@ typedef struct { int count; int *arr; } ShockMgr;
 extern ShockMgr *D_0062A490;
 
 extern int D_006A0930[];
-extern void ShockDriver_GetShockVoiceMax(int a0, int a1);
+extern int ShockDriver_GetShockVoiceMax(int a0, int a1);
 
 void Vibration_ShotDecode(int key)
 {
@@ -196,9 +196,58 @@ fail:
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockDriver_GetShockVoiceMax);
+int ShockDriver_GetShockVoiceMax(int a0_, int a1) {
+    int *a0 = (int *)a0_;
+    int *node;
+    int *next;
+    int *prev;
+    int (*fn)(int *, int);
+    node = ShockDriver_VoiceSet_Remove((int **)a0, a1);
+    if (node == 0) {
+        return 0;
+    }
+    prev = (int *)node[0x30 / 4];
+    if (prev != 0) {
+        prev[0x34 / 4] = node[0x34 / 4];
+        next = (int *)node[0x34 / 4];
+    } else {
+        next = (int *)node[0x34 / 4];
+        a0[0] = (int)next;
+    }
+    if (next != 0) {
+        next[0x30 / 4] = node[0x30 / 4];
+    }
+    fn = (int (*)(int *, int))a0[8 / 4];
+    if (fn != 0) {
+        fn(node, a0[0xC / 4]);
+    }
+    return 1;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockDriver_GetShockVoiceSet);
+int ShockDriver_GetShockVoiceSet(int *a0, int *a1) {
+    int *next;
+    int *prev;
+    int (*fn)(int *, int);
+    if (a1 == 0) {
+        return 0;
+    }
+    prev = (int *)a1[0x30 / 4];
+    if (prev != 0) {
+        prev[0x34 / 4] = a1[0x34 / 4];
+        next = (int *)a1[0x34 / 4];
+    } else {
+        next = (int *)a1[0x34 / 4];
+        a0[0] = (int)next;
+    }
+    if (next != 0) {
+        next[0x30 / 4] = a1[0x30 / 4];
+    }
+    fn = (int (*)(int *, int))a0[8 / 4];
+    if (fn != 0) {
+        fn(a1, a0[0xC / 4]);
+    }
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockDriver_GetShockVoice);
 

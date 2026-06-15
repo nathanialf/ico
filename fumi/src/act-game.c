@@ -101,7 +101,18 @@ void ACTGame_InnerVelocityUpdate(char *self, char *other, int idx)
     disp_memory_partition_bar(self, other, D_0055A2D8[idx][9], tmp_a, tmp_b);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_BeforeFunc);
+extern void func_00260568(void *a0, int a1, int a2);
+extern float D_00628DF0;
+extern void func_00240038(void *a0, void *a1, float a2);
+
+void ACTGame_BeforeFunc(int *a0, int a1, void *a2, int a3) {
+    char buf0[0x10];
+    char buf1[0x10];
+    func_00260568(buf1, 0, 0x10);
+    *(float *)(buf1 + 4) = (float)a3 * D_00628DF0 / 180.0f;
+    func_00240038(buf0, a2, -1.0f);
+    disp_memory_partition_bar((char *)a0[2], (char *)a0[3], a1, buf0, buf1);
+}
 
 int FunctionAboutClingedStatus(void *a0) {
     float f = *(float *)(*(char **)((char *)a0 + 0x164) + 0x1D0);

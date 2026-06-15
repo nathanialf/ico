@@ -12,7 +12,33 @@ void actDummy(void *a0, int a1) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act2", func_002013B0);
+extern int D_00271240[];
+extern void iosSemaCreate(void);
+
+void func_002013B0(int a0, int a1) {
+    int t = a0 & a1;
+    if (t == 0) {
+        do {
+            int count = (0x3C - D_00271240[0] * 0xA) / D_00271240[1] / 0x3C;
+            int n = 1;
+            if (count != 0) {
+                n = count;
+            }
+            if (n == 0) {
+                for (;;) {
+                    iosSemaCreate();
+                }
+            }
+            if (n > 0) {
+                int i = n;
+                do {
+                    iosSemaCreate();
+                    i--;
+                } while (i != 0);
+            }
+        } while (t == 0);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act2", func_00201470);
 
@@ -40,7 +66,27 @@ void func_002015F8(int a0, int *a1, int *a2) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act2", func_00201628);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act2", func_002017A0);
+extern void GetRootMatrixByDObj(void *out, void *obj);
+extern void func_00240008(void *out, void *a, void *b);
+extern float func_0023FE70(void *a, void *b);
+
+int func_002017A0(void *a0, void *a1, void *a2) {
+    float buf0[4];
+    float buf1[4];
+    float buf2[4];
+    float threshold;
+    threshold = (float)(*(int *)((char *)a2 + 0x30) * *(int *)((char *)a2 + 0x30));
+    if (a0 == 0 || a1 == 0) {
+        return 0;
+    }
+    GetRootMatrixByDObj(buf0, a0);
+    GetRootMatrixByDObj(buf1, a1);
+    func_00240008(buf2, buf0, buf1);
+    if (func_0023FE70(buf2, buf2) < threshold) {
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act2", func_00201840);
 

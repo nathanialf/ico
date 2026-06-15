@@ -58,7 +58,36 @@ int gamesysBackStageProcess(int a0) {
     return ret;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysGeneratorInfoLoad);
+extern int func_001A4C58(void *a0, int a1, int a2, int a3, int a4, void *a5, void *a6, int a7);
+extern void func_001A62D8();
+extern int D_0062AEC0;
+extern int D_0062AEC4;
+extern char D_0060E190[];
+extern char D_0060E1A8[];
+extern char D_006F26D0[];
+extern int D_002715D4[];
+
+int gamesysGeneratorInfoLoad(void) {
+    long buf[3];
+    int r;
+    __builtin_memcpy((char *)buf, D_0060E190, 0x14);
+    if (D_0062AEC0 != 0) {
+        *(long *)((char *)buf + 0) = *(long *)(D_0060E1A8 + 0);
+        *(long *)((char *)buf + 8) = *(long *)(D_0060E1A8 + 8);
+        *(short *)((char *)buf + 0x10) = *(short *)(D_0060E1A8 + 0x10);
+        *(char *)((char *)buf + 0x12) = *(char *)(D_0060E1A8 + 0x12);
+    }
+    r = func_001A4C58(buf, 0x50, 0x46, 0xA, 0x1A, &D_0062AEC4, (void *)func_001A62D8, D_0062AEC0);
+    if (D_002715D4[0] & 0x10) {
+        int *row = (int *)(D_006F26D0 + D_0062AEC0 * 0xD0);
+        int i;
+        for (i = 0x19; i >= 0; i--) {
+            row[1] = row[0];
+            row += 2;
+        }
+    }
+    return r;
+}
 
 extern int init_debug_menu(void);
 

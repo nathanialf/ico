@@ -127,7 +127,28 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", bridge_waypoint_side_me);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", waypoint_connect_group_side_me);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", bridge_waypoint_side_bridge);
+extern char wcf_c[] __asm__("D_004C7CF0");
+extern char D_005540F8[];
+extern char D_00554080[];
+extern char D_0062C6F8[];
+extern void debug_assertMessage();
+extern void func_001AAD00(void *a0, int a1);
+extern void func_00260380(void *a0, int a1, void *a2);
+
+int bridge_waypoint_side_bridge(void *a0, int a1) {
+    char *e1 = wcf_c + *(int *)((char *)a0 + 0x20) * 0x40;
+    char *e2;
+    if (*(int *)(e1 + 0x20) == a1) {
+        return 1;
+    }
+    e2 = wcf_c + *(int *)((char *)a0 + 0x24) * 0x40;
+    if (*(int *)(e2 + 0x20) != a1) {
+        debug_assertMessage(D_005540F8);
+        func_001AAD00(D_00554080, 0x2C2);
+        func_00260380(D_00554080, 0x2C2, D_0062C6F8);
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", waypoint_connect_group_side_bridge);
 
@@ -155,7 +176,24 @@ int func_00178BB8(WPNode2 *a0, int a1) {
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", func_00178C00);
+extern char D_004C7008[];
+
+int func_00178C00(int idx, int last, int *ctx) {
+    int *arr14 = (int *)ctx[0x14 / 4];
+    int *arr10 = (int *)ctx[0x10 / 4];
+    while (1) {
+        if (arr14[idx] != 0x7FFFFFFF) {
+            if (*(int *)(D_004C7008 + idx * 0x34) == 0) {
+                break;
+            }
+        }
+        if (idx == last) {
+            break;
+        }
+        idx = arr10[idx];
+    }
+    return idx;
+}
 
 int func_00178C58(int a0, int a1) {
     float x = *(float *)(a0 + 4);

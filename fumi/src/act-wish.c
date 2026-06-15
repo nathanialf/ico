@@ -41,7 +41,37 @@ void func_0014A3E0(void *a0) {
     q[0x15] = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", func_0014A400);
+extern char D_0055DA10_a[] __asm__("D_0055DA10");
+extern int D_00629DE8;
+extern float GetHeightOfCliffFromGObj(void *a0, float a1);
+
+float func_0014A400(int *a0) {
+    int *p = (int *)a0[0x164 / 4];
+    char *sub = (char *)p[0x670 / 4];
+    unsigned int state = *(unsigned int *)(sub + 0x54);
+    int flag = 0;
+    float f12 = 1.0f;
+    char *e;
+    if (state < 3) {
+        flag = (a0 == (int *)D_00629DE8);
+    }
+    if (state == 1) {
+        e = D_0055DA10_a + ((int *)a0[0x15C / 4])[0x490 / 4] * 0x190;
+        if ((*(unsigned int *)(e + 0x188) >> 22) & 1) {
+            f12 = *(float *)(sub + 0x58);
+            flag = 0;
+        }
+    } else {
+        e = D_0055DA10_a + ((int *)a0[0x15C / 4])[0x490 / 4] * 0x190;
+        if (((*(unsigned int *)(e + 0x188) >> 21) & 1) == 0) {
+            f12 = *(float *)(sub + 0x58);
+        }
+    }
+    if (flag != 0) {
+        f12 = 1.0f;
+    }
+    return GetHeightOfCliffFromGObj(a0, f12);
+}
 
 extern int DispIcoMisc(int *buf);
 extern void queen_barrier_anim(int a0, int a1, int a2, int *buf);

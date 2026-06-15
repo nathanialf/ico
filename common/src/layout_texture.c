@@ -80,7 +80,15 @@ extern LTItem_B2EF8 D_002715D0[];
 
 int func_001B2EF8(int a0){int v=D_002715D0[a0].f4;if(v&0x40)goto ret1;if(v&0x10)goto ret1;goto ret0;ret1:return 1;ret0:return 0;}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", display_primary_texture_layout);
+struct S40 { char b[0x40]; };
+extern struct S40 D_0060F8F8;
+extern struct S40 D_0027D500;
+
+void display_primary_texture_layout(void) {
+    struct S40 tmp;
+    tmp = D_0060F8F8;
+    D_0027D500 = tmp;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", exec_layout_texture);
 

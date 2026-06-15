@@ -51,7 +51,31 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/charFileManager", ReadCamerasetFil
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/charFileManager", ReadEndCheckFile);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/charFileManager", ReadStageSettingFile);
+extern int D_0062A328;
+extern int D_00271240[];
+extern int iosFree(int a0, char *q, const char *src, int code);
+extern void iosCdvdLoad(int *self, int p, char *q);
+extern void iosMallocCheckLeak2(int p);
+extern char D_0060B4E0[];
+extern char D_0060BA90[];
+extern char D_0062C9F0[];
+extern void debug_assertMessage(void *a0);
+extern void func_001AAD00(char *a0, int a1);
+extern void func_00260380(char *a0, int a1, char *a2);
+extern void func_00188728(void *a0, int a1);
+
+void ReadStageSettingFile(int *a0, int a1, char *a2, void *a3) {
+    int p = iosFree(D_0062A328, a2, D_0060B4E0, 0x327);
+    if (p == 0) {
+        debug_assertMessage(D_0060BA90);
+        func_001AAD00(D_0060B4E0, 0x32C);
+        func_00260380(D_0060B4E0, 0x32C, D_0062C9F0);
+    }
+    D_00271240[8]++;
+    iosCdvdLoad(a0, p, a2);
+    func_00188728(a3, p);
+    iosMallocCheckLeak2(p);
+}
 
 extern int D_0062A328;
 extern int D_00271240[];

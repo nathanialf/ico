@@ -89,7 +89,29 @@ void _ACTRun(int n) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act", _ACTWait);
+extern int D_00271240[];
+extern void iosSemaCreate(void);
+
+void _ACTWait(int a0) {
+    int count = (a0 * ((0x3C - D_00271240[0] * 0xA) / D_00271240[1])) / 0x3C;
+    if (a0 != 0) {
+        if (count == 0) {
+            count = 1;
+        }
+    }
+    if (count == 0) {
+        for (;;) {
+            iosSemaCreate();
+        }
+    }
+    if (count > 0) {
+        int i = count;
+        do {
+            iosSemaCreate();
+            i--;
+        } while (i != 0);
+    }
+}
 
 extern void *D_0062A4DC;
 extern void *isysGObjProcPausePtr(void *a0, void *a1, int a2, void *a3);
@@ -99,7 +121,29 @@ void actCreateSubThreadGOppArg(void *a0, void *a1) {
     *(int *)((char *)p + 0x64) = 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act", actCreateSubThread);
+extern int D_0062B050;
+extern void *D_0062A4DC;
+extern char D_00613B30[];
+extern char D_00613B40[];
+extern char D_00613B50[];
+extern int isysGObjProcPause(void *a0, void *a1, int a2, void *a3);
+
+int actCreateSubThread(void *a0, int a1) {
+    int r;
+    if (D_0062B050 != 0) {
+        char *sub = *(char **)((char *)D_0062A4DC + 0x164);
+        debug_assertMessage(D_00613B30, D_0062A4DC);
+        debug_assertMessage(D_00613B40, *(int *)((char *)D_0062A4DC + 8));
+        debug_assertMessage(D_00613B40, *(int *)((char *)D_0062A4DC + 0xC));
+        if (sub != 0) {
+            debug_assertMessage(D_00613B50, sub);
+            debug_assertMessage(D_00613B40, *(int *)(sub + 0x30));
+        }
+    }
+    r = isysGObjProcPause(D_0062A4DC, a0, 0, (void *)a1);
+    *(int *)(r + 0x64) = 1;
+    return r;
+}
 
 void actSetInterrupt(int *a0, int a1) {
     *a0 = a1;

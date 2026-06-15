@@ -56,9 +56,41 @@ void subEnemyCollision(int *self, int a1)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyAttack);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyRestart);
+extern int D_00629DE4;
+extern void ActPara_GetDefTbl(void *a0, int a1);
+extern int IsEnemyBrainToGenerator(void *a0, int a1, int a2);
+extern char D_0055DA10[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", PairSetGeometry);
+void actEnemyRestart(void *a0) {
+    int *p;
+    char *e;
+    if (D_00629DE4 != 0) {
+        ActPara_GetDefTbl(a0, 0x1B);
+        p = *(int **)((char *)a0 + 0x15C);
+        e = D_0055DA10 + p[0x490 / 4] * 0x190;
+        if ((*(unsigned int *)(e + 0x188) >> 1) & 1) {
+            IsEnemyBrainToGenerator(a0, D_00629DE4, 5);
+        }
+    }
+}
+
+extern int D_00629DE8;
+extern void ActPara_GetDefTbl(void *a0, int a1);
+extern int IsEnemyBrainToGenerator(void *a0, int a1, int a2);
+extern char D_0055DA10[];
+
+void PairSetGeometry(void *a0) {
+    int *p;
+    char *e;
+    if (D_00629DE8 != 0) {
+        ActPara_GetDefTbl(a0, 0x1B);
+        p = *(int **)((char *)a0 + 0x15C);
+        e = D_0055DA10 + p[0x490 / 4] * 0x190;
+        if ((*(unsigned int *)(e + 0x188) >> 1) & 1) {
+            IsEnemyBrainToGenerator(a0, D_00629DE8, 5);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyForceSwitchToCarry);
 

@@ -168,7 +168,26 @@ void actBoyBHang(void) {
     D_006A45A0_ll[1] |= 0x800000000LL;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyFall);
+extern char D_005529E0[];
+extern unsigned char D_006A45F0[];
+extern int actSwordEff(void *a0, int a1, int a2, int a3, float a4, float a5);
+extern void ACTGame_BeforeFunc(void *a0, void *a1, void *a2, int a3);
+
+int actBoyFall(void *a0, int a1) {
+    char buf[0x10];
+    int rv = 0;
+    if (D_00629DE4 != 0) {
+        rv = actSwordEff(a0, 0, 0, 0, 0.25f, 4.0f) & 0xFF;
+        if (rv != 0) {
+            D_006A45F0[0] = 1;
+            *(int *)(D_006A45F0 + 4) = a1;
+            *(long *)buf = *(long *)D_005529E0;
+            *(long *)(buf + 8) = *(long *)(D_005529E0 + 8);
+            ACTGame_BeforeFunc(D_00629DE4, a0, buf, 0);
+        }
+    }
+    return rv;
+}
 
 extern unsigned char D_006A45F0[];
 
@@ -238,7 +257,17 @@ void func_001531E8(int *a0, int *a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoySupportBGBegin);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyDitch3mExec);
+typedef struct { long long d[12]; } S60;
+typedef struct { int d[6]; } S18;
+extern S60 src60_a __asm__("D_0027DF10");
+extern S60 dst60_a __asm__("D_006A45A0");
+extern S18 src18_a __asm__("D_0027DF70");
+extern S18 dst18_a __asm__("D_006A4600");
+
+void actBoyDitch3mExec(void) {
+    dst60_a = src60_a;
+    dst18_a = src18_a;
+}
 
 extern void GetCylinderCollisionWithExceptOwnCollision(void *a0, void *a1);
 

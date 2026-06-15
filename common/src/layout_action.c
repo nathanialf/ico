@@ -31,7 +31,7 @@ int _la_set_current_port_2(void)
   return 0x33;
 }
 
-extern void debug_assertMessage(void *a0);
+extern void debug_assertMessage(void *a0, ...);
 extern char D_0060F8D8[];
 extern char D_0060F8E8[];
 
@@ -125,7 +125,43 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_load_start_chec
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_load_processing);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_mc_confirm_save_file);
+extern void debug_assertMessage(void *a0, ...);
+extern void func_001AF120(void);
+extern int initSceneGObj(int a0);
+extern char D_00700710[];
+extern char D_0027D2F8[];
+extern char D_0060FB70[];
+extern char D_0060FB88[];
+extern int D_0062B308;
+extern int D_0062B2FC;
+extern int D_00271254[];
+extern int D_0062B304;
+extern int D_0062B30C;
+
+int la_mc_confirm_save_file(int a0, int a1) {
+    if (a0 != 0) {
+        __builtin_memcpy(D_00700710, D_0027D2F8, 0x10);
+        D_0062B308 = 0x3FF;
+        func_001AF120();
+        debug_assertMessage(D_0060FB70, D_0062B308, D_0062B2FC);
+    }
+    if (a1 != -1) {
+        debug_assertMessage(D_0060FB88, 0xE9, 0xEA, a1);
+    }
+    switch (a1) {
+    case 0xE9:
+        D_00271254[0] = 0;
+        initSceneGObj(0);
+        D_0062B30C = 0;
+        return 0x32;
+    case 0xEA:
+        D_0062B304 = 1;
+        initSceneGObj(0);
+        D_0062B30C = 0;
+        return 0x3B;
+    }
+    return -1;
+}
 
 int la_save_game_memory_card_check(void) {
     return -1;
@@ -187,7 +223,44 @@ int la_system_save_processing(int a0) {
     return -1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_save_processing);
+extern int D_00629C90;
+extern int D_002715D4[];
+extern int D_0062B35C;
+extern int D_0062B3F0;
+extern int D_0062B304;
+extern int D_0062B30C;
+extern char D_0060FB98[];
+extern int iosPadEnableGet(void);
+extern int func_00178DB0(int a0);
+extern void func_00178E08(int a0);
+extern void debug_assertMessage(void *a0, ...);
+extern void StageManager(int a0, float a1, float a2);
+extern int initSceneGObj(int a0);
+
+int la_save_processing(int a0) {
+    if (a0 != 0) {
+        if (D_00629C90 == 1) {
+            iosPadEnableGet();
+        }
+    }
+    if ((D_002715D4[0] & 0x800) == 0) {
+        return -1;
+    }
+    if (func_00178DB0(0x162) != 0) {
+        debug_assertMessage(D_0060FB98);
+        func_00178E08(0x162);
+        D_0062B35C ^= 1;
+        D_0062B304 = D_0062B3F0;
+        StageManager(D_0062B3F0, 8.0f, 4.0f);
+        if (D_0062B3F0 == 0xFFFFFFFF) {
+            D_0062B3F0 = 1;
+        }
+        initSceneGObj(0);
+        D_0062B30C = 0;
+        return 0x3B;
+    }
+    return -1;
+}
 
 
 /* recovered struct shapes */
