@@ -158,7 +158,19 @@ void gamesysObjInfoGet(int *a0) {
     func_00240EA0(p, (a0[1] & 0x3FF0) | 0x80000000);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysObjInfoCls);
+extern void func_0023FB60(void *a0, int a1, int a2, short a3);
+extern void func_0023E6E8(void *a0);
+
+void gamesysObjInfoCls(void *a0, int a1, int a2) {
+    char *p = (char *)((int)a0 | 0x20000000);
+    if (a1 != 0) {
+        func_0023FB60(p + 0x150, 0x800, 0x800, (short)a2);
+        func_0023E6E8(p + 0x140);
+    } else {
+        func_0023FB60(p + 0x60, 0x800, 0x800, (short)a2);
+        func_0023E6E8(p + 0x50);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysGirlStageGet);
 

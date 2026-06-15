@@ -9,7 +9,6 @@
 # Append via: tools/sweep_park.sh <tu_stem> <func> <rc> [note]
 # To re-attempt one: tools/sweep_targets.sh <scope> --include-parked  (or delete its line)
 
-gamesysObjInfoCls   # rc5 symbol-reloc: shared %hi(D_20000060)+per-access %lo vs immediate offsets
 func_00261FB8       # rc13 object lazy-init + tail call func_00262030; reload-vs-reuse of a0->unk54
 func_00241A10       # rc15 init-once guard + tail; func_00242078 void-decl needs int return (cast=jalr)
 func_001AAC60       # rc7 callback loop; gcc reverses up-count to bgez countdown, walking-ptr+index both fail
