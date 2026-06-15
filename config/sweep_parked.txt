@@ -11,7 +11,6 @@
 
 func_00261FB8       # rc13 object lazy-init + tail call func_00262030; reload-vs-reuse of a0->unk54
 func_00241A10       # rc15 init-once guard + tail; func_00242078 void-decl needs int return (cast=jalr)
-func_001AAC60       # rc7 callback loop; gcc reverses up-count to bgez countdown, walking-ptr+index both fail
 stgmgrForceSwitch   # rcNA SIGNATURE CONFLICT: existing 4-int decl+caller cannot take the float params asm reads; needs out-of-region decl fix
 ResetGObjProc       # rcNA 64-bit bitfield-pack of 7 args; deep-pass/permuter class
 ReadModelFile       # rc16 struct-fill matches; end-ptr is base+size-reg vs absolute %hi/%lo fold (far_global addr-form)

@@ -12,7 +12,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AA68
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AAAD0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AAC60);
+extern int D_0062B088;
+extern int D_0062D098[];
+extern struct AE610 { int x; int pad; } D_004AE610[];
+extern void func_001019E0(void *a0, int a1);
+extern int func_00247880(int a0, void *a1);
+extern void func_001AA680(void);
+
+void func_001AAC60(int a0) {
+    unsigned int i;
+    D_0062B088 = a0;
+    func_001019E0(D_0062D098, 0xB);
+    for (i = 0; i < 0xB; i++) {
+        func_00247880(D_004AE610[i].x, func_001AA680);
+    }
+}
 
 void func_001AACD8(void) {
 }
