@@ -18,7 +18,6 @@ func_00241838       # rc10 align+zfill: end+1+mask reassoc + loop rotation (b-in
 func_00241990       # rc15 logic exact; callee-save s0/s1 swap (a1 vs D_0054AA90 base); regalloc-tiebreak class
 func_00257190       # rc21 logic+clamp exact; a0/a1 s0/s1 swap + byte-read schedule
 ReadVolumeModelFile # rc99 scan-class bnel reorg + far-global end-ptr addr-form; deep pass only
-staffRollScroll     # rc2 rc2: lone gp-rel load scheduled one slot off; movz/bnel/const-reuse all match
 func_0024CD88       # rc35 use f8>A (sltu A<f8 + bnel) not f8<A; B=0xFF00000000 in beq; corrected seed in notes
 func_00258A68       # rc15 packing logic exact; sched order of srl/sll/or + field48 reload position
 ExecStreamMotionManager# rc11 needs per-store reload of *(a0+0x15C) (gcc CSEs to 1 load; ROM reloads each); +v1/a1 regalloc swap on idx*0x18 base; keep +0x10 in sw disp not folded into %lo addiu

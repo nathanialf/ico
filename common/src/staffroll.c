@@ -10,7 +10,26 @@ void staffRollStart(int a0, int a1, int a2, int a3) {
     D_0062C1BC = a3;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/staffroll", staffRollScroll);
+extern int D_00629CB0;
+
+int staffRollScroll(int a0, int a1, int a2, int *p, int *q, int *r) {
+    int ret = 1;
+    if (D_00629CB0 == 0) {
+        *r = 1;
+        *q = 1;
+        *p = 1;
+    } else {
+        *p = D_0062C1B4;
+        *q = D_0062C1B8;
+        *r = D_0062C1BC;
+        if (*q == 0) ret = 0;
+        if (*p == 0) *p = 1;
+        if (*q == 0) *q = 1;
+        if (*r == 0) *r = 1;
+    }
+    *q = 0x32;
+    return ret;
+}
 
 extern char D_0062B448;
 extern int D_0062B44C;
