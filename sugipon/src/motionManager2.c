@@ -246,7 +246,20 @@ float GetMotionFrameFlag1(int **a0) {
     return *(float *)((char *)p + 0x570);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetMotionFrameFlag2);
+extern void GetMatrixFromQuaternion(void *m);
+
+void GetMotionFrameFlag2(void *a0, int n) {
+    int *p;
+    int i;
+    if (n <= 0) return;
+    p = (int *)a0;
+    i = n;
+    do {
+        *p = 0;
+        GetMatrixFromQuaternion((char *)p + 0x10);
+        p = (int *)((char *)p + 0x20);
+    } while (--i != 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetHeightOfFieldPlaneDifference);
 

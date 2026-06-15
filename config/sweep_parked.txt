@@ -21,7 +21,6 @@ ReadVolumeModelFile # rc99 scan-class bnel reorg + far-global end-ptr addr-form;
 func_0024CD88       # rc35 use f8>A (sltu A<f8 + bnel) not f8<A; B=0xFF00000000 in beq; corrected seed in notes
 func_00258A68       # rc15 packing logic exact; sched order of srl/sll/or + field48 reload position
 ExecStreamMotionManager# rc11 needs per-store reload of *(a0+0x15C) (gcc CSEs to 1 load; ROM reloads each); +v1/a1 regalloc swap on idx*0x18 base; keep +0x10 in sw disp not folded into %lo addiu
-GetMotionFrameFlag2 # rc6 loop body MATCHES; residual=prologue sched only (ROM: sd ra; sd s1; blez a1(raw arg); sd s0; daddu s0; daddu s1). Built copies a1->s1 + sd ra before blez. split-temp i=n got rc7->6. seed=/tmp do-while *p=0;GetMatrixFromQuaternion(p+0x10);p+=0x20;while(--i)
 func_001B46B8       # rc30 logic exact; mult result reg (a1 vs a0) + D_0062B40C store deferral into branch delay
 CheckFloorAttribute # rc4 rc4 branch-form tiebreak; nested-if while seed in /tmp
 la_mc_load_file_select# rc3 logic exact; D_00700700 %hi/%lo addiu sched (split after sll)
