@@ -8,11 +8,41 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st02a", actSt02aDoorUpChk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st02a", actSt02aDoorDownChk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st02a", actSt02WaterFallBoySplashCheck);
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void Generator_Mask(int a0);
+extern void Generator_Call(int a0);
+void actSt02WaterFallBoySplashCheck(volatile int a0) {
+    int x = a0;
+    actInitialize(a0); _ACTWait(1); Generator_Mask(a0);
+    while (func_00178DB0(0x41) == 0) { _ACTWait(1); }
+    _ACTWait(0x73); Generator_Call(a0);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st02a", actSt02aWaterFallChk);
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void Generator_Mask(int a0);
+extern void Generator_Call(int a0);
+void actSt02aWaterFallChk(volatile int a0) {
+    int x = a0;
+    actInitialize(a0); _ACTWait(1); Generator_Mask(a0);
+    while (func_00178DB0(0x41) == 0) { _ACTWait(1); }
+    _ACTWait(0x7D); Generator_Call(a0);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st02a", actSt02aGondolaUp);
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void Generator_Mask(int a0);
+extern void Generator_Call(int a0);
+void actSt02aGondolaUp(volatile int a0) {
+    int x = a0;
+    actInitialize(a0); _ACTWait(1); Generator_Mask(a0);
+    while (func_00178DB0(0x41) == 0) { _ACTWait(1); }
+    _ACTWait(0x6E); Generator_Call(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st02a", actSt02aGondolaDown);
 

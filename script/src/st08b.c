@@ -103,15 +103,69 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", actSt08bDoorUpEffect);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", actSt08bDoorDownEffect);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", actSt08bEneChk);
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+void actSt08bEneChk(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0xDA) != 0 && func_00178DB0(0x7D) == 0) {
+        stage_KillPlayBgAnimation(0x137, 0, -1);
+    } else {
+        stage_KillPlayBgAnimation(0x137, 0, 0);
+    }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", func_002214A8);
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+
+void func_002214A8(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0xD1) == 0) {
+        stage_KillPlayBgAnimation(0xDE, 0, 0);
+    } else {
+        stage_KillPlayBgAnimation(0xDE, 0, -1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", func_00221508);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", func_002215C8);
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", func_00221630);
+void func_002215C8(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x7D) == 0) {
+        stage_KillPlayBgAnimation(0x10A, -1, -2);
+    } else {
+        stage_KillPlayBgAnimation(0x108, -1, -2);
+    }
+}
+
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+
+void func_00221630(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x7D) == 0) {
+        stage_KillPlayBgAnimation(0x10D, -1, -2);
+        stage_KillPlayBgAnimation(0x110, -1, -2);
+    }
+}
 
 void func_00221690(int a0) {
     int buf[4];

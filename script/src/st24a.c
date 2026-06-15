@@ -8,7 +8,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st24a", actSt24aSaku);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st24a", func_00231C58);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st24a", func_00231CC0);
+extern void func_00179710(int, int, int, int, int, float, float, float, float, float, float);
+extern float D_006299BC;
+extern float D_006299C0;
+extern float D_006299C4;
+
+void func_00231CC0(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    func_00179710(a0, 0x1E, 0x45, 0x6D, 0x12, D_006299BC, D_006299C0, 1000.0f, D_006299BC, D_006299C0, D_006299C4);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st24a", func_00231D28);
 

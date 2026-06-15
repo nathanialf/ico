@@ -127,7 +127,22 @@ void func_0017DE40(volatile int a0) {
     scpTorchLightOn(0x76E, 0x1A6);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017DE80);
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int actItouQueenAttackChk(void);
+extern void scpTorchLightOn(int a0, int a1);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+
+void func_0017DE80(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    if (actItouQueenAttackChk() == 5) {
+        scpTorchLightOn(0x76E, 0x1A6);
+    } else {
+        stage_KillPlayBgAnimation(0x1A6, -1, -2);
+    }
+}
 
 extern int D_0062A8B0;
 extern int D_00286840[];

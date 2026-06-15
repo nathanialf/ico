@@ -2,6 +2,11 @@
 
 typedef struct { float f0; float f4; float f8; } AudFrame;
 
+typedef struct { long long a; long long b; } Blk16;
+extern Blk16 D_00614EC0;
+extern Blk16 D_00614ED0;
+extern int preload(int a, Blk16 *b, Blk16 *c);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", func_002388F0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", audioDecCreate);
@@ -49,9 +54,35 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", pcmCallback);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", audioDecDelete);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", audioDecReset);
+extern float D_00629B0C;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", audioDecIsPreset);
+int audioDecReset(int self)
+{
+    Blk16 b1;
+    Blk16 b2;
+    int ret = UpdateRootPosition(self);
+    b1 = D_00614EC0;
+    b2 = D_00614ED0;
+    if (preload(ret, &b1, &b2) == 0) {
+        *(float *)(self + 0x18) = 1.0f;
+    } else {
+        *(float *)(self + 0x18) = *(volatile float *)&D_00629B0C;
+    }
+    return -1;
+}
+
+int audioDecIsPreset(int a0)
+{
+    Blk16 b1;
+    Blk16 b2;
+    int ret = UpdateRootPosition(a0);
+    b1 = D_00614EC0;
+    b2 = D_00614ED0;
+    if (preload(ret, &b1, &b2) == 0) {
+        return 0;
+    }
+    return func_00237C98(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", audioDecStart);
 

@@ -32,7 +32,22 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st20a", actSt20aEne);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st20a", actSt20aEnemy1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st20a", actSt20aEnemy2);
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void Generator_Mask(int a0);
+extern void Generator_MaskOff(int a0);
+
+void actSt20aEnemy2(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    Generator_Mask(a0);
+    while (func_00178DB0(0x18) == 0) {
+        _ACTWait(1);
+    }
+    Generator_MaskOff(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st20a", actSt20aEnemy3);
 

@@ -4,7 +4,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10l", actSt10lInit);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10l", actSt10lFloorLeft);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10l", actSt10lFloorRight);
+extern int D_00629DE8;
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void func_00178DD8(int a0);
+void actSt10lFloorRight(volatile int a0) {
+    if (D_00629DE8 == 0) { _ACTWait(0); }
+    while (D_00629DE8 == 0 || func_00178DB0(0x98) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    func_00178DD8(0x99);
+    func_00178DD8(0x9A);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10l", actSt10lGondolaUp);
 
@@ -16,7 +26,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10l", actSt10lChainMove);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10l", actSt10lChain);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10l", actSt10lFloor);
+extern int func_0025F4F0(int a0);
+extern int func_0025EF78(int a0, long a1);
+extern int func_0025F5A8(int a0);
+extern void _ACTWait(int a0);
+extern void func_00178DD8(int a0);
+extern int D_00271240[];
+void actSt10lFloor(volatile int a0) {
+    _ACTWait(func_0025F5A8(func_0025EF78(func_0025F4F0((0x3C - D_00271240[0] * 0xA) / D_00271240[1]), (long)0x804C << 47)));
+    func_00178DD8(0xCE);
+}
 
 extern int func_00178DB0(int a0);
 extern void AddWayPointTop(int a0, int a1);

@@ -6,7 +6,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04a", actSt04aGateChk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04a", actSt04aConte06);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04a", actSt04aConte06Jimaku);
+extern void _ACTWait(int a0);
+extern int actSt25aQueenDeadChk(int a0);
+extern void func_0017C1B0(void);
+
+void actSt04aConte06Jimaku(volatile int a0) {
+    while (actSt25aQueenDeadChk(0x659) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(0x3C);
+    func_0017C1B0();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04a", actSt04aGateOpen);
 

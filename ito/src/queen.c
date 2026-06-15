@@ -80,7 +80,25 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", QueenDL);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", QueenBarrierGeo);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", QueenBarrierDL);
+extern void *actInitialize_q(void *a0) __asm__("actInitialize");
+extern void _ACTWait(int a0);
+extern void actCreateSubThread(void *entry, int prio);
+extern int ExecMotionOrient(void *a0, int a1, void *a2);
+extern char D_001976B0[];
+extern void QueenBallRadius();
+extern void queenBeforeFunc();
+
+void QueenBarrierDL(void *self)
+{
+    void *r = actInitialize_q(self);
+    actInitialize_ext_charcter(self);
+    _ACTWait(1);
+    actCreateSubThread(D_001976B0, 0x14);
+    actCreateSubThread((void *)QueenBallRadius, 0x15);
+    actCreateSubThread((void *)queenBeforeFunc, 0x15);
+    *(int *)((char *)r + 0x110) = ExecMotionOrient(self, 0xEC, (char *)r + 0x610);
+    *(int *)(*(int *)((char *)self + 0x15C) + 0x7C) = 1;
+}
 
 extern void *isysGObjSearchFromObjLayoutID(int id);
 extern void *isysGObjSearchFromObjKindID_begin(void *a0);

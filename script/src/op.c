@@ -10,11 +10,32 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actTitleReadTimeDemo0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actOpDemo01_2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actOpDemo01_2Chk);
+extern void _ACTWait(int a0);
+extern int func_0012A958(int a0);
+extern int D_00629DE4;
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void actSt25aQueenDead(int a0, int a1, int a2, float f12, float f13);
+void actOpDemo01_2Chk(volatile int a0) {
+    stage_KillPlayBgAnimation(0x2F6, 1, 0);
+    while (func_0012A958(0x2F6) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    actSt25aQueenDead(2, D_00629DE4, 0, 1.0f, 8.0f);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actOpDemo02);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actSt24aConte01_2);
+extern void _ACTWait(int a0);
+extern int func_0012A958(int a0);
+extern int D_00629DE4;
+extern int D_00629DE8;
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void actSt25aQueenDead(int a0, int a1, int a2, float f12, float f13);
+void actSt24aConte01_2(volatile int a0) {
+    stage_KillPlayBgAnimation(0x2F7, 1, 0);
+    while (func_0012A958(0x2F7) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    actSt25aQueenDead(5, D_00629DE4, D_00629DE8, 1.0f, 8.0f);
+}
 
 extern void func_00178DD8(int a0);
 extern void actCreateSubThread(void *entry, int a1);

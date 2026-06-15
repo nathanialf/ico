@@ -1,6 +1,20 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aDoor);
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern int actSt25aQueenDeadChk(int a0);
+
+void actSt17aDoor(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x9B) == 0) {
+        *(int *)(actSt25aQueenDeadChk(0x374) + 0x16C) = 0;
+    } else {
+        *(int *)(actSt25aQueenDeadChk(0x373) + 0x16C) = 0;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aDoorUpChk);
 
@@ -8,7 +22,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aDoorDownChk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aHasiChk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aHasiEffect);
+extern int D_00629DE8;
+extern void _ACTWait(int a0);
+extern int actSt25aQueenDeadChk(int a0);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void func_00178DD8(int a0);
+
+void actSt17aHasiEffect(volatile int a0) {
+    if (D_00629DE8 == 0) {
+        _ACTWait(0);
+    }
+    while (scpSleepSpiderGroupOne(actSt25aQueenDeadChk(0x385), 0x1000000) == 0) {
+        _ACTWait(1);
+    }
+    func_00178DD8(0x10A);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actLinkTest);
 
@@ -17,9 +45,31 @@ void actSt17aSekizo(int a0) {
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aHasi);
+extern void _ACTWait(int a0);
+extern int actSt25aQueenDeadChk(int a0);
+extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern void func_00178DD8(int a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aIntro);
+void actSt17aHasi(volatile int a0) {
+    while (scpSleepEnemyOne(a0, actSt25aQueenDeadChk(0x37A), 100.0f) == 0) {
+        _ACTWait(1);
+    }
+    func_00178DD8(0x10F);
+    *(int *)(actSt25aQueenDeadChk(0x37A) + 0x16C) = 0;
+}
+
+extern void _ACTWait(int a0);
+extern int actSt25aQueenDeadChk(int a0);
+extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern void func_00178DD8(int a0);
+
+void actSt17aIntro(volatile int a0) {
+    while (scpSleepEnemyOne(a0, actSt25aQueenDeadChk(0x37B), 100.0f) == 0) {
+        _ACTWait(1);
+    }
+    func_00178DD8(0x110);
+    *(int *)(actSt25aQueenDeadChk(0x37B) + 0x16C) = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aSekizoEvent);
 

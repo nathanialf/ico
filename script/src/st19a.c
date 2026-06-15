@@ -1,6 +1,20 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19aOriDown);
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int D_00629E14;
+extern int actSt25aQueenDeadChk(int a0);
+extern void gflagOff(int a0, int a1);
+
+void actSt19aOriDown(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    if (D_00629E14 == 0x2E) {
+        gflagOff(actSt25aQueenDeadChk(0x8B7), 0x2FD);
+        *(int *)(actSt25aQueenDeadChk(0x8B7) + 0x16C) = 1;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19aHaguruma);
 
@@ -27,7 +41,18 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19aChain);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19bIntro);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19aOriMain);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern int D_00629DE4;
+extern void actSt25aQueenDead(int a0, int a1, int a2, float f12, float f13);
+void actSt19aOriMain(volatile int a0) {
+    while (scpSleepEnemyOne(a0, D_00629DE4, 400.0f) == 0 ||
+           func_00178DB0(0x127) != 0) {
+        _ACTWait(1);
+    }
+    actSt25aQueenDead(3, D_00629DE4, 0, 2.0f, 4.0f);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19aOriSwitch);
 

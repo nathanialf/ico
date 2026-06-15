@@ -14,7 +14,23 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bMeetAgain);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bBoss);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actConte10b);
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void Generator_Mask(int a0);
+extern void Generator_MaskOff(int a0);
+
+void actConte10b(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    Generator_Mask(a0);
+    while (func_00178DB0(0x79) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    Generator_MaskOff(a0);
+}
 
 void actSt13bElevDown(int a0) {
     int buf[4];
@@ -97,7 +113,21 @@ void actBossTest(int a0) {
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bConte02Jimaku);
+extern int D_00629DE8;
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void func_00178E08(int a0);
+extern void func_00178DD8(int a0);
+void actSt13bConte02Jimaku(volatile int a0) {
+    if (D_00629DE8 == 0) { _ACTWait(0); }
+    while (func_00178DB0(0x9B) == 0 || scpSleepSpiderGroupOne(D_00629DE8, 0x4000000) == 0) {
+        _ACTWait(1);
+    }
+    func_00178E08(0x165);
+    func_00178DD8(0x78);
+    func_00178DD8(0x79);
+}
 
 extern int D_00629DE8;
 extern int func_00178DB0(int a0);

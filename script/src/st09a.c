@@ -51,7 +51,17 @@ void actSt09aBrgMain(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st09a", actSt09aBrgSwitch);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st09a", func_00222038);
+extern int D_00629DE8;
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void func_00178DD8(int a0);
+void func_00222038(volatile int a0) {
+    if (D_00629DE8 == 0) { _ACTWait(0); }
+    while (D_00629DE8 == 0 || func_00178DB0(0xE6) == 0) { _ACTWait(1); }
+    _ACTWait(0x258);
+    func_00178DD8(0x96);
+    func_00178DD8(0x97);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st09a", func_002220A8);
 

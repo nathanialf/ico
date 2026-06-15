@@ -20,7 +20,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", stageSE03tsuiro);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", stageSE03tnotSuiro);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", stageSE04agate);
+extern void actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void Generator_Mask(int a0);
+extern void Generator_MaskOff(int a0);
+void stageSE04agate(volatile int a0) {
+    int x = a0;
+    actInitialize(a0); _ACTWait(1); Generator_Mask(a0);
+    while (func_00178DB0(0x123) == 0) { _ACTWait(1); }
+    _ACTWait(1); Generator_MaskOff(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", stageSE04bstrong);
 
@@ -28,7 +38,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", stageSE04ewind);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", stageSE04eriverDown);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", stageSE06astrong);
+extern int D_00629DE8;
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void func_00178DD8(int a0);
+void stageSE06astrong(volatile int a0) {
+    if (D_00629DE8 == 0) { _ACTWait(0); }
+    while (func_00178DB0(0x11F) == 0 || scpSleepSpiderGroupOne(D_00629DE8, 0x3000000) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    func_00178DD8(0x122);
+    func_00178DD8(0x123);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", stageSE06abirdIn);
 

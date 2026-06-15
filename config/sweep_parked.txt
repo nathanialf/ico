@@ -295,3 +295,49 @@ func_00268358       # rc30 bignum mul-add-carry+grow: p=&a1->digits(a1+0x14); co
 actBoyReadyMove     # rc55 64-bit bitfield pack (3 bits) + unaligned 8-byte copy; rc55
 ACTSetEnvAllmighty  # rc99 func_0025A340 + field arithmetic + inflate_stored + branches; involved, decomp-match class
 func_0023E048       # rc16 GS-CRTC config: short args; a0==0: s=func_0023E158(); *0x12001000=0x200; s->f0=a1,f2=a2,f6=((u)*0x12001000>>16)&0xFF(dsrl needs unsigned long); func_00100860(0xFF00); s->f4=(a3!=0); if(s->f8){func_00100A08(2);func_00100220(2,s->fC);s->fC=0;s->f8=0}; tail func_00100120(a1&1,a2&0xFF,a3&1). a0==1: *0x12001000=0x100. residual=code-layout(a0==0 work placement) + regalloc + store-order. seed=/tmp
+QueenInqDead        # rc16 search+0x15C/0x7F0 chain; bgtzl/blez two-field OR, rc16
+viBufStopDMA        # rc16 qword DMA-tag bit-pack, 5th+ args -1, long long split; rc16
+viBufAddDMA         # rc20 64-bit DMA-tag pack sd; OR-reassoc/zero-ext shift sched; rc20
+actSt17aDoor        # rc6 ternary/if select if-converts to movz vs ROM bnez branch-select
+func_00239348       # rc4 2x UpdateRootPosition+DispWireLetter; rc4 best with self-arg+double-load; no-arg/f-reuse->9
+dispDelete          # rc13 func_00239348 family; if-equal/else update; load-placement+branch reorg rc13
+dispSetTags         # rc13 identical to dispDelete; same load-placement/branch-reorg rc13
+func_00231E78       # rc14 SPILL a0-home + DSE drops the =1 store (needs reload barrier); 6-float scp call
+func_00239188       # rc13 identical to dispDelete;  reused across 2 calls w/o reload puzzle; rc13
+gflagOn             # rc16 tail-call actCommonStoneDead w/ float from strided global D_0055DA10; regalloc/sched off
+func_0023ACA0       # rc4 GIF DMA kick + tailcall func_0023EB60(0,0); int-return rc4 only sibcall j-vs-jal; void->15
+func_00198080       # rc15 2-call prologue + GetClothAnimation tailcall, q callee-saved/p-reload; rc15
+GatherEffect_Set    # rc13 OR-accum do-while; gcc strength-reduces i*0x70 vs ROM mult-each-iter + bnel; rc13
+func_00230C10       # rc1 structure correct; sole diff = in-TU func_00230C70 %lo reloc false-neg, needs ninja confirm
+setImageSize        # rc18 dispDelete float family + q[0]/q[2] preamble; -across-calls puzzle; rc18
+func_0017DDD8       # rc8 D_00286A70/AttackMail gp-rel vs ROM %hi/%lo; far-global array form regressed, sched off
+setTEX0_1           # rc4 2 strided lookups; flip fixed beq; residual bnel(f10&1)==1 branch-likely tiebreak rc4
+func_0017DD70       # rc10 D_00286A50 gp-rel vs ROM %hi/%lo far-global (same class as func_0017DDD8)
+dispSwitch          # rc14 dispDelete float family + tail 1.0-f*0.5; -load puzzle; rc14
+dispCreate          # rc21 setImageSize float family +3 q-stores;  puzzle; rc21
+audioDecStart       # rc21 setImageSize float family +3 q-stores all-global;  puzzle; rc21
+audioDecPause       # rc21 setImageSize float family +3 q-stores const+global;  puzzle; rc21
+func_002393A8       # rc9 linear remap on UpdateRootPosition[0]; residual bc1fl-vs-bc1f sub.s-in-delay branch-likely tiebreak; rc9
+scpPlayStart        # rc22 table slot-fill loop: giv/index strength-reduction + bnel guard mismatch, deep-pass
+func_00239438       # rc5 remap family tail 1.0-f; residual gp-rel float-load sched off-by-slot; rc5
+vblankHandler       # rc8 remap family p[2]+max-clamp; bc1fl/bc1f swapped between two branches; rc8
+subQueenBrainMain   # rc11 InitMotion+2xDispMeshWire+tailcall GetInitialSkelton; float-arg/sibcall sched rc11
+func_0023AD08       # rc32 5 gp-zero stores+4 calls+5arg func_0023AA98()+tailcall func_0023ACA0; arg-ABI/sched cascade rc32
+actSt04aTorch1      # rc4 func_00179710 caller: delay-slot sched mov.s f16,f13 vs f17 lwc1(D_006297F8); arg-staging regressed
+func_002388F0       # rc13 guarded remap family ; ternary-arg+early-return-0+bc1fl; rc13
+QueenBoysWeaponPower# rc29 loop self+0x5C stride8, count-reload, q-hoist-in-blez-delay, bnel; rc29
+setDMAscTag         # rcCOMPILE-FAIL needs 2-arg/ptr sig but matched endDisplay calls it 1-arg via int proto; cross-fn arity conflict
+func_00239290       # rc12 dispDelete family + bc1tl rv-guard + cond soundAllocIopFree;  puzzle; rc12
+warpGirlInStage     # rc15 float-neg buffer{v[4]} + flag-OR + global copy; buffer roundtrip/sched off (deep-pass)
+strFileClose        # rc17 unaligned D_0062C970 copy + readBufEndGet out-params + 8-arg CreateGObj + strFileOpen 2-arg alias; rc17
+GatherEffect_Proc   # rc12 particle setup; mult-loop strength-reduce + in-TU GatherEffect_SetGoal reloc + 5int+float ABI; rc12
+pcmCallback         # rc40 dispDelete -puzzle prefix + preload block + cond store; rc40
+dispClear           # rc16 remap bc1fl + dispDelete -puzzle + tail mul; rc16
+audioDecDelete      # rc42 dispDelete -puzzle + 1.0-f + preload + cond; rc42
+func_0023A5E8       # rc41 movz/movn clamps + 8-arg CreateGObj + 2-way obj branch; complex ptr-math; rc41
+actSt00aEnd         # rc4 delay-slot sched: a2=0 wants jal-delay vs f13 lwc1(D_006297D0); QueenDead tail
+queenBarrierBeforeFunc# rc30 QueenBoysWeaponPower sibling, beq 2-way assert loop; q-hoist+count-reload+i-counter; rc30
+func_00197DE0       # rc2 pad/camera dispatch; compare-order fix 5->2; residual c.lt.s reg-alloc tail rc2
+StageOrientGet      # rc14 sequential guarded calls; beql/bltz-delay D_0062C0F4=0 placement + poss in-TU relocs; rc14
+audioDecCreate      # rc7 remap+clamp+alt-path; CORRECTION divisor=608.0f(0x44180000); residual final-clamp bc1f-vs-bc1fl tiebreak; rc7
+func_0019A4B8       # rc42 mult1 parallel-mul + vector sub + 4 calls w/ sp bufs + neg.s; complex; rc42

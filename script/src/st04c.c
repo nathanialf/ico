@@ -63,7 +63,18 @@ void func_00215CD0(volatile int a0) {
     stage_KillPlayBgAnimation(0xDC, 0, 0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", func_00215D10);
+extern int func_00178DB0(int a0);
+
+void func_00215D10(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x9B) == 0) {
+        stage_KillPlayBgAnimation(0xDD, 0, 0);
+    } else {
+        stage_KillPlayBgAnimation(0xDD, 0, -1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", func_00215D70);
 

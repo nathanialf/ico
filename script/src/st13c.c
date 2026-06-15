@@ -15,7 +15,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cConte04);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cConte04Jimaku);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cCage1stDownDemoCancel);
+extern int D_00629DE8;
+extern void _ACTWait(int a0);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void func_00178DD8(int a0);
+void actSt13cCage1stDownDemoCancel(volatile int a0) {
+    if (D_00629DE8 == 0) { _ACTWait(0); }
+    while (scpSleepSpiderGroupOne(D_00629DE8, 0x2000000) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    func_00178DD8(0x4A);
+    func_00178DD8(0x4B);
+}
 
 extern int func_00178DB0(int a0);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);

@@ -121,7 +121,36 @@ int setGIFad(void) {
     return r;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", setTEXFLUSH);
+extern void GetCylinderCollisionWithExceptOwnCollision(void *a0);
+extern void func_00102828(void *a0);
+extern void GetRootMatrixByDObj(void *a0, void *a1);
+extern void brainGetLevel(void *a0, float f, int b, int c);
+extern int D_0062B080;
+
+void setTEXFLUSH(void *a0, int a1, float *a2)
+{
+    int buf[4];
+    int v17 = 1;
+    int v18;
+    float f = a2[0];
+    if (a2[1] < 0.5f) {
+        v17 = 0;
+    }
+    if (a2[2] < 0.5f) {
+        v18 = 0;
+    } else {
+        v18 = 1;
+    }
+    if (D_0062B080 != 0) {
+        if (v18) {
+            v17 = 1;
+        }
+    }
+    GetCylinderCollisionWithExceptOwnCollision(a0);
+    func_00102828(a0);
+    GetRootMatrixByDObj(buf, a0);
+    brainGetLevel(a0, f, v17, v18);
+}
 
 extern void func_00201470(void);
 
@@ -143,4 +172,32 @@ void setPRIM(void *a0, int a1) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", setUV);
+extern char D_0061C270[];
+extern int D_0061C240[];
+
+void setUV(void *a0, int a1)
+{
+    int i;
+    for (i = 0; i < 0x1F; i++) {
+        char *entry = D_0061C270 + i * 8;
+        if (*(int *)((char *)a0 + 8) == *(int *)entry) {
+            int idx = *(int *)(entry + 4);
+            if (a1 > 0) {
+                if (idx < 5) {
+                    continue;
+                }
+                idx += a1;
+            }
+            {
+                int v18 = D_0061C240[idx];
+                void *o = isysGObjRemoveObjDL();
+                if (o != 0) {
+                    do {
+                        iosOmBeforeFuncStandard(o, v18, a0);
+                        o = func_0013E7E0(o);
+                    } while (o != 0);
+                }
+            }
+        }
+    }
+}

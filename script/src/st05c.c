@@ -31,7 +31,22 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", actSt05cWaterXL);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", actSt04rDoor);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", actSt04rDoor2);
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void Generator_Mask(int a0);
+extern void Generator_Call(int a0);
+
+void actSt04rDoor2(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    Generator_Mask(a0);
+    while (func_00178DB0(0xC8) == 0) {
+        _ACTWait(1);
+    }
+    Generator_Call(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", actSt05cDoorDown);
 
@@ -86,7 +101,16 @@ void func_0021C300(int a0) {
     AddWayPointTop(3, 1);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", func_0021C348);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void AddWayPointTop(int a0, int a1);
+
+void func_0021C348(volatile int a0) {
+    while (func_00178DB0(0xA3) == 0 || func_00178DB0(0xA4) == 0) {
+        _ACTWait(1);
+    }
+    AddWayPointTop(4, 1);
+}
 
 void func_0021C3A0(int a0) {
     int buf[4];

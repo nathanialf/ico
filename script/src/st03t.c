@@ -28,7 +28,18 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tBoxA);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tBoxB);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tInit);
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern void func_00179710(int, int, int, int, int, float, float, float, float, float, float);
+extern float D_006297E8;
+extern float D_006297EC;
+
+void actSt03tInit(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    func_00179710(a0, 0x6E, 0x57, 0, 0x12, 900.0f, D_006297E8, D_006297EC, 800.0f, D_006297E8, D_006297EC);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tGirlCam);
 
@@ -51,7 +62,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tGirlCamEndChk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tSekizoEvent);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tEneChk);
+extern int D_00629DE8;
+extern void _ACTWait(int a0);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void func_00178DD8(int a0);
+void actSt03tEneChk(volatile int a0) {
+    if (D_00629DE8 == 0) { _ACTWait(0); }
+    while (scpSleepSpiderGroupOne(D_00629DE8, 0x3000000) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    func_00178DD8(0x6C);
+    func_00178DD8(0x6D);
+}
 
 void actSt03tWayOnChk(int a0) {
     int buf[4];
