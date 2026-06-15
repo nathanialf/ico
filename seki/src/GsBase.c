@@ -122,7 +122,50 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GsBase", gsb_SetVSMatrix);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GsBase", gsb_ClipBox);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GsBase", gsb_StageSettingTool);
+extern void debug_assertMessage(const char *fmt, ...);
+extern int D_00629F14, D_00629D60, D_00629D50, D_00629EBC;
+extern char D_0054EAF0[], D_0054EB00[], D_0054EB10[], D_0054EB20[], D_00271270[];
+extern void func_0023E168(void);
+extern void func_00240AB8(void);
+extern void matrix_init(void);
+extern void malloc_MemCpy(void);
+extern void func_00130000(void);
+extern void func_0023EAC8(int a0);
+extern void gsb_antiAlias(void *a0);
+extern void dl_PopPriority(void);
+extern void mallocsekistage(void);
+extern void prim_InitFan2D(void);
+extern void shadow_DispCancel(void);
+
+void gsb_StageSettingTool(void) {
+    D_00629D60 = 0;
+    D_00629D50 = 0;
+    if (D_00629F14 != 0) {
+        func_0023E168();
+        func_00240AB8();
+        debug_assertMessage(D_0054EAF0);
+        matrix_init();
+        debug_assertMessage(D_0054EB00);
+        malloc_MemCpy();
+        debug_assertMessage(D_0054EB10);
+        func_00130000();
+        debug_assertMessage(D_0054EB20);
+        func_0023EAC8(0);
+        gsb_antiAlias(D_00271270);
+        func_0023EAC8(0);
+        dl_PopPriority();
+        D_00629F14 = 0;
+    } else {
+        debug_assertMessage(D_0054EAF0);
+        matrix_init();
+        debug_assertMessage(D_0054EB10);
+        func_00130000();
+    }
+    mallocsekistage();
+    prim_InitFan2D();
+    shadow_DispCancel();
+    D_00629EBC = 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GsBase", gsb_StageSetting);
 

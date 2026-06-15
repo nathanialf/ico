@@ -37,7 +37,45 @@ void func_0010F058(void) {
 void func_0010F068(void) {
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", func_0010F070);
+extern void debug_assertMessage(const char *fmt, ...);
+extern char D_0054E260[], D_0054E290[], D_0054E2A8[], D_0054E2C0[], D_0054E2D8[];
+extern char D_0054E2F0[], D_0054E308[], D_0054E320[], D_0054E338[], D_0054E350[], D_0054E368[];
+extern char D_0062BD08[];
+extern int D_0062A260;
+extern int func_002473A0(void *a0);
+extern int func_00247358(void);
+extern int func_00246EA0(void *a0, int a1, int a2);
+extern void func_00242138(int a0);
+extern void func_00249340(int a0);
+extern void func_00249818(int a0);
+extern void func_002469F8(void);
+extern void func_00243868(void);
+
+void func_0010F070(void) {
+    debug_assertMessage(D_0054E260);
+    debug_assertMessage(D_0054E290);
+    func_00242138(0);
+    func_00249340(0);
+    func_00249818(D_0062A260);
+    debug_assertMessage(D_0062BD08);
+    debug_assertMessage(D_0054E2A8);
+    do { } while (func_002473A0(D_0054E2C0) == 0);
+    do { } while (func_00247358() == 0);
+    func_00242138(0);
+    func_002469F8();
+    func_00243868();
+    func_00249340(0);
+    func_00249818(D_0062A260);
+    debug_assertMessage(D_0062BD08);
+    debug_assertMessage(D_0054E2D8);
+    do { } while (func_00246EA0(D_0054E2F0, 0, 0) < 0);
+    do { } while (func_00246EA0(D_0054E308, 0, 0) < 0);
+    do { } while (func_00246EA0(D_0054E320, 0, 0) < 0);
+    do { } while (func_00246EA0(D_0054E338, 0, 0) < 0);
+    do { } while (func_00246EA0(D_0054E350, 0, 0) < 0);
+    do { } while (func_00246EA0(D_0054E368, 0, 0) < 0);
+    debug_assertMessage(D_0062BD08);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", func_0010F220);
 

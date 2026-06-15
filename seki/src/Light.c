@@ -255,7 +255,50 @@ void func_00118108(void) {
     VU0_NOP();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_00118118);
+extern float func_0010ED30(short a0);
+extern float p2o_SetDefaultEnviroment(short a0);
+
+void func_00118118(short a0) {
+    float c, s;
+    c = func_0010ED30(a0);
+    s = p2o_SetDefaultEnviroment(a0);
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "mfc1 $8, %0\n"
+        "mfc1 $9, %1\n"
+        "qmtc2.ni $8, $vf1\n"
+        "qmtc2.ni $9, $vf2\n"
+        "vmove.xyzw $vf17, $vf0\n"
+        "vmr32.xyzw $vf16, $vf17\n"
+        "vmr32.xyzw $vf15, $vf16\n"
+        "vmr32.xyzw $vf14, $vf15\n"
+        "vaddx.y $vf15, $vf0, $vf1x\n"
+        "vsubx.y $vf16, $vf0, $vf2x\n"
+        "vaddx.z $vf15, $vf0, $vf2x\n"
+        "vaddx.z $vf16, $vf0, $vf1x\n"
+        "vmulax.xyzw $ACC, $vf4, $vf14x\n"
+        "vmadday.xyzw $ACC, $vf5, $vf14y\n"
+        "vmaddaz.xyzw $ACC, $vf6, $vf14z\n"
+        "vmaddw.xyzw $vf14, $vf7, $vf14w\n"
+        "vmulax.xyzw $ACC, $vf4, $vf15x\n"
+        "vmadday.xyzw $ACC, $vf5, $vf15y\n"
+        "vmaddaz.xyzw $ACC, $vf6, $vf15z\n"
+        "vmaddw.xyzw $vf15, $vf7, $vf15w\n"
+        "vmulax.xyzw $ACC, $vf4, $vf16x\n"
+        "vmadday.xyzw $ACC, $vf5, $vf16y\n"
+        "vmaddaz.xyzw $ACC, $vf6, $vf16z\n"
+        "vmaddw.xyzw $vf16, $vf7, $vf16w\n"
+        "vmulax.xyzw $ACC, $vf4, $vf17x\n"
+        "vmadday.xyzw $ACC, $vf5, $vf17y\n"
+        "vmaddaz.xyzw $ACC, $vf6, $vf17z\n"
+        "vmaddw.xyzw $vf17, $vf7, $vf17w\n"
+        "vmove.xyzw $vf4, $vf14\n"
+        "vmove.xyzw $vf5, $vf15\n"
+        "vmove.xyzw $vf6, $vf16\n"
+        "vmove.xyzw $vf7, $vf17\n"
+        ".set reorder\n"
+        :: "f"(c), "f"(s) : "$8", "$9");
+}
 
 
 /* recovered struct shapes */

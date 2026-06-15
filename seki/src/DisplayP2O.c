@@ -29,11 +29,42 @@ int p2o_DispVU1Multi(void *a0) {
     return func_00118048(arg);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", p2o_DispVU1MultiDefault);
+extern void _InverseCurrentMatrix(void *a0, void *a1, float a2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", p2o_DispVU1);
+void p2o_DispVU1MultiDefault(void *a0, void *a1, float angle) {
+    float first, second;
+    first = ((float (*)(float))func_00118048)((angle + 1.0f) * 0.5f);
+    second = ((float (*)(float))func_00118048)((1.0f - angle) * 0.5f);
+    _InverseCurrentMatrix(a0, a1, second);
+    *(float *)((char *)a0 + 0xC) = first;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", p2o_DispVU1Default);
+extern void _SetCurrentMatrix(void *buf);
+extern void _InverseCurrentMatrix(void *a0, void *buf, float a2);
+
+void p2o_DispVU1(void *a0, float angle) {
+    float buf[4];
+    float first, second;
+    _SetCurrentMatrix(buf);
+    first = ((float (*)(float))func_00118048)((angle + 1.0f) * 0.5f);
+    second = ((float (*)(float))func_00118048)((1.0f - angle) * 0.5f);
+    _InverseCurrentMatrix(a0, buf, second);
+    *(float *)((char *)a0 + 0xC) = first;
+}
+
+extern void _SetCurrentMatrix(void *buf);
+
+void p2o_DispVU1Default(void *a0, float *a1, void *a2) {
+    float buf[4];
+    float first, second;
+    first = ((float (*)(float))func_00118048)((a1[0] + 1.0f) * 0.5f);
+    second = ((float (*)(float))func_00118048)((1.0f - a1[0]) * 0.5f);
+    ((void (*)(void *, void *))_SetCurrentMatrix)(buf, a2);
+    *(float *)((char *)a0 + 0xC) = first;
+    *(float *)((char *)a0 + 0x0) = buf[0] * second;
+    *(float *)((char *)a0 + 0x4) = buf[1] * second;
+    *(float *)((char *)a0 + 0x8) = buf[2] * second;
+}
 
 float p2o_TransMicroProgram(void *a0, void *a1) {
     register float ret __asm__("$f0");

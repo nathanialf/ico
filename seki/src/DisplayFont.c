@@ -47,7 +47,27 @@ void font_Init(int a0) {
     D_0062BA9C = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayFont", func_001F76C0);
+extern int D_00271254[];
+extern int D_0062C254;
+extern void resetmallocseki(void *p);
+
+void func_001F76C0(void) {
+    void *p;
+    D_0062C254 = 0;
+    if (D_00271254[0] != 0) {
+        return;
+    }
+    p = (void *)D_0062BAA4;
+    D_0062BAA4 = 0;
+    if (p == 0) {
+        return;
+    }
+    do {
+        void *next = *(void **)((char *)p + 0x154);
+        resetmallocseki(p);
+        p = next;
+    } while (p != 0);
+}
 
 extern float D_0062BA98;
 

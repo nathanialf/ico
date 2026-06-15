@@ -86,7 +86,36 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_SetParentOfGO
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_SetLocalizeGeometry);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_KillPlayBgAnimationIfOverMaxCount);
+extern int D_0062BF58;
+extern int D_0062BF5C;
+extern void resetmallocseki(int node);
+
+void stage_KillPlayBgAnimationIfOverMaxCount(int *a0) {
+    int node = *a0;
+    if (node != 0) {
+        int next = *(int *)(node + 0x10);
+        if (next != 0) {
+            *(int *)(next + 0x14) = *(int *)(node + 0x14);
+        } else {
+            D_0062BF58 = *(int *)(node + 0x14);
+            node = *a0;
+        }
+        {
+            int prev = *(int *)(node + 0x14);
+            if (prev != 0) {
+                *(int *)(prev + 0x10) = *(int *)(node + 0x10);
+            }
+        }
+        if (D_0062BF58 != 0) {
+            *(int *)(D_0062BF58 + 0x10) = 0;
+        }
+        {
+            int arg = *a0;
+            D_0062BF5C = D_0062BF5C - 1;
+            resetmallocseki(arg);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_CheckAnimationFrameIn);
 
@@ -96,7 +125,42 @@ void func_0012A950(void) {
     font_GetWidth();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", func_0012A958);
+extern int D_0062BF54;
+extern char D_0066DBD8[];
+extern char D_00550128[];
+extern char D_0054FFA8[];
+extern char D_0062BF08[];
+extern void debug_assertMessage();
+extern int bga_SetCamFrame(int a0);
+extern int font_CheckAlign(int a0);
+extern void func_001AAD00(void *a0, int a1);
+extern void func_00260380(void *a0, int a1, void *a2);
+
+int func_0012A958(int a0) {
+    int count = D_0062BF54;
+    int i = 0;
+    char *e = (char *)D_0066DBD8;
+    if (count > 0) {
+        do {
+            int *entry1 = *(int **)(e + 0x280);
+            if (a0 == entry1[0x58 / 4]) {
+                int mode = *(int *)(e + 0x28C) >> 30;
+                switch (mode) {
+                    case 0:
+                        return bga_SetCamFrame(*(int *)(e + 0x284));
+                    case 1:
+                        return font_CheckAlign(*(int *)(e + 0x288));
+                }
+            }
+            i++;
+            e += 0x290;
+        } while (i < count);
+    }
+    debug_assertMessage(D_00550128);
+    func_001AAD00(D_0054FFA8, 0x345);
+    func_00260380(D_0054FFA8, 0x345, D_0062BF08);
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", func_0012AA28);
 

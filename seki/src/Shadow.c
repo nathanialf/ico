@@ -16,7 +16,34 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Shadow", __GetCameraPos);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Shadow", shadow_RenderVolume);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Shadow", shadow_RenderVolumeMulti);
+extern void shadow_Reset(void *a0);
+extern void reg_setNMatrixPacketNoLightCalc(void *a0);
+extern void reg_dispPointLineObj(void *a0);
+extern void reg_RenderReflection(void *a0);
+
+void shadow_RenderVolumeMulti(void *a0) {
+    if (*(unsigned short *)((char *)a0 + 0x808) == 2) {
+        int mode = (unsigned short)(*(unsigned long long *)(*(int *)((char *)a0 + 0x810) + 0x30) >> 16) & 3;
+        if (mode == 2) {
+            shadow_Reset(a0);
+        } else {
+            reg_setNMatrixPacketNoLightCalc(a0);
+        }
+    } else {
+        int mode = (unsigned short)(*(unsigned long long *)(*(int *)((char *)a0 + 0x810) + 0x30) >> 16) & 3;
+        switch (mode) {
+            case 0:
+                reg_dispPointLineObj(a0);
+                break;
+            case 1:
+                reg_RenderReflection(a0);
+                break;
+            case 2:
+                shadow_Reset(a0);
+                break;
+        }
+    }
+}
 
 extern void reg_DispAccessoryWithShadow(void);
 extern int D_0062A040;

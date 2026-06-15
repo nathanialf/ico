@@ -341,3 +341,317 @@ func_00197DE0       # rc2 pad/camera dispatch; compare-order fix 5->2; residual 
 StageOrientGet      # rc14 sequential guarded calls; beql/bltz-delay D_0062C0F4=0 placement + poss in-TU relocs; rc14
 audioDecCreate      # rc7 remap+clamp+alt-path; CORRECTION divisor=608.0f(0x44180000); residual final-clamp bc1f-vs-bc1fl tiebreak; rc7
 func_0019A4B8       # rc42 mult1 parallel-mul + vector sub + 4 calls w/ sp bufs + neg.s; complex; rc42
+reg_dispCObj        # rc11 tail-call+early-neg1 cascade rc11
+func_0019AE20       # rc14 two beql scan-loops + assert tail; rc14 branch/sched
+p2o_SetDefaultEnviroment# rc17 sine-table fold/sign cascade rc17
+strFileRead         # rc40 complex: 8-arg CreateGObj, struct offsets, strFileOpen needs 2nd arg (proto 1-arg); rc40
+func_0010F978       # rc21 DMA packet builder, surviving dead-stores to base+0x10 need exact aliasing; rc21
+func_0010FAB0       # rc21 identical to func_0010F978; same dead-store aliasing problem
+func_0010ED30       # rc17 sin/cos table lookup; gcc if-converts abs to movz vs ROM bgez/negu branch (same family as p2o_SetDefaultEnviroment)
+func_00238FB0       # rc5 argless 2nd UpdateRootPosition fixed daddu; residual: prologue self-save order + add.s f0-vs-f1/mov.s flow
+light_getAmbientLight# rc22 RGBAQ pack correct value; OR eval order (a2<<8/a3<<16 first) + byte-store sched differ; rc22
+func_00196D70       # rc103 VLA float-forwarder to func_001962C0; 8 fp args in f12-f19 + 2 stack + alloca; ABI float-reg assignment shape off rc103
+prim_SetFan2D       # rc4 VIF fill loop; correct, residual 1-insn preheader nop bubble (loop-rotation arg-setup); rc4
+func_0023A920       # rc40 viBuf DMA-setup chain + GS reg writes; struct/stack-arg packing off rc40
+func_00117C48       # rc7 list-head insert; regalloc tie - ROM copies head to separate reg so return-setup schedules before trailing 0x98/0x94 stores; rc7
+func_00195020       # rc49 nested-loop gather select: 0x35-scan + float idx + matrix/Proc calls; stack layout+sched off rc49
+queen_barrier_anim  # rc97 two symmetric quat-transform chains + by-value Quat + many stack bufs; rc97
+gsb_fade            # rc29 GS fade tag: signed/2 + conditional dsll32 high-word packing + movz didn't reproduce; deep-pass; rc29
+QueenBarrierGeo     # rc84 anim-frame setup + 4-entry matrix loop (1A2/1A4 types); down-counter+8 vec bufs; rc84
+tex_dispClut        # rc21 7-arg frameless tail call to tex_FreeTexture; CLUT idx + conditional 0x52 store; arg order/regs need exact callee sig; rc21
+func_001F8C30       # rc99 COMPILE-FAIL: sibling forward-decl 'void func_001F8C30(void)' conflicts with real (int a0) sig; deep-pass must fix sibling decl. body=dll-unlink+assert
+func_0023B348       # rc37 handwritten: GS-reg bit read + VIF writes + sync/ei; structure C-expressed but rc37 (regalloc/branch cascade)
+func_00239E18       # rc54 linear init: deq_mes_th + many struct stores + 2x func_0025A3E0 packets + asserts; rc54
+p2o_DispVU1DObj     # rc24 FP quat-math CORRECT; a1 and buf both target $5 -> gcc copies a1 to v0 + reorders loads; sched deep-pass; rc24
+p2o_HideDispVU1     # rc22 same family as p2o_DispVU1DObj; FP math correct, a1/buf $5 reuse -> copy+reorder; rc22
+p2o_DispShadowVolume# rc23 same VU0 family as p2o_DispVU1DObj; math correct, a1/buf $5 sched; rc23
+func_001971B0       # rc125 switch-dispatch entry loop + 2x GetRootMatrix + GatherEffect + unaligned 32B memcpy tail; rc125
+func_0019AC48       # rc33 VU0 cfc2 wait + func_00100420 buf + 2 assert loops + 8-arg StageOrientInit; rc33
+func_0023A410       # rc144 fixed-point timing state machine: signed div/break, movn 1024-round, func_0023A0E0 call; rc144
+p2o_DispVU1DObjMulti# rc13 structure correct; FP regalloc tie ($f22/$f23 const-vs-first) + buf2 addr cached in s0 vs direct addiu; rc13
+queen_barrier_disp_proc# rc63 2 symmetric MatrixDrive transform blocks + vec4 scratch bufs; rc63
+func_0010EE60       # rc12 clamp+sine-table; clamps(bc1tl) match; residual=neg flag in $5 vs ROM $4 + base/index v0/v1 swap + FP-cmp nop; rc12
+func_0012FE30       # rc23 structure correct; ROM hoists loop n/base/consts before the 3 short stores -> uniform reg-number shift cascade; rc23
+func_0023AA98       # rc999 COMPILE-FAIL: asm uses 5 args but matched sibling caller declares it 3-arg (line 149) - can't redefine 5-param without breaking sibling
+tex_setTexReg       # rc32 scan-class multi-exit search loop; bnel + mode>>30 3-way + 2 tail-ish returns; structure diverges; rc32
+func_0012AA28       # rc32 identical scan-loop family as tex_setTexReg; bnel + 3-way mode; deep-pass; rc32
+OtherStagePositionGet# rc37 movie-playback state machine: fp dispatch + free_buf loop + close/videoDec loops; control flow C-expressed rc37
+gsb_SetFrame        # rc99 COMPILE-FAIL: GsBaseRed typedef defined below gsb_SetFrame (file's 1st func); cannot retypedef. deep-pass: hoist typedef. body=GIFtag packet w/ volatile cur-advance + bitfield pack
+func_0019B508       # rc174 movie geometry decode do-while + SIMD sq/lq inner loop to func_0023ADB0; rc174
+func_0012FC48       # rc29 scan-class search loop; beql/bnel + 64-bit bitfield test + reload-count; structure diverges; rc29
+queen_barrier_set_damage# rc120 no-arg nested float-loop mesh generator: cvt.w.s/div.s grid + vertex buffer writes; rc120
+queen_barrier_disp_init# rc108 two-quaternion transform chain (a2+a4 inputs) to a0; many stack bufs + by-value Quat; rc108
+func_0010EEF0       # rc1 clamp+table; arm-swap got rc6->rc1; sole residual = one extra nop in built (delay-slot fill) - deep pass trivial close
+StageOrientInit     # rc53 movie subsystem orchestrator: callback registration + VIF writes + nested error chains; rc53
+stage_CalcAnimationParent# rc19 list-walk do-while + bnel reload + nested guards + 64-bit bitfield RMW; structure diverges; rc19
+InitQueenBallGeo    # rc123 15x15 float-mesh ball generator: cvt/div/Rot matrix calls + vertex writes; rc123 (same class as queen_barrier_set_damage)
+gif_Init            # rc28 coord transform; ROM uses 2nd EE MAC pipe (mult1/div1/mflo1) for buf1 pair - gcc auto-pipe selection not reproduced; rc28
+light_InitLight     # rc15 struct-copy loop MATCHES; residual=3 VIF MMIO writes (0x1000A020/10/00) need volatile (stops addr-CSE/lui-share + fixes order); deep-pass adds volatile; rc15
+func_0023A0E0       # rc213 ring-buffer wraparound DMA copy: 3-4 split cases + func_001007A0/8E0/8C0 copy primitive loops; rc213
+light_KillAllAmbient# rc10 killbg-family dll-unlink; residual=beql->beq on 1st branch (branch-likely reorg, assert prologue disrupts it); rc10
+MakeRefractTexture  # rc157 GS/GIF packet builder: ~50 bit-packed sd register writes to D_004C3850 FIFO + draw calls + InitQueenBallGeo; magic constants not one-shot reconstructable; rc157
+light_KillAllFixLight# rc10 identical to light_KillAllAmbient (fields 0x48/0x4C); beql->beq residual; rc10
+GatherEffect_SetGoal# rc181 particle physics update loop (approach/normalize/clamp/timers) + done-callback via fp; vector math + ~12 helper calls/iter; rc181
+func_00130000       # rc24 init(backward sh loop)+search(mult loop) over D_0067AE48 0x2E8-stride; return likely void; structure diverges; rc24
+pbga_start          # rc244 particle spawn: vector transforms (lw_pos_to_ico_pos/matrix ops) + ~170-instr inline GS-packet tail; rc244
+clearUVOffset       # rc43 GS GIFtag packet builder w/ dead-store cur advances + uninit-local store + 2 matrix calls; deep-pass; rc43
+InitQueenGeo        # rc271 queen geometry init: object search/add + conditional matrix transforms + 3x weapon-part draw (func_0025AA90) + WeaponGeo; rc271
+func_0023ADB0       # rc341 video-DMA dispatcher (0x560): GObj iteration + viBufStopDMA/AddDMA/Count/ModifyPts/Flush/Delete chains + bit-packing; rc341
+func_001952A0       # rc365 actor coroutine (0x5A8, 5x _ACTWait): collision/particle/matrix/object-search state machine; rc365
+QueenDL             # rc473 queen draw-list builder (0x7BC, 64 calls): 20x matrix copy + vector ops + lightning/object draws; rc473
+func_001962C0       # rc668 largest ito func (0xAB0, 68 calls): display-packet builder dpk_*/pac_DispQW/pbga_start + per-element matrix loop + GS sprites; rc668
+func_00117CB8       # rc18 3-iter matrix loop; structure correct; D_00272518/D_002714D0 base regs v0/v1->s1/s3 swap + cnt-- sched cascade; ptr-to-array lever candidate; rc18
+reg_resetDissolve   # rc52 GS GIFtag packet w/ dead-store cur + NON-STANDARD $2-register input (unreproducible from C) + 2 matrix calls; deep-pass; rc52
+QueenBallRadius     # rc206 boundary-glued: .s blob = QueenBallRadius (tiny _ACTWait actor loop, a0 spilled) + unnamed coroutine + func_001993A8 (alabel GS-packet builder); unmatchable as configured; rc206
+queenBeforeFunc     # rc675 giant queen actor coroutine (0xA7C, 43 calls, 8x _ACTWait, embedded D_001976B0 jump table); a0 spilled; rc675
+func_0012FD70       # rc35 per-element 5-way bitfield pack loop w/ conditional field-load merge + float math + dsll32 hi-word; structure diverges; rc35
+reg_setCMatrixPacket# rc52 identical to reg_resetDissolve (dead-store GS packet + $2-input); deep-pass; rc52
+prim_InitParticle   # rc45 dead-store GS packet family (clearUVOffset/reg_resetDissolve) + uninit-local store; deep-pass; rc45
+bga_CalcObject      # rc20 recursive scene-walk; structure correct; a1 vs hoisted obj+0x34 get s2/s3 swapped (ROM hoists obj+0x34 to $19 early) + FP sched; rc20
+saveEditedData      # rc4 clamp result reg f0 vs f1; mov.s f0,f2 in <0 branch
+func_0010F9D0       # rc62 DMA-chain finalize in D_004C3850 dead-store global; ptr-diff tags + dead cur-stores + dpk_Init; deep-pass; rc62
+func_0017F4C8       # rc6 gcc folds +0x28 into a0; ROM keeps base, recomputes a0+i*0x1C+0x28 in found-path
+func_002367F8       # rc13 SPILL: a0 spilled to home + dead lw v0 reload; clean C keeps a0 in saved reg
+func_00236858       # rc13 SPILL clone of 7F8
+func_002368B8       # rc13 SPILL clone of 7F8
+func_00236DB8       # rc14 SPILL: a0 reloaded across loop; dead lw v0
+gif_SetDrawEnviroment# rc55 GIFtag draw-env packet w/ dead-store cur advances (D_004C3850/GifBuf) + RGBA/coord bitfield pack; deep-pass; rc55
+func_00238658       # rc12 bnel cond-store + 3 fp stores ordering; rc12
+pac_makeClusterStrip# rc11 13-bit packet-emit loop; structure correct; residual=prologue sched of cached counter(D_0062BF3C) load + base lui order; rc11
+AddPluralCameraSet  # rc13 func_001887E0 call/return + tail-call j func_00186CA8; rc13
+ObjAction_Mail      # rc99 COMPILE-FAIL: needs actInitialize return value but shared decl is void; also SPILL
+func_00236988       # rc99 same actInitialize-void-return blocker + SPILL
+pac_getTextureInfo  # rc99 COMPILE-FAIL (D_0066CB50 type conflict) + complex: bitfield extract + D_0054F570 table lookup + GS packet + 3 debug_assertMessage (1 tail); deep-pass
+func_00236B40       # rc15 SPILL: actInitialize ret->s0 + a0 spilled; ACT action-table setup
+func_0010ED88       # rc16 trig-table init (D_0065A9C0/D_0066A9D0); structure correct; FIX=cache loop-invariant globals D_00628CBC/CC0/CC4 in locals before loops so gcc hoists to $f20/$f21 across the call (ROM does); rc16
+func_00237670       # rc15 SPILL ACT action-table clone
+func_002376D8       # rc15 SPILL ACT action-table clone
+func_00237608       # rc15 SPILL ACT clone
+func_002375A0       # rc15 SPILL ACT clone
+func_00116308       # rc22 guard+VU0 loop(_PushVu0Registers)+func_00118D68+tail func_00118E38(parked TImode); structure diverges; deep-pass; rc22
+_ApplyRyGV          # rc13 scan-class bnel search loop; rc13
+_RotGVF             # rc28 multi-return bit-test; structure off rc28
+pac_continueTag     # rc1 switch/jtbl matches; 3-arg debug_openLog(msg,D_0066CB50,a0) got rc2->rc1; sole residual=jtbl_0054F390 %lo offset needs .rodata data-carve (JTBL landmine); deep-pass
+brainStatusSet      # rc10 loop+bnel skip-call saveEditedData; f20 fp-save; rc10 borderline
+brainStatusDel      # rc13 inlined clamp (saveEditedData) in bnel loop; f0/f1 reg + clamp rc13
+tex_makeTexturePacket# rc56 nested texture-swizzle loop (i<<7/j<<5/k<<6 + 8-word copy, then 256-word copyback); loop-nest addressing/strength-reduction diverges; deep-pass; rc56
+gif_DrawPolyF4      # rc59 dead-store GS packet family (gif_SetDrawEnviroment) + RGBA/coord pack + cvt.w.s coords; deep-pass; rc59
+brainGetLevel       # rc23 bnel loop+gif_test call, 4 callee-saved + byte stores; rc23
+brainClsTargetLevel # rc33 dual-ptr search + movn clamp two-store; structure off rc33
+shadow_Render       # rc52 identical to reg_resetDissolve (dead-store GS packet + $2-input, field 0x4); deep-pass; rc52
+prim_DispMesh3D     # rc50 dead-store GS packet family (reg_resetDissolve) + $2-input + 2x func_001189D0; deep-pass; rc50
+_RotyGV             # rc25 bitfield 0x48 shift/and/or sequence; deep-pass rc25
+_DistxzGV           # rc17 assert(str,idx)+64bit clear bit26+0x48 bitfield; rc17
+_MoveGV             # rc28 bitfield+movn clamp+ptr-vs-0xD57 compare; rc28
+light_killLinkAmbient# rc14 VU0 frustum-clip test (2 VU0 loops) MATCHES; residual=hoist loop2 accumulator g($8)=0 to func top w/ and/or accs + minor sched; deep-pass; rc14
+gsb_controlBrightness# rc46 field-mask + (short)a4<<32 packed value + D_00629F60/2 + 2x func_0023E1D0; bitfield/sched diverges; deep-pass; rc46
+func_00236918       # rc15 SPILL ACT clone + func_00178DB0 call
+gif_test            # rc11 clamp f0 result + intermediate store + ld-ra early restore; rc11 NEAR-MISS for deep pass
+func_0018F580       # rc11 float*10 modulo into table + counter inc; div-guard + store order rc11
+tex_transVramClutTex# rc46 3-way switch (base/threshold per case) converging to shared tail w/ 4 dpk_CheckBufferSize calls + D_0067ADF8 table RMW; structure diverges; deep-pass; rc46
+Generator_Init      # rc40 bitfield loop over D_002A0A90 (RotyGV-class); deep-pass rc40
+func_001928F8       # rc12 init-guard + 8-byte-pair search loop bnel + counter; rc12 NEAR-MISS
+dl_CloseDma         # rc37 setup+12-iter call loop+branch+dl_Debug tail; structure correct; FIX=cache stride 0x28/mask 0xFFFFFFF/base in locals -> callee-saved hoist (frame 0x70 not 0x50); rc37
+func_0018F1F0       # rc35 find-free-slot scan two-entry loop bnel; deep-pass rc35
+reg_chooseSpecularMicroCode# rc27 switch dispatcher(0-3+default) w/ movn return-remap + light_killLinkAmbient + discard-and-return-ret tail; structure diverges; deep-pass; rc27
+Camctrl_SetTarget   # rc5 ONLY diff: final =1 store+return uses v1 not v0; needs return-val coalesce into D_006C9F80[6] store (deep pass: try return(D_006C9F80[6]=1))
+gsb_StageSetting    # rc16 call-seq+coord-math; structure correct; FIX=(1)drop (int) cast on (mmio>>13)&1 bit (removes dsll32/dsra32), (2)0x12001000 read addressing lui+ori vs lui+disp (try volatile); rc16
+tex_Tool            # rc60 nested init loop; constants(0x2800/3E80/-1/6/0x2E8/bases) hoisted to callee-saved regs + 2nd tail path (D_00271240[5]) unseen; loop-invariant-cache deep-pass; rc60
+IsSelectID_EnemyCtrl# rc14 switch(D_0062AA5C) 4-case w/ tail calls + D_006CA600 -8(s0) offset; rc14
+func_00236C98       # rc17 SPILL: actInit+Generator seq w/ wait loop
+func_00236D28       # rc17 SPILL: clone of C98
+func_001102C8       # rc77 dead-store GS packet + coord-div transform (gif_Init+gif_DrawPolyF4 combined); deep-pass; rc77
+func_00236AA8       # rc28 SPILL: actInit ret + branch + KillBgAnim/BoxBar; rc28
+pac_closeTag        # rc79 8-vertex cube transform loop (3 beql float-picks/iter) + matrix setup + D_0054F280 copy; buf frame + loop diverge; deep-pass; rc79
+func_00236688       # rc10 SPILL: actInit + gflagInit x14 guarded
+func_002369F0       # rc23 SPILL: actInit ret + branch KillBgAnim/QueenDeadChk; rc23
+gsb_SetVSMatrix     # rc71 dead-store GIFtag VS-matrix packet (D_004C3850 cur advances) + dpk_SwapBuffer/Init; deep-pass; rc71
+func_002365C0       # rc18 SPILL: actInit+Generator seq+QueenDeadChk x2
+func_00236738       # rc45 SPILL: actInit+branch+warpGirlInStage floats; rc45
+reg_chooseMicroCode # rc84 dispatcher w/ unaligned ldl/ldr/sdl/sdr struct copies + _PopCurrentMatrix/gif_SpriteOffset + loop; deep-pass; rc84
+stage_SetLoopFlag   # rc85 D_0066DBD8 scan-class (0x290 stride) w/ mode>>30 + lb 0xA range checks + heavy inner logic; deep-pass; rc85
+func_00238730       # rc11 scale clamp + DispWireLetter cache idiom (sibling 238800); rc11 NEAR-MISS f22/return
+dl_PopPriority      # rc99 nested iosFree init loop; loop-invariant-hoist class (D_00613660/698,0x34 stride,0x30000000 in callee-saved); deep-pass [MISS 58]
+func_0018F3A0       # rc15 scan-class range-search bnel/beql + assert; rc15
+tex_printTexture    # rc36 texture-free: clear 0x2D0 flag bit + free sub-allocs (0xE4, 0x24-stride array@0x108 cnt 0xE0, 0x2BC/0x2C0/0x2C4) via resetmallocseki; entry addressing(-8/+0x2D8)+loop-reload diverge; rc36
+MakeGeneratorPacket # rc30 3 bitfield-extract loops, continuous dst ptr, bgez early-dec; rc30
+pac_makeShapeTable  # rcCOMPILE-FAIL DMA-tag table builder: D_0066CB50 ptr-diff>>4 + divu stride + pac_getTextureInfo/MaterialTable/Line calls; deep-pass
+gif_DrawStripG      # rc60 dead-store GIFtag packet (GifBuf cur advances) + RGBA/coord pack; deep-pass
+gif_Draw2DUVStripG  # rc58 dead-store GIFtag packet (GifBuf cur advances) + RGBA/coord pack; deep-pass
+gif_DrawStripF      # rc66 dead-store GIFtag packet (GifBuf cur advances) + RGBA/coord pack; deep-pass
+gif_Draw2DStripG    # rc66 dead-store GIFtag packet (GifBuf cur advances) + RGBA/coord pack; deep-pass
+gsb_Init            # rcCOMPILE-FAIL dead-store GIFtag init packet (GsBaseRed cur) + arg bitfield pack; deep-pass
+shadow_Draw         # rc54 dead-store GS packet (D_004C3850 cur) + likely $2-input; deep-pass
+reg_setMMatrixPacket# rc54 dead-store GS packet (D_004C3850 cur) + likely $2-input; deep-pass
+func_0010FB08       # rc69 dead-store GS packet (D_004C3850 cur) + likely $2-input; deep-pass
+p2o_MakePacket      # rc63 VU0+packet maker (5KB); deep-pass
+stage_SetFrameStep  # rc62 D_0066DBD8 0x290-scan class + inner logic; deep-pass
+stage_DispBgAnimation# rc62 D_0066DBD8 0x290-scan class + inner logic; deep-pass
+func_0018F2A0       # rc36 find-slot loop + nested a1-switch + global state; leaf, rc36
+func_0010FC20       # rc72 dead-store GS packet (D_004C3850 cur); deep-pass
+func_0010FD48       # rc94 dead-store GS packet (D_004C3850 cur); deep-pass
+reg_setDissolve     # rc82 dead-store GS packet (D_004C3850 cur); deep-pass
+pac_makeNormalStrip # rc84 dead-store GS packet (D_004C3850 cur); deep-pass
+gif_MakeLine2DOffset# rcCOMPILE-FAIL dead-store GIFtag line packet (GifBuf cur); deep-pass
+dl_GetPri           # rc69 complex DMA-tag priority bitfield (D_0070A5C0, 0x7FFFFFFF mask, switch on entry->0x18); deep-pass
+func_0012FEC8       # rc76 6-float-arg search loop over D_0067AE50 (0x2E8); float-sched deep-pass
+func_00188660       # rc62 box-containment group search nested loop + func_00240038_p; rc62
+gsb_SetBGColor      # rc25 call-seq sibling of gsb_StageSetting; func_0023E048(D_00271240 bitfield args) + 0x12001000 MMIO + coord-math; deep-pass; rc25
+gsb_MakeCommonMatrix# rc81 D_00271240 bitfield clamp + matrix build; deep-pass
+tex_textureAnimation# rc82 large (0x250 frame) texture-anim w/ buffers + func_00261188; deep-pass
+tex_SetClutAnimation# rc71 D_0067AE50 entry clut-anim setup; deep-pass
+func_0011B618       # rc91 a2==-1 guard + packet build (0x90); deep-pass
+func_001103F0       # rc97 dead-store GS packet; deep-pass
+func_0010FEC8       # rc100 dead-store GS packet; deep-pass
+gif_StartPacket     # rcCOMPILE-FAIL dead-store GIFtag packet (GifBuf); deep-pass
+gif_EndPacketPath1  # rcCOMPILE-FAIL dead-store GIFtag packet (GifBuf); deep-pass
+chain_simulate_climb# rc34 point-list fill loop, double d[1] store + i*0x20 recompute; tail traceLine; rc34
+prim_DispParticle   # rc103 dead-store GS particle packet + 16 calls; deep-pass
+shadow_EntryNormalShadow# rc100 shadow entry (12 calls); deep-pass
+pac_DispVu1Memory   # rc95 VU1 memory disp; deep-pass
+light_getNearLight  # rc87 search over D_002724E8 (8-stride), bltz guard; deep-pass
+pac_Dump            # rc100 packet dump; deep-pass
+gsb_antiAlias       # rc88 antialias setup (11 calls); deep-pass
+pac_MakePacket      # rc98 packet builder (8 calls); deep-pass
+reg_setShape        # rc88 shape packet builder; deep-pass
+pac_makePacket      # rc80 packet builder; deep-pass
+pac_setGifTag       # rc98 gif-tag packet (9 calls); deep-pass
+tex_convertClutCSM2ToCSM1# rc102 CLUT CSM2->CSM1 convert + D_002725D8 table + div; deep-pass
+brainLevelProcess   # rc16 idx-mult entry + max-clamp two-store + div-scaled level; leaf rc16
+stage_SetLocalizeGeometry# rc99 D_0066DBD8 scan; deep-pass
+drawDisc            # rc116 disc draw (13 calls); deep-pass
+func_0011B2A0       # rcAPPLY-FAIL packet/dispatch; deep-pass
+tex_initClutTexture # rc94 D_0067AE50 clut init; deep-pass
+shadow_Reset        # rcCOMPILE-FAIL float loop + bitfield, 0x50-stride; deep-pass
+stage_KillPlayBgAnimation# rc115 D_0066DBD8 scan; deep-pass
+stage_CheckAnimationFrame# rc101 D_0066DBD8 scan; deep-pass
+func_0011B468       # rc106 packet builder; deep-pass
+prim_DispWireSphere # rc102 wire-sphere draw; deep-pass
+gif_StartPacketPath1# rcCOMPILE-FAIL dead-store GIFtag (GifBuf); deep-pass
+gif_MakeSprite      # rcCOMPILE-FAIL dead-store GIFtag (GifBuf); deep-pass
+gif_MakeSpriteWithStrip# rcCOMPILE-FAIL dead-store GIFtag (GifBuf); deep-pass
+gif_Line            # rcCOMPILE-FAIL dead-store GIFtag (GifBuf); deep-pass
+func_001F7B00       # rc120 unaligned ldl/sdl copy; deep-pass
+GetRootPositionForCamera# rc66 unaligned ldl/ldr dual-path 0x5C copy (memcpy idiom); rc66
+gsb_ClipBox         # rc112 call-seq w/ interspersed conditionals + traceLine/gsb_* calls; deep-pass
+ico2camera_GetGroupNearest# rc67 unaligned dual-path 0x5C copy (inverse of GetRootPositionForCamera); memcpy didn't inline; rc67
+stage_CheckAnimationFinish# rc127 D_0066DBD8 scan; deep-pass
+tex_transVramDirectTex# rc126 16-call seq w/ computed args; deep-pass
+gsb_SetVSMatrixSub  # rc120 dead-store VS-matrix packet; deep-pass
+func_00110580       # rc127 dead-store + unaln; deep-pass
+reg_transMaterialPacket# rc122 dead-store material packet (15 calls); deep-pass
+reg_clipPacketBoundingBox# rc131 unaln copy; deep-pass
+stage_PlayBgAnimationDissolve# rc119 unaln copy + scan; deep-pass
+bga_resetObjectCounter# rc128 float/switch (misnamed); deep-pass
+reg_dispPoint       # rc129 dead-store point packet; deep-pass
+light_killLinkLight # rc120 float setup + c.eq.s branch; deep-pass
+tex_initTextureSub  # rc129 seq w/ computed args + table + conds; deep-pass
+tex_transTM2        # rc133 TM2 transfer (8 calls); deep-pass
+__GetCameraPos      # rc127 dead-store camera; deep-pass
+gif_PointOffset     # rcCOMPILE-FAIL dead-store GIFtag; deep-pass
+gif_Sprite          # rcCOMPILE-FAIL dead-store GIFtag; deep-pass
+gif_EndPacket       # rcCOMPILE-FAIL dead-store GIFtag; deep-pass
+ReadGeneratorPacket # rc56 inverse bitfield unpack 3 loops; deep-pass rc56
+tex_makeCopyImage   # rc142 copy-image w/ assert; deep-pass
+prim_makePacketMesh3D# rc144 mesh packet; deep-pass
+tex_LoadTexturePart # rc156 texture load (6 calls); deep-pass
+bga_CalcSdfCamera   # rc149 12-call seq w/ asserts + computed args; deep-pass
+pac_getWeight       # rc134 dead-store weight packet; deep-pass
+bga_GetMotion       # rc176 motion computation; deep-pass
+tex_initTM2         # rc166 computed args + assert + dpk seq; deep-pass
+prim_DispFan2D      # rc162 fan2d disp; deep-pass
+setLight            # rc168 light setup; deep-pass
+stage_PlayBgAnimation# rc161 scan + asserts; deep-pass
+func_00110060       # rc153 dead-store; deep-pass
+stage_CheckAnimationFrameIn# rc159 D_0066DBD8 scan; deep-pass
+bga_GetGizmoMotion  # rc152 191L float/switch computation; deep-pass
+prim_UpdateMesh3D   # rc165 mesh update (11 calls); deep-pass
+shadow_getShadowVectorAverage# rc139 dead-store + 17 calls; deep-pass
+gsb_setSemitransReg # rc162 dead-store + unaln semitrans reg; deep-pass
+tex_scrollClut      # rc198 conditional-seq + table + asserts; deep-pass
+reg_dispBoxLine     # rc180 20-call packet builder; deep-pass
+stage_SetParentOfGObjWithLocalRotationFlag# rc203 D_0066DBD8 scan; deep-pass
+stage_MakeGObj      # rc196 VU0 + gobj make; deep-pass
+stage_SetParentOfGObj# rc187 D_0066DBD8 scan; deep-pass
+shadow_RenderVolume # rc184 volume render (10 calls); deep-pass
+reg_RenderReflection# rc179 reflection dispatcher (11 calls); deep-pass
+bga_setCounter      # rc174 10-call + assert; deep-pass
+pac_countOneVertexPacketSize# rc190 unaln + asserts; deep-pass
+func_00117D78       # rc177 VU0 leaf; deep-pass
+bga_GetExtMotion    # rc212 motion computation; deep-pass
+bga_InitData        # rc196 switch/float/loop over list; deep-pass
+reg_DispAccessoryWithShadow# rc206 24-call disp; deep-pass
+func_001169D8       # rc183 light helper; deep-pass
+light_AddAmbientObject# rc192 9-call + asserts + computed; deep-pass
+bga_initLightEnvelope# rc173 14-call seq + asserts + computed; deep-pass
+gif_MakeSpriteOffset# rcCOMPILE-FAIL dead-store GIFtag+VU0; deep-pass
+reg_dispMObj        # rc206 dead-store MObj packet (10 calls); deep-pass
+func_0018E348       # rc1 ONLY diff @idx33: src ptr addu operand order (EXP s0,v0=i*0x20+base vs built v0,s0); alias D_0062C8C8 fixed gp-rel. deep-pass: flip addu operands
+enemy_GetPositionTable# rc207 nested-loop table search; deep-pass
+stage_ContinueAnimation# rc217 unaln + 12 calls; deep-pass
+prim_DeleteParticle # rc213 18-call + asserts; deep-pass
+stage_ResetAnimation# rc211 reset + asserts; deep-pass
+func_0011B788       # rc220 unaln + 12 calls; deep-pass
+func_00116CB8       # rc222 38-call matrix seq + conditional + computed; deep-pass
+tex_convertImage    # rc222 image convert + assert; deep-pass
+bga_SetFrame        # rc224 23-call frame seq; deep-pass
+tex_TransTexture    # rc224 unaln + 14 calls + asserts; deep-pass
+pac_Init            # rc216 23-call init + asserts; deep-pass
+prim_makeNormal     # rc226 normal calc + assert; deep-pass
+gsb_GetBGColor      # rc238 bgcolor getter (6 calls); deep-pass
+bga_SetCameraMatrix # rc233 camera matrix + assert; deep-pass
+reg_dispPointLineObj# rc233 26-call point/line disp; deep-pass
+tex_ResetVram       # rc237 vram reset; deep-pass
+prim_InitMesh3D     # rc217 dead-store mesh init; deep-pass
+gsb_setSpecularReg  # rc223 dead-store+unaln reg setup; deep-pass
+gsb_setParticleReg  # rc227 dead-store+unaln reg setup; deep-pass
+chain_set_charachara# rc24 traceLine guard + func_0018E0E0 9-arg call + compare-prev loop; rc24
+shadow_EntryClusterShadow# rc236 26-call cluster shadow; deep-pass
+gsb_SetGsDefault    # rc245 29-call GS default + unaln; deep-pass
+gsb_setNormalReg    # rc244 normal-reg setup; deep-pass
+bga_CalcAnimation   # rc252 12-call anim calc; deep-pass
+dl_Init             # rc253 init w/ computed args+bitfield+div; deep-pass
+light_AddLight      # rc247 7-call + asserts; deep-pass
+func_001F7718       # rc248 font helper; deep-pass
+reg_transMicroCode  # rc264 14-call microcode + asserts; deep-pass
+setMatrix           # rc277 19-call matrix setup; deep-pass
+pac_checkDivide     # rc278 divide-check + assert; deep-pass
+func_00123B18       # rc278 VU0 + 13 calls; deep-pass
+light_resetFlatLight# rc280 19-call flat-light reset; deep-pass
+reg_setNMatrixPacketNoLightCalc# rc310 28-call nmatrix + assert; deep-pass
+reg_setEMatrixPacket# rc257 dead-store packet; deep-pass
+tex_GetTWTH         # rc261 dead-store packet; deep-pass
+tex_ListTool        # rc274 dead-store packet; deep-pass
+shadow_Init         # rc280 dead-store packet; deep-pass
+reg_dispNObj        # rc281 dead-store packet; deep-pass
+fog_DrawFog         # rc304 fog draw; deep-pass
+reg_DispEnemy       # rc325 enemy disp; deep-pass
+bga_addLightning    # rc321 lightning add; deep-pass
+pac_makeStrip       # rc357 strip packet; deep-pass
+tex_FreeTexture     # rc361 475L $8-input free + bitfield; deep-pass
+func_001163E8       # rc379 light helper; deep-pass
+func_00115CA8       # rc407 light helper; deep-pass
+bga_ApplyDObject    # rc405 dobject apply; deep-pass
+tex_transRegister   # rc418 register transfer; deep-pass
+_RotTransCurrentMatrixYXZ# rc439 matrix rot YXZ; deep-pass
+func_0010F220       # rcCOMPILE-FAIL file helper; deep-pass
+func_0011BB00       # rcCOMPILE-FAIL packet helper; deep-pass
+func_00122FE8       # rc686 shadow helper; deep-pass
+stage_MakePlayBgAnimation# rc691 scan + make; deep-pass
+func_00117038       # rc720 light helper; deep-pass
+fog_MakeFogClut     # rc949 fog clut build; deep-pass
+stage_SetAnimation  # rc1914 scan + set; deep-pass
+stage_Init          # rc1920 2169L massive init + computed args; deep-pass
+GetCameraGroupFromGObj# rc36 __builtin_memcpy(dst,a2,0x5C) REPRODUCES ldl/ldr dual-path copy structure; residual=dst regalloc (ROM dst=v1,built a0) from addu operand order; deep-pass regalloc
+eBrainGetTargetGeneratorFromLabel# rc24 double clamp [lo,2.0] & [1,127] + cvt round-trip + MatrixDrive call; f-reg coloring rc24
+GetChainPendulum    # rc70 dual movn-clamp + idx stack array + vec copies + _OrientXZGV angle call; deep-pass rc70
+_CameraEdit_del_pin # rc22 assert tail + clear loop (key+=0x23F0) + shift-down __builtin_memcpy; copy regalloc rc22
+func_0018F470       # rc21 scan-class max-find bnel/beql + GetMotherGenerator guard + assert tail; rc21
+brainInit           # rc13 find-slot peel-loop + field stores + level div-calc; same family as brainLevelProcess/0017F518; rc13
+func_0017F518       # rc49 bit-guard + idx-lookup + find-slot + level-calc combined; deep-pass rc49
+SetMotherGenerator  # rc20 scan bne/bnel + grp recompute + i-count + bitfield store; rc20
+func_002384E0       # rc35 aligned M32 copy + 2-cand min loop + func_00240080 + DispWireLetter cache; frame layout rc35
+func_001926C0       # rc99 float-heavy abs/neg + func_00240008/191F18 calls; not yet attempted-deep, complex
+func_001927F8       # rc14 bgezl/bnel guards + MailState append + count>=0xA call-guard; branch-likely rc14
+func_00188588       # rc41 box-search; found must init AFTER calls (else s0+frame cascade 50->41); residual loop regalloc; TWIN=func_00188660
+do_DrawLine         # rc35 8-call matrix/collision + stack matrix frame layout (sp+0x10/20/30/40) + clamp; frame-offset rc35
