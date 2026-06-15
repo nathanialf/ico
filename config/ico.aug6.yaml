@@ -322,7 +322,9 @@ segments:
       - [0x172580, data, src/cod/172580]     # .data (resume after MicroCode)
       - [0x3C1EE0, .data, sugipon/src/multiBgaManager]  # carved D_004C1EE0 (InitMultiBgaManager entry template, VMA 0x4C1EE0, 0x50)
       - [0x3C1F30, data, src/cod/3C1F30]     # .data (resume after multiBgaManager)
-      - [0x44D980, rodata,  src/cod/44D980]      # .rodata blob, part 1
+      - [0x44D980, rodata,  src/cod/44D980]      # .rodata blob, part 1 (jtbl_0054D9E0/0054E0E0, still-asm funcs)
+      - [0x44E220, .rodata, sugipon/src/tableSin]  # gcc-emitted jtbl_0054E220 (func_0010E348 switch, 7 entries 0x1C), VMA 0x54E220
+      - [0x44E23C, rodata,  src/cod/44E23C]      # .rodata blob resume (.align3 pad + D_0054E240 "display object = %d", jtbl_0054E6E0, onward)
       - [0x44F1B0, .rodata, seki/src/Packet]     # carved jtbl_0054F1B0 -> Packet.o (dot-form, migrated)
       - [0x44F1F8, rodata,  src/cod/44F1F8]      # .rodata blob, part 2a
       - [0x451910, .rodata, fumi/ios/message]    # carved message strings __FILE__+debug (VMA 0x551910..0x551994)

@@ -108,7 +108,29 @@ int func_001CCA00(void *a0) {
     return 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", func_001CCA20);
+extern void *iosFree(void *a0, int a1, void *a2, int a3);
+extern void mc_TransMicroCode(void *a0, int a1);
+extern void *D_0062A310;
+extern char D_006116B0[];
+extern char D_004BC0C0[];
+
+typedef struct { long long w[8]; } Blob40;
+
+void *func_001CCA20(int a0, int a1, char *a2, int a3) {
+    char *p = (char *)iosFree(D_0062A310, 0x40, D_006116B0, 0xF);
+    *(Blob40 *)p = *(Blob40 *)D_004BC0C0;
+    *(int *)(p + 0x0) = a1;
+    *(int *)(p + 0xC) = (int)iosFree(D_0062A310, a0 << 5, D_006116B0, 0x13);
+    *(int *)(p + 0x8) = (int)iosFree(D_0062A310, a0 << 4, D_006116B0, 0x14);
+    *(int *)(p + 0x10) = (int)iosFree(D_0062A310, a0 << 3, D_006116B0, 0x15);
+    *(int *)(p + 0x4) = a0;
+    *(char *)(p + 0x14) = *(char *)(a2 + 0);
+    *(char *)(p + 0x15) = *(char *)(a2 + 4);
+    *(char *)(p + 0x16) = *(char *)(a2 + 8);
+    *(char *)(p + 0x17) = *(char *)(a2 + 0xC);
+    mc_TransMicroCode(p + 0x20, a3);
+    return p;
+}
 
 extern void gif_SpriteOffset(int x);
 extern void gsb_SetFrame(int x, int y, int z);

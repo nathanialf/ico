@@ -35,7 +35,29 @@ void func_001D1D58(int *p1, int *p2, int a2, int a3)
     func_001D15C0(t2, t3, a2, a3);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lodManager", func_001D1DF0);
+extern void func_00118068();
+extern void func_001D1790(int *a0, int *a1, int *a2, int *a3, int a4);
+
+void func_001D1DF0(int *a0, int *a1, int *a2, int *a3, int a4) {
+    int t0[4];
+    int t1[4];
+    int t2[4];
+    int t3[4];
+    int r;
+
+    func_00118068();
+    r = func_001D1948(t0, t1, a0, a2);
+    if (r == -1) {
+        return;
+    }
+    mc_setBaseOffset(t2, t0);
+    mc_setBaseOffset(t3, t1);
+    if (r != 0) {
+        func_001D1790(t3, a1, t2, a3, a4);
+    } else {
+        func_001D1790(t2, a1, t3, a3, a4);
+    }
+}
 
 extern void debug_assertMessage();
 extern void GetMotionPointer();

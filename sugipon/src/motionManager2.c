@@ -224,7 +224,35 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", CheckWallAttribu
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", CheckPureWallAttribute);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", CheckPureCliffAttribute);
+extern char D_0054DE60[];
+extern char D_0054DEB0[];
+extern char D_0054DEC8[];
+extern char D_0062BCC8[];
+extern float D_0062BCD8[];
+extern void func_001AACE0(void *a0, int a1, void *a2);
+extern void func_00260380(void *a0, int a1, void *a2);
+
+float CheckPureCliffAttribute(void *a0, int a1) {
+    char buf[0xC0];
+    char *ctrl;
+    char *tbl;
+    int idx;
+
+    ctrl = *(char **)((char *)a0 + 0x15C);
+    if (ctrl == 0 || (tbl = *(char **)(ctrl + 0x800)) == 0 ||
+        *(signed char *)(tbl + a1) >= *(int *)(ctrl + 0x88)) {
+        debug_assertMessage(D_0054DE60);
+        func_001AACE0(D_0054DEB0, 0x203, D_0054DEC8);
+        func_00260380(D_0054DEB0, 0x203, D_0062BCC8);
+    }
+    idx = *(signed char *)(*(char **)(*(char **)((char *)a0 + 0x15C) + 0x800) + a1);
+    SetMotionDirectionWithLimit((int)buf,
+        *(int *)(*(char **)((char *)a0 + 0x15C) + 0xC) + (idx << 6) + 0x30);
+    if (*(int *)(buf + 0x94) == 0) {
+        return D_0062BCD8[0];
+    }
+    return *(float *)(buf + 0x24) - *(float *)(buf + 0x4);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetStreamShapeMotion);
 

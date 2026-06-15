@@ -83,7 +83,36 @@ void func_001EF3C0(int a0) {
     playSEConditionID(a0, 0x58);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/waySystemManager", func_001EF3C8);
+extern void GetInverseQuaternion(void *a0, void *a1);
+extern void GetRootMatrixByDObj(void *a0, int a1);
+extern void func_001EF3B8(int a0);
+extern int D_00271240[];
+
+void func_001EF3C8(int a0, int a1, int a2, void *a3, float f12) {
+    char *m = *(char **)(a0 + 0x15C);
+    char *sub = *(char **)(m + 0x7F0);
+    int a, b, q;
+
+    if (*(int *)(sub + 0x8) != 0) {
+        *(int *)(*(char **)(*(char **)(sub + 0x8) + 0x15C) + 0x620) = 0;
+    }
+    *(int *)(sub + 0xC) = -1;
+    *(int *)(sub + 0x4) = 2;
+    *(int *)(sub + 0x8) = 0;
+    if (a3 != 0) {
+        GetInverseQuaternion(m + 0x140, a3);
+    }
+    a = D_00271240[0] * 10;
+    b = D_00271240[1];
+    q = (0x3C - a) / b;
+    *(int *)(sub + 0x64) = 0;
+    *(int *)(sub + 0x60) = (int)((float)q * f12);
+    GetRootMatrixByDObj(sub + 0x70, a0);
+    MatrixDrive_TurnObjectMatrix(sub + 0x80, (void *)a1);
+    GetInverseQuaternion(sub + 0x90, (void *)a2);
+    *(float *)(sub + 0x68) = (*(float *)(sub + 0x84) - *(float *)(sub + 0x74)) / f12 - f12 * 490.0f;
+    func_001EF3B8(a0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/waySystemManager", func_001EF4F0);
 

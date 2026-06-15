@@ -70,4 +70,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lineManager", func_001D1470);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lineManager", func_001D1508);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/lineManager", func_001D15C0);
+extern void gif_SpriteOrg(int a0, long long a1);
+extern int D_0062B704;
+
+void func_001D15C0(int *a0, int *a1, int *a2, int a3) {
+    gif_SpriteOrg(0, D_0062B704);
+    gif_SpriteOrg(1, a2[0] | ((long long)a2[1] << 8) | ((long long)a2[2] << 16) | ((long long)a2[3] << 24));
+    if (a3 == 0) {
+        gif_SpriteOrg(5, a0[0] | ((long long)a0[1] << 16) | ((long long)a0[2] << 32));
+        gif_SpriteOrg(5, a1[0] | ((long long)a1[1] << 16) | ((long long)a1[2] << 32));
+    } else {
+        gif_SpriteOrg(5, a0[0] | ((long long)a0[1] << 16) | ((long long)a3 << 32));
+        gif_SpriteOrg(5, a1[0] | ((long long)a1[1] << 16) | ((long long)a3 << 32));
+    }
+}

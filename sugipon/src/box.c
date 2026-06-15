@@ -159,7 +159,26 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box", dispWheels);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box", getNearestPosition);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box", onPathInitialize);
+extern void file_LoadCDFile(void *a0);
+
+void onPathInitialize(void *a0) {
+    char *sub = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x7F0);
+
+    if (*(int *)(sub + 0x11C) == 0) {
+        return;
+    }
+    MatrixDrive_TurnXObjectMatrixYZ(func_00105078(), *(void **)(*(char **)((char *)a0 + 0x15C) + 0xC));
+    func_00105108(0.0f, *(float *)(sub + 0x128), 0.0f);
+    func_00104D20();
+    func_00105108(0.0f, 0.0f, *(float *)(sub + 0x12C));
+    func_00104D48(*(short *)(sub + 0x120));
+    MatrixDrive_TurnXObjectMatrixYZ(*(void **)(*(char **)(sub + 0x11C) + 0xC), func_00105078());
+    func_00105068();
+    func_00105108(0.0f, 0.0f, *(float *)(sub + 0x130));
+    func_00104D48((short)(*(unsigned short *)(sub + 0x120) + 0x4000));
+    MatrixDrive_TurnXObjectMatrixYZ((char *)*(void **)(*(char **)(sub + 0x11C) + 0xC) + 0x40, func_00105078());
+    file_LoadCDFile(*(void **)(sub + 0x11C));
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box", onPath);
 

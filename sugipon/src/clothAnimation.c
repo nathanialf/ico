@@ -97,7 +97,26 @@ float GetCloth4D(void *a0, float a1) {
     return a1 / *(float *)((char *)a0 + 0x14);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", InitCloth4D);
+extern void MatrixDrive_TurnObjectMatrix(void *a0, void *a1);
+extern char D_00271BD0[];
+
+void InitCloth4D(int *a0, int *a1, int *a2) {
+    int outer = a2[0];
+    int inner = a2[2];
+    int i = 0;
+    int j;
+
+    if (outer > 0) {
+        do {
+            for (j = 1; j < inner; j++) {
+                char *p = (char *)a0[i];
+                MatrixDrive_TurnObjectMatrix(p + j * 16, p);
+                MatrixDrive_TurnObjectMatrix((char *)a1[i] + j * 16, D_00271BD0);
+            }
+            i++;
+        } while (i < outer);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", GetChainNodeGlobalQuaternion);
 

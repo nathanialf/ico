@@ -84,7 +84,36 @@ void updatePoolGeo(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", dispPool);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", PoolDL);
+extern void func_0012FE30(void);
+extern int tex_transVramClutTex(int a0, int a1);
+extern void gif_MakeSprite(int a0, int a1, int a2, int a3, int a4, int a5);
+extern void gsb_Reduction(int a0);
+extern void gif_SpriteOrg(int a0, long long a1);
+extern void gsb_SetFrame(int a0, int a1, int a2);
+extern void gif_MakeLine2DOffset(void *a0, int a1, int a2, void *a3, int a4);
+extern int D_00629E60;
+extern int D_00629E64;
+extern char D_0054E100[];
+extern char D_0062BCF0[];
+
+typedef struct { char c[16]; } Blob16;
+typedef struct { char c[4]; } Blob4;
+
+void PoolDL(void) {
+    char buf[0x20];
+
+    func_0012FE30();
+    D_00629E60 = tex_transVramClutTex(0, 0x400);
+    D_00629E64 = tex_transVramClutTex(0, 0x400);
+    gif_MakeSprite(D_00629E60, 0, 0x100, 0x100, 0, 0);
+    gsb_Reduction(0);
+    gif_SpriteOrg(0x4E, 0x30000000 | (D_00629E64 / 32));
+    gsb_SetFrame(0, 4, 0);
+    *(Blob16 *)buf = *(Blob16 *)D_0054E100;
+    *(Blob4 *)(buf + 0x10) = *(Blob4 *)D_0062BCF0;
+    gif_MakeLine2DOffset(buf, 0, 0, buf + 0x10, 0);
+    gsb_Reduction(1);
+}
 
 extern int DebugDisp1CollisionWithColor(char *a0, int a1);
 extern int DeleteParticleEffectsByPackage(int a0, int a1, int a2);
@@ -123,7 +152,41 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", InitLayoutedPoolReflaction
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", poolRideFunc);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", getWave);
+extern void gif_SpriteOffset(int a0);
+extern void dispPool(int a0);
+extern void gif_SpriteOrg(int a0, long long a1);
+extern void gif_MakeSprite(int a0, int a1, int a2, int a3, int a4, int a5);
+extern void gsb_KeepFrameBuffer(int a0);
+extern void gsb_Reduction(int a0);
+extern void gsb_SetFrame(int a0, int a1, int a2);
+extern void func_0010F9D0(void);
+extern void _PopCurrentMatrix(int a0);
+extern void prim_DispParticle(int a0, void *a1, void *a2, int a3);
+extern void SetChainExtendedWeight(int a0, int a1, int a2);
+extern int D_00629E60;
+extern int D_00629F5C;
+extern int D_00629F60;
+extern int D_00629C70;
+extern int D_0062AF90;
+extern char D_002723B0[];
+extern char D_002723F0[];
+
+void getWave(int *a0) {
+    gif_SpriteOffset(4);
+    dispPool(4);
+    gif_SpriteOrg(6, D_00629E60 | 0x20010000 | (0xC000LL << 19));
+    gif_MakeSprite(0x800, 0, D_00629F5C, D_00629F60, 0, 0);
+    gif_SpriteOrg(0x14, 0x60);
+    gsb_KeepFrameBuffer(0);
+    gsb_Reduction(1);
+    gsb_SetFrame(0, 4, 0x80);
+    func_0010F9D0();
+    _PopCurrentMatrix(D_00629C70 + 0x100);
+    prim_DispParticle(a0[4], D_002723B0, D_002723F0, -1);
+    if (D_0062AF90 != 0) {
+        SetChainExtendedWeight(a0[6], a0[0], a0[1]);
+    }
+}
 
 void func_0010D3B0(void) {
 }

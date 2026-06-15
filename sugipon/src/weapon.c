@@ -56,7 +56,47 @@ void WeaponCurPos(void *a0, char *a1, int a2)
     *(int *)(*(int *)((char *)a1 + 0x15C) + 0x620) = (int)a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", WeaponHitEffect);
+extern void *isysGObjSearchFromObjLayoutID(int id);
+extern void *isysGObjSearchFromObjKindID_begin(void *o);
+extern void GetRootMatrixByDObj(void *buf, void *obj);
+
+void *WeaponHitEffect(void *a0, float radius) {
+    int buf[4];
+    float thresh2 = radius * radius;
+    void *best = 0;
+    char *obj;
+
+    obj = (char *)isysGObjSearchFromObjLayoutID(0xE);
+    GetRootMatrixByDObj(buf, a0);
+    while (obj != 0) {
+        if (obj != (char *)a0) {
+            char *sub = *(char **)(obj + 0x15C);
+            char *p = *(char **)(sub + 0x7F0);
+            if (*(int *)p != 0 && *(int *)(p + 8) == 0 && *(int *)(obj + 0x16C) != 0) {
+                char *m = *(char **)(sub + 0xC) + 0x30;
+                float d2;
+                register float rd __asm__("$f0");
+                __asm__ __volatile__(
+                    "lqc2 $vf1, 0x0($29)\n"
+                    "lqc2 $vf2, 0x0(%1)\n"
+                    "vsub.xyzw $vf3, $vf1, $vf2\n"
+                    "vmul.xyz $vf3, $vf3, $vf3\n"
+                    "vaddy.x $vf3, $vf3, $vf3y\n"
+                    "vaddz.x $vf3, $vf3, $vf3z\n"
+                    "qmfc2.ni $2, $vf3\n"
+                    "mtc1 $2, $f0\n"
+                    : "=f"(rd) : "r"(m) : "$2", "memory");
+                d2 = rd;
+                if (d2 < thresh2) {
+                    thresh2 = d2;
+                    best = obj;
+                }
+            }
+        }
+        obj = (char *)isysGObjSearchFromObjKindID_begin(obj);
+    }
+    return best;
+}
 
 void ExecWeaponHitReaction(void *a0) {
     WGeo *p = *(WGeo **)(*(char **)((char *)a0 + 0x15C) + 0x7F0);
@@ -137,7 +177,26 @@ void ReleaseWeapon(void *a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", CheckWeaponKind);
+extern void *iosFree(int a0, int a1, char *a2, int a3);
+extern void ReleaseWeaponWithFumbleTargetPos(void *a0, int a1, int a2);
+extern int D_0062A310;
+extern char D_00613220[];
+extern char D_004C2330[];
+
+typedef struct { long long w[22]; } WeaponBlob;
+
+void *CheckWeaponKind(void *a0, int a1) {
+    void *p = iosFree(D_0062A310, 0xB0, D_00613220, 0x2F3);
+    char *m = *(char **)((char *)a0 + 0x15C);
+    int i;
+
+    *(void **)(m + 0x7F0) = p;
+    *(WeaponBlob *)p = *(WeaponBlob *)D_004C2330;
+    for (i = 0; i < *(int *)(*(char **)((char *)a0 + 0x15C) + 0x8); i++) {
+        ReleaseWeaponWithFumbleTargetPos(a0, i, a1);
+    }
+    return p;
+}
 
 void LightTorchOnOfWeapon(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);

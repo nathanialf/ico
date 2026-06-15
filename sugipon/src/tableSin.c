@@ -221,7 +221,40 @@ void func_0010E300(void *a0)
     func_001189F8(r1, r2, buf);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", func_0010E348);
+extern void GetInverseQuaternion(void *a0, void *a1);
+
+void func_0010E348(float *a0, void *a1, unsigned int a2) {
+    GetInverseQuaternion(a0, a1);
+    switch (a2) {
+    case 0:
+        a0[0] = -a0[0];
+        break;
+    case 1:
+        a0[1] = -a0[1];
+        break;
+    case 2:
+        a0[2] = -a0[2];
+        break;
+    case 4:
+        a0[0] = -a0[0];
+        a0[1] = -a0[1];
+        break;
+    case 3:
+        a0[0] = -a0[0];
+        a0[2] = -a0[2];
+        break;
+    case 5:
+        a0[1] = -a0[1];
+        a0[2] = -a0[2];
+        break;
+    case 6:
+    default:
+        a0[0] = -a0[0];
+        a0[1] = -a0[1];
+        a0[2] = -a0[2];
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", func_0010E448);
 
