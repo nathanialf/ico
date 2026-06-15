@@ -4,7 +4,38 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", dispSquare2);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", findActPoint);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", checkActPointWithHeight);
+extern int func_00105078(void);
+extern int func_00104D20(void);
+extern void func_00105068(void);
+extern void MatrixDrive_TurnObjectMatrix(int a0, int a1);
+extern int D_0062C234;
+extern void func_00260568(void *a0, int a1, int a2);
+extern void func_001050A8(void *a0);
+extern void func_0023FDD8(int *a0, int a1, char *a2);
+extern void ClipWallBoxStop(void *a0);
+extern float MatrixDrive_GetTurnZAngleYX(void *a0, void *a1);
+extern char D_004C1C60[];
+extern char D_004C1C70[];
+
+void checkActPointWithHeight(void) {
+    char buf[0xC0];
+    func_00260568(buf, 0, 0xC0);
+    func_00104D20();
+    func_001050A8(D_004C1C60);
+    MatrixDrive_TurnObjectMatrix((int)buf, func_00105078() + 0x30);
+    func_0023FDD8((int *)(buf + 0x10), func_00105078(), D_004C1C70);
+    func_00105068();
+    ClipWallBoxStop(buf);
+    if (*(int *)(buf + 0x88) != 0) {
+        float a;
+        int *D;
+        a = MatrixDrive_GetTurnZAngleYX(buf + 0x20, buf);
+        D = (int *)D_0062C234;
+        *(float *)((char *)D + 0x170) = a;
+        *(int *)((char *)D + 0x108) = 1;
+        *(int *)((char *)D + 0x14) = *(int *)((char *)D + 0x14) | 0x1000;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", clearCollisionStatus);
 

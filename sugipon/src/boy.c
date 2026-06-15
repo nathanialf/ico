@@ -48,7 +48,31 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/boy", BoyGeo);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/boy", dispCrown);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/boy", BoyDL);
+extern int DebugDisp1CollisionWithColor(void *a0, int code);
+extern int func_00105078(void);
+extern void MatrixDrive_TurnXObjectMatrixYZ(int a0, int a1);
+extern void func_00104D48(int a0);
+extern void shadow_EntryClusterShadow(void *a0, void *a1);
+
+void BoyDL(void *a0) {
+    char *s0 = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x7F0);
+    int s2 = DebugDisp1CollisionWithColor(a0, 0x23);
+    switch (*(int *)s0) {
+    case 1:
+        s0 = *(char **)(s0 + 0x8);
+        break;
+    case 2:
+        s0 = *(char **)(s0 + 0xC);
+        break;
+    default:
+        s0 = *(char **)(s0 + 0x4);
+        break;
+    }
+    MatrixDrive_TurnXObjectMatrixYZ(func_00105078(), *(int *)(*(char **)((char *)a0 + 0x15C) + 0xC) + s2 * 0x40);
+    func_00104D48(-0x8000);
+    MatrixDrive_TurnXObjectMatrixYZ(*(int *)(s0 + 0xC), func_00105078());
+    shadow_EntryClusterShadow(s0, *(char **)((char *)a0 + 0x15C));
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/boy", SelectBoyCrown);
 

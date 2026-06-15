@@ -4,7 +4,29 @@ int EntrySpiderGroupManager(void) {
     return 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", tryToRevive);
+extern void debug_assertMessage();
+extern char D_00612B98[];
+extern char D_00612BA8[];
+extern char D_00612BB8[];
+extern char D_00612BC8[];
+extern char D_0062D748[];
+extern char D_0062D750[];
+
+int tryToRevive(void *a0, char *a1) {
+    char *s1 = a1 + 0x30;
+    int *q = *(int **)(*(char **)((char *)a0 + 0x15C) + 0x7F0);
+    if (*(int *)(a1 + 0x30) != 0) {
+        *(int *)((char *)q + 0x38) = *(int *)(s1 + 0x4);
+    }
+    if (*(int *)(s1 + 0x8) != 0) {
+        *(int *)((char *)q + 0x3C) = 1;
+    }
+    debug_assertMessage(D_00612B98, a0);
+    debug_assertMessage(D_00612BA8, (*(int *)(a1 + 0x30) != 0) ? D_0062D748 : D_0062D750);
+    debug_assertMessage(D_00612BB8, *(int *)(s1 + 0x4));
+    debug_assertMessage(D_00612BC8, *(int *)(s1 + 0x8));
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", ExecSpiderGroupManager);
 
@@ -154,7 +176,24 @@ int func_001E8D38(int arg) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", func_001E8D98);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spiderGroupManager", func_001E8E38);
+extern char *stage_SetLocalizeGeometry(void *a0);
+extern void mc_TransMicroCode(void *a0, void *a1);
+extern void GetInverseQuaternion(void *a0, void *a1);
+extern void EntryMultiBgaManager(void *a0, int a1, void *a2, void *a3, void *a4);
+extern int D_0062B8FC;
+extern char *D_00706D00[];
+extern char D_007063A0[];
+
+void func_001E8E38(void *a0, void *a1, void *a2) {
+    char *r = stage_SetLocalizeGeometry(a0);
+    D_00706D00[D_0062B8FC] = r;
+    mc_TransMicroCode(r + 0x20, a1);
+    GetInverseQuaternion(D_00706D00[D_0062B8FC] + 0x30, a2);
+    EntryMultiBgaManager(D_007063A0, D_0062B8FC++, a0, a1, a2);
+    if (D_0062B8FC >= 30) {
+        D_0062B8FC = 0;
+    }
+}
 
 
 /* recovered struct shapes */

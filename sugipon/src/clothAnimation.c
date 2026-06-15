@@ -10,7 +10,36 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", bind2);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", calc2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", GetChainAnimation);
+extern void dpk_SwapBuffer(int a0);
+extern void func_0010F068(void);
+extern void setLight(int a0, int a1, int a2);
+extern int D_00629C40;
+extern void gif_SpriteOffset(int a0);
+extern void gsb_SetFrame(int a0, int a1, int a2);
+extern void gif_SpriteOrg(int a0, int a1);
+extern void func_0010F9D0(void);
+extern void _PopCurrentMatrix(int a0);
+extern int D_00629C70;
+extern int func_0012FC48(void *a0);
+extern void prim_DispParticle(int a0, void *a1, void *a2, int a3);
+
+void GetChainAnimation(int *a0, void *a1, void *a2) {
+    int t;
+    dpk_SwapBuffer(2);
+    func_0010F068();
+    setLight(a0[0], 5, D_00629C40);
+    gif_SpriteOffset(2);
+    gsb_SetFrame(1, 7, 0x80);
+    gif_SpriteOrg(8, 0);
+    func_0010F9D0();
+    _PopCurrentMatrix(D_00629C70 + 0x100);
+    if (a0[4] != 0) {
+        t = func_0012FC48((char *)a0 + 0x18);
+    } else {
+        t = -1;
+    }
+    prim_DispParticle(a0[0], a1, a2, t);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", SetChainExtendedWeight);
 
@@ -28,7 +57,30 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", DispMeshWire);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", DispCloth4D);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothAnimation", getCloth4D_preProcess);
+extern void GetMatrixFromQuaternion(void *a0);
+extern void MatrixDrive_GetTurnXAngleZY(void *a0, void *a1, void *a2);
+extern void MatrixDrive_PushMatrixWithNoCopy(unsigned short *o1, unsigned short *o2, float x, float y, float z);
+extern void func_0010E448(void *a0, int a1);
+extern void func_0010E588(void *a0, int a1);
+
+typedef struct {
+    float v[4];
+    unsigned short a;
+    unsigned short b;
+} ClothBuf;
+
+void getCloth4D_preProcess(void *a0, int *a1, int count) {
+    ClothBuf buf;
+    GetMatrixFromQuaternion(a0);
+    if (count > 0) {
+        char *base = *(char **)a1;
+        int off = count * 16;
+        MatrixDrive_GetTurnXAngleZY(&buf, base + off, base + (off - 16));
+        MatrixDrive_PushMatrixWithNoCopy(&buf.a, &buf.b, buf.v[0], buf.v[1], buf.v[2]);
+        func_0010E448(a0, (short)-buf.a);
+        func_0010E588(a0, (short)-buf.b);
+    }
+}
 
 void proc(void *a0, int a1, float a2) {
     *(float *)((char *)a0 + a1 * 0x50 + 0x10) = a2;

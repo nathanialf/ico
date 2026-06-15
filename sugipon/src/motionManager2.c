@@ -11,7 +11,29 @@ void CheckFieldContact(int a0, char *a1) {
     MatrixDrive_TurnObjectMatrix(a0, *(char **)(a1 + 0x15C) + 0x580);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", dispPlane);
+extern void MatrixDrive_TurnObjectMatrix(int a0, void *a1);
+extern void func_0023FE98(int *a0, int *a1);
+extern void GetRootVelocity(char *a0, void *a1);
+
+void dispPlane(void *a0, float *a1) {
+    char *base = *(char **)((char *)a0 + 0x15C);
+    char *s2 = base + 0x460;
+    char *m;
+    char *ctrl;
+    if (a1[0] == 0.0f && a1[2] == 0.0f) {
+        return;
+    }
+    m = base + 0x510;
+    MatrixDrive_TurnObjectMatrix((int)m, a1);
+    *(float *)(s2 + 0xB4) = 0.0f;
+    *(float *)(s2 + 0xBC) = 1.0f;
+    func_0023FE98((int *)m, (int *)m);
+    ctrl = *(char **)((char *)a0 + 0x15C);
+    if (*(int *)ctrl == 0) {
+        return;
+    }
+    GetRootVelocity(a0, ctrl);
+}
 
 extern void GetRootMatrixRotOffset(int a0, void *a1, void *a2);
 

@@ -1,6 +1,27 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionViewer", setRootUpdateMode);
+extern void execEff(void *a0, int a1);
+extern void playSERandomID(void *a0, int a1, int a2);
+
+int setRootUpdateMode(void *a0) {
+    char *sub = *(char **)((char *)a0 + 0x15C);
+    if (*(int *)(sub + 0x618) != *(int *)(sub + 0x614)) {
+        execEff(a0, 1);
+        if (*(int *)(*(char **)((char *)a0 + 0x15C) + 0x614) & 0x100000) {
+            playSERandomID(a0, 0x6D, 1);
+        }
+        if (*(int *)(*(char **)((char *)a0 + 0x15C) + 0x614) & 0x200000) {
+            playSERandomID(a0, 0x6F, 1);
+        }
+        if (*(int *)(*(char **)((char *)a0 + 0x15C) + 0x614) & 0x400000) {
+            playSERandomID(a0, 0x71, 1);
+        }
+        if (*(int *)(*(char **)((char *)a0 + 0x15C) + 0x614) & 0x800000) {
+            playSERandomID(a0, 0x73, 1);
+        }
+    }
+    return 1;
+}
 
 extern int D_00271254[];
 extern void execEff(void *a0, int a1);

@@ -6,9 +6,57 @@ void falldownSE(void) {
 void copyToWork(void) {
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", flushWork);
+#include "vu0.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", setNodePursueParticleEffectWithUpperLimit);
+extern void GetRootMatrixByDObj(void *a0, void *a1);
+extern void func_00166AF8(void *a0, void *a1);
+extern float func_001047C0(void *a0, void *a1, void *a2, float t);
+extern void GetCylinderCollisionWithExceptOwnCollision(void *a0, void *a1);
+
+void flushWork(void *obj, float threshold) {
+    int buf0[4];
+    int buf1[4];
+    register float thr __asm__("$f20") = threshold;
+    if (*(int *)(*(char **)((char *)obj + 0x15C) + 0x178) != 0) {
+        register float dot __asm__("$f0");
+        GetRootMatrixByDObj(buf0, obj);
+        func_00166AF8(buf1, *(char **)((char *)obj + 0x15C) + 0x170);
+        VU0_LSV_R(lqc2, 1, 0x0, buf0);
+        VU0_LSV_R(lqc2, 2, 0x0, buf1);
+        VU0_V3OP(vmul.xyz, 3, 1, 2);
+        VU0_V3OP_BC(vaddy.x, 3, 3, 3, y);
+        VU0_V3OP_BC(vaddz.x, 3, 3, 3, z);
+        VU0_V3OP_BC(vaddw.x, 3, 3, 2, w);
+        VU0_QMFC2_NI(v0, 3);
+        VU0_MTC1(v0, 0);
+        if (dot < thr) {
+            func_001047C0(buf0, buf1, buf0, thr);
+        }
+        GetCylinderCollisionWithExceptOwnCollision(obj, buf0);
+    }
+}
+
+extern void func_00260568(void *a0, int a1, int a2);
+extern void GetRootMatrixByDObj(void *a0, void *a1);
+extern void SlopeIKControl(void *a0, void *a1, void *a2, float f);
+extern void ClipWallBoxStop(void *a0);
+extern void GetCylinderCollisionWithExceptOwnCollision(void *a0, void *a1);
+extern void debug_assertMessage(void *msg);
+extern char D_0054DFF0[];
+
+void setNodePursueParticleEffectWithUpperLimit(void *a0, void *a1, float f) {
+    char buf[0xC0];
+    func_00260568(buf, 0, 0xC0);
+    GetRootMatrixByDObj(buf, a0);
+    SlopeIKControl(buf + 0x10, a1, buf, f);
+    ClipWallBoxStop(buf);
+    if (*(int *)(buf + 0x88) != 0) {
+        GetCylinderCollisionWithExceptOwnCollision(a0, buf + 0x20);
+        debug_assertMessage(D_0054DFF0);
+    } else {
+        GetCylinderCollisionWithExceptOwnCollision(a0, buf + 0x10);
+    }
+}
 
 extern float func_00166A48(int *buf, int *dest);
 

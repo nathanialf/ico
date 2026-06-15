@@ -116,7 +116,26 @@ float CheckSwapableWeapon(void *a0) {
     return (float)D_0060AF70[idx].f_C;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", ReleaseWeapon);
+extern void *isysGObjSearchFromObjLayoutID(int id);
+extern void *isysGObjSearchFromObjKindID_begin(void *o);
+extern void IsTorchLightOn(int a0, void *a1);
+
+void ReleaseWeapon(void *a0) {
+    char *g = isysGObjSearchFromObjLayoutID(0xE);
+    if (g != 0) {
+        do {
+            char *s1 = *(char **)(*(char **)(g + 0x15C) + 0x7F0);
+            if (*(int *)s1 == 1) {
+                int i;
+                for (i = 0; i < *(int *)(s1 + 0x50); i++) {
+                    int *base = *(int **)(s1 + 0x54);
+                    IsTorchLightOn(base[i], a0);
+                }
+            }
+            g = isysGObjSearchFromObjKindID_begin(g);
+        } while (g != 0);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", CheckWeaponKind);
 

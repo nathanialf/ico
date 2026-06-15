@@ -655,3 +655,40 @@ func_001926C0       # rc99 float-heavy abs/neg + func_00240008/191F18 calls; not
 func_001927F8       # rc14 bgezl/bnel guards + MailState append + count>=0xA call-guard; branch-likely rc14
 func_00188588       # rc41 box-search; found must init AFTER calls (else s0+frame cascade 50->41); residual loop regalloc; TWIN=func_00188660
 do_DrawLine         # rc35 8-call matrix/collision + stack matrix frame layout (sp+0x10/20/30/40) + clamp; frame-offset rc35
+CylinderCollisionWithControlDynamics# rc4 sched1 hoists post-call 0x15C reload above fp stores; volatile fp stores 8->4, residual 4
+ChandelierGeo       # rc11 loop over 8-byte elems w/ GetParticleEffectPackage; double-guard+bnel reload structure off by 11
+DrawLine            # rc13 scan-class bnel reorg over GObj search loop; movn flag + ctrl-reload delay off by 13
+execFrameTrigger    # rc33 recursive tree traversal w/ profiling calls + 2 ptr globals; structure off by 33
+func_001CC950       # rc24 microcode elem write + p2 stride-0x50 zero + wrap idx; off by 24, likely ptr/mult shape
+DebugDisp1CollisionWithColor# rc16 assert-tail class: 3-part compound assert (beql/beqz/bnel branch-likely) + byte return; off by 16
+shiftMotionData     # rc14 unaligned 32B struct copy (ldl/ldr/sdl/sdr) to stack + conditional copyback; packed M32 off by 14
+func_001D1508       # rc17 scan-class bnel reorg (DrawLine sibling w/ a0 param stored at 0x74); off by 17
+func_001C6228       # rc1 VU0 dual-dot rc1: extra gcc sched nop between 2nd mtc1 f20 and neg.s f20,f20 (1st mtc1 f21 slot filled by addiu); permuter-class
+func_001EE838       # rc1 rc1: block2 p2o arg load lh(exp) vs lhu(built); gcc free lh/lhu choice when <<1+16bit-truncate discards sign; permuter-class §5.11
+SetDirectRootPositionNoFittingWithNodePoint# rc9 rc9 multi-lever: gcc hoists -1 const to prologue (ROM rematerializes in loop) + back-edge bnel(built) vs bne(ROM) loop-rotation cascade
+dummyGetWindVector  # rc31 float->int dual clamp [0,19] (movn/movz) + 2D D_007072B0 index + opt *a0 write + ptr return; off by 31
+func_001EA3C8       # rc18 GS draw sequence with unusual incoming-$2 value (gif_MakeSprite 7th stack arg + gif_MakeLine2DOffset a0); off by 18
+LocalizeGeometry    # rc8 rc8: same cascade as SetDirectRootPositionNoFitting - gcc hoists -1 to prologue + back-edge bnel(built) vs bne(ROM); deep regalloc/loop-rotation
+ExecSpiderGroupManager# rc26 grp->0x28 guard + count loop w/ func_001B8D08==0 movz tally + out[0..2] writes; s4/s1 reload + bnel off by 26
+SetDirectRootPositionWithNodePoint# rc14 SetDirect family (caches a1->0x15C); -1 prologue-hoist + bnel loop-rotation; off by 14
+_getS16MotRotElem   # rc25 recursive tree traversal w/ context passed in $2 (v0) non-standard ABI; recursion daddu $2,$16; not clean-C expressible; off by 25
+func_001DDB68       # rc2 rc2: D_0062B75C=a0 store one slot early vs ROM (sched tiebreak, store independent of ctrl0 load); reorder regressed to 5
+CageRideFunc        # rc25 float loop(100) over D_0062B560->[0],[4] arrays w/ conditional pac_DispQW recompute; reload structure + bc1f-delay store off by 25
+GetChainNodeGlobalQuaternion# rc8 rc8: a2/a3 params allocated to swapped s0/s1 vs ROM (2-temp regalloc tiebreak); else identical to getCloth4D idiom
+InitParticleEffects # rc3 rc3: assert cmp regalloc tiebreak (D_004C2030[0]->v0/a1->0->a1 ROM vs v1/v0 built); struct copy+tail call else match
+normalMotionShift   # rc18 state-machine: 2 cvt.s.w int->float threshold blocks w/ bnel/beql/bc1fl branch-likely; off by 18
+_transRingBuf       # rc25 D_0062B9F4 branch + D_00706DA8 stride-0x18 count loop w/ per-elem fp call (->0x14) + reread bound; off by 25
+func_001EA488       # rc30 incoming-$2 value class (sibling of func_001EA3C8); GS draw seq + byte buf + gif_MakeLine2DOffset; off by 30
+setParticleEffect   # rc41 stride-0x50 loop, fp-guard, stage_SetParentOfGObj(4th=fp arg) float ret -> (float)(int) store-back if D_00271240->0x14==0; 3-walking-IV structure off by 41
+ItemGeo             # rc30 branchy state-machine: t->0/t->4 guards, s1 flag, D_00271254 ExecFrameDependSequence/bombSparkStartSE, tail-call func_0010F048; branch-likely tiebreaks off by 30
+CheckWallAttribute  # rc20 assert-tail class (3-part compound assert beql/beqz/bnel) + func_00166A00 tail; same class as DebugDisp1CollisionWithColor; off by 20
+CheckPureWallAttribute# rc20 assert-tail class (CheckWallAttribute sibling, s3+0x120); off by 20
+func_001D2060       # rc38 ptr-relocation/fixup fn (base+=offset fields, array reloc loop, D_0062B710 reload, movn-cmp); off by 38
+getReviveEnemyGObj  # rc13 node-check + count-loop func_001B8D08 movz-tally (ExecSpiderGroupManager class); off by 13
+GetMatrixOfMotion   # rc11 mode-guarded matrix build on D_0062C230 (QW16 copy, getQuat, func_00118A70/166A00/EF98); off by 11
+SetMotionBlendlessNode# rc25 root-matrix setup + HrcNode ldl/ldr copy + cond GetRootPosOfNextFrame/SetMotionDirectionWithLimit + return 0/1; off by 25
+WormGeo             # rc48 WormGeo typedef/fn name collision (asm-rename workaround); loop w/ EE mult+mult1 dual-pipe over 2 strided arrays; off by 48
+GirlAI              # rc10 int GirlAI(int) display fn; GetRootMatrixByDObj/func_0023FED0/00105078 seq + func_00105108(0,-50,0)+DefaultColorWireString; off by 10
+EnemyDeleteParticle # rc27 bnel slot-search + MatrixDrive_GetMatrix/GetMatrixFromQuaternion/s16-neg/SetParticleEffectUpperLimit body; off by 27
+GetMotionPlaySpeedRatio# rc15 recursive tree traversal (execFrameTrigger class): sibling-loop ->0x34 + child-recurse ->0x30, per-node profiling+matrix calls, D_0062B758 stride 0x40; off by 15
+func_00104998       # rc31 zeroing loop w/ EE mult+mult1 dual-pipe + gcc-hoisted base ptrs ($9-$15); permuter-class; off by 31

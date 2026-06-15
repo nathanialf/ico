@@ -21,7 +21,19 @@ int InitMotionFile(void *a0) {
     return (char *)a0 + 0x10 < *(char **)((char *)a0 + 0x8) ? 0 : -1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionFileManager", InitMotionMemorySize);
+extern void func_001D1DF0(void *a0, void *a1, void *a2, void *a3, int a4);
+extern char D_004C1BE0[];
+extern char D_004C1BF0[];
+extern char D_004C1C00[];
+extern char D_004C1C10[];
+extern char D_004C1C20[];
+
+void InitMotionMemorySize(void) {
+    func_001D1DF0(D_004C1BF0, D_004C1BE0, D_004C1C10, D_004C1BE0, -1);
+    func_001D1DF0(D_004C1C10, D_004C1BE0, D_004C1C00, D_004C1BE0, -1);
+    func_001D1DF0(D_004C1C00, D_004C1BE0, D_004C1C20, D_004C1BE0, -1);
+    func_001D1DF0(D_004C1C20, D_004C1BE0, D_004C1BF0, D_004C1BE0, -1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionFileManager", AddMotionMemorySize);
 
@@ -37,7 +49,31 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionFileManager", func_001D5928
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionFileManager", func_001D5AF0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionFileManager", func_001D5C50);
+extern char *D_0062B758;
+extern char *D_0062C244;
+extern float D_0062B720;
+extern char D_00703040[];
+extern char D_00703080[];
+extern void _PushVu0Registers(void *buf, void *p1, float f);
+extern void func_0010E250(void *a0, void *a1, void *a2);
+extern void getQuaternionFromMatrix(void *a0, void *a1);
+extern void *func_00105078(void);
+extern void *func_00105090(void);
+extern void func_001189F8(void *a0, void *a1, void *a2);
+
+void func_001D5C50(int a0) {
+    char *elemA = D_0062B758 + a0 * 0x40;
+    char *elemB = D_0062C244 + a0 * 0x20;
+    void *x;
+    if (*(int *)(elemA + 0x38) != -1) {
+        _PushVu0Registers(D_00703080, elemA + 0x10, D_0062B720);
+        func_0010E250(D_00703040, elemB + 0x10, D_00703080);
+    } else {
+        getQuaternionFromMatrix(D_00703040, elemB + 0x10);
+    }
+    x = func_00105078();
+    func_001189F8(x, func_00105090(), D_00703040);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionFileManager", func_001D5D00);
 

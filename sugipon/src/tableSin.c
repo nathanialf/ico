@@ -58,7 +58,25 @@ void GetTableArcCos(int *self, int a1, float x, float y, float z) {
     *(float *)((char *)self + 0xC) = func_0010ED30(half);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", GetTableArcTan2);
+extern float func_00118048(float t);
+extern void _SetCurrentMatrix(void *out, int *p);
+
+void GetTableArcTan2(float *out, float *in, float x, float y, float z) {
+    float v[4];
+    float r[4];
+    float s1, s2;
+    v[0] = x;
+    v[1] = y;
+    v[2] = z;
+    v[3] = 0.0f;
+    s1 = func_00118048((in[0] + 1.0f) * 0.5f);
+    s2 = func_00118048((1.0f - in[0]) * 0.5f);
+    _SetCurrentMatrix(r, (int *)v);
+    out[0] = r[0] * s2;
+    out[1] = r[1] * s2;
+    out[2] = r[2] * s2;
+    out[3] = s1;
+}
 
 extern void _SetCurrentMatrix(void *out, int *p);
 extern float p2o_SetDefaultEnviroment(int x);

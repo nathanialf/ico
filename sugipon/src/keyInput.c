@@ -51,9 +51,44 @@ void func_001044F0(char *dst, char *outer)
     MatrixDrive_TurnObjectMatrix((int)dst, (int)(tmp + 0x30));
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_00104548);
+extern void getQuaternionFromMatrix(void *a0, void *a1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", func_00104618);
+void func_00104548(void *a0, char *a1) {
+    char buf0[0x40];
+    char buf1[0x40];
+    char *b1 = buf1;
+    char *sub = *(char **)(a1 + 0x15C);
+    char *p = sub + 0xA0;
+    func_0010E250(b1, sub + 0xD0, p);
+    {
+        char *q = *(char **)sub;
+        if (q != 0) {
+            func_0023FE08(b1, (char *)(*(int *)(*(char **)(q + 0x15C) + 0xC) + (*(int *)(sub + 4) << 6)), (int)b1);
+        }
+    }
+    *(float *)(b1 + 0x34) = *(float *)(b1 + 0x34) + *(float *)(p + 0xB0);
+    getQuaternionFromMatrix(buf0, *(char **)(a1 + 0x15C) + 0xE0);
+    func_0023FE08(buf0, b1, (int)buf0);
+    func_0023FDD8((int *)a0, buf0, (int)D_00271C10);
+}
+
+extern void getQuaternionFromMatrix(void *a0, void *a1);
+
+void func_00104618(void *dst, char *a1) {
+    char buf[0x40];
+    char *sub = *(char **)(a1 + 0x15C);
+    char *p = sub + 0xA0;
+    func_0010E250(buf, sub + 0xD0, p);
+    {
+        char *q = *(char **)sub;
+        if (q != 0) {
+            func_0023FE08(buf, (char *)(*(int *)(*(char **)(q + 0x15C) + 0xC) + (*(int *)(sub + 4) << 6)), (int)buf);
+        }
+    }
+    *(float *)(buf + 0x34) = *(float *)(buf + 0x34) + *(float *)(p + 0xB0);
+    getQuaternionFromMatrix(dst, *(char **)(a1 + 0x15C) + 0xE0);
+    func_0023FE08((char *)dst, buf, (int)dst);
+}
 
 extern void _PushVu0Registers(void *buf, void *p1, float f);
 extern void MatrixDrive_TurnZObjectMatrixXY(void *a, void *b, void *c);

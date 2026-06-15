@@ -27,7 +27,23 @@ void getCallPoint(void *a0, int a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spider", CallSpidersToReviveEnemy);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spider", SpiderLayoutGeo);
+extern void func_001B8470(int);
+extern void subAP1BrainMain(int, int);
+extern void playSEConditionID(void *, int);
+
+void SpiderLayoutGeo(void *a0) {
+    char *s2 = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x7F0);
+    int count = *(int *)(s2 + 0x20);
+    int i;
+    *(int *)(s2 + 0x28) = 1;
+    for (i = 0; i < count; i++) {
+        int *arr = *(int **)(s2 + 0x24);
+        func_001B8470(arr[i]);
+        arr = *(int **)(s2 + 0x24);
+        subAP1BrainMain(arr[i], 1);
+    }
+    playSEConditionID(a0, 0x65);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spider", DispAllMemberOfSpider);
 

@@ -1,6 +1,23 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stageMultiBgaManager", InitStageMultiBgaManager);
+extern char *stage_SetLocalizeGeometry(void *a0);
+extern void mc_TransMicroCode(void *a0, void *a1);
+extern void GetInverseQuaternion(void *a0, void *a1);
+extern void EntryMultiBgaManagerSensitive(void *a0, int a1, void *a2, void *a3, void *a4, void *a5);
+extern int D_0062B8FC;
+extern char *D_00706D00[];
+extern char D_007063A0[];
+
+void InitStageMultiBgaManager(void *a0, void *a1, void *a2, void *a3) {
+    char *r = stage_SetLocalizeGeometry(a0);
+    D_00706D00[D_0062B8FC] = r;
+    mc_TransMicroCode(r + 0x20, a1);
+    GetInverseQuaternion(D_00706D00[D_0062B8FC] + 0x30, a2);
+    EntryMultiBgaManagerSensitive(D_007063A0, D_0062B8FC++, a0, a1, a2, a3);
+    if (D_0062B8FC >= 30) {
+        D_0062B8FC = 0;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stageMultiBgaManager", EntryStageMultiBgaManager);
 

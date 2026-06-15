@@ -30,7 +30,24 @@ void AttackCheckBoundaryManagerDL(int a0) {
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/attackCheckBoundary", InitAttackCheckBoundaryGeo);
+extern int DebugDisp1CollisionWithColor(void *a0, int code);
+extern void func_0012AAB8(void *a0, int a1);
+extern void GetInverseQuaternion(void *a0, int a1);
+extern void func_0010E448(void *a0, int a1);
+extern void func_0010E588(void *a0, int a1);
+extern void stage_SetParentOfGObj(void *a0, int a1, void *a2, float a3);
+
+void InitAttackCheckBoundaryGeo(void *a0, int a1, int a2, void *a3) {
+    char buf[0x10];
+    int r1 = DebugDisp1CollisionWithColor(a0, a1);
+    int r2 = DebugDisp1CollisionWithColor(a0, a2);
+    func_0012AAB8(a3, 1);
+    GetInverseQuaternion(buf, *(int *)(*(char **)((char *)a0 + 0x15C) + 0x10) + r1 * 0x10);
+    func_0010E448(buf, 0x4000);
+    func_0010E588(buf, 0x4000);
+    stage_SetParentOfGObj(a3, *(int *)(*(char **)((char *)a0 + 0x15C) + 0xC) + r2 * 0x40 + 0x30, buf, 0.0f);
+    func_0012AAB8(a3, 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/attackCheckBoundary", AttackCheckBoundaryGeo);
 

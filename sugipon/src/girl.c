@@ -22,7 +22,33 @@ int func_001CE800(void) {
     return 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/girl", InitGirlGeo);
+extern void DispMeshWire(int a0, float f12, float f13);
+extern volatile float D_00629564;
+extern volatile float D_00629568;
+extern volatile float D_0062956C;
+extern volatile float D_00629570;
+
+void InitGirlGeo(void *a0) {
+    char *s0 = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x7F0);
+    if (*(int *)(s0 + 0xC) != 0) {
+        if (*(int *)(s0 + 0x10) != 0) {
+            DispMeshWire(*(int *)(s0 + 0x10), 4.0f, D_00629564);
+        }
+        if (*(int *)(s0 + 0x14) != 0) {
+            DispMeshWire(*(int *)(s0 + 0x14), 4.0f, D_00629568);
+        }
+    }
+    if (*(int *)(s0 + 0x4) != 0) {
+        if (*(int *)(s0 + 0x8) != 0) {
+            DispMeshWire(*(int *)(s0 + 0x8), 3.0f, D_0062956C);
+        }
+    }
+    if (*(int *)(s0 + 0x18) != 0) {
+        if (*(int *)(s0 + 0x1C) != 0) {
+            DispMeshWire(*(int *)(s0 + 0x1C), 4.0f, D_00629570);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/girl", GirlGeo);
 
