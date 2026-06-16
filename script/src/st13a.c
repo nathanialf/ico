@@ -16,7 +16,26 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13a", actSt13aExit);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13a", actSt13aCheck);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13a", actSt13aChain);
+extern void _ACTWait(int a0);
+extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern int GetSkeltonFocusNode(int a0);
+extern int actSt25aQueenDeadChk(int a0);
+extern void DrawLine(void);
+extern int D_00629DE4;
+
+void actSt13aChain(volatile int a0) {
+    while (1) {
+        if (scpSleepEnemyOne(a0, D_00629DE4, 150.0f) != 0) {
+            if (GetSkeltonFocusNode(D_00629DE4) == 0x2E) break;
+            if (GetSkeltonFocusNode(D_00629DE4) == 0x2F) break;
+            if (GetSkeltonFocusNode(D_00629DE4) == 0x30) break;
+            if (GetSkeltonFocusNode(D_00629DE4) == 0x3E) break;
+        }
+        _ACTWait(1);
+    }
+    *(int *)(actSt25aQueenDeadChk(0x659) + 0x16C) = 1;
+    DrawLine();
+}
 
 extern int func_00178DB0(int a0);
 extern void AddWayPointTop(int a0, int a1);

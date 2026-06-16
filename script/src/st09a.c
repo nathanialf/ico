@@ -2,7 +2,42 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st09a", actSt09aInit);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st09a", actSt09aElvDown);
+extern void _ACTWait(int a0);
+extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern void func_00178E08(int a0);
+extern void actCreateSubThread(void *fn, int a1);
+extern void actSt09aBrgSwitch(volatile int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void soundSeDefPlayWithVolumeRate(int a0, int a1, void *a2, int a3);
+extern int func_0012A958(int a0);
+extern void func_00178DD8(int a0);
+extern int D_00629DE4;
+extern int D_0062A894;
+struct Q { long long a, b; };
+extern struct Q D_00614930;
+
+void actSt09aElvDown(volatile int a0) {
+    struct Q buf;
+    while (scpSleepEnemyOne(a0, D_00629DE4, 200.0f) == 0) {
+        _ACTWait(1);
+    }
+    D_0062A894 = 1;
+    _ACTWait(0x1E);
+    func_00178E08(0x164);
+    actCreateSubThread(actSt09aBrgSwitch, 0x15);
+    stage_KillPlayBgAnimation(0x139, 1, 0);
+    buf = D_00614930;
+    _ACTWait(0x1E);
+    soundSeDefPlayWithVolumeRate(0x4AD, 0, &buf, 1);
+    _ACTWait(0x1E);
+    soundSeDefPlayWithVolumeRate(0x4AE, 0, &buf, 1);
+    while (func_0012A958(0x139) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    func_00178DD8(0x94);
+    D_0062A894 = 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st09a", actSt09aSekizo);
 

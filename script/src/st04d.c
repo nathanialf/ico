@@ -48,7 +48,37 @@ void actSt04dDoor2UpChk(void) {
     func_00178DD8(0x165);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04d", actSt04dDoor2DownChk);
+extern void _ACTWait(int a0);
+extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern void actCreateSubThread(void *fn, int a1);
+extern void func_002167C8(void);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void soundSeDefPlayWithVolumeRate(int a0, int a1, void *a2, int a3);
+extern int func_0012A958(int a0);
+extern void func_00178DD8(int a0);
+extern int D_00629DE4;
+struct Q { long long a, b; };
+extern struct Q D_00614850;
+
+void actSt04dDoor2DownChk(volatile int a0) {
+    struct Q buf;
+    while (scpSleepEnemyOne(a0, D_00629DE4, 200.0f) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(0x1E);
+    actCreateSubThread(func_002167C8, 0x15);
+    stage_KillPlayBgAnimation(0xE0, 1, 0);
+    buf = D_00614850;
+    _ACTWait(0x1E);
+    soundSeDefPlayWithVolumeRate(0x4AD, 0, &buf, 1);
+    _ACTWait(0x1E);
+    soundSeDefPlayWithVolumeRate(0x4AE, 0, &buf, 1);
+    while (func_0012A958(0xE0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    func_00178DD8(0x91);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04d", actSt04dDoor1Event);
 

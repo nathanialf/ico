@@ -1,6 +1,52 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st99a", actExplode);
+extern void _ACTWait(int a0);
+extern int actSt25aQueenDeadChk(int a0);
+extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern void lt_fade_status(int a0);
+extern void func_00178DD8(int a0);
+extern void scpPlayStart(int a0, void *a1, int a2, int a3, int a4);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void func_0012AAB8(int a0, int a1);
+extern void soundSeDefPlayWithVolumeRate(int a0, int a1, void *a2, int a3);
+extern int func_0012A958(int a0);
+extern int D_0062A894;
+extern int D_0062BE00;
+struct Q { long long a, b; };
+extern struct Q D_00614E30;
+
+void actExplode(volatile int a0) {
+    struct Q buf;
+    while (scpSleepEnemyOne(a0, actSt25aQueenDeadChk(0x6F2), 220.0f) == 0) {
+        _ACTWait(1);
+    }
+    lt_fade_status(0x33);
+    D_0062A894 = 1;
+    func_00178DD8(0x11B);
+    scpPlayStart(0x4A, &D_0062BE00, 1, 1, 1);
+    while (D_0062BE00 == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(0x3C);
+    stage_KillPlayBgAnimation(0x78, 1, 0);
+    _ACTWait(0x5A);
+    stage_KillPlayBgAnimation(0x76, 1, 0);
+    stage_KillPlayBgAnimation(0x77, 1, 0);
+    *(int *)(actSt25aQueenDeadChk(0x6F2) + 0x16C) = 0;
+    *(int *)(actSt25aQueenDeadChk(0x6F1) + 0x16C) = 1;
+    func_0012AAB8(0x76, 1);
+    func_0012AAB8(0x77, 1);
+    buf = D_00614E30;
+    soundSeDefPlayWithVolumeRate(0x52B, 0, &buf, 1);
+    soundSeDefPlayWithVolumeRate(0x52C, 0, &buf, 1);
+    soundSeDefPlayWithVolumeRate(0x52D, 0, &buf, 1);
+    while (func_0012A958(0x78) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    D_0062A894 = 0;
+    lt_fade_status(0x32);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st99a", actSplash1);
 

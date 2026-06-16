@@ -825,3 +825,90 @@ actSt09aBrgSwitch   # rc12 3-buffer scpDispOff switch(case0;case0x1E x2); struct
 func_0017BE60       # rc12 state-machine bool; logic+structure CORRECT (unsigned state, switch, 2 float checks vs p->0x550/0x54C); residual=bc1fl/beql branch-likely layout tiebreak, permuter-class
 actOpDemo02         # rc3 op-demo family: scpPlayStart+wait-D+tail CORRECT; residual=v0/v1 on cond-load + in-TU actSt24aConte01_2 %lo (match_diff false-neg per inttu_symbols memory); NINJA-verify
 _SCPMoveCharactorByWay_Cancel# rc17 VERIFIED struct: frame -0x70, func_001044F0(buf,a0)/func_00179120(a0,buf)/_ACTWait, float-interp do-while CFG all match. Residual=s0/s1 coalescing swap (a1/done vs p) + bc1f/bc1tl branch-likely; index-reuse-as-done drove 36->17. Permuter-class.
+actSt19aHaguruma    # rc11 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+actSt04cIntro       # rc11 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+actSt10rFenceUpChk2 # rc11 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+stageSE02astrong    # rc11 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+actSt10rTowerConte  # rc10 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+actSt19aHagurumaChk # rc11 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+actSt22aLightningVolime# rc12 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+actSt09aElvSwitch   # rc11 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+actSt04dDoor2UpEffect# rc11 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+func_0017DC68       # rc11 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+actSt06aWay         # rc10 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+actSt20aEne         # rc10 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+actSt47aHane1       # rc11 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+actSt02aInit        # rc11 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+actSt06aBox2        # rc10 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+actSt06aBox3        # rc10 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+func_00229978       # rc10 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+func_00226098       # rc10 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+actSt47aRope        # rc11 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+actSt09aElvUp       # rc11 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+func_00227178       # rc11 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+func_00231DF0       # rc11 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+func_00232298       # rc11 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+func_002299F0       # rc11 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+func_0022B150       # rc11 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+actSt20aExit        # rc10 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+actSt01bEnemy5      # rc11 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+func_00229900       # rc10 SPILL live-across-call: ROM lw v0;daddu s0,v0 vs gcc lw s0 (RA floor)
+actSplash1Chk       # rc11 SPILL live-across-call v0/s0 RA floor
+func_00215E30       # rc11 SPILL live-across-call v0/s0 RA floor
+actSt47aSekizo1     # rc11 SPILL live-across-call v0/s0 RA floor
+func_00207130       # rc10 SPILL live-across-call v0/s0 RA floor
+actTitleCamera2     # rc11 SPILL live-across-call v0/s0 RA floor
+actSt05bCrest01XL   # rc10 SPILL live-across-call v0/s0 RA floor
+func_0022AE60       # rc11 SPILL live-across-call v0/s0 RA floor
+actSt03tWay         # rc10 SPILL live-across-call v0/s0 RA floor
+func_00222470       # rc10 SPILL live-across-call v0/s0 RA floor
+func_00226E70       # rc10 SPILL live-across-call v0/s0 RA floor
+actSt04rSolarBeam   # rc10 SPILL live-across-call v0/s0 RA floor
+actSt05bSekizoChk   # rc10 SPILL live-across-call v0/s0 RA floor
+actSt01bEnemy1      # rc10 SPILL live-across-call v0/s0 RA floor
+stageSE02atakib     # rc11 SPILL live-across-call v0/s0 RA floor
+func_00226DF8       # rc10 SPILL live-across-call v0/s0 RA floor
+actSt04dDoor2Event  # rc11 SPILL live-across-call v0/s0 RA floor
+actSt20aBridgeMain  # rc10 SPILL live-across-call v0/s0 RA floor
+actSt02aGondolaDown # rc10 SPILL live-across-call v0/s0 RA floor
+actSt04rBrg2Chk     # rc10 SPILL live-across-call v0/s0 RA floor
+actSt06aBoxEvent2   # rc10 SPILL live-across-call v0/s0 RA floor
+actSt17bCheck       # rc10 SPILL live-across-call v0/s0 RA floor
+stageSE10lstrong2   # rc11 SPILL live-across-call v0/s0 RA floor
+actSt06aShutterOpen # rc10 SPILL live-across-call v0/s0 RA floor
+actSt18aSwitchLChk  # rc11 SPILL live-across-call v0/s0 RA floor
+func_0017BF50       # rc14 qword-copy+gif arg: ROM v0/v1 base-split loads into a1/a2 directly; gcc temps+daddu
+actSt25aQueenAppear # rc5 v0/v1 regalloc swap in idx*0x4C+base addr calc; struct-member store fixed disp
+actSt25aQueenTalkChk# rc13 a2/a3->s2/s3 callee-save alloc swap + dependent v0/v1 in clear mask
+actSt22aIntroSub    # rc6 shared-qword-load: ROM loads D[8] direct into a1 arg+stores; gcc temps+daddu
+gflagOff            # rc4 void form rc4; bgez-vs-bgezl branch-likely + 0x796 delay sched; int-return worse(24)
+scpWakeupEnemyOne   # rc13 qword-debug-draw floor family (see func_0017BF50)
+scpSleepEnemyOne    # rc37 qword-debug-draw + matrix floor family
+scpSleepSpiderGroupOne# rc50 scan-class bnel+float array search; decomp-match needed
+scpWakeupSpiderGroupOne# rc50 scan-class bnel+float array search; decomp-match needed
+func_0017C230       # rc1 extra mtc1 zero,f0 not hoisted; var-hoist forces callee-saved (worse)
+actSt10lBox         # rc2 v0/v1 regalloc swap on D_0062A894=1 const store
+preload             # rc16 AABB &&-chain branch structure (bc1f/bc1tl split) off; debug-draw block
+actSt00aDoor2Event  # rc118 float-pacing frame loop (cvt.w.s phase dispatch); decomp-match
+actSt19aChainUp     # rc115 float-pacing frame loop (cvt.w.s phase dispatch); decomp-match
+actSt04bSolarXL     # rc8 qword shared-load floor (D[8] into a1+copy) + benign cross-TU %hi
+actConte12          # rc19 QueenTalk arg-shuffle family + subCommonIdle/float preamble; decomp-match
+scpKillSpiderGroup  # rc84 nested scan (outer layout loop + inner spider bnel scan); decomp-match
+scpSekizouCheckPoint# rc76 quaternion rotation int-math + 4-way dispatch loop; decomp-match
+actItouQueenAttack  # rc62 indexed-table dispatch + float passthrough (incomplete proto); decomp-match
+actStaff1Demo       # rc8 beql-vs-beq branch-likely + f20/f21 float-tail regalloc; benign in-TU actStaff2Demo
+scpPlayMotDirSmz    # rc81 ClipWallBoxStop struct + unaligned copy + varargs debug_assertMessage; decomp-match
+actSt10lEnemy3_1    # rc3 D_00629900 lwc1 f12 scheduled after const materializations vs ROM before
+actOpDemo02Chk      # rc38 FtoI float-pacing; do-while got 118->38, residual structural; decomp-match
+actSt20aGondola     # rc78 FtoI float-pacing multi-way dispatch; decomp-match
+func_002068A8       # rc28 varargs debug_assertMessage(fmt,i) 2-arg proto conflict + 8-float func_001F2130; decomp-match
+actSt04cDoorDown    # rc23 FtoI accumulator pacing; template got 23, inner-loop structure off; decomp-match
+actSt04cWaterXL     # rc34 FtoI accumulator pacing (sub.s outer variant); decomp-match
+actSt04cEne         # rc23 FtoI accumulator pacing + float interp; decomp-match
+func_00230C70       # rc38 FtoI float-pacing dispatch; decomp-match
+actSt03tSekizoEvent # rc104 boundary-glued (2nd prologue @D_0020FF58) + unaligned struct copy; unmatchable as configured
+actSt17aDoorDownEffect# rc10 2 benign in-TU relocs + bnel/bne loop branch-likely + t=handle+0x24 sched; structure correct
+actSt47aInit        # rc99 counter-pacing + scpSleepSpiderGroupOne bnel scan chain; decomp-match
+actSt05eSolarChk    # rc213 long if/else KillBg dispatch; irregular nested-beqz tail; decomp-match
+func_0020E340       # rc2 D_00629DE8 test in a0 vs v0 dead-arg-reg tiebreak; param-reuse made it worse
+actSt04eInit        # rc999 COMPILE-FAIL: iosPadDevRead declared void in TU but dev returns int (prototype conflict); + two-branch dispatch; decomp-match

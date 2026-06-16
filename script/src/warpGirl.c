@@ -80,7 +80,33 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017C308);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017C3D0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017C560);
+extern void _ACTWait(int a0);
+extern int scpSleepSpiderGroupOne(void *a0, int a1);
+extern int func_00178DB0(int a0);
+extern void func_00178DD8(int a0);
+extern void actCreateSubThread(void *fn, int a1);
+extern void MakeAttackPack_Actor(volatile int a0);
+extern void func_0017C658(volatile int a0);
+extern void AdpcmClose(int a0);
+extern void *D_00629DE4;
+extern int D_0062A8B0;
+extern int D_0062A894;
+extern int D_00271240[];
+
+void func_0017C560(volatile int a0) {
+    while (scpSleepSpiderGroupOne(D_00629DE4, 0x2000000) == 0 || func_00178DB0(0x12C) == 0) {
+        _ACTWait(1);
+    }
+    func_00178DD8(0x12D);
+    actCreateSubThread(MakeAttackPack_Actor, 0x15);
+    while (D_0062A8B0 == 0) {
+        _ACTWait(1);
+    }
+    AdpcmClose(*(int *)(D_0062A8B0 + 0x2C));
+    D_0062A894 = 1;
+    _ACTWait(((0x3C - D_00271240[0] * 0xA) / D_00271240[1]) * 3);
+    actCreateSubThread(func_0017C658, 0x15);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017C658);
 

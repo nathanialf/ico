@@ -210,7 +210,33 @@ int func_0017BD00(int a0, int a1) {
     return ret;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", func_0017BD40);
+extern float pac_DispQW(void);
+extern int func_002610F0(void);
+extern int IsActCharDead(void *p);
+extern void func_001B8470(int a0);
+extern void _ACTWait(int a0);
+extern float D_00629164;
+struct DQW { float f0, f4, f8, fc, f10, f14; char _18[0x18]; int f30; };
+extern struct DQW D_002869B0;
+
+void func_0017BD40(int n, float a, float b, float c, float d) {
+    int i;
+    float t1, t2;
+    int r, dead;
+    for (i = 0; i < n; i++) {
+        t1 = pac_DispQW();
+        D_002869B0.f4 = b;
+        D_002869B0.f0 = a + d * (t1 + t1 - 1.0f);
+        t2 = pac_DispQW();
+        D_002869B0.f8 = c + d * (t2 + t2 - 1.0f);
+        r = func_002610F0();
+        D_002869B0.f30 = 1;
+        D_002869B0.f14 = (float)((r >> 4) & 0xFFFF) * D_00629164 * 3.0517578125e-05f;
+        dead = IsActCharDead(&D_002869B0);
+        _ACTWait(1);
+        func_001B8470(dead);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st25a", func_0017BE60);
 
