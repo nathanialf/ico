@@ -46,7 +46,15 @@ void viBufEndPut(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vibuf", viBufAddDMA);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_vibuf", viBufStopDMA);
+void *viBufStopDMA(int *a0, long long a1, int a2, int a3, int p4, int p5, int p6, int p7) {
+    int hi = (p5 << 14) | (a2 << 28);
+    int lo = (a3 << 26) | (p4 << 15);
+    a0[0] = (p6 << 15) | p7;
+    a0[1] = hi | lo;
+    a0[2] = (int)(a1 & 0xFFFFFFFFLL);
+    a0[3] = (int)(a1 >> 32);
+    return (char *)a0 + 0x10;
+}
 
 void *viBufRestartDMA(int *a0, int a1, long long a2) {
     a0[0] = (int)(a2 & 0xFFFFFFFFLL);
