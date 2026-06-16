@@ -967,3 +967,24 @@ generatorBeforeFunc # rc92 loop+switch states 0/1/2 + EntryMultiBgaManager share
 func_00237E28       # rc48 heavy FP branch/clamp logic bc1f/bc1t/bc1fl; deep-pass rc48
 func_002382C0       # rc120 6 vec4 build + array-copy + closest-distance search loop; deep-pass rc120
 SetCameraMatrix_Ico2# rc45 abs-gate + matrix build cvt.s.w/matrix funcs or axis-set; deep-pass rc45
+func_00259958       # rc140 SPILL slot-allocator; a0&0x8000 late spill; deep-pass
+func_001A8320       # rc28 state machine; movz ternary + beql state==1 + hand-asm callee sched
+func_00253238       # rc7 n-calc beq vs bnel branch-likely + n=1 block-order tiebreak
+init_layout_texture # rc20 4-block flag setter; w0-alias vs struct-ptr access split + bnel tiebreaks
+func_0025A768       # rc33 float-validate+assert; func_0025F748 declared int(int) but used float(long) - sig conflict; deep-pass
+func_0025A868       # rc33 sibling of func_0025A768; same func_0025F748 int(int) sig-conflict blocker; deep-pass
+func_00258BF8       # rc35 SShd slot-alloc scan + 5-field offset->ptr relocate; bnel scan + copy-block sched; deep-pass
+func_001A98E0       # rc44 flag-gated counter clamps + switch byte-code + 2D D_006F2890 write + tail-call; deep-pass
+func_00268968       # rc34 goto linked-builder; 2 bnel loops + r/node lifetime + call sched; deep-pass
+func_00259108       # rc41 2-level dispatch; switch(a0)+switch(p[0x51])+movn/movz bit-test; deep-pass
+exec_layout_texture # rc1 rc9->rc1 via 0xFFFFFFFF eq-const split (lui+ori vs -1 addiu); 1 residual tiebreak - near-miss
+POSITIVE_SE         # rc11 switch(D_0062B3DC) state machine; case2 anchor-relative addressing off D_004B8240+offsets; deep-pass
+ReadCollisionFile   # rc30 n32 7-arg(flag in $10)+malloc_GetPartition+iosFree+2 tail-calls; branch fixed; residual=3way callee-saved s3/s2/s1/s0 param order; deep-pass
+func_00256E18       # rc26 scan-class 0x30 elems stride 0x58; 5 bnel cmps + flag-clear + 64-bit mask set; deep-pass
+kanbanBootStart     # rc46 jtbl_0060F7D0 switch(v+0x10); jtbl in cod TU (uncarved)+multiarg debug_assertMessage proto conflict; deep-pass needs rodata carve
+la_load_start_check # rc50 flag-cond + func_001AE800 4-way dispatch on *D_0062B2F0 bits; lui-hoist into beqz delay + bool materialize; deep-pass
+func_00258328       # rc13 scan-class sibling of func_00256E18; bnel loop + 7-arg func_00256FA8 match body; deep-pass
+disp_memory_partition# rc34 switch(a0)->[lo,hi) range + stack struct + linear search D_004AF010 stride 0x40; switch/struct sched diverge; deep-pass
+func_002473A0       # rc41 string-concat; hand strlen (3-nop hazard loop)+prefix/a0 copy loops+len gate; deep-pass
+func_002614F8       # rc66 EE 128-bit SIMD strcpy (pcpyld/psubb/pnor word-at-a-time null detect); needs u_long128 intrinsics; deep-pass
+func_0025C898       # rc21 fdlibm __kernel_sinf; structure correct; residual=float const materialize (.lit4 lwc1 vs inline lui/ori/mtc1) x7 + ordering; deep-pass

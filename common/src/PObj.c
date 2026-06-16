@@ -1760,7 +1760,39 @@ void func_00246EC0(void *a0, int a1, int a2, int a3) {
     } while (0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00246EE0);
+extern int func_00246868(void);
+extern int func_00246968(void);
+extern int func_00242978();
+extern void func_00261900(char *a0, char *a1, int a2);
+extern char D_0070F808[];
+extern char D_0070FA00[];
+
+int func_00246EE0(void *a0, int a1, int a2, int a3) {
+    char *buf;
+    int r;
+
+    if (func_00246868() < 0) {
+        return 0xFFFF0000;
+    }
+    if (func_00246968() != 0) {
+        return 0xFFFEFFFC;
+    }
+    func_00261900(D_0070F808, a0, 0xFC);
+    buf = D_0070F808 - 8;
+    buf[0x103] = 0;
+    func_00261900(D_0070F808 + 0xFC, (char *)a1, 0xFC);
+    buf[0x1FF] = 0;
+    r = func_00242978(D_0070FA00, a3, 0, buf, 0x200, buf, 0x10, 0, 0);
+    if (r < 0) {
+        return 0xFFFEFFFF;
+    }
+    if (*(int *)buf == 0) {
+        return 0xFFFEFFFD;
+    }
+    *(int *)a2 = *(int *)buf;
+    *(int *)(a2 + 4) = *(int *)(buf + 4);
+    return 0;
+}
 
 extern int func_00246EE0(void *a0, int a1, int a2, int a3);
 
@@ -6278,7 +6310,38 @@ int func_0025A610(int a0, long a1, int a2) {
     return ret;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025A678);
+#include "math_private.h"
+
+extern float func_0025C898(float x, float y, int iy);
+extern float func_0025BDF0(float x, float y);
+extern int func_0025B8D8(float x, float *y);
+
+float func_0025A678(float x) {
+    float y[2];
+    int n;
+    int ix;
+
+    GET_FLOAT_WORD(ix, x);
+    ix &= 0x7fffffff;
+
+    if (ix <= 0x3f490fd8) {
+        return func_0025C898(x, 0.0f, 0);
+    } else if (ix >= 0x7f800000) {
+        return x - x;
+    } else {
+        n = func_0025B8D8(x, y);
+        switch (n & 3) {
+        case 0:
+            return func_0025C898(y[0], y[1], 1);
+        case 1:
+            return func_0025BDF0(y[0], y[1]);
+        case 2:
+            return -func_0025C898(y[0], y[1], 1);
+        default:
+            return -func_0025BDF0(y[0], y[1]);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025A768);
 

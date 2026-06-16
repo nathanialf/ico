@@ -25,7 +25,37 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/charFileManager", ReadStageAnimati
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/charFileManager", ReadMotionFile);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/charFileManager", ReadParticleEffectFile);
+extern int D_00271240[];
+extern void malloc_GetPartition(int a0);
+extern int freeseki(char *q);
+extern void iosCdvdLoad(int *self, int p, char *q);
+extern void func_001AAD00(char *a0, int a1);
+extern void func_00260380(char *a0, int a1, char *a2);
+extern void debug_assertMessage();
+extern void stage_PlayBgAnimationDissolve(int a1, int p);
+extern char D_0060B4E0[];
+extern char D_0060B888[];
+extern char D_0062C9F0[];
+
+void ReadParticleEffectFile(int *self, int a1, char *q, int a3, int a4, int a5, int flag) {
+    int p;
+
+    D_00271240[8]++;
+    if (q == 0) {
+        return;
+    }
+    if (flag == 0) {
+        malloc_GetPartition(0);
+        func_001AAD00(D_0060B4E0, 0x1DA);
+        func_00260380(D_0060B4E0, 0x1DA, D_0062C9F0);
+    } else {
+        malloc_GetPartition(1);
+    }
+    p = freeseki(q);
+    iosCdvdLoad(self, p, q);
+    debug_assertMessage(D_0060B888, a3, a1, q);
+    stage_PlayBgAnimationDissolve(a1, p);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/charFileManager", ReadSoundBdFile);
 
