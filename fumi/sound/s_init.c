@@ -94,7 +94,32 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundDataOpen);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundDataOpenSync);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundDataClose);
+extern void func_001AAD00(char *a0, int a1);
+extern void func_00260380(char *a0, int a1, char *a2);
+extern void AdpcmInterLeaveVolumeSet(int *a0, int a1, int a2, int a3);
+extern char D_00551FC8[];
+extern char D_0062C388[];
+
+void soundDataClose(int *a0, int a1, int a2, int a3, int a4) {
+    *a0 = a1;
+    switch (a1) {
+    case 0:
+        func_001AAD00(D_00551FC8, 0x254);
+        func_00260380(D_00551FC8, 0x254, D_0062C388);
+        return;
+    case 1:
+        func_001AAD00(D_00551FC8, 0x257);
+        func_00260380(D_00551FC8, 0x257, D_0062C388);
+        return;
+    case 2:
+        AdpcmInterLeaveVolumeSet(a0, a2, a3, a4);
+        return;
+    default:
+        func_001AAD00(D_00551FC8, 0x25D);
+        func_00260380(D_00551FC8, 0x25D, D_0062C388);
+        return;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundDataSegAllClose);
 

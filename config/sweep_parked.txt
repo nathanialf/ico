@@ -988,3 +988,47 @@ disp_memory_partition# rc34 switch(a0)->[lo,hi) range + stack struct + linear se
 func_002473A0       # rc41 string-concat; hand strlen (3-nop hazard loop)+prefix/a0 copy loops+len gate; deep-pass
 func_002614F8       # rc66 EE 128-bit SIMD strcpy (pcpyld/psubb/pnor word-at-a-time null detect); needs u_long128 intrinsics; deep-pass
 func_0025C898       # rc21 fdlibm __kernel_sinf; structure correct; residual=float const materialize (.lit4 lwc1 vs inline lui/ori/mtc1) x7 + ordering; deep-pass
+emergencyCheck      # rc14 boundary-glued infinite loop + 2nd prologue, SPILL arg reload
+boss_effect_check_parts# rc12 SPILL: a0 reloaded from home x3 across call; clean C keeps callee-saved
+actCommonFly        # rc17 boundary-glued: infinite loop + boss_effect_process 2nd func
+funcCommonError     # rc13 SPILL: a0 homed+reloaded; clean C keeps it in reg
+SetMotionDirectionSmooze# rc13 SPILL family w/ funcCommonError: a0 homed+reloaded
+ACTSendMailCorrect  # rc14 SPILL: a0 reloaded x3 across assert+isBottomOfChain
+setBattleStatus     # rc19 SPILL + unaligned 12B struct copy (ldl/ldr/sdl/sdr) from D_0027E9D0
+MakeCollisionDependGObjList# rc16 SPILL: a0 reloaded across assert+ExecMotionOrient
+WithMailFunc_Idling # rc15 SPILL: a0 homed+reloaded for 0x164 deref
+WithMailFunc_BossDamaged# rc15 SPILL family w/ WithMailFunc_Idling
+actBoyRescueSrc     # rc18 SPILL + unaligned 12B copy from D_0027E9D0 + 7-arg call
+_ACTCommonMailTest  # rc23 boundary-glued: infinite loop + 2 more funcs splat-merged
+actEnemyHang        # rc17 SPILL: a0 reloaded x2 across iosOm+func_0018F2A0
+actCommonRope       # rc54 complex float/mod + SPILL + sp-arg to func_00156750; deep-pass
+actBoyTakeWeaponReady# rc29 boundary-glued: infinite loop + 2nd func (same body w/o guard)
+GetEnemyType        # rc32 boundary-glued: infinite loop + 2nd func splat-merged
+debugDispSphere     # rc30 boundary-glued: infinite loop + 2nd func
+cursor_control      # rc19 SPILL + multi-call, float-arg ABI + fnptr store; deep-pass
+waypoint_with_range # rc45 scan-class circular list + float min + bnel/bc1fl reorg; deep-pass
+func_001FA078       # rc18 float-heavy struct-local buffers + mixed float/int args; deep-pass
+nearest_waypoint_of_all_except_group# rc43 scan-class family (waypoint_with_range): circular list float-min, bnel/bc1fl; deep-pass
+actBoyPullupGo      # rc26 boundary-glued: clean func+infinite loop, D_001526F8 glued 2nd func
+actBoyPullupReady   # rc26 boundary-glued family w/ actBoyPullupGo: D_00152640 glued 2nd func
+ditch_check_heroin_position# rc26 boundary-glued family: D_00152588 glued 2nd func
+jimakuHandler       # rc27 boundary-glued family: D_001736D0 glued 2nd func
+jimakuMgrBegin      # rc27 boundary-glued family: D_00173790 glued 2nd func
+nearest_waypoint_of_all# rc43 scan-class family + GetRootMatrixByDObj prelude; deep-pass
+nearest_waypoint_of_all_not_bridge_except_group# rc43 scan-class family 2-arg + GetRootMatrixByDObj; deep-pass
+func_00166AF8       # rc27 matrix transform: 8-byte vec copy semantics + loop dir; deep-pass
+jimakuNext          # rc39 boundary-glued: infinite loop div-math + 2nd func; SPILL
+visible_waypoint    # rc35 scan-class array-index list walk; advance semantics off; deep-pass
+_Clip               # rc14 clean GObj-walk collect+assert; regalloc/order residual, deep-pass
+soundDataSegAllClose# rc13 switch compare-tree order differs from gcc; assert arms; deep-pass
+subBoyCollision     # rc19 clean multi-branch float; call-order/return-merge residual; deep-pass
+display_texture     # rc44 SPILL + recomputed div-math loop bound; deep-pass
+wp_print_out        # rc25 clean branchy 2-scan-loop flag-toggle; return-merge codegen; deep-pass
+debugDispFlyLimit   # rc52 boundary-glued: infinite loop + 2 glued funcs; SPILL
+actGirlDitch3mExec  # rc40 clean float/matrix; pipelined delay stores + dual-return calls; deep-pass
+func_001432E0       # rc21 boundary-glued: infinite main-loop + func_00143390 glued
+actInitialize_only_charcter# rc57 clean init+loop; inline-deref CSE/loop-SR differs; deep-pass
+actCommonRopeCliff  # rc24 clean state-machine; shared-block goto CFG + tail calls; deep-pass
+func_0014A150       # rc43 clean float-branch; frame/buf layout + movz; deep-pass
+isysGObjAdd         # rc19 clean pool-alloc; scan-loop i=1 init + assert-merge codegen; deep-pass
+reuse_mblock1       # rc9 rc9: free-list head v0->s0 copy + bne vs beq branch-sense; temp-split held; deep-pass

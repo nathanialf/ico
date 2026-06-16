@@ -54,11 +54,73 @@ int isysGObjAddBeforeGObj(void)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", isysGetNbAllocedGObjs);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", isysGObjAlloc);
+extern void *D_006A2F50[];
+extern void func_001AAD00(char *a0, int a1);
+extern void func_00260380(char *a0, int a1, char *a2);
+extern char D_00551DE0[];
+extern char D_0062C348[];
+extern void isysGObjInit(int a0);
+extern void isysGObjProcAddS(int a0);
+
+void isysGObjAlloc(char *a0) {
+    int kind = *(int *)(a0 + 0xC);
+    int proc = *(int *)(a0 + 0x2C);
+    char *p;
+    if ((unsigned)(kind - 1) >= 0x42) goto init;
+    p = (char *)D_006A2F50[kind];
+    if (p == a0) {
+        D_006A2F50[kind] = *(void **)(a0 + 0x3C);
+        goto init;
+    }
+    if (p == 0) goto init;
+    if (*(char **)(p + 0x3C) != a0) {
+        do {
+            if (p == 0) {
+                func_001AAD00(D_00551DE0, 0x92);
+                func_00260380(D_00551DE0, 0x92, D_0062C348);
+            }
+            p = *(char **)(p + 0x3C);
+        } while (*(char **)(p + 0x3C) != a0);
+    }
+    *(void **)(p + 0x10) = *(void **)(a0 + 0x3C);
+init:
+    isysGObjInit((int)a0);
+    *(int *)a0 = 0;
+    while (proc != 0) {
+        isysGObjProcAddS(proc);
+        proc = *(int *)(a0 + 0x2C);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", isysGObjRemove);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", isysGObjKindTableAdd);
+extern void *D_006A2F50[];
+extern void func_001AAD00(char *a0, int a1);
+extern void func_00260380(char *a0, int a1, char *a2);
+extern char D_00551DE0[];
+extern char D_0062C348[];
+
+void isysGObjKindTableAdd(char *a0) {
+    int kind = *(int *)(a0 + 0xC);
+    char *p;
+    if ((unsigned)(kind - 1) >= 0x42) return;
+    p = (char *)D_006A2F50[kind];
+    if (p == a0) {
+        D_006A2F50[kind] = *(void **)(a0 + 0x3C);
+        return;
+    }
+    if (p == 0) return;
+    if (*(char **)(p + 0x3C) != a0) {
+        do {
+            if (p == 0) {
+                func_001AAD00(D_00551DE0, 0x92);
+                func_00260380(D_00551DE0, 0x92, D_0062C348);
+            }
+            p = *(char **)(p + 0x3C);
+        } while (*(char **)(p + 0x3C) != a0);
+    }
+    *(void **)(p + 0x10) = *(void **)(a0 + 0x3C);
+}
 
 
 extern char D_0027DE10[];
