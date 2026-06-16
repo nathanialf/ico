@@ -35,7 +35,37 @@ void MakeCameraMatrix(void) {
     func_00188D60(D_006C9F60);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-root", CameraEditManual);
+extern void func_00260568(void *, int, int);
+extern void func_0023FED0(void *, void *);
+extern void MatrixDrive_TurnObjectMatrix(void *, void *);
+extern void func_0023FDD8(void *, void *, void *);
+extern void func_00240038(void *, void *, float);
+extern void GetRootMatrixByDObj(void *, int);
+extern float ClearHandCameraCorrect(void *, void *);
+extern void func_0023FFF0(void *, void *, void *);
+extern void func_00188B48(void *, void *, float);
+extern char *D_00629C70;
+extern int D_0062AA14;
+extern float D_0062C088;
+
+void CameraEditManual(void) {
+    char buf[0x80];
+    float f20v;
+    func_00260568(buf, 0, 0x10);
+    *(float *)(buf + 8) = 1.0f;
+    func_0023FED0(buf + 0x20, D_00629C70 + 0x80);
+    MatrixDrive_TurnObjectMatrix(buf + 0x70, D_00629C70 + 0xB0);
+    *(int *)(buf + 0x7C) = 0;
+    func_0023FDD8(buf + 0x10, buf + 0x20, buf + 0x70);
+    func_00240038(buf + 0x10, buf + 0x10, -1.0f);
+    GetRootMatrixByDObj(buf + 0x60, D_0062AA14);
+    f20v = ClearHandCameraCorrect(buf + 0x10, buf + 0x60);
+    *(int *)(buf + 0xC) = 0;
+    func_0023FDD8(buf, buf + 0x20, buf);
+    func_00240038(buf, buf, f20v);
+    func_0023FFF0(buf, buf, buf + 0x10);
+    func_00188B48(buf, buf + 0x10, D_0062C088);
+}
 
 extern int D_0062AFF8;
 extern float D_006C9F74[];

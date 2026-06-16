@@ -24,21 +24,22 @@ if [[ "$1" == "--once" ]]; then
     # tough_nuts/. actionable (= "fresh") is what a one-pass sweep would really
     # attempt = unmatched − SPILL (a0-spill one-pass MISS class) − PARKED
     # (already attempted+parked in a prior sweep: named in docs/MATCHING_NOTES.md
-    # or config/sweep_parked.txt). SPILL is intentionally NOT shown.
+    # or config/sweep_parked.txt). SPILL is shown as its own column.
     echo "Sweep remaining actionable (fresh = unmatched - SPILL - parked):"
     {
-        printf 'scope\tactionable\tparked\n'
-        _sw_ta=0; _sw_tp=0
+        printf 'scope\tactionable\tspill\tparked\n'
+        _sw_ta=0; _sw_ts=0; _sw_tp=0
         for _sw_sc in fumi script common sugipon seki omori ito; do
             [[ -d "$_sw_sc" ]] || continue
             _sw_c=$(tools/sweep_targets.sh "$_sw_sc" --counts 2>/dev/null)
             _sw_a=$(printf '%s' "$_sw_c" | grep -oE 'fresh=[0-9]+'  | cut -d= -f2)
+            _sw_s=$(printf '%s' "$_sw_c" | grep -oE 'SPILL=[0-9]+'  | cut -d= -f2)
             _sw_p=$(printf '%s' "$_sw_c" | grep -oE 'PARKED=[0-9]+' | cut -d= -f2)
-            _sw_a=${_sw_a:-0}; _sw_p=${_sw_p:-0}
-            _sw_ta=$((_sw_ta + _sw_a)); _sw_tp=$((_sw_tp + _sw_p))
-            printf '%s\t%d\t%d\n' "$_sw_sc" "$_sw_a" "$_sw_p"
+            _sw_a=${_sw_a:-0}; _sw_s=${_sw_s:-0}; _sw_p=${_sw_p:-0}
+            _sw_ta=$((_sw_ta + _sw_a)); _sw_ts=$((_sw_ts + _sw_s)); _sw_tp=$((_sw_tp + _sw_p))
+            printf '%s\t%d\t%d\t%d\n' "$_sw_sc" "$_sw_a" "$_sw_s" "$_sw_p"
         done
-        printf 'TOTAL\t%d\t%d\n' "$_sw_ta" "$_sw_tp"
+        printf 'TOTAL\t%d\t%d\t%d\n' "$_sw_ta" "$_sw_ts" "$_sw_tp"
     } | column -t -s "$(printf '\t')"
     echo "$rule"
     # Render the markdown table as a fixed-width table. Pull the rows

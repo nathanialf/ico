@@ -912,3 +912,58 @@ actSt47aInit        # rc99 counter-pacing + scpSleepSpiderGroupOne bnel scan cha
 actSt05eSolarChk    # rc213 long if/else KillBg dispatch; irregular nested-beqz tail; decomp-match
 func_0020E340       # rc2 D_00629DE8 test in a0 vs v0 dead-arg-reg tiebreak; param-reuse made it worse
 actSt04eInit        # rc999 COMPILE-FAIL: iosPadDevRead declared void in TU but dev returns int (prototype conflict); + two-branch dispatch; decomp-match
+func_00236BA8       # rc14 SPILL: dead lw v0 spill artifact in prologue; a0 home-spilled+reloaded into v0&a0, gcc keeps 1 load
+func_00236C20       # rc14 SPILL: same access actInitialize template as func_00236BA8; dead lw v0 prologue spill artifact
+func_00237740       # rc5 SPILL actInitialize template; volatile buf helped 6->5; residual prologue daddu-vs-spill + BoxBar arg reload slot
+func_00237AF8       # rc99 boundary-glued: infinite-loop func + 2nd func D_00237B80 splat-merged; file decls func(void) conflicts with a0 spill; COMPILE-FAIL
+chain_simulate_free # rc7 outer bgez-vs-bltz branch-direction tiebreak; else-block sink; flip didn't help; rest matches incl dli/dsll32 consts
+chain_simulate_hangstart# rc7 same family as chain_simulate_free; outer bgez-vs-bltz branch-direction floor; flip futile (proven on sibling)
+chain_simulate_term_down# rc7 same family as chain_simulate_free; outer branch-direction floor
+InitGeneratorGeo    # rc18 alloc+init struct, many field stores; store-scheduling + loop; honest attempt rc18
+ReadCameraSet       # rc37 boundary-glued: infinite-loop func + 2nd func splat-merged at 0x853B8 (multiply tail); unmatchable as configured
+_IsInScreen2        # rc51 complex clip+draw: unaligned byte-pack lwl/lwr, 2-stage scissor, 6-arg gif_DrawStripF; frame-layout heavy; deep-pass
+func_00236EF0       # rc48 boundary-glued: infinite _ACTWait loop + 2nd func at 0x136F38 splat-merged
+func_00237178       # rc48 boundary-glued: infinite _ACTWait loop + 2nd func splat-merged (same as func_00236EF0)
+func_001945F8       # rc28 varargs wire-string printf forwarder; f20 save, ~15 graphics calls, matrix push/pop; deep-pass
+func_00236FE0       # rc25 act-coroutine; scpPlayStart+wait loops+field writes; honest attempt rc25 (branch/sched residual)
+func_00237268       # rc25 same template as func_00236FE0 (rc25); act-coroutine scpPlayStart+waits
+_DistxzSqGV         # rc26 scan-class GObj search; beql/bnel branch-likely reorg, nested bit-tests, dup mult; deep-pass
+chain_simulate_term_swingready# rc11 chain physics; bc1fl flag + interleaved float-matrix copies; honest attempt rc11
+func_0018DFB8       # rc17 float angle/mail calc; cvt.w.s + mul/div FP scheduling + func chaining; honest attempt rc17
+AttackCheckHit      # rc22 3-way hit-id selector bne/bnel + vec4 negate + transform/assert/bar; honest attempt rc22
+func_00236300       # rc19 func_00236FE0 act template + scpSleep/subthread preamble; branch/sched residual rc19
+GeneratorDL         # rc18 loop copy + conditional particle effects + c.lt.s endfunc tail; honest attempt rc18
+_FrontGV            # rc55 abs-check 3-way branch + angle rotate; FP cvt/mul/div scheduling; honest attempt rc55
+drawXZArrow         # rc20 editor debug: alloc+ChaseCamera+varargs asserts+branch; leftover-arg asserts; honest attempt rc20
+func_00188C18       # rc72 camera-angle FP: qword struct copy + 2 MatrixDrive/atan calls + cvt.w.s shorts; precise FP scheduling; deep-pass
+func_00188D60       # rc18 FP camera/matrix; cvt.w.s angle, many matrix calls, tail-call gsb_SetVSMatrixSub; honest attempt rc18
+chain_simulate_term_free# rc83 deep-pass chain physics; cvt.w.s angle, FP scheduling, 9-arg func_0018E0E0; honest attempt rc83
+func_002361C0       # rc19 func_00236300 act template, 2 nested scpSleep subthread preambles; branch/sched residual rc19
+func_00238178       # rc12 float clamp c.lt.s/bc1fl branches + struct copy + preload; honest attempt rc12
+CheckGeneratorCollision# rc44 scan-class bnel search + FP c.lt.s/bc1f/bc1t abs-distance checks; deep-pass rc44
+ico2camera_GetTargetPos# rc48 runtime-alignment ldl/ldr block copy (inline memcpy) + CameraMove loop; deep-pass rc48
+GetTargetOffset     # rc81 pointer init + 2 reverse byte-clear loops + nested CameraEdit loop; honest attempt rc81
+endfunc_BGA         # rc52 state-machine dispatch sub->0x58 cases + EntryMultiBgaManager; honest attempt rc52
+TestChainUpDown     # rc59 deep-pass FP angle calc; cvt.w.s, dead mults, func_0010ED30/p2o, store-back; rc59
+dispBox             # rc18 2 float bufs + 7 func_001D1DF0 calls; float-const materialization/neg scheduling; rc18
+ReleaseChain        # rc10 matrix-loop bnel over chain segments + file_LoadCDFile; structure right, rc10 residual
+chain_simulate_term_moveup# rc95 deep-pass FP matrix setup + ClipWallBoxStop + traceLine block; rc95
+chain_simulate_term # rc10 chain_simulate_free family + c.lt.s/c.eq.s dispatch + math + tailcall; branch-dir floor rc10
+_OrientGV           # rc15 deep-pass FP angle/matrix; cvt.w.s x3, atan, matrix funcs; rc15
+func_00238020       # rc44 FP c.lt.s/bc1fl branch logic + float field stores; deep-pass rc44
+after_DrawLine      # rc71 deep-pass FP interp; cvt.w.s x3 + p2o angle + matrix; rc71
+DebugCameraSemiAuto # rc99 regalloc-heavy multi-struct copy + globals init; needs recovered struct types (globals are int[]); deep-pass
+func_0017F110       # rc55 0x70 struct copy + field setup + AttackCenter_WithDir; frame/struct-copy regalloc; rc55
+func_0017F2A0       # rc63 func_0017F110 template family + a3-block; struct-copy/frame regalloc floor; rc63
+InitEnemyCtrlGeo    # rc71 large sound state-machine; movn/movz + ~15 branches + shared exits; deep-pass rc71
+BoyAttackCenter     # rc111 inline runtime-align memcpy + 2 search loops + selector; deep-pass rc111
+MakeAttackPack_Actor# rc62 FP accumulation loop; cvt.w.s + div-by-zero guard + c.lt.s/bc1t; deep-pass rc62
+_DistSqGV           # rc87 varargs debug_assert + func_00260340 x4 + bit-manip + SetMotherGenerator; deep-pass rc87
+GetCameraGroupCurrent# rc98 inline runtime-align memcpy + byte-search + field stores; deep-pass rc98
+CameraSetCameraSet_Default# rc54 ico2camera_GetTargetPos twin; inline runtime-align memcpy + CameraMove loop; deep-pass rc54
+IncreasePdlChain    # rc47 FP closest-segment loop cvt.w.s/abs/bc1fl + movn + func_0018DFB8; deep-pass rc47
+GetMotherGenerator  # rc66 integer bit-field + 2 table searches bnel/beql scan-class; rc66
+generatorBeforeFunc # rc92 loop+switch states 0/1/2 + EntryMultiBgaManager shared node logic; rc92
+func_00237E28       # rc48 heavy FP branch/clamp logic bc1f/bc1t/bc1fl; deep-pass rc48
+func_002382C0       # rc120 6 vec4 build + array-copy + closest-distance search loop; deep-pass rc120
+SetCameraMatrix_Ico2# rc45 abs-gate + matrix build cvt.s.w/matrix funcs or axis-set; deep-pass rc45

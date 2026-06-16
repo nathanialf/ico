@@ -24,11 +24,86 @@ void ObjAction_CorrectGeo(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", ObjAction_Mail);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", ObjAction_MailCenter);
+extern char *actSt25aQueenDeadChk(int);
+extern void scpPlayMotDirSmz(float, float, float, float, float, float);
+extern void stage_KillPlayBgAnimation(int, int, int);
+extern void scpTorchLightOn(int, int);
+extern int func_0012A958(int);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", ObjAction_Init);
+void ObjAction_MailCenter(int a0) {
+    int buf[4];
+    char *p;
+    int t;
+    buf[0] = a0;
+    p = actSt25aQueenDeadChk(0xAC9);
+    t = *(int *)(p + 0x15C);
+    *(int *)(t + 0x4D8) = 1;
+    p = actSt25aQueenDeadChk(0xAC9);
+    t = *(int *)(p + 0x15C);
+    *(int *)(t + 0x4D8) = 0;
+    scpPlayMotDirSmz(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
+    _ACTWait(0x3C);
+    stage_KillPlayBgAnimation(0x1B7, 1, 0);
+    scpTorchLightOn(0xAC9, 0x1B7);
+    while (func_0012A958(0x1B7) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00237A20);
+extern char *actSt25aQueenDeadChk(int);
+extern void scpPlayMotDirSmz(float, float, float, float, float, float);
+extern void stage_KillPlayBgAnimation(int, int, int);
+extern void scpTorchLightOn(int, int);
+extern int func_0012A958(int);
+
+void ObjAction_Init(int a0) {
+    int buf[4];
+    char *p;
+    int t;
+    buf[0] = a0;
+    p = actSt25aQueenDeadChk(0xACA);
+    t = *(int *)(p + 0x15C);
+    *(int *)(t + 0x4D8) = 1;
+    p = actSt25aQueenDeadChk(0xACA);
+    t = *(int *)(p + 0x15C);
+    *(int *)(t + 0x4D8) = 0;
+    scpPlayMotDirSmz(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
+    _ACTWait(0x3C);
+    stage_KillPlayBgAnimation(0x1AB, 1, 0);
+    scpTorchLightOn(0xACA, 0x1AB);
+    while (func_0012A958(0x1AB) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+}
+
+extern char *actSt25aQueenDeadChk(int);
+extern void scpPlayMotDirSmz(float, float, float, float, float, float);
+extern void stage_KillPlayBgAnimation(int, int, int);
+extern void scpTorchLightOn(int, int);
+extern int func_0012A958(int);
+
+void func_00237A20(int a0) {
+    int buf[4];
+    char *p;
+    int t;
+    buf[0] = a0;
+    p = actSt25aQueenDeadChk(0xACB);
+    t = *(int *)(p + 0x15C);
+    *(int *)(t + 0x4D8) = 1;
+    p = actSt25aQueenDeadChk(0xACB);
+    t = *(int *)(p + 0x15C);
+    *(int *)(t + 0x4D8) = 0;
+    scpPlayMotDirSmz(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
+    _ACTWait(0x3C);
+    stage_KillPlayBgAnimation(0x1AC, 1, 0);
+    scpTorchLightOn(0xACB, 0x1AC);
+    while (func_0012A958(0x1AC) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+}
 
 extern void actCreateSubThread(void *entry, int a1);
 extern void func_00237AF8(void);
