@@ -11,7 +11,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", func_002388F0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", audioDecCreate);
 
-extern int UpdateRootPosition(int x);
+extern int UpdateRootPosition();
 
 int audioDecEndPut(int *self)
 {
@@ -151,7 +151,24 @@ int func_00239250(int *self) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", func_00239290);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", func_00239348);
+extern float DispWireLetter(void *a0);
+extern float D_0062BE50;
+extern int D_0062BE54;
+extern int D_00629C60;
+
+int func_00239348(int self) {
+    float f;
+    UpdateRootPosition(self);
+    f = D_0062BE50;
+    if (D_0062BE54 != D_00629C60) {
+        D_0062BE54 = D_00629C60;
+        f = DispWireLetter((void *)UpdateRootPosition());
+        f = f * 0.5f + 0.5f;
+        D_0062BE50 = f;
+    }
+    *(float *)(self + 0x18) = f;
+    return -1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", func_002393A8);
 
