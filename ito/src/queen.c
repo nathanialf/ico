@@ -140,7 +140,15 @@ float QueenStartAttack(void *a0) {
     return q->f_14;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", QueenInqDead);
+int QueenInqDead(void) {
+    int ret = 0;
+    void *obj = isysGObjSearchFromObjLayoutID(0x2E);
+    int *p = *(int **)((char *)obj + 0x15C);
+    int *q = *(int **)((char *)p + 0x7F0);
+    if (q[1] > 0 || q[2] > 0)
+        ret = 1;
+    return ret;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", QueenBoysWeaponPower);
 
