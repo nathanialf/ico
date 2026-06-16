@@ -42,7 +42,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 GLOBL_RE = re.compile(r"^\s*\.globl\s+(\S+)")
-FUNC_LABEL_RE = re.compile(r"^\s*(func_[0-9A-Fa-f]{8})\s*:")
+# Any C-identifier label; the `== last_globl` guard in _map_labels_to_functions
+# restricts it to the actually-.globl'd function entry, so named-symbol funcs
+# (e.g. pac_continueTag) get their $L labels mapped too — not just func_XXXX ones.
+FUNC_LABEL_RE = re.compile(r"^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:")
 L_LABEL_RE = re.compile(r"^\s*(\$L\d+)\s*:")
 RDATA_RE = re.compile(r"^\s*\.r(?:o)?data\s*$")
 RODATA_VMA_RE = re.compile(r"^\s*\.rodata\.0x[0-9A-Fa-f]+\b")

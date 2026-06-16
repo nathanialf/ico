@@ -415,7 +415,6 @@ func_002368B8       # rc13 SPILL clone of 7F8
 func_00236DB8       # rc14 SPILL: a0 reloaded across loop; dead lw v0
 gif_SetDrawEnviroment# rc55 GIFtag draw-env packet w/ dead-store cur advances (D_004C3850/GifBuf) + RGBA/coord bitfield pack; deep-pass; rc55
 func_00238658       # rc12 bnel cond-store + 3 fp stores ordering; rc12
-pac_makeClusterStrip# rc11 13-bit packet-emit loop; structure correct; residual=prologue sched of cached counter(D_0062BF3C) load + base lui order; rc11
 AddPluralCameraSet  # rc13 func_001887E0 call/return + tail-call j func_00186CA8; rc13
 ObjAction_Mail      # rc99 COMPILE-FAIL: needs actInitialize return value but shared decl is void; also SPILL
 func_00236988       # rc99 same actInitialize-void-return blocker + SPILL

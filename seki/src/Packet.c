@@ -63,7 +63,30 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_makeNormalStrip);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_getWeight);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Packet", pac_makeClusterStrip);
+extern int D_00272580[];
+extern int D_0066CB10[];
+extern int D_0062BF3C;
+extern void pac_makeNormalStrip(int a0, int a1);
+extern int dpk_SwapBuffer(int a0);
+extern void dpk_Init(int a0, int a1, int a2);
+extern int dl_GetPri(void);
+
+void pac_makeClusterStrip(int a0, int a1) {
+    int *q = &D_00272580[a0];
+    int i;
+    for (i = 0; i < 0xD; i++) {
+        if ((a1 >> i) & 1) {
+            if (a0 != D_0066CB10[i]) {
+                D_0062BF3C++;
+                pac_makeNormalStrip(a0, i);
+                dpk_SwapBuffer(i);
+                dpk_Init(5, *q, 0);
+                dl_GetPri();
+                D_0066CB10[i] = a0;
+            }
+        }
+    }
+}
 
 extern int D_0066CB10[];
 extern int D_0062BF3C;
