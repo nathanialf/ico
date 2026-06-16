@@ -31,10 +31,17 @@ import json
 import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 STATE_DIR = ROOT / "build" / "match_loop"
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+try:
+    import _asmsig
+except Exception:
+    _asmsig = None
 
 DEFAULT_STALL_LIMIT = 30   # distinct hand hypotheses with NO real_count progress
 #                            (raised from 12 to match the 20-iter discipline with
@@ -334,6 +341,249 @@ def cmd_show(args) -> int:
     return 0
 
 
+# ---------------------------------------------------------------------------
+# clone — bank a function that is byte-identical *modulo relocations* to an
+# already-matched one, by retargeting the matched C. Two entry points:
+#   * post-commit propagation:  match_loop.py clone --from <just-matched>
+#   * sweep pre-pass / one-off:  match_loop.py clone <func> | --scope <scope>
+# The oracle (tools/sweep_try.sh) is always the final gate — a wrong retarget
+# just COMPILE-FAILs or MISSes and is surgically reverted; no false bank.
+# ---------------------------------------------------------------------------
+
+def _tu_c(tu_stem: str) -> Path:
+    return ROOT / f"{tu_stem}.c"
+
+
+def _is_stub(tu_stem: str, func: str) -> bool:
+    """True iff <func> is still an INCLUDE_ASM stub in its TU (i.e. unmatched)."""
+    c = _tu_c(tu_stem)
+    if not c.exists():
+        return False
+    return bool(re.search(r'INCLUDE_ASM\("[^"]+",\s*' + re.escape(func) + r'\)',
+                          c.read_text(errors="replace")))
+
+
+def _definition_of(src: str, name: str) -> str:
+    """The brace-matched C of a real top-level DEFINITION of exactly `name`
+    (`<type> name(...) {`), or '' if absent. Unlike func_body this rejects
+    `extern` decls, calls, and self-references — so a twin the dev renamed in C
+    (asm symbol func_XXXX defined as e.g. `fzShowV`) yields '' and is skipped,
+    never a garbage retarget. Clone source must be named as its asm symbol."""
+    m = re.search(r"(?m)^[A-Za-z_][\w \t\*]*\b" + re.escape(name) + r"\s*\([^;{]*\)\s*\{",
+                  src)
+    if not m:
+        return ""
+    b = src.find("{", m.start())
+    depth = 0
+    for i in range(b, len(src)):
+        if src[i] == "{":
+            depth += 1
+        elif src[i] == "}":
+            depth -= 1
+            if depth == 0:
+                return src[m.start():i + 1]
+    return ""
+
+
+def _matched_body(tu_stem: str, func: str) -> str:
+    """The brace-matched C of <func> if it is matched (a real definition under
+    its own asm-symbol name, not a stub and not a dev-renamed twin)."""
+    c = _tu_c(tu_stem)
+    if not c.exists():
+        return ""
+    return _definition_of(c.read_text(errors="replace"), func)
+
+
+def _retarget(body: str, name_a: str, name_b: str,
+              slots_a: list[tuple[str, str]],
+              slots_b: list[tuple[str, str]]) -> tuple[str, dict]:
+    """Turn twin A's C into B's candidate: rename A->B and remap each symbol
+    slot positionally (equal signatures guarantee aligned slot lists)."""
+    out = re.sub(r"\b" + re.escape(name_a) + r"\b", name_b, body)
+    renames: dict[str, str] = {}
+    for (_ka, sa), (_kb, sb) in zip(slots_a, slots_b):
+        if sa != sb and sa != ".L" and sb != ".L":
+            renames[sa] = sb
+    for sa, sb in renames.items():
+        out = re.sub(r"\b" + re.escape(sa) + r"\b", sb, out)
+    return out, renames
+
+
+def _decl_lines(src: str) -> list[str]:
+    """Top-level declaration lines (col-0, end in ';', no brace) from a TU — the
+    externs/globals a clone candidate may need carried over to its new TU."""
+    out = []
+    for ln in src.splitlines():
+        if not ln or ln[0] in " \t#":
+            continue
+        s = ln.strip()
+        if s.endswith(";") and "{" not in s and "(" != s[:1] and "=" not in s.split("//")[0]:
+            out.append(s)
+        elif s.startswith("extern ") and s.endswith(";"):
+            out.append(s)
+    return out
+
+
+def _harvest_decls(tu_a: str, tu_b: str, symbols: list[str],
+                   renames: dict) -> list[str]:
+    """For each referenced symbol the candidate needs, lift its declaration from
+    twin A's TU, retarget it, and keep it only if B's TU lacks that decl. The
+    oracle still gates — a wrong/missing type just COMPILE-FAILs and reverts."""
+    src_a = _tu_c(tu_a).read_text(errors="replace") if _tu_c(tu_a).exists() else ""
+    src_b = _tu_c(tu_b).read_text(errors="replace") if _tu_c(tu_b).exists() else ""
+    a_decls = _decl_lines(src_a)
+    inv = {v: k for k, v in renames.items()}
+    carried, seen = [], set()
+    for q in symbols:
+        if q in seen or re.search(r"\b" + re.escape(q) + r"\b\s*[;\(\[]", src_b):
+            continue
+        pre = inv.get(q, q)
+        for d in a_decls:
+            if re.search(r"\b" + re.escape(pre) + r"\b", d):
+                line = d
+                for sa, sb in renames.items():
+                    line = re.sub(r"\b" + re.escape(sa) + r"\b", sb, line)
+                carried.append(line)
+                seen.add(q)
+                break
+    return carried
+
+
+def _referenced_symbols(slots_b: list[tuple[str, str]]) -> list[str]:
+    """Distinct post-retarget symbols a candidate needs declared (globals +
+    real callees; internal `.L` labels excluded)."""
+    out, seen = [], set()
+    for kind, sym in slots_b:
+        if sym == ".L" or sym in seen:
+            continue
+        seen.add(sym)
+        out.append(sym)
+    return out
+
+
+def _find_twin(func: str, s_path: Path):
+    """A matched func with an identical reloc-normalized signature to <func>."""
+    sig = _asmsig.signature(s_path)
+    for cand, cs, ctu in _asmsig.signature_index().get(sig, []):
+        if cand == func or ctu is None:
+            continue
+        if _matched_body(ctu, cand):
+            return cand, cs, ctu
+    return None
+
+
+def _try_clone(func: str, s_path: Path, tu_stem: str,
+               src: tuple | None, dry: bool, keep: bool = True) -> dict:
+    """Attempt to bank <func> from a matched twin (or the explicit `src`).
+    dry=True: report the retarget only. keep=False (--check): compile+measure
+    through the oracle but ALWAYS revert (validates without mutating the tree)."""
+    if not tu_stem or not _is_stub(tu_stem, func):
+        return {"func": func, "result": "skip", "reason": "not an unmatched stub"}
+    if src is None:
+        twin = _find_twin(func, s_path)
+        if twin is None:
+            return {"func": func, "result": "no-twin"}
+        name_a, s_a, tu_a = twin
+    else:
+        name_a, s_a, tu_a = src
+    body = _matched_body(tu_a, name_a)
+    if not body:
+        return {"func": func, "result": "skip", "reason": f"twin {name_a} has no C body"}
+    slots_a = _asmsig.symbol_slots(s_a)
+    slots_b = _asmsig.symbol_slots(s_path)
+    if len(slots_a) != len(slots_b):
+        return {"func": func, "result": "skip",
+                "reason": "slot-count mismatch (not a true clone)", "twin": name_a}
+    cand, renames = _retarget(body, name_a, func, slots_a, slots_b)
+    decls = _harvest_decls(tu_a, tu_stem, _referenced_symbols(slots_b), renames)
+    if decls:
+        cand = "\n".join(decls) + "\n\n" + cand
+    info = {"func": func, "twin": name_a, "tu": tu_stem, "renames": renames,
+            "carried_decls": len(decls)}
+    if dry:
+        info["result"] = "dry"
+        info["candidate"] = cand
+        return info
+    with tempfile.NamedTemporaryFile("w", suffix=".c", delete=False) as f:
+        f.write(cand + "\n")
+        cf = f.name
+    try:
+        out = subprocess.run(
+            ["bash", str(ROOT / "tools" / "sweep_try.sh"), tu_stem, func, cf],
+            capture_output=True, text=True, cwd=str(ROOT)).stdout.strip()
+    finally:
+        Path(cf).unlink(missing_ok=True)
+    verdict = out.splitlines()[-1] if out else ""
+    if verdict == "CANDIDATE":
+        if keep:
+            subprocess.run(["python3", str(ROOT / "tools" / "sweep.py"),
+                            "keep", tu_stem, func], cwd=str(ROOT))
+            info["result"] = "banked"
+        else:
+            # --check: undo the still-applied sentinel block, leave tree clean
+            subprocess.run(["python3", str(ROOT / "tools" / "sweep.py"),
+                            "revert", tu_stem, func], cwd=str(ROOT))
+            info["result"] = "would-bank"
+    else:
+        info["result"] = "miss"
+        info["verdict"] = verdict
+    return info
+
+
+def cmd_clone(args) -> int:
+    if _asmsig is None:
+        print(json.dumps({"error": "tools/_asmsig.py not importable"}))
+        return 2
+    results = []
+
+    if args.from_func:
+        # propagation: bank every unmatched stub identical to a just-matched func
+        s_a = _asmsig.find_s(args.from_func)
+        if s_a is None:
+            print(json.dumps({"error": f"no .s for {args.from_func}"}))
+            return 2
+        tu_a = _asmsig.tu_stem_of(s_a)
+        src = (args.from_func, s_a, tu_a)
+        sig = _asmsig.signature(s_a)
+        for cand, cs, ctu in _asmsig.signature_index().get(sig, []):
+            if cand == args.from_func:
+                continue
+            results.append(_try_clone(cand, cs, ctu, src, args.dry, keep=not args.check))
+    elif args.func:
+        s_b = _asmsig.find_s(args.func)
+        if s_b is None:
+            print(json.dumps({"error": f"no .s for {args.func}"}))
+            return 2
+        results.append(_try_clone(args.func, s_b, _asmsig.tu_stem_of(s_b),
+                                  None, args.dry, keep=not args.check))
+    else:
+        # scope pre-pass: every sig-group with a matched twin + unmatched stubs
+        idx = _asmsig.signature_index()
+        for sig, members in idx.items():
+            if len(members) < 2:
+                continue
+            matched = [(n, s, t) for n, s, t in members if t and _matched_body(t, n)]
+            if not matched:
+                continue
+            src = matched[0]
+            for n, s, t in members:
+                if n == src[0] or not t:
+                    continue
+                if args.scope and (not t or args.scope not in t):
+                    continue
+                if not _is_stub(t, n):
+                    continue
+                results.append(_try_clone(n, s, t, src, args.dry))
+
+    banked = [r for r in results if r.get("result") in ("banked", "would-bank")]
+    summary = {"attempted": len(results), "banked": len(banked),
+               "results": results if args.verbose else
+               [r for r in results
+                if r.get("result") in ("banked", "would-bank", "dry", "miss")]}
+    print(json.dumps(summary, indent=2))
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="shared matching-loop core")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -360,6 +610,22 @@ def main() -> int:
                     help="why (reset is a discipline override — resume Step 0 only)")
     rs.set_defaults(fn=cmd_reset)
     sh = sub.add_parser("show"); sh.add_argument("func"); sh.set_defaults(fn=cmd_show)
+
+    cl = sub.add_parser("clone", help="bank funcs byte-identical modulo relocs "
+                                      "to a matched twin (retarget + oracle-gate)")
+    cl.add_argument("func", nargs="?", help="single target to bank")
+    cl.add_argument("--from", dest="from_func", metavar="FUNC",
+                    help="propagate: bank every unmatched twin of this matched func")
+    cl.add_argument("--scope", metavar="STR",
+                    help="pre-pass: bank all clones whose TU contains STR")
+    cl.add_argument("--dry", action="store_true",
+                    help="report twin + retarget renames; do not apply/keep")
+    cl.add_argument("--check", action="store_true",
+                    help="compile+measure through the oracle but ALWAYS revert "
+                         "(validate without mutating the tree)")
+    cl.add_argument("--verbose", action="store_true",
+                    help="include skip/no-twin rows in the report")
+    cl.set_defaults(fn=cmd_clone)
 
     args = ap.parse_args()
     return args.fn(args)

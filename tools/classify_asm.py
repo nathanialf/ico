@@ -1011,11 +1011,178 @@ def _m2c_fallback(asm_path: Path) -> str | None:
     return proc.stdout if proc.stdout.strip() else None
 
 
+# ---------------------------------------------------------------------------
+# Context bundle (--bundle): a self-contained per-function reasoning aid.
+#
+# Mechanises the standing "reason from the dev's data model, not syntax" rule:
+# resolve every callee to a name+signature, every %hi/%lo/gp_rel global to a
+# named symbol (with its struct field layout when known), surface the constants
+# the function materialises, list the TU siblings, and inline the annotated .s —
+# so the [REASONING] step of decomp-match / decomp-sweep has everything in one
+# place instead of grepping the TU by hand. Read-only; reuses tools/_asmsig.py.
+# ---------------------------------------------------------------------------
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+try:
+    import _asmsig  # noqa: E402
+except Exception:  # pragma: no cover — bundle mode degrades, classifier still works
+    _asmsig = None
+
+# `lui $rX, 0xNNNN` / `ori $rX,$rX,0xMMMM` and friends that are NOT %hi/%lo.
+_RAW_IMM_RE = re.compile(r"\b(0x[0-9A-Fa-f]+)\b")
+
+
+def resolve_s_path(arg: str) -> Path | None:
+    """Accept either a literal `.s` path or a bare function name (resolved via
+    _asmsig.find_s, preferring matchings/ then nonmatchings/)."""
+    p = Path(arg)
+    if p.exists():
+        return p
+    if _asmsig is not None:
+        return _asmsig.find_s(arg)
+    return None
+
+
+def _tu_stem_of(asm_path: Path) -> str | None:
+    """nonmatchings/script/src/st08a/foo.s -> script/src/st08a (the sweep stem)."""
+    for anchor in ("nonmatchings", "matchings"):
+        if anchor in asm_path.parts:
+            i = asm_path.parts.index(anchor)
+            return str(Path(*asm_path.parts[i + 1:-1]))
+    return None
+
+
+def _unmatched_in_tu(tu_stem: str) -> set[str]:
+    """INCLUDE_ASM stub names in <tu_stem>.c = the still-unmatched siblings."""
+    c = REPO_ROOT / f"{tu_stem}.c"
+    if not c.exists():
+        return set()
+    pat = re.compile(r'INCLUDE_ASM\("[^"]+",\s*(\w+)\)')
+    return set(pat.findall(c.read_text(errors="replace")))
+
+
+def build_bundle(signals: Signals, asm_path: Path) -> dict:
+    name = signals.name or asm_path.stem
+    tu_stem = _tu_stem_of(asm_path)
+    vma = _asmsig.name_to_vma(name) if _asmsig else None
+
+    # callees: jal targets -> best-effort signature
+    callees = []
+    seen = set()
+    for t in signals.jal_targets:
+        t = t.rstrip(",")
+        if not t or t == name or t in seen:
+            continue
+        seen.add(t)
+        sig = _asmsig.callee_sig(t) if _asmsig else f"{t}(?)"
+        callees.append({"name": t, "sig": sig})
+
+    # globals: %hi/%lo/gp_rel symbols -> name, tu, struct field layout
+    globals_info = []
+    for g in _extracted_globals(signals):
+        info = {"name": g, "tu": None, "fields": None}
+        if _asmsig:
+            shape = _asmsig.struct_shape(g)
+            if shape:
+                info["tu"] = shape.get("tu")
+                info["stride"] = shape.get("stride")
+                info["fields"] = shape.get("fields")
+            else:
+                gv = _asmsig.name_to_vma(g)
+                if gv is not None:
+                    info["tu"] = _asmsig.resolve(gv).get("tu")
+        globals_info.append(info)
+
+    # constants materialised (raw immediates, excluding the small frame/offsets)
+    consts = []
+    cseen = set()
+    for m, o, _ in signals.insns:
+        if m in {"lui", "ori", "li", "lw", "addiu", "daddiu"} and "%" not in o:
+            for im in _RAW_IMM_RE.findall(o):
+                v = int(im, 16)
+                if v >= 0x1000 and im not in cseen:   # skip tiny stack offsets
+                    cseen.add(im)
+                    consts.append(im)
+
+    # siblings in the same TU
+    siblings = []
+    if tu_stem:
+        unmatched = _unmatched_in_tu(tu_stem)
+        sib_dir = asm_path.parent
+        for s in sorted(sib_dir.glob("*.s")):
+            if s.stem == name:
+                continue
+            siblings.append({"name": s.stem,
+                             "matched": s.stem not in unmatched})
+
+    return {
+        "name": name, "vma": (f"0x{vma:08X}" if vma else None),
+        "tu": tu_stem, "size": signals.size, "insn_count": signals.insn_count,
+        "fingerprint": fmt_signals_summary(signals),
+        "recipes": [{"id": r.id, "name": r.name, "section": r.section,
+                     "note": r.note} for r, _ in score(signals)[:3]],
+        "callees": callees, "globals": globals_info, "constants": consts,
+        "siblings": siblings,
+        "asm": _format_asm_body(asm_path.read_text(errors="replace")),
+    }
+
+
+def render_bundle_md(b: dict) -> str:
+    L = []
+    hdr = f"# {b['name']}"
+    if b["vma"]:
+        hdr += f"  ({b['vma']})"
+    L.append(hdr)
+    L.append(f"- TU: `{b['tu']}`   size: {b['size']:#x}   {b['insn_count']} insns")
+    L.append(f"- fingerprint: {b['fingerprint']}")
+    if b["recipes"]:
+        L.append("\n## Recipe hints (decomp/COOKBOOK.md)")
+        for r in b["recipes"]:
+            anchor = f" → §{r['section']}" if r["section"] else ""
+            L.append(f"- §{r['id']} {r['name']}{anchor}")
+            if r["note"]:
+                L.append(f"  - {r['note']}")
+    if b["callees"]:
+        L.append("\n## Callees")
+        for c in b["callees"]:
+            L.append(f"- `{c['sig']}`")
+    if b["globals"]:
+        L.append("\n## Globals / structs")
+        for g in b["globals"]:
+            line = f"- `{g['name']}`"
+            if g.get("tu"):
+                line += f"  (tu: {g['tu']})"
+            if g.get("stride"):
+                line += f"  stride={g['stride']}"
+            L.append(line)
+            if g.get("fields"):
+                for f in g["fields"][:12]:
+                    sgn = "s" if f.get("signed") else "u"
+                    L.append(f"    off {f['off']:#x}  w{f['width']} {sgn}"
+                             f"  x{f.get('count','?')}")
+    if b["constants"]:
+        L.append("\n## Constants materialised")
+        L.append("  " + ", ".join(b["constants"]))
+    if b["siblings"]:
+        L.append("\n## TU siblings")
+        for s in b["siblings"]:
+            flag = "matched" if s["matched"] else "UNMATCHED"
+            L.append(f"- {s['name']}  [{flag}]")
+    L.append("\n## Disassembly")
+    L.append("```")
+    L.append(b["asm"])
+    L.append("```")
+    return "\n".join(L) + "\n"
+
+
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("path", nargs="?", help="asm .s file (omit with --bucket)")
+    ap.add_argument("path", nargs="?", help="asm .s file or func name (omit with --bucket)")
     ap.add_argument("--bucket", help="directory; classify every .s file under it")
     ap.add_argument("--top", type=int, default=3, help="show top-N recipes (default 3)")
+    ap.add_argument("--bundle", action="store_true",
+                    help="emit a self-contained per-function context bundle "
+                         "(callees+sigs, globals+structs, siblings, asm)")
     ap.add_argument("--json", action="store_true", help="dump raw signals as JSON")
     ap.add_argument("--scaffold", action="store_true",
                     help="emit C scaffold for top-scoring recipe (stdout)")
@@ -1061,6 +1228,21 @@ def main(argv: list[str]) -> int:
     if not args.path:
         ap.print_usage(sys.stderr)
         return 2
+
+    # --bundle accepts a bare func name (resolved via _asmsig) or a .s path.
+    if args.bundle:
+        p = resolve_s_path(args.path)
+        if p is None or not p.exists():
+            print(f"could not resolve a .s for: {args.path}", file=sys.stderr)
+            return 1
+        sig = extract_signals(p)
+        bundle = build_bundle(sig, p)
+        if args.json:
+            print(json.dumps(bundle, indent=2))
+        else:
+            sys.stdout.write(render_bundle_md(bundle))
+        return 0
+
     p = Path(args.path)
     if not p.exists():
         print(f"file not found: {p}", file=sys.stderr)

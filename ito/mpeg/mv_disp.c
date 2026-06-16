@@ -30,13 +30,42 @@ int sendDispEnv(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", dispCreate);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", dispSetTags);
+extern int D_0062BE54;
+extern int D_00629C60;
+extern float D_0062BE50;
+extern float DispWireLetter(void *a0);
+
+int dispSetTags(void *a0) {
+    float f;
+    if (D_0062BE54 == D_00629C60) {
+        f = D_0062BE50;
+    } else {
+        D_0062BE54 = D_00629C60;
+        f = DispWireLetter(UpdateRootPosition());
+        f = f * 0.5f + 0.5f;
+        D_0062BE50 = f;
+    }
+    *(float *)((char *)a0 + 0x18) = f;
+    return -1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", dispSwitch);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", vblankHandler);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", dispDelete);
+int dispDelete(void *a0) {
+    float f;
+    if (D_0062BE54 == D_00629C60) {
+        f = D_0062BE50;
+    } else {
+        D_0062BE54 = D_00629C60;
+        f = DispWireLetter(UpdateRootPosition());
+        f = f * 0.5f + 0.5f;
+        D_0062BE50 = f;
+    }
+    *(float *)((char *)a0 + 0x18) = f;
+    return -1;
+}
 
 extern const float D_00629B8C, D_00629B90;
 

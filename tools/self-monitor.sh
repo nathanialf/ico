@@ -93,9 +93,8 @@ if [[ "$1" == "--once" ]]; then
         _NM="asm/${_sm_version}/nonmatchings"; _MA="asm/${_sm_version}/matchings"
         _ROOTS="common fumi sugipon seki omori script ito src ios sound isys"
     fi
-    # Insn-count shortlists (smallest unmatched funcs / least-remaining TUs)
-    # disabled for now — re-enable by flipping `false &&` back off.
-    if false && [[ -d "$_NM" ]]; then
+    # Insn-count shortlists (smallest unmatched funcs / least-remaining TUs).
+    if [[ -d "$_NM" ]]; then
         matched=$(find "$_MA" -name '*.s' -printf '%f\n' 2>/dev/null \
                       | sed 's/\.s$//' | sort -u)
         # GENUINE-UNMATCHED filter: a func is a target iff it's still referenced
