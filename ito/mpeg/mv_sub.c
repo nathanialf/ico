@@ -153,7 +153,18 @@ void func_0023AC90(void *a0, int a1, int a2) {
     func_0023AA98(a0, a1, v < a2 ? a2 : v);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_0023ACA0);
+extern void func_0023E440(void *a0);
+extern void func_0023EB60(int a0, int a1);
+extern int D_0070C0C0[];
+
+void func_0023ACA0(void *a0) {
+    func_0023E440(a0);
+    a0 = (void *)((unsigned int)D_0070C0C0 & 0x0FFFFFFF);
+    *(volatile unsigned int *)0x1000A010 = (unsigned int)a0;
+    *(volatile unsigned int *)0x1000A020 = 7;
+    *(volatile unsigned int *)0x1000A000 = 0x101;
+    func_0023EB60(0, 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_sub", func_0023AD08);
 
