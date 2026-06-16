@@ -308,7 +308,6 @@ gflagOn             # rc16 tail-call actCommonStoneDead w/ float from strided gl
 func_0023ACA0       # rc4 GIF DMA kick + tailcall func_0023EB60(0,0); int-return rc4 only sibcall j-vs-jal; void->15
 func_00198080       # rc15 2-call prologue + GetClothAnimation tailcall, q callee-saved/p-reload; rc15
 GatherEffect_Set    # rc13 OR-accum do-while; gcc strength-reduces i*0x70 vs ROM mult-each-iter + bnel; rc13
-func_00230C10       # rc1 structure correct; sole diff = in-TU func_00230C70 %lo reloc false-neg, needs ninja confirm
 setImageSize        # rc18 dispDelete float family + q[0]/q[2] preamble; -across-calls puzzle; rc18
 func_0017DDD8       # rc8 D_00286A70/AttackMail gp-rel vs ROM %hi/%lo; far-global array form regressed, sched off
 setTEX0_1           # rc4 2 strided lookups; flip fixed beq; residual bnel(f10&1)==1 branch-likely tiebreak rc4

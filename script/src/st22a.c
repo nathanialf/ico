@@ -46,7 +46,20 @@ void func_00230C00(int a0) {
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", func_00230C10);
+extern int actInitialize(int a0);
+extern int func_00178DB0(int a0);
+extern void actCreateSubThread(void *entry, int a1);
+extern void func_00230C70(int a0);
+
+void func_00230C10(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    while (func_00178DB0(0x1D) == 0) {
+        _ACTWait(1);
+    }
+    actCreateSubThread(func_00230C70, 0x15);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", func_00230C70);
 
