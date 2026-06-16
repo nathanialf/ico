@@ -40,7 +40,34 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10l", actSt10lEneCam3Chk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10l", actSt10lChainMove);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10l", actSt10lChain);
+#include "common.h"
+extern void lt_fade_status(int a0);
+extern void actCreateSubThread(void *fn, int a1);
+extern void actSt10lFloor();
+extern void scpDispOnAllWithKind(void);
+extern void _ACTWait(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int func_0012A958(int a0);
+extern int actSt25aQueenDeadChk(int a0);
+extern void scpActivateAllWithKind(void);
+extern void AddWayPointTop(int a0, int a1);
+extern int D_0062A894;
+void actSt10lChain(volatile int a0) {
+    lt_fade_status(0x33);
+    actCreateSubThread(actSt10lFloor, 0x15);
+    scpDispOnAllWithKind();
+    _ACTWait(0x3C);
+    stage_KillPlayBgAnimation(0xEB, 1, 0);
+    stage_KillPlayBgAnimation(0xEA, -1, -2);
+    while (func_0012A958(0xEB) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    *(int *)(actSt25aQueenDeadChk(0x5A5) + 0x16C) = 1;
+    *(int *)(actSt25aQueenDeadChk(0x5A4) + 0x16C) = 0;
+    D_0062A894 = 0;
+    lt_fade_status(0x32);
+    scpActivateAllWithKind();
+    AddWayPointTop(5, 1);
+}
 
 extern int func_0025F4F0(int a0);
 extern int func_0025EF78(int a0, long a1);
@@ -81,7 +108,36 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10l", actSt10lEnemy1_2);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10l", actSt10lEnemy2_1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10l", actSt10lEnemy2_2);
+#include "common.h"
+extern void lt_fade_status(int a0);
+extern void func_00178DD8(int a0);
+extern void scpDispOnAllWithKind(void);
+extern void _ACTWait(int a0);
+extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int func_0012A958(int a0);
+extern int actSt25aQueenDeadChk(int a0);
+extern void scpActivateAllWithKind(void);
+extern void AddWayPointTop(int a0, int a1);
+extern int D_0062BD54;
+extern int D_0062A894;
+void actSt10lEnemy2_2(volatile int a0) {
+    lt_fade_status(0x33);
+    func_00178DD8(0x60);
+    scpDispOnAllWithKind();
+    _ACTWait(0x3C);
+    scpPlayStart(0x51, (int)&D_0062BD54, 1, 1, 1);
+    while (D_0062BD54 == 0) { _ACTWait(1); }
+    stage_KillPlayBgAnimation(0x5C, 1, 0);
+    while (func_0012A958(0x5C) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    *(int *)(actSt25aQueenDeadChk(0x64A) + 0x16C) = 0;
+    *(int *)(actSt25aQueenDeadChk(0x64B) + 0x16C) = 1;
+    scpActivateAllWithKind();
+    D_0062A894 = 0;
+    lt_fade_status(0x32);
+    AddWayPointTop(0xC, 1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10l", actSt10lEnemy2_3);
 

@@ -26,19 +26,236 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04l", actSt04lRope1Chk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04l", actSt04lRope2Chk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04l", actSt04lBrg1Chk);
+#include "common.h"
+extern void _ACTWait(int a0);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void gflagOff(int a0, int a1);
+extern void func_00178DD8(int a0);
+extern void scpDispOnAllWithKind(void);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
+extern int func_0012AA28(int a0, int a1, int a2);
+extern void scpActivateAllWithKind(void);
+extern int D_00629DE4;
+extern int D_00629DE8;
+extern int D_0062A894;
+void actSt04lBrg1Chk(volatile int a0) {
+    if (D_00629DE8 == 0) { _ACTWait(0); }
+    while (scpSleepSpiderGroupOne(D_00629DE4, 0x1000000) == 0 ||
+           scpSleepSpiderGroupOne(D_00629DE8, 0x1000000) == 0) {
+        _ACTWait(1);
+    }
+    D_0062A894 = 1;
+    gflagOff(D_00629DE4, 0);
+    gflagOff(D_00629DE8, 0x202);
+    func_00178DD8(0xC0);
+    scpDispOnAllWithKind();
+    _ACTWait(5);
+    stage_KillPlayBgAnimation(0xCD, 1, 0);
+    soundSeDefPlayWithVolumeRate(0x51C, 0, 0, 1);
+    while (func_0012AA28(0xCD, 0x1E, 0) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    scpActivateAllWithKind();
+    D_0062A894 = 0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04l", actSt04lRope3Chk);
+#include "common.h"
+extern void _ACTWait(int a0);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void gflagOff(int a0, int a1);
+extern void func_00178DD8(int a0);
+extern void scpDispOnAllWithKind(void);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
+extern int func_0012AA28(int a0, int a1, int a2);
+extern void scpActivateAllWithKind(void);
+extern int D_00629DE4;
+extern int D_00629DE8;
+extern int D_0062A894;
+void actSt04lRope3Chk(volatile int a0) {
+    if (D_00629DE8 == 0) { _ACTWait(0); }
+    while (scpSleepSpiderGroupOne(D_00629DE4, 0x2000000) == 0 ||
+           scpSleepSpiderGroupOne(D_00629DE8, 0x2000000) == 0) {
+        _ACTWait(1);
+    }
+    D_0062A894 = 1;
+    gflagOff(D_00629DE4, 0);
+    gflagOff(D_00629DE8, 0x202);
+    func_00178DD8(0xC1);
+    scpDispOnAllWithKind();
+    _ACTWait(5);
+    stage_KillPlayBgAnimation(0xCE, 1, 0);
+    soundSeDefPlayWithVolumeRate(0x51C, 0, 0, 1);
+    while (func_0012AA28(0xCE, 0x1E, 0) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    scpActivateAllWithKind();
+    D_0062A894 = 0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04l", actSt04lRope4Chk);
+#include "common.h"
+extern void _ACTWait(int a0);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void gflagOff(int a0, int a1);
+extern void func_00178DD8(int a0);
+extern void scpDispOnAllWithKind(void);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
+extern int func_0012AA28(int a0, int a1, int a2);
+extern void scpActivateAllWithKind(void);
+extern int D_00629DE4;
+extern int D_00629DE8;
+extern int D_0062A894;
+void actSt04lRope4Chk(volatile int a0) {
+    if (D_00629DE8 == 0) { _ACTWait(0); }
+    while (scpSleepSpiderGroupOne(D_00629DE4, 0x3000000) == 0 ||
+           scpSleepSpiderGroupOne(D_00629DE8, 0x3000000) == 0) {
+        _ACTWait(1);
+    }
+    D_0062A894 = 1;
+    gflagOff(D_00629DE4, 0);
+    gflagOff(D_00629DE8, 0x202);
+    func_00178DD8(0xC2);
+    scpDispOnAllWithKind();
+    _ACTWait(5);
+    stage_KillPlayBgAnimation(0xCF, 1, 0);
+    soundSeDefPlayWithVolumeRate(0x51C, 0, 0, 1);
+    while (func_0012AA28(0xCF, 0x1E, 0) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    scpActivateAllWithKind();
+    D_0062A894 = 0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04l", actSt04lBrg2Chk);
+#include "common.h"
+extern void _ACTWait(int a0);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void gflagOff(int a0, int a1);
+extern void func_00178DD8(int a0);
+extern void scpDispOnAllWithKind(void);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
+extern int func_0012AA28(int a0, int a1, int a2);
+extern void scpActivateAllWithKind(void);
+extern int D_00629DE4;
+extern int D_00629DE8;
+extern int D_0062A894;
+void actSt04lBrg2Chk(volatile int a0) {
+    if (D_00629DE8 == 0) { _ACTWait(0); }
+    while (scpSleepSpiderGroupOne(D_00629DE4, 0x4000000) == 0 ||
+           scpSleepSpiderGroupOne(D_00629DE8, 0x4000000) == 0) {
+        _ACTWait(1);
+    }
+    D_0062A894 = 1;
+    gflagOff(D_00629DE4, 0);
+    gflagOff(D_00629DE8, 0x202);
+    func_00178DD8(0xC3);
+    scpDispOnAllWithKind();
+    _ACTWait(5);
+    stage_KillPlayBgAnimation(0xD0, 1, 0);
+    soundSeDefPlayWithVolumeRate(0x51C, 0, 0, 1);
+    while (func_0012AA28(0xD0, 0x1E, 0) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    scpActivateAllWithKind();
+    D_0062A894 = 0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04l", actSt04lSekizoChk);
+#include "common.h"
+extern void _ACTWait(int a0);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void gflagOff(int a0, int a1);
+extern void func_00178DD8(int a0);
+extern void scpDispOnAllWithKind(void);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
+extern int func_0012AA28(int a0, int a1, int a2);
+extern void scpActivateAllWithKind(void);
+extern int D_00629DE4;
+extern int D_00629DE8;
+extern int D_0062A894;
+void actSt04lSekizoChk(volatile int a0) {
+    if (D_00629DE8 == 0) { _ACTWait(0); }
+    while (scpSleepSpiderGroupOne(D_00629DE4, 0x5000000) == 0 ||
+           scpSleepSpiderGroupOne(D_00629DE8, 0x5000000) == 0) {
+        _ACTWait(1);
+    }
+    D_0062A894 = 1;
+    gflagOff(D_00629DE4, 0);
+    gflagOff(D_00629DE8, 0x202);
+    func_00178DD8(0xC4);
+    scpDispOnAllWithKind();
+    _ACTWait(5);
+    stage_KillPlayBgAnimation(0xD1, 1, 0);
+    soundSeDefPlayWithVolumeRate(0x51C, 0, 0, 1);
+    while (func_0012AA28(0xD1, 0x1E, 0) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    scpActivateAllWithKind();
+    D_0062A894 = 0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04l", actSt04lGondolaChk);
+#include "common.h"
+extern void _ACTWait(int a0);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void gflagOff(int a0, int a1);
+extern void func_00178DD8(int a0);
+extern void scpDispOnAllWithKind(void);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
+extern int func_0012AA28(int a0, int a1, int a2);
+extern void scpActivateAllWithKind(void);
+extern int D_00629DE4;
+extern int D_00629DE8;
+extern int D_0062A894;
+void actSt04lGondolaChk(volatile int a0) {
+    if (D_00629DE8 == 0) { _ACTWait(0); }
+    while (scpSleepSpiderGroupOne(D_00629DE4, 0x6000000) == 0 ||
+           scpSleepSpiderGroupOne(D_00629DE8, 0x6000000) == 0) {
+        _ACTWait(1);
+    }
+    D_0062A894 = 1;
+    gflagOff(D_00629DE4, 0);
+    gflagOff(D_00629DE8, 0x202);
+    func_00178DD8(0xC5);
+    scpDispOnAllWithKind();
+    _ACTWait(5);
+    stage_KillPlayBgAnimation(0xD2, 1, 0);
+    soundSeDefPlayWithVolumeRate(0x51C, 0, 0, 1);
+    while (func_0012AA28(0xD2, 0x1E, 0) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    scpActivateAllWithKind();
+    D_0062A894 = 0;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04l", actSt04lMonyou01Chk);
+#include "common.h"
+extern void _ACTWait(int a0);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void gflagOff(int a0, int a1);
+extern void func_00178DD8(int a0);
+extern void scpDispOnAllWithKind(void);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
+extern int func_0012AA28(int a0, int a1, int a2);
+extern void scpActivateAllWithKind(void);
+extern int D_00629DE4;
+extern int D_00629DE8;
+extern int D_0062A894;
+void actSt04lMonyou01Chk(volatile int a0) {
+    if (D_00629DE8 == 0) { _ACTWait(0); }
+    while (scpSleepSpiderGroupOne(D_00629DE4, 0x7000000) == 0 ||
+           scpSleepSpiderGroupOne(D_00629DE8, 0x7000000) == 0) {
+        _ACTWait(1);
+    }
+    D_0062A894 = 1;
+    gflagOff(D_00629DE4, 0);
+    gflagOff(D_00629DE8, 0x202);
+    func_00178DD8(0xC6);
+    scpDispOnAllWithKind();
+    _ACTWait(5);
+    stage_KillPlayBgAnimation(0xD3, 1, 0);
+    soundSeDefPlayWithVolumeRate(0x51C, 0, 0, 1);
+    while (func_0012AA28(0xD3, 0x1E, 0) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    scpActivateAllWithKind();
+    D_0062A894 = 0;
+}
 
 extern void _ACTWait(int a0);
 extern int func_00178DB0(int a0);

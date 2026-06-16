@@ -4,11 +4,68 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actTitleCamera2);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actOpDemo01);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actTitleShortCut);
+#include "common.h"
+extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
+extern void _ACTWait(int a0);
+extern void func_0017A0F8(int a0);
+extern void actConte11Jimaku(float f);
+extern void func_00178DD8(int a0);
+extern void actCreateSubThread(void *fn, int a1);
+extern void actE3GateJimaku();
+extern int D_0062BC0C;
+void actTitleShortCut(volatile int a0) {
+    scpPlayStart(0x2A, (int)&D_0062BC0C, 0, 1, 1);
+    while (D_0062BC0C == 0) {
+        _ACTWait(1);
+    }
+    func_0017A0F8(2);
+    actConte11Jimaku(6.0f);
+    func_00178DD8(2);
+    func_00178DD8(3);
+    func_00178DD8(4);
+    func_00178DD8(0x133);
+    actCreateSubThread(actE3GateJimaku, 0x15);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actTitleReadTimeDemo0);
+#include "common.h"
+extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
+extern void _ACTWait(int a0);
+extern void func_0017A0F8(int a0);
+extern void actConte11Jimaku(float f);
+extern void func_00178DD8(int a0);
+extern void actCreateSubThread(void *fn, int a1);
+extern void actE3Warning();
+extern int D_0062BC10;
+void actTitleReadTimeDemo0(volatile int a0) {
+    scpPlayStart(0x2B, (int)&D_0062BC10, 0, 1, 1);
+    while (D_0062BC10 == 0) {
+        _ACTWait(1);
+    }
+    func_0017A0F8(3);
+    actConte11Jimaku(6.0f);
+    func_00178DD8(0x134);
+    actCreateSubThread(actE3Warning, 0x15);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actOpDemo01_2);
+#include "common.h"
+extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
+extern void _ACTWait(int a0);
+extern void func_0017A0F8(int a0);
+extern void actConte11Jimaku(float f);
+extern void func_00178DD8(int a0);
+extern void actCreateSubThread(void *fn, int a1);
+extern void actOpDemo01_2Chk();
+extern int D_0062BC14;
+void actOpDemo01_2(volatile int a0) {
+    scpPlayStart(0x2C, (int)&D_0062BC14, 0, 1, 1);
+    while (D_0062BC14 == 0) {
+        _ACTWait(1);
+    }
+    func_0017A0F8(2);
+    actConte11Jimaku(6.0f);
+    func_00178DD8(0x135);
+    actCreateSubThread(actOpDemo01_2Chk, 0x15);
+}
 
 extern void _ACTWait(int a0);
 extern int func_0012A958(int a0);
@@ -60,9 +117,43 @@ void actOpDemo03(volatile int a0) {
     actCreateSubThread(actEndDemo01, 0x15);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actSubMpegReturnPreload);
+#include "common.h"
+extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
+extern void _ACTWait(int a0);
+extern void actConte11Jimaku(float f);
+extern void func_00178DD8(int a0);
+extern void actCreateSubThread(void *fn, int a1);
+extern void actEndDemo02();
+extern int D_0062BC1C;
+void actSubMpegReturnPreload(volatile int a0) {
+    scpPlayStart(0x2E, (int)&D_0062BC1C, 0, 1, 1);
+    while (D_0062BC1C == 0) {
+        _ACTWait(1);
+    }
+    actConte11Jimaku(6.0f);
+    func_00178DD8(0x139);
+    actCreateSubThread(actEndDemo02, 0x15);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actSt26aConte01_1_newgame);
+#include "common.h"
+extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
+extern void _ACTWait(int a0);
+extern void actConte11Jimaku(float f);
+extern void func_00178DD8(int a0);
+extern void actCreateSubThread(void *fn, int a1);
+extern void actEndDemo06();
+extern void actOpDemo02Chk();
+extern int D_0062BC20;
+void actSt26aConte01_1_newgame(volatile int a0) {
+    scpPlayStart(0x2F, (int)&D_0062BC20, 0, 1, 1);
+    while (D_0062BC20 == 0) {
+        _ACTWait(1);
+    }
+    actConte11Jimaku(6.0f);
+    func_00178DD8(0x13C);
+    actCreateSubThread(actEndDemo06, 0x15);
+    actCreateSubThread(actOpDemo02Chk, 0x15);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actOpDemo02Chk);
 
@@ -80,7 +171,7 @@ void func_0020AA00(volatile int a0){
  while(func_0012A958(0x309)==0) _ACTWait(1); _ACTWait(1);
  actSt25aQueenDead(2, D_00629DE4, D_00629DE8, 1.0f, 8.0f); }
 
-extern void func_0020AAB8(void);
+extern void func_0020AAB8(volatile int a0);
 
 void func_0020AA88(volatile int a0) {
     func_00178DD8(0x13E);

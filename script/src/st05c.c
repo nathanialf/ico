@@ -70,7 +70,33 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", actSt05cEnemy1);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", actSt05cEnemy2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", actSt05cDoorDownEvent);
+#include "common.h"
+extern void func_00178E08(int a0);
+extern void lt_fade_status(int a0);
+extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
+extern void _ACTWait(int a0);
+extern void func_0017A0F8(int a0);
+extern void actConte11Jimaku(float f);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int func_0012A958(int a0);
+extern void actSt25aQueenDead(int a0, int a1, int a2, float f0, float f1);
+extern int D_0062BCE0;
+extern int D_00629DE4;
+extern int D_00629DE8;
+extern int D_0062A894;
+void actSt05cDoorDownEvent(volatile int a0) {
+    func_00178E08(0xCC);
+    lt_fade_status(0x33);
+    D_0062A894 = 1;
+    scpPlayStart(0x1B, (int)&D_0062BCE0, 0, 1, 1);
+    while (D_0062BCE0 == 0) { _ACTWait(1); }
+    func_0017A0F8(7);
+    actConte11Jimaku(6.0f);
+    stage_KillPlayBgAnimation(0x102, 1, 0);
+    while (func_0012A958(0x102) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    actSt25aQueenDead(7, D_00629DE4, D_00629DE8, 2.0f, 8.0f);
+}
 
 void actSt05cDoorDownEffect(int a0) {
     int buf[4];

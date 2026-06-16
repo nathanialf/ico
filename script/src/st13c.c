@@ -82,7 +82,25 @@ void actSt13cCage1stDown(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cCageFall);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cCageFallChk);
+#include "common.h"
+struct CFS { long long a, b; };
+extern struct CFS D_00614BB0;
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern void soundSeDefPlayWithVolumeRate(int a0, int a1, void *a2, int a3);
+extern void func_00179710(int a0, int a1, int a2, int a3, int a4, float f0, float f1, float f2, float f3, float f4, float f5);
+extern float D_0062992C, D_00629928, D_00629930;
+void actSt13cCageFallChk(volatile int a0) {
+    struct CFS buf;
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    buf = D_00614BB0;
+    soundSeDefPlayWithVolumeRate(0x527, 0, &buf, 1);
+    soundSeDefPlayWithVolumeRate(0x528, 0, &buf, 1);
+    soundSeDefPlayWithVolumeRate(0x529, 0, &buf, 1);
+    func_00179710(a0, 0x4D, 0x154, 0, 0x12, D_0062992C, -100.0f, D_00629928, D_00629930, -100.0f, D_00629928);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cConte05);
 

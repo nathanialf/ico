@@ -109,7 +109,32 @@ void actSt03tGirlCamEvent(volatile int a0){ long long b1[2]; long long b2[2];
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tGirlCamStartChk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tGirlCamEndChk);
+#include "common.h"
+extern void scpDispOnAllWithKind(void);
+extern void func_00178DD8(int a0);
+extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
+extern void _ACTWait(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int func_0012A958(int a0);
+extern void AddWayPointTop(int a0, int a1);
+extern void lt_fade_status(int a0);
+extern void scpActivateAllWithKind(void);
+extern int D_0062BC78;
+extern int D_0062A894;
+void actSt03tGirlCamEndChk(volatile int a0) {
+    scpDispOnAllWithKind();
+    func_00178DD8(0x69);
+    scpPlayStart(0x5E, (int)&D_0062BC78, 1, 1, 1);
+    while (D_0062BC78 == 0) { _ACTWait(1); }
+    stage_KillPlayBgAnimation(0x54, 1, 0);
+    stage_KillPlayBgAnimation(0x55, 1, 0);
+    while (func_0012A958(0x55) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    AddWayPointTop(0x1A, 1);
+    D_0062A894 = 0;
+    lt_fade_status(0x32);
+    scpActivateAllWithKind();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tSekizoEvent);
 

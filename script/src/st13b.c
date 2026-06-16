@@ -135,7 +135,31 @@ void actSt13bElev(int a0) {
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bDoor);
+#include "common.h"
+extern void _ACTWait(int a0);
+extern int scpSleepEnemyOne(int a0, int *a1, float f);
+extern void lt_fade_status(int a0);
+extern void func_00178DD8(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int func_0012A958(int a0);
+extern int *D_00629DE4;
+extern int D_0062A894;
+void actSt13bDoor(volatile int a0) {
+    while (scpSleepEnemyOne(a0, D_00629DE4, 100.0f) == 0) {
+        _ACTWait(1);
+    }
+    lt_fade_status(0x33);
+    func_00178DD8(0x73);
+    D_0062A894 = 1;
+    _ACTWait(1);
+    stage_KillPlayBgAnimation(0x13F, 1, 0);
+    while (func_0012A958(0x13F) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    lt_fade_status(0x32);
+    D_0062A894 = 0;
+}
 
 void actBossTest(int a0) {
     int buf[4];

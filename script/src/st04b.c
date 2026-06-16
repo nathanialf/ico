@@ -1,6 +1,32 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04b", actSt04bEnd);
+#include "common.h"
+extern void _ACTWait(int a0);
+extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern void lt_fade_status(int a0);
+extern void func_0017A040(int a0);
+extern void func_00178DD8(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int func_0012A958(int a0);
+extern void func_0017A008(int a0);
+extern void *D_00629DE8;
+extern int D_00629DE4;
+extern int D_0062A894;
+void actSt04bEnd(volatile int a0) {
+    if (D_00629DE8 == 0) { _ACTWait(0); }
+    while (scpSleepEnemyOne(a0, D_00629DE4, 100.0f) == 0) { _ACTWait(1); }
+    lt_fade_status(0x33);
+    D_0062A894 = 1;
+    func_0017A040(0xD57);
+    func_00178DD8(0x5D);
+    func_00178DD8(0x5E);
+    stage_KillPlayBgAnimation(0x44, 1, 0);
+    while (func_0012A958(0x44) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    lt_fade_status(0x32);
+    D_0062A894 = 0;
+    func_0017A008(0xD57);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04b", actSt04bSekizoChk);
 
@@ -70,7 +96,33 @@ void actSt04bGirlWay(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04b", func_00213960);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04b", func_00214368);
+#include "common.h"
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void lt_fade_status(int a0);
+extern void func_00178DD8(int a0);
+extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
+extern void actConte11Jimaku(float f);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int func_0012A958(int a0);
+extern void actSt25aQueenDead(int a0, int a1, int a2, float f0, float f1);
+extern int D_0062BC94;
+extern int D_00629DE4;
+extern void *D_00629DE8;
+extern int D_0062A894;
+void func_00214368(volatile int a0) {
+    while (func_00178DB0(0x9B) == 0) { _ACTWait(1); }
+    lt_fade_status(0x33);
+    D_0062A894 = 1;
+    func_00178DD8(0x7C);
+    scpPlayStart(0x1C, (int)&D_0062BC94, 1, 1, 1);
+    while (D_0062BC94 == 0) { _ACTWait(1); }
+    actConte11Jimaku(6.0f);
+    stage_KillPlayBgAnimation(0x103, 1, 0);
+    while (func_0012A958(0x103) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    actSt25aQueenDead(4, D_00629DE4, (int)D_00629DE8, 1.0f, 8.0f);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04b", func_00214468);
 

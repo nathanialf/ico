@@ -34,7 +34,23 @@ void func_00230B20(int a0) {
     _ACTWait(0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", func_00230B70);
+#include "common.h"
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern int scpSleepSpiderGroupOne(void *a0, int a1);
+extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
+extern void *D_00629DE4;
+extern int D_0062BDE8;
+void func_00230B70(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    while (scpSleepSpiderGroupOne(D_00629DE4, 0x2000000) == 0 || func_00178DB0(0x13) == 0) {
+        _ACTWait(1);
+    }
+    scpPlayStart(0xF, (int)&D_0062BDE8, 1, 1, 0);
+}
 
 void func_00230BF0(int a0) {
     int buf[4];

@@ -76,95 +76,152 @@ typedef struct {
 } PakBuf;
 extern PakBuf D_004C3850;
 
-void pac_getWeight(int a0, int a1, int a2, int a3, int a4) {
-    int w = 0xFFFF;
-
-    switch (a0) {
+void pac_getWeight(int a0, int a1, int a2, int a3, int a4)
+{
+  int new_var;
+  int w = 0xFFFF;
+  switch (a0)
+  {
     case 0:
-        switch (a1) {
-        case 0:
-            switch (a3) {
-            case -1: w = 0x22; break;
-            case 2:  w = 0x24; break;
-            default: w = 0x20; break;
-            }
-            break;
-        case 3:
-            w = 0x26;
-            break;
+      switch (a1)
+    {
+      case 0:
+        switch (a3)
+      {
+        case -1:
+          w = 0x22;
+          break;
+
+        case 2:
+          w = 0x24;
+          break;
+
         default:
-            switch (a2) {
-            case 0:  w = (a3 == 2) ? 0x24 : 0x20; break;
-            case 1:  w = 0x22; break;
-            case 2:  w = 0x26; break;
-            }
-            break;
-        }
+          w = 0x20;
+          break;
+
+      }
+
         break;
+
+      case 3:
+        w = 0x26;
+        break;
+
+      default:
+        switch (a2)
+      {
+        case 0:
+          w = (a3 == 2) ? (0x24) : (0x20);
+          break;
+
+        case 1:
+          w = 0x22;
+          break;
+
+        case 2:
+          w = 0x26;
+          break;
+
+      }
+
+        break;
+
+    }
+
+      break;
+
     case 1:
-        if (a1 != 0) {
-            if (a3 == -1) {
-                if (a2 == 0) goto c1_aff4;
-                if (a2 != a0) goto Lret;
-                w = 0x16;
-                break;
-            } else {
-                if (a2 == 0) goto c1_aff4;
-                if (a2 == a0) goto c1_w16;
-                goto Lret;
-            }
-        } else {
-            w = 0x14;
+      if (a1 != 0)
+    {
+      if (a3 == (-1))
+      {
+        if (a2 == 0)
+        {
+          goto c1_aff4;
         }
-        break;
-    c1_aff4:
-        w = (D_0062AFF4 != 1) ? 0x14 : 0x18;
-        break;
-    c1_w16:
+        if (a2 != a0)
+        {
+          goto Lret;
+        }
         w = 0x16;
         break;
-    case 2:
-        if (a1 == 0) {
-            w = 0x14;
-        } else {
-            w = (D_0062AFF4 == 0) ? 0x16 : 0x18;
+      }
+      else
+      {
+        if (a2 == 0)
+        {
+          goto c1_aff4;
         }
-        break;
-    case 3:
-        w = 0x12;
-        break;
+        if (a2 == a0)
+        {
+          goto c1_w16;
+        }
+      }
     }
-
-    if (w == 0xFFFF) {
-        goto Lret;
-    }
-
+    else
     {
-        volatile int *p = D_004C3850.cur;
-        D_004C3850.f_18 = 0;
-        D_004C3850.tag = p;
-        D_004C3850.start = p;
-        D_004C3850.f_1C = 0;
-        *(volatile unsigned long long *)p = 0x10000000;
-        D_004C3850.cur = p + 2;
-        p[2] = 0x15000000 | w;
-        D_004C3850.cur = p + 3;
-        p[3] = 0x13000000;
-        D_004C3850.cur = p + 4;
-        D_004C3850.tag = p + 4;
-        *(volatile unsigned long long *)(p + 4) = 0x60000000;
-        D_004C3850.cur = p + 6;
-        p[6] = 0;
-        D_004C3850.cur = p + 7;
-        p[7] = 0;
-        D_004C3850.cur = p + 8;
-        dpk_SwapBuffer(a4);
-        dpk_Init(5, (int)D_004C3850.start, 0);
-        dl_GetPri();
-        return;
+      w = 0x14;
     }
-Lret:
+      break;
+      new_var = 0x16;
+      c1_aff4:
+    w = (D_0062AFF4 != 1) ? (0x14) : (0x18);
+
+      break;
+      c1_w16:
+    w = new_var;
+
+      break;
+
+    case 2:
+      if (a1 == 0)
+    {
+      w = 0x14;
+    }
+    else
+    {
+      w = (D_0062AFF4 == 0) ? (0x16) : (0x18);
+    }
+      break;
+
+    case 3:
+      w = 0x12;
+      break;
+
+  }
+
+  if (w == 0xFFFF)
+  {
+    goto Lret;
+  }
+  {
+    volatile int *p = D_004C3850.cur;
+    D_004C3850.f_18 = 0;
+    D_004C3850.tag = p;
+    D_004C3850.start = p;
+    D_004C3850.f_1C = 0;
+    *((volatile unsigned long long *) p) = 0x10000000;
+    D_004C3850.cur = p + 2;
+    p[2] = 0x15000000 | w;
+    D_004C3850.cur = p + 3;
+    p[3] = 0x13000000;
+    D_004C3850.cur = p + 4;
+    D_004C3850.tag = p + 4;
+    *((volatile unsigned long long *) (p + 4)) = 0x60000000;
+    D_004C3850.cur = p + 6;
+    p[6] = 0;
+    D_004C3850.cur = p + 7;
+    p[7] = 0;
+    D_004C3850.cur = p + 8;
+    dpk_SwapBuffer(a4);
+    dpk_Init(5, (int) D_004C3850.start, 0);
+    dl_GetPri();
     return;
+  }
+  Lret:
+  return;
+
 }
 
 extern int D_00272580[];

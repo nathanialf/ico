@@ -53,7 +53,38 @@ void func_002320A0(int a0) {
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st24a", func_002320B0);
+#include "common.h"
+extern void lt_fade_status(int a0);
+extern void func_00178DD8(int a0);
+extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+extern void actCreateSubThread(void *fn, int a1);
+extern void func_00232170();
+extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
+extern void _ACTWait(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void func_0018A380(void);
+extern int func_0012A958(int a0);
+extern int D_00629DE8;
+extern int D_00629DE4;
+extern int D_0062BDF0;
+extern int D_0062A894;
+void func_002320B0(volatile int a0) {
+    lt_fade_status(0x33);
+    D_0062A894 = 1;
+    func_00178DD8(0x20);
+    if (D_00629DE8 != 0) {
+        iosOmBeforeFuncStandard(D_00629DE8, 0x3A, D_00629DE4);
+        actCreateSubThread(func_00232170, 0x15);
+    }
+    scpPlayStart(0x33, (int)&D_0062BDF0, 1, 1, 1);
+    _ACTWait(1);
+    stage_KillPlayBgAnimation(0x46, 1, 0);
+    func_0018A380();
+    while (func_0012A958(0x46) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    lt_fade_status(0x32);
+    D_0062A894 = 0;
+}
 
 extern void actSt25aQueenTalkChk(int a0, int a1, int *buf, int a3, float f);
 extern int D_00629DE8;

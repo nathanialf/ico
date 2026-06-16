@@ -48,7 +48,34 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04e", func_00217538);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04e", func_002175E0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04e", func_00217668);
+#include "common.h"
+extern void lt_fade_status(int a0);
+extern void actCreateSubThread(void *fn, int a1);
+extern void func_00217730();
+extern void scpDispOnAllWithKind(void);
+extern void _ACTWait(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int func_0012A958(int a0);
+extern int actSt25aQueenDeadChk(int a0);
+extern void scpActivateAllWithKind(void);
+extern void AddWayPointTop(int a0, int a1);
+extern int D_0062A894;
+void func_00217668(volatile int a0) {
+    lt_fade_status(0x33);
+    actCreateSubThread(func_00217730, 0x15);
+    scpDispOnAllWithKind();
+    _ACTWait(0x3C);
+    stage_KillPlayBgAnimation(0xE9, 1, 0);
+    stage_KillPlayBgAnimation(0xE8, -1, -2);
+    while (func_0012A958(0xE9) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    *(int *)(actSt25aQueenDeadChk(0x495) + 0x16C) = 1;
+    *(int *)(actSt25aQueenDeadChk(0x494) + 0x16C) = 0;
+    D_0062A894 = 0;
+    lt_fade_status(0x32);
+    scpActivateAllWithKind();
+    AddWayPointTop(5, 1);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04e", func_00217730);
 
@@ -141,4 +168,31 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04e", func_00217CF0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04e", func_00217E18);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04e", func_00217F40);
+#include "common.h"
+extern void lt_fade_status(int a0);
+extern void scpDispOnAllWithKind(void);
+extern void func_00178DD8(int a0);
+extern void _ACTWait(int a0);
+extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int func_0012A958(int a0);
+extern int actSt25aQueenDeadChk(int a0);
+extern void scpActivateAllWithKind(void);
+extern int D_0062BCD0;
+extern int D_0062A894;
+void func_00217F40(volatile int a0) {
+    lt_fade_status(0x33);
+    scpDispOnAllWithKind();
+    func_00178DD8(0xA0);
+    _ACTWait(0x3C);
+    scpPlayStart(0x50, (int)&D_0062BCD0, 1, 1, 1);
+    while (D_0062BCD0 == 0) { _ACTWait(1); }
+    stage_KillPlayBgAnimation(0xBA, 1, 0);
+    while (func_0012A958(0xBA) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    *(int *)(actSt25aQueenDeadChk(0x453) + 0x16C) = 1;
+    *(int *)(actSt25aQueenDeadChk(0x454) + 0x16C) = 1;
+    scpActivateAllWithKind();
+    D_0062A894 = 0;
+    lt_fade_status(0x32);
+}

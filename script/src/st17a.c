@@ -20,7 +20,28 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aDoorUpChk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aDoorDownChk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aHasiChk);
+#include "common.h"
+extern void _ACTWait(int a0);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern int func_00178DB0(int a0);
+extern void func_00178DD8(int a0);
+extern int D_00629DE8;
+extern int D_00629DE4;
+void actSt17aHasiChk(volatile int a0) {
+    if (D_00629DE8 == 0) {
+        _ACTWait(0);
+    }
+    while (1) {
+        if (scpSleepSpiderGroupOne(D_00629DE8, 0x1000000) != 0 && func_00178DB0(0x10A) != 0) {
+            break;
+        }
+        if (scpSleepSpiderGroupOne(D_00629DE4, 0x2000000) != 0 && scpSleepSpiderGroupOne(D_00629DE8, 0x2000000) != 0) {
+            break;
+        }
+        _ACTWait(1);
+    }
+    func_00178DD8(0x10B);
+}
 
 extern int D_00629DE8;
 extern void _ACTWait(int a0);
@@ -38,7 +59,32 @@ void actSt17aHasiEffect(volatile int a0) {
     func_00178DD8(0x10A);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actLinkTest);
+#include "common.h"
+extern void _ACTWait(int a0);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void lt_fade_status(int a0);
+extern void func_00178DD8(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int func_0012A958(int a0);
+extern int D_00629DE8;
+extern int D_00629DE4;
+extern int D_0062A894;
+void actLinkTest(volatile int a0) {
+    while (D_00629DE8 == 0 || scpSleepSpiderGroupOne(D_00629DE4, 0x4000000) == 0) {
+        _ACTWait(1);
+    }
+    lt_fade_status(0x33);
+    D_0062A894 = 1;
+    _ACTWait(0x1E);
+    func_00178DD8(0x10C);
+    stage_KillPlayBgAnimation(0x159, 1, 0);
+    while (func_0012A958(0x159) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    lt_fade_status(0x32);
+    D_0062A894 = 0;
+}
 
 void actSt17aSekizo(int a0) {
     int buf[4];
@@ -143,7 +189,40 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aDoorDownEffect);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aHasiEvent);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aIntroChk);
+#include "common.h"
+extern void lt_fade_status(int a0);
+extern void scpDispOnAllWithKind(void);
+extern void func_00178DD8(int a0);
+extern int actSt25aQueenDeadChk(int a0);
+extern void _ACTWait(int a0);
+extern void scpPlayStart(int a0, void *a1, int a2, int a3, int a4);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
+extern void soundSeDefPitchSet(int a0);
+extern void iosPadDevRead(int a0, int a1);
+extern void scpActivateAllWithKind(void);
+extern int D_0062BD8C;
+extern int D_00629DEC;
+extern int D_0062A894;
+void actSt17aIntroChk(volatile int a0) {
+    int s;
+    lt_fade_status(0x33);
+    scpDispOnAllWithKind();
+    func_00178DD8(0x114);
+    *(int *)(actSt25aQueenDeadChk(0x5E6) + 0x16C) = 1;
+    _ACTWait(0x1E);
+    scpPlayStart(0x5B, &D_0062BD8C, 1, 1, 1);
+    while (D_0062BD8C == 0) { _ACTWait(1); }
+    stage_KillPlayBgAnimation(0x15E, 1, 0);
+    s = soundSeDefPlayWithVolumeRate(0x4EF, 0, 0, 1);
+    _ACTWait(0xB4);
+    soundSeDefPitchSet(s);
+    soundSeDefPlayWithVolumeRate(0x4F0, 0, 0, 1);
+    iosPadDevRead(D_00629DEC, 0x11);
+    scpActivateAllWithKind();
+    D_0062A894 = 0;
+    lt_fade_status(0x32);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aGirlWay);
 

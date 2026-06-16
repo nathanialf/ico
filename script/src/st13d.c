@@ -39,7 +39,35 @@ void actSt13dExitL(volatile int a0) {
     scpActivateAllWithKind();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13d", actSt13dInit);
+#include "common.h"
+extern void lt_fade_status(int a0);
+extern void scpDispOnAllWithKind(void);
+extern void func_00178DD8(int a0);
+extern void _ACTWait(int a0);
+extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void func_0018A380(void);
+extern int func_0012AA28(int a0, int a1, int a2);
+extern int actSt25aQueenDeadChk(int a0);
+extern void scpActivateAllWithKind(void);
+extern int D_0062BD7C;
+extern int D_0062A894;
+void actSt13dInit(volatile int a0) {
+    lt_fade_status(0x33);
+    scpDispOnAllWithKind();
+    func_00178DD8(0x105);
+    _ACTWait(0x1E);
+    scpPlayStart(0x5F, (int)&D_0062BD7C, 1, 1, 1);
+    while (D_0062BD7C == 0) { _ACTWait(1); }
+    stage_KillPlayBgAnimation(0x15C, 1, 0);
+    func_0018A380();
+    while (func_0012AA28(0x15C, 0xF0, 0) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    *(int *)(actSt25aQueenDeadChk(0x382) + 0x16C) = 1;
+    scpActivateAllWithKind();
+    D_0062A894 = 0;
+    lt_fade_status(0x32);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13d", func_002292F0);
 

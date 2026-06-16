@@ -50,7 +50,36 @@ void actExplode(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st99a", actSplash1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st99a", actSplash2);
+#include "common.h"
+extern void lt_fade_status(int a0);
+extern void _ACTWait(int a0);
+extern void scpPlayStart(int a0, void *a1, int a2, int a3, int a4);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void func_00178DD8(int a0);
+extern void func_0018A380(void);
+extern int func_0012AA28(int a0, int a1, int a2);
+extern int actSt25aQueenDeadChk(int a0);
+extern void scpTrans(int a0, int a1);
+extern int D_0062BE08;
+extern int D_0062A894;
+void actSplash2(volatile int a0) {
+    lt_fade_status(0x33);
+    _ACTWait(0x3C);
+    scpPlayStart(0x5F, &D_0062BE08, 1, 1, 1);
+    while (D_0062BE08 == 0) { _ACTWait(1); }
+    stage_KillPlayBgAnimation(0x7B, 1, 0);
+    func_00178DD8(0x11D);
+    func_0018A380();
+    while (func_0012AA28(0x7B, 0xF0, 1) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    *(int *)(actSt25aQueenDeadChk(0x6F4) + 0x16C) = 1;
+    stage_KillPlayBgAnimation(0x7B, 0, 0x169);
+    if (D_0062BE08 != 0) {
+        scpTrans(D_0062BE08, 0x100);
+    }
+    D_0062A894 = 0;
+    lt_fade_status(0x32);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st99a", actWave);
 
@@ -95,11 +124,59 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st99a", actSplash1Chk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st99a", actSplash2Chk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st99a", actWaveChk);
+#include "common.h"
+extern void lt_fade_status(int a0);
+extern void _ACTWait(int a0);
+extern void scpPlayStart(int a0, void *a1, int a2, int a3, int a4);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void func_00178DD8(int a0);
+extern int func_0012AA28(int a0, int a1, int a2);
+extern void scpTrans(int a0, int a1);
+extern int D_0062BDF8;
+extern int D_0062A894;
+void actWaveChk(volatile int a0) {
+    lt_fade_status(0x33);
+    _ACTWait(0x3C);
+    scpPlayStart(0x48, &D_0062BDF8, 1, 1, 1);
+    while (D_0062BDF8 == 0) { _ACTWait(1); }
+    stage_KillPlayBgAnimation(0x79, 1, 0);
+    func_00178DD8(0x11A);
+    while (func_0012AA28(0x79, 0x59, 1) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    _ACTWait(0x78);
+    if (D_0062BDF8 != 0) {
+        scpTrans(D_0062BDF8, 0x100);
+    }
+    D_0062A894 = 0;
+    lt_fade_status(0x32);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st99a", actWave1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st99a", actSt27aWaveChk);
+#include "common.h"
+extern void _ACTWait(int a0);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void lt_fade_status(int a0);
+extern void func_00178DD8(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int func_0012A958(int a0);
+extern int D_00629DE4;
+extern int D_0062A894;
+void actSt27aWaveChk(volatile int a0) {
+    while (scpSleepSpiderGroupOne(D_00629DE4, 0x1000000) == 0) {
+        _ACTWait(1);
+    }
+    lt_fade_status(0x33);
+    D_0062A894 = 1;
+    func_00178DD8(0x11E);
+    stage_KillPlayBgAnimation(0x74, 1, 0);
+    while (func_0012A958(0x74) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    lt_fade_status(0x32);
+    D_0062A894 = 0;
+}
 
 extern int func_00178DB0(int a0);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);

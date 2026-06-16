@@ -34,15 +34,137 @@ void actSt19aOri(int a0) {
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19aOriXL);
+#include "common.h"
+extern void _ACTWait(int a0);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void lt_fade_status(int a0);
+extern void func_001790A8(int a0);
+extern void gflagOff(int a0, int a1);
+extern void func_00178DD8(int a0);
+extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
+extern void actCreateSubThread(void *fn, int a1);
+extern void actSt19aPipe();
+extern int D_00629DE4;
+extern int D_0062BDB8;
+extern int D_0062A894;
+void actSt19aOriXL(volatile int a0) {
+    while (scpSleepSpiderGroupOne(D_00629DE4, 0x1000000) == 0) { _ACTWait(1); }
+    lt_fade_status(0x33);
+    D_0062A894 = 1;
+    func_001790A8(D_00629DE4);
+    gflagOff(D_00629DE4, 0);
+    func_00178DD8(0xC);
+    scpPlayStart(0x22, (int)&D_0062BDB8, 1, 1, 1);
+    while (D_0062BDB8 == 0) { _ACTWait(1); }
+    actCreateSubThread(actSt19aPipe, 0x15);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19aPipe);
+#include "common.h"
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int stage_DispBgAnimation(int a0, int a1);
+extern void _ACTWait(int a0);
+extern void gflagOff(int a0, int a1);
+extern void func_0018A380(void);
+extern int func_0012A958(int a0);
+extern void func_001790E8(int a0);
+extern void lt_fade_status(int a0);
+extern int D_00629DE4;
+extern int D_0062A894;
+void actSt19aPipe(volatile int a0) {
+    stage_KillPlayBgAnimation(0x2AD, 1, 0);
+    while (stage_DispBgAnimation(0x2AD, 0x2AE) == 0) { _ACTWait(1); }
+    gflagOff(D_00629DE4, 0x189);
+    func_0018A380();
+    while (func_0012A958(0x2AE) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    gflagOff(D_00629DE4, 0);
+    func_001790E8(D_00629DE4);
+    D_0062A894 = 0;
+    lt_fade_status(0x32);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19aPipeXL);
+#include "common.h"
+extern void _ACTWait(int a0);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void lt_fade_status(int a0);
+extern void func_00178DD8(int a0);
+extern void func_001790A8(int a0);
+extern void gflagOff(int a0, int a1);
+extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
+extern void actCreateSubThread(void *fn, int a1);
+extern void actSt18aEne2();
+extern int D_00629DE4;
+extern int D_0062BDC0;
+extern int D_0062BDBC;
+extern float D_0062A898;
+extern int D_0062A894;
+void actSt19aPipeXL(volatile int a0) {
+    while (scpSleepSpiderGroupOne(D_00629DE4, 0x2000000) == 0) { _ACTWait(1); }
+    lt_fade_status(0x33);
+    func_00178DD8(0xD);
+    D_0062A894 = 1;
+    func_001790A8(D_00629DE4);
+    gflagOff(D_00629DE4, 0);
+    scpPlayStart(0x23, (int)&D_0062BDC0, 1, 1, 1);
+    while (D_0062BDC0 == 0) { _ACTWait(1); }
+    D_0062A898 = 0.5f;
+    actCreateSubThread(actSt18aEne2, 0x15);
+    scpPlayStart(0x24, (int)&D_0062BDBC, 1, 0, 0);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19aChain);
+#include "common.h"
+extern int itou_boss_gflag_init(void);
+extern void _ACTWait(int a0);
+extern void lt_fade_status(int a0);
+extern void func_001790A8(int a0);
+extern void gflagOff(int a0, int a1);
+extern void func_00178DD8(int a0);
+extern void soundSeVolSet(int a0);
+extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
+extern void actCreateSubThread(void *fn, int a1);
+extern void actSt19bIntro();
+extern int D_00629DE4;
+extern int D_0062BDBC;
+extern int D_0062BDC4;
+extern int D_0062A894;
+void actSt19aChain(volatile int a0) {
+    while (itou_boss_gflag_init() == 0) { _ACTWait(1); }
+    lt_fade_status(0x33);
+    D_0062A894 = 1;
+    func_001790A8(D_00629DE4);
+    gflagOff(D_00629DE4, 0);
+    func_00178DD8(0xE);
+    if (D_0062BDBC != 0) {
+        soundSeVolSet(D_0062BDBC);
+    }
+    _ACTWait(0x78);
+    scpPlayStart(0x25, (int)&D_0062BDC4, 1, 1, 1);
+    while (D_0062BDC4 == 0) { _ACTWait(1); }
+    actCreateSubThread(actSt19bIntro, 0x15);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19bIntro);
+#include "common.h"
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int func_0012AA28(int a0, int a1, int a2);
+extern void _ACTWait(int a0);
+extern int func_0012A958(int a0);
+extern void gflagOff(int a0, int a1);
+extern void func_001790E8(int a0);
+extern void lt_fade_status(int a0);
+extern int D_00629DE4;
+extern int D_0062A894;
+void actSt19bIntro(volatile int a0) {
+    stage_KillPlayBgAnimation(0x2B0, 1, 0);
+    while (func_0012AA28(0x2B0, 0x12C, 0) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    stage_KillPlayBgAnimation(0x22, 1, 0);
+    while (func_0012A958(0x2B0) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    gflagOff(D_00629DE4, 0);
+    func_001790E8(D_00629DE4);
+    D_0062A894 = 0;
+    lt_fade_status(0x32);
+}
 
 extern void _ACTWait(int a0);
 extern int func_00178DB0(int a0);
@@ -61,7 +183,28 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19aOriSwitch);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19aOriUp);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19aChainMain);
+#include "common.h"
+extern void lt_fade_status(int a0);
+extern void func_00178DD8(int a0);
+extern void _ACTWait(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
+extern int func_0012A958(int a0);
+extern int D_004CE0D0[];
+extern int D_0062A894;
+void actSt19aChainMain(volatile int a0) {
+    lt_fade_status(0x33);
+    func_00178DD8(0x10);
+    _ACTWait(0x3C);
+    stage_KillPlayBgAnimation(0x28, 1, 0);
+    soundSeDefPlayWithVolumeRate(0x4AD, 0, (int)D_004CE0D0, 1);
+    _ACTWait(0x1E);
+    soundSeDefPlayWithVolumeRate(0x4AE, 0, (int)D_004CE0D0, 1);
+    while (func_0012A958(0x28) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    D_0062A894 = 0;
+    lt_fade_status(0x32);
+}
 
 extern void Generator_Mask(int a0);
 extern void Generator_ResetCount(int a0);

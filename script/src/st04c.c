@@ -2,7 +2,7 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cEnd);
 
-extern void actInitialize(int a0);
+extern int actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
@@ -42,7 +42,33 @@ void actSt04cEnemy1(void *a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cEnemy2);
+#include "common.h"
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void _deleteStreamMotionManager(int *a0);
+extern void debug_assertMessage();
+extern int DeleteStreamMotionManager(void);
+extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
+extern int D_00629DE8;
+extern int D_0060AE20[];
+extern int D_00614650[];
+extern int D_0062BC8C;
+void actSt04cEnemy2(volatile int a0) {
+    int i;
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    while (D_00629DE8 == 0 || scpSleepSpiderGroupOne(D_00629DE8, 0x2000000) == 0) { _ACTWait(1); }
+    _deleteStreamMotionManager(D_0060AE20);
+    i = 0;
+    while (DeleteStreamMotionManager() == 0) {
+        i++;
+        debug_assertMessage(D_00614650, i);
+        _ACTWait(1);
+    }
+    scpPlayStart(0x1F, (int)&D_0062BC8C, 1, 0, 0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cWaterXL);
 
@@ -52,7 +78,38 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cDoorDownEffect);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cEneChk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cIntroChk);
+#include "common.h"
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void lt_fade_status(int a0);
+extern void func_0017A040(int a0);
+extern void func_00178E08(int a0);
+extern void func_00178DD8(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void func_0018A380(void);
+extern int func_0012A958(int a0);
+extern void func_0017A008(int a0);
+extern int D_00629DE8;
+extern int D_0062A894;
+void actSt04cIntroChk(volatile int a0) {
+    if (D_00629DE8 == 0) { _ACTWait(0); }
+    while (func_00178DB0(0x7C) == 0 || scpSleepSpiderGroupOne(D_00629DE8, 0x1000000) == 0) { _ACTWait(1); }
+    lt_fade_status(0x33);
+    D_0062A894 = 1;
+    func_0017A040(0xD57);
+    func_00178E08(0x165);
+    _ACTWait(0x3C);
+    func_00178DD8(0x8C);
+    func_00178DD8(0x8D);
+    stage_KillPlayBgAnimation(0xA2, 1, 0);
+    func_0018A380();
+    while (func_0012A958(0xA2) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    lt_fade_status(0x32);
+    D_0062A894 = 0;
+    func_0017A008(0xD57);
+}
 
 extern void gflagInit(int a0);
 void actSt04lDoorEvent(volatile int a0){ int x=a0; actInitialize(a0); _ACTWait(1);

@@ -52,7 +52,25 @@ void actSt00aStair(int a0) {
     backStageProcessOutStage(1);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aAtr2);
+#include "common.h"
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void debug_assertMessage();
+extern void func_00178DD8(int a0);
+extern void actSt25aQueenDead(int a0, int a1, int a2, float f0, float f1);
+extern char D_00614510[];
+extern char D_00614520[];
+extern int D_00629DE4;
+void actSt00aAtr2(volatile int a0) {
+    _ACTWait(1);
+    while (func_00178DB0(0x15C) == 0) {
+        _ACTWait(1);
+    }
+    debug_assertMessage(D_00614510);
+    debug_assertMessage(D_00614520);
+    func_00178DD8(2);
+    actSt25aQueenDead(1, D_00629DE4, 0, 0.25f, 2.0f);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aAtr2Chk);
 
@@ -81,7 +99,38 @@ void actSt00aDoor2DownEffect(void) {
     func_00178DD8(0x165);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aDoor1Event);
+#include "common.h"
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void lt_fade_status(int a0);
+extern void func_00178DD8(int a0);
+extern void func_0017A040(int a0);
+extern void func_00178E08(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int func_0012A958(int a0);
+extern void func_0017A008(int a0);
+extern int D_00629DE8;
+extern int D_0062A894;
+void actSt00aDoor1Event(volatile int a0) {
+    if (D_00629DE8 == 0) { _ACTWait(0); }
+    while (func_00178DB0(0x27) == 0 || func_00178DB0(0x23) != 0) { _ACTWait(1); }
+    lt_fade_status(0x33);
+    D_0062A894 = 1;
+    func_00178DD8(0x24);
+    func_0017A040(0xD57);
+    func_00178E08(0x165);
+    _ACTWait(0x3C);
+    func_00178DD8(0x25);
+    stage_KillPlayBgAnimation(0x9B, 1, 0);
+    _ACTWait(0x96);
+    while (func_0012A958(0x9B) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    lt_fade_status(0x32);
+    _ACTWait(0x78);
+    D_0062A894 = 0;
+    func_00178E08(0x24);
+    func_0017A008(0xD57);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aDoor1UpEffect);
 

@@ -55,7 +55,27 @@ void actSt47aExit(int a0) {
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st47a", actSt47aExit2);
+#include "common.h"
+extern void _ACTWait(int a0);
+extern int scpSleepEnemyOne(int a0, int *a1, float f);
+extern void lt_fade_status(int a0);
+extern void func_00178DD8(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int func_0012A958(int a0);
+extern int *D_00629DE4;
+extern int D_0062A894;
+void actSt47aExit2(volatile int a0) {
+    while (scpSleepEnemyOne(a0, D_00629DE4, 1000.0f) == 0) { _ACTWait(1); }
+    lt_fade_status(0x33);
+    func_00178DD8(0x33);
+    D_0062A894 = 1;
+    _ACTWait(1);
+    stage_KillPlayBgAnimation(0x140, 1, 0);
+    while (func_0012A958(0x140) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    lt_fade_status(0x32);
+    D_0062A894 = 0;
+}
 
 extern int D_00629DE8;
 extern void _ACTWait(int a0);

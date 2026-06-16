@@ -1,6 +1,24 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", actSt05dDoor2);
+#include "common.h"
+extern void _ACTWait(int a0);
+extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern void lt_fade_status(int a0);
+extern void func_00178DD8(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int func_0012A958(int a0);
+extern int D_00629DE8;
+void actSt05dDoor2(volatile int a0) {
+    if (D_00629DE8 == 0) { _ACTWait(0); }
+    while (scpSleepEnemyOne(a0, D_00629DE8, 200.0f) == 0) { _ACTWait(1); }
+    lt_fade_status(0x33);
+    func_00178DD8(0xAA);
+    _ACTWait(0xA);
+    stage_KillPlayBgAnimation(0xC9, 1, 0);
+    while (func_0012A958(0xC9) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    lt_fade_status(0x32);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", actSt05dDoor2UpChk);
 

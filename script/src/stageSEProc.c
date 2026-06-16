@@ -30,7 +30,7 @@ void stageSE03tnotSuiro(volatile int a0){ int x=a0;
  while(func_00178DB0(0x123)==0){ _ACTWait(1); }
  _ACTWait(1); Generator_MaskOff(a0); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); }
 
-extern void actInitialize(int a0);
+extern int actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern int func_00178DB0(int a0);
 extern void Generator_Mask(int a0);
@@ -73,7 +73,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", stageSE08astrong);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", stageSE08astrong2);
 
-extern void actInitialize(int a0);
+extern int actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 

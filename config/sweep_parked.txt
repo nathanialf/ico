@@ -1029,3 +1029,80 @@ actCommonRopeCliff  # rc24 clean state-machine; shared-block goto CFG + tail cal
 func_0014A150       # rc43 clean float-branch; frame/buf layout + movz; deep-pass
 isysGObjAdd         # rc19 clean pool-alloc; scan-loop i=1 init + assert-merge codegen; deep-pass
 reuse_mblock1       # rc9 rc9: free-list head v0->s0 copy + bne vs beq branch-sense; temp-split held; deep-pass
+actSt04rCrest3Main  # rc10 SPILL volatile-a0 reload; act coroutine x+0xB4 store, rc10
+actSt04rSolarBeamChk# rc10 SPILL: ROM routes volatile a0-capture thru v0+daddu s0,v0; act coroutine rc10 floor
+actSt04rCrest2Main  # rc10 SPILL act-coroutine v0-route floor
+actSt03tSwitchRUpChk# rc10 SPILL act-coroutine v0-route floor
+actSt20aBridgeSwitch# rc10 SPILL act-coroutine v0-route floor
+actSt04aTorchAllFlagfChk# rc8 act-coroutine: int x=a0 dead read + s=actInitialize fixes prologue; residual=sched2 delay-slot (D[1] store into BoxBarSoundOn delay). family floor rc8
+actSt04dDoor2DownEffect# rc8 act-coroutine family floor rc8 (sched2 delay-slot)
+actSt20aGondolaMain # rc8 act-coroutine family floor rc8 (sched2 delay-slot)
+actSt13bSekizo2Chk  # rc8 act-coroutine family floor rc8 (sched2 delay-slot)
+func_00227DC0       # rc8 act-coroutine family floor rc8
+actSt13cCageFallEffect# rc8 act-coroutine family floor rc8
+actSt13cGirlCarryChk# rc8 act-coroutine family floor rc8
+func_0020AAB8       # rc2 wait-loop coroutine; structure matches, trailing-int-arg lever 6->2; residual=2-insn const 0xFF arg delay-slot tiebreak
+func_0021B830       # rc8 act-coroutine family floor rc8 (else variant, same D[1]-delay tiebreak)
+actSt04lDoorChk     # rc13 act-coroutine + QueenDeadChk q-store variant; rc13 (q-store ordering)
+actSt07aEneChk      # rc8 act-coroutine family floor rc8 (else)
+actSt07aEne         # rc8 act-coroutine family floor rc8 (else)
+func_00226010       # rc8 act-coroutine family floor rc8 (else)
+actSt27aEndDemo     # rc4 linear act-coroutine; residual=D[1] store into BoxBarSoundOn delay slot (sched2, volatile no-help)
+actSt27aEndChk      # rc4 linear act-coroutine; D[1]/s-field store delay-slot floor (same as EndDemo)
+func_002175E0       # rc22 boundary-glued: func ends in while(1)_ACTWait + 2nd prologue splat-merged; unmatchable as configured
+scpPlayJump         # rc12 field-based act w/ two BoxBarSoundOn blocks; rc12 store delay-slot scheduling
+actSt10rCageMain    # rc8 act-coroutine double-check + family tail floor rc8
+func_00229A68       # rc8 act-coroutine else-QueenDeadChk + family tail floor rc8
+func_00227268       # rc22 boundary-glued: while(1)_ACTWait + 2nd prologue splat-merged
+func_002071A8       # rc8 act-coroutine pre-check + family tail floor rc8
+actSt10lChainMove   # rc22 boundary-glued while(1)_ACTWait + 2nd prologue
+func_0017DCE0       # rc13 act-coroutine + func_0018F940 + QueenDeadChk q-store variant rc13
+func_0021B8B8       # rc8 family else-variant
+func_0021BA70       # rc8 family else-variant
+actSt07aSekizo      # rc8 family else-variant
+actSt05dDoor2UpChk  # rc13 scpSleep-loop + BoxBarSoundOn tail; %hi hoist into callee-saved s0/s1 before loop not reproduced, rc13
+actSt10rFloorChk    # rc8 family-tail variant
+actSt20aGondolaSwitch# rc8 family-tail variant
+func_00229AF0       # rc8 family-tail variant
+actSt07aIntro       # rc8 family-tail variant
+actSt08bDoorUpChk   # rc15 family-tail variant
+actSt17bTest        # rc8 family-tail + gflagLoad float
+actSt05cEne         # rc22 boundary-glued while(1)_ACTWait + 2nd prologue
+actSt19aOriSwitch   # rc22 boundary-glued while(1)_ACTWait + 2nd prologue
+actSt10rEne         # rc22 boundary-glued while(1)+2nd prologue
+actSt05cEnemy1      # rc22 boundary-glued while(1)+2nd prologue
+actSt05cEnemy2      # rc22 boundary-glued while(1)+2nd prologue
+func_0022B4D8       # rc22 boundary-glued while(1)+2nd prologue
+actSt19aOriUp       # rc22 boundary-glued while(1)+2nd prologue
+stageSE04bstrong    # rc22 boundary-glued while(1)+2nd prologue
+actSt03tSwitchLUpChk# rc8 family variant
+func_0021BAF8       # rc8 family variant
+actE3TitleFrameChk  # rc family variant
+stageSE08astrong2   # rc family variant
+actSt17aSekizoEvent # rc22 boundary-glued
+actE3CageFallChk    # rc22 boundary-glued
+actSt13cCageFallReady# rc22 boundary-glued
+actEndDemo11        # rc4 linear act + family D[1]-delay floor
+func_0021B940       # rc24 family else gflagInit
+func_0021B9D8       # rc24 family else gflagInit
+func_0021BB80       # rc24 family else gflagInit
+actSt07aTsuro       # rc24 family else gflagInit
+actSt07aGene1       # rc24 family else gflagInit
+actSt07aChan        # rc24 family else gflagInit
+actEndDemo05        # rc4 linear act + family D[1]-delay floor
+actSt00aEnemy2      # rc5 linear act + family D[1]-delay floor
+actExplodeChk       # rc5 QueenDeadChk if-block + family tail; D[1]-delay floor + actWave1 in-TU FN
+func_002272F8       # rc2 scpSleepEnemyOne 2-loop coroutine variant
+func_0022B408       # rc1 multi-scpSleep + actBoyBHang branch
+stageSE04eriverDown # rc1 actBoyBHang twin; redundant-load residual
+func_002310B8       # rc12 struct-copy x2 + GetRootMatrixByDObj + preload loop; stack-buffer layout rc12
+actSt10lChain       # rc1 subthread+dual-QueenDeadChk coroutine
+actWaveChk          # rc scpPlayStart 2-loop + beql scpTrans tail
+actSt04lBrg2Chk     # rc2 st04l Brg-cluster twin
+actSt04lRope3Chk    # rc2 st04l Brg-cluster twin
+actSt04lRope4Chk    # rc2 st04l Brg-cluster twin
+actSt04lSekizoChk   # rc2 st04l Brg-cluster twin
+actSt04lGondolaChk  # rc2 st04l Brg-cluster twin
+actSt04lMonyou01Chk # rc2 st04l Brg-cluster twin
+func_00227860       # rc2 triple func_0012AA28 loop coroutine; v0/v1 regalloc tiebreak on trailing D_0062C2B0=1 store
+actSplash1          # rc4 2-loop coroutine; QueenDeadChk store into func_001790E8 delay-slot sched tiebreak
