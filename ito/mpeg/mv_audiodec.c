@@ -118,7 +118,24 @@ int func_002390F0(int self) {
     return -1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", func_00239188);
+extern float DispWireLetter(void *a0);
+extern float D_0062BE50;
+extern int D_0062BE54;
+extern int D_00629C60;
+
+int func_00239188(int self) {
+    float f;
+    if (D_0062BE54 == D_00629C60) {
+        f = D_0062BE50;
+    } else {
+        D_0062BE54 = D_00629C60;
+        f = DispWireLetter((void *)UpdateRootPosition());
+        f = f * 0.5f + 0.5f;
+        D_0062BE50 = f;
+    }
+    *(float *)(self + 0x18) = f;
+    return -1;
+}
 
 int func_002391E8(int *a0) {
     float *p = (float *)a0[0xD];
