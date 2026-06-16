@@ -1106,3 +1106,23 @@ actSt04lGondolaChk  # rc2 st04l Brg-cluster twin
 actSt04lMonyou01Chk # rc2 st04l Brg-cluster twin
 func_00227860       # rc2 triple func_0012AA28 loop coroutine; v0/v1 regalloc tiebreak on trailing D_0062C2B0=1 store
 actSplash1          # rc4 2-loop coroutine; QueenDeadChk store into func_001790E8 delay-slot sched tiebreak
+actSt07aGene2       # rc8 else-branch tail sched: D_004CCFC0[1] store wants BoxBarSoundOn jal delay slot + a1=393 hoist
+actSt10rInit        # rc18 BoxBarSoundOn door-tail family + QueenDeadChk branch sched
+actSt05cDoorDownChk # rc8 BoxBarSoundOn door-tail family floor: D[1] store wants jal delay slot + a1 hoist
+actSt07aInit        # rc8 BoxBarSoundOn door-tail family floor (delay-slot store fill)
+actSt06aTree        # rc8 BoxBarSoundOn door-tail family floor
+func_0022D7F8       # rc8 BoxBarSoundOn door-tail family floor
+actSt13bFloor       # rc8 BoxBarSoundOn door-tail family floor
+func_0022BC58       # rc8 BoxBarSoundOn door-tail family floor
+actSt01bEnemy4      # rc26 door-tail + dual QueenDeadChk 0x16C store sched
+actSt07aGene2_3     # rc8 BoxBarSoundOn door-tail family floor
+actSt18aEneChk      # rc8 BoxBarSoundOn door-tail family floor
+actSt19aPipeChk     # rc8 BoxBarSoundOn door-tail family floor
+actSt10lEneCam3Chk  # rc26 dual-QueenDeadChk door-tail variant sched
+actSt10rFenceDownChk2# rc25 dual-QueenDeadChk door-tail variant sched
+actSt07aGene2_1     # rc8 BoxBarSoundOn door-tail floor
+actSt07aGene2_2     # rc8 BoxBarSoundOn door-tail floor
+func_00207098       # rc8 BoxBarSoundOn door-tail floor
+actSt05bBallXL      # rc8 BoxBarSoundOn door-tail floor
+actSt05bSekizo      # rc8 BoxBarSoundOn door-tail floor
+actSt18aEne2Chk     # rc8 BoxBarSoundOn door-tail floor

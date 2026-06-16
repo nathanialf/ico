@@ -77,7 +77,7 @@ void GirlForceFieldDL(GObj *self) {
 }
 
 extern int D_0062A310;
-extern char D_00611830[];
+const char D_00611830[0x20] = "src/girlForceField.c";
 extern int *iosFree(int heap, int size, const char *file, int line);
 
 int *func_001CF010(int *self, int *src) {

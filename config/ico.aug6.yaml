@@ -349,7 +349,9 @@ segments:
       - [0x50DA90, .rodata, common/src/debug_exception]  # carved jtbl_0060DA90 (migrated)
       - [0x50DAD8, rodata,  src/cod/50DAD8]      # .rodata blob, part 2b (resume)
       - [0x511160, .rodata, sugipon/src/candle]  # carved D_00611160 ("src/candle.c" __FILE__) + D_00611170 (debug log), VMA 0x611160..0x611198
-      - [0x511198, rodata,  src/cod/511198]      # .rodata blob resume after candle strings
+      - [0x511198, rodata,  src/cod/511198]      # .rodata blob resume after candle strings (ends at girlForceField __FILE__)
+      - [0x511830, .rodata, sugipon/src/girlForceField]  # carved D_00611830 ("src/girlForceField.c" __FILE__, VMA 0x611830..0x611850)
+      - [0x511850, rodata,  src/cod/511850]      # .rodata blob resume after girlForceField __FILE__ (fptr table onward)
       - [0x5126F8, .rodata, sugipon/src/multiBgaManager]  # carved D_006126F8 ("src/multiBgaManager.c" __FILE__, VMA 0x6126F8)
       - [0x512710, rodata,  src/cod/512710]      # .rodata blob, part 2b (resume after multiBgaManager)
       - [0x5128B0, .rodata, sugipon/src/particleLayout]  # carved D_006128B0 ("src/particleLayout.c" __FILE__, VMA 0x6128B0)
@@ -363,7 +365,8 @@ segments:
       - [0x52AA80, lit4, src/cod/52AA80]     # .lit4
       - [0x52BA80, sdata, src/cod/52BA80]    # .sdata
       - [0x52C960, .sdata, ito/mpeg/mv_main]  # carved "= %d =\n" (switchThread debug fmt)
-      - [0x52C968, sdata, src/cod/52C968]    # .sdata (resume after mv_main)
+      - [0x52C968, .sdata, ito/mpeg/mv_videodec]  # carved "%s\n" (videoDecEndPut assert fmt, VMA 0x62C968)
+      - [0x52C96C, sdata, src/cod/52C96C]    # .sdata (resume after mv_videodec)
       - { type: sbss, vram: 0x0062DD80, name: src/cod/62DD80 }  # .sbss
       - { type: bss,  vram: 0x0062E180, name: src/cod/62E180 }  # .bss
   - [0x52DD4E]
