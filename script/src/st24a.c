@@ -38,7 +38,15 @@ void func_00231ED0(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st24a", func_00231EE0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st24a", func_00231FC0);
+extern void scpDispOffAllWithKind(int *buf, int a1);
+extern void _ACTWait(int a0);
+extern long long D_00614D50[]; extern long long D_00614D60[];
+void func_00231FC0(volatile int a0){ long long b1[2]; long long b2[2];
+ long long v0a=D_00614D50[0]; long long v0b=D_00614D60[0]; int i;
+ for(i=0;i<0x32;i++){ switch(i){
+  case 0: b1[0]=v0a; b1[1]=D_00614D50[1]; scpDispOffAllWithKind((int*)b1,0); break;
+  case 0x1E: b2[0]=v0b; b2[1]=D_00614D60[1]; scpDispOffAllWithKind((int*)b2,0); break;
+  } _ACTWait(1); } }
 
 void func_002320A0(int a0) {
     int buf[4];
@@ -81,7 +89,18 @@ void func_00232310(volatile int a0) {
     func_00178DD8(0x20);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st24a", func_00232340);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void lt_fade_status(int a0);
+extern void stage_KillPlayBgAnimation(int,int,int);
+extern int func_0012A958(int a0);
+extern int D_00629DE4;
+extern int D_0062A894;
+void func_00232340(volatile int a0){
+ while(scpSleepSpiderGroupOne(D_00629DE4, 0x1000000)==0) _ACTWait(1);
+ lt_fade_status(0x33); D_0062A894 = 1; func_00178DD8(0x22);
+ stage_KillPlayBgAnimation(0x73,1,0);
+ while(func_0012A958(0x73)==0) _ACTWait(1); _ACTWait(1);
+ lt_fade_status(0x32); D_0062A894 = 0; }
 
 extern int D_00629DE8;
 extern int func_00178DB0(int a0);

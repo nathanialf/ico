@@ -74,9 +74,34 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04d", actSt04dDoor2UpEffect);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04d", actSt04dDoor2DownEffect);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04d", func_00216648);
+extern void Generator_Mask(int a0);
+extern void Generator_MaskOff(int a0);
+extern void Generator_Call(int a0);
+void func_00216648(volatile int a0){
+ int x=a0;
+ actInitialize(a0);
+ _ACTWait(1);
+ Generator_Mask(a0);
+ while(func_00178DB0(0x93)==0){ _ACTWait(1); }
+ _ACTWait(1);
+ Generator_MaskOff(a0);
+ Generator_Call(a0);
+ _ACTWait(0x3C);
+ Generator_Call(a0);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04d", func_002166D8);
+void func_002166D8(volatile int a0){
+ int x=a0;
+ actInitialize(a0);
+ _ACTWait(1);
+ Generator_Mask(a0);
+ while(func_00178DB0(0x93)==0){ _ACTWait(1); }
+ _ACTWait(1);
+ Generator_MaskOff(a0);
+ Generator_Call(a0);
+ _ACTWait(0x3C);
+ Generator_Call(a0);
+}
 
 void func_00216768(volatile int a0) {
     int x = a0;

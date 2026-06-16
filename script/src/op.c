@@ -39,14 +39,17 @@ void actSt24aConte01_2(volatile int a0) {
 
 extern void func_00178DD8(int a0);
 extern void actCreateSubThread(void *entry, int a1);
-extern void actSt13aConte01_3(void);
+extern void actSt13aConte01_3();
 
 void actOpDemo03Chk(volatile int a0) {
     func_00178DD8(0x137);
     actCreateSubThread(actSt13aConte01_3, 0x15);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actSt13aConte01_3);
+void actSt13aConte01_3(volatile int a0){
+ func_0017A0F8(6); stage_KillPlayBgAnimation(0x2F8,1,0);
+ while(func_0012A958(0x2F8)==0) _ACTWait(1); _ACTWait(1);
+ actSt25aQueenDead(6, D_00629DE4, D_00629DE8, 1.0f, 8.0f); }
 
 extern void func_00178E08(int a0);
 extern void actEndDemo01(void);
@@ -63,14 +66,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actSt26aConte01_1_newgame);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actOpDemo02Chk);
 
-extern void func_0020AA00(void);
+extern void func_0020AA00();
 
 void actSt24aConte01_2_Jimaku(volatile int a0) {
     func_00178DD8(0x13D);
     actCreateSubThread(func_0020AA00, 0x15);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", func_0020AA00);
+extern void func_0017A0F8(int a0);
+extern void func_001790A8(int a0);
+void func_0020AA00(volatile int a0){
+ func_0017A0F8(2); func_001790A8(D_00629DE4); stage_KillPlayBgAnimation(0x309,1,0);
+ while(func_0012A958(0x309)==0) _ACTWait(1); _ACTWait(1);
+ actSt25aQueenDead(2, D_00629DE4, D_00629DE8, 1.0f, 8.0f); }
 
 extern void func_0020AAB8(void);
 

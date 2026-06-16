@@ -1,8 +1,24 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10l", actSt10lInit);
+extern void scpDispOffAllWithKind(int *buf, int a1);
+extern void _ACTWait(int a0);
+extern long long D_00614980[]; extern long long D_00614990[];
+void actSt10lInit(volatile int a0){ long long b1[2]; long long b2[2];
+ long long v0a=D_00614980[0]; long long v0b=D_00614990[0]; int i;
+ for(i=0;i<0x32;i++){ switch(i){
+  case 0: b1[0]=v0a; b1[1]=D_00614980[1]; scpDispOffAllWithKind((int*)b1,0); break;
+  case 0x1E: b2[0]=v0b; b2[1]=D_00614990[1]; scpDispOffAllWithKind((int*)b2,0); break;
+  } _ACTWait(1); } }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10l", actSt10lFloorLeft);
+extern void scpDispOffAllWithKind(int *buf, int a1);
+extern void _ACTWait(int a0);
+extern long long D_00614990[]; extern long long D_00614980[];
+void actSt10lFloorLeft(volatile int a0){ long long b1[2]; long long b2[2];
+ long long v0a=D_00614990[0]; long long v0b=D_00614980[0]; int i;
+ for(i=0;i<0x32;i++){ switch(i){
+  case 0: b1[0]=v0a; b1[1]=D_00614990[1]; scpDispOffAllWithKind((int*)b1,0); break;
+  case 0x1E: b2[0]=v0b; b2[1]=D_00614980[1]; scpDispOffAllWithKind((int*)b2,0); break;
+  } _ACTWait(1); } }
 
 extern int D_00629DE8;
 extern void _ACTWait(int a0);

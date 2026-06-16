@@ -23,7 +23,11 @@ void actSt17bIntroChk(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17b", func_0022B150);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17b", func_0022B1C8);
+extern void Generator_Call(int a0);
+void func_0022B1C8(volatile int a0){ int x=a0;
+ actInitialize(a0); _ACTWait(1); Generator_Mask(a0);
+ while(func_00178DB0(0x117)==0){ _ACTWait(1); }
+ _ACTWait(1); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); Generator_MaskOff(a0); }
 
 extern int actInitialize(int a0);
 extern void _ACTWait(int a0);
@@ -43,7 +47,10 @@ void func_0022B270(volatile int a0) {
     Generator_MaskOff(a0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17b", func_0022B2E0);
+extern void func_00178E08(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+void func_0022B2E0(volatile int a0){ int x=a0; actInitialize(a0); _ACTWait(1);
+if(func_00178DB0(0x121)){ *(int*)(actSt25aQueenDeadChk(0x5F1) + 0x16C) = 0; *(int*)(actSt25aQueenDeadChk(0x5F2) + 0x16C) = 0; func_00178E08(0x121); } else { *(int*)(actSt25aQueenDeadChk(0x5EF) + 0x16C) = 0; *(int*)(actSt25aQueenDeadChk(0x5F0) + 0x16C) = 0; } }
 
 extern int actInitialize(int a0);
 extern void _ACTWait(int a0);
@@ -85,7 +92,13 @@ void func_0022B568(int a0) {
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17b", func_0022B578);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void func_00178DD8(int a0);
+extern int D_00629DE4;
+void func_0022B578(volatile int a0){
+ if(D_00629DE8 == 0) _ACTWait(0);
+ while(scpSleepSpiderGroupOne(D_00629DE8, 0x1000000)==0 || scpSleepSpiderGroupOne(D_00629DE4, 0x3000000)==0) _ACTWait(1);
+ _ACTWait(1); func_00178DD8(0x116); func_00178DD8(0x117); }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17b", func_0022B5F0);
 

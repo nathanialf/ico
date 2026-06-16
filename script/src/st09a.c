@@ -40,9 +40,23 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st09a", actSt09aElvSwitch);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st09a", actSt09aElvUp);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st09a", actSt09aSekizoEvent);
+void actSt09aSekizoEvent(volatile int a0){ int x=a0;
+ actInitialize(a0); _ACTWait(1); Generator_Mask(a0);
+ while(func_00178DB0(0x97)==0){ _ACTWait(1); }
+ _ACTWait(1); Generator_MaskOff(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st09a", actSt09aIntroChk);
+void actSt09aIntroChk(volatile int a0){
+ int x=a0;
+ actInitialize(a0);
+ _ACTWait(1);
+ Generator_Mask(a0);
+ while(func_00178DB0(0x97)==0){ _ACTWait(1); }
+ _ACTWait(1);
+ Generator_MaskOff(a0);
+ Generator_Call(a0);
+ _ACTWait(0x3C);
+ Generator_Call(a0);
+}
 
 void actSt09aBrgMain(int a0) {
     int buf[4];
@@ -71,9 +85,26 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st09a", func_00222310);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st09a", func_00222470);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st09a", func_002224E8);
+void func_002224E8(volatile int a0){ int x=a0;
+ actInitialize(a0); _ACTWait(1); Generator_Mask(a0);
+ while(func_00178DB0(0x9A)==0){ _ACTWait(1); }
+ _ACTWait(1); Generator_MaskOff(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st09a", func_00222580);
+extern void Generator_Mask(int a0);
+extern void Generator_MaskOff(int a0);
+extern void Generator_Call(int a0);
+void func_00222580(volatile int a0){
+ int x=a0;
+ actInitialize(a0);
+ _ACTWait(1);
+ Generator_Mask(a0);
+ while(func_00178DB0(0x9A)==0){ _ACTWait(1); }
+ _ACTWait(1);
+ Generator_MaskOff(a0);
+ Generator_Call(a0);
+ _ACTWait(0x3C);
+ Generator_Call(a0);
+}
 
 void func_00222610(int a0) {
     int buf[4];

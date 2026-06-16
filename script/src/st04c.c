@@ -54,7 +54,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cEneChk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cIntroChk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04lDoorEvent);
+extern void gflagInit(int a0);
+void actSt04lDoorEvent(volatile int a0){ int x=a0; actInitialize(a0); _ACTWait(1);
+if(func_00178DB0(0x9B)==0){ stage_KillPlayBgAnimation(0xA3,0,0); stage_KillPlayBgAnimation(0xA4,0,0); } else { stage_KillPlayBgAnimation(0xA3,0,-1); stage_KillPlayBgAnimation(0xA4,0,-1); gflagInit(0x3C6); gflagInit(0x3C7); } }
 
 void func_00215CD0(volatile int a0) {
     int x = a0;
@@ -80,6 +82,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", func_00215D70);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", func_00215E30);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", func_00215EA8);
+extern void Generator_Mask(int a0);
+extern void Generator_MaskOff(int a0);
+extern void Generator_Call(int a0);
+void func_00215EA8(volatile int a0){
+ int x=a0;
+ actInitialize(a0); _ACTWait(1); Generator_Mask(a0);
+ while(func_00178DB0(0x8D)==0){ _ACTWait(1); }
+ Generator_MaskOff(a0); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", func_00215F48);
+void func_00215F48(volatile int a0){ int x=a0;
+ actInitialize(a0); _ACTWait(1); Generator_Mask(a0);
+ while(func_00178DB0(0x8D)==0){ _ACTWait(1); }
+ Generator_MaskOff(a0); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); }

@@ -25,11 +25,25 @@ void actSt04rDoor2Chk(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", actSt05cSolarXL);
+extern void stage_KillPlayBgAnimation(int,int,int);
+void actSt05cSolarXL(volatile int a0){ int x=a0;
+ actInitialize(a0); _ACTWait(1);
+ if(func_00178DB0(0x91) && !func_00178DB0(0x9B)){ stage_KillPlayBgAnimation(0xE0,0,-1); }
+ if(func_00178DB0(0x91)==0 || func_00178DB0(0x9B)){ stage_KillPlayBgAnimation(0xE0,0,0); } }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", actSt05cWaterXL);
+extern int actSt25aQueenDeadChk(int a0);
+void actSt05cWaterXL(volatile int a0){ int x=a0;
+ actInitialize(a0); _ACTWait(1); Generator_Mask(a0); Generator_Mask(actSt25aQueenDeadChk(0x447));
+ while(func_00178DB0(0xC8)==0){ _ACTWait(1); }
+ Generator_MaskOff(a0); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); Generator_Call(actSt25aQueenDeadChk(0x447)); }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", actSt04rDoor);
+extern void Generator_MaskOff(int a0);
+void actSt04rDoor(volatile int a0){
+ int x=a0;
+ actInitialize(a0); _ACTWait(1); Generator_Mask(a0);
+ while(func_00178DB0(0xC8)==0){ _ACTWait(1); }
+ Generator_MaskOff(a0); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0);
+}
 
 extern int actInitialize(int a0);
 extern void _ACTWait(int a0);

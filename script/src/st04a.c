@@ -56,7 +56,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04a", actSt04aTorch1Chk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04a", actSt04aTorchAllFlagfChk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04a", actSt04aGateL);
+extern int actInitialize(int a0);
+extern void Generator_Mask(int a0);
+extern void Generator_MaskOff(int a0);
+extern void Generator_Call(int a0);
+void actSt04aGateL(volatile int a0){ int x=a0;
+ actInitialize(a0); _ACTWait(1); Generator_Mask(a0); Generator_Mask(actSt25aQueenDeadChk(0x331));
+ while(func_00178DB0(0x5E)==0){ _ACTWait(1); }
+ Generator_MaskOff(a0); Generator_Call(a0); _ACTWait(0x14); Generator_Call(a0); Generator_Call(actSt25aQueenDeadChk(0x331)); }
 
 void actSt04aGateR(int a0) {
     int buf[4];

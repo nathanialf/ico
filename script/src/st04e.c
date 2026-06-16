@@ -24,9 +24,25 @@ void func_00217368(int a0) {
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04e", func_00217378);
+extern void scpDispOffAllWithKind(int *buf, int a1);
+extern void _ACTWait(int a0);
+extern long long D_006148D0[]; extern long long D_006148E0[];
+void func_00217378(volatile int a0){ long long b1[2]; long long b2[2];
+ long long v0a=D_006148D0[0]; long long v0b=D_006148E0[0]; int i;
+ for(i=0;i<0x32;i++){ switch(i){
+  case 0: b1[0]=v0a; b1[1]=D_006148D0[1]; scpDispOffAllWithKind((int*)b1,0); break;
+  case 0x1E: b2[0]=v0b; b2[1]=D_006148E0[1]; scpDispOffAllWithKind((int*)b2,0); break;
+  } _ACTWait(1); } }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04e", func_00217458);
+extern void scpDispOffAllWithKind(int *buf, int a1);
+extern void _ACTWait(int a0);
+extern long long D_006148E0[]; extern long long D_006148D0[];
+void func_00217458(volatile int a0){ long long b1[2]; long long b2[2];
+ long long v0a=D_006148E0[0]; long long v0b=D_006148D0[0]; int i;
+ for(i=0;i<0x32;i++){ switch(i){
+  case 0: b1[0]=v0a; b1[1]=D_006148E0[1]; scpDispOffAllWithKind((int*)b1,0); break;
+  case 0x1E: b2[0]=v0b; b2[1]=D_006148D0[1]; scpDispOffAllWithKind((int*)b2,0); break;
+  } _ACTWait(1); } }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04e", func_00217538);
 

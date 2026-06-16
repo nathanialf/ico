@@ -2,17 +2,33 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bFloor);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bFloorChk);
+extern void Generator_Call(int a0);
+void actSt13bFloorChk(volatile int a0){ int x=a0;
+ actInitialize(a0); _ACTWait(1); Generator_Mask(a0);
+ while(func_00178DB0(0x76)==0){ _ACTWait(1); }
+ _ACTWait(1); Generator_MaskOff(a0); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bConte02);
+void actSt13bConte02(volatile int a0){ int x=a0;
+ actInitialize(a0); _ACTWait(1); Generator_Mask(a0);
+ while(func_00178DB0(0x76)==0){ _ACTWait(1); }
+ _ACTWait(1); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); Generator_MaskOff(a0); }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bSekizoChk);
+void actSt13bSekizoChk(volatile int a0){ int x=a0;
+ actInitialize(a0); _ACTWait(1); Generator_Mask(a0);
+ while(func_00178DB0(0x76)==0){ _ACTWait(1); }
+ _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); Generator_MaskOff(a0); }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bSekizo2Chk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bMeetAgain);
+void actSt13bMeetAgain(volatile int a0){ int x=a0;
+ actInitialize(a0); _ACTWait(1); Generator_Mask(a0);
+ while(func_00178DB0(0x79)==0){ _ACTWait(1); }
+ _ACTWait(1); Generator_MaskOff(a0); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bBoss);
+void actSt13bBoss(volatile int a0){ int x=a0;
+ actInitialize(a0); _ACTWait(1); Generator_Mask(a0);
+ while(func_00178DB0(0x79)==0){ _ACTWait(1); }
+ _ACTWait(1); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); Generator_MaskOff(a0); }
 
 extern int actInitialize(int a0);
 extern void _ACTWait(int a0);
@@ -37,7 +53,16 @@ void actSt13bElevDown(int a0) {
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bElevUp);
+extern int func_0012A958(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void gflagInit(int a0);
+extern void func_001C04E0(void);
+void actSt13bElevUp(volatile int a0){
+ stage_KillPlayBgAnimation(0x141, 1, 0);
+ while(func_0012A958(0x141)==0) _ACTWait(1);
+ _ACTWait(1); func_001C04E0(); _ACTWait(0x78);
+ gflagInit(0x189); gflagInit(0x18A); _ACTWait(0);
+}
 
 extern int *D_00629DE4;
 extern int D_0062C2AC;
@@ -87,7 +112,11 @@ void actSt13bBossAfter(int a0) {
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bStoneGirl);
+extern void func_0018A380(void);
+void actSt13bStoneGirl(volatile int a0){
+ stage_KillPlayBgAnimation(0x142,1,0); stage_KillPlayBgAnimation(0x143,1,0); func_0018A380();
+ while(func_0012A958(0x143)==0) _ACTWait(1);
+ _ACTWait(1); D_0062C2AC = 1; _ACTWait(0); }
 
 extern long long D_00614AC0[];
 
@@ -139,4 +168,22 @@ void actSt13bSekizo2Event(void) {
     func_00178DD8(0x165);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bMeetAgainChk);
+extern int actSt25aQueenDeadChk(int a0);
+extern void lt_fade_status(int a0);
+extern void func_0017A040(int a0);
+extern void func_0017A008(int a0);
+extern int D_0062A894;
+void actSt13bMeetAgainChk(volatile int a0){ int a; int b;
+ if(D_00629DE8==0) _ACTWait(0);
+ for(;;){
+  if(scpSleepSpiderGroupOne(D_00629DE8,0x1000000)!=0 && scpSleepSpiderGroupOne(D_00629DE4,0x6000000)!=0) break;
+  a = scpSleepSpiderGroupOne(D_00629DE8,0x1000000);
+  b = scpSleepSpiderGroupOne(actSt25aQueenDeadChk(0x14A),0x1000000);
+  if((a & b) != 0) break;
+  _ACTWait(1);
+ }
+ lt_fade_status(0x33); D_0062A894 = 1; func_0017A040(0xD57);
+ func_00178DD8(0x44); func_00178DD8(0x46);
+ stage_KillPlayBgAnimation(0x58,1,0);
+ while(func_0012A958(0x58)==0) _ACTWait(1); _ACTWait(1);
+ D_0062A894 = 0; lt_fade_status(0x32); func_0017A008(0xD57); }

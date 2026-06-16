@@ -11,11 +11,49 @@ void scpTorchLightOn(int a0, int a1) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpTorchLightOff);
+extern int actSt25aQueenDeadChk(int a0);
+extern int DebugDisp1CollisionWithColor(int a0, int a1);
+extern void func_0012ABB0(int a0, void *a1, int a2);
+extern void debug_assertMessage(char *fmt);
+extern char D_00554218[];
+struct S { int a; int b; };
+void scpTorchLightOff(int a0, int a1, int a2){
+ int ret = actSt25aQueenDeadChk(a0);
+ if(ret != 0){ struct S copy; struct S pair;
+  pair.a=ret; pair.b=DebugDisp1CollisionWithColor(ret,a1);
+  copy=pair;
+  if(copy.b==-1) debug_assertMessage(D_00554218);
+  else func_0012ABB0(a2,&copy,1);
+ } }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpSetCageVelocityFriction);
+extern int actSt25aQueenDeadChk(int a0);
+extern int DebugDisp1CollisionWithColor(int a0, int a1);
+extern void func_0012ABB0(int a0, void *a1, int a2);
+extern void debug_assertMessage(char *fmt);
+extern char D_00554218[];
+struct SVF { int a; int b; };
+void scpSetCageVelocityFriction(int a0, int a1, int a2, int a3){
+  int ret = actSt25aQueenDeadChk(a0);
+  if(ret != 0){ struct SVF copy; struct SVF pair;
+   pair.a=ret; pair.b=DebugDisp1CollisionWithColor(ret,a1);
+   copy=pair;
+   if(copy.b==-1) debug_assertMessage(D_00554218);
+   else func_0012ABB0(a2,&copy,a3);
+  } }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpPlayMotDir);
+extern int DebugDisp1CollisionWithColor(int a0, int a1);
+extern void func_0012ABB0(int a0, void *a1, int a2);
+extern void debug_assertMessage(char *fmt);
+extern char D_00554218[];
+struct SPMD { int a; int b; };
+void scpPlayMotDir(int a0, int a1, int a2, int a3){
+  int *ret = isysGObjSearchFromObjLayoutID(a0);
+  if(ret != 0){ struct SPMD copy; struct SPMD pair;
+   pair.a=(int)ret; pair.b=DebugDisp1CollisionWithColor((int)ret,a1);
+   copy=pair;
+   if(copy.b==-1) debug_assertMessage(D_00554218);
+   else func_0012ABB0(a2,&copy,a3);
+  } }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpPlayMotDirSmz);
 
@@ -108,7 +146,23 @@ float scpSekizou(int a0) {
     return 0.0f;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", _SCPBoySupportGirl);
+extern int actSt25aQueenDeadChk(int a0);
+extern int ExecRotObjectMoveStartReaction(int a0);
+extern void debug_assertMessage(char *fmt);
+extern char D_005541D0[];
+int _SCPBoySupportGirl(int a0, int a1, int a2){
+ int q = actSt25aQueenDeadChk(a0);
+ if(q != 0){
+  int e = ExecRotObjectMoveStartReaction(q);
+  short A1 = (a1 << 15) / 0xB4;
+  short A2 = (a2 << 15) / 0xB4;
+  if(A2 < A1){ if(A1 < e || e < A2) return 1; return 0; }
+  if(A1 < e && e < A2) return 1;
+  return 0;
+ }
+ debug_assertMessage(D_005541D0);
+ return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", _SCPMoveCharactorByWay_Cancel);
 

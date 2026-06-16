@@ -22,7 +22,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19aHagurumaChk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19aPipeChk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19aChainDown);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void gflagInit(int a0);
+void actSt19aChainDown(volatile int a0){ int x=a0; actInitialize(a0); _ACTWait(1);
+stage_KillPlayBgAnimation(0x1F,0,-1); stage_KillPlayBgAnimation(0x19,0,0); stage_KillPlayBgAnimation(0x22,0,0); stage_KillPlayBgAnimation(0x23,0,0); stage_KillPlayBgAnimation(0x25,0,0); }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19aChainUp);
 

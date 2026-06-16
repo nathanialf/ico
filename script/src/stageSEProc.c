@@ -12,13 +12,23 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", stageSE19ataki);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", stageSE02astrong);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", stageSE02ataki);
+extern void func_00178E08(int a0);
+extern int actSt25aQueenDeadChk(int a0);
+void stageSE02ataki(volatile int a0){ int x=a0; actInitialize(a0); _ACTWait(1);
+if(func_00178DB0(0x119)){ *(int*)(actSt25aQueenDeadChk(0x72E) + 0x16C) = 0; *(int*)(actSt25aQueenDeadChk(0x72F) + 0x16C) = 0; func_00178E08(0x119); } else { *(int*)(actSt25aQueenDeadChk(0x730) + 0x16C) = 0; *(int*)(actSt25aQueenDeadChk(0x731) + 0x16C) = 0; } }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", stageSE02atakib);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", stageSE03tsuiro);
+extern void Generator_Call(int a0);
+void stageSE03tsuiro(volatile int a0){ int x=a0;
+ actInitialize(a0); _ACTWait(1); Generator_Mask(a0);
+ while(func_00178DB0(0x123)==0){ _ACTWait(1); }
+ _ACTWait(1); Generator_MaskOff(a0); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", stageSE03tnotSuiro);
+void stageSE03tnotSuiro(volatile int a0){ int x=a0;
+ actInitialize(a0); _ACTWait(1); Generator_Mask(a0);
+ while(func_00178DB0(0x123)==0){ _ACTWait(1); }
+ _ACTWait(1); Generator_MaskOff(a0); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); }
 
 extern void actInitialize(int a0);
 extern void _ACTWait(int a0);

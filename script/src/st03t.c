@@ -24,9 +24,39 @@ void actSt03tSwitchRChk(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tSwitchRUpChk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tBoxA);
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void Generator_Mask(int a0);
+extern void Generator_MaskOff(int a0);
+extern void Generator_Call(int a0);
+void actSt03tBoxA(volatile int a0){
+ int x=a0;
+ actInitialize(a0);
+ _ACTWait(1);
+ Generator_Mask(a0);
+ while(func_00178DB0(0x6D)==0){
+  _ACTWait(1);
+ }
+ _ACTWait(1);
+ Generator_MaskOff(a0);
+ Generator_Call(a0);
+ _ACTWait(0x3C);
+ Generator_Call(a0);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tBoxB);
+void actSt03tBoxB(volatile int a0){
+ int x=a0;
+ actInitialize(a0);
+ _ACTWait(1);
+ Generator_Mask(a0);
+ while(func_00178DB0(0x6D)==0){ _ACTWait(1); }
+ _ACTWait(1);
+ Generator_MaskOff(a0);
+ Generator_Call(a0);
+ _ACTWait(0x3C);
+ Generator_Call(a0);
+}
 
 extern int actInitialize(int a0);
 extern void _ACTWait(int a0);
@@ -52,9 +82,30 @@ void actSt03tEne(int a0) {
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tGene);
+extern void scpDispOffAllWithKind(int *buf, int a1);
+extern void _ACTWait(int a0);
+extern long long D_006145B0[]; extern long long D_006145C0[];
+void actSt03tGene(volatile int a0){
+ long long b1[2]; long long b2[2];
+ long long v0a=D_006145B0[0]; long long v0b=D_006145C0[0];
+ int i;
+ for(i=0;i<0x32;i++){
+  switch(i){
+  case 0: b1[0]=v0a; b1[1]=D_006145B0[1]; scpDispOffAllWithKind((int*)b1,0); break;
+  case 0x1E: b2[0]=v0b; b2[1]=D_006145C0[1]; scpDispOffAllWithKind((int*)b2,0); break;
+  }
+  _ACTWait(1);
+ } }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tGirlCamEvent);
+extern void scpDispOffAllWithKind(int *buf, int a1);
+extern void _ACTWait(int a0);
+extern long long D_006145C0[]; extern long long D_006145B0[];
+void actSt03tGirlCamEvent(volatile int a0){ long long b1[2]; long long b2[2];
+ long long v0a=D_006145C0[0]; long long v0b=D_006145B0[0]; int i;
+ for(i=0;i<0x32;i++){ switch(i){
+  case 0: b1[0]=v0a; b1[1]=D_006145C0[1]; scpDispOffAllWithKind((int*)b1,0); break;
+  case 0x1E: b2[0]=v0b; b2[1]=D_006145B0[1]; scpDispOffAllWithKind((int*)b2,0); break;
+  } _ACTWait(1); } }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tGirlCamStartChk);
 

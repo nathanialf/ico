@@ -68,7 +68,9 @@ void func_0021B6D8(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05b", func_0021B738);
+extern void func_00178E08(int a0);
+void func_0021B738(volatile int a0){ int x=a0; actInitialize(a0); _ACTWait(1);
+if(func_00178DB0(0x9F)==0){ *(int*)(actSt25aQueenDeadChk(0x403) + 0x16C) = 0; *(int*)(actSt25aQueenDeadChk(0x404) + 0x16C) = 0; stage_KillPlayBgAnimation(0xB9,0,0); } else { stage_KillPlayBgAnimation(0xB9,0,-1); } }
 
 extern int actInitialize(int a0);
 extern void _ACTWait(int a0);

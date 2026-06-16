@@ -18,6 +18,12 @@ if [ $# -lt 3 ]; then
 fi
 TU="$1"; FN="$2"; RC="$3"; shift 3; NOTE="$*"
 
+# No rc ceiling on parking. A high real_count after an HONEST attempt is a fine
+# reason to move on — the sweep is single-pass and hard funcs are left for the
+# deep pass. What is NOT ok is parking a func you never genuinely tried, or
+# batch-parking a family on one shared template without giving each member its
+# own real hypothesis. Those are BEHAVIORAL rules enforced by actually running
+# sweep_try on every row (see SKILL.md), not by a number gate here.
 if grep -qE "^[[:space:]]*${FN}([[:space:]]|#|$)" "$PARKED_FILE" 2>/dev/null; then
     echo "already parked: $FN"
     exit 0
