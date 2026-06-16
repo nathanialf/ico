@@ -91,7 +91,29 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", func_0010ED88);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", func_0010EE60);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", func_0010EEF0);
+extern unsigned short D_0066A9D0[];
+
+int func_0010EEF0(float x) {
+    int neg;
+    int h;
+    if (1.0f < x) {
+        x = 1.0f;
+    }
+    if (x < -1.0f) {
+        x = -1.0f;
+    }
+    if (x < 0.0f) {
+        neg = 1;
+        x = -x;
+    } else {
+        neg = 0;
+    }
+    h = (short)(D_0066A9D0[(int)(x * 4096.0f)] + 0x4000);
+    if (neg == 0) {
+        return (short)(-0x8000 - h);
+    }
+    return h;
+}
 
 extern int func_0010EEF0(float x);
 

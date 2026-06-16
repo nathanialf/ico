@@ -380,7 +380,6 @@ func_0019B508       # rc174 movie geometry decode do-while + SIMD sq/lq inner lo
 func_0012FC48       # rc29 scan-class search loop; beql/bnel + 64-bit bitfield test + reload-count; structure diverges; rc29
 queen_barrier_set_damage# rc120 no-arg nested float-loop mesh generator: cvt.w.s/div.s grid + vertex buffer writes; rc120
 queen_barrier_disp_init# rc108 two-quaternion transform chain (a2+a4 inputs) to a0; many stack bufs + by-value Quat; rc108
-func_0010EEF0       # rc1 clamp+table; arm-swap got rc6->rc1; sole residual = one extra nop in built (delay-slot fill) - deep pass trivial close
 StageOrientInit     # rc53 movie subsystem orchestrator: callback registration + VIF writes + nested error chains; rc53
 stage_CalcAnimationParent# rc19 list-walk do-while + bnel reload + nested guards + 64-bit bitfield RMW; structure diverges; rc19
 InitQueenBallGeo    # rc123 15x15 float-mesh ball generator: cvt/div/Rot matrix calls + vertex writes; rc123 (same class as queen_barrier_set_damage)
