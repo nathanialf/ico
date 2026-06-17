@@ -93,6 +93,8 @@ do_distclean() {
 
 do_progress() {
     "${VENV_PY}" tools/progress.py
+    # Function-level tree JSON for the GitHub Pages site (docs/index.html).
+    "${VENV_PY}" tools/progress_tree.py
 }
 
 cmd="${1:-help}"

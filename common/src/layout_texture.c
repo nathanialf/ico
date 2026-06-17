@@ -90,7 +90,45 @@ void display_primary_texture_layout(void) {
     D_0027D500 = tmp;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", exec_layout_texture);
+extern void init_layout_texture();
+extern void kanbanBootMain(void);
+extern int D_0062B368;
+extern int D_0027CFE0[];
+
+int exec_layout_texture(int a0) {
+    int i = a0 - 0x1B;
+    int start = i;
+    int prop, off;
+
+    init_layout_texture();
+    prop = D_002715D4[0];
+    off = D_0062B368 * 0x18C;
+
+    do {
+        if (prop & 0x1000) {
+            i += 5;
+        } else if (prop & 0x4000) {
+            i -= 5;
+        } else if (prop & 0x8000) {
+            i -= 1;
+        } else if (prop & 0x2000) {
+            i += 1;
+        } else if (*(int *)((char *)D_0027CFE0 + off + i * 16) == 0xFFFFFFFF) {
+            i += 1;
+        }
+        if (i < 0) {
+            i += 10;
+        }
+        if (i >= 10) {
+            i -= 10;
+        }
+    } while (*(int *)((char *)D_0027CFE0 + off + i * 16) == 0xFFFFFFFF);
+
+    if (start != i) {
+        kanbanBootMain();
+    }
+    return i + 0x1B;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_texture", func_001B3160);
 

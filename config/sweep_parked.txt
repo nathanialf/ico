@@ -974,7 +974,6 @@ func_00258BF8       # rc35 SShd slot-alloc scan + 5-field offset->ptr relocate; 
 func_001A98E0       # rc44 flag-gated counter clamps + switch byte-code + 2D D_006F2890 write + tail-call; deep-pass
 func_00268968       # rc34 goto linked-builder; 2 bnel loops + r/node lifetime + call sched; deep-pass
 func_00259108       # rc41 2-level dispatch; switch(a0)+switch(p[0x51])+movn/movz bit-test; deep-pass
-exec_layout_texture # rc1 rc9->rc1 via 0xFFFFFFFF eq-const split (lui+ori vs -1 addiu); 1 residual tiebreak - near-miss
 POSITIVE_SE         # rc11 switch(D_0062B3DC) state machine; case2 anchor-relative addressing off D_004B8240+offsets; deep-pass
 ReadCollisionFile   # rc30 n32 7-arg(flag in $10)+malloc_GetPartition+iosFree+2 tail-calls; branch fixed; residual=3way callee-saved s3/s2/s1/s0 param order; deep-pass
 func_00256E18       # rc26 scan-class 0x30 elems stride 0x58; 5 bnel cmps + flag-clear + 64-bit mask set; deep-pass

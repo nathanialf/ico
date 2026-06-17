@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ICO decompilation progress</title>
+<style>
+  :root {
+    --bg:#0f1116; --panel:#171a21; --line:#262b36; --fg:#d6dae2;
+    --dim:#8a93a3; --bar:#2a3140; --ok:#3fb950; --okdim:#1f6f2e;
+    --accent:#58a6ff;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; background:var(--bg); color:var(--fg);
+    font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  }
+  header { padding:24px 20px 8px; max-width:1000px; margin:0 auto; }
+  h1 { font-size:20px; margin:0 0 4px; }
+  .sub { color:var(--dim); font-size:13px; }
+  .cards { display:flex; gap:12px; flex-wrap:wrap; margin:16px 0 4px; }
+  .card {
+    background:var(--panel); border:1px solid var(--line); border-radius:8px;
+    padding:12px 16px; min-width:150px;
+  }
+  .card .n { font-size:22px; font-weight:600; }
+  .card .l { color:var(--dim); font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+  main { max-width:1000px; margin:0 auto; padding:8px 20px 60px; }
+  .toolbar { display:flex; gap:10px; align-items:center; margin:12px 0; flex-wrap:wrap; }
+  input[type=search] {
+    background:var(--panel); border:1px solid var(--line); color:var(--fg);
+    border-radius:6px; padding:6px 10px; font-size:13px; min-width:220px;
+  }
+  label.chk { color:var(--dim); font-size:13px; user-select:none; cursor:pointer; }
+  .row {
+    display:flex; align-items:center; gap:10px; padding:5px 8px;
+    border-radius:6px; cursor:pointer;
+  }
+  .row:hover { background:#1b1f28; }
+  .row.func { cursor:default; }
+  .row.func:hover { background:transparent; }
+  .tw { width:14px; color:var(--dim); flex:0 0 auto; font-size:11px; text-align:center; }
+  .nm { flex:1 1 auto; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .func .nm { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px; }
+  .pct { width:52px; text-align:right; color:var(--dim); font-variant-numeric:tabular-nums; font-size:12px; }
+  .cnt { width:120px; text-align:right; color:var(--dim); font-size:12px; font-variant-numeric:tabular-nums; }
+  .bar { flex:0 0 140px; height:8px; background:var(--bar); border-radius:4px; overflow:hidden; }
+  .bar > i { display:block; height:100%; background:var(--ok); }
+  .children { margin-left:18px; border-left:1px solid var(--line); padding-left:4px; display:none; }
+  .open > .children { display:block; }
+  .open > .row > .tw::before { content:"▼"; }
+  .row > .tw::before { content:"▶"; }
+  .func .tw::before { content:""; }
+  .mk { width:16px; text-align:center; flex:0 0 auto; }
+  .mk.y { color:var(--ok); }
+  .mk.n { color:#4b5363; }
+  .sz { width:64px; text-align:right; color:var(--dim); font-size:12px; font-variant-numeric:tabular-nums; }
+  a { color:var(--accent); text-decoration:none; }
+  footer { max-width:1000px; margin:0 auto; padding:0 20px 40px; color:var(--dim); font-size:12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>ICO decompilation progress</h1>
+  <div class="sub">Clean-room PS2 EE-side decomp &middot; <span id="ver"></span> &middot;
+    grouped by programmer &rarr; translation unit &rarr; function.
+    <a href="https://github.com/nathanialf/ico">repo</a></div>
+  <div class="cards" id="cards"></div>
+</header>
+<main>
+  <div class="toolbar">
+    <input type="search" id="filter" placeholder="filter functions / TUs…" autocomplete="off">
+    <label class="chk"><input type="checkbox" id="unmatched"> unmatched only</label>
+    <label class="chk"><input type="checkbox" id="expand"> expand all</label>
+  </div>
+  <div id="tree"></div>
+</main>
+<footer id="foot"></footer>
+
+<script>
+const fmtPct = (m,t) => t ? (100*m/t).toFixed(1)+"%" : "–";
+const fmtB = n => n>=1048576 ? (n/1048576).toFixed(2)+" MB"
+              : n>=1024 ? (n/1024).toFixed(1)+" KB" : n+" B";
+
+function bar(m,t){ const p=t?100*m/t:0;
+  return `<div class="bar"><i style="width:${p.toFixed(2)}%"></i></div>`; }
+
+function nodeRow(name, m, t, mb, tb, cls){
+  return `<div class="row ${cls}">`
+    + `<span class="tw"></span>`
+    + `<span class="nm">${name}</span>`
+    + bar(mb,tb)
+    + `<span class="pct">${fmtPct(mb,tb)}</span>`
+    + `<span class="cnt">${m}/${t} fn &middot; ${fmtB(tb)}</span>`
+    + `</div>`;
+}
+
+function render(data){
+  document.getElementById("ver").textContent = data.version;
+  const T = data.totals;
+  document.getElementById("cards").innerHTML = [
+    [`${T.matched_funcs.toLocaleString()} / ${T.total_funcs.toLocaleString()}`, "functions matched"],
+    [fmtPct(T.matched_funcs,T.total_funcs), "by function count"],
+    [`${fmtB(T.matched_bytes)} / ${fmtB(T.total_bytes)}`, ".text bytes matched"],
+    [fmtPct(T.matched_bytes,T.total_bytes), "by code bytes"],
+  ].map(([n,l])=>`<div class="card"><div class="n">${n}</div><div class="l">${l}</div></div>`).join("");
+
+  const tree = document.getElementById("tree");
+  tree.innerHTML = data.programmers.map(p=>{
+    const tus = p.tus.map(t=>{
+      const funcs = t.funcs.map(f=>
+        `<div class="row func" data-name="${f.name}" data-m="${f.matched?1:0}">`
+        + `<span class="tw"></span>`
+        + `<span class="mk ${f.matched?'y':'n'}">${f.matched?'✓':'·'}</span>`
+        + `<span class="nm">${f.name}</span>`
+        + `<span class="nm" style="flex:0 0 auto;color:var(--dim);font-size:12px">${f.addr}</span>`
+        + `<span class="sz">${f.size} B</span>`
+        + `</div>`).join("");
+      return `<div class="node tu" data-name="${t.path}">`
+        + nodeRow(t.name, t.matched_funcs, t.total_funcs, t.matched_bytes, t.total_bytes, "tu")
+        + `<div class="children">${funcs}</div></div>`;
+    }).join("");
+    return `<div class="node prog" data-name="${p.name}">`
+      + nodeRow(p.name, p.matched_funcs, p.total_funcs, p.matched_bytes, p.total_bytes, "prog")
+      + `<div class="children">${tus}</div></div>`;
+  }).join("");
+
+  tree.querySelectorAll(".row.prog, .row.tu").forEach(r=>{
+    r.addEventListener("click", ()=> r.parentElement.classList.toggle("open"));
+  });
+}
+
+function applyFilter(){
+  const q = document.getElementById("filter").value.trim().toLowerCase();
+  const unm = document.getElementById("unmatched").checked;
+  document.querySelectorAll(".node.tu").forEach(tu=>{
+    let any=false;
+    tu.querySelectorAll(".row.func").forEach(f=>{
+      const okName = !q || f.dataset.name.toLowerCase().includes(q)
+                        || tu.dataset.name.toLowerCase().includes(q);
+      const okM = !unm || f.dataset.m==="0";
+      const show = okName && okM;
+      f.style.display = show ? "" : "none";
+      if(show) any=true;
+    });
+    tu.style.display = any || (!q && !unm) ? "" : "none";
+    if((q||unm) && any) tu.classList.add("open");
+  });
+  document.querySelectorAll(".node.prog").forEach(p=>{
+    const vis = [...p.querySelectorAll(".node.tu")].some(t=>t.style.display!=="none");
+    p.style.display = vis ? "" : "none";
+    if((q||unm) && vis) p.classList.add("open");
+  });
+}
+
+document.getElementById("filter").addEventListener("input", applyFilter);
+document.getElementById("unmatched").addEventListener("change", applyFilter);
+document.getElementById("expand").addEventListener("change", e=>{
+  document.querySelectorAll(".node.prog, .node.tu")
+    .forEach(n=> n.classList.toggle("open", e.target.checked));
+});
+
+fetch("progress.json")
+  .then(r=>r.json())
+  .then(d=>{ render(d); applyFilter();
+    document.getElementById("foot").innerHTML =
+      `Generated by <code>tools/progress_tree.py</code> from `
+      + `<code>config/symbol_addrs.${d.version}.txt</code> + per-TU `
+      + `<code>INCLUDE_ASM</code> directives. Function sizes are next-symbol deltas. `
+      + `Updates on every push.`; })
+  .catch(e=> document.getElementById("tree").innerHTML =
+      `<p style="color:#f85149">Could not load progress.json: ${e}</p>`);
+</script>
+</body>
+</html>
