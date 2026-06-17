@@ -13,7 +13,22 @@ void debug_TargetGObj_Func(int a0) {
     *(volatile int *)0x10000810 = a0 | 0x80;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_menu", func_001A7350);
+typedef struct { float f[4]; } __attribute__((packed)) Blk16;
+extern Blk16 D_0060D738;
+
+float func_001A7350(void) {
+    Blk16 buf;
+    int v;
+    float f2;
+
+    buf = D_0060D738;
+    if (*(volatile unsigned int *)0x10000810 & 0x800) {
+        return -1.0f;
+    }
+    v = *(volatile int *)0x10000800;
+    f2 = (float)(unsigned int)v;
+    return f2 / buf.f[*(volatile unsigned int *)0x10000810 & 3] / 60.0f;
+}
 
 float func_001A7420(void) {
     if ((*(volatile int *)0x10000810) & 0x800) {

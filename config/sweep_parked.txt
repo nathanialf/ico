@@ -162,7 +162,6 @@ isysGetNbAllocedGObjs# rc2 rc2: alloc+init loop; residual 2 store/copy sched aft
 func_0023FC08       # rc40 short-arg fixed-point scale: movn-based clamp (x+0x3F>=0?x+0x3F:x+0x7E)>>6 per a0&2 (>>5/0x1F else); prod=x*y; masked-ld(*p&0xFFFF0000FFFF==1) selects <<16 vs <<17 then sra16. ternary->branches not movn; needs movn idiom
 BoxBarSoundOn       # rc15 flag-dispatch movn + 64-bit bit-tests + tail-call; rc15
 iosCdvdMgrSearchFile# rc49 per-elem bit-pack loop, far-globals+0x2E8 stride; rc49 structure off
-func_001A7350       # rc2 float HW-reg: unaligned 16B struct-copy(D_0060D738)->buf; ret -1.0 if *0x10000810&0x800; f2=(float)(unsigned)*0x10000800; f2/buf[*0x10000810&3]/60.0f. ALL MATCH except 1 addu operand-order (sp+idx->v1 vs idx+sp->v0) regalloc tiebreak. seed=/tmp
 gamesysStageExitTimeSet# rc34 uncached-mirror(D_004AECA0|0x20000000) + scratchpad-symbol %lo(D_20000xx) reloc class (like gamesysGirlStageGet/ObjInfoCls deep-pass) + movn clamp((c>=0?c:c+0x3F)<<10>>16) that ternary->branches; 12-arg func_0023EE78; void-TCO func_0023E6E8(p)
 func_002534B8       # rc17 flag-dispatch (D_0054C92C/8FC==3 -> func_00253DB0(Dxxx[0],a0-1) or func_00253EC8(2 globals,a0-1)); obj=*(D_0054C764[0]+0x40), obj->0xF8 1->2. LOGIC EXACT; residual=global-value-load sched (before-jal vs after) + obj->f8 reload placement + %lo-fold addr form
 _FUNC_GetWay_begin  # rc7 rc7: f44 via a0+0xC split + bnel vs beq branch-likely tiebreak
