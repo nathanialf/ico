@@ -659,7 +659,6 @@ func_001CC950       # rc24 microcode elem write + p2 stride-0x50 zero + wrap idx
 DebugDisp1CollisionWithColor# rc16 assert-tail class: 3-part compound assert (beql/beqz/bnel branch-likely) + byte return; off by 16
 shiftMotionData     # rc14 unaligned 32B struct copy (ldl/ldr/sdl/sdr) to stack + conditional copyback; packed M32 off by 14
 func_001D1508       # rc17 scan-class bnel reorg (DrawLine sibling w/ a0 param stored at 0x74); off by 17
-func_001EE838       # rc1 rc1: block2 p2o arg load lh(exp) vs lhu(built); gcc free lh/lhu choice when <<1+16bit-truncate discards sign; permuter-class §5.11
 SetDirectRootPositionNoFittingWithNodePoint# rc9 rc9 multi-lever: gcc hoists -1 const to prologue (ROM rematerializes in loop) + back-edge bnel(built) vs bne(ROM) loop-rotation cascade
 dummyGetWindVector  # rc31 float->int dual clamp [0,19] (movn/movz) + 2D D_007072B0 index + opt *a0 write + ptr return; off by 31
 func_001EA3C8       # rc18 GS draw sequence with unusual incoming-$2 value (gif_MakeSprite 7th stack arg + gif_MakeLine2DOffset a0); off by 18

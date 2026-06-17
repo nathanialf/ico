@@ -42,7 +42,25 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/sugiTree", func_001EE648);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/sugiTree", func_001EE7E0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/sugiTree", func_001EE838);
+extern void *func_00105078(void);
+extern void MatrixDrive_TurnXObjectMatrixYZ(void *dst, void *src);
+extern float p2o_SetDefaultEnviroment(int a0);
+extern void func_00104DC0(int a0);
+extern void func_00104D48(int a0);
+
+void func_001EE838(int a0) {
+    int sub = *(int *)(a0 + 0x15C);
+    short *geo = (short *)*(int *)(sub + 0x7F0);
+    void *r;
+
+    r = func_00105078();
+    MatrixDrive_TurnXObjectMatrixYZ(r, (void *)(sub + 0x20));
+    func_00104DC0((short)(p2o_SetDefaultEnviroment(geo[0]) * 256.0f));
+    func_00104D48((short)(p2o_SetDefaultEnviroment((short)(geo[0] * 2)) * 256.0f));
+    r = func_00105078();
+    MatrixDrive_TurnXObjectMatrixYZ(*(void **)(sub + 0xC), r);
+    geo[0] = (unsigned short)geo[0] + 0x80;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/sugiTree", func_001EE8F0);
 
