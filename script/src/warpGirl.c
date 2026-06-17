@@ -74,7 +74,24 @@ void func_0017C1B0(void) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017C230);
+extern float func_00149D00(int a0);
+extern int D_005542F0[];
+
+int func_0017C230(int self) {
+    int i;
+    for (i = 0; D_005542F0[i] != -1; i++) {
+        if (*(int *)(self + 0xC) == D_005542F0[i]) {
+            int sub = *(int *)(self + 0x15C);
+            if (func_00149D00(2) < *(float *)(sub + 0x550)) {
+                return 1;
+            }
+            if (*(int *)(*(int *)(self + 0x164) + 0x30) == 0x16) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017C308);
 

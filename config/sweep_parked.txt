@@ -883,7 +883,6 @@ scpWakeupEnemyOne   # rc13 qword-debug-draw floor family (see func_0017BF50)
 scpSleepEnemyOne    # rc37 qword-debug-draw + matrix floor family
 scpSleepSpiderGroupOne# rc50 scan-class bnel+float array search; decomp-match needed
 scpWakeupSpiderGroupOne# rc50 scan-class bnel+float array search; decomp-match needed
-func_0017C230       # rc1 extra mtc1 zero,f0 not hoisted; var-hoist forces callee-saved (worse)
 actSt10lBox         # rc2 v0/v1 regalloc swap on D_0062A894=1 const store
 preload             # rc16 AABB &&-chain branch structure (bc1f/bc1tl split) off; debug-draw block
 actSt00aDoor2Event  # rc118 float-pacing frame loop (cvt.w.s phase dispatch); decomp-match
