@@ -141,10 +141,12 @@ fi
 # by "it feels stuck". If an interactive match_loop state exists for this func
 # and it is mid-loop (still improving / stall below the limit, best != 0),
 # REFUSE — an improvement you just made reset the counter, so hand-iterate.
-# Allowed silently when: no state (offline auto_permute / first run), at a
-# plateau (stall >= limit), or PERMUTE_FORCE=1. Set PERMUTE_FORCE=1 to override.
+# Allowed silently when: no state (offline auto_permute / first run) or at a
+# genuine plateau (stall >= limit). There is NO override — the gate is
+# unconditional (the PERMUTE_FORCE bypass was removed so nothing can shortcut
+# the 30-stall of distinct attempts).
 _GATE_STATE="$(cd "$(dirname "$0")/.." && pwd)/build/match_loop/${FUNC_NAME}.json"
-if [ "${PERMUTE_FORCE:-0}" != "1" ] && [ -r "${_GATE_STATE}" ]; then
+if [ -r "${_GATE_STATE}" ]; then
     _GATE_MSG="$("$(cd "$(dirname "$0")/.." && pwd)/.venv/bin/python" - "${_GATE_STATE}" <<'PYG'
 import json, sys
 LIMIT = 30
@@ -165,7 +167,6 @@ PYG
         echo "  The permuter is gated by 'match_loop next' (fire only at a 30-stall)." >&2
         echo "  An improvement you just made reset the counter — hand-iterate, or run" >&2
         echo "  'tools/match_loop.py next ${FUNC_NAME}' to confirm the verdict." >&2
-        echo "  Override (offline batch / deliberate) with PERMUTE_FORCE=1." >&2
         exit 3
     fi
 fi

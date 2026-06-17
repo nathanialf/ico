@@ -30,6 +30,7 @@ Usage:
 from __future__ import annotations
 import argparse
 import difflib
+import hashlib
 import json
 import re
 import subprocess
@@ -272,10 +273,18 @@ def analyze(tu: str, func: str | None) -> dict:
     tags = run_tag_diff(exp, blt)
     sched = detect_scheduling(nexp, nblt)
     status = "match" if real_count == 0 else "diffs"
+    # codegen_sig: a stable hash of the NORMALIZED built instruction stream.
+    # Two edits that compile to the same instructions (cosmetic no-ops, or
+    # reloc/symbol-guess-only differences the normalization already folds) get
+    # the SAME sig — so the driver/stall machinery can tell a genuinely-distinct
+    # codegen attempt from a re-spelling. Uses nblt (normalized), matching the
+    # real_count metric, NOT raw object bytes.
+    codegen_sig = hashlib.sha1("\n".join(nblt).encode("utf-8", "replace")).hexdigest()[:16]
     result = {"status": status, "real_count": real_count, "raw_count": raw_count,
               "diff_sites": len(sites),
               "first_divergence": sites[0] if sites else None,
               "divergence_map": sites,
+              "codegen_sig": codegen_sig,
               "tags": tags, "lines": pairs}
     if sched:
         result["scheduling"] = sched

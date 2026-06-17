@@ -134,7 +134,8 @@ def load_state(func: str) -> dict:
         return json.loads(p.read_text())
     return {"func": func, "tu": None, "iter": 0, "best": None, "stall": 0,
             "permuted": False, "tried_levers": [], "history": [],
-            "last_tags": [], "last_status": None}
+            "last_tags": [], "last_status": None,
+            "codegen_sigs": [], "nonnovel": 0}
 
 
 def save_state(st: dict) -> None:
@@ -185,17 +186,32 @@ def cmd_diff(args) -> int:
     rc = res["real_count"]
     st["history"].append(rc)
     prev_best = st["best"]
+    # NOVELTY GATE: stall counts ONLY genuinely-distinct CODEGEN. A cosmetic
+    # no-op (or any edit that compiles to an already-seen instruction stream)
+    # is NON-novel: it does NOT advance the plateau and can NEVER batch toward
+    # permute. codegen_sigs is cumulative (never cleared on a best-reset) so a
+    # shape already tried can't be re-credited. A non-novel result bumps the
+    # `nonnovel` tally instead — a signal (surfaced via res["novel"]=False) that
+    # the reasoning is re-spelling, not reconsidering.
+    sig = res.get("codegen_sig")
+    st.setdefault("codegen_sigs", [])
+    novel = bool(sig) and sig not in st["codegen_sigs"]
+    res["novel"] = novel
     if res["status"] == "compile-fail":
         # don't move the plateau counter on a build break; surface it
         pass
     elif crutch and not args.allow_crutch:
-        # tainted: count as a non-improving iteration (stall advances) but
-        # NEVER let it set the clean best.
-        st["stall"] += 1
+        # tainted: count as a non-improving iteration but NEVER set the clean
+        # best — and only if it's distinct codegen (novelty-gated like the rest).
+        if novel:
+            st["stall"] += 1
+        else:
+            st["nonnovel"] = st.get("nonnovel", 0) + 1
     elif prev_best is None or rc < prev_best:
         st["best"] = rc
         st["stall"] = 0
         st["tried_levers"] = []          # progress reopens the lever space
+        st["nonnovel"] = 0               # progress clears the re-spell tally
         # Snapshot the WINNING source so a later regression can be undone.
         # (Encodes feedback_revert_to_best_count_not_thrash into the tool:
         #  the lowest-count state already has the right regalloc — never
@@ -205,8 +221,8 @@ def cmd_diff(args) -> int:
             STATE_DIR.mkdir(parents=True, exist_ok=True)
             best_src_path(args.func).write_text(tp.read_text())
             st["best_src"] = str(tp.relative_to(ROOT))
-    else:
-        st["stall"] += 1
+    elif novel:
+        st["stall"] += 1                 # genuine distinct non-improving attempt
         # Regression guard: the edit made things WORSE than the best so far.
         if prev_best is not None and rc > prev_best and res["status"] == "diffs":
             res["warning"] = (
@@ -214,8 +230,15 @@ def cmd_diff(args) -> int:
                 f"state — the best-count source already has the right regalloc. "
                 f"Restore it first: `tools/match_loop.py revert {args.func}`, then "
                 f"apply ONE surgical change.")
+    else:
+        # NON-NOVEL: identical codegen to a prior attempt. Does not count.
+        st["nonnovel"] = st.get("nonnovel", 0) + 1
+    # Record every distinct codegen once (cumulative — survives best-resets).
+    if novel and sig and res["status"] != "compile-fail":
+        st["codegen_sigs"].append(sig)
     save_state(st)
-    res["state"] = {k: st[k] for k in ("iter", "best", "stall", "permuted")}
+    res["state"] = {k: st.get(k) for k in
+                    ("iter", "best", "stall", "permuted", "nonnovel")}
     print(json.dumps(res, indent=2))
     return 0 if res["status"] in ("match", "diffs") else 2
 
