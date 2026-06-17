@@ -1,22 +1,41 @@
-# GatherEffect_Set (ito/src/gather_effect) — rc13, §3.10 non-global indexed scan
+# GatherEffect_Set (ito/src/gather_effect) — rc12, strength-reduce class
 
-Particle-layout accumulator: `InitParticleLayoutGeo(a0)` -> p; OR all
-`entries[i].f0` (stride 0x70, count=p->0x30, base=p->0x24); return `acc==0`.
-Special: a0<0 -> return 1; p==0 -> return 1 (direct, not via sltiu).
+Purpose: "is the gather effect finished?" query. p = InitParticleLayoutGeo(a0)
+(= D_007030C0[a0].w[5], a runtime ptr to the particle-data block); OR every
+entry's field-0 (entries=p->0x24, count=p->0x30, stride 0x70); return acc==0.
+Special: a0<0 -> 1; p==0 -> 1 (direct).
 
-## Residual (rc13): cookbook §3.10 indexed-table-search, NON-GLOBAL base
-- ROM keeps the per-iter `mult i,0x70` (NOT strength-reduced) with a SINGLE
-  in-loop `addiu v0,zero,0x70` and cached base (a2). count=a3, base=a2, i=a1.
-- ee-gcc strength-reduces `base + i*0x70` to a pointer walk for ANY clean form
-  (plain do-while, for-loop, int-array-index, no-cache-base).
-- The §3.10 in-loop stride-reassign DOES keep the mult, but without a REG pin
-  the hoisted `int stride=0x70` emits a DOUBLED `addiu ...,0x70` (ROM has one).
-- §3.10's CLEAN fix (direct global index, no cache) only works for a GLOBAL
-  array (constant %hi/%lo address never forms a GIV). Here base = p->0x24 is a
-  runtime register pointer -> always inducts. So the clean trick doesn't apply.
-- Also: count reg a2-vs-a3 and `blezl` (annulled) vs ROM `blez` (plain, i=0 in
-  delay) — a branch-likely reorg tie that likely cascades from the loop regalloc.
+## Best clean shape = rc12 (this seed)
+goto-CFG, base-read-before-count (sinks base past the guard -> PLAIN `blez`,
+not annulled `blezl`), stride-reassign keeps the per-iter MULT (non-loop-
+invariant stride defeats the GIV). This is an improvement over the prior rc13
+park (the blezl is fixed at rc12).
 
-Pin-requiring per the cookbook; pins are banned -> permuter case. Seed above is
-the mult-KEEPING stride-reassign form (has the structural feature, per the
-"seed with the shape that has the feature" rule).
+## Sole residual root: stride REGISTER cascade (pin-class)
+ROM: count=a3, base=a2, stride=v0 (re-materialised each iter, REUSING the dead
+`p`=v0 after count/base are read). Mine: count=a2, base=t0, stride=a3 (the
+mult-keeping hoisted stride is long-lived -> a3, with a doubled addiu; never
+reuses v0). To get stride into v0 the cookbook §3.10 recipe uses ANCHOR(i)+REG
+pins (BANNED here).
+
+## Dev-folder evidence (why this is hard, not a quick miss)
+- particleLayout.c func_001E6070 (`for(i){p=&D_007030C0[i]; p->w[..]}`) is
+  MATCHED and STRENGTH-REDUCES to a walking ptr (`addiu $16,$16,0x18`). So this
+  dev's runtime/multi-use loops DO strength-reduce.
+- itou_boss.c:674 `D_006CCE60[i*0x40+4]` keeps the mult — but that base is a
+  GLOBAL (constant addr, cookbook clean direct-index). GatherEffect's base is a
+  RUNTIME ptr (p->0x24), so the clean global-index trick does NOT apply.
+- 7+ funcs parked for this same root (func_001C6398, correctJumpOrientByChain,
+  scpPlayStart, GatherEffect_Proc, tex_makeTexturePacket, FlagDL). Repo-wide
+  unsolved "gcc strength-reduces vs ROM keeps per-iter mult, NON-GLOBAL base".
+
+## Tried (all fold to strength-reduced or stride-reassign-a3)
+plain i*0x70, int*[i*28], 2D-array, struct PLEnt, reuse-p (count=a3 but adds
+v0->a2 copy), reuse-p-as-stride, base-inline, stride top-of-body, count-inline,
+int* p[9]/p[12], mult operand order. NOT a cflag (-fno-strength-reduce is a
+crutch; cookbook says it's the wrong tool).
+
+## Next: a clean shape exists (user-asserted). Likely a register-pressure /
+operand-lifetime reshape that lands the in-loop stride constant in v0 (reusing
+dead p) without the hoisted long-lived stride. Permuter only after a genuine
+stall>=30 (do NOT force the gate).
