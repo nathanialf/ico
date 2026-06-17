@@ -55,7 +55,6 @@ func_001A7658       # rc99 VU0 (ctc2/vlqi/sqc2) VU0-mem dump to debug_assertMess
 func_001A7700       # rc99 VU0 sibling of func_001A7658; VU0-mem dump to debug_assertMessage; deep-pass
 func_0024F220       # rc32 func_00252870 call-seq storing to D_0054C8xx; %hi reg reuse/sched across calls residual
 func_0024A498       # rc99 init: scattered-field zero loop (stride 0x1C, 6 fields) + 9-arg func_00242978 + bgezl ret; complex, deep-pass
-calcFootIK          # rc2 rc2: only p-load(lw v0,348) vs D_0062BF10=a1 store order swapped (sched tiebreak, independent load/store). int-typed p made WORSE(4). orig ptr-version best; seed /tmp w/ int*p
 InitQuaternionDrive # rc12 bgez idx<0 assert+SetIdentity+reload; idx++; store; if>=0x40 assert+clamp0x3F; reload; tail GetInverseQuaternion(&D_0065A5C0[idx*4],[idx*4-4]). seed /tmp
 func_00253950       # rc3 bounds-check flag + 2 calls; logic exact; residual=xori in b-to-merge delay slot (branch layout)
 gamesysGirlStageGet # rc99 scratchpad-symbol overlay (D_004AEB70|0x20000000 + %lo(D_200000xx)) like func_0024BC30 + movn; deep-pass

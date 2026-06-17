@@ -91,7 +91,34 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetLowerPlaneCol
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", getLowerPlaneCollisionE);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", calcFootIK);
+extern int D_00629E4C;
+extern int D_0062BF10;
+extern int D_0062BF0C;
+extern int D_0062BF14;
+extern void gif_SpriteOffset(int a0);
+extern void gsb_SetFrame(int a0, int a1, int a2);
+extern void func_00104D20(void);
+extern void *func_00105078(void);
+extern void func_002400F8(void *a0);
+extern void getLowerPlaneCollisionE(int a0);
+extern void func_00105068(void);
+extern void func_0010F9D0(void);
+
+void calcFootIK(int a0, int a1) {
+    int sub = *(int *)(a0 + 0x15C);
+    D_0062BF10 = a1;
+    D_0062BF14 = *(int *)(sub + 0x8C);
+    D_0062BF0C = a0;
+    if (D_00629E4C != 0) {
+        gif_SpriteOffset(0xB);
+        gsb_SetFrame(1, 5, 0x80);
+        func_00104D20();
+        func_002400F8(func_00105078());
+        getLowerPlaneCollisionE(0);
+        func_00105068();
+        func_0010F9D0();
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", InitMotionGeoInfo);
 
