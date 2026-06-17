@@ -1088,7 +1088,6 @@ actEndDemo05        # rc4 linear act + family D[1]-delay floor
 actSt00aEnemy2      # rc5 linear act + family D[1]-delay floor
 actExplodeChk       # rc5 QueenDeadChk if-block + family tail; D[1]-delay floor + actWave1 in-TU FN
 func_002272F8       # rc2 scpSleepEnemyOne 2-loop coroutine variant
-func_0022B408       # rc1 multi-scpSleep + actBoyBHang branch
 stageSE04eriverDown # rc1 actBoyBHang twin; redundant-load residual
 func_002310B8       # rc12 struct-copy x2 + GetRootMatrixByDObj + preload loop; stack-buffer layout rc12
 actWaveChk          # rc scpPlayStart 2-loop + beql scpTrans tail
