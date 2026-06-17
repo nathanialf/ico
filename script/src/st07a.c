@@ -118,4 +118,31 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st07a", actSt07aGene2_2);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st07a", actSt07aGene2_3);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st07a", actSt07ChanEvent);
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void BoxBarSoundOn(int a0, int a1);
+extern int D_004CCDC0[];
+extern void actSt06aSuimon(void);
+
+typedef struct GObj {
+    char pad[0xB4];
+    int *unkB4;
+} GObj;
+
+void actSt07ChanEvent(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0xFC) == 0) {
+        stage_KillPlayBgAnimation(0x132, 0, 0);
+        D_004CCDC0[1] = (int)actSt06aSuimon;
+        gobj->unkB4 = D_004CCDC0;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    } else {
+        stage_KillPlayBgAnimation(0x132, 0, -1);
+    }
+}
+
