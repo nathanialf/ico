@@ -46,7 +46,30 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", stageSE04bstrong);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", stageSE04ewind);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", stageSE04eriverDown);
+extern int scpSleepEnemyOne(int a0, int a1, float a2);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void actBoyBHang(void);
+extern void actSt25aQueenDead(int a0, int a1, int a2, float a3, float a4);
+extern void func_00178DD8(int a0);
+extern void _ACTWait(int a0);
+extern int D_00629DE4;
+extern int D_00629DE8;
+
+void stageSE04eriverDown(volatile int a0) {
+    while (scpSleepEnemyOne(a0, D_00629DE4, 400.0f) == 0 ||
+           scpSleepSpiderGroupOne(D_00629DE4, 0x2000000) == 0) {
+        _ACTWait(1);
+    }
+    func_00178DD8(0x121);
+    func_00178E08(0x119);
+    if (D_00629DE8 != 0) {
+        if (scpSleepSpiderGroupOne(D_00629DE8, 0x2000000) != 0) {
+            actBoyBHang();
+            actSt25aQueenDead(4, D_00629DE4, D_00629DE8, 2.0f, 8.0f);
+        }
+    }
+    actSt25aQueenDead(4, D_00629DE4, 0, 2.0f, 8.0f);
+}
 
 extern int D_00629DE8;
 extern void _ACTWait(int a0);
