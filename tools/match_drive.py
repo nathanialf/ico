@@ -388,6 +388,17 @@ def harvest(q, func, tu):
 def do_permute(q, func, tu, v):
     cpath = ML.resolve_tu_path(tu)
     reason = v.get("reason", "stall>=30")
+    # Seed the permuter from the BEST-count shape, not the live file. The stall=30
+    # gate is tripped by a NOVEL (usually divergent) final edit, so the live TU at
+    # this moment is typically NOT the lowest-count source. Restore the best
+    # snapshot into the TU first so park_tu hands the permuter the best regalloc
+    # to perturb from (best-effort: a no-op if no snapshot was recorded yet).
+    snap = ML.best_src_path(func)
+    if cpath and snap.exists():
+        try:
+            cpath.write_text(snap.read_text())
+        except OSError:
+            pass
     pr = run([PY, ROOT / "tools" / "park_tu.py", func, rel(cpath), reason])
     if pr.returncode != 0:
         return emit_blocker(q, func, "park_tu(permute) failed:\n" + (pr.stdout + pr.stderr)[-400:], "permute")
