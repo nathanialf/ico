@@ -307,7 +307,22 @@ extern int func_00260340(float a0);
 extern int func_0025F4A0(int a0, long long a1);
 extern long long D_005530B8_a[] __asm__("D_005530B8");
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonFall);
+void actCommonFall(int self) {
+    float buf[3];
+    int sub = *(int *)(self + 0x15C);
+    int r;
+
+    buf[0] = *(float *)(sub + 0x1C0);
+    buf[1] = *(float *)(sub + 0x1C4);
+    buf[2] = *(float *)(sub + 0x1C8);
+    func_0023FE98(buf, buf);
+    r = func_00260340(MatrixDrive_GetTurnYAngleXZ(buf[0] * buf[0] + buf[2] * buf[2]));
+    if (func_0025F4A0(r, D_005530B8_a[0]) > 0) {
+        buf[1] = 0.0f;
+        func_0023FE98(buf, buf);
+        dispPlane((void *)self, buf);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", debugDispFlyLimit);
 
