@@ -38,7 +38,31 @@ void fzShowM(int *self, int a1)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", fzMagnitude2f);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", fzMagnitude3f);
+extern float func_0023FE70(int a0, int a1);
+extern void func_00240080(int *dst, int *src);
+
+int fzMagnitude3f(int a0) {
+    float *p = (float *)a0;
+    char *q = (char *)(a0 + 0xA0);
+    float t0, t1, d;
+
+    func_00240080((int *)(a0 + 0x20), (int *)(a0 + 0x10));
+    t0 = func_0023FE70((int)q, a0 + 0x10) + *(float *)(q + 0xC);
+    if (t0 >= 0.0f) {
+        return 0;
+    }
+    t1 = func_0023FE70((int)q, a0) + *(float *)(q + 0xC);
+    if (t1 < 0.0f) {
+        if (t0 < 0.0f) {
+            return 0;
+        }
+    }
+    d = t1 - t0;
+    p[8] = (p[4] * t1 - p[0] * t0) / d;
+    p[9] = (p[5] * t1 - p[1] * t0) / d;
+    p[10] = (p[6] * t1 - p[2] * t0) / d;
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", fzMagnitudefv);
 
