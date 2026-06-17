@@ -121,7 +121,38 @@ extern void func_00240008(void *a0, void *a1, void *a2);
 extern void func_00240968(void *a0, void *a1, float a2);
 extern void MatrixDrive_TurnZObjectMatrixXY(void *a0, void *a1, void *a2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clothTest", func_001C6228);
+void func_001C6228(int a0, int a1, int a2) {
+    int buf[4] __attribute__((aligned(16)));
+    register float d1 __asm__("$f21");
+    register float d2 __asm__("$f20");
+    register int a1b __asm__("$5");
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf1, 0x0(%3)\n"
+        "lqc2 $vf2, 0x0(%4)\n"
+        "vmul.xyz $vf3, $vf1, $vf2\n"
+        "vaddy.x $vf3, $vf3, $vf3y\n"
+        "vaddz.x $vf3, $vf3, $vf3z\n"
+        "vaddw.x $vf3, $vf3, $vf2w\n"
+        "qmfc2.ni $2, $vf3\n"
+        "mtc1 $2, $f21\n"
+        "addiu $5, %3, 0x10\n"
+        "lqc2 $vf1, 0x0($5)\n"
+        "lqc2 $vf2, 0x0(%4)\n"
+        "vmul.xyz $vf3, $vf1, $vf2\n"
+        "vaddy.x $vf3, $vf3, $vf3y\n"
+        "vaddz.x $vf3, $vf3, $vf3z\n"
+        "vaddw.x $vf3, $vf3, $vf2w\n"
+        "qmfc2.ni $2, $vf3\n"
+        "mtc1 $2, $f20\n"
+        "neg.s $f20, $f20\n"
+        ".set reorder\n"
+        : "=f"(d1), "=f"(d2), "=r"(a1b) : "r"(a1), "r"(a2) : "$2", "memory");
+    func_00240008(buf, (void *)a1b, (void *)a1);
+    d2 = d1 + d2;
+    func_00240968(buf, buf, d1 / d2);
+    MatrixDrive_TurnZObjectMatrixXY((void *)a0, (void *)a1, buf);
+}
 
 int func_001C62E8(void *a0, void *a1) {
     register int result __asm__("$2");

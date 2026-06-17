@@ -22,6 +22,12 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+# Force JS actions onto Node.js 24 — Node 20 is deprecated on the runners.
+# Covers actions still pinned to Node 20 internally (configure-pages@v5,
+# upload-pages-artifact@v3, deploy-pages@v4) until they ship a Node-24 major.
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   deploy:
     environment:
@@ -30,10 +36,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
+        with:
+          # Create the Pages site automatically if it doesn't exist yet, so the
+          # first deploy doesn't fail with "Get Pages site failed" (404).
+          enablement: true
 
       - name: Upload docs/ artifact
         uses: actions/upload-pages-artifact@v3
