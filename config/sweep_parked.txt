@@ -583,7 +583,6 @@ light_AddAmbientObject# rc192 9-call + asserts + computed; deep-pass
 bga_initLightEnvelope# rc173 14-call seq + asserts + computed; deep-pass
 gif_MakeSpriteOffset# rcCOMPILE-FAIL dead-store GIFtag+VU0; deep-pass
 reg_dispMObj        # rc206 dead-store MObj packet (10 calls); deep-pass
-func_0018E348       # rc1 ONLY diff @idx33: src ptr addu operand order (EXP s0,v0=i*0x20+base vs built v0,s0); alias D_0062C8C8 fixed gp-rel. deep-pass: flip addu operands
 enemy_GetPositionTable# rc207 nested-loop table search; deep-pass
 stage_ContinueAnimation# rc217 unaln + 12 calls; deep-pass
 prim_DeleteParticle # rc213 18-call + asserts; deep-pass

@@ -77,7 +77,29 @@ void func_0018E2B8(char *base, int n, int a2)
     } while (i <= n);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018E348);
+extern float HandyCamera_TargetMoveType(void *a0, void *a1);
+extern float D_0062C8C8_a[] __asm__("D_0062C8C8");
+
+int func_0018E348(float *out, int a1, void *a2) {
+    int geo = *(int *)(*(int *)(a1 + 0x15C) + 0x7F0);
+    float best = D_0062C8C8_a[0];
+    int ret = 0;
+    int i;
+
+    for (i = 2; i <= *(int *)(geo + 0x74) - 1; i++) {
+        int off = i << 5;
+        float v = HandyCamera_TargetMoveType(a2, (void *)(*(int *)(geo + 0xD0) + off));
+        if (v < best) {
+            float *elem = (float *)(off + *(int *)(geo + 0xD0));
+            best = v;
+            ret = 1;
+            out[0] = elem[0];
+            out[1] = elem[1];
+            out[2] = elem[2];
+        }
+    }
+    return ret;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018E430);
 
