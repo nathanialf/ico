@@ -1126,3 +1126,29 @@ func_00207098       # rc8 BoxBarSoundOn door-tail floor
 actSt05bBallXL      # rc8 BoxBarSoundOn door-tail floor
 actSt05bSekizo      # rc8 BoxBarSoundOn door-tail floor
 actSt18aEne2Chk     # rc8 BoxBarSoundOn door-tail floor
+actSt05bSolarXL     # rc23 SPILL act-fn; capture actInitialize ret to s0 + D_004CC840 fptr store; dead reload artifact
+func_0021B580       # rc6 act-fn family template cracked (volatile a0+int x; if(func==0){0-blk,g->f=&D,D.b=fptr,Box,Wait}else{-1}); large D forces hi/lo; residual=a1-const(0x189) vs g->f-store sched2 tiebreak
+actSt18aSwitchRChk  # rc26 boundary-glued: 2 prologues under 1 symbol (infinite-loop fn + 2nd fn); unmatchable as configured
+actSt04rBrg1Chk     # rc6 act-fn family rc6 floor (a1-const vs g->f-store sched2 tiebreak); template proven
+ACTGame_CheckItemMotion# rc18 clean fn, buf[0xC0]+func_00260568/240080/ClipWallBoxStop; sig (int,int,void*,float*,float); 18 diffs likely regalloc/float-param cascade -> deep pass
+iosMallocSetPartition# rc4 rc4 near-miss; nested loops + signed-div round((v+0x7FF)/0x800*0x800); residual=clamp-block arg-setup (a0/a2 daddu) + poss in-TU reloc on iosMallocResetPartition (a1,a1,256 vs 0); deep-pass
+actEnemyForceSwitchToCarry# rc13 float fn, 6x ContinueCorrectPosition build 2 vec3 + abs-threshold(200.0) test; likely fcc_nop hazard + bc1t/bc1f branch-dir; deep pass
+func_0013B550       # rc42 complex loop over D_006A0930[16] stride 0x18; beql/bnel branch-likely (§3.3), break-0,7 div trap, lwl/lwr unaligned, movn clamp; deep pass
+soundSeDefStopNoRelease# rc32 D_006A3370[idx*64] entry; 64-bit bitmask clear (D_0062BFD0/m->0x20), e+0x30 dual-base addr, two-jal func_00259B80 branch; deep pass
+adpcmPauseRequest   # rc52 two short loads(0x3C/0x40) zeroed if D_0062BB20==0; 0x38==0x10000 guard; reverb-dep pair func_0025A180(1LL<<p[i]); base+=8 advance + 7-reuse-as-shift-1; deep pass
+func_00170CB8       # rc61 FP collision: 2x DebugDisp1CollisionWithColor build vec3 via re-derived ptr chain D->0x15C->0xC+idx*64, ClearHandCameraCorrect, abs(buf1[1]-(buf2[1]-40.0)); CSE/stray-store; deep pass
+func_0023D3C0       # rc30 7-arg GObj ctor; isysGObjMoveBeforeGObj + 3x isysGObjProcPause(0x16/17/18) + MoveObjDLAfterGObj + cond ProcPauseAll; args5-7 n32 $8/$9/$10; deep pass
+func_001AAE80       # rc47 stage ObjInfo setup; 128-bit lq D_0060EF00 by-value func_00241778, multi-field bit-pack into long long for func_002418B8, n32 6-arg; deep pass
+sndBgmReadyNextStage# rc69 leaf; 4x float (p->f==0)?const:p->f defaults(500/1000/D_DBC) + 3x bitfield RMW obj->0x4 from p->0x18 bits; ternary->cmov vs ROM branch; deep pass needs if/else
+func_0023F1D0       # rc64 GS/GIF packet builder; qword por/sq, precise short bit-packing into giftag fields, SYNC, ret 7; deep pass
+func_002406E8       # rc107 FP matrix builder from vec, flag-branched normalize w/ div; deep pass
+GetQuaternionFromMatrix# rc78 quat-from-matrix; permutation table D_002724D0 indexing (mult 0x14/sll), largest-diagonal select; deep pass
+kanbanReqDel        # rc58 mirrored inc/dec clamp branches, div-trap (0x3C-n)/d, branch-likely f==0 default, cvt.w.s tail; deep pass
+func_00139B40       # rc78 mem-block init; unaligned 16B copies ldl/ldr from D_005513xx, align-round, 2x debug_assertMessage; deep pass
+func_001FE0A8       # rc53 64-bit flag setter; many dsll bit-ORs into p->0x468/0x470/0x18, ACTEnvGetTest gate, OR-chain lowering order; deep pass
+GetEyeDirection     # rc42 FP eye-direction; vec diffs, func_0023FE70 length, branch-likely, cross-product, MatrixDrive_GetTurnYAngleXZ, cvt.w.s abs/div; deep pass
+iosPadNormalizeStick# rc29 pad button decode loop (16 bits, srav, OR table[i] into held/prevheld) + edge masks + 0x194/D_0062BF98 clears; loop regalloc/sched; deep pass
+staffRollWide       # rc64 staffroll entry loop (300 entries stride 0x10), bnel, movz clamps, div, dl_Init color pack lwl/lwr; deep pass
+_MustChase          # rc29 state switch on g->0x1E4, per-case 64-bit bit RMW (double w/ reload) at 0x208, default tail-call func_00260380; switch order/tailcall; deep pass
+ACTGame_LwsEffectProcess# rc45 clean linear struct-dispatch BUT arg arrives in $2 not $4 (non-standard conv); mode 0/1 copy to (p->0xC)->0x15C+0x300/0x2A0; deep pass (arg reg)
+func_0014E858       # rc81 GObj setup + disp_memory_partition gate; table D_002A0A90[idx*0x4C] scale/180 transform vs direct copy; deep pass
