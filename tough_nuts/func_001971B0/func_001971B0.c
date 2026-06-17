@@ -34,7 +34,45 @@ typedef struct { char _b[0x20]; } QBlk32;
 typedef struct { float x, y, z, w; } QVec;
 typedef struct { int type; void *arg; } QEnt;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", func_001971B0);
+void func_001971B0(char *self) {
+    float buf[8];
+    int *list = (int *)(self + 0x54);
+    char *p164 = *(char **)(self + 0x164);
+    unsigned int i = 0;
+
+    if (i < list[1]) {
+        QEnt *entries = (QEnt *)(self + 0x5C);
+        int *rr = *(int **)(D_00629DE4 + 0x164);
+        do {
+            switch ((unsigned int)entries[i].type) {
+            case 0x2D:
+                flags[0] = 1;
+                break;
+            case 0x2E:
+                flags[0] = 0;
+                break;
+            case 0xD:
+                debug_assertMessage(D_00556780);
+                flags[2] = 1;
+                break;
+            case 0x12:
+                {
+                    void *m = *(void **)((char *)rr + 0x130);
+                    debug_assertMessage(D_00556790, m);
+                    if (entries[i].arg != 0 && m != 0) {
+                        GetRootMatrixByDObj(buf, entries[i].arg);
+                        GetRootMatrixByDObj(buf + 4, m);
+                        GatherEffect_Proc(0xC, buf, D_002724B0, buf + 4, scale_m34, 2.5f);
+                    }
+                }
+                break;
+            }
+            i++;
+        } while (i < list[1]);
+    }
+    list[1] = 0;
+    *(QBlk32 *)(p164 + 0x610) = *(QBlk32 *)(*(char **)(self + 0x15C) + 0x170);
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", queenBeforeFunc);

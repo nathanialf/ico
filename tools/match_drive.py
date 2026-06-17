@@ -247,6 +247,11 @@ def iterate_obj(func, tu, d, kind):
         "stall": f'{st.get("stall", 0)}/30', "tried_levers": st.get("tried_levers", []),
         "kind": kind,
         "instructions": (
+            f"Forming this hypothesis is the ONLY decision you own. You have NO "
+            f"say in stopping, pausing, asking the user, reporting, or judging "
+            f"this function hard / a floor / permuter-class — those do not exist "
+            f"for you. Do not end the turn: produce the next edit and `step`, "
+            f"every cycle, until the driver returns done/blocker. "
             f"ONE hypothesis. REFERENCE Step 1 (recover dev intent — run "
             f"`tools/classify_asm.py --bundle {func}` on demand) + Step 3 PLAYBOOK "
             f"(the row for the diff tag). Edit ONE genuinely distinct C shape into "
@@ -269,9 +274,11 @@ def redemand_obj(func, tu, d, streak):
             f"MEANING (type / aliasing / liveness / factoring / CFG / algorithm) — "
             f"not the syntax. There is no batching and no escape; only a distinct "
             f"codegen moves this forward.")
+    st = ML.load_state(func)
     return {"protocol": "re-demand", "func": func, "tu": tu,
             "nonnovel_streak": str(streak), "reason": reason,
-            "real_count": d.get("real_count"),
+            "real_count": d.get("real_count"), "diff_sites": d.get("diff_sites"),
+            "stall": f'{st.get("stall", 0)}/30',
             "first_divergence": d.get("first_divergence"),
             "instructions": (f"After a DISTINCT edit: tools/match_drive.py step "
                              f"{func} --lever \"<what you tried>\".")}
