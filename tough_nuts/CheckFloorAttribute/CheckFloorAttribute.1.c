@@ -245,7 +245,28 @@ int DisableMotionOrientUpdate(void *a0) {
     return func_001668B0(*(int *)((char *)p + 0x5E0));
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", CheckFloorAttribute);
+int CheckFloorAttribute(float *dst, void *a1) {
+    unsigned char *src = (unsigned char *)a1;
+    int mul;
+    int count;
+    float *sp;
+    int idx;
+    if (((signed char *)src)[1] != 0) goto ret0;
+    mul = 8;
+    idx = src[2];
+    count = src[3];
+    if (count == 0) goto ret0;
+    sp = (float *)((src + (idx * mul)) + 0x10);
+    do {
+        *dst = *sp;
+        dst++;
+        sp++;
+        count--;
+    } while (count != 0);
+    return 1;
+ret0:
+    return 0;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", CheckWallAttribute);

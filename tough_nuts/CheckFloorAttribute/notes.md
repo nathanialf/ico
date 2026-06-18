@@ -89,3 +89,51 @@ byte-correct offset/loop; only needs guard2 retention).
 
 Differ note: this TU's asm-differ misaligns on delay-slot fills; confirm with
 `ninja` (build/.../motionManager2.o), not the match_loop scratch .o.
+
+---
+
+## Attempt at 2026-06-18
+
+**Reason parked:** plateau: 30 distinct hand hypotheses, no real_count progress (best=3). PARK the seed, then fire ONE bounded permuter shot on it (REFERENCE Step 4); harvest by true real_count and adopt any improvement (resolution b only if nothing beats best).
+
+**TU:** `sugipon/src/motionManager2.c`
+
+**Seed:** `tough_nuts/CheckFloorAttribute/CheckFloorAttribute.1.c`
+
+Disassembly:
+
+```
+.align 3
+nonmatching CheckFloorAttribute, 0x54
+
+glabel CheckFloorAttribute
+    /* A0A8 0010A0A8 0100A280 */  lb         $2, 0x1($5)
+    /* A0AC 0010A0AC 11004014 */  bnez       $2, .L0010A0F4
+    /* A0B0 0010A0B0 00000000 */   nop
+    /* A0B4 0010A0B4 0300A390 */  lbu        $3, 0x3($5)
+    /* A0B8 0010A0B8 0E006010 */  beqz       $3, .L0010A0F4
+    /* A0BC 0010A0BC 0200A290 */   lbu       $2, 0x2($5)
+    /* A0C0 0010A0C0 C0100200 */  sll        $2, $2, 3
+    /* A0C4 0010A0C4 10004224 */  addiu      $2, $2, 0x10
+    /* A0C8 0010A0C8 08006010 */  beqz       $3, .L0010A0EC
+    /* A0CC 0010A0CC 2110A200 */   addu      $2, $5, $2
+.align 2
+  .L0010A0D0:
+    /* A0D0 0010A0D0 000040C4 */  lwc1       $f0, 0x0($2)
+    /* A0D4 0010A0D4 FFFF6324 */  addiu      $3, $3, -0x1
+    /* A0D8 0010A0D8 04004224 */  addiu      $2, $2, 0x4
+    /* A0DC 0010A0DC 000080E4 */  swc1       $f0, 0x0($4)
+    /* A0E0 0010A0E0 04008424 */  addiu      $4, $4, 0x4
+    /* A0E4 0010A0E4 FAFF6014 */  bnez       $3, .L0010A0D0
+    /* A0E8 0010A0E8 00000000 */   nop
+.align 2
+  .L0010A0EC:
+    /* A0EC 0010A0EC 0800E003 */  jr         $31
+    /* A0F0 0010A0F0 01000224 */   addiu     $2, $0, 0x1
+.align 2
+  .L0010A0F4:
+    /* A0F4 0010A0F4 0800E003 */  jr         $31
+    /* A0F8 0010A0F8 2D100000 */   daddu     $2, $0, $0
+endlabel CheckFloorAttribute
+    /* A0FC 0010A0FC 00000000 */  nop
+```
