@@ -150,7 +150,28 @@ int bridge_waypoint_side_bridge(void *a0, int a1) {
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", waypoint_connect_group_side_bridge);
+typedef struct WNODE { char _p[0x20]; int i20; int i24; } WNODE;
+extern WNODE *WayLengthOfGObj_GObj(WNODE *);
+extern WNODE *WayLengthOfGObj_Pos(void);
+
+WNODE *waypoint_connect_group_side_bridge(int a0, int a1) {
+    WNODE *p = WayLengthOfGObj_Pos();
+    while (p != 0) {
+        char *eA = wcf_c + p->i20 * 0x40;
+        char *eB = wcf_c + p->i24 * 0x40;
+        int a = *(int *)(eA + 0x20);
+        int b = *(int *)(eB + 0x20);
+        if (a == a0 && b == a1) {
+            return p;
+        }
+        if (b == a0 && a == a1) {
+            return p;
+        }
+        p = WayLengthOfGObj_GObj(p);
+    }
+    return 0;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", NearestWgFromTarget);
 
