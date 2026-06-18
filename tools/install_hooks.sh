@@ -24,6 +24,8 @@ cat > "$HOOK" <<'EOF'
 #   1. tools/check_no_rom.sh    — IP-safety scan on staged files
 #   2. tools/build.sh setup     — splat + migrator + ninja regen
 #   3. ninja                    — byte-identical-build gate (SHA-1 verify)
+#   4. tools/build.sh progress  — refresh progress tables + docs/progress.json,
+#                                 then `git add` them into this commit
 #
 # The full-setup step matters: incremental ninja can be misleadingly
 # green if the per-TU data sidecars on disk happen to match a prior
@@ -87,6 +89,20 @@ if ! "$NINJA" -C "$ROOT"; then
     echo "  Bypass with \`git commit --no-verify\` only if you understand why" >&2
     echo "  ninja is failing and have a follow-up commit ready that fixes it." >&2
     exit 1
+fi
+
+# Build is green — refresh the progress tables + GitHub Pages JSON so every
+# build-affecting commit carries up-to-date numbers, and stage them into THIS
+# commit. These are derived artifacts, so a regen hiccup warns but never blocks
+# the commit (the SHA-1 gate above already passed). `git add` here re-stages the
+# regenerated files; for a normal `git commit`/`commit -a` they ride along in
+# this commit (a path-scoped `git commit <file>` won't pick them up).
+echo "pre-commit: tools/build.sh progress (refresh + stage progress) ..."
+if "$ROOT/tools/build.sh" progress >/dev/null 2>&1; then
+    git add "$ROOT/README.md" "$ROOT/docs/PROGRESS.md" "$ROOT/docs/progress.json" 2>/dev/null || true
+else
+    echo "pre-commit: progress regen failed (non-fatal) — commit proceeds" >&2
+    echo "  without refreshed progress; run \`tools/build.sh progress\` manually." >&2
 fi
 EOF
 chmod +x "$HOOK"
