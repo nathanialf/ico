@@ -300,7 +300,29 @@ body:
     return D_0062A490->arr[a0];
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", Reset_ShockRequestStruct);
+int Reset_ShockRequestStruct(int a0, int a1) {
+    int p;
+    if ((unsigned int)a0 < (unsigned int)D_0062A490->count) {
+        goto body;
+    }
+    p = 0;
+    goto check;
+body:
+    p = D_0062A490->arr[a0];
+check:
+    if (p == 0) {
+        goto ret_a;
+    }
+    if ((unsigned int)a1 >= (unsigned int)*(unsigned short *)(*(int *)p + 8)) {
+        goto ret_b;
+    }
+    return *(int *)(p + 0xC) + a1 * 4;
+ret_b:
+    return 0;
+ret_a:
+    return 0;
+}
+
 
 void ShockRevice_Wave(short *a0) {
     a0[1] = 0;
