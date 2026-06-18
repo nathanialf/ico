@@ -103,7 +103,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b2", func_002271F0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b2", func_00227268);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b2", func_002272F8);
+extern int scpSleepEnemyOne(int a0, int a1, float a2);
+extern int D_00629DE4;
+
+void func_002272F8(volatile int a0) {
+    while (scpSleepEnemyOne(a0, D_00629DE4, 100.0f) == 0) { _ACTWait(1); }
+    lt_fade_status(0x33);
+    D_0062A894 = 1;
+    func_00178DD8(0x48);
+    stage_KillPlayBgAnimation(0x72, 1, 0);
+    while (func_0012A958(0x72) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    lt_fade_status(0x32);
+    D_0062A894 = 0;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b2", func_002273A0);
 
