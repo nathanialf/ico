@@ -1,12 +1,12 @@
 # ico
 
 <!-- progress:begin -->
-![.text progress](https://img.shields.io/badge/text-14.74%20%25-orange.svg)
+![.text progress](https://img.shields.io/badge/text-14.75%20%25-orange.svg)
 ![.vutext progress](https://img.shields.io/badge/vutext-0.00%20%25-red.svg)
 ![.data progress](https://img.shields.io/badge/data-0.00%20%25-orange.svg)
-![.rodata progress](https://img.shields.io/badge/rodata-0.05%20%25-orange.svg)
+![.rodata progress](https://img.shields.io/badge/rodata-0.60%20%25-orange.svg)
 ![.lit4 progress](https://img.shields.io/badge/lit4-0.00%20%25-red.svg)
-![.sdata progress](https://img.shields.io/badge/sdata-0.00%20%25-red.svg)
+![.sdata progress](https://img.shields.io/badge/sdata-0.13%20%25-orange.svg)
 <!-- progress:end -->
 
 **[Live progress dashboard](https://nathanialf.github.io/ico/)** — per-programmer / per-TU / per-function decomp status, updated on every push.

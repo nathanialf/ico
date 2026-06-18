@@ -650,7 +650,6 @@ LocalizeGeometry    # rc8 rc8: same cascade as SetDirectRootPositionNoFitting - 
 ExecSpiderGroupManager# rc26 grp->0x28 guard + count loop w/ func_001B8D08==0 movz tally + out[0..2] writes; s4/s1 reload + bnel off by 26
 SetDirectRootPositionWithNodePoint# rc14 SetDirect family (caches a1->0x15C); -1 prologue-hoist + bnel loop-rotation; off by 14
 _getS16MotRotElem   # rc25 recursive tree traversal w/ context passed in $2 (v0) non-standard ABI; recursion daddu $2,$16; not clean-C expressible; off by 25
-func_001DDB68       # rc2 rc2: D_0062B75C=a0 store one slot early vs ROM (sched tiebreak, store independent of ctrl0 load); reorder regressed to 5
 CageRideFunc        # rc25 float loop(100) over D_0062B560->[0],[4] arrays w/ conditional pac_DispQW recompute; reload structure + bc1f-delay store off by 25
 GetChainNodeGlobalQuaternion# rc8 rc8: a2/a3 params allocated to swapped s0/s1 vs ROM (2-temp regalloc tiebreak); else identical to getCloth4D idiom
 normalMotionShift   # rc18 state-machine: 2 cvt.s.w int->float threshold blocks w/ bnel/beql/bc1fl branch-likely; off by 18
