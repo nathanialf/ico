@@ -24,7 +24,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", SetParticleEffec
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", SetParticleEffectUpperLimit);
 
 extern char D_007030C0[];
-extern void debug_assertMessage(char *fmt);
+extern void debug_assertMessage(char *fmt, ...);
 extern char D_00612830[];
 
 struct PE_elem { int f0; char pad[0x10]; int f14; };
@@ -59,7 +59,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", SetParticleEffec
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", DispParticleEffects);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/particleEffect", InitParticleEffects);
+typedef struct { long long q[20]; } PE160;
+extern PE160 D_004C2030;
+extern char D_00612870[];
+extern unsigned char D_00703CC0[];
+extern void func_002604B8(void *dst, int *a1, int a2);
+
+void InitParticleEffects(int a0, int *a1, int a2) {
+    *(PE160 *)&D_00703CC0[a0 * 0xA0] = D_004C2030;
+    if (*(int *)&D_004C2030 != *a1) {
+        debug_assertMessage(D_00612870, *a1);
+    }
+    func_002604B8(&D_00703CC0[a0 * 0xA0], a1, a2);
+}
+
 
 extern struct E24_pe D_004C2010;
 
