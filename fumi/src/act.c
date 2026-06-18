@@ -18,7 +18,31 @@ void actChangeActBrain(void *a0, void *a1, void **a2) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act", actChangeActMain);
+extern int isysGObjProcPause(void *a0, void *a1, int a2, void *a3);
+extern int isysGObjProcPauseAll(void *a0, void *a1, int a2, void *a3, long long a4);
+extern char D_002A0A90[];
+extern char D_00613AB0[];
+extern char D_00613AD0[];
+
+void actChangeActMain(void *a0, void *a1, void **a2) {
+    char *e = D_002A0A90 + *(int *)((char *)a0 + 8) * 0x4C;
+    unsigned short fld = *(unsigned short *)(e + 0x40);
+    void *old = *a2;
+    int ret;
+    if (((long long) fld << 10) == 0) {
+        ret = isysGObjProcPause(a0, a1, 0, (void *)0x13);
+    } else {
+        ret = isysGObjProcPauseAll(a0, a1, 0, (void *)0x13, (long long) fld << 10);
+    }
+    *a2 = (void *)ret;
+    if (old != 0) {
+        debug_assertMessage(D_00613AB0, a0, ret);
+        isysGObjProcAddS(old);
+    } else {
+        debug_assertMessage(D_00613AD0, a0, ret);
+    }
+}
+
 
 extern void debug_assertMessage();
 extern void isysGObjProcAddS();
