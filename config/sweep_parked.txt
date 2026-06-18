@@ -788,7 +788,6 @@ func_00229518       # rc8 FAMILY deep-pass: gp/%hi + v0v1-swap + delay-store
 actSt04aGateRChk    # rc9 FAMILY deep-pass: gp/%hi + v0v1-swap + delay-store
 actSt03tSekizo      # rc8 guarded family (if func_00178DB0); inner deep-pass residual rc8
 actConte14_14       # rc11 family+lt_fade_status+D_0062A894=1; inner deep-pass residual
-actSt20aEnemy1      # rc2 Gen-fam+QueenChk+global; near
 actSt09aInit        # rc8 QueenTalkChk struct-copy; v0/v1 swap on 2nd buf copy + a0-spill order
 actSt04dDoor2       # rc9 twin of actSt09aInit; QueenTalkChk struct-copy v0/v1 swap rc8
 actSt10rCage        # rc12 3-buffer scpDispOff switch(case0;case0x1E x2); structure CORRECT, residual=lui-split sched+v0/v1 on b3, permuter-class

@@ -67,7 +67,36 @@ extern float func_00168128(int a0);
 /* parked: needs real matching. See tough_nuts/nearest_waypoint_by_lineseg/notes.md */
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", nearest_waypoint_by_lineseg);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", nearest_waypoint_by_lineseg_of_group_from_gobj);
+extern char *CloseWayGroup(int handle);
+extern char *CreateWayPoint(char *node);
+extern void func_00240008(int *buf, int *p, int *q);
+extern float func_00168128(int a0);
+extern float D_0062912C;
+extern int D_0062BB7C;
+
+char *nearest_waypoint_by_lineseg_of_group_from_gobj(int *a0) {
+    int buf[4];
+    char *t = CloseWayGroup(D_0062BB7C);
+    float bestDist = D_0062912C;
+    char *best, *cur;
+    __asm__ __volatile__("" ::: "memory");
+    best = t;
+    cur = best;
+    if (best != 0) {
+        do {
+            float d;
+            func_00240008(buf, (int *)(cur + 0x10), a0);
+            d = func_00168128((int)buf);
+            if (d < bestDist) {
+                bestDist = d;
+                best = cur;
+            }
+            cur = CreateWayPoint(cur);
+        } while (cur != 0);
+    }
+    return best;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", nearest_waypoint_by_lineseg_from_gobj);
 
