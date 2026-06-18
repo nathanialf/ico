@@ -43,7 +43,36 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/poly-flat", IsPointIsInScreen);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/poly-flat", func_001945F8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/poly-flat", func_001946F8);
+extern void *D_00629E00;
+extern int iosPadStickCameraCoord(void *a0, int a1, int a2, void *a3);
+extern void iosPadNormalizeStick(void *a0);
+extern void iosPadActRequest(void *a0, void *a1, int a2, int a3, int a4, int a5);
+extern void GetOrientOfWallOfGObj(void *a0, void *a1);
+extern int actBoyRun(void *a0, void *a1);
+extern float D_0062932C;
+extern void BeforeFunc2(void *a0, void *a1);
+extern void *D_00629E10;
+
+void func_001946F8(void *a0) {
+    char *ctrl = *(char **)((char *)a0 + 0x164);
+    if (a0 == D_00629E00) {
+        char *p2C8 = ctrl + 0x2C8;
+        char *p328 = ctrl + 0x328;
+        int buf[4];
+        iosPadStickCameraCoord(p2C8, 0, 0, ctrl + 0x1D8);
+        iosPadNormalizeStick(p2C8);
+        iosPadActRequest(p2C8, p328, 0, 2, 2, 0);
+        GetOrientOfWallOfGObj(buf, a0);
+        *(int *)(ctrl + 0x330) = actBoyRun(buf, p328);
+        if (*(float *)(ctrl + 0x33C) > D_0062932C) {
+            BeforeFunc2(ctrl + 0x100, p328);
+        }
+    } else if (a0 == D_00629E10) {
+        iosPadStickCameraCoord(ctrl + 0x2C8, 0, 1, ctrl + 0x1D8);
+    } else {
+        iosPadStickCameraCoord(ctrl + 0x2C8, 0, 1, ctrl + 0x1D8);
+    }
+}
 
 extern void InitMotionOrient(void);
 
