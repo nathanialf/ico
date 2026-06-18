@@ -178,7 +178,24 @@ void func_0020AA88(volatile int a0) {
     actCreateSubThread(func_0020AAB8, 0x15);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", func_0020AAB8);
+extern void _ACTWait(int a0);
+extern void func_0017A0F8(int a0);
+extern int func_0012A958(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void actItouQueenAttack(int a0, int a1, int a2, int a3, float a6, float a7, int a4, int a5);
+extern int D_00629DE4;
+extern int D_00629DE8;
+
+void func_0020AAB8(volatile int a0) {
+    stage_KillPlayBgAnimation(0x30A, 1, 0);
+    func_0017A0F8(4);
+    while (func_0012A958(0x30A) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    actItouQueenAttack(4, D_00629DE4, D_00629DE8, 0xFF, 16.0f, 16.0f, 0xFF, 0xFF);
+}
+
 
 extern void actConte14_6(void);
 
