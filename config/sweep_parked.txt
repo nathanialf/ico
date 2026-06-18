@@ -213,7 +213,6 @@ func_001A62D8       # rc39 debug formatter: elem=D_006F26D0+a0*8+a1*0xD0(a0*8 CS
 SetDirectRootPositionWithNodePointLimit# rc6 rc6: dual base+idx*4 addr-reg pattern (swapped-operand addu) partially split
 func_001AAD88       # rc12 GObj-info builder: func_002415C8(buf,(D_0062B190<<13)|0x70000000); 415D8/241640(,0)/2416F0(,0); D_0062B190=(D_0062B190+1)&1; func_00241778(buf,*(Q)D_0060EEF0)[lq WORKS via 16B struct]; func_002418B8(buf,a0|0x40); func_002418B8(buf, a1|a2<<8|a3<<16|a4<<24|D_0062B194<<32); gamesysObjInfoPosNewStageSet/Get. residual=param->callee-reg alloc order (a2/a3/a4 s1/s0/s2) + dsll sched. seed=/tmp (restructured OR-grouping)
 iosThreadResume     # rc10 list-walk accumulate (Clear/Init) + movz clamp + 2 byte stores; rc10
-_boxbar_set_sound   # rc3 rc3: bgez vs bltz + negu position branch-direction tiebreak
 CorrectStickInfo    # rc11 multi-range state-machine sltiu + L_B00 merge + branch-likely; rc11
 ACTNotNeedCameraOffset# rc49 large state-machine dispatch (0x55/0x56/0x59/ranges + bit36); rc49 structure off
 la_load_confirm_no_data# rc31 confirm-no-data: if(D_002715D4&0x50){kanbanBootMcCheck(D_004B8240);initSceneGObj(0);D_0062B30C=0;ret0x19}; r=func_001AE800(D_004B8240); r==0->-1; bgtz/beq split r==1/r==-1: both check (*D_0062B2F0>>1)&1 -> SHARED initSceneGObj,ret0x1A; r==1 else -1; r==-1 else D_0062B340=1,-1. nested bgtz/beq + shared-block layout deep-pass
