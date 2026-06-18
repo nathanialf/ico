@@ -267,7 +267,23 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", BoxBarSoundOn);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", BoxBarSoundOff);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", _boxbar_set_sound);
+void *subCommonIdle(char *a0);
+extern int HandCameraCorrect(void *a0, void *a1);
+extern void func_00191DB8(void *a0, float a1);
+extern float D_00628FB4;
+
+int _boxbar_set_sound(char *a0) {
+    float buf[3];
+    int v;
+    buf[0] = *(float *)((char *)subCommonIdle(*(char **)(*(char **)(a0 + 0x15C) + 0x170)) + 0x0);
+    buf[1] = *(float *)((char *)subCommonIdle(*(char **)(*(char **)(a0 + 0x15C) + 0x170)) + 0x4);
+    buf[2] = *(float *)((char *)subCommonIdle(*(char **)(*(char **)(a0 + 0x15C) + 0x170)) + 0x8);
+    func_00191DB8(buf, D_00628FB4);
+    return HandCameraCorrect(subCommonIdle(a0), buf) < 0
+               ? -HandCameraCorrect(subCommonIdle(a0), buf) < 0x2D
+               : HandCameraCorrect(subCommonIdle(a0), buf) < 0x2D;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonBox);
 

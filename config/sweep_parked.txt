@@ -56,7 +56,6 @@ func_001A7700       # rc99 VU0 sibling of func_001A7658; VU0-mem dump to debug_a
 func_0024F220       # rc32 func_00252870 call-seq storing to D_0054C8xx; %hi reg reuse/sched across calls residual
 func_0024A498       # rc99 init: scattered-field zero loop (stride 0x1C, 6 fields) + 9-arg func_00242978 + bgezl ret; complex, deep-pass
 InitQuaternionDrive # rc12 bgez idx<0 assert+SetIdentity+reload; idx++; store; if>=0x40 assert+clamp0x3F; reload; tail GetInverseQuaternion(&D_0065A5C0[idx*4],[idx*4-4]). seed /tmp
-func_00253950       # rc3 bounds-check flag + 2 calls; logic exact; residual=xori in b-to-merge delay slot (branch layout)
 gamesysGirlStageGet # rc99 scratchpad-symbol overlay (D_004AEB70|0x20000000 + %lo(D_200000xx)) like func_0024BC30 + movn; deep-pass
 func_002426F8       # rc31 struct-build copy fields + cond r-deref + tail func_00248290; bnel field24-store + sched residual
 WeaponDL            # rc4 rc4: ROM copies a2->a1 reg (daddu a1,a2) + tests beq a1; -1/1 const materialized reverse order. regalloc/const tiebreaks. seed /tmp (WeaponDL(char*a0,void*a1,int a2); r=p+0xA0)
