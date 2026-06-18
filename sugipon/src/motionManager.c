@@ -260,7 +260,34 @@ void func_001DDB10(char *a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", func_001DDB68);
+extern void func_00104D48(int a0);
+extern void func_001DD9B8(int a0, int a1);
+extern void func_0023FE08(int a0, int a1, int a2);
+
+void func_001DDB68(char *a0) {
+    int sub = *(int *)(a0 + 0x15C);
+    int v;
+    int i;
+    D_0062B75C = (int)a0;
+    v = *(int *)(sub + 0x8C);
+    D_0062B758 = v;
+    if (v != 0) {
+        int s2;
+        func_002400F8(func_00105078());
+        func_00104D48(-0x8000);
+        func_001DD9B8(*(int *)(a0 + 0x15C), 0);
+        s2 = *(int *)(a0 + 0x15C);
+        for (i = 0; i < *(int *)(s2 + 0x88); i++) {
+            int e = *(int *)(s2 + 0xC) + i * 0x40;
+            func_0023FE08(e, s2 + 0x20, e);
+            s2 = *(int *)(a0 + 0x15C);
+        }
+        if (D_0062AF90 != 0) {
+            func_001DDAB8_a(a0);
+        }
+    }
+}
+
 
 extern int D_0062B718;
 extern int D_0062B71C;
