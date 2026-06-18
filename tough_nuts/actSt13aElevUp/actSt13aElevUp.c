@@ -13,7 +13,21 @@ typedef struct GObj {
     int *unkB4;
 } GObj;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13a", actSt13aElevUp);
+void actSt13aElevUp(volatile int a0) {
+    GObj *gobj = (GObj *)*(int *)(a0 + 0x164);
+    while (1) {
+        int q = actSt25aQueenDeadChk(0x65D);
+        if (scpSleepSpiderGroupOne(q, 0x2000000) != 0) {
+            break;
+        }
+        _ACTWait(1);
+    }
+    func_00178DD8(0x63);
+    D_004CD380[1] = (int)actSt13aElevDownChk;
+    gobj->unkB4 = D_004CD380;
+    BoxBarSoundOn(a0, 0x189);
+    _ACTWait(0);
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13a", actSt13aElevDownChk);
