@@ -106,7 +106,42 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/item", carriedItemGeo);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/item", uncarriedItemGeo);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/item", execBombGeo);
+extern int CanHoldBox(void *a0);
+extern void InitItemGeo(void *a0);
+extern void carriedItemGeo(void *a0);
+extern void func_00102828(void *a0);
+extern void uncarriedItemGeo(void *a0);
+
+void execBombGeo(void *a0) {
+    char *ctrl = *(char **)((char *)a0 + 0x15C);
+    char *item = *(char **)(ctrl + 0x7F0);
+    char *item2;
+    if (*(int *)item == 1) {
+        return;
+    }
+    if (*(int *)(item + 0xC) != 0) {
+        InitItemGeo(a0);
+    } else if (*(int *)(item + 8) != 0) {
+        int old = *(int *)(ctrl + 0x74);
+        *(int *)(ctrl + 0x74) = 0;
+        carriedItemGeo(a0);
+        if (old != 0) {
+            *(int *)(*(char **)((char *)a0 + 0x15C) + 0x74) = 1;
+        }
+    } else {
+        char *box = *(char **)ctrl;
+        if (box != 0 && *(int *)(box + 0xC) == 0x11 && CanHoldBox(box) == 2) {
+            *(int *)(item + 0x14) = 0;
+            ReleaseItem((char *)a0, *(int *)(box + 0x15C) + 0x120);
+        }
+    }
+    func_00102828(a0);
+    item2 = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x7F0);
+    if ((*(int *)(item2 + 4) ^ 1) == 0) {
+        uncarriedItemGeo(a0);
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/item", ItemGeo);
 

@@ -319,7 +319,6 @@ audioDecDelete      # rc42 dispDelete -puzzle + 1.0-f + preload + cond; rc42
 func_0023A5E8       # rc41 movz/movn clamps + 8-arg CreateGObj + 2-way obj branch; complex ptr-math; rc41
 actSt00aEnd         # rc4 delay-slot sched: a2=0 wants jal-delay vs f13 lwc1(D_006297D0); QueenDead tail
 queenBarrierBeforeFunc# rc30 QueenBoysWeaponPower sibling, beq 2-way assert loop; q-hoist+count-reload+i-counter; rc30
-func_00197DE0       # rc2 pad/camera dispatch; compare-order fix 5->2; residual c.lt.s reg-alloc tail rc2
 StageOrientGet      # rc14 sequential guarded calls; beql/bltz-delay D_0062C0F4=0 placement + poss in-TU relocs; rc14
 audioDecCreate      # rc7 remap+clamp+alt-path; CORRECTION divisor=608.0f(0x44180000); residual final-clamp bc1f-vs-bc1fl tiebreak; rc7
 func_0019A4B8       # rc42 mult1 parallel-mul + vector sub + 4 calls w/ sp bufs + neg.s; complex; rc42
