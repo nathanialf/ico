@@ -694,7 +694,6 @@ InitMatrixDrive     # rc50 Rot family + -z; same regalloc wall (s0/s1 cache vs s
 SetRootMatrixRotOffsetByDObj# rc46 cached-m wrong; ROM re-derefs a0->0x15C inline at each use (like sibling line116) w/ $17 partial CSE + $18=m+0x460; deep-pass reload pattern
 func_001DB538       # rc36 if a0!=0 should be 'if(a0==0){block}else{simple}' for bne; 0.0f stores want swc1 f2(shared mtc1 zero) not sw $0; 64-bit return D_0062A6A0|(D_0062A6A4<<32) mask construction; deep-pass
 func_001CD388       # rc7 switch dispatch + 8-arg call OK; residual=gcc cross-jumps the 2 GetChainExWeightGlobalPos calls (ROM separate) + bnez-vs-beq v<2 branch dir; explicit-return made 16; permuter-class
-execBombGeo         # rc2 xori+if-wrap (if((x^1)==0)) cracked 14->2 (fixed != 1 xori + prevented uncarriedItemGeo TCO); residual=sub2 a0->0x15C reload (lw a1,0x15C) one slot early; sched tiebreak
 moveTorch           # rc23 char-struct copy gives ldl/ldr correctly; 23 diffs all = s0/s1 swap (ROM a0=s0,p=s1; mine swapped); 2-temp callee-saved regalloc tiebreak (ptr-to-array lever/permuter for deep pass)
 DrawLineG           # rc16 WeaponHitEffect-twin scan/VU0; VU0 dist correct; residual=s2/s3 swap (ROM a0=s3,const1=s2; mine swapped) + obj->0x15C reload in guards; regalloc tiebreak deep-pass
 GetClothAnimation   # rc13 getWave-like GS+tail OK; residual=3-way s1/s2/s3 alloc (ROM t=s1,a1=s2,a2=s3; mine a1/a2/t=s1/s2/s3) + t=-1 placement; regalloc priority tiebreak deep-pass

@@ -30,7 +30,32 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st20a", actSt20aElv);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st20a", actSt20aEne);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st20a", actSt20aEnemy1);
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern void Generator_Mask(int a0);
+extern int func_00178DB0(int a0);
+extern int actSt25aQueenDeadChk(int a0);
+extern void Generator_Call(int a0);
+extern void scpDispOnAllWithKind(void);
+extern void func_00178E08(int a0);
+extern int D_0062C2C8;
+
+void actSt20aEnemy1(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    D_0062C2C8 = a0;
+    Generator_Mask(a0);
+    while (func_00178DB0(0x16) == 0) {
+        _ACTWait(1);
+    }
+    Generator_Call(actSt25aQueenDeadChk(0x86));
+    _ACTWait(0xB4);
+    Generator_Call(a0);
+    scpDispOnAllWithKind();
+    func_00178E08(0x16);
+}
+
 
 extern int actInitialize(int a0);
 extern void _ACTWait(int a0);
