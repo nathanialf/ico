@@ -92,4 +92,13 @@ void func_001F2130(float a, float b, float c, float d, float e, float f, float g
     LightTorchOnOfWeaponWithNoSE(1, buf1, buf2, g);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/windManager", func_001F21B0);
+void func_001F21B0(int a0) {
+    int idx = a0;
+    float *p = &D_005EBD14[idx * 100];
+    float *q = &D_005EBD14[idx * 100 - 3];
+    float g = (idx * 100 + 45)[D_005EBD14];
+    float h = (idx * 100 + 35)[D_005EBD14];
+
+    windApply(p[0], p[1], p[2], q[0], q[1], q[2], g, h);
+    D_0062BA38 = idx;
+}
