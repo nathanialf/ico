@@ -117,7 +117,89 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_SetFrame);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_CalcAnimation);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_CalcSdfCamera);
+extern void debug_assertMessage(char *msg);
+extern void func_001AAD00(char *file, int line);
+extern void func_00260380(char *file, int line, void *expr);
+extern void *iosFree(int heap, int size, char *file, int line);
+extern void mc_Init(void *a0);
+extern void mc_TransMicroCode(void *a0, void *a1);
+extern char D_006133E0[];
+extern char D_00613600[];
+extern int D_0062A324;
+extern void *D_0062BAA4;
+extern char D_0062D940[];
+
+#define SDF_UNK10(n)  (*(int *)((char *)(n) + 0x10))
+#define SDF_UNK30(n)  (*(int *)((char *)(n) + 0x30))
+#define SDF_ID(n)     (*(int *)((char *)(n) + 0x140))
+#define SDF_KEY(n)    (*(int *)((char *)(n) + 0x144))
+#define SDF_UNK148(n) (*(int *)((char *)(n) + 0x148))
+#define SDF_UNK14C(n) (*(float *)((char *)(n) + 0x14C))
+#define SDF_UNK150(n) (*(void **)((char *)(n) + 0x150))
+#define SDF_NEXT(n)   (*(void **)((char *)(n) + 0x154))
+
+void bga_CalcSdfCamera(int type, short *p, void *mcArg, int key, float f, int a5) {
+    void *node;
+
+    node = D_0062BAA4;
+    while (node != 0) {
+        if (SDF_KEY(node) == key) {
+            switch (type) {
+            case 0xF:
+                p[1] = -1;
+                /* fallthrough */
+            case 0xE:
+                SDF_UNK150(node) = p;
+                SDF_UNK14C(node) = f;
+                SDF_UNK148(node) = a5;
+                SDF_UNK10(node) = -1;
+                mc_TransMicroCode(node, mcArg);
+                return;
+            case 0x10:
+                *(int *)((char *)node + (SDF_ID(node) << 5) + 0x10) = p[1];
+                mc_TransMicroCode((char *)node + (SDF_ID(node) << 5), mcArg);
+                SDF_ID(node)++;
+                return;
+            default:
+                debug_assertMessage(D_00613600);
+                func_001AAD00(D_006133E0, 0x8D2);
+                func_00260380(D_006133E0, 0x8D2, D_0062D940);
+                return;
+            }
+        }
+        node = SDF_NEXT(node);
+    }
+
+    node = iosFree(D_0062A324, 0x160, D_006133E0, 0x8DA);
+    SDF_KEY(node) = key;
+    SDF_NEXT(node) = D_0062BAA4;
+    SDF_ID(node) = 1;
+    D_0062BAA4 = node;
+    switch (type) {
+    case 0xF:
+        p[1] = -1;
+        /* fallthrough */
+    case 0xE:
+        SDF_UNK150(node) = p;
+        SDF_UNK14C(node) = f;
+        SDF_UNK148(node) = a5;
+        mc_TransMicroCode(node, mcArg);
+        break;
+    case 0x10:
+        SDF_UNK30(node) = p[1];
+        mc_TransMicroCode((char *)node + (*(volatile int *)((char *)node + 0x140) << 5), mcArg);
+        SDF_UNK150(node) = 0;
+        mc_Init(node);
+        SDF_ID(node)++;
+        break;
+    default:
+        debug_assertMessage(D_00613600);
+        func_001AAD00(D_006133E0, 0x8F3);
+        func_00260380(D_006133E0, 0x8F3, D_0062D940);
+        break;
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_addLightning);
 

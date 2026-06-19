@@ -1,7 +1,7 @@
 # ico
 
 <!-- progress:begin -->
-![.text progress](https://img.shields.io/badge/text-15.04%20%25-orange.svg)
+![.text progress](https://img.shields.io/badge/text-15.08%20%25-orange.svg)
 ![.vutext progress](https://img.shields.io/badge/vutext-0.00%20%25-red.svg)
 ![.data progress](https://img.shields.io/badge/data-0.00%20%25-orange.svg)
 ![.rodata progress](https://img.shields.io/badge/rodata-0.60%20%25-orange.svg)
@@ -11,18 +11,19 @@
 
 **[Live progress dashboard](https://nathanialf.github.io/ico/)** — per-programmer / per-TU / per-function decomp status, updated on every push.
 
-A clean-room decompilation of the PlayStation 2 game **ICO** (US release,
-SCUS-97113, 2001, Sony Computer Entertainment / Team Ico).
+A clean-room decompilation of the PlayStation 2 game **ICO** (2001, Sony
+Computer Entertainment / Team Ico).
 
-This targets the **Aug-6-2001 US Preview prototype**, not the shipped retail
-build.
+This targets the **Aug-6-2001 US Preview prototype** (boot ELF
+`SCUS_971.13`), not the shipped retail build (`SLUS-20218`). The retail
+pipeline lives on the `retail` branch.
 
 **Prototype differences:** The Cutting Room Floor documents how this preview
 differs from retail at
 <https://tcrf.net/Proto:ICO/US_Preview_Version>.
 
 The goal is to produce original source code that, compiled with the original
-build chain (ee-gcc 2.9-991111-01 + ee-as 2.10), reproduces a byte-for-byte
+build chain (ee-gcc 2.9-991111-01 + its period ee-as 2.9-991111), reproduces a byte-for-byte
 identical EE-side ELF. No disc data or extracted assets ship with this
 repository — you must legally supply your own disc image to build.
 
@@ -65,24 +66,34 @@ For the long-form walkthrough, prerequisites, and PCSX2 sanity-check, see
 
 1. Pick an `[0xADDR, asm]` line in `config/ico.aug6.yaml`. Prefer small
    leaf functions. Inspect `asm/aug6/<ADDR>.s` (gitignored) to gauge shape.
-2. Flip it to `[0xADDR, c, your_filename]`, re-run `tools/build.sh setup`.
-   Splat moves the asm to `asm/aug6/nonmatchings/your_filename/` (tracked) and
-   expects `src/your_filename.c`.
-3. Iterate with `tools/quick_diff.sh your_filename` (~100 ms / try).
+2. Flip it to `[0xADDR, c, <prog>/src/<TU>]` (e.g. `fumi/src/jimaku`),
+   re-run `tools/build.sh setup`. Splat moves the asm to
+   `asm/aug6/nonmatchings/<TU>/` (tracked) and expects `<prog>/src/<TU>.c`.
+   Most TUs are already carved as coalesced files holding many functions —
+   you match one function within an existing `.c`.
+3. Iterate with `tools/quick_diff.sh <prog>/src/<TU>` (~100 ms / try).
    When the diff is empty, run `ninja` for the full byte-identical
-   SHA-1 check.
+   SHA-1 check. `ninja` is authoritative — `quick_diff` can false-pass on
+   in-TU relocs and the 4-byte delay-slot nop.
 4. Run `./tools/check_no_rom.sh`, commit.
 
-**Park threshold: 3 quick_diff iterations on the same diff shape.** Park
-via `tools/park.sh` / `tools/park_tu.py` and let the permuter pool pick
-up the seed; don't grind.
+The loop itself is normally driven for you — invoke the **`decomp-match`
+skill** (or run `tools/match_drive.py <func>` directly). That conductor
+owns every mechanical step (diff → `next` → novelty-gated stall → commit →
+SHA gate → park → bounded permuter) and hands back only to apply one new
+hypothesis per turn.
 
-Long-form prompts and pattern catalog live in
-[`decomp/MATCH.md`](decomp/MATCH.md) (matching workflow),
-[`decomp/COOKBOOK.md`](decomp/COOKBOOK.md) (>1600-line shape→fix
-lookup), [`decomp/NOTES.md`](decomp/NOTES.md) (PS2/EE/compiler/linker
-quirks), and [`decomp/MATCH_DATA.md`](decomp/MATCH_DATA.md) (typed
-data work).
+**Park gate: a 30-iteration *stall*** — 30 consecutive distinct
+hypotheses with no `real_count` improvement (any improvement resets the
+counter). Gate on `tools/match_loop.py next` printing `stall=N/30`, never
+on a gut "this is a floor" call. Park a coalesced-TU function with
+`tools/park_tu.py`; the bounded permuter runs only *after* the stall.
+
+Pattern catalogs and quirk references:
+[`decomp/COOKBOOK.md`](decomp/COOKBOOK.md) (>1600-line shape→fix lookup),
+[`decomp/NOTES.md`](decomp/NOTES.md) (PS2/EE/compiler/linker quirks),
+[`decomp/MATCH_VU.md`](decomp/MATCH_VU.md) (VU0 macro matching), and
+[`decomp/PROGRAMMERS.md`](decomp/PROGRAMMERS.md) (author→subsystem map).
 
 ## Layout
 
@@ -126,9 +137,11 @@ expected/       reference build outputs for diff comparison
   (`<prog>` is the owning programmer dir, e.g. `fumi/src/jimaku.c`,
   `common/src/PObj.c`). Typed data defs (e.g. `const char D_00553700[16] =
   "...";`) live alongside the functions that reference them.
-- **`<prog>/src/<TU>_data.c`** — gitignored per-TU **data sidecar**, auto-generated
-  by `tools/migrate_data_per_tu.py` from the splat-emitted asm-side data.
-  Sidecar bytes get promoted into the tracked `<TU>.c` incrementally.
+- **Typed data** — placed by **per-TU yaml carving** (dot-form `.rodata`/
+  `.data`/`.sdata` subsegments in `config/ico.aug6.yaml`), not a generated
+  sidecar. Carved constants are written into the owning `<TU>.c` so gcc's
+  emission replaces the asm-side blob. (The old `_data.c` sidecar +
+  `migrate_data_per_tu.py` flow was retail-only and is retired on `main`.)
 - **`retail_seed/src/cod/<HEX>.c`** — matched-retail reference source (the
   numbered-cod retail build), kept as a dev-shape oracle: when a clean shape is
   unclear, the retail twin shows the idiom the 2000-era dev actually wrote.
@@ -144,21 +157,19 @@ disc image (.bin/.cue)
    ▼
 baserom/aug6/baseelf.{elf,rom}  ←──── SHA-1 oracle for every build
    │
-   │  tools/build.sh setup
+   │  tools/build.sh setup    (raw round-trip: NO ld/asm postprocess,
+   │    patch_splat.py            NO data→typed-C migration)
+   │    assemble_vu0.py → hand-written VU0 .S → .s
    │    splat → asm/aug6/, config/ico.aug6.ld
-   │    postprocess_{ld,asm}.py → ld + asm fixups
-   │    build_data_tu_{map,boundaries}.py → per-TU data layout
-   │    migrate_data_per_tu.py → src/<TU>_data.c sidecars
-   │    fix_sidecar_align.py → split misaligned arrays
-   │    rewrite_data_named_sections.py → .X.0xVMA typed sections
-   │    trim_splat_data_pads.py → drop over-emission past section ends
    │    tools/gen_ninja.py → build.ninja
    ▼
 ninja
    │
-   │  ee-gcc 2.9 (src/*.c) + ee-as 2.10 (asm/aug6/*.s)
-   │  + always-on asm/ROM-encoding fixups (move→daddu, break 0,N,
-   │    fcc-nop, jr-FP nop, .lit4 placement; config/*.txt allowlists)
+   │  ee-gcc 2.9 (src/*.c) + period ee-as 2.9-991111 (asm/aug6/*.s),
+   │    both via tools/compile_c.sh
+   │  + always-on asm/ROM-encoding fixups in preprocess_old_as.py /
+   │    compile_c.sh (move→daddu, break 0,N, fcc-nop, jr-FP nop,
+   │    .lit4 placement; config/*.txt allowlists)
    │  link via config/ico.aug6.ld
    ▼
 build/ico.elf → objcopy → build/ico.rom
@@ -171,7 +182,9 @@ build/ico.elf → objcopy → build/ico.rom
 
 - **Compiler** — ee-gcc 2.9-991111-01, fetched from `decompme/compilers`
   into `tools/cc/ee-gcc2.9-991111/`.
-- **Assembler** — ee-as 2.10 bundled with ee-gcc 2.96.
+- **Assembler** — the period ee-as 2.9-991111 (ee-gcc 2.9's own `as`) is
+  the default; its delay-slot reorder matches the ROM. The newer 2.96 `as`
+  is kept only as a fallback.
 - **Linker** — GNU ld via `mips64r5900el-ps2-elf-ld`.
 - **Analysis** — Ghidra under `tools/ghidra/`; `m2c` (`lib/m2c/`) for
   asm → C scaffolding; `splat` (`lib/splat/`) for ELF splitting;
@@ -190,9 +203,10 @@ technique, never copy code from):
 
 - [`parappadev/parappa2`](https://github.com/parappadev/parappa2) — Sony
   Japan Studio, PS2 2001, **same `ee-gcc 2.9-991111-01` toolchain as
-  ICO**. Useful for compiler idioms, header / macro patterns, and the
-  per-TU section linking approach we adopt via `slinky`. See
-  `decomp/NOTES.md` for specific cross-references.
+  ICO**. Useful for compiler idioms and header / macro patterns. (Its
+  per-TU `slinky` section-linking approach is used on ICO's `retail`
+  branch only; `main` is a raw splat round-trip.) See `decomp/NOTES.md`
+  for specific cross-references.
 - [`zeldaret/oot`](https://github.com/zeldaret/oot) — Ocarina of Time,
   N64. The decomp workflow this project structurally models on: splat-
   driven yaml, asm-differ, decomp-permuter, per-function matching loop.
