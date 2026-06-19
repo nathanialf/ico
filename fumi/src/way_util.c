@@ -132,7 +132,38 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", visible_waypoint_of_all_f
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", visible_waypoint);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", visible_waypoint_from_gobj);
+/* m2c scaffold from asm/aug6/nonmatchings/fumi/src/way_util/visible_waypoint_from_gobj.s (target mipsel-gcc-c, context-free).
+ * NOT a match — reshape into a goto-CFG-mirror + recover intent (see decomp-match skill). */
+extern char *CreateTempWayGroup(void);
+extern char *DeleteWayGroup(char *a0);
+extern float D_0062914C;
+
+char *visible_waypoint_from_gobj(int *a0) {
+    int buf[4];
+    int neg1 = -1;
+    char *t = CreateTempWayGroup();
+    float bestDist = D_0062914C;
+    char *best, *cur;
+    __asm__ __volatile__("" ::: "memory");
+    best = t;
+    cur = best;
+    if (best != 0) {
+        do {
+            float d;
+            if (*(int *)(cur + 0x20) != neg1) {
+                func_00240008(buf, (int *)(cur + 0x10), a0);
+                d = func_00168128((int)buf);
+                if (d < bestDist) {
+                    bestDist = d;
+                    best = cur;
+                }
+            }
+            cur = DeleteWayGroup(cur);
+        } while (cur != 0);
+    }
+    return best;
+}
+
 
 extern int ez_line(void *a0, int a1);
 
