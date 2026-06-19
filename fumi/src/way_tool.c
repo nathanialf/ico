@@ -49,7 +49,46 @@ extern char D_004CB2B0[];
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_tool", way_toolDL);
+/* m2c scaffold from asm/aug6/nonmatchings/fumi/src/way_tool/way_toolDL.s (target mipsel-gcc-c, context-free).
+ * NOT a match — reshape into a goto-CFG-mirror + recover intent (see decomp-match skill). */
+extern void debug_assertMessage(int a0, ...);
+extern void func_00261188(void *a0, char *a1);
+extern int func_001A7A88(void *a0, int a1);
+extern void func_00244150(int a0, void *a1, int a2);
+extern int func_001A7AE8(int a0);
+extern char D_00614208[];
+extern int D_0062A870;
+extern char D_0062DA28[];
+extern char D_0062DA30[];
+extern unsigned char D_0070BC70[];
+
+int way_toolDL(void) {
+    char buf[0x70];
+    int s0;
+    int i;
+    unsigned char *p;
+    D_0062A870 = 1;
+    func_00261188(buf, D_0062DA28);
+    s0 = func_001A7A88(buf, 0x202);
+    if (s0 < 0) {
+        debug_assertMessage((int)D_00614208);
+        D_0062A870 = 0;
+        return 0;
+    }
+    i = 0xF;
+    p = &D_0070BC70[i];
+    do {
+        *p = i;
+        p--;
+        i--;
+    } while (i >= 0);
+    func_00244150(s0, D_0070BC70, 0x10);
+    func_001A7AE8(s0);
+    debug_assertMessage((int)D_0062DA30);
+    D_0062A870 = 0;
+    return 1;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_tool", debug_WayTool);
 
