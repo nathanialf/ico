@@ -52,7 +52,33 @@ int isysGObjAddBeforeGObj(void)
     return result;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", isysGetNbAllocedGObjs);
+/* m2c scaffold from asm/aug6/nonmatchings/fumi/isys/gobj/isysGetNbAllocedGObjs.s (target mipsel-gcc-c, context-free).
+ * NOT a match — reshape into a goto-CFG-mirror + recover intent (see decomp-match skill). */
+extern char D_00551DE0[];
+extern void *D_0062A308;
+extern void *iosFree(void *pool, int size, char *file, int line);
+
+void isysGetNbAllocedGObjs(unsigned int n) {
+    struct GObj *base;
+    char *p;
+    unsigned int i;
+    base = (struct GObj *)iosFree(D_0062A308, n * 0x174, D_00551DE0, 0xAE);
+    D_0062BFAC = n;
+    D_0062BFA8 = base;
+    i = 0;
+    if (n != 0) {
+        p = (char *)base;
+        do {
+            *(int *)(p + 0x0) = 0;
+            *(int *)(p + 0x15C) = 0;
+            *(int *)(p + 0x8) = -1;
+            *(int *)(p + 0x4) = -1;
+            p += 0x174;
+            i++;
+        } while (i < n);
+    }
+}
+
 
 extern void *D_006A2F50[];
 extern void func_001AAD00(char *a0, int a1);
