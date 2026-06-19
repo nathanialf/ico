@@ -743,7 +743,24 @@ void func_00240408(void *a0, void *a1, void *a2, void *a3) {
     func_0023FF18(a0, buf);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002404B8);
+void func_002404B8(void *a0, void *a1, void *a2, void *a3) {
+    float buf[4];
+    func_00240038(buf, a1, -1.0f);
+    func_0023FE98(a0, buf);
+    func_00240038(buf, a2, -1.0f);
+    func_0023FE98((char *)a0 + 0x10, buf);
+    func_00240038(buf, a3, -1.0f);
+    func_0023FE98((char *)a0 + 0x20, buf);
+    {
+        float fzero = 0.0f;
+        *(float *)((char *)a0 + 0x38) = fzero;
+        *(float *)((char *)a0 + 0x3C) = 1.0f;
+        *(float *)((char *)a0 + 0x34) = fzero;
+        *(float *)((char *)a0 + 0x30) = fzero;
+    }
+    func_0023FED0(a0, a0);
+}
+
 
 void func_00240578(void *a0, void *a1, void *a2, void *a3, void *a4) {
     func_00240080(a0, a1);
