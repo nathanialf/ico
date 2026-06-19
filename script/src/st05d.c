@@ -20,7 +20,31 @@ void actSt05dDoor2(volatile int a0) {
     lt_fade_status(0x32);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05d", actSt05dDoor2UpChk);
+extern void BoxBarSoundOn(int a0, int a1);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern int D_004CC7C0[];
+extern int D_00629DE4;
+extern void actSt04lRope2Chk(void);
+
+typedef struct GObj {
+    char pad[0xB4];
+    int *unkB4;
+} GObj;
+
+void actSt05dDoor2UpChk(int a0) {
+    volatile int buf[4];
+    GObj *s;
+    buf[0] = a0;
+    s = (GObj *)*(int *)(buf[0] + 0x164);
+    while (scpSleepSpiderGroupOne(D_00629DE4, 0xA000000) != 0) {
+        _ACTWait(1);
+    }
+    D_004CC7C0[1] = (int)actSt04lRope2Chk;
+    s->unkB4 = D_004CC7C0;
+    BoxBarSoundOn(buf[0], 0x189);
+    _ACTWait(0);
+}
+
 
 void actSt05dDoor2DownChk(int a0) {
     int buf[4];
