@@ -68,7 +68,16 @@ static inline void windApply(float a, float b, float c, float d, float e, float 
     LightTorchOnOfWeaponWithNoSE(1, buf1, buf2, g);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/windManager", GetRegularizedWindSpeed);
+void GetRegularizedWindSpeed(void) {
+    int idx = D_0062BA38;
+    float *p = &D_005EBD14[idx * 100];
+    float *q = &D_005EBD14[idx * 100 - 3];
+    float g = (idx * 100 + 45)[D_005EBD14];
+    float h = (idx * 100 + 35)[D_005EBD14];
+
+    windApply(p[0], p[1], p[2], q[0], q[1], q[2], g, h);
+    D_0062BA38 = idx;
+}
 
 void func_001F2130(float a, float b, float c, float d, float e, float f, float g, float h) {
     float buf1[4] = {a, b, c, 1.0f};

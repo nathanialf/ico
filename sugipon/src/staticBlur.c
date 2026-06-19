@@ -14,6 +14,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", blendWork0ToWork1);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", parallelAddFeedBackAreaToWork0);
 
+
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", blurBlendFeedBackAreaToWork1);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", testAA);
@@ -53,6 +54,7 @@ void cleanUpFB(void) {
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", fillWork2);
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/staticBlur", dispSun);
 
