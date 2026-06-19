@@ -50,7 +50,26 @@ void subAP1BrainMain(void *a0, int a1) {
     q->f_278 = a1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", hitProc);
+int hitProc(void *a0, int a1) {
+    float buf[4];
+    int s = (short)a1;
+    int *p = *(int **)((char *)a0 + 0x15C);
+    AP1Geo *q = *(AP1Geo **)((char *)p + 0x7F0);
+    if (q->f_8 < 6) {
+        if (q->f_8 >= 2) {
+            goto ret0;
+        }
+    }
+    func_00102820(buf, a0);
+    func_0010E4E8(buf, s);
+    GetSlerpQuaternionNoRegularize(buf);
+    func_00102840(a0, buf);
+    standAI(a0);
+    return 1;
+ret0:
+    return 0;
+}
+
 
 typedef struct { int (*fp)(); int _4; } DeadProc;
 extern DeadProc D_004BA160[];
