@@ -30,7 +30,38 @@ void bga_calcEnvelope(void *a0, short *a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", _RotTransCurrentMatrixYXZ);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_CalcObject);
+typedef struct bgaGizmo {
+    int unk0;
+    void *unk4;
+} bgaGizmo;
+
+typedef struct bgaObj {
+    unsigned char pad[0x28];
+    bgaGizmo *unk28;
+    struct bgaObj *unk2C;
+    struct bgaObj *unk30;
+    int unk34;
+} bgaObj;
+
+extern void bga_GetGizmoMotion(void *a0, int a1, float c, float d, int a2);
+
+void bga_CalcObject(bgaObj *obj, float f, int a1) {
+    bgaGizmo *g = obj->unk28;
+    if (g != 0 && g->unk4 != 0) {
+        do {
+            bga_GetGizmoMotion(g->unk4, 1, 0.0f, f, a1);
+            g++;
+        } while (g->unk4 != 0);
+    }
+    if (obj->unk2C != 0) {
+        bga_CalcObject(obj->unk2C, f, a1);
+    }
+    if (obj->unk30 != 0) {
+        bga_CalcObject(obj->unk30, f, a1);
+    }
+    bga_GetGizmoMotion(&obj->unk34, 1, 0.0f, f, a1);
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/BgAnimation", bga_resetObjectCounter);
 
