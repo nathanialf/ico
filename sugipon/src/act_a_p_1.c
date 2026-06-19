@@ -100,7 +100,28 @@ int AP1BeforeFunc(void *a0) {
     return 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/act_a_p_1", actAP1Start);
+int actAP1Start(void *a0, int a1, void *a2) {
+    int flag;
+    int *p = *(int **)((char *)a0 + 0x15C);
+    AP1Geo *q = *(AP1Geo **)((char *)p + 0x7F0);
+    if (q->f_8 < 6) {
+        if (q->f_8 >= 2) {
+            flag = 0;
+            goto check;
+        }
+    }
+    SetAP1DeadStatus(a0);
+    flag = 1;
+check:
+    if (flag != 0) {
+        int *pp = *(int **)((char *)a0 + 0x15C);
+        AP1Geo *qq = *(AP1Geo **)((char *)pp + 0x7F0);
+        func_00118A70((char *)pp + 0x120, (char *)qq + 0x230, a2);
+        return 1;
+    }
+    return 0;
+}
+
 
 typedef struct { char _pad[0xC]; int f; char _pad2[0x10]; } S;
 extern S D_0061D730[];
