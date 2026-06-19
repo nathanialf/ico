@@ -1888,7 +1888,25 @@ extern int func_00242978();
 extern char D_0070F800[];
 extern char D_0070FA00[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00247120);
+int func_00247120(int a0, void *a1, int a2) {
+    int r;
+    if (func_00246868() < 0) {
+        return 0xFFFF0000;
+    }
+    *(int *)(D_0070F800 + 0) = a0;
+    *(int *)(D_0070F800 + 4) = a2;
+    if (a2 == 0) {
+        *(unsigned char *)(D_0070F800 + 8) = *(unsigned char *)a1;
+    } else if (a2 == 1) {
+        *(unsigned short *)(D_0070F800 + 8) = *(unsigned short *)a1;
+    } else if (a2 == 2) {
+        *(int *)(D_0070F800 + 8) = *(int *)a1;
+    } else {
+        return 0xFFFEFFFE;
+    }
+    r = func_00242978(D_0070FA00, 2, 0, D_0070F800, 0x20, D_0070F800, 0x10, 0, 0);
+    return (r >= 0) ? 0 : 0xFFFEFFFF;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00247200);
