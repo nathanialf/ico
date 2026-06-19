@@ -2966,14 +2966,14 @@ extern int D_0054ABEC[];
 
 int func_00249CB0(void) {
     if (func_002491D0(3) == 0) {
-        return -1;
+        return 0xFFFFFFFF;
     }
     {
         int *base = D_0054BDC0;
         int r = func_00242978(D_0054C608, 4, 0, 0, 0, base, 4, 0, 0);
         if (r < 0) {
             func_00100540(D_0054ABEC[0]);
-            return -1;
+            return 0xFFFFFFFF;
         }
         {
             int val = *(int *)((int)base | 0x20000000);
@@ -3528,7 +3528,7 @@ extern void func_00100540(int a0);
 int func_0024BFD0(int a0, int *a1, int *a2) {
     int r;
     if (*(int *)D_0054C690 == 0) {
-        return -1;
+        return 0xFFFFFFFF;
     }
     r = func_00242B68(D_00711640);
     if (a0 != 0) goto L050;
@@ -7174,7 +7174,26 @@ int func_002694B8(int *self, int a1)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00269518);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00269588);
+extern void *func_00269518(int a0);
+
+unsigned int func_00269588(void *a0, int a1, int a2) {
+    unsigned int *base;
+    unsigned int old;
+    if ((unsigned int)a1 >= 0x20) {
+        *(int *)a0 = 0x16;
+        return 0xFFFFFFFFU;
+    }
+    if (*(int *)((char *)a0 + 0x1D4) == 0) {
+        if (func_00269518((int)a0) != 0) {
+            return 0xFFFFFFFFU;
+        }
+    }
+    base = *(unsigned int **)((char *)a0 + 0x1D4);
+    old = base[a1];
+    base[a1] = a2;
+    return old;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00269618);
 
@@ -7186,7 +7205,7 @@ int func_002697C0(int a0) {
     return func_00269618(D_0054D504[0], a0);
 }
 
-extern int func_00269588(void *a0, int a1, int a2);
+extern unsigned int func_00269588(void *a0, int a1, int a2);
 
 int func_002697E8(int a0, int a1) {
     return func_00269588(D_0054D504_alias[0], a0, a1);
