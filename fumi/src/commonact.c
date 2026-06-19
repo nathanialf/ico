@@ -320,10 +320,24 @@ void actCommonJump(void *a0) {
 extern void func_0023FE98(void *a0, void *a1);
 extern float MatrixDrive_GetTurnYAngleXZ(float a0);
 extern int func_00260340(float a0);
-extern int func_0025F4A0(int a0, long long a1);
-extern long long D_005530B8_a[] __asm__("D_005530B8");
+extern int func_0025F4A0(int a0, double a1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonFall);
+void actCommonFall(int self) {
+    float buf[3];
+    int sub = *(int *)(self + 0x15C);
+    int r;
+
+    buf[0] = *(float *)(sub + 0x1C0);
+    buf[1] = *(float *)(sub + 0x1C4);
+    buf[2] = *(float *)(sub + 0x1C8);
+    func_0023FE98(buf, buf);
+    r = func_00260340(MatrixDrive_GetTurnYAngleXZ(buf[0] * buf[0] + buf[2] * buf[2]));
+    if (func_0025F4A0(r, 0.3) > 0) {
+        buf[1] = 0.0f;
+        func_0023FE98(buf, buf);
+        dispPlane((void *)self, buf);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", debugDispFlyLimit);
 
@@ -511,3 +525,5 @@ typedef struct {
 } S_0055D4B0;  /* stride 0x4 */
 
 /* end struct shapes */
+
+

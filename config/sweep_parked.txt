@@ -189,7 +189,6 @@ correctJumpOrientByChain# rc48 multi-mult index+fill loop; rc48 structure/streng
 func_0023C1D8       # rc37 LOGIC RECOVERED: lock func_00100560(a0->f40); num=((a0->fC+a0->f10)<<11)+a0->f14; rem=num%a0->f18(div+break); X=a0->f18-rem; Y=((a0->f8-(a0->f10+2))<<11)-a0->f14; if(X<Y) bnel branch stores; tail func_00100540. residual=f10+2 CSE( reused) + value-reg reuse + bnel-vs-beq; deep pass
 ContinueCorrectPosition# rc22 switch-like fC dispatch (1/2/4 vs 0/3/2B/default); rc22 branch layout
 func_00264440       # rc46 signed itoa: buf[0]=fill, buf[1]=+/-, digits reverse-built in stack buf (sp+0x134 down) via %10/10 div-loop then copied fwd to buf+2; val<10 special 0X; ret out-buf. loop/ptr/reverse-copy CFG reconstruction off; deep pass
-actCommonFall       # rc2 rc2: D_005530B8 64-bit load gp-rel vs ROM far %hi/%lo (alias overcorrects to 3)
 func_0026808C       # rc52 VU0/MMI SIMD memchr(buf,c,n): aligned 16B blocks via lq/pcpyh/pcpyld/pxor/pnor/psubb/pand/pcpyud has-byte test (bnel found), scalar lbu tail. needs 128-bit MMI intrinsics/hand-asm; VU0-class deep-pass (scalar-only=rc52)
 isysGObjSearchFromObjLayoutID# rc28 scan + range-table lookup; scan-class rc28
 waypoint_connect_group_side_me# rc24 scan-class twin of bridge_waypoint_side_me; rc24
