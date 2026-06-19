@@ -1704,7 +1704,36 @@ int func_00246700(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00246778);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00246868);
+extern int D_0054AB38[];
+extern char D_0070FA00[];
+extern char D_0070F800[];
+extern char D_0070FA28[];
+
+int func_00246868(void) {
+    int i;
+    int r;
+    int val;
+    if (D_0054AB38[0] >= 0) goto ret0;
+loop:
+    r = func_002427A8(D_0070FA00, 0x80000006, 0);
+    if (r < 0) return -1;
+    val = *(int *)(D_0070FA00 + 0x24);
+    if (val == 0) goto delay;
+    D_0054AB38[0] = 0;
+    r = func_00242978(D_0070FA00, 0xFF, 0, 0, 0, D_0070F800, 4, 0, 0);
+    if (r < 0) return 0xFFFEFFFF;
+    __builtin_memcpy(D_0070FA28, D_0070F800, 4);
+    return 0;
+delay:
+    __asm__ volatile ("lui %0,%%hi(D_FFFFF)" : "=r"(i));
+    do {
+        __asm__ volatile ("addiu %0,%0,%%lo(D_FFFFF)" : "+r"(i));
+    } while (i != -1);
+    goto loop;
+ret0:
+    return 0;
+}
+
 
 extern int D_0054AB3C[];
 extern char D_0070FA28[];
