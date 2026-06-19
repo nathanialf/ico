@@ -86,7 +86,32 @@ int iosPadActInit(void) {
     return D_0062BF98;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/pad", iosPadActStop);
+extern void func_00260568(void *a0, int a1, int a2);
+extern void iosThreadDestroy();
+extern void iosThreadMessage(void *a0);
+extern void iosThreadName(void *a0);
+extern int iosThreadSetPri(int a0, int a1);
+extern int D_0062A494;
+extern unsigned char D_006A0930[];
+
+void iosPadActStop(void) {
+    unsigned char *base;
+    unsigned char *p;
+    int i;
+    func_00260568(D_006A0930, 0, 0x180);
+    iosThreadDestroy();
+    iosThreadSetPri(0, D_0062A494);
+    base = D_0027D540;
+    p = base + 0x1B8;
+    i = 1;
+    do {
+        iosThreadName(p);
+        i--;
+        iosThreadMessage(p - 0x14);
+        p += 0x200;
+    } while (i >= 0);
+}
+
 
 
 /* recovered struct shapes */
