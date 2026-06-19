@@ -52,7 +52,7 @@ ROOT="$(git rev-parse --show-toplevel)"
 # (only docs/, README.md, .gitignore, etc.) bypass the build gate.
 BUILD_SENSITIVE=$(git diff --cached --name-only -z |
     tr '\0' '\n' |
-    grep -E '^(src/|asm/|config/|tools/|include/|baserom/|Makefile|build\.ninja$)' ||
+    grep -E '^([A-Za-z0-9_]+/src/|src/|asm/|config/|tools/|include/|baserom/|Makefile|build\.ninja$)' ||
     true)
 if [[ -z "$BUILD_SENSITIVE" ]]; then
     exit 0
@@ -154,7 +154,7 @@ while read local_ref local_sha remote_ref remote_sha; do
         range="$remote_sha..$local_sha"
     fi
     BUILD_SENSITIVE=$(git diff --name-only "$range" 2>/dev/null |
-        grep -E '^(src/|asm/|config/|tools/|include/|baserom/|Makefile|build\.ninja$)' ||
+        grep -E '^([A-Za-z0-9_]+/src/|src/|asm/|config/|tools/|include/|baserom/|Makefile|build\.ninja$)' ||
         true)
     if [[ -z "$BUILD_SENSITIVE" ]]; then
         continue
