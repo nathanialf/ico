@@ -138,7 +138,30 @@ int dispInsectNet(void *a0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", WeaponDL);
+/* m2c scaffold from asm/aug6/nonmatchings/sugipon/src/weapon/WeaponDL.s (target mipsel-gcc-c, context-free).
+ * NOT a match — reshape into a goto-CFG-mirror + recover intent (see decomp-match skill). */
+extern void GetInverseQuaternion(void *a0, void *a1);
+
+void WeaponDL(void *a0, void *a1, void *a2) {
+    char *base = *(char **)((char *)a0 + 0x15C);
+    char *r = base + 0xA0;
+    WGeo *sub = *(WGeo **)(base + 0x7F0);
+    int one = 1;
+    int x = sub->f_8;
+    if (x != 0) {
+        x = *(int *)((char *)x + 0x15C);
+        *(int *)(x + 0x620) = 0;
+    }
+    sub->f_4 = one;
+    sub->f_C = -1;
+    sub->f_8 = 0;
+    if (a2 != 0) {
+        GetInverseQuaternion(base + 0x140, a2);
+    }
+    MatrixDrive_TurnObjectMatrix(base + 0x120, a1);
+    *(int *)(r + 0x8C) = 0;
+}
+
 
 int PickupWeapon(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
