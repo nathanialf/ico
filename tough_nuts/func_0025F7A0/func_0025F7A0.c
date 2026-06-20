@@ -6598,7 +6598,61 @@ int func_0025F718(int a0, int a1, int a2, long long a3) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025F748);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025F7A0);
+int func_0025F7A0(void *arg) {
+    int *a0 = (int *)arg;
+    int temp_2;
+    int temp_3_2;
+    int var_7;
+    unsigned int temp_3;
+    unsigned int var_5;
+    unsigned int var_5_2;
+    unsigned int result;
+    int sign;
+
+    temp_3 = a0[0];
+    var_7 = 0;
+    sign = a0[1];
+    var_5 = a0[3];
+    if (temp_3 < 2U) {
+        var_7 = 0xFF;
+        var_5 |= 0x100000;
+    } else if ((temp_3 ^ 4) != 0) {
+        if ((temp_3 ^ 2) == 0) {
+            var_5 = 0;
+        } else if (var_5 != 0) {
+            temp_3_2 = a0[2];
+            if (temp_3_2 < -0x7E) {
+                temp_2 = (-0x7E) - temp_3_2;
+                var_5_2 = var_5 >> temp_2;
+                if (temp_2 >= 0x1A) {
+                    var_5_2 = 0;
+                }
+                goto block_17;
+            }
+            var_7 = temp_3_2 + 0x7F;
+            if (temp_3_2 >= 0x80) {
+                goto block_10;
+            }
+            if ((var_5 & 0x7F) != 0x40) {
+                var_5_2 = var_5 + 0x3F;
+            } else {
+                var_5_2 = (var_5 & 0x80) ? (var_5 + 0x40) : var_5;
+            }
+            if ((int) var_5_2 < 0) {
+                var_5_2 = var_5_2 >> 1;
+                var_7 += 1;
+            }
+block_17:
+            var_5 = var_5_2 >> 7;
+        }
+    } else {
+block_10:
+        var_7 = 0xFF;
+        var_5 = 0;
+    }
+    result = (((((result & 0xFF800000) | (var_5 & 0x7FFFFF)) & 0x807FFFFF) | ((var_7 & 0xFF) << 0x17)) & 0x7FFFFFFF) | (sign << 0x1F);
+    return result;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025F8B0);
