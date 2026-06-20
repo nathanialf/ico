@@ -37,7 +37,23 @@ extern int iosFree(int, int, const char *, int);
 extern char D_00554080[];
 extern int D_0062A310;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", GetWgAll);
+void *GetWgAll(void) {
+    int *p = (int *)iosFree(D_0062A310, 0x1C, D_00554080, 0x359);
+    int *q;
+    int i;
+    p[0] = iosFree(D_0062A310, 0x41, D_00554080, 0x35B);
+    p[1] = iosFree(D_0062A310, 0x4000, D_00554080, 0x35C);
+    p[3] = iosFree(D_0062A310, 0x104, D_00554080, 0x35D);
+    p[4] = iosFree(D_0062A310, 0x104, D_00554080, 0x35E);
+    p[5] = iosFree(D_0062A310, 0x104, D_00554080, 0x35F);
+    p[6] = iosFree(D_0062A310, 0x104, D_00554080, 0x360);
+    q = (int *)iosFree(D_0062A310, 0x100, D_00554080, 0x362);
+    p[2] = (int)q;
+    for (i = 0; i < 0x40; i++) {
+        q[i] = p[1] + (i << 8);
+    }
+    return p;
+}
 
 
 extern void iosMallocCheckLeak2(int x);
