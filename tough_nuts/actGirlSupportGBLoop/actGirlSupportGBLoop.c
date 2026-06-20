@@ -104,7 +104,41 @@ extern int func_0016F560(void *, void *);
 extern float D_006290C4;
 extern float D_006290C8;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlSupportGBLoop);
+int actGirlSupportGBLoop(void) {
+    char buf[0x20];
+    int rv = 0;
+    float diff;
+    if (D_00629DE4 == 0) {
+        return 0;
+    }
+    if (D_00629DE8 == 0) {
+        return 0;
+    }
+    GetHeightOfWallFromGObj(buf, D_00629DE4);
+    GetHeightOfWallFromGObj(buf + 0x10, D_00629DE8);
+    diff = *(float *)(buf + 0x4) - *(float *)(buf + 0x14);
+    if (diff < 0.0f) {
+        if (-diff > 200.0f) {
+            rv = 1;
+        }
+    } else {
+        if (diff > 200.0f) {
+            rv = 1;
+        }
+    }
+    if (rv == 0) {
+        return 0;
+    }
+    if (RotateAccordingToStick_PatternThree(buf, buf + 0x10) < D_006290C4) {
+        return 1;
+    }
+    if (RotateAccordingToStick_PatternThree(buf, buf + 0x10) < D_006290C8) {
+        if (func_0016F560(buf, buf + 0x10) != 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlSupportGBEnd);
