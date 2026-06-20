@@ -11,7 +11,23 @@ void saveEditedDataBinary(void) {
     D_00286A98[0] = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", saveEditedData);
+/* m2c scaffold from asm/aug6/nonmatchings/omori/src/camera-editor/saveEditedData.s (target mipsel-gcc-c, context-free).
+ * NOT a match — reshape into a goto-CFG-mirror + recover intent (see decomp-match skill). */
+void saveEditedData(void *a0, float arg0) {
+    float *p = (float *)a0;
+    float prod = p[4] * arg0;
+    float v = p[1] + prod;
+    p[1] = v;
+    if (v < 0.0f) {
+        p[1] = 0.0f;
+        return;
+    }
+    prod = 10.0f;
+    if (!(v > 10.0f)) {
+        prod = v;
+    }
+    p[1] = prod;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", gif_test);
