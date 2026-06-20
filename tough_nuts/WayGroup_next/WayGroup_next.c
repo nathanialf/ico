@@ -127,7 +127,41 @@ extern int D_0062BB7C;
 extern int D_0062BB80;
 extern int D_0070BBFC[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", WayGroup_next);
+int WayGroup_next(void) {
+    WayRec *s16 = &D_004C6FF0[D_0062BB7C];
+    int flags;
+    void *r;
+    int a1;
+    if (D_0062AF84 & 1) {
+        traceLine(0x12, 0x36, 0xFF000000, D_006141A8);
+        if (D_0062AF84 & 1) {
+            traceLine(0x1A, 0x42, 0xFF808000, D_0062DA08, s16->w[4]);
+        }
+    }
+    flags = D_0070BBFC[0];
+    if (flags & 0x20) {
+        r = visible_waypoint_of_all(D_004CB2B0, 60.0f);
+        if (r == 0) {
+            goto ret0;
+        }
+        a1 = *(int *)((char *)r + 0x4);
+        D_0062BB80 = a1;
+        if (a1 < 0) {
+            goto ret0;
+        }
+        NearestEnemyFromGirl();
+        if (s16->w[4] == 0) {
+            func_00202900(D_0062BB7C);
+        }
+        debug_assertMessage(D_006141B8, D_0062BB80);
+        goto ret0;
+    }
+    if (flags & 0x40) {
+        return -1;
+    }
+ret0:
+    return 0;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", WayBridge_begin);
