@@ -7,7 +7,39 @@ INTERVAL=10
 
 if [[ "$1" == "--once" ]]; then
     cols=${COLUMNS:-$(tput cols)}
-    rule=$(printf '%*s\n' "$cols" '' | tr ' ' -)
+    rule=$(printf '%*s' "$cols" '' | sed 's/ /─/g')
+    # Responsive layout primitive. Compose two already-rendered text blocks
+    # side by side — left-padded to the left block's own width, then a
+    # ` │ ` vertical separator, then the right block — when they both fit on
+    # $cols, else stack them vertically with a rule between. The decision is
+    # the REAL combined width vs the REAL terminal width — no magic per-pair
+    # breakpoint — so a wide tablet fills its horizontal space and a phone in
+    # portrait still reads top-to-bottom. Blocks are ASCII-aligned internally
+    # (box-drawing chars only appear in $rule and this separator, never inside
+    # a block), so ${#line} width math is correct. The separator is drawn on
+    # EVERY row, including blank ones where one panel ran out, so the vertical
+    # line stays continuous down the full height of the taller panel.
+    sidebyside() {
+        local left="$1" right="$2"
+        local -a L R
+        mapfile -t L <<<"$left"
+        mapfile -t R <<<"$right"
+        local wa=0 wb=0 ln
+        for ln in "${L[@]}"; do (( ${#ln} > wa )) && wa=${#ln}; done
+        for ln in "${R[@]}"; do (( ${#ln} > wb )) && wb=${#ln}; done
+        # Gutter ` │ ` is 3 display columns wide.
+        if (( wa + 3 + wb > cols )); then
+            printf '%s\n' "$left"
+            echo "$rule"
+            printf '%s\n' "$right"
+            return
+        fi
+        local rows=${#L[@]}; (( ${#R[@]} > rows )) && rows=${#R[@]}
+        local i
+        for (( i = 0; i < rows; i++ )); do
+            printf '%-*s │ %s\n' "$wa" "${L[i]-}" "${R[i]-}"
+        done
+    }
 
     # Refresh docs/PROGRESS.md from current src/ + yaml + built objects.
     # Done here (not in per-match commits) so the matching loop doesn't
@@ -18,38 +50,45 @@ if [[ "$1" == "--once" ]]; then
     fi
 
     echo "$rule"
-    # Sweep remaining ACTIONABLE per author scope (very top of the dashboard).
+    # Sweep remaining ACTIONABLE per author scope (top-left of the dashboard).
     # Mirrors tools/sweep_targets.sh --counts. A func is a sweep target iff it
     # still carries an INCLUDE_ASM stub with a real .s and isn't parked under
     # tough_nuts/. actionable (= "fresh") is what a one-pass sweep would really
     # attempt = unmatched − SPILL (a0-spill one-pass MISS class) − PARKED
     # (already attempted+parked in a prior sweep: named in docs/MATCHING_NOTES.md
     # or config/sweep_parked.txt). SPILL is shown as its own column.
-    echo "Sweep remaining actionable (fresh = unmatched - SPILL - parked):"
-    {
-        printf 'scope\tactionable\tspill\tparked\n'
-        _sw_ta=0; _sw_ts=0; _sw_tp=0
-        for _sw_sc in fumi script common sugipon seki omori ito; do
-            [[ -d "$_sw_sc" ]] || continue
-            _sw_c=$(tools/sweep_targets.sh "$_sw_sc" --counts 2>/dev/null)
-            _sw_a=$(printf '%s' "$_sw_c" | grep -oE 'fresh=[0-9]+'  | cut -d= -f2)
-            _sw_s=$(printf '%s' "$_sw_c" | grep -oE 'SPILL=[0-9]+'  | cut -d= -f2)
-            _sw_p=$(printf '%s' "$_sw_c" | grep -oE 'PARKED=[0-9]+' | cut -d= -f2)
-            _sw_a=${_sw_a:-0}; _sw_s=${_sw_s:-0}; _sw_p=${_sw_p:-0}
-            _sw_ta=$((_sw_ta + _sw_a)); _sw_ts=$((_sw_ts + _sw_s)); _sw_tp=$((_sw_tp + _sw_p))
-            printf '%s\t%d\t%d\t%d\n' "$_sw_sc" "$_sw_a" "$_sw_s" "$_sw_p"
-        done
-        printf 'TOTAL\t%d\t%d\t%d\n' "$_sw_ta" "$_sw_ts" "$_sw_tp"
-    } | column -t -s "$(printf '\t')"
-    echo "$rule"
-    # Render the markdown table as a fixed-width table. Pull the rows
-    # between the `progress:begin` / `progress:end` markers so adding
-    # a new section row in tools/progress.py doesn't drift this range.
-    # Strip the leading/trailing pipes, drop the markdown separator
-    # row (---|---|...), then column-align on `|`.
-    sed -n '/<!-- progress:begin -->/,/<!-- progress:end -->/p' docs/PROGRESS.md \
-        | sed -E '/<!-- progress:(begin|end) -->/d; s/^\| //; s/ \|$//; /^[- |:]+$/d' \
-        | column -t -s '|'
+    # Captured into a block (not printed) so it can pair with the progress
+    # table side by side on a wide terminal.
+    _sweep_block=$( {
+        echo "Sweep remaining actionable (fresh = unmatched - SPILL - parked):"
+        {
+            printf 'scope\tactionable\tspill\tparked\n'
+            _sw_ta=0; _sw_ts=0; _sw_tp=0
+            for _sw_sc in fumi script common sugipon seki omori ito; do
+                [[ -d "$_sw_sc" ]] || continue
+                _sw_c=$(tools/sweep_targets.sh "$_sw_sc" --counts 2>/dev/null)
+                _sw_a=$(printf '%s' "$_sw_c" | grep -oE 'fresh=[0-9]+'  | cut -d= -f2)
+                _sw_s=$(printf '%s' "$_sw_c" | grep -oE 'SPILL=[0-9]+'  | cut -d= -f2)
+                _sw_p=$(printf '%s' "$_sw_c" | grep -oE 'PARKED=[0-9]+' | cut -d= -f2)
+                _sw_a=${_sw_a:-0}; _sw_s=${_sw_s:-0}; _sw_p=${_sw_p:-0}
+                _sw_ta=$((_sw_ta + _sw_a)); _sw_ts=$((_sw_ts + _sw_s)); _sw_tp=$((_sw_tp + _sw_p))
+                printf '%s\t%d\t%d\t%d\n' "$_sw_sc" "$_sw_a" "$_sw_s" "$_sw_p"
+            done
+            printf 'TOTAL\t%d\t%d\t%d\n' "$_sw_ta" "$_sw_ts" "$_sw_tp"
+        } | column -t -s "$(printf '\t')"
+    } )
+    # Render the markdown progress table as a fixed-width block. Pull the rows
+    # between the `progress:begin` / `progress:end` markers so adding a new
+    # section row in tools/progress.py doesn't drift this range. Strip the
+    # leading/trailing pipes, drop the markdown separator row (---|---|...),
+    # then column-align on `|`.
+    _prog_block=$(
+        { echo "Progress:"
+          sed -n '/<!-- progress:begin -->/,/<!-- progress:end -->/p' docs/PROGRESS.md \
+            | sed -E '/<!-- progress:(begin|end) -->/d; s/^\| //; s/ \|$//; /^[- |:]+$/d' \
+            | column -t -s '|'; }
+    )
+    sidebyside "$_sweep_block" "$_prog_block"
     echo "$rule"
 
     # Ten smallest unmatched functions (by instruction count), across all
@@ -174,23 +213,20 @@ if [[ "$1" == "--once" ]]; then
         #           total first — the TUs closest to fully matched, the natural
         #           "finish this off" shortlist. The `fn` column counts the
         #           still-unmatched functions contributing to that TU's total.
-        # Each side is laid out with its own `column -t` (emits spaces, no
-        # tabs), a header line is prepended, and the two blocks are pasted with
-        # a TAB gutter; the final `column -t -s <tab>` splits ONLY on that tab
-        # so each side keeps its own internal alignment. Headers stay ASCII so
-        # `column` measures their width correctly regardless of locale.
-        _fn_tbl=$(printf '%s\n' "$_sm_rows" | sort -n | sed -n '1,10p' | cut -f2- \
-            | column -t -s "$(printf '\t')")
-        _tu_tbl=$(printf '%s\n' "$_sm_rows" \
-            | awk -F'\t' 'NF>=4 { tot[$3]+=$1; cnt[$3]++ }
-                          END { for (t in tot) printf "%012d\t%s\t%d insn\t%d fn\n", tot[t], t, tot[t]/4, cnt[t] }' \
-            | sort -n | sed -n '1,10p' | cut -f2- \
-            | column -t -s "$(printf '\t')")
-        _tab=$(printf '\t')
-        paste -d "$_tab" \
-            <(printf '10 smallest unmatched funcs (fn / TU / insn):\n%s\n' "$_fn_tbl") \
-            <(printf '10 TUs, least remaining work (TU / insn / fns):\n%s\n' "$_tu_tbl") \
-            | column -t -s "$_tab"
+        # Each side is laid out with its own `column -t` and a header line,
+        # then handed to sidebyside() which pairs them on a wide terminal and
+        # stacks them on a narrow one. Headers stay ASCII so width math is
+        # correct regardless of locale.
+        _fn_block=$( { echo '10 smallest unmatched funcs (fn / TU / insn):'
+            printf '%s\n' "$_sm_rows" | sort -n | sed -n '1,10p' | cut -f2- \
+                | column -t -s "$(printf '\t')"; } )
+        _tu_block=$( { echo '10 TUs, least remaining work (TU / insn / fns):'
+            printf '%s\n' "$_sm_rows" \
+                | awk -F'\t' 'NF>=4 { tot[$3]+=$1; cnt[$3]++ }
+                              END { for (t in tot) printf "%012d\t%s\t%d insn\t%d fn\n", tot[t], t, tot[t]/4, cnt[t] }' \
+                | sort -n | sed -n '1,10p' | cut -f2- \
+                | column -t -s "$(printf '\t')"; } )
+        sidebyside "$_fn_block" "$_tu_block"
         echo "$rule"
     fi
 
@@ -254,9 +290,10 @@ if [[ "$1" == "--once" ]]; then
         echo "$rule"
     fi
 
-    git log -1
-    echo "$rule"
-    git status
+    # Footer: last commit beside working-tree status. sidebyside() pairs them
+    # on a wide terminal and falls back to stacking (with a rule between) when
+    # the combined width — git status lines can be long — would overflow.
+    sidebyside "$(git log -1)" "$(git status)"
     echo "$rule"
     exit 0
 fi
