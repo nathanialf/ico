@@ -44,7 +44,41 @@ extern int D_0062C268;
 extern int D_0062C274;
 extern char D_0070A8C0_b[] __asm__("D_0070A8C0");
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmPlay);
+void AdpcmPlay(void) {
+    int n;
+    int *p = D_0070A970;
+    int sz;
+    char *q;
+    int *q2;
+    n = 3;
+    do {
+        *p = func_00259E68(1);
+        n--;
+        p++;
+    } while (n >= 0);
+    sz = new_mblock_node(0xB8800, D_00613820, 0x4D);
+    if (sz & 0x7FF) {
+        D_0062C268 = (sz / 0x800 + 1) * 0x800;
+    } else {
+        D_0062C268 = sz;
+    }
+    debug_assertMessage(D_00613838, D_0062C268, 0xB8000);
+    func_0025A080();
+    q = &D_0070A8C0_b[0x58];
+    n = 1;
+    do {
+        *(int *)q = 0;
+        n--;
+        q -= 0x58;
+    } while (n >= 0);
+    q2 = &D_0062C274;
+    n = 1;
+    do {
+        *q2 = 0;
+        n--;
+        q2--;
+    } while (n >= 0);
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmStop);
