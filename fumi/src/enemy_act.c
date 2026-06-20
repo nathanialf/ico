@@ -11,7 +11,19 @@ void boss_effect_start(volatile int a0) {
     p[4] &= ~0x40000LL;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", boss_effect_check_parts);
+/* m2c scaffold from asm/aug6/nonmatchings/fumi/src/enemy_act/boss_effect_check_parts.s (target mipsel-gcc-c, context-free).
+ * NOT a match — reshape into a goto-CFG-mirror + recover intent (see decomp-match skill). */
+extern void ReviveEnemyParticle(void *a0, int a1);
+
+void boss_effect_check_parts(void *a0)
+{
+    void *volatile self = a0;
+    void *p = *(void **)((char *)self + 0x164);
+    *(unsigned long long *)((char *)p + 0x18) |= 0x8000000000000000ULL;
+    ReviveEnemyParticle(self, 1);
+    *(int *)(*(int *)((char *)self + 0x15C) + 0x644) = 0;
+}
+
 
 void boss_effect_process(int a0) {
     int buf[4];
