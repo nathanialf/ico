@@ -12,7 +12,45 @@ extern int D_0027DE30[];
 extern int D_0062A4CC;
 extern void *D_0062A4D4;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/obj_manager", iosOmMain);
+void iosOmMain(void) {
+    char *s2 = D_0062A4D4;
+    int i;
+    int var2;
+    if (s2 == 0) {
+        return;
+    }
+    var2 = D_0062A4CC & 1;
+    do {
+        i = 0;
+        if (var2 != 0) {
+            void (*f)(void *) = *(void (**)(void *))(s2 + 0x48);
+            if (f != 0) {
+                f(s2);
+            }
+        }
+        do {
+            if (((D_0062A4CC >> i) & 1) && ((*(int *)(s2 + 0x4C) >> i) & 1)) {
+                char *s0 = (char *)D_0027DE30[i];
+                if (s0 != 0) {
+                    do {
+                        void (*g)(void *);
+                        if (*(int *)(s0 + 0x16C) != 0 &&
+                            (*(int *)(s2 + 0x50) & *(int *)(s0 + 0x50)) != 0) {
+                            g = *(void (**)(void *))(s0 + 0x48);
+                            if (g != 0) {
+                                g(s0);
+                            }
+                        }
+                        s0 = *(char **)(s0 + 0x34);
+                    } while (s0 != 0);
+                }
+            }
+            i++;
+        } while (i < 0x20);
+        s2 = *(char **)(s2 + 0x34);
+        var2 = D_0062A4CC & 1;
+    } while (s2 != 0);
+}
 
 
 extern int *D_0027DDF0[];
