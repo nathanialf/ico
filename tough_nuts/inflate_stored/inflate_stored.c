@@ -26,7 +26,28 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", inflate_codes);
 extern void func_00249AC0(int, int, int, void *);
 extern char D_00550E68[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", inflate_stored);
+int inflate_stored(InfCodes *a0, int a1, int a2) {
+    int q = a2 / 2048;
+    int new110;
+    do {
+        func_00249AC0(a0->f114 + a0->f110 / 2048, q, a1, &D_0062A268);
+        while (func_002490C0(1) != 0) {
+            D_0062A258 = 1;
+            iosSemaCreate();
+            D_0062A258 = 0;
+        }
+        if (func_00249CB0() == 0) {
+            break;
+        }
+        if (((a0->f108 >> 4) & 1) != 0) {
+            break;
+        }
+        debug_assertMessage(&D_00550E68);
+    } while (1);
+    new110 = a0->f110 + a2;
+    a0->f110 = new110;
+    return new110 >= a0->f10C;
+}
 
 
 extern int D_0062BF84;
