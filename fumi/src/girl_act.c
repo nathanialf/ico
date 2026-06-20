@@ -71,7 +71,50 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlPulledGo);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_0016C580);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlDitch3mReady);
+extern void func_00104548(void *, void *);
+extern int HandCameraCorrect(void *, void *);
+extern void funcGirlHandDisconnect(void *, void *);
+extern void BoxBarSoundOn(void *, int);
+extern char D_00553960[];
+extern char D_00553970[];
+
+void actGirlDitch3mReady(void *a0, int a1) {
+    char buf[0x20];
+    void *de8 = D_00629DE8;
+    int s3 = a1 & 0xFF;
+    int r;
+    void *v1;
+    void *dst;
+    func_00104548(buf, de8);
+    r = HandCameraCorrect(buf, a0);
+    r = (r < 0) ? -r : r;
+    if (r < 0x2E) {
+        return;
+    }
+    v1 = *(void **)((char *)de8 + 0x164);
+    dst = *(void **)((char *)v1 + 0x678);
+    *(float *)((char *)dst + 0x3B0) = *(float *)((char *)a0 + 0x0);
+    *(float *)((char *)dst + 0x3B4) = *(float *)((char *)a0 + 0x4);
+    *(float *)((char *)dst + 0x3B8) = *(float *)((char *)a0 + 0x8);
+    funcGirlHandDisconnect(buf + 0x10, de8);
+    r = HandCameraCorrect(buf + 0x10, a0);
+    if (r > 0) {
+        debug_assertMessage(D_00553960);
+        if (s3 != 0) {
+            BoxBarSoundOn(de8, 0xD9);
+        } else {
+            BoxBarSoundOn(de8, 0xDB);
+        }
+    } else {
+        debug_assertMessage(D_00553970);
+        if (s3 != 0) {
+            BoxBarSoundOn(de8, 0xD8);
+        } else {
+            BoxBarSoundOn(de8, 0xDA);
+        }
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlReadyMove);
 
