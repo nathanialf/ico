@@ -32,7 +32,31 @@ void GetStreamMotionData(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/streamMotionManager", _transRingBuf);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/streamMotionManager", ExecStreamMotionManager);
+/* m2c scaffold from asm/aug6/nonmatchings/sugipon/src/streamMotionManager/ExecStreamMotionManager.s (target mipsel-gcc-c, context-free).
+ * NOT a match — reshape into a goto-CFG-mirror + recover intent (see decomp-match skill). */
+extern unsigned int D_0062B9E8;
+extern unsigned char D_00706DA8[];
+
+typedef struct StreamMotionEntry {
+    char _pad[0x10];
+    int f10;
+    char _tail[4];
+} StreamMotionEntry;
+
+extern StreamMotionEntry sm_table[] __asm__("D_00706DA8");
+
+int ExecStreamMotionManager(void *a0)
+{
+    int v = D_0062B9E8;
+    sm_table[v].f10 = (int)a0;
+    *(int *)(*(int *)((char *)a0 + 0x15C) + 0x460) = v;
+    *(int *)(*(int *)((char *)a0 + 0x15C) + 0x4E0) = 0;
+    *(int *)(*(int *)((char *)a0 + 0x15C) + 0x4DC) = 0;
+    *(int *)(*(int *)((char *)a0 + 0x15C) + 0x540) = 0;
+    D_0062B9E8 = v + 1;
+    return v;
+}
+
 
 extern unsigned char D_00706DA8[];
 extern char D_00612F68[];
