@@ -229,7 +229,43 @@ int soundBufAdpcmChAlloc(void) {
 extern unsigned long long D_0062BFC8;
 extern char D_00552060[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundBufAdpcmFree);
+int soundBufAdpcmFree(void *a0, int *a1) {
+    int i;
+    int bit;
+    int one = 1;
+    int v;
+
+    i = 0;
+loop:
+    v = one << i;
+    if ((v & D_0062BFC8) == 0) {
+        bit = 1;
+        goto found;
+    }
+    i++;
+    if ((unsigned int) i < 0x40) {
+        goto loop;
+    }
+    func_001AAD00(D_00551FC8, 0x1E7);
+    func_00260380(D_00551FC8, 0x1E7, D_0062C388);
+    bit = 1;
+found:
+    {
+        int m = bit << i;
+        D_0062BFC8 |= m;
+        *(unsigned long long *)((char *)a0 + 0x18) |= m;
+    }
+    if (i >= 5) {
+        debug_assertMessage(D_00552060);
+        func_001AAD00(D_00551FC8, 0x1EB);
+        func_00260380(D_00551FC8, 0x1EB, D_0062C388);
+    }
+    a1[0] = i;
+    if (i < 0) {
+        return (i << 14) + 0x1D9020;
+    }
+    return (i << 14) + 0x1E0000;
+}
 
 
 extern unsigned long long D_0062BFC8;
