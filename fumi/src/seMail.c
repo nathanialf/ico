@@ -22,7 +22,24 @@ float func_00202638(int a0, int a1) {
     return func_002018E0(buf, a1);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/seMail", func_00202688);
+static inline float seMail_dh(int a0, int *mb) {
+    int ma[4];
+    if (a0 == 0) {
+        return -1.0f;
+    }
+    GetRootMatrixByDObj(ma, a0);
+    return func_002018E0(ma, (int) mb);
+}
+
+float func_00202688(int a0, int a1) {
+    int mb[4];
+    if (a1 == 0) {
+        return -1.0f;
+    }
+    GetRootMatrixByDObj(mb, a1);
+    return seMail_dh(a0, mb);
+}
+
 
 extern void GetRootMatrixByDObj(int *buf, int x);
 extern int func_00201AF0(int *buf, int zero, float f);
