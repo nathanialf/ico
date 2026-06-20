@@ -76,7 +76,20 @@ void reg_dispSObj(char *a0, int a1, int a2) {
     dl_GetPri();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/RegistPacket", reg_dispCObj);
+/* m2c scaffold from asm/aug6/nonmatchings/seki/src/RegistPacket/reg_dispCObj.s (target mipsel-gcc-c, context-free).
+ * NOT a match — reshape into a goto-CFG-mirror + recover intent (see decomp-match skill). */
+extern void dpk_Init(int a0, void *a1, int a2);
+extern int dl_GetPri(void);
+
+void reg_dispCObj(void *a0, int *a1) {
+    short t = *(short *)((char *)a0 + 0x80);
+    if (t == -1) {
+        return;
+    }
+    dpk_Init(2, (void *)(*a1 + t * 0x70), 6);
+    dl_GetPri();
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/RegistPacket", reg_dispPoint);
 

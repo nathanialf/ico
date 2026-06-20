@@ -83,7 +83,25 @@ float p2o_TransMicroProgram(void *a0, void *a1) {
     return ret;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", p2o_SetDefaultEnviroment);
+/* m2c scaffold from asm/aug6/nonmatchings/seki/src/DisplayP2O/p2o_SetDefaultEnviroment.s (target mipsel-gcc-c, context-free).
+ * NOT a match — reshape into a goto-CFG-mirror + recover intent (see decomp-match skill). */
+extern float D_0065A9C0[];
+
+float p2o_SetDefaultEnviroment(short a0) {
+    int idx = __builtin_abs(a0);
+    int s;
+    float v;
+    s = (unsigned int) a0 >> 0x1F;
+    if (idx >= 0x4000) {
+        idx = 0x8000 - idx;
+    }
+    v = D_0065A9C0[idx];
+    if (s == 0) goto done;
+    v = -v;
+done:
+    return v;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", func_0010ED30);
 
