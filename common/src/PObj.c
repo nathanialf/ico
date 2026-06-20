@@ -5371,7 +5371,50 @@ int func_00251298(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002512B8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00251440);
+extern int func_00252620(int a0);
+extern void func_00252758(int a0);
+extern int D_0054C888[];
+extern int D_0054D030[];
+extern int D_006290B0[];
+
+int func_00251440(void) {
+    int cont;
+    int sum;
+    unsigned int v;
+
+    sum = 0;
+    do {
+        v = func_00252468(0);
+        switch (v) {
+        case 0x22:
+            cont = 1;
+            break;
+        case 0x23:
+            cont = 1;
+            sum += 0x21;
+            break;
+        case 0:
+            {
+                int r = func_00252620(0xB);
+                if ((D_0054D030[0] != 0) && (r == 0xF)) {
+                    func_00252758(0xB);
+                    cont = 1;
+                } else {
+                    func_0024E8F0((int) D_006290B0, v);
+                    D_0054C888[0] = 1;
+                    return 1;
+                }
+            }
+            break;
+        default:
+            sum += v;
+            cont = 0;
+            break;
+        }
+    } while (cont);
+    return sum;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00251550);
 
