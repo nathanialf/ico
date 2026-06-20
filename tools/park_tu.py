@@ -103,7 +103,33 @@ def func_def_span(src: str, func: str) -> tuple[int, int] | None:
     for m in re.finditer(r'\b' + re.escape(func) + r'\s*\(', src):
         p = m.start()
         anchor = max(src.rfind(';', 0, p), src.rfind('}', 0, p)) + 1
+        # A preceding doc-comment can contain ';'/'}' (pseudo-code), which would
+        # land the anchor mid-comment and leave an unclosed /* */. The comment's
+        # own '*/' is the real boundary when it is the closest one.
+        cm = src.rfind('*/', 0, p)
+        if cm >= 0 and cm + 2 > anchor:
+            anchor = cm + 2
         if 'INCLUDE_ASM' in src[anchor:p]:
+            continue
+        # Only a DEFINITION counts: its param-list ')' is followed by '{' (a
+        # body), not ';' (a call site) or ';' after a decl (an extern). Without
+        # this, a caller site that lexically follows the def is picked as the
+        # last match and the brace-matcher spans the wrong region, clobbering
+        # the caller's function (the func-already-defined park_tu bug).
+        j, depth = m.end() - 1, 0
+        while j < len(src):
+            c = src[j]
+            if c == '(':
+                depth += 1
+            elif c == ')':
+                depth -= 1
+                if depth == 0:
+                    break
+            j += 1
+        k = j + 1
+        while k < len(src) and src[k] in " \t\n":
+            k += 1
+        if k >= len(src) or src[k] != '{':
             continue
         start = anchor
     if start < 0:
