@@ -5932,7 +5932,34 @@ extern void *func_00254FC8(int a0);
 extern void *func_00254FF8(void);
 extern void *func_00255060(void);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00257C10);
+void func_00257C10(void *p) {
+    int i;
+    char *a = func_00254FC8(0);
+    void *b = func_00254FF8();
+    void *c = func_00255060();
+    int idx = *(unsigned short *)((char *)p + 0x4E) << 4;
+
+    *(unsigned char *)(*(int *)((char *)c + 0x8) + idx + 0x1B) =
+        *(unsigned char *)(*(int *)((char *)c + 0x10) + 1);
+
+    if (*(unsigned char *)(*(int *)((char *)c + 0x10) + 1) != 0) {
+        goto end;
+    }
+    for (i = 0; i < 0x30; i++, a += 0x58) {
+        if ((*(unsigned char *)(a + 0x4F) == *(unsigned short *)((char *)p + 0x4E)) &&
+            (*(unsigned char *)(a + 0x54) == *(unsigned short *)((char *)p + 0x18)) &&
+            (*(unsigned char *)(a + 0x50) == *(unsigned short *)((char *)p + 0x4C)) &&
+            ((*(int *)(a + 0x0) & 4) != 0)) {
+            if (*(unsigned char *)(*(int *)((char *)c + 0x8) + idx + 0x1B) == 0) {
+                *(long long *)((char *)b + 0x28) |= (long long)1 << i;
+            } else {
+                *(int *)(a + 0x0) |= 8;
+            }
+        }
+    }
+end:
+    *(int *)((char *)p + 0x4) += 3;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00257D28);
