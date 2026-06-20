@@ -39,7 +39,43 @@ extern void func_00260380(void *a0, int a1, void *a2);
 extern char D_00552200[];
 extern char D_0062C3C0[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", _ACTGame_SearchGObj);
+void _ACTGame_SearchGObj(void *a0, int a1, int a2, int a3, void *a4, int a5, int a6) {
+    int buf[8];
+    int t5;
+    int t4;
+    buf[2] = a2;
+    buf[1] = a3;
+    buf[4] = (int)a4;
+    buf[5] = a5;
+    buf[6] = a6;
+    buf[3] = (int)a0;
+    buf[7] = a1;
+    buf[0] = 0;
+    if (a1 != 0) {
+        if (a1 != 1) {
+            func_001AAD00(D_00552200, 0x10ED);
+            func_00260380(D_00552200, 0x10ED, D_0062C3C0);
+        } else {
+            buf[0] = *(int *)(*(int *)((char *)a0 + 0x164) + 0x670) + 0x31C;
+        }
+    } else {
+        buf[0] = *(int *)(*(int *)((char *)a0 + 0x164) + 0x670) + 0x314;
+    }
+    t5 = buf[2];
+    if (t5 < 3 && t5 > 0 && buf[1] == 0) {
+        if (((int *)buf[0])[1] == t5) {
+            goto block_11;
+        }
+    } else {
+block_11:
+        t4 = ((int *)buf[0])[1];
+        if (t4 == 0 || ((int *)buf[0])[0] == 0) {
+            ACTGame_LwsEffectProcess(buf);
+        } else if (t5 >= t4) {
+            ACTGame_LwsEffectProcess(buf);
+        }
+    }
+}
 
 
 extern void *D_00629DE4;
