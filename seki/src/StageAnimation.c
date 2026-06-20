@@ -184,7 +184,23 @@ void func_0012AAB8(int key, int a1)
 
 
 /* parked: needs real matching. See tough_nuts/func_0012AB00/notes.md */
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", func_0012AB00);
+void func_0012AB00(int target, int val)
+{
+    int n = D_0062BF54;
+    char *p = (char *)D_0066DBD8;
+    int i;
+    if (n <= 0) return;
+    i = n;
+    do {
+        int *entry1 = *(int **)(p + 0x280);
+        if (target == entry1[0x58 / 4]) {
+            float **entry2 = *(float ***)(p + 0x284);
+            ((float *)entry2)[0x1C / 4] = (float)val;
+        }
+        p += 0x290;
+    } while (--i);
+}
+
 
 struct B8 { char _b[8]; };
 

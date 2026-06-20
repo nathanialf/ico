@@ -171,12 +171,38 @@ END { i=1; while (i<=NR) { print ln[i];
 # 0.0 operand is materialized via `mtc1 $0,$fN` (e.g. stage_DispAnimation).
 awk '
 { ln[NR]=$0 }
-END { i=1; while (i<=NR) {
+END { nr=0; seen=0; i=1; while (i<=NR) {
+  # Track gcc-emitted .set state + whether a real insn has appeared in the
+  # current reorder region (gas resets its pipeline model at region entry and
+  # at every label/branch target).
+  if (ln[i] ~ /\.set[ \t]+noreorder/) { nr=1; print ln[i]; i++; continue }
+  if (ln[i] ~ /\.set[ \t]+reorder/)   { nr=0; seen=0; print ln[i]; i++; continue }
+  if (ln[i] ~ /:[ \t]*$/)             { seen=0; print ln[i]; i++; continue }
+
+  # Case 1 (existing): m[ft]c1 + `#nop` marker + the dependent insn gcc
+  # scheduled into the COP1-move hazard slot.
   if (ln[i] ~ /^[ \t]*m[ft]c1[ \t]/ && (i+1)<=NR && ln[i+1] ~ /^[ \t]*#nop[ \t]*$/) {
     j=i+2; while (j<=NR && ln[j] ~ /^[ \t]*(#|$)/) j++;
     if (j<=NR && ln[j] !~ /^[ \t]*\./ && ln[j] !~ /:[ \t]*$/) {
       print "\t.set noreorder"; print ln[i]; print ln[j]; print "\t.set reorder";
-      i=j+1; continue } }
+      nr=0; seen=0; i=j+1; continue } }
+
+  # Case 2 (new): a marker-less `mtc1` that is the FIRST real insn of a reorder
+  # region (or first after a label/branch-target), immediately followed by a
+  # dependent `cvt.*`. gas-2.96 has no pipeline state there and inserts a
+  # spurious COP1-move hazard nop; the period assembler / ROM leave the pair
+  # adjacent (verified universal: 840 ROM `mtc1;cvt` pairs, 0 carry a nop).
+  # In-pipeline (seen==1) pairs are left alone — wrapping them would be a no-op
+  # but the guard keeps the rewrite minimal. Byte no-op under the period as.
+  if (nr==0 && seen==0 && ln[i] ~ /^[ \t]*mtc1[ \t]/) {
+    j=i+1; while (j<=NR && ln[j] ~ /^[ \t]*(#|$)/) j++;
+    if (j<=NR && ln[j] ~ /^[ \t]*cvt\.[swd]\.[swd][ \t]/) {
+      print "\t.set noreorder"; print ln[i];
+      for (k=i+1; k<j; k++) print ln[k];
+      print ln[j]; print "\t.set reorder";
+      nr=0; seen=0; i=j+1; continue } }
+
+  if (ln[i] !~ /^[ \t]*(#|\.|$)/) seen=1;
   print ln[i]; i++ } }' "${S}" > "${S}.mfc1nop" && mv "${S}.mfc1nop" "${S}"
 
 # ee-as 2.96 fills a jr/j $31 delay slot with a preceding FP store (s.s/swc1)
