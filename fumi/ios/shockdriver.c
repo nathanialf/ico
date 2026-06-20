@@ -126,7 +126,30 @@ void ShockRequestBox_DecodeRequest(int **a0, int *a1) {
     a0[2] = a1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockRequestBox_EndRequestFree);
+/* m2c scaffold from asm/aug6/nonmatchings/fumi/ios/shockdriver/ShockRequestBox_EndRequestFree.s (target mipsel-gcc-c, context-free).
+ * NOT a match — reshape into a goto-CFG-mirror + recover intent (see decomp-match skill). */
+void ShockRequestBox_EndRequestFree(void *a0, int a1, int a2, char a3, char a4) {
+    char *p = (char *)a0;
+    p[0x3] = a4;
+    p[0x0] = 0x11;
+    *(int *)(p + 0x4) = a1;
+    *(int *)(p + 0x14) = a2;
+    p[0x2] = a3;
+    *(short *)(p + 0x8) = 0;
+    *(short *)(p + 0x12) = 0;
+    *(short *)(p + 0x10) = 0;
+    *(short *)(p + 0xC) = 0;
+    *(short *)(p + 0xA) = 0;
+    p[0x26] = 0;
+    *(short *)(p + 0x18) = 0;
+    *(short *)(p + 0x22) = 0;
+    *(short *)(p + 0x20) = 0;
+    *(short *)(p + 0x1C) = 0;
+    *(short *)(p + 0x1A) = 0;
+    p[0x27] = 0;
+    p[0x24] = 0;
+}
+
 
 extern void iosThreadInit(void);
 
