@@ -86,7 +86,32 @@ extern int D_0062A338;
 extern int D_0062A494;
 extern int D_0062A498;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/charFileManager", ReadEndCheckFile);
+void ReadEndCheckFile(int *self, int a1, char *q, int a3, int a4, int a5, int flag) {
+    int p;
+    D_00271240[8]++;
+    if (flag == 0) {
+        malloc_GetPartition(0);
+        if (q == 0) {
+            p = 0;
+        } else {
+            p = iosFree(D_0062A338, q + 0x10, D_0060B4E0, 0x307);
+            iosCdvdLoad(self, p + 0x10, q);
+            ShockRequestBox_DecodeRequest(p, p + 0x10);
+        }
+        D_0062A494 = p;
+    } else {
+        malloc_GetPartition(1);
+        if (q != 0) {
+            p = freeseki(q + 0x10);
+            iosCdvdLoad(self, p + 0x10, q);
+            ShockRequestBox_DecodeRequest(p, p + 0x10);
+        } else {
+            p = 0;
+        }
+        D_0062A498 = p;
+    }
+    debug_assertMessage(D_0060BA60, a3, a1, q);
+}
 
 
 extern int D_0062A328;
