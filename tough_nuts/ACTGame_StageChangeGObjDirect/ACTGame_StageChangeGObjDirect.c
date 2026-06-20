@@ -361,7 +361,38 @@ int ACTGame_StageChangeGObjID(int a0, int a1, int *a2, char *a3)
 extern void ChangeFieldCollisionDebugMode(void *buf);
 extern int D_0062A558;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_StageChangeGObjDirect);
+int ACTGame_StageChangeGObjDirect(int a0, int a1, void *a2, void *a3, float arg0) {
+    char buf[0xC0];
+    int s5 = 1;
+    int s0;
+    func_00260568(buf, 0, 0xC0);
+    s0 = 0;
+    if (a2 != 0) {
+        s0 = *(int *)(*(char **)((char *)a2 + 0x15C) + 0x74);
+    }
+    *(float *)(buf + 0x70) = arg0;
+    D_0062A558 = 0;
+    func_00240080(buf, a0);
+    func_00240080(buf + 0x10, a1);
+    if (s0 != 0) {
+        *(int *)(*(char **)((char *)a2 + 0x15C) + 0x74) = 0;
+    }
+    ChangeFieldCollisionDebugMode(buf);
+    if (*(int *)(buf + 0x94) != 0) {
+        D_0062A558 = *(int *)(buf + 0x8C);
+    } else {
+        s5 = 0;
+    }
+    if (s0 != 0) {
+        *(int *)(*(char **)((char *)a2 + 0x15C) + 0x74) = 1;
+    }
+    if (a3 != 0) {
+        *(float *)((char *)a3 + 0x0) = *(float *)(buf + 0x20);
+        *(float *)((char *)a3 + 0x8) = *(float *)(buf + 0x28);
+        *(float *)((char *)a3 + 0x4) = *(float *)(buf + 0x24);
+    }
+    return s5;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_FLAG_LIFEPINCH);
