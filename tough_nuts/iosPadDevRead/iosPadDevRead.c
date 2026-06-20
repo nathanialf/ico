@@ -52,7 +52,62 @@ extern int D_0062A410;
 extern int D_0062A48C;
 extern unsigned char D_006A0930[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/pad", iosPadDevRead);
+int iosPadDevRead(int *a0, int a1) {
+    int *p = (int *)D_006A0930;
+    int i = 0xF;
+    PadDev *s0;
+    StickCfg *e;
+    int base;
+    int result;
+    int old;
+    while (1) {
+        if (*p == 0) {
+            goto found;
+        }
+        i--;
+        if (i == -1) {
+            goto notfound;
+        }
+        p = (int *)((char *)p + 0x18);
+    }
+notfound:
+    s0 = 0;
+    goto cont;
+found:
+    s0 = (PadDev *)p;
+cont:
+    if (a0 == 0) {
+        return 0;
+    }
+    if (D_0062A410 == 0) {
+        return 0;
+    }
+    if (s0 == 0) {
+        return 0;
+    }
+    e = (StickCfg *)((char *)&D_005EBB90 + a1 * 8);
+    base = *a0 + 0x1A4;
+    s0->f14 = 0xFF;
+    s0->fF = 0x20;
+    s0->f10 = e->f6;
+    s0->fD = 0;
+    s0->fC = 0;
+    s0->fE = 0xFF;
+    s0->f8 = e->f4;
+    s0->f12 = 0;
+    s0->f4 = base;
+    result = ShockRequestBox_Regst(base, e->f4, ((struct PkU *)((char *)s0 + 0xC))->v, D_0062A48C);
+    if (result == 0) {
+        return 0;
+    }
+    old = D_0062A48C;
+    s0->f0 = old;
+    D_0062A48C = old + 1;
+    if (old + 1 == 0) {
+        D_0062A48C = 1;
+    }
+    return s0->f0;
+}
 
 
 extern int iosMsgSend(void *a0, int a1, int a2);
