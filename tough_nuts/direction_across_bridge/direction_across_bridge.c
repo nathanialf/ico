@@ -188,7 +188,35 @@ extern int ClipWallBoxStop(int *buf);
 extern void func_00240080(int *out, int *in);
 extern float D_00629150;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", direction_across_bridge);
+void *direction_across_bridge(int *a0, int a1) {
+    int buf[0x34];
+    void *best = 0;
+    float thresh;
+    char *node;
+    *(float *)((char *)buf + 0x80) = 50.0f;
+    node = CloseWayGroup(a1);
+    thresh = D_00629150;
+    if (node != 0) {
+        do {
+            float d;
+            func_00240008(buf, (int *)(node + 0x10), a0);
+            d = func_00168128((int)buf);
+            if (d < thresh) {
+                func_00240080((int *)((char *)buf + 0x10), a0);
+                func_00240080((int *)((char *)buf + 0x20), (int *)(node + 0x10));
+                *(float *)((char *)buf + 0x14) -= 75.0f;
+                *(float *)((char *)buf + 0x24) -= 75.0f;
+                ClipWallBoxStop((int *)((char *)buf + 0x10));
+                if (*(int *)((char *)buf + 0x98) == 0) {
+                    thresh = d;
+                    best = node;
+                }
+            }
+            node = CreateWayPoint(node);
+        } while (node != 0);
+    }
+    return best;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", waybridge_between_group);
