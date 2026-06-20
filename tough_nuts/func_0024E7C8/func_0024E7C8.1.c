@@ -4040,7 +4040,20 @@ extern void func_00251088(int a0);
 extern int D_0054C758[];
 extern int D_0054CD78[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024E7C8);
+void func_0024E7C8(void) {
+    char *base;
+    char *c3300, *c1800, *c1B00;
+    func_00251088(1);
+    base = (char *)D_0054C758[0];
+    c3300 = base + 0x3300;
+    c1800 = base + 0x1800;
+    c1B00 = base + 0x1B00;
+    *(char **)&D_0054CD78[0] = base;
+    *(char **)&D_0054CD78[1] = c1800;
+    *(char **)&D_0054CD78[0x50] = c1B00;
+    *(char **)&D_0054CD78[0x51] = c3300;
+    D_0054CD78[0xA0] = 0;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024E818);

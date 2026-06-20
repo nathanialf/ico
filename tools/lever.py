@@ -36,7 +36,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 # Mirror tools/quick_diff.sh's TU -> source resolution.
-_SRC_PATTERNS = ("src/{tu}.c", "tough_nuts/{tu}/{tu}.c",
+# "{tu}.c" handles aug6 per-author layouts where the TU name already carries
+# the dir (e.g. common/src/PObj, seki/src/BgAnimation) — quick_diff takes the
+# same full stem.
+_SRC_PATTERNS = ("{tu}.c", "src/{tu}.c", "tough_nuts/{tu}/{tu}.c",
                  "sound/{tu}.c", "ios/{tu}.c", "isys/{tu}.c")
 DEFAULT_REGS = ["$2", "$3", "$4", "$5", "$6", "$7", "$8"]
 FAIL = 10 ** 9   # sort key for compile-fail / error variants
