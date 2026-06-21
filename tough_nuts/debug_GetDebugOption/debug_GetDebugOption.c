@@ -54,7 +54,32 @@ extern char D_0062CB60[], D_0062CB68[];
 typedef struct { int f0; int f4; int *f8; int fC; int f10; int f14; int f18; } DbgOpt;
 extern DbgOpt D_0060C610[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug", debug_GetDebugOption);
+void debug_GetDebugOption(void) {
+    char buf[256];
+    int neg;
+    DbgOpt *e;
+
+    debug_assertMessage(D_0060D520);
+    neg = (unsigned int) func_001A7A88(D_0060D560, 0x602) >> 31;
+    if (neg != 0) {
+        debug_assertMessage(D_0060D578);
+    } else {
+        e = D_0060C610;
+        do {
+            int *p;
+            func_00261188(buf, D_0062CB60, e->f0);
+            func_00244150(neg, buf, func_0026160C(buf));
+            p = e->f8;
+            e++;
+            func_00261188(buf, D_0062CB68, *p);
+            func_00244150(neg, buf, func_0026160C(buf));
+        } while (e < (DbgOpt *) ((char *) D_0060C610 + 0x754));
+        func_001A7AE8(neg);
+        debug_assertMessage(D_0060D5B0);
+    }
+    debug_assertMessage(D_0060D4E0);
+    debug_LogPrintf();
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug", debug_SetDmaCallback);
