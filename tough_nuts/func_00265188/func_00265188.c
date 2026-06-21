@@ -7076,7 +7076,53 @@ extern void func_00266990(char *a0);
 extern void func_00266B40(P54 *p);
 extern void func_00267530(PObj265 *s);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00265188);
+int func_00265188(PObj265 *s0) {
+    int flags;
+    if (s0->field_54 == 0) {
+        s0->field_54 = (P54 *)D_0054D504[0];
+    }
+    if (s0->field_54->field_38 == 0) {
+        func_00266990((char *)s0->field_54);
+    }
+    flags = s0->field_C;
+    if (!(flags & 8)) {
+        if (!(flags & 0x10)) {
+            return -1;
+        }
+        if (flags & 4) {
+            P54 *fp = s0->field_54;
+            void *q = s0->field_30;
+            if (q != 0) {
+                if (q != (void *)s0->field_40) {
+                    func_00266B40(fp);
+                    flags = s0->field_C;
+                }
+                s0->field_30 = 0;
+            }
+            s0->field_4 = 0;
+            {
+                int t = flags & ~0x24;
+                s0->field_C = t;
+                flags = t;
+            }
+            s0->field_0 = s0->field_10;
+        }
+        s0->field_C = flags | 8;
+    }
+    if (s0->field_10 != 0) {
+        flags = s0->field_C;
+    } else {
+        func_00267530(s0);
+        flags = s0->field_C;
+    }
+    if (flags & 1) {
+        s0->field_8 = 0;
+        s0->field_18 = -s0->field_14;
+    } else {
+        s0->field_8 = (flags & 2) ? 0 : s0->field_14;
+    }
+    return 0;
+}
 
 
 
