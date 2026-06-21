@@ -63,7 +63,33 @@ extern void *freeseki(int a0);
 extern void func_0010EFE0(void *a0);
 extern char D_006280E0[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023D7F8);
+void func_0023D7F8(void *s0, int idx) {
+    CEntry *e = &D_004CED88[idx];
+    void *p2;
+    void *r2;
+    long long v;
+    *(short *)((char *)s0 + 0x30) = (short)idx;
+    v = *(long long *)((char *)s0 + 0x30);
+    v = (v & 0xFFFFFFFFFFC3FFFFLL) | ((unsigned long long)((unsigned long long)e->f108.b >> 4) << 18);
+    *(long long *)((char *)s0 + 0x30) = v;
+    v = (v & 0xFFFFFFFFFC3FFFFFLL) | ((unsigned long long)((e->f108.w >> 8) & 0xF) << 22);
+    *(long long *)((char *)s0 + 0x30) = v;
+    *(float *)((char *)s0 + 0x34) = e->fFC;
+    *(float *)((char *)s0 + 0x38) = e->f100;
+    p2 = freeseki(0x840);
+    *(void **)((char *)s0 + 0x28) = p2;
+    r2 = freeseki(0x100);
+    *(void **)((char *)p2 + 0x834) = r2;
+    *(void **)((char *)p2 + 0x810) = s0;
+    *(int *)((char *)r2 + 0xF0) = e->f108.w & 0xF;
+    *(void **)((char *)p2 + 0x830) = freeseki(*(signed char *)((char *)s0 + 0x2E) * 0x50);
+    if (*(int *)((char *)(*(void **)((char *)p2 + 0x834)) + 0xF0) != 4) {
+        if (*(int *)((char *)s0 + 0x24) != 0) {
+            func_0010EFE0(p2);
+        }
+    }
+    debug_assertMessage(D_006280E0);
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023D910);
