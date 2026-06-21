@@ -49,7 +49,43 @@ extern int D_0062B2F4;
 extern int D_0062B2F8;
 extern int D_0062B30C;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanbanBoot", func_001AF648);
+int func_001AF648(void) {
+    int i;
+    int v0;
+    int r;
+
+    for (i = 0; i < 0xA; i++) {
+        func_001B4740(i + 0x29, 1);
+        func_001B4740(i + 0x33, 1);
+        func_001B4740(i + 0x3D, 1);
+        func_001B4740(i + 0x47, 1);
+        func_001B4740(i + 0x51, 1);
+        func_001B4740(i + 0x5B, 1);
+    }
+    func_001B4740(0x27, 1);
+    func_001B4740(0x28, 1);
+    for (i = 0; i < 0x27; i++) {
+        func_001B4740(i + 0x65, 1);
+    }
+    v0 = D_002715D0[1];
+    if (v0 & 0x40) {
+        r = lt_set_item_select_func() - 0x97;
+        D_0062B2F8 = r;
+        D_0062B2F0 = (int *) (D_00700700 + r * 8);
+        D_0062B2F4 = r;
+        func_001ADFF8();
+        initSceneGObj(0);
+        D_0062B30C = 0;
+        return 0x10;
+    }
+    if (v0 & 0x10) {
+        kanbanBootMcCheck();
+        initSceneGObj(0);
+        D_0062B30C = 0;
+        return 9;
+    }
+    return -1;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanbanBoot", func_001AF778);
