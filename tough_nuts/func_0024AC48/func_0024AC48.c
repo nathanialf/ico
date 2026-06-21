@@ -3176,7 +3176,48 @@ void func_0024AAF0(int a0, char *a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024AB28);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024AC48);
+int func_0024AC48(int a0, int a1, int a2, int a3) {
+    unsigned char *p;
+    if (D_007112D0[a0][a1].f10 == 0) {
+        return 0;
+    }
+    p = (unsigned char *) func_0024A858(a0, a1);
+    if (p[0x72] != 1) {
+        return 0;
+    }
+    if (p[0x64] < 2U) {
+        return 0;
+    }
+    if (a2 == -1) {
+        return p[0x6B];
+    }
+    if (a2 < (int) p[0x6B]) {
+        if (a3 == 0) {
+            goto l41;
+        }
+        if (a3 > 0) {
+            if (a3 == 1) {
+                goto l42;
+            }
+            if (a3 == 2) {
+                goto l43;
+            }
+            return 0;
+        }
+        if (a3 == -1) {
+            goto l40;
+        }
+    }
+    return 0;
+l40:
+    return p[a2 * 4 + 0x40];
+l41:
+    return p[a2 * 4 + 0x41];
+l42:
+    return p[a2 * 4 + 0x42];
+l43:
+    return p[a2 * 4 + 0x43];
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024AD68);
