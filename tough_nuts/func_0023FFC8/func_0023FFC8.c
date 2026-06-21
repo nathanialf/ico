@@ -2114,7 +2114,75 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00265028);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00265130);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00265188);
+typedef struct { char pad38[0x38]; int p54_f38; } PObjLink54;
+typedef struct {
+    int field_0;
+    int field_4;
+    int field_8;
+    unsigned short field_C;
+    unsigned short field_E;
+    int field_10;
+    int field_14;
+    int field_18;
+    int pad_1C[5];
+    void *field_30;
+    int pad_34[3];
+    int field_40[5];
+    PObjLink54 *field_54;
+} PObjUpd;
+extern int D_0054D504[];
+extern void func_00266990(char *a0);
+extern void func_00266B40(PObjLink54 *p);
+extern void func_00267530(PObjUpd *s);
+
+int func_00265188(PObjUpd *s0) {
+    int flags;
+    if (s0->field_54 == 0) {
+        s0->field_54 = (PObjLink54 *)D_0054D504[0];
+    }
+    if (s0->field_54->p54_f38 == 0) {
+        func_00266990((char *)s0->field_54);
+    }
+    flags = s0->field_C;
+    if (!(flags & 8)) {
+        if (!(flags & 0x10)) {
+            return -1;
+        }
+        if (flags & 4) {
+            PObjLink54 *fp = s0->field_54;
+            void *q = s0->field_30;
+            if (q != 0) {
+                if (q != (void *)s0->field_40) {
+                    func_00266B40(fp);
+                    flags = s0->field_C;
+                }
+                s0->field_30 = 0;
+            }
+            s0->field_4 = 0;
+            {
+                int t = flags & ~0x24;
+                s0->field_C = t;
+                flags = t;
+            }
+            s0->field_0 = s0->field_10;
+        }
+        s0->field_C = flags | 8;
+    }
+    if (s0->field_10 != 0) {
+        flags = s0->field_C;
+    } else {
+        func_00267530(s0);
+        flags = s0->field_C;
+    }
+    if (flags & 1) {
+        s0->field_8 = 0;
+        s0->field_18 = -s0->field_14;
+    } else {
+        s0->field_8 = (flags & 2) ? 0 : s0->field_14;
+    }
+    return 0;
+}
+
 
 extern void func_002697C0(int a0);
 extern void InitDelayFree(int a0);

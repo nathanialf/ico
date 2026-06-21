@@ -358,7 +358,37 @@ void soundVBlank(int arg)
     } while (i < 0x30);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSeKindBuild);
+extern int func_00259108(int a0, int a1);
+extern int D_0062AF94;
+extern int D_00271240[];
+
+void soundSeKindBuild(void)
+{
+    char *p = D_006A3370;
+    int i = 0;
+    do {
+        if (*(int *)(p + 0x30) != 0) {
+            int r = func_00259108(1, *(short *)(p + 0x10));
+            if (r == 0) {
+                soundSeDefPitchSet(((int)*(unsigned short *)p << 8) | i);
+            } else if (r & 2) {
+                if (D_0062AF94 == 0) {
+                    if (D_00271240[5] != 0 &&
+                        *(unsigned int *)(p + 8) != 0xFFFFFFFF &&
+                        *(unsigned int *)(p + 8) != 0xFFFFFFFE) {
+                        *(int *)(p + 4) |= 0x20000000;
+                    } else {
+                        *(int *)(p + 4) &= 0xDFFFFFFF;
+                    }
+                }
+                _soundSeDefStop((int *)p);
+            }
+        }
+        i++;
+        p += 0x40;
+    } while (i < 0x30);
+}
+
 
 extern void AdpcmStop(char *p);
 
