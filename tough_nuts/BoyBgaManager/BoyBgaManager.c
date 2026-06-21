@@ -39,7 +39,40 @@ extern void func_00260380(char *file, int line, char *msg, int v);
 extern void UpdateGeo(BgaEntry *e);
 extern float stage_SetParentOfGObj(int a0, void *a1, void *a2, float a3);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", BoyBgaManager);
+void BoyBgaManager(int a0, int a1, int *a2) {
+    BgaEntry *found;
+    int i;
+    int result;
+    found = 0;
+    if (D_0027DF90[0].field0 >= 0) {
+        i = 0;
+        for (;;) {
+            if (D_0027DF90[i].field0 == a1) {
+                found = &D_0027DF90[i];
+                break;
+            }
+            i++;
+            if (D_0027DF90[i].field0 < 0) {
+                break;
+            }
+        }
+    }
+    if (found == 0) {
+        func_001AAD00(D_005525C8, 0x5D5);
+        func_00260380(D_005525C8, 0x5D5, D_0062C3F8, a0);
+    }
+    if (*a2 >= 0) {
+        if (found->fC != 0) {
+            UpdateGeo(found);
+        } else if (*a2 == 0) {
+            UpdateGeo(found);
+        }
+        result = (int) stage_SetParentOfGObj(found->field0, found->f20, found->f30, (float) *a2);
+        if (found->fE == 0 || result >= 0) {
+            *a2 = result;
+        }
+    }
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", E3_StageStartBoy);
