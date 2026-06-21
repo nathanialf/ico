@@ -2,7 +2,68 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/seMail", setMailTarget);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/seMail", seMail);
+extern void GetRootMatrixByDObj(int *buf, int x);
+extern int actEnemy_GetClingTarget(int *a0);
+extern float func_002018E0(int *mtx, int a1);
+extern int isysGObjSearchFromObjKindID_begin(int obj);
+extern int isysGObjSearchFromObjLayoutID(int id);
+extern float D_00629784;
+extern int D_00629DE8;
+
+static inline float seMail_dh(int a0, int *mb) {
+    int ma[4];
+    if (a0 == 0) {
+        return -1.0f;
+    }
+    GetRootMatrixByDObj(ma, a0);
+    return func_002018E0(ma, (int) mb);
+}
+
+static inline float seMail_obj(int obj, int target) {
+    int mtx0[4];
+    if (obj == 0) {
+        return -1.0f;
+    }
+    GetRootMatrixByDObj(mtx0, obj);
+    return seMail_dh(target, mtx0);
+}
+
+int seMail(float *a0) {
+    int obj;
+    int target;
+    int best = 0;
+    float thresh;
+    float zero;
+
+    obj = isysGObjSearchFromObjLayoutID(4);
+    thresh = *(volatile float *)&D_00629784;
+    while (obj != 0 && actEnemy_GetClingTarget((int *)obj) == 0) {
+        obj = isysGObjSearchFromObjKindID_begin(obj);
+    }
+    if (obj == 0) {
+        goto end;
+    }
+    zero = 0.0f;
+    do {
+        float dist;
+        target = D_00629DE8;
+        dist = seMail_obj(obj, target);
+        if ((zero <= dist) && (dist < thresh)) {
+            thresh = dist;
+            best = obj;
+        }
+        do {
+            obj = isysGObjSearchFromObjKindID_begin(obj);
+            if (obj == 0) {
+                goto end;
+            }
+        } while (actEnemy_GetClingTarget((int *)obj) == 0);
+    } while (1);
+end:
+    *a0 = thresh;
+    return best;
+}
+
 
 extern int D_0062BB64;
 
@@ -20,15 +81,6 @@ float func_00202638(int a0, int a1) {
     }
     GetRootMatrixByDObj(buf, a0);
     return func_002018E0(buf, a1);
-}
-
-static inline float seMail_dh(int a0, int *mb) {
-    int ma[4];
-    if (a0 == 0) {
-        return -1.0f;
-    }
-    GetRootMatrixByDObj(ma, a0);
-    return func_002018E0(ma, (int) mb);
 }
 
 float func_00202688(int a0, int a1) {
