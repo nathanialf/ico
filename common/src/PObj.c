@@ -5488,7 +5488,43 @@ void func_002529D8(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00252A40);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00252AB0);
+/* m2c scaffold from asm/aug6/nonmatchings/common/src/PObj/func_00252AB0.s (target mipsel-gcc-c, context-free).
+ * NOT a match — reshape into a goto-CFG-mirror + recover intent (see decomp-match skill). */
+extern int func_00252870(int a0);
+extern void func_0024EA70(void);
+extern void func_00252BD8(void);
+extern void func_002530A0(void);
+extern int D_0054C8FC[];
+extern long long D_0054D008[];
+extern long long D_0054D010[];
+
+int func_00252AB0(void) {
+    struct { int f0; long long f8; long long f10; } local;
+
+    while (1) {
+        func_002529D8();
+        switch ((unsigned int) func_00252870(0x20)) {
+        case 0x1B3:
+            func_0024EA70();
+            break;
+        case 0x1B8:
+            func_002530A0();
+            break;
+        case 0x100:
+            func_00252BD8();
+            local.f0 = 5;
+            local.f8 = -1;
+            local.f10 = -1;
+            func_0024E088(D_0054C764[0], &local);
+            D_0054D008[0] = local.f8;
+            D_0054D010[0] = local.f10;
+            return D_0054C8FC[0];
+        case 0x1B7:
+            return 0;
+        }
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00252BD8);
 
