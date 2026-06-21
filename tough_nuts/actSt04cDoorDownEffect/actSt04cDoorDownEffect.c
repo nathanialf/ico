@@ -80,7 +80,31 @@ extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
 extern int D_00271240[];
 extern int D_00629DE8;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cDoorDownEffect);
+void actSt04cDoorDownEffect(int arg0) {
+    volatile int home;
+    int n;
+    long long *flags;
+
+    home = arg0;
+    while (func_00178DB0(0x7E) == 0) {
+        _ACTWait(1);
+    }
+    n = 0;
+    flags = (long long *) ((char *) *(int *) ((char *) D_00629DE8 + 0x164) + 0x20);
+    *flags |= 8;
+    for (;;) {
+        n++;
+        flags = (long long *) ((char *) *(int *) ((char *) D_00629DE8 + 0x164) + 0x20);
+        if ((((*flags << 26) >> 32) & 1) == 0) {
+            n = 0;
+        }
+        if (((0x3C - D_00271240[0]) / D_00271240[1]) * 3 < n) {
+            iosOmBeforeFuncStandard(D_00629DE8, 0x65, D_00629DE8);
+            n = 0;
+        }
+        _ACTWait(1);
+    }
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cEneChk);
