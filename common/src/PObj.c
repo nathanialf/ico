@@ -6680,10 +6680,75 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025FC38);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025FE30);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025FF90);
+typedef struct { unsigned int type; int f4; int f8; int fC; } PCmpV;
+
+int func_0025FF90(PCmpV *a, PCmpV *b) {
+    unsigned int at = a->type;
+    unsigned int bt;
+    if (at < 2) {
+        return 1;
+    }
+    bt = b->type;
+    if (bt < 2) {
+        return 1;
+    }
+    if ((at ^ 4) == 0) {
+        if ((bt ^ 4) == 0) {
+            return b->f4 - a->f4;
+        }
+        return a->f4 ? -1 : 1;
+    }
+    if ((bt ^ 4) == 0) {
+        if (b->f4 == 0) {
+            return -1;
+        }
+        return 1;
+    }
+    if ((at ^ 2) == 0) {
+        if ((bt ^ 2) == 0) {
+            return 0;
+        }
+        if (b->f4 != 0) {
+            return 1;
+        }
+        return -1;
+    }
+    if ((bt ^ 2) == 0) {
+        return a->f4 ? -1 : 1;
+    }
+    {
+        int af4 = a->f4;
+        int bf4 = b->f4;
+        if (af4 != bf4) {
+            return af4 ? -1 : 1;
+        }
+        {
+            int af8 = a->f8;
+            int bf8 = b->f8;
+            if (bf8 < af8) {
+                return af4 ? -1 : 1;
+            }
+            if (af8 < bf8) {
+                return af4 ? 1 : -1;
+            }
+            {
+                unsigned int afC = a->fC;
+                unsigned int bfC = b->fC;
+                if (bfC < afC) {
+                    return af4 ? -1 : 1;
+                }
+                if (afC < bfC) {
+                    return af4 ? 1 : -1;
+                }
+                return 0;
+            }
+        }
+    }
+}
+
 
 extern void func_0025F8B0(void *in, void *out);
-extern int func_0025FF90(void *a, void *b);
+extern int func_0025FF90(PCmpV *a, PCmpV *b);
 
 int func_002600A8(float a0, float a1) {
     char buf[0x30];
