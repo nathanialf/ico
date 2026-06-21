@@ -5457,7 +5457,52 @@ extern void func_0024E920(void *a0);
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00251550);
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00251678);
+extern void func_002529D8(void);
+extern int func_00252620(int a0);
+extern void func_00252758(int a0);
+extern int func_00252A40(void);
+extern int func_00251440(void);
+extern void func_0024E920(void *a0);
+extern int D_0054C888[];
+extern int D_0054C8A8[];
+extern int D_0054C9BC[];
+extern int D_00629108[];
+extern int D_00629130[];
+
+int func_00251678(int a0, int *a1, int *a2, int *a3) {
+    int id;
+    int m;
+    int n;
+
+    D_0054C888[0] = 0;
+    func_002529D8();
+    id = func_00252620(0x20);
+    if ((unsigned int) (id - 0x101) >= 0xAF) {
+        func_0024E8F0((int) D_00629108, id);
+        return 2;
+    }
+    func_00252758(0x20);
+    m = func_00252A40();
+    n = func_00251440();
+    *a2 = n;
+    if (D_0054C888[0] != 0) {
+        func_0024E920(D_00629130);
+        return 1;
+    }
+    *a1 = ((((m << 7) + (id & 0xFF)) - 1) * D_0054C8A8[0] + n) - 1;
+    *a2 = 1;
+    D_0054C9BC[0] = 1;
+    a3[5] = 0;
+    a3[4] = 0;
+    a3[1] = 0;
+    a3[0] = 0;
+    a3[7] = 0;
+    a3[6] = 0;
+    a3[3] = 0;
+    a3[2] = 0;
+    return 0;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002517A0);
 
