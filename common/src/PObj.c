@@ -7181,7 +7181,50 @@ void func_00266990(char *a0) {
     *(int *)(a0 + 0x1D8) = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00266A20);
+typedef struct {
+    char *pos;   /* 0x0 */
+    int len;     /* 0x4 */
+} StreamBuf;
+
+extern int func_002604B8(char *dst, char *src, int n);
+extern int func_002692C0(StreamBuf *s);
+
+int func_00266A20(char *dst, int size, int count, StreamBuf *s) {
+    unsigned int total = count * size;
+    int len;
+    unsigned int avail;
+    unsigned int total_orig;
+    char *p;
+
+    if (total == 0) {
+        return 0;
+    }
+    len = s->len;
+    if (len < 0) {
+        s->len = 0;
+        len = 0;
+    }
+    avail = len;
+    total_orig = total;
+    p = dst;
+    if (avail < total) {
+        do {
+            func_002604B8(p, s->pos, avail);
+            total -= avail;
+            p += avail;
+            s->pos += avail;
+            if (func_002692C0(s) != 0) {
+                return (total_orig - total) / size;
+            }
+            avail = s->len;
+        } while (avail < total);
+    }
+    func_002604B8(p, s->pos, total);
+    s->len -= total;
+    s->pos += total;
+    return count;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00266B40);
 
