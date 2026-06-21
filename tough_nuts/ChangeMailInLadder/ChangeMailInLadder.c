@@ -54,7 +54,30 @@ extern int func_00192160(int a0);
 extern void func_00260568(void *a0, int a1, int a2);
 extern float D_00628F24;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ChangeMailInLadder);
+void ChangeMailInLadder(void *buf, void *obj) {
+    float vec[4];
+    int range;
+    int *self = (int *) obj;
+    float *dst = (float *) buf;
+    int v;
+
+    if (GetChainHangRange((void *) ((int *) self[0x164 / 4])[0x180 / 4], &range) != 0) {
+        float c = D_00628F24;
+        func_00260568(vec, 0, 0x10);
+        vec[2] = 1.0f;
+        v = func_00192160((int) (func_00191E30(subCommonIdle((char *) obj)) / c * 180.0f) - range);
+        v = InitMailAdditionalData(v);
+        v = func_00192160(range + v);
+        func_00191DB8(vec, (float) v * c / 180.0f);
+        dst[0] = vec[0];
+        dst[1] = vec[1];
+        dst[2] = vec[2];
+    } else {
+        dst[0] = ((float *) subCommonIdle((char *) obj))[0];
+        dst[1] = ((float *) subCommonIdle((char *) obj))[1];
+        dst[2] = ((float *) subCommonIdle((char *) obj))[2];
+    }
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", _ACTCorrectMsg);
