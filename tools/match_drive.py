@@ -36,6 +36,7 @@ import argparse
 import json
 import os
 import re
+import signal
 import subprocess
 import sys
 import time
@@ -49,6 +50,14 @@ STATE_DIR = ML.STATE_DIR
 QUEUE = STATE_DIR / "_drive_queue.json"
 VERSION = os.environ.get("VERSION", "aug6")
 PERMUTE_TIMEOUT = int(os.environ.get("PERMUTE_TIMEOUT", "600"))
+# Max permuters allowed to run concurrently in the background. A park fires its
+# permuter detached + bounded and the driver moves on; finished runs are
+# harvested on a later pass. This cap stops parks from stacking unbounded
+# background jobs (the leak that motivated the rework).
+MAX_CONCURRENT_PERMUTES = int(os.environ.get("MAX_PERMUTES", "2"))
+# How many lowest-score candidate outputs to evaluate per harvest (diff --dry is
+# not free; a long run can leave hundreds of output-*/ dirs).
+HARVEST_TOPN = int(os.environ.get("HARVEST_TOPN", "12"))
 NONNOVEL_LOUD = 3            # streak at which re-demand escalates to "reconsider"
 SCOPES = ["fumi", "script", "common", "sugipon", "seki", "omori", "ito"]
 PY = sys.executable
@@ -200,6 +209,7 @@ def fresh_queue(spec, items):
     return {"set_spec": spec, "pending": items, "current": None, "done": {},
             "parked": [], "skipped": [], "nonnovel_streak": {},
             "workspace_ready": [], "lever": None,
+            "permutes_pending": [], "permute_events": [],
             "last_protocol": None, "last_protocol_at": 0}
 
 
@@ -342,18 +352,63 @@ def do_park(q, func, tu, v):
     return None
 
 
-def harvest(q, func, tu):
-    """Apply each permuter output (lowest real_count first via diff --dry).
-    Returns: 'committed' | 'improved' | 'none'. Leaves the TU reverted to its
-    parked stub on 'none'."""
+def _plog(q, func, msg):
+    """Record a permuter lifecycle event for later surfacing (status/done). The
+    driver only prints one JSON per exit, so drain/launch progress is buffered
+    here rather than written to stdout mid-churn."""
+    ev = q.setdefault("permute_events", [])
+    ev.append({"func": func, "msg": msg, "at": now()})
+    del ev[:-40]                                  # keep the tail bounded
+
+
+def _cand_score(src):
+    """output-<score>-<n>/source.c → <score> (for cheapest-first harvest)."""
+    try:
+        return int(src.parent.name.split("-")[1])
+    except (IndexError, ValueError):
+        return 1 << 30
+
+
+def launch_permute(func, tu):
+    """Fire the permuter DETACHED and time-BOUNDED, return a pending record.
+
+    `timeout` caps wall-clock (hard SIGKILL escalation) so a run can never leak
+    the way the old background `&` jobs did; `start_new_session` puts it in its
+    own process group so (a) it survives this short-lived driver invocation to be
+    harvested later, and (b) it is killable as a group by pgid if it overruns."""
+    seed = ROOT / "tough_nuts" / func / (func + ".c")
+    seedarg = [rel(seed)] if seed.exists() else []
+    logp = STATE_DIR / f"permute_{func}.log"
+    cmd = ["timeout", "-k", "15", str(PERMUTE_TIMEOUT),
+           str(ROOT / "tools" / "permute_run.sh"), func, *seedarg,
+           "--", "--stop-on-zero", "-j", "4"]
+    lf = open(logp, "wb")
+    p = subprocess.Popen([str(c) for c in cmd], cwd=str(ROOT), env=_env(),
+                         stdout=lf, stderr=subprocess.STDOUT,
+                         stdin=subprocess.DEVNULL, start_new_session=True)
+    lf.close()
+    return {"func": func, "tu": tu, "pgid": p.pid, "log": rel(logp),
+            "started": now(), "deadline": now() + PERMUTE_TIMEOUT + 30}
+
+
+def _pg_alive(pgid):
+    try:
+        os.killpg(pgid, 0)
+        return True
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+
+
+def eval_best(func, tu, cpath):
+    """Cheapest-score-first, apply each candidate + diff --dry for its TRUE
+    real_count (the permuter's own score can be anti-correlated). Always leaves
+    the TU reverted to its committed state. Returns (best_rc, best_cand)."""
     rundir = ROOT / "lib" / "decomp-permuter" / "runs" / func
-    outs = sorted(rundir.glob("output-*/source.c")) if rundir.is_dir() else []
-    if not outs:
-        return "none"
-    cpath = ML.resolve_tu_path(tu)
-    best = (ML.load_state(func) or {}).get("best")
+    outs = sorted(rundir.glob("output-*/source.c"), key=_cand_score) if rundir.is_dir() else []
     best_rc, best_cand = None, None
-    for src in outs:
+    for src in outs[:HARVEST_TOPN]:
         try:
             cand = src.read_text(errors="replace")
         except OSError:
@@ -366,26 +421,92 @@ def harvest(q, func, tu):
             continue
         if best_rc is None or cc < best_rc:
             best_rc, best_cand = cc, cand
+    return best_rc, best_cand
+
+
+def harvest_pending(q, rec):
+    """Evaluate a finished permuter's outputs for an already-parked func.
+    Commits a rc0 match; reseeds tough_nuts on a sub-best improvement (stays
+    parked for a future resume); otherwise marks it permuter-exhausted. Never
+    leaves the working tree dirty."""
+    func, tu = rec["func"], rec["tu"]
+    cpath = ML.resolve_tu_path(tu)
+    if cpath is None:
+        _plog(q, func, "harvest skipped — TU unresolved")
+        return
+    best_rc, best_cand = eval_best(func, tu, cpath)
     if best_cand is None:
-        return "none"
+        _plog(q, func, "permuter produced no usable candidate")
+        return
     if best_rc == 0:
         replace_stub(cpath, func, best_cand)
-        ok, _ = commit_seq(func, tu, commit_msg(func, tu))
+        ok, err = commit_seq(func, tu, commit_msg(func, tu))
         if ok:
-            return "committed"
-        revert_tu(cpath)
-        return "none"
+            q["done"][func] = "matched"
+            if func in q.get("parked", []):
+                q["parked"].remove(func)
+            _plog(q, func, "permuter MATCH rc0 — committed")
+        else:
+            revert_tu(cpath)
+            _plog(q, func, f"permuter rc0 but commit failed: {err[:120]}")
+        return
+    best = (ML.load_state(func) or {}).get("best")
     if best is not None and best_rc < best:
-        replace_stub(cpath, func, best_cand)
+        # Improvement on an ALREADY-PARKED func (drain path): update the seed for
+        # a future resume but DO NOT `ml reset` — reset wipes best/stall and
+        # re-activates the loop (the stop-guard would then re-block on a func
+        # nobody is working). Leave the parked json (best>0, stall>=30) intact;
+        # the rc lower floor lives in the reseeded file and is re-found on resume.
         seed = ROOT / "tough_nuts" / func / (func + ".c")
         seed.parent.mkdir(parents=True, exist_ok=True)
         seed.write_text(best_cand)
-        ml("reset", func, "--reason", f"permuter harvest: rc{best_rc}")
-        return "improved"
-    return "none"
+        _plog(q, func, f"permuter improved seed rc{best}->rc{best_rc}; reseeded, stays parked")
+    else:
+        ml("record", func, "--permuted")
+        bs = f"rc{best}" if best is not None else "?"
+        _plog(q, func, f"permuter exhausted (best rc{best_rc} >= parked {bs})")
+
+
+def drain_permutes(q, wait=False):
+    """Harvest finished background permuters. Call ONLY when no func edit is in
+    flight (tree at committed state) — harvest_pending commits/reverts the TU.
+    `wait=True` blocks (bounded by each run's deadline) for still-running ones;
+    the default non-blocking pass leaves them pending for the next invocation."""
+    pend = q.get("permutes_pending") or []
+    if not pend:
+        return
+    # Never harvest a run whose TU is the one a func edit is currently in flight
+    # in — harvest_pending commits/reverts that TU and would clobber the edit.
+    cur_tu = (q.get("current") or {}).get("tu")
+    still = []
+    for rec in pend:
+        if rec.get("tu") == cur_tu and cur_tu is not None:
+            still.append(rec)
+            continue
+        alive = _pg_alive(rec["pgid"])
+        overdue = now() >= rec.get("deadline", 0)
+        if alive and not overdue and not wait:
+            still.append(rec)                     # let it keep cooking
+            continue
+        if alive and wait and not overdue:
+            while _pg_alive(rec["pgid"]) and now() < rec.get("deadline", 0):
+                time.sleep(5)
+            alive = _pg_alive(rec["pgid"])
+            overdue = now() >= rec.get("deadline", 0)
+        if alive and overdue:                     # bound exceeded — reap the group
+            try:
+                os.killpg(rec["pgid"], signal.SIGKILL)
+            except (ProcessLookupError, PermissionError):
+                pass
+        harvest_pending(q, rec)
+    q["permutes_pending"] = still
+    save_queue(q)
 
 
 def do_permute(q, func, tu, v):
+    """Park the seed (commit it green), then fire the permuter DETACHED and
+    time-bounded and advance immediately — the driver does NOT block on the run.
+    Finished runs are harvested by drain_permutes on a later pass."""
     cpath = ML.resolve_tu_path(tu)
     reason = v.get("reason", "stall>=30")
     # Seed the permuter from the BEST-count shape, not the live file. The stall=30
@@ -407,25 +528,16 @@ def do_permute(q, func, tu, v):
         return emit_blocker(q, func, "ninja after park(permute) failed:\n" + out[-400:], "permute")
     run(["git", "add", "-A"])
     run(["git", "commit", "-m", f"park {func} ({tu}) — pre-permute seed"])
-    # fire the bounded permuter (self-gated at stall>=30; runs foreground)
-    seed = ROOT / "tough_nuts" / func / (func + ".c")
-    seedarg = [rel(seed)] if seed.exists() else []
-    try:
-        run([ROOT / "tools" / "permute_run.sh", func, *seedarg,
-             "--", "--stop-on-zero", "-j", "4"], timeout=PERMUTE_TIMEOUT)
-    except subprocess.TimeoutExpired:
-        pass
-    outcome = harvest(q, func, tu)
-    if outcome == "committed":
-        q["done"][func] = "matched"
-        q["current"] = None
-        save_queue(q)
-        return None
-    if outcome == "improved":
-        # re-attack from the lower floor: keep workspace, re-diff → iterate
-        save_queue(q)
-        return None                              # current stays; churn re-diffs
-    ml("record", func, "--permuted")             # resolution (b): exhausted
+    # Reclaim any finished background slots, then fire (if under the cap) and move
+    # on. A run that can't launch now is simply re-attempted on a future resume.
+    drain_permutes(q)
+    pend = q.setdefault("permutes_pending", [])
+    if len(pend) < MAX_CONCURRENT_PERMUTES:
+        pend.append(launch_permute(func, tu))
+        _plog(q, func, f"permuter launched (bounded {PERMUTE_TIMEOUT}s, backgrounded); harvest deferred")
+    else:
+        _plog(q, func, f"permute slots full ({len(pend)}/{MAX_CONCURRENT_PERMUTES}); "
+                       f"parked without a permuter — re-attempt on resume")
     q["done"][func] = "parked"
     q["parked"].append(func)
     q["current"] = None
@@ -436,12 +548,20 @@ def do_permute(q, func, tu, v):
 # ---------------------------------------------------------------- the churn
 def churn(q, just_edited=False, lever=None):
     while True:
-        cur = q.get("current") or advance(q)
+        cur = q.get("current")
         if not cur:
+            # No func edit in flight → safe point to harvest finished permuters
+            # (harvest_pending commits/reverts TUs) before picking the next func.
+            drain_permutes(q)
+            cur = advance(q)
+        if not cur:
+            drain_permutes(q)                     # last reap before reporting done
             _stamp(q, "done")
             emit({"protocol": "done",
                   "matched": [f for f, s in q["done"].items() if s == "matched"],
-                  "parked": q["parked"], "skipped": q["skipped"]})
+                  "parked": q["parked"], "skipped": q["skipped"],
+                  "permutes_running": [r["func"] for r in q.get("permutes_pending", [])],
+                  "permute_events": q.get("permute_events", [])[-10:]})
         func, tu = cur["func"], cur["tu"]
         if ML.resolve_tu_path(tu) is None:
             return emit_blocker(q, func, f"cannot resolve TU source for {tu}", "resolve")
@@ -550,10 +670,29 @@ def cmd_status():
     print(json.dumps({"set_spec": q["set_spec"], "current": cur,
                       "pending": [i["func"] for i in q["pending"]],
                       "done": q["done"], "parked": q["parked"],
+                      "permutes_running": [{"func": r["func"], "log": r.get("log"),
+                                            "alive": _pg_alive(r["pgid"])}
+                                           for r in q.get("permutes_pending", [])],
+                      "permute_events": q.get("permute_events", [])[-10:],
                       "last_protocol": q.get("last_protocol"),
                       "current_state": ({k: st.get(k) for k in
                                          ("best", "stall", "nonnovel", "iter")}
                                         if st else None)}, indent=2))
+
+
+def cmd_drain(wait):
+    """Harvest finished (or, with --wait, still-running) background permuters
+    out-of-band. Safe to run between match_drive steps; never call mid-func."""
+    q = load_queue()
+    if q is None:
+        emit({"protocol": "blocker", "detail": "no active drive queue"}, 1)
+    if q.get("current"):
+        emit({"protocol": "blocker", "detail": "a func edit is in flight "
+              f"({q['current'].get('func')}); drain only between funcs"}, 1)
+    drain_permutes(q, wait=wait)
+    emit({"protocol": "drained",
+          "permutes_running": [r["func"] for r in q.get("permutes_pending", [])],
+          "permute_events": q.get("permute_events", [])[-20:]})
 
 
 def cmd_abort(func, reason):
@@ -569,7 +708,7 @@ def cmd_abort(func, reason):
 
 
 def main():
-    KNOWN = {"step", "status", "abort", "start"}
+    KNOWN = {"step", "status", "abort", "start", "drain"}
     argv = sys.argv[1:]
     # No args → resume an active queue. A first token that is NOT a subcommand
     # (and not a help flag) is a bare <set-spec> → start. Both bypass argparse,
@@ -585,6 +724,8 @@ def main():
     p_step.add_argument("func")
     p_step.add_argument("--lever", default=None)
     sub.add_parser("status")
+    p_dr = sub.add_parser("drain")
+    p_dr.add_argument("--wait", action="store_true")
     p_ab = sub.add_parser("abort")
     p_ab.add_argument("func")
     p_ab.add_argument("reason", nargs="+")
@@ -596,6 +737,8 @@ def main():
         return cmd_step(args.func, args.lever)
     if args.cmd == "status":
         return cmd_status()
+    if args.cmd == "drain":
+        return cmd_drain(args.wait)
     if args.cmd == "abort":
         return cmd_abort(args.func, " ".join(args.reason))
     return cmd_start(getattr(args, "set_spec", None))

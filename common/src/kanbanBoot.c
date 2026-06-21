@@ -45,7 +45,76 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanbanBoot", func_001AFAE0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanbanBoot", func_001AFCB8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanbanBoot", func_001AFE88);
+extern int func_001AE800(void *a0, int a1);
+extern void initSceneGObj(int a0);
+extern int D_004B8240[];
+extern int *D_0062B2F0;
+extern int D_0062B2F8;
+extern int D_0062B300;
+extern int D_0062B308;
+extern int D_0062B30C;
+extern int D_0062B368;
+extern int D_0062C1A4;
+
+int func_001AFE88(int a0) {
+    int temp_3;
+    int temp_g;
+
+    temp_3 = func_001AE800(D_004B8240, a0);
+    if (temp_3 != 0) {
+        if (temp_3 <= 0) {
+            if (temp_3 == -1) {
+                goto block_10;
+            }
+            goto ret_neg1;
+        }
+        if (temp_3 == 1) {
+            goto block_r1;
+        }
+        goto ret_neg1;
+    }
+    D_0062B308 = 0x3FF;
+    temp_g = D_0062C1A4;
+    if (temp_g == 0) {
+        goto ret_neg1;
+    }
+    if (temp_g == -0xE) {
+        goto ret_neg1;
+    }
+    goto block_10;
+
+block_r1:
+    if (D_0062B368 == D_0062B2F8) {
+        goto block_pp;
+    }
+block_10:
+    initSceneGObj(0);
+    D_0062B30C = 0;
+    return 0x2A;
+
+block_pp:
+    if ((D_0062B2F0[0] & 3) == 3) {
+        goto block_shift;
+    }
+    initSceneGObj(0);
+    D_0062B30C = 0;
+    return 0x13;
+
+block_shift:
+    if ((D_0062B2F0[1] >> D_0062B300) & 1) {
+        D_0062B308 = 0x3FF;
+        initSceneGObj(0);
+        D_0062B30C = 0;
+        return 0x16;
+    }
+    initSceneGObj(0);
+    D_0062B30C = 0;
+    return 0x14;
+
+ret_neg1:
+    return -1;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanbanBoot", func_001AFF98);
 
