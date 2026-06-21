@@ -5449,7 +5449,33 @@ extern int func_002510B0(void);
 extern void func_00250128(int a0);
 extern void func_0024E920(void *a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00251550);
+int func_00251550(int a0) {
+    int n;
+    int r;
+    int ret;
+    n = D_0054C8A8[0] * D_0054C8AC[0];
+    D_0054CD78[0xA0] = 0;
+    D_0054CD78[0xA1] = 0;
+    n = ((D_0054C92C[0] ^ 3) != 0) ? (n >> 1) : n;
+    do {
+        r = func_002517A0(a0, n);
+    } while (r == 1 || r == 3);
+    func_00252310();
+    if (func_002510B0() == 0) {
+        r = 2;
+    }
+    n = r - 1;
+    ret = (unsigned int) r < 1;
+    while ((*(volatile unsigned int *) 0x1000D400 >> 8) & 1) {
+    }
+    if (r == 0) {
+        func_00250128((unsigned int) D_0054CD78[0xA0] < 1);
+    }
+    if ((unsigned int) n < 2) {
+        func_0024E920(D_006290E8);
+    }
+    return ret;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00251678);
