@@ -189,7 +189,32 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00167A00);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00167B48);
 
 /* func_00167C88 */
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00167C88);
+int func_00167C88(void *a0, int a1, int a2) {
+    int found = 0;
+    int i = 0;
+    if (D_0062C01C > 0) {
+        do {
+            FuzioCtx *t5 = D_0062C020;
+            short *p = t5->unk1C[D_006A4B40[i]];
+            if (p != 0 && *p >= 0) {
+                do {
+                    int addr = t5->unk14 + (int) *p * 0x70;
+                    if (DrawGObjWallCollision(a0, addr, 1) != 0) {
+                        *(int *)((char *)a0 + 0x94) = addr;
+                        found = 1;
+                        *(int *)((char *)a0 + 0x8C) = a1;
+                        *(int *)((char *)a0 + 0x90) = a2;
+                        *(int *)((char *)a0 + 0x88) = 0;
+                    }
+                    p++;
+                    t5 = D_0062C020;
+                } while (*p >= 0);
+            }
+            i++;
+        } while (i < D_0062C01C);
+    }
+    return found;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00167DB0);
