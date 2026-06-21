@@ -90,7 +90,45 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundBufSegFree);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundBDDataSet);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundDataOpen);
+/* soundDataOpen */
+extern char D_00551FC8[];
+extern char D_0062C388[];
+extern int D_0062A4E8;
+extern int D_0062A4EC;
+extern int D_0062BFC0;
+extern int D_0062BFC4;
+extern void func_001AAD00(char *file, int line);
+extern void func_00260380(char *file, int line, char *msg);
+
+void soundDataOpen(int a0, int a1) {
+    switch (a0) {
+        case 1:
+            switch (a1) {
+                case 1:
+                    D_0062BFC0 = D_0062A4E8;
+                    return;
+                case 0:
+                    D_0062A4EC = 0x1D9020;
+                    return;
+                case 2:
+                    return;
+            }
+            func_001AAD00(D_00551FC8, 0x1CC);
+            func_00260380(D_00551FC8, 0x1CC, D_0062C388);
+            return;
+        case 2:
+            if (a1 == 0) {
+                D_0062BFC4 = D_0062A4E8;
+                return;
+            }
+            func_001AAD00(D_00551FC8, 0x1D6);
+            func_00260380(D_00551FC8, 0x1D6, D_0062C388);
+            return;
+    }
+    func_001AAD00(D_00551FC8, 0x1DB);
+    func_00260380(D_00551FC8, 0x1DB, D_0062C388);
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundDataOpenSync);
 
