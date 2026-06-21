@@ -166,7 +166,41 @@ extern void *D_00629DE4;
 extern int D_0062A894;
 extern void *D_0062BBF0;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_tool", quick_save_wpfile);
+void quick_save_wpfile(int arg0) {
+    volatile int home;
+    WpData16 buf2;
+    WpData16 buf1;
+    void *ret;
+    void *t;
+
+    home = arg0;
+    backStageProcessMain();
+    func_00178DD8(7);
+    lt_fade_status(0x33);
+    D_0062A894 = 1;
+    func_001790A8(D_00629DE4);
+    stage_KillPlayBgAnimation(0x228, 1, 0);
+    gflagOff(D_00629DE4, 0x12D);
+    while (func_0012A958(0x228) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    gflagOff(D_00629DE4, 0);
+    buf2 = D_00614370;
+    ret = ContinueCorrectPosition(D_00629DE4);
+    func_00240008(&buf1, &buf2, ret);
+    gflagChk(D_00629DE4, &buf1);
+    func_001790E8(D_00629DE4);
+    D_0062A894 = 0;
+    lt_fade_status(0x32);
+    _ACTWait(0x3C);
+    t = D_0062BBF0;
+    if (t != 0) {
+        scpTrans(t, 0x50);
+        D_0062BBF0 = 0;
+    }
+    _ACTWait(0);
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_tool", cursor_control);
