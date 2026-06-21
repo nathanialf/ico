@@ -131,7 +131,33 @@ extern char D_0060E1D8[];
 extern int D_00629E10;
 extern int D_0062AECC;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/gamesys", gamesysObjInfoPosSetStage);
+int gamesysObjInfoPosSetStage(int a0) {
+    PosEntry local[10];
+    PosEntry *lp = local;
+    int count = 0;
+    int r;
+    PSObj *g = isysGObjRemoveObjDL(a0);
+    if (g != 0) {
+        do {
+            int type = g->f0C;
+            if (type == 2 || type == 4) {
+                lp[count].f0 = &D_0029F060[type];
+                lp[count].f4 = g;
+                count++;
+            }
+            g = func_0013E7E0(g);
+        } while (g != 0);
+    }
+    if (a0 == 0) {
+        D_0062AECC = 0;
+    }
+    r = func_001A4DE8(D_0060E1D8, 10, 50, 11, lp, 8, 0, 1, count, &D_0062AECC);
+    if (r > 0) {
+        D_00629E10 = (int) lp[D_0062AECC].f4;
+        return 1;
+    }
+    return (r == -1) ? -1 : 0;
+}
 
 
 extern int D_002715D4[];
