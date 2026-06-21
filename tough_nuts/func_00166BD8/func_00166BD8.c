@@ -156,7 +156,31 @@ extern FuzioCtx *D_0062C020;
 extern short D_006A4B40[];
 extern int __ClipFloor(void *a0, int a1, int a2, int a3);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00166BD8);
+int func_00166BD8(void *a0, int a1, int a2) {
+    int found = 0;
+    int i = 0;
+    if (D_0062C01C > 0) {
+        do {
+            FuzioCtx *t5 = D_0062C020;
+            short *p = t5->unk18[D_006A4B40[i]];
+            if (p != 0 && *p >= 0) {
+                do {
+                    int addr = t5->unk10 + (int) *p * 0x50;
+                    if (__ClipFloor(a0, addr, 0, 1) != 0) {
+                        *(int *)((char *)a0 + 0x88) = addr;
+                        found = 1;
+                        *(int *)((char *)a0 + 0x80) = a1;
+                        *(int *)((char *)a0 + 0x84) = a2;
+                    }
+                    p++;
+                    t5 = D_0062C020;
+                } while (*p >= 0);
+            }
+            i++;
+        } while (i < D_0062C01C);
+    }
+    return found;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00166D00);
