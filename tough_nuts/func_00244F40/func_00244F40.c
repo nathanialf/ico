@@ -1653,7 +1653,47 @@ extern int D_0070E2C0[];
 extern int D_0070EF00;
 extern int D_0070F580;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00244F40);
+int func_00244F40(int a0) {
+    int self[8];
+    int buf30[4];
+    int *p1;
+    int *ef00;
+    int *e = D_0070E2C0;
+    int r;
+
+    func_002435F8(0xF);
+    if (D_0054AB20[0] != 0) {
+        e[0xC / 4] = a0;
+    } else {
+        func_00243638();
+        e[0xC / 4] = a0;
+    }
+
+    self[0x4 / 4] = 1;
+    self[0x8 / 4] = 0;
+    self[0x14 / 4] = 0;
+    p1 = (int *) func_00100520(self);
+    D_0070E2C0[0] = (int) p1;
+
+    ef00 = &D_0070EF00;
+    e[0x4 / 4] = (int) buf30;
+    e[0x8 / 4] = 4;
+    r = func_00242978(&D_0070F580, 0xF, 0, e, 0x10, ef00, 4, 0, 0);
+    if (r < 0) {
+        func_00100530((int) p1);
+        func_00243628();
+        return -1;
+    }
+    func_00243628();
+    r = *(int *) ((int) ef00 | 0x20000000);
+    if (r == 0) {
+        func_00100530((int) p1);
+        return -1;
+    }
+    func_00100560((int) p1);
+    func_00100530((int) p1);
+    return buf30[0];
+}
 
 
 int func_00245060(void *a0) {
