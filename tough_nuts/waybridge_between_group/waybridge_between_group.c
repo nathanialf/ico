@@ -205,7 +205,42 @@ typedef struct {
     char _pad8C[0xC0 - 0x8C];    /* 0x8C */
 } WallBox;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", waybridge_between_group);
+char *waybridge_between_group(void *a0, int a1) {
+    int mtx[4];
+    int buf[4];
+    WallBox box;
+    int (*bp)[4] = &buf;
+    float thresh;
+    char *cur;
+    char *best = 0;
+
+    GetRootMatrixByDObj(mtx, a0);
+    thresh = D_00629154;
+    box.radius = 50.0f;
+    cur = CloseWayGroup(a1);
+    __asm__ __volatile__("" ::: "memory");
+    if (cur == 0) {
+        return best;
+    }
+    do {
+        float dist;
+        func_00240008(*bp, (int *)(cur + 0x10), mtx);
+        dist = func_00168128((int)*bp);
+        if (dist < thresh) {
+            func_00240080((int *)box.p0, mtx);
+            func_00240080((int *)box.p1, (int *)(cur + 0x10));
+            box.p0[1] -= 75.0f;
+            box.p1[1] -= 75.0f;
+            ClipWallBoxStop((int *)box.p0);
+            if (box.result == 0) {
+                thresh = dist;
+                best = cur;
+            }
+        }
+        cur = CreateWayPoint(cur);
+    } while (cur != 0);
+    return best;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", bridge_waypoint_side_me);
