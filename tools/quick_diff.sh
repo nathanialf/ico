@@ -237,11 +237,12 @@ END { i=1; while (i<=NR) {
   print ln[i]; i++ } }' "$ASM_OUT" > "$ASM_OUT.mfc1nop" && mv "$ASM_OUT.mfc1nop" "$ASM_OUT"
 
 # mtc1 COP1-move-in hazard, marker-less variant: gcc emits `mtc1 $r,$f` directly
-# followed by a dependent `cvt.*` with NO `#nop` marker (its machine model has no
-# latency between the two). When that mtc1 is the FIRST real insn of a reorder
-# region (or first after a label/branch target), gas-2.96 has no pipeline state
-# and inserts a spurious COP1-move hazard nop; the period assembler / ROM leave
-# the pair adjacent (verified universal: 840 ROM `mtc1;cvt` pairs, 0 carry a nop).
+# followed by a dependent `cvt.*` OR FCC compare `c.{eq,lt,le}.s` with NO `#nop`
+# marker (its machine model has no latency between the two). When that mtc1 is the
+# FIRST real insn of a reorder region (or first after a label/branch target),
+# gas-2.96 has no pipeline state and inserts a spurious COP1-move hazard nop; the
+# period assembler / ROM leave the pair adjacent (verified universal: 840 ROM
+# `mtc1;cvt` + 342 `mtc1;c.{eq,lt,le}.s` pairs, 0 carry a nop).
 # In-pipeline (seen==1) pairs are untouched. Mirrors compile_c.sh.
 awk '
 { ln[NR]=$0 }
@@ -251,7 +252,7 @@ END { nr=0; seen=0; i=1; while (i<=NR) {
   if (ln[i] ~ /:[ \t]*$/)             { seen=0; print ln[i]; i++; continue }
   if (nr==0 && seen==0 && ln[i] ~ /^[ \t]*mtc1[ \t]/) {
     j=i+1; while (j<=NR && ln[j] ~ /^[ \t]*(#|$)/) j++;
-    if (j<=NR && ln[j] ~ /^[ \t]*cvt\.[swd]\.[swd][ \t]/) {
+    if (j<=NR && ln[j] ~ /^[ \t]*(cvt\.[swd]\.[swd]|c\.(eq|lt|le)\.[sd])[ \t]/) {
       print "\t.set noreorder"; print ln[i];
       for (k=i+1; k<j; k++) print ln[k];
       print ln[j]; print "\t.set reorder";

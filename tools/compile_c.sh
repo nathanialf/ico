@@ -189,14 +189,16 @@ END { nr=0; seen=0; i=1; while (i<=NR) {
 
   # Case 2 (new): a marker-less `mtc1` that is the FIRST real insn of a reorder
   # region (or first after a label/branch-target), immediately followed by a
-  # dependent `cvt.*`. gas-2.96 has no pipeline state there and inserts a
-  # spurious COP1-move hazard nop; the period assembler / ROM leave the pair
-  # adjacent (verified universal: 840 ROM `mtc1;cvt` pairs, 0 carry a nop).
+  # dependent `cvt.*` OR FCC compare `c.{eq,lt,le}.s`. gas-2.96 has no pipeline
+  # state there and inserts a spurious COP1-move hazard nop; the period assembler
+  # / ROM leave the pair adjacent (verified universal: 840 ROM `mtc1;cvt` pairs
+  # + 342 `mtc1;c.{eq,lt,le}.s` pairs, 0 carry a nop — the c.X.s case is a 0.0
+  # operand `mtc1 $0,$fN` feeding a float compare, e.g. func_0025A968).
   # In-pipeline (seen==1) pairs are left alone — wrapping them would be a no-op
   # but the guard keeps the rewrite minimal. Byte no-op under the period as.
   if (nr==0 && seen==0 && ln[i] ~ /^[ \t]*mtc1[ \t]/) {
     j=i+1; while (j<=NR && ln[j] ~ /^[ \t]*(#|$)/) j++;
-    if (j<=NR && ln[j] ~ /^[ \t]*cvt\.[swd]\.[swd][ \t]/) {
+    if (j<=NR && ln[j] ~ /^[ \t]*(cvt\.[swd]\.[swd]|c\.(eq|lt|le)\.[sd])[ \t]/) {
       print "\t.set noreorder"; print ln[i];
       for (k=i+1; k<j; k++) print ln[k];
       print ln[j]; print "\t.set reorder";

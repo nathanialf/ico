@@ -6559,7 +6559,42 @@ typedef struct {
     int f20;
 } S0025A968;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025A968);
+float func_0025A968(float a0, float a1) {
+    S0025A968 sp;
+    int s0;
+    float result = func_0025B3A0(a0, a1);
+    s0 = D_00629998[0];
+    if (s0 == -1) {
+        goto ret;
+    }
+    if (func_0025CD78(a1) != 0) {
+        goto ret;
+    }
+    if (func_0025CD78(a0) != 0) {
+        goto ret;
+    }
+    if (a1 != 0.0f) {
+        goto ret;
+    }
+    if (a0 != 0.0f) {
+        goto ret;
+    }
+    sp.f8 = func_00260340(a0);
+    sp.f10 = func_00260340(a1);
+    sp.f18 = 0;
+    sp.f0 = 1;
+    sp.f4 = D_00629490;
+    sp.f20 = 0;
+    if (s0 == 2 || func_0025C9A0(&sp) == 0) {
+        *(int *) func_002603E0() = 0x21;
+    }
+    if (sp.f20 != 0) {
+        *(int *) func_002603E0() = sp.f20;
+    }
+    return ((float (*)(long long)) func_0025F748)(sp.f18);
+ret:
+    return result;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025AA90);
