@@ -6604,10 +6604,75 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025EF78);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025F220);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025F388);
+typedef struct { unsigned int type; int f4; int f8; int fC; unsigned long long f10; } PCmpV2;
+
+int func_0025F388(PCmpV2 *a, PCmpV2 *b) {
+    unsigned int at = a->type;
+    unsigned int bt;
+    if (at < 2) {
+        return 1;
+    }
+    bt = b->type;
+    if (bt < 2) {
+        return 1;
+    }
+    if ((at ^ 4) == 0) {
+        if ((bt ^ 4) == 0) {
+            return b->f4 - a->f4;
+        }
+        return a->f4 ? -1 : 1;
+    }
+    if ((bt ^ 4) == 0) {
+        if (b->f4 == 0) {
+            return -1;
+        }
+        return 1;
+    }
+    if ((at ^ 2) == 0) {
+        if ((bt ^ 2) == 0) {
+            return 0;
+        }
+        if (b->f4 != 0) {
+            return 1;
+        }
+        return -1;
+    }
+    if ((bt ^ 2) == 0) {
+        return a->f4 ? -1 : 1;
+    }
+    {
+        int af4 = a->f4;
+        int bf4 = b->f4;
+        if (af4 != bf4) {
+            return af4 ? -1 : 1;
+        }
+        {
+            int af8 = a->f8;
+            int bf8 = b->f8;
+            if (bf8 < af8) {
+                return af4 ? -1 : 1;
+            }
+            if (af8 < bf8) {
+                return af4 ? 1 : -1;
+            }
+            {
+                unsigned long long af10 = a->f10;
+                unsigned long long bf10 = b->f10;
+                if (bf10 < af10) {
+                    return af4 ? -1 : 1;
+                }
+                if (af10 < bf10) {
+                    return af4 ? 1 : -1;
+                }
+                return 0;
+            }
+        }
+    }
+}
+
 
 extern void func_0025EBD8(void *in, void *out);
-extern void func_0025F388(void *a, void *b);
+extern int func_0025F388(PCmpV2 *a, PCmpV2 *b);
 
 void func_0025F4A0(long a0, long a1) {
     struct { int a, b, c, pad; long long d; } x, y;
