@@ -388,6 +388,7 @@ def launch_permute(func, tu):
     harvested later, and (b) it is killable as a group by pgid if it overruns."""
     seed = ROOT / "tough_nuts" / func / (func + ".c")
     seedarg = [rel(seed)] if seed.exists() else []
+    STATE_DIR.mkdir(parents=True, exist_ok=True)   # ninja can wipe build/ mid-run
     logp = STATE_DIR / f"permute_{func}.log"
     cmd = ["timeout", "-k", "15", str(PERMUTE_TIMEOUT),
            str(ROOT / "tools" / "permute_run.sh"), func, *seedarg,
