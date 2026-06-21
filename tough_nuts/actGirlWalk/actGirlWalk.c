@@ -167,7 +167,28 @@ extern char D_00553C00[];
 extern char D_00553C20[];
 extern int D_0062AF84;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlWalk);
+void actGirlWalk(void) {
+    int x;
+    int volatile self = x;
+
+    if (D_0062AF84 & 1) {
+        char *p = (char *)D_00284740;
+        traceLine(0xA, 0x3C, 0xFFFFFFF, D_00553BF0,
+                  (int)*(float *)(p + 0x50), (int)*(float *)(p + 0x54));
+        if (D_0062AF84 & 1) {
+            traceLine(0xA, 0x46, 0xFFFFFFF, D_00553C00,
+                      *(unsigned char *)(p + 0x58), *(unsigned char *)(p + 0x59),
+                      *(unsigned char *)(p + 0x5B), *(unsigned char *)(p + 0x5D));
+            if (D_0062AF84 & 1) {
+                char *name3 = D_00553C20;
+                int r20 = (int)*(float *)(p + 0x20);
+                int hcc = HandCameraCorrect(p + 0x40, p + 0x30);
+                traceLine(0xA, 0x50, 0xFFFFFFF, name3,
+                          r20, hcc, (int)*(float *)(p + 0x50));
+            }
+        }
+    }
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlRun);
