@@ -6714,7 +6714,53 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025DF98);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025E568);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025EAA8);
+long long func_0025EAA8(void *s) {
+    unsigned int type = *(unsigned int *) s;
+    unsigned long long m = *(unsigned long long *) ((char *) s + 0x10);
+    union { double d; unsigned long long u; } r;
+    int exp = 0;
+    int sign = *(int *) ((char *) s + 4);
+
+    if (type < 2) {
+        m |= 0x8000000000000ULL;
+        exp = 0x7FF;
+    } else if ((type ^ 4) == 0) {
+        exp = 0x7FF;
+        m = 0;
+    } else if ((type ^ 2) == 0) {
+        m = 0;
+    } else if (m != 0) {
+        int e = *(int *) ((char *) s + 8);
+        if (e < -0x3FE) {
+            int sh = (-0x3FE) - e;
+            if (sh >= 0x39) {
+                m = 0;
+            } else {
+                m >>= sh;
+            }
+            m >>= 8;
+        } else if (e >= 0x400) {
+            exp = 0x7FF;
+            m = 0;
+        } else {
+            exp = e + 0x3FF;
+            if ((m & 0xFF) != 0x80) {
+                m += 0x7F;
+            } else if (m & 0x100) {
+                m += 0x80;
+            }
+            if (m > 0x1FFFFFFFFFFFFFFFULL) {
+                m >>= 1;
+                exp += 1;
+            }
+            m >>= 8;
+        }
+    }
+    r.u = (r.u & 0xFFF0000000000000ULL) | (m & 0xFFFFFFFFFFFFFULL);
+    r.u = (r.u & 0x800FFFFFFFFFFFFFULL) | ((unsigned long long) (exp & 0x7FF) << 52);
+    r.u = (r.u & 0x7FFFFFFFFFFFFFFFULL) | ((unsigned long long) sign << 63);
+    return r.u;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025EBD8);
