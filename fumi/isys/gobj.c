@@ -117,7 +117,62 @@ void *isysGObjMoveHead(int a0, struct GObj *o)
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", isysGObjAddAfterGObj);
+extern char D_0027DDF0[];
+
+void *isysGObjAddAfterGObj(int a0, struct GObj *o)
+{
+    unsigned int i;
+    struct GObj *e;
+    struct GObj *u;
+    struct GObj *rv;
+    int w;
+    int m1;
+    unsigned char t;
+
+    for (i = 0; i < D_0062BFAC; i++) {
+        if (D_0062BFA8[i].f_0 == 0) {
+            break;
+        }
+    }
+    if (i == D_0062BFAC) {
+        debug_assertMessage(D_00551E00);
+        e = 0;
+    } else {
+        struct GObj *p = (struct GObj *)(i * 0x174 + (int)D_0062BFA8);
+        p->f_164 = 0;
+        p->f_170 = 0;
+        e = p;
+    }
+    if (e == 0) {
+        debug_assertMessage(D_00551E00);
+        return 0;
+    }
+    if (o == 0) {
+        debug_assertMessage(D_00551DF0);
+        return 0;
+    }
+    e->f_0 = e;
+    e->f_28 = a0;
+    t = o->f_18;
+    e->f_18 = t;
+    u = o->f_14;
+    e->f_10 = o;
+    e->f_14 = u;
+    o->f_14 = e;
+    w = o->f_1C;
+    e->f_1C = w;
+    if (e->f_14 == 0) {
+        ((struct GObj **)D_0027DDF0)[e->f_18] = e;
+    }
+    e->f_15C = 0;
+    e->f_8 = -1;
+    e->f_4 = -1;
+    e->f_2C = 0;
+    e->f_30 = 0;
+    e->f_58 = 0;
+    return e;
+}
+
 
 extern struct GObj *D_0062BFA8;
 extern unsigned int D_0062BFAC;
