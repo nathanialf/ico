@@ -25,7 +25,76 @@ extern struct U4 D_0062B2C0;
 extern Node kanban_reqs[] __asm__("D_006FF910");
 extern void debug_assertMessage();
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanban", kanbanInit);
+void *kanbanInit(int a0, int a1) {
+    Node *p, *q;
+    int t;
+    int i;
+    Node *node;
+
+    node = kanban_reqs;
+    a0 *= 0x38;
+    a0 += (int)D_00536530;
+    i = 0;
+    do {
+        if (node->f0 == 0) {
+            goto found;
+        }
+        node++;
+    } while (++i < 0x1E);
+    debug_assertMessage(D_0060F658);
+    return 0;
+found:
+    node->f8 = 0;
+    node->fC &= ~1;
+    node->f0 = a0;
+    node->f10 = 0;
+    t = *(int *)(a0 + 0x28);
+    p = (Node *)D_0062C15C;
+    node->f14 = *(int *)&D_0062B2C0;
+    *(int *)(a0 + 0x2C) = t;
+    node->f4 = a1;
+    if (p == 0) {
+        D_0062C15C = (int *)node;
+        node->f1C = 0;
+        goto end;
+    }
+    if (a1 < p->f4) {
+        p->f1C = node;
+        node->f18 = p;
+        node->f1C = 0;
+        D_0062C15C = (int *)node;
+        goto post;
+    }
+    q = p->f18;
+    if (q == 0) {
+        p->f18 = node;
+        goto append;
+    }
+    p = q;
+    for (;;) {
+        q = p->f18;
+        if (q == 0) {
+            p->f18 = node;
+            goto append;
+        }
+        if (a1 < p->f4) {
+            node->f1C = p->f1C;
+            p->f1C = node;
+            node->f18 = p;
+            goto post;
+        }
+        p = q;
+    }
+append:
+    node->f1C = p;
+end:
+    node->f18 = 0;
+post:
+    if (t != -1) {
+        D_0062C160 = node;
+    }
+    return node;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanban", func_001AD258);
