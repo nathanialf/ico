@@ -3083,7 +3083,43 @@ int func_0024A078(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024A0C0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024A228);
+typedef struct { int f0; int *f4; int f8; int fC; int f10; char pad14[0x8]; } PObjA8B8Ent; /* 0x1C */
+extern PObjA8B8Ent D_007112D0[][4];
+extern int func_001008C0(int a0);
+extern void func_0026B730(void *a0, void *a1);
+extern void func_00260668(void *a0, ...);
+extern char D_00628C08[];
+extern int D_0054C64C[];
+
+void func_0024A228(int a0, int a1) {
+    struct { int *f0; int f4; int f8; int fC; char rest[0xF0]; } buf;
+    int *p17 = D_007112D0[a0][a1].f4;
+    int ret = func_001008C0(D_007112D0[a0][a1].fC);
+
+    if (ret >= 0) {
+        if (D_0054C64C[0] != 0) {
+            func_00260668(D_00628C08);
+        }
+    } else {
+        int n = *p17 + 1;
+        int v = D_007112D0[a0][a1].f8 + ((n & 1) << 5);
+        int r;
+        *p17 = n;
+        func_0026B730(p17, (char *) p17 + 0x20);
+        buf.f0 = p17;
+        buf.f4 = v;
+        buf.f8 = 0x20;
+        buf.fC = 0;
+        r = func_001008E0(&buf, 1);
+        if (r == 0) {
+            if (D_0054C64C[0] != 0) {
+                func_00260668(D_00628C08);
+            }
+        }
+        D_007112D0[a0][a1].fC = r;
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024A358);
 
@@ -3112,8 +3148,6 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024A5B8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024A7A0);
 
-typedef struct { char pad0[0x10]; int f10; char pad14[0x8]; } PObjA8B8Ent; /* 0x1C */
-extern PObjA8B8Ent D_007112D0[][4];
 
 int func_0024A858(int a0, int a1) {
     int s0;
