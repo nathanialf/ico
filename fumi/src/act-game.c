@@ -161,7 +161,32 @@ void ActOrientTest(float *dst, char *obj, void *a2)
     ((IntFloat *)dst)[2].f = *(float *)(idx + *(int *)((int)((GObj *)(obj))->p_15C + 0xC) + 0x38);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", GetGirlHandlinkClInfo);
+extern float MatrixDrive_GetTurnYAngleXZ(float a0);
+extern void func_00240008(void *a0, void *a1, void *a2);
+extern void func_0023FE98(void *a0, void *a1);
+extern void func_0023FFF0(void *a0, void *a1, void *a2);
+extern void SetRootMatrixWithTransOffsetByDObj(void *a0, void *a1, void *a2, float a3);
+
+void GetGirlHandlinkClInfo(void *a0, void *a1, void *a2, float farg0, float farg1) {
+    float buf0[4];
+    float buf18[4];
+    float buf16[4];
+
+    ActOrientTest(buf0, a0, a1);
+    func_00240008(buf16, a2, buf0);
+    if (farg1 < MatrixDrive_GetTurnYAngleXZ(buf16[0] * buf16[0] + buf16[1] * buf16[1] + buf16[2] * buf16[2])) {
+        func_0023FE98(buf16, buf16);
+        func_00240038(buf16, buf16, farg1);
+        func_0023FFF0(buf18, buf0, buf16);
+        if (0.0f < buf18[1] - *(float *) ((char *) a2 + 4)) {
+            buf18[1] = *(float *) ((char *) a2 + 4);
+        }
+        SetRootMatrixWithTransOffsetByDObj(a0, a1, buf18, 1.0f);
+        return;
+    }
+    SetRootMatrixWithTransOffsetByDObj(a0, a1, a2, farg0);
+}
+
 
 extern int D_006A3F70[];
 
