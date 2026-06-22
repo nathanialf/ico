@@ -1922,7 +1922,45 @@ extern void func_00100920(int a0, int a1);
 typedef struct { union { long long q; struct { int lo; int hi; } w; } tag; int f8; int fc; int f10; int f14; unsigned char name[0x50]; } PObjPkt;
 extern PObjPkt D_0070FA40;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00247200);
+int func_00247200(char *a0, int a1) {
+    struct { void *p; int a; int b; int c; } s;
+    int x;
+    int i;
+    unsigned char c;
+
+    func_001007F0();
+    x = func_00100930(0x80000000);
+    D_0070FA40.f14 = a1;
+    i = 0;
+    if (a0[0] != 0) {
+        c = a0[0];
+    loop:
+        ((char *) &D_0070FA40 + i)[0x18] = c;
+        i++;
+        if (a0[i] != 0) {
+            c = a0[i];
+            goto loop;
+        }
+    }
+    D_0070FA40.tag.w.hi = 0;
+    D_0070FA40.f10 = i;
+    D_0070FA40.f8 = 0x80000003;
+    D_0070FA40.tag.q &= 0xFFFFFFFF000000FFLL;
+    *(char *) &D_0070FA40 = 0x68;
+    s.p = &D_0070FA40;
+    s.a = x;
+    s.b = 0x68;
+    s.c = 0x44;
+    func_002483F8(&D_0070FA40, 0x68);
+    if (func_001008E0(&s, 1) != 0) {
+        func_00100920(4, 0x10000);
+        func_00100920(4, 0x20000);
+        func_00100920(0x80000002, 0);
+        func_00100920(0x80000000, 0);
+        return 1;
+    }
+    return 0;
+}
 
 
 
