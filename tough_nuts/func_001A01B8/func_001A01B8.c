@@ -149,7 +149,30 @@ extern int AdpcmUseAreaGet(void);
 extern int *AdpcmOpen(int a0, int a1, int a2, int a3, int a4, int a5, int a6);
 extern void AdpcmClose(void *a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/charFileManager", func_001A01B8);
+void func_001A01B8(int *self, int a1, int a2, int a3, int a4, int a5, int a6) {
+    extern void debug_assertMessage();
+    int buf[4];
+    int size = 0x5C000;
+
+    buf[0] = (a3 & 0xFFFF) | (a4 << 16);
+    D_00271240[8]++;
+    if (a2 <= 0x5C000) {
+        size = a2;
+    }
+    if (soundDataAreaGet(buf) == 0) {
+        int p = iosFree(D_0062A31C, (char *)size, D_0060B4E0, 0x2E8);
+        int r;
+        int *h;
+        iosCdvdLoad(self, p, (char *)size);
+        debug_assertMessage(D_0060BA30, a3, a1, size);
+        r = AdpcmUseAreaGet();
+        h = AdpcmOpen(p, a3, a4, a6, size, r, 0);
+        iosMallocCheckLeak2(p);
+        AdpcmClose(*(void **)((char *)h + 0x2C));
+    } else {
+        iosCdvdLoad(self, 0, (char *)size);
+    }
+}
 
 
 
