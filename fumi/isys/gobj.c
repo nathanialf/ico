@@ -33,7 +33,89 @@ void isysGObjMove(int a0, int a1, int a2)
     return add_gobj_to_tail(a0, s1, new_var);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", isysGObjMoveHead);
+struct GObj {
+    struct GObj *f_0;       /* 0x00 */
+    int          f_4;       /* 0x04 */
+    int          f_8;       /* 0x08 */
+    char         pad_C[4];  /* 0x0C */
+    struct GObj *f_10;      /* 0x10 */
+    struct GObj *f_14;      /* 0x14 */
+    unsigned char f_18;     /* 0x18 */
+    char         pad_19[3]; /* 0x19 */
+    int          f_1C;      /* 0x1C */
+    char         pad_20[8]; /* 0x20 */
+    int          f_28;      /* 0x28 */
+    int          f_2C;      /* 0x2C */
+    int          f_30;      /* 0x30 */
+    char         pad_34[0x24]; /* 0x34 */
+    int          f_58;      /* 0x58 */
+    char         pad_5C[0x100]; /* 0x5C */
+    int          f_15C;     /* 0x15C */
+    char         pad_160[4]; /* 0x160 */
+    int          f_164;     /* 0x164 */
+    char         pad_168[8]; /* 0x168 */
+    int          f_170;     /* 0x170 */
+};                          /* size 0x174 */
+
+extern struct GObj *D_0062BFA8;
+extern unsigned int D_0062BFAC;
+extern char D_0027DE10[];
+extern char D_00551DF0[];
+extern char D_00551E00[];
+extern void debug_assertMessage();
+
+void *isysGObjMoveHead(int a0, struct GObj *o)
+{
+    unsigned int i;
+    struct GObj *e;
+    struct GObj *u;
+    int w;
+    unsigned char t;
+
+    for (i = 0; i < D_0062BFAC; i++) {
+        if (D_0062BFA8[i].f_0 == 0) {
+            break;
+        }
+    }
+    if (i == D_0062BFAC) {
+        debug_assertMessage(D_00551E00);
+        e = 0;
+    } else {
+        struct GObj *p = (struct GObj *)(i * 0x174 + (int)D_0062BFA8);
+        p->f_164 = 0;
+        p->f_170 = 0;
+        e = p;
+    }
+    if (e == 0) {
+        debug_assertMessage(D_00551E00);
+        return 0;
+    }
+    if (o == 0) {
+        debug_assertMessage(D_00551DF0);
+        return 0;
+    }
+    e->f_0 = e;
+    e->f_28 = a0;
+    t = o->f_18;
+    e->f_14 = o;
+    e->f_18 = t;
+    u = o->f_10;
+    w = o->f_1C;
+    e->f_10 = u;
+    o->f_10 = e;
+    e->f_1C = w;
+    if (e->f_10 == 0) {
+        ((struct GObj **)D_0027DE10)[e->f_18] = e;
+    }
+    e->f_15C = 0;
+    e->f_8 = -1;
+    e->f_4 = -1;
+    e->f_2C = 0;
+    e->f_30 = 0;
+    e->f_58 = 0;
+    return e;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", isysGObjAddAfterGObj);
 
