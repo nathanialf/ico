@@ -2654,7 +2654,42 @@ extern int func_001008E0(void *a0, int a1);
 extern int func_001008F0(void *a0, int a1);
 extern int D_00710DE0[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00248118);
+int func_00248118(int a0, int a1, int a2, int a3, int t0, int t1, int t2) {
+    struct { int p; int b; int c; int d; } entry[2];
+    int i;
+
+    if ((unsigned int) (a3 - 0x10) >= 0x61) {
+        return 0;
+    }
+    i = 0;
+    if (t2 > 0) {
+        *(int *) (a2 + 0x4) = t1;
+        i = 1;
+        entry[0].p = t0;
+        *(int *) a2 = *(unsigned char *) a2 | (t2 << 8);
+        entry[0].b = t1;
+        entry[0].c = t2;
+        entry[0].d = 0;
+        if (a1 & 0x4) {
+            func_002483F8((void *) t0, t2);
+        }
+    } else {
+        *(int *) (a2 + 0x4) = 0;
+        *(int *) a2 = *(unsigned char *) a2;
+    }
+    entry[i].p = a2;
+    entry[i].b = D_00710DE0[0];
+    entry[i].c = a3;
+    *(int *) (a2 + 0x8) = a0;
+    *(char *) a2 = a3;
+    entry[i].d = 0x44;
+    func_002483F8((void *) a2, a3);
+    i++;
+    if (a1 & 0x1) {
+        return func_001008F0(entry, i);
+    }
+    return func_001008E0(entry, i);
+}
 
 
 int func_00248250(int a0, int a1, int a2, int a3, int t0, int t1)
