@@ -91,7 +91,43 @@ typedef struct {
 } Slot;
 extern Slot staffroll_slots[] __asm__("D_00700770");
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/staffroll", func_001B58B0);
+int func_001B58B0(void) {
+    int n;
+    int i;
+    int off;
+    int var5;
+    unsigned char *p;
+    int counter;
+    int *ptr;
+    char *slot;
+
+    n = dl_Swap() + 1;
+    if ((float)D_0062C1C8 <= D_0062C1C4 / (float)n) {
+        p = D_00700770;
+        off = 0;
+        for (i = 0; i < 0x12C; i++) {
+            if (*(int *)p == 0) {
+                goto found;
+            }
+            off += 0x10;
+            p += 0x10;
+        }
+        debug_assertMessage(D_0060FD60);
+    found:
+        func_001AAD00(D_0060FD78, 0xBD);
+        func_00260380(D_0060FD78, 0xBD, D_0062D2E8);
+        counter = D_0062C1C8;
+        ptr = &D_004B8C90[counter];
+        slot = (char *)&D_00700770[i * 0x10];
+        D_0062C1C8 = counter + 1;
+        if (*ptr != 0) {
+            *(int *)slot = (int)ptr;
+        }
+        *(float *)(slot + 4) = (float)(dl_Swap() + 0x1C1);
+        *(slot + 8) = (char)func_001F7718(slot + 9, **(int **)slot);
+    }
+    return D_0062C1C8 >= D_0062B484;
+}
 
 
 /* parked: needs jtbl carve + crutch-free rederivation.
