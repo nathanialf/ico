@@ -33,7 +33,28 @@ extern int D_00271240[];
 extern float D_0028E614;
 extern char D_0062C3C8[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_DisconnectHand_WithMail);
+void ACTGame_DisconnectHand_WithMail(void **a0) {
+    void **volatile home = a0;
+    int *obj = (int *) a0[0];
+    if (obj[0x160 / 4] != 0) {
+        float buf[4];
+        void *r = subCommonIdle(a0[1]);
+        int t0 = (0x3C - D_00271240[0] * 0xA) / D_00271240[1];
+        int ret;
+        func_00240038(buf, r, (D_0028E614 * 60.0f) / (float) t0);
+        ret = Draw2DLineSeg_Start(((int *) a0[0])[0x160 / 4]);
+        if (ret == 1 || ret == 6) {
+            debug_assertMessage(D_0062C3C8);
+            buf[0] = buf[0] * 0.5f;
+            buf[1] = buf[1] - 25.0f;
+            buf[2] = buf[2] * 0.5f;
+        }
+        ReleaseItem(((int *) a0[0])[0x160 / 4], buf);
+        obj = (int *) a0[0];
+        obj[0x164 / 4] = 0;
+        obj[0x160 / 4] = 0;
+    }
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTCheckView);
