@@ -45,7 +45,28 @@ void InitCameraGObjs(int a0) {
     debug_assertMessage(D_00615180, a0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/GobjProc", CreateGObj);
+extern void func_002604B8(void *dst, void *src, int count);
+
+int CreateGObj(char *a0, int a1, char *a2, int a3, char *a4, int a5, char *a6, int a7) {
+    int b = a5 + a7;
+    if (a1 + a3 < b) {
+        return 0;
+    }
+    if (a5 >= a1) {
+        func_002604B8(a0, a4, a1);
+        func_002604B8(a2, a4 + a1, a5 - a1);
+        func_002604B8(a2 + a5 - a1, a6, a7);
+    } else if (a7 >= a1 - a5) {
+        func_002604B8(a0, a4, a5);
+        func_002604B8(a0 + a5, a6, a1 - a5);
+        func_002604B8(a2, a6 + a1 - a5, a7 - (a1 - a5));
+    } else {
+        func_002604B8(a0, a4, a5);
+        func_002604B8(a0 + a5, a6, a7);
+    }
+    return b;
+}
+
 
 extern void func_0023CE70(int a0);
 
