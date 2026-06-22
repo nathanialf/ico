@@ -130,7 +130,47 @@ extern int D_0070BBFC[];
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", WayGroup_next);
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", WayBridge_begin);
+extern int WayPointWithRangeFromPos2(int a0, int a1, int a2);
+extern int add_wp_pos(void *a0);
+extern void *nearest_waypoint_of_all_except_group(void *a0);
+extern int D_0062BB98;
+extern char D_006141D0[];
+extern char D_006141E0[];
+
+int WayBridge_begin(void) {
+    WayRec *entry = &D_004C6FF0[D_0062BB7C];
+    int f;
+
+    if (D_0062AF84 & 1) {
+        traceLine(0x12, 0x36, 0xFF000000, D_006141D0);
+        if (D_0062AF84 & 1) {
+            traceLine(0x1A, 0x42, 0xFF808000, D_0062DA08, entry->w[4]);
+        }
+    }
+    D_0062BB98 = 1;
+    f = D_0070BBFC[0];
+    if (!(f & 0x20)) {
+        if (f & 0x40) {
+            D_0062BB98 = 0;
+            return -1;
+        }
+        return 0;
+    }
+    {
+        void *res = nearest_waypoint_of_all_except_group(D_004CB2B0);
+        if (*(int *) ((char *) res + 0xC) == 0) {
+            return 0;
+        }
+        {
+            int n = add_wp_pos(D_004CB2B0);
+            WayPointWithRangeFromPos2(D_0062BB7C, *(int *) ((char *) res + 4), n);
+            entry->w[4] = entry->w[4] + 1;
+            debug_assertMessage(D_006141E0, n);
+        }
+    }
+    return 0;
+}
+
 
 
 /* recovered struct shapes */
