@@ -132,6 +132,54 @@ def replace_stub(cpath, func, body):
     cpath.write_text(inc_line(func).sub(lambda m: body.rstrip() + "\n", txt, count=1))
 
 
+def extract_func_def(text, func):
+    """Pull the single definition of <func> out of a blob. The permuter seed and
+    its candidate outputs are the WHOLE TU (park_tu snapshots the full coalesced
+    file so the permuter keeps surrounding context). Splicing that whole blob into
+    a single INCLUDE_ASM line would duplicate every sibling def → compile-fail.
+    Return just <func>'s source span (signature .. matching '}'), or None if it is
+    not present as a definition (only a call/declaration). Brace counting is naive
+    about braces inside strings/comments, which the matched C here doesn't hit."""
+    for m in re.finditer(r'\b' + re.escape(func) + r'\s*\(', text):
+        depth, j = 0, m.end() - 1                     # at the '('
+        while j < len(text):                          # find the matching ')'
+            if text[j] == '(':
+                depth += 1
+            elif text[j] == ')':
+                depth -= 1
+                if depth == 0:
+                    break
+            j += 1
+        else:
+            continue
+        k = j + 1
+        while k < len(text) and text[k] in ' \t\r\n':
+            k += 1
+        if k >= len(text) or text[k] != '{':
+            continue                                  # decl/call, not a definition
+        depth, e = 0, k
+        while e < len(text):                          # brace-match the body
+            if text[e] == '{':
+                depth += 1
+            elif text[e] == '}':
+                depth -= 1
+                if depth == 0:
+                    break
+            e += 1
+        else:
+            continue
+        start = text.rfind('\n', 0, m.start()) + 1    # back to start of sig line
+        return text[start:e + 1]
+    return None
+
+
+def seed_func_body(body, func):
+    """A whole-TU seed/candidate → just <func>'s definition (so a splice touches
+    one function and leaves siblings pristine). Falls back to the blob unchanged
+    if no definition is found (e.g. an already-single-func body)."""
+    return extract_func_def(body, func) or body
+
+
 def revert_tu(cpath):
     run(["git", "checkout", "--", rel(cpath)])
 
@@ -415,7 +463,7 @@ def eval_best(func, tu, cpath):
             cand = src.read_text(errors="replace")
         except OSError:
             continue
-        replace_stub(cpath, func, cand)
+        replace_stub(cpath, func, seed_func_body(cand, func))
         rc, d = ml("diff", tu, func, "--dry")
         revert_tu(cpath)                          # restore the committed stub
         cc = d.get("real_count") if isinstance(d, dict) else None
@@ -426,47 +474,69 @@ def eval_best(func, tu, cpath):
     return best_rc, best_cand
 
 
-def harvest_pending(q, rec):
-    """Evaluate a finished permuter's outputs for an already-parked func.
-    Commits a rc0 match; reseeds tough_nuts on a sub-best improvement (stays
-    parked for a future resume); otherwise marks it permuter-exhausted. Never
-    leaves the working tree dirty."""
+def harvest_pending(q, rec, active=False):
+    """Evaluate a finished permuter's outputs. Commits a rc0 match; on a sub-best
+    (non-zero) improvement the behaviour forks on `active`:
+      - active=False (background drain, NO live session): reseed tough_nuts and
+        stay parked — re-found on a future resume. DO NOT re-activate the loop.
+      - active=True (blocking stall=30 path, model IS in the loop): install the
+        improved shape live, re-baseline (stall->0, best->the lower rc), un-park,
+        and hand it back so churn re-emits `iterate` on the lower-count diff.
+    Otherwise marks it permuter-exhausted. Leaves the tree clean except on the
+    active improved-handback (which installs the lower-floor C for the model to
+    iterate on, exactly as a normal iterating step would).
+    Returns one of: 'matched' | 'improved' | 'exhausted' | 'none' | 'skipped'."""
     func, tu = rec["func"], rec["tu"]
     cpath = ML.resolve_tu_path(tu)
     if cpath is None:
         _plog(q, func, "harvest skipped — TU unresolved")
-        return
+        return "skipped"
     best_rc, best_cand = eval_best(func, tu, cpath)
     if best_cand is None:
         _plog(q, func, "permuter produced no usable candidate")
-        return
+        return "none"
     if best_rc == 0:
-        replace_stub(cpath, func, best_cand)
+        replace_stub(cpath, func, seed_func_body(best_cand, func))
         ok, err = commit_seq(func, tu, commit_msg(func, tu))
         if ok:
             q["done"][func] = "matched"
             if func in q.get("parked", []):
                 q["parked"].remove(func)
             _plog(q, func, "permuter MATCH rc0 — committed")
-        else:
-            revert_tu(cpath)
-            _plog(q, func, f"permuter rc0 but commit failed: {err[:120]}")
-        return
+            return "matched"
+        revert_tu(cpath)
+        _plog(q, func, f"permuter rc0 but commit failed: {err[:120]}")
+        return "exhausted"
     best = (ML.load_state(func) or {}).get("best")
     if best is not None and best_rc < best:
-        # Improvement on an ALREADY-PARKED func (drain path): update the seed for
-        # a future resume but DO NOT `ml reset` — reset wipes best/stall and
-        # re-activates the loop (the stop-guard would then re-block on a func
-        # nobody is working). Leave the parked json (best>0, stall>=30) intact;
-        # the rc lower floor lives in the reseeded file and is re-found on resume.
+        # A STRICT improvement on the parked floor: always reseed tough_nuts so a
+        # future resume starts from the lower floor.
         seed = ROOT / "tough_nuts" / func / (func + ".c")
         seed.parent.mkdir(parents=True, exist_ok=True)
         seed.write_text(best_cand)
-        _plog(q, func, f"permuter improved seed rc{best}->rc{best_rc}; reseeded, stays parked")
-    else:
-        ml("record", func, "--permuted")
-        bs = f"rc{best}" if best is not None else "?"
-        _plog(q, func, f"permuter exhausted (best rc{best_rc} >= parked {bs})")
+        if active:
+            # Live stall=30 path: hand the lower floor back as a fresh `iterate`.
+            # Install it as the working scaffold, re-baseline (`ml reset` wipes
+            # best/stall so the model gets a clean 30-budget from the lower rc),
+            # un-park, and restore `current` so churn re-emits iterate. Re-activating
+            # the loop here is correct (unlike the drain path) because the model is
+            # actively grinding this func in THIS call.
+            replace_stub(cpath, func, seed_func_body(best_cand, func))
+            ml("reset", func, "--reason", f"permuter improved rc{best}->rc{best_rc}")
+            if func in q.get("parked", []):
+                q["parked"].remove(func)
+            q["done"].pop(func, None)
+            q["current"] = {"func": func, "tu": tu}
+            if func not in q["workspace_ready"]:
+                q["workspace_ready"].append(func)
+            _plog(q, func, f"permuter improved rc{best}->rc{best_rc}; handed back as iterate")
+        else:
+            _plog(q, func, f"permuter improved seed rc{best}->rc{best_rc}; reseeded, stays parked")
+        return "improved"
+    ml("record", func, "--permuted")
+    bs = f"rc{best}" if best is not None else "?"
+    _plog(q, func, f"permuter exhausted (best rc{best_rc} >= parked {bs})")
+    return "exhausted"
 
 
 def drain_permutes(q, wait=False):
@@ -509,9 +579,11 @@ def do_permute(q, func, tu, v):
     """Park the seed (commit it green), fire the permuter, and BLOCK until it
     finishes (bounded by PERMUTE_TIMEOUT), then harvest it IN-LINE so the verdict
     reflects the real outcome. The stall=30 step must not escape with the run
-    still cooking: the model has to learn, from this one call, whether the
-    permuter MATCHED (rc0, committed — func resolved) or was EXHAUSTED (no rc0 —
-    func stays parked, nothing more to do here). No 'harvest deferred' limbo."""
+    still cooking: the model has to learn, from this one call, the real result —
+    one of three: MATCHED (rc0, committed — func resolved → churn emits `done`);
+    IMPROVED (a lower non-zero floor — installed live, stall reset, un-parked, so
+    churn re-emits `iterate` on the lower-count diff to re-attack by hand); or
+    EXHAUSTED (no improvement — func stays parked). No 'harvest deferred' limbo."""
     cpath = ML.resolve_tu_path(tu)
     reason = v.get("reason", "stall>=30")
     # Seed the permuter from the BEST-count shape, not the live file. The stall=30
@@ -555,9 +627,11 @@ def do_permute(q, func, tu, v):
             os.killpg(rec["pgid"], signal.SIGKILL)
         except (ProcessLookupError, PermissionError):
             pass
-    # Harvest IN-LINE (tree is at the committed park, no edit in flight). This sets
-    # q["done"][func]="matched" + commits on rc0, else logs exhausted/reseeded.
-    harvest_pending(q, rec)
+    # Harvest IN-LINE (tree is at the committed park, no edit in flight). active=True:
+    # rc0 -> commit + matched; a lower non-zero floor -> install live, reset, un-park,
+    # restore `current` so churn re-emits iterate; else stays parked. (drain_permutes
+    # harvests background runs with active=False -> reseed-and-stay-parked.)
+    harvest_pending(q, rec, active=True)
     save_queue(q)
     return None
 
@@ -639,7 +713,7 @@ def setup_workspace(func, tu):
     is_resume = (ROOT / "tough_nuts" / func).is_dir() and seed.exists()
     if is_resume:
         if inc_line(func).search(cpath.read_text(errors="replace")):
-            replace_stub(cpath, func, seed.read_text(errors="replace"))
+            replace_stub(cpath, func, seed_func_body(seed.read_text(errors="replace"), func))
         ml("reset", func, "--reason", "resume via match_drive")   # MANDATORY re-baseline
         return "ok", "resume seed applied + reset"
     txt = cpath.read_text(errors="replace")
