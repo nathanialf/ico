@@ -60,16 +60,6 @@ MAX_CONCURRENT_PERMUTES = int(os.environ.get("MAX_PERMUTES", "2"))
 # not free; a long run can leave hundreds of output-*/ dirs).
 HARVEST_TOPN = int(os.environ.get("HARVEST_TOPN", "12"))
 NONNOVEL_LOUD = 3            # streak at which re-demand escalates to "reconsider"
-# Codegen-exhaustion fallback. A TINY function can be worked far past 30 ATTEMPTS
-# (iter) while its distinct-codegen count (stall) tops out well below the limit —
-# every new source shape folds to an already-seen codegen, so the stall=30
-# permuter gate is structurally unreachable and the loop spins forever. When the
-# model has made many attempts with a large re-demand gap (attempts ≫ distinct),
-# the human has genuinely exhausted hand shapes; fire the permuter on the best
-# seed via match_loop's documented `next --override permute` — the same
-# resolution a real stall=30 plateau reaches.
-EXHAUST_ITER = int(os.environ.get("EXHAUST_ITER", "40"))
-EXHAUST_REDEMAND_GAP = int(os.environ.get("EXHAUST_REDEMAND_GAP", "25"))
 SCOPES = ["fumi", "script", "common", "sugipon", "seki", "omori", "ito"]
 PY = sys.executable
 
@@ -613,22 +603,6 @@ def churn(q, just_edited=False, lever=None):
             if d.get("status") != "match" and not d.get("novel", True):
                 streak = q["nonnovel_streak"].get(func, 0) + 1
                 q["nonnovel_streak"][func] = streak
-                # Codegen-exhaustion fallback: the model keeps producing edits
-                # that fold to already-seen codegen on a func whose distinct count
-                # (stall) can't reach the limit => hand shapes are genuinely
-                # exhausted and the stall=30 permuter gate is unreachable. Fire the
-                # permuter on the best seed via match_loop's sanctioned override
-                # instead of spinning re-demands forever.
-                _st = ML.load_state(func) or {}
-                _it, _sl = _st.get("iter") or 0, _st.get("stall") or 0
-                if _it >= EXHAUST_ITER and (_it - _sl) >= EXHAUST_REDEMAND_GAP:
-                    rcx, vdx = ml("next", func, "--override", "permute")
-                    if isinstance(vdx, dict) and vdx.get("action") == "permute":
-                        _plog(q, func, f"codegen-exhaustion (re-demand): iter={_it} "
-                                       f"stall={_sl} — firing permuter on best seed")
-                        if not do_permute(q, func, tu, vdx):
-                            drain_permutes(q, wait=True)
-                        continue
                 _stamp(q, "re-demand")
                 emit(redemand_obj(func, tu, d, streak))
             q["nonnovel_streak"][func] = 0
@@ -639,20 +613,6 @@ def churn(q, just_edited=False, lever=None):
         if not isinstance(vd, dict):
             return emit_blocker(q, func, f"next failed:\n{str(vd)[-400:]}", "next")
         act = vd.get("action")
-        # Codegen-exhaustion fallback (see EXHAUST_ITER comment): a tiny function
-        # worked far past 30 ATTEMPTS whose distinct-codegen count (stall) can't
-        # reach the limit would otherwise spin forever. Escalate to the permuter
-        # on the best seed via the sanctioned `--override permute`.
-        if (act == "iterate" and isinstance(vd.get("iter"), int)
-                and isinstance(vd.get("stall"), int)
-                and vd["iter"] >= EXHAUST_ITER
-                and (vd["iter"] - vd["stall"]) >= EXHAUST_REDEMAND_GAP):
-            rc2, vd2 = ml("next", func, "--override", "permute")
-            if isinstance(vd2, dict) and vd2.get("action") == "permute":
-                _plog(q, func, f"codegen-exhaustion: iter={vd['iter']} stall={vd['stall']}"
-                               f" — firing permuter on best seed (override)")
-                vd2["_exhausted"] = True
-                act, vd = "permute", vd2
         if act == "iterate":
             _stamp(q, "iterate")
             emit(iterate_obj(func, tu, d, kind="iterate"))
@@ -665,12 +625,6 @@ def churn(q, just_edited=False, lever=None):
         elif act == "permute":
             if do_permute(q, func, tu, vd):
                 return
-            if vd.get("_exhausted"):
-                # Terminal exhaustion fallback: block on this one permuter run +
-                # harvest so the func resolves in-turn (rc0 → commit, else the
-                # run dir + `permuted` make it a legit park) instead of leaving
-                # the loop owing it across many drain passes.
-                drain_permutes(q, wait=True)
         elif act == "diff":
             continue
         else:
