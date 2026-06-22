@@ -68,7 +68,36 @@ void makeCollisionBlockTable(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", _Clip);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", __ClipWall);
+extern void MatrixDrive_TurnObjectMatrix(void *a0, void *a1);
+extern float MatrixDrive_GetTurnZAngleYX(void *a0, void *a1);
+extern float func_001669D0(void *a0, void *a1);
+extern void func_0023FFF0(void *a0, void *a1, void *a2);
+extern void func_00240008(void *a0, void *a1, void *a2);
+extern void func_00240038(void *a0, void *a1, float a2);
+extern void func_00240968(void *a0, void *a1, float a2);
+
+void __ClipWall(char *a0, float arg0, float arg1) {
+    float buf0[4];
+    float L10[4];
+    float L20[4];
+    float z;
+
+    MatrixDrive_TurnObjectMatrix(L10, a0 + 0xA0);
+    *(int *) &L10[3] = 0;
+    func_00240008(buf0, a0 + 0x10, a0);
+    func_00240038(a0 + 0x30, L10, -func_001669D0(L10, buf0));
+    func_0023FFF0(a0 + 0x40, buf0, a0 + 0x30);
+    func_00240968(a0 + 0x30, a0 + 0x30, arg1);
+    func_00240968(a0 + 0x40, a0 + 0x40, arg0);
+    func_0023FFF0(a0 + 0x60, a0 + 0x40, a0 + 0x30);
+    {
+        float *p20 = L20;
+        z = MatrixDrive_GetTurnZAngleYX(a0 + 0x20, a0 + 0x10);
+        func_00240038(p20, a0 + 0x60, z / MatrixDrive_GetTurnZAngleYX(a0, a0 + 0x10));
+        func_0023FFF0(a0 + 0x50, a0 + 0x20, p20);
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", __ClipFloor);
 
