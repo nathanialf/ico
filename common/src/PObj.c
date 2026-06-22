@@ -6346,7 +6346,33 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00259878);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00259958);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00259B80);
+typedef struct { char _0[0x50]; unsigned char f50; unsigned char f51; char _52[6]; } P16Ent;
+
+void func_00259B80(int a0) {
+    unsigned int idx = a0 & 0x7FFF;
+    if (idx < 0x30) {
+        volatile int *p17 = func_00254FE0(idx);
+        *p17 |= 0x2000;
+        if (*p17 & 0x4) {
+            int mask8000 = a0 & 0x8000;
+            P16Ent *p16 = func_00254FC8(0);
+            char *p19 = func_00254FF8();
+            int i;
+            *p17 &= 0xFFFFFF77;
+            *p17 |= 0x40;
+            for (i = 0; i < 0x30; i++, p16++) {
+                if (p16->f51 != 2) continue;
+                if (p16->f50 != idx) continue;
+                if (mask8000) {
+                    func_00255580(2, i, 0, 0);
+                }
+                *(long long *) (p19 + 0x28) |= 1LL << i;
+            }
+        }
+        *p17 &= 0xFFFFDFFF;
+    }
+}
+
 
 extern void *func_00254FE0(int a0);
 extern void func_00259B80(int a0);
