@@ -206,7 +206,34 @@ extern int D_0027E730[];
 typedef struct { float x, y, z, w; } __attribute__((aligned(8))) Vec4;
 typedef struct { Vec4 a, b; } Vec4Pair;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_00157E70);
+void func_00157E70(void *a0, float arg0, float arg1) {
+    Vec4 v[3];
+    Vec4 *vp = v;
+    float x, z;
+    int p;
+
+    func_00104D20();
+    x = ((float *) a0)[0];
+    z = ((float *) a0)[2];
+    vp[2].y = arg1; vp[2].x = x; vp[2].z = z; vp[2].w = 1.0f;
+    vp[1].y = arg0; vp[1].x = x; vp[1].z = z; vp[1].w = 1.0f;
+    vp[0] = vp[1];
+    vp[1] = vp[2];
+    p = func_00105078();
+    func_00118AA0(p);
+    gif_SpriteOffset(0xB);
+    func_001D1DF0((int *) &vp[1], D_0027E730, (int *) &vp[0], D_0027E730, 0);
+    func_00104D20();
+    func_001050A8(&vp[0]);
+    reg_dispBoxLine(D_0027E730, 4, 4, 10.0f);
+    func_00105068();
+    func_00104D20();
+    func_001050A8(&vp[1]);
+    reg_dispBoxLine(D_0027E730, 4, 4, 10.0f);
+    func_00105068();
+    func_0010F9D0();
+    func_00105068();
+}
 
 
 extern void func_00104D20(void);
