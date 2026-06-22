@@ -6039,7 +6039,43 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002565E0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002567C0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00256960);
+int func_00256960(void) {
+    int *mgr = func_00254FF8();
+    int best_idx = -1;
+    int best_val = -1;
+    int i;
+    int idx;
+    unsigned char *obj;
+    int divisor;
+    int one;
+
+    i = 0;
+    do {
+        idx = (unsigned int)mgr[0xC] % 0x30;
+        obj = func_00254FC8(idx);
+        if ((*(int *)obj & 0x100) == 0 && obj[0x51] == 0) {
+            return idx;
+        }
+        mgr[0xC]++;
+    } while (++i < 0x30);
+    divisor = 0x30;
+    one = 1;
+    i = 0x2F;
+    do {
+        idx = (unsigned int)mgr[0xC] % divisor;
+        obj = func_00254FC8(idx);
+        if ((*(int *)obj & 0x100) == 0 && obj[0x51] == one) {
+            int v = *(int *)(obj + 4);
+            if ((unsigned int)v < (unsigned int)best_val) {
+                best_idx = idx;
+                best_val = v;
+            }
+        }
+        mgr[0xC]++;
+    } while (--i >= 0);
+    return best_idx;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00256A98);
 
