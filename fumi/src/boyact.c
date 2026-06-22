@@ -289,7 +289,50 @@ int actBoyCliffHesitate(void) {
     return 0x18;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyHangBefore);
+typedef struct { int d[6]; } HB_S18;
+typedef struct { int d[2]; } HB_S8;
+extern void *D_00629DE4;
+extern void *D_00629DE8;
+extern long long D_006A45A0[];
+extern int D_006A4600[];
+extern int D_0027DF70[];
+extern void SetStatusBoy_OtherStageGirlPinch(void);
+
+void actBoyHangBefore(void) {
+    char *boy = (char *)D_00629DE4;
+    char *dst = (char *)D_006A4600;
+
+    *(HB_S18 *)D_006A4600 = *(HB_S18 *)D_0027DF70;
+
+    if (boy != 0) {
+        char *p = *(char **)(boy + 0x164);
+        char *a = *(char **)(p + 0x130);
+        if (a != 0) {
+            *(int *)(dst + 0x8) = *(int *)(a + 0x8);
+        }
+        a = *(char **)(p + 0x134);
+        if (a != 0) {
+            *(int *)(dst + 0xC) = *(int *)(a + 0x8);
+        }
+        if (*(int *)(p + 0x30) == 0x2D) {
+            *(int *)(dst + 0x10) = *(int *)(*(char **)(p + 0x140) + 0x8);
+        }
+        if (D_00629DE8 != 0 &&
+            *(int *)(*(char **)((char *)D_00629DE8 + 0x164) + 0x30) == 0x2D) {
+            *(int *)(dst + 0x14) |= 1;
+        }
+        SetStatusBoy_OtherStageGirlPinch();
+        {
+            unsigned long long v = D_006A45A0[1];
+            *(int *)(dst + 0x14) =
+                (*(int *)(dst + 0x14) & 0xFFFEFFFF) |
+                (((unsigned char)(v >> 0x22) & 1) << 0x10);
+            *(char *)(dst + 0x15) = (unsigned char)(v >> 0x21) & 1;
+        }
+        *(HB_S8 *)dst = *(HB_S8 *)((char *)D_006A45A0 + 0x50);
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyReadyMove);
 
