@@ -4029,7 +4029,47 @@ extern int D_0054C884[];
 extern int D_0054C89C[];
 extern int D_0054C92C[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024E3E8);
+int func_0024E3E8(int a0, int a1, int a2) {
+    char *self = (char *) a0;
+    char *p16 = *(char **) (self + 0x40);
+    int flag = 0;
+    int rv;
+    int t;
+    int d;
+    int c;
+
+    if (a2 == -1 || a1 < a2) {
+        if (*(int *) (p16 + 0x8) == 0) {
+            *(int *) (self + 0x8) = 0;
+            *(int *) (p16 + 0x8) = 1;
+        }
+        if (func_00253570(0)) {
+            t = func_002533D8(D_0054C884[0], *(int *) (p16 + 0x4)) != 0;
+        } else {
+            t = 0;
+        }
+        rv = t;
+    } else {
+        rv = func_00253570(0);
+        flag = 1;
+        func_0024E0D8(self);
+    }
+    func_002534B8(D_0054C884[0], *(int *) (p16 + 0x4));
+    if (D_0054C92C[0] != 3) {
+        if (flag == 0) {
+            D_0054C89C[0] = (D_0054C89C[0] == 0);
+        }
+    }
+    d = D_0054C884[0];
+    c = D_0054C89C[0];
+    *(int *) (self + 0x8) = d - *(int *) (p16 + 0xAC);
+    if (c == 0) {
+        int f4 = *(int *) (p16 + 0x4);
+        D_0054C884[0] = d + 1;
+        *(int *) (p16 + 0x4) = f4 + 1;
+    }
+    return rv;
+}
 
 
 extern int D_0054C92C[];
