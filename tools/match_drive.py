@@ -50,10 +50,11 @@ STATE_DIR = ML.STATE_DIR
 QUEUE = STATE_DIR / "_drive_queue.json"
 VERSION = os.environ.get("VERSION", "aug6")
 PERMUTE_TIMEOUT = int(os.environ.get("PERMUTE_TIMEOUT", "600"))
-# Max permuters allowed to run concurrently in the background. A park fires its
-# permuter detached + bounded and the driver moves on; finished runs are
-# harvested on a later pass. This cap stops parks from stacking unbounded
-# background jobs (the leak that motivated the rework).
+# A stall=30 park now fires its permuter and BLOCKS to completion, harvesting it
+# in-line so the step returns the real outcome (matched / exhausted) — see
+# do_permute. This cap only bounds any LEGACY detached runs still pending from an
+# older queue (drained before a new synchronous run); the synchronous path is
+# serial by construction, so it never stacks background jobs.
 MAX_CONCURRENT_PERMUTES = int(os.environ.get("MAX_PERMUTES", "2"))
 # How many lowest-score candidate outputs to evaluate per harvest (diff --dry is
 # not free; a long run can leave hundreds of output-*/ dirs).
@@ -515,9 +516,12 @@ def drain_permutes(q, wait=False):
 
 
 def do_permute(q, func, tu, v):
-    """Park the seed (commit it green), then fire the permuter DETACHED and
-    time-bounded and advance immediately — the driver does NOT block on the run.
-    Finished runs are harvested by drain_permutes on a later pass."""
+    """Park the seed (commit it green), fire the permuter, and BLOCK until it
+    finishes (bounded by PERMUTE_TIMEOUT), then harvest it IN-LINE so the verdict
+    reflects the real outcome. The stall=30 step must not escape with the run
+    still cooking: the model has to learn, from this one call, whether the
+    permuter MATCHED (rc0, committed — func resolved) or was EXHAUSTED (no rc0 —
+    func stays parked, nothing more to do here). No 'harvest deferred' limbo."""
     cpath = ML.resolve_tu_path(tu)
     reason = v.get("reason", "stall>=30")
     # Seed the permuter from the BEST-count shape, not the live file. The stall=30
@@ -539,19 +543,31 @@ def do_permute(q, func, tu, v):
         return emit_blocker(q, func, "ninja after park(permute) failed:\n" + out[-400:], "permute")
     run(["git", "add", "-A"])
     run(["git", "commit", "-m", f"park {func} ({tu}) — pre-permute seed"])
-    # Reclaim any finished background slots, then fire (if under the cap) and move
-    # on. A run that can't launch now is simply re-attempted on a future resume.
+    # Reap any older background runs first (they may have finished while the human
+    # was grinding), so they don't collide with this synchronous run's harvest.
     drain_permutes(q)
-    pend = q.setdefault("permutes_pending", [])
-    if len(pend) < MAX_CONCURRENT_PERMUTES:
-        pend.append(launch_permute(func, tu))
-        _plog(q, func, f"permuter launched (bounded {PERMUTE_TIMEOUT}s, backgrounded); harvest deferred")
-    else:
-        _plog(q, func, f"permute slots full ({len(pend)}/{MAX_CONCURRENT_PERMUTES}); "
-                       f"parked without a permuter — re-attempt on resume")
+    # Mark parked BEFORE harvesting: harvest_pending's rc0 path removes the func
+    # from q["parked"] and flips it to "matched", so the state must be set first.
     q["done"][func] = "parked"
-    q["parked"].append(func)
+    if func not in q["parked"]:
+        q["parked"].append(func)
     q["current"] = None
+    save_queue(q)
+    # Fire and BLOCK to completion (bounded). The run exits on its own when it has
+    # found rc0 or exhausted its search; the deadline is only the hard ceiling.
+    rec = launch_permute(func, tu)
+    _plog(q, func, f"permuter launched (bounded {PERMUTE_TIMEOUT}s, BLOCKING to completion)")
+    save_queue(q)
+    while _pg_alive(rec["pgid"]) and now() < rec.get("deadline", 0):
+        time.sleep(5)
+    if _pg_alive(rec["pgid"]):                       # overran the bound — reap it
+        try:
+            os.killpg(rec["pgid"], signal.SIGKILL)
+        except (ProcessLookupError, PermissionError):
+            pass
+    # Harvest IN-LINE (tree is at the committed park, no edit in flight). This sets
+    # q["done"][func]="matched" + commits on rc0, else logs exhausted/reseeded.
+    harvest_pending(q, rec)
     save_queue(q)
     return None
 
