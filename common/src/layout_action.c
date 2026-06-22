@@ -10,7 +10,53 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_TESTFUNCTION);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", _la_mcard_error_check);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", _la_memory_card_check);
+extern void init_layout_texture(void);
+extern void kanbanBootMain(void);
+extern void kanbanBootMcCheck(void);
+extern void GetRealModelId(int a0, int a1);
+extern void func_001ADFF8(void);
+extern int initSceneGObj(int a0);
+typedef struct { int _0; int f4; char _8[0x50]; } LaFlags;
+extern LaFlags D_002715D0;
+typedef struct { char _0[0x2C]; int f2C; } LaMcState;
+extern LaMcState D_00271240;
+extern int D_0062B30C;
+
+int _la_memory_card_check(void) {
+    int i;
+    int v;
+
+    init_layout_texture();
+    if (D_002715D0.f4 & 0x8000) {
+        v = D_00271240.f2C;
+        if (v > 0) {
+            kanbanBootMain();
+            D_00271240.f2C = v - 1;
+        }
+    } else if (D_002715D0.f4 & 0x2000) {
+        v = D_00271240.f2C;
+        if (v < 0xE) {
+            kanbanBootMain();
+            D_00271240.f2C = v + 1;
+        }
+    }
+    if (D_002715D0.f4 & 0x10) {
+        kanbanBootMcCheck();
+        D_00271240.f2C = 7;
+    }
+    for (i = 0; i < 0xF; i++) {
+        GetRealModelId(i + 0x158, 1);
+    }
+    GetRealModelId(D_00271240.f2C + 0x158, 0);
+    if (D_002715D0.f4 & 0x40) {
+        func_001ADFF8();
+        initSceneGObj(0);
+        D_0062B30C = 0;
+        return 0x36;
+    }
+    return -1;
+}
+
 
 extern int D_0062B2E8;
 extern int D_0062B31C;
