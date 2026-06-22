@@ -42,7 +42,54 @@ extern float stage_SetParentOfGObj(int a0, void *a1, void *a2, float a3);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", BoyBgaManager);
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", E3_StageStartBoy);
+typedef struct { char pad[4]; float f4; } CCPResult;
+extern unsigned char D_0062BFDE;
+extern unsigned char D_0062BFDF;
+extern unsigned char D_0062BFE0;
+extern void *subCommonIdle(void *a0);
+extern void func_00240038(void *a0, void *a1, float a2);
+extern CCPResult *ContinueCorrectPosition(void *a0);
+extern void func_0023FFF0(void *a0, void *a1, void *a2);
+extern void CylinderCollision(void *a0, void *a1);
+extern int func_00178DB0(int a0);
+extern void func_00178E08(int a0);
+extern int staffRollScroll(void *a0, int a1, int a2, int *p, int *q, int *r);
+extern void _ACTWait(int a0);
+extern void func_001790A8(void *a0);
+extern void BoySekikaTexScroll(void *a0, int a1);
+extern void func_001790E8(void *a0);
+
+void E3_StageStartBoy(void *a0) {
+    float buf[4];
+    int w10, w14, w18;
+
+    if (D_0062BFDE) {
+        func_00240038(buf, subCommonIdle(a0), 100.0f);
+        func_0023FFF0(buf, buf, ContinueCorrectPosition(a0));
+        CylinderCollision(a0, buf);
+    }
+    if (func_00178DB0(0x15B)) {
+        func_00178E08(0x15B);
+        return;
+    }
+    if (staffRollScroll(a0, 0, 0, &w10, &w14, &w18)) {
+        if (D_0062BFE0) {
+            return;
+        }
+        if (D_0062BFDF) {
+            return;
+        }
+        _ACTWait(3);
+        staffRollScroll(a0, 0, 0, &w10, &w14, &w18);
+        _ACTWait(w10);
+        func_001790A8(a0);
+        BoySekikaTexScroll(a0, 7);
+        _ACTWait(w14);
+        func_001790E8(a0);
+        _ACTWait(w18);
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", GetChainSlope);
 
@@ -75,7 +122,6 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", PutWeapon);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", OtherStageGirlPinchCamera_After);
 
-typedef struct { char pad[4]; float f4; } CCPResult;
 
 extern void *D_00629DE4;
 extern void *D_00629DE8;
