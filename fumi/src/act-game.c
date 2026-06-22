@@ -338,7 +338,62 @@ int ACTGameCollisionOff(int *self)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_CheckItemMotion);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_CheckHandMotion);
+extern void func_00260568(void *dst, int val, int len);
+extern void func_00240080(void *buf, int x);
+extern void ClipWallBoxStop(void *buf);
+extern void fzMagnitudefv(void *out, int n, void *vec);
+
+typedef struct {
+    char _00[0x20];
+    float _20, _24, _28;
+    char _2c[0x44];
+    float _70;
+    char _74[0x0C];
+    float _80;
+    char _84[0x04];
+    int _88;
+    char _8c[0x0C];
+    int _98;
+    char _9c[0x24];
+} HandWork;
+
+int ACTGame_CheckHandMotion(float f, void *hand0, void *hand1, void *actor, void *posout, void *magtarget, int *flagout) {
+    HandWork work;
+    int flag;
+    int rv;
+    int cnt;
+
+    func_00260568(&work, 0, 0xC0);
+    rv = 1;
+    flag = actor ? *(int *) ((char *) *(int *) ((char *) actor + 0x15C) + 0x74) : 0;
+    work._70 = f;
+    func_00240080(&work, (int) hand0);
+    func_00240080((char *) &work + 0x10, (int) hand1);
+    if (flag != 0) {
+        *(int *) ((char *) *(int *) ((char *) actor + 0x15C) + 0x74) = 0;
+    }
+    ClipWallBoxStop(&work);
+    if (flagout != 0) {
+        *flagout = work._98;
+    }
+    cnt = work._88;
+    if (cnt == 0) {
+        rv = 0;
+    }
+    if (posout != 0) {
+        *(float *) ((char *) posout + 0) = work._20;
+        *(float *) ((char *) posout + 4) = work._24;
+        *(float *) ((char *) posout + 8) = work._28;
+    }
+    if (cnt != 0 && magtarget != 0) {
+        fzMagnitudefv(magtarget, cnt, &work._80);
+    }
+    if (flag != 0) {
+        *(int *) ((char *) *(int *) ((char *) actor + 0x15C) + 0x74) = 1;
+    }
+    return rv & 0xFF;
+}
+
 
 extern void func_00260568(void *dst, int val, int n);
 extern void func_00240080(void *buf, int x);
