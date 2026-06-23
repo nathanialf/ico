@@ -179,7 +179,30 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_001674F0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00167630);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00167798);
+int func_00167798(void *a0, int a1, int a2) {
+    int ret = 0;
+    int i;
+
+    for (i = 0; i < D_0062C01C; i++) {
+        short *p = D_0062C020->unk18[D_006A4B40[i]];
+        if (p != 0 && *p >= 0) {
+            unsigned short v = *p;
+            do {
+                int e = D_0062C020->unk10 + (short)v * 0x50;
+                if ((*(int *)(e + 0x48) & 0xC0000000) == 0xC0000000) {
+                    if (__ClipFloor(a0, e, 0, 1)) {
+                        *(int *)((char *)a0 + 0x88) = e;
+                        ret = 1;
+                        *(int *)((char *)a0 + 0x80) = a1;
+                        *(int *)((char *)a0 + 0x84) = a2;
+                    }
+                }
+                p++;
+            } while (*p >= 0 && (v = *p, 1));
+        }
+    }
+    return ret;
+}
 
 
 /* func_001678D8 */
