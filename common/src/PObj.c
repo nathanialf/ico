@@ -3127,7 +3127,65 @@ void func_0024A228(int a0, int a1) {
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024A358);
+extern char D_FFFF[];
+extern int D_00711280[];
+extern int D_0054C648[];
+extern int D_0054C64C[];
+extern char D_00628C50[];
+extern char D_00628C78[];
+extern int func_002427A8();
+extern int func_0024B500(void);
+extern int func_0024A498(int a0);
+
+typedef struct GEnt { char pad0[0x24]; int f24; } GEnt;
+extern GEnt D_00711280g[] __asm__("D_00711280");
+
+int func_0024A358(int a0) {
+    char *p;
+    char *q;
+    int i;
+    int v;
+    int hi;
+
+    *(volatile int *)D_0054C648 = 1;
+    for (;;) {
+        p = (char *)D_00711280;
+        func_002427A8(p, 0x80000100, 0);
+        if (*(int *)(p + 0x24) != 0) {
+            break;
+        }
+        i = 0x10000;
+        do {
+            __asm__ volatile ("addiu %0,%0,%%lo(D_FFFF)" : "+r"(i));
+        } while (i != -1);
+    }
+    {
+        char *t = p + 0x28;
+        q = p;
+        p = t;
+    }
+    for (;;) {
+        func_002427A8(p, 0x80000101, 0);
+        if (*(int *)(q + 0x4C) != 0) {
+            break;
+        }
+        i = 0x10000;
+        do {
+            __asm__ volatile ("addiu %0,%0,%%lo(D_FFFF)" : "+r"(i));
+        } while (i != -1);
+    }
+    v = func_0024B500();
+    hi = v >> 8;
+    if (hi != 4) {
+        if (D_0054C64C[0] != 0) {
+            func_00260668(D_00628C50);
+            func_00260668(D_00628C78, 4, 0, hi, v & 0xFF);
+        }
+        return 0;
+    }
+    return func_0024A498(a0);
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024A498);
 
