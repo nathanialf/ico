@@ -1,6 +1,32 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", actSt05cDoorDownChk);
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void gflagInit(int a0);
+extern int D_004CCA40[];
+extern void func_0021C7A0(void);
+extern void BoxBarSoundOn(int a0, int a1);
+
+typedef struct GObj {
+    char pad[0xB4];
+    int *unkB4;
+} GObj;
+
+void actSt05cDoorDownChk(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0xBB) != 0 || func_00178DB0(0xBD) != 0) {
+        gflagInit(0x404);
+    } else {
+        D_004CCA40[1] = (int)func_0021C7A0;
+        gobj->unkB4 = D_004CCA40;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    }
+}
+
 
 extern int actInitialize(int a0);
 extern void _ACTWait(int a0);
