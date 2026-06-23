@@ -6952,7 +6952,6 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025A868);
 extern float func_0025B3A0(float, float);
 extern int func_0025CD78(float);
 extern int func_0025C9A0(void *);
-extern int func_0025F748();
 extern int func_00260340(float);
 extern int D_00629490[];
 extern int D_00629998[];
@@ -6969,7 +6968,61 @@ typedef struct {
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025A968);
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025AA90);
+/* m2c scaffold from asm/aug6/nonmatchings/common/src/PObj/func_0025AA90.s (target mipsel-gcc-c, context-free).
+ * NOT a match — reshape into a goto-CFG-mirror + recover intent (see decomp-match skill). */
+extern int D_00629998[];
+
+float func_0025AA90(float a, float b) {
+    extern float func_0025B688(float a0, float a1);
+    extern float func_0025F748(long a0);
+    extern int D_00629498[];
+    extern long D_006294A0[];
+    struct {
+        int f0;
+        void *f4;
+        long f8;
+        long f10;
+        long f18;
+        int f20;
+    } buf;
+    float f22;
+    int s0;
+
+    f22 = func_0025B688(a, b);
+    s0 = D_00629998[0];
+    if (s0 == -1) {
+        goto early;
+    }
+    if (func_0025CD78(b)) {
+        goto early;
+    }
+    if (func_0025CD78(a)) {
+        goto early;
+    }
+    if (b != 0.0f) {
+        goto early;
+    }
+    buf.f0 = 1;
+    buf.f4 = D_00629498;
+    buf.f20 = 0;
+    buf.f8 = func_00260340(a);
+    buf.f10 = func_00260340(b);
+    if (s0 == 0) {
+        buf.f18 = func_00260340(a);
+    } else {
+        buf.f18 = D_006294A0[0];
+    }
+    if (D_00629998[0] == 2 || func_0025C9A0(&buf) == 0) {
+        *(int *)func_002603E0() = 0x21;
+    }
+    if (buf.f20 != 0) {
+        *(int *)func_002603E0() = buf.f20;
+    }
+    return func_0025F748(buf.f18);
+early:
+    return f22;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025ABD0);
 
