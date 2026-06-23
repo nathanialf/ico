@@ -101,7 +101,19 @@ extern int D_004CCAA0[];
 extern void actSt05eSolar(void);
 extern void BoxBarSoundOn(int a0, int a1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", func_00220918);
+void func_00220918(volatile int a0) {
+    void *new_var;
+    void *new_var2;
+    DoorSub *s;
+    s = *((DoorSub **)(a0 + 0x164));
+    new_var2 = (D_004CCAA0[1] = (int)(void *)actSt05eSolar, (void *)actSt05eSolar);
+    s->field_B4 = (void *)D_004CCAA0;
+    new_var = new_var2;
+    D_0062A894 = 1;
+    s->field_B0 = (void *)0;
+    BoxBarSoundOn(a0, 0x189);
+    _ACTWait(0);
+}
 
 
 extern int D_004CCAC0[];
