@@ -168,7 +168,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00166FC0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00167120);
 
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00167270);
+
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_001673B0);
 

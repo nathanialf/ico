@@ -148,39 +148,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00166AF8);
 typedef struct {
     char _0[0x10];
     int unk10;
-    char _14[0x4];
+    int unk14;
     short **unk18;
+    short **unk1C;
 } FuzioCtx;
 extern int D_0062C01C;
 extern FuzioCtx *D_0062C020;
 extern short D_006A4B40[];
 extern int __ClipFloor(void *a0, int a1, int a2, int a3);
 
-int func_00166BD8(void *a0, int a1, int a2) {
-    int found = 0;
-    int i = 0;
-    if (D_0062C01C > 0) {
-        do {
-            FuzioCtx *t5 = D_0062C020;
-            short *p = t5->unk18[D_006A4B40[i]];
-            if (p != 0 && *p >= 0) {
-                do {
-                    int addr = t5->unk10 + (int) *p * 0x50;
-                    if (__ClipFloor(a0, addr, 0, 1) != 0) {
-                        *(int *)((char *)a0 + 0x88) = addr;
-                        found = 1;
-                        *(int *)((char *)a0 + 0x80) = a1;
-                        *(int *)((char *)a0 + 0x84) = a2;
-                    }
-                    p++;
-                    t5 = D_0062C020;
-                } while (*p >= 0);
-            }
-            i++;
-        } while (i < D_0062C01C);
-    }
-    return found;
-}
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00166BD8);
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00166D00);
@@ -190,6 +167,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00166E50);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00166FC0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00167120);
+
 
 int func_00167270(void *a0, int a1, int a2) {
     int found = 0;
@@ -218,6 +196,7 @@ int func_00167270(void *a0, int a1, int a2) {
 }
 
 
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_001673B0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_001674F0);
@@ -226,13 +205,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00167630);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00167798);
 
+/* func_001678D8 */
+extern int DrawGObjWallCollision(void *a0, int a1, int a2);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_001678D8);
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00167A00);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00167B48);
 
+/* func_00167C88 */
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00167C88);
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00167DB0);
 
