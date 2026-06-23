@@ -5633,7 +5633,47 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00251F98);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00252020);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002521A0);
+extern int func_00252468();
+extern int func_00252870();
+extern void func_00251F98();
+extern int func_00251298(void);
+
+void func_002521A0(char *a0, char *a1, void *a2, void *a3, int a4, int a5, int a6) {
+    void *r;
+    int r2;
+
+    r = (void *)func_00252468(2);
+    if (a2 == 0) goto c1z;
+    if (r == 0) { r2 = 0; goto c1c; }
+    r2 = func_00252870(a2);
+    goto c1c;
+c1z:
+    r2 = 0;
+c1c:
+    func_00251F98(a0, a2, r, r2, a6);
+    if (a4 != 0) {
+        *(int *)a1 = func_00251298();
+    }
+    r = (void *)func_00252468(2);
+    if (a3 == 0) goto c2z;
+    if (r == 0) { r2 = 0; goto c2c; }
+    r2 = func_00252870(a3);
+    goto c2c;
+c2z:
+    r2 = 0;
+c2c:
+    if (a5 != 0) {
+        *(int *)(a0 + 4) = *(int *)(a0 + 4) >> 1;
+    }
+    func_00251F98(a0 + 4, a3, r, r2, a6);
+    if (a5 != 0) {
+        *(int *)(a0 + 4) = *(int *)(a0 + 4) * 2;
+    }
+    if (a4 != 0) {
+        *(int *)(a1 + 4) = func_00251298();
+    }
+}
+
 
 extern int D_0054D088[];
 extern int D_0054C7A4[];
