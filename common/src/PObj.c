@@ -3335,7 +3335,66 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024AB28);
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024AC48);
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024AD68);
+int func_0024AD68(int a0, int a1, int a2, int a3) {
+    int q;
+    int t72;
+    int v;
+
+    if (D_007112D0[a0][a1].f10 == 0) {
+        return 0;
+    }
+    q = func_0024A858(a0, a1);
+    t72 = *(unsigned char *)(q + 0x72);
+    if (t72 == 1 && *(unsigned char *)(q + 0x71) != 2) {
+    if (a2 == 2) {
+        goto case2;
+    }
+    if (a2 >= 3) {
+        goto ge3;
+    }
+    if (a2 == t72) {
+        goto case1;
+    }
+    return 0;
+ge3:
+    if (a2 == 3) {
+        goto case3;
+    }
+    if (a2 == 4) {
+        goto case4;
+    }
+    return 0;
+case1:
+    v = *(unsigned char *)(q + 0x65);
+    if (v == 0xF3) {
+        return 0;
+    }
+    return v >> 4;
+case2:
+    if (*(unsigned char *)(q + 0x64) == t72) {
+        return 0;
+    }
+    return *(unsigned short *)(q + (*(unsigned char *)(q + 0x69) << 1) + 0x50);
+case3:
+    if (*(unsigned char *)(q + 0x64) == t72) {
+        return 0;
+    }
+    return *(unsigned char *)(q + 0x69);
+case4:
+    if (*(unsigned char *)(q + 0x64) == t72) {
+        return 0;
+    }
+    if (a3 == -1) {
+        return *(unsigned char *)(q + 0x68);
+    }
+    if (a3 >= (int)*(unsigned char *)(q + 0x68)) {
+        return 0;
+    }
+    return *(unsigned short *)(q + (a3 << 1) + 0x50);
+    }
+    return 0;
+}
+
 
 int func_0024AEA0(int a0, int a1, int a2, int a3) {
     int *s0 = D_007115C0;
