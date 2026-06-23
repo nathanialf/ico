@@ -1405,7 +1405,55 @@ void *func_002426A8(int a0, void *a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002426F8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002427A8);
+int func_002427A8(void *a0, int a1, int a2) {
+    extern void *func_00242300(void *a0);
+    extern int func_00100520(int *a0);
+    extern int func_00248250(int a0, int a1, int a2, int a3, int a4, int a5);
+    extern int func_00100530(int a0);
+    extern void func_00100560(int a0);
+    extern int D_0070E240[];
+    void *obj;
+    int buf[8];
+
+    *(int *)((char *)a0 + 0x10) = 0;
+    *(int *)((char *)a0 + 0x24) = 0;
+    obj = func_00242300(D_0070E240);
+    if (obj == 0) {
+        return -1;
+    }
+    *(void **)((char *)a0 + 0) = obj;
+    *(int *)((char *)a0 + 4) = *(int *)((char *)obj + 0x18);
+    *(int *)((char *)obj + 0x20) = a1;
+    *(void **)((char *)obj + 0x14) = obj;
+    *(void **)((char *)obj + 0x1C) = a0;
+    if ((a2 & 1) == 0) {
+        int r;
+        buf[1] = 1;
+        buf[2] = 0;
+        r = func_00100520(buf);
+        *(int *)((char *)a0 + 8) = r;
+        if (r < 0) {
+            func_002423A8(obj);
+            return -3;
+        }
+        if (func_00248250(0x80000009, (int)obj, 0x40, 0, 0, 0) == 0) {
+            func_002423A8(obj);
+            func_00100530(*(int *)((char *)a0 + 8));
+            return -2;
+        }
+        func_00100560(*(int *)((char *)a0 + 8));
+        func_00100530(*(int *)((char *)a0 + 8));
+        return 0;
+    } else {
+        *(int *)((char *)a0 + 8) = -1;
+        if (func_00248250(0x80000009, (int)obj, 0x40, 0, 0, 0) != 0) {
+            return 0;
+        }
+        func_002423A8(obj);
+        return -2;
+    }
+}
+
 
 void func_002428E8(int *a0) {
     int *a5 = (int *)a0[13];
