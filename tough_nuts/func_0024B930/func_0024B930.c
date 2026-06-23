@@ -3532,7 +3532,39 @@ extern char D_00712C00[];
 
 typedef struct { int unk0; int unk4; int unk8; char _C[0x407]; char unk413; } SomeBlk;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024B930);
+int func_0024B930(int a0, int a1, int a2, int a3) {
+    int ret;
+    char *b;
+    char *h;
+    SomeBlk *p;
+
+    if (func_00100570(D_0054C694[0]) < 0) {
+        return -0xC8;
+    }
+    b = D_00711640;
+    if (*(int *)(b + 0x24) == 0) {
+        func_00100540(D_0054C694[0]);
+        return -0x64;
+    }
+    if (a2 == 0 || *(char *)a2 == 0) {
+        func_00100540(D_0054C694[0]);
+        return -0xD2;
+    }
+    h = D_00711704;
+    func_00261900(h, (char *)a2, 0x3FF);
+    p = (SomeBlk *)(h - 0x14);
+    p->unk0 = a0;
+    p->unk8 = a3;
+    p->unk4 = a1;
+    p->unk413 = 0;
+    ret = func_00242978(b, 2, 1, p, 0x414, D_00712C00, 4, 0, 0);
+    if (ret == 0) {
+        *(int *)D_0054C690 = 2;
+    } else {
+        func_00100540(D_0054C694[0]);
+    }
+    return ret;
+}
 
 
 
