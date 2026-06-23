@@ -118,7 +118,15 @@ void actSt08aEne1(volatile int a0) {
 extern int D_004CCB00[];
 extern void actSt05eWaterMain(void);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", func_002209A8);
+void func_002209A8(volatile int a0) {
+    DoorSub *s = *((DoorSub **)(a0 + 0x164));
+    D_004CCB00[1] = (int)actSt05eWaterMain;
+    s->field_B4 = (void *)D_004CCB00;
+    D_0062A894 = 1;
+    s->field_B0 = (void *)0;
+    BoxBarSoundOn(a0, 0x189);
+    _ACTWait(0);
+}
 
 
 extern int D_004CCB20[];

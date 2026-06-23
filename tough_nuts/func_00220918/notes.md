@@ -153,3 +153,12 @@ glabel func_00220918
     /* 12096C 0022096C 2000BD27 */   addiu     $29, $29, 0x20
 endlabel func_00220918
 ```
+
+## PERMUTER RUN 2026-06-23 — PARKED (did not beat rc4)
+Driver fired the bounded permuter at stall=30, seeded from the clean rc4.
+Best outputs: rc7/rc8/rc12/rc13 — none rc0, NONE beat the rc4 hand floor.
+Confirmed permuter-class holdout; PARKED (resolution b). The §2.7
+const-arg-vs-store / breadth-first-lui tie is not crackable by clean source
+or the bounded permuter. Clean rc4 dev shape (typed DoorSub door idiom,
+no temps) is the recovered C. Clones func_002209A8 / func_00220A38 are the
+same idiom (different D_/handler symbols) → same outcome expected.
