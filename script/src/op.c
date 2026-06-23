@@ -2,7 +2,27 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actTitleCamera2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actOpDemo01);
+typedef struct GObj {
+    char pad[0xB4];
+    int *unkB4;
+} GObj;
+
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern void BoxBarSoundOn(int a0, int a1);
+extern int D_004CB9A0[];
+extern void actSt00aStairChk(void);
+
+void actOpDemo01(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    D_004CB9A0[1] = (int)actSt00aStairChk;
+    gobj->unkB4 = D_004CB9A0;
+    BoxBarSoundOn(a0, 0x189);
+    _ACTWait(0);
+}
+
 
 #include "common.h"
 extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
