@@ -88,7 +88,32 @@ void actSt04rDoor2(volatile int a0) {
     Generator_Call(a0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", actSt05cDoorDown);
+extern void func_00178DD8(int a0);
+extern void gflagOff(int a0, int a1);
+extern void actSt25aQueenBeforeChk(int a0, int a1, int a2, float f);
+extern int D_004CC5E0[];
+extern int D_00629DE4;
+extern int D_0062A898;
+extern void actSt05cDoorDownEvent(volatile int a0);
+
+void actSt05cDoorDown(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0xCC) != 0) {
+        if (D_00629DE4 != 0) {
+            gflagOff(D_00629DE4, 0);
+        }
+        func_00178DD8(0x163);
+        D_0062A898 = 0;
+        actSt25aQueenBeforeChk(0, 0, 0, 255.0f);
+        D_004CC5E0[1] = (int)actSt05cDoorDownEvent;
+        gobj->unkB4 = D_004CC5E0;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", actSt05cEne);
 
