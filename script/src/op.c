@@ -115,7 +115,25 @@ void actOpDemo01_2Chk(volatile int a0) {
     actSt25aQueenDead(2, D_00629DE4, 0, 1.0f, 8.0f);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actOpDemo02);
+extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
+extern void func_0017A0F8(int a0);
+extern void actConte11Jimaku(float f);
+extern void func_00178DD8(int a0);
+extern void actCreateSubThread(void *fn, int a1);
+extern void actSt24aConte01_2();
+extern int D_0062BC18;
+
+void actOpDemo02(volatile int a0) {
+    scpPlayStart(0x2D, (int)&D_0062BC18, 0, 1, 1);
+    while (D_0062BC18 == 0) {
+        _ACTWait(1);
+    }
+    func_0017A0F8(5);
+    actConte11Jimaku(6.0f);
+    func_00178DD8(0x136);
+    actCreateSubThread(actSt24aConte01_2, 0x15);
+}
+
 
 extern void _ACTWait(int a0);
 extern int func_0012A958(int a0);
