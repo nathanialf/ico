@@ -1695,7 +1695,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00257DE8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00258168);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002581F0);
+void func_002581F0(void) {
+    /* TODO: scaffold unavailable — recover from asm */
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00258328);
 

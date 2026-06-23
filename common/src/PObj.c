@@ -3520,7 +3520,19 @@ int func_0024B870(void *a0) {
     return ((int *)D_00712C00)[0];
 }
 
+extern int func_00100570(int a0);
+extern void func_00100540(int a0);
+extern int func_00242978();
+extern void func_00261900(char *a0, char *a1, int a2);
+extern char D_0054C690[];
+extern int D_0054C694[];
+extern char D_00711640[];
+extern char D_00711704[];
+extern char D_00712C00[];
+
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024B930);
+
+
 
 extern int func_0024B930(int a0, int a1, int a2, int a3);
 
@@ -6286,6 +6298,7 @@ done:
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002581F0);
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00258328);
 
