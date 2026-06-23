@@ -6299,7 +6299,54 @@ done:
 
 extern void *func_00255060(void);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002581F0);
+void func_002581F0(void *act) {
+    void *o = *(void **)((char *)func_00255060() + 0x10);
+    int t = *(unsigned char *)((char *)o + 2);
+
+    if (t != 0x10) {
+        if (t < 0x11) {
+            if (t >= 0) {
+                *(short *)((char *)act + 0x28) = 2;
+                *(short *)((char *)act + 0x2C) = t;
+            }
+        } else if (t != 0x1E) {
+            if (t < 0x1F) {
+                if (t == 0x14) {
+                    *(short *)((char *)act + 0x24) = *(int *)((char *)act + 0x50);
+                    *(int *)((char *)act + 0xC) = *(int *)((char *)act + 4);
+                    *(short *)((char *)act + 0x28) = 0;
+                    *(short *)((char *)act + 0x2A) = 0;
+                }
+            } else {
+                if (t == 0x7F) {
+                    *(short *)((char *)act + 0x2C) = 0xFF;
+                    *(short *)((char *)act + 0x28) = 2;
+                }
+            }
+        } else {
+            unsigned int v4 = *(unsigned short *)((char *)act + 0x26);
+            if (v4 != 0x7F) {
+                unsigned int v3 = *(unsigned short *)((char *)act + 0x22);
+                if (v3 >= v4) {
+                    *(int *)((char *)act + 0xC) = 0;
+                    *(unsigned short *)((char *)act + 0x22) = 0;
+                    *(int *)((char *)act + 0) &= 0xFFFFFF7F;
+                    *(short *)((char *)act + 0x28) = 0;
+                } else {
+                    *(unsigned short *)((char *)act + 0x22) = v3 + 1;
+                    goto block_20;
+                }
+            } else {
+            block_20:
+                *(int *)((char *)act + 0) |= 0x80;
+                *(short *)((char *)act + 0x28) = 0;
+            }
+        }
+    } else {
+        *(short *)((char *)act + 0x28) = 1;
+    }
+    *(int *)((char *)act + 4) += 3;
+}
 
 
 
