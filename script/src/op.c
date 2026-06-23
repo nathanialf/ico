@@ -1,7 +1,5 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actTitleCamera2);
-
 typedef struct GObj {
     char pad[0xB4];
     int *unkB4;
@@ -10,6 +8,24 @@ typedef struct GObj {
 extern int actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern void BoxBarSoundOn(int a0, int a1);
+extern int func_00178DB0(int a0);
+
+extern int D_004CB980[];
+extern void actStaff1Demo(void);
+
+void actTitleCamera2(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x142) == 0) {
+        D_004CB980[1] = (int)actStaff1Demo;
+        gobj->unkB4 = D_004CB980;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    }
+}
+
+
 extern int D_004CB9A0[];
 extern void actSt00aStairChk(void);
 
