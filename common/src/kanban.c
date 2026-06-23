@@ -90,7 +90,46 @@ void func_001ADB00(void) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanban", func_001ADB38);
+extern void gif_SpriteOffset(int a0);
+extern void gsb_Reduction(int a0);
+extern void gsb_KeepFrameBuffer(int a0);
+extern void gsb_SetFrame(int a0, int a1, int a2);
+extern void gif_StartPacket(void *a0, unsigned int a1, int a2, void *a3, int a4);
+extern void func_0010F9D0(void);
+extern void kanbanReqDelFade(Node *a0);
+typedef struct { char b[16]; } Pkt16;
+extern Pkt16 D_0060F680;
+
+void func_001ADB38(void) {
+    Node *k;
+    unsigned char col[4];
+    Pkt16 pkt;
+
+    if (D_0062C15C != 0) {
+        int o = ((Node *)D_0062C15C)->f0;
+        col[0] = (int)(*(float *)(o + 0x10) * 255.0f);
+        col[1] = (int)(*(float *)(o + 0x14) * 255.0f);
+        col[2] = (int)(*(float *)(o + 0x18) * 255.0f);
+        col[3] = (int)(*(float *)(o + 0x1C) * 127.0f);
+        gif_SpriteOffset(0xB);
+        gsb_Reduction(0);
+        gsb_KeepFrameBuffer(0);
+        gsb_SetFrame(1, 7, 0);
+        pkt = D_0060F680;
+        gif_StartPacket(&pkt, 0xFFFFFFFFu, 0, col, 1);
+        gsb_KeepFrameBuffer(1);
+        gsb_Reduction(1);
+        func_0010F9D0();
+    }
+    k = (Node *)D_0062C15C;
+    if (k != 0) {
+        do {
+            kanbanReqDelFade(k);
+            k = k->f18;
+        } while (k != 0);
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanban", func_001ADC68);
 
