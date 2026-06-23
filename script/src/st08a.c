@@ -48,7 +48,24 @@ void actSt08aEne1Chk(volatile int a0) {
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aEne2Chk);
+extern int D_004CCE20[];
+extern void actSt06aDoorUpChk(void);
+
+void actSt08aEne2Chk(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0xFF) == 0) {
+        stage_KillPlayBgAnimation(0x135, 0, 0);
+        D_004CCE20[1] = (int)actSt06aDoorUpChk;
+        gobj->unkB4 = D_004CCE20;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    } else {
+        stage_KillPlayBgAnimation(0x135, 0, -1);
+    }
+}
+
 
 void actSt08aDoorUp(volatile int a0) {
     int x = a0;
