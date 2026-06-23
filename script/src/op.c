@@ -209,7 +209,39 @@ void actSt26aConte01_1_newgame(volatile int a0) {
     actCreateSubThread(actOpDemo02Chk, 0x15);
 }
 
+/* actOpDemo02Chk: C is FULLY RECOVERED and verified byte-identical when assembled
+ * with the 2.96/modern assembler. It does NOT byte-match under the default period
+ * assembler (ee-as 2.9-991111): gcc emits `.p2align 3` for the loop top, which 2.9
+ * over-pads by one slot (2 nops where ROM has 1, shifting everything after). A C
+ * source shape that avoids the over-pad is still TBD; an inline-asm nop is not
+ * usable (any asm statement reshuffles gcc's prologue schedule away from ROM).
+ * Kept as INCLUDE_ASM until the proper shape lands. Recovered C:
+ *
+ *   typedef struct { char pad0[0x38]; int unk38; char pad1[8]; int unk44; } OpObj;
+ *   extern void func_00174698(OpObj *p);
+ *   extern void _FUNC_GetWay_begin(OpObj *p);   // takes the base (a0=&D_00286840)
+ *   extern int D_00271240[]; extern OpObj D_00286840; extern int D_0062A7F8;
+ *
+ *   void actOpDemo02Chk(volatile int a0) {
+ *       float t = 0.0f;
+ *       do {
+ *           switch ((int)t) {
+ *           case 1:    func_00174698(&D_00286840); break;
+ *           case 1500: D_00286840.unk38 = 112; D_00286840.unk44 = -1;
+ *                      D_0062A7F8 = 1; _FUNC_GetWay_begin(&D_00286840); break;
+ *           }
+ *           {
+ *               int it = (int)t;
+ *               int q  = (60 - D_00271240[0] * 10) / D_00271240[1];
+ *               float nt = t + (float)q / 60.0f;
+ *               if (it != (int)nt) { _ACTWait(1); t = nt; }
+ *               else               { t = nt + 1.0f; }
+ *           }
+ *       } while (t < 1800.0f);
+ *   }
+ */
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/op", actOpDemo02Chk);
+
 
 extern void func_0020AA00();
 
