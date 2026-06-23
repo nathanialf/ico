@@ -1,15 +1,52 @@
 #include "common.h"
 
 extern int actInitialize(int a0);
-extern void *D_004CCDE0[];
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void BoxBarSoundOn(int a0, int a1);
+extern int D_004CCDE0[];
 extern void actSt06aSuimonChk(void);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aEnd);
+typedef struct GObj {
+    char pad[0xB4];
+    int *unkB4;
+} GObj;
 
-extern void *D_004CCE00[];
+void actSt08aEnd(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0xFD) == 0) {
+        stage_KillPlayBgAnimation(0x133, 0, 0);
+        D_004CCDE0[1] = (int)actSt06aSuimonChk;
+        gobj->unkB4 = D_004CCDE0;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    } else {
+        stage_KillPlayBgAnimation(0x133, 0, -1);
+    }
+}
+
+
+extern int D_004CCE00[];
 extern void actSt06aDoor(void);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aEne1Chk);
+void actSt08aEne1Chk(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0xFE) == 0) {
+        stage_KillPlayBgAnimation(0x134, 0, 0);
+        D_004CCE00[1] = (int)actSt06aDoor;
+        gobj->unkB4 = D_004CCE00;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    } else {
+        stage_KillPlayBgAnimation(0x134, 0, -1);
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aEne2Chk);
 

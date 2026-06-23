@@ -3,6 +3,8 @@
 extern int actInitialize(int a0);
 extern void *D_004CCDE0[];
 extern void actSt06aSuimonChk(void);
+extern void *D_004CCE00[];
+extern void actSt06aDoor(void);
 
 void actSt08aEnd(volatile int a0) {
     void *new_var;
@@ -23,7 +25,25 @@ void actSt08aEnd(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aEne1Chk);
+void actSt08aEne1Chk(volatile int a0) {
+    void *new_var;
+    int x = a0;
+    int s0 = actInitialize(a0);
+    int g;
+    _ACTWait(1);
+    if (func_00178DB0(0xFE) == 0) {
+        stage_KillPlayBgAnimation(0x134, 0, 0);
+        g = a0;
+        new_var = (void *)actSt06aDoor;
+        D_004CCE00[1] = new_var;
+        *(int *)(s0 + 0xB4) = (int)D_004CCE00;
+        BoxBarSoundOn(g, 0x189);
+        _ACTWait(0);
+    } else {
+        stage_KillPlayBgAnimation(0x134, 0, -1);
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", actSt08aEne2Chk);
 
