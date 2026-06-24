@@ -161,7 +161,38 @@ extern int D_0062AEC8;
 
 typedef struct { int f0; int f4; } DbgEnt;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", func_001A63C8);
+int func_001A63C8(int a0) {
+    DbgEnt buf[10];
+    DbgEnt *bp = buf;
+    int n = 0;
+    int r;
+    void *obj = isysGObjRemoveObjDL();
+    if (obj != 0) {
+        do {
+            int t = *(int *)((char *)obj + 0xC);
+            switch (t) {
+            case 1:
+            case 2:
+            case 4:
+            case 0x2E:
+                bp[n].f0 = (int)(D_0029F060 + t * 0x64);
+                bp[n].f4 = (int)obj;
+                n++;
+                break;
+            }
+            obj = func_0013E7E0(obj);
+        } while (obj != 0);
+    }
+    if (a0 != 0) {
+    } else {
+        D_0062AEC8 = 0;
+    }
+    r = func_001A4DE8(D_0060E1C0, 0xA, 0x32, 0xB, buf, 8, 0, 1, n, &D_0062AEC8);
+    if (D_0062AEC8 >= 0) {
+        actCommonStone(buf[D_0062AEC8].f4);
+    }
+    return ~r ? 0 : -1;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", func_001A6508);
