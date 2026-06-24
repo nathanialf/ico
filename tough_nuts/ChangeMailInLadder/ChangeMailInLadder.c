@@ -236,7 +236,10 @@ void actCommonLever(void *a0, void *a1, float f) {
     func_00105068();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", EBRAIN_SEND_MES);
+void EBRAIN_SEND_MES(void) {
+    /* TODO: scaffold unavailable — recover from asm */
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", DamageFunc);
 

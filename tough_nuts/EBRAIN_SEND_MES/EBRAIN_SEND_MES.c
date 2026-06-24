@@ -235,7 +235,36 @@ extern int ClipWallBoxStop(void *a0);
 extern int ChangeFieldCollisionDebugMode(void *a0);
 extern void _TransposeRotationCurrentMatrix(void *a0, void *a1, void *a2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", EBRAIN_SEND_MES);
+int EBRAIN_SEND_MES(void *a0, void *a1, short a2, float a3) {
+    char buf[0xC0];
+    char *buf2 = buf + 0x10;
+    int p;
+    int rv = 0;
+    func_00260568(buf, 0, 0xC0);
+    p = func_00105078();
+    func_00118AA0(p);
+    func_001050A8(a1);
+    func_00104DC0(a2);
+    func_00105108(0.0f, 0.0f, a3);
+    p = func_00105078();
+    MatrixDrive_TurnObjectMatrix(buf2, (char *)p + 0x30);
+    MatrixDrive_TurnObjectMatrix(buf, a1);
+    *(float *)(buf + 0x0C) = 1.0f;
+    *(float *)(buf + 0x1C) = 1.0f;
+    *(float *)(buf + 0x14) = *(float *)(buf + 0x14) - 50.0f;
+    *(float *)(buf + 0x04) = *(float *)(buf + 0x04) - 50.0f;
+    ClipWallBoxStop(buf);
+    if (*(int *)(buf + 0x88) == 0) {
+        MatrixDrive_TurnObjectMatrix(buf, buf2);
+        *(float *)(buf + 0x14) = *(float *)(buf + 0x14) + 100.0f;
+        ChangeFieldCollisionDebugMode(buf);
+        if (*(int *)(buf + 0x94) != 0) {
+            _TransposeRotationCurrentMatrix(a0, buf + 0x20, a1);
+            rv = 1;
+        }
+    }
+    return rv;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", DamageFunc);
