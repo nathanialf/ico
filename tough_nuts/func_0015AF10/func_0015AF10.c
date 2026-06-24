@@ -316,7 +316,34 @@ extern void _OrientXZGV(void *a0, void *a1, void *a2, float a3, float a4);
 extern char D_005530A8[];
 extern int D_0062AF84;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015AF10);
+void func_0015AF10(void *self) {
+    float buf[4];
+    char *p;
+    union { int i; char *c; } u;
+    *(int *)(*(int *)(*(int *)((char *)self + 0x164) + 0x670) + 0xB4) += 1;
+    u.i = *(int *)(*(int *)((char *)self + 0x164) + 0x670);
+    p = u.c;
+    if (*(int *)(p + 0xB4) <= *(int *)(p + 0xB0)) {
+        if (self == (void *)D_00629DE8 && (D_0062AF84 & 1)) {
+            traceLine(0x64, 0x64, 0xFFFFFFF, D_005530A8);
+        }
+        p = (char *)*(int *)(*(int *)((char *)self + 0x164) + 0x670);
+        _OrientXZGV(buf, p + 0x70, p + 0x90,
+                    (float)*(int *)(p + 0xB4),
+                    (float)(*(int *)(p + 0xB0) - *(int *)(p + 0xB4)));
+        CylinderCollision(self, buf);
+        p = (char *)*(int *)(*(int *)((char *)self + 0x164) + 0x670);
+        if (*(int *)(p + 0xB8) == 1) {
+            _OrientXZGV(buf, p + 0x80, p + 0xA0,
+                        (float)*(int *)(p + 0xB4),
+                        (float)(*(int *)(p + 0xB0) - *(int *)(p + 0xB4)));
+            func_0023FE98(buf, buf);
+            dispPlane(self, buf);
+        }
+    } else {
+        *(long long *)(p + 0xB8) &= ~0x100000000LL;
+    }
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonBar);
