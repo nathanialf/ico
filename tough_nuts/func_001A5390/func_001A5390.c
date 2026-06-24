@@ -138,7 +138,50 @@ extern char D_0060DD20[], D_0060DD40[], D_0060DD50[];
 extern int D_002715D4[];
 extern void debugEEExceptionMain(int a0, int a1, unsigned int a2, void *a3, void *a4);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", func_001A5390);
+int func_001A5390(char *a0) {
+    char buf[0x40];
+    int t, r;
+    int code = *(int *)(a0 + 0x10);
+    if (code >= 0) {
+        return 1;
+    }
+    switch (code) {
+    case 0:
+        r = 1;
+        goto ret;
+    case -9:
+    case -2:
+        func_00261188((int)buf, D_0060DC90, *(int *)(a0 + 0x10));
+        break;
+    case -4:
+        func_00261188((int)buf, D_0060DCC0, a0 + 0x47C);
+        break;
+    case -0xE:
+        func_00261188((int)buf, D_0060DCD8, a0 + 0x454);
+        break;
+    case -0x10:
+        func_00261188((int)buf, D_0060DCF0, *(int *)(a0 + 0x24), *(int *)(a0 + 0x50), *(int *)(a0 + 0x4C));
+        break;
+    case -0xF:
+        func_00261188((int)buf, D_0060DD20, a0 + 0x47C);
+        break;
+    case -0xA:
+        func_00261188((int)buf, D_0060DD40);
+        break;
+    default:
+        func_00261188((int)buf, D_0060DD50, *(int *)(a0 + 0x10));
+        break;
+    }
+    debugEEExceptionMain(0x50, 0x46, 0xFFFFFF00, D_0062CC48, buf);
+    t = D_002715D4[0];
+    r = (t & 0x20) != 0;
+    if (t & 0x40) {
+        r = -1;
+    }
+    r = r ? -1 : 0;
+ret:
+    return r;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", func_001A54C0);
