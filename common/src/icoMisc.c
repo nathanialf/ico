@@ -139,7 +139,47 @@ int func_001ABFF8(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/icoMisc", func_001AC000);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/icoMisc", func_001AC5E8);
+extern void debugEEExceptionMain(int a0, int a1, unsigned int a2, void *a3);
+extern void iosReallocDebug(void *a0);
+extern void func_00261188(void *a0, void *a1, ...);
+extern char D_0060F3B0[];
+extern char D_0060F3E8[];
+extern void *D_0062A300;
+extern char D_006FF890[];
+
+void func_001AC5E8(void) {
+    char *p;
+    int y = 0x70;
+    debugEEExceptionMain(0x18, 0x64, 0xFFFFFF00, D_0060F3B0);
+    iosReallocDebug(D_0062A300);
+    p = *(char **)((char *)D_0062A300 + 0x28);
+    if (p != 0) {
+        do {
+            unsigned int sum = 0;
+            unsigned int max = 0;
+            char *e;
+            int diff;
+            iosReallocDebug(p);
+            e = *(char **)(p + 0x44);
+            if (e != 0) {
+                do {
+                    unsigned int v = *(int *)(e + 0x34) << 4;
+                    if (max < v) {
+                        max = v;
+                    }
+                    sum += v;
+                    e = *(char **)(e + 0x2C);
+                } while (e != 0);
+            }
+            diff = *(int *)(p + 0x3C) - *(int *)(p + 0x38) + 0x10;
+            func_00261188(D_006FF890, D_0060F3E8, p + 0x10, p, sum, diff, max);
+            debugEEExceptionMain(0x64, y, 0xFFFFFF00, D_006FF890);
+            y += 8;
+            p = *(char **)(p + 0x24);
+        } while (p != 0);
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/icoMisc", func_001AC728);
 
