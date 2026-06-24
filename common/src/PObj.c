@@ -6299,7 +6299,53 @@ int func_00256960(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00256A98);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00256CD0);
+extern void *func_00254FF8(void);
+extern void *func_00255060(void);
+extern void *func_00254FC8(int a0);
+
+int func_00256CD0(char *a0) {
+    long long mask16 = 0;
+    long long mask19 = 0;
+    char *p18 = (char *)func_00254FF8();
+    char *p20 = (char *)func_00255060();
+    char *elem = (char *)func_00254FC8(0);
+    int i;
+    for (i = 0; i < 0x30; i++, elem += 0x58) {
+        char *q;
+        if (*(unsigned char *)(elem + 0x51) != 2) {
+            continue;
+        }
+        if (!(*(int *)elem & 4)) {
+            continue;
+        }
+        q = *(char **)(p20 + 0x10);
+        if (*(unsigned short *)(elem + 0x2C) != *(unsigned char *)(q + 3)) {
+            continue;
+        }
+        if (*(unsigned char *)(elem + 0x4E) != *(unsigned char *)(q + 1)) {
+            continue;
+        }
+        if (*(unsigned char *)(elem + 0x54) != *(unsigned short *)(a0 + 0x18)) {
+            continue;
+        }
+        if (*(unsigned char *)(elem + 0x50) == *(unsigned short *)(a0 + 0x4C)) {
+            mask16 |= (1LL << i);
+        } else {
+            mask19 |= (1LL << i);
+        }
+    }
+    if (mask16 == 0) {
+        mask16 = mask19;
+    }
+    for (i = 0; i < 0x30; i++) {
+        if ((mask16 >> i) & 1) {
+            *(long long *)(p18 + 0x28) |= (1LL << i);
+        }
+    }
+    *(int *)(a0 + 4) += 4;
+    return 0;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00256E18);
 
