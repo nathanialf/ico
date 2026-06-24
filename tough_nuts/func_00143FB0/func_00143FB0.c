@@ -117,7 +117,39 @@ extern void GetRootMatrixByDObj(void *a0, void *a1);
 extern char D_00552230[];
 extern int D_0062AF84;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_00143FB0);
+int func_00143FB0(void *self) {
+    float buf[3];
+    char *actor = *(char **)((char *)self + 0x164);
+    char *r16 = *(char **)(actor + 0x88);
+    int rv;
+    if (D_0062AF84 & 1) {
+        char *s = *(char **)((char *)self + 0x15C);
+        traceLine(0xA, 0xAA, 0xFFFFFFF, D_00552230, *(int *)(s + 0x370));
+    }
+    if (*(int *)(actor + 0x8C) == 0) {
+        *(int *)(*(char **)((char *)self + 0x15C) + 0x370) = 0;
+        rv = 0;
+    } else {
+        if (r16 == 0) {
+            buf[0] = *(float *)(actor + 0xA0);
+            buf[1] = *(float *)(actor + 0xA4);
+            buf[2] = *(float *)(actor + 0xA8);
+        } else if (r16 == D_00629DE4) {
+            int idx = DebugDisp1CollisionWithColor(r16, 0x23) << 6;
+            buf[0] = *(float *)(idx + *(int *)(*(int *)(r16 + 0x15C) + 0xC) + 0x30);
+            buf[1] = *(float *)(idx + *(int *)(*(int *)(r16 + 0x15C) + 0xC) + 0x34);
+            buf[2] = *(float *)(idx + *(int *)(*(int *)(r16 + 0x15C) + 0xC) + 0x38);
+        } else {
+            GetRootMatrixByDObj(buf, r16);
+        }
+        *(float *)(*(char **)((char *)self + 0x15C) + 0x380) = buf[0];
+        *(float *)(*(char **)((char *)self + 0x15C) + 0x384) = buf[1];
+        *(float *)(*(char **)((char *)self + 0x15C) + 0x388) = buf[2];
+        *(int *)(*(char **)((char *)self + 0x15C) + 0x370) = *(int *)(actor + 0x90);
+        rv = 1;
+    }
+    return rv;
+}
 
 extern void ActPara_GetDefTbl(void *a0, int a1);
 
