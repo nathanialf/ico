@@ -293,7 +293,49 @@ found:
     return r;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundHDDataSet);
+extern void func_00260568(void *dst, int val, int size);
+
+static inline char *hd_search(char *base, int *pk) {
+    char *p = base;
+    char *r = p;
+    char *end = p + 0x300;
+    do {
+        char *snap = r;
+        if (*(int *)p == *pk) goto found;
+        r += 0x30;
+        p += 0x30;
+        r = snap + 0x30;
+    } while ((int)p < (int)end);
+    return 0;
+found:
+    return r;
+}
+
+void *soundHDDataSet(int a0, int a1, int a2, int a3) {
+    extern char D_006A3070_b[] __asm__("D_006A3070");
+    void *slot;
+    int hi = a1 << 16;
+    int key = (a0 & 0xFFFF) | hi;
+
+    slot = hd_search(D_006A3070, &key);
+    if (slot != 0) {
+        return slot;
+    }
+    key = 0;
+    slot = hd_search(D_006A3070_b, &key);
+    if (slot == 0) {
+        func_001AAD00(D_00551FC8, 0x142);
+        func_00260380(D_00551FC8, 0x142, D_0062C388);
+    }
+    func_00260568(slot, 0, 0x30);
+    *(short *)((char *)slot + 0) = a0;
+    *(short *)((char *)slot + 2) = a1;
+    *(short *)((char *)slot + 6) = a3;
+    *(short *)((char *)slot + 4) = a2;
+    *(int *)((char *)slot + 0x28) = -1;
+    return slot;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSQDataSet);
 
