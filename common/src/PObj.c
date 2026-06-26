@@ -3991,7 +3991,44 @@ void func_0024D300(void *a0, int a1, int a2) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024D320);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024D418);
+extern int func_00254898(int *bs, int nbits);
+extern int func_002548E8(int *bs);
+extern int func_002547E0(void *a0, int a1);
+extern int func_0024D568();
+
+typedef struct { int unk0, unk4, unk8, unkC; } P24D418;
+
+int func_0024D418(int *bs, P24D418 *pkt) {
+    unsigned int i = 0;
+    unsigned int a, b, c, n;
+    int last;
+
+    func_00254898(bs, 0x22);
+    a = func_00254898(bs, 0x3);
+    func_002548E8(bs);
+    b = func_00254898(bs, 0xF);
+    func_002548E8(bs);
+    c = func_00254898(bs, 0xF);
+    func_002548E8(bs);
+    pkt->unk0 = func_00254898(bs, 0x9);
+    func_00254898(bs, 0x1E);
+    n = func_00254898(bs, 0x3);
+    pkt->unk8 = (a >> 2) & 1;
+    pkt->unk4 = (a << 30) | (b << 15) | c;
+    for (i = 0; i < n; i++) {
+        func_00254898(bs, 0x8);
+    }
+    last = func_002547E0(bs, 0x20);
+    if (last != 0x1BB) goto unset;
+    pkt->unkC = 1;
+    func_0024D568(bs, pkt);
+    goto end;
+unset:
+    pkt->unkC = 0;
+end:
+    return 1;
+}
+
 
 int func_0024D568(int *a0) {
     func_00254898(a0, 0x38);
