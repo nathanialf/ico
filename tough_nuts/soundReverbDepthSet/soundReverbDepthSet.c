@@ -53,7 +53,50 @@ extern unsigned long long D_0062BFD0;
 extern char D_006A3070[];
 extern char D_006A3370[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundReverbDepthSet);
+int soundReverbDepthSet(void)
+{
+    int i;
+    int *p;
+
+    debug_assertMessage(D_00551FA0);
+    func_00258948();
+    if (D_0062A260 == 1) {
+        func_002589F8(0x80);
+    } else {
+        func_002589F8(0x880);
+    }
+    debug_assertMessage(D_00551FB0);
+    func_002590E0(0x3C);
+    func_00259040(0, 0x1FFFFF);
+    func_00259040(1, 0x1DFFFF);
+    func_00259058(0, 4);
+    func_00259070(0, 0xCCC, 0xCCC);
+    func_00259058(1, 4);
+    func_00259070(0, 0xCCC, 0xCCC);
+    func_00259208(0, 0, 0);
+    func_00259208(1, 0, 0);
+    p = (int *)D_006A3070;
+    p = (int *)((char *)p + 0x2D0);
+    i = 15;
+    do {
+        *p = 0;
+        i--;
+        p = (int *)((char *)p - 0x30);
+    } while (i >= 0);
+    D_0062BFC8 = 0;
+    D_0062BFD0 = 0;
+    p = (int *)D_006A3370;
+    p = (int *)((char *)p + 0xBF0);
+    i = 0x2F;
+    do {
+        *p = 0;
+        i--;
+        p = (int *)((char *)p - 0x40);
+    } while (i >= 0);
+    AdpcmPlay();
+    D_0062A4F8 = 0;
+    return 0;
+}
 
 
 extern int D_0062A4FC;
