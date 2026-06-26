@@ -8033,7 +8033,51 @@ void func_00268328(char *a0, int *a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00268358);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00268470);
+extern int *func_00268358(void *a0, int *a1, int a2, int a3);
+extern int *func_00268280(void *a0, int a1);
+
+int func_00268470(void *a0, char *a1, int a2, int a3, int a4)
+{
+    int n3 = (a3 + 8) / 9;
+    int p = 1;
+    int five = 0;
+    int i18;
+    int *r5;
+    int i17;
+
+    if (p < n3) {
+        do {
+            p <<= 1;
+            five++;
+        } while (p < n3);
+    }
+    i18 = a2 < 10;
+    r5 = func_00268280(a0, five);
+    i17 = 9;
+    r5[5] = a4;
+    r5[4] = 1;
+    if (i18 == 0) {
+        a1 += 9;
+        do {
+            i17++;
+            r5 = func_00268358(a0, r5, 10, a1[0] - 0x30);
+            a1++;
+        } while (i17 < a2);
+        a1++;
+    } else {
+        a1 += 10;
+    }
+    if (i17 < a3) {
+        i17 = a3 - i17;
+        do {
+            r5 = func_00268358(a0, r5, 10, a1[0] - 0x30);
+            a1++;
+            i17--;
+        } while (i17 != 0);
+    }
+    return (int)r5;
+}
+
 
 int func_002685B8(unsigned int a0) {
     int n = 0;
