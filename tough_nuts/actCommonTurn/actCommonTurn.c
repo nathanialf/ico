@@ -469,7 +469,30 @@ typedef struct { char _p670[0x670]; char *p670; } S164;
 typedef struct { char _p164[0x164]; S164 *p164; } SObj;
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonTurn);
+void actCommonTurn(SObj *a0, float *a1, float *a2, int a3, float f) {
+    char *d;
+    float *r;
+
+    r = (float *)ContinueCorrectPosition(a0); *(float *)(a0->p164->p670 + 0x70) = r[0];
+    r = (float *)ContinueCorrectPosition(a0); *(float *)(a0->p164->p670 + 0x74) = r[1];
+    r = (float *)ContinueCorrectPosition(a0); *(float *)(a0->p164->p670 + 0x78) = r[2];
+    r = (float *)subCommonIdle((char *)a0); *(float *)(a0->p164->p670 + 0x80) = r[0];
+    r = (float *)subCommonIdle((char *)a0); *(float *)(a0->p164->p670 + 0x84) = r[1];
+    r = (float *)subCommonIdle((char *)a0); *(float *)(a0->p164->p670 + 0x88) = r[2];
+    d = a0->p164->p670;
+    *(float *)(d + 0x90) = a1[0];
+    *(float *)(d + 0x94) = a1[1];
+    *(float *)(d + 0x98) = a1[2];
+    if (a2 != 0) {
+        *(float *)(d + 0xA0) = a2[0];
+        *(float *)(d + 0xA4) = a2[1];
+        *(float *)(d + 0xA8) = a2[2];
+    }
+    *(int *)(a0->p164->p670 + 0xB0) = (int)f;
+    *(int *)(a0->p164->p670 + 0xB4) = 0;
+    *(int *)(a0->p164->p670 + 0xB8) = a3;
+    *(long long *)(a0->p164->p670 + 0xB8) |= 0x100000000LL;
+}
 
 
 int actCommonBackhand(void *a0) {
