@@ -92,7 +92,33 @@ extern int disp_memory_partition_bar(int a0, int a1, int a2, void *a3, void *a4)
 extern St55 D_0055A2D8[];
 extern void *D_00629DE8;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_001434C0);
+void func_001434C0(St1434 *arg0, int arg1) {
+    int buf0[4];
+    float buf10[4];
+    float t1[4];
+    long long t2[2];
+    long long e[2];
+
+    func_001433F0(arg1, buf0, buf10);
+    if (arg0->unkC == 0x11) {
+        func_00260568(t1, 0, 0x10);
+        t1[2] = 250.0f;
+        func_00191DB8(t1, -buf10[1]);
+        func_0023FFF0(buf0, buf0, t1);
+    }
+    if (arg0 == (St1434 *) D_00629DE8) {
+        if (0.0f <= arg0->unk164->unk678->unk330) {
+            func_00260568(e, 0, 0x10);
+            *(float *) ((char *) e + 8) = -((St1434 *) D_00629DE8)->unk164->unk678->unk330;
+            *(V16 *) t2 = *(V16 *) e;
+            func_00191DB8(t2, -buf10[1]);
+            func_0023FFF0(buf0, buf0, t2);
+        }
+    }
+    disp_memory_partition_bar(arg0->unk8, arg0->unkC,
+                              D_0055A2D8[arg1].unk24,
+                              buf0, buf10);
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_00143610);

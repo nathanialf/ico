@@ -1163,3 +1163,4 @@ actSt04bCrest01XL   # rc126 BoxBarSoundOn twin: rc7 family floor (D/FN v0<->v1 c
 func_002666C0       # rc33 stream-read loop, 5x bnel + jalr loop; deep-pass target
 isysGObjMoveBeforeGObj# rc28 GObj slot-allocator: peeled bnel search loop + 2x assert branch + RemoveAll init; deep-pass
 ExecIcoMisc         # rc99 switch+table-search bnel; not attempted-clean, deep-pass (sampled)
+soundHDDataSet
