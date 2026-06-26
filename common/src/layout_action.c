@@ -10,6 +10,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", la_TESTFUNCTION);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", _la_mcard_error_check);
 
+
 extern void init_layout_texture(void);
 extern void kanbanBootMain(void);
 extern void kanbanBootMcCheck(void);
