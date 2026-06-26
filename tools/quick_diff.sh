@@ -250,13 +250,28 @@ END { nr=0; seen=0; i=1; while (i<=NR) {
   if (ln[i] ~ /\.set[ \t]+noreorder/) { nr=1; print ln[i]; i++; continue }
   if (ln[i] ~ /\.set[ \t]+reorder/)   { nr=0; seen=0; print ln[i]; i++; continue }
   if (ln[i] ~ /:[ \t]*$/)             { seen=0; print ln[i]; i++; continue }
-  if (nr==0 && seen==0 && ln[i] ~ /^[ \t]*mtc1[ \t]/) {
+  if (nr==0 && ln[i] ~ /^[ \t]*mtc1[ \t]/) {
     j=i+1; while (j<=NR && ln[j] ~ /^[ \t]*(#|$)/) j++;
     if (j<=NR && ln[j] ~ /^[ \t]*(cvt\.[swd]\.[swd]|c\.(eq|lt|le)\.[sd])[ \t]/) {
+      m=j+1; while (m<=NR && ln[m] ~ /^[ \t]*(#|$)/) m++;
+      if (m>NR || ln[m] !~ /^[ \t]*(b|j|beq|bne|beql|bnel|bgez|bgtz|blez|bltz|bc1)/) {
       print "\t.set noreorder"; print ln[i];
       for (k=i+1; k<j; k++) print ln[k];
       print ln[j]; print "\t.set reorder";
-      nr=0; seen=0; i=j+1; continue } }
+      nr=0; seen=0; i=j+1; continue }
+      else if (ln[m] ~ /^[ \t]*b[ \t]/) {
+        tgt=ln[m]; sub(/^[ \t]*b[ \t]+/,"",tgt); sub(/[ \t].*$/,"",tgt);
+        slack=0;
+        for (t=1; t<=NR; t++) { st=ln[t]; gsub(/[ \t]/,"",st);
+          if (st==(tgt ":")) {
+            u=t+1; while (u<=NR && (ln[u] ~ /^[ \t]*(#|\.|$)/ || ln[u] ~ /:[ \t]*$/)) u++;
+            if (u<=NR && ln[u] ~ /^[ \t]*nop[ \t]*$/) slack=1;
+            break } }
+        if (slack) {
+        print "\t.set noreorder"; print ln[i];
+        for (k=i+1; k<j; k++) print ln[k];
+        print ln[m]; print ln[j]; print "\t.set reorder";
+        nr=0; seen=0; i=m+1; continue } } } }
   if (ln[i] !~ /^[ \t]*(#|\.|$)/) seen=1;
   print ln[i]; i++ } }' "$ASM_OUT" > "$ASM_OUT.mtc1cvt" && mv "$ASM_OUT.mtc1cvt" "$ASM_OUT"
 

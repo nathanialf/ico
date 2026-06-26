@@ -6405,7 +6405,49 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00257410);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00257570);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002576E8);
+extern void *func_00254FC8(int a0);
+extern void *func_00254FF8(void);
+extern void *func_00255060(void);
+
+void func_002576E8(char *a0)
+{
+    char *p;
+    char *mgr;
+    char *ctx;
+    char *s;
+    int i;
+    int n;
+    int v;
+    int two;
+
+    p = (char *)func_00254FC8(0);
+    mgr = (char *)func_00254FF8();
+    ctx = (char *)func_00255060();
+    two = 2;
+    n = 0xF;
+    i = 0x2F;
+    do {
+        if (*(unsigned char *)(p + 0x51) == two &&
+            *(unsigned char *)(p + 0x54) == *(unsigned short *)(a0 + 0x18)) {
+            s = *(char **)(ctx + 0x10);
+            if (*(unsigned short *)(p + 0x2C) == *(unsigned char *)(s + 0x4) &&
+                *(unsigned char *)(p + 0x4E) == *(unsigned char *)(s + 0x5) &&
+                *(unsigned char *)(p + 0x50) == *(unsigned short *)(a0 + 0x4C)) {
+                *(int *)p |= 0x20;
+                v = (*(unsigned short *)(mgr + 0x3A) * *(unsigned char *)(s + 0x2)) / n;
+                *(short *)(p + 0x4C) = (short)v;
+                if (*(unsigned char *)(s + 0x3) & 0x80) {
+                    *(float *)(p + 0x44) = (float)*(signed char *)(s + 0x3) / (float)(short)v;
+                } else {
+                    *(float *)(p + 0x44) = (float)*(unsigned char *)(s + 0x3) / (float)(short)v;
+                }
+            }
+        }
+        i -= 1;
+        p += 0x58;
+    } while (i >= 0);
+    *(int *)(a0 + 0x4) += 6;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00257838);
 
