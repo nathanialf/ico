@@ -256,7 +256,35 @@ typedef struct {
     int unk94;
 } St167A00;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00167A00);
+int func_00167A00(St167A00 *a0, int a1, int a2) {
+    int i;
+    int found = 0;
+
+    for (i = 0; i < D_0062C01C; i++) {
+        short *s1 = D_0062C020->unk1C[D_006A4B40[i]];
+        unsigned short var_3;
+        if (s1 == 0) continue;
+        if (*s1 < 0) continue;
+        var_3 = *s1;
+        do {
+            int s0 = D_0062C020->unk14 + (short) var_3 * 0x70;
+            if (a1 == a0->unk74 && a2 == a0->unk78 && s0 == a0->unk7C) {
+                /* skip */
+            } else {
+                if (DrawGObjWallCollision(a0, s0, 0)) {
+                    a0->unk94 = s0;
+                    found = 1;
+                    a0->unk8C = a1;
+                    a0->unk90 = a2;
+                    a0->unk88 = 0;
+                }
+            }
+            s1++;
+            var_3 = *s1;
+        } while (*(volatile short *) s1 >= 0);
+    }
+    return found;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fuzio", func_00167B48);
