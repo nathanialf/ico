@@ -38,7 +38,44 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_DisconnectHand_Wi
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTCheckView);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGameView_Loop);
+extern int *ContinueCorrectPosition(int *a0);
+extern void GetRootMatrixByDObj(char *a0, char *a1);
+extern float HandyCamera_TargetMoveType(int *a0, int a1);
+extern float before_DrawLine(void *a0, void *a1);
+extern void func_0018A1D8(float *a0, float *a1, int a2);
+extern void *func_0018A370(void);
+extern float D_0028E618[];
+extern float D_00628DEC;
+extern void *D_00629DE4;
+extern void *D_00629DE8;
+
+void ACTGameView_Loop(void)
+{
+    float buf0[4];
+    float buf1[4];
+    int buf2[4];
+    float neg1;
+    void *p;
+    int q;
+    float e;
+
+    if (D_00629DE4 != 0 && D_00629DE8 != 0) {
+        GetRootMatrixByDObj((char *)buf0, (char *)D_00629DE4);
+        GetRootMatrixByDObj((char *)buf1, (char *)D_00629DE8);
+        if (!(HandyCamera_TargetMoveType((int *)buf0, (int)buf1) < D_00628DEC)) {
+            if (!(0.0f < before_DrawLine(buf2, ContinueCorrectPosition((int *)D_00629DE8)))) {
+                neg1 = -1.0f;
+                func_00240038(buf0, func_0018A370(), neg1);
+                func_00240038(buf1, ContinueCorrectPosition((int *)D_00629DE8), neg1);
+                e = D_0028E618[0];
+                q = (0x3C - D_00271240[0] * 0xA) / D_00271240[1];
+                func_0018A1D8(buf0, buf1,
+                              (int)(e * (float)q / 60.0f));
+            }
+        }
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_LwsEffectProcess);
 
