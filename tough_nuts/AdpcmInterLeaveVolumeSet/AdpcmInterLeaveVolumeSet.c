@@ -78,7 +78,42 @@ typedef struct {
     int unk4, unk8, unkC, unk10, unk14;
 } AdpcmIL;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmInterLeaveVolumeSet);
+void AdpcmInterLeaveVolumeSet(AdpcmIL *a0, int a1, int a2, int a3) {
+    int key;
+    char *r;
+    int i;
+    int result;
+
+    debug_assertMessage(D_00613888);
+    key = (a1 & 0xFFFF) | 0x110000;
+    r = soundDataAreaGet(&key);
+    if (r != 0) {
+        a0->unk14 = 0;
+        return;
+    }
+    a0->unk8 = a2;
+    a0->unk4 = a1;
+    i = 0;
+    do {
+        if (D_0062C270[i] == 0) goto found;
+        i++;
+    } while (i < 2);
+    debug_assertMessage(D_00613858);
+    result = 0;
+    goto check;
+found:
+    D_0062C270[i] = 1;
+    result = D_0062C268 + i * 0x5C000;
+check:
+    a0->unkC = result;
+    if (result != 0) {
+        a0->unk14 = iosCdvdChgFileName(&D_006151D8[a1 * 0x40], CheckWallAttributeEdegWall, a0, func_001FA070, 0, a0, 0, 0);
+    } else {
+        a0->unk14 = 0;
+        debug_assertMessage(D_0062D9B0, &D_006151D8[a1 * 0x40]);
+    }
+    a0->unk10 = a3;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmVolumeSet);
