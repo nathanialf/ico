@@ -503,7 +503,40 @@ extern int D_0062A55C;
 
 typedef struct { char _pad[0x15C]; char *unk15C; } FlagObj;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_FLAG_LIFEPINCH);
+int ACTGame_FLAG_LIFEPINCH(int a0, int a1, FlagObj *a2, float *a3, float f) {
+    int flag;
+    char buf[0xC0];
+
+    func_00260568(buf, 0, 0xC0);
+    if (a2 != 0) {
+        flag = *(int *)(a2->unk15C + 0x74);
+    } else {
+        flag = 0;
+    }
+    *(float *)(buf + 0x70) = f;
+    D_0062A55C = 0;
+    func_00240080(buf, a0);
+    func_00240080(buf + 0x10, a1);
+    if (flag) { *(int *)(a2->unk15C + 0x74) = 0; ClipWallBoxStop(buf); }
+    if (flag) { *(int *)(a2->unk15C + 0x74) = 1; }
+    if (*(int *)(buf + 0x88) == 0) {
+        if (flag) { *(int *)(a2->unk15C + 0x74) = 0; ClipWallFieldCheckCB(buf); }
+        if (flag) { *(int *)(a2->unk15C + 0x74) = 1; }
+    }
+    if (*(int *)(buf + 0x88) != 0) {
+        D_0062A55C = *(int *)(buf + 0x80);
+        a0 = *(int *)(buf + 0x98);
+        if (func_001668B0(a0, 0x30000) != 0) {
+            return 0;
+        }
+    }
+    if (a3 != 0) {
+        a3[0] = *(float *)(buf + 0x20);
+        a3[1] = *(float *)(buf + 0x24);
+        a3[2] = *(float *)(buf + 0x28);
+    }
+    return 1;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_FLAG_TETSUNAGI);
