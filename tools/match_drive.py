@@ -277,28 +277,31 @@ def fresh_queue(spec, items):
             "last_protocol": None, "last_protocol_at": 0}
 
 
-def active_nearmiss_best(func):
-    """The recorded near-miss count for <func> if it is an IN-PROGRESS near-miss
-    (a worked function sitting as a live C body, best > 0), else None. Lets advance()
-    RESUME such a body instead of dropping it: its body is not an INCLUDE_ASM stub,
-    so is_stub() is False, but it is NOT an out-of-band match — it is the sticky
-    near-miss seed the chain left for the next worker (best/stall preserved)."""
+def engaged_unmatched(func):
+    """True if the driver has ENGAGED <func> (it has a match_loop json) and it is
+    NOT a completed match (best != 0): an in-progress near-miss (best > 0) OR a
+    freshly-scaffolded pre-diff body (best == None). Such a non-stub body must be
+    RESUMED, not skipped as out-of-band. A func with NO json (matched via a sibling's
+    coalesced TU) or best == 0 (a real match) is genuinely done and is skipped.
+
+    Without the best==None case, a scaffold a prior worker left un-diffed was wrongly
+    skipped, forcing the worker to hand-restore the INCLUDE_ASM stub to re-engage."""
     try:
         st = json.loads((STATE_DIR / f"{func}.json").read_text())
     except Exception:
-        return None
-    best = st.get("best")
-    return best if isinstance(best, int) and best > 0 else None
+        return False
+    return st.get("best") != 0
 
 
 def advance(q):
     """Pick the next still-unmatched pending func. A func that is no longer an
     INCLUDE_ASM stub is normally an out-of-band match (matched via a sibling's
-    coalesced TU) and drops out — EXCEPT an in-progress near-miss body, which must
-    be RESUMED, not skipped (the bug that silently dropped a sticky rc4 seed)."""
+    coalesced TU) and drops out — EXCEPT a driver-engaged, unmatched body (an
+    in-progress near-miss seed OR a freshly-scaffolded pre-diff body), which must be
+    RESUMED, not skipped (the bug that silently dropped a sticky seed / a scaffold)."""
     while q["pending"]:
         nxt = q["pending"].pop(0)
-        if is_stub(nxt["tu"], nxt["func"]) or active_nearmiss_best(nxt["func"]) is not None:
+        if is_stub(nxt["tu"], nxt["func"]) or engaged_unmatched(nxt["func"]):
             q["current"] = nxt
             save_queue(q)
             return nxt

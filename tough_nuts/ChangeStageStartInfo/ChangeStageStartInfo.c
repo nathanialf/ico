@@ -58,7 +58,33 @@ typedef struct {
 extern StageA D_002A0A90_arr[] __asm__("D_002A0A90");
 extern StageB D_0029F060_arr[] __asm__("D_0029F060");
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/sceneManager", ChangeStageStartInfo);
+void ChangeStageStartInfo(int a0) {
+    StageA *info = &D_002A0A90_arr[a0];
+    unsigned char modelId = info->f46;
+    StageB *m = &D_0029F060_arr[modelId];
+    unsigned short f44 = info->f44;
+    void *g1;
+    void *g2;
+
+    if (m->f44 != 0 && f44 != 0 && modelId != 4) {
+        g1 = isysGObjAddHead(a0);
+        g2 = isysGObjAddHead(f44);
+        if (g2 != 0) {
+            if (g2 == g1) {
+                debug_assertMessage(D_0060FC98, m);
+                func_001AAD00(D_0060FCE0, 0x1E7);
+                func_00260380(D_0060FCE0, 0x1E7, D_0062D2D0);
+            }
+            debug_assertMessage(D_0060FCF8, m);
+            *(int *)(*(int *)((char *)g1 + 0x15C)) = (int)g2;
+            *(int *)(*(int *)((char *)g1 + 0x15C) + 4) = 0;
+        } else {
+            debug_assertMessage(D_0060FD08, m);
+            func_001AAD00(D_0060FCE0, 0x1F0);
+            func_00260380(D_0060FCE0, 0x1F0, D_0062D2D0);
+        }
+    }
+}
 
 
 
