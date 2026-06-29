@@ -5,4 +5,7 @@
 set -eu
 cd "$(dirname "$0")/.."
 touch .claude/.decomp_loop_stop
-echo "decomp loop stop authorized — next turn-end will be allowed."
+# Tear down the completion-gated chain too: remove .decomp_chain_active (so the
+# supervisor stops spawning the next worker) and the in-flight worker sentinel.
+python3 tools/decomp_chain.py stop >/dev/null 2>&1 || rm -f .claude/.decomp_chain_active .claude/.decomp_worker.json
+echo "decomp loop stop authorized — chain torn down; next turn-end will be allowed."

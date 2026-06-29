@@ -115,16 +115,31 @@ def is_stub(tu, func):
 
 
 def resolve_tu_for(func):
-    """Find the TU stem whose .c still carries an INCLUDE_ASM stub for <func>."""
+    """Find the canonical SOURCE-TREE TU stem that DEFINES <func> — as an
+    INCLUDE_ASM stub (unmatched) OR as an in-progress C body (near-miss seed).
+
+    tough_nuts/ park snapshots are EXCLUDED: each is a whole-TU snapshot that
+    carries INCLUDE_ASM stubs for its *sibling* funcs, so a plain stub search
+    mis-resolves any func that is currently a body in its real TU to a
+    non-compilable tough_nuts stem — the bug that froze func_00166D00 on an endless
+    false compile-fail (its body lives in fumi/src/fuzio.c, but the stub survives in
+    tough_nuts/func_00166BD8/...). Prefer a real stub site; fall back to a body
+    site so an in-progress near-miss still resolves to its own TU."""
     pat = inc_line(func)
     files = run(["git", "ls-files", "*.c"]).stdout.split()
+    body_hit = None
     for f in files:
+        if f.startswith("tough_nuts/"):
+            continue                       # snapshot seed, never the canonical TU
         try:
-            if pat.search((ROOT / f).read_text(errors="replace")):
-                return f[:-2]          # strip ".c" → repo-relative stem
+            txt = (ROOT / f).read_text(errors="replace")
         except OSError:
             continue
-    return None
+        if pat.search(txt):
+            return f[:-2]                  # stub site — the canonical owner
+        if body_hit is None and extract_func_def(txt, func) is not None:
+            body_hit = f[:-2]              # in-progress body — fallback owner
+    return body_hit
 
 
 def replace_stub(cpath, func, body):
