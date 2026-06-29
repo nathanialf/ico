@@ -54,7 +54,50 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/StageManager", exit_stage);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/StageManager", start_stage_Load_thread);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/StageManager", stgmgrNextStagePreLoad);
+typedef struct { unsigned char _0[0xA0]; short ent[0x18]; unsigned char _d0[0xC0]; } StgPre;   /* 0x190 */
+typedef struct { int f0; unsigned char _4[0x24]; } StgFile;                       /* 0x28 */
+typedef struct { int f0; unsigned char _4[0xC]; int f10; unsigned char _14[0xC]; } StgSlot;  /* 0x20 */
+
+extern StgPre D_005EBC48[];
+extern StgFile D_0055A2FC[];
+extern StgSlot D_004AE0F0[];
+extern char D_0060B258[];
+extern int func_00166AB8();
+extern void start_stage_Load_thread(void);
+extern void routeSetPos(void);
+extern int iosCdvdChgFileName();
+extern int iosCdvdBackGroundMgrSeek();
+extern int D_0062AB18, D_0062AB1C, D_0062AB20, D_0062AB24, D_0062AB28;
+extern int D_0062AB30, D_0062AB34, D_0062AB38, D_0062AB4C;
+
+void stgmgrNextStagePreLoad(int stage) {
+    StgPre *pre = &D_005EBC48[stage];
+    int i;
+    int ret;
+
+    D_0062AB4C = 0;
+    for (i = 0; i < 15; i++) {
+        short s = pre->ent[i];
+        if (s != 0) {
+            int count = D_0062AB4C;
+            D_004AE0F0[count].f0 = D_0055A2FC[s].f0;
+            if (func_00166AB8(&D_004AE0F0[count].f10, i + 1) == 0) {
+                D_0062AB4C = D_0062AB4C + 1;
+            }
+        }
+    }
+    ret = iosCdvdChgFileName(D_0060B258, start_stage_Load_thread, 0, routeSetPos, 0, 0, 0, 0);
+    D_0062AB30 = ret;
+    iosCdvdBackGroundMgrSeek(ret, 1);
+    D_0062AB18 = 0;
+    D_0062AB38 = 0;
+    D_0062AB34 = 0;
+    D_0062AB1C = 0;
+    D_0062AB20 = 0;
+    D_0062AB24 = 0;
+    D_0062AB28 = 0;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/StageManager", stgmgrNextStagePreLoadEntry);
 

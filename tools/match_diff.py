@@ -52,7 +52,7 @@ JUMP_MNEMONICS = {
 _ANNOT = re.compile(r"\s*<[^>]*>")          # strip "<func+0xNN>" / "<sym>"
 _TRAIL_HEX = re.compile(r"\b[0-9a-f]+\s*$")  # bare hex target (no 0x prefix)
 
-# %hi/%lo address-materialization pair: `lui rX, H` then `addiu rX, rX, L`. The
+# %hi/%lo address-materialization pair: `lui rX, H` ... `addiu rX, rX, L`. The
 # H/L immediates are a symbol's %hi/%lo, resolved differently in the isolated
 # quick_diff .o than in the per-function target .s (a SAME-TU symbol is an
 # external reloc on the target side -> addend 0, but a resolved local .text
@@ -61,8 +61,17 @@ _TRAIL_HEX = re.compile(r"\b[0-9a-f]+\s*$")  # bare hex target (no 0x prefix)
 # to "T", exactly as jal targets are normalized. SAFE: a frame adjust
 # (`addiu sp,sp,-16`) is never preceded by `lui sp`, so this never masks a
 # frame-size diff. See the getParallelWindVector false-rc1 (ExecWindField, 2026-06-04).
+#
+# The `addiu` need NOT be adjacent: the EE scheduler routinely groups several
+# `lui`s then the matching `addiu`s (e.g. a call site loading 3 symbol args ->
+# `lui a0; lui a1; lui a2; addiu a0; addiu a1; addiu a2`). So pair each `lui rX`
+# with the NEXT `addiu rX,rX,L`, scanning forward but ABORTING the moment rX is
+# redefined by an intervening insn (first-operand == rX) — that severs the
+# %hi/%lo pairing and the value is unrelated. (stgmgrNextStagePreLoad false-rc1
+# on the in-TU sibling start_stage_Load_thread, 2026-06-29.)
 _LUI_RE   = re.compile(r"^lui\t([^,]+),")
 _ADDIU_RE = re.compile(r"^addiu\t([^,]+),([^,]+),")
+_DEST_RE  = re.compile(r"^[A-Za-z0-9.]+\t([^,]+)")
 def normalize_lui_addiu(lines: list[str]) -> list[str]:
     out = list(lines)
     for i in range(len(out) - 1):
@@ -70,10 +79,16 @@ def normalize_lui_addiu(lines: list[str]) -> list[str]:
         if not m:
             continue
         reg = m.group(1)
-        m2 = _ADDIU_RE.match(out[i + 1])
-        if m2 and m2.group(1) == reg and m2.group(2) == reg:
-            out[i]     = f"lui\t{reg},T"
-            out[i + 1] = f"addiu\t{reg},{reg},T"
+        for j in range(i + 1, len(out)):
+            m2 = _ADDIU_RE.match(out[j])
+            if m2 and m2.group(1) == reg and m2.group(2) == reg:
+                out[i] = f"lui\t{reg},T"
+                out[j] = f"addiu\t{reg},{reg},T"
+                break
+            # severed: an intervening insn writes rX (its dest is rX) — stop.
+            md = _DEST_RE.match(out[j])
+            if md and md.group(1) == reg:
+                break
     return out
 _CATN = re.compile(r"\s*\d+\t(.*)")          # `cat -n` prefix: ws + number + tab
 

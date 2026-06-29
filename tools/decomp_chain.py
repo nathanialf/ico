@@ -219,12 +219,27 @@ def preflight():
             pass
         subprocess.call(["git", "checkout", "HEAD", "--", f], cwd=ROOT)
         reverted.append(f)
+    # Surface any dirty TOOLING / gate file. Workers must NEVER edit these (the
+    # differ/driver/permuter/configs are the correctness oracle); a supervisor fix
+    # here is legitimate but must be reviewed and ninja-verified before it rides
+    # into a commit. Warn only — do not auto-revert, since the supervisor's own
+    # fixes live here too.
+    try:
+        tout = subprocess.check_output(
+            ["git", "diff", "--name-only", "HEAD", "--",
+             "tools/", "config/", ".claude/hooks/"], cwd=ROOT, text=True)
+        tooling = [t for t in tout.split() if t]
+    except Exception:
+        tooling = []
+    if tooling:
+        print("preflight: WARNING — dirty tooling/gate files (a worker must NOT edit "
+              "these; review + ninja-verify before trusting): " + ", ".join(tooling))
     if reverted:
         print("preflight: stashed+reverted stray bodies (recoverable in "
               ".claude/.decomp_stash/): " + ", ".join(reverted))
     if kept:
         print("preflight: PROTECTED (not reverted): " + ", ".join(kept))
-    if not reverted and not kept:
+    if not reverted and not kept and not tooling:
         print("preflight: nothing to do")
 
 

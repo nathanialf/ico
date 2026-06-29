@@ -277,11 +277,28 @@ def fresh_queue(spec, items):
             "last_protocol": None, "last_protocol_at": 0}
 
 
+def active_nearmiss_best(func):
+    """The recorded near-miss count for <func> if it is an IN-PROGRESS near-miss
+    (a worked function sitting as a live C body, best > 0), else None. Lets advance()
+    RESUME such a body instead of dropping it: its body is not an INCLUDE_ASM stub,
+    so is_stub() is False, but it is NOT an out-of-band match — it is the sticky
+    near-miss seed the chain left for the next worker (best/stall preserved)."""
+    try:
+        st = json.loads((STATE_DIR / f"{func}.json").read_text())
+    except Exception:
+        return None
+    best = st.get("best")
+    return best if isinstance(best, int) and best > 0 else None
+
+
 def advance(q):
-    """Pick the next still-unmatched pending func (out-of-band matches drop out)."""
+    """Pick the next still-unmatched pending func. A func that is no longer an
+    INCLUDE_ASM stub is normally an out-of-band match (matched via a sibling's
+    coalesced TU) and drops out — EXCEPT an in-progress near-miss body, which must
+    be RESUMED, not skipped (the bug that silently dropped a sticky rc4 seed)."""
     while q["pending"]:
         nxt = q["pending"].pop(0)
-        if is_stub(nxt["tu"], nxt["func"]):
+        if is_stub(nxt["tu"], nxt["func"]) or active_nearmiss_best(nxt["func"]) is not None:
             q["current"] = nxt
             save_queue(q)
             return nxt
