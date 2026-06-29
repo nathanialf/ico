@@ -45,7 +45,26 @@ extern void func_0014A008(void *a0, void *a1, int a2);
 extern void func_0023FFF0(void *a0, void *a1, void *a2);
 extern void func_00191DB8(void *a0, float a1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", UpdateGeo);
+static void UpdateGeo(Geo *e, void **pp) {
+    float buf_a[8];
+    float buf_b[8];
+
+    if (e->fF != 0) {
+        buf_a[0] = ((float *) subCommonIdle(*pp))[0];
+        buf_a[1] = ((float *) subCommonIdle(*pp))[1];
+        buf_a[2] = ((float *) subCommonIdle(*pp))[2];
+    } else {
+        func_00191FD0(buf_a, ContinueCorrectPosition(isysGObjSearchFromObjLayoutID(0x2E)), ContinueCorrectPosition(*pp));
+    }
+    func_00240038(buf_a, buf_a, e->f10);
+    func_0014A008(e->f30, buf_a, 0);
+    func_00240038(buf_b, subCommonIdle(*pp), e->f8);
+    func_0023FFF0(e->f20, ContinueCorrectPosition(*pp), buf_b);
+    func_00240038(buf_b, subCommonIdle(*pp), e->f4);
+    func_00191DB8(buf_b, D_00628E24);
+    func_0023FFF0(e->f20, e->f20, buf_b);
+    e->f24 = e->f24 + (float) e->fD;
+}
 
 
 /* BoyBgaManager */
