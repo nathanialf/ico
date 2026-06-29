@@ -275,7 +275,7 @@ def main():
     a = sys.argv[1:]
     if not a:
         sys.stderr.write("usage: decomp_chain.py "
-                         "start|status|nextspec|preflight|spawned|clear|stop\n")
+                         "start|status|nextspec|preflight|warnings|spawned|clear|stop\n")
         sys.exit(2)
     cmd = a[0]
     if cmd == "status":
@@ -295,6 +295,19 @@ def main():
             sys.exit(2)
         spawned(a[1], a[2], a[3])
         print("armed")
+    elif cmd == "warnings":
+        log = os.path.join(STATE_DIR, "_volatile_warnings.log")
+        try:
+            lines = [l for l in open(log).read().splitlines() if l.strip()]
+        except OSError:
+            lines = []
+        if lines:
+            for l in lines:
+                parts = l.split("\t")
+                print("VOLATILE-COMMIT (review, §2.7 do-not-ship): " + " ".join(parts))
+            _rm(log)
+        else:
+            print("(no volatile-commit warnings)")
     elif cmd == "clear":
         _rm(WORKER)
         print("cleared")

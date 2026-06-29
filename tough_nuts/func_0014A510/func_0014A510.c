@@ -87,7 +87,38 @@ void func_0014A4D0(int a0)
 extern int D_002E0100[][37];
 extern int D_005CA4B0[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", func_0014A510);
+void func_0014A510(int *out, int mask, int seed)
+{
+    int j;
+    volatile int home = seed;
+
+    for (j = 0; j < 37; j++) {
+        if ((mask >> j) & 1) {
+            int *t = D_005CA4B0;
+            int k;
+            for (k = 0; k < 71; k++) {
+                int v = D_002E0100[k][j];
+                if (v > 0xFFFF) {
+                    int base = v - 0x10000;
+                    int cnt = 0;
+                    int idx = base;
+                    while (t[idx] != 0x440) {
+                        idx++;
+                        cnt++;
+                    }
+                    if (cnt != 0) {
+                        v = t[base + home % cnt];
+                    } else {
+                        v = 0x440;
+                    }
+                }
+                if (v != 0x440) {
+                    out[k] = v;
+                }
+            }
+        }
+    }
+}
 
 
 extern int D_002E0100[][37];

@@ -405,10 +405,37 @@ def commit_seq(func, tu, msg):
     return True, ""
 
 
+def _warn_volatile_commit(q, func, tu):
+    """§2.7 (decomp/COOKBOOK.md): `volatile` is a do-not-ship home-spill diagnostic
+    crutch — the clean home-forcing construct is the real source. User policy is
+    WARN-BUT-ALLOW: a match whose committed body contains `volatile` IS committed
+    (its bytes are byte-identical), but it is flagged for review — recorded to the
+    queue's events (surfaced in the driver's `done` payload) and to a warnings log
+    the supervisor reads. NOT a block. Only matters at commit (a match keeps its C
+    body in the ELF build); a park keeps the INCLUDE_ASM stub, so park seeds don't
+    ship and aren't flagged here."""
+    cpath = ML.resolve_tu_path(tu)
+    try:
+        body = extract_func_def(cpath.read_text(errors="replace"), func) or ""
+    except Exception:
+        return
+    if re.search(r"\bvolatile\b", body):
+        msg = (f"[VOLATILE-WARN] {func} ({tu}) committed WITH `volatile` in its body "
+               f"— §2.7 do-not-ship crutch; review and re-derive the clean shape.")
+        _plog(q, func, msg)
+        try:
+            with open(STATE_DIR / "_volatile_warnings.log", "a") as fh:
+                fh.write(f"{func}\t{tu}\n")
+        except OSError:
+            pass
+        sys.stderr.write(msg + "\n")
+
+
 def do_commit(q, func, tu, v):
     ok, err = commit_seq(func, tu, commit_msg(func, tu))
     if not ok:
         return emit_blocker(q, func, err, "commit")
+    _warn_volatile_commit(q, func, tu)
     q["done"][func] = "matched"
     q["current"] = None
     save_queue(q)
