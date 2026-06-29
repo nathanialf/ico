@@ -130,7 +130,45 @@ int la_title_new_game_only(void) {
     return -1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/layout_action", _la_set_preview_info);
+typedef struct { int d[4]; } LaPrev16;
+
+extern int lt_set_item_select_func(void);
+extern void func_001B4740(int a0, int a1);
+extern int D_0062B2FC;
+extern int D_0062B308;
+extern int D_0062B30C;
+extern int D_0062B368;
+extern int D_0062B420;
+extern char D_0027CFE0[];
+extern char D_00700710[];
+
+int _la_set_preview_info(void) {
+    int i;
+    int ret;
+
+    D_0062B2FC = lt_set_item_select_func() - 0x1B;
+    if (D_0062B30C == 0) {
+        D_0062B420 = 1;
+        return -1;
+    }
+    for (i = 0; i < 10; i++) {
+        if (((D_0062B308 >> i) & 1) &&
+            *(unsigned int *)(D_0027CFE0 + i * 16 + D_0062B368 * 396) != 0xFFFFFFFFU) {
+            func_001B4740(i + 0x1B, 0);
+            func_001B4740(i + 0x11, 1);
+        } else {
+            func_001B4740(i + 0x1B, 1);
+            func_001B4740(i + 0x11, 0);
+        }
+    }
+    *(LaPrev16 *)&D_00700710 = *(LaPrev16 *)(D_0027CFE0 + D_0062B368 * 396 + D_0062B2FC * 16);
+    ret = -1;
+    if (D_002715D0.f4 & 0x50) {
+        ret = D_0062B2FC;
+    }
+    return ret;
+}
+
 
 extern int D_0062B308;
 extern int D_0062B2FC;
