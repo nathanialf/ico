@@ -68,7 +68,60 @@ extern WayRecG D_004C6FF0_g[] __asm__("D_004C6FF0");
 extern void debug_assertMessage();
 extern char D_00554128[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", nearest_waypoint_from_gobj);
+void nearest_waypoint_from_gobj(int *a0, int a1, int a2) {
+    int type = D_004C6FF0_g[a2].f18;
+    WPElemG *e;
+    WayRecG *node;
+    int r4, r8;
+
+    if (type == 0) goto type0;
+    a2 = (int)&D_004C6FF0_g[a2];
+    node = (WayRecG *)a2;
+    if (type == 1) goto type1;
+    return;
+
+type0:
+    a1 = (int)&D_004C6FF0_g[a1];
+    node = (WayRecG *)a1;
+    e = &D_004C7CF0_g[node->i20];
+    if (e->f20 == a2) {
+        r4 = (int)e;
+    } else {
+        e = &D_004C7CF0_g[node->i24];
+        r4 = (e->f20 == a2) ? (int)e : 0;
+    }
+    a0[1] = r4;
+
+    e = &D_004C7CF0_g[node->i20];
+    if (e->f20 == a2) {
+        r8 = node->f8;
+    } else {
+        e = &D_004C7CF0_g[node->i24];
+        r8 = (e->f20 == a2) ? node->fc : 0;
+    }
+    a0[2] = r8;
+    debug_assertMessage(D_00554128, a0[1], r8);
+    return;
+
+type1:
+    e = &D_004C7CF0_g[node->i20];
+    if (e->f20 == a1) {
+        r4 = node->f8;
+    } else {
+        e = &D_004C7CF0_g[node->i24];
+        r4 = (e->f20 == a1) ? node->fc : 0;
+    }
+    a0[1] = r4;
+
+    e = &D_004C7CF0_g[node->i20];
+    if (e->f20 == a1) {
+        r8 = (int)e;
+    } else {
+        e = &D_004C7CF0_g[node->i24];
+        r8 = (e->f20 == a1) ? (int)e : 0;
+    }
+    a0[2] = r8;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", nearest_waypoint_by_lineseg_of_group);
