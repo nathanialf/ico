@@ -4,7 +4,68 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", isysGObjKindTableInit);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", isysGObjInit);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", cut_gobj_link);
+extern void *D_006A2F50[];
+extern char D_00551DE0[];
+extern char D_0062C348[];
+extern struct GObj *D_0062BFA8;
+extern unsigned int D_0062BFAC;
+extern void func_001AAD00(char *a0, int a1);
+extern void func_00260380(char *a0, int a1, char *a2);
+extern void isysGObjInit(int a0);
+extern void isysGObjProcAddS(int a0);
+extern void func_0013D870(void);
+
+void cut_gobj_link(void) {
+    unsigned int i = 0;
+    if (D_0062BFAC != 0) {
+        void **list = D_006A2F50;
+        char *file = D_00551DE0;
+        int stride;
+        do {
+            char *gobj;
+            int kind;
+            int proc;
+            char *p;
+            int base;
+            do {
+                stride = 0x174;
+            } while (0);
+            base = (int)D_0062BFA8;
+            gobj = (char *)(i * stride + base);
+            if (*(int *)gobj != 0) {
+                kind = *(int *)(gobj + 0xC);
+                proc = *(int *)(gobj + 0x2C);
+                if ((unsigned)(kind - 1) < 0x42) {
+                    p = (char *)list[kind];
+                    if (p == gobj) {
+                        list[kind] = *(void **)(gobj + 0x3C);
+                    } else if (p != 0) {
+                        if (*(char **)(p + 0x3C) != gobj) {
+                            do {
+                                if (p == 0) {
+                                    func_001AAD00(file, 0x92);
+                                    func_00260380(file, 0x92, D_0062C348);
+                                }
+                                p = *(char **)(p + 0x3C);
+                            } while (*(char **)(p + 0x3C) != gobj);
+                        }
+                        *(void **)(p + 0x10) = *(void **)(gobj + 0x3C);
+                    }
+                }
+                isysGObjInit((int)gobj);
+                *(int *)gobj = 0;
+                while (proc != 0) {
+                    isysGObjProcAddS(proc);
+                    proc = *(int *)(gobj + 0x2C);
+                }
+            }
+            i++;
+            stride = 0x174;
+        } while (i < D_0062BFAC);
+    }
+    func_0013D870();
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", isysGObjRemoveAll);
 
