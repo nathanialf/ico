@@ -77,7 +77,70 @@ extern int D_006A58A0[];
 extern int func_001443B8(void *buf, void *a1, int id);
 extern int HandCameraCorrect(void *buf, void *vec);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_0016B028);
+#define REC (*(CamRec *)D_006A58A0)
+
+int func_0016B028(void *a0, float *a1) {
+    float buf0[4];
+    float vec[4];
+    float buf20[4];
+    int s1, abs1, r2, val;
+    int two;
+    int z2;
+    int ret = 0;
+
+    vec[0] = a1[0];
+    vec[1] = a1[1];
+    vec[2] = a1[2];
+    func_001443B8(buf0, a0, 0x2C);
+    s1 = HandCameraCorrect(buf0, vec);
+    abs1 = (s1 < 0) ? -s1 : s1;
+    if (abs1 < 0x15) {
+        goto epilogue;
+    }
+
+    func_001443B8(buf20, a0, 0x23);
+    r2 = HandCameraCorrect(buf20, vec);
+    z2 = 0;
+    if (abs1 >= 0x5A || s1 * r2 >= 0) {
+        val = r2;
+    } else {
+        int nv = 0;
+        val = s1;
+        do {
+        } while (nv);
+    }
+    if (val <= 0) {
+        goto neg;
+    }
+    two = 2;
+    do {
+    } while (z2);
+    if (two < REC.count) {
+        goto setret;
+    }
+    REC.count = two;
+    REC.mode = two;
+    REC.x = vec[0];
+    REC.y = vec[1];
+    REC.z = vec[2];
+    goto setret;
+neg:
+    two = 2;
+    do {
+    } while (z2);
+    if (two < REC.count) {
+        goto setret;
+    }
+    REC.count = two;
+    REC.x = vec[0];
+    REC.mode = 1;
+    REC.y = vec[1];
+    REC.z = vec[2];
+setret:
+    ret = 1;
+epilogue:
+    return ret;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlPulledReady);
