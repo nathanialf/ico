@@ -85,7 +85,7 @@ typedef struct {
 typedef struct { char pad24[0x24]; int unk24; } St55;
 typedef struct { long long a, b; } V16;
 extern void func_001433F0(int a0, void *a1, void *a2);
-extern void func_00260568(void *dst, int val, int size);
+extern int func_00260568(void *dst, int val, int size);
 extern void func_00191DB8(void *a0, float f);
 extern void func_0023FFF0(void *dst, void *a, void *b);
 extern int disp_memory_partition_bar(int a0, int a1, int a2, void *a3, void *a4);
@@ -149,7 +149,53 @@ void func_001440F0(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_00144100);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_00144260);
+extern float ClearHandCameraCorrect(void *a0, void *a1);
+extern void *ContinueCorrectPosition(void *a0);
+extern int funcEnemyCarryFail(void *a0);
+extern void *isysGObjSearchFromObjKindID_begin(void *obj);
+extern void *isysGObjSearchFromObjLayoutID(int id);
+extern int D_00271240[];
+extern float D_0062C3C4_a[] __asm__("D_0062C3C4");
+
+typedef struct {
+    char _0[0x10];
+    int  f_10;
+    char _14[0x70 - 0x14];
+    int  f_70;
+    char _74[0xC];
+} SndCorr;
+
+void func_00144260(void *a0) {
+    SndCorr *snd = *(SndCorr **)((char *)a0 + 0x164);
+    int n70 = snd->f_70;
+
+    func_00260568((char *)snd + 0x54, 0, 0x2C);
+    if (a0 == D_00629DE4 || a0 == D_00629DE8) {
+        float best_d = D_0062C3C4_a[0];
+        void *best = 0;
+        void *o = isysGObjSearchFromObjLayoutID(4);
+        if (o != 0) {
+            do {
+                void *cp = ContinueCorrectPosition(a0);
+                void *cp2 = ContinueCorrectPosition(o);
+                float d = ClearHandCameraCorrect(cp, cp2);
+                if (funcEnemyCarryFail(o) != 0 && d < best_d) {
+                    best_d = d;
+                    best = o;
+                }
+                o = isysGObjSearchFromObjKindID_begin(o);
+            } while (o != 0);
+        }
+        snd->f_70 = (int)best;
+        if (a0 == D_00629DE4 && n70 != 0) {
+            int q = (0x3C - D_00271240[0] * 10) / D_00271240[1];
+            if (snd->f_10 % (q * 2) != 0) {
+                snd->f_70 = n70;
+            }
+        }
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_001443B8);
 
