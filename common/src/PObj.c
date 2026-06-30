@@ -1746,8 +1746,8 @@ extern int func_00100530(int a0);
 extern int func_00242978();
 extern void func_00243638(void);
 extern int D_0070E2C0[];
-extern int D_0070EF00;
-extern int D_0070F580;
+extern int D_0070EF00[];
+extern int D_0070F580[];
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00244F40);
 
@@ -1760,7 +1760,53 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00245080);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00245120);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00245288);
+int func_00245288(unsigned int a0, int a1) {
+    extern int func_00100520(int *a0);
+    extern void func_00100560(int a0);
+    int *g = D_0070E2C0;
+    void *obj;
+    int f0;
+    int uv;
+    int rc;
+    int result;
+    int buf[8];
+
+    obj = func_00243180(a0);
+    func_002435F8(0xB);
+    if (D_0054AB20[0] == 0) {
+        func_00243628();
+        return -1;
+    }
+    if (obj == 0 || ((int *)obj)[1] == 0) {
+        func_00243628();
+        return -9;
+    }
+    f0 = ((int *)obj)[0];
+    g[4] = a1;
+    g[3] = f0;
+    buf[1] = 1;
+    buf[2] = 0;
+    buf[5] = 0;
+    D_0070E2C0[0] = a1 = func_00100520(buf);
+    *(void **)(g + 1) = &result;
+    g[2] = 4;
+    rc = func_00242978(D_0070F580, 0xB, 0, g, 0x20, D_0070EF00, 4, 0, 0);
+    if (rc < 0) {
+        func_00100560(a1);
+        func_00243628();
+        return -0xB;
+    }
+    uv = *(int *)((int)D_0070EF00 | 0x20000000);
+    func_00243628();
+    if (uv == 0) {
+        func_00100530(a1);
+        return -0xB;
+    }
+    func_00100560(a1);
+    func_00100530(a1);
+    return result;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002453E0);
 
