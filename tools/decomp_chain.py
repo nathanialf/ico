@@ -262,6 +262,20 @@ def start(base):
 
 
 def spawned(agent_id, output, spec):
+    # SINGLE-WORKER INVARIANT: never register a second worker while one is still
+    # in flight. A blind overwrite here is exactly how an untracked duplicate
+    # worker (two agents grinding the same func, double token burn, TU clobber)
+    # slips in. Refuse hard; the supervisor must `clear` a genuinely-finished
+    # worker first (CASE B does), and TaskStop it to be sure it is dead.
+    if fresh_worker():
+        try:
+            prev = json.load(open(WORKER)).get("agent_id")
+        except Exception:
+            prev = "?"
+        sys.stderr.write(
+            "REFUSED: a worker (%s) is still in flight — will NOT register a "
+            "second. TaskStop it and `clear` before spawning the next.\n" % prev)
+        sys.exit(3)
     os.makedirs(CLAUDE, exist_ok=True)
     if not os.path.exists(CHAIN):          # fallback; normally `start` created it
         with open(CHAIN, "w") as fh:
@@ -275,11 +289,24 @@ def main():
     a = sys.argv[1:]
     if not a:
         sys.stderr.write("usage: decomp_chain.py "
-                         "start|status|nextspec|preflight|warnings|spawned|clear|stop\n")
+                         "start|status|guard|nextspec|preflight|warnings|spawned|clear|stop\n")
         sys.exit(2)
     cmd = a[0]
     if cmd == "status":
         print(status())
+    elif cmd == "guard":
+        # Pre-spawn gate: run IMMEDIATELY BEFORE the Agent call. Exits non-zero if
+        # a worker is still in flight so the supervisor never launches a second
+        # one. Enforces the SINGLE-WORKER invariant at the only point that matters.
+        if fresh_worker():
+            try:
+                prev = json.load(open(WORKER)).get("agent_id")
+            except Exception:
+                prev = "?"
+            print("BLOCKED: worker %s still in flight — do NOT spawn; "
+                  "TaskStop it and `clear` first." % prev)
+            sys.exit(3)
+        print("clear-to-spawn")
     elif cmd == "nextspec":
         print(nextspec())
     elif cmd == "preflight":
