@@ -159,7 +159,39 @@ typedef struct GFP_Act { char _pad[0x670]; GFP_Mot *f670; } GFP_Act;
 typedef struct GFP_G0  { char _pad[0x164]; GFP_Act *f164; } GFP_G0;
 typedef struct GFP_Self { GFP_G0 *f0; } GFP_Self;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", GetFlyPosition);
+void GetFlyPosition(GFP_Self *self) {
+    volatile int home = (int)self;
+    if (actBoyDitch3mReady() == 0) {
+        return;
+    }
+    if (self->f0->f164->f670->f1E0 == 2) {
+        int a670 = D_0062A670;
+        D_0062BFF0[0] = D_00629DE4;
+        if ((int)(pac_DispQW() * 10.0f) % 100 < self->f0->f164->f670->f1F4) {
+            self->f0->f164->f670->f200 = 0xC;
+            if (D_0062BFF0) {
+                self->f0->f164->f670->f20C = D_0062BFF0[0];
+            } else {
+                self->f0->f164->f670->f20C = a670;
+            }
+        } else {
+            self->f0->f164->f670->f200 = 9;
+            if (D_0062BFF0) {
+                self->f0->f164->f670->f20C = D_0062BFF0[0];
+            } else {
+                self->f0->f164->f670->f20C = a670;
+            }
+        }
+    } else {
+        D_0062BFF0[0] = D_00629DE4;
+        self->f0->f164->f670->f200 = 9;
+        if (D_0062BFF0) {
+            self->f0->f164->f670->f20C = D_0062BFF0[0];
+        } else {
+            self->f0->f164->f670->f20C = D_0062A670;
+        }
+    }
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", NakaBoss);
