@@ -6731,7 +6731,42 @@ int func_00258B88(int a0, int *a1, int a2) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00258BF8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00258CF0);
+int func_00258CF0(int a0) {
+    void *t;
+    char *p;
+    int i;
+    int rv = -1;
+
+    if ((unsigned int)(a0 - 1) < 0x7F) {
+        t = func_00255008(a0);
+        if (*(int *)((char *)t + 8) != 0) {
+            p = (char *)func_00254FC8(0);
+            for (i = 0; i < 0x30; i++, p += 0x58) {
+                if (*(unsigned char *)(p + 0x54) == a0 &&
+                    (unsigned int)*(unsigned char *)(p + 0x50) < 0x30 &&
+                    *(unsigned char *)(p + 0x51) != 3) {
+                    int *obj = (int *)func_00254FE0(*(unsigned char *)(p + 0x50));
+                    int *q = (int *)func_00254FF8();
+                    *(long long *)((char *)q + 0x28) |= (long long)1 << i;
+                    *obj |= 0x2000;
+                    func_00260568((char *)obj + 4, 0, 0x50);
+                    *obj = 0;
+                    *(int *)p |= 0x100;
+                    func_00260568(p + 4, 0, 0x54);
+                    *(unsigned char *)(p + 0x50) = 0xFF;
+                    *(unsigned char *)(p + 0x56) = 0xFF;
+                    *(unsigned char *)(p + 0x55) = 0xFF;
+                    *(unsigned char *)(p + 0x54) = 0xFF;
+                    *(int *)p = 0;
+                }
+            }
+        }
+        func_00260568(t, 0, 0xC);
+        rv = 0;
+    }
+    return rv;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00258E50);
 
