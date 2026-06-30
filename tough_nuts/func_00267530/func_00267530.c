@@ -8162,7 +8162,68 @@ void *func_00267508(void) {
 
 extern int func_0026AFF8(int *self, int a1, int a2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00267530);
+void func_00267530(PObj265 *s) {
+    char *self = (char *)s;
+    unsigned short flags;
+    unsigned short nf;
+    int m, s1, s2;
+    int buf[28];
+    void *r2;
+
+    flags = *(unsigned short *)(self + 0xC);
+    if (flags & 2) {
+        *(int *)(self + 0x0) = (int)(self + 0x43);
+        *(int *)(self + 0x10) = (int)(self + 0x43);
+        *(int *)(self + 0x14) = 1;
+        return;
+    }
+    nf = flags | 0x800;
+    if (*(short *)(self + 0xE) < 0) {
+        goto L94;
+    }
+    if (func_0026AFF8(*(int **)(self + 0x54), *(short *)(self + 0xE), (int)buf) >= 0) {
+        goto LA4;
+    }
+    flags = *(unsigned short *)(self + 0xC);
+    nf = flags | 0x800;
+L94:
+    s1 = 0;
+    *(unsigned short *)(self + 0xC) = nf;
+    s2 = 0x400;
+    goto do_alloc;
+LA4:
+    s2 = 0x400;
+    s1 = buf[1] & 0xF000;
+    m = s1;
+    s1 = (s1 == 0x2000);
+    if (m == 0x8000 && *(void **)(self + 0x28) == (void *)func_002699D0) {
+        *(int *)(self + 0x4C) = s2;
+        *(unsigned short *)(self + 0xC) = *(unsigned short *)(self + 0xC) | 0x400;
+    } else {
+        *(unsigned short *)(self + 0xC) = *(unsigned short *)(self + 0xC) | 0x800;
+    }
+do_alloc:
+    r2 = func_002678D8(*(void **)(self + 0x54), 0x400);
+    if (r2 == 0) {
+        *(int *)(self + 0x0) = (int)(self + 0x43);
+        *(int *)(self + 0x10) = (int)(self + 0x43);
+        *(int *)(self + 0x14) = 1;
+        *(unsigned short *)(self + 0xC) = *(unsigned short *)(self + 0xC) | 2;
+        return;
+    }
+    *(int *)(self + 0x0) = (int)r2;
+    *(int *)(self + 0x10) = (int)r2;
+    *(void **)((char *)*(void **)(self + 0x54) + 0x3C) = (void *)func_00266970;
+    *(unsigned short *)(self + 0xC) = *(unsigned short *)(self + 0xC) | 0x80;
+    *(int *)(self + 0x14) = s2;
+    if (s1 == 0) {
+        return;
+    }
+    if (((int (*)(int))func_00241B78)(*(short *)(self + 0xE)) == 0) {
+        return;
+    }
+    *(unsigned short *)(self + 0xC) = *(unsigned short *)(self + 0xC) | 1;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00267680);
