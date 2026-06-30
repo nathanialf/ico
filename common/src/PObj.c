@@ -3929,7 +3929,48 @@ void func_0024C3E8(char *a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024C470);
+extern int D_0054C694[];
+extern char D_0054C690[];
+extern char D_00711640[];
+extern int D_007116F0[];
+extern char D_00711C00[];
+extern char D_00712C00[];
+extern int func_00100570(int a0);
+extern void func_00100540(int a0);
+extern void func_00261900(char *a0, char *a1, int a2);
+extern void func_002483F8(void *a0, int a1);
+extern int func_00242978();
+
+int func_0024C470(int a0, int a1, char *a2, int a3) {
+    int *obj;
+    int r;
+    if (func_00100570(D_0054C694[0]) < 0) {
+        return -200;
+    }
+    obj = (int *)D_00711640;
+    if (obj[9] == 0) {
+        func_00100540(D_0054C694[0]);
+        return -100;
+    }
+    if (a2 == 0 || a2[0] == 0) {
+        func_00100540(D_0054C694[0]);
+        return -210;
+    }
+    D_007116F0[0] = a0;
+    D_007116F0[1] = a1;
+    D_007116F0[4] = (int)D_00711C00;
+    func_00261900((char *)D_007116F0 + 0x14, a2, 0x3FF);
+    *((char *)D_007116F0 + 0x413) = 0;
+    func_002483F8(D_00711C00, 0x400);
+    r = func_00242978(D_00711640, 0xC, 1, D_007116F0, 0x414, D_00712C00, 4, func_0024C3E8, a3);
+    if (r == 0) {
+        *(int *)D_0054C690 = 0xC;
+    } else {
+        func_00100540(D_0054C694[0]);
+    }
+    return r;
+}
+
 
 extern int D_0054C694[];
 extern char D_00711640[];
