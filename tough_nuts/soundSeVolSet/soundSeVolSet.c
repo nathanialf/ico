@@ -183,7 +183,55 @@ extern void func_00258FB8(int a0);
 extern void func_002593F8(int a0, int a1);
 extern void iosMallocCheckLeak2(int a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSeVolSet);
+void soundSeVolSet(char *self) {
+    switch (*(unsigned short *)(self + 4)) {
+    case 0:
+        func_00258CF0(*(int *)(self + 0x28));
+        break;
+    case 1:
+        if (*(unsigned long long *)(self + 0x20) != 0) {
+            int i;
+            do {
+                i = 0;
+            } while (0);
+            do {
+                long long mask = 1 << i;
+                char *e = D_006A3370 + i * 0x40;
+                if (*(unsigned long long *)(self + 0x20) & mask) {
+                    short v = *(short *)(e + 0x10);
+                    func_002593F8(v, 1);
+                    func_00258FB8(v);
+                    {
+                        char *o = *(char **)(e + 0x30);
+                        if (o != 0) {
+                            long long t = *(long long *)(o + 0x20);
+                            if (t & mask) {
+                                long long nt = t & ~mask;
+                                long long nd = D_0062BFD0 & ~mask;
+                                unsigned short nc = *(unsigned short *)e + 1;
+                                *(long long *)(o + 0x20) = nt;
+                                D_0062BFD0 = nd;
+                                *(unsigned short *)e = nc;
+                                *(int *)(e + 0x30) = 0;
+                            }
+                        }
+                    }
+                }
+                i++;
+            } while (*(unsigned long long *)(self + 0x20) != 0);
+        }
+        func_00258CF0(*(int *)(self + 0x28));
+        iosMallocCheckLeak2(*(int *)(self + 0xC));
+        if (*(int *)(self + 0x10) != 0) {
+            iosMallocCheckLeak2(*(int *)(self + 0x10));
+        }
+        break;
+    case 2:
+        AdpcmVolumeSet(self);
+        break;
+    }
+    *(int *)self = 0;
+}
 
 
 extern char D_006A3070[];
