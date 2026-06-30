@@ -145,7 +145,53 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallR);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallWaveForce);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallFuchiHangWalkStop);
+extern char D_005536F0[];
+extern char D_00553710[];
+extern int D_00629C60;
+extern int D_0062A6A8;
+extern int D_0062BFF4;
+extern int D_0062C028;
+extern void *D_006A4740[];
+extern void *D_006A4BC0[];
+
+void ClipWallFuchiHangWalkStop(void) {
+    int i;
+    char *entry;
+    int j;
+    int n;
+    int *p70;
+    void *obj;
+    int slot;
+
+    debug_assertMessage(D_005536F0, D_00629C60);
+    D_0062C028 = 0;
+    i = 0xF;
+    do {
+        D_006A4BC0[i] = 0;
+        i--;
+    } while (i >= 0);
+    D_0062BFF4 = 0;
+    obj = D_006A4740[0];
+    if (D_0062A6A8 > 0) {
+        do {
+            p70 = (int *)GOBJ_SUB(obj)->f_70;
+            for (j = 0; j < p70[0xC / 4]; j++) {
+                entry = (char *)p70[0x14 / 4] + j * 0x70;
+                slot = *(int *)(entry + 0x60) & 0xF;
+                if (slot != 0) {
+                    if (D_006A4BC0[slot] == 0) {
+                        debug_assertMessage(D_00553710, slot);
+                        D_0062C028 = D_0062C028 + 1;
+                        D_006A4BC0[slot] = entry;
+                    }
+                }
+            }
+            D_0062BFF4 = D_0062BFF4 + 1;
+            obj = D_006A4740[D_0062BFF4];
+        } while (D_0062BFF4 < D_0062A6A8);
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", ClipWallField);
 
