@@ -168,7 +168,80 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_001616E8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", ChangeBrain_ToAttack);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", subEnemyBrain_ToBoy);
+extern int DispPointBlur(void *a0);
+extern void BoxBarSoundOn(void *a0, int a1);
+extern int funcEnemyCarryFail(int *a0);
+extern void func_001AAD00(void *a0, int a1);
+extern void func_00260380(void *a0, int a1, void *a2);
+extern char D_00553110[];
+extern char D_00553120[];
+extern char D_005532B0[];
+extern int D_0062B068;
+
+static inline int subEnemyBrain_ToBoy_chk(void *a0) {
+    char *p = *(char **)((char *)a0 + 0x164);
+    if (*(int *)(*(char **)(p + 0x670) + 0x1FC) != 5) {
+        return 0;
+    }
+    if (*(int *)(*(char **)(p + 0x678) + 0x400) == 0) {
+        func_001AAD00(D_00553110, 0x2E8);
+        func_00260380(D_00553110, 0x2E8, D_00553120);
+    }
+    return 1;
+}
+
+int subEnemyBrain_ToBoy(void *a0) {
+    int f18 = 0;
+    int f20 = 0;
+    int rv = 0;
+    int catch;
+    int r;
+    int a1v;
+
+    r = DispPointBlur(a0);
+    switch (r) {
+    case 1:
+        f18 = 1;
+        break;
+    case 2:
+        f18 = 1;
+        f20 = 1;
+        break;
+    }
+
+    if (a0 == 0 || *(int *)((char *)a0 + 0xC) != 4) {
+        func_001AAD00(D_00553110, 0x7C0);
+        func_00260380(D_00553110, 0x7C0, D_005532B0);
+    }
+
+    if (funcEnemyCarryFail((int *)a0) == 0) {
+        goto done;
+    }
+
+    catch = subEnemyBrain_ToBoy_chk(a0);
+
+    if (catch != 0) {
+        if (f20 != 0) {
+            goto setE;
+        }
+        if (D_0062B068 == 0) {
+            goto done;
+        }
+    setE:
+        BoxBarSoundOn(a0, 0x1E);
+        rv = 1;
+        goto done;
+    } else {
+        if (f18 == 0) {
+            goto done;
+        }
+        BoxBarSoundOn(a0, 0x1D);
+        rv = 1;
+    }
+done:
+    return rv;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", ChangeBrain_ToKidnap);
 
