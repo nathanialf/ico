@@ -401,7 +401,36 @@ typedef struct ThreadMsg {
     int f4C;
 } ThreadMsg;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", func_0013D718);
+void func_0013D718(void)
+{
+  unsigned char new_var;
+  int one = 1;
+  int id;
+  ThreadMsg *msg;
+  debug_assertMessage(D_00551CF8);
+  iosMsgQueueDestroy(D_006A0EB0, &D_0062BFA0, 2);
+  for (;;)
+  {
+    iosMsgRecv(D_006A0EB0, &msg, 1);
+    id = msg->f30;
+    D_0062A4B0 -= 1;
+    debug_assertMessage(D_00551D18, D_0062A4B0);
+    func_00100370((void *) id);
+    func_00100330(id);
+    new_var = one;
+    if ((msg->f3C & 1) == new_var)
+    {
+      iosMallocCheckLeak2(((int *) D_006A0AB0[id])[0x8 / 4]);
+    }
+    if (msg->f48 != 0)
+    {
+      send_signal_message(msg->f4C);
+      iosMallocCheckLeak2(msg->f4C);
+    }
+    D_006A0AB0[id] = 0;
+  }
+
+}
 
 
 
