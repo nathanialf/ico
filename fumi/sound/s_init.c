@@ -382,7 +382,29 @@ char *soundSQDataSet(int a0, int a1, int a2, int a3, int a4) {
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSeDefPlay);
+char *soundSeDefPlay(int a0, int a1, int a2, int a3, int a4) {
+    int hi = a2 << 0x10;
+    int key = (a1 & 0xFFFF) | hi;
+    SqEntry *e = (SqEntry *)hd_search(D_006A3070, &key);
+    if (e == 0) {
+        key = 0;
+        e = (SqEntry *)hd_search(D_006A3070_b, &key);
+        if (e == 0) {
+            func_001AAD00(D_00551FC8, 0x142);
+            func_00260380(D_00551FC8, 0x142, D_0062C388);
+        }
+        func_00260568(e, 0, 0x30);
+        e->num = a1;
+        e->bank = a2;
+        e->unk6 = a4;
+        e->unk4 = a3;
+        e->unk28 = -1;
+    }
+    e->unk10[0] = a0;
+    soundBufSegFree((char *)e);
+    return (char *)e;
+}
+
 
 extern int soundSeDefStop(int a0, int a1, int a2, int a3, float f, int t0, int t1);
 extern void _soundSeDefStop(int *p);
