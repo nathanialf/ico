@@ -383,7 +383,16 @@ int func_0013D698(int *self)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", func_0013D718);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", func_0013D808);
+void func_0013D808(int a0) {
+    int i;
+
+    for (i = 0; i < 0x100; i++) {
+        if (D_006A0AB0[i] != 0 && i != a0) {
+            iosSemaDelete(D_006A0AB0[i]);
+        }
+    }
+}
+
 
 extern unsigned char D_006A2F50[];
 extern void func_00260568(void *a0, int a1, int a2);
