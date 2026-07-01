@@ -100,7 +100,45 @@ extern void func_00240038_p(void *a0, int a1, float f) __asm__("func_00240038");
 extern int D_00271240[];
 extern float D_00628F40;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", WithMailFunc_AttackFail);
+void WithMailFunc_AttackFail(volatile int a0) {
+    float buf[8];
+    char *st = *(char **)((char *)a0 + 0x164);
+    void *mail = *(void **)(st + 0x5EC);
+    void *self0;
+    void *ret;
+    int val = (0x3C - D_00271240[0] * 0xA) / D_00271240[1];
+
+    buf[0] = *(float *)(st + 0x590);
+    buf[1] = *(float *)(st + 0x594);
+    buf[2] = *(float *)(st + 0x598);
+    self0 = (void *)a0;
+    *(int *)(*(char **)(*(char **)((char *)a0 + 0x164) + 0x678) + 0x380) = val * 5;
+    ret = ContinueCorrectPosition(self0);
+    buf[1] = *(float *)((char *)ret + 0x4);
+    CylinderCollision((void *)a0, st + 0x590);
+    func_00240038_p(&buf[4], (int)(*(char **)((char *)a0 + 0x164) + 0x4A0), -1.0f);
+    dispPlane((void *)a0, &buf[4]);
+    for (;;) {
+        if (mail != 0) {
+            char *sub = *(char **)((char *)a0 + 0x15C);
+            if (*(int *)(sub + 0x5F4) != 0) {
+                int n = *(int *)((char *)mail + 0xC);
+                if (n >= 0x16) {
+                    if (n < 0x18) {
+                        pushStartSE(&buf[4], mail);
+                    } else if (n < 0x1A) {
+                        WallLeverGeo(&buf[4], mail);
+                    }
+                }
+                SetRootMatrixWithTransOffsetByDObj((void *)a0, 0x16, &buf[4], D_00628F40);
+            }
+            if (*(int *)(*(char **)((char *)a0 + 0x15C) + 0x5F0) != 0) {
+                func_00155FF8((void *)a0, mail);
+            }
+        }
+        _ACTWait(1);
+    }
+}
 
 
 extern void func_0018F2A0(void *a0);
