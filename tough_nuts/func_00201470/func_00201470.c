@@ -58,7 +58,81 @@ typedef struct {
     int w;
 } Act2Ent;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act2", func_00201470);
+void func_00201470(void *self) {
+    void *p = *(void **)((char *)self + 0x164);
+
+    if (p == 0) {
+        return;
+    }
+    {
+        void *list[3] = {
+            *(void **)((char *)p + 0xB4),
+            *(void **)((char *)p + 0xB0),
+            (void *)-1
+        };
+        int *ctx = (int *)((char *)self + 0x54);
+        int k = 0;
+        int n;
+        int id;
+        int j;
+        int off;
+        int *arr;
+        Act2Ent *e;
+        Act2Desc *d;
+
+        if (list[0] == (void *)-1) {
+            ctx[1] = 0;
+            return;
+        }
+    loop_head:
+        d = (Act2Desc *)list[k];
+        if (d == 0) {
+            goto inc;
+        }
+        if (d->f_0 == 0x188) {
+            k++;
+            goto advance;
+        }
+    scan:
+        n = ctx[1];
+        if (n > 0) {
+            id = d->f_0;
+            arr = ctx + 2;
+            j = 0;
+            do {
+                if (arr[j << 1] == id) {
+                    goto found;
+                }
+                j++;
+            } while (j < n);
+        }
+        d++;
+        if (d->f_0 != 0x188) {
+            goto scan;
+        }
+    inc:
+        k++;
+    advance:
+        if (list[k] != (void *)-1) {
+            goto loop_head;
+        }
+        ctx[1] = 0;
+        goto end;
+    found:
+        *(int *)((char *)p + 0xB8) = id;
+        ctx[1] = 0;
+        if (d->f_4) {
+            actChangeActMain(D_0062A4DC, d->f_4, (void **)((char *)p + 4));
+        }
+        if (d->f_C) {
+            actCreateSubThread(d->f_C, 0x14);
+        }
+        if (d->f_8) {
+            actCreateMotionThread(d->f_8, (void *)0x15, (void **)((char *)p + 8));
+        }
+    end:;
+    }
+}
 
 
 extern void actInitialize(int a0);
