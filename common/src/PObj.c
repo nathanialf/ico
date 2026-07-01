@@ -52,7 +52,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023D3C0);
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023D4E8);
 
 typedef struct {
-    char pad0[0xFC];
+    char pad0[0xF0];
+    float fF0;
+    float fF4;
+    float fF8;
     float fFC;
     float f100;
     char pad104[4];
@@ -68,7 +71,38 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023D7F8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023D910);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023DDC0);
+extern void _ApplyCurrentMatrix(void *a0, void *a1, void *a2);
+extern void func_0023D7F8(void *a0, int a1);
+extern void *func_0023D910(void *a0, void *a1, int a2);
+
+void *func_0023DDC0(void *a0, void *a1, int a2) {
+    void *obj = func_0023D910(a0, a1, a2);
+    float vec[4];
+    int i;
+    int k;
+    signed char count;
+
+    vec[3] = 0.0f;
+    vec[0] = D_004CED88[a2].fF0;
+    vec[1] = D_004CED88[a2].fF4;
+    vec[2] = D_004CED88[a2].fF8;
+    count = *(signed char *)((char *)obj + 0x2E);
+    for (i = 0; i < count; i++) {
+        char *sub = *(char **)((char *)obj + 0x40) + i * 0x180;
+        int n = *(int *)(sub + 0x94);
+        for (k = 0; k < n; k++) {
+            char *m = *(char **)(sub + 0x90) + k * 0x10;
+            _ApplyCurrentMatrix(m, m, vec);
+        }
+        for (k = 0; k < 8; k++) {
+            char *m = *(char **)((char *)obj + 0x44) + i * 0x80 + k * 0x10;
+            _ApplyCurrentMatrix(m, m, vec);
+        }
+    }
+    func_0023D7F8(obj, a2);
+    return obj;
+}
+
 
 extern void *D_006281F8[];
 extern void debug_assertMessage(void *a0);
