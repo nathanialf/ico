@@ -183,7 +183,79 @@ extern void func_00258FB8(int a0);
 extern void func_002593F8(int a0, int a1);
 extern void iosMallocCheckLeak2(int a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSeVolSet);
+typedef struct SoundEnt {
+  /* 0x00 */ unsigned short f_0;
+  /* 0x02 */ char pad_2[0x0E];
+  /* 0x10 */ short f_10;
+  /* 0x12 */ char pad_12[0x1E];
+  /* 0x30 */ int f_30;
+  /* 0x34 */ char pad_34[0x0C];
+} SoundEnt;
+extern SoundEnt D_arr3370[] __asm__("D_006A3370");
+
+void soundSeVolSet(char *self)
+{
+  switch (*((unsigned short *) (self + 4)))
+  {
+    case 0:
+      func_00258CF0(*((int *) (self + 0x28)));
+      break;
+
+    case 1:
+      if ((*((unsigned long long *) (self + 0x20))) != 0)
+    {
+      int i;
+      do
+      {
+        i = 0;
+      }
+      while (0);
+      do
+      {
+        long long mask = 1 << i;
+        if ((*((unsigned long long *) (self + 0x20))) & mask)
+        {
+          short v = D_arr3370[i].f_10;
+          func_002593F8(v, 1);
+          func_00258FB8(v);
+          {
+            char *o = (char *) D_arr3370[i].f_30;
+            if (o != 0)
+            {
+              long long t = *((long long *) (o + 0x20));
+              if (t & mask)
+              {
+                long long nt = t & (~mask);
+                unsigned long nc = (unsigned short) (D_arr3370[i].f_0 + 1);
+                long long nd = D_0062BFD0 & (~mask);
+                *((long long *) (o + 0x20)) = nt;
+                D_0062BFD0 = nd;
+                D_arr3370[i].f_0 = nc;
+                D_arr3370[i].f_30 = 0;
+              }
+            }
+          }
+        }
+        i++;
+      }
+      while ((*((unsigned long long *) (self + 0x20))) != 0);
+    }
+      func_00258CF0(*((int *) (self + 0x28)));
+      iosMallocCheckLeak2(*((int *) (self + 0xC)));
+      if ((*((int *) (self + 0x10))) != 0)
+    {
+      iosMallocCheckLeak2(*((int *) (self + 0x10)));
+    }
+      break;
+
+    case 2:
+      AdpcmVolumeSet(self);
+      break;
+
+  }
+
+  *((int *) self) = 0;
+}
 
 
 
