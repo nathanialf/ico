@@ -173,7 +173,55 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_00170CB8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlDitch3mExec);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlStand);
+typedef struct {
+    char _0[0x20];
+    float f_20;        /* 0x20 */
+    char _24[0x0C];
+    float sub30[4];    /* 0x30 */
+    float sub40[4];    /* 0x40 */
+    float f_50;        /* 0x50 */
+    float f_54;        /* 0x54 */
+    signed char f_58;  /* 0x58 */
+    signed char f_59;
+    signed char f_5A;
+    signed char f_5B;
+    signed char f_5C;
+    signed char f_5D;
+    signed char f_5E;
+} GirlStand;
+extern GirlStand D_gStand __asm__("D_00284740");
+
+void actGirlStand(void) {
+    volatile int home;
+    int uninit;
+    float one = 1.0f;
+    home = uninit;
+    if (D_gStand.f_20 < 2.0f) {
+        D_gStand.f_58 = 1;
+    }
+    if ((HandCameraCorrect(D_gStand.sub40, D_gStand.sub30) < 0
+            ? -HandCameraCorrect(D_gStand.sub40, D_gStand.sub30)
+            : HandCameraCorrect(D_gStand.sub40, D_gStand.sub30)) >= 0x3D) {
+        D_gStand.f_59 = 1;
+    }
+    if (D_gStand.f_54 > 15.0f) {
+        D_gStand.f_5E = 1;
+    }
+    if (one * 100.0f < D_gStand.f_50) {
+        D_gStand.f_5A = 1;
+    }
+    if (one * 125.0f < D_gStand.f_50) {
+        D_gStand.f_5B = 1;
+    }
+    if (one * 135.0f < D_gStand.f_50) {
+        D_gStand.f_5C = 1;
+    }
+    if (D_gStand.f_50 < 90.0f) {
+        D_gStand.f_5D = 1;
+    }
+}
+
+
 
 extern void traceLine();
 extern unsigned char D_00284740[];
