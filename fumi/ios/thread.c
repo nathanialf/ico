@@ -383,6 +383,8 @@ int func_0013D698(int *self)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", func_0013D718);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", func_0013D808);
+
 extern unsigned char D_006A2F50[];
 extern void func_00260568(void *a0, int a1, int a2);
 

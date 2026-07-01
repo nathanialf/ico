@@ -951,6 +951,7 @@ func_0013D5E8 = 0x0013D5E8; // type:func  // fumi/ios/thread.c
 func_0013D648 = 0x0013D648; // type:func  // fumi/ios/thread.c
 func_0013D698 = 0x0013D698; // type:func  // fumi/ios/thread.c
 func_0013D718 = 0x0013D718; // type:func  // fumi/ios/thread.c
+func_0013D808 = 0x0013D808; // type:func  // fumi/ios/thread.c
 func_0013D870 = 0x0013D870; // type:func  // fumi/ios/thread.c
 isysGObjKindTableInit = 0x0013D888; // type:func  // fumi/isys/gobj.c
 isysGObjInit = 0x0013D8E0; // type:func  // fumi/isys/gobj.c
