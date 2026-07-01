@@ -6692,7 +6692,62 @@ void func_00257380(int *a0)
 extern void *func_00254FC8(int a0);
 extern void *func_00255060(void);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00257410);
+void func_00257410(char *a0) {
+    char *p;
+    char *ctx;
+    char *s;
+    int two;
+    int one;
+    int i;
+
+    p = (char *)func_00254FC8(0);
+    ctx = (char *)func_00255060();
+    if (*(int *)a0 & 8) {
+        two = 2;
+        i = 0x2F;
+        do {
+            if (*(unsigned char *)(p + 0x51) == two) {
+              if (*(unsigned short *)(p + 0x2C) == *(unsigned char *)(*(char **)(ctx + 0x10) + 0x3)) {
+                if (*(unsigned char *)(p + 0x4E) == *(unsigned char *)(*(char **)(ctx + 0x10) + 0x4)) {
+                  if (*(unsigned char *)(p + 0x54) == *(unsigned short *)(a0 + 0x18)) {
+                    if (*(unsigned char *)(p + 0x50) == *(unsigned short *)(a0 + 0x4C)) {
+                      do {
+                        *(unsigned short *)(p + 0x12) = *(unsigned char *)(*(char **)(ctx + 0x10) + 0x2);
+                        *(int *)p |= 0x10;
+                      } while (0);
+                    }
+                  }
+                }
+              }
+            }
+            i -= 1;
+            p += 0x58;
+        } while (i >= 0);
+        *(int *)(a0 + 0x4) += 5;
+    } else {
+        one = 1;
+        *(unsigned char *)(*(char **)(ctx + 0x8) + (*(unsigned short *)(a0 + 0x4E) << 4) + 0x19) =
+            *(unsigned char *)(*(char **)(ctx + 0x10) + 0x2);
+        i = 0x2F;
+        do {
+            if (*(unsigned char *)(p + 0x4F) == *(unsigned short *)(a0 + 0x4E)) {
+              if (*(unsigned char *)(p + 0x54) == *(unsigned short *)(a0 + 0x18)) {
+                if (*(unsigned char *)(p + 0x50) == *(unsigned short *)(a0 + 0x4C)) {
+                  if (*(unsigned char *)(p + 0x51) == one) {
+                    do {
+                      *(unsigned short *)(p + 0x12) = *(unsigned char *)(*(char **)(ctx + 0x10) + 0x2);
+                      *(int *)p |= 0x10;
+                    } while (0);
+                  }
+                }
+              }
+            }
+            i -= 1;
+            p += 0x58;
+        } while (i >= 0);
+        *(int *)(a0 + 0x4) += 3;
+    }
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00257570);
