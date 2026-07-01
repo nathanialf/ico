@@ -112,7 +112,33 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", debugExceptionIn
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", debugIOPExceptionInit);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/debug_exception", func_001A4C58);
+extern void func_00261188(int a0, void *a1, ...);
+extern unsigned int func_0026160C(char *buf);
+extern int func_001A4DE8(char *a0, int a1, int a2, int a3, void *a4, int a5, int a6, int a7, int a8, int *a9);
+extern char D_0060DBE8[];
+extern char D_0062CC38[];
+extern char D_0062CC40[];
+
+void func_001A4C58(int a0, int a1, int a2, int a3, int count, int a5,
+                   int (*fn)(int, int), int a7) {
+    char buf[count][0x25];
+    int i;
+
+    for (i = 0; i < count; i++) {
+        if (fn != 0) {
+            int r = fn(i, a7);
+            func_00261188(buf[i], D_0062CC38, i, r);
+        } else {
+            func_00261188(buf[i], D_0062CC40, i);
+        }
+        if (func_0026160C(buf[i]) >= 0x26) {
+            buf[i][0x24] = 0;
+            debug_assertMessage((int)D_0060DBE8);
+        }
+    }
+    func_001A4DE8(a0, a1, a2, a3, (char *)buf, 0x25, 0, 0, count, a5);
+}
+
 
 extern void func_00261188(int a0, void *a1, ...);
 extern int D_0062CC58[];
