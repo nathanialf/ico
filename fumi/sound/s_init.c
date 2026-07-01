@@ -319,7 +319,7 @@ found:
     return r;
 }
 
-extern void func_00260568(void *dst, int val, int size);
+extern int func_00260568(void *dst, int val, int size);
 
 static inline char *hd_search(char *base, int *pk) {
     char *p = base;
@@ -340,7 +340,47 @@ found:
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundHDDataSet);
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSQDataSet);
+extern void func_001AAD00(char *a0, int a1);
+extern void func_00260380(char *a0, int a1, char *a2);
+extern void soundBufSegFree(char *e);
+extern char D_00551FC8[];
+extern char D_0062C388[];
+extern char D_006A3070_b[] __asm__("D_006A3070");
+
+typedef struct SqEntry {
+    short num;      /* 0x0 */
+    short bank;     /* 0x2 */
+    short unk4;     /* 0x4 */
+    short unk6;     /* 0x6 */
+    int unk8;       /* 0x8 */
+    int unkC;       /* 0xC */
+    int unk10[6];   /* 0x10 */
+    int unk28;      /* 0x28 */
+} SqEntry;
+
+char *soundSQDataSet(int a0, int a1, int a2, int a3, int a4) {
+    int hi = a2 << 0x10;
+    int key = (a1 & 0xFFFF) | hi;
+    SqEntry *e = (SqEntry *)hd_search(D_006A3070, &key);
+    if (e == 0) {
+        key = 0;
+        e = (SqEntry *)hd_search(D_006A3070_b, &key);
+        if (e == 0) {
+            func_001AAD00(D_00551FC8, 0x142);
+            func_00260380(D_00551FC8, 0x142, D_0062C388);
+        }
+        func_00260568(e, 0, 0x30);
+        e->num = a1;
+        e->bank = a2;
+        e->unk6 = a4;
+        e->unk4 = a3;
+        e->unk28 = -1;
+    }
+    e->unkC = a0;
+    soundBufSegFree((char *)e);
+    return (char *)e;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/s_init", soundSeDefPlay);
 
