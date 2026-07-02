@@ -519,7 +519,65 @@ elsebr:
     *(int *)(*(int *)(a0[0x59] + 0x670) + 0x20C) = D_0062A670;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", IsEnemyBrainToGenerator);
+extern int ContinueCorrectPosition(int a0);
+extern void func_00191FD0(float *a0, int a1, int a2);
+extern void func_00104548(float *a0, void *a1);
+extern int HandCameraCorrect(float *a0, float *a1);
+extern void dispPlane(void *a0, float *a1);
+extern void actCommonStoneDead(void *a0, float *a1, float a2);
+extern void BoxBarSoundOn(void *a0, int a1);
+
+int IsEnemyBrainToGenerator(void *a0, int a1, int a2) {
+    float posA[4];
+    float mtx[4];
+    float posB[4];
+    char *p;
+    char *q;
+    float *m;
+    int r0;
+    int r1;
+    int flag;
+    int mode;
+    int angle;
+    int absA;
+
+    p = *(char **)((char *)a0 + 0x164);
+    r0 = ContinueCorrectPosition(a1);
+    r1 = ContinueCorrectPosition(a0);
+    func_00191FD0(posA, r0, r1);
+    q = *(char **)((char *)a0 + 0x164);
+    *(float *)(p + 0x100) = posA[0];
+    *(float *)(p + 0x104) = posA[1];
+    *(float *)(p + 0x108) = posA[2];
+    flag = *(int *)(q + 0x30);
+    mode = ((flag ^ 3) == 0) ? 0x5A : 0x69;
+    posB[0] = *(float *)(q + 0x100);
+    posB[1] = *(float *)(q + 0x104);
+    posB[2] = *(float *)(q + 0x108);
+    m = mtx;
+    func_00104548(m, a0);
+    m = posB;
+    angle = HandCameraCorrect(mtx, m);
+    absA = (angle >= 0) ? angle : -angle;
+    if (mode < absA) {
+        *(float *)(q + 0x5B0) = posB[0];
+        *(float *)(q + 0x5B4) = posB[1];
+        *(float *)(q + 0x5B8) = posB[2];
+        if (angle > 0) {
+            BoxBarSoundOn(a0, 0xD5);
+        } else {
+            BoxBarSoundOn(a0, 0xD4);
+        }
+    } else if (absA < 0xF) {
+        BoxBarSoundOn(a0, 0xDE);
+    }
+    if (a2 == 0) {
+        dispPlane(a0, posA);
+    } else {
+        actCommonStoneDead(a0, posA, (float)a2);
+    }
+}
+
 
 extern int subEnemyBrain_ToBoy(void *a0);
 
