@@ -71,7 +71,52 @@ extern void func_00240080(void *a0, void *a1);
 extern void BirdDL(int a0, void *a1);
 extern void InitDemoMotionGeo(void *a0, int a1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyAttack);
+void actEnemyAttack(void *self) {
+    int buf[4];
+    int k;
+    int n;
+    int off;
+    char *e;
+
+    n = *(int *)((char *)*(int **)((char *)self + 0x15C) + 0x88);
+    for (k = 0; k < n; k++) {
+        if (HotInitDemoMotionGeo(self, k) == 0) {
+            subEnemyCollision(self, k);
+        }
+    }
+    off = 0;
+    k = 4;
+    do {
+        e = (char *)(off + *(int *)((*(int *)((char *)self + 0x164)) + 0x670)) + 0x360;
+        if (*(signed char *)(e + 0x1D) != 0) {
+            if (*(signed char *)(e + 0x1C) != 0) {
+                char *g = (char *)*(int *)((*(int *)((char *)self + 0x15C)) + 0xC) +
+                          (*(int *)(e + 0x14) << 6) + 0x30;
+                func_00240080(buf, g);
+                *(float *)&buf[3] = 1.0f;
+                BirdDL(*(int *)((char *)(off + *(int *)((*(int *)((char *)self + 0x164)) + 0x670)) + 0x370), buf);
+            }
+            {
+                char *e2 = (char *)(off + *(int *)((*(int *)((char *)self + 0x164)) + 0x670)) + 0x360;
+                if (*(int *)(e2 + 0x18) == 0) {
+                    InitDemoMotionGeo(self, *(int *)(e2 + 0x14));
+                }
+            }
+            {
+                char *e3 = (char *)(off + *(int *)((*(int *)((char *)self + 0x164)) + 0x670)) + 0x360;
+                if (*(signed char *)(e3 + 0x1C) == 0 && *(int *)(e3 + 0x18) < 0) {
+                    *(signed char *)(e3 + 0x1D) = 0;
+                }
+            }
+            {
+                char *e4 = (char *)(off + *(int *)((*(int *)((char *)self + 0x164)) + 0x670)) + 0x360;
+                *(int *)(e4 + 0x18) = *(int *)(e4 + 0x18) - 1;
+            }
+        }
+        k--;
+        off += 0x20;
+    } while (k >= 0);
+}
 
 
 extern int D_00629DE4;
