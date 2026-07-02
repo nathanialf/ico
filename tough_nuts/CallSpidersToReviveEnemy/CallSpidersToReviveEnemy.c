@@ -61,7 +61,42 @@ typedef struct {
     int f3C;
 } SpiderMgr;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/spider", CallSpidersToReviveEnemy);
+SpiderMgr *CallSpidersToReviveEnemy(int arg0, SpiderReq *obj) {
+    SpiderReq buf;
+    SpiderMgr *mgr;
+    int idx;
+    int i;
+    int count;
+    float base;
+
+    mgr = iosFree(D_0062A310, 0x40, D_00612A30, 0x2B);
+    buf = *obj;
+    idx = obj->f30;
+    count = D_0061D730[idx].f10;
+    i = 0;
+    mgr->f20 = count;
+    mgr->f34 = idx;
+    mgr->f24 = iosFree(D_0062A310, count * 4, D_00612A30, 0x2F);
+    mgr->f28 = 0;
+    mgr->f0 = -1;
+    mgr->f2C = 0;
+    mgr->f30 = 0;
+    mgr->f38 = -1;
+    mgr->f3C = 0;
+    if (i < count) {
+        float one = 1.0f;
+        base = D_006296B0;
+        while (i < count) {
+            int r;
+            *(float *)((char *)&buf + 0x14) = (2.0f * pac_DispQW() - one) * base;
+            r = IsActCharDead(&buf);
+            mgr->f24[i] = r;
+            i++;
+            subAP1BrainMain(r, 0);
+        }
+    }
+    return mgr;
+}
 
 
 extern void func_001B8470(int);
