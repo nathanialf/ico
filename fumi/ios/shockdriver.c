@@ -115,7 +115,71 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockRequestBox_Clear)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockRequestBox_Regst);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockRequestBox_Request);
+extern void func_0024AF58(int a0, int a1, void *box);
+
+typedef struct ShockReq {
+    /* 0x0 */ unsigned short out;
+    /* 0x2 */ unsigned short acc;
+    /* 0x4 */ unsigned char type;
+    /* 0x5 */ unsigned char val;
+} ShockReq;
+
+void ShockRequestBox_Request(int a0, int a1, ShockReq *box, int a3, int a4)
+{
+    int n = a1 & 0xFF;
+    int type = a0 & 0xFF;
+    int cur = box->out;
+    int diff = n - cur;
+    int r = n;
+    short w;
+    int sum;
+    unsigned int outv;
+
+    if (diff <= 0) goto Ldec;
+    if (diff >= 0x29) goto Lff;
+    if (n >= 0x3D) goto L40;
+    if (cur >= 0x3D) goto L40;
+    if (cur >= 0x33) goto Lquad;
+Lff:
+    r = 0xFF;
+    goto Ltail;
+Lquad:
+    diff = 0x3C - n;
+    diff = (diff * 0xFF) * diff / 0x64;
+    r = (cur < diff) ? diff : n;
+    goto Ltail;
+L40:
+    diff = diff * 0xFF / 0x28;
+    r = (cur < diff) ? diff : n;
+    goto Ltail;
+Ldec:
+    if (diff >= 0) goto Ltail;
+    if (diff < -0x1E) {
+        r = 0;
+        goto Ltail;
+    }
+    diff = diff * 0xFF / 0x1E + 0xFF;
+    r = (diff < cur) ? diff : n;
+Ltail:
+    n = r & 0xFF;
+    sum = box->acc + n;
+    box->acc = sum;
+    if ((short)sum >= 0x40B) {
+        box->acc = 0x40A;
+    } else if ((short)sum < 0) {
+        box->acc = 0;
+    }
+    w = (short)box->acc;
+    outv = ((unsigned int)w << 8) / 0x40B;
+    box->type = type;
+    box->acc = (unsigned int)(w * 3) >> 2;
+    box->val = n;
+    box->out = outv;
+    if (a3 >= 0) {
+        func_0024AF58(a3, a4, &box->type);
+    }
+}
+
 
 void ShockRequestBox_DecodeRequest(int **a0, int *a1) {
     do { } while (0);
