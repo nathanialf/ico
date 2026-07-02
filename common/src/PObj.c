@@ -3216,7 +3216,66 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00249818);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002498E0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00249AC0);
+extern int D_0054ABF4[];
+extern int D_0054AC14[];
+extern int D_0054ABF0[];
+extern void func_00248590();
+
+typedef struct {
+    /* 0x00 */ int f0;
+    /* 0x04 */ int f4;
+    /* 0x08 */ int f8;
+    /* 0x0C */ unsigned char fC;
+    /* 0x0D */ unsigned char fD;
+    /* 0x0E */ unsigned char fE;
+    /* 0x0F */ char padF;
+    /* 0x10 */ void *f10;
+    /* 0x14 */ void *f14;
+} St249ACC0;
+extern St249ACC0 D_0054ACC0;
+extern char D_0054BCC0[];
+extern char D_0054BD80[];
+extern char D_00628AD8[];
+
+int func_00249AC0(int a0, int a1, int a2, unsigned char *a3) {
+    St249ACC0 *p = &D_0054ACC0;
+    if ((D_0054ABF4[0] & 1) == 0) {
+        if (func_00249028() == 6) {
+            return 0;
+        }
+    }
+    if (func_00248EB8(5) == 0) {
+        return 0;
+    }
+    {
+        p->f0 = a0;
+        p->f4 = a1;
+        p->f8 = a2;
+        p->fC = a3[0];
+        p->fD = a3[1];
+        p->fE = a3[2];
+        p->f10 = D_0054BCC0;
+        p->f14 = D_0054BD80;
+    }
+    func_002483F8(p, 0x18);
+    {
+    volatile int *hp = D_0054AC14;
+    volatile int *hp2 = D_0054ABF0;
+    *hp = 1;
+    *hp2 = 1;
+    if (func_00242978(D_0054BD90, 0xD, 1, p, 0x18, 0, 0, func_00248590, (int *)hp) < 0) {
+        *hp = 0;
+        *hp2 = 0;
+        func_00100540(*(volatile int *)D_0054ABE8);
+        return 0;
+    }
+    if (D_0054ABD0[0] > 0) {
+        func_001019E0(D_00628AD8);
+    }
+    return 1;
+    }
+}
+
 
 extern int D_0054BDC0[];
 extern char D_0054C608[];
