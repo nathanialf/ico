@@ -150,7 +150,45 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", _getMotion);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetMotion);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", GetStreamMotion);
+typedef struct { long long d[2]; float q[4]; } StreamElem;                              /* 0x20 */
+typedef struct { int idx; char pad[0x1C]; float q[4]; char pad2[0x10]; } StreamNode;    /* 0x40 */
+
+extern void RegularizeQuaternion(float *dst, float *src);
+extern void func_0010E148(void *a0, void *a1, void *a2);
+extern void func_0010E348(float *a0, float *a1, unsigned int a2);
+
+int GetStreamMotion(StreamElem *a, StreamNode *b) {
+    int i;
+    int n;
+    float buf[4];
+    StreamElem tmp;
+
+    for (i = 0; b[i].idx != -1; i++) {
+        n = b[i].idx;
+        if (i < n) {
+            continue;
+        }
+        if (i != n) {
+            goto swap;
+        }
+        RegularizeQuaternion(buf, b[i].q);
+        func_0010E148(buf, buf, a[i].q);
+        func_0010E348(buf, buf, 4);
+        func_0010E148(a[i].q, b[i].q, buf);
+        continue;
+    swap:
+        {
+            StreamElem *pn = (StreamElem *)((char *)a + n * 0x20);
+            StreamElem *pi = (StreamElem *)((char *)a + i * 0x20);
+            tmp = *pi;
+            *pi = *pn;
+            *pn = tmp;
+        }
+        func_0010E348(a[i].q, a[i].q, 4);
+        func_0010E348(a[b[i].idx].q, a[b[i].idx].q, 4);
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", copyMotionWithNodeHrc);
 
