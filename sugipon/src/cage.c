@@ -59,6 +59,25 @@ void HotInitCageGeo(int a0, int a1, int a2)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/cage", CageGeo);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/cage", CageDL);
+extern char D_00271BD0[];
+
+void CageDL(int a0)
+{
+    int g = *(int *)(*(int *)(a0 + 0x15C) + 0x7F0);
+    float f2;
+
+    MatrixDrive_TurnObjectMatrix(*(int *)(g + 0x24) * 0x50 + *(int *)(*(int *)(g + 0x20) + 8) + 0x40, (int)D_00271BD0);
+    MatrixDrive_TurnObjectMatrix(*(int *)(g + 0x28) * 0x50 + *(int *)(*(int *)(g + 0x20) + 8) + 0x40, (int)D_00271BD0);
+    MatrixDrive_TurnObjectMatrix(*(int *)(g + 0x24) * 0x50 + *(int *)(*(int *)(g + 0x20) + 8) + 0x30, *(int *)(*(int *)(g + 0x20)) + 0x20);
+    MatrixDrive_TurnObjectMatrix(*(int *)(g + 0x28) * 0x50 + *(int *)(*(int *)(g + 0x20) + 8) + 0x30, *(int *)(*(int *)(g + 0x20)) + 0x20);
+    MatrixDrive_TurnObjectMatrix(*(int *)(*(int *)(*(int *)(g + 0x20) + 8)), *(int *)(*(int *)(g + 0x20)) + 0x20);
+    MatrixDrive_TurnObjectMatrix(*(int *)(*(int *)(*(int *)(g + 0x20) + 8)) + 0x10, *(int *)(*(int *)(g + 0x20)) + 0x20);
+
+    f2 = (float)*(int *)(g + 0x2C);
+    *(float *)(*(int *)(*(int *)(*(int *)(g + 0x20) + 8)) + 0x14) += *(float *)(g + 0x30) * f2;
+    *(float *)(*(int *)(g + 0x24) * 0x50 + *(int *)(*(int *)(g + 0x20) + 8) + 0x34) += *(float *)(g + 0x30) * f2;
+    *(float *)(*(int *)(g + 0x28) * 0x50 + *(int *)(*(int *)(g + 0x20) + 8) + 0x34) += *(float *)(g + 0x30) * f2 + 500.0f;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/cage", GetCageChainPoint);
