@@ -147,7 +147,83 @@ void func_001440F0(void *a0) {
     ActPara_GetDefTbl(a0, 0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/soundManager", func_00144100);
+extern float pac_DispQW(void);
+extern void func_0014A510(void *a0, int a1, int a2);
+extern void *func_0014A6A8(void);
+extern void func_001E19A8(void *a0, void *a1, void *a2, int a3, int a4);
+
+typedef struct {
+    char _0[0x5C];
+    int f_5C;   /* 0x5C */
+    int f_60;   /* 0x60 */
+} SndBrain670;
+
+typedef struct {
+    char _0[0x20];
+    long long f_20; /* 0x20 */
+    char _28[0x80 - 0x28];
+    int f_80;   /* 0x80 */
+    int f_84;   /* 0x84 */
+} SndActState;
+
+typedef struct {
+    char _0[0x80];
+    int f_80;   /* 0x80 */
+    char _84[0x670 - 0x84];
+    SndBrain670 *p_670; /* 0x670 */
+    char _674[0x678 - 0x674];
+    void *p_678;    /* 0x678 */
+} SndActView;
+
+typedef struct {
+    char _0[0x470];
+    int f_470;  /* 0x470 */
+    char _474[0x490 - 0x474];
+    int f_490;  /* 0x490 */
+    char _494[0x4BC - 0x494];
+    int f_4BC;  /* 0x4BC */
+} SndDObj;
+
+typedef struct {
+    char _0[0x15C];
+    int f_15C;  /* 0x15C */
+    char _160[0x190 - 0x160];
+} SndOrientEntry;
+
+extern SndOrientEntry D_0055DA10[];
+
+void func_00144100(void *self) {
+    SndActState *p = (SndActState *)*(int *)((char *)self + 0x164);
+    int var_6 = 0;
+
+    if ((int)(p->f_20 << 0x1D >> 0x20) & 1) {
+        p->f_80 |= 0x10;
+    }
+    if (p->f_80 != p->f_84) {
+        p->f_84 = p->f_80;
+        var_6 = 1;
+    }
+    if (((SndActView *)*(int *)((char *)self + 0x164))->p_670->f_5C++ >= 0x79) {
+        SndDObj *d = *(SndDObj **)((char *)self + 0x15C);
+        if (((d->f_470 & 0x16) != 0 || d->f_4BC != 0) &&
+            D_0055DA10[d->f_490].f_15C == 1) {
+            ((SndActView *)*(int *)((char *)self + 0x164))->p_670->f_5C = 0;
+            ((SndActView *)*(int *)((char *)self + 0x164))->p_670->f_60 =
+                (int)(pac_DispQW() * 10.0f);
+            var_6 = 1;
+        }
+    }
+    ((SndActView *)*(int *)((char *)self + 0x164))->f_80 |= 2;
+    if (var_6) {
+        SndActView *q2 = (SndActView *)*(int *)((char *)self + 0x164);
+        void *r;
+        func_0014A510(q2->p_678, p->f_80, q2->p_670->f_60);
+        p = *(SndActState **)((char *)self + 0x164);
+        r = func_0014A6A8();
+        func_001E19A8(self, ((SndActView *)p)->p_678, r, 0, 3);
+    }
+}
+
 
 extern float ClearHandCameraCorrect(void *a0, void *a1);
 extern void *ContinueCorrectPosition(void *a0);
