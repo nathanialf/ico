@@ -98,7 +98,30 @@ extern char D_0062BCE8[];
 typedef struct { char c[16]; } Cpy16;
 typedef struct { char c[4]; } Cpy4;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/pool", dispPool);
+void dispPool(int arg0) {
+    char buf[0x30];
+
+    func_0012FE30();
+    D_00629E60 = tex_transVramClutTex(0, 0x400);
+    gif_SpriteOrg(6, ((long long)(D_00629F5C / 64) << 14) | 0x664000800LL);
+    gif_MakeSprite(D_00629E60, 0, 0x100, 0x100, 0, 0);
+    gsb_Reduction(0);
+    gsb_KeepFrameBuffer(0);
+    gsb_SetFrame(0, 4, 0);
+    gif_SpriteOrg(0x47, 0x30000);
+    gif_SpriteOrg(0x14, 0x60);
+    *(Cpy16 *)buf = *(Cpy16 *)D_0054E100;
+    *(int *)(buf + 0x24) = 8;
+    *(int *)(buf + 0x20) = 8;
+    *(int *)(buf + 0x28) = D_00629F5C * 0x10;
+    *(int *)(buf + 0x2C) = D_00629F60 * 0x10;
+    *(Cpy16 *)(buf + 0x10) = *(Cpy16 *)(buf + 0x20);
+    *(Cpy4 *)(buf + 0x20) = *(Cpy4 *)D_0062BCE8;
+    gif_MakeLine2DOffset(buf, 0, (int)(buf + 0x10), buf + 0x20, 0);
+    gsb_KeepFrameBuffer(1);
+    gsb_Reduction(1);
+    gif_SpriteOrg(0x47, 0x5000D);
+}
 
 
 extern void func_0012FE30(void);
