@@ -143,7 +143,61 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", getInitialMatrix)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", dispSkelton);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", SkelTest);
+extern int D_0062C230;
+extern void ClipWallCheckCB(void *a0);
+extern int fzMagnitudeByLine(void *a0);
+extern int dispSkelton(int a0, int a1, int a2);
+
+int SkelTest(int a0, int a1, int p, int a3, int a4) {
+    int flag;
+    int mag;
+    int mask;
+
+    *(int *)(p + 0x70) = 0;
+    MatrixDrive_TurnObjectMatrix(p, a3);
+    func_0023FDD8((int *)(p + 0x10), a1, (char *)a0);
+    ClipWallBoxStop((void *)p);
+
+    if (*(int *)(p + 0x88) != 0) {
+        goto disp_one;
+    }
+    if (*(int *)(D_0062C230 + 0x314) != 0) {
+        ClipWallCheckCB((void *)p);
+        if (*(int *)(p + 0x88) != 0) {
+            flag = 0;
+            mag = fzMagnitudeByLine((void *)p);
+            switch (*(int *)(D_0062C230 + 0x314)) {
+            default:
+            case 1:
+                mask = 0x20000000;
+                break;
+            case 2:
+                mask = 0x10000000;
+                break;
+            }
+            if (mag & mask) {
+                flag = 1;
+                if (mag & 0x0FFFFFFF) {
+                    return -1;
+                }
+            }
+            if (flag != 0) {
+                return dispSkelton(p, 0, a4);
+            }
+            goto block12;
+        }
+    }
+block12:
+    MatrixDrive_TurnObjectMatrix(p, p + 0x10);
+    MatrixDrive_TurnObjectMatrix(p + 0x10, a3 + 0x10);
+    ClipWallBoxStop((void *)p);
+    if (*(int *)(p + 0x88) != 0) {
+disp_one:
+        return dispSkelton(p, 1, a4);
+    }
+    return 0;
+}
+
 
 extern int D_0062B75C;
 extern int D_0062C230;
