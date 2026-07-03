@@ -293,7 +293,48 @@ int CanHoldBox(void *a0) {
     return q->f_20;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/box", BoxDL);
+extern void RegularizeQuaternion(void *a0, void *a1);
+extern void GetRootMatrixByDObj(void *dst, void *src);
+extern void GetCylinderCollisionWithExceptOwnCollision(void *self, void *pos);
+extern float func_001BE168(float v, float grid);
+
+int BoxDL(void *self, float grid) {
+    float pos[4];
+    float turned[4];
+    float quat[4];
+    int *sub = *(int **)((char *)self + 0x15C);
+    BoxGeo2 *box = *(BoxGeo2 **)((char *)sub + 0x7F0);
+    float cx, cz, dx, dz, sx, sz;
+
+    RegularizeQuaternion(quat, (char *)sub + 0x60);
+    func_00102840(self, quat);
+    GetRootMatrixByDObj(pos, self);
+    MatrixDrive_TurnObjectMatrix(turned, pos);
+
+    {
+    int *n = *(int **)((char *)self + 0x15C);
+    cx = *(float *)((char *)n + 0x50);
+    dx = pos[0] - cx;
+    cz = *(float *)((char *)n + 0x58);
+    }
+    if (0.0f <= dx) {
+        sx = (float)(int)((dx + grid * 0.5f) / grid) * grid;
+    } else {
+        sx = -func_001BE168(-dx, grid);
+    }
+    pos[0] = sx + cx;
+    dz = pos[2] - cz;
+    if (0.0f <= dz) {
+        sz = (float)(int)((dz + grid * 0.5f) / grid) * grid;
+    } else {
+        sz = -func_001BE168(-dz, grid);
+    }
+    pos[2] = sz + cz;
+    GetCylinderCollisionWithExceptOwnCollision(self, pos);
+    box->f_20 = 0;
+    return 0;
+}
+
 
 int GetBoxGlobalHoldPoint(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
