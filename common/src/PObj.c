@@ -7973,9 +7973,80 @@ int func_0025FBD0(float a0, float a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025FC38);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025FE30);
-
 typedef struct { unsigned int type; int f4; int f8; int fC; } PCmpV;
+
+extern PCmpV D_718208;
+
+static inline PCmpV *func_0025FE30_div(PCmpV *a, PCmpV *b) {
+    unsigned int at, bt;
+    int e, q;
+    unsigned int dvd, dvs, mask;
+
+    at = a->type;
+    if (at < 2) {
+        return a;
+    }
+    bt = b->type;
+    if (bt < 2) {
+        return b;
+    }
+    a->f4 ^= b->f4;
+    if ((at ^ 4) == 0 || (at ^ 2) == 0) {
+        if (at == bt) {
+            return &D_718208;
+        }
+        return a;
+    }
+    if ((bt ^ 4) == 0) {
+        a->fC = 0;
+        a->f8 = 0;
+        return a;
+    }
+    if ((bt ^ 2) == 0) {
+        a->type = 4;
+        return a;
+    }
+    dvd = a->fC;
+    dvs = b->fC;
+    e = a->f8 - b->f8;
+    a->f8 = e;
+    if (dvd < dvs) {
+        a->f8 = a->f8 - 1;
+        dvd <<= 1;
+    }
+    mask = 0x40000000;
+    q = 0;
+    do {
+        if (dvd >= dvs) {
+            q |= mask;
+            dvd -= dvs;
+        }
+        mask >>= 1;
+        dvd <<= 1;
+    } while (mask != 0);
+    if ((q & 0x7F) == 0x40) {
+        if (q & 0x80) {
+            q += 0x40;
+        } else if (dvd != 0) {
+            q += 0x40;
+        }
+    }
+    a->fC = q;
+    return a;
+}
+
+int func_0025FE30(float a0, float a1) {
+    PCmpV a, b;
+    float fa, fb;
+
+    fa = a0;
+    fb = a1;
+    func_0025F8B0(&fa, &a);
+    func_0025F8B0(&fb, &b);
+
+    return func_0025F7A0(func_0025FE30_div(&a, &b));
+}
+
 
 int func_0025FF90(PCmpV *a, PCmpV *b) {
     unsigned int at = a->type;
