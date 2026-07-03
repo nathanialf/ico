@@ -7082,7 +7082,49 @@ int func_00258CF0(int a0) {
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00258E50);
+int func_00258E50(int a0, void *a1) {
+    char *obj;
+    void *mgr;
+    void *t;
+    int i;
+    int rv = -1;
+
+    if ((unsigned int)a0 < 0x80) {
+        obj = (char *)func_00254FE0(0);
+        mgr = func_00254FF8();
+        t = func_00255008(a0);
+        if (*(int *)((char *)a1 + 0xC) == 0x71735353 &&
+            *(int *)((char *)t + 8) != 0) {
+            for (i = 0; i < 0x30; i++, obj += 0x54) {
+                *(volatile int *)obj |= 0x2000;
+                if ((*(volatile int *)obj & 0xF) == 0) {
+                    *(short *)(obj + 0x4C) = (short)i;
+                    rv = i;
+                    *(short *)(obj + 0x18) = (short)a0;
+                    *(int *)(obj + 8) = (int)a1;
+                    *(short *)(obj + 0x20) = *(unsigned short *)((char *)a1 + 2);
+                    *(volatile int *)obj |= 1;
+                    *(short *)(obj + 0x1E) = *(unsigned short *)((char *)a1 + 4);
+                    *(int *)(obj + 4) = 0x110;
+                    *(int *)(obj + 0x40) = 0x1000;
+                    *(int *)(obj + 0x44) = 0x1000;
+                    *(int *)(obj + 0x48) = 0x1000;
+                    *(int *)(obj + 0x10) =
+                        (int)((*(volatile unsigned short *)(obj + 0x20) *
+                               *(unsigned short *)(obj + 0x1E))
+                              << 0xC) /
+                        (int)*(unsigned short *)((char *)mgr + 0x3A) / 0x3C;
+                }
+                *(volatile int *)obj &= 0xFFFFDFFF;
+                if (rv != -1) {
+                    break;
+                }
+            }
+        }
+    }
+    return rv;
+}
+
 
 int func_00258FB8(int a0) {
     volatile int *p;
