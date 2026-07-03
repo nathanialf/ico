@@ -335,6 +335,8 @@ segments:
       - [0x45248C, rodata,  src/cod/45248C]      # .rodata blob resume (pad + D_00552490 ...)
       - [0x4530B8, .rodata, fumi/src/commonact]  # gcc-emitted 0.3 double D_005530B8 (actCommonFall), VMA 0x5530B8
       - [0x4530C0, rodata,  src/cod/4530C0]      # .rodata blob resume after 0.3
+      - [0x453C40, .rodata, fumi/src/girl_act]   # gcc-emitted jtbl_00553C40 (actGirlHang switch, 67 entries 0x10C), VMA 0x553C40
+      - [0x453D4C, rodata,  src/cod/453D4C]      # .rodata blob resume after actGirlHang jtbl
       - [0x455198, .rodata, ito/src/act_bird]   # carved __FILE__ "src/act_bird.c" (iosFree site)
       - [0x4551A8, rodata,  src/cod/4551A8]      # resume ("gather effect end\n" string)
       - [0x4551C0, .rodata, ito/src/itou_boss]   # carved matrix table (53x0x40) + position table (53x0x10), VMA 0x5551C0..0x556250

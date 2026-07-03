@@ -235,7 +235,88 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlWalk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlRun);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlHang);
+typedef struct {
+    char _0[0x184];
+    int f_184;          /* 0x184 */
+    char _188[0x8];
+} HangOrientEntry;      /* stride 0x190 */
+
+extern HangOrientEntry D_0055DA10[];
+
+#define SUB(g)  (*(int *)((char *)(g) + 0x164))
+#define REF(g)  (*(int *)((char *)(g) + 0x15C))
+
+void actGirlHang(int *a0, int *a1, int *a2, int *a3) {
+    volatile int home;
+    int uninit;
+    int *g = (int *)D_00629DE4;
+    int x;
+    int r4;
+
+    home = uninit;
+
+    *a0 = *(int *)(SUB(g) + 0x30);
+    *a1 = 0;
+    *a2 = 0;
+    *a3 = 0;
+    x = *a0;
+    switch (x) {
+    case 8:
+        *a0 = 1;
+        break;
+    case 2:
+    case 3:
+        if (*(int *)(SUB(g) + 0x134) != 0) {
+            *a0 = 2;
+        }
+        {
+        int idx = *(int *)(REF(g) + 0x490);
+        HangOrientEntry *e = (HangOrientEntry *)(idx * 0x190 + (int)D_0055DA10);
+        switch ((unsigned int)e->f_184 >> 30) {
+        case 1:
+            *a0 = 2;
+            break;
+        case 2:
+            *a0 = 3;
+            break;
+        }
+        }
+        r4 = *a0;
+        if (r4 == 3) {
+            long long v = *(long long *)(*(int *)(SUB(g) + 0x678) + 0x3E8);
+            if ((int)((unsigned long long)v >> 33) & 1) {
+                *a0 = 1;
+                r4 = 1;
+            } else if ((int)(v >> 32) & 1) {
+                *a0 = 2;
+                r4 = 2;
+            }
+        }
+        if (r4 == 2) {
+            long long v = *(long long *)(*(int *)(SUB(g) + 0x678) + 0x3E8);
+            if ((int)((unsigned long long)v >> 33) & 1) {
+                *a0 = 1;
+            }
+        }
+        break;
+    case 36:
+        if (*(int *)(SUB(g) + 0x38) == 0x54) {
+            *a2 = 1;
+        } else {
+            *a3 = 1;
+        }
+        break;
+    case 5:
+    case 17:
+    case 18:
+    case 68:
+        *a0 = 3;
+        break;
+    }
+}
+#undef SUB
+#undef REF
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlBHang);
 
