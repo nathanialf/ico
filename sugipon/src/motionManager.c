@@ -198,7 +198,60 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", func_001DB538);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", func_001DB620);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", func_001DB710);
+typedef struct { long long x; } __attribute__((packed, aligned(4))) PackedLL_19CAF0;
+
+extern void GetMatrixFromQuaternion(int);
+extern void func_0010E4E8(int, int);
+extern void SetMotionBlendlessNode(int);
+extern PackedLL_19CAF0 D_0062A6A0;
+extern float D_0062B720;
+extern int D_0062B75C;
+extern int D_0062C230;
+extern int D_0062C248;
+extern char D_00271BD0[];
+extern char D_00703090[];
+extern char D_007030B0[];
+
+PackedLL_19CAF0 func_001DB710(int a0) {
+    float *p;
+    float x, y, z;
+
+    GetMatrixFromQuaternion(D_0062C230 + 0x30);
+    func_0010E4E8(D_0062C230 + 0x30, -0x8000);
+    MatrixDrive_TurnObjectMatrix(D_0062C230, (int)D_00703090);
+
+    p = (float *)D_0062C230;
+    x = p[0] - *(float *)(D_0062C248 + 0x124);
+    p[0] = x;
+    y = p[1] - *(float *)(D_0062C248 + 0x128);
+    p[1] = y;
+    z = p[2] + *(float *)(D_0062C248 + 0x12C);
+    p[2] = z;
+    if (a0 == 0xE) {
+        float inv = 1.0f / D_0062B720;
+        p[1] = y * inv;
+        p[0] = x * -inv;
+        p[2] = z * -inv;
+    } else {
+        p[0] = -x;
+        p[2] = -z;
+    }
+    MatrixDrive_TurnObjectMatrix((int)p + 0x140, (int)p);
+    MatrixDrive_TurnObjectMatrix(D_0062C230 + 0x80, (int)D_00271BD0);
+    MatrixDrive_TurnObjectMatrix(D_0062C230 + 0x10, (int)D_00271BD0);
+
+    {
+        typedef struct { char _a[0xB0]; int f_B0; char _b[0xBC]; int f_170; } MotObj;
+        extern MotObj *D_0062C230_o __asm__("D_0062C230");
+        D_0062C230_o->f_170 = -1;
+        D_0062C230_o->f_B0 = 0;
+        SetMotionBlendlessNode(D_0062B75C);
+    }
+    MatrixDrive_TurnObjectMatrix(D_0062C230 + 0xC0, (int)D_007030B0);
+
+    return D_0062A6A0;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager", func_001DB870);
 
