@@ -1166,3 +1166,4 @@ ExecIcoMisc         # rc99 switch+table-search bnel; not attempted-clean, deep-p
 soundHDDataSet
 _la_mcard_error_check
 func_0016CF18
+func_00104EE0
