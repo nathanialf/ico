@@ -149,7 +149,43 @@ extern int D_0062A31C;
 extern int D_0062A330;
 extern int D_0062A52C;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/charFileManager", GetPObjAddress);
+void GetPObjAddress(int *self, int a1, char *q, int a3, int type, int a5, int flag) {
+    int buf[2];
+    int p;
+
+    D_00271240[8]++;
+    if (q == 0) {
+        return;
+    }
+
+    if (type == 0xA) goto block_a;
+    if (type != 0xB) goto block_e;
+    buf[1] = 0;
+    buf[0] = 0;
+    goto merge;
+block_a:
+    buf[1] = D_0062A52C;
+    buf[0] = 1;
+    goto merge;
+block_e:
+    func_001AAD00(D_0060B4E0, 0x2B8);
+    func_00260380(D_0060B4E0, 0x2B8, D_0062C9F0);
+merge:
+
+    p = 0;
+    if (buf[1] == 0) {
+        if (flag == 0) {
+            p = iosFree(D_0062A31C, q, D_0060B4E0, 0x2BE);
+        } else {
+            p = iosFree(D_0062A330, q, D_0060B4E0, 0x2C0);
+        }
+    }
+    iosCdvdLoad(self, p, q);
+    if (p != 0) {
+        soundSeDefPlay(p, a3, type, buf[0], flag);
+    }
+    debug_assertMessage(D_0060BA00, a3, a1, q);
+}
 
 
 extern int D_00271240[];
