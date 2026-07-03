@@ -11,7 +11,7 @@ void kanbanBootMain(void) {
 }
 
 extern int D_0060F6E0[];
-extern void debug_assertMessage(void *a0);
+extern void debug_assertMessage(void *a0, ...);
 
 void kanbanBootInit(void) {
     debug_assertMessage(D_0060F6E0);
@@ -149,7 +149,91 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanbanBoot", func_001B1230);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanbanBoot", func_001B14B8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanbanBoot", func_001B1760);
+extern int InitStageLight(void);
+extern void StageManager(int a0, float a1, float a2);
+extern void func_00178C90(void);
+extern void func_001ADFF8(void);
+extern void kanbanBootMcCheck(void);
+extern int lt_set_item_select_func(void);
+extern float D_00629400;
+extern int D_0062B304;
+extern char D_0062D258[];
+
+int func_001B1760(void) {
+    int v;
+    int v2;
+
+    if (InitStageLight() != 2) {
+        goto andi40;
+    }
+    if ((D_002715D0[1] & 0x10) == 0) {
+        goto andi40;
+    }
+    kanbanBootMcCheck();
+    v = lt_set_item_select_func();
+    if (v < 0xEF) {
+        goto andi40;
+    }
+    if (v < 0xF1) {
+        goto ret25_body;
+    }
+    if (v >= 0x177) {
+        goto andi40;
+    }
+    if (v < 0x175) {
+        goto andi40;
+    }
+    initSceneGObj(0);
+    D_0062B30C = 0;
+    return 0x35;
+
+andi40:
+    if ((D_002715D0[1] & 0x40) == 0) {
+        goto ret_neg1;
+    }
+    debug_assertMessage(D_0062D258, lt_set_item_select_func());
+    v2 = lt_set_item_select_func();
+    if (v2 == 0xF0) {
+        goto ret25_mccheck;
+    }
+    if (v2 >= 0xF1) {
+        goto high;
+    }
+    if (v2 != 0xEF) {
+        return -1;
+    }
+    goto stagemgr;
+high:
+    if (v2 == 0x175) {
+        goto stagemgr;
+    }
+    if (v2 != 0x176) {
+        return -1;
+    }
+    goto ret35_mccheck;
+stagemgr:
+    func_001ADFF8();
+    func_00178C90();
+    D_0062B304 = 1;
+    StageManager(1, D_00629400, 4.0f);
+ret25_mccheck:
+    kanbanBootMcCheck();
+ret25_body:
+    initSceneGObj(0);
+    D_0062B30C = 0;
+    return 0x25;
+
+ret35_mccheck:
+    kanbanBootMcCheck();
+ret35_body:
+    initSceneGObj(0);
+    D_0062B30C = 0;
+    return 0x35;
+
+ret_neg1:
+    return -1;
+}
+
 
 
 /* recovered struct shapes */
