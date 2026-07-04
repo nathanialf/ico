@@ -98,7 +98,63 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", func_001CC220);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", func_001CC518);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", func_001CC7D8);
+extern int func_002610F0(void);
+extern void func_0010E0E8(int *self, int a1, int *param);
+extern void func_0010E250(void *a0, void *a1, void *a2);
+extern int D_00271C00[];
+extern const float D_0062953C;
+
+typedef struct {
+    char _pad0[0x20];
+    float f20, f24, f28;
+    char _pad2c[4];
+    float f30;
+    char _pad34[0x1C];
+} Emit;
+
+int func_001CC7D8(void *a0) {
+    int local[4];
+    char *base;
+    char *w;
+    char *cur;
+    int i;
+
+    i = 0;
+    base = *(char **)((char *)a0 + 0xC);
+    if (*(int *)a0 > 0) {
+        w = base + 0x10;
+        cur = base;
+        do {
+            int id = *(int *)cur;
+            if (id < 0) goto next;
+            {
+                Emit *e = (Emit *)(i * 0x50 + (int)*(char **)(*(char **)((char *)a0 + 4) + 0x830));
+                int cnt;
+                int neg1 = -1;
+                e->f30 = -(float)(id + 1) / 30.0f;
+                e->f20 = e->f20 + *(float *)(cur + 4);
+                *(float *)(cur + 4) = *(float *)(cur + 4) * D_0062953C;
+                e->f28 = e->f20;
+                e->f24 = e->f20;
+                func_0010E0E8(local, (short)func_002610F0(), D_00271C00);
+                func_0010E250(*(char **)(*(char **)((char *)a0 + 4) + 0xC) + i * 0x40,
+                              local, w);
+                cnt = *(int *)(w - 0x10) + 1;
+                *(int *)(w - 0x10) = cnt;
+                if (cnt == 0x1E) {
+                    *(int *)(w - 0x10) = neg1;
+                    *(float *)(*(char **)(*(char **)((char *)a0 + 4) + 0x830) + 0x80) = 1.0f;
+                }
+            }
+        next:
+            w += 0x20;
+            i++;
+            cur += 0x20;
+        } while (i < *(int *)a0);
+    }
+    return 1;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/enemyParts", func_001CC950);
 
