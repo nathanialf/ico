@@ -203,7 +203,47 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyPullupReady);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyPullupGo);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyBelift);
+extern float ClearHandCameraCorrect(CCPResult *, CCPResult *);
+extern void *isysGObjSearchFromObjKindID_begin(void *);
+
+void actBoyBelift(void *a0, int *out_id, float *out_vec) {
+    float buf[4];
+    void *node;
+    int best;
+    float thresh = 300.0f;
+
+    node = isysGObjSearchFromObjLayoutID((*(int *)((char *)a0 + 0xC) ^ 1) ? 1 : 4);
+    *out_id = 0;
+    best = 0x5A;
+    if (node != 0) {
+        do {
+            if (*(int *)((char *)node + 0x16C) != 0) {
+                CCPResult *r1 = ContinueCorrectPosition(a0);
+                if (ClearHandCameraCorrect(r1, ContinueCorrectPosition(node)) < thresh) {
+                    int sign;
+                    int dist;
+                    CCPResult *r4 = ContinueCorrectPosition(node);
+                    func_00240008(buf, r4, ContinueCorrectPosition(a0));
+                    sign = ((int (*)(void *, void *))HandCameraCorrect)(buf, subCommonIdle(a0));
+                    if (sign < 0) {
+                        dist = -((int (*)(void *, void *))HandCameraCorrect)(buf, subCommonIdle(a0));
+                    } else {
+                        dist = ((int (*)(void *, void *))HandCameraCorrect)(buf, subCommonIdle(a0));
+                    }
+                    if (dist < best) {
+                        best = dist;
+                        out_vec[0] = buf[0];
+                        out_vec[1] = buf[1];
+                        out_vec[2] = buf[2];
+                        *out_id = (int)node;
+                    }
+                }
+            }
+            node = isysGObjSearchFromObjKindID_begin(node);
+        } while (node != 0);
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyRescueReady);
 
