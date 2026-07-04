@@ -8730,7 +8730,60 @@ int func_00266A20(char *dst, int size, int count, StreamBuf *s) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00266B40);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00266E60);
+typedef struct PObjBlk {
+    char pad0[4];
+    unsigned int size;  /* 0x4 */
+} PObjBlk;
+
+struct D520 {
+    char pad0[8];
+    PObjBlk *blk;       /* 0x8 */
+};
+extern struct D520 D_0054D520;
+extern int D_0054D938_a[] __asm__("D_0054D938");
+extern int D_0054D950_a[] __asm__("D_0054D950");
+
+extern void func_00268270(void);
+extern void func_00268278(void *self);
+extern long long func_0025DF98(long long a0, long long a1);
+extern long long func_0025DF38(long long a0, long long a1);
+extern int func_002694B8(int *self, int a1);
+
+int func_00266E60(int *self, unsigned int a1) {
+    long long A;
+    long long need;
+    long long newlen;
+    int r4;
+
+    func_00268270();
+    A = D_0054D520.blk->size & 0xFFFFFFFC;
+    need = func_0025DF98((A - a1) + 0xFEF, 0x1000);
+    newlen = func_0025DF38(need - 1, 0x1000);
+    if (newlen < 0x1000) {
+        goto fail;
+    }
+    if (func_002694B8(self, 0) != (int)D_0054D520.blk + (int)A) {
+        goto fail;
+    }
+    if (func_002694B8(self, -(int)newlen) != 0xFFFFFFFFU) {
+        goto adjust;
+    }
+    r4 = func_002694B8(self, 0);
+    A = r4 - (int)D_0054D520.blk;
+    if (A >= 0x10) {
+        D_0054D950_a[0] = r4 - D_0054D938_a[0];
+        D_0054D520.blk->size = A | 1;
+    }
+fail:
+    func_00268278(self);
+    return 0;
+adjust:
+    D_0054D520.blk->size = (A - newlen) | 1;
+    D_0054D950_a[0] -= (int)newlen;
+    func_00268278(self);
+    return 1;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00266FD0);
 
@@ -8796,7 +8849,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0026816C);
 void func_00268270(void) {
 }
 
-void func_00268278(void) {
+void func_00268278(void *self) {
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00268280);
