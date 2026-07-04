@@ -818,7 +818,79 @@ typedef struct {
     int unk14;        /* 0x14 */
 } GpEnt;              /* 0x18 */
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/GobjProc", func_0023CB70);
+int func_0023CB70(int *a, int *b) {
+    GpEnt *base;
+    GpEnt *ent;
+    int step10;
+    int idx;
+    int var8;
+    short var7;
+    int t2;
+    int t4;
+    int t6;
+    int count;
+    int ret = 1;
+
+    count = a[0x54 / 4];
+    t2 = (a[0x5C / 4] - a[0x58 / 4]) + count;
+    idx = t2 % count;
+    step10 = a[0x8 / 4] << 11;
+    if (a[0x58 / 4] <= 0) {
+        goto end;
+    }
+    base = (GpEnt *)a[0x50 / 4];
+    ent = &base[idx];
+    var8 = ent->unk14;
+    if (var8 == 0) {
+        goto end;
+    }
+    var7 = b[0x14 / 4];
+    if (var7 == 0) {
+        goto end;
+    }
+    do {
+        t4 = ent->unk10;
+        t6 = b[0x10 / 4];
+        t2 = (t4 + step10) - t6;
+        if ((t2 % step10) < var7) {
+            t2 = (t6 + var7) - t4;
+            if (var8 < t2) {
+                t2 = var8;
+            }
+            t4 = t4 + t2;
+            var8 = var8 - t2;
+            ent->unk14 = var8;
+            ent->unk10 = t4 % step10;
+            if (var8 == 0) {
+                if (ent->unk0 >= 0) {
+                    ent->unk0 = -1;
+                    ent->unk8 = -1;
+                    ent->unk10 = 0;
+                    ent->unk14 = 0;
+                }
+                t2 = a[0x58 / 4] - 1;
+                if (t2 <= -1) {
+                    t2 = 0;
+                }
+                a[0x58 / 4] = t2;
+            }
+        } else {
+            ret = 0;
+        }
+        idx = (idx + 1) % count;
+        if (ret == 0) {
+            goto end;
+        }
+        ent = &base[idx];
+        var8 = ent->unk14;
+        if (var8 == 0) {
+            goto end;
+        }
+        var7 = b[0x14 / 4];
+    } while (var7 != 0);
+end:
+    return 0;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/GobjProc", func_0023CCE0);
