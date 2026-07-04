@@ -7874,7 +7874,77 @@ void func_0025EF10(long a0, long a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025EF78);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025F220);
+extern char D_7181F0[];
+
+void func_0025F220(long a0, long a1) {
+    struct { int a, b, c, pad; long long d; } x, y, *p;
+    void *r;
+    unsigned long long m1, m2, bit, q;
+    int exp;
+
+    func_0025EBD8(&a0, &x);
+    func_0025EBD8(&a1, &y);
+    p = &x;
+    if ((unsigned int) x.a >= 2) goto op2check;
+    r = &x;
+    goto pack;
+op2check:
+    if ((unsigned int) y.a < 2) {
+        r = &y;
+        goto pack;
+    }
+    x.b = x.b ^ y.b;
+    if ((x.a ^ 4) == 0) goto chk_same;
+    if ((x.a ^ 2) != 0) goto op1_normal;
+chk_same:
+    r = &x;
+    if (x.a != y.a) goto pack;
+    r = D_7181F0;
+    goto pack;
+op1_normal:
+    if ((y.a ^ 4) != 0) goto chk_zero;
+    x.d = 0;
+    x.c = 0;
+    r = &x;
+    goto pack;
+chk_zero:
+    if ((y.a ^ 2) != 0) goto divide;
+    x.a = 4;
+    r = &x;
+    goto pack;
+divide:
+    m1 = (unsigned long long) x.d;
+    m2 = (unsigned long long) y.d;
+    x.c = x.c - y.c;
+    if (m1 < m2) {
+        x.c = x.c - 1;
+        m1 <<= 1;
+    }
+    q = 0;
+    bit = 0x1000000000000000ULL;
+    do {
+        if (m1 >= m2) {
+            q |= bit;
+            m1 -= m2;
+        }
+        bit >>= 1;
+        m1 <<= 1;
+    } while (bit != 0);
+    if ((q & 0xFF) != 0x80) {
+        p->d = q;
+    } else {
+        if (q & 0x100) {
+            q += 0x80;
+        } else {
+            q = (m1 != 0) ? (q + 0x80) : q;
+        }
+        p->d = q;
+    }
+    r = p;
+pack:
+    func_0025EAA8(r);
+}
+
 
 typedef struct { unsigned int type; int f4; int f8; int fC; unsigned long long f10; } PCmpV2;
 
