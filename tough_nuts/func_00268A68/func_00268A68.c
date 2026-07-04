@@ -8933,7 +8933,66 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00268738);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00268968);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00268A68);
+int *func_00268A68(void *pool, int *src, int shift) {
+    int wordShift = shift >> 5;
+    int len = wordShift + src[4] + 1;
+    int five = src[1];
+    int cap = src[2];
+    int bit;
+    int *sp;
+    int *dp;
+    int *end;
+    int *dst;
+    int *p;
+    int lenField;
+
+    if (cap < len) {
+        do {
+            cap <<= 1;
+            five++;
+        } while (cap < len);
+    }
+    bit = shift & 0x1f;
+    sp = src + 5;
+    dst = func_00268280(pool, five);
+
+    dp = dst + 5;
+    if (wordShift > 0) {
+        int i = wordShift;
+        do {
+            *dp = 0;
+            dp++;
+        } while (--i != 0);
+    }
+    p = sp;
+    end = p + src[4];
+    if (bit != 0) {
+        int carry = 0;
+        int down = 32 - bit;
+        int lenp1 = len + 1;
+        do {
+            *dp = (*p << bit) | carry;
+            dp++;
+            carry = (unsigned)*p >> down;
+            p++;
+        } while (p < end);
+        if (carry != 0) {
+            len = lenp1;
+        }
+        *dp = carry;
+        lenField = len - 1;
+    } else {
+        lenField = len - 1;
+        do {
+            *dp = *p;
+            p++;
+            dp++;
+        } while (p < end);
+    }
+    dst[4] = lenField;
+    func_00268328((char *)pool, src);
+    return dst;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00268BE0);
