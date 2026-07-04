@@ -133,7 +133,70 @@ void func_001ADB38(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanban", func_001ADC68);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/kanban", func_001ADE70);
+extern int D_0062B2DC;
+extern int D_00271254[];
+extern int D_0062B2E0;
+extern int D_0062B2E4;
+extern int *D_0062C174;
+extern int D_00271240[];
+extern int D_0062C178;
+extern int D_00271258[];
+extern int D_0062B2E8;
+extern void func_0013E828(int a0, int a1);
+extern int func_001ADC68(void);
+extern int *kanbanInit(int a0, int a1);
+
+void func_001ADE70(void) {
+    switch (D_0062B2DC) {
+    case 0:
+        func_0013E828(0, 1);
+        D_00271254[0] = 0;
+        D_0062B2E0 = 0;
+        D_0062B2DC++;
+        /* fallthrough */
+    case 1:
+        if (D_0062B2E4) {
+            D_0062B2DC++;
+        }
+        break;
+    case 2:
+        if (func_001ADC68()) {
+            func_001ADB00();
+            D_0062C174 = kanbanInit(0, 1);
+            D_0062B2DC++;
+        }
+        break;
+    case 3:
+        D_0062C178 = ((60 - D_00271240[0] * 10) / D_00271240[1]) * 5;
+        D_0062B2DC++;
+        /* fallthrough */
+    case 4:
+        if (--D_0062C178 == -1) {
+            D_0062B2DC++;
+        } else {
+            break;
+        }
+        /* fallthrough */
+    case 5:
+        if (D_00271258[0]) {
+            break;
+        }
+        D_0062B2DC++;
+        break;
+    case 6:
+        func_001ADB00();
+        D_0062B2DC++;
+        break;
+    case 7:
+        if (*D_0062C174) {
+            break;
+        }
+        D_0062B2E8 = 1;
+        D_0062B2DC++;
+        break;
+    }
+}
+
 
 extern int D_0062B2DC, D_0062B2E4, D_0062B2E8, D_0062BA78;
 extern int D_0027126C[];

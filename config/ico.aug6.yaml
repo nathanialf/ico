@@ -352,6 +352,8 @@ segments:
       - [0x4570F0, rodata,  src/cod/4570F0]      # resume ("pts buffer overf..." string)
       - [0x50DA90, .rodata, common/src/debug_exception]  # carved jtbl_0060DA90 (migrated)
       - [0x50DAD8, rodata,  src/cod/50DAD8]      # .rodata blob, part 2b (resume)
+      - [0x50F6C0, .rodata, common/src/kanban]   # gcc-emitted jtbl_0060F6C0 (func_001ADE70 switch, 8 entries 0x20), VMA 0x60F6C0
+      - [0x50F6E0, rodata,  src/cod/50F6E0]      # .rodata blob resume after func_001ADE70 jtbl
       - [0x511160, .rodata, sugipon/src/candle]  # carved D_00611160 ("src/candle.c" __FILE__) + D_00611170 (debug log), VMA 0x611160..0x611198
       - [0x511198, rodata,  src/cod/511198]      # .rodata blob resume after candle strings (ends at girlForceField __FILE__)
       - [0x511830, .rodata, sugipon/src/girlForceField]  # carved D_00611830 ("src/girlForceField.c" __FILE__, VMA 0x611830..0x611850)
