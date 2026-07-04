@@ -47,7 +47,29 @@ typedef struct {
     int f_14;
 } S78;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stageMultiBgaManager", func_001E9370);
+void func_001E9370(void) {
+    Q16 q;
+    Q16 pt[3];
+    int *bi = (int *)&pt[1];
+    int uninit;
+    int t7 = (D_00271240[0] == 0) ? 0x700 : 0x800;
+
+    *(volatile int *)&q = uninit;
+    bi[1] = D_00706D78[1] + 0x10;
+    bi[0] = D_00706D78[0] + 0x10;
+    bi[3] = (D_00629F60 << 4) + D_00706D78[3];
+    bi[2] = (D_00629F5C << 4) + D_00706D78[2];
+    pt[0] = pt[1];
+    bi[7] = t7;
+    bi[5] = D_00706D78[5] - 0x400;
+    bi[4] = D_00706D78[4] - 0x800;
+    bi[6] = 0x1000;
+    pt[1] = pt[2];
+    gif_SpriteOrg(6, D_004C2220[1] | ((long long)(D_00629F5C / 64) << 14) | ((long long)0xCC80 << 19));
+    gif_MakeSprite(D_004C2220[0], 0, 0x100, 0x80, 0, 0);
+    gsb_SetFrame(1, 5, 0);
+    gif_MakeLine2DOffset(&pt[1], 0, &pt[0], &D_0062B948, 1);
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stageMultiBgaManager", func_001E94E8);
