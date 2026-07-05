@@ -49,7 +49,33 @@ void gflagChk(int a0, int a1)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", gflagOn);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", gflagOff);
+extern void *isysGObjAddHead();
+extern void actCommonSlowrun(int a0, int a1);
+extern int ExecMotionOrient(void *a0, int a1, int a2);
+extern void func_001E1A18(void *a0, int a1, int a2, int a3, int a4, int a5);
+extern void *D_00629DE4;
+extern void *D_00629DE8;
+
+void gflagOff(void *a0, int a1) {
+    int state = -1;
+    int s3 = *(int *)((char *)a0 + 0x164);
+    if (a0 == D_00629DE4) {
+        state = 0x4A9;
+    } else if (a0 == D_00629DE8) {
+        state = 0x701;
+    } else if (a0 == isysGObjAddHead(0x796)) {
+        state = 0x826;
+    } else if ((*(int *)((char *)a0 + 0xC) ^ 4) == 0) {
+        state = 0x81E;
+    }
+    if (state < 0) {
+        func_001E1A18(a0, 0x705, 0x820, -1, -1, a1);
+        return;
+    }
+    actCommonSlowrun(state, a1);
+    *(int *)(s3 + 0x110) = ExecMotionOrient(a0, 0xEA, s3 + 0x610);
+}
+
 
 extern void func_0014A110(void *a0);
 extern void iosOmBeforeFuncStandard(void *a0, int a1, void *a2);
@@ -125,7 +151,7 @@ void func_00179F88(void) {
     }
 }
 
-extern void *isysGObjAddHead(void);
+extern void *isysGObjAddHead();
 
 void func_0017A008(void) {
     void *p = isysGObjAddHead();
