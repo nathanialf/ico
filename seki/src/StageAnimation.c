@@ -64,7 +64,49 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_MakePlayBgAni
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_KillPlayBgAnimation);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_DispBgAnimation);
+extern char D_0066DBD8[];
+extern int D_0062BF54;
+extern char D_0054FFA8[];
+extern char D_0062BF08[];
+extern char D_00550160[];
+extern int bga_SetCamFrame(int a0);
+extern int font_CheckAlign(int a0);
+extern void debug_assertMessage();
+extern void func_001AAD00(void *a0, int a1);
+extern void func_00260380(void *a0, int a1, void *a2);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+
+int stage_DispBgAnimation(int a0, int a1) {
+    int i;
+    char *e = (char *)D_0066DBD8;
+    for (i = 0; i < D_0062BF54; i++, e += 0x290) {
+        int *entry1 = *(int **)(e + 0x280);
+        if (a0 == entry1[0x58 / 4]) {
+            int mode = *(int *)(e + 0x28C) >> 30;
+            switch (mode) {
+                case 0:
+                    if (bga_SetCamFrame(*(int *)(e + 0x284)) != 0) {
+                        stage_KillPlayBgAnimation(a0, 0, -1);
+                        stage_KillPlayBgAnimation(a1, 1, 0);
+                        return 1;
+                    }
+                    return 0;
+                case 1:
+                    if (font_CheckAlign(*(int *)(e + 0x288)) != 0) {
+                        stage_KillPlayBgAnimation(a0, 0, -1);
+                        stage_KillPlayBgAnimation(a1, 1, 0);
+                        return 1;
+                    }
+                    return 0;
+            }
+        }
+    }
+    debug_assertMessage(D_00550160);
+    func_001AAD00(D_0054FFA8, 0x372);
+    func_00260380(D_0054FFA8, 0x372, D_0062BF08);
+    return 0;
+}
+
 
 extern void func_001F76C0(void);
 
