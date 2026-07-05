@@ -8312,7 +8312,87 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00260424);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002604B8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00260568);
+/* func_00260568: hand-vectorized memset(dst, c, n) — for n >= 8 on a 16-aligned
+ * dst it replicates the fill byte to 64 bits (pcpyh) and 128 bits (pcpyld),
+ * bulk-fills 32 bytes/iter with paired sq, drains 8-byte chunks with sd, then a
+ * byte tail; returns dst. In-file handwritten asm per maintainer exception: the
+ * MMI replicate ops have no C/intrinsic form and the nop scheduling
+ * (nop;nop;beql, triple-nop byte loop) is not ee-gcc codegen — matched MMI
+ * siblings in this TU (func_00261288, func_0023E168) use the same
+ * whole-function asm pattern. */
+__asm__(
+    ".section .text\n"
+    "    .set noat\n"
+    "    .set noreorder\n"
+    "    .global func_00260568\n"
+    "    .type func_00260568, @function\n"
+    "    .align 3\n"
+    "func_00260568:\n"
+    "    sltiu  $2, $6, 0x8\n"
+    "    bnez   $2, .L002605E8\n"
+    "    daddu  $3, $4, $0\n"
+    "    andi   $2, $4, 0xF\n"
+    "    bnez   $2, .L002605E8\n"
+    "    daddu  $7, $4, $0\n"
+    "    andi   $9, $5, 0xFF\n"
+    "    sltiu  $10, $6, 0x20\n"
+    "    daddu  $8, $9, $0\n"
+    "    dsll   $3, $8, 8\n"
+    "    or     $8, $3, $9\n"
+    "    pcpyh  $3, $8\n"
+    "    bnez   $10, .L002605D4\n"
+    "    sltiu  $2, $6, 0x8\n"
+    "    pcpyld $8, $3, $3\n"
+    "    .align 2\n"
+    ".L002605A4:\n"
+    "    sq     $8, 0x0($7)\n"
+    "    addiu  $6, $6, -0x20\n"
+    "    addiu  $7, $7, 0x10\n"
+    "    sltiu  $2, $6, 0x20\n"
+    "    sq     $8, 0x0($7)\n"
+    "    beqz   $2, .L002605A4\n"
+    "    addiu  $7, $7, 0x10\n"
+    "    b      .L002605D4\n"
+    "    sltiu  $2, $6, 0x8\n"
+    "    .align 2\n"
+    ".L002605C8:\n"
+    "    addiu  $6, $6, -0x8\n"
+    "    addiu  $7, $7, 0x8\n"
+    "    sltiu  $2, $6, 0x8\n"
+    "    .align 2\n"
+    ".L002605D4:\n"
+    "    nop\n"
+    "    nop\n"
+    "    beql   $2, $0, .L002605C8\n"
+    "    sd     $3, 0x0($7)\n"
+    "    daddu  $3, $7, $0\n"
+    "    .align 2\n"
+    ".L002605E8:\n"
+    "    lui    $2, 0xFFFF\n"
+    "    addiu  $6, $6, -0x1\n"
+    "    ori    $2, $2, 0xFFFF\n"
+    "    beq    $6, $2, .L00260620\n"
+    "    nop\n"
+    "    lui    $2, 0xFFFF\n"
+    "    ori    $2, $2, 0xFFFF\n"
+    "    .align 2\n"
+    ".L00260604:\n"
+    "    sb     $5, 0x0($3)\n"
+    "    addiu  $6, $6, -0x1\n"
+    "    nop\n"
+    "    nop\n"
+    "    nop\n"
+    "    bne    $6, $2, .L00260604\n"
+    "    addiu  $3, $3, 0x1\n"
+    "    .align 2\n"
+    ".L00260620:\n"
+    "    jr     $31\n"
+    "    daddu  $2, $4, $0\n"
+    "    .size func_00260568, . - func_00260568\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
+
 
 extern int func_00262D78(int *self, int subj, int b, void *args);
 
