@@ -51,7 +51,11 @@ extern void actCommonStoneDead(void *a0, int a1, float f12);
 typedef struct { char _0[0x138]; int f_138; char _13C[0x54]; } MotionOrientRec; /* stride 0x190 */
 extern MotionOrientRec D_0055DA10[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", gflagOn);
+void gflagOn(void *a0, int a1) {
+    func_0023FE98(a1);
+    actCommonStoneDead(a0, a1,
+        (float)D_0055DA10[*(int *)((char *)*(void **)((char *)a0 + 0x15C) + 0x490)].f_138);
+}
 
 
 extern void *isysGObjAddHead();
