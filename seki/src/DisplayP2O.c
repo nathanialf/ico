@@ -103,13 +103,72 @@ done:
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", func_0010ED30);
+float func_0010ED30(short a0) {
+    int t = (short)(a0 + 0x4000);
+    int idx = __builtin_abs(t);
+    int s;
+    float v;
+    s = (unsigned int) t >> 0x1F;
+    if (idx >= 0x4000) {
+        idx = 0x8000 - idx;
+    }
+    v = D_0065A9C0[idx];
+    if (s == 0) goto done;
+    v = -v;
+done:
+    return v;
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", func_0010ED88);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayP2O", func_0010EE60);
+extern int D_00629E80;
+extern float D_00628CBC;
+extern float D_00628CC0;
+extern float D_00628CC4;
+extern unsigned short D_0066A9D0[];
+extern float func_0025A678(float);
+extern float func_0025A868(float);
+
+void func_0010ED88(void) {
+    int i;
+    float m, d, s, k;
+    if (D_00629E80 != 0) {
+        return;
+    }
+    m = D_00628CBC;
+    d = D_00628CC0;
+    for (i = 0; i < 0x4001; i++) {
+        D_0065A9C0[i] = func_0025A678((float)i * m / d);
+    }
+    k = 0.000244140625f;
+    s = D_00628CC4;
+    for (i = 0; i < 0x1001; i++) {
+        D_0066A9D0[i] = (int)(func_0025A868((float)i * k) * s);
+    }
+    D_00629E80 = 1;
+}
+
 
 extern unsigned short D_0066A9D0[];
+
+int func_0010EE60(float x) {
+    int neg;
+    int hi;
+
+    if (1.0f < x) {
+        x = 1.0f;
+    }
+    if (x < -1.0f) {
+        x = -1.0f;
+    }
+    if (x < 0.0f) {
+        neg = 1;
+        x = -x;
+    } else {
+        neg = 0;
+    }
+    hi = ((short *)D_0066A9D0)[(int)(x * 4096.0f)];
+    return (short)(neg ? -hi : hi);
+}
 
 int func_0010EEF0(float x) {
     int neg;

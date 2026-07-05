@@ -1,11 +1,40 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GsBase", gsb_SetFrame);
-
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GsBase", gsb_Init);
-
 typedef struct { unsigned char pad[0x10]; unsigned long long *cur; } GsBaseRed;
 extern GsBaseRed D_004C3850;
+
+typedef struct { int a, b, c, d; } GsAlphaEnt;
+extern GsAlphaEnt D_0054E7E0[];
+
+typedef union { unsigned long long *ptr; unsigned long long ull; } GsCurU;
+typedef union { unsigned long long ul; unsigned long long *ptr; } GsQW;
+
+void gsb_SetFrame(long long a0, long long a1, long long a2) {
+    unsigned long long *p, *q;
+    unsigned long long v;
+    int idx;
+
+    idx = (int)a1;
+    p = D_004C3850.cur;
+    *(volatile unsigned long long *)p = (a0 == 0);
+    p++;
+    *(unsigned long long * volatile *)&D_004C3850.cur = p;
+    *(volatile unsigned long long *)p = 0x49;
+    *(unsigned long long * volatile *)&D_004C3850.cur = p + 1;
+    a1 = 0x42;
+    v = (unsigned long long)D_0054E7E0[idx].a | ((unsigned long long)a2 << 32);
+    v |= ((unsigned long long)D_0054E7E0[idx].c << 4)
+       | ((unsigned long long)D_0054E7E0[idx].b << 2);
+    v |= (unsigned long long)D_0054E7E0[idx].d << 6;
+    *(volatile unsigned long long *)(p + 1) = v;
+    *(unsigned long long * volatile *)&D_004C3850.cur = p + 2;
+    q = p + 3;
+    *(volatile unsigned long long *)(p + 2) = a1;
+    D_004C3850.cur = q;
+}
+
+
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GsBase", gsb_Init);
 
 void gsb_Reduction(int a0) {
     int new_var;

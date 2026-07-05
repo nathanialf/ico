@@ -70,7 +70,40 @@ extern void _ACTWait(int a0);
 extern void BoxBarSoundOn(int a0, int a1);
 extern void func_0017C308();
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpPlayMot);
+void scpPlayMot(volatile int a0) {
+    PlayMotState *st = *(PlayMotState **)(a0 + 0x164);
+    if (func_00178DB0(st->f_444)) {
+        float buf[4];
+        float spd = st->f_448;
+        int self = a0;
+        float lim;
+        int done;
+        func_001044F0(buf, self);
+        lim = -spd;
+        do {
+            done = 0;
+            if (0.0f < lim) {
+                buf[1] = buf[1] + spd;
+                if (lim < buf[1]) {
+                    buf[1] = lim;
+                    done = 1;
+                }
+            } else {
+                buf[1] = buf[1] - spd;
+                if (buf[1] < lim) {
+                    buf[1] = lim;
+                    done = 1;
+                }
+            }
+            func_00179120(a0, buf);
+            _ACTWait(1);
+        } while (done == 0);
+    }
+    st->f_B4 = D_00286910;
+    D_00286910[0].f4 = (void *)func_0017C308;
+    BoxBarSoundOn(a0, 0x189);
+    _ACTWait(0);
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/script", scpPlayJump);
