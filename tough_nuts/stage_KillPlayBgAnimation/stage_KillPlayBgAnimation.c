@@ -67,7 +67,70 @@ extern int D_0062BF54;
 extern void bga_resetObjectCounter(int *obj, int mode, int frame, int setFrameArg);
 extern void bga_InitSdfCamera(int *a0, int a1, int a2, int a3);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_KillPlayBgAnimation);
+void stage_KillPlayBgAnimation(int a0, int a1, int a2) {
+    int count = D_0062BF54;
+    char *e = (char *)D_0066DBD8;
+    int one;
+    int killId = -1;
+    int i;
+
+    for (i = 0; i < D_0062BF54; i++, e += 0x290) {
+        int *entry1 = *(int **)(e + 0x280);
+        one = 1;
+        if (a0 == entry1[0x58 / 4]) {
+            int mode = *(int *)(e + 0x28C) >> 30;
+            switch (mode) {
+                case 0: {
+                    int *entry2 = *(int **)(e + 0x284);
+                    int j;
+                    killId = entry2[1];
+                    bga_resetObjectCounter(entry2, a2, a1, entry1[0x50 / 4]);
+                    for (j = 0; j < (*(int *)(e + 0x28C) << 22 >> 22); j++) {
+                        int obj = *(int *)(e + 0x80 + j * 4);
+                        int x = *(int *)(obj + 0x15C);
+                        *(int *)(x + 0x74) = one;
+                    }
+                    break;
+                }
+                case 1:
+                    bga_InitSdfCamera(*(int **)(e + 0x288), a2, a1, entry1[0x50 / 4]);
+                    break;
+            }
+            break;
+        }
+    }
+
+    if (killId == -1) {
+        return;
+    }
+    {
+        e = (char *)D_0066DBD8;
+        for (i = 0; i < D_0062BF54; i++, e += 0x290) {
+            int raw = *(int *)(e + 0x28C);
+            if ((raw >> 30) != 0) continue;
+            {
+                int *entry2 = *(int **)(e + 0x284);
+                if (killId != entry2[1]) continue;
+            }
+            {
+                int *entry1 = *(int **)(e + 0x280);
+                if (a0 == entry1[0x58 / 4]) continue;
+            }
+            if ((raw << 22) <= 0) continue;
+            {
+                int j;
+                int *sb3 = (int *)(e + 0x80);
+                for (j = 0; j < (*(int *)(e + 0x28C) << 22 >> 22); j++) {
+                    int obj = sb3[j];
+                    int x = *(int *)(obj + 0x15C);
+                    if (x != 0) {
+                        *(int *)(x + 0x74) = 0;
+                    }
+                }
+            }
+        }
+    }
+}
 
 
 extern char D_0066DBD8[];
