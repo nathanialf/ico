@@ -162,7 +162,27 @@ int func_0012A958(int a0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", func_0012AA28);
+extern int bga_CheckAnimationFinish(int a0, int a1, int a2);
+extern int func_001F7578(int a0, int a1, int a2);
+
+int func_0012AA28(int a0, int a1, int a2) {
+    int i;
+    char *e = (char *)D_0066DBD8;
+    for (i = 0; i < D_0062BF54; i++, e += 0x290) {
+        int *entry1 = *(int **)(e + 0x280);
+        if (a0 == entry1[0x58 / 4]) {
+            int mode = *(int *)(e + 0x28C) >> 30;
+            switch (mode) {
+                case 0:
+                    return bga_CheckAnimationFinish(*(int *)(e + 0x284), a1, a2);
+                case 1:
+                    return func_001F7578(*(int *)(e + 0x288), a1, a2);
+            }
+        }
+    }
+    return -1;
+}
+
 
 extern int D_0062BF54;
 extern char D_0066DBD8[];
