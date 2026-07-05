@@ -36,7 +36,30 @@ void stage_CalcAnimationNoParent(int a0) {
     D_0062A054 = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_CalcAnimationParent);
+extern void *isysGObjRemoveObjDL(int a0);
+extern void *func_0013E7E0(void *obj);
+
+void stage_CalcAnimationParent(int a0, int a1) {
+    void *obj;
+    for (obj = isysGObjRemoveObjDL(a0); obj != 0; obj = func_0013E7E0(obj)) {
+        void *node = *(void **)((char *)obj + 0x15C);
+        if (node != 0) {
+            void *dl = *(void **)((char *)node + 0x810);
+            if (dl != 0) {
+                void *x = *(void **)((char *)node + 0x814);
+                if (x != 0) {
+                    if (*(short *)((char *)dl + 0x30) == a0) {
+                        *(long long *)((char *)x + 0x30) =
+                            (*(long long *)((char *)x + 0x30) & ~0x04000000) |
+                            ((long long)(a1 & 1) << 26);
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 
 typedef struct { char _0[0x3C]; float f3C; } AnimNode;
 typedef struct { char _0[0x810]; AnimNode *f810; AnimNode *f814; } Stage;
