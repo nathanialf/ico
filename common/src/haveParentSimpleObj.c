@@ -36,7 +36,25 @@ void func_001AACE0(void) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AAD00);
+void func_001AAD00(void) {
+    for (;;) {
+    }
+}
+
+extern int D_0062B190;
+extern void func_002415C8(int *a0, int a1);
+extern int func_002415D8(int *a0);
+extern void func_00241640(int *a1, unsigned int a2);
+extern void func_002416F0(int *a0, int a1);
+
+void func_001AAD20(int *a0) {
+    func_002415C8(a0, (D_0062B190 << 13) | 0x70000000);
+    func_002415D8(a0);
+    func_00241640(a0, 0);
+    func_002416F0(a0, 0);
+    D_0062B190 = (D_0062B190 + 1) & 1;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AAD88);
 

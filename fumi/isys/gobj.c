@@ -1,8 +1,53 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", isysGObjKindTableInit);
+extern char D_0027DDF0[];
+extern char D_0027DE10[];
+extern unsigned int D_0062A4CC;
+extern unsigned int D_0062A4D0;
+extern void isysGetNbAllocedGObjs(unsigned int n);
+extern void func_0013D870(void);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", isysGObjInit);
+void isysGObjKindTableInit(unsigned int n)
+{
+    int i;
+
+    for (i = 0; i < 8; i++) {
+        ((int *)D_0027DDF0)[i] = 0;
+        ((int *)D_0027DE10)[i] = 0;
+    }
+    isysGetNbAllocedGObjs(n);
+    D_0062A4CC = 0;
+    D_0062A4D0 = 0;
+    func_0013D870();
+}
+
+
+extern char D_00551DF0[];
+extern void debug_assertMessage();
+
+void isysGObjInit(int a0)
+{
+    if (a0 == 0) {
+        debug_assertMessage(D_00551DF0);
+        return;
+    }
+    if (*(int *)(a0 + 0x14) == 0) {
+        if (*(int *)(a0 + 0x10) == 0) goto tables;
+    } else {
+        *(int *)(*(int *)(a0 + 0x14) + 0x10) = *(int *)(a0 + 0x10);
+    }
+    if (*(int *)(a0 + 0x10) != 0) {
+        *(int *)(*(int *)(a0 + 0x10) + 0x14) = *(int *)(a0 + 0x14);
+    }
+tables:
+    if (a0 == *(int *)(D_0027DDF0 + *(unsigned char *)(a0 + 0x18) * 4)) {
+        *(int *)(D_0027DDF0 + *(unsigned char *)(a0 + 0x18) * 4) = *(int *)(a0 + 0x10);
+    }
+    if (a0 == *(int *)(D_0027DE10 + *(unsigned char *)(a0 + 0x18) * 4)) {
+        *(int *)(D_0027DE10 + *(unsigned char *)(a0 + 0x18) * 4) = *(int *)(a0 + 0x14);
+    }
+}
+
 
 extern void *D_006A2F50[];
 extern char D_00551DE0[];
@@ -67,12 +112,98 @@ void cut_gobj_link(void) {
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", isysGObjRemoveAll);
+void isysGObjRemoveAll(int a0, int a1, int a2)
+{
+    int head, tail, p, q;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", add_gobj_to_tail);
+    a1 &= 0xFF;
+    *(unsigned char *)(a0 + 0x18) = a1;
+    *(int *)(a0 + 0x1C) = a2;
+    head = (int)((void **)D_0027DDF0)[a1];
+    if (head == 0) {
+        *(int *)(D_0027DDF0 + a1 * 4) = a0;
+        *(int *)(a0 + 0x14) = 0;
+        *(int *)(a0 + 0x10) = 0;
+        *(int *)(D_0027DE10 + a1 * 4) = a0;
+        return;
+    }
+    if ((unsigned int)a2 < *(unsigned int *)(head + 0x1C)) {
+        *(int *)(a0 + 0x14) = 0;
+        *(int *)(a0 + 0x10) = head;
+        *(int *)(D_0027DDF0 + a1 * 4) = a0;
+        *(int *)(head + 0x14) = a0;
+        return;
+    }
+    tail = (int)((void **)D_0027DE10)[a1];
+    if ((unsigned int)a2 >= *(unsigned int *)(tail + 0x1C)) {
+        *(int *)(a0 + 0x14) = tail;
+        *(int *)(a0 + 0x10) = 0;
+        *(int *)(D_0027DE10 + a1 * 4) = a0;
+        *(int *)(tail + 0x10) = a0;
+        return;
+    }
+    p = head;
+    for (;;) {
+        q = *(int *)(p + 0x10);
+        if ((unsigned int)a2 < *(unsigned int *)(q + 0x1C)) {
+            break;
+        }
+        p = q;
+    }
+    *(int *)(a0 + 0x14) = p;
+    *(int *)(a0 + 0x10) = *(int *)(p + 0x10);
+    *(int *)(p + 0x10) = a0;
+    *(int *)(*(int *)(a0 + 0x10) + 0x14) = a0;
+}
+
+
+void add_gobj_to_tail(char *a0, int a1, int a2)
+{
+    int head, tail, p, q;
+
+    a1 &= 0xFF;
+    *(unsigned char *)(a0 + 0x18) = a1;
+    *(int *)(a0 + 0x1C) = a2;
+    head = (int)((void **)D_0027DDF0)[a1];
+    if (head == 0) {
+        *(int *)(D_0027DDF0 + a1 * 4) = (int)a0;
+        *(int *)(a0 + 0x14) = 0;
+        *(int *)(a0 + 0x10) = 0;
+        *(int *)(D_0027DE10 + a1 * 4) = (int)a0;
+        return;
+    }
+    if (*(unsigned int *)(head + 0x1C) >= (unsigned int)a2) {
+        *(int *)(a0 + 0x14) = 0;
+        *(int *)(a0 + 0x10) = head;
+        *(int *)(D_0027DDF0 + a1 * 4) = (int)a0;
+        *(int *)(head + 0x14) = (int)a0;
+        return;
+    }
+    tail = (int)((void **)D_0027DE10)[a1];
+    if (*(unsigned int *)(tail + 0x1C) < (unsigned int)a2) {
+        *(int *)(a0 + 0x14) = tail;
+        *(int *)(a0 + 0x10) = 0;
+        *(int *)(D_0027DE10 + a1 * 4) = (int)a0;
+        *(int *)(tail + 0x10) = (int)a0;
+        return;
+    }
+    p = head;
+    for (;;) {
+        q = *(int *)(p + 0x10);
+        if (*(unsigned int *)(q + 0x1C) >= (unsigned int)a2) {
+            break;
+        }
+        p = q;
+    }
+    *(int *)(a0 + 0x14) = p;
+    *(int *)(a0 + 0x10) = *(int *)(p + 0x10);
+    *(int *)(p + 0x10) = (int)a0;
+    *(int *)(*(int *)(a0 + 0x10) + 0x14) = (int)a0;
+}
+
 
 extern void isysGObjInit(int a0);
-extern int  isysGObjRemoveAll(int a0, int a1, int a2);
+extern void isysGObjRemoveAll(int a0, int a1, int a2);
 
 void add_gobj_to_head(int a0, int a1, int a2)
 {
@@ -83,7 +214,7 @@ void add_gobj_to_head(int a0, int a1, int a2)
     return isysGObjRemoveAll(a0, s1, new_var);
 }
 
-extern int  add_gobj_to_tail(int a0, int a1, int a2);
+extern void add_gobj_to_tail(char *a0, int a1, int a2);
 
 void isysGObjMove(int a0, int a1, int a2)
 {
@@ -316,7 +447,46 @@ init:
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", isysGObjRemove);
+extern int D_0062A4C0;
+extern void *isysGObjSearchFromObjLayoutID(int id);
+extern void *isysGObjSearchFromObjKindID_begin(struct GObj *g);
+extern void isysGObjKindTableAdd(char *a0);
+
+void isysGObjRemove(char *a0, int a1)
+{
+    char *p;
+    int in_range;
+
+    if (D_0062A4C0 != 0) {
+        *(int *)(a0 + 0xC) = a1;
+        return;
+    }
+    p = isysGObjSearchFromObjLayoutID(*(int *)(a0 + 0xC));
+    do {
+        in_range = (unsigned int)a1 < 0x43;
+    } while (0);
+    while (p != 0) {
+        if (p == a0) {
+            isysGObjKindTableAdd(a0);
+            break;
+        }
+        isysGObjSearchFromObjKindID_begin((struct GObj *)p);
+    }
+    *(int *)(a0 + 0xC) = a1;
+    if (in_range) {
+        if (D_006A2F50[a1] == 0) {
+            D_006A2F50[a1] = a0;
+        } else {
+            p = (char *)D_006A2F50[a1];
+            while (*(char **)(p + 0x3C) != 0) {
+                p = *(char **)(p + 0x3C);
+            }
+            *(char **)(p + 0x3C) = a0;
+        }
+        *(int *)(a0 + 0x3C) = 0;
+    }
+}
+
 
 extern void *D_006A2F50[];
 extern void func_001AAD00(char *a0, int a1);
@@ -387,9 +557,84 @@ void isysGObjMoveAfterGObj(int self, int other)
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", isysGObjMoveBeforeGObj);
+void *isysGObjMoveBeforeGObj(int a0, int a1, int a2)
+{
+    unsigned int i;
+    struct GObj *e;
+    int s1 = a1 & 0xFF;
+    int new_var;
+    new_var = a2;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", isysGObjAdd);
+    for (i = 0; i < D_0062BFAC; i++) {
+        if (D_0062BFA8[i].f_0 == 0) {
+            break;
+        }
+    }
+    if (i == D_0062BFAC) {
+        debug_assertMessage(D_00551E00);
+        e = 0;
+    } else {
+        struct GObj *p = (struct GObj *)(i * 0x174 + (int)D_0062BFA8);
+        p->f_164 = 0;
+        p->f_170 = 0;
+        e = p;
+    }
+    if (e == 0) {
+        debug_assertMessage(D_00551E00);
+        return 0;
+    }
+    e->f_28 = a0;
+    e->f_0 = e;
+    isysGObjRemoveAll((int)e, s1, new_var);
+    e->f_15C = 0;
+    e->f_8 = -1;
+    e->f_4 = -1;
+    e->f_2C = 0;
+    e->f_30 = 0;
+    e->f_58 = 0;
+    *(int *)e->pad_C = 0;
+    return e;
+}
+
+
+void *isysGObjAdd(int a0, int a1, int a2)
+{
+    unsigned int i;
+    struct GObj *e;
+    int s1 = a1 & 0xFF;
+    int new_var;
+    new_var = a2;
+
+    for (i = 0; i < D_0062BFAC; i++) {
+        if (D_0062BFA8[i].f_0 == 0) {
+            break;
+        }
+    }
+    if (i == D_0062BFAC) {
+        debug_assertMessage(D_00551E00);
+        e = 0;
+    } else {
+        struct GObj *p = (struct GObj *)(i * 0x174 + (int)D_0062BFA8);
+        p->f_164 = 0;
+        p->f_170 = 0;
+        e = p;
+    }
+    if (e == 0) {
+        debug_assertMessage(D_00551E00);
+        return 0;
+    }
+    e->f_28 = a0;
+    e->f_0 = e;
+    add_gobj_to_tail((char *)e, s1, new_var);
+    e->f_15C = 0;
+    e->f_8 = -1;
+    e->f_4 = -1;
+    e->f_2C = 0;
+    e->f_30 = 0;
+    e->f_58 = 0;
+    return e;
+}
+
 
 void *isysGObjAddHead(int a0) {
     unsigned int i;
@@ -401,9 +646,57 @@ void *isysGObjAddHead(int a0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", isysGObjSearchFromObjLayoutID);
+extern int D_0062A4C0;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/gobj", isysGObjSearchFromObjKindID_begin);
+void *isysGObjSearchFromObjLayoutID(int id)
+{
+    struct GObj *p;
+    struct GObj *end;
+
+    if (D_0062A4C0 == 0) goto table;
+    p = D_0062BFA8 - 1;
+    end = &D_0062BFA8[D_0062BFAC - 1];
+    while (p != end) {
+        p++;
+        if (p->f_4 == 1 && *(int *)p->pad_C == id) {
+            goto found;
+        }
+    }
+ret0:
+    return 0;
+found:
+    return p;
+table:
+    if ((unsigned)(id - 1) < 0x42) {
+        return D_006A2F50[id];
+    }
+    goto ret0;
+}
+
+
+void *isysGObjSearchFromObjKindID_begin(struct GObj *g)
+{
+    struct GObj *p;
+    struct GObj *end;
+    int kind;
+
+    if (D_0062A4C0 == 0) goto direct;
+    p = g;
+    end = &D_0062BFA8[D_0062BFAC - 1];
+    kind = *(int *)g->pad_C;
+    while (p != end) {
+        p++;
+        if (p->f_4 == 1 && *(int *)p->pad_C == kind) {
+            goto found;
+        }
+    }
+    return 0;
+found:
+    return p;
+direct:
+    return *(void **)(g->pad_34 + 8);
+}
+
 
 
 /* recovered struct shapes */

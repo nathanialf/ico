@@ -2270,6 +2270,7 @@ func_001AAAD0 = 0x001AAAD0; // type:func  // common/src/haveParentSimpleObj.c
 func_001AAC60 = 0x001AAC60; // type:func  // common/src/haveParentSimpleObj.c
 func_001AACD8 = 0x001AACD8; // type:func  // common/src/haveParentSimpleObj.c
 func_001AACF4 = 0x001AACF4; // type:func  // common/src/haveParentSimpleObj.c
+func_001AAD20 = 0x001AAD20; // type:func  // common/src/haveParentSimpleObj.c static splat-lost supervisor-added
 func_001AAD88 = 0x001AAD88; // type:func  // common/src/haveParentSimpleObj.c
 func_001AAE80 = 0x001AAE80; // type:func  // common/src/haveParentSimpleObj.c
 func_001AAFA0 = 0x001AAFA0; // type:func  // common/src/haveParentSimpleObj.c

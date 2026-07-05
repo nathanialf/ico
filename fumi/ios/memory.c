@@ -51,7 +51,9 @@ typedef struct IosMemNode {
     int size;                      /* 0x34 */
     int line;                      /* 0x38 */
     int pad3C;                     /* 0x3C */
-} IosMemNode;                      /* 0x40 */
+    struct IosMemNode *pad40;      /* 0x40 (partition header view) */
+    struct IosMemNode *head;       /* 0x44 (partition header view: free-list head) */
+} IosMemNode;                      /* node header itself is 0x40 */
 
 typedef struct IosMemPart {
     char tag[16];                  /* 0x00 */
@@ -245,6 +247,7 @@ void *iosFree(IosMemPart *part, int size, char *file, int line)
 
 
 extern int func_001007A0(int a0);
+void *iosMallocCheckLeak2(void *ptr);
 
 extern char D_00551688[];
 
@@ -268,7 +271,179 @@ void iosMallocCheckLeak(int *a0, int a1, int a2)
     func_001007A0(0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/memory", iosMallocCheckLeak2);
+extern int func_00261748(void *a0, void *a1, int a2);
+extern int func_002603B8(void *a0);
+
+extern char D_005516A8[];
+extern char D_005516B8[];
+extern char D_005516D0[];
+extern char D_005516F0[];
+extern char D_00551730[];
+extern char D_00551740[];
+extern char D_00551760[];
+extern char D_00551770[];
+extern char D_00551780[];
+extern char D_00551798[];
+extern char D_0062C248[];
+
+void *iosMallocCheckLeak2(void *ptr)
+{
+    char buf[1024];
+    IosMemNode *node;
+    IosMemNode *next;
+    IosMemNode *prev;
+    IosMemNode *fn;
+    int n;
+
+    debug_assertMessage(D_005516A8);
+    if (ptr == 0) {
+        debug_assertMessage(D_005516B8);
+        __asm__ __volatile__("break");
+        func_001AACE0(D_005514B0, 0x324, D_005516D0);
+        func_00260380(D_005514B0, 0x324, D_0062C238);
+        return 0;
+    }
+    prev = (IosMemNode *)((char *)ptr - 0x10);
+    next = ptr;
+    if (func_00261748(prev, D_0062C248, 5) == 0) {
+        n = func_002603B8((char *)ptr - 0xB);
+        *((char *)ptr - 0x10) = 0;
+        next = (IosMemNode *)((char *)prev - (n - 0x10));
+    }
+    node = (IosMemNode *)((char *)next - 0x40);
+    if (func_002613B4((int *)node, D_005515F0) != 0) {
+        func_00261188(buf, D_005516F0, node->prev, node, node->next);
+        func_001AACE0(D_005514B0, 0x334, buf);
+        func_00260380(D_005514B0, 0x334, D_0062C238);
+        return 0;
+    }
+    next = node->next;
+    prev = node->prev;
+    if (prev != 0) {
+        if (func_002613B4((int *)prev, D_00551350) == 0) {
+            if (next != 0) {
+                if (func_002613B4((int *)next, D_00551350) == 0) {
+                    if (prev->free_next == next) {
+                        fn = next->free_next;
+                        prev->free_next = fn;
+                        if (fn != 0) {
+                            fn->free_prev = prev;
+                        }
+                    } else if (next->free_next == prev) {
+                        fn = next->free_prev;
+                        prev->free_prev = fn;
+                        if (fn == 0) {
+                            ((IosMemNode *)node->part)->head = prev;
+                        } else {
+                            fn->free_next = prev;
+                        }
+                    } else {
+                        fn = next->free_prev;
+                        if (fn == 0) {
+                            ((IosMemNode *)node->part)->head = next->free_next;
+                        } else {
+                            fn->free_next = next->free_next;
+                        }
+                        if (next->free_next != 0) {
+                            next->free_next->free_prev = next->free_prev;
+                        }
+                    }
+                    {
+                        int t = prev->size + 4;
+                        t += next->size;
+                        prev->next = next->next;
+                        prev->size = t;
+                    }
+                    *(IosMemTag *)next = *(IosMemTag *)D_00551730;
+                    if (next->next != 0) {
+                        next->next->prev = prev;
+                    }
+                } else if (func_002613B4((int *)next, D_005515F0) == 0) {
+                    prev->next = next;
+                    next->prev = prev;
+                } else {
+                    func_001AACE0(D_005514B0, 0x379, D_00551740);
+                    func_00260380(D_005514B0, 0x379, D_0062C238);
+                    return 0;
+                }
+            } else {
+                prev->next = 0;
+            }
+            {
+                int t = prev->size;
+                t += 4;
+                t += node->size;
+                prev->size = t;
+            }
+            *(IosMemTag *)node = *(IosMemTag *)D_00551760;
+            goto ret_ptr;
+        }
+        if (func_002613B4((int *)prev, D_005515F0) != 0) {
+            goto err_3bf;
+        }
+    }
+    if (next == 0) {
+        goto tail_node;
+    }
+    if (func_002613B4((int *)next, D_005515F0) == 0) {
+        node->free_prev = 0;
+        node->free_next = ((IosMemNode *)node->part)->head;
+        ((IosMemNode *)node->part)->head = node;
+        if (node->free_next != 0) {
+            node->free_next->free_prev = node;
+        }
+        goto tag_free;
+    }
+    if (func_002613B4((int *)next, D_00551350) != 0) {
+        goto err_3b5;
+    }
+    fn = next->free_prev;
+    if (fn == 0) {
+        ((IosMemNode *)node->part)->head = node;
+    } else {
+        fn->free_next = node;
+    }
+    node->free_prev = next->free_prev;
+    node->free_next = next->free_next;
+    {
+        int t = node->size;
+        t += 4;
+        t += next->size;
+        node->size = t;
+    }
+    node->next = next->next;
+    *(IosMemTag *)next = *(IosMemTag *)D_00551770;
+    if (next->next != 0) {
+        next->next->prev = node;
+    }
+    if (next->free_next != 0) {
+        next->free_next->free_prev = node;
+    }
+    goto tag_free;
+tail_node:
+    node->free_prev = 0;
+    node->free_next = ((IosMemNode *)node->part)->head;
+    if (((IosMemNode *)node->part)->head != 0) {
+        ((IosMemNode *)node->part)->head = node;
+        node->free_next->free_prev = node;
+    }
+    func_001AACE0(D_005514B0, 0x3B2, D_00551780);
+    func_00260380(D_005514B0, 0x3B2, D_0062C238);
+    goto tag_free;
+err_3b5:
+    func_001AACE0(D_005514B0, 0x3B5, D_00551740);
+    func_00260380(D_005514B0, 0x3B5, D_0062C238);
+    return 0;
+tag_free:
+    *(IosMemTag *)node = *(IosMemTag *)D_00551350;
+    goto ret_ptr;
+err_3bf:
+    func_001AACE0(D_005514B0, 0x3BF, D_00551798);
+    func_00260380(D_005514B0, 0x3BF, D_0062C238);
+ret_ptr:
+    return ptr;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/memory", iosReallocDebug);
 
