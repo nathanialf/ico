@@ -35,7 +35,34 @@ int GetNbMotionFrames(void *a0, float f12) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", GetMotionPlaySpeedRatio);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", execFrameTrigger);
+extern char *D_0062B758;
+extern char *D_0062C240;
+extern void func_00105058(void);
+extern void func_001D5C50(int id);
+extern void *func_00105078(void);
+extern void func_00105068(void);
+extern void MatrixDrive_TurnObjectMatrix(int a0, void *a1);
+
+void execFrameTrigger(int id) {
+    char *e = D_0062B758 + id * 0x40;
+    int child = *(int *)(e + 0x30);
+    int next = *(int *)(e + 0x34);
+    char *o;
+    void *m;
+    func_00105058();
+    func_001D5C50(id);
+    o = D_0062C240 + id * 0x10;
+    m = func_00105078();
+    MatrixDrive_TurnObjectMatrix((int)o, (char *)m + 0x30);
+    if (child != -1) {
+        execFrameTrigger(child);
+    }
+    func_00105068();
+    if (next != -1) {
+        execFrameTrigger(next);
+    }
+}
+
 
 extern void MatrixDrive_TurnObjectMatrix(int a0, void *a1);
 
@@ -97,7 +124,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", CopyBlendMo
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", SetParallelMotionTableWithNoRequest);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", SetParallelMotionTable);
+extern int StandbyStreamMotion(void *m);
+extern void _infoUpdate(void *buf, void *m);
+extern void CopyBlendMotionDataSource(void *a0, void *buf);
+extern void SetParallelMotionTableWithNoRequest(void *a0, void *buf);
+
+void SetParallelMotionTable(void *a0) {
+    void *m = *(void **)(*(int *)((char *)a0 + 0x15C) + 0x460);
+    int n = StandbyStreamMotion(m);
+    char buf[n];
+    _infoUpdate(buf, m);
+    CopyBlendMotionDataSource(a0, buf);
+    SetParallelMotionTableWithNoRequest(a0, buf);
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", InitMotionOrient);
 
@@ -126,7 +166,36 @@ void *ExecuteSlipProc(int i, int limit, int a2, int a3)
     return (void *)0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", ExecutePauseSlipProc);
+extern Slip D_0029AEF0;
+
+void *ExecutePauseSlipProc(int i, int limit, int a2, int a3)
+{
+    void *r;
+    int found = -1;
+    while (i < limit) {
+        if (D_0028E680[i].f_4 == a3) {
+            if (D_0028E680[i].f_0 == a2) {
+                r = &D_0028E680[i];
+                goto done;
+            }
+            if (D_0028E680[i].f_0 == 0x43F) {
+                found = i;
+            }
+        }
+        i++;
+    }
+    if (found != -1) {
+        r = &D_0028E680[found];
+    } else {
+        r = (void *)0;
+    }
+done:
+    if (r == (void *)0) {
+        r = &D_0029AEF0;
+    }
+    return r;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", func_001E1860);
 
@@ -138,9 +207,43 @@ void func_001E1980(void *a0, int a1, int a2) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", func_001E19A8);
+extern int getStreamMotion();
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", func_001E1A18);
+void func_001E19A8(void *a0, int a1, int a2, int a3, int a4) {
+    int *p = (int *)(*(int *)((char *)a0 + 0x15C) + 0x460);
+    int *q;
+    int old = *(int *)((char *)p + 0xD0);
+    *(int *)((char *)p + 0xD0) = 0xEB;
+    q = (int *)(*(int *)((char *)a0 + 0x15C) + 0x460);
+    if (*(int *)((char *)q + 0x18) == 0) {
+        *(int *)((char *)q + 0x1C) = a2;
+        *(int *)((char *)q + 0x20) = a1;
+    }
+    *(int *)((char *)p + 0x24) = a3;
+    *(int *)((char *)p + 0x28) = a4;
+    if (getStreamMotion(a0) != 0) {
+        *(int *)((char *)p + 0x44) = 0;
+    } else {
+        *(int *)((char *)p + 0xD0) = old;
+    }
+}
+
+
+extern int GetCurrentMotionDirectionAdjustFlag();
+extern int soundSePlayModeStop();
+
+void func_001E1A18(void *obj, int p1, int p2, int p3, int p4, int p5) {
+    char *s = *(char **)((char *)obj + 0x15C) + 0x460;
+    if (p3 >= 0 && p4 >= 0) {
+        GetCurrentMotionDirectionAdjustFlag(obj, p3, p4);
+    }
+    *(int *)(s + 0x4) = p1;
+    *(int *)(s + 0x8) = p2;
+    getNodeBlendedFloatingMotion((int)obj, p5, p5, 0);
+    *(int *)(s + 0x1AC) = soundSePlayModeStop();
+    *(int *)(s + 0x1B0) = soundSePlayModeStop();
+}
+
 
 extern char D_0055DA10[];
 

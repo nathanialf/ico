@@ -11,7 +11,25 @@ int visible_waypoint_of_all_except_gid_ThreadVersion(void *a0, int a1, int a2) {
 void visible_waypoint_of_all_except_temp(void) {
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", visible_waypoint_of_all_except_temp_ThreadVersion);
+extern char D_00553FB0[];
+extern void debug_assertMessage();
+extern int func_00202900(int a0);
+typedef struct { int pad[8]; int f20; int pad2[7]; } WVTElem; /* 0x40 */
+extern WVTElem D_004C7CF0_ve[] __asm__("D_004C7CF0");
+
+typedef struct { char pad[0x64]; int w64; } WVTObj;
+
+void visible_waypoint_of_all_except_temp_ThreadVersion(WVTObj *o) {
+    if (o->w64 >= 0) {
+        debug_assertMessage(D_00553FB0, o->w64);
+        {
+            WVTElem *e = &D_004C7CF0_ve[o->w64];
+            func_00202900(e->f20);
+        }
+        o->w64 = -1;
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", ez_line);
 
@@ -78,8 +96,13 @@ extern char *CreateWayPoint(char *node);
 extern void func_00240008(int *buf, int *p, int *q);
 extern float func_00168128(int a0);
 
-/* parked: needs real matching. See tough_nuts/nearest_waypoint_by_lineseg/notes.md */
+/* parked: needs real matching. See tough_nuts/nearest_waypoint_by_lineseg/notes.md
+ * Near-miss: recovered body is byte-exact except ONE post-call scheduler swap
+ * (lwc1 %gp_rel(D_00629128) vs `move s1,v0`); the whole waypoint-search family
+ * resolves it with an __asm__ memory barrier, disallowed here. */
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", nearest_waypoint_by_lineseg);
+
+
 
 extern char *CloseWayGroup(int handle);
 extern char *CreateWayPoint(char *node);
@@ -217,9 +240,55 @@ typedef struct {
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", waybridge_between_group);
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", bridge_waypoint_side_me);
+typedef struct {
+    int f0;                  /* 0x0 */
+    char _p1[0x18 - 0x4];
+    int f18;                 /* 0x18 */
+    char _p2[0x20 - 0x1c];
+    int i20;                 /* 0x20 */
+    int i24;                 /* 0x24 */
+    char _p3[0x34 - 0x28];
+} WayRecM;                   /* 0x34 */
+extern WayRecM D_004C6FF0_m[] __asm__("D_004C6FF0");
+extern char wcf_me[] __asm__("D_004C7CF0");
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", waypoint_connect_group_side_me);
+char *bridge_waypoint_side_me(int me, int target) {
+    int p = (int)D_004C6FF0_m;
+    int end = p + 0xD00;
+    do {
+        char *eA, *eB;
+        int a;
+        if (*(int *)p != 0 && *(int *)(p + 0x18) != 0) {
+            eA = wcf_me + *(int *)(p + 0x20) * 0x40;
+            eB = wcf_me + *(int *)(p + 0x24) * 0x40;
+            a = *(int *)(eA + 0x20);
+            if (a == me && *(int *)(eB + 0x20) == target) return eB;
+            if (*(int *)(eB + 0x20) == me && a == target) return eA;
+        }
+        p += 0x34;
+    } while (p < end);
+    return 0;
+}
+
+
+int waypoint_connect_group_side_me(int me, int target) {
+    int p = (int)D_004C6FF0_m;
+    int end = p + 0xD00;
+    do {
+        char *eA, *eB;
+        int a;
+        if (*(int *)p != 0 && *(int *)(p + 0x18) != 0) {
+            eA = wcf_me + *(int *)(p + 0x20) * 0x40;
+            eB = wcf_me + *(int *)(p + 0x24) * 0x40;
+            a = *(int *)(eA + 0x20);
+            if (a == me && *(int *)(eB + 0x20) == target) return *(int *)(p + 0xC);
+            if (*(int *)(eB + 0x20) == me && a == target) return *(int *)(p + 0x8);
+        }
+        p += 0x34;
+    } while (p < end);
+    return 0;
+}
+
 
 extern char wcf_c[] __asm__("D_004C7CF0");
 extern char D_005540F8[];
@@ -267,7 +336,19 @@ WNODE *waypoint_connect_group_side_bridge(int a0, int a1) {
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", NearestWgFromTarget);
+char *NearestWgFromTarget(int me, int target) {
+    WNODE *p = WayLengthOfGObj_Pos();
+    while (p != 0) {
+        char *eA = wcf_c + p->i20 * 0x40;
+        char *eB = wcf_c + p->i24 * 0x40;
+        int a = *(int *)(eA + 0x20);
+        if (a == me && *(int *)(eB + 0x20) == target) return eB;
+        if (*(int *)(eB + 0x20) == me && a == target) return eA;
+        p = WayLengthOfGObj_GObj(p);
+    }
+    return 0;
+}
+
 
 typedef struct { int pad[8]; int f20; int pad2[7]; } WPElem; /* 0x40 */
 typedef struct { char pad[0x20]; int i20; int i24; } WPNode;
@@ -280,7 +361,19 @@ WPElem *wpsort_compfnc(WPNode *a0, int a1) {
     return e->f20 == a1 ? e : 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", func_00178B08);
+int func_00178B08(int me, int target) {
+    WNODE *p = WayLengthOfGObj_Pos();
+    while (p != 0) {
+        char *eA = wcf_c + p->i20 * 0x40;
+        char *eB = wcf_c + p->i24 * 0x40;
+        int a = *(int *)(eA + 0x20);
+        if (a == me && *(int *)(eB + 0x20) == target) return *(int *)((char *)p + 0xC);
+        if (*(int *)(eB + 0x20) == me && a == target) return *(int *)((char *)p + 0x8);
+        p = WayLengthOfGObj_GObj(p);
+    }
+    return 0;
+}
+
 
 typedef struct { char p0[8]; int f8; int fc; char p1[0x10]; int i20; int i24; } WPNode2;
 int func_00178BB8(WPNode2 *a0, int a1) {
