@@ -153,21 +153,109 @@ def normalize(line: str) -> str:
     return line
 
 
-def count_and_pairs(a: list[str], b: list[str]):
-    """Diff two instruction streams; return (count, differing_pairs)."""
-    sm = difflib.SequenceMatcher(None, a, b, autojunk=False)
-    count = 0
-    pairs = []
-    for op, i1, i2, j1, j2 in sm.get_opcodes():
+# Minimum length (in instructions) of an identical, order-preserving run that
+# difflib's greedy Ratcliff-Obershelp anchoring mis-split across a separated
+# delete/insert pair before we trust it as a genuine re-pairing and stop
+# double-charging it. See _refined_count below. Kept deliberately high so we
+# only cancel LONG blocks (the mis-anchor pathology), never scattered lone
+# identical lines that are real scheduling moves — those stay counted.
+MIN_MERGE_RUN = 4
+
+
+def _refined_count(a: list[str], b: list[str], opcodes) -> int:
+    """True minimal instruction-divergence count, correcting a SequenceMatcher
+    over-count.
+
+    `difflib.SequenceMatcher` uses GREEDY (Ratcliff-Obershelp) anchoring, not
+    optimal LCS. On long, repetitive MIPS asm it can mis-anchor: when a run of
+    instructions is actually ROM-correct (present, identical, in BOTH normalized
+    streams) it may fail to pair it and instead emit a `delete` of the ROM run
+    at one position and an `insert` of the identical built run at another —
+    DOUBLE-CHARGING the same instructions as both a delete and an insert. That
+    makes a shape that is objectively CLOSER to ROM score a HIGHER count.
+
+    Fix: take the lines the first diff already flagged divergent (its `delete` /
+    `insert` / `replace` opcodes) and run a SECOND SequenceMatcher over ONLY
+    those far-fewer residual lines. Any `equal` run of length >= MIN_MERGE_RUN
+    the second pass recovers is a long identical block the greedy first pass
+    mis-split; charge it 0. The residual lines between recovered runs are merged
+    into one region each and charged max(a_len, b_len) — the same max-per-hunk
+    metric the tool has always used.
+
+    Safety guarantees (all verified against the matched corpus):
+      * NEVER INCREASES: the result is clamped to the original first-pass count,
+        and when NO long run is recovered the original count is returned byte
+        for byte — so a function without the mis-anchor pathology is untouched.
+      * Byte-identical streams score 0 (no residual -> orig == 0).
+      * A nonzero divergence is never zeroed out: a full cancellation would mean
+        the residual streams are identical in order (a pure large block MOVE,
+        which is a real diff) — we fall back to the original count rather than
+        emit a false rc0. Ninja verify_elf stays the final authority regardless.
+      * Only LONG (>= MIN_MERGE_RUN) order-preserving runs are re-paired; short
+        equal runs are folded back into the surrounding region and stay counted,
+        so genuine lone scheduling moves are not silently cancelled.
+    """
+    ra: list[str] = []
+    rb: list[str] = []
+    orig = 0
+    for op, i1, i2, j1, j2 in opcodes:
         if op == "equal":
             continue
-        count += max(i2 - i1, j2 - j1)
+        orig += max(i2 - i1, j2 - j1)
+        ra.extend(a[i1:i2])
+        rb.extend(b[j1:j2])
+    # Nothing to re-pair: no divergence, or one side is pure insert/pure delete
+    # (no shared lines are possible, so the greedy pass cannot have mis-split).
+    if orig == 0 or not ra or not rb:
+        return orig
+    # Second diff over ONLY the diverging lines (|ra|+|rb| << |a|+|b|).
+    sm2 = difflib.SequenceMatcher(None, ra, rb, autojunk=False)
+    refined = 0
+    pa = pb = 0
+    cancelled = False
+    for op, i1, i2, j1, j2 in sm2.get_opcodes():
+        if op == "equal" and (i2 - i1) >= MIN_MERGE_RUN:
+            # A long identical run the first pass mis-split: close the pending
+            # region, and charge this confirmed-equal run 0.
+            refined += max(pa, pb)
+            pa = pb = 0
+            cancelled = True
+        else:
+            # Divergent, or a run too short to trust: keep it in the region.
+            pa += (i2 - i1)
+            pb += (j2 - j1)
+    refined += max(pa, pb)
+    if not cancelled:
+        # No long run recovered -> the pathology is absent; keep orig exactly so
+        # non-pathological functions get an identical count to the old tool.
+        return orig
+    refined = min(refined, orig)          # never increase
+    if refined == 0:
+        # Everything cancelled: residuals are identical in order == a pure large
+        # block move (a real diff). Prefer counting over a false rc0.
+        return orig
+    return refined
+
+
+def count_and_pairs(a: list[str], b: list[str]):
+    """Diff two instruction streams; return (count, differing_pairs).
+
+    The differing pairs are the first-pass (greedy) hunks, unchanged, for
+    display. `count` is the refined, over-count-corrected metric (_refined_count)
+    that the plateau/stall machinery gates on."""
+    sm = difflib.SequenceMatcher(None, a, b, autojunk=False)
+    opcodes = sm.get_opcodes()
+    pairs = []
+    for op, i1, i2, j1, j2 in opcodes:
+        if op == "equal":
+            continue
         le, lb = a[i1:i2], b[j1:j2]
         for k in range(max(len(le), len(lb))):
             pairs.append({
                 "expected": le[k] if k < len(le) else "",
                 "built": lb[k] if k < len(lb) else "",
             })
+    count = _refined_count(a, b, opcodes)
     return count, pairs
 
 
