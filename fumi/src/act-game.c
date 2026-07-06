@@ -4,7 +4,489 @@
 /* act-game 0x164 actor-state view (local) */
 typedef struct { char _0[0x30]; int f_30; char _pad34[0x54]; int f_88, f_8C, f_90; char _pad94[0xEC]; int f_180; } AGState;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_SaveActorInformation);
+extern void BoxBarSoundOn(void *, int);
+extern int func_002610F0(void);
+extern int checkHit();
+extern void func_001927F8(void *, int, void *, void *);
+extern void debug_assertMessage(void *msg, ...);
+extern float func_0023FE70(void *, void *);
+extern void func_00240038(void *a0, void *a1, float a2);
+extern void func_0023FFF0(void *a0, void *a1, void *a2);
+extern void CylinderCollisionWithControlDynamics(void *, void *);
+extern int GetDifferenceFromWallUpperPlane(void *);
+extern void func_00260568(void *a0, int a1, int a2);
+extern int DebugDisp1CollisionWithColor(void *a0, void *a1);
+extern void *subCommonIdle(void *a0);
+extern void ClipWallBoxStop(void *);
+extern int func_001668B0(int, int);
+extern void fzMagnitudefv(void *out, int n, void *vec);
+extern void dispPlane(void *, void *);
+extern int *ContinueCorrectPosition(int *a0);
+extern void func_001FE250(void *, int, int);
+extern float RotateAccordingToStick_PatternThree(void *a0, void *a1);
+extern void func_00191DB8(void *a0, float a1);
+extern void func_001920A8(void *, void *);
+extern void *D_00629DE4;
+extern void *D_00629DE8;
+extern float D_00628DD4;
+extern float D_00628DD8;
+extern char D_005523C0[];
+
+typedef struct { char _0[0x188]; int f_188; int f_18C; } AGAnim2; /* stride 0x190 */
+extern AGAnim2 D_0055DA10_a[] __asm__("D_0055DA10");
+
+typedef struct { long long q; } __attribute__((packed)) AGUq;
+
+#define AGQ(o) (*(unsigned long long *)(p + (o)))
+
+void ACTGame_SaveActorInformation(void *gobj) {
+    float v0[4];
+    float box1[48];
+    float vD0[4];
+    float vE0[4];
+    float vF0[4];
+    float v100[4];
+    float box2[48];
+    float v1D0[4];
+    float v1E0[4];
+    float v1F0[4];
+    float box3[48];
+    float v2C0[4];
+    float v2D0[4];
+    float v2E0[4];
+    float v2F0[4];
+    char *p = *(char **)((char *)gobj + 0x164);
+    int i;
+
+    if ((int)(AGQ(0x468) >> 38) & 1) {
+        if ((int)(AGQ(0x478) >> 38) & 1) BoxBarSoundOn(gobj, 0xAE);
+    }
+    if ((int)(AGQ(0x468) >> 39) & 1) {
+        if ((int)(AGQ(0x478) >> 39) & 1) BoxBarSoundOn(gobj, 0xAF);
+    }
+    if ((int)(AGQ(0x468) >> 40) & 1) {
+        if ((int)(AGQ(0x478) >> 40) & 1) BoxBarSoundOn(gobj, 0xB0);
+    }
+    if ((int)(AGQ(0x468) >> 41) & 1) {
+        if ((int)(AGQ(0x478) >> 41) & 1) BoxBarSoundOn(gobj, 0xB1);
+    }
+    if ((int)(AGQ(0x468) >> 42) & 1) {
+        if ((int)(AGQ(0x478) >> 42) & 1) {
+            if (*(int *)((char *)gobj + 0xC) == 4) {
+                if (func_002610F0() & 1) {
+                    BoxBarSoundOn(gobj, 0xBA);
+                } else {
+                    BoxBarSoundOn(gobj, 0xBC);
+                }
+            } else {
+                BoxBarSoundOn(gobj, 0xBA);
+            }
+        }
+    }
+    if ((int)(AGQ(0x468) >> 43) & 1) {
+        if ((int)(AGQ(0x478) >> 43) & 1) BoxBarSoundOn(gobj, 0xBB);
+    }
+    if ((int)(AGQ(0x468) >> 48) & 1) {
+        long long t48 = *(unsigned short *)(p + 0x47E);
+        if ((int)t48 & 1) BoxBarSoundOn(gobj, 0x104);
+    }
+    if (gobj != D_00629DE4) {
+        if ((int)(AGQ(0x468) >> 47) & 1) {
+            if ((int)(AGQ(0x478) >> 47) & 1) BoxBarSoundOn(gobj, 0x103);
+        }
+        if ((int)(AGQ(0x468) >> 49) & 1) {
+            if ((int)(AGQ(0x478) >> 49) & 1) BoxBarSoundOn(gobj, 0x105);
+        }
+        if ((int)(AGQ(0x468) >> 50) & 1) {
+            if ((int)(AGQ(0x478) >> 50) & 1) BoxBarSoundOn(gobj, 0x106);
+        }
+    }
+    if ((int)(AGQ(0x468) >> 52) & 1) {
+        if ((int)(AGQ(0x478) >> 52) & 1) BoxBarSoundOn(gobj, 0xB8);
+    }
+    if ((int)(AGQ(0x468) >> 51) & 1) {
+        if ((int)(AGQ(0x478) >> 51) & 1) {
+            void *h = *(void **)(*(char **)((char *)gobj + 0x164) + 0x130);
+            int t = 0;
+            int r;
+            if (h == 0 || (r = checkHit(h)) == 0) t = 1;
+            r = t;
+            if (r) {
+                BoxBarSoundOn(gobj, 0xB7);
+            } else {
+                BoxBarSoundOn(gobj, 0xB6);
+            }
+        }
+    }
+    if ((int)(AGQ(0x468) >> 53) & 1) {
+        if ((int)(AGQ(0x478) >> 53) & 1) BoxBarSoundOn(gobj, 0x13C);
+    }
+    if ((int)(AGQ(0x468) >> 54) & 1) {
+        if ((int)(AGQ(0x478) >> 54) & 1) BoxBarSoundOn(gobj, 0x15A);
+    }
+    if ((int)(AGQ(0x468) >> 57) & 1) {
+        if ((int)(AGQ(0x478) >> 57) & 1) BoxBarSoundOn(gobj, 0xBE);
+    }
+    if ((int)(AGQ(0x468) >> 58) & 1) {
+        if ((int)(AGQ(0x478) >> 58) & 1) BoxBarSoundOn(gobj, 0xBF);
+    }
+    if ((int)(AGQ(0x468) >> 59) & 1) {
+        if ((int)(AGQ(0x478) >> 59) & 1) BoxBarSoundOn(gobj, 0xC1);
+    }
+    if ((int)(AGQ(0x468) >> 60) & 1) {
+        if ((int)(AGQ(0x478) >> 60) & 1) BoxBarSoundOn(gobj, 0xC2);
+    }
+    if ((int)(AGQ(0x468) >> 61) & 1) {
+        if ((int)(AGQ(0x478) >> 61) & 1)
+            func_001927F8(gobj, 0xF4, gobj, *(char **)(*(char **)((char *)gobj + 0x164) + 0x678) + 0x720);
+    }
+    if ((int)(AGQ(0x468) >> 62) & 1) {
+        if ((int)(AGQ(0x478) >> 62) & 1)
+            func_001927F8(gobj, 0xF5, gobj, *(char **)(*(char **)((char *)gobj + 0x164) + 0x678) + 0x750);
+    }
+    if ((int)(AGQ(0x468) >> 63) & 1) {
+        if ((int)(AGQ(0x478) >> 63) & 1)
+            func_001927F8(gobj, 0xF6, gobj, *(char **)(*(char **)((char *)gobj + 0x164) + 0x678) + 0x780);
+    }
+    if ((int)(AGQ(0x468) >> 55) & 1) {
+        if ((int)(AGQ(0x478) >> 55) & 1) {
+            BoxBarSoundOn(gobj, 0x9F);
+            BoxBarSoundOn(gobj, 0x9E);
+        }
+    }
+    if ((int)(AGQ(0x468) >> 56) & 1) {
+        long long t56 = *(unsigned char *)(p + 0x47F);
+        if ((int)t56 & 1) BoxBarSoundOn(gobj, 0x98);
+    }
+
+    if (((int)(AGQ(0x470) >> 4) & 1) && ((int)(AGQ(0x480) >> 4) & 1)) {
+        BoxBarSoundOn(gobj, 0xC5);
+        debug_assertMessage(D_005523C0);
+    } else if (*(int *)(p + 0x30) == 0x2B) {
+        BoxBarSoundOn(gobj, 0xC6);
+    }
+    if ((int)(AGQ(0x470) >> 5) & 1) {
+        if ((int)(AGQ(0x480) >> 5) & 1) BoxBarSoundOn(gobj, 0xC7);
+    }
+    if ((int)(AGQ(0x470) >> 6) & 1) {
+        if ((int)(AGQ(0x480) >> 6) & 1) BoxBarSoundOn(gobj, 0xC8);
+    }
+    if ((int)(AGQ(0x470) >> 7) & 1) {
+        if ((int)(AGQ(0x480) >> 7) & 1) BoxBarSoundOn(gobj, 0xC9);
+    }
+    if ((int)(AGQ(0x470) >> 8) & 1) {
+        if ((int)(AGQ(0x480) >> 8) & 1) BoxBarSoundOn(gobj, 0xCC);
+    }
+    if ((int)(AGQ(0x470) >> 9) & 1) {
+        if ((int)(AGQ(0x480) >> 9) & 1) BoxBarSoundOn(gobj, 0xCD);
+    }
+    if ((int)(AGQ(0x470) >> 10) & 1) {
+        if ((int)(AGQ(0x480) >> 10) & 1) BoxBarSoundOn(gobj, 0xCE);
+    }
+    if ((int)(AGQ(0x470) >> 29) & 1) {
+        if ((int)(AGQ(0x480) >> 29) & 1) BoxBarSoundOn(gobj, 0x71);
+    }
+    if ((int)(AGQ(0x470) >> 31) & 1) {
+        if ((int)(AGQ(0x480) >> 31) & 1) BoxBarSoundOn(gobj, 0x72);
+    }
+    if ((int)(AGQ(0x470) >> 33) & 1) {
+        if ((int)(AGQ(0x480) >> 33) & 1) BoxBarSoundOn(gobj, 0x79);
+    }
+    if ((int)(AGQ(0x470) >> 32) & 1) {
+        long long t32 = *(unsigned int *)(p + 0x484);
+        if ((int)t32 & 1) BoxBarSoundOn(gobj, 0x76);
+    }
+    if ((int)(AGQ(0x470) >> 34) & 1) {
+        if ((int)(AGQ(0x480) >> 34) & 1) BoxBarSoundOn(gobj, 0x7A);
+    }
+    if ((int)(AGQ(0x470) >> 35) & 1) {
+        if ((int)(AGQ(0x480) >> 35) & 1) BoxBarSoundOn(gobj, 0x7B);
+    }
+    if ((int)(AGQ(0x470) >> 36) & 1) {
+        if ((int)(AGQ(0x480) >> 36) & 1) BoxBarSoundOn(gobj, 0x73);
+    }
+    if ((int)(AGQ(0x470) >> 37) & 1) {
+        if ((int)(AGQ(0x480) >> 37) & 1) {
+            BoxBarSoundOn(gobj, 0x74);
+            BoxBarSoundOn(gobj, 0x75);
+        }
+    }
+    if ((int)(AGQ(0x470) >> 26) & 1) {
+        if ((int)(AGQ(0x480) >> 26) & 1) BoxBarSoundOn(gobj, 0x6E);
+    }
+    if ((int)(AGQ(0x470) >> 27) & 1) {
+        if ((int)(AGQ(0x480) >> 27) & 1) BoxBarSoundOn(gobj, 0x6F);
+    }
+    if ((int)(AGQ(0x470) >> 28) & 1) {
+        if ((int)(AGQ(0x480) >> 28) & 1) BoxBarSoundOn(gobj, 0x70);
+    }
+    if (*(int *)(p + 0x470) & 1) {
+        if (*(int *)(p + 0x480) & 1) {
+            if (gobj == D_00629DE8) {
+                if (*(int *)(*(char **)((char *)gobj + 0x164) + 0x30) == 0x71) BoxBarSoundOn(gobj, 0x6A);
+            } else {
+                BoxBarSoundOn(gobj, 0x6A);
+            }
+        }
+    }
+    if ((int)(AGQ(0x470) >> 1) & 1) {
+        if ((int)(AGQ(0x480) >> 1) & 1) BoxBarSoundOn(gobj, 0x12D);
+    }
+    if ((int)(AGQ(0x470) >> 2) & 1) {
+        if ((int)(AGQ(0x480) >> 2) & 1) BoxBarSoundOn(gobj, 0x12E);
+    }
+    if ((int)(AGQ(0x470) >> 11) & 1) {
+        if ((int)(AGQ(0x480) >> 11) & 1) BoxBarSoundOn(gobj, 0x126);
+    }
+    if ((int)(AGQ(0x470) >> 12) & 1) {
+        if ((int)(AGQ(0x480) >> 12) & 1) BoxBarSoundOn(gobj, 0x127);
+    }
+    if ((int)(AGQ(0x470) >> 13) & 1) {
+        if ((int)(AGQ(0x480) >> 13) & 1) BoxBarSoundOn(gobj, 0x128);
+    }
+    if ((int)(AGQ(0x470) >> 15) & 1) {
+        if ((int)(AGQ(0x480) >> 15) & 1) BoxBarSoundOn(gobj, 0x129);
+    }
+    if ((int)(AGQ(0x470) >> 16) & 1) {
+        if ((int)(AGQ(0x480) >> 16) & 1) BoxBarSoundOn(gobj, 0x129);
+    }
+    if ((int)(AGQ(0x470) >> 20) & 1) {
+        if ((int)(AGQ(0x480) >> 20) & 1) BoxBarSoundOn(gobj, 0x126);
+    }
+    if ((int)(AGQ(0x470) >> 21) & 1) {
+        if ((int)(AGQ(0x480) >> 21) & 1) BoxBarSoundOn(gobj, 0x127);
+    }
+    if ((int)(AGQ(0x470) >> 22) & 1) {
+        if ((int)(AGQ(0x480) >> 22) & 1) BoxBarSoundOn(gobj, 0x128);
+    }
+    if ((int)(AGQ(0x470) >> 47) & 1) {
+        if ((int)(AGQ(0x480) >> 47) & 1) BoxBarSoundOn(gobj, 0x29);
+    }
+    if ((int)(AGQ(0x470) >> 48) & 1) {
+        long long u48 = *(unsigned short *)(p + 0x486);
+        if ((int)u48 & 1) BoxBarSoundOn(gobj, 0x7E);
+    }
+    if ((int)(AGQ(0x470) >> 49) & 1) {
+        if ((int)(AGQ(0x480) >> 49) & 1) BoxBarSoundOn(gobj, 0x7F);
+    }
+    if ((int)(AGQ(0x470) >> 54) & 1) {
+        if ((int)(AGQ(0x480) >> 54) & 1) BoxBarSoundOn(gobj, 0x115);
+    }
+    if ((int)(AGQ(0x470) >> 55) & 1) {
+        if ((int)(AGQ(0x480) >> 55) & 1) BoxBarSoundOn(gobj, 0x117);
+    }
+    if ((int)(AGQ(0x470) >> 56) & 1) {
+        long long u56 = *(unsigned char *)(p + 0x487);
+        if ((int)u56 & 1) goto snd113;
+    }
+    if ((int)(AGQ(0x470) >> 57) & 1) {
+        if ((int)(AGQ(0x480) >> 57) & 1) {
+snd113:
+            BoxBarSoundOn(gobj, 0x113);
+        }
+    }
+    if ((int)(AGQ(0x470) >> 45) & 1) {
+        if ((int)(AGQ(0x480) >> 45) & 1) BoxBarSoundOn(gobj, 0x119);
+    }
+    if ((int)(AGQ(0x470) >> 46) & 1) {
+        if ((int)(AGQ(0x480) >> 46) & 1) BoxBarSoundOn(gobj, 0x86);
+    }
+    if ((int)(AGQ(0x470) >> 38) & 1) {
+        if ((int)(AGQ(0x480) >> 38) & 1) BoxBarSoundOn(gobj, 0x113);
+    }
+    if ((int)(AGQ(0x470) >> 39) & 1) {
+        if ((int)(AGQ(0x480) >> 39) & 1) BoxBarSoundOn(gobj, 0x118);
+    }
+    if ((int)(AGQ(0x470) >> 40) & 1) {
+        if ((int)(AGQ(0x480) >> 40) & 1) BoxBarSoundOn(gobj, 0x11E);
+    }
+    if ((int)(AGQ(0x470) >> 41) & 1) {
+        if ((int)(AGQ(0x480) >> 41) & 1) BoxBarSoundOn(gobj, 0x11F);
+    }
+    if ((int)(AGQ(0x470) >> 42) & 1) {
+        if ((int)(AGQ(0x480) >> 42) & 1) BoxBarSoundOn(gobj, 0x120);
+    }
+    if ((int)(AGQ(0x470) >> 43) & 1) {
+        if ((int)(AGQ(0x480) >> 43) & 1) BoxBarSoundOn(gobj, 0x121);
+    }
+    if ((int)(AGQ(0x470) >> 44) & 1) {
+        if ((int)(AGQ(0x480) >> 44) & 1) BoxBarSoundOn(gobj, 0x122);
+    }
+    if ((int)(AGQ(0x478) >> 1) & 1) {
+        if ((int)(AGQ(0x488) >> 1) & 1) BoxBarSoundOn(gobj, 0x52);
+    }
+    if ((int)(AGQ(0x478) >> 2) & 1) {
+        if ((int)(AGQ(0x488) >> 2) & 1) BoxBarSoundOn(gobj, 0x53);
+    }
+    if ((int)(AGQ(0x470) >> 62) & 1) {
+        if ((int)(AGQ(0x480) >> 62) & 1) {
+            BoxBarSoundOn(gobj, 0x43);
+            *(int *)(p + 0x40) = 0x5F;
+        }
+    }
+    if ((int)(AGQ(0x470) >> 63) & 1) {
+        if ((int)(AGQ(0x480) >> 63) & 1) {
+            BoxBarSoundOn(gobj, 0x43);
+            *(int *)(p + 0x40) = 0x61;
+        }
+    }
+    if (*(int *)(p + 0x478) & 1) {
+        if (*(int *)(p + 0x488) & 1) {
+            BoxBarSoundOn(gobj, 0x43);
+            *(int *)(p + 0x40) = 0x63;
+        }
+    }
+    if ((int)(AGQ(0x470) >> 17) & 1) {
+        if ((int)(AGQ(0x480) >> 17) & 1) BoxBarSoundOn(gobj, 0x12A);
+    }
+    if ((int)(AGQ(0x470) >> 18) & 1) {
+        if ((int)(AGQ(0x480) >> 18) & 1) BoxBarSoundOn(gobj, 0x12B);
+    }
+    if ((int)(AGQ(0x470) >> 19) & 1) {
+        if ((int)(AGQ(0x480) >> 19) & 1) BoxBarSoundOn(gobj, 0x12C);
+    }
+    if ((int)(AGQ(0x470) >> 53) & 1) {
+        if ((int)(AGQ(0x480) >> 53) & 1) BoxBarSoundOn(gobj, 0x97);
+    }
+    if ((int)(AGQ(0x478) >> 3) & 1) {
+        if ((int)(AGQ(0x488) >> 3) & 1) BoxBarSoundOn(gobj, 0x167);
+    }
+    if ((int)(AGQ(0x478) >> 4) & 1) {
+        if ((int)(AGQ(0x488) >> 4) & 1) {
+            char *q = p + 0x4B0;
+            char *d;
+            float f;
+            f = func_0023FE70(*(char **)((char *)gobj + 0x15C) + 0x120, q);
+            func_00240038(v0, q, -f);
+            d = *(char **)((char *)gobj + 0x15C) + 0x120;
+            func_0023FFF0(d, d, v0);
+            CylinderCollisionWithControlDynamics(gobj, p + 0x530);
+        }
+    }
+    if (*(int *)(*(char **)(*(char **)((char *)gobj + 0x164) + 0x670) + 0x29C) > 0) {
+        BoxBarSoundOn(gobj, 0x67);
+    }
+    {
+        char *dobj = *(char **)((char *)gobj + 0x15C);
+        if (((AGAnim2 *)(*(int *)(dobj + 0x490) * 0x190 + (char *)D_0055DA10_a))->f_188 < 0) {
+            if (GetDifferenceFromWallUpperPlane(gobj)) {
+                char *c;
+                int idx;
+                void *w;
+                func_00260568(box1, 0, 0xC0);
+                idx = DebugDisp1CollisionWithColor(gobj, (void *)0x33);
+                c = (char *)((idx << 6) + *(int *)(*(char **)((char *)gobj + 0x15C) + 0xC));
+                vE0[0] = *(float *)(c + 0x30);
+                vE0[1] = *(float *)(c + 0x34);
+                vE0[2] = *(float *)(c + 0x38);
+                idx = DebugDisp1CollisionWithColor(gobj, (void *)0x2F);
+                c = (char *)((idx << 6) + *(int *)(*(char **)((char *)gobj + 0x15C) + 0xC));
+                vF0[0] = *(float *)(c + 0x30);
+                vF0[1] = *(float *)(c + 0x34);
+                vF0[2] = *(float *)(c + 0x38);
+                func_0023FFF0(vD0, vE0, vF0);
+                func_00240038(vD0, vD0, 0.5f);
+                vD0[1] += 50.0f;
+                func_00240038(v100, subCommonIdle(gobj), 50.0f);
+                func_0023FFF0(box1, vD0, v100);
+                func_00240038(v100, subCommonIdle(gobj), -50.0f);
+                func_0023FFF0((char *)box1 + 0x10, vD0, v100);
+                *(int *)((char *)box1 + 0x70) = 0;
+                ClipWallBoxStop(box1);
+                if (func_001668B0(*(int *)((char *)box1 + 0x98), 0x2000)) {
+                    BoxBarSoundOn(gobj, 0x12F);
+                }
+                if (func_001668B0(*(int *)((char *)box1 + 0x98), 0x20000)) {
+                    if (*(int *)(p + 0x67C)) {
+                        if (GetDifferenceFromWallUpperPlane(gobj)) {
+                            *(AGUq *)(*(char **)(p + 0x67C)) = *(AGUq *)((char *)box1 + 0x80);
+                            *(int *)(*(char **)(p + 0x67C) + 8) = *(int *)((char *)box1 + 0x88);
+                            func_001927F8(gobj, 0x116, gobj, *(char **)(p + 0x67C));
+                        }
+                    }
+                }
+            }
+        }
+    }
+    {
+        char *dobj = *(char **)((char *)gobj + 0x15C);
+        if (((AGAnim2 *)(*(int *)(dobj + 0x490) * 0x190 + (char *)D_0055DA10_a))->f_18C & 1) {
+            int flag1, flag2, hit;
+            float *r;
+            void *w;
+            func_00260568(box2, 0, 0xC0);
+            hit = 0;
+            r = (float *)ContinueCorrectPosition(gobj);
+            v1D0[0] = r[0];
+            r = (float *)ContinueCorrectPosition(gobj);
+            v1D0[1] = r[1];
+            r = (float *)ContinueCorrectPosition(gobj);
+            v1D0[2] = r[2];
+            func_00240038(v1E0, subCommonIdle(gobj), -50.0f);
+            func_0023FFF0(box2, v1D0, v1E0);
+            func_00240038(v1E0, subCommonIdle(gobj), 50.0f);
+            func_0023FFF0((char *)box2 + 0x10, v1D0, v1E0);
+            flag1 = 0;
+            flag2 = 0;
+            *(int *)((char *)box2 + 0x70) = 0;
+            ClipWallBoxStop(box2);
+            if (func_001668B0(*(int *)((char *)box2 + 0x98), 0x400)) flag1 = 1;
+            if (func_001668B0(*(int *)((char *)box2 + 0x98), 0xC000)) flag2 = 1;
+            if (flag1 || flag2) {
+                func_001FE250(v1F0, *(int *)((char *)box2 + 0x80), *(int *)((char *)box2 + 0x88));
+                w = ContinueCorrectPosition(gobj);
+                if (RotateAccordingToStick_PatternThree(v1F0, w) < 400.0f) hit = 1;
+            }
+            if (flag1) {
+                if (hit) BoxBarSoundOn(gobj, 0x82);
+            }
+            if (flag2) {
+                if (hit) BoxBarSoundOn(gobj, 0x120);
+            }
+        }
+    }
+    for (i = 0; i < 2; i++) {
+        if ((int)(AGQ(0x20) >> 18) & 1) {
+            char *c;
+            int idx;
+            void *w;
+            int n;
+            func_00260568(box3, 0, 0xC0);
+            idx = DebugDisp1CollisionWithColor(gobj, (void *)0x33);
+            c = (char *)((idx << 6) + *(int *)(*(char **)((char *)gobj + 0x15C) + 0xC));
+            v2C0[0] = *(float *)(c + 0x30);
+            v2C0[1] = *(float *)(c + 0x34);
+            v2C0[2] = *(float *)(c + 0x38);
+            idx = DebugDisp1CollisionWithColor(gobj, (void *)0x2F);
+            c = (char *)((idx << 6) + *(int *)(*(char **)((char *)gobj + 0x15C) + 0xC));
+            v2D0[0] = *(float *)(c + 0x30);
+            v2D0[1] = *(float *)(c + 0x34);
+            v2D0[2] = *(float *)(c + 0x38);
+            func_0023FFF0(v1F0, v2C0, v2D0);
+            func_00240038(v1F0, v1F0, 0.5f);
+            v1F0[1] += 50.0f;
+            func_00240038(v2E0, subCommonIdle(gobj), 50.0f);
+            func_00191DB8(v2E0, D_00628DD4);
+            func_0023FFF0(box3, v1F0, v2E0);
+            func_00240038(v2E0, subCommonIdle(gobj), 50.0f);
+            func_00191DB8(v2E0, D_00628DD8);
+            func_0023FFF0((char *)box3 + 0x10, v1F0, v2E0);
+            if (i == 1) {
+                func_001920A8(box3, (char *)box3 + 0x10);
+            }
+            *(int *)((char *)box3 + 0x70) = 0;
+            ClipWallBoxStop(box3);
+            n = *(int *)((char *)box3 + 0x88);
+            if (n) {
+                fzMagnitudefv(v2F0, n, (char *)box3 + 0x80);
+                dispPlane(gobj, v2F0);
+                AGQ(0x20) &= 0xFFFFFFFFFFFBFFFFULL;
+                break;
+            }
+        }
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", ACTGame_DeleteActorInformation);
 
