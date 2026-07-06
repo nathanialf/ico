@@ -106,7 +106,23 @@ int gsb_scissorOnDemo(volatile int *a0) {
 
 extern void func_0023E1D0(void *a0, int a1, int a2, int a3, int a4, int a5);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GsBase", gsb_controlBrightness);
+void gsb_controlBrightness(char *a0, int a1, int a2, int a3, short a4) {
+    char *q = a0 + 0x28;
+    long long pack;
+    int hx = *(short *)&D_00629F5C;
+    int hy = (short)*(unsigned short *)&D_00629F60 / 2;
+
+    *(int *)(q + 0x10) &= ~0x1FF;
+    *(int *)(a0 + 0x10) &= ~0x1FF;
+    *(long long *)(a0 + 0x150) = (*(long long *)(a0 + 0x150) & ~0x1FF) | 0x40;
+    *(long long *)(a0 + 0x60) = (*(long long *)(a0 + 0x60) & ~0x1FF) | 0x40;
+    pack = (((long long)(a3 & 0xF) << 24) | 0xC0) | ((long long)a4 << 32);
+    *(long long *)(a0 + 0x160) = pack;
+    *(long long *)(a0 + 0x70) = pack;
+
+    func_0023E1D0(a0, 0, hx, hy, 0, 0);
+    func_0023E1D0(q, 0, hx, hy, 0, 0);
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/GsBase", gsb_antiAlias);

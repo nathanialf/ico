@@ -53,53 +53,7 @@ void dl_Debug(void)
     pac_openDmaTag();
 }
 
-typedef struct {
-    int          f_0;    /* 0x00 */
-    int          f_4;    /* 0x04 */
-    long long    f_8;    /* 0x08 */
-    unsigned int f_10;   /* 0x10 */
-    int          pad_14; /* 0x14 */
-    long long    f_18;   /* 0x18 */
-    int          pad_20; /* 0x20 */
-    int          f_24;   /* 0x24 */
-} DlEntry;   /* stride 0x28 */
-
-extern int D_00629F4C;
-extern int D_0062BA6C;
-extern DlEntry D_0070A5C0e[] __asm__("D_0070A5C0");
-extern void dpk_SwapBuffer(int a0);
-extern void dpk_Init(int a0, int a1, int a2);
-extern void dl_GetPri();
-extern void func_001007A0(int a0);
-extern void func_00240EA0(int a0, int a1);
-
-void dl_CloseDma(void)
-{
-    int i;
-    int j;
-    int stride = 0x28;
-    dpk_SwapBuffer(0xC);
-    dpk_Init(7, 0, 0);
-    dl_GetPri();
-    i = 0;
-    do {
-        DlEntry *e;
-        dpk_SwapBuffer(i);
-        j = i + 1;
-        e = (DlEntry *)((char *)D_0070A5C0e + j * stride);
-        dpk_Init(1, e->pad_20 & 0xFFFFFFF, 0);
-        dl_GetPri();
-        i = j;
-    } while (j < 0xC);
-    func_001007A0(0);
-    if (D_00629F4C) {
-        func_00240EA0(D_0062BA6C, D_0070A5C0e[11].pad_20 & 0xFFFFFFF);
-    } else {
-        func_00240EA0(D_0062BA6C, D_0070A5C0e[0].pad_20 & 0xFFFFFFF);
-    }
-    dl_Debug();
-}
-
+INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayList", dl_CloseDma);
 
 extern int D_0062BB00;
 extern int D_0070A830[];
@@ -155,7 +109,69 @@ void dl_OpenDma(void)
     return debug_assertMessage(D_00613700, count - 1);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/DisplayList", dl_GetPri);
+typedef struct {
+    int          f_0;    /* 0x00 */
+    int          f_4;    /* 0x04 */
+    long long    f_8;    /* 0x08 */
+    unsigned int f_10;   /* 0x10 */
+    int          pad_14; /* 0x14 */
+    long long    f_18;   /* 0x18 */
+    int          pad_20; /* 0x20 */
+    int          f_24;   /* 0x24 */
+} DlEntry;   /* stride 0x28 */
+
+void dl_GetPri(void) {
+    DlEntry *e = &((DlEntry *)D_0070A5C0)[D_0062C260];
+    unsigned long long t0 = (unsigned long long)(e->f_8 & 0x7FFFFFFF) << 32;
+    unsigned long long kind = e->f_18;
+    unsigned long long val;
+    unsigned long long tag;
+    unsigned long long out;
+    long long *fp;
+
+    if (kind == 6) goto count_er;
+    if (kind < 7) {
+        if (kind == 0) goto count_er;
+        val = e->f_10;
+        goto load_fp;
+    }
+    if (kind == 7) goto count7;
+    val = e->f_10;
+    goto load_fp;
+
+count_er:
+    fp = (long long *)e->f_4;
+    val = (unsigned long long)(((unsigned int)(e->f_24 - (int)fp) >> 4) - 1);
+    if (val == 0) { e->f_24 -= 16; e->f_0 = 0; return; }
+    goto dispatch;
+
+count7:
+    fp = (long long *)e->f_4;
+    val = (unsigned long long)(((unsigned int)(e->f_24 - (int)fp) >> 4) - 1);
+    goto dispatch;
+
+load_fp:
+    fp = (long long *)e->f_4;
+
+dispatch:
+    switch (kind) {
+    case 0: tag = 0x10000000ULL; break;
+    case 1: tag = t0 | 0x20000000ULL; break;
+    case 2: tag = t0 | 0x30000000ULL; break;
+    case 3: tag = t0 | 0x40000000ULL; break;
+    case 4: out = val | t0; goto do_store;
+    case 5: tag = t0 | 0x50000000ULL; break;
+    case 6: tag = 0x60000000ULL; break;
+    case 7: tag = 0x70000000ULL; break;
+    default: goto skip_store;
+    }
+    out = val | tag;
+do_store:
+    *fp = out;
+skip_store:
+    fp[1] = 0;
+    e->f_0 = 0;
+}
 
 
 extern void iosMallocCheckLeak2(int a0);
