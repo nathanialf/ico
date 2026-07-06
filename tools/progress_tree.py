@@ -29,6 +29,18 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
+# Authoritative .text byte totals come from progress.py (same tools/ dir),
+# which measures against the real baseelf.elf `.text` section size and counts
+# `c`+`hasm` subsegs as matched — the accurate metric that reaches exactly
+# 100% at full match. We reuse it for the dashboard's headline "code bytes"
+# figure so it agrees with the README badge to the byte. It needs the base
+# ELF; when that's absent (CI / fresh checkout) we fall back to the ELF-free
+# per-function symbol-delta sum below.
+try:
+    import progress as _progress  # tools/progress.py (script dir is on sys.path)
+except Exception:
+    _progress = None
+
 VERSION = os.environ.get("VERSION")
 if not VERSION:
     if (REPO_ROOT / "config" / "ico.aug6.yaml").exists():
@@ -160,11 +172,22 @@ def build_tree() -> dict:
         tot_m_funcs += p_m_funcs; tot_funcs += p_funcs
         tot_m_bytes += p_m_bytes; tot_bytes += p_bytes
 
+    # Headline "code bytes" total: prefer progress.py's authoritative .text
+    # section measurement (matches the README badge, hits 100% at full match).
+    # Fall back to the symbol-delta sum (per-function tree bytes) when the base
+    # ELF isn't available, so this stays runnable without it.
+    text_matched, text_total = tot_m_bytes, tot_bytes
+    if _progress is not None:
+        try:
+            text_matched, text_total = _progress.compute_progress()[".text"]
+        except Exception:
+            pass
+
     return {
         "version": VERSION,
         "totals": {
             "matched_funcs": tot_m_funcs, "total_funcs": tot_funcs,
-            "matched_bytes": tot_m_bytes, "total_bytes": tot_bytes,
+            "matched_bytes": text_matched, "total_bytes": text_total,
         },
         "programmers": prog_list,
     }
