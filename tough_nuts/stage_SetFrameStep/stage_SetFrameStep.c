@@ -149,7 +149,30 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_CheckAnimatio
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_SetLoopFlag);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_SetFrameStep);
+void stage_SetFrameStep(int a0, float arg0) {
+    int i;
+    char *e = (char *)D_0066DBD8;
+    for (i = 0; i < D_0062BF54; i++) {
+        int *entry1 = *(int **)(e + 0x280);
+        if (a0 == entry1[0x58 / 4] && (*(int *)(e + 0x28C) >> 30) == 0) {
+            int j;
+            int **objs = (int **)(e + 0x80);
+            for (j = 0; j < ((*(int *)(e + 0x28C) << 22) >> 22); j++) {
+                int k = 0;
+                if ((*(int **)((char *)*(int **)(e + 0x80 + j * 4) + 0x15C))[0x8 / 4] > 0) {
+                    do {
+                        char *base = (char *)(k * 0x50) + (*(int **)((char *)objs[j] + 0x15C))[0x830 / 4];
+                        *(float *)(base + 0x28) = arg0;
+                        *(float *)(base + 0x24) = arg0;
+                        *(float *)(base + 0x20) = arg0;
+                        k++;
+                    } while (k < (*(int **)((char *)*(int **)(e + 0x80 + j * 4) + 0x15C))[0x8 / 4]);
+                }
+            }
+        }
+        e += 0x290;
+    }
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/StageAnimation", stage_SetParentOfGObj);
