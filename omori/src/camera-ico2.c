@@ -112,7 +112,54 @@ int ReflectCameraSetBinary(int a0, int a1) {
     return *(int *)(D_0062A8F4[1] + a0 * 0x4C + 0x48) + a1 * 0x5C;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", InitIco2Camera);
+extern void *func_00105078(void);
+extern void func_002400F8(void *a0);
+extern void gif_SpriteOffset(int a0);
+extern void func_001D1D58(void *a0, void *a1, void *a2, int a3);
+extern void func_0010F9D0(void);
+extern long long D_00554910[2];
+
+struct V3 { float x, y, z; };
+
+static inline void InitIco2Camera_body(int a0, int i, long long *quat) {
+    struct V3 v0 = {
+        *(float *)(ReflectCameraSetBinary(a0, i) + 0x0),
+        *(float *)(ReflectCameraSetBinary(a0, i) + 0x4),
+        *(float *)(ReflectCameraSetBinary(a0, i) + 0x8),
+    };
+    struct V3 v1 = {
+        *(float *)(ReflectCameraSetBinary(a0, i) + 0xC),
+        *(float *)(ReflectCameraSetBinary(a0, i) + 0x10),
+        *(float *)(ReflectCameraSetBinary(a0, i) + 0x14),
+    };
+    func_001D1D58(&v0, &v1, quat, -1);
+}
+
+void InitIco2Camera(int a0, int a1) {
+    long long quat[2];
+    void *p0;
+    void *pA;
+    void *pB;
+    void *pC;
+    int i;
+    int end = a1 + 1;
+    quat[0] = D_00554910[0];
+    quat[1] = D_00554910[1];
+    p0 = func_00105078();
+    func_002400F8(p0);
+    pA = func_00105078();
+    pB = func_00105078();
+    pC = func_00105078();
+    *(float *)((char *)pC + 0x28) = -1.0f;
+    *(float *)((char *)pB + 0x14) = -1.0f;
+    *(float *)((char *)pA + 0x0) = -1.0f;
+    gif_SpriteOffset(0xB);
+    for (i = a1; i < end; i++) {
+        InitIco2Camera_body(a0, i, quat);
+    }
+    func_0010F9D0();
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", GetTargetOffset);
 
@@ -244,7 +291,51 @@ void SetCameraTargetPosition(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00185BF8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00186198);
+extern long long D_00554AF0[2];
+extern int D_0062AA14;
+extern float D_006291B8;
+extern void *subCommonIdle(int a0);
+extern float func_00191E30(void *a0);
+extern void func_00191DB8(void *q, float angle);
+extern void func_0023FFF0(void *dst, void *a, void *b);
+extern void func_00240008(float *a0, float *a1, float *a2);
+extern float MatrixDrive_GetTurnYAngleXZ(float a0);
+extern void func_0023FE98(void *a, void *b);
+extern void func_00240038_v(void *a, void *b, float s) __asm__("func_00240038");
+extern void _OrientXZGV(void *a0, void *a1, void *a2, float a3, float a4);
+
+void func_00186198(float *a0, float *a1) {
+    float v0[4];
+    float v10[4];
+    long long q[2];
+    float v30[4];
+    void *p;
+    float f;
+    int n;
+    q[0] = D_00554AF0[0];
+    q[1] = D_00554AF0[1];
+    p = subCommonIdle(D_0062AA14);
+    f = func_00191E30(p) / D_006291B8 * 180.0f;
+    n = (int)f;
+    func_00191DB8(q, (float)n * D_006291B8 / 180.0f);
+    func_0023FFF0(v0, a0, q);
+    func_00240008(v30, a1, a0);
+    v30[1] = 0.0f;
+    MatrixDrive_GetTurnYAngleXZ(v30[0] * v30[0] + v30[1] * v30[1] + v30[2] * v30[2]);
+    func_0023FE98(v30, v30);
+    func_00240038_v(v30, v30, -500.0f);
+    func_0023FFF0(v10, v30, a0);
+    v10[1] = a0[1] + 200.0f;
+    _OrientXZGV(a1, v0, v10, 4.0f, 5.0f);
+    a1[0] = v0[0];
+    a1[1] = v0[1];
+    a1[2] = v0[2];
+    a1[4] = a0[0];
+    a1[5] = a0[1];
+    a1[6] = a0[2];
+    a1[8] = 50.0f;
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00186330);
 
