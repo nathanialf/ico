@@ -469,7 +469,13 @@ void actCommonFall(int self) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", debugDispFlyLimit);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015B740);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015B790);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", debugDispSphere);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015B850);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", getLandOffset);
 
@@ -477,9 +483,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", getAvoidCollisionFlyLeve
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", emergencyCheck);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C568);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", flyCoreLoop);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonFly);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C7B8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonLadder);
 
@@ -551,6 +561,10 @@ void ACTSendMailCorrect(volatile int a0) {
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", _ACTCommonMailTest);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015CFF0);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015D028);
 
 void E3_LeverCheck(void *a0) {
     CommonActState *p = *(CommonActState **)((char *)a0 + 0x164);
