@@ -188,6 +188,8 @@ void ReadCameraSet(void *obj) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_001853B8);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00185428);
+
 
 int SetCameraZoomOffsetRatio(void *a0, int a1, int a2) {
     int base = *(int *)((char *)a0 + 0x4);
