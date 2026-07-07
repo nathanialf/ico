@@ -167,54 +167,42 @@ extern float D_00287048_x[4] __asm__("D_00287048");
 extern void CameraEdit_add_pin(int *a0);
 extern void CameraEdit_del_box(int a0, int a1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", GetTargetOffset);
+void GetTargetOffset(int a0, int a1, int a2) {
+    int *p0;
+    int *p1;
+    int *pin;
+    char *b0;
+    char *b1;
+    int i, j, k0, k1;
 
+    pin = (int *)a1;
 
-extern void func_00104D20(void);
-extern void func_00104DC0(int a0);
-extern void func_0023FDD8(void *a0, void *a1, void *a2);
-extern void func_0023FE98(void *a0, void *a1);
-extern void func_00105068(void);
+    p0 = D_0062A8F0;
+    D_00287048_x[0] = D_005EBC48_gtf[D_00629C90][0x5F];
+    p0[1] = (int)((char *)p0 + 0x70);
+    p0[2] = (int)((char *)p0 + 0x1E20);
+    p0[0] = 0;
+    b0 = (char *)p0 + 0x6F;
+    for (k0 = 0x63; k0 >= 0; k0--) *b0-- = 0;
 
-void SetCameraMatrix_Ico2(int a0, int a1, int a2, int a3, float *out, int a5) {
-    float zero = 0.0f;
-    int absA0 = a0 < 0 ? -a0 : a0;
-    out[2] = zero;
-    out[1] = zero;
-    out[0] = zero;
-    if (absA0 < 0x32) {
-        int absA1 = a1 < 0 ? -a1 : a1;
-        if (absA1 < 0x32) {
-            return;
+    p1 = D_0062A8F4;
+    p1[1] = (int)((char *)p1 + 0x70);
+    p1[2] = (int)((char *)p1 + 0x1E20);
+    p1[0] = 0;
+    b1 = (char *)p1 + 0x6F;
+    for (k1 = 0x63; k1 >= 0; k1--) *b1-- = 0;
+
+    for (i = 0; i < a0; i++) {
+        CameraEdit_add_pin(pin);
+        for (j = pin[14]; j < pin[15]; j++) {
+            CameraEdit_del_box(i, j * 0x5C + a2);
         }
-    }
-    if (a2 != 0) {
-        if (a0 > 0) {
-            out[1] = (float)a5;
-        }
-        if (a0 < 0) {
-            out[1] = (float)(-a5);
-        }
-    } else {
-        float vec[4];
-        void *p;
-        func_002400F8(func_00105078());
-        func_00104D20();
-        vec[0] = (float)a1;
-        vec[1] = zero;
-        vec[2] = (float)a0;
-        vec[3] = zero;
-        func_002400F8(func_00105078());
-        func_00104DC0((short)a3);
-        p = func_00105078();
-        func_0023FDD8(vec, p, vec);
-        func_0023FE98(out, vec);
-        func_00105068();
-        out[0] = out[0] * (float)(-a5);
-        out[2] = out[2] * (float)a5;
+        pin = (int *)((char *)pin + 0x4C);
     }
 }
 
+
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", SetCameraMatrix_Ico2);
 
 extern char D_00554AA0[];
 extern char D_002715D0[];
@@ -237,27 +225,9 @@ void ReadCameraSet(void *obj) {
 }
 
 
-extern char D_00554AB0[];
-extern void DispCameraGroup(void *a0, int a1, void *a2);
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_001853B8);
 
-void func_001853B8(void *obj) {
-    char *base;
-    iosSemaCreate(obj);
-    base = D_002715D0;
-    for (;;) {
-        debug_assertMessage(D_00554AB0, *(void **)((char *)obj + 0x74));
-        if (*(int *)(base + 0x5C) & 0x20) {
-            DispCameraGroup(ReadCameraSet, 3, obj);
-        }
-        iosSemaCreate(obj);
-    }
-}
-
-
-int func_00185428(void *a0, int a1) {
-    return *(int *)((char *)a0 + 4) + a1 * 0x4C;
-}
-
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00185428);
 
 
 int SetCameraZoomOffsetRatio(void *a0, int a1, int a2) {
