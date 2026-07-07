@@ -603,6 +603,8 @@ void actBoyRescueSrc(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoySupportGBBegin);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_001530C0);
+
 void actBoySupportGBLoop(int a0) {
     int buf[4];
     buf[0] = a0;

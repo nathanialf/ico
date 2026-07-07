@@ -5198,3 +5198,4 @@ func_0015C7B8 = 0x0015C7B8; // type:func  // fumi/src/commonact.c  // splat-merg
 func_0015CFF0 = 0x0015CFF0; // type:func  // fumi/src/commonact.c  // splat-merge split (_ACTCommonMailTest coroutine, frame 2)
 func_0015D028 = 0x0015D028; // type:func  // fumi/src/commonact.c  // splat-merge split (_ACTCommonMailTest, frameless leaf frame 3)
 func_00185428 = 0x00185428; // type:func  // omori/src/camera-ico2.c  // splat-merge split (func_001853B8, frameless leaf)
+func_001530C0 = 0x001530C0; // type:func  // fumi/src/boyact.c  // splat-merge split (actBoySupportGBBegin coroutine + trailing weapon-swap func)
