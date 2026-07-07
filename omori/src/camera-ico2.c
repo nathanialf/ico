@@ -23,7 +23,28 @@ int CameraSetCameraSet(void) {
     return -1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", CameraSetCameraSet_Default);
+extern int *D_0062A8F0;
+extern int *D_0062A8F4;
+extern int CameraMove(int a0);
+extern void GetRootPositionForCamera(int a0, int a1);
+
+void CameraSetCameraSet_Default(int a0) {
+    struct S4Cx { int w[19]; } *src;
+    struct S4Cx *dst;
+    void *saved;
+    int i;
+    src = (struct S4Cx *)(D_0062A8F0[1] + a0 * 0x4C);
+    dst = (struct S4Cx *)(D_0062A8F4[1] + a0 * 0x4C);
+    saved = *(void **)((char *)dst + 0x48);
+    *dst = *src;
+    *(void **)((char *)dst + 0x48) = saved;
+    i = 0;
+    while (i < *(int *)(CameraMove(a0) + 0x3C) - *(int *)(CameraMove(a0) + 0x38)) {
+        GetRootPositionForCamera(a0, i);
+        i++;
+    }
+}
+
 
 extern int *D_0062A8F0;
 extern int *D_0062A8F4;
@@ -97,9 +118,29 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", GetTargetOffset);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", SetCameraMatrix_Ico2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", ReadCameraSet);
+extern char D_00554AA0[];
+extern char D_002715D0[];
+extern void iosSemaCreate(void *obj);
+extern void iosSemaDelete(void *obj);
+extern void debug_assertMessage(char *a0, void *a1);
+
+void ReadCameraSet(void *obj) {
+    char *base;
+    iosSemaCreate(obj);
+    base = D_002715D0;
+    for (;;) {
+        debug_assertMessage(D_00554AA0, *(void **)((char *)obj + 0x74));
+        if (*(int *)(base + 0x5C) & 0x20) {
+            D_0062A9B0 = *(int *)((char *)obj + 0x70);
+            iosSemaDelete(obj);
+        }
+        iosSemaCreate(obj);
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_001853B8);
+
 
 int SetCameraZoomOffsetRatio(void *a0, int a1, int a2) {
     int base = *(int *)((char *)a0 + 0x4);
@@ -256,9 +297,82 @@ int func_00188580(void) {
     return D_0062C054;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188588);
+typedef struct {
+    char pad20[0x20];
+    float c[3]; /* 0x20 */
+    float h[3]; /* 0x2C */
+    char pad38[0x14]; /* to 0x4C */
+} CamBox; /* 0x4C */
+extern CamBox *D_0062C048;
+extern int D_0062C050;
+extern void func_00240038_3(float *pt, void *a0, float s) __asm__("func_00240038");
+extern void GetRootMatrixByDObj_p(float *pt, void *a0) __asm__("GetRootMatrixByDObj");
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188660);
+int func_00188588(void *a0) {
+    float pt[4];
+    float *pt_start;
+    int result;
+    int i;
+    int n;
+    GetRootMatrixByDObj_p(pt, a0);
+    func_00240038_3(pt, pt, -1.0f);
+    pt_start = pt;
+    n = D_0062C050;
+    result = -1;
+    for (i = 0; i < n; i++) {
+        float *c = D_0062C048[i].c;
+        float *h = D_0062C048[i].h;
+        int j = 0;
+        do {
+            if (pt_start[j] < c[j] - h[j]) {
+                break;
+            }
+            if (c[j] + h[j] < pt_start[j]) {
+                break;
+            }
+            j++;
+        } while (j < 3);
+        if (j == 3) {
+            result = i;
+            break;
+        }
+    }
+    return result;
+}
+
+int func_00188660(void *a0) {
+    float pt[4];
+    float *pt_start;
+    int result;
+    int i;
+    int n;
+    int found;
+    func_00240038_3(pt, a0, -1.0f);
+    pt_start = pt;
+    n = D_0062C050;
+    result = -1;
+    (void)found;
+    for (i = 0; i < n; i++) {
+        float *c = D_0062C048[i].c;
+        float *h = D_0062C048[i].h;
+        int j = 0;
+        do {
+            if (pt_start[j] < c[j] - h[j]) {
+                break;
+            }
+            if (c[j] + h[j] < pt_start[j]) {
+                break;
+            }
+            j++;
+        } while (j < 3);
+        if (j == 3) {
+            result = i;
+            break;
+        }
+    }
+    return result;
+}
+
 
 
 extern int D_0062C064;
@@ -355,9 +469,72 @@ void func_00188BE0(void *a0) {
     func_00188D60(D_006C9F60);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188C18);
+extern float D_006291DC;
+extern void func_00260568(float *m, int a1, int a2);
+extern void func_00240008(float *a0, float *a1, float *a2);
+extern float MatrixDrive_GetTurnYAngleXZ(float a0);
+extern float func_0025A968(float a0, float a1);
+typedef struct { double d[6]; } Mat30; /* 0x30, 8-byte aligned */
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188D60);
+void func_00188C18(int *dst, void *src) {
+    Mat30 m;
+    float loc[4];
+    float f20 = D_006291DC;
+    float *mf = (float *)&m;
+    m = *(Mat30 *)src;
+    ((float *)dst)[0] = mf[0];
+    ((float *)dst)[1] = mf[1];
+    ((float *)dst)[2] = mf[2];
+    func_00260568(loc, 0, 16);
+    loc[3] = 1.0f;
+    func_00240008(loc, &mf[4], &mf[0]);
+    MatrixDrive_GetTurnYAngleXZ(loc[0] * loc[0] + loc[2] * loc[2]);
+    *(short *)((char *)dst + 0x12) = (short)(func_0025A968(loc[0], loc[2]) * 32768.0f / f20);
+    *(short *)((char *)dst + 0x10) = (short)(func_0025A968(loc[1], MatrixDrive_GetTurnYAngleXZ(loc[0] * loc[0] + loc[2] * loc[2])) * -32768.0f / f20);
+    *(float *)((char *)dst + 0x14) = mf[8];
+}
+
+
+extern void func_00104D20(void);
+extern void *func_00105078(void);
+extern void func_002400F8(void *a0);
+extern void func_00104DC0(int a0);
+extern void func_00104D48(int a0);
+extern void func_00104E38(int a0);
+extern void func_0023FED0(void *a0, void *a1);
+extern void func_00105108(float a, float b, float c);
+extern float func_0010ED30(short a0);
+extern float p2o_SetDefaultEnviroment(short a0);
+extern void light_killLinkLight(int a0, int a1, float f);
+extern void func_00240090(void *a0, void *a1);
+extern void func_00105068(void);
+extern void gsb_SetVSMatrixSub(void);
+extern int D_00629F5C;
+extern int D_00629F60;
+extern int D_00629C70;
+
+void func_00188D60(int *s) {
+    void *A;
+    void *B;
+    float f20;
+    float p;
+    func_00104D20();
+    func_002400F8(func_00105078());
+    func_00104DC0(*(short *)((char *)s + 0x12));
+    func_00104D48(*(short *)((char *)s + 0x10));
+    func_00104E38(*(short *)((char *)s + 0x1C));
+    A = func_00105078();
+    B = func_00105078();
+    func_0023FED0(A, B);
+    func_00105108(-((float *)s)[0], -((float *)s)[1], -((float *)s)[2]);
+    f20 = func_0010ED30((short)(((float *)s)[5] * 32768.0f / 180.0f));
+    p = p2o_SetDefaultEnviroment((short)(((float *)s)[5] * 32768.0f / 180.0f));
+    light_killLinkLight(D_00629F5C, D_00629F60, f20 * 1024.0f / p);
+    func_00240090((void *)(D_00629C70 + 0x80), func_00105078());
+    func_00105068();
+    gsb_SetVSMatrixSub();
+}
+
 
 
 /* recovered struct shapes */
