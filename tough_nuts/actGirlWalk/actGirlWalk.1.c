@@ -86,7 +86,6 @@ extern int HandCameraCorrect(void *buf, void *vec);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_0016B028);
 
 
-
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlPulledReady);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlPulledGo);
@@ -168,45 +167,7 @@ extern int func_0016F560(void *, void *);
 extern float D_006290C4;
 extern float D_006290C8;
 
-int actGirlSupportGBLoop(void) {
-    char buf[0x20];
-    int rv = 0;
-    float diff;
-    if (D_00629DE4 == 0) {
-        goto ret0;
-    }
-    if (D_00629DE8 == 0) {
-        return 0;
-    }
-    GetHeightOfWallFromGObj(buf, D_00629DE4);
-    GetHeightOfWallFromGObj(buf + 0x10, D_00629DE8);
-    diff = *(float *)(buf + 0x4) - *(float *)(buf + 0x14);
-    if (diff < 0.0f) {
-        if (-diff > 200.0f) {
-            goto set;
-        }
-        goto test;
-    }
-    if (diff > 200.0f) {
-    set:
-        rv = 1;
-    }
-test:
-    if (rv == 0) {
-        goto ret0;
-    }
-    if (RotateAccordingToStick_PatternThree(buf, buf + 0x10) < D_006290C4) {
-        return 1;
-    }
-    if (RotateAccordingToStick_PatternThree(buf, buf + 0x10) < D_006290C8) {
-        if (func_0016F560(buf, buf + 0x10) != 0) {
-            return 1;
-        }
-    }
-ret0:
-    return 0;
-}
-
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlSupportGBLoop);
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlSupportGBEnd);
@@ -274,7 +235,28 @@ extern char D_00553C00[];
 extern char D_00553C20[];
 extern int D_0062AF84;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlWalk);
+void actGirlWalk(void) {
+    int x;
+    int volatile self = x;
+
+    if (D_0062AF84 & 1) {
+        char *p = (char *)D_00284740;
+        traceLine(0xA, 0x3C, 0xFFFFFFF, D_00553BF0,
+                  (int)*(float *)(p + 0x50), (int)*(float *)(p + 0x54));
+        if (D_0062AF84 & 1) {
+            traceLine(0xA, 0x46, 0xFFFFFFF, D_00553C00,
+                      *(unsigned char *)(p + 0x58), *(unsigned char *)(p + 0x59),
+                      *(unsigned char *)(p + 0x5B), *(unsigned char *)(p + 0x5D));
+            if (D_0062AF84 & 1) {
+                char *name3 = D_00553C20;
+                int r20 = (int)*(float *)(p + 0x20);
+                int hcc = HandCameraCorrect(p + 0x40, p + 0x30);
+                traceLine(0xA, 0x50, 0xFFFFFFF, name3,
+                          r20, hcc, (int)*(float *)(p + 0x50));
+            }
+        }
+    }
+}
 
 
 

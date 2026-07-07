@@ -10,7 +10,19 @@ typedef struct { int f_0; float f_4; int f_8; int f_C; } GirlHandDisc;
 extern int DebugDisp1CollisionWithColor(void *a0, int a1);
 extern void func_0023FDD8(void *a0, int a1, void *a2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", funcGirlHandDisconnect);
+void funcGirlHandDisconnect(GirlHandDisc *a0, char *a1) {
+    int rv = DebugDisp1CollisionWithColor(a1, 0x23);
+    if (*(int *)(a1 + 0xC) == 4) {
+        a0->f_0 = 0;
+        a0->f_4 = -1.0f;
+    } else {
+        a0->f_0 = 0;
+        a0->f_4 = 1.0f;
+    }
+    a0->f_8 = 0;
+    a0->f_C = 0;
+    func_0023FDD8(a0, (rv << 6) + *(int *)(*(char **)(a1 + 0x15C) + 0xC), a0);
+}
 
 
 extern void ACTLookTargetSystem_Exec(void);
@@ -84,7 +96,6 @@ extern int func_001443B8(void *buf, void *a1, int id);
 extern int HandCameraCorrect(void *buf, void *vec);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_0016B028);
-
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlPulledReady);
@@ -168,45 +179,7 @@ extern int func_0016F560(void *, void *);
 extern float D_006290C4;
 extern float D_006290C8;
 
-int actGirlSupportGBLoop(void) {
-    char buf[0x20];
-    int rv = 0;
-    float diff;
-    if (D_00629DE4 == 0) {
-        goto ret0;
-    }
-    if (D_00629DE8 == 0) {
-        return 0;
-    }
-    GetHeightOfWallFromGObj(buf, D_00629DE4);
-    GetHeightOfWallFromGObj(buf + 0x10, D_00629DE8);
-    diff = *(float *)(buf + 0x4) - *(float *)(buf + 0x14);
-    if (diff < 0.0f) {
-        if (-diff > 200.0f) {
-            goto set;
-        }
-        goto test;
-    }
-    if (diff > 200.0f) {
-    set:
-        rv = 1;
-    }
-test:
-    if (rv == 0) {
-        goto ret0;
-    }
-    if (RotateAccordingToStick_PatternThree(buf, buf + 0x10) < D_006290C4) {
-        return 1;
-    }
-    if (RotateAccordingToStick_PatternThree(buf, buf + 0x10) < D_006290C8) {
-        if (func_0016F560(buf, buf + 0x10) != 0) {
-            return 1;
-        }
-    }
-ret0:
-    return 0;
-}
-
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlSupportGBLoop);
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlSupportGBEnd);
@@ -275,7 +248,6 @@ extern char D_00553C20[];
 extern int D_0062AF84;
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlWalk);
-
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlRun);
