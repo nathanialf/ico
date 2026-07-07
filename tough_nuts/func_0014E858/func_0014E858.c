@@ -123,43 +123,63 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", GetChainSlope);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", subBoyControl);
 
-extern int isysGObjAddHead();
+extern int isysGObjAddHead(int a0);
 extern void *disp_memory_partition(int a0, int a1);
 extern char D_002A0A90[];
 extern float D_00628EE4;
 extern long long D_006A45A0[];
 
+typedef struct {
+    int   f_0;      /* 0x00 */
+    char  _4[0x1C];
+    int   f_20;     /* 0x20 */
+    int   f_24;     /* 0x24 */
+    char  _28[0x8];
+    float f_30;     /* 0x30 */
+    float f_34;
+    float f_38;
+    char  _3c[0x4];
+    float f_40;     /* 0x40 */
+    float f_44;
+    float f_48;
+} DBlk0;
+extern DBlk0 D_006A45A0_b __asm__("D_006A45A0");
+
 void func_0014E858(void *a0) {
-    char *d = (char *)D_006A45A0;
     void *g = *(int **)((char *)a0 + 0x164);
-    void *p16;
+    char *p16;
     void *r;
-    if (*(int *)d != 0) {
-        *(int *)(d + 0x20) = (int)isysGObjAddHead();
+    if (D_006A45A0_b.f_0 != 0) {
+        D_006A45A0_b.f_20 = isysGObjAddHead(D_006A45A0_b.f_0);
     } else {
-        *(int *)(d + 0x20) = 0;
+        D_006A45A0_b.f_20 = 0;
     }
-    p16 = *(void **)((char *)g + 0x5F8);
-    *(int *)(d + 0x24) = (int)p16;
-    r = disp_memory_partition(*(int *)((char *)p16 + 0xC), *(int *)((char *)p16 + 0x8));
+    p16 = *(char **)((char *)g + 0x5F8);
+    {
+        int arg0 = *(int *)(p16 + 0xC);
+        int arg1 = *(int *)(p16 + 0x8);
+        D_006A45A0_b.f_24 = (int)p16;
+        r = disp_memory_partition(arg0, arg1);
+    }
     if (r != 0) {
-        *(float *)(d + 0x30) = *(float *)((char *)r + 0x10);
-        *(float *)(d + 0x34) = *(float *)((char *)r + 0x14);
-        *(float *)(d + 0x38) = *(float *)((char *)r + 0x18);
-        *(float *)(d + 0x40) = *(float *)((char *)r + 0x20);
-        *(float *)(d + 0x44) = *(float *)((char *)r + 0x24);
-        *(float *)(d + 0x48) = *(float *)((char *)r + 0x28);
+        D_006A45A0_b.f_30 = *(float *)((char *)r + 0x10);
+        D_006A45A0_b.f_34 = *(float *)((char *)r + 0x14);
+        D_006A45A0_b.f_38 = *(float *)((char *)r + 0x18);
+        D_006A45A0_b.f_40 = *(float *)((char *)r + 0x20);
+        D_006A45A0_b.f_44 = *(float *)((char *)r + 0x24);
+        D_006A45A0_b.f_48 = *(float *)((char *)r + 0x28);
     } else {
-        char *t = D_002A0A90 + *(int *)((char *)p16 + 0x8) * 0x4C;
+        char *t = D_002A0A90 + *(int *)(p16 + 0x8) * 0x4C;
         float sc = D_00628EE4;
-        *(float *)(d + 0x48) = *(float *)(t + 0x14) * sc / 180.0f;
-        *(float *)(d + 0x30) = -*(float *)(t + 0x18);
-        *(float *)(d + 0x34) = -*(float *)(t + 0x1C);
-        *(float *)(d + 0x38) = -*(float *)(t + 0x20);
-        *(float *)(d + 0x40) = *(float *)(t + 0xC) * sc / 180.0f;
-        *(float *)(d + 0x44) = *(float *)(t + 0x10) * sc / 180.0f;
+        D_006A45A0_b.f_48 = *(float *)(t + 0x14) * sc / 180.0f;
+        D_006A45A0_b.f_30 = -*(float *)(t + 0x18);
+        D_006A45A0_b.f_34 = -*(float *)(t + 0x1C);
+        D_006A45A0_b.f_38 = -*(float *)(t + 0x20);
+        D_006A45A0_b.f_40 = *(float *)(t + 0xC) * sc / 180.0f;
+        D_006A45A0_b.f_44 = *(float *)(t + 0x10) * sc / 180.0f;
     }
 }
+
 
 
 extern long long D_006A45A0[];
@@ -195,11 +215,58 @@ extern void func_00240008(void *, CCPResult *, CCPResult *);
 extern float func_0023FE70(void *, void *);
 extern float InitHandCameraCorrect(void *, CCPResult *);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00150608);
+int func_00150608(void) {
+    void *g = *(int *)((char *)D_00629DE4 + 0x164);
+    CCPResult buf;
+    CCPResult *r16 = ContinueCorrectPosition(D_00629DE8);
+    func_00240008(&buf, r16, ContinueCorrectPosition(D_00629DE4));
+    if (func_0023FE70(&buf, (char *)g + 0x4B0) > 0.0f) {
+        if (InitHandCameraCorrect((char *)g + 0x4F0, ContinueCorrectPosition(D_00629DE8)) < 100.0f) {
+            void *g2 = *(int *)((char *)D_00629DE8 + 0x164);
+            long long flag = *(unsigned short *)((char *)g2 + 0x1E);
+            if (((int)flag & 1) == 0) return 0;
+            if (D_00629DE8 == 0) goto r1;
+            if (D_00629DE4 == 0) goto r1;
+            {
+                CCPResult *ra = ContinueCorrectPosition(D_00629DE8);
+                CCPResult *rb = ContinueCorrectPosition(D_00629DE4);
+                if (rb->f4 + 450.0f < ra->f4) goto r0;
+            }
+r1:
+            return 1;
+r0:
+            return 0;
+        }
+    }
+    return 0;
+}
 
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", subBoyCollision);
+
+int subBoyCollision(void) {
+    void *g = *(int *)((char *)D_00629DE4 + 0x164);
+    CCPResult buf;
+    CCPResult *r16 = ContinueCorrectPosition(D_00629DE8);
+    func_00240008(&buf, r16, ContinueCorrectPosition(D_00629DE4));
+    if (func_0023FE70(&buf, (char *)g + 0x4B0) > 0.0f) {
+        if (InitHandCameraCorrect((char *)g + 0x500, ContinueCorrectPosition(D_00629DE8)) < 31.0f) {
+            if (D_00629DE8 == 0) goto r1;
+            if (D_00629DE4 == 0) goto r1;
+            {
+                CCPResult *ra = ContinueCorrectPosition(D_00629DE8);
+                CCPResult *rb = ContinueCorrectPosition(D_00629DE4);
+                if (rb->f4 + 450.0f < ra->f4) goto r0;
+            }
+r1:
+            return 1;
+r0:
+            return 0;
+        }
+    }
+    return 0;
+}
+
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoySwim);
@@ -227,7 +294,25 @@ ret0:
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyTakeWeaponReady);
+typedef struct { char _0[0x188]; unsigned int f188; char _18c[4]; } WpnEntry;
+extern char D_0055DA10[];
+
+void actBoyTakeWeaponReady(int *volatile a0) {
+    int idx = *(int *)((char *)*(int **)((char *)a0 + 0x15C) + 0x490);
+    if ((((WpnEntry *)(D_0055DA10 + idx * 0x190))->f188 >> 11) & 1) {
+        funcCommonJumpDircorrect(a0, *(int *)(*(int *)((char *)a0 + 0x164) + 0x678) + 0x7C0);
+    }
+    while (1) {
+        _ACTWait(1);
+    }
+}
+
+
+void func_00151E98(int *volatile a0) {
+    funcCommonJumpDircorrect(a0, *(int *)(*(int *)((char *)a0 + 0x164) + 0x678) + 0x7C0);
+    _ACTWait(0);
+}
+
 
 void actBoyTakeWeapon(int *volatile a0) {
     funcCommonJumpDircorrect(a0, *(int *)(*(int *)((char *)a0 + 0x164) + 0x678) + 0x7C0);
@@ -236,11 +321,111 @@ void actBoyTakeWeapon(int *volatile a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", pullup_check_heroin_position);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", ditch_check_heroin_position);
+extern void debug_assertMessage(void *);
+extern void BoxBarSoundOn(void *a0, int a1);
+extern char D_00552500[];
+extern char D_00552518[];
+void func_00152588(volatile int a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyPullupReady);
+void ditch_check_heroin_position(int *volatile a0) {
+    int *obj = *(int **)((char *)a0 + 0x164);
+    debug_assertMessage(D_00552500);
+    *(int *)((char *)obj + 0x30) = 0x4F;
+    *(void **)((char *)obj + 0x14) = (void *)func_00152588;
+    *(int *)((char *)obj + 0xC0) = 0;
+    do {
+        _ACTWait(1);
+    } while ((*(int *)((char *)obj + 0xC0) & 0x10) == 0);
+    debug_assertMessage(D_00552518);
+    while (1) {
+        BoxBarSoundOn(a0, 0x58);
+        _ACTWait(1);
+    }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyPullupGo);
+
+extern void debug_assertMessage(void *);
+extern void iosOmBeforeFuncStandard(void *, int, void *);
+extern char D_005524F0[];
+extern void *D_0062A4DC;
+
+void func_00152588(volatile int a0) {
+    debug_assertMessage(D_005524F0);
+    if (D_00629DE8 != 0) {
+        iosOmBeforeFuncStandard(D_00629DE8, 0x58, D_0062A4DC);
+    }
+}
+
+
+extern void BoxBarSoundOn(void *a0, int a1);
+extern char D_00552548[];
+extern char D_00552560[];
+void func_00152640(volatile int a0);
+
+void actBoyPullupReady(int *volatile a0) {
+    int *obj = *(int **)((char *)a0 + 0x164);
+    debug_assertMessage(D_00552548);
+    *(int *)((char *)obj + 0x30) = 0x50;
+    *(void **)((char *)obj + 0x14) = (void *)func_00152640;
+    *(int *)((char *)obj + 0xC0) = 0;
+    do {
+        _ACTWait(1);
+    } while ((*(int *)((char *)obj + 0xC0) & 0x10) == 0);
+    debug_assertMessage(D_00552560);
+    while (1) {
+        BoxBarSoundOn(a0, 0x5D);
+        _ACTWait(1);
+    }
+}
+
+
+extern void debug_assertMessage(void *);
+extern void iosOmBeforeFuncStandard(void *, int, void *);
+extern char D_005524F0[];
+extern void *D_0062A4DC;
+
+void func_00152640(volatile int a0) {
+    debug_assertMessage(D_005524F0);
+    if (D_00629DE8 != 0) {
+        iosOmBeforeFuncStandard(D_00629DE8, 0x5D, D_0062A4DC);
+    }
+}
+
+
+extern void BoxBarSoundOn(void *a0, int a1);
+extern char D_00552598[];
+extern char D_00552560[];
+void func_001526F8(volatile int a0);
+
+void actBoyPullupGo(int *volatile a0) {
+    int *obj = *(int **)((char *)a0 + 0x164);
+    debug_assertMessage(D_00552598);
+    *(int *)((char *)obj + 0x30) = 0x51;
+    *(void **)((char *)obj + 0x14) = (void *)func_001526F8;
+    *(int *)((char *)obj + 0xC0) = 0;
+    do {
+        _ACTWait(1);
+    } while ((*(int *)((char *)obj + 0xC0) & 0x10) == 0);
+    debug_assertMessage(D_00552560);
+    while (1) {
+        BoxBarSoundOn(a0, 0x62);
+        _ACTWait(1);
+    }
+}
+
+
+extern void debug_assertMessage(void *);
+extern void iosOmBeforeFuncStandard(void *, int, void *);
+extern char D_005524F0[];
+extern void *D_0062A4DC;
+
+void func_001526F8(volatile int a0) {
+    debug_assertMessage(D_005524F0);
+    if (D_00629DE8 != 0) {
+        iosOmBeforeFuncStandard(D_00629DE8, 0x62, D_0062A4DC);
+    }
+}
+
 
 extern float ClearHandCameraCorrect(CCPResult *, CCPResult *);
 extern void *isysGObjSearchFromObjKindID_begin(void *);
@@ -286,12 +471,13 @@ void actBoyBelift(void *a0, int *out_id, float *out_vec) {
 
 extern void ExecWeaponHitReaction(void *a0);
 extern void func_00260568(void *a0, int a1, int a2);
-extern void func_001AB9B8(int a0, int a1, int a2, void *a3);
+extern int func_001AB9B8(int a0, int a1, int a2, void *a3);
 extern int D_006A4608[];
 extern float D_00628F1C;
 extern void *D_00629C90;
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyRescueReady);
+
 
 
 int actBoyDitch3mReady(void) {
@@ -329,7 +515,37 @@ ret0:
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", CorrectStickInfo);
+int CorrectStickInfo(void) {
+    void *o = D_00629DE4;
+    int *s5;
+    unsigned int v;
+    int rv;
+    int new_var;
+    int result;
+    if (o == 0) {
+        func_001AAD00(D_005525C8, 0x1403);
+        func_00260380(D_005525C8, 0x1403, D_0062C3F8);
+        result = 0;
+        goto done;
+    }
+    s5 = *(int **)((char *)o + 0x164);
+    v = *(int *)((char *)s5 + 0x30);
+    if (v < 0x13) { rv = 0x15; goto B00; }
+    if (v >= 0x16) {
+        if (v < 0x18) { result = 1; goto done; }
+        rv = 0x15;
+        goto B00;
+    }
+    if (*(int *)((char *)*(int **)((char *)s5 + 0x670) + 0x29C) != 0) { result = 1; goto done; }
+    rv = 0x15;
+B00:
+    if (v == rv) { result = 0; result = 1; goto done; }
+    if (*(int *)((char *)*(int **)((char *)s5 + 0x678) + 0x368) > (new_var = 0)) { result = 1; rv = 0x15; goto done; }
+    result = 0;
+done:
+    return result;
+}
+
 
 
 extern unsigned long long D_006A45A8[];
@@ -455,7 +671,27 @@ void actBoyHangBefore(void) {
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyReadyMove);
+typedef struct {
+    int f0; int f4;
+    union { long long ll; int i[2]; } u8;
+    char pad[0x50 - 0x10];
+    char c50[8];
+} RMDst;
+void actBoyReadyMove(void) {
+    char *src = (char *)D_006A4600;
+    RMDst *dst = (RMDst *)D_006A45A0;
+    long long v;
+    dst->u8.i[0] = *(int *)(src + 0x10);
+    v = dst->u8.ll;
+    v &= ~(1LL << 32); v |= (long long)(*(unsigned char *)(src + 0x14) & 1) << 32;
+    v &= ~(1LL << 33); v |= (long long)(*(unsigned char *)(src + 0x15) & 1) << 33;
+    v &= ~(1LL << 34); v |= (long long)(*(unsigned short *)(src + 0x16) & 1) << 34;
+    dst->f4 = *(int *)(src + 0xC);
+    dst->f0 = *(int *)(src + 0x8);
+    dst->u8.ll = v;
+    *(HB_S8 *)dst->c50 = *(HB_S8 *)(src + 0);
+}
+
 
 
 /* actBoyBeslam: iterate over layout objects, pick best hand-camera match */
@@ -513,7 +749,48 @@ void actBoyRescueSrc(volatile int a0) {
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoySupportGBBegin);
+void actBoySupportGBBegin(int a0) {
+    volatile int buf[4];
+    buf[0] = a0;
+    while (1) {
+        BoxBarSoundOn((void *)buf[0], 0xAE);
+        _ACTWait(1);
+    }
+}
+
+
+extern void WeaponCurPos(int a0, int a1, int a2);
+extern char D_005527E8[];
+extern char D_0062C418[];
+
+extern int D_006A45A0_i[] __asm__("D_006A45A0");
+void func_001530C0(int *volatile a0) {
+    int s1 = D_006A45A0_i[8];
+    int s0 = D_006A45A0_i[9];
+    int s4 = *(int *)((char *)a0 + 0x164);
+    int *p = a0;
+    int s2 = *(int *)((char *)p + 0x164);
+    if (s1 != s0) {
+        if (s0 == 0) {
+            func_001AAD00(D_005525C8, 0xA87);
+            func_00260380(D_005525C8, 0xA87, D_0062C418);
+        } else {
+            int w;
+            WeaponCurPos(s0, (int)p, 0x16);
+            w = *(int *)((char *)s0 + 0x8);
+            *(int *)((char *)s2 + 0x130) = s0;
+            D_006A45A0_i[0] = w;
+            if (s1 != 0) {
+                ExecWeaponHitReaction((void *)s1);
+                InitSwapWeapon();
+                func_001AB9B8(s1, 0, 0, D_00629C90);
+                ((void (*)(char *, int, int))debug_assertMessage)(D_005527E8, *(int *)((char *)s1 + 0x8), *(int *)((char *)s0 + 0x8));
+            }
+        }
+    }
+    *(int *)((char *)s4 + 0x130) = D_006A45A0_i[9];
+}
+
 
 void actBoySupportGBLoop(int a0) {
     int buf[4];
