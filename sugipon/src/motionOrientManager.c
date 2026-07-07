@@ -125,7 +125,40 @@ extern char D_00611F50[], D_00611F60[], D_00611F70[], D_00611F88[];
 extern char D_00611FA0[], D_00611FB8[], D_00611FC8[], D_00611FD8[], D_00611FE8[];
 extern char D_00611FF8[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", shiftMotionOrientEndFunc);
+void shiftMotionOrientEndFunc(void *a0, int a1, void *a2) {
+    char buf[0x100];
+    ShiftBlk blk;
+    char *p = *(char **)((char *)a0 + 0x15C);
+    int mo = *(int *)(p + 0x490);
+    char *e = D_0055DA10 - (-(mo * 0x190));
+    switch (*(int *)(e + 0x118)) {
+    default:
+    case 0x0C: case 0x0D: case 0x0E: case 0x12: case 0x13:
+        func_00261188(buf, D_0062D5E0); break;
+    case 0x01: func_00261188(buf, D_0062D5E8); break;
+    case 0x14: func_00261188(buf, D_0062D5F0); break;
+    case 0x02: func_00261188(buf, D_00611F50); break;
+    case 0x11: func_00261188(buf, D_00611F60); break;
+    case 0x07: func_00261188(buf, D_00611F70); break;
+    case 0x10: func_00261188(buf, D_00611F88); break;
+    case 0x08: func_00261188(buf, D_00611FA0); break;
+    case 0x09: func_00261188(buf, D_00611FB8); break;
+    case 0x0A: func_00261188(buf, D_0062D5F8); break;
+    case 0x0F: func_00261188(buf, D_00611FC8); break;
+    case 0x0B: func_00261188(buf, D_0062D600); break;
+    case 0x05: func_00261188(buf, D_0062D608); break;
+    case 0x04: func_00261188(buf, D_0062D610); break;
+    case 0x03: func_00261188(buf, D_0062D618); break;
+    case 0x00: func_00261188(buf, D_00611FD8); break;
+    case 0x06: func_00261188(buf, D_00611FE8); break;
+    }
+    if (D_0062AFA8 != 0) {
+        blk = *(ShiftBlk *)(D_005C8010 + a1 * 0x20);
+        display(a2, D_00611FF8, &blk,
+                D_0055DAD8 + *(int *)(*(char **)((char *)a0 + 0x15C) + 0x490) * 0x190,
+                buf);
+    }
+}
 
 
 extern void debug_assertMessage();

@@ -358,6 +358,8 @@ segments:
       - [0x511198, rodata,  src/cod/511198]      # .rodata blob resume after candle strings (ends at girlForceField __FILE__)
       - [0x511830, .rodata, sugipon/src/girlForceField]  # carved D_00611830 ("src/girlForceField.c" __FILE__, VMA 0x611830..0x611850)
       - [0x511850, rodata,  src/cod/511850]      # .rodata blob resume after girlForceField __FILE__ (fptr table onward)
+      - [0x512010, .rodata, sugipon/src/motionOrientManager]  # gcc-emitted jtbl_00612010 (shiftMotionOrientEndFunc switch, 21 entries), VMA 0x612010
+      - [0x512064, rodata,  src/cod/512064]      # .rodata blob resume after jtbl_00612010
       - [0x5126F8, .rodata, sugipon/src/multiBgaManager]  # carved D_006126F8 ("src/multiBgaManager.c" __FILE__, VMA 0x6126F8)
       - [0x512710, rodata,  src/cod/512710]      # .rodata blob, part 2b (resume after multiBgaManager)
       - [0x5128B0, .rodata, sugipon/src/particleLayout]  # carved D_006128B0 ("src/particleLayout.c" __FILE__, VMA 0x6128B0)
