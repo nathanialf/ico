@@ -469,6 +469,10 @@ void subEnemyBrain_Cling(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", funcEnemyAiGetGirl);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_00162E98);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_00162ED8);
+
 void actEnemyStand(void *a0) {
     EnemyActState *p = *(EnemyActState **)((char *)a0 + 0x164);
     p->f_140 |= 0x100000000LL;
@@ -670,7 +674,19 @@ int actEnemy_isNormalEnemy(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemy_isLargeEnemy);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_00163448);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_00163500);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_001635B8);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemy_isSmallEnemy);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_00163830);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_001638C0);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_00163910);
 
 extern int D_0062A670;
 
