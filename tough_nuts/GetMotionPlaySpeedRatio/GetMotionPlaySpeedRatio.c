@@ -45,7 +45,33 @@ extern char *D_0062B758;
 extern char *D_0062B75C;
 extern char *D_0062C220;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", GetMotionPlaySpeedRatio);
+void GetMotionPlaySpeedRatio(int id) {
+    char *e;
+    char *o1;
+    char *o2;
+    int t;
+    void *r;
+    int off;
+    do {
+        off = id * 0x40;
+        e = D_0062B758 + off;
+        func_00105058();
+        GetTableCos();
+        ResetStatic2MotionManager(id);
+        o1 = *(char **)(*(char **)(D_0062B75C + 0x15C) + 0xC) + off;
+        r = func_00105078();
+        MatrixDrive_TurnXObjectMatrixYZ((int)o1, r);
+        o2 = D_0062C220 + id * 0x10;
+        r = GetLastQuaternion();
+        GetInverseQuaternion(o2, r);
+        if (*(int *)(e + 0x30) != -1) {
+            GetMotionPlaySpeedRatio(*(int *)(e + 0x30));
+        }
+        func_00105068();
+        InitTableSin();
+        id = t = *(int *)(e + 0x34);
+    } while (t != -1);
+}
 
 
 extern char *D_0062B758;
@@ -115,77 +141,11 @@ void shiftMotionData(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", shiftMotionOrientEndFunc);
 
-extern void debug_assertMessage();
-extern void func_00261188(char *buf, const char *fmt, ...);
-extern void func_001AACE0(char *a0, int a1, char *a2);
-extern void func_00260380(char *a0, int a1, char *a2);
-extern char D_0055DA10[];
-extern char D_006169D8[];
-extern char D_004C0A98[];
-extern char D_00612068[], D_006120C0[], D_00612100[], D_0062D620[];
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", shiftMotionOrientBeginFunc);
 
-int shiftMotionOrientBeginFunc(int a0) {
-    char buf[0x100];
-    char *D = D_0055DA10;
-    int off = a0 * 0x190;
-    char *f148 = D + 0x148;
-    int val = *(int *)(f148 + off);
-    if (val == 0xE4) {
-        return *((int **)D_004C0A98)[a0];
-    }
-    {
-        int nidx = *(int *)(D_006169D8 + val * 0x10);
-        int r17 = *(int *)(D_006169D8 + val * 0x10 + 0xC);
-        if (*(int *)(f148 + nidx * 0x190) != 0xE4) {
-            char *dc8 = D + 0xC8;
-            char *p = dc8 + off;
-            debug_assertMessage(D_00612068, p);
-            func_00261188(buf, D_006120C0, p);
-            func_001AACE0(D_00612100, 0x98, buf);
-            func_00260380(D_00612100, 0x98, D_0062D620);
-        }
-        if (r17 != -1) {
-            return r17;
-        }
-        return *((int **)D_004C0A98)[nidx];
-    }
-}
-
-
-extern void debug_assertMessage();
-extern void func_00261188(char *buf, const char *fmt, ...);
-extern void func_001AACE0(char *a0, int a1, char *a2);
-extern void func_00260380(char *a0, int a1, char *a2);
-extern char D_0055DA10[];
-extern char D_006169D8[];
-extern char D_00612068[], D_006120C0[], D_00612100[], D_0062D620[];
-
-float ForTest_ForceShiftMotion(int a0) {
-    char buf[0x100];
-    char *D = D_0055DA10;
-    int off = a0 * 0x190;
-    char *f148 = D + 0x148;
-    char *r;
-    if (*(int *)(f148 + off) == 0xE4) {
-        r = D - (-off);
-    } else {
-        int nidx = *(int *)(D_006169D8 + *(int *)(f148 + off) * 0x10);
-        if (*(int *)(f148 + nidx * 0x190) != 0xE4) {
-            char *dc8 = D + 0xC8;
-            char *p = dc8 + off;
-            debug_assertMessage(D_00612068, p);
-            func_00261188(buf, D_006120C0, p);
-            func_001AACE0(D_00612100, 0x98, buf);
-            func_00260380(D_00612100, 0x98, D_0062D620);
-        }
-        r = D - (-(nidx * 0x190));
-    }
-    return *(float *)(r + 0x14C);
-}
-
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", ForTest_ForceShiftMotion);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", normalMotionShift);
-
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", parallelMotionShift);
 
@@ -194,7 +154,6 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", SetMotionRe
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", getNodeBlendedFloatingMotion);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", getMotionGeometry);
-
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", getShapeGeometry);
 
@@ -345,7 +304,7 @@ extern char D_0055DA10[];
 
 int func_001E1AB8(char *a0) {
     int idx = GOBJ_SUB(a0)->f_490;
-    char *e = D_0055DA10 + 0x190 * idx;
+    char *e = D_0055DA10 + idx * 0x190;
     unsigned int v = *(unsigned int *)(e + 0x184);
     return (v >> 28) & 3;
 }

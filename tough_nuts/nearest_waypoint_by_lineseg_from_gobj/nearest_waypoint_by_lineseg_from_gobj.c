@@ -159,7 +159,33 @@ char *nearest_waypoint_by_lineseg_of_group_from_gobj(int *a0) {
 extern void GetRootMatrixByDObj(void *out, void *gobj);
 extern float D_00629130;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", nearest_waypoint_by_lineseg_from_gobj);
+char *nearest_waypoint_by_lineseg_from_gobj(void *gobj) {
+    int mtx[4];
+    int buf[4];
+    char *t;
+    float bestDist;
+    char *best, *cur;
+    GetRootMatrixByDObj(mtx, gobj);
+    bestDist = D_00629130;
+    t = CloseWayGroup(D_0062BB7C);
+    __asm__ __volatile__("" ::: "memory");
+    best = t;
+    cur = best;
+    if (best == 0) {
+        return best;
+    }
+    do {
+        float d;
+        func_00240008(buf, (int *)(cur + 0x10), mtx);
+        d = func_00168128((int)buf);
+        if (d < bestDist) {
+            bestDist = d;
+            best = cur;
+        }
+        cur = CreateWayPoint(cur);
+    } while (cur != 0);
+    return best;
+}
 
 
 extern float GetEyeDirection(void *a0, void *a1, void *a2);

@@ -156,17 +156,32 @@ char *nearest_waypoint_by_lineseg_of_group_from_gobj(int *a0) {
 }
 
 
-extern void GetRootMatrixByDObj(void *out, void *gobj);
-extern float D_00629130;
-
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", nearest_waypoint_by_lineseg_from_gobj);
-
 
 extern float GetEyeDirection(void *a0, void *a1, void *a2);
 extern float D_00629134;
 extern char D_004C6FF0_wr[] __asm__("D_004C6FF0");
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", waypoint_with_range);
+void *waypoint_with_range(void *arg0, int idx) {
+    char *rec = D_004C6FF0_wr + idx * 0x34;
+    char *node = *(char **)(rec + 0x8);
+    float range = D_00629134;
+    char *result = 0;
+    char *nx = *(char **)(node + 0xC);
+    __asm__ __volatile__("" ::: "memory");
+    if (nx == 0 || nx == node) goto done;
+    do {
+        float d = GetEyeDirection(node + 0x10, nx + 0x10, arg0);
+        if (d < range) {
+            range = d;
+            result = node;
+        }
+        node = *(char **)(node + 0xC);
+        nx = *(char **)(node + 0xC);
+    } while (nx != 0 && nx != node);
+done:
+    return result;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", nearest_waypoint_of_all_except_group);
@@ -195,35 +210,7 @@ char *visible_waypoint_of_all(int *arg0, float thresh)
     return 0;
 }
 
-extern char *CreateTempWayGroup(void);
-extern char *DeleteWayGroup(char *a0);
-extern float D_00629144;
-
-char *visible_waypoint_of_all_from_gobj(int *arg0, int a1) {
-    int buf[4];
-    char *t = CreateTempWayGroup();
-    float bestDist = D_00629144;
-    char *best, *cur;
-    __asm__ __volatile__("" ::: "memory");
-    best = t;
-    cur = best;
-    if (best != 0) {
-        do {
-            float d;
-            if (*(int *)(cur + 0x20) != a1) {
-                func_00240008(buf, (int *)(cur + 0x10), arg0);
-                d = func_00168128((int)buf);
-                if (d < bestDist) {
-                    bestDist = d;
-                    best = cur;
-                }
-            }
-            cur = DeleteWayGroup(cur);
-        } while (cur != 0);
-    }
-    return best;
-}
-
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", visible_waypoint_of_all_from_gobj);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", visible_waypoint);
 
