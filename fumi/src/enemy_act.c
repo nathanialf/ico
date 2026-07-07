@@ -467,7 +467,18 @@ void subEnemyBrain_Cling(int a0) {
     func_00260380(D_00553110, 0xACB, D_0062C4F8);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", funcEnemyAiGetGirl);
+extern void iosOmBeforeFuncStandard();
+
+void funcEnemyAiGetGirl(volatile int a0) {
+    int p = *(int *)(a0 + 0x164);
+    int g = *(int *)(p + 0x670);
+    iosOmBeforeFuncStandard(D_00629DE4, *(int *)(g + 0x1F8), (void *)a0, g);
+    for (;;) {
+        BoxBarSoundOn((void *)a0, 0xB4);
+        _ACTWait(1);
+    }
+}
+
 
 extern void iosOmBeforeFuncStandard(void *a0, int a1, void *a2);
 
@@ -710,7 +721,20 @@ int actEnemy_isNormalEnemy(void *a0) {
     return funcEnemyCarryFail((int *)a0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemy_isLargeEnemy);
+int actEnemy_isLargeEnemy(volatile int a0) {
+    int *p = *(int **)(a0 + 0x164);
+    p[0x33C / 4] = 0;
+    p[0x100 / 4] = 0;
+    p[0x104 / 4] = 0;
+    p[0x108 / 4] = 0;
+    for (;;) {
+        if (*(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x670) + 0x210) == D_00629DE4) {
+            actEnemyRestart((void *)a0);
+        }
+        _ACTWait(1);
+    }
+}
+
 
 extern float pac_DispQW(void);
 extern int DispCollisionPC(void *a0, int a1, int a2, int a3, unsigned char a4, float a5);
@@ -742,7 +766,32 @@ extern char D_00553320[];
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_00163500);
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_001635B8);
+extern int D_00271240[];
+
+void func_001635B8(volatile unsigned int a0)
+{
+    int *p = *(int **)(a0 + 0x164);
+    int i, cnt;
+    for (i = 0; i < (0x3C - D_00271240[0] * 0xA) / D_00271240[1] / 2; i++) {
+        p[0x33C / 4] = 0;
+        p[0x100 / 4] = 0;
+        p[0x104 / 4] = 0;
+        p[0x108 / 4] = 0;
+        BoxBarSoundOn((void *)a0, 0xD3);
+        if (p[0x30 / 4] == 0x47) {
+            break;
+        }
+        _ACTWait(1);
+    }
+    for (i = 0; i < (0x3C - D_00271240[0] * 0xA) / D_00271240[1] * 0xFA / 0x3C; i++) {
+        actEnemyRestart((void *)a0);
+        _ACTWait(1);
+    }
+    func_0018F2A0((void *)a0, 1);
+    _ACTWait(0);
+
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemy_isSmallEnemy);
 
@@ -882,10 +931,44 @@ int IsEnemyBrainToBoy(void *a0) {
     return subEnemyBrain_ToBoy(a0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", GetEnemyTypeFromGObj);
+void GetEnemyTypeFromGObj(int a0) {
+    void *o = isysGObjSearchFromObjLayoutID(4);
+    if (o != 0) {
+        do {
+            if (*(int *)(*(int *)(*(int *)((char *)o + 0x164) + 0x670) + 0x1DC) == 3) {
+                int i;
+                for (i = 0; i < 5; i++) {
+                    char *e = (char *)((i << 5) + *(int *)(*(int *)((char *)o + 0x164) + 0x670) + 0x360);
+                    if (e[0x1D] != 0) {
+                        if (*(int *)(e + 0x10) == a0) {
+                            e[0x1C] = 0;
+                            return;
+                        }
+                    }
+                }
+            }
+            o = isysGObjSearchFromObjKindID_begin(o);
+        } while (o != 0);
+    }
+}
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", GetEnemyType);
+
+extern void *ExecMotionOrient(void *a0, void *a1, void *a2);
+extern char D_005531F0[];
+
+void GetEnemyType(volatile unsigned int a0) {
+    int *s0;
+    void *r;
+    s0 = *((int **)(a0 + 0x164));
+    debug_assertMessage((char *)D_005531F0);
+    r = ExecMotionOrient((void *)a0, (void *)1, (char *)s0 + 0x610);
+    s0[0x110 / 4] = (int)r;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
+
 
 extern void debug_assertMessage(char *p);
 extern void *ExecMotionOrient(void *a0, void *a1, void *a2);
