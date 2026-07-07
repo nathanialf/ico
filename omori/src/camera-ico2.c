@@ -351,7 +351,89 @@ void GetPluralCameraSet(void *a0, int a1) {
     GetRootMatrixByDObj(a0, a1);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", MakeCameraSetBinary);
+extern float g_E00[3] __asm__("D_006C9E00");
+extern float g_E10[3] __asm__("D_006C9E10");
+extern float g_E20[3] __asm__("D_006C9E20");
+extern float g_E30[3] __asm__("D_006C9E30");
+extern float g_EC0[3] __asm__("D_006C9EC0");
+extern float g_ED0[3] __asm__("D_006C9ED0");
+extern void InitCameraSetManager(int *a0, int *a1);
+extern void func_00240038_v(void *a, void *b, float s) __asm__("func_00240038");
+
+void MakeCameraSetBinary(int a0) {
+    unsigned char flag = a0;
+    int p1;
+    int p2;
+    float v0[4];
+    float v1[4];
+    float v2[4];
+    float A[4];
+    float B[4];
+    float C[4];
+    int i;
+
+    InitCameraSetManager(&p1, &p2);
+    if (p1 == 0) {
+        return;
+    }
+    if (p2 != 0) {
+        GetPluralCameraSet(A, p1);
+        GetPluralCameraSet(B, p2);
+        func_00240038_v(A, A, -1.0f);
+        func_00240038_v(B, B, -1.0f);
+        v1[0] = A[0];
+        v1[1] = A[1];
+        v1[2] = A[2];
+        v0[0] = B[0];
+        v0[1] = B[1];
+        v0[2] = B[2];
+        v2[0] = A[0];
+        v2[1] = A[1];
+        v2[2] = A[2];
+    } else {
+        GetPluralCameraSet(C, p1);
+        func_00240038_v(C, C, -1.0f);
+        v0[0] = C[0];
+        v0[1] = C[1];
+        v0[2] = C[2];
+        v1[0] = C[0];
+        v1[1] = C[1];
+        v1[2] = C[2];
+        v2[0] = C[0];
+        v2[1] = C[1];
+        v2[2] = C[2];
+    }
+    {
+        g_E30[0] = v2[0];
+        g_E30[1] = v2[1];
+        g_E30[2] = v2[2];
+    }
+    if (flag != 0) {
+        float a0 = v0[0];
+        float a1 = v0[1];
+        float a2 = v0[2];
+        g_E00[0] = a0;
+        g_E00[1] = a1;
+        g_E00[2] = a2;
+        g_EC0[0] = a0;
+        g_EC0[1] = a1;
+        g_EC0[2] = a2;
+        g_ED0[0] = v1[0];
+        g_ED0[1] = v1[1];
+        g_ED0[2] = v1[2];
+    }
+    for (i = 0; i < 3; i++) {
+        g_E10[i] = (v0[i] + g_EC0[i] * 3.0f) * 0.25f;
+        g_E20[i] = (v1[i] + g_ED0[i] * 3.0f) * 0.25f;
+    }
+    g_EC0[0] = g_E10[0];
+    g_EC0[1] = g_E10[1];
+    g_EC0[2] = g_E10[2];
+    g_ED0[0] = g_E20[0];
+    g_ED0[1] = g_E20[1];
+    g_ED0[2] = g_E20[2];
+}
+
 
 extern float D_0062C844_f[] __asm__("D_0062C844");
 extern char *D_0062C048_arr __asm__("D_0062C048");
