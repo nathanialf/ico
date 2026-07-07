@@ -151,7 +151,14 @@ extern float pac_DispQW(void);
 extern void ACTParaStatus_Exec(void *a0);
 extern void func_00156750(int a0, int a1, void *a2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonRope);
+void actCommonRope(volatile int a0) {
+    int r = (int)(pac_DispQW() * 10.0f) % 15;
+    int val = *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x670) + 0x214);
+    *(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x670) + 0x218) = val;
+    ACTParaStatus_Exec((void *)a0);
+    func_00156750(r, val, (void *)&a0);
+    _ACTWait(0);
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", motCommonRopeTurnR);

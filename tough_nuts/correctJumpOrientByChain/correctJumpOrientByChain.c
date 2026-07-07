@@ -147,12 +147,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", CollisCheckInRope);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_00156750);
 
-extern float pac_DispQW(void);
-extern void ACTParaStatus_Exec(void *a0);
-extern void func_00156750(int a0, int a1, void *a2);
-
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonRope);
-
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", motCommonRopeTurnR);
 
@@ -371,7 +366,25 @@ extern ChainEntry D_00288FD0[];
 typedef struct { int w[6]; } SlowrunRec;
 extern SlowrunRec D_0028E680[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", correctJumpOrientByChain);
+void correctJumpOrientByChain(void *a0) {
+    char *s164 = *(char **)((char *)a0 + 0x164);
+    char *s15C = *(char **)((char *)a0 + 0x15C);
+    ChainEntry *e = &D_00288FD0[*(int *)(s164 + 0x44)];
+    int val = *(int *)(s15C + 0x490);
+    int a = e->_4;
+    int b = e->_8;
+    int c = e->_C;
+    int d = e->_10;
+    if (val == 0x440) return;
+    D_0028E680[a].w[2] = val;
+    D_0028E680[b].w[2] = val;
+    if (c < d) {
+        int i;
+        for (i = c; i < d; i++) {
+            D_0028E680[i].w[0] = val;
+        }
+    }
+}
 
 
 void actCommonJump(void *a0) {
@@ -517,31 +530,7 @@ void *subCommonIdle(char *a0) {
     return p;
 }
 
-extern void GetRootMatrixByDObj(void *out, void *obj);
-extern void CageFixDL(void *a0, void *a1, void *a2);
-extern char D_006A4630[];
-
-void *ContinueCorrectPosition(void *a0) {
-    char *s0;
-    int x = *(int *)((char *)a0 + 0xC);
-    switch (x) {
-    case 1:
-    case 2:
-    case 4:
-        s0 = *(char **)((char *)a0 + 0x164) + 0xE0;
-        GetRootMatrixByDObj(s0, a0);
-        return s0;
-    case 0x2B: {
-        int local[4];
-        CageFixDL(D_006A4630, local, a0);
-        return D_006A4630;
-    }
-    default:
-        GetRootMatrixByDObj(D_006A4630, a0);
-        return D_006A4630;
-    }
-}
-
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ContinueCorrectPosition);
 
 typedef struct { char _p670[0x670]; char *p670; } S164;
 typedef struct { char _p164[0x164]; S164 *p164; } SObj;

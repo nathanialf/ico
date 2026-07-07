@@ -147,12 +147,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", CollisCheckInRope);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_00156750);
 
-extern float pac_DispQW(void);
-extern void ACTParaStatus_Exec(void *a0);
-extern void func_00156750(int a0, int a1, void *a2);
-
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonRope);
-
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", motCommonRopeTurnR);
 
@@ -363,16 +358,18 @@ void funcCommonJumpDircorrect(int a0, int a1) {
 extern char D_0055DA10_a[] __asm__("D_0055DA10");
 extern int actCommonStoneDead(void *a0, float *a1, float a2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", funcCommonFallDircorrect);
+int funcCommonFallDircorrect(void *a0, float *a1) {
+    char *s = *(char **)((char *)a0 + 0x164);
+    char *e;
+    *(float *)(s + 0x100) = a1[0];
+    *(float *)(s + 0x104) = a1[1];
+    *(float *)(s + 0x108) = a1[2];
+    e = D_0055DA10_a + *(int *)(*(char **)((char *)a0 + 0x15C) + 0x490) * 0x190;
+    return actCommonStoneDead(a0, a1, (float)*(int *)(e + 0x138));
+}
 
-
-typedef struct { int _0, _4, _8, _C, _10; } ChainEntry;
-extern ChainEntry D_00288FD0[];
-typedef struct { int w[6]; } SlowrunRec;
-extern SlowrunRec D_0028E680[];
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", correctJumpOrientByChain);
-
 
 void actCommonJump(void *a0) {
     CommonActState *p = *(CommonActState **)((char *)a0 + 0x164);
@@ -517,31 +514,7 @@ void *subCommonIdle(char *a0) {
     return p;
 }
 
-extern void GetRootMatrixByDObj(void *out, void *obj);
-extern void CageFixDL(void *a0, void *a1, void *a2);
-extern char D_006A4630[];
-
-void *ContinueCorrectPosition(void *a0) {
-    char *s0;
-    int x = *(int *)((char *)a0 + 0xC);
-    switch (x) {
-    case 1:
-    case 2:
-    case 4:
-        s0 = *(char **)((char *)a0 + 0x164) + 0xE0;
-        GetRootMatrixByDObj(s0, a0);
-        return s0;
-    case 0x2B: {
-        int local[4];
-        CageFixDL(D_006A4630, local, a0);
-        return D_006A4630;
-    }
-    default:
-        GetRootMatrixByDObj(D_006A4630, a0);
-        return D_006A4630;
-    }
-}
-
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ContinueCorrectPosition);
 
 typedef struct { char _p670[0x670]; char *p670; } S164;
 typedef struct { char _p164[0x164]; S164 *p164; } SObj;
@@ -556,6 +529,9 @@ int actCommonBackhand(void *a0) {
     long long v = q->f_BC;
     return (int)v & 1;
 }
+
+typedef struct { int w[6]; } SlowrunRec;
+extern SlowrunRec D_0028E680[];
 
 void actCommonSlowrun(int a0, int a1) {
     D_0028E680[a0].w[2] = a1;
@@ -618,12 +594,7 @@ void WithMailFunc_BossDamaged(volatile int a0) {
 }
 
 
-void WithMailFunc_FallDead(volatile int a0) {
-    int q = (0x3C - D_00271240[0] * 0xA) / D_00271240[1];
-    void *p = *(void **)(*(char **)(a0 + 0x164) + 0x678);
-    *(int *)((char *)p + 0x368) = q * 0x82 / 0x3C;
-}
-
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", WithMailFunc_FallDead);
 
 void actCommonRevive(volatile int a0) {
     ACTParaStatus_Clear(a0);
