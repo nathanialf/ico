@@ -481,7 +481,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", getLandOffset);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", getAvoidCollisionFlyLevel);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", emergencyCheck);
+void emergencyCheck(int a0) {
+    volatile int buf[4];
+    buf[0] = a0;
+    while (1) {
+        BoxBarSoundOn((void *)buf[0], 0xAE);
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C568);
 
