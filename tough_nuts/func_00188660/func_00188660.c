@@ -25,42 +25,11 @@ int CameraSetCameraSet(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", CameraSetCameraSet_Default);
 
-extern int *D_0062A8F0;
-extern int *D_0062A8F4;
-typedef struct { int w[23]; } S5C; /* 0x5C, 4-byte aligned */
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", GetRootPositionForCamera);
 
-void GetRootPositionForCamera(int a0, int a1) {
-    S5C *dst = (S5C *)(*(int *)(D_0062A8F4[1] + a0 * 0x4C + 0x48) + a1 * 0x5C);
-    S5C *src = (S5C *)(*(int *)(D_0062A8F0[1] + a0 * 0x4C + 0x48) + a1 * 0x5C);
-    *dst = *src;
-}
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", ico2camera_GetTargetPos);
 
-
-typedef struct { int w[19]; } S4C; /* 0x4C, 4-byte aligned */
-extern void ico2camera_GetGroupNearest(int a0, int a1);
-extern int CameraMove(int a0);
-
-void ico2camera_GetTargetPos(int a0) {
-    S4C *dst = (S4C *)(D_0062A8F0[1] + a0 * 0x4C);
-    S4C *src = (S4C *)(D_0062A8F4[1] + a0 * 0x4C);
-    void *saved = *(void **)((char *)dst + 0x48);
-    int i;
-    *dst = *src;
-    *(void **)((char *)dst + 0x48) = saved;
-    i = 0;
-    while (i < *(int *)(CameraMove(a0) + 0x3C) - *(int *)(CameraMove(a0) + 0x38)) {
-        ico2camera_GetGroupNearest(a0, i);
-        i++;
-    }
-}
-
-
-void ico2camera_GetGroupNearest(int a0, int a1) {
-    S5C *dst = (S5C *)(*(int *)(D_0062A8F0[1] + a0 * 0x4C + 0x48) + a1 * 0x5C);
-    S5C *src = (S5C *)(*(int *)(D_0062A8F4[1] + a0 * 0x4C + 0x48) + a1 * 0x5C);
-    *dst = *src;
-}
-
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", ico2camera_GetGroupNearest);
 
 extern int *D_0062A8F4;
 
@@ -106,25 +75,7 @@ int SetCameraZoomOffsetRatio(void *a0, int a1, int a2) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", GetCameraGroupCurrent);
 
-extern void debug_assertMessage(char *a0, void *a1);
-extern char D_00554AC0[];
-
-int GetCameraGroupFromGObj(void *a0, int a1, S5C *src) {
-    int base = a1 * 0x4C + *(int *)((char *)a0 + 4);
-    int n = *(int *)(base + 0x3C);
-    int result = -1;
-    if (n < 0x64) {
-        int base2;
-        *(S5C *)(*(int *)(base + 0x48) + n * 0x5C) = *src;
-        base2 = a1 * 0x4C + *(int *)((char *)a0 + 4);
-        result = *(int *)(base2 + 0x3C);
-        *(int *)(base2 + 0x3C) = result + 1;
-    } else {
-        debug_assertMessage(D_00554AC0, (void *)a1);
-    }
-    return result;
-}
-
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", GetCameraGroupFromGObj);
 
 void GetCameraGroupFromPosition(void) {
 }
@@ -256,7 +207,47 @@ int func_00188580(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188588);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188660);
+typedef struct Box {
+    char pad0[0x20];
+    float c[3]; /* 0x20 */
+    float h[3]; /* 0x2C */
+    char pad1[0x14];
+} Box; /* 0x4C */
+
+extern Box *D_0062C048;
+extern int D_0062C050;
+extern void func_00188660_xform(void *a0, void *a1, float f) __asm__("func_00240038");
+
+int func_00188660(void *a0) {
+    float pt[4];
+    int result;
+    int i;
+    int n;
+    func_00188660_xform(pt, a0, -1.0f);
+    n = D_0062C050;
+    result = -1;
+    if (n > 0) {
+        i = 0;
+        do {
+            int j = 0;
+            do {
+                if (pt[j] < D_0062C048[i].c[j] - D_0062C048[i].h[j]) {
+                    break;
+                }
+                if (D_0062C048[i].c[j] + D_0062C048[i].h[j] < pt[j]) {
+                    break;
+                }
+                j++;
+            } while (j < 3);
+            if (j == 3) {
+                result = i;
+                break;
+            }
+            i++;
+        } while (i < n);
+    }
+    return result;
+}
 
 
 extern int D_0062C064;
