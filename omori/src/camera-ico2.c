@@ -720,7 +720,41 @@ int func_001887E0(int key) {
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00188888);
+void func_00188888(S4C *src, int count, S4C *dst)
+{
+  S4C **new_var;
+  int total = 0;
+  S4C *sEnd = src + count;
+  S5C *out = (S5C *) (dst + count);
+  int outBase = (int) out;
+  new_var = &sEnd;
+  if (src == (*new_var))
+  {
+    return;
+  }
+  do
+  {
+    S5C *is;
+    *dst = *src;
+    dst->w[14] = total;
+    dst->w[18] = outBase;
+    is = ((S5C *) src->w[18]) + src->w[14];
+    while (is != (((S5C *) src->w[18]) + src->w[15]))
+    {
+      *out = *is;
+      out++;
+      total++;
+      is++;
+    }
+
+    dst->w[15] = total;
+    dst++;
+    src++;
+  }
+  while (src != sEnd);
+}
+
+
 
 int func_00188B00(char *p, int n)
 {
