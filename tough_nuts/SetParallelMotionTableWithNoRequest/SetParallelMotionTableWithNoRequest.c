@@ -271,7 +271,46 @@ extern int CheckFloorAttribute(void *a0);
 extern float D_00629684;
 extern float D_00629688;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", SetParallelMotionTableWithNoRequest);
+void SetParallelMotionTableWithNoRequest(void *a0, void *a1) {
+    int i;
+    int n = *(int *)(*(char **)((char *)a0 + 0x15C) + 0x7F4);
+    if (n != 0) {
+        float *lb = (float *)__builtin_alloca(((unsigned)n << 5) >> 3);
+        if (CheckFloorAttribute(lb)) {
+            if (n > 0) {
+                float g684 = D_00629684;
+                float zero = 0.0f;
+                float g688 = D_00629688;
+                float *p = lb;
+                for (i = 0; i < n; i++) {
+                    int *dst = *(int **)(*(char **)((char *)a0 + 0x15C) + 0x7F8) + i;
+                    float v = *p * g684;
+                    if (v < zero) {
+                        if (g688 < -v) {
+                            *(float *)dst = v;
+                        } else {
+                            *dst = 0;
+                        }
+                    } else {
+                        if (g688 < v) {
+                            *(float *)dst = v;
+                        } else {
+                            *dst = 0;
+                        }
+                    }
+                    p++;
+                }
+            }
+        } else {
+            if (n > 0) {
+                for (i = 0; i < n; i++) {
+                    int *dst = *(int **)(*(char **)((char *)a0 + 0x15C) + 0x7F8) + i;
+                    *dst = 0;
+                }
+            }
+        }
+    }
+}
 
 
 extern int StandbyStreamMotion(void *m);

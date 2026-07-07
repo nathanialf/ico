@@ -267,12 +267,7 @@ void CopyBlendMotionDataSource(void *a0, void *a1) {
 }
 
 
-extern int CheckFloorAttribute(void *a0);
-extern float D_00629684;
-extern float D_00629688;
-
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", SetParallelMotionTableWithNoRequest);
-
 
 extern int StandbyStreamMotion(void *m);
 extern void _infoUpdate(void *buf, void *m);
@@ -353,7 +348,44 @@ extern void func_0010E148(void *a0, void *a1, void *a2);
 
 typedef struct { char b[8]; } Blk8;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", func_001E1860);
+void func_001E1860(void *a0, int a1) {
+    float buf[4];
+    short s4 = (short)a1;
+    int idx = 0;
+    char *s3;
+    {
+        char *g = *(char **)((char *)a0 + 0x15C);
+        s3 = *(char **)(g + 0x790);
+        GetRootProjectionPosOfGObj(s3, *(void **)(g + 0x77C), *(int *)(g + 0x88));
+    }
+    {
+        char *g = *(char **)((char *)a0 + 0x15C);
+        MatrixDrive_TurnObjectMatrix((int)(g + 0x7A0), g + 0x780);
+    }
+    {
+        char *g = *(char **)((char *)a0 + 0x15C);
+        MatrixDrive_TurnObjectMatrix((int)(g + 0x7B0), g + 0x120);
+    }
+    {
+        char *g = *(char **)((char *)a0 + 0x15C);
+        *(float *)(g + 0x7C8) = *(float *)(g + 0x150);
+    }
+    {
+        char *g = *(char **)((char *)a0 + 0x15C);
+        *(Blk8 *)(g + 0x7C0) = *(Blk8 *)g;
+    }
+    if (*(int *)(*(char **)(*(char **)((char *)a0 + 0x15C) + 0x8C) + 0x38) == -1) {
+        char *base;
+        int off = 0;
+        do {
+            GetTableArcSin(buf, s4, 0.0f, 1.0f, 0.0f);
+            func_0010E148(s3 + idx * 0x20 + 0x10, buf, s3 + idx * 0x20 + 0x10);
+            base = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x8C);
+            idx = *(int *)(off + base + 0x34);
+            off = idx * 0x40;
+        } while (*(int *)(off + base + 0x38) == -1);
+    }
+}
 
 
 void func_001E1980(void *a0, int a1, int a2) {

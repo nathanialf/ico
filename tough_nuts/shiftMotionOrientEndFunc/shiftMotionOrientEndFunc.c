@@ -125,7 +125,40 @@ extern char D_00611F50[], D_00611F60[], D_00611F70[], D_00611F88[];
 extern char D_00611FA0[], D_00611FB8[], D_00611FC8[], D_00611FD8[], D_00611FE8[];
 extern char D_00611FF8[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", shiftMotionOrientEndFunc);
+void shiftMotionOrientEndFunc(void *a0, int a1, void *a2) {
+    char buf[0x100];
+    ShiftBlk blk;
+    char *p = *(char **)((char *)a0 + 0x15C);
+    int mo = *(int *)(p + 0x490);
+    char *e = D_0055DA10 - (-(mo * 0x190));
+    switch (*(int *)(e + 0x118)) {
+    default:
+    case 0x0C: case 0x0D: case 0x0E: case 0x12: case 0x13:
+        func_00261188(buf, D_0062D5E0); break;
+    case 0x01: func_00261188(buf, D_0062D5E8); break;
+    case 0x14: func_00261188(buf, D_0062D5F0); break;
+    case 0x02: func_00261188(buf, D_00611F50); break;
+    case 0x11: func_00261188(buf, D_00611F60); break;
+    case 0x07: func_00261188(buf, D_00611F70); break;
+    case 0x10: func_00261188(buf, D_00611F88); break;
+    case 0x08: func_00261188(buf, D_00611FA0); break;
+    case 0x09: func_00261188(buf, D_00611FB8); break;
+    case 0x0A: func_00261188(buf, D_0062D5F8); break;
+    case 0x0F: func_00261188(buf, D_00611FC8); break;
+    case 0x0B: func_00261188(buf, D_0062D600); break;
+    case 0x05: func_00261188(buf, D_0062D608); break;
+    case 0x04: func_00261188(buf, D_0062D610); break;
+    case 0x03: func_00261188(buf, D_0062D618); break;
+    case 0x00: func_00261188(buf, D_00611FD8); break;
+    case 0x06: func_00261188(buf, D_00611FE8); break;
+    }
+    if (D_0062AFA8 != 0) {
+        blk = *(ShiftBlk *)(D_005C8010 + a1 * 0x20);
+        display(a2, D_00611FF8, &blk,
+                D_0055DAD8 + *(int *)(*(char **)((char *)a0 + 0x15C) + 0x490) * 0x190,
+                buf);
+    }
+}
 
 
 extern void debug_assertMessage();
@@ -204,7 +237,6 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", parallelMot
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", SetMotionRequest);
 
-
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", getNodeBlendedFloatingMotion);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", getMotionGeometry);
@@ -230,49 +262,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", GetMotionOr
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", getMotionOrient);
 
-extern int GetPureVerticalPlane(void *a0, void *a1, void *a2, int a3);
-extern void _PushVu0Registers(void *a0, void *a1, float a2);
-extern void func_001DCE78(void *a0, void *a1, void *a2, void *a3, void *a4, int n, float f);
-extern char D_00271BD0[];
-extern void GetRootProjectionPosOfGObj(void *dst, void *src, int n);
-extern void calcFootIK(void *a0, void *a1);
-
-void CopyBlendMotionDataSource(void *a0, void *a1) {
-    float local[3];
-    char *p = *(char **)((char *)a0 + 0x15C);
-    int cnt = *(int *)(p + 0x88);
-    char *mat = *(char **)(p + 0x830);
-    void *buf = __builtin_alloca(((unsigned)cnt << 8) >> 3);
-    float f20 = *(float *)(mat + 0x20);
-    if (GetPureVerticalPlane(buf, local, a1, *(int *)(p + 0x8C))) {
-        char *q = *(char **)((char *)a0 + 0x15C);
-        if (*(int *)(q + 0x650)) {
-            _PushVu0Registers(local, local, f20);
-            q = *(char **)((char *)a0 + 0x15C);
-        }
-        local[0] = local[0] - *(float *)(q + 0x660);
-        local[1] = local[1] - *(float *)(q + 0x664);
-        local[2] = local[2] + *(float *)(q + 0x668);
-        func_001DCE78(a0, buf, buf, local, D_00271BD0, -1, 1.0f);
-        {
-            char *r = *(char **)((char *)a0 + 0x15C);
-            GetRootProjectionPosOfGObj(*(void **)(r + 0x77C), buf, *(int *)(r + 0x88));
-        }
-        {
-            char *s = *(char **)((char *)a0 + 0x15C);
-            MatrixDrive_TurnObjectMatrix((int)(s + 0x780), local);
-        }
-        calcFootIK(a0, buf);
-    }
-}
-
-
-extern int CheckFloorAttribute(void *a0);
-extern float D_00629684;
-extern float D_00629688;
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", CopyBlendMotionDataSource);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", SetParallelMotionTableWithNoRequest);
-
 
 extern int StandbyStreamMotion(void *m);
 extern void _infoUpdate(void *buf, void *m);
@@ -347,14 +339,7 @@ done:
 }
 
 
-extern void GetRootProjectionPosOfGObj(void *dst, void *src, int n);
-extern void GetTableArcSin(void *a0, int a1, float f0, float f1, float f2);
-extern void func_0010E148(void *a0, void *a1, void *a2);
-
-typedef struct { char b[8]; } Blk8;
-
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionOrientManager", func_001E1860);
-
 
 void func_001E1980(void *a0, int a1, int a2) {
     char *p = *(char **)((char *)a0 + 0x15C) + 0x460;
