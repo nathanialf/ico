@@ -417,7 +417,37 @@ ret0:
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", CorrectStickInfo);
+int CorrectStickInfo(void) {
+    void *o = D_00629DE4;
+    int *s5;
+    unsigned int v;
+    int rv;
+    int new_var;
+    int result;
+    if (o == 0) {
+        func_001AAD00(D_005525C8, 0x1403);
+        func_00260380(D_005525C8, 0x1403, D_0062C3F8);
+        result = 0;
+        goto done;
+    }
+    s5 = *(int **)((char *)o + 0x164);
+    v = *(int *)((char *)s5 + 0x30);
+    if (v < 0x13) { rv = 0x15; goto B00; }
+    if (v >= 0x16) {
+        if (v < 0x18) { result = 1; goto done; }
+        rv = 0x15;
+        goto B00;
+    }
+    if (*(int *)((char *)*(int **)((char *)s5 + 0x670) + 0x29C) != 0) { result = 1; goto done; }
+    rv = 0x15;
+B00:
+    if (v == rv) { result = 0; result = 1; goto done; }
+    if (*(int *)((char *)*(int **)((char *)s5 + 0x678) + 0x368) > (new_var = 0)) { result = 1; rv = 0x15; goto done; }
+    result = 0;
+done:
+    return result;
+}
+
 
 
 extern unsigned long long D_006A45A8[];
