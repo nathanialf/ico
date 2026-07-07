@@ -123,14 +123,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", GetChainSlope);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", subBoyControl);
 
-extern int isysGObjAddHead();
-extern void *disp_memory_partition(int a0, int a1);
-extern char D_002A0A90[];
-extern float D_00628EE4;
-extern long long D_006A45A0[];
-
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_0014E858);
-
 
 extern long long D_006A45A0[];
 extern void GetLowerPlaneCollision(char *p, float a, float b, float c, float d, float e, float f);
@@ -168,9 +161,7 @@ extern float InitHandCameraCorrect(void *, CCPResult *);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00150608);
 
 
-
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", subBoyCollision);
-
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoySwim);
 
@@ -280,7 +271,22 @@ extern void *ACTGameCollisionOff();
 extern int TorchGeo(void *a0);
 extern int ACTEnvGetTest(void);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", SetStatusBoy_OtherStageGirlPinch);
+void SetStatusBoy_OtherStageGirlPinch(void) {
+    void *o = D_00629DE4;
+    D_006A45A0[1] &= ~(1LL << 34);
+    if (*(int *)(*(int *)((char *)o + 0x164) + 0x130) != 0) {
+        void *r = ACTGameCollisionOff();
+        if (r != 0) {
+            if (TorchGeo(r) != 0) {
+                D_006A45A0[1] |= (1LL << 34);
+            }
+        }
+    }
+    D_006A45A0[1] &= ~(1LL << 33);
+    if (ACTEnvGetTest() != 0) {
+        D_006A45A0[1] |= (1LL << 33);
+    }
+}
 
 
 extern int D_0062A894;

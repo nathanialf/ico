@@ -123,14 +123,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", GetChainSlope);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", subBoyControl);
 
-extern int isysGObjAddHead();
-extern void *disp_memory_partition(int a0, int a1);
-extern char D_002A0A90[];
-extern float D_00628EE4;
-extern long long D_006A45A0[];
-
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_0014E858);
-
 
 extern long long D_006A45A0[];
 extern void GetLowerPlaneCollision(char *p, float a, float b, float c, float d, float e, float f);
@@ -168,8 +161,26 @@ extern float InitHandCameraCorrect(void *, CCPResult *);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00150608);
 
 
-
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", subBoyCollision);
+int subBoyCollision(void) {
+    void *g = *(int *)((char *)D_00629DE4 + 0x164);
+    CCPResult buf;
+    CCPResult *r16 = ContinueCorrectPosition(D_00629DE8);
+    func_00240008(&buf, r16, ContinueCorrectPosition(D_00629DE4));
+    if (func_0023FE70(&buf, (char *)g + 0x4B0) > 0.0f) {
+        if (InitHandCameraCorrect((char *)g + 0x500, ContinueCorrectPosition(D_00629DE8)) < 31.0f) {
+            if (D_00629DE8 == 0) goto ret1;
+            if (D_00629DE4 == 0) return 1;
+            {
+                CCPResult *ra = ContinueCorrectPosition(D_00629DE8);
+                CCPResult *rb = ContinueCorrectPosition(D_00629DE4);
+                if (rb->f4 + 450.0f < ra->f4) return 0;
+            }
+ret1:
+            return 1;
+        }
+    }
+    return 0;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoySwim);

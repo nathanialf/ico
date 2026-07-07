@@ -64,7 +64,7 @@ extern BgaEntry D_0027DF90[];
 extern char D_005525C8[];
 extern char D_0062C3F8[];
 extern void func_001AAD00(char *file, int line);
-extern void func_00260380(char *file, int line, char *msg);
+extern void func_00260380(char *file, int line, char *msg, int v);
 static void UpdateGeo();
 extern float stage_SetParentOfGObj(int a0, void *a1, void *a2, float a3);
 
@@ -123,14 +123,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", GetChainSlope);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", subBoyControl);
 
-extern int isysGObjAddHead();
-extern void *disp_memory_partition(int a0, int a1);
-extern char D_002A0A90[];
-extern float D_00628EE4;
-extern long long D_006A45A0[];
-
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_0014E858);
-
 
 extern long long D_006A45A0[];
 extern void GetLowerPlaneCollision(char *p, float a, float b, float c, float d, float e, float f);
@@ -168,9 +161,7 @@ extern float InitHandCameraCorrect(void *, CCPResult *);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00150608);
 
 
-
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", subBoyCollision);
-
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoySwim);
 
@@ -261,7 +252,23 @@ extern int D_006A4608[];
 extern float D_00628F1C;
 extern void *D_00629C90;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyRescueReady);
+void actBoyRescueReady(void) {
+    float buf[4];
+    int *s16;
+    if (D_00629DE4 == 0) return;
+    s16 = *(int **)((char *)D_00629DE4 + 0x164);
+    if (*(int *)((char *)s16 + 0x130) != 0) {
+        ExecWeaponHitReaction(*(void **)((char *)s16 + 0x130));
+        func_00260568(buf, 0, 0x10);
+        buf[0] = D_00628F1C;
+        CylinderCollision((void *)*(int *)((char *)s16 + 0x130), buf);
+        func_001AB9B8(*(int *)((char *)s16 + 0x130), 0, 0, D_00629C90);
+        *(int *)(*(int *)((char *)s16 + 0x130) + 0x16C) = 0;
+    }
+    D_006A4608[0] = 0;
+    *(int *)D_006A45A0 = 0;
+    *(int *)((char *)s16 + 0x130) = 0;
+}
 
 
 int actBoyDitch3mReady(void) {
@@ -276,12 +283,7 @@ int actBoyDitch3mReady(void) {
     return 0;
 }
 
-extern void *ACTGameCollisionOff();
-extern int TorchGeo(void *a0);
-extern int ACTEnvGetTest(void);
-
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", SetStatusBoy_OtherStageGirlPinch);
-
 
 extern int D_0062A894;
 
@@ -300,7 +302,6 @@ ret0:
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", CorrectStickInfo);
-
 
 extern unsigned long long D_006A45A8[];
 
@@ -427,7 +428,6 @@ void actBoyHangBefore(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyReadyMove);
 
-
 /* actBoyBeslam: iterate over layout objects, pick best hand-camera match */
 extern float ClearHandCameraCorrect(CCPResult *, CCPResult *);
 extern void *isysGObjSearchFromObjKindID_begin(void *);
@@ -518,28 +518,7 @@ void func_001531E8(int *a0, int *a1) {
     }
 }
 
-extern void GetRootMatrixByDObj(void *dest, void *dobj);
-extern float HandyCamera_TargetMoveType(void *a0, void *a1);
-extern float D_00628F20;
-
-void actBoySupportBGBegin(float *out) {
-    void *o = D_00629DE4;
-    float buf[4];
-    char *s16 = *(char **)((char *)o + 0x164);
-    char *p;
-    GetRootMatrixByDObj(buf, o);
-    p = s16 + 0xF0;
-    if (HandyCamera_TargetMoveType(buf, p) < D_00628F20) {
-        out[0] = *(float *)(s16 + 0xF0);
-        out[1] = *(float *)(s16 + 0xF4);
-        out[2] = *(float *)(s16 + 0xF8);
-    } else {
-        GetRootMatrixByDObj(p, o);
-        out[0] = buf[0];
-        out[1] = buf[1];
-        out[2] = buf[2];
-    }
-}
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoySupportBGBegin);
 
 typedef struct { long long d[12]; } S60;
 typedef struct { int d[6]; } S18;

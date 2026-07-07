@@ -123,14 +123,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", GetChainSlope);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", subBoyControl);
 
-extern int isysGObjAddHead();
-extern void *disp_memory_partition(int a0, int a1);
-extern char D_002A0A90[];
-extern float D_00628EE4;
-extern long long D_006A45A0[];
-
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_0014E858);
-
 
 extern long long D_006A45A0[];
 extern void GetLowerPlaneCollision(char *p, float a, float b, float c, float d, float e, float f);
@@ -168,9 +161,7 @@ extern float InitHandCameraCorrect(void *, CCPResult *);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00150608);
 
 
-
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", subBoyCollision);
-
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoySwim);
 
@@ -276,12 +267,7 @@ int actBoyDitch3mReady(void) {
     return 0;
 }
 
-extern void *ACTGameCollisionOff();
-extern int TorchGeo(void *a0);
-extern int ACTEnvGetTest(void);
-
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", SetStatusBoy_OtherStageGirlPinch);
-
 
 extern int D_0062A894;
 
@@ -299,7 +285,35 @@ ret0:
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", CorrectStickInfo);
+int CorrectStickInfo(void) {
+    void *o = D_00629DE4;
+    int *s5;
+    unsigned int v;
+    int rv;
+    int result;
+    if (o == 0) {
+        func_001AAD00(D_005525C8, 0x1403);
+        func_00260380(D_005525C8, 0x1403, D_0062C3F8);
+        result = 0;
+        goto done;
+    }
+    s5 = *(int **)((char *)o + 0x164);
+    v = *(int *)((char *)s5 + 0x30);
+    if (v < 0x13) { rv = 0x15; goto B00; }
+    if (v >= 0x16) {
+        if (v < 0x18) { result = 1; goto done; }
+        rv = 0x15;
+        goto B00;
+    }
+    if (*(int *)((char *)*(int **)((char *)s5 + 0x670) + 0x29C) != 0) { result = 1; goto done; }
+    rv = 0x15;
+B00:
+    if (v == rv) { result = 1; goto done; }
+    if (*(int *)((char *)*(int **)((char *)s5 + 0x678) + 0x368) > 0) { result = 1; goto done; }
+    result = 0;
+done:
+    return result;
+}
 
 
 extern unsigned long long D_006A45A8[];
@@ -426,7 +440,6 @@ void actBoyHangBefore(void) {
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyReadyMove);
-
 
 /* actBoyBeslam: iterate over layout objects, pick best hand-camera match */
 extern float ClearHandCameraCorrect(CCPResult *, CCPResult *);

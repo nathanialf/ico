@@ -129,7 +129,37 @@ extern char D_002A0A90[];
 extern float D_00628EE4;
 extern long long D_006A45A0[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_0014E858);
+void func_0014E858(void *a0) {
+    char *d = (char *)D_006A45A0;
+    void *g = *(int **)((char *)a0 + 0x164);
+    void *p16;
+    void *r;
+    if (*(int *)d != 0) {
+        *(int *)(d + 0x20) = (int)isysGObjAddHead();
+    } else {
+        *(int *)(d + 0x20) = 0;
+    }
+    p16 = *(void **)((char *)g + 0x5F8);
+    *(int *)(d + 0x24) = (int)p16;
+    r = disp_memory_partition(*(int *)((char *)p16 + 0xC), *(int *)((char *)p16 + 0x8));
+    if (r != 0) {
+        *(float *)(d + 0x30) = *(float *)((char *)r + 0x10);
+        *(float *)(d + 0x34) = *(float *)((char *)r + 0x14);
+        *(float *)(d + 0x38) = *(float *)((char *)r + 0x18);
+        *(float *)(d + 0x40) = *(float *)((char *)r + 0x20);
+        *(float *)(d + 0x44) = *(float *)((char *)r + 0x24);
+        *(float *)(d + 0x48) = *(float *)((char *)r + 0x28);
+    } else {
+        char *t = D_002A0A90 + *(int *)((char *)p16 + 0x8) * 0x4C;
+        float sc = D_00628EE4;
+        *(float *)(d + 0x48) = *(float *)(t + 0x14) * sc / 180.0f;
+        *(float *)(d + 0x30) = -*(float *)(t + 0x18);
+        *(float *)(d + 0x34) = -*(float *)(t + 0x1C);
+        *(float *)(d + 0x38) = -*(float *)(t + 0x20);
+        *(float *)(d + 0x40) = *(float *)(t + 0xC) * sc / 180.0f;
+        *(float *)(d + 0x44) = *(float *)(t + 0x10) * sc / 180.0f;
+    }
+}
 
 
 extern long long D_006A45A0[];
