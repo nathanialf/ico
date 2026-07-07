@@ -165,11 +165,58 @@ extern void func_00240008(void *, CCPResult *, CCPResult *);
 extern float func_0023FE70(void *, void *);
 extern float InitHandCameraCorrect(void *, CCPResult *);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00150608);
+int func_00150608(void) {
+    void *g = *(int *)((char *)D_00629DE4 + 0x164);
+    CCPResult buf;
+    CCPResult *r16 = ContinueCorrectPosition(D_00629DE8);
+    func_00240008(&buf, r16, ContinueCorrectPosition(D_00629DE4));
+    if (func_0023FE70(&buf, (char *)g + 0x4B0) > 0.0f) {
+        if (InitHandCameraCorrect((char *)g + 0x4F0, ContinueCorrectPosition(D_00629DE8)) < 100.0f) {
+            void *g2 = *(int *)((char *)D_00629DE8 + 0x164);
+            long long flag = *(unsigned short *)((char *)g2 + 0x1E);
+            if (((int)flag & 1) == 0) return 0;
+            if (D_00629DE8 == 0) goto r1;
+            if (D_00629DE4 == 0) goto r1;
+            {
+                CCPResult *ra = ContinueCorrectPosition(D_00629DE8);
+                CCPResult *rb = ContinueCorrectPosition(D_00629DE4);
+                if (rb->f4 + 450.0f < ra->f4) goto r0;
+            }
+r1:
+            return 1;
+r0:
+            return 0;
+        }
+    }
+    return 0;
+}
 
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", subBoyCollision);
+
+int subBoyCollision(void) {
+    void *g = *(int *)((char *)D_00629DE4 + 0x164);
+    CCPResult buf;
+    CCPResult *r16 = ContinueCorrectPosition(D_00629DE8);
+    func_00240008(&buf, r16, ContinueCorrectPosition(D_00629DE4));
+    if (func_0023FE70(&buf, (char *)g + 0x4B0) > 0.0f) {
+        if (InitHandCameraCorrect((char *)g + 0x500, ContinueCorrectPosition(D_00629DE8)) < 31.0f) {
+            if (D_00629DE8 == 0) goto r1;
+            if (D_00629DE4 == 0) goto r1;
+            {
+                CCPResult *ra = ContinueCorrectPosition(D_00629DE8);
+                CCPResult *rb = ContinueCorrectPosition(D_00629DE4);
+                if (rb->f4 + 450.0f < ra->f4) goto r0;
+            }
+r1:
+            return 1;
+r0:
+            return 0;
+        }
+    }
+    return 0;
+}
+
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoySwim);
