@@ -795,7 +795,32 @@ void func_001635B8(volatile unsigned int a0)
 
 extern float ClearHandCameraCorrect(int a0, int a1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemy_isSmallEnemy);
+void actEnemy_isSmallEnemy(volatile int a0) {
+    int *p = *(int **)(a0 + 0x164);
+    int s2 = p[0x12C / 4];
+    for (;;) {
+        int r1 = ContinueCorrectPosition(a0);
+        int r2 = ContinueCorrectPosition(s2);
+        if (ClearHandCameraCorrect(r1, r2) < 200.0f) {
+            _ACTWait(1);
+        } else {
+            if ((DispCollisionPC((void *)a0, s2, (int)((char *)p + 0x100), 0, 0,
+                                 100.0f) &
+                 0xFF) == 0) {
+                p[0x33C / 4] = 0;
+                p[0x100 / 4] = 0;
+                p[0x104 / 4] = 0;
+                p[0x108 / 4] = 0;
+                _ACTWait(0x1E);
+            }
+            p[0x33C / 4] = 0;
+            p[0x100 / 4] = 0;
+            p[0x104 / 4] = 0;
+            p[0x108 / 4] = 0;
+            _ACTWait(0x3C);
+        }
+    }
+}
 
 
 extern int ContinueCorrectPosition(int a0);
