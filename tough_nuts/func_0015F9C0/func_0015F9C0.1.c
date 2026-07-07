@@ -272,7 +272,68 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_0015F2A8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyPickupBegin);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_0015F9C0);
+void func_0015F9C0(void *a0, int *out1, int *out2) {
+    extern char D_0055DA10[];
+    extern char D_002A0A90[];
+    extern void *func_0018E830(void *);
+    char *p = *(char **)((char *)a0 + 0x164);
+    long long v;
+    unsigned int m;
+    void *rp;
+    int r3;
+
+    *out2 = 0;
+    if (*(int *)(p + 0x128) != 0) {
+        int *q = *(int **)((char *)a0 + 0x15C);
+        char *e = D_0055DA10 - (-(q[0x490 / 4] * 0x190));
+        if (*(int *)(e + 0x100) == 0) { *out1 = -1; return; }
+    }
+    if (((int)((unsigned long long)*(long long *)(p + 0x18) >> 0x2C) & 1) == 0) { *out1 = -1; return; }
+    {
+        char *s = D_002A0A90 + *(int *)((char *)a0 + 0x8) * 0x4C;
+        unsigned int flags = *(unsigned int *)(s + 0x48);
+        int x;
+        if ((flags >> 18) & 1) {
+            x = 0;
+        } else {
+            int t = ((flags >> 21) & 1) ^ 1;
+            if (t) {
+                x = 0;
+            } else {
+                x = 1;
+            }
+        }
+        if (x == 0) { *out1 = -1; return; }
+    }
+    m = *(int *)(p + 0x30);
+    if (m >= 0x17) goto ge17;
+    if (m >= 0x13) { *out1 = -1; return; }
+    if (m == 7) { *out1 = -1; return; }
+    v = *(long long *)(p + 0x140);
+    goto bit32;
+ge17:
+    if (m >= 0x70) goto load140;
+    if (m < 0x6E) { v = *(long long *)(p + 0x140); goto bit32; }
+    *out1 = -1;
+    return;
+load140:
+    v = *(long long *)(p + 0x140);
+bit32:
+    if ((int)(v >> 0x20) & 1) {
+        *(long long *)(p + 0x140) = v & ~0x100000000LL;
+        *out1 = -2;
+        return;
+    }
+    rp = func_0018E830(a0);
+    if (rp == 0) {
+        *out2 = 0;
+        r3 = 0;
+    } else {
+        *out2 = *(int *)((char *)rp + 0x4);
+        r3 = *(unsigned short *)rp;
+    }
+    *out1 = r3;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", CheckEnemyBrainMode);
