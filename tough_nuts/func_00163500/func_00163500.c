@@ -739,7 +739,33 @@ void func_00163448(volatile unsigned int a0)
 
 extern char D_00553320[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_00163500);
+void func_00163500(volatile unsigned int a0)
+{
+    int *p = *(int **)(a0 + 0x164);
+    int *p1 = *(int **)(a0 + 0x164);
+    int *p2 = *(int **)(a0 + 0x164);
+    int v12c = *(int *)((char *)p + 0x12C);
+    int *p670 = *(int **)((char *)p2 + 0x670);
+    unsigned char r;
+    *(int *)(*(int *)((char *)p1 + 0x678) + 0x400) = v12c;
+    r = DispCollisionPC((void *)a0, v12c,
+                        (int)((char *)p + 0x100), 0,
+                        *(unsigned char *)((char *)p670 + 0x21C), 50.0f);
+    if (r == 0) {
+        debug_assertMessage((char *)D_00553320);
+        p[0x33C / 4] = 0;
+        p[0x100 / 4] = 0;
+        p[0x104 / 4] = 0;
+        p[0x108 / 4] = 0;
+        _ACTWait(0x1E);
+        BoxBarSoundOn((void *)a0, 0xED);
+        _ACTWait(0);
+    }
+    for (;;) {
+        BoxBarSoundOn((void *)a0, 0x146);
+        _ACTWait(1);
+    }
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_001635B8);
