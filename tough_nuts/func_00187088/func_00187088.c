@@ -486,7 +486,62 @@ extern float D_006291C4;
 extern float D_00287140[3];
 extern int ACTLookTarget_Exec(void *a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00187088);
+void func_00187088(void *a0, float *a1, int a2) {
+    unsigned char flag = a2;
+    float src[4];
+    float dst[4];
+    void *p;
+    float ang;
+    int n;
+    void *sub;
+    int hit;
+    float deg;
+    float k;
+
+    if ((int)a0 != D_0062AA14) {
+        return;
+    }
+    if (a0 == 0) {
+        return;
+    }
+    deg = 180.0f;
+    k = D_006291C4;
+    p = subCommonIdle((int)a0);
+    ang = func_00191E30(p) / k * deg;
+    src[0] = a1[0];
+    src[1] = a1[1];
+    src[2] = -a1[2];
+    n = (int)ang;
+    hit = ACTLookTarget_Exec(a0);
+    {
+        int guard = 1;
+        if (hit == 0) {
+            guard = flag;
+        }
+        if (guard) {
+            D_00287140[0] = 0.0f;
+            D_00287140[2] = 0.0f;
+            D_00287140[1] = 0.0f;
+        }
+    }
+    func_00191DB8(src, (float)n * k / deg);
+    sub = *(void **)((char *)a0 + 0x15C);
+    if (MatrixDrive_GetTurnYAngleXZ(*(float *)((char *)sub + 0x120) * *(float *)((char *)sub + 0x120) + *(float *)((char *)sub + 0x128) * *(float *)((char *)sub + 0x128)) > 3.0f) {
+        func_00240008(dst, src, D_00287140);
+        if (MatrixDrive_GetTurnYAngleXZ(dst[0] * dst[0] + dst[1] * dst[1] + dst[2] * dst[2]) < 1.5f) {
+            D_00287140[0] = src[0];
+            D_00287140[1] = src[1];
+            D_00287140[2] = src[2];
+        } else {
+            func_0023FE98(dst, dst);
+            func_00240038_v(dst, dst, 1.5f);
+            func_0023FFF0(D_00287140, D_00287140, dst);
+        }
+    }
+    a1[0] = D_00287140[0];
+    a1[1] = D_00287140[1];
+    a1[2] = D_00287140[2];
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00187268);
