@@ -53,39 +53,7 @@ int _DoAwaitGirl(volatile int a0) {
     return CanWallLeverPull(*(int *)(p + 0x5EC), 0);
 }
 
-extern void func_001AAD00(void *a0, int a1);
-extern void func_00260380(void *a0, int a1, void *a2);
-extern char D_00553110[];
-extern char D_0062C4F8[];
-
-typedef union { long long d; int w[2]; } MustChaseFlag;
-
-void _MustChase(int a0) {
-    char *g = *(char **)(*(int *)(a0 + 0x164) + 0x670);
-    switch (*(int *)(g + 0x1E4)) {
-    case 0:
-        ((MustChaseFlag *)(g + 0x208))->d &= ~1LL;
-        ((MustChaseFlag *)(*(char **)(*(int *)(a0 + 0x164) + 0x670) + 0x208))->d &= ~2LL;
-        break;
-    case 1:
-        ((MustChaseFlag *)(g + 0x208))->d &= ~1LL;
-        ((MustChaseFlag *)(*(char **)(*(int *)(a0 + 0x164) + 0x670) + 0x208))->d |= 2LL;
-        break;
-    case 2:
-        ((MustChaseFlag *)(g + 0x208))->d |= 1LL;
-        ((MustChaseFlag *)(*(char **)(*(int *)(a0 + 0x164) + 0x670) + 0x208))->d &= ~2LL;
-        break;
-    case 3:
-        ((MustChaseFlag *)(g + 0x208))->d |= 1LL;
-        ((MustChaseFlag *)(*(char **)(*(int *)(a0 + 0x164) + 0x670) + 0x208))->d |= 2LL;
-        break;
-    default:
-        func_001AAD00(D_00553110, 0x312);
-        func_00260380(D_00553110, 0x312, D_0062C4F8);
-        break;
-    }
-}
-
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", _MustChase);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", subEnemyControl);
 
@@ -208,47 +176,7 @@ void PairSetGeometry(void *a0) {
     }
 }
 
-extern int ContinueCorrectPosition(int a0);
-extern float RotateAccordingToStick_PatternThree(float *a0, float *a1);
-extern float D_00628FD8;
-
-int actEnemyForceSwitchToCarry(int a0) {
-    float v1[4];
-    float v2[4];
-    float angle;
-    float diff;
-    int rv;
-    if (D_00629DE4 == 0) {
-        goto zero;
-    }
-    v1[0] = ((float *)ContinueCorrectPosition(D_00629DE4))[0];
-    v1[1] = ((float *)ContinueCorrectPosition(D_00629DE4))[1];
-    v1[2] = ((float *)ContinueCorrectPosition(D_00629DE4))[2];
-    v2[0] = ((float *)ContinueCorrectPosition(a0))[0];
-    v2[1] = ((float *)ContinueCorrectPosition(a0))[1];
-    v2[2] = ((float *)ContinueCorrectPosition(a0))[2];
-    angle = RotateAccordingToStick_PatternThree(v1, v2);
-    if (angle < D_00628FD8) {
-        diff = v1[1] - v2[1];
-        if (diff < 0.0f) {
-            if (200.0f < -diff) {
-                return 1;
-            }
-            return 0;
-        }
-        rv = 0;
-        if (!(200.0f < diff)) {
-            return rv;
-        }
-    }
-    rv = 1;
-    goto end;
-zero:
-    rv = 0;
-end:
-    return rv;
-}
-
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyForceSwitchToCarry);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyKidnapEnd);
 
@@ -262,7 +190,6 @@ extern void func_0010E4E8(void *, int);
 extern void func_0018F2A0(void *, int);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", MoveChestForCatchBoy);
-
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyBodylift);
@@ -753,7 +680,32 @@ int IsEnemyBrainToBoy(void *a0) {
     return subEnemyBrain_ToBoy(a0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", GetEnemyTypeFromGObj);
+extern void *isysGObjSearchFromObjLayoutID(int id);
+extern void *isysGObjSearchFromObjKindID_begin(void *o);
+
+typedef struct { char _0[0x10]; int f10; char _14[8]; signed char f1C; signed char f1D; char _1e[2]; } EnemyEnt;
+
+void GetEnemyTypeFromGObj(int a0) {
+    void *o = isysGObjSearchFromObjLayoutID(4);
+    if (o != 0) {
+        do {
+            int p164 = *(int *)((char *)o + 0x164);
+            if (*(int *)(*(int *)(p164 + 0x670) + 0x1DC) == 3) {
+                int i;
+                for (i = 0; i < 5; i++) {
+                    char *e = *(char **)(p164 + 0x670) + (i << 5) + 0x360;
+                    if (e[0x1D] != 0) {
+                        if (*(int *)(e + 0x10) == a0) {
+                            e[0x1C] = 0;
+                            return;
+                        }
+                    }
+                }
+            }
+            o = isysGObjSearchFromObjKindID_begin(o);
+        } while (o != 0);
+    }
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", GetEnemyType);
