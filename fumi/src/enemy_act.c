@@ -758,6 +758,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", GetEnemyTypeFromGObj);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", GetEnemyType);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_00163C40);
+
 
 /* recovered struct shapes */
 typedef struct {

@@ -99,6 +99,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", SetCameraMatrix_Ico2)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", ReadCameraSet);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_001853B8);
+
 int SetCameraZoomOffsetRatio(void *a0, int a1, int a2) {
     int base = *(int *)((char *)a0 + 0x4);
     return *(int *)(base + a1 * 0x4C + 0x48) + a2 * 0x5C;
