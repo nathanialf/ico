@@ -95,7 +95,35 @@ extern void GetEnemyTypeFromGObj();
 extern int D_00271240[];
 
 typedef struct { float x, y, z, w; } Vec4;
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", subEnemyControl);
+void subEnemyControl(int *self, int a1) {
+    Vec4 buf;
+    int i;
+    int off;
+    char *e;
+    int r;
+
+    for (i = 0, off = 0x360; i < 5; i++, off += 0x20) {
+        if (*((signed char *)((i << 5) + (*((int *)((*((int *)(((char *)self) + 0x164))) + 0x670))) + 0x37D)) == 0) {
+            func_00260568(&buf, 0, 0x10);
+            buf.w = 1.0f;
+            e = (char *)((i << 5) + (*((int *)((*((int *)(((char *)self) + 0x164))) + 0x670))) + 0x360);
+            func_00240080(e, (char *)(*((int *)((*((int *)(((char *)self) + 0x15C))) + 0xC))) + (a1 << 6) + 0x30);
+            *((float *)(e + 0xC)) = 1.0f;
+            r = GatherEffect_Proc(1.0f, 0xC,
+                              (char *)((*((int *)((*((int *)(((char *)self) + 0x164))) + 0x670))) + off),
+                              &buf,
+                              (char *)((*((int *)((*((int *)(((char *)self) + 0x164))) + 0x670))) + off),
+                              (void *)GetEnemyTypeFromGObj);
+            *((int *)((i << 5) + (*((int *)((*((int *)(((char *)self) + 0x164))) + 0x670))) + 0x370)) = r;
+            *((int *)((i << 5) + (*((int *)((*((int *)(((char *)self) + 0x164))) + 0x670))) + 0x374)) = a1;
+            *((int *)((i << 5) + (*((int *)((*((int *)(((char *)self) + 0x164))) + 0x670))) + 0x378)) = (0x3C - D_00271240[0] * 0xA) / D_00271240[1];
+            *((signed char *)((i << 5) + (*((int *)((*((int *)(((char *)self) + 0x164))) + 0x670))) + 0x37C)) = 1;
+            *((signed char *)((i << 5) + (*((int *)((*((int *)(((char *)self) + 0x164))) + 0x670))) + 0x37D)) = 1;
+            return;
+        }
+    }
+    InitDemoMotionGeo(self, a1);
+}
 
 
 extern void subEnemyControl(int *self, int a1);
@@ -277,45 +305,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", MoveChestForCatchBoy);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyBodylift);
 
-extern void GetHeightOfWallFromGObj(void *a0, void *a1);
-extern void ActOrientTest(void *a0, void *a1, int a2);
-extern float *subCommonIdle(void *a0);
-extern void func_00191DB8(void *a0, float a1);
-extern void func_00240038(void *a0, void *a1, float a2);
-extern void func_0023FFF0(void *a0, void *a1, void *a2);
-extern void debug_Marker(void *a0, int a1, int a2, int a3, float a4);
-extern int D_00629DE4;
-extern float D_00629010;
-
-void func_0015F2A8(int *self) {
-    float a[24];
-    float t, ct, f20, f21, f12;
-    int r, cr;
-
-    *(int *)((*(int *)((char *)self + 0x15C)) + 0x540) = 1;
-    *(int *)((*(int *)((char *)self + 0x15C)) + 0x370) = 2;
-    GetHeightOfWallFromGObj(&a[0], self);
-    GetHeightOfWallFromGObj(&a[4], (void *)D_00629DE4);
-    ActOrientTest(&a[8], self, 1);
-    t = (a[1] - a[5]) / 600.0f;
-    t = t < 0.0f ? 0.0f : (1.0f < t ? 1.0f : t);
-    f20 = t * 1000.0f + -200.0f;
-    f21 = t * -400.0f;
-    a[12] = subCommonIdle(self)[0];
-    a[13] = subCommonIdle(self)[1];
-    a[14] = subCommonIdle(self)[2];
-    func_00191FD0(&a[16], &a[4], &a[0]);
-    r = HandCameraCorrect(&a[12], &a[16]);
-    cr = r;
-    cr = cr < -45 ? -45 : (r < 46 ? r : 45);
-    f12 = (float)cr * D_00629010 / 180.0f;
-    func_00191DB8(&a[12], f12);
-    func_00240038(&a[20], &a[12], f20);
-    a[21] = f21;
-    func_0023FFF0((void *)((*(int *)((char *)self + 0x15C)) + 0x380), &a[0], &a[20]);
-    debug_Marker((void *)((*(int *)((char *)self + 0x15C)) + 0x380), 0xFF, 0, 0, 200.0f);
-}
-
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_0015F2A8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyPickupBegin);
 
