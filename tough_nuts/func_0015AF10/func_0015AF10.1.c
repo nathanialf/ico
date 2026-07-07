@@ -156,53 +156,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonRope);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", motCommonRopeTurnR);
 
-extern void traceLine(int a0, int a1, int a2, void *a3, int a4);
-extern void ActPara_GetDefTbl(int a0, int a1);
-extern char D_00552C78[], D_00552C88[];
-extern void actCommonOne(volatile int a0);
-extern void func_0015B4C8(void);
-extern int D_0062AF84;
-extern void BoxBarSoundOn(void *a0, int a1);
-
-void motCommonRopeTurnL(volatile int self) {
-    char *s164 = *(char **)(self + 0x164);
-    char *o0 = *(char **)(*(char **)(self + 0x164) + 0x670);
-    *(int *)(s164 + 0x14) = (int)actCommonOne;
-    *(int *)(o0 + 0x2A0) = 0;
-    for (;;) {
-        if (D_0062AF84 & 1) {
-            traceLine(0xA, 0xAA, 0x0FFFFFFF, D_00552C78,
-                      *(int *)(*(char **)(*(char **)(self + 0x164) + 0x670) + 0xCC));
-            if (D_0062AF84 & 1) {
-                traceLine(0xA, 0xB4, 0x0FFFFFFF, D_00552C88,
-                          *(int *)(*(char **)(*(char **)(self + 0x164) + 0x670) + 0x29C));
-            }
-        }
-        {
-            int st = *(int *)(*(char **)(*(char **)(self + 0x164) + 0x670) + 0x29C);
-            if (st < 0) goto tbl22;
-            if (st < 2) goto after;
-            if (st != 2) goto tbl22;
-            ActPara_GetDefTbl(self, 0x21);
-            goto after;
-        tbl22:
-            ActPara_GetDefTbl(self, 0x22);
-        after:;
-        }
-        if (*(int *)(*(char **)(*(char **)(self + 0x164) + 0x670) + 0xCC) < 0) {
-            BoxBarSoundOn((void *)self, 0xB4);
-            *(int *)(*(char **)(*(char **)(self + 0x164) + 0x670) + 0x29C) = 0;
-        }
-        if (*(int *)(s164 + 0x48) >= 0x3D) {
-            if (*(int *)(*(char **)(*(char **)(self + 0x164) + 0x670) + 0x29C) >= 3) {
-                func_0015B4C8();
-                _ACTWait(0);
-            }
-        }
-        BoxBarSoundOn((void *)self, 0x68);
-        _ACTWait(1);
-    }
-}
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", motCommonRopeTurnL);
 
 extern void BoxGeoRestore(int a0, int a1);
 extern void RotObjectGeo(int a0);
@@ -397,14 +351,43 @@ int _boxbar_set_sound(char *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonBox);
 
-extern void traceLine(int a0, int a1, int a2, void *a3, int a4);
+extern void traceLine(int a0, int a1, int a2, void *a3);
 extern void _OrientXZGV(void *a0, void *a1, void *a2, float a3, float a4);
 extern char D_005530A8[];
 extern int D_0062AF84;
 
 extern void func_0023FE98(void *a0, void *a1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015AF10);
+void func_0015AF10(void *self) {
+    float buf[4];
+    char *s164;
+    char *o;
+    *(int *)(*(char **)(*(char **)((char *)self + 0x164) + 0x670) + 0xB4) += 1;
+    s164 = *(char **)((char *)self + 0x164);
+    o = *(char **)(s164 + 0x670);
+    if (*(int *)(o + 0xB0) < *(int *)(o + 0xB4)) goto clear;
+    if (self == (void *)D_00629DE8) {
+        if (D_0062AF84 & 1) {
+            traceLine(0x64, 0x64, 0x0FFFFFFF, D_005530A8);
+            s164 = *(char **)((char *)self + 0x164);
+        }
+    }
+    o = *(char **)(s164 + 0x670);
+    _OrientXZGV(buf, o + 0x70, o + 0x90, (float)*(int *)(o + 0xB4),
+                (float)(*(int *)(o + 0xB0) - *(int *)(o + 0xB4)));
+    CylinderCollision(self, buf);
+    s164 = *(char **)((char *)self + 0x164);
+    o = *(char **)(s164 + 0x670);
+    if (*(int *)(o + 0xB8) == 1) {
+        _OrientXZGV(buf, o + 0x80, o + 0xA0, (float)*(int *)(o + 0xB4),
+                    (float)(*(int *)(o + 0xB0) - *(int *)(o + 0xB4)));
+        func_0023FE98(buf, buf);
+        dispPlane(self, buf);
+    }
+    return;
+clear:
+    *(long long *)(o + 0xB8) &= 0xFFFFFFFEFFFFFFFFLL;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonBar);
@@ -613,7 +596,6 @@ typedef struct { char _p164[0x164]; S164 *p164; } SObj;
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonTurn);
-#undef TURN_OBJ
 
 
 int actCommonBackhand(void *a0) {
