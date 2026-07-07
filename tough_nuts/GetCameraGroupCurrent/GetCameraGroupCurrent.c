@@ -267,7 +267,36 @@ int SetCameraZoomOffsetRatio(void *a0, int a1, int a2) {
 
 extern char D_00554AC0[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", GetCameraGroupCurrent);
+int GetCameraGroupCurrent(void *hdr, S4C *src) {
+    int ret = -1;
+    char *flags;
+    int i;
+    int slot;
+    if (*(int *)hdr >= 0x64) {
+        debug_assertMessage(D_00554AC0, src);
+        return -1;
+    }
+    flags = (char *)hdr + 0xC;
+    for (i = 0; i < 0x64; i++) {
+        if (flags[i] == 0) goto found;
+    }
+    slot = 0;
+check:
+    if (slot != 0) {
+        S4C *dest = (S4C *)(*(int *)((char *)hdr + 4) + *(int *)hdr * 0x4C);
+        ret = *(int *)hdr;
+        *dest = *src;
+        *(int *)((char *)dest + 0x38) = 0;
+        *(int *)((char *)dest + 0x3C) = 0;
+        *(int *)((char *)dest + 0x48) = slot;
+        *(int *)hdr = *(int *)hdr + 1;
+    }
+    return ret;
+found:
+    flags[i] = 1;
+    slot = *(int *)((char *)hdr + 8) + i * 0x23F0;
+    goto check;
+}
 
 
 extern void debug_assertMessage(char *a0, void *a1);
