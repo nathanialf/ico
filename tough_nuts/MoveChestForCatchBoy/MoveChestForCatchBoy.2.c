@@ -261,7 +261,32 @@ extern void actEnemyKidnapBegin(void *, float);
 extern void func_0010E4E8(void *, int);
 extern void func_0018F2A0(void *, int);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", MoveChestForCatchBoy);
+int MoveChestForCatchBoy(void *a0) {
+    char buf[0x10];
+    char *s1 = *(char **)((char *)a0 + 0x164);
+    if (D_00629DE8 == 0) {
+        return 0;
+    }
+    if (ACTReserveTarget((void *)D_00629DE8, a0, 0xEC) == 0) {
+        return 0;
+    }
+    if (*(int *)(*(char **)((char *)D_00629DE8 + 0x164) + 0x30) == 0x6B) {
+        return 0;
+    }
+    actEnemyKidnapBegin(a0, 50.0f);
+    func_00260568(buf, 0, 0x10);
+    *(float *)(buf + 0xC) = 1.0f;
+    func_0010E4E8(buf, -0x8000);
+    GetHeightOfFieldPlaneDifference((void *)D_00629DE8, a0, 2,
+        *(int *)(*(int *)(*(char **)((char *)a0 + 0x164) + 0x670) + 0x1EC),
+        buf, 18.0f, 0.0f, 0.0f, 1.0f);
+    *(void **)(s1 + 0x128) = (void *)D_00629DE8;
+    *(void **)(*(char **)((char *)D_00629DE8 + 0x164) + 0x124) = a0;
+    ACTParaStatus_Exec((void *)D_00629DE8);
+    func_0018F2A0(a0, 9);
+    func_0018F2A0(a0, 7);
+    return 1;
+}
 
 
 
@@ -310,7 +335,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", GetFlyPosition);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", NakaBoss);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_001616E8);
+void func_001616E8(void) {
+    /* TODO: scaffold unavailable — recover from asm */
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", ChangeBrain_ToAttack);
 
