@@ -379,7 +379,23 @@ extern int D_006A4608[];
 extern float D_00628F1C;
 extern void *D_00629C90;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyRescueReady);
+void actBoyRescueReady(void) {
+    float buf[4];
+    int *s16;
+    if (D_00629DE4 == 0) return;
+    s16 = *(int **)((char *)D_00629DE4 + 0x164);
+    if (*(int *)((char *)s16 + 0x130) != 0) {
+        ExecWeaponHitReaction(*(void **)((char *)s16 + 0x130));
+        func_00260568(buf, 0, 0x10);
+        *(volatile float *)buf = D_00628F1C;
+        CylinderCollision((void *)*(int *)((char *)s16 + 0x130), buf);
+        func_001AB9B8(*(int *)((char *)s16 + 0x130), 0, 0, D_00629C90);
+        *(int *)(*(int *)((char *)s16 + 0x130) + 0x16C) = 0;
+    }
+    D_006A4608[0] = 0;
+    *(int *)D_006A45A0 = 0;
+    *(int *)((char *)s16 + 0x130) = 0;
+}
 
 
 
@@ -574,27 +590,7 @@ void actBoyHangBefore(void) {
 }
 
 
-typedef struct {
-    int f0; int f4;
-    union { long long ll; int i[2]; } u8;
-    char pad[0x50 - 0x10];
-    char c50[8];
-} RMDst;
-void actBoyReadyMove(void) {
-    char *src = (char *)D_006A4600;
-    RMDst *dst = (RMDst *)D_006A45A0;
-    long long v;
-    dst->u8.i[0] = *(int *)(src + 0x10);
-    v = dst->u8.ll;
-    v &= ~(1LL << 32); v |= (long long)(*(unsigned char *)(src + 0x14) & 1) << 32;
-    v &= ~(1LL << 33); v |= (long long)(*(unsigned char *)(src + 0x15) & 1) << 33;
-    v &= ~(1LL << 34); v |= (long long)(*(unsigned short *)(src + 0x16) & 1) << 34;
-    dst->f4 = *(int *)(src + 0xC);
-    dst->f0 = *(int *)(src + 0x8);
-    dst->u8.ll = v;
-    *(HB_S8 *)dst->c50 = *(HB_S8 *)(src + 0);
-}
-
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyReadyMove);
 
 
 /* actBoyBeslam: iterate over layout objects, pick best hand-camera match */
@@ -652,48 +648,9 @@ void actBoyRescueSrc(volatile int a0) {
 }
 
 
-void actBoySupportGBBegin(int a0) {
-    volatile int buf[4];
-    buf[0] = a0;
-    while (1) {
-        BoxBarSoundOn((void *)buf[0], 0xAE);
-        _ACTWait(1);
-    }
-}
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoySupportGBBegin);
 
-
-extern void WeaponCurPos(int a0, int a1, int a2);
-extern char D_005527E8[];
-extern char D_0062C418[];
-
-extern int D_006A45A0_i[] __asm__("D_006A45A0");
-void func_001530C0(int *volatile a0) {
-    int s1 = D_006A45A0_i[8];
-    int s0 = D_006A45A0_i[9];
-    int s4 = *(int *)((char *)a0 + 0x164);
-    int *p = a0;
-    int s2 = *(int *)((char *)p + 0x164);
-    if (s1 != s0) {
-        if (s0 == 0) {
-            func_001AAD00(D_005525C8, 0xA87);
-            func_00260380(D_005525C8, 0xA87, D_0062C418);
-        } else {
-            int w;
-            WeaponCurPos(s0, (int)p, 0x16);
-            w = *(int *)((char *)s0 + 0x8);
-            *(int *)((char *)s2 + 0x130) = s0;
-            D_006A45A0_i[0] = w;
-            if (s1 != 0) {
-                ExecWeaponHitReaction((void *)s1);
-                InitSwapWeapon();
-                func_001AB9B8(s1, 0, 0, D_00629C90);
-                ((void (*)(char *, int, int))debug_assertMessage)(D_005527E8, *(int *)((char *)s1 + 0x8), *(int *)((char *)s0 + 0x8));
-            }
-        }
-    }
-    *(int *)((char *)s4 + 0x130) = D_006A45A0_i[9];
-}
-
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_001530C0);
 
 void actBoySupportGBLoop(int a0) {
     int buf[4];
