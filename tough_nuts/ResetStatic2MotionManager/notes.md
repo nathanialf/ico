@@ -3036,3 +3036,95 @@ Levers tried this session (driver ledger): T1 default-goto (668), hold=0 hoist
 (635), per-arm q1p (607), 0x13 bundle (708), pv loop-arm scoping (607),
 t=1.0f routing (606=), t=60.0f routing (606=), scratch-fold (763),
 int-fold (612). Best remains 606; stall 7/30 at handoff.
+
+## Resume session 2026-07-09b (worktree agent-aa7b4d4948fecf57d)
+
+Result: best UNCHANGED at rc606 (tree restored to seed). Driver: 3 novel steps
+(727, 695, 669) + 3 non-novel; stall 3/30, verdict iterate at session end.
+BUT: 2/3 of the trio is now SOLVED and verified via the disposition oracle.
+
+### TRIO STATUS: b->s5 OK, nd->s6 OK (recipe below), e stuck at s4 (needs s8)
+
+The MINIMAL costume that locks b->s5 AND nd->s6 (oracle-verified twice):
+  seed + T1 (default: goto sin_tail) + ONE FUNCTION-SCOPE `float *eqp;`
+  with every case head rewritten as:
+      eqp = e->quat;
+      func_0010E148(GetLastQuaternion(), GetTableSin(), eqp);
+      ...
+      func_0010E188(qb, nd->quat, eqp);
+  (rc669 = T1's +62 tax +1; the tax only pays off once e->s8 lands.)
+  - eqp is ROM-CONFIRMED: `addiu $17, $30, 0x20` in the GetLastQuaternion
+    delay slot of EVERY e->quat case head (0x22 0x23 0x13 2D 2F...), always
+    $17/s1 => consistent with ONE fn-scope var. OURS lands s2 (hard-17 from
+    a local-alloc'd s1 in some head block) — a residual site diff.
+  - Mechanism: eqp produces an ndX allocno holding s4 before nd's turn
+    (pos ~621, refs5/len35 piece), so nd skips s4 (ndX) and s5 (b) -> s6.
+  - Per-case eqp does NOT flip nd (tested; nd->s4 again). Fn-scope only.
+
+### find_reg LAW (empirically confirmed many times this session):
+first NON-CONFLICTING hard reg in numeric order s0..s7 then s8; SHARING with
+non-conflicting earlier holders is preferred over virgin regs (nd repeatedly
+shared s4 with 0x13-bundle temps that conflict b but not nd). Plus HARD-reg
+conflicts from local-alloc'd block pseudos (e/nd/b all carry hard {16,17,18}
+= s0/s1/s2 smears from case-head block-locals).
+
+### THE REMAINING PROBLEM — e: s4-shared instead of s8
+e (25 refs/537, pri 186) ladder: s0/s1/s2 hard-blocked; s3 blocked by an eX
+allocno (qa-2D-class); s4 held only by NON-eX holders => e SHARES s4. To get
+s8, e needs eX holders (or hard smears) on BOTH s4 and s7 before pos ~729:
+  - s4 candidate: w170-2D (pseudo w/ 2 arm sets, refs~7/len~69, pri 202 > 186,
+    eX via e->state read at line ~1144 inside its range). Ours lands s2;
+    ROM has o-loop(s2) + w190(s3) forcing it to s4. Our loop currently gets
+    n=s1(ROM-match), i-2D=s8, o=s5, w190=s6-share — the whole 2D cluster is
+    one permutation knot that should snap once e vacates s4/s8.
+  - s7: NO global allocno holds s7 pre-e in ROM either. ROM 0x23 materializes
+    D_002724B0 into $23 (lui $23 at D3160, GetTableSin delay slot) — i.e. ROM
+    e is HARD-blocked from s7 by that block-local. Replicating with a `tbl`
+    local in 0x23 put it on s1, not s7 (UNSOLVED — why does ROM's tbl-0x23
+    pick $23? Suspect local-alloc order/interaction not yet understood).
+
+### ROM register map recovered this session (use for shaping):
+- 0x22: qa=s2 qb=s3 q40=s1 v50=s0; head eqp=s1.
+- 0x23: qb=s4(!! set D319C, live to tail E148) — the late s4-sharer;
+  q1p=b->q1=s6-share (D3444), q2p=s2, q3p=s3; tbl(D_002724B0)=s7(!).
+- 0x13 head: mgr=D_0062C230 cached in s0 (lw $16 gp_rel at D3EAC!);
+  qa spilled 0x1A4, qb spilled 0x1A8; t=1.0f set at case head into $f20
+  (lui/mtc1 BEFORE GetTableSin), qA0[3]=t via swc1 $f20,0xAC.
+- 0x13 f_280 arms: qF0p=s4 set at D403C in the SECOND beq's DELAY SLOT
+  (covers arms A and B with one set!), q1p=s6-share per-arm (D404C/D4428),
+  pv=v60 spilled 0x1B8 (sw in arm, e.g. D4074).
+- 0x13 loop arm: i=s1 (PER-CASE i! int-fold is WRONG), qn(v130)=s2,
+  v70p=s3, v110p=s7 set TWICE (D40B0/D4128, the n!=-1 / n==-1 sub-arms),
+  used at TurnObjectMatrix/_ApplyCurrentMatrix/Transpose/MulL/E088;
+  tbl0(D_00271BF0)=s1-region, fzero=0.0f in $f21 (passed as
+  func_00105108(5.0f,-3.0f,fzero)); v60[1] accessed DIRECT at 0x64(sp)
+  (do NOT rewrite v60 accesses through pv).
+- 2D: eqp=s1, t1=s0, qa=s7, qb spilled 0x1B0, pv(SEPARATE case-local!)
+  spilled 0x1C0, endflag spilled 0x1B4, i=s5 (shares dead b, set very early
+  D5254), n=s1 (after eqp dead), o=s2, o->pos temp=s0, w190=s3,
+  w170=s4 (set in BOTH arms D52F4/D5300), ang=$f21, len2=$f20
+  (our build ALREADY matches the f21/f20 choice); e->state RELOADED from
+  4($30) after the merge (dev used e->state, not st).
+- 0x2F: qa=s0, qb=s2, eqp=s1.
+
+### Session steps (driver ledger): knot-costume-v1 (int-fold+T1+bundle) 727;
+ROM-costume-v2 (per-case q/n/i + fn-scope eqp + T1 + 0x13 per-arm
+qF0p/q1p/v110p bundle + t-routing) 695; minimal knot (seed+T1+eqp) 669.
+t=1.0f/t=60.0f re-application on the plain seed: NON-NOVEL (no codegen
+change in seed context; only bites with the 0x13 head shape from ROM).
+
+### NEXT SESSION ATTACK (in order):
+1. Fix eqp s2->s1 (find/dislodge the local s1 in the eqp-live head block;
+   candidates printed by lreg ';; Register N in 17' list — blocks 30/31/66).
+2. Crack e's s7 hard-block: understand ROM tbl-0x23 -> $23. Try shaping the
+   0x23 head so the D_002724B0 temp is forced past s0..s6 (its block also
+   holds t1=s0(local), eqp=s1, qb... maybe with q2p/q3p/qb early-set the
+   local stack deepens). Also try mgr-13 s0-cache + qa/qb-13 SPILL shapes
+   (function too fat -> spills) which deepen 0x13's stacks.
+3. Then w170->s4 should follow once o(s2)/w190(s3) stack (check with oracle),
+   giving e: s3(eX qa-2D) s4(eX w170) s5(b) s6(nd) s7(hard) -> s8.
+4. Only then re-add the 0x13 bundle + per-arm q1p/qF0p/v110p (they were
+   rc-noise while the trio was wrong) and re-apply t=1.0f/60.0f routing.
+Oracle: scratchpad oracle2.sh (trio from prologue) + oracle.sh (-dl/-dg
+dumps); parse greg 'Register dispositions:' with the FULL section (early
+sessions truncated at 6000 chars and mis-read holders).

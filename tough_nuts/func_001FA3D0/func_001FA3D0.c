@@ -164,6 +164,10 @@ typedef struct {
 
 typedef float AVEC[4] __attribute__((aligned(16)));
 
+union LLAlias { long long ll; };
+union PFAlias { char *p; float f; };
+union IFAlias { int i; float f; };
+
 static inline void EnvGetPos(float *dst, void *obj) {
     char *pp;
     pp = (char *)ContinueCorrectPosition(obj);
@@ -226,7 +230,7 @@ static inline int EnvPushAvg(float *acc, void *Sv, char *dstc, int woff)
     char *head;
     char *w;
     int i;
-    head = *(char **)(*(char **)(S + 0x15C) + woff);
+    head = *(char **)(((union PFAlias *)(S + 0x15C))->p + woff);
     acc[0] = 0;
     acc[1] = 0;
     acc[2] = 0;
@@ -248,7 +252,7 @@ static inline void EnvHeadPushVec(float *acc, void *Sv, void *a4v)
     char *head;
     char *w;
     int i;
-    head = *(char **)(*(char **)(S + 0x15C) + 0x188);
+    head = *(char **)(((union PFAlias *)(S + 0x15C))->p + 0x188);
     acc[0] = 0;
     acc[1] = 0;
     acc[2] = 0;
@@ -268,7 +272,7 @@ static inline int EnvAssistLoop(float *acc, char *S, char *dst)
     char *head;
     char *w;
     int i;
-    head = *(char **)(*(char **)(S + 0x15C) + 0x178);
+    head = *(char **)(((union PFAlias *)(S + 0x15C))->p + 0x178);
     acc[0] = 0;
     acc[1] = 0;
     acc[2] = 0;
@@ -780,15 +784,14 @@ L6B4:
         s18 = 1;
         {
             unsigned short m186 = mo->u186;
-            if (!(m186 & 7)) goto Lm40;
-            f20 = 60.0f;
-            goto Lmdone;
-Lm40:
-            f20 = 40.0f;
-            if ((mo->u188 >> 26) & 1) {
-                f20 = 50.0f;
+            if (m186 & 7) {
+                f20 = 60.0f;
+            } else {
+                f20 = 40.0f;
+                if ((mo->u188 >> 26) & 1) {
+                    f20 = 50.0f;
+                }
             }
-Lmdone:;
         }
         if (f22 < 120.0f && b6 != 0) {
             char *q;
@@ -982,7 +985,7 @@ Lmdone:;
             if (EnableMotionOrientUpdate(FI(0x30), 0x400)) {
                 char *dstc = (char *)arg4 + 0xC0;
                 float *res = FV(0x70);
-                *(int *)((char *)arg3 + 8) |= 0x8000;
+                ((union IFAlias *)((char *)arg3 + 8))->i |= 0x8000;
                 *(float *)((char *)arg4 + 0xA0) = *(float *)((char *)arg4 + 0x0);
                 *(float *)((char *)arg4 + 0xA4) = *(float *)((char *)arg4 + 0x4);
                 *(float *)((char *)arg4 + 0xA8) = *(float *)((char *)arg4 + 0x8);
@@ -1164,7 +1167,7 @@ Lmdone:;
             *(long long *)(env + 0x18) |= 0x8000LL << 36;
         }
         if (f21 < 300.0f && f24 >= 100.0f) {
-            *(int *)arg3 |= 4;
+            ((union IFAlias *)arg3)->i |= 4;
             *(float *)((char *)arg4 + 0x138) = f21;
         }
         switch (*(unsigned int *)(env + 0x30)) {
@@ -1183,13 +1186,13 @@ Lmdone:;
                         (*(int *)((char *)arg3 + 8) & 0xFEFFFFFF) | ((FI(0x1BC) & 1) << 24);
                 }
                 if (f24 > 1000.0f) {
-                    *(int *)((char *)arg3 + 8) |= 0x800000;
+                    ((union IFAlias *)((char *)arg3 + 8))->i |= 0x800000;
                 }
                 {
                     char *e8 = (char *)FI(0x1A8);
-                    float cz = *(float *)(e8 + 8);
-                    float cx = *(float *)(e8 + 0);
-                    float cy = *(float *)(e8 + 4);
+                    float cy = ((union IFAlias *)(e8 + 4))->f;
+                    float cz = ((union IFAlias *)(e8 + 8))->f;
+                    float cx = ((union IFAlias *)(e8 + 0))->f;
                     FF(0x60) = cx;
                     FF(0x64) = cy;
                     FF(0x68) = cz;
@@ -1214,17 +1217,17 @@ Lmdone:;
                             }
                             {
                                 int vv;
-                                float cx = FF(0x80);
-                                float cy = FF(0x84);
-                                float cz = FF(0x88);
-                                *(float *)((char *)arg4 + 0x90) = cx;
-                                *(float *)((char *)arg4 + 0x94) = cy;
-                                *(float *)((char *)arg4 + 0x98) = cz;
-                                vv = *(int *)((char *)arg3 + 8);
+                                float cx = ((union IFAlias *)&FF(0x80))->f;
+                                float cy = ((union IFAlias *)&FF(0x84))->f;
+                                float cz = ((union IFAlias *)&FF(0x88))->f;
+                                ((union IFAlias *)((char *)arg4 + 0x90))->f = cx;
+                                ((union IFAlias *)((char *)arg4 + 0x94))->f = cy;
+                                ((union IFAlias *)((char *)arg4 + 0x98))->f = cz;
+                                vv = ((union IFAlias *)((char *)arg3 + 8))->i;
                                 vv &= 0xFEFFFFFF;
                                 vv &= 0xFDFFFFFF;
-                                *(int *)((char *)arg3 + 0xC) |= 0x10;
-                                *(int *)((char *)arg3 + 8) = vv;
+                                ((union IFAlias *)((char *)arg3 + 0xC))->i |= 0x10;
+                                ((union IFAlias *)((char *)arg3 + 8))->i = vv;
                             }
                         }
                     }
@@ -1245,13 +1248,13 @@ Lmdone:;
             break;
         case 3:
             if (f21 < 40.0f && f24 > 1000.0f) {
-                *(int *)((char *)arg3 + 8) =
-                    ((*(int *)((char *)arg3 + 8) & 0xFEFFFFFF) | ((FI(0x1BC) & 1) << 24)) | 0x400000;
+                ((union IFAlias *)((char *)arg3 + 8))->i =
+                    ((((union IFAlias *)((char *)arg3 + 8))->i & 0xFEFFFFFF) | ((FI(0x1BC) & 1) << 24)) | 0x400000;
                 {
                     char *e8 = (char *)FI(0x1A8);
-                    float cz = *(float *)(e8 + 8);
-                    float cx = *(float *)(e8 + 0);
-                    float cy = *(float *)(e8 + 4);
+                    float cy = ((union IFAlias *)(e8 + 4))->f;
+                    float cz = ((union IFAlias *)(e8 + 8))->f;
+                    float cx = ((union IFAlias *)(e8 + 0))->f;
                     FF(0x60) = cx;
                     FF(0x64) = cy;
                     FF(0x68) = cz;
@@ -1276,17 +1279,17 @@ Lmdone:;
                             }
                             {
                                 int vv;
-                                float cx = FF(0x80);
-                                float cy = FF(0x84);
-                                float cz = FF(0x88);
-                                *(float *)((char *)arg4 + 0x90) = cx;
-                                *(float *)((char *)arg4 + 0x94) = cy;
-                                *(float *)((char *)arg4 + 0x98) = cz;
-                                *(int *)((char *)arg3 + 0xC) |= 0x10;
-                                vv = *(int *)((char *)arg3 + 8);
+                                float cx = ((union IFAlias *)&FF(0x80))->f;
+                                float cy = ((union IFAlias *)&FF(0x84))->f;
+                                float cz = ((union IFAlias *)&FF(0x88))->f;
+                                ((union IFAlias *)((char *)arg4 + 0x90))->f = cx;
+                                ((union IFAlias *)((char *)arg4 + 0x94))->f = cy;
+                                ((union IFAlias *)((char *)arg4 + 0x98))->f = cz;
+                                vv = ((union IFAlias *)((char *)arg3 + 8))->i;
                                 vv &= 0xFEFFFFFF;
                                 vv &= 0xFFBFFFFF;
-                                *(int *)((char *)arg3 + 8) = vv;
+                                ((union IFAlias *)((char *)arg3 + 0xC))->i |= 0x10;
+                                ((union IFAlias *)((char *)arg3 + 8))->i = vv;
                             }
                         }
                     }
@@ -1445,7 +1448,7 @@ Lmdone:;
                         func_00240038(FP(0x150), (void *)FI(0x1C8), f21 - 30.0f);
                         func_0023FFF0(*(char **)(*(char **)((char *)FI(0x30) + 0x164) + 0x678) + 0x720,
                                       FP(0x160), FP(0x150));
-                        do {
+                        {
                             char *gq = (char *)FI(0x30);
                             q = *(char **)(*(char **)(gq + 0x164) + 0x678);
                             *(float *)(q + 0x730) = *(float *)((char *)arg4 + 0x10);
@@ -1453,9 +1456,9 @@ Lmdone:;
                             *(float *)(q + 0x734) = *(float *)((char *)arg4 + 0x14);
                             *(float *)(q + 0x740) = 30.0f;
                             *(float *)(q + 0x738) = *(float *)((char *)arg4 + 0x18);
-                            *(int *)(*(char **)(*(char **)((char *)*(volatile int *)&FI(0x30) + 0x164) + 0x678) + 0x748) = 0;
-                        } while (0);
-                        *(long long *)(env + 0x468) |= 0x8000LL << 46;
+                            *(int *)(*(char **)(((union PFAlias *)(gq + 0x164))->p + 0x678) + 0x748) = 0;
+                        }
+                        ((union LLAlias *)(env + 0x468))->ll |= 0x8000LL << 46;
                         if (FI(0x1CC) != 0) {
                             if (D_00629C90 == 0x62) {
                                 char *fnd2 = (char *)isysGObjSearchFromObjLayoutID(0x11);
@@ -1629,7 +1632,7 @@ Lmdone:;
                                         func_00240038(FP(0xD0), (void *)FI(0x1DC), f21 - 30.0f);
                                         func_0023FFF0(*(char **)(*(char **)((char *)FI(0x30) + 0x164) + 0x678) + 0x780,
                                                       (void *)FI(0x1C4), FP(0xD0));
-                                        do {
+                                        {
                                             char *gq2 = (char *)FI(0x30);
                                             q = *(char **)(*(char **)(gq2 + 0x164) + 0x678);
                                             *(float *)(q + 0x790) = *(float *)((char *)arg4 + 0x10);
@@ -1637,9 +1640,9 @@ Lmdone:;
                                             *(float *)(q + 0x794) = *(float *)((char *)arg4 + 0x14);
                                             *(float *)(q + 0x7A0) = 30.0f;
                                             *(float *)(q + 0x798) = *(float *)((char *)arg4 + 0x18);
-                                            *(int *)(*(char **)(*(char **)((char *)*(volatile int *)&FI(0x30) + 0x164) + 0x678) + 0x7A8) = 0;
-                                        } while (0);
-                                        *(long long *)(env + 0x468) |= 0x8000LL << 48;
+                                            *(int *)(*(char **)(((union PFAlias *)(gq2 + 0x164))->p + 0x678) + 0x7A8) = 0;
+                                        }
+                                        ((union LLAlias *)(env + 0x468))->ll |= 0x8000LL << 48;
                                     }
                                     break;
                                 }
@@ -1769,15 +1772,15 @@ Lmdone:;
         }
         if (w != 0) {
             char *pp;
-            *(long long *)(env + 0x468) |= 0x8000LL << 37;
             *(int *)((char *)arg4 + 0x158) = (int)w;
+            ((union LLAlias *)(env + 0x468))->ll |= 0x8000LL << 37;
             EnvGetPos((float *)FP(0x60), w);
             func_00191FD0(FP(0x70), FP(0x60), (void *)FI(0x1C4));
             if ((func_00191D90(FP(0x70), (void *)FI(0x1A8)) < 0x2D &&
                  RotateAccordingToStick_PatternThree((int)FP(0x60), (void *)FI(0x1C4)) < 6400.0f) ||
                 (func_00191D90(FP(0x70), (void *)FI(0x1A8)) >= 0x2D &&
                  RotateAccordingToStick_PatternThree((int)FP(0x60), (void *)FI(0x1C4)) < 900.0f)) {
-                *(long long *)(env + 0x468) |= 0x8000LL << 36;
+                ((union LLAlias *)(env + 0x468))->ll |= 0x8000LL << 36;
                 *(int *)((char *)arg4 + 0x158) = (int)w;
             }
         }
