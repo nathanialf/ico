@@ -230,8 +230,8 @@ static inline int EnvPushAvg(float *acc, void *Sv, char *dstc, int woff)
     acc[0] = 0;
     acc[1] = 0;
     acc[2] = 0;
-    w = head;
     i = 3;
+    w = head;
     do {
         func_0023FFF0(acc, acc, (float *)w);
         w += 0x10;
@@ -272,8 +272,8 @@ static inline int EnvAssistLoop(float *acc, char *S, char *dst)
     acc[0] = 0;
     acc[1] = 0;
     acc[2] = 0;
-    w = head;
     i = 3;
+    w = head;
     do {
         func_0023FFF0(acc, acc, (float *)w);
         w += 0x10;
@@ -429,8 +429,8 @@ void func_001FA3D0(void *arg0, void *arg1, int arg2, void *arg3, void *arg4) {
 #define FP_0x1A4 ((void *)&work[5])
 #define FI_0x1A8 work[6]
 #define FI_0x1AC work[7]
-#define box ((char *)*(volatile int *)&work[7])
-#define boxp ((char *)*(int *)&work[7])
+#define box bx
+#define boxp bx
 #define FI_0x1B0 w1B0
 #define FI_0x1B4 w1B4
 #define FI_0x1B8 w1B8
@@ -444,6 +444,7 @@ void func_001FA3D0(void *arg0, void *arg1, int arg2, void *arg3, void *arg4) {
 #define FI_0x1D8 w1D8
 #define FI_0x1DC w1DC
     float f20, f21, f22, f23, f24, f25;
+    char *bx;
     char *env;
     int s6, s7;
     void *found;
@@ -452,10 +453,12 @@ void func_001FA3D0(void *arg0, void *arg1, int arg2, void *arg3, void *arg4) {
     char *S;
     char *boy = (char *)arg1;
 
-    S = (char *)arg0;
-    env = *(char **)(S + 0x164);
-    FI(0x1A8) = arg2;
-    v1 = *(char **)(S + 0x15C);
+    {
+        char *S0 = (char *)arg0;
+        env = *(char **)(S0 + 0x164);
+        FI(0x1A8) = arg2;
+        v1 = *(char **)(S0 + 0x15C);
+    }
     S = *(char **)(env + 0x110);
     FI(0x1AC) = *(int *)(v1 + 0x170);
     f24 = *(float *)(S + 0x110);
@@ -465,12 +468,13 @@ void func_001FA3D0(void *arg0, void *arg1, int arg2, void *arg3, void *arg4) {
     FI(0x1B0) = *(int *)(v1 + 0x0);
     f23 = -*(float *)(v1 + 0x594);
     *(volatile int *)&FI(0x30) = (int)arg0;
-    FI(0x1C0) = 0;
     s7 = *(int *)(v1 + 0x564);
     f22 = *(float *)(S + 0x138);
     s6 = *(int *)(v1 + 0x554);
+    FI(0x1C0) = 0;
     f21 = *(float *)(S + 0x114);
-    func_00260568(FP(0), 0, 0x10);
+    do { func_00260568(FP(0), 0, 0x10); } while (0);
+    bx = (char *)*(int *)&work[7];
 
     {
         char *sub;
@@ -691,9 +695,10 @@ L6B4:
             mv = ForMotionViewer_GetCurrentMotion((int)gb, 0xB000);
         LmvB1:;
         }
-        if (mv == 0) {
+        {
             int m2;
             char *gb = (char *)FI(0x30);
+            if (mv != 0) goto LmvEskip;
             if (gb != (char *)D_00629DE8) goto LmvE0;
             m2 = 0;
             goto LmvE1;
@@ -703,9 +708,10 @@ L6B4:
             mv = m2;
             if (mv == 0) {
                 mv = ForMotionViewer_GetCurrentMotion(FI(0x30), 0xC000);
-                if (mv == 0) {
+                {
                     int m4;
                     char *gb2 = (char *)FI(0x30);
+                    if (mv != 0) goto LmvDskip;
                     if (gb2 != (char *)D_00629DE8) goto LmvD0;
                     m4 = 0;
                     goto LmvD1;
@@ -721,8 +727,10 @@ L6B4:
                             mv = ForMotionViewer_GetCurrentMotion(FI(0x30), 0x3000);
                         }
                     }
+                LmvDskip:;
                 }
             }
+        LmvEskip:;
         }
         if (mv != 0) {
             FF(0x34) = f23;
@@ -772,14 +780,15 @@ L6B4:
         s18 = 1;
         {
             unsigned short m186 = mo->u186;
-            if (m186 & 7) {
-                f20 = 60.0f;
-            } else {
-                f20 = 40.0f;
-                if ((mo->u188 >> 26) & 1) {
-                    f20 = 50.0f;
-                }
+            if (!(m186 & 7)) goto Lm40;
+            f20 = 60.0f;
+            goto Lmdone;
+Lm40:
+            f20 = 40.0f;
+            if ((mo->u188 >> 26) & 1) {
+                f20 = 50.0f;
             }
+Lmdone:;
         }
         if (f22 < 120.0f && b6 != 0) {
             char *q;
@@ -867,7 +876,7 @@ L6B4:
             char *w;
             char *anch;
             char *dst;
-            stt = *(int *)(boxp + 0xC);
+            stt = *(int *)(box + 0xC);
             if (stt == 0x10) {
                 char *m6;
                 float fr = 10.0f;
@@ -889,7 +898,7 @@ L6B4:
                     *(int *)((char *)arg4 + 0x16C) = (int)box;
                     stt = *(int *)(box + 0xC);
                 } else {
-                    stt = *(int *)(boxp + 0xC);
+                    stt = *(int *)(box + 0xC);
                 }
             }
             if (stt == 0x11) {
@@ -1273,10 +1282,10 @@ L6B4:
                                 *(float *)((char *)arg4 + 0x90) = cx;
                                 *(float *)((char *)arg4 + 0x94) = cy;
                                 *(float *)((char *)arg4 + 0x98) = cz;
+                                *(int *)((char *)arg3 + 0xC) |= 0x10;
                                 vv = *(int *)((char *)arg3 + 8);
                                 vv &= 0xFEFFFFFF;
                                 vv &= 0xFFBFFFFF;
-                                *(int *)((char *)arg3 + 0xC) |= 0x10;
                                 *(int *)((char *)arg3 + 8) = vv;
                             }
                         }
@@ -1444,7 +1453,7 @@ L6B4:
                             *(float *)(q + 0x734) = *(float *)((char *)arg4 + 0x14);
                             *(float *)(q + 0x740) = 30.0f;
                             *(float *)(q + 0x738) = *(float *)((char *)arg4 + 0x18);
-                            *(int *)(*(char **)(*(char **)(gq + 0x164) + 0x678) + 0x748) = 0;
+                            *(int *)(*(char **)(*(char **)((char *)*(volatile int *)&FI(0x30) + 0x164) + 0x678) + 0x748) = 0;
                         } while (0);
                         *(long long *)(env + 0x468) |= 0x8000LL << 46;
                         if (FI(0x1CC) != 0) {
@@ -1569,16 +1578,24 @@ L6B4:
                             } else {
                                 if (c16b == 1) {
                                     *pt = (int)D_004C6EE0;
-                                    FF(0xB0) = D_004C6F00[0];
-                                    FF(0xB4) = D_004C6F00[1];
-                                    FF(0xB8) = D_004C6F00[2];
+                                    {
+                                        float t2 = D_004C6F00[2];
+                                        float t1 = D_004C6F00[1];
+                                        FF(0xB0) = D_004C6F00[0];
+                                        FF(0xB4) = t1;
+                                        FF(0xB8) = t2;
+                                    }
                                     func_00191FD0(FP(0xC0), D_004C6F10);
                                     *pc = c16b;
                                 } else {
                                     *pt = (int)D_004C6EF0;
-                                    FF(0xB0) = D_004C6F30[0];
-                                    FF(0xB4) = D_004C6F30[1];
-                                    FF(0xB8) = D_004C6F30[2];
+                                    {
+                                        float t2 = D_004C6F30[2];
+                                        float t1 = D_004C6F30[1];
+                                        FF(0xB0) = D_004C6F30[0];
+                                        FF(0xB4) = t1;
+                                        FF(0xB8) = t2;
+                                    }
                                     func_00191FD0(FP(0xC0), D_004C6F20);
                                 }
                                 *pf = 1;
@@ -1620,7 +1637,7 @@ L6B4:
                                             *(float *)(q + 0x794) = *(float *)((char *)arg4 + 0x14);
                                             *(float *)(q + 0x7A0) = 30.0f;
                                             *(float *)(q + 0x798) = *(float *)((char *)arg4 + 0x18);
-                                            *(int *)(*(char **)(*(char **)(gq2 + 0x164) + 0x678) + 0x7A8) = 0;
+                                            *(int *)(*(char **)(*(char **)((char *)*(volatile int *)&FI(0x30) + 0x164) + 0x678) + 0x7A8) = 0;
                                         } while (0);
                                         *(long long *)(env + 0x468) |= 0x8000LL << 48;
                                     }
@@ -1640,15 +1657,16 @@ L6B4:
         if (!(f21 < 30.0f)) goto Lafter;
     Lchainbody:
         {
-            char *fnd3;
             char *hit;
+            char *fnd3;
             char *pp;
-            char *p90 = (char *)FP(0x90);
-            hit = 0;
+            char *p90;
+            p90 = (char *)FP(0x90);
             FF(0x90) = *(float *)((char *)arg4 + 0x10);
             FF(0x94) = *(float *)((char *)arg4 + 0x14);
             FF(0x98) = *(float *)((char *)arg4 + 0x18);
             func_00191DB8(p90, D_00629750);
+            hit = 0;
             fnd3 = (char *)isysGObjSearchFromObjLayoutID(0x15);
             if (fnd3 != 0) {
                 float zero = 0.0f;

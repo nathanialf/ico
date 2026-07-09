@@ -2964,3 +2964,75 @@ glabel ResetStatic2MotionManager
     /* D576C 001D576C 9002BD27 */   addiu     $29, $29, 0x290
 endlabel ResetStatic2MotionManager
 ```
+
+## Resume session 2026-07-09 (worktree agent-aab2f8616e9162da0)
+
+Result: best unchanged at rc606 (driver stall 7/30, verdict iterate at session end).
+Two rc-neutral but ROM-shape-correct edits are now installed in the TU (kept):
+- cases 0x13/0x3: `t = 1.0f;` routed through the reused float temp (ROM keeps
+  1.0 in $f22..$f20 from case head: `qA0[3]=t` / `v110[3]=t` + AddMotionMemorySize
+  w-arg = t). Verified: built now emits `swc1 $f20,172(sp)` exactly like ROM.
+- cases 0x13/0x3 tails: `t = 60.0f;` hoisted before the f_280/f_220 branch;
+  the three rate exprs use `(t / (float)((0x3C - D_00271240[0]*0xA)/D_00271240[1]))`.
+  ROM keeps 60.0 in $f20 across the three uses (mtc1 at 0x42700000 -> f20).
+
+### THE KNOT (why rc606 is stuck): whole-function global-alloc misassignment
+
+ROM callee-saved layout:  b(blend elem)->s5, nd(D_0062C218 elem)->s6, e(mot elem)->s8,
+with s4 and s7 held by case-local classes. Ours: nd->s4, b->s5, e->s6. Nearly all
+606 diffs cascade from this (plus a0/a1 scratch and $f swaps downstream).
+
+Mechanism fully mapped this session (use the disposition oracle, below):
+- gcc 2.9 global-alloc order = floor_log2(refs)*refs/live_length descending
+  (confirmed against the `-dg` dump header "Pass 1 registers ... sorted order").
+- find_reg = FIRST free non-conflicting reg in numeric order s0..s7,s8
+  (no local-avoidance preference: disproved by probe4).
+- Our priorities: nd=2121, b=2112(64 refs exactly at the log2(64) boundary!),
+  e=1862. Trio positions 54/55/59 of 135 global allocnos.
+- b->s5 in ROM requires an s4-taker with pri>2112 conflicting b (i.e. anything);
+  nd->s6 additionally requires b before nd (nd refs-1 flips it: `default: goto
+  sin_tail` single-source-site = T1, rc668 standalone) plus an nd-conflicting
+  (case-head-live) s4/s5 blocker; e->s8 requires two e-conflicting blockers on
+  s6/s7 (deep-case-0x13/0x2D-live allocnos with pri in (1862, ~2100)).
+
+### Fold experiments (dev_data_model "fold to ONE" costume):
+- int-scratch fold (function-scope q/n/i): b LOCKS to s5 correctly, e s6->s7
+  (i-shared 15refs/238=pri1890 takes s6 pre-e). rc 612.
+- full scratch fold (+pv/w/w2/s0/t/rot/ang/len2): e LANDS ON s8 (mem wrongly
+  gets a reg though). rc 763.
+- qa/qb fold: qa-shared = 76refs/1277 pri 3570 -> takes s3 pre-trio. rc 769.
+- The rc regressions are insn-level traffic changes (spill/copy shapes), not the
+  trio: the right subset is BETWEEN int-fold and full-fold. Missing pieces:
+  (1) an s4-taker with pri>2112 (nothing legit found yet — all per-case pointer
+  temps top out ~2884 but their own conflicts don't reach past s3);
+  (2) a second e-conflicting s7 blocker in (1862,2100);
+  (3) mem must stay spilled (0x1A0 reloads) once regs free up.
+
+### ROM micro-evidence for the dev shapes (found, partially applied):
+- per-arm `q1p = b->q1` materialization in 0x13 (3 arms + both loop sub-arms),
+  0x14, 0x16 (applied this session; rc-neutral at 607->606 with rest).
+- case-0x13 loop-arm bundle: pv(spill 0x1B8), q1p, v120p(spill 0x1BC),
+  v70p(s3), qF0p(s4!), v110p(s7!), qn=v130(s2); tbl0=D_00271BF0 (s1) set after
+  the merge; fzero(f21)=0.0 set after DebugDisp1 jal. (Tried as H3b: rc708 while
+  trio still wrong — retry AFTER the trio is fixed, order matters.)
+- pv spill slot 0x1B8 is SHARED by cases 0x13 and 0x3 => pv really is ONE
+  function-scope variable in dev (seed already has this).
+- case-2D: qb spilled to 0x1B0; qa-2D = s7 in ROM (the e-blocker!); i-2D on s5
+  (shares dead-b), w170->s4, w190->s3. Case-2D loop cluster is the s7-chain.
+- case-0x13 head: qa spilled to 0x1A4, qb to 0x1A8 (first spill slots after mem).
+- case 0x1: hold=0 is zeroed BEFORE the n==1 branch (tried alone: rc635 — only
+  works with the rest of the knot).
+
+### Tooling for resume (fast, no driver roundtrip):
+Disposition oracle (~20s): compile the TU with `-dl`/`-dg` using
+tools/cc/ee-gcc2.9-991111 and grep the `.greg` "Register dispositions:" for
+pseudos 86(e)/87(b)/88(nd): target `87 in 21, 88 in 22, 86 in 30`.
+The `.greg` dump also prints the exact allocation order ("N regs to allocate:")
+and per-allocno conflict lists (";; N conflicts: ...") — simulate find_reg
+directly instead of guessing. Script kept at (scratchpad)/oracle.sh pattern:
+see notes in this file.
+
+Levers tried this session (driver ledger): T1 default-goto (668), hold=0 hoist
+(635), per-arm q1p (607), 0x13 bundle (708), pv loop-arm scoping (607),
+t=1.0f routing (606=), t=60.0f routing (606=), scratch-fold (763),
+int-fold (612). Best remains 606; stall 7/30 at handoff.
