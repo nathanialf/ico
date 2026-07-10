@@ -594,7 +594,13 @@ void func_00162808(volatile unsigned int a0)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", flyMailCore);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_00162CC4);
+void func_00162CC4(int a0) {
+    int *p = *(int **)(a0 + 0x164);
+    if (p[0xD0] == 0) {
+        p[0xD0] = 1;
+    }
+}
+
 
 extern void debug_assertMessage(char *p);
 extern unsigned int _ACTWait(int a0);
