@@ -304,7 +304,7 @@ static inline int EnvAssistTail(float *tmp, char *anch, char *dst, float ascale)
     EnvAssistLoop((acc_), S, dst2); \
     if (box != 0) { \
         *(float *)(dst2 + 0xC) = 1.0f; \
-        func_0023FDD8(dst2, (void *)*(int *)(*(char **)(box + 0x15C) + 0xC), dst2); \
+        func_0023FDD8(dst2, (void *)*(int *)(*(char **)((char *)*(volatile int *)&work[7] + 0x15C) + 0xC), dst2); \
     } \
     EnvAssistTail((tmp_), anch, dst2, (ascale_)); \
 }
@@ -452,9 +452,9 @@ void func_001FA3D0(void *arg0, void *arg1, int arg2, void *arg3, void *arg4) {
 #define FI_0x1DC w1DC
     float f20, f21, f22, f23, f24, f25;
     char *w70;
+    char *bx;
     char *g90;
     char *t80v;
-    char *bx;
     char *env;
     int s6, s7;
     void *found;
@@ -467,6 +467,8 @@ void func_001FA3D0(void *arg0, void *arg1, int arg2, void *arg3, void *arg4) {
     S = (char *)arg0;
     env = *(char **)(S + 0x164);
     FI(0x1A8) = arg2;
+    {
+    int c16 = 0x10;
     v1 = *(char **)(S + 0x15C);
     S = *(char **)(env + 0x110);
     FI(0x1AC) = *(int *)(v1 + 0x170);
@@ -483,7 +485,8 @@ void func_001FA3D0(void *arg0, void *arg1, int arg2, void *arg3, void *arg4) {
     s7 = *(int *)(v1 + 0x564);
     f21 = *(float *)(S + 0x114);
     s6 = *(int *)(v1 + 0x554);
-    do { func_00260568(FP(0), za, 0x10); } while (0);
+    do { func_00260568(FP(0), za, c16); } while (0);
+    }
     bx = (char *)*(int *)&work[7];
 
     {
@@ -522,11 +525,13 @@ void func_001FA3D0(void *arg0, void *arg1, int arg2, void *arg3, void *arg4) {
     {
         long long ll18 = *(long long *)(env + 0x18);
         long long b20 = *(long long *)(env + 0x20);
+        int bit20;
         ll18 &= 0xFFFFFF7FFFFFFFFFLL;
         ll18 &= 0xFFFFFEFFFFFFFFFFLL;
+        bit20 = (int)((b20 << 0x1E) >> 0x20) & 1;
         ll18 &= 0xDFFFFFFFFFFFFFFFLL;
         *(long long *)(env + 0x18) = ll18;
-    if ((int)((b20 << 0x1E) >> 0x20) & 1) {
+    if (bit20) {
         f25 = 100.0f;
         FI(0x1BC) = 0;
     } else {
@@ -786,13 +791,12 @@ L6B4:
         }
         }
         {
-            char *gb2v;
+            gb = (char *)FI(0x30);
+            *(int *)(env + 0x174) = *(int *)(*(char **)(gb + 0x15C) + 0x5E4);
             *(float *)(env + 0x170) = FF(0x34);
-            gb2v = (char *)FI(0x30);
-            *(int *)(env + 0x174) = *(int *)(*(char **)(gb2v + 0x15C) + 0x5E4);
             if (f22 < 40.0f) {
                 *(long long *)(env + 0x18) |= 0x8000LL << 24;
-                if (func_00191D90(subCommonIdle(gb2v), arg4) >= 0x88) {
+                if (func_00191D90(subCommonIdle(gb), arg4) >= 0x88) {
                     *(long long *)(env + 0x18) |= 0x8000LL << 25;
                 }
             }
@@ -904,16 +908,17 @@ L6B4:
                 float fr = 10.0f;
                 if ((char *)FI(0x30) == (char *)D_00629DE4) fr = 30.0f;
                 m6 = *(char **)((char *)FI(0x30) + 0x164);
+                w70 = (char *)FP(0x70);
                 ((union LLAlias *)FP(0x70))->ll = *(long long *)&D_006138D0[0];
                 ((union LLAlias *)FP(0x78))->ll = *(long long *)&D_006138D0[8];
                 *(float *)(m6 + 0x550) = *(float *)(m6 + 0x4A0);
                 *(float *)(m6 + 0x554) = *(float *)(m6 + 0x4A4);
                 *(float *)(m6 + 0x558) = *(float *)(m6 + 0x4A8);
                 if ((char *)FI(0x30) == (char *)D_00629DE4) FF(0x70) = -FF(0x70);
-                FF(0x7C) = 1.0f;
+                *(float *)(w70 + 0xC) = 1.0f;
                 func_0023FDD8(m6 + 0x5A0,
                               (void *)*(int *)(*(char **)(box + 0x15C) + 0xC),
-                              FP(0x70));
+                              w70);
                 debug_Marker(env + 0x5A0, 0, 0xFF, 0, 100.0f);
                 if (RotateAccordingToStick_PatternThree((int)FP(0), env + 0x5A0) < fr * fr) {
                     *(int *)((char *)arg3 + 4) |= 1;
@@ -954,7 +959,7 @@ L6B4:
             if (stt == 0x17) {
                 if (EnableMotionOrientUpdate(FI(0x30), 0x500)) {
                     *(int *)((char *)arg3 + 8) |= 1;
-                    *(int *)((char *)arg4 + 0x150) = FI(0x1B0);
+                    do { *(int *)((char *)arg4 + 0x150) = FI(0x1B0); } while (0);
                     *(int *)((char *)arg4 + 0x14C) = (int)box;
                     EnvWallAssistVec(FV(0x80), FV(0x70), (void *)FI(0x30), (char *)arg4 + 0xF0, 5.0f);
                     stt = *(int *)(box + 0xC);
@@ -1211,10 +1216,8 @@ L6B4:
                     char *e8;
                     if (f24 > 1000.0f) {
                         ((union IFAlias *)((char *)arg3 + 8))->i |= 0x800000;
-                        e8 = (char *)FI(0x1A8);
-                    } else {
-                        e8 = (char *)FI(0x1A8);
                     }
+                    e8 = (char *)FI(0x1A8);
                     g90 = (char *)FP(0x60);
                     {
                     float cy = ((union IFAlias *)(e8 + 4))->f;
@@ -1280,11 +1283,12 @@ L6B4:
                 *(int *)((char *)arg3 + 8) =
                     ((*(int *)((char *)arg3 + 8) & 0xFEFFFFFF) | ((FI(0x1BC) & 1) << 24)) | 0x400000;
                 g90 = (char *)FP(0x60);
-                e8 = (char *)FI(0x1A8);
                 {
-                    float cy = ((union IFAlias *)(e8 + 4))->f;
-                    float cz = ((union IFAlias *)(e8 + 8))->f;
-                    float cx = ((union IFAlias *)(e8 + 0))->f;
+                    float cy, cz, cx;
+                    e8 = (char *)FI(0x1A8);
+                    cy = ((union IFAlias *)(e8 + 4))->f;
+                    cz = ((union IFAlias *)(e8 + 8))->f;
+                    cx = ((union IFAlias *)(e8 + 0))->f;
                     FF(0x60) = cx;
                     FF(0x64) = cy;
                     FF(0x68) = cz;
@@ -1405,7 +1409,7 @@ L6B4:
                     } else if (f24 < 255.0f) {
                         f22 = 160.0f;
                         ccat = 0xC8;
-                    } else if (f24 < D_00629734) {
+                    } else if (f24 < *(volatile float *)&D_00629734) {
                         f22 = 160.0f;
                         ccat = 0x12C;
                     }
@@ -1445,19 +1449,14 @@ L6B4:
                     FF(0xB4) = FF(0xB4) + f24;
                     _OrientGV(FP(0xC0), (void *)FI(0x1C8));
                     fnd = (char *)isysGObjSearchFromObjLayoutID(0x11);
-                    if (fnd != 0) {
-                        float z2;
-                        f20 = 100.0f;
-                        z2 = 0.0f;
-                        do {
+                    while (fnd != 0) {
                         if (*(int *)(fnd + 0x16C) != 0 && ExecBoxMoveEndReaction(fnd) != 7) {
                             float d;
                             EnvGetPos((float *)FP(0x100), fnd);
                             if (RotateAccordingToStick_PatternThree((int)FP(0xB0), FP(0x100)) < D_00629738) {
                                 d = FF(0xB4) - FF(0x104);
-                                z2 = 0.0f;
-                                if (d < z2) d = -d;
-                                if (!(d > f20)) {
+                                if (d < 0.0f) d = -d;
+                                if (!(d > 100.0f)) {
                                     func_00240008(FP(0x110), (void *)FI(0x1C4), FP(0x100));
                                     ((union IFAlias *)&FI(0x11C))->i = 0;
                                     func_0023FDD8(FP(0x120), FP(0xC0), FP(0x110));
@@ -1469,7 +1468,6 @@ L6B4:
                             }
                         }
                         fnd = (char *)isysGObjSearchFromObjKindID_begin(fnd);
-                        } while (fnd != 0);
                     }
                 }
                 if (ccat != 0 && f22 < f23) {
@@ -1751,10 +1749,10 @@ L6B4:
             Lgot3:;
             }
             {
-                char *cnd = (char *)FI(0x1C0);
-                if (cnd != 0) {
+                boy = (char *)FI(0x1C0);
+                if (boy != 0) {
                 t80v = (char *)FP(0xC0);
-                pp = (char *)ContinueCorrectPosition(cnd);
+                pp = (char *)ContinueCorrectPosition(boy);
                 func_00240008(t80v, pp, (void *)FI(0x1C4));
                 FI(0xC4) = 0;
                 if (0.0f < func_0023FE70(t80v, (void *)FI(0x1C8))) {
@@ -1774,8 +1772,12 @@ L6B4:
         }
     Lafter:;
     }
+    {
+    int e30;
+    char *me;
     ForMotionViewer_GetCurrentAnimationFrame(FI(0x30), 0x200);
-    if ((char *)FI(0x30) == (char *)D_00629DE8 && *(int *)(env + 0x30) == 0x45) {
+    e30 = *(int *)(env + 0x30);
+    if ((char *)FI(0x30) == (char *)D_00629DE8 && e30 == 0x45) {
         long long ll6;
         float e = -EnableChangeRootUpdateMode((void *)D_00629DE4, (void *)FI(0x30));
         ll6 = *(long long *)(env + 0x470);
@@ -1787,27 +1789,31 @@ L6B4:
                 *(long long *)(env + 0x478) |= 2;
             }
         }
-        if ((int)(ll6 << 20 >> 32) & 1) {
-            if (e > 60.0f) {
-                if (*(int *)(*(char **)((char *)D_00629DE4 + 0x164) + 0x30) == 0x37) {
-                    *(long long *)(env + 0x478) |= 4;
+        do {
+            if ((int)(ll6 << 20 >> 32) & 1) {
+                if (e > 60.0f) {
+                    if (*(int *)(*(char **)((char *)D_00629DE4 + 0x164) + 0x30) == 0x37) {
+                        *(long long *)(env + 0x478) |= 4;
+                    }
                 }
             }
-        }
-        if ((int)(ll6 << 19 >> 32) & 1) {
-            if (e > 195.0f) s6 = 1;
-        }
+        } while (0);
+        do {
+            if ((int)(ll6 << 19 >> 32) & 1) {
+                if (e > 195.0f) s6 = 1;
+            }
+        } while (0);
     }
+    e30 = *(volatile int *)(env + 0x30);
     if ((char *)D_00629DE8 != 0) {
         *(long long *)(env + 0x468) |= 0x8000LL << 30;
     }
     if (*(int *)(env + 0x160) != 0) {
         *(long long *)(env + 0x470) |= 0x8000LL << 22;
     }
-    {
-    char *me = (char *)*(volatile int *)&FI(0x30);
+    me = (char *)*(volatile int *)&FI(0x30);
     if (me == (char *)*(void *volatile *)&D_00629DE4 &&
-        *(int *)(env + 0x30) != 0xE) {
+        e30 != 0xE) {
         char *w;
         if (*(int *)(env + 0x130) != 0) {
             w = (char *)WeaponHitEffect((void *)*(int *)(env + 0x130), 150.0f);
@@ -1825,12 +1831,17 @@ L6B4:
                 (func_00191D90(FP(0x70), (void *)FI(0x1A8)) >= 0x2D &&
                  RotateAccordingToStick_PatternThree((int)FP(0x60), FP(0x10)) < 900.0f)) {
                 ((union LLAlias *)(env + 0x468))->ll |= 0x8000LL << 36;
+                e30 = *(int *)(env + 0x30);
                 *(int *)((char *)arg4 + 0x158) = (int)w;
+            } else {
+                e30 = *(int *)(env + 0x30);
             }
+        } else {
+            e30 = *(int *)(env + 0x30);
         }
     }
-    if ((unsigned int)*(int *)(env + 0x30) < 0x3B) {
-        if ((unsigned int)*(int *)(env + 0x30) >= 0x39) {
+    if ((unsigned int)e30 < 0x3B) {
+        if ((unsigned int)e30 >= 0x39) {
             isStopChain((void *)*(int *)(env + 0x180), FP(0x19C), FP(0x1A0), FP(0x1A4));
             if (0.0f < FF(0x19C)) {
                 *(long long *)(env + 0x470) |= 0x8000LL << 36;
@@ -1880,7 +1891,7 @@ L6B4:
         } else {
             char *mc;
             int one;
-            do { mc = (char *)FI(0x30); one = 1; *(long long *)(env + 0x470) |= 0x400; } while (0);
+            do { *(long long *)(env + 0x470) |= 0x400; mc = (char *)FI(0x30); one = 1; } while (0);
             *(char *)(*(char **)(*(char **)(mc + 0x164) + 0x670) + 0x280) = (char)one;
         }
     }
