@@ -1209,6 +1209,7 @@ L6B4:
                     } else {
                         e8 = (char *)FI(0x1A8);
                     }
+                    g90 = (char *)FP(0x60);
                     {
                     float cy = ((union IFAlias *)(e8 + 4))->f;
                     float cz = ((union IFAlias *)(e8 + 8))->f;
@@ -1218,10 +1219,10 @@ L6B4:
                     FF(0x68) = cz;
                     }
                 }
-                func_00240038(FP(0x60), FP(0x60), f21);
+                func_00240038(g90, g90, f21);
                 f20 = 5.0f;
                 GetRootMatrixByDObj(FP(0x70), (void *)FI(0x30));
-                func_0023FFF0((char *)arg4 + 0x40, FP(0x70), FP(0x60));
+                func_0023FFF0((char *)arg4 + 0x40, FP(0x70), g90);
                 if (f21 > f20) {
                     if (ForMotionViewer_GetCurrentAnimationFrame(FI(0x30), 0xF000)) {
                         if ((float)a > 20.0f) {
@@ -1270,6 +1271,7 @@ L6B4:
         case 3:
             if (f21 < 40.0f && f24 > 1000.0f) {
                 char *e8 = (char *)FI(0x1A8);
+                g90 = (char *)FP(0x60);
                 *(int *)((char *)arg3 + 8) =
                     ((*(int *)((char *)arg3 + 8) & 0xFEFFFFFF) | ((FI(0x1BC) & 1) << 24)) | 0x400000;
                 {
@@ -1280,10 +1282,10 @@ L6B4:
                     FF(0x64) = cy;
                     FF(0x68) = cz;
                 }
-                func_00240038(FP(0x60), FP(0x60), f21 + 10.0f);
+                func_00240038(g90, g90, f21 + 10.0f);
                 f20 = 5.0f;
                 GetRootMatrixByDObj(FP(0x70), (void *)FI(0x30));
-                func_0023FFF0((char *)arg4 + 0x40, FP(0x70), FP(0x60));
+                func_0023FFF0((char *)arg4 + 0x40, FP(0x70), g90);
                 if (f21 > f20) {
                     if (ForMotionViewer_GetCurrentAnimationFrame(FI(0x30), 0xF000)) {
                         if ((float)a > 20.0f) {
@@ -1818,8 +1820,9 @@ L6B4:
         }
     }
     if ((char *)FI(0x30) == (char *)D_00629DE4 && (char *)D_00629DE8 != 0) {
+        char *me3 = (char *)*(volatile int *)&FI(0x30);
         if (*(int *)(*(char **)((char *)D_00629DE8 + 0x164) + 0x30) == 0x6B) {
-            char *g = *(char **)((char *)FI(0x30) + 0x124);
+            char *g = *(char **)(me3 + 0x124);
             if (*(int *)(*(char **)(g + 0x164) + 0x30) == 0x64) {
                 if (GetDifferenceFromWallUpperPlane(g)) {
                     if (func_00143DE0((void *)FI(0x30), (void *)D_00629DE8, 0x78, FP(0x60),
