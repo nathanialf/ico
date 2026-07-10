@@ -1445,14 +1445,19 @@ L6B4:
                     FF(0xB4) = FF(0xB4) + f24;
                     _OrientGV(FP(0xC0), (void *)FI(0x1C8));
                     fnd = (char *)isysGObjSearchFromObjLayoutID(0x11);
-                    while (fnd != 0) {
+                    if (fnd != 0) {
+                        float z2;
+                        f20 = 100.0f;
+                        z2 = 0.0f;
+                        do {
                         if (*(int *)(fnd + 0x16C) != 0 && ExecBoxMoveEndReaction(fnd) != 7) {
                             float d;
                             EnvGetPos((float *)FP(0x100), fnd);
                             if (RotateAccordingToStick_PatternThree((int)FP(0xB0), FP(0x100)) < D_00629738) {
                                 d = FF(0xB4) - FF(0x104);
-                                if (d < 0.0f) d = -d;
-                                if (!(d > 100.0f)) {
+                                z2 = 0.0f;
+                                if (d < z2) d = -d;
+                                if (!(d > f20)) {
                                     func_00240008(FP(0x110), (void *)FI(0x1C4), FP(0x100));
                                     ((union IFAlias *)&FI(0x11C))->i = 0;
                                     func_0023FDD8(FP(0x120), FP(0xC0), FP(0x110));
@@ -1464,6 +1469,7 @@ L6B4:
                             }
                         }
                         fnd = (char *)isysGObjSearchFromObjKindID_begin(fnd);
+                        } while (fnd != 0);
                     }
                 }
                 if (ccat != 0 && f22 < f23) {
