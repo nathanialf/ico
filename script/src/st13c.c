@@ -34,6 +34,8 @@ void actSt13cEnd(volatile int a0){
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cBmg1);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", func_00227FA0);
+
 void actSt13cBmg1Chk(int a0) {
     int buf[4];
     buf[0] = a0;
@@ -186,6 +188,8 @@ void actSt13cGirlCarryChk(volatile int a0){
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cHandChk);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", func_00228710);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cHandJimaku);
 
 
@@ -203,6 +207,8 @@ void actSt13cCageDown(volatile int a0){
  while(func_0012A958(0x155)==0) _ACTWait(1); _ACTWait(1); lt_fade_status(0x32); D_0062A894=0; }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cCageFallReady);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", func_00228950);
 
 extern void AddWayPointTop(int a0, int a1);
 
