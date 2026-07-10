@@ -1,6 +1,36 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cEnd);
+typedef struct GObj {
+    char pad[0xB4];
+    int *unkB4;
+} GObj;
+
+extern void BoxBarSoundOn(int a0, int a1);
+
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void func_00178DD8(int a0);
+extern void actSt25aQueenBeforeChk(int a0, int a1, int a2, float f);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int D_004CC1E0[];
+extern void func_00214468(void);
+
+void actSt04cEnd(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x7D) == 0) {
+        func_00178DD8(0x163);
+        actSt25aQueenBeforeChk(0, 0, 0, 255.0f);
+        stage_KillPlayBgAnimation(0x103, 0, -1);
+        D_004CC1E0[1] = (int)func_00214468;
+        gobj->unkB4 = D_004CC1E0;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    }
+}
+
 
 extern int actInitialize(int a0);
 extern void _ACTWait(int a0);
@@ -15,11 +45,54 @@ void actSt04cDoorDownChk(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04lDoorChk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cSolarXL);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04lDoor);
+extern void func_0012AAB8(int a0, int a1);
+extern int D_004CC1A0[];
+extern void actSt04bGirlWay(void);
+void actSt04cSolarXL(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x80) == 0) {
+        stage_KillPlayBgAnimation(0xF3, 0, -1);
+        stage_KillPlayBgAnimation(0xF4, 0, -1);
+        stage_KillPlayBgAnimation(0xF5, 0, -1);
+        func_0012AAB8(0x1E3, 0);
+        D_004CC1A0[1] = (int)actSt04bGirlWay;
+        gobj->unkB4 = D_004CC1A0;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    } else {
+        func_0012AAB8(0x1E3, 0);
+    }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cIntro);
+
+extern int D_004CC160[];
+extern void actSt04cEnemy2(volatile int a0);
+void actSt04lDoor(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    D_004CC160[1] = (int)actSt04cEnemy2;
+    gobj->unkB4 = D_004CC160;
+    BoxBarSoundOn(a0, 0x189);
+    _ACTWait(0);
+}
+
+
+extern int D_004CC220[];
+extern void actSt04cDoorDownEffect(volatile int a0);
+
+void actSt04cIntro(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    D_004CC220[1] = (int)actSt04cDoorDownEffect;
+    gobj->unkB4 = D_004CC220;
+    BoxBarSoundOn(a0, 0x189);
+    _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cDoorDown);
 
@@ -142,9 +215,44 @@ void func_00215D10(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", func_00215D70);
+extern int D_004CC240[];
+extern void actSt04cEneChk(volatile int a0);
+extern void warpGirlInStage(float a0, float a1, float a2);
+extern volatile float D_006298A8;
+extern volatile float D_006298AC;
+void func_00215D70(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x8E) == 0) {
+        stage_KillPlayBgAnimation(0xA9, 0, 0);
+        D_004CC240[1] = (int)actSt04cEneChk;
+        gobj->unkB4 = D_004CC240;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    } else {
+        stage_KillPlayBgAnimation(0xA9, 0, -1);
+        if (func_00178DB0(0x9B) == 0) {
+            warpGirlInStage(D_006298A8, D_006298AC, 0.0f);
+        }
+    }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", func_00215E30);
+
+extern int D_004CC260[];
+extern void actSt04cIntroChk(volatile int a0);
+void func_00215E30(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x8C) == 0) {
+        D_004CC260[1] = (int)actSt04cIntroChk;
+        gobj->unkB4 = D_004CC260;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    }
+}
+
 
 extern void Generator_Mask(int a0);
 extern void Generator_MaskOff(int a0);
