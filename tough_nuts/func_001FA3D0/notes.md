@@ -1802,3 +1802,50 @@
 endlabel func_001FA3D0
     /* FE0A4 001FE0A4 00000000 */  nop
 ```
+
+## Session 9 (2026-07-09, Fable-5 worktree agent-ac4162f84c8d45f57): rc521 -> rc485 (-36). Seed UPDATED to 485. Verdict iterate, stall 3/30 at close (iter 42).
+
+### Adopted levers (all in the 485 seed), with rc deltas:
+1. **521->520**: reuse dead fn-scope FLOAT VAR: `f24 = D_00629754;` before the 0x15-search loop,
+   compare `Rotate(...) < f24` (ROM keeps it in $f24 across iters; a NEW `float rlim` local rotates
+   the zero/70/100 const letters instead — must reuse the EXISTING dead var).
+2. **520->518**: move `f24 = D_00629754;` to the TOP of the `if (fnd3 != 0)` block (ROM loads it first).
+3. **518->517**: torch trio decl/init ORDER `t30v,t23v,t22v` — flips t30v to s8 (ROM).
+4. **517->515**: torch trio order `t30v,t22v,t23v` — snaps t22v->s6 / t23v->s7 (full ROM map).
+5. **515->514**: store order `FI(0x1C0) = found;` BEFORE `arg4+0x160 = found;` (ROM order).
+6. **514->507**: 0x37 test (D_00629C90==7 block): read D_00629DE4 via
+   `*(void *volatile *)&D_00629DE4` — ROM re-loads 0(gp) per use; gcse was caching ours (-7!).
+7. **507->500**: wv ternaries (ForMotionViewer 0x50 block): drop pre-loaded `wv` var, put the
+   `*(...)` LOAD EXPRESSION inline in BOTH ternary arms (condition branches FIRST in ROM) (-7).
+8. **500->485**: refine #7: compute `float *wp = (float *)(*(char **)(FI30+0x15C)+0x634);` BEFORE
+   the ternary, deref `*wp` per-arm — the lwc1 unifies into the bne delay (-15!).
+Also kept (rc-neutral, ROM-shaped): `hit = 0;` moved before the func_00191DB8 call; 1772 test via
+fresh volatile FI(0x30) + volatile D_00629DE4 reads.
+
+### Session-9 pattern discovery (BIG): the dev REUSES dead variables and re-reads globals/fields
+at test sites. Three distinct manifestations paid off: (a) dead fn-scope float var re-assigned to a
+new constant (f24/f20 family), (b) fresh volatile global reads at == tests (D_00629DE4/DE8 class),
+(c) condition-first ternaries with per-arm loads (wp/wv class). HUNT MORE OF THESE.
+
+### NEW negatives (do NOT retry):
+- box slot 428: volatile work[7] macro in current context = 675 (+154; damage exp 1000-1400 —
+  the bx reload-rotation region); PLAIN work[7] macro = 711/718 (gcse webs it, damage same region);
+  `*(const int *)&work[7]` and const-union-field reads DO NOT set RTX_UNCHANGING (no mem/u in
+  .lreg; probed) => REG_EQUIV(428) unreachable from source. The 27x lw 428-vs-476 class + (476,456)x2
+  = bx architectural floor stands. The 1100/1300 giant differ blocks are THIS class amplified
+  (arm order verified identical via li/ori scans — no real layout swap).
+- b6b dead-store theory for the 190/210 dead-compare: gcc DCEs BOTH compares entirely (0 emissions;
+  probed `b6=b6`, bare `;`, `b6b=b6b` all delete). ROM's naked c.lt.s @FAEF0 remains unexplained.
+- mv-chain flat goto-CFG with gb/de8 threading + unified Lgotmv f23 store: 758 (+273). Nested stays.
+- 0x11-search loop as goto-loop (kill licm): 773; with-f20-reuse-only: 529. do-while for the 0x15
+  goto-loop: 743 (licm hoists matched consts). Loop spellings are LOCKED as-is.
+- g70 whole-func hoist at entry: 917. tp2=tp / tp2-shared-across-torches: neutral / 530.
+- rz multi-set {0.0f,-v2} for the f12-zero twins: neutral (local-alloc qtys split; no f12 pref).
+- 1744/1766 volatile D_00629DE8 reads: +3 each (those sites' gp-caching is correct; letters only).
+- ccat switch case-order swap (0xC8 first): +1. b3-through-temp: 742. v5 xor operand swap: neutral
+  (the queued session-8 idea — canonicalized, no change).
+
+### Residual at 485 (~300 sites): 27x bx 428/476 + 2x (476,456) [architectural]; s1<->s2 addr-temp
+class (~18); a0<->a1/a2 caller-save gp-load rotation (~20); v0/v1/t0/t1 rotations; FP letter pairs
+(f12-zero twins, f1/f2 vec pairs); ~10 sched2 1-slot slips (sw-in-delay, and/lui order); entry knot
+(~54, documented allocno tie); mv-chain arm placement (~15, jump.c reversal).
