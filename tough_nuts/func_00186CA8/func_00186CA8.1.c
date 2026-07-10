@@ -542,7 +542,58 @@ extern int C_0062C048 __asm__("D_0062C048");
 extern int C_0062C04C __asm__("D_0062C04C");
 extern int C_0062C050 __asm__("D_0062C050");
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-ico2", func_00186CA8);
+void func_00186CA8(S4C *src, int count) {
+    S4C *dst;
+    int size;
+    int i;
+    S4C *p;
+    S4C *si;
+    S4C **new_var;
+    int total;
+    S4C *sEnd;
+    S5C *out;
+    int outBase;
+
+    if (D_0062C044 != 0) {
+        iosMallocCheckLeak2(D_0062C044);
+    }
+    size = count * 0x4C;
+    p = src;
+    for (i = 0; i < count; i++) {
+        size += (p->w[15] - p->w[14]) * 0x5C;
+        p++;
+    }
+    dst = (S4C *)iosFree(D_0062A328, size, D_00554B00, 0x606);
+    D_0062C044 = (int)dst;
+    C_0062C048 = (int)dst;
+    C_0062C050 = count;
+    total = 0;
+    out = (S5C *)(dst + count);
+    outBase = (int)out;
+    sEnd = src + count;
+    C_0062C04C = outBase;
+    si = src;
+    new_var = &sEnd;
+    if (si == *new_var) {
+        return;
+    }
+    do {
+        S5C *is;
+        *dst = *si;
+        dst->w[14] = total;
+        dst->w[18] = outBase;
+        is = (S5C *)si->w[18] + si->w[14];
+        while (is != (S5C *)si->w[18] + si->w[15]) {
+            *out = *is;
+            out++;
+            total++;
+            is++;
+        }
+        dst->w[15] = total;
+        dst++;
+        si++;
+    } while (si != sEnd);
+}
 
 
 extern int D_0062C044;
