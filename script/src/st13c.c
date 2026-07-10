@@ -1,5 +1,7 @@
 #include "common.h"
 
+typedef struct ActB4Obj { char pad[0xB4]; int *unkB4; } ActB4Obj;
+
 extern int actInitialize(int a0);
 extern void Generator_Mask(int a0);
 extern void Generator_MaskOff(int a0);
@@ -82,6 +84,8 @@ void actSt13cCage1stDown(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cCageFall);
 
+
+
 #include "common.h"
 struct CFS { long long a, b; };
 extern struct CFS D_00614BB0;
@@ -102,9 +106,35 @@ void actSt13cCageFallChk(volatile int a0) {
     func_00179710(a0, 0x4D, 0x154, 0, 0x12, D_0062992C, -100.0f, D_00629928, D_00629930, -100.0f, D_00629928);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cConte05);
+extern void lt_fade_status(int a0);
+extern void scpPlayStart(int a0, int *a1, int a2, int a3, int a4);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int func_0012AA28(int a0, int a1, int a2);
+extern void iosPadDevRead(int a0, int a1);
+extern int func_0012A958(int a0);
+extern int D_0062BD6C;
+extern int D_00629DEC;
+extern int D_0062A894;
+void actSt13cConte05(volatile int a0){
+    lt_fade_status(0x33);
+    func_00178DD8(0x4F);
+    _ACTWait(0x3C);
+    scpPlayStart(0x58, &D_0062BD6C, 1, 1, 1);
+    while (D_0062BD6C == 0) { _ACTWait(1); }
+    stage_KillPlayBgAnimation(0x156, 1, 0);
+    while (func_0012AA28(0x156, 0x73, 0) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    iosPadDevRead(D_00629DEC, 0x11);
+    while (func_0012AA28(0x156, 0xA5, 0) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    iosPadDevRead(D_00629DEC, 0x10);
+    while (func_0012A958(0x156) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    D_0062A894 = 0;
+    lt_fade_status(0x32);
+}
 
-typedef struct ActB4Obj { char pad[0xB4]; int *unkB4; } ActB4Obj;
+
 extern void BoxBarSoundOn(int a0, int a1);
 extern int D_004CD830[];
 extern void actSt13cHandChk(volatile int a0);
@@ -158,6 +188,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cHandChk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cHandJimaku);
 
+
 void actSt13cSleep(int a0) {
     int buf[4];
     buf[0] = a0;
@@ -189,4 +220,39 @@ void actSt13cEnemy(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cEnemyNull);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cSekizo);
+
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void func_001790A8(int a0);
+extern void gflagOff(int a0, int a1);
+extern void actSt25aGenerator(int a0, float f0, float f1, float f2);
+extern void func_00178E08(int a0);
+extern int D_0062BD70;
+extern int D_00271240[];
+extern int D_004CD9F0[];
+extern void actSt17aDoorUpChk(volatile int a0);
+void actSt13cSekizo(volatile int a0){
+    ActB4Obj *obj = *(ActB4Obj **)(a0 + 0x164);
+    if (func_00178DB0(0x108) == 0) goto B00;
+    if (D_00629DE8 == 0) goto B00;
+    if (scpSleepSpiderGroupOne(D_00629DE8, 0x3000000) == 0) goto B00;
+    actSt25aGenerator(D_00629DE8, -196.0f, -72.0f, 62.0f);
+    func_001790A8(D_00629DE8);
+    gflagOff(D_00629DE8, 0x202);
+B00:
+    scpPlayStart(0x59, &D_0062BD70, 1, 1, 1);
+    while (D_0062BD70 == 0) { _ACTWait(1); }
+    stage_KillPlayBgAnimation(0x157, 1, 0x5A);
+    AddWayPointTop(0x14, 1);
+    AddWayPointTop(0x15, 1);
+    AddWayPointTop(0x16, 0);
+    AddWayPointTop(0x17, 0);
+    func_00178E08(0x107);
+    while (func_0012AA28(0x157, 0xB4, 1) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    _ACTWait((0x3C - D_00271240[0] * 0xA) / D_00271240[1] * 0xB);
+    D_004CD9F0[1] = (int)actSt17aDoorUpChk;
+    obj->unkB4 = D_004CD9F0;
+    BoxBarSoundOn((int)a0, 0x189);
+    _ACTWait(0);
+}
+
