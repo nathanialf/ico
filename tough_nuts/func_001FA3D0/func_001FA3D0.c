@@ -792,8 +792,8 @@ L6B4:
         }
         {
             gb = (char *)FI(0x30);
+            do { *(float *)(env + 0x170) = FF(0x34); } while (0);
             *(int *)(env + 0x174) = *(int *)(*(char **)(gb + 0x15C) + 0x5E4);
-            *(float *)(env + 0x170) = FF(0x34);
             if (f22 < 40.0f) {
                 *(long long *)(env + 0x18) |= 0x8000LL << 24;
                 if (func_00191D90(subCommonIdle(gb), arg4) >= 0x88) {
