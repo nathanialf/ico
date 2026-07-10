@@ -155,6 +155,8 @@ extern int D_00629DE8;
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cDoorDownEffect);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", func_00215810);
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cEneChk);
 
