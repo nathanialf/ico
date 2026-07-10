@@ -1867,10 +1867,13 @@ L6B4:
         debug_assertMessage(D_0062D9D0);
     }
     if (ForMotionViewer_GetCurrentAnimationFrame(FI(0x30), 0x50)) {
-        *(long long *)(env + 0x470) |= 0x20;
+        char *mc5;
+        char *de4;
+        do { mc5 = (char *)FI(0x30); de4 = (char *)D_00629DE4; *(long long *)(env + 0x470) |= 0x20; } while (0);
         {
-            float *wp = (float *)(*(char **)((char *)FI(0x30) + 0x15C) + 0x634);
-            if ((char *)FI(0x30) == (char *)D_00629DE4 ? (*wp > 110.0f) : (*wp > 135.0f)) {
+            float *wp = (float *)(*(char **)(mc5 + 0x15C) + 0x634);
+            float w = *wp;
+            if (mc5 == de4 ? (w > 110.0f) : (w > 135.0f)) {
                 *(long long *)(env + 0x470) |= 0x40;
                 debug_assertMessage(D_006139E0);
             }
@@ -1965,7 +1968,7 @@ L6B4:
             }
         }
         if (*(int *)(env + 0x160) != 0) {
-            char *ln = (char *)_getLine();
+            char *ln = (char *)_getLine((void *)*(int *)(env + 0x160));
             if (t23v != 0 && ln != 0) {
                 if (TorchGeo(ln) == 0) {
                     *(int *)((char *)arg4 + 0x164) = (int)ln;
