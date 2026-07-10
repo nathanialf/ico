@@ -104,11 +104,55 @@ void actSt13cCageFallChk(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cConte05);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cConte05Jimaku);
+typedef struct ActB4Obj { char pad[0xB4]; int *unkB4; } ActB4Obj;
+extern void BoxBarSoundOn(int a0, int a1);
+extern int D_004CD830[];
+extern void actSt13cHandChk(volatile int a0);
+void actSt13cConte05Jimaku(volatile int a0){
+ int x=a0;
+ ActB4Obj *gobj=(ActB4Obj*)actInitialize(a0);
+ _ACTWait(1);
+ if(func_00178DB0(0x4C)!=0){
+  stage_KillPlayBgAnimation(0x153,0,0xD2);
+ }else{
+  stage_KillPlayBgAnimation(0x153,0,0);
+ }
+ D_004CD830[1]=(int)actSt13cHandChk;
+ gobj->unkB4=D_004CD830;
+ BoxBarSoundOn((int)a0,0x189);
+ _ACTWait(0);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cCageFallEffect);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cGirlCarryChk);
+extern int D_004CD8D0[];
+extern void actSt13cCageDown(volatile int a0);
+void actSt13cCageFallEffect(volatile int a0){
+ int x=a0;
+ ActB4Obj *gobj=(ActB4Obj*)actInitialize(a0);
+ _ACTWait(1);
+ if(func_00178DB0(0x4E)==0){
+  D_004CD8D0[1]=(int)actSt13cCageDown;
+  gobj->unkB4=D_004CD8D0;
+  BoxBarSoundOn((int)a0,0x189);
+  _ACTWait(0);
+ }
+}
+
+
+extern int D_004CD910[];
+extern void actSt13cCageFallReady(volatile int a0);
+void actSt13cGirlCarryChk(volatile int a0){
+ int x=a0;
+ ActB4Obj *gobj=(ActB4Obj*)actInitialize(a0);
+ _ACTWait(1);
+ if(func_00178DB0(0x4F)==0){
+  D_004CD910[1]=(int)actSt13cCageFallReady;
+  gobj->unkB4=D_004CD910;
+  BoxBarSoundOn((int)a0,0x189);
+  _ACTWait(0);
+ }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cHandChk);
 

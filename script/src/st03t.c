@@ -4,9 +4,49 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tSwitchL);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tSwitchLChk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tSwitchLUpChk);
+typedef struct GObjB4a { char pad[0xB4]; int *unkB4; } GObjB4a;
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void BoxBarSoundOn(int a0, int a1);
+extern void actSt03tGirlCamStartChk(volatile int a0);
+extern int D_004CBCA0[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tSwitchR);
+void actSt03tSwitchLUpChk(volatile int a0) {
+    int x = a0;
+    GObjB4a *gobj = (GObjB4a *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x69) == 0) {
+        D_004CBCA0[1] = (int)actSt03tGirlCamStartChk;
+        gobj->unkB4 = D_004CBCA0;
+        BoxBarSoundOn((int)a0, 0x189);
+        _ACTWait(0);
+    }
+}
+
+
+extern void *actSt25aQueenDeadChk(int a0);
+extern void actCreateSubThread(int a0, int a1);
+extern void actSt02aSecretItem(void);
+extern void actSt02aTakiWay(void);
+extern void actSt03tSekizoEvent(volatile int a0);
+extern int D_004CBCE0[];
+
+void actSt03tSwitchR(volatile int a0) {
+    int x = a0;
+    GObjB4a *gobj = (GObjB4a *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x5F) != 0) {
+        D_004CBCE0[1] = (int)actSt02aSecretItem;
+        gobj->unkB4 = D_004CBCE0;
+        BoxBarSoundOn((int)a0, 0x189);
+        _ACTWait(0);
+    }
+    ((int *)actSt25aQueenDeadChk(0x60C))[0x16C / 4] = 0;
+    actCreateSubThread((int)actSt02aTakiWay, 0x15);
+    actCreateSubThread((int)actSt03tSekizoEvent, 0x15);
+}
+
 
 extern int actInitialize(int a0);
 extern void _ACTWait(int a0);
@@ -22,7 +62,21 @@ void actSt03tSwitchRChk(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tSwitchRUpChk);
+extern void actSt03tEneChk(volatile int a0);
+extern int D_004CBDC0[];
+
+void actSt03tSwitchRUpChk(volatile int a0) {
+    int x = a0;
+    GObjB4a *gobj = (GObjB4a *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x6C) == 0) {
+        D_004CBDC0[1] = (int)actSt03tEneChk;
+        gobj->unkB4 = D_004CBDC0;
+        BoxBarSoundOn((int)a0, 0x189);
+        _ACTWait(0);
+    }
+}
+
 
 extern int actInitialize(int a0);
 extern void _ACTWait(int a0);
@@ -71,11 +125,66 @@ void actSt03tInit(volatile int a0) {
     func_00179710(a0, 0x6E, 0x57, 0, 0x12, 900.0f, D_006297E8, D_006297EC, 800.0f, D_006297E8, D_006297EC);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tGirlCam);
+extern void actSt04aGate(void);
+extern void actSt03tWayOffChk(volatile int a0);
+extern int D_004CBDE0[];
+extern int D_004CBE00[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tSekizo);
+void actSt03tGirlCam(volatile int a0) {
+    int x = a0;
+    GObjB4a *gobj = (GObjB4a *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x6F) == 0) {
+        D_004CBDE0[1] = (int)actSt04aGate;
+        gobj->unkB4 = D_004CBDE0;
+        BoxBarSoundOn((int)a0, 0x189);
+        _ACTWait(0);
+    } else {
+        D_004CBE00[1] = (int)actSt03tWayOffChk;
+        gobj->unkB4 = D_004CBE00;
+        BoxBarSoundOn((int)a0, 0x189);
+        _ACTWait(0);
+    }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tWay);
+
+typedef struct GObj_B4 {
+    char pad[0xB4];
+    int *unkB4;
+} GObj_B4;
+
+extern void BoxBarSoundOn(int a0, int a1);
+extern void actSt04aGateChk(void);
+extern int D_004CBE60[];
+
+void actSt03tSekizo(volatile int a0) {
+    int x = a0;
+    GObj_B4 *gobj = (GObj_B4 *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x5F) != 0) {
+        D_004CBE60[1] = (int)actSt04aGateChk;
+        gobj->unkB4 = D_004CBE60;
+        BoxBarSoundOn((int)a0, 0x189);
+        _ACTWait(0);
+    }
+}
+
+
+extern void actSt04aConte06Jimaku(void);
+extern int D_004CBEC0[];
+
+void actSt03tWay(volatile int a0) {
+    int x = a0;
+    GObjB4a *gobj = (GObjB4a *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x67) == 0) {
+        D_004CBEC0[1] = (int)actSt04aConte06Jimaku;
+        gobj->unkB4 = D_004CBEC0;
+        BoxBarSoundOn((int)a0, 0x189);
+        _ACTWait(0);
+    }
+}
+
 
 void actSt03tEne(int a0) {
     int buf[4];
