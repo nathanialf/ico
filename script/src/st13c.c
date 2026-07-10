@@ -1,6 +1,6 @@
 #include "common.h"
 
-typedef struct ActB4Obj { char pad[0xB4]; int *unkB4; } ActB4Obj;
+typedef struct ActB4Obj { char pad[0xB0]; int *unkB0; int *unkB4; } ActB4Obj;
 
 extern int actInitialize(int a0);
 extern void Generator_Mask(int a0);
@@ -34,7 +34,19 @@ void actSt13cEnd(volatile int a0){
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cBmg1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", func_00227FA0);
+extern int D_00629DE8;
+extern void func_001790A8(int a0);
+extern void gflagOff(int a0, int a1);
+extern void actSt25aQueenBefore(int a0);
+void func_00227FA0(volatile int a0){
+ func_001790A8(D_00629DE8);
+ gflagOff(D_00629DE8, 0x293);
+ actSt25aQueenBefore(D_00629DE8);
+ gflagOff(D_00629DE8, 0x23A);
+ actSt25aQueenBefore(D_00629DE8);
+ _ACTWait(0);
+}
+
 
 void actSt13cBmg1Chk(int a0) {
     int buf[4];
