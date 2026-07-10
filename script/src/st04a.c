@@ -213,7 +213,32 @@ void actSt04aGateR(int a0) {
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04a", actSt04aTorchXL);
+extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern int GetSkeltonFocusNode(int a0);
+extern void GetCameraDefaultTargetGObj(void);
+extern void InitCamera(int a0, int a1, int a2);
+extern void AddPluralCameraSet(int a0);
+extern int D_00629DE4;
+extern int D_00629DE8;
+extern int D_004CC000[];
+extern void actSt04aGateOpen2(volatile int a0);
+void actSt04aTorchXL(volatile int a0) {
+    int x = a0;
+    GObj *g = *(GObj **)(x + 0x164);
+    while (scpSleepEnemyOne(a0, D_00629DE4, 100.0f) == 0 ||
+           GetSkeltonFocusNode(D_00629DE4) != 0xC6) {
+        _ACTWait(1);
+    }
+    GetCameraDefaultTargetGObj();
+    InitCamera(D_00629DE8, 0, 3);
+    _ACTWait(0xF);
+    AddPluralCameraSet(0x30);
+    D_004CC000[1] = (int)actSt04aGateOpen2;
+    g->unkB4 = D_004CC000;
+    BoxBarSoundOn(a0, 0x189);
+    _ACTWait(0);
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04a", actSt04aGateOpen2);
 
