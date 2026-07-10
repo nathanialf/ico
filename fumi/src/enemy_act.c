@@ -261,6 +261,92 @@ end:
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyKidnapEnd);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_0015E110);
+
+extern int DispEnemyFootPrints(void *a0);
+extern int UpdateEnemyEye(void *a0);
+extern void func_001AAD00(void *a0, int a1);
+extern void func_00260380(void *a0, int a1, void *a2);
+extern void _MustChase(int a0);
+extern float DispEnemyEye(void *a0);
+extern void BoxBarSoundOn(void *a0, int a1);
+extern void GetLowerPlaneCollision(void *a0, float a1, float a2, float a3, float a4, float a5, float a6);
+extern void ResetEnemyEye(int *self);
+extern void EnemySetfDisappear(char *self, float arg);
+extern void dispPlane(void *a0, float *a1);
+extern void func_0018F2A0(void *a0, int a1);
+extern char D_00553110[];
+extern char D_0062C4F8[];
+extern char D_002896D0[];
+
+void func_0015E738(void *self, float *vec, void *a2, int mode, int a4) {
+    int *base = *(int **)((char *)self + 0x164);
+    int snd = 0x31;
+    int eye;
+    float ey;
+
+    switch (mode) {
+    case 0:
+        vec[1] += *(float *)((char *)(*(int *)((char *)base + 0x670)) + 0x1D8) * 100.0f;
+        break;
+    case 1:
+        snd = 0x32;
+        break;
+    case 2:
+        snd = 0x33;
+        break;
+    }
+
+    if ((int)(*(long long *)((char *)base + 0x20) << 19 >> 32) & 1) {
+        *(long long *)((char *)base + 0x20) = *(long long *)((char *)base + 0x20) & ~0x2000LL;
+    } else {
+        DispEnemyFootPrints(self);
+    }
+
+    eye = 0;
+    switch (UpdateEnemyEye(self)) {
+    case 1:
+        eye = 1;
+        break;
+    case 2:
+        eye = 2;
+        break;
+    case 3:
+        eye = 3;
+        break;
+    case 0:
+        break;
+    default:
+        func_001AAD00(D_00553110, 0x800);
+        func_00260380(D_00553110, 0x800, D_0062C4F8);
+        break;
+    }
+
+    *(int *)(*(int *)(*(int *)((char *)self + 0x164) + 0x670) + 0x1E4) = eye;
+    _MustChase((int)self);
+    ey = DispEnemyEye(self);
+    *(int *)((char *)base + 0x340) = 0;
+    *(float *)((char *)base + 0x1D4) = ey;
+    *(float *)((char *)base + 0x1D0) = ey;
+    if (a4 != 0) {
+        *(int *)((char *)base + 0x50) = a4;
+    } else {
+        *(int *)((char *)base + 0x50) = 0;
+    }
+    *(int *)((char *)base + 0xB4) = (int)D_002896D0;
+    BoxBarSoundOn(self, snd);
+
+    GetLowerPlaneCollision((void *)(*(int *)((char *)self + 0x15C) + 0xA0), vec[0], vec[1], vec[2], 0.0f, 0.0f, 0.0f);
+    ResetEnemyEye(self);
+    EnemySetfDisappear((char *)self, 0.0f);
+    *(float *)((char *)base + 0x150) = vec[0];
+    *(float *)((char *)base + 0x154) = vec[1];
+    *(float *)((char *)base + 0x158) = vec[2];
+    dispPlane(self, (float *)a2);
+    func_0018F2A0(self, 4);
+}
+
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyKidnapBegin);
 
 extern void ACTParaStatus_Exec(void *);
@@ -276,6 +362,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", MoveChestForCatchBoy);
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyBodylift);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_0015F0E0);
+
 
 extern void GetHeightOfWallFromGObj(void *a0, void *a1);
 extern void ActOrientTest(void *a0, void *a1, int a2);
@@ -319,12 +408,17 @@ void func_0015F2A8(int *self) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyPickupBegin);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_0015F8A0);
+
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_0015F9C0);
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", CheckEnemyBrainMode);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", BrainMode_Requset);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_00160368);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", subEnemyBrainMain);
 
@@ -361,6 +455,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", NakaBoss);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_001616E8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", ChangeBrain_ToAttack);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_00161998);
 
 extern int DispPointBlur(void *a0);
 extern void BoxBarSoundOn(void *a0, int a1);
@@ -442,6 +538,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", ChangeBrain_ToKidnap);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", subEnemyBrain_ToGirl);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", _ApproachTarget_Boss);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_00162808);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", flyMailCore);
 
