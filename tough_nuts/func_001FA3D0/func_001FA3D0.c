@@ -107,7 +107,7 @@ extern char D_006138D0[];
 extern MotionEntry D_005EBC48[];
 extern float func_001920F0(int a0, float a1);
 extern void ActOrientTest(void *a0, void *a1, int a2);
-extern int ChangeFieldCollisionDebugMode(void *a0);
+extern void ChangeFieldCollisionDebugMode(void *a0);
 extern int QueenInqDead(void);
 extern void CheckFieldContact(void *a0);
 extern void dispPlane(void *a0, void *a1);
@@ -464,12 +464,10 @@ void func_001FA3D0(void *arg0, void *arg1, int arg2, void *arg3, void *arg4) {
     char *boy = (char *)arg1;
     int za;
 
-    {
-        char *S0 = (char *)arg0;
-        env = *(char **)(S0 + 0x164);
-        v1 = *(char **)(S0 + 0x15C);
-        FI(0x1A8) = arg2;
-    }
+    S = (char *)arg0;
+    env = *(char **)(S + 0x164);
+    FI(0x1A8) = arg2;
+    v1 = *(char **)(S + 0x15C);
     S = *(char **)(env + 0x110);
     FI(0x1AC) = *(int *)(v1 + 0x170);
     za = 0;
@@ -523,27 +521,29 @@ void func_001FA3D0(void *arg0, void *arg1, int arg2, void *arg3, void *arg4) {
     }
     {
         long long ll18 = *(long long *)(env + 0x18);
+        long long b20 = *(long long *)(env + 0x20);
         ll18 &= 0xFFFFFF7FFFFFFFFFLL;
         ll18 &= 0xFFFFFEFFFFFFFFFFLL;
         ll18 &= 0xDFFFFFFFFFFFFFFFLL;
         *(long long *)(env + 0x18) = ll18;
-    }
-    if ((int)(((long long)(*(long long *)(env + 0x20) << 0x1E)) >> 0x20) & 1) {
+    if ((int)((b20 << 0x1E) >> 0x20) & 1) {
         f25 = 100.0f;
         FI(0x1BC) = 0;
     } else {
         f25 = 300.0f;
         FI(0x1BC) = 1;
     }
+    }
     if ((FI(0x30) ^ D_00629DE8) == 0) FI(0x1BC) = 0;
     f20 = D_00629730;
-    found = isysGObjSearchFromObjLayoutID(0x2B, FI(0x1BC));
     {
-        char *cage = (char *)FP(0x40);
+        char *cage;
+        found = isysGObjSearchFromObjLayoutID(0x2B, FI(0x1BC));
         goto L650;
 L648:
         found = isysGObjSearchFromObjKindID_begin(found);
 L650:
+        cage = (char *)FP(0x40);
         if (found == 0) goto L6B4;
         if (*(int *)((char *)found + 0x16C) == 0) goto L648;
         CageFixDL(cage, FP(0x50), found);
@@ -659,6 +659,7 @@ L6B4:
         int b1, b2, b3, b6, b6b;
         MotionEntry *mo;
         float t;
+        char *gb;
 
         st = subCommonIdle((void *)FI(0x30));
         aang = __builtin_abs(EnvCamAngle(st, arg4, FP(0x60), -1.0f));
@@ -702,17 +703,16 @@ L6B4:
             }
         }
         {
-            char *gb = (char *)FI(0x30);
+            gb = (char *)FI(0x30);
             if (gb != (char *)D_00629DE8) goto LmvB0;
             mv = 0;
             goto LmvB1;
         LmvB0:
             mv = ForMotionViewer_GetCurrentMotion((int)gb, 0xB000);
         LmvB1:;
-        }
         {
             int m2;
-            char *gb = (char *)FI(0x30);
+            gb = (char *)FI(0x30);
             if (mv != 0) goto LmvEskip;
             if (gb != (char *)D_00629DE8) goto LmvE0;
             m2 = 0;
@@ -722,21 +722,23 @@ L6B4:
         LmvE1:
             mv = m2;
             if (mv == 0) {
-                mv = ForMotionViewer_GetCurrentMotion(FI(0x30), 0xC000);
+                gb = (char *)FI(0x30);
+                mv = ForMotionViewer_GetCurrentMotion((int)gb, 0xC000);
                 {
                     int m4;
-                    char *gb2 = (char *)FI(0x30);
+                    gb = (char *)FI(0x30);
                     if (mv != 0) goto LmvDskip;
-                    if (gb2 != (char *)D_00629DE8) goto LmvD0;
+                    if (gb != (char *)D_00629DE8) goto LmvD0;
                     m4 = 0;
                     goto LmvD1;
                 LmvD0:
-                    m4 = ForMotionViewer_GetCurrentMotion((int)gb2, 0xD000);
+                    m4 = ForMotionViewer_GetCurrentMotion((int)gb, 0xD000);
                 LmvD1:
                     mv = m4;
                     if (mv == 0) {
-                        mv = (D_00629C90 == 4) ? EnableMotionOrientUpdate(FI(0x30), 0x1000)
-                             : ForMotionViewer_GetCurrentMotion(FI(0x30), 0x1000);
+                        gb = (char *)FI(0x30);
+                        mv = (D_00629C90 == 4) ? EnableMotionOrientUpdate((int)gb, 0x1000)
+                             : ForMotionViewer_GetCurrentMotion((int)gb, 0x1000);
                         mv &= 0xFF;
                         if (mv == 0) {
                             mv = ForMotionViewer_GetCurrentMotion(FI(0x30), 0x3000);
@@ -747,21 +749,24 @@ L6B4:
             }
         LmvEskip:;
         }
+        }
         if (mv != 0) {
             FF(0x34) = f23;
         }
         {
-            if ((char *)FI(0x30) == (char *)D_00629DE8) {
-            if (EnableMotionOrientUpdate(FI(0x30), 0x7000)) {
+            gb = (char *)FI(0x30);
+            if (gb == (char *)D_00629DE8) {
+            if (EnableMotionOrientUpdate((int)gb, 0x7000)) {
                 f23 = D_0062D9D8;
                 FF(0x34) = f23;
                 if (ACTEnvGetTest()) {
                     char *p1 = (char *)ContinueCorrectPosition((void *)D_00629DE8);
                     char *p2 = (char *)ContinueCorrectPosition((void *)D_00629DE4);
                     if (*(float *)(p2 + 4) + 50.0f < *(float *)(p1 + 4)) {
-                        func_00240038(FP(0x60), arg4, -1.0f);
+                        t80v = (char *)FP(0x60);
+                        func_00240038((float *)t80v, arg4, -1.0f);
                         g90 = (char *)FP(0x90);
-                        _OrientGV(g90, FP(0x60));
+                        _OrientGV(g90, t80v);
                         {
                             w70 = (char *)FP(0x70);
                             {
@@ -781,12 +786,13 @@ L6B4:
         }
         }
         {
-            char *gb = (char *)*(volatile int *)&FI(0x30);
+            char *gb2v;
             *(float *)(env + 0x170) = FF(0x34);
-            *(int *)(env + 0x174) = *(int *)(*(char **)(gb + 0x15C) + 0x5E4);
+            gb2v = (char *)FI(0x30);
+            *(int *)(env + 0x174) = *(int *)(*(char **)(gb2v + 0x15C) + 0x5E4);
             if (f22 < 40.0f) {
                 *(long long *)(env + 0x18) |= 0x8000LL << 24;
-                if (func_00191D90(subCommonIdle(gb), arg4) >= 0x88) {
+                if (func_00191D90(subCommonIdle(gb2v), arg4) >= 0x88) {
                     *(long long *)(env + 0x18) |= 0x8000LL << 25;
                 }
             }
@@ -1270,10 +1276,11 @@ L6B4:
             break;
         case 3:
             if (f21 < 40.0f && f24 > 1000.0f) {
-                char *e8 = (char *)FI(0x1A8);
-                g90 = (char *)FP(0x60);
+                char *e8;
                 *(int *)((char *)arg3 + 8) =
                     ((*(int *)((char *)arg3 + 8) & 0xFEFFFFFF) | ((FI(0x1BC) & 1) << 24)) | 0x400000;
+                g90 = (char *)FP(0x60);
+                e8 = (char *)FI(0x1A8);
                 {
                     float cy = ((union IFAlias *)(e8 + 4))->f;
                     float cz = ((union IFAlias *)(e8 + 8))->f;
@@ -1324,9 +1331,16 @@ L6B4:
             if (f21 < 40.0f) {
                 if (f24 > 1000.0f) {
                     char *sub2 = *(char **)((char *)FI(0x30) + 0x15C);
-                    { char *dd=(char*)arg4+0x190,*ss=sub2+0x170;
-                      *(long long*)(dd+0)=*(long long*)(ss+0); *(long long*)(dd+8)=*(long long*)(ss+8);
-                      *(long long*)(dd+16)=*(long long*)(ss+16); *(long long*)(dd+24)=*(long long*)(ss+24); }
+                    {
+                        long long ca = ((EnvCopy32 *)(sub2 + 0x170))->a;
+                        long long cb = ((EnvCopy32 *)(sub2 + 0x170))->b;
+                        long long cc2 = ((EnvCopy32 *)(sub2 + 0x170))->c;
+                        long long cd = ((EnvCopy32 *)(sub2 + 0x170))->d;
+                        ((EnvCopy32 *)((char *)arg4 + 0x190))->a = ca;
+                        ((EnvCopy32 *)((char *)arg4 + 0x190))->b = cb;
+                        ((EnvCopy32 *)((char *)arg4 + 0x190))->c = cc2;
+                        ((EnvCopy32 *)((char *)arg4 + 0x190))->d = cd;
+                    }
                     *(int *)arg3 |= 0x400000;
                 }
             }
@@ -1382,7 +1396,8 @@ L6B4:
                 f22 = D_0062D9D8;
                 GetRootMatrixByDObj(FP(0x60), (void *)D_00629DE4);
                 FI(0x1D0) = 1;
-                GetRootMatrixByDObj(FP(0x70), (void *)D_00629DE8);
+                w70 = (char *)FP(0x70);
+                GetRootMatrixByDObj(w70, (void *)D_00629DE8);
                 if (!(f24 < 55.0f)) {
                     if (f24 < 155.0f) {
                         f22 = 80.0f;
@@ -1512,7 +1527,7 @@ L6B4:
                                     }
                                 }
                             }
-                            do { *(int *)((char *)arg4 + 0x134) = ccat; } while (0);
+                            *(int *)((char *)arg4 + 0x134) = ccat;
                             {
                             long long b470;
                             switch (ccat) {
@@ -1808,7 +1823,6 @@ L6B4:
             }
         }
     }
-    }
     if ((unsigned int)*(int *)(env + 0x30) < 0x3B) {
         if ((unsigned int)*(int *)(env + 0x30) >= 0x39) {
             isStopChain((void *)*(int *)(env + 0x180), FP(0x19C), FP(0x1A0), FP(0x1A4));
@@ -1819,10 +1833,11 @@ L6B4:
             }
         }
     }
+    }
     if ((char *)FI(0x30) == (char *)D_00629DE4 && (char *)D_00629DE8 != 0) {
-        char *me3 = (char *)*(volatile int *)&FI(0x30);
-        if (*(int *)(*(char **)((char *)D_00629DE8 + 0x164) + 0x30) == 0x6B) {
-            char *g = *(char **)(me3 + 0x124);
+        char *h = *(char **)((char *)D_00629DE8 + 0x164);
+        if (*(int *)(h + 0x30) == 0x6B) {
+            char *g = *(char **)(h + 0x124);
             if (*(int *)(*(char **)(g + 0x164) + 0x30) == 0x64) {
                 if (GetDifferenceFromWallUpperPlane(g)) {
                     if (func_00143DE0((void *)FI(0x30), (void *)D_00629DE8, 0x78, FP(0x60),
@@ -1832,8 +1847,9 @@ L6B4:
                         b = (char *)PAIR_GetPosition_BOY((int)FP(0x10), 0x21);
                         pp = (char *)ContinueCorrectPosition(b);
                         if (RotateAccordingToStick_PatternThree((int)FP(0x10), pp) < D_00629758) {
+                            char *cc = (char *)FI(0x30);
                             do { *(long long *)(env + 0x468) |= 0x8000LL << 38; } while (0);
-                            *(int *)(*(char **)(*(char **)((char *)FI(0x30) + 0x164) + 0x670) + 0x2E0) = (int)b;
+                            *(int *)(*(char **)(*(char **)(cc + 0x164) + 0x670) + 0x2E0) = (int)b;
                         }
                     }
                 }
@@ -1867,13 +1883,10 @@ L6B4:
         debug_assertMessage(D_0062D9D0);
     }
     if (ForMotionViewer_GetCurrentAnimationFrame(FI(0x30), 0x50)) {
-        char *mc5;
-        char *de4;
-        do { mc5 = (char *)FI(0x30); de4 = (char *)D_00629DE4; *(long long *)(env + 0x470) |= 0x20; } while (0);
+        *(long long *)(env + 0x470) |= 0x20;
         {
-            float *wp = (float *)(*(char **)(mc5 + 0x15C) + 0x634);
-            float w = *wp;
-            if (mc5 == de4 ? (w > 110.0f) : (w > 135.0f)) {
+            float *wp = (float *)(*(char **)((char *)FI(0x30) + 0x15C) + 0x634);
+            if ((char *)FI(0x30) == (char *)D_00629DE4 ? (*wp > 110.0f) : (*wp > 135.0f)) {
                 *(long long *)(env + 0x470) |= 0x40;
                 debug_assertMessage(D_006139E0);
             }
@@ -1968,7 +1981,7 @@ L6B4:
             }
         }
         if (*(int *)(env + 0x160) != 0) {
-            char *ln = (char *)_getLine((void *)*(int *)(env + 0x160));
+            char *ln = (char *)_getLine();
             if (t23v != 0 && ln != 0) {
                 if (TorchGeo(ln) == 0) {
                     *(int *)((char *)arg4 + 0x164) = (int)ln;
