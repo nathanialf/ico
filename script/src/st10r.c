@@ -233,6 +233,8 @@ void actSt10rSekizo(volatile int a0){ long long b1[2]; long long b2[2];
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10r", actSt10rEne);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10r", func_00224370);
+
 extern void _ACTWait(int a0);
 extern int func_00178DB0(int a0);
 extern int scpSleepEnemyOne(int a0, int a1, float f);

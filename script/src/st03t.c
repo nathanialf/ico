@@ -270,6 +270,8 @@ void actSt03tGirlCamEvent(volatile int a0){ long long b1[2]; long long b2[2];
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tGirlCamStartChk);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", func_0020FD50);
+
 #include "common.h"
 extern void scpDispOnAllWithKind(void);
 extern void func_00178DD8(int a0);

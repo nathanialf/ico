@@ -63,6 +63,8 @@ void actSt18aSwitchLUpChk(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st18a", actSt18aSwitchRChk);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st18a", func_0022BEA8);
+
 #include "common.h"
 extern void _ACTWait(int a0);
 extern int scpSleepEnemyOne(int a0, int a1, float f);

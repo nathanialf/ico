@@ -180,6 +180,8 @@ void func_0022B408(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17b", func_0022B4D8);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17b", func_0022B510);
+
 void func_0022B568(int a0) {
     int buf[4];
     buf[0] = a0;

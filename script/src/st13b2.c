@@ -183,6 +183,8 @@ void func_002271F0(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b2", func_00227268);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b2", func_002272A0);
+
 extern int scpSleepEnemyOne(int a0, int a1, float a2);
 extern int D_00629DE4;
 
