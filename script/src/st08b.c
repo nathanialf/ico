@@ -44,7 +44,23 @@ void actSt08bDoor(volatile int a0) {
     lt_fade_status(0x32);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", actSt08bDoorUpChk);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void BoxBarSoundOn(int a0, int a1);
+extern int D_00629DE4;
+extern int D_004CCEC0[];
+extern void actSt06aDoorDownChk(void);
+
+void actSt08bDoorUpChk(volatile int a0) {
+    struct { char pad[0xB4]; int *unkB4; } *gobj = *(void **)(a0 + 0x164);
+    while (scpSleepSpiderGroupOne(D_00629DE4, 0xA000000) != 0) {
+        _ACTWait(1);
+    }
+    D_004CCEC0[1] = (int)actSt06aDoorDownChk;
+    gobj->unkB4 = D_004CCEC0;
+    BoxBarSoundOn((int)a0, 0x189);
+    _ACTWait(0);
+}
+
 
 extern int scpDoorTypeUpUp(int a0);
 extern void _ACTWait(int a0);
@@ -126,7 +142,37 @@ void actSt08bDoorEvent(int a0) {
     func_00178DD8(0xF6);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", actSt08bDoorUpEffect);
+extern int actInitialize(int a0);
+extern int func_00178DB0(int a0);
+extern void gflagInit(int a0);
+
+void actSt08bDoorUpEffect(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0xDA) == 0) {
+        stage_KillPlayBgAnimation(0xA5, 0, 0);
+        stage_KillPlayBgAnimation(0xA7, 0, 0);
+    } else {
+        stage_KillPlayBgAnimation(0xA5, 0, -1);
+        stage_KillPlayBgAnimation(0xA7, 0, -1);
+        gflagInit(0x4D7);
+        gflagInit(0x4D8);
+    }
+    if (func_00178DB0(0xDB) == 0) {
+        stage_KillPlayBgAnimation(0xA6, 0, 0);
+    } else {
+        stage_KillPlayBgAnimation(0xA6, 0, -1);
+        gflagInit(0x4D9);
+        gflagInit(0x4DA);
+    }
+    if (func_00178DB0(0xE2) == 0) {
+        stage_KillPlayBgAnimation(0xA8, 0, 0);
+    } else {
+        stage_KillPlayBgAnimation(0xA8, 0, -1);
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", actSt08bDoorDownEffect);
 
@@ -161,7 +207,33 @@ void func_002214A8(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08b", func_00221508);
+extern int actInitialize(int a0);
+extern int func_00178DB0(int a0);
+extern void BoxBarSoundOn(int a0, int a1);
+extern void warpGirlInStage(float a0, float a1, float a2);
+extern volatile float D_006298E8;
+extern volatile float D_006298EC;
+extern int D_004CCFE0[];
+extern void actSt08bDoorDownEffect(void);
+
+void func_00221508(volatile int a0) {
+    int x = a0;
+    struct { char pad[0xB4]; int *unkB4; } *gobj = (void *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x8F) == 0) {
+        stage_KillPlayBgAnimation(0xAA, 0, 0);
+        D_004CCFE0[1] = (int)actSt08bDoorDownEffect;
+        gobj->unkB4 = D_004CCFE0;
+        BoxBarSoundOn((int)a0, 0x189);
+        _ACTWait(0);
+    } else {
+        stage_KillPlayBgAnimation(0xAA, 0, -1);
+        if (func_00178DB0(0xDA) == 0) {
+            warpGirlInStage(D_006298E8, D_006298EC, 0.0f);
+        }
+    }
+}
+
 
 extern int actInitialize(int a0);
 extern void _ACTWait(int a0);
