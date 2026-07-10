@@ -1,8 +1,60 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tSwitchL);
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void *actSt25aQueenDeadChk(int a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tSwitchLChk);
+void actSt03tSwitchL(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x62) != 0) {
+        ((int *)actSt25aQueenDeadChk(0x626))[0x16C / 4] = 0;
+        if (func_00178DB0(0x5F) != 0) {
+            ((int *)actSt25aQueenDeadChk(0x626))[0x16C / 4] = 0;
+            ((int *)actSt25aQueenDeadChk(0x627))[0x16C / 4] = 0;
+        } else {
+            ((int *)actSt25aQueenDeadChk(0x628))[0x16C / 4] = 0;
+        }
+    }
+    if (func_00178DB0(0x61) != 0) {
+        ((int *)actSt25aQueenDeadChk(0x627))[0x16C / 4] = 0;
+        ((int *)actSt25aQueenDeadChk(0x628))[0x16C / 4] = 0;
+    }
+    if (func_00178DB0(0x61) == 0 && func_00178DB0(0x62) == 0) {
+        ((int *)actSt25aQueenDeadChk(0x626))[0x16C / 4] = 0;
+        ((int *)actSt25aQueenDeadChk(0x627))[0x16C / 4] = 0;
+        ((int *)actSt25aQueenDeadChk(0x628))[0x16C / 4] = 0;
+    }
+}
+
+
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void BoxBarSoundOn(int a0, int a1);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int D_004CBD20[];
+extern int D_0020FF58[];
+
+void actSt03tSwitchLChk(volatile int a0) {
+    int x = a0;
+    struct { char pad[0xB4]; int *unkB4; } *gobj = (void *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x6A) != 0) {
+        stage_KillPlayBgAnimation(0x56, 0, 0);
+        _ACTWait(0xA);
+        stage_KillPlayBgAnimation(0x56, 0, 0x95);
+    } else {
+        stage_KillPlayBgAnimation(0x56, 0, 0x12C);
+    }
+    D_004CBD20[1] = (int)D_0020FF58;
+    gobj->unkB4 = D_004CBD20;
+    BoxBarSoundOn((int)a0, 0x189);
+    _ACTWait(0);
+}
+
 
 typedef struct GObjB4a { char pad[0xB4]; int *unkB4; } GObjB4a;
 extern int actInitialize(int a0);
@@ -264,7 +316,32 @@ void actSt03tWayOnChk(int a0) {
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tWayOffChk);
+extern int D_00629DE8;
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void AddWayPointTop(int a0, int a1);
+extern void func_00178E08(int a0);
+extern void actSt04aGate(void);
+extern int D_004CBE20[];
+
+void actSt03tWayOffChk(volatile int a0) {
+    struct { char pad[0xB4]; int *unkB4; } *gobj = (void *)((int *)a0)[0x59];
+    if (D_00629DE8 == 0) {
+        _ACTWait(0);
+    }
+    while (scpSleepSpiderGroupOne(D_00629DE8, 0x4000000) == 0) {
+        _ACTWait(1);
+    }
+    AddWayPointTop(0x35, 1);
+    AddWayPointTop(0x37, 1);
+    AddWayPointTop(0x38, 1);
+    AddWayPointTop(0x39, 1);
+    func_00178E08(0x6F);
+    D_004CBE20[1] = (int)actSt04aGate;
+    gobj->unkB4 = D_004CBE20;
+    BoxBarSoundOn((int)a0, 0x189);
+    _ACTWait(0);
+}
+
 
 
 /* recovered struct shapes */
