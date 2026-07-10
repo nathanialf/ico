@@ -340,6 +340,7 @@ int enemy_dodge(float *out, void *p1, void *p2) {
     float f1, f2, ret, best_val;
     float *src;
     int rv;
+    float py = ((float *)p1)[1];
 
     rv = 0;
     f2 = ((float *)p2)[1];
@@ -347,22 +348,22 @@ int enemy_dodge(float *out, void *p1, void *p2) {
     f1 = ((float *)p2)[2];
     if (!(f1 < 0.0f)) goto Ld0;
     f1 = -f1;
-    if (1000.0f < f1) { f1 = ((float *)p1)[1]; goto Le8; }
+    if (1000.0f < f1) { f1 = py; goto Le8; }
     goto La00;
 Ld0:
     if (!(1000.0f < f1)) goto La00;
-    f1 = ((float *)p1)[1];
+    f1 = py;
 Le8:
     if (-500.0f < f1) goto La84;
 La00:
     ;
 La10:
-    if (!(f2 < -500.0f)) { f1 = ((float *)p1)[1]; goto Laac; }
+    if (!(f2 < -500.0f)) { f1 = py; goto Laac; }
     f1 = ((float *)p2)[2];
     if (!(f1 < 0.0f)) goto La50;
     f1 = -f1;
     if (1000.0f < f1) goto La68;
-    f1 = ((float *)p1)[1];
+    f1 = py;
     goto Laac;
 La50:
     if (!(1000.0f < f1)) goto Laa8;
@@ -375,7 +376,7 @@ La84:
     out[2] = D_0027E9B0[2];
     return 2;
 Laa8:
-    f1 = ((float *)p1)[1];
+    f1 = py;
 Laac:
     if (!(-150.0f < f1)) goto Lb40;
     {
