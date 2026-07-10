@@ -55,7 +55,28 @@ extern int iosFree(int, int, const char *, int);
 extern char D_00554080[];
 extern int D_0062A310;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", GetWgAll);
+typedef struct {
+    int f0, f4, f8, fC, f10, f14, f18;
+} WgAll;
+
+void *GetWgAll(void) {
+    WgAll *p = (WgAll *)iosFree(D_0062A310, 0x1C, D_00554080, 0x359);
+    int *q;
+    int i;
+    p->f0 = iosFree(D_0062A310, 0x41, D_00554080, 0x35B);
+    p->f4 = iosFree(D_0062A310, 0x4000, D_00554080, 0x35C);
+    p->fC = iosFree(D_0062A310, 0x104, D_00554080, 0x35D);
+    p->f10 = iosFree(D_0062A310, 0x104, D_00554080, 0x35E);
+    p->f14 = iosFree(D_0062A310, 0x104, D_00554080, 0x35F);
+    p->f18 = iosFree(D_0062A310, 0x104, D_00554080, 0x360);
+    q = (int *)iosFree(D_0062A310, 0x100, D_00554080, 0x362);
+    p->f8 = (int)q;
+    for (i = 0; i < 0x40; i++) {
+        q[i] = p->f4 + (i << 8);
+    }
+    return p;
+}
+
 
 
 extern void iosMallocCheckLeak2(int x);
@@ -162,11 +183,13 @@ extern float D_00629130;
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", nearest_waypoint_by_lineseg_from_gobj);
 
 
+
 extern float GetEyeDirection(void *a0, void *a1, void *a2);
 extern float D_00629134;
 extern char D_004C6FF0_wr[] __asm__("D_004C6FF0");
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", waypoint_with_range);
+
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_util", nearest_waypoint_of_all_except_group);
