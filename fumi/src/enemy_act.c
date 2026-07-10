@@ -539,7 +539,58 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", subEnemyBrain_ToGirl);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", _ApproachTarget_Boss);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_00162808);
+extern int clip_wall_1(void *a0, int a1);
+
+void func_00162808(volatile unsigned int a0)
+{
+    void _ACTWait(int a0);
+    long long *p;
+    int i;
+
+    for (i = 0; i < (0x3C - D_00271240[0] * 0xA) / D_00271240[1] / 6; i++) {
+        void *self = (void *)a0;
+        p = *(long long **)((char *)self + 0x164);
+        if (clip_wall_1(self, 0) == 0) {
+            if ((int)(pac_DispQW() * 10.0f) & 1) {
+                BoxBarSoundOn(self, 0xBC);
+            }
+            BoxBarSoundOn(self, 0xBA);
+            p[4] |= 1;
+        }
+        actEnemyRestart((void *)a0);
+        if (actEnemyForceSwitchToCarry(a0)) {
+            break;
+        }
+        _ACTWait(1);
+    }
+    for (i = 0; i < (0x3C - D_00271240[0] * 0xA) / D_00271240[1] * 0x64 / 0x3C; i++) {
+        if (i < (0x3C - D_00271240[0] * 0xA) / D_00271240[1] * 0x32 / 0x3C) {
+            void *self = (void *)a0;
+            p = *(long long **)((char *)self + 0x164);
+            if (clip_wall_1(self, 0) == 0) {
+                if ((int)(pac_DispQW() * 10.0f) & 1) {
+                    BoxBarSoundOn(self, 0xBC);
+                }
+                BoxBarSoundOn(self, 0xBA);
+                p[4] |= 1;
+            }
+        }
+        actEnemyRestart((void *)a0);
+        if ((0x3C - D_00271240[0] * 0xA) / D_00271240[1] * 0x50 / 0x3C < i) {
+            if (actEnemyForceSwitchToCarry(a0)) {
+                break;
+            }
+        }
+        _ACTWait(1);
+    }
+    {
+        void *self = (void *)a0;
+        *(int *)(*(int *)(*(int *)((char *)self + 0x164) + 0x670) + 0x200) = 0;
+        *(int *)(*(int *)(*(int *)((char *)self + 0x164) + 0x670) + 0x20C) = D_0062A670;
+    }
+    _ACTWait(0);
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", flyMailCore);
 
