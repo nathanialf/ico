@@ -5219,3 +5219,4 @@ func_00215810 = 0x00215810; // type:func  // script/src/st04c.c  // splat-merge 
 func_00235218 = 0x00235218; // type:func  // script/src/stageSEProc.c  // splat-merge split (stageSE04bstrong coroutine)
 func_002352B8 = 0x002352B8; // type:func  // script/src/stageSEProc.c  // splat-merge split (stageSE04ewind coroutine)
 func_00235568 = 0x00235568; // type:func  // script/src/stageSEProc.c  // splat-merge split (stageSE06abirdIn coroutine)
+func_00222B00 = 0x00222B00; // type:func  // script/src/st10l.c  // splat-merge split (actSt10lChainMove coroutine)
