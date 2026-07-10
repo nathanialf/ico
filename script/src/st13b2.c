@@ -1,5 +1,9 @@
 #include "common.h"
 
+typedef struct GObj { char pad[0xB4]; int *unkB4; } GObj;
+extern int actInitialize(int a0);
+extern void BoxBarSoundOn(int a0, int a1);
+
 #include "common.h"
 extern void _ACTWait(int a0);
 extern int scpSleepSpiderGroupOne(int a0, int a1);
@@ -65,11 +69,57 @@ void func_00226C80(volatile int a0) {
     lt_fade_status(0x32);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b2", func_00226D50);
+extern int func_00178DB0(int a0);
+extern void AddWayPointTop(int a0, int a1);
+extern int D_004CD6A0[];
+extern void func_00227268(volatile int a0);
+void func_00226D50(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x43) == 0) {
+        stage_KillPlayBgAnimation(0x5A, 0, 0);
+        D_004CD6A0[1] = (int)func_00227268;
+        gobj->unkB4 = D_004CD6A0;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    } else {
+        AddWayPointTop(0xB, 1);
+        stage_KillPlayBgAnimation(0x5A, 0, -1);
+    }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b2", func_00226DF8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b2", func_00226E70);
+extern int func_00178DB0(int a0);
+extern int D_004CD640[];
+extern void actSt13bMeetAgainChk(void);
+void func_00226DF8(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x44) == 0) {
+        D_004CD640[1] = (int)actSt13bMeetAgainChk;
+        gobj->unkB4 = D_004CD640;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    }
+}
+
+
+extern int func_00178DB0(int a0);
+extern int D_004CD660[];
+void func_00226E70(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x45) == 0) {
+        D_004CD660[1] = (int)actSt13b2Generator;
+        gobj->unkB4 = D_004CD660;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    }
+}
+
 
 void func_00226EE8(volatile int a0){ int x=a0;
  actInitialize(a0); _ACTWait(1); Generator_Mask(a0);
@@ -97,9 +147,39 @@ void func_002270D8(volatile int a0){ int x=a0;
  while(func_00178DB0(0x47)==0){ _ACTWait(1); }
  Generator_MaskOff(a0); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b2", func_00227178);
+extern int func_00178DB0(int a0);
+extern int D_004CD6F0[];
+extern void func_002272F8(volatile int a0);
+void func_00227178(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x48) == 0) {
+        D_004CD6F0[1] = (int)func_002272F8;
+        gobj->unkB4 = D_004CD6F0;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b2", func_002271F0);
+
+extern void gflagLoad(int a0, float a1);
+extern float D_00629914;
+extern int func_00178DB0(int a0);
+extern int actSt25aQueenDeadChk(int a0);
+void func_002271F0(void) {
+    float f = D_00629914;
+    gflagLoad(0x14F, f);
+    gflagLoad(0x14E, f);
+    if (func_00178DB0(0x49) != 0) {
+        stage_KillPlayBgAnimation(0x14E, 0, 0x1FE);
+        *(int *)(actSt25aQueenDeadChk(0x14F) + 0x16C) = 0;
+    } else {
+        stage_KillPlayBgAnimation(0x14E, 0, 0);
+        *(int *)(actSt25aQueenDeadChk(0x14E) + 0x16C) = 0;
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b2", func_00227268);
 
@@ -121,16 +201,110 @@ void func_002272F8(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b2", func_002273A0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b2", func_00227748);
+extern void func_001D1508(int a0);
+extern int func_0012AA28(int a0, int a1, int a2);
+extern int iosPadDevRead(int a0, int a1);
+extern int D_00629DEC;
+extern int D_0062C2B0;
+void func_00227748(volatile int a0) {
+    func_001D1508(0x12C);
+    stage_KillPlayBgAnimation(0x14E, 1, 0);
+    *(int *)(actSt25aQueenDeadChk(0x14F) + 0x16C) = 0;
+    *(int *)(actSt25aQueenDeadChk(0x14E) + 0x16C) = 1;
+    while (func_0012AA28(0x14E, 0x5, 0) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    iosPadDevRead(D_00629DEC, 0x10);
+    while (func_0012AA28(0x14E, 0xD7, 0) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    iosPadDevRead(D_00629DEC, 0x11);
+    while (func_0012AA28(0x14E, 0x1D1, 0) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    iosPadDevRead(D_00629DEC, 0x11);
+    D_0062C2B0 = 1;
+    _ACTWait(0);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b2", func_00227860);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b2", func_00227960);
+extern void func_001D1508(int a0);
+extern int func_0012AA28(int a0, int a1, int a2);
+extern int iosPadDevRead(int a0, int a1);
+extern int D_00629DEC;
+extern int D_0062C2B0;
+void func_00227860(volatile int a0) {
+    func_001D1508(0x12C);
+    stage_KillPlayBgAnimation(0x14E, 1, 0x1FF);
+    while (func_0012AA28(0x14E, 0x2DC, 0) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    iosPadDevRead(D_00629DEC, 0x11);
+    while (func_0012AA28(0x14E, 0x336, 0) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    iosPadDevRead(D_00629DEC, 0x11);
+    while (func_0012AA28(0x14E, 0x3E3, 0) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    iosPadDevRead(D_00629DEC, 0x11);
+    D_0062C2B0 = 1;
+    _ACTWait(0);
+}
+
+
+extern int scpSleepEnemyOne(int a0, int a1, float a2);
+extern int D_00629DE4;
+extern int D_00629DE8;
+extern int D_004CD770[];
+extern int D_004CD790[];
+extern void func_00227BE0(volatile int a0);
+extern void func_00227A68(volatile int a0);
+void func_00227960(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    if (scpSleepEnemyOne(a0, D_00629DE4, 200.0f) != 0 ||
+        (D_00629DE8 != 0 && scpSleepEnemyOne(a0, D_00629DE8, 400.0f) != 0)) {
+        stage_KillPlayBgAnimation(0x150, 0, 0);
+        _ACTWait(0x3C);
+        D_004CD770[1] = (int)func_00227BE0;
+        gobj->unkB4 = D_004CD770;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    } else {
+        stage_KillPlayBgAnimation(0x14F, 0, 0);
+        D_004CD790[1] = (int)func_00227A68;
+        gobj->unkB4 = D_004CD790;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b2", func_00227A68);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b2", func_00227BE0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b2", func_00227D58);
+extern int D_004CD730[];
+extern void actSt13cBmg1(void);
+void func_00227D58(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    D_004CD730[1] = (int)actSt13cBmg1;
+    gobj->unkB4 = D_004CD730;
+    BoxBarSoundOn(a0, 0x189);
+    _ACTWait(0);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b2", func_00227DC0);
+
+extern int func_00178DB0(int a0);
+extern int D_004CD7F0[];
+extern void actSt13cCage1stDownDemoCancel(void);
+void func_00227DC0(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x4A) == 0) {
+        D_004CD7F0[1] = (int)actSt13cCage1stDownDemoCancel;
+        gobj->unkB4 = D_004CD7F0;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    }
+}
+
