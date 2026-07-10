@@ -1,5 +1,11 @@
 #include "common.h"
 
+typedef struct GObj {
+    char pad[0xB4];
+    int *unkB4;
+} GObj;
+extern void BoxBarSoundOn(int a0, int a1);
+
 extern int actInitialize(int a0);
 extern void _ACTWait(int a0);
 extern int func_00178DB0(int a0);
@@ -37,6 +43,7 @@ void actSt04dDoor1DownChk(int a0) {
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04d", actSt04dDoor2);
+
 
 extern int D_00629DE8;
 extern int func_00178DB0(int a0);
@@ -96,13 +103,73 @@ void actSt04dDoor1UpEffect(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04d", actSt04dDoor1DownEffect);
+extern int D_004CC2E0[];
+extern void actSt04dDoor1Event(volatile int a0);
+extern void *actSt25aQueenDeadChk(int a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04d", actSt04dDoor2Event);
+void actSt04dDoor1DownEffect(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0xB3) == 0) {
+        stage_KillPlayBgAnimation(0xCA, 0, 0);
+        D_004CC2E0[1] = (int)actSt04dDoor1Event;
+        gobj->unkB4 = D_004CC2E0;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    } else {
+        stage_KillPlayBgAnimation(0xCA, 0, -1);
+        ((int *)actSt25aQueenDeadChk(0x3EF))[0x16C / 4] = 0;
+    }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04d", actSt04dDoor2UpEffect);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04d", actSt04dDoor2DownEffect);
+extern int D_004CC2C0[];
+extern void func_00216950(volatile int a0);
+
+void actSt04dDoor2Event(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x90) == 0) {
+        D_004CC2C0[1] = (int)func_00216950;
+        gobj->unkB4 = D_004CC2C0;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    }
+}
+
+
+extern int D_004CC280[];
+extern void actSt04dDoor2DownChk(volatile int a0);
+
+void actSt04dDoor2UpEffect(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    if (func_00178DB0(0x91) == 0) {
+        D_004CC280[1] = (int)actSt04dDoor2DownChk;
+        gobj->unkB4 = D_004CC280;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    }
+}
+
+
+extern int D_004CC2A0[];
+extern void func_002168E0(volatile int a0);
+
+void actSt04dDoor2DownEffect(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x92) == 0) {
+        D_004CC2A0[1] = (int)func_002168E0;
+        gobj->unkB4 = D_004CC2A0;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    }
+}
+
 
 extern void Generator_Mask(int a0);
 extern void Generator_MaskOff(int a0);
@@ -163,11 +230,64 @@ void func_002168E0(volatile int a0) {
     func_00178DD8(0x93);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04d", func_00216950);
+extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern void lt_fade_status(int a0);
+extern void func_00178E08(int a0);
+extern int func_0012A958(int a0);
+extern void scpTrans(int a0, int a1);
+extern int D_00629DE4;
+extern int D_0062A894;
+extern int D_0062BCC4;
+
+void func_00216950(volatile int a0) {
+    while (scpSleepEnemyOne(a0, D_00629DE4, 1000.0f) == 0) {
+        _ACTWait(1);
+    }
+    lt_fade_status(0x33);
+    func_00178E08(0x164);
+    func_00178DD8(0x90);
+    D_0062A894 = 1;
+    stage_KillPlayBgAnimation(0x13E, 1, 0);
+    while (func_0012A958(0x13E) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    if (D_0062BCC4 != 0) {
+        scpTrans(D_0062BCC4, 0x50);
+    }
+    lt_fade_status(0x32);
+    D_0062A894 = 0;
+}
+
 
 void func_00216A18(int a0) {
     int buf[4];
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04d", func_00216A28);
+extern int D_004CC300[];
+extern int D_004CC320[];
+extern void actSt04eWaterMain(volatile int a0);
+extern void actSt04eWater(volatile int a0);
+
+void func_00216A28(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    if (scpSleepEnemyOne(a0, D_00629DE4, 400.0f) != 0 ||
+        (D_00629DE8 != 0 && scpSleepEnemyOne(a0, D_00629DE8, 400.0f) != 0)) {
+        stage_KillPlayBgAnimation(0xE2, 0, 0);
+        _ACTWait(0x3C);
+        D_004CC300[1] = (int)actSt04eWaterMain;
+        gobj->unkB4 = D_004CC300;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    } else {
+        stage_KillPlayBgAnimation(0xE1, 0, 0);
+        D_004CC320[1] = (int)actSt04eWater;
+        gobj->unkB4 = D_004CC320;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    }
+}
+

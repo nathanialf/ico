@@ -155,7 +155,22 @@ extern int D_00629DE8;
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cDoorDownEffect);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", func_00215810);
+
+extern void func_00178DD8(int a0);
+
+void func_00215810(void) {
+    if (D_00629DE8 == 0) {
+        return;
+    }
+    if (func_00178DB0(0x7C) == 0) {
+        return;
+    }
+    if (func_00178DB0(0x8C) != 0) {
+        return;
+    }
+    func_00178DD8(0x165);
+}
+
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04c", actSt04cEneChk);
