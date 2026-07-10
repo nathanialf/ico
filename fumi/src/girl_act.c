@@ -3,7 +3,42 @@
 /* girl_act 0x164 actor-state view (local) */
 typedef struct { char _0[0x30]; int f_30; } GirlState;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", GetEyeDirection);
+extern float func_0023FE70(void *a, void *b);
+extern float MatrixDrive_GetTurnYAngleXZ(float a);
+
+float GetEyeDirection(float *p0, float *p1, float *p2) {
+    float d1[4];
+    float d2[4];
+    float r1, r2;
+    float a, b, c, mdret;
+    int ci;
+
+    d1[0] = p1[0] - p0[0];
+    d1[2] = p1[2] - p0[2];
+    d1[1] = 0.0f;
+    d2[0] = p2[0] - p0[0];
+    d2[2] = p2[2] - p0[2];
+    d2[1] = 0.0f;
+    r1 = func_0023FE70(d1, d2);
+    if (r1 < 0.0f) {
+        return MatrixDrive_GetTurnYAngleXZ(func_0023FE70(d2, d2));
+    }
+    d2[0] = p2[0] - p1[0];
+    d2[1] = 0.0f;
+    d2[2] = p2[2] - p1[2];
+    r2 = func_0023FE70(d1, d2);
+    if (-r2 < 0.0f) {
+        return MatrixDrive_GetTurnYAngleXZ(func_0023FE70(d2, d2));
+    }
+    a = -(p1[0] - p0[0]);
+    b = p1[2] - p0[2];
+    c = p0[2] * p1[0] - p0[0] * p1[2];
+    mdret = MatrixDrive_GetTurnYAngleXZ(b * b + a * a);
+    ci = (int)(b * p2[0] + a * p2[2] + c);
+    ci = __builtin_abs(ci);
+    return (float)ci / mdret;
+}
+
 
 typedef struct { int f_0; float f_4; int f_8; int f_C; } GirlHandDisc;
 
@@ -84,6 +119,7 @@ extern int func_001443B8(void *buf, void *a1, int id);
 extern int HandCameraCorrect(void *buf, void *vec);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_0016B028);
+
 
 
 
@@ -365,7 +401,40 @@ void actGirlHang(int *a0, int *a1, int *a2, int *a3) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlBHang);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlAttack);
+extern void func_00240008(void *out, void *m1, void *m2);
+extern void func_0023FE98(void *a, void *b);
+extern void *subCommonIdle(void *a0);
+
+void actGirlAttack(void *a0) {
+    float res[4];
+    float m1[4];
+    float m2[4];
+    void *dobj;
+    void *sub;
+    float a;
+
+    BoxBarSoundOn(a0, 0xFA);
+    dobj = D_00629DE4;
+    sub = *(void **)((char *)dobj + 0x164);
+    if (*(int *)((char *)sub + 0x30) == 1) {
+        return;
+    }
+    GetRootMatrixByDObj(m1, dobj);
+    GetRootMatrixByDObj(m2, a0);
+    func_00240008(res, m1, m2);
+    func_0023FE98(res, res);
+    a = (float)HandCameraCorrect(res, subCommonIdle(a0));
+    if (a < 0.0f ? -a < 45.0f : a < 45.0f) {
+        BoxBarSoundOn(a0, 0xFB);
+    } else if (a < 0.0f ? 135.0f < -a : 135.0f < a) {
+        BoxBarSoundOn(a0, 0xFC);
+    } else if (45.0f < a) {
+        BoxBarSoundOn(a0, 0xFD);
+    } else {
+        BoxBarSoundOn(a0, 0xFE);
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlBecall);
 
