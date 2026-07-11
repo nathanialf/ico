@@ -138,6 +138,8 @@ void actE3CageFall(volatile int a0){
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/e3", actE3CageFallChk);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/e3", func_002078C8);
+
 #include "common.h"
 extern void lt_fade_status(int a0);
 extern void func_00178DD8(int a0);
