@@ -228,7 +228,11 @@ void actSt19aOriMain(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19aOriSwitch);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", func_0022E0E8);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19aOriUp);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", func_0022E178);
 
 #include "common.h"
 extern void lt_fade_status(int a0);
