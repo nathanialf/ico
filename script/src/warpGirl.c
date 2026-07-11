@@ -11,6 +11,7 @@ int warpGirlOutStage(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", warpGirlInStage);
 
+
 extern float D_006C9220[];
 
 void warpGirlInit(float *a0) {
@@ -95,6 +96,8 @@ int func_0017C230(int self) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017C308);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017C338);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017C3D0);
 
 extern void _ACTWait(int a0);
@@ -151,13 +154,57 @@ void func_0017DC40(volatile int a0) {
     Generator_Mask(a0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017DC68);
+typedef struct ActB4Obj {
+    char pad[0xB4];
+    int *unkB4;
+} ActB4Obj;
+extern int actInitialize(int a0);
+extern void BoxBarSoundOn(int a0, int a1);
+extern int D_002869F0[];
+extern void func_0017DEE8(int a0);
+
+void func_0017DC68(volatile int a0) {
+    int x = a0;
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x12C) == 0) {
+        D_002869F0[1] = (int)func_0017DEE8;
+        gobj->unkB4 = D_002869F0;
+        BoxBarSoundOn((int)a0, 0x189);
+        _ACTWait(0);
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017DCE0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017DD70);
+extern int D_00286A50[];
+extern void func_0017D560(volatile int a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017DDD8);
+void func_0017DD70(volatile int a0) {
+    int x = a0;
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
+    _ACTWait(1);
+    D_00286A50[1] = (int)func_0017D560;
+    gobj->unkB4 = D_00286A50;
+    BoxBarSoundOn((int)a0, 0x189);
+    _ACTWait(0);
+}
+
+
+extern int D_00286A70[];
+extern void AttackMail(volatile int a0);
+
+void func_0017DDD8(volatile int a0) {
+    int x = a0;
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
+    _ACTWait(1);
+    D_00286A70[1] = (int)AttackMail;
+    gobj->unkB4 = D_00286A70;
+    BoxBarSoundOn((int)a0, 0x189);
+    _ACTWait(0);
+}
+
 
 extern int actInitialize(int a0);
 extern void _ACTWait(int a0);
