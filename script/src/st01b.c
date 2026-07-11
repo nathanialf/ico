@@ -1,6 +1,51 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st01b", actSt01bInit);
+typedef struct ActB4Obj {
+    char pad[0xB4];
+    int *unkB4;
+} ActB4Obj;
+typedef struct { long long a, b; } WpData16;
+
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern void BoxBarSoundOn(int a0, int a1);
+extern int scpKillSpiderGroup(int a0, int a1);
+extern void actCreateSubThread(void *fn, int a1);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void func_0017BF50(float a0, float a1, float a2, float a3);
+extern int soundSeDefPlayWithVolumeRate(int a0, int a1, void *a2, int a3);
+extern void soundSeDefPitchSet(int a0);
+extern int func_0012A958(int a0);
+extern WpData16 D_00614530;
+extern int D_004CBAA0[];
+extern void actSt01bWay(volatile int a0);
+extern void actSt01bEneChk(volatile int a0);
+
+void actSt01bInit(volatile int a0) {
+    ActB4Obj *obj = *(ActB4Obj **)(a0 + 0x164);
+    WpData16 buf;
+    int r;
+    while (scpKillSpiderGroup(a0, 0x3000000) == 0) { _ACTWait(1); }
+    _ACTWait(0xF);
+    actCreateSubThread((void *)actSt01bWay, 0x15);
+    stage_KillPlayBgAnimation(0x4F, 1, 0);
+    func_0017BF50(-6.0f, -221.0f, 1504.0f, 100.0f);
+    _ACTWait(1);
+    buf = D_00614530;
+    soundSeDefPlayWithVolumeRate(0x4AC, 0, &buf, 1);
+    _ACTWait(0x1E);
+    r = soundSeDefPlayWithVolumeRate(0x4AD, 0, &buf, 1);
+    _ACTWait(0x3C);
+    soundSeDefPitchSet(r);
+    soundSeDefPlayWithVolumeRate(0x4AE, 0, &buf, 1);
+    while (func_0012A958(0x4F) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    D_004CBAA0[1] = (int)actSt01bEneChk;
+    obj->unkB4 = D_004CBAA0;
+    BoxBarSoundOn(a0, 0x189);
+    _ACTWait(0);
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st01b", actSt01bEneChk);
 
@@ -10,7 +55,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st01b", actSt01bSekizo);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st01b", actSt01bEne);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st01b", actSt01bEnemy1);
+extern int func_00178DB0(int a0);
+extern int D_004CBA20[];
+extern void actSt00aDoor1Event(volatile int a0);
+void actSt01bEnemy1(volatile int a0) {
+    int x = a0;
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x27) == 0) {
+        D_004CBA20[1] = (int)actSt00aDoor1Event;
+        gobj->unkB4 = D_004CBA20;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    }
+}
+
 
 void actSt01bEnemy2(volatile int a0){ int x=a0;
  actInitialize(a0); _ACTWait(1); Generator_Mask(a0);
