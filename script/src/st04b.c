@@ -1,5 +1,12 @@
 #include "common.h"
 
+typedef struct ActB4Obj {
+    char pad[0xB4];
+    int *unkB4;
+} ActB4Obj;
+extern void BoxBarSoundOn(int a0, int a1);
+extern int actInitialize(int a0);
+
 #include "common.h"
 extern void _ACTWait(int a0);
 extern int scpSleepEnemyOne(int a0, int a1, float f);
@@ -32,7 +39,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04b", actSt04bSekizoChk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04b", actSt04bEne1Chk);
 
+
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04b", actSt04bCrest01XL);
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04b", actSt04bDoorXL);
 
@@ -41,6 +50,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04b", actSt04bMonyoDoorXL);
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04b", actSt04bSekizo);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04b", actSt04bEne1);
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04b", actSt04bEnemy1);
 
@@ -124,15 +134,155 @@ void func_00214368(volatile int a0) {
     actSt25aQueenDead(4, D_00629DE4, (int)D_00629DE8, 1.0f, 8.0f);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04b", func_00214468);
+extern void func_0018F940(void);
+extern int fightSoundClose(void);
+extern void actConte11Jimaku(float f);
+extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
+extern void actSt25aQueenDead(int a0, int a1, int a2, float f0, float f1);
+extern int D_0062BC98;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04b", func_00214640);
+void func_00214468(volatile int a0) {
+    while (func_00178DB0(0xD1) == 0) { _ACTWait(1); }
+    lt_fade_status(0x33);
+    D_0062A894 = 1;
+    func_00178DD8(0x7D);
+    func_0018F940();
+    while (fightSoundClose() != 0) { _ACTWait(1); }
+    scpPlayStart(0x1D, (int)&D_0062BC98, 1, 1, 1);
+    while (D_0062BC98 == 0) { _ACTWait(1); }
+    actConte11Jimaku(6.0f);
+    stage_KillPlayBgAnimation(0x105, 1, 0);
+    while (func_0012A958(0x105) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    if (func_00178DB0(0xDD) != 0) { actSt25aQueenDead(5, D_00629DE4, (int)D_00629DE8, 1.0f, 8.0f); }
+    if (func_00178DB0(0xDE) != 0) { actSt25aQueenDead(6, D_00629DE4, (int)D_00629DE8, 1.0f, 8.0f); }
+    if (func_00178DB0(0xDF) != 0) { actSt25aQueenDead(9, D_00629DE4, (int)D_00629DE8, 1.0f, 8.0f); }
+    if (func_00178DB0(0xE0) != 0) { actSt25aQueenDead(7, D_00629DE4, (int)D_00629DE8, 1.0f, 8.0f); }
+    if (func_00178DB0(0xD0) != 0) { actSt25aQueenDead(8, D_00629DE4, (int)D_00629DE8, 1.0f, 8.0f); }
+}
+
+
+extern int actSt25aQueenDeadChk(int a0);
+extern void gflagInit(int a0);
+extern int D_004CC200[];
+extern void func_00214950(volatile int a0);
+
+void func_00214640(volatile int a0) {
+    int x = a0;
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x8B) == 0) {
+        if (func_00178DB0(0x83) != 0) { *(int *)(actSt25aQueenDeadChk(0x209) + 0x16C) = 0; stage_KillPlayBgAnimation(0xF9, 0, -1); }
+        if (func_00178DB0(0x84) != 0) { *(int *)(actSt25aQueenDeadChk(0x20A) + 0x16C) = 0; stage_KillPlayBgAnimation(0xFA, 0, -1); }
+        if (func_00178DB0(0x85) != 0) { *(int *)(actSt25aQueenDeadChk(0x20B) + 0x16C) = 0; stage_KillPlayBgAnimation(0xFB, 0, -1); }
+        if (func_00178DB0(0x86) != 0) { *(int *)(actSt25aQueenDeadChk(0x20C) + 0x16C) = 0; stage_KillPlayBgAnimation(0xFC, 0, -1); }
+        if (func_00178DB0(0x87) != 0) { *(int *)(actSt25aQueenDeadChk(0x20D) + 0x16C) = 0; stage_KillPlayBgAnimation(0xFD, 0, -1); }
+        if (func_00178DB0(0x88) != 0) { *(int *)(actSt25aQueenDeadChk(0x20E) + 0x16C) = 0; stage_KillPlayBgAnimation(0xFE, 0, -1); }
+        if (func_00178DB0(0x89) != 0) { *(int *)(actSt25aQueenDeadChk(0x20F) + 0x16C) = 0; stage_KillPlayBgAnimation(0xFF, 0, -1); }
+        if (func_00178DB0(0x8A) != 0) { *(int *)(actSt25aQueenDeadChk(0x210) + 0x16C) = 0; stage_KillPlayBgAnimation(0x100, 0, -1); }
+        D_004CC200[1] = (int)func_00214950;
+        gobj->unkB4 = D_004CC200;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    } else {
+        *(int *)(actSt25aQueenDeadChk(0x209) + 0x16C) = 0;
+        *(int *)(actSt25aQueenDeadChk(0x20A) + 0x16C) = 0;
+        *(int *)(actSt25aQueenDeadChk(0x20B) + 0x16C) = 0;
+        *(int *)(actSt25aQueenDeadChk(0x20C) + 0x16C) = 0;
+        *(int *)(actSt25aQueenDeadChk(0x20D) + 0x16C) = 0;
+        *(int *)(actSt25aQueenDeadChk(0x20E) + 0x16C) = 0;
+        *(int *)(actSt25aQueenDeadChk(0x20F) + 0x16C) = 0;
+        *(int *)(actSt25aQueenDeadChk(0x210) + 0x16C) = 0;
+        stage_KillPlayBgAnimation(0xF9, 0, -1);
+        stage_KillPlayBgAnimation(0xFA, 0, -1);
+        stage_KillPlayBgAnimation(0xFB, 0, -1);
+        stage_KillPlayBgAnimation(0xFC, 0, -1);
+        stage_KillPlayBgAnimation(0xFD, 0, -1);
+        stage_KillPlayBgAnimation(0xFE, 0, -1);
+        stage_KillPlayBgAnimation(0xFF, 0, -1);
+        stage_KillPlayBgAnimation(0x100, 0, -1);
+        gflagInit(0x211);
+        gflagInit(0x212);
+        gflagInit(0x213);
+        gflagInit(0x214);
+        gflagInit(0x215);
+        gflagInit(0x216);
+        gflagInit(0x217);
+        gflagInit(0x218);
+        gflagInit(0x219);
+        gflagInit(0x21A);
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04b", func_00214950);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04b", func_00214B20);
+extern void scpDispOnAllWithKind(void);
+extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
+extern int func_0012AA28(int a0, int a1, int a2);
+extern void gflagInit(int a0);
+extern void scpActivateAllWithKind(void);
+extern int D_0062BC9C;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04b", func_00214CF0);
+void func_00214B20(volatile int a0) {
+    while (func_00178DB0(0x83) == 0 || func_00178DB0(0x84) == 0 ||
+           func_00178DB0(0x85) == 0 || func_00178DB0(0x86) == 0 ||
+           func_00178DB0(0x87) == 0 || func_00178DB0(0x88) == 0 ||
+           func_00178DB0(0x89) == 0 || func_00178DB0(0x8A) == 0) {
+        _ACTWait(1);
+    }
+    lt_fade_status(0x33);
+    D_0062A894 = 1;
+    scpDispOnAllWithKind();
+    func_00178DD8(0x8B);
+    scpPlayStart(0x53, (int)&D_0062BC9C, 1, 1, 1);
+    while (D_0062BC9C == 0) {
+        _ACTWait(1);
+    }
+    stage_KillPlayBgAnimation(0xF8, 1, 0);
+    while (func_0012AA28(0xF8, 0x3C, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    gflagInit(0x211);
+    gflagInit(0x212);
+    gflagInit(0x213);
+    gflagInit(0x214);
+    gflagInit(0x215);
+    gflagInit(0x216);
+    gflagInit(0x217);
+    gflagInit(0x218);
+    gflagInit(0x219);
+    gflagInit(0x21A);
+    while (func_0012A958(0xF8) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    _ACTWait(0x3C);
+    D_0062A894 = 0;
+    lt_fade_status(0x32);
+    scpActivateAllWithKind();
+}
+
+
+extern void actSt25aQueenBeforeChk(int a0, int a1, int a2, float f);
+extern int D_004CC1C0[];
+
+void func_00214CF0(volatile int a0) {
+    int x = a0;
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x7C) == 0) {
+        func_00178DD8(0x163);
+        actSt25aQueenBeforeChk(0, 0, 0, 255.0f);
+        stage_KillPlayBgAnimation(0x105, 0, 0);
+        D_004CC1C0[1] = (int)func_00214368;
+        gobj->unkB4 = D_004CC1C0;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    }
+}
+
 
 
 /* recovered struct shapes */
