@@ -1,14 +1,109 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04e", actSt04eWater);
+typedef struct ActB4Obj { char pad[0xB4]; int *unkB4; } ActB4Obj;
+struct SndBuf { long long a, b; };
+extern struct SndBuf D_006148C0;
+extern struct SndBuf D_00614890;
+extern void _ACTWait(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void BoxBarSoundOn(int a0, int a1);
+extern int scpKillSpiderGroup(int a0, int a1);
+extern void actCreateSubThread(void *fn, int a1);
+extern int soundSeDefPlayWithVolumeRate(int a0, int a1, void *a2, int a3);
+extern int func_0012A958(int a0);
+extern void func_002171A8(int a0);
+extern void actSt04eWaterMain(int a0);
+extern int D_004CC340[];
+void actSt04eWater(volatile int a0) {
+    ActB4Obj *obj = *(ActB4Obj **)(a0 + 0x164);
+    struct SndBuf buf;
+    while (scpKillSpiderGroup(a0, 0x1000000) == 0) { _ACTWait(1); }
+    _ACTWait(0xF);
+    actCreateSubThread(func_002171A8, 0x15);
+    stage_KillPlayBgAnimation(0xE1, 1, 0);
+    buf = D_00614890;
+    soundSeDefPlayWithVolumeRate(0x4AC, 0, &buf, 1);
+    _ACTWait(0x1E);
+    soundSeDefPlayWithVolumeRate(0x4AD, 0, &buf, 1);
+    _ACTWait(0x1E);
+    soundSeDefPlayWithVolumeRate(0x4AE, 0, &buf, 1);
+    while (func_0012A958(0xE1) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    D_004CC340[1] = (int)actSt04eWaterMain;
+    obj->unkB4 = D_004CC340;
+    BoxBarSoundOn((int)a0, 0x189);
+    _ACTWait(0);
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04e", actSt04eWaterMain);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04e", actSt04eWaterSwitch);
+
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void BoxBarSoundOn(int a0, int a1);
+extern void actSt04eWaterFlagOn(int a0);
+extern void actSt04eWaterStop(int a0);
+extern int D_004CC380[]; extern int D_004CC3A0[];
+extern int D_00629DE4; extern int D_00629DE8;
+void actSt04eWaterSwitch(volatile int a0) {
+    int x = a0;
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
+    _ACTWait(1);
+    if (scpSleepEnemyOne(a0, D_00629DE4, 400.0f) != 0) goto flagon;
+    if (D_00629DE8 == 0) goto stop;
+    if (scpSleepEnemyOne(a0, D_00629DE8, 400.0f) == 0) goto stop;
+flagon:
+    stage_KillPlayBgAnimation(0xE4, 0, 0);
+    _ACTWait(0x3C);
+    D_004CC380[1] = (int)actSt04eWaterFlagOn;
+    gobj->unkB4 = D_004CC380;
+    BoxBarSoundOn((int)a0, 0x189);
+    _ACTWait(0);
+    return;
+stop:
+    stage_KillPlayBgAnimation(0xE3, 0, 0);
+    D_004CC3A0[1] = (int)actSt04eWaterStop;
+    gobj->unkB4 = D_004CC3A0;
+    BoxBarSoundOn((int)a0, 0x189);
+    _ACTWait(0);
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04e", actSt04eWaterStop);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04e", actSt04eWaterFlagOn);
+
+extern int scpKillSpiderGroup(int a0, int a1);
+extern void actCreateSubThread(void *fn, int a1);
+extern int soundSeDefPlayWithVolumeRate(int a0, int a1, void *a2, int a3);
+extern int func_0012A958(int a0);
+extern void BoxBarSoundOn(int a0, int a1);
+extern void func_00217458(volatile int a0);
+extern void actSt04eWaterStop(int a0);
+extern int D_004CC3E0[];
+void actSt04eWaterFlagOn(volatile int a0) {
+    ActB4Obj *obj = *(ActB4Obj **)(a0 + 0x164);
+    struct SndBuf buf;
+    while (scpKillSpiderGroup(a0, 0x2000000) != 0) { _ACTWait(1); }
+    _ACTWait(0xF);
+    actCreateSubThread(func_00217458, 0x15);
+    stage_KillPlayBgAnimation(0xE4, 1, 0);
+    buf = D_006148C0;
+    soundSeDefPlayWithVolumeRate(0x4AC, 0, &buf, 1);
+    _ACTWait(0x1E);
+    soundSeDefPlayWithVolumeRate(0x4AD, 0, &buf, 1);
+    _ACTWait(0x1E);
+    soundSeDefPlayWithVolumeRate(0x4AE, 0, &buf, 1);
+    while (func_0012A958(0xE4) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    D_004CC3E0[1] = (int)actSt04eWaterStop;
+    obj->unkB4 = D_004CC3E0;
+    BoxBarSoundOn((int)a0, 0x189);
+    _ACTWait(0);
+}
+
 
 void func_00217198(int a0) {
     int buf[4];
@@ -48,6 +143,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04e", func_00217538);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04e", func_002175E0);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04e", func_00217610);
+
 #include "common.h"
 extern void lt_fade_status(int a0);
 extern void actCreateSubThread(void *fn, int a1);
@@ -77,7 +174,20 @@ void func_00217668(volatile int a0) {
     AddWayPointTop(5, 1);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04e", func_00217730);
+extern int D_00271240[];
+extern int func_0025F4F0(int a0);
+extern int func_0025EF78(int a0, long long a1);
+extern int func_0025F5A8(int a0);
+extern void func_00178DD8(int a0);
+void func_00217730(volatile int a0) {
+    int q = (0x3C - D_00271240[0] * 0xA) / D_00271240[1];
+    int v = func_0025F4F0(q);
+    v = func_0025EF78(v, 0x4026000000000000LL);
+    v = func_0025F5A8(v);
+    _ACTWait(v);
+    func_00178DD8(0xCD);
+}
+
 
 extern int func_00178DB0(int a0);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
@@ -164,9 +274,65 @@ void func_00217C58(void) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04e", func_00217CF0);
+extern void lt_fade_status(int a0);
+extern void func_00178DD8(int a0);
+extern void scpDispOnAllWithKind(void);
+extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int func_0012A958(int a0);
+extern int actSt25aQueenDeadChk(int a0);
+extern void scpActivateAllWithKind(void);
+extern int D_0062BCC8;
+extern int D_00271240[];
+extern int D_0062A894;
+void func_00217CF0(volatile int a0) {
+    lt_fade_status(0x33);
+    func_00178DD8(0x9E);
+    scpDispOnAllWithKind();
+    _ACTWait(0x3C);
+    scpPlayStart(0x50, (int)&D_0062BCC8, 1, 1, 1);
+    while (D_0062BCC8 == 0) { _ACTWait(1); }
+    stage_KillPlayBgAnimation(0xB8, 1, 0);
+    while (func_0012A958(0xB8) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    *(int *)(actSt25aQueenDeadChk(0x3FF) + 0x16C) = 1;
+    *(int *)(actSt25aQueenDeadChk(0x400) + 0x16C) = 1;
+    _ACTWait((0x3C - D_00271240[0] * 0xA) / D_00271240[1] * 6);
+    scpActivateAllWithKind();
+    D_0062A894 = 0;
+    lt_fade_status(0x32);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04e", func_00217E18);
+
+extern void lt_fade_status(int a0);
+extern void func_00178DD8(int a0);
+extern void scpDispOnAllWithKind(void);
+extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int func_0012A958(int a0);
+extern int actSt25aQueenDeadChk(int a0);
+extern void scpActivateAllWithKind(void);
+extern int D_0062BCCC;
+extern int D_00271240[];
+extern int D_0062A894;
+void func_00217E18(volatile int a0) {
+    lt_fade_status(0x33);
+    func_00178DD8(0x9F);
+    scpDispOnAllWithKind();
+    _ACTWait(0x3C);
+    scpPlayStart(0x50, (int)&D_0062BCCC, 1, 1, 1);
+    while (D_0062BCCC == 0) { _ACTWait(1); }
+    stage_KillPlayBgAnimation(0xB9, 1, 0);
+    while (func_0012A958(0xB9) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    *(int *)(actSt25aQueenDeadChk(0x451) + 0x16C) = 1;
+    *(int *)(actSt25aQueenDeadChk(0x452) + 0x16C) = 1;
+    _ACTWait((0x3C - D_00271240[0] * 0xA) / D_00271240[1] * 6);
+    scpActivateAllWithKind();
+    D_0062A894 = 0;
+    lt_fade_status(0x32);
+}
+
 
 #include "common.h"
 extern void lt_fade_status(int a0);
