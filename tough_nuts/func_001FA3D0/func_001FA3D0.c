@@ -474,10 +474,7 @@ void func_001FA3D0(void *arg0, void *arg1, int arg2, void *arg3, void *arg4) {
     FI(0x1AC) = *(int *)(v1 + 0x170);
     za = 0;
     FI(0x1B8) = 1;
-    {
-        long long one1 = 1;
-        FI(0x1B4) = (int)one1;
-    }
+    FI(0x1B4) = 1;
     FI(0x1B0) = *(int *)(v1 + 0x0);
     f24 = *(float *)(S + 0x110);
     *(volatile int *)&FI(0x30) = (int)arg0;
@@ -545,19 +542,18 @@ void func_001FA3D0(void *arg0, void *arg1, int arg2, void *arg3, void *arg4) {
     if ((FI(0x30) ^ D_00629DE8) == 0) FI(0x1BC) = 0;
     f20 = D_00629730;
     {
-        char *cage;
         found = isysGObjSearchFromObjLayoutID(0x2B, FI(0x1BC));
-        cage = (char *)FP(0x40);
+        g90 = (char *)FP(0x40);
         goto L650;
 L648:
         found = isysGObjSearchFromObjKindID_begin(found);
 L650:
         if (found == 0) goto L6B4;
         if (*(int *)((char *)found + 0x16C) == 0) goto L648;
-        CageFixDL(cage, FP(0x50), found);
+        CageFixDL(g90, FP(0x50), found);
         {
             int cp = ContinueCorrectPosition((void *)FI(0x30));
-            if (!(RotateAccordingToStick_PatternThree(cp, cage) < f20)) goto L648;
+            if (!(RotateAccordingToStick_PatternThree(cp, g90) < f20)) goto L648;
         }
     }
     if (!(FF(0x54) > FF(0x14))) goto L648;
@@ -567,8 +563,8 @@ L6B4:
     if (FI(0x1C0) != 0) {
         float d;
         eBrainProcess((void *)FI(0x30), FP(0x60));
-        w70 = (char *)FP(0x70);
         t80v = (char *)FP(0x80);
+        w70 = (char *)FP(0x70);
         g90 = w70;
         CageFixDL(g90, t80v, (void *)FI(0x1C0));
         if (FF(0x74) + 50.0f < FF(0x64)) {
@@ -778,8 +774,10 @@ L6B4:
                         {
                             w70 = (char *)FP(0x70);
                             {
-                                char *r1 = (char *)ContinueCorrectPosition((void *)D_00629DE4);
-                                char *r2 = (char *)ContinueCorrectPosition((void *)D_00629DE8);
+                                char *r1;
+                                char *r2;
+                                r1 = (char *)ContinueCorrectPosition((void *)D_00629DE4);
+                                r2 = (char *)ContinueCorrectPosition((void *)D_00629DE8);
                                 func_00240008(w70, r1, r2);
                             }
                             FI(0x7C) = 0;
@@ -799,17 +797,18 @@ L6B4:
             *(int *)(env + 0x174) = *(int *)(*(char **)(gb + 0x15C) + 0x5E4);
             do {
             if (f22 < 40.0f) {
-                *(long long *)(env + 0x18) |= 0x8000LL << 24;
+                ((union LLAlias *)(env + 0x18))->ll |= 0x8000LL << 24;
                 if (func_00191D90(subCommonIdle(gb), arg4) >= 0x88) {
-                    *(long long *)(env + 0x18) |= 0x8000LL << 25;
+                    ((union LLAlias *)(env + 0x18))->ll |= 0x8000LL << 25;
                 }
             }
             } while (0);
         }
         b6 = 0;
         if (FF(0x34) > 90.0f && FF(0x34) < 110.0f) b6 = (s6 == 0);
+        gb = (char *)FI(0x30);
         if (FF(0x34) > 190.0f && FF(0x34) < 210.0f) s18 = 1;
-        mo = &D_0055DA10[*(int *)(*(char **)((char *)FI(0x30) + 0x15C) + 0x490)];
+        mo = D_0055DA10 + *(int *)(*(char **)(gb + 0x15C) + 0x490);
         s18 = 1;
         {
             unsigned short m186 = mo->u186;
@@ -828,10 +827,11 @@ L6B4:
                           (void *)FI(0x1C4), FP(0x60));
             func_00240038(*(char **)(*(char **)((char *)FI(0x30) + 0x164) + 0x678) + 0x760,
                           arg4, -1.0f);
-            q = *(char **)(*(char **)((char *)FI(0x30) + 0x164) + 0x678);
+            do { gb = (char *)FI(0x30); } while (0);
+            q = (char *)*(int *)((char *)*(int *)(gb + 0x164) + 0x678);
             *(int *)(q + 0x774) = 0x14;
             *(float *)(q + 0x770) = 40.0f;
-            *(int *)(*(char **)(*(char **)((char *)FI(0x30) + 0x164) + 0x678) + 0x778) = 1;
+            *(int *)((char *)*(int *)((char *)*(int *)(gb + 0x164) + 0x678) + 0x778) = 1;
             *(int *)arg3 |= 0x40000000;
         }
         if ((char *)FI(0x30) == (char *)D_00629DE8) {
@@ -859,7 +859,11 @@ L6B4:
         if (FF(0x34) > 10.0f && FF(0x34) < 75.0f) b1 = (s6 == 0);
         b2 = 0;
         if (FF(0x34) > 75.0f && FF(0x34) < 150.0f) b2 = (s6 == 0);
-        b3 = (FF(0x34) > 150.0f && FF(0x34) < 250.0f);
+        {
+            int t150 = 0;
+            if (FF(0x34) > 150.0f && FF(0x34) < 250.0f) t150 = 1;
+            b3 = t150;
+        }
         {
             int t3 = 0;
             if (s6 == 0) t3 = b3;
@@ -880,7 +884,7 @@ L6B4:
             if (b3) {
                 *(int *)((char *)arg3 + 4) |= 0x2000;
             }
-            ll = *(long long *)(env + 0x470);
+            ll = ((union LLAlias *)(env + 0x470))->ll;
             if (ll & 0x7800) {
                 if ((int)(ll << 19 >> 32) & 1 && *(int *)((char *)FI(0x30) + 0xC) == 4) {
                     EnvPushPlane(FV(0x70), FV(0x80), (void *)FI(0x30), env, arg4, -20.0f, f22);
@@ -1220,14 +1224,14 @@ L6B4:
                 }
                 {
                     if (f24 > 1000.0f) {
-                        ((union IFAlias *)((char *)arg3 + 8))->i |= 0x800000;
+                        *(int *)((char *)arg3 + 8) |= 0x800000;
                     }
                     e8 = (char *)FI(0x1A8);
                     g90 = (char *)FP(0x60);
                     {
-                    float cy = ((union IFAlias *)(e8 + 4))->f;
-                    float cz = ((union IFAlias *)(e8 + 8))->f;
                     float cx = ((union IFAlias *)(e8 + 0))->f;
+                    float cz = ((union IFAlias *)(e8 + 8))->f;
+                    float cy = ((union IFAlias *)(e8 + 4))->f;
                     FF(0x60) = cx;
                     FF(0x64) = cy;
                     FF(0x68) = cz;
@@ -1284,8 +1288,10 @@ L6B4:
             break;
         case 3:
             if (f21 < 40.0f && f24 > 1000.0f) {
-                *(int *)((char *)arg3 + 8) =
-                    ((*(int *)((char *)arg3 + 8) & 0xFEFFFFFF) | ((FI(0x1BC) & 1) << 24)) | 0x400000;
+                {
+                    int vv3 = (*(int *)((char *)arg3 + 8) & 0xFEFFFFFF) | ((FI(0x1BC) & 1) << 24);
+                    *(int *)((char *)arg3 + 8) = vv3 | 0x400000;
+                }
                 g90 = (char *)FP(0x60);
                 {
                     float cy, cz, cx;
@@ -1338,7 +1344,8 @@ L6B4:
         if (ACTEnvGetTest()) {
             if (f21 < 40.0f) {
                 if (f24 > 1000.0f) {
-                    char *sub2 = *(char **)((char *)FI(0x30) + 0x15C);
+                    char *sub2;
+                    do { sub2 = (char *)*(int *)((char *)FI(0x30) + 0x15C); } while (0);
                     {
                         long long ca = ((EnvCopy32 *)(sub2 + 0x170))->a;
                         long long cb = ((EnvCopy32 *)(sub2 + 0x170))->b;
@@ -1349,7 +1356,7 @@ L6B4:
                         ((EnvCopy32 *)((char *)arg4 + 0x190))->c = cc2;
                         ((EnvCopy32 *)((char *)arg4 + 0x190))->d = cd;
                     }
-                    *(int *)arg3 |= 0x400000;
+                    ((union IFAlias *)arg3)->i |= 0x400000;
                 }
             }
         }
@@ -1459,8 +1466,7 @@ L6B4:
                             EnvGetPos((float *)FP(0x100), fnd);
                             if (RotateAccordingToStick_PatternThree((int)FP(0xB0), FP(0x100)) < D_00629738) {
                                 d = FF(0xB4) - FF(0x104);
-                                if (d < 0.0f) d = -d;
-                                if (!(d > 100.0f)) {
+                                if (!(d < 0.0f ? -d > 100.0f : d > 100.0f)) {
                                     func_00240008(FP(0x110), (void *)FI(0x1C4), FP(0x100));
                                     ((union IFAlias *)&FI(0x11C))->i = 0;
                                     func_0023FDD8(FP(0x120), FP(0xC0), FP(0x110));
@@ -1936,7 +1942,8 @@ L6B4:
         t16 = (char *)InitTorchGeo((void *)FI(0x30), 200.0f);
         if (t16 != 0) {
             w70 = (char *)FP(0x70);
-            GetRootMatrixByDObj((g90 = w70), t16);
+            GetRootMatrixByDObj(w70, t16);
+            g90 = w70;
             if (RotateAccordingToStick_PatternThree((int)FP(0), w70) < rad * rad &&
                 FF(0x74) < FF(0x4)) {
                 if (func_00192040(w70, FP(0), subCommonIdle((void *)FI(0x30)), 0x2D)) {
