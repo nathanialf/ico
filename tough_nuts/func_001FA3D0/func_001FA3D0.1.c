@@ -451,10 +451,10 @@ void func_001FA3D0(void *arg0, void *arg1, int arg2, void *arg3, void *arg4) {
 #define FI_0x1D8 w1D8
 #define FI_0x1DC w1DC
     float f20, f21, f22, f23, f24, f25;
+    char *t80v;
+    char *g90;
     char *w70;
     char *bx;
-    char *g90;
-    char *t80v;
     char *env;
     int s6, s7;
     void *found;
@@ -468,24 +468,27 @@ void func_001FA3D0(void *arg0, void *arg1, int arg2, void *arg3, void *arg4) {
     env = *(char **)(S + 0x164);
     FI(0x1A8) = arg2;
     {
-    int c16 = 0x10;
+    arg2 = 0x10;
     v1 = *(char **)(S + 0x15C);
     S = *(char **)(env + 0x110);
     FI(0x1AC) = *(int *)(v1 + 0x170);
     za = 0;
     FI(0x1B8) = 1;
-    FI(0x1B4) = 1;
+    {
+        long long one1 = 1;
+        FI(0x1B4) = (int)one1;
+    }
     FI(0x1B0) = *(int *)(v1 + 0x0);
     f24 = *(float *)(S + 0x110);
-    f23 = -*(float *)(v1 + 0x594);
     *(volatile int *)&FI(0x30) = (int)arg0;
     FI(0x1C0) = 0;
     f22 = *(float *)(S + 0x138);
     FF(0x34) = -*(float *)(S + 0x130);
-    s7 = *(int *)(v1 + 0x564);
-    f21 = *(float *)(S + 0x114);
+    f23 = -*(float *)(v1 + 0x594);
     s6 = *(int *)(v1 + 0x554);
-    do { func_00260568(FP(0), za, c16); } while (0);
+    f21 = *(float *)(S + 0x114);
+    s7 = *(int *)(v1 + 0x564);
+    do { func_00260568(FP(0), za, arg2); } while (0);
     }
     bx = (char *)*(int *)&work[7];
 
@@ -544,11 +547,11 @@ void func_001FA3D0(void *arg0, void *arg1, int arg2, void *arg3, void *arg4) {
     {
         char *cage;
         found = isysGObjSearchFromObjLayoutID(0x2B, FI(0x1BC));
+        cage = (char *)FP(0x40);
         goto L650;
 L648:
         found = isysGObjSearchFromObjKindID_begin(found);
 L650:
-        cage = (char *)FP(0x40);
         if (found == 0) goto L6B4;
         if (*(int *)((char *)found + 0x16C) == 0) goto L648;
         CageFixDL(cage, FP(0x50), found);
@@ -565,8 +568,8 @@ L6B4:
         float d;
         eBrainProcess((void *)FI(0x30), FP(0x60));
         w70 = (char *)FP(0x70);
-        g90 = w70;
         t80v = (char *)FP(0x80);
+        g90 = w70;
         CageFixDL(g90, t80v, (void *)FI(0x1C0));
         if (FF(0x74) + 50.0f < FF(0x64)) {
             *(int *)arg3 |= 0x800000;
@@ -794,12 +797,14 @@ L6B4:
             gb = (char *)FI(0x30);
             do { *(float *)(env + 0x170) = FF(0x34); } while (0);
             *(int *)(env + 0x174) = *(int *)(*(char **)(gb + 0x15C) + 0x5E4);
+            do {
             if (f22 < 40.0f) {
                 *(long long *)(env + 0x18) |= 0x8000LL << 24;
                 if (func_00191D90(subCommonIdle(gb), arg4) >= 0x88) {
                     *(long long *)(env + 0x18) |= 0x8000LL << 25;
                 }
             }
+            } while (0);
         }
         b6 = 0;
         if (FF(0x34) > 90.0f && FF(0x34) < 110.0f) b6 = (s6 == 0);
@@ -833,17 +838,17 @@ L6B4:
             if (func_00149CA0((void *)FI(0x30), 0x1A)) {
                 char *p1;
                 char *p2;
+                g90 = (char *)FP(0x60);
                 p1 = (char *)ContinueCorrectPosition((void *)D_00629DE8);
                 p2 = (char *)ContinueCorrectPosition((void *)D_00629DE4);
-                func_00240008(FP(0x60), p1, p2);
+                func_00240008(g90, p1, p2);
                 FI(0x64) = 0;
-                if (func_0023FE70(FP(0x60), subCommonIdle((void *)D_00629DE4)) < 100.0f) {
+                if (func_0023FE70(g90, subCommonIdle((void *)D_00629DE4)) < 100.0f) {
                     int v5 = 0;
                     if (*(int *)(boxp + 0xC) == 0x11) {
                         int q2 = *(int *)(*(char **)((char *)D_00629DE4 + 0x15C) + 0x0);
                         if (q2 != 0) {
-                            q2 ^= (int)box;
-                            v5 = (q2 != 0);
+                            v5 = ((int)box != q2);
                         }
                     }
                     if (v5 == 0) s18 = 0;
@@ -1170,6 +1175,7 @@ L6B4:
         FI(0x1B8) != 0) {
         void *st;
         int a;
+        char *e8;
         {
             char *c10 = (char *)arg4 + 0x10;
             FI(0x1C8) = (int)c10;
@@ -1213,7 +1219,6 @@ L6B4:
                         (*(int *)((char *)arg3 + 8) & 0xFEFFFFFF) | ((FI(0x1BC) & 1) << 24);
                 }
                 {
-                    char *e8;
                     if (f24 > 1000.0f) {
                         ((union IFAlias *)((char *)arg3 + 8))->i |= 0x800000;
                     }
@@ -1279,7 +1284,6 @@ L6B4:
             break;
         case 3:
             if (f21 < 40.0f && f24 > 1000.0f) {
-                char *e8;
                 *(int *)((char *)arg3 + 8) =
                     ((*(int *)((char *)arg3 + 8) & 0xFEFFFFFF) | ((FI(0x1BC) & 1) << 24)) | 0x400000;
                 g90 = (char *)FP(0x60);
@@ -1489,7 +1493,7 @@ L6B4:
                             *(float *)(q + 0x734) = *(float *)((char *)arg4 + 0x14);
                             *(float *)(q + 0x740) = 30.0f;
                             *(float *)(q + 0x738) = *(float *)((char *)arg4 + 0x18);
-                            *(int *)(*(char **)(((union PFAlias *)(gq + 0x164))->p + 0x678) + 0x748) = 0;
+                            *(int *)((char *)*(int *)((char *)*(int *)(gq + 0x164) + 0x678) + 0x748) = 0;
                         }
                         ((union LLAlias *)(env + 0x468))->ll |= 0x8000LL << 46;
                         if (FI(0x1CC) != 0) {
@@ -1777,9 +1781,11 @@ L6B4:
     char *me;
     ForMotionViewer_GetCurrentAnimationFrame(FI(0x30), 0x200);
     e30 = *(int *)(env + 0x30);
-    if ((char *)FI(0x30) == (char *)D_00629DE8 && e30 == 0x45) {
+    {
+    char *me0 = (char *)FI(0x30);
+    if (me0 == (char *)D_00629DE8 && e30 == 0x45) {
         long long ll6;
-        float e = -EnableChangeRootUpdateMode((void *)D_00629DE4, (void *)FI(0x30));
+        float e = -EnableChangeRootUpdateMode((void *)D_00629DE4, me0);
         ll6 = *(long long *)(env + 0x470);
         if ((int)(ll6 << 21 >> 32) & 1) {
             if (e > 5.0f) {
@@ -1798,11 +1804,10 @@ L6B4:
                 }
             }
         } while (0);
-        do {
-            if ((int)(ll6 << 19 >> 32) & 1) {
-                if (e > 195.0f) s6 = 1;
-            }
-        } while (0);
+        if ((int)(ll6 << 19 >> 32) & 1) {
+            if (e > 195.0f) s6 = 1;
+        }
+    }
     }
     e30 = *(volatile int *)(env + 0x30);
     if ((char *)D_00629DE8 != 0) {
@@ -1891,7 +1896,7 @@ L6B4:
         } else {
             char *mc;
             int one;
-            do { *(long long *)(env + 0x470) |= 0x400; mc = (char *)FI(0x30); one = 1; } while (0);
+            do { mc = (char *)FI(0x30); one = 1; *(long long *)(env + 0x470) |= 0x400; } while (0);
             *(char *)(*(char **)(*(char **)(mc + 0x164) + 0x670) + 0x280) = (char)one;
         }
     }
@@ -1998,7 +2003,7 @@ L6B4:
             }
         }
         if (*(int *)(env + 0x160) != 0) {
-            char *ln = (char *)_getLine();
+            char *ln = (char *)_getLine(*(int *)(env + 0x160));
             if (t23v != 0 && ln != 0) {
                 if (TorchGeo(ln) == 0) {
                     *(int *)((char *)arg4 + 0x164) = (int)ln;
