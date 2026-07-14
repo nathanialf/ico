@@ -467,24 +467,24 @@ void func_001FA3D0(void *arg0, void *arg1, int arg2, void *arg3, void *arg4) {
     {
     env = *(char **)(S + 0x164);
     v1 = *(char **)(S + 0x15C);
+    *(volatile int *)&FI(0x30) = (int)arg0;
     S = *(char **)(env + 0x110);
     bx = *(int *)(v1 + 0x170);
     za = 0;
-    FI(0x1B8) = 1;
     FI(0x1B4) = 1;
-    FI(0x1B0) = *(int *)(v1 + 0x0);
+    FI(0x1B8) = 1;
     f24 = *(float *)(S + 0x110);
     {
     float negx = -*(float *)(S + 0x130);
+    FI(0x1B0) = *(int *)(v1 + 0x0);
     f23 = -*(float *)(v1 + 0x594);
-    *(volatile int *)&FI(0x30) = (int)arg0;
     FI(0x1C0) = 0;
     FF(0x34) = negx;
     }
     f22 = *(float *)(S + 0x138);
-    s6 = *(int *)(v1 + 0x554);
-    f21 = *(float *)(S + 0x114);
     s7 = *(int *)(v1 + 0x564);
+    f21 = *(float *)(S + 0x114);
+    s6 = *(int *)(v1 + 0x554);
     func_00260568(FP(0), za, 0x10);
     }
 
@@ -543,19 +543,17 @@ void func_001FA3D0(void *arg0, void *arg1, int arg2, void *arg3, void *arg4) {
     {
         found = isysGObjSearchFromObjLayoutID(0x2B, FI(0x1BC));
         g90 = (char *)FP(0x40);
-        goto L650;
-L648:
-        found = isysGObjSearchFromObjKindID_begin(found);
-L650:
-        if (found == 0) goto L6B4;
-        if (*(int *)((char *)found + 0x16C) == 0) goto L648;
-        CageFixDL(g90, FP(0x50), found);
-        {
-            int cp = ContinueCorrectPosition((void *)FI(0x30));
-            if (!(RotateAccordingToStick_PatternThree(cp, g90) < f20)) goto L648;
+        for (;; found = isysGObjSearchFromObjKindID_begin(found)) {
+            if (found == 0) goto L6B4;
+            if (*(int *)((char *)found + 0x16C) == 0) continue;
+            CageFixDL(g90, FP(0x50), found);
+            {
+                int cp = ContinueCorrectPosition((void *)FI(0x30));
+                if (!(RotateAccordingToStick_PatternThree(cp, g90) < f20)) continue;
+            }
+            if (FF(0x54) > FF(0x14)) break;
         }
     }
-    if (!(FF(0x54) > FF(0x14))) goto L648;
     FI(0x1C0) = (int)found;
     *(int *)((char *)arg4 + 0x160) = (int)found;
 L6B4:
