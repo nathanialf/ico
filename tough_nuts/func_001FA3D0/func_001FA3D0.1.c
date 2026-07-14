@@ -183,9 +183,9 @@ static inline int EnvCamAngle(void *tgt, void *refsrc, void *buf, float k) {
     return HandCameraCorrect(tgt, buf);
 }
 
-static inline int EnvCamAngleP(int *tgtp, void *refsrc, void *buf, float k) {
+static inline int EnvCamAngleP(int tgt, void *refsrc, void *buf, float k) {
     func_00240038(buf, refsrc, k);
-    return HandCameraCorrect((void *)*tgtp, buf);
+    return HandCameraCorrect((void *)tgt, buf);
 }
 
 static inline float EnvSlotDist(int p, float *q) {
@@ -303,8 +303,8 @@ static inline int EnvAssistTail(float *tmp, char *anch, char *dst, float ascale)
     char *dst2 = (dst_); \
     EnvAssistLoop((acc_), S, dst2); \
     if (box != 0) { \
-        *(float *)(dst2 + 0xC) = 1.0f; \
-        func_0023FDD8(dst2, (void *)*(int *)(*(char **)((char *)*(volatile int *)&work[7] + 0x15C) + 0xC), dst2); \
+        ((union IFAlias *)(dst2 + 0xC))->f = 1.0f; \
+        func_0023FDD8(dst2, (void *)*(int *)(*(char **)(box + 0x15C) + 0xC), dst2); \
     } \
     EnvAssistTail((tmp_), anch, dst2, (ascale_)); \
 }
@@ -316,9 +316,12 @@ void func_001FA3D0(void *arg0, void *arg1, int arg2, void *arg3, void *arg4) {
         AVEC v04, v05, v06, v07, v08, v09, v0A, v0B, v0C, v0D, v0E, v0F;
         AVEC v10, v11, v12, v13, v14, v15, v16;
         float v17[8];
-        int work[8];
     } __attribute__((aligned(16))) W;
-    int w1B0, w1B4, w1B8, w1BC, w1C0, w1C4, w1C8, w1CC, w1D0, w1D4, w1D8, w1DC;
+    int w190, w194, w198;
+    float w19C;
+    int w1A0, w1A4;
+    int bx;
+    int w1B0, w1B4, w1B8, w1BC, w1C0, w1C4, w1C8, w1CC, w1D0, w1D4, w1D8;
 #define v00 W.v00
 #define v01 W.v01
 #define v02 W.v02
@@ -343,7 +346,6 @@ void func_001FA3D0(void *arg0, void *arg1, int arg2, void *arg3, void *arg4) {
 #define v15 W.v15
 #define v16 W.v16
 #define v17 W.v17
-#define work W.work
 #define FF(o) FF_##o
 #define FI(o) FI_##o
 #define FP(o) FP_##o
@@ -426,18 +428,17 @@ void func_001FA3D0(void *arg0, void *arg1, int arg2, void *arg3, void *arg4) {
 #define FP_0x160 ((void *)v16)
 #define FI_0x164 (*(int *)&v16[1])
 #define FP_0x170 ((void *)v17)
-#define FI_0x190 work[0]
-#define FI_0x194 work[1]
-#define FI_0x198 work[2]
-#define FP_0x198 ((void *)&work[2])
-#define FF_0x19C (*(float *)&work[3])
-#define FP_0x19C ((void *)&work[3])
-#define FP_0x1A0 ((void *)&work[4])
-#define FP_0x1A4 ((void *)&work[5])
-#define FI_0x1A8 work[6]
-#define FI_0x1AC work[7]
-#define box bx
-#define boxp bx
+#define FI_0x190 w190
+#define FI_0x194 w194
+#define FI_0x198 w198
+#define FP_0x198 ((void *)&w198)
+#define FF_0x19C w19C
+#define FP_0x19C ((void *)&w19C)
+#define FP_0x1A0 ((void *)&w1A0)
+#define FP_0x1A4 ((void *)&w1A4)
+#define FI_0x1A8 arg2
+#define box ((char *)bx)
+#define boxp ((char *)bx)
 #define FI_0x1B0 w1B0
 #define FI_0x1B4 w1B4
 #define FI_0x1B8 w1B8
@@ -449,12 +450,10 @@ void func_001FA3D0(void *arg0, void *arg1, int arg2, void *arg3, void *arg4) {
 #define FI_0x1D0 w1D0
 #define FI_0x1D4 w1D4
 #define FI_0x1D8 w1D8
-#define FI_0x1DC w1DC
     float f20, f21, f22, f23, f24, f25;
     char *t80v;
     char *g90;
     char *w70;
-    char *bx;
     char *env;
     int s6, s7;
     void *found;
@@ -465,29 +464,29 @@ void func_001FA3D0(void *arg0, void *arg1, int arg2, void *arg3, void *arg4) {
     int za;
 
     S = (char *)arg0;
-    env = *(char **)(S + 0x164);
-    FI(0x1A8) = arg2;
     {
-    arg2 = 0x10;
+    env = *(char **)(S + 0x164);
     v1 = *(char **)(S + 0x15C);
     S = *(char **)(env + 0x110);
-    FI(0x1AC) = *(int *)(v1 + 0x170);
+    bx = *(int *)(v1 + 0x170);
     za = 0;
     FI(0x1B8) = 1;
     FI(0x1B4) = 1;
     FI(0x1B0) = *(int *)(v1 + 0x0);
     f24 = *(float *)(S + 0x110);
+    {
+    float negx = -*(float *)(S + 0x130);
+    f23 = -*(float *)(v1 + 0x594);
     *(volatile int *)&FI(0x30) = (int)arg0;
     FI(0x1C0) = 0;
+    FF(0x34) = negx;
+    }
     f22 = *(float *)(S + 0x138);
-    FF(0x34) = -*(float *)(S + 0x130);
-    f23 = -*(float *)(v1 + 0x594);
     s6 = *(int *)(v1 + 0x554);
     f21 = *(float *)(S + 0x114);
     s7 = *(int *)(v1 + 0x564);
-    do { func_00260568(FP(0), za, arg2); } while (0);
+    func_00260568(FP(0), za, 0x10);
     }
-    bx = (char *)*(int *)&work[7];
 
     {
         char *sub;
@@ -695,7 +694,7 @@ L6B4:
                         int a;
                         a = __builtin_abs(EnvCamAngle(boy, arg4, FP(0x60), -1.0f));
                         if (a < 0x2D) {
-                            a = __builtin_abs(EnvCamAngleP(&FI(0x1A8), arg4, FP(0x60), -1.0f));
+                            a = __builtin_abs(EnvCamAngleP(FI(0x1A8), arg4, FP(0x60), -1.0f));
                             if (a < 0x2D) {
                                 if (func_00191D90(boy, (void *)FI(0x1A8)) < 0x2D) {
                                     ((union LLAlias *)(env + 0x20))->ll |= 0x8000;
@@ -784,7 +783,7 @@ L6B4:
                             func_0023FDD8(FP(0x80), g90, w70);
                         }
                         if (f22 < FF(0x88)) {
-                            *(long long *)(env + 0x20) |= 0x20;
+                            ((union LLAlias *)(env + 0x20))->ll |= 0x20;
                         }
                     }
                 }
@@ -827,7 +826,7 @@ L6B4:
                           (void *)FI(0x1C4), FP(0x60));
             func_00240038(*(char **)(*(char **)((char *)FI(0x30) + 0x164) + 0x678) + 0x760,
                           arg4, -1.0f);
-            do { gb = (char *)FI(0x30); } while (0);
+            gb = (char *)FI(0x30);
             q = (char *)*(int *)((char *)*(int *)(gb + 0x164) + 0x678);
             *(int *)(q + 0x774) = 0x14;
             *(float *)(q + 0x770) = 40.0f;
@@ -924,7 +923,7 @@ L6B4:
                 *(float *)(m6 + 0x554) = *(float *)(m6 + 0x4A4);
                 *(float *)(m6 + 0x558) = *(float *)(m6 + 0x4A8);
                 if ((char *)FI(0x30) == (char *)D_00629DE4) FF(0x70) = -FF(0x70);
-                *(float *)(w70 + 0xC) = 1.0f;
+                ((union IFAlias *)(w70 + 0xC))->f = 1.0f;
                 func_0023FDD8(m6 + 0x5A0,
                               (void *)*(int *)(*(char **)(box + 0x15C) + 0xC),
                               w70);
@@ -968,7 +967,7 @@ L6B4:
             if (stt == 0x17) {
                 if (EnableMotionOrientUpdate(FI(0x30), 0x500)) {
                     *(int *)((char *)arg3 + 8) |= 1;
-                    do { *(int *)((char *)arg4 + 0x150) = FI(0x1B0); } while (0);
+                    *(int *)((char *)arg4 + 0x150) = FI(0x1B0);
                     *(int *)((char *)arg4 + 0x14C) = (int)box;
                     EnvWallAssistVec(FV(0x80), FV(0x70), (void *)FI(0x30), (char *)arg4 + 0xF0, 5.0f);
                     stt = *(int *)(box + 0xC);
@@ -1114,7 +1113,7 @@ L6B4:
         }
         if (f22 < 50.0f) {
             int a;
-            a = __builtin_abs(EnvCamAngleP(&FI(0x1A8), arg4, FP(0x70), -1.0f));
+            a = __builtin_abs(EnvCamAngleP(FI(0x1A8), arg4, FP(0x70), -1.0f));
             if (a < 0x28) {
                 if ((char *)FI(0x30) == (char *)D_00629DE4 ||
                     (FF(0x34) > 130.0f && *(int *)(box + 0xC) != 0x10)) {
@@ -1183,7 +1182,6 @@ L6B4:
         {
             char *c10 = (char *)arg4 + 0x10;
             FI(0x1C8) = (int)c10;
-            FI(0x1DC) = (int)c10;
             CheckFieldContact(c10);
         }
         *(float *)((char *)arg4 + 0x1C) = 1.0f;
@@ -1296,9 +1294,9 @@ L6B4:
                 {
                     float cy, cz, cx;
                     e8 = (char *)FI(0x1A8);
+                    cx = ((union IFAlias *)(e8 + 0))->f;
                     cy = ((union IFAlias *)(e8 + 4))->f;
                     cz = ((union IFAlias *)(e8 + 8))->f;
-                    cx = ((union IFAlias *)(e8 + 0))->f;
                     FF(0x60) = cx;
                     FF(0x64) = cy;
                     FF(0x68) = cz;
@@ -1345,7 +1343,8 @@ L6B4:
             if (f21 < 40.0f) {
                 if (f24 > 1000.0f) {
                     char *sub2;
-                    do { sub2 = (char *)*(int *)((char *)FI(0x30) + 0x15C); } while (0);
+                    int m4;
+                    do { sub2 = (char *)*(int *)((char *)FI(0x30) + 0x15C); m4 = 0x400000; } while (0);
                     {
                         long long ca = ((EnvCopy32 *)(sub2 + 0x170))->a;
                         long long cb = ((EnvCopy32 *)(sub2 + 0x170))->b;
@@ -1355,8 +1354,8 @@ L6B4:
                         ((EnvCopy32 *)((char *)arg4 + 0x190))->b = cb;
                         ((EnvCopy32 *)((char *)arg4 + 0x190))->c = cc2;
                         ((EnvCopy32 *)((char *)arg4 + 0x190))->d = cd;
+                        ((union IFAlias *)arg3)->i |= m4;
                     }
-                    ((union IFAlias *)arg3)->i |= 0x400000;
                 }
             }
         }
@@ -1493,7 +1492,7 @@ L6B4:
                                       FP(0x160), FP(0x150));
                         {
                             char *gq = (char *)FI(0x30);
-                            q = *(char **)(*(char **)(gq + 0x164) + 0x678);
+                            q = (char *)*(int *)((char *)*(int *)(gq + 0x164) + 0x678);
                             *(float *)(q + 0x730) = *(float *)((char *)arg4 + 0x10);
                             *(int *)(q + 0x744) = 0x14;
                             *(float *)(q + 0x734) = *(float *)((char *)arg4 + 0x14);
@@ -1654,11 +1653,12 @@ L6B4:
                         }
                         {
                             int idx;
+                            char *ca = (char *)arg4 + 0x10;
                             g90 = (char *)FP(0x90);
                             for (idx = 0; 0.0f <= ((float *)FI(0x190))[idx]; idx++) {
                                 if (func_001FA078(g90, FP(0x10), (void *)FI(0x1C8),
                                                   f21, ((float *)FI(0x190))[idx])) {
-                                    func_00240038(FP(0xA0), (void *)FI(0x1DC), -1.0f);
+                                    func_00240038(FP(0xA0), ca, -1.0f);
                                     if (FI(0x194) != 0) {
                                         FF(0x90) = FF(0xB0);
                                         FF(0x94) = FF(0xB4);
@@ -1678,18 +1678,18 @@ L6B4:
                                         ((union LLAlias *)(env + 0x478))->ll |= 8;
                                     } else {
                                         char *q;
-                                        func_00240038(FP(0xD0), (void *)FI(0x1DC), f21 - 30.0f);
+                                        func_00240038(FP(0xD0), ca, f21 - 30.0f);
                                         func_0023FFF0(*(char **)(*(char **)((char *)FI(0x30) + 0x164) + 0x678) + 0x780,
                                                       FP(0x10), FP(0xD0));
                                         {
                                             char *gq2 = (char *)FI(0x30);
-                                            q = *(char **)(*(char **)(gq2 + 0x164) + 0x678);
+                                            q = (char *)*(int *)((char *)*(int *)(gq2 + 0x164) + 0x678);
                                             *(float *)(q + 0x790) = *(float *)((char *)arg4 + 0x10);
                                             *(int *)(q + 0x7A4) = 0x14;
                                             *(float *)(q + 0x794) = *(float *)((char *)arg4 + 0x14);
                                             *(float *)(q + 0x7A0) = 30.0f;
                                             *(float *)(q + 0x798) = *(float *)((char *)arg4 + 0x18);
-                                            *(int *)(*(char **)(((union PFAlias *)(gq2 + 0x164))->p + 0x678) + 0x7A8) = 0;
+                                            *(int *)(*(int *)((char *)*(int *)(gq2 + 0x164) + 0x678) + 0x7A8) = 0;
                                         }
                                         ((union LLAlias *)(env + 0x468))->ll |= 0x8000LL << 48;
                                     }
@@ -1770,21 +1770,19 @@ L6B4:
                 }
                 }
             }
-            if (hit != 0) {
-                ((union LLAlias *)(env + 0x470))->ll |= 0x8000LL << 38;
-                *(int *)((char *)arg4 + 0x15C) = (int)hit;
-                EnvGetPos((float *)FP(0xE0), hit);
-                func_00240038(FP(0xD0), (void *)FI(0x1C8), -20.0f);
-                func_0023FFF0(*(char **)(*(char **)((char *)FI(0x30) + 0x164) + 0x670) + 0x1C0,
-                              FP(0xE0), FP(0xD0));
-                *(float *)(*(char **)(*(char **)((char *)FI(0x30) + 0x164) + 0x670) + 0x1C4) = FF(0x14);
-            }
+            if (hit == 0) goto Lafter;
+            ((union LLAlias *)(env + 0x470))->ll |= 0x8000LL << 38;
+            *(int *)((char *)arg4 + 0x15C) = (int)hit;
+            EnvGetPos((float *)FP(0xE0), hit);
+            func_00240038(FP(0xD0), (void *)FI(0x1C8), -20.0f);
+            func_0023FFF0(*(char **)(*(char **)((char *)FI(0x30) + 0x164) + 0x670) + 0x1C0,
+                          FP(0xE0), FP(0xD0));
+            *(float *)(*(char **)(*(char **)((char *)FI(0x30) + 0x164) + 0x670) + 0x1C4) = FF(0x14);
         }
     Lafter:;
     }
     {
     int e30;
-    char *me;
     ForMotionViewer_GetCurrentAnimationFrame(FI(0x30), 0x200);
     e30 = *(int *)(env + 0x30);
     {
@@ -1822,14 +1820,16 @@ L6B4:
     if (*(int *)(env + 0x160) != 0) {
         *(long long *)(env + 0x470) |= 0x8000LL << 22;
     }
-    me = (char *)*(volatile int *)&FI(0x30);
-    if (me == (char *)*(void *volatile *)&D_00629DE4 &&
+    {
+    char *vw;
+    vw = (char *)*(volatile int *)&FI(0x30);
+    if (vw == (char *)*(void *volatile *)&D_00629DE4 &&
         e30 != 0xE) {
         char *w;
         if (*(int *)(env + 0x130) != 0) {
             w = (char *)WeaponHitEffect((void *)*(int *)(env + 0x130), 150.0f);
         } else {
-            w = (char *)WeaponHitEffect(me, 150.0f);
+            w = (char *)WeaponHitEffect(vw, 150.0f);
         }
         if (w != 0) {
             char *pp;
@@ -1851,6 +1851,7 @@ L6B4:
             e30 = *(int *)(env + 0x30);
         }
     }
+    }
     if ((unsigned int)e30 < 0x3B) {
         if ((unsigned int)e30 >= 0x39) {
             isStopChain((void *)*(int *)(env + 0x180), FP(0x19C), FP(0x1A0), FP(0x1A4));
@@ -1862,7 +1863,8 @@ L6B4:
         }
     }
     }
-    if ((char *)FI(0x30) == (char *)D_00629DE4 && (char *)D_00629DE8 != 0) {
+    v1 = (char *)FI(0x30);
+    if (v1 == (char *)D_00629DE4 && (char *)D_00629DE8 != 0) {
         char *h = *(char **)((char *)D_00629DE8 + 0x164);
         if (*(int *)(h + 0x30) == 0x6B) {
             char *g = *(char **)(h + 0x124);
@@ -2028,10 +2030,12 @@ L6B4:
         }
     }
     if ((*(unsigned int *)((char *)arg3 + 4) >> 30) & 1) {
-        char *g = (char *)*(volatile int *)&FI(0x30);
-        char *q3 = *(char **)(*(char **)(g + 0x164) + 0x670);
+        S = (char *)*(volatile int *)&FI(0x30);
+        {
+        char *q3 = *(char **)(*(char **)(S + 0x164) + 0x670);
         *(int *)(q3 + 0x2C4) = (int)box;
-        moveBoxAutoMatic(q3 + 0x2D0, box, g);
+        moveBoxAutoMatic(q3 + 0x2D0, box, S);
+        }
     }
     return;
 #undef FF
