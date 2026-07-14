@@ -514,8 +514,11 @@ void func_001FA3D0(void *arg0, void *arg1, int arg2, void *arg3, void *arg4) {
         }
     }
     GetHeightOfWallFromGObj(FP(0), (void *)FI(0x30));
-    FI(0x1C4) = (int)FP(0x10);
-    GetRootMatrixByDObj(FP(0x10), (void *)FI(0x30));
+    {
+        char *p10 = (char *)FP(0x10);
+        FI(0x1C4) = (int)p10;
+        GetRootMatrixByDObj(p10, (void *)FI(0x30));
+    }
     func_001443B8(FP(0x20), (void *)FI(0x30), 0x2C);
     {
         char *sub = *(char **)((char *)*(volatile int *)&FI(0x30) + 0x15C);
@@ -790,16 +793,20 @@ L6B4:
         }
         {
             gb = (char *)FI(0x30);
-            do { *(float *)(env + 0x170) = FF(0x34); } while (0);
-            *(int *)(env + 0x174) = *(int *)(*(char **)(gb + 0x15C) + 0x5E4);
-            do {
-            if (f22 < 40.0f) {
-                ((union LLAlias *)(env + 0x18))->ll |= 0x8000LL << 24;
-                if (func_00191D90(subCommonIdle(gb), arg4) >= 0x88) {
-                    ((union LLAlias *)(env + 0x18))->ll |= 0x8000LL << 25;
+            {
+                float c40;
+                do {
+                    *(float *)(env + 0x170) = FF(0x34);
+                } while (0);
+                c40 = 40.0f;
+                *(int *)(env + 0x174) = *(int *)(*(char **)(gb + 0x15C) + 0x5E4);
+                if (f22 < c40) {
+                    ((union LLAlias *)(env + 0x18))->ll |= 0x8000LL << 24;
+                    if (func_00191D90(subCommonIdle(gb), arg4) >= 0x88) {
+                        ((union LLAlias *)(env + 0x18))->ll |= 0x8000LL << 25;
+                    }
                 }
             }
-            } while (0);
         }
         b6 = 0;
         if (FF(0x34) > 90.0f && FF(0x34) < 110.0f) b6 = (s6 == 0);
@@ -1226,8 +1233,8 @@ L6B4:
                     g90 = (char *)FP(0x60);
                     {
                     float cx = ((union IFAlias *)(e8 + 0))->f;
-                    float cz = ((union IFAlias *)(e8 + 8))->f;
                     float cy = ((union IFAlias *)(e8 + 4))->f;
+                    float cz = ((union IFAlias *)(e8 + 8))->f;
                     FF(0x60) = cx;
                     FF(0x64) = cy;
                     FF(0x68) = cz;
@@ -1290,14 +1297,15 @@ L6B4:
                 }
                 g90 = (char *)FP(0x60);
                 {
-                    float cy, cz, cx;
                     e8 = (char *)FI(0x1A8);
-                    cx = ((union IFAlias *)(e8 + 0))->f;
-                    cy = ((union IFAlias *)(e8 + 4))->f;
-                    cz = ((union IFAlias *)(e8 + 8))->f;
+                    {
+                    float cx = ((union IFAlias *)(e8 + 0))->f;
+                    float cy = ((union IFAlias *)(e8 + 4))->f;
+                    float cz = ((union IFAlias *)(e8 + 8))->f;
                     FF(0x60) = cx;
                     FF(0x64) = cy;
                     FF(0x68) = cz;
+                    }
                 }
                 func_00240038(g90, g90, f21 + 10.0f);
                 f20 = 5.0f;
@@ -1494,9 +1502,12 @@ L6B4:
                             *(float *)(q + 0x730) = *(float *)((char *)arg4 + 0x10);
                             *(int *)(q + 0x744) = 0x14;
                             *(float *)(q + 0x734) = *(float *)((char *)arg4 + 0x14);
-                            *(float *)(q + 0x740) = 30.0f;
-                            *(float *)(q + 0x738) = *(float *)((char *)arg4 + 0x18);
-                            *(int *)((char *)*(int *)((char *)*(int *)(gq + 0x164) + 0x678) + 0x748) = 0;
+                            {
+                                char *q2 = (char *)*(int *)((char *)*(int *)(gq + 0x164) + 0x678);
+                                *(float *)(q + 0x740) = 30.0f;
+                                *(float *)(q + 0x738) = *(float *)((char *)arg4 + 0x18);
+                                *(int *)(q2 + 0x748) = 0;
+                            }
                         }
                         ((union LLAlias *)(env + 0x468))->ll |= 0x8000LL << 46;
                         if (FI(0x1CC) != 0) {
