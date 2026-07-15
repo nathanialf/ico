@@ -1487,7 +1487,7 @@ int func_00242550(void *a0, int a1, int a2, int a3, int a4) {
     extern int func_00100520(int *a0);
     extern int func_00248250(int a0, int a1, int a2, int a3, int a4, int a5);
     extern int func_00100530(int a0);
-    extern void func_00100560(int a0);
+    extern int func_00100560(int a0);
     extern int D_0070E240[];
     void *obj;
     int buf[8];
@@ -1552,7 +1552,7 @@ int func_002427A8(void *a0, int a1, int a2) {
     extern int func_00100520(int *a0);
     extern int func_00248250(int a0, int a1, int a2, int a3, int a4, int a5);
     extern int func_00100530(int a0);
-    extern void func_00100560(int a0);
+    extern int func_00100560(int a0);
     extern int D_0070E240[];
     void *obj;
     int buf[8];
@@ -1724,7 +1724,29 @@ void func_00243098(void) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002430F8);
+extern int func_00100560(int a0);
+extern void func_00100540(int a0);
+extern char D_0070F380[];
+
+int func_002430F8(void) {
+    char *p;
+    char *end;
+    func_00243098();
+    func_00100560(D_0054AB28[0]);
+    p = D_0070F380;
+    end = p + 0x200;
+    while (p < end) {
+        if (*(int *)(p + 4) == 0) {
+            *(int *)(p + 4) = 0x10000000;
+            func_00100540(D_0054AB28[0]);
+            return (int)p;
+        }
+        p += 0x10;
+    }
+    func_00100540(D_0054AB28[0]);
+    return 0;
+}
+
 
 extern char D_0070F380[];
 
@@ -1757,7 +1779,7 @@ void func_002435A8(void) {
 }
 
 extern void func_002435A8(void);
-extern void func_00100560(int a0);
+extern int func_00100560(int a0);
 extern int D_0054AB24[];
 
 int func_002435F8(int arg) {
@@ -1854,7 +1876,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00245080);
 
 int func_00245120(unsigned int a0) {
     extern int func_00100520(int *a0);
-    extern void func_00100560(int a0);
+    extern int func_00100560(int a0);
     int *g = D_0070E2C0;
     void *obj;
     int f0;
@@ -1906,7 +1928,7 @@ int func_00245120(unsigned int a0) {
 
 int func_00245288(unsigned int a0, int a1) {
     extern int func_00100520(int *a0);
-    extern void func_00100560(int a0);
+    extern int func_00100560(int a0);
     int *g = D_0070E2C0;
     void *obj;
     int f0;
@@ -3769,7 +3791,15 @@ int func_0024B1A0(int a0, int a1, int a2) {
     return ret;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024B250);
+extern int func_0024B0E8(int a0, int a1);
+
+int func_0024B250(int a0, int a1) {
+    if (D_007112D0[a0][a1].f10 == 0) {
+        return 0;
+    }
+    return func_0024B0E8(a0, a1) == 0x3FFFF;
+}
+
 
 int func_0024B2B0(int a0, int a1) {
     if (D_007112D0[a0][a1].f10 == 0) {
@@ -4109,7 +4139,17 @@ L050:
     return r;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024C0B0);
+extern int *D_00711668[];
+extern int *D_0071166C[];
+extern int *D_00711670[];
+
+void func_0024C0B0(int a0) {
+    a0 |= 0x20000000;
+    if (D_00711668[0]) *D_00711668[0] = *(int *)a0;
+    if (D_0071166C[0]) *D_0071166C[0] = *(int *)(a0 + 4);
+    if (D_00711670[0]) *D_00711670[0] = *(int *)(a0 + 0x90);
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024C108);
 
@@ -6269,7 +6309,23 @@ void func_002529D8(void) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00252A40);
+extern int D_0054C9C0[];
+extern int D_0054D040[];
+
+int func_00252A40(void) {
+    int *p = D_0054C9C0;
+    *p = func_00252870(5);
+    if (func_00252870(1)) {
+        int *q = D_0054D040;
+        *q = func_00252870(1);
+        func_00252758(7);
+        func_00252F88();
+    } else {
+        D_0054D040[0] = 0;
+    }
+    return 0;
+}
+
 
 /* m2c scaffold from asm/aug6/nonmatchings/common/src/PObj/func_00252AB0.s (target mipsel-gcc-c, context-free).
  * NOT a match — reshape into a goto-CFG-mirror + recover intent (see decomp-match skill). */
