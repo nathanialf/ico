@@ -61,6 +61,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", _ACTCorrectMsg);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ACTGetOrientFromIntrK);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_00154FE8);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_00155138);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_00155288);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_001555B4);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_00155738);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", ACTRunIntrCorrect);
@@ -409,6 +417,10 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015AF10);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonBar);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015B250);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015B398);
+
 extern int D_00629DF4;
 extern void lt_fade_status(int a0);
 
@@ -541,6 +553,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C080);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", getAvoidCollisionFlyLevel);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C0D8);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C1D0);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C268);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C300);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C3F8);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C418);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C4D8);
+
 void emergencyCheck(int a0) {
     volatile int buf[4];
     buf[0] = a0;
@@ -555,6 +581,16 @@ void func_0015C568(volatile int a0) {
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", flyCoreLoop);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C5B8);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C620);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C650);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C708);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C778);
 
 void actCommonFly(volatile int a0) {
     for (;;) {
@@ -573,6 +609,12 @@ void func_0015C7B8(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonLadder);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C818);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C870);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C8D0);
+
 extern void _ACTWait(int a0);
 
 void actCommonDodge(volatile int a0) {
@@ -582,6 +624,14 @@ void actCommonDodge(volatile int a0) {
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonEdgeHang);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C9B8);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015CA48);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015CAE0);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015CB20);
 
 extern void debug_assertMessage(void *a0);
 extern void _ACTWait(int a0);
@@ -599,6 +649,10 @@ void funcCommonEndReady(volatile int a0) {
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", funcCommonEndExec);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015CD08);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015CE60);
 
 extern int CanWallLeverPull(int a0, int a1);
 extern char D_0062C498[];
