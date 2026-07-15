@@ -74,7 +74,23 @@ int _AbsRotyGV(void *a0) {
     return q->f_8 == 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/gv", _ApplyRyGV);
+extern void *isysGObjSearchFromObjLayoutID(int a0);
+extern void *isysGObjSearchFromObjKindID_begin(void *a0);
+
+int _ApplyRyGV(void) {
+    void *g = isysGObjSearchFromObjLayoutID(0x21);
+    while (g != 0) {
+        void *p = *(void **)((char *)g + 0x15C);
+        void *q = *(void **)((char *)p + 0x7F0);
+        if (*(int *)((char *)g + 0x16C) != 0) {
+            if (*(int *)((char *)q + 0x50) == 1) {
+                return 1;
+            }
+        }
+        g = isysGObjSearchFromObjKindID_begin(g);
+    }
+    return 0;
+}
 
 void _GetDirection(short *a0) {
     a0[0] = 1;
