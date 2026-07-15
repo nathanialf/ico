@@ -541,17 +541,60 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015B9B0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015BA28);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015BAA0);
+void func_0015BAA0(volatile int a0) {
+    _ACTWait(0x28);
+    for (;;) {
+        BoxBarSoundOn((void *)a0, 0xB4);
+        _ACTWait(1);
+    }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015BAD8);
+void func_0015BAD8(volatile int a0) {
+    CommonActState *s = *(CommonActState **)(a0 + 0x164);
+    funcCommonJumpDircorrect(a0, (int)s->p_678 + 0x7C0);
+    for (;;) {
+        BoxBarSoundOn((void *)a0, 0xB4);
+        _ACTWait(1);
+    }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015BB20);
+extern char D_00552E80[];
+
+void func_0015BB20(volatile int a0) {
+    char *s = *(char **)(a0 + 0x164);
+    debug_assertMessage(D_00552E80);
+    dispPlane((void *)a0, s + 0x4B0);
+    for (;;) {
+        BoxBarSoundOn((void *)a0, 0xB4);
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015BB70);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015BCA8);
+extern int ForMotionViewer_GetCurrentMotion(void *a0, int a1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015BD00);
+void func_0015BCA8(volatile int a0) {
+    for (;;) {
+        if (ForMotionViewer_GetCurrentMotion((void *)a0, 0x3000) == 0 &&
+            ForMotionViewer_GetCurrentMotion((void *)a0, 0x400) == 0) {
+            BoxBarSoundOn((void *)a0, 0xCF);
+        }
+        _ACTWait(1);
+    }
+}
+
+void func_0015BD00(volatile int a0) {
+    for (;;) {
+        float v;
+        BoxBarSoundOn((void *)a0, 0x136);
+        v = *(float *)(*(char **)(a0 + 0x15C) + 0x5D8);
+        if (250.0f < -v) {
+            BoxBarSoundOn((void *)a0, 0x18);
+        }
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015BD60);
 
@@ -563,9 +606,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015BF88);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C000);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C080);
+extern char D_00552EA0[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", getAvoidCollisionFlyLevel);
+void func_0015C080(volatile int a0) {
+    debug_assertMessage(D_00552EA0);
+    _ACTWait(0);
+}
+
+extern char D_00552EB0[];
+
+void getAvoidCollisionFlyLevel(volatile int a0) {
+    debug_assertMessage(D_00552EB0);
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C0D8);
 
@@ -575,7 +630,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C268);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C300);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C3F8);
+void func_0015C3F8(volatile int a0) {
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C418);
 
@@ -594,17 +653,54 @@ void func_0015C568(volatile int a0) {
     _ACTWait(0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", flyCoreLoop);
+void flyCoreLoop(volatile int a0) {
+    for (;;) {
+        BoxBarSoundOn((void *)a0, 0xB4);
+        _ACTWait(1);
+    }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C5B8);
+extern void func_00149C20(void *a0, int a1, int a2, float f);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C620);
+void func_0015C5B8(volatile int a0) {
+    int buf[4];
+    func_00240038_p(buf, (int)subCommonIdle((char *)a0), -1.0f);
+    dispPlane((void *)a0, buf);
+    for (;;) {
+        func_00149C20((void *)a0, 3, 0, -1.0f);
+        _ACTWait(1);
+    }
+}
+
+void func_0015C620(volatile int a0) {
+    for (;;) {
+        BoxBarSoundOn((void *)a0, 0xB4);
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C650);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C708);
+extern void func_00104548(void *a0, void *a1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C778);
+void func_0015C708(volatile int a0) {
+    int buf[4];
+    char *p = *(char **)(a0 + 0x164) + 0x5B0;
+    for (;;) {
+        int r, ar;
+        func_00104548(buf, (void *)a0);
+        r = HandCameraCorrect(p, buf);
+        ar = (r < 0) ? -r : r;
+        if (ar < 0xF) {
+            BoxBarSoundOn((void *)a0, 0xE1);
+        }
+        _ACTWait(1);
+    }
+}
+
+void func_0015C778(volatile int a0) {
+    _ACTWait(0);
+}
 
 void actCommonFly(volatile int a0) {
     for (;;) {
@@ -621,13 +717,44 @@ void func_0015C7B8(volatile int a0) {
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonLadder);
+extern char D_00552F58[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C818);
+void actCommonLadder(volatile int a0) {
+    debug_assertMessage(D_00552F58);
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C870);
+static __inline__ void func_0015C818_disp(int obj) {
+    int buf[4];
+    func_00240038_p(buf, (int)(*(char **)(obj + 0x164) + 0x4A0), -1.0f);
+    dispPlane((void *)obj, buf);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C8D0);
+void func_0015C818(volatile int a0) {
+    CommonActState *s = *(CommonActState **)(a0 + 0x164);
+    s->f_34 = 1;
+    for (;;) {
+        func_0015C818_disp(a0);
+        _ACTWait(1);
+    }
+}
+
+void func_0015C870(volatile int a0) {
+    CommonActState *s = *(CommonActState **)(a0 + 0x164);
+    s->f_34 = 0xFFFFFFFF;
+    for (;;) {
+        func_0015C818_disp(a0);
+        _ACTWait(1);
+    }
+}
+
+void func_0015C8D0(volatile int a0) {
+    CommonActState *s = *(CommonActState **)(a0 + 0x164);
+    s->f_34 = 1;
+    _ACTWait(0);
+}
 
 extern void _ACTWait(int a0);
 
@@ -643,9 +770,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C9B8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015CA48);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015CAE0);
+void func_0015CAE0(volatile int a0) {
+    char *p = *(char **)(a0 + 0x164) + 0x190;
+    for (;;) {
+        dispPlane((void *)a0, p);
+        _ACTWait(1);
+    }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015CB20);
+extern char D_00552EF8[];
+
+void func_0015CB20(volatile int a0) {
+    debug_assertMessage(D_00552EF8);
+    _ACTWait(0);
+}
 
 extern void debug_assertMessage(void *a0);
 extern void _ACTWait(int a0);
@@ -666,7 +804,16 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", funcCommonEndExec);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015CD08);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015CE60);
+extern char D_0062C490[];
+
+void func_0015CE60(volatile int a0) {
+    char *state = *(char **)(a0 + 0x164);
+    int v = *(int *)(state + 0x5EC);
+    _ACTWait(6);
+    CanWallLeverPull(v, 0);
+    debug_assertMessage(D_0062C490);
+    _ACTWait(0);
+}
 
 extern int CanWallLeverPull(int a0, int a1);
 extern char D_0062C498[];
