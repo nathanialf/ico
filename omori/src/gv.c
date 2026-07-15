@@ -49,7 +49,17 @@ void _DistGV(void *a0) {
     *(unsigned long *)((char *)p + 0x18) |= (unsigned long)0x8000 << 19;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/gv", _DistxzGV);
+extern char D_005550B8[];
+
+typedef union { unsigned long ll; unsigned int i; } GVBits;
+
+void _DistxzGV(void *a0) {
+    void *p = *(void **)((char *)a0 + 0x164);
+    GVGeo2 *g = &D_002A0A90[*(int *)((char *)a0 + 0x8)];
+    debug_assertMessage(D_005550B8, *(int *)((char *)a0 + 0x8));
+    ((GVBits *)((char *)p + 0x18))->ll &= ~((unsigned long)0x8000 << 19);
+    g->f48 = (g->f48 | 0x200000) & 0xFFFBFFFF;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/gv", _MoveGV);
 

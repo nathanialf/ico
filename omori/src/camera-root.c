@@ -124,7 +124,24 @@ void Camctrl_ExitEveRock(int a0, int a1) {
     D_0062C078 = a1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-root", Camctrl_SetTarget);
+typedef struct { unsigned long _0, _8, _10, _18; } CamTgt;
+extern void func_00240008(void *, void *, void *);
+
+void Camctrl_SetTarget(int a0, int a1) {
+    char buf[0x30];
+    if (a0 == 0) {
+        *(int *)(buf + 0) = 0;
+        *(int *)(buf + 4) = 0;
+        *(int *)(buf + 8) = 0;
+    } else {
+        GetRootMatrixByDObj(buf + 0x10, a0);
+        GetRootMatrixByDObj(buf + 0x20, a1);
+        func_00240008(buf, buf + 0x20, buf + 0x10);
+    }
+    *(CamTgt *)D_006C9F80 = *(CamTgt *)D_006C9F60;
+    func_0023FFF0(D_006C9F80, D_006C9F80, buf);
+    D_006C9F80[6] = 1;
+}
 
 
 int GetCameraDefaultTargetGObj(void) {
