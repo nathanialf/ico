@@ -309,7 +309,18 @@ int func_0023FB20(void *a0) {
     return r;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0023FB60);
+void func_0023FB60(void *a0, short a1, short a2, short a3) {
+    unsigned long long v = *(unsigned long long *)((char *)a0 + 0x30);
+    long long a, b, ta, t, hi;
+    b = (short)a2;
+    b -= (unsigned long long)((int)((v >> 48) & 0x7FF) + 1) >> 1;
+    t = b << 4;
+    a = (short)a1;
+    a -= (unsigned long long)((int)((v >> 16) & 0x7FF) + 1) >> 1;
+    ta = a << 4;
+    if (a3 != 0) hi = (t + 8) << 32; else hi = b << 36;
+    *(long long *)((char *)a0 + 0x20) = ta | hi;
+}
 
 void func_0023FBE8(void) {
     do {
