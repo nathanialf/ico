@@ -1291,7 +1291,20 @@ void func_002418F0(void) {
     *p = 4;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00241930);
+extern void func_00100890(void *a0, void *a1);
+long long func_00241930(void) {
+    volatile int flag;
+    volatile long long val;
+    volatile int *p;
+    flag = 0;
+    func_00100890((void*)&flag, (void*)&val);
+    p = (volatile int *)0x1000F000;
+    *p = 4;
+    while ((*p & 4) == 0 && flag == 0) {
+    }
+    *p = 4;
+    return val;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00241990);
 
@@ -3231,7 +3244,24 @@ __asm__(
 "
 );
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002484D0);
+extern int func_00100520(int *a0);
+extern int func_001002A0(int a0, void *a1, int a2);
+extern int func_00100560(int a0);
+extern int func_00100530(int a0);
+extern void func_002484A4(void);
+
+void func_002484D0(unsigned short a0) {
+    int buf[8];
+    unsigned short id = a0;
+    int r;
+    buf[1] = 1;
+    buf[2] = 0;
+    buf[5] = 0;
+    r = func_00100520(buf);
+    func_001002A0(id, (char *)func_002484A4 + 4, r);
+    func_00100560(r);
+    func_00100530(r);
+}
 
 extern int func_002490C0(int a0);
 extern int D_00710F80[];
@@ -6754,7 +6784,20 @@ void func_00254A88(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00254B70);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00254CC0);
+int func_00254CC0(int a0) {
+    int r = 0;
+    switch (a0) {
+    case 0:
+        while (*(volatile int *)0x10002010 < 0) {
+        }
+        r = 0;
+        break;
+    case 1:
+        r = (unsigned)*(volatile int *)0x10002010 >> 31;
+        break;
+    }
+    return r;
+}
 
 void func_00254D28(int *a0) {
     func_00101A40(a0);
@@ -8610,7 +8653,18 @@ int func_002610F0(void) {
     return s & 0x7fffffff;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00261120);
+void func_00261120(void *a0, int a1, int a2, ...) {
+    char buf[0x60];
+    char *va = (char *)__builtin_next_arg(a2) - 40;
+    *(int *)(buf + 0x0) = a1;
+    *(int *)(buf + 0x8) = 0x7FFFFFFF;
+    *(short *)(buf + 0xC) = 0x208;
+    *(int *)(buf + 0x10) = a1;
+    *(int *)(buf + 0x14) = 0x7FFFFFFF;
+    *(int *)(buf + 0x54) = (int)a0;
+    func_00262D00(buf, a2, va);
+    *(char *)(*(int *)(buf + 0x0)) = 0;
+}
 
 void func_00261188(void *a0, int a1, ...) {
     char buf[0x60];
