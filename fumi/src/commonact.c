@@ -469,13 +469,43 @@ void actCommonFall(int self) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", debugDispFlyLimit);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015B740);
+extern void isExistEnemyParticle(char *a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015B790);
+void func_0015B740(volatile int a0) {
+    CylinderCollision((void *)a0, *(char **)(a0 + 0x164) + 0x150);
+    isExistEnemyParticle((char *)a0);
+    for (;;) {
+        BoxBarSoundOn((void *)a0, 0xCF);
+        _ACTWait(1);
+    }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", debugDispSphere);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015B850);
+extern char D_00552BC0[];
+
+void func_0015B790(volatile int a0) {
+    debug_assertMessage(D_00552BC0);
+    _ACTWait(0);
+}
+
+
+void debugDispSphere(volatile int a0) {
+    char *s164 = *(char **)(a0 + 0x164);
+    if (*(int *)(s164 + 0xB8) == 0x17E && (*(int *)(s164 + 0x118) & 1)) {
+        int q = (0x3C - D_00271240[0] * 0xA) / D_00271240[1];
+        *(short *)(s164 + 0x11A) = q * 5;
+    }
+    for (;;) {
+        BoxBarSoundOn((void *)a0, 0xB4);
+        _ACTWait(1);
+    }
+}
+
+
+void func_0015B850(volatile int a0) {
+    _ACTWait(0);
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", getLandOffset);
 
@@ -490,13 +520,26 @@ void emergencyCheck(int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C568);
+void func_0015C568(volatile int a0) {
+    _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", flyCoreLoop);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonFly);
+void actCommonFly(volatile int a0) {
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C7B8);
+extern void boss_effect_process(int a0);
+
+void func_0015C7B8(volatile int a0) {
+    char *s164 = *(char **)(a0 + 0x164);
+    *(int *)(s164 + 0x14) = (int)boss_effect_process;
+    _ACTWait(0);
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonLadder);
 
@@ -567,11 +610,33 @@ void ACTSendMailCorrect(volatile int a0) {
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", _ACTCommonMailTest);
+void _ACTCommonMailTest(volatile int a0) {
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015CFF0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015D028);
+extern void *D_0062A4DC;
+
+void func_0015CFF0(volatile int a0) {
+    if (D_00629DE8 != 0) {
+        iosOmBeforeFuncStandard((void *)D_00629DE8, 0x3F, D_0062A4DC);
+    }
+    for (;;) {
+        _ACTWait(1);
+    }
+}
+
+
+extern int D_0062A7E8;
+
+void func_0015D028(int a0) {
+    if (a0 == (int)D_00629DE8) {
+        D_0062A7E8 = 1;
+    }
+}
+
 
 void E3_LeverCheck(void *a0) {
     CommonActState *p = *(CommonActState **)((char *)a0 + 0x164);
