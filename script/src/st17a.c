@@ -18,7 +18,11 @@ void actSt17aDoor(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aDoorUpChk);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", func_00229C38);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aDoorDownChk);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", func_00229D28);
 
 #include "common.h"
 extern void _ACTWait(int a0);
@@ -118,6 +122,8 @@ void actSt17aIntro(volatile int a0) {
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aSekizoEvent);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", func_0022A080);
 
 extern int func_00178DB0(int a0);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);

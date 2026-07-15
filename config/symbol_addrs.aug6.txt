@@ -5228,3 +5228,6 @@ func_00217610 = 0x00217610; // type:func  // script/src/st04e.c  // splat-merge 
 func_0022E0E8 = 0x0022E0E8; // type:func  // script/src/st19a.c  // splat-merge split (actSt19aOriSwitch coroutine)
 func_0022E178 = 0x0022E178; // type:func  // script/src/st19a.c  // splat-merge split (actSt19aOriUp coroutine)
 func_002078C8 = 0x002078C8; // type:func  // script/src/e3.c  // splat-merge split (actE3CageFallChk coroutine)
+func_00229C38 = 0x00229C38; // type:func  // script/src/st17a.c  // splat-merge split (actSt17aDoorUpChk coroutine)
+func_00229D28 = 0x00229D28; // type:func  // script/src/st17a.c  // splat-merge split (actSt17aDoorDownChk coroutine)
+func_0022A080 = 0x0022A080; // type:func  // script/src/st17a.c  // splat-merge split (actSt17aSekizoEvent coroutine)
