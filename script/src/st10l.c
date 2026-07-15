@@ -73,13 +73,33 @@ void actSt10lGondolaUp(volatile int a0) {
 }
 
 
+typedef struct { char pad[0xB4]; int unkB4; } ActB4GD;
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int actSt25aQueenDeadChk(int a0);
+extern void BoxBarSoundOn(int a0, int a1);
+extern int D_004CD140[];
+extern void actSt10lChainMove(volatile int a0);
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10l", actSt10lGondolaDown);
+
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10l", actSt10lEneCam3Chk);
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10l", actSt10lChainMove);
+
+typedef struct { char pad[0xB0]; int *unkB0; } ActB0Obj;
+extern int D_004CD120[];
+void actSt10lChainMove(volatile int a0) {
+    ActB0Obj *obj = *(ActB0Obj **)(a0 + 0x164);
+    obj->unkB0 = D_004CD120;
+    while (1) {
+        _ACTWait(1);
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10l", func_00222B00);
 
