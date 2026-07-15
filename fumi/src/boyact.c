@@ -297,13 +297,40 @@ void actBoyTakeWeapon(int *volatile a0) {
     _ACTWait(0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", pullup_check_heroin_position);
+extern void debug_assertMessage(void *);
+extern char D_00552940[];
+
+void pullup_check_heroin_position(int *volatile a0) {
+    int *obj = *(int **)((char *)a0 + 0x164);
+    debug_assertMessage(D_00552940);
+    *(int *)((char *)obj + 0x30) = 5;
+    while (1) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00151F48);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00151FC0);
+extern void BoxBarSoundOn(void *a0, int a1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00151FF0);
+void func_00151FC0(volatile int a0) {
+    while (1) {
+        BoxBarSoundOn(a0, 0xB4);
+        _ACTWait(1);
+    }
+}
+
+extern char D_005529A0[];
+
+void func_00151FF0(volatile int a0) {
+    float buf[4];
+    debug_assertMessage(D_005529A0);
+    while (1) {
+        func_00240038(buf, subCommonIdle(a0), 15.0f);
+        BoxBarSoundOn(a0, 0xB4);
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00152050);
 
@@ -311,19 +338,62 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_001520F8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_001521A8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_001522B8);
+extern void *D_0062BFE8;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00152310);
+void func_001522B8(volatile int a0) {
+    void *obj = (char *)*(void **)((char *)a0 + 0x15C) + 0x120;
+    func_00240038(obj, subCommonIdle(D_0062BFE8), 30.0f);
+    while (1) {
+        BoxBarSoundOn(a0, 0x124);
+        _ACTWait(1);
+    }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00152340);
+void func_00152310(volatile int a0) {
+    while (1) {
+        BoxBarSoundOn(a0, 0xB4);
+        _ACTWait(1);
+    }
+}
+
+extern void iosOmBeforeFuncStandard(void *, int, void *);
+extern void *D_0062A4DC;
+
+void func_00152340(volatile int a0) {
+    while (1) {
+        if (D_00629DE8 != 0) {
+            iosOmBeforeFuncStandard(D_00629DE8, 0x15D, D_0062A4DC);
+        }
+        BoxBarSoundOn(a0, 0x15B);
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00152380);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_001523E0);
+void func_001523E0(volatile int a0) {
+    while (1) {
+        if (D_00629DE8 != 0) {
+            iosOmBeforeFuncStandard(D_00629DE8, 0x15F, D_0062A4DC);
+        }
+        BoxBarSoundOn(a0, 0xB4);
+        _ACTWait(1);
+    }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00152420);
+void func_00152420(volatile int a0) {
+    while (1) {
+        BoxBarSoundOn(a0, 0x163);
+        _ACTWait(1);
+    }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00152450);
+void func_00152450(volatile int a0) {
+    while (1) {
+        BoxBarSoundOn(a0, 0x16E);
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00152480);
 
