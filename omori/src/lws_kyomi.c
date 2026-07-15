@@ -45,7 +45,40 @@ void func_00236EE0(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/lws_kyomi", func_00236EF0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/lws_kyomi", func_00236F38);
+typedef struct KSub {
+    char pad[0xB0];
+    int unkB0;
+    int *unkB4;
+} KSub;
+
+extern void lt_fade_status(int);
+extern void scpDispOnAllWithKind(void);
+extern int func_00178DB0(int);
+extern void BoxBarSoundOn(int, int);
+extern int _ACTWait(int);
+extern int D_0062A894;
+extern int D_004CEA40[];
+extern int D_004CEA60[];
+extern void func_002361C0(int);
+extern void func_00236FE0(int);
+
+void func_00236F38(volatile int a0) {
+    KSub *s = *(KSub **)(a0 + 0x164);
+    s->unkB0 = 0;
+    lt_fade_status(0x33);
+    D_0062A894 = 1;
+    scpDispOnAllWithKind();
+    if (func_00178DB0(0x2C) != 0) {
+        D_004CEA40[1] = (int)func_002361C0;
+        s->unkB4 = D_004CEA40;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    }
+    D_004CEA60[1] = (int)func_00236FE0;
+    s->unkB4 = D_004CEA60;
+    BoxBarSoundOn(a0, 0x189);
+    _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/lws_kyomi", func_00236FE0);
 
