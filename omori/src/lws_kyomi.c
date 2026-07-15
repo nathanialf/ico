@@ -45,6 +45,8 @@ void func_00236EE0(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/lws_kyomi", func_00236EF0);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/lws_kyomi", func_00236F38);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/lws_kyomi", func_00236FE0);
 
 extern V16 D_00614E70;

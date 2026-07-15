@@ -4258,6 +4258,7 @@ SetParamKyomiGObj = 0x00236EC0; // type:func  // omori/src/lws_kyomi.c
 func_00236ED0 = 0x00236ED0; // type:func  // omori/src/lws_kyomi.c
 func_00236EE0 = 0x00236EE0; // type:func  // omori/src/lws_kyomi.c
 func_00236EF0 = 0x00236EF0; // type:func  // omori/src/lws_kyomi.c
+func_00236F38 = 0x00236F38; // type:func  // omori/src/lws_kyomi.c  // splat-merge 2nd-func split (func_00236EF0 coroutine)
 func_00236FE0 = 0x00236FE0; // type:func  // omori/src/lws_kyomi.c
 func_002370D8 = 0x002370D8; // type:func  // omori/src/lws_kyomi.c
 func_00237128 = 0x00237128; // type:func  // omori/src/lws_kyomi.c
