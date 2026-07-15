@@ -15,7 +15,34 @@ float brainStatusDefaultSet(void *a0, void *a1) {
     return *(float *)((char *)a1 + 0x4);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/brain", brainLevelProcess);
+typedef struct { int *f0; float f4, f8, fC; char _10[4]; int f14; char _18[4]; } BLElem;
+typedef struct { char _0[0x24]; float f24; char _28[0x3C]; } BLevel;
+extern BLevel D_0029F060[];
+extern int D_00271240[];
+
+void brainLevelProcess(void *a0) {
+    short idx = *(short *)((char *)a0 + 0x24);
+    BLElem *e;
+    int result;
+    if (idx == -1) return;
+    *(short *)((char *)a0 + 0x1C) = 0;
+    e = (BLElem *)((char *)a0 + 0x28 + idx * 0x1C);
+    e->f4 = 0.0f;
+    e->f8 = e->f8 - e->fC;
+    if (e->f8 < e->f4) {
+        e->f8 = e->f4;
+    }
+    if (e->f0 != 0) {
+        int lvl = (int)D_0029F060[e->f0[3]].f24;
+        result = lvl;
+        if (lvl != -1) {
+            result = lvl * ((0x3C - D_00271240[0] * 0xA) / D_00271240[1]);
+        }
+    } else {
+        result = -1;
+    }
+    e->f14 = result;
+}
 
 extern int D_00286A90[];
 extern void SetDirectRootPositionWithNodePointLimit(void *a0, int a1);

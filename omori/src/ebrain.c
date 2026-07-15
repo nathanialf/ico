@@ -130,11 +130,52 @@ void func_0018F1A8(void)
     } while (i >= 0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018F1F0);
+typedef struct { short f0; char pad2[0xE]; int f10; int f14; int f18; } EBSlot;
+extern void debug_assertMessage(const char *);
+extern char D_00554FA0[];
+
+int func_0018F1F0(int a0, int a1) {
+    EBSlot *slot;
+    int i;
+    if (a1 != 4) return 0;
+    for (i = 0; i < 0x20; i++) {
+        if (((EBSlot *)D_006C9FF0)[i].f18 == 0) break;
+    }
+    if (i < 0x20) slot = &((EBSlot *)D_006C9FF0)[i];
+    else slot = 0;
+    if (slot == 0) {
+        debug_assertMessage(D_00554FA0);
+        return 0;
+    }
+    slot->f18 = a0;
+    slot->f0 = 0;
+    slot->f10 = 0;
+    return (int)slot;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018F2A0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018F3A0);
+typedef struct { char _0[0x128]; int f128; int f12C; char _130[0x60]; } GenRange;
+extern GenRange D_005EBC48[];
+extern void func_001AAD00(const char *s, int line);
+extern void func_00260380(const char *s, int line, const char *s2);
+extern char D_00554FC8[], D_00554FD8[];
+
+int func_0018F3A0(int a0) {
+    int i;
+    int result = -1;
+    for (i = 0; i < 0x68; i++) {
+        if (a0 >= D_005EBC48[i].f128 && a0 < D_005EBC48[i].f12C) {
+            result = i;
+            break;
+        }
+    }
+    if (result <= 0) {
+        func_001AAD00(D_00554FC8, 0x1D8);
+        func_00260380(D_00554FC8, 0x1D8, D_00554FD8);
+    }
+    return result;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018F470);
 

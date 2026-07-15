@@ -31,7 +31,9 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", ReadGeneratorPacket);
 typedef struct {
     char _0[0x42];
     unsigned char f42;
-    char _43[5];
+    char _43[3];
+    unsigned char f46;
+    char _47[1];
     unsigned int f48;
 } GenElem;
 
@@ -85,7 +87,28 @@ void Generator_MaskOff(void *a0) {
     q->f_C = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", SetMotherGenerator);
+extern int D_00629C90;
+typedef struct { char _0[0x128]; int f128; int f12C; char _130[0x60]; } GenRange;
+extern GenRange D_005EBC48[];
+
+void SetMotherGenerator(int a0, int a1) {
+    int gen;
+    int i;
+    int cnt;
+    if (a0 == 0xD57) return;
+    gen = D_00629C90;
+    cnt = 0;
+    for (i = D_005EBC48[gen].f128; i < D_005EBC48[gen].f12C; i++) {
+        if (D_002A0A90[i].f46 == 0x21) {
+            if (i == a1) {
+                GenElem *m = &D_002A0A90[a0];
+                m->f48 = ((int)m->f48 & -0x3C01) | ((cnt & 0xF) << 10);
+                return;
+            }
+            cnt++;
+        }
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", Generator_Init);
 
