@@ -215,7 +215,33 @@ void func_00236688(volatile int a0) {
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/access", func_00236738);
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern void BoxBarSoundOn(int a0, int a1);
+extern void warpGirlInStage(float a0, float a1, float a2);
+extern void GetDataFileName2(void);
+extern int D_004CE9E0[];
+extern volatile float D_00629A38;
+
+void func_00236738(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x28) == 0) {
+        stage_KillPlayBgAnimation(0x8B, 0, 0);
+        D_004CE9E0[1] = (int)GetDataFileName2;
+        gobj->unkB4 = D_004CE9E0;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    } else {
+        stage_KillPlayBgAnimation(0x8B, 0, -1);
+        if (func_00178DB0(0x7B) == 0) {
+            warpGirlInStage(D_00629A38, 272.0f, 0.0f);
+        }
+    }
+}
 
 
 extern int actInitialize(int a0);

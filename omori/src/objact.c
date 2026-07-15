@@ -130,7 +130,11 @@ void func_00237AD0(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00237AF8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00237B80);
+extern void func_00237BA8(void);
+
+void func_00237B80(volatile int a0) {
+    actCreateSubThread(func_00237BA8, 0x15);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00237BA8);
 

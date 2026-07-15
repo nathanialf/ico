@@ -28,7 +28,30 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", GetMotherGenerator);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", ReadGeneratorPacket);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", MakeGeneratorPacket);
+typedef struct {
+    char _0[0x42];
+    unsigned char f42;
+    char _43[5];
+    unsigned int f48;
+} GenElem;
+
+extern GenElem D_002A0A90[];
+extern int D_006CA620[];
+
+void MakeGeneratorPacket(void) {
+    unsigned char *out = (unsigned char *)D_006CA620;
+    int i;
+    for (i = 0; i <= 0xD58; i++) {
+        unsigned int v = D_002A0A90[i].f48;
+        *out++ = (unsigned char)((((int)(v << 18) >> 28) << 4) | ((v >> 21) & 1));
+    }
+    for (i = 0; i <= 0xD58; i++) {
+        *out++ = (unsigned char)((D_002A0A90[i].f48 >> 18) & 1);
+    }
+    for (i = 0; i <= 0xD58; i++) {
+        *out++ = D_002A0A90[i].f42;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/generator", generatorBeforeFunc);
 
