@@ -3,6 +3,9 @@
 /* gv 0x7F0 view (local; 0x8/0x50 also read as ushort in _InterRotGV) */
 typedef struct { char _0[8]; int f_8; } GVGeo;
 
+typedef struct { char _0[0x42]; short f42; unsigned short f44; unsigned int f48; } GVGeo2;
+extern GVGeo2 D_002A0A90[];
+
 int _InterGV(void *a0, void *a1) {
     *(float *)a0 = *(float *)((char *)a1 + 0x10);
     *(float *)((char *)a0 + 4) = *(float *)((char *)a1 + 0x14);
@@ -50,7 +53,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/gv", _DistxzGV);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/gv", _MoveGV);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/gv", _RotyGV);
+void _RotyGV(int a0) {
+    GVGeo2 *g = &D_002A0A90[a0];
+    unsigned int x = g->f48 & 0xFFDFFFFF;
+    unsigned int y = x & 0xFFFBFFFF;
+    y |= ((x >> 19) & 1) << 18;
+    g->f48 = y;
+    if ((y >> 19) & 1) {
+        unsigned int z = y | 0x40000;
+        g->f48 = z;
+        if ((int)((z >> 5) & 0x1F) != -1) {
+            g->f42++;
+        }
+    }
+}
 
 int _AbsRotyGV(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
@@ -72,7 +88,20 @@ void _RotGV(void) {
     D_002E0064.f48 = (D_002E0064.f48 | 0x200000) & 0xFFFBFFFF;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/gv", _RotGVF);
+int _RotGVF(void *a0) {
+    GVGeo2 *g = &D_002A0A90[*(int *)((char *)a0 + 0x8)];
+    void *p = *(void **)((char *)a0 + 0x164);
+    if (g->f44 != 0) {
+        return 0;
+    }
+    if ((unsigned int)(*(unsigned long long *)((char *)p + 0x18) >> 34) & 1) {
+        return 0;
+    }
+    if (((g->f48 >> 21) & 1) == 0 && (g->f42 == -1 || g->f42 > 0)) {
+        return 1;
+    }
+    return 0;
+}
 
 extern void assertMsg1(char *a0) __asm__("debug_assertMessage");
 extern char D_0062C900[];
