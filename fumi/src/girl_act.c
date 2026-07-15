@@ -483,9 +483,36 @@ void afterGirlPulledGo(volatile unsigned int a0)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlJump);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_001732F0);
+extern void BoxBarSoundOn(void *a0, int a1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_00173370);
+void func_001732F0(volatile int a0)
+{
+    int x = a0;
+    int flag = 0;
+    if (*(int *)((char *)*(int **)((char *)*(int **)((char *)a0 + 0x164) + 0x678) + 0x814) == 0x57 &&
+        *(int *)((char *)*(int **)((char *)*(int **)((char *)a0 + 0x164) + 0x678) + 0x810) == 4) {
+        flag = 1;
+    }
+    while (1) {
+        if (flag) {
+            BoxBarSoundOn((void *)a0, 0xB4);
+        }
+        BoxBarSoundOn((void *)a0, 0x136);
+        _ACTWait(1);
+    }
+}
+
+extern char D_00553DF0[];
+
+void func_00173370(volatile unsigned int a0)
+{
+    volatile int local;
+    int *s0;
+    s0 = *((int **) (a0 + 0x164));
+    debug_assertMessage((char *)D_00553DF0);
+    s0[0x30 / 4] = 0xF;
+    _ACTWait(0);
+}
 
 
 /* recovered struct shapes */
