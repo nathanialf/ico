@@ -45,6 +45,10 @@ void actSt00aStairChk(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aDoor2);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", func_0020AEFC);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", func_0020B3F0);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aDoor2UpChk);
 
 extern void *actInitialize(int a0);

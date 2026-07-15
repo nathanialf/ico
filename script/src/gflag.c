@@ -123,6 +123,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_00179430);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_00179580);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_00179710);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", func_00179D00);
 
 extern void GetOtherStageGirlOrient(void *a0);

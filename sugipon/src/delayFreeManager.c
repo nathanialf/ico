@@ -2,6 +2,10 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/delayFreeManager", func_00101C80);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/delayFreeManager", func_00101F50);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/delayFreeManager", func_00102138);
+
 extern void debug_assertMessage();
 extern void func_0010F070(void);
 extern void iosSifAllocIopHeapDebug();
@@ -17,8 +21,8 @@ extern char D_0054DCD8[];
 extern char D_0054DCE8[];
 extern char D_0062EB90[];
 extern char D_00636C70[];
-extern char D_00101F50[];
-extern char D_00102138[];
+extern char func_00101F50[];
+extern char func_00102138[];
 extern char D_0062EC00[];
 extern char D_00636CE0[];
 
@@ -32,9 +36,9 @@ void func_00102310(void) {
     D_271248[0] = 1;
     D_00629C90 = 1;
     backStageProcessMain();
-    func_0013D1E8(D_0062EB90, 1, D_00101F50, 0, D_0062EC00, 0x2000, 0x1B);
+    func_0013D1E8(D_0062EB90, 1, func_00101F50, 0, D_0062EC00, 0x2000, 0x1B);
     iosThreadJoin(D_0062EB90);
-    func_0013D1E8(D_00636C70, 1, D_00102138, 0, D_00636CE0, 0x1000, 0xF);
+    func_0013D1E8(D_00636C70, 1, func_00102138, 0, D_00636CE0, 0x1000, 0xF);
     iosThreadJoin(D_00636C70);
     iosSemaCreate();
 }

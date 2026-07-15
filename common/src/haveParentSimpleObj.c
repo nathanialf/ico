@@ -12,6 +12,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AA68
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AAAD0);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AAC00);
+
 extern int D_0062B088;
 extern int D_0062D098[];
 extern struct AE610 { int x; int pad; } D_004AE610[];

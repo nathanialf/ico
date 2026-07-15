@@ -153,6 +153,8 @@ void GetCorrectOrientOfChain(void *a0)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", CollisCheckInRope);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_001563E8);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_00156750);
 
 extern float pac_DispQW(void);
@@ -163,6 +165,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonRope);
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", motCommonRopeTurnR);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_00156AB8);
 
 extern void traceLine(int a0, int a1, int a2, void *a3, int a4);
 extern void ActPara_GetDefTbl(int a0, int a1);
@@ -248,6 +252,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonRopeCliff);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", TestCageUpDown);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_00157338);
+
 extern void dispPlane(void *a0, void *a1);
 
 extern void ACTParaStatus_Clear(int a0);
@@ -260,6 +266,8 @@ void actCommonRopeSpecial(void *a0) {
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", lever_nego1);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", SetDirectRootPositionXZ);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_001579EC);
 
 extern void func_00104D20(void);
 extern void func_00105068(void);
@@ -313,7 +321,11 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", DownFunc);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonDown);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_00159138);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonDie);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_001597E8);
 
 extern void debug_assertMessage();
 extern char D_00552F88[];
@@ -404,6 +416,8 @@ int _boxbar_set_sound(char *a0) {
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonBox);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015A990);
 
 extern void traceLine(int a0, int a1, int a2, void *a3, int a4);
 extern void _OrientXZGV(void *a0, void *a1, void *a2, float a3, float a4);

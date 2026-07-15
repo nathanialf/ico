@@ -305,7 +305,7 @@ extern int D_00629DEC;
 extern void iosPadDevRead(int a0, int a1);
 extern void soundSeVolSet(int a0);
 extern int D_004CBD80[];
-extern int D_0020FF58[];
+extern int func_0020FF58[];
 
 void actSt02aDoorEvent(volatile int a0) {
     GObj *obj = *(GObj **)(a0 + 0x164);
@@ -321,7 +321,7 @@ void actSt02aDoorEvent(volatile int a0) {
     if (D_0062BC7C != 0) {
         soundSeVolSet(D_0062BC7C);
     }
-    D_004CBD80[1] = (int)D_0020FF58;
+    D_004CBD80[1] = (int)func_0020FF58;
     obj->unkB4 = D_004CBD80;
     BoxBarSoundOn(a0, 0x189);
     _ACTWait(0);
@@ -345,7 +345,7 @@ void actSt02aDoorUpEffect(volatile int a0) {
     if (D_0062BC80 != 0) {
         soundSeVolSet(D_0062BC80);
     }
-    D_004CBDA0[1] = (int)D_0020FF58;
+    D_004CBDA0[1] = (int)func_0020FF58;
     obj->unkB4 = D_004CBDA0;
     BoxBarSoundOn(a0, 0x189);
     _ACTWait(0);

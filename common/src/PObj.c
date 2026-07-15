@@ -3293,6 +3293,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00248590);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00248630);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002486F0);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002487C8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00248868);

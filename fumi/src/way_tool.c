@@ -142,6 +142,8 @@ int way_toolDL(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_tool", debug_WayTool);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_tool", func_00204650);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_tool", play_way);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_tool", point_nige);
@@ -172,6 +174,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_tool", quick_save_wpfile);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_tool", cursor_control);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_tool", func_00204EF0);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_tool", func_00204F18);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_tool", func_002050B0);
 

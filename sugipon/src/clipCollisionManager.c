@@ -2,6 +2,8 @@
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clipCollisionManager", actClipCollisionCore);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clipCollisionManager", func_001C09E8);
+
 extern void MatrixDrive_TurnObjectMatrix(void *a0, int a1);
 
 void CreateClipCollisionManagerGObj(void *a0, int a1, int a2) {

@@ -117,9 +117,15 @@ void actSt05cDoorDown(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", actSt05cEne);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", func_0021C048);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", actSt05cEnemy1);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", func_0021C0D8);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", actSt05cEnemy2);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", func_0021C168);
 
 #include "common.h"
 extern void func_00178E08(int a0);

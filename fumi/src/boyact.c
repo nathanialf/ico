@@ -15,6 +15,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", motBoyHand200);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", hand_heroin);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_0014C0C0);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_0014C370);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_0014C660);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", CheckCollisionAttr);
 
 typedef struct { char pad[4]; float f4; } CCPResult;
@@ -157,6 +163,18 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", PutWeapon);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", OtherStageGirlPinchCamera_After);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_0014FBA8);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_0014FD98);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_0014FF08);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00150078);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00150298);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00150420);
+
 
 extern void *D_00629DE4;
 extern void *D_00629DE8;
@@ -221,6 +239,16 @@ r0:
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoySwim);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00150A30);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00150BC8);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00150FA4);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00151440);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00151840);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyWalk);
 
 extern void BeforeFunc2(void *a0);
@@ -270,6 +298,34 @@ void actBoyTakeWeapon(int *volatile a0) {
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", pullup_check_heroin_position);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00151F48);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00151FC0);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00151FF0);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00152050);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_001520F8);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_001521A8);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_001522B8);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00152310);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00152340);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00152380);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_001523E0);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00152420);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00152450);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00152480);
 
 extern void debug_assertMessage(void *);
 extern void BoxBarSoundOn(void *a0, int a1);

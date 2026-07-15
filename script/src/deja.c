@@ -197,7 +197,7 @@ extern int D_00629C90;
 extern int D_0062A894;
 extern int D_00629DE4;
 extern int D_004CB5E0[];
-extern int D_00204F18[];
+extern int func_00204F18[];
 
 void func_00206F28(volatile int a0) {
     int x = a0;
@@ -211,7 +211,7 @@ void func_00206F28(volatile int a0) {
     if (D_00629DE4 != 0) {
         gflagOff(D_00629DE4, 0);
     }
-    D_004CB5E0[1] = (int)D_00204F18;
+    D_004CB5E0[1] = (int)func_00204F18;
     gobj->unkB4 = D_004CB5E0;
     BoxBarSoundOn(a0, 0x189);
     _ACTWait(0);

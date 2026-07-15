@@ -8,9 +8,19 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", display_texture);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", iosCdvdBackGroundReadJimaku);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", func_00173538);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", func_00173568);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", func_00173610);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuHandler);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", func_001736D0);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuMgrBegin);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", func_00173790);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuMgrNext);
 
@@ -42,7 +52,11 @@ void jimakuBegin(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuNext);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", func_00173948);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuJump);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", func_00173A84);
 
 int jimakuEnd(void *a0, void *a1) {
     return (int)(*(float *)((char *)a0 + 0x20) - *(float *)((char *)a1 + 0x20));

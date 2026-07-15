@@ -26,6 +26,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcard", iosMcMgrLoadProductBlock);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcard", iosMcMgrGetBlockSaveInfo);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/mcard", func_00137B50);
+
 void iosMcManager(void) {
 }
 

@@ -69,6 +69,8 @@ void func_001951A8(GObj *obj) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/gather_effect", func_001952A0);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/gather_effect", func_00195714);
+
 
 /* recovered struct shapes */
 typedef struct {
