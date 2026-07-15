@@ -535,11 +535,50 @@ void func_0015B850(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", getLandOffset);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015B938);
+extern int GetDifferenceFromWallUpperPlane(void *a0);
+extern void initializeQueenzSword(int a0);
+void func_0015B938(volatile int a0) {
+    char *s0 = *(char **)(a0 + 0x164);
+    int flag = 0;
+    dispPlane((void *)a0, s0 + 0x4C0);
+    for (;;) {
+        if (GetDifferenceFromWallUpperPlane((void *)a0) && flag == 0) {
+            initializeQueenzSword(*(int *)(s0 + 0x130));
+            flag = 1;
+        }
+        BoxBarSoundOn((void *)a0, 0xB4);
+        _ACTWait(1);
+    }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015B9B0);
+extern void func_001EE9A8(int a0);
+void func_0015B9B0(volatile int a0) {
+    char *s0 = *(char **)(a0 + 0x164);
+    int flag = 0;
+    dispPlane((void *)a0, s0 + 0x4C0);
+    for (;;) {
+        if (GetDifferenceFromWallUpperPlane((void *)a0) && flag == 0) {
+            func_001EE9A8(*(int *)(s0 + 0x604));
+            flag = 1;
+        }
+        BoxBarSoundOn((void *)a0, 0xB4);
+        _ACTWait(1);
+    }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015BA28);
+void func_0015BA28(volatile int a0) {
+    char *s0 = *(char **)(a0 + 0x164);
+    int flag = 0;
+    dispPlane((void *)a0, s0 + 0x4D0);
+    for (;;) {
+        if (GetDifferenceFromWallUpperPlane((void *)a0) && flag == 0) {
+            func_001EE9A8(*(int *)(s0 + 0x608));
+            flag = 1;
+        }
+        BoxBarSoundOn((void *)a0, 0xB4);
+        _ACTWait(1);
+    }
+}
 
 void func_0015BAA0(volatile int a0) {
     _ACTWait(0x28);
@@ -602,9 +641,35 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015BE38);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015BEC8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015BF88);
+extern void func_0017F450(float a0);
+extern void brainInitGirlSet(void);
+void func_0015BF88(volatile int a0) {
+    if ((char *)a0 == D_00629DE4) {
+        func_0017F450(1000.0f);
+    }
+    for (;;) {
+        if ((char *)a0 == D_00629DE4 && D_00629DE8 != 0) {
+            brainInitGirlSet();
+            iosOmBeforeFuncStandard(D_00629DE8, 0x39, (void *)a0);
+        }
+        BoxBarSoundOn((void *)a0, 0xB4);
+        _ACTWait(1);
+    }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C000);
+extern char D_00552BD8[];
+void func_0015C000(volatile int a0) {
+    debug_assertMessage(D_00552BD8);
+    dispPlane((void *)a0, *(char **)(a0 + 0x164) + 0x1B0);
+    WithMailFunc_AttackRejectInQueen((void *)a0);
+    if (*(int *)(*(char **)(*(char **)(a0 + 0x164) + 0x670) + 0x1DC) == 3) {
+        _ACTWait(0x168);
+    }
+    for (;;) {
+        BoxBarSoundOn((void *)a0, 0xB4);
+        _ACTWait(1);
+    }
+}
 
 extern char D_00552EA0[];
 
@@ -638,7 +703,15 @@ void func_0015C3F8(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C418);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C4D8);
+void func_0015C4D8(volatile int a0) {
+    if (*(int *)(*(int *)(a0 + 0x164) + 0xB8) == 0x99) {
+        int t0 = a0, t1 = a0, t2 = a0;
+        *(int *)(*(int *)(t0 + 0x15C) + 0x120) = 0;
+        *(int *)(*(int *)(t1 + 0x15C) + 0x124) = 0;
+        *(int *)(*(int *)(t2 + 0x15C) + 0x128) = 0;
+    }
+    _ACTWait(0);
+}
 
 void emergencyCheck(int a0) {
     volatile int buf[4];
