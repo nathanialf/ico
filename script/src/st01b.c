@@ -47,13 +47,47 @@ void actSt01bInit(volatile int a0) {
 }
 
 
+extern int D_004CBAC0[];
+extern void actSt01bEnd(volatile int a0);
+extern void actSt01bInit(volatile int a0);
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st01b", actSt01bEneChk);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st01b", actSt01bFloorChk);
+
+extern int scpSleepEnemyOne(int a0, int a1, float f0);
+extern int D_00629DE4;
+extern int D_00629DE8;
+extern int D_004CBAE0[];
+extern int D_004CBB00[];
+extern void actSt01bEne(volatile int a0);
+extern void actSt01bSekizo(volatile int a0);
+void actSt01bFloorChk(volatile int a0) {
+    int x = a0;
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
+    _ACTWait(1);
+    if (scpSleepEnemyOne(a0, D_00629DE4, 200.0f) != 0) goto ene;
+    if (D_00629DE8 == 0) goto sekizo;
+    if (scpSleepEnemyOne(a0, D_00629DE8, 400.0f) == 0) goto sekizo;
+ene:
+    stage_KillPlayBgAnimation(0x4E, 0, 0);
+    _ACTWait(0x3C);
+    D_004CBAE0[1] = (int)actSt01bEne;
+    gobj->unkB4 = D_004CBAE0;
+    BoxBarSoundOn(a0, 0x189);
+    _ACTWait(0);
+    return;
+sekizo:
+    stage_KillPlayBgAnimation(0x4D, 0, 0);
+    D_004CBB00[1] = (int)actSt01bSekizo;
+    gobj->unkB4 = D_004CBB00;
+    BoxBarSoundOn(a0, 0x189);
+    _ACTWait(0);
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st01b", actSt01bSekizo);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st01b", actSt01bEne);
+
 
 extern int func_00178DB0(int a0);
 extern int D_004CBA20[];
@@ -94,7 +128,21 @@ void actSt01bEnemy3(volatile int a0){
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st01b", actSt01bEnemy4);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st01b", actSt01bEnemy5);
+
+extern int D_004CBA00[];
+extern void actSt01bEnemy6(volatile int a0);
+void actSt01bEnemy5(volatile int a0) {
+    int x = a0;
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x27) == 0) {
+        D_004CBA00[1] = (int)actSt01bEnemy6;
+        gobj->unkB4 = D_004CBA00;
+        BoxBarSoundOn(a0, 0x189);
+        _ACTWait(0);
+    }
+}
+
 
 extern void _ACTWait(int a0);
 extern int D_00629DE8;
@@ -177,7 +225,40 @@ void actSt01bWayOffChk(void) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st01b", func_0020E210);
+extern void lt_fade_status(int a0);
+extern int func_0017A040(int a0);
+extern void func_0017A008(int a0);
+extern int func_0012AA28(int a0, int a1, int a2);
+extern int D_0062A894;
+void func_0020E210(volatile int a0) {
+    if (D_00629DE8 == 0) {
+        _ACTWait(0);
+    }
+    goto test;
+loop:
+    _ACTWait(1);
+test:
+    if (func_00178DB0(0x42) == 0) goto loop;
+    if (scpSleepSpiderGroupOne(D_00629DE4, 0x1000000) == 0) goto loop;
+    if (scpSleepSpiderGroupOne(D_00629DE8, 0x1000000) != 0) goto done;
+    if (scpSleepSpiderGroupOne(D_00629DE8, 0x2000000) == 0) goto loop;
+done:
+    lt_fade_status(0x33);
+    D_0062A894 = 1;
+    func_0017A040(0xD57);
+    _ACTWait(0x1E);
+    func_00178DD8(0x40);
+    func_00178DD8(0x41);
+    stage_KillPlayBgAnimation(0xA0, 1, 0);
+    while (func_0012AA28(0xA0, 0x5A, 0) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    while (func_0012A958(0xA0) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    lt_fade_status(0x32);
+    D_0062A894 = 0;
+    func_0017A008(0xD57);
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st01b", func_0020E340);
 
