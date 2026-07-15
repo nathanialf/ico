@@ -483,6 +483,10 @@ void afterGirlPulledGo(volatile unsigned int a0)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlJump);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_001732F0);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_00173370);
+
 
 /* recovered struct shapes */
 typedef struct {
