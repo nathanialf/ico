@@ -58,6 +58,10 @@ void GirlBrainClearTarget(void) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", girlBrainMain_DecideMode);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_00168658);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_00168818);
+
 extern void brainLevelProcess(void *a0);
 extern int D_00286A90[];
 
@@ -103,6 +107,8 @@ void subGirlCollision(void) {
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", GetBoyMode);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlHand);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_0016AC18);
 
 typedef struct {
     int count;   /* 0x0 */
@@ -185,6 +191,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlStart);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", GirlAct_BoyAndMeCollisionMail);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_0016DFF0);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", IsGirlStatusEscortEnable);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", DebugDispAutoEscort);
@@ -196,6 +204,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", ACTGame_GirlBeforeFunc);
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_0016EB48);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlSupportGBBegin);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_0016F3A8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_0016F560);
 
@@ -248,6 +258,8 @@ ret0:
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlSupportGBEnd);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlHangG3M);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_00170220);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_00170CB8);
 
@@ -401,6 +413,20 @@ void actGirlHang(int *a0, int *a1, int *a2, int *a3) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlBHang);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_00171EB8);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_00172008);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_00172170);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_00172258);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_00172390);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_00172638);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_00172790);
+
 extern void func_00240008(void *out, void *m1, void *m2);
 extern void func_0023FE98(void *a, void *b);
 extern void *subCommonIdle(void *a0);
@@ -453,6 +479,16 @@ void actGirlAttractAction(void *a0) {
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", NotNeedBackHand);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_00172FC8);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_00173028);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_00173058);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_001730A0);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_001731A0);
 
 extern unsigned int _ACTWait(int a0);
 

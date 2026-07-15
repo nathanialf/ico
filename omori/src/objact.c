@@ -151,6 +151,10 @@ void func_00237B80(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00237BA8);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00237C30);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00237C98);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00237E28);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00238020);

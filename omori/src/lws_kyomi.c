@@ -106,6 +106,8 @@ void func_00237128(volatile unsigned int x)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/lws_kyomi", func_00237178);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/lws_kyomi", func_002371C0);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/lws_kyomi", func_00237268);
 
 extern V16 D_00614E90;
@@ -266,7 +268,7 @@ void func_002376D8(volatile int a0) {
 
 extern void func_0012AAB8(int a0, int a1);
 extern int D_004CECC0[];
-extern void D_00237C30(int a0);
+extern void func_00237C30(int a0);
 
 void func_00237740(volatile int a0) {
     int x = a0;
@@ -274,7 +276,7 @@ void func_00237740(volatile int a0) {
     _ACTWait(1);
     func_0012AAB8(0x8A, 1);
     stage_KillPlayBgAnimation(0x8A, 1, 0);
-    D_004CECC0[1] = (int)D_00237C30;
+    D_004CECC0[1] = (int)func_00237C30;
     gobj->unkB4 = D_004CECC0;
     BoxBarSoundOn(a0, 0x189);
     _ACTWait(0);

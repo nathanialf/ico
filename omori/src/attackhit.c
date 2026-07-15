@@ -12,6 +12,8 @@ void AttackCheckSameGroup(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/attackhit", AttackMail);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/attackhit", func_0017E160);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/attackhit", AttackCheckHit);
 
 extern int D_0062A8E0;

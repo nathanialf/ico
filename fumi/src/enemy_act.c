@@ -263,6 +263,8 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", actEnemyKidnapEnd);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_0015E110);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/enemy_act", func_0015E610);
+
 extern int DispEnemyFootPrints(void *a0);
 extern int UpdateEnemyEye(void *a0);
 extern void func_001AAD00(void *a0, int a1);

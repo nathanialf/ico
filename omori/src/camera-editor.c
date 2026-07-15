@@ -125,6 +125,14 @@ void wakeup_cameraedit(int a0, int a1) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", test_camedit);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", func_00182DD0);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", func_001831C0);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", func_00183680);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", func_00183E90);
+
 extern int test_camedit[];
 extern void DispCameraGroup(void *a0, int a1, int a2);
 
