@@ -25,7 +25,7 @@ void ObjAction_CorrectGeo(void *a0) {
 extern int actInitializeM(int a0) __asm__("actInitialize");
 extern void BoxBarSoundOn(int a0, int a1);
 extern int D_004CECA0[];
-extern void D_00237B80(int a0);
+extern void func_00237B80(int a0);
 
 typedef struct GObjM { char pad[0xB4]; int *unkB4; } GObjM;
 
@@ -33,7 +33,7 @@ void ObjAction_Mail(volatile int a0) {
     int x = a0;
     GObjM *gobj = (GObjM *)actInitializeM(a0);
     _ACTWait(1);
-    D_004CECA0[1] = (int)D_00237B80;
+    D_004CECA0[1] = (int)func_00237B80;
     gobj->unkB4 = D_004CECA0;
     BoxBarSoundOn(a0, 0x189);
     _ACTWait(0);
@@ -129,6 +129,8 @@ void func_00237AD0(volatile int a0) {
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00237AF8);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00237B80);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00237BA8);
 

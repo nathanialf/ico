@@ -4280,6 +4280,7 @@ ObjAction_Init = 0x00237970; // type:func  // omori/src/objact.c
 func_00237A20 = 0x00237A20; // type:func  // omori/src/objact.c
 func_00237AD0 = 0x00237AD0; // type:func  // omori/src/objact.c
 func_00237AF8 = 0x00237AF8; // type:func  // omori/src/objact.c
+func_00237B80 = 0x00237B80; // type:func  // omori/src/objact.c  // splat-merge 2nd-func split (func_00237AF8 act-thread coroutine)
 func_00237BA8 = 0x00237BA8; // type:func  // omori/src/objact.c
 func_00237E28 = 0x00237E28; // type:func  // omori/src/objact.c
 func_00238020 = 0x00238020; // type:func  // omori/src/objact.c
