@@ -509,6 +509,36 @@ void func_0015B850(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", getLandOffset);
 
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015B938);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015B9B0);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015BA28);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015BAA0);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015BAD8);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015BB20);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015BB70);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015BCA8);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015BD00);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015BD60);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015BE38);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015BEC8);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015BF88);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C000);
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C080);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", getAvoidCollisionFlyLevel);
 
 void emergencyCheck(int a0) {
