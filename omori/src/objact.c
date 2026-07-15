@@ -122,13 +122,26 @@ void func_00237A20(int a0) {
 }
 
 extern void actCreateSubThread(void *entry, int a1);
-extern void func_00237AF8(void);
+extern void func_00237AF8(volatile int a0);
 
 void func_00237AD0(volatile int a0) {
     actCreateSubThread(func_00237AF8, 0x15);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00237AF8);
+void func_00237AF8(volatile int a0) {
+    int x = a0;
+    actInitialize((void *)a0);
+    for (;;) {
+        stage_KillPlayBgAnimation(0x1BF, 1, 0);
+        _ACTWait(0xB3);
+        stage_KillPlayBgAnimation(0x1C0, 1, 0);
+        _ACTWait(0xB3);
+        stage_KillPlayBgAnimation(0x1C1, 1, 0);
+        _ACTWait(0xB3);
+        stage_KillPlayBgAnimation(0x1C2, 1, 0);
+        _ACTWait(0xB3);
+    }
+}
 
 extern void func_00237BA8(void);
 
