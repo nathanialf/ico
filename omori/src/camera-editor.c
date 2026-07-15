@@ -11,10 +11,46 @@ void saveEditedDataBinary(void) {
     D_00286A98[0] = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", saveEditedData);
+typedef struct { char _0[4]; float f4; char _8[8]; float f10; } EdS;
+
+float saveEditedData(EdS *a0, float arg) {
+    float r;
+    a0->f4 += a0->f10 * arg;
+    if (a0->f4 < 0.0f) {
+        r = 0.0f;
+    } else if (a0->f4 > 10.0f) {
+        r = 10.0f;
+    } else {
+        r = a0->f4;
+    }
+    a0->f4 = r;
+    return r;
+}
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", gif_test);
+extern int ACTGameView_Init(int a0, int a1);
+
+void gif_test(int *a0, EdS *a1, float f12) {
+    int cond;
+    if (*(unsigned char *)((char *)a1 + 0x19) != 0) {
+        cond = 1;
+    } else {
+        cond = ACTGameView_Init(*a0, *(int *)a1) != 0;
+    }
+    if (cond) {
+        float r;
+        a1->f4 = f12;
+        if (a1->f4 < 0.0f) {
+            r = 0.0f;
+        } else if (a1->f4 > 20.0f) {
+            r = 20.0f;
+        } else {
+            r = a1->f4;
+        }
+        a1->f4 = r;
+    }
+}
+
 
 extern int ACTGameView_Init(int a0, int a1);
 
@@ -143,9 +179,15 @@ void debug_NMarker(int a0) {
 
 extern void func_00240038(int *buf, int *p, float t);
 extern void debug_Arrow();
+extern void debug_ArrowM(int *buf, int a1, int a2, int a3, float f12, float f13) __asm__("debug_Arrow");
 
-/* parked: needs real matching. See tough_nuts/debug_Marker/notes.md */
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/camera-editor", debug_Marker);
+void debug_Marker(int *self, int a1, int a2, int a3, float t)
+{
+    int buf[4];
+    func_00240038(buf, self, -1.0f);
+    debug_ArrowM(buf, a1, a2, a3, t, 0.0f);
+}
+
 
 void debug_Arrow() {
 }

@@ -138,7 +138,22 @@ INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018F3A0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018F470);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/ebrain", func_0018F580);
+extern float pac_DispQW(void);
+extern int D_0062C0A4;
+extern int D_0062C0A8;
+extern int D_0062C0AC;
+extern int D_006CA470[];
+
+void func_0018F580(void) {
+    if (D_0062C0A4 > 0) {
+        D_0062C0A8 = D_006CA470[(int)(pac_DispQW() * 10.0f) % D_0062C0A4];
+    } else {
+        D_0062C0A8 = -1;
+    }
+    D_0062C0AC++;
+    D_0062C0A4 = 0;
+}
+
 
 extern int D_0062C0A4;
 extern int D_0062C0A8;

@@ -22,7 +22,23 @@ void ObjAction_CorrectGeo(void *a0) {
     scpSetCageVelocityFriction(0xC8B, 0, 0x1E3, 0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", ObjAction_Mail);
+extern int actInitializeM(int a0) __asm__("actInitialize");
+extern void BoxBarSoundOn(int a0, int a1);
+extern int D_004CECA0[];
+extern void D_00237B80(int a0);
+
+typedef struct GObjM { char pad[0xB4]; int *unkB4; } GObjM;
+
+void ObjAction_Mail(volatile int a0) {
+    int x = a0;
+    GObjM *gobj = (GObjM *)actInitializeM(a0);
+    _ACTWait(1);
+    D_004CECA0[1] = (int)D_00237B80;
+    gobj->unkB4 = D_004CECA0;
+    BoxBarSoundOn(a0, 0x189);
+    _ACTWait(0);
+}
+
 
 extern char *actSt25aQueenDeadChk(int);
 extern void scpPlayMotDirSmz(float, float, float, float, float, float);
@@ -145,7 +161,26 @@ int func_00238600(int *self)
   return 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00238658);
+extern float D_00629ACC;
+extern float D_00629AD0;
+
+int func_00238658(int *self)
+{
+  S *p;
+  float new_var;
+  p = (S *) self[0x34 / 4];
+  p->a0 = D_00629ACC;
+  p->a4 = D_00629AD0;
+  p->a8 = 482.0f;
+  new_var = 0.5f;
+  *((float *) (((char *) self) + 0x1C)) = new_var;
+  if (func_00178DB0(0x5F))
+  {
+    *((int *) (((char *) self) + 0x18)) = 0;
+  }
+  return 1;
+}
+
 
 extern int func_00188580(void);
 

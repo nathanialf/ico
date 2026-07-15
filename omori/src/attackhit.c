@@ -86,7 +86,35 @@ void func_0017F470(void)
     func_0018F1A8();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/attackhit", func_0017F4C8);
+extern char D_00554728[];
+extern void debug_assertMessage(char *a0);
+
+typedef struct {
+    int key;
+    int f4;
+    float f8, fC, f10;
+    int f14, f18;
+} AtkEnt;
+
+typedef struct {
+    char _0[0x28];
+    AtkEnt arr[20];
+} AtkCont;
+
+void func_0017F4C8(AtkCont *a0, int a1, float b, float c, float d) {
+    int i;
+    for (i = 0; i < 20; i++) {
+        if (a0->arr[i].key == a1) {
+            AtkEnt *e = &a0->arr[i];
+            e->f8 = b;
+            e->fC = d;
+            e->f10 = c;
+            e->f4 = 0;
+            return;
+        }
+    }
+    debug_assertMessage(D_00554728);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/attackhit", func_0017F518);
 

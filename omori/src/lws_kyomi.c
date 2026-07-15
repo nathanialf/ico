@@ -168,12 +168,80 @@ void func_00237530(int a0) {
     func_00178DD8(0x32);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/lws_kyomi", func_002375A0);
+typedef struct GObj {
+    char pad[0xB4];
+    int *unkB4;
+} GObj;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/lws_kyomi", func_00237608);
+extern int actInitialize(int a0);
+extern int _ACTWait(int);
+extern void BoxBarSoundOn(int a0, int a1);
+extern int D_004CEC20[];
+extern void ObjAction_MailCenter(int a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/lws_kyomi", func_00237670);
+void func_002375A0(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    D_004CEC20[1] = (int)ObjAction_MailCenter;
+    gobj->unkB4 = D_004CEC20;
+    BoxBarSoundOn(a0, 0x189);
+    _ACTWait(0);
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/lws_kyomi", func_002376D8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/lws_kyomi", func_00237740);
+extern int D_004CEC40[];
+extern void ObjAction_Init(int a0);
+
+void func_00237608(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    D_004CEC40[1] = (int)ObjAction_Init;
+    gobj->unkB4 = D_004CEC40;
+    BoxBarSoundOn(a0, 0x189);
+    _ACTWait(0);
+}
+
+extern int D_004CEC60[];
+extern void func_00237A20(int a0);
+
+void func_00237670(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    D_004CEC60[1] = (int)func_00237A20;
+    gobj->unkB4 = D_004CEC60;
+    BoxBarSoundOn(a0, 0x189);
+    _ACTWait(0);
+}
+
+extern int D_004CEC80[];
+extern void func_00237AD0(int a0);
+
+void func_002376D8(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    D_004CEC80[1] = (int)func_00237AD0;
+    gobj->unkB4 = D_004CEC80;
+    BoxBarSoundOn(a0, 0x189);
+    _ACTWait(0);
+}
+
+extern void func_0012AAB8(int a0, int a1);
+extern int D_004CECC0[];
+extern void D_00237C30(int a0);
+
+void func_00237740(volatile int a0) {
+    int x = a0;
+    GObj *gobj = (GObj *)actInitialize(a0);
+    _ACTWait(1);
+    func_0012AAB8(0x8A, 1);
+    stage_KillPlayBgAnimation(0x8A, 1, 0);
+    D_004CECC0[1] = (int)D_00237C30;
+    gobj->unkB4 = D_004CECC0;
+    BoxBarSoundOn(a0, 0x189);
+    _ACTWait(0);
+}
+
