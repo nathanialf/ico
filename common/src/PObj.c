@@ -1183,7 +1183,21 @@ int func_002415D8(int *a0) {
     return v;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002415E8);
+int *func_002415E8(int **a0) {
+    int *p = a0[0];
+    int *q = (int *)a0[2];
+    while ((int)p & 0xC) {
+        *p = 0;
+        p++;
+    }
+    if (q) {
+        int n = (((char *)p - (char *)q) >> 4) - 1;
+        *q += n;
+    }
+    a0[0] = p;
+    a0[2] = 0;
+    return p;
+}
 
 void func_00241640(int *a1, unsigned int a2) {
     int *a0;
@@ -1215,7 +1229,18 @@ void func_00241698(int *a1, unsigned int a2) {
     a0[0] = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002416F0);
+extern void func_00241838(void *a0, int a1, int a2);
+
+void func_002416F0(void *a0, int a1) {
+    int *v;
+    int w;
+    func_00241838(a0, 2, 3);
+    v = *(int **)a0;
+    w = a1 ? 0xD0000000 : 0x50000000;
+    *v = w;
+    *(int **)((char *)a0 + 0xC) = v;
+    *(int **)a0 = v + 1;
+}
 
 typedef struct { int *end; int pad[2]; int *cur; } Pool241748;
 
@@ -4593,15 +4618,22 @@ int func_0024E060(void *a0, int a1, int a2, int a3) {
     return old;
 }
 
-/* func_0024E088 — PARKED near-miss rc9. vtable dispatch + fn-ptr call.
- * a0->[0x40]=tbl; e=tbl+(*a1<<3); fn=e[0xC]; rv=fn(a0,a1,e[0x10]); else rv=0. */
-/* func_0024E088 — PARKED near-miss rc9. vtable dispatch + fn-ptr call.
- * a0->[0x40]=tbl; e=tbl+(*a1<<3); fn=e[0xC]; rv=fn(a0,a1,e[0x10]); else rv=0. */
-/* func_0024E088 — PARKED near-miss rc9. vtable dispatch + fn-ptr call.
- * a0->[0x40]=tbl; e=tbl+(*a1<<3); fn=e[0xC]; rv=fn(a0,a1,e[0x10]); else rv=0. */
-/* func_0024E088 — PARKED near-miss rc9. vtable dispatch + fn-ptr call.
- * a0->[0x40]=tbl; e=tbl+(*a1<<3); fn=e[0xC]; rv=fn(a0,a1,e[0x10]); else rv=0. */
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024E088);
+void *func_0024E088(void *a0, void *a1) {
+    void *rv = 0;
+    if (a0 != 0) {
+        char *p = *(char **)((char *)a0 + 0x40);
+        if (p != 0) {
+            char *q0 = p + 0xC;
+            int off = *(int *)a1 * 8;
+            void *(*fn)(void *, void *, int) = *(void *(**)(void *, void *, int))(q0 + off);
+            if (fn != 0) {
+                char *e2 = p + off;
+                rv = fn(a0, a1, *(int *)(e2 + 0x10));
+            }
+        }
+    }
+    return rv;
+}
 
 
 
@@ -6846,7 +6878,27 @@ int func_00256CD0(char *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00256E18);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00256F20);
+extern void *func_00255060(void);
+
+int func_00256F20(int a0, int a1, int a2) {
+    int *r = (int *)func_00255060();
+    if (a0 == 0xFF) {
+        a0 = 1;
+    } else {
+        int off = a1 << 4;
+        int base = r[1] + off;
+        unsigned char *b = (unsigned char *)base;
+        r[1] = base;
+        if (a2 < b[0]) {
+            a0 = 0;
+        } else {
+            int c = b[1];
+            a0 = (c >= a2);
+        }
+        r[1] = base - off;
+    }
+    return a0;
+}
 
 extern void func_00255580(int a0, int a1, int a2, int a3);
 
@@ -7871,7 +7923,20 @@ float func_0025CF00(float a0, float a1) {
     return a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025CF30);
+extern int *D_0054D210[];
+
+void func_0025CF30(void) {
+    if (D_0054D210[0][0] != 0) {
+        do {
+            int *p = D_0054D210[0];
+            void (*f)(void);
+            ++p;
+            f = (void (*)(void))p[-1];
+            D_0054D210[0] = p;
+            f();
+        } while (D_0054D210[0][0] != 0);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025CF88);
 
