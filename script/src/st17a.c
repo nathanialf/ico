@@ -144,7 +144,38 @@ void actLinkTestChk(void) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aDoorEvent);
+extern void iosPadDevRead(int a0, int a1);
+extern void scpDispOnAllWithKind(void);
+extern void scpPlayStart(int a0, void *a1, int a2, int a3, int a4);
+extern void scpActivateAllWithKind(void);
+extern int D_00629DEC;
+extern int D_0062BD80;
+
+void actSt17aDoorEvent(volatile int a0) {
+    while (scpSleepEnemyOne(a0, D_00629DE4, 50.0f) == 0) {
+        _ACTWait(1);
+    }
+    iosPadDevRead(D_00629DEC, 0x10);
+    lt_fade_status(0x33);
+    D_0062A894 = 1;
+    scpDispOnAllWithKind();
+    func_00178DD8(0x111);
+    scpPlayStart(0x5A, &D_0062BD80, 1, 1, 1);
+    while (D_0062BD80 == 0) {
+        _ACTWait(1);
+    }
+    stage_KillPlayBgAnimation(0x15D, 1, 0);
+    while (func_0012A958(0x15D) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    iosPadDevRead(D_00629DEC, 0x10);
+    AddWayPointTop(0xF, 1);
+    scpActivateAllWithKind();
+    D_0062A894 = 0;
+    lt_fade_status(0x32);
+}
+
 
 extern float scpSekizou(int a0);
 extern void lt_fade_status(int a0);
@@ -187,7 +218,44 @@ void actSt17aDoorUpEffect(int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aDoorDownEffect);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aHasiEvent);
+extern void AdpcmClose(int a0);
+extern int func_0012AA28(int a0, int a1, int a2);
+extern int D_0062BD88;
+extern int D_0062C2B4;
+
+void actSt17aHasiEvent(volatile int a0) {
+    stage_KillPlayBgAnimation(0x160, 1, 0);
+    AdpcmClose(*(int *)(D_0062BD88 + 0x2C));
+    *(int *)(actSt25aQueenDeadChk(0x5CB) + 0x16C) = 0;
+    *(int *)(actSt25aQueenDeadChk(0x5CC) + 0x16C) = 0;
+    while (func_0012AA28(0x160, 0xD7, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    iosPadDevRead(D_00629DEC, 0xF);
+    while (func_0012AA28(0x160, 0x10E, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    iosPadDevRead(D_00629DEC, 0x11);
+    while (func_0012AA28(0x160, 0x118, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    iosPadDevRead(D_00629DEC, 0xF);
+    while (func_0012AA28(0x160, 0x12C, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    iosPadDevRead(D_00629DEC, 0x10);
+    while (func_0012A958(0x160) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    D_0062C2B4 = 1;
+    _ACTWait(0);
+}
+
 
 #include "common.h"
 extern void lt_fade_status(int a0);
@@ -224,9 +292,49 @@ void actSt17aIntroChk(volatile int a0) {
     lt_fade_status(0x32);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aGirlWay);
+extern void scpTorchLightOn(int a0, int a1);
+extern void func_00178E08(int a0);
+extern void BoxBarSoundOn(int a0, int a1);
+extern int D_004CDCF0[];
+extern int D_004CDD10[];
+void func_0022AAB0(volatile int a0);
+void func_0022ABE8(volatile int a0);
+typedef struct ActB4Obj {
+    char pad[0xB4];
+    int *unkB4;
+} ActB4Obj;
+
+void actSt17aGirlWay(volatile int a0) {
+    int x = a0;
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x121) == 0) {
+        *(int *)(actSt25aQueenDeadChk(0x5EF) + 0x16C) = 0;
+        *(int *)(actSt25aQueenDeadChk(0x5F0) + 0x16C) = 0;
+        scpTorchLightOn(0x5F1, 0x80);
+        stage_KillPlayBgAnimation(0x80, 0, 0x1E);
+        AddWayPointTop(0x25, 1);
+        AddWayPointTop(0x26, 1);
+        D_004CDCF0[1] = (int)func_0022AAB0;
+        gobj->unkB4 = D_004CDCF0;
+        BoxBarSoundOn((int)a0, 0x189);
+        _ACTWait(0);
+    } else {
+        *(int *)(actSt25aQueenDeadChk(0x5F1) + 0x16C) = 0;
+        *(int *)(actSt25aQueenDeadChk(0x5F2) + 0x16C) = 0;
+        func_00178E08(0x121);
+        scpTorchLightOn(0x5EF, 0x80);
+        stage_KillPlayBgAnimation(0x80, 0, 0);
+        D_004CDD10[1] = (int)func_0022ABE8;
+        gobj->unkB4 = D_004CDD10;
+        BoxBarSoundOn((int)a0, 0x189);
+        _ACTWait(0);
+    }
+}
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", func_0022A970);
+
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", func_0022AAB0);
 
@@ -234,4 +342,18 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", func_0022ABE8);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", func_0022AD28);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", func_0022AE60);
+extern int D_004CDBF0[];
+void actSt17aDoorEvent(volatile int a0);
+
+void func_0022AE60(volatile int a0) {
+    int x = a0;
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_00178DB0(0x111) == 0) {
+        D_004CDBF0[1] = (int)actSt17aDoorEvent;
+        gobj->unkB4 = D_004CDBF0;
+        BoxBarSoundOn((int)a0, 0x189);
+        _ACTWait(0);
+    }
+}
+
