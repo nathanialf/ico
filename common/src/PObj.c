@@ -3233,7 +3233,20 @@ __asm__(
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002484D0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00248538);
+extern int func_002490C0(int a0);
+extern int D_00710F80[];
+
+int func_00248538(int a0) {
+    int ret;
+    if (func_002490C0(1) != 0) {
+        return 0;
+    }
+    (*(int (*)(void))func_00101A40)();
+    ret = D_00710F80[0];
+    D_00710F80[0] = a0;
+    func_00101A88();
+    return ret;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00248590);
 
@@ -7056,7 +7069,22 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_002581F0);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00258328);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00258438);
+void func_00258438(char *s) {
+    unsigned char *base = *(unsigned char **)(s + 0x8);
+    int acc = 0;
+    unsigned char b;
+    do {
+        int idx = *(int *)(s + 0x4);
+        acc <<= 7;
+        b = base[idx];
+        idx++;
+        *(int *)(s + 0x4) = idx;
+        acc |= (b & 0x7F);
+    } while (b & 0x80);
+    if (*(unsigned short *)(s + 0x1E) & 0xFFFF) {
+        *(int *)(s + 0x14) += acc << 12;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00258490);
 
