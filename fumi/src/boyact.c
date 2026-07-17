@@ -96,9 +96,6 @@ extern void func_0014A008(void *a0, void *a1, int a2);
 extern void func_0023FFF0(void *a0, void *a1, void *a2);
 extern void func_00191DB8(void *a0, float a1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", UpdateGeo);
-
-
 /* BoyBgaManager */
 typedef struct {
     int field0;
@@ -116,10 +113,63 @@ extern char D_005525C8[];
 extern char D_0062C3F8[];
 extern void func_001AAD00(char *file, int line);
 extern void func_00260380(char *file, int line, char *msg);
-static void UpdateGeo();
 extern float stage_SetParentOfGObj(int a0, void *a1, void *a2, float a3);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", BoyBgaManager);
+void BoyBgaManager(void *a0, int a1, int *a2) {
+    BgaEntry *found;
+    int i;
+    int result;
+    void UpdateGeo(Geo *e) {
+        float buf_a[4];
+        float buf_b[4];
+        if (e->fF != 0) {
+            buf_a[0] = ((float *) subCommonIdle(a0))[0];
+            buf_a[1] = ((float *) subCommonIdle(a0))[1];
+            buf_a[2] = ((float *) subCommonIdle(a0))[2];
+        } else {
+            void *g = isysGObjSearchFromObjLayoutID(0x2E);
+            func_00191FD0(buf_a, ContinueCorrectPosition(g), ContinueCorrectPosition(a0));
+        }
+        func_00240038(buf_a, buf_a, e->f10);
+        func_0014A008(e->f30, buf_a, 0);
+        func_00240038(buf_b, subCommonIdle(a0), e->f8);
+        func_0023FFF0(e->f20, ContinueCorrectPosition(a0), buf_b);
+        func_00240038(buf_b, subCommonIdle(a0), e->f4);
+        func_00191DB8(buf_b, D_00628E24);
+        func_0023FFF0(e->f20, e->f20, buf_b);
+        e->f24 = e->f24 + (float) e->fD;
+    }
+    i = 0;
+    if (D_0027DF90[0].field0 >= 0) {
+        for (;;) {
+            if (D_0027DF90[i].field0 == a1) {
+                found = &D_0027DF90[i];
+                goto have_found;
+            }
+            i++;
+            if (D_0027DF90[i].field0 < 0) {
+                break;
+            }
+        }
+    }
+    found = 0;
+    func_001AAD00(D_005525C8, 0x5D5);
+    func_00260380(D_005525C8, 0x5D5, D_0062C3F8);
+have_found:
+    if (*a2 >= 0) {
+        if (found->fC != 0) {
+            UpdateGeo((Geo *) found);
+        } else if (*a2 == 0) {
+            UpdateGeo((Geo *) found);
+        }
+        result = (int) stage_SetParentOfGObj(found->field0, found->f20, found->f30, (float) *a2);
+        if (found->fE == 0) {
+            *a2 = result;
+        } else if (result >= 0) {
+            *a2 = result;
+        }
+    }
+}
 
 
 extern unsigned char D_0062BFDE;
