@@ -526,26 +526,35 @@ extern ChainEntry D_00288FD0[];
 typedef struct { int w[6]; } SlowrunRec;
 extern SlowrunRec D_0028E680[];
 
-/* correctJumpOrientByChain: NEAR-MATCH (rc29, structure byte-correct) left as
- * INCLUDE_ASM so the build round-trips. Recovered dev C (verified structurally):
- *   int v = s15C->0x490; ChainEntry *ce = &D_00288FD0[s164->0x44];  (stride 0x14)
- *   read e4=ce->_4, e8=ce->_8, eC=ce->_C, e10=ce->_10;  (via D_00288FD0[idx]._N
- *   direct-index form so ee-gcc leaves e10 in the beq delay slot + emits the
- *   3 base-copies like ROM)
- *   if (v != 0x440) { D_0028E680[e4].w2 = v;               (SlowrunRec stride 0x18)
- *     if (eC < e10) { D_0028E680[e8].w2 = v;
- *       for (i=eC; i<e10; i++) D_0028E680[i].w0 = v; } }
- * RESIDUAL (only diff class): the 3 base-pointer copies. ROM STARS all three
- * from the ce pseudo (daddu $3,$6; daddu $4,$6; daddu $2,$6) because ROM loads
- * e4/e8/eC BACK INTO the copy regs (lw $3,4($3) ...), freeing them so copies
- * 2&3 must re-source from $6. ee-gcc here has spare temps, loads e4/e8/eC into
- * FRESH regs (t2/t3/...), keeps copy-1 (v1) live and CHAINS copies 2&3 from it
- * -> whole reg cascade. This is a local-allocator dest-reg/pressure coloring
- * tie (birth-order in allocno_compare), not steerable by the ~13 clean source
- * shapes tried. NEXT ANGLE: raise register pressure across the field-read
- * window (a genuine extra live dev value between the reads and the branch) so
- * the allocator is forced to reuse the base-copy reg as the load dest = star. */
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", correctJumpOrientByChain);
+/* correctJumpOrientByChain: MATCHED. Two structural keys cracked it from rc29:
+ *  (1) direct-index D_00288FD0[idx]._N (NOT a cached ce pointer) makes ee-gcc
+ *      recompute base+idx*20 per field, collapsing to 1 addu + 3 star-copies of
+ *      ce and reusing the copy regs as load dests (lw v1,4(v1)) like ROM.
+ *  (2) the e8 store is UNCONDITIONAL (in the beq delay slot in ROM = both paths),
+ *      NOT nested inside the eC<e10 guard; the guard covers only the loop. This
+ *      pairs the two mults (auto-mult1) and fixes the branch shape.
+ *  (3) the loop must be a `while` (i=eC; while(i<e10){...i++}) not a `for`, so eC
+ *      lands in a1 and gets saved to a2 early like ROM (the final coloring flip). */
+void correctJumpOrientByChain(void *a0) {
+    char *s164 = *(char **)((char *)a0 + 0x164);
+    char *s15C = *(char **)((char *)a0 + 0x15C);
+    int v = *(int *)(s15C + 0x490);
+    int idx = *(int *)(s164 + 0x44);
+    int e4 = D_00288FD0[idx]._4;
+    int e8 = D_00288FD0[idx]._8;
+    int eC = D_00288FD0[idx]._C;
+    int e10 = D_00288FD0[idx]._10;
+    int i;
+    if (v != 0x440) {
+        D_0028E680[e4].w[2] = v;
+        D_0028E680[e8].w[2] = v;
+        i = eC;
+        while (i < e10) {
+            D_0028E680[i].w[0] = v;
+            i++;
+        }
+    }
+}
 
 
 void actCommonJump(void *a0) {
@@ -761,7 +770,27 @@ void func_0015BE38(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015BEC8);
+extern char D_00552EE0[];
+extern void func_00149F60(void *a0);
+extern void actBoyHangG3M(void *a0, void *a1);
+
+void func_0015BEC8(volatile int a0) {
+    char *base = *(char **)(a0 + 0x164);
+    debug_assertMessage(D_00552EE0);
+    dispPlane((void *)a0, *(char **)(a0 + 0x164) + 0x1B0);
+    if (*(int *)(a0 + 0xC) == 4) {
+        func_001561E8((void *)a0, 6);
+        func_00149F60((void *)a0);
+    }
+    iosOmBeforeFuncStandard(D_00629DE4, 0x109, (void *)a0);
+    if (*(int *)(base + 0xB8) == 0x107) {
+        actBoyHangG3M((void *)a0, ContinueCorrectPosition((void *)a0));
+    }
+    for (;;) {
+        BoxBarSoundOn((void *)a0, 0xB4);
+        _ACTWait(1);
+    }
+}
 
 extern void func_0017F450(float a0);
 extern void brainInitGirlSet(void);
@@ -852,6 +881,52 @@ void func_0015C3F8(volatile int a0) {
     }
 }
 
+/* func_0015C418: NEAR-MATCH (rc5). Structure BYTE-CORRECT; residual is a single
+ * local-allocator v0<->v1 swap that resists ~40 source shapes. Recovered dev C
+ * (verified structurally against ROM; the inline probe helper is load-bearing):
+ *
+ *   extern void ActOrientTest(void *a0, void *a1, int a2);
+ *   static __inline__ int func_0015C418_probe(char *buf, char *obj) {
+ *       ActOrientTest(buf, obj, 0x2C);          // buf+0x00
+ *       ActOrientTest(buf + 0x10, obj, 0x33);   // buf+0x10
+ *       *(float *)(buf + 0x14) -= 5.0f;         // f20 = 5.0, held callee-saved
+ *       ChangeFieldCollisionDebugMode(buf);
+ *       return *(int *)(buf + 0x94) != 0;       // cond field at buf+0x94
+ *   }
+ *   void func_0015C418(volatile int a0) {
+ *       char buf[0xC0];                          // one 0xC0 buffer at sp+0x10
+ *       for (;;) {
+ *           char *obj = (char *)a0;
+ *           int hit;
+ *           char *rec = D_0055DA10_a +
+ *               *(int *)(*(char **)(obj + 0x15C) + 0x490) * 0x190;  // stride 0x190
+ *           if (!(*(int *)(rec + 0x188) & 1)) goto no;
+ *           if (func_0015C418_probe(buf, obj)) { hit = 1; goto test; }
+ *         no:  hit = 0;
+ *         test:
+ *           if (hit) BoxBarSoundOn((void *)a0, 0x9B);  // NOTE: (void*)a0 not obj -
+ *           _ACTWait(1);                                //  ROM reloads a0 from home
+ *       }
+ *   }
+ *
+ * SOLVED (all byte-exact): the inline `probe` helper prevents ee-gcc from
+ * hoisting the two buf-arg addresses (sp+0x10 / sp+0x20) into callee-saved regs
+ * -> frame 0x120, exactly s0/s1/s2 + f20 like ROM (a bare/manual-inlined body
+ * hoists them: 5 callee-saved, frame 0x140). The `goto` flag kills the movz that
+ * a plain `if(cond)hit=1` produces. BoxBar takes (void*)a0 (fresh volatile home
+ * reload) not the cached `obj`, matching ROM's `lw a0,0(sp)`.
+ *
+ * RESIDUAL (only diff, 5 insns): ROM puts the buf+0x94 VALUE in v0 and the hit
+ * flag in v1; ee-gcc here swaps them (value->v1, hit->v0). MECHANISM (greg/lreg
+ * verified): `hit` is a GLOBAL user-var pseudo with no copy-preference, so
+ * global-alloc gives it the lowest reg v0; local-alloc, assigning the transient
+ * `value` load FIRST, leaves v0 free for the conflicting hit and takes v1. In
+ * ROM the reverse holds (value=v0, hit=v1). The two only overlap because ee-gcc
+ * hoists `hit=1` above the value branch (ROM keeps it in the bnez delay slot).
+ * Every double-branch source shape reproduces the swap; the only shapes that put
+ * value in v0 (reuse the outer-flag var `c` for the value) collapse to a SINGLE
+ * branch, losing ROM's hit=0/hit=1/beqz. NEXT ANGLE: make `hit` NOT prefer v0
+ * (give it a genuine copy-preference to v1 from a dev value), or a permuter pass. */
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C418);
 
 void func_0015C4D8(volatile int a0) {
@@ -903,7 +978,33 @@ void func_0015C620(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C650);
+extern void *ExecMotionOrient(void *a0, void *a1, void *a2);
+extern void func_00104548(void *a0, void *a1);
+
+void func_0015C650(volatile int a0) {
+    int buf[4];
+    char *base = *(char **)(a0 + 0x164);
+    int prev = *(int *)(base + 0x3C);
+    for (;;) {
+        int cur = *(int *)(base + 0x3C);
+        char *o;
+        int r, ar;
+        if (cur != 0xEB) {
+            prev = cur;
+        } else {
+            *(void **)(base + 0x110) =
+                ExecMotionOrient((void *)a0, (void *)prev, base + 0x610);
+        }
+        func_00104548(buf, (void *)a0);
+        o = *(char **)(a0 + 0x164);
+        r = HandCameraCorrect(*(char **)(o + 0x678) + 0x3B0, buf);
+        ar = (r < 0) ? -r : r;
+        if (ar < 0xF) {
+            BoxBarSoundOn((void *)a0, 0xE2);
+        }
+        _ACTWait(1);
+    }
+}
 
 extern void func_00104548(void *a0, void *a1);
 
