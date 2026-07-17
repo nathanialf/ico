@@ -309,7 +309,25 @@ void pullup_check_heroin_position(int *volatile a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00151F48);
+extern char D_00552988[];
+extern void iosOmBeforeFuncStandard(void *, int, void *);
+extern void *D_0062A4DC;
+
+void func_00151F48(volatile int a0) {
+    int *obj = *(int **)((char *)a0 + 0x164);
+    debug_assertMessage(D_00552988);
+    *(int *)((char *)obj + 0x30) = 9;
+    _ACTWait(2);
+    if (D_00629DE8 != 0) {
+        iosOmBeforeFuncStandard(D_00629DE8, 0x3C, D_0062A4DC);
+    }
+    while (1) {
+        if (!(*(int *)((char *)obj + 0x2D0) & 8)) {
+            BoxBarSoundOn(a0, 0xB4);
+        }
+        _ACTWait(1);
+    }
+}
 
 extern void BoxBarSoundOn(void *a0, int a1);
 
@@ -369,7 +387,24 @@ void func_00152340(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00152380);
+static __inline__ unsigned char boyStateIsGrab(void) {
+    void *p = D_00629DE8;
+    void *q = p;
+    unsigned int lo = *(unsigned int *)((char *)*(void **)((char *)p + 0x164) + 0x30);
+    unsigned int hi = *(unsigned int *)((char *)*(void **)((char *)q + 0x164) + 0x30);
+    if (hi >= 0x68) return 0;
+    if (lo < 0x65) return 0;
+    return 1;
+}
+
+void func_00152380(volatile int a0) {
+    while (1) {
+        if (!boyStateIsGrab()) {
+            BoxBarSoundOn(a0, 0xCF);
+        }
+        _ACTWait(1);
+    }
+}
 
 void func_001523E0(volatile int a0) {
     while (1) {
@@ -395,7 +430,27 @@ void func_00152450(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00152480);
+extern float D_00628F18;
+extern unsigned char D_0062BFDD;
+
+void func_00152480(volatile int a0) {
+    void *obj = *(void **)((char *)a0 + 0x164);
+    float thresh = D_00628F18;
+    while (1) {
+        if (thresh < *(float *)((char *)obj + 0x33C) ||
+            (*(int *)((char *)obj + 0x2D0) & 0x10)) {
+            BoxBarSoundOn(a0, 0x170);
+            if (D_00629DE8 != 0) {
+                iosOmBeforeFuncStandard(D_00629DE8, 0x173, D_0062A4DC);
+            }
+        }
+        _ACTWait(1);
+    }
+}
+
+int func_00152500(void) {
+    return D_0062BFDD;
+}
 
 extern void debug_assertMessage(void *);
 extern void BoxBarSoundOn(void *a0, int a1);
