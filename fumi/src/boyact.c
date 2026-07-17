@@ -370,9 +370,45 @@ void func_00152050(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_001520F8);
+typedef struct { long long a; int b; } __attribute__((packed, aligned(4))) S12u;
+void func_001520F8(volatile int a0) {
+    extern void funcCommonJumpDircorrect();
+    int *p = *(int **)((char *)a0 + 0x164);
+    int q0, q1, q2, q3;
+    funcCommonJumpDircorrect(a0, *(int *)(*(int *)((char *)a0 + 0x164) + 0x678) + 0x7D0);
+    q0 = *(int *)(*(int *)((char *)a0 + 0x164) + 0x678);
+    q1 = *(int *)(*(int *)((char *)a0 + 0x164) + 0x678);
+    *(float *)(q0 + 0x410) = *(float *)((char *)p + 0x4B0);
+    q2 = *(int *)(*(int *)((char *)a0 + 0x164) + 0x678);
+    q3 = *(int *)(*(int *)((char *)a0 + 0x164) + 0x678);
+    *(float *)(q1 + 0x414) = *(float *)((char *)p + 0x4B4);
+    *(float *)(q2 + 0x418) = *(float *)((char *)p + 0x4B8);
+    *(S12u *)(q3 + 0x420) = *(S12u *)((char *)p + 0x620);
+    while (1) { BoxBarSoundOn(a0, 0x114); _ACTWait(1); }
+}
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_001521A8);
+typedef struct { char _0[0x20]; float f20; int i24; int i28; int _2c; } __attribute__((aligned(8))) Buf30;
+extern float RotateAccordingToStick_PatternThree(CCPResult *a0, void *a1);
+extern void funcCommonFallDircorrect(int a0, void *a1);
+
+void func_001521A8(volatile int a0) {
+    void *m = *(void **)((char *)a0 + 0x164);
+    Buf30 buf;
+    buf = *(Buf30 *)*(void **)((char *)(*(int *)((char *)a0 + 0x164)) + 0x2C);
+    while (1) {
+        funcCommonFallDircorrect(a0, (char *)&buf + 0x10);
+        if (buf.i28 != 0) {
+            long long v = *(long long *)((char *)m + 0x480);
+            v |= 0x1000;
+            v |= 2;
+            *(long long *)((char *)m + 0x480) = v;
+        }
+        if (buf.i24-- < 0) BoxBarSoundOn(a0, 0xF7);
+        if (RotateAccordingToStick_PatternThree(ContinueCorrectPosition((void *)a0), &buf) < buf.f20 * buf.f20)
+            BoxBarSoundOn(a0, 0xF7);
+        _ACTWait(1);
+    }
+}
 
 extern void *D_0062BFE8;
 
