@@ -155,13 +155,67 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", CollisCheckInRope);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_001563E8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_00156750);
+typedef struct {
+    int f[3];   /* 0x00,0x04,0x08 */
+    float fC;   /* 0x0C */
+    float f10;  /* 0x10 */
+    float f14;  /* 0x14 */
+    int f18;    /* 0x18 */
+    int f1C;    /* 0x1C */
+    int f20;    /* 0x20 */
+} RopeEntry;    /* 0x24 */
+extern RopeEntry D_0029AF08[];
+extern char D_00552B60[];
+extern char D_00552C20[];
+extern void func_0010E448(void *a0, int a1);
+extern void func_0010E4E8(void *a0, int a1);
+extern void func_0010E588(void *a0, int a1);
+extern void GetHeightOfFieldPlaneDifference(void *, int, int, int, void *, float, float, float, float);
+extern void func_001AAD00(void *a0, int a1);
+extern void func_00260380(void *a0, int a1, void *a2);
 
 extern float pac_DispQW(void);
 extern void ACTParaStatus_Exec(void *a0);
-extern void func_00156750(int a0, int a1, void *a2);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonRope);
+void actCommonRope(int self) {
+    volatile int *ps = &self;
+    int func_00156750(int idx, int a1) {
+        float buf[4];
+        int i;
+        RopeEntry *e = &D_0029AF08[idx];
+        func_00260568(buf, 0, 0x10);
+        buf[3] = 1.0f;
+        if ((unsigned int)idx >= 15) {
+            func_001AAD00(D_00552B60, 0x9BE);
+            func_00260380(D_00552B60, 0x9BE, D_00552C20);
+        }
+        for (i = 0; i < 3; i++) {
+            int q = (e->f[i] << 15) / 180;
+            if (q != 0) {
+                switch (i) {
+                case 0: func_0010E448(buf, (short)q); break;
+                case 1: func_0010E4E8(buf, (short)q); break;
+                case 2: func_0010E588(buf, (short)q); break;
+                }
+            }
+        }
+        GetHeightOfFieldPlaneDifference((void *)self, a1, e->f18, e->f20, buf,
+                                        e->fC, e->f10, e->f14, 1.0f);
+        return e->f1C;
+    }
+    float f;
+    int val;
+    int rem;
+    void *sa;
+    f = pac_DispQW();
+    rem = (int)(f * 10.0f) % 15;
+    sa = (void *)self;
+    val = *(int *)(*(int *)(*(int *)(*ps + 0x164) + 0x670) + 0x214);
+    *(int *)(*(int *)(*(int *)(*ps + 0x164) + 0x670) + 0x218) = val;
+    ACTParaStatus_Exec(sa);
+    func_00156750(rem, val);
+    _ACTWait(0);
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", motCommonRopeTurnR);
@@ -472,6 +526,25 @@ extern ChainEntry D_00288FD0[];
 typedef struct { int w[6]; } SlowrunRec;
 extern SlowrunRec D_0028E680[];
 
+/* correctJumpOrientByChain: NEAR-MATCH (rc29, structure byte-correct) left as
+ * INCLUDE_ASM so the build round-trips. Recovered dev C (verified structurally):
+ *   int v = s15C->0x490; ChainEntry *ce = &D_00288FD0[s164->0x44];  (stride 0x14)
+ *   read e4=ce->_4, e8=ce->_8, eC=ce->_C, e10=ce->_10;  (via D_00288FD0[idx]._N
+ *   direct-index form so ee-gcc leaves e10 in the beq delay slot + emits the
+ *   3 base-copies like ROM)
+ *   if (v != 0x440) { D_0028E680[e4].w2 = v;               (SlowrunRec stride 0x18)
+ *     if (eC < e10) { D_0028E680[e8].w2 = v;
+ *       for (i=eC; i<e10; i++) D_0028E680[i].w0 = v; } }
+ * RESIDUAL (only diff class): the 3 base-pointer copies. ROM STARS all three
+ * from the ce pseudo (daddu $3,$6; daddu $4,$6; daddu $2,$6) because ROM loads
+ * e4/e8/eC BACK INTO the copy regs (lw $3,4($3) ...), freeing them so copies
+ * 2&3 must re-source from $6. ee-gcc here has spare temps, loads e4/e8/eC into
+ * FRESH regs (t2/t3/...), keeps copy-1 (v1) live and CHAINS copies 2&3 from it
+ * -> whole reg cascade. This is a local-allocator dest-reg/pressure coloring
+ * tie (birth-order in allocno_compare), not steerable by the ~13 clean source
+ * shapes tried. NEXT ANGLE: raise register pressure across the field-read
+ * window (a genuine extra live dev value between the reads and the branch) so
+ * the allocator is forced to reuse the base-copy reg as the load dest = star. */
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", correctJumpOrientByChain);
 
 
