@@ -13,7 +13,52 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", motBoyHand100);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", motBoyHand200);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", hand_heroin);
+extern char D_00552530[];
+extern void *D_00629DE8;
+extern void *D_0062A4DC;
+extern void debug_assertMessage(void *msg);
+extern void iosOmBeforeFuncStandard(void *a0, int a1, void *a2);
+extern void _ACTWait(int a0);
+extern void BoxBarSoundOn(void *a0, int a1);
+
+void hand_heroin(volatile int a0)
+{
+    int *m = *(int **)((char *)a0 + 0x164);
+
+    debug_assertMessage(D_00552530);
+    while (1) {
+        if (D_00629DE8 != 0) {
+            iosOmBeforeFuncStandard(D_00629DE8, 0x54, D_0062A4DC);
+        }
+        if (*(int *)((char *)m + 0xC0) & 1) {
+            break;
+        }
+        _ACTWait(1);
+    }
+    while (1) {
+        if (*(int *)(*(int *)((char *)a0 + 0x15C) + 0x490) >= 0 &&
+            *(int *)(*(int *)((char *)a0 + 0x15C) + 0x490) < 2) {
+            break;
+        }
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    while (1) {
+        if (D_00629DE8 != 0) {
+            iosOmBeforeFuncStandard(D_00629DE8, 0x55, D_0062A4DC);
+        }
+        if (*(int *)((char *)m + 0xC0) & 2) {
+            break;
+        }
+        _ACTWait(1);
+    }
+    _ACTWait(0x2D);
+    *(int *)((char *)m + 0x14) = 0;
+    while (1) {
+        BoxBarSoundOn((void *)a0, 0x42);
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_0014C0C0);
 
@@ -693,11 +738,35 @@ int actBoyDitch3mReady(void) {
     return 0;
 }
 
-extern void *ACTGameCollisionOff();
+extern void *ACTGameCollisionOff(void *a0);
 extern int TorchGeo(void *a0);
 extern int ACTEnvGetTest(void);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", SetStatusBoy_OtherStageGirlPinch);
+union BoyStatFlags { long long ll; int w[2]; };
+extern union BoyStatFlags D_006A45A0_sf[] __asm__("D_006A45A0");
+
+void SetStatusBoy_OtherStageGirlPinch(void)
+{
+    void *r;
+    long long f = D_006A45A0_sf[1].ll;
+    void *work = *(void **)((char *)D_00629DE4 + 0x164);
+    void *st;
+
+    D_006A45A0_sf[1].ll = f & ~(1LL << 34);
+    st = *(void **)((char *)work + 0x130);
+    if (st != 0) {
+        r = ACTGameCollisionOff(st);
+        if (r != 0) {
+            if (TorchGeo(r) != 0) {
+                D_006A45A0_sf[1].ll |= (1LL << 34);
+            }
+        }
+    }
+    D_006A45A0_sf[1].ll &= ~(1LL << 33);
+    if (ACTEnvGetTest() != 0) {
+        D_006A45A0_sf[1].ll |= (1LL << 33);
+    }
+}
 
 
 extern int D_0062A894;
