@@ -4904,7 +4904,16 @@ extern void func_00251088(int a0);
 extern int D_0054C758[];
 extern int D_0054CD78[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0024E7C8);
+void func_0024E7C8(void) {
+    int v;
+    func_00251088(1);
+    v = D_0054C758[0];
+    D_0054CD78[0] = v;
+    D_0054CD78[1] = v + 0x1800;
+    *(void **)&D_0054CD78[0x50] = (void *)(v + 0x1B00);
+    *(void **)&D_0054CD78[0x51] = (void *)(v + 0x3300);
+    *(float *)((char *)D_0054CD78 + 0x280) = 0.0f;
+}
 
 
 
