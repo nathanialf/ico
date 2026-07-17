@@ -738,7 +738,29 @@ void getAvoidCollisionFlyLevel(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C0D8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C1D0);void func_0015C268(volatile int a0) {
+static __inline__ void func_0015C818_disp(int obj) {
+    int buf[4];
+    func_00240038_p(buf, (int)(*(char **)(obj + 0x164) + 0x4A0), -1.0f);
+    dispPlane((void *)obj, buf);
+}
+
+void func_0015C1D0(volatile int a0) {
+    char *base = *(char **)(a0 + 0x164);
+    int s17val = *(int *)(base + 0x5EC);
+    WithMailFunc_WayBeginPosError((void *)a0, base + 0x590);
+    func_0015C818_disp(a0);
+    for (;;) {
+        if (s17val) {
+            (void)a0;
+            if (*(int *)(*(char **)(a0 + 0x15C) + 0x5F0)) {
+                func_00155FF8((void *)a0, (void *)s17val);
+            }
+        }
+        _ACTWait(1);
+    }
+}
+
+void func_0015C268(volatile int a0) {
     char *s1 = *(char **)(a0 + 0x164);
     for (;;) {
         if ((0x3C - D_00271240[0] * 0xA) / D_00271240[1] / 2 <
@@ -853,12 +875,6 @@ void actCommonLadder(volatile int a0) {
     for (;;) {
         _ACTWait(1);
     }
-}
-
-static __inline__ void func_0015C818_disp(int obj) {
-    int buf[4];
-    func_00240038_p(buf, (int)(*(char **)(obj + 0x164) + 0x4A0), -1.0f);
-    dispPlane((void *)obj, buf);
 }
 
 void func_0015C818(volatile int a0) {
