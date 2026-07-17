@@ -350,7 +350,25 @@ void func_00151FF0(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00152050);
+extern float fzMagnitudefv(int a0, int a1, int a2);
+extern void brainInitGirlSet(void);
+
+void func_00152050(volatile int a0) {
+    funcCommonJumpDircorrect(a0, *(int *)(*(int *)((char *)a0 + 0x164) + 0x678) + 0x7D0);
+    fzMagnitudefv(*(int *)(*(int *)((char *)a0 + 0x164) + 0x678) + 0x7E0,
+                  *(int *)(*(int *)(*(int *)((char *)a0 + 0x164) + 0x678) + 0x7D8),
+                  *(int *)(*(int *)((char *)a0 + 0x164) + 0x678) + 0x7D0);
+    while (1) {
+        if (D_00629DE8 != 0) {
+            brainInitGirlSet();
+            if (D_00629DE8 != 0) {
+                iosOmBeforeFuncStandard(D_00629DE8, 0x39, D_0062A4DC);
+            }
+        }
+        BoxBarSoundOn(a0, 0x114);
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_001520F8);
 
@@ -607,7 +625,23 @@ extern int D_006A4608[];
 extern float D_00628F1C;
 extern void *D_00629C90;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyRescueReady);
+void actBoyRescueReady(void) {
+    union { float f[4]; int i[4]; } buf;
+    int *s16;
+    if (D_00629DE4 == 0) return;
+    s16 = *(int **)((char *)D_00629DE4 + 0x164);
+    if (*(int *)((char *)s16 + 0x130) != 0) {
+        ExecWeaponHitReaction(*(void **)((char *)s16 + 0x130));
+        func_00260568(&buf, 0, 0x10);
+        buf.f[0] = D_00628F1C;
+        CylinderCollision((void *)*(int *)((char *)s16 + 0x130), &buf);
+        func_001AB9B8(*(int *)((char *)s16 + 0x130), 0, 0, D_00629C90);
+        *(int *)(*(int *)((char *)s16 + 0x130) + 0x16C) = 0;
+    }
+    D_006A4608[0] = 0;
+    *(int *)D_006A45A0 = 0;
+    *(int *)((char *)s16 + 0x130) = 0;
+}
 
 
 
