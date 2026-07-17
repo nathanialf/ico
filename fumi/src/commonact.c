@@ -151,6 +151,38 @@ void GetCorrectOrientOfChain(void *a0)
     }
 }
 
+/* CollisCheckInRope: NEAR-MATCH (real_count 8, 5 sites; body structurally
+ * correct). Recovered dev C:
+ *   extern void func_0017F450(float a0);
+ *   extern void WithMailFunc_FallDead(volatile int a0);
+ *   extern char D_00552BF0[];
+ *   void CollisCheckInRope(volatile int a0) {
+ *       char buf[0x10];
+ *       void *s16 = *(void **)(a0 + 0x164);       // held across assert
+ *       debug_assertMessage(D_00552BF0);
+ *       *(void **)((char *)s16 + 0x18) = (void *)WithMailFunc_FallDead;  // bne delay
+ *       if ((char *)a0 == D_00629DE4) func_0017F450(1000.0f);
+ *       if ((char *)a0 == D_00629DE8) {
+ *           func_00240038_p(buf, (int)((char *)*(void **)(a0+0x164)+0x1B0), -1.0f);
+ *           dispPlane((void *)a0, buf);
+ *       } else {
+ *           dispPlane((void *)a0, (char *)*(void **)(a0+0x164)+0x1B0);
+ *       }
+ *       GetCorrectOrientOfChain((void *)a0);
+ *       for (;;) {
+ *           if (*(int *)(a0 + 0xC) != 4)
+ *               *(char *)((char *)*(void **)(a0+0x164)+0x1CA) = 1;   // s16=1,s17=4 hoisted
+ *           BoxBarSoundOn((void *)a0, 0xB4);
+ *           _ACTWait(1);
+ *       }
+ *   }
+ * RESIDUAL: first `a0 == D_00629DE4` compare — ROM loads the volatile a0-home
+ * into the arg reg EARLY and D_00629DE4 late (bne a0,v1) with the WithMailFunc
+ * store filling the bne delay; ee-gcc defers the volatile a0 read and loads DE4
+ * (non-volatile) first (bne v1,a0), leaving the delay empty. Temp-hoisting the
+ * a0 read and reversing the compare operands did not move it (real_count stays 8).
+ * NEXT ANGLE: get the volatile a0 read scheduled before the DE4 global load in
+ * the compare (volatile-vs-nonvolatile sched order), which cascades the rest. */
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", CollisCheckInRope);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_001563E8);
@@ -220,7 +252,32 @@ void actCommonRope(int self) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", motCommonRopeTurnR);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_00156AB8);
+extern void SetCageFixGeometry(void *a0);
+extern void darkVolume(void *a0);
+extern void actBoyHangG3M(void *a0, void *a1);
+extern void func_00191FD0(void *a0, void *a1, void *a2);
+extern int D_0062B320;
+extern int D_0062A894;
+
+void func_00156AB8(volatile int a0) {
+    char buf10[0x10];
+    char buf20[0x10];
+    if (*(int *)(*(int *)(a0 + 0x164) + 0xB8) == 0x22) {
+        SetCageFixGeometry((void *)a0);
+        darkVolume(buf10);
+        func_00191FD0(buf20, buf10, ContinueCorrectPosition((void *)a0));
+        dispPlane((void *)a0, buf20);
+    } else {
+        actBoyHangG3M((void *)a0, ContinueCorrectPosition((void *)a0));
+        dispPlane((void *)a0, (char *)*(void **)(a0 + 0x164) + 0x1B0);
+        *(int *)(a0 + 0x50) = 0;
+    }
+    D_0062B320 = 0;
+    D_0062A894 = 1;
+    _ACTWait(0x12C);
+    func_0015B4C8();
+    _ACTWait(0);
+}
 
 extern void traceLine(int a0, int a1, int a2, void *a3, int a4);
 extern void ActPara_GetDefTbl(int a0, int a1);
@@ -363,7 +420,7 @@ extern void func_00104DC0(int a0);
 extern void func_00105108(float a, float b, float c);
 extern void MatrixDrive_TurnObjectMatrix(void *a0, void *a1);
 extern int ClipWallBoxStop(void *a0);
-extern int ChangeFieldCollisionDebugMode(void *a0);
+extern void ChangeFieldCollisionDebugMode(void *a0);
 extern void _TransposeRotationCurrentMatrix(void *a0, void *a1, void *a2);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", EBRAIN_SEND_MES);
@@ -375,6 +432,56 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", DownFunc);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonDown);
 
+/* func_00159138: NEAR-MATCH. CFG byte-correct; residual is ONE if-conversion
+ * tie on the s16 select. Recovered dev C (all verified against ROM except the
+ * flagged residual):
+ *
+ *   extern char boss_effect_check_parts[];
+ *   extern int EnemyBrainStatus_Girl(void *a0, int *a1);
+ *   extern int actEnemyFlagCheckDead(void *a0);
+ *   extern void ReviveEnemyParticle(void *a0, int a1);
+ *   extern int D_0062B07C;
+ *   void func_00159138(volatile int a0) {
+ *       int local4 = 0, s16, r2;
+ *       int c1 = a0, c2 = a0;               // volatile a0 hoisted (getLandOffset vein)
+ *       *(void **)(*(int *)(c1 + 0x164) + 0x18) = boss_effect_check_parts;
+ *       *(int *)(*(int *)(c2 + 0x15C) + 0x5E8) = 0;
+ *       r2 = EnemyBrainStatus_Girl((void *)a0, &local4);
+ *       s16 = local4;
+ *       if (r2 != 0) goto revive;
+ *       if (actEnemyFlagCheckDead((void *)a0)) {
+ *           s16 = (int)D_00629DE4;
+ *           if (D_00629DE4 != 0) goto revive;   // BRANCH (not diamond: DE8 block follows)
+ *       }
+ *       s16 = (int)D_00629DE8;
+ *       if (D_00629DE8 != 0) goto revive;        // <== gcc IF-CONVERTS -> movz (ROM: bnez+daddu)
+ *       s16 = (int)D_00629DE4;
+ *   revive:
+ *       ReviveEnemyParticle((void *)a0, 0);
+ *       { int flag = 0; char *p = D_00629DE8;
+ *         void *e = p ? *(void **)((char *)p + 0x164) : 0;
+ *         if ((p != 0 && *(int *)((char *)e + 0x30) == 0x6B &&
+ *              *(int *)((char *)e + 0x124) == (int)a0) || D_0062B07C != 0) flag = 1;
+ *         actCommonDown((void *)a0, s16, flag); }
+ *   }
+ *
+ * SOLVED: flag block matches ROM's beql/bnel byte-for-byte via the single
+ * `if ((A && ...) || B) flag = 1;` short-circuit form (the nested-if form gives
+ * sltu). Prologue matches via the c1/c2 volatile-read hoist.
+ *
+ * RESIDUAL (blocker): the terminal `s16 = DE8; if (DE8) goto revive; s16 = DE4;`
+ * is a clean 1-insn-arm diamond with condition == value1 (DE8). ee-gcc's
+ * jump-pass if-conversion turns it into `movz s0,v0,s0`; ROM keeps a branch
+ * (`lw $5,DE8; bnez $5,L; daddu $16,$5; lw $16,DE4`). Calibration (minimal-TU):
+ * ee-gcc if-converts EVERY such diamond where the condition equals a merge value
+ * (i4: A==A -> movn) and only BRANCHES when the condition is a memory load
+ * INDEPENDENT of both merge values (i3: cond P[1], vals P[0]/P[2] -> branch).
+ * ~30 source forms (goto/label/temp/pointer/comma/ternary/two-goto) all reproduce
+ * the movz or flip to beql. The flag `||` lever does NOT transfer (s16 is a value
+ * select, not a 0/1 flag). NEXT ANGLE: find the dev spelling that makes the DE8
+ * presence-CONDITION independent of the DE8 VALUE without a second load (CSE folds
+ * a re-read), or a compiler-behavior angle explaining why ROM's identical diamond
+ * did not if-convert. Residual is exactly the 5 s16/movz insns. */
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_00159138);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", actCommonDie);
@@ -644,7 +751,30 @@ void func_0015B850(volatile int a0) {
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", getLandOffset);
+void getLandOffset(volatile int a0) {
+    void *obj = *(void **)(a0 + 0x164);
+    CylinderCollision((void *)a0, (char *)obj + 0x5A0);
+    {
+        int c1 = a0, c2 = a0, c3 = a0;
+        int t = *(int *)((char *)obj + 0x60C);
+        *(int *)(*(int *)(*(int *)(c1 + 0x164) + 0x670) + 0x250) = 0;
+        *(int *)((char *)obj + 0x140) = t;
+        *(int *)(*(int *)(*(int *)(c2 + 0x164) + 0x670) + 0x258) = 0;
+        *(int *)(*(int *)(*(int *)(c3 + 0x164) + 0x670) + 0x25C) = 0;
+    }
+    for (;;) {
+        int *pa = (int *)(*(int *)(*(int *)(a0 + 0x164) + 0x670));
+        int *pb = (int *)(*(int *)(*(int *)(a0 + 0x164) + 0x670));
+        if (*(int *)((char *)pb + 0x254) < *(int *)((char *)pa + 0x250)) {
+            BoxBarSoundOn((void *)a0, 0x6B);
+        }
+        {
+            int *p = (int *)(*(int *)(*(int *)(a0 + 0x164) + 0x670));
+            *(int *)((char *)p + 0x250) += 1;
+        }
+        _ACTWait(1);
+    }
+}
 
 extern int GetDifferenceFromWallUpperPlane(void *a0);
 extern void initializeQueenzSword(int a0);
@@ -746,7 +876,32 @@ void func_0015BD00(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015BD60);
+extern char D_00552EC8[];
+extern void actBoyBelift(void *a0, void *a1, void *a2);
+extern void func_00191FD0(void *a0, void *a1, void *a2);
+extern void GetOrientOfCliffOfGObj(void *a0, void *a1, float f0, float f1);
+
+void func_0015BD60(volatile int a0) {
+    int local20 = 0;
+    char buf[0x10];
+    void *s17 = *(void **)(a0 + 0x164);
+    debug_assertMessage(D_00552EC8);
+    if (*(int *)(a0 + 0xC) == 1) {
+        actBoyBelift((void *)a0, &local20, buf);
+    } else {
+        void *r1 = ContinueCorrectPosition(D_00629DE4);
+        void *r2v = ContinueCorrectPosition((void *)a0);
+        func_00191FD0((char *)s17 + 0x100, r1, r2v);
+        dispPlane((void *)a0, (char *)s17 + 0x100);
+    }
+    for (;;) {
+        if (local20 != 0) {
+            GetOrientOfCliffOfGObj((void *)a0, buf, 10.0f, 90.0f);
+        }
+        BoxBarSoundOn((void *)a0, 0xB4);
+        _ACTWait(1);
+    }
+}
 
 extern void actBoyBelift(void *a0, void *a1, void *a2);
 extern void func_00191FD0(void *a0, void *a1, void *a2);
@@ -881,53 +1036,34 @@ void func_0015C3F8(volatile int a0) {
     }
 }
 
-/* func_0015C418: NEAR-MATCH (rc5). Structure BYTE-CORRECT; residual is a single
- * local-allocator v0<->v1 swap that resists ~40 source shapes. Recovered dev C
- * (verified structurally against ROM; the inline probe helper is load-bearing):
- *
- *   extern void ActOrientTest(void *a0, void *a1, int a2);
- *   static __inline__ int func_0015C418_probe(char *buf, char *obj) {
- *       ActOrientTest(buf, obj, 0x2C);          // buf+0x00
- *       ActOrientTest(buf + 0x10, obj, 0x33);   // buf+0x10
- *       *(float *)(buf + 0x14) -= 5.0f;         // f20 = 5.0, held callee-saved
- *       ChangeFieldCollisionDebugMode(buf);
- *       return *(int *)(buf + 0x94) != 0;       // cond field at buf+0x94
- *   }
- *   void func_0015C418(volatile int a0) {
- *       char buf[0xC0];                          // one 0xC0 buffer at sp+0x10
- *       for (;;) {
- *           char *obj = (char *)a0;
- *           int hit;
- *           char *rec = D_0055DA10_a +
- *               *(int *)(*(char **)(obj + 0x15C) + 0x490) * 0x190;  // stride 0x190
- *           if (!(*(int *)(rec + 0x188) & 1)) goto no;
- *           if (func_0015C418_probe(buf, obj)) { hit = 1; goto test; }
- *         no:  hit = 0;
- *         test:
- *           if (hit) BoxBarSoundOn((void *)a0, 0x9B);  // NOTE: (void*)a0 not obj -
- *           _ACTWait(1);                                //  ROM reloads a0 from home
- *       }
- *   }
- *
- * SOLVED (all byte-exact): the inline `probe` helper prevents ee-gcc from
- * hoisting the two buf-arg addresses (sp+0x10 / sp+0x20) into callee-saved regs
- * -> frame 0x120, exactly s0/s1/s2 + f20 like ROM (a bare/manual-inlined body
- * hoists them: 5 callee-saved, frame 0x140). The `goto` flag kills the movz that
- * a plain `if(cond)hit=1` produces. BoxBar takes (void*)a0 (fresh volatile home
- * reload) not the cached `obj`, matching ROM's `lw a0,0(sp)`.
- *
- * RESIDUAL (only diff, 5 insns): ROM puts the buf+0x94 VALUE in v0 and the hit
- * flag in v1; ee-gcc here swaps them (value->v1, hit->v0). MECHANISM (greg/lreg
- * verified): `hit` is a GLOBAL user-var pseudo with no copy-preference, so
- * global-alloc gives it the lowest reg v0; local-alloc, assigning the transient
- * `value` load FIRST, leaves v0 free for the conflicting hit and takes v1. In
- * ROM the reverse holds (value=v0, hit=v1). The two only overlap because ee-gcc
- * hoists `hit=1` above the value branch (ROM keeps it in the bnez delay slot).
- * Every double-branch source shape reproduces the swap; the only shapes that put
- * value in v0 (reuse the outer-flag var `c` for the value) collapse to a SINGLE
- * branch, losing ROM's hit=0/hit=1/beqz. NEXT ANGLE: make `hit` NOT prefer v0
- * (give it a genuine copy-preference to v1 from a dev value), or a permuter pass. */
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/commonact", func_0015C418);
+/* func_0015C418: inline `probe` helper keeps the two buf-arg addresses off
+ * callee-saved regs (frame 0x120, s0/s1/s2 + f20). The v0/v1 coloring of
+ * `value` (buf+0x94) vs `hit` follows ROM because ChangeFieldCollisionDebugMode
+ * is void: with no dead int-return pseudo occupying v0, the value load takes v0
+ * and the global `hit` flag is pushed to v1 (matches ROM's lw v0 / bnez v0). */
+extern void ActOrientTest(void *a0, void *a1, int a2);
+static __inline__ int func_0015C418_probe(char *buf, char *obj) {
+    ActOrientTest(buf, obj, 0x2C);
+    ActOrientTest(buf + 0x10, obj, 0x33);
+    *(float *)(buf + 0x14) -= 5.0f;
+    ChangeFieldCollisionDebugMode(buf);
+    return *(int *)(buf + 0x94) != 0;
+}
+void func_0015C418(volatile int a0) {
+    char buf[0xC0];
+    for (;;) {
+        char *obj = (char *)a0;
+        int hit;
+        char *rec = D_0055DA10_a +
+            *(int *)(*(char **)(obj + 0x15C) + 0x490) * 0x190;
+        if (!(*(int *)(rec + 0x188) & 1)) goto no;
+        if (func_0015C418_probe(buf, obj)) { hit = 1; goto test; }
+      no:  hit = 0;
+      test:
+        if (hit) BoxBarSoundOn((void *)a0, 0x9B);
+        _ACTWait(1);
+    }
+}
 
 void func_0015C4D8(volatile int a0) {
     if (*(int *)(*(int *)(a0 + 0x164) + 0xB8) == 0x99) {
