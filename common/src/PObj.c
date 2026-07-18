@@ -8103,6 +8103,28 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025D838);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025D8D0);
 
+/* NEAR-MISS (rc23, W3 convergence). STRUCTURE FULLY RECOVERED (64x64->64 signed
+ * multiply, ee-gcc inlined via mult/mult1(2nd pipe)/multu, NOT __muldi3). Dev form:
+ *   long long func_0025DF38(long long a, long long b) {
+ *       int ahi=(int)(a>>32), alo=(int)a, bhi=(int)(b>>32), blo=(int)b;
+ *       unsigned long long product = (unsigned long long)(unsigned)alo * (unsigned)blo;
+ *       int hi = (int)(product >> 32) + (alo*bhi + ahi*blo);
+ *       return ((long long)hi << 32) | (product & 0xFFFFFFFFULL);
+ *   }
+ * Emits the SAME instruction SET as ROM: dsll32/dsra32 lo/hi splits, `mult alo,bhi`,
+ * `mult1 ahi,blo`, `multu alo,blo`, mflo/mfhi, product pack (dsll32/dsrl32/or), cross
+ * `addu`, mask `& 0xFFFFFFFF` -> ROM's `lui 0xffff; dsrl32; and` (CONFIRMED: the real
+ * TU synthesizes the mask via lui+dsrl32, NOT the minimal-TU's dli — mask now MATCHES).
+ * Residual is purely SCHED1 ORDER + the coloring it cascades:
+ *   ROM: mult,mult1,multu,mflo a0,mfhi v0 in sequence (mflo REUSES alo's reg a0), packs
+ *        the product, then the cross `addu v1,v1,a2` LATE (after the pack).
+ *   ours: gcc hoists the cross `addu` up (between multu and mflo) and spills mflo to a3
+ *        ($7) instead of reusing alo -> the whole $2-$6 register web shifts (rc23 is the
+ *        name cascade of this one sched decision, not 23 independent diffs).
+ * ~6 shape variants (split-hi, cross-temp, lo-early, mask spellings) don't move the
+ * sched1 order. NEXT LEVER: force gcc to keep mflo/mfhi adjacent to multu and defer the
+ * cross-addu (so mflo reuses alo's reg like ROM) — a rank_for_schedule / live-range
+ * tightening in clean C. See scratchpad/func_0025DF38_SEED.md. NOT a floor. */
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025DF38);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025DF98);

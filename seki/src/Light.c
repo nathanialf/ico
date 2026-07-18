@@ -12,9 +12,20 @@ INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", light_AddLight);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", light_getNearLight);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", light_getAmbientLight);
-
 extern unsigned char D_0066CA10[];
+
+void light_getAmbientLight(void *a0, int r, int g, int b) {
+    unsigned long long bg = ((long long)b << 16) | ((long long)g << 8);
+    unsigned long long v = r | 0x3F80000000000000ULL;
+    v |= bg;
+    *(int *)&D_0066CA10[0] = r;
+    v |= 0x80000000;
+    *(int *)&D_0066CA10[4] = g;
+    *(int *)&D_0066CA10[8] = b;
+    *(int *)&D_0066CA10[0xC] = 0x80;
+    *(unsigned long long *)((char *)a0 + 0x1F0) = v;
+    *(unsigned long long *)((char *)a0 + 0x100) = v;
+}
 
 void light_MakeLightMatrix(unsigned char *a0) {
     a0[0] = D_0066CA10[0];

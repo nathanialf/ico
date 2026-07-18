@@ -51,6 +51,24 @@ extern void actCommonStoneDead(void *a0, int a1, float f12);
 typedef struct { char _0[0x138]; int f_138; char _13C[0x54]; } MotionOrientRec; /* stride 0x190 */
 extern MotionOrientRec D_0055DA10[];
 
+/* NEAR-MISS (rc6, W3 convergence). LOGIC + STRUCTURE fully recovered; residual is
+ * the callee-saved s0/s1 register-swap tie (same class as func_0014A0B0). Dev shape:
+ *   void gflagOn(void *a0, int a1) {
+ *       func_0023FE98(a1);
+ *       actCommonStoneDead(a0, a1,
+ *           (float)D_0055DA10[*(int*)(*(int*)((char*)a0+0x15C)+0x490)].f_138);
+ *   }
+ * Matched: frame+s0/s1/ra saves, func_0023FE98(a1) with a1 in the jal delay,
+ * a0->f_15C->f_490 index * 0x190 (mult), &D_0055DA10 + idx, lwc1 f_138 + cvt.s.w
+ * (int->float), tail `j actCommonStoneDead(a0,a1,f)`. VALUES all correct. The ONLY
+ * 6 diffs are the s0/s1 assignment: ROM saves a0->s1, a1->s0 (`daddu s1,a0` first);
+ * gcc saves a1->s1, a0->s0 (`daddu s1,a1` first) because a1 is FIRST-used (the
+ * func_0023FE98(a1) call). Computing the idx BEFORE the call flips the alloc to
+ * ROM's but reorders the deref ahead of the jal (rc24 - wrong structure). The tie
+ * is symmetric and gcc breaks it opposite to ROM (identical residual to
+ * func_0014A0B0). NEXT LEVER: make gcc save a0 (param 0) to s1 first while keeping
+ * a1's use as the first call and the deref after it. NOT a floor. */
+void gflagOn(void *a0, int a1);
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", gflagOn);
 
 

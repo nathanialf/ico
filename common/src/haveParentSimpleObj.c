@@ -12,7 +12,17 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AA68
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AAAD0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/haveParentSimpleObj", func_001AAC00);
+extern void func_002614F8(char *a, void *b);
+extern void debug_assertMessage();
+extern char D_004AE768[], D_0060F1E0[], D_0060F218[], D_0062D058[], D_0060F248[];
+
+void func_001AAC00(void *a0) {
+    func_002614F8(D_004AE768, a0);
+    debug_assertMessage(D_0060F1E0);
+    debug_assertMessage(D_0060F218);
+    debug_assertMessage(D_0062D058, a0);
+    debug_assertMessage(D_0060F248);
+}
 
 extern int D_0062B088;
 extern int D_0062D098[];

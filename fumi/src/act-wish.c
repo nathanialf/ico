@@ -16,6 +16,35 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", func_00149F60);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", func_0014A008);
 
+/* NEAR-MISS (rc12, W3 convergence). LOGIC + STRUCTURE fully recovered; residual is
+ * a callee-saved s0/s1 register-swap tie coupled with the 2nd jal delay-slot fill.
+ * Dev shape:
+ *   extern void func_00260568(void *dst, int val, int n);
+ *   extern void func_0023FDD8(void *a0, int a1, void *a2);
+ *   void func_0014A0B0(void *a0, char *a1) {
+ *       float buf[4];
+ *       func_00260568(buf, 0, 0x10);            // memset-like, 16 bytes
+ *       buf[2] = 1.0f;                          // swc1 1.0 at sp+8
+ *       func_0023FDD8(a0, *(int *)(*(int *)(a1 + 0x15C) + 0xC), buf);
+ *   }
+ * Matched: frame 0x40 with s0/s1/ra saves, first call args (buf,0,0x10) with buf
+ * in the jal delay, 1.0f build (lui 0x3f80;mtc1) + swc1 at sp+8, 2nd call (a0,
+ * (a1->f_15C)->f_C, buf). VALUES all correct. Only residual (register names +
+ * one delay slot):
+ *   ROM: a0->s0, a1->s1 (`daddu s1,a1` emitted first, then `daddu s0,a0`); the
+ *        2nd jal delay = `lw a1,12(v0)` (arg1 load), swc1 emitted BEFORE the jal.
+ *   ours: gcc assigns a0->s1, a1->s0 (saves a0 first) and fills the 2nd jal delay
+ *        with the swc1 instead, moving the arg1 load before the jal.
+ * The s0/s1 pick is a symmetric allocno tie: both params are single-use, live
+ * across the first call; gcc saves a0 first (->s1) where ROM saves a1 first
+ * (->s1). Confirmed: routing a0 THROUGH the first call (`func_00260568(a0,...)`)
+ * flips it to a0->s0, so it is purely a first-use-order tie. ~4 forms (p-temp,
+ * t-block, val-late, volatile carrier) don't flip it. NEXT LEVER: the dev shape
+ * that makes gcc save a1 before a0 (a1 first-use earlier, or a0 lower allocno
+ * priority) so a0 lands s0 and the swc1/lw arg pair reschedules. NOT a floor. */
+extern void func_00260568(void *dst, int val, int n);
+extern void func_0023FDD8(void *a0, int a1, void *a2);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", func_0014A0B0);
 
 extern void avoidInsideOfWall(void *p);

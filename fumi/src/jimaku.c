@@ -49,9 +49,41 @@ void func_00173790(volatile int a0) {
     ACTLookTargetSystem_Exec();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuMgrNext);
-
+/* NEAR-MISS (rc11, W3 convergence). LOGIC + STRUCTURE fully recovered; residual
+ * is a whole-function 3-way register coloring + return-0 funnel. Dev shape:
+ *   extern void *D_00629DE8; extern unsigned char D_00284740[];
+ *   int jimakuMgrNext(void) {
+ *       JimakuState *s = *(JimakuState **)((char *)D_00629DE8 + 0x164);
+ *       if (((*(unsigned long long *)((char *)s + 0x18) >> 36) & 1) == 0)
+ *           return 1;
+ *       if (s->f_30 == 0x45 && D_00284740[0x5D] != 0)
+ *           return (D_00284740[0x58] == 0);
+ *       return 0;
+ *   }
+ * All matched byte-exact: gp-rel chase, ld+dsrl32(4)+andi(1) bit-36 test (UNSIGNED
+ * => dsrl32 not dsra32), bnel bit36-check with s->f_30 load in its delay, bne
+ * f_30!=0x45, lbu D[0x5D] beqz, lbu D[0x58] sltiu(==0). Only diffs = REGISTER
+ * COLORING + the return-0 funnel:
+ *   ROM: v0 reserved for the return; `daddu v0,zero,zero` (v0=0 default) sits in
+ *        the `bne f_30,0x45` DELAY slot (reorg-stolen from a SHARED exit .L7381C
+ *        `jr;nop`); the compared loads (f_30, D[0x5D]) go to a0, base ptrs (s,&D)
+ *        to v1 -> a genuine 3-register (v0/v1/a0) coloring, no final move.
+ *   ours: gcc uses only 2 registers (v0/v1): loads->v1, consts/base->v0, and the
+ *        two return paths do NOT merge to a shared `jr;nop` exit (v0=0 ends up in
+ *        a trailing separate jr-delay, not the bne-delay). greg -dg confirms: our
+ *        allocnos land only in v0/v1 (never a0); ROM spans 3.
+ * The accumulator form (`int rv; ...; return rv`) DOES force 3 regs but colors rv
+ * to a0 with a trailing `daddu v0,a0,zero` move (rc12). ~7 source forms (seq
+ * returns, goto-funnel §8.3, ternary, if/else rv, nested-if, rv=1 default) all
+ * collapse to the same rc11 2-reg form or the rc12 move form. NEXT LEVER: recover
+ * the dev shape that makes gcc reserve v0 for the return AND cross-jump the exits
+ * to a shared jr;nop so reorg steals v0=0 into the bne delay (v0-copy-preference
+ * on the return without keeping a live rv across the compares). NOT a floor.
+ */
 extern void *D_00629DE8;
+extern unsigned char D_00284740[];
+
+INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuMgrNext);
 
 void jimakuMgrJump(int a0) {
     if (D_00629DE8) {

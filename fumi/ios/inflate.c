@@ -46,7 +46,64 @@ void inflate_dynamic(void *a0) {
     }
 }
 
+extern int func_00249E48(int a0, int a1, int a2, void *a3);
+extern char D_00550E88[];
+
+/* NEAR-MISS (rc5, W3 convergence). LOGIC + STRUCTURE recovered; residual is a
+ * register/schedule coupling on the result shift. Dev shape:
+ *   extern int func_00249E48(int a0, int a1, int a2, void *a3);
+ *   int inflate_start(int a0, int a1, int a2, int *a3) {   // a0 unused (ROM overwrites $4)
+ *       int local, ret;
+ *       *a3 = 0;
+ *       ret = func_00249E48(a2 >> 11, a1, 1, &local);      // out-param `local`
+ *       if (local != 0) { debug_assertMessage(D_00550E88); *a3 = 1; }
+ *       return ret << 11;
+ *   }
+ * Matched: frame, `sra a0,a2,11` arg0, func_00249E48(a2>>11, a1, 1, &local) with
+ * *a3=0 in the jal delay, the local!=0 branch, assert + *a3=1, return ret<<11.
+ * Residual (rc5): ROM reads `local` into a1 ($5, dead after the call), keeps ret in
+ * v0, and computes `sll s0,v0,11` (result=ret<<11) IN the beq delay slot (result in
+ * s0 survives the assert, ret dies there); return = `daddu v0,s0`. gcc instead
+ * copies ret->s0 EARLY (`daddu s0,v0`), reads local into v0, and duplicates the
+ * `sll` (once in the beq delay, once at the return) — because it freed v0 for local
+ * by shifting early. Both `return ret<<11` and `int result=ret<<11` forms give the
+ * same rc5. NEXT LEVER: make gcc read `local` into a1 (not v0) so ret stays in v0
+ * and the single sll lands in the beq delay (bias local's alloc off v0, or keep ret
+ * live in v0 until the delay). NOT a floor. */
+extern int func_00249E48(int a0, int a1, int a2, void *a3);
+extern char D_00550E88[];
+
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", inflate_start);
+
+/* NEAR-MISS (rc11, W3 convergence). LOGIC + STRUCTURE fully recovered; residual is
+ * a §5.11 low-32 sign/zero-extend routing + a2 keep-vs-copy (auto-memory flags this
+ * class as permuter-domain, which convergence forbids). Dev shape (zlib flush):
+ *   extern void iosCdvdManager(int *a0, void *buf, int n);
+ *   int close_inflate_handler(void *a0, int a1, int *a2, int a3) {
+ *       unsigned int n = a2[0x4E] - a2[9];      // f_138 - f_24, UNSIGNED (zero-ext)
+ *       if ((long long)n >= a1) n = a1;         // min via signed 64-bit slt + movz
+ *       if (n != 0) iosCdvdManager(a2, a0, n);
+ *       return n;
+ *   }
+ * Matched: frame (s0/ra save), lw f_138(v0)+f_24(v1), subu, zero-extend
+ * dsll32/dsrl32, slt(diff,a1) SIGNED + movz s0,a1 (min), beqz skip, 3-arg call
+ * (a2, a0, n) with a3=a0 saved in the beqz delay + a1=a0 in the jal delay, return
+ * s0. TWO residual diffs, both §5.11 low-32 canon:
+ *  (1) arg2: ROM sign-extends s0 -> arg (`dsll32 a2,s0; dsra32`) because ROM's s0
+ *      is the ZERO-extended diff (`daddu s0, v0_zeroext`), so passing it to the
+ *      `int` 3rd param re-sign-extends. gcc here keeps s0 = the RAW subu (already
+ *      sign-extended) and zero-extends into a scratch only for the slt, so the
+ *      arg pass is a bare `daddu a2,s0` (no re-extend). Need s0 to BE the
+ *      zero-extended value.
+ *  (2) a2: ROM keeps the param a2 live (loads f_138/f_24 into v0/v1, uses a2 for
+ *      call arg0); gcc reuses a2 for the diff and pre-copies `daddu a3,a2` to
+ *      preserve it -> one extra move + cascaded v0/a2 coloring.
+ * ~6 type/shape variants (int vs unsigned n, long long param, if vs ternary min,
+ * explicit (long long) arg cast) all keep s0=raw (no re-extend) + the a2 copy.
+ * NEXT LEVER: the s511_permuter recipe (route the low-32 through an unsigned-int
+ * carrier so gcc materializes s0 as the zero-extended value) done in clean C. NOT
+ * a floor. */
+extern void iosCdvdManager(int *a0, void *buf, int n);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", close_inflate_handler);
 

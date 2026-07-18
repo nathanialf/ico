@@ -842,6 +842,28 @@ ret0:
     return rv;
 }
 
+/* NEAR-MISS (rc21, W3 convergence). LOGIC + STRUCTURE recovered. Dev shape:
+ *   int updateHMC(void) {
+ *       char *mgr = D_00629DE4;
+ *       int state, idx;
+ *       if (mgr == 0) return 0;
+ *       state = *(int *)(*(int *)(mgr + 0x164) + 0x30);
+ *       if (state != 0x4B && state != 0x55) return 0;         // §3.3 beql(0x4B)/bnel(0x55)
+ *       idx = *(int *)(*(int *)(mgr + 0x15C) + 0x490);
+ *       return ((AGHmc *)(idx * 0x190 + (char *)D_0055DA10_a))->f_15C == 1;
+ *   }
+ * Matched: gp_rel D_00629DE4 null test, ->f_164->f_30 state load, the beql(state==0x4B)
+ * / bnel(state==0x55) OR pair (with mgr->f_15C reloaded in the beql delay), idx =
+ * (mgr->f_15C)->f_490, D_0055DA10 stride-0x190 index + mult. Residual (rc21) is the
+ * multi-exit FUNNEL + branch-likely + bool form: ROM funnels ALL exits through a shared
+ * .L48F64 (v0=0, falls into) .L48F68 (`jr v0`): the null path -> L48F64, state-fail ->
+ * L48F68 (v0=0), and the final `->f_15C == 1` is a BRANCH `beq val,1,.L48F68; addiu v0,1`
+ * (v0 funneled). gcc instead: `bnel mgr,zero` (branch-likely) + a SEPARATE early `jr ra`
+ * for the null-return, and computes `== 1` ARITHMETICALLY (`xori v0,1; sltiu v0,1`).
+ * Addressing: ROM keeps &D_0055DA10 as the base with `lw 0x15C(base)`; gcc folds
+ * &D+0x15C into the %lo displacement. NEXT LEVER: §8.3 goto-funnel all returns through
+ * one label so v0 carries the result and the ==1 stays a branch; block the branch-likely
+ * null exit. NOT a floor. */
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-game", updateHMC);
 
 void RequestChangeHandMode(float *a0, float *a1)

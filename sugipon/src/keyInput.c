@@ -26,6 +26,33 @@ void InitKeyInput(char *a0, char *a1)
     func_0023FE98(a0, a0);
 }
 
+/* NEAR-MISS (rc7, W3 convergence). LOGIC + STRUCTURE fully recovered; residual is
+ * a coupled FP-register coloring + reorg delay-slot fill. Dev shape (3-elem clamp):
+ *   extern float D_00628C04, D_00628C08;
+ *   int ExecKeyInput(float *a0, int *a1) {
+ *       float mn = D_00628C04;                    // preload min: aliases *a0 store,
+ *       int ret = 0, i;                           //   so must be a LOCAL to hoist
+ *       for (i = 2; i >= 0; i--) {
+ *           float v = *a0;
+ *           if (v < mn)            { *a0 = mn; ret = 1; *a1 = 0; }
+ *           else if (D_00628C08 < v) { *a0 = D_00628C08; ret = 1; *a1 = 0; }
+ *           a1++; a0++;
+ *       }
+ *       return ret;
+ *   }
+ * Matched: min hoisted to f2 (local defeats *a0-alias reload), i=2..0 bgez loop,
+ * v load, c.lt.s v,min + bc1f, min-clamp `b`+swc1-in-delay, max reloaded from gp
+ * each iter (alias forces reload, matches ROM), c.lt.s max,v + bc1fl with a1+=4 in
+ * the (annulled) delay, shared clamp tail (ret=1; *a1=0; a1++). Only residual (4
+ * diff pairs): ROM v=f0, max=f1 with the max `lwc1 f1,gp` kept in the L460 block
+ * (bc1f delay = NOP). gcc instead REORG-fills the bc1f delay with the max load
+ * `l.s f0,D_00628C08` -> max=f0, v=f1 (the load steals f0 and swaps the pair). ~6
+ * source forms (v temp/no temp, v>max, mx-in-else, inverted >=) all reorg-fill the
+ * bc1f delay. NEXT LEVER: block reorg from stealing the else-block's first (max)
+ * load into the bc1f delay so v keeps f0 (find the dev shape where the max load is
+ * not the sole eligible delay candidate). NOT a floor. */
+extern float D_00628C04, D_00628C08;
+
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", ExecKeyInput);
 
 extern void MatrixDrive_TurnObjectMatrix(int a0, int a1);

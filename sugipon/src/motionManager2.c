@@ -305,34 +305,51 @@ int DisableMotionOrientUpdate(void *a0) {
  * NEXT LEVER: find_reg copy-preference to pin src to the offset reg with
  * a1-add last (or permuter over the allocno tie). NOT a floor.
  */
-/* NEAR-MISS (rc3, W3 convergence sweep #4 retry). Recovered dev shape:
+/* NEAR-MISS (rc2, W3 convergence sweep #5 retry). ADDU OPERAND ORDER SOLVED;
+ * residual is a gcc dbr delay-slot fill. Recovered dev shape + FIX:
  *   typedef struct { char _0; signed char f1; unsigned char f2; unsigned char f3; } FloorAttr;
  *   int CheckFloorAttribute(float *dst, FloorAttr *a1) {
- *       int i, n; float *src;
+ *       int i, n; float *src, *p;
  *       if (a1->f1 == 0 && (n = a1->f3) != 0) {
  *           int o = a1->f2 * 8 + 0x10;
- *           src = (float *)(o + (int)a1);        // rc3 form
+ *           src = (float *)o;                       // copy-pref: src -> offset reg $2
+ *           p = (float *)((char *)a1 + (int)src);   // fresh p, a1 rs preserved (no swap)
+ *           src = p;
  *           for (i = 0; i < n; i++) *dst++ = *src++;
  *           return 1;
  *       }
  *       return 0;
  *   }
- * Everything matches ROM (byte-field types, f1-guard, (n=a1->f3) delay
- * fills, loop-inversion guard beq, out-of-line shared return-0, loop regs
- * src=v0/n=v1) EXCEPT the final address addu operand order:
- *   ROM:  addu v0,a1,v0   (00a21021)  a1 as rs, src stays in offset reg
- *   ours: addu v0,v0,a1   (00451021)  offset as rs
- * Verified at the byte level (assembler does NOT canonicalize rs/rt).
- * MECHANISM (greg -dg dump): src's allocno takes a COPY-PREFERENCE for the
- * add's FIRST operand's hard reg. ee-gcc has a perfect inverse correlation:
- *   - offset-first expr -> src=offset reg (v0, CORRECT) but emits offset as rs
- *   - a1-first/ptr expr -> a1 as rs (CORRECT) but src coalesces into dead a1 reg $5
- * ROM decouples these (a1 rs + src=offset reg); no clean-C expression found
- * over ~28 variants (int/uint/ptr casts, paren regroupings, in-place +=,
- * temp vs inline, register qualifier, loop forms) reproduces the decoupling.
- * NEXT LEVER: keep a1 live past the add to block src<-a1 coalescing while
- * using the pointer (a1-rs) form; or permuter over this single allocno tie.
- * NOT a floor.
+ * This form reproduces ROM's `addu $2,$5,$2` (a1 rs, src stays in offset reg
+ * $2, counter=$3) EXACTLY, plus the +0x10-then-guard-then-addu-in-delay split
+ * and the whole loop body. MECHANISM (the rc3->rc2 crack): the final add
+ * `src = a1 + offset` is an allocno reuse-tie between a1's reg ($5) and the
+ * offset's reg ($2). A plain `a1 + o` fresh-dest reuses $5 (giv in $5). Pre-
+ * seeding src as a COPY of the offset (`src=(float*)o`) gives src's allocno a
+ * copy-preference for $2; routing the a1-add through a fresh temp `p` (so
+ * neither operand equals the SET_DEST) preserves a1 as the RTL first operand
+ * (rs) with NO commutative swap; result: dest reuses $2, a1 stays rs. Confirmed
+ * byte-exact for the addu against ROM.
+ *
+ * RESIDUAL (rc2, both nops): gcc's dbr leaves the FIRST beq (n==0 -> ret0)
+ * UNFILLED (reorder mode, assembler emits nop), but ROM fills its delay slot
+ * NON-annulled with the f2 load `lbu $2,2($5)`:
+ *   ROM:  lbu $3,3($5); beqz $3,ret0; [delay: lbu $2,2($5)]; sll; addiu; beqz(guard); [delay: addu]
+ *   ours: lbu $3,3($5); beqz $3,ret0; [delay: NOP]; lbu $2,2($5); sll; addiu; beqz(guard); [delay: addu OK]
+ * The loop-guard beq's delay (addu giv-init) IS filled by dbr; the first beq is
+ * not. Confirmed NOT the assembler: both period ee-as 2.9 AND modern gas emit a
+ * nop for a reorder-mode `beqz; lbu` pair (neither forward-fills), so ROM's fill
+ * originates in gcc's dbr (SEQUENCE). dbr dump (-da .c.dbr): first beq (insn 25)
+ * is a bare jump_insn (unfilled) while the loop-guard (insn 96) IS wrapped in a
+ * sequence with insn 38 (addu). The blocker is the redundant SECOND beq (for-
+ * loop entry guard on the same reg $3): with it present, dbr's fill_slots_from_
+ * thread won't steal the fall-through f2 load (insn 28) into the first beq's
+ * delay. ~25 structural variants (guard placement, do-while vs for, early-return
+ * CFG, combined/nested/reordered conditions, f2 hoist, shift vs mul, loop forms)
+ * all leave the first beq unfilled; hoisting f2 pre-branch moves the sll (not the
+ * load) into the delay instead.
+ * NEXT LEVER: recover the dev loop idiom that makes dbr fill the first beq (some
+ * property of insn 28's schedule/live-range vs the guard). NOT a floor.
  */
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", CheckFloorAttribute);
 

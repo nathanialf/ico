@@ -61,6 +61,31 @@ int *iosOmGetGObjStatus(int idx, int target)
     return 0;
 }
 
+/* NEAR-MISS (rc9, W3 convergence). LOGIC + STRUCTURE recovered (8-bucket hash
+ * linked-list search). Dev shape:
+ *   int *iosOmSearchGObjId(int a0) {
+ *       int i;
+ *       for (i = 0; i < 8; i++) {
+ *           int *p = D_0027DDF0[i];
+ *           while (p != 0) {
+ *               if (p[0] == a0) return p;
+ *               p = (int *)p[0x10/4];       // ->next at 0x10
+ *           }
+ *       }
+ *       return 0;
+ *   }
+ * Matched: outer for(i<8) with base-ptr `addiu a2,a2,4` GIV, `lw p,0(a2)` head, the
+ * inner list walk `lw id,0(p); ... lw p,16(p)`, the counter/slti/bne back-edges.
+ * Residual (rc9): ROM FUNNELS the found node through v0 to a per-bucket shared exit
+ * `.L3FA40: bnez v0` (match sets `daddu v0,p` in the beq delay -> v0; the head-null
+ * and list-exhaust paths set v0=0; the outer check returns v0 or continues). It uses
+ * PLAIN `beq v1,zero` (head) + `beq v0,a0` (match). gcc instead RETURNS directly on
+ * match, emitting branch-LIKELY `beql v1,zero` (head, i++ in delay) + `bnel v0,a0`
+ * (inverted match) + a separate `jr ra` found-exit. ~4 forms (direct-return while,
+ * do-while+if-guard, found-var funnel [rc20], compound `while(p&&p[0]!=a0)` [rc13])
+ * don't reproduce the plain-beq v0-funnel. NEXT LEVER: recover the shape that keeps
+ * the found node in v0 flowing to a single per-bucket `if(found)return` check (blocks
+ * the branch-likely + direct-exit). NOT a floor. */
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/isys/obj_manager", iosOmSearchGObjId);
 
 void iosOmSearchGObjIdAll(void) {

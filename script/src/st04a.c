@@ -159,6 +159,27 @@ void actSt04aGateRChk(volatile int a0) {
 }
 
 
+extern void func_00179710(int a0, int a1, int a2, int a3, int a4, float f5, float f6, float f7, float f8, float f9, float f10);
+extern float D_006297F0, D_006297F4, D_006297F8;
+
+/* NEAR-MISS (rc4, W3 convergence). LOGIC + STRUCTURE fully recovered. Dev shape:
+ *   void actSt04aTorch1(volatile int a0) {
+ *       int x = a0;                    // volatile read (the extra `lw v0,0(sp)`)
+ *       actInitialize(a0);
+ *       _ACTWait(1);
+ *       func_00179710(a0, 0x56, 0x43, 0, 0x12, D_006297F0, -400.0f, D_006297F4,
+ *                     -1000.0f, -400.0f, D_006297F8);
+ *   }
+ * Matched: volatile-a0 sp spill + reloads, actInitialize(a0), _ACTWait(1), and the
+ * 5-int/6-float call (a0,0x56,0x43,0,0x12, f12=D_006297F0, f13=-400, f14=D_006297F4,
+ * f15=-1000, f16=-400 [shared via `mov.s f16,f13`], f17=D_006297F8). Residual = ONE
+ * jal delay-slot scheduling swap: ROM emits `lwc1 f17,D_006297F8` BEFORE the jal and
+ * `mov.s f16,f13` IN the delay; gcc schedules `mov.s f16` before the jal and fills
+ * the delay with `lwc1 f17`. A shared `float n=-400.0f` local FLIPS the delay to
+ * `mov.s f16` (verified minimal-TU) but in the coalesced TU makes -400 callee-saved
+ * ($f20) + a swc1 spill (rc17) — wrong. NEXT LEVER: get reorg to defer the cheap
+ * `mov.s f16` into the jal delay (schedule the f17 load ahead of it) WITHOUT a
+ * persistent float local. NOT a floor. */
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04a", actSt04aTorch1);
 
 
