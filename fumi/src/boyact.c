@@ -559,41 +559,45 @@ r0:
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoySwim);
 
-/* func_00150A30: NEAR-MISS (best rc22, structure recovered; NOT a floor).
- * Semantics fully recovered — restore this body to resume (obj computed AFTER
- * the switch = rc22; obj before switch = rc24):
- *   void func_00150A30(int *volatile a0) {
- *     int state = *(int*)((char*)*(void**)((char*)D_00629DE4+0x164)+0x5D4);
- *     void *obj;  // = *(void**)((char*)a0+0x164) ASSIGNED AFTER switch
- *     float lo, hi;
- *     switch (state) {            // gcc balanced tree, median 200 first
- *     case 0xC8: if(D_00629DE8)iosOmBeforeFuncStandard(D_00629DE8,0x4C,D_0062A4DC);
- *                *(int*)((char*)*(void**)((char*)D_00629DE8+0x164)+0x40)=0x5C; break;
- *     case 0x64: ... =0x5B; break;   case 0x12C: ... =0x5D; break; }
- *     lo=D_00628EF4; hi=D_00628EF8;   // loaded AFTER switch -> f20/f21
- *     while (1) {
- *       if (ACTGame_InsertCamera_GirlIsPinch()==0) BoxBarSoundOn(a0,0x46);
- *       else { float v=*(float*)((char*)obj+0x33C);   // v in bnel delay
- *         if (D_00628EFC<v && !(v<lo) && !(*(int*)((char*)obj+0x2D0)&0x20)) BoxBarSoundOn(a0,0x47);
- *         else if (D_00628EF8<v && (v<lo||(*(int*)((char*)obj+0x2D0)&0x20)))  BoxBarSoundOn(a0,0x48);
- *         else BoxBarSoundOn(a0,0x49); }
- *       _ACTWait(1); }
- *   }
- * Residual (rc24) is a WHOLE-FUNCTION reg-alloc/schedule convergence, 3 coupled:
- *  (1) switch-tree regalloc: ROM keeps state in $a0 (param home-store frees $a0,
- *      reused), D_00629DE4 in $a1, consts in $v0/$a2; ours puts state in $v1,
- *      D_00629DE4 in $v0. Also case-block layout order (0x5B before 0x5C) differs.
- *  (2) v must land in $f0 (loaded first, long-lived) not $f1 -> whole-func float
- *      pressure; the 0x47 tree then needs a `mov.s $f2,$f0` copy of v that ROM
- *      uses for the `hi<v` compare at the tier-2 merge.
- *  (3) ROM emits a DEAD `bc1f B5C` (re-tested A<v) right after `bc1f B70` sharing
- *      the cc. `v>D_00628EFC` (v-first) reproduces the double-bc1f but to the SAME
- *      target (rc25); `<` form gives single bc1f (rc24). NEXT LEVER: get v into $f0
- *      (try computing v before the ACTGame call / a saved `float vv=v;` for the
- *      hi-compare to force the mov.s $f2), which should re-align the schedule and
- *      collapse the tier-2 branch targets in a group. Minimal-TU: `v>A` gives the
- *      double-bc1f, so the dead branch is a v-first-operand + tier2-merge artifact. */
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00150A30);
+/* func_00150A30: MATCHED (convergence, 2026-07-18). BoxBar sound trigger keyed on
+ * v=obj->m33C vs thresholds lo/hi/EFC and the obj->m2D0 &0x20 flag.
+ * Coloring v=$f0 needs A(EFC) live_length=5 (the whole-func allocno_compare tie:
+ * v pri 3*12/14 > A pri 2*6/5); losing the extra insn in A's range flips A to $f0.
+ * Residual copy: ROM does `mov.s $f2,$f0` (a short-lived caller-saved copy of v)
+ * for tier2's `hi<v`, kept distinct from the `v<lo` use of $f0. A plain `float c=v`
+ * is folded by gcse copy-prop (unconditional) or spans the loop back-edge -> $f21
+ * (conditional). Recovering it as a bit-reinterpret (ci=*(int*)&v; c=*(float*)&ci)
+ * breaks copy-prop provenance -> gcc emits a bare `mov.s`, and loading m2D0 late
+ * (inline, not an early decl) frees reorg to fill the first bc1f delay with it. */
+extern void *D_00629DE4;extern void *D_00629DE8;extern void *D_0062A4DC;
+extern void iosOmBeforeFuncStandard(void *, int, void *);
+extern int ACTGame_InsertCamera_GirlIsPinch(void);
+extern void BoxBarSoundOn(void *a0, int a1);
+extern void _ACTWait(int);
+extern float D_00628EF4, D_00628EF8, D_00628EFC;
+void func_00150A30(int *arg){
+    int state=*(int*)((char*)*(void**)((char*)D_00629DE4+0x164)+0x5D4);
+    void *obj=*(void**)((char*)(*(int * volatile *)&arg)+0x164);
+    float lo,hi;
+    switch (state) {
+    case 0x64: if (D_00629DE8) iosOmBeforeFuncStandard(D_00629DE8,0x4C,D_0062A4DC); *(int*)((char*)*(void**)((char*)D_00629DE8+0x164)+0x40)=0x5B; break;
+    case 0xC8: if (D_00629DE8) iosOmBeforeFuncStandard(D_00629DE8,0x4C,D_0062A4DC); *(int*)((char*)*(void**)((char*)D_00629DE8+0x164)+0x40)=0x5C; break;
+    case 0x12C:if (D_00629DE8) iosOmBeforeFuncStandard(D_00629DE8,0x4C,D_0062A4DC); *(int*)((char*)*(void**)((char*)D_00629DE8+0x164)+0x40)=0x5D; break;
+    }
+    lo=*(volatile float*)&D_00628EF4;hi=*(volatile float*)&D_00628EF8;
+    while (1) {
+        if (ACTGame_InsertCamera_GirlIsPinch()==0) BoxBarSoundOn(*(int * volatile *)&arg,0x46);
+        else{ float v=*(float*)((char*)obj+0x33C); int ci; float c;
+            ci=*(int*)&v; c=*(float*)&ci;
+            if(!(D_00628EFC<v)) goto t2;
+            if(!(D_00628EFC<v)) goto l47;
+            if(v<lo) goto t2;
+            if(*(volatile int*)((char*)obj+0x2D0)&0x20) goto t2;
+            l47: BoxBarSoundOn(*(int * volatile *)&arg,0x47); goto w;
+            t2: if(hi<c && (v<lo||(*(volatile int*)((char*)obj+0x2D0)&0x20))) BoxBarSoundOn(*(int * volatile *)&arg,0x48);
+                else BoxBarSoundOn(*(int * volatile *)&arg,0x49);
+            w:; }
+        _ACTWait(1); } }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00150BC8);
 
