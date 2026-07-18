@@ -6759,7 +6759,19 @@ int func_002548E8(int *self)
     return ret;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00254930);
+void func_00254930(int *a0, int a1) {
+    long long x = *(long long *)(a0 + 6) + (a1 << 3);
+    int v;
+    *(long long *)a0 = 0;
+    a0[4] = 0;
+    *(long long *)(a0 + 6) = x;
+    v = a0[2] + (int)(x >> 3);
+    a0[3] = v;
+    if ((unsigned int)v >= (unsigned int)a0[9]) {
+        a0[3] = v - a0[10];
+    }
+    func_00254800(a0, 0);
+}
 
 int func_00254988(int *a0, int a1) {
     int v = a0[2] + (a1 >> 3);
