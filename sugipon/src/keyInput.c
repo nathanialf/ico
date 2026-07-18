@@ -50,7 +50,14 @@ void InitKeyInput(char *a0, char *a1)
  * source forms (v temp/no temp, v>max, mx-in-else, inverted >=) all reorg-fill the
  * bc1f delay. NEXT LEVER: block reorg from stealing the else-block's first (max)
  * load into the bc1f delay so v keeps f0 (find the dev shape where the max load is
- * not the sole eligible delay candidate). NOT a floor. */
+ * not the sole eligible delay candidate). NOT a floor.
+ * W3 fan-3 -dg CONFIRM: v=reg89 live=5 -> f1; max=reg90 live=4 -> f0. max's
+ * shorter reload live-range wins f0 (allocno_compare 12/4 > 12/5). COUPLING is
+ * inherent: reading D_00628C08 DIRECTLY each iter (k0/k1/k3/k5/k6/k7, up/down
+ * count, {}else, >=, ptr-loop) forces the alias RELOAD (== ROM) but spawns the
+ * short-lived pseudo that steals f0 AND the bc1f delay. Caching in a local `mx`
+ * (k2) flips v->f0 and empties the bc1f delay (== ROM regs!) but HOISTS mx out
+ * of the loop -> no reload (diverges). No shape gives reload + v->f0 together. */
 extern float D_00628C04, D_00628C08;
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/keyInput", ExecKeyInput);

@@ -151,7 +151,17 @@ void func_00237B80(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00237BA8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00237C30);
+extern void *D_00629DE4;
+extern void func_0017BD40(int n, float a, float b, float c, float d);
+
+void func_00237C30(volatile int a0) {
+    for (;;) {
+        while ((*(int *)(*(int *)((char *)D_00629DE4 + 0x164) + 0x2D4) & 0x400) == 0)
+            _ACTWait(1);
+        func_0017BD40(2, 0.0f, -500.0f, 0.0f, 500.0f);
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/objact", func_00237C98);
 

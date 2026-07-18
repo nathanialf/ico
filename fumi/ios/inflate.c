@@ -73,6 +73,19 @@ extern char D_00550E88[];
 extern int func_00249E48(int a0, int a1, int a2, void *a3);
 extern char D_00550E88[];
 
+/* CONFIRMED near-miss lever (W3 fan-3, minimal-TU): rc5 is the shift-early vs
+ * shift-in-delay tie. ROM: local -> a1 ($5, dead arg reg), ret stays in v0,
+ * `sll s0,v0,11` (result) in the BEQ DELAY -> s0 survives assert -> return s0.
+ * gcc: `move s0,v0` (ret->s0 early, frees v0) -> `lw v0,0(sp)` (local->v0) ->
+ * dup sll. Tried (all keep local in v0, coalesce the reassign): a1=local,
+ * a2=local, a0=local (dead-arg-reg), r=ret<<11 survivor-var, ret<<=11 compound,
+ * ret*2048, func()<<11 inline. The survivor-first shapes (t1/t4) DO put the one
+ * sll into s0 but BEFORE the branch (beq delay = `move v0,s0` return-copy),
+ * local still v0 -> mirror of ROM, still rc5. To land: bias the SHORT-lived
+ * local off v0 onto $5 so ret stays live in v0 across the branch and dbr fills
+ * the beq delay with `sll s0,v0,11`. gcc frees v0 first (ret->s0) so local
+ * takes v0 with no pressure. Needs the local-alloc source lever to pin the
+ * out-param read to the dead $5. NOT a floor. */
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", inflate_start);
 
 /* NEAR-MISS (rc11, W3 convergence). LOGIC + STRUCTURE fully recovered; residual is

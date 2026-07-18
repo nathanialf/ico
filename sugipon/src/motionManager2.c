@@ -351,6 +351,32 @@ int DisableMotionOrientUpdate(void *a0) {
  * NEXT LEVER: recover the dev loop idiom that makes dbr fill the first beq (some
  * property of insn 28's schedule/live-range vs the guard). NOT a floor.
  */
+/* MECHANISM SHARPENED (W3 fan-3): the rc2 residual is gcc's dbr NOT filling
+ * branch1 (`beqz $3,ret0`, the n==0 test) with the f2 load `lbu $2,2($5)`.
+ * ROM fills it; ours leaves nop. Root cause, proven against gcc-2.95 reorg.c:
+ *   - EAGER fill (fill_eager_delay_slots -> fill_slots_from_thread on the
+ *     fall-through) is BLOCKED because `lbu $2,2($5)` is a MEM and
+ *     `may_trap_p`/rtx_addr_can_trap_p(reg+const, reg=general) == 1, so a
+ *     non-annulled speculative fill from the fall-through is rejected (the
+ *     load could fault on the branch-taken path). MIPS beq is not annulling.
+ *   - SIMPLE fill (fill_simple_delay_slots, move an insn DOWN from before the
+ *     branch) is how branch2 (the loop-inversion guard) gets its `addu` delay,
+ *     and is the ONLY route that can fill branch1 with the load. It requires
+ *     the f2 load to sit in branch1's OWN basic block, before the branch.
+ *   - But the offset `f2*8+0x10` is loop-invariant, so gcc's loop pass hoists
+ *     the ENTIRE `lbu $2; sll; addiu` into the PREHEADER = branch1's
+ *     fall-through block, NOT branch1's block. So fill_simple has nothing
+ *     independent in branch1's block (only the `lbu $3` condition load).
+ * Confirmed: every for-loop spelling (~30 across sessions; f2 hoisted to top,
+ * split o-var, char* base, signed/unsigned, do-while) keeps the f2 load in the
+ * preheader after branch1. do-while DROPS the guard beq2 (diverges: ROM has it)
+ * and reorders the addu. Loading f2 at the top keeps it live across both
+ * branches -> gcc parks it in $6 (ROM reuses $2) and fills the delay with sll.
+ * NEXT LEVER: recover the dev shape where the raw f2 load lands in branch1's
+ * block while the sll/addiu stay in the preheader (load live-out of block B
+ * across branch1 in $2, arithmetic hoisted) -- i.e. anti-hoist the LOAD only.
+ * NOT a floor. rc2, both diffs are this one delay-slot nop + its cascade.
+ */
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", CheckFloorAttribute);
 
 

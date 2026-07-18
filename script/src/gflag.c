@@ -68,6 +68,25 @@ extern MotionOrientRec D_0055DA10[];
  * is symmetric and gcc breaks it opposite to ROM (identical residual to
  * func_0014A0B0). NEXT LEVER: make gcc save a0 (param 0) to s1 first while keeping
  * a1's use as the first call and the deref after it. NOT a floor. */
+/* MECHANISM (W3 fan-3, -dg greg dump): rc6 s0/s1 swap is an allocno_compare
+ * live_length tie. Dev shape (byte-identical schedule to ROM, only s0<->s1):
+ *   void gflagOn(void *a0, int a1) {
+ *       func_0023FE98(a1);
+ *       actCommonStoneDead(a0, a1,
+ *           (float)D_0055DA10[*(int*)(*(int*)((char*)a0+0x15C)+0x490)].f_138);
+ *   }
+ * greg: a0=reg84 refs=3 live_length=8 -> $16(s0); a1=reg85 refs=3 live=10 ->
+ * $17(s1). ROM wants a0->s1, a1->s0. allocno pri=floor_log2(3)*3/live: a0=3/8
+ * (>) a1=3/10, so a0 colored first and takes $16. To flip WITHOUT breaking
+ * semantics, a1 must out-prioritize a0: either a1 live_length<8, or a0
+ * live_length>10. a1 spans entry(jal arg)->tail(2nd arg) so its live=10 is
+ * structural; a0's =8 (deref-mid + tail). Adding a0/a1 copies (void*p=a0,
+ * int b=a1, hoisted deref ptr) all COALESCE away -> live stays 8/10. Swapping
+ * the param decl flips the disposition but mirror-swaps the semantics (WRONG).
+ * This is the two_allocno_tie class (== func_0014A0B0): needs the ee-gcc2.9
+ * rank_for_schedule/sched1 source to find the ordering lever that makes a0
+ * live_length exceed a1 at global-alloc time (final schedule is identical, so
+ * sched2 equalizes; the split lives in sched1). NOT a floor. */
 void gflagOn(void *a0, int a1);
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/gflag", gflagOn);
 

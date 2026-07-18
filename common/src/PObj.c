@@ -9373,7 +9373,13 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00268968);
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00268A68);
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00268BE0);
+int func_00268BE0(unsigned int *a, unsigned int *b) {
+ int n = a[4] - b[4]; unsigned int *pa, *pb, *pae, *pbe;
+ if (n != 0) return n;
+ n = b[4]; pa = a + 5; pb = b + 5; pae = pa + n; pbe = pb + n;
+ do { --pae; --pbe; if (*pae != *pbe) return (*pae < *pbe) ? -1 : 1; } while (pa < pae);
+ return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00268C48);
 
