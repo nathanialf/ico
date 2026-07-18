@@ -147,33 +147,18 @@ void actE3CageFallChk(volatile int a0) {
     }
 }
 
-/* NEAR-MISS (rc12) + FAMILY EXEMPLAR for the "bare BoxBar wrapper w/ f_B0"
- * pattern shared by 8 funcs this sweep: func_002078C8 (e3), func_00217610
- * (st04e), func_0021C048/0D8/168 (st05c), func_00220918/9A8/A38 (st08a).
- * Recovered dev shape (matches the st02a.c BoxBar idiom + 2 extra stores):
- *   typedef struct { char pad[0xB0]; int f_B0; int *unkB4; } GObjB0;
- *   void func_002078C8(volatile int a0) {
- *       GObjB0 *obj = *(GObjB0 **)(a0 + 0x164);
- *       D_0062A894 = 1;
- *       D_004CB6A0[1] = (int)actE3CageFallDemo;   // D[1] = next-state fn
- *       obj->unkB4 = D_004CB6A0;
- *       obj->f_B0 = 0;
- *       BoxBarSoundOn(a0, 0x189);
- *       _ACTWait(0);
- *   }
- * Store set/order correct (D_0062A894=1, unkB4@0xB4, D[1]@4, f_B0@0xB0 in
- * BoxBar delay). RESIDUAL = scheduling/coloring only: (1) the int D[1] store
- * fills the pointer-typed gobj-load's delay slot (ROM defers it past the
- * load); a pointer-array D fixes that but then mis-colors the const-1 (a0 vs
- * ROM a3) and swaps v0/v1 for &D/&func. (2) gobj-deref base reg a0 vs ROM a1.
- * Unlike the matched st02a siblings (which have a preceding call/loop that
- * reshapes the schedule), these are BARE wrappers, so the gobj-load-delay
- * fill and the const/addr coloring lock into a tie no single clean-C lever
- * resolves (int-gobj rc18, ptr-array rc16, struct rc12 all tried). NEXT
- * LEVER: give the wrapper the sibling's schedule shape, or permuter over the
- * const-1 + &D/&func + gobj-base allocno cluster. NOT a floor.
- */
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/e3", func_002078C8);
+typedef struct { char pad[0xB0]; void *f_B0; void *unkB4; } GObjB0;
+extern int *D_004CB6A0[];
+extern void actE3CageFallDemo(volatile int a0);
+void func_002078C8(volatile int a0) {
+    GObjB0 *obj = *(GObjB0 **)(a0 + 0x164);
+    D_0062A894 = 1;
+    D_004CB6A0[1] = (int *)actE3CageFallDemo;
+    obj->f_B0 = 0;
+    obj->unkB4 = (void *)D_004CB6A0;
+    BoxBarSoundOn((int)a0, 0x189);
+    _ACTWait(0);
+}
 
 #include "common.h"
 extern void lt_fade_status(int a0);
