@@ -15,7 +15,29 @@ ret0:
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_llf", CreateWayGroup);
+typedef struct WayGroup {
+    int f0;
+    char _4[0x14];
+    int f18;
+    char _1c[0xC];
+    int f28;
+    char _2c[0x8];
+} WayGroup;
+
+extern WayGroup D_004C7CBC;
+
+WayGroup *CreateWayGroup(WayGroup *a0) {
+    WayGroup *p, *end = &D_004C7CBC;
+    if (a0 != 0 && a0 != end) {
+        for (p = a0 + 1; ; p++) {
+            if (p->f0 != 0 && p->f18 != 0 && p->f28 != 0)
+                return p;
+            if (p == end)
+                break;
+        }
+    }
+    return 0;
+}
 
 typedef struct { int w[16]; } WayGroup_CT;
 extern WayGroup_CT D_004C7CB0[];

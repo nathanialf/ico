@@ -32,7 +32,22 @@ void actSt13cEnd(volatile int a0){
  Generator_Call(a0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cBmg1);
+extern int D_0062A894;
+extern int D_00629DE8;
+extern void func_001790E8(int a0);
+extern int D_004CD710[];
+
+void actSt13cBmg1(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    D_0062A894 = 0;
+    if (D_00629DE8 != 0) {
+        func_001790E8(D_00629DE8);
+    }
+    *(int *)(gobj + 0xB0) = (int)D_004CD710;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 extern int D_00629DE8;
 extern void func_001790A8(int a0);

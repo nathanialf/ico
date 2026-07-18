@@ -283,6 +283,28 @@ int DisableMotionOrientUpdate(void *a0) {
     return func_001668B0(*(int *)((char *)p + 0x5E0));
 }
 
+/* NEAR-MISS (rc5, W3 convergence). Recovered dev shape:
+ *   typedef struct { char _0; signed char f1; unsigned char f2; unsigned char f3; } FloorAttr;
+ *   int CheckFloorAttribute(float *dst, FloorAttr *a1) {
+ *       int i, n; float *src;
+ *       if (a1->f1 == 0 && (n = a1->f3) != 0) {
+ *           src = (float *)((char *)a1 + a1->f2 * 8 + 0x10);
+ *           for (i = 0; i < n; i++) *dst++ = *src++;
+ *           return 1;
+ *       }
+ *       return 0;
+ *   }
+ * Matches ROM EXACTLY except the final address addu: ROM computes
+ * (f2*8+0x10) then adds a1 last (`addu $2,$5,$2`, src stays in the offset
+ * reg $2); ee-gcc either (a) a1-first grouping keeps src in v0 but emits
+ * the +0x10/addu in the wrong order around the loop-inversion guard, or
+ * (b) a1-last grouping matches the order but normalizes ptr+int so it
+ * reuses the dead a1 reg for src ($5) and copies the loop counter into $2.
+ * The loop-inversion guard only appears with the up-counting for(i<n);
+ * that couples the guard-delay schedule to the reversed-counter coalescing.
+ * NEXT LEVER: find_reg copy-preference to pin src to the offset reg with
+ * a1-add last (or permuter over the allocno tie). NOT a floor.
+ */
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", CheckFloorAttribute);
 
 

@@ -20,7 +20,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aDoorUpChk);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", func_00229C38);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aDoorDownChk);
+extern int D_0062A894;
+extern void scpActivateAllWithKind(void);
+extern void lt_fade_status(int a0);
+extern int D_004CDA10[];
+
+void actSt17aDoorDownChk(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    D_0062A894 = 0;
+    scpActivateAllWithKind();
+    lt_fade_status(0x32);
+    *(int *)(gobj + 0xB0) = (int)D_004CDA10;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", func_00229D28);
 

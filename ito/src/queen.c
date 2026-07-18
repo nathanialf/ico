@@ -265,7 +265,17 @@ void *InitQueenBarrierGeo(void *self) {
     return r;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/queen", QueenBallRadius);
+void QueenBallRadius(void *volatile a0) {
+    int p = *(int *)((char *)a0 + 0x15C);
+    char *s0 = *(char **)(p + 0x7F0);
+    _ACTWait(1);
+    while (1) {
+        if (*s0 == 0) {
+            func_00197DE0(a0);
+        }
+        _ACTWait(1);
+    }
+}
 
 extern void _ACTWait(int a0);
 

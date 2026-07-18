@@ -43,7 +43,21 @@ void func_00236EE0(int a0) {
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/lws_kyomi", func_00236EF0);
+void func_00236EF0(volatile int a0) {
+    extern int D_0062A894;
+    extern void lt_fade_status(int);
+    extern void scpActivateAllWithKind(void);
+    extern int _ACTWait(int);
+    extern int D_004CEA00[];
+    int gobj = *(int *)(a0 + 0x164);
+    D_0062A894 = 0;
+    lt_fade_status(0x32);
+    scpActivateAllWithKind();
+    *(int *)(gobj + 0xB0) = (int)D_004CEA00;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 typedef struct KSub {
     char pad[0xB0];
@@ -104,7 +118,21 @@ void func_00237128(volatile unsigned int x)
     actSt25aQueenTalkChk(D_00629DE8, 0, &buf, 0, 100.0f);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/lws_kyomi", func_00237178);
+void func_00237178(volatile int a0) {
+    extern int D_0062A894;
+    extern void lt_fade_status(int);
+    extern void scpActivateAllWithKind(void);
+    extern int _ACTWait(int);
+    extern int D_004CEAC0[];
+    int gobj = *(int *)(a0 + 0x164);
+    D_0062A894 = 0;
+    lt_fade_status(0x32);
+    scpActivateAllWithKind();
+    *(int *)(gobj + 0xB0) = (int)D_004CEAC0;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/omori/src/lws_kyomi", func_002371C0);
 

@@ -59,7 +59,17 @@ void actSt22aIntroSub(volatile int a0) {
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", func_00230A78);
+extern int D_0062A894;
+extern int D_004CE120[];
+
+void func_00230A78(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    D_0062A894 = 0;
+    *(int *)(gobj + 0xB0) = (int)D_004CE120;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", func_00230AB0);
 

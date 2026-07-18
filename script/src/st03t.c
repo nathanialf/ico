@@ -36,7 +36,7 @@ extern int func_00178DB0(int a0);
 extern void BoxBarSoundOn(int a0, int a1);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 extern int D_004CBD20[];
-extern int func_0020FF58[];
+void func_0020FF58(volatile int a0);
 
 void actSt03tSwitchLChk(volatile int a0) {
     int x = a0;
@@ -311,7 +311,18 @@ void actSt03tGirlCamEndChk(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tSekizoEvent);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", func_0020FF58);
+extern int D_004CBD00[];
+
+void func_0020FF58(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    lt_fade_status(0x32);
+    D_0062A894 = 0;
+    scpActivateAllWithKind();
+    *(int *)(gobj + 0xB0) = (int)D_004CBD00;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", func_0020FFA0);
 

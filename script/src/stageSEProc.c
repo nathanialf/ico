@@ -198,11 +198,34 @@ void stageSE04agate(volatile int a0) {
     _ACTWait(1); Generator_MaskOff(a0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", stageSE04bstrong);
+extern int D_0062A894;
+extern int D_004CE780[];
+
+void stageSE04bstrong(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    D_0062A894 = 0;
+    *(int *)(gobj + 0xB0) = (int)D_004CE780;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", func_00235218);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", stageSE04ewind);
+extern void lt_fade_status(int a0);
+extern void scpActivateAllWithKind(void);
+extern int D_004CE7E0[];
+
+void stageSE04ewind(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    lt_fade_status(0x32);
+    D_0062A894 = 0;
+    scpActivateAllWithKind();
+    *(int *)(gobj + 0xB0) = (int)D_004CE7E0;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", func_002352B8);
 

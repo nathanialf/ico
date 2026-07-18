@@ -5,7 +5,20 @@ extern int (*jtbl_0062A6D0)(void *a0, int a1);
 extern int D_0062C024;
 
 extern int (*D_0062A6D4)(void *a0, int a1);
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/fieldCollision", MakeCollisionDependGObjList);
+extern void debug_assertMessage();
+extern char D_00553250[];
+extern int ExecMotionOrient(int a0, int a1, int a2);
+extern void _ACTWait(int a0);
+
+void MakeCollisionDependGObjList(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    int r;
+    debug_assertMessage(D_00553250);
+    r = ExecMotionOrient(a0, 0xC, gobj + 0x610);
+    *(int *)(gobj + 0x110) = r;
+    *(int *)(r + 0x114) = 0;
+    _ACTWait(0);
+}
 
 extern void debug_assertMessage();
 extern void _ACTWait(int a0);

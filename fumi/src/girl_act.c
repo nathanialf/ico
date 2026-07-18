@@ -491,11 +491,29 @@ void func_00173028(void *volatile a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_00173058);
+extern void ACTWay_SetBeginPositionIllegal(void *a0);
+extern int ACTNotNeedCameraOffset(void);
+
+void func_00173058(void *volatile a0) {
+    ACTWay_SetBeginPositionIllegal(a0);
+    for (;;) {
+        if (ACTNotNeedCameraOffset() == 0) {
+            BoxBarSoundOn(a0, 0x172);
+        }
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_001730A0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_001731A0);
+extern char D_00553D90[];
+
+void func_001731A0(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    debug_assertMessage(D_00553D90);
+    *(int *)(gobj + 0x30) = 1;
+    _ACTWait(0);
+}
 
 extern unsigned int _ACTWait(int a0);
 
