@@ -66,6 +66,52 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_0014C370);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_0014C660);
 
+/* CheckCollisionAttr: FULLY RECOVERED (source below), rc2 — one reload
+ * remat-vs-copy tie remaining. Register ALLOCATION matches ROM exactly
+ * (frame 0x90, 8 callee-saved: i,hit,a0,&D_006A45A0[full],flag20,flagconst,
+ * movnconst,%hi(D_006A45A0)); instruction count identical. The ONLY diff:
+ * ROM shares one lui — `lui $2,%hi; addiu $19,$2,%lo; daddu $23,$2,$0` —
+ * copying the flag-base %hi into the callee-saved idx-%hi. Our C emits a
+ * SECOND `lui $23,%hi` instead of the `daddu` copy.
+ *
+ * MECHANISM (verified via -dg greg dump): with the two __asm__("D_006A45A0")
+ * aliases needed for the dual base root, gcc creates TWO
+ * `(high:SI (symbol_ref "*D_006A45A0"))` pseudos, each with a REG_EQUIV to the
+ * high part, so reload REMATERIALIZES each %hi with its own lui. ROM has ONE
+ * %hi pseudo that reload keeps live and COPIES to callee-saved (daddu). A
+ * single decl removes the 2nd lui but CSE-merges the two bases (loses the dual
+ * root -> frame 0x80, rc11). Probed 6 source shapes (struct alias, two arrays,
+ * single+cast, hoisted flag ptr, per-iter idx ptr, mixed width) — none yields
+ * one-lui+daddu-copy while keeping the split base.
+ * NEXT LEVER: defeat the idx-%hi REG_EQUIV so reload must copy not remat
+ * (e.g. force base_idx to be reload-spilled, or a permuter run at this exact
+ * residual — the copy vs lui is a reload cost decision, per SKILL "permuter
+ * territory after structure is matched"). Recovered source:
+ *
+ *   extern long long D_006A45A0_flag[] __asm__("D_006A45A0");
+ *   extern int       D_006A45A0_idx[]  __asm__("D_006A45A0");
+ *   extern int D_006A45B0[16];  // far, distinct symbol == D_006A45A0+0x10
+ *   void CheckCollisionAttr(void *a0) {
+ *     void *sub = *(void**)((char*)a0 + 0x15C);
+ *     int i, hit = 0, flag20 = 1;
+ *     if (func_00149D00(2) < *(float*)((char*)sub + 0x550)) return;
+ *     if (*(int*)((char*)*(void**)((char*)a0+0x164) + 0x30) == 0x16) return;
+ *     if (D_00629DF0 != 0) return;
+ *     for (i = 1; i < 0x10; i++) {
+ *       if (ForMotionViewer_GetCurrentAnimationFrame(a0, i) == 0) continue;
+ *       flag20 = 0;                                 // unconditional (bgez delay)
+ *       if (D_006A45A0_idx[4] < 0) { D_006A45A0_idx[4] = i; goto done; }
+ *       if (D_006A45A0_idx[4] == i) continue;
+ *       if (ACTEnvGetTest()) hit = 1;               // hit OUTSIDE loop, never reset
+ *       else if (D_00629DE8 != 0) { if (actGirlBecall(D_00629C90, i)) hit = 1; }
+ *       if (hit) { D_006A45A0_flag[1] |= (1LL<<35);
+ *                  actSt25aQueenDead(i, D_00629DE4, D_00629DE8, 1.0f, 8.0f); }
+ *       else       actSt25aQueenDead(i, D_00629DE4, 0,          1.0f, 8.0f);
+ *     }
+ *     if (flag20) D_006A45B0[0] = 0xFF;
+ *   done: ;
+ *   }
+ */
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", CheckCollisionAttr);
 
 typedef struct { char pad[4]; float f4; } CCPResult;
@@ -303,61 +349,117 @@ void InitSwapWeapon(void)
     func_00102828(*(int *)(base + 0x20));
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", PutWeapon);
+extern float D_006A4550[];
+extern float D_006A4560[];
+extern float D_006A4570[];
+extern void _OrientXZGV(void *a0, void *a1, void *a2, float a3, float a4);
+extern void *D_00629DE4;
+extern int D_00271240[];
+extern float func_00149D00(int a0);
+extern void ACTGame_SetActors_Debug(void *a0);
+extern float *func_0018A370(void);
+extern void func_0018A268(float *a0, float *a1, int a2);
+
+void PutWeapon(float a0) {
+    float buf[3];
+    float v;
+    D_006A4550[0] = ((float *)ContinueCorrectPosition(D_00629DE4))[0];
+    D_006A4550[1] = ((float *)ContinueCorrectPosition(D_00629DE4))[1];
+    D_006A4550[2] = ((float *)ContinueCorrectPosition(D_00629DE4))[2];
+    v = func_00149D00(0xE) *
+        (float)((0x3C - D_00271240[0] * 0xA) / D_00271240[1]) / 60.0f;
+    if (v <= a0) {
+        D_006A4570[0] = ((float *)ContinueCorrectPosition(D_00629DE4))[0];
+        D_006A4570[1] = ((float *)ContinueCorrectPosition(D_00629DE4))[1];
+        D_006A4570[2] = ((float *)ContinueCorrectPosition(D_00629DE4))[2];
+        ACTGame_SetActors_Debug(buf);
+        func_00240038(buf, buf, 500.0f);
+        func_0023FFF0(D_006A4560, func_0018A370(), buf);
+    } else {
+        _OrientXZGV(D_006A4570, D_006A4570, D_006A4560, 1.0f, 8.0f);
+        func_0018A268(func_0018A370(), D_006A4570, 5);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", OtherStageGirlPinchCamera_After);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_0014FBA8);
 
-/* func_0014FD98: C source FULLY RECOVERED (below). rc0 EXCEPT the two
- * .lit8 double-pool loads: D_00552920 (0.2) and D_00552928 (0.9) are
- * boyact-EXCLUSIVE double literals the dev wrote inline. gcc emits them via
- * `li.d $5,0.2` which the assembler expands to ROM's exact `lui $at,%hi; ld
- * $5,%lo($at)` form (byte-identical) ONLY if the pool lands at VMA
- * 0x552920/0x552928. They are currently mis-carved into the generic rodata
- * blob src/cod/45248C (config yaml line ~335). LANDING NEEDS A CONFIG CARVE
- * (orchestrator): move D_00552920/D_00552928 out of src/cod/45248C into a
- * boyact-owned .lit8/.rodata slot at 0x552920 so gcc's own li.d pool matches.
- * Recovered source (verified rc0 body against ROM; d->f1 via reuse-d clamp,
- * D_00629DE4 volatile addressable param, 80/10/1/0 float clamp to [0,1]):
- *
- *   void func_0014FD98(int *volatile a0) {
- *     float buf1[4], buf2[4];
- *     int *s4 = *(int**)((char*)a0 + 0x164);
- *     while (1) {
- *       if (ACTEnvGetTest()) {
- *         float d;
- *         ActOrientTest(buf2, D_00629DE4, 2);
- *         ActOrientTest(buf1, D_00629DE8, 0x12);
- *         d = ClearHandCameraCorrect((CCPResult*)buf1, (CCPResult*)buf2);
- *         int cnt = ((0x3C - D_00271240[0]*0xA)/D_00271240[1])*0x64/0x3C;
- *         if (cnt < *(int*)((char*)s4 + 0x48) && 80.0f < d) {
- *           float clamped;
- *           d = (d - 80.0f) / 10.0f;
- *           if (d < 0.0f) clamped = 0.0f;
- *           else if (1.0f < d) clamped = 1.0f;
- *           else clamped = d;
- *           int r1 = func_00260340(clamped);
- *           int r2 = func_0025EF78(r1, 0.2);   // -> ld $5, D_00552920
- *           int r3 = func_0025EF10(0.9, r2);   // -> ld $4, D_00552928
- *           float r4 = func_0025F748(r3);
- *           func_00149CD8((void*)a0, 2, r4);
- *         }
- *       }
- *       _ACTWait(1);
- *     }
- *   }
- */
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_0014FD98);
+extern int ACTEnvGetTest(void);
+extern void ActOrientTest(void *out, void *src, int mode);
+extern float ClearHandCameraCorrect(CCPResult *a, CCPResult *b);
+extern int func_00260340(float);
+extern int func_0025EF78(int, double);
+extern int func_0025EF10(double, int);
+extern float func_0025F748(int);
+extern void func_00149CD8(void *a0, int a1, float a2);
+extern int D_00271240[];
+extern void *D_00629DE4;
+extern void *D_00629DE8;
 
-/* func_0014FF08: TWIN of func_0014FD98 (see its comment above) — identical
- * body but threshold 90.0f (not 80.0f) and doubles D_00552930 (0.2) /
- * D_00552938 (0.7). SAME .lit8 double-pool carve blocker. The boyact inline
- * double-literal pool at VMA 0x552920..0x552940+ is mis-carved into blob
- * src/cod/45248C and blocks a FAMILY of act-state funcs: func_0014FD98,
- * func_0014FF08, pullup_check_heroin_position, func_00150078. One config carve
- * (move 0x5529xx doubles to boyact .lit8 ownership) unblocks all four. */
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_0014FF08);
+/* func_0014FD98 / func_0014FF08: twin act-state loops. Inline double literals
+ * (0.2/0.9 and 0.2/0.7) live in a boyact-owned .lit8 pool at VMA 0x552920.
+ * `int *volatile a0` = addressable param home-store/reload; d reused as the
+ * pre-clamp temp forces mov.s $f1,$f0; clamp (d-thr)/10 to [0,1]. */
+void func_0014FD98(int *volatile a0) {
+    float buf1[4], buf2[4];
+    int *s4 = *(int **)((char *)a0 + 0x164);
+    while (1) {
+        if (ACTEnvGetTest()) {
+            float d;
+            int cnt;
+            ActOrientTest(buf2, D_00629DE4, 2);
+            ActOrientTest(buf1, D_00629DE8, 0x12);
+            d = ClearHandCameraCorrect((CCPResult *)buf1, (CCPResult *)buf2);
+            cnt = ((0x3C - D_00271240[0] * 0xA) / D_00271240[1]) * 0x64 / 0x3C;
+            if (cnt < *(int *)((char *)s4 + 0x48) && 80.0f < d) {
+                float clamped;
+                int r1, r2, r3;
+                float r4;
+                d = (d - 80.0f) / 10.0f;
+                if (d < 0.0f) clamped = 0.0f;
+                else if (1.0f < d) clamped = 1.0f;
+                else clamped = d;
+                r1 = func_00260340(clamped);
+                r2 = func_0025EF78(r1, 0.2);
+                r3 = func_0025EF10(0.9, r2);
+                r4 = func_0025F748(r3);
+                func_00149CD8((void *)a0, 2, r4);
+            }
+        }
+        _ACTWait(1);
+    }
+}
+
+void func_0014FF08(int *volatile a0) {
+    float buf1[4], buf2[4];
+    int *s4 = *(int **)((char *)a0 + 0x164);
+    while (1) {
+        if (ACTEnvGetTest()) {
+            float d;
+            int cnt;
+            ActOrientTest(buf2, D_00629DE4, 2);
+            ActOrientTest(buf1, D_00629DE8, 0x12);
+            d = ClearHandCameraCorrect((CCPResult *)buf1, (CCPResult *)buf2);
+            cnt = ((0x3C - D_00271240[0] * 0xA) / D_00271240[1]) * 0x64 / 0x3C;
+            if (cnt < *(int *)((char *)s4 + 0x48) && 90.0f < d) {
+                float clamped;
+                int r1, r2, r3;
+                float r4;
+                d = (d - 90.0f) / 10.0f;
+                if (d < 0.0f) clamped = 0.0f;
+                else if (1.0f < d) clamped = 1.0f;
+                else clamped = d;
+                r1 = func_00260340(clamped);
+                r2 = func_0025EF78(r1, 0.2);
+                r3 = func_0025EF10(0.7, r2);
+                r4 = func_0025F748(r3);
+                func_00149CD8((void *)a0, 2, r4);
+            }
+        }
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00150078);
 

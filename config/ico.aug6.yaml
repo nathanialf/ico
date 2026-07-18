@@ -333,6 +333,8 @@ segments:
       - [0x451EA0, rodata,  src/cod/451EA0]      # .rodata blob resume (gobj_process strings onward)
       - [0x452450, .rodata, fumi/src/act-parallel-control]  # gcc-emitted jtbl_00552450 (func_00149C20 switch), VMA 0x552450
       - [0x45248C, rodata,  src/cod/45248C]      # .rodata blob resume (pad + D_00552490 ...)
+      - [0x452920, .rodata, fumi/src/boyact]     # gcc-emitted li.d double pool: func_0014FD98 (0.2/0.9 = D_00552920/28) + func_0014FF08 (0.2/0.7 = D_00552930/38), VMA 0x552920..0x552940
+      - [0x452940, rodata,  src/cod/452940]      # .rodata blob resume after boyact li.d double pool (strings 0x552940 onward)
       - [0x4530B8, .rodata, fumi/src/commonact]  # gcc-emitted 0.3 double D_005530B8 (actCommonFall), VMA 0x5530B8
       - [0x4530C0, rodata,  src/cod/4530C0]      # .rodata blob resume after 0.3
       - [0x453C40, .rodata, fumi/src/girl_act]   # gcc-emitted jtbl_00553C40 (actGirlHang switch, 67 entries 0x10C), VMA 0x553C40
