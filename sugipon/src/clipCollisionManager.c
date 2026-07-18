@@ -1,6 +1,12 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clipCollisionManager", actClipCollisionCore);
+extern void _ACTWait(int a0);
+
+void actClipCollisionCore(void) {
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/clipCollisionManager", func_001C09E8);
 

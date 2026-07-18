@@ -226,7 +226,16 @@ void actSt19aOriMain(volatile int a0) {
     actSt25aQueenDead(3, D_00629DE4, 0, 2.0f, 4.0f);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19aOriSwitch);
+typedef struct { char pad[0xB0]; int *unkB0; } ActB0Obj;
+extern int D_004CDFF0[];
+
+void actSt19aOriSwitch(volatile int a0) {
+    ActB0Obj *gobj = *(ActB0Obj **)(a0 + 0x164);
+    gobj->unkB0 = D_004CDFF0;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", func_0022E0E8);
 

@@ -141,7 +141,16 @@ void func_00217458(volatile int a0){ long long b1[2]; long long b2[2];
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04e", func_00217538);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04e", func_002175E0);
+typedef struct { char pad[0xB0]; int *unkB0; } ActB0Obj;
+extern int D_004CC400[];
+
+void func_002175E0(volatile int a0) {
+    ActB0Obj *gobj = *(ActB0Obj **)(a0 + 0x164);
+    gobj->unkB0 = D_004CC400;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04e", func_00217610);
 

@@ -482,7 +482,14 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", NotNeedBackHand);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_00172FC8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_00173028);
+extern unsigned int _ACTWait(int a0);
+
+void func_00173028(void *volatile a0) {
+    for (;;) {
+        BoxBarSoundOn(a0, 0xB4);
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_00173058);
 

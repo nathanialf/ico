@@ -94,7 +94,16 @@ int func_0017C230(int self) {
     return 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017C308);
+extern void _ACTWait(int a0);
+typedef struct { char _0[0xB0]; int f_B0; char _b4[0x39C]; int f_450; } Obj0017C308;
+
+void func_0017C308(volatile int a0) {
+    Obj0017C308 *p = *(Obj0017C308 **)(a0 + 0x164);
+    p->f_B0 = p->f_450;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", func_0017C338);
 

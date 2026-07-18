@@ -8,19 +8,46 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", display_texture);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", iosCdvdBackGroundReadJimaku);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", func_00173538);
+extern void BoxBarSoundOn(int a0, int a1);
+extern void _ACTWait(int a0);
+
+void func_00173538(volatile int a0) {
+    for (;;) {
+        BoxBarSoundOn(a0, 0x13A);
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", func_00173568);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", func_00173610);
+extern void debug_assertMessage(void *a0);
+extern char D_00553730[];
+extern int D_00629DE4;
+extern int D_0062A4DC;
+extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+extern void ACTLookTargetSystem_Exec(void);
+
+void func_00173610(volatile int a0) {
+    debug_assertMessage(D_00553730);
+    iosOmBeforeFuncStandard(D_00629DE4, 0x58, D_0062A4DC);
+    ACTLookTargetSystem_Exec();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuHandler);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", func_001736D0);
+void func_001736D0(volatile int a0) {
+    debug_assertMessage(D_00553730);
+    iosOmBeforeFuncStandard(D_00629DE4, 0x5D, D_0062A4DC);
+    ACTLookTargetSystem_Exec();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuMgrBegin);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", func_00173790);
+void func_00173790(volatile int a0) {
+    debug_assertMessage(D_00553730);
+    iosOmBeforeFuncStandard(D_00629DE4, 0x62, D_0062A4DC);
+    ACTLookTargetSystem_Exec();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuMgrNext);
 
@@ -52,7 +79,11 @@ void jimakuBegin(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuNext);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", func_00173948);
+void func_00173948(volatile int a0) {
+    JimakuState *p = *(JimakuState **)(a0 + 0x164);
+    p->f_33C = 0;
+    _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuJump);
 
