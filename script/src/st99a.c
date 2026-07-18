@@ -197,7 +197,16 @@ void actSplash1Chk(volatile int a0) {
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st99a", actSplash2Chk);
+extern int D_004CE5E0[];
+
+void actSplash2Chk(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    D_0062A894 = 0;
+    *(int *)(gobj + 0xB0) = (int)D_004CE5E0;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st99a", func_00234040);
 
@@ -228,7 +237,16 @@ void actWaveChk(volatile int a0) {
     lt_fade_status(0x32);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st99a", actWave1);
+extern int D_004CE6C0[];
+
+void actWave1(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    D_0062A894 = 0;
+    *(int *)(gobj + 0xB0) = (int)D_004CE6C0;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st99a", func_002341E0);
 

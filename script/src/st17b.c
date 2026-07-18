@@ -178,7 +178,17 @@ void func_0022B408(volatile int a0) {
     actSt25aQueenDead(1, D_00629DE4, 0, 2.0f, 8.0f);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17b", func_0022B4D8);
+extern int D_0062A894;
+extern int D_004CDC70[];
+
+void func_0022B4D8(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    D_0062A894 = 0;
+    *(int *)(gobj + 0xB0) = (int)D_004CDC70;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17b", func_0022B510);
 

@@ -198,7 +198,16 @@ void actSt13cGirlCarryChk(volatile int a0){
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cHandChk);
+extern int D_004CD810[];
+
+void actSt13cHandChk(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    D_0062A894 = 0;
+    *(int *)(gobj + 0xB0) = (int)D_004CD810;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", func_00228710);
 
@@ -218,7 +227,16 @@ void actSt13cCageDown(volatile int a0){
  stage_KillPlayBgAnimation(0x155,1,0);
  while(func_0012A958(0x155)==0) _ACTWait(1); _ACTWait(1); lt_fade_status(0x32); D_0062A894=0; }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", actSt13cCageFallReady);
+extern int D_004CD8F0[];
+
+void actSt13cCageFallReady(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    D_0062A894 = 0;
+    *(int *)(gobj + 0xB0) = (int)D_004CD8F0;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", func_00228950);
 

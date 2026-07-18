@@ -268,7 +268,17 @@ void actSt03tGirlCamEvent(volatile int a0){ long long b1[2]; long long b2[2];
   case 0x1E: b2[0]=v0b; b2[1]=D_006145B0[1]; scpDispOffAllWithKind((int*)b2,0); break;
   } _ACTWait(1); } }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", actSt03tGirlCamStartChk);
+extern int D_0062A894;
+extern int D_004CBC80[];
+
+void actSt03tGirlCamStartChk(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    D_0062A894 = 0;
+    *(int *)(gobj + 0xB0) = (int)D_004CBC80;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", func_0020FD50);
 

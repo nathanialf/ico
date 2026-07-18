@@ -136,7 +136,16 @@ void actE3CageFall(volatile int a0){
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/e3", actE3CageFallChk);
+extern int D_004CB660[];
+
+void actE3CageFallChk(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    D_0062A894 = 0;
+    *(int *)(gobj + 0xB0) = (int)D_004CB660;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/e3", func_002078C8);
 

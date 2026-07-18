@@ -115,15 +115,43 @@ void actSt05cDoorDown(volatile int a0) {
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", actSt05cEne);
+extern int D_0062A894;
+extern int D_004CC460[];
+
+void actSt05cEne(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    D_0062A894 = 0;
+    *(int *)(gobj + 0xB0) = (int)D_004CC460;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", func_0021C048);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", actSt05cEnemy1);
+extern int D_004CC4C0[];
+
+void actSt05cEnemy1(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    D_0062A894 = 0;
+    *(int *)(gobj + 0xB0) = (int)D_004CC4C0;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", func_0021C0D8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", actSt05cEnemy2);
+extern int D_004CC520[];
+
+void actSt05cEnemy2(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    D_0062A894 = 0;
+    *(int *)(gobj + 0xB0) = (int)D_004CC520;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", func_0021C168);
 

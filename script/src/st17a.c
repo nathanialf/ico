@@ -121,7 +121,16 @@ void actSt17aIntro(volatile int a0) {
     *(int *)(actSt25aQueenDeadChk(0x37B) + 0x16C) = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aSekizoEvent);
+extern int D_004CDB90[];
+
+void actSt17aSekizoEvent(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    D_0062A894 = 0;
+    *(int *)(gobj + 0xB0) = (int)D_004CDB90;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", func_0022A080);
 

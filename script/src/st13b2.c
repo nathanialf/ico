@@ -181,7 +181,16 @@ void func_002271F0(void) {
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b2", func_00227268);
+extern int D_004CD680[];
+
+void func_00227268(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    D_0062A894 = 0;
+    *(int *)(gobj + 0xB0) = (int)D_004CD680;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b2", func_002272A0);
 

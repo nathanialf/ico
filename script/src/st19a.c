@@ -239,7 +239,16 @@ void actSt19aOriSwitch(volatile int a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", func_0022E0E8);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", actSt19aOriUp);
+extern int D_004CE070[];
+
+void actSt19aOriUp(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    D_0062A894 = 0;
+    *(int *)(gobj + 0xB0) = (int)D_004CE070;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", func_0022E178);
 
