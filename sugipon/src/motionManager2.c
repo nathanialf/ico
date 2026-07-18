@@ -305,6 +305,35 @@ int DisableMotionOrientUpdate(void *a0) {
  * NEXT LEVER: find_reg copy-preference to pin src to the offset reg with
  * a1-add last (or permuter over the allocno tie). NOT a floor.
  */
+/* NEAR-MISS (rc3, W3 convergence sweep #4 retry). Recovered dev shape:
+ *   typedef struct { char _0; signed char f1; unsigned char f2; unsigned char f3; } FloorAttr;
+ *   int CheckFloorAttribute(float *dst, FloorAttr *a1) {
+ *       int i, n; float *src;
+ *       if (a1->f1 == 0 && (n = a1->f3) != 0) {
+ *           int o = a1->f2 * 8 + 0x10;
+ *           src = (float *)(o + (int)a1);        // rc3 form
+ *           for (i = 0; i < n; i++) *dst++ = *src++;
+ *           return 1;
+ *       }
+ *       return 0;
+ *   }
+ * Everything matches ROM (byte-field types, f1-guard, (n=a1->f3) delay
+ * fills, loop-inversion guard beq, out-of-line shared return-0, loop regs
+ * src=v0/n=v1) EXCEPT the final address addu operand order:
+ *   ROM:  addu v0,a1,v0   (00a21021)  a1 as rs, src stays in offset reg
+ *   ours: addu v0,v0,a1   (00451021)  offset as rs
+ * Verified at the byte level (assembler does NOT canonicalize rs/rt).
+ * MECHANISM (greg -dg dump): src's allocno takes a COPY-PREFERENCE for the
+ * add's FIRST operand's hard reg. ee-gcc has a perfect inverse correlation:
+ *   - offset-first expr -> src=offset reg (v0, CORRECT) but emits offset as rs
+ *   - a1-first/ptr expr -> a1 as rs (CORRECT) but src coalesces into dead a1 reg $5
+ * ROM decouples these (a1 rs + src=offset reg); no clean-C expression found
+ * over ~28 variants (int/uint/ptr casts, paren regroupings, in-place +=,
+ * temp vs inline, register qualifier, loop forms) reproduces the decoupling.
+ * NEXT LEVER: keep a1 live past the add to block src<-a1 coalescing while
+ * using the pointer (a1-rs) form; or permuter over this single allocno tie.
+ * NOT a floor.
+ */
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", CheckFloorAttribute);
 
 

@@ -85,8 +85,6 @@ int func_0010F958(void) {
     return func_0010F220();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", func_0010F978);
-
 typedef struct {
     /* 0x00 */ int f_0;
     /* 0x04 */ int f_4;
@@ -98,6 +96,24 @@ typedef struct {
     /* 0x1C */ unsigned int gif;
 } FMGifBuf;
 extern FMGifBuf D_004C3850;
+
+void func_0010F978(void) {
+    typedef union { unsigned int i; unsigned long long ll; } U;
+    unsigned int p;
+    p = D_004C3850.cur;
+    D_004C3850.start = 0;
+    D_004C3850.gif = 0;
+    D_004C3850.cur = p + 8;
+    D_004C3850.base = p;
+    D_004C3850.tag = p;
+    ((U *)(p + 8))->i = 0x11000000;
+    D_004C3850.start = p + 0xC;
+    D_004C3850.gif = p + 0x10;
+    D_004C3850.cur = p + 0x18;
+    ((U *)(p + 0x18))->ll = 0xE;
+    D_004C3850.cur = p + 0x20;
+}
+
 extern void dpk_Init(int a0, unsigned int a1, int a2);
 extern int dl_GetPri(void);
 extern int D_00629EA0;
@@ -126,7 +142,22 @@ void func_0010F9D0(void) {
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", func_0010FAB0);
+void func_0010FAB0(void) {
+    typedef union { unsigned int i; unsigned long long ll; } U;
+    unsigned int p;
+    p = D_004C3850.cur;
+    D_004C3850.start = 0;
+    D_004C3850.gif = 0;
+    D_004C3850.cur = p + 8;
+    D_004C3850.base = p;
+    D_004C3850.tag = p;
+    ((U *)(p + 8))->i = 0x11000000;
+    D_004C3850.start = p + 0xC;
+    D_004C3850.gif = p + 0x10;
+    D_004C3850.cur = p + 0x18;
+    ((U *)(p + 0x18))->ll = 0xE;
+    D_004C3850.cur = p + 0x20;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/FileManager", func_0010FB08);
 

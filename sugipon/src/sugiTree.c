@@ -40,6 +40,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/sugiTree", InitSugiLeafGeo2);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/sugiTree", func_001EE648);
 
+/* NEEDS-ANALYSIS (W3 sweep #4). Decoded structure:
+ *   short *h = iosFree(D_0062A310, 2, &D_006130A8, 0xC);   // 4-arg, returns ptr
+ *   int r = func_002610F0();
+ *   *h = r;                       // sh (short store) of ORIGINAL r, unconditional
+ *   if (r < 0) r += 0xFFFF;       // bgez+ori+addu, result DEAD (overwritten by ret)
+ *   return h;                     // daddu $2,$16 both paths
+ * Two unresolved: (1) ee-gcc ELIMINATES the dead `r+=0xFFFF` from this
+ * natural shape (verified), yet ROM keeps it as a live bgez/ori/addu with a
+ * dead result -- and it has NO trailing sra, so it is NOT a `/0x10000`
+ * division (that emits bgezl+sra and stores the quotient). (2) ROM frame is
+ * 0x30 (s0@0x10, ra@0x20); the natural shape yields 0x20 -- ~0x10 extra,
+ * suggesting an outgoing-arg reserve or a stack local from a larger
+ * computation mostly optimized away. Needs the retail sugiTree source to
+ * recover the surviving-dead-bias + frame. NOT a floor.
+ */
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/sugiTree", func_001EE7E0);
 
 extern void *func_00105078(void);
