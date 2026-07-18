@@ -66,53 +66,46 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_0014C370);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_0014C660);
 
-/* CheckCollisionAttr: FULLY RECOVERED (source below), rc2 — one reload
- * remat-vs-copy tie remaining. Register ALLOCATION matches ROM exactly
- * (frame 0x90, 8 callee-saved: i,hit,a0,&D_006A45A0[full],flag20,flagconst,
- * movnconst,%hi(D_006A45A0)); instruction count identical. The ONLY diff:
- * ROM shares one lui — `lui $2,%hi; addiu $19,$2,%lo; daddu $23,$2,$0` —
- * copying the flag-base %hi into the callee-saved idx-%hi. Our C emits a
- * SECOND `lui $23,%hi` instead of the `daddu` copy.
- *
- * MECHANISM (verified via -dg greg dump): with the two __asm__("D_006A45A0")
- * aliases needed for the dual base root, gcc creates TWO
- * `(high:SI (symbol_ref "*D_006A45A0"))` pseudos, each with a REG_EQUIV to the
- * high part, so reload REMATERIALIZES each %hi with its own lui. ROM has ONE
- * %hi pseudo that reload keeps live and COPIES to callee-saved (daddu). A
- * single decl removes the 2nd lui but CSE-merges the two bases (loses the dual
- * root -> frame 0x80, rc11). Probed 6 source shapes (struct alias, two arrays,
- * single+cast, hoisted flag ptr, per-iter idx ptr, mixed width) — none yields
- * one-lui+daddu-copy while keeping the split base.
- * NEXT LEVER: defeat the idx-%hi REG_EQUIV so reload must copy not remat
- * (e.g. force base_idx to be reload-spilled, or a permuter run at this exact
- * residual — the copy vs lui is a reload cost decision, per SKILL "permuter
- * territory after structure is matched"). Recovered source:
- *
- *   extern long long D_006A45A0_flag[] __asm__("D_006A45A0");
- *   extern int       D_006A45A0_idx[]  __asm__("D_006A45A0");
- *   extern int D_006A45B0[16];  // far, distinct symbol == D_006A45A0+0x10
- *   void CheckCollisionAttr(void *a0) {
- *     void *sub = *(void**)((char*)a0 + 0x15C);
- *     int i, hit = 0, flag20 = 1;
- *     if (func_00149D00(2) < *(float*)((char*)sub + 0x550)) return;
- *     if (*(int*)((char*)*(void**)((char*)a0+0x164) + 0x30) == 0x16) return;
- *     if (D_00629DF0 != 0) return;
- *     for (i = 1; i < 0x10; i++) {
- *       if (ForMotionViewer_GetCurrentAnimationFrame(a0, i) == 0) continue;
- *       flag20 = 0;                                 // unconditional (bgez delay)
- *       if (D_006A45A0_idx[4] < 0) { D_006A45A0_idx[4] = i; goto done; }
- *       if (D_006A45A0_idx[4] == i) continue;
- *       if (ACTEnvGetTest()) hit = 1;               // hit OUTSIDE loop, never reset
- *       else if (D_00629DE8 != 0) { if (actGirlBecall(D_00629C90, i)) hit = 1; }
- *       if (hit) { D_006A45A0_flag[1] |= (1LL<<35);
- *                  actSt25aQueenDead(i, D_00629DE4, D_00629DE8, 1.0f, 8.0f); }
- *       else       actSt25aQueenDead(i, D_00629DE4, 0,          1.0f, 8.0f);
- *     }
- *     if (flag20) D_006A45B0[0] = 0xFF;
- *   done: ;
- *   }
- */
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", CheckCollisionAttr);
+/* CheckCollisionAttr: MATCHED. The dev data model for D_006A45A0 here is a
+ * single UNION viewed both as a long-long pair (flag word at 0x8, RMW'd with
+ * 1<<35) and an int array (idx at 0x10). One decl => ONE %hi pseudo, which
+ * ee-gcc keeps live and COPIES into the callee-saved idx base (daddu $23,$2,$0)
+ * while adding %lo once for the hoisted flag base ($19) and per-iter for the
+ * idx base. Two separate __asm__ aliases instead emit a 2nd lui (two REG_EQUIV
+ * high pseudos, each rematerialized) => rc2; the union is what shares the lui.
+ * `hit` lives OUTSIDE the loop (never reset); flag20=0 sits in the bgez delay. */
+extern union { long long fl[2]; int ix[8]; } D_006A45A0u __asm__("D_006A45A0");
+extern int  D_006A45B0[16];
+extern int  D_00629DF0;
+extern int  ForMotionViewer_GetCurrentAnimationFrame(void *a0, int a1);
+extern int  ACTEnvGetTest(void);
+extern int  actGirlBecall(void *a0, int a1);
+extern int  actSt25aQueenDead(int a0, void *a1, void *a2, float a3, float a4);
+extern void *D_00629C90;
+extern void *D_00629DE4;
+extern void *D_00629DE8;
+extern float func_00149D00(int a0);
+
+void CheckCollisionAttr(void *a0) {
+    void *sub = *(void**)((char*)a0 + 0x15C);
+    int i, hit = 0, flag20 = 1;
+    if (func_00149D00(2) < *(float*)((char*)sub + 0x550)) return;
+    if (*(int*)((char*)*(void**)((char*)a0+0x164) + 0x30) == 0x16) return;
+    if (D_00629DF0 != 0) return;
+    for (i = 1; i < 0x10; i++) {
+        if (ForMotionViewer_GetCurrentAnimationFrame(a0, i) == 0) continue;
+        flag20 = 0;
+        if (D_006A45A0u.ix[4] < 0) { D_006A45A0u.ix[4] = i; goto done; }
+        if (D_006A45A0u.ix[4] == i) continue;
+        if (ACTEnvGetTest()) hit = 1;
+        else if (D_00629DE8 != 0) { if (actGirlBecall(D_00629C90, i)) hit = 1; }
+        if (hit) { D_006A45A0u.fl[1] |= (1LL<<35);
+                   actSt25aQueenDead(i, D_00629DE4, D_00629DE8, 1.0f, 8.0f); }
+        else       actSt25aQueenDead(i, D_00629DE4, 0,          1.0f, 8.0f);
+    }
+    if (flag20) D_006A45B0[0] = 0xFF;
+done: ;
+}
 
 typedef struct { char pad[4]; float f4; } CCPResult;
 extern float D_00628E24;
@@ -463,7 +456,42 @@ void func_0014FF08(int *volatile a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00150078);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00150298);
+extern int  dispPlane(void *a0, void *a1);
+extern int  func_00191D90(void *a0, void *a1);
+extern void funcCommonFallDircorrect2(void *a0, void *a1) __asm__("funcCommonFallDircorrect");
+extern void func_00191FD0(void *a0, void *a1, void *a2);
+extern void *subCommonIdle(void *a0);
+extern CCPResult *ContinueCorrectPosition(void *a0);
+extern void BoxBarSoundOn(void *a0, int a1);
+extern int  D_00271240[];
+
+void func_00150298(int *volatile a0) {
+    float buf10[4], buf20[4], buf30[4];
+    void *g = *(void **)((char *)a0 + 0x164);
+    void *s16 = *(void **)((char *)g + 0x5F8);
+    int first = 1;
+    int cnt = 0;
+    buf10[0] = ((float *)ContinueCorrectPosition(s16))[0];
+    buf10[1] = ((float *)ContinueCorrectPosition(s16))[1];
+    buf10[2] = ((float *)ContinueCorrectPosition(s16))[2];
+    while (1) {
+        buf20[0] = ((float *)ContinueCorrectPosition(a0))[0];
+        buf20[1] = ((float *)ContinueCorrectPosition(a0))[1];
+        buf20[2] = ((float *)ContinueCorrectPosition(a0))[2];
+        func_00191FD0(buf30, buf10, buf20);
+        if (first) {
+            dispPlane(a0, buf30);
+            first = 0;
+        } else if (func_00191D90(subCommonIdle(a0), buf30) < 0x1E) {
+            funcCommonFallDircorrect2(a0, buf30);
+        } else {
+            BoxBarSoundOn(a0, 0xB9);
+        }
+        if (((0x3C - D_00271240[0] * 0xA) / D_00271240[1]) * 2 < cnt++)
+            BoxBarSoundOn(a0, 0xB9);
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00150420);
 
@@ -531,6 +559,40 @@ r0:
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoySwim);
 
+/* func_00150A30: NEAR-MISS (best rc22, structure recovered; NOT a floor).
+ * Semantics fully recovered — restore this body to resume (obj computed AFTER
+ * the switch = rc22; obj before switch = rc24):
+ *   void func_00150A30(int *volatile a0) {
+ *     int state = *(int*)((char*)*(void**)((char*)D_00629DE4+0x164)+0x5D4);
+ *     void *obj;  // = *(void**)((char*)a0+0x164) ASSIGNED AFTER switch
+ *     float lo, hi;
+ *     switch (state) {            // gcc balanced tree, median 200 first
+ *     case 0xC8: if(D_00629DE8)iosOmBeforeFuncStandard(D_00629DE8,0x4C,D_0062A4DC);
+ *                *(int*)((char*)*(void**)((char*)D_00629DE8+0x164)+0x40)=0x5C; break;
+ *     case 0x64: ... =0x5B; break;   case 0x12C: ... =0x5D; break; }
+ *     lo=D_00628EF4; hi=D_00628EF8;   // loaded AFTER switch -> f20/f21
+ *     while (1) {
+ *       if (ACTGame_InsertCamera_GirlIsPinch()==0) BoxBarSoundOn(a0,0x46);
+ *       else { float v=*(float*)((char*)obj+0x33C);   // v in bnel delay
+ *         if (D_00628EFC<v && !(v<lo) && !(*(int*)((char*)obj+0x2D0)&0x20)) BoxBarSoundOn(a0,0x47);
+ *         else if (D_00628EF8<v && (v<lo||(*(int*)((char*)obj+0x2D0)&0x20)))  BoxBarSoundOn(a0,0x48);
+ *         else BoxBarSoundOn(a0,0x49); }
+ *       _ACTWait(1); }
+ *   }
+ * Residual (rc24) is a WHOLE-FUNCTION reg-alloc/schedule convergence, 3 coupled:
+ *  (1) switch-tree regalloc: ROM keeps state in $a0 (param home-store frees $a0,
+ *      reused), D_00629DE4 in $a1, consts in $v0/$a2; ours puts state in $v1,
+ *      D_00629DE4 in $v0. Also case-block layout order (0x5B before 0x5C) differs.
+ *  (2) v must land in $f0 (loaded first, long-lived) not $f1 -> whole-func float
+ *      pressure; the 0x47 tree then needs a `mov.s $f2,$f0` copy of v that ROM
+ *      uses for the `hi<v` compare at the tier-2 merge.
+ *  (3) ROM emits a DEAD `bc1f B5C` (re-tested A<v) right after `bc1f B70` sharing
+ *      the cc. `v>D_00628EFC` (v-first) reproduces the double-bc1f but to the SAME
+ *      target (rc25); `<` form gives single bc1f (rc24). NEXT LEVER: get v into $f0
+ *      (try computing v before the ACTGame call / a saved `float vv=v;` for the
+ *      hi-compare to force the mov.s $f2), which should re-align the schedule and
+ *      collapse the tier-2 branch targets in a group. Minimal-TU: `v>A` gives the
+ *      double-bc1f, so the dead branch is a v-first-operand + tier2-merge artifact. */
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00150A30);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00150BC8);
