@@ -97,11 +97,19 @@ typedef struct DoorSub {
     void *field_B4;
 } DoorSub;
 
-extern int D_004CCAA0[];
+extern int *D_004CCAA0[];
 extern void actSt05eSolar(void);
 extern void BoxBarSoundOn(int a0, int a1);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", func_00220918);
+void func_00220918(volatile int a0) {
+    DoorSub *obj = *(DoorSub **)(a0 + 0x164);
+    D_0062A894 = 1;
+    D_004CCAA0[1] = (int *)actSt05eSolar;
+    obj->field_B0 = 0;
+    obj->field_B4 = (void *)D_004CCAA0;
+    BoxBarSoundOn((int)a0, 0x189);
+    _ACTWait(0);
+}
 
 
 extern int D_004CCAC0[];
@@ -115,10 +123,18 @@ void actSt08aEne1(volatile int a0) {
     }
 }
 
-extern int D_004CCB00[];
+extern int *D_004CCB00[];
 extern void actSt05eWaterMain(void);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", func_002209A8);
+void func_002209A8(volatile int a0) {
+    DoorSub *obj = *(DoorSub **)(a0 + 0x164);
+    D_0062A894 = 1;
+    D_004CCB00[1] = (int *)actSt05eWaterMain;
+    obj->field_B0 = 0;
+    obj->field_B4 = (void *)D_004CCB00;
+    BoxBarSoundOn((int)a0, 0x189);
+    _ACTWait(0);
+}
 
 
 extern int D_004CCB20[];
@@ -132,10 +148,18 @@ void actSt08aEne2(volatile int a0) {
     }
 }
 
-extern int D_004CCB60[];
+extern int *D_004CCB60[];
 extern void actSt05eWaterSwitch(void);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st08a", func_00220A38);
+void func_00220A38(volatile int a0) {
+    DoorSub *obj = *(DoorSub **)(a0 + 0x164);
+    D_0062A894 = 1;
+    D_004CCB60[1] = (int *)actSt05eWaterSwitch;
+    obj->field_B0 = 0;
+    obj->field_B4 = (void *)D_004CCB60;
+    BoxBarSoundOn((int)a0, 0x189);
+    _ACTWait(0);
+}
 
 
 extern int D_00629DE4;

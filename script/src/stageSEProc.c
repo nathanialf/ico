@@ -210,7 +210,18 @@ void stageSE04bstrong(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/stageSEProc", func_00235218);
+typedef struct { char pad[0xB0]; void *f_B0; void *unkB4; } BoxObj_stageSEProc;
+extern int *D_004CE7C0[];
+extern void func_002343C0(volatile int a0);
+void func_00235218(volatile int a0) {
+    BoxObj_stageSEProc *obj = *(BoxObj_stageSEProc **)(a0 + 0x164);
+    D_0062A894 = 1;
+    D_004CE7C0[1] = (int *)func_002343C0;
+    obj->f_B0 = 0;
+    obj->unkB4 = (void *)D_004CE7C0;
+    BoxBarSoundOn((int)a0, 0x189);
+    _ACTWait(0);
+}
 
 extern void lt_fade_status(int a0);
 extern void scpActivateAllWithKind(void);

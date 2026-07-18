@@ -237,7 +237,18 @@ void actSt19aOriSwitch(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", func_0022E0E8);
+typedef struct { char pad[0xB0]; void *f_B0; void *unkB4; } BoxObj_st19a;
+extern int *D_004CE030[];
+extern void actSt18aEnemy2_2(volatile int a0);
+void func_0022E0E8(volatile int a0) {
+    BoxObj_st19a *obj = *(BoxObj_st19a **)(a0 + 0x164);
+    D_0062A894 = 1;
+    D_004CE030[1] = (int *)actSt18aEnemy2_2;
+    obj->f_B0 = 0;
+    obj->unkB4 = (void *)D_004CE030;
+    BoxBarSoundOn((int)a0, 0x189);
+    _ACTWait(0);
+}
 
 extern int D_004CE070[];
 
@@ -250,7 +261,17 @@ void actSt19aOriUp(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st19a", func_0022E178);
+extern int *D_004CE0B0[];
+extern void actSt19aChainMain(volatile int a0);
+void func_0022E178(volatile int a0) {
+    BoxObj_st19a *obj = *(BoxObj_st19a **)(a0 + 0x164);
+    D_0062A894 = 1;
+    D_004CE0B0[1] = (int *)actSt19aChainMain;
+    obj->f_B0 = 0;
+    obj->unkB4 = (void *)D_004CE0B0;
+    BoxBarSoundOn((int)a0, 0x189);
+    _ACTWait(0);
+}
 
 #include "common.h"
 extern void lt_fade_status(int a0);

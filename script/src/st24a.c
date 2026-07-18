@@ -81,7 +81,17 @@ void func_00231E68(int a0) {
     buf[0] = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st24a", func_00231E78);
+extern int D_00629DE4;
+extern void scpPlayMotDirSmz(float f1, float f2, float f3, float f4, float f5, float f6);
+extern void _ACTWait(int a0);
+void func_00231E78(int a0) {
+    volatile int x = a0;
+    int p = D_00629DE4;
+    *(int *)(*(int *)(p + 0x15C) + 0x4D8) = 1;
+    *(int *)(*(int *)(p + 0x15C) + 0x4D8) = 0;
+    scpPlayMotDirSmz(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 100.0f);
+    _ACTWait(0x3C);
+}
 
 
 void func_00231ED0(int a0) {

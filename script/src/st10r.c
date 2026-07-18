@@ -243,7 +243,18 @@ void actSt10rEne(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10r", func_00224370);
+typedef struct { char pad[0xB0]; void *f_B0; void *unkB4; } BoxObj_st10r;
+extern int *D_004CD280[];
+extern void actSt10lEnemy2_2(volatile int a0);
+void func_00224370(volatile int a0) {
+    BoxObj_st10r *obj = *(BoxObj_st10r **)(a0 + 0x164);
+    D_0062A894 = 1;
+    D_004CD280[1] = (int *)actSt10lEnemy2_2;
+    obj->f_B0 = 0;
+    obj->unkB4 = (void *)D_004CD280;
+    BoxBarSoundOn((int)a0, 0x189);
+    _ACTWait(0);
+}
 
 extern void _ACTWait(int a0);
 extern int func_00178DB0(int a0);

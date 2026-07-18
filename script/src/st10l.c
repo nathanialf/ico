@@ -101,7 +101,18 @@ void actSt10lChainMove(volatile int a0) {
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st10l", func_00222B00);
+typedef struct { char pad[0xB0]; void *f_B0; void *unkB4; } BoxObj_st10l;
+extern int *D_004CD160[];
+extern void actSt10lChain(volatile int a0);
+void func_00222B00(volatile int a0) {
+    BoxObj_st10l *obj = *(BoxObj_st10l **)(a0 + 0x164);
+    D_0062A894 = 1;
+    D_004CD160[1] = (int *)actSt10lChain;
+    obj->f_B0 = 0;
+    obj->unkB4 = (void *)D_004CD160;
+    BoxBarSoundOn((int)a0, 0x189);
+    _ACTWait(0);
+}
 
 #include "common.h"
 extern void lt_fade_status(int a0);

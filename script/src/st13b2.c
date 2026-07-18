@@ -192,7 +192,18 @@ void func_00227268(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b2", func_002272A0);
+typedef struct { char pad[0xB0]; void *f_B0; void *unkB4; } BoxObj_st13b2;
+extern int *D_004CD6C0[];
+extern void func_00226C80(volatile int a0);
+void func_002272A0(volatile int a0) {
+    BoxObj_st13b2 *obj = *(BoxObj_st13b2 **)(a0 + 0x164);
+    D_0062A894 = 1;
+    D_004CD6C0[1] = (int *)func_00226C80;
+    obj->f_B0 = 0;
+    obj->unkB4 = (void *)D_004CD6C0;
+    BoxBarSoundOn((int)a0, 0x189);
+    _ACTWait(0);
+}
 
 extern int scpSleepEnemyOne(int a0, int a1, float a2);
 extern int D_00629DE4;

@@ -127,7 +127,18 @@ void actSt05cEne(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", func_0021C048);
+typedef struct { char pad[0xB0]; void *f_B0; void *unkB4; } St05cBox;
+extern int *D_004CC4A0[];
+extern void func_00217CF0(volatile int a0);
+void func_0021C048(volatile int a0) {
+    St05cBox *obj = *(St05cBox **)(a0 + 0x164);
+    D_0062A894 = 1;
+    D_004CC4A0[1] = (int *)func_00217CF0;
+    obj->f_B0 = 0;
+    obj->unkB4 = (void *)D_004CC4A0;
+    BoxBarSoundOn((int)a0, 0x189);
+    _ACTWait(0);
+}
 
 extern int D_004CC4C0[];
 
@@ -140,7 +151,17 @@ void actSt05cEnemy1(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", func_0021C0D8);
+extern int *D_004CC500[];
+extern void func_00217E18(volatile int a0);
+void func_0021C0D8(volatile int a0) {
+    St05cBox *obj = *(St05cBox **)(a0 + 0x164);
+    D_0062A894 = 1;
+    D_004CC500[1] = (int *)func_00217E18;
+    obj->f_B0 = 0;
+    obj->unkB4 = (void *)D_004CC500;
+    BoxBarSoundOn((int)a0, 0x189);
+    _ACTWait(0);
+}
 
 extern int D_004CC520[];
 
@@ -153,7 +174,17 @@ void actSt05cEnemy2(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st05c", func_0021C168);
+extern int *D_004CC560[];
+extern void func_00217F40(volatile int a0);
+void func_0021C168(volatile int a0) {
+    St05cBox *obj = *(St05cBox **)(a0 + 0x164);
+    D_0062A894 = 1;
+    D_004CC560[1] = (int *)func_00217F40;
+    obj->f_B0 = 0;
+    obj->unkB4 = (void *)D_004CC560;
+    BoxBarSoundOn((int)a0, 0x189);
+    _ACTWait(0);
+}
 
 #include "common.h"
 extern void func_00178E08(int a0);

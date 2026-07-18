@@ -190,7 +190,18 @@ void func_0022B4D8(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17b", func_0022B510);
+typedef struct { char pad[0xB0]; void *f_B0; void *unkB4; } BoxObj_st17b;
+extern int *D_004CDCB0[];
+extern void actSt17aIntroChk(volatile int a0);
+void func_0022B510(volatile int a0) {
+    BoxObj_st17b *obj = *(BoxObj_st17b **)(a0 + 0x164);
+    D_0062A894 = 1;
+    D_004CDCB0[1] = (int *)actSt17aIntroChk;
+    obj->f_B0 = 0;
+    obj->unkB4 = (void *)D_004CDCB0;
+    BoxBarSoundOn((int)a0, 0x189);
+    _ACTWait(0);
+}
 
 void func_0022B568(int a0) {
     int buf[4];

@@ -152,7 +152,19 @@ void func_002175E0(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04e", func_00217610);
+typedef struct { char pad[0xB0]; void *f_B0; void *unkB4; } St04eBox;
+extern int *D_004CC440[];
+extern void func_00217668(volatile int a0);
+extern int D_0062A894;
+void func_00217610(volatile int a0) {
+    St04eBox *obj = *(St04eBox **)(a0 + 0x164);
+    D_0062A894 = 1;
+    D_004CC440[1] = (int *)func_00217668;
+    obj->f_B0 = 0;
+    obj->unkB4 = (void *)D_004CC440;
+    BoxBarSoundOn((int)a0, 0x189);
+    _ACTWait(0);
+}
 
 #include "common.h"
 extern void lt_fade_status(int a0);

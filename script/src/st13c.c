@@ -253,7 +253,18 @@ void actSt13cCageFallReady(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13c", func_00228950);
+typedef struct { char pad[0xB0]; void *f_B0; void *unkB4; } BoxObj_st13c;
+extern int *D_004CD930[];
+extern void actSt13cConte05(volatile int a0);
+void func_00228950(volatile int a0) {
+    BoxObj_st13c *obj = *(BoxObj_st13c **)(a0 + 0x164);
+    D_0062A894 = 1;
+    D_004CD930[1] = (int *)actSt13cConte05;
+    obj->f_B0 = 0;
+    obj->unkB4 = (void *)D_004CD930;
+    BoxBarSoundOn((int)a0, 0x189);
+    _ACTWait(0);
+}
 
 extern void AddWayPointTop(int a0, int a1);
 

@@ -146,7 +146,18 @@ void actSt17aSekizoEvent(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", func_0022A080);
+typedef struct { char pad[0xB0]; void *f_B0; void *unkB4; } BoxObj_st17a;
+extern int *D_004CDBD0[];
+extern void actSt13dInit(volatile int a0);
+void func_0022A080(volatile int a0) {
+    BoxObj_st17a *obj = *(BoxObj_st17a **)(a0 + 0x164);
+    D_0062A894 = 1;
+    D_004CDBD0[1] = (int *)actSt13dInit;
+    obj->f_B0 = 0;
+    obj->unkB4 = (void *)D_004CDBD0;
+    BoxBarSoundOn((int)a0, 0x189);
+    _ACTWait(0);
+}
 
 extern int func_00178DB0(int a0);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
