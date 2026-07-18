@@ -224,13 +224,62 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", GetChainSlope);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", subBoyControl);
 
-extern int isysGObjAddHead();
+extern int isysGObjAddHead(int a0);
 extern void *disp_memory_partition(int a0, int a1);
 extern char D_002A0A90[];
 extern float D_00628EE4;
 extern long long D_006A45A0[];
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_0014E858);
+typedef struct {
+    int   f_0;      /* 0x00 */
+    char  _4[0x1C];
+    int   f_20;     /* 0x20 */
+    int   f_24;     /* 0x24 */
+    char  _28[0x8];
+    float f_30;     /* 0x30 */
+    float f_34;
+    float f_38;
+    char  _3c[0x4];
+    float f_40;     /* 0x40 */
+    float f_44;
+    float f_48;
+} DBlk0;
+extern DBlk0 D_006A45A0_b __asm__("D_006A45A0");
+
+void func_0014E858(void *a0) {
+    void *g = *(int **)((char *)a0 + 0x164);
+    char *p16;
+    void *r;
+    if (D_006A45A0_b.f_0 != 0) {
+        D_006A45A0_b.f_20 = isysGObjAddHead(D_006A45A0_b.f_0);
+    } else {
+        D_006A45A0_b.f_20 = 0;
+    }
+    p16 = *(char **)((char *)g + 0x5F8);
+    {
+        int arg0 = *(int *)(p16 + 0xC);
+        int arg1 = *(int *)(p16 + 0x8);
+        D_006A45A0_b.f_24 = (int)p16;
+        r = disp_memory_partition(arg0, arg1);
+    }
+    if (r != 0) {
+        D_006A45A0_b.f_30 = *(float *)((char *)r + 0x10);
+        D_006A45A0_b.f_34 = *(float *)((char *)r + 0x14);
+        D_006A45A0_b.f_38 = *(float *)((char *)r + 0x18);
+        D_006A45A0_b.f_40 = *(float *)((char *)r + 0x20);
+        D_006A45A0_b.f_44 = *(float *)((char *)r + 0x24);
+        D_006A45A0_b.f_48 = *(float *)((char *)r + 0x28);
+    } else {
+        char *t = D_002A0A90 + *(int *)(p16 + 0x8) * 0x4C;
+        float sc = D_00628EE4;
+        D_006A45A0_b.f_30 = -*(float *)(t + 0x18);
+        D_006A45A0_b.f_34 = -*(float *)(t + 0x1C);
+        D_006A45A0_b.f_38 = -*(float *)(t + 0x20);
+        D_006A45A0_b.f_40 = *(float *)(t + 0xC) * sc / 180.0f;
+        D_006A45A0_b.f_44 = *(float *)(t + 0x10) * sc / 180.0f;
+        D_006A45A0_b.f_48 = *(float *)(t + 0x14) * sc / 180.0f;
+    }
+}
 
 
 extern long long D_006A45A0[];
@@ -260,8 +309,54 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", OtherStageGirlPinchCamera_A
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_0014FBA8);
 
+/* func_0014FD98: C source FULLY RECOVERED (below). rc0 EXCEPT the two
+ * .lit8 double-pool loads: D_00552920 (0.2) and D_00552928 (0.9) are
+ * boyact-EXCLUSIVE double literals the dev wrote inline. gcc emits them via
+ * `li.d $5,0.2` which the assembler expands to ROM's exact `lui $at,%hi; ld
+ * $5,%lo($at)` form (byte-identical) ONLY if the pool lands at VMA
+ * 0x552920/0x552928. They are currently mis-carved into the generic rodata
+ * blob src/cod/45248C (config yaml line ~335). LANDING NEEDS A CONFIG CARVE
+ * (orchestrator): move D_00552920/D_00552928 out of src/cod/45248C into a
+ * boyact-owned .lit8/.rodata slot at 0x552920 so gcc's own li.d pool matches.
+ * Recovered source (verified rc0 body against ROM; d->f1 via reuse-d clamp,
+ * D_00629DE4 volatile addressable param, 80/10/1/0 float clamp to [0,1]):
+ *
+ *   void func_0014FD98(int *volatile a0) {
+ *     float buf1[4], buf2[4];
+ *     int *s4 = *(int**)((char*)a0 + 0x164);
+ *     while (1) {
+ *       if (ACTEnvGetTest()) {
+ *         float d;
+ *         ActOrientTest(buf2, D_00629DE4, 2);
+ *         ActOrientTest(buf1, D_00629DE8, 0x12);
+ *         d = ClearHandCameraCorrect((CCPResult*)buf1, (CCPResult*)buf2);
+ *         int cnt = ((0x3C - D_00271240[0]*0xA)/D_00271240[1])*0x64/0x3C;
+ *         if (cnt < *(int*)((char*)s4 + 0x48) && 80.0f < d) {
+ *           float clamped;
+ *           d = (d - 80.0f) / 10.0f;
+ *           if (d < 0.0f) clamped = 0.0f;
+ *           else if (1.0f < d) clamped = 1.0f;
+ *           else clamped = d;
+ *           int r1 = func_00260340(clamped);
+ *           int r2 = func_0025EF78(r1, 0.2);   // -> ld $5, D_00552920
+ *           int r3 = func_0025EF10(0.9, r2);   // -> ld $4, D_00552928
+ *           float r4 = func_0025F748(r3);
+ *           func_00149CD8((void*)a0, 2, r4);
+ *         }
+ *       }
+ *       _ACTWait(1);
+ *     }
+ *   }
+ */
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_0014FD98);
 
+/* func_0014FF08: TWIN of func_0014FD98 (see its comment above) — identical
+ * body but threshold 90.0f (not 80.0f) and doubles D_00552930 (0.2) /
+ * D_00552938 (0.7). SAME .lit8 double-pool carve blocker. The boyact inline
+ * double-literal pool at VMA 0x552920..0x552940+ is mis-carved into blob
+ * src/cod/45248C and blocks a FAMILY of act-state funcs: func_0014FD98,
+ * func_0014FF08, pullup_check_heroin_position, func_00150078. One config carve
+ * (move 0x5529xx doubles to boyact .lit8 ownership) unblocks all four. */
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_0014FF08);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00150078);
@@ -342,7 +437,42 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00150FA4);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00151440);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", func_00151840);
+extern float func_00149D00(int a0);
+extern int D_00271240[];
+extern void playSEConditionID(int a0, int a1);
+extern void ACTGame_SetActors_Debug(void *a0);
+extern float *func_0018A370(void);
+extern void func_0018A268(float *a0, float *a1, int a2);
+
+void func_00151840(void) {
+    void *p = D_00629DE4;
+    float buf[3];
+    float buf10[3];
+    float buf20[3];
+    float a = func_00149D00(0xD);
+    float b = func_00149D00(0xE);
+    int q = (0x3C - D_00271240[0] * 0xA) / D_00271240[1];
+    float total = a * (float)q / 60.0f + b * (float)q / 60.0f;
+    int s0;
+    int *g;
+    int *obj;
+    playSEConditionID(0, 0x7A);
+    ACTGame_SetActors_Debug(buf);
+    s0 = (int)total;
+    g = *(int **)((char *)p + 0x164);
+    obj = *(int **)((char *)g + 0x678);
+    *(int *)((char *)obj + 0x440) = s0;
+    *(float *)((char *)obj + 0x430) = buf[0];
+    *(float *)((char *)obj + 0x434) = buf[1];
+    *(float *)((char *)obj + 0x438) = buf[2];
+    buf10[0] = func_0018A370()[0];
+    buf10[1] = func_0018A370()[1];
+    buf10[2] = func_0018A370()[2];
+    buf20[0] = ((float *)ContinueCorrectPosition(D_00629DE4))[0];
+    buf20[1] = ((float *)ContinueCorrectPosition(D_00629DE4))[1];
+    buf20[2] = ((float *)ContinueCorrectPosition(D_00629DE4))[2];
+    func_0018A268(buf10, buf20, s0);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/boyact", actBoyWalk);
 
