@@ -8313,7 +8313,16 @@ int func_0025F718(int a0, int a1, int a2, long long a3) {
     func_0025EAA8(&s);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025F748);
+int func_0025F748(long a0) {
+    struct { int f0; int f4; int f8; int fC; long long f10; } buf;
+    long long m; int hi, t;
+    func_0025EBD8(&a0, &buf);
+    m = buf.f10;
+    hi = (int)(m >> 30);
+    t = hi | 1;
+    if ((m & 0x3FFFFFFF) == 0) t = hi;
+    func_00260310(buf.f0, buf.f4, buf.f8, t);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025F7A0);
 
@@ -9530,7 +9539,7 @@ int a0, a1;
     return func_00269A58(D_0054D504_alias[0], a0, a1);
 }
 
-extern int func_0025F748(int a0);
+extern int func_0025F748(long a0);
 
 int func_0026A988(void) {
     return func_0025F748(func_0026A958());
