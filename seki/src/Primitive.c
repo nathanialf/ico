@@ -6,7 +6,17 @@ void prim_InitFan2D(void) {
     D_0062BF50 = 0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Primitive", prim_SetFan2D);
+extern void pac_setVifEndCode(void *p, void *a2);
+
+void prim_SetFan2D(int idx, int n, void *a2) {
+    char *p = (char *)0x1100C000 + (idx << 4);
+    int i;
+    for (i = 0; i < n; i++) {
+        char *q = p;
+        p += 0x10;
+        pac_setVifEndCode(q, a2);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Primitive", prim_DispFan2D);
 

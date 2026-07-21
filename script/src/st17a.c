@@ -16,7 +16,28 @@ void actSt17aDoor(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", actSt17aDoorUpChk);
+extern int D_0062A894;
+extern void lt_fade_status(int a0);
+extern void scpActivateAllWithKind(void);
+extern int D_00629DE8;
+extern void func_001790E8(int a0);
+extern int D_004CD950[];
+
+void actSt17aDoorUpChk(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    if (func_00178DB0(0x10D) == 0) {
+        D_0062A894 = 0;
+        lt_fade_status(0x32);
+        scpActivateAllWithKind();
+        if (D_00629DE8 != 0) {
+            func_001790E8(D_00629DE8);
+        }
+    }
+    *(int *)(gobj + 0xB0) = (int)D_004CD950;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st17a", func_00229C38);
 

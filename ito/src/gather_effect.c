@@ -5,7 +5,27 @@ INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/gather_effect", GatherEffect_SetGoal)
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/gather_effect", GatherEffect_Proc);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/src/gather_effect", GatherEffect_Set);
+struct GEl { int f0; char _4[0x6C]; };
+struct GGeo { char _0[0x24]; struct GEl *f24; char _28[8]; int f30; };
+extern void *InitParticleLayoutGeo(void *a0);
+
+int GatherEffect_Set(int a0) {
+    int acc = 0;
+    if (a0 >= 0) {
+        struct GGeo *geo = (struct GGeo *)InitParticleLayoutGeo((void *)a0);
+        if (geo == 0) {
+            return 1;
+        }
+        {
+            int n = geo->f30;
+            int i;
+            for (i = 0; i < n; i++) {
+                acc |= geo->f24[i].f0;
+            }
+        }
+    }
+    return acc == 0;
+}
 
 extern void *isysGObjSearchFromObjLayoutID(int id);
 extern void *InitParticleLayoutGeo(void *a0);

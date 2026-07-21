@@ -53,7 +53,24 @@ INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/attackCheckBoundary", AttackCheck
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/attackCheckBoundary", AttackCheckBoundaryDL);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/attackCheckBoundary", actAttackCheckBoundaryStart);
+struct BEl { int g; int f4; };
+struct BStr { int cnt; int f4; int f8; struct BEl *arr; };
+
+void actAttackCheckBoundaryStart(int a0) {
+    struct BStr *s = (struct BStr *)*(int *)(*(int *)(a0 + 0x15C) + 0x7F0);
+    int i;
+    for (i = 0; i < s->cnt; i++) {
+        int g = s->arr[i].g;
+        s->arr[i].f4 = *(int *)(*(int *)(*(int *)(g + 0x15C) + 0x7F0) + 4);
+        *(int *)(*(int *)(*(int *)(g + 0x15C) + 0x7F0) + 4) = 0;
+        *(int *)(g + 0x16C) = 1;
+    }
+    {
+        int tmp = s->f4;
+        s->f4 = 0;
+        s->f8 = tmp;
+    }
+}
 
 void GetAttackCheckBoundaryRadius(void) {
 }
