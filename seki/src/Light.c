@@ -185,6 +185,67 @@ void func_00117BF0(void)
     }
 }
 
+/* NEAR-MISS (rc3). STRUCTURE FULLY RECOVERED (doubly-linked head insert).
+ * Dev shape (below) matches: iosFree(pool,0xA0,file,0x2B8) alloc, s0=a0,
+ * node->f_90=a0, node[0x80]=1.0f (swc1 in the beqz delay), the if(head)
+ * head->next=node, node->prev=head, node->next=0, D_0062BF34=node, return
+ * node. Residual (3 diffs) = ROM copies head into a0 EARLY (daddu a0,v0,
+ * before the beqz) and schedules the node->prev=head (0x98) store LATE
+ * (after v0=node is materialized for the return, interleaved with the
+ * ld ra/ld s0 epilogue restores); ours keeps head in v0 and does the 0x98
+ * store BEFORE v0=node, so no a0 copy is inserted. A sched2/epilogue-
+ * interleave regalloc tie: head (v0) is live across the branch and v0 is
+ * reused for the return value, so ROM pre-copies head->a0; gcc consistently
+ * resolves it the other way. Tried ~8 store reorders (prev/next/D perms,
+ * prev-in-both-arms, int-cast head, D-before-tail); none insert the a0 copy.
+ * NOT a floor.
+ *   extern int iosFree(int, int, const char *, int);
+ *   extern int D_0062A324; extern const char D_0054F058[];
+ *   AmbientVolume *func_00117C48(int a0) {
+ *       AmbientVolume *node = (AmbientVolume *)iosFree(D_0062A324, 0xA0,
+ *                                                      D_0054F058, 0x2B8);
+ *       AmbientVolume *head = (AmbientVolume *)D_0062BF34;
+ *       node->f_90 = a0;
+ *       *(float *)((char *)node + 0x80) = 1.0f;
+ *       if (head != 0) head->next = node;
+ *       node->prev = head; node->next = 0;
+ *       D_0062BF34 = (int)node;
+ *       return node;
+ *   } */
+/* CONVERGENCE near-miss (rc3, effectively 1 coupled cause). The dev C is
+ * recovered exactly (compiles, structure byte-identical through the branch):
+ *   extern int iosFree(int,int,const char*,int);
+ *   extern int D_0062A324; extern const char D_0054F058[];
+ *   AmbientVolume *func_00117C48(int a0) {
+ *       AmbientVolume *node = (AmbientVolume *)iosFree(D_0062A324, 0xA0,
+ *                                                      D_0054F058, 0x2B8);
+ *       AmbientVolume *head = (AmbientVolume *)D_0062BF34;
+ *       node->f_90 = a0;
+ *       *(float *)((char *)node + 0x80) = 1.0f;
+ *       if (head != 0) head->next = node;
+ *       node->prev = head; node->next = 0;
+ *       D_0062BF34 = (int)node;
+ *       return node;
+ *   }
+ * Residual = 1 in-TU `jal iosFree` objdump-symbol false-diff + 1 coupled
+ * structural cause: ROM splits `head` into TWO hard-reg ranges — v0 for the
+ * branch-body base use (`sw node,0x94(head)`) and a COPY in a0 (`daddu a0,v0`
+ * before the branch) that survives the merge for the LATE `node->prev=head`
+ * store (scheduled after the `v0=node` return-copy, interleaved with the
+ * ld ra / ld s0 epilogue). ee-gcc 2.9 instead keeps head only in v0, and
+ * because the return-copy WRITES v0 the anti-dependence forces the prev store
+ * to schedule BEFORE it (early) using v0 directly — no a0 split, no copy.
+ * MINIMAL-TU PROOF: removing the `if` makes gcc allocate head to a0 outright
+ * and store prev LATE (ROM's tail exactly); the `if(head)` base-use is what
+ * pulls head into v0 and collapses the split. ~20 source shapes tried (store
+ * perms incl. prev-first/prev-last/next-first, D-position perms, head copy
+ * into 2nd pseudo, int-cast head, volatile head load, `if(D)` vs `if(head)`
+ * condition, inner-block head): none reproduce the v0+a0 range split — gcc
+ * coalesces every 2nd pseudo and never boosts the return-copy above the prev
+ * store. Genuine whole-function alloc/sched coin-flip; NOT a floor. Next
+ * untried angle: read the -dg allocno dump to find why head's allocno doesn't
+ * conflict with the return-value allocno (needs prev store live-across-return
+ * in the pre-reload RTL, which sched1 won't produce here). */
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_00117C48);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/seki/src/Light", func_00117CB8);

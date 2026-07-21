@@ -179,7 +179,22 @@ extern float D_006297F0, D_006297F4, D_006297F8;
  * `mov.s f16` (verified minimal-TU) but in the coalesced TU makes -400 callee-saved
  * ($f20) + a swc1 spill (rc17) — wrong. NEXT LEVER: get reorg to defer the cheap
  * `mov.s f16` into the jal delay (schedule the f17 load ahead of it) WITHOUT a
- * persistent float local. NOT a floor. */
+ * persistent float local. NOT a floor.
+ *
+ * SHARPENED (fan-1 convergence, sched2 dump): the delay is decided by a sched2
+ * READY-LIST TIE between `mov.s f16,f13` (arg9=-400) and `lwc1 f17` (arg10). Both
+ * are depth-1 to the call (equal INSN_PRIORITY once f13 is built early), so the
+ * tie falls to INSN_LUID = arg source position: arg9 < arg10, so gcc schedules
+ * mov.s FIRST and lwc1 last => lwc1 fills the delay. ROM has lwc1 first, mov.s
+ * last (in delay). Confirmed levers that DON'T work: `float t=D_006297F8` before
+ * the call to lower the load's LUID REMATERIALIZES at the arg site (gcc treats
+ * the gp-rel load as cheap, LUID unchanged); the copy-chain (top/mid `float n`)
+ * DOES flip mov.s into the delay but only by keeping -400 in a callee-saved f20
+ * across _ACTWait => s.s/l.s f20 spill (rc17). ROM needs the LONE mov.s scheduled
+ * last with NO chain and NO spill. NEXT LEVER: raise arg10's (f17) sched priority
+ * above arg9's (mov.s) so the load leads without a persistent local -- i.e. an
+ * ee-gcc2.9 rank_for_schedule property (load latency vs copy) not yet reproduced.
+ * NOT a floor. rc4. */
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st04a", actSt04aTorch1);
 
 

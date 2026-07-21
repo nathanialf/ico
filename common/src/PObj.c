@@ -8024,7 +8024,7 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025BF48);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025C898);
 
-extern void func_0025F4A0(long a0, long a1);
+extern int func_0025F4A0(long a0, long a1);
 
 int func_0025C9A0(void *a0) {
     long p = *(long *)((char *)a0 + 8);
@@ -8103,28 +8103,12 @@ INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025D838);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025D8D0);
 
-/* NEAR-MISS (rc23, W3 convergence). STRUCTURE FULLY RECOVERED (64x64->64 signed
- * multiply, ee-gcc inlined via mult/mult1(2nd pipe)/multu, NOT __muldi3). Dev form:
- *   long long func_0025DF38(long long a, long long b) {
- *       int ahi=(int)(a>>32), alo=(int)a, bhi=(int)(b>>32), blo=(int)b;
- *       unsigned long long product = (unsigned long long)(unsigned)alo * (unsigned)blo;
- *       int hi = (int)(product >> 32) + (alo*bhi + ahi*blo);
- *       return ((long long)hi << 32) | (product & 0xFFFFFFFFULL);
- *   }
- * Emits the SAME instruction SET as ROM: dsll32/dsra32 lo/hi splits, `mult alo,bhi`,
- * `mult1 ahi,blo`, `multu alo,blo`, mflo/mfhi, product pack (dsll32/dsrl32/or), cross
- * `addu`, mask `& 0xFFFFFFFF` -> ROM's `lui 0xffff; dsrl32; and` (CONFIRMED: the real
- * TU synthesizes the mask via lui+dsrl32, NOT the minimal-TU's dli — mask now MATCHES).
- * Residual is purely SCHED1 ORDER + the coloring it cascades:
- *   ROM: mult,mult1,multu,mflo a0,mfhi v0 in sequence (mflo REUSES alo's reg a0), packs
- *        the product, then the cross `addu v1,v1,a2` LATE (after the pack).
- *   ours: gcc hoists the cross `addu` up (between multu and mflo) and spills mflo to a3
- *        ($7) instead of reusing alo -> the whole $2-$6 register web shifts (rc23 is the
- *        name cascade of this one sched decision, not 23 independent diffs).
- * ~6 shape variants (split-hi, cross-temp, lo-early, mask spellings) don't move the
- * sched1 order. NEXT LEVER: force gcc to keep mflo/mfhi adjacent to multu and defer the
- * cross-addu (so mflo reuses alo's reg like ROM) — a rank_for_schedule / live-range
- * tightening in clean C. See scratchpad/func_0025DF38_SEED.md. NOT a floor. */
+/* NEAR-MISS (rc23). 64x64->64 signed mult, ee-gcc-inlined (mult/mult1/multu). Form:
+ * split ahi/alo/bhi/blo; product=(unsigned)alo*(unsigned)blo; hi=(int)(product>>32)+
+ * (alo*bhi+ahi*blo); return ((ll)hi<<32)|(product&0xFFFFFFFF). SAME insn set as ROM.
+ * Residual = sched1/coloring: ROM reuses each cross mult's DYING operand reg + mflo
+ * reuses alo + cross addu LATE; gcc spills mflo to a3, hoists cross addu. NEXT:
+ * find_reg copy-pref to pin cross mult on dying operand. NOT a floor. (size cap.) */
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025DF38);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025DF98);
@@ -8148,12 +8132,12 @@ void func_0025EEB8(long a0, long a1) {
     func_0025EAA8(func_0025EC78(&x, &y, &z));
 }
 
-void func_0025EF10(long a0, long a1) {
+long long func_0025EF10(long a0, long a1) {
     struct { int a, b, c, pad; long long d; } x, y, z;
     func_0025EBD8(&a0, &x);
     func_0025EBD8(&a1, &y);
     y.b ^= 1;
-    func_0025EAA8(func_0025EC78(&x, &y, &z));
+    return func_0025EAA8(func_0025EC78(&x, &y, &z));
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025EF78);
@@ -8300,11 +8284,11 @@ int func_0025F388(PCmpV2 *a, PCmpV2 *b) {
 extern void func_0025EBD8(void *in, void *out);
 extern int func_0025F388(PCmpV2 *a, PCmpV2 *b);
 
-void func_0025F4A0(long a0, long a1) {
+int func_0025F4A0(long a0, long a1) {
     struct { int a, b, c, pad; long long d; } x, y;
     func_0025EBD8(&a0, &x);
     func_0025EBD8(&a1, &y);
-    func_0025F388(&x, &y);
+    return func_0025F388(&x, &y);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0025F4F0);
@@ -8875,6 +8859,9 @@ char *func_00261AC0(char *s, char c) {
     return (*s == c) ? s : last;
 }
 
+/* NEAR-MISS (rc18-20). Naive strstr(h,n), all `lb` signed loads + bnel/beql.
+ * gcc emits lbu+sll/sra char sign-ext vs ROM bare lb, divergent branch-likely
+ * shape. Needs signed-char loads + exact goto-CFG. NOT a floor. */
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00261B10);
 
 extern int D_0054D504[];
@@ -9448,9 +9435,13 @@ int func_002694B8(int *self, int a1)
     return ret;
 }
 
+/* NEAR-MISS (rc2). Returns INT: -1=addiu (ROM) not (void*)-1=lui/ori. r=f_1D4;
+ * if(r)ret 0; r=func_002678D8(a0,0x80); f_1D4=r; if(!r)ret -1; clear 32 ints from
+ * r+0x7C down; ret 0. Callers retyped int (still match). Residual: daddu a0,s0
+ * (a0 coalesce, ROM keeps a0 in $4+s0) + 1 pre-loop align nop. NOT a floor. */
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_00269518);
 
-extern void *func_00269518(int a0);
+extern int func_00269518(int a0);
 
 unsigned int func_00269588(void *a0, int a1, int a2) {
     unsigned int *base;
@@ -9487,7 +9478,7 @@ int func_002697E8(int a0, int a1) {
     return func_00269588(D_0054D504_alias[0], a0, a1);
 }
 
-extern void *func_00269518(int a0);
+extern int func_00269518(int a0);
 
 void *func_00269818(void) {
     return func_00269518(D_0054D504[0]);
@@ -9891,6 +9882,10 @@ void func_0026B8F0(int a0, int a1) {
     func_0026B7C8(a0 & 0xFFFFFFC0, a1 & 0xFFFFFFC0);
 }
 
+/* NEAR-MISS (rc14). ll f(long a0){int r=F4A0(a0,0); if(r<0)return -D748(EF10(0,a0));
+ * return D748(a0);} D748 ret long long -> dnegu MATCHES; F4A0/EF10 retyped int/ll.
+ * Residual: ROM parks const 0 in s1 (F4A0 a1=0 + EF10 a0=0 in bgez delay, frame 0x30);
+ * gcc remats 0 from $zero, frame 0x20. dbr delay-fill tie. NOT a floor. */
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0026B908);
 
 

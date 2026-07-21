@@ -41,7 +41,26 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act-wish", func_0014A008);
  * flips it to a0->s0, so it is purely a first-use-order tie. ~4 forms (p-temp,
  * t-block, val-late, volatile carrier) don't flip it. NEXT LEVER: the dev shape
  * that makes gcc save a1 before a0 (a1 first-use earlier, or a0 lower allocno
- * priority) so a0 lands s0 and the swc1/lw arg pair reschedules. NOT a floor. */
+ * priority) so a0 lands s0 and the swc1/lw arg pair reschedules. NOT a floor.
+ *
+ * SHARPENED (fan-1 convergence, QTY_CMP_PRI + dbr + local-alloc.c proof): the
+ * s0/s1 swap and the delay-slot swap are ONE coupled root. local-alloc's
+ * QTY_CMP_PRI = floor_log2(n_refs)*n_refs*size/(death-birth)*1e4 gives a1 (reg 85,
+ * ll=6 => 3333) a HIGHER priority than a0 (reg 84, ll=8 => 2500), so a1 is colored
+ * first and takes s0 (lowest callee-save); a0 gets s1. ROM wants a0->s0, which
+ * requires a0's live range <= a1's. a0 outlives a1 ONLY because sched2 schedules
+ * the longer arg1 dependency chain (lw 0x15C -> lw 0xC) BEFORE the single arg0
+ * move (critical-path INSN_PRIORITY), so a1 dies (at 0x15C) one slot before a0
+ * dies (at arg0). ROM instead schedules arg0 first AND defers the final arg1 load
+ * (lw 0xC) into the 2nd jal's delay slot -- which shortens the arg1 chain's pre-
+ * jal critical path so arg0 can lead. dbr then fills our delay with the swc1
+ * (nearest pre-jal insn) instead of the arg1 load. Every variant that flips
+ * a0->s0 (explicit 0x15C temp, void* p, int c=..., a1 int-param) does so ONLY by
+ * hoisting the 0x15C load BEFORE the first call (a1 dies early), which ROM does
+ * NOT do (ROM keeps a1 live across func_00260568 and loads 0x15C after). NEXT
+ * LEVER: make sched2 defer the final arg1 load (lw 0xC) to the jal delay while
+ * keeping 0x15C after the first call -- i.e. lower the arg1 chain's pre-jal
+ * priority so arg0 leads and a0 wins s0. NOT a floor. rc12. */
 extern void func_00260568(void *dst, int val, int n);
 extern void func_0023FDD8(void *a0, int a1, void *a2);
 

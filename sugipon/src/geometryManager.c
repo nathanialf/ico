@@ -48,12 +48,20 @@ extern void MatrixDrive_TurnXObjectMatrixYZ(void *dst, void *src);
 extern void func_0010E300(void *p);
 extern int *func_00105068(void);
 
-/* parked: needs real matching. See tough_nuts/SetRootBaseQuaternion/notes.md */
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", SetRootBaseQuaternion);
+extern void func_0010E148(int a0, int a1, int a2);
+
+void SetRootBaseQuaternion(void *a0, void *a1) {
+    func_00104D20();
+    MatrixDrive_TurnXObjectMatrixYZ(func_00105078(), (void *)((char *)a0 + 0x20));
+    func_0010E300(a1);
+    MatrixDrive_TurnXObjectMatrixYZ((void *)*(int *)((char *)a0 + 0xC), func_00105078());
+    func_00105068();
+    func_0010E148(*(int *)((char *)a0 + 0x10), (int)((char *)a0 + 0x60), (int)a1);
+}
 
 
-void SetRootQuaternion(int a0) {
-    SetRootBaseQuaternion(*(void **)(a0 + 0x15C));
+void SetRootQuaternion(int a0, void *a1) {
+    SetRootBaseQuaternion(*(void **)(a0 + 0x15C), a1);
 }
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/geometryManager", SetRootMatrixWithTransOffsetByDObj);

@@ -106,7 +106,22 @@ void AdpcmFadeCloseAll(int a0) {
     D_0062C278 = a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/sound/adpcm_init", AdpcmUseAreaGet);
+extern int D_0062C268;
+extern int D_0062C270[2];
+extern char D_00613858[];
+int AdpcmUseAreaGet(void) {
+    int i;
+    for (i = 0; i < 2; i++) {
+        if (D_0062C270[i] == 0) {
+            goto found;
+        }
+    }
+    debug_assertMessage(D_00613858);
+    return 0;
+found:
+    D_0062C270[i] = 1;
+    return D_0062C268 + i * 0x5C000;
+}
 
 extern void iosCdvdBackGroundMgrEntryNum(int x);
 extern int *AdpcmOpen(int a0, int a1, int a2, int a3, int a4, int a5, int a6);

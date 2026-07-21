@@ -115,8 +115,39 @@ int checkHit(void *a0) {
     return q->f_0;
 }
 
+extern void func_001EF378(int a0);
+extern void func_001EE9A8(int a0);
+/* NEAR-MISS (rc3, fan-1 convergence). BYTE-IDENTICAL TWIN of InitWeaponGeo (same
+ * offsets/callees/structure) -- see that function's note for the full mechanism.
+ * Same residual: guard1's branch delay (ROM fills with the loop-counter init i=0;
+ * ee-gcc folds the epilogue `ld ra` because guard1's i=0 sits across the
+ * func_001EF378 call). do-while required. NOT a floor. rc3. */
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", initializeQueenzSword);
 
+extern void func_001EF378(int a0);
+extern void func_001EE9A8(int a0);
+/* NEAR-MISS (rc3, fan-1 convergence). LOGIC + STRUCTURE + VALUES fully recovered.
+ * Dev shape (byte-exact except ONE branch-delay fill):
+ *   void InitWeaponGeo(void *a0) {
+ *       char *s1 = *(char**)(*(int*)((char*)a0+0x15C)+0x7F0);
+ *       int i;
+ *       if (*(int*)(s1+0x50) == 0) return;              // guard1: beqz f50
+ *       func_001EF378((*(int**)(s1+0x54))[0]);          // call element[0]
+ *       if (*(int*)(s1+0x50) <= 0) return;              // guard2: blez f50 (reloaded)
+ *       i = 0;
+ *       do { func_001EE9A8((*(int**)(s1+0x54))[i]); i++; } while (i < *(int*)(s1+0x50));
+ *   }
+ * do-while (not for) was required for the loop bnel + guard2's i=0 delay-fill.
+ * RESIDUAL (rc3): guard1's branch delay. ROM fills BOTH guard delays with the
+ * loop-counter init `daddu s0,zero` (i=0, rematerialized); guard2 matches, but for
+ * guard1 ee-gcc FOLDS the epilogue `ld ra` into the delay and branches past the
+ * shared epilogue's ld ra (+0x68 vs ROM's +0x64), because guard1's fall-through
+ * i=0 sits ACROSS the func_001EF378 call (reorg won't thread-steal it past a call,
+ * only simple-fills guard2 where i=0 is adjacent). `int i=0` hoisted to entry
+ * REGRESSES to rc15 (i goes callee-saved live across both calls). Flat-return and
+ * nested-if both give rc3. NEXT LEVER: make reorg rematerialize i=0 into guard1's
+ * delay across the call instead of folding ld ra (cookbook epilogue-in-delay /
+ * §8.2 unfold). NOT a floor. rc3. */
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/weapon", InitWeaponGeo);
 
 extern void func_001EEB10();

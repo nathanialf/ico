@@ -3,7 +3,18 @@
 /* act2 0x164 actor-state view (local) */
 typedef struct { char _0[0x438]; int f_438; } Act2State;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/act2", BeforeFunc2);
+extern void func_0023FED0(void *a0, void *a1);
+extern void func_0023FDD8(void *a0, void *a1, void *a2);
+extern int D_00629C70;
+
+typedef union { float f[4]; long long ll[2]; } Vec4;
+
+void BeforeFunc2(void *a0, float *a1) {
+    Vec4 v = {{ a1[3], 0.0f, -a1[4], 0.0f }};
+    float m[16];
+    func_0023FED0(m, (void *)(D_00629C70 + 0x80));
+    func_0023FDD8(a0, m, &v);
+}
 
 void actDummy(void *a0, int a1) {
     Act2State *p = *(Act2State **)((char *)a0 + 0x164);

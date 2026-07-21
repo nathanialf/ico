@@ -9,9 +9,34 @@ int warpGirlOutStage(void) {
     return execNormalMove() != 0;
 }
 
+/* NEAR-MISS (rc15). STRUCTURE RECOVERED. Dev shape (below): build a local
+ * vec4 {-x,-y,-z,1.0f} on the stack (buf[3]=1.0 stored in the beqz delay);
+ * if D_00629DE4 != 0, obj = *(o+0x164); obj->f_20 |= 0x400 (64-bit ld/or/sd);
+ * D_006C9220[0..2] = buf[0..2].
+ * RESIDUAL: ROM RELOADS buf[0..2] from the stack (lwc1 f1/f2/f0) before the
+ * D_006C9220 stores; ours keeps the negated values in $f12/$f13/$f14 and
+ * stores them directly (no reload). The build uses NO -fno-strict-aliasing
+ * (verified), and the intervening obj->f_20 store is a `long` (TBAA-distinct
+ * from the float buf), so nothing forces the reload -- ROM's buf is memory-
+ * resident (address escaped / vec4 passed by reference in the real dev code)
+ * while ours is register-kept and CSE-forwards buf[i] back to the neg result.
+ * A variable-index copy loop DOES force the reload but stays a LOOP (ROM is
+ * unrolled with 3 separate lwc1/swc1 in 0,2,1 store order). Also: `obj->f_20
+ * |= 0x400` -> ROM addiu+or, ours dli+or (the long-promoted 0x400 constant).
+ * Forcing the memory round-trip while keeping unrolled explicit stores needs
+ * the dev's real vec4-by-reference shape. NOT a floor.
+ *   float buf[4];
+ *   buf[0]=-x; buf[1]=-y; buf[2]=-z; buf[3]=1.0f;
+ *   o = D_00629DE4;
+ *   if (o != 0) {
+ *       WarpState *obj = *(WarpState **)((char *)o + 0x164);
+ *       obj->f_20 |= 0x400;
+ *       D_006C9220[0]=buf[0]; D_006C9220[1]=buf[1]; D_006C9220[2]=buf[2];
+ *   }                                                                      */
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/warpGirl", warpGirlInStage);
 
 
+extern void *D_00629DE4;
 extern float D_006C9220[];
 
 void warpGirlInit(float *a0) {

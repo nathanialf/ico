@@ -71,6 +71,27 @@ void func_00230A78(volatile int a0) {
     }
 }
 
+/* NEAR-MISS (rc8, ~3 real). BoxBar wrapper + func_00178DB0 guard (sibling of
+ * actSt22aLightningVolime + func_00230A78). Shape:
+ *   void func_00230AB0(volatile int a0) {
+ *       int gobj = *(int *)(a0 + 0x164);
+ *       D_0062A894 = 1; *(int*)(gobj+0xB0) = 0;   // f_B0=0 in func_00178DB0 delay
+ *       if (func_00178DB0(0x13) == 0) {
+ *           *(int*)(gobj+0xB4) = (int)D_004CE160;         // unkB4=&D FIRST -> coloring
+ *           D_004CE160[1] = (int)actSt20aGondolaDown;     //   &D=v0, &chk=v1 MATCHES
+ *           BoxBarSoundOn((int)a0, 0x189); _ACTWait(0);
+ *       }
+ *   }
+ * Prologue (D_0062A894=1, gobj->f_B0=0) and the v0/v1 coloring (unkB4-first) MATCH.
+ * Residual = the BoxBar a0-reload TIMING (same sched2 class as func_0022BEA8): ROM
+ * hoists the volatile-a0 reload (`lw a0,0(sp)`) into the lui/addiu load-latency bubble
+ * so D[1]=&chk fills the BoxBar delay; gcc reloads a0 LATE -> BoxBar delay = nop.
+ * Tried (fan-3): unkB4-first (rc8, best), D[1]-first (rc9), early `int ba=a0` (rc9).
+ * NEXT: hoist the volatile a0 reload into the addiu window. NOT a floor. */
+extern int D_004CE160[];
+extern void actSt20aGondolaDown(volatile int a0);
+extern int func_00178DB0(int a0);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st22a", func_00230AB0);
 
 extern void *D_00629DE4;

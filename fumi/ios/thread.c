@@ -5,7 +5,20 @@ extern void func_00100490(void *a0);
 extern void func_001004B0(void *a0);
 extern void func_002614F8(void *a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadMain);
+unsigned short iosThreadMain(short *a0, int a1) {
+    int sum = (unsigned short)a0[1] + a1;
+    unsigned int q;
+    short w;
+    a0[1] = sum;
+    if ((short)sum >= 0x40B) a0[1] = 0x40A;
+    else if ((short)sum < 0) a0[1] = 0;
+    w = a0[1];
+    q = ((unsigned int)(w << 8)) / 0x40B;
+    a0[0] = q;
+    a0[1] = ((unsigned int)(w * 3)) >> 2;
+    return (unsigned short)a0[0];
+}
+
 
 void iosThreadCreateS(int *a0, char *a1, int a2) {
     if (a0 != 0 && a1 != 0) {
@@ -113,6 +126,28 @@ void iosThreadCreate(unsigned char *a0, int a1, int a2) {
     }
 }
 
+/* NEAR-MISS (rc17, fan-1 convergence). LOGIC fully recovered: a doubly-linked-list
+ * unlink (prev at 0x30, next at 0x34) + optional callback. Dev shape:
+ *   int *iosThreadGetPri(int *a0, int *a1){
+ *       int *next;
+ *       if (a1[0x30/4]) { ((int*)a1[0x30/4])[0x34/4]=a1[0x34/4]; next=(int*)a1[0x34/4]; }
+ *       else            { next=(int*)a1[0x34/4]; a0[0]=(int)next; }
+ *       if (next){ next[0x30/4]=a1[0x30/4]; next=(int*)a1[0x34/4]; }   // conservative reload
+ *       if (a0[0x8/4]) (*(void(**)(int,int))((char*)a0+8))((int)a1, a0[0xC/4]);
+ *       return next; }
+ * Matched: the unlink CFG, both branches' double-load of a1->0x34, the beql on next,
+ * the aliasing reload, and the callback. RESIDUAL (rc17): whole-function POINTER
+ * COALESCING. ROM keeps the a1 base in $5 (its param reg) and copies a0->a2 (in the
+ * first branch delay, keeping that branch a PLAIN beq); ee-gcc instead treats the
+ * a1 base as a whole-function scratch pointer, emits an extra `daddu v1,a1` at entry
+ * (a1 pseudo won't coalesce to $5 -- conflicts with the $5 param), keeps a0 in $4,
+ * and uses beql. The two are coupled through the CALLBACK arg order: ROM sets arg0
+ * (a1->$4) first and defers the arg1 LOAD (a0->0xC) into the jalr delay, which forces
+ * a0 out of $4 (->a2) and lets a1 stay in $5; ee-gcc sets arg1 (a0->0xC) first and
+ * defers the a1 copy into the jalr delay, so a0 stays in $4 and a1 must move. 4
+ * variants (cached prev/next, return a1->0x34 direct, no-reload, a0+2 index) all
+ * keep the a1->scratch copy. NEXT LEVER: make the callback set arg0(a1) before
+ * arg1(a0->0xC) so a0 is the copied base and a1 coalesces to $5. NOT a floor. rc17. */
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/thread", iosThreadGetPri);
 
 extern int D_006A0AB0[];

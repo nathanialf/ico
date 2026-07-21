@@ -33,7 +33,24 @@ void func_00173610(volatile int a0) {
     ACTLookTargetSystem_Exec();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/jimaku", jimakuHandler);
+extern void debug_assertMessage(void *a0);
+extern char D_00553790[], D_00553760[];
+extern void func_001736D0(volatile int a0);
+void jimakuHandler(volatile int a0) {
+    int *gobj = *(int **)(a0 + 0x164);
+    debug_assertMessage(D_00553790);
+    gobj[0x30 / 4] = 0x50;
+    gobj[0x14 / 4] = (int)func_001736D0;
+    gobj[0xC0 / 4] = 0;
+    while ((gobj[0xC0 / 4] & 0x10) == 0) {
+        _ACTWait(1);
+    }
+    debug_assertMessage(D_00553760);
+    for (;;) {
+        BoxBarSoundOn(a0, 0x5D);
+        _ACTWait(1);
+    }
+}
 
 void func_001736D0(volatile int a0) {
     debug_assertMessage(D_00553730);
@@ -79,6 +96,27 @@ void func_00173790(volatile int a0) {
  * the dev shape that makes gcc reserve v0 for the return AND cross-jump the exits
  * to a shared jr;nop so reorg steals v0=0 into the bne delay (v0-copy-preference
  * on the return without keeping a live rv across the compares). NOT a floor.
+ *
+ * SHARPENED (fan-1 convergence, greg -dg + reorg.c proof): the ACCUMULATOR is
+ * the dev shape (confirmed). Form:
+ *   int rv; if(bit36==0) return 1; rv=0;
+ *   if(s->f_30==0x45) rv=(D[0x5D]==0)?0:(D[0x58]==0);  return rv;
+ * reproduces ROM's structure EXACTLY -- `rv=0` (daddu $2,$0,$0) SIMPLE-filled into
+ * the `bne f_30,0x45` delay, success falls through to the shared exit -- EXCEPT a
+ * pure 3-CYCLE REGISTER ROTATION: ROM {rv=v0, base=v1, cmp-loads=a0}; ours
+ * {rv=a0, base=v0, cmp-loads=v1} + a trailing `move $2,$4` (rc11/12).
+ * ROOT (greg -dg): rv is a LONG-lived pseudo (reg 86, live_length=18, refs=3 =>
+ * allocno pri floor_log2(3)*3/18*1e4 = 1666) that loses v0 to the shorter success
+ * value (reg 94, ll=8, pri 3750, prefers v0). rv would WIN v0 at refs>=4
+ * (floor_log2 jumps 1->2 => pri ~4444) but no source shape yields a 4th rv ref
+ * without gcc folding it. The deeper cause is local-vs-global alloc ORDER: the &D
+ * base is a pass-1 LOCAL allocno and grabs v0 (lowest available) BEFORE rv (a
+ * pass-2 global) is colored; ROM's &D reuses the just-freed `s` register (v1),
+ * leaving v0 for rv. 12 source variants (accumulator, ternary, goto-ret0 funnel,
+ * rv=1-unified, reused-pointer b/s, explicit else rv=0, &D[i] addr-expr, char*
+ * cast) all leave &D in v0 -> rv in a0. NEXT LEVER: force the &D base allocno to
+ * v1 (make it a global allocno w/ a v1 copy-preference from dead `s`, WITHOUT
+ * extending its live range across the bit36 branch). NOT a floor.
  */
 extern void *D_00629DE8;
 extern unsigned char D_00284740[];

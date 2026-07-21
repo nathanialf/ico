@@ -1,6 +1,15 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/GobjProc", ResetGObjProc);
+void *ResetGObjProc(int *a0, unsigned int a1, unsigned int a2, unsigned int a3,
+                    unsigned int a4, unsigned int a5, unsigned int a6) {
+    long long v = a1 | ((long long)a2 << 2) | ((long long)a3 << 4) | ((long long)a4 << 14)
+                | ((long long)a5 << 24) | ((long long)a6 << 34);
+    a0[0] = v & 0xffffffff;
+    a0[2] = 8;
+    a0[1] = (int)(v >> 32);
+    a0[3] = 0;
+    return (char *)a0 + 0x10;
+}
 
 void *GetMaxGObj(int *a0, int a1, int a2, int a3) {
     long long v = ((long long)a3 << 56) | ((long long)a2 << 48) | ((long long)a1 << 32);

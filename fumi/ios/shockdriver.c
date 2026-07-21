@@ -263,40 +263,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockRequestBox_Reques
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", Init_ShockDriver);
 
-/* NEAR-MISS (rc11, coloring cascade). Recovered dev shape (structure exact):
- *   extern int iosThreadGetPri(void *a0);
- *   int *ShockDriver_VoiceSet_NumberRegist(int **a0) {
- *       int *p; unsigned char b;
- *       if (a0 != 0) {
- *           p = *a0;
- *           if (p != 0) {
- *               b = *(unsigned char *)p;
- *               for (;;) {
- *                   if (b == 0) p = (int *)iosThreadGetPri(a0);   // bnel arm
- *                   else        p = (int *)p[0x34 / 4];
- *                   if (p == 0) break;
- *                   b = *(unsigned char *)p;
- *               }
- *           }
- *       }
- *       return *a0;
- *   }
- * MATCHES ROM: both bnel branch-likely arms (b!=0 advance in delay, p!=0
- * loop-back reload in delay), the traversal (next at 0x34, byte0), the
- * iosThreadGetPri(a0) call with p = its return, the a0==0/p==0 return-*a0
- * paths. RESIDUAL = whole-function register coloring only:
- *   ROM:  p=a1($5), b=v0($2)  (head loaded to v0, copied to a1, b reuses v0)
- *   ours: p=v0($2), b=v1($3)  (+ an extra daddu v0,v1 at the return)
- * MECHANISM (greg -dg): p (refs=11) outranks b (refs=5) and both copy-prefer
- * v0 (from the call-return / byte-load); ee-gcc gives v0 to the higher-ref p,
- * ROM gives v0 to b and spills p to a1. The do-while form gets b into v0 but
- * loses the bnel (emits beq+b); the for-loop keeps bnel but p takes v0. No
- * clean-C form found that yields bnel AND b=v0/p=a1 simultaneously.
- * NEXT LEVER: drop p's v0 copy-preference (route the call-return through a
- * non-v0 temp) or raise b's ref count; or permuter over the p/b allocno pair.
- * NOT a floor.
- */
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockDriver_VoiceSet_NumberRegist);
+extern int iosThreadGetPri(void *a0, int *p);
+int *ShockDriver_VoiceSet_NumberRegist(int **a0) {
+    int *p; unsigned char b;
+    if (a0 != 0) {
+        p = *a0;
+        if (p != 0) {
+            do {
+                b = *(unsigned char *)p;
+                if (b == 0) p = (int *)iosThreadGetPri(a0, p);
+                else        p = (int *)p[0x34 / 4];
+            } while (p != 0);
+        }
+    }
+    return *a0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockDriver_VoiceSet_Regist);
 
@@ -369,33 +350,44 @@ int ShockDriver_GetShockVoiceSet(int *a0, int *a1) {
     return 1;
 }
 
-/* NEAR-MISS (rc13, really 2 coalescing decisions). Recovered dev shape:
- *   typedef struct { int count; int arr; int f8; } ShockV;   // arr as INT (see below)
- *   void ShockDriver_GetShockVoice(ShockV *a0, int a1, int a2) {
+/* NEAR-MISS (rc13, single structural cause). Recovered dev shape (body is
+ * byte-exact modulo one register-coloring split):
+ *   void ShockDriver_GetShockVoice(int *a0, int a1, int a2) {
  *       int i;
  *       if (a0 == 0) return;
  *       if (a1 == 0) return;
- *       a0->arr = a1;
+ *       a0[1] = a1;                 // mgr->arr = a1
  *       D_0062A490 = (ShockMgr *)a0;
- *       a0->count = a2;
- *       for (i = 0; i < a2; i++) *(int *)(a0->arr + i * 4) = 0;  // re-reads arr
- *       a0->f8 = 0;
+ *       a0[0] = a2;                 // mgr->count = a2
+ *       for (i = 0; i < a2; i++) *(int *)(a0[1] + i*4) = 0;  // RE-READs arr
+ *       a0[2] = 0;                  // mgr->f8 = 0
  *   }
- * STRUCTURE MATCHES ROM: the blez loop-inversion guard, the int-typed arr
- * field forcing gcc to RE-READ a0->arr inside the loop (int store aliases
- * the int arr field; an int* field would be hoisted), all stores in ROM's
- * order+delay slots, the a0->base copy (loop reuses $4 for slt so a0 must
- * move out of $4). RESIDUAL = whole-function register coloring only:
- *   ROM:  base=t0($8), i=a3($7)
- *   ours: base=a3($7), i=a1($5)
- * MECHANISM (greg -dg dump): ROM schedules `i=0` BEFORE the arr-store, so i
- * conflicts with still-live a1($5) and is pushed to $7, cascading base to
- * $8. ee-gcc's sched1 places the independent `i=0` (move r,$0) AFTER the
- * arr-store, so i reuses dead a1's $5 (base->$7). No clean-C ordering
- * (i=0 at top, store reorder, while vs for, combined guard) moves the i=0
- * insn ahead of the arr-store; only a dummy pre-loop (a crutch) does.
- * NEXT LEVER: extend a1's live range past the arr-store legitimately, or
- * permuter over the i/base allocno pair. NOT a floor.
+ * STRUCTURE MATCHES ROM: blez loop-inversion guard, int-typed arr field
+ * forcing the per-iter RE-READ (lw $2,4($8) — an int* field would be
+ * hoisted), all stores in ROM's order+delay slots, up-counter `slt i,count`.
+ * RESIDUAL = ee-gcc will not SPLIT a0's live range like ROM does:
+ *   ROM:  guards test raw $4; base copied `daddu $8,$4` in guard2's DELAY
+ *         slot (preheader); body uses $8 (t0), i=$7 (a3).
+ *   ours: base copied `daddu $7,$4` at ENTRY (BB0); guard tests the copy
+ *         $7; body uses $7 (a3), i reuses dead a1's $5.
+ * MECHANISM (verified via -da RTL dumps + minimal-TU brute force, 10 shapes):
+ *   The loop RE-READ keeps a0 live THROUGH the loop, whose `slt $4,i,a2`
+ *   clobbers $4 → a0 cannot stay in $4 for the body. ROM live-range-SPLITS
+ *   a0 ($4 for guards → $8 for body, copy deferred to the preheader).
+ *   ee-gcc 2.9 does no automatic live-range splitting: it gives a0 ONE reg
+ *   ($7) for its whole life with the incoming copy pinned at entry (BB0).
+ *   A two-variable source (base = a0 after the guards) is the natural split,
+ *   but cse's make_regs_eqv re-merges base into a0 in this SMALL single-cse-
+ *   -region function: the scratch's last use is NOT beyond the cse extended
+ *   basic block, so a0 (lower allocno) stays canonical (confirmed: cse2
+ *   substitutes reg87->reg84; even a genuine 2nd use of a0 at end still
+ *   merges). This is the func_001FA3D0 entry-split wall, which was cracked
+ *   there ONLY because a large multi-BB body let the scratch pointer's last
+ *   use fall beyond cse's extended block — a lever structurally unavailable
+ *   in a function this small. Once base copy lands in the preheader, the
+ *   dependency-class sched1 tiebreak (i=0 independent of base vs arr-store
+ *   data-dependent on base) auto-fixes the i=0/arr-store order too — both
+ *   diffs collapse together. NOT a floor; needs a coalesce-evading shape.
  */
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockDriver_GetShockVoice);
 
@@ -409,7 +401,15 @@ body:
     return a0;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockEmulator_EmulationShot);
+int ShockEmulator_EmulationShot(int value) {
+    int i;
+    for (i = 0; i < D_0062A490->count; i++) {
+        if (D_0062A490->arr[i] == 0) break;
+    }
+    if (i == D_0062A490->count) return -1;
+    D_0062A490->arr[i] = value;
+    return i;
+}
 
 int ShockEmulator_EmulationWave(int a0) {
     if ((unsigned int)a0 < (unsigned int)D_0062A490->count) {

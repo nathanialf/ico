@@ -388,6 +388,28 @@ void actEndDemo14(volatile int a0) {
 }
 
 
+extern int D_004CB820[];
+extern void actOpDemo03Chk(void);
+/* NEAR-MISS (rc5, fan-1 convergence). BoxBar-wrapper; LOGIC+VALUES fully recovered:
+ *   void actConte14_14(volatile int a0){
+ *       int x = a0;                              // volatile read (lw v0,0(sp))
+ *       GObj *gobj = (GObj*)actInitialize(a0);
+ *       _ACTWait(1); lt_fade_status(0x33);
+ *       D_0062A894 = 1;
+ *       D_004CB820[1] = (int)actOpDemo03Chk;     // -> sw ?,0x4(&D_004CB820)
+ *       gobj->unkB4 = D_004CB820;
+ *       BoxBarSoundOn(a0, 0x189);
+ *       _ACTWait(0);
+ *   }
+ * RESIDUAL (rc5): a STORE-scheduling tie for the BoxBarSoundOn jal delay. ROM
+ * defers the `D_004CB820[1]=actOpDemo03Chk` member store (sw v1,4(v0)) into the
+ * jal delay and emits unkB4 + D_0062A894=1 before it; ee-gcc defers `D_0062A894=1`
+ * (sw a2,gp) into the delay instead and reorders the unkB4/array stores. All
+ * store VALUES match; only which store lands in the delay differs. 5 source
+ * orderings tried (array-first, unkB4-first, D_0062A894-early/late) all give rc5
+ * or rc10. NEXT LEVER: defer the D_004CB820[1] member store to the jal delay
+ * (raise its sched priority / lower D_0062A894=1's) without reordering. NOT a
+ * floor. rc5. */
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/end", actConte14_14);
 
 

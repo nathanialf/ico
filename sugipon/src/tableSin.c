@@ -39,6 +39,30 @@ void InitTableSin(void) {
     }
 }
 
+/* NEAR-MISS (rc17, ~6 real). STRUCTURE RECOVERED (sibling of func_0010E088 +
+ * GetTableArcCos): build input vector v[4]={x,y,z,0} @sp+0, matrix m[0x10] @sp+0x10:
+ *   void GetTableArcSin(int *self, int a1, float x, float y, float z) {
+ *       float v[4]; char m[0x10]; int half = (a1<<16)>>17; float f;
+ *       v[0]=x; v[1]=y; v[2]=z; v[3]=0;
+ *       _SetCurrentMatrix(m, (int*)v);       // v@sp+0, m@sp+0x10 -- LAYOUT MATCHES
+ *       f = p2o_SetDefaultEnviroment(half);
+ *       _InverseCurrentMatrix(self, m, f);
+ *       *(float*)((char*)self+0xC) = func_0010ED30(half);
+ *   }
+ * The vector/matrix stack layout, the swc1 stores, v[3]=0 in the Set delay, half in
+ * s0, all MATCH. Sole residual: ROM keeps `self` in s1 and RECOMPUTES `addiu ,sp,0x10`
+ * (&m) at both the Set and Inverse calls; gcc instead CSE-caches &m (sp+0x10) into a
+ * callee-saved reg (s1) and spills self to s2 -> +1 saved reg, frame 0x50->0x60. This
+ * is a frame-address allocno-priority tie: self's live range spans Set+p2o (longer)
+ * so it loses s1 to &m (shorter, spans only p2o). Tried (fan-3): decl-order swap,
+ * single char[0x20] buf, dual-root `(char*)v+0x10` vs `m` (gcc CSEs both to sp+0x10).
+ * To LAND: bias self above &m in allocno_compare (shorten self's live range / cut a
+ * &m ref so it remats). NOT a floor. */
+extern void _SetCurrentMatrix(void *out, int *p);
+extern float p2o_SetDefaultEnviroment(int x);
+extern float _InverseCurrentMatrix(int *self, void *p, float arg);
+extern float func_0010ED30(int x);
+
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/tableSin", GetTableArcSin);
 
 extern float p2o_SetDefaultEnviroment(int x);

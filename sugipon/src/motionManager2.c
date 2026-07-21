@@ -283,101 +283,30 @@ int DisableMotionOrientUpdate(void *a0) {
     return func_001668B0(*(int *)((char *)p + 0x5E0));
 }
 
-/* NEAR-MISS (rc5, W3 convergence). Recovered dev shape:
- *   typedef struct { char _0; signed char f1; unsigned char f2; unsigned char f3; } FloorAttr;
- *   int CheckFloorAttribute(float *dst, FloorAttr *a1) {
- *       int i, n; float *src;
- *       if (a1->f1 == 0 && (n = a1->f3) != 0) {
- *           src = (float *)((char *)a1 + a1->f2 * 8 + 0x10);
- *           for (i = 0; i < n; i++) *dst++ = *src++;
- *           return 1;
- *       }
- *       return 0;
- *   }
- * Matches ROM EXACTLY except the final address addu: ROM computes
- * (f2*8+0x10) then adds a1 last (`addu $2,$5,$2`, src stays in the offset
- * reg $2); ee-gcc either (a) a1-first grouping keeps src in v0 but emits
- * the +0x10/addu in the wrong order around the loop-inversion guard, or
- * (b) a1-last grouping matches the order but normalizes ptr+int so it
- * reuses the dead a1 reg for src ($5) and copies the loop counter into $2.
- * The loop-inversion guard only appears with the up-counting for(i<n);
- * that couples the guard-delay schedule to the reversed-counter coalescing.
- * NEXT LEVER: find_reg copy-preference to pin src to the offset reg with
- * a1-add last (or permuter over the allocno tie). NOT a floor.
- */
-/* NEAR-MISS (rc2, W3 convergence sweep #5 retry). ADDU OPERAND ORDER SOLVED;
- * residual is a gcc dbr delay-slot fill. Recovered dev shape + FIX:
- *   typedef struct { char _0; signed char f1; unsigned char f2; unsigned char f3; } FloorAttr;
- *   int CheckFloorAttribute(float *dst, FloorAttr *a1) {
- *       int i, n; float *src, *p;
- *       if (a1->f1 == 0 && (n = a1->f3) != 0) {
- *           int o = a1->f2 * 8 + 0x10;
- *           src = (float *)o;                       // copy-pref: src -> offset reg $2
- *           p = (float *)((char *)a1 + (int)src);   // fresh p, a1 rs preserved (no swap)
- *           src = p;
- *           for (i = 0; i < n; i++) *dst++ = *src++;
- *           return 1;
- *       }
- *       return 0;
- *   }
- * This form reproduces ROM's `addu $2,$5,$2` (a1 rs, src stays in offset reg
- * $2, counter=$3) EXACTLY, plus the +0x10-then-guard-then-addu-in-delay split
- * and the whole loop body. MECHANISM (the rc3->rc2 crack): the final add
- * `src = a1 + offset` is an allocno reuse-tie between a1's reg ($5) and the
- * offset's reg ($2). A plain `a1 + o` fresh-dest reuses $5 (giv in $5). Pre-
- * seeding src as a COPY of the offset (`src=(float*)o`) gives src's allocno a
- * copy-preference for $2; routing the a1-add through a fresh temp `p` (so
- * neither operand equals the SET_DEST) preserves a1 as the RTL first operand
- * (rs) with NO commutative swap; result: dest reuses $2, a1 stays rs. Confirmed
- * byte-exact for the addu against ROM.
- *
- * RESIDUAL (rc2, both nops): gcc's dbr leaves the FIRST beq (n==0 -> ret0)
- * UNFILLED (reorder mode, assembler emits nop), but ROM fills its delay slot
- * NON-annulled with the f2 load `lbu $2,2($5)`:
- *   ROM:  lbu $3,3($5); beqz $3,ret0; [delay: lbu $2,2($5)]; sll; addiu; beqz(guard); [delay: addu]
- *   ours: lbu $3,3($5); beqz $3,ret0; [delay: NOP]; lbu $2,2($5); sll; addiu; beqz(guard); [delay: addu OK]
- * The loop-guard beq's delay (addu giv-init) IS filled by dbr; the first beq is
- * not. Confirmed NOT the assembler: both period ee-as 2.9 AND modern gas emit a
- * nop for a reorder-mode `beqz; lbu` pair (neither forward-fills), so ROM's fill
- * originates in gcc's dbr (SEQUENCE). dbr dump (-da .c.dbr): first beq (insn 25)
- * is a bare jump_insn (unfilled) while the loop-guard (insn 96) IS wrapped in a
- * sequence with insn 38 (addu). The blocker is the redundant SECOND beq (for-
- * loop entry guard on the same reg $3): with it present, dbr's fill_slots_from_
- * thread won't steal the fall-through f2 load (insn 28) into the first beq's
- * delay. ~25 structural variants (guard placement, do-while vs for, early-return
- * CFG, combined/nested/reordered conditions, f2 hoist, shift vs mul, loop forms)
- * all leave the first beq unfilled; hoisting f2 pre-branch moves the sll (not the
- * load) into the delay instead.
- * NEXT LEVER: recover the dev loop idiom that makes dbr fill the first beq (some
- * property of insn 28's schedule/live-range vs the guard). NOT a floor.
- */
-/* MECHANISM SHARPENED (W3 fan-3): the rc2 residual is gcc's dbr NOT filling
- * branch1 (`beqz $3,ret0`, the n==0 test) with the f2 load `lbu $2,2($5)`.
- * ROM fills it; ours leaves nop. Root cause, proven against gcc-2.95 reorg.c:
- *   - EAGER fill (fill_eager_delay_slots -> fill_slots_from_thread on the
- *     fall-through) is BLOCKED because `lbu $2,2($5)` is a MEM and
- *     `may_trap_p`/rtx_addr_can_trap_p(reg+const, reg=general) == 1, so a
- *     non-annulled speculative fill from the fall-through is rejected (the
- *     load could fault on the branch-taken path). MIPS beq is not annulling.
- *   - SIMPLE fill (fill_simple_delay_slots, move an insn DOWN from before the
- *     branch) is how branch2 (the loop-inversion guard) gets its `addu` delay,
- *     and is the ONLY route that can fill branch1 with the load. It requires
- *     the f2 load to sit in branch1's OWN basic block, before the branch.
- *   - But the offset `f2*8+0x10` is loop-invariant, so gcc's loop pass hoists
- *     the ENTIRE `lbu $2; sll; addiu` into the PREHEADER = branch1's
- *     fall-through block, NOT branch1's block. So fill_simple has nothing
- *     independent in branch1's block (only the `lbu $3` condition load).
- * Confirmed: every for-loop spelling (~30 across sessions; f2 hoisted to top,
- * split o-var, char* base, signed/unsigned, do-while) keeps the f2 load in the
- * preheader after branch1. do-while DROPS the guard beq2 (diverges: ROM has it)
- * and reorders the addu. Loading f2 at the top keeps it live across both
- * branches -> gcc parks it in $6 (ROM reuses $2) and fills the delay with sll.
- * NEXT LEVER: recover the dev shape where the raw f2 load lands in branch1's
- * block while the sll/addiu stay in the preheader (load live-out of block B
- * across branch1 in $2, arithmetic hoisted) -- i.e. anti-hoist the LOAD only.
- * NOT a floor. rc2, both diffs are this one delay-slot nop + its cascade.
- */
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", CheckFloorAttribute);
+/* MATCHED (W-fan1 convergence). The rc2 residual was gcc's dbr delay-slot fill:
+ * ROM fills branch2's (`beqz f3,ret0`) delay with the f2 load `lbu $2,2($5)`
+ * via a cheap SIMPLE fill, which is only possible when the f2 load sits in
+ * branch2's OWN block BEFORE the branch (not hoisted into the preheader). The
+ * `(f2 = a1->f2, (n = a1->f3)) != 0` comma in the && RHS generates BOTH the f2
+ * and f3 loads in block B ahead of the n-test; fill_simple then sinks the
+ * non-condition f2 load into branch2's delay, while branch1's (`bnez f1`) delay
+ * stays nop because its fall-through first insn (the f3 mem load) trips
+ * may_trap_p in fill_eager (rtx_addr_can_trap_p(a1+const)==1). The addu-order
+ * split (src=(float*)o; p=a1+(int)src; src=p) reproduces ROM's `addu $2,$5,$2`
+ * with a1 as rs (copy-preference pins src to the offset reg $2). */
+typedef struct { char _0; signed char f1; unsigned char f2; unsigned char f3; } FloorAttr;
+int CheckFloorAttribute(float *dst, FloorAttr *a1) {
+    int i, n, f2; float *src, *p;
+    if (a1->f1 == 0 && (f2 = a1->f2, (n = a1->f3)) != 0) {
+        int o = f2 * 8 + 0x10;
+        src = (float *)o;
+        p = (float *)((char *)a1 + (int)src);
+        src = p;
+        for (i = 0; i < n; i++) *dst++ = *src++;
+        return 1;
+    }
+    return 0;
+}
 
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/motionManager2", CheckWallAttribute);

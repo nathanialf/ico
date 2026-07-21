@@ -8,6 +8,27 @@ void actSt00aInit(volatile int a0) {
     actCreateSubThread(actSt00aEnd_ext, 0x15);
 }
 
+/* NEAR-MISS (rc6, fan-1 convergence). LOGIC + STRUCTURE + VALUES fully recovered.
+ * Dev shape (byte-exact except one delay-slot + its v0/v1 cascade):
+ *   void actSt00aEnd(volatile int a0) {         // volatile a0: entry `sw $4,0(sp)` spill, a0 unused
+ *       func_0017A0F8(1);
+ *       while (D_0062B458 != 0) _ACTWait(1);    // reloads D_0062BC20 into $4 in each branch delay
+ *       if (D_0062BC20 != 0) scpTrans(D_0062BC20, 0x50);
+ *       actSt25aQueenDead(1, D_00629DE4, 0, 16.0f, D_006297D0);
+ *   }
+ * Matched byte-exact: volatile spill, func_0017A0F8(1), the while-loop (beqz/bnez on
+ * D_0062B458 with the D_0062BC20 reload in each delay), the if(D_0062BC20)scpTrans,
+ * and the 5-arg tail-ish call (a0=1, a1=D_00629DE4, a2=0, f12=16.0f, f13=D_006297D0).
+ * RESIDUAL (rc6): the SAME delay-slot scheduling class as actSt04aTorch1 -- ROM
+ * defers the CHEAP arg2 (`daddu $6,$0,$0`, a2=0) into the actSt25aQueenDead delay
+ * and emits `lwc1 f13,D_006297D0` (arg4) BEFORE the jal; ee-gcc schedules a2=0
+ * before the jal and fills the delay with the f13 LOAD. sched2 ready-tie: arg2 has
+ * a lower INSN_LUID than arg4 so gcc issues it first; ROM issues the higher-latency
+ * load first, cheap op last. A `float t=D_006297D0` temp DOES flip the delay but
+ * keeps t in a callee-saved $f20 across the calls => s.s/l.s f20 spill (wrong,
+ * same trap as torch). The v0/v1 loop-reload coloring diff is this delay swap's
+ * cascade. NEXT LEVER: raise arg4's (f13 load) sched priority above arg2's cheap
+ * daddu without a persistent float local. NOT a floor. rc6. */
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st00a", actSt00aEnd);
 
 

@@ -565,7 +565,19 @@ void afterGirlPulledGo(volatile unsigned int a0)
     _ACTWait(0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", actGirlJump);
+void actGirlJump(volatile unsigned int a0) {
+    int cond = 0;
+    (void)a0; /* dev's leading dead volatile read of the actor param (ROM: lw v1,0(sp)) */
+    if (*(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x678) + 0x814) == 0x57) {
+        cond = (*(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x678) + 0x810) == 4);
+    }
+    while (1) {
+        if (cond) {
+            BoxBarSoundOn((void *)a0, 0xB4);
+        }
+        _ACTWait(1);
+    }
+}
 
 extern void BoxBarSoundOn(void *a0, int a1);
 

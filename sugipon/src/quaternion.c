@@ -47,7 +47,30 @@ void PushQuaternion(int a0) {
     func_0010E588(&D_0065A5C0[D_00629E7C * 4], (short)a0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/quaternion", InitQuaternionDrive);
+extern void debug_assertMessage(char *p);
+extern void SetIdentityQuaternion(void);
+extern char D_0054E1B0[];
+extern char D_0054E1D8[];
+
+void InitQuaternionDrive(void) {
+    int v = D_00629E7C;
+    if (v < 0) {
+        debug_assertMessage(D_0054E1B0);
+        SetIdentityQuaternion();
+        v = D_00629E7C;
+    }
+    v++;
+    D_00629E7C = v;
+    if (v >= 0x40) {
+        debug_assertMessage(D_0054E1D8);
+        v = 0x3F;
+        D_00629E7C = v;
+    }
+    {
+        int idx = *(volatile int *)&D_00629E7C;
+        GetInverseQuaternion(&D_0065A5C0[idx * 4], &D_0065A5C0[idx * 4 - 4]);
+    }
+}
 
 extern void GetMatrixFromQuaternion(void *a0);
 

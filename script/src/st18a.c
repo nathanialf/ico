@@ -72,6 +72,31 @@ void actSt18aSwitchRChk(volatile int a0) {
     }
 }
 
+/* NEAR-MISS (rc7). BoxBar/lt_fade wrapper, byte-identical TWIN of func_0020FD50
+ * (st03t.c — see its full analysis). Recovered dev shape (rc7):
+ *   void func_0022BEA8(volatile int a0) {
+ *       int gobj = *(int *)(a0 + 0x164);
+ *       *(int *)(gobj + 0xB0) = 0;                 // in lt_fade delay
+ *       lt_fade_status(0x33);
+ *       *(int *)(gobj + 0xB4) = (int)D_004CDDF0;
+ *       D_0062A894 = 1;
+ *       D_004CDDF0[1] = (int)func_0022B5F0;        // in BoxBar delay (ROM)
+ *       BoxBarSoundOn((int)a0, 0x189); _ACTWait(0);
+ *   }
+ * Two coupled residuals (both twins): (a) v0/v1 COLORING SWAP — ROM &D_004CDDF0=v0
+ * (D[1] store BASE), &func_0022B5F0=v1 (value); gcc gives them v1/v0. (b) a0 RELOAD
+ * TIMING — ROM reloads the volatile a0 (BoxBar arg) EARLY into the addiu load-latency
+ * bubble so D[1]=&chk lands in BoxBar's delay; gcc reloads LATE (BoxBar delay=nop).
+ * The simpler siblings (actSt18aEnd, D[1]-first + no A894/lt_fade) DO match this
+ * exact pattern — but here the gp_rel D_0062A894 store between blocks sched2 from
+ * hoisting the a0 reload. Tried (fan-3): store reorders (unkB4-first rc7, D[1]-first
+ * rc13), typed-member gobj->unkB4 (rc10). NEXT: force the volatile a0 reload to hoist
+ * past the gp_rel store so D[1] fills the BoxBar delay -> coloring follows. NOT a floor. */
+extern void lt_fade_status(int a0);
+extern int D_004CDDF0[];
+extern void func_0022B5F0(volatile int a0);
+extern int D_0062A894;
+
 INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st18a", func_0022BEA8);
 
 #include "common.h"
