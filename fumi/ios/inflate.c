@@ -69,51 +69,36 @@ int inflate_start(int a0, int a1, int a2, int *a3) {
     return result;
 }
 
-/* NEAR-MISS (rc11, W3+W(fan-3) convergence). LOGIC + STRUCTURE fully recovered.
- * Dev shape (zlib inflate flush):
- *   extern void iosCdvdManager(int *a0, void *buf, int n);
- *   int close_inflate_handler(void *a0, int a1, int *a2, int a3) {
- *       unsigned int n = a2[0x4E] - a2[9];   // f_138 - f_24, uInt
- *       if ((long long)n >= a1) n = a1;      // min via 64-bit signed slt + movz
- *       if (n != 0) iosCdvdManager(a2, a0, n);
- *       return n;
- *   }
- * SHARPENED (fan-3): the entire rc11 is ONE coupled register-allocation tie with
- * two mutually-exclusive gcc dispositions, neither of which is ROM's:
- *  - `unsigned int n` (rc11): n born directly in s0 (movz s0 EARLY, correct min
- *    structure), BUT gcc pre-stashes the base param a2 into the DEAD arg reg a3
- *    (`daddu a3,a2` at entry) and reuses a2 as the first-load scratch -> extra
- *    move; and s0 = the RAW subu (sign-extended) so the `int` call-arg pass is a
- *    bare `daddu a2,s0` with NO re-extend. ROM keeps a2 as base throughout (loads
- *    into v0/v1), so s0 = the ZERO-extended diff (`daddu s0,v0` after dsll32/dsrl32)
- *    and the arg re-sign-extends (`dsll32 a2,s0; dsra32`).
- *  - `long long n` (rc15): KEEPS a2 as base (loads v0/v1, zero-extends) — fixes the
- *    a2-stash — BUT now gcc does the min in caller-saved v0 (movz v0) and copies to
- *    s0 LATE as a sign-extended value, and swaps the sd/lw order.
- * So a2-keep wants the 64-bit (long long) value-flow; s0-early wants the 32-bit
- * (unsigned int) flow; they conflict. Tried: unsigned/ull/ll n, a1 as long long,
- * &0xFFFFFFFFLL mask, two-var (n,m) split, explicit int load temps — all land on
- * one of the two dispositions above (rc11/15/22/23). To LAND: bias gcc to keep the
- * base allocno in a2 (not the dead a3) via find_reg copy-preference while the diff
- * is born in v0 and zero-ext-copied to s0 — needs the global.c/local-alloc source
- * lever that stops gcc grabbing the dead $7 as an early stash. NOT a floor.
- * SHARPENED (this session, minimal-TU + -dg): the coupling is EXACT and tight —
- * `movz` min  <=>  `subu` lands DIRECTLY in s0 ($16)  <=>  a2 stashed to $7. Any
- * form with movz (unsigned int n, intermediate `d` temp, int hi/lo temps, signed n,
- * unsigned-compare) ALL give STASH; `unsigned long long n` is the ONLY thing that
- * keeps a2 in $6 AND computes the diff in caller-saved $2 with the zero-ext IN $2
- * (ROM's exact first half) — but it forces a BRANCH min (not movz) and a two-tail
- * return. greg order: n(r88,crosses call)->s0 FIRST, then a2(r86,ptr) gets $7 not
- * $6 even though $6 is free — find_reg rejects $6 (load-scratch conflict) and $4
- * (a0 conflict) and takes $7. ROOT: the FIRST load coalesces into $6 (freeing it
- * needs a2 out), so a2->$7; ROM instead loads into $2/$3 keeping a2 in $6, which
- * then forces a0's arg1-shuffle through $7 (ROM's `daddu $7,$4`... `daddu $5,$7`).
- * NEXT LEVER: stop the first load from coalescing into $6 (bias load->$2), OR make
- * a0's shuffle claim $7 BEFORE a2 is allocated. Read global.c find_reg $6-rejection
- * (why $6 conflicts) via -dg on the u.l.l. vs unsigned-int variants side by side. */
+/* MATCHED (fan-1 convergence). a2 is a CdvdReq*; 0x138=fileSize (int), 0x24=read
+ * position. n = min((unsigned)(fileSize - pos), a1) bytes to transfer, read into
+ * buffer a0 via iosCdvdManager(handle, buf, n).
+ *
+ * The whole-function coloring is driven by three coupled decisions that ROM makes
+ * together and every "obvious" spelling breaks:
+ *  1. The clamped count crosses the call (return value), so it lives in s0. It is
+ *     DImode (`long long`): ROM stores it with a plain `daddu s0,v0` (zero-extended
+ *     diff, NOT sign-canonical) and re-sign-extends only at the `int` call arg
+ *     (`dsll32/dsra32 a2`). An `int`/`unsigned int` n instead sign-extends at STORE
+ *     and passes the arg plainly (mirror-image, wrong bytes).
+ *  2. Returning `long long` (not `(int)n`) keeps n a single DImode pseudo in s0 with
+ *     a single tail. Any `(int)n` truncation splits n's live range into a transient
+ *     DImode min (caller-saved) + a persistent SImode home, giving a two-tail diamond.
+ *  3. Computing the compare flag (`lt = d < a1`) BEFORE the `n = d` copy forces the
+ *     slt to reference the diff in its own caller-saved reg (v0), so gcc emits the
+ *     real `daddu s0,v0` copy and reuses v0 for the slt — matching ROM. Folding the
+ *     copy (n = d; if (d >= a1) ...) lets cse target the dsrl32 straight at s0 and
+ *     read s0 in the slt (fused, one insn short, swapped load order).
+ * (move->daddu and dsll/dsll32 are the always-on ROM-encoding rewrites.) */
 extern void iosCdvdManager(int *a0, void *buf, int n);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", close_inflate_handler);
+long long close_inflate_handler(void *a0, int a1, int *a2, int a3) {
+    long long d = (unsigned int)(a2[0x4E] - a2[9]);
+    int lt = d < a1;
+    long long n = d;
+    if (!lt) n = a1;
+    if (n) iosCdvdManager(a2, a0, (int)n);
+    return n;
+}
 
 typedef struct { char f0; char pad[0x12B]; } InfEntry;
 extern InfEntry D_0069F800[];
@@ -156,7 +141,53 @@ void func_001350C8(void *a0)
     new_segment((char *) a0 + 0x18098);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", func_00135118);
+extern void iosMallocCheckLeak2(void *p);
+extern void strdup_mblock(void *p);
+extern void iosMallocClearPartition(int a0);
+extern int D_0062A33C;
+
+/* MATCHED. Frees two NULL-terminated mblock lists (heads at +0x18058 / +0x18054
+ * of a0's 0x18000 sub-object), zeroes both heads, then re-inits. Levers:
+ *  - a0 stays in s1 and the +0x18000 offset is rematerialized per use (do NOT
+ *    cache w=a0+0x18000 in a callee-saved reg, or the frame grows a reg).
+ *  - free-loop idiom copied from the matched sibling ios_init_plus: capture
+ *    node=p and do the next-load BEFORE the free call, so the loop head is the
+ *    arg-move and the assembler fills the jal delay with `lw next` (not the move).
+ *  - void return + trailing statement call => the final iosMallocClearPartition
+ *    is a void-tail `j` (an `int return f()` would emit jal+jr instead). */
+void func_00135118(void *a0)
+{
+    char *p;
+    if (*(int *)((char *)a0 + 0x18054) != 0) {
+        p = *(char **)((char *)a0 + 0x18058);
+        if (p != 0) {
+            p -= 8;
+            for (;;) {
+                char *node = p;
+                p = *(char **)(p + 4);
+                iosMallocCheckLeak2(node);
+                if (p == 0) break;
+                p -= 8;
+            }
+        }
+        p = *(char **)((char *)a0 + 0x18054);
+        if (p != 0) {
+            p -= 8;
+            for (;;) {
+                char *node = p;
+                p = *(char **)(p + 4);
+                iosMallocCheckLeak2(node);
+                if (p == 0) break;
+                p -= 8;
+            }
+        }
+        *(int *)((char *)a0 + 0x18054) = 0;
+        *(int *)((char *)a0 + 0x18058) = 0;
+    }
+    strdup_mblock((char *)a0 + 0x18098);
+    iosMallocCheckLeak2(a0);
+    iosMallocClearPartition(D_0062A33C);
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", func_001351E0);
 
@@ -170,9 +201,60 @@ extern char D_00550EA0[];
 
 extern char D_00550EF0[];
 
-extern char D_0062A328[];
+extern int D_0062A328;
 
-/* parked: needs real matching. See tough_nuts/func_001356A8/notes.md */
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", func_001356A8);
+int func_001356A8(int a0, int a1)
+{
+    int g = D_0062A328;
+    int *s1;
+    D_0062A33C = g;
+    D_0062A348 = 0;
+    s1 = (int *) iosFree(g, 0x180A8, D_00550EA0, 0x2E3);
+    func_001350C8(s1);
+    s1[0] = a1;
+    if (a0 == 0)
+    {
+        debug_assertMessage(D_00550EF0);
+    }
+    else
+    {
+        s1[0x4 / 4] = a0;
+    }
+    return (int) s1;
+}
 
+/* NEAR-MISS (fan-1). DATA MODEL + PURPOSE fully recovered; residual is a
+ * single whole-function coloring tie plus arg-schedule. This is the exact
+ * recovered dev C -- it builds to ~36 diff sites, dominated by one a0<->w
+ * register-color flip:
+ *
+ *   typedef int (*InfFp)(void *, unsigned int, int);
+ *   int func_00135738(void *a0) {
+ *       int *w = (int *)((char *)a0 + 0x18000);
+ *       int count;
+ *       w[0x4C/4] = 0;
+ *       for (;;) {
+ *           int ret;
+ *           count = w[0x4C/4];
+ *           ret = ((InfFp)((int*)a0)[1])((char*)a0 + count + 0x10008,
+ *                     (unsigned)(0x8000 - count), ((int*)a0)[0]);
+ *           if (ret == -1 || ret == 0) break;      // beql (ret in {-1,0})
+ *           count = w[0x4C/4] + ret;               // RE-READ w[0x4C], not cache
+ *           w[0x4C/4] = count;
+ *           if ((unsigned)count > 0x7FFF) break;   // sltu 0x7FFF < count
+ *       }
+ *       if (w[0x4C/4] == 0) return -1;
+ *       w[0x50/4] = 1;
+ *       return *(unsigned char *)((char*)a0 + 0x10010);
+ *   }
+ *
+ * CORRECT so far: frame 0x60 (re-read count so it does NOT cross the jalr);
+ * constants 0x10008/0x8000/0x7FFF hoisted to s2/s4/s3; two-exit loop.
+ * RESIDUAL (verified via -dg): ROM colors a0->s0, w->s1; ee-gcc colors w->s0,
+ * a0->s1 because allocno_compare ranks w (refs~8/live~21 => ~1.14) above a0
+ * (refs~10/live~33 => ~0.91). Need a0's priority > w's: either raise a0 refs
+ * or shorten w's live range WITHOUT the goto-CFG rewrite (that un-hoists the
+ * constants and shrinks the frame). Also pending: arg-eval order (len zero-ext
+ * placement around the jalr) and the final lbu reusing the 0x10008 base (+8)
+ * instead of 0x10000+0x10. NOT a floor. */
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", func_00135738);
