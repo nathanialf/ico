@@ -49,25 +49,25 @@ void inflate_dynamic(void *a0) {
 extern int func_00249E48(int a0, int a1, int a2, void *a3);
 extern char D_00550E88[];
 
-/* NEAR-MISS (rc5). LOGIC + STRUCTURE recovered; BEST form (fan-3, explicit result):
- *   int inflate_start(int a0, int a1, int a2, int *a3) {           // a0 unused
- *       int local, result;
- *       *a3 = 0;
- *       result = func_00249E48(a2>>11, a1, 1, &local) << 11;       // out-param local@sp+0
- *       if (local != 0) { debug_assertMessage(D_00550E88); *a3 = 1; }
- *       return result;
- *   }
- * Matches frame, sra a0,a2,11, the call with *a3=0 in the jal delay, a single
- * sll s0,v0,11, local@sp+0, assert+*a3=1, daddu v0,s0 return. rc5 residual is ONE
- * reg-weight/dbr tie: the sll is ret(v0)-LAST-use, so haifa INSN_REG_WEIGHT boosts it
- * EARLY (freeing v0), then gcc loads local into the freed v0 and dbr fills the beqz
- * delay with the return-copy daddu v0,s0. ROM DEFERS the sll into the beqz delay
- * (v0=ret stays live) and reads local into the dead arg reg a1($5). To LAND: stop the
- * reg-weight early-boost so the sll defers to the delay (give ret a free later
- * consumer, or raise local-load/branch priority) -> local then colors to a1. Tried
- * (fan-3): ret<<11 return (dbr DUPLICATES the sll), two-return CFG (rc8), explicit-
- * result (rc5, best). NOT a floor. */
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", inflate_start);
+/* MATCHED. The stale-comment "rc5 scheduling/coloring floor" was solved by
+ * recovering the real dev idiom: the assert PRINTS the error value, i.e.
+ * `debug_assertMessage(D_00550E88, local)` passes `local` as arg1. That single
+ * change resolves BOTH residuals at once:
+ *  - COLORING: `local` is an outgoing arg1, so gcc colors the reload into $5 (a1)
+ *    via the arg-reg copy-preference -- and since it is already in $5 the assert
+ *    needs no extra move (ROM sets only $4 for the message).
+ *  - SCHEDULE: the reload now feeds the assert call, which lifts the local-load
+ *    above the result-stash sll so the load emits first; the un-issued sll then
+ *    sinks into the beq delay slot (ROM's `sll s0,v0,11`), leaving `daddu v0,s0`
+ *    (move $2,$16) as the BB2 return. Verified byte-identical (real_count 0).
+ * a0 is unused; local@sp+0 is func_00249E48's out-param; *a3 is the 0/1 status. */
+int inflate_start(int a0, int a1, int a2, int *a3) {
+    int local, result;
+    *a3 = 0;
+    result = func_00249E48(a2 >> 11, a1, 1, &local) << 11;
+    if (local != 0) { debug_assertMessage(D_00550E88, local); *a3 = 1; }
+    return result;
+}
 
 /* NEAR-MISS (rc11, W3+W(fan-3) convergence). LOGIC + STRUCTURE fully recovered.
  * Dev shape (zlib inflate flush):
@@ -96,7 +96,21 @@ INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", inflate_start);
  * one of the two dispositions above (rc11/15/22/23). To LAND: bias gcc to keep the
  * base allocno in a2 (not the dead a3) via find_reg copy-preference while the diff
  * is born in v0 and zero-ext-copied to s0 — needs the global.c/local-alloc source
- * lever that stops gcc grabbing the dead $7 as an early stash. NOT a floor. */
+ * lever that stops gcc grabbing the dead $7 as an early stash. NOT a floor.
+ * SHARPENED (this session, minimal-TU + -dg): the coupling is EXACT and tight —
+ * `movz` min  <=>  `subu` lands DIRECTLY in s0 ($16)  <=>  a2 stashed to $7. Any
+ * form with movz (unsigned int n, intermediate `d` temp, int hi/lo temps, signed n,
+ * unsigned-compare) ALL give STASH; `unsigned long long n` is the ONLY thing that
+ * keeps a2 in $6 AND computes the diff in caller-saved $2 with the zero-ext IN $2
+ * (ROM's exact first half) — but it forces a BRANCH min (not movz) and a two-tail
+ * return. greg order: n(r88,crosses call)->s0 FIRST, then a2(r86,ptr) gets $7 not
+ * $6 even though $6 is free — find_reg rejects $6 (load-scratch conflict) and $4
+ * (a0 conflict) and takes $7. ROOT: the FIRST load coalesces into $6 (freeing it
+ * needs a2 out), so a2->$7; ROM instead loads into $2/$3 keeping a2 in $6, which
+ * then forces a0's arg1-shuffle through $7 (ROM's `daddu $7,$4`... `daddu $5,$7`).
+ * NEXT LEVER: stop the first load from coalescing into $6 (bias load->$2), OR make
+ * a0's shuffle claim $7 BEFORE a2 is allocated. Read global.c find_reg $6-rejection
+ * (why $6 conflicts) via -dg on the u.l.l. vs unsigned-int variants side by side. */
 extern void iosCdvdManager(int *a0, void *buf, int n);
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/inflate", close_inflate_handler);
