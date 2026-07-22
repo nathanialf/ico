@@ -9,9 +9,37 @@ void InitCharFileManager(void) {
 void ResetCharFileManager(void) {
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/charFileManager", ReadModelFile);
+typedef struct { long long a, b, c; } __attribute__((packed)) Blk24;
+extern Blk24 D_006DE110[];
+extern Blk24 D_004AE2D0;
+extern int D_0062AB60;
+extern void func_001887D8(void);
+extern void chain_simulate_term_loop(void);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/charFileManager", ReadVolumeModelFile);
+void ReadModelFile(void) {
+    int j;
+    D_0062AB60 = 0;
+    for (j = 0; j < 1576; j++) {
+        D_006DE110[j] = D_004AE2D0;
+    }
+    func_001887D8();
+    chain_simulate_term_loop();
+}
+
+typedef struct { int _0, _4, _8, _C, _10, f14; } Entry;
+
+void ReadVolumeModelFile(void) {
+    Entry *e = (Entry *)D_006DE110;
+    int j;
+    D_0062AB60 = 0;
+    for (j = 0; j < 1576; j++) {
+        if (e[j].f14 == 1) {
+            *(Blk24 *)&e[j] = D_004AE2D0;
+        }
+    }
+    func_001887D8();
+    chain_simulate_term_loop();
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/common/src/charFileManager", ReadShadowModelFile);
 

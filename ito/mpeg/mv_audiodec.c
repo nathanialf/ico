@@ -84,7 +84,29 @@ int audioDecIsPreset(int a0)
     return func_00237C98(a0);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", audioDecStart);
+extern float D_00629B10, D_00629B14, D_00629B18;
+extern float D_00629B1C, D_00629B20;
+extern float DispWireLetter(void *a0);
+extern float D_0062BE50;
+extern int D_0062BE54, D_00629C60;
+
+int audioDecStart(void *a0) {
+    AudFrame *p = *(AudFrame **)((char *)a0 + 0x34);
+    float f;
+    p->f0 = D_00629B10;
+    p->f4 = D_00629B14;
+    p->f8 = D_00629B18;
+    if (D_0062BE54 == D_00629C60) {
+        f = D_0062BE50;
+    } else {
+        D_0062BE54 = D_00629C60;
+        f = DispWireLetter((void *)UpdateRootPosition());
+        f = f * 0.5f + 0.5f;
+        D_0062BE50 = f;
+    }
+    *(float *)((char *)a0 + 0x18) = f;
+    return 1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_audiodec", audioDecPause);
 
