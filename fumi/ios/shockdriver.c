@@ -350,46 +350,30 @@ int ShockDriver_GetShockVoiceSet(int *a0, int *a1) {
     return 1;
 }
 
-/* NEAR-MISS (rc13, single structural cause). Recovered dev shape (body is
- * byte-exact modulo one register-coloring split):
- *   void ShockDriver_GetShockVoice(int *a0, int a1, int a2) {
- *       int i;
- *       if (a0 == 0) return;
- *       if (a1 == 0) return;
- *       a0[1] = a1;                 // mgr->arr = a1
- *       D_0062A490 = (ShockMgr *)a0;
- *       a0[0] = a2;                 // mgr->count = a2
- *       for (i = 0; i < a2; i++) *(int *)(a0[1] + i*4) = 0;  // RE-READs arr
- *       a0[2] = 0;                  // mgr->f8 = 0
- *   }
- * STRUCTURE MATCHES ROM: blez loop-inversion guard, int-typed arr field
- * forcing the per-iter RE-READ (lw $2,4($8) — an int* field would be
- * hoisted), all stores in ROM's order+delay slots, up-counter `slt i,count`.
- * RESIDUAL = ee-gcc will not SPLIT a0's live range like ROM does:
- *   ROM:  guards test raw $4; base copied `daddu $8,$4` in guard2's DELAY
- *         slot (preheader); body uses $8 (t0), i=$7 (a3).
- *   ours: base copied `daddu $7,$4` at ENTRY (BB0); guard tests the copy
- *         $7; body uses $7 (a3), i reuses dead a1's $5.
- * MECHANISM (verified via -da RTL dumps + minimal-TU brute force, 10 shapes):
- *   The loop RE-READ keeps a0 live THROUGH the loop, whose `slt $4,i,a2`
- *   clobbers $4 → a0 cannot stay in $4 for the body. ROM live-range-SPLITS
- *   a0 ($4 for guards → $8 for body, copy deferred to the preheader).
- *   ee-gcc 2.9 does no automatic live-range splitting: it gives a0 ONE reg
- *   ($7) for its whole life with the incoming copy pinned at entry (BB0).
- *   A two-variable source (base = a0 after the guards) is the natural split,
- *   but cse's make_regs_eqv re-merges base into a0 in this SMALL single-cse-
- *   -region function: the scratch's last use is NOT beyond the cse extended
- *   basic block, so a0 (lower allocno) stays canonical (confirmed: cse2
- *   substitutes reg87->reg84; even a genuine 2nd use of a0 at end still
- *   merges). This is the func_001FA3D0 entry-split wall, which was cracked
- *   there ONLY because a large multi-BB body let the scratch pointer's last
- *   use fall beyond cse's extended block — a lever structurally unavailable
- *   in a function this small. Once base copy lands in the preheader, the
- *   dependency-class sched1 tiebreak (i=0 independent of base vs arr-store
- *   data-dependent on base) auto-fixes the i=0/arr-store order too — both
- *   diffs collapse together. NOT a floor; needs a coalesce-evading shape.
- */
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/shockdriver", ShockDriver_GetShockVoice);
+/* MATCHED. The live-range SPLIT ROM performs (a0 stays $4 for the guards,
+ * a separate base pseudo -> $8 for the body, copy `daddu $8,$4` deferred into
+ * guard2's delay slot, i=$7) is NOT emitted by ee-gcc 2.9 for a plain
+ * `b = a0` copy: cse2 (after_loop=1, one extended BB) finds a0's param value
+ * available everywhere and substitutes the body pseudo back to a0 -> single
+ * pseudo colored $7. Breaking that: reassign a0 (`a0 = 0;`) after the copy so
+ * cse2 sees a0 as no-longer-available at the body uses and keeps `b` distinct;
+ * the dead `a0 = 0` store is then removed by DCE (zero insn cost). Result is
+ * ROM's exact split + coloring (base=$8, i=$7, guards on raw $4). The int-typed
+ * arr re-read (aliased by the D_0062A490 store) forces the per-iter `lw 4($8)`.
+ */void ShockDriver_GetShockVoice(int *a0, int a1, int a2)
+{
+    int *b;
+    int i;
+    if (a0 == 0) return;
+    if (a1 == 0) return;
+    b = a0;
+    a0 = 0;
+    b[1] = a1;
+    D_0062A490 = (ShockMgr *)b;
+    b[0] = a2;
+    for (i = 0; i < a2; i++) *(int *)(b[1] + i*4) = 0;
+    b[2] = 0;
+}
 
 int Init_ShockEmulator(int a0, int a1) {
     if ((unsigned int)a0 < (unsigned int)D_0062A490->count) {
