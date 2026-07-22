@@ -19,7 +19,23 @@ void InitStageMultiBgaManager(void *a0, void *a1, void *a2, void *a3) {
     }
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stageMultiBgaManager", EntryStageMultiBgaManager);
+extern char D_007063C0[];
+extern int stage_CheckAnimationFrameIn(void *a0);
+extern void _ApplyCurrentMatrix(void *a0, void *a1, void *a2);
+
+void EntryStageMultiBgaManager(void) {
+    int i;
+    for (i = 0; i <= 0x1D; i++) {
+        if (D_00706D00[i] != 0) {
+            if (stage_CheckAnimationFrameIn(&D_00706D00[i]) != 0) {
+                D_00706D00[i] = 0;
+            } else {
+                char *x = D_00706D00[i] + 0x20;
+                _ApplyCurrentMatrix(x, x, &D_007063C0[i * 0x50]);
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/stageMultiBgaManager", EntryStageMultiBgaManagerSensitive);
 

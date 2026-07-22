@@ -13,7 +13,28 @@ int setDispEnv(void *a0) {
     return 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", setImageSize);
+extern float D_00629B68;
+extern int D_0062BE54;
+extern int D_00629C60;
+extern float D_0062BE50;
+extern float DispWireLetter(void *a0);
+
+int setImageSize(void *a0) {
+    float *p = *(float **)((char *)a0 + 0x34);
+    float f;
+    p[0] = D_00629B68;
+    p[2] = -3296.0f;
+    if (D_0062BE54 == D_00629C60) {
+        f = D_0062BE50;
+    } else {
+        D_0062BE54 = D_00629C60;
+        f = DispWireLetter(UpdateRootPosition());
+        f = f * 0.5f + 0.5f;
+        D_0062BE50 = f;
+    }
+    *(float *)((char *)a0 + 0x18) = f;
+    return 1;
+}
 
 extern float D_00629B6C, D_00629B70, D_00629B74;
 
@@ -28,7 +49,26 @@ int sendDispEnv(void *a0) {
     return 1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", dispCreate);
+extern float D_00629B78, D_00629B7C;
+
+int dispCreate(void *a0) {
+    float *p = *(float **)((char *)a0 + 0x34);
+    float f;
+    float a = D_00629B78, b = D_00629B7C;
+    p[0] = a;
+    p[1] = b;
+    p[2] = -398.0f;
+    if (D_0062BE54 == D_00629C60) {
+        f = D_0062BE50;
+    } else {
+        D_0062BE54 = D_00629C60;
+        f = DispWireLetter(UpdateRootPosition());
+        f = f * 0.5f + 0.5f;
+        D_0062BE50 = f;
+    }
+    *(float *)((char *)a0 + 0x18) = f;
+    return 1;
+}
 
 extern int D_0062BE54;
 extern int D_00629C60;
@@ -49,7 +89,21 @@ int dispSetTags(void *a0) {
     return -1;
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", dispSwitch);
+int dispSwitch(void *a0) {
+    float f;
+    if (D_0062BE54 == D_00629C60) {
+        f = D_0062BE50;
+    } else {
+        float e;
+        D_0062BE54 = D_00629C60;
+        e = DispWireLetter(UpdateRootPosition());
+        e = e * 0.5f + 0.5f;
+        D_0062BE50 = e;
+        f = e;
+    }
+    *(float *)((char *)a0 + 0x18) = 1.0f - f * 0.5f;
+    return -1;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", vblankHandler);
 
@@ -187,7 +241,29 @@ void setTEX1_1(void) {
     func_00201470();
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/ito/mpeg/mv_disp", setTEX0_1);
+struct RecA_tex { char pad[0x34]; int x34; char pad2[0x4C - 0x38]; };
+struct RecB_tex { int x0; char pad[0x8]; int xC; int x10; };
+extern struct RecA_tex D_002A0A90[];
+extern struct RecB_tex D_0029B128[];
+
+void setTEX0_1(int a0) {
+    int e;
+    struct RecB_tex *p;
+    if (a0 < 0) return;
+    e = D_002A0A90[a0].x34;
+    if (e != 0) {
+        p = &D_0029B128[e];
+    } else {
+        p = 0;
+    }
+    if (p == 0) return;
+    if ((p->x10 & 1) == 1u) {
+        p->xC = 0x32E;
+    }
+    if (p->xC == 0x32E) {
+        p->xC = p->x0;
+    }
+}
 
 extern void *isysGObjRemoveObjDL(void);
 extern void iosOmBeforeFuncStandard(void *a0, int a1, void *a2);

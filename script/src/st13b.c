@@ -18,7 +18,24 @@ void actSt13bSekizoChk(volatile int a0){ int x=a0;
  while(func_00178DB0(0x76)==0){ _ACTWait(1); }
  _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); Generator_MaskOff(a0); }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st13b", actSt13bSekizo2Chk);
+typedef struct ActB4Obj_st13b { char pad[0xB0]; int *unkB0; int *unkB4; } ActB4Obj_st13b;
+extern int actInitialize(int a0);
+extern void _ACTWait(int a0);
+extern int func_00178DB0(int a0);
+extern void BoxBarSoundOn(int a0, int a1);
+extern int D_004CD620[];
+extern void actSt13bConte02Jimaku(volatile int a0);
+void actSt13bSekizo2Chk(volatile int a0){
+ int x=a0;
+ ActB4Obj_st13b *gobj=(ActB4Obj_st13b*)actInitialize(a0);
+ _ACTWait(1);
+ if(func_00178DB0(0x78)==0){
+  D_004CD620[1]=(int)actSt13bConte02Jimaku;
+  gobj->unkB4=D_004CD620;
+  BoxBarSoundOn((int)a0,0x189);
+  _ACTWait(0);
+ }
+}
 
 void actSt13bMeetAgain(volatile int a0){ int x=a0;
  actInitialize(a0); _ACTWait(1); Generator_Mask(a0);

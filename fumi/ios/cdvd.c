@@ -1,6 +1,34 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", iosCdvdMgrSearchFile);
+typedef struct CdvdRec {
+    char pad0[0x78];
+    long long x78;
+    char pad80[0x290 - 0x80];
+    int x290;
+    int x294;
+    char pad298[0x2A8 - 0x298];
+    int x2A8;
+    char pad2AC[0x2E8 - 0x2AC];
+} CdvdRec;
+extern int D_0062BF68;
+extern CdvdRec D_0067AE50[];
+extern int D_002714A0[];
+
+int iosCdvdMgrSearchFile(void) {
+    int count = D_0062BF68;
+    int i;
+    for (i = 0; i < count; i++) {
+        CdvdRec *b = &D_0067AE50[i];
+        int f5 = D_002714A0[57];
+        int f8 = 1;
+        if (b->x2A8 != 0) {
+            f8 = b->x290;
+            f5 = b->x294;
+        }
+        b->x78 = (b->x78 & ~0xE0) | (f8 << 5) | (f5 << 6);
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/ios/cdvd", iosCdvdMgrStStop);
 

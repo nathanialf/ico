@@ -1,6 +1,24 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_sys", _FUNC_GetWay_begin);
+extern int D_00271240[];
+extern int D_0062A7F0;
+extern int D_00286810[];
+extern void iosMsgSend(void *a0, void *a1, int a2);
+
+void _FUNC_GetWay_begin(int a0) {
+    int *w = (int *)(a0 + 0xC);
+    if (D_00271240[10] == 0) return;
+    {
+        int v = w[14];
+        if (v == -1) {
+            D_0062A7F0 = ((0x3C - D_00271240[0] * 0xA) / D_00271240[1]) << 2;
+        } else {
+            D_0062A7F0 = v;
+        }
+    }
+    *(int *)a0 = 2;
+    iosMsgSend(D_00286810, (void *)a0, 0);
+}
 
 extern void func_00174650(int a0);
 extern int D_00271268[];

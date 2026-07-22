@@ -140,7 +140,24 @@ int way_toolDL(void) {
 }
 
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_tool", debug_WayTool);
+extern int iosPadStickCameraCoord(void *a0, int a1, int a2, int a3);
+extern void iosPadNormalizeStick(void *a0);
+extern void ACTDebugMove(int a0, int a1);
+extern char D_0027D340[];
+extern int D_00629E00;
+
+void debug_WayTool(volatile int a0) {
+    int s1 = *(int *)(a0 + 0x164);
+    void *s0 = (void *)(s1 + 0x2C8);
+    iosPadStickCameraCoord(s0, 0, 0, D_0027D340);
+    for (;;) {
+        iosPadNormalizeStick(s0);
+        if (a0 == D_00629E00 && (*(int *)(s1 + 0x2D4) & 1)) {
+            ACTDebugMove(a0, 1);
+        }
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/way_tool", func_00204650);
 

@@ -13,7 +13,7 @@ typedef struct {
 typedef struct { float m[4]; } Vec4;
 typedef struct { float m[16]; } Mtx44;
 
-extern void SetAP1DeadStatus(int a0, int a1);
+extern int SetAP1DeadStatus(int a0, int a1);
 
 extern GObj *D_00629DE4;
 extern void GetRootMatrixByDObj(void *out, GObj *g);
@@ -139,7 +139,25 @@ void func_001B8428(int *a0)
     SetAP1DeadStatus((int)a0, 7);
 }
 
-INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", func_001B8470);
+extern char D_00610EC8[];
+
+void func_001B8470(int *a0)
+{
+    typedef union { int i; long long ll; } U;
+    int s = ((U *)((char *)a0 + 0x164))->i;
+    if (*(int *)(s + 0x30) == 4) {
+        debug_assertMessage(D_00610EC8);
+        return;
+    }
+    *(int *)(s + 0x30) = 2;
+    SetAP1DeadStatus((int)a0, 2);
+    ((U *)(s + 0x18))->ll |= (1LL << 32);
+    {
+        int s2 = ((U *)((char *)a0 + 0x164))->i;
+        *(int *)(s2 + 0x1A0) = 0;
+        *(char *)(s2 + 0x1CA) = 0;
+    }
+}
 
 INCLUDE_ASM("asm/aug6/nonmatchings/sugipon/src/actressLight", func_001B84F8);
 
