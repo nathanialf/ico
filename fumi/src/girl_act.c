@@ -480,32 +480,34 @@ void actGirlAttractAction(void *a0) {
 
 INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", NotNeedBackHand);
 
-/* NEAR-MISS (rc8, W3 convergence). LOGIC + STRUCTURE recovered; residual is
- * cmov-vs-branch if-conversion of the flag set. Dev shape (forever SoundOn loop):
- *   void func_00172FC8(void *volatile a0) {              // a0 volatile -> sw/lw spill
- *       for (;;) {
- *           unsigned int state = *(unsigned int *)(*(int *)((char *)D_00629DE4 + 0x164) + 0x30);
- *           char flag = 0;
- *           if (state < 0x68) { if (state >= 0x65) flag = 1; }   // NESTED if defeats
- *           if (!flag) BoxBarSoundOn(a0, 0x160);                 //   the range fold
- *           _ACTWait(1);
- *       }
- *   }
- * Matched: frame+a0 spill, gp_rel D_00629DE4->f_164->f_30 reload each iter, the
- * TWO separate `sltiu state,101` + `sltiu state,104` (nested if avoids gcc folding
- * [0x65,0x68) into the compact `(state-101)<3` idiom), b .L back-edge with
- * D_00629DE4 reload in the delay, _ACTWait(1). Residual (rc8): ROM builds the
- * flag with a BRANCH — `beql v1,zero; addiu a2,1` (a2=1 in the beql delay) + `andi
- * a2,0xff; bne` — and re-materializes the constant 1 with an immediate (frame
- * 0x20). gcc-2.9 instead IF-CONVERTS the `if(state>=0x65) flag=1` to `movn
- * a2,zero,v1` (cmov) and HOISTS the constant 1 into s0 (frame 0x30, extra sd s0).
- * ~8 forms (int/char flag, goto-done, goto-chain, 3-way if/else, flag=1-default,
- * do-while) all if-convert to movn; none emit beql. NEXT LEVER: defeat gcc ifcvt
- * so `if(state>=0x65)flag=1` stays a branch (the beql delay-slot flag build) — the
- * dev shape that keeps the flag out of a cmov. NOT a floor. */
+/* MATCHED (W-convergence). Forever BoxBarSoundOn-when-not-in-range loop.
+ * Two levers cracked the ex-rc8 cmov-vs-branch residual:
+ *  1. goto-to-END for the `flag=1` arm (label `s:` placed after `continue`)
+ *     keeps the inner test a real conditional BRANCH: jump.c's cond-move
+ *     if-conversion (HAVE_conditional_move block) only fires when the store is
+ *     the lone insn immediately before the join label, so exiling it defeats
+ *     the `movn a2,zero,v1` fold. reorg then annuls it into the `beql v1,zero;
+ *     addiu a2,1` branch-likely (a2=1 in the taken delay).
+ *  2. `int flag` + explicit `flag & 0xff` reproduces ROM's `andi a2,0xff`: a
+ *     `char flag` gets PROMOTE_MODE'd to SImode and gcc proves it in {0,1},
+ *     dropping the zero-extend; the int+mask keeps the byte test. */
 extern unsigned int _ACTWait(int a0);
 
-INCLUDE_ASM("asm/aug6/nonmatchings/fumi/src/girl_act", func_00172FC8);
+void func_00172FC8(void *volatile a0) {
+    int flag;
+    for (;;) {
+        unsigned int state = *(unsigned int *)(*(int *)((char *)D_00629DE4 + 0x164) + 0x30);
+        flag = 0;
+        if (state < 0x68) { if (state >= 0x65) goto s; }
+    g:
+        if (!(flag & 0xff)) BoxBarSoundOn(a0, 0x160);
+        _ACTWait(1);
+        continue;
+    s:
+        flag = 1;
+        goto g;
+    }
+}
 
 void func_00173028(void *volatile a0) {
     for (;;) {
