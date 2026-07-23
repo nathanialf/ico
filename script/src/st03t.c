@@ -282,34 +282,31 @@ void actSt03tGirlCamStartChk(volatile int a0) {
 
 extern void lt_fade_status(int a0);
 extern void BoxBarSoundOn(int a0, int a1);
-extern int D_004CBCC0[];
+extern void *D_004CBCC0[];
 extern void actSt03tGirlCamEndChk(volatile int a0);
 
-/* NEAR-MISS (rc7, W3 fan-3 convergence). STRUCTURE FULLY RECOVERED. Dev shape:
- *   void func_0020FD50(volatile int a0) {
- *       int gobj = *(int *)(a0 + 0x164);
- *       *(int *)(gobj + 0xB0) = 0;              // in lt_fade_status delay
- *       lt_fade_status(0x33);
- *       *(int *)(gobj + 0xB4) = (int)D_004CBCC0;
- *       D_0062A894 = 1;
- *       D_004CBCC0[1] = (int)actSt03tGirlCamEndChk;   // in BoxBarSoundOn delay (ROM)
- *       BoxBarSoundOn(a0, 0x189);
- *       _ACTWait(0);
- *   }
- * Matched: frame, volatile-a0 spill+2 reloads, gobj=a0->0x164, 0xB0=0 in the
- * lt_fade delay (0xB0 store placed BEFORE lt_fade in source so reorg pulls it
- * into the delay), 0xB4=&D, A894=1, BoxBar, _ACTWait(0). Residual (rc7, ~4 real
- * after 3 in-TU jal-symbol false-negs): (a) v0/v1 COLORING SWAP - ROM materializes
- * &D into v0 (first lui), &chk into v1; gcc gives &chk v0, &D v1. (b) a0 RELOAD
- * TIMING - ROM reloads a0 (BoxBar arg) EARLY (sched2 hoists it into the lui/addiu
- * load-latency bubble) so the D[1] store lands in BoxBar's delay; gcc reloads a0
- * LATE (right before BoxBar) -> D[1] store done early + BoxBar delay = nop. Tried:
- * store orders (B4/A894/D[1], A894/B4/D[1], D[1] first, B4/D[1]/A894), (int)a0
- * cast, int x=a0, pD-shared, typed-struct members, cached-bx-early - all rc7-19.
- * TWIN: func_0022BEA8 (st18a.c) is byte-identical structure. NEXT LEVER: force the
- * a0 reload early (fills BoxBar delay w/ D[1] store) + &D->v0 coloring. NOT a floor. */
-void func_0020FD50(volatile int a0);
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st03t", func_0020FD50);
+/* MATCHED (W-fan1 convergence, rc7->rc5->rc0). DATA-MODEL crack: D_004CBCC0 is a table of
+ * CALLBACK POINTERS (void *[]) and gobj->unkB4 is a void** into it -- NOT int[]/int*. Under
+ * strict aliasing the pointer-typed D store [D_004CBCC0[1]=(void*)handler] and the pointer-
+ * typed unkB4 store [gobj->unkB4=D_004CBCC0] alias-couple: gcc adds the unkB4->D memory dep,
+ * so (1) the D store sinks into the BoxBarSoundOn delay slot AND (2) the unkB4 store inherits
+ * D's longer path-to-end, out-prioritising the INDEPENDENT `int` D_0062A894 store -- which
+ * therefore schedules SECOND, with its `li 1` const materialised late (after chk), exactly
+ * like ROM. The prior rc5 residual (A894<->unkB4 swap + hoisted const) was NOT a scheduling
+ * floor; it was UNDER-TYPED data (3 `int` stores make A894 -- not unkB4 -- alias D). Coloring
+ * $2=&D/$3=chk is preserved because unkB4 is a pointer store of &D. This ports to the whole
+ * BoxBar-tail family (SwitchLChk/GirlCam/Sekizo/Way/TorchXL/ObjAction_Mail/func_0022BEA8):
+ * type the box descriptor as void*[] and the GObj callback field as void**. */
+void func_0020FD50(volatile int a0) {
+    struct { char pad[0xB4]; void **unkB4; } *gobj = *(void **)(a0 + 0x164);
+    *(int *)((char *)gobj + 0xB0) = 0;
+    lt_fade_status(0x33);
+    D_0062A894 = 1;
+    D_004CBCC0[1] = (void *)actSt03tGirlCamEndChk;
+    gobj->unkB4 = D_004CBCC0;
+    BoxBarSoundOn(a0, 0x189);
+    _ACTWait(0);
+}
 
 #include "common.h"
 extern void scpDispOnAllWithKind(void);
