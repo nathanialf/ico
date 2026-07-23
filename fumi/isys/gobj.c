@@ -1,4 +1,8 @@
 #include "common.h"
+/* isys/gobj .rodata — __FILE__ + GObj alloc assert strings, VMA 0x551DE0..0x551E28 */
+const char D_00551DE0[0x10] = "isys/gobj.c";
+const char D_00551DF0[0x10] = "isys:null GObj\n";
+const char D_00551E00[0x28] = "isys:not enough memory for GObj\n";
 
 extern char D_0027DDF0[];
 extern char D_0027DE10[];
@@ -22,7 +26,6 @@ void isysGObjKindTableInit(unsigned int n)
 }
 
 
-extern char D_00551DF0[];
 extern void debug_assertMessage();
 
 void isysGObjInit(int a0)
@@ -50,7 +53,6 @@ tables:
 
 
 extern void *D_006A2F50[];
-extern char D_00551DE0[];
 extern char D_0062C348[];
 extern struct GObj *D_0062BFA8;
 extern unsigned int D_0062BFAC;
@@ -252,8 +254,6 @@ struct GObj {
 extern struct GObj *D_0062BFA8;
 extern unsigned int D_0062BFAC;
 extern char D_0027DE10[];
-extern char D_00551DF0[];
-extern char D_00551E00[];
 extern void debug_assertMessage();
 
 void *isysGObjMoveHead(int a0, struct GObj *o)
@@ -383,7 +383,6 @@ int isysGObjAddBeforeGObj(void)
 
 /* m2c scaffold from asm/aug6/nonmatchings/fumi/isys/gobj/isysGetNbAllocedGObjs.s (target mipsel-gcc-c, context-free).
  * NOT a match — reshape into a goto-CFG-mirror + recover intent (see decomp-match skill). */
-extern char D_00551DE0[];
 extern void *D_0062A308;
 extern void *iosFree(void *pool, int size, char *file, int line);
 
@@ -412,7 +411,6 @@ void isysGetNbAllocedGObjs(unsigned int n) {
 extern void *D_006A2F50[];
 extern void func_001AAD00(char *a0, int a1);
 extern void func_00260380(char *a0, int a1, char *a2);
-extern char D_00551DE0[];
 extern char D_0062C348[];
 extern void isysGObjInit(int a0);
 extern void isysGObjProcAddS(int a0);
@@ -491,7 +489,6 @@ void isysGObjRemove(char *a0, int a1)
 extern void *D_006A2F50[];
 extern void func_001AAD00(char *a0, int a1);
 extern void func_00260380(char *a0, int a1, char *a2);
-extern char D_00551DE0[];
 extern char D_0062C348[];
 
 void isysGObjKindTableAdd(char *a0) {
