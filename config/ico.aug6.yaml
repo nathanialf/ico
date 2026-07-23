@@ -69,7 +69,7 @@ options:
 
   section_order:
     - .text
-    # - .vutext (textbin — VU code, not auto-disassembled)
+    # - .vutext (hasm — hand-typed VU1 microprograms, seki/src/*.S via assemble_vu0.py)
     - .data
     - .rodata
     - .lit4
@@ -315,7 +315,11 @@ segments:
       - [0x13B4D0, c, ito/mpeg/mv_vibuf]
       - [0x13BBB0, c, common/src/GobjProc]
       - [0x13D080, c, common/src/PObj]
-      - [0x16B970, textbin, src/cod/16B970]  # .vutext (VU microcode)
+      - [0x16B970, hasm, seki/src/cluster]    # .vutext VU1 ClusterMicroProgram (cluster.o), hand-typed .S
+      - [0x16C730, hasm, seki/src/mesh]       # .vutext VU1 MeshMicroProgram (mesh.o)
+      - [0x16D120, hasm, seki/src/normal_c]   # .vutext VU1 NormalCMicroProgram (normal_c.o)
+      - [0x16E800, hasm, seki/src/normal_l]   # .vutext VU1 NormalLMicroProgram (normal_l.o)
+      - [0x1704A0, hasm, seki/src/particle]   # .vutext VU1 ParticleMicroProgram (particle.o)
       - [0x170A50, textbin, src/cod/170A50]  # .reginfo + pad
       - [0x170A80, data, src/cod/170A80]     # .data
       - [0x172540, .data, seki/src/MicroCode]  # carved D_00272540 (identity 4x4 matrix scratch, VMA 0x272540, 0x40)

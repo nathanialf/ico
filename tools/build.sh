@@ -67,13 +67,15 @@ setup() {
     rm -rf build .ninja_log .ninja_deps
     echo "==> verifying base ROM SHA-1"
     "${VENV_PY}" tools/verify_elf.py --target "${BASEROM}"
-    echo "==> assembling hand-written VU0 .S sources"
-    for vs in src/cod/*.S; do
+    echo "==> assembling hand-written VU1 microprogram .S sources (seki/src)"
+    for vs in seki/src/*.S; do
         [ -f "$vs" ] || continue
         out="${vs%.S}.s"
         stem=$(basename "${vs%.S}")
-        "${VENV_PY}" tools/assemble_vu0.py "$vs" \
-            --label "__src_cod_${stem}_textbin" --out "$out"
+        # VU microprogram global symbol: TitleCase(stem, split on '_') + MicroProgram
+        # e.g. cluster→ClusterMicroProgram, normal_c→NormalCMicroProgram
+        sym=$("${VENV_PY}" -c "import sys;print(''.join(w.title() for w in sys.argv[1].split('_'))+'MicroProgram')" "$stem")
+        "${VENV_PY}" tools/assemble_vu0.py "$vs" --label "$sym" --out "$out"
     done
     split
     regen_ninja

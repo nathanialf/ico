@@ -85,11 +85,15 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# --- VU0 hand-typed assembly intermediate ---
-# `src/cod/<stem>.S` is tracked; `tools/assemble_vu0.py` regenerates
-# `src/cod/<stem>.s` from it before each splat (via build.sh setup).
+# --- VU1 microprogram hand-typed assembly intermediate ---
+# `seki/src/<prog>.S` is tracked; `tools/assemble_vu0.py` regenerates
+# `seki/src/<prog>.s` from it before each splat (via build.sh setup).
 # The .s is a build artifact, not source — keep it out of git.
-src/cod/16F5E0.s
+seki/src/cluster.s
+seki/src/mesh.s
+seki/src/normal_c.s
+seki/src/normal_l.s
+seki/src/particle.s
 
 # --- Local config overrides ---
 .env
