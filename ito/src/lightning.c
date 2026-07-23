@@ -14,24 +14,22 @@ void set_vertex(void *a0, void *a1, void *a2) {
         ".set reorder\n" : : : "memory");
 }
 
-typedef struct {
+typedef union {
+    float f[16];
     unsigned long long w[8];
 } StructA;
-typedef struct {
+typedef union {
+    unsigned int c[4];
     unsigned long long w[2];
 } StructB;
 /* lightning effect data (.rodata, VMA 0x556390..0x5563E0) */
-const StructB D_00556390 = {
-    {0x000000FF00000080ULL, 0x00000080000000FFULL}, /* color bytes 80 FF FF 80 */
-};
-const StructA D_005563A0 = {
-    {
-        0x443B800000000000ULL, 0x3F80000000000000ULL, /* vert0 {0, 750, 0, 1} */
-        0x43FA000000000000ULL, 0x3F800000C3480000ULL, /* vert1 {0, 500, -200, 1} */
-        0x437A000000000000ULL, 0x3F80000043480000ULL, /* vert2 {0, 250, 200, 1} */
-        0x0000000000000000ULL, 0x3F80000000000000ULL, /* vert3 {0, 0, 0, 1} */
-    },
-};
+const StructB D_00556390 = {{ 0x80, 0xFF, 0xFF, 0x80 }};  /* RGBA channels */
+const StructA D_005563A0 = {{
+    0.0f, 750.0f,    0.0f, 1.0f,  /* vert0 */
+    0.0f, 500.0f, -200.0f, 1.0f,  /* vert1 */
+    0.0f, 250.0f,  200.0f, 1.0f,  /* vert2 */
+    0.0f,   0.0f,    0.0f, 1.0f,  /* vert3 */
+}};
 
 extern void func_001962C0(int n, void *a, void *b, float f0, float f1,
                           float f2, float f3, float f4, float f5, float f6,
