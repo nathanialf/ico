@@ -1,4 +1,5 @@
 #include "common.h"
+const char D_00555048[0x18] = "src/fightSound.c";
 
 extern int D_006CA600[];
 extern void soundSeVolSet(int a0);
