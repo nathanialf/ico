@@ -3,9 +3,9 @@
 const char D_00551DE0[0x10] = "isys/gobj.c";
 const char D_00551DF0[0x10] = "isys:null GObj\n";
 const char D_00551E00[0x28] = "isys:not enough memory for GObj\n";
+char D_0027DE10[0x20] = {0};  /* active-GObj pointer table (.data), VMA 0x27DE10 */
 
 extern char D_0027DDF0[];
-extern char D_0027DE10[];
 extern unsigned int D_0062A4CC;
 extern unsigned int D_0062A4D0;
 extern void isysGetNbAllocedGObjs(unsigned int n);
@@ -253,7 +253,6 @@ struct GObj {
 
 extern struct GObj *D_0062BFA8;
 extern unsigned int D_0062BFAC;
-extern char D_0027DE10[];
 extern void debug_assertMessage();
 
 void *isysGObjMoveHead(int a0, struct GObj *o)
@@ -514,7 +513,6 @@ void isysGObjKindTableAdd(char *a0) {
 }
 
 
-extern char D_0027DE10[];
 
 void isysGObjKindTableRemove(int self, int other)
 {
