@@ -9882,11 +9882,29 @@ void func_0026B8F0(int a0, int a1) {
     func_0026B7C8(a0 & 0xFFFFFFC0, a1 & 0xFFFFFFC0);
 }
 
-/* NEAR-MISS (rc14). ll f(long a0){int r=F4A0(a0,0); if(r<0)return -D748(EF10(0,a0));
- * return D748(a0);} D748 ret long long -> dnegu MATCHES; F4A0/EF10 retyped int/ll.
- * Residual: ROM parks const 0 in s1 (F4A0 a1=0 + EF10 a0=0 in bgez delay, frame 0x30);
- * gcc remats 0 from $zero, frame 0x20. dbr delay-fill tie. NOT a floor. */
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/PObj", func_0026B908);
+extern long long func_0025D748(long a0);
+
+/* Odd-symmetric wrapper over the software-float transform D748: for a<0 it
+ * folds the sign out (compare a:0 via F4A0, negate via EF10(0,a)) and negates
+ * the result, else applies D748 directly.  ROM parks the "zero" operand in a
+ * callee-saved reg across the F4A0 call (frame 0x30), which ee-gcc only does
+ * when it cannot fold the value to $zero: the zero number is built from its
+ * two 32-bit halves through a union, so cprop keeps the pseudo live yet still
+ * materialises it as `daddu s1,$0,$0`. */
+long long func_0026B908(long a0) {
+    union { struct { int lo, hi; } w; long l; } z;
+    long zero;
+    z.w.lo = 0;
+    z.w.hi = 0;
+    zero = z.l;
+    if (func_0025F4A0(a0, zero) < 0)
+        return -func_0025D748(func_0025EF10(zero, a0));
+    return func_0025D748(a0);
+}
+/* 16-byte carve-boundary parity: the VU microcode textbin at 0x26B970 is split
+ * into a separate object that ld concatenates directly after this .text, so the
+ * TU's code must end 16-aligned exactly as the original TU's assembly did. */
+__asm__(".align 4");
 
 
 /* recovered struct shapes */
