@@ -72,32 +72,32 @@ void actSt18aSwitchRChk(volatile int a0) {
     }
 }
 
-/* NEAR-MISS (rc7). BoxBar/lt_fade wrapper, byte-identical TWIN of func_0020FD50
- * (st03t.c — see its full analysis). Recovered dev shape (rc7):
- *   void func_0022BEA8(volatile int a0) {
- *       int gobj = *(int *)(a0 + 0x164);
- *       *(int *)(gobj + 0xB0) = 0;                 // in lt_fade delay
- *       lt_fade_status(0x33);
- *       *(int *)(gobj + 0xB4) = (int)D_004CDDF0;
- *       D_0062A894 = 1;
- *       D_004CDDF0[1] = (int)func_0022B5F0;        // in BoxBar delay (ROM)
- *       BoxBarSoundOn((int)a0, 0x189); _ACTWait(0);
- *   }
- * Two coupled residuals (both twins): (a) v0/v1 COLORING SWAP — ROM &D_004CDDF0=v0
- * (D[1] store BASE), &func_0022B5F0=v1 (value); gcc gives them v1/v0. (b) a0 RELOAD
- * TIMING — ROM reloads the volatile a0 (BoxBar arg) EARLY into the addiu load-latency
- * bubble so D[1]=&chk lands in BoxBar's delay; gcc reloads LATE (BoxBar delay=nop).
- * The simpler siblings (actSt18aEnd, D[1]-first + no A894/lt_fade) DO match this
- * exact pattern — but here the gp_rel D_0062A894 store between blocks sched2 from
- * hoisting the a0 reload. Tried (fan-3): store reorders (unkB4-first rc7, D[1]-first
- * rc13), typed-member gobj->unkB4 (rc10). NEXT: force the volatile a0 reload to hoist
- * past the gp_rel store so D[1] fills the BoxBar delay -> coloring follows. NOT a floor. */
+/* MATCHED (fan-1 convergence, rc7->rc0). DATA-MODEL crack ported from twin func_0020FD50
+ * (st03t.c). The box descriptor D_004CDDF0 is a table of CALLBACK POINTERS (void *[]) and
+ * gobj->unkB4 is a void** into it — NOT int[]/int*. Under -fno-strict-aliasing the pointer
+ * store D_004CDDF0[1]=(void*)func_0022B5F0 and the pointer store gobj->unkB4=D_004CDDF0
+ * alias-couple: gcc adds the unkB4->D memory dep, so (1) the D[1] store sinks into the
+ * BoxBarSoundOn delay slot AND (2) the unkB4 store inherits D's longer path-to-end, out-
+ * prioritising the INDEPENDENT `int` D_0062A894=1 store — which therefore schedules SECOND
+ * with its `li 1` const materialised late, exactly like ROM. Coloring $2=&D / $3=chk falls
+ * out because unkB4 is a pointer store of &D. The prior rc7 residual (v0/v1 swap + a0 reload
+ * timing) was NOT a scheduling floor; it was UNDER-TYPED data (3 int stores make A894, not
+ * unkB4, alias D). */
 extern void lt_fade_status(int a0);
-extern int D_004CDDF0[];
+extern void *D_004CDDF0[];
 extern void func_0022B5F0(volatile int a0);
 extern int D_0062A894;
 
-INCLUDE_ASM("asm/aug6/nonmatchings/script/src/st18a", func_0022BEA8);
+void func_0022BEA8(volatile int a0) {
+    struct { char pad[0xB4]; void **unkB4; } *gobj = *(void **)(a0 + 0x164);
+    *(int *)((char *)gobj + 0xB0) = 0;
+    lt_fade_status(0x33);
+    D_0062A894 = 1;
+    D_004CDDF0[1] = (void *)func_0022B5F0;
+    gobj->unkB4 = D_004CDDF0;
+    BoxBarSoundOn(a0, 0x189);
+    _ACTWait(0);
+}
 
 #include "common.h"
 extern void _ACTWait(int a0);
