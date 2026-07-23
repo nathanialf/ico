@@ -372,6 +372,8 @@ segments:
       - [0x513780, rodata,  src/cod/513780]      # .rodata blob, part 2b (resume after DmaPacket __FILE__)
       - [0x513790, .rodata, fumi/isys/gobj_cam_dl]  # carved camera-DL assert strings D_00613790..D_00613808 (VMA 0x613790)
       - [0x513820, rodata,  src/cod/513820]      # .rodata blob, part 2c (resume after gobj_cam_dl strings)
+      - [0x5143A0, .rodata, script/src/e3]       # carved cage-fall waypoint + 10x WpData16 path table + GateS, VMA 0x6143A0..0x614450
+      - [0x514450, rodata,  src/cod/514450]      # .rodata blob resume after e3 waypoint/gate table
       - [0x52AA80, lit4, src/cod/52AA80]     # .lit4
       - [0x52BA80, sdata, src/cod/52BA80]    # .sdata
       - [0x52C960, .sdata, ito/mpeg/mv_main]  # carved "= %d =\n" (switchThread debug fmt)

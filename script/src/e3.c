@@ -118,8 +118,21 @@ extern void func_00240008(void *a0, void *a1, void *a2);
 extern void func_001790E8(int a0);
 extern void lt_fade_status(int a0);
 extern int D_0062B320;
-typedef struct { long long _0; long long _8; } WpData16;
-extern WpData16 D_006143A0;
+typedef union { float f[4]; struct { long long _0, _8; } q; } WpData16;
+typedef WpData16 GateS;
+/* e3 .rodata — cage-fall waypoint + demo path table (10 world positions) +
+ * gate position, VMA 0x6143A0..0x614450 (float x,y,z,w; y = ground height) */
+const WpData16 D_006143A0 = {{ -1000.0f,    0.0f, -2200.0f, 1.0f }};
+const WpData16 D_006143B0 = {{   -88.0f,  -50.0f,    -1.0f, 1.0f }};
+const WpData16 D_006143C0 = {{   -96.0f,  -45.0f,    34.0f, 1.0f }};
+const WpData16 D_006143D0 = {{    72.0f,  -50.0f,     8.0f, 1.0f }};
+const WpData16 D_006143E0 = {{    80.0f,  -50.0f,     2.0f, 1.0f }};
+const WpData16 D_006143F0 = {{   -27.0f,  -50.0f,   100.0f, 1.0f }};
+const WpData16 D_00614400 = {{   -56.0f,  -50.0f,    66.0f, 1.0f }};
+const WpData16 D_00614410 = {{    -5.0f,  -50.0f,    42.0f, 1.0f }};
+const WpData16 D_00614420 = {{   -10.0f,    0.0f,   466.0f, 1.0f }};
+const WpData16 D_00614430 = {{   -25.0f,    0.0f,   450.0f, 1.0f }};
+const GateS D_00614440 = {{ -1410.0f, -100.0f, 1950.0f, 0.0f }};
 void actE3CageFall(volatile int a0){
     WpData16 local10, local20;
     gflagOff(D_00629DE4, 0x12D);
@@ -238,8 +251,6 @@ void actE3St09aSekizoChk(volatile int a0) {
 }
 
 #include "common.h"
-struct GateS { long long a, b; };
-extern struct GateS D_00614440;
 extern int actSt25aQueenTalkChk(int a0, int a1, void *a2, int a3, float f);
 extern void func_00260568(void *a0, int a1, int a2);
 extern void actSwordEffXL(int a0, int a1, void *a2, int a3);
@@ -248,7 +259,7 @@ extern void saveEditedDataBinary(void);
 extern int D_00629DE8;
 extern int D_0062A894;
 void actE3GateChk(volatile int a0) {
-    struct GateS buf1 = D_00614440;
+    GateS buf1 = D_00614440;
     int buf2[4];
     actSt25aQueenTalkChk(D_00629DE8, 0, &buf1, 0, 100.0f);
     func_00260568(buf2, 0, 0x10);
