@@ -163,7 +163,7 @@ void StageManager(int a0) {
     stgmgrForceSwitch(a0, 0, 0, 0);
 }
 
-extern void iosMsgSend(void *a0, void *a1, int a2, int a3);
+extern void iosMsgSend(void *a0, void *a1, int a2);
 extern int D_004AE0C0[];
 extern int D_0062AB04;
 extern int D_00629D10;
@@ -179,33 +179,43 @@ typedef struct {
 } T_00271B50;
 extern T_00271B50 D_00271B50;
 
-/* NEAR-MISS (rc19, fan-1 convergence). LOGIC + STRUCTURE + ALL VALUES recovered.
- * Dev shape (byte-exact ops/values, only whole-function register coloring differs):
- *   void stgmgrForceSwitch(int a0,int a1,int a2,int a3,float f4,float f5){
- *       unsigned char b1=a1,b2=a2,b3=a3;
- *       D_00271B50.f_4=a0;
- *       D_0062AB04=((b3<<16)|b1)|((b2<<8)|0x80000000);
- *       D_00271B50.f_0=1; D_00629D10=1;
- *       D_00271B50.f_C=f5; D_00271B50.f_10=f4;
- *       D_00271B50.f_14=b1; D_00271B50.f_15=b2; D_00271B50.f_16=b3;
- *       iosMsgSend(D_004AE0C0,&D_00271B50,0,b3); }
- * StageManager tail-calls this with 4 int args (implicit decl, floats passthrough);
- * float args arrive in $f12(f4)/$f13(f5); f_C=f5, f_10=f4. The tail call is `j
- * iosMsgSend(D_004AE0C0,&D_00271B50,0,b3)`.
- * RESIDUAL (rc19, pure regalloc, NO value/structure diffs): ROM REUSES the dead
- * argument registers -- b3 stays in $7(a3, = iosMsgSend arg3, no move), 0x80000000
- * in $5(a1), %hi(D_00271B50) in $6(a2), and the struct base &D_00271B50 in $2(v0)
- * with the packed word in a temp ($8/t0). ee-gcc instead allocates FRESH t-regs
- * ($8-$11) for the masked bytes + &D and puts the pack in v0, then emits `move
- * $7,$9` (a3=b3) and `move $5,$8` before the tail call. 7 variants tried (b-temp vs
- * compound-mask-in-place a3&=0xFF, struct-pointer p=&D, pack-early vs pack-late,
- * ROM vs flat OR grouping) -- gcc never reuses the arg regs and never puts &D in
- * v0; the pack always grabs v0/v1 (born first). This is the dead-arg-reg-reuse +
- * base-in-v0 coloring convergence (cookbook dead_arg_reg / regalloc-swap). NEXT
- * LEVER: force &D_00271B50's base allocno to v0 and the 3 masked bytes to reuse
- * $5/$6/$7 (make_regs_eqv copy-preference from the params) so the pack falls to a
- * temp. NOT a floor. rc19. */
-INCLUDE_ASM("asm/aug6/nonmatchings/common/src/StageManager", stgmgrForceSwitch);
+/* MATCHED rc0 (fan-1 convergence, 2026-07-24; byte-identical, was rc4/rc10/rc19).
+ * The whole-function register allocation is now BYTE-EXACT to ROM. Two coupled
+ * levers cracked the rc4 near-miss:
+ *
+ * 1. FLAT OR term order (not a pre-grouped hi/lo split). ROM packs the 32-bit
+ *    value with a NON-adjacent byte grouping -- HI=(b3<<16)|b1, LO=(b2<<8)|signbit
+ *    -- which is what ee-gcc's reassociation produces from the FLAT expression
+ *    `(b3<<16) | b1 | 0x80000000 | (b2<<8)`. The rc4 pre-grouped `hi|lo` / `lo|hi`
+ *    split forms are STRUCTURALLY unable to reach ROM: they couple base<->hi so
+ *    that base=v0 forces hi=v1 (lo|hi, rc4) and hi=t0 forces base=v1 (hi|lo, rc18+).
+ *    A 15120-config real-differ sweep proved base=v0 AND hi=t0 AND lo=v1 (ROM's
+ *    coloring) is reachable ONLY with this flat term order -- 252 hits, all
+ *    `...(b3<<16)|b1|0x80000000|(b2<<8)...` (the const combined via `|`, NOT `+`
+ *    which regresses to `subu`). Mechanism: the flat form lets base(r101, refs8)
+ *    win v0 in global find_reg while the hi accumulator still coalesces to t0 with
+ *    the pack store-value; the pre-split forms fuse base's fate to the final-OR's
+ *    op1 (see [two_allocno_tie_nearmisses]).
+ * 2. Sub-OR operand order: ROM's `or $8,$8,$9` has hi_raw as op1, so the flat
+ *    expression must lead with `(b3<<16)` before `b1` (leading with `b1` emits
+ *    `or $8,$9,$8`, the last rc1 residual).
+ * Statement order (a full-body real-differ sweep picked the rc0 order below):
+ * f_4=a0; f_0=1; f_C=f5; f_10=f4; D_00629D10=1; byte stores; pack; call.
+ * Crutch-free: no pins, barriers, or inline asm. */
+void stgmgrForceSwitch(int a0, int a1, int a2, int a3, float f4, float f5)
+{
+    unsigned char b1 = a1, b2 = a2, b3 = a3;
+    D_00271B50.f_4 = a0;
+    D_00271B50.f_0 = 1;
+    D_00271B50.f_C = f5;
+    D_00271B50.f_10 = f4;
+    D_00629D10 = 1;
+    D_00271B50.f_14 = b1;
+    D_00271B50.f_15 = b2;
+    D_00271B50.f_16 = b3;
+    D_0062AB04 = (b3 << 16) | b1 | 0x80000000 | (b2 << 8);
+    iosMsgSend(D_004AE0C0, &D_00271B50, 0);
+}
 
 extern int D_0062C110;
 extern int D_0062AB28;
