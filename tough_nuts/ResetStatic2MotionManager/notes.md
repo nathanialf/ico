@@ -3128,3 +3128,63 @@ change in seed context; only bites with the 0x13 head shape from ROM).
 Oracle: scratchpad oracle2.sh (trio from prologue) + oracle.sh (-dl/-dg
 dumps); parse greg 'Register dispositions:' with the FULL section (early
 sessions truncated at 6000 chars and mis-read holders).
+
+## Session 8 (2026-07-27, worktree motionmgr) — TRIO PROVEN FULLY SOLVABLE (e→s8 reachable). NOT a floor.
+
+Built a VALIDATED find_reg SIMULATOR (findreg_sim.py + oracle.sh here in this dir):
+recompile TU with `-dg -dl`, parse the `.greg` alloc order + per-allocno conflict
+lists, run find_reg (PREF=[16,17,18,19,20,21,22,23,30]; forbid own hard-reg
+conflicts <84 + already-colored conflicting allocnos' regs). Reproduces gcc's
+allocation EXACTLY (e=86,b=87,nd=88; seed: nd=s4,b=s5,e=s6). ~5s per iteration.
+oracle.sh copies TU→dump/, compiles, runs sim2.py. USE THIS as primary loop.
+
+### Trio priorities (pri = floor_log2(refs)*refs/live_length), seed costume:
+- nd(88) refs21/len396 pri .212 ; b(87) refs64/len1818 pri .211 (64=log2 boundary);
+  e(86) refs25/len537 pri .186. Order nd<b<e in seed.
+
+### THE COSTUME THAT LOCKS 2/3 (reproduced, rc669, saved rsm_conv_rc669_2of3trio.c):
+T1 (default: goto sin_tail) REORDERS b before nd. Then per-case `float *eqp;`
+(declared fn-scope, ASSIGNED `eqp=e->quat` in every case head, used only in the
+E148 head arg — e->quat is a CONSTANT addr so semantics preserved) → b→s5 ✓,
+nd→s6 ✓, e→s4 ✗. Chain after T1 alone: 282→s3, b→s4, nd→s5, e→s6 (each blocked
+by prior). eqp pieces + reorder push b→s5, nd→s6. THIS IS THE CORRECT BRANCH.
++62 tax is inherent (pays off only when e lands, then collapses).
+
+### e RESIDUAL — the gate is s4, NOT s7:
+e takes the FIRST free reg. At e's turn: s3(2289),s5(b),s6(nd) blocked; s4 AND
+s7 FREE → e→s4. Blocking s7 alone is USELESS while s4 free (confirmed: boosting
+qa-2D onto s7 left e on s4). Must block s4 first → then s7 → e→s8.
+CRITICAL: NO e-conflicting allocno lands on s4 ANYWHERE in the costume (all s4
+holders 1654/2129/1535/... are econf=n; s4 holder 1654 is in a case where e
+already died). Must CREATE an e-conflicting callee-saved allocno that cascades
+to s4 (needs its own s0-s3 pre-blocked = a 4-deep cluster while e live).
+
+### PROOF e→s8 REACHABLE (kills floor narrative):
+DIAGNOSTIC (throwaway): add `D_0062C214=(float)e->state;` at END of case 0x13
+(extends e liveness to case end so e conflicts the LATE 0x13 pointers qF0p@s4/
+v110p@s7/w that already cascade there) → b→s5,nd→s6,e→s8 ALL CORRECT. rc631
+(artificial store perturbs downstream; RIGHT REG, WRONG MECHANISM). The full
+trio CAN be simultaneously correct — this is a SOURCE-SHAPE problem, not a floor.
+
+### ROM MECHANISM for e's s4/s7 blockers (recovered):
+ROM case-0x13 loop-arm sets qF0p (→s4, D403C, in a beq delay slot covering both
+arms) and v110p (→s7, set TWICE D40B0/D4128) — BOTH before e->next (D41CC, e's
+last 0x13 use) so they conflict e, AND SHORT-RANGE (set late) so HIGH priority →
+cascade onto s4/s7. Loop-arm cluster: i=s1, qn(v130)=s2, v70p=s3, v110p=s7,
+qF0p=s4 — a 5-deep cascade. e is the ONLY late-0x13 e-liveness needed IS via
+these early-set pointers, not a spurious store.
+
+### NEXT LEVER (execute): the 0x13 loop-arm bundle, now that trio is fixed.
+Make i/qn/v70p/v110p/qF0p explicit pointers set at the ROM points (LATE, inside
+the f_280==1 arm, before D41CC) with tight ranges. Prior H3b bundle was rc708
+but PREDATED the trio fix — retry on top of the rc669 costume. Watch oracle:
+need an e-conflicting allocno on s4 (then s7) before e's pos.
+
+### DO-NOT-RETRY (exact keystrokes; classes stay open):
+- qF0p/v110p set at case-0x13 HEAD (line ~686) + replace all uses → long range,
+  low priority, no cascade (e stayed s4).
+- ref-bump qa/qb/w170 in case 2D via dummy func_0010E300 calls → no cascade.
+- per-case `ndq=nd->quat` pointer → lands low, no e-block.
+- e-liveness extend via spurious `D_0062C214=(float)e->state` → right reg wrong
+  mechanism (rc631/639, artificial insns). Use ONLY as reachability diagnostic.
+- tight-range v110p/v70p pointers in 0x13 loop arm → still no s4 cascade (cluster before e's death @752 is only 2-3 deep; s0-s3 not pre-blocked for the s4-taker). The deep cluster is the LATE 0x13 region (past 752, e dead). KEY OPEN Q for next worker: does ROM keep e's allocno live past D41CC, or does it build the s4-blocker from an EARLIER case (0x22/0x23) / a cross-case pointer? Simulate candidate e-conflicting allocnos' cascade with oracle.sh before editing.

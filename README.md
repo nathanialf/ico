@@ -1,7 +1,7 @@
 # ico
 
 <!-- progress:begin -->
-![.text progress](https://img.shields.io/badge/text-26.21%20%25-yellow.svg)
+![.text progress](https://img.shields.io/badge/text-27.27%20%25-yellow.svg)
 ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg)
 ![.data progress](https://img.shields.io/badge/data-0.01%20%25-orange.svg)
 ![.rodata progress](https://img.shields.io/badge/rodata-0.68%20%25-orange.svg)
@@ -88,6 +88,16 @@ hypotheses with no `real_count` improvement (any improvement resets the
 counter). Gate on `tools/match_loop.py next` printing `stall=N/30`, never
 on a gut "this is a floor" call. Park a coalesced-TU function with
 `tools/park_tu.py`; the bounded permuter runs only *after* the stall.
+
+**Hard / plateaued functions** — a separate **`decomp-convergence` skill**
+handles functions the min-count loop above keeps stalling on: large
+functions, or any residual that is a whole-function register-allocation /
+reload / coloring convergence rather than a local leaf tie. It drives the
+whole function toward the ROM's codegen — *accepting diff-count regressions*
+as coloring classes snap into place in groups — via chained reason-first
+worker subagents (opus, or fable in a dedicated session) that a supervisor
+harvests and relaunches. Its recurring shape→C levers live in
+[`decomp/COOKBOOK.md`](decomp/COOKBOOK.md) §13.
 
 Pattern catalogs and quirk references:
 [`decomp/COOKBOOK.md`](decomp/COOKBOOK.md) (>1600-line shape→fix lookup),
