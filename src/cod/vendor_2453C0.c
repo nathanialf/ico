@@ -176,7 +176,54 @@ void func_00245FD0(int *a0, int *a1) {
     func_0024BD90(0x80000008, (int)ret, 0x40, a0[8], a0[9], a0[10]);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2453C0", func_00246030);
+int func_00246030(void *a0, int a1, int a2, int a3, int a4) {
+    extern void *func_00245DE0(void *a0);
+    extern int func_00100520(int *a0);
+    extern int func_0024BD50(int a0, int a1, int a2, int a3, int a4, int a5);
+    extern int func_00100530(int a0);
+    extern int func_00100560(int a0);
+    extern int D_00714BC0[];
+    void *obj;
+    int buf[8];
+
+    obj = func_00245DE0(D_00714BC0);
+    if (obj == 0) {
+        return -1;
+    }
+    *(void **)((char *)a0 + 0) = obj;
+    *(int *)((char *)a0 + 4) = *(int *)((char *)obj + 0x18);
+    *(int *)((char *)obj + 0x20) = a1;
+    *(int *)((char *)obj + 0x24) = a2;
+    *(int *)((char *)obj + 0x28) = a3;
+    *(void **)((char *)obj + 0x14) = obj;
+    *(void **)((char *)obj + 0x1C) = a0;
+    if ((a4 & 1) == 0) {
+        int r;
+        buf[1] = 1;
+        buf[2] = 0;
+        r = func_00100520(buf);
+        *(int *)((char *)a0 + 8) = r;
+        if (r < 0) {
+            func_00245E88(obj);
+            return -3;
+        }
+        if (func_0024BD50(0x8000000C, (int)obj, 0x40, 0, 0, 0) == 0) {
+            func_00245E88(obj);
+            func_00100530(*(int *)((char *)a0 + 8));
+            return -2;
+        }
+        func_00100560(*(int *)((char *)a0 + 8));
+        func_00100530(*(int *)((char *)a0 + 8));
+        return 0;
+    } else {
+        *(int *)((char *)a0 + 8) = -1;
+        if (func_0024BD50(0x8000000C, (int)obj, 0x40, 0, 0, 0) != 0) {
+            return 0;
+        }
+        func_00245E88(obj);
+        return -2;
+    }
+}
 
 void *func_00246188(int a0, void *a1) {
     void *n5;
@@ -193,7 +240,54 @@ void *func_00246188(int a0, void *a1) {
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2453C0", func_002461D8);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2453C0", func_00246288);
+int func_00246288(void *a0, int a1, int a2) {
+    extern void *func_00245DE0(void *a0);
+    extern int func_00100520(int *a0);
+    extern int func_0024BD50(int a0, int a1, int a2, int a3, int a4, int a5);
+    extern int func_00100530(int a0);
+    extern int func_00100560(int a0);
+    extern int D_00714BC0[];
+    void *obj;
+    int buf[8];
+
+    *(int *)((char *)a0 + 0x10) = 0;
+    *(int *)((char *)a0 + 0x24) = 0;
+    obj = func_00245DE0(D_00714BC0);
+    if (obj == 0) {
+        return -1;
+    }
+    *(void **)((char *)a0 + 0) = obj;
+    *(int *)((char *)a0 + 4) = *(int *)((char *)obj + 0x18);
+    *(int *)((char *)obj + 0x20) = a1;
+    *(void **)((char *)obj + 0x14) = obj;
+    *(void **)((char *)obj + 0x1C) = a0;
+    if ((a2 & 1) == 0) {
+        int r;
+        buf[1] = 1;
+        buf[2] = 0;
+        r = func_00100520(buf);
+        *(int *)((char *)a0 + 8) = r;
+        if (r < 0) {
+            func_00245E88(obj);
+            return -3;
+        }
+        if (func_0024BD50(0x80000009, (int)obj, 0x40, 0, 0, 0) == 0) {
+            func_00245E88(obj);
+            func_00100530(*(int *)((char *)a0 + 8));
+            return -2;
+        }
+        func_00100560(*(int *)((char *)a0 + 8));
+        func_00100530(*(int *)((char *)a0 + 8));
+        return 0;
+    } else {
+        *(int *)((char *)a0 + 8) = -1;
+        if (func_0024BD50(0x80000009, (int)obj, 0x40, 0, 0, 0) != 0) {
+            return 0;
+        }
+        func_00245E88(obj);
+        return -2;
+    }
+}
 
 extern void func_00100F18(int a0);
 

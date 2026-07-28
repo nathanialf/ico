@@ -109,7 +109,18 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_002421C8);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_002422B0);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00242548);
+int func_00242548(void *a0, int a1) {
+    int s0 = a1 & 1;
+    int ret;
+    func_00241F20((char *)a0 + s0 * 0x28);
+    if (!s0) goto zero_path;
+    ret = func_002421C8((char *)a0 + 0x140);
+    goto done;
+zero_path:
+    ret = func_002421C8((char *)a0 + 0x50);
+done:
+    return ret;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_002425A8);
 
@@ -659,7 +670,17 @@ int func_00244738(int a0) {
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00244748);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00244920);
+struct __attribute__((packed)) S_244920 {
+    long long a;
+    long long b;
+    int c __attribute__((aligned(4)));
+};
+extern struct S_244920 D_005507A8;
+
+void *func_00244920(void *a0) {
+    *(struct S_244920 *)a0 = D_005507A8;
+    return a0;
+}
 
 int func_00244958(unsigned int a0) {
     int old = *(volatile int *)0x1000E060;
@@ -726,9 +747,35 @@ int *func_002450C8(int **a0) {
     return p;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00245120);
+void func_00245120(int *a1, unsigned int a2) {
+    int *a0;
+    int s0;
+    int v0;
+    v0 = func_002450C8(a1);
+    a0 = (int *)a1[0];
+    do { s0 = a2 | 0x10000000; } while (0);
+    a1[2] = v0;
+    a0[0] = s0;
+    a0++;
+    a1[3] = 0;
+    a1[0] = (int)(a0 + 1);
+    a0[0] = 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00245178);
+void func_00245178(int *a1, unsigned int a2) {
+    int *a0;
+    int s0;
+    int v0;
+    v0 = func_002450C8(a1);
+    a0 = (int *)a1[0];
+    do { s0 = a2 | 0x70000000; } while (0);
+    a1[2] = v0;
+    a0[0] = s0;
+    a0++;
+    a1[3] = 0;
+    a1[0] = (int)(a0 + 1);
+    a0[0] = 0;
+}
 
 extern void func_00245318(void *a0, int a1, int a2);
 

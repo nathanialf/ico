@@ -77,7 +77,65 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_0025E4D8);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_0025E5D8);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_0025E700);
+extern int D_0062F7D8[];
+extern int func_00260610(void *);
+extern int func_00264050(void);
+/* Siblings defined further down this TU with an `int` return / `int` arg;
+   the aug6 twin wants the float spelling.  Bind second identifiers to the
+   same linker symbols instead of retyping the already-matched siblings. */
+extern int func_002609E8__p4(float) __asm__("func_002609E8");
+extern int func_00263FB0__p4(float) __asm__("func_00263FB0");
+extern float func_002633B8__f(long) __asm__("func_002633B8");
+
+float func_0025E700(float a, float b) {
+    extern float func_0025F2F8(float a0, float a1);
+    extern int D_0062F2D8[];
+    extern long D_0062F2E0[];
+    struct {
+        int f0;
+        void *f4;
+        long f8;
+        long f10;
+        long f18;
+        int f20;
+    } buf;
+    float f22;
+    int s0;
+
+    f22 = func_0025F2F8(a, b);
+    s0 = D_0062F7D8[0];
+    if (s0 == -1) {
+        goto early;
+    }
+    if (func_002609E8__p4(b)) {
+        goto early;
+    }
+    if (func_002609E8__p4(a)) {
+        goto early;
+    }
+    if (b != 0.0f) {
+        goto early;
+    }
+    buf.f0 = 1;
+    buf.f4 = D_0062F2D8;
+    buf.f20 = 0;
+    buf.f8 = func_00263FB0__p4(a);
+    buf.f10 = func_00263FB0__p4(b);
+    if (s0 == 0) {
+        buf.f18 = func_00263FB0__p4(a);
+    } else {
+        buf.f18 = D_0062F2E0[0];
+    }
+    if (D_0062F7D8[0] == 2 || func_00260610(&buf) == 0) {
+        *(int *)func_00264050() = 0x21;
+    }
+    if (buf.f20 != 0) {
+        *(int *)func_00264050() = buf.f20;
+    }
+    return func_002633B8__f(buf.f18);
+early:
+    return f22;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_0025E840);
 
@@ -559,11 +617,15 @@ int func_00263FB0(float f12)
 
 extern int D_00553244[];
 extern char D_0062FC48[];
-extern void func_00264060();
+/* func_00264060 is a varargs forwarder, defined below.  An unprototyped
+   `extern void func_00264060();` here is incompatible with that `...`
+   prototype under ee-gcc 2.9, so the caller reaches it through an alias
+   identifier; K&R-unprototyped call codegen is identical either way. */
+extern void func_00264060__k() __asm__("func_00264060");
 extern void func_00268F08(void);
 
 void func_00263FF0(int a0, int a1, int a2) {
-    func_00264060(*(int *)(D_00553244[0] + 0xC), (int)D_0062FC48, a2, a0, a1);
+    func_00264060__k(*(int *)(D_00553244[0] + 0xC), (int)D_0062FC48, a2, a0, a1);
     func_00268F08();
 }
 
@@ -577,7 +639,12 @@ int func_00264050(void) {
     return D_00553244[0];
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00264060);
+extern void func_00265C28(int a0, int a1, void *args);
+
+void func_00264060(int a0, int a1, ...) {
+    char *ap = (char *)__builtin_next_arg(a1) - 48;
+    func_00265C28(a0, a1, ap);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00264094);
 

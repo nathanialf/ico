@@ -240,7 +240,80 @@ Related accounting rules the same script now enforces:
 
 ---
 
-## 7. Open questions
+## 7. Status — the aug6 vendor port (landed 2026-07-28)
+
+`521 / 945` vendor functions and `34,144 / 194,996` bytes (17.51 %) are
+decompiled. `.text` overall moved `14.49 % -> 16.81 %` (217,992 -> 252,996 B).
+
+### Representation
+
+Both blobs are carved (`config/ico.us.yaml`), 9 `c` TUs under `src/cod/`:
+
+| TU | funcs | bytes |
+|---|---|---|
+| `vendor_100110` (head, syscall leaves) | 140/151 | 2,240/2,944 |
+| `vendor_2418A0` | 60/96 | 3,696/15,136 |
+| `vendor_2453C0` | 46/96 | 3,688/22,280 |
+| `vendor_24AAC8` | 37/96 | 2,824/16,144 |
+| `vendor_24E9D8` | 58/96 | 4,504/17,232 |
+| `vendor_252D28` | 38/96 | 3,592/24,472 |
+| `vendor_258CC0` | 61/96 | 6,048/21,800 |
+| `vendor_25E1E8` | 39/96 | 3,796/34,512 |
+| `vendor_2668B8` | 42/92 | 3,756/36,032 |
+
+Boundaries are 8-byte-aligned function starts — every `.text` object in this
+link has alignment 8, so an unaligned split inserts pad and breaks the SHA-1.
+Three spans stay `asm` on purpose: `0x00100000-0x00100110` (crt0 / `_start`),
+`0x00100C90-0x00101C80` (the rest of libkernl), and `0x0026F578-0x0026F5E0`
+(the last vendor function *plus* the 12 bytes of inter-section `.text` pad —
+splat puts the pad inside that object and no C TU can emit it, so matching
+that one 104-byte function would cost the pad).
+
+### Correspondence — there is no single aug6->retail delta
+
+(A "+0x16C8 constant delta" was in circulation when this port started. It is
+wrong; it is not written anywhere in this file, and it should not be.)
+
+Order-preserving alignment of reloc-normalized instruction streams (aug6's
+own splat `.s` for `common/src/PObj` against the retail words lifted from
+`baseelf.rom`) pairs **716 of 765** tail functions across **three** deltas:
+`+0x3C70` (474), `+0x3AE0` (208), `+0x3B00` (34). 49 have no twin at all.
+The pairing is handed to `tools/port_from_aug6.py` via its existing
+`.port_cache/name_alias.json` hook, so vendor bodies get the same lockstep
+reloc-slot rebinding and per-function gate as every other Phase-4 port.
+
+Of the 455 pairs whose aug6 twin carried a matched baseline `.s`, only **403**
+were real: 52 were stale `matchings/*.s` for functions aug6 has since reverted
+to `INCLUDE_ASM`. `scan` drops those itself. So the portable population was
+403, and 371 + 10 hand-recovered = 381 landed; one more (`func_0026F578`) is
+portable but blocked by the pad above.
+
+### What is left, and why
+
+- **21 genuine reverts** (`decomp/port_ledger.md` has each one). 7
+  `unresolved-symbol` — the reloc walk cannot bind an aug6 slot to a retail
+  symbol (`D_FFFFF`, `D_00247C40`, `D_7181F0`, ...), usually because the aug6
+  side spelled an absolute address as a symbol. 14 `codegen` — the retail
+  source genuinely differs from the prototype's (`§regalloc-swap`, a `jr ra`
+  where the built object stores, `addiu s0,s0,0` vs a real displacement).
+  These need normal matching work, not porting.
+- **~310 tail functions whose aug6 twin was never matched upstream.** Nothing
+  to port. Most are §3b proprietary SCE SDK, i.e. clean-room-from-disassembly
+  only.
+- **49 tail functions with no aug6 twin** and the 29 non-syscall head
+  functions. Original work on both counts.
+
+### Clean-room note for the head
+
+The 140 head leaves were matched from the ROM's own four instructions via
+`include/syscall.h`'s `SYSCALL_WRAPPER`, restored from this repo's history
+(`398ac05e`). ps2sdk's `SYSCALL_SPECIAL` is credited as a *structural* model
+only, per §3b. No SDK source was consulted, and none is needed: the body is
+`addiu $3,$0,N / syscall 0 / jr $31 / nop` with nothing else in it. Nothing in
+§3a (libgcc / libm / libc upstream fetching) was attempted — this pass ported
+aug6's existing clean-room work only.
+
+## 8. Open questions
 
 - **Which exact newlib / GCC release did SCE ship?** Not answerable from the
   binary: `decomp/NOTES.md` §"Build-environment fingerprint" records that no

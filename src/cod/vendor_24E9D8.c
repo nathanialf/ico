@@ -441,7 +441,23 @@ void func_00251AB8(int a0, int a1, int a2) {
     func_002525E8(a1, rounded);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_00251AF0);
+/* The aug6 twin calls func_00251ED0 with no declaration in scope, so K&R
+   implicit-int applies and the call is a value-returning tail call (§
+   feedback_int_return_tail_call_shape).  A sibling body in this TU declares
+   the same symbol `void`, so bind a second identifier to it with the dev
+   tree's own __asm__ alias idiom rather than change the sibling's typing. */
+extern int func_00251ED0__i(int self) __asm__("func_00251ED0");
+
+int func_00251AF0(int *a0, unsigned int a1, int a2) {
+    int *p = (int *)a0[0x40/4];
+    a1 = (a1 & 0x0FFFFFFF) | 0x20000000;
+    p[0xB0/4] = 1;
+    p[0xD8/4] = a1;
+    p[0xE4/4] = a2;
+    p[0xE0/4] = 0;
+    p[0xDC/4] = 0;
+    return func_00251ED0__i((int)a0);
+}
 
 extern void func_00251ED0(int self);
 
@@ -666,7 +682,20 @@ int func_00252180(int a0, int a1, int a2) {
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_002521C0);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_00252330);
+extern void func_002523B0(int a0);
+extern int D_005525C4[];
+
+int func_00252330(int *self) {
+    int *p = (int *)self[0x40 / 4];
+    int ret = 0;
+    if (p[1] != 0 && p[2] != 0) {
+        func_002523B0(D_005525C4[0]);
+        self[2] = D_005525C4[0] - p[0xAC / 4];
+        p[1] = 0;
+        ret = 1;
+    }
+    return ret;
+}
 
 extern int D_0054D030_alias[] __asm__("D_00552D70");
 extern void func_00254CF8(int a0);
