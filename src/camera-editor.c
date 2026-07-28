@@ -1,14 +1,31 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", EnterMenu);
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", saveEditedDataBinary);
+
+
+extern char D_006326D8;
+extern int D_006326D0;
+extern int ACTGameView_Init();
+extern int D_0028A898[];
+void EnterMenu(void) {
+    D_0028A898[0] = 1;
+}
+
+void saveEditedDataBinary(void) {
+    D_0028A898[0] = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", saveEditedData);
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", gif_test);
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", DebugDispBox);
+int DebugDispBox(int *a0, int *a1)
+{
+    if (((unsigned char *)a1)[0x19] != 0) {
+        return 1;
+    }
+    return ACTGameView_Init(*a0, a1[0]) != 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", DispCameraGroup);
 
@@ -64,9 +81,12 @@ INCLUDE_ASM("asm/nonmatchings/src/camera-editor", debug_NMarker);
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", debug_Marker);
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", debug_Arrow);
+void debug_Arrow(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", InitCameraEditor);
+void InitCameraEditor(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", debug_CameraEditor);
+void debug_CameraEditor(void) {
+    D_006326D0 = 0;
+    D_006326D8 = 0;
+}
 

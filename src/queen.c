@@ -1,5 +1,9 @@
 #include "common.h"
 
+
+extern int D_0055C720[];
+extern int D_00633DE0;
+extern void debug_assertMessage();
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019A7E8);
 
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019A8F0);
@@ -42,7 +46,11 @@ INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019BCE0);
 
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019BD30);
 
-INCLUDE_ASM("asm/nonmatchings/src/queen", queenBallBeforeFunc);
+void queenBallBeforeFunc(void)
+{
+    D_00633DE0 = 0x3C;
+    debug_assertMessage(D_0055C720);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/queen", InitQueenBallGeo);
 

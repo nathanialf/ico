@@ -1,16 +1,49 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/warpGirl", warpGirlOutStage);
+
+
+
+
+extern void Generator_Mask(char *self);
+extern int *D_00631AE4;
+extern float D_006CF940[];
+extern int func_001BC870();
+int warpGirlOutStage(void) {
+    return func_001BC870() != 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/warpGirl", warpGirlInStage);
 
-INCLUDE_ASM("asm/nonmatchings/src/warpGirl", warpGirlInit);
+void warpGirlInit(float *dst)
+{
+    dst[0] = D_006CF940[0];
+    dst[1] = D_006CF940[1];
+    dst[2] = D_006CF940[2];
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017E9D8);
+void func_0017E9D8(void) {
+    char *p = D_00631AE4;
+    if (p != 0) {
+        char *sub = *(char **)(p + 0x164);
+        *(long long *)(sub + 0x20) &= ~0x1000LL;
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017EA00);
+void func_0017EA00(void) {
+    char *p = D_00631AE4;
+    if (p != 0) {
+        char *sub = *(char **)(p + 0x164);
+        *(long long *)(sub + 0x20) |= 0x1000LL;
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017EA28);
+void func_0017EA28(void) {
+    char *p = D_00631AE4;
+    if (p != 0) {
+        char *sub = *(char **)(p + 0x164);
+        *(long long *)(sub + 0x20) &= ~0x2000LL;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017EA50);
 
@@ -20,9 +53,27 @@ INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017EB50);
 
 INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017EBD0);
 
-INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017EC50);
+void func_0017EC50(void *a0, float f)
+{
+  long * volatile *pp = (long * volatile *) (((char *) a0) + 0x164);
+  int new_var;
+  long *p = *pp;
+  char *new_var2;
+  new_var2 = ((char *) p) + 0x20;
+  new_var = 0x678;
+  *((long *) new_var2) = (*((long *) new_var2)) | 0x100000;
+ do { } while (0);
+  {
+    int **q = (int **) (*pp);
+    int *r = *((int **) (((char *) q) + new_var));
+    *((float *) (((char *) r) + 0x340)) = f;
+  }
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017EC78);
+void func_0017EC78(char *self) {
+    char *sub = *(char **)(self + 0x164);
+    *(long long *)(sub + 0x20) &= ~0x100000LL;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017EC98);
 
@@ -44,7 +95,11 @@ INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_001803A8);
 
 INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_00180550);
 
-INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_00180580);
+void func_00180580(volatile unsigned int a0)
+{
+    volatile int local;
+    Generator_Mask(a0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_001805A8);
 

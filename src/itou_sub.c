@@ -1,12 +1,34 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/itou_sub", m33_to_quat);
+
+
+extern void stage_KillPlayBgAnimationIfOverMaxCount(int **self);
+extern int stage_SetLocalizeGeometry();
+extern void func_002439B0();
+extern int func_00198438();
+void m33_to_quat(float *dst, float *src) {
+    dst[0] = -src[0];
+    dst[1] = -src[1];
+    dst[2] = -src[2];
+    dst[3] = src[3];
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/itou_sub", lw_pos_to_ico_pos);
 
-INCLUDE_ASM("asm/nonmatchings/src/itou_sub", apply_matrix_w1);
+int apply_matrix_w1(int a0)
+{
+    int buf[16];
+    func_002439B0(buf);
+    return func_00198438(a0, buf);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/itou_sub", ico_m33_to_quat);
+void ico_m33_to_quat(int *self, int *q)
+{
+    if (*self != 0) {
+        stage_KillPlayBgAnimationIfOverMaxCount(self);
+    }
+    *self = stage_SetLocalizeGeometry(q);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/itou_sub", pbga_start);
 

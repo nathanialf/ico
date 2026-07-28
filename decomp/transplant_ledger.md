@@ -180,35 +180,6 @@ gate re-run before commit.
 - REVERTED `func_0010ECC0` (old `func_0010ECC0`) @ 0x0010ECC0 — insn 0: expected `j	0 <func_0010ECC0>` built `j	20 <func_0010ECB8>`
 - REVERTED `func_0010F710` (old `func_0010F710`) @ 0x0010F710 — src/FileManager.c:59: `DmaTag' undeclared (first use in this function)
 
-## src/matrixDrive
-- KEPT `MatrixDrive_TurnObjectMatrix` (old `func_00105F00`) @ 0x00105F00
-- KEPT `MatrixDrive_TurnXObjectMatrixZY` (old `func_00105F10`) @ 0x00105F10
-- KEPT `MatrixDrive_TurnXObjectMatrixYZ` (old `func_00105F20`) @ 0x00105F20
-- KEPT `MatrixDrive_TurnYObjectMatrixXZ` (old `func_00105F48`) @ 0x00105F48
-- KEPT `MatrixDrive_TurnZObjectMatrixXY` (old `func_00105F78`) @ 0x00105F78
-- KEPT `MatrixDrive_GetTurnXAngleZY` (old `func_00105F90`) @ 0x00105F90
-- KEPT `MatrixDrive_GetTurnYAngleXZ` (old `func_00105FE0`) @ 0x00105FE0
-- KEPT `MatrixDrive_GetTurnYEAngleXZ` (old `func_00106000`) @ 0x00106000
-- KEPT `MatrixDrive_GetTurnZAngleXY` (old `func_00106028`) @ 0x00106028
-- KEPT `MatrixDrive_GetTurnZAngleYX` (old `func_00106048`) @ 0x00106048
-
-## src/keyInput
-- KEPT `func_00104698` (old `func_00104698`) @ 0x00104698
-- KEPT `func_001046F0` (old `func_001046F0`) @ 0x001046F0
-- KEPT `func_00104A38` (old `func_00104A38`) @ 0x00104A38
-- REVERTED `InitKeyInput` (old `func_00104590`) @ 0x00104590 — insn 41: expected `<end>` built `sll	zero,zero,0x0`
-- REVERTED `func_001048C8` (old `func_001048C8`) @ 0x001048C8 — src/keyInput.c:27: warning: initialization from incompatible pointer type
-- REVERTED `func_00104940` (old `func_00104940`) @ 0x00104940 — src/keyInput.c:27: warning: initialization from incompatible pointer type
-- REVERTED `func_001049C0` (old `func_001049C0`) @ 0x001049C0 — src/keyInput.c:27: warning: initialization from incompatible pointer type
-- REVERTED `func_00104EF0` (old `func_00104EF0`) @ 0x00104EF0 — src/keyInput.c:31: warning: initialization from incompatible pointer type
-- REVERTED `func_00104F20` (old `func_00104F20`) @ 0x00104F20 — src/keyInput.c:29: warning: initialization from incompatible pointer type
-- REVERTED `func_001050B0` (old `func_001050B0`) @ 0x001050B0 — src/keyInput.c:29: warning: initialization from incompatible pointer type
-- REVERTED `func_00105258` (old `func_00105258`) @ 0x00105258 — src/keyInput.c:27: warning: initialization from incompatible pointer type
-- REVERTED `func_00105268` (old `func_00105268`) @ 0x00105268 — src/keyInput.c:27: warning: initialization from incompatible pointer type
-- REVERTED `func_00105278` (old `func_00105278`) @ 0x00105278 — src/keyInput.c:28: warning: initialization from incompatible pointer type
-- REVERTED `func_00105290` (old `func_00105290`) @ 0x00105290 — src/keyInput.c:28: warning: initialization from incompatible pointer type
-- REVERTED `func_001052A8` (old `func_001052A8`) @ 0x001052A8 — src/keyInput.c:29: warning: initialization from incompatible pointer type
-
 ## src/GifPacket
 - KEPT `gif_SpriteSensitive` (old `func_001118B0`) @ 0x001118B0
 - KEPT `gif_SpriteOffset` (old `func_001118B8`) @ 0x001118B8
@@ -395,242 +366,6 @@ gate re-run before commit.
 - REVERTED `iosMsgQueueDestroy` (old `func_0013A250`) @ 0x0013A250 — ios/message.c:29: warning: passing arg 3 of `func_00263FF0' makes integer from pointer without a cast
 - REVERTED `send_signal_message` (old `func_0013A2F8`) @ 0x0013A2F8 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
 - REVERTED `func_0013A498` (old `func_0013A498`) @ 0x0013A498 — ios/message.c:33: `iosMsgSetEvent' undeclared (first use in this function)
-- REVERTED `iosMsgSend` (old `func_0013A5B8`) @ 0x0013A5B8 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
-- REVERTED `iosMsgQueueDestroyAll` (old `func_0013A7C8`) @ 0x0013A7C8 — insn 12: expected `jal	0 <iosMsgQueueDestroyAll>` built `jal	d8 <send_signal_message>`
-
-## ios/cdvd
-- REVERTED `iosCdvdMgrPackLoad` (old `func_001312F0`) @ 0x001312F0 — ios/cdvd.c:31: `D_00631F70' undeclared (first use in this function)
-- REVERTED `func_00131480` (old `func_00131480`) @ 0x00131480 — ios/cdvd.c:21: `D_00631F70' undeclared (first use in this function)
-- REVERTED `func_00131560` (old `func_00131560`) @ 0x00131560 — ios/cdvd.c:15: `D_00631F70' undeclared (first use in this function)
-- REVERTED `func_00131780` (old `func_00131780`) @ 0x00131780 — ios/cdvd.c:17: `D_00631F70' undeclared (first use in this function)
-- REVERTED `iosCdvdDiskReady` (old `func_00132038`) @ 0x00132038 — ios/cdvd.c:15: `D_00631F70' undeclared (first use in this function)
-- REVERTED `iosCdvdLoad` (old `func_001320E8`) @ 0x001320E8 — ios/cdvd.c:12: `D_00631F70' undeclared (first use in this function)
-- REVERTED `iosCdvdPackLoad` (old `func_001321C8`) @ 0x001321C8 — ios/cdvd.c:16: `D_00631F70' undeclared (first use in this function)
-- REVERTED `iosCdvdBackGroundMgr` (old `func_001325D8`) @ 0x001325D8 — ios/cdvd.c:13: `D_00631F70' undeclared (first use in this function)
-- REVERTED `iosCdvdDirectStOpen` (old `func_00132610`) @ 0x00132610 — ios/cdvd.c:13: `D_00631F70' undeclared (first use in this function)
-- REVERTED `func_001331D8` (old `func_001331D8`) @ 0x001331D8 — ios/cdvd.c:14: `D_00631F70' undeclared (first use in this function)
-- REVERTED `iosCdvdLoadPackFile` (old `func_00133218`) @ 0x00133218 — ios/cdvd.c:121: void value not ignored as it ought to be
-- REVERTED `iosCdvdDiskStatusGet` (old `func_001332B8`) @ 0x001332B8 — ios/cdvd.c:19: `D_00631F70' undeclared (first use in this function)
-- REVERTED `iosCdvdBackGroundMgrDelete` (old `func_00133398`) @ 0x00133398 — ios/cdvd.c:13: `D_00631F70' undeclared (first use in this function)
-- REVERTED `iosCdvdBackGroundMgrDeleteRequestGet` (old `func_00133448`) @ 0x00133448 — ios/cdvd.c:12: `D_00631F70' undeclared (first use in this function)
-- REVERTED `iosCdvdBackGroundMgrEntryNum` (old `func_00133450`) @ 0x00133450 — ios/cdvd.c:10: `D_00631F70' undeclared (first use in this function)
-- REVERTED `iosCdvdBackGroundRead` (old `func_00133480`) @ 0x00133480 — ios/cdvd.c:12: `D_00631F70' undeclared (first use in this function)
-- REVERTED `iosCdvdBackGroundReadIOPm` (old `func_001334C8`) @ 0x001334C8 — ios/cdvd.c:12: `D_00631F70' undeclared (first use in this function)
-- REVERTED `func_00133500` (old `func_00133500`) @ 0x00133500 — ios/cdvd.c:10: `D_00631F70' undeclared (first use in this function)
-- REVERTED `func_00133508` (old `func_00133508`) @ 0x00133508 — ios/cdvd.c:12: `D_00631F70' undeclared (first use in this function)
-
-## ios/cdvd
-- REVERTED `iosCdvdMgrPackLoad` (old `func_001312F0`) @ 0x001312F0 — ios/cdvd.c:110: invalid use of undefined type `struct E001332B8'
-- REVERTED `func_00131480` (old `func_00131480`) @ 0x00131480 — ios/cdvd.c:93: void value not ignored as it ought to be
-- REVERTED `func_00131560` (old `func_00131560`) @ 0x00131560 — ios/cdvd.c:67: void value not ignored as it ought to be
-- REVERTED `func_00131780` (old `func_00131780`) @ 0x00131780 — ios/cdvd.c:67: void value not ignored as it ought to be
-- REVERTED `iosCdvdDiskReady` (old `func_00132038`) @ 0x00132038 — ios/cdvd.c:86: warning: passing arg 1 of `debug_assertMessage' makes pointer from integer without a cast
-- REVERTED `iosCdvdLoad` (old `func_001320E8`) @ 0x001320E8 — ios/cdvd.c:42: void value not ignored as it ought to be
-- REVERTED `iosCdvdPackLoad` (old `func_001321C8`) @ 0x001321C8 — ios/cdvd.c:90: warning: assignment makes pointer from integer without a cast
-- REVERTED `iosCdvdBackGroundMgr` (old `func_001325D8`) @ 0x001325D8 — ios/cdvd.c:78: dereferencing pointer to incomplete type
-- REVERTED `iosCdvdDirectStOpen` (old `func_00132610`) @ 0x00132610 — ios/cdvd.c:80: warning: passing arg 1 of `iosMsgSend' makes pointer from integer without a cast
-- REVERTED `func_001331D8` (old `func_001331D8`) @ 0x001331D8 — ios/cdvd.c:100: void value not ignored as it ought to be
-- REVERTED `iosCdvdLoadPackFile` (old `func_00133218`) @ 0x00133218 — ios/cdvd.c:120: void value not ignored as it ought to be
-- REVERTED `iosCdvdDiskStatusGet` (old `func_001332B8`) @ 0x001332B8 — ios/cdvd.c:117: invalid use of undefined type `struct E001332B8'
-- REVERTED `iosCdvdBackGroundMgrDelete` (old `func_00133398`) @ 0x00133398 — ios/cdvd.c:43: void value not ignored as it ought to be
-- REVERTED `iosCdvdBackGroundMgrDeleteRequestGet` (old `func_00133448`) @ 0x00133448 — ios/cdvd.c:42: void value not ignored as it ought to be
-- REVERTED `iosCdvdBackGroundMgrEntryNum` (old `func_00133450`) @ 0x00133450 — ios/cdvd.c:40: void value not ignored as it ought to be
-- REVERTED `iosCdvdBackGroundRead` (old `func_00133480`) @ 0x00133480 — ios/cdvd.c:42: void value not ignored as it ought to be
-- REVERTED `iosCdvdBackGroundReadIOPm` (old `func_001334C8`) @ 0x001334C8 — ios/cdvd.c:42: void value not ignored as it ought to be
-- REVERTED `func_00133500` (old `func_00133500`) @ 0x00133500 — ios/cdvd.c:40: void value not ignored as it ought to be
-- REVERTED `func_00133508` (old `func_00133508`) @ 0x00133508 — ios/cdvd.c:42: void value not ignored as it ought to be
-
-## ios/cdvd
-- REVERTED `iosCdvdMgrPackLoad` (old `func_001312F0`) @ 0x001312F0 — ios/cdvd.c:110: invalid use of undefined type `struct E001332B8'
-- REVERTED `func_00131480` (old `func_00131480`) @ 0x00131480 — ios/cdvd.c:93: void value not ignored as it ought to be
-- REVERTED `func_00131560` (old `func_00131560`) @ 0x00131560 — ios/cdvd.c:67: void value not ignored as it ought to be
-- REVERTED `func_00131780` (old `func_00131780`) @ 0x00131780 — ios/cdvd.c:67: void value not ignored as it ought to be
-- REVERTED `iosCdvdDiskReady` (old `func_00132038`) @ 0x00132038 — ios/cdvd.c:86: warning: passing arg 1 of `debug_assertMessage' makes pointer from integer without a cast
-- REVERTED `iosCdvdLoad` (old `func_001320E8`) @ 0x001320E8 — ios/cdvd.c:42: void value not ignored as it ought to be
-- REVERTED `iosCdvdPackLoad` (old `func_001321C8`) @ 0x001321C8 — ios/cdvd.c:90: warning: assignment makes pointer from integer without a cast
-- REVERTED `iosCdvdBackGroundMgr` (old `func_001325D8`) @ 0x001325D8 — ios/cdvd.c:85: warning: passing arg 1 of `iosMsgSend' makes pointer from integer without a cast
-- REVERTED `iosCdvdDirectStOpen` (old `func_00132610`) @ 0x00132610 — ios/cdvd.c:80: warning: passing arg 1 of `iosMsgSend' makes pointer from integer without a cast
-- REVERTED `func_001331D8` (old `func_001331D8`) @ 0x001331D8 — ios/cdvd.c:100: void value not ignored as it ought to be
-- REVERTED `iosCdvdLoadPackFile` (old `func_00133218`) @ 0x00133218 — ios/cdvd.c:120: void value not ignored as it ought to be
-- REVERTED `iosCdvdDiskStatusGet` (old `func_001332B8`) @ 0x001332B8 — ios/cdvd.c:117: invalid use of undefined type `struct E001332B8'
-- REVERTED `iosCdvdBackGroundMgrDelete` (old `func_00133398`) @ 0x00133398 — ios/cdvd.c:43: void value not ignored as it ought to be
-- REVERTED `iosCdvdBackGroundMgrDeleteRequestGet` (old `func_00133448`) @ 0x00133448 — ios/cdvd.c:42: void value not ignored as it ought to be
-- REVERTED `iosCdvdBackGroundMgrEntryNum` (old `func_00133450`) @ 0x00133450 — ios/cdvd.c:40: void value not ignored as it ought to be
-- REVERTED `iosCdvdBackGroundRead` (old `func_00133480`) @ 0x00133480 — ios/cdvd.c:42: void value not ignored as it ought to be
-- REVERTED `iosCdvdBackGroundReadIOPm` (old `func_001334C8`) @ 0x001334C8 — ios/cdvd.c:42: void value not ignored as it ought to be
-- REVERTED `func_00133500` (old `func_00133500`) @ 0x00133500 — ios/cdvd.c:40: void value not ignored as it ought to be
-- REVERTED `func_00133508` (old `func_00133508`) @ 0x00133508 — ios/cdvd.c:42: void value not ignored as it ought to be
-
-## ios/cdvd
-- REVERTED `iosCdvdMgrPackLoad` (old `func_001312F0`) @ 0x001312F0 — ios/cdvd.c:107: void value not ignored as it ought to be
-- REVERTED `func_00131480` (old `func_00131480`) @ 0x00131480 — ios/cdvd.c:93: void value not ignored as it ought to be
-- REVERTED `func_00131560` (old `func_00131560`) @ 0x00131560 — ios/cdvd.c:67: void value not ignored as it ought to be
-- REVERTED `func_00131780` (old `func_00131780`) @ 0x00131780 — ios/cdvd.c:67: void value not ignored as it ought to be
-- REVERTED `iosCdvdDiskReady` (old `func_00132038`) @ 0x00132038 — ios/cdvd.c:86: warning: passing arg 1 of `debug_assertMessage' makes pointer from integer without a cast
-- REVERTED `iosCdvdLoad` (old `func_001320E8`) @ 0x001320E8 — ios/cdvd.c:42: void value not ignored as it ought to be
-- REVERTED `iosCdvdPackLoad` (old `func_001321C8`) @ 0x001321C8 — ios/cdvd.c:90: warning: assignment makes pointer from integer without a cast
-- REVERTED `iosCdvdBackGroundMgr` (old `func_001325D8`) @ 0x001325D8 — ios/cdvd.c:85: warning: passing arg 1 of `iosMsgSend' makes pointer from integer without a cast
-- REVERTED `iosCdvdDirectStOpen` (old `func_00132610`) @ 0x00132610 — ios/cdvd.c:80: warning: passing arg 1 of `iosMsgSend' makes pointer from integer without a cast
-- REVERTED `func_001331D8` (old `func_001331D8`) @ 0x001331D8 — ios/cdvd.c:100: void value not ignored as it ought to be
-- REVERTED `iosCdvdLoadPackFile` (old `func_00133218`) @ 0x00133218 — ios/cdvd.c:120: void value not ignored as it ought to be
-- REVERTED `iosCdvdDiskStatusGet` (old `func_001332B8`) @ 0x001332B8 — ios/cdvd.c:120: warning: passing arg 3 of `func_00263FF0' makes integer from pointer without a cast
-- REVERTED `iosCdvdBackGroundMgrDelete` (old `func_00133398`) @ 0x00133398 — ios/cdvd.c:43: void value not ignored as it ought to be
-- REVERTED `iosCdvdBackGroundMgrDeleteRequestGet` (old `func_00133448`) @ 0x00133448 — ios/cdvd.c:42: void value not ignored as it ought to be
-- REVERTED `iosCdvdBackGroundMgrEntryNum` (old `func_00133450`) @ 0x00133450 — ios/cdvd.c:40: void value not ignored as it ought to be
-- REVERTED `iosCdvdBackGroundRead` (old `func_00133480`) @ 0x00133480 — ios/cdvd.c:42: void value not ignored as it ought to be
-- REVERTED `iosCdvdBackGroundReadIOPm` (old `func_001334C8`) @ 0x001334C8 — ios/cdvd.c:42: void value not ignored as it ought to be
-- REVERTED `func_00133500` (old `func_00133500`) @ 0x00133500 — ios/cdvd.c:40: void value not ignored as it ought to be
-- REVERTED `func_00133508` (old `func_00133508`) @ 0x00133508 — ios/cdvd.c:42: void value not ignored as it ought to be
-
-## ios/cdvd
-- KEPT `func_00131560` (old `func_00131560`) @ 0x00131560
-- KEPT `func_001331D8` (old `func_001331D8`) @ 0x001331D8
-- KEPT `iosCdvdLoadPackFile` (old `func_00133218`) @ 0x00133218
-- KEPT `iosCdvdBackGroundMgrDelete` (old `func_00133398`) @ 0x00133398
-- KEPT `iosCdvdBackGroundMgrDeleteRequestGet` (old `func_00133448`) @ 0x00133448
-- KEPT `iosCdvdBackGroundMgrEntryNum` (old `func_00133450`) @ 0x00133450
-- KEPT `iosCdvdBackGroundRead` (old `func_00133480`) @ 0x00133480
-- KEPT `iosCdvdBackGroundReadIOPm` (old `func_001334C8`) @ 0x001334C8
-- KEPT `func_00133500` (old `func_00133500`) @ 0x00133500
-- KEPT `func_00133508` (old `func_00133508`) @ 0x00133508
-- REVERTED `iosCdvdMgrPackLoad` (old `func_001312F0`) @ 0x001312F0 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
-- REVERTED `func_00131480` (old `func_00131480`) @ 0x00131480 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
-- REVERTED `func_00131780` (old `func_00131780`) @ 0x00131780 — [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
-- REVERTED `iosCdvdDiskReady` (old `func_00132038`) @ 0x00132038 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
-- REVERTED `iosCdvdLoad` (old `func_001320E8`) @ 0x001320E8 — insn 18: expected `j	0 <iosCdvdLoad>` built `j	1e60 <iosCdvdDiskReady>`
-- REVERTED `iosCdvdPackLoad` (old `func_001321C8`) @ 0x001321C8 — [§4.2] signed div/shift collapsed to movn
-- REVERTED `iosCdvdBackGroundMgr` (old `func_001325D8`) @ 0x001325D8 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
-- REVERTED `iosCdvdDirectStOpen` (old `func_00132610`) @ 0x00132610 — insn 0: expected `daddu	a1,a0,zero` built `addiu	v0,zero,2`
-- REVERTED `iosCdvdDiskStatusGet` (old `func_001332B8`) @ 0x001332B8 — [§3.3 / 8.6] branch-likely mnemonic mismatch (beq↔beql / bne↔bnel)
-
-## src/box
-- REVERTED `initFloating` (old `func_001BE558`) @ 0x001BE558 — [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-- REVERTED `ExecBoxMoveEndReaction` (old `func_001C0690`) @ 0x001C0690 — src/box.c:53: warning: initialization from incompatible pointer type
-- REVERTED `BoxExtGeoRestore` (old `func_001C0708`) @ 0x001C0708 — src/box.c:58: warning: initialization from incompatible pointer type
-
-## src/delayFreeManager
-
-## src/geometryManager
-- REVERTED `UpdateRootMatrix` (old `func_001029B8`) @ 0x001029B8 — insn 0: expected `j	0 <UpdateRootMatrix>` built `j	88 <GetRootQuaternion>`
-- REVERTED `func_00102A38` (old `func_00102A38`) @ 0x00102A38 — src/geometryManager.c:50: too few arguments to function `SetRootBaseQuaternion'
-- REVERTED `SetRootMatrixWithTransOffset` (old `func_00102DE0`) @ 0x00102DE0 — insn 3: expected `jal	0 <SetRootMatrixWithTransOffset>` built `jal	150 <func_00102A40>`
-
-## src/keyInput
-- KEPT `func_00104698` (old `func_00104698`) @ 0x00104698
-- KEPT `func_00104A38` (old `func_00104A38`) @ 0x00104A38
-- REVERTED `InitKeyInput` (old `func_00104590`) @ 0x00104590 — src/keyInput.c:5: redefinition of `struct GObj'
-- REVERTED `func_001046F0` (old `func_001046F0`) @ 0x001046F0 — src/keyInput.c:6: redefinition of `struct GObj'
-- REVERTED `func_001048C8` (old `func_001048C8`) @ 0x001048C8 — src/keyInput.c:41: incompatible type for argument 3 of `_PushVu0Registers'
-- REVERTED `func_00104940` (old `func_00104940`) @ 0x00104940 — src/keyInput.c:46: incompatible type for argument 3 of `_PushVu0Registers'
-- REVERTED `func_001049C0` (old `func_001049C0`) @ 0x001049C0 — src/keyInput.c:45: incompatible type for argument 3 of `_PushVu0Registers'
-- REVERTED `func_00104EF0` (old `func_00104EF0`) @ 0x00104EF0 — src/keyInput.c:53: incompatible types in assignment
-- REVERTED `func_00104F20` (old `func_00104F20`) @ 0x00104F20 — src/keyInput.c:53: wrong type argument to increment
-- REVERTED `func_001050B0` (old `func_001050B0`) @ 0x001050B0 — src/keyInput.c:77: wrong type argument to decrement
-- REVERTED `func_00105258` (old `func_00105258`) @ 0x00105258 — src/keyInput.c:63: wrong type argument to increment
-- REVERTED `func_00105268` (old `func_00105268`) @ 0x00105268 — src/keyInput.c:65: wrong type argument to decrement
-- REVERTED `func_00105278` (old `func_00105278`) @ 0x00105278 — src/keyInput.c:68: invalid operands to binary *
-- REVERTED `func_00105290` (old `func_00105290`) @ 0x00105290 — src/keyInput.c:70: invalid operands to binary *
-- REVERTED `func_001052A8` (old `func_001052A8`) @ 0x001052A8 — src/keyInput.c:76: invalid operands to binary *
-
-## src/matrixDrive
-
-## src/motionManager2
-- KEPT `DebugDisp1Collision` (old `func_00109E88`) @ 0x00109E88
-- KEPT `GetRootProjectionPosOfGObj` (old `func_0010A558`) @ 0x0010A558
-- REVERTED `CheckWallAttribute` (old `func_0010A120`) @ 0x0010A120 — insn 12: expected `ld	ra,0(sp)` built `trunc.w.s	$f1,$f0`
-- REVERTED `CheckPureWallAttribute` (old `func_0010A160`) @ 0x0010A160 — insn 12: expected `ld	ra,0(sp)` built `trunc.w.s	$f1,$f0`
-
-## src/pool
-- REVERTED `func_0010D338` (old `func_0010D338`) @ 0x0010D338 — src/pool.c:72: warning: initialization from incompatible pointer type
-
-## src/quaternion
-- REVERTED `MultiCurrentQuaternion` (old `func_0010D360`) @ 0x0010D360 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
-- REVERTED `RegularizeQuaternion` (old `func_0010D838`) @ 0x0010D838 — src/quaternion.c:79: too few arguments to function `GetInverseQuaternion'
-
-## src/tableSin
-- REVERTED `GetTableArcCos` (old `func_0010DBD0`) @ 0x0010DBD0 — src/tableSin.c:68: incompatible type for argument 3 of `_InverseCurrentMatrix'
-- REVERTED `func_0010DCF8` (old `func_0010DCF8`) @ 0x0010DCF8 — src/tableSin.c:70: incompatible type for argument 3 of `_InverseCurrentMatrix'
-- REVERTED `func_0010DD58` (old `func_0010DD58`) @ 0x0010DD58 — src/tableSin.c:66: incompatible type for argument 3 of `_InverseCurrentMatrix'
-- REVERTED `func_0010DDB8` (old `func_0010DDB8`) @ 0x0010DDB8 — src/tableSin.c:84: too few arguments to function `func_0010DDB8'
-
-## src/DisplayP2O
-- KEPT `p2o_TransMicroProgram` (old `func_0010E928`) @ 0x0010E928
-- REVERTED `p2o_DispVU1Multi` (old `func_0010E708`) @ 0x0010E708 — src/DisplayP2O.c:38: void value not ignored as it ought to be
-- REVERTED `func_0010EC08` (old `func_0010EC08`) @ 0x0010EC08 — insn 4: expected `bc1f	30 <func_0010EC08+0x30>` built `bc1f	8a8 <func_0010EC08+0x38>`
-
-## src/FileManager
-- KEPT `func_0010F710` (old `func_0010F710`) @ 0x0010F710
-- REVERTED `file_LoadFile` (old `func_0010ECA8`) @ 0x0010ECA8 — src/FileManager.c:7: redefinition of `struct GObj'
-- REVERTED `func_0010ECB0` (old `func_0010ECB0`) @ 0x0010ECB0 — insn 0: expected `j	0 <func_0010ECB0>` built `j	10 <file_LoadFile>`
-- REVERTED `func_0010ECB8` (old `func_0010ECB8`) @ 0x0010ECB8 — src/FileManager.c:7: redefinition of `struct GObj'
-- REVERTED `func_0010ECC0` (old `func_0010ECC0`) @ 0x0010ECC0 — insn 0: expected `j	0 <func_0010ECC0>` built `j	20 <func_0010ECB8>`
-
-## src/GifPacket
-
-## src/GsBase
-
-## src/Light
-- KEPT `light_GetColorAnalog` (old `func_00114E18`) @ 0x00114E18
-- KEPT `func_001177C8` (old `func_001177C8`) @ 0x001177C8
-- REVERTED `light_KillAllFixLight` (old `func_00114FC8`) @ 0x00114FC8 — src/Light.c:88: `Light' undeclared (first use in this function)
-- REVERTED `light_KillAllAmbient` (old `func_00115068`) @ 0x00115068 — [§3.3 / 8.6] branch-likely mnemonic mismatch (beq↔beql / bne↔bnel)
-- REVERTED `func_00117768` (old `func_00117768`) @ 0x00117768 — src/Light.c:100: `Light' undeclared (first use in this function)
-- REVERTED `func_00117820` (old `func_00117820`) @ 0x00117820 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
-
-## src/Matrix
-
-## src/MicroCode
-
-## src/Packet
-- REVERTED `pac_setVifEndCode` (old `func_00118FD8`) @ 0x00118FD8 — [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-- REVERTED `pac_continueTag` (old `func_00119470`) @ 0x00119470 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
-- REVERTED `pac_setMaterialPacket` (old `func_0011A238`) @ 0x0011A238 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
-- REVERTED `pac_makeMaterialTable` (old `func_0011A2A8`) @ 0x0011A2A8 — insn 1: expected `daddu	t0,a0,zero` built `lui	v0,0x6c00`
-- QUARANTINED `pac_DispQW` (old `func_00118A68`) @ 0x00118A68 — vu0-inline-asm
-
-## src/Primitive
-
-## src/RegistPacket
-- KEPT `func_0011E708` (old `func_0011E708`) @ 0x0011E708
-
-## src/Shadow
-- KEPT `shadow_KillShadow` (old `func_00122C50`) @ 0x00122C50
-
-## src/StageAnimation
-- KEPT `func_0012AA80` (old `func_0012AA80`) @ 0x0012AA80
-
-## src/Texture
-- KEPT `tex_loadImage` (old `func_0012ADE8`) @ 0x0012ADE8
-
-## src/ZFog
-- KEPT `func_0012FD30` (old `func_0012FD30`) @ 0x0012FD30
-
-## ios/inflate
-- REVERTED `func_00135A48` (old `func_00135A48`) @ 0x00135A48 — [§8.22] swc1 in jal delay slot where expected has addiu/lw
-
-## ios/ios
-
-## ios/mblock
-- REVERTED `new_segment` (old `func_00136088`) @ 0x00136088 — insn 1: expected `jr	ra` built `sw	zero,0(a0)`
-- REVERTED `strdup_mblock` (old `func_00136140`) @ 0x00136140 — [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-## ios/mcard
-- REVERTED `iosMcMgrLoadSeg` (old `func_00137538`) @ 0x00137538 — insn 2: expected `j	0 <iosMcMgrLoadSeg>` built `j	6d8 <iosMcMgrChdirProduct>`
-- REVERTED `iosMcMgrSaveProductBlock` (old `func_00137548`) @ 0x00137548 — insn 2: expected `j	0 <iosMcMgrSaveProductBlock>` built `j	b08 <iosMcMgrSaveSeg>`
-
-## ios/mcdata
-- REVERTED `func_001383F8` (old `func_001383F8`) @ 0x001383F8 — ios/mcdata.c:6: parse error before `Blk40_001383F8'
-
-## ios/memory
-- REVERTED `iosMallocDebug` (old `func_00138BF0`) @ 0x00138BF0 — insn 5: expected `bne	s0,zero,28 <iosMallocDebug+0x28>` built `bne	s0,zero,5fc <iosMallocDebug+0x24>`
-- REVERTED `iosMallocCheckLeak` (old `func_001394F0`) @ 0x001394F0 — [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
-- REVERTED `func_0013A200` (old `func_0013A200`) @ 0x0013A200 — insn 2: expected `jal	0 <func_0013A200>` built `jal	818 <func_00138E30>`
-
-## ios/message
-- REVERTED `iosMsgQueueCreate` (old `func_0013A220`) @ 0x0013A220 — insn 11: expected `<end>` built `sll	zero,zero,0x0`
-- REVERTED `iosMsgQueueDestroy` (old `func_0013A250`) @ 0x0013A250 — [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
-- REVERTED `send_signal_message` (old `func_0013A2F8`) @ 0x0013A2F8 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
-- REVERTED `func_0013A498` (old `func_0013A498`) @ 0x0013A498 — ios/message.c:35: `iosMsgSetEvent' undeclared (first use in this function)
 - REVERTED `iosMsgSend` (old `func_0013A5B8`) @ 0x0013A5B8 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
 - REVERTED `iosMsgQueueDestroyAll` (old `func_0013A7C8`) @ 0x0013A7C8 — insn 12: expected `jal	0 <iosMsgQueueDestroyAll>` built `jal	d8 <send_signal_message>`
 
@@ -995,3 +730,571 @@ gate re-run before commit.
 - KEPT `func_00175308` (old `func_00175308`) @ 0x00175308
 - REVERTED `afterGirlHand` (old `func_00175640`) @ 0x00175640 — insn 3: expected `lui	a0,0x0` built `lw	v0,0(sp)`
 - REVERTED `afterGirlPulledGo` (old `func_00175688`) @ 0x00175688 — insn 3: expected `lui	a0,0x0` built `lw	v0,0(sp)`
+
+## src/jimaku
+- KEPT `jimakuMgrJump` (old `func_00175C70`) @ 0x00175C70
+- KEPT `jimakuMgrEnd` (old `func_00175C90`) @ 0x00175C90
+- KEPT `jimakuBegin` (old `func_00175CB0`) @ 0x00175CB0
+- KEPT `jimakuEnd` (old `func_00175F60`) @ 0x00175F60
+- KEPT `jimakuManager` (old `func_001760F0`) @ 0x001760F0
+- KEPT `func_00176150` (old `func_00176150`) @ 0x00176150
+- KEPT `func_00176198` (old `func_00176198`) @ 0x00176198
+- KEPT `func_001761B8` (old `func_001761B8`) @ 0x001761B8
+- KEPT `func_00176398` (old `func_00176398`) @ 0x00176398
+- KEPT `func_00176AA0` (old `func_00176AA0`) @ 0x00176AA0
+- KEPT `func_00176AE8` (old `func_00176AE8`) @ 0x00176AE8
+- KEPT `func_00176B08` (old `func_00176B08`) @ 0x00176B08
+- REVERTED `jimakuUndisp` (old `func_00176130`) @ 0x00176130 — src/jimaku.c:8: redefinition of `struct GObj'
+- REVERTED `func_00176808` (old `func_00176808`) @ 0x00176808 — src/jimaku.c:172: dereferencing pointer to incomplete type
+- REVERTED `func_001769D0` (old `func_001769D0`) @ 0x001769D0 — [§4.2] signed div/shift collapsed to movn
+
+## src/way_sys
+- KEPT `avoid_obstacle2` (old `func_00176BB8`) @ 0x00176BB8
+
+## src/way_util
+- KEPT `visible_waypoint_of_all_except_temp` (old `func_00178928`) @ 0x00178928
+- KEPT `WayUtilWorkAlloc` (old `func_00179040`) @ 0x00179040
+- KEPT `WayUtilWorkFree` (old `func_00179050`) @ 0x00179050
+- KEPT `set_check_wp` (old `func_00179558`) @ 0x00179558
+- KEPT `visible_waypoint_of_all` (old `func_0017A6F8`) @ 0x0017A6F8
+- KEPT `bridge_waypoint_side_me` (old `func_0017AC48`) @ 0x0017AC48
+- KEPT `waypoint_connect_group_side_me` (old `func_0017ACD8`) @ 0x0017ACD8
+- KEPT `func_0017B0D8` (old `func_0017B0D8`) @ 0x0017B0D8
+- KEPT `func_0017B1A8` (old `func_0017B1A8`) @ 0x0017B1A8
+- KEPT `func_0017B1F0` (old `func_0017B1F0`) @ 0x0017B1F0
+- KEPT `func_0017B258` (old `func_0017B258`) @ 0x0017B258
+- KEPT `func_0017B288` (old `func_0017B288`) @ 0x0017B288
+- REVERTED `get_wp_nearest_bridge_side_me` (old `func_0017A9B8`) @ 0x0017A9B8 — insn 2: expected `jal	0 <get_wp_nearest_bridge_side_me>` built `jal	6e0 <ez_line>`
+- REVERTED `func_0017A9D8` (old `func_0017A9D8`) @ 0x0017A9D8 — insn 6: expected `jal	0 <func_0017A9D8>` built `jal	6e0 <ez_line>`
+- REVERTED `func_0017B230` (old `func_0017B230`) @ 0x0017B230 — insn 5: expected `lbu	v0,0(v1)` built `lb	v0,0(v1)`
+
+## src/gflag
+- KEPT `gflagSave` (old `func_0017B2E8`) @ 0x0017B2E8
+- KEPT `gflagLoad` (old `func_0017B318`) @ 0x0017B318
+- KEPT `gflagChk` (old `func_0017B358`) @ 0x0017B358
+- KEPT `func_0017B4E0` (old `func_0017B4E0`) @ 0x0017B4E0
+- KEPT `func_0017B528` (old `func_0017B528`) @ 0x0017B528
+- KEPT `func_0017B568` (old `func_0017B568`) @ 0x0017B568
+- KEPT `func_0017C818` (old `func_0017C818`) @ 0x0017C818
+- KEPT `func_0017C8C0` (old `func_0017C8C0`) @ 0x0017C8C0
+- KEPT `func_0017C8F8` (old `func_0017C8F8`) @ 0x0017C8F8
+- KEPT `func_0017C930` (old `func_0017C930`) @ 0x0017C930
+- KEPT `func_0017C960` (old `func_0017C960`) @ 0x0017C960
+- KEPT `func_0017C990` (old `func_0017C990`) @ 0x0017C990
+- KEPT `func_0017C9B0` (old `func_0017C9B0`) @ 0x0017C9B0
+- KEPT `func_0017CA10` (old `func_0017CA10`) @ 0x0017CA10
+- KEPT `func_0017CA18` (old `func_0017CA18`) @ 0x0017CA18
+- KEPT `func_0017CA58` (old `func_0017CA58`) @ 0x0017CA58
+- KEPT `func_0017CAA0` (old `func_0017CAA0`) @ 0x0017CAA0
+- KEPT `func_0017CAE0` (old `func_0017CAE0`) @ 0x0017CAE0
+- REVERTED `gflagInit` (old `func_0017B2B8`) @ 0x0017B2B8 — [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `gflagOn` (old `func_0017B398`) @ 0x0017B398 — src/gflag.c:8: redefinition of `struct GObj'
+- REVERTED `func_0017B5A0` (old `func_0017B5A0`) @ 0x0017B5A0 — insn 0: expected `lwc1	$f14,8(a1)` built `addiu	sp,sp,-80`
+
+## src/script
+- KEPT `scpPlayEnd` (old `func_0017D098`) @ 0x0017D098
+- KEPT `scpTrans` (old `func_0017D0D0`) @ 0x0017D0D0
+- KEPT `scpTriggerBallTargetMan` (old `func_0017D0F8`) @ 0x0017D0F8
+- KEPT `func_0017D1D0` (old `func_0017D1D0`) @ 0x0017D1D0
+- KEPT `scpSubAdpcmPlay` (old `func_0017D270`) @ 0x0017D270
+- KEPT `scpSekizou` (old `func_0017D2C8`) @ 0x0017D2C8
+- KEPT `scpDispOffAllWithKind` (old `func_0017DC90`) @ 0x0017DC90
+
+## src/st25a
+- KEPT `actSt25aQueenAppearChk` (old `func_0017DE98`) @ 0x0017DE98
+- KEPT `actConte11` (old `func_0017DEE0`) @ 0x0017DEE0
+- KEPT `BoySekikaTexScroll` (old `func_0017E240`) @ 0x0017E240
+- KEPT `actSt25aQueenBefore` (old `func_0017E2E8`) @ 0x0017E2E8
+- KEPT `actSt25aQueenTalk` (old `func_0017E328`) @ 0x0017E328
+- KEPT `actSwordEff` (old `func_0017E4A0`) @ 0x0017E4A0
+- KEPT `actSwordEffXL` (old `func_0017E4F0`) @ 0x0017E4F0
+- KEPT `actConte11Jimaku` (old `func_0017E570`) @ 0x0017E570
+- KEPT `actSt25aQueenDeadEvent` (old `func_0017E588`) @ 0x0017E588
+- KEPT `actItouQueenAttackChk` (old `func_0017E5B0`) @ 0x0017E5B0
+- KEPT `func_0017E600` (old `func_0017E600`) @ 0x0017E600
+- KEPT `func_0017E620` (old `func_0017E620`) @ 0x0017E620
+- REVERTED `func_0017E838` (old `func_0017E838`) @ 0x0017E838 — src/st25a.c:42: warning: passing arg 1 of `Generator_Mask' from incompatible pointer type
+
+## src/warpGirl
+- KEPT `warpGirlOutStage` (old `func_0017E920`) @ 0x0017E920
+- KEPT `warpGirlInit` (old `func_0017E9B0`) @ 0x0017E9B0
+- KEPT `func_0017E9D8` (old `func_0017E9D8`) @ 0x0017E9D8
+- KEPT `func_0017EA00` (old `func_0017EA00`) @ 0x0017EA00
+- KEPT `func_0017EA28` (old `func_0017EA28`) @ 0x0017EA28
+- KEPT `func_0017EC50` (old `func_0017EC50`) @ 0x0017EC50
+- KEPT `func_0017EC78` (old `func_0017EC78`) @ 0x0017EC78
+- KEPT `func_00180580` (old `func_00180580`) @ 0x00180580
+- REVERTED `func_00180550` (old `func_00180550`) @ 0x00180550 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+
+## src/attackhit
+- KEPT `AttackCheckSameGroup` (old `func_00180B28`) @ 0x00180B28
+- KEPT `AttackGenerate` (old `func_00180F38`) @ 0x00180F38
+- KEPT `func_00181BB8` (old `func_00181BB8`) @ 0x00181BB8
+- KEPT `func_00181BC0` (old `func_00181BC0`) @ 0x00181BC0
+- KEPT `func_00181F38` (old `func_00181F38`) @ 0x00181F38
+- KEPT `func_00181F58` (old `func_00181F58`) @ 0x00181F58
+- KEPT `func_00181FB0` (old `func_00181FB0`) @ 0x00181FB0
+- REVERTED `AttackCenter_WithDir` (old `func_00181960`) @ 0x00181960 — [§branch-direction] opposite branch sense — body inline vs out-of-line
+- REVERTED `func_00181BC8` (old `func_00181BC8`) @ 0x00181BC8 — insn 5: expected `jal	0 <func_00181BC8>` built `jal	630 <EnemyAttackCenter>`
+
+## src/brain
+- KEPT `OverrideBrainStatusByGObj` (old `func_00182860`) @ 0x00182860
+- KEPT `brainStatusDefaultSet` (old `func_00182868`) @ 0x00182868
+- KEPT `brainInitGirlSet` (old `func_00182BE8`) @ 0x00182BE8
+
+## src/camera-editor
+- KEPT `EnterMenu` (old `func_00182BF8`) @ 0x00182BF8
+- KEPT `saveEditedDataBinary` (old `func_00182C08`) @ 0x00182C08
+- KEPT `DebugDispBox` (old `func_00182CF0`) @ 0x00182CF0
+- KEPT `debug_Arrow` (old `func_001873A0`) @ 0x001873A0
+- KEPT `InitCameraEditor` (old `func_001873A8`) @ 0x001873A8
+- KEPT `debug_CameraEditor` (old `func_001873B0`) @ 0x001873B0
+- REVERTED `menuGroupSelect` (old `func_001848A0`) @ 0x001848A0 — insn 1: expected `j	0 <menuGroupSelect>` built `j	1890 <CameraEdit_DispBoxType2>`
+- REVERTED `wakeup_cameraedit` (old `func_00185660`) @ 0x00185660 — insn 0: expected `j	0 <wakeup_cameraedit>` built `j	1cb8 <menuGroupEdit>`
+- REVERTED `_CameraEdit_del_box` (old `func_001869F8`) @ 0x001869F8 — src/camera-editor.c:61: `test_camedit' undeclared (first use in this function)
+- REVERTED `CameraEdit_del_pin` (old `func_00187280`) @ 0x00187280 — insn 5: expected `jal	0 <CameraEdit_del_pin>` built `jal	3e18 <_CameraEdit_del_pin>`
+- REVERTED `CameraEdit_DispBox` (old `func_001872B8`) @ 0x001872B8 — insn 8: expected `jal	0 <CameraEdit_DispBox>` built `jal	3f70 <CameraEdit_add_box>`
+- REVERTED `CameraEdit_Reflect` (old `func_00187300`) @ 0x00187300 — insn 0: expected `j	0 <CameraEdit_Reflect>` built `j	d70 <dispCameraGroupType2>`
+- REVERTED `CameraEdit_Save` (old `func_00187308`) @ 0x00187308 — src/camera-editor.c:80: subscripted value is neither array nor pointer
+- REVERTED `debug_NMarker` (old `func_00187318`) @ 0x00187318 — src/camera-editor.c:81: subscripted value is neither array nor pointer
+- REVERTED `debug_Marker` (old `func_00187328`) @ 0x00187328 — src/camera-editor.c:84: incompatible type for argument 3 of `func_00243B18'
+
+## src/camera-ico2
+- KEPT `SetCameraZoomOffsetRatio` (old `func_00187F28`) @ 0x00187F28
+- KEPT `GetCameraGroupFromPosition` (old `func_00188220`) @ 0x00188220
+- KEPT `GetPluralCameraSet` (old `func_001882B0`) @ 0x001882B0
+- KEPT `SetCameraTargetPosition` (old `func_001886D0`) @ 0x001886D0
+- KEPT `func_0018B098` (old `func_0018B098`) @ 0x0018B098
+- KEPT `func_0018B0A0` (old `func_0018B0A0`) @ 0x0018B0A0
+- KEPT `func_0018B2F8` (old `func_0018B2F8`) @ 0x0018B2F8
+- REVERTED `CameraSetCameraSet` (old `func_001873C0`) @ 0x001873C0 — insn 12: expected `lbu	v0,0(gp)` built `lb	v0,0(gp)`
+- REVERTED `initMonitorCamera` (old `func_001878F8`) @ 0x001878F8 — src/camera-ico2.c:16: invalid type argument of `unary *'
+- REVERTED `monitorMonitorCamera` (old `func_00187908`) @ 0x00187908 — insn 4: expected `jal	0 <monitorMonitorCamera>` built `jal	5d0 <CameraMove>`
+- REVERTED `CameraMove` (old `func_00187990`) @ 0x00187990 — src/camera-ico2.c:23: subscripted value is neither array nor pointer
+- REVERTED `ReflectCameraSetBinary` (old `func_001879A8`) @ 0x001879A8 — src/camera-ico2.c:25: subscripted value is neither array nor pointer
+- REVERTED `InitPluralCameraSet` (old `func_00188290`) @ 0x00188290 — insn 6: expected `j	0 <InitPluralCameraSet>` built `j	e68 <AddPluralCameraSet>`
+- REVERTED `func_0018B700` (old `func_0018B700`) @ 0x0018B700 — insn 6: expected `jal	0 <func_0018B700>` built `jal	4378 <func_0018B738>`
+
+## src/camera-root
+- KEPT `ConvertCameraSet` (old `func_0018BE78`) @ 0x0018BE78
+- KEPT `GetCameraInfomationFromGlobalPosition` (old `func_0018CA78`) @ 0x0018CA78
+- KEPT `InitCamera` (old `func_0018CAA8`) @ 0x0018CAA8
+- KEPT `SetCameraMatrix` (old `func_0018CAD8`) @ 0x0018CAD8
+- KEPT `Camctrl_ExitEveRock` (old `func_0018CB10`) @ 0x0018CB10
+- KEPT `GetCameraDefaultTargetGObj` (old `func_0018CBE0`) @ 0x0018CBE0
+
+## src/camera-set-manager
+- KEPT `func_0018CC00` (old `func_0018CC00`) @ 0x0018CC00
+- KEPT `func_0018CC10` (old `func_0018CC10`) @ 0x0018CC10
+- KEPT `func_0018CEC0` (old `func_0018CEC0`) @ 0x0018CEC0
+- KEPT `func_0018CEF0` (old `func_0018CEF0`) @ 0x0018CEF0
+- KEPT `func_0018CF58` (old `func_0018CF58`) @ 0x0018CF58
+- REVERTED `InitCameraSetManager` (old `func_0018CBE8`) @ 0x0018CBE8 — insn 5: expected `<end>` built `sll	zero,zero,0x0`
+- REVERTED `func_0018CF00` (old `func_0018CF00`) @ 0x0018CF00 — [§2.7] FP register letter swap ($fA ↔ $fB, otherwise identical)
+
+## src/chain
+- KEPT `StartPendulum` (old `func_0018CF80`) @ 0x0018CF80
+- KEPT `chain_simulate_term_loop` (old `func_0018CFF0`) @ 0x0018CFF0
+- REVERTED `UpdateRootPosition` (old `func_0018CF60`) @ 0x0018CF60 — insn 7: expected `<end>` built `sll	zero,zero,0x0`
+- REVERTED `pendulum_Process` (old `func_0018DD80`) @ 0x0018DD80 — src/chain.c:7: redefinition of `struct GObj'
+- REVERTED `InitChainGeo` (old `func_0018DDF0`) @ 0x0018DDF0 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+- REVERTED `func_00190298` (old `func_00190298`) @ 0x00190298 — [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
+- REVERTED `func_001902C8` (old `func_001902C8`) @ 0x001902C8 — src/chain.c:7: redefinition of `struct GObj'
+- REVERTED `func_001902D8` (old `func_001902D8`) @ 0x001902D8 — src/chain.c:7: redefinition of `struct GObj'
+- REVERTED `func_00190318` (old `func_00190318`) @ 0x00190318 — src/chain.c:7: redefinition of `struct GObj'
+- REVERTED `func_00190330` (old `func_00190330`) @ 0x00190330 — src/chain.c:7: redefinition of `struct GObj'
+- REVERTED `func_00190360` (old `func_00190360`) @ 0x00190360 — src/chain.c:7: redefinition of `struct GObj'
+- REVERTED `func_00190388` (old `func_00190388`) @ 0x00190388 — src/chain.c:7: redefinition of `struct GObj'
+- REVERTED `func_001903A8` (old `func_001903A8`) @ 0x001903A8 — src/chain.c:7: redefinition of `struct GObj'
+- REVERTED `func_001903B8` (old `func_001903B8`) @ 0x001903B8 — src/chain.c:7: redefinition of `struct GObj'
+- REVERTED `func_00190430` (old `func_00190430`) @ 0x00190430 — src/chain.c:7: redefinition of `struct GObj'
+- REVERTED `func_00190440` (old `func_00190440`) @ 0x00190440 — src/chain.c:7: redefinition of `struct GObj'
+
+## src/ebrain
+- KEPT `func_001918A8` (old `func_001918A8`) @ 0x001918A8
+- KEPT `func_00191D08` (old `func_00191D08`) @ 0x00191D08
+- REVERTED `eBrainGetTarget` (old `func_00190620`) @ 0x00190620 — src/ebrain.c:5: redefinition of `struct GObj'
+- REVERTED `eBrainInit` (old `func_00190638`) @ 0x00190638 — src/ebrain.c:5: redefinition of `struct GObj'
+- REVERTED `eBrainStatusSet` (old `func_00190648`) @ 0x00190648 — src/ebrain.c:5: redefinition of `struct GObj'
+- REVERTED `eBrainSendMes` (old `func_00190658`) @ 0x00190658 — src/ebrain.c:5: redefinition of `struct GObj'
+- REVERTED `GetStageFromLabel` (old `func_00190680`) @ 0x00190680 — src/ebrain.c:5: redefinition of `struct GObj'
+- REVERTED `eBrainGetTargetGeneratorFromLabelStage` (old `func_00190698`) @ 0x00190698 — src/ebrain.c:5: redefinition of `struct GObj'
+- REVERTED `func_001906A8` (old `func_001906A8`) @ 0x001906A8 — src/ebrain.c:5: redefinition of `struct GObj'
+- REVERTED `func_001909B8` (old `func_001909B8`) @ 0x001909B8 — [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
+
+## src/enemy-control
+- KEPT `func_00192040` (old `func_00192040`) @ 0x00192040
+- REVERTED `EnemyCtrlBeforeFunc` (old `func_00191D20`) @ 0x00191D20 — insn 19: expected `<end>` built `sll	zero,zero,0x0`
+
+## src/fightSound
+- KEPT `fightSoundProcessMain` (old `func_00192050`) @ 0x00192050
+- KEPT `fightSoundProcess` (old `func_00192088`) @ 0x00192088
+- KEPT `fightSoundProcessRequestPause` (old `func_00192090`) @ 0x00192090
+- KEPT `fightSoundClose` (old `func_00192098`) @ 0x00192098
+
+## src/generator
+- KEPT `GetbufpGeneratorPacket` (old `func_001939C8`) @ 0x001939C8
+- KEPT `GetsizeGeneratorPacket` (old `func_001939D8`) @ 0x001939D8
+- REVERTED `Generator_QuickCall` (old `func_00192B58`) @ 0x00192B58 — src/generator.c:5: redefinition of `struct GObj'
+- REVERTED `Generator_Call` (old `func_00193818`) @ 0x00193818 — src/generator.c:5: redefinition of `struct GObj'
+- REVERTED `Generator_ResetCount` (old `func_00193830`) @ 0x00193830 — src/generator.c:5: redefinition of `struct GObj'
+- REVERTED `Generator_Mask` (old `func_00193848`) @ 0x00193848 — src/generator.c:5: redefinition of `struct GObj'
+- REVERTED `Generator_MaskOff` (old `func_00193860`) @ 0x00193860 — src/generator.c:5: redefinition of `struct GObj'
+
+## src/gv
+- KEPT `_InterGV` (old `func_001939E0`) @ 0x001939E0
+- KEPT `_DistGV` (old `func_00193CE8`) @ 0x00193CE8
+- KEPT `func_00193F48` (old `func_00193F48`) @ 0x00193F48
+- KEPT `_RotGV` (old `func_00193F78`) @ 0x00193F78
+- REVERTED `GetMatrixDirectionToZ` (old `func_00193A00`) @ 0x00193A00 — src/gv.c:5: redefinition of `struct GObj'
+- REVERTED `_InterRotGV` (old `func_00193A58`) @ 0x00193A58 — src/gv.c:5: redefinition of `struct GObj'
+- REVERTED `func_00193EC8` (old `func_00193EC8`) @ 0x00193EC8 — src/gv.c:6: redefinition of `struct GObj'
+
+## src/hand-camera
+- KEPT `func_001947D0` (old `func_001947D0`) @ 0x001947D0
+- KEPT `func_00194808` (old `func_00194808`) @ 0x00194808
+- KEPT `func_001948A8` (old `func_001948A8`) @ 0x001948A8
+- KEPT `func_00194960` (old `func_00194960`) @ 0x00194960
+- REVERTED `RotateAccordingToStick_PatternThree` (old `func_00194360`) @ 0x00194360 — insn 13: expected `<end>` built `sll	zero,zero,0x0`
+- REVERTED `ClearHandCameraCorrect` (old `func_001943C8`) @ 0x001943C8 — src/hand-camera.c:15: invalid use of void expression
+- REVERTED `func_00194590` (old `func_00194590`) @ 0x00194590 — insn 2: expected `jal	0 <func_00194590>` built `jal	1a8 <HandCameraCorrect>`
+- REVERTED `func_00194630` (old `func_00194630`) @ 0x00194630 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+- REVERTED `func_00194840` (old `func_00194840`) @ 0x00194840 — insn 15: expected `jal	0 <func_00194840>` built `jal	1a8 <HandCameraCorrect>`
+- REVERTED `func_001948F0` (old `func_001948F0`) @ 0x001948F0 — insn 13: expected `mov.s	$f1,$f0` built `mtc1	v0,$f1`
+
+## src/mail-add-data
+- KEPT `InitMailAdditionalData` (old `func_001949B8`) @ 0x001949B8
+- KEPT `ClearMailAdditionalData` (old `func_00194DC0`) @ 0x00194DC0
+- KEPT `func_00194E28` (old `func_00194E28`) @ 0x00194E28
+- KEPT `func_00194EA8` (old `func_00194EA8`) @ 0x00194EA8
+- KEPT `func_00195208` (old `func_00195208`) @ 0x00195208
+- KEPT `func_00195230` (old `func_00195230`) @ 0x00195230
+- KEPT `func_00195350` (old `func_00195350`) @ 0x00195350
+- REVERTED `func_00194FE8` (old `func_00194FE8`) @ 0x00194FE8 — insn 1: expected `j	0 <func_00194FE8>` built `j	7e8 <func_001951A0>`
+- REVERTED `func_001951A0` (old `func_001951A0`) @ 0x001951A0 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+
+## src/poly-flat
+- KEPT `before_DrawPolygon` (old `func_00195378`) @ 0x00195378
+- KEPT `func_00197078` (old `func_00197078`) @ 0x00197078
+
+## src/act_bird
+- KEPT `birdBeforeFunc` (old `func_001970E0`) @ 0x001970E0
+- KEPT `Debug_StickControl` (old `func_00197330`) @ 0x00197330
+- KEPT `BirdDL` (old `func_001973A8`) @ 0x001973A8
+- REVERTED `interp_vector_sa` (old `func_00197080`) @ 0x00197080 — src/act_bird.c:5: redefinition of `struct GObj'
+
+## src/gather_effect
+
+## src/itou_boss
+- KEPT `bossCtrlBeforeFunc` (old `func_00198110`) @ 0x00198110
+- REVERTED `effect_end_func` (old `func_00197FE8`) @ 0x00197FE8 — insn 5: expected `<end>` built `sll	zero,zero,0x0`
+- REVERTED `gene_enemy` (old `func_00198218`) @ 0x00198218 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+- REVERTED `BossCtrlGeo` (old `func_00198328`) @ 0x00198328 — insn 3: expected `sb	v0,0(v1)` built `sw	v0,0(v1)`
+
+## src/itou_gflag
+- KEPT `itouGflagLoad` (old `func_00198420`) @ 0x00198420
+- KEPT `itouGflagSave` (old `func_00198428`) @ 0x00198428
+- KEPT `func_00198430` (old `func_00198430`) @ 0x00198430
+
+## src/itou_sub
+- KEPT `m33_to_quat` (old `func_00198678`) @ 0x00198678
+- KEPT `apply_matrix_w1` (old `func_001986D8`) @ 0x001986D8
+- KEPT `ico_m33_to_quat` (old `func_00198710`) @ 0x00198710
+- QUARANTINED `lw_pos_to_ico_pos` (old `func_001986A8`) @ 0x001986A8 — vu0-inline-asm
+
+## src/lightning
+- KEPT `set_vertex` (old `func_00199790`) @ 0x00199790
+- KEPT `apply_m34` (old `func_00199998`) @ 0x00199998
+- REVERTED `func_00199A08` (old `func_00199A08`) @ 0x00199A08 — src/lightning.c:6: redefinition of `struct GObj'
+
+## src/queen
+- KEPT `queenBallBeforeFunc` (old `func_0019C010`) @ 0x0019C010
+- REVERTED `func_0019A9A0` (old `func_0019A9A0`) @ 0x0019A9A0 — src/queen.c:5: redefinition of `struct GObj'
+- REVERTED `func_0019AE50` (old `func_0019AE50`) @ 0x0019AE50 — src/queen.c:5: redefinition of `struct GObj'
+- REVERTED `func_0019B7F8` (old `func_0019B7F8`) @ 0x0019B7F8 — src/queen.c:31: `func_0019BCE0' undeclared (first use in this function)
+- REVERTED `func_0019B888` (old `func_0019B888`) @ 0x0019B888 — src/queen.c:5: redefinition of `struct GObj'
+- REVERTED `func_0019B8E8` (old `func_0019B8E8`) @ 0x0019B8E8 — src/queen.c:5: redefinition of `struct GObj'
+- REVERTED `func_0019B910` (old `func_0019B910`) @ 0x0019B910 — src/queen.c:5: redefinition of `struct GObj'
+- REVERTED `func_0019B938` (old `func_0019B938`) @ 0x0019B938 — src/queen.c:5: redefinition of `struct GObj'
+- REVERTED `func_0019B948` (old `func_0019B948`) @ 0x0019B948 — src/queen.c:33: subscripted value is neither array nor pointer
+- REVERTED `func_0019BA60` (old `func_0019BA60`) @ 0x0019BA60 — src/queen.c:5: redefinition of `struct GObj'
+- REVERTED `func_0019BAA8` (old `func_0019BAA8`) @ 0x0019BAA8 — src/queen.c:5: redefinition of `struct GObj'
+- REVERTED `func_0019BB40` (old `func_0019BB40`) @ 0x0019BB40 — src/queen.c:5: redefinition of `struct GObj'
+- REVERTED `func_0019BC58` (old `func_0019BC58`) @ 0x0019BC58 — src/queen.c:5: redefinition of `struct GObj'
+
+## src/queen_barrier_disp
+- REVERTED `makeRefractST` (old `func_0019C798`) @ 0x0019C798 — insn 0: expected `lhu	v0,0(gp)` built `lw	v0,0(gp)`
+
+- REVERTED `nearest_waypoint_by_lineseg` (old `func_0017A230`) @ 0x0017A230 — extra trailing pad nop appears once all 13 siblings are coalesced (alignment/scheduling shift); passed isolated quick_diff, broke the full-ELF SHA gate (post-hoc, bisected)
+
+## src/act_bird
+- KEPT `birdBeforeFunc` (old `func_001970E0`) @ 0x001970E0
+- KEPT `Debug_StickControl` (old `func_00197330`) @ 0x00197330
+- KEPT `BirdDL` (old `func_001973A8`) @ 0x001973A8
+- REVERTED `interp_vector_sa` (old `func_00197080`) @ 0x00197080 — src/act_bird.c:5: redefinition of `struct GObj'
+
+## src/attackhit
+- KEPT `AttackCheckSameGroup` (old `func_00180B28`) @ 0x00180B28
+- KEPT `AttackGenerate` (old `func_00180F38`) @ 0x00180F38
+- KEPT `func_00181BB8` (old `func_00181BB8`) @ 0x00181BB8
+- KEPT `func_00181BC0` (old `func_00181BC0`) @ 0x00181BC0
+- KEPT `func_00181F38` (old `func_00181F38`) @ 0x00181F38
+- KEPT `func_00181F58` (old `func_00181F58`) @ 0x00181F58
+- KEPT `func_00181FB0` (old `func_00181FB0`) @ 0x00181FB0
+- REVERTED `AttackCenter_WithDir` (old `func_00181960`) @ 0x00181960 — [§branch-direction] opposite branch sense — body inline vs out-of-line
+- REVERTED `func_00181BC8` (old `func_00181BC8`) @ 0x00181BC8 — insn 5: expected `jal	0 <func_00181BC8>` built `jal	630 <EnemyAttackCenter>`
+
+## src/brain
+- KEPT `OverrideBrainStatusByGObj` (old `func_00182860`) @ 0x00182860
+- KEPT `brainStatusDefaultSet` (old `func_00182868`) @ 0x00182868
+- KEPT `brainInitGirlSet` (old `func_00182BE8`) @ 0x00182BE8
+
+## src/camera-editor
+- KEPT `EnterMenu` (old `func_00182BF8`) @ 0x00182BF8
+- KEPT `saveEditedDataBinary` (old `func_00182C08`) @ 0x00182C08
+- KEPT `DebugDispBox` (old `func_00182CF0`) @ 0x00182CF0
+- KEPT `debug_Arrow` (old `func_001873A0`) @ 0x001873A0
+- KEPT `InitCameraEditor` (old `func_001873A8`) @ 0x001873A8
+- KEPT `debug_CameraEditor` (old `func_001873B0`) @ 0x001873B0
+- REVERTED `menuGroupSelect` (old `func_001848A0`) @ 0x001848A0 — insn 1: expected `j	0 <menuGroupSelect>` built `j	1890 <CameraEdit_DispBoxType2>`
+- REVERTED `wakeup_cameraedit` (old `func_00185660`) @ 0x00185660 — insn 0: expected `j	0 <wakeup_cameraedit>` built `j	1cb8 <menuGroupEdit>`
+- REVERTED `_CameraEdit_del_box` (old `func_001869F8`) @ 0x001869F8 — src/camera-editor.c:61: `test_camedit' undeclared (first use in this function)
+- REVERTED `CameraEdit_del_pin` (old `func_00187280`) @ 0x00187280 — insn 5: expected `jal	0 <CameraEdit_del_pin>` built `jal	3e18 <_CameraEdit_del_pin>`
+- REVERTED `CameraEdit_DispBox` (old `func_001872B8`) @ 0x001872B8 — insn 8: expected `jal	0 <CameraEdit_DispBox>` built `jal	3f70 <CameraEdit_add_box>`
+- REVERTED `CameraEdit_Reflect` (old `func_00187300`) @ 0x00187300 — insn 0: expected `j	0 <CameraEdit_Reflect>` built `j	d70 <dispCameraGroupType2>`
+- REVERTED `CameraEdit_Save` (old `func_00187308`) @ 0x00187308 — src/camera-editor.c:80: subscripted value is neither array nor pointer
+- REVERTED `debug_NMarker` (old `func_00187318`) @ 0x00187318 — src/camera-editor.c:81: subscripted value is neither array nor pointer
+- REVERTED `debug_Marker` (old `func_00187328`) @ 0x00187328 — src/camera-editor.c:84: incompatible type for argument 3 of `func_00243B18'
+
+## src/camera-ico2
+- KEPT `SetCameraZoomOffsetRatio` (old `func_00187F28`) @ 0x00187F28
+- KEPT `GetCameraGroupFromPosition` (old `func_00188220`) @ 0x00188220
+- KEPT `GetPluralCameraSet` (old `func_001882B0`) @ 0x001882B0
+- KEPT `SetCameraTargetPosition` (old `func_001886D0`) @ 0x001886D0
+- KEPT `func_0018B098` (old `func_0018B098`) @ 0x0018B098
+- KEPT `func_0018B0A0` (old `func_0018B0A0`) @ 0x0018B0A0
+- KEPT `func_0018B2F8` (old `func_0018B2F8`) @ 0x0018B2F8
+- REVERTED `CameraSetCameraSet` (old `func_001873C0`) @ 0x001873C0 — insn 12: expected `lbu	v0,0(gp)` built `lb	v0,0(gp)`
+- REVERTED `initMonitorCamera` (old `func_001878F8`) @ 0x001878F8 — src/camera-ico2.c:16: invalid type argument of `unary *'
+- REVERTED `monitorMonitorCamera` (old `func_00187908`) @ 0x00187908 — insn 4: expected `jal	0 <monitorMonitorCamera>` built `jal	5d0 <CameraMove>`
+- REVERTED `CameraMove` (old `func_00187990`) @ 0x00187990 — src/camera-ico2.c:23: subscripted value is neither array nor pointer
+- REVERTED `ReflectCameraSetBinary` (old `func_001879A8`) @ 0x001879A8 — src/camera-ico2.c:25: subscripted value is neither array nor pointer
+- REVERTED `InitPluralCameraSet` (old `func_00188290`) @ 0x00188290 — insn 6: expected `j	0 <InitPluralCameraSet>` built `j	e68 <AddPluralCameraSet>`
+- REVERTED `func_0018B700` (old `func_0018B700`) @ 0x0018B700 — insn 6: expected `jal	0 <func_0018B700>` built `jal	4378 <func_0018B738>`
+
+## src/camera-root
+- KEPT `ConvertCameraSet` (old `func_0018BE78`) @ 0x0018BE78
+- KEPT `GetCameraInfomationFromGlobalPosition` (old `func_0018CA78`) @ 0x0018CA78
+- KEPT `InitCamera` (old `func_0018CAA8`) @ 0x0018CAA8
+- KEPT `SetCameraMatrix` (old `func_0018CAD8`) @ 0x0018CAD8
+- KEPT `Camctrl_ExitEveRock` (old `func_0018CB10`) @ 0x0018CB10
+- KEPT `GetCameraDefaultTargetGObj` (old `func_0018CBE0`) @ 0x0018CBE0
+
+## src/camera-set-manager
+- KEPT `func_0018CC00` (old `func_0018CC00`) @ 0x0018CC00
+- KEPT `func_0018CC10` (old `func_0018CC10`) @ 0x0018CC10
+- KEPT `func_0018CEC0` (old `func_0018CEC0`) @ 0x0018CEC0
+- KEPT `func_0018CEF0` (old `func_0018CEF0`) @ 0x0018CEF0
+- KEPT `func_0018CF58` (old `func_0018CF58`) @ 0x0018CF58
+- REVERTED `InitCameraSetManager` (old `func_0018CBE8`) @ 0x0018CBE8 — insn 5: expected `<end>` built `sll	zero,zero,0x0`
+- REVERTED `func_0018CF00` (old `func_0018CF00`) @ 0x0018CF00 — [§2.7] FP register letter swap ($fA ↔ $fB, otherwise identical)
+
+## src/chain
+- KEPT `StartPendulum` (old `func_0018CF80`) @ 0x0018CF80
+- KEPT `chain_simulate_term_loop` (old `func_0018CFF0`) @ 0x0018CFF0
+- REVERTED `UpdateRootPosition` (old `func_0018CF60`) @ 0x0018CF60 — insn 7: expected `<end>` built `sll	zero,zero,0x0`
+- REVERTED `pendulum_Process` (old `func_0018DD80`) @ 0x0018DD80 — src/chain.c:7: redefinition of `struct GObj'
+- REVERTED `InitChainGeo` (old `func_0018DDF0`) @ 0x0018DDF0 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+- REVERTED `func_00190298` (old `func_00190298`) @ 0x00190298 — [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
+- REVERTED `func_001902C8` (old `func_001902C8`) @ 0x001902C8 — src/chain.c:7: redefinition of `struct GObj'
+- REVERTED `func_001902D8` (old `func_001902D8`) @ 0x001902D8 — src/chain.c:7: redefinition of `struct GObj'
+- REVERTED `func_00190318` (old `func_00190318`) @ 0x00190318 — src/chain.c:7: redefinition of `struct GObj'
+- REVERTED `func_00190330` (old `func_00190330`) @ 0x00190330 — src/chain.c:7: redefinition of `struct GObj'
+- REVERTED `func_00190360` (old `func_00190360`) @ 0x00190360 — src/chain.c:7: redefinition of `struct GObj'
+- REVERTED `func_00190388` (old `func_00190388`) @ 0x00190388 — src/chain.c:7: redefinition of `struct GObj'
+- REVERTED `func_001903A8` (old `func_001903A8`) @ 0x001903A8 — src/chain.c:7: redefinition of `struct GObj'
+- REVERTED `func_001903B8` (old `func_001903B8`) @ 0x001903B8 — src/chain.c:7: redefinition of `struct GObj'
+- REVERTED `func_00190430` (old `func_00190430`) @ 0x00190430 — src/chain.c:7: redefinition of `struct GObj'
+- REVERTED `func_00190440` (old `func_00190440`) @ 0x00190440 — src/chain.c:7: redefinition of `struct GObj'
+
+## src/ebrain
+- KEPT `func_001918A8` (old `func_001918A8`) @ 0x001918A8
+- KEPT `func_00191D08` (old `func_00191D08`) @ 0x00191D08
+- REVERTED `eBrainGetTarget` (old `func_00190620`) @ 0x00190620 — src/ebrain.c:5: redefinition of `struct GObj'
+- REVERTED `eBrainInit` (old `func_00190638`) @ 0x00190638 — src/ebrain.c:5: redefinition of `struct GObj'
+- REVERTED `eBrainStatusSet` (old `func_00190648`) @ 0x00190648 — src/ebrain.c:5: redefinition of `struct GObj'
+- REVERTED `eBrainSendMes` (old `func_00190658`) @ 0x00190658 — src/ebrain.c:5: redefinition of `struct GObj'
+- REVERTED `GetStageFromLabel` (old `func_00190680`) @ 0x00190680 — src/ebrain.c:5: redefinition of `struct GObj'
+- REVERTED `eBrainGetTargetGeneratorFromLabelStage` (old `func_00190698`) @ 0x00190698 — src/ebrain.c:5: redefinition of `struct GObj'
+- REVERTED `func_001906A8` (old `func_001906A8`) @ 0x001906A8 — src/ebrain.c:5: redefinition of `struct GObj'
+- REVERTED `func_001909B8` (old `func_001909B8`) @ 0x001909B8 — [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
+
+## src/enemy-control
+- KEPT `func_00192040` (old `func_00192040`) @ 0x00192040
+- REVERTED `EnemyCtrlBeforeFunc` (old `func_00191D20`) @ 0x00191D20 — insn 19: expected `<end>` built `sll	zero,zero,0x0`
+
+## src/fightSound
+- KEPT `fightSoundProcessMain` (old `func_00192050`) @ 0x00192050
+- KEPT `fightSoundProcess` (old `func_00192088`) @ 0x00192088
+- KEPT `fightSoundProcessRequestPause` (old `func_00192090`) @ 0x00192090
+- KEPT `fightSoundClose` (old `func_00192098`) @ 0x00192098
+
+## src/generator
+- KEPT `GetbufpGeneratorPacket` (old `func_001939C8`) @ 0x001939C8
+- KEPT `GetsizeGeneratorPacket` (old `func_001939D8`) @ 0x001939D8
+- REVERTED `Generator_QuickCall` (old `func_00192B58`) @ 0x00192B58 — src/generator.c:5: redefinition of `struct GObj'
+- REVERTED `Generator_Call` (old `func_00193818`) @ 0x00193818 — src/generator.c:5: redefinition of `struct GObj'
+- REVERTED `Generator_ResetCount` (old `func_00193830`) @ 0x00193830 — src/generator.c:5: redefinition of `struct GObj'
+- REVERTED `Generator_Mask` (old `func_00193848`) @ 0x00193848 — src/generator.c:5: redefinition of `struct GObj'
+- REVERTED `Generator_MaskOff` (old `func_00193860`) @ 0x00193860 — src/generator.c:5: redefinition of `struct GObj'
+
+## src/gflag
+- KEPT `gflagSave` (old `func_0017B2E8`) @ 0x0017B2E8
+- KEPT `gflagLoad` (old `func_0017B318`) @ 0x0017B318
+- KEPT `gflagChk` (old `func_0017B358`) @ 0x0017B358
+- KEPT `func_0017B4E0` (old `func_0017B4E0`) @ 0x0017B4E0
+- KEPT `func_0017B528` (old `func_0017B528`) @ 0x0017B528
+- KEPT `func_0017B568` (old `func_0017B568`) @ 0x0017B568
+- KEPT `func_0017C818` (old `func_0017C818`) @ 0x0017C818
+- KEPT `func_0017C8C0` (old `func_0017C8C0`) @ 0x0017C8C0
+- KEPT `func_0017C8F8` (old `func_0017C8F8`) @ 0x0017C8F8
+- KEPT `func_0017C930` (old `func_0017C930`) @ 0x0017C930
+- KEPT `func_0017C960` (old `func_0017C960`) @ 0x0017C960
+- KEPT `func_0017C990` (old `func_0017C990`) @ 0x0017C990
+- KEPT `func_0017C9B0` (old `func_0017C9B0`) @ 0x0017C9B0
+- KEPT `func_0017CA10` (old `func_0017CA10`) @ 0x0017CA10
+- KEPT `func_0017CA18` (old `func_0017CA18`) @ 0x0017CA18
+- KEPT `func_0017CA58` (old `func_0017CA58`) @ 0x0017CA58
+- KEPT `func_0017CAA0` (old `func_0017CAA0`) @ 0x0017CAA0
+- KEPT `func_0017CAE0` (old `func_0017CAE0`) @ 0x0017CAE0
+- REVERTED `gflagInit` (old `func_0017B2B8`) @ 0x0017B2B8 — [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `gflagOn` (old `func_0017B398`) @ 0x0017B398 — src/gflag.c:8: redefinition of `struct GObj'
+- REVERTED `func_0017B5A0` (old `func_0017B5A0`) @ 0x0017B5A0 — insn 0: expected `lwc1	$f14,8(a1)` built `addiu	sp,sp,-80`
+
+## src/gv
+- KEPT `_InterGV` (old `func_001939E0`) @ 0x001939E0
+- KEPT `_DistGV` (old `func_00193CE8`) @ 0x00193CE8
+- KEPT `func_00193F48` (old `func_00193F48`) @ 0x00193F48
+- KEPT `_RotGV` (old `func_00193F78`) @ 0x00193F78
+- REVERTED `GetMatrixDirectionToZ` (old `func_00193A00`) @ 0x00193A00 — src/gv.c:5: redefinition of `struct GObj'
+- REVERTED `_InterRotGV` (old `func_00193A58`) @ 0x00193A58 — src/gv.c:5: redefinition of `struct GObj'
+- REVERTED `func_00193EC8` (old `func_00193EC8`) @ 0x00193EC8 — src/gv.c:6: redefinition of `struct GObj'
+
+## src/hand-camera
+- KEPT `func_001947D0` (old `func_001947D0`) @ 0x001947D0
+- KEPT `func_00194808` (old `func_00194808`) @ 0x00194808
+- KEPT `func_001948A8` (old `func_001948A8`) @ 0x001948A8
+- KEPT `func_00194960` (old `func_00194960`) @ 0x00194960
+- REVERTED `RotateAccordingToStick_PatternThree` (old `func_00194360`) @ 0x00194360 — insn 13: expected `<end>` built `sll	zero,zero,0x0`
+- REVERTED `ClearHandCameraCorrect` (old `func_001943C8`) @ 0x001943C8 — src/hand-camera.c:15: invalid use of void expression
+- REVERTED `func_00194590` (old `func_00194590`) @ 0x00194590 — insn 2: expected `jal	0 <func_00194590>` built `jal	1a8 <HandCameraCorrect>`
+- REVERTED `func_00194630` (old `func_00194630`) @ 0x00194630 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+- REVERTED `func_00194840` (old `func_00194840`) @ 0x00194840 — insn 15: expected `jal	0 <func_00194840>` built `jal	1a8 <HandCameraCorrect>`
+- REVERTED `func_001948F0` (old `func_001948F0`) @ 0x001948F0 — insn 13: expected `mov.s	$f1,$f0` built `mtc1	v0,$f1`
+
+## src/itou_boss
+- KEPT `bossCtrlBeforeFunc` (old `func_00198110`) @ 0x00198110
+- REVERTED `effect_end_func` (old `func_00197FE8`) @ 0x00197FE8 — insn 5: expected `<end>` built `sll	zero,zero,0x0`
+- REVERTED `gene_enemy` (old `func_00198218`) @ 0x00198218 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+- REVERTED `BossCtrlGeo` (old `func_00198328`) @ 0x00198328 — insn 3: expected `sb	v0,0(v1)` built `sw	v0,0(v1)`
+
+## src/itou_gflag
+- KEPT `itouGflagLoad` (old `func_00198420`) @ 0x00198420
+- KEPT `itouGflagSave` (old `func_00198428`) @ 0x00198428
+- KEPT `func_00198430` (old `func_00198430`) @ 0x00198430
+
+## src/itou_sub
+- KEPT `m33_to_quat` (old `func_00198678`) @ 0x00198678
+- KEPT `apply_matrix_w1` (old `func_001986D8`) @ 0x001986D8
+- KEPT `ico_m33_to_quat` (old `func_00198710`) @ 0x00198710
+- QUARANTINED `lw_pos_to_ico_pos` (old `func_001986A8`) @ 0x001986A8 — vu0-inline-asm
+
+## src/jimaku
+- KEPT `jimakuMgrJump` (old `func_00175C70`) @ 0x00175C70
+- KEPT `jimakuMgrEnd` (old `func_00175C90`) @ 0x00175C90
+- KEPT `jimakuBegin` (old `func_00175CB0`) @ 0x00175CB0
+- KEPT `jimakuEnd` (old `func_00175F60`) @ 0x00175F60
+- KEPT `jimakuManager` (old `func_001760F0`) @ 0x001760F0
+- KEPT `func_00176150` (old `func_00176150`) @ 0x00176150
+- KEPT `func_00176198` (old `func_00176198`) @ 0x00176198
+- KEPT `func_001761B8` (old `func_001761B8`) @ 0x001761B8
+- KEPT `func_00176398` (old `func_00176398`) @ 0x00176398
+- KEPT `func_00176AA0` (old `func_00176AA0`) @ 0x00176AA0
+- KEPT `func_00176AE8` (old `func_00176AE8`) @ 0x00176AE8
+- KEPT `func_00176B08` (old `func_00176B08`) @ 0x00176B08
+- REVERTED `jimakuUndisp` (old `func_00176130`) @ 0x00176130 — src/jimaku.c:8: redefinition of `struct GObj'
+- REVERTED `func_00176808` (old `func_00176808`) @ 0x00176808 — src/jimaku.c:172: dereferencing pointer to incomplete type
+- REVERTED `func_001769D0` (old `func_001769D0`) @ 0x001769D0 — src/jimaku.c:140: warning: passing arg 1 of `func_00133500' makes pointer from integer without a cast
+
+## src/lightning
+- KEPT `set_vertex` (old `func_00199790`) @ 0x00199790
+- KEPT `apply_m34` (old `func_00199998`) @ 0x00199998
+- REVERTED `func_00199A08` (old `func_00199A08`) @ 0x00199A08 — src/lightning.c:6: redefinition of `struct GObj'
+
+## src/mail-add-data
+- KEPT `InitMailAdditionalData` (old `func_001949B8`) @ 0x001949B8
+- KEPT `ClearMailAdditionalData` (old `func_00194DC0`) @ 0x00194DC0
+- KEPT `func_00194E28` (old `func_00194E28`) @ 0x00194E28
+- KEPT `func_00194EA8` (old `func_00194EA8`) @ 0x00194EA8
+- KEPT `func_00195208` (old `func_00195208`) @ 0x00195208
+- KEPT `func_00195230` (old `func_00195230`) @ 0x00195230
+- KEPT `func_00195350` (old `func_00195350`) @ 0x00195350
+- REVERTED `func_00194FE8` (old `func_00194FE8`) @ 0x00194FE8 — insn 1: expected `j	0 <func_00194FE8>` built `j	7e8 <func_001951A0>`
+- REVERTED `func_001951A0` (old `func_001951A0`) @ 0x001951A0 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+
+## src/poly-flat
+- KEPT `before_DrawPolygon` (old `func_00195378`) @ 0x00195378
+- KEPT `func_00197078` (old `func_00197078`) @ 0x00197078
+
+## src/queen
+- KEPT `queenBallBeforeFunc` (old `func_0019C010`) @ 0x0019C010
+- REVERTED `func_0019A9A0` (old `func_0019A9A0`) @ 0x0019A9A0 — src/queen.c:5: redefinition of `struct GObj'
+- REVERTED `func_0019AE50` (old `func_0019AE50`) @ 0x0019AE50 — src/queen.c:5: redefinition of `struct GObj'
+- REVERTED `func_0019B7F8` (old `func_0019B7F8`) @ 0x0019B7F8 — src/queen.c:31: `func_0019BCE0' undeclared (first use in this function)
+- REVERTED `func_0019B888` (old `func_0019B888`) @ 0x0019B888 — src/queen.c:5: redefinition of `struct GObj'
+- REVERTED `func_0019B8E8` (old `func_0019B8E8`) @ 0x0019B8E8 — src/queen.c:5: redefinition of `struct GObj'
+- REVERTED `func_0019B910` (old `func_0019B910`) @ 0x0019B910 — src/queen.c:5: redefinition of `struct GObj'
+- REVERTED `func_0019B938` (old `func_0019B938`) @ 0x0019B938 — src/queen.c:5: redefinition of `struct GObj'
+- REVERTED `func_0019B948` (old `func_0019B948`) @ 0x0019B948 — src/queen.c:33: subscripted value is neither array nor pointer
+- REVERTED `func_0019BA60` (old `func_0019BA60`) @ 0x0019BA60 — src/queen.c:5: redefinition of `struct GObj'
+- REVERTED `func_0019BAA8` (old `func_0019BAA8`) @ 0x0019BAA8 — src/queen.c:5: redefinition of `struct GObj'
+- REVERTED `func_0019BB40` (old `func_0019BB40`) @ 0x0019BB40 — src/queen.c:5: redefinition of `struct GObj'
+- REVERTED `func_0019BC58` (old `func_0019BC58`) @ 0x0019BC58 — src/queen.c:5: redefinition of `struct GObj'
+
+## src/script
+- KEPT `scpPlayEnd` (old `func_0017D098`) @ 0x0017D098
+- KEPT `scpTrans` (old `func_0017D0D0`) @ 0x0017D0D0
+- KEPT `scpTriggerBallTargetMan` (old `func_0017D0F8`) @ 0x0017D0F8
+- KEPT `func_0017D1D0` (old `func_0017D1D0`) @ 0x0017D1D0
+- KEPT `scpSubAdpcmPlay` (old `func_0017D270`) @ 0x0017D270
+- KEPT `scpSekizou` (old `func_0017D2C8`) @ 0x0017D2C8
+- KEPT `scpDispOffAllWithKind` (old `func_0017DC90`) @ 0x0017DC90
+
+## src/st25a
+- KEPT `actSt25aQueenAppearChk` (old `func_0017DE98`) @ 0x0017DE98
+- KEPT `actConte11` (old `func_0017DEE0`) @ 0x0017DEE0
+- KEPT `BoySekikaTexScroll` (old `func_0017E240`) @ 0x0017E240
+- KEPT `actSt25aQueenBefore` (old `func_0017E2E8`) @ 0x0017E2E8
+- KEPT `actSt25aQueenTalk` (old `func_0017E328`) @ 0x0017E328
+- KEPT `actSwordEff` (old `func_0017E4A0`) @ 0x0017E4A0
+- KEPT `actSwordEffXL` (old `func_0017E4F0`) @ 0x0017E4F0
+- KEPT `actConte11Jimaku` (old `func_0017E570`) @ 0x0017E570
+- KEPT `actSt25aQueenDeadEvent` (old `func_0017E588`) @ 0x0017E588
+- KEPT `actItouQueenAttackChk` (old `func_0017E5B0`) @ 0x0017E5B0
+- KEPT `func_0017E600` (old `func_0017E600`) @ 0x0017E600
+- KEPT `func_0017E620` (old `func_0017E620`) @ 0x0017E620
+- REVERTED `func_0017E838` (old `func_0017E838`) @ 0x0017E838 — src/st25a.c:42: warning: passing arg 1 of `Generator_Mask' from incompatible pointer type
+
+## src/warpGirl
+- KEPT `warpGirlOutStage` (old `func_0017E920`) @ 0x0017E920
+- KEPT `warpGirlInit` (old `func_0017E9B0`) @ 0x0017E9B0
+- KEPT `func_0017E9D8` (old `func_0017E9D8`) @ 0x0017E9D8
+- KEPT `func_0017EA00` (old `func_0017EA00`) @ 0x0017EA00
+- KEPT `func_0017EA28` (old `func_0017EA28`) @ 0x0017EA28
+- KEPT `func_0017EC50` (old `func_0017EC50`) @ 0x0017EC50
+- KEPT `func_0017EC78` (old `func_0017EC78`) @ 0x0017EC78
+- KEPT `func_00180580` (old `func_00180580`) @ 0x00180580
+- REVERTED `func_00180550` (old `func_00180550`) @ 0x00180550 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+
+## src/way_sys
+- KEPT `avoid_obstacle2` (old `func_00176BB8`) @ 0x00176BB8

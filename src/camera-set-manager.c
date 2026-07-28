@@ -1,10 +1,22 @@
 #include "common.h"
 
+
+
+
+extern int D_006D06C8[];
+extern int D_006D0680[];
+extern int D_006D06B8[];
+extern int D_00633D90;
 INCLUDE_ASM("asm/nonmatchings/src/camera-set-manager", InitCameraSetManager);
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-set-manager", func_0018CC00);
+void func_0018CC00(int x) {
+    D_00633D90 = x;
+    D_006D06B8[0] = 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-set-manager", func_0018CC10);
+int func_0018CC10(void) {
+    return D_00633D90;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-set-manager", func_0018CC18);
 
@@ -14,15 +26,19 @@ INCLUDE_ASM("asm/nonmatchings/src/camera-set-manager", func_0018CD98);
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-set-manager", func_0018CE40);
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-set-manager", func_0018CEC0);
+int *func_0018CEC0(void) {
+    return D_006D0680;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-set-manager", func_0018CED0);
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-set-manager", func_0018CEE0);
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-set-manager", func_0018CEF0);
+int func_0018CEF0(void) {
+    return D_006D06C8[0] < 2;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-set-manager", func_0018CF00);
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-set-manager", func_0018CF58);
+void func_0018CF58(void) {}
 

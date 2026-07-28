@@ -1196,6 +1196,48 @@ def cmd_splice(args):
     return kept, reverted, quarantined
 
 
+def cmd_revert_func(args):
+    """Post-hoc revert: a function passed the per-function quick_diff gate
+    (possibly only "functionally", tolerating the jal/branch cosmetic
+    normalization) but the batch-level full `ninja` SHA-1 check failed with
+    it included — bisection (tools/first_diff.py, or manual half-split
+    when the section layout defeats it) narrowed the culprit down to one
+    function. Splice its INCLUDE_ASM stub back in place of the definition
+    and log it. Any now-possibly-unused extern/header/typedef lines added
+    for it are deliberately left behind — harmless, and may still be used
+    by a sibling kept function."""
+    cache = Cache()
+    tu = args.tu
+    name = args.func
+    path = tu_path(tu)
+    text = read_latin1(path)
+    funcs, _ = extract_functions_from_file(tu + ".c", text)
+    target = next((f for f in funcs if f["name"] == name), None)
+    if target is None:
+        print(f"revert-func: {name} is not a spliced (real) function in {tu}.c — nothing to do", file=sys.stderr)
+        sys.exit(1)
+    old_name = None
+    for addr_s, rec in cache.functions.items():
+        if cache.new_a2n.get(int(addr_s)) == name or rec["old_name"] == name:
+            old_name = rec["old_name"]
+            break
+    addr = cache.new_n2a.get(name)
+    folder = None
+    m = re.search(r'INCLUDE_ASM\("([^"]+)"', text)
+    if m:
+        folder = m.group(1)
+    else:
+        # Derive the conventional folder from the yaml subsegment name.
+        folder = f"asm/nonmatchings/{tu}"
+    stub = f'INCLUDE_ASM("{folder}", {name});'
+    new_text = text[:target["start"]] + stub + text[target["end"]:]
+    write_latin1(path, new_text)
+    reason = args.reason or "post-hoc: passed per-function quick_diff but broke the batch-level full ninja SHA-1 gate"
+    ledger_append([f"- REVERTED `{name}` (old `{old_name}`) @ "
+                   f"{'0x%08X' % addr if addr is not None else '?'} — {reason} (post-hoc, bisected)"])
+    print(f"revert-func: reverted {name} in {tu}.c")
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -1205,6 +1247,10 @@ if __name__ == "__main__":
     p_splice = sub.add_parser("splice")
     p_splice.add_argument("tu")
     p_splice.add_argument("--apply", action="store_true")
+    p_revert = sub.add_parser("revert-func")
+    p_revert.add_argument("tu")
+    p_revert.add_argument("func")
+    p_revert.add_argument("--reason", default=None)
     args = ap.parse_args()
     if args.cmd == "extract":
         cmd_extract(args)
@@ -1212,3 +1258,5 @@ if __name__ == "__main__":
         cmd_plan(args)
     elif args.cmd == "splice":
         cmd_splice(args)
+    elif args.cmd == "revert-func":
+        cmd_revert_func(args)

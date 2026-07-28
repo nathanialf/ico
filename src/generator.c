@@ -1,5 +1,7 @@
 #include "common.h"
 
+
+extern int D_006D0D40[];
 INCLUDE_ASM("asm/nonmatchings/src/generator", CheckGeneratorCollision);
 
 INCLUDE_ASM("asm/nonmatchings/src/generator", GetGeneratorSafePosition);
@@ -38,7 +40,11 @@ INCLUDE_ASM("asm/nonmatchings/src/generator", SetMotherGenerator);
 
 INCLUDE_ASM("asm/nonmatchings/src/generator", Generator_Init);
 
-INCLUDE_ASM("asm/nonmatchings/src/generator", GetbufpGeneratorPacket);
+int *GetbufpGeneratorPacket(void) {
+    return D_006D0D40;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/generator", GetsizeGeneratorPacket);
+int GetsizeGeneratorPacket(void) {
+    return 10365;
+}
 

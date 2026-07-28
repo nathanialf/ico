@@ -1,14 +1,31 @@
 #include "common.h"
 
+
+
+extern int D_00632744;
+extern int D_006D0680[];
+extern int D_00632D30;
 INCLUDE_ASM("asm/nonmatchings/src/chain", UpdateRootPosition);
 
-INCLUDE_ASM("asm/nonmatchings/src/chain", StartPendulum);
+void StartPendulum(void *dst, float *out) {
+    long long *s = (long long *)D_006D0680;
+    long long *d = (long long *)dst;
+    float val = (float)D_00632D30 / 100.0f;
+    d[0] = s[0];
+    d[1] = s[1];
+    d[2] = s[2];
+    d[3] = s[3];
+    __asm__ __volatile__("" : "+f"(val));
+    *out = val;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", collisionCheck);
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_term_simple);
 
-INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_term_loop);
+void chain_simulate_term_loop(void) {
+    D_00632744 = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_term_swingready);
 
