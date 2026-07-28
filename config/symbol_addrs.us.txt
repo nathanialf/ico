@@ -57,6 +57,13 @@ D_006337A9 = 0x006337A9; // type:s8 size:0x1 defined:True
 D_006337AA = 0x006337AA; // type:s8 size:0x1 defined:True
 D_006337AB = 0x006337AB; // type:u8 size:0x1 defined:True
 
+// Splat-lost-symbol fixup: a jal target inside src/delayFreeManager.c's
+// span (called from func_001024F8) that the boundary scanner absorbed as
+// dead space between func_00101C80 and func_00102418 instead of splitting
+// out as its own function. Discovered when flipping delayFreeManager.c to
+// a `c` subsegment (retail-v2 phase 2) produced an undefined reference.
+func_00102340 = 0x00102340; // type:func size:0xD8
+
 func_00167280 = 0x00167280; // type:func size:0x2A4
 func_001A2E28 = 0x001A2E28; // type:func size:0x58 defined:True
 func_001A2E80 = 0x001A2E80; // type:func size:0x120 defined:True

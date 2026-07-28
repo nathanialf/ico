@@ -103,6 +103,34 @@ segments:
     align: 0x80   # original linker 0x80-aligns every section start; splat default is 16
     subsegments:
       - [0x000000, asm, src/cod/000000]      # crt0 + libkernl + all .text (to be carved)
+      - [0x1C80, c, src/delayFreeManager]  # 14 funcs, census
+      - [0x28F0, c, src/geometryManager]  # 31 funcs, census
+      - [0x4590, c, src/keyInput]  # 27 funcs, aug6
+      - [0x5390, c, src/matrixDrive]  # 27 funcs, aug6
+      - [0x6A98, c, src/motionManager2]  # 71 funcs, census
+      - [0xAB18, c, src/pool]  # 27 funcs, census
+      - [0xD360, c, src/quaternion]  # 19 funcs, aug6
+      - [0xDAB8, c, src/tableSin]  # 18 funcs, aug6
+      - [0xE398, c, src/DisplayP2O]  # 19 funcs, aug6
+      - [0xEC98, c, src/FileManager]  # 22 funcs, census
+      - [0x103E0, c, src/GifPacket]  # 23 funcs, aug6
+      - [0x11FA8, c, src/GsBase]  # 25 funcs, aug6
+      - [0x14560, c, src/Light]  # 42 funcs, census
+      - [0x17DB0, c, src/Matrix]  # 25 funcs, aug6
+      - [0x18430, c, src/MicroCode]  # 23 funcs, aug6
+      - [0x18A68, c, src/Packet]  # 33 funcs, census
+      - [0x1BFB8, c, src/Primitive]  # 17 funcs, census
+      - [0x1E0B8, c, src/RegistPacket]  # 28 funcs, census
+      - [0x217C8, c, src/Shadow]  # 20 funcs, aug6
+      - [0x240D0, c, src/StageAnimation]  # 32 funcs, census
+      - [0x2AD40, c, src/Texture]  # 27 funcs, census
+      - [0x2E940, c, src/ZFog]  # 16 funcs, aug6
+      - [0x301D8, c, ios/cdvd]  # 34 funcs, census
+      - [0x33510, c, ios/inflate]  # 14 funcs, census
+      - [0x35BB8, c, ios/ios]  # 3 funcs, aug6
+      - [0x35EB8, c, ios/mblock]  # 8 funcs, census
+      - [0x36678, c, ios/mcard]  # 13 funcs, aug6
+      - [0x37FD8, asm, src/cod/037FD8]  # 189 game TUs not yet converted, + vendor tail
       # .vutext — 5 hand-typed VU1 microprograms, byte-identical to aug6's
       # (same sizes: 0xDC0/0x9F0/0x16E0/0x1CA0/0x5B0).
       - [0x16F5E0, hasm, src/cluster]        # ClusterMicroProgram
