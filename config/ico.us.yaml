@@ -292,7 +292,34 @@ segments:
       - [0x11F3B8, c, src/st05d]  # 22 funcs, aug6
       - [0x11FA30, c, src/st05e]  # 21 funcs, aug6
       - [0x121AD0, c, src/st06a]  # 22 funcs, aug6
-      - [0x122E90, asm, src/cod/122E90]  # 27 game TUs not yet converted, + vendor tail
+      - [0x122E90, c, src/st07a]  # 21 funcs, aug6
+      - [0x123970, c, src/st08a]  # 22 funcs, aug6
+      - [0x123F40, c, src/st08b]  # 21 funcs, aug6
+      - [0x124970, c, src/st09a]  # 22 funcs, aug6
+      - [0x1258F0, c, src/st10l]  # 34 funcs, aug6
+      - [0x127350, c, src/st10r]  # 26 funcs, aug6
+      - [0x1285E8, c, src/st13a]  # 9 funcs, aug6
+      - [0x129740, c, src/st13b]  # 22 funcs, aug6
+      - [0x12A1B8, c, src/st13b2]  # 21 funcs, aug6
+      - [0x12B480, c, src/st13c]  # 32 funcs, aug6
+      - [0x12CD58, c, src/st13d]  # 16 funcs, aug6
+      - [0x12D5C8, c, src/st17a]  # 29 funcs, aug6
+      - [0x12ED40, c, src/st17b]  # 18 funcs, aug6
+      - [0x12FB48, c, src/st18a]  # 13 funcs, aug6
+      - [0x1311C8, c, src/st19a]  # 19 funcs, aug6
+      - [0x131F18, c, src/st20a]  # 22 funcs, aug6
+      - [0x134170, c, src/st22a]  # 21 funcs, aug6
+      - [0x134DA8, c, src/st24a]  # 21 funcs, aug6
+      - [0x135C70, c, src/st47a]  # 87 funcs, aug6
+      - [0x13A978, c, src/access]  # 28 funcs, aug6
+      - [0x13B4F0, c, src/objact]  # 16 funcs, aug6
+      - [0x13C380, c, ito/mpeg/mv_audiodec]  # 22 funcs, aug6
+      - [0x13CF58, c, ito/mpeg/mv_disp]  # 21 funcs, aug6
+      - [0x13D848, c, ito/mpeg/mv_sub]  # 22 funcs, aug6
+      - [0x13EFB0, c, ito/mpeg/mv_vibuf]  # 21 funcs, aug6
+      - [0x13F690, c, src/GobjProc]  # 22 funcs, aug6
+      - [0x140B60, c, src/PObj]  # 11 funcs, census
+      - [0x1418A0, asm, src/cod/1418A0]  # vendor tail (765 funcs, fill)
       # .vutext — 5 hand-typed VU1 microprograms, byte-identical to aug6's
       # (same sizes: 0xDC0/0x9F0/0x16E0/0x1CA0/0x5B0).
       - [0x16F5E0, hasm, src/cluster]        # ClusterMicroProgram
