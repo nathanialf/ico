@@ -139,7 +139,73 @@ INCLUDE_ASM("asm/nonmatchings/src/motionManager", getInitialMatrix);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", dispSkelton);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", SkelTest);
+extern int D_00633F3C;
+extern char D_004C5BD0[];
+extern void ClipWallCheckCB(void *a0);
+extern void ClipWallBoxStop(void *a0);
+extern int fzMagnitudeByLine(void *a0);
+extern int dispSkelton(int a0, int a1, int a2);
+extern void func_002438B8(int *a0, int a1, char *a2);
+extern void func_00118648(void *a0, int a1, char *a2);
+extern void _RotTransPersCurrentMatrix(int a0, int a1, void *a2);
+
+int SkelTest(int a0, int a1, int p, int a3, int a4) {
+    char buf[0x10];
+    int flag;
+    int mag;
+    int mask;
+
+    *(int *)(p + 0x70) = 0;
+    MatrixDrive_TurnObjectMatrix__p4(p, a3);
+    func_002438B8((int *)(p + 0x10), a1, (char *)a0);
+    ClipWallBoxStop((void *)p);
+
+    if (*(int *)(p + 0x88) != 0) {
+        goto disp_one;
+    }
+    if (*(int *)(D_00633F3C + 0x324) != 0) {
+        ClipWallCheckCB((void *)p);
+        if (*(int *)(p + 0x88) != 0) {
+            flag = 0;
+            mag = fzMagnitudeByLine((void *)p);
+            switch (*(int *)(D_00633F3C + 0x324)) {
+            default:
+            case 1:
+                mask = 0x20000000;
+                break;
+            case 2:
+                mask = 0x10000000;
+                break;
+            }
+            if (mag & mask) {
+                flag = 1;
+                if (mag & 0x0FFFFFFF) {
+                    return -1;
+                }
+            }
+            if (flag != 0) {
+                return dispSkelton(p, 0, a4);
+            }
+            goto block12;
+        }
+    }
+block12:
+    func_00118648(buf, a1, D_004C5BD0);
+    MatrixDrive_TurnObjectMatrix__p4(p, p + 0x10);
+    _RotTransPersCurrentMatrix(p + 0x10, p, buf);
+    ClipWallBoxStop((void *)p);
+    if (*(int *)(p + 0x88) != 0) {
+        goto disp_one;
+    }
+    MatrixDrive_TurnObjectMatrix__p4(p, p + 0x10);
+    MatrixDrive_TurnObjectMatrix__p4(p + 0x10, a3 + 0x10);
+    ClipWallBoxStop((void *)p);
+    if (*(int *)(p + 0x88) != 0) {
+disp_one:
+        return dispSkelton(p, 1, a4);
+    }
+    return 0;
+}
 
 void SkelTestGeo(void)
 {

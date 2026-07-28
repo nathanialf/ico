@@ -297,7 +297,22 @@ INCLUDE_ASM("asm/nonmatchings/src/motionManager2", CheckWallAttribute);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", CheckPureWallAttribute);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", CheckPureCliffAttribute);
+extern float D_00631B60[];
+
+float CheckPureCliffAttribute(void *a0, int a1) {
+    char buf[0xC0];
+    char *ctrl;
+    int idx;
+
+    ctrl = *(char **)((char *)a0 + 0x15C);
+    idx = *(signed char *)(*(char **)(ctrl + 0x810) + a1);
+    SetMotionDirectionWithLimit((int)buf,
+        *(int *)(ctrl + 0xC) + (idx << 6) + 0x30);
+    if (*(int *)(buf + 0x94) == 0) {
+        return D_00631B60[0];
+    }
+    return *(float *)(buf + 0x24) - *(float *)(buf + 0x4);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetStreamShapeMotion);
 

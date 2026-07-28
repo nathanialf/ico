@@ -66,7 +66,58 @@ void bga_CalcObject(bgaObj *obj, float f, int a1) {
     bga_GetGizmoMotion(&obj->unk34, 1, 0.0f, f, a1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", bga_resetObjectCounter);
+extern int D_006319F0;
+extern int D_00710C10[];
+extern int D_00710C20[];
+extern int D_00274EC0[];
+extern void mc_TransMicroCode(void *a0, void *a1);
+extern void bga_SetFrame(void *obj, int a1, int a2);
+
+#define BGA_FRAME_SECONDS \
+    ((float)((0x3C - D_00274EC0[0] * 0xA) / D_00274EC0[1]) / 30.0f)
+
+#define BGA_CUR_FRAME(o)  (*(signed char *)((char *)(o) + 0xA))
+#define BGA_STARTED(o)    (*(signed char *)((char *)(o) + 0xB))
+#define BGA_FRAME_COUNT(o) (*(float *)((char *)(o) + 0x14))
+#define BGA_HOLD_FRAME(o)  (*(float *)((char *)(o) + 0x18))
+#define BGA_PLAY_TIME(o)   (*(float *)((char *)(o) + 0x20))
+
+void bga_resetObjectCounter(void *obj, int mode, int frame, int setFrameArg) {
+    int maxFrame;
+
+    if (BGA_STARTED(obj) != 0) {
+        D_006319F0 = 1;
+        mc_TransMicroCode(D_00710C20, D_00710C10);
+    }
+    maxFrame = (int)BGA_FRAME_COUNT(obj);
+    if (maxFrame <= -1) {
+        maxFrame = 0;
+    }
+    switch (mode) {
+    case 0:
+        BGA_PLAY_TIME(obj) = (float)maxFrame * BGA_FRAME_SECONDS;
+        BGA_CUR_FRAME(obj) = frame;
+        break;
+    case -1:
+        BGA_PLAY_TIME(obj) = BGA_HOLD_FRAME(obj) * BGA_FRAME_SECONDS;
+        BGA_CUR_FRAME(obj) = frame;
+        break;
+    case -2:
+        BGA_PLAY_TIME(obj) = (float)maxFrame * BGA_FRAME_SECONDS;
+        BGA_CUR_FRAME(obj) = -1;
+        return;
+    default:
+        BGA_PLAY_TIME(obj) = (float)mode * BGA_FRAME_SECONDS;
+        if (mode < maxFrame) {
+            BGA_PLAY_TIME(obj) = (float)maxFrame * BGA_FRAME_SECONDS;
+        } else if (BGA_HOLD_FRAME(obj) < (float)mode) {
+            BGA_PLAY_TIME(obj) = BGA_HOLD_FRAME(obj) * BGA_FRAME_SECONDS;
+        }
+        BGA_CUR_FRAME(obj) = frame;
+        break;
+    }
+    bga_SetFrame(obj, setFrameArg, 1);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", bga_SetFrame);
 

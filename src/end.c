@@ -449,7 +449,24 @@ void actEndDemo04(volatile int a0) {
     _ACTWait(0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/end", actEndDemo05);
+extern int D_004D0D10[];
+extern void func_0020D770(volatile int a0);
+extern int actSt25aQueenDeadChk(int a0);
+extern void func_0017CA10(int a0);
+void actEndDemo05(volatile int a0) {
+    int x = a0;
+    GObj__p4 *gobj = (GObj__p4 *)actInitialize(a0);
+    _ACTWait(1);
+    lt_fade_status(0x33);
+    D_006325B4 = 1;
+    func_0017CA10(actSt25aQueenDeadChk(0xA1F));
+    stage_KillPlayBgAnimation(0xEE, 0, 0);
+    stage_KillPlayBgAnimation(0x102, 0, 0);
+    D_004D0D10[1] = (int)func_0020D770;
+    gobj->unkC4 = D_004D0D10;
+    BoxBarSoundOn(a0, 0x18D);
+    _ACTWait(0);
+}
 
 extern int D_004D0D30[];
 extern void actBoyRescueReady(void);

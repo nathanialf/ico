@@ -154,7 +154,27 @@ void actE3CageFall(volatile int a0){
 
 extern int D_004D0A50[];
 
-INCLUDE_ASM("asm/nonmatchings/src/e3", actE3CageFallChk);
+void actE3CageFallChk(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    D_006325B4 = 0;
+    *(int *)(gobj + 0xC0) = (int)D_004D0A50;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
+
+typedef struct { char pad[0xC0]; void *f_C0; void *unkC4; } GObjC0;
+extern int *D_004D0A90[];
+extern void actE3CageFallDemo(volatile int a0);
+void func_0020A468(volatile int a0) {
+    GObjC0 *obj = *(GObjC0 **)(a0 + 0x164);
+    D_006325B4 = 1;
+    D_004D0A90[1] = (int *)actE3CageFallDemo;
+    obj->f_C0 = 0;
+    obj->unkC4 = (void *)D_004D0A90;
+    BoxBarSoundOn((int)a0, 0x18D);
+    _ACTWait(0);
+}
 
 extern int D_004D0AB0[];
 extern int D_006325B4;

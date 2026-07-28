@@ -425,5 +425,46 @@ void afterGirlPulledGo(volatile unsigned int a0)
     _ACTWait(0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlJump);
+void actGirlJump(volatile unsigned int a0) {
+    int cond = 0;
+    if (*(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x678) + 0x834) == 0x57) {
+        cond = (*(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x678) + 0x830) == 4);
+    }
+    while (1) {
+        if (cond) {
+            BoxBarSoundOn((void *)a0, 0xB7);
+        }
+        _ACTWait(1);
+    }
+}
+
+extern void BoxBarSoundOn(void *a0, int a1);
+
+void func_00175740(volatile int a0)
+{
+    int flag = 0;
+    if (*(int *)((char *)*(int **)((char *)*(int **)((char *)a0 + 0x164) + 0x678) + 0x834) == 0x57 &&
+        *(int *)((char *)*(int **)((char *)*(int **)((char *)a0 + 0x164) + 0x678) + 0x830) == 4) {
+        flag = 1;
+    }
+    while (1) {
+        if (flag) {
+            BoxBarSoundOn((void *)a0, 0xB7);
+        }
+        BoxBarSoundOn((void *)a0, 0x13A);
+        _ACTWait(1);
+    }
+}
+
+extern char D_00559B00[];
+
+void func_001757B8(volatile unsigned int a0)
+{
+    volatile int local;
+    int *s0;
+    s0 = *((int **) (a0 + 0x164));
+    debug_assertMessage__p4((char *)D_00559B00);
+    s0[0x30 / 4] = 0xF;
+    _ACTWait(0);
+}
 

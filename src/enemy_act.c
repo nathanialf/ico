@@ -313,7 +313,60 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00164FCC);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00164FD0);
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", funcEnemyAiGetGirl);
+extern int D_00631AE4;
+extern void BoxBarSoundOn(void *a0, int a1);
+extern int iosOmBeforeFuncStandard4(void *a0, int a1, void *a2, int a3) __asm__("iosOmBeforeFuncStandard");
+
+void funcEnemyAiGetGirl(volatile int a0) {
+    int p = *(int *)(a0 + 0x164);
+    int g = *(int *)(p + 0x670);
+    iosOmBeforeFuncStandard4((void *)D_00631AE4, *(int *)(g + 0x1F8), (void *)a0, g);
+    for (;;) {
+        BoxBarSoundOn((void *)a0, 0xB7);
+        _ACTWait(1);
+    }
+}
+
+extern void iosOmBeforeFuncStandard3(void *a0, int a1, void *a2) __asm__("iosOmBeforeFuncStandard");
+
+void func_00165060(volatile int a0) {
+    iosOmBeforeFuncStandard3((void *)D_00631AE4, 0xD2, (void *)a0);
+    for (;;) {
+        BoxBarSoundOn((void *)a0, 0xB7);
+        _ACTWait(1);
+    }
+}
+
+extern void actChangeActBrain(void *a0, void *a1, void *a2);
+extern int actEnemy_isLargeEnemy();
+extern int D_006321DC;
+extern void CylinderCollision(int *self, char *spill);
+extern void ResetEnemyEye(int *self);
+extern void actEnemyRun(int *self);
+extern void func_001AE420(int *self, int a1, int a2, int a3);
+extern int D_00631990;
+extern char D_00558FA0[];
+extern void func_001919A0__p2(void *a0, int a1) __asm__("func_001919A0");
+
+void func_001650A0(void *a0) {
+    void *volatile self = a0;
+    int *p = *(int **)((char *)self + 0x164);
+    char spill[16];
+    int *s;
+    p[0x138 / 4] = 0;
+    actChangeActBrain((void *)D_006321DC, (void *)actEnemy_isLargeEnemy, (void *)p);
+    s = (int *)self;
+    *(long long *)(spill + 0) = *(long long *)((char *)D_00558FA0 + 0);
+    *(long long *)(spill + 8) = *(long long *)((char *)D_00558FA0 + 8);
+    CylinderCollision(s, spill);
+    ResetEnemyEye(s);
+    actEnemyRun(s);
+    func_001919A0__p2((void *)self, 0xA);
+    p[0x430 / 4] = 0;
+    p[0x434 / 4] = 7;
+    func_001AE420((int *)self, 7, 0, D_00631990);
+    _ACTWait(0);
+}
 
 void actEnemyStand(char *self) {
     char *sub = *(char **)(self + 0x164);
@@ -485,7 +538,96 @@ int actEnemy_isNormalEnemy(void *a0) {
     return funcEnemyCarryFail((int *)a0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemy_isLargeEnemy);
+int actEnemy_isLargeEnemy(volatile int a0) {
+    int *p = *(int **)(a0 + 0x164);
+    p[0x33C / 4] = 0;
+    p[0x110 / 4] = 0;
+    p[0x114 / 4] = 0;
+    p[0x118 / 4] = 0;
+    for (;;) {
+        if (*(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x670) + 0x210) == D_00631AE4) {
+            actEnemyRestart((void *)a0);
+        }
+        _ACTWait(1);
+    }
+}
+
+extern float pac_DispQW(void);
+extern int DispCollisionPC(void *a0, int a1, int a2, int a3, unsigned char a4, float a5);
+
+void func_00165610(volatile unsigned int a0)
+{
+    int *p = *(int **)(a0 + 0x164);
+    p[0x33C / 4] = 0;
+    p[0x110 / 4] = 0;
+    p[0x114 / 4] = 0;
+    p[0x118 / 4] = 0;
+    if (D_00631AE4 != 0) {
+        DispCollisionPC((void *)a0, D_00631AE4, (int)((char *)p + 0x110), 0, 0,
+                        (float)((int)(pac_DispQW() * 10.0f) % 200 + 300));
+    }
+    p[0x33C / 4] = 0;
+    p[0x110 / 4] = 0;
+    p[0x114 / 4] = 0;
+    p[0x118 / 4] = 0;
+    for (;;) {
+        actEnemyRestart((void *)a0);
+        _ACTWait(1);
+    }
+}
+
+extern char D_00559030[];
+
+void func_001656C8(volatile unsigned int a0)
+{
+    int *p = *(int **)(a0 + 0x164);
+    int *q = *(int **)((char *)*(int **)(a0 + 0x164) + 0x678);
+    char *g = *(char **)((char *)*(int **)(a0 + 0x164) + 0x670);
+    int t = p[0x13C / 4];
+    q[0x420 / 4] = t;
+    if ((unsigned char)DispCollisionPC((void *)a0, t,
+                                       (int)((char *)p + 0x110), 0,
+                                       *(unsigned char *)(g + 0x21C), 50.0f) == 0) {
+        debug_assertMessage(D_00559030);
+        p[0x33C / 4] = 0;
+        p[0x110 / 4] = 0;
+        p[0x114 / 4] = 0;
+        p[0x118 / 4] = 0;
+        _ACTWait(0x1E);
+        BoxBarSoundOn((void *)a0, 0xF0);
+        _ACTWait(0);
+    }
+    for (;;) {
+        BoxBarSoundOn((void *)a0, 0x14A);
+        _ACTWait(1);
+    }
+}
+
+extern int D_00274EC0[];
+
+void func_00165780(volatile unsigned int a0)
+{
+    int *p = *(int **)(a0 + 0x164);
+    int i, cnt;
+    for (i = 0; i < (0x3C - D_00274EC0[0] * 0xA) / D_00274EC0[1] / 2; i++) {
+        p[0x33C / 4] = 0;
+        p[0x110 / 4] = 0;
+        p[0x114 / 4] = 0;
+        p[0x118 / 4] = 0;
+        BoxBarSoundOn((void *)a0, 0xD6);
+        if (p[0x30 / 4] == 0x47) {
+            break;
+        }
+        _ACTWait(1);
+    }
+    for (i = 0; i < (0x3C - D_00274EC0[0] * 0xA) / D_00274EC0[1] * 0xFA / 0x3C; i++) {
+        actEnemyRestart((void *)a0);
+        _ACTWait(1);
+    }
+    func_001919A0__p2((void *)a0, 1);
+    _ACTWait(0);
+
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemy_isSmallEnemy);
 

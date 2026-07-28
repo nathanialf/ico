@@ -776,3 +776,293 @@ at rc27 with the two new levers in hand (the `-G 8` declaration retype from
 `gene_enemy` and the strict-aliasing type-set rule from `GetWallLeverAngle` —
 between them they accounted for every non-tie residual this pass);
 (c) the remaining measured-residual three.
+
+---
+
+# conv-6 remainder pass (worker 6, branch `conv-6` off `04d2aa0a`)
+
+Scope: conv-5's "Still open" table.  Gate for every batch:
+`./tools/build.sh setup && .venv/bin/ninja` → `verify_elf: OK (…fbf50c75…)`
+plus `./tools/check_no_rom.sh`.  **46 matched in 9 gated commits** (plus one
+carve-only commit).  No yaml edits, no new crutches.
+
+## THE HEADLINE — the `rewritten` bucket was 70% splat-merge, not rewrite
+
+conv-5 found this for `_ACTCommonMailTest` and recommended sweeping the rest.
+Done, and it is the dominant finding of the whole pass: **10 of the 16
+`rewritten` entries were splat-merged multi-function blocks**, hiding **31**
+uncarved functions behind missing boundary symbols.
+
+### The detector that actually works
+
+Reachability analysis is the wrong tool (jump tables and trailing `.p2align`
+pads give false positives; `ContinueCorrectPosition` was flagged and is a
+single genuine function).  The reliable signature is purely local:
+
+> an interior `addiu $29,$29,-N` **whose address is not the target of any
+> `.L…` label in the file**
+
+plus, for frameless tails, a `jr $31` (or a tail-call `j <sym>`) that is not
+the last instruction.  A 20-line script over `asm/nonmatchings/**/*.s` finds
+every one; cross-checking the split count against the aug6 twin's
+`splat-merge …split` entries in `config/symbol_addrs.aug6.txt` (190 of them!)
+confirms each.  **The aug6 tree had already carved every one of these
+families; retail's symbol table simply never inherited the splits.**
+
+| retail head | TU | funcs | aug6 twin family |
+|---|---|---|---|
+| `actGirlJump` | src/girl_act | 3 | `actGirlJump` + `func_001732F0` + `func_00173370` |
+| `debug_WayTool` | src/way_tool | 2 | + `func_00204650` |
+| `actCommonEdgeHang` | src/commonact | 5 | + `func_0015C9B8/CA48/CAE0/CB20` |
+| `actE3CageFallChk` | src/e3 | 2 | + `func_002078C8` |
+| `funcEnemyAiGetGirl` | src/enemy_act | 3 | + `func_00162E98/ED8` |
+| `actEnemy_isLargeEnemy` | src/enemy_act | 4 | + `func_00163448/500/5B8` |
+| `actBoyTakeWeaponReady` | src/boyact | 2 | + `func_00151E98` |
+| `actBoySupportGBBegin` | src/boyact | 2 | + `func_001530C0` |
+| `hand_heroin` | src/boyact | 3 | + `func_0014C0C0/C370` |
+| `pullup_check_heroin_position` | src/boyact | 15 | + 14 `func_00151F48…00152480` |
+
+**Recommendation for any future pass: run this detector over the WHOLE
+`asm/nonmatchings` tree, not just the `rewritten` bucket.**  Nothing
+guarantees the merges are confined to functions the port driver happened to
+classify as expansions — a merge whose head *also* ports cleanly would show
+up as a plain `divergent`/`asm` entry with no hint at all.
+
+### Carve mechanics (repeatable)
+
+1. Add `func_<RETAILVMA> = 0x<RETAILVMA>; // type:func // <tu>.c // splat-merge split (<head> coroutine)`
+   to `config/symbol_addrs.us.txt`, in address order inside the TU's run.
+2. `rm -f .port_cache/retail_labels.json && ./tools/build.sh setup`.
+3. Add `INCLUDE_ASM(...)` for each new name **immediately after the head's**,
+   in `.text` order, and re-`setup`.  (Without the INCLUDE_ASM splat files the
+   body under `asm/matchings/` and the TU's `.text` comes up short.)
+4. `ninja` — a carve-only commit is byte-identical and is a safe checkpoint.
+   Landed as `425586ca` ("31 boundaries, 0 matched").
+
+Note the carve is also *self-confirming*: `asm/data/src/cod/174700.data.s`
+immediately resolved `.word func_0020A468` at ROM 0x3D0A54, i.e. the BoxBar
+event table statically points at the carved tail.
+
+## Matched, by commit
+
+| commit | scope | n |
+|---|---|---|
+| `425586ca` | carve 31 splat-merge boundaries (checkpoint) | 0 |
+| `5b8b34fc` | src/e3 (2), src/girl_act (3), src/commonact edge-hang (5) | 10 |
+| `d01ea4d0` | src/enemy_act — AiGetGirl (3) + isLargeEnemy (4) | 7 |
+| `d20b6255` | src/boyact — pullup chain (15), TakeWeaponReady (2), SupportGBBegin (2) | 19 |
+| `73bd4e77` | `hand_heroin`, `debug_WayTool` | 2 |
+| `364df43e` | `CheckPureCliffAttribute`, `gsb_StageSettingTool`, `Debug_WireString_Bird` | 3 |
+| `81637515` | `actEndDemo05`, `ContinueCorrectPosition` | 2 |
+| `eeb9766d` | `func_002071E8` (way_tool merge tail, fresh decomp) | 1 |
+| `3f0a868d` | `SkelTest` | 1 |
+| `d68574e1` | `bga_resetObjectCounter` | 1 |
+
+`config/symbol_addrs.us.txt` additions (31, all
+`// type:func // <tu> // splat-merge split (<head> coroutine)`):
+`func_00175740 func_001757B8` (girl_act) ·
+`func_002071E8` (way_tool) ·
+`func_0015E878 func_0015E908 func_0015E9A0 func_0015EA20` (commonact) ·
+`func_0020A468` (e3) ·
+`func_00165060 func_001650A0 func_00165610 func_001656C8 func_00165780` (enemy_act) ·
+`func_00153980 func_00154BC0 func_0014D978 func_0014DC28 func_00153A30
+func_00153AA8 func_00153AD8 func_00153B38 func_00153BE0 func_00153C90
+func_00153DA0 func_00153DF8 func_00153E28 func_00153E68 func_00153EC8
+func_00153F08 func_00153F38 func_00153F68` (boyact).
+No renames.
+
+## Retail-vs-aug6 delta catalogue (useful for the next porter)
+
+Almost every carved tail is the aug6 body with a mechanical substitution set.
+The recurring ones:
+
+* **Sub15C/GObj field offsets +0x10** (`0xB0→0xC0`, `0xB4→0xC4`,
+  `0x100/104/108→0x110/114/118`, `0x12C→0x13C`, `0x400→0x420`,
+  `0x410/414/418→0x430/434/438`, `0x420→0x440`, `0x490→0x4A0`,
+  `0x49C/4A0→0x4AC/4B0`, `0x4B4→0xC4`… ) — the documented "+0x10 family".
+* **Waypoint/scene ids +3, sound ids +3** (`0xB4→0xB7`, `0x189→0x18D`,
+  `0x80/81→0x81/82`, `0xCF→0xD2`, `0xF7→0xFA`, `0x114→0x117`, `0x124→0x127`,
+  `0x136→0x13A`, `0x15B/15D→0x15F/161`, `0x163→0x167`, `0x16E→0x172`,
+  `0x170/173→0x174/177`, `0x189→0x18D`).  Not universal — verify per call.
+* **Globals**: `D_00629DE4→D_00631AE4`, `D_00629DE8→D_00631AE8`,
+  `D_0062A4DC→D_006321DC`, `D_0062A894→D_006325B4`, `D_00629C90→D_00631990`,
+  `D_00271240→D_00274EC0`, `D_0062C230→D_00633F3C`, `D_006A45A0→D_006AAAE0`,
+  `D_006A4630→D_006AAB70`, `D_0062BFE8→D_00633CF8`, `D_00628F18→D_00630C1C`.
+* **Callees**: `func_0018F2A0→func_001919A0`, `func_001AB9B8→func_001AE420`,
+  `func_001AAD00→func_001AD768`, `func_00260380→func_00263FF0`,
+  `func_00260568→func_002641D8`, `func_0023FDD8→func_002438B8`,
+  `func_0023E168→func_00241C48`, `func_00240AB8→func_00244598`,
+  `func_00130000→func_00130128`, `func_0023EAC8→func_002425A8`,
+  `func_00240038→func_00243B18`, `iosFree→func_0013A0F8`,
+  `func_001E1A18→func_001E4798`.
+
+Genuine retail *behaviour* additions found while porting (not substitutions):
+
+* `func_0015E9A0` (commonact) — the dispPlane loop gained a
+  `if (s->f_C8 == 0xB1) func_00243B18(v, v, -1.0f);` pre-pass.
+* `actEndDemo05` (end) — gained `func_0017CA10(actSt25aQueenDeadChk(0xA1F))`.
+* `ContinueCorrectPosition` (commonact) — the `case 0x2B` CageFixDL arm gained
+  a zero-fill: `if (CageFixDL(...) == 0) { f = D_00632340[0]; p[0]=p[1]=p[2]=f; }`.
+* `SkelTest` (motionManager) — `block12` gained
+  `func_00118648(buf,a1,D_004C5BD0)` + `_RotTransPersCurrentMatrix(p+0x10,p,buf)`
+  and a second `ClipWallBoxStop` early-out.
+* `bga_resetObjectCounter` (BgAnimation) — `D_00629CF0 = 1` became
+  `D_006319F0 = 1; mc_TransMicroCode(D_00710C20, D_00710C10);`.
+* `Debug_WireString_Bird` (act_bird) — gained a trailing `func_001D4B40(a0, 3)`.
+* `gsb_StageSettingTool` (GsBase) — gained a trailing `stage_SetScale()`.
+* `CheckPureCliffAttribute` (motionManager2) — retail *dropped* the aug6
+  assert block; it is a **shrink**, which is why the ledger's rc47 looked like
+  a rewrite.  (Its aug6 twin lives in `sugipon/src/motionManager2.c`.)
+
+## New/confirmed levers
+
+20. **Store-order rotation in a straight run of same-base stores.**  When N
+    consecutive `p->a = 0; p->b = 0; …` stores come out in the right set but
+    the wrong order, ee-gcc's sched2 emits source order **rotated right by
+    one** (last source store becomes first emitted, and the new last store
+    lands in the following `jal`'s delay slot).  So to obtain ROM order
+    `[s1,s2,s3,s4]`, write source order `[s2,s3,s4,s1]`.  Cracked
+    `func_001656C8` 6→0 and `ContinueCorrectPosition` 4→0 (3-store case:
+    source `[0],[1],[2]` → emitted `[0],[2],[1]`).
+21. **A `while (G == 0) wait();` spin on a global can allocate two different
+    registers for the two loads.**  Routing it through one explicit local —
+    `{ int v = G; while (v == 0) { wait(); v = G; } }` — unifies them.
+    `func_002071E8` 2→0.
+22. **C string literals are forbidden in this tree.**  `Debug_WireString_Bird`
+    ported straight from aug6 (which uses `"src/act_bird.c"`) passed
+    `quick_diff` at rc0 and then blew the SHA by **128 bytes** of extra
+    `.rodata`.  Always spell the literal as the existing `extern char
+    D_xxxxxxxx[];`.  Corollary: any port from an aug6 body containing a string
+    literal must be de-literalised before `ninja`.
+23. **`-G 8` retype, restated for floats.**  A far `lui/%hi` + `lwc1 %lo`
+    float constant needs `extern float D_x[];` + `D_x[0]`; `extern float D_x;`
+    becomes `$gp`-relative and loses an instruction.  (`ContinueCorrectPosition`
+    11→4.)
+24. **`char b[0x20]` (alignment 1) vs `long long q[8]` (alignment 8)** decides
+    `ldl/ldr`+`sdl/sdr` vs `ld`/`sd` for a whole-struct copy — confirmed again
+    in `actSt02aSecretItem`, where retail copies two 0x20 objects unaligned and
+    two 0x40 objects aligned in the same function.
+25. **Scoped `__asm__("NAME")` aliases are frequently *required* just to get a
+    second prototype for a function the TU already declares with a different
+    arity** (`func_00243B18_e`, `iosOmBeforeFuncStandard3/4`,
+    `func_001919A0__p2`, `D_006321DC__hh`).  This is the TU-family idiom, not a
+    matching crutch, and every TU touched here already used it.
+26. **A dead `daddu aN,a0,zero` at the top of a switch is a hoisted
+    switch-invariant argument**, not a compiler artifact: `pac_continueTag`'s
+    stray `daddu a2,a0,zero` is `a0` being passed as the *third* argument to
+    the `debug_openLog` call in all five cases, hoisted above the dispatch.
+    Adding the third argument took it 6→(cosmetic-only).
+
+Hazard, restated: **`convpass_rd.sh`'s relative-branch tolerance only fires
+when both sides print the same `+0xNN` suffix.**  In a function whose ROM
+`.s` names its branch targets off a `jlabel` (jump-table function), every
+branch reads as a diff even when the byte offsets agree.  Check the printed
+offsets by hand before believing a jtbl function's residual.
+
+## Still open after conv-6
+
+| class | n | funcs |
+|---|---|---|
+| carved but unwritten (merge tails, no matched aug6 twin) | 2 | boyact `func_0014D978` (172 insns), `func_0014DC28` (188) — aug6 twins `func_0014C0C0`/`func_0014C370` are INCLUDE_ASM there too |
+| near-miss, structure recovered | 1 | st02a `actSt02aSecretItem` — **rc19 at equal insn counts (108/108)**, pure intra-block scheduling |
+| jtbl-blocked (stream verified, needs a yaml carve) | 2 | Packet `pac_continueTag`, motionOrientManager `shiftMotionOrientEndFunc` |
+| fresh decomp, no guide | 1 | BgAnimation `bga_calcEnvelope` (180 insns, `func_0010E9A0`/`func_00117C20` FP chain) |
+| `no-aug6-twin` (unchanged since ledger 3) | 8 | `soundSeVolSet` · the 7 src/pool funcs |
+
+### `pac_continueTag` — verified body, blocked only by the jtbl carve
+
+The instruction stream below was built and compared: 51/51 insns, every real
+difference gone (the 5 residual lines are the `jlabel` cosmetic above).  It
+cannot be landed without carving `jtbl_00554FE0` out of the `.rodata` blob,
+because the ROM jump table in `asm/data/src/cod/454E44.rodata.s` references the
+`.L…` labels that only exist while the function is `INCLUDE_ASM`; with the C
+switch in place the link fails with `undefined reference to '.L001194C8'`.
+**Reverted to INCLUDE_ASM (rule: no yaml edits).**  The carve is one line, in
+the style of the four already present at `config/ico.us.yaml:335-342`:
+
+```yaml
+      - [0x454FE0, .rodata, src/Packet]   # gcc-emitted jtbl_00554FE0 (pac_continueTag switch, 5 entries 0x14), VMA 0x554FE0..0x554FF4
+      - [0x454FF4, rodata, src/cod/454FF4]   # .rodata blob, resume after 2nd Packet jtbl
+```
+
+Caveat: `src/Packet` would then own **two** disjoint `.rodata` carves
+(`0x454E00` for `pac_setVifEndCode` is already there), which the
+`carve_disjoint_rodata` rule says fails SHA.  Resolving that — probably by
+merging the two carves into one contiguous region plus an explicit blob
+subsegment for the gap — is the real work item, and is the same blocker
+`shiftMotionOrientEndFunc` sits behind.
+
+```c
+extern char D_00554EE0[], D_00554F10[], D_00554F40[], D_00554F70[], D_00554FA8[];
+extern char D_00554FD0[], D_00672FD0[], D_00631CF8[];
+extern void debug_openLog(char *a0, char *a1, void *a2);
+extern void func_001AD768(char *file, int line);
+extern void func_00263FF0(char *file, int line, char *msg);
+
+void pac_continueTag(void *a0, int a1) {
+    switch (a1) {
+    case 1: debug_openLog(D_00554EE0, D_00672FD0, a0); break;
+    case 2: debug_openLog(D_00554F10, D_00672FD0, a0); break;
+    case 3: debug_openLog(D_00554F40, D_00672FD0, a0); break;
+    case 4: debug_openLog(D_00554F70, D_00672FD0, a0); break;
+    case 5: debug_openLog(D_00554FA8, D_00672FD0, a0); break;
+    }
+    func_001AD768(D_00554FD0, 0x2AC);
+    func_00263FF0(D_00554FD0, 0x2AC, D_00631CF8);
+}
+```
+
+### `actSt02aSecretItem` — rc19 shape, for whoever resumes
+
+Counts already agree (108/108); the residual is where the second 0x40-byte
+`ld` burst gets scheduled relative to the two unaligned `ldl/ldr` copies.
+Copy order `m0,m1,n0,n1` gives rc19; interleaving to `m0,n0,m1,n1` **regresses
+to 102 insns / rc132**, so the declaration+assignment grouping is right and
+only the schedule is off.  Next ideas: route `n1` through a pointer temp; move
+the `func_0010D198` calls between the copies; try `long long q[8]` →
+`struct{long long a,b,c,d,e,f,g,h;}`.
+
+```c
+typedef struct { char b[0x20]; } SI_M;
+typedef struct { long long q[8]; } SI_N;
+extern SI_M D_0061BA60, D_0061BA80;
+extern SI_N D_0061BAA0, D_0061BAE0;
+extern void func_0010D198(void *a0, void *a1);
+extern void InitLayoutedPoolReflactionMesh(void *a0);
+extern void getWave(void *a0);
+
+void actSt02aSecretItem(volatile int a0) {
+    SI_M m0, m1;
+    SI_N n0, n1;
+    m0 = D_0061BA60;
+    m1 = D_0061BA80;
+    n0 = D_0061BAA0;
+    n1 = D_0061BAE0;
+    func_0010D198(&m0, &n0);
+    func_0010D198(&m1, &n1);
+    for (;;) {
+        InitLayoutedPoolReflactionMesh(&m0);
+        getWave(&m0);
+        InitLayoutedPoolReflactionMesh(&m1);
+        getWave(&m1);
+        _ACTWait(1);
+    }
+}
+```
+
+### Bonus finding for the aug6 tree
+
+`func_001656C8` (retail) matched crutch-free, and its aug6 twin
+`func_00163500` — still `INCLUDE_ASM` in `fumi/src/enemy_act.c` — is the
+*same* instruction stream modulo the substitution set above.  Porting the
+conv-6 body back should close it, and the same is true for whichever of the
+other retail carves have unmatched aug6 twins.
+
+## Recommended order for a conv-7
+
+(a) Run the interior-prologue detector over **all** of `asm/nonmatchings` —
+this pass proved the classification hides whole functions, and each carve is
+minutes not hours.  (b) Unblock the two jtbl functions by solving the
+two-disjoint-`.rodata`-carves-per-TU problem for `src/Packet`.  (c)
+`actSt02aSecretItem` at rc19.  (d) The two boyact merge tails and
+`bga_calcEnvelope` as ordinary decomps.

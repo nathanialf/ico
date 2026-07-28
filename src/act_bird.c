@@ -74,7 +74,36 @@ void func_001971C0(void *a0) {
     *(void **)((char *)s + 0x120) = ExecMotionOrient(a0, 0xEE, (char *)s + 0x610);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act_bird", Debug_WireString_Bird);
+extern void *func_0013A0F8(int heap, int size, const char *file, int line);
+extern char D_0055AFD8[];
+extern void func_002641D8(void *a0, int a1, int a2);
+extern void MatrixDrive_TurnObjectMatrix(void *a0, void *a1);
+extern void func_001E4798(void *a0, int a1, int a2, int a3, int a4, int a5);
+extern void func_001D4B40(void *a0, int a1);
+extern int D_00632010;
+extern float pac_DispQW(void);
+
+#define BIRD_HDR(o) (*(volatile int *)((char *)(o) + 0x15C))
+
+void *Debug_WireString_Bird(void *a0, void *a1) {
+    void *obj = func_0013A0F8(D_00632010, 0x40, D_0055AFD8, 0x3D2);
+    func_002641D8(obj, 0, 0x40);
+    MatrixDrive_TurnObjectMatrix(obj, a1);
+    *(char *)((char *)obj + 0x10) = 0;
+    func_001E4798(a0, 0x847, 0x875, -1, -1, 0x431);
+    *(int *)(BIRD_HDR(a0) + 0x544) = 1;
+    *(int *)(BIRD_HDR(a0) + 0x54C) = 0;
+    *(int *)(BIRD_HDR(a0) + 0x548) = 1;
+    *(int *)(BIRD_HDR(a0) + 0x550) = 0;
+    *(volatile float *)(BIRD_HDR(a0) + 0x4AC) = pac_DispQW() * 100.0f;
+    {
+        int hdr = BIRD_HDR(a0);
+        *(volatile float *)(hdr + 0x4B0) = *(volatile float *)(hdr + 0x4AC);
+    }
+    *(int *)(BIRD_HDR(a0) + 0x4C4) = 0;
+    func_001D4B40(a0, 3);
+    return obj;
+}
 
 void Debug_StickControl(void) {}
 

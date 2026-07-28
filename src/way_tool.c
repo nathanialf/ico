@@ -87,7 +87,71 @@ int way_toolDL(void) {
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/way_tool", debug_WayTool);
+extern int iosPadStickCameraCoord(void *a0, int a1, int a2, int a3);
+extern void iosPadNormalizeStick(void *a0);
+extern void ACTDebugMove(int a0, int a1);
+extern char D_00280FC0[];
+extern int D_00631B00;
+
+void debug_WayTool(volatile int a0) {
+    int s1 = *(int *)(a0 + 0x164);
+    void *s0 = (void *)(s1 + 0x2C8);
+    iosPadStickCameraCoord(s0, 0, 0, D_00280FC0);
+    for (;;) {
+        iosPadNormalizeStick(s0);
+        if (a0 == D_00631B00 && (*(int *)(s1 + 0x2D4) & 1)) {
+            ACTDebugMove(a0, 1);
+        }
+        _ACTWait(1);
+    }
+}
+
+extern int D_00275250[];
+extern int D_006338E8;
+extern int D_00633F8C;
+extern int D_00631AE4;
+extern float D_006314A4;
+extern void actConte11Jimaku(float f);
+extern void actCreateSubThread(void *f, int a1);
+extern int actSt25aQueenDeadChk(int a0);
+extern void actSt25aQueenDead(int a0, int a1, int a2, float f12, float f13);
+extern int fightSoundClose(void);
+extern void func_0017B258(int a0);
+extern void func_00192040(void);
+extern void func_00207A88(volatile int a0);
+extern void play_way(volatile int a0);
+extern void scpPlayStart(int a0, int *a1, int a2, int a3, int a4);
+extern int scpPlayEnd(void);
+extern void scpTrans(int a0, int a1);
+extern void stage_CalcAnimationParent(int a0, int a1);
+
+void func_002071E8(volatile int a0) {
+    func_0017B258(6);
+    *(int *)(actSt25aQueenDeadChk(0x924) + 0x16C) = 0;
+    *(int *)(actSt25aQueenDeadChk(0x925) + 0x16C) = 0;
+    actCreateSubThread(func_00207A88, 0x15);
+    scpPlayStart(0xC, &D_006338E8, 0, 1, 1);
+    { int v = D_006338E8; while (v == 0) { _ACTWait(1); v = D_006338E8; } }
+    actConte11Jimaku(6.0f);
+    actCreateSubThread(play_way, 0x15);
+    func_00192040();
+    while (fightSoundClose() != 0) { _ACTWait(1); }
+    D_00633F8C = 0;
+    for (;;) {
+        if (D_00633F8C != 0) goto done;
+        if ((D_00275250[1] & 0x800) != 0) {
+            if (scpPlayEnd() == 0) break;
+        }
+        _ACTWait(1);
+    }
+    if (D_00633F8C != 0) goto done;
+    if (D_006338E8 == 0) goto done;
+    stage_CalcAnimationParent(0x44, 0);
+    scpTrans(D_006338E8, 0x80);
+    D_006338E8 = 0;
+done:
+    actSt25aQueenDead(1, D_00631AE4, 0, D_006314A4, 1.0f);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", play_way);
 

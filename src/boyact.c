@@ -82,7 +82,53 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", motBoyHand100);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", motBoyHand200);
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", hand_heroin);
+extern int D_006321DC__hh __asm__("D_006321DC");
+extern char D_00558230[];
+extern void debug_assertMessage(void *msg);
+extern void iosOmBeforeFuncStandard(void *a0, int a1, int a2);
+extern void BoxBarSoundOn(void *a0, int a1);
+
+void hand_heroin(volatile int a0)
+{
+    int *m = *(int **)((char *)a0 + 0x164);
+
+    debug_assertMessage(D_00558230);
+    while (1) {
+        if (D_00631AE8 != 0) {
+            iosOmBeforeFuncStandard(D_00631AE8, 0x55, D_006321DC__hh);
+        }
+        if (*(int *)((char *)m + 0xD0) & 1) {
+            break;
+        }
+        _ACTWait(1);
+    }
+    while (1) {
+        if (*(int *)(*(int *)((char *)a0 + 0x15C) + 0x4A0) >= 0 &&
+            *(int *)(*(int *)((char *)a0 + 0x15C) + 0x4A0) < 2) {
+            break;
+        }
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    while (1) {
+        if (D_00631AE8 != 0) {
+            iosOmBeforeFuncStandard(D_00631AE8, 0x56, D_006321DC__hh);
+        }
+        if (*(int *)((char *)m + 0xD0) & 2) {
+            break;
+        }
+        _ACTWait(1);
+    }
+    _ACTWait(0x2D);
+    *(int *)((char *)m + 0x14) = 0;
+    while (1) {
+        BoxBarSoundOn((void *)a0, 0x43);
+        _ACTWait(1);
+    }
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/boyact", func_0014D978);
+INCLUDE_ASM("asm/nonmatchings/src/boyact", func_0014DC28);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_0014DF18);
 
@@ -287,7 +333,23 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001538F4);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001538F8);
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyTakeWeaponReady);
+typedef struct { char _0[0x188]; unsigned int f188; char _18c[4]; } WpnEntry;
+extern char D_00565060[];
+
+void actBoyTakeWeaponReady(int *volatile a0) {
+    int idx = *(int *)((char *)*(int **)((char *)a0 + 0x15C) + 0x4A0);
+    if ((((WpnEntry *)(D_00565060 + idx * 0x190))->f188 >> 11) & 1) {
+        funcCommonJumpDircorrect(a0, *(int *)(*(int *)((char *)a0 + 0x164) + 0x678) + 0x7E0);
+    }
+    while (1) {
+        _ACTWait(1);
+    }
+}
+
+void func_00153980(int *volatile a0) {
+    funcCommonJumpDircorrect(a0, *(int *)(*(int *)((char *)a0 + 0x164) + 0x678) + 0x7E0);
+    _ACTWait(0);
+}
 
 void actBoyTakeWeapon(volatile unsigned int a0)
 {
@@ -298,7 +360,206 @@ void actBoyTakeWeapon(volatile unsigned int a0)
     _ACTWait(0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", pullup_check_heroin_position);
+extern int D_006321DC;
+extern void iosOmBeforeFuncStandard(void *a0, int a1, int a2);
+extern void debug_assertMessage(void *a0);
+extern void BoxBarSoundOn(void *a0, int a1);
+extern void *subCommonIdle(void *a0);
+extern CCPResult *ContinueCorrectPosition(void *a0);
+extern char D_00558640[];
+
+void pullup_check_heroin_position(int *volatile a0) {
+    int *obj = *(int **)((char *)a0 + 0x164);
+    debug_assertMessage(D_00558640);
+    *(int *)((char *)obj + 0x30) = 5;
+    while (1) {
+        _ACTWait(1);
+    }
+}
+
+extern char D_00558688[];
+
+void func_00153A30(volatile int a0) {
+    int *obj = *(int **)((char *)a0 + 0x164);
+    debug_assertMessage(D_00558688);
+    *(int *)((char *)obj + 0x30) = 9;
+    _ACTWait(2);
+    if (D_00631AE8 != 0) {
+        iosOmBeforeFuncStandard(D_00631AE8, 0x3D, D_006321DC);
+    }
+    while (1) {
+        if (!(*(int *)((char *)obj + 0x2D0) & 8)) {
+            BoxBarSoundOn((void *)a0, 0xB7);
+        }
+        _ACTWait(1);
+    }
+}
+
+void func_00153AA8(volatile int a0) {
+    while (1) {
+        BoxBarSoundOn((void *)a0, 0xB7);
+        _ACTWait(1);
+    }
+}
+
+extern char D_005586A0[];
+
+void func_00153AD8(volatile int a0) {
+    float buf[4];
+    debug_assertMessage(D_005586A0);
+    while (1) {
+        func_00243B18(buf, subCommonIdle((void *)a0), 15.0f);
+        BoxBarSoundOn((void *)a0, 0xB7);
+        _ACTWait(1);
+    }
+}
+
+extern float fzMagnitudefv(int a0, int a1, int a2);
+extern void brainInitGirlSet(void);
+
+void func_00153B38(volatile int a0) {
+    funcCommonJumpDircorrect(a0, *(int *)(*(int *)((char *)a0 + 0x164) + 0x678) + 0x7F0);
+    fzMagnitudefv(*(int *)(*(int *)((char *)a0 + 0x164) + 0x678) + 0x800,
+                  *(int *)(*(int *)(*(int *)((char *)a0 + 0x164) + 0x678) + 0x7F8),
+                  *(int *)(*(int *)((char *)a0 + 0x164) + 0x678) + 0x7F0);
+    while (1) {
+        if (D_00631AE8 != 0) {
+            brainInitGirlSet();
+            if (D_00631AE8 != 0) {
+                iosOmBeforeFuncStandard(D_00631AE8, 0x3A, D_006321DC);
+            }
+        }
+        BoxBarSoundOn((void *)a0, 0x117);
+        _ACTWait(1);
+    }
+}
+
+typedef struct { long long a; int b; } __attribute__((packed, aligned(4))) S12u;
+void func_00153BE0(volatile int a0) {
+    int *p = *(int **)((char *)a0 + 0x164);
+    int q0, q1, q2, q3;
+    funcCommonJumpDircorrect(a0, *(int *)(*(int *)((char *)a0 + 0x164) + 0x678) + 0x7F0);
+    q0 = *(int *)(*(int *)((char *)a0 + 0x164) + 0x678);
+    q1 = *(int *)(*(int *)((char *)a0 + 0x164) + 0x678);
+    *(float *)(q0 + 0x430) = *(float *)((char *)p + 0x4B0);
+    q2 = *(int *)(*(int *)((char *)a0 + 0x164) + 0x678);
+    q3 = *(int *)(*(int *)((char *)a0 + 0x164) + 0x678);
+    *(float *)(q1 + 0x434) = *(float *)((char *)p + 0x4B4);
+    *(float *)(q2 + 0x438) = *(float *)((char *)p + 0x4B8);
+    *(S12u *)(q3 + 0x440) = *(S12u *)((char *)p + 0x620);
+    while (1) { BoxBarSoundOn((void *)a0, 0x117); _ACTWait(1); }
+}
+
+typedef struct { char _0[0x20]; float f20; int i24; int i28; int _2c; } __attribute__((aligned(8))) Buf30;
+extern float RotateAccordingToStick_PatternThree(CCPResult *a0, void *a1);
+extern void funcCommonFallDircorrect(int a0, void *a1);
+
+void func_00153C90(volatile int a0) {
+    void *m = *(void **)((char *)a0 + 0x164);
+    Buf30 buf;
+    buf = *(Buf30 *)*(void **)((char *)(*(int *)((char *)a0 + 0x164)) + 0x2C);
+    while (1) {
+        funcCommonFallDircorrect(a0, (char *)&buf + 0x10);
+        if (buf.i28 != 0) {
+            long long v = *(long long *)((char *)m + 0x480);
+            v |= 0x1000;
+            v |= 2;
+            *(long long *)((char *)m + 0x480) = v;
+        }
+        if (buf.i24-- < 0) BoxBarSoundOn((void *)a0, 0xFA);
+        if (RotateAccordingToStick_PatternThree(ContinueCorrectPosition((void *)a0), &buf) < buf.f20 * buf.f20)
+            BoxBarSoundOn((void *)a0, 0xFA);
+        _ACTWait(1);
+    }
+}
+
+extern void *D_00633CF8;
+
+void func_00153DA0(volatile int a0) {
+    void *obj = (char *)*(void **)((char *)a0 + 0x15C) + 0x130;
+    func_00243B18(obj, subCommonIdle(D_00633CF8), 30.0f);
+    while (1) {
+        BoxBarSoundOn((void *)a0, 0x127);
+        _ACTWait(1);
+    }
+}
+
+void func_00153DF8(volatile int a0) {
+    while (1) {
+        BoxBarSoundOn((void *)a0, 0xB7);
+        _ACTWait(1);
+    }
+}
+
+void func_00153E28(volatile int a0) {
+    while (1) {
+        if (D_00631AE8 != 0) {
+            iosOmBeforeFuncStandard(D_00631AE8, 0x161, D_006321DC);
+        }
+        BoxBarSoundOn((void *)a0, 0x15F);
+        _ACTWait(1);
+    }
+}
+
+static __inline__ unsigned char boyStateIsGrab(void) {
+    void *p = D_00631AE8;
+    void *q = p;
+    unsigned int lo = *(unsigned int *)((char *)*(void **)((char *)p + 0x164) + 0x30);
+    unsigned int hi = *(unsigned int *)((char *)*(void **)((char *)q + 0x164) + 0x30);
+    if (hi >= 0x68) return 0;
+    if (lo < 0x65) return 0;
+    return 1;
+}
+
+void func_00153E68(volatile int a0) {
+    while (1) {
+        if (!boyStateIsGrab()) {
+            BoxBarSoundOn((void *)a0, 0xD2);
+        }
+        _ACTWait(1);
+    }
+}
+
+void func_00153EC8(volatile int a0) {
+    while (1) {
+        if (D_00631AE8 != 0) {
+            iosOmBeforeFuncStandard(D_00631AE8, 0x163, D_006321DC);
+        }
+        BoxBarSoundOn((void *)a0, 0xB7);
+        _ACTWait(1);
+    }
+}
+
+void func_00153F08(volatile int a0) {
+    while (1) {
+        BoxBarSoundOn((void *)a0, 0x167);
+        _ACTWait(1);
+    }
+}
+
+void func_00153F38(volatile int a0) {
+    while (1) {
+        BoxBarSoundOn((void *)a0, 0x172);
+        _ACTWait(1);
+    }
+}
+
+extern float D_00630C1C;
+
+void func_00153F68(volatile int a0) {
+    void *obj = *(void **)((char *)a0 + 0x164);
+    float thresh = D_00630C1C;
+    while (1) {
+        if (thresh < *(float *)((char *)obj + 0x33C) ||
+            (*(int *)((char *)obj + 0x2D0) & 0x10)) {
+            BoxBarSoundOn((void *)a0, 0x174);
+            if (D_00631AE8 != 0) {
+                iosOmBeforeFuncStandard(D_00631AE8, 0x177, D_006321DC);
+            }
+        }
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00153FE8);
 
@@ -657,7 +918,45 @@ void actBoyRescueSrc(volatile int a0) {
     debug_assertMessage(D_006322C0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoySupportGBBegin);
+void actBoySupportGBBegin(int a0) {
+    volatile int buf[4];
+    buf[0] = a0;
+    while (1) {
+        BoxBarSoundOn((void *)buf[0], 0xB0);
+        _ACTWait(1);
+    }
+}
+
+extern char D_005584E8[];
+extern char D_006322B0[];
+
+extern int D_006AAAE0_i[] __asm__("D_006AAAE0");
+void func_00154BC0(int *volatile a0) {
+    int s1 = D_006AAAE0_i[8];
+    int s0 = D_006AAAE0_i[9];
+    int s4 = *(int *)((char *)a0 + 0x164);
+    int *p = a0;
+    int s2 = *(int *)((char *)p + 0x164);
+    if (s1 != s0) {
+        if (s0 == 0) {
+            func_001AD768(D_005582C8, 0xAC5);
+            func_00263FF0(D_005582C8, 0xAC5, D_006322B0);
+        } else {
+            int w;
+            WeaponCurPos((int *)s0, p, 0x16);
+            w = *(int *)((char *)s0 + 0x8);
+            *(int *)((char *)s2 + 0x140) = s0;
+            D_006AAAE0_i[0] = w;
+            if (s1 != 0) {
+                ExecWeaponHitReaction((void *)s1);
+                InitSwapWeapon();
+                func_001AE420(s1, 0, 0, D_00631990);
+                ((void (*)(char *, int, int))debug_assertMessage)(D_005584E8, *(int *)((char *)s1 + 0x8), *(int *)((char *)s0 + 0x8));
+            }
+        }
+    }
+    *(int *)((char *)s4 + 0x140) = D_006AAAE0_i[9];
+}
 
 void actBoySupportGBLoop(int x) {
     volatile int local = x;

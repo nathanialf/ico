@@ -418,7 +418,79 @@ void actCommonDodge(volatile unsigned int a0)
     _ACTWait(0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonEdgeHang);
+extern void BoxBarSoundOn(void *a0, int a1);
+
+void actCommonEdgeHang(volatile int a0) {
+    char *s1 = *(char **)(a0 + 0x164);
+    for (;;) {
+        char *o = *(char **)(*(char **)(a0 + 0x164) + 0x670);
+        *(int *)(s1 + 0x34) = 1;
+        switch (*(int *)(o + 0x290)) {
+        case 1:
+            BoxBarSoundOn((void *)a0, 0x81);
+        case 2:
+            BoxBarSoundOn((void *)a0, 0x82);
+            break;
+        }
+        _ACTWait(1);
+    }
+}
+
+void func_0015E878(volatile int a0) {
+    char *s1 = *(char **)(a0 + 0x164);
+    for (;;) {
+        char *o = *(char **)(*(char **)(a0 + 0x164) + 0x670);
+        *(unsigned int *)(s1 + 0x34) = 0xFFFFFFFFu;
+        switch (*(int *)(o + 0x294)) {
+        case 1:
+            BoxBarSoundOn((void *)a0, 0x81);
+        case 2:
+            BoxBarSoundOn((void *)a0, 0x82);
+            break;
+        }
+        _ACTWait(1);
+    }
+}
+
+void func_0015E908(volatile int a0) {
+    char *s16 = *(char **)(a0 + 0x164);
+    for (;;) {
+        long long v = *(long long *)(s16 + 0x470);
+        if (((int)(v >> 9) & 1) &&
+            ((int)(*(long long *)(s16 + 0x480) >> 9) & 1))
+            goto wait;
+        if (((int)(v >> 10) & 1) &&
+            ((int)(*(long long *)(s16 + 0x480) >> 10) & 1))
+            goto wait;
+        BoxBarSoundOn((void *)a0, 0xB7);
+    wait:
+        _ACTWait(1);
+    }
+}
+
+extern void func_00243B18_e(float *a0, float *a1, float f12) __asm__("func_00243B18");
+
+void func_0015E9A0(volatile int a0) {
+    float v[4];
+    char *s = *(char **)(a0 + 0x164);
+    v[0] = *(float *)(s + 0x190);
+    v[1] = *(float *)(s + 0x194);
+    v[2] = *(float *)(s + 0x198);
+    if (*(int *)(s + 0xC8) == 0xB1) {
+        func_00243B18_e(v, v, -1.0f);
+    }
+    for (;;) {
+        dispPlane((void *)a0, v);
+        _ACTWait(1);
+    }
+}
+
+extern char D_00558BF8[];
+
+void func_0015EA20(volatile int a0) {
+    debug_assertMessage(D_00558BF8);
+    _ACTWait(0);
+}
 
 extern char D_00558C18[];
 extern void _ACTWait__p4(int a0) __asm__("_ACTWait");
@@ -534,7 +606,36 @@ void *subCommonIdle(char *a0) {
     return p;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", ContinueCorrectPosition);
+extern void GetRootMatrixByDObj(void *out, void *obj);
+extern int CageFixDL(void *a0, void *a1, void *a2);
+extern char D_006AAB70[];
+extern float D_00632340[];
+
+void *ContinueCorrectPosition(void *a0) {
+    char *s0;
+    int x = *(int *)((char *)a0 + 0xC);
+    switch (x) {
+    case 1:
+    case 2:
+    case 4:
+        s0 = *(char **)((char *)a0 + 0x164) + 0xF0;
+        GetRootMatrixByDObj(s0, a0);
+        return s0;
+    case 0x2B: {
+        int local[4];
+        if (CageFixDL(D_006AAB70, local, a0) == 0) {
+            float f = D_00632340[0];
+            ((float *)D_006AAB70)[0] = f;
+            ((float *)D_006AAB70)[1] = f;
+            ((float *)D_006AAB70)[2] = f;
+        }
+        return D_006AAB70;
+    }
+    default:
+        GetRootMatrixByDObj(D_006AAB70, a0);
+        return D_006AAB70;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonTurn);
 

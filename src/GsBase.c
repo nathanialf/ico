@@ -168,7 +168,52 @@ INCLUDE_ASM("asm/nonmatchings/src/GsBase", gsb_SetVSMatrix);
 
 INCLUDE_ASM("asm/nonmatchings/src/GsBase", gsb_ClipBox);
 
-INCLUDE_ASM("asm/nonmatchings/src/GsBase", gsb_StageSettingTool);
+extern void debug_assertMessage(const char *fmt, ...);
+extern int D_00631C14, D_00631A60, D_00631A50, D_00631BBC;
+extern char D_00554740[], D_00554750[], D_00554760[], D_00554770[], D_00274EF0[];
+extern void func_00241C48(void);
+extern void func_00244598(void);
+extern void matrix_init(void);
+extern void malloc_MemCpy(void);
+extern void func_00130128(void);
+extern void func_002425A8(int a0);
+extern void gsb_antiAlias(void *a0);
+extern void dl_PopPriority(void);
+extern void mallocsekistage(void);
+extern void prim_InitFan2D(void);
+extern void shadow_DispCancel(void);
+extern void stage_SetScale(void);
+
+void gsb_StageSettingTool(void) {
+    D_00631A60 = 0;
+    D_00631A50 = 0;
+    if (D_00631C14 != 0) {
+        func_00241C48();
+        func_00244598();
+        debug_assertMessage(D_00554740);
+        matrix_init();
+        debug_assertMessage(D_00554750);
+        malloc_MemCpy();
+        debug_assertMessage(D_00554760);
+        func_00130128();
+        debug_assertMessage(D_00554770);
+        func_002425A8(0);
+        gsb_antiAlias(D_00274EF0);
+        func_002425A8(0);
+        dl_PopPriority();
+        D_00631C14 = 0;
+    } else {
+        debug_assertMessage(D_00554740);
+        matrix_init();
+        debug_assertMessage(D_00554760);
+        func_00130128();
+    }
+    mallocsekistage();
+    prim_InitFan2D();
+    shadow_DispCancel();
+    stage_SetScale();
+    D_00631BBC = 1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/GsBase", gsb_StageSetting);
 
