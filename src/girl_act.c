@@ -1,6 +1,12 @@
 #include "common.h"
 
 typedef struct {
+    char _0[0x184];
+    int f_184;          /* 0x184 */
+    char _188[0x8];
+} HangOrientEntry;
+
+typedef struct {
     char _0[0x20];
     float f_20;        /* 0x20 */
     char _24[0x0C];
@@ -204,7 +210,81 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlWalk);
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlRun);
 
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlHang);
+extern HangOrientEntry D_00565060[];
+
+#define SUB(g)  (*(int *)((char *)(g) + 0x164))
+#define REF(g)  (*(int *)((char *)(g) + 0x15C))
+
+void actGirlHang(int *a0, int *a1, int *a2, int *a3) {
+    volatile int home;
+    int uninit;
+    int *g = (int *)D_00631AE4__p4;
+    int x;
+    int r4;
+
+    home = uninit;
+
+    *a0 = *(int *)(SUB(g) + 0x30);
+    *a1 = 0;
+    *a2 = 0;
+    *a3 = 0;
+    x = *a0;
+    switch (x) {
+    case 8:
+        *a0 = 1;
+        break;
+    case 2:
+    case 3:
+        if (*(int *)(SUB(g) + 0x144) != 0) {
+            *a0 = 2;
+        }
+        {
+        int idx = *(int *)(REF(g) + 0x4A0);
+        HangOrientEntry *e = (HangOrientEntry *)(idx * 0x190 + (int)D_00565060);
+        switch ((unsigned int)e->f_184 >> 30) {
+        case 1:
+            *a0 = 2;
+            break;
+        case 2:
+            *a0 = 3;
+            break;
+        }
+        }
+        r4 = *a0;
+        if (r4 == 3) {
+            long long v = *(long long *)(*(int *)(SUB(g) + 0x678) + 0x408);
+            if ((int)((unsigned long long)v >> 33) & 1) {
+                *a0 = 1;
+                r4 = 1;
+            } else if ((int)(v >> 32) & 1) {
+                *a0 = 2;
+                r4 = 2;
+            }
+        }
+        if (r4 == 2) {
+            long long v = *(long long *)(*(int *)(SUB(g) + 0x678) + 0x408);
+            if ((int)((unsigned long long)v >> 33) & 1) {
+                *a0 = 1;
+            }
+        }
+        break;
+    case 36:
+        if (*(int *)(SUB(g) + 0x38) == 0x55) {
+            *a2 = 1;
+        } else {
+            *a3 = 1;
+        }
+        break;
+    case 5:
+    case 17:
+    case 18:
+    case 68:
+        *a0 = 3;
+        break;
+    }
+}
+#undef SUB
+#undef REF
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlBHang);
 

@@ -2085,3 +2085,80 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PORTED `GetWormCaptureVector` w3 @ 0x001F69B0 <- aug6 sugipon/src/worm (1 syms rebound)
 - PORTED `GetWormRoute` w1 @ 0x001F66A0 <- aug6 sugipon/src/worm (3 syms rebound)
 - REVERTED `WormDL` w3 @ 0x001F6A90 — [codegen] insn 1: expected `lw	v1,2048(v0)` built `lw	v1,2032(v0)`
+
+## Phase 5 — jtbl queue (deferred from Phase 4, `decomp/carve_ledger.md` has the
+## rodata-carve side of each of these; this section is the C-body-port side)
+
+### src/Packet
+- PORTED `pac_setVifEndCode` w1 @ 0x00118FD8 <- aug6 seki/src/Packet (9 syms
+  rebound). jtbl_00554E00 (17 entries, 0x44) carved into config/ico.us.yaml
+  first (Phase 5); `tools/port_from_aug6.py port --allow-jtbl` then ported the
+  body unmodified — reloc rebind only, no source-shape changes needed.
+  `pac_makeNormalStrip` (the other jtbl SKIP in this TU, jtbl_00554DB0) stays
+  asm: it is INCLUDE_ASM on aug6 too (never matched upstream), so there is no
+  reference body to port; only its jtbl neighbor's carve is in scope here.
+
+### src/debug_exception
+- PORTED `initLineTraceTable` w1 @ 0x001A6848 <- aug6 common/src/debug_exception
+  (9 syms rebound). jtbl_00615090 (17 entries, 0x44) carved first; straight
+  port, no source-shape changes (near-identical twin of pac_setVifEndCode).
+
+### src/girl_act
+- PORTED `actGirlHang` w3 @ 0x001736B8 <- aug6 fumi/src/girl_act, HAND-FIXED
+  (not a clean mechanical port). jtbl_00559950 (67 entries, 0x10C) carved
+  first. Two real defects found and fixed by hand after the tool's automatic
+  attempt reverted with `[§frame-size]`:
+  1. The aug6 body relies on two function-LOCAL macros bracketing it,
+     `#define SUB(g) (*(int*)((char*)(g)+0x164))` / `#define REF(g) (*(int*)
+     ((char*)(g)+0x15C))`, `#undef`'d right after. `port_from_aug6.py`'s
+     splice only carries the function body + externs/typedefs, not sibling
+     `#define`/`#undef` lines, so `SUB(g)`/`REF(g)` compiled as *implicit
+     undeclared-function calls* (ee-gcc 2.9 allows K&R implicit int) —
+     7 spurious `jal`s the diff hint mis-attributed to a frame-size issue.
+     Fixed by re-adding the macro pair by hand around the ported body.
+  2. Once the macros were restored, 4 literal mismatches remained — genuine
+     PROTOTYPE-VS-RETAIL struct-layout drift, not a rebind bug:
+     `SUB(g)+0x134`->`+0x144`, `REF(g)+0x490`->`+0x4A0`,
+     `SUB(g)+0x678 ...+0x3E8` (both occurrences)->`+0x408`, and the case-36
+     comparison constant `0x54`->`0x55`. All 4 values were re-derived directly
+     from `asm/nonmatchings/src/girl_act/actGirlHang.s` (ground truth), not
+     guessed. `tools/quick_diff.sh` clean (only cosmetic absolute-address
+     annotation differs, same `<actGirlHang+0xNN>` symbolic offsets both
+     sides) and `ninja` SHA-1 gate green.
+  - Tooling note: `port_from_aug6.py`'s jtbl-symbol rebind (`build_symbol_map`)
+    also needed a fix — it named a carved jump-table's retail counterpart
+    `D_<addr>` (the generic data-symbol template) instead of `jtbl_<addr>`
+    (splat's actual auto-name for a switch jtbl), so it always reported the
+    rebind target as "undefined" even after the carve existed. Fixed by
+    preferring `jtbl_<addr>` when the aug6-side symbol itself is `jtbl_`-named
+    and that name is in the retail `defined` label set.
+
+### src/motionOrientManager
+- CARVED (function still asm) `shiftMotionOrientEndFunc` w3 @ 0x001E0D50 —
+  jtbl_006196E0 (21 entries, 0x54, VMA 0x6196E0..0x619734) carved, PLUS its
+  immediate predecessor `D_006196C8` (a 0x18-byte debug format string,
+  `"%s \207 %s (%s)\n"`, VMA 0x6196C8..0x6196E0 incl. null-pad to the jtbl's
+  `.align 3` boundary) as ONE contiguous carve region
+  (`[0x5196C8, .rodata, src/motionOrientManager]`). `D_006196C8` needed a
+  real typed definition even with the function left `INCLUDE_ASM`, because
+  the raw ROM disassembly itself carries a `%hi/%lo(D_006196C8)` reference
+  (the still-asm function loads the string's address to pass to `display()`)
+  — once carved out of the blob, that reference needs SOME definition to
+  resolve against, ported or not.
+  - The aug6-body port attempt (`port_from_aug6.py --allow-jtbl`) does NOT
+    land cleanly and was left reverted / not applied to the working tree.
+    First revert reason from the tool was `[§regalloc-swap]`; hand-fixing two
+    real prototype-vs-retail struct-offset drifts (`REF(g)+0x490`->`+0x4A0`,
+    matching the SAME field actGirlHang hit) got two of the tag-diff hints to
+    clear, but a THIRD, structural difference remains: the retail ROM's 21
+    case bodies each inline their own full `lui/daddu/jal/addiu` call to
+    `func_00264DF8` before branching to the shared display-block tail,
+    whereas recompiling the (offset-corrected) aug6 body cross-jump-merges
+    several of those identical call sites into a shared trailer — a real
+    whole-function codegen-shape difference (gcc crosslining/tail-merge),
+    not a rebind or literal-constant issue. This needs proper decomp-match
+    treatment (structure-over-count, `decomp-convergence`-style or a fresh
+    `decomp-match` grind on the switch's case-body shape), not another
+    mechanical port attempt. Left as a resume target — see
+    `decomp/carve_ledger.md` for the exact literal/offset findings so a
+    future session doesn't have to re-derive them.

@@ -2,7 +2,12 @@
 
 #include "ico/types.h"
 
-
+/* .rodata carved from blob (VMA 0x6196C8..0x6196E0, incl. null pad to the
+ * jtbl_006196E0 .align 3 boundary that immediately follows it). Referenced
+ * by %hi/%lo from the still-INCLUDE_ASM'd shiftMotionOrientEndFunc body
+ * itself, so it needs a real definition even before that function is
+ * ported. */
+const char D_006196C8[0x18] = "%s \207 %s (%s)\n";
 
 
 extern unsigned short D_00565060[];

@@ -329,7 +329,15 @@ segments:
       - [0x174110, hasm, src/particle]       # ParticleMicroProgram
       - [0x1746C0, textbin, src/cod/1746C0]  # .reginfo + pad (all zeros in rom)
       - [0x174700, data, src/cod/174700]     # .data blob (to be carved per TU)
-      - [0x453700, rodata, src/cod/453700]   # .rodata blob (to be carved per TU)
+      - [0x453700, rodata, src/cod/453700]   # .rodata blob, part 1 (to be carved per TU)
+      - [0x454E00, .rodata, src/Packet]  # gcc-emitted jtbl_00554E00 (pac_setVifEndCode switch, 17 entries 0x44), VMA 0x554E00..0x554E44
+      - [0x454E44, rodata, src/cod/454E44]   # .rodata blob, part 2 (resume after Packet jtbl)
+      - [0x459950, .rodata, src/girl_act]  # gcc-emitted jtbl_00559950 (actGirlHang switch, 67 entries 0x10C), VMA 0x559950..0x559A5C
+      - [0x459A5C, rodata, src/cod/459A5C]   # .rodata blob, part 3 (resume after girl_act jtbl)
+      - [0x515090, .rodata, src/debug_exception]  # gcc-emitted jtbl_00615090 (initLineTraceTable switch, 17 entries 0x44), VMA 0x615090..0x6150D4
+      - [0x5150D4, rodata, src/cod/5150D4]   # .rodata blob, part 4 (resume after debug_exception jtbl)
+      - [0x5196C8, .rodata, src/motionOrientManager]  # carved D_006196C8 (debug fmt string, 0x18 bytes incl. null-pad, VMA 0x6196C8..0x6196E0) + gcc-emitted jtbl_006196E0 (shiftMotionOrientEndFunc switch, 21 entries 0x54), VMA 0x6196E0..0x619734
+      - [0x519734, rodata, src/cod/519734]   # .rodata blob, part 5 (resume after motionOrientManager jtbl)
       - [0x530900, lit4, src/cod/530900]     # .lit4
       - [0x531900, sdata, src/cod/531900]    # .sdata
       - { type: sbss, vram: 0x00633C00, name: src/cod/00633C00, align: 0x100 }  # .sbss — original aligns to 0x100, not 0x10

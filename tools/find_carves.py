@@ -29,18 +29,40 @@ Usage:
   tools/find_carves.py <tu> --consumers     # list the referencing TUs
 
 Sources (no leaked data): symbol VMAs are encoded in splat's auto names
-(D_<vma>/jtbl_<vma>); sections come from baserom/aug6/baseelf.elf (the build
-oracle); the consumer map is a scan of asm/aug6/**.s + */src/**.c.
+(D_<vma>/jtbl_<vma>); sections come from the target ELF (baserom/baseelf.elf
+for `us`, baserom/aug6/baseelf.elf for `aug6`) via tools/ico_version.py; the
+consumer map is a scan of asm/[<version>/]**.s + TU source roots.
+
+Version-aware: VERSION env (or auto-detect via ico_version.detect_version)
+selects the asm root (`asm/` for us, `asm/aug6/` for aug6), the ELF, and the
+TU source roots to scan. Behavior on aug6 is unchanged from before this TU
+was made version-aware.
 """
 import argparse
 import os
+import pathlib
 import re
 import struct
 import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ELF = os.path.join(ROOT, "baserom/aug6/baseelf.elf")
+sys.path.insert(0, os.path.join(ROOT, "tools"))
+from ico_version import detect_version, baseelf_path  # noqa: E402
+
+VERSION = detect_version(pathlib.Path(ROOT))
+ELF = str(baseelf_path(pathlib.Path(ROOT), VERSION))
+# asm root: retail (`us`) keeps asm/ flat; aug6 (and any other named version)
+# nests under asm/<version>/ — same convention as tools/park_tu.py's
+# asm_roots() and tools/match_drive.py's VERSION-keyed path.
+ASM_ROOT = "asm" if VERSION == "us" else f"asm/{VERSION}"
+# TU source roots to scan for consumer .c files, per version. aug6's dev
+# tree is split by original programmer (omori/ito/sugipon/fumi/seki/common/
+# script); retail (`us`) is a flat src/ + ios/isys/ito/sound tree.
+SRC_ROOTS = {
+    "us": ("ios", "isys", "ito", "sound", "src"),
+    "aug6": ("omori", "ito", "sugipon", "fumi", "seki", "common", "script"),
+}.get(VERSION, ("omori", "ito", "sugipon", "fumi", "seki", "common", "script"))
 
 # splat auto-names with the VMA in the name; the only ones whose address we can
 # trust without a symbol table.  Named (human) data symbols are rare here and
@@ -86,10 +108,14 @@ def section_of(secs, vma):
     return None
 
 
+_ASM_TU_RE = re.compile(
+    re.escape(ASM_ROOT) + r"/(?:nonmatchings|matchings)/(.+)/[^/]+\.s$")
+
+
 def tu_of_path(path):
     """Map a source/asm path to its TU stem (e.g. omori/src/camera-set-manager)."""
     p = path.replace("\\", "/")
-    m = re.search(r"asm/aug6/(?:nonmatchings|matchings)/(.+)/[^/]+\.s$", p)
+    m = _ASM_TU_RE.search(p)
     if m:
         return m.group(1)
     m = re.search(r"((?:[^/]+/)*[^/]+)\.c$", p)
@@ -111,10 +137,12 @@ def scan_consumers():
     consumers = {}
     blob_refs = {}
     # one grep over the full asm disassembly, one over each src root that exists
-    targets = [("asm/aug6", "*.s")]
-    for d in ("omori", "ito", "sugipon", "fumi", "seki", "common", "script"):
+    targets = [(ASM_ROOT, "*.s")]
+    for d in SRC_ROOTS:
         if os.path.isdir(os.path.join(ROOT, d)):
             targets.append((d, "*.c"))
+    data_marker = f"{ASM_ROOT}/data/"
+    cod_marker = f"{ASM_ROOT}/src/cod/"
     for base, inc in targets:
         try:
             out = subprocess.run(
@@ -128,13 +156,15 @@ def scan_consumers():
             if i < 0:
                 continue
             path, sym = line[:i], line[i + 1 :]
-            # asm/aug6/data/** is the raw section blob that DEFINES the bytes,
-            # not a consumer — skip it, else every TU-local symbol looks shared.
-            if "/aug6/data/" in path:
+            ppath = path.replace("\\", "/")
+            # <asm_root>/data/** is the raw section blob that DEFINES the
+            # bytes, not a consumer — skip it, else every TU-local symbol
+            # looks shared.
+            if data_marker in ppath:
                 continue
-            # asm/aug6/src/cod/*.s is the monolithic unmatched-code blob: owner
-            # unknown, so note it as a caveat rather than a TU consumer.
-            if "/aug6/src/cod/" in path:
+            # <asm_root>/src/cod/*.s is the monolithic unmatched-code blob:
+            # owner unknown, so note it as a caveat rather than a TU consumer.
+            if cod_marker in ppath:
                 blob_refs[sym] = blob_refs.get(sym, 0) + 1
                 continue
             consumers.setdefault(sym, set()).add(tu_of_path(path))

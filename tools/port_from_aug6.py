@@ -573,6 +573,13 @@ def build_symbol_map(rec, retail_a2n, retail_func_vmas, defined):
         if rname is None:
             if kind in ("jal", "j") or addr in retail_func_vmas:
                 rname = "func_%08X" % addr
+            elif sym.startswith("jtbl_") and ("jtbl_%08X" % addr) in defined:
+                # splat auto-names a carved switch jump table `jtbl_<VMA>`,
+                # not `D_<VMA>` — the aug6 side already carries that name
+                # (kind="lo"/"hi" on the jtbl base load), so prefer it when
+                # a jtbl_<addr> label is actually defined on the retail side
+                # (Phase-5 jtbl-queue carve).
+                rname = "jtbl_%08X" % addr
             else:
                 rname = "D_%08X" % addr
         if rname not in defined:
@@ -975,9 +982,20 @@ def cmd_port(args):
     cand = load_candidates()
     waves = set(args.waves)
     rows = candidates_for_tu(cand, args.tu, waves)
+    only = set(getattr(args, "only", None) or [])
+    if only:
+        rows = [r for r in rows if r["name"] in only]
     if not rows:
         print(f"{args.tu}: no candidates in waves {sorted(waves)}")
         return [], [], []
+
+    # Phase-5 jtbl queue: a name in --allow-jtbl has ALREADY had its switch
+    # jtbl rodata carved into config/ico.<VERSION>.yaml at its real VMA (see
+    # decomp/carve_ledger.md), so the ordinary jtbl-skip and the "may add
+    # code, never data" growth revert (both of which exist to protect the
+    # still-uncarved blob) no longer apply to it — the jtbl's bytes now have
+    # a home. Every other function keeps the default protections.
+    allow_jtbl = set(getattr(args, "allow_jtbl", None) or [])
 
     src = Aug6Source()
     retail_syms = load_retail_symbols()
@@ -1002,7 +1020,7 @@ def cmd_port(args):
         span = next(((s, e) for s, e, n in entries if n == name), None)
         if span is None:
             continue                          # already ported / not in this TU
-        if rec["jtbl"]:
+        if rec["jtbl"] and name not in allow_jtbl:
             skipped.append((rec, "jtbl"))
             continue
 
@@ -1184,8 +1202,8 @@ def cmd_port(args):
         ok, rc, out, err = verify_port(stem, name, allowed)
         if ok:
             grew = data_bytes(stem)
-            if (data_baseline is not None and grew is not None
-                    and grew > data_baseline):
+            if (name not in allow_jtbl and data_baseline is not None
+                    and grew is not None and grew > data_baseline):
                 write_latin1(path, cur_text)
                 reverted.append((rec, f"emits-data: +{grew - data_baseline} "
                                       f"bytes of .rodata/.sdata/.lit4 "
@@ -1696,6 +1714,20 @@ if __name__ == "__main__":
     p.add_argument("--apply", action="store_true")
     p.add_argument("--waves", type=lambda s: [int(x) for x in s.split(",")],
                    default=[1, 2, 3])
+    p.add_argument("--allow-jtbl", dest="allow_jtbl",
+                   type=lambda s: [x for x in s.split(",") if x],
+                   default=[],
+                   help="function name(s) whose jtbl rodata has already "
+                        "been carved into the yaml (Phase-5 jtbl queue) — "
+                        "lifts the jtbl skip and the data-growth revert for "
+                        "just these names")
+    p.add_argument("--only", dest="only",
+                   type=lambda s: [x for x in s.split(",") if x],
+                   default=[],
+                   help="restrict this TU's port to just these function "
+                        "name(s) — single-function mode, so re-attempting "
+                        "one already-decided (REVERTED) sibling in a "
+                        "coalesced TU doesn't re-litigate the rest")
 
     p = sub.add_parser("port-all")
     p.add_argument("--apply", action="store_true")
