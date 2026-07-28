@@ -107,23 +107,139 @@ function stays `INCLUDE_ASM`). The body port does not close cleanly:
   extended range is verified against `baserom/baseelf.rom` before landing
   — the SHA gate cannot tell you if you've swept in a neighbor's data.
 
+## Batch 2 — `src/PObj` (VERY limited: 1 symbol) + a major tooling-bug finding
+
+Ranked the ~192 non-excluded, non-batch-1 TUs by `find_carves.py`'s CARVE
+count (script in this session's scratch; sort by `CARVE=N`). Top of the
+list: `src/commonact` (124), `src/st47a` (121), `src/debug` (93),
+`src/motionManager` (87), `src/Light` (81), `src/camera-editor` (80),
+`src/chain` (76), `src/enemy_act` (74), `src/st04b` (69), `src/kanbanBoot`
+(69), `src/charFileManager` (63), `src/PObj` (19, chosen first as the
+smallest/cleanest — `SHARED=0 BLOCKED=1`).
+
+**Only landed 1 symbol this batch**: `D_004D4230` (`.data`, 0x80 bytes,
+`src/PObj`). Everything else attempted — PObj's own remaining 18 CARVE
+symbols, plus a `src/charFileManager` pass — hit one of two blockers below
+and was reverted. This is a MUCH smaller yield than planned; the second
+blocker (multi-entry corruption) is a session-blocking discovery that
+needs a real fix before this phase can scale.
+
+### Blocker 1 — plain `.rodata` string carve collides with INCLUDE_ASM's local dlabel copy
+
+Confirmed on `src/PObj`'s 8-string run (`D_0062DF08`..`D_0062DFF0` +
+`D_0062E010`, VMA 0x62DF08..0x62E020): splat's per-function "nonmatching"
+`.s` stub for a still-`INCLUDE_ASM` function embeds its OWN local
+`dlabel`/`enddlabel` copy of any small `.rodata` it references (visible in
+`asm/nonmatchings/src/PObj/func_002413F0.s` etc. — a `.section .rodata` /
+`dlabel D_0062DF08` block ahead of the function body), so it can assemble
+standalone. Add a C-level carve at the SAME address and `ee-as` errors
+`symbol 'D_0062DF08' is already defined` (two definitions: the embedded
+one and the carved global). The 4 batch-1 jtbl carves never hit this
+because gcc-emitted switch jump tables go through a different splat path
+that doesn't locally re-embed. **Rodata carving a plain string is only
+safe once every INCLUDE_ASM function referencing it is ported to C**
+(removing its `.s` stub) — not a yaml/C workaround, an actual match/port.
+PObj's `func_002412D8`/`func_002413F0` still reference these strings, so
+the carve stays reverted; symbols left in the `src/cod` rodata blob.
+
+### Blocker 2 (THE BIG ONE) — a 2nd plain named-data dot-form carve corrupts the whole link
+
+**Reproducible, isolated via bisection, NOT yet root-caused or fixed.**
+Exactly ONE plain (non-jtbl) named-data dot-form carve — in `.data`,
+`.sdata`, whatever section, for whatever TU — round-trips fine (proven:
+`src/PObj`'s lone `D_004D4230` `.data` carve, and in isolation a lone
+`src/charFileManager` `D_004B2FD0` `.data` carve). The moment a SECOND
+such carve exists ANYWHERE in the `cod` segment's data subsegments —
+same TU different section, same TU a 2nd disjoint run, or a totally
+different TU — `ninja`'s `verify_elf` mismatches. Confirmed across four
+independent configurations, all bisected via `rm -rf build` clean
+rebuilds (no stale-cache artifacts):
+
+| config (2nd carve added) | symptom |
+|---|---|
+| PObj `.data` + PObj `.sdata` (`D_00633B98`..`D_00633BC0`) | whole link shifts +0x80 bytes from `D_00633000`-ish onward; `cod_TEXT_END` itself is 0x274780 instead of 0x274700 (the shift originates AT THE .text/.data BOUNDARY, before any of the touched symbols) |
+| PObj `.data` + charFileManager `.data` (`D_004B2FD0` before it, `D_004D42B0` after it — i.e. charFileManager needs 2 disjoint `.data` runs) | `D_004D4230` shifts +8; `D_004D42B0` ends up linked at 0x559A60 (in `.rodata`'s address range, nowhere near its real 0x4D42B0) |
+| charFileManager `.data` (`D_004B2FD0`) ALONE, PObj's carve reverted first | still mismatches (+128 bytes file-size growth, first diff at file offset 0x10 — i.e. even a SINGLE new carve for a DIFFERENT TU than the one already proven clean reproduces the corruption) |
+| charFileManager `D_004D42B0`+`D_004D42E0` (a large, 382KB, symbol) added alongside PObj's `.data` carve | `ld` errors outright: `R_MIPS_GPREL16` relocation-truncated-to-fit across UNRELATED TUs (`matrixDrive` etc.) + `undefined reference to D_00531818` in the raw data blob |
+
+The generated `config/ico.us.ld` linker-script GLOB for a working single
+carve looks byte-for-byte structurally identical to a broken 2-carve one
+(`build/src/<TU>.o(.data*)` threaded into the giant per-TU-declaration-order
+list at the position matching the yaml address, raw blob pieces
+(`build/asm/data/src/cod/<HEX>.data.o`) correctly bracketing it) — so this
+is NOT a linker-script authoring mistake on my part; it's some
+count/order-dependent bug in splat's or `gen_ninja.py`'s size/alignment
+bookkeeping across MULTIPLE such carves. `D_00633BC0`'s `.sdata.*`
+sub-sections all report `2**3` (8-byte) alignment in `objdump -h`, which is
+a candidate lead (an `ALIGN(8)`-per-new-object emission that always adds a
+full unit even when already aligned, rather than 0 when unneeded) but
+NOT confirmed as the root cause — whoever picks this up should instrument
+`tools/gen_ninja.py`'s data/sdata glob emission directly rather than
+re-deriving this from `nm`/`objdump` output as this session did.
+
+**Practical implication**: until this is root-caused and fixed, ONE plain
+named-data carve can be landed per commit/session at most (verify with a
+`rm -rf build` clean rebuild before trusting `ninja`'s cache — several
+false "it still fails" / "it works now" readings this session turned out
+to be stale `build/` state, not real signal). jtbl-associated `.rodata`
+carves (the batch-1 pattern) are UNAFFECTED — 4 of them already coexist
+cleanly on `main`/`HEAD` — so that pattern scales fine; it's specifically
+non-jtbl named data (`.data`/`.sdata`/`.lit4`, any TU) that's capped at 1.
+
+### Blocker 3 — `.lit4` carve default-placement mismatch
+
+`float D_006318C0 = 16777215.0f;` as a plain named global compiles into
+`.sdata` under this project's `-G8` flags, NOT `.lit4` (confirmed via link
+error `multiple definition` + `.sdata.D_006318C0` in `objdump -h` when
+tested without a yaml carve). The ORIGINAL binary's `.lit4` placement for
+a NAMED (not anonymous-literal-pool) float needs `compile_c.sh`'s
+`config/lit4_pool_slots.txt` rename mechanism, which is explicitly
+**single-entry-only** per the tool's own error message; PObj needs 4
+(`D_006318C0`/`C4`/`C8`/`CC`). Left uncarved, in the `src/cod` `.lit4`
+blob. A multi-entry `.lit4` splitter would need to be built first.
+
+### `src/charFileManager` cross-branch findings (informational, not landed)
+
+Cross-referencing `git show retail:<file>` by SYMBOL NAME (not just
+same-named `.c` file) is essential: `D_004D42B0`/`D_004D42E0` are defined
+in retail's `src/PObj.c`, not `charFileManager.c` — TU boundaries differ
+between the old `retail` branch and this `us` rebuild for this address
+range (same underlying PObj model-path table, split differently by each
+branch's own matching order). `find_carves.py`'s consumer scan is
+authoritative for THIS branch regardless of what retail did, so carving
+under charFileManager (this branch's actual sole referencer) would still
+be correct IF the multi-entry bug didn't block it. Also re-confirmed the
+"oversized CARVE symbol" trap from batch 1's `D_0062E010` case: retail
+types `D_004D42E0[95566]` (0x5D5D8 = 382264 bytes); `find_carves.py`
+guessed 423800 (0x67778) via its next-known-symbol heuristic overshoot.
+Byte-verified the FULL trimmed 382264-byte array against
+`baserom/baseelf.rom` (exact match) before deciding not to carve it (see
+Blocker 2). **Standing rule reinforced: always cross-check a CARVE
+symbol's size against retail before trusting `find_carves.py`'s own
+number — prefer the smaller, retail-verified one whenever they disagree.**
+
 ## SHARED-symbol hotlist (seen so far, not carved — owner ambiguous)
 
-None yet logged from a genuine multi-TU CARVE-candidate sweep — the four
-TUs above only needed their jtbl region. The broader per-TU ranking pass
-(`find_carves.py <tu>` across the ~200 already-ported TUs) is the next
-piece of this phase and will populate this section; see the recommended
-next TUs below.
+None yet logged from a genuine multi-TU CARVE-candidate sweep beyond what's
+in the two batches above.
 
 ## Recommended next TUs (successor should start here)
 
-Not yet attempted this session — ranked by `find_carves.py`'s CARVE count
-once run per-TU; a fast way to generate the candidate list:
-`for tu in <ported TUs>; do python3 tools/find_carves.py "$tu" 2>/dev/null | tail -1; done`
-and sort by the `CARVE=N` count. Prioritize TUs whose report shows
-`SHARED=0 BLOCKED=0` (or blocked-only-in-.bss, which is expected and fine)
-so every referenced symbol lands cleanly without a cross-TU ownership
-question. `src/Packet`, `src/girl_act`, and `src/motionOrientManager`
-(seen in this session, tails above) all have substantial CARVE counts
-(67, and more) beyond just their jtbl — worth full carve passes next since
-their `find_carves.py` output is already captured/warm.
+**Before picking a new TU: root-cause Blocker 2 above.** It's the actual
+bottleneck — every TU on the ranked-by-CARVE-count list below has 15-124
+CARVE symbols, and landing only one at a time makes this phase impractical.
+Instrument `tools/gen_ninja.py` / splat's linker-script generation for the
+`.data`/`.sdata`/`.lit4`/`.rodata` glob-building code path and compare its
+behavior for 1 vs 2 dot-form carve entries directly (not via post-hoc
+`nm`/`objdump` archaeology).
+
+Ranked list (CARVE count, this session's sweep, excludes batch-1/2 TUs and
+the worker exclusion list): `src/commonact` (124), `src/st47a` (121),
+`src/debug` (93), `src/motionManager` (87), `src/Light` (81),
+`src/camera-editor` (80), `src/chain` (76), `src/enemy_act` (74),
+`src/st04b` (69), `src/kanbanBoot` (69), `src/charFileManager` (63,
+partially explored above), `src/staticBlur` (58), `src/haveParentSimpleObj`
+(56), `ios/cdvd` (55), `sound/s_init` (52), `src/box` (52), `src/way_tool`
+(44), `src/icoMisc` (44). Once Blocker 2 is fixed, re-run
+`find_carves.py --emit` on each and apply the same retail-crossref +
+byte-verify workflow this batch used for `src/PObj`/`src/charFileManager`.

@@ -329,6 +329,8 @@ segments:
       - [0x174110, hasm, src/particle]       # ParticleMicroProgram
       - [0x1746C0, textbin, src/cod/1746C0]  # .reginfo + pad (all zeros in rom)
       - [0x174700, data, src/cod/174700]     # .data blob (to be carved per TU)
+      - [0x3D4230, .data, src/PObj]  # carved D_004D4230 (VMA 0x4D4230, 0x80 bytes)
+      - [0x3D42B0, data, src/cod/3D42B0]     # .data blob, resume after PObj carve
       - [0x453700, rodata, src/cod/453700]   # .rodata blob, part 1 (to be carved per TU)
       - [0x454E00, .rodata, src/Packet]  # gcc-emitted jtbl_00554E00 (pac_setVifEndCode switch, 17 entries 0x44), VMA 0x554E00..0x554E44
       - [0x454E44, rodata, src/cod/454E44]   # .rodata blob, part 2 (resume after Packet jtbl)
