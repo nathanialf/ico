@@ -39,7 +39,20 @@ INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AD0E8);
 
 INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AD538);
 
-INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AD668);
+extern char D_004B3468[];
+extern char D_006167E0[];
+extern char D_00616818[];
+extern char D_00616848[];
+extern char D_00632F18[];
+extern void func_00265168(char *a0, void *a1);
+
+void func_001AD668(void *a0) {
+    func_00265168(D_004B3468, a0);
+    debug_assertMessage(D_006167E0);
+    debug_assertMessage(D_00616818);
+    debug_assertMessage(D_00632F18, a0);
+    debug_assertMessage(D_00616848);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AD6C8);
 
@@ -51,7 +64,19 @@ INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AD75C);
 
 INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AD768);
 
-INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AD788);
+extern int D_00632ED0;
+extern void func_002450A8(void *a0, int a1);
+extern void func_002450B8(void *a0);
+extern void func_00245120(void *a0, int a1);
+extern void func_002451D0(void *a0, int a1);
+
+void func_001AD788(void *a0) {
+    func_002450A8(a0, (D_00632ED0 << 13) | 0x70000000);
+    func_002450B8(a0);
+    func_00245120(a0, 0);
+    func_002451D0(a0, 0);
+    D_00632ED0 = (D_00632ED0 + 1) & 1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AD7F0);
 

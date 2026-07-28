@@ -160,7 +160,25 @@ void SetCameraMatrix_Ico2(int a0, int a1, int a2, int a3, float *out, int a5) {
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", ReadCameraSet);
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", func_00187EA0);
+extern char D_0055A8F0[];
+extern char D_00275250[];
+extern void ReadCameraSet(void);
+extern void DispCameraGroup(void *a0, int a1, void *a2);
+extern void debug_assertMessage__c2(char *a0, void *a1) __asm__("debug_assertMessage");
+extern void iosSemaCreate(void *a0);
+
+void func_00187EA0(void *obj) {
+    char *base;
+    iosSemaCreate(obj);
+    base = D_00275250;
+    for (;;) {
+        debug_assertMessage__c2(D_0055A8F0, *(void **)((char *)obj + 0x74));
+        if (*(int *)(base + 0x5C) & 0x20) {
+            DispCameraGroup(ReadCameraSet, 3, obj);
+        }
+        iosSemaCreate(obj);
+    }
+}
 
 int func_00187F10(void *a0, int a1) {
     return *(int *)((char *)a0 + 4) + a1 * 0x4C;

@@ -337,7 +337,23 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonDie);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015B4B8);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015B620);
+extern char D_00558C70[];
+extern char D_00632310[];
+extern char D_00632318[];
+extern int D_00631AE4__b620 __asm__("D_00631AE4");
+extern void debug_assertMessage__b620(char *fmt, char *a, char *b) __asm__("debug_assertMessage");
+
+void func_0015B620(int a0, int a1, int a2) {
+    char *msg = D_00558C70;
+    int *m = *(int **)((char *)a0 + 0x164);
+    int g = D_00631AE4__b620;
+    char *s1;
+    char *s2;
+    *(int *)((char *)m + 0xD0) |= 1;
+    s1 = (a2 == g) ? D_00632310 : D_00632318;
+    s2 = (a0 == g) ? D_00632310 : D_00632318;
+    debug_assertMessage__b620(msg, s1, s2);
+}
 
 void Cling(int *a0, int a1, int *a2)
 {

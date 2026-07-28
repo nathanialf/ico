@@ -361,13 +361,72 @@ INCLUDE_ASM("asm/nonmatchings/src/st47a", func_002377E8);
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00237860);
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00237898);
+typedef struct KSubB_b898 {
+    char pad[0xC0];
+    int unkC0;
+    int *unkC4;
+} KSubB_b898;
+
+extern volatile int D_006325B4__b898 __asm__("D_006325B4");
+extern unsigned int D_004D3A70[8];
+extern unsigned int D_004D3A90[8];
+extern void BoxBarSoundOn__b898(int a0, int a1) __asm__("BoxBarSoundOn");
+extern void _ACTWait__b898(int a0) __asm__("_ACTWait");
+extern int func_0017B230__b898(int a0) __asm__("func_0017B230");
+extern void func_00236E10(volatile int a0);
+extern void func_00237930(volatile int a0);
+
+void func_00237898(volatile int a0) {
+    KSubB_b898 *s = *(KSubB_b898 **)(a0 + 0x164);
+    D_006325B4__b898 = 1;
+    s->unkC0 = 0;
+    if (func_0017B230__b898(0x11B) != 0) {
+        D_004D3A70[1] = (unsigned int)func_00236E10;
+        s->unkC4 = (int *)D_004D3A70;
+        BoxBarSoundOn__b898(a0, 0x18D);
+        _ACTWait__b898(0);
+    }
+    D_004D3A90[1] = (unsigned int)func_00237930;
+    s->unkC4 = (int *)D_004D3A90;
+    BoxBarSoundOn__b898(a0, 0x18D);
+    _ACTWait__b898(0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00237930);
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00237A00);
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00237A38);
+typedef struct KSubB_ba38 {
+    char pad[0xC0];
+    int unkC0;
+    int *unkC4;
+} KSubB_ba38;
+
+extern volatile int D_006325B4__ba38 __asm__("D_006325B4");
+extern unsigned int D_004D3B50[8];
+extern unsigned int D_004D3B70[8];
+extern void BoxBarSoundOn__ba38(int a0, int a1) __asm__("BoxBarSoundOn");
+extern void _ACTWait__ba38(int a0) __asm__("_ACTWait");
+extern int func_0017B230__ba38(int a0) __asm__("func_0017B230");
+extern void func_00237338(volatile int a0);
+extern void func_00237428(volatile int a0);
+
+void func_00237A38(volatile int a0) {
+    KSubB_ba38 *s = *(KSubB_ba38 **)(a0 + 0x164);
+    D_006325B4__ba38 = 1;
+    s->unkC0 = 0;
+    if (func_0017B230__ba38(0x11E) == 0) {
+        D_004D3B50[1] = (unsigned int)func_00237338;
+        s->unkC4 = (int *)D_004D3B50;
+        BoxBarSoundOn__ba38(a0, 0x18D);
+        _ACTWait__ba38(0);
+    } else {
+        D_004D3B70[1] = (unsigned int)func_00237428;
+        s->unkC4 = (int *)D_004D3B70;
+        BoxBarSoundOn__ba38(a0, 0x18D);
+        _ACTWait__ba38(0);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00237AD8);
 
@@ -431,7 +490,40 @@ INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00238BC0);
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00238C18);
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00238C60);
+typedef struct KSub_c60 {
+    char pad[0xC0];
+    int unkC0;
+    int *unkC4;
+} KSub_c60;
+
+extern int D_006325B4__c60 __asm__("D_006325B4");
+extern unsigned int D_004D3C70[8];
+extern unsigned int D_004D3C90[8];
+extern void BoxBarSoundOn__c60(int a0, int a1) __asm__("BoxBarSoundOn");
+extern void _ACTWait__c60(int a0) __asm__("_ACTWait");
+extern void lt_fade_status__c60(int a0) __asm__("lt_fade_status");
+extern void scpDispOnAllWithKind__c60(void) __asm__("scpDispOnAllWithKind");
+extern int func_0017B230__c60(int a0) __asm__("func_0017B230");
+extern void func_00237E98(volatile int a0);
+extern void func_00237D18(volatile int a0);
+
+void func_00238C60(volatile int a0) {
+    KSub_c60 *s = *(KSub_c60 **)(a0 + 0x164);
+    s->unkC0 = 0;
+    lt_fade_status__c60(0x33);
+    D_006325B4__c60 = 1;
+    scpDispOnAllWithKind__c60();
+    if (func_0017B230__c60(0x121) != 0) {
+        D_004D3C70[1] = (unsigned int)func_00237E98;
+        s->unkC4 = (int *)D_004D3C70;
+        BoxBarSoundOn__c60(a0, 0x18D);
+        _ACTWait__c60(0);
+    }
+    D_004D3C90[1] = (unsigned int)func_00237D18;
+    s->unkC4 = (int *)D_004D3C90;
+    BoxBarSoundOn__c60(a0, 0x18D);
+    _ACTWait__c60(0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00238D08);
 

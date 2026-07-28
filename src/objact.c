@@ -16,13 +16,31 @@ INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023B4F0);
 
 INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023B518);
 
-INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023B5A0);
+extern void actCreateSubThread(void *f, int a1);
+extern void func_0023B5C8(volatile int a0);
+
+void func_0023B5A0(volatile int a0) {
+    actCreateSubThread(func_0023B5C8, 0x15);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023B5C8);
 
+extern void _ACTWait(int a0);
+
 INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023B650);
 
-INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023B6B8);
+extern int D_00275250[];
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+
+void func_0023B6B8(volatile int a0) {
+    for (;;) {
+        while ((D_00275250[0x5C / 4] & 0x20) == 0) {
+            _ACTWait(1);
+        }
+        stage_KillPlayBgAnimation(0x47, 1, 0);
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023B728);
 

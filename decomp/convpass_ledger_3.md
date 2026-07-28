@@ -1244,3 +1244,131 @@ one-instruction structural delta to resolve on the aug6 side.
 frameless/`med` rule, and the same 137-vs-31 ratio may hold there); (c) the 63
 no-twin tails, smallest first — most are 8–50 insn act-thread coroutines;
 (d) conv-6's carry-over list unchanged.
+
+---
+
+# conv-8 — carve-tail cleanup (branch `conv-8`, base `1e58b3e5`)
+
+Mission: conv-7's recommended order — (a) the two boyact rc2 tails, (b) the 63
+carved tails with no 1.00 aug6 twin, smallest-first, (c) `actSt02aSecretItem`
+and `bga_calcEnvelope`.
+
+**Result: 23 byte-matched.**  Every commit gated `build.sh setup && ninja` →
+`verify_elf: OK (fbf50c75cd5911273511c4f9af90503ff8423582)` + `check_no_rom.sh`.
+
+| commit | scope | matched |
+|---|---|---|
+| `c564457d` | boyact `.lit8` rodata carve + `func_00151868`/`func_001519D8` | 2 |
+| `188074c7` | cdvd / enemy_act / gather_effect / objact smallest tails | 4 |
+| `d0c7e743` | BoxBar + lws_kyomi act-wrapper family (8 TUs) | 11 |
+| `a9aba0cc` | commonact / haveParentSimpleObj / objact tails | 3 |
+| `a328d874` | camera-ico2 / girl_act / jimaku tails | 3 |
+
+## 1. The two boyact rc2 tails — the residual was never `-G8`
+
+conv-7 read the residual as the `-G8` / float-vector-rodata family.  It is not.
+`func_00151868`/`func_001519D8` pass two `double` literals (`0.2`/`0.9` and
+`0.2`/`0.7`) to the soft-float helpers `func_00262BE8`/`func_00262B80`, and
+ee-gcc materialises them with the **`li.d` pseudo-op** — the *assembler* builds
+the pool.  ROM's `lui $1,%hi(D_005586xx) / ld $r,%lo(D_005586xx)($1)` is that
+pool reference.
+
+Referencing the ROM slots as externs **cannot** reproduce it, for a reason
+worth writing down:
+
+> `memory_address()` (explow.c) force_reg's *any* `CONSTANT_ADDRESS_P` address
+> into a pseudo "to get a chance to cse them".  On MIPS with
+> `TARGET_SPLIT_ADDRESSES` that pseudo becomes `HIGH`/`LO_SUM`, and loop
+> invariant motion then hoists the `HIGH` out of the act loop.  Result: two
+> extra `lui`s in the prologue, `$29` grows 0xA0→0xC0, `$21`→`$23`, **rc21**.
+> `force_const_mem()` builds its MEM *without* going through
+> `memory_address()`, so only a real compiler pool stays in-loop.
+
+Tried and rejected: `extern long long D_00558620[]`, `extern const double []`,
+`extern volatile const double []` — all rc21, all the same hoist.
+
+The fix is the literal + a 32-byte `.rodata` carve:
+
+```yaml
+- [0x458620, .rodata, src/boyact]   # VMA 0x558620..0x558640
+- [0x458640, rodata, src/cod/458640]
+```
+
+The compiler-emitted pool order (`0.2 0.9 0.2 0.7`) is byte-identical to ROM.
+**This consumes boyact's one contiguous `.rodata` carve**, but creates no
+disjoint-region problem: `jtbl_00558510` (0x558510..0x558620) *abuts* the pool,
+so the region can later be widened backwards to `0x458510` once boyact's
+switch function is matched.
+
+## 2. What actually cracked the act-wrapper carve tails
+
+### Type-based aliasing is LIVE
+
+`tools/compile_c.sh` CFLAGS are `-S -G 8 -O2 -mips3 -EL -fno-builtin -nostdinc
+-fdata-sections`.  There is **no `-fno-strict-aliasing`**.  So for the 0xC4
+BoxBar wrapper, whether
+
+```c
+D_004D3280[1] = ...;      /* store into the table  */
+gobj->unkC4   = D_004D3280;  /* store the table ptr */
+```
+
+may be reordered depends on the *declared types*.  aug6's spelling
+(`void *D[]` + `void **unkC4`) puts both stores in one alias set and reproduces
+ROM; `int D[]` + `int *unkC4` lets gcc swap them.  st17b `func_0022F7E8` went
+**6 → 0** on that change alone.  The lws_kyomi variant (a call sits between the
+stores) wants the *int* spelling instead — pick per shape, do not standardise.
+
+### `volatile` on the flag global pins it after the volatile param reload
+
+Where ROM keeps `sw <1>,%gp_rel(D_006325B4)($28)` *after* the `lw $x,0($29)`
+reload instead of hoisting it into the prologue, `D_006325B4` must be
+`volatile`: two volatile accesses cannot be reordered, and the act param is
+already `volatile int a0`.  st22a `func_002342F8` went **6 → 0** on that.
+**Scope it with an `__asm__` alias** — making it `volatile` TU-wide regressed
+the already-matched sibling in the same file (0 → 14).
+
+### `-G8` array spelling, again
+
+Two more instances of `[[extern_size]]`: `signed char D_006D35E0` and
+`int D_006ABE00` are ≤ 8 B, so a *scalar* extern gp-rels where ROM wants
+`lui/%lo`.  The array spelling (`D_006D35E0[]`, `D_006ABE00[]`, indexed `[0]`)
+restores the far form and, for the jimaku switch, the missing 37th insn.
+
+### Locals before the first store free the branch delay slot
+
+commonact `func_0015B620` (21 insns, two ternary message selects + a
+`debug_assertMessage` void tail call) only matched once the format-string
+address and the `D_00631AE4` read were bound to **locals declared before** the
+`|= 1` store.  That is what leaves the store available to fill the `bne` delay
+slot; with the natural ordering gcc emits it early and is one insn short.
+
+## Deferred (with best rc and the next hypothesis)
+
+| func | TU | rc | state |
+|---|---|---|---|
+| `func_0022EE98` | st17b | **9** | Same 0xC4 wrapper as the matched `func_0022F7E8` but with **no intervening call**, so all four stores sit in the entry BB.  Insns 1–12 are byte-identical; only the 4-store emission order differs — ROM `gp, unkC4, D[1], unkC0`, ours `unkC0, D[1], unkC4, gp` (an exact reversal).  Exhausted: all 24 statement permutations × {int, `void*`} typing × {plain, `volatile`} `D_006325B4` × chained `gobj->unkC4[1]` spelling × an explicit second `int self = a0;` reload (that one *does* fix the reload placement at insns 7/9, but then `D[1]` floats to insn 9).  Next idea: something that makes the `D[1]` store *not ready* at sched time — e.g. the table entry reached through a pointer gcc cannot prove distinct from `*gobj`. |
+| `func_00238BC0` | st47a | — | Byte-for-byte the same template as `func_0022EE98` (`D_004D3C10`/`func_00237C18`). Whatever cracks one cracks both. |
+| `func_0023B650` | objact | **12** | Structure exact (26 vs 24 insns).  Only residual: the `0.0f` argument.  ROM hoists `mtc1 zero,$f20` into the prologue and keeps it in a **callee-saved FPR for the whole act loop**; gcc rematerialises `mtc1 zero,$f12` inside the call block each iteration, so the `swc1 $f20,32(sp)` save and the init are missing.  A plain `float z = 0.0f;` before the loop is not enough.  Next idea: give the value a definition gcc cannot rematerialise. |
+| `func_0015E388` | commonact | **7** | 27 vs 27 insns, identical multiset.  ROM groups the three `volatile` param reloads at insns 12/13/15 (three live regs) and interleaves the `0x15C` loads after them; ours emits strict `reload, load, store` triples.  Pure sched1 ready-list tie.  Tried: three `int b1,b2,b3 = a0` temps (rc17, worse). |
+
+## Still open after conv-8
+
+* **59 carved tails** remain (was 63 + 2 boyact + the 8 newly-found small ones
+  minus the 23 matched).  Smallest-first: st17b `func_0022EE98`(22),
+  st47a `func_00238BC0`(22), objact `func_0023B650`(26), commonact
+  `func_0015E388`(28), jimaku `func_001759B0`(42), commonact `func_0015ADF0`(54)
+  … up to girl_act `func_001725C8`(678).  The four ≤ 28 are the deferrals
+  above; from `func_001759B0`(42) upward they are untouched ordinary
+  convergence targets — mostly girl_act / commonact / enemy_act act coroutines.
+* Unchanged from conv-7: `pac_continueTag` / `shiftMotionOrientEndFunc`
+  (two-disjoint-`.rodata`-carves-per-TU), `actSt02aSecretItem` rc19,
+  `bga_calcEnvelope`, the 8 `no-aug6-twin` pool/sound funcs, boyact
+  `func_0014D978`/`func_0014DC28` (aug6 twins also unmatched).
+
+**Recommended order for a conv-9:** (a) the 4 deferrals above — each is a
+single named mechanism away and two of them are the *same* mechanism, so one
+idea buys three functions; (b) the carved tails from 42 insns upward,
+smallest-first, using the conv-8 lever set (alias-typing, scoped `volatile`
+flag, `-G8` array spelling, locals-before-first-store); (c) conv-7's carry-over
+list unchanged.

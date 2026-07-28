@@ -293,7 +293,12 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001649D0);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", flyMailCore);
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00164E90);
+void func_00164E90(void *a0) {
+    int *m = *(int **)((char *)a0 + 0x164);
+    if (*(int *)((char *)m + 0x340) == 0) {
+        *(int *)((char *)m + 0x340) = 1;
+    }
+}
 
 extern char D_00558ED8[];
 extern unsigned int _ACTWait(int a0);

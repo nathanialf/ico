@@ -313,9 +313,80 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00150568);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00151678);
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00151868);
+extern int ACTEnvGetTest(void);
+extern void ActOrientTest(void *out, void *src, int mode);
+extern float ClearHandCameraCorrect(CCPResult *a, CCPResult *b);
+extern int func_00263FB0(float);
+extern int func_00262BE8(int, double);
+extern int func_00262B80(double, int);
+extern float func_002633B8(int);
+extern void func_0014B330(void *a0, int a1, float a2);
+extern int D_00274EC0[];
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001519D8);
+/* func_00151868 / func_001519D8: twin act-state loops.  The two double
+ * literals of each (0.2/0.9 and 0.2/0.7) live in a boyact-owned .lit8 pool
+ * at VMA 0x558620; reference the pool slots directly so no second pool is
+ * emitted.  `int *volatile a0` = addressable param home-store/reload; d
+ * reused as the pre-clamp temp forces mov.s $f1,$f0. */
+void func_00151868(int *volatile a0) {
+    float buf1[4], buf2[4];
+    int *s4 = *(int **)((char *)a0 + 0x164);
+    while (1) {
+        if (ACTEnvGetTest()) {
+            float d;
+            int cnt;
+            ActOrientTest(buf2, D_00631AE4, 2);
+            ActOrientTest(buf1, D_00631AE8, 0x12);
+            d = ClearHandCameraCorrect((CCPResult *)buf1, (CCPResult *)buf2);
+            cnt = ((0x3C - D_00274EC0[0] * 0xA) / D_00274EC0[1]) * 0x64 / 0x3C;
+            if (cnt < *(int *)((char *)s4 + 0x48) && 80.0f < d) {
+                float clamped;
+                int r1, r2, r3;
+                float r4;
+                d = (d - 80.0f) / 10.0f;
+                if (d < 0.0f) clamped = 0.0f;
+                else if (1.0f < d) clamped = 1.0f;
+                else clamped = d;
+                r1 = func_00263FB0(clamped);
+                r2 = func_00262BE8(r1, 0.2);
+                r3 = func_00262B80(0.9, r2);
+                r4 = func_002633B8(r3);
+                func_0014B330((void *)a0, 2, r4);
+            }
+        }
+        _ACTWait(1);
+    }
+}
+
+void func_001519D8(int *volatile a0) {
+    float buf1[4], buf2[4];
+    int *s4 = *(int **)((char *)a0 + 0x164);
+    while (1) {
+        if (ACTEnvGetTest()) {
+            float d;
+            int cnt;
+            ActOrientTest(buf2, D_00631AE4, 2);
+            ActOrientTest(buf1, D_00631AE8, 0x12);
+            d = ClearHandCameraCorrect((CCPResult *)buf1, (CCPResult *)buf2);
+            cnt = ((0x3C - D_00274EC0[0] * 0xA) / D_00274EC0[1]) * 0x64 / 0x3C;
+            if (cnt < *(int *)((char *)s4 + 0x48) && 90.0f < d) {
+                float clamped;
+                int r1, r2, r3;
+                float r4;
+                d = (d - 90.0f) / 10.0f;
+                if (d < 0.0f) clamped = 0.0f;
+                else if (1.0f < d) clamped = 1.0f;
+                else clamped = d;
+                r1 = func_00263FB0(clamped);
+                r2 = func_00262BE8(r1, 0.2);
+                r3 = func_00262B80(0.7, r2);
+                r4 = func_002633B8(r3);
+                func_0014B330((void *)a0, 2, r4);
+            }
+        }
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00151B48);
 

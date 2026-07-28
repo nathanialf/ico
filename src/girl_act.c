@@ -198,7 +198,20 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlStart);
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", GirlAct_BoyAndMeCollisionMail);
 
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00170380);
+extern float ClearHandCameraCorrect__ga(void *a0, void *a1) __asm__("ClearHandCameraCorrect");
+extern void _OrientXZGV__ga(void *dst, void *a1, void *src, float f12, float f13) __asm__("_OrientXZGV");
+
+void func_00170380(float *dst, void *a1, float *src, float thresh) {
+    float d = ClearHandCameraCorrect__ga(a1, src);
+    if (thresh < d) {
+        float t = (d - thresh) / d;
+        _OrientXZGV__ga(dst, a1, src, t, 1.0f - t);
+        return;
+    }
+    dst[0] = src[0];
+    dst[1] = src[1];
+    dst[2] = src[2];
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", IsGirlStatusEscortEnable);
 

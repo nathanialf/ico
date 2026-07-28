@@ -358,6 +358,8 @@ segments:
       - [0x454790, rodata, src/cod/454790]   # .rodata blob, part 1b (resume after Light carve)
       - [0x454E00, .rodata, src/Packet]  # gcc-emitted jtbl_00554E00 (pac_setVifEndCode switch, 17 entries 0x44), VMA 0x554E00..0x554E44
       - [0x454E44, rodata, src/cod/454E44]   # .rodata blob, part 2 (resume after Packet jtbl)
+      - [0x458620, .rodata, src/boyact]  # gcc-emitted .lit8 pool (func_00151868/func_001519D8 doubles 0.2/0.9/0.2/0.7), VMA 0x558620..0x558640
+      - [0x458640, rodata, src/cod/458640]   # .rodata blob, part 2b (resume after boyact .lit8 carve)
       - [0x459950, .rodata, src/girl_act]  # gcc-emitted jtbl_00559950 (actGirlHang switch, 67 entries 0x10C), VMA 0x559950..0x559A5C
       - [0x459A5C, rodata, src/cod/459A5C]   # .rodata blob, part 3 (resume after girl_act jtbl)
       - [0x515090, .rodata, src/debug_exception]  # gcc-emitted jtbl_00615090 (initLineTraceTable switch, 17 entries 0x44), VMA 0x615090..0x6150D4

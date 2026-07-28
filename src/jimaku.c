@@ -140,7 +140,26 @@ void func_00175D90(volatile int a0) {
 
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuJump);
 
-INCLUDE_ASM("asm/nonmatchings/src/jimaku", func_00175EC8);
+extern int D_006ABE00[];
+extern void ACTGame_GirlBeforeFunc(int a0);
+extern void DebugDispAutoEscort(int a0);
+extern void actGirlSupportGBBegin(int a0);
+extern void _ACTWait__jm(int a0) __asm__("_ACTWait");
+
+void func_00175EC8(volatile int a0) {
+    switch (D_006ABE00[0]) {
+    case 1:
+        DebugDispAutoEscort(a0);
+        break;
+    case 2:
+        ACTGame_GirlBeforeFunc(a0);
+        break;
+    case 3:
+        actGirlSupportGBBegin(a0);
+        break;
+    }
+    _ACTWait__jm(0);
+}
 
 int jimakuEnd(int a0, int a1)
 {
