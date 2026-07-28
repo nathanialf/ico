@@ -1,16 +1,43 @@
 #include "common.h"
 
+
+
+extern char D_002A4C48[];
+extern void _ACTWait();
+extern void debug_assertMessage();
+extern char D_00558F68[];
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", MakeCollisionDependGObjList);
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", GetReflectionElement);
+void GetReflectionElement(volatile unsigned int a0)
+{
+  int *new_var;
+  volatile int local;
+  int *s0;
+  new_var = *((int **) (a0 + 0x164));
+  debug_assertMessage(D_00558F68);
+  s0 = new_var;
+  s0[0x30 / 4] = 0x4;
+  _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", clip_wall_1);
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", clip_floor_1);
+int clip_floor_1(int *a0)
+{
+    int *p = (int *)(D_002A4C48 + a0[2] * 0x4C);
+    return (((unsigned int)p[0x48 / 4] >> 21) & 1) ^ 1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", DispCollisionPC);
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", makeCollisionBlockTable);
+unsigned int makeCollisionBlockTable(unsigned int a0)
+{
+  volatile unsigned int local = a0;
+  unsigned int v = local;
+ do { *((int *) ((*((int *) (v + 0x15C))) + 0x550)) = 0; } while (0);
+  *((int *) ((*((int *) (v + 0x15C))) + 0x380)) = 0;
+  return v;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", _Clip);
 

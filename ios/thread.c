@@ -1,30 +1,98 @@
 #include "common.h"
 
+
+
+
+
+
+
+
+
+
+
+
+
+extern int D_006A93D0[];
+extern void func_002641D8();
+extern int func_00100470();
+extern int func_00100450();
+extern void func_001004B0();
+extern void func_00100490();
+extern void func_00265168();
+extern void func_001003B0();
+extern char D_006A7330[];
+extern int func_00100410();
+extern int iosMsgSend(int *self, int a1, int a2);
+extern int D_006A6F30[];
+extern void func_00100440();
+extern void func_00100370();
+extern void func_00100350();
+extern void func_00100340();
+extern int *D_00632190;
 INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadMain);
 
 INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadCreateS);
 
 INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadStart);
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadStop);
+void iosThreadStop(char *p) {
+    *p = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadSleep);
 
 INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadDestroy);
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadSetPri);
+int iosThreadSetPri(int idx, int val)
+{
+    int *base = (int *)D_00632190;
+    int *array;
+    if ((unsigned int)idx < (unsigned int)base[0]) goto store;
+    idx = -1;
+    goto end;
+store:
+    array = (int *)base[1];
+    array[idx] = val;
+end:
+    return idx;
+}
 
 INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadMessage);
 
 INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadName);
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadSuspend);
+void iosThreadSuspend(int *self)
+{
+    int *node = (int *) self[0];
+    if (self[0x8 / 4] == 0)
+    {
+        goto end;
+    }
+    if (node == 0)
+    {
+        goto end;
+    }
+    do
+    {
+        int *cur = node;
+        node = (int *) node[0x34 / 4];
+        (*(void (**)(int, int))((char *) self + 8))((int) cur, self[0xC / 4]);
+    } while (node != 0);
+end:
+    self[0] = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadResume);
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadInit);
+int iosThreadInit(void)
+{
+    return 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadCreate);
+void iosThreadCreate(unsigned char *p, int a1, int a2) {
+    if (a1) *p &= 0xFE;
+    if (a2) *p &= 0xEF;
+}
 
 INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadGetPri);
 
@@ -32,37 +100,102 @@ INCLUDE_ASM("asm/nonmatchings/ios/thread", iosGetIOSThreadFromId);
 
 INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadWakeup);
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadJoin);
+void iosThreadJoin(int a0)
+{
+    func_00100340(*(int *)(a0 + 0x30), *(int *)(a0 + 0x34));
+}
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadCancelWakeup);
+void iosThreadCancelWakeup(int a0)
+{
+    if (a0 == 0) {
+        func_00100350();
+    } else {
+        func_00100370(*(int *)(a0 + 0x30));
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", iosSemaCreate);
+void iosSemaCreate(int a0, int a1, int a2, int a3)
+{
+    func_00100440(a0, a1, a2, a3);
+}
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", iosSemaDelete);
+void iosSemaDelete(int a0)
+{
+    int a1 = a0;
+    if (a0 == 0) {
+        a1 = D_006A6F30[func_00100410()];
+    }
+    iosMsgSend(D_006A7330, a1, 0);
+}
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", iosSemaWait);
+void iosSemaWait(int *a0, int a1)
+{
+  int *v;
+  v = a0;
+  if (v == 0)
+  {
+    v = (int *) D_006A6F30[func_00100410()];
+  }
+  else
+  {
+    v = a0;
+  }
+  v[0x18 / 4] = a1;
+  func_001003B0(v[0x30 / 4], a1);
+}
 
 INCLUDE_ASM("asm/nonmatchings/ios/thread", iosSemaSignal);
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", iosSemaReferStatus);
+void iosSemaReferStatus(int a0)
+{
+    func_00265168(a0 + 0x50);
+}
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadDestroyMgr);
+void iosThreadDestroyMgr(int a0)
+{
+    func_00100490(*(int *)(a0 + 0x30));
+}
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadAllQuit);
+void iosThreadAllQuit(int a0)
+{
+    func_001004B0(*(int *)(a0 + 0x30));
+}
 
 INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013D550);
 
 INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013D700);
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013D8A0);
+int func_0013D8A0(int *a0)
+{
+    register int **base;  /* s0 */
+    if (a0 == 0) {
+        int idx;
+        base = D_006A6F30;
+        idx = func_00100410();
+        a0 = base[idx];
+    }
+    return a0[0x18 / 4];
+}
 
 INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013D8E0);
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013D928);
+int func_0013D928(int *self)
+{
+    return func_00100450(self[0x30 / 4]);
+}
 
 INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013D948);
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013D9C8);
+int func_0013D9C8(int *self)
+{
+    int v;
+    if (self == 0) {
+        v = func_00100410();
+    } else {
+        v = self[0x30/4];
+    }
+    return func_00100470(v);
+}
 
 INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013DA00);
 
@@ -76,5 +209,8 @@ INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013DBB0);
 
 INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013DC30);
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013DD88);
+void func_0013DD88(void)
+{
+    func_002641D8(D_006A93D0, 0, 0x110);
+}
 

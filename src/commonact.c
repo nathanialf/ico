@@ -1,5 +1,29 @@
 #include "common.h"
 
+
+
+
+
+
+
+
+
+
+extern void ACTParaStatus_Clear(volatile int *self);
+extern void _ACTWait();
+extern void lt_fade_status();
+extern int D_00631AF4;
+extern char D_00558CB8[];
+extern char D_00558CA0[];
+extern char D_00558C88[];
+extern void debug_assertMessage();
+extern char D_00632318[];
+extern int *D_00631AE4;
+extern char D_00632310[];
+extern void dispPlane();
+extern void BoxExtGeoRestore(int *self);
+extern void func_001E9DF0();
+extern int func_001919A0();
 INCLUDE_ASM("asm/nonmatchings/src/commonact", ACTSetPositionWithFitting);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", ACTSetPositionNodeWithFitting);
@@ -20,7 +44,16 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", WithMailFunc_WayBeginPosError);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", WithMailFunc_AttackFail);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00157DA0);
+void func_00157DA0(int *a0)
+{
+    if (a0 == 0) {
+        return;
+    }
+    if (a0[3] != 4) {
+        return;
+    }
+    return func_001919A0((int)a0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", WithMailFunc_AttackRejectInQueen);
 
@@ -38,13 +71,28 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", motCommonRopeTurnL);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001588F0);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonRopeClimbEnd1);
+void actCommonRopeClimbEnd1(int *self)
+{
+    int *p = (int *)self[0x59];
+    int code = p[0xC];
+    switch (code) {
+    case 0x31:
+        BoxExtGeoRestore(p[0x52]);
+        break;
+    case 0x33:
+        func_001E9DF0(p[0x17A]);
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonRopeCliff);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", TestCageUpDown);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonRopeSpecial);
+void actCommonRopeSpecial(int a0)
+{
+    dispPlane(a0, *(int *)(*(int *)(a0 + 0x164) + 0x678) + 0x360);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", lever_nego1);
 
@@ -64,11 +112,35 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonDown);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonDie);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", Cling);
+void Cling(int *a0, int a1, int *a2)
+{
+    int *cur = D_00631AE4;
+    int *p = (int *)a0[0x59];
+    p[0x34] |= 2;
+    debug_assertMessage(D_00558C88,
+                  (a2 == cur) ? D_00632310 : D_00632318,
+                  (a0 == cur) ? D_00632310 : D_00632318);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonCling);
+void actCommonCling(int *a0, int a1, int *a2)
+{
+    int *cur = D_00631AE4;
+    int *p = (int *)a0[0x59];
+    p[0x34] |= 8;
+    debug_assertMessage(D_00558CA0,
+                  (a2 == cur) ? D_00632310 : D_00632318,
+                  (a0 == cur) ? D_00632310 : D_00632318);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonSlip);
+void actCommonSlip(int *a0, int a1, int *a2)
+{
+    int *cur = D_00631AE4;
+    int *p = (int *)a0[0x59];
+    p[0x34] |= 0x10;
+    debug_assertMessage(D_00558CB8,
+                  (a2 == cur) ? D_00632310 : D_00632318,
+                  (a0 == cur) ? D_00632310 : D_00632318);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonStoneDead);
 
@@ -86,7 +158,13 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015CD70);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonBar);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015D328);
+void func_0015D328(void)
+{
+    if (D_00631AF4 == 0) {
+        D_00631AF4 = 1;
+        lt_fade_status(0x3A);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", funcCommonJumpDircorrect);
 
@@ -94,7 +172,10 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", funcCommonFallDircorrect);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", correctJumpOrientByChain);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonJump);
+void actCommonJump(int a0)
+{
+    *(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x670) + 0x204) -= 1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015D488);
 
@@ -112,7 +193,12 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonFly);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonLadder);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonDodge);
+void actCommonDodge(volatile unsigned int a0)
+{
+    int *v1 = *(int **)((char *)a0 + 0x164);
+    *(unsigned int *)((char *)v1 + 0x34) = 0xFFFFFFFFu;
+    _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonEdgeHang);
 
@@ -126,13 +212,19 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", funcCommonError);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", SetMotionDirectionSmooze);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", _ACTDebugPrint);
+void _ACTDebugPrint(char *self, int unused, int val) {
+    *(int *)(*(char **)(self + 0x164) + 0x180) = val;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", ACTSendMailCorrect);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", _ACTCommonMailTest);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", E3_LeverCheck);
+void E3_LeverCheck(char *self) {
+    char *sub = *(char **)(self + 0x164);
+    char *p = *(char **)(sub + 0x670);
+    *(int *)(p + 0x250) = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonBecarry);
 
@@ -142,7 +234,13 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", ContinueCorrectPosition);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonTurn);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonBackhand);
+int actCommonBackhand(int *a0)
+{
+    int *v0 = (int *)a0[0x164 / 4];
+    int *v1 = (int *)v0[0x670 / 4];
+    long x = *(unsigned int *)((char *)v1 + 0xBC);
+    return ((int)x) & 1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonSlowrun);
 
@@ -158,23 +256,51 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015F358);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015F3C0);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015F428);
+void func_0015F428(volatile unsigned int a0)
+{
+    volatile int local;
+    long long *p = (long long *)(*(int *)(a0 + 0x164) + 0x20);
+    *p |= 0x40000;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015F450);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonRevive);
+void actCommonRevive(volatile unsigned int a0)
+{
+    volatile int local;
+    ACTParaStatus_Clear(a0);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonReviveAir);
+void actCommonReviveAir(int x) {
+    volatile int local = x;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonPlay);
+void actCommonPlay(volatile unsigned int a0)
+{
+    volatile int local;
+    ACTParaStatus_Clear(a0);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonOne);
+void actCommonOne(volatile unsigned int self)
+{
+    volatile int local;
+    unsigned int a, b;
+    a = self;
+    b = self;
+    *(int *)(*(int *)((char *)*(int *)(a + 0x164) + 0x670) + 0x2A0) = -1;
+    *(int *)(*(int *)((char *)*(int *)(b + 0x164) + 0x670) + 0x2A4) = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonDelete);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015F578);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015F5D0);
+void func_0015F5D0(volatile unsigned int a0)
+{
+    volatile int local;
+    long long *p = (long long *)(*(int *)(a0 + 0x164) + 0x20);
+    *p |= 0x40000;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015F5F8);
 

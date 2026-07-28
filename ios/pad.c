@@ -1,5 +1,7 @@
 #include "common.h"
 
+
+extern int D_00633C90;
 INCLUDE_ASM("asm/nonmatchings/ios/pad", controler_stable_check);
 
 INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadDevInit);
@@ -28,11 +30,18 @@ INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadStickCameraCoord);
 
 INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadEnable);
 
-INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadDisable);
+void iosPadDisable(void)
+{
+    D_00633C90 = 1;
+}
 
-INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadEnableGet);
+void iosPadEnableGet(void) {
+    D_00633C90 = 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadActInit);
+int iosPadActInit(void) {
+    return D_00633C90;
+}
 
 INCLUDE_ASM("asm/nonmatchings/ios/pad", iosPadActStop);
 

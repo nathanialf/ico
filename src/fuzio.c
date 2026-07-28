@@ -1,5 +1,24 @@
 #include "common.h"
 
+
+
+
+
+extern unsigned int D_006323F0;
+extern void func_00243B60(void *dst, void *src);
+extern void ClipWallBoxStop();
+extern int D_006323BC;
+extern void MatrixDrive_TurnObjectMatrix(void *dst, void *src);
+extern int D_006AB100[];
+extern int D_00633D10;
+extern int D_00633D28;
+extern int D_00633D08;
+extern int D_00633D24;
+extern int D_00633D18;
+extern int D_00633D14;
+extern int D_00633D0C;
+extern int D_00633D20;
+extern int D_00633D1C;
 INCLUDE_ASM("asm/nonmatchings/src/fuzio", fzShowV);
 
 INCLUDE_ASM("asm/nonmatchings/src/fuzio", fzShowM);
@@ -10,25 +29,64 @@ INCLUDE_ASM("asm/nonmatchings/src/fuzio", fzMagnitude3f);
 
 INCLUDE_ASM("asm/nonmatchings/src/fuzio", fzMagnitudefv);
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", fzMagnitude2fv);
+void fzMagnitude2fv(float *self, float a, float b, float c, float d) {
+    self[0] = a; self[1] = b; self[2] = c; self[3] = d;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", fzMagnitudeByLine);
+int fzMagnitudeByLine(int a0) {
+    if (*(int *)(a0 + 0x88) == 0) return 0;
+    return *(int *)(a0 + 0x98);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", fzMagnitudeByLineSeg);
+int fzMagnitudeByLineSeg(int a0) {
+    if (*(int *)(a0 + 0x94) == 0) return 0;
+    return *(int *)(a0 + 0x98);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_00168A80);
+int func_00168A80(unsigned int a, unsigned int b)
+{
+    int i;
+    if ((a & b) == 0) return 0;
+    for (i = 0; i < 8; i++) {
+        unsigned int da = (a >> (i * 4)) & 0xF;
+        unsigned int db = (b >> (i * 4)) & 0xF;
+        if (da != 0 && db != 0 && da == db) return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_00168AE0);
 
 INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_00168BA0);
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_00168BD0);
+float func_00168BD0(float *a0, float *a1) {
+    return a1[1] - (-(a0[0] * a1[0] + a0[2] * a1[2] + a0[3]) / a0[1]);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_00168C18);
+float func_00168C18(float *a0, float *a1) {
+    return -(a0[0] * a1[0] + a0[2] * a1[2] + a0[3]) / a0[1];
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_00168C58);
+void func_00168C58(void) {
+    int tmp;
+    D_00633D08 = 0;
+    tmp = *(volatile int *)0x10000000;
+    D_00633D0C = 0;
+    D_00633D18 = tmp;
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_00168C88);
+    D_00633D10 = 0;
+    D_00633D14 = 0;
+    D_00633D1C = 0;
+    D_00633D20 = 0;
+    D_00633D24 = 0;
+    D_00633D28 = 0;
+}
+
+int func_00168C88(int a0, int a1) {
+    int v = D_006AB100[a1 & 0xF];
+    if (v != 0) { MatrixDrive_TurnObjectMatrix(a0, v); return 0; }
+    return 1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_00168CC8);
 
@@ -64,11 +122,31 @@ INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_00169F80);
 
 INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_0016A058);
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_0016A130);
+void func_0016A130(void) {
+    D_006323BC = 1;
+    /* Cast away the (int) prototype so gcc doesn't emit `daddu $a0,$0,$0`
+     * to set up an arg the original call didn't pass. The implementation
+     * happens to read $a0 but the original cross-TU caller didn't bother
+     * to clear it. */
+    ((void (*)(void))ClipWallBoxStop)();
+    D_006323BC = 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_0016A158);
+int func_0016A158(int *a0, int *a1) {
+    int buf[48];
+    *(float *)&buf[28] = 50.0f;
+    func_00243B60(buf, a0);
+    func_00243B60(buf + 4, a1);
+    ((int (*)(int *, int))D_006323F0)(buf, 1);
+    return buf[34];
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_0016A1B8);
+void func_0016A1B8(int *self) {
+    int v0 = self[4];
+    int v1 = self[5];
+    self[4] = (int)((char *)self + v0);
+    self[5] = (int)((char *)self + v1);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_0016A1D8);
 

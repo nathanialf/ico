@@ -1,12 +1,25 @@
 #include "common.h"
 
+
+
+
+
+
+extern void func_00132DC0();
+extern int  D_00633CB8[2];
+extern int  D_006A94E0[];
+extern int  D_00633CC0;
+extern int func_0025DF50(unsigned long long a0);
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmStop);
 
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmOpen);
 
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmClose);
 
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmInterStereoVolumeSet);
+void AdpcmInterStereoVolumeSet(int a0)
+{
+    func_0025DF50(*(long long *)(a0 + 0x30));
+}
 
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmInterLeaveVolumeSet);
 
@@ -18,7 +31,9 @@ INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmIopBuffAlloc);
 
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmOpenSync);
 
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140B70);
+void func_00140B70(int val) {
+    D_00633CC0 = val;
+}
 
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140B78);
 
@@ -30,25 +45,71 @@ INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140D58);
 
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmFreeAreaGet);
 
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmInterStereoVolumeSetAll);
+void AdpcmInterStereoVolumeSetAll(short a0)
+{
+    int *p = D_006A94E0;
+    int *end = (int *)((char *)p + 0xB0);
+    do {
+        if (*p != 0) {
+            *(short *)((char *)p + 0x44) = a0;
+        }
+        p = (int *)((char *)p + 0x58);
+    } while ((int)p < (int)end);
+}
 
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmInterLeaveVolumeGet);
+int AdpcmInterLeaveVolumeGet(void)
+{
+    int count = 0;
+    int *p = D_00633CB8;
+    int n = 1;
+    do {
+        int v = *p;
+        int next = count + 1;
+        p++;
+        n--;
+        if (v != 0) count = next;
+    } while (n >= 0);
+    return count;
+}
 
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmVolumeGet);
+int AdpcmVolumeGet(void)
+{
+    int count = 0;
+    int *p = D_00633CB8;
+    int n = 1;
+    do {
+        int v = *p;
+        int next = count + 1;
+        p++;
+        n--;
+        if (v == 0) count = next;
+    } while (n >= 0);
+    return count;
+}
 
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", GetDitchPosition);
 
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", DebugActOrientFlag);
+short DebugActOrientFlag(char *self, int idx) {
+    char *base = *(char **)(self + 0x2C);
+    base += idx * 4;
+    return *(short *)(base + 0x3C);
+}
 
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", ACTGetEnvironment);
+short ACTGetEnvironment(char *self) {
+    return *(short *)(*(char **)(self + 0x2C) + 0x3C);
+}
 
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", ACTSetEnvAllmighty);
 
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", GetSofaPosition);
+void GetSofaPosition(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", GetCollisCenterPositionSimple);
+void GetCollisCenterPositionSimple(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", CheckWallAttributeEdegWall);
+int CheckWallAttributeEdegWall(int a0, int a1)
+{
+    func_00132DC0(a0, *(int *)(a1 + 0xC), 0x5C000);
+    return 1;
+}
 
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00141160);
+void func_00141160(void) {}
 

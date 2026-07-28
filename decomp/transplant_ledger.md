@@ -633,3 +633,365 @@ gate re-run before commit.
 - REVERTED `func_0013A498` (old `func_0013A498`) @ 0x0013A498 — ios/message.c:35: `iosMsgSetEvent' undeclared (first use in this function)
 - REVERTED `iosMsgSend` (old `func_0013A5B8`) @ 0x0013A5B8 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
 - REVERTED `iosMsgQueueDestroyAll` (old `func_0013A7C8`) @ 0x0013A7C8 — insn 12: expected `jal	0 <iosMsgQueueDestroyAll>` built `jal	d8 <send_signal_message>`
+
+## ios/pad
+- KEPT `iosPadDisable` (old `func_0013B858`) @ 0x0013B858
+- KEPT `iosPadEnableGet` (old `func_0013B868`) @ 0x0013B868
+- KEPT `iosPadActInit` (old `func_0013B870`) @ 0x0013B870
+- REVERTED `iosPadGetPort` (old `func_0013B718`) @ 0x0013B718 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+- REVERTED `iosPadGetSlot` (old `func_0013B748`) @ 0x0013B748 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+- REVERTED `iosPadGetDevice` (old `func_0013B760`) @ 0x0013B760 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+- REVERTED `iosPadConnect` (old `func_0013B778`) @ 0x0013B778 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+- REVERTED `iosPadStickCameraCoord` (old `func_0013B7C0`) @ 0x0013B7C0 — insn 0: expected `lui	v0,0x0` built `sw	a3,4(a0)`
+
+## ios/shockdriver
+- KEPT `Shock_Request` (old `func_0013B9D8`) @ 0x0013B9D8
+- KEPT `Init_ShockVoiceSet` (old `func_0013BB70`) @ 0x0013BB70
+- KEPT `Vibration_SetDecodeData` (old `func_0013BB78`) @ 0x0013BB78
+- KEPT `ShockRequestBox_VoiceSetUseRequestFree` (old `func_0013C510`) @ 0x0013C510
+- KEPT `ShockRequestBox_GetRequest` (old `func_0013C538`) @ 0x0013C538
+- KEPT `ShockRequestBox_RequestCancel` (old `func_0013C598`) @ 0x0013C598
+- KEPT `ShockDriver_VoiceSet_Remove` (old `func_0013C920`) @ 0x0013C920
+- KEPT `Init_ShockEmulator` (old `func_0013CAA0`) @ 0x0013CAA0
+- KEPT `ShockEmulator_EmulationWave` (old `func_0013CB50`) @ 0x0013CB50
+- KEPT `Get_ShockRequestStruct` (old `func_0013CBD0`) @ 0x0013CBD0
+- KEPT `Init_Shock` (old `func_0013CC70`) @ 0x0013CC70
+- REVERTED `Vibration_ShotDecode` (old `func_0013B8F0`) @ 0x0013B8F0 — insn 10: expected `jal	0 <Vibration_ShotDecode>` built `jal	1068 <ShockDriver_GetShockVoiceMax>`
+- REVERTED `Vibration_WaveDecode` (old `func_0013B970`) @ 0x0013B970 — insn 14: expected `jal	0 <Vibration_WaveDecode>` built `jal	1068 <ShockDriver_GetShockVoiceMax>`
+- REVERTED `Shock_SetMotor` (old `func_0013BA20`) @ 0x0013BA20 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+
+## ios/thread
+- KEPT `iosThreadStop` (old `func_0013CD70`) @ 0x0013CD70
+- KEPT `iosThreadSetPri` (old `func_0013CF08`) @ 0x0013CF08
+- KEPT `iosThreadSuspend` (old `func_0013CF80`) @ 0x0013CF80
+- KEPT `iosThreadInit` (old `func_0013D098`) @ 0x0013D098
+- KEPT `iosThreadCreate` (old `func_0013D0A0`) @ 0x0013D0A0
+- KEPT `iosThreadJoin` (old `func_0013D3C8`) @ 0x0013D3C8
+- KEPT `iosThreadCancelWakeup` (old `func_0013D3D8`) @ 0x0013D3D8
+- KEPT `iosSemaCreate` (old `func_0013D3F0`) @ 0x0013D3F0
+- KEPT `iosSemaDelete` (old `func_0013D3F8`) @ 0x0013D3F8
+- KEPT `iosSemaWait` (old `func_0013D440`) @ 0x0013D440
+- KEPT `iosSemaReferStatus` (old `func_0013D538`) @ 0x0013D538
+- KEPT `iosThreadDestroyMgr` (old `func_0013D540`) @ 0x0013D540
+- KEPT `iosThreadAllQuit` (old `func_0013D548`) @ 0x0013D548
+- KEPT `func_0013D8A0` (old `func_0013D8A0`) @ 0x0013D8A0
+- KEPT `func_0013D928` (old `func_0013D928`) @ 0x0013D928
+- KEPT `func_0013D9C8` (old `func_0013D9C8`) @ 0x0013D9C8
+- KEPT `func_0013DD88` (old `func_0013DD88`) @ 0x0013DD88
+- REVERTED `iosThreadMessage` (old `func_0013CF38`) @ 0x0013CF38 — ios/thread.c:37: `iosThreadStart' undeclared (first use in this function)
+- REVERTED `iosGetIOSThreadFromId` (old `func_0013D140`) @ 0x0013D140 — insn 20: expected `j	0 <iosGetIOSThreadFromId>` built `j	7c8 <iosSemaWait>`
+- REVERTED `func_0013D8E0` (old `func_0013D8E0`) @ 0x0013D8E0 — insn 2: expected `bne	v0,zero,24 <func_0013D8E0+0x24>` built `bne	v0,zero,c88 <func_0013D8E0+0x20>`
+- REVERTED `func_0013DA00` (old `func_0013DA00`) @ 0x0013DA00 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+- REVERTED `func_0013DA88` (old `func_0013DA88`) @ 0x0013DA88 — insn 8: expected `bgez	s1,64 <func_0013DA88+0x64>` built `bgez	s1,e70 <func_0013DA88+0x60>`
+- REVERTED `func_0013DB00` (old `func_0013DB00`) @ 0x0013DB00 — insn 10: expected `lui	a0,0x0` built `sll	zero,zero,0x0`
+- REVERTED `func_0013DB60` (old `func_0013DB60`) @ 0x0013DB60 — insn 8: expected `bgez	s1,3c <func_0013DB60+0x3c>` built `bgez	s1,f20 <func_0013DB60+0x38>`
+- REVERTED `func_0013DBB0` (old `func_0013DBB0`) @ 0x0013DBB0 — insn 9: expected `bgez	s1,68 <func_0013DBB0+0x68>` built `bgez	s1,f9c <func_0013DBB0+0x64>`
+
+## isys/gobj
+- KEPT `isysGObjAddBeforeGObj` (old `func_0013E488`) @ 0x0013E488
+- REVERTED `add_gobj_to_head` (old `func_0013E190`) @ 0x0013E190 — insn 7: expected `jal	0 <add_gobj_to_head>` built `jal	58 <isysGObjInit>`
+- REVERTED `isysGObjMove` (old `func_0013E1D8`) @ 0x0013E1D8 — insn 7: expected `jal	0 <isysGObjMove>` built `jal	58 <isysGObjInit>`
+- REVERTED `isysGObjKindTableRemove` (old `func_0013E7F8`) @ 0x0013E7F8 — [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
+- REVERTED `isysGObjMoveAfterGObj` (old `func_0013E868`) @ 0x0013E868 — [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
+
+## isys/gobj_dl
+- KEPT `func_0013ED40` (old `func_0013ED40`) @ 0x0013ED40
+- KEPT `isysGObjMoveObjDL` (old `func_0013ED78`) @ 0x0013ED78
+- KEPT `func_0013F1F8` (old `func_0013F1F8`) @ 0x0013F1F8
+- KEPT `func_0013F260` (old `func_0013F260`) @ 0x0013F260
+- REVERTED `func_0013ECF8` (old `func_0013ECF8`) @ 0x0013ECF8 — isys/gobj_dl.c:5: redefinition of `struct GObj'
+- REVERTED `isysGObjLinkObjDL` (old `func_0013EE58`) @ 0x0013EE58 — insn 0: expected `j	0 <isysGObjLinkObjDL>` built `j	160 <isysGObjMoveObjDLHead>`
+- REVERTED `isysGObjLinkObjDLBeforeGObj` (old `func_0013F0A0`) @ 0x0013F0A0 — insn 7: expected `jal	0 <isysGObjLinkObjDLBeforeGObj>` built `jal	160 <isysGObjMoveObjDLHead>`
+- REVERTED `isysGObjDlInit` (old `func_0013F0E8`) @ 0x0013F0E8 — insn 7: expected `jal	0 <isysGObjDlInit>` built `jal	160 <isysGObjMoveObjDLHead>`
+- REVERTED `isysGObjMoveObjDLAfterGObj` (old `func_0013F130`) @ 0x0013F130 — [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `isysGObjMoveObjDLBeforeGObj` (old `func_0013F1D0`) @ 0x0013F1D0 — insn 6: expected `j	0 <isysGObjMoveObjDLBeforeGObj>` built `j	380 <isysGObjLinkObjDLAfterGObj>`
+
+## isys/gobj_process
+- KEPT `isysGObjProcActive` (old `func_0013F808`) @ 0x0013F808
+- KEPT `isysGObjProcActiveAll` (old `func_0013F810`) @ 0x0013F810
+- REVERTED `isysGObjProcRemove` (old `func_0013F3E8`) @ 0x0013F3E8 — insn 0: expected `j	0 <isysGObjProcRemove>` built `j	438 <isysGObjProcAddGOppArg>`
+- REVERTED `isysGObjProcAddS` (old `func_0013F6B8`) @ 0x0013F6B8 — insn 3: expected `jal	0 <isysGObjProcAddS>` built `jal	370 <isysGObjProcAdd>`
+- REVERTED `isysGObjProcPause` (old `func_0013F778`) @ 0x0013F778 — insn 0: expected `daddu	t0,a3,zero` built `daddu	v0,a2,zero`
+- REVERTED `isysGObjProcPauseAll` (old `func_0013F7A8`) @ 0x0013F7A8 — insn 7: expected `jal	0 <isysGObjProcPauseAll>` built `jal	128 <isysGObjProcessAlloc>`
+
+## isys/isys
+- KEPT `isysInitialize` (old `func_0013F848`) @ 0x0013F848
+- KEPT `func_0013F888` (old `func_0013F888`) @ 0x0013F888
+- KEPT `func_0013F8C0` (old `func_0013F8C0`) @ 0x0013F8C0
+- KEPT `func_0013F8F8` (old `func_0013F8F8`) @ 0x0013F8F8
+- KEPT `func_0013F930` (old `func_0013F930`) @ 0x0013F930
+- KEPT `func_0013F960` (old `func_0013F960`) @ 0x0013F960
+- KEPT `func_0013F990` (old `func_0013F990`) @ 0x0013F990
+- KEPT `func_0013F9A0` (old `func_0013F9A0`) @ 0x0013F9A0
+- REVERTED `func_0013F998` (old `func_0013F998`) @ 0x0013F998 — insn 0: expected `j	0 <func_0013F998>` built `j	158 <func_0013F9A0>`
+
+## isys/obj_manager
+- KEPT `_iosOmMain` (old `func_0013FBF8`) @ 0x0013FBF8
+- KEPT `iosOmCreateDL` (old `func_0013FD10`) @ 0x0013FD10
+- KEPT `iosOmExeEachGObj` (old `func_0013FD78`) @ 0x0013FD78
+- KEPT `iosOmExeEachGObjAll` (old `func_0013FE18`) @ 0x0013FE18
+- KEPT `iosOmReturnExeEachGObj` (old `func_0013FEB0`) @ 0x0013FEB0
+- KEPT `iosOmGetGObjStatus` (old `func_0013FEE0`) @ 0x0013FEE0
+- KEPT `iosOmSearchGObjIdAll` (old `func_0013FF80`) @ 0x0013FF80
+- KEPT `iosOmBeforeFuncStandard` (old `func_0013FF88`) @ 0x0013FF88
+- KEPT `soundInit` (old `func_0013FFD0`) @ 0x0013FFD0
+- KEPT `func_00140130` (old `func_00140130`) @ 0x00140130
+- REVERTED `soundOutputModeSet` (old `func_00140048`) @ 0x00140048 — insn 11: expected `blez	a2,c4 <.L001400FC+0x10>` built `blez	a2,73c <soundOutputModeSet+0xc4>`
+
+## sound/adpcm_init
+- KEPT `AdpcmInterStereoVolumeSet` (old `func_00140740`) @ 0x00140740
+- KEPT `func_00140B70` (old `func_00140B70`) @ 0x00140B70
+- KEPT `AdpcmInterStereoVolumeSetAll` (old `func_00140EE8`) @ 0x00140EE8
+- KEPT `AdpcmInterLeaveVolumeGet` (old `func_00140F20`) @ 0x00140F20
+- KEPT `AdpcmVolumeGet` (old `func_00140F58`) @ 0x00140F58
+- KEPT `DebugActOrientFlag` (old `func_00141020`) @ 0x00141020
+- KEPT `ACTGetEnvironment` (old `func_00141038`) @ 0x00141038
+- KEPT `GetSofaPosition` (old `func_00141128`) @ 0x00141128
+- KEPT `GetCollisCenterPositionSimple` (old `func_00141130`) @ 0x00141130
+- KEPT `CheckWallAttributeEdegWall` (old `func_00141138`) @ 0x00141138
+- KEPT `func_00141160` (old `func_00141160`) @ 0x00141160
+- REVERTED `AdpcmClose` (old `func_00140710`) @ 0x00140710 — insn 4: expected `lui	a0,0x0` built `jal	0 <AdpcmStop>`
+- REVERTED `AdpcmIopBuffAlloc` (old `func_00140B30`) @ 0x00140B30 — insn 9: expected `j	0 <AdpcmIopBuffAlloc>` built `j	8e8 <adpcmPauseRequest>`
+- REVERTED `AdpcmOpenSync` (old `func_00140B60`) @ 0x00140B60 — insn 1: expected `j	0 <AdpcmOpenSync>` built `j	9f8 <AdpcmIopBuffAlloc>`
+- REVERTED `func_00140B78` (old `func_00140B78`) @ 0x00140B78 — [§4.2] signed div/shift collapsed to movn
+- REVERTED `func_00140D58` (old `func_00140D58`) @ 0x00140D58 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+- REVERTED `AdpcmFreeAreaGet` (old `func_00140E48`) @ 0x00140E48 — insn 4: expected `lui	a0,0x0` built `jal	0 <AdpcmStop>`
+- REVERTED `GetDitchPosition` (old `func_00140F90`) @ 0x00140F90 — insn 20: expected `jal	0 <GetDitchPosition>` built `jal	8e8 <adpcmPauseRequest>`
+
+## sound/s_init
+- KEPT `soundAllocIopHeap` (old `func_001412B8`) @ 0x001412B8
+- KEPT `soundAllocIopFree` (old `func_001412C8`) @ 0x001412C8
+- KEPT `soundBufAlloc` (old `func_001413A0`) @ 0x001413A0
+- KEPT `soundSeEnvPlay` (old `func_00143250`) @ 0x00143250
+- KEPT `soundReverbDepthGet` (old `func_00143B88`) @ 0x00143B88
+- KEPT `soundBufAdpcmChAlloc` (old `func_00143B90`) @ 0x00143B90
+- KEPT `soundDataAreaSearch` (old `func_00143CB0`) @ 0x00143CB0
+- KEPT `soundSeDefVolumeRateSet` (old `func_001441C8`) @ 0x001441C8
+- KEPT `soundSeGroupStop` (old `func_00144208`) @ 0x00144208
+- KEPT `soundSePlayModeStop` (old `func_001442E0`) @ 0x001442E0
+- KEPT `soundSeSemiCommonLoadChk` (old `func_001444A0`) @ 0x001444A0
+- KEPT `debug_req` (old `func_001445C0`) @ 0x001445C0
+- REVERTED `soundDataOpenChk` (old `func_00141340`) @ 0x00141340 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+- REVERTED `soundDataOpen` (old `func_00141868`) @ 0x00141868 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+- REVERTED `soundDataClose` (old `func_00141C28`) @ 0x00141C28 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+- REVERTED `soundDataSegAllClose` (old `func_00141D18`) @ 0x00141D18 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+- REVERTED `debug_DispSEInfo` (old `func_00141F58`) @ 0x00141F58 — [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `soundSeDefPitchSet` (old `func_00143240`) @ 0x00143240 — insn 0: expected `j	0 <soundSeDefPitchSet>` built `j	1fd0 <soundSeDefStopNoRelease>`
+- REVERTED `soundReqTickProc` (old `func_00143248`) @ 0x00143248 — insn 0: expected `j	0 <soundReqTickProc>` built `j	1fd0 <soundSeDefStopNoRelease>`
+- REVERTED `soundOutputModeGet` (old `func_00143AD0`) @ 0x00143AD0 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+- REVERTED `soundSeDefPlayWithVolumeRate` (old `func_00144120`) @ 0x00144120 — insn 1: expected `lui	at,0xbf80` built `dli	t0,0xbff0`
+- REVERTED `soundSeDefVolumeRateGet` (old `func_00144178`) @ 0x00144178 — sound/s_init.c:122: `soundSeDefStop' undeclared (first use in this function)
+- REVERTED `soundSeGroupGet` (old `func_00144240`) @ 0x00144240 — insn 27: expected `jal	0 <soundSeGroupGet>` built `jal	20d8 <soundSeDefPitchSet>`
+- REVERTED `soundVBlank` (old `func_00144308`) @ 0x00144308 — insn 21: expected `jal	0 <soundVBlank>` built `jal	20e0 <soundReqTickProc>`
+- REVERTED `soundSeEnvDefaultSet` (old `func_00144500`) @ 0x00144500 — insn 1: expected `addiu	a1,zero,1388` built `lw	v1,0(gp)`
+
+## sound/soundManager
+- KEPT `sndManager` (old `func_00144780`) @ 0x00144780
+- KEPT `func_001447E0` (old `func_001447E0`) @ 0x001447E0
+- KEPT `func_00144928` (old `func_00144928`) @ 0x00144928
+- KEPT `func_00144DF0` (old `func_00144DF0`) @ 0x00144DF0
+- KEPT `func_00144E10` (old `func_00144E10`) @ 0x00144E10
+- KEPT `func_00144E30` (old `func_00144E30`) @ 0x00144E30
+- KEPT `func_00145300` (old `func_00145300`) @ 0x00145300
+- KEPT `func_00145638` (old `func_00145638`) @ 0x00145638
+- REVERTED `sndInit` (old `func_001446E8`) @ 0x001446E8 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+
+## src/act-game
+- KEPT `ACTLookTarget_Exec` (old `func_00149E70`) @ 0x00149E70
+- KEPT `ACTParaStatus_Clear` (old `func_00149EA8`) @ 0x00149EA8
+- KEPT `func_00149EF8` (old `func_00149EF8`) @ 0x00149EF8
+- KEPT `FunctionAboutClingedStatus` (old `func_0014A0A8`) @ 0x0014A0A8
+- KEPT `ACTEnvGetTest` (old `func_0014A0D8`) @ 0x0014A0D8
+- KEPT `hand_able_connect` (old `func_0014A2B0`) @ 0x0014A2B0
+- KEPT `func_0014A2C8` (old `func_0014A2C8`) @ 0x0014A2C8
+- KEPT `GetOtherStageGirlOrient` (old `func_0014A308`) @ 0x0014A308
+- KEPT `ACTItemThrow` (old `func_0014A430`) @ 0x0014A430
+- KEPT `func_0014A470` (old `func_0014A470`) @ 0x0014A470
+- KEPT `ACTGame_InsertCamera_GirlIsPinch` (old `func_0014A4E0`) @ 0x0014A4E0
+- KEPT `RequestChangeHandMode` (old `func_0014A5C0`) @ 0x0014A5C0
+- KEPT `ACTCharctrl_Unlock` (old `func_0014B000`) @ 0x0014B000
+- KEPT `ACTGame_ConnectHand` (old `func_0014B048`) @ 0x0014B048
+- KEPT `PAIR_IsStatus_BOY_PULL` (old `func_0014B150`) @ 0x0014B150
+- REVERTED `ACTParaStatus_Exec` (old `func_00149ED0`) @ 0x00149ED0 — insn 0: expected `lw	v0,348(a0)` built `addiu	sp,sp,-32`
+- REVERTED `GetSkeltonOrient` (old `func_00149F20`) @ 0x00149F20 — src/act-game.c:8: redefinition of `struct GObj'
+- REVERTED `ACTGame_InnerVelocityUpdate` (old `func_00149F70`) @ 0x00149F70 — src/act-game.c:62: subscripted value is neither array nor pointer
+- REVERTED `ActOrientTest` (old `func_0014A100`) @ 0x0014A100 — src/act-game.c:9: redefinition of `struct GObj'
+- REVERTED `GetTarget` (old `func_0014A330`) @ 0x0014A330 — [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
+- REVERTED `ACTLookTargetSystem_Exec` (old `func_0014A3A8`) @ 0x0014A3A8 — [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
+- REVERTED `ACTGameCollisionOff` (old `func_0014A700`) @ 0x0014A700 — insn 5: expected `jal	0 <ACTGameCollisionOff>` built `jal	15b8 <ACTGame_DisconnectHand>`
+- REVERTED `ACTGame_StageChangeGObjID` (old `func_0014A980`) @ 0x0014A980 — src/act-game.c:253: `U64ag' undeclared (first use in this function)
+- REVERTED `ACTGame_DisconnectHand` (old `func_0014B090`) @ 0x0014B090 — src/act-game.c:275: warning: passing arg 1 of `checkHit' from incompatible pointer type
+- REVERTED `PAIR_GetPosition_BOY` (old `func_0014B0B8`) @ 0x0014B0B8 — insn 13: expected `beq	s0,zero,7c <PAIR_GetPosition_BOY+0x7c>` built `beq	s0,zero,165c <PAIR_GetPosition_BOY+0x84>`
+
+## src/act-parallel-control
+- KEPT `ActPara_MakeTbl` (old `func_0014B168`) @ 0x0014B168
+- KEPT `ActPara_InitSystem` (old `func_0014B1D0`) @ 0x0014B1D0
+- KEPT `ActPara_GetDefTbl` (old `func_0014B228`) @ 0x0014B228
+- KEPT `ActPara_StatusToFlag` (old `func_0014B248`) @ 0x0014B248
+- KEPT `func_0014B2F0` (old `func_0014B2F0`) @ 0x0014B2F0
+- KEPT `func_0014B318` (old `func_0014B318`) @ 0x0014B318
+- KEPT `func_0014B320` (old `func_0014B320`) @ 0x0014B320
+- KEPT `func_0014B330` (old `func_0014B330`) @ 0x0014B330
+- KEPT `func_0014B358` (old `func_0014B358`) @ 0x0014B358
+- REVERTED `ActPara_DebugOut` (old `func_0014B260`) @ 0x0014B260 — insn 2: expected `jr	ra` built `sd	zero,88(v0)`
+- REVERTED `func_0014B270` (old `func_0014B270`) @ 0x0014B270 — insn 7: expected `beq	a0,zero,1c <func_0014B270+0x1c>` built `beq	a0,zero,17c <func_0014B270+0x74>`
+
+## src/act-wish
+- KEPT `func_0014B768` (old `func_0014B768`) @ 0x0014B768
+- KEPT `func_0014B800` (old `func_0014B800`) @ 0x0014B800
+- KEPT `func_0014B840` (old `func_0014B840`) @ 0x0014B840
+- KEPT `func_0014B858` (old `func_0014B858`) @ 0x0014B858
+- KEPT `func_0014BB00` (old `func_0014BB00`) @ 0x0014BB00
+- KEPT `func_0014BBF0` (old `func_0014BBF0`) @ 0x0014BBF0
+- KEPT `func_0014BD88` (old `func_0014BD88`) @ 0x0014BD88
+- KEPT `func_0014BDC8` (old `func_0014BDC8`) @ 0x0014BDC8
+- KEPT `func_0014BDD8` (old `func_0014BDD8`) @ 0x0014BDD8
+- REVERTED `ACTGetWish_FromPad` (old `func_0014B580`) @ 0x0014B580 — insn 13: expected `<end>` built `sll	zero,zero,0x0`
+
+## src/boyact
+- KEPT `findChainInJump` (old `func_0014BDF0`) @ 0x0014BDF0
+- KEPT `actBoyRun` (old `func_001538C0`) @ 0x001538C0
+- KEPT `actBoyTakeWeapon` (old `func_001539B8`) @ 0x001539B8
+- KEPT `GetBoyWeaponGObj` (old `func_001545D8`) @ 0x001545D8
+- KEPT `actBoyStand` (old `func_001545F0`) @ 0x001545F0
+- KEPT `actBoyHang` (old `func_001545F8`) @ 0x001545F8
+- KEPT `func_00154648` (old `func_00154648`) @ 0x00154648
+- KEPT `func_00154668` (old `func_00154668`) @ 0x00154668
+- KEPT `actBoyCall` (old `func_00154770`) @ 0x00154770
+- KEPT `actBoyItem` (old `func_00154790`) @ 0x00154790
+- KEPT `func_001547A0` (old `func_001547A0`) @ 0x001547A0
+- KEPT `func_001547B0` (old `func_001547B0`) @ 0x001547B0
+- KEPT `actBoySupportGBLoop` (old `func_00154CB8`) @ 0x00154CB8
+- KEPT `actBoySupportGBEnd` (old `func_00154CC8`) @ 0x00154CC8
+- KEPT `actBoyHangG3M` (old `func_00154E60`) @ 0x00154E60
+- KEPT `IsAbleBoyControl` (old `func_00154E68`) @ 0x00154E68
+- KEPT `ACTChkAttackIgnore_BOY` (old `func_00156480`) @ 0x00156480
+- REVERTED `InitSwapWeapon` (old `func_001502D8`) @ 0x001502D8 — src/boyact.c:5: redefinition of `struct GObj'
+- REVERTED `func_001504D8` (old `func_001504D8`) @ 0x001504D8 — [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
+- REVERTED `func_001538F8` (old `func_001538F8`) @ 0x001538F8 — insn 3: expected `lw	v1,356(v0)` built `lw	v1,1424(v0)`
+- REVERTED `actBoyRescueReady` (old `func_00154390`) @ 0x00154390 — insn 5: expected `lw	s0,356(v0)` built `lw	s0,1424(v0)`
+- REVERTED `actBoyDitch3mReady` (old `func_00154420`) @ 0x00154420 — insn 1: expected `lw	a0,356(v1)` built `lw	a0,1424(v1)`
+- REVERTED `actBoyRescueSrc` (old `func_00154B20`) @ 0x00154B20 — src/boyact.c:15: redefinition of `struct GObj'
+
+## src/commonact
+- KEPT `func_00157DA0` (old `func_00157DA0`) @ 0x00157DA0
+- KEPT `actCommonRopeClimbEnd1` (old `func_00158928`) @ 0x00158928
+- KEPT `actCommonRopeSpecial` (old `func_00159230`) @ 0x00159230
+- KEPT `Cling` (old `func_0015B678`) @ 0x0015B678
+- KEPT `actCommonCling` (old `func_0015B6D0`) @ 0x0015B6D0
+- KEPT `actCommonSlip` (old `func_0015B728`) @ 0x0015B728
+- KEPT `func_0015D328` (old `func_0015D328`) @ 0x0015D328
+- KEPT `actCommonJump` (old `func_0015D470`) @ 0x0015D470
+- KEPT `actCommonDodge` (old `func_0015E7C0`) @ 0x0015E7C0
+- KEPT `_ACTDebugPrint` (old `func_0015EE68`) @ 0x0015EE68
+- KEPT `E3_LeverCheck` (old `func_0015EF40`) @ 0x0015EF40
+- KEPT `actCommonBackhand` (old `func_0015F208`) @ 0x0015F208
+- KEPT `func_0015F428` (old `func_0015F428`) @ 0x0015F428
+- KEPT `actCommonRevive` (old `func_0015F4B8`) @ 0x0015F4B8
+- KEPT `actCommonReviveAir` (old `func_0015F4E0`) @ 0x0015F4E0
+- KEPT `actCommonPlay` (old `func_0015F4F0`) @ 0x0015F4F0
+- KEPT `actCommonOne` (old `func_0015F518`) @ 0x0015F518
+- KEPT `func_0015F5D0` (old `func_0015F5D0`) @ 0x0015F5D0
+- REVERTED `WithMailFunc_WayBeginPosError` (old `func_00157BF8`) @ 0x00157BF8 — insn 5: expected `jal	0 <WithMailFunc_WayBeginPosError>` built `jal	8b70 <ContinueCorrectPosition>`
+- REVERTED `GetCorrectOrientOfChain` (old `func_00157E68`) @ 0x00157E68 — src/commonact.c:42: too many arguments to function `func_00157DA0'
+- REVERTED `actCommonLever` (old `func_00159C38`) @ 0x00159C38 — insn 17: expected `mov.s	$f12,$f20` built `jal	0 <ACTSetPositionWithFitting>`
+- REVERTED `funcCommonJumpDircorrect` (old `func_0015D348`) @ 0x0015D348 — insn 0: expected `lui	at,0x41f0` built `dli	a0,0x807c`
+- REVERTED `ACT_LAYOUT_GAMEOVER` (old `func_0015F298`) @ 0x0015F298 — insn 1: expected `lui	at,0xbf80` built `dli	a1,0xbff0`
+- REVERTED `ACTAdjustPlane` (old `func_0015F2D8`) @ 0x0015F2D8 — src/commonact.c:254: incompatible type for argument 3 of `func_00243B18'
+- REVERTED `_ACTMotDirSmzDirect` (old `func_0015F320`) @ 0x0015F320 — insn 5: expected `jal	0 <_ACTMotDirSmzDirect>` built `jal	d0 <ChangeMailInLadder>`
+- REVERTED `actCommonDelete` (old `func_0015F550`) @ 0x0015F550 — insn 5: expected `jal	0 <actCommonDelete>` built `jal	24d8 <actCommonRopeCliff>`
+- REVERTED `func_0015F650` (old `func_0015F650`) @ 0x0015F650 — src/commonact.c:14: redefinition of `struct GObj'
+
+## src/enemy_act
+- KEPT `boss_effect_process` (old `func_0015F698`) @ 0x0015F698
+- KEPT `_DoAwait` (old `func_0015F6A8`) @ 0x0015F6A8
+- KEPT `_DoAwaitGirl` (old `func_0015F6C0`) @ 0x0015F6C0
+- KEPT `actEnemyStand` (old `func_00165158`) @ 0x00165158
+- KEPT `actEnemyRun` (old `func_001651C8`) @ 0x001651C8
+- KEPT `actEnemyHang` (old `func_001651F8`) @ 0x001651F8
+- KEPT `actEnemyCarry` (old `func_00165270`) @ 0x00165270
+- KEPT `func_001652A0` (old `func_001652A0`) @ 0x001652A0
+- KEPT `func_001652B8` (old `func_001652B8`) @ 0x001652B8
+- KEPT `func_001652D0` (old `func_001652D0`) @ 0x001652D0
+- KEPT `funcEnemyCarryFail` (old `func_001652F8`) @ 0x001652F8
+- KEPT `actEnemyFlagOnFree` (old `func_001653A0`) @ 0x001653A0
+- KEPT `afterCommonCarry` (old `func_001653D0`) @ 0x001653D0
+- KEPT `actEnemyFlagOnDead` (old `func_001653E8`) @ 0x001653E8
+- KEPT `EnemyBrainStatus_Boy` (old `func_00165400`) @ 0x00165400
+- KEPT `func_00165488` (old `func_00165488`) @ 0x00165488
+- KEPT `actEnemyFlagCheckActive` (old `func_001654C8`) @ 0x001654C8
+- KEPT `ACTEnemyForceSwitchToCarry` (old `func_001654D8`) @ 0x001654D8
+- KEPT `func_00165B50` (old `func_00165B50`) @ 0x00165B50
+- REVERTED `subEnemyCollision` (old `func_0015F9B0`) @ 0x0015F9B0 — insn 13: expected `j	0 <subEnemyCollision>` built `j	168 <subEnemyControl>`
+- REVERTED `actEnemyRestart` (old `func_0015FB60`) @ 0x0015FB60 — src/enemy_act.c:6: redefinition of `struct GObj'
+- REVERTED `PairSetGeometry` (old `func_0015FBD8`) @ 0x0015FBD8 — src/enemy_act.c:6: redefinition of `struct GObj'
+- REVERTED `_ApproachTarget_Way` (old `func_00164EB0`) @ 0x00164EB0 — insn 3: expected `lui	a0,0x0` built `lw	v0,0(sp)`
+- REVERTED `func_00164EF8` (old `func_00164EF8`) @ 0x00164EF8 — insn 3: expected `lui	a0,0x0` built `lw	v0,0(sp)`
+- REVERTED `func_00164F40` (old `func_00164F40`) @ 0x00164F40 — insn 3: expected `lui	a0,0x0` built `lw	v0,0(sp)`
+- REVERTED `func_00164F88` (old `func_00164F88`) @ 0x00164F88 — insn 3: expected `lui	a0,0x0` built `lw	v0,0(sp)`
+- REVERTED `func_00164FD0` (old `func_00164FD0`) @ 0x00164FD0 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+- REVERTED `func_00165178` (old `func_00165178`) @ 0x00165178 — insn 0: expected `lui	v0,0x0` built `addiu	sp,sp,-48`
+- REVERTED `func_00165348` (old `func_00165348`) @ 0x00165348 — insn 4: expected `jal	0 <func_00165348>` built `jal	1460 <MoveChestForCatchBoy>`
+- REVERTED `func_00165418` (old `func_00165418`) @ 0x00165418 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+- REVERTED `actEnemy_isNormalEnemy` (old `func_00165540`) @ 0x00165540 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+- REVERTED `IsEnemyBrainToBoy` (old `func_00165CE8`) @ 0x00165CE8 — insn 7: expected `jal	0 <IsEnemyBrainToBoy>` built `jal	46c8 <subEnemyBrain_ToBoy>`
+- REVERTED `func_00165DC0` (old `func_00165DC0`) @ 0x00165DC0 — insn 3: expected `lui	a0,0x0` built `lw	v0,0(sp)`
+- REVERTED `func_00165E08` (old `func_00165E08`) @ 0x00165E08 — insn 3: expected `lui	a0,0x0` built `lw	v0,0(sp)`
+
+## src/fieldCollision
+- KEPT `GetReflectionElement` (old `func_00165EB8`) @ 0x00165EB8
+- KEPT `clip_floor_1` (old `func_00165F88`) @ 0x00165F88
+- KEPT `makeCollisionBlockTable` (old `func_00166000`) @ 0x00166000
+- REVERTED `MakeCollisionDependGObjList` (old `func_00165E60`) @ 0x00165E60 — insn 3: expected `lui	a0,0x0` built `lw	v0,0(sp)`
+- REVERTED `DrawCollisionRay` (old `func_00167230`) @ 0x00167230 — insn 8: expected `j	0 <DrawCollisionRay>` built `j	fb0 <GetEdgeOfFloor>`
+- REVERTED `MakeExitAttributeIndex` (old `func_00167258`) @ 0x00167258 — insn 6: expected `j	0 <MakeExitAttributeIndex>` built `j	fb0 <GetEdgeOfFloor>`
+- REVERTED `ClipWall` (old `func_00167760`) @ 0x00167760 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+- REVERTED `ClipWallEField` (old `func_001683A8`) @ 0x001683A8 — src/fieldCollision.c:80: called object is not a function
+- REVERTED `ClipWallBoxStop` (old `func_001683C8`) @ 0x001683C8 — src/fieldCollision.c:82: called object is not a function
+- REVERTED `ClipWallAdjustPos` (old `func_001683E8`) @ 0x001683E8 — src/fieldCollision.c:84: called object is not a function
+- REVERTED `ClipWallE` (old `func_00168408`) @ 0x00168408 — src/fieldCollision.c:86: called object is not a function
+- REVERTED `ClipWallCheckCB` (old `func_00168428`) @ 0x00168428 — src/fieldCollision.c:88: called object is not a function
+- REVERTED `ClipWallFieldCheckCB` (old `func_00168448`) @ 0x00168448 — src/fieldCollision.c:90: called object is not a function
+- REVERTED `ClipFloor` (old `func_00168468`) @ 0x00168468 — src/fieldCollision.c:92: called object is not a function
+- REVERTED `ClipFloorE` (old `func_00168488`) @ 0x00168488 — src/fieldCollision.c:94: called object is not a function
+- REVERTED `ClipFloorR` (old `func_001684A8`) @ 0x001684A8 — src/fieldCollision.c:96: called object is not a function
+- REVERTED `ClipFloorIH` (old `func_001684C8`) @ 0x001684C8 — src/fieldCollision.c:98: called object is not a function
+- REVERTED `ClipFloorCheckCB` (old `func_001684E8`) @ 0x001684E8 — src/fieldCollision.c:102: called object is not a function
+- REVERTED `ClipCollision` (old `func_00168510`) @ 0x00168510 — src/fieldCollision.c:104: called object is not a function
+- REVERTED `ChangeFieldCollisionDebugMode` (old `func_00168538`) @ 0x00168538 — src/fieldCollision.c:102: called object is not a function
+- REVERTED `LoadCollision` (old `func_00168558`) @ 0x00168558 — src/fieldCollision.c:104: called object is not a function
+- REVERTED `DrawCollision` (old `func_00168578`) @ 0x00168578 — src/fieldCollision.c:106: called object is not a function
+- REVERTED `ClipPlane` (old `func_00168598`) @ 0x00168598 — src/fieldCollision.c:108: called object is not a function
+- REVERTED `GetOrientOfWall` (old `func_001685B8`) @ 0x001685B8 — src/fieldCollision.c:114: called object is not a function
+- REVERTED `SetSimplePlane` (old `func_001685E0`) @ 0x001685E0 — src/fieldCollision.c:121: called object is not a function
+
+## src/fuzio
+- KEPT `fzMagnitude2fv` (old `func_00168A28`) @ 0x00168A28
+- KEPT `fzMagnitudeByLine` (old `func_00168A40`) @ 0x00168A40
+- KEPT `fzMagnitudeByLineSeg` (old `func_00168A60`) @ 0x00168A60
+- KEPT `func_00168A80` (old `func_00168A80`) @ 0x00168A80
+- KEPT `func_00168BD0` (old `func_00168BD0`) @ 0x00168BD0
+- KEPT `func_00168C18` (old `func_00168C18`) @ 0x00168C18
+- KEPT `func_00168C58` (old `func_00168C58`) @ 0x00168C58
+- KEPT `func_00168C88` (old `func_00168C88`) @ 0x00168C88
+- KEPT `func_0016A130` (old `func_0016A130`) @ 0x0016A130
+- KEPT `func_0016A158` (old `func_0016A158`) @ 0x0016A158
+- KEPT `func_0016A1B8` (old `func_0016A1B8`) @ 0x0016A1B8
+- REVERTED `fzShowV` (old `func_00168650`) @ 0x00168650 — src/fuzio.c:13: `func_00169F80' undeclared (first use in this function)
+- REVERTED `fzShowM` (old `func_00168690`) @ 0x00168690 — [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
+- REVERTED `func_00168BA0` (old `func_00168BA0`) @ 0x00168BA0 — src/fuzio.c:43: void value not ignored as it ought to be
+- REVERTED `func_0016A1D8` (old `func_0016A1D8`) @ 0x0016A1D8 — insn 18: expected `lui	a0,0x0` built `ld	ra,48(sp)`
+- REVERTED `func_0016A240` (old `func_0016A240`) @ 0x0016A240 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+- REVERTED `func_0016A2A0` (old `func_0016A2A0`) @ 0x0016A2A0 — src/fuzio.c:157: void value not ignored as it ought to be
+- REVERTED `func_0016A2C8` (old `func_0016A2C8`) @ 0x0016A2C8 — src/fuzio.c:159: void value not ignored as it ought to be
+- REVERTED `func_0016A2F8` (old `func_0016A2F8`) @ 0x0016A2F8 — src/fuzio.c:162: void value not ignored as it ought to be
+- REVERTED `func_0016A320` (old `func_0016A320`) @ 0x0016A320 — src/fuzio.c:174: void value not ignored as it ought to be
+
+## src/girl_act
+- KEPT `GirlBrainClearTarget` (old `func_0016A678`) @ 0x0016A678
+- KEPT `func_0016AC10` (old `func_0016AC10`) @ 0x0016AC10
+- KEPT `subGirlBrainMain` (old `func_0016AC20`) @ 0x0016AC20
+- KEPT `func_001752D0` (old `func_001752D0`) @ 0x001752D0
+- KEPT `func_00175308` (old `func_00175308`) @ 0x00175308
+- REVERTED `afterGirlHand` (old `func_00175640`) @ 0x00175640 — insn 3: expected `lui	a0,0x0` built `lw	v0,0(sp)`
+- REVERTED `afterGirlPulledGo` (old `func_00175688`) @ 0x00175688 — insn 3: expected `lui	a0,0x0` built `lw	v0,0(sp)`

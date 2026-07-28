@@ -1,6 +1,33 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", findChainInJump);
+
+
+
+
+
+
+
+
+
+
+
+
+extern void ACTWay_SetBeginPositionIllegal();
+extern void SetRootMatrixWithTransOffset();
+extern void GetCylinderCollisionWithExceptOwnCollision();
+extern int D_006AAB40[];
+extern unsigned char D_006AAB30[];
+extern void WeaponCurPos(int *self, int *other, int a2);
+extern long long D_006AAAE0[];
+extern int *D_00631AE4;
+extern void *D_00631AE8;
+extern unsigned char D_00633CEC;
+extern long long D_006AAAE8[];
+extern void _ACTWait();
+extern void funcCommonJumpDircorrect();
+extern void HandCameraCorrect();
+extern void BeforeFunc2();
+void findChainInJump(void) {}
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", CorrectOrient_RopeCliff);
 
@@ -44,7 +71,13 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00153318);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyWalk);
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyRun);
+void actBoyRun(int a0)
+{
+    int buf[4];
+    BeforeFunc2(buf);
+    HandCameraCorrect(buf, a0);
+
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001538F4);
 
@@ -52,7 +85,14 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001538F8);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyTakeWeaponReady);
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyTakeWeapon);
+void actBoyTakeWeapon(volatile unsigned int a0)
+{
+    volatile int local;
+    int *v1 = *(int **)(a0 + 0x164);
+    int a1 = v1[0x678 / 4];
+    funcCommonJumpDircorrect(a0, a1 + 0x7E0);
+    _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", pullup_check_heroin_position);
 
@@ -76,33 +116,82 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00154448);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00154520);
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", GetBoyWeaponGObj);
+int GetBoyWeaponGObj(void) {
+    return (int)((unsigned char)((unsigned long long)D_006AAAE8[0] >> 35)) & 1;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyStand);
+unsigned char actBoyStand(void) {
+    return D_00633CEC;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyHang);
+int actBoyHang(void)
+{
+    int *a = (int *)D_00631AE4;
+    int *b = (int *)D_00631AE8;
+    int *pa, *pb, *r;
+    int v;
+    if (a == 0) goto err;
+    if (b == 0) goto err;
+    pa = (int *)a[0x164/4];
+    v = pa[0x30/4];
+    if (v != 0x2D) goto err;
+    pb = (int *)b[0x164/4];
+    if (pb[0x30/4] != v) goto err;
+    r = (int *)pa[0x150/4];
+    return r[2];
+err:
+    return -1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00154644);
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00154648);
+void func_00154648(void) {
+    D_006AAAE0[1] |= 0x800000000LL;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00154668);
+void func_00154668(int *self)
+{
+    int new_var;
+    int *d;
+    int *p;
+    d = (int *) D_00631AE4;
+    if (0 == d) return;
+    if (self == 0) return;
+    new_var = 0x164;
+    p = (int *) d[new_var / 4];
+    WeaponCurPos(self, d, 0x16);
+    new_var = self[0x8 / 4];
+    p[0x140 / 4] = (int) self;
+    *(int *)D_006AAAE0 = new_var;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001546BC);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001546C0);
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyCall);
+int actBoyCall(void)
+{
+    if (D_006AAB30[0]) {
+        return *(int *)(D_006AAB30 + 4);
+    }
+    return 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyItem);
+unsigned char actBoyItem(void) {
+    return D_006AAB30[0];
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_0015479C);
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001547A0);
+int *func_001547A0(void) {
+    return D_006AAB40;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001547AC);
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001547B0);
+int func_001547B0(void) {
+    return 24;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyHangBefore);
 
@@ -114,9 +203,17 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyRescueSrc);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoySupportGBBegin);
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoySupportGBLoop);
+void actBoySupportGBLoop(int x) {
+    volatile int local = x;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoySupportGBEnd);
+void actBoySupportGBEnd(int a0)
+{
+    volatile int local = a0;
+    while (1) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00154CE8);
 
@@ -124,9 +221,15 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoySupportBGBegin);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyDitch3mExec);
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyHangG3M);
+void actBoyHangG3M(int a0, int a1, int a2, int a3)
+{
+    GetCylinderCollisionWithExceptOwnCollision(a0, a1, a2, a3);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", IsAbleBoyControl);
+void IsAbleBoyControl(int a0, int a1, int a2, int a3)
+{
+    SetRootMatrixWithTransOffset(a0, a1, a2, a3);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", ACTSearchEnemy);
 
@@ -136,5 +239,8 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", isLiftBoyEnable);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", BoyInfoUpdate_StageChange);
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", ACTChkAttackIgnore_BOY);
+void ACTChkAttackIgnore_BOY(int a0, int a1, int a2, int a3)
+{
+    ACTWay_SetBeginPositionIllegal(a0, a1, a2, a3);
+}
 
