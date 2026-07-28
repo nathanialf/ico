@@ -265,7 +265,34 @@ segments:
       - [0xFBC18, c, src/EnemyInit]  # 5 funcs, census
       - [0xFC048, c, isys/gobj_cam_dl]  # 11 funcs, aug6
       - [0xFC6C8, c, src/act-env]  # 7 funcs, census
-      - [0x100AD8, asm, src/cod/100AD8]  # 54 game TUs not yet converted, + vendor tail
+      - [0x100AD8, c, src/act-way]  # 7 funcs, aug6
+      - [0x101DE0, c, src/act]  # 18 funcs, census
+      - [0x103C40, c, src/act2]  # 11 funcs, aug6
+      - [0x1047E0, c, src/seMail]  # 14 funcs, aug6
+      - [0x105548, c, src/way_kidnap]  # 11 funcs, aug6
+      - [0x105948, c, src/way_llf]  # 13 funcs, aug6
+      - [0x106208, c, src/way_tool]  # 16 funcs, census
+      - [0x107DF0, c, src/deja]  # 22 funcs, aug6
+      - [0x109DD0, c, src/e3]  # 21 funcs, aug6
+      - [0x10B028, c, src/end]  # 22 funcs, aug6
+      - [0x10CE00, c, src/op]  # 21 funcs, aug6
+      - [0x10D7A8, c, src/st00a]  # 22 funcs, aug6
+      - [0x10FF68, c, src/st01b]  # 21 funcs, aug6
+      - [0x111160, c, src/st02a]  # 22 funcs, aug6
+      - [0x112260, c, src/st03t]  # 21 funcs, aug6
+      - [0x112E50, c, src/st04a]  # 22 funcs, aug6
+      - [0x114040, c, src/st04b]  # 21 funcs, aug6
+      - [0x117AA0, c, src/st04c]  # 22 funcs, aug6
+      - [0x118CF8, c, src/st04d]  # 21 funcs, aug6
+      - [0x119840, c, src/st04e]  # 21 funcs, aug6
+      - [0x11AD40, c, src/st04l]  # 22 funcs, aug6
+      - [0x11D188, c, src/st04r]  # 21 funcs, aug6
+      - [0x11E038, c, src/st05b]  # 22 funcs, aug6
+      - [0x11EC18, c, src/st05c]  # 21 funcs, aug6
+      - [0x11F3B8, c, src/st05d]  # 22 funcs, aug6
+      - [0x11FA30, c, src/st05e]  # 21 funcs, aug6
+      - [0x121AD0, c, src/st06a]  # 22 funcs, aug6
+      - [0x122E90, asm, src/cod/122E90]  # 27 game TUs not yet converted, + vendor tail
       # .vutext — 5 hand-typed VU1 microprograms, byte-identical to aug6's
       # (same sizes: 0xDC0/0x9F0/0x16E0/0x1CA0/0x5B0).
       - [0x16F5E0, hasm, src/cluster]        # ClusterMicroProgram
