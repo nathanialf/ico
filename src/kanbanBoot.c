@@ -1,10 +1,16 @@
 #include "common.h"
 
+
+extern void debug_assertMessage();
+extern int D_00616CE0[];
 INCLUDE_ASM("asm/nonmatchings/src/kanbanBoot", kanbanBootMcCheck);
 
 INCLUDE_ASM("asm/nonmatchings/src/kanbanBoot", kanbanBootMain);
 
-INCLUDE_ASM("asm/nonmatchings/src/kanbanBoot", kanbanBootInit);
+void kanbanBootInit(void)
+{
+    debug_assertMessage(D_00616CE0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/kanbanBoot", kanbanBootStart);
 

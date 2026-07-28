@@ -1,8 +1,12 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/charFileManager", InitCharFileManager);
 
-INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ResetCharFileManager);
+extern int D_00633E28;
+void InitCharFileManager(void) {
+    D_00633E28 = 0;
+}
+
+void ResetCharFileManager(void) {}
 
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadModelFile);
 

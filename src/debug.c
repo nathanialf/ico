@@ -1,20 +1,49 @@
 #include "common.h"
 
+
+
+
+extern int func_001AA688();
+extern void func_00100250();
+extern int func_00100230();
+extern void func_00100B40();
+extern unsigned int D_00632A0C;
+extern void func_00268DA0();
+extern int func_0026527C();
+extern void func_00247C30();
+extern int D_00632A04;
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_Assert);
 
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_openLog);
 
-INCLUDE_ASM("asm/nonmatchings/src/debug", debug_LogPrintf);
+void debug_LogPrintf(void) {
+    volatile char buf[256];
+    D_00632A04 = -1;
+
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/debug", func_001A2E24);
 
-INCLUDE_ASM("asm/nonmatchings/src/debug", func_001A2E28);
+void func_001A2E28(const char *fmt, ...) {
+    char buf[0x100];
+    void *info;
+    func_00268DA0(buf, fmt, (char *)__builtin_next_arg(fmt) - 0x38);
+    info = func_0026527C(buf);
+    func_00247C30(D_00632A04, buf, info);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/debug", func_001A2E80);
 
 INCLUDE_ASM("asm/nonmatchings/src/debug", func_001A2FA0);
 
-INCLUDE_ASM("asm/nonmatchings/src/debug", debug_VariableInit);
+void debug_VariableInit(void)
+{
+    if ((int)D_00632A0C != -1) {
+        func_00100250(1, D_00632A0C);
+    }
+    D_00632A0C = func_00100230(1, (int)func_001AA688, -1);
+    func_00100B40(1);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/debug", func_001A3204);
 

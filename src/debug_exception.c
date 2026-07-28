@@ -1,10 +1,30 @@
 #include "common.h"
 
+
+
+
+extern int D_00632B00[];
+extern int D_00632B10[];
+extern void func_00264DF8();
+extern void debug_FlushFontWindow();
+extern void func_00268DA0();
 INCLUDE_ASM("asm/nonmatchings/src/debug_exception", initLineTraceTable);
 
-INCLUDE_ASM("asm/nonmatchings/src/debug_exception", traceLine);
+void traceLine(int *a, int *b, int *c, int x, ...)
+{
+    char buf[0x100];
+    void *args = (char *)__builtin_next_arg(x) - 0x20;
+    func_00268DA0(buf, x, args);
+    debug_FlushFontWindow(a, b, c, buf);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/debug_exception", dispSource);
+void dispSource(int *a, int *b, int *c, int x, ...)
+{
+    char buf[0x100];
+    void *args = (char *)__builtin_next_arg(x) - 0x20;
+    func_00268DA0(buf, x, args);
+    debug_FlushFontWindow(a, b, c, buf);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/debug_exception", display);
 
@@ -12,7 +32,10 @@ INCLUDE_ASM("asm/nonmatchings/src/debug_exception", debugEEExceptionMain);
 
 INCLUDE_ASM("asm/nonmatchings/src/debug_exception", debugIOPExceptionMain);
 
-INCLUDE_ASM("asm/nonmatchings/src/debug_exception", debug_assertMessage);
+void debug_assertMessage(char *fmt, ...)
+{
+    (void)fmt;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/debug_exception", debug_assert);
 
@@ -24,9 +47,15 @@ INCLUDE_ASM("asm/nonmatchings/src/debug_exception", debugIOPExceptionInit);
 
 INCLUDE_ASM("asm/nonmatchings/src/debug_exception", func_001A76B8);
 
-INCLUDE_ASM("asm/nonmatchings/src/debug_exception", func_001A7820);
+void func_001A7820(int a0, int a1, int a2)
+{
+    func_00264DF8(a0, D_00632B10, a1, a2);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/debug_exception", func_001A7838);
+void func_001A7838(int a0)
+{
+    func_00264DF8(a0, D_00632B00);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/debug_exception", func_001A7848);
 

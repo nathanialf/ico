@@ -1298,3 +1298,184 @@ gate re-run before commit.
 
 ## src/way_sys
 - KEPT `avoid_obstacle2` (old `func_00176BB8`) @ 0x00176BB8
+
+## src/stage_orient
+- KEPT `GetStageDifferenceMatrix` (old `func_0019CF70`) @ 0x0019CF70
+- KEPT `StageOrientGet2` (old `func_0019CF78`) @ 0x0019CF78
+
+## ito/mpeg/mv_main
+- KEPT `initAll` (old `func_0019D9D8`) @ 0x0019D9D8
+- KEPT `movie_init` (old `func_0019DA98`) @ 0x0019DA98
+- KEPT `movie_end` (old `func_0019DAC8`) @ 0x0019DAC8
+- KEPT `movie_proc` (old `func_0019DB08`) @ 0x0019DB08
+- REVERTED `proceedAudio` (old `func_0019D9C8`) @ 0x0019D9C8 — insn 0: expected `j	0 <proceedAudio>` built `j	78 <initAll>`
+- REVERTED `readMpeg` (old `func_0019D9D0`) @ 0x0019D9D0 — insn 0: expected `j	0 <readMpeg>` built `j	68 <proceedAudio>`
+
+## ito/mpeg/mv_readbuf
+- KEPT `readBufDelete` (old `func_0019DB70`) @ 0x0019DB70
+- KEPT `readBufCreate` (old `func_0019DBA8`) @ 0x0019DBA8
+- KEPT `readBufEndPut` (old `func_0019DBE8`) @ 0x0019DBE8
+- KEPT `readBufEndGet` (old `func_0019DD38`) @ 0x0019DD38
+
+## ito/mpeg/mv_strfile
+- KEPT `strFileOpen` (old `func_0019DD40`) @ 0x0019DD40
+- KEPT `func_0019E150` (old `func_0019E150`) @ 0x0019E150
+- KEPT `func_0019E160` (old `func_0019E160`) @ 0x0019E160
+- KEPT `func_0019E1A0` (old `func_0019E1A0`) @ 0x0019E1A0
+
+## ito/mpeg/mv_videodec
+- KEPT `free_buf` (old `func_0019E1D0`) @ 0x0019E1D0
+- KEPT `videoDecCreate` (old `func_0019E1D8`) @ 0x0019E1D8
+- KEPT `videoDecBeginPut` (old `func_0019E228`) @ 0x0019E228
+- KEPT `videoDecFlush` (old `func_0019E2A0`) @ 0x0019E2A0
+- KEPT `videoCallback` (old `func_0019E2D0`) @ 0x0019E2D0
+- KEPT `decBitStrm0` (old `func_0019E2F0`) @ 0x0019E2F0
+- REVERTED `videoDecEndPut` (old `func_0019E278`) @ 0x0019E278 — insn 1: expected `lui	a0,0x0` built `addiu	a0,gp,0`
+
+## ito/mpeg/mv_vobuf
+- KEPT `func_0019E310` (old `func_0019E310`) @ 0x0019E310
+- KEPT `voBufIsFull` (old `func_0019E4E8`) @ 0x0019E4E8
+- KEPT `voBufGetData` (old `func_0019E508`) @ 0x0019E508
+- REVERTED `voBufCreate` (old `func_0019E350`) @ 0x0019E350 — insn 4: expected `jal	0 <voBufCreate>` built `jal	1d8 <voBufIsFull>`
+- REVERTED `voBufReset` (old `func_0019E4E0`) @ 0x0019E4E0 — insn 0: expected `j	0 <voBufReset>` built `j	40 <voBufCreate>`
+
+## src/DObj
+- KEPT `allocObjectData` (old `func_0019E628`) @ 0x0019E628
+- KEPT `func_0019F4E0` (old `func_0019F4E0`) @ 0x0019F4E0
+- REVERTED `FreeDObj` (old `func_0019EF10`) @ 0x0019EF10 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+- REVERTED `func_0019F530` (old `func_0019F530`) @ 0x0019F530 — src/DObj.c:5: redefinition of `struct GObj'
+
+## src/StageManager
+- KEPT `stage_initialize` (old `func_0019F758`) @ 0x0019F758
+- KEPT `stgmgrForceSwitchWithFade` (old `func_001A0010`) @ 0x001A0010
+- KEPT `stgmgrForceSwitchWithFadeColor` (old `func_001A0028`) @ 0x001A0028
+- REVERTED `stop_free_resources` (old `func_0019F6A8`) @ 0x0019F6A8 — src/StageManager.c:7: conflicting types for `D_00612730'
+- REVERTED `StageManager` (old `func_0019FF98`) @ 0x0019FF98 — insn 2: expected `j	0 <StageManager>` built `j	900 <stgmgrForceSwitch>`
+
+## src/backStage
+- KEPT `backStageProcessOutStage` (old `func_001A0038`) @ 0x001A0038
+- KEPT `backStageProcessMain` (old `func_001A0040`) @ 0x001A0040
+- KEPT `routeSetPos` (old `func_001A0090`) @ 0x001A0090
+- KEPT `func_001A1008` (old `func_001A1008`) @ 0x001A1008
+
+## src/charFileManager
+- KEPT `InitCharFileManager` (old `func_001A1020`) @ 0x001A1020
+- KEPT `ResetCharFileManager` (old `func_001A1028`) @ 0x001A1028
+- REVERTED `ReadModelFile` (old `func_001A1030`) @ 0x001A1030 — src/charFileManager.c:23: dereferencing pointer to incomplete type
+- REVERTED `ReadVolumeModelFile` (old `func_001A10B0`) @ 0x001A10B0 — src/charFileManager.c:26: dereferencing pointer to incomplete type
+- REVERTED `CSVSYSTEM_ReadCharFiles` (old `func_001A26E0`) @ 0x001A26E0 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+
+## src/debug
+- KEPT `debug_LogPrintf` (old `func_001A2E10`) @ 0x001A2E10
+- KEPT `func_001A2E28` (old `func_001A2E28`) @ 0x001A2E28
+- KEPT `debug_VariableInit` (old `func_001A31C0`) @ 0x001A31C0
+- REVERTED `debug_Assert` (old `func_001A2D58`) @ 0x001A2D58 — insn 7: expected `<end>` built `sll	zero,zero,0x0`
+- REVERTED `debug_openLog` (old `func_001A2D78`) @ 0x001A2D78 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+- REVERTED `func_001A3340` (old `func_001A3340`) @ 0x001A3340 — insn 19: expected `j	0 <func_001A3340>` built `j	ee0 <debug_PrintCharacter>`
+- REVERTED `draw_batsu` (old `func_001A43F0`) @ 0x001A43F0 — insn 0: expected `j	0 <draw_batsu>` built `j	14c8 <debug_FlushFont>`
+
+## src/debug_exception
+- KEPT `traceLine` (old `func_001A6A30`) @ 0x001A6A30
+- KEPT `dispSource` (old `func_001A6AA0`) @ 0x001A6AA0
+- KEPT `debug_assertMessage` (old `func_001A6E28`) @ 0x001A6E28
+- KEPT `func_001A7820` (old `func_001A7820`) @ 0x001A7820
+- KEPT `func_001A7838` (old `func_001A7838`) @ 0x001A7838
+
+## src/debug_menu
+- KEPT `init_debug_menu` (old `func_001A9D88`) @ 0x001A9D88
+- KEPT `func_001A9EE8` (old `func_001A9EE8`) @ 0x001A9EE8
+- KEPT `func_001A9F20` (old `func_001A9F20`) @ 0x001A9F20
+- KEPT `func_001AA098` (old `func_001AA098`) @ 0x001AA098
+- KEPT `func_001AA210` (old `func_001AA210`) @ 0x001AA210
+- KEPT `func_001AA258` (old `func_001AA258`) @ 0x001AA258
+- KEPT `func_001AA4E8` (old `func_001AA4E8`) @ 0x001AA4E8
+- KEPT `func_001AA4F0` (old `func_001AA4F0`) @ 0x001AA4F0
+- KEPT `func_001AA5B8` (old `func_001AA5B8`) @ 0x001AA5B8
+- KEPT `func_001AA5C0` (old `func_001AA5C0`) @ 0x001AA5C0
+- KEPT `func_001AA660` (old `func_001AA660`) @ 0x001AA660
+- KEPT `func_001AA688` (old `func_001AA688`) @ 0x001AA688
+- REVERTED `func_001AA608` (old `func_001AA608`) @ 0x001AA608 — insn 0: expected `addiu	v0,zero,208` built `addiu	v0,zero,832`
+- REVERTED `func_001AA638` (old `func_001AA638`) @ 0x001AA638 — insn 0: expected `addiu	v1,zero,208` built `addiu	v1,zero,832`
+
+## src/gamesys
+- KEPT `gamesysObjInfoSave` (old `func_001AAEA0`) @ 0x001AAEA0
+- KEPT `gamesysObjInfoEmptyAreaSearch` (old `func_001AAEE8`) @ 0x001AAEE8
+- KEPT `gamesysCharacterInfoLoad` (old `func_001AB150`) @ 0x001AB150
+- KEPT `gamesysNObjInfoInit` (old `func_001AB170`) @ 0x001AB170
+- KEPT `gamesysObjInfoStageInitPosSaveUnlock` (old `func_001AB1B8`) @ 0x001AB1B8
+- KEPT `gamesysObjInfoUniqDataSet` (old `func_001AB2F8`) @ 0x001AB2F8
+- KEPT `gamesysObjInfoPosNewStageSet` (old `func_001AB338`) @ 0x001AB338
+- KEPT `gamesysObjInfoGet` (old `func_001AB378`) @ 0x001AB378
+- KEPT `gamesysVersionLoad` (old `func_001ABF58`) @ 0x001ABF58
+- REVERTED `gamesysObjInfoInit` (old `func_001AAE70`) @ 0x001AAE70 — insn 11: expected `<end>` built `sll	zero,zero,0x0`
+- REVERTED `gamesysObjInfoLoad` (old `func_001AAEC0`) @ 0x001AAEC0 — insn 1: expected `lui	at,0x3f80` built `dli	a1,0xffc0`
+- REVERTED `gamesysObjInfoStageInitFlagCls` (old `func_001AB190`) @ 0x001AB190 — insn 5: expected `ld	ra,0(sp)` built `jal	0 <gamesysObjInfoInit>`
+- REVERTED `gamesysGeneratorInfoSave` (old `func_001AC300`) @ 0x001AC300 — insn 2: expected `jal	0 <gamesysGeneratorInfoSave>` built `jal	800 <gamesysMemoryHandlerWrite>`
+
+## src/haveParentSimpleObj
+- KEPT `func_001AD740` (old `func_001AD740`) @ 0x001AD740
+- KEPT `func_001ADB70` (old `func_001ADB70`) @ 0x001ADB70
+- KEPT `func_001ADB88` (old `func_001ADB88`) @ 0x001ADB88
+- KEPT `func_001ADBC0` (old `func_001ADBC0`) @ 0x001ADBC0
+- KEPT `func_001ADCB0` (old `func_001ADCB0`) @ 0x001ADCB0
+- KEPT `func_001AE1B8` (old `func_001AE1B8`) @ 0x001AE1B8
+- KEPT `func_001AE258` (old `func_001AE258`) @ 0x001AE258
+- KEPT `func_001AE308` (old `func_001AE308`) @ 0x001AE308
+- KEPT `func_001AE370` (old `func_001AE370`) @ 0x001AE370
+- KEPT `func_001AE3B0` (old `func_001AE3B0`) @ 0x001AE3B0
+- KEPT `func_001AE3E8` (old `func_001AE3E8`) @ 0x001AE3E8
+- REVERTED `func_001AE188` (old `func_001AE188`) @ 0x001AE188 — insn 6: expected `lhu	v0,68(v0)` built `lh	v0,68(v0)`
+- REVERTED `func_001AE210` (old `func_001AE210`) @ 0x001AE210 — insn 16: expected `j	0 <func_001AE210>` built `j	1d00 <func_001AE1B8>`
+- REVERTED `func_001AE2C0` (old `func_001AE2C0`) @ 0x001AE2C0 — insn 16: expected `j	0 <func_001AE2C0>` built `j	1d00 <func_001AE1B8>`
+- REVERTED `func_001AE420` (old `func_001AE420`) @ 0x001AE420 — insn 6: expected `jal	0 <func_001AE420>` built `jal	1a20 <func_001ADED8>`
+
+## src/icoMisc
+- KEPT `InitIcoMisc` (old `func_001AE808`) @ 0x001AE808
+- KEPT `DispIcoMisc` (old `func_001AE830`) @ 0x001AE830
+- KEPT `func_001AE8A0` (old `func_001AE8A0`) @ 0x001AE8A0
+- KEPT `func_001AEA50` (old `func_001AEA50`) @ 0x001AEA50
+- KEPT `func_001AEA58` (old `func_001AEA58`) @ 0x001AEA58
+- KEPT `func_001AEA60` (old `func_001AEA60`) @ 0x001AEA60
+- REVERTED `ExitIcoMisc` (old `func_001AE880`) @ 0x001AE880 — insn 1: expected `sll	a0,a0,0x2` built `lbu	v1,0(gp)`
+- REVERTED `func_001AE8F0` (old `func_001AE8F0`) @ 0x001AE8F0 — src/icoMisc.c:44: `func_001AE8F0_FnPtr' undeclared (first use in this function)
+- REVERTED `func_001AE948` (old `func_001AE948`) @ 0x001AE948 — src/icoMisc.c:49: syntax error before `fn'
+- REVERTED `func_001AE9A8` (old `func_001AE9A8`) @ 0x001AE9A8 — src/icoMisc.c:55: incompatible types in assignment
+- REVERTED `func_001AE9F0` (old `func_001AE9F0`) @ 0x001AE9F0 — [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+
+## src/kanban
+- KEPT `init_textures_of_specified_property` (old `func_001AFB90`) @ 0x001AFB90
+- KEPT `kanbanReqAllDel` (old `func_001B04E0`) @ 0x001B04E0
+- KEPT `kanbanReqAllDelFade` (old `func_001B0518`) @ 0x001B0518
+- KEPT `kanbanExec` (old `func_001B0538`) @ 0x001B0538
+- KEPT `func_001B0570` (old `func_001B0570`) @ 0x001B0570
+- REVERTED `func_001B0A38` (old `func_001B0A38`) @ 0x001B0A38 — src/kanban.c:90: incompatible types in assignment
+- REVERTED `func_001B0A68` (old `func_001B0A68`) @ 0x001B0A68 — insn 0: expected `lui	a1,0xffff` built `addiu	a0,zero,400`
+
+## src/kanbanBoot
+- KEPT `kanbanBootInit` (old `func_001B0AB0`) @ 0x001B0AB0
+- REVERTED `kanbanBootMcCheck` (old `func_001B0A80`) @ 0x001B0A80 — insn 0: expected `lui	a1,0xffff` built `addiu	a0,zero,401`
+- REVERTED `kanbanBootMain` (old `func_001B0A98`) @ 0x001B0A98 — insn 0: expected `lui	a1,0xffff` built `addiu	a0,zero,399`
+
+## src/layout_action
+- KEPT `_la_set_current_port_lock_2` (old `func_001B4EC0`) @ 0x001B4EC0
+- KEPT `_la_set_current_port_new` (old `func_001B4EF0`) @ 0x001B4EF0
+- KEPT `la_vibe_select` (old `func_001B4F20`) @ 0x001B4F20
+- KEPT `la_title_continue_or_new` (old `func_001B4F58`) @ 0x001B4F58
+- KEPT `la_title_new_game_only` (old `func_001B4FC0`) @ 0x001B4FC0
+- KEPT `la_load_game_memory_card_check` (old `func_001B5118`) @ 0x001B5118
+- KEPT `la_mc_load_current_slot_select` (old `func_001B5158`) @ 0x001B5158
+- KEPT `la_load_confirm_no_memory_card` (old `func_001B5220`) @ 0x001B5220
+- KEPT `la_save_game_memory_card_check` (old `func_001B5610`) @ 0x001B5610
+- KEPT `progressive_bar` (old `func_001B5618`) @ 0x001B5618
+- KEPT `la_save_start_check` (old `func_001B56D0`) @ 0x001B56D0
+- KEPT `la_save_confirm_overwrite` (old `func_001B5728`) @ 0x001B5728
+- KEPT `la_format_confirm` (old `func_001B5768`) @ 0x001B5768
+- KEPT `la_system_save_processing` (old `func_001B5770`) @ 0x001B5770
+- KEPT `func_001B5788` (old `func_001B5788`) @ 0x001B5788
+- REVERTED `_la_set_current_port_2` (old `func_001B4E78`) @ 0x001B4E78 — insn 1: expected `lw	v0,0(gp)` built `addiu	v0,gp,0`
+
+## src/layout_texture
+- KEPT `display_texture_fade_cancel_chk` (old `func_001B5870`) @ 0x001B5870
+- KEPT `func_001B59D0` (old `func_001B59D0`) @ 0x001B59D0
+- KEPT `lt_set_item_select_func` (old `func_001B7040`) @ 0x001B7040
+- REVERTED `texture_fading` (old `func_001B5998`) @ 0x001B5998 — [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
