@@ -9,7 +9,7 @@
 ![.sdata progress](https://img.shields.io/badge/sdata-1.21%20%25-orange.svg)
 <!-- progress:end -->
 
-**[Live progress dashboard](https://nathanialf.github.io/ico/)** — per-programmer / per-TU / per-function decomp status, updated on every push.
+**[Live progress dashboard](https://nathanialf.github.io/ico/#us)** — per-directory / per-TU / per-function decomp status for this branch's target (USA retail, SLUS-20218), updated on every push. The dashboard also carries the Aug-6-2001 prototype target; switch with the picker at the top.
 
 A clean-room decompilation of the PlayStation 2 game **ICO** (2001, Sony
 Computer Entertainment / Team Ico).
