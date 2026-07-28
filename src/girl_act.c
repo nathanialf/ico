@@ -360,7 +360,38 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001742A0);
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001743F0);
 
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00174558);
+extern void GetRootMatrixByDObj(void *out, void *obj);
+extern void RequestChangeHandMode(float *a0, float *a1);
+extern float *ContinueCorrectPosition(void *a0);
+extern void actCommonTurn(void *a0, float *a1, float *a2, int a3, float f);
+extern int actCommonBackhand(void *a0);
+extern void debug_Marker(int *self, int a1, int a2, int a3, float t);
+extern void func_0015CD70(void *a0);
+extern int ACTNotNeedCameraOffset(void);
+extern void BoxBarSoundOn(void *a0, int a1);
+extern unsigned int _ACTWait(int a0);
+
+void func_00174558(void *volatile a0) {
+    float buf10[4];
+    float buf20[4];
+    float buf30[4];
+
+    GetRootMatrixByDObj(buf20, a0);
+    RequestChangeHandMode(buf30, buf10);
+    buf30[1] = ContinueCorrectPosition(a0)[1];
+    actCommonTurn(a0, buf30, buf10, 1, 20.0f);
+    while (actCommonBackhand(a0)) {
+        debug_Marker((int *)buf30, 0, 0, 0xFF, 100.0f);
+        func_0015CD70(a0);
+        _ACTWait(1);
+    }
+    for (;;) {
+        if (ACTNotNeedCameraOffset() == 0) {
+            BoxBarSoundOn(a0, 0x170);
+        }
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00174640);
 

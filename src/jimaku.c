@@ -45,7 +45,33 @@ void func_00175980(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/jimaku", func_001759B0);
+extern char D_00559458[], D_00559470[];
+extern void BoxBarSoundOn(int a0, int a1);
+extern void CylinderCollision(void *a0, void *a1);
+extern int dispPlane(void *a0, void *a1);
+extern void _ACTWait__p9(int a0) __asm__("_ACTWait");
+extern void debug_assertMessage__p9(void *a0) __asm__("debug_assertMessage");
+extern void func_00243B18__p9(float *a0, float *a1, float f12) __asm__("func_00243B18");
+extern void func_00175A58(volatile int a0);
+
+void func_001759B0(volatile int a0) {
+    float buf[4];
+    int *gobj = *(int **)(a0 + 0x164);
+    debug_assertMessage__p9(D_00559458);
+    func_00243B18__p9(buf, (float *)&gobj[0x4A0 / 4], -1.0f);
+    dispPlane((void *)a0, buf);
+    CylinderCollision((void *)a0, &gobj[0x580 / 4]);
+    gobj[0xD0 / 4] = 0;
+    gobj[0x14 / 4] = (int)func_00175A58;
+    while ((gobj[0xD0 / 4] & 0x10) == 0) {
+        _ACTWait__p9(1);
+    }
+    debug_assertMessage__p9(D_00559470);
+    for (;;) {
+        BoxBarSoundOn(a0, 0x59);
+        _ACTWait__p9(1);
+    }
+}
 
 extern char D_00559440[];
 extern int D_00631AE4__p4 __asm__("D_00631AE4");

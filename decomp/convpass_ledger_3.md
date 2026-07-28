@@ -1372,3 +1372,128 @@ idea buys three functions; (b) the carved tails from 42 insns upward,
 smallest-first, using the conv-8 lever set (alias-typing, scoped `volatile`
 flag, `-G8` array spelling, locals-before-first-store); (c) conv-7's carry-over
 list unchanged.
+
+---
+
+# conv-9 — carved-tail convergence (branch `conv-9`, base `b7789d22`)
+
+Mission: conv-8's recommended order — (a) the 4 named deferrals, (b) the
+carved tails from 42 insns upward, smallest-first.  Worked (b) first because
+the two 22-insn deferrals are one shared mechanism and the tails are
+independent.
+
+**Result: 2 byte-matched**, commit `4ace9de0`, gated
+`build.sh setup && ninja` → `verify_elf: OK (fbf50c75cd5911273511c4f9af90503ff8423582)`
++ `check_no_rom.sh`.  No yaml edits, no new crutches, no symbol_addrs changes.
+
+| commit | scope | matched |
+|---|---|---|
+| `4ace9de0` | jimaku `func_001759B0` + girl_act `func_00174558` | 2 |
+
+## What matched
+
+### jimaku `func_001759B0` (41 insns, rc0 first try)
+
+`jimakuHandler` in the same TU is the template for everything from the
+`0xD0 & 0x10` spin-wait down.  The head adds
+`func_00243B18(buf, gobj+0x4A0, -1.0f)` / `dispPlane(a0, buf)` /
+`CylinderCollision(a0, gobj+0x580)`, and the two handler-field stores are in
+ROM order `0xD0 = 0` **then** `0x14 = func_00175A58` (the sibling's order is
+`0x30, 0x14, 0xD0` — source order is emission order, do not normalise it).
+
+### girl_act `func_00174558` (57 insns, rc0 first try)
+
+The head-scratcher here is a block of *apparently dead* argument setup
+(`$f12 = 100.0f`, `$4 = buf30`, `$5 = $6 = 0`, `$7 = 0xFF`) sitting between
+`jal actCommonBackhand` and the loop-back `bnez`.  It is **not** dead: it is
+the argument block for `debug_Marker(buf30, 0, 0, 0xFF, 100.0f)` at the *top*
+of the `while` body, reached by the back-edge.  The entry `b .L001745E4`
+jumps into the bottom test.  So the shape is
+
+```c
+actCommonTurn(a0, buf30, buf10, 1, 20.0f);
+while (actCommonBackhand(a0)) {
+    debug_Marker((int *)buf30, 0, 0, 0xFF, 100.0f);
+    func_0015CD70(a0);
+    _ACTWait(1);
+}
+```
+
+**Generalise:** in an act coroutine, argument setup that follows a call and
+precedes a backward branch belongs to the *first call of the loop body*, not
+to anything after the branch.  Read the back-edge before calling it dead.
+
+## New levers proven this pass (all crutch-free source shapes)
+
+1. **`||`-merged candidate chain restores the `daddu` copy.**
+   A "pick the first non-null of N globals" chain whose arms are
+   `target = cand; goto found;` gets `cand` coalesced into `target` (the load
+   lands straight in the callee-saved reg, delay slot goes `nop`) — because
+   the load, the compare and the copy end up in one basic block.  Merging the
+   arms with `||` into a single `if` puts the copy in its **own** block with
+   two predecessors, so CSE cannot fold it, and reorg then duplicates it into
+   *both* branch delay slots — exactly ROM's
+   `bne $5,$0,out / daddu $16,$5,$0` pair.  `func_0015ADF0` **33 → 12** on
+   this one change.
+2. **A `volatile` alias on the *fallback* read kills a `movz`.**
+   `target = D_X; if (target) goto found; target = D_Y;` if-converts to
+   `movz` when `D_Y` is already in a register.  Spelling only the *last* read
+   through a second, `volatile`-qualified `__asm__`-aliased extern makes the
+   MEM have side effects, blocks both the CSE and `jump.c`'s conditional-move
+   conversion, and reproduces ROM's fresh `lw $16,%gp_rel(D_Y)($28)`.
+   (`func_0015ADF0` 28 → 22.)
+3. **Bind a call's `volatile`-param argument to a local *assigned after the
+   preceding call*.**  Pulling the volatile `a0` reload up so it precedes the
+   handler store — without giving it a live range that crosses a call — is
+   `void *self; ...; f(...); self = (void *)a0; ...; g(buf, self);`.
+   Declaring-and-initialising it at the top instead makes it live across the
+   first call and burns a callee-saved register (regressed
+   `func_0015E1B0` to rc36).  `func_0015E1B0` **27 → 6** with the late
+   assignment.
+4. **Two out-of-line one-call arms = `switch`, not `if / else if`.**
+   ROM `beq m,K1,L1 / beq m,K2,L2 / b Ldefault` with both bodies out of line
+   is gcc's *switch* expansion.  `if (m==1) ... else if (m==2) ...` emits the
+   first body inline and cross-jumps.  (`func_0015E1B0` 27 → 23 and the count
+   went 60 → 62.)
+5. **A float constant passed as a call argument inside a loop only lands in a
+   callee-saved FPR (`$f20`) when it is written as a *literal at the call
+   site*.**  Routing it through `float one = 1.0f;` makes gcc give the pseudo
+   a `REG_EQUIV` note and rematerialise `lui/mtc1 $f12` per iteration.
+   (`func_001754F8`; this is the same class as conv-8's deferred objact
+   `func_0023B650` — try the literal there.)
+
+## Deferred (best rc + the next hypothesis)
+
+| func | TU | rc | insns | state |
+|---|---|---|---|---|
+| `func_0015E1B0` | commonact | **6** | 62 = 62 | Structure exact.  Residual is purely *which* insn reorg puts in the `ChangeMailInLadder` delay slot: ROM uses the `daddu $4,$17,$0` buf-arg copy and keeps `sw v0,0x18(s0)` in line; we schedule the copy before the store and reorg takes the store.  Tried: fn-ptr-typed handler store, `volatile` handler store (rc22), `int*` vs `char*` base, hoisting the address constant to a local, an explicit `float *bp = buf;`.  Next: something that raises the store's sched1 priority (it currently has no successor in the block, so `daddu`→call always outranks it) — e.g. a second use of the stored value, or getting both arg-setup insns adjacent so they form one SCHED_GROUP with the call and the store is forced out in front. |
+| `func_0015ADF0` | commonact | **7** | 54 = 54 | Instruction *order* is exact; all 7 diffs are register naming.  ROM: const=`$3`, read1=`$2`, read2=`$7`, deref164=`$6`; ours: const=`$2`, read1=`$4`, read2=`$6`, deref164=`$3`.  local-alloc's `QTY_CMP_PRI = floor_log2(n_refs)*n_refs*size/(death-birth)` says our address constant has the *shortest* range at local-alloc time (so it takes `$2` first), i.e. our sched1 leaves the `lui/addiu` at the store and sched2 hoists it, while ROM's sched1 already had it in the prologue.  Next: make sched1 (not sched2) emit the `%hi/%lo` pair early.  Best source is in this pass's scratch (`adf0_rc7.c`); the shape is `char *s164` + `int self15C = a0` + `void *self = (void*)a0` + the `\|\|`-merged selection + the volatile fallback read. |
+| `func_001754F8` | girl_act | **15** | 67 vs 64 | `$f20` and the six `ContinueCorrectPosition` stores are exact.  Residual: gcc rotates the `cont = i < 3; i++;` pair one iteration ahead — it emits `li cont,1; li next,1; li i,2` and an in-loop `daddu cont,next,zero`, costing 3 insns and one extra callee-saved register.  ROM keeps a single `$18`/`$17` pair with `i` initialised to 1.  Tried: `cont = i++ < 3`, update at end of block, decl order, goto-CFG loop (rc26 *and* it loses `$f20`).  Next: a spelling where the first update is not constant-foldable, or where `i` is not a simple biv. |
+| `func_0015DF88` | commonact | **25** | 65 vs 62 | Control flow is right.  Two residuals: (a) gcc parks `&buf[0]` in a callee-saved register (`addiu s2,sp,16` + `daddu` at each use) where ROM rematerialises `addiu $r,$29,0x10` at all four uses; (b) reorg duplicates the target block's `lwc1 $f12,%gp_rel(D_00630CCC)` into three branch delay slots where ROM leaves `nop`s and fills one delay with the following `slti`. |
+| `func_001619A8` | enemy_act | **31** | 78 vs 72 | Head (`func_001947D0`/`dispPlane` off `*(a0+0x164)+0x110`) matches the matched sibling `func_001659F8` exactly.  Residuals: same callee-saved-`&buf` class as `func_0015DF88`; plus `if (d < 0) d = -d;` if-converts to `movn` where ROM has `bltzl $2 / negu $2,$2`; plus `mode` allocated callee-saved. |
+
+**Recurring open class — "gcc parks a local array's address in a callee-saved
+register".**  Seen in `func_0015DF88` and `func_001619A8` and it is worth
+cracking once: ROM always recomputes `addiu $r,$29,OFF` at each use inside the
+act loop.  Every attempt to pass the array more "directly" leaves the CSE in
+place.  Cracking it should unblock several of the mid-size act-thread tails at
+once.
+
+## Still open after conv-9
+
+* **57 carved tails** (59 minus the 2 matched).  Smallest-first: st17b
+  `func_0022EE98`(22), st47a `func_00238BC0`(22), objact `func_0023B650`(26),
+  commonact `func_0015E388`(28), commonact `func_0015ADF0`(54, rc7),
+  commonact `func_0015E1B0`(62, rc6), girl_act `func_001754F8`(64, rc15),
+  commonact `func_0015DF88`(62, rc25), enemy_act `func_001619A8`(72, rc31),
+  … up to girl_act `func_001725C8`(678).
+* Unchanged from conv-8: `pac_continueTag` / `shiftMotionOrientEndFunc`,
+  `actSt02aSecretItem` rc19, `bga_calcEnvelope`, the 8 `no-aug6-twin`
+  pool/sound funcs, boyact `func_0014D978`/`func_0014DC28`.
+
+**Recommended order for a conv-10:** (a) `func_0015E1B0` (rc6) and
+`func_0015ADF0` (rc7) — both are one named mechanism from zero and the
+mechanism is written out above; (b) the callee-saved-`&buf` class, which
+unblocks `func_0015DF88` + `func_001619A8` together; (c) conv-8's four
+deferrals, starting by trying lever 5 (float literal at the call site) on
+objact `func_0023B650`; (d) the untouched tails from `func_0015D1F8` upward.
