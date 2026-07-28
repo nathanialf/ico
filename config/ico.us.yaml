@@ -102,7 +102,21 @@ segments:
     subalign: null
     align: 0x80   # original linker 0x80-aligns every section start; splat default is 16
     subsegments:
-      - [0x000000, asm, src/cod/000000]      # crt0 + libkernl + all .text (to be carved)
+      # --- vendor head: crt0 + libkernl (180 funcs).  Also NOT ICO TUs.
+      # 0x000000..0x000110 is crt0 (_start) and the multi-syscall leaves that
+      # are not the plain 4-instruction stub; 0x000C90..0x001C80 is the rest of
+      # libkernl (intr / thread / kprintf / diei / deci2).  Both stay `asm`:
+      # SCE SDK source may never be used (VENDOR.md §3b) and the aug6 branch
+      # never matched this run either, so there is nothing to port.
+      - [0x000000, asm, src/cod/000000]
+      # The one bulk-matchable region of the proprietary half (VENDOR.md §3b,
+      # "the cheap exception"): 140 EE-syscall leaves of exactly
+      # `addiu $3,$0,N / syscall 0 / jr $31 / nop`, re-derived from the
+      # disassembly of the user's own ELF via include/syscall.h's
+      # SYSCALL_WRAPPER.  11 non-stub libkernl functions inside the run stay
+      # INCLUDE_ASM.  Both boundaries are 8-byte-aligned function starts.
+      - [0x000110, c, src/cod/vendor_100110]  # 151 funcs (140 syscall leaves)
+      - [0x000C90, asm, src/cod/000C90]
       - [0x1C80, c, src/delayFreeManager]  # 14 funcs, census
       - [0x28F0, c, src/geometryManager]  # 31 funcs, census
       - [0x4590, c, src/keyInput]  # 27 funcs, aug6
