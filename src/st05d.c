@@ -1,12 +1,41 @@
 #include "common.h"
 
+typedef struct GObj__p4 {
+    char pad[0xC4];
+    int *unkB4;
+} GObj__p4;
+
 
 
 extern int D_00633A00;
 extern int func_0017B230(int a0);
 extern int soundSeVolSet();
 extern int actSt25aQueenDeadChk();
-INCLUDE_ASM("asm/nonmatchings/src/st05d", actSt05dDoor2);
+extern int D_00631AE8;
+extern void _ACTWait(int a0);
+extern int func_0012AA80(int a0);
+extern void func_0017B258(int a0);
+extern void lt_fade_status(int a0);
+extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+
+void actSt05dDoor2(volatile int a0) {
+    if (D_00631AE8 == 0) { _ACTWait(0); }
+    while (scpSleepEnemyOne(a0, D_00631AE8, 200.0f) == 0) { _ACTWait(1); }
+    lt_fade_status(0x33);
+    func_0017B258(0xAA);
+    _ACTWait(0xA);
+    stage_KillPlayBgAnimation(0xCA, 1, 0);
+    while (func_0012AA80(0xCA) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    lt_fade_status(0x32);
+}
+
+extern void BoxBarSoundOn(int a0, int a1);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern int D_004D1BB0[];
+extern int D_00631AE4;
+extern void actSt04lRope2Chk(void);
 
 INCLUDE_ASM("asm/nonmatchings/src/st05d", actSt05dDoor2UpChk);
 

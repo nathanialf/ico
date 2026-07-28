@@ -1,5 +1,10 @@
 #include "common.h"
 
+typedef struct ActB4Obj {
+    char pad[0xC4];
+    int *unkB4;
+} ActB4Obj;
+
 
 
 extern int D_0061C0D0[];
@@ -7,13 +12,76 @@ extern void debug_assertMessage();
 extern void func_0017B258(int bit_idx);
 extern void AddWayPointTop();
 extern int func_0017B230(int a0);
-INCLUDE_ASM("asm/nonmatchings/src/st19a", actSt19aOriDown);
+extern void BoxBarSoundOn(int a0, int a1);
+extern void _ACTWait(int a0);
+extern int actInitialize(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int D_004D3420[];
+void actSt19aChain(volatile int a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/st19a", actSt19aHaguruma);
+void actSt19aOriDown(volatile int a0) {
+    int x = a0;
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_0017B230(0xE) == 0) {
+        stage_KillPlayBgAnimation(0x22, 0, 0);
+        D_004D3420[1] = (int)actSt19aChain;
+        gobj->unkB4 = D_004D3420;
+        BoxBarSoundOn((int)a0, 0x18D);
+        _ACTWait(0);
+    } else {
+        stage_KillPlayBgAnimation(0x22, 0, -1);
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st19a", actSt19aHagurumaChk);
+extern int D_00631B14;
+extern void gflagOff(int a0, int a1);
+extern int actSt25aQueenDeadChk(int a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/st19a", actSt19aPipeChk);
+void actSt19aHaguruma(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    if (D_00631B14 == 0x2E) {
+        gflagOff(actSt25aQueenDeadChk(0x8D0), 0x2FB);
+        *(int *)(actSt25aQueenDeadChk(0x8D0) + 0x16C) = 1;
+    }
+}
+
+extern void BoxBarSoundOn(int a0, int a1);
+extern int D_004D3460[];
+extern void _ACTWait(int a0);
+extern int actInitialize(int a0);
+extern void func_002318D0();
+
+void actSt19aHagurumaChk(volatile int a0) {
+    int x = a0;
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
+    _ACTWait(1);
+    D_004D3460[1] = (int)func_002318D0;
+    gobj->unkB4 = D_004D3460;
+    BoxBarSoundOn((int)a0, 0x18D);
+    _ACTWait(0);
+}
+
+extern int D_004D34E0[];
+extern void func_00231958();
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+
+void actSt19aPipeChk(volatile int a0) {
+    int x = a0;
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_0017B230(0x10) == 0) {
+        stage_KillPlayBgAnimation(0x28, 0, 0);
+        D_004D34E0[1] = (int)func_00231958;
+        gobj->unkB4 = D_004D34E0;
+        BoxBarSoundOn((int)a0, 0x18D);
+        _ACTWait(0);
+    } else {
+        stage_KillPlayBgAnimation(0x28, 0, -1);
+    }
+}
 
 extern void _ACTWait(int a0);
 extern int actInitialize(int a0);

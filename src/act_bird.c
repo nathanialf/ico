@@ -5,7 +5,24 @@
 extern void func_00243B60(void *dst, void *src);
 extern int InitParticleLayoutGeo();
 extern int iosOmBeforeFuncStandard();
-INCLUDE_ASM("asm/nonmatchings/src/act_bird", interp_vector_sa);
+extern int D_00631990;
+extern void DrawLightningN(void);
+extern void func_0010ECC0(void *a0);
+extern int stage_CheckAnimationFrameIn(void *a0);
+
+void interp_vector_sa(void *a0) {
+    int *r;
+    func_0010ECC0(a0);
+    r = *(int **)(*(char **)((char *)a0 + 0x15C) + 0x800);
+    if (r[0xC] != 0) {
+        if (stage_CheckAnimationFrameIn(r + 0xC) != 0) {
+            r[0xC] = 0;
+        }
+    }
+    if (D_00631990 == 0x52) {
+        DrawLightningN();
+    }
+}
 
 void birdBeforeFunc(int a0, int a1, int a2, int a3)
 {
@@ -26,6 +43,10 @@ float trans_bird(void *a0, void *a1) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/act_bird", subBirdBrainMain);
+
+INCLUDE_ASM("asm/nonmatchings/src/act_bird", func_00197198);
+
+INCLUDE_ASM("asm/nonmatchings/src/act_bird", func_001971C0);
 
 INCLUDE_ASM("asm/nonmatchings/src/act_bird", Debug_WireString_Bird);
 

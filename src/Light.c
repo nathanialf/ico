@@ -75,9 +75,50 @@ reset:
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/Light", light_DrawCursor);
+extern char D_00275120[];
+extern char D_005547A0[];
+extern char D_005547C0[];
+extern char D_005547F0[];
+extern char D_005F2FF8[];
+extern int D_00631990;
+extern int func_001AA4F0(void *a0, int a1);
+extern void func_001AA550(int a0);
+extern void func_002479C0(int a0, void *a1, int a2);
+extern void func_00264DF8(void *a0, void *a1, void *a2);
 
-INCLUDE_ASM("asm/nonmatchings/src/Light", light_Tool);
+int light_DrawCursor(void) {
+    char buf[0x100];
+    int s0;
+    func_00264DF8(buf, D_005547A0, &D_005F2FF8[D_00631990 * 0x194]);
+    s0 = func_001AA4F0(buf, 1);
+    if (s0 < 0) {
+        debug_assertMessage(D_005547C0);
+    } else {
+        debug_assertMessage(D_005547F0, buf);
+        func_002479C0(s0, D_00275120, 0x130);
+        func_001AA550(s0);
+    }
+    return -1;
+}
+
+extern char D_00554810[];
+extern char D_00554840[];
+extern void func_00247C30(int a0, void *a1, int a2);
+
+int light_Tool(void) {
+    char buf[0x100];
+    int s0;
+    func_00264DF8(buf, D_005547A0, &D_005F2FF8[D_00631990 * 0x194]);
+    s0 = func_001AA4F0(buf, 0x602);
+    if (s0 < 0) {
+        debug_assertMessage(D_00554810);
+    } else {
+        func_00247C30(s0, D_00275120, 0x130);
+        debug_assertMessage(D_00554840, buf);
+        func_001AA550(s0);
+    }
+    return -1;
+}
 
 void light_InitLight(void) {
     volatile int local[96];

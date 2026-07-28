@@ -28,7 +28,26 @@ int GatherEffect_Set(int a0) {
     return acc == 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/gather_effect", GatherEffect_InqEnd);
+extern char D_006D35F0[];
+extern void GetInverseQuaternion(int a0, int a1);
+extern void ico_m33_to_quat(int *a0, int a1);
+extern void *isysGObjSearchFromObjLayoutID(int id);
+extern void mc_TransMicroCode(int a0, int a1);
+extern void playSEConditionID(int a0, int a1);
+
+void GatherEffect_InqEnd(void *self) {
+    void *o = isysGObjSearchFromObjLayoutID(0x40);
+    if (o != 0) {
+        void *g = InitParticleLayoutGeo(self);
+        int index = *(int *)((char *)g + 0x60);
+        char *entry = D_006D35F0 + index * 0x40;
+        ico_m33_to_quat((int *)entry, 0x1E1);
+        mc_TransMicroCode(*(int *)entry + 0x20, (int)(entry + 0x20));
+        GetInverseQuaternion(*(int *)entry + 0x30, (int)(entry + 0x10));
+        entry[4] = 2;
+        playSEConditionID(0, 0x60);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/gather_effect", func_001978B0);
 

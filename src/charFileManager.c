@@ -1,5 +1,9 @@
 #include "common.h"
 
+typedef struct { int _0, _4, _8, _C, _10, f14; } Entry;
+
+typedef struct { long long a, b, c; } __attribute__((packed)) Blk24;
+
 
 extern int D_00633E28;
 void InitCharFileManager(void) {
@@ -8,9 +12,34 @@ void InitCharFileManager(void) {
 
 void ResetCharFileManager(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadModelFile);
+extern Blk24 D_004B2FD0;
+extern int D_00632898;
+extern Blk24 D_006E4890[];
+extern void chain_simulate_term_loop(void);
+extern void func_0018B2F8(void);
 
-INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadVolumeModelFile);
+void ReadModelFile(void) {
+    int j;
+    D_00632898 = 0;
+    for (j = 0; j < 1582; j++) {
+        D_006E4890[j] = D_004B2FD0;
+    }
+    func_0018B2F8();
+    chain_simulate_term_loop();
+}
+
+void ReadVolumeModelFile(void) {
+    Entry *e = (Entry *)D_006E4890;
+    int j;
+    D_00632898 = 0;
+    for (j = 0; j < 1582; j++) {
+        if (e[j].f14 == 1) {
+            *(Blk24 *)&e[j] = D_004B2FD0;
+        }
+    }
+    func_0018B2F8();
+    chain_simulate_term_loop();
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", ReadShadowModelFile);
 

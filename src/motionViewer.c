@@ -6,9 +6,39 @@ extern void GetHeightOfCliffFromGObj();
 extern int D_00633540;
 extern void ClearMotionBlendlessNode(char *self, int val);
 extern int D_00633548;
-INCLUDE_ASM("asm/nonmatchings/src/motionViewer", setRootUpdateMode);
+extern void execEff(void *a0, int a1);
+extern void playSERandomID(void *a0, int a1, int a2);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionViewer", setMotionSpeed);
+int setRootUpdateMode(void *a0) {
+    char *sub = *(char **)((char *)a0 + 0x15C);
+    if (*(int *)(sub + 0x628) != *(int *)(sub + 0x624)) {
+        execEff(a0, 1);
+        if (*(int *)(*(char **)((char *)a0 + 0x15C) + 0x624) & 0x100000) {
+            playSERandomID(a0, 0x6D, 1);
+        }
+        if (*(int *)(*(char **)((char *)a0 + 0x15C) + 0x624) & 0x200000) {
+            playSERandomID(a0, 0x6F, 1);
+        }
+        if (*(int *)(*(char **)((char *)a0 + 0x15C) + 0x624) & 0x400000) {
+            playSERandomID(a0, 0x71, 1);
+        }
+        if (*(int *)(*(char **)((char *)a0 + 0x15C) + 0x624) & 0x800000) {
+            playSERandomID(a0, 0x73, 1);
+        }
+    }
+    return 1;
+}
+
+extern int D_00274ED4[];
+extern void execEff(void *a0, int a1);
+
+int setMotionSpeed(char *a0) {
+    if (D_00274ED4[0] != 0) {
+        *(int *)(*(char **)(a0 + 0x15C) + 0x628) = 0;
+        execEff(a0, 1);
+    }
+    return 1;
+}
 
 void dispProgressBar(void)
 {

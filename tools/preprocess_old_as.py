@@ -39,6 +39,16 @@ GP_REL = re.compile(r"%gp_rel\(([^)]+)\)\(\$\d+\)")
 # any remaining bare %gp_rel(SYM) -> SYM (fallback)
 GP_REL_ANY = re.compile(r"%gp_rel\(([^)]+)\)")
 INCLUDE = re.compile(r'^\s*\.include\s+"([^"]+)"')
+# A %gp_rel() operand may carry an addend (`%gp_rel(D_00633C00 + 0xC)`).  The
+# `.extern` header must name the SYMBOL only — `.extern SYM + 0xC, 4` is a
+# syntax error the period assembler rejects, which silently drops the whole TU
+# back to modern gas (and its over-filled jr/jal delay slots).
+SYMNAME = re.compile(r"[A-Za-z_$.][A-Za-z0-9_$.]*")
+
+
+def symname(expr):
+    m = SYMNAME.match(expr.strip())
+    return m.group(0) if m else expr.strip()
 
 
 def flatten(path, out, syms, seen):
@@ -57,9 +67,9 @@ def flatten(path, out, syms, seen):
         # address-take `addiu $d,$28,%gp_rel(SYM)` -> `la $d, SYM` (GPREL16);
         # then load/store `%gp_rel(SYM)($28)` -> `SYM`; then any bare remainder.
         line = GP_REL_ADDR.sub(
-            lambda mm: syms.add(mm.group(2)) or "la\t%s, %s" % (mm.group(1), mm.group(2)), line)
-        line = GP_REL.sub(lambda mm: syms.add(mm.group(1)) or mm.group(1), line)
-        line = GP_REL_ANY.sub(lambda mm: syms.add(mm.group(1)) or mm.group(1), line)
+            lambda mm: syms.add(symname(mm.group(2))) or "la\t%s, %s" % (mm.group(1), mm.group(2)), line)
+        line = GP_REL.sub(lambda mm: syms.add(symname(mm.group(1))) or mm.group(1), line)
+        line = GP_REL_ANY.sub(lambda mm: syms.add(symname(mm.group(1))) or mm.group(1), line)
         out.append(line)
 
 

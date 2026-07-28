@@ -28,7 +28,40 @@ int display_texture_fade_cancel_chk(int a0) {
     return 0x33;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/layout_texture", lt_analog2Pad);
+extern void Vibration_WaveDecode(void);
+extern int InitStageLight(void);
+extern int lt_set_item_select_func(void);
+extern void kanbanBootMcCheck(int a0);
+extern void AdpcmFadeCloseAll(int a0);
+
+int lt_analog2Pad(int a0) {
+    int v;
+    if (a0 != 0) {
+        D_00274ED4[0] = 1;
+        Vibration_WaveDecode();
+    }
+    if (InitStageLight() != 2) {
+        return -1;
+    }
+    v = D_00275250[0].flags;
+    if (v & 0x40) {
+        if (lt_set_item_select_func() != 0x108) {
+            v = D_00275250[0].flags;
+            if ((v & 0x810) == 0) {
+                return -1;
+            }
+        }
+    } else {
+        if ((v & 0x810) == 0) {
+            return -1;
+        }
+    }
+    kanbanBootMcCheck(0);
+    AdpcmFadeCloseAll(0);
+    initSceneGObj(0);
+    D_0063304C = 0;
+    return 0x32;
+}
 
 extern float D_0063110C;
 extern int D_00633044;

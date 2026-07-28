@@ -36,7 +36,15 @@ extern void InitCageFixGeo(char *self, float val);
 extern int D_00559E60[];
 extern void func_001F19F0();
 extern int actSt25aQueenDeadChk();
-INCLUDE_ASM("asm/nonmatchings/src/gflag", gflagInit);
+extern void *actSt25aQueenDeadChk__p4(void) __asm__("actSt25aQueenDeadChk");
+extern void func_001F1868(void *a0);
+
+void gflagInit(void) {
+    void *r = actSt25aQueenDeadChk__p4();
+    if (r) {
+        func_001F1868(r);
+    }
+}
 
 void gflagSave(void)
 {
@@ -66,7 +74,32 @@ void gflagChk(int a0, int a1)
 
 INCLUDE_ASM("asm/nonmatchings/src/gflag", gflagOn);
 
-INCLUDE_ASM("asm/nonmatchings/src/gflag", gflagOff);
+extern void *D_00631AE4;
+extern void *D_00631AE8;
+extern int ExecMotionOrient(void *a0, int a1, int a2);
+extern void actCommonSlowrun(int a0, int a1);
+extern void func_001E4798(void *a0, int a1, int a2, int a3, int a4, int a5);
+extern void * isysGObjAddHead__p4() __asm__("isysGObjAddHead");
+
+void gflagOff(void *a0, int a1) {
+    int state = -1;
+    int s3 = *(int *)((char *)a0 + 0x164);
+    if (a0 == D_00631AE4) {
+        state = 0x4BE;
+    } else if (a0 == D_00631AE8) {
+        state = 0x718;
+    } else if (a0 == isysGObjAddHead__p4(0x7AE)) {
+        state = 0x83F;
+    } else if ((*(int *)((char *)a0 + 0xC) ^ 4) == 0) {
+        state = 0x837;
+    }
+    if (state < 0) {
+        func_001E4798(a0, 0x71C, 0x839, -1, -1, a1);
+        return;
+    }
+    actCommonSlowrun(state, a1);
+    *(int *)(s3 + 0x120) = ExecMotionOrient(a0, 0xEC, s3 + 0x610);
+}
 
 void func_0017B4E0(int *self, int a1)
 {

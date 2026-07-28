@@ -1,14 +1,71 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/st05c", actSt05cDoorDownChk);
+typedef struct GObj__p4 {
+    char pad[0xC4];
+    int *unkB4;
+} GObj__p4;
 
-INCLUDE_ASM("asm/nonmatchings/src/st05c", actSt04rDoorChk);
+extern void BoxBarSoundOn(int a0, int a1);
+extern int D_004D1E30[];
+extern void _ACTWait(int a0);
+extern int actInitialize(int a0);
+extern int func_0017B230(int a0);
+extern void func_0021F7A8(void);
+extern void gflagInit(int a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/st05c", actSt04rDoor2Chk);
+void actSt05cDoorDownChk(volatile int a0) {
+    int x = a0;
+    GObj__p4 *gobj = (GObj__p4 *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_0017B230(0xBB) != 0 || func_0017B230(0xBD) != 0) {
+        gflagInit(0x407);
+    } else {
+        D_004D1E30[1] = (int)func_0021F7A8;
+        gobj->unkB4 = D_004D1E30;
+        BoxBarSoundOn(a0, 0x18D);
+        _ACTWait(0);
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st05c", actSt05cSolarXL);
+extern void _ACTWait(int a0);
+extern int actInitialize(int a0);
+extern int func_0017B230(int a0);
+extern void gflagInit(int a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/st05c", actSt05cWaterXL);
+void actSt04rDoorChk(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    if (func_0017B230(0xBE)) {
+        gflagInit(0x4A3);
+    }
+}
+
+void actSt04rDoor2Chk(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    if (func_0017B230(0xBF)) {
+        gflagInit(0x4A4);
+    }
+}
+
+extern void stage_KillPlayBgAnimation(int,int,int);
+
+void actSt05cSolarXL(volatile int a0){ int x=a0;
+ actInitialize(a0); _ACTWait(1);
+ if(func_0017B230(0x91) && !func_0017B230(0x9B)){ stage_KillPlayBgAnimation(0xE1,0,-1); }
+ if(func_0017B230(0x91)==0 || func_0017B230(0x9B)){ stage_KillPlayBgAnimation(0xE1,0,0); } }
+
+extern void Generator_Call(int a0);
+extern void Generator_Mask(int a0);
+extern void Generator_MaskOff(int a0);
+extern int actSt25aQueenDeadChk(int a0);
+
+void actSt05cWaterXL(volatile int a0){ int x=a0;
+ actInitialize(a0); _ACTWait(1); Generator_Mask(a0); Generator_Mask(actSt25aQueenDeadChk(0x44A));
+ while(func_0017B230(0xC8)==0){ _ACTWait(1); }
+ Generator_MaskOff(a0); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); Generator_Call(actSt25aQueenDeadChk(0x44A)); }
 
 extern void Generator_Call(int a0);
 extern void Generator_Mask(int a0);
@@ -37,11 +94,73 @@ void actSt04rDoor2(volatile int a0) {
 
 INCLUDE_ASM("asm/nonmatchings/src/st05c", actSt05cDoorDown);
 
-INCLUDE_ASM("asm/nonmatchings/src/st05c", actSt05cEne);
+typedef struct { char pad[0xC0]; void *f_B0; void *unkB4; } St05cBox;
+extern int D_006325B4;
+extern int D_004D1850[];
+extern int *D_004D1890[];
+extern void func_0021AA18(volatile int a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/st05c", actSt05cEnemy1);
+void actSt05cEne(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    *(int *)(gobj + 0xC0) = (int)D_004D1850;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st05c", actSt05cEnemy2);
+void func_0021F060(volatile int a0) {
+    St05cBox *obj = *(St05cBox **)(a0 + 0x164);
+    D_006325B4 = 1;
+    D_004D1890[1] = (int *)func_0021AA18;
+    obj->f_B0 = 0;
+    obj->unkB4 = (void *)D_004D1890;
+    BoxBarSoundOn((int)a0, 0x18D);
+    _ACTWait(0);
+}
+
+extern int D_004D18B0[];
+extern int *D_004D18F0[];
+extern void func_0021AB40(volatile int a0);
+
+void actSt05cEnemy1(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    *(int *)(gobj + 0xC0) = (int)D_004D18B0;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
+
+void func_0021F0E8(volatile int a0) {
+    St05cBox *obj = *(St05cBox **)(a0 + 0x164);
+    D_006325B4 = 1;
+    D_004D18F0[1] = (int *)func_0021AB40;
+    obj->f_B0 = 0;
+    obj->unkB4 = (void *)D_004D18F0;
+    BoxBarSoundOn((int)a0, 0x18D);
+    _ACTWait(0);
+}
+
+extern int D_004D1910[];
+extern int *D_004D1950[];
+extern void func_0021AC68(volatile int a0);
+
+void actSt05cEnemy2(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    *(int *)(gobj + 0xC0) = (int)D_004D1910;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
+
+void func_0021F170(volatile int a0) {
+    St05cBox *obj = *(St05cBox **)(a0 + 0x164);
+    D_006325B4 = 1;
+    D_004D1950[1] = (int *)func_0021AC68;
+    obj->f_B0 = 0;
+    obj->unkB4 = (void *)D_004D1950;
+    BoxBarSoundOn((int)a0, 0x18D);
+    _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st05c", actSt05cDoorDownEvent);
 

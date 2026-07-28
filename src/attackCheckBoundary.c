@@ -1,5 +1,8 @@
 #include "common.h"
 
+struct BEl { int g; int f4; };
+struct BStr { int cnt; int f4; int f8; struct BEl *arr; };
+
 
 
 
@@ -8,7 +11,20 @@ extern void _ACTWait();
 extern int actInitialize();
 extern void actInitialize_ext_charcter();
 extern int AP1BeforeFunc();
-INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", AttackCheckBoundaryBeforeFunc);
+extern int D_00633248[];
+extern void *D_004BEF60[];
+
+void *AttackCheckBoundaryBeforeFunc(void *a0) {
+    void *p = *(void **)((char *)a0 + 0x164);
+    unsigned int idx;
+    if (p != 0) {
+        idx = *(unsigned int *)((char *)p + 0x30);
+        if (idx < 6) goto arr;
+    }
+    return D_00633248;
+arr:
+    return D_004BEF60[idx];
+}
 
 int InitAttackCheckBoundaryManagerGeo(int a0)
 {
@@ -47,7 +63,21 @@ INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", AttackCheckBoundaryGeo);
 
 INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", AttackCheckBoundaryDL);
 
-INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", actAttackCheckBoundaryStart);
+void actAttackCheckBoundaryStart(int a0) {
+    struct BStr *s = (struct BStr *)*(int *)(*(int *)(a0 + 0x15C) + 0x800);
+    int i;
+    for (i = 0; i < s->cnt; i++) {
+        int g = s->arr[i].g;
+        s->arr[i].f4 = *(int *)(*(int *)(*(int *)(g + 0x15C) + 0x800) + 4);
+        *(int *)(*(int *)(*(int *)(g + 0x15C) + 0x800) + 4) = 0;
+        *(int *)(g + 0x16C) = 1;
+    }
+    {
+        int tmp = s->f4;
+        s->f4 = 0;
+        s->f8 = tmp;
+    }
+}
 
 void GetAttackCheckBoundaryRadius(void) {}
 
@@ -82,7 +112,37 @@ void GetAttackCheckBoundaryManagerStatus(void *a0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", switchOnSE);
+extern int D_00632CC8;
+extern char D_004BEFC0[];
+extern void gif_SpriteOffset(int a0);
+extern void gsb_Reduction(int a0);
+extern void gsb_SetFrame(int a0, int a1, int a2);
+extern int func_00105278(void);
+extern void func_00118678(int a0);
+extern void MatrixDrive_TurnObjectMatrix(int a0, int a1);
+extern float func_001BBFD0(void *a0);
+extern void reg_dispBoxLine(void *a0, int a1, int a2, float a3);
+extern int func_0010F630(void);
+
+int switchOnSE(void *a0) {
+    char *g = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x800);
+    int m;
+    float f;
+    if (D_00632CC8 == 0) goto end;
+    if (*(int *)(g + 4) != 0) goto end;
+    gif_SpriteOffset(0xB);
+    gsb_Reduction(1);
+    gsb_SetFrame(1, 5, 0x80);
+    func_00118678(func_00105278());
+    m = func_00105278();
+    MatrixDrive_TurnObjectMatrix(m + 0x30,
+        *(int *)(*(char **)((char *)a0 + 0x15C) + 0xC) + 0x30);
+    f = func_001BBFD0(a0);
+    reg_dispBoxLine(D_004BEFC0, 4, 4, f);
+    return func_0010F630();
+end:
+    ;
+}
 
 void switchReleaseSE(int *self)
 {

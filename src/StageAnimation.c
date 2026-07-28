@@ -57,7 +57,28 @@ void stage_CalcAnimationNoParent(int val) {
     D_00631D54 = val;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_CalcAnimationParent);
+extern void *func_0013ECF8(void *obj);
+extern void *isysGObjRemoveObjDL(int a0);
+
+void stage_CalcAnimationParent(int a0, int a1) {
+    void *obj;
+    for (obj = isysGObjRemoveObjDL(a0); obj != 0; obj = func_0013ECF8(obj)) {
+        void *node = *(void **)((char *)obj + 0x15C);
+        if (node != 0) {
+            void *dl = *(void **)((char *)node + 0x820);
+            if (dl != 0) {
+                void *x = *(void **)((char *)node + 0x824);
+                if (x != 0) {
+                    if (*(short *)((char *)dl + 0x30) == a0) {
+                        *(long long *)((char *)x + 0x30) =
+                            (*(long long *)((char *)x + 0x30) & ~0x04000000) |
+                            ((long long)(a1 & 1) << 26);
+                    }
+                }
+            }
+        }
+    }
+}
 
 void stage_DispAnimation(char *a0, float f12)
 {
@@ -81,7 +102,43 @@ INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_MakePlayBgAnimation);
 
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_KillPlayBgAnimation);
 
-INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_DispBgAnimation);
+extern char D_00555DB0[];
+extern int bga_SetCamFrame__p4(int a0) __asm__("bga_SetCamFrame");
+extern int font_CheckAlign__p4(int a0) __asm__("font_CheckAlign");
+extern void func_001AD768__p4(void *a0, int a1) __asm__("func_001AD768");
+extern void func_00263FF0__p4(void *a0, int a1, void *a2) __asm__("func_00263FF0");
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+
+int stage_DispBgAnimation(int a0, int a1) {
+    int i;
+    char *e = (char *)D_00674058;
+    for (i = 0; i < D_00633C54; i++, e += 0x290) {
+        int *entry1 = *(int **)(e + 0x280);
+        if (a0 == entry1[0x58 / 4]) {
+            int mode = *(int *)(e + 0x28C) >> 30;
+            switch (mode) {
+                case 0:
+                    if (bga_SetCamFrame__p4(*(int *)(e + 0x284)) != 0) {
+                        stage_KillPlayBgAnimation(a0, 0, -1);
+                        stage_KillPlayBgAnimation(a1, 1, 0);
+                        return 1;
+                    }
+                    return 0;
+                case 1:
+                    if (font_CheckAlign__p4(*(int *)(e + 0x288)) != 0) {
+                        stage_KillPlayBgAnimation(a0, 0, -1);
+                        stage_KillPlayBgAnimation(a1, 1, 0);
+                        return 1;
+                    }
+                    return 0;
+            }
+        }
+    }
+    debug_assertMessage(D_00555DB0);
+    func_001AD768__p4(D_00555BF8, 0x38D);
+    func_00263FF0__p4(D_00555BF8, 0x38D, D_00631D88);
+    return 0;
+}
 
 void stage_SetCameraForceOff(void)
 {

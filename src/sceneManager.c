@@ -47,7 +47,32 @@ void CreateLayoutedGObj(int a0, int a1, int a2, int a3)
 
 INCLUDE_ASM("asm/nonmatchings/src/sceneManager", MoveNextStage_Set);
 
-INCLUDE_ASM("asm/nonmatchings/src/sceneManager", test_nextstage_firstwalk_set);
+extern char D_002A31B8[];
+extern int *func_0013ECF8(int *a0);
+extern void iosOmBeforeFuncStandard(int *a0, int a1, int *a2);
+extern int *isysGObjRemoveObjDL(int a0);
+
+int test_nextstage_firstwalk_set(int a0) {
+    int *node = isysGObjRemoveObjDL(a0);
+    if (node != 0) {
+        do {
+            int idx = node[3];
+            if (idx >= 0) {
+                char *e = D_002A31B8 + idx * 0x64;
+                void (*fn)(int *);
+                if (*(int *)(e + 0x60) != 0) {
+                    iosOmBeforeFuncStandard(node, 0x2F, node);
+                }
+                fn = *(void (**)(int *))(e + 0x54);
+                if (fn != 0) {
+                    fn(node);
+                }
+            }
+            node = func_0013ECF8(node);
+        } while (node != 0);
+    }
+    return 1;
+}
 
 void GetStageStartInfo(int a0, int a1, int a2, int a3, int t0)
 {

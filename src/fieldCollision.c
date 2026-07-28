@@ -10,7 +10,19 @@ extern char D_002A4C48[];
 extern void _ACTWait();
 extern void debug_assertMessage();
 extern char D_00558F68[];
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", MakeCollisionDependGObjList);
+extern char D_00558F50[];
+extern int ExecMotionOrient(int a0, int a1, int a2);
+extern void _ACTWait__p4(int a0) __asm__("_ACTWait");
+
+void MakeCollisionDependGObjList(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    int r;
+    debug_assertMessage(D_00558F50);
+    r = ExecMotionOrient(a0, 0xC, gobj + 0x610);
+    *(int *)(gobj + 0x120) = r;
+    *(int *)(r + 0x114) = 0;
+    _ACTWait__p4(0);
+}
 
 void GetReflectionElement(volatile unsigned int a0)
 {
@@ -24,7 +36,20 @@ void GetReflectionElement(volatile unsigned int a0)
   _ACTWait(0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", clip_wall_1);
+extern void *isysGObjSearchFromObjLayoutID(int a0);
+extern void *isysGObjSearchFromObjKindID_begin(void *a0);
+void *clip_wall_1(void *a0) {
+    void *obj = isysGObjSearchFromObjLayoutID(4);
+    while (obj != 0) {
+        if (obj != a0) {
+            char *p = *(char **)((char *)obj + 0x164);
+            if (*(int *)(p + 0x30) == 0xF) return obj;
+            if ((int)(*(long long *)(p + 0x20) >> 1) & 1) return obj;
+        }
+        obj = isysGObjSearchFromObjKindID_begin(obj);
+    }
+    return 0;
+}
 
 int clip_floor_1(int *a0)
 {

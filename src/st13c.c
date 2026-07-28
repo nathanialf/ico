@@ -1,5 +1,9 @@
 #include "common.h"
 
+struct CFS { long long a, b; };
+
+typedef struct ActB4Obj { char pad[0xC0]; int *unkB0; int *unkB4; } ActB4Obj;
+
 
 extern int func_0017B230(int a0);
 extern void stage_KillPlayBgAnimation();
@@ -35,7 +39,36 @@ void actSt13cEnd(volatile int a0){
  Generator_Call(a0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cBmg1);
+extern int D_004D2B80[];
+extern int D_00631AE8;
+extern int D_006325B4;
+extern void func_0017B568(int a0);
+
+void actSt13cBmg1(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    D_006325B4 = 0;
+    if (D_00631AE8 != 0) {
+        func_0017B568(D_00631AE8);
+    }
+    *(int *)(gobj + 0xC0) = (int)D_004D2B80;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
+
+extern void func_0017B528(int a0);
+extern void gflagOff(int a0, int a1);
+extern void actSt25aQueenBefore(int a0);
+extern int D_00631AE8;
+
+void func_0022B5E8(volatile int a0) {
+    func_0017B528(D_00631AE8);
+    gflagOff(D_00631AE8, 0x291);
+    actSt25aQueenBefore(D_00631AE8);
+    gflagOff(D_00631AE8, 0x239);
+    actSt25aQueenBefore(D_00631AE8);
+    _ACTWait(0);
+}
 
 void actSt13cBmg1Chk(int x) {
     volatile int local = x;
@@ -82,17 +115,125 @@ void actSt13cCage1stDown(void) {
 
 INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cCageFall);
 
-INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cCageFallChk);
+extern struct CFS D_0061C090;
+extern float D_0063163C;
+extern float D_00631640;
+extern float D_00631644;
+extern void func_0017BF78(int a0, int a1, int a2, int a3, int a4, float f0, float f1, float f2, float f3, float f4, float f5);
+extern void soundSeDefPlayWithVolumeRate(int a0, int a1, void *a2, int a3);
 
-INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cConte05);
+void actSt13cCageFallChk(volatile int a0) {
+    struct CFS buf;
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    buf = D_0061C090;
+    soundSeDefPlayWithVolumeRate(0x527, 0, &buf, 1);
+    soundSeDefPlayWithVolumeRate(0x528, 0, &buf, 1);
+    soundSeDefPlayWithVolumeRate(0x529, 0, &buf, 1);
+    func_0017BF78(a0, 0x4D, 0x155, 0, 0x12, D_00631640, -100.0f, D_0063163C, D_00631644, -100.0f, D_0063163C);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cConte05Jimaku);
+extern int D_00631AEC;
+extern int D_006325B4;
+extern int D_00633A64;
+extern int func_0012AA80(int a0);
+extern int func_0012AB50(int a0, int a1, int a2);
+extern void iosPadDevRead(int a0, int a1);
+extern void lt_fade_status(int a0);
+extern void scpPlayStart(int a0, int *a1, int a2, int a3, int a4);
+extern void stage_KillPlayBgAnimation__p4(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
 
-INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cCageFallEffect);
+void actSt13cConte05(volatile int a0){
+    lt_fade_status(0x33);
+    func_0017B258(0x4F);
+    _ACTWait(0x3C);
+    scpPlayStart(0x58, &D_00633A64, 1, 1, 1);
+    while (D_00633A64 == 0) { _ACTWait(1); }
+    stage_KillPlayBgAnimation__p4(0x157, 1, 0);
+    while (func_0012AB50(0x157, 0x73, 0) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    iosPadDevRead(D_00631AEC, 0x11);
+    while (func_0012AB50(0x157, 0xA5, 0) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    iosPadDevRead(D_00631AEC, 0x10);
+    while (func_0012AA80(0x157) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    D_006325B4 = 0;
+    lt_fade_status(0x32);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cGirlCarryChk);
+extern void BoxBarSoundOn(int a0, int a1);
+extern int D_004D2CA0[];
+extern void actSt13cHandChk(volatile int a0);
+extern void stage_KillPlayBgAnimation__p4(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
 
-INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cHandChk);
+void actSt13cConte05Jimaku(volatile int a0){
+ int x=a0;
+ ActB4Obj *gobj=(ActB4Obj*)actInitialize(a0);
+ _ACTWait(1);
+ if(func_0017B230(0x4C)!=0){
+  stage_KillPlayBgAnimation__p4(0x154,0,0xD2);
+ }else{
+  stage_KillPlayBgAnimation__p4(0x154,0,0);
+ }
+ D_004D2CA0[1]=(int)actSt13cHandChk;
+ gobj->unkB4=D_004D2CA0;
+ BoxBarSoundOn((int)a0,0x18D);
+ _ACTWait(0);
+}
+
+extern void BoxBarSoundOn(int a0, int a1);
+extern int D_004D2D40[];
+extern void func_0022BEE0(volatile int a0);
+
+void actSt13cCageFallEffect(volatile int a0){
+ int x=a0;
+ ActB4Obj *gobj=(ActB4Obj*)actInitialize(a0);
+ _ACTWait(1);
+ if(func_0017B230(0x4E)==0){
+  D_004D2D40[1]=(int)func_0022BEE0;
+  gobj->unkB4=D_004D2D40;
+  BoxBarSoundOn((int)a0,0x18D);
+  _ACTWait(0);
+ }
+}
+
+extern int D_004D2D80[];
+extern void func_0022BF60(volatile int a0);
+
+void actSt13cGirlCarryChk(volatile int a0){
+ int x=a0;
+ ActB4Obj *gobj=(ActB4Obj*)actInitialize(a0);
+ _ACTWait(1);
+ if(func_0017B230(0x4F)==0){
+  D_004D2D80[1]=(int)func_0022BF60;
+  gobj->unkB4=D_004D2D80;
+  BoxBarSoundOn((int)a0,0x18D);
+  _ACTWait(0);
+ }
+}
+
+extern int D_004D2C80[];
+
+void actSt13cHandChk(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    D_006325B4 = 0;
+    *(int *)(gobj + 0xC0) = (int)D_004D2C80;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
+
+typedef struct St13cBox { char pad[0xC0]; void *field_B0; void *field_B4; } St13cBox;
+extern int *D_004D2CC0[];
+extern int *D_004D2CE0[];
+extern void actSt13cHandJimaku(void);
+extern void actSt13cCageFall(void);
+extern int func_0017B230(int a0);
+extern int D_006325B4;
+
+INCLUDE_ASM("asm/nonmatchings/src/st13c", func_0022BD58);
 
 INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cHandJimaku);
 

@@ -1,18 +1,161 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aEnd);
+typedef struct GObj__p4 {
+    char pad[0xC4];
+    int *unkB4;
+} GObj__p4;
 
-INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aEne1Chk);
+extern void BoxBarSoundOn(int a0, int a1);
+extern int D_004D21D0[];
+extern void _ACTWait(int a0);
+extern int actInitialize(int a0);
+extern void actSt06aSuimonChk(void);
+extern int func_0017B230(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
-INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aEne2Chk);
+void actSt08aEnd(volatile int a0) {
+    int x = a0;
+    GObj__p4 *gobj = (GObj__p4 *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_0017B230(0xFD) == 0) {
+        stage_KillPlayBgAnimation(0x134, 0, 0);
+        D_004D21D0[1] = (int)actSt06aSuimonChk;
+        gobj->unkB4 = D_004D21D0;
+        BoxBarSoundOn(a0, 0x18D);
+        _ACTWait(0);
+    } else {
+        stage_KillPlayBgAnimation(0x134, 0, -1);
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aDoorUp);
+extern int D_004D21F0[];
+extern void actSt06aDoor(void);
 
-INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aDoor);
+void actSt08aEne1Chk(volatile int a0) {
+    int x = a0;
+    GObj__p4 *gobj = (GObj__p4 *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_0017B230(0xFE) == 0) {
+        stage_KillPlayBgAnimation(0x135, 0, 0);
+        D_004D21F0[1] = (int)actSt06aDoor;
+        gobj->unkB4 = D_004D21F0;
+        BoxBarSoundOn(a0, 0x18D);
+        _ACTWait(0);
+    } else {
+        stage_KillPlayBgAnimation(0x135, 0, -1);
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aEne1);
+extern int D_004D2210[];
+extern void actSt06aDoorUpChk(void);
 
-INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aEne2);
+void actSt08aEne2Chk(volatile int a0) {
+    int x = a0;
+    GObj__p4 *gobj = (GObj__p4 *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_0017B230(0xFF) == 0) {
+        stage_KillPlayBgAnimation(0x136, 0, 0);
+        D_004D2210[1] = (int)actSt06aDoorUpChk;
+        gobj->unkB4 = D_004D2210;
+        BoxBarSoundOn(a0, 0x18D);
+        _ACTWait(0);
+    } else {
+        stage_KillPlayBgAnimation(0x136, 0, -1);
+    }
+}
+
+extern void _ACTWait(int a0);
+extern int actInitialize(int a0);
+extern int func_0017B230(int a0);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+
+void actSt08aDoorUp(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    if (func_0017B230(0x94) != 0 && func_0017B230(0xD1) == 0) {
+        stage_KillPlayBgAnimation(0x13A, 0, -1);
+    }
+    if (func_0017B230(0x94) == 0 || func_0017B230(0xD1) != 0) {
+        stage_KillPlayBgAnimation(0x13A, 0, 0);
+    }
+}
+
+typedef struct DoorSub {
+    char pad[0xC0];
+    void *field_B0;
+    void *field_B4;
+} DoorSub;
+
+extern int D_006325B4;
+extern int D_004D1E50[];
+
+void actSt08aDoor(volatile int a0) {
+    int s = *(int*)(a0 + 0x164);
+    *(int*)(s + 0xC0) = (int)D_004D1E50;
+    while (1) {
+        _ACTWait(1);
+    }
+}
+
+extern int *D_004D1E90[];
+extern void actSt05eSolar(void);
+
+void func_00223BF0(volatile int a0) {
+    DoorSub *obj = *(DoorSub **)(a0 + 0x164);
+    D_006325B4 = 1;
+    D_004D1E90[1] = (int *)actSt05eSolar;
+    obj->field_B0 = 0;
+    obj->field_B4 = (void *)D_004D1E90;
+    BoxBarSoundOn((int)a0, 0x18D);
+    _ACTWait(0);
+}
+
+extern int D_004D1EB0[];
+
+void actSt08aEne1(volatile int a0) {
+    int s = *(int*)(a0 + 0x164);
+    *(int*)(s + 0xC0) = (int)D_004D1EB0;
+    while (1) {
+        _ACTWait(1);
+    }
+}
+
+extern int *D_004D1EF0[];
+extern void actSt05eWaterMain(void);
+
+void func_00223C78(volatile int a0) {
+    DoorSub *obj = *(DoorSub **)(a0 + 0x164);
+    D_006325B4 = 1;
+    D_004D1EF0[1] = (int *)actSt05eWaterMain;
+    obj->field_B0 = 0;
+    obj->field_B4 = (void *)D_004D1EF0;
+    BoxBarSoundOn((int)a0, 0x18D);
+    _ACTWait(0);
+}
+
+extern int D_004D1F10[];
+
+void actSt08aEne2(volatile int a0) {
+    int s = *(int*)(a0 + 0x164);
+    *(int*)(s + 0xC0) = (int)D_004D1F10;
+    while (1) {
+        _ACTWait(1);
+    }
+}
+
+extern int *D_004D1F50[];
+extern void actSt05eWaterSwitch(void);
+
+void func_00223D00(volatile int a0) {
+    DoorSub *obj = *(DoorSub **)(a0 + 0x164);
+    D_006325B4 = 1;
+    D_004D1F50[1] = (int *)actSt05eWaterSwitch;
+    obj->field_B0 = 0;
+    obj->field_B4 = (void *)D_004D1F50;
+    BoxBarSoundOn((int)a0, 0x18D);
+    _ACTWait(0);
+}
 
 extern int D_00631AE4;
 extern int D_00631AE8;

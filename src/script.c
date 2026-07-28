@@ -231,7 +231,40 @@ void scpDispOffAllWithKind(int a0, int a1)
     func_001E8B48(a1, a0, buf);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/script", scpDispOnAllWithKind);
+extern void iosOmBeforeFuncStandard(int *a0, int a1, int *a2);
+extern int *isysGObjSearchFromObjKindID_begin__p4(int *p) __asm__("isysGObjSearchFromObjKindID_begin");
 
-INCLUDE_ASM("asm/nonmatchings/src/script", scpActivateAllWithKind);
+void scpDispOnAllWithKind(void) {
+    int *o = isysGObjSearchFromObjLayoutID__p4(4);
+    if (o != 0) {
+        do {
+            iosOmBeforeFuncStandard(o, 0x20, o);
+            o = isysGObjSearchFromObjKindID_begin__p4(o);
+        } while (o != 0);
+    }
+    o = isysGObjSearchFromObjLayoutID__p4(0x3D);
+    if (o != 0) {
+        do {
+            iosOmBeforeFuncStandard(o, 0x20, o);
+            o = isysGObjSearchFromObjKindID_begin__p4(o);
+        } while (o != 0);
+    }
+}
+
+void scpActivateAllWithKind(void) {
+    int *o = isysGObjSearchFromObjLayoutID__p4(4);
+    if (o != 0) {
+        do {
+            iosOmBeforeFuncStandard(o, 0x1F, o);
+            o = isysGObjSearchFromObjKindID_begin__p4(o);
+        } while (o != 0);
+    }
+    o = isysGObjSearchFromObjLayoutID__p4(0x3D);
+    if (o != 0) {
+        do {
+            iosOmBeforeFuncStandard(o, 0x1F, o);
+            o = isysGObjSearchFromObjKindID_begin__p4(o);
+        } while (o != 0);
+    }
+}
 

@@ -83,7 +83,11 @@ void jimakuManager(unsigned int a0)
  do { ACTLookTargetSystem_Exec(); debug_assertMessage(D_005598F0); Vibration_ShotDecode(7); ACTWay_SetBeginPositionIllegal(local); } while (0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuUndisp);
+void jimakuUndisp(void *a0) {
+    void *volatile q = a0;
+    int *p = *(int **)((char *)q + 0x15C);
+    *(int *)((char *)p + 0x634) = 0;
+}
 
 void func_00176150(volatile unsigned int a0)
 {

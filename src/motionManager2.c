@@ -35,6 +35,8 @@ extern void MatrixDrive_GetTurnXAngleZY();
 extern void GetRootMatrixRotOffset();
 #include "ico/types.h"
 
+typedef struct { long long x; int y; } __attribute__((packed, aligned(4))) HrcNode;
+
 typedef struct { char _0; signed char f1; unsigned char f2; unsigned char f3; } FloorAttr;
 
 typedef struct { long long d[2]; float q[4]; } StreamElem;
@@ -50,7 +52,29 @@ void CheckFieldContact(int a0, int a1)
     MatrixDrive_TurnObjectMatrix(a0, (int)((GObj *)(a1))->p_15C + 0x590);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", dispPlane);
+extern void GetRootVelocity(char *a0, void *a1);
+extern void MatrixDrive_TurnObjectMatrix__p4(int a0, void *a1) __asm__("MatrixDrive_TurnObjectMatrix");
+extern void func_00243978(int *a0, int *a1);
+
+void dispPlane(void *a0, float *a1) {
+    char *base = *(char **)((char *)a0 + 0x15C);
+    char *s2 = base + 0x470;
+    char *m;
+    char *ctrl;
+    if (a1[0] == 0.0f && a1[2] == 0.0f) {
+        return;
+    }
+    m = base + 0x520;
+    MatrixDrive_TurnObjectMatrix__p4((int)m, a1);
+    *(float *)(s2 + 0xB4) = 0.0f;
+    *(float *)(s2 + 0xBC) = 1.0f;
+    func_00243978((int *)m, (int *)m);
+    ctrl = *(char **)((char *)a0 + 0x15C);
+    if (*(int *)ctrl == 0) {
+        return;
+    }
+    GetRootVelocity(a0, ctrl);
+}
 
 void GetOrientOfWallOfGObj(int a0, int a1)
 {
@@ -68,7 +92,16 @@ void SetMotionDirection(int a0, int *a1)
   MatrixDrive_GetTurnXAngleZY(a0, a0, (int) new_var);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", _GetMotionDirection);
+extern int D_00553BE0[];
+extern void debug_assertMessage(void *msg);
+extern float func_00168C18__p4(void *a0, void *a1) __asm__("func_00168C18");
+
+void _GetMotionDirection(int *a0) {
+    char *o = (char *)a0[0x57];
+    char *sub = o + 0xA0;
+    *(float *)(sub + 0x1B4) = func_00168C18__p4(o + 0x1D0, o + 0x250);
+    debug_assertMessage(D_00553BE0);
+}
 
 void SetMotionDirectionWithLimit(int a0, int a1)
 {
@@ -164,7 +197,12 @@ int GetStreamMotion(StreamElem *a, StreamNode *b) {
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", copyMotionWithNodeHrc);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", CopyMotionWithNodeHrc);
+void CopyMotionWithNodeHrc(volatile void *a0) {
+    char *p = *(char **)((char *)a0 + 0x15C);
+    char *d = *(char **)((char *)a0 + 0x164);
+    *(HrcNode *)(p + 0x180) = *(HrcNode *)(p + 0x1A0);
+    *(HrcNode *)(d + 0x610) = *(HrcNode *)(p + 0x1A0);
+}
 
 void *GetFloatingMotion(char *self) {
     return (char *)((GObj *)(self))->p_15C + 0x680;
@@ -180,7 +218,13 @@ INCLUDE_ASM("asm/nonmatchings/src/motionManager2", FeedbackWallWorkInfoToBrainSy
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetMotionPointer);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetCollisionOfLastActiveField);
+void GetCollisionOfLastActiveField(void *a0) {
+    char *base = *(char **)((char *)*(int **)((char *)a0 + 0x15C) + 0x7F0);
+    int i;
+    for (i = 0; i < *(int *)((char *)*(int **)((char *)a0 + 0x15C) + 0x88); i++) {
+        base[i] = 0;
+    }
+}
 
 void DebugDisp1Collision(_0x1F0 *self) {
     *self = D_00275DB0;

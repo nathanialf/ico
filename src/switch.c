@@ -14,7 +14,13 @@ void InitFloorLeverGeo(void) {}
 
 void GetFloorLeverAngle(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/src/switch", SetWallLeverWithNodePoint);
+typedef struct { char _0[2]; short f_2; int f_4; char _pad8[0x14]; int f_1C; } WLGeo;
+
+void SetWallLeverWithNodePoint(void *a0, int a1) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    WLGeo *q = *(WLGeo **)((char *)p + 0x800);
+    q->f_1C = a1;
+}
 
 void CanWallLeverPull(char *self, int a1)
 {
@@ -33,11 +39,19 @@ void CanWallLeverPull(char *self, int a1)
 
 INCLUDE_ASM("asm/nonmatchings/src/switch", IsWallLeverStatus);
 
-INCLUDE_ASM("asm/nonmatchings/src/switch", InitWallLeverGeo);
+int InitWallLeverGeo(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    WLGeo *q = *(WLGeo **)((char *)p + 0x800);
+    return q->f_4 == 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/switch", GetWallLeverAngle);
 
-INCLUDE_ASM("asm/nonmatchings/src/switch", initParentize);
+int initParentize(void *a0) {
+    void *p = *(void **)((char *)a0 + 0x15C);
+    WLGeo *q = *(WLGeo **)((char *)p + 0x800);
+    return q->f_2;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C0AE8);
 

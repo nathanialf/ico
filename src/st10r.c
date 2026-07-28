@@ -40,7 +40,32 @@ void actSt10rSekizo(volatile int a0){ long long b1[2]; long long b2[2];
   case 0x1E: b2[0]=v0b; b2[1]=D_0061BEB0[1]; scpDispOffAllWithKind((int*)b2,0); break;
   } _ACTWait(1); } }
 
-INCLUDE_ASM("asm/nonmatchings/src/st10r", actSt10rEne);
+extern int D_004D2630[];
+extern int D_006325B4;
+
+void actSt10rEne(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    D_006325B4 = 0;
+    *(int *)(gobj + 0xC0) = (int)D_004D2630;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
+
+typedef struct { char pad[0xC0]; void *f_C0; void *f_C4; } St10rBox;
+extern int *D_004D2670[];
+extern void func_002265F0(volatile int a0);
+extern int D_006325B4;
+
+void func_002276F8(volatile int a0) {
+    St10rBox *obj = *(St10rBox **)(a0 + 0x164);
+    D_006325B4 = 1;
+    D_004D2670[1] = (int *)func_002265F0;
+    obj->f_C0 = 0;
+    obj->f_C4 = (void *)D_004D2670;
+    BoxBarSoundOn((int)a0, 0x18D);
+    _ACTWait(0);
+}
 
 extern int D_00631AE4;
 extern void actSt25aQueenDead(int a0, int a1, int a2, float f12, float f13);
