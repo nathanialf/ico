@@ -3,6 +3,8 @@
 
 
 
+
+#include "vu0.h"
 extern int D_00632CE0;
 extern void display();
 extern int D_00631B84;
@@ -28,7 +30,18 @@ INCLUDE_ASM("asm/nonmatchings/src/DisplayP2O", p2o_DispVU1);
 
 INCLUDE_ASM("asm/nonmatchings/src/DisplayP2O", p2o_DispVU1Default);
 
-INCLUDE_ASM("asm/nonmatchings/src/DisplayP2O", p2o_TransMicroProgram);
+void p2o_TransMicroProgram(void *p0, void *p1, void *p2)
+{
+    VU0_LSV(lqc2, 14, 0x0, a0);
+    VU0_LSV(lqc2, 15, 0x0, a1);
+    VU0_V3OP(vmul.xyzw, 15, 14, 15);
+    VU0_V3OP_BC(vaddy.x, 15, 15, 15, y);
+    VU0_V3OP_BC(vaddz.x, 15, 15, 15, z);
+    VU0_V3OP_BC(vaddw.x, 15, 15, 15, w);
+    VU0_QMFC2_NI(v0, 15);
+    VU0_MTC1(v0, 0);
+    VU0_NOP();
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/DisplayP2O", p2o_SetDefaultEnviroment);
 

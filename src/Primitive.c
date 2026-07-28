@@ -1,6 +1,12 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/Primitive", prim_InitFan2D);
+
+
+extern void func_00102558(int a0);
+extern int D_00633C50;
+void prim_InitFan2D(void) {
+    D_00633C50 = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/Primitive", prim_SetFan2D);
 
@@ -30,7 +36,12 @@ INCLUDE_ASM("asm/nonmatchings/src/Primitive", prim_DeleteParticle);
 
 INCLUDE_ASM("asm/nonmatchings/src/Primitive", drawDisc);
 
-INCLUDE_ASM("asm/nonmatchings/src/Primitive", prim_DispWireYCylinder);
+void prim_DispWireYCylinder(int a0)
+{
+    func_00102558(*(int *)(a0 + 0x18C));
+    func_00102558(*(int *)(a0 + 0x188));
+    func_00102558(a0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/Primitive", prim_DispWireSphere);
 

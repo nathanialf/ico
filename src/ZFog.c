@@ -1,32 +1,76 @@
 #include "common.h"
 
+
+
+
+
+
+extern int tex_scrollClut();
+extern int D_00633C60;
+extern short D_00681278[];
+extern int D_00681538[];
+extern int D_006812D0[];
 INCLUDE_ASM("asm/nonmatchings/src/ZFog", fog_MakeFogClut);
 
 INCLUDE_ASM("asm/nonmatchings/src/ZFog", fog_DrawFog);
 
-INCLUDE_ASM("asm/nonmatchings/src/ZFog", fog_FogTool);
+int fog_FogTool(int a0)
+{
+    int ret = -1;
+    int i;
+    for (i = 0; i < 11; i++)
+    {
+        if ((1 << i) >= a0)
+        {
+            ret = i;
+            break;
+        }
+    }
+    return ret;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/ZFog", func_0012FD30);
+int func_0012FD30(void)
+{
+    return tex_scrollClut();
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/ZFog", func_0012FD50);
 
 INCLUDE_ASM("asm/nonmatchings/src/ZFog", func_0012FD70);
 
-INCLUDE_ASM("asm/nonmatchings/src/ZFog", func_0012FE08);
+int *func_0012FE08(int idx)
+{
+    return (int *)((char *)D_006812D0 + idx * 0x2E8);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/ZFog", func_0012FE20);
+int *func_0012FE20(int idx)
+{
+    return (int *)((char *)D_006812D0 + idx * 0x2E8);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/ZFog", func_0012FE38);
+void func_0012FE38(int *a0, int a1, int a2)
+{
+    long long *slot = (long long *)((char *)a0 + 0x78);
+    *slot = (*slot & ~(long long)0xE0) | (a1 << 5) | (a2 << 6);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/ZFog", func_0012FE60);
+int *func_0012FE60(int idx)
+{
+    return (int *)((char *)D_00681538 + idx * 0x2E8);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/ZFog", func_0012FE78);
+short func_0012FE78(int a0)
+{
+    return *(short *)((char *)D_00681278 + a0 * 6);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/ZFog", func_0012FE98);
 
 INCLUDE_ASM("asm/nonmatchings/src/ZFog", func_0012FF58);
 
-INCLUDE_ASM("asm/nonmatchings/src/ZFog", func_0012FFE8);
+int func_0012FFE8(void) {
+    return D_00633C60;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/ZFog", func_0012FFF0);
 

@@ -1,12 +1,28 @@
 #include "common.h"
 
+
+
+
+
+
+extern int D_00632028;
+extern int prim_DeleteParticle();
+extern void dpk_SwapBuffer(int a0);
+extern char D_00555830[];
+extern void dl_GetPri();
+extern void dpk_Init();
+extern void pac_getWeight();
+extern void pac_makeClusterStrip();
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_setShape);
 
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_dispBoxLine);
 
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_clipPacketBoundingBox);
 
-INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011E708);
+int func_0011E708(int a0, int a1, int a2, int a3)
+{
+    return prim_DeleteParticle(a0, a1, a2, a3, D_00632028);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011E728);
 
@@ -14,13 +30,37 @@ INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_chooseMicroCode);
 
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_chooseSpecularMicroCode);
 
-INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_chooseReflectionMicroCode);
+void reg_chooseReflectionMicroCode(char *a0)
+{
+    int *p820 = *(int **)(a0 + 0x820);
+    if (*((signed char *)p820 + 0x2F) != 0) {
+        return pac_makeClusterStrip(3);
+    }
+    {
+        int *p844 = *(int **)(a0 + 0x844);
+        if (*(int *)((char *)p844 + 0xF0) == 0) {
+            return pac_makeClusterStrip(1);
+        }
+    }
+    return pac_makeClusterStrip(2);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011EE30);
+void func_0011EE30(char *self, int b, int c)
+{
+    long long v_ll = *(long long *)(self + 0x60);
+    int v_int = *(int *)(self + 0x60);
+    pac_getWeight(v_int & 1, ((int)(v_ll >> 5)) & 3, 0, b, c);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011EE58);
+void func_0011EE58(int a0, int a1, int a2)
+{
+    pac_getWeight(a0, 1, 1, a1, a2);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_setNMatrixPacket);
+void reg_setNMatrixPacket(int a0, int a1, int a2)
+{
+    pac_getWeight(a0, 1, 2, a1, a2);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_setMMatrixPacket);
 
@@ -38,11 +78,24 @@ INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_dispMObj);
 
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_dispSObj);
 
-INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_dispCObj);
+void reg_dispCObj(short *self, int *p)
+{
+    short idx = self[0x80/2];
+    if (idx != -1) {
+        int v = *p + idx * 0x70;
+        dpk_Init(2, v, 6);
+        dl_GetPri();
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_dispPoint);
 
-INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_dispLine);
+void reg_dispLine(int a0)
+{
+    dpk_SwapBuffer(a0);
+    dpk_Init(2, D_00555830, 4);
+    dl_GetPri();
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_dispPointLineObj);
 

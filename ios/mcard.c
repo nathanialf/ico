@@ -18,9 +18,16 @@ INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcMgrGetBlockSaveInfo);
 
 INCLUDE_ASM("asm/nonmatchings/ios/mcard", func_00137E48);
 
-INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcManager);
+void iosMcManager(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcMgrSync);
+int iosMcMgrSync(unsigned long *a0)
+{
+    unsigned long x = *a0;
+    char y = x;
+    unsigned long z = y & 1ul;
+    y = z;
+    return -((int)y);
+}
 
 INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcTest);
 

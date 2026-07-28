@@ -12,6 +12,12 @@
 
 
 
+
+
+struct Pack32 { long long a, b, c, d; };
+typedef struct { long long w[62]; } _0x1F0;
+extern _0x1F0 D_00275DB0;
+extern int soundSePlayModeStop(void);
 extern int D_00631B48;
 extern void func_00243AD0();
 extern char D_00275850[];
@@ -137,7 +143,11 @@ INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetMotionPointer);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetCollisionOfLastActiveField);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", DebugDisp1Collision);
+void DebugDisp1Collision(_0x1F0 *self) {
+    *self = D_00275DB0;
+    *(int *)((char *)self + 0x1AC) = soundSePlayModeStop();
+    *(int *)((char *)self + 0x1B0) = soundSePlayModeStop();
+}
 
 char DebugDisp1CollisionWithColor(char *self, int idx) {
     char *sub = ((GObj *)(self))->p_15C;
@@ -294,7 +304,16 @@ void SetMotionNodeFixModeParameter(int val) {
     D_00631B48 = val;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetRootProjectionPosOfGObj);
+void GetRootProjectionPosOfGObj(struct Pack32 *dst, struct Pack32 *src, int n)
+{
+    if (n <= 0) return;
+    do {
+        *dst = *src;
+        n--;
+        src++;
+        dst++;
+    } while (n != 0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", SetMotionPlaySpeedRatio);
 

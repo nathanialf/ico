@@ -403,6 +403,74 @@ def build_decl_index(all_file_texts):
     return index
 
 
+def build_typedef_index(all_file_texts):
+    """Global index: TU-LOCAL `typedef struct/union/enum [TAG] { ... } NAME;`
+    definitions, keyed by NAME. Old TUs often define a private struct type
+    for their own bodies (e.g. `CdvdReq` in ios/cdvd.c) rather than pulling
+    it from a shared header — the new TU needs the same block re-added
+    whenever a transplanted body references the type name."""
+    index = {}
+    for path, raw in all_file_texts:
+        clean = strip_comments_preserve_len(raw)
+        for m in re.finditer(r"\btypedef\s+(?:struct|union|enum)\b", clean):
+            brace_pos = clean.find("{", m.end())
+            semi_pos = clean.find(";", m.end())
+            if brace_pos == -1 or (0 <= semi_pos < brace_pos):
+                continue  # forward-decl form (`typedef struct Foo Foo;`) — not our concern here
+            depth = 0
+            i = brace_pos
+            n = len(clean)
+            while i < n:
+                if clean[i] == "{":
+                    depth += 1
+                elif clean[i] == "}":
+                    depth -= 1
+                    if depth == 0:
+                        break
+                i += 1
+            if i >= n:
+                continue
+            after = clean[i + 1:]
+            m2 = re.match(r"\s*([A-Za-z_][A-Za-z0-9_]*)\s*;", after)
+            if not m2:
+                continue
+            name = m2.group(1)
+            full_end = i + 1 + m2.end()
+            if name not in index:
+                index[name] = raw[m.start():full_end].strip()
+
+        # Plain (non-typedef'd) tagged struct/union/enum DEFINITIONS, keyed
+        # by the tag itself — referenced elsewhere as `struct TAG` (e.g.
+        # `extern struct E001332B8 D_X[] __asm__("D_Y");` in ios/cdvd.c).
+        # Must actually be a definition (has a `{...}` body immediately
+        # after the tag, ending in `;`), not a mere forward declaration or
+        # a variable declaration using the tag.
+        for m in re.finditer(r"^(struct|union|enum)\s+([A-Za-z_]\w*)\s*\{", clean, re.MULTILINE):
+            tag = m.group(2)
+            if tag in index:
+                continue
+            depth = 0
+            i = m.end() - 1  # position of the '{'
+            n = len(clean)
+            while i < n:
+                if clean[i] == "{":
+                    depth += 1
+                elif clean[i] == "}":
+                    depth -= 1
+                    if depth == 0:
+                        break
+                i += 1
+            if i >= n:
+                continue
+            after = clean[i + 1:]
+            m2 = re.match(r"\s*;", after)
+            if not m2:
+                continue
+            full_end = i + 1 + m2.end()
+            index[tag] = raw[m.start():full_end].strip()
+    return index
+
+
 # ------------------------------------------------------------------
 # extract subcommand
 # ------------------------------------------------------------------
@@ -466,6 +534,7 @@ def cmd_extract(args):
             functions[addr] = rec
 
     decl_index = build_decl_index(all_texts)
+    typedef_index = build_typedef_index(all_texts)
 
     if os.environ.get("TRANSPLANT_DEBUG"):
         for relp, hs in helpers.items():
@@ -476,6 +545,7 @@ def cmd_extract(args):
         "functions": {str(k): v for k, v in functions.items()},
         "unmatched_addrs": sorted(unmatched_addrs),
         "decl_index": decl_index,
+        "typedef_index": typedef_index,
         "helpers": helpers,
     }
     (CACHE_DIR / "old_functions.json").write_text(json.dumps(out, ensure_ascii=False, indent=1))
@@ -492,7 +562,7 @@ def cmd_extract(args):
           f"({sum(1 for r in functions.values() if r['quarantine'])} pre-quarantined), "
           f"{len(unmatched_addrs)} still-INCLUDE_ASM, "
           f"{sum(len(v) for v in helpers.values())} TU-local helpers, "
-          f"{len(decl_index)} decl-index entries")
+          f"{len(decl_index)} decl-index entries, {len(typedef_index)} local typedefs")
 
 
 # ------------------------------------------------------------------
@@ -519,6 +589,7 @@ class Cache:
         self.functions = self.old["functions"]  # str(addr) -> rec
         self.helpers = self.old.get("helpers", {})
         self.decl_index = self.old["decl_index"]
+        self.typedef_index = self.old.get("typedef_index", {})
         self.new_n2a = self.sm["new_n2a"]
         self.new_a2n = {int(k): v for k, v in self.sm["new_a2n"].items()}
         self.new_a2t = {int(k): v for k, v in self.sm["new_a2t"].items()}
@@ -574,6 +645,25 @@ class Cache:
         order = {"ico/types.h": 0, "r5900.h": 1, "vu0.h": 2, "math_private.h": 3}
         hdrs.sort(key=lambda h: order.get(h, 99))
         return hdrs
+
+    def needed_typedefs(self, text, declared):
+        """TU-local struct/union/enum typedefs (see build_typedef_index)
+        that `text` references by name and aren't already in `declared`.
+        Returns [(name, block), ...]; caller adds `name` to `declared`."""
+        if not self.typedef_index:
+            return []
+        if not hasattr(self, "_typedef_re") or self._typedef_re is None:
+            keys = sorted(self.typedef_index, key=len, reverse=True)
+            self._typedef_re = re.compile(r"\b(" + "|".join(re.escape(k) for k in keys) + r")\b") if keys else None
+        if not self._typedef_re:
+            return []
+        out = []
+        for name in set(self._typedef_re.findall(text)):
+            if name in declared:
+                continue
+            block = self.rename_text(self.typedef_index[name])
+            out.append((name, block))
+        return out
 
 
 def count_top_level_commas(s):
@@ -642,6 +732,21 @@ def call_arg_count(body, name):
     if args == "":
         return 0
     return count_top_level_commas(args) + 1
+
+
+def call_result_probably_used(body, name):
+    """Heuristic: is `name(...)`'s return value actually consumed anywhere
+    in `body` (assigned, compared, passed as an arg, returned, ...) rather
+    than called as a bare statement? Looks at the non-whitespace character
+    immediately preceding each call site — a standalone statement is
+    preceded by `;`, `{`, or `}` (or is the very start of the body)."""
+    for m in re.finditer(r"\b" + re.escape(name) + r"\s*\(", body):
+        j = m.start() - 1
+        while j >= 0 and body[j] in " \t\n\r":
+            j -= 1
+        if j >= 0 and body[j] not in ";{}":
+            return True
+    return False
 
 
 def unprototyped_func_extern(sig, name):
@@ -720,13 +825,18 @@ def synth_extern(cache, new_name, declared, body=""):
                 return ext
         return decl
     hint = cache.new_a2t.get(addr) or (cache.old_a2t.get(addr) if old_name else None)
+    # A bare `type:func` hint carries no return-type info. Guessing `void`
+    # unconditionally breaks any call site that actually uses the result
+    # (`x = new_mblock_node(...)` -> "void value not ignored"); guess `int`
+    # instead whenever the call is embedded in a larger expression.
+    guessed_ret = "int" if call_result_probably_used(body, new_name) else "void"
     if hint == "func":
-        return f"extern void {new_name}();"
+        return f"extern {guessed_ret} {new_name}();"
     if hint in TYPE_HINT_C:
         ctype, _ = TYPE_HINT_C[hint]
         return f"extern {ctype} {new_name};"
     if new_name.startswith("func_"):
-        return f"extern void {new_name}();"
+        return f"extern {guessed_ret} {new_name}();"
     if re.search(r"\b" + re.escape(new_name) + r"\s*\[", body):
         return f"extern int {new_name}[];"
     return f"extern int {new_name};"
@@ -965,10 +1075,28 @@ def cmd_splice(args):
     kept, reverted, quarantined, skipped_no_old = [], [], [], []
 
     # Insert TU-local helpers once, right after the #include "common.h" line.
+    # Helpers can themselves reference externs/headers/typedefs (e.g.
+    # cdvd_normpath's `D_00631F70`) — run them through the same
+    # needed_* machinery, not spliced in raw, or every function in the TU
+    # cascades to a compile failure once the (uncompilable) helper lands.
     if helper_texts and args.apply:
+        helper_top = []
+        for htext in helper_texts:
+            for tname, blk in cache.needed_typedefs(htext, declared):
+                declared.add(tname)
+                helper_top.append(blk)
+            for hdr in reversed(cache.needed_headers(htext)):
+                if f'"{hdr}"' not in text and f'"{hdr}"' not in "\n".join(helper_top):
+                    helper_top.insert(0, f'#include "{hdr}"')
+            for ext in gather_needed_externs(cache, htext, "", declared):
+                helper_top.append(ext)
         inc_m = re.search(r'#include\s+"common\.h"\s*\n', text)
         insert_at = inc_m.end() if inc_m else 0
-        block = "\n" + "\n\n".join(helper_texts) + "\n"
+        parts = []
+        if helper_top:
+            parts.append("\n".join(helper_top))
+        parts.append("\n\n".join(helper_texts))
+        block = "\n" + "\n".join(parts) + "\n"
         text = text[:insert_at] + block + text[insert_at:]
         write_latin1(path, text)
 
@@ -987,7 +1115,7 @@ def cmd_splice(args):
             if rec is None:
                 continue
             if rec["quarantine"]:
-                if (addr, "quarantined") not in quarantined:
+                if not any(q[0] == addr for q in quarantined):
                     quarantined.append((addr, name, rec["old_name"], rec["quarantine"]))
                 continue
             key = (addr, name)
@@ -1006,10 +1134,26 @@ def cmd_splice(args):
         # its own needed extern for the same symbol even though the text
         # reverting it removed the actual extern line).
         trial_declared = set(declared)
+        needed_typedefs = cache.needed_typedefs(renamed_body, trial_declared)
+        for tname, _ in needed_typedefs:
+            trial_declared.add(tname)
         needed_externs = gather_needed_externs(cache, renamed_body, name, trial_declared)
+        # The externs just synthesized can themselves reference a TU-local
+        # struct tag (e.g. `extern struct E001332B8 D_X[] __asm__(...)`)
+        # that isn't mentioned in the function body itself — scan the
+        # extern text too, for however many rounds that keeps finding more
+        # (a fixed small cap; this chains at most a couple of levels deep
+        # in practice).
+        for _ in range(5):
+            more = cache.needed_typedefs("\n".join(needed_externs), trial_declared)
+            if not more:
+                break
+            for tname, blk in more:
+                trial_declared.add(tname)
+                needed_typedefs.append((tname, blk))
 
         candidate = cur_text[:start] + renamed_body + cur_text[end:]
-        top_block = list(needed_externs)
+        top_block = [blk for _, blk in needed_typedefs] + list(needed_externs)
         for hdr in reversed(cache.needed_headers(renamed_body)):
             if f'"{hdr}"' not in cur_text:
                 top_block.insert(0, f'#include "{hdr}"')

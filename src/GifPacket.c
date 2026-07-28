@@ -1,5 +1,12 @@
 #include "common.h"
 
+
+
+
+extern void func_0010F710(void);
+extern void dpk_SwapBuffer();
+extern void func_0010F5D8();
+extern int D_00631BA0;
 INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_StartPacket);
 
 INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_EndPacket);
@@ -22,15 +29,29 @@ INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_Line);
 
 INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_Sprite);
 
-INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_SpriteSensitive);
+void gif_SpriteSensitive(void) {
+    D_00631BA0 = 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_SpriteOffset);
+void gif_SpriteOffset(void)
+{
+    dpk_SwapBuffer();
+    func_0010F5D8();
+    D_00631BA0 = 1;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_SpriteSensitiveOffset);
+void gif_SpriteSensitiveOffset(void)
+{
+    dpk_SwapBuffer();
+    func_0010F710();
+    D_00631BA0 = 1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_SpriteOrg);
 
-INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_SpriteSensitiveOrg);
+int gif_SpriteSensitiveOrg(void) {
+    return D_00631BA0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_SetDrawEnviroment);
 
