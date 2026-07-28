@@ -1,5 +1,7 @@
 #include "common.h"
 
+#include "ico/types.h"
+
 
 
 extern char D_002A4C48[];
@@ -28,7 +30,16 @@ int clip_floor_1(int *a0)
     return (((unsigned int)p[0x48 / 4] >> 21) & 1) ^ 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", DispCollisionPC);
+extern int ChangeBrain_ToKidnap(void *a0, int a1, int a2, int a3, unsigned char a4, float a5);
+extern int func_00163B40(void *a0, int a1, int a2, int a3, unsigned char a4, float a5);
+
+int DispCollisionPC(void *a0, int a1, int a2, int a3, unsigned char a4, float a5)
+{
+    int brain = *(int *)(*(int *)((char *)a0 + 0x164) + 0x670);
+    if (*(int *)(brain + 0x1DC) != 3)
+        return ChangeBrain_ToKidnap(a0, a1, a2, a3, a4, a5);
+    return func_00163B40(a0, a1, a2, a3, a4, a5);
+}
 
 unsigned int makeCollisionBlockTable(unsigned int a0)
 {
@@ -41,7 +52,35 @@ unsigned int makeCollisionBlockTable(unsigned int a0)
 
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", _Clip);
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", __ClipWall);
+extern float MatrixDrive_GetTurnZAngleYX(void *a0, void *a1);
+extern void MatrixDrive_TurnObjectMatrix(void *a0, void *a1);
+extern float func_00168BA0(void *a0, void *a1);
+extern void func_00243AD0(void *a0, void *a1, void *a2);
+extern void func_00243AE8(void *a0, void *a1, void *a2);
+extern void func_00243B18(void *a0, void *a1, float a2);
+extern void func_00244448(void *a0, void *a1, float a2);
+
+void __ClipWall(char *a0, float arg0, float arg1) {
+    float buf0[4];
+    float L10[4];
+    float L20[4];
+    float z;
+
+    MatrixDrive_TurnObjectMatrix(L10, a0 + 0xA0);
+    *(int *) &L10[3] = 0;
+    func_00243AE8(buf0, a0 + 0x10, a0);
+    func_00243B18(a0 + 0x30, L10, -func_00168BA0(L10, buf0));
+    func_00243AD0(a0 + 0x40, buf0, a0 + 0x30);
+    func_00244448(a0 + 0x30, a0 + 0x30, arg1);
+    func_00244448(a0 + 0x40, a0 + 0x40, arg0);
+    func_00243AD0(a0 + 0x60, a0 + 0x40, a0 + 0x30);
+    {
+        float *p20 = L20;
+        z = MatrixDrive_GetTurnZAngleYX(a0 + 0x20, a0 + 0x10);
+        func_00243B18(p20, a0 + 0x60, z / MatrixDrive_GetTurnZAngleYX(a0, a0 + 0x10));
+        func_00243AD0(a0 + 0x50, a0 + 0x20, p20);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", __ClipFloor);
 
@@ -63,13 +102,65 @@ INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00167280);
 
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ClipWallDebug);
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ClipWall);
+extern char D_005592D0[];
+extern int func_00263FB0(float f);
+
+void ClipWall(float *vec)
+{
+    return debug_assertMessage(D_005592D0, func_00263FB0(vec[0]),
+                         func_00263FB0(vec[1]), func_00263FB0(vec[2]));
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ClipWallR);
 
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ClipWallWaveForce);
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ClipWallFuchiHangWalkStop);
+extern char D_00559400[];
+extern char D_00559420[];
+extern int D_00631960;
+extern int D_006323C8;
+extern int D_00633D04;
+extern int D_00633D38;
+extern void *D_006AAC80[];
+extern void *D_006AB100[];
+
+void ClipWallFuchiHangWalkStop(void) {
+    int i;
+    char *entry;
+    int j;
+    int n;
+    int *p70;
+    void *obj;
+    int slot;
+
+    debug_assertMessage(D_00559400, D_00631960);
+    D_00633D38 = 0;
+    i = 0xF;
+    do {
+        D_006AB100[i] = 0;
+        i--;
+    } while (i >= 0);
+    D_00633D04 = 0;
+    obj = D_006AAC80[0];
+    if (D_006323C8 > 0) {
+        do {
+            p70 = (int *)GOBJ_SUB(obj)->f_70;
+            for (j = 0; j < p70[0xC / 4]; j++) {
+                entry = (char *)p70[0x14 / 4] + j * 0x70;
+                slot = *(int *)(entry + 0x60) & 0xF;
+                if (slot != 0) {
+                    if (D_006AB100[slot] == 0) {
+                        debug_assertMessage(D_00559420, slot);
+                        D_00633D38 = D_00633D38 + 1;
+                        D_006AB100[slot] = entry;
+                    }
+                }
+            }
+            D_00633D04 = D_00633D04 + 1;
+            obj = D_006AAC80[D_00633D04];
+        } while (D_00633D04 < D_006323C8);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ClipWallField);
 
@@ -97,15 +188,30 @@ INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ClipFloorCheckCB);
 
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ClipCollision);
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ChangeFieldCollisionDebugMode);
+extern int (*D_006323F4)(void *a0, int a1);
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", LoadCollision);
+int ChangeFieldCollisionDebugMode(void *a0) {
+    return D_006323F4(a0, 0xC);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", DrawCollision);
+int LoadCollision(void *a0) {
+    return D_006323F4(a0, 0xD);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ClipPlane);
+int DrawCollision(void *a0) {
+    return D_006323F4(a0, 0xE);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", GetOrientOfWall);
+int ClipPlane(void *a0) {
+    return D_006323F4(a0, 0xF);
+}
+
+extern int D_00633D34;
+
+void GetOrientOfWall(void *a0, int a1) {
+    D_00633D34 = a1;
+    D_006323F4(a0, 0x10);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", SetSimplePlane);
 

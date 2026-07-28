@@ -2,11 +2,122 @@
 
 
 #include "vu0.h"
-INCLUDE_ASM("asm/nonmatchings/src/Matrix", _RemakeNormal);
+extern float func_0010E9A0(short a0);
+extern float p2o_SetDefaultEnviroment(int x);
 
-INCLUDE_ASM("asm/nonmatchings/src/Matrix", _Sqrt);
+void _RemakeNormal(short a0)
+{
+    float c = func_0010E9A0(a0);
+    float s = p2o_SetDefaultEnviroment(a0);
+    __asm__ __volatile__("mfc1 $8, %0" : : "f"(c) : "$8");
+    __asm__ __volatile__("mfc1 $9, %0" : : "f"(s) : "$9");
+    VU0_QMTC2_NI(8, 1);
+    VU0_QMTC2_NI(9, 2);
+    VU0_V2OP(vmove.xyzw, 17, 0);
+    VU0_V2OP(vmr32.xyzw, 16, 17);
+    VU0_V2OP(vmr32.xyzw, 15, 16);
+    VU0_V2OP(vmr32.xyzw, 14, 15);
+    VU0_V3OP_BC(vaddx.x, 14, 0, 1, x);
+    VU0_V3OP_BC(vaddx.x, 16, 0, 2, x);
+    VU0_V3OP_BC(vsubx.z, 14, 0, 2, x);
+    VU0_V3OP_BC(vaddx.z, 16, 0, 1, x);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 14, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 14, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 14, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 14, 7, 14, w);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 15, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 15, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 15, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 15, 7, 15, w);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 16, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 16, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 16, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 16, 7, 16, w);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 17, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 17, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 17, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 17, 7, 17, w);
+    VU0_V2OP(vmove.xyzw, 4, 14);
+    VU0_V2OP(vmove.xyzw, 5, 15);
+    VU0_V2OP(vmove.xyzw, 6, 16);
+    VU0_V2OP(vmove.xyzw, 7, 17);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/Matrix", _InitCurrentMatrix);
+void _Sqrt(short a0)
+{
+    float c = func_0010E9A0(a0);
+    float s = p2o_SetDefaultEnviroment(a0);
+    __asm__ __volatile__("mfc1 $8, %0" : : "f"(c) : "$8");
+    __asm__ __volatile__("mfc1 $9, %0" : : "f"(s) : "$9");
+    VU0_QMTC2_NI(8, 1);
+    VU0_QMTC2_NI(9, 2);
+    VU0_V2OP(vmove.xyzw, 17, 0);
+    VU0_V2OP(vmr32.xyzw, 16, 17);
+    VU0_V2OP(vmr32.xyzw, 15, 16);
+    VU0_V2OP(vmr32.xyzw, 14, 15);
+    VU0_V3OP_BC(vaddx.x, 14, 0, 1, x);
+    VU0_V3OP_BC(vsubx.x, 15, 0, 2, x);
+    VU0_V3OP_BC(vaddx.y, 14, 0, 2, x);
+    VU0_V3OP_BC(vaddx.y, 15, 0, 1, x);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 14, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 14, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 14, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 14, 7, 14, w);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 15, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 15, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 15, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 15, 7, 15, w);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 16, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 16, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 16, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 16, 7, 16, w);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 17, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 17, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 17, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 17, 7, 17, w);
+    VU0_V2OP(vmove.xyzw, 4, 14);
+    VU0_V2OP(vmove.xyzw, 5, 15);
+    VU0_V2OP(vmove.xyzw, 6, 16);
+    VU0_V2OP(vmove.xyzw, 7, 17);
+}
+
+void _InitCurrentMatrix(float a0, float a1, float a2)
+{
+    VU0_MFC1(6, 12);
+    VU0_MFC1(7, 13);
+    VU0_MFC1(8, 14);
+    VU0_QMTC2_NI(6, 1);
+    VU0_QMTC2_NI(7, 2);
+    VU0_QMTC2_NI(8, 3);
+    VU0_V2OP(vmove.xyzw, 17, 0);
+    VU0_V2OP(vmr32.xyzw, 16, 17);
+    VU0_V2OP(vmr32.xyzw, 15, 16);
+    VU0_V2OP(vmr32.xyzw, 14, 15);
+    VU0_V3OP_BC(vaddx.x, 14, 0, 1, x);
+    VU0_V3OP_BC(vaddx.y, 15, 0, 2, x);
+    VU0_V3OP_BC(vaddx.z, 16, 0, 3, x);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 14, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 14, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 14, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 14, 7, 14, w);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 15, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 15, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 15, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 15, 7, 15, w);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 16, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 16, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 16, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 16, 7, 16, w);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 17, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 17, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 17, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 17, 7, 17, w);
+    VU0_V2OP(vmove.xyzw, 4, 14);
+    VU0_V2OP(vmove.xyzw, 5, 15);
+    VU0_V2OP(vmove.xyzw, 6, 16);
+    VU0_V2OP(vmove.xyzw, 7, 17);
+    VU0_NOP();
+}
 
 void _UnitCurrentMatrix(void *p0)
 {
@@ -32,7 +143,34 @@ void _PopCurrentMatrix(void *p0)
     VU0_NOP();
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/Matrix", _TransCurrentMatrix);
+void _TransCurrentMatrix(void *a0)
+{
+    VU0_LSV(lqc2, 14, 0x0, 4);
+    VU0_LSV(lqc2, 15, 0x10, 4);
+    VU0_LSV(lqc2, 16, 0x20, 4);
+    VU0_LSV(lqc2, 17, 0x30, 4);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 14, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 14, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 14, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 14, 7, 14, w);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 15, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 15, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 15, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 15, 7, 15, w);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 16, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 16, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 16, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 16, 7, 16, w);
+    VU0_V3OP_ACC_BC(vmulax.xyzw, 4, 17, x);
+    VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 17, y);
+    VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 17, z);
+    VU0_V3OP_BC(vmaddw.xyzw, 17, 7, 17, w);
+    VU0_V2OP(vmove.xyzw, 4, 14);
+    VU0_V2OP(vmove.xyzw, 5, 15);
+    VU0_V2OP(vmove.xyzw, 6, 16);
+    VU0_V2OP(vmove.xyzw, 7, 17);
+    VU0_NOP();
+}
 
 void _SetTransCurrentMatrix(void *m)
 {
@@ -143,9 +281,77 @@ void _ScaleCurrentMatrix(void)
     VU0_NOP();
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/Matrix", _GetCurrentMatrix);
+void _GetCurrentMatrix(void)
+{
+    VU0_MEM("vsqi.xyzw $vf1, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf2, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf3, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf4, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf5, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf6, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf7, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf8, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf9, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf10, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf11, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf12, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf13, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf14, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf15, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf16, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf17, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf18, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf19, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf20, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf21, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf22, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf23, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf24, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf25, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf26, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf27, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf28, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf29, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf30, ($vi15++)");
+    VU0_MEM("vsqi.xyzw $vf31, ($vi15++)");
+    VU0_NOP();
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/Matrix", _GetCurrentMatrixTrans);
+void _GetCurrentMatrixTrans(void)
+{
+    VU0_MEM("vlqd.xyzw $vf31, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf30, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf29, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf28, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf27, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf26, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf25, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf24, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf23, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf22, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf21, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf20, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf19, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf18, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf17, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf16, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf15, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf14, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf13, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf12, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf11, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf10, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf9, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf8, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf7, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf6, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf5, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf4, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf3, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf2, (--$vi15)");
+    VU0_MEM("vlqd.xyzw $vf1, (--$vi15)");
+    VU0_NOP();
+}
 
 void _SetCurrentMatrix(void *p0, void *p1, void *p2)
 {

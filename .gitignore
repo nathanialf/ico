@@ -224,3 +224,4 @@ decomp/DATA_INVESTIGATION.md
 # Phase 3 retail transplant driver cache (regenerable: tools/transplant_retail.py
 # extract). Not under build/ because tools/build.sh setup wipes that tree.
 .transplant_cache/
+.port_cache/

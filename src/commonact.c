@@ -40,7 +40,14 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", ACTRunIntrCorrect);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00157BB0);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", WithMailFunc_WayBeginPosError);
+extern void *ContinueCorrectPosition(void *a0);
+extern void CylinderCollision(void *a0, void *a1);
+
+void WithMailFunc_WayBeginPosError(void *a0, void *a1) {
+    void *ret = ContinueCorrectPosition(a0);
+    *(float *)((char *)a1 + 4) = *(float *)((char *)ret + 4);
+    CylinderCollision(a0, a1);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", WithMailFunc_AttackFail);
 
@@ -100,7 +107,24 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", SetDirectRootPositionXZ);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00159AF0);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonLever);
+extern void func_00104F20(void);
+extern void func_00105268(void);
+extern int func_00105278(void);
+extern void func_001052A8(void *a0);
+extern void func_0010F630(void);
+extern void func_00118678(int a0);
+extern void gif_SpriteOffset(int a0);
+extern void reg_dispBoxLine(void *a0, int a1, int a2, float a3);
+
+void actCommonLever(void *a0, void *a1, float f) {
+    func_00104F20();
+    func_00118678(func_00105278());
+    gif_SpriteOffset(0xB);
+    func_001052A8(a0);
+    reg_dispBoxLine(a1, 4, 4, f);
+    func_0010F630();
+    func_00105268();
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", EBRAIN_SEND_MES);
 
@@ -166,7 +190,11 @@ void func_0015D328(void)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", funcCommonJumpDircorrect);
+extern void setNodePursueParticleEffectWithUpperLimit(int a0, int a1, float a2);
+
+void funcCommonJumpDircorrect(int a0, int a1) {
+    setNodePursueParticleEffectWithUpperLimit(a0, a1, 30.0f);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", funcCommonFallDircorrect);
 
@@ -208,9 +236,28 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", funcCommonEndReady);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", funcCommonEndExec);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", funcCommonError);
+extern int CanWallLeverPull(int a0, int a1);
+extern char D_00632330[];
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", SetMotionDirectionSmooze);
+void funcCommonError(volatile int a0) {
+    char *state = *(char **)(a0 + 0x164);
+    int v = *(int *)(state + 0x5EC);
+    _ACTWait(0x1E);
+    CanWallLeverPull(v, -1);
+    debug_assertMessage(D_00632330);
+    _ACTWait(0);
+}
+
+extern char D_00632338[];
+
+void SetMotionDirectionSmooze(volatile int a0) {
+    char *state = *(char **)(a0 + 0x164);
+    int v = *(int *)(state + 0x5EC);
+    _ACTWait(0x1E);
+    CanWallLeverPull(v, 1);
+    debug_assertMessage(D_00632338);
+    _ACTWait(0);
+}
 
 void _ACTDebugPrint(char *self, int unused, int val) {
     *(int *)(*(char **)(self + 0x164) + 0x180) = val;
@@ -246,11 +293,23 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonSlowrun);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015F248);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", ACT_LAYOUT_GAMEOVER);
+extern void func_00243B18(void *a0, float f);
+
+void ACT_LAYOUT_GAMEOVER(void *a0) {
+    int local[4];
+    func_00243B18(local, -1.0f);
+    dispPlane(a0, local);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", ACTAdjustPlane);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", _ACTMotDirSmzDirect);
+extern void ChangeMailInLadder(void *buf, void *obj);
+
+void _ACTMotDirSmzDirect(void *a0) {
+    int local[4];
+    ChangeMailInLadder(local, a0);
+    dispPlane(a0, local);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015F358);
 
@@ -291,7 +350,11 @@ void actCommonOne(volatile unsigned int self)
     *(int *)(*(int *)((char *)*(int *)(b + 0x164) + 0x670) + 0x2A4) = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonDelete);
+extern void actCommonRopeCliff(int a0, int a1);
+
+void actCommonDelete(volatile int a0) {
+    actCommonRopeCliff(a0, 0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015F578);
 

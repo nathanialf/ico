@@ -33,7 +33,25 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", _MustChase);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyControl);
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyCollision);
+extern void subEnemyControl(int *self, int a1);
+
+void subEnemyCollision(int *self, int a1)
+{
+    char *p;
+    int i;
+    p = (char *)((int *)self[0x59])[0x19C] + 0x360;
+    i = 0;
+    do {
+        if (*(signed char *)(p + 0x1D) != 0) {
+            if (*(int *)(p + 0x14) == a1) {
+                return;
+            }
+        }
+        i++;
+        p += 0x20;
+    } while (i < 5);
+    subEnemyControl(self, a1);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_0015F9F4);
 
@@ -43,7 +61,47 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyRestart);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", PairSetGeometry);
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyForceSwitchToCarry);
+extern int ContinueCorrectPosition(int a0);
+extern float D_00630CE0;
+extern int D_00631AE4;
+extern float RotateAccordingToStick_PatternThree(float *a0, float *a1);
+
+int actEnemyForceSwitchToCarry(int a0) {
+    float v1[4];
+    float v2[4];
+    float angle;
+    float diff;
+    int rv;
+    if (D_00631AE4 == 0) {
+        goto zero;
+    }
+    v1[0] = ((float *)ContinueCorrectPosition(D_00631AE4))[0];
+    v1[1] = ((float *)ContinueCorrectPosition(D_00631AE4))[1];
+    v1[2] = ((float *)ContinueCorrectPosition(D_00631AE4))[2];
+    v2[0] = ((float *)ContinueCorrectPosition(a0))[0];
+    v2[1] = ((float *)ContinueCorrectPosition(a0))[1];
+    v2[2] = ((float *)ContinueCorrectPosition(a0))[2];
+    angle = RotateAccordingToStick_PatternThree(v1, v2);
+    if (angle < D_00630CE0) {
+        diff = v1[1] - v2[1];
+        if (diff < 0.0f) {
+            if (200.0f < -diff) {
+                return 1;
+            }
+            return 0;
+        }
+        rv = 0;
+        if (!(200.0f < diff)) {
+            return rv;
+        }
+    }
+    rv = 1;
+    goto end;
+zero:
+    rv = 0;
+end:
+    return rv;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyKidnapEnd);
 
@@ -91,7 +149,21 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", _ApproachTarget_Boss);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", flyMailCore);
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", _ApproachTarget_Way);
+extern char D_00558ED8[];
+extern unsigned int _ACTWait(int a0);
+extern extern void debug_assertMessage();
+
+void _ApproachTarget_Way(volatile unsigned int a0)
+{
+    volatile int local;
+    int *new_var;
+    int *s0;
+    new_var = *((int **) (a0 + 0x164));
+    debug_assertMessage((char *)D_00558ED8);
+    s0 = new_var;
+    s0[0x30 / 4] = 0x1;
+    _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00164EF4);
 
@@ -249,7 +321,24 @@ int ACTEnemyForceSwitchToCarry(void) {
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemy_GetClingTarget);
+int actEnemy_GetClingTarget(int *a0) {
+    unsigned int *p;
+    unsigned int field;
+    unsigned int v0;
+    if (*(int *)(*(int *)(*(int *)((char *)a0 + 0x164) + 0x670) + 0x1DC) == 0)
+        return 0;
+    p = (unsigned int *)((char *)D_002A4C48 + a0[2] * 0x4C);
+    field = p[0x48 / 4];
+    v0 = (field >> 18) & 1;
+    if (v0 != 0) goto zero;
+    v0 = (field >> 21) & 1;
+    v0 = v0 ^ 1;
+    if (v0 == 0) goto one;
+zero:
+    return 0;
+one:
+    return 1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemy_isNormalEnemy);
 
@@ -271,9 +360,39 @@ void func_00165B50(char *self, int a1, int *a2)
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", IsEnemyBrainToGenerator);
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", IsEnemyBrainToBoy);
+extern int subEnemyBrain_ToBoy(void *a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", GetEnemyTypeFromGObj);
+int IsEnemyBrainToBoy(void *a0) {
+    int x = *(int *)(*(char **)((char *)a0 + 0x164) + 0x10);
+    if (x < 0xC) {
+        return -1;
+    }
+    return subEnemyBrain_ToBoy(a0);
+}
+
+extern void *isysGObjSearchFromObjKindID_begin(void *a0);
+extern void *isysGObjSearchFromObjLayoutID(int a0);
+
+void GetEnemyTypeFromGObj(int a0) {
+    void *o = isysGObjSearchFromObjLayoutID(4);
+    if (o != 0) {
+        do {
+            if (*(int *)(*(int *)(*(int *)((char *)o + 0x164) + 0x670) + 0x1DC) == 3) {
+                int i;
+                for (i = 0; i < 5; i++) {
+                    char *e = (char *)((i << 5) + *(int *)(*(int *)((char *)o + 0x164) + 0x670) + 0x360);
+                    if (e[0x1D] != 0) {
+                        if (*(int *)(e + 0x10) == a0) {
+                            e[0x1C] = 0;
+                            return;
+                        }
+                    }
+                }
+            }
+            o = isysGObjSearchFromObjKindID_begin(o);
+        } while (o != 0);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165DC0);
 

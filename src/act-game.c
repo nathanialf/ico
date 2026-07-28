@@ -1,5 +1,25 @@
 #include "common.h"
 
+#include "ico/types.h"
+
+typedef struct { long long w; } __attribute__((packed)) U64ag;
+
+typedef struct {
+    char _00[0x20];
+    float _20, _24, _28;
+    char _2c[0x44];
+    float _70;
+    char _74[0x0C];
+    float _80;
+    char _84[0x04];
+    int _88;
+    char _8c[0x0C];
+    int _98;
+    char _9c[0x24];
+} HandWork;
+
+typedef union { int i; float f; } IntFloat;
+
 
 
 
@@ -11,7 +31,43 @@ extern int D_006AA4B0[];
 extern void *D_00631AE8;
 extern unsigned short D_00565060[];
 extern int *D_00631AE4;
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGameView_Loop);
+extern int *ContinueCorrectPosition(int *a0);
+extern int D_00274EC0[];
+extern float D_002924D8[];
+extern float D_00630AEC;
+extern void GetRootMatrixByDObj(char *a0, char *a1);
+extern float HandyCamera_TargetMoveType(int *a0, int a1);
+extern float before_DrawLine(void *a0, void *a1);
+extern void func_0018CD00(float *a0, float *a1, int a2);
+extern void *func_0018CEC0(void);
+extern void func_00243B18(void *a0, void *a1, float a2);
+
+void ACTGameView_Loop(void)
+{
+    float buf0[4];
+    float buf1[4];
+    int buf2[4];
+    float neg1;
+    void *p;
+    int q;
+    float e;
+
+    if (D_00631AE4 != 0 && D_00631AE8 != 0) {
+        GetRootMatrixByDObj((char *)buf0, (char *)D_00631AE4);
+        GetRootMatrixByDObj((char *)buf1, (char *)D_00631AE8);
+        if (!(HandyCamera_TargetMoveType((int *)buf0, (int)buf1) < D_00630AEC)) {
+            if (!(0.0f < before_DrawLine(buf2, ContinueCorrectPosition((int *)D_00631AE8)))) {
+                neg1 = -1.0f;
+                func_00243B18(buf0, func_0018CEC0(), neg1);
+                func_00243B18(buf1, ContinueCorrectPosition((int *)D_00631AE8), neg1);
+                e = D_002924D8[0];
+                q = (0x3C - D_00274EC0[0] * 0xA) / D_00274EC0[1];
+                func_0018CD00(buf0, buf1,
+                              (int)(e * (float)q / 60.0f));
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_LwsEffectProcess);
 
@@ -57,9 +113,29 @@ int func_00149EF8(void *a0)
 
 INCLUDE_ASM("asm/nonmatchings/src/act-game", GetSkeltonOrient);
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_InnerVelocityUpdate);
+extern int D_00561928[][10];
+extern void disp_memory_partition_bar(char *self, char *other, int v, char *tmp_a, char *tmp_b);
+extern void func_00144938(int idx, char *tmp_a, char *tmp_b);
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_BeforeFunc);
+void ACTGame_InnerVelocityUpdate(char *self, char *other, int idx)
+{
+    char tmp_a[0x10];
+    char tmp_b[0x10];
+    func_00144938(idx, tmp_a, tmp_b);
+    disp_memory_partition_bar(self, other, D_00561928[idx][9], tmp_a, tmp_b);
+}
+
+extern float D_00630AF0;
+extern void func_002641D8(void *a0, int a1, int a2);
+
+void ACTGame_BeforeFunc(int *a0, int a1, void *a2, int a3) {
+    char buf0[0x10];
+    char buf1[0x10];
+    func_002641D8(buf1, 0, 0x10);
+    *(float *)(buf1 + 4) = (float)a3 * D_00630AF0 / 180.0f;
+    func_00243B18(buf0, a2, -1.0f);
+    disp_memory_partition_bar((char *)a0[2], (char *)a0[3], a1, buf0, buf1);
+}
 
 int FunctionAboutClingedStatus(char *self)
 {
@@ -82,9 +158,41 @@ long ACTEnvGetTest(void)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ActOrientTest);
+extern int DebugDisp1CollisionWithColor(void *a0, void *a1);
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", GetGirlHandlinkClInfo);
+void ActOrientTest(float *dst, char *obj, void *a2)
+{
+    int idx = DebugDisp1CollisionWithColor(obj, a2) << 6;
+    ((IntFloat *)dst)[0].f = *(float *)(idx + *(int *)((int)((GObj *)(obj))->p_15C + 0xC) + 0x30);
+    ((IntFloat *)dst)[1].f = *(float *)(idx + *(int *)((int)((GObj *)(obj))->p_15C + 0xC) + 0x34);
+    ((IntFloat *)dst)[2].f = *(float *)(idx + *(int *)((int)((GObj *)(obj))->p_15C + 0xC) + 0x38);
+}
+
+extern float MatrixDrive_GetTurnYAngleXZ(float a0);
+extern void func_00102A40(void *a0, void *a1, void *a2, float a3);
+extern void func_00243978(void *a0, void *a1);
+extern void func_00243AD0(void *a0, void *a1, void *a2);
+extern void func_00243AE8(void *a0, void *a1, void *a2);
+
+void GetGirlHandlinkClInfo(void *a0, void *a1, void *a2, float farg0, float farg1) {
+    float buf0[4];
+    float buf18[4];
+    float buf16[4];
+
+    ActOrientTest(buf0, a0, a1);
+    func_00243AE8(buf16, a2, buf0);
+    if (farg1 < MatrixDrive_GetTurnYAngleXZ(buf16[0] * buf16[0] + buf16[1] * buf16[1] + buf16[2] * buf16[2])) {
+        func_00243978(buf16, buf16);
+        func_00243B18(buf16, buf16, farg1);
+        func_00243AD0(buf18, buf0, buf16);
+        if (0.0f < buf18[1] - *(float *) ((char *) a2 + 4)) {
+            buf18[1] = *(float *) ((char *) a2 + 4);
+        }
+        func_00102A40(a0, a1, buf18, 1.0f);
+        return;
+    }
+    func_00102A40(a0, a1, a2, farg0);
+}
 
 void hand_able_connect(void) {
     int *p = D_006AA4B0;
@@ -110,9 +218,23 @@ void GetOtherStageGirlOrient(char *a0)
     *p = *p | v1 | v2;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", GetTarget);
+extern void _ACTGame_SearchGObj(void *a0, int a1, int a2, int a3, void *a4, int a5, int a6);
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTLookTargetSystem_Exec);
+void GetTarget(void)
+{
+    char *s = *(char **)((char *)D_00631AE8 + 0x164);
+    _ACTGame_SearchGObj(D_00631AE8, 0, 4, 6, D_00631AE4, 0, 0);
+    _ACTGame_SearchGObj(D_00631AE4, 1, 4, 5, D_00631AE8, 0, 0);
+    *(long long *)(s + 0x18) |= (long long)0x8000 << 21;
+}
+
+void ACTLookTargetSystem_Exec(void)
+{
+    char *s = *(char **)((char *)D_00631AE8 + 0x164);
+    _ACTGame_SearchGObj(D_00631AE8, 0, 4, 0, 0, 0, 0);
+    _ACTGame_SearchGObj(D_00631AE4, 1, 4, 0, 0, 0, 0);
+    *(long long *)(s + 0x18) &= ~((long long)0x8000 << 21);
+}
 
 void ACTItemThrow(float *a0, float *a1)
 {
@@ -231,13 +353,81 @@ INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A600);
 
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGameCollisionOn);
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGameCollisionOff);
+extern int ACTGame_DisconnectHand(void);
+extern int dispInsectNet(int *self);
+
+int ACTGameCollisionOff(int *self)
+{
+    unsigned long new_var;
+    int ret = 0;
+    new_var = ACTGame_DisconnectHand();
+    if (new_var != 0)
+    {
+        ret = dispInsectNet(self);
+    }
+    return ret;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_CheckItemMotion);
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_CheckHandMotion);
+extern void ClipWallBoxStop(void *);
+extern void func_00243B60(void *buf, int x);
+extern void fzMagnitudefv(void *out, int n, void *vec);
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_StageChangeGObjID);
+int ACTGame_CheckHandMotion(float f, void *hand0, void *hand1, void *actor, void *posout, void *magtarget, int *flagout) {
+    HandWork work;
+    int flag;
+    int rv;
+    int cnt;
+
+    func_002641D8(&work, 0, 0xC0);
+    rv = 1;
+    flag = actor ? *(int *) ((char *) *(int *) ((char *) actor + 0x15C) + 0x74) : 0;
+    work._70 = f;
+    func_00243B60(&work, (int) hand0);
+    func_00243B60((char *) &work + 0x10, (int) hand1);
+    if (flag != 0) {
+        *(int *) ((char *) *(int *) ((char *) actor + 0x15C) + 0x74) = 0;
+    }
+    ClipWallBoxStop(&work);
+    if (flagout != 0) {
+        *flagout = work._98;
+    }
+    cnt = work._88;
+    if (cnt == 0) {
+        rv = 0;
+    }
+    if (posout != 0) {
+        *(float *) ((char *) posout + 0) = work._20;
+        *(float *) ((char *) posout + 4) = work._24;
+        *(float *) ((char *) posout + 8) = work._28;
+    }
+    if (cnt != 0 && magtarget != 0) {
+        fzMagnitudefv(magtarget, cnt, &work._80);
+    }
+    if (flag != 0) {
+        *(int *) ((char *) *(int *) ((char *) actor + 0x15C) + 0x74) = 1;
+    }
+    return rv & 0xFF;
+}
+
+int ACTGame_StageChangeGObjID(int a0, int a1, int *a2, char *a3)
+{
+    char buf[0xC0];
+    func_002641D8(buf, 0, 0xC0);
+    *(int *)(buf + 0x70) = 0;
+    func_00243B60(buf, a0);
+    func_00243B60(buf + 0x10, a1);
+    ClipWallBoxStop(buf);
+    if (a2 != 0) {
+        *a2 = *(int *)(buf + 0x98);
+    }
+    if (a3 != 0) {
+        *(U64ag *)a3 = *(U64ag *)(buf + 0x80);
+        *(int *)(a3 + 8) = *(int *)(buf + 0x88);
+    }
+    return *(int *)(buf + 0x88) != 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_StageChangeGObjDirect);
 
@@ -249,9 +439,26 @@ INCLUDE_ASM("asm/nonmatchings/src/act-game", GetSkeltonPosition);
 
 INCLUDE_ASM("asm/nonmatchings/src/act-game", SetDirectRootPositionWithNodePointLimit);
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGameView_Init);
+int ACTGameView_Init(int a0, int a1)
+{
+    int i;
+    for (i = 0; i < D_006AA4B0[0x4B0 / 4]; i++) {
+        if (D_006AA4B0[i] == a1) {
+            return *((unsigned char *)&D_006AA4B0[i] + 0x190);
+        }
+    }
+    return 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCharctrl_Lock);
+int ACTCharctrl_Lock(int a0, int a1) {
+    int i;
+    for (i = 0; i < D_006AA4B0[0x12C]; i++) {
+        if (D_006AA4B0[i] == a1) {
+            return *(unsigned char *)((char *)D_006AA4B0 + i * 4 + 0x320);
+        }
+    }
+    return 0;
+}
 
 int ACTCharctrl_Unlock(int a0)
 {

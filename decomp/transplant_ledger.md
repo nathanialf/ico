@@ -1906,3 +1906,135 @@ gate re-run before commit.
 - REVERTED `MakeBoundingBox` (old `func_00240B60`) @ 0x00240B60 — src/PObj.c:6: incompatible types in assignment
 - REVERTED `MakePacket` (old `func_00240B68`) @ 0x00240B68 — insn 0: expected `jr	ra` built `addiu	v0,gp,0`
 - REVERTED `FreePObj` (old `func_00240BD0`) @ 0x00240BD0 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+
+
+# Phase 4 — aug6 -> retail body port (`tools/port_from_aug6.py`)
+
+Bodies below were carried over from the aug6 prototype branch's matched C
+(clean-room, `main` in AUG6_ROOT) with every aug6 symbol rebound to its
+retail counterpart by the lockstep reloc-slot walk.  Nothing here was
+hand-tuned: each function either reproduced the retail instruction stream
+as-is (`PORTED`) or went straight back to `INCLUDE_ASM` (`REVERTED`, with
+the first divergence or compiler diagnostic recorded).  `SKIPPED` = deferred
+to the Phase-5 jump-table queue.
+
+Revert-reason classes: `unresolved-symbol` (a reloc slot the walk could not
+bind), `callee-sig-conflict` / `arity` (a Phase-3 retail body in the same TU
+declares the callee with a placeholder signature the aug6 body contradicts),
+`undeclared` / `parse` (decl context), `codegen` (compiles, wrong bytes).
+
+### src/Matrix
+- PORTED `_RemakeNormal` w1 @ 0x00117DB0 <- aug6 seki/src/Matrix (2 syms rebound)
+- PORTED `_Sqrt` w1 @ 0x00117E70 <- aug6 seki/src/Matrix (2 syms rebound)
+- PORTED `_InitCurrentMatrix` w1 @ 0x00117F30 <- aug6 seki/src/Matrix (0 syms rebound)
+- PORTED `_TransCurrentMatrix` w1 @ 0x00118000 <- aug6 seki/src/Matrix (0 syms rebound)
+- PORTED `_GetCurrentMatrix` w1 @ 0x001181E0 <- aug6 seki/src/Matrix (0 syms rebound)
+- PORTED `_GetCurrentMatrixTrans` w1 @ 0x00118268 <- aug6 seki/src/Matrix (0 syms rebound)
+
+### src/fieldCollision
+- PORTED `DispCollisionPC` w1 @ 0x00165FB8 <- aug6 fumi/src/fieldCollision (2 syms rebound)
+- PORTED `__ClipWall` w1 @ 0x00166118 <- aug6 fumi/src/fieldCollision (7 syms rebound)
+- PORTED `ClipWall` w1 @ 0x00167760 <- aug6 fumi/src/fieldCollision (3 syms rebound)
+- PORTED `ClipWallFuchiHangWalkStop` w1 @ 0x00168058 <- aug6 fumi/src/fieldCollision (9 syms rebound)
+- PORTED `ChangeFieldCollisionDebugMode` w1 @ 0x00168538 <- aug6 fumi/src/fieldCollision (1 syms rebound)
+- PORTED `LoadCollision` w1 @ 0x00168558 <- aug6 fumi/src/fieldCollision (1 syms rebound)
+- PORTED `DrawCollision` w1 @ 0x00168578 <- aug6 fumi/src/fieldCollision (1 syms rebound)
+- PORTED `ClipPlane` w1 @ 0x00168598 <- aug6 fumi/src/fieldCollision (1 syms rebound)
+- PORTED `GetOrientOfWall` w1 @ 0x001685B8 <- aug6 fumi/src/fieldCollision (2 syms rebound)
+- REVERTED `ClipWallEField` w1 @ 0x001683A8 — [codegen] insn 1: expected `lw	v0,0(gp)` built `sd	ra,0(sp)`
+- REVERTED `ClipWallBoxStop` w1 @ 0x001683C8 — [codegen] insn 1: expected `lw	v0,0(gp)` built `sd	ra,0(sp)`
+- REVERTED `ClipWallAdjustPos` w1 @ 0x001683E8 — [codegen] insn 1: expected `lw	v0,0(gp)` built `sd	ra,0(sp)`
+- REVERTED `ClipWallE` w1 @ 0x00168408 — [codegen] insn 1: expected `lw	v0,0(gp)` built `sd	ra,0(sp)`
+- REVERTED `ClipWallCheckCB` w1 @ 0x00168428 — [codegen] insn 1: expected `lw	v0,0(gp)` built `sd	ra,0(sp)`
+- REVERTED `ClipWallFieldCheckCB` w1 @ 0x00168448 — [codegen] insn 1: expected `lw	v0,0(gp)` built `sd	ra,0(sp)`
+- REVERTED `ClipFloor` w1 @ 0x00168468 — [codegen] insn 1: expected `lw	v0,0(gp)` built `sd	ra,0(sp)`
+- REVERTED `ClipFloorE` w1 @ 0x00168488 — [codegen] insn 1: expected `lw	v0,0(gp)` built `sd	ra,0(sp)`
+- REVERTED `ClipFloorR` w1 @ 0x001684A8 — [codegen] insn 1: expected `lw	v0,0(gp)` built `sd	ra,0(sp)`
+- REVERTED `ClipFloorIH` w1 @ 0x001684C8 — [codegen] insn 1: expected `lw	v0,0(gp)` built `sd	ra,0(sp)`
+- REVERTED `ClipFloorCheckCB` w1 @ 0x001684E8 — [codegen] insn 0: expected `addiu	sp,sp,-16` built `sw	a1,0(gp)`
+- REVERTED `ClipCollision` w1 @ 0x00168510 — [codegen] insn 0: expected `addiu	sp,sp,-16` built `sw	a1,0(gp)`
+- REVERTED `SetSimplePlane` w1 @ 0x001685E0 — [codegen] insn 9: expected `lw	v0,0(gp)` built `daddu	a0,s0,zero`
+
+### ios/shockdriver
+- PORTED `Vibration_ShotDecode` w1 @ 0x0013B8F0 <- aug6 fumi/ios/shockdriver (2 syms rebound)
+- PORTED `Vibration_WaveDecode` w1 @ 0x0013B970 <- aug6 fumi/ios/shockdriver (2 syms rebound)
+- PORTED `Shock_SetMotor` w1 @ 0x0013BA20 <- aug6 fumi/ios/shockdriver (5 syms rebound)
+- PORTED `ShockRequestBox_Request` w1 @ 0x0013C320 <- aug6 fumi/ios/shockdriver (1 syms rebound)
+- PORTED `ShockRequestBox_DecodeRequest` w1 @ 0x0013C488 <- aug6 fumi/ios/shockdriver (0 syms rebound)
+- PORTED `ShockRequestBox_EndRequestFree` w1 @ 0x0013C4C0 <- aug6 fumi/ios/shockdriver (0 syms rebound)
+- PORTED `ShockDriver_VoiceSet_NumberRegist` w1 @ 0x0013C820 <- aug6 fumi/ios/shockdriver (1 syms rebound)
+- PORTED `ShockDriver_GetShockVoiceMax` w1 @ 0x0013C958 <- aug6 fumi/ios/shockdriver (1 syms rebound)
+- PORTED `ShockDriver_GetShockVoiceSet` w1 @ 0x0013C9D8 <- aug6 fumi/ios/shockdriver (0 syms rebound)
+- PORTED `ShockDriver_GetShockVoice` w1 @ 0x0013CA48 <- aug6 fumi/ios/shockdriver (1 syms rebound)
+- PORTED `ShockRevice_Wave` w1 @ 0x0013CC60 <- aug6 fumi/ios/shockdriver (0 syms rebound)
+- REVERTED `ShockEmulator_EmulationShot` w1 @ 0x0013CAD8 — [codegen] ios/shockdriver.c:385: request for member `arr' in something not a structure or union
+- REVERTED `Init_ShockRequestAlloc` w1 @ 0x0013CB88 — [codegen] ios/shockdriver.c:397: request for member `arr' in something not a structure or union
+- REVERTED `Reset_ShockRequestStruct` w1 @ 0x0013CC00 — [codegen] ios/shockdriver.c:405: request for member `arr' in something not a structure or union
+
+### src/act-game
+- PORTED `ACTGameView_Loop` w1 @ 0x00149AE0 <- aug6 fumi/src/act-game (12 syms rebound)
+- PORTED `ACTGame_InnerVelocityUpdate` w1 @ 0x00149F70 <- aug6 fumi/src/act-game (3 syms rebound)
+- PORTED `ACTGame_BeforeFunc` w1 @ 0x00149FF0 <- aug6 fumi/src/act-game (4 syms rebound)
+- PORTED `ActOrientTest` w1 @ 0x0014A100 <- aug6 fumi/src/act-game (1 syms rebound)
+- PORTED `GetGirlHandlinkClInfo` w1 @ 0x0014A178 <- aug6 fumi/src/act-game (7 syms rebound)
+- PORTED `GetTarget` w1 @ 0x0014A330 <- aug6 fumi/src/act-game (3 syms rebound)
+- PORTED `ACTLookTargetSystem_Exec` w1 @ 0x0014A3A8 <- aug6 fumi/src/act-game (3 syms rebound)
+- PORTED `ACTGameCollisionOff` w1 @ 0x0014A700 <- aug6 fumi/src/act-game (2 syms rebound)
+- PORTED `ACTGame_CheckHandMotion` w1 @ 0x0014A850 <- aug6 fumi/src/act-game (4 syms rebound)
+- PORTED `ACTGame_StageChangeGObjID` w1 @ 0x0014A980 <- aug6 fumi/src/act-game (3 syms rebound)
+- PORTED `ACTGameView_Init` w1 @ 0x0014AF70 <- aug6 fumi/src/act-game (1 syms rebound)
+- PORTED `ACTCharctrl_Lock` w1 @ 0x0014AFB8 <- aug6 fumi/src/act-game (1 syms rebound)
+- REVERTED `ACTGame_DisconnectHand` w1 @ 0x0014B090 — [arity] src/act-game.c:489: too few arguments to function `checkHit'
+- REVERTED `PAIR_GetPosition_BOY` w1 @ 0x0014B0B8 — [undeclared] src/act-game.c:494: `D_0063226C_flt' undeclared (first use in this function)
+
+### src/commonact
+- PORTED `WithMailFunc_WayBeginPosError` w1 @ 0x00157BF8 <- aug6 fumi/src/commonact (2 syms rebound)
+- PORTED `actCommonLever` w1 @ 0x00159C38 <- aug6 fumi/src/commonact (8 syms rebound)
+- PORTED `funcCommonJumpDircorrect` w1 @ 0x0015D348 <- aug6 fumi/src/commonact (1 syms rebound)
+- PORTED `funcCommonError` w1 @ 0x0015EDB8 <- aug6 fumi/src/commonact (4 syms rebound)
+- PORTED `SetMotionDirectionSmooze` w1 @ 0x0015EE10 <- aug6 fumi/src/commonact (4 syms rebound)
+- PORTED `ACT_LAYOUT_GAMEOVER` w1 @ 0x0015F298 <- aug6 fumi/src/commonact (2 syms rebound)
+- PORTED `_ACTMotDirSmzDirect` w1 @ 0x0015F320 <- aug6 fumi/src/commonact (2 syms rebound)
+- PORTED `actCommonDelete` w1 @ 0x0015F550 <- aug6 fumi/src/commonact (1 syms rebound)
+- REVERTED `WithMailFunc_AttackRejectInQueen` w1 @ 0x00157DC8 — [arity] src/commonact.c:80: too many arguments to function `func_00157DA0'
+- REVERTED `GetCorrectOrientOfChain` w1 @ 0x00157E68 — [arity] src/commonact.c:74: too many arguments to function `func_00157DA0'
+- REVERTED `actCommonRope` w1 @ 0x001584D8 — [codegen] insn 29: expected `jal	0 <actCommonRope>` built `jal	2050 <func_00158328.9>`
+- REVERTED `actCommonSlowrun` w1 @ 0x0015F228 — [parse] src/commonact.c:292: parse error before `D_00292540'
+- REVERTED `ACTAdjustPlane` w1 @ 0x0015F2D8 — [codegen] insn 1: expected `lui	at,0xbf80` built `dli	a2,0xbff0`
+
+### src/camera-ico2
+- PORTED `CameraSetCameraSet_Default` w1 @ 0x00187418 <- aug6 omori/src/camera-ico2 (4 syms rebound)
+- PORTED `GetRootPositionForCamera` w1 @ 0x00187570 <- aug6 omori/src/camera-ico2 (2 syms rebound)
+- PORTED `ico2camera_GetTargetPos` w1 @ 0x00187688 <- aug6 omori/src/camera-ico2 (4 syms rebound)
+- PORTED `ico2camera_GetGroupNearest` w1 @ 0x001877E0 <- aug6 omori/src/camera-ico2 (2 syms rebound)
+- PORTED `initMonitorCamera` w1 @ 0x001878F8 <- aug6 omori/src/camera-ico2 (1 syms rebound)
+- PORTED `monitorMonitorCamera` w1 @ 0x00187908 <- aug6 omori/src/camera-ico2 (1 syms rebound)
+- PORTED `ChaseCamera` w1 @ 0x00187950 <- aug6 omori/src/camera-ico2 (0 syms rebound)
+- PORTED `CameraMove` w1 @ 0x00187990 <- aug6 omori/src/camera-ico2 (1 syms rebound)
+- PORTED `ReflectCameraSetBinary` w1 @ 0x001879A8 <- aug6 omori/src/camera-ico2 (1 syms rebound)
+- PORTED `SetCameraMatrix_Ico2` w1 @ 0x00187CC0 <- aug6 omori/src/camera-ico2 (7 syms rebound)
+- PORTED `GetCameraGroupFromGObj` w1 @ 0x001880C8 <- aug6 omori/src/camera-ico2 (2 syms rebound)
+- PORTED `AddPluralCameraSet` w1 @ 0x00188228 <- aug6 omori/src/camera-ico2 (4 syms rebound)
+- REVERTED `CameraSetCameraSet` w1 @ 0x001873C0 — [codegen] insn 21: expected `<end>` built `sll	zero,zero,0x0`
+- REVERTED `InitIco2Camera` w1 @ 0x001879D0 — [callee-sig-conflict] src/camera-ico2.c:15: conflicting types for `func_001D49C0'
+- REVERTED `MakeCameraSetBinary` w1 @ 0x001882D0 — [undeclared] src/camera-ico2.c:273: `g_E30' undeclared (first use in this function)
+- REVERTED `GetSizeOfCameraSetBinary` w1 @ 0x00188550 — [undeclared] src/camera-ico2.c:234: `D_0062C844_f' undeclared (first use in this function)
+
+### sound/s_init
+- PORTED `debug_DispSEInfo` w1 @ 0x00141F58 <- aug6 fumi/sound/s_init (3 syms rebound)
+- PORTED `soundOutputModeGet` w1 @ 0x00143AD0 <- aug6 fumi/sound/s_init (7 syms rebound)
+- PORTED `soundDataAreaGet` w1 @ 0x00143CD0 <- aug6 fumi/sound/s_init (1 syms rebound)
+- PORTED `soundSeDefPlayWithVolumeRate` w1 @ 0x00144120 <- aug6 fumi/sound/s_init (3 syms rebound)
+- PORTED `soundSeDefVolumeRateGet` w1 @ 0x00144178 <- aug6 fumi/sound/s_init (3 syms rebound)
+- PORTED `soundSeGroupGet` w1 @ 0x00144240 <- aug6 fumi/sound/s_init (2 syms rebound)
+- PORTED `soundVBlank` w1 @ 0x00144308 <- aug6 fumi/sound/s_init (2 syms rebound)
+- PORTED `soundSeKindBuild` w1 @ 0x00144390 <- aug6 fumi/sound/s_init (6 syms rebound)
+- PORTED `soundSeEnvDefaultSet` w1 @ 0x00144500 <- aug6 fumi/sound/s_init (3 syms rebound)
+
+### src/enemy_act
+- PORTED `subEnemyCollision` w1 @ 0x0015F9B0 <- aug6 fumi/src/enemy_act (1 syms rebound)
+- PORTED `actEnemyForceSwitchToCarry` w1 @ 0x0015FC50 <- aug6 fumi/src/enemy_act (4 syms rebound)
+- PORTED `_ApproachTarget_Way` w1 @ 0x00164EB0 <- aug6 fumi/src/enemy_act (3 syms rebound)
+- PORTED `actEnemy_GetClingTarget` w1 @ 0x001654E0 <- aug6 fumi/src/enemy_act (1 syms rebound)
+- PORTED `IsEnemyBrainToBoy` w1 @ 0x00165CE8 <- aug6 fumi/src/enemy_act (1 syms rebound)
+- PORTED `GetEnemyTypeFromGObj` w1 @ 0x00165D18 <- aug6 fumi/src/enemy_act (2 syms rebound)
