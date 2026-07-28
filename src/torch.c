@@ -8,7 +8,7 @@ INCLUDE_ASM("asm/nonmatchings/src/torch", LightTorchOff);
 
 INCLUDE_ASM("asm/nonmatchings/src/torch", moveTorch);
 
-INCLUDE_ASM("asm/nonmatchings/src/torch", CheckTorchChainReactionReverse);
+void CheckTorchChainReactionReverse(void) {}
 
 INCLUDE_ASM("asm/nonmatchings/src/torch", TorchGeo);
 

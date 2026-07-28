@@ -1800,3 +1800,151 @@ gate re-run before commit.
 - REVERTED `func_001F0540` (old `func_001F0540`) @ 0x001F0540 — src/stormTest.c:9: redefinition of `struct GObj'
 - REVERTED `func_001F0550` (old `func_001F0550`) @ 0x001F0550 — src/stormTest.c:9: redefinition of `struct GObj'
 - REVERTED `func_001F0568` (old `func_001F0568`) @ 0x001F0568 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+
+## src/streamMotionManager
+- KEPT `PlayStreamMotion` (old `func_001F0B20`) @ 0x001F0B20
+- KEPT `func_001F0F90` (old `func_001F0F90`) @ 0x001F0F90
+- KEPT `ExecStreamMotionManager` (old `func_001F1058`) @ 0x001F1058
+- KEPT `StandbyStreamMotion` (old `func_001F10A8`) @ 0x001F10A8
+- KEPT `StopStreamMotion` (old `func_001F10F8`) @ 0x001F10F8
+- KEPT `DeleteStreamMotionManager` (old `func_001F1108`) @ 0x001F1108
+- REVERTED `func_001F0DA8` (old `func_001F0DA8`) @ 0x001F0DA8 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+
+## src/sugiTree
+- KEPT `func_001F1168` (old `func_001F1168`) @ 0x001F1168
+- KEPT `InitSugiLeafGeo` (old `func_001F1240`) @ 0x001F1240
+- KEPT `func_001F1838` (old `func_001F1838`) @ 0x001F1838
+- REVERTED `SugiLeafDL2` (old `func_001F11A0`) @ 0x001F11A0 — src/sugiTree.c:37: structure has no member named `data'
+
+## src/torch
+- KEPT `CheckTorchChainReactionReverse` (old `func_001F2140`) @ 0x001F2140
+- REVERTED `TorchGeo` (old `func_001F2148`) @ 0x001F2148 — src/torch.c:5: redefinition of `struct GObj'
+- REVERTED `TorchDL` (old `func_001F2230`) @ 0x001F2230 — src/torch.c:5: redefinition of `struct GObj'
+- REVERTED `IsTorchLightOn` (old `func_001F2240`) @ 0x001F2240 — src/torch.c:5: redefinition of `struct GObj'
+
+## src/waySystemManager
+- KEPT `func_001F2320` (old `func_001F2320`) @ 0x001F2320
+- KEPT `func_001F2390` (old `func_001F2390`) @ 0x001F2390
+- KEPT `func_001F23C0` (old `func_001F23C0`) @ 0x001F23C0
+- KEPT `func_001F23C8` (old `func_001F23C8`) @ 0x001F23C8
+- KEPT `func_001F23D0` (old `func_001F23D0`) @ 0x001F23D0
+- REVERTED `CreateWaySystemManagerGObj` (old `func_001F2250`) @ 0x001F2250 — src/waySystemManager.c:5: redefinition of `struct GObj'
+- REVERTED `RequestGetWayBegin` (old `func_001F22A0`) @ 0x001F22A0 — src/waySystemManager.c:9: `func_001F2370' undeclared (first use in this function)
+
+## src/weapon
+- KEPT `weaponFumbleSE` (old `func_001F3388`) @ 0x001F3388
+- KEPT `WeaponCurPos` (old `func_001F3F58`) @ 0x001F3F58
+- KEPT `dispInsectNet` (old `func_001F4228`) @ 0x001F4228
+- REVERTED `torchOffOfWeaponSE` (old `func_001F3308`) @ 0x001F3308 — src/weapon.c:5: redefinition of `struct GObj'
+- REVERTED `weaponHitReactionSE` (old `func_001F3368`) @ 0x001F3368 — src/weapon.c:5: redefinition of `struct GObj'
+- REVERTED `calcDynamicPathGeometry` (old `func_001F3A00`) @ 0x001F3A00 — insn 8: expected `j	0 <calcDynamicPathGeometry>` built `j	208 <weaponStickSE>`
+- REVERTED `WeaponHitEffect` (old `func_001F3FB0`) @ 0x001F3FB0 — src/weapon.c:8: redefinition of `struct GObj'
+- REVERTED `ExecWeaponHitReaction` (old `func_001F4098`) @ 0x001F4098 — src/weapon.c:7: redefinition of `struct GObj'
+- REVERTED `checkHit` (old `func_001F40C8`) @ 0x001F40C8 — src/weapon.c:7: redefinition of `struct GObj'
+- REVERTED `initializeQueenzSword` (old `func_001F40D8`) @ 0x001F40D8 — src/weapon.c:7: redefinition of `struct GObj'
+- REVERTED `InitWeaponGeo` (old `func_001F4150`) @ 0x001F4150 — src/weapon.c:7: redefinition of `struct GObj'
+- REVERTED `WeaponGeo` (old `func_001F41C8`) @ 0x001F41C8 — src/weapon.c:7: redefinition of `struct GObj'
+- REVERTED `WeaponDL` (old `func_001F4250`) @ 0x001F4250 — src/weapon.c:7: redefinition of `struct GObj'
+- REVERTED `PickupWeapon` (old `func_001F42D0`) @ 0x001F42D0 — src/weapon.c:7: redefinition of `struct GObj'
+- REVERTED `CheckSwapableWeapon` (old `func_001F42E8`) @ 0x001F42E8 — src/weapon.c:76: request for member `field' in something not a structure or union
+- REVERTED `ReleaseWeapon` (old `func_001F4318`) @ 0x001F4318 — src/weapon.c:7: redefinition of `struct GObj'
+- REVERTED `CheckWeaponKind` (old `func_001F43D0`) @ 0x001F43D0 — src/weapon.c:7: redefinition of `struct GObj'
+- REVERTED `LightTorchOnOfWeapon` (old `func_001F44C8`) @ 0x001F44C8 — src/weapon.c:7: redefinition of `struct GObj'
+
+## src/windField
+- KEPT `ExecWindField` (old `func_001F4C00`) @ 0x001F4C00
+- REVERTED `drawSenpuuki` (old `func_001F4BE0`) @ 0x001F4BE0 — src/windField.c:10: called object is not a function
+- REVERTED `getParallelWindVector` (old `func_001F4DD8`) @ 0x001F4DD8 — insn 1: expected `addiu	v0,v0,0` built `addiu	v0,v0,1024`
+
+## src/windManager
+
+## src/wireLetter
+- KEPT `ChangeColorWireString` (old `func_001F55D8`) @ 0x001F55D8
+- KEPT `Draw2DBox` (old `func_001F5608`) @ 0x001F5608
+
+## src/worm
+- REVERTED `GetWormRoute` (old `func_001F66A0`) @ 0x001F66A0 — src/worm.c:5: redefinition of `struct GObj'
+- REVERTED `GetWormCaptureVector` (old `func_001F69B0`) @ 0x001F69B0 — insn 0: expected `j	0 <GetWormCaptureVector>` built `j	208 <simulate>`
+- REVERTED `WormDL` (old `func_001F6A90`) @ 0x001F6A90 — src/worm.c:5: redefinition of `struct GObj'
+
+## src/Basic
+- KEPT `malloc_MemCpy` (old `func_001F6C88`) @ 0x001F6C88
+- KEPT `malloc_SetPartition` (old `func_001F6C98`) @ 0x001F6C98
+- KEPT `malloc_GetPartition` (old `func_001F6CA0`) @ 0x001F6CA0
+- KEPT `mallocseki` (old `func_001F6CA8`) @ 0x001F6CA8
+- KEPT `resetmallocseki` (old `func_001F6D90`) @ 0x001F6D90
+- KEPT `mallocsekistage` (old `func_001F6DB0`) @ 0x001F6DB0
+- REVERTED `reallocseki` (old `func_001F6DB8`) @ 0x001F6DB8 — insn 5: expected `lui	a2,0x0` built `addiu	a3,zero,382`
+- REVERTED `func_001F6E00` (old `func_001F6E00`) @ 0x001F6E00 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+
+## src/BgAnimation
+- KEPT `bga_DispLightning` (old `func_001FA590`) @ 0x001FA590
+- KEPT `bga_ResetCamera` (old `func_001FA598`) @ 0x001FA598
+- REVERTED `bga_GetCameraMatrix` (old `func_001FA5E0`) @ 0x001FA5E0 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+
+## src/DisplayFont
+- KEPT `font_GetHeight` (old `func_001FAA40`) @ 0x001FAA40
+- KEPT `font_Init` (old `func_001FAA50`) @ 0x001FAA50
+- REVERTED `func_001FAAA8` (old `func_001FAAA8`) @ 0x001FAAA8 — insn 0: expected `jr	ra` built `lwc1	$f0,0(gp)`
+
+## src/DisplayList
+- KEPT `dl_Clear` (old `func_001FB478`) @ 0x001FB478
+- KEPT `dl_Swap` (old `func_001FB480`) @ 0x001FB480
+- KEPT `dl_OpenDma` (old `func_001FB880`) @ 0x001FB880
+- QUARANTINED `dl_Debug` (old `func_001FB5E0`) @ 0x001FB5E0 — DisplayList-extra_cflags
+
+## src/DmaPacket
+- KEPT `dpk_SwapBuffer` (old `func_001FBA80`) @ 0x001FBA80
+- KEPT `dpk_CheckBufferSize` (old `func_001FBB40`) @ 0x001FBB40
+- REVERTED `func_001FBB48` (old `func_001FBB48`) @ 0x001FBB48 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+
+## src/EnemyInit
+- KEPT `enemy_Initialize` (old `func_001FBC18`) @ 0x001FBC18
+- KEPT `func_001FBF88` (old `func_001FBF88`) @ 0x001FBF88
+- REVERTED `func_001FC040` (old `func_001FC040`) @ 0x001FC040 — insn 0: expected `j	0 <func_001FC040>` built `j	3b0 <func_001FBFC8>`
+
+## isys/gobj_cam_dl
+- KEPT `isysGObjRemoveCameraDL` (old `func_001FC168`) @ 0x001FC168
+- KEPT `isysGObjMoveCameraDL` (old `func_001FC220`) @ 0x001FC220
+- KEPT `isysGObjLinkCameraDL` (old `func_001FC278`) @ 0x001FC278
+- KEPT `isysGObjLinkCameraDLAfterGObj` (old `func_001FC2D0`) @ 0x001FC2D0
+- REVERTED `func_001FC1A0` (old `func_001FC1A0`) @ 0x001FC1A0 — insn 5: expected `lui	a0,0x0` built `daddu	s4,a1,zero`
+
+## src/act-env
+- KEPT `func_00200A98` (old `func_00200A98`) @ 0x00200A98
+- REVERTED `func_00200970` (old `func_00200970`) @ 0x00200970 — src/act-env.c:5: redefinition of `struct GObj'
+
+## src/act-way
+- KEPT `ACTWay_SetBeginPositionIllegal` (old `func_00201DC8`) @ 0x00201DC8
+
+## src/act
+- KEPT `actInitialize_geo` (old `func_00203910`) @ 0x00203910
+- KEPT `ACTReserveTarget` (old `func_00203A10`) @ 0x00203A10
+- KEPT `actCreateSubThreadGOppArg` (old `func_00203B40`) @ 0x00203B40
+- KEPT `actSetInterrupt` (old `func_00203C38`) @ 0x00203C38
+
+## src/act2
+- KEPT `actDummy` (old `func_00203CB8`) @ 0x00203CB8
+- KEPT `func_00203F18` (old `func_00203F18`) @ 0x00203F18
+
+## src/seMail
+- KEPT `seMailTargetDistCheck` (old `func_00204E90`) @ 0x00204E90
+- KEPT `func_00205048` (old `func_00205048`) @ 0x00205048
+- KEPT `func_00205518` (old `func_00205518`) @ 0x00205518
+- REVERTED `func_00204F58` (old `func_00204F58`) @ 0x00204F58 — [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `func_00205000` (old `func_00205000`) @ 0x00205000 — insn 5: expected `beq	zero,zero,38 <func_00205000+0x38>` built `beq	zero,zero,860 <func_00205000+0x40>`
+
+## src/way_kidnap
+- KEPT `WayPointWithRangeFromPos` (old `func_00205628`) @ 0x00205628
+- KEPT `WayPointWithRangeFromPos2` (old `func_00205670`) @ 0x00205670
+
+## src/way_llf
+- KEPT `AddWayPoint` (old `func_00205AD8`) @ 0x00205AD8
+- KEPT `InsertWayPointAfter` (old `func_00205B50`) @ 0x00205B50
+
+## src/way_tool
+- REVERTED `draw_way_group` (old `func_00207018`) @ 0x00207018 — insn 15: expected `lui	a0,0x0` built `andi	v1,v0,0x40`
+
+## src/deja
+- KEPT `func_00208740` (old `func_00208740`) @ 0x00208740
+- KEPT `func_00209AB0` (old `func_00209AB0`) @ 0x00209AB0

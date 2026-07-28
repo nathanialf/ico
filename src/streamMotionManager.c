@@ -1,8 +1,44 @@
 #include "common.h"
 
+
+
+
+
+
+
+extern int D_00633718;
+extern int D_0063371C;
+extern int D_00633728;
+extern int D_00633724;
+extern int D_00633720;
+extern char D_0061A598[];
+extern void debug_assertMessage();
+struct Slot {
+    int pad[4];
+    int self_ptr;
+    int pad2[1];
+};
+extern int D_00633708;
+extern struct Slot D_0070D4D8[];
+extern int D_0063370C;
+extern void func_00264128();
 INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", _infoUpdate);
 
-INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", PlayStreamMotion);
+void PlayStreamMotion(int *idx_p, char *dst, int size, char *src, int amt)
+{
+    int old_idx = *idx_p;
+    int new_idx = old_idx + amt;
+    *idx_p = new_idx;
+    if (new_idx >= size) {
+        int overflow = new_idx - size;
+        int first_chunk = amt - overflow;
+        *idx_p = overflow;
+        func_00264128(dst + old_idx, src, first_chunk);
+        func_00264128(dst, src + first_chunk, *idx_p);
+        return;
+    }
+    func_00264128(dst + old_idx, src, amt);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", func_001F0BC8);
 
@@ -10,15 +46,53 @@ INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", func_001F0DA8);
 
 INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", func_001F0E40);
 
-INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", func_001F0F90);
+void func_001F0F90(void) {
+    D_0063370C = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", _transRingBuf);
 
-INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", ExecStreamMotionManager);
+int ExecStreamMotionManager(volatile int *self)
+{
+    int slot = D_00633708;
+    D_0070D4D8[slot].self_ptr = (int)self;
+    ((int *)self[0x57])[0x11C] = slot;
+    ((int *)self[0x57])[0x13C] = 0;
+    ((int *)self[0x57])[0x13B] = 0;
+    ((int *)self[0x57])[0x154] = 0;
+    D_00633708 = slot + 1;
+    return slot;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", StandbyStreamMotion);
+int StandbyStreamMotion(int idx)
+{
+  int *entry;
+  entry = ((char *) D_0070D4D8) - (-(idx * 0x18));
+  if (((int *) entry)[0xC / 4] < 0)
+  {
+    debug_assertMessage(D_0061A598);
+    return 4;
+  }
+  return ((int *) (((char *) D_0070D4D8) + (idx * 0x18)))[0x8 / 4];
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", StopStreamMotion);
+void StopStreamMotion(void) {
+    D_00633728 = 0;
+    D_00633720 = 0;
+    D_00633724 = 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", DeleteStreamMotionManager);
+int DeleteStreamMotionManager(void)
+{
+    unsigned int p = D_00633718;
+    unsigned int q = D_0063371C;
+    unsigned int end = p + 0x1000;
+    int r;
+    if (q < p)
+        q += 0x28000;
+    r = 1;
+    if (!(q < p) && (int)q < (int)end)
+        r = 0;
+    return r;
+}
 

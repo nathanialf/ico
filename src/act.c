@@ -1,5 +1,10 @@
 #include "common.h"
 
+
+
+extern char *D_006321DC;
+extern int isysGObjProcPausePtr();
+extern int iosOmBeforeFuncStandard(char *self_arg, int val5, int val6);
 INCLUDE_ASM("asm/nonmatchings/src/act", actChangeActBrain);
 
 INCLUDE_ASM("asm/nonmatchings/src/act", actChangeActMain);
@@ -20,19 +25,35 @@ INCLUDE_ASM("asm/nonmatchings/src/act", BeforeFunc);
 
 INCLUDE_ASM("asm/nonmatchings/src/act", ACTDebugMove);
 
-INCLUDE_ASM("asm/nonmatchings/src/act", actInitialize_geo);
+void actInitialize_geo(void) {}
 
 INCLUDE_ASM("asm/nonmatchings/src/act", actInitialize_only_charcter);
 
-INCLUDE_ASM("asm/nonmatchings/src/act", ACTReserveTarget);
+int ACTReserveTarget(int *self, int a1, int a2)
+{
+    int *p = (int *)self[0x164 / 4];
+    if (p[0x12C / 4] != 0)
+        goto ret0;
+    p[0x12C / 4] = (int)self;
+    p[0x130 / 4] = a2;
+    iosOmBeforeFuncStandard(self, a2, a1);
+    return 1;
+ret0:
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/act", _ACTRun);
 
 INCLUDE_ASM("asm/nonmatchings/src/act", _ACTWait);
 
-INCLUDE_ASM("asm/nonmatchings/src/act", actCreateSubThreadGOppArg);
+void actCreateSubThreadGOppArg(int a0, int a1)
+{
+    *(int *)((char *)isysGObjProcPausePtr(D_006321DC, a0, 0, a1) + 0x64) = 1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/act", actCreateSubThread);
 
-INCLUDE_ASM("asm/nonmatchings/src/act", actSetInterrupt);
+void actSetInterrupt(char *self, int val) {
+    *(int *)(self + 0x0) = val;
+}
 
