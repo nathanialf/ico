@@ -5,119 +5,331 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ICO decompilation progress</title>
 <style>
+  /* ------------------------------------------------------------------ *
+   * Self-contained on purpose: no fonts, no CDN, no build step. The only
+   * network traffic this page makes is the same-origin progress.json
+   * fetches at the bottom of the script.
+   * ------------------------------------------------------------------ */
   :root {
-    --bg:#0f1116; --panel:#171a21; --line:#262b36; --fg:#d6dae2;
-    --dim:#8a93a3; --bar:#2a3140; --ok:#3fb950; --okdim:#1f6f2e;
-    --accent:#58a6ff;
+    color-scheme: dark;               /* dark native scrollbars + form controls */
+
+    --bg:#0f1116; --panel:#171a21; --line:#262b36; --hover:#1b1f28;
+    --fg:#d6dae2; --dim:#8a93a3;
+    --bar:#2a3140; --ok:#3fb950; --accent:#58a6ff; --warn:#d29922; --err:#f85149;
+    --ctl:#606979;                    /* control outline — 3.4:1 on --bg (WCAG 1.4.11) */
+    --sel:#30435d;                    /* selected segment container (M3 secondary-container) */
+    --layer:rgba(214,218,226,.08);    /* M3 hover state layer: on-surface @ 8% */
+    --mkn:#7b8494;                    /* "unmatched" marker — 5.0:1 on --bg */
+
+    --maxw:1040px;
+    --ease:cubic-bezier(.22,1,.36,1); /* ease-out-quart */
+
+    /* Row column widths live here so the breakpoints below only retune
+       numbers. A column set to `display:none` is dropped, not squeezed. */
+    --pad-x:16px;  --indent:12px;  --gap-col:8px;  --row-y:4px;
+    --w-bar:64px;  --w-pct:44px;   --w-sz:58px;
   }
+  @media (min-width:560px) {
+    :root { --pad-x:20px; --indent:16px; --gap-col:10px; --row-y:5px;
+            --w-bar:110px; --w-pct:48px; --w-cnt:84px; --w-sz:62px; }
+  }
+  @media (min-width:900px) {
+    :root { --pad-x:24px; --indent:18px; --row-y:5px;
+            --w-bar:160px; --w-pct:52px; --w-cnt:96px; --w-sz:70px; }
+  }
+
   * { box-sizing:border-box; }
   body {
     margin:0; background:var(--bg); color:var(--fg);
-    font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    font:14px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    -webkit-text-size-adjust:100%;
   }
-  header { padding:24px 20px 8px; max-width:1000px; margin:0 auto; }
-  h1 { font-size:20px; margin:0 0 4px; }
-  .sub { color:var(--dim); font-size:13px; }
-  .cards { display:flex; gap:12px; flex-wrap:wrap; margin:16px 0 4px; }
-  .card {
-    background:var(--panel); border:1px solid var(--line); border-radius:8px;
-    padding:12px 16px; min-width:150px;
+  .wrap { max-width:var(--maxw); margin:0 auto; padding-inline:var(--pad-x); }
+
+  /* ---------- header ---------- */
+  header { padding:24px 0 0; }
+  .head {
+    display:flex; flex-wrap:wrap; gap:16px 24px;
+    align-items:flex-end; justify-content:space-between;
   }
-  .card .n { font-size:22px; font-weight:600; }
-  .card .l { color:var(--dim); font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
-  main { max-width:1000px; margin:0 auto; padding:8px 20px 60px; }
-  .toolbar { display:flex; gap:10px; align-items:center; margin:12px 0; flex-wrap:wrap; }
-  input[type=search] {
-    background:var(--panel); border:1px solid var(--line); color:var(--fg);
-    border-radius:6px; padding:6px 10px; font-size:13px; min-width:220px;
-  }
-  label.chk { color:var(--dim); font-size:13px; user-select:none; cursor:pointer; }
-  .row {
-    display:flex; align-items:center; gap:10px; padding:5px 8px;
-    border-radius:6px; cursor:pointer;
-  }
-  .row:hover { background:#1b1f28; }
-  .row.func { cursor:default; }
-  .row.func:hover { background:transparent; }
-  .tw { width:14px; color:var(--dim); flex:0 0 auto; font-size:11px; text-align:center; }
-  .nm { flex:1 1 auto; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .func .nm { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:13px; }
-  .pct { width:52px; text-align:right; color:var(--dim); font-variant-numeric:tabular-nums; font-size:12px; }
-  .cnt { width:120px; text-align:right; color:var(--dim); font-size:12px; font-variant-numeric:tabular-nums; }
-  .bar { flex:0 0 140px; height:8px; background:var(--bar); border-radius:4px; overflow:hidden; }
-  .bar > i { display:block; height:100%; background:var(--ok); }
-  .children { margin-left:18px; border-left:1px solid var(--line); padding-left:4px; display:none; }
-  .open > .children { display:block; }
-  .open > .row > .tw::before { content:"▼"; }
-  .row > .tw::before { content:"▶"; }
-  .func .tw::before { content:""; }
-  .mk { width:16px; text-align:center; flex:0 0 auto; }
-  .mk.y { color:var(--ok); }
-  .mk.n { color:#4b5363; }
-  .sz { width:64px; text-align:right; color:var(--dim); font-size:12px; font-variant-numeric:tabular-nums; }
+  h1 { font-size:20px; line-height:1.25; margin:0 0 6px; letter-spacing:-.01em; text-wrap:balance; }
+  .sub { color:var(--dim); font-size:13px; margin:0; max-width:62ch; text-wrap:pretty; }
   a { color:var(--accent); text-decoration:none; }
-  footer { max-width:1000px; margin:0 auto; padding:0 20px 40px; color:var(--dim); font-size:12px; }
+  a:hover { text-decoration:underline; }
+  a:focus-visible, .row:focus-visible, input:focus-visible {
+    outline:2px solid var(--accent); outline-offset:2px; border-radius:4px;
+  }
+
+  /* ---------- version picker: M3 single-select segmented button ---------- *
+   * M3's own accessibility page says a single-select segmented button
+   * "behave[s] like radio buttons … the label is Radiogroup", but then
+   * prescribes Tab-to-every-segment, which contradicts the ARIA radiogroup
+   * pattern it just named. We resolve that in favour of ARIA: one tab stop
+   * (roving tabindex) plus arrow/Home/End, so the exposed role and the
+   * keyboard behaviour agree.
+   * Selection is signalled by container fill AND the M3 leading check icon,
+   * per M3: "make sure color isn't the only way to show selection."
+   * Metrics are the M3 outlined-segmented-button tokens: 40dp container,
+   * corner-full, 1dp outline, 18dp icon, 8dp inner gap, 48dp target.       */
+  /* Sits beside the title when there is room, drops to its own row and fills
+     the column when there isn't — but never stretches past a comfortable
+     control width. */
+  .verpick { display:flex; flex-direction:column; gap:6px; flex:1 1 260px; max-width:344px; }
+  .verpick-lbl {
+    color:var(--dim); font-size:11px; text-transform:uppercase; letter-spacing:.06em;
+  }
+  .seg { display:flex; }
+  .seg-btn {
+    flex:1 1 auto; position:relative; display:inline-flex; align-items:center;
+    justify-content:center; gap:8px; min-height:40px; padding:0 14px;
+    font:inherit; font-size:14px; font-weight:500; line-height:1; letter-spacing:.01em;
+    background:transparent; color:var(--fg);
+    border:1px solid var(--ctl); cursor:pointer;
+    transition:background-color 150ms var(--ease);
+  }
+  .seg-btn + .seg-btn { margin-left:-1px; }            /* collapse shared edge */
+  .seg-btn:first-child { border-radius:20px 0 0 20px; padding-left:16px; }
+  .seg-btn:last-child  { border-radius:0 20px 20px 0; padding-right:16px; }
+  /* M3 asks for a 48dp target on a 40dp container: grow the hit area without
+     growing the pill. Offsets are 5px, not 4px, because an absolutely
+     positioned child is laid out against the padding box — the 1px outline
+     would otherwise eat 2px of the target. */
+  .seg-btn::after { content:""; position:absolute; inset:-5px 0; }
+  .seg-btn:hover { background:var(--layer); }
+  .seg-btn[aria-checked="true"] { background:var(--sel); z-index:1; }
+  .seg-btn[aria-checked="true"]:hover {
+    background:linear-gradient(var(--layer),var(--layer)) var(--sel);
+  }
+  /* M3 focus-ring tokens: 3px, 2px outward offset. Shape change, not colour. */
+  .seg-btn:focus-visible {
+    outline:3px solid var(--accent); outline-offset:2px; z-index:2;
+  }
+  .seg-ic {
+    width:18px; height:18px; flex:0 0 18px; fill:currentColor;
+    opacity:0; transform:scale(.6);
+    transition:opacity 180ms var(--ease), transform 180ms var(--ease);
+  }
+  /* The icon slot is always reserved, so selecting a segment doesn't shove
+     the labels sideways. */
+  .seg-btn[aria-checked="true"] .seg-ic { opacity:1; transform:none; }
+
+  /* ---------- summary ---------- *
+   * One panel with hairline-divided cells rather than four floating cards:
+   * fewer boxes, and the two percentage cells can carry the same bar the
+   * tree uses, which ties the summary to the rows below it. */
+  .stats {
+    display:grid; grid-template-columns:1fr; gap:1px;
+    margin:20px 0 0; background:var(--line);
+    border:1px solid var(--line); border-radius:12px;
+  }
+  @media (min-width:560px) { .stats { grid-template-columns:repeat(2,1fr); } }
+  @media (min-width:900px) { .stats { grid-template-columns:repeat(4,1fr); } }
+  .card {
+    background:var(--panel); padding:10px 14px;
+    display:flex; flex-direction:row-reverse; justify-content:space-between;
+    align-items:baseline; gap:12px;
+  }
+  .card:first-child { border-radius:11px 11px 0 0; }
+  .card:last-child  { border-radius:0 0 11px 11px; }
+  /* The value is the payload: it never wraps. The label gives up room first. */
+  .card .n { flex:0 0 auto; white-space:nowrap;
+             font-size:18px; font-weight:600; font-variant-numeric:tabular-nums; }
+  .card .l { flex:0 1 auto; color:var(--dim); font-size:11px;
+             text-transform:uppercase; letter-spacing:.05em; }
+  .card .bar { display:none; }
+  @media (min-width:560px) {
+    .card {
+      flex-direction:column; align-items:stretch; justify-content:flex-start;
+      gap:4px; padding:14px 16px;
+    }
+    .card:first-child { border-radius:11px 0 0 0; }
+    .card:last-child  { border-radius:0 0 11px 0; }
+    .card .n { font-size:20px; }
+    .card .bar { display:block; flex:none; width:100%; margin-top:auto; }
+  }
+  @media (min-width:560px) and (max-width:899px) {
+    .card:nth-child(2) { border-radius:0 11px 0 0; }
+    .card:nth-child(3) { border-radius:0 0 0 11px; }
+  }
+  @media (min-width:900px) {
+    .card:first-child { border-radius:11px 0 0 11px; }
+    .card:last-child  { border-radius:0 11px 11px 0; }
+  }
+
+  /* ---------- toolbar ---------- */
+  main { padding-block:8px 60px; }
+  .toolbar { display:flex; gap:10px 16px; align-items:center; margin:20px 0 8px; flex-wrap:wrap; }
+  input[type=search] {
+    background:var(--panel); border:1px solid var(--ctl); color:var(--fg);
+    border-radius:8px; padding:8px 10px; font:inherit; font-size:13px;
+    flex:1 1 220px; min-width:0; max-width:340px; min-height:36px;
+  }
+  input[type=search]::placeholder { color:var(--dim); opacity:1; }
+  label.chk {
+    color:var(--dim); font-size:13px; user-select:none; cursor:pointer;
+    display:inline-flex; align-items:center; gap:6px; min-height:36px;
+  }
+  label.chk:hover { color:var(--fg); }
+  input[type=checkbox] { accent-color:var(--accent); width:15px; height:15px; margin:0; }
+
+  /* ---------- tree ---------- */
+  .row {
+    display:flex; align-items:center; gap:var(--gap-col);
+    padding:var(--row-y) 6px; border-radius:6px;
+    transition:background-color 120ms var(--ease);
+  }
+  .row.prog, .row.tu {
+    cursor:pointer; width:100%; text-align:left; font:inherit; color:inherit;
+    background:none; border:0;
+  }
+  .row.prog:hover, .row.tu:hover { background:var(--hover); }
+  .row:focus-visible { outline:2px solid var(--accent); outline-offset:-2px; }
+  .row.prog .nm { font-weight:600; }
+
+  .tw { width:14px; flex:0 0 14px; color:var(--dim); font-size:10px; text-align:center; }
+  .tw::before {
+    content:"\25B6"; display:inline-block;
+    transition:transform 150ms var(--ease);
+  }
+  .open > .row > .tw::before { transform:rotate(90deg); }
+
+  .nm { flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .func .nm { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12.5px; }
+  .bar { flex:0 0 var(--w-bar); height:8px; background:var(--bar); border-radius:4px; overflow:hidden; }
+  .bar > i { display:block; height:100%; background:var(--ok); border-radius:inherit; }
+  .pct { width:var(--w-pct); flex:0 0 auto; text-align:right; color:var(--fg); font-size:12px; font-variant-numeric:tabular-nums; }
+  .cnt { width:var(--w-cnt); flex:0 0 auto; text-align:right; color:var(--dim); font-size:12px; font-variant-numeric:tabular-nums; }
+  .sz  { width:var(--w-sz);  flex:0 0 auto; text-align:right; color:var(--dim); font-size:12px; font-variant-numeric:tabular-nums; }
+  .addr { flex:0 0 auto; color:var(--dim); font-size:12px;
+          font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+  .mk { width:16px; flex:0 0 16px; text-align:center; }
+  .mk.y { color:var(--ok); }
+  .mk.n { color:var(--mkn); }
+
+  /* Columns are dropped, not squeezed, as the viewport narrows. What survives
+     everywhere is what answers "how far along is this, and how big is it?":
+     name, bar, percentage, size. The matched/total function count and the ROM
+     address are reference detail you look up, not signal you scan, so they
+     are the first and second things to go. */
+  .cnt, .addr { display:none; }
+  @media (min-width:560px) { .cnt { display:block; } }
+  @media (min-width:760px) { .addr { display:block; } }
+
+  .children {
+    margin-left:var(--indent); border-left:1px solid var(--line);
+    padding-left:4px; display:none;
+  }
+  .open > .children { display:block; }
+
+  /* ---------- footer ---------- */
+  footer { padding-block:0 40px; color:var(--dim); font-size:12px; }
+  footer p { margin:0 0 10px; }
+  .warn {
+    color:var(--warn); background:rgba(210,153,34,.08);
+    border:1px solid rgba(210,153,34,.28); border-radius:8px; padding:10px 12px;
+  }
+  .err { color:var(--err); }
+  code { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.92em; }
+
+  /* Material fade-through when the dataset is swapped: the new content is
+     the default state, so if the animation never runs nothing is hidden. */
+  @keyframes fadeThrough { from { opacity:0; } to { opacity:1; } }
+  #cards, #tree > .node { animation:fadeThrough 160ms var(--ease); }
+
+  @media (prefers-reduced-motion:reduce) {
+    *, *::before, *::after {
+      animation-duration:.01ms !important; animation-iteration-count:1 !important;
+      transition-duration:.01ms !important;
+    }
+  }
 </style>
 </head>
 <body>
-<header>
-  <h1>ICO decompilation progress</h1>
-  <div class="sub">Clean-room PS2 EE-side decomp &middot;
-    <span id="vtabs">
-      <a href="#aug6" data-v="aug6">Aug-6-2001 proto</a> |
-      <a href="#us" data-v="us">USA retail</a>
-    </span> &middot;
-    grouped by <span id="grouplbl">programmer</span> &rarr; translation unit &rarr; function.
-    <a href="https://github.com/nathanialf/ico">repo</a></div>
-  <div class="cards" id="cards"></div>
+<header class="wrap">
+  <div class="head">
+    <div>
+      <h1>ICO decompilation progress</h1>
+      <p class="sub">Clean-room PS2 EE-side decomp, grouped by
+        <span id="grouplbl">programmer</span> &rarr; translation unit &rarr; function.
+        <a href="https://github.com/nathanialf/ico">repo</a></p>
+    </div>
+    <div class="verpick">
+      <span class="verpick-lbl" id="vlbl">Target build</span>
+      <div class="seg" id="vtabs" role="radiogroup" aria-labelledby="vlbl">
+        <button type="button" class="seg-btn" role="radio" data-v="aug6" aria-checked="true" tabindex="0">
+          <svg class="seg-ic" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M7.1 13.4 3 9.3l1.4-1.4 2.7 2.7 6.5-6.5L15 5.5z"/></svg>
+          <span>Aug-6-2001 proto</span>
+        </button>
+        <button type="button" class="seg-btn" role="radio" data-v="us" aria-checked="false" tabindex="-1">
+          <svg class="seg-ic" viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M7.1 13.4 3 9.3l1.4-1.4 2.7 2.7 6.5-6.5L15 5.5z"/></svg>
+          <span>USA retail</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="stats" id="cards"></div>
 </header>
-<main>
+<main class="wrap">
   <div class="toolbar">
-    <input type="search" id="filter" placeholder="filter functions / TUs…" autocomplete="off">
+    <input type="search" id="filter" placeholder="filter functions / TUs…" autocomplete="off"
+           aria-label="Filter functions and translation units">
     <label class="chk"><input type="checkbox" id="unmatched"> unmatched only</label>
     <label class="chk"><input type="checkbox" id="expand"> expand all</label>
   </div>
   <div id="tree"></div>
 </main>
-<footer id="foot"></footer>
+<footer class="wrap" id="foot"></footer>
 
 <script>
 const fmtPct = (m,t) => t ? (100*m/t).toFixed(1)+"%" : "–";
 const fmtB = n => n>=1048576 ? (n/1048576).toFixed(2)+" MB"
               : n>=1024 ? (n/1024).toFixed(1)+" KB" : n+" B";
 
+// The bar restates the adjacent percentage, so it is decorative to a screen
+// reader and hidden from one.
 function bar(m,t){ const p=t?100*m/t:0;
-  return `<div class="bar"><i style="width:${p.toFixed(2)}%"></i></div>`; }
+  return `<span class="bar" aria-hidden="true"><i style="width:${p.toFixed(2)}%"></i></span>`; }
 
 function nodeRow(name, m, t, mb, tb, cls){
-  return `<div class="row ${cls}">`
-    + `<span class="tw"></span>`
+  return `<button type="button" class="row ${cls}" aria-expanded="false">`
+    + `<span class="tw" aria-hidden="true"></span>`
     + `<span class="nm">${name}</span>`
     + bar(mb,tb)
     + `<span class="pct">${fmtPct(mb,tb)}</span>`
-    + `<span class="cnt">${m}/${t} fn &middot; ${fmtB(tb)}</span>`
-    + `</div>`;
+    + `<span class="cnt">${m}/${t} fn</span>`
+    + `<span class="sz">${fmtB(tb)}</span>`
+    + `</button>`;
+}
+
+// Single place that flips a node open/shut, so `.open` and aria-expanded can
+// never drift apart (the click handler, "expand all" and the filter all use it).
+function setOpen(node, on){
+  node.classList.toggle("open", on);
+  node.firstElementChild.setAttribute("aria-expanded", on ? "true" : "false");
 }
 
 function render(data){
-  // NB: no #ver element — the version-toggle tabs and the footer name it.
+  // NB: no #ver element — the version picker and the footer name it.
   const T = data.totals;
+  const stat = (n,l,frac) =>
+    `<div class="card"><span class="n">${n}</span><span class="l">${l}</span>`
+    + (frac==null ? "" : bar(frac[0],frac[1])) + `</div>`;
   document.getElementById("cards").innerHTML = [
-    [`${T.matched_funcs.toLocaleString()} / ${T.total_funcs.toLocaleString()}`, "functions matched"],
-    [fmtPct(T.matched_funcs,T.total_funcs), "by function count"],
-    [`${fmtB(T.matched_bytes)} / ${fmtB(T.total_bytes)}`, ".text bytes matched"],
-    [fmtPct(T.matched_bytes,T.total_bytes), "by code bytes"],
-  ].map(([n,l])=>`<div class="card"><div class="n">${n}</div><div class="l">${l}</div></div>`).join("");
+    stat(`${T.matched_funcs.toLocaleString()} / ${T.total_funcs.toLocaleString()}`, "functions matched"),
+    stat(fmtPct(T.matched_funcs,T.total_funcs), "by function count", [T.matched_funcs,T.total_funcs]),
+    stat(`${fmtB(T.matched_bytes)} / ${fmtB(T.total_bytes)}`, ".text bytes matched"),
+    stat(fmtPct(T.matched_bytes,T.total_bytes), "by code bytes", [T.matched_bytes,T.total_bytes]),
+  ].join("");
 
   const tree = document.getElementById("tree");
   tree.innerHTML = data.programmers.map(p=>{
     const tus = p.tus.map(t=>{
       const funcs = t.funcs.map(f=>
         `<div class="row func" data-name="${f.name}" data-m="${f.matched?1:0}">`
-        + `<span class="tw"></span>`
-        + `<span class="mk ${f.matched?'y':'n'}">${f.matched?'✓':'·'}</span>`
+        + `<span class="mk ${f.matched?'y':'n'}" role="img" `
+        +   `aria-label="${f.matched?'matched':'not matched'}">${f.matched?'✓':'·'}</span>`
         + `<span class="nm">${f.name}</span>`
-        + `<span class="nm" style="flex:0 0 auto;color:var(--dim);font-size:12px">${f.addr}</span>`
+        + `<span class="addr">${f.addr}</span>`
         + `<span class="sz">${f.size} B</span>`
         + `</div>`).join("");
       return `<div class="node tu" data-name="${t.path}">`
@@ -129,8 +341,10 @@ function render(data){
       + `<div class="children">${tus}</div></div>`;
   }).join("");
 
+  // Native <button> rows give Enter/Space activation and focus for free.
   tree.querySelectorAll(".row.prog, .row.tu").forEach(r=>{
-    r.addEventListener("click", ()=> r.parentElement.classList.toggle("open"));
+    r.addEventListener("click", ()=>
+      setOpen(r.parentElement, !r.parentElement.classList.contains("open")));
   });
 }
 
@@ -148,12 +362,12 @@ function applyFilter(){
       if(show) any=true;
     });
     tu.style.display = any || (!q && !unm) ? "" : "none";
-    if((q||unm) && any) tu.classList.add("open");
+    if((q||unm) && any) setOpen(tu, true);
   });
   document.querySelectorAll(".node.prog").forEach(p=>{
     const vis = [...p.querySelectorAll(".node.tu")].some(t=>t.style.display!=="none");
     p.style.display = vis ? "" : "none";
-    if((q||unm) && vis) p.classList.add("open");
+    if((q||unm) && vis) setOpen(p, true);
   });
 }
 
@@ -161,7 +375,7 @@ document.getElementById("filter").addEventListener("input", applyFilter);
 document.getElementById("unmatched").addEventListener("change", applyFilter);
 document.getElementById("expand").addEventListener("change", e=>{
   document.querySelectorAll(".node.prog, .node.tu")
-    .forEach(n=> n.classList.toggle("open", e.target.checked));
+    .forEach(n=> setOpen(n, e.target.checked));
 });
 
 const VLABEL = { aug6: "Aug-6-2001 prototype (main)", us: "USA retail (retail-v2 branch)" };
@@ -171,11 +385,43 @@ function pickVersion(){
   return (h in VLABEL) ? h : "aug6";
 }
 
-function loadVersion(v){
-  document.querySelectorAll("#vtabs a").forEach(a=>{
-    a.style.fontWeight = a.dataset.v===v ? "700" : "400";
-    a.style.color = a.dataset.v===v ? "var(--fg)" : "var(--accent)";
+/* --- segmented button: radiogroup keyboard + selection ------------------ */
+const segBtns = [...document.querySelectorAll("#vtabs [data-v]")];
+
+function syncSeg(v){
+  segBtns.forEach(b=>{
+    const on = b.dataset.v === v;
+    b.setAttribute("aria-checked", on ? "true" : "false");
+    b.tabIndex = on ? 0 : -1;          // roving tabindex: one tab stop total
   });
+}
+
+// The hash is the single source of truth, so pointer, keyboard and deep-link
+// selection all take the same path through hashchange -> loadVersion.
+function selectVersion(v){
+  if(pickVersion() === v) syncSeg(v); else location.hash = v;
+}
+
+segBtns.forEach(b => b.addEventListener("click", ()=> selectVersion(b.dataset.v)));
+document.getElementById("vtabs").addEventListener("keydown", e=>{
+  const i = segBtns.indexOf(document.activeElement);
+  if(i < 0 || e.altKey || e.ctrlKey || e.metaKey) return;
+  const last = segBtns.length - 1;
+  let j;
+  switch(e.key){
+    case "ArrowRight": case "ArrowDown": j = i===last ? 0 : i+1; break;
+    case "ArrowLeft":  case "ArrowUp":   j = i===0 ? last : i-1; break;
+    case "Home": j = 0; break;
+    case "End":  j = last; break;
+    default: return;
+  }
+  e.preventDefault();
+  segBtns[j].focus();                  // selection follows focus (radio pattern)
+  selectVersion(segBtns[j].dataset.v);
+});
+
+function loadVersion(v){
+  syncSeg(v);
   // Per-version JSON lives at <v>/progress.json on the deployed site. The
   // deploy publishes both versions, so a miss here means either a local
   // preview (bare docs/ has no version dirs) or a deploy whose other-branch
@@ -192,17 +438,17 @@ function loadVersion(v){
         d.version==="us" ? "directory" : "programmer";
       render(d); applyFilter();
       const warn = (fellBack && d.version !== v)
-        ? `<p style="color:#d29922">⚠ No <code>${v}/progress.json</code> was published by the `
+        ? `<p class="warn">⚠ No <code>${v}/progress.json</code> was published by the `
           + `last deploy — showing the site-wide fallback copy instead, which holds the `
           + `<b>${VLABEL[d.version] || d.version}</b> data.</p>`
         : "";
       document.getElementById("foot").innerHTML = warn
-        + `${VLABEL[d.version] || d.version} &middot; generated by <code>tools/progress_tree.py</code> from `
+        + `<p>${VLABEL[d.version] || d.version} &middot; generated by <code>tools/progress_tree.py</code> from `
         + `<code>config/symbol_addrs.${d.version}.txt</code> + per-TU `
         + `<code>INCLUDE_ASM</code> directives. Function sizes are next-symbol deltas. `
-        + `Updates on every push to either branch.`; })
+        + `Updates on every push to either branch.</p>`; })
     .catch(e=> document.getElementById("tree").innerHTML =
-        `<p style="color:#f85149">Could not load progress.json: ${e}</p>`);
+        `<p class="err">Could not load progress.json: ${e}</p>`);
 }
 
 window.addEventListener("hashchange", ()=> loadVersion(pickVersion()));
