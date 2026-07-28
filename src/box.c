@@ -1,5 +1,10 @@
 #include "common.h"
 
+
+
+extern void LocalizeDirectionOrient();
+extern void func_002438B8();
+#include "ico/types.h"
 INCLUDE_ASM("asm/nonmatchings/src/box", func_001BD408);
 
 INCLUDE_ASM("asm/nonmatchings/src/box", func_001BD668);
@@ -44,13 +49,26 @@ INCLUDE_ASM("asm/nonmatchings/src/box", func_001C00C0);
 
 INCLUDE_ASM("asm/nonmatchings/src/box", func_001C0538);
 
-INCLUDE_ASM("asm/nonmatchings/src/box", func_001C05A8);
+int func_001C05A8(char *self) {
+    char *sub = ((GObj *)(self))->p_15C;
+    char *p = ((Sub15C *)(sub))->p_800;
+    return *(int *)(p + 0x20);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/box", func_001C05B8);
+int func_001C05B8(char *self) {
+    char *sub = ((GObj *)(self))->p_15C;
+    char *p = ((Sub15C *)(sub))->p_800;
+    return *(int *)(p + 0x20) == 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/box", func_001C05D0);
 
-INCLUDE_ASM("asm/nonmatchings/src/box", ExecBoxMoveStartReaction);
+void ExecBoxMoveStartReaction(int a0, int a1, int a2)
+{
+    int buf[16];
+    LocalizeDirectionOrient(buf);
+    func_002438B8(a0, buf, a2);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/box", ExecBoxMoveEndReaction);
 

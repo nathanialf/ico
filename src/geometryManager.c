@@ -1,14 +1,49 @@
 #include "common.h"
 
+
+
+
+
+
+
+extern void func_0010DEC0();
+extern void func_002438E8();
+extern void MatrixDrive_TransMatrix();
+extern void func_002438B8();
+extern void MatrixDrive_TurnObjectMatrix();
+extern void func_00243978();
+extern int * func_00105278();
+extern void func_00104F20();
+extern void func_0010DF70();
+extern void func_00105268();
+extern void MatrixDrive_TurnXObjectMatrixYZ();
+extern void func_0010DDB8();
+extern void RegularizeQuaternion();
+#include "ico/types.h"
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetRootQuaternionByDObj);
 
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", UpdateRootMatrixByDObj);
+void UpdateRootMatrixByDObj(int a0)
+{
+    GetRootQuaternionByDObj((int)((GObj *)(a0))->p_15C);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetRootQuaternion);
+void GetRootQuaternion(int a0, int a1)
+{
+    RegularizeQuaternion(a0, a1 + 0x60);
+    func_0010DDB8(a0, a0, *(int *)(a1 + 0x10));
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", UpdateRootMatrix);
 
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", SetRootBaseQuaternion);
+void SetRootBaseQuaternion(int *self, int *other)
+{
+    func_00104F20();
+    MatrixDrive_TurnXObjectMatrixYZ(func_00105278(), (char *)self + 0x20);
+    func_0010DF70(other);
+    MatrixDrive_TurnXObjectMatrixYZ((void *)self[0xC/4], func_00105278());
+    func_00105268();
+    func_0010DDB8((void *)self[0x10/4], (char *)self + 0x60, other);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00102A38);
 
@@ -20,11 +55,29 @@ INCLUDE_ASM("asm/nonmatchings/src/geometryManager", SetRootMatrixWithTransOffset
 
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetRootMatrixRotOffsetByDObj);
 
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetRootMatrixRotOffset);
+void GetRootMatrixRotOffset(int *self, int *other, char *p)
+{
+    MatrixDrive_TurnObjectMatrix((int)self, (int)p);
+    {
+        char *sub = ((GObj *)((char *)other))->p_15C;
+        char *a = *(char **)sub;
+        if (a != 0) {
+            char *inner_struct = ((GObj *)(a))->p_15C;
+            int inner_field = *(int *)(inner_struct + 0xC);
+            int idx = *(int *)(sub + 0x4);
+            func_002438B8(self, inner_field + (idx << 6), p);
+        }
+    }
+    *(int *)((char *)self + 0x4) = 0;
+    func_00243978(self, self);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", SetRootMatrixRotOffsetByDObj);
 
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", SetRootMatrixRotOffset);
+void SetRootMatrixRotOffset(int a0, int a1)
+{
+    MatrixDrive_TurnObjectMatrix(a0, (int)((GObj *)(a1))->p_15C + 0x130);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_0010311C);
 
@@ -38,7 +91,19 @@ INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetGlobalDirectionOrient);
 
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GlobalizeGeometry);
 
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetRootVelocity);
+void GetRootVelocity(int *self, int *a1)
+{
+    int buf[16];
+    char *obj = (char *)a1[0];
+    char *ctx = ((GObj *)(obj))->p_15C;
+    MatrixDrive_TurnXObjectMatrixYZ(buf, (void *)(*(int *)(ctx + 0xC) + (a1[1] << 6)));
+    MatrixDrive_TransMatrix((char *)buf, (char *)buf);
+    func_002438B8((int *)((char *)((GObj *)((char *)self))->p_15C + 0x520), (int)buf,
+                  (char *)((GObj *)((char *)self))->p_15C + 0x520);
+    func_00243978((int *)((char *)((GObj *)((char *)self))->p_15C + 0x520),
+                  (int *)((char *)((GObj *)((char *)self))->p_15C + 0x520));
+    ((GObj *)((char *)self))->p_15C->f_52C = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetInitialInverseMatrixByDObj);
 
@@ -48,11 +113,53 @@ INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetInitialSkeltonMatrixByDOb
 
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", MakeCharGObjList);
 
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", cylinderCollisionCheck);
+void cylinderCollisionCheck(void *a0, char *src)
+{
+    float *p = (float *)(src + 0xA0);
+    func_0010DEC0(a0, src + 0xD0, p);
+    {
+        int *g = *(int **)src;
+        if (g) {
+            func_002438E8(a0,
+                          (char *)(*(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) + (*(int *)(src + 4) << 6)),
+                          (int)a0);
+        }
+    }
+    *(float *)((char *)a0 + 0x34) += p[0x30];
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", LocalizeDirectionOrient);
+void LocalizeDirectionOrient(void *a0, char *outer)
+{
+    char *src = ((GObj *)(outer))->p_15C;
+    float *p = (float *)(src + 0xA0);
+    func_0010DEC0(a0, src + 0xD0, p);
+    {
+        int *g = *(int **)src;
+        if (g) {
+            func_002438E8(a0,
+                          (char *)(*(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) + (*(int *)(src + 4) << 6)),
+                          (int)a0);
+        }
+    }
+    *(float *)((char *)a0 + 0x34) += p[0x30];
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetCylinderCollision);
+void GetCylinderCollision(void *a0, char *src)
+{
+    float *p = (float *)(src + 0xA0);
+    float f0;
+    int *g = *(int **)src;
+    if (g) {
+        func_002438B8((int *)a0,
+                      *(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) + (*(int *)(src + 4) << 6),
+                      (char *)p);
+    } else {
+        MatrixDrive_TurnObjectMatrix((int)a0, (int)p);
+    }
+    f0 = p[0x30];
+    *(float *)((char *)a0 + 0x4) += f0;
+    *(float *)((char *)a0 + 0xC) = 1.0f;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetCylinderCollisionWithExceptOwnCollision);
 
@@ -60,5 +167,21 @@ INCLUDE_ASM("asm/nonmatchings/src/geometryManager", CylinderCollision);
 
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", CylinderCollisionWithControlDynamics);
 
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", GetRootMatrixByDObj);
+void GetRootMatrixByDObj(void *a0, char *outer)
+{
+    char *src = ((GObj *)(outer))->p_15C;
+    float *p = (float *)(src + 0xA0);
+    float f0;
+    int *g = *(int **)src;
+    if (g) {
+        func_002438B8((int *)a0,
+                      *(int *)((int)((GObj *)((char *)g))->p_15C + 0xC) + (*(int *)(src + 4) << 6),
+                      (char *)p);
+    } else {
+        MatrixDrive_TurnObjectMatrix((int)a0, (int)p);
+    }
+    f0 = p[0x30];
+    *(float *)((char *)a0 + 0x4) += f0;
+    *(float *)((char *)a0 + 0xC) = 1.0f;
+}
 

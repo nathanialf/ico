@@ -1,20 +1,41 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/pool", falldownSE);
 
-INCLUDE_ASM("asm/nonmatchings/src/pool", copyToWork);
+
+
+#include "ico/types.h"
+extern void MatrixDrive_TurnObjectMatrix();
+extern void playSEConditionID();
+extern float func_00168C18();
+void falldownSE(void) {}
+
+void copyToWork(void) {}
 
 INCLUDE_ASM("asm/nonmatchings/src/pool", flushWork);
 
 INCLUDE_ASM("asm/nonmatchings/src/pool", setNodePursueParticleEffectWithUpperLimit);
 
-INCLUDE_ASM("asm/nonmatchings/src/pool", SetFallDownSplash);
+void SetFallDownSplash(long long *src, int *dest) {
+    long long buf[2];
+    buf[0] = src[0];
+    buf[1] = src[1];
+    *(float *)((char *)dest + 4) = func_00168C18((int *)buf, dest);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/pool", GetPoolGlobalDrainVector);
+void GetPoolGlobalDrainVector(float *dst, float *a, float *b, float t)
+{
+    float u = 1.0f - t;
+    dst[0] = a[0] * t + b[0] * u;
+    dst[1] = a[1] * t + b[1] * u;
+    dst[2] = a[2] * t + b[2] * u;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/pool", InitPoolGeo);
 
-INCLUDE_ASM("asm/nonmatchings/src/pool", updatePoolGeo);
+void updatePoolGeo(int a0)
+{
+    playSEConditionID(a0, 0x51);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/pool", dispPool);
 
@@ -24,7 +45,10 @@ INCLUDE_ASM("asm/nonmatchings/src/pool", InitLimitedPoolReflactionMesh);
 
 INCLUDE_ASM("asm/nonmatchings/src/pool", SetLayoutedPoolReflactionMesh);
 
-INCLUDE_ASM("asm/nonmatchings/src/pool", SetLimitedPoolReflactionMesh);
+void SetLimitedPoolReflactionMesh(int a0, int a1)
+{
+    MatrixDrive_TurnObjectMatrix(a0, *(int *)((int)((GObj *)(a1))->p_15C + 0x800) + 0x10);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/pool", DispLimitedPoolReflactionMesh);
 
@@ -42,13 +66,21 @@ INCLUDE_ASM("asm/nonmatchings/src/pool", poolRideFunc);
 
 INCLUDE_ASM("asm/nonmatchings/src/pool", getWave);
 
-INCLUDE_ASM("asm/nonmatchings/src/pool", func_0010D070);
+void func_0010D070(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/src/pool", func_0010D078);
+float func_0010D078(char *self) {
+    char *sub = ((GObj *)(self))->p_15C;
+    char *p = ((Sub15C *)(sub))->p_800;
+    return *(float *)(p + 0x4);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/pool", func_0010D088);
 
-INCLUDE_ASM("asm/nonmatchings/src/pool", func_0010D180);
+int func_0010D180(char *self) {
+    char *sub = ((GObj *)(self))->p_15C;
+    char *p = ((Sub15C *)(sub))->p_800;
+    return *(int *)(p + 0x30) != 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/pool", func_0010D198);
 

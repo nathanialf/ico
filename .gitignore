@@ -220,3 +220,7 @@ decomp/aug6_func_table.json
 decomp/retail_port
 # aug6 data-phase investigation report (local working note).
 decomp/DATA_INVESTIGATION.md
+
+# Phase 3 retail transplant driver cache (regenerable: tools/transplant_retail.py
+# extract). Not under build/ because tools/build.sh setup wipes that tree.
+.transplant_cache/
