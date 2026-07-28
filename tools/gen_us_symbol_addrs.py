@@ -672,6 +672,7 @@ def build() -> Model:
         m.aug_of.setdefault(r, a)
     m.tu, m.tu_src, m.conflicts, m.split_files = self_label(
         m, m.twins, m.ordinal, final=True)
+    retail_carved_overlay(m)
 
     # ---- names --------------------------------------------------------------
     m.name = [None] * len(m.rfuncs)
@@ -690,6 +691,54 @@ def build() -> Model:
         m.name[i] = nm
         m.name_src[i] = "twin" if i in m.twins else "ordinal"
     return m
+
+
+def retail_carved_vendor_spans() -> list[tuple[int, int, str]]:
+    """(vma_start, vma_end, path) for every `c` subsegment this project has
+    carved out of the retail vendor blobs (`src/cod/*`), read from
+    config/ico.us.yaml.
+
+    The two aug6 oracles this generator runs on cannot see these: the aug6
+    yaml's final .text subsegment is an uncarved `common/src/PObj` blob that
+    swallows the whole vendor tail, so cut_vendor_tail() correctly labels the
+    entire run `(vendor)`.  Once WE carve a piece of that run into a real
+    retail `c` TU and port bodies into it, the yaml is a harder fact than the
+    fill, and the TU note has to say so or the progress dashboard reports the
+    ported functions as undecompiled vendor passthrough forever."""
+    yaml_p = RETAIL / "config" / "ico.us.yaml"
+    if not yaml_p.exists():
+        return []
+    rows, in_subs = [], False
+    for line in yaml_p.read_text().splitlines():
+        if re.match(r"^\s*subsegments:", line):
+            in_subs = True
+            continue
+        if not in_subs:
+            continue
+        mm = YAML_SUB_RE.match(line)
+        if not mm:
+            continue
+        off, kind, path = int(mm.group(1), 16), mm.group(2), mm.group(3)
+        if off >= RETAIL_TEXT_SZ:
+            break                                # left .text
+        rows.append((TEXT_VMA + off, kind, path))
+    rows.sort()
+    out = []
+    for i, (vma, kind, path) in enumerate(rows):
+        end = rows[i + 1][0] if i + 1 < len(rows) else TEXT_VMA + RETAIL_TEXT_SZ
+        if kind == "c" and path.startswith("src/cod/"):
+            out.append((vma, end, path + ".c"))
+    return out
+
+
+def retail_carved_overlay(m) -> None:
+    """Overlay retail_carved_vendor_spans() onto m.tu.  Highest precedence:
+    an explicit yaml carve is a decision this repo made, not an inference."""
+    for lo, hi, path in retail_carved_vendor_spans():
+        for i, (s, _e) in enumerate(m.rfuncs):
+            if lo <= s < hi:
+                m.tu[i] = path
+                m.tu_src[i] = "yaml-carve"
 
 
 def spans_from(m: Model):

@@ -319,7 +319,26 @@ segments:
       - [0x13EFB0, c, ito/mpeg/mv_vibuf]  # 21 funcs, aug6
       - [0x13F690, c, src/GobjProc]  # 22 funcs, aug6
       - [0x140B60, c, src/PObj]  # 11 funcs, census
-      - [0x1418A0, asm, src/cod/1418A0]  # vendor tail (765 funcs, fill)
+      # --- vendor tail (765 funcs) — library archive members, NOT ICO TUs.
+      # Carved into 8 equal-function-count `c` TUs so the aug6 prototype's
+      # already-matched vendor bodies can be ported in (decomp/VENDOR.md §2:
+      # vendor matches belong in vendor-named TUs under src/cod/, never folded
+      # into a game TU the way aug6's common/src/PObj blob does it).
+      # Boundaries are 8-byte-aligned function starts (every .text object in
+      # this link has alignment 8; an unaligned split would insert pad and
+      # break the SHA-1).  Names are VMA-based: there is no per-function
+      # archive attribution in this repo (VENDOR.md §1 records the aggregate
+      # breakdown as a research result only), so naming a TU `libgcc` would be
+      # a claim the tree cannot back.
+      - [0x1418A0, c, src/cod/vendor_2418A0]  # 96 funcs
+      - [0x1453C0, c, src/cod/vendor_2453C0]  # 96 funcs
+      - [0x14AAC8, c, src/cod/vendor_24AAC8]  # 96 funcs
+      - [0x14E9D8, c, src/cod/vendor_24E9D8]  # 96 funcs
+      - [0x152D28, c, src/cod/vendor_252D28]  # 96 funcs
+      - [0x158CC0, c, src/cod/vendor_258CC0]  # 96 funcs
+      - [0x15E1E8, c, src/cod/vendor_25E1E8]  # 96 funcs
+      - [0x1668B8, c, src/cod/vendor_2668B8]  # 92 funcs
+      - [0x16F578, asm, src/cod/16F578]  # last vendor func + 12 B .text pad
       # .vutext — 5 hand-typed VU1 microprograms, byte-identical to aug6's
       # (same sizes: 0xDC0/0x9F0/0x16E0/0x1CA0/0x5B0).
       - [0x16F5E0, hasm, src/cluster]        # ClusterMicroProgram
