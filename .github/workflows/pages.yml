@@ -1,30 +1,35 @@
-name: Deploy progress dashboard
+name: Deploy progress dashboard (retail)
 
-# Publish docs/ (the static progress dashboard — index.html + progress.json)
-# to GitHub Pages on every push to main.
+# Publish the TWO-VERSION static progress dashboard to GitHub Pages on every
+# push to the retail branch. The site is assembled identically by this
+# workflow and by main's twin (once main adopts it), so whichever branch
+# deploys last produces the same site and last-push-wins is harmless:
+#
+#   _site/index.html          — version-toggle dashboard (this branch's copy)
+#   _site/aug6/progress.json  — from origin/main:docs/progress.json
+#   _site/us/progress.json    — from this branch's docs/progress.json
+#   _site/progress.json       — aug6 copy at the root, so a cached pre-toggle
+#                               index.html keeps working
 on:
   push:
-    branches: [main]
+    branches: [retail, retail-v2]
     paths:
       - docs/index.html
       - docs/progress.json
       - .github/workflows/pages.yml
   workflow_dispatch:
 
-# Allow the GITHUB_TOKEN to deploy to Pages.
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# One in-flight deploy at a time; don't cancel a running one.
+# Shared with main's pages workflow: one in-flight deploy at a time across
+# BOTH branches; don't cancel a running one.
 concurrency:
   group: pages
   cancel-in-progress: false
 
-# Force JS actions onto Node.js 24 — Node 20 is deprecated on the runners.
-# Covers actions still pinned to Node 20 internally (configure-pages@v5,
-# upload-pages-artifact@v3, deploy-pages@v4) until they ship a Node-24 major.
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -35,20 +40,33 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout (this branch)
         uses: actions/checkout@v5
+
+      - name: Assemble two-version site
+        run: |
+          set -eu
+          mkdir -p _site/aug6 _site/us
+          cp docs/index.html _site/index.html
+          cp docs/progress.json _site/us/progress.json
+          # aug6 JSON from main; tolerate a missing file (site still renders us)
+          git fetch --depth=1 origin main
+          if git show origin/main:docs/progress.json > _site/aug6/progress.json 2>/dev/null; then
+            cp _site/aug6/progress.json _site/progress.json
+          else
+            rm -f _site/aug6/progress.json
+            cp docs/progress.json _site/progress.json
+          fi
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
-          # Create the Pages site automatically if it doesn't exist yet, so the
-          # first deploy doesn't fail with "Get Pages site failed" (404).
           enablement: true
 
-      - name: Upload docs/ artifact
+      - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs
+          path: _site
 
       - name: Deploy to GitHub Pages
         id: deployment

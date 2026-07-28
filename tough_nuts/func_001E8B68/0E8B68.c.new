@@ -1,0 +1,17 @@
+#include "regpin.h"
+
+extern int D_00632028;
+extern char D_007097F0[];
+extern int func_001E83F8(int x);
+
+int func_001E8B68(int unused, void *p, int z)
+{
+    register int idx REG("$7") = func_001E83F8(D_00632028);
+    if (idx != -1) {
+        char *e = &D_007097F0[idx * 0x18];
+        *(int *)(e + 0x10) = z;
+        *(int *)(e + 0x8) = 1;
+        *(void **)(e + 0xC) = p;
+    }
+    return idx;
+}

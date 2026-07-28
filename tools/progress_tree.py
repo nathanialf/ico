@@ -107,8 +107,13 @@ def _programmer_of(tu: str | None) -> str:
     if not tu:
         return "vendor"
     head = tu.split("/", 1)[0]
-    # src/cod/* is crt0 + vendored libkernl, not a programmer dir.
-    return "vendor" if head == "src" else head
+    # src/cod/* is crt0 + vendored libkernl, not a game dir. On the retail
+    # (us) tree the game TUs themselves live under a flat src/ (the release
+    # build collapsed the per-programmer dirs), so plain src/<tu> groups as
+    # "src"; only the src/cod/ blob remains vendor.
+    if head == "src":
+        return "vendor" if tu.startswith("src/cod/") else "src"
+    return head
 
 
 def build_tree() -> dict:
