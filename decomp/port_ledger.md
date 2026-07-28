@@ -18,10 +18,13 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 
 | wave | candidates | ported | reverted | skipped | pre-matched | unattempted |
 |---|---|---|---|---|---|---|
-| 1 | 886 | 430 | 103 | 0 | 332 | 21 |
-| 2 | 95 | 0 | 0 | 0 | 95 | 0 |
-| 3 | 773 | 63 | 489 | 1 | 181 | 39 |
-| **all** | 1754 | 493 | 592 | 1 | 608 | 60 |
+| 1 | 1270 | 798 | 134 | 0 | 335 | 3 |
+| 2 | 97 | 0 | 0 | 0 | 97 | 0 |
+| 3 | 732 | 63 | 486 | 1 | 182 | 0 |
+| **all** | 2099 | 861 | 620 | 1 | 614 | 3 |
+
+### (vendor)
+- PRE-MATCHED `func_0026F578` w1 @ 0x0026F578 — already had a retail body before Phase 4
 
 ### ios/cdvd
 - PORTED `iosCdvdBackGroundMgr` w1 @ 0x001325D8 <- aug6 fumi/ios/cdvd (2 syms rebound)
@@ -146,6 +149,9 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PORTED `iosThreadStart` w1 @ 0x0013CD30 <- aug6 fumi/ios/thread (0 syms rebound)
 - PRE-MATCHED `iosThreadStop` w2 @ 0x0013CD70 — already had a retail body before Phase 4
 - PRE-MATCHED `iosThreadSuspend` w1 @ 0x0013CF80 — already had a retail body before Phase 4
+
+### ios/thread.c
+- PORTED `func_0013DD20` w1 @ 0x0013DD20 <- aug6 fumi/ios/thread (3 syms rebound)
 
 ### isys/gobj
 - PORTED `add_gobj_to_head` w3 @ 0x0013E190 <- aug6 fumi/isys/gobj (2 syms rebound)
@@ -620,12 +626,14 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PORTED `ACTGameView_Loop` w1 @ 0x00149AE0 <- aug6 fumi/src/act-game (12 syms rebound)
 - PORTED `ACTGame_BeforeFunc` w1 @ 0x00149FF0 <- aug6 fumi/src/act-game (4 syms rebound)
 - PORTED `ACTGame_CheckHandMotion` w1 @ 0x0014A850 <- aug6 fumi/src/act-game (4 syms rebound)
+- PRE-MATCHED `ACTGame_CommonLoop` w2 @ 0x0014A2C8 — already had a retail body before Phase 4
 - PRE-MATCHED `ACTGame_ConnectHand` w3 @ 0x0014B048 — already had a retail body before Phase 4
 - PORTED `ACTGame_DisconnectHand` w1 @ 0x0014B090 <- aug6 fumi/src/act-game (1 syms rebound)
 - PORTED `ACTGame_InnerVelocityUpdate` w1 @ 0x00149F70 <- aug6 fumi/src/act-game (3 syms rebound)
 - PRE-MATCHED `ACTGame_InsertCamera_GirlIsPinch` w1 @ 0x0014A4E0 — already had a retail body before Phase 4
 - PORTED `ACTGame_StageChangeGObjID` w1 @ 0x0014A980 <- aug6 fumi/src/act-game (3 syms rebound)
 - PRE-MATCHED `ACTItemThrow` w1 @ 0x0014A430 — already had a retail body before Phase 4
+- PRE-MATCHED `ACTItemWatchMotion` w2 @ 0x0014A470 — already had a retail body before Phase 4
 - PORTED `ACTLookTargetSystem_Exec` w1 @ 0x0014A3A8 <- aug6 fumi/src/act-game (3 syms rebound)
 - PRE-MATCHED `ACTLookTarget_Exec` w3 @ 0x00149E70 — already had a retail body before Phase 4
 - PRE-MATCHED `ACTParaStatus_Clear` w3 @ 0x00149EA8 — already had a retail body before Phase 4
@@ -639,6 +647,7 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `PAIR_GetPosition_BOY` w1 @ 0x0014B0B8 — [undeclared] src/act-game.c:494: `D_0063226C_flt' undeclared (first use in this function)
 - PRE-MATCHED `PAIR_IsStatus_BOY_PULL` w3 @ 0x0014B150 — already had a retail body before Phase 4
 - PRE-MATCHED `RequestChangeHandMode` w1 @ 0x0014A5C0 — already had a retail body before Phase 4
+- PRE-MATCHED `_ACTCharStatus_Clear` w3 @ 0x00149EF8 — already had a retail body before Phase 4
 - PRE-MATCHED `hand_able_connect` w1 @ 0x0014A2B0 — already had a retail body before Phase 4
 - REVERTED `updateHMC` w3 @ 0x0014A560 — [codegen] insn 14: expected `lw	v1,1184(v0)` built `lw	v1,1168(v0)`
 
@@ -768,6 +777,10 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `actBoySupportGBBegin` w0 @ 0x00154B90 — [codegen] insn 6: expected `addiu	a1,zero,176` built `addiu	a1,zero,174`
 - REVERTED `actBoyTakeWeaponReady` w0 @ 0x00153918 — [codegen] insn 8: expected `lw	v0,1184(v1)` built `lw	v0,1168(v1)`
 - REVERTED `ditch_check_heroin_position` w0 @ 0x00153FF0 — [codegen] insn 9: expected `lui	v0,0x0` built `lui	v0,0x1`
+- REVERTED `func_00151868` w1 @ 0x00151868 — [codegen] insn 35: expected `lui	at,0x42a0` built `lui	at,0x42b4`
+- REVERTED `func_001519D8` w1 @ 0x001519D8 — [codegen] insn 74: expected `ld	a1,0(at)` built `ld	a1,16(at)`
+- REVERTED `func_00151D78` w3 @ 0x00151D78 — [codegen] insn 66: expected `addiu	a1,zero,188` built `addiu	a1,zero,185`
+- REVERTED `func_00152508` w3 @ 0x00152508 — [codegen] insn 28: expected `addiu	a1,zero,77` built `addiu	a1,zero,76`
 - REVERTED `hand_heroin` w0 @ 0x0014D868 — [codegen] insn 15: expected `addiu	a1,zero,85` built `addiu	a1,zero,84`
 - REVERTED `pullup_check_heroin_position` w0 @ 0x001539F0 — [codegen] insn 16: expected `addiu	sp,sp,-48` built `<end>`
 
@@ -838,6 +851,10 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PORTED `ico2camera_GetTargetPos` w1 @ 0x00187688 <- aug6 omori/src/camera-ico2 (4 syms rebound)
 - PORTED `initMonitorCamera` w1 @ 0x001878F8 <- aug6 omori/src/camera-ico2 (1 syms rebound)
 - PORTED `monitorMonitorCamera` w1 @ 0x00187908 <- aug6 omori/src/camera-ico2 (1 syms rebound)
+
+### src/camera-ico2.c
+- REVERTED `func_00187EA0` w1 @ 0x00187EA0 — [codegen] insn 18: expected `addiu	a0,s2,0` built `addiu	a0,s2,2680`
+- PORTED `func_00187F10` w1 @ 0x00187F10 <- aug6 omori/src/camera-ico2 (1 syms rebound)
 
 ### src/camera-root
 - PRE-MATCHED `Camctrl_ExitEveRock` w1 @ 0x0018CB10 — already had a retail body before Phase 4
@@ -916,6 +933,424 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PRE-MATCHED `ClothTestGeo` w1 @ 0x001C8E78 — already had a retail body before Phase 4
 - PRE-MATCHED `InitClothTestGeo` w1 @ 0x001C8E58 — already had a retail body before Phase 4
 
+### src/cod/vendor_2418A0
+- PORTED `func_002418A0` w1 @ 0x002418A0 <- aug6 common/src/PObj (5 syms rebound)
+- PORTED `func_00241A00` w1 @ 0x00241A00 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_00241AE8` w1 @ 0x00241AE8 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_00241C38` w1 @ 0x00241C38 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00241F20` w1 @ 0x00241F20 <- aug6 common/src/PObj (2 syms rebound)
+- REVERTED `func_00242548` w1 @ 0x00242548 — [codegen] src/cod/vendor_2418A0.c:116: void value not ignored as it ought to be
+- PORTED `func_00242A68` w1 @ 0x00242A68 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00243600` w1 @ 0x00243600 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_00243640` w1 @ 0x00243640 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_002436C8` w1 @ 0x002436C8 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_002438B8` w1 @ 0x002438B8 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_002438E8` w1 @ 0x002438E8 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00243930` w1 @ 0x00243930 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00243950` w1 @ 0x00243950 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00243978` w1 @ 0x00243978 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_002439B0` w1 @ 0x002439B0 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00243A68` w1 @ 0x00243A68 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00243A88` w1 @ 0x00243A88 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00243AA8` w1 @ 0x00243AA8 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00243AD0` w1 @ 0x00243AD0 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00243AE8` w1 @ 0x00243AE8 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00243B00` w1 @ 0x00243B00 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00243B18` w1 @ 0x00243B18 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00243B30` w1 @ 0x00243B30 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00243B60` w1 @ 0x00243B60 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00243B70` w1 @ 0x00243B70 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00243B98` w1 @ 0x00243B98 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00243BA8` w1 @ 0x00243BA8 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00243BB8` w1 @ 0x00243BB8 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00243BC8` w1 @ 0x00243BC8 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00243BD8` w1 @ 0x00243BD8 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00243E70` w1 @ 0x00243E70 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_00243EC0` w1 @ 0x00243EC0 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00243EE8` w1 @ 0x00243EE8 <- aug6 common/src/PObj (6 syms rebound)
+- PORTED `func_00243F98` w1 @ 0x00243F98 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_00244058` w1 @ 0x00244058 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00244358` w1 @ 0x00244358 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_002443B0` w1 @ 0x002443B0 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_002443F8` w1 @ 0x002443F8 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00244418` w1 @ 0x00244418 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00244448` w1 @ 0x00244448 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00244460` w1 @ 0x00244460 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_002444A8` w1 @ 0x002444A8 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00244598` w1 @ 0x00244598 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_002445F8` w1 @ 0x002445F8 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00244630` w1 @ 0x00244630 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00244738` w1 @ 0x00244738 <- aug6 common/src/PObj (2 syms rebound)
+- REVERTED `func_00244920` w1 @ 0x00244920 — [undeclared] src/cod/vendor_2418A0.c:661: dereferencing pointer to incomplete type
+- PORTED `func_00244958` w1 @ 0x00244958 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00245068` w1 @ 0x00245068 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00245088` w1 @ 0x00245088 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_002450A8` w1 @ 0x002450A8 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_002450B8` w1 @ 0x002450B8 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_002450C8` w1 @ 0x002450C8 <- aug6 common/src/PObj (1 syms rebound)
+- REVERTED `func_00245120` w1 @ 0x00245120 — [codegen] src/cod/vendor_2418A0.c:731: void value not ignored as it ought to be
+- REVERTED `func_00245178` w1 @ 0x00245178 — [codegen] src/cod/vendor_2418A0.c:733: void value not ignored as it ought to be
+- PORTED `func_002451D0` w1 @ 0x002451D0 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00245228` w1 @ 0x00245228 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00245258` w1 @ 0x00245258 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00245398` w1 @ 0x00245398 <- aug6 common/src/PObj (1 syms rebound)
+
+### src/cod/vendor_2453C0
+- PORTED `func_002453C0` w1 @ 0x002453C0 <- aug6 common/src/PObj (3 syms rebound)
+- REVERTED `func_002453D0` w1 @ 0x002453D0 — [codegen] insn 14: expected `jr	ra` built `sw	v0,-4096(at)`
+- PORTED `func_00245410` w1 @ 0x00245410 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00245568` w1 @ 0x00245568 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00245590` w1 @ 0x00245590 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00245598` w1 @ 0x00245598 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_002455A0` w1 @ 0x002455A0 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00245658` w1 @ 0x00245658 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00245660` w1 @ 0x00245660 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00245678` w1 @ 0x00245678 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00245680` w1 @ 0x00245680 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_002456A8` w1 @ 0x002456A8 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_002456D0` w1 @ 0x002456D0 <- aug6 common/src/PObj (2 syms rebound)
+- REVERTED `func_002456F8` w1 @ 0x002456F8 — [codegen] insn 7: expected `jr	ra` built `sw	a0,12(v1)`
+- PORTED `func_00245720` w1 @ 0x00245720 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00245760` w1 @ 0x00245760 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00245DB8` w1 @ 0x00245DB8 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_00245E88` w1 @ 0x00245E88 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00245EA8` w1 @ 0x00245EA8 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00245ED8` w1 @ 0x00245ED8 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00245FD0` w1 @ 0x00245FD0 <- aug6 common/src/PObj (3 syms rebound)
+- REVERTED `func_00246030` w1 @ 0x00246030 — [callee-sig-conflict] src/cod/vendor_2453C0.c:187: conflicting types for `func_00245DE0'
+- PORTED `func_00246188` w1 @ 0x00246188 <- aug6 common/src/PObj (1 syms rebound)
+- REVERTED `func_00246288` w1 @ 0x00246288 — [callee-sig-conflict] src/cod/vendor_2453C0.c:204: conflicting types for `func_00245DE0'
+- PORTED `func_002463C8` w1 @ 0x002463C8 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00246648` w1 @ 0x00246648 <- aug6 common/src/PObj (1 syms rebound)
+- REVERTED `func_00246888` w1 @ 0x00246888 — [codegen] [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
+- PORTED `func_00246918` w1 @ 0x00246918 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_00246BD8` w1 @ 0x00246BD8 <- aug6 common/src/PObj (6 syms rebound)
+- PORTED `func_00247088` w1 @ 0x00247088 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_002470D8` w1 @ 0x002470D8 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_00247108` w1 @ 0x00247108 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_002472B8` w1 @ 0x002472B8 <- aug6 common/src/PObj (5 syms rebound)
+- PORTED `func_00247348` w1 @ 0x00247348 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_002485C0` w1 @ 0x002485C0 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00248790` w1 @ 0x00248790 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00248B40` w1 @ 0x00248B40 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00248C00` w1 @ 0x00248C00 <- aug6 common/src/PObj (12 syms rebound)
+- PORTED `func_00248D68` w1 @ 0x00248D68 <- aug6 common/src/PObj (12 syms rebound)
+- PORTED `func_00249490` w1 @ 0x00249490 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_002498B8` w1 @ 0x002498B8 <- aug6 common/src/PObj (2 syms rebound)
+- REVERTED `func_0024A0E8` w1 @ 0x0024A0E8 — [unresolved-symbol] unresolved-symbol: insn 8 `D_FFFFF`: retail symbol D_000FFFFF (0x000FFFFF) undefined
+- PORTED `func_0024A170` w1 @ 0x0024A170 <- aug6 common/src/PObj (6 syms rebound)
+- PORTED `func_0024A1E0` w1 @ 0x0024A1E0 <- aug6 common/src/PObj (6 syms rebound)
+- REVERTED `func_0024A348` w1 @ 0x0024A348 — [unresolved-symbol] unresolved-symbol: insn 48 `D_FFFFF`: retail symbol D_000FFFFF (0x000FFFFF) undefined
+- PORTED `func_0024A448` w1 @ 0x0024A448 <- aug6 common/src/PObj (5 syms rebound)
+- PORTED `func_0024A4D8` w1 @ 0x0024A4D8 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_0024A718` w1 @ 0x0024A718 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0024A738` w1 @ 0x0024A738 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0024A980` w1 @ 0x0024A980 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0024A9A0` w1 @ 0x0024A9A0 <- aug6 common/src/PObj (2 syms rebound)
+
+### src/cod/vendor_24AAC8
+- PORTED `func_0024AAC8` w1 @ 0x0024AAC8 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0024AAE8` w1 @ 0x0024AAE8 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0024AB10` w1 @ 0x0024AB10 <- aug6 common/src/PObj (5 syms rebound)
+- PORTED `func_0024AE10` w1 @ 0x0024AE10 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0024AE38` w1 @ 0x0024AE38 <- aug6 common/src/PObj (4 syms rebound)
+- REVERTED `func_0024B300` w1 @ 0x0024B300 — [codegen] insn 5: expected `addiu	s0,s0,0` built `addiu	s0,s0,2616`
+- REVERTED `func_0024B360` w1 @ 0x0024B360 — [unresolved-symbol] unresolved-symbol: insn 21 `D_00247C40`: retail symbol D_0024B740 (0x0024B740) undefined (+1 more)
+- PORTED `func_0024B3F8` w1 @ 0x0024B3F8 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0024B880` w1 @ 0x0024B880 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_0024B890` w1 @ 0x0024B890 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0024B8A8` w1 @ 0x0024B8A8 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0024B8C8` w1 @ 0x0024B8C8 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0024BB58` w1 @ 0x0024BB58 <- aug6 common/src/PObj (5 syms rebound)
+- PORTED `func_0024BB90` w1 @ 0x0024BB90 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0024BBA8` w1 @ 0x0024BBA8 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0024BBC0` w1 @ 0x0024BBC0 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0024BBF0` w1 @ 0x0024BBF0 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0024BD50` w1 @ 0x0024BD50 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0024BD90` w1 @ 0x0024BD90 <- aug6 common/src/PObj (2 syms rebound)
+- REVERTED `func_0024BFD0` w1 @ 0x0024BFD0 — [unresolved-symbol] unresolved-symbol: insn 16 `func_002484A4`: retail symbol D_0024BFA8 (0x0024BFA8) undefined
+- PORTED `func_0024C038` w1 @ 0x0024C038 <- aug6 common/src/PObj (5 syms rebound)
+- REVERTED `func_0024C400` w1 @ 0x0024C400 — [codegen] [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
+- PORTED `func_0024C480` w1 @ 0x0024C480 <- aug6 common/src/PObj (7 syms rebound)
+- PORTED `func_0024C4F0` w1 @ 0x0024C4F0 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_0024CC60` w1 @ 0x0024CC60 <- aug6 common/src/PObj (7 syms rebound)
+- PORTED `func_0024D9B8` w1 @ 0x0024D9B8 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_0024D9E8` w1 @ 0x0024D9E8 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0024DA20` w1 @ 0x0024DA20 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0024DA50` w1 @ 0x0024DA50 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0024DA80` w1 @ 0x0024DA80 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_0024DC40` w1 @ 0x0024DC40 <- aug6 common/src/PObj (7 syms rebound)
+- PORTED `func_0024DC90` w1 @ 0x0024DC90 <- aug6 common/src/PObj (7 syms rebound)
+- PORTED `func_0024DCE8` w1 @ 0x0024DCE8 <- aug6 common/src/PObj (6 syms rebound)
+- PORTED `func_0024DE98` w1 @ 0x0024DE98 <- aug6 common/src/PObj (8 syms rebound)
+- REVERTED `func_0024DFC8` w1 @ 0x0024DFC8 — [unresolved-symbol] unresolved-symbol: insn 14 `D_FFFF`: no retail lui partner for %lo (+1 more)
+- PORTED `func_0024E1A8` w1 @ 0x0024E1A8 <- aug6 common/src/PObj (5 syms rebound)
+- PORTED `func_0024E4C8` w1 @ 0x0024E4C8 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0024E528` w1 @ 0x0024E528 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0024E578` w1 @ 0x0024E578 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_0024E5F8` w1 @ 0x0024E5F8 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0024E6A8` w1 @ 0x0024E6A8 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0024E710` w1 @ 0x0024E710 <- aug6 common/src/PObj (3 syms rebound)
+
+### src/cod/vendor_24E9D8
+- PORTED `func_0024E9D8` w1 @ 0x0024E9D8 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0024EB10` w1 @ 0x0024EB10 <- aug6 common/src/PObj (5 syms rebound)
+- PORTED `func_0024EC80` w1 @ 0x0024EC80 <- aug6 common/src/PObj (5 syms rebound)
+- PORTED `func_0024EE10` w1 @ 0x0024EE10 <- aug6 common/src/PObj (5 syms rebound)
+- PORTED `func_0024EEC0` w1 @ 0x0024EEC0 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0024EF20` w1 @ 0x0024EF20 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0024EF78` w1 @ 0x0024EF78 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0024EFD0` w1 @ 0x0024EFD0 <- aug6 common/src/PObj (5 syms rebound)
+- PORTED `func_0024F0A0` w1 @ 0x0024F0A0 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_0024F108` w1 @ 0x0024F108 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_0024F170` w1 @ 0x0024F170 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_0024F1D8` w1 @ 0x0024F1D8 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_0024F3F8` w1 @ 0x0024F3F8 <- aug6 common/src/PObj (5 syms rebound)
+- PORTED `func_0024F6D8` w1 @ 0x0024F6D8 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0024FBD0` w1 @ 0x0024FBD0 <- aug6 common/src/PObj (2 syms rebound)
+- REVERTED `func_0024FBF8` w1 @ 0x0024FBF8 — [codegen] insn 7: expected `addiu	s0,s0,0` built `addiu	s0,s0,4600`
+- PORTED `func_0024FC40` w1 @ 0x0024FC40 <- aug6 common/src/PObj (8 syms rebound)
+- PORTED `func_0024FD20` w1 @ 0x0024FD20 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_00250058` w1 @ 0x00250058 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_00250F70` w1 @ 0x00250F70 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00251088` w1 @ 0x00251088 <- aug6 common/src/PObj (5 syms rebound)
+- PORTED `func_002511D8` w1 @ 0x002511D8 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_00251AB0` w1 @ 0x00251AB0 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00251AB8` w1 @ 0x00251AB8 <- aug6 common/src/PObj (4 syms rebound)
+- REVERTED `func_00251AF0` w1 @ 0x00251AF0 — [codegen] src/cod/vendor_24E9D8.c:454: void value not ignored as it ought to be
+- PORTED `func_00251B38` w1 @ 0x00251B38 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00251B80` w1 @ 0x00251B80 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00251BD0` w1 @ 0x00251BD0 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00251BE8` w1 @ 0x00251BE8 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00251C08` w1 @ 0x00251C08 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00251C18` w1 @ 0x00251C18 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00251C28` w1 @ 0x00251C28 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_00251C68` w1 @ 0x00251C68 <- aug6 common/src/PObj (7 syms rebound)
+- PORTED `func_00251CD0` w1 @ 0x00251CD0 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00251CF8` w1 @ 0x00251CF8 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00251D48` w1 @ 0x00251D48 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00251D70` w1 @ 0x00251D70 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00251D88` w1 @ 0x00251D88 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00251D98` w1 @ 0x00251D98 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00251DB0` w1 @ 0x00251DB0 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00251DC0` w1 @ 0x00251DC0 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00251DD0` w1 @ 0x00251DD0 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00251DE0` w1 @ 0x00251DE0 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00251DF0` w1 @ 0x00251DF0 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00251E00` w1 @ 0x00251E00 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00251E18` w1 @ 0x00251E18 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00251E30` w1 @ 0x00251E30 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00251E40` w1 @ 0x00251E40 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00251E50` w1 @ 0x00251E50 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_00251EB8` w1 @ 0x00251EB8 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00252180` w1 @ 0x00252180 <- aug6 common/src/PObj (4 syms rebound)
+- REVERTED `func_00252330` w1 @ 0x00252330 — [undeclared] src/cod/vendor_24E9D8.c:675: `D_005525C4' undeclared (first use in this function)
+- PORTED `func_002523A0` w1 @ 0x002523A0 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_002523B0` w1 @ 0x002523B0 <- aug6 common/src/PObj (10 syms rebound)
+- PORTED `func_00252438` w1 @ 0x00252438 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_00252550` w1 @ 0x00252550 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_00252560` w1 @ 0x00252560 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_00252590` w1 @ 0x00252590 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_002526C0` w1 @ 0x002526C0 <- aug6 common/src/PObj (1 syms rebound)
+- REVERTED `func_00252C68` w1 @ 0x00252C68 — [codegen] insn 11: expected `jal	0 <func_00252C68>` built `jal	3320 <func_00251CF8>`
+
+### src/cod/vendor_252D28
+- PORTED `func_00252F30` w1 @ 0x00252F30 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_00252F40` w1 @ 0x00252F40 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_00252F50` w1 @ 0x00252F50 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_00252F60` w1 @ 0x00252F60 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_00252F70` w1 @ 0x00252F70 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00252F80` w1 @ 0x00252F80 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00254C38` w1 @ 0x00254C38 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00254CF8` w1 @ 0x00254CF8 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00254F08` w1 @ 0x00254F08 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_002550B0` w1 @ 0x002550B0 <- aug6 common/src/PObj (8 syms rebound)
+- PORTED `func_002552E8` w1 @ 0x002552E8 <- aug6 common/src/PObj (13 syms rebound)
+- PORTED `func_00255E10` w1 @ 0x00255E10 <- aug6 common/src/PObj (5 syms rebound)
+- PORTED `func_00255F50` w1 @ 0x00255F50 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_00256648` w1 @ 0x00256648 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_002566B0` w1 @ 0x002566B0 <- aug6 common/src/PObj (6 syms rebound)
+- PORTED `func_00256720` w1 @ 0x00256720 <- aug6 common/src/PObj (11 syms rebound)
+- PORTED `func_00256BF8` w1 @ 0x00256BF8 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_002575C0` w1 @ 0x002575C0 <- aug6 common/src/PObj (5 syms rebound)
+- PORTED `func_00257850` w1 @ 0x00257850 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_00257CF8` w1 @ 0x00257CF8 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_002580E8` w1 @ 0x002580E8 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_00258418` w1 @ 0x00258418 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00258450` w1 @ 0x00258450 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00258508` w1 @ 0x00258508 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_00258558` w1 @ 0x00258558 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_002585A0` w1 @ 0x002585A0 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_002585F8` w1 @ 0x002585F8 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00258628` w1 @ 0x00258628 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_00258690` w1 @ 0x00258690 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_002586F8` w1 @ 0x002586F8 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_00258930` w1 @ 0x00258930 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00258998` w1 @ 0x00258998 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_00258C38` w1 @ 0x00258C38 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00258C50` w1 @ 0x00258C50 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00258C68` w1 @ 0x00258C68 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00258C78` w1 @ 0x00258C78 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00258C90` w1 @ 0x00258C90 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00258CA8` w1 @ 0x00258CA8 <- aug6 common/src/PObj (2 syms rebound)
+
+### src/cod/vendor_258CC0
+- PORTED `func_00258CC0` w1 @ 0x00258CC0 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00258CD0` w1 @ 0x00258CD0 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00258CE0` w1 @ 0x00258CE0 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00258CF0` w1 @ 0x00258CF0 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025A5D0` w1 @ 0x0025A5D0 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0025A940` w1 @ 0x0025A940 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_0025AB90` w1 @ 0x0025AB90 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025AC18` w1 @ 0x0025AC18 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025AF60` w1 @ 0x0025AF60 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025AFF0` w1 @ 0x0025AFF0 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025B358` w1 @ 0x0025B358 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_0025BDD8` w1 @ 0x0025BDD8 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025C0A8` w1 @ 0x0025C0A8 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_0025C2C0` w1 @ 0x0025C2C0 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_0025C490` w1 @ 0x0025C490 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0025C570` w1 @ 0x0025C570 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_0025C5B8` w1 @ 0x0025C5B8 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025C5C0` w1 @ 0x0025C5C0 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025C5C8` w1 @ 0x0025C5C8 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025C638` w1 @ 0x0025C638 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0025C668` w1 @ 0x0025C668 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025C680` w1 @ 0x0025C680 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025C6B0` w1 @ 0x0025C6B0 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025C7F8` w1 @ 0x0025C7F8 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0025C960` w1 @ 0x0025C960 <- aug6 common/src/PObj (6 syms rebound)
+- PORTED `func_0025CAC0` w1 @ 0x0025CAC0 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_0025CC28` w1 @ 0x0025CC28 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0025CCB0` w1 @ 0x0025CCB0 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025CCC8` w1 @ 0x0025CCC8 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025CCE0` w1 @ 0x0025CCE0 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025CCF8` w1 @ 0x0025CCF8 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025CD10` w1 @ 0x0025CD10 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025CD28` w1 @ 0x0025CD28 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025CD50` w1 @ 0x0025CD50 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025CE78` w1 @ 0x0025CE78 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025CE90` w1 @ 0x0025CE90 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025CF38` w1 @ 0x0025CF38 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_0025D2D8` w1 @ 0x0025D2D8 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0025D380` w1 @ 0x0025D380 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025D3B0` w1 @ 0x0025D3B0 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025D7F0` w1 @ 0x0025D7F0 <- aug6 common/src/PObj (5 syms rebound)
+- PORTED `func_0025D920` w1 @ 0x0025D920 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0025D9C8` w1 @ 0x0025D9C8 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025DA68` w1 @ 0x0025DA68 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025DCB0` w1 @ 0x0025DCB0 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025DCF0` w1 @ 0x0025DCF0 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025DD08` w1 @ 0x0025DD08 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025DDB0` w1 @ 0x0025DDB0 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025DDF0` w1 @ 0x0025DDF0 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025DE78` w1 @ 0x0025DE78 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025DEF0` w1 @ 0x0025DEF0 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025DF50` w1 @ 0x0025DF50 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025DFB0` w1 @ 0x0025DFB0 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025E020` w1 @ 0x0025E020 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025E038` w1 @ 0x0025E038 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025E050` w1 @ 0x0025E050 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025E0C0` w1 @ 0x0025E0C0 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025E100` w1 @ 0x0025E100 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025E118` w1 @ 0x0025E118 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025E158` w1 @ 0x0025E158 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025E198` w1 @ 0x0025E198 <- aug6 common/src/PObj (2 syms rebound)
+
+### src/cod/vendor_25E1E8
+- PORTED `func_0025E1E8` w1 @ 0x0025E1E8 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025E238` w1 @ 0x0025E238 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025E280` w1 @ 0x0025E280 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0025E2E8` w1 @ 0x0025E2E8 <- aug6 common/src/PObj (4 syms rebound)
+- REVERTED `func_0025E700` w1 @ 0x0025E700 — [callee-sig-conflict] src/cod/vendor_25E1E8.c:87: conflicting types for `func_0025F2F8'
+- PORTED `func_0025F928` w1 @ 0x0025F928 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_0025FA60` w1 @ 0x0025FA60 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00260610` w1 @ 0x00260610 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_002608E0` w1 @ 0x002608E0 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_002609E8` w1 @ 0x002609E8 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00260B70` w1 @ 0x00260B70 <- aug6 common/src/PObj (1 syms rebound)
+- REVERTED `func_00260CA8` w1 @ 0x00260CA8 — [codegen] insn 0: expected `lui	v1,0x72` built `lui	v1,0x0`
+- PORTED `func_00262B28` w1 @ 0x00262B28 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_00262B80` w1 @ 0x00262B80 <- aug6 common/src/PObj (4 syms rebound)
+- REVERTED `func_00262E90` w1 @ 0x00262E90 — [unresolved-symbol] unresolved-symbol: insn 35 `D_7181F0`: retail symbol D_0071EB70 (0x0071EB70) undefined
+- PORTED `func_00262FF8` w1 @ 0x00262FF8 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00263110` w1 @ 0x00263110 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_00263350` w1 @ 0x00263350 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_00263388` w1 @ 0x00263388 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_002633B8` w1 @ 0x002633B8 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_002637E8` w1 @ 0x002637E8 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_00263840` w1 @ 0x00263840 <- aug6 common/src/PObj (4 syms rebound)
+- REVERTED `func_00263AA0` w1 @ 0x00263AA0 — [unresolved-symbol] unresolved-symbol: insn 35 `D_718208`: retail symbol D_0071EB88 (0x0071EB88) undefined
+- PORTED `func_00263C00` w1 @ 0x00263C00 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00263D18` w1 @ 0x00263D18 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_00263F48` w1 @ 0x00263F48 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_00263F80` w1 @ 0x00263F80 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00263FB0` w1 @ 0x00263FB0 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_00263FF0` w1 @ 0x00263FF0 <- aug6 common/src/PObj (5 syms rebound)
+- PORTED `func_00264028` w1 @ 0x00264028 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00264050` w1 @ 0x00264050 <- aug6 common/src/PObj (2 syms rebound)
+- REVERTED `func_00264060` w1 @ 0x00264060 — [callee-sig-conflict] src/cod/vendor_25E1E8.c:582: conflicting types for `func_00264060'
+- PORTED `func_00264298` w1 @ 0x00264298 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_002642D8` w1 @ 0x002642D8 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_00264D50` w1 @ 0x00264D50 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00264D60` w1 @ 0x00264D60 <- aug6 common/src/PObj (2 syms rebound)
+- REVERTED `func_00264D90` w1 @ 0x00264D90 — [codegen] insn 21: expected `lw	v1,0(sp)` built `lw	v0,0(sp)`
+- REVERTED `func_00264DF8` w1 @ 0x00264DF8 — [codegen] insn 23: expected `lw	v1,0(sp)` built `lw	v0,0(sp)`
+- PORTED `func_00264E68` w1 @ 0x00264E68 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_00265730` w1 @ 0x00265730 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_002657F0` w1 @ 0x002657F0 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_00265AF0` w1 @ 0x00265AF0 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_00265B28` w1 @ 0x00265B28 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_00266870` w1 @ 0x00266870 <- aug6 common/src/PObj (2 syms rebound)
+
+### src/cod/vendor_2668B8
+- REVERTED `func_00268DA0` w1 @ 0x00268DA0 — [codegen] insn 14: expected `jal	0 <func_00268DA0>` built `jal	b8 <func_00266970>`
+- REVERTED `func_0026A438` w1 @ 0x0026A438 — [codegen] insn 4: expected `addiu	v0,v0,0` built `addiu	v0,v0,27808`
+- PORTED `func_0026A490` w1 @ 0x0026A490 <- aug6 common/src/PObj (3 syms rebound)
+- REVERTED `func_0026A5E0` w1 @ 0x0026A5E0 — [codegen] insn 1: expected `j	0 <func_0026A5E0>` built `j	4760 <func_0026B018>`
+- PORTED `func_0026A5F0` w1 @ 0x0026A5F0 <- aug6 common/src/PObj (3 syms rebound)
+- REVERTED `func_0026A600` w1 @ 0x0026A600 — [codegen] insn 3: expected `addiu	v0,v0,0` built `addiu	v0,v0,15656`
+- PORTED `func_0026A690` w1 @ 0x0026A690 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0026AAD0` w1 @ 0x0026AAD0 <- aug6 common/src/PObj (9 syms rebound)
+- PORTED `func_0026B0B0` w1 @ 0x0026B0B0 <- aug6 common/src/PObj (4 syms rebound)
+- PORTED `func_0026B138` w1 @ 0x0026B138 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0026B148` w1 @ 0x0026B148 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0026B178` w1 @ 0x0026B178 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0026BCC0` w1 @ 0x0026BCC0 <- aug6 common/src/PObj (1 syms rebound)
+- PRE-MATCHED `func_0026BEE0` w1 @ 0x0026BEE0 — already had a retail body before Phase 4
+- PRE-MATCHED `func_0026BEE8` w1 @ 0x0026BEE8 — already had a retail body before Phase 4
+- PORTED `func_0026BF98` w1 @ 0x0026BF98 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_0026C0E0` w1 @ 0x0026C0E0 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0026C228` w1 @ 0x0026C228 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_0026C2B0` w1 @ 0x0026C2B0 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_0026C370` w1 @ 0x0026C370 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0026C850` w1 @ 0x0026C850 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_0026CEA0` w1 @ 0x0026CEA0 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0026CF10` w1 @ 0x0026CF10 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0026D0A8` w1 @ 0x0026D0A8 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_0026D0F0` w1 @ 0x0026D0F0 <- aug6 common/src/PObj (1 syms rebound)
+- PORTED `func_0026D128` w1 @ 0x0026D128 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0026D1F8` w1 @ 0x0026D1F8 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0026D430` w1 @ 0x0026D430 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0026D458` w1 @ 0x0026D458 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0026D488` w1 @ 0x0026D488 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0026D4B0` w1 @ 0x0026D4B0 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0026D4D8` w1 @ 0x0026D4D8 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0026D538` w1 @ 0x0026D538 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0026D558` w1 @ 0x0026D558 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0026D5C0` w1 @ 0x0026D5C0 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0026D640` w1 @ 0x0026D640 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0026D6A8` w1 @ 0x0026D6A8 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0026E5F8` w1 @ 0x0026E5F8 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0026E840` w1 @ 0x0026E840 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0026EAF0` w1 @ 0x0026EAF0 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0026EC10` w1 @ 0x0026EC10 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0026EC68` w1 @ 0x0026EC68 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0026ECC8` w1 @ 0x0026ECC8 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0026ED28` w1 @ 0x0026ED28 <- aug6 common/src/PObj (3 syms rebound)
+- PORTED `func_0026F420` w1 @ 0x0026F420 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `func_0026F560` w1 @ 0x0026F560 <- aug6 common/src/PObj (2 syms rebound)
+
 ### src/commonact
 - REVERTED `ACTAdjustPlane` w1 @ 0x0015F2D8 — [codegen] insn 1: expected `lui	at,0xbf80` built `dli	a2,0xbff0`
 - REVERTED `ACTSendMailCorrect` w3 @ 0x0015EE78 — [codegen] insn 19: expected `sw	zero,1056(v0)` built `sw	zero,1040(v0)`
@@ -969,6 +1404,41 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `actCommonEdgeHang` w0 @ 0x0015E7F8 — [codegen] insn 16: expected `addiu	a1,zero,129` built `addiu	a1,zero,128`
 - REVERTED `correctJumpOrientByChain` w3 @ 0x0015D3C0 — [codegen] insn 6: expected `lw	t1,1184(a2)` built `lw	t1,1168(a2)`
 - REVERTED `funcCommonFallDircorrect` w3 @ 0x0015D358 — [codegen] insn 9: expected `swc1	$f0,272(a3)` built `swc1	$f0,256(a3)`
+- REVERTED `func_00158690` w3 @ 0x00158690 — [codegen] insn 8: expected `lw	a0,200(v1)` built `lw	a0,184(v1)`
+- PORTED `func_00159220` w1 @ 0x00159220 <- aug6 fumi/src/commonact (2 syms rebound)
+- REVERTED `func_0015D5A0` w3 @ 0x0015D5A0 — [codegen] insn 7: expected `addiu	a1,a1,352` built `addiu	a1,a1,336`
+- PORTED `func_0015D5F0` w1 @ 0x0015D5F0 <- aug6 fumi/src/commonact (4 syms rebound)
+- PORTED `func_0015D6B0` w1 @ 0x0015D6B0 <- aug6 fumi/src/commonact (2 syms rebound)
+- REVERTED `func_0015D7E8` w3 @ 0x0015D7E8 — [codegen] insn 10: expected `addiu	a1,s0,1216` built `addiu	a1,s0,1232`
+- REVERTED `func_0015D860` w3 @ 0x0015D860 — [codegen] insn 10: expected `addiu	a1,s0,1216` built `addiu	a1,s0,1232`
+- REVERTED `func_0015D8D8` w3 @ 0x0015D8D8 — [codegen] insn 23: expected `jal	0 <func_0015D8D8>` built `jal	5840 <BoxBarSoundOn>`
+- REVERTED `func_0015D950` w3 @ 0x0015D950 — [codegen] insn 7: expected `jal	0 <func_0015D950>` built `jal	5840 <BoxBarSoundOn>`
+- REVERTED `func_0015D988` w3 @ 0x0015D988 — [codegen] insn 7: expected `jal	0 <func_0015D988>` built `jal	6ec0 <funcCommonJumpDircorrect>`
+- REVERTED `func_0015D9D0` w3 @ 0x0015D9D0 — [codegen] insn 13: expected `jal	0 <func_0015D9D0>` built `jal	5840 <BoxBarSoundOn>`
+- REVERTED `func_0015DB58` w3 @ 0x0015DB58 — [codegen] insn 13: expected `addiu	a1,zero,210` built `addiu	a1,zero,207`
+- REVERTED `func_0015DBB0` w3 @ 0x0015DBB0 — [codegen] insn 7: expected `jal	0 <func_0015DBB0>` built `jal	5840 <BoxBarSoundOn>`
+- REVERTED `func_0015DC10` w3 @ 0x0015DC10 — [codegen] insn 23: expected `jal	0 <func_0015DC10>` built `jal	8b70 <ContinueCorrectPosition>`
+- REVERTED `func_0015DCE8` w3 @ 0x0015DCE8 — [codegen] insn 19: expected `jal	0 <func_0015DCE8>` built `jal	8b70 <ContinueCorrectPosition>`
+- REVERTED `func_0015DD78` w3 @ 0x0015DD78 — [codegen] insn 20: expected `jal	0 <func_0015DD78>` built `jal	1918 <func_00157DA0>`
+- REVERTED `func_0015DE38` w3 @ 0x0015DE38 — [codegen] insn 20: expected `addiu	a1,zero,58` built `addiu	a1,zero,57`
+- REVERTED `func_0015DEB0` w3 @ 0x0015DEB0 — [codegen] insn 12: expected `jal	0 <func_0015DEB0>` built `jal	1940 <WithMailFunc_AttackRejectInQueen>`
+- PORTED `func_0015DF30` w1 @ 0x0015DF30 <- aug6 fumi/src/commonact (4 syms rebound)
+- REVERTED `func_0015E080` w3 @ 0x0015E080 — [redefinition] src/commonact.c:9: redefinition of `func_0015C818_disp'
+- REVERTED `func_0015E118` w3 @ 0x0015E118 — [codegen] insn 29: expected `addiu	a1,zero,158` built `addiu	a1,zero,156`
+- PORTED `func_0015E2A8` w1 @ 0x0015E2A8 <- aug6 fumi/src/commonact (2 syms rebound)
+- REVERTED `func_0015E2C8` w3 @ 0x0015E2C8 — [redefinition] src/commonact.c:17: redefinition of `func_0015C818_disp'
+- REVERTED `func_0015E3F8` w3 @ 0x0015E3F8 — [codegen] insn 5: expected `jal	0 <func_0015E3F8>` built `jal	5840 <BoxBarSoundOn>`
+- PORTED `func_0015E428` w1 @ 0x0015E428 <- aug6 fumi/src/commonact (2 syms rebound)
+- PORTED `func_0015E478` w1 @ 0x0015E478 <- aug6 fumi/src/commonact (6 syms rebound)
+- REVERTED `func_0015E4E0` w3 @ 0x0015E4E0 — [codegen] insn 5: expected `jal	0 <func_0015E4E0>` built `jal	5840 <BoxBarSoundOn>`
+- REVERTED `func_0015E510` w3 @ 0x0015E510 — [codegen] insn 4: expected `addiu	s4,zero,237` built `addiu	s4,zero,235`
+- REVERTED `func_0015E5C8` w3 @ 0x0015E5C8 — [codegen] insn 20: expected `addiu	a1,zero,228` built `addiu	a1,zero,225`
+- PORTED `func_0015E638` w1 @ 0x0015E638 <- aug6 fumi/src/commonact (2 syms rebound)
+- PORTED `func_0015E678` w1 @ 0x0015E678 <- aug6 fumi/src/commonact (3 syms rebound)
+- REVERTED `func_0015E6D8` w1 @ 0x0015E6D8 — [callee-sig-conflict] src/commonact.c:5: conflicting types for `func_00240038_p'
+- REVERTED `func_0015E730` w1 @ 0x0015E730 — [redefinition] src/commonact.c:9: redefinition of `func_0015C818_disp'
+- PORTED `func_0015E790` w1 @ 0x0015E790 <- aug6 fumi/src/commonact (2 syms rebound)
+- PORTED `func_0015ED60` w1 @ 0x0015ED60 <- aug6 fumi/src/commonact (5 syms rebound)
 - REVERTED `motCommonRopeTurnL` w3 @ 0x00158770 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
 - REVERTED `subCommonIdle` w3 @ 0x0015EF88 — [codegen] insn 19: expected `addiu	s0,s0,224` built `addiu	s0,s0,208`
 
@@ -1167,6 +1637,10 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `actEnemy_isLargeEnemy` w0 @ 0x001655B0 — [codegen] insn 5: expected `sw	zero,280(v0)` built `sw	zero,264(v0)`
 - REVERTED `actEnemy_isNormalEnemy` w3 @ 0x00165540 — [codegen] insn 11: expected `addiu	a1,zero,2002` built `addiu	a1,zero,1984`
 - REVERTED `funcEnemyAiGetGirl` w0 @ 0x00165018 — [codegen] insn 12: expected `addiu	a1,zero,183` built `addiu	a1,zero,180`
+- REVERTED `func_001649D0` w3 @ 0x001649D0 — [unresolved-symbol] unresolved-symbol: insn 72 `D_00271240`: no retail lui partner for %lo (+6 more)
+- REVERTED `func_001659F8` w3 @ 0x001659F8 — [codegen] insn 9: expected `addiu	s0,s0,272` built `addiu	s0,s0,256`
+- REVERTED `func_00165A88` w3 @ 0x00165A88 — [codegen] insn 1: expected `addiu	a1,zero,336` built `addiu	a1,zero,332`
+- REVERTED `func_00165AD8` w3 @ 0x00165AD8 — [codegen] insn 12: expected `addiu	a1,zero,345` built `addiu	a1,zero,341`
 - REVERTED `subEnemyBrain_ToBoy` w3 @ 0x00163D60 — [undeclared] src/enemy_act.c:9: `D_00558E10' undeclared (first use in this function)
 
 ### src/fieldCollision
@@ -1316,6 +1790,10 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `actGirlAttack` w3 @ 0x00174D78 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 - REVERTED `actGirlDitch3mReady` w3 @ 0x0016EB68 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 - REVERTED `actGirlJump` w0 @ 0x001756D0 — [codegen] insn 4: expected `sd	ra,32(sp)` built `lw	v1,0(sp)`
+- REVERTED `func_00175420` w3 @ 0x00175420 — [codegen] insn 4: expected `addiu	a1,zero,356` built `addiu	a1,zero,352`
+- REVERTED `func_00175480` w3 @ 0x00175480 — [codegen] insn 6: expected `addiu	a1,zero,183` built `addiu	a1,zero,180`
+- REVERTED `func_001754B0` w3 @ 0x001754B0 — [codegen] insn 9: expected `addiu	a1,zero,374` built `addiu	a1,zero,370`
+- REVERTED `func_001755F8` w3 @ 0x001755F8 — [codegen] insn 9: expected `addiu	v0,zero,1` built `addiu	v0,zero,15`
 
 ### src/gv
 - REVERTED `GetMatrixDirectionToZ` w3 @ 0x00193A00 — [codegen] insn 6: expected `lw	a2,2048(v0)` built `lw	a2,2032(v0)`
@@ -1823,6 +2301,9 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `actSt04lDoor` w3 @ 0x00217CD8 — [codegen] insn 15: expected `addiu	v1,v1,0` built `addiu	v1,v1,1576`
 - REVERTED `actSt04lDoorEvent` w3 @ 0x00218950 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 
+### src/st04c.c
+- REVERTED `func_00218518` w3 @ 0x00218518 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+
 ### src/st04d
 - REVERTED `actSt04dDoor1` w3 @ 0x00218CF8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 - PRE-MATCHED `actSt04dDoor1DownChk` w1 @ 0x00218DC0 — already had a retail body before Phase 4
@@ -1844,6 +2325,7 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `actSt04eWater` w3 @ 0x00219840 — [codegen] insn 27: expected `addiu	a0,s2,0` built `addiu	a0,s2,1656`
 - REVERTED `actSt04eWaterFlagOn` w3 @ 0x00219D50 — [undeclared] src/st04e.c:98: structure has no member named `unkB4'
 - REVERTED `actSt04eWaterSwitch` w3 @ 0x00219AF0 — [undeclared] src/st04e.c:61: structure has no member named `unkB4'
+- REVERTED `func_0021A338` w3 @ 0x0021A338 — [codegen] insn 7: expected `addiu	v1,v1,0` built `addiu	v1,v1,2896`
 
 ### src/st04l
 - REVERTED `actSt04cInit` w3 @ 0x0021AD40 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
@@ -2149,6 +2631,7 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 
 ### src/st13b2.c
 - REVERTED `actSt13b2Generator` w0 @ 0x0022A1B8 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+- REVERTED `func_0022A8E8` w3 @ 0x0022A8E8 — [codegen] insn 7: expected `addiu	v1,v1,0` built `addiu	v1,v1,272`
 
 ### src/st13c
 - PRE-MATCHED `actSt13cBmg1` w3 @ 0x0022B5A0 — already had a retail body before Phase 4
@@ -2167,9 +2650,15 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PORTED `actSt13cInit` w3 @ 0x0022B480 <- aug6 script/src/st13c (6 syms rebound)
 - PRE-MATCHED `actSt13cSleep` w1 @ 0x0022BED0 — already had a retail body before Phase 4
 
+### src/st13c.c
+- REVERTED `func_0022BF90` w3 @ 0x0022BF90 — [codegen] insn 7: expected `addiu	v1,v1,0` built `addiu	v1,v1,1520`
+
 ### src/st17a
 - PORTED `actSt17aHasiChk` w1 @ 0x0022D5C8 <- aug6 script/src/st17a (6 syms rebound)
 - PRE-MATCHED `actSt17aSekizo` w1 @ 0x0022D6B0 — already had a retail body before Phase 4
+
+### src/st17a.c
+- REVERTED `func_0022D7F0` w3 @ 0x0022D7F0 — [codegen] insn 11: expected `addiu	a1,zero,397` built `addiu	a1,zero,393`
 
 ### src/st18a
 - REVERTED `actSt18aEne` w3 @ 0x00230928 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
@@ -2197,6 +2686,10 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `actSt19aOriXL` w1 @ 0x002315D8 — [codegen] insn 32: expected `addiu	a0,s0,0` built `addiu	a0,s0,1224`
 - REVERTED `actSt19aPipeChk` w3 @ 0x00231330 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 - PRE-MATCHED `actSt19bIntroChk` w1 @ 0x00231AC8 — already had a retail body before Phase 4
+
+### src/st19a.c
+- REVERTED `func_00231900` w3 @ 0x00231900 — [codegen] insn 11: expected `addiu	a1,zero,397` built `addiu	a1,zero,393`
+- REVERTED `func_00231988` w3 @ 0x00231988 — [codegen] insn 7: expected `addiu	v1,v1,0` built `addiu	v1,v1,2072`
 
 ### src/st20a
 - REVERTED `actSt20aBridgeMain` w3 @ 0x00233F80 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
@@ -2451,283 +2944,3 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PORTED `GetWormCaptureVector` w3 @ 0x001F69B0 <- aug6 sugipon/src/worm (1 syms rebound)
 - PORTED `GetWormRoute` w1 @ 0x001F66A0 <- aug6 sugipon/src/worm (3 syms rebound)
 - REVERTED `WormDL` w3 @ 0x001F6A90 — [codegen] insn 1: expected `lw	v1,2048(v0)` built `lw	v1,2032(v0)`
-
-### ios/thread.c
-- PORTED `func_0013DD20` w1 @ 0x0013DD20 <- aug6 fumi/ios/thread (3 syms rebound)
-
-### src/boyact.c
-- REVERTED `func_00151868` w1 @ 0x00151868 — [codegen] insn 35: expected `lui	at,0x42a0` built `lui	at,0x42b4`
-- REVERTED `func_001519D8` w1 @ 0x001519D8 — [codegen] insn 78: expected `ld	a0,0(at)` built `ld	a0,8(at)`
-- REVERTED `func_00151D78` w3 @ 0x00151D78 — [codegen] insn 66: expected `addiu	a1,zero,188` built `addiu	a1,zero,185`
-- REVERTED `func_00152508` w3 @ 0x00152508 — [codegen] insn 28: expected `addiu	a1,zero,77` built `addiu	a1,zero,76`
-
-### src/camera-ico2.c
-- PORTED `func_00187F10` w1 @ 0x00187F10 <- aug6 omori/src/camera-ico2 (1 syms rebound)
-- REVERTED `func_00187EA0` w1 @ 0x00187EA0 — [codegen] insn 18: expected `addiu	a0,s2,0` built `addiu	a0,s2,2680`
-
-### src/commonact.c
-- PORTED `func_00159220` w1 @ 0x00159220 <- aug6 fumi/src/commonact (2 syms rebound)
-- PORTED `func_0015D5F0` w1 @ 0x0015D5F0 <- aug6 fumi/src/commonact (4 syms rebound)
-- PORTED `func_0015D6B0` w1 @ 0x0015D6B0 <- aug6 fumi/src/commonact (2 syms rebound)
-- PORTED `func_0015DF30` w1 @ 0x0015DF30 <- aug6 fumi/src/commonact (4 syms rebound)
-- PORTED `func_0015E2A8` w1 @ 0x0015E2A8 <- aug6 fumi/src/commonact (2 syms rebound)
-- PORTED `func_0015E428` w1 @ 0x0015E428 <- aug6 fumi/src/commonact (2 syms rebound)
-- PORTED `func_0015E478` w1 @ 0x0015E478 <- aug6 fumi/src/commonact (6 syms rebound)
-- PORTED `func_0015E638` w1 @ 0x0015E638 <- aug6 fumi/src/commonact (2 syms rebound)
-- PORTED `func_0015E678` w1 @ 0x0015E678 <- aug6 fumi/src/commonact (3 syms rebound)
-- PORTED `func_0015E790` w1 @ 0x0015E790 <- aug6 fumi/src/commonact (2 syms rebound)
-- PORTED `func_0015ED60` w1 @ 0x0015ED60 <- aug6 fumi/src/commonact (5 syms rebound)
-- REVERTED `func_0015E6D8` w1 @ 0x0015E6D8 — [callee-sig-conflict] src/commonact.c:5: conflicting types for `func_00240038_p'
-- REVERTED `func_0015E730` w1 @ 0x0015E730 — [callee-sig-conflict] src/commonact.c:5: conflicting types for `func_00240038_p'
-- REVERTED `func_00158690` w3 @ 0x00158690 — [codegen] insn 8: expected `lw	a0,200(v1)` built `lw	a0,184(v1)`
-- REVERTED `func_0015D5A0` w3 @ 0x0015D5A0 — [codegen] insn 7: expected `addiu	a1,a1,352` built `addiu	a1,a1,336`
-- REVERTED `func_0015D7E8` w3 @ 0x0015D7E8 — [codegen] insn 10: expected `addiu	a1,s0,1216` built `addiu	a1,s0,1232`
-- REVERTED `func_0015D860` w3 @ 0x0015D860 — [codegen] insn 10: expected `addiu	a1,s0,1216` built `addiu	a1,s0,1232`
-- REVERTED `func_0015D8D8` w3 @ 0x0015D8D8 — [codegen] insn 23: expected `jal	0 <func_0015D8D8>` built `jal	5840 <BoxBarSoundOn>`
-- REVERTED `func_0015D950` w3 @ 0x0015D950 — [codegen] insn 7: expected `jal	0 <func_0015D950>` built `jal	5840 <BoxBarSoundOn>`
-- REVERTED `func_0015D988` w3 @ 0x0015D988 — [codegen] insn 7: expected `jal	0 <func_0015D988>` built `jal	6ec0 <funcCommonJumpDircorrect>`
-- REVERTED `func_0015D9D0` w3 @ 0x0015D9D0 — [codegen] insn 13: expected `jal	0 <func_0015D9D0>` built `jal	5840 <BoxBarSoundOn>`
-- REVERTED `func_0015DB58` w3 @ 0x0015DB58 — [codegen] insn 13: expected `addiu	a1,zero,210` built `addiu	a1,zero,207`
-- REVERTED `func_0015DBB0` w3 @ 0x0015DBB0 — [codegen] insn 7: expected `jal	0 <func_0015DBB0>` built `jal	5840 <BoxBarSoundOn>`
-- REVERTED `func_0015DC10` w3 @ 0x0015DC10 — [codegen] insn 23: expected `jal	0 <func_0015DC10>` built `jal	8b70 <ContinueCorrectPosition>`
-- REVERTED `func_0015DCE8` w3 @ 0x0015DCE8 — [codegen] insn 19: expected `jal	0 <func_0015DCE8>` built `jal	8b70 <ContinueCorrectPosition>`
-- REVERTED `func_0015DD78` w3 @ 0x0015DD78 — [codegen] insn 20: expected `jal	0 <func_0015DD78>` built `jal	1918 <func_00157DA0>`
-- REVERTED `func_0015DE38` w3 @ 0x0015DE38 — [codegen] insn 20: expected `addiu	a1,zero,58` built `addiu	a1,zero,57`
-- REVERTED `func_0015DEB0` w3 @ 0x0015DEB0 — [codegen] insn 12: expected `jal	0 <func_0015DEB0>` built `jal	1940 <WithMailFunc_AttackRejectInQueen>`
-- REVERTED `func_0015E080` w3 @ 0x0015E080 — [callee-sig-conflict] src/commonact.c:5: conflicting types for `func_00240038_p'
-- REVERTED `func_0015E118` w3 @ 0x0015E118 — [codegen] insn 29: expected `addiu	a1,zero,158` built `addiu	a1,zero,156`
-- REVERTED `func_0015E2C8` w3 @ 0x0015E2C8 — [callee-sig-conflict] src/commonact.c:7: conflicting types for `ChangeFieldCollisionDebugMode'
-- REVERTED `func_0015E3F8` w3 @ 0x0015E3F8 — [codegen] insn 5: expected `jal	0 <func_0015E3F8>` built `jal	5840 <BoxBarSoundOn>`
-- REVERTED `func_0015E4E0` w3 @ 0x0015E4E0 — [codegen] insn 5: expected `jal	0 <func_0015E4E0>` built `jal	5840 <BoxBarSoundOn>`
-- REVERTED `func_0015E510` w3 @ 0x0015E510 — [codegen] insn 4: expected `addiu	s4,zero,237` built `addiu	s4,zero,235`
-- REVERTED `func_0015E5C8` w3 @ 0x0015E5C8 — [codegen] insn 20: expected `addiu	a1,zero,228` built `addiu	a1,zero,225`
-
-### src/enemy_act.c
-- REVERTED `func_001649D0` w3 @ 0x001649D0 — [unresolved-symbol] unresolved-symbol: insn 72 `D_00271240`: no retail lui partner for %lo (+6 more)
-- REVERTED `func_001659F8` w3 @ 0x001659F8 — [codegen] insn 9: expected `addiu	s0,s0,272` built `addiu	s0,s0,256`
-- REVERTED `func_00165A88` w3 @ 0x00165A88 — [codegen] insn 1: expected `addiu	a1,zero,336` built `addiu	a1,zero,332`
-- REVERTED `func_00165AD8` w3 @ 0x00165AD8 — [codegen] insn 12: expected `addiu	a1,zero,345` built `addiu	a1,zero,341`
-
-### src/girl_act.c
-- REVERTED `func_00175420` w3 @ 0x00175420 — [codegen] insn 4: expected `addiu	a1,zero,356` built `addiu	a1,zero,352`
-- REVERTED `func_00175480` w3 @ 0x00175480 — [codegen] insn 6: expected `addiu	a1,zero,183` built `addiu	a1,zero,180`
-- REVERTED `func_001754B0` w3 @ 0x001754B0 — [codegen] insn 9: expected `addiu	a1,zero,374` built `addiu	a1,zero,370`
-- REVERTED `func_001755F8` w3 @ 0x001755F8 — [codegen] insn 9: expected `addiu	v0,zero,1` built `addiu	v0,zero,15`
-
-### src/st04c.c
-- REVERTED `func_00218518` w3 @ 0x00218518 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st04e.c
-- REVERTED `func_0021A338` w3 @ 0x0021A338 — [codegen] insn 7: expected `addiu	v1,v1,0` built `addiu	v1,v1,2896`
-
-### src/st13b2.c
-- REVERTED `func_0022A8E8` w3 @ 0x0022A8E8 — [codegen] insn 7: expected `addiu	v1,v1,0` built `addiu	v1,v1,272`
-
-### src/st13c.c
-- REVERTED `func_0022BF90` w3 @ 0x0022BF90 — [codegen] insn 7: expected `addiu	v1,v1,0` built `addiu	v1,v1,1520`
-
-### src/st17a.c
-- REVERTED `func_0022D7F0` w3 @ 0x0022D7F0 — [codegen] insn 11: expected `addiu	a1,zero,397` built `addiu	a1,zero,393`
-
-### src/st19a.c
-- REVERTED `func_00231900` w3 @ 0x00231900 — [codegen] insn 11: expected `addiu	a1,zero,397` built `addiu	a1,zero,393`
-- REVERTED `func_00231988` w3 @ 0x00231988 — [codegen] insn 7: expected `addiu	v1,v1,0` built `addiu	v1,v1,2072`
-
-### src/girl_act.c
-- REVERTED `func_00175420` w3 @ 0x00175420 — [codegen] insn 4: expected `addiu	a1,zero,356` built `addiu	a1,zero,352`
-
-### src/girl_act.c
-- REVERTED `func_00175480` w3 @ 0x00175480 — [codegen] insn 6: expected `addiu	a1,zero,183` built `addiu	a1,zero,180`
-
-### src/girl_act.c
-- REVERTED `func_001754B0` w3 @ 0x001754B0 — [codegen] insn 9: expected `addiu	a1,zero,374` built `addiu	a1,zero,370`
-
-### src/girl_act.c
-- REVERTED `func_001755F8` w3 @ 0x001755F8 — [codegen] insn 9: expected `addiu	v0,zero,1` built `addiu	v0,zero,15`
-
-### src/enemy_act.c
-- REVERTED `func_001659F8` w3 @ 0x001659F8 — [codegen] insn 9: expected `addiu	s0,s0,272` built `addiu	s0,s0,256`
-
-### src/enemy_act.c
-- REVERTED `func_00165A88` w3 @ 0x00165A88 — [codegen] insn 1: expected `addiu	a1,zero,336` built `addiu	a1,zero,332`
-
-### src/enemy_act.c
-- REVERTED `func_00165AD8` w3 @ 0x00165AD8 — [codegen] insn 12: expected `addiu	a1,zero,345` built `addiu	a1,zero,341`
-
-### src/st17a.c
-- REVERTED `func_0022D7F0` w3 @ 0x0022D7F0 — [codegen] insn 11: expected `addiu	a1,zero,397` built `addiu	a1,zero,393`
-
-### src/st19a.c
-- REVERTED `func_00231900` w3 @ 0x00231900 — [codegen] insn 11: expected `addiu	a1,zero,397` built `addiu	a1,zero,393`
-
-### src/boyact.c
-- REVERTED `func_00151D78` w3 @ 0x00151D78 — [codegen] insn 66: expected `addiu	a1,zero,188` built `addiu	a1,zero,185`
-
-### src/boyact.c
-- REVERTED `func_00152508` w3 @ 0x00152508 — [codegen] insn 28: expected `addiu	a1,zero,77` built `addiu	a1,zero,76`
-
-### src/commonact.c
-- REVERTED `func_00158690` w3 @ 0x00158690 — [codegen] insn 8: expected `lw	a0,200(v1)` built `lw	a0,184(v1)`
-
-### src/commonact.c
-- REVERTED `func_0015D5A0` w3 @ 0x0015D5A0 — [codegen] insn 7: expected `addiu	a1,a1,352` built `addiu	a1,a1,336`
-
-### src/commonact.c
-- REVERTED `func_0015D7E8` w3 @ 0x0015D7E8 — [codegen] insn 10: expected `addiu	a1,s0,1216` built `addiu	a1,s0,1232`
-
-### src/commonact.c
-- REVERTED `func_0015D860` w3 @ 0x0015D860 — [codegen] insn 10: expected `addiu	a1,s0,1216` built `addiu	a1,s0,1232`
-
-### src/commonact.c
-- REVERTED `func_0015D8D8` w3 @ 0x0015D8D8 — [codegen] insn 23: expected `jal	0 <func_0015D8D8>` built `jal	5840 <BoxBarSoundOn>`
-
-### src/commonact.c
-- REVERTED `func_0015D950` w3 @ 0x0015D950 — [codegen] insn 7: expected `jal	0 <func_0015D950>` built `jal	5840 <BoxBarSoundOn>`
-
-### src/commonact.c
-- REVERTED `func_0015D988` w3 @ 0x0015D988 — [codegen] insn 7: expected `jal	0 <func_0015D988>` built `jal	6ec0 <funcCommonJumpDircorrect>`
-
-### src/commonact.c
-- REVERTED `func_0015D9D0` w3 @ 0x0015D9D0 — [codegen] insn 13: expected `jal	0 <func_0015D9D0>` built `jal	5840 <BoxBarSoundOn>`
-
-### src/commonact.c
-- REVERTED `func_0015DB58` w3 @ 0x0015DB58 — [codegen] insn 13: expected `addiu	a1,zero,210` built `addiu	a1,zero,207`
-
-### src/commonact.c
-- REVERTED `func_0015DBB0` w3 @ 0x0015DBB0 — [codegen] insn 7: expected `jal	0 <func_0015DBB0>` built `jal	5840 <BoxBarSoundOn>`
-
-### src/commonact.c
-- REVERTED `func_0015DC10` w3 @ 0x0015DC10 — [codegen] insn 23: expected `jal	0 <func_0015DC10>` built `jal	8b70 <ContinueCorrectPosition>`
-
-### src/commonact.c
-- REVERTED `func_0015DCE8` w3 @ 0x0015DCE8 — [codegen] insn 19: expected `jal	0 <func_0015DCE8>` built `jal	8b70 <ContinueCorrectPosition>`
-
-### src/commonact.c
-- REVERTED `func_0015DD78` w3 @ 0x0015DD78 — [codegen] insn 20: expected `jal	0 <func_0015DD78>` built `jal	1918 <func_00157DA0>`
-
-### src/commonact.c
-- REVERTED `func_0015DE38` w3 @ 0x0015DE38 — [codegen] insn 20: expected `addiu	a1,zero,58` built `addiu	a1,zero,57`
-
-### src/commonact.c
-- REVERTED `func_0015DEB0` w3 @ 0x0015DEB0 — [codegen] insn 12: expected `jal	0 <func_0015DEB0>` built `jal	1940 <WithMailFunc_AttackRejectInQueen>`
-
-### src/commonact.c
-- REVERTED `func_0015E118` w3 @ 0x0015E118 — [codegen] insn 29: expected `addiu	a1,zero,158` built `addiu	a1,zero,156`
-
-### src/commonact.c
-- REVERTED `func_0015E3F8` w3 @ 0x0015E3F8 — [codegen] insn 5: expected `jal	0 <func_0015E3F8>` built `jal	5840 <BoxBarSoundOn>`
-
-### src/commonact.c
-- REVERTED `func_0015E4E0` w3 @ 0x0015E4E0 — [codegen] insn 5: expected `jal	0 <func_0015E4E0>` built `jal	5840 <BoxBarSoundOn>`
-
-### src/commonact.c
-- REVERTED `func_0015E510` w3 @ 0x0015E510 — [codegen] insn 4: expected `addiu	s4,zero,237` built `addiu	s4,zero,235`
-
-### src/commonact.c
-- REVERTED `func_0015E5C8` w3 @ 0x0015E5C8 — [codegen] insn 20: expected `addiu	a1,zero,228` built `addiu	a1,zero,225`
-
-### src/boyact.c
-- REVERTED `func_00151868` w1 @ 0x00151868 — [codegen] insn 35: expected `lui	at,0x42a0` built `lui	at,0x42b4`
-
-### src/boyact.c
-- REVERTED `func_001519D8` w1 @ 0x001519D8 — [codegen] insn 74: expected `ld	a1,0(at)` built `ld	a1,16(at)`
-
-### src/camera-ico2.c
-
-### src/st04c.c
-- REVERTED `func_00218518` w3 @ 0x00218518 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st04e.c
-- REVERTED `func_0021A338` w3 @ 0x0021A338 — [codegen] insn 7: expected `addiu	v1,v1,0` built `addiu	v1,v1,2896`
-
-### src/st13b2.c
-- REVERTED `func_0022A8E8` w3 @ 0x0022A8E8 — [codegen] insn 7: expected `addiu	v1,v1,0` built `addiu	v1,v1,272`
-
-### src/st13c.c
-- REVERTED `func_0022BF90` w3 @ 0x0022BF90 — [codegen] insn 7: expected `addiu	v1,v1,0` built `addiu	v1,v1,1520`
-
-### src/st19a.c
-- REVERTED `func_00231988` w3 @ 0x00231988 — [codegen] insn 7: expected `addiu	v1,v1,0` built `addiu	v1,v1,2072`
-
-### src/jimaku.c
-- REVERTED `func_00175980` w3 @ 0x00175980 — [codegen] insn 6: expected `addiu	a1,zero,318` built `addiu	a1,zero,314`
-
-### src/jimaku.c
-- REVERTED `func_00175A58` w3 @ 0x00175A58 — [codegen] insn 7: expected `addiu	a1,zero,89` built `addiu	a1,zero,98`
-
-### src/jimaku.c
-- REVERTED `func_00175BD8` w3 @ 0x00175BD8 — [codegen] insn 7: expected `addiu	a1,zero,99` built `addiu	a1,zero,98`
-
-### src/commonact.c
-- REVERTED `func_0015E6D8` w1 @ 0x0015E6D8 — [callee-sig-conflict] src/commonact.c:5: conflicting types for `func_00240038_p'
-
-### src/commonact.c
-- REVERTED `func_0015E730` w1 @ 0x0015E730 — [redefinition] src/commonact.c:9: redefinition of `func_0015C818_disp'
-
-### src/commonact.c
-- REVERTED `func_0015E080` w3 @ 0x0015E080 — [redefinition] src/commonact.c:9: redefinition of `func_0015C818_disp'
-
-### src/commonact.c
-- REVERTED `func_0015E2C8` w3 @ 0x0015E2C8 — [redefinition] src/commonact.c:17: redefinition of `func_0015C818_disp'
-
-### src/cod/vendor_2418A0
-- PORTED `func_002418A0` w1 @ 0x002418A0 <- aug6 common/src/PObj (5 syms rebound)
-- PORTED `func_00241A00` w1 @ 0x00241A00 <- aug6 common/src/PObj (3 syms rebound)
-- PORTED `func_00241AE8` w1 @ 0x00241AE8 <- aug6 common/src/PObj (4 syms rebound)
-- PORTED `func_00241C38` w1 @ 0x00241C38 <- aug6 common/src/PObj (2 syms rebound)
-- PORTED `func_00241F20` w1 @ 0x00241F20 <- aug6 common/src/PObj (2 syms rebound)
-- PORTED `func_00242A68` w1 @ 0x00242A68 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00243600` w1 @ 0x00243600 <- aug6 common/src/PObj (3 syms rebound)
-- PORTED `func_00243640` w1 @ 0x00243640 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_002436C8` w1 @ 0x002436C8 <- aug6 common/src/PObj (2 syms rebound)
-- PORTED `func_002438B8` w1 @ 0x002438B8 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_002438E8` w1 @ 0x002438E8 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00243930` w1 @ 0x00243930 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00243950` w1 @ 0x00243950 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00243978` w1 @ 0x00243978 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_002439B0` w1 @ 0x002439B0 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00243A68` w1 @ 0x00243A68 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00243A88` w1 @ 0x00243A88 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00243AA8` w1 @ 0x00243AA8 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00243AD0` w1 @ 0x00243AD0 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00243AE8` w1 @ 0x00243AE8 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00243B00` w1 @ 0x00243B00 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00243B18` w1 @ 0x00243B18 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00243B30` w1 @ 0x00243B30 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00243B60` w1 @ 0x00243B60 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00243B70` w1 @ 0x00243B70 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00243B98` w1 @ 0x00243B98 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00243BA8` w1 @ 0x00243BA8 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00243BB8` w1 @ 0x00243BB8 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00243BC8` w1 @ 0x00243BC8 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00243BD8` w1 @ 0x00243BD8 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00243E70` w1 @ 0x00243E70 <- aug6 common/src/PObj (4 syms rebound)
-- PORTED `func_00243EC0` w1 @ 0x00243EC0 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00243EE8` w1 @ 0x00243EE8 <- aug6 common/src/PObj (6 syms rebound)
-- PORTED `func_00243F98` w1 @ 0x00243F98 <- aug6 common/src/PObj (4 syms rebound)
-- PORTED `func_00244058` w1 @ 0x00244058 <- aug6 common/src/PObj (2 syms rebound)
-- PORTED `func_00244358` w1 @ 0x00244358 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_002443B0` w1 @ 0x002443B0 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_002443F8` w1 @ 0x002443F8 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00244418` w1 @ 0x00244418 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00244448` w1 @ 0x00244448 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00244460` w1 @ 0x00244460 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_002444A8` w1 @ 0x002444A8 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00244598` w1 @ 0x00244598 <- aug6 common/src/PObj (2 syms rebound)
-- PORTED `func_002445F8` w1 @ 0x002445F8 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00244630` w1 @ 0x00244630 <- aug6 common/src/PObj (2 syms rebound)
-- PORTED `func_00244738` w1 @ 0x00244738 <- aug6 common/src/PObj (2 syms rebound)
-- PORTED `func_00244958` w1 @ 0x00244958 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00245068` w1 @ 0x00245068 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00245088` w1 @ 0x00245088 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_002450A8` w1 @ 0x002450A8 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_002450B8` w1 @ 0x002450B8 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_002450C8` w1 @ 0x002450C8 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_002451D0` w1 @ 0x002451D0 <- aug6 common/src/PObj (2 syms rebound)
-- PORTED `func_00245228` w1 @ 0x00245228 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00245258` w1 @ 0x00245258 <- aug6 common/src/PObj (1 syms rebound)
-- PORTED `func_00245398` w1 @ 0x00245398 <- aug6 common/src/PObj (1 syms rebound)
-- REVERTED `func_00242548` w1 @ 0x00242548 — [codegen] src/cod/vendor_2418A0.c:116: void value not ignored as it ought to be
-- REVERTED `func_00244920` w1 @ 0x00244920 — [undeclared] src/cod/vendor_2418A0.c:661: dereferencing pointer to incomplete type
-- REVERTED `func_00245120` w1 @ 0x00245120 — [codegen] src/cod/vendor_2418A0.c:731: void value not ignored as it ought to be
-- REVERTED `func_00245178` w1 @ 0x00245178 — [codegen] src/cod/vendor_2418A0.c:733: void value not ignored as it ought to be
