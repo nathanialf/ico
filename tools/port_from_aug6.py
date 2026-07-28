@@ -1534,6 +1534,94 @@ def cmd_port_all(args):
         print(f"   {n:5d}  {c}")
 
 
+LEDGER_ENTRY_RE = re.compile(r"^- (PORTED|REVERTED|SKIPPED|PRE-MATCHED) `([^`]+)`")
+
+
+def cmd_ledger(args):
+    """Rewrite decomp/port_ledger.md: one entry per function (last attempt
+    wins), TUs alphabetical, plus an accounting header covering EVERY
+    wave-1/2/3 candidate — including the ones this driver never attempted
+    because the retail TU already carried a matched body.
+
+    `port` only appends, so re-running a TU leaves stale entries behind. This
+    is the compaction step; it is idempotent."""
+    txt = LEDGER_PATH.read_text(encoding="utf-8") if LEDGER_PATH.exists() else ""
+    lines = txt.split("\n")
+    body_at = next((k for k, l in enumerate(lines) if l.startswith("### ")),
+                   len(lines))
+    cur, order, per = None, [], {}
+    for l in lines[body_at:]:
+        if l.startswith("### "):
+            cur = l[4:].strip()
+            if cur not in per:
+                per[cur] = {}
+                order.append(cur)
+            continue
+        m = LEDGER_ENTRY_RE.match(l)
+        if m and cur:
+            per[cur][m.group(2)] = l
+
+    cand = load_candidates()
+    rows = [r for r in cand["records"]
+            if r["wave"] in (1, 2, 3) and r["retail_tu"]]
+    logged = {}
+    for tu, d in per.items():
+        for fn, l in d.items():
+            logged[fn] = LEDGER_ENTRY_RE.match(l).group(1).lower()
+    tu_cache = {}
+    stats = defaultdict(lambda: defaultdict(int))
+    for r in rows:
+        w, fn = r["wave"], r["name"]
+        stats[w]["candidates"] += 1
+        if fn in logged:
+            stats[w][logged[fn]] += 1
+            continue
+        p = retail_tu_path(r["retail_tu"])
+        if p not in tu_cache:
+            tu_cache[p] = read_latin1(p) if p.exists() else ""
+        if re.search(r"INCLUDE_ASM[_A-Z]*\([^)]*,\s*%s\s*\)" % re.escape(fn),
+                     tu_cache[p]):
+            stats[w]["unattempted"] += 1
+        else:
+            stats[w]["pre-matched"] += 1
+            tu = tu_stem(r["retail_tu"])
+            per.setdefault(tu, {})
+            if tu not in order:
+                order.append(tu)
+            per[tu][fn] = (f"- PRE-MATCHED `{fn}` w{w} @ "
+                           f"0x{r['retail_vma']:08X} — already had a retail "
+                           f"body before Phase 4")
+
+    head = [l for l in lines[:body_at]
+            if not l.startswith("|") and not l.startswith("## Accounting")]
+    while head and not head[-1].strip():
+        head.pop()
+    cols = ("candidates", "ported", "reverted", "skipped", "pre-matched",
+            "unattempted")
+    acc = ["", "## Accounting", "",
+           "| wave | " + " | ".join(cols) + " |",
+           "|---" * (len(cols) + 1) + "|"]
+    tot = defaultdict(int)
+    for w in sorted(stats):
+        acc.append("| %d | " % w + " | ".join(
+            str(stats[w][c]) for c in cols) + " |")
+        for c in cols:
+            tot[c] += stats[w][c]
+    acc.append("| **all** | " + " | ".join(str(tot[c]) for c in cols) + " |")
+
+    out = head + acc + [""]
+    for tu in sorted(order):
+        if not per[tu]:
+            continue
+        out.append(f"### {tu}")
+        out += [per[tu][fn] for fn in sorted(per[tu])]
+        out.append("")
+    LEDGER_PATH.write_text("\n".join(out).rstrip() + "\n", encoding="utf-8")
+    print("\n".join(acc[1:]))
+    print(f"\nwrote {LEDGER_PATH} ({LEDGER_PATH.stat().st_size} bytes, "
+          f"{len(order)} TUs)")
+
+
 def cmd_revert_func(args):
     path = retail_tu_path(args.tu)
     text = read_latin1(path)
@@ -1616,6 +1704,8 @@ if __name__ == "__main__":
     p.add_argument("--limit", type=int, default=0)
     p.add_argument("--skip", type=int, default=0)
 
+    sub.add_parser("ledger")
+
     p = sub.add_parser("revert-func")
     p.add_argument("tu")
     p.add_argument("func")
@@ -1623,5 +1713,5 @@ if __name__ == "__main__":
 
     args = ap.parse_args()
     {"scan": cmd_scan, "status": cmd_status, "tus": cmd_tus, "plan": cmd_plan,
-     "port": cmd_port, "port-all": cmd_port_all,
+     "port": cmd_port, "port-all": cmd_port_all, "ledger": cmd_ledger,
      "revert-func": cmd_revert_func}[args.cmd](args)
