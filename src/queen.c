@@ -1,0 +1,48 @@
+#include "common.h"
+
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019A7E8);
+
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019A8F0);
+
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019A9A0);
+
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019AA20);
+
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019AE50);
+
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019AE98);
+
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B660);
+
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B7F8);
+
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B888);
+
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B8E8);
+
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B910);
+
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B938);
+
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B948);
+
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B998);
+
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019BA60);
+
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019BAA8);
+
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019BB40);
+
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019BB60);
+
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019BC58);
+
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019BCE0);
+
+INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019BD30);
+
+INCLUDE_ASM("asm/nonmatchings/src/queen", queenBallBeforeFunc);
+
+INCLUDE_ASM("asm/nonmatchings/src/queen", InitQueenBallGeo);
+

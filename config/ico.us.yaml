@@ -157,7 +157,34 @@ segments:
       - [0x76B38, c, src/way_sys]  # 9 funcs, aug6
       - [0x782B0, c, src/way_util]  # 54 funcs, census
       - [0x7B2B8, c, src/gflag]  # 30 funcs, aug6
-      - [0x7CB20, asm, src/cod/07CB20]  # 162 game TUs not yet converted, + vendor tail
+      - [0x7CB20, c, src/script]  # 28 funcs, aug6
+      - [0x7DDE8, c, src/st25a]  # 27 funcs, aug6
+      - [0x7E920, c, src/warpGirl]  # 31 funcs, aug6
+      - [0x80910, c, src/attackhit]  # 22 funcs, census
+      - [0x823F0, c, src/brain]  # 11 funcs, aug6
+      - [0x82BF8, c, src/camera-editor]  # 35 funcs, census
+      - [0x873C0, c, src/camera-ico2]  # 46 funcs, census
+      - [0x8B9D0, c, src/camera-root]  # 13 funcs, aug6
+      - [0x8CBE8, c, src/camera-set-manager]  # 13 funcs, aug6
+      - [0x8CF60, c, src/chain]  # 41 funcs, census
+      - [0x90478, c, src/ebrain]  # 23 funcs, census
+      - [0x91D20, c, src/enemy-control]  # 4 funcs, aug6
+      - [0x92050, c, src/fightSound]  # 4 funcs, aug6
+      - [0x920A8, c, src/generator]  # 21 funcs, census
+      - [0x939E0, c, src/gv]  # 18 funcs, aug6
+      - [0x94360, c, src/hand-camera]  # 17 funcs, aug6
+      - [0x949B8, c, src/mail-add-data]  # 15 funcs, census
+      - [0x95378, c, src/poly-flat]  # 11 funcs, aug6
+      - [0x97080, c, src/act_bird]  # 8 funcs, census
+      - [0x973F0, c, src/gather_effect]  # 7 funcs, aug6
+      - [0x97FE8, c, src/itou_boss]  # 7 funcs, census
+      - [0x983F8, c, src/itou_gflag]  # 5 funcs, aug6
+      - [0x98678, c, src/itou_sub]  # 7 funcs, aug6
+      - [0x99790, c, src/lightning]  # 9 funcs, aug6
+      - [0x9A7E8, c, src/queen]  # 23 funcs, census
+      - [0x9C280, c, src/queen_barrier_disp]  # 8 funcs, aug6
+      - [0x9CF70, c, src/stage_orient]  # 7 funcs, aug6
+      - [0x9D960, asm, src/cod/09D960]  # 135 game TUs not yet converted, + vendor tail
       # .vutext — 5 hand-typed VU1 microprograms, byte-identical to aug6's
       # (same sizes: 0xDC0/0x9F0/0x16E0/0x1CA0/0x5B0).
       - [0x16F5E0, hasm, src/cluster]        # ClusterMicroProgram
