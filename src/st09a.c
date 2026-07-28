@@ -20,9 +20,30 @@ INCLUDE_ASM("asm/nonmatchings/src/st09a", actSt09aElvSwitch);
 
 INCLUDE_ASM("asm/nonmatchings/src/st09a", actSt09aElvUp);
 
-INCLUDE_ASM("asm/nonmatchings/src/st09a", actSt09aSekizoEvent);
+extern void Generator_Call(int a0);
+extern void Generator_Mask(int a0);
+extern void Generator_MaskOff(int a0);
+extern void _ACTWait(int a0);
+extern int actInitialize(int a0);
+extern int func_0017B230(int a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/st09a", actSt09aIntroChk);
+void actSt09aSekizoEvent(volatile int a0){ int x=a0;
+ actInitialize(a0); _ACTWait(1); Generator_Mask(a0);
+ while(func_0017B230(0x97)==0){ _ACTWait(1); }
+ _ACTWait(1); Generator_MaskOff(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); }
+
+void actSt09aIntroChk(volatile int a0){
+ int x=a0;
+ actInitialize(a0);
+ _ACTWait(1);
+ Generator_Mask(a0);
+ while(func_0017B230(0x97)==0){ _ACTWait(1); }
+ _ACTWait(1);
+ Generator_MaskOff(a0);
+ Generator_Call(a0);
+ _ACTWait(0x3C);
+ Generator_Call(a0);
+}
 
 void actSt09aBrgMain(int x) {
     volatile int local = x;

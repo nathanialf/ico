@@ -48,7 +48,16 @@ void StormTestDL(void) {
     D_0063363C = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/stormTest", InitStormTestGeo);
+extern int D_00275860[];
+extern int D_00633634;
+extern int D_00633638;
+extern int prim_DispFan2D(int a, float e, int *b, unsigned int c, int d);
+
+void InitStormTestGeo(void)
+{
+    D_00633634 = prim_DispFan2D(0x10, 80.0f, D_00275860, 0xFFFFFF80u, 0);
+    D_00633638 = prim_DispFan2D(0x10, 80.0f, D_00275860, 0xFFFFFF80u, 0);
+}
 
 void func_001EFA58(void) {}
 

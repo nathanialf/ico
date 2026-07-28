@@ -17,7 +17,18 @@ INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cConte04);
 
 INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cConte04Jimaku);
 
-INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cCage1stDownDemoCancel);
+extern int D_00631AE8;
+extern void _ACTWait(int a0);
+extern void func_0017B258(int a0);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+
+void actSt13cCage1stDownDemoCancel(volatile int a0) {
+    if (D_00631AE8 == 0) { _ACTWait(0); }
+    while (scpSleepSpiderGroupOne(D_00631AE8, 0x2000000) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    func_0017B258(0x4A);
+    func_0017B258(0x4B);
+}
 
 void actSt13cCage1stDown(void) {
     if (func_0017B230(0x4F) == 0) {

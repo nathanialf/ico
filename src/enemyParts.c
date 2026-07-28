@@ -1,5 +1,7 @@
 #include "common.h"
 
+#include "ico/types.h"
+
 
 
 
@@ -53,7 +55,18 @@ INCLUDE_ASM("asm/nonmatchings/src/enemyParts", DispEnemyEye);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemyParts", ResetEnemyEye);
 
-INCLUDE_ASM("asm/nonmatchings/src/enemyParts", moveDataElements);
+extern void GetRootMatrixByDObj(void *dst, int *src);
+extern void func_00102850(void *dst, int *src);
+extern int func_001E8B48(int a, void *b, void *c);
+
+void moveDataElements(int *self)
+{
+    int local[8];
+    GetRootMatrixByDObj(local, self);
+    func_00102850(&local[4], self);
+    func_001E8B48(0x31, local, &local[4]);
+    ((GObj *)self)->f_16C = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/enemyParts", func_001CED80);
 

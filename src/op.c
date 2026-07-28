@@ -50,7 +50,14 @@ INCLUDE_ASM("asm/nonmatchings/src/op", func_0020D660);
 
 INCLUDE_ASM("asm/nonmatchings/src/op", func_0020D690);
 
-INCLUDE_ASM("asm/nonmatchings/src/op", actSt00aEneChk);
+extern void actConte14_6(void);
+extern void actCreateSubThread__p4(void *entry, int a1) __asm__("actCreateSubThread");
+extern void func_0017B258(int a0);
+
+void actSt00aEneChk(volatile int a0) {
+    func_0017B258(0x140);
+    actCreateSubThread__p4(actConte14_6, 0x15);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/op", func_0020D748);
 

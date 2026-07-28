@@ -33,7 +33,12 @@ int DispIcoMisc(int a0)
     return 4;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/icoMisc", ExitIcoMisc);
+extern int D_004B3B68[];
+extern int D_00632F74;
+
+void ExitIcoMisc(int a0) {
+    D_004B3B68[a0] = D_00632F74;
+}
 
 void func_001AE8A0(int *self, int a1, int a2)
 {

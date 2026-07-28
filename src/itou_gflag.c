@@ -2,7 +2,12 @@
 
 
 extern void effect_end_func();
-INCLUDE_ASM("asm/nonmatchings/src/itou_gflag", itouGFlagInit);
+extern void *InitParticleLayoutGeo(void);
+
+void itouGFlagInit(void) {
+    void *r = InitParticleLayoutGeo();
+    **(int **)((char *)r + 0x60) = 1;
+}
 
 void itouGflagLoad(int a0, int a1, int a2, int a3)
 {

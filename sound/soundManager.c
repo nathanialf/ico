@@ -26,7 +26,25 @@ extern void debug_DispSEInfo(int a0, int a1);
 extern void soundDataSegNextStageNotUseClose();
 INCLUDE_ASM("asm/nonmatchings/sound/soundManager", sndBgmReadyNextStage);
 
-INCLUDE_ASM("asm/nonmatchings/sound/soundManager", sndInit);
+extern char D_00557E78[];
+extern char D_005D49E0[];
+extern char D_006A98B0[];
+
+int sndInit(void)
+{
+    char *e = D_006A98B0;
+    int sz = 0x3C;
+    int i = 0x2F;
+    do {
+        if (*(int *)(e + 0x30) != 0) {
+            debug_assertMessage((int)D_00557E78, *(short *)(e + 0x10),
+                          (unsigned int)(*(int *)(e + 0x38) - (int)D_005D49E0) / sz);
+        }
+        e += 0x40;
+        i--;
+    } while (i >= 0);
+    __asm__ __volatile__("break");
+}
 
 void sndManager(int *a, int *b)
 {

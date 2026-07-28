@@ -25,7 +25,25 @@ extern int D_00274ED4[];
 extern int D_00631D54;
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_MakeGObj);
 
-INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_ApplyData);
+extern char *D_00631970;
+extern void _ClearTransCurrentMatrix(void *a0, void *a1);
+extern void _InverseCurrentMatrix(void *a0, void *a1, float a2);
+extern void _PopCurrentMatrix(void *a0);
+extern void _RotCurrentMatrixY(void);
+extern void func_00117C80(void *a0);
+extern void func_00117C98(void);
+extern void func_00117CE0(void);
+
+void stage_ApplyData(void *a0) {
+    func_00117C80(a0);
+    _PopCurrentMatrix(D_00631970 + 0x80);
+    func_00117CE0();
+    _RotCurrentMatrixY();
+    _ClearTransCurrentMatrix(a0, D_00631970 + 0xB0);
+    _InverseCurrentMatrix(a0, a0, -1.0f);
+    *(float *)((char *)a0 + 0xC) = 1.0f;
+    func_00117C98();
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_Init);
 

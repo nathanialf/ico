@@ -1,6 +1,27 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/st17a", actSt17aHasiChk);
+extern int D_00631AE4;
+extern int D_00631AE8;
+extern void _ACTWait(int a0);
+extern int func_0017B230(int a0);
+extern void func_0017B258(int a0);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+
+void actSt17aHasiChk(volatile int a0) {
+    if (D_00631AE8 == 0) {
+        _ACTWait(0);
+    }
+    while (1) {
+        if (scpSleepSpiderGroupOne(D_00631AE8, 0x1000000) != 0 && func_0017B230(0x10A) != 0) {
+            break;
+        }
+        if (scpSleepSpiderGroupOne(D_00631AE4, 0x2000000) != 0 && scpSleepSpiderGroupOne(D_00631AE8, 0x2000000) != 0) {
+            break;
+        }
+        _ACTWait(1);
+    }
+    func_0017B258(0x10B);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st17a", func_0022D650);
 

@@ -7,7 +7,14 @@ INCLUDE_ASM("asm/nonmatchings/src/darkVolume", draw);
 
 INCLUDE_ASM("asm/nonmatchings/src/darkVolume", drawHT);
 
-INCLUDE_ASM("asm/nonmatchings/src/darkVolume", renderViewCoordZSphere);
+extern int D_004C09B0[];
+extern float D_00633324;
+extern void MatrixDrive_TurnObjectMatrix__p4(int a0, void *a1) __asm__("MatrixDrive_TurnObjectMatrix");
+
+void renderViewCoordZSphere(int a0, float a1) {
+    D_00633324 = a1;
+    MatrixDrive_TurnObjectMatrix__p4((int)D_004C09B0, (void *)a0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/darkVolume", sonic);
 

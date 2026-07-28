@@ -11,7 +11,22 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy", setEnemyObject);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy", dispEnemyObject);
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy", EnemyCheckHit);
+extern int D_006325B4;
+extern int D_00633394;
+extern int D_006333AC;
+extern char D_006333B8[];
+extern void GetParticleEffectPackage(int x);
+extern void InitCamera(int x, int y, int z);
+extern void debug_assertMessage(char *p);
+
+void EnemyCheckHit(void)
+{
+    GetParticleEffectPackage(D_00633394);
+    D_00633394 = -1;
+    InitCamera(D_006333AC, 0, 3);
+    D_006325B4 = 0;
+    debug_assertMessage(D_006333B8);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy", CheckEnemyHit);
 
@@ -65,7 +80,20 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy", EnemyGetNSafeParts);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy", EnemyDeleteParticle);
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy", SetEnemyHitGeometryAction);
+extern void GetMatrixFromQuaternion(void *a0);
+extern void MatrixDrive_GetMatrix(void *a0, void *a1, float f12, float f13, float f14);
+extern void func_0010E0B8(void *a0, int a1);
+extern void func_0010E158(void *a0, int a1);
+extern void func_001E8B48(int a0, void *a1, void *a2);
+
+void SetEnemyHitGeometryAction(void *a0, float *a1) {
+    char buf[0x20];
+    MatrixDrive_GetMatrix(buf + 0x10, buf + 0x12, a1[0], a1[1], -a1[2]);
+    GetMatrixFromQuaternion(buf);
+    func_0010E0B8(buf, (short)(-*(unsigned short *)(buf + 0x10)));
+    func_0010E158(buf, (short)(-*(unsigned short *)(buf + 0x12)));
+    func_001E8B48(0xC, a0, buf);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy", InitDemoMotionGeo);
 

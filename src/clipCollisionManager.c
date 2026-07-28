@@ -2,7 +2,13 @@
 
 
 extern void MatrixDrive_TurnObjectMatrix(void *dst, void *src);
-INCLUDE_ASM("asm/nonmatchings/src/clipCollisionManager", actClipCollisionCore);
+extern void _ACTWait(int a0);
+
+void actClipCollisionCore(void) {
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/clipCollisionManager", func_001C3778);
 

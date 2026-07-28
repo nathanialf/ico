@@ -38,5 +38,16 @@ INCLUDE_ASM("asm/nonmatchings/src/girl", GirlDL);
 
 INCLUDE_ASM("asm/nonmatchings/src/girl", GirlAI);
 
-INCLUDE_ASM("asm/nonmatchings/src/girl", SetGirlClothDispSwitch);
+extern int GirlAI(int a0);
+extern void GirlGeo(int a0);
+extern void func_0010ECB8(int a0);
+extern void func_0010ECD8(int a0);
+
+void SetGirlClothDispSwitch(int a0)
+{
+    func_0010ECD8(a0);
+    func_0010ECB8(a0);
+    GirlGeo(a0);
+    return GirlAI(a0);
+}
 

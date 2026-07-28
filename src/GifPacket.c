@@ -1,5 +1,7 @@
 #include "common.h"
 
+typedef struct { char _pad[0x10]; long long *cur; } GifBuf;
+
 
 
 
@@ -47,7 +49,12 @@ void gif_SpriteSensitiveOffset(void)
     D_00631BA0 = 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/GifPacket", gif_SpriteOrg);
+extern GifBuf D_004C7710;
+
+void gif_SpriteOrg(long long a0, long long a1) {
+    *D_004C7710.cur++ = a1;
+    *D_004C7710.cur++ = a0;
+}
 
 int gif_SpriteSensitiveOrg(void) {
     return D_00631BA0;

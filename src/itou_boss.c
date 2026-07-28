@@ -23,7 +23,11 @@ INCLUDE_ASM("asm/nonmatchings/src/itou_boss", BossEnemyFunc);
 
 INCLUDE_ASM("asm/nonmatchings/src/itou_boss", gene_enemy);
 
-INCLUDE_ASM("asm/nonmatchings/src/itou_boss", BossCtrlGeo);
+extern unsigned char D_006D35E0[];
+
+void BossCtrlGeo(void) {
+    D_006D35E0[0] = 1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/itou_boss", func_00198338);
 

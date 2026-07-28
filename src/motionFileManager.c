@@ -10,7 +10,19 @@ int InitMotionFile(unsigned int *self)
     return r;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/motionFileManager", InitMotionMemorySize);
+extern char D_004C5AE0[];
+extern char D_004C5AF0[];
+extern char D_004C5B00[];
+extern char D_004C5B10[];
+extern char D_004C5B20[];
+extern void func_001D4A58(void *a0, void *a1, void *a2, void *a3, int a4);
+
+void InitMotionMemorySize(void) {
+    func_001D4A58(D_004C5AF0, D_004C5AE0, D_004C5B10, D_004C5AE0, -1);
+    func_001D4A58(D_004C5B10, D_004C5AE0, D_004C5B00, D_004C5AE0, -1);
+    func_001D4A58(D_004C5B00, D_004C5AE0, D_004C5B20, D_004C5AE0, -1);
+    func_001D4A58(D_004C5B20, D_004C5AE0, D_004C5AF0, D_004C5AE0, -1);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/motionFileManager", AddMotionMemorySize);
 

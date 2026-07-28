@@ -1,9 +1,20 @@
 #include "common.h"
 
+typedef union { float f[4]; long long ll[2]; } Vec4;
+
 
 extern char D_0061B040[];
 extern void debug_assertMessage();
-INCLUDE_ASM("asm/nonmatchings/src/act2", BeforeFunc2);
+extern int D_00631970;
+extern void func_002438B8(void *a0, void *a1, void *a2);
+extern void func_002439B0(void *a0, void *a1);
+
+void BeforeFunc2(void *a0, float *a1) {
+    Vec4 v = {{ a1[3], 0.0f, -a1[4], 0.0f }};
+    float m[16];
+    func_002439B0(m, (void *)(D_00631970 + 0x80));
+    func_002438B8(a0, m, &v);
+}
 
 void actDummy(char *self, int val) {
     char *sub = *(char **)(self + 0x164);

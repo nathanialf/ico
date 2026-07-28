@@ -37,7 +37,10 @@ void init_debug_menu(void) {
     D_00632C74 = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/debug_menu", debug_TargetGObj_Func);
+void debug_TargetGObj_Func(int a0) {
+    *(volatile int *)0x10000800 = 0;
+    *(volatile int *)0x10000810 = a0 | 0x80;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/debug_menu", func_001A9DB8);
 

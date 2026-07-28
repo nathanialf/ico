@@ -21,7 +21,13 @@ INCLUDE_ASM("asm/nonmatchings/src/weapon", ReleaseWeaponWithFumbleTargetPos);
 
 INCLUDE_ASM("asm/nonmatchings/src/weapon", ReleaseWeaponWithFumbleSequential);
 
-INCLUDE_ASM("asm/nonmatchings/src/weapon", calcDynamicPathGeometry);
+extern void torchOnOfWeaponSE(void *a0);
+extern void weaponStickSE(void *a0);
+
+void calcDynamicPathGeometry(void *a0) {
+    torchOnOfWeaponSE(a0);
+    weaponStickSE(a0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/weapon", calcDynamicGeometry);
 

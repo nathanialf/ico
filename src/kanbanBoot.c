@@ -3,9 +3,15 @@
 
 extern void debug_assertMessage();
 extern int D_00616CE0[];
-INCLUDE_ASM("asm/nonmatchings/src/kanbanBoot", kanbanBootMcCheck);
+extern void soundSeDefPlayWithVolumeRate(int a0, unsigned int a1, int a2, int a3);
 
-INCLUDE_ASM("asm/nonmatchings/src/kanbanBoot", kanbanBootMain);
+void kanbanBootMcCheck(void) {
+    soundSeDefPlayWithVolumeRate(0x191, 0xFFFFFFFE, 0, 0);
+}
+
+void kanbanBootMain(void) {
+    soundSeDefPlayWithVolumeRate(0x18F, 0xFFFFFFFE, 0, 0);
+}
 
 void kanbanBootInit(void)
 {

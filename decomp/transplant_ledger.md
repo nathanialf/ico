@@ -2699,3 +2699,250 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PORTED `BirdGeo` w1 @ 0x00197338 <- aug6 ito/src/act_bird (3 syms rebound)
 
 ### src/clothTest
+
+### src/e3
+- PORTED `actE3TitleChk` w1 @ 0x00209F28 <- aug6 script/src/e3 (2 syms rebound)
+- PORTED `actE3St09aSekizo` w1 @ 0x0020A5F8 <- aug6 script/src/e3 (6 syms rebound)
+- REVERTED `actE3GateChk` w1 @ 0x0020A720 — [codegen] src/e3.c:65: invalid initializer
+
+### src/enemy
+- PORTED `EnemyCheckHit` w1 @ 0x001CD490 <- aug6 sugipon/src/enemy (7 syms rebound)
+- PORTED `SetEnemyHitGeometryAction` w1 @ 0x001CE8F0 <- aug6 sugipon/src/enemy (5 syms rebound)
+
+### src/itou_boss
+- PORTED `BossCtrlGeo` w1 @ 0x00198328 <- aug6 ito/src/itou_boss (1 syms rebound)
+- REVERTED `effect_end_func` w1 @ 0x00197FE8 — [codegen] insn 5: expected `<end>` built `sll	zero,zero,0x0`
+
+### src/kanban
+
+### src/kanbanBoot
+- PORTED `kanbanBootMcCheck` w1 @ 0x001B0A80 <- aug6 common/src/kanbanBoot (1 syms rebound)
+- PORTED `kanbanBootMain` w1 @ 0x001B0A98 <- aug6 common/src/kanbanBoot (1 syms rebound)
+
+### src/st01b
+- PORTED `actSt01bEnemy2` w1 @ 0x00210738 <- aug6 script/src/st01b (6 syms rebound)
+- PORTED `actSt01bEnemy3` w1 @ 0x002107E0 <- aug6 script/src/st01b (6 syms rebound)
+- PORTED `actSt01bEnemy6` w1 @ 0x00210980 <- aug6 script/src/st01b (4 syms rebound)
+
+### src/st03t
+- REVERTED `actSt03tEneChk` w1 @ 0x00212D00 — [codegen] insn 14: expected `lui	a1,0x500` built `lui	a1,0x300`
+
+### src/st09a
+- PORTED `actSt09aSekizoEvent` w1 @ 0x002250B8 <- aug6 script/src/st09a (6 syms rebound)
+- PORTED `actSt09aIntroChk` w1 @ 0x00225150 <- aug6 script/src/st09a (6 syms rebound)
+
+### src/st10l
+- PORTED `actSt10lFloorRight` w1 @ 0x00225AB0 <- aug6 script/src/st10l (4 syms rebound)
+- PORTED `actSt10lFloor` w1 @ 0x00225EF0 <- aug6 script/src/st10l (6 syms rebound)
+- PORTED `actSt10lGondola` w1 @ 0x00225F68 <- aug6 script/src/st10l (2 syms rebound)
+
+### src/st13c
+- PORTED `actSt13cCage1stDownDemoCancel` w1 @ 0x0022B810 <- aug6 script/src/st13c (4 syms rebound)
+
+### src/st47a
+- PORTED `actSt47aHane2` w1 @ 0x00236A78 <- aug6 script/src/st47a (6 syms rebound)
+- PORTED `actSt47aBarricade` w1 @ 0x00236BA8 <- aug6 script/src/st47a (6 syms rebound)
+
+### src/stormTest
+- PORTED `InitStormTestGeo` w1 @ 0x001EF9E0 <- aug6 sugipon/src/stormTest (4 syms rebound)
+
+### src/streamMotionManager
+
+### src/sugiTree
+- REVERTED `SugiLeafGeo2` w1 @ 0x001F1148 — [codegen] insn 7: expected `<end>` built `sll	zero,zero,0x0`
+- REVERTED `SugiLeafDL2` w1 @ 0x001F11A0 — [callee-sig-conflict] src/sugiTree.c:4: conflicting types for `SugiCb'
+
+### src/way_sys
+- PORTED `create_box_bridge` w1 @ 0x00176BC8 <- aug6 fumi/src/way_sys (14 syms rebound)
+- REVERTED `_FUNC_GetWay_begin` w1 @ 0x00176B38 — [codegen] insn 31: expected `<end>` built `sll	zero,zero,0x0`
+
+### src/way_tool
+- PORTED `draw_way_group` w1 @ 0x00207018 <- aug6 fumi/src/way_tool (7 syms rebound)
+- PORTED `way_toolDL` w1 @ 0x002070B0 <- aug6 fumi/src/way_tool (10 syms rebound)
+- REVERTED `group_create` w1 @ 0x00206208 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+
+### ios/memory
+- PORTED `iosMallocDebug` w1 @ 0x00138BF0 <- aug6 fumi/ios/memory (6 syms rebound)
+- PORTED `iosMallocCheckLeak` w1 @ 0x001394F0 <- aug6 fumi/ios/memory (4 syms rebound)
+
+### sound/soundManager
+- PORTED `sndInit` w1 @ 0x001446E8 <- aug6 fumi/sound/soundManager (4 syms rebound)
+
+### src/DmaPacket
+- PORTED `dpk_Init` w1 @ 0x001FBAA8 <- aug6 seki/src/DmaPacket (3 syms rebound)
+
+### src/MicroCode
+
+### src/Primitive
+- PORTED `prim_SetFan2D` w1 @ 0x0011BFC0 <- aug6 seki/src/Primitive (1 syms rebound)
+
+### src/Shadow
+
+### src/act-way
+- PORTED `ACTWay_IsMustWalkFromWay` w1 @ 0x00201D50 <- aug6 fumi/src/act-way (2 syms rebound)
+
+### src/act2
+- PORTED `BeforeFunc2` w1 @ 0x00203C40 <- aug6 fumi/src/act2 (3 syms rebound)
+
+### src/backStage
+
+### src/chandelier
+- PORTED `ChandelierDL` w1 @ 0x001C33D8 <- aug6 sugipon/src/chandelier (5 syms rebound)
+- PORTED `InitChandelierGeo` w1 @ 0x001C3470 <- aug6 sugipon/src/chandelier (2 syms rebound)
+
+### src/clipCollisionManager
+- PORTED `actClipCollisionCore` w1 @ 0x001C3760 <- aug6 sugipon/src/clipCollisionManager (1 syms rebound)
+
+### src/darkVolume
+- PORTED `renderViewCoordZSphere` w1 @ 0x001CB910 <- aug6 sugipon/src/darkVolume (3 syms rebound)
+
+### src/fightSound
+
+### src/gflag
+
+### src/icoMisc
+- PORTED `ExitIcoMisc` w1 @ 0x001AE880 <- aug6 common/src/icoMisc (2 syms rebound)
+
+### src/jimaku
+
+### src/mail-add-data
+
+### src/motionFileManager
+- PORTED `InitMotionMemorySize` w1 @ 0x001D4E88 <- aug6 sugipon/src/motionFileManager (6 syms rebound)
+
+### src/motionManager
+- PORTED `checkActPointWithHeight` w1 @ 0x001D8C40 <- aug6 sugipon/src/motionManager (12 syms rebound)
+- PORTED `GetWallVector` w1 @ 0x001DC938 <- aug6 sugipon/src/motionManager (9 syms rebound)
+
+### src/poly-flat
+- PORTED `after_DrawPolygon` w1 @ 0x00195380 <- aug6 omori/src/poly-flat (3 syms rebound)
+- PORTED `before_DrawLine` w1 @ 0x00195510 <- aug6 omori/src/poly-flat (5 syms rebound)
+
+### src/sceneManager
+
+### src/st05c
+- PORTED `actSt04rDoor` w1 @ 0x0021EE70 <- aug6 script/src/st05c (6 syms rebound)
+- PORTED `actSt04rDoor2` w1 @ 0x0021EEF8 <- aug6 script/src/st05c (5 syms rebound)
+
+### src/st08a
+- PORTED `actSt08aEnemy1` w1 @ 0x00223D58 <- aug6 script/src/st08a (5 syms rebound)
+- PORTED `actSt08aIntroChk` w1 @ 0x00223E50 <- aug6 script/src/st08a (3 syms rebound)
+
+### src/st17a
+- PORTED `actSt17aHasiChk` w1 @ 0x0022D5C8 <- aug6 script/src/st17a (6 syms rebound)
+
+### src/st20a
+- PORTED `actSt20aEnemy2` w1 @ 0x00233E80 <- aug6 script/src/st20a (5 syms rebound)
+- PORTED `actSt20aEnemy3` w1 @ 0x00233EE8 <- aug6 script/src/st20a (5 syms rebound)
+
+### src/staticBlur
+- PORTED `cleanUpFB` w1 @ 0x001EF118 <- aug6 sugipon/src/staticBlur (12 syms rebound)
+
+### src/warpGirl
+
+### src/waySystemManager
+- REVERTED `RequestGetWayBegin` w1 @ 0x001F22A0 — [codegen] insn 4: expected `addiu	t0,t0,0` built `addiu	t0,t0,288`
+- REVERTED `actWaySystemCore` w1 @ 0x001F22E0 — [codegen] insn 7: expected `addiu	a0,a0,0` built `addiu	a0,a0,208`
+
+### src/wireLetter
+
+### ios/ios
+
+### isys/isys
+
+### ito/mpeg/mv_sub
+- REVERTED `ErrMessage` w1 @ 0x0023D848 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+
+### src/EnemyInit
+
+### src/GifPacket
+- PORTED `gif_SpriteOrg` w1 @ 0x00111918 <- aug6 seki/src/GifPacket (1 syms rebound)
+
+### src/StageAnimation
+- PORTED `stage_ApplyData` w1 @ 0x001243E8 <- aug6 seki/src/StageAnimation (8 syms rebound)
+
+### src/ZFog
+
+### src/a_p_1
+
+### src/act-wish
+- REVERTED `ACTGetWish_FromPad` w1 @ 0x0014B580 — [codegen] insn 13: expected `<end>` built `sll	zero,zero,0x0`
+
+### src/attackhit
+
+### src/box
+
+### src/camera-set-manager
+- REVERTED `InitCameraSetManager` w1 @ 0x0018CBE8 — [codegen] insn 5: expected `<end>` built `sll	zero,zero,0x0`
+
+### src/debug_menu
+- PORTED `debug_TargetGObj_Func` w1 @ 0x001A9D90 <- aug6 common/src/debug_menu (0 syms rebound)
+
+### src/ebrain
+- REVERTED `eBrainProcess` w1 @ 0x00190478 — [codegen] insn 27: expected `<end>` built `sll	zero,zero,0x0`
+
+### src/enemy-control
+- REVERTED `EnemyCtrlBeforeFunc` w1 @ 0x00191D20 — [codegen] insn 19: expected `<end>` built `sll	zero,zero,0x0`
+
+### src/enemyParts
+- PORTED `moveDataElements` w1 @ 0x001CED28 <- aug6 sugipon/src/enemyParts (3 syms rebound)
+
+### src/flag
+
+### src/flyManager
+- PORTED `InitFlyInfo` w1 @ 0x001D03E8 <- aug6 sugipon/src/flyManager (5 syms rebound)
+
+### src/gather_effect
+- PORTED `GatherEffect_Set` w1 @ 0x001977A8 <- aug6 ito/src/gather_effect (1 syms rebound)
+
+### src/generator
+
+### src/girl
+- PORTED `SetGirlClothDispSwitch` w1 @ 0x001D1A98 <- aug6 sugipon/src/girl (4 syms rebound)
+
+### src/item
+
+### src/itou_gflag
+- PORTED `itouGFlagInit` w1 @ 0x001983F8 <- aug6 ito/src/itou_gflag (1 syms rebound)
+
+### src/lodManager
+
+### src/motionViewer
+
+### src/op
+- PORTED `actSt00aEneChk` w1 @ 0x0020D718 <- aug6 script/src/st00a (3 syms rebound)
+
+### src/queen
+
+### src/queen_barrier_disp
+- PORTED `makeRefractST` w1 @ 0x0019C798 <- aug6 ito/src/queen_barrier_disp (3 syms rebound)
+
+### src/ropeFix
+
+### src/rotObject
+- PORTED `moveStartSE` w1 @ 0x001E9980 <- aug6 sugipon/src/rotObject (8 syms rebound)
+
+### src/seMail
+- REVERTED `seMail` w1 @ 0x00204D70 — [callee-sig-conflict] src/seMail.c:8: conflicting types for `GetRootMatrixByDObj'
+
+### src/st04b
+- REVERTED `actSt04bGirlWay` w1 @ 0x002165B0 — [codegen] insn 11: expected `lui	s0,0x22` built `lui	s0,0x0`
+
+### src/st04c
+- PORTED `actSt04cEnemy2` w1 @ 0x002180C8 <- aug6 script/src/st04c (11 syms rebound)
+
+### src/st04d
+
+### src/stageMultiBgaManager
+- REVERTED `InitStageMultiBgaManager` w1 @ 0x001EBCD0 — [codegen] insn 51: expected `<end>` built `sll	zero,zero,0x0`
+
+### src/stage_orient
+
+### src/weapon
+- PORTED `calcDynamicPathGeometry` w1 @ 0x001F3A00 <- aug6 sugipon/src/weapon (2 syms rebound)
+
+### src/windManager
+- PORTED `InitWindManager` w1 @ 0x001F4FE8 <- aug6 sugipon/src/windManager (8 syms rebound)
+
+### src/worm
+- PORTED `GetWormRoute` w1 @ 0x001F66A0 <- aug6 sugipon/src/worm (3 syms rebound)
