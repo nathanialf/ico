@@ -25,6 +25,10 @@ extern int D_00275254[];
 extern void func_00104C80();
 INCLUDE_ASM("asm/nonmatchings/src/delayFreeManager", func_00101C80);
 
+INCLUDE_ASM("asm/nonmatchings/src/delayFreeManager", func_00101F70);
+
+INCLUDE_ASM("asm/nonmatchings/src/delayFreeManager", func_00102158);
+
 INCLUDE_ASM("asm/nonmatchings/src/delayFreeManager", func_00102340);
 
 INCLUDE_ASM("asm/nonmatchings/src/delayFreeManager", func_00102418);

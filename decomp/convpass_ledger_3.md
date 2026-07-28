@@ -1066,3 +1066,181 @@ minutes not hours.  (b) Unblock the two jtbl functions by solving the
 two-disjoint-`.rodata`-carves-per-TU problem for `src/Packet`.  (c)
 `actSt02aSecretItem` at rc19.  (d) The two boyact merge tails and
 `bga_calcEnvelope` as ordinary decomps.
+
+---
+
+# conv-7 — repo-wide splat-merge sweep (branch `conv-7`, base `6e0fea8f`)
+
+Mission: conv-6's top recommendation — run the interior-prologue splat-merge
+detector over **all** of `asm/nonmatchings`, carve every hidden boundary, match
+what the splits unlock.
+
+**Result: 137 hidden functions carved (was 31 in conv-6), 59 of them byte-
+matched.**  Every commit is byte-identical (`verify_elf: OK
+(fbf50c75cd5911273511c4f9af90503ff8423582)`).
+
+## The detector, generalised — `tools/find_splat_merges.py` (tracked)
+
+conv-6's rule ("interior `addiu $29,$29,-N` that no `.L…` label targets")
+misses every *frameless* second function and, applied naively, fires on
+scheduled prologues: gcc routinely places the stack adjust 1–4 instructions
+into the function (`blur` +4, `waypoint_with_range` +4, `warpGirlInStage`
++16).  The generalisation that holds is **local unreachability**:
+
+> instruction *i* starts a hidden function when (a) no `.L…` label names its
+> address, and (b) control cannot fall into it — the instruction two back
+> (whose delay slot is *i*'s predecessor) is an unconditional `b` / `j` / `jr`.
+
+with two corrections that are the whole difference between 1331 hits and 137:
+
+1. **`.p2align` pad `nop`s sit in exactly position (b)**.  A flagged `nop` run
+   is walked forward to the first real instruction; a run that reaches EOF is
+   dropped.  Without this the detector reports every function's trailing pad.
+2. **Jump-table case blocks are legitimately label-less** — their entry
+   addresses live in `.rodata`, so raw reachability calls each one a new
+   function (`dispSun`, `makeFullScreenFlareBefore`, `tableSin`, `poly-flat`
+   …).  Any file containing a `jr $N`, N≠31, or a `jtbl_` reloc is flagged and
+   its non-prologue candidates are ranked `low` and hidden by default.  This
+   is the same false-positive class conv-6 warned about; the fix is to
+   *down-rank* rather than to abandon reachability.
+
+Ranking: `high` = unreachable **and** a stack prologue (126 of 137); `med` =
+unreachable, no prologue, non-jtbl file (11 — these are the frameless tails);
+`low` = suppressed jtbl case blocks.  Only functions currently `INCLUDE_ASM`
+are scanned (splat never deletes the `.s` of a since-matched function).
+
+### Independent confirmation
+
+For the 30 merged heads that still carry their aug6 name, the detector's
+candidate **count matches the aug6 tree's `splat-merge …split` count exactly**,
+with head-relative offsets agreeing to within the retail/aug6 code drift —
+e.g. `actGirlBHang` 7/7 (retail 2688…4992 vs aug6 2624…4888),
+`actCommonLadder` 3/3 (40/128/224 identically), `actEnemy_isSmallEnemy` 3/3,
+`iosCdvdBackGroundReadJimaku` 3/3, `ACTGetOrientFromIntrK` 4/4.  The three
+count disagreements are all explained, not errors: `actBoySwim` is 4/5 because
+retail's merged block is 4148 bytes and aug6's 5th split sits at +4152, i.e.
+past the end; `TestCageUpDown` and `actCommonDie` each have one extra retail
+split because retail merged one function *further* than aug6 did.
+
+The `med` (frameless) rank is likewise confirmed: 5 of the 11 land on an aug6
+split (`ACTGetOrientFromIntrK` +2336≈2348, `SetDirectRootPositionXZ`
++288≈276, `flyMailCore` +352≈348, `jimakuJump` +264≈268, `actSt00aDoor2`
++392≈404).
+
+### Candidate table (137 boundaries / 71 heads / 29 TUs)
+
+| TU | carved boundaries |
+|---|---|
+| ios/cdvd | 1 |
+| ios/thread | 1 |
+| src/access | 2 |
+| src/boyact | 10 |
+| src/camera-editor | 3 |
+| src/camera-ico2 | 2 |
+| src/commonact | 53 |
+| src/delayFreeManager | 2 |
+| src/enemy_act | 10 |
+| src/gather_effect | 1 |
+| src/girl_act | 18 |
+| src/haveParentSimpleObj | 2 |
+| src/jimaku | 6 |
+| src/lightning | 1 |
+| src/objact | 3 |
+| src/st00a | 2 |
+| src/st03t · st04c · st04e · st13b2 · st13c · st17a · st22a · warpGirl · way_tool | 1 each |
+| src/st13d · st17b · st19a | 2 each |
+| src/st47a | 5 |
+
+Full per-symbol list: `git show 718d59f2 -- config/symbol_addrs.us.txt`.
+Re-run at any time with `tools/find_splat_merges.py` (`--format=symbols` emits
+the `symbol_addrs` lines directly; `--min-conf low` shows the suppressed jtbl
+class).  **The aug6 tree should be swept with the same tool** — it carries 190
+splits already but was never checked with the frameless/`med` rule.
+
+## Correlating a carve tail to its aug6 body — `name_alias.json`
+
+`port_from_aug6.py` joins retail to aug6 **by name**, which can never work for
+a carve: our recovered bodies are `func_<RETAILVMA>` and the aug6 tree carved
+the same boundary at a different address.  Added (small, reusable):
+
+* `.port_cache/name_alias.json` — `{retail_name: aug6_name}`.
+* `scan` reads it, records `aug6_name` beside `name`; `build_symbol_map` opens
+  the aug6 `.s` under the alias; `cmd_port` rebinds `aug6_name -> name` so the
+  spliced body defines and self-recurses under the retail symbol.
+
+The map itself comes from `convpass_ordinal.py`'s reloc-blanked stream score:
+**61 of the 124 carve tails score 1.00 against a matched aug6 body** (42 of
+them uniquely; the ambiguous ones are duplicate act-thread wrappers, and the
+rebinding is slot-based so any of the tied twins produces the same C).
+
+## Matched, by commit
+
+| commit | scope | carved | matched |
+|---|---|---|---|
+| `718d59f2` | repo-wide detector sweep + carve (checkpoint) | 137 | 0 |
+| `16c30a25` | mechanical port through the alias map | 0 | 15 |
+| `9aac772a` | girl_act / enemy_act / st17a / st19a / boyact tails | 0 | 11 |
+| `d6449d17` | commonact tails (20) | 0 | 20 |
+| `166e3025` | st04c/st04e/st13b2/st13c/st19a/jimaku/commonact tails | 0 | 13 |
+
+59 matched: commonact 31 · jimaku 4 · girl_act 4 · enemy_act 3 · boyact 2 ·
+st19a 2 · st04c · st04e · st13b2 · st13c · st17a · ios/thread · camera-ico2.
+
+Substitution families used — all already in conv-6's catalogue, no new class:
+BoxBar/se id **+3 or +4** (`0xB4→0xB7` is the single commonest edit in the
+whole pass; also `0x189→0x18D`, `0x142→0x146`, `0x14C→0x150`, `0xCF→0xD2`,
+`0x136→0x13A`, `0x9C→0x9E`, `0xE1→0xE4`, `0x13A→0x13E`), one **−4**
+(`func_0015E3F8` `0xB4→0xB0`) and one **−9** (`jimaku func_00175A58`
+`0x62→0x59`); Sub15C/GObj **+0x10** (`0xB0/0xB4→0xC0/0xC4`, `0xB8→0xC8`,
+`0x100→0x110`, `0x110→0x120`, `0x150→0x160`, `0x490→0x4A0`, `0x5D8→0x5E8`,
+`0x5F0→0x600`, `0x7C0→0x7E0`, `0x3B0→0x3D0`) plus one **−0x10**
+(`0x4D0→0x4C0`); chained ids needing a *simultaneous* rewrite (boyact
+`func_00152508`: `0x5B/5C/5D→0x5C/5D/5E` and `0x46/47/48/49→0x47/48/49/4A`);
+moved members (`0x608→0x140`, `0x608→0x604`).
+
+## Three hazards worth remembering
+
+1. **`port_from_aug6` reverts on a diff that is not real.**  Eleven commonact
+   tails were REVERTED for `expected jal 0 <self> built jal <InTuCallee>`.
+   That is an artefact: quick_diff's expected stream assembles ONE function,
+   so its call stays a relocation, while our build resolves the callee inside
+   the TU.  `convpass_rd.sh`'s tolerances see through it — **splice and
+   re-diff before believing that revert reason.**
+2. **A global string replace of a bumped constant hits matched siblings.**
+   Bumping `s0[0x30/4] = 0xF` for `func_001755F8` also rewrote the identical
+   line in the already-matched `func_001757B8` in the same TU.  `quick_diff`
+   and `convpass_rd` were rc0 for *every* function; only the `ninja` SHA gate
+   caught the single changed byte at 0x1757DC.  Scope every constant edit to
+   the target function's brace span.
+3. **Coalesced-TU splices collide twice.**  (a) The driver emits its collected
+   `static __inline__` helpers once per spliced sibling — N siblings sharing a
+   helper produce N identical definitions.  De-duplicate to one.  (b) Those
+   helpers land at the TOP of the TU, above prototypes the TU declares further
+   down, so gcc 2.9 implicitly declares the callee and then reports
+   `conflicting types`.  Hoist a copy of the prototype (with its `__asm__`
+   alias) above the helper block.
+
+## Bonus finding for the aug6 tree (verified, do NOT act on it here)
+
+conv-6 suggested retail `func_001656C8`'s matched body should close aug6's
+still-`INCLUDE_ASM` `func_00163500` (`fumi/src/enemy_act.c:974`).  Measured:
+the reloc-blanked streams score **0.989** at **46 aug6 vs 45 retail**
+instructions.  So it is a near-twin, not a transplant — porting the conv-6
+body back with the inverse substitutions (`0x110→0x100`, `0x420→0x400`,
+`0x13C→0x12C`, se `0x14A→0x146`) gets most of the way, but there is a genuine
+one-instruction structural delta to resolve on the aug6 side.
+
+## Still open after conv-7
+
+| class | n | detail |
+|---|---|---|
+| carved, aug6 twin scored 1.00, still unmatched | 2 | boyact `func_00151868` / `func_001519D8` — both at **rc2** on a spliced body; residual is a float const (`lui 0x42B4`→`0x42A0`, i.e. 90.0f→80.0f) plus `ld` slots at `+8/+16/+24` where ROM wants `+0` of a distinct symbol (the `-G8` / `float_vector_rodata_union` family). Best next targets in the whole queue. |
+| carved, no 1.00 aug6 twin | 63 | the big act-thread tails: girl_act `actGirlBHang`×7, `actGirlHand`, `actGirlHangG3M`, `func_001725C8` (678 insns); commonact `func_0015DA20`, `func_0015DF88`, `func_0015E1B0`, `func_0015E388`, `func_0015EC08`, and the `ACTGetOrientFromIntrK`/`TestCageUpDown`/`actCommonDie`/`actCommonBox`/`actCommonDown`/`actCommonBar` heads' tails; boyact `func_00150568`×6; enemy_act `func_001600F8`/`func_001605F8`/`func_001611E8`/`func_001619A8`/`func_001624D8`/`func_001649D0` (the last reverts `unresolved-symbol D_00271240`); camera-editor `test_camedit`×3; st47a×5; st13d×2, st17b×2, objact×3, access×2, delayFreeManager×2, haveParentSimpleObj×2, st00a×2, and the singletons.  These need ordinary convergence, not a substitution. |
+| unchanged from conv-6 | — | `pac_continueTag` / `shiftMotionOrientEndFunc` (two-disjoint-`.rodata`-carves-per-TU); `actSt02aSecretItem` rc19; `bga_calcEnvelope`; the 8 `no-aug6-twin` funcs. |
+
+**Recommended order for a conv-8:** (a) the two boyact rc2 tails — one
+`-G8`/float-const idea away; (b) run `tools/find_splat_merges.py` against the
+**aug6** checkout (it has 190 splits but has never been checked with the
+frameless/`med` rule, and the same 137-vs-31 ratio may hold there); (c) the 63
+no-twin tails, smallest first — most are 8–50 insn act-thread coroutines;
+(d) conv-6's carry-over list unchanged.

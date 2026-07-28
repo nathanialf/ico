@@ -1,5 +1,7 @@
 #include "common.h"
 
+typedef struct { char pad[0xC0]; void *f_B0; void *unkB4; } BoxObj_st19a;
+
 typedef struct ActB4Obj {
     char pad[0xC4];
     int *unkB4;
@@ -106,7 +108,34 @@ INCLUDE_ASM("asm/nonmatchings/src/st19a", func_00231818);
 
 INCLUDE_ASM("asm/nonmatchings/src/st19a", func_002318D0);
 
+extern int *D_004D3480[];
+extern int D_006325B4;
+extern void actSt18aEnemy2_2(volatile int a0);
+
+void func_00231900(volatile int a0) {
+    BoxObj_st19a *obj = *(BoxObj_st19a **)(a0 + 0x164);
+    D_006325B4 = 1;
+    D_004D3480[1] = (int *)actSt18aEnemy2_2;
+    obj->f_B0 = 0;
+    obj->unkB4 = (void *)D_004D3480;
+    BoxBarSoundOn((int)a0, 0x18D);
+    _ACTWait(0);
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/st19a", func_00231958);
+
+extern int *D_004D3500[];
+extern void actSt19aChainMain(volatile int a0);
+
+void func_00231988(volatile int a0) {
+    BoxObj_st19a *obj = *(BoxObj_st19a **)(a0 + 0x164);
+    D_006325B4 = 1;
+    D_004D3500[1] = (int *)actSt19aChainMain;
+    obj->f_B0 = 0;
+    obj->unkB4 = (void *)D_004D3500;
+    BoxBarSoundOn((int)a0, 0x18D);
+    _ACTWait(0);
+}
 
 extern int D_004D3520[];
 extern int D_006325B4;

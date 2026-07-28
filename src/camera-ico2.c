@@ -160,6 +160,12 @@ void SetCameraMatrix_Ico2(int a0, int a1, int a2, int a3, float *out, int a5) {
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", ReadCameraSet);
 
+INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", func_00187EA0);
+
+int func_00187F10(void *a0, int a1) {
+    return *(int *)((char *)a0 + 4) + a1 * 0x4C;
+}
+
 int SetCameraZoomOffsetRatio(int *a0, int a1, int a2)
 {
   int *p;

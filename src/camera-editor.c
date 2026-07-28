@@ -123,6 +123,12 @@ void wakeup_cameraedit(int a0, int a1) {
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", test_camedit);
 
+INCLUDE_ASM("asm/nonmatchings/src/camera-editor", func_001858B8);
+
+INCLUDE_ASM("asm/nonmatchings/src/camera-editor", func_00185CA8);
+
+INCLUDE_ASM("asm/nonmatchings/src/camera-editor", func_00186168);
+
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", func_00186978);
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", _CameraEdit_del_box);

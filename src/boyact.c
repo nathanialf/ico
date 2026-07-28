@@ -311,11 +311,91 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001504D8);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00150568);
 
+INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00151678);
+
+INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00151868);
+
+INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001519D8);
+
+INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00151B48);
+
+extern int D_00274EC0[];
+extern int dispPlane(void *a0, void *a1);
+extern void funcCommonFallDircorrect2(void *a0, void *a1) __asm__("funcCommonFallDircorrect");
+extern int func_00194590(void *a0, void *a1);
+
+void func_00151D78(int *volatile a0) {
+    float buf10[4], buf20[4], buf30[4];
+    void *g = *(void **)((char *)a0 + 0x164);
+    void *s16 = *(void **)((char *)g + 0x5F8);
+    int first = 1;
+    int cnt = 0;
+    buf10[0] = ((float *)ContinueCorrectPosition(s16))[0];
+    buf10[1] = ((float *)ContinueCorrectPosition(s16))[1];
+    buf10[2] = ((float *)ContinueCorrectPosition(s16))[2];
+    while (1) {
+        buf20[0] = ((float *)ContinueCorrectPosition(a0))[0];
+        buf20[1] = ((float *)ContinueCorrectPosition(a0))[1];
+        buf20[2] = ((float *)ContinueCorrectPosition(a0))[2];
+        func_001947D0(buf30, buf10, buf20);
+        if (first) {
+            dispPlane(a0, buf30);
+            first = 0;
+        } else if (func_00194590(subCommonIdle(a0), buf30) < 0x1E) {
+            funcCommonFallDircorrect2(a0, buf30);
+        } else {
+            BoxBarSoundOn(a0, 0xBC);
+        }
+        if (((0x3C - D_00274EC0[0] * 0xA) / D_00274EC0[1]) * 2 < cnt++)
+            BoxBarSoundOn(a0, 0xBC);
+        _ACTWait__p4(1);
+    }
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00151F00);
+
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001520E8);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", subBoyCollision);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoySwim);
+
+extern int ACTGame_InsertCamera_GirlIsPinch(void);
+extern float D_00630BF8;
+extern float D_00630BFC;
+extern float D_00630C00;
+extern void *D_006321DC__p4 __asm__("D_006321DC");
+extern void iosOmBeforeFuncStandard__p4(void *a0, int a1, void *a2) __asm__("iosOmBeforeFuncStandard");
+
+void func_00152508(int *arg){
+    int state=*(int*)((char*)*(void**)((char*)D_00631AE4__p4+0x164)+0x5D4);
+    void *obj=*(void**)((char*)(*(int * volatile *)&arg)+0x164);
+    float lo,hi;
+    switch (state) {
+    case 0x64: if (D_00631AE8) iosOmBeforeFuncStandard__p4(D_00631AE8,0x4D,D_006321DC__p4); *(int*)((char*)*(void**)((char*)D_00631AE8+0x164)+0x40)=0x5C; break;
+    case 0xC8: if (D_00631AE8) iosOmBeforeFuncStandard__p4(D_00631AE8,0x4D,D_006321DC__p4); *(int*)((char*)*(void**)((char*)D_00631AE8+0x164)+0x40)=0x5D; break;
+    case 0x12C:if (D_00631AE8) iosOmBeforeFuncStandard__p4(D_00631AE8,0x4D,D_006321DC__p4); *(int*)((char*)*(void**)((char*)D_00631AE8+0x164)+0x40)=0x5E; break;
+    }
+    lo=*(volatile float*)&D_00630BF8;hi=*(volatile float*)&D_00630BFC;
+    while (1) {
+        if (ACTGame_InsertCamera_GirlIsPinch()==0) BoxBarSoundOn(*(int * volatile *)&arg,0x47);
+        else{ float v=*(float*)((char*)obj+0x33C); int ci; float c;
+            ci=*(int*)&v; c=*(float*)&ci;
+            if(!(D_00630C00<v)) goto t2;
+            if(!(D_00630C00<v)) goto l47;
+            if(v<lo) goto t2;
+            if(*(volatile int*)((char*)obj+0x2D0)&0x20) goto t2;
+            l47: BoxBarSoundOn(*(int * volatile *)&arg,0x48); goto w;
+            t2: if(hi<c && (v<lo||(*(volatile int*)((char*)obj+0x2D0)&0x20))) BoxBarSoundOn(*(int * volatile *)&arg,0x49);
+                else BoxBarSoundOn(*(int * volatile *)&arg,0x4A);
+            w:; }
+        _ACTWait__p4(1); } }
+
+INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001526A0);
+
+INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00152A70);
+
+INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00152F18);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00153318);
 

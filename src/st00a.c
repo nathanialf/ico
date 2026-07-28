@@ -38,6 +38,10 @@ void actSt00aStairChk(volatile int a0) {
 
 INCLUDE_ASM("asm/nonmatchings/src/st00a", actSt00aDoor2);
 
+INCLUDE_ASM("asm/nonmatchings/src/st00a", func_0020DAC8);
+
+INCLUDE_ASM("asm/nonmatchings/src/st00a", func_0020DFC8);
+
 INCLUDE_ASM("asm/nonmatchings/src/st00a", actSt00aDoor2UpChk);
 
 INCLUDE_ASM("asm/nonmatchings/src/st00a", actSt00aDoor2DownChk);

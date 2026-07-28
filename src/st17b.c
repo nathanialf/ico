@@ -10,6 +10,8 @@ INCLUDE_ASM("asm/nonmatchings/src/st17b", func_0022ED98);
 
 INCLUDE_ASM("asm/nonmatchings/src/st17b", func_0022EE68);
 
+INCLUDE_ASM("asm/nonmatchings/src/st17b", func_0022EE98);
+
 void func_0022EEF0(int x) {
     volatile int local = x;
 }
@@ -33,6 +35,8 @@ INCLUDE_ASM("asm/nonmatchings/src/st17b", func_0022F698);
 INCLUDE_ASM("asm/nonmatchings/src/st17b", func_0022F710);
 
 INCLUDE_ASM("asm/nonmatchings/src/st17b", func_0022F7B8);
+
+INCLUDE_ASM("asm/nonmatchings/src/st17b", func_0022F7E8);
 
 void func_0022F850(int a0)
 {

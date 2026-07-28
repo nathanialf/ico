@@ -39,6 +39,8 @@ INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AD0E8);
 
 INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AD538);
 
+INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AD668);
+
 INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AD6C8);
 
 void func_001AD740(void) {}
@@ -48,6 +50,8 @@ INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AD748);
 INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AD75C);
 
 INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AD768);
+
+INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AD788);
 
 INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AD7F0);
 

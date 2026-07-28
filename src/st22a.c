@@ -58,6 +58,8 @@ void actSt22aIntroSub(volatile int a0) {
 
 INCLUDE_ASM("asm/nonmatchings/src/st22a", func_002342C8);
 
+INCLUDE_ASM("asm/nonmatchings/src/st22a", func_002342F8);
+
 INCLUDE_ASM("asm/nonmatchings/src/st22a", func_00234368);
 
 INCLUDE_ASM("asm/nonmatchings/src/st22a", func_002343B8);

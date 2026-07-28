@@ -269,6 +269,18 @@ INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013DBB0);
 
 INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013DC30);
 
+extern void iosSemaDelete__p4(void *obj) __asm__("iosSemaDelete");
+
+void func_0013DD20(int a0) {
+    int i;
+
+    for (i = 0; i < 0x100; i++) {
+        if (D_006A6F30[i] != 0 && i != a0) {
+            iosSemaDelete__p4(D_006A6F30[i]);
+        }
+    }
+}
+
 void func_0013DD88(void)
 {
     func_002641D8(D_006A93D0, 0, 0x110);

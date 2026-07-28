@@ -180,6 +180,10 @@ end:
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyKidnapEnd);
 
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001600F8);
+
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001605F8);
+
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00160720);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyKidnapBegin);
@@ -188,15 +192,21 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", MoveChestForCatchBoy);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyBodylift);
 
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001611E8);
+
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001613B0);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyPickupBegin);
+
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001619A8);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00161AC8);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", CheckEnemyBrainMode);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", BrainMode_Requset);
+
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001624D8);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrainMain);
 
@@ -279,7 +289,11 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_ToGirl);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", _ApproachTarget_Boss);
 
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001649D0);
+
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", flyMailCore);
+
+INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00164E90);
 
 extern char D_00558ED8[];
 extern unsigned int _ACTWait(int a0);
@@ -630,6 +644,57 @@ void func_00165780(volatile unsigned int a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemy_isSmallEnemy);
+
+extern void dispPlane(void *a0, float *a1);
+extern void func_001947D0(float *a0, int a1, int a2);
+
+void func_001659F8(volatile unsigned int a0)
+{
+    volatile int local;
+    char *m;
+    int r0, r1;
+    m = (char *)(*(int *)(a0 + 0x164)) + 0x110;
+    r0 = ContinueCorrectPosition(D_00631AE8__p4);
+    r1 = ContinueCorrectPosition(a0);
+    func_001947D0((float *)m, r0, r1);
+    dispPlane((void *)a0, (float *)m);
+    BoxBarSoundOn((void *)a0, 0x146);
+    for (;;) {
+        int s;
+        _ACTWait(0x78);
+        s = a0;
+        *(int *)(*(int *)(*(int *)(s + 0x164) + 0x670) + 0x200) = 0;
+        *(int *)(*(int *)(*(int *)(s + 0x164) + 0x670) + 0x20C) = D_00632390;
+    }
+}
+
+void func_00165A88(volatile unsigned int a0)
+{
+    BoxBarSoundOn((void *)a0, 0x150);
+    for (;;) {
+        int s;
+        _ACTWait(0x78);
+        s = a0;
+        *(int *)(*(int *)(*(int *)(s + 0x164) + 0x670) + 0x200) = 0;
+        *(int *)(*(int *)(*(int *)(s + 0x164) + 0x670) + 0x20C) = D_00632390;
+    }
+}
+
+void func_00165AD8(volatile unsigned int a0)
+{
+    if (*(int *)(*(int *)(*(int *)(a0 + 0x164) + 0x670) + 0x1DC) == 3) {
+        BoxBarSoundOn((void *)a0, 0x159);
+    } else {
+        BoxBarSoundOn((void *)a0, 0x157);
+    }
+    for (;;) {
+        int s;
+        _ACTWait(0x78);
+        s = a0;
+        *(int *)(*(int *)(*(int *)(s + 0x164) + 0x670) + 0x200) = 0;
+        *(int *)(*(int *)(*(int *)(s + 0x164) + 0x670) + 0x20C) = D_00632390;
+    }
+}
 
 void func_00165B50(char *self, int a1, int *a2)
 {

@@ -83,6 +83,10 @@ void GirlBrainClearTarget(void) {
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainMain_DecideMode);
 
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0016A828);
+
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0016A9E8);
+
 void func_0016AC10(void)
 {
     brainLevelProcess(D_0028A890);
@@ -126,6 +130,8 @@ void subGirlCollision(void) {
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", GetBoyMode);
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlHand);
+
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0016CED0);
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0016D330);
 
@@ -192,6 +198,8 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlStart);
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", GirlAct_BoyAndMeCollisionMail);
 
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00170380);
+
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", IsGirlStatusEscortEnable);
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", DebugDispAutoEscort);
@@ -204,6 +212,8 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00170ED8);
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlSupportGBBegin);
 
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00171738);
+
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001718F0);
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlSupportGBLoop);
@@ -211,6 +221,8 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlSupportGBLoop);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlSupportGBEnd);
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlHangG3M);
+
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001725C8);
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00173060);
 
@@ -331,6 +343,20 @@ void actGirlHang(int *a0, int *a1, int *a2, int *a3) {
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlBHang);
 
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001742A0);
+
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001743F0);
+
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00174558);
+
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00174640);
+
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00174778);
+
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00174A48);
+
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00174BA0);
+
 extern void func_00243978(void *a, void *b);
 extern void func_00243AE8(void *out, void *m1, void *m2);
 extern void *subCommonIdle(void *a0);
@@ -397,6 +423,58 @@ ret0:
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00175350);
+
+extern unsigned int _ACTWait(int a0);
+
+void func_00175420(void *volatile a0) {
+    int flag;
+    for (;;) {
+        unsigned int state = *(unsigned int *)(*(int *)((char *)D_00631AE4__p4 + 0x164) + 0x30);
+        flag = 0;
+        if (state < 0x68) { if (state >= 0x65) goto s; }
+    g:
+        if (!(flag & 0xff)) BoxBarSoundOn(a0, 0x164);
+        _ACTWait(1);
+        continue;
+    s:
+        flag = 1;
+        goto g;
+    }
+}
+
+void func_00175480(void *volatile a0) {
+    for (;;) {
+        BoxBarSoundOn(a0, 0xB7);
+        _ACTWait(1);
+    }
+}
+
+extern int ACTNotNeedCameraOffset(void);
+extern void ACTWay_SetBeginPositionIllegal(void *a0);
+
+void func_001754B0(void *volatile a0) {
+    ACTWay_SetBeginPositionIllegal(a0);
+    for (;;) {
+        if (ACTNotNeedCameraOffset() == 0) {
+            BoxBarSoundOn(a0, 0x176);
+        }
+        _ACTWait(1);
+    }
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001754F8);
+
+extern char D_00559AA0[];
+
+void func_001755F8(volatile unsigned int a0)
+{
+    volatile int local;
+    int *s0;
+    s0 = *((int **) (a0 + 0x164));
+    debug_assertMessage__p4((char *)D_00559AA0);
+    s0[0x30 / 4] = 1;
+    _ACTWait(0);
+}
 
 extern char D_00559AB8[];
 extern unsigned int _ACTWait(int a0);

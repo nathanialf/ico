@@ -1,5 +1,7 @@
 #include "common.h"
 
+typedef struct { char pad[0xC0]; void *f_B0; void *unkB4; } BoxObj_st17a;
+
 extern int D_00631AE4;
 extern int D_00631AE8;
 extern void _ACTWait(int a0);
@@ -34,6 +36,21 @@ INCLUDE_ASM("asm/nonmatchings/src/st17a", func_0022D6C0);
 INCLUDE_ASM("asm/nonmatchings/src/st17a", func_0022D740);
 
 INCLUDE_ASM("asm/nonmatchings/src/st17a", func_0022D7C0);
+
+extern void BoxBarSoundOn(int a0, int a1);
+extern int *D_004D3040[];
+extern int D_006325B4;
+extern void func_0022C9F0(volatile int a0);
+
+void func_0022D7F0(volatile int a0) {
+    BoxObj_st17a *obj = *(BoxObj_st17a **)(a0 + 0x164);
+    D_006325B4 = 1;
+    D_004D3040[1] = (int *)func_0022C9F0;
+    obj->f_B0 = 0;
+    obj->unkB4 = (void *)D_004D3040;
+    BoxBarSoundOn((int)a0, 0x18D);
+    _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st17a", func_0022D848);
 

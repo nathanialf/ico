@@ -18,10 +18,10 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 
 | wave | candidates | ported | reverted | skipped | pre-matched | unattempted |
 |---|---|---|---|---|---|---|
-| 1 | 864 | 427 | 103 | 2 | 332 | 0 |
+| 1 | 886 | 430 | 103 | 0 | 332 | 21 |
 | 2 | 95 | 0 | 0 | 0 | 95 | 0 |
-| 3 | 691 | 61 | 454 | 2 | 174 | 0 |
-| **all** | 1650 | 488 | 557 | 4 | 601 | 0 |
+| 3 | 773 | 63 | 489 | 1 | 181 | 39 |
+| **all** | 1754 | 493 | 592 | 1 | 608 | 60 |
 
 ### ios/cdvd
 - PORTED `iosCdvdBackGroundMgr` w1 @ 0x001325D8 <- aug6 fumi/ios/cdvd (2 syms rebound)
@@ -34,6 +34,7 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PRE-MATCHED `iosCdvdBackGroundReadIOPm` w1 @ 0x001334C8 — already had a retail body before Phase 4
 - PORTED `iosCdvdDirectStOpen` w1 @ 0x00132610 <- aug6 fumi/ios/cdvd (2 syms rebound)
 - PORTED `iosCdvdDiskReady` w1 @ 0x00132038 <- aug6 fumi/ios/cdvd (4 syms rebound)
+- REVERTED `iosCdvdHandlerRead` w3 @ 0x00131780 — [codegen] insn 1: expected `addiu	a3,zero,828` built `addiu	a3,zero,802`
 - PORTED `iosCdvdLoad` w1 @ 0x001320E8 <- aug6 fumi/ios/cdvd (3 syms rebound)
 - PRE-MATCHED `iosCdvdLoadPackFile` w1 @ 0x00133218 — already had a retail body before Phase 4
 - REVERTED `iosCdvdMgrPackLoad` w1 @ 0x001312F0 — [undeclared] ios/cdvd.c:138: `D_tbl_0027E520' undeclared (first use in this function)
@@ -71,6 +72,9 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `iosMallocCheckLeak2` w3 @ 0x00139598 — [callee-sig-conflict] ios/memory.c:111: conflicting types for `iosMallocCheckLeak2'
 - PORTED `iosMallocDebug` w1 @ 0x00138BF0 <- aug6 fumi/ios/memory (6 syms rebound)
 - PORTED `iosMallocInitPartition` w3 @ 0x00139C30 <- aug6 fumi/ios/memory (12 syms rebound)
+
+### ios/memory.c
+- REVERTED `iosMallocCheckLeak2` w3 @ 0x00139598 — [callee-sig-conflict] ios/memory.c:111: conflicting types for `iosMallocCheckLeak2'
 
 ### ios/message
 - PRE-MATCHED `iosMsgInit` w1 @ 0x0013A580 — already had a retail body before Phase 4
@@ -165,6 +169,13 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PORTED `isysGObjSearchFromObjKindID_begin` w1 @ 0x0013EBE0 <- aug6 fumi/isys/gobj (3 syms rebound)
 - REVERTED `isysGObjSearchFromObjLayoutID` w3 @ 0x0013EB50 — [codegen] insn 27: expected `sltiu	v0,v0,67` built `sltiu	v0,v0,66`
 - REVERTED `isysGetNbAllocedGObjs` w1 @ 0x0013E4D0 — [codegen] insn 3: expected `lui	a2,0x0` built `daddu	s0,a0,zero`
+
+### isys/gobj.c
+- REVERTED `cut_gobj_link` w3 @ 0x0013DEA0 — [callee-sig-conflict] isys/gobj.c:141: conflicting types for `D_00557A10__p4'
+- REVERTED `isysGObjAlloc` w3 @ 0x0013E548 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+- REVERTED `isysGObjKindTableAdd` w3 @ 0x0013E728 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+- REVERTED `isysGObjRemove` w3 @ 0x0013E648 — [codegen] insn 12: expected `jal	0 <isysGObjRemove>` built `jal	db0 <isysGObjSearchFromObjLayoutID>`
+- REVERTED `isysGObjSearchFromObjLayoutID` w3 @ 0x0013EB50 — [codegen] insn 27: expected `sltiu	v0,v0,67` built `sltiu	v0,v0,66`
 
 ### isys/gobj_cam_dl
 - PORTED `adpcmDataSet` w1 @ 0x001FC4C0 <- aug6 fumi/sound/adpcm_init (2 syms rebound)
@@ -304,6 +315,7 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 ### sound/adpcm_init
 - PRE-MATCHED `ACTGetEnvironment` w2 @ 0x00141038 — already had a retail body before Phase 4
 - PORTED `AdpcmClose` w1 @ 0x00140710 <- aug6 fumi/sound/adpcm_init (3 syms rebound)
+- PRE-MATCHED `AdpcmFadeCloseAll` w3 @ 0x00140B70 — already had a retail body before Phase 4
 - PORTED `AdpcmFreeAreaGet` w1 @ 0x00140E48 <- aug6 fumi/sound/adpcm_init (6 syms rebound)
 - PRE-MATCHED `AdpcmInterLeaveVolumeGet` w1 @ 0x00140F20 — already had a retail body before Phase 4
 - PRE-MATCHED `AdpcmInterStereoVolumeSet` w3 @ 0x00140740 — already had a retail body before Phase 4
@@ -348,6 +360,13 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PRE-MATCHED `soundSeSemiCommonLoadChk` w1 @ 0x001444A0 — already had a retail body before Phase 4
 - PORTED `soundVBlank` w1 @ 0x00144308 <- aug6 fumi/sound/s_init (2 syms rebound)
 
+### sound/s_init.c
+- REVERTED `soundDataClose` w3 @ 0x00141C28 — [codegen] insn 12: expected `addiu	a1,zero,618` built `addiu	a1,zero,605`
+- REVERTED `soundDataOpen` w3 @ 0x00141868 — [codegen] insn 8: expected `addiu	a1,zero,487` built `addiu	a1,zero,475`
+- REVERTED `soundDataOpenChk` w3 @ 0x00141340 — [codegen] insn 7: expected `addiu	a2,zero,254` built `addiu	a2,zero,230`
+- REVERTED `soundSQDataSet` w3 @ 0x00143E60 — [codegen] insn 55: expected `addiu	a1,zero,334` built `addiu	a1,zero,322`
+- REVERTED `soundSeDefPlay` w3 @ 0x00143FC0 — [redefinition] sound/s_init.c:29: redefinition of `hd_search'
+
 ### sound/soundManager
 - PORTED `sndInit` w1 @ 0x001446E8 <- aug6 fumi/sound/soundManager (4 syms rebound)
 - PRE-MATCHED `sndManager` w1 @ 0x00144780 — already had a retail body before Phase 4
@@ -364,6 +383,9 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `reallocseki` w1 @ 0x001F6DB8 — [codegen] insn 5: expected `lui	a2,0x0` built `addiu	a3,zero,382`
 - PRE-MATCHED `resetmallocseki` w1 @ 0x001F6D90 — already had a retail body before Phase 4
 
+### src/Basic.c
+- REVERTED `dma_init` w3 @ 0x001F6AA0 — [codegen] [§fp-licm] loop-invariant FP value kept in $f2x (lwc1) vs re-materialized (mtc1)
+
 ### src/BgAnimation
 - PORTED `bga_CalcObject` w1 @ 0x001F9348 <- aug6 seki/src/BgAnimation (1 syms rebound)
 - REVERTED `bga_CalcSdfCamera` w3 @ 0x001F9DD8 — [codegen] src/BgAnimation.c:131: invalid lvalue in increment
@@ -373,6 +395,13 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `bga_GetCameraMatrix` w3 @ 0x001FA5E0 — [codegen] insn 14: expected `addiu	a1,zero,996` built `addiu	a1,zero,899`
 - PRE-MATCHED `bga_ResetCamera` w1 @ 0x001FA598 — already had a retail body before Phase 4
 - PORTED `bga_SetCamFrame` w1 @ 0x001FA6D8 <- aug6 seki/src/BgAnimation (1 syms rebound)
+
+### src/BgAnimation.c
+- REVERTED `bga_CalcSdfCamera` w3 @ 0x001F9DD8 — [codegen] src/BgAnimation.c:131: invalid lvalue in increment
+- REVERTED `bga_GetCameraMatrix` w3 @ 0x001FA5E0 — [codegen] insn 14: expected `addiu	a1,zero,996` built `addiu	a1,zero,899`
+- REVERTED `bga_InitSdfCamera` w0 @ 0x001FA658 — [unresolved-symbol] unresolved-symbol: insn 5 `D_0062C254`: retail slot is not $gp-based
+- REVERTED `bga_calcEnvelope` w0 @ 0x001F88C0 — [unresolved-symbol] unresolved-symbol: insn 3 `func_001180D8`: no aligned retail slot (+2 more)
+- REVERTED `bga_resetObjectCounter` w0 @ 0x001F9418 — [undeclared] src/BgAnimation.c:84: `BGA_FRAME_SECONDS' undeclared (first use in this function)
 
 ### src/DObj
 - PORTED `FreeDObj` w1 @ 0x0019EF10 <- aug6 common/src/DObj (4 syms rebound)
@@ -446,6 +475,9 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PORTED `gsb_fade` w1 @ 0x001121E0 <- aug6 seki/src/GsBase (3 syms rebound)
 - PORTED `gsb_scissorOnDemo` w1 @ 0x00112260 <- aug6 seki/src/GsBase (0 syms rebound)
 
+### src/GsBase.c
+- REVERTED `gsb_StageSettingTool` w0 @ 0x00113E60 — [codegen] [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+
 ### src/Light
 - PRE-MATCHED `light_DispVolume` w1 @ 0x00114E08 — already had a retail body before Phase 4
 - REVERTED `light_DrawCursor` w3 @ 0x00114E78 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
@@ -510,7 +542,7 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `pac_setGifTag` w1 @ 0x001191C0 — [missing-body] aug6 body not found in seki/src/Packet.c
 - PORTED `pac_setMaterialPacket` w1 @ 0x0011A238 <- aug6 seki/src/Packet (5 syms rebound)
 - PRE-MATCHED `pac_setVifCode` w3 @ 0x00118F98 — already had a retail body before Phase 4
-- SKIPPED `pac_setVifEndCode` w1 @ 0x00118FD8 — jtbl
+- PORTED `pac_setVifEndCode` w1 @ 0x00118FD8 <- aug6 seki/src/Packet (9 syms
 
 ### src/Primitive
 - PRE-MATCHED `prim_DispWireYCylinder` w1 @ 0x0011DEE0 — already had a retail body before Phase 4
@@ -536,6 +568,9 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PRE-MATCHED `stage_DispAnimation` w3 @ 0x001287B8 — already had a retail body before Phase 4
 - REVERTED `stage_DispBgAnimation` w3 @ 0x00129970 — [codegen] insn 50: expected `addiu	a1,zero,909` built `addiu	a1,zero,882`
 
+### src/StageAnimation.c
+- REVERTED `stage_SetScale` w0 @ 0x001287E8 — [codegen] insn 0: expected `addiu	sp,sp,-32` built `sw	zero,0(gp)`
+
 ### src/StageManager
 - PORTED `StageManager` w1 @ 0x0019FF98 <- aug6 common/src/StageManager (1 syms rebound)
 - REVERTED `exit_stage` w1 @ 0x0019F7A8 — [codegen] [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
@@ -545,6 +580,9 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PRE-MATCHED `stgmgrForceSwitchWithFadeColor` w1 @ 0x001A0028 — already had a retail body before Phase 4
 - REVERTED `stgmgrNextStagePreLoad` w3 @ 0x0019FB30 — [codegen] insn 0: expected `addiu	v0,zero,404` built `addiu	v0,zero,400`
 - REVERTED `stop_free_resources` w1 @ 0x0019F6A8 — [codegen] [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+
+### src/StageManager.c
+- REVERTED `stgmgrNextStagePreLoad` w3 @ 0x0019FB30 — [codegen] insn 0: expected `addiu	v0,zero,404` built `addiu	v0,zero,400`
 
 ### src/Texture
 - PRE-MATCHED `tex_AllocVramAuto` w1 @ 0x0012AD40 — already had a retail body before Phase 4
@@ -618,6 +656,9 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 ### src/act-wish
 - REVERTED `ACTGetWish_FromPad` w1 @ 0x0014B580 — [codegen] insn 13: expected `<end>` built `sll	zero,zero,0x0`
 
+### src/act.c
+- REVERTED `actInitialize` w0 @ 0x00202208 — [codegen] insn 9: expected `addiu	a3,zero,898` built `addiu	a3,zero,892`
+
 ### src/act2
 - PORTED `BeforeFunc2` w1 @ 0x00203C40 <- aug6 fumi/src/act2 (3 syms rebound)
 - PRE-MATCHED `actDummy` w1 @ 0x00203CB8 — already had a retail body before Phase 4
@@ -642,6 +683,10 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PRE-MATCHED `birdBeforeFunc` w3 @ 0x001970E0 — already had a retail body before Phase 4
 - REVERTED `interp_vector_sa` w3 @ 0x00197080 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 - PORTED `trans_bird` w1 @ 0x001970E8 <- aug6 ito/src/act_bird (4 syms rebound)
+
+### src/act_bird.c
+- REVERTED `Debug_WireString_Bird` w0 @ 0x00197240 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+- REVERTED `subBirdBrainMain` w0 @ 0x00197160 — [codegen] insn 6: expected `lw	a0,0(sp)` built `lw	v0,0(sp)`
 
 ### src/actressLight
 - REVERTED `SetActressLight` w3 @ 0x001BA880 — [codegen] insn 11: expected `lw	s0,2048(v0)` built `lw	s0,2032(v0)`
@@ -710,6 +755,22 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PRE-MATCHED `findChainInJump` w2 @ 0x0014BDF0 — already had a retail body before Phase 4
 - REVERTED `subBoyCollision` w1 @ 0x001521F0 — [codegen] insn 44: expected `lui	at,0x4348` built `lui	at,0x43e1`
 
+### src/boyact.c
+- REVERTED `BoyBgaManager` w3 @ 0x0014E5E8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `CheckCollisionAttr` w3 @ 0x0014E300 — [undeclared] src/boyact.c:108: `D_006A45A0u' undeclared (first use in this function)
+- REVERTED `E3_StageStartBoy` w3 @ 0x0014E708 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actBoyHangBefore` w3 @ 0x001547B8 — [codegen] insn 23: expected `lw	v0,320(v1)` built `lw	v0,304(v1)`
+- REVERTED `actBoyPullupGo` w0 @ 0x00154160 — [codegen] insn 9: expected `lui	v0,0x0` built `lui	v0,0x1`
+- REVERTED `actBoyPullupReady` w0 @ 0x001540A8 — [codegen] insn 9: expected `lui	v0,0x0` built `lui	v0,0x1`
+- REVERTED `actBoyRescueReady` w3 @ 0x00154390 — [codegen] insn 6: expected `lw	a0,320(s0)` built `lw	a0,304(s0)`
+- REVERTED `actBoyRescueSrc` w3 @ 0x00154B20 — [codegen] insn 19: expected `sdl	v1,455(v0)` built `sdl	v1,439(v0)`
+- REVERTED `actBoySupportBGBegin` w3 @ 0x00154D20 — [codegen] insn 12: expected `addiu	s3,s0,256` built `addiu	s3,s0,240`
+- REVERTED `actBoySupportGBBegin` w0 @ 0x00154B90 — [codegen] insn 6: expected `addiu	a1,zero,176` built `addiu	a1,zero,174`
+- REVERTED `actBoyTakeWeaponReady` w0 @ 0x00153918 — [codegen] insn 8: expected `lw	v0,1184(v1)` built `lw	v0,1168(v1)`
+- REVERTED `ditch_check_heroin_position` w0 @ 0x00153FF0 — [codegen] insn 9: expected `lui	v0,0x0` built `lui	v0,0x1`
+- REVERTED `hand_heroin` w0 @ 0x0014D868 — [codegen] insn 15: expected `addiu	a1,zero,85` built `addiu	a1,zero,84`
+- REVERTED `pullup_check_heroin_position` w0 @ 0x001539F0 — [codegen] insn 16: expected `addiu	sp,sp,-48` built `<end>`
+
 ### src/brain
 - PRE-MATCHED `OverrideBrainStatusByGObj` w2 @ 0x00182860 — already had a retail body before Phase 4
 - PORTED `brainGetLevel` w1 @ 0x00182AB8 <- aug6 omori/src/brain (2 syms rebound)
@@ -724,6 +785,11 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `HotInitCageGeo` w3 @ 0x001C22F0 — [codegen] insn 6: expected `lw	s0,2048(v1)` built `lw	s0,2032(v1)`
 - REVERTED `InitCageGeo` w3 @ 0x001C21B8 — [codegen] [§fp-licm] loop-invariant FP value kept in $f2x (lwc1) vs re-materialized (mtc1)
 - PRE-MATCHED `SetCageFixGeometry` w3 @ 0x001C2170 — already had a retail body before Phase 4
+
+### src/cage.c
+- REVERTED `CageDL` w3 @ 0x001C2760 — [codegen] insn 10: expected `lw	s0,2048(v0)` built `lw	s0,2032(v0)`
+- REVERTED `HotInitCageGeo` w3 @ 0x001C22F0 — [codegen] insn 6: expected `lw	s0,2048(v1)` built `lw	s0,2032(v1)`
+- REVERTED `InitCageGeo` w3 @ 0x001C21B8 — [codegen] [§fp-licm] loop-invariant FP value kept in $f2x (lwc1) vs re-materialized (mtc1)
 
 ### src/cageFix
 - REVERTED `CageFixDL` w3 @ 0x001C2E28 — [codegen] insn 8: expected `lw	s0,2048(v0)` built `lw	s0,2032(v0)`
@@ -796,12 +862,24 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `_deleteLayoutedCandleParticleEffect` w3 @ 0x001C3178 — [codegen] [§fp-licm] loop-invariant FP value kept in $f2x (lwc1) vs re-materialized (mtc1)
 
 ### src/chain
+- REVERTED `CheckChainClimbablePos` w3 @ 0x00190330 — [codegen] insn 7: expected `lw	v1,2048(v0)` built `lw	v1,2032(v0)`
+- REVERTED `GetChainClimbCollision` w3 @ 0x00190360 — [codegen] insn 2: expected `lw	v0,2048(v1)` built `lw	v0,2032(v1)`
+- REVERTED `GetChainClimbOrient` w3 @ 0x00190318 — [codegen] insn 2: expected `lw	v1,2048(v0)` built `lw	v1,2032(v0)`
+- REVERTED `GetChainDirCorrectVal` w3 @ 0x001903A8 — [codegen] insn 1: expected `lw	v1,2048(v0)` built `lw	v1,2032(v0)`
+- REVERTED `GetRootPositionHandExtra` w3 @ 0x001903B8 — [codegen] insn 1: expected `lw	v0,2048(v1)` built `lw	v0,2032(v1)`
 - PORTED `InitChainGeo` w1 @ 0x0018DDF0 <- aug6 omori/src/chain (5 syms rebound)
+- REVERTED `InitPendulum` w3 @ 0x001903E0 — [codegen] insn 1: expected `lw	a0,2048(a1)` built `lw	a0,2032(a1)`
+- REVERTED `LockChainGeo` w3 @ 0x00190408 — [codegen] insn 1: expected `lw	v1,2048(v0)` built `lw	v1,2032(v0)`
+- REVERTED `PlumbOrientUpdateChain` w3 @ 0x00190298 — [codegen] insn 4: expected `jal	0 <PlumbOrientUpdateChain>` built `jal	1a0 <chain_simulate_term_swingstart>`
+- REVERTED `SetChainParentGObj` w3 @ 0x00190388 — [codegen] insn 1: expected `lw	a0,2048(v0)` built `lw	a0,2032(v0)`
 - PRE-MATCHED `StartPendulum` w1 @ 0x0018CF80 — already had a retail body before Phase 4
+- REVERTED `UnLockChainGeo` w3 @ 0x00190430 — [codegen] insn 1: expected `lw	v1,2048(v0)` built `lw	v1,2032(v0)`
 - REVERTED `UpdateRootPosition` w3 @ 0x0018CF60 — [codegen] insn 7: expected `<end>` built `sll	zero,zero,0x0`
 - PRE-MATCHED `chain_simulate_term_loop` w3 @ 0x0018CFF0 — already had a retail body before Phase 4
 - PORTED `chain_simulate_term_simple` w1 @ 0x0018CFE0 <- aug6 omori/src/chain (1 syms rebound)
 - PORTED `collisionCheck` w1 @ 0x0018CFD0 <- aug6 omori/src/chain (1 syms rebound)
+- REVERTED `isBottomOfChain` w3 @ 0x001902C8 — [codegen] insn 1: expected `lw	v1,2048(v0)` built `lw	v1,2032(v0)`
+- REVERTED `isStopChain` w3 @ 0x001902D8 — [codegen] insn 1: expected `lw	v0,2048(v0)` built `lw	v0,2032(v0)`
 - REVERTED `pendulum_Process` w3 @ 0x0018DD80 — [codegen] insn 9: expected `lw	s1,2048(v1)` built `lw	s1,2032(v1)`
 
 ### src/chandelier
@@ -879,6 +957,21 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `motCommonRopeTurnL` w3 @ 0x00158770 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
 - REVERTED `subCommonIdle` w3 @ 0x0015EF88 — [codegen] insn 19: expected `addiu	s0,s0,224` built `addiu	s0,s0,208`
 
+### src/commonact.c
+- REVERTED `ACTSendMailCorrect` w3 @ 0x0015EE78 — [codegen] insn 19: expected `sw	zero,1056(v0)` built `sw	zero,1040(v0)`
+- REVERTED `ACTSetPositionNodeWithFitting` w3 @ 0x001564D0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `ACTSetPositionWithFitting` w3 @ 0x00156488 — [codegen] insn 9: expected `lw	a0,320(a0)` built `lw	a0,304(a0)`
+- REVERTED `BoxBarSoundOn` w3 @ 0x0015BCC8 — [codegen] insn 0: expected `addiu	v0,zero,168` built `addiu	v0,zero,166`
+- REVERTED `ContinueCorrectPosition` w0 @ 0x0015EFF8 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+- REVERTED `_ACTCommonMailTest` w0 @ 0x0015EED0 — [codegen] insn 8: expected `addiu	sp,sp,-32` built `<end>`
+- REVERTED `_boxbar_set_sound` w3 @ 0x0015C130 — [codegen] insn 5: expected `jal	0 <_boxbar_set_sound>` built `jal	8b00 <subCommonIdle>`
+- REVERTED `actCommonBecarry` w3 @ 0x0015EF50 — [codegen] insn 6: expected `sw	v0,288(s0)` built `sw	v0,272(s0)`
+- REVERTED `actCommonEdgeHang` w0 @ 0x0015E7F8 — [codegen] insn 16: expected `addiu	a1,zero,129` built `addiu	a1,zero,128`
+- REVERTED `correctJumpOrientByChain` w3 @ 0x0015D3C0 — [codegen] insn 6: expected `lw	t1,1184(a2)` built `lw	t1,1168(a2)`
+- REVERTED `funcCommonFallDircorrect` w3 @ 0x0015D358 — [codegen] insn 9: expected `swc1	$f0,272(a3)` built `swc1	$f0,256(a3)`
+- REVERTED `motCommonRopeTurnL` w3 @ 0x00158770 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+- REVERTED `subCommonIdle` w3 @ 0x0015EF88 — [codegen] insn 19: expected `addiu	s0,s0,224` built `addiu	s0,s0,208`
+
 ### src/darkVolume
 - PRE-MATCHED `DispGameOverEffect` w2 @ 0x001CBD68 — already had a retail body before Phase 4
 - PRE-MATCHED `GetGameOverEffectCenterPosition` w2 @ 0x001CBD70 — already had a retail body before Phase 4
@@ -900,7 +993,7 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PORTED `debug_SetExceptionMessage` w1 @ 0x001A7008 <- aug6 common/src/debug_exception (4 syms rebound)
 - PRE-MATCHED `debug_assertMessage` w1 @ 0x001A6E28 — already had a retail body before Phase 4
 - PRE-MATCHED `dispSource` w3 @ 0x001A6AA0 — already had a retail body before Phase 4
-- SKIPPED `initLineTraceTable` w1 @ 0x001A6848 — jtbl
+- PORTED `initLineTraceTable` w1 @ 0x001A6848 <- aug6 common/src/debug_exception
 - PRE-MATCHED `traceLine` w3 @ 0x001A6A30 — already had a retail body before Phase 4
 
 ### src/debug_menu
@@ -908,6 +1001,11 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PRE-MATCHED `init_debug_menu` w3 @ 0x001A9D88 — already had a retail body before Phase 4
 
 ### src/deja
+- REVERTED `actDeja` w3 @ 0x002083B0 — [codegen] insn 12: expected `lui	s1,0x21` built `lui	s1,0x0`
+- REVERTED `actDejaAfterChk` w3 @ 0x00208228 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actDejaChk` w3 @ 0x00207DF0 — [codegen] insn 14: expected `addiu	a0,a0,0` built `addiu	a0,a0,248`
+
+### src/deja.c
 - REVERTED `actDeja` w3 @ 0x002083B0 — [codegen] insn 12: expected `lui	s1,0x21` built `lui	s1,0x0`
 - REVERTED `actDejaAfterChk` w3 @ 0x00208228 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 - REVERTED `actDejaChk` w3 @ 0x00207DF0 — [codegen] insn 14: expected `addiu	a0,a0,0` built `addiu	a0,a0,248`
@@ -931,6 +1029,26 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PORTED `actE3TitleChk` w1 @ 0x00209F28 <- aug6 script/src/e3 (2 syms rebound)
 - REVERTED `actE3TitleFrameChk` w3 @ 0x00209F58 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 - REVERTED `actE3Warning` w3 @ 0x0020ACB0 — [codegen] insn 6: expected `addiu	a0,zero,750` built `addiu	a0,zero,749`
+- REVERTED `actE3WarningChk` w3 @ 0x00209DD0 — [codegen] insn 17: expected `addiu	a0,zero,332` built `addiu	a0,zero,331`
+
+### src/e3.c
+- REVERTED `actE3CageFall` w3 @ 0x0020A360 — [codegen] src/e3.c:119: incompatible types in assignment
+- REVERTED `actE3CageFallChk` w0 @ 0x0020A430 — [codegen] insn 8: expected `sw	v0,192(a0)` built `sw	v0,176(a0)`
+- REVERTED `actE3CageFallDemo` w3 @ 0x0020A4C0 — [codegen] insn 7: expected `addiu	a0,zero,327` built `addiu	a0,zero,326`
+- REVERTED `actE3CageFallEffect` w3 @ 0x0020A578 — [codegen] insn 6: expected `addiu	a0,zero,331` built `addiu	a0,zero,330`
+- REVERTED `actE3Capsule` w3 @ 0x0020A0A0 — [codegen] insn 17: expected `addiu	a0,zero,330` built `addiu	a0,zero,329`
+- REVERTED `actE3CapsuleDemo` w0 @ 0x0020A200 — [undeclared] src/e3.c:101: structure has no member named `unkB4'
+- REVERTED `actE3CapsuleDemoCancel` w3 @ 0x0020A150 — [codegen] insn 17: expected `addiu	a0,zero,330` built `addiu	a0,zero,329`
+- REVERTED `actE3GateDemo` w3 @ 0x0020A7B0 — [codegen] src/e3.c:119: incompatible types in assignment
+- REVERTED `actE3GateJimaku` w3 @ 0x0020A8C0 — [codegen] src/e3.c:119: incompatible types in assignment
+- REVERTED `actE3Inst1` w3 @ 0x0020AEF0 — [codegen] src/e3.c:119: incompatible types in assignment
+- REVERTED `actE3Inst1Chk` w3 @ 0x00209FE8 — [codegen] insn 17: expected `addiu	a0,zero,330` built `addiu	a0,zero,329`
+- REVERTED `actE3St01bInit` w3 @ 0x0020AB70 — [codegen] src/e3.c:119: incompatible types in assignment
+- REVERTED `actE3St09aSekizoChk` w3 @ 0x0020A668 — [codegen] insn 24: expected `addiu	a0,zero,330` built `addiu	a0,zero,329`
+- REVERTED `actE3St13cInit` w3 @ 0x0020A2D0 — [codegen] insn 7: expected `addiu	a0,zero,326` built `addiu	a0,zero,325`
+- REVERTED `actE3Title` w3 @ 0x00209E88 — [codegen] insn 17: expected `addiu	a0,zero,332` built `addiu	a0,zero,331`
+- REVERTED `actE3TitleFrameChk` w3 @ 0x00209F58 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actE3Warning` w3 @ 0x0020ACB0 — [codegen] src/e3.c:119: incompatible types in assignment
 - REVERTED `actE3WarningChk` w3 @ 0x00209DD0 — [codegen] insn 17: expected `addiu	a0,zero,332` built `addiu	a0,zero,331`
 
 ### src/ebrain
@@ -959,6 +1077,25 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `actEndDemo04` w3 @ 0x0020CBE0 — [codegen] insn 44: expected `sw	v0,196(s0)` built `sw	v0,180(s0)`
 - REVERTED `actEndDemo06` w3 @ 0x0020B4D8 — [codegen] insn 7: expected `addiu	a0,zero,769` built `addiu	a0,zero,768`
 - REVERTED `actEndDemo07` w3 @ 0x0020B8D8 — [codegen] insn 9: expected `addiu	a0,zero,523` built `addiu	a0,zero,522`
+- REVERTED `actEndDemo14` w3 @ 0x0020C910 — [codegen] insn 31: expected `sw	v0,196(s0)` built `sw	v0,180(s0)`
+- REVERTED `actSt27aEndChk` w3 @ 0x0020CA30 — [codegen] insn 23: expected `sw	v0,196(s0)` built `sw	v0,180(s0)`
+- REVERTED `actSt27aEndDemo` w3 @ 0x0020CAB8 — [codegen] insn 24: expected `sw	v0,196(s0)` built `sw	v0,180(s0)`
+- REVERTED `actStaff2Demo` w3 @ 0x0020C748 — [codegen] insn 6: expected `addiu	a0,zero,792` built `addiu	a0,zero,791`
+- REVERTED `actStaff3Demo` w3 @ 0x0020C868 — [codegen] insn 31: expected `sw	v0,196(s0)` built `sw	v0,180(s0)`
+
+### src/end.c
+- REVERTED `actConte14_1` w3 @ 0x0020B138 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actConte14_13` w3 @ 0x0020C3A0 — [codegen] insn 13: expected `addiu	a0,zero,786` built `addiu	a0,zero,785`
+- REVERTED `actConte14_2` w3 @ 0x0020B3F8 — [codegen] insn 25: expected `addiu	a2,zero,483` built `addiu	a2,zero,482`
+- REVERTED `actConte14_6` w3 @ 0x0020B7D8 — [codegen] insn 12: expected `addiu	a0,zero,780` built `addiu	a0,zero,779`
+- REVERTED `actConte14_7` w3 @ 0x0020BBF0 — [codegen] insn 5: expected `addiu	a0,zero,577` built `addiu	a0,zero,576`
+- REVERTED `actEndDemo01` w3 @ 0x0020B028 — [codegen] insn 7: expected `addiu	a0,zero,764` built `addiu	a0,zero,763`
+- REVERTED `actEndDemo03` w3 @ 0x0020CB40 — [codegen] insn 29: expected `sw	v0,196(s0)` built `sw	v0,180(s0)`
+- REVERTED `actEndDemo04` w3 @ 0x0020CBE0 — [codegen] insn 44: expected `sw	v0,196(s0)` built `sw	v0,180(s0)`
+- REVERTED `actEndDemo05` w0 @ 0x0020CCB8 — [undeclared] src/end.c:464: structure has no member named `unkB4'
+- REVERTED `actEndDemo06` w3 @ 0x0020B4D8 — [codegen] insn 7: expected `addiu	a0,zero,769` built `addiu	a0,zero,768`
+- REVERTED `actEndDemo07` w3 @ 0x0020B8D8 — [codegen] insn 9: expected `addiu	a0,zero,523` built `addiu	a0,zero,522`
+- REVERTED `actEndDemo11` w0 @ 0x0020CD60 — [unresolved-symbol] unresolved-symbol: insn 15 `D_0062A894`: no aligned retail slot
 - REVERTED `actEndDemo14` w3 @ 0x0020C910 — [codegen] insn 31: expected `sw	v0,196(s0)` built `sw	v0,180(s0)`
 - REVERTED `actSt27aEndChk` w3 @ 0x0020CA30 — [codegen] insn 23: expected `sw	v0,196(s0)` built `sw	v0,180(s0)`
 - REVERTED `actSt27aEndDemo` w3 @ 0x0020CAB8 — [codegen] insn 24: expected `sw	v0,196(s0)` built `sw	v0,180(s0)`
@@ -1021,6 +1158,16 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PRE-MATCHED `funcEnemyCarryFail` w1 @ 0x001652F8 — already had a retail body before Phase 4
 - REVERTED `subEnemyBrain_ToBoy` w3 @ 0x00163D60 — [undeclared] src/enemy_act.c:9: `D_00558E10' undeclared (first use in this function)
 - PORTED `subEnemyCollision` w1 @ 0x0015F9B0 <- aug6 fumi/src/enemy_act (1 syms rebound)
+
+### src/enemy_act.c
+- REVERTED `IsEnemyBrainToGenerator` w3 @ 0x00165B80 — [undeclared] src/enemy_act.c:9: `D_00558E10' undeclared (first use in this function)
+- REVERTED `PairSetGeometry` w3 @ 0x0015FBD8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `_MustChase` w3 @ 0x0015F6F0 — [undeclared] src/enemy_act.c:59: `D_00632398' undeclared (first use in this function)
+- REVERTED `actEnemyRestart` w3 @ 0x0015FB60 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actEnemy_isLargeEnemy` w0 @ 0x001655B0 — [codegen] insn 5: expected `sw	zero,280(v0)` built `sw	zero,264(v0)`
+- REVERTED `actEnemy_isNormalEnemy` w3 @ 0x00165540 — [codegen] insn 11: expected `addiu	a1,zero,2002` built `addiu	a1,zero,1984`
+- REVERTED `funcEnemyAiGetGirl` w0 @ 0x00165018 — [codegen] insn 12: expected `addiu	a1,zero,183` built `addiu	a1,zero,180`
+- REVERTED `subEnemyBrain_ToBoy` w3 @ 0x00163D60 — [undeclared] src/enemy_act.c:9: `D_00558E10' undeclared (first use in this function)
 
 ### src/fieldCollision
 - PORTED `ChangeFieldCollisionDebugMode` w1 @ 0x00168538 <- aug6 fumi/src/fieldCollision (1 syms rebound)
@@ -1130,6 +1277,7 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PRE-MATCHED `SetRootBaseQuaternion` w1 @ 0x001029C0 — already had a retail body before Phase 4
 - PRE-MATCHED `SetRootMatrixRotOffset` w3 @ 0x00103110 — already had a retail body before Phase 4
 - PORTED `SetRootMatrixWithTransOffset` w1 @ 0x00102DE0 <- aug6 sugipon/src/geometryManager (2 syms rebound)
+- PORTED `SetRootQuaternion` w3 @ 0x00102A38 <- aug6 sugipon/src/geometryManager (1 syms rebound)
 - PORTED `UpdateRootMatrix` w3 @ 0x001029B8 <- aug6 sugipon/src/geometryManager (1 syms rebound)
 - PRE-MATCHED `UpdateRootMatrixByDObj` w3 @ 0x00102970 — already had a retail body before Phase 4
 - PRE-MATCHED `cylinderCollisionCheck` w3 @ 0x001040C0 — already had a retail body before Phase 4
@@ -1155,7 +1303,7 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PRE-MATCHED `GirlBrainClearTarget` w1 @ 0x0016A678 — already had a retail body before Phase 4
 - REVERTED `actGirlAttack` w3 @ 0x00174D78 — [codegen] insn 1: expected `addiu	a1,zero,253` built `addiu	a1,zero,250`
 - REVERTED `actGirlDitch3mReady` w3 @ 0x0016EB68 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-- SKIPPED `actGirlHang` w3 @ 0x001736B8 — jtbl
+- PORTED `actGirlHang` w3 @ 0x001736B8 <- aug6 fumi/src/girl_act, HAND-FIXED
 - PORTED `actGirlStand` w1 @ 0x00173268 <- aug6 fumi/src/girl_act (2 syms rebound)
 - REVERTED `actGirlSupportGBLoop` w1 @ 0x00171AB0 — [codegen] insn 6: expected `beq	a1,zero,f8 <actGirlSupportGBLoop+0xf8>` built `beq	a1,zero,774c <actGirlSupportGBLoop+0xfc>`
 - PORTED `afterGirlHand` w1 @ 0x00175640 <- aug6 fumi/src/girl_act (3 syms rebound)
@@ -1164,8 +1312,15 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PORTED `subGirlCollision` w1 @ 0x0016BCF0 <- aug6 fumi/src/girl_act (2 syms rebound)
 - PORTED `subGirlControl` w1 @ 0x0016BCA0 <- aug6 fumi/src/girl_act (5 syms rebound)
 
+### src/girl_act.c
+- REVERTED `actGirlAttack` w3 @ 0x00174D78 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actGirlDitch3mReady` w3 @ 0x0016EB68 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actGirlJump` w0 @ 0x001756D0 — [codegen] insn 4: expected `sd	ra,32(sp)` built `lw	v1,0(sp)`
+
 ### src/gv
 - REVERTED `GetMatrixDirectionToZ` w3 @ 0x00193A00 — [codegen] insn 6: expected `lw	a2,2048(v0)` built `lw	a2,2032(v0)`
+- REVERTED `_AbsRotyGV` w3 @ 0x00193EC8 — [codegen] insn 1: expected `lw	v1,2048(v0)` built `lw	v1,2032(v0)`
+- REVERTED `_ApplyRyGV` w3 @ 0x00193EE0 — [codegen] insn 12: expected `lw	v0,2048(v0)` built `lw	v0,2032(v0)`
 - PRE-MATCHED `_DistGV` w1 @ 0x00193CE8 — already had a retail body before Phase 4
 - PORTED `_DistxzGV` w1 @ 0x00193D30 <- aug6 omori/src/gv (3 syms rebound)
 - PORTED `_GetDirection` w1 @ 0x00193F68 <- aug6 omori/src/gv (0 syms rebound)
@@ -1206,6 +1361,10 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `effect_end_func` w1 @ 0x00197FE8 — [codegen] insn 5: expected `<end>` built `sll	zero,zero,0x0`
 - REVERTED `gene_enemy` w3 @ 0x00198218 — [codegen] [§5.9] rodata lui+addiu materialized late next to jal
 
+### src/itou_boss.c
+- REVERTED `BossEnemyFunc` w0 @ 0x00198140 — [codegen] [§5.9] rodata lui+addiu materialized late next to jal
+- REVERTED `gene_enemy` w3 @ 0x00198218 — [codegen] [§5.9] rodata lui+addiu materialized late next to jal
+
 ### src/itou_gflag
 - PORTED `itouGFlagInit` w1 @ 0x001983F8 <- aug6 ito/src/itou_gflag (1 syms rebound)
 - PRE-MATCHED `itouGflagLoad` w3 @ 0x00198420 — already had a retail body before Phase 4
@@ -1223,6 +1382,13 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PRE-MATCHED `jimakuMgrEnd` w3 @ 0x00175C90 — already had a retail body before Phase 4
 - PRE-MATCHED `jimakuMgrJump` w3 @ 0x00175C70 — already had a retail body before Phase 4
 - REVERTED `jimakuUndisp` w3 @ 0x00176130 — [codegen] insn 4: expected `sw	zero,1588(v1)` built `sw	zero,1572(v1)`
+
+### src/jimaku.c
+- REVERTED `func_00175980` w3 @ 0x00175980 — [codegen] insn 6: expected `addiu	a1,zero,318` built `addiu	a1,zero,314`
+- REVERTED `func_00175A58` w3 @ 0x00175A58 — [codegen] insn 7: expected `addiu	a1,zero,89` built `addiu	a1,zero,98`
+- REVERTED `func_00175BD8` w3 @ 0x00175BD8 — [codegen] insn 7: expected `addiu	a1,zero,99` built `addiu	a1,zero,98`
+- PORTED `func_00175D90` w1 @ 0x00175D90 <- aug6 fumi/src/jimaku (2 syms rebound)
+- REVERTED `jimakuHandler` w0 @ 0x00175A98 — [codegen] insn 3: expected `lui	a0,0x0` built `lw	v0,0(sp)`
 
 ### src/kanban
 - PRE-MATCHED `init_textures_of_specified_property` w2 @ 0x001AFB90 — already had a retail body before Phase 4
@@ -1316,6 +1482,12 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `checkCliffAndWallStateAtJump` w3 @ 0x001D9E10 — [codegen] insn 15: expected `lwc1	$f14,440(v0)` built `lwc1	$f14,424(v0)`
 - REVERTED `checkCliffState` w3 @ 0x001D9BB8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 
+### src/motionManager.c
+- REVERTED `SkelTest` w0 @ 0x001DC720 — [codegen] [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
+- REVERTED `_checkCliffAndWall` w3 @ 0x001D9C58 — [codegen] insn 10: expected `lwc1	$f0,464(v0)` built `lwc1	$f0,448(v0)`
+- REVERTED `checkCliffAndWallStateAtJump` w3 @ 0x001D9E10 — [codegen] insn 15: expected `lwc1	$f14,440(v0)` built `lwc1	$f14,424(v0)`
+- REVERTED `checkCliffState` w3 @ 0x001D9BB8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+
 ### src/motionManager2
 - PRE-MATCHED `AdjustMotionHeightToNearestField` w3 @ 0x0010A028 — already had a retail body before Phase 4
 - PRE-MATCHED `CheckFieldContact` w3 @ 0x00106AA8 — already had a retail body before Phase 4
@@ -1360,6 +1532,9 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `calcFootIK` w1 @ 0x00107778 — [unresolved-symbol] unresolved-symbol: insn 6 `D_0062BF0C`: retail symbol D_00633C0C (0x00633C0C) undefined
 - REVERTED `dispPlane` w3 @ 0x00106AB8 — [codegen] [§fp-licm] loop-invariant FP value kept in $f2x (lwc1) vs re-materialized (mtc1)
 
+### src/motionManager2.c
+- REVERTED `CheckPureCliffAttribute` w0 @ 0x0010A1A0 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+
 ### src/motionOrientManager
 - REVERTED `CopyBlendMotionDataSource` w3 @ 0x001E3D08 — [codegen] insn 11: expected `lw	a0,2112(v1)` built `lw	a0,2096(v1)`
 - REVERTED `ExecutePauseSlipProc` w3 @ 0x001E4548 — [codegen] insn 15: expected `xori	v0,v0,0x43d` built `xori	v0,v0,0x43f`
@@ -1374,6 +1549,16 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PORTED `sendStateMail` w1 @ 0x001E0C38 <- aug6 sugipon/src/motionOrientManager (2 syms rebound)
 - REVERTED `shiftMotionData` w3 @ 0x001E0C98 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 - REVERTED `shiftMotionOrientBeginFunc` w1 @ 0x001E0FE8 — [unresolved-symbol] unresolved-symbol: insn 19 `D_006169D8`: retail symbol D_004BC710 (0x004BC710) undefined
+- SKIPPED `shiftMotionOrientEndFunc` w3 @ 0x001E0D50 — jtbl
+
+### src/motionOrientManager.c
+- REVERTED `CopyBlendMotionDataSource` w3 @ 0x001E3D08 — [codegen] insn 11: expected `lw	a0,2112(v1)` built `lw	a0,2096(v1)`
+- REVERTED `ExecutePauseSlipProc` w3 @ 0x001E4548 — [codegen] insn 15: expected `xori	v0,v0,0x43d` built `xori	v0,v0,0x43f`
+- REVERTED `ForTest_ForceShiftMotion` w3 @ 0x001E10F0 — [codegen] [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+- REVERTED `GetNbMotionFrames` w3 @ 0x001E09F8 — [codegen] insn 10: expected `lw	v1,2012(a1)` built `lw	v1,1996(a1)`
+- REVERTED `SetParallelMotionTable` w3 @ 0x001E3F40 — [codegen] insn 8: expected `lw	s0,1136(v0)` built `lw	s0,1120(v0)`
+- REVERTED `orientDebug` w3 @ 0x001E0988 — [codegen] insn 8: expected `lw	v1,2012(a1)` built `lw	v1,1996(a1)`
+- REVERTED `shiftMotionData` w3 @ 0x001E0C98 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 - SKIPPED `shiftMotionOrientEndFunc` w3 @ 0x001E0D50 — jtbl
 
 ### src/motionViewer
@@ -1439,6 +1624,9 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PORTED `getWave` w1 @ 0x0010CF88 <- aug6 sugipon/src/pool (18 syms rebound)
 - PORTED `setNodePursueParticleEffectWithUpperLimit` w1 @ 0x0010ABD8 <- aug6 sugipon/src/pool (7 syms rebound)
 - PRE-MATCHED `updatePoolGeo` w3 @ 0x0010ADC8 — already had a retail body before Phase 4
+
+### src/pool.c
+- REVERTED `flushWork` w3 @ 0x0010AB28 — [codegen] insn 7: expected `lw	v1,392(v0)` built `lw	v1,376(v0)`
 
 ### src/quaternion
 - PORTED `CopyQuaternion` w1 @ 0x0010D7F8 <- aug6 sugipon/src/quaternion (2 syms rebound)
@@ -1539,6 +1727,13 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `actSt01bWayOffChk` w3 @ 0x00210D78 — [codegen] insn 8: expected `addiu	a0,zero,162` built `addiu	a0,zero,161`
 - PORTED `actSt01bWayOnChk` w3 @ 0x00210C98 <- aug6 script/src/st01b (4 syms rebound)
 
+### src/st01b.c
+- REVERTED `actSt01bEnemy1` w3 @ 0x002106C0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt01bEnemy5` w3 @ 0x00210908 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt01bFloorChk` w3 @ 0x00210298 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt01bInit` w3 @ 0x0020FF68 — [codegen] insn 27: expected `addiu	a0,s2,0` built `addiu	a0,s2,2688`
+- REVERTED `actSt01bWayOffChk` w3 @ 0x00210D78 — [codegen] insn 8: expected `addiu	a0,zero,162` built `addiu	a0,zero,161`
+
 ### src/st02a
 - PORTED `actSt02WaterFallBoySplashCheck` w1 @ 0x002113C8 <- aug6 script/src/st02a (5 syms rebound)
 - REVERTED `actSt02aBox` w3 @ 0x00211590 — [codegen] insn 15: expected `addiu	v1,v1,0` built `addiu	v1,v1,1216`
@@ -1558,6 +1753,18 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PORTED `actSt02aTakiWay` w1 @ 0x00211BE8 <- aug6 script/src/st02a (7 syms rebound)
 - PRE-MATCHED `actSt02aWaterFall` w2 @ 0x00211610 — already had a retail body before Phase 4
 - PORTED `actSt02aWaterFallChk` w1 @ 0x00211438 <- aug6 script/src/st02a (5 syms rebound)
+
+### src/st02a.c
+- REVERTED `actSt02aBox` w3 @ 0x00211590 — [codegen] insn 15: expected `addiu	v1,v1,0` built `addiu	v1,v1,1216`
+- REVERTED `actSt02aBoxEvent2` w3 @ 0x00211620 — [codegen] insn 30: expected `addiu	v1,s1,0` built `addiu	v1,s1,1392`
+- REVERTED `actSt02aDoorEvent` w0 @ 0x00212008 — [unresolved-symbol] unresolved-symbol: insn 53 `D_004CBD80`: no retail lui partner for %lo
+- REVERTED `actSt02aDoorUpEffect` w0 @ 0x00212138 — [unresolved-symbol] unresolved-symbol: insn 51 `D_004CBDA0`: no retail lui partner for %lo
+- REVERTED `actSt02aEne` w3 @ 0x002116D0 — [undeclared] src/st02a.c:152: structure has no member named `unkB4'
+- REVERTED `actSt02aEnemy2` w3 @ 0x002117D0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt02aGondolaDown` w3 @ 0x00211518 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt02aInit` w3 @ 0x00211160 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt02aSecretItem` w0 @ 0x00211D18 — [undeclared] src/st02a.c:152: structure has no member named `unkB4'
+- REVERTED `actSt02aSekizo` w3 @ 0x002118D8 — [undeclared] src/st02a.c:152: structure has no member named `unkB4'
 
 ### src/st03t
 - PORTED `actSt03tBoxA` w3 @ 0x002125D8 <- aug6 script/src/st03t (6 syms rebound)
@@ -1579,6 +1786,11 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `actSt03tWay` w3 @ 0x00212880 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 - PRE-MATCHED `actSt03tWayOnChk` w1 @ 0x00212D68 — already had a retail body before Phase 4
 
+### src/st03t.c
+- REVERTED `actSt03tGirlCamStartChk` w0 @ 0x00212AC8 — [codegen] insn 7: expected `sw	v0,192(a0)` built `sw	zero,0(gp)`
+- REVERTED `actSt03tSwitchR` w3 @ 0x00212470 — [codegen] insn 19: expected `addiu	a1,zero,397` built `addiu	a1,zero,393`
+- REVERTED `actSt03tWayOffChk` — pass-deferred: rc6 two-allocno %hi tie (s1/s2) (post-hoc, bisected)
+
 ### src/st04a
 - REVERTED `actConte09Jimaku` w3 @ 0x002135B0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 - REVERTED `actConte09_3` w3 @ 0x00213AD0 — [codegen] insn 10: expected `addiu	a0,zero,273` built `addiu	a0,zero,272`
@@ -1592,6 +1804,9 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `actSt04aTorch1Chk` w3 @ 0x00213CB8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 - REVERTED `actSt04aTorchAllFlagfChk` w3 @ 0x00213D60 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 - REVERTED `actSt04aTorchXL` w3 @ 0x00213E90 — [codegen] insn 37: expected `addiu	v1,s1,0` built `addiu	v1,s1,4368`
+
+### src/st04a.c
+- REVERTED `actSt04aGateLChk` w0 @ 0x00213B88 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 
 ### src/st04b
 - REVERTED `actSt04bEnd` w3 @ 0x00214040 — [codegen] insn 22: expected `addiu	a0,zero,3453` built `addiu	a0,zero,3415`
@@ -1625,6 +1840,11 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `actSt04eWaterFlagOn` w3 @ 0x00219D50 — [codegen] [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
 - REVERTED `actSt04eWaterSwitch` w3 @ 0x00219AF0 — [codegen] [§fp-licm] loop-invariant FP value kept in $f2x (lwc1) vs re-materialized (mtc1)
 
+### src/st04e.c
+- REVERTED `actSt04eWater` w3 @ 0x00219840 — [codegen] insn 27: expected `addiu	a0,s2,0` built `addiu	a0,s2,1656`
+- REVERTED `actSt04eWaterFlagOn` w3 @ 0x00219D50 — [undeclared] src/st04e.c:98: structure has no member named `unkB4'
+- REVERTED `actSt04eWaterSwitch` w3 @ 0x00219AF0 — [undeclared] src/st04e.c:61: structure has no member named `unkB4'
+
 ### src/st04l
 - REVERTED `actSt04cInit` w3 @ 0x0021AD40 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 - REVERTED `actSt04eInit` w3 @ 0x0021B010 — [codegen] insn 13: expected `addiu	a0,zero,1030` built `addiu	a0,zero,1027`
@@ -1637,7 +1857,50 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `actSt04lMonyou02Chk` w3 @ 0x0021CE30 — [codegen] insn 38: expected `addiu	a1,zero,59` built `addiu	a1,zero,58`
 - REVERTED `actSt04lStairChk` w3 @ 0x0021BD80 — [codegen] insn 33: expected `addiu	a0,zero,197` built `addiu	a0,zero,196`
 
+### src/st04l.c
+- REVERTED `actSt04cInit` w3 @ 0x0021AD40 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt04dInit` w0 @ 0x0021AE20 — [unresolved-symbol] unresolved-symbol: insn 119 `D_00629DE8`: retail slot is not $gp-based
+- REVERTED `actSt04eInit` w3 @ 0x0021B010 — [codegen] insn 13: expected `addiu	a0,zero,1030` built `addiu	a0,zero,1027`
+- REVERTED `actSt04lBrg1Chk` w0 @ 0x0021C4C8 — [unresolved-symbol] unresolved-symbol: insn 21 `D_00629DE4`: no aligned retail slot (+2 more)
+- REVERTED `actSt04lBrg2Chk` w0 @ 0x0021C8D0 — [unresolved-symbol] unresolved-symbol: insn 21 `D_00629DE4`: no aligned retail slot (+2 more)
+- REVERTED `actSt04lC1BallTurn` w3 @ 0x0021B2E8 — [codegen] insn 9: expected `addiu	a0,zero,1110` built `addiu	a0,zero,1107`
+- REVERTED `actSt04lC3BallTurn` w3 @ 0x0021B750 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt04lCrest02` w3 @ 0x0021B890 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt04lCrest2Main` w3 @ 0x0021BB00 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt04lCrest3Main` w3 @ 0x0021BC40 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt04lCrestMain` w3 @ 0x0021B9D0 — [codegen] insn 33: expected `addiu	a0,zero,196` built `addiu	a0,zero,195`
+- REVERTED `actSt04lGondolaChk` w0 @ 0x0021CB80 — [unresolved-symbol] unresolved-symbol: insn 21 `D_00629DE4`: no aligned retail slot (+2 more)
+- REVERTED `actSt04lMonyou01Chk` w0 @ 0x0021CCD8 — [unresolved-symbol] unresolved-symbol: insn 21 `D_00629DE4`: no aligned retail slot (+2 more)
+- REVERTED `actSt04lMonyou02Chk` w3 @ 0x0021CE30 — [codegen] insn 38: expected `addiu	a1,zero,59` built `addiu	a1,zero,58`
+- REVERTED `actSt04lRope3Chk` w0 @ 0x0021C620 — [unresolved-symbol] unresolved-symbol: insn 21 `D_00629DE4`: no aligned retail slot (+2 more)
+- REVERTED `actSt04lRope4Chk` w0 @ 0x0021C778 — [unresolved-symbol] unresolved-symbol: insn 21 `D_00629DE4`: no aligned retail slot (+2 more)
+- REVERTED `actSt04lSekizoChk` w0 @ 0x0021CA28 — [unresolved-symbol] unresolved-symbol: insn 21 `D_00629DE4`: no aligned retail slot (+2 more)
+- REVERTED `actSt04lStairChk` w3 @ 0x0021BD80 — [codegen] insn 33: expected `addiu	a0,zero,197` built `addiu	a0,zero,196`
+
 ### src/st04r
+- REVERTED `actSt04rBrg1Chk` w3 @ 0x0021DDE0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt04rBrg2Chk` w3 @ 0x0021DFC0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt04rC1BallTurn` w3 @ 0x0021D600 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt04rC2BallTurn` w3 @ 0x0021D698 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt04rC3BallTurn` w3 @ 0x0021D750 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt04rCrest02` w3 @ 0x0021D808 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt04rCrest2Main` w3 @ 0x0021D960 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt04rCrest3Main` w3 @ 0x0021D9D8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt04rCrestMain` w3 @ 0x0021D8C0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt04rRope1Chk` w3 @ 0x0021DC90 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt04rRope2Chk` w3 @ 0x0021DD38 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt04rRope3Chk` w3 @ 0x0021DE78 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt04rRope4Chk` w3 @ 0x0021DF18 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt04rSekizoChk` w3 @ 0x0021DBE8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt04rSolarBeam` w3 @ 0x0021DA50 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt04rSolarBeamChk` w3 @ 0x0021DAC8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt04rStairChk` w3 @ 0x0021DB40 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt05cInit` w3 @ 0x0021D340 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt05dInit` w3 @ 0x0021D420 — [codegen] insn 37: expected `addiu	a0,zero,220` built `addiu	a0,zero,219`
+- REVERTED `actSt05eEnd` w3 @ 0x0021D188 — [codegen] insn 63: expected `addiu	a0,zero,219` built `addiu	a0,zero,218`
+- REVERTED `actSt05eInit` w3 @ 0x0021D560 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+
+### src/st04r.c
 - REVERTED `actSt04rBrg1Chk` w3 @ 0x0021DDE0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 - REVERTED `actSt04rBrg2Chk` w3 @ 0x0021DFC0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 - REVERTED `actSt04rC1BallTurn` w3 @ 0x0021D600 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
@@ -1682,6 +1945,10 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `actSt05cSolarXL` w3 @ 0x0021ED40 — [codegen] insn 16: expected `addiu	a0,zero,225` built `addiu	a0,zero,224`
 - REVERTED `actSt05cWaterXL` w3 @ 0x0021EDC8 — [codegen] insn 13: expected `addiu	a0,zero,1098` built `addiu	a0,zero,1095`
 
+### src/st05c.c
+- REVERTED `actSt05cDoorDown` w0 @ 0x0021EF60 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt05cDoorDownEvent` w0 @ 0x0021F1C8 — [codegen] insn 29: expected `addiu	a0,zero,259` built `addiu	a0,zero,258`
+
 ### src/st05d
 - REVERTED `actSt05dDoor2` w3 @ 0x0021F3B8 — [codegen] insn 25: expected `addiu	a0,zero,202` built `addiu	a0,zero,201`
 - PRE-MATCHED `actSt05dDoor2DownChk` w2 @ 0x0021F4F8 — already had a retail body before Phase 4
@@ -1694,7 +1961,19 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PRE-MATCHED `actSt05dEnemy1` w2 @ 0x0021F518 — already had a retail body before Phase 4
 - PRE-MATCHED `actSt05dEnemy2` w2 @ 0x0021F528 — already had a retail body before Phase 4
 
+### src/st05d.c
+- REVERTED `actSt05dDoor2UpChk` w3 @ 0x0021F470 — [codegen] [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
+
 ### src/st05e
+- REVERTED `actSt05eSolar` w3 @ 0x0021FDB8 — [codegen] insn 26: expected `addiu	a0,zero,284` built `addiu	a0,zero,283`
+- REVERTED `actSt05eSolarChk` w3 @ 0x0021FA30 — [codegen] insn 5: expected `addiu	a0,zero,295` built `addiu	a0,zero,294`
+- REVERTED `actSt05eWater` w3 @ 0x0021FD20 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt05eWaterFlagOn` w3 @ 0x002201C8 — [codegen] insn 9: expected `addiu	a0,zero,1304` built `addiu	a0,zero,1300`
+- REVERTED `actSt05eWaterMain` w3 @ 0x0021FEE0 — [codegen] insn 26: expected `addiu	a0,zero,285` built `addiu	a0,zero,284`
+- REVERTED `actSt05eWaterStop` w3 @ 0x002200E0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt05eWaterSwitch` w3 @ 0x00220008 — [codegen] insn 20: expected `addiu	a0,zero,286` built `addiu	a0,zero,285`
+
+### src/st05e.c
 - REVERTED `actSt05eSolar` w3 @ 0x0021FDB8 — [codegen] insn 26: expected `addiu	a0,zero,284` built `addiu	a0,zero,283`
 - REVERTED `actSt05eSolarChk` w3 @ 0x0021FA30 — [codegen] insn 5: expected `addiu	a0,zero,295` built `addiu	a0,zero,294`
 - REVERTED `actSt05eWater` w3 @ 0x0021FD20 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
@@ -1717,6 +1996,30 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `actSt06aShutterOpen` w3 @ 0x002224F8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 - REVERTED `actSt06aStatue` w3 @ 0x00222CA8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 - REVERTED `actSt06aStatueChk` w3 @ 0x00222610 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt06aTree` w3 @ 0x00222DF8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt06aWallWay` w3 @ 0x00222B58 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt06aWallWay2` w3 @ 0x00222C00 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt06aWay` w3 @ 0x00222AE0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+
+### src/st06a.c
+- REVERTED `actSt06aBox` w3 @ 0x002228D8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt06aBox2` w3 @ 0x00222978 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt06aBox3` w3 @ 0x002229F0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt06aBoxChk` w3 @ 0x00222570 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt06aBoxEvent2` w3 @ 0x00222A68 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt06aDoor` w0 @ 0x00221ED8 — [unresolved-symbol] unresolved-symbol: insn 21 `D_00629DE4`: no aligned retail slot (+2 more)
+- REVERTED `actSt06aDoorDownChk` w3 @ 0x00222188 — [codegen] insn 29: expected `addiu	a0,zero,201` built `addiu	a0,zero,200`
+- REVERTED `actSt06aDoorUpChk` w0 @ 0x00222030 — [unresolved-symbol] unresolved-symbol: insn 21 `D_00629DE4`: no aligned retail slot (+2 more)
+- REVERTED `actSt06aExit` w3 @ 0x00222820 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt06aHead` w3 @ 0x00222D50 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt06aHeadChk` w3 @ 0x002226B0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt06aInit` w0 @ 0x00221AD0 — [unresolved-symbol] unresolved-symbol: insn 21 `D_00629DE4`: no aligned retail slot (+2 more)
+- REVERTED `actSt06aShutter` w3 @ 0x00222768 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt06aShutterOpen` w3 @ 0x002224F8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt06aStatue` w3 @ 0x00222CA8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt06aStatueChk` w3 @ 0x00222610 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt06aSuimon` w0 @ 0x00221C28 — [unresolved-symbol] unresolved-symbol: insn 21 `D_00629DE4`: no aligned retail slot (+2 more)
+- REVERTED `actSt06aSuimonChk` w0 @ 0x00221D80 — [unresolved-symbol] unresolved-symbol: insn 21 `D_00629DE4`: no aligned retail slot (+2 more)
 - REVERTED `actSt06aTree` w3 @ 0x00222DF8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 - REVERTED `actSt06aWallWay` w3 @ 0x00222B58 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 - REVERTED `actSt06aWallWay2` w3 @ 0x00222C00 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
@@ -1791,8 +2094,20 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `actSt09aSekizo` w3 @ 0x00224B10 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 - PORTED `actSt09aSekizoEvent` w1 @ 0x002250B8 <- aug6 script/src/st09a (6 syms rebound)
 
+### src/st09a.c
+- REVERTED `actSt09aBrg` w3 @ 0x00224E80 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt09aBrgDown` w3 @ 0x00224C78 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt09aElv` w3 @ 0x00224DE0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt09aElvDown` w3 @ 0x002249F8 — [codegen] insn 23: expected `addiu	a0,zero,357` built `addiu	a0,zero,356`
+- REVERTED `actSt09aElvMain` w3 @ 0x00224F28 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt09aElvSwitch` w3 @ 0x00224FD0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt09aElvUp` w3 @ 0x00225040 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt09aIntro` w3 @ 0x00224E30 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt09aSekizo` w3 @ 0x00224B10 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+
 ### src/st10l
 - REVERTED `actSt10lChain` w3 @ 0x00225E28 — [codegen] insn 8: expected `addiu	a0,a0,0` built `addiu	a0,a0,1536`
+- PRE-MATCHED `actSt10lChainMove` w3 @ 0x00225DA0 — already had a retail body before Phase 4
 - PORTED `actSt10lFloor` w1 @ 0x00225EF0 <- aug6 script/src/st10l (6 syms rebound)
 - PORTED `actSt10lFloorLeft` w3 @ 0x002259D0 <- aug6 script/src/st10l (4 syms rebound)
 - PORTED `actSt10lFloorRight` w1 @ 0x00225AB0 <- aug6 script/src/st10l (4 syms rebound)
@@ -1802,6 +2117,7 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 
 ### src/st10r
 - PORTED `actSt10rChain` w3 @ 0x00227500 <- aug6 script/src/st10r (4 syms rebound)
+- PRE-MATCHED `actSt10rEne` w3 @ 0x002276C0 — already had a retail body before Phase 4
 - PORTED `actSt10rEnemy1` w1 @ 0x00227750 <- aug6 script/src/st10r (5 syms rebound)
 - PRE-MATCHED `actSt10rExit` w1 @ 0x002274F0 — already had a retail body before Phase 4
 - PRE-MATCHED `actSt10rFloor` w1 @ 0x00227350 — already had a retail body before Phase 4
@@ -1831,7 +2147,11 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PORTED `actSt13bSekizoChk` w1 @ 0x00229960 <- aug6 script/src/st13b (6 syms rebound)
 - PRE-MATCHED `actSt13bStoneGirl` w3 @ 0x00229E48 — already had a retail body before Phase 4
 
+### src/st13b2.c
+- REVERTED `actSt13b2Generator` w0 @ 0x0022A1B8 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+
 ### src/st13c
+- PRE-MATCHED `actSt13cBmg1` w3 @ 0x0022B5A0 — already had a retail body before Phase 4
 - PRE-MATCHED `actSt13cBmg1Chk` w1 @ 0x0022B640 — already had a retail body before Phase 4
 - PRE-MATCHED `actSt13cCage1stDown` w3 @ 0x0022B878 — already had a retail body before Phase 4
 - PORTED `actSt13cCage1stDownDemoCancel` w1 @ 0x0022B810 <- aug6 script/src/st13c (4 syms rebound)
@@ -1843,6 +2163,7 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `actSt13cConte05Jimaku` w3 @ 0x0022BB98 — [codegen] insn 15: expected `addiu	a0,zero,340` built `addiu	a0,zero,339`
 - PORTED `actSt13cEnd` w3 @ 0x0022B510 <- aug6 script/src/st13c (6 syms rebound)
 - REVERTED `actSt13cGirlCarryChk` w3 @ 0x0022BCA8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- PRE-MATCHED `actSt13cHandChk` w3 @ 0x0022BD20 — already had a retail body before Phase 4
 - PORTED `actSt13cInit` w3 @ 0x0022B480 <- aug6 script/src/st13c (6 syms rebound)
 - PRE-MATCHED `actSt13cSleep` w1 @ 0x0022BED0 — already had a retail body before Phase 4
 
@@ -1853,7 +2174,18 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 ### src/st18a
 - REVERTED `actSt18aEne` w3 @ 0x00230928 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 - REVERTED `actSt18aEne2Chk` w3 @ 0x00231098 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- PRE-MATCHED `actSt18aEneChk` w3 @ 0x00231098 — already had a retail body before Phase 4
 - REVERTED `actSt18aEnemy1_2` w3 @ 0x00230A40 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+
+### src/st18a.c
+- REVERTED `actSt18aCamera` w3 @ 0x00230E90 — [undeclared] src/st18a.c:131: structure has no member named `unkB4'
+- REVERTED `actSt18aEne` w3 @ 0x00230928 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt18aEne2` w3 @ 0x00230C38 — [codegen] insn 7: expected `addiu	a0,zero,688` built `addiu	a0,zero,687`
+- REVERTED `actSt18aEne2Chk` w3 @ 0x00231130 — [undeclared] src/st18a.c:131: structure has no member named `unkB4'
+- REVERTED `actSt18aEnemy1_2` w3 @ 0x00230A40 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt18aEnemy2_2` w0 @ 0x00230D18 — [codegen] [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+- REVERTED `actSt18aIntroChk` w3 @ 0x00230F78 — [undeclared] src/st18a.c:131: structure has no member named `unkB4'
+- REVERTED `actSt19aPipeXL` w0 @ 0x00230B38 — [codegen] insn 41: expected `addiu	a0,s0,0` built `addiu	a0,s0,4304`
 
 ### src/st19a
 - REVERTED `actSt19aChain` w1 @ 0x00231748 — [codegen] insn 38: expected `addiu	a0,s0,0` built `addiu	a0,s0,1616`
@@ -1873,6 +2205,19 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `actSt20aEnemy1` w3 @ 0x00233DE8 — [codegen] insn 23: expected `addiu	a0,zero,135` built `addiu	a0,zero,134`
 - PORTED `actSt20aEnemy2` w1 @ 0x00233E80 <- aug6 script/src/st20a (5 syms rebound)
 - PORTED `actSt20aEnemy3` w1 @ 0x00233EE8 <- aug6 script/src/st20a (5 syms rebound)
+- REVERTED `actSt20aExit` w3 @ 0x00233C48 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt20aGondolaDown` w3 @ 0x00232350 — [codegen] insn 33: expected `addiu	a0,s0,0` built `addiu	a0,s0,760`
+- REVERTED `actSt20aGondolaMain` w3 @ 0x00234070 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt20aGondolaSwitch` w3 @ 0x002340E8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt20aGondolaUp` w3 @ 0x002324E0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt20aInit` w3 @ 0x00231F18 — [codegen] insn 7: expected `addiu	a0,zero,554` built `addiu	a0,zero,553`
+
+### src/st20a.c
+- REVERTED `actSt20aBridgeMain` w3 @ 0x00233F80 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt20aBridgeSwitch` w3 @ 0x00233FF8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt20aElv` w0 @ 0x00233CC0 — [unresolved-symbol] unresolved-symbol: insn 37 `func_00178DB0`: no aligned retail slot
+- REVERTED `actSt20aEne` w3 @ 0x00233D70 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt20aEnemy1` w3 @ 0x00233DE8 — [codegen] insn 23: expected `addiu	a0,zero,135` built `addiu	a0,zero,134`
 - REVERTED `actSt20aExit` w3 @ 0x00233C48 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 - REVERTED `actSt20aGondolaDown` w3 @ 0x00232350 — [codegen] insn 33: expected `addiu	a0,s0,0` built `addiu	a0,s0,760`
 - REVERTED `actSt20aGondolaMain` w3 @ 0x00234070 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
@@ -1921,6 +2266,20 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `actSt47aSekizo4` w3 @ 0x00236938 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 - REVERTED `actSt47aTorch` w3 @ 0x00236660 — [codegen] insn 13: expected `addiu	a0,zero,716` built `addiu	a0,zero,715`
 
+### src/st47a.c
+- REVERTED `actSt47aEnd` w3 @ 0x00235E98 — [codegen] insn 23: expected `addiu	a0,zero,101` built `addiu	a0,zero,100`
+- REVERTED `actSt47aEnemy1` w3 @ 0x00236588 — [codegen] insn 13: expected `addiu	a0,zero,715` built `addiu	a0,zero,714`
+- REVERTED `actSt47aHane1` w3 @ 0x00236A00 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt47aInit` w3 @ 0x00235C70 — [codegen] insn 24: expected `lui	s3,0x4d` built `lui	s3,0x0`
+- REVERTED `actSt47aRope` w3 @ 0x00236B30 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt47aRopeChk` w3 @ 0x00236478 — [codegen] insn 26: expected `addiu	a0,zero,104` built `addiu	a0,zero,103`
+- REVERTED `actSt47aSekizo1` w3 @ 0x00236730 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt47aSekizo1Chk` w3 @ 0x00235FD8 — [codegen] insn 24: expected `lui	s3,0x4d` built `lui	s3,0x0`
+- REVERTED `actSt47aSekizo2` w3 @ 0x002367A8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt47aSekizo3` w3 @ 0x00236870 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt47aSekizo4` w3 @ 0x00236938 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `actSt47aTorch` w3 @ 0x00236660 — [codegen] insn 13: expected `addiu	a0,zero,716` built `addiu	a0,zero,715`
+
 ### src/staffroll
 - PORTED `staffRollMain` w1 @ 0x001B81B8 <- aug6 common/src/staffroll (13 syms rebound)
 - PRE-MATCHED `staffRollNameOut` w1 @ 0x001B81A8 — already had a retail body before Phase 4
@@ -1951,6 +2310,7 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 ### src/streamMotionManager
 - PRE-MATCHED `DeleteStreamMotionManager` w1 @ 0x001F1108 — already had a retail body before Phase 4
 - PRE-MATCHED `ExecStreamMotionManager` w3 @ 0x001F1058 — already had a retail body before Phase 4
+- PRE-MATCHED `GetStreamMotionData` w3 @ 0x001F0F90 — already had a retail body before Phase 4
 - PRE-MATCHED `PlayStreamMotion` w1 @ 0x001F0B20 — already had a retail body before Phase 4
 - PRE-MATCHED `StandbyStreamMotion` w1 @ 0x001F10A8 — already had a retail body before Phase 4
 - PRE-MATCHED `StopStreamMotion` w3 @ 0x001F10F8 — already had a retail body before Phase 4
@@ -2025,6 +2385,9 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `group_create` w1 @ 0x00206208 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
 - PORTED `way_toolDL` w1 @ 0x002070B0 <- aug6 fumi/src/way_tool (10 syms rebound)
 
+### src/way_tool.c
+- REVERTED `debug_WayTool` w0 @ 0x00207168 — [codegen] insn 31: expected `sll	zero,zero,0x0` built `<end>`
+
 ### src/way_util
 - REVERTED `NearestWgFromTarget` w1 @ 0x0017AE98 — [undeclared] src/way_util.c:305: `wcf_c' undeclared (first use in this function)
 - PRE-MATCHED `WayUtilWorkAlloc` w2 @ 0x00179040 — already had a retail body before Phase 4
@@ -2044,6 +2407,9 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - REVERTED `waypoint_connect_group_side_bridge` w1 @ 0x0017ADF8 — [undeclared] src/way_util.c:303: `wcf_c' undeclared (first use in this function)
 - PRE-MATCHED `waypoint_connect_group_side_me` w3 @ 0x0017ACD8 — already had a retail body before Phase 4
 - PORTED `wpsort_compfnc` w1 @ 0x0017AF40 <- aug6 fumi/src/way_util (1 syms rebound)
+
+### src/way_util.c
+- REVERTED `GetWgAll` w0 @ 0x00179438 — [codegen] insn 13: expected `addiu	a1,zero,95` built `addiu	a1,zero,65`
 
 ### src/weapon
 - REVERTED `CheckSwapableWeapon` w3 @ 0x001F42E8 — [codegen] insn 3: expected `lw	a0,2048(v0)` built `lw	a0,2032(v0)`
@@ -2086,1297 +2452,220 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PORTED `GetWormRoute` w1 @ 0x001F66A0 <- aug6 sugipon/src/worm (3 syms rebound)
 - REVERTED `WormDL` w3 @ 0x001F6A90 — [codegen] insn 1: expected `lw	v1,2048(v0)` built `lw	v1,2032(v0)`
 
-## Phase 5 — jtbl queue (deferred from Phase 4, `decomp/carve_ledger.md` has the
-## rodata-carve side of each of these; this section is the C-body-port side)
-
-### src/Packet
-- PORTED `pac_setVifEndCode` w1 @ 0x00118FD8 <- aug6 seki/src/Packet (9 syms
-  rebound). jtbl_00554E00 (17 entries, 0x44) carved into config/ico.us.yaml
-  first (Phase 5); `tools/port_from_aug6.py port --allow-jtbl` then ported the
-  body unmodified — reloc rebind only, no source-shape changes needed.
-  `pac_makeNormalStrip` (the other jtbl SKIP in this TU, jtbl_00554DB0) stays
-  asm: it is INCLUDE_ASM on aug6 too (never matched upstream), so there is no
-  reference body to port; only its jtbl neighbor's carve is in scope here.
-
-### src/debug_exception
-- PORTED `initLineTraceTable` w1 @ 0x001A6848 <- aug6 common/src/debug_exception
-  (9 syms rebound). jtbl_00615090 (17 entries, 0x44) carved first; straight
-  port, no source-shape changes (near-identical twin of pac_setVifEndCode).
-
-### src/girl_act
-- PORTED `actGirlHang` w3 @ 0x001736B8 <- aug6 fumi/src/girl_act, HAND-FIXED
-  (not a clean mechanical port). jtbl_00559950 (67 entries, 0x10C) carved
-  first. Two real defects found and fixed by hand after the tool's automatic
-  attempt reverted with `[§frame-size]`:
-  1. The aug6 body relies on two function-LOCAL macros bracketing it,
-     `#define SUB(g) (*(int*)((char*)(g)+0x164))` / `#define REF(g) (*(int*)
-     ((char*)(g)+0x15C))`, `#undef`'d right after. `port_from_aug6.py`'s
-     splice only carries the function body + externs/typedefs, not sibling
-     `#define`/`#undef` lines, so `SUB(g)`/`REF(g)` compiled as *implicit
-     undeclared-function calls* (ee-gcc 2.9 allows K&R implicit int) —
-     7 spurious `jal`s the diff hint mis-attributed to a frame-size issue.
-     Fixed by re-adding the macro pair by hand around the ported body.
-  2. Once the macros were restored, 4 literal mismatches remained — genuine
-     PROTOTYPE-VS-RETAIL struct-layout drift, not a rebind bug:
-     `SUB(g)+0x134`->`+0x144`, `REF(g)+0x490`->`+0x4A0`,
-     `SUB(g)+0x678 ...+0x3E8` (both occurrences)->`+0x408`, and the case-36
-     comparison constant `0x54`->`0x55`. All 4 values were re-derived directly
-     from `asm/nonmatchings/src/girl_act/actGirlHang.s` (ground truth), not
-     guessed. `tools/quick_diff.sh` clean (only cosmetic absolute-address
-     annotation differs, same `<actGirlHang+0xNN>` symbolic offsets both
-     sides) and `ninja` SHA-1 gate green.
-  - Tooling note: `port_from_aug6.py`'s jtbl-symbol rebind (`build_symbol_map`)
-    also needed a fix — it named a carved jump-table's retail counterpart
-    `D_<addr>` (the generic data-symbol template) instead of `jtbl_<addr>`
-    (splat's actual auto-name for a switch jtbl), so it always reported the
-    rebind target as "undefined" even after the carve existed. Fixed by
-    preferring `jtbl_<addr>` when the aug6-side symbol itself is `jtbl_`-named
-    and that name is in the retail `defined` label set.
-
-### src/motionOrientManager
-- CARVED (function still asm) `shiftMotionOrientEndFunc` w3 @ 0x001E0D50 —
-  jtbl_006196E0 (21 entries, 0x54, VMA 0x6196E0..0x619734) carved, PLUS its
-  immediate predecessor `D_006196C8` (a 0x18-byte debug format string,
-  `"%s \207 %s (%s)\n"`, VMA 0x6196C8..0x6196E0 incl. null-pad to the jtbl's
-  `.align 3` boundary) as ONE contiguous carve region
-  (`[0x5196C8, .rodata, src/motionOrientManager]`). `D_006196C8` needed a
-  real typed definition even with the function left `INCLUDE_ASM`, because
-  the raw ROM disassembly itself carries a `%hi/%lo(D_006196C8)` reference
-  (the still-asm function loads the string's address to pass to `display()`)
-  — once carved out of the blob, that reference needs SOME definition to
-  resolve against, ported or not.
-  - The aug6-body port attempt (`port_from_aug6.py --allow-jtbl`) does NOT
-    land cleanly and was left reverted / not applied to the working tree.
-    First revert reason from the tool was `[§regalloc-swap]`; hand-fixing two
-    real prototype-vs-retail struct-offset drifts (`REF(g)+0x490`->`+0x4A0`,
-    matching the SAME field actGirlHang hit) got two of the tag-diff hints to
-    clear, but a THIRD, structural difference remains: the retail ROM's 21
-    case bodies each inline their own full `lui/daddu/jal/addiu` call to
-    `func_00264DF8` before branching to the shared display-block tail,
-    whereas recompiling the (offset-corrected) aug6 body cross-jump-merges
-    several of those identical call sites into a shared trailer — a real
-    whole-function codegen-shape difference (gcc crosslining/tail-merge),
-    not a rebind or literal-constant issue. This needs proper decomp-match
-    treatment (structure-over-count, `decomp-convergence`-style or a fresh
-    `decomp-match` grind on the switch's case-body shape), not another
-    mechanical port attempt. Left as a resume target — see
-    `decomp/carve_ledger.md` for the exact literal/offset findings so a
-    future session doesn't have to re-derive them.
-
-### src/chain
-- REVERTED `PlumbOrientUpdateChain` w3 @ 0x00190298 — [codegen] insn 4: expected `jal	0 <PlumbOrientUpdateChain>` built `jal	1a0 <chain_simulate_term_swingstart>`
-
-### src/chain
-- REVERTED `isBottomOfChain` w3 @ 0x001902C8 — [codegen] insn 1: expected `lw	v1,2048(v0)` built `lw	v1,2032(v0)`
-
-### src/chain
-- REVERTED `isStopChain` w3 @ 0x001902D8 — [codegen] insn 1: expected `lw	v0,2048(v0)` built `lw	v0,2032(v0)`
-
-### src/chain
-- REVERTED `GetChainClimbOrient` w3 @ 0x00190318 — [codegen] insn 2: expected `lw	v1,2048(v0)` built `lw	v1,2032(v0)`
-
-### src/chain
-- REVERTED `CheckChainClimbablePos` w3 @ 0x00190330 — [codegen] insn 7: expected `lw	v1,2048(v0)` built `lw	v1,2032(v0)`
-
-### src/chain
-- REVERTED `GetChainClimbCollision` w3 @ 0x00190360 — [codegen] insn 2: expected `lw	v0,2048(v1)` built `lw	v0,2032(v1)`
-
-### src/chain
-- REVERTED `SetChainParentGObj` w3 @ 0x00190388 — [codegen] insn 1: expected `lw	a0,2048(v0)` built `lw	a0,2032(v0)`
-
-### src/chain
-- REVERTED `GetChainDirCorrectVal` w3 @ 0x001903A8 — [codegen] insn 1: expected `lw	v1,2048(v0)` built `lw	v1,2032(v0)`
-
-### src/chain
-- REVERTED `GetRootPositionHandExtra` w3 @ 0x001903B8 — [codegen] insn 1: expected `lw	v0,2048(v1)` built `lw	v0,2032(v1)`
-
-### src/chain
-- REVERTED `InitPendulum` w3 @ 0x001903E0 — [codegen] insn 1: expected `lw	a0,2048(a1)` built `lw	a0,2032(a1)`
-
-### src/chain
-- REVERTED `LockChainGeo` w3 @ 0x00190408 — [codegen] insn 1: expected `lw	v1,2048(v0)` built `lw	v1,2032(v0)`
-
-### src/chain
-- REVERTED `UnLockChainGeo` w3 @ 0x00190430 — [codegen] insn 1: expected `lw	v1,2048(v0)` built `lw	v1,2032(v0)`
-
-### src/gv
-- REVERTED `_AbsRotyGV` w3 @ 0x00193EC8 — [codegen] insn 1: expected `lw	v1,2048(v0)` built `lw	v1,2032(v0)`
-
-### src/gv
-- REVERTED `_ApplyRyGV` w3 @ 0x00193EE0 — [codegen] insn 12: expected `lw	v0,2048(v0)` built `lw	v0,2032(v0)`
-
-### ios/cdvd
-- REVERTED `iosCdvdHandlerRead` w3 @ 0x00131780 — [codegen] insn 1: expected `addiu	a3,zero,828` built `addiu	a3,zero,802`
-
-### src/geometryManager
-- PORTED `SetRootQuaternion` w3 @ 0x00102A38 <- aug6 sugipon/src/geometryManager (1 syms rebound)
-
-### src/StageManager.c
-- REVERTED `stgmgrNextStagePreLoad` w3 @ 0x0019FB30 — [codegen] insn 0: expected `addiu	v0,zero,404` built `addiu	v0,zero,400`
-
-### src/StageManager.c
-- REVERTED `stgmgrNextStagePreLoad` w3 @ 0x0019FB30 — [codegen] insn 0: expected `addiu	v0,zero,404` built `addiu	v0,zero,400`
-
-### isys/gobj.c
-- REVERTED `isysGObjSearchFromObjLayoutID` w3 @ 0x0013EB50 — [codegen] insn 27: expected `sltiu	v0,v0,67` built `sltiu	v0,v0,66`
-
-### isys/gobj.c
-- REVERTED `isysGObjKindTableAdd` w3 @ 0x0013E728 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
-
-### isys/gobj.c
-- REVERTED `isysGObjRemove` w3 @ 0x0013E648 — [codegen] insn 12: expected `jal	0 <isysGObjRemove>` built `jal	db0 <isysGObjSearchFromObjLayoutID>`
-
-### isys/gobj.c
-- REVERTED `isysGObjAlloc` w3 @ 0x0013E548 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
-
-### isys/gobj.c
-- REVERTED `cut_gobj_link` w3 @ 0x0013DEA0 — [codegen] [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
-
-### isys/gobj.c
-- REVERTED `isysGObjSearchFromObjLayoutID` w3 @ 0x0013EB50 — [codegen] insn 27: expected `sltiu	v0,v0,67` built `sltiu	v0,v0,66`
-
-### isys/gobj.c
-- REVERTED `isysGObjKindTableAdd` w3 @ 0x0013E728 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
-
-### isys/gobj.c
-- REVERTED `isysGObjRemove` w3 @ 0x0013E648 — [codegen] insn 12: expected `jal	0 <isysGObjRemove>` built `jal	db0 <isysGObjSearchFromObjLayoutID>`
-
-### isys/gobj.c
-- REVERTED `isysGObjAlloc` w3 @ 0x0013E548 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
-
-### isys/gobj.c
-- REVERTED `cut_gobj_link` w3 @ 0x0013DEA0 — [callee-sig-conflict] isys/gobj.c:141: conflicting types for `D_00557A10__p4'
-
-### src/st04e.c
-- REVERTED `actSt04eWaterSwitch` w3 @ 0x00219AF0 — [codegen] [§fp-licm] loop-invariant FP value kept in $f2x (lwc1) vs re-materialized (mtc1)
-
-### src/st04e.c
-- REVERTED `actSt04eWater` w3 @ 0x00219840 — [codegen] insn 27: expected `addiu	a0,s2,0` built `addiu	a0,s2,1656`
-
-### src/st04e.c
-- REVERTED `actSt04eWaterFlagOn` w3 @ 0x00219D50 — [codegen] [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
-
-### src/st04e.c
-- REVERTED `actSt04eWater` w3 @ 0x00219840 — [codegen] insn 27: expected `addiu	a0,s2,0` built `addiu	a0,s2,1656`
-
-### src/st04e.c
-- REVERTED `actSt04eWaterFlagOn` w3 @ 0x00219D50 — [undeclared] src/st04e.c:66: structure has no member named `unkB4'
-
-### src/st04e.c
-- REVERTED `actSt04eWaterSwitch` w3 @ 0x00219AF0 — [undeclared] src/st04e.c:61: structure has no member named `unkB4'
-
-### sound/s_init.c
-- REVERTED `soundDataOpenChk` w3 @ 0x00141340 — [codegen] insn 7: expected `addiu	a2,zero,254` built `addiu	a2,zero,230`
-
-### sound/s_init.c
-- REVERTED `soundDataClose` w3 @ 0x00141C28 — [codegen] insn 12: expected `addiu	a1,zero,618` built `addiu	a1,zero,605`
-
-### sound/s_init.c
-- REVERTED `soundDataOpen` w3 @ 0x00141868 — [codegen] insn 8: expected `addiu	a1,zero,487` built `addiu	a1,zero,475`
-
-### sound/s_init.c
-- REVERTED `soundSQDataSet` w3 @ 0x00143E60 — [codegen] insn 55: expected `addiu	a1,zero,334` built `addiu	a1,zero,322`
-
-### sound/s_init.c
-- REVERTED `soundSeDefPlay` w3 @ 0x00143FC0 — [codegen] insn 55: expected `addiu	a1,zero,334` built `addiu	a1,zero,322`
-
-### sound/s_init.c
-- REVERTED `soundDataOpenChk` w3 @ 0x00141340 — [codegen] insn 7: expected `addiu	a2,zero,254` built `addiu	a2,zero,230`
-
-### sound/s_init.c
-- REVERTED `soundDataClose` w3 @ 0x00141C28 — [codegen] insn 12: expected `addiu	a1,zero,618` built `addiu	a1,zero,605`
-
-### sound/s_init.c
-- REVERTED `soundDataOpen` w3 @ 0x00141868 — [codegen] insn 8: expected `addiu	a1,zero,487` built `addiu	a1,zero,475`
-
-### sound/s_init.c
-- REVERTED `soundSQDataSet` w3 @ 0x00143E60 — [codegen] insn 55: expected `addiu	a1,zero,334` built `addiu	a1,zero,322`
-
-### sound/s_init.c
-- REVERTED `soundSeDefPlay` w3 @ 0x00143FC0 — [redefinition] sound/s_init.c:29: redefinition of `hd_search'
-
-### src/st09a.c
-- REVERTED `actSt09aIntro` w3 @ 0x00224E30 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st09a.c
-- REVERTED `actSt09aElv` w3 @ 0x00224DE0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st09a.c
-- REVERTED `actSt09aElvSwitch` w3 @ 0x00224FD0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st09a.c
-- REVERTED `actSt09aElvUp` w3 @ 0x00225040 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st09a.c
-- REVERTED `actSt09aBrg` w3 @ 0x00224E80 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st09a.c
-- REVERTED `actSt09aElvMain` w3 @ 0x00224F28 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st09a.c
-- REVERTED `actSt09aElvDown` w3 @ 0x002249F8 — [codegen] insn 23: expected `addiu	a0,zero,357` built `addiu	a0,zero,356`
-
-### src/st09a.c
-- REVERTED `actSt09aSekizo` w3 @ 0x00224B10 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st09a.c
-- REVERTED `actSt09aBrgDown` w3 @ 0x00224C78 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st09a.c
-- REVERTED `actSt09aElv` w3 @ 0x00224DE0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st09a.c
-- REVERTED `actSt09aIntro` w3 @ 0x00224E30 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st09a.c
-- REVERTED `actSt09aElvSwitch` w3 @ 0x00224FD0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st09a.c
-- REVERTED `actSt09aElvUp` w3 @ 0x00225040 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st09a.c
-- REVERTED `actSt09aBrg` w3 @ 0x00224E80 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st09a.c
-- REVERTED `actSt09aElvMain` w3 @ 0x00224F28 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st09a.c
-- REVERTED `actSt09aElvDown` w3 @ 0x002249F8 — [codegen] insn 23: expected `addiu	a0,zero,357` built `addiu	a0,zero,356`
-
-### src/st09a.c
-- REVERTED `actSt09aSekizo` w3 @ 0x00224B10 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st09a.c
-- REVERTED `actSt09aBrgDown` w3 @ 0x00224C78 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/cage.c
-- REVERTED `HotInitCageGeo` w3 @ 0x001C22F0 — [codegen] insn 6: expected `lw	s0,2048(v1)` built `lw	s0,2032(v1)`
-
-### src/cage.c
-- REVERTED `InitCageGeo` w3 @ 0x001C21B8 — [codegen] [§fp-licm] loop-invariant FP value kept in $f2x (lwc1) vs re-materialized (mtc1)
-
-### src/cage.c
-- REVERTED `CageDL` w3 @ 0x001C2760 — [codegen] insn 10: expected `lw	s0,2048(v0)` built `lw	s0,2032(v0)`
-
-### src/cage.c
-- REVERTED `HotInitCageGeo` w3 @ 0x001C22F0 — [codegen] insn 6: expected `lw	s0,2048(v1)` built `lw	s0,2032(v1)`
-
-### src/cage.c
-- REVERTED `InitCageGeo` w3 @ 0x001C21B8 — [codegen] [§fp-licm] loop-invariant FP value kept in $f2x (lwc1) vs re-materialized (mtc1)
-
-### src/cage.c
-- REVERTED `CageDL` w3 @ 0x001C2760 — [codegen] insn 10: expected `lw	s0,2048(v0)` built `lw	s0,2032(v0)`
-
-### src/st18a.c
-- REVERTED `actSt18aEne2Chk` w3 @ 0x00231098 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st18a.c
-- REVERTED `actSt18aEnemy1_2` w3 @ 0x00230A40 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st18a.c
-- REVERTED `actSt18aEne` w3 @ 0x00230928 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st18a.c
-- REVERTED `actSt18aEne2Chk` w3 @ 0x00231098 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st18a.c
-- REVERTED `actSt18aEnemy1_2` w3 @ 0x00230A40 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st18a.c
-- REVERTED `actSt18aEne` w3 @ 0x00230928 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st18a.c
-- REVERTED `actSt18aEne2` w3 @ 0x00230C38 — [codegen] insn 7: expected `addiu	a0,zero,688` built `addiu	a0,zero,687`
-
-### src/st18a.c
-- REVERTED `actSt18aCamera` w3 @ 0x00230E90 — [undeclared] src/st18a.c:107: structure has no member named `unkB4'
-
-### src/st18a.c
-- REVERTED `actSt18aIntroChk` w3 @ 0x00230F78 — [codegen] insn 68: expected `addiu	a0,zero,296` built `addiu	a0,zero,295`
-
-### src/st18a.c
-- REVERTED `actSt18aEne2Chk` w3 @ 0x00231130 — [undeclared] src/st18a.c:125: structure has no member named `unkB4'
-
-### src/st18a.c
-- REVERTED `actSt18aEne2` w3 @ 0x00230C38 — [codegen] insn 7: expected `addiu	a0,zero,688` built `addiu	a0,zero,687`
-
-### src/st18a.c
-- REVERTED `actSt18aCamera` w3 @ 0x00230E90 — [undeclared] src/st18a.c:131: structure has no member named `unkB4'
-
-### src/st18a.c
-- REVERTED `actSt18aIntroChk` w3 @ 0x00230F78 — [undeclared] src/st18a.c:131: structure has no member named `unkB4'
-
-### src/st18a.c
-- REVERTED `actSt18aEne2Chk` w3 @ 0x00231130 — [undeclared] src/st18a.c:131: structure has no member named `unkB4'
-
-### src/st18a.c
-- REVERTED `actSt18aEnemy2_2` w0 @ 0x00230D18 — [codegen] [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
-
-### src/st18a.c
-- REVERTED `actSt19aPipeXL` w0 @ 0x00230B38 — [codegen] insn 41: expected `addiu	a0,s0,0` built `addiu	a0,s0,4304`
-
-### src/Basic.c
-- REVERTED `dma_init` w3 @ 0x001F6AA0 — [codegen] [§fp-licm] loop-invariant FP value kept in $f2x (lwc1) vs re-materialized (mtc1)
+### ios/thread.c
+- PORTED `func_0013DD20` w1 @ 0x0013DD20 <- aug6 fumi/ios/thread (3 syms rebound)
+
+### src/boyact.c
+- REVERTED `func_00151868` w1 @ 0x00151868 — [codegen] insn 35: expected `lui	at,0x42a0` built `lui	at,0x42b4`
+- REVERTED `func_001519D8` w1 @ 0x001519D8 — [codegen] insn 78: expected `ld	a0,0(at)` built `ld	a0,8(at)`
+- REVERTED `func_00151D78` w3 @ 0x00151D78 — [codegen] insn 66: expected `addiu	a1,zero,188` built `addiu	a1,zero,185`
+- REVERTED `func_00152508` w3 @ 0x00152508 — [codegen] insn 28: expected `addiu	a1,zero,77` built `addiu	a1,zero,76`
+
+### src/camera-ico2.c
+- PORTED `func_00187F10` w1 @ 0x00187F10 <- aug6 omori/src/camera-ico2 (1 syms rebound)
+- REVERTED `func_00187EA0` w1 @ 0x00187EA0 — [codegen] insn 18: expected `addiu	a0,s2,0` built `addiu	a0,s2,2680`
+
+### src/commonact.c
+- PORTED `func_00159220` w1 @ 0x00159220 <- aug6 fumi/src/commonact (2 syms rebound)
+- PORTED `func_0015D5F0` w1 @ 0x0015D5F0 <- aug6 fumi/src/commonact (4 syms rebound)
+- PORTED `func_0015D6B0` w1 @ 0x0015D6B0 <- aug6 fumi/src/commonact (2 syms rebound)
+- PORTED `func_0015DF30` w1 @ 0x0015DF30 <- aug6 fumi/src/commonact (4 syms rebound)
+- PORTED `func_0015E2A8` w1 @ 0x0015E2A8 <- aug6 fumi/src/commonact (2 syms rebound)
+- PORTED `func_0015E428` w1 @ 0x0015E428 <- aug6 fumi/src/commonact (2 syms rebound)
+- PORTED `func_0015E478` w1 @ 0x0015E478 <- aug6 fumi/src/commonact (6 syms rebound)
+- PORTED `func_0015E638` w1 @ 0x0015E638 <- aug6 fumi/src/commonact (2 syms rebound)
+- PORTED `func_0015E678` w1 @ 0x0015E678 <- aug6 fumi/src/commonact (3 syms rebound)
+- PORTED `func_0015E790` w1 @ 0x0015E790 <- aug6 fumi/src/commonact (2 syms rebound)
+- PORTED `func_0015ED60` w1 @ 0x0015ED60 <- aug6 fumi/src/commonact (5 syms rebound)
+- REVERTED `func_0015E6D8` w1 @ 0x0015E6D8 — [callee-sig-conflict] src/commonact.c:5: conflicting types for `func_00240038_p'
+- REVERTED `func_0015E730` w1 @ 0x0015E730 — [callee-sig-conflict] src/commonact.c:5: conflicting types for `func_00240038_p'
+- REVERTED `func_00158690` w3 @ 0x00158690 — [codegen] insn 8: expected `lw	a0,200(v1)` built `lw	a0,184(v1)`
+- REVERTED `func_0015D5A0` w3 @ 0x0015D5A0 — [codegen] insn 7: expected `addiu	a1,a1,352` built `addiu	a1,a1,336`
+- REVERTED `func_0015D7E8` w3 @ 0x0015D7E8 — [codegen] insn 10: expected `addiu	a1,s0,1216` built `addiu	a1,s0,1232`
+- REVERTED `func_0015D860` w3 @ 0x0015D860 — [codegen] insn 10: expected `addiu	a1,s0,1216` built `addiu	a1,s0,1232`
+- REVERTED `func_0015D8D8` w3 @ 0x0015D8D8 — [codegen] insn 23: expected `jal	0 <func_0015D8D8>` built `jal	5840 <BoxBarSoundOn>`
+- REVERTED `func_0015D950` w3 @ 0x0015D950 — [codegen] insn 7: expected `jal	0 <func_0015D950>` built `jal	5840 <BoxBarSoundOn>`
+- REVERTED `func_0015D988` w3 @ 0x0015D988 — [codegen] insn 7: expected `jal	0 <func_0015D988>` built `jal	6ec0 <funcCommonJumpDircorrect>`
+- REVERTED `func_0015D9D0` w3 @ 0x0015D9D0 — [codegen] insn 13: expected `jal	0 <func_0015D9D0>` built `jal	5840 <BoxBarSoundOn>`
+- REVERTED `func_0015DB58` w3 @ 0x0015DB58 — [codegen] insn 13: expected `addiu	a1,zero,210` built `addiu	a1,zero,207`
+- REVERTED `func_0015DBB0` w3 @ 0x0015DBB0 — [codegen] insn 7: expected `jal	0 <func_0015DBB0>` built `jal	5840 <BoxBarSoundOn>`
+- REVERTED `func_0015DC10` w3 @ 0x0015DC10 — [codegen] insn 23: expected `jal	0 <func_0015DC10>` built `jal	8b70 <ContinueCorrectPosition>`
+- REVERTED `func_0015DCE8` w3 @ 0x0015DCE8 — [codegen] insn 19: expected `jal	0 <func_0015DCE8>` built `jal	8b70 <ContinueCorrectPosition>`
+- REVERTED `func_0015DD78` w3 @ 0x0015DD78 — [codegen] insn 20: expected `jal	0 <func_0015DD78>` built `jal	1918 <func_00157DA0>`
+- REVERTED `func_0015DE38` w3 @ 0x0015DE38 — [codegen] insn 20: expected `addiu	a1,zero,58` built `addiu	a1,zero,57`
+- REVERTED `func_0015DEB0` w3 @ 0x0015DEB0 — [codegen] insn 12: expected `jal	0 <func_0015DEB0>` built `jal	1940 <WithMailFunc_AttackRejectInQueen>`
+- REVERTED `func_0015E080` w3 @ 0x0015E080 — [callee-sig-conflict] src/commonact.c:5: conflicting types for `func_00240038_p'
+- REVERTED `func_0015E118` w3 @ 0x0015E118 — [codegen] insn 29: expected `addiu	a1,zero,158` built `addiu	a1,zero,156`
+- REVERTED `func_0015E2C8` w3 @ 0x0015E2C8 — [callee-sig-conflict] src/commonact.c:7: conflicting types for `ChangeFieldCollisionDebugMode'
+- REVERTED `func_0015E3F8` w3 @ 0x0015E3F8 — [codegen] insn 5: expected `jal	0 <func_0015E3F8>` built `jal	5840 <BoxBarSoundOn>`
+- REVERTED `func_0015E4E0` w3 @ 0x0015E4E0 — [codegen] insn 5: expected `jal	0 <func_0015E4E0>` built `jal	5840 <BoxBarSoundOn>`
+- REVERTED `func_0015E510` w3 @ 0x0015E510 — [codegen] insn 4: expected `addiu	s4,zero,237` built `addiu	s4,zero,235`
+- REVERTED `func_0015E5C8` w3 @ 0x0015E5C8 — [codegen] insn 20: expected `addiu	a1,zero,228` built `addiu	a1,zero,225`
+
+### src/enemy_act.c
+- REVERTED `func_001649D0` w3 @ 0x001649D0 — [unresolved-symbol] unresolved-symbol: insn 72 `D_00271240`: no retail lui partner for %lo (+6 more)
+- REVERTED `func_001659F8` w3 @ 0x001659F8 — [codegen] insn 9: expected `addiu	s0,s0,272` built `addiu	s0,s0,256`
+- REVERTED `func_00165A88` w3 @ 0x00165A88 — [codegen] insn 1: expected `addiu	a1,zero,336` built `addiu	a1,zero,332`
+- REVERTED `func_00165AD8` w3 @ 0x00165AD8 — [codegen] insn 12: expected `addiu	a1,zero,345` built `addiu	a1,zero,341`
 
 ### src/girl_act.c
-- REVERTED `actGirlDitch3mReady` w3 @ 0x0016EB68 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/girl_act.c
-- REVERTED `actGirlAttack` w3 @ 0x00174D78 — [codegen] insn 1: expected `addiu	a1,zero,253` built `addiu	a1,zero,250`
-
-### src/Basic.c
-- REVERTED `dma_init` w3 @ 0x001F6AA0 — [codegen] [§fp-licm] loop-invariant FP value kept in $f2x (lwc1) vs re-materialized (mtc1)
-
-### src/girl_act.c
-- REVERTED `actGirlDitch3mReady` w3 @ 0x0016EB68 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/girl_act.c
-- REVERTED `actGirlAttack` w3 @ 0x00174D78 — [codegen] insn 1: expected `addiu	a1,zero,253` built `addiu	a1,zero,250`
-
-### src/st20a.c
-- REVERTED `actSt20aExit` w3 @ 0x00233C48 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st20a.c
-- REVERTED `actSt20aEne` w3 @ 0x00233D70 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st20a.c
-- REVERTED `actSt20aBridgeMain` w3 @ 0x00233F80 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st20a.c
-- REVERTED `actSt20aBridgeSwitch` w3 @ 0x00233FF8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st20a.c
-- REVERTED `actSt20aGondolaMain` w3 @ 0x00234070 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st20a.c
-- REVERTED `actSt20aGondolaSwitch` w3 @ 0x002340E8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st20a.c
-- REVERTED `actSt20aEnemy1` w3 @ 0x00233DE8 — [codegen] insn 23: expected `addiu	a0,zero,135` built `addiu	a0,zero,134`
-
-### src/st20a.c
-- REVERTED `actSt20aInit` w3 @ 0x00231F18 — [codegen] insn 7: expected `addiu	a0,zero,554` built `addiu	a0,zero,553`
-
-### src/st20a.c
-- REVERTED `actSt20aGondolaUp` w3 @ 0x002324E0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st20a.c
-- REVERTED `actSt20aGondolaDown` w3 @ 0x00232350 — [codegen] insn 33: expected `addiu	a0,s0,0` built `addiu	a0,s0,760`
-
-### src/st20a.c
-- REVERTED `actSt20aExit` w3 @ 0x00233C48 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st20a.c
-- REVERTED `actSt20aEne` w3 @ 0x00233D70 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st20a.c
-- REVERTED `actSt20aBridgeMain` w3 @ 0x00233F80 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st20a.c
-- REVERTED `actSt20aBridgeSwitch` w3 @ 0x00233FF8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st20a.c
-- REVERTED `actSt20aGondolaMain` w3 @ 0x00234070 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st20a.c
-- REVERTED `actSt20aGondolaSwitch` w3 @ 0x002340E8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st20a.c
-- REVERTED `actSt20aEnemy1` w3 @ 0x00233DE8 — [codegen] insn 23: expected `addiu	a0,zero,135` built `addiu	a0,zero,134`
-
-### src/st20a.c
-- REVERTED `actSt20aInit` w3 @ 0x00231F18 — [codegen] insn 7: expected `addiu	a0,zero,554` built `addiu	a0,zero,553`
-
-### src/st20a.c
-- REVERTED `actSt20aGondolaUp` w3 @ 0x002324E0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st20a.c
-- REVERTED `actSt20aGondolaDown` w3 @ 0x00232350 — [codegen] insn 33: expected `addiu	a0,s0,0` built `addiu	a0,s0,760`
-
-### src/st20a.c
-- REVERTED `actSt20aElv` w0 @ 0x00233CC0 — [unresolved-symbol] unresolved-symbol: insn 37 `func_00178DB0`: no aligned retail slot
-
-### src/st01b.c
-- REVERTED `actSt01bEnemy1` w3 @ 0x002106C0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st01b.c
-- REVERTED `actSt01bEnemy5` w3 @ 0x00210908 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st01b.c
-- REVERTED `actSt01bWayOffChk` w3 @ 0x00210D78 — [codegen] insn 8: expected `addiu	a0,zero,162` built `addiu	a0,zero,161`
-
-### src/st01b.c
-- REVERTED `actSt01bFloorChk` w3 @ 0x00210298 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st01b.c
-- REVERTED `actSt01bInit` w3 @ 0x0020FF68 — [codegen] insn 27: expected `addiu	a0,s2,0` built `addiu	a0,s2,2688`
-
-### src/deja.c
-- REVERTED `actDejaChk` w3 @ 0x00207DF0 — [codegen] insn 14: expected `addiu	a0,a0,0` built `addiu	a0,a0,248`
-
-### src/deja.c
-- REVERTED `actDejaAfterChk` w3 @ 0x00208228 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/deja.c
-- REVERTED `actDeja` w3 @ 0x002083B0 — [codegen] insn 12: expected `lui	s1,0x21` built `lui	s1,0x0`
-
-### src/motionManager.c
-- REVERTED `_checkCliffAndWall` w3 @ 0x001D9C58 — [codegen] insn 10: expected `lwc1	$f0,464(v0)` built `lwc1	$f0,448(v0)`
-
-### src/motionManager.c
-- REVERTED `checkCliffAndWallStateAtJump` w3 @ 0x001D9E10 — [codegen] insn 15: expected `lwc1	$f14,440(v0)` built `lwc1	$f14,424(v0)`
-
-### src/motionManager.c
-- REVERTED `checkCliffState` w3 @ 0x001D9BB8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st04r.c
-- REVERTED `actSt04rCrest2Main` w3 @ 0x0021D960 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st04r.c
-- REVERTED `actSt04rCrest3Main` w3 @ 0x0021D9D8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st04r.c
-- REVERTED `actSt04rSolarBeam` w3 @ 0x0021DA50 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st04r.c
-- REVERTED `actSt04rSolarBeamChk` w3 @ 0x0021DAC8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st04r.c
-- REVERTED `actSt04rBrg2Chk` w3 @ 0x0021DFC0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st04r.c
-- REVERTED `actSt04rC1BallTurn` w3 @ 0x0021D600 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st04r.c
-- REVERTED `actSt04rBrg1Chk` w3 @ 0x0021DDE0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st04r.c
-- REVERTED `actSt05eInit` w3 @ 0x0021D560 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st04r.c
-- REVERTED `actSt04rRope3Chk` w3 @ 0x0021DE78 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st04r.c
-- REVERTED `actSt04rCrestMain` w3 @ 0x0021D8C0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st04r.c
-- REVERTED `actSt04rStairChk` w3 @ 0x0021DB40 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st04r.c
-- REVERTED `actSt04rSekizoChk` w3 @ 0x0021DBE8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st04r.c
-- REVERTED `actSt04rRope1Chk` w3 @ 0x0021DC90 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st04r.c
-- REVERTED `actSt04rRope2Chk` w3 @ 0x0021DD38 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st04r.c
-- REVERTED `actSt04rRope4Chk` w3 @ 0x0021DF18 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st04r.c
-- REVERTED `actSt04rC2BallTurn` w3 @ 0x0021D698 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st04r.c
-- REVERTED `actSt04rC3BallTurn` w3 @ 0x0021D750 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st04r.c
-- REVERTED `actSt04rCrest02` w3 @ 0x0021D808 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st04r.c
-- REVERTED `actSt05cInit` w3 @ 0x0021D340 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st04r.c
-- REVERTED `actSt05dInit` w3 @ 0x0021D420 — [codegen] insn 37: expected `addiu	a0,zero,220` built `addiu	a0,zero,219`
-
-### src/st04r.c
-- REVERTED `actSt05eEnd` w3 @ 0x0021D188 — [codegen] insn 63: expected `addiu	a0,zero,219` built `addiu	a0,zero,218`
-
-### src/st47a.c
-- REVERTED `actSt47aSekizo1` w3 @ 0x00236730 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st47a.c
-- REVERTED `actSt47aHane1` w3 @ 0x00236A00 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st47a.c
-- REVERTED `actSt47aRope` w3 @ 0x00236B30 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st47a.c
-- REVERTED `actSt47aSekizo2` w3 @ 0x002367A8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st47a.c
-- REVERTED `actSt47aSekizo3` w3 @ 0x00236870 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st47a.c
-- REVERTED `actSt47aSekizo4` w3 @ 0x00236938 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st47a.c
-- REVERTED `actSt47aTorch` w3 @ 0x00236660 — [codegen] insn 13: expected `addiu	a0,zero,716` built `addiu	a0,zero,715`
-
-### src/st47a.c
-- REVERTED `actSt47aEnemy1` w3 @ 0x00236588 — [codegen] insn 13: expected `addiu	a0,zero,715` built `addiu	a0,zero,714`
-
-### src/st47a.c
-- REVERTED `actSt47aRopeChk` w3 @ 0x00236478 — [codegen] insn 26: expected `addiu	a0,zero,104` built `addiu	a0,zero,103`
-
-### src/st47a.c
-- REVERTED `actSt47aEnd` w3 @ 0x00235E98 — [codegen] insn 23: expected `addiu	a0,zero,101` built `addiu	a0,zero,100`
-
-### src/st47a.c
-- REVERTED `actSt47aInit` w3 @ 0x00235C70 — [codegen] insn 24: expected `lui	s3,0x4d` built `lui	s3,0x0`
-
-### src/st47a.c
-- REVERTED `actSt47aSekizo1Chk` w3 @ 0x00235FD8 — [codegen] insn 24: expected `lui	s3,0x4d` built `lui	s3,0x0`
-
-### src/way_tool.c
-- REVERTED `debug_WayTool` w0 @ 0x00207168 — [codegen] insn 31: expected `sll	zero,zero,0x0` built `<end>`
-
-### src/commonact.c
-- REVERTED `actCommonBecarry` w3 @ 0x0015EF50 — [codegen] insn 6: expected `sw	v0,288(s0)` built `sw	v0,272(s0)`
-
-### src/commonact.c
-- REVERTED `ACTSetPositionWithFitting` w3 @ 0x00156488 — [codegen] insn 9: expected `lw	a0,320(a0)` built `lw	a0,304(a0)`
-
-### src/commonact.c
-- REVERTED `ACTSendMailCorrect` w3 @ 0x0015EE78 — [codegen] insn 19: expected `sw	zero,1056(v0)` built `sw	zero,1040(v0)`
-
-### src/commonact.c
-- REVERTED `funcCommonFallDircorrect` w3 @ 0x0015D358 — [codegen] insn 9: expected `swc1	$f0,272(a3)` built `swc1	$f0,256(a3)`
-
-### src/commonact.c
-- REVERTED `subCommonIdle` w3 @ 0x0015EF88 — [codegen] insn 19: expected `addiu	s0,s0,224` built `addiu	s0,s0,208`
-
-### src/commonact.c
-- REVERTED `BoxBarSoundOn` w3 @ 0x0015BCC8 — [codegen] insn 0: expected `addiu	v0,zero,168` built `addiu	v0,zero,166`
-
-### src/commonact.c
-- REVERTED `ACTSetPositionNodeWithFitting` w3 @ 0x001564D0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/commonact.c
-- REVERTED `correctJumpOrientByChain` w3 @ 0x0015D3C0 — [codegen] insn 6: expected `lw	t1,1184(a2)` built `lw	t1,1168(a2)`
-
-### src/commonact.c
-- REVERTED `_boxbar_set_sound` w3 @ 0x0015C130 — [codegen] insn 5: expected `jal	0 <_boxbar_set_sound>` built `jal	8b00 <subCommonIdle>`
-
-### src/commonact.c
-- REVERTED `motCommonRopeTurnL` w3 @ 0x00158770 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
-
-### src/motionOrientManager.c
-- REVERTED `orientDebug` w3 @ 0x001E0988 — [codegen] insn 8: expected `lw	v1,2012(a1)` built `lw	v1,1996(a1)`
-
-### src/motionOrientManager.c
-- REVERTED `GetNbMotionFrames` w3 @ 0x001E09F8 — [codegen] insn 10: expected `lw	v1,2012(a1)` built `lw	v1,1996(a1)`
-
-### src/motionOrientManager.c
-- REVERTED `SetParallelMotionTable` w3 @ 0x001E3F40 — [codegen] insn 8: expected `lw	s0,1136(v0)` built `lw	s0,1120(v0)`
-
-### src/motionOrientManager.c
-- REVERTED `ExecutePauseSlipProc` w3 @ 0x001E4548 — [codegen] insn 15: expected `xori	v0,v0,0x43d` built `xori	v0,v0,0x43f`
-
-### src/motionOrientManager.c
-- REVERTED `shiftMotionData` w3 @ 0x001E0C98 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/motionOrientManager.c
-- REVERTED `ForTest_ForceShiftMotion` w3 @ 0x001E10F0 — [codegen] [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
-
-### src/motionOrientManager.c
-- REVERTED `CopyBlendMotionDataSource` w3 @ 0x001E3D08 — [codegen] insn 11: expected `lw	a0,2112(v1)` built `lw	a0,2096(v1)`
-
-### src/motionOrientManager.c
-- SKIPPED `shiftMotionOrientEndFunc` w3 @ 0x001E0D50 — jtbl
-
-### src/e3.c
-- REVERTED `actE3CageFallEffect` w3 @ 0x0020A578 — [codegen] insn 6: expected `addiu	a0,zero,331` built `addiu	a0,zero,330`
-
-### src/e3.c
-- REVERTED `actE3TitleFrameChk` w3 @ 0x00209F58 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/e3.c
-- REVERTED `actE3St13cInit` w3 @ 0x0020A2D0 — [codegen] insn 7: expected `addiu	a0,zero,326` built `addiu	a0,zero,325`
-
-### src/e3.c
-- REVERTED `actE3Title` w3 @ 0x00209E88 — [codegen] insn 17: expected `addiu	a0,zero,332` built `addiu	a0,zero,331`
-
-### src/e3.c
-- REVERTED `actE3Capsule` w3 @ 0x0020A0A0 — [codegen] insn 17: expected `addiu	a0,zero,330` built `addiu	a0,zero,329`
-
-### src/e3.c
-- REVERTED `actE3CapsuleDemoCancel` w3 @ 0x0020A150 — [codegen] insn 17: expected `addiu	a0,zero,330` built `addiu	a0,zero,329`
-
-### src/e3.c
-- REVERTED `actE3CageFallDemo` w3 @ 0x0020A4C0 — [codegen] insn 7: expected `addiu	a0,zero,327` built `addiu	a0,zero,326`
-
-### src/e3.c
-- REVERTED `actE3WarningChk` w3 @ 0x00209DD0 — [codegen] insn 17: expected `addiu	a0,zero,332` built `addiu	a0,zero,331`
-
-### src/e3.c
-- REVERTED `actE3Inst1Chk` w3 @ 0x00209FE8 — [codegen] insn 17: expected `addiu	a0,zero,330` built `addiu	a0,zero,329`
-
-### src/e3.c
-- REVERTED `actE3St09aSekizoChk` w3 @ 0x0020A668 — [codegen] insn 24: expected `addiu	a0,zero,330` built `addiu	a0,zero,329`
-
-### src/e3.c
-- REVERTED `actE3CageFall` w3 @ 0x0020A360 — [codegen] src/e3.c:119: incompatible types in assignment
-
-### src/e3.c
-- REVERTED `actE3GateDemo` w3 @ 0x0020A7B0 — [codegen] src/e3.c:119: incompatible types in assignment
-
-### src/e3.c
-- REVERTED `actE3Inst1` w3 @ 0x0020AEF0 — [codegen] src/e3.c:119: incompatible types in assignment
-
-### src/e3.c
-- REVERTED `actE3St01bInit` w3 @ 0x0020AB70 — [codegen] src/e3.c:119: incompatible types in assignment
-
-### src/e3.c
-- REVERTED `actE3Warning` w3 @ 0x0020ACB0 — [codegen] src/e3.c:119: incompatible types in assignment
-
-### src/e3.c
-- REVERTED `actE3GateJimaku` w3 @ 0x0020A8C0 — [codegen] src/e3.c:119: incompatible types in assignment
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/e3.c
-
-### src/BgAnimation.c
-- REVERTED `bga_GetCameraMatrix` w3 @ 0x001FA5E0 — [codegen] insn 14: expected `addiu	a1,zero,996` built `addiu	a1,zero,899`
-
-### src/BgAnimation.c
-- REVERTED `bga_CalcSdfCamera` w3 @ 0x001F9DD8 — [codegen] src/BgAnimation.c:131: invalid lvalue in increment
-
-### src/BgAnimation.c
-
-### src/BgAnimation.c
-
-### src/st04l.c
-- REVERTED `actSt04cInit` w3 @ 0x0021AD40 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st04l.c
-- REVERTED `actSt04lCrestMain` w3 @ 0x0021B9D0 — [codegen] insn 33: expected `addiu	a0,zero,196` built `addiu	a0,zero,195`
-
-### src/st04l.c
-- REVERTED `actSt04lStairChk` w3 @ 0x0021BD80 — [codegen] insn 33: expected `addiu	a0,zero,197` built `addiu	a0,zero,196`
-
-### src/st04l.c
-- REVERTED `actSt04lC3BallTurn` w3 @ 0x0021B750 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st04l.c
-- REVERTED `actSt04lCrest02` w3 @ 0x0021B890 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st04l.c
-- REVERTED `actSt04lCrest2Main` w3 @ 0x0021BB00 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st04l.c
-- REVERTED `actSt04lCrest3Main` w3 @ 0x0021BC40 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st04l.c
-- REVERTED `actSt04lC1BallTurn` w3 @ 0x0021B2E8 — [codegen] insn 9: expected `addiu	a0,zero,1110` built `addiu	a0,zero,1107`
-
-### src/st04l.c
-- REVERTED `actSt04lMonyou02Chk` w3 @ 0x0021CE30 — [codegen] insn 38: expected `addiu	a1,zero,59` built `addiu	a1,zero,58`
-
-### src/st04l.c
-- REVERTED `actSt04eInit` w3 @ 0x0021B010 — [codegen] insn 13: expected `addiu	a0,zero,1030` built `addiu	a0,zero,1027`
-
-### src/st05e.c
-- REVERTED `actSt05eWater` w3 @ 0x0021FD20 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st05e.c
-- REVERTED `actSt05eWaterSwitch` w3 @ 0x00220008 — [codegen] insn 20: expected `addiu	a0,zero,286` built `addiu	a0,zero,285`
-
-### src/st05e.c
-- REVERTED `actSt05eWaterStop` w3 @ 0x002200E0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st05e.c
-- REVERTED `actSt05eSolar` w3 @ 0x0021FDB8 — [codegen] insn 26: expected `addiu	a0,zero,284` built `addiu	a0,zero,283`
-
-### src/st05e.c
-- REVERTED `actSt05eWaterMain` w3 @ 0x0021FEE0 — [codegen] insn 26: expected `addiu	a0,zero,285` built `addiu	a0,zero,284`
-
-### src/st05e.c
-- REVERTED `actSt05eWaterFlagOn` w3 @ 0x002201C8 — [codegen] insn 9: expected `addiu	a0,zero,1304` built `addiu	a0,zero,1300`
-
-### src/st05e.c
-- REVERTED `actSt05eSolarChk` w3 @ 0x0021FA30 — [codegen] insn 5: expected `addiu	a0,zero,295` built `addiu	a0,zero,294`
-
-### src/st05e.c
-
-### src/st05e.c
-
-### src/st05e.c
-
-### src/st05e.c
-
-### src/st05e.c
-
-### src/st05e.c
-
-### src/st05e.c
-
-### src/st05e.c
-
-### src/st05e.c
-
-### src/st05e.c
-
-### src/st05e.c
-
-### src/st05e.c
-
-### src/st05e.c
-
-### src/st05e.c
-
-### src/st02a.c
-- REVERTED `actSt02aBox` w3 @ 0x00211590 — [codegen] insn 15: expected `addiu	v1,v1,0` built `addiu	v1,v1,1216`
-
-### src/st02a.c
-- REVERTED `actSt02aInit` w3 @ 0x00211160 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st02a.c
-- REVERTED `actSt02aGondolaDown` w3 @ 0x00211518 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st02a.c
-- REVERTED `actSt02aBoxEvent2` w3 @ 0x00211620 — [codegen] insn 30: expected `addiu	v1,s1,0` built `addiu	v1,s1,1392`
-
-### src/st02a.c
-- REVERTED `actSt02aEne` w3 @ 0x002116D0 — [codegen] [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
-
-### src/st02a.c
-- REVERTED `actSt02aEnemy2` w3 @ 0x002117D0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st02a.c
-- REVERTED `actSt02aSekizo` w3 @ 0x002118D8 — [codegen] [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
-
-### src/st02a.c
-
-### src/st02a.c
-
-### src/st02a.c
-
-### src/st02a.c
-
-### src/st02a.c
-
-### src/st02a.c
-
-### src/st02a.c
-
-### src/enemy_act.c
-- REVERTED `actEnemy_isNormalEnemy` w3 @ 0x00165540 — [codegen] insn 11: expected `addiu	a1,zero,2002` built `addiu	a1,zero,1984`
-
-### src/enemy_act.c
-- REVERTED `actEnemyRestart` w3 @ 0x0015FB60 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/enemy_act.c
-- REVERTED `PairSetGeometry` w3 @ 0x0015FBD8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/enemy_act.c
-- REVERTED `_MustChase` w3 @ 0x0015F6F0 — [undeclared] src/enemy_act.c:59: `D_00632398' undeclared (first use in this function)
-
-### src/enemy_act.c
-- REVERTED `subEnemyBrain_ToBoy` w3 @ 0x00163D60 — [undeclared] src/enemy_act.c:9: `D_00558E10' undeclared (first use in this function)
-
-### src/enemy_act.c
-- REVERTED `IsEnemyBrainToGenerator` w3 @ 0x00165B80 — [undeclared] src/enemy_act.c:9: `D_00558E10' undeclared (first use in this function)
-
-### src/enemy_act.c
-
-### src/enemy_act.c
-
-### src/enemy_act.c
-
-### src/enemy_act.c
-
-### src/enemy_act.c
-
-### src/enemy_act.c
-
-### src/st06a.c
-- REVERTED `actSt06aShutterOpen` w3 @ 0x002224F8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st06a.c
-- REVERTED `actSt06aBox2` w3 @ 0x00222978 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st06a.c
-- REVERTED `actSt06aBox3` w3 @ 0x002229F0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st06a.c
-- REVERTED `actSt06aBoxEvent2` w3 @ 0x00222A68 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st06a.c
-- REVERTED `actSt06aWay` w3 @ 0x00222AE0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st06a.c
-- REVERTED `actSt06aTree` w3 @ 0x00222DF8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st06a.c
-- REVERTED `actSt06aBoxChk` w3 @ 0x00222570 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st06a.c
-- REVERTED `actSt06aStatueChk` w3 @ 0x00222610 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st06a.c
-- REVERTED `actSt06aBox` w3 @ 0x002228D8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st06a.c
-- REVERTED `actSt06aWallWay` w3 @ 0x00222B58 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st06a.c
-- REVERTED `actSt06aWallWay2` w3 @ 0x00222C00 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st06a.c
-- REVERTED `actSt06aStatue` w3 @ 0x00222CA8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st06a.c
-- REVERTED `actSt06aHead` w3 @ 0x00222D50 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st06a.c
-- REVERTED `actSt06aHeadChk` w3 @ 0x002226B0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st06a.c
-- REVERTED `actSt06aShutter` w3 @ 0x00222768 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st06a.c
-- REVERTED `actSt06aExit` w3 @ 0x00222820 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st06a.c
-- REVERTED `actSt06aDoorDownChk` w3 @ 0x00222188 — [codegen] insn 29: expected `addiu	a0,zero,201` built `addiu	a0,zero,200`
-
-### src/end.c
-- REVERTED `actSt27aEndChk` w3 @ 0x0020CA30 — [codegen] insn 23: expected `sw	v0,196(s0)` built `sw	v0,180(s0)`
-
-### src/end.c
-- REVERTED `actSt27aEndDemo` w3 @ 0x0020CAB8 — [codegen] insn 24: expected `sw	v0,196(s0)` built `sw	v0,180(s0)`
-
-### src/end.c
-- REVERTED `actEndDemo03` w3 @ 0x0020CB40 — [codegen] insn 29: expected `sw	v0,196(s0)` built `sw	v0,180(s0)`
-
-### src/end.c
-- REVERTED `actStaff3Demo` w3 @ 0x0020C868 — [codegen] insn 31: expected `sw	v0,196(s0)` built `sw	v0,180(s0)`
-
-### src/end.c
-- REVERTED `actEndDemo14` w3 @ 0x0020C910 — [codegen] insn 31: expected `sw	v0,196(s0)` built `sw	v0,180(s0)`
-
-### src/end.c
-- REVERTED `actEndDemo04` w3 @ 0x0020CBE0 — [codegen] insn 44: expected `sw	v0,196(s0)` built `sw	v0,180(s0)`
-
-### src/end.c
-- REVERTED `actConte14_2` w3 @ 0x0020B3F8 — [codegen] insn 25: expected `addiu	a2,zero,483` built `addiu	a2,zero,482`
-
-### src/end.c
-- REVERTED `actConte14_1` w3 @ 0x0020B138 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/end.c
-- REVERTED `actConte14_6` w3 @ 0x0020B7D8 — [codegen] insn 12: expected `addiu	a0,zero,780` built `addiu	a0,zero,779`
-
-### src/end.c
-- REVERTED `actEndDemo01` w3 @ 0x0020B028 — [codegen] insn 7: expected `addiu	a0,zero,764` built `addiu	a0,zero,763`
-
-### src/end.c
-- REVERTED `actStaff2Demo` w3 @ 0x0020C748 — [codegen] insn 6: expected `addiu	a0,zero,792` built `addiu	a0,zero,791`
-
-### src/end.c
-- REVERTED `actConte14_13` w3 @ 0x0020C3A0 — [codegen] insn 13: expected `addiu	a0,zero,786` built `addiu	a0,zero,785`
-
-### src/end.c
-- REVERTED `actEndDemo06` w3 @ 0x0020B4D8 — [codegen] insn 7: expected `addiu	a0,zero,769` built `addiu	a0,zero,768`
-
-### src/end.c
-- REVERTED `actEndDemo07` w3 @ 0x0020B8D8 — [codegen] insn 9: expected `addiu	a0,zero,523` built `addiu	a0,zero,522`
-
-### src/end.c
-- REVERTED `actConte14_7` w3 @ 0x0020BBF0 — [codegen] insn 5: expected `addiu	a0,zero,577` built `addiu	a0,zero,576`
-
-### src/end.c
-
-### src/end.c
-
-### src/end.c
-
-### src/end.c
-
-### src/end.c
-
-### src/end.c
-
-### src/end.c
-
-### src/end.c
-
-### src/end.c
-
-### src/end.c
-
-### src/end.c
-
-### src/end.c
-
-### src/end.c
-
-### src/end.c
-
-### src/end.c
-
-### ios/memory.c
-- REVERTED `iosMallocCheckLeak2` w3 @ 0x00139598 — [callee-sig-conflict] ios/memory.c:111: conflicting types for `iosMallocCheckLeak2'
-
-### src/act.c
-- REVERTED `actInitialize` w0 @ 0x00202208 — [codegen] insn 9: expected `addiu	a3,zero,898` built `addiu	a3,zero,892`
-
-### src/boyact.c
-- REVERTED `actBoyRescueSrc` w3 @ 0x00154B20 — [codegen] insn 19: expected `sdl	v1,455(v0)` built `sdl	v1,439(v0)`
-
-### src/boyact.c
-- REVERTED `actBoyRescueReady` w3 @ 0x00154390 — [codegen] insn 6: expected `lw	a0,320(s0)` built `lw	a0,304(s0)`
-
-### src/boyact.c
-- REVERTED `actBoySupportBGBegin` w3 @ 0x00154D20 — [codegen] insn 12: expected `addiu	s3,s0,256` built `addiu	s3,s0,240`
-
-### src/boyact.c
-- REVERTED `BoyBgaManager` w3 @ 0x0014E5E8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/boyact.c
-- REVERTED `actBoyHangBefore` w3 @ 0x001547B8 — [codegen] insn 23: expected `lw	v0,320(v1)` built `lw	v0,304(v1)`
-
-### src/boyact.c
-- REVERTED `E3_StageStartBoy` w3 @ 0x0014E708 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/boyact.c
-- REVERTED `CheckCollisionAttr` w3 @ 0x0014E300 — [unresolved-symbol] unresolved-symbol: insn 39 `D_006A45A0`: no retail lui partner for %lo
-
-### src/pool.c
-- REVERTED `flushWork` w3 @ 0x0010AB28 — [codegen] insn 7: expected `lw	v1,392(v0)` built `lw	v1,376(v0)`
-
-### src/motionOrientManager.c
-- SKIPPED `shiftMotionOrientEndFunc` w3 @ 0x001E0D50 — jtbl
-
-### src/boyact.c
-- REVERTED `CheckCollisionAttr` w3 @ 0x0014E300 — [unresolved-symbol] unresolved-symbol: insn 39 `D_006A45A0`: no retail lui partner for %lo
-
-### src/st04l.c
-- REVERTED `actSt04dInit` w0 @ 0x0021AE20 — [unresolved-symbol] unresolved-symbol: insn 119 `D_00629DE8`: retail slot is not $gp-based
-
-### src/motionOrientManager.c
-- SKIPPED `shiftMotionOrientEndFunc` w3 @ 0x001E0D50 — jtbl
+- REVERTED `func_00175420` w3 @ 0x00175420 — [codegen] insn 4: expected `addiu	a1,zero,356` built `addiu	a1,zero,352`
+- REVERTED `func_00175480` w3 @ 0x00175480 — [codegen] insn 6: expected `addiu	a1,zero,183` built `addiu	a1,zero,180`
+- REVERTED `func_001754B0` w3 @ 0x001754B0 — [codegen] insn 9: expected `addiu	a1,zero,374` built `addiu	a1,zero,370`
+- REVERTED `func_001755F8` w3 @ 0x001755F8 — [codegen] insn 9: expected `addiu	v0,zero,1` built `addiu	v0,zero,15`
+
+### src/st04c.c
+- REVERTED `func_00218518` w3 @ 0x00218518 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 
 ### src/st04e.c
-- REVERTED `actSt04eWaterFlagOn` w3 @ 0x00219D50 — [undeclared] src/st04e.c:98: structure has no member named `unkB4'
-
-### src/girl_act.c
-- REVERTED `actGirlJump` w0 @ 0x001756D0 — [codegen] insn 4: expected `sd	ra,32(sp)` built `lw	v1,0(sp)`
-
-### src/girl_act.c
-- REVERTED `actGirlAttack` w3 @ 0x00174D78 — [codegen] insn 1: expected `addiu	a1,zero,253` built `addiu	a1,zero,250`
-
-### src/motionManager.c
-- REVERTED `SkelTest` w0 @ 0x001DC720 — [codegen] [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
-
-### src/way_tool.c
-- REVERTED `debug_WayTool` w0 @ 0x00207168 — [codegen] insn 31: expected `sll	zero,zero,0x0` built `<end>`
-
-### src/commonact.c
-- REVERTED `_ACTCommonMailTest` w0 @ 0x0015EED0 — [codegen] insn 8: expected `addiu	sp,sp,-32` built `<end>`
-
-### src/commonact.c
-- REVERTED `ContinueCorrectPosition` w0 @ 0x0015EFF8 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
-
-### src/commonact.c
-- REVERTED `actCommonEdgeHang` w0 @ 0x0015E7F8 — [codegen] insn 16: expected `addiu	a1,zero,129` built `addiu	a1,zero,128`
-
-### src/motionOrientManager.c
-- SKIPPED `shiftMotionOrientEndFunc` w3 @ 0x001E0D50 — jtbl
-
-### src/e3.c
-- REVERTED `actE3CageFallChk` w0 @ 0x0020A430 — [codegen] insn 8: expected `sw	v0,192(a0)` built `sw	v0,176(a0)`
-
-### src/e3.c
-- REVERTED `actE3CapsuleDemo` w0 @ 0x0020A200 — [undeclared] src/e3.c:101: structure has no member named `unkB4'
-
-### src/BgAnimation.c
-- REVERTED `bga_InitSdfCamera` w0 @ 0x001FA658 — [unresolved-symbol] unresolved-symbol: insn 5 `D_0062C254`: retail slot is not $gp-based
-
-### src/BgAnimation.c
-- REVERTED `bga_resetObjectCounter` w0 @ 0x001F9418 — [undeclared] src/BgAnimation.c:84: `BGA_FRAME_SECONDS' undeclared (first use in this function)
-
-### src/BgAnimation.c
-- REVERTED `bga_calcEnvelope` w0 @ 0x001F88C0 — [unresolved-symbol] unresolved-symbol: insn 3 `func_001180D8`: no aligned retail slot (+2 more)
-
-### src/st04l.c
-- REVERTED `actSt04lBrg1Chk` w0 @ 0x0021C4C8 — [unresolved-symbol] unresolved-symbol: insn 21 `D_00629DE4`: no aligned retail slot (+2 more)
-
-### src/st04l.c
-- REVERTED `actSt04lRope3Chk` w0 @ 0x0021C620 — [unresolved-symbol] unresolved-symbol: insn 21 `D_00629DE4`: no aligned retail slot (+2 more)
-
-### src/st04l.c
-- REVERTED `actSt04lRope4Chk` w0 @ 0x0021C778 — [unresolved-symbol] unresolved-symbol: insn 21 `D_00629DE4`: no aligned retail slot (+2 more)
-
-### src/st04l.c
-- REVERTED `actSt04lBrg2Chk` w0 @ 0x0021C8D0 — [unresolved-symbol] unresolved-symbol: insn 21 `D_00629DE4`: no aligned retail slot (+2 more)
-
-### src/st04l.c
-- REVERTED `actSt04lSekizoChk` w0 @ 0x0021CA28 — [unresolved-symbol] unresolved-symbol: insn 21 `D_00629DE4`: no aligned retail slot (+2 more)
-
-### src/st04l.c
-- REVERTED `actSt04lGondolaChk` w0 @ 0x0021CB80 — [unresolved-symbol] unresolved-symbol: insn 21 `D_00629DE4`: no aligned retail slot (+2 more)
-
-### src/st04l.c
-- REVERTED `actSt04lMonyou01Chk` w0 @ 0x0021CCD8 — [unresolved-symbol] unresolved-symbol: insn 21 `D_00629DE4`: no aligned retail slot (+2 more)
-
-### src/st04l.c
-- REVERTED `actSt04dInit` w0 @ 0x0021AE20 — [unresolved-symbol] unresolved-symbol: insn 119 `D_00629DE8`: retail slot is not $gp-based
-
-### src/st02a.c
-- REVERTED `actSt02aEne` w3 @ 0x002116D0 — [undeclared] src/st02a.c:152: structure has no member named `unkB4'
-
-### src/st02a.c
-- REVERTED `actSt02aDoorUpEffect` w0 @ 0x00212138 — [unresolved-symbol] unresolved-symbol: insn 51 `D_004CBDA0`: no retail lui partner for %lo
-
-### src/st02a.c
-- REVERTED `actSt02aDoorEvent` w0 @ 0x00212008 — [unresolved-symbol] unresolved-symbol: insn 53 `D_004CBD80`: no retail lui partner for %lo
-
-### src/st02a.c
-- REVERTED `actSt02aSekizo` w3 @ 0x002118D8 — [undeclared] src/st02a.c:152: structure has no member named `unkB4'
-
-### src/st02a.c
-- REVERTED `actSt02aSecretItem` w0 @ 0x00211D18 — [undeclared] src/st02a.c:152: structure has no member named `unkB4'
-
-### src/enemy_act.c
-- REVERTED `funcEnemyAiGetGirl` w0 @ 0x00165018 — [codegen] insn 12: expected `addiu	a1,zero,183` built `addiu	a1,zero,180`
-
-### src/enemy_act.c
-- REVERTED `actEnemy_isLargeEnemy` w0 @ 0x001655B0 — [codegen] insn 5: expected `sw	zero,280(v0)` built `sw	zero,264(v0)`
-
-### src/st06a.c
-- REVERTED `actSt06aInit` w0 @ 0x00221AD0 — [unresolved-symbol] unresolved-symbol: insn 21 `D_00629DE4`: no aligned retail slot (+2 more)
-
-### src/st06a.c
-- REVERTED `actSt06aSuimon` w0 @ 0x00221C28 — [unresolved-symbol] unresolved-symbol: insn 21 `D_00629DE4`: no aligned retail slot (+2 more)
-
-### src/st06a.c
-- REVERTED `actSt06aSuimonChk` w0 @ 0x00221D80 — [unresolved-symbol] unresolved-symbol: insn 21 `D_00629DE4`: no aligned retail slot (+2 more)
-
-### src/st06a.c
-- REVERTED `actSt06aDoor` w0 @ 0x00221ED8 — [unresolved-symbol] unresolved-symbol: insn 21 `D_00629DE4`: no aligned retail slot (+2 more)
-
-### src/st06a.c
-- REVERTED `actSt06aDoorUpChk` w0 @ 0x00222030 — [unresolved-symbol] unresolved-symbol: insn 21 `D_00629DE4`: no aligned retail slot (+2 more)
-
-### src/end.c
-- REVERTED `actEndDemo11` w0 @ 0x0020CD60 — [unresolved-symbol] unresolved-symbol: insn 15 `D_0062A894`: no aligned retail slot
-
-### src/end.c
-- REVERTED `actEndDemo05` w0 @ 0x0020CCB8 — [undeclared] src/end.c:464: structure has no member named `unkB4'
-
-### src/boyact.c
-- REVERTED `actBoyTakeWeaponReady` w0 @ 0x00153918 — [codegen] insn 8: expected `lw	v0,1184(v1)` built `lw	v0,1168(v1)`
-
-### src/boyact.c
-- REVERTED `ditch_check_heroin_position` w0 @ 0x00153FF0 — [unresolved-symbol] unresolved-symbol: insn 11 `func_00152588`: retail symbol D_00154070 (0x00154070) undefined
-
-### src/boyact.c
-- REVERTED `actBoyPullupReady` w0 @ 0x001540A8 — [unresolved-symbol] unresolved-symbol: insn 11 `func_00152640`: retail symbol D_00154128 (0x00154128) undefined
-
-### src/boyact.c
-- REVERTED `actBoyPullupGo` w0 @ 0x00154160 — [unresolved-symbol] unresolved-symbol: insn 11 `func_001526F8`: retail symbol D_001541E0 (0x001541E0) undefined
-
-### src/boyact.c
-- REVERTED `actBoySupportGBBegin` w0 @ 0x00154B90 — [codegen] insn 6: expected `addiu	a1,zero,176` built `addiu	a1,zero,174`
-
-### src/boyact.c
-- REVERTED `CheckCollisionAttr` w3 @ 0x0014E300 — [unresolved-symbol] unresolved-symbol: insn 39 `D_006A45A0`: no retail lui partner for %lo
-
-### src/boyact.c
-- REVERTED `pullup_check_heroin_position` w0 @ 0x001539F0 — [codegen] insn 16: expected `addiu	sp,sp,-48` built `<end>`
-
-### src/boyact.c
-- REVERTED `hand_heroin` w0 @ 0x0014D868 — [codegen] insn 15: expected `addiu	a1,zero,85` built `addiu	a1,zero,84`
-
-### src/boyact.c
-- REVERTED `CheckCollisionAttr` w3 @ 0x0014E300 — [undeclared] src/boyact.c:108: `D_006A45A0u' undeclared (first use in this function)
-
-### src/boyact.c
-- REVERTED `ditch_check_heroin_position` w0 @ 0x00153FF0 — [unresolved-symbol] unresolved-symbol: insn 11 `func_00152588`: retail symbol func_00154070 (0x00154070) undefined
-
-### src/boyact.c
-- REVERTED `actBoyPullupReady` w0 @ 0x001540A8 — [unresolved-symbol] unresolved-symbol: insn 11 `func_00152640`: retail symbol func_00154128 (0x00154128) undefined
-
-### src/boyact.c
-- REVERTED `actBoyPullupGo` w0 @ 0x00154160 — [unresolved-symbol] unresolved-symbol: insn 11 `func_001526F8`: retail symbol func_001541E0 (0x001541E0) undefined
-
-### src/boyact.c
-- REVERTED `ditch_check_heroin_position` w0 @ 0x00153FF0 — [codegen] insn 9: expected `lui	v0,0x0` built `lui	v0,0x1`
-
-### src/boyact.c
-- REVERTED `actBoyPullupReady` w0 @ 0x001540A8 — [codegen] insn 9: expected `lui	v0,0x0` built `lui	v0,0x1`
-
-### src/boyact.c
-- REVERTED `actBoyPullupGo` w0 @ 0x00154160 — [codegen] insn 9: expected `lui	v0,0x0` built `lui	v0,0x1`
-
-### src/boyact.c
-- REVERTED `ditch_check_heroin_position` w0 @ 0x00153FF0 — [codegen] insn 9: expected `lui	v0,0x0` built `lui	v0,0x1`
-
-### src/boyact.c
-- REVERTED `actBoyPullupReady` w0 @ 0x001540A8 — [codegen] insn 9: expected `lui	v0,0x0` built `lui	v0,0x1`
-
-### src/boyact.c
-- REVERTED `actBoyPullupGo` w0 @ 0x00154160 — [codegen] insn 9: expected `lui	v0,0x0` built `lui	v0,0x1`
-
-### src/st05d.c
-- REVERTED `actSt05dDoor2UpChk` w3 @ 0x0021F470 — [codegen] [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
-
-### src/st03t.c
-- REVERTED `actSt03tGirlCamStartChk` w0 @ 0x00212AC8 — [unresolved-symbol] unresolved-symbol: insn 7 `D_0062A894`: retail slot is not $gp-based
-
-### src/st03t.c
-- REVERTED `actSt03tSwitchR` w3 @ 0x00212470 — [unresolved-symbol] unresolved-symbol: insn 18 `actSt02aSecretItem`: retail symbol D_00211EC8 (0x00211EC8) undefined
-
-### src/st03t.c
-- REVERTED `actSt03tWayOffChk` w0 @ 0x00212D78 — [codegen] insn 4: expected `sd	s2,48(sp)` built `sd	s1,32(sp)`
-
-### src/motionManager2.c
-- REVERTED `CheckPureCliffAttribute` w0 @ 0x0010A1A0 — [unresolved-symbol] unresolved-symbol: insn 19 `debug_assertMessage`: no aligned retail slot (+6 more)
-
-### src/jimaku.c
-- REVERTED `jimakuHandler` w0 @ 0x00175A98 — [unresolved-symbol] unresolved-symbol: insn 11 `func_001736D0`: retail symbol D_00175B18 (0x00175B18) undefined
-
-### src/st05c.c
-- REVERTED `actSt05cDoorDown` w0 @ 0x0021EF60 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/st05c.c
-- REVERTED `actSt05cDoorDownEvent` w0 @ 0x0021F1C8 — [unresolved-symbol] unresolved-symbol: insn 51 `D_00629DE8`: retail slot is not $gp-based
-
-### src/st04a.c
-- REVERTED `actSt04aGateLChk` w0 @ 0x00213B88 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
-
-### src/act_bird.c
-- REVERTED `Debug_WireString_Bird` w0 @ 0x00197240 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
-
-### src/GsBase.c
-- REVERTED `gsb_StageSettingTool` w0 @ 0x00113E60 — [codegen] [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
-
-### src/StageAnimation.c
-- REVERTED `stage_SetScale` w0 @ 0x001287E8 — [unresolved-symbol] unresolved-symbol: insn 2 `D_0062A054`: retail slot is not $gp-based
-
-### src/itou_boss.c
-- REVERTED `BossEnemyFunc` w0 @ 0x00198140 — [unresolved-symbol] unresolved-symbol: insn 32 `D_00556338`: no aligned retail slot
-
-### src/itou_boss.c
-- REVERTED `gene_enemy` w3 @ 0x00198218 — [codegen] [§5.9] rodata lui+addiu materialized late next to jal
+- REVERTED `func_0021A338` w3 @ 0x0021A338 — [codegen] insn 7: expected `addiu	v1,v1,0` built `addiu	v1,v1,2896`
 
 ### src/st13b2.c
-- REVERTED `actSt13b2Generator` w0 @ 0x0022A1B8 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+- REVERTED `func_0022A8E8` w3 @ 0x0022A8E8 — [codegen] insn 7: expected `addiu	v1,v1,0` built `addiu	v1,v1,272`
 
-### src/way_util.c
-- REVERTED `GetWgAll` w0 @ 0x00179438 — [codegen] insn 13: expected `addiu	a1,zero,95` built `addiu	a1,zero,65`
+### src/st13c.c
+- REVERTED `func_0022BF90` w3 @ 0x0022BF90 — [codegen] insn 7: expected `addiu	v1,v1,0` built `addiu	v1,v1,1520`
 
-### src/act_bird.c
-- REVERTED `subBirdBrainMain` w0 @ 0x00197160 — [codegen] insn 6: expected `lw	a0,0(sp)` built `lw	v0,0(sp)`
+### src/st17a.c
+- REVERTED `func_0022D7F0` w3 @ 0x0022D7F0 — [codegen] insn 11: expected `addiu	a1,zero,397` built `addiu	a1,zero,393`
 
-### src/st03t.c
-- REVERTED `actSt03tSwitchR` w3 @ 0x00212470 — [codegen] insn 19: expected `addiu	a1,zero,397` built `addiu	a1,zero,393`
-
-### src/jimaku.c
-- REVERTED `jimakuHandler` w0 @ 0x00175A98 — [codegen] insn 3: expected `lui	a0,0x0` built `lw	v0,0(sp)`
+### src/st19a.c
+- REVERTED `func_00231900` w3 @ 0x00231900 — [codegen] insn 11: expected `addiu	a1,zero,397` built `addiu	a1,zero,393`
+- REVERTED `func_00231988` w3 @ 0x00231988 — [codegen] insn 7: expected `addiu	v1,v1,0` built `addiu	v1,v1,2072`
 
 ### src/girl_act.c
-- REVERTED `actGirlAttack` w3 @ 0x00174D78 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `func_00175420` w3 @ 0x00175420 — [codegen] insn 4: expected `addiu	a1,zero,356` built `addiu	a1,zero,352`
+
+### src/girl_act.c
+- REVERTED `func_00175480` w3 @ 0x00175480 — [codegen] insn 6: expected `addiu	a1,zero,183` built `addiu	a1,zero,180`
+
+### src/girl_act.c
+- REVERTED `func_001754B0` w3 @ 0x001754B0 — [codegen] insn 9: expected `addiu	a1,zero,374` built `addiu	a1,zero,370`
+
+### src/girl_act.c
+- REVERTED `func_001755F8` w3 @ 0x001755F8 — [codegen] insn 9: expected `addiu	v0,zero,1` built `addiu	v0,zero,15`
+
+### src/enemy_act.c
+- REVERTED `func_001659F8` w3 @ 0x001659F8 — [codegen] insn 9: expected `addiu	s0,s0,272` built `addiu	s0,s0,256`
+
+### src/enemy_act.c
+- REVERTED `func_00165A88` w3 @ 0x00165A88 — [codegen] insn 1: expected `addiu	a1,zero,336` built `addiu	a1,zero,332`
+
+### src/enemy_act.c
+- REVERTED `func_00165AD8` w3 @ 0x00165AD8 — [codegen] insn 12: expected `addiu	a1,zero,345` built `addiu	a1,zero,341`
+
+### src/st17a.c
+- REVERTED `func_0022D7F0` w3 @ 0x0022D7F0 — [codegen] insn 11: expected `addiu	a1,zero,397` built `addiu	a1,zero,393`
+
+### src/st19a.c
+- REVERTED `func_00231900` w3 @ 0x00231900 — [codegen] insn 11: expected `addiu	a1,zero,397` built `addiu	a1,zero,393`
+
+### src/boyact.c
+- REVERTED `func_00151D78` w3 @ 0x00151D78 — [codegen] insn 66: expected `addiu	a1,zero,188` built `addiu	a1,zero,185`
+
+### src/boyact.c
+- REVERTED `func_00152508` w3 @ 0x00152508 — [codegen] insn 28: expected `addiu	a1,zero,77` built `addiu	a1,zero,76`
+
+### src/commonact.c
+- REVERTED `func_00158690` w3 @ 0x00158690 — [codegen] insn 8: expected `lw	a0,200(v1)` built `lw	a0,184(v1)`
+
+### src/commonact.c
+- REVERTED `func_0015D5A0` w3 @ 0x0015D5A0 — [codegen] insn 7: expected `addiu	a1,a1,352` built `addiu	a1,a1,336`
+
+### src/commonact.c
+- REVERTED `func_0015D7E8` w3 @ 0x0015D7E8 — [codegen] insn 10: expected `addiu	a1,s0,1216` built `addiu	a1,s0,1232`
+
+### src/commonact.c
+- REVERTED `func_0015D860` w3 @ 0x0015D860 — [codegen] insn 10: expected `addiu	a1,s0,1216` built `addiu	a1,s0,1232`
+
+### src/commonact.c
+- REVERTED `func_0015D8D8` w3 @ 0x0015D8D8 — [codegen] insn 23: expected `jal	0 <func_0015D8D8>` built `jal	5840 <BoxBarSoundOn>`
+
+### src/commonact.c
+- REVERTED `func_0015D950` w3 @ 0x0015D950 — [codegen] insn 7: expected `jal	0 <func_0015D950>` built `jal	5840 <BoxBarSoundOn>`
+
+### src/commonact.c
+- REVERTED `func_0015D988` w3 @ 0x0015D988 — [codegen] insn 7: expected `jal	0 <func_0015D988>` built `jal	6ec0 <funcCommonJumpDircorrect>`
+
+### src/commonact.c
+- REVERTED `func_0015D9D0` w3 @ 0x0015D9D0 — [codegen] insn 13: expected `jal	0 <func_0015D9D0>` built `jal	5840 <BoxBarSoundOn>`
+
+### src/commonact.c
+- REVERTED `func_0015DB58` w3 @ 0x0015DB58 — [codegen] insn 13: expected `addiu	a1,zero,210` built `addiu	a1,zero,207`
+
+### src/commonact.c
+- REVERTED `func_0015DBB0` w3 @ 0x0015DBB0 — [codegen] insn 7: expected `jal	0 <func_0015DBB0>` built `jal	5840 <BoxBarSoundOn>`
+
+### src/commonact.c
+- REVERTED `func_0015DC10` w3 @ 0x0015DC10 — [codegen] insn 23: expected `jal	0 <func_0015DC10>` built `jal	8b70 <ContinueCorrectPosition>`
+
+### src/commonact.c
+- REVERTED `func_0015DCE8` w3 @ 0x0015DCE8 — [codegen] insn 19: expected `jal	0 <func_0015DCE8>` built `jal	8b70 <ContinueCorrectPosition>`
+
+### src/commonact.c
+- REVERTED `func_0015DD78` w3 @ 0x0015DD78 — [codegen] insn 20: expected `jal	0 <func_0015DD78>` built `jal	1918 <func_00157DA0>`
+
+### src/commonact.c
+- REVERTED `func_0015DE38` w3 @ 0x0015DE38 — [codegen] insn 20: expected `addiu	a1,zero,58` built `addiu	a1,zero,57`
+
+### src/commonact.c
+- REVERTED `func_0015DEB0` w3 @ 0x0015DEB0 — [codegen] insn 12: expected `jal	0 <func_0015DEB0>` built `jal	1940 <WithMailFunc_AttackRejectInQueen>`
+
+### src/commonact.c
+- REVERTED `func_0015E118` w3 @ 0x0015E118 — [codegen] insn 29: expected `addiu	a1,zero,158` built `addiu	a1,zero,156`
+
+### src/commonact.c
+- REVERTED `func_0015E3F8` w3 @ 0x0015E3F8 — [codegen] insn 5: expected `jal	0 <func_0015E3F8>` built `jal	5840 <BoxBarSoundOn>`
+
+### src/commonact.c
+- REVERTED `func_0015E4E0` w3 @ 0x0015E4E0 — [codegen] insn 5: expected `jal	0 <func_0015E4E0>` built `jal	5840 <BoxBarSoundOn>`
+
+### src/commonact.c
+- REVERTED `func_0015E510` w3 @ 0x0015E510 — [codegen] insn 4: expected `addiu	s4,zero,237` built `addiu	s4,zero,235`
+
+### src/commonact.c
+- REVERTED `func_0015E5C8` w3 @ 0x0015E5C8 — [codegen] insn 20: expected `addiu	a1,zero,228` built `addiu	a1,zero,225`
+
+### src/boyact.c
+- REVERTED `func_00151868` w1 @ 0x00151868 — [codegen] insn 35: expected `lui	at,0x42a0` built `lui	at,0x42b4`
+
+### src/boyact.c
+- REVERTED `func_001519D8` w1 @ 0x001519D8 — [codegen] insn 74: expected `ld	a1,0(at)` built `ld	a1,16(at)`
+
+### src/camera-ico2.c
+
+### src/st04c.c
+- REVERTED `func_00218518` w3 @ 0x00218518 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
 
 ### src/st04e.c
-- REVERTED `actSt04eWaterFlagOn` w3 @ 0x00219D50 — [undeclared] src/st04e.c:98: structure has no member named `unkB4'
-
-### src/st02a.c
-- REVERTED `actSt02aEne` w3 @ 0x002116D0 — [undeclared] src/st02a.c:152: structure has no member named `unkB4'
-
-### src/st02a.c
-- REVERTED `actSt02aSekizo` w3 @ 0x002118D8 — [undeclared] src/st02a.c:152: structure has no member named `unkB4'
-
-### src/st02a.c
-- REVERTED `actSt02aEne` w3 @ 0x002116D0 — [undeclared] src/st02a.c:152: structure has no member named `unkB4'
-
-### src/st05c.c
-- REVERTED `actSt05cDoorDownEvent` w0 @ 0x0021F1C8 — [codegen] insn 29: expected `addiu	a0,zero,259` built `addiu	a0,zero,258`
-
-### src/st03t.c
-- REVERTED `actSt03tGirlCamStartChk` w0 @ 0x00212AC8 — [codegen] insn 7: expected `sw	v0,192(a0)` built `sw	zero,0(gp)`
-
-### src/StageAnimation.c
-- REVERTED `stage_SetScale` w0 @ 0x001287E8 — [codegen] insn 0: expected `addiu	sp,sp,-32` built `sw	zero,0(gp)`
-
-### src/itou_boss.c
-- REVERTED `BossEnemyFunc` w0 @ 0x00198140 — [codegen] [§5.9] rodata lui+addiu materialized late next to jal
-
-### src/motionManager2.c
-- REVERTED `CheckPureCliffAttribute` w0 @ 0x0010A1A0 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
-
-### src/itou_boss.c
-- REVERTED `BossEnemyFunc` w0 @ 0x00198140 — [codegen] [§5.9] rodata lui+addiu materialized late next to jal
-
-### src/st03t.c
-- REVERTED `actSt03tWayOffChk` w0 @ 0x00212D78 — [codegen] insn 4: expected `sd	s2,48(sp)` built `sd	s1,32(sp)`
-- REVERTED `actSt03tWayOffChk` — pass-deferred: rc6 two-allocno %hi tie (s1/s2) (post-hoc, bisected)
-
-### src/jimaku.c
-- REVERTED `jimakuHandler` w0 @ 0x00175A98 — [codegen] insn 3: expected `lui	a0,0x0` built `lw	v0,0(sp)`
+- REVERTED `func_0021A338` w3 @ 0x0021A338 — [codegen] insn 7: expected `addiu	v1,v1,0` built `addiu	v1,v1,2896`
 
 ### src/st13b2.c
-- REVERTED `actSt13b2Generator` w0 @ 0x0022A1B8 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+- REVERTED `func_0022A8E8` w3 @ 0x0022A8E8 — [codegen] insn 7: expected `addiu	v1,v1,0` built `addiu	v1,v1,272`
+
+### src/st13c.c
+- REVERTED `func_0022BF90` w3 @ 0x0022BF90 — [codegen] insn 7: expected `addiu	v1,v1,0` built `addiu	v1,v1,1520`
+
+### src/st19a.c
+- REVERTED `func_00231988` w3 @ 0x00231988 — [codegen] insn 7: expected `addiu	v1,v1,0` built `addiu	v1,v1,2072`
+
+### src/jimaku.c
+- REVERTED `func_00175980` w3 @ 0x00175980 — [codegen] insn 6: expected `addiu	a1,zero,318` built `addiu	a1,zero,314`
+
+### src/jimaku.c
+- REVERTED `func_00175A58` w3 @ 0x00175A58 — [codegen] insn 7: expected `addiu	a1,zero,89` built `addiu	a1,zero,98`
+
+### src/jimaku.c
+- REVERTED `func_00175BD8` w3 @ 0x00175BD8 — [codegen] insn 7: expected `addiu	a1,zero,99` built `addiu	a1,zero,98`
+
+### src/commonact.c
+- REVERTED `func_0015E6D8` w1 @ 0x0015E6D8 — [callee-sig-conflict] src/commonact.c:5: conflicting types for `func_00240038_p'
+
+### src/commonact.c
+- REVERTED `func_0015E730` w1 @ 0x0015E730 — [redefinition] src/commonact.c:9: redefinition of `func_0015C818_disp'
+
+### src/commonact.c
+- REVERTED `func_0015E080` w3 @ 0x0015E080 — [redefinition] src/commonact.c:9: redefinition of `func_0015C818_disp'
+
+### src/commonact.c
+- REVERTED `func_0015E2C8` w3 @ 0x0015E2C8 — [redefinition] src/commonact.c:17: redefinition of `func_0015C818_disp'

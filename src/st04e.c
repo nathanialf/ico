@@ -1,4 +1,6 @@
 #include "common.h"
+
+typedef struct { char pad[0xC0]; void *f_B0; void *unkB4; } St04eBox;
 extern int D_004D1450[];
 
 typedef struct ActB4Obj { char pad[0xC4]; int *unkC4; } ActB4Obj;
@@ -121,6 +123,20 @@ INCLUDE_ASM("asm/nonmatchings/src/st04e", func_0021A168);
 INCLUDE_ASM("asm/nonmatchings/src/st04e", func_0021A248);
 
 INCLUDE_ASM("asm/nonmatchings/src/st04e", func_0021A308);
+
+extern int *D_004D1830[];
+extern int D_006325B4;
+extern void func_0021A390(volatile int a0);
+
+void func_0021A338(volatile int a0) {
+    St04eBox *obj = *(St04eBox **)(a0 + 0x164);
+    D_006325B4 = 1;
+    D_004D1830[1] = (int *)func_0021A390;
+    obj->f_B0 = 0;
+    obj->unkB4 = (void *)D_004D1830;
+    BoxBarSoundOn((int)a0, 0x18D);
+    _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st04e", func_0021A390);
 

@@ -55,3 +55,5 @@ INCLUDE_ASM("asm/nonmatchings/src/gather_effect", func_00197A38);
 
 INCLUDE_ASM("asm/nonmatchings/src/gather_effect", func_00197B30);
 
+INCLUDE_ASM("asm/nonmatchings/src/gather_effect", func_00197FC8);
+

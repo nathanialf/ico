@@ -148,6 +148,19 @@ INCLUDE_ASM("asm/nonmatchings/src/st04c", actSt04cDoorDownEvent);
 
 INCLUDE_ASM("asm/nonmatchings/src/st04c", actSt04cDoorDownEffect);
 
+void func_00218518(void) {
+    if (D_00631AE8 == 0) {
+        return;
+    }
+    if (func_0017B230(0x7C) == 0) {
+        return;
+    }
+    if (func_0017B230(0x8C) != 0) {
+        return;
+    }
+    func_0017B258(0x166);
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/st04c", actSt04cEneChk);
 
 extern int D_006325B4;

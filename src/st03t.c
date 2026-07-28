@@ -313,6 +313,8 @@ void actSt03tGirlCamEndChk(volatile int a0) {
 
 INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tSekizoEvent);
 
+INCLUDE_ASM("asm/nonmatchings/src/st03t", func_00212C58);
+
 INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tEneChk);
 
 void actSt03tWayOnChk(int x) {

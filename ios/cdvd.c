@@ -272,6 +272,8 @@ INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdPackLoad);
 
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdBackGroundMgrAdd);
 
+INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001325B8);
+
 extern unsigned char D_0027E4C0[];
 extern void iosMsgSend(void *a0, void *a1, int a2);
 

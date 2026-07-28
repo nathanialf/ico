@@ -1,5 +1,8 @@
 #include "common.h"
 
+typedef struct { char _0[0x3A4]; int f_3A4; } JSub678;
+typedef struct { char _0[0x30]; int f_30; char _pad34[0x308]; int f_33C; char _pad340[0x338]; JSub678 *p_678; } JimakuState;
+
 
 
 
@@ -31,6 +34,30 @@ extern void *D_00631AE8;
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", display_texture);
 
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", iosCdvdBackGroundReadJimaku);
+
+extern void BoxBarSoundOn(int a0, int a1);
+extern void _ACTWait__p4(int a0) __asm__("_ACTWait");
+
+void func_00175980(volatile int a0) {
+    for (;;) {
+        BoxBarSoundOn(a0, 0x13E);
+        _ACTWait__p4(1);
+    }
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/jimaku", func_001759B0);
+
+extern char D_00559440[];
+extern int D_00631AE4__p4 __asm__("D_00631AE4");
+extern int D_006321DC;
+extern void debug_assertMessage__p4(void *a0) __asm__("debug_assertMessage");
+extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+
+void func_00175A58(volatile int a0) {
+    debug_assertMessage__p4(D_00559440);
+    iosOmBeforeFuncStandard(D_00631AE4__p4, 0x59, D_006321DC);
+    ACTLookTargetSystem_Exec();
+}
 
 extern void BoxBarSoundOn(int a0, int a1);
 extern char D_00553790[], D_00559470[];
@@ -68,6 +95,12 @@ void func_00175B18(volatile int a0) {
 
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuMgrBegin);
 
+void func_00175BD8(volatile int a0) {
+    debug_assertMessage__p4(D_00559440);
+    iosOmBeforeFuncStandard(D_00631AE4__p4, 0x63, D_006321DC);
+    ACTLookTargetSystem_Exec();
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuMgrNext);
 
 void jimakuMgrJump(int x) {
@@ -99,7 +132,15 @@ void jimakuBegin(int a0)
 
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuNext);
 
+void func_00175D90(volatile int a0) {
+    JimakuState *p = *(JimakuState **)(a0 + 0x164);
+    p->f_33C = 0;
+    _ACTWait__p4(0);
+}
+
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuJump);
+
+INCLUDE_ASM("asm/nonmatchings/src/jimaku", func_00175EC8);
 
 int jimakuEnd(int a0, int a1)
 {

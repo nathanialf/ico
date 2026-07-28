@@ -361,9 +361,13 @@ INCLUDE_ASM("asm/nonmatchings/src/st47a", func_002377E8);
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00237860);
 
+INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00237898);
+
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00237930);
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00237A00);
+
+INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00237A38);
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00237AD8);
 
@@ -423,13 +427,19 @@ INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00238B18);
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00238B88);
 
+INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00238BC0);
+
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00238C18);
+
+INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00238C60);
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00238D08);
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00238DD8);
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00238E50);
+
+INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00238F10);
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00239138);
 

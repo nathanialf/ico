@@ -420,13 +420,25 @@ def cmd_scan(args):
           f"({len(stale)} stale matchings/*.s dropped)", file=sys.stderr)
     print(f"retail type:func symbols: {len(funcs)}", file=sys.stderr)
 
+    # Splat-merge carves (tools/find_splat_merges.py) name the recovered
+    # bodies `func_<RETAILVMA>`, which can never join to the aug6 twin by
+    # name: the aug6 tree carved the same boundary at a different address.
+    # `.port_cache/name_alias.json` ({retail_name: aug6_name}) supplies the
+    # correlation (tools/convpass_ordinal.py scores it) so those functions
+    # get the same reloc-slot rebinding as every other port candidate.
+    alias_f = CACHE / "name_alias.json"
+    alias = json.loads(alias_f.read_text()) if alias_f.exists() else {}
+    if alias:
+        print(f"name aliases: {len(alias)}", file=sys.stderr)
+
     records = []
     for e in funcs:
         name = e["name"]
-        a = aug6.get(name)
+        aname = alias.get(name, name)
+        a = aug6.get(aname)
         if a is None:
             continue
-        srec = parse_aug6_s(AUG6_ROOT / a["file"])[name]
+        srec = parse_aug6_s(AUG6_ROOT / a["file"])[aname]
         a_words = trim([w for w, _, _ in srec["insns"]])
         i = bisect.bisect_right(vmas_arr, e["vma"])
         rend = vmas_arr[i] if i < len(vmas_arr) else TEXT_VMA + TEXT_SZ
@@ -458,6 +470,7 @@ def cmd_scan(args):
 
         records.append({
             "name": name,
+            "aug6_name": aname,
             "retail_vma": e["vma"], "retail_end": rend, "retail_tu": e["tu"],
             "tag": e["tag"],
             "aug6_vma": a["vma"], "aug6_file": a["file"], "aug6_stem": a["stem"],
@@ -521,7 +534,7 @@ def build_symbol_map(rec, retail_a2n, retail_func_vmas, defined):
 
     Raises Unresolved with a human reason on any slot we cannot bind or that
     binds inconsistently."""
-    srec = parse_aug6_s(AUG6_ROOT / rec["aug6_file"])[rec["name"]]
+    srec = parse_aug6_s(AUG6_ROOT / rec["aug6_file"])[rec.get("aug6_name") or rec["name"]]
     insns = srec["insns"]
     # `trim` only ever removes trailing zero words, so indices below the
     # trimmed length are unaffected.
@@ -1045,16 +1058,22 @@ def cmd_port(args):
             continue
 
         atu = src.tu(rec["aug6_stem"])
-        fn = atu["funcs"].get(name)
+        aname = rec.get("aug6_name") or name
+        fn = atu["funcs"].get(aname)
         if fn is None:
             reverted.append((rec, f"aug6 body not found in {rec['aug6_stem']}.c"))
             continue
 
         # self-name must NOT be rebound to a retail alias of a different func
+        mapping.pop(aname, None)
         mapping.pop(name, None)
+        if aname != name:
+            # aliased (splat-merge carve): the aug6 body defines and
+            # self-recurses under `aname`; rename it to the retail symbol.
+            mapping[aname] = name
         body = rebind_text(fn["text"], mapping)
 
-        helper_seen = {name}
+        helper_seen = {name, aname}
         helpers = [rebind_text(h, mapping)
                    for h in collect_helpers(src, rec["aug6_stem"], fn["text"],
                                             mapping, helper_seen)]

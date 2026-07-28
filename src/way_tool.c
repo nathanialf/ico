@@ -163,5 +163,7 @@ INCLUDE_ASM("asm/nonmatchings/src/way_tool", cursor_control);
 
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", func_00207A88);
 
+INCLUDE_ASM("asm/nonmatchings/src/way_tool", func_00207AB0);
+
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", func_00207C48);
 

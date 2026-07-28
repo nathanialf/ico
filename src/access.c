@@ -24,11 +24,15 @@ void func_0023AAA8(int x) {
 
 INCLUDE_ASM("asm/nonmatchings/src/access", func_0023AAB8);
 
+INCLUDE_ASM("asm/nonmatchings/src/access", func_0023AAE8);
+
 INCLUDE_ASM("asm/nonmatchings/src/access", func_0023AB90);
 
 INCLUDE_ASM("asm/nonmatchings/src/access", func_0023ABE0);
 
 INCLUDE_ASM("asm/nonmatchings/src/access", func_0023AC30);
+
+INCLUDE_ASM("asm/nonmatchings/src/access", func_0023AC60);
 
 INCLUDE_ASM("asm/nonmatchings/src/access", func_0023AD08);
 

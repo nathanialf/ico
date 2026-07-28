@@ -16,7 +16,13 @@ INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023B4F0);
 
 INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023B518);
 
+INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023B5A0);
+
 INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023B5C8);
+
+INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023B650);
+
+INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023B6B8);
 
 INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023B728);
 

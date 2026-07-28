@@ -79,6 +79,8 @@ INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017EC98);
 
 INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017ED70);
 
+INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017EDA0);
+
 INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017EF30);
 
 INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017F028);

@@ -30,5 +30,9 @@ INCLUDE_ASM("asm/nonmatchings/src/st13d", func_0022D3C8);
 
 INCLUDE_ASM("asm/nonmatchings/src/st13d", func_0022D418);
 
+INCLUDE_ASM("asm/nonmatchings/src/st13d", func_0022D448);
+
 INCLUDE_ASM("asm/nonmatchings/src/st13d", func_0022D4F0);
+
+INCLUDE_ASM("asm/nonmatchings/src/st13d", func_0022D520);
 

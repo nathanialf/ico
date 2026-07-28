@@ -58,5 +58,7 @@ INCLUDE_ASM("asm/nonmatchings/src/lightning", func_00199A60);
 
 INCLUDE_ASM("asm/nonmatchings/src/lightning", func_00199C30);
 
+INCLUDE_ASM("asm/nonmatchings/src/lightning", func_00199F80);
+
 INCLUDE_ASM("asm/nonmatchings/src/lightning", func_0019A6E8);
 

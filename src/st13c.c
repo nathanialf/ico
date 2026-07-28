@@ -1,5 +1,7 @@
 #include "common.h"
 
+typedef struct { char pad[0xC0]; void *f_B0; void *unkB4; } BoxObj_st13c;
+
 struct CFS { long long a, b; };
 
 typedef struct ActB4Obj { char pad[0xC0]; int *unkB0; int *unkB4; } ActB4Obj;
@@ -259,6 +261,18 @@ void actSt13cSleep(int x) {
 INCLUDE_ASM("asm/nonmatchings/src/st13c", func_0022BEE0);
 
 INCLUDE_ASM("asm/nonmatchings/src/st13c", func_0022BF60);
+
+extern int *D_004D2DA0[];
+
+void func_0022BF90(volatile int a0) {
+    BoxObj_st13c *obj = *(BoxObj_st13c **)(a0 + 0x164);
+    D_006325B4 = 1;
+    D_004D2DA0[1] = (int *)actSt13cConte05;
+    obj->f_B0 = 0;
+    obj->unkB4 = (void *)D_004D2DA0;
+    BoxBarSoundOn((int)a0, 0x18D);
+    _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st13c", func_0022BFE8);
 
