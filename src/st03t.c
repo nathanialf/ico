@@ -24,7 +24,9 @@ INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tSekizo);
 
 INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tWay);
 
-INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tEne);
+void actSt03tEne(int x) {
+    volatile int local = x;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tGene);
 
@@ -38,7 +40,9 @@ INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tSekizoEvent);
 
 INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tEneChk);
 
-INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tWayOnChk);
+void actSt03tWayOnChk(int x) {
+    volatile int local = x;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tWayOffChk);
 

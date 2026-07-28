@@ -24,21 +24,35 @@ INCLUDE_ASM("asm/nonmatchings/src/st05c", actSt05cEnemy2);
 
 INCLUDE_ASM("asm/nonmatchings/src/st05c", actSt05cDoorDownEvent);
 
-INCLUDE_ASM("asm/nonmatchings/src/st05c", actSt05cDoorDownEffect);
+void actSt05cDoorDownEffect(int x) {
+    volatile int local = x;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st05c", actSt05cEneChk);
+void actSt05cEneChk(int x) {
+    volatile int local = x;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st05c", func_0021F2C8);
+void func_0021F2C8(int x) {
+    volatile int local = x;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st05c", func_0021F2D8);
+void func_0021F2D8(int x) {
+    volatile int local = x;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st05c", func_0021F2E8);
+void func_0021F2E8(int x) {
+    volatile int local = x;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st05c", func_0021F2F8);
+void func_0021F2F8(int x) {
+    volatile int local = x;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st05c", func_0021F308);
 
 INCLUDE_ASM("asm/nonmatchings/src/st05c", func_0021F350);
 
-INCLUDE_ASM("asm/nonmatchings/src/st05c", func_0021F3A8);
+void func_0021F3A8(int x) {
+    volatile int local = x;
+}
 

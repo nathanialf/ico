@@ -1,10 +1,16 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/st08b", actSt08bKurenSwitch);
+void actSt08bKurenSwitch(int x) {
+    volatile int local = x;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st08b", actSt08bKurenLeft);
+void actSt08bKurenLeft(int x) {
+    volatile int local = x;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st08b", actSt08bKurenRight);
+void actSt08bKurenRight(int x) {
+    volatile int local = x;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st08b", actSt08bDoor);
 
@@ -40,5 +46,7 @@ INCLUDE_ASM("asm/nonmatchings/src/st08b", func_00224898);
 
 INCLUDE_ASM("asm/nonmatchings/src/st08b", func_00224900);
 
-INCLUDE_ASM("asm/nonmatchings/src/st08b", func_00224960);
+void func_00224960(int x) {
+    volatile int local = x;
+}
 

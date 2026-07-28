@@ -2,9 +2,13 @@
 
 INCLUDE_ASM("asm/nonmatchings/src/st22a", actSt22aLightningVolime);
 
-INCLUDE_ASM("asm/nonmatchings/src/st22a", actSt22aIntro);
+void actSt22aIntro(int x) {
+    volatile int local = x;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st22a", actSt22aIntroChk);
+void actSt22aIntroChk(int x) {
+    volatile int local = x;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st22a", actSt22aIntroSub);
 
@@ -14,9 +18,13 @@ INCLUDE_ASM("asm/nonmatchings/src/st22a", func_00234368);
 
 INCLUDE_ASM("asm/nonmatchings/src/st22a", func_002343B8);
 
-INCLUDE_ASM("asm/nonmatchings/src/st22a", func_00234438);
+void func_00234438(int x) {
+    volatile int local = x;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st22a", func_00234448);
+void func_00234448(int x) {
+    volatile int local = x;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st22a", func_00234458);
 
@@ -26,7 +34,9 @@ INCLUDE_ASM("asm/nonmatchings/src/st22a", func_00234658);
 
 INCLUDE_ASM("asm/nonmatchings/src/st22a", func_00234720);
 
-INCLUDE_ASM("asm/nonmatchings/src/st22a", func_002347C8);
+void func_002347C8(int x) {
+    volatile int local = x;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st22a", func_002347D8);
 
@@ -36,7 +46,7 @@ INCLUDE_ASM("asm/nonmatchings/src/st22a", func_00234910);
 
 INCLUDE_ASM("asm/nonmatchings/src/st22a", func_002349E0);
 
-INCLUDE_ASM("asm/nonmatchings/src/st22a", func_00234AB0);
+void func_00234AB0(void) {}
 
 INCLUDE_ASM("asm/nonmatchings/src/st22a", func_00234AB8);
 

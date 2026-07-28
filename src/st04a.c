@@ -36,11 +36,15 @@ INCLUDE_ASM("asm/nonmatchings/src/st04a", actSt04aTorchAllFlagfChk);
 
 INCLUDE_ASM("asm/nonmatchings/src/st04a", actSt04aGateL);
 
-INCLUDE_ASM("asm/nonmatchings/src/st04a", actSt04aGateR);
+void actSt04aGateR(int x) {
+    volatile int local = x;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st04a", actSt04aTorchXL);
 
 INCLUDE_ASM("asm/nonmatchings/src/st04a", actSt04aGateOpen2);
 
-INCLUDE_ASM("asm/nonmatchings/src/st04a", actSt04aGateOpen3);
+void actSt04aGateOpen3(int x) {
+    volatile int local = x;
+}
 

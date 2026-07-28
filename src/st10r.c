@@ -1,12 +1,16 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/st10r", actSt10rFloor);
+void actSt10rFloor(int x) {
+    volatile int local = x;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st10r", actSt10rCage);
 
 INCLUDE_ASM("asm/nonmatchings/src/st10r", actSt10rTower);
 
-INCLUDE_ASM("asm/nonmatchings/src/st10r", actSt10rExit);
+void actSt10rExit(int x) {
+    volatile int local = x;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st10r", actSt10rChain);
 

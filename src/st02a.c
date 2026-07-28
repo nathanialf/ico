@@ -1,5 +1,9 @@
 #include "common.h"
 
+
+extern int func_0017B230(int a0);
+extern void AddWayPointTop();
+extern void stage_KillPlayBgAnimation();
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aInit);
 
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aDoor);
@@ -18,17 +22,29 @@ INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aGondolaDown);
 
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aBox);
 
-INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aGondola);
+void actSt02aGondola(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aFence);
+void actSt02aFence(int x) {
+    volatile int local = x;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aWaterFall);
+void actSt02aWaterFall(int x) {
+    volatile int local = x;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aBoxEvent2);
 
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aEne);
 
-INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aEnemy1);
+void actSt02aEnemy1(void)
+{
+    if (func_0017B230(0x69) == 0) {
+        AddWayPointTop(0x1A, 0);
+        stage_KillPlayBgAnimation(0x55, 0, 0);
+    } else {
+        stage_KillPlayBgAnimation(0x55, 0, -1);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aEnemy2);
 

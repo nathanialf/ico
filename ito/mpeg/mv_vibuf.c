@@ -1,14 +1,34 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", func_0023EFB0);
+
+
+extern int D_00633FDC;
+extern int D_00633B88;
+#include "r5900.h"
+extern char D_0028CA30[];
+extern int  D_00633B8C;
+extern void allocObjectData(int *p);
+void func_0023EFB0(void) {}
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", viBufCreate);
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", viBufReset);
+int viBufReset(void)
+{
+    if (D_00633B8C != 0) {
+        allocObjectData(D_0028CA30);
+        D_00633B8C = 0;
+    }
+    SYNC();
+    EI();
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", viBufBeginPut);
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", viBufEndPut);
+void viBufEndPut(void) {
+    D_00633B88 = 0;
+    D_00633FDC = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", viBufAddDMA);
 
@@ -16,7 +36,13 @@ INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", viBufStopDMA);
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", viBufRestartDMA);
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", viBufFlush);
+char *viBufFlush(char *p) {
+    *(int *)(p + 0) = 0;
+    *(int *)(p + 8) = 0x3F;
+    *(int *)(p + 4) = 0;
+    *(int *)(p + 0xC) = 0;
+    return p + 0x10;
+}
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", viBufModifyPts);
 

@@ -4,7 +4,9 @@ INCLUDE_ASM("asm/nonmatchings/src/st17a", actSt17aHasiChk);
 
 INCLUDE_ASM("asm/nonmatchings/src/st17a", func_0022D650);
 
-INCLUDE_ASM("asm/nonmatchings/src/st17a", actSt17aSekizo);
+void actSt17aSekizo(int x) {
+    volatile int local = x;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st17a", func_0022D6C0);
 

@@ -1,10 +1,15 @@
 #include "common.h"
 
+
+extern int D_00712CC0[];
 INCLUDE_ASM("asm/nonmatchings/src/PObj", MakeBoundingBox);
 
 INCLUDE_ASM("asm/nonmatchings/src/PObj", MakePacket);
 
-INCLUDE_ASM("asm/nonmatchings/src/PObj", AllocPObj);
+int AllocPObj(int idx)
+{
+    return D_00712CC0[idx];
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/PObj", InitPObj);
 

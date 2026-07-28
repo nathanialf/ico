@@ -1948,3 +1948,238 @@ gate re-run before commit.
 ## src/deja
 - KEPT `func_00208740` (old `func_00208740`) @ 0x00208740
 - KEPT `func_00209AB0` (old `func_00209AB0`) @ 0x00209AB0
+
+## src/e3
+
+## src/end
+
+## src/op
+- KEPT `actOpDemo03` (old `func_0020D2B8`) @ 0x0020D2B8
+- KEPT `func_0020D770` (old `func_0020D770`) @ 0x0020D770
+
+## src/st00a
+- KEPT `actSt00aDoor2DownEffect` (old `func_0020FB00`) @ 0x0020FB00
+
+## src/st01b
+- KEPT `actSt01bFloor` (old `func_002109D8`) @ 0x002109D8
+- KEPT `actSt01bSekizoEvent` (old `func_00210BA8`) @ 0x00210BA8
+
+## src/st02a
+- KEPT `actSt02aGondola` (old `func_002115F8`) @ 0x002115F8
+- KEPT `actSt02aFence` (old `func_00211600`) @ 0x00211600
+- KEPT `actSt02aWaterFall` (old `func_00211610`) @ 0x00211610
+- KEPT `actSt02aEnemy1` (old `func_00211780`) @ 0x00211780
+
+## src/st03t
+- KEPT `actSt03tEne` (old `func_002128F8`) @ 0x002128F8
+- KEPT `actSt03tWayOnChk` (old `func_00212D68`) @ 0x00212D68
+
+## src/st04a
+- KEPT `actSt04aGateR` (old `func_00213E80`) @ 0x00213E80
+- KEPT `actSt04aGateOpen3` (old `func_00214030`) @ 0x00214030
+
+## src/st04b
+
+## src/st04c
+
+## src/st04d
+- KEPT `actSt04dDoor1DownChk` (old `func_00218DC0`) @ 0x00218DC0
+- KEPT `actSt04dDoor2UpChk` (old `func_00218E58`) @ 0x00218E58
+- KEPT `func_00219478` (old `func_00219478`) @ 0x00219478
+- KEPT `func_002194C8` (old `func_002194C8`) @ 0x002194C8
+- KEPT `func_00219728` (old `func_00219728`) @ 0x00219728
+
+## src/st04e
+- KEPT `func_00219EA8` (old `func_00219EA8`) @ 0x00219EA8
+- KEPT `func_0021A078` (old `func_0021A078`) @ 0x0021A078
+
+## src/st04l
+
+## src/st04r
+
+## src/st05b
+
+## src/st05c
+- KEPT `actSt05cDoorDownEffect` (old `func_0021F2A8`) @ 0x0021F2A8
+- KEPT `actSt05cEneChk` (old `func_0021F2B8`) @ 0x0021F2B8
+- KEPT `func_0021F2C8` (old `func_0021F2C8`) @ 0x0021F2C8
+- KEPT `func_0021F2D8` (old `func_0021F2D8`) @ 0x0021F2D8
+- KEPT `func_0021F2E8` (old `func_0021F2E8`) @ 0x0021F2E8
+- KEPT `func_0021F2F8` (old `func_0021F2F8`) @ 0x0021F2F8
+- KEPT `func_0021F3A8` (old `func_0021F3A8`) @ 0x0021F3A8
+
+## src/st05d
+- KEPT `actSt05dDoor2DownChk` (old `func_0021F4F8`) @ 0x0021F4F8
+- KEPT `actSt05dEne` (old `func_0021F508`) @ 0x0021F508
+- KEPT `actSt05dEnemy1` (old `func_0021F518`) @ 0x0021F518
+- KEPT `actSt05dEnemy2` (old `func_0021F528`) @ 0x0021F528
+- KEPT `actSt05dDoor2Event` (old `func_0021F538`) @ 0x0021F538
+- KEPT `actSt05dDoor2UpEffect` (old `func_0021F548`) @ 0x0021F548
+- KEPT `actSt05dDoor2DownEffect` (old `func_0021F558`) @ 0x0021F558
+- KEPT `actSt05dEneChk` (old `func_0021F568`) @ 0x0021F568
+- KEPT `func_0021F578` (old `func_0021F578`) @ 0x0021F578
+- KEPT `func_0021F588` (old `func_0021F588`) @ 0x0021F588
+- KEPT `func_0021F7F0` (old `func_0021F7F0`) @ 0x0021F7F0
+
+## src/st05e
+
+## src/st06a
+
+## src/st07a
+
+## src/st08a
+- KEPT `actSt08aEnemy2` (old `func_00223DE0`) @ 0x00223DE0
+- KEPT `actSt08aEnemy3` (old `func_00223DF0`) @ 0x00223DF0
+- KEPT `actSt08aEnemy4` (old `func_00223E00`) @ 0x00223E00
+- KEPT `actSt08aIntro` (old `func_00223E10`) @ 0x00223E10
+- KEPT `actSt08aInit` (old `func_00223E20`) @ 0x00223E20
+- KEPT `actSt08aDoorMain` (old `func_00223E30`) @ 0x00223E30
+- KEPT `actSt08aDoorSwitch` (old `func_00223E40`) @ 0x00223E40
+- KEPT `func_00223EF0` (old `func_00223EF0`) @ 0x00223EF0
+- KEPT `func_00223F00` (old `func_00223F00`) @ 0x00223F00
+- KEPT `func_00223F10` (old `func_00223F10`) @ 0x00223F10
+- KEPT `func_00223F20` (old `func_00223F20`) @ 0x00223F20
+- KEPT `func_00223F30` (old `func_00223F30`) @ 0x00223F30
+
+## src/st08b
+- KEPT `actSt08bKurenSwitch` (old `func_00223F40`) @ 0x00223F40
+- KEPT `actSt08bKurenLeft` (old `func_00223F50`) @ 0x00223F50
+- KEPT `actSt08bKurenRight` (old `func_00223F60`) @ 0x00223F60
+- KEPT `func_00224960` (old `func_00224960`) @ 0x00224960
+
+## src/st09a
+- KEPT `actSt09aBrgMain` (old `func_002251E0`) @ 0x002251E0
+- KEPT `func_002258E0` (old `func_002258E0`) @ 0x002258E0
+
+## src/st10l
+
+## src/st10r
+- KEPT `actSt10rFloor` (old `func_00227350`) @ 0x00227350
+- KEPT `actSt10rExit` (old `func_002274F0`) @ 0x002274F0
+
+## src/st13a
+
+## src/st13b
+- KEPT `actSt13bElevDown` (old `func_00229CA0`) @ 0x00229CA0
+- KEPT `actSt13bElevUp` (old `func_00229CB0`) @ 0x00229CB0
+- KEPT `actSt13bElevUpChk` (old `func_00229D30`) @ 0x00229D30
+- KEPT `actSt13bBossAfter` (old `func_00229E38`) @ 0x00229E38
+- KEPT `actSt13bStoneGirl` (old `func_00229E48`) @ 0x00229E48
+- KEPT `actSt13bElev` (old `func_00229F20`) @ 0x00229F20
+- KEPT `actBossTest` (old `func_00229FE0`) @ 0x00229FE0
+- KEPT `actSt13bSekizo2Event` (old `func_0022A068`) @ 0x0022A068
+- REVERTED `actSt13bSekizo` (old `func_00229D88`) @ 0x00229D88 — [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
+- REVERTED `actSt13bSekizo2` (old `func_00229DE0`) @ 0x00229DE0 — [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
+- REVERTED `actSt13bExit` (old `func_00229EC8`) @ 0x00229EC8 — [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
+
+## src/st13b2
+
+## src/st13c
+- KEPT `actSt13cBmg1Chk` (old `func_0022B640`) @ 0x0022B640
+- KEPT `actSt13cCage1stDown` (old `func_0022B878`) @ 0x0022B878
+- KEPT `actSt13cSleep` (old `func_0022BED0`) @ 0x0022BED0
+
+## src/st13d
+
+## src/st17a
+- KEPT `actSt17aSekizo` (old `func_0022D6B0`) @ 0x0022D6B0
+
+## src/st17b
+- KEPT `func_0022EEF0` (old `func_0022EEF0`) @ 0x0022EEF0
+- KEPT `func_0022F850` (old `func_0022F850`) @ 0x0022F850
+- REVERTED `func_0022ED40` (old `func_0022ED40`) @ 0x0022ED40 — [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
+
+## src/st18a
+
+## src/st19a
+- KEPT `actSt19aOri` (old `func_002315C8`) @ 0x002315C8
+- KEPT `actSt19bIntroChk` (old `func_00231AC8`) @ 0x00231AC8
+- KEPT `func_00231AF8` (old `func_00231AF8`) @ 0x00231AF8
+
+## src/st20a
+
+## src/st22a
+- KEPT `actSt22aIntro` (old `func_002341D8`) @ 0x002341D8
+- KEPT `actSt22aIntroChk` (old `func_002341E8`) @ 0x002341E8
+- KEPT `func_00234438` (old `func_00234438`) @ 0x00234438
+- KEPT `func_00234448` (old `func_00234448`) @ 0x00234448
+- KEPT `func_002347C8` (old `func_002347C8`) @ 0x002347C8
+- KEPT `func_00234AB0` (old `func_00234AB0`) @ 0x00234AB0
+
+## src/st24a
+- KEPT `func_002356C0` (old `func_002356C0`) @ 0x002356C0
+- KEPT `func_00235728` (old `func_00235728`) @ 0x00235728
+- KEPT `func_002358F8` (old `func_002358F8`) @ 0x002358F8
+- KEPT `func_00235B68` (old `func_00235B68`) @ 0x00235B68
+- KEPT `func_00235C38` (old `func_00235C38`) @ 0x00235C38
+- REVERTED `func_002359C8` (old `func_002359C8`) @ 0x002359C8 — [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
+
+## src/st47a
+- KEPT `actSt47aExit` (old `func_00236C60`) @ 0x00236C60
+- KEPT `func_00237B78` (old `func_00237B78`) @ 0x00237B78
+- KEPT `func_00237BD0` (old `func_00237BD0`) @ 0x00237BD0
+- KEPT `func_00239750` (old `func_00239750`) @ 0x00239750
+- KEPT `func_002397F8` (old `func_002397F8`) @ 0x002397F8
+
+## src/access
+- KEPT `func_0023A9E0` (old `func_0023A9E0`) @ 0x0023A9E0
+- KEPT `func_0023AA88` (old `func_0023AA88`) @ 0x0023AA88
+- KEPT `func_0023AA98` (old `func_0023AA98`) @ 0x0023AA98
+- KEPT `func_0023AAA8` (old `func_0023AAA8`) @ 0x0023AAA8
+- KEPT `func_0023AD58` (old `func_0023AD58`) @ 0x0023AD58
+- KEPT `func_0023AEA0` (old `func_0023AEA0`) @ 0x0023AEA0
+- REVERTED `func_0023AB90` (old `func_0023AB90`) @ 0x0023AB90 — [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
+- REVERTED `func_0023ABE0` (old `func_0023ABE0`) @ 0x0023ABE0 — [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
+- REVERTED `func_0023AD08` (old `func_0023AD08`) @ 0x0023AD08 — [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
+
+## src/objact
+- KEPT `func_0023C090` (old `func_0023C090`) @ 0x0023C090
+- KEPT `func_0023C0E8` (old `func_0023C0E8`) @ 0x0023C0E8
+
+## ito/mpeg/mv_audiodec
+- KEPT `audioDecEndPut` (old `func_0023C540`) @ 0x0023C540
+- KEPT `sendToIOP2area` (old `func_0023C598`) @ 0x0023C598
+- KEPT `func_0023CC78` (old `func_0023CC78`) @ 0x0023CC78
+- KEPT `func_0023CCE0` (old `func_0023CCE0`) @ 0x0023CCE0
+
+## ito/mpeg/mv_disp
+- KEPT `setDispEnv` (old `func_0023D030`) @ 0x0023D030
+- KEPT `sendDispEnv` (old `func_0023D0C8`) @ 0x0023D0C8
+- KEPT `handler_endimage` (old `func_0023D370`) @ 0x0023D370
+- KEPT `setTEX1_1` (old `func_0023D660`) @ 0x0023D660
+- REVERTED `endDisplay` (old `func_0023D420`) @ 0x0023D420 — insn 12: expected `jal	0 <endDisplay>` built `jal	510 <setDMAscTag>`
+- REVERTED `setGIFtag` (old `func_0023D518`) @ 0x0023D518 — insn 0: expected `lwc1	$f12,0(gp)` built `addiu	sp,sp,-16`
+
+## ito/mpeg/mv_sub
+- KEPT `func_0023E170` (old `func_0023E170`) @ 0x0023E170
+- KEPT `func_0023E228` (old `func_0023E228`) @ 0x0023E228
+- KEPT `func_0023E280` (old `func_0023E280`) @ 0x0023E280
+- KEPT `func_0023E298` (old `func_0023E298`) @ 0x0023E298
+- KEPT `func_0023E330` (old `func_0023E330`) @ 0x0023E330
+- KEPT `func_0023E368` (old `func_0023E368`) @ 0x0023E368
+- KEPT `func_0023EDF0` (old `func_0023EDF0`) @ 0x0023EDF0
+- REVERTED `copy2area` (old `func_0023D8A0`) @ 0x0023D8A0 — insn 0: expected `j	0 <copy2area>` built `j	928 <func_0023E170>`
+- REVERTED `func_0023E770` (old `func_0023E770`) @ 0x0023E770 — insn 2: expected `j	0 <func_0023E770>` built `j	d30 <func_0023E578>`
+
+## ito/mpeg/mv_vibuf
+- KEPT `func_0023EFB0` (old `func_0023EFB0`) @ 0x0023EFB0
+- KEPT `viBufReset` (old `func_0023EFF8`) @ 0x0023EFF8
+- KEPT `viBufEndPut` (old `func_0023F070`) @ 0x0023F070
+- KEPT `viBufFlush` (old `func_0023F160`) @ 0x0023F160
+- REVERTED `func_0023F5D0` (old `func_0023F5D0`) @ 0x0023F5D0 — insn 9: expected `jr	ra` built `sw	zero,12(a0)`
+
+## src/GobjProc
+- KEPT `GetMaxGObj` (old `func_0023F708`) @ 0x0023F708
+- KEPT `GetGObjP` (old `func_0023F740`) @ 0x0023F740
+- KEPT `InitCameraGObjs` (old `func_0023F7E0`) @ 0x0023F7E0
+- KEPT `func_00240950` (old `func_00240950`) @ 0x00240950
+- KEPT `func_00240A20` (old `func_00240A20`) @ 0x00240A20
+- REVERTED `PrintGObjID` (old `func_0023F7B0`) @ 0x0023F7B0 — insn 9: expected `jr	ra` built `sw	zero,12(a0)`
+- REVERTED `CreateGObjByFuncSet` (old `func_0023F928`) @ 0x0023F928 — insn 4: expected `jal	0 <CreateGObjByFuncSet>` built `jal	12c0 <func_00240950>`
+- REVERTED `func_0023FDA0` (old `func_0023FDA0`) @ 0x0023FDA0 — [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
+
+## src/PObj
+- KEPT `AllocPObj` (old `func_00240B70`) @ 0x00240B70
+- REVERTED `MakeBoundingBox` (old `func_00240B60`) @ 0x00240B60 — src/PObj.c:6: incompatible types in assignment
+- REVERTED `MakePacket` (old `func_00240B68`) @ 0x00240B68 — insn 0: expected `jr	ra` built `addiu	v0,gp,0`
+- REVERTED `FreePObj` (old `func_00240BD0`) @ 0x00240BD0 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)

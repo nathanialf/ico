@@ -10,13 +10,17 @@ INCLUDE_ASM("asm/nonmatchings/src/st04e", actSt04eWaterStop);
 
 INCLUDE_ASM("asm/nonmatchings/src/st04e", actSt04eWaterFlagOn);
 
-INCLUDE_ASM("asm/nonmatchings/src/st04e", func_00219EA8);
+void func_00219EA8(int x) {
+    volatile int local = x;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st04e", func_00219EB8);
 
 INCLUDE_ASM("asm/nonmatchings/src/st04e", func_00219F98);
 
-INCLUDE_ASM("asm/nonmatchings/src/st04e", func_0021A078);
+void func_0021A078(int x) {
+    volatile int local = x;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st04e", func_0021A088);
 

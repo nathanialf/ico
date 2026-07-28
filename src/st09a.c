@@ -24,7 +24,9 @@ INCLUDE_ASM("asm/nonmatchings/src/st09a", actSt09aSekizoEvent);
 
 INCLUDE_ASM("asm/nonmatchings/src/st09a", actSt09aIntroChk);
 
-INCLUDE_ASM("asm/nonmatchings/src/st09a", actSt09aBrgMain);
+void actSt09aBrgMain(int x) {
+    volatile int local = x;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st09a", actSt09aBrgSwitch);
 
@@ -42,5 +44,7 @@ INCLUDE_ASM("asm/nonmatchings/src/st09a", func_002257B8);
 
 INCLUDE_ASM("asm/nonmatchings/src/st09a", func_00225850);
 
-INCLUDE_ASM("asm/nonmatchings/src/st09a", func_002258E0);
+void func_002258E0(int x) {
+    volatile int local = x;
+}
 

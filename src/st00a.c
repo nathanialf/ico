@@ -1,5 +1,9 @@
 #include "common.h"
 
+
+extern int func_0017B230(int a0);
+extern void func_0017B258(int bit_idx);
+extern void *D_00631AE8;
 INCLUDE_ASM("asm/nonmatchings/src/st00a", actSt00aInit);
 
 INCLUDE_ASM("asm/nonmatchings/src/st00a", actSt00aEnd);
@@ -36,7 +40,16 @@ INCLUDE_ASM("asm/nonmatchings/src/st00a", actSt00aDoor2Event);
 
 INCLUDE_ASM("asm/nonmatchings/src/st00a", actSt00aDoor2UpEffect);
 
-INCLUDE_ASM("asm/nonmatchings/src/st00a", actSt00aDoor2DownEffect);
+void actSt00aDoor2DownEffect(void)
+{
+    if (D_00631AE8 == 0) {
+        return;
+    }
+    if (func_0017B230(0x27) != 0) {
+        return;
+    }
+    return func_0017B258(0x166);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st00a", actSt00aDoor1Event);
 

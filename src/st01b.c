@@ -22,13 +22,17 @@ INCLUDE_ASM("asm/nonmatchings/src/st01b", actSt01bEnemy5);
 
 INCLUDE_ASM("asm/nonmatchings/src/st01b", actSt01bEnemy6);
 
-INCLUDE_ASM("asm/nonmatchings/src/st01b", actSt01bFloor);
+void actSt01bFloor(int x) {
+    volatile int local = x;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st01b", actSt01bWay);
 
 INCLUDE_ASM("asm/nonmatchings/src/st01b", actSt01bEnd);
 
-INCLUDE_ASM("asm/nonmatchings/src/st01b", actSt01bSekizoEvent);
+void actSt01bSekizoEvent(int x) {
+    volatile int local = x;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st01b", actSt01bFloorEvent);
 

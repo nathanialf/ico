@@ -1,16 +1,26 @@
 #include "common.h"
 
+
+extern int actSt25aQueenDeadChk();
 INCLUDE_ASM("asm/nonmatchings/src/access", func_0023A978);
 
-INCLUDE_ASM("asm/nonmatchings/src/access", func_0023A9E0);
+void func_0023A9E0(int x) {
+    volatile int local = x;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/access", func_0023A9F0);
 
-INCLUDE_ASM("asm/nonmatchings/src/access", func_0023AA88);
+void func_0023AA88(int x) {
+    volatile int local = x;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/access", func_0023AA98);
+void func_0023AA98(int x) {
+    volatile int local = x;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/access", func_0023AAA8);
+void func_0023AAA8(int x) {
+    volatile int local = x;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/access", func_0023AAB8);
 
@@ -22,13 +32,23 @@ INCLUDE_ASM("asm/nonmatchings/src/access", func_0023AC30);
 
 INCLUDE_ASM("asm/nonmatchings/src/access", func_0023AD08);
 
-INCLUDE_ASM("asm/nonmatchings/src/access", func_0023AD58);
+void func_0023AD58(int x) {
+    volatile int local = x;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/access", func_0023AD68);
 
 INCLUDE_ASM("asm/nonmatchings/src/access", func_0023AE28);
 
-INCLUDE_ASM("asm/nonmatchings/src/access", func_0023AEA0);
+void func_0023AEA0(int a0)
+{
+    volatile int local = a0;
+    int v0;
+    v0 = actSt25aQueenDeadChk(0x1B5);
+    *(int *)(v0 + 0x16C) = 1;
+    v0 = actSt25aQueenDeadChk(0x1B6);
+    *(int *)(v0 + 0x16C) = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/access", func_0023AED8);
 

@@ -16,31 +16,55 @@ INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aEne2);
 
 INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aEnemy1);
 
-INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aEnemy2);
+void actSt08aEnemy2(int x) {
+    volatile int local = x;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aEnemy3);
+void actSt08aEnemy3(int x) {
+    volatile int local = x;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aEnemy4);
+void actSt08aEnemy4(int x) {
+    volatile int local = x;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aIntro);
+void actSt08aIntro(int x) {
+    volatile int local = x;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aInit);
+void actSt08aInit(int x) {
+    volatile int local = x;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aDoorMain);
+void actSt08aDoorMain(int x) {
+    volatile int local = x;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aDoorSwitch);
+void actSt08aDoorSwitch(int x) {
+    volatile int local = x;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st08a", actSt08aIntroChk);
 
 INCLUDE_ASM("asm/nonmatchings/src/st08a", func_00223E98);
 
-INCLUDE_ASM("asm/nonmatchings/src/st08a", func_00223EF0);
+void func_00223EF0(int x) {
+    volatile int local = x;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st08a", func_00223F00);
+void func_00223F00(int x) {
+    volatile int local = x;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st08a", func_00223F10);
+void func_00223F10(int x) {
+    volatile int local = x;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st08a", func_00223F20);
+void func_00223F20(int x) {
+    volatile int local = x;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st08a", func_00223F30);
+void func_00223F30(int x) {
+    volatile int local = x;
+}
 
