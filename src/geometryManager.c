@@ -65,17 +65,21 @@ void SetRootBaseQuaternion(int *self, int *other)
     func_0010DDB8((void *)self[0x10/4], (char *)self + 0x60, other);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00102A38);
+extern void SetRootBaseQuaternion__p4(void *a0, void *a1) __asm__("SetRootBaseQuaternion");
 
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00102A40);
+void SetRootQuaternion(int a0, void *a1) {
+    SetRootBaseQuaternion__p4(*(void **)(a0 + 0x15C), a1);
+}
+
+INCLUDE_ASM("asm/nonmatchings/src/geometryManager", SetRootMatrixWithTransOffsetByDObj);
 
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00102C10);
 
 extern void SetMotionBlendlessNode(void *a0);
-extern void func_00102A40(void *a0);
+extern void SetRootMatrixWithTransOffsetByDObj(void *a0);
 
 void SetRootMatrixWithTransOffset(void *a0) {
-    func_00102A40(a0);
+    SetRootMatrixWithTransOffsetByDObj(a0);
     SetMotionBlendlessNode(a0);
 }
 
@@ -107,7 +111,7 @@ void SetRootMatrixRotOffset(int a0, int a1)
 
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_0010311C);
 
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_00103120);
+INCLUDE_ASM("asm/nonmatchings/src/geometryManager", SetDirectRootPositionNoFittingWithNodePoint);
 
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", SetDirectRootPositionWithNodePoint);
 

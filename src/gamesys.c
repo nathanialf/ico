@@ -25,7 +25,15 @@ extern void init_debug_menu(void);
 extern unsigned short D_002E7710[];
 extern char D_005D49E0[];
 extern void iosMcManager(void);
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoInit);
+extern char D_00632B48[];
+extern char D_00632B50[];
+
+void *gamesysObjInfoInit(int a0, void *a1) {
+    if ((1 << a0) & *(long long *)((char *)a1 + 0x9C0)) {
+        return D_00632B48;
+    }
+    return D_00632B50;
+}
 
 int gamesysObjInfoSave(void) {
     iosMcManager();

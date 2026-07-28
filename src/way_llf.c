@@ -18,7 +18,20 @@ typedef struct WayGroup {
 extern unsigned char D_004CAEC0[];
 extern void debug_assertMessage(char *fmt, ...);
 extern char D_0061B1B0[];
-INCLUDE_ASM("asm/nonmatchings/src/way_llf", InitWayPointSystem);
+extern WayRec D_004CAE8C[];
+
+void *InitWayPointSystem(void) {
+    WayRec *p = D_004CAE8C;
+    WayRec *end = D_004CAE8C + 94;
+    if (p == 0) goto ret0;
+    if (p == end) goto ret0;
+    for (p++; ; p++) {
+        if (p->w[0] != 0 && p->w[6] != 0 && p->w[10] != 0) return p;
+        if (p == end) break;
+    }
+ret0:
+    return 0;
+}
 
 extern WayGroup D_004CC1A4;
 
@@ -35,7 +48,21 @@ WayGroup *CreateWayGroup(WayGroup *a0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/way_llf", CreateTempWayGroup);
+typedef struct { int w[16]; } WayGroup_CT;
+extern WayGroup_CT D_004CC1A0[];
+
+void *CreateTempWayGroup(void) {
+    WayGroup_CT *p = D_004CC1A0;
+    WayGroup_CT *end = D_004CC1A0 + 275;
+    if (p == 0) goto ret0;
+    if (p == end) goto ret0;
+    for (p++;; p++) {
+        if (p->w[0] != 0) return p;
+        if (p == end) break;
+    }
+ret0:
+    return 0;
+}
 
 extern WayGroup_DW D_004D0660;
 

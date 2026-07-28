@@ -1,6 +1,21 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/motionFileManager", pursueNodeList);
+typedef struct {
+    char pad[0x134];
+    int node_id;  /* 0x134 */
+    char pad2[0x190 - 0x134 - 4];
+} MotionNode;
+extern MotionNode D_00565060[];
+extern int D_004C49A8[];
+
+void pursueNodeList(int a0) {
+    int i;
+    for (i = 0; i <= 0x43D; i++) {
+        if (D_00565060[i].node_id == a0) {
+            D_004C49A8[i] = 0;
+        }
+    }
+}
 
 int InitMotionFile(unsigned int *self)
 {

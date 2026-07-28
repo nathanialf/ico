@@ -6,7 +6,34 @@ typedef struct WpNode { int f0; char _4[0x14]; int f18; char _1C[0x0C]; int f28;
 typedef struct Nd { int pad[2]; struct Nd *f8; struct Nd *fC; char pad2[0x40 - 16]; } Nd;
 extern unsigned char D_004CAEC0[];
 extern Nd D_004CC1E0[];
-INCLUDE_ASM("asm/nonmatchings/src/way_kidnap", add_wp_pos);
+typedef struct NdW {
+    int f0; int _4;
+    struct NdW *f8; struct NdW *fC;
+    int f10; char _14[0xC];
+    int f20; char _24[0x4];
+    int f28; char _2C[0x14];
+} NdW;
+extern NdW D_004CC1E0_w[] __asm__("D_004CC1E0");
+extern void func_00243B60(int *, int);
+
+int add_wp_pos(int a0)
+{
+    NdW *node = &D_004CC1E0_w[0];
+    int i;
+    for (i = 0; i < 0x113; i++) {
+        if (node->f0 == 0) {
+            node->f0 = 1;
+            node->f20 = -1;
+            node->f8 = 0;
+            node->fC = 0;
+            node->f28 = 0;
+            func_00243B60(&node->f10, a0);
+            return i;
+        }
+        node++;
+    }
+    return -1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/way_kidnap", WayLengthOfPos_Pos);
 
@@ -37,7 +64,20 @@ int WayPointWithRangeFromPos2(int dummy, int idx1, int idx2)
 
 INCLUDE_ASM("asm/nonmatchings/src/way_kidnap", NearestEnemyFromGirl);
 
-INCLUDE_ASM("asm/nonmatchings/src/way_kidnap", NumOfWpPos);
+extern WpNode D_004CAE8C;
+
+WpNode *NumOfWpPos(void)
+{
+    WpNode *p = &D_004CAE8C;
+    WpNode *end = p + 94;
+    if (p != 0 && p != end) {
+        do {
+            p++;
+            if (p->f0 != 0) return p;
+        } while (p != end);
+    }
+    return 0;
+}
 
 extern WpNode D_004CC1A4;
 
@@ -54,7 +94,18 @@ WpNode *CopyWpPos(WpNode *p)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/way_kidnap", WayLengthOfGObj_Pos);
+WpNode *WayLengthOfGObj_Pos(void)
+{
+    WpNode *p = &D_004CAE8C;
+    WpNode *end = p + 94;
+    if (p != 0 && p != end) {
+        do {
+            p++;
+            if (p->f0 != 0 && p->f18 != 0 && p->f28 != 0) return p;
+        } while (p != end);
+    }
+    return 0;
+}
 
 WpNode *WayLengthOfGObj_GObj(WpNode *p)
 {
@@ -69,7 +120,18 @@ WpNode *WayLengthOfGObj_GObj(WpNode *p)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/way_kidnap", WayPointWithRangeFromGObj);
+WpNode *WayPointWithRangeFromGObj(void)
+{
+    WpNode *p = &D_004CAE8C;
+    WpNode *end = p + 94;
+    if (p != 0 && p != end) {
+        do {
+            p++;
+            if (p->f0 != 0 && p->f18 != 0) return p;
+        } while (p != end);
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/way_kidnap", func_00205900);
 

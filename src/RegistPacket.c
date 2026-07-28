@@ -24,7 +24,7 @@ int func_0011E708(int a0, int a1, int a2, int a3)
     return prim_DeleteParticle(a0, a1, a2, a3, D_00632028);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", func_0011E728);
+INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_transMicroCode);
 
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_chooseMicroCode);
 

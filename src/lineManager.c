@@ -1,12 +1,40 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/lineManager", Draw2DLine);
+/* lineManager 0x800 view (local) */
+typedef struct { int f_0; int f_4; char _pad8[0x38]; int f_40; char _pad44[4]; int f_48; } LineGeo;
 
-INCLUDE_ASM("asm/nonmatchings/src/lineManager", Draw2DLineSeg_Start);
+int Draw2DLine(void *a0) {
+    int rv = 0;
+    char *p = *(char **)((char *)a0 + 0x15C);
+    char *q = *(char **)(p + 0x800);
+    if (*(int *)((char *)a0 + 0x16C) == 0) {
+        goto end;
+    }
+    if (*(long long *)(q + 8) != 0) {
+        goto end;
+    }
+    rv = *(int *)(q + 0x48) < 2;
+end:
+    return rv;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/lineManager", Draw2DLineSeg_Loop);
+int Draw2DLineSeg_Start(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    LineGeo *q = *(LineGeo **)((char *)p + 0x800);
+    return q->f_4;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/lineManager", Draw2DLineG);
+int Draw2DLineSeg_Loop(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    LineGeo *q = *(LineGeo **)((char *)p + 0x800);
+    return q->f_0 == 0;
+}
+
+int Draw2DLineG(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    LineGeo *q = *(LineGeo **)((char *)p + 0x800);
+    return q->f_48 == 2;
+}
 
 int _getLine(int a0)
 {

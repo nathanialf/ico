@@ -14,17 +14,44 @@ INCLUDE_ASM("asm/nonmatchings/src/ebrain", eBrainProcess);
 
 INCLUDE_ASM("asm/nonmatchings/src/ebrain", eBrainGetTargetGeneratorFromLabel);
 
-INCLUDE_ASM("asm/nonmatchings/src/ebrain", eBrainGetTarget);
+/* eBrain 0x800 view (local) */
+typedef struct { char _0[0x74]; int f_74; char _pad78[0x50]; float f_C8; char f_CC; unsigned char f_CD; } EGeo;
 
-INCLUDE_ASM("asm/nonmatchings/src/ebrain", eBrainInit);
+void eBrainGetTarget(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    EGeo *q = *(EGeo **)((char *)p + 0x800);
+    q->f_CC = 1;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/ebrain", eBrainStatusSet);
+void eBrainInit(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    EGeo *q = *(EGeo **)((char *)p + 0x800);
+    q->f_CC = 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/ebrain", eBrainSendMes);
+float eBrainStatusSet(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    EGeo *q = *(EGeo **)((char *)p + 0x800);
+    return q->f_C8;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/ebrain", GetStageFromLabel);
+float eBrainSendMes(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    EGeo *q = *(EGeo **)((char *)p + 0x800);
+    return (float)(q->f_74 - 1) * 50.0f;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/ebrain", eBrainGetTargetGeneratorFromLabelStage);
+void GetStageFromLabel(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    EGeo *q = *(EGeo **)((char *)p + 0x800);
+    q->f_CD = 1;
+}
+
+void eBrainGetTargetGeneratorFromLabelStage(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    EGeo *q = *(EGeo **)((char *)p + 0x800);
+    q->f_CD = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/ebrain", func_001906A8);
 

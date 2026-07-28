@@ -213,7 +213,12 @@ void AddPluralCameraSet(int a0) {
     func_001897A8((S4C *)items, n);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", InitPluralCameraSet);
+extern int D_00631990;
+extern int D_005F2FB8_arr[][0x65] __asm__("D_005F2FB8");
+
+void InitPluralCameraSet(void) {
+    AddPluralCameraSet(D_005F2FB8_arr[D_00631990][0x46]);
+}
 
 void GetPluralCameraSet(int a0, int a1)
 {

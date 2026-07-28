@@ -5,7 +5,14 @@
 extern int D_00632744;
 extern int D_006D0680[];
 extern int D_00632D30;
-INCLUDE_ASM("asm/nonmatchings/src/chain", UpdateRootPosition);
+extern int D_00632730;
+
+void *UpdateRootPosition(void) {
+    if (D_00632730 == 0) {
+        return 0;
+    }
+    return D_006D0680;
+}
 
 void StartPendulum(void *dst, float *out) {
     long long *s = (long long *)D_006D0680;
@@ -55,7 +62,23 @@ INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_free);
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", correct_vector);
 
-INCLUDE_ASM("asm/nonmatchings/src/chain", pendulum_Process);
+extern int D_00632CBC;
+extern int D_00633DA0;
+extern void traceLine(int a, int b, int c, const char *d);
+extern void chain_simulate_term_free(int a0);
+extern float D_00630F5C;
+extern char D_0055AB88[];
+
+void pendulum_Process(int a0) {
+    void *p = *(void **)((char *)a0 + 0x15C);
+    void *q = *(void **)((char *)p + 0x800);
+    if (D_00632CBC & 1) {
+        D_00633DA0 = D_00633DA0 + 0xA;
+        traceLine(0xA, D_00633DA0, 0x0FFFFFFF, D_0055AB88);
+    }
+    *(float *)((char *)q + 0x44) = D_00630F5C;
+    chain_simulate_term_free(a0);
+}
 
 extern char D_0055ABA8[];
 extern int D_00632CBC;
@@ -80,43 +103,126 @@ INCLUDE_ASM("asm/nonmatchings/src/chain", ChainGeo);
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", ChainDL);
 
-INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018E5B0);
+INCLUDE_ASM("asm/nonmatchings/src/chain", GetPositionOnTheChain);
 
-INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018EB70);
+INCLUDE_ASM("asm/nonmatchings/src/chain", TestChainUpDown);
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018ECC8);
 
-INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018F640);
+INCLUDE_ASM("asm/nonmatchings/src/chain", ReleaseChain);
 
-INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018F798);
+INCLUDE_ASM("asm/nonmatchings/src/chain", GetChainPendulum);
 
-INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018F8E8);
+INCLUDE_ASM("asm/nonmatchings/src/chain", IncreasePdlChain);
 
-INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018FA70);
+INCLUDE_ASM("asm/nonmatchings/src/chain", DecreasePdlChain);
 
-INCLUDE_ASM("asm/nonmatchings/src/chain", func_00190298);
+/* chain 0x800 view (local) */
+typedef struct {
+    int f_0; char _pad4[0x1C];
+    float f_20, f_24, f_28; char _pad2C[0x18];
+    float f_44; char _pad48[0x18];
+    char f_60; char _pad61[7];
+    int f_68; unsigned char f_6C; char _pad6D[3];
+    float f_70; int f_74; char _pad78[0x28];
+    unsigned char f_A0; char _padA1[0xF];
+    float f_B0, f_B4, f_B8; char _padBC[4];
+    unsigned char f_C0;
+} ChainGeoL;
 
-INCLUDE_ASM("asm/nonmatchings/src/chain", func_001902C8);
+extern void chain_simulate_term_swingstart(void *a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/chain", func_001902D8);
+void PlumbOrientUpdateChain(void *a0) {
+    ChainGeoL *p = *(ChainGeoL **)(*(char **)((char *)a0 + 0x15C) + 0x800);
+    chain_simulate_term_swingstart(a0);
+    p->f_60 = 1;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/chain", func_00190318);
+void isBottomOfChain(void *a0) {
+    void *p = *(void **)((char *)a0 + 0x15C);
+    ChainGeoL *q = *(ChainGeoL **)((char *)p + 0x800);
+    q->f_60 = 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/chain", func_00190330);
+void isStopChain(void *a0, float *a1, float *a2, float *a3) {
+    ChainGeoL *p = *(ChainGeoL **)(*(char **)((char *)a0 + 0x15C) + 0x800);
+    *a1 = *(float *)((char *)p + 0x30);
+    *a2 = *(float *)((char *)p + 0x34);
+    if (*(float *)((char *)p + 0x48) < *(float *)((char *)p + 0x34)) {
+        *a2 = *(float *)((char *)p + 0x48);
+    }
+    *a3 = *(float *)((char *)p + 0x40);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/chain", func_00190360);
+extern float D_00630F84;
 
-INCLUDE_ASM("asm/nonmatchings/src/chain", func_00190388);
+void GetChainClimbOrient(void *a0) {
+    void *p = *(void **)((char *)a0 + 0x15C);
+    ChainGeoL *q = *(ChainGeoL **)((char *)p + 0x800);
+    q->f_44 = D_00630F84;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/chain", func_001903A8);
+extern int D_00632D98;
+extern float D_00630F88;
 
-INCLUDE_ASM("asm/nonmatchings/src/chain", func_001903B8);
+void CheckChainClimbablePos(void *a0) {
+    ChainGeoL *p = *(ChainGeoL **)(*(char **)((char *)a0 + 0x15C) + 0x800);
+    p->f_44 = (float)D_00632D98 * 0.5f * D_00630F88;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/chain", func_001903E0);
+void GetChainClimbCollision(void *a0, float *a1) {
+    void *p = *(void **)((char *)a0 + 0x15C);
+    ChainGeoL *q = *(ChainGeoL **)((char *)p + 0x800);
+    q->f_20 = a1[0];
+    q->f_24 = a1[1];
+    q->f_28 = a1[2];
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/chain", func_00190408);
+int SetChainParentGObj(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    ChainGeoL *q = *(ChainGeoL **)((char *)p + 0x800);
+    return q->f_68 == q->f_74 - 1;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/chain", func_00190430);
+int GetChainDirCorrectVal(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    ChainGeoL *q = *(ChainGeoL **)((char *)p + 0x800);
+    return q->f_C0;
+}
+
+void GetRootPositionHandExtra(float *a0, void *a1) {
+    void *p = *(void **)((char *)a1 + 0x15C);
+    ChainGeoL *q = *(ChainGeoL **)((char *)p + 0x800);
+    a0[0] = q->f_B0;
+    a0[1] = q->f_B4;
+    a0[2] = q->f_B8;
+}
+
+int InitPendulum(void *a0) {
+    void *p = *(void **)((char *)a0 + 0x15C);
+    ChainGeoL *q = *(ChainGeoL **)((char *)p + 0x800);
+    if (q->f_A0) {
+        if (q->f_68 < 3) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+typedef struct { unsigned int lo; unsigned char m[3]; unsigned char hi; } Blk8;
+typedef struct { Blk8 a; int b; } Geo12;
+
+void LockChainGeo(char *a0, void *a1) {
+    int *p = *(int **)((char *)a1 + 0x15C);
+    ChainGeoL *q = *(ChainGeoL **)((char *)p + 0x800);
+    *(Geo12 *)a0 = *(Geo12 *)((char *)q + 0xA4);
+}
+
+void UnLockChainGeo(void *a0, int a1) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    ChainGeoL *q = *(ChainGeoL **)((char *)p + 0x800);
+    q->f_0 = a1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", func_00190440);
 

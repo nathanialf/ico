@@ -19,7 +19,7 @@ extern void ExecIcoMisc();
 extern unsigned char D_005F2FB8[];
 extern void soundAllocIopFree(int a0);
 extern void soundSeEnvDefaultSet(int idx);
-extern void func_00140B70(int val);
+extern void AdpcmFadeCloseAll(int val);
 extern void soundVBlank(int arg);
 extern void Ee2Iop();
 extern void debug_DispSEInfo(int a0, int a1);
@@ -59,7 +59,7 @@ void func_001447E0(int idx)
 {
     short new_var;
     soundSeEnvDefaultSet(idx);
-    func_00140B70(0);
+    AdpcmFadeCloseAll(0);
     new_var = 0x18C;
     soundAllocIopFree(*((unsigned short *) ((((char *) D_005F2FB8) + (idx * 0x194)) + new_var)));
 }

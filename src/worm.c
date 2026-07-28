@@ -28,5 +28,9 @@ void GetWormCaptureVector(void) {
 
 INCLUDE_ASM("asm/nonmatchings/src/worm", WormGeo);
 
-INCLUDE_ASM("asm/nonmatchings/src/worm", WormDL);
+void WormDL(void *a0, float a1) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    float *q = *(float **)((char *)p + 0x800);
+    q[2] = a1;
+}
 

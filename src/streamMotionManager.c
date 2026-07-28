@@ -46,7 +46,7 @@ INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", func_001F0DA8);
 
 INCLUDE_ASM("asm/nonmatchings/src/streamMotionManager", func_001F0E40);
 
-void func_001F0F90(void) {
+void GetStreamMotionData(void) {
     D_0063370C = 0;
 }
 

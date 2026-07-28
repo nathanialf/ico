@@ -5,7 +5,19 @@
 extern void ExecFrameDependSequence(int a0);
 extern void playSEConditionID(int a0, int a1);
 extern int GetNearNigePointN();
-INCLUDE_ASM("asm/nonmatchings/src/waySystemManager", CreateWaySystemManagerGObj);
+extern void GetRootMatrixByDObj(void *a0, void *a1);
+extern void func_00243AE8(void *a0, void *a1, void *a2);
+extern void MatrixDrive_TurnObjectMatrix(void *a0, void *a1);
+
+void CreateWaySystemManagerGObj(char *a0) {
+    int buf[4];
+    char *sub;
+    GetRootMatrixByDObj(buf, a0);
+    sub = *(char **)(a0 + 0x15C);
+    func_00243AE8(sub + 0x130, buf, sub + 0x1F0);
+    sub = *(char **)(a0 + 0x15C);
+    MatrixDrive_TurnObjectMatrix(sub + 0x1F0, buf);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/waySystemManager", RequestGetWayBegin);
 

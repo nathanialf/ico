@@ -68,15 +68,44 @@ void EnemySetfDisappearAll(int *self)
     InitMotionOrient(self);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy", EnemySetfDisappear);
+void EnemySetfDisappear(char *self, float arg) {
+    char *s = *(char **)(self + 0x15C);
+    *(float *)(*(char **)(s + 0x840) + 0x30) = arg;
+    if (arg < 0.0f) {
+        *(float *)(*(char **)(s + 0x840) + 0x30) = 0.0f;
+    }
+    if (1.0f < *(float *)(*(char **)(s + 0x840) + 0x30)) {
+        *(float *)(*(char **)(s + 0x840) + 0x30) = 1.0f;
+    }
+}
 
 void enemySetParticleDie(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy", ReviveEnemyParticle);
+typedef struct { char _0[0x2C]; int f_2C; } EnemyGeo2;
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy", isExistEnemyParticle);
+void ReviveEnemyParticle(void *a0, int a1) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    EnemyGeo2 *q = *(EnemyGeo2 **)((char *)p + 0x800);
+    q->f_2C = a1;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy", EnemyGetNSafeParts);
+void isExistEnemyParticle(char *a0) {
+    int i;
+    int n = *(int *)(*(int *)(a0 + 0x15C) + 0x88);
+    for (i = 0; i < n; i++) {
+        int *p = *(int **)(*(int *)(a0 + 0x15C) + 0x800);
+        *(int *)(*(int *)((char *)p + 0x14) + i * 4) = 0;
+    }
+}
+
+void EnemyGetNSafeParts(char *a0) {
+    int i;
+    int n = *(int *)(*(int *)(a0 + 0x15C) + 0x88);
+    for (i = 0; i < n; i++) {
+        int *p = *(int **)(*(int *)(a0 + 0x15C) + 0x800);
+        *(int *)(*(int *)((char *)p + 0x14) + i * 4) = 1;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy", EnemyDeleteParticle);
 
@@ -95,9 +124,38 @@ void SetEnemyHitGeometryAction(void *a0, float *a1) {
     func_001E8B48(0xC, a0, buf);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy", InitDemoMotionGeo);
+void InitDemoMotionGeo(void *a0, int a1) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x800);
+    int *base = *(int **)((char *)q + 0x14);
+    base[a1] = 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy", HotInitDemoMotionGeo);
+int HotInitDemoMotionGeo(void *a0, int a1) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x800);
+    int *r = *(int **)((char *)q + 0x14);
+    return r[a1] == 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy", GetEnemyHitNodeFlag);
+int GetEnemyHitNodeFlag(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int zero;
+    int n;
+    int count = *(int *)((char *)p + 0x88);
+    int result = 0;
+    zero = 0;
+    n = count;
+    if (n > zero) {
+        int *q = *(int **)((char *)p + 0x800);
+        int *base = *(int **)((char *)q + 0x14);
+        int i;
+        for (i = zero; i < count; i++) {
+            if (base[i] == zero) {
+                result++;
+            }
+        }
+    }
+    return result;
+}
 

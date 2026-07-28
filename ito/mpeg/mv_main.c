@@ -4,9 +4,17 @@
 extern void iosMallocCheckLeak2();
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_main", switchThread);
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_main", proceedAudio);
+extern void initAll(int a0);
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_main", readMpeg);
+void proceedAudio(int *a0)
+{
+    initAll(*a0);
+}
+
+void readMpeg(int *a0)
+{
+    proceedAudio(a0);
+}
 
 void initAll(int a0)
 {

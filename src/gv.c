@@ -17,9 +17,28 @@ int _InterGV(float *dst, float *src) {
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/gv", GetMatrixDirectionToZ);
+extern int iosOmBeforeFuncStandard(void *a0, int a1, void *a2);
 
-INCLUDE_ASM("asm/nonmatchings/src/gv", _InterRotGV);
+int GetMatrixDirectionToZ(void *a0, void *a1) {
+    void *p = *(void **)((char *)a0 + 0x15C);
+    void *q = *(void **)((char *)p + 0x800);
+    int h = *(short *)((char *)a1 + 0x30);
+    *(int *)((char *)q + 0x50) = h;
+    *(int *)((char *)q + 0x8) = *(short *)((char *)a1 + 0x32);
+    if (h == 1) {
+        *(int *)((char *)q + 0x54) = 2;
+        iosOmBeforeFuncStandard(a0, 1, a0);
+    }
+    return 1;
+}
+
+int _InterRotGV(void *a0, void *a1) {
+    int *p = *(int **)((char *)a1 + 0x15C);
+    unsigned short *q = *(unsigned short **)((char *)p + 0x800);
+    *(unsigned short *)a0 = *(unsigned short *)((char *)q + 0x50);
+    *(unsigned short *)((char *)a0 + 2) = *(unsigned short *)((char *)q + 0x8);
+    return 1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/gv", _DistxzSqGV);
 
@@ -62,9 +81,32 @@ void _RotyGV(int a0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/gv", func_00193EC8);
+/* gv 0x800 view (local) */
+typedef struct { char _0[8]; int f_8; } GVGeo;
 
-INCLUDE_ASM("asm/nonmatchings/src/gv", func_00193EE0);
+int _AbsRotyGV(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    GVGeo *q = *(GVGeo **)((char *)p + 0x800);
+    return q->f_8 == 0;
+}
+
+extern void *isysGObjSearchFromObjLayoutID(int x);
+extern void *isysGObjSearchFromObjKindID_begin(void *p);
+
+int _ApplyRyGV(void) {
+    void *g = isysGObjSearchFromObjLayoutID(0x21);
+    while (g != 0) {
+        void *p = *(void **)((char *)g + 0x15C);
+        void *q = *(void **)((char *)p + 0x800);
+        if (*(int *)((char *)g + 0x16C) != 0) {
+            if (*(int *)((char *)q + 0x50) == 1) {
+                return 1;
+            }
+        }
+        g = isysGObjSearchFromObjKindID_begin(g);
+    }
+    return 0;
+}
 
 void func_00193F48(int a0)
 {

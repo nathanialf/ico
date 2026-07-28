@@ -98,11 +98,17 @@ void ACTParaStatus_Clear(volatile int *self)
     ((int *)self[0x57])[0x1F] = 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTParaStatus_Exec);
+void ACTParaStatus_Exec(volatile int *self)
+{
+    ((int *)self[0x57])[0x151] = 0;
+    ((int *)self[0x57])[0x153] = 0;
+    ((int *)self[0x57])[0x152] = 0;
+    ((int *)self[0x57])[0x1F] = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_00149EF4);
 
-int func_00149EF8(void *a0)
+int _ACTCharStatus_Clear(void *a0)
 {
     void *p = *((void **) (((char *) a0) + 0x15C));
     int idx = *((int *) (((char *) p) + 0x4A0));
@@ -111,7 +117,18 @@ int func_00149EF8(void *a0)
     return ((unsigned short *) (((char *) new_var) + (idx * 0x190)))[0x186 / 2] & 7;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", GetSkeltonOrient);
+typedef struct { char _[0x186]; unsigned short f186; char _pad[8]; } ACTCharStat;
+extern ACTCharStat D_00565060_arr[] __asm__("D_00565060");
+
+int GetSkeltonOrient(void *a0, void *a1) {
+    int i0 = (*(int **)((char *)a0 + 0x15C))[0x4A0 / 4];
+    int i1 = (*(int **)((char *)a1 + 0x15C))[0x4A0 / 4];
+    ACTCharStat *e0 = &D_00565060_arr[i0];
+    ACTCharStat *e1 = &D_00565060_arr[i1];
+    int b0 = (*(unsigned int *)((char *)e0 + 0x188) >> 15) & 1;
+    int b1 = (*(unsigned int *)((char *)e1 + 0x188) >> 15) & 1;
+    return b0 & b1;
+}
 
 extern int D_00561928[][10];
 extern void disp_memory_partition_bar(char *self, char *other, int v, char *tmp_a, char *tmp_b);
@@ -169,7 +186,7 @@ void ActOrientTest(float *dst, char *obj, void *a2)
 }
 
 extern float MatrixDrive_GetTurnYAngleXZ(float a0);
-extern void func_00102A40(void *a0, void *a1, void *a2, float a3);
+extern void SetRootMatrixWithTransOffsetByDObj(void *a0, void *a1, void *a2, float a3);
 extern void func_00243978(void *a0, void *a1);
 extern void func_00243AD0(void *a0, void *a1, void *a2);
 extern void func_00243AE8(void *a0, void *a1, void *a2);
@@ -188,10 +205,10 @@ void GetGirlHandlinkClInfo(void *a0, void *a1, void *a2, float farg0, float farg
         if (0.0f < buf18[1] - *(float *) ((char *) a2 + 4)) {
             buf18[1] = *(float *) ((char *) a2 + 4);
         }
-        func_00102A40(a0, a1, buf18, 1.0f);
+        SetRootMatrixWithTransOffsetByDObj(a0, a1, buf18, 1.0f);
         return;
     }
-    func_00102A40(a0, a1, a2, farg0);
+    SetRootMatrixWithTransOffsetByDObj(a0, a1, a2, farg0);
 }
 
 void hand_able_connect(void) {
@@ -202,7 +219,7 @@ void hand_able_connect(void) {
 
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A2C4);
 
-void func_0014A2C8(char *a0)
+void ACTGame_CommonLoop(char *a0)
 {
     long long mask1 = ~((long long)0x800 << 32);
     long long mask2 = ~((long long)0x1000 << 32);
@@ -249,7 +266,7 @@ void ACTItemThrow(float *a0, float *a1)
 
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A46C);
 
-int func_0014A470(void)
+int ACTItemWatchMotion(void)
 {
     int *player = D_00631AE4;
     unsigned int state = *(int *)(*(char **)((char *)player + 0x164) + 0x30);
@@ -334,7 +351,21 @@ ret0:
     return rv;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", updateHMC);
+typedef struct { char _p0[0x15C]; int f_15C; char _p1[0x30]; } AGHmc; /* stride 0x190 */
+extern AGHmc D_00565060_hmc[] __asm__("D_00565060");
+
+int updateHMC(void) {
+    char *mgr = (char *)D_00631AE4;
+    int state, idx; AGHmc *e;
+    if (mgr == 0) goto ret0;
+    state = *(int *)(*(int *)(mgr + 0x164) + 0x30);
+    if (state != 0x4B && state != 0x55) goto ret0;
+    idx = *(int *)(*(int *)(mgr + 0x15C) + 0x4A0);
+    e = (AGHmc *)((char *)D_00565060_hmc - (-(idx * 0x190)));
+    if (e->f_15C == 1) return 1;
+ret0:
+    return 0;
+}
 
 void RequestChangeHandMode(float *a0, float *a1)
 {
@@ -349,9 +380,26 @@ void RequestChangeHandMode(float *a0, float *a1)
 
 INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A5FC);
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A600);
+INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTNotNeedCameraOffset);
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGameCollisionOn);
+typedef struct { char _0[0x30]; int f_30; char _pad34[0x54]; int f_88, f_8C, f_90; char _pad94[0xEC]; int f_180; } AGState;
+
+/* per-action-state attribute table (stride 0x50), indexed by AGState.f_30 */
+typedef struct { char _pad0[0x4C]; unsigned int f_4C; } ActStateAttr;
+extern ActStateAttr D_0055CFD8[];
+
+int ACTGameCollisionOn(void *a0)
+{
+    AGState *s = *(AGState **)((char *)a0 + 0x164);
+    if (a0 == D_00631AE4) {
+        unsigned int off = s->f_30 * 0x50;
+        off += (unsigned int)D_0055CFD8;
+        if ((((ActStateAttr *)off)->f_4C >> 9) & 1) {
+            return s->f_180;
+        }
+    }
+    return 0;
+}
 
 extern int ACTGame_DisconnectHand(void);
 extern int dispInsectNet(int *self);

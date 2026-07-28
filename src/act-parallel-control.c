@@ -57,7 +57,11 @@ int ActPara_StatusToFlag(char *self, int bit) {
     return (*(int *)(sub + 0x90) >> bit) & 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", ActPara_DebugOut);
+void ActPara_DebugOut(int **a0) {
+    long long *p = (long long *)a0[0x59];
+    p[0xB] = 0;
+    p[0xC] = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/act-parallel-control", func_0014B270);
 

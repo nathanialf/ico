@@ -191,7 +191,19 @@ void func_00131560(int a0)
 
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_001315A8);
 
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131780);
+extern void *func_0013A0F8(void *a, int n, void *c, int d);
+extern void iosCdvdLoad(int *a0, void *a1, int a2);
+extern void iosMallocCheckLeak2(void *a0);
+extern void *D_00632024;
+extern char D_00556818[];
+extern char D_005568E8[];
+
+void iosCdvdHandlerRead(void *a0, void *a1, int a2, int a3, int a4, int a5, int a6) {
+    void *r = func_0013A0F8(D_00632024, a2, D_00556818, 0x33C);
+    iosCdvdLoad((int *)a0, r, a2);
+    debug_assertMessage(D_005568E8, a1, a2, a6);
+    iosMallocCheckLeak2(r);
+}
 
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131818);
 
@@ -276,7 +288,7 @@ void iosCdvdDirectStOpen(void *a0) {
     iosMsgSend(D_0027E4C0, a0, 0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00132630);
+INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdChgFileName);
 
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00132930);
 

@@ -17,7 +17,7 @@ extern float D_0063379C;
 extern int D_006337A0;
 extern int D_00633798;
 extern void ACTGame_BeforeFunc();
-extern void func_0014A2C8(char *a0);
+extern void ACTGame_CommonLoop(char *a0);
 extern long long D_0055A1B0[];
 extern void GetCylinderCollisionWithExceptOwnCollision();
 extern void stgmgrForceSwitch();
@@ -58,7 +58,17 @@ INCLUDE_ASM("asm/nonmatchings/src/st25a", actSt25aQueenTalkChk);
 
 INCLUDE_ASM("asm/nonmatchings/src/st25a", actConte12);
 
-INCLUDE_ASM("asm/nonmatchings/src/st25a", actConte12Jimaku);
+typedef struct { char _0[0x110]; int f_110, f_114, f_118; char _pad11c[0x20C]; int f_328, f_32C; char _pad330[0xC]; int f_33C; } St25State;
+
+void actConte12Jimaku(void *a0) {
+    St25State *p = *(St25State **)((char *)a0 + 0x164);
+    p->f_33C = 0;
+    p->f_110 = 0;
+    p->f_114 = 0;
+    p->f_118 = 0;
+    p->f_32C = 0x7F;
+    p->f_328 = 0x7F;
+}
 
 int actSt25aQueenDeadChk(void) {
     return isysGObjAddHead();
@@ -133,7 +143,7 @@ void actSwordEffXL(int *self)
 {
     long long buf[2];
     ACTGame_BeforeFunc((int)self);
-    func_0014A2C8((int)self);
+    ACTGame_CommonLoop((int)self);
     buf[0] = D_0055A1B0[0];
     buf[1] = D_0055A1B0[1];
     GetCylinderCollisionWithExceptOwnCollision(self, (int *)buf);

@@ -31,7 +31,13 @@ void playEff(int a0, int a1, float f)
     func_001D0FA8(a0, a1, 0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", execEff);
+extern void soundSeGroupGet(int a0);
+
+void execEff(int a0, int a1) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    p += a1;
+    soundSeGroupGet(p[0x187]);
+}
 
 extern void execEff(int a0, int a1);
 
@@ -59,7 +65,10 @@ int executeSEPackageWithNoGObj(int a0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", ExecuteSEPackageWithGroupVariation);
+int ExecuteSEPackageWithGroupVariation(void *a0, int a1) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    return (int)(*(float *)((char *)p + 0x644)) < a1;
+}
 
 int ExecuteSEPackage(void *a0, int a1) {
     int *p = *(int **)((char *)a0 + 0x15C);

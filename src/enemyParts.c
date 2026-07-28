@@ -16,7 +16,14 @@ extern void func_001D4B40();
 extern void func_001E4798(int *self, int a1, int a2, int a3, int a4, int a5);
 INCLUDE_ASM("asm/nonmatchings/src/enemyParts", UpdatePointBlur);
 
-INCLUDE_ASM("asm/nonmatchings/src/enemyParts", InitEnemyEye);
+/* enemyParts 0x800 view (local) */
+typedef struct { int f_0; char _pad4[4]; int f_8; char _pad_c[8]; int f_14; char _pad18[0x20]; int f_38; char _pad3c[8]; float f_44; } EPGeo;
+
+void InitEnemyEye(void *a0, int a1) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    EPGeo *q = *(EPGeo **)((char *)p + 0x800);
+    q->f_38 = a1;
+}
 
 int InitEnemyFootPrint(int *self)
 {
@@ -33,11 +40,28 @@ void ExecEnemyFootPrints(int *self)
     self[0x16C / 4] = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/enemyParts", EntryEnemyFootPrint);
+int EntryEnemyFootPrint(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    EPGeo *q = *(EPGeo **)((char *)p + 0x800);
+    return q->f_14;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/enemyParts", DispEnemyFootPrints);
+extern int EnemyGeo(void *a0, int a1, void *a2);
 
-INCLUDE_ASM("asm/nonmatchings/src/enemyParts", InitPointBlur);
+int DispEnemyFootPrints(void *a0) {
+    char *p = *(char **)((char *)a0 + 0x15C);
+    int *q = *(int **)(p + 0x800);
+    int val = q[0];
+    char *r = *(char **)(p + 0x840);
+    *(int *)(r + 0x30) = 0;
+    return EnemyGeo(a0, val, q + 1);
+}
+
+void InitPointBlur(void *a0, float a1) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    EPGeo *q = *(EPGeo **)((char *)p + 0x800);
+    q->f_44 = a1;
+}
 
 int DispPointBlur(void *a0)
 {
@@ -49,9 +73,22 @@ int DispPointBlur(void *a0)
   return (*((int *) ((new_var + (idx * 0x14)) + 0x10))) & 3;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/enemyParts", UpdateEnemyEye);
+typedef struct { int _0, _4; float f8; int _c, _10; } EyeParam;
+extern EyeParam D_0061D560_arr[] __asm__("D_0061D560");
 
-INCLUDE_ASM("asm/nonmatchings/src/enemyParts", DispEnemyEye);
+int UpdateEnemyEye(void *a0) {
+    EyeParam *base = D_0061D560_arr;
+    int *p = *(int **)((char *)a0 + 0x15C);
+    EPGeo *q = *(EPGeo **)((char *)p + 0x800);
+    return ((unsigned int)base[q->f_8]._10 >> 2) & 3;
+}
+
+float DispEnemyEye(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    EPGeo *q = *(EPGeo **)((char *)p + 0x800);
+    int idx = q->f_8;
+    return D_0061D560_arr[idx].f8;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/enemyParts", ResetEnemyEye);
 

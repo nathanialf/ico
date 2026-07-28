@@ -2162,3 +2162,51 @@ declares the callee with a placeholder signature the aug6 body contradicts),
     mechanical port attempt. Left as a resume target — see
     `decomp/carve_ledger.md` for the exact literal/offset findings so a
     future session doesn't have to re-derive them.
+
+### src/chain
+- REVERTED `PlumbOrientUpdateChain` w3 @ 0x00190298 — [codegen] insn 4: expected `jal	0 <PlumbOrientUpdateChain>` built `jal	1a0 <chain_simulate_term_swingstart>`
+
+### src/chain
+- REVERTED `isBottomOfChain` w3 @ 0x001902C8 — [codegen] insn 1: expected `lw	v1,2048(v0)` built `lw	v1,2032(v0)`
+
+### src/chain
+- REVERTED `isStopChain` w3 @ 0x001902D8 — [codegen] insn 1: expected `lw	v0,2048(v0)` built `lw	v0,2032(v0)`
+
+### src/chain
+- REVERTED `GetChainClimbOrient` w3 @ 0x00190318 — [codegen] insn 2: expected `lw	v1,2048(v0)` built `lw	v1,2032(v0)`
+
+### src/chain
+- REVERTED `CheckChainClimbablePos` w3 @ 0x00190330 — [codegen] insn 7: expected `lw	v1,2048(v0)` built `lw	v1,2032(v0)`
+
+### src/chain
+- REVERTED `GetChainClimbCollision` w3 @ 0x00190360 — [codegen] insn 2: expected `lw	v0,2048(v1)` built `lw	v0,2032(v1)`
+
+### src/chain
+- REVERTED `SetChainParentGObj` w3 @ 0x00190388 — [codegen] insn 1: expected `lw	a0,2048(v0)` built `lw	a0,2032(v0)`
+
+### src/chain
+- REVERTED `GetChainDirCorrectVal` w3 @ 0x001903A8 — [codegen] insn 1: expected `lw	v1,2048(v0)` built `lw	v1,2032(v0)`
+
+### src/chain
+- REVERTED `GetRootPositionHandExtra` w3 @ 0x001903B8 — [codegen] insn 1: expected `lw	v0,2048(v1)` built `lw	v0,2032(v1)`
+
+### src/chain
+- REVERTED `InitPendulum` w3 @ 0x001903E0 — [codegen] insn 1: expected `lw	a0,2048(a1)` built `lw	a0,2032(a1)`
+
+### src/chain
+- REVERTED `LockChainGeo` w3 @ 0x00190408 — [codegen] insn 1: expected `lw	v1,2048(v0)` built `lw	v1,2032(v0)`
+
+### src/chain
+- REVERTED `UnLockChainGeo` w3 @ 0x00190430 — [codegen] insn 1: expected `lw	v1,2048(v0)` built `lw	v1,2032(v0)`
+
+### src/gv
+- REVERTED `_AbsRotyGV` w3 @ 0x00193EC8 — [codegen] insn 1: expected `lw	v1,2048(v0)` built `lw	v1,2032(v0)`
+
+### src/gv
+- REVERTED `_ApplyRyGV` w3 @ 0x00193EE0 — [codegen] insn 12: expected `lw	v0,2048(v0)` built `lw	v0,2032(v0)`
+
+### ios/cdvd
+- REVERTED `iosCdvdHandlerRead` w3 @ 0x00131780 — [codegen] insn 1: expected `addiu	a3,zero,828` built `addiu	a3,zero,802`
+
+### src/geometryManager
+- PORTED `SetRootQuaternion` w3 @ 0x00102A38 <- aug6 sugipon/src/geometryManager (1 syms rebound)

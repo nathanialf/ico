@@ -51,7 +51,7 @@ void AdpcmOpenSync(int a0, int a1) {
     AdpcmIopBuffAlloc(a0, 0, a1);
 }
 
-void func_00140B70(int val) {
+void AdpcmFadeCloseAll(int val) {
     D_00633CC0 = val;
 }
 

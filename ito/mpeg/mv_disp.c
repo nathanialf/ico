@@ -153,7 +153,21 @@ int handler_endimage(char *self) {
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", startDisplay);
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", endDisplay);
+extern int setDMAscTag(void *p);
+typedef struct { char pad[0x194]; } DispBuf;
+extern DispBuf D_005F3038[];
+extern char D_00633B60[];
+
+int endDisplay(int a0) {
+    int buf[0x40];
+    void *p;
+    if (a0 == -1) {
+        p = D_00633B60;
+    } else {
+        p = (void *)&D_005F3038[a0];
+    }
+    return setDMAscTag(p);
+}
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", setDMAscTag);
 
@@ -164,7 +178,22 @@ void setGIFtag(void) {
     brainStatusDel(*(volatile float *)&D_006318BC);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", setGIFad);
+extern int func_002641D8(void *a0, int a1, int a2);
+extern int MoveNextStage_Clear(int a0, int a1, int a2, int a3, void *a4, int a5, int a6, int a7);
+extern char D_0028A890[];
+extern int func_00182000(void *a0, int a1, int a2);
+
+int setGIFad(void) {
+    char buf[0x40];
+    int r;
+    func_002641D8(buf, 0, 0x40);
+    *(float *)(buf + 0x20) = 1.0f;
+    *(float *)(buf + 0x24) = 1.0f;
+    *(float *)(buf + 0x28) = 1.0f;
+    r = MoveNextStage_Clear(0x3C, 0x45, -1, 0, buf, 1, 7, 0);
+    func_00182000(D_0028A890, r, 1);
+    return r;
+}
 
 extern int D_00632DB8;
 extern void GetCylinderCollisionWithExceptOwnCollision(void *a0);
@@ -202,7 +231,29 @@ void setTEX1_1(int a0, int a1, int a2, int a3)
     func_00203D90(a0, a1, a2, a3);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", setTEX0_1);
+struct RecA_tex { char pad[0x34]; int x34; char pad2[0x4C - 0x38]; };
+struct RecB_tex { int x0; char pad[0x8]; int xC; int x10; };
+extern struct RecA_tex D_002A4C48[];
+extern struct RecB_tex D_0029F270[];
+
+void setTEX0_1(int a0) {
+    int e;
+    struct RecB_tex *p;
+    if (a0 < 0) return;
+    e = D_002A4C48[a0].x34;
+    if (e != 0) {
+        p = &D_0029F270[e];
+    } else {
+        p = 0;
+    }
+    if (p == 0) return;
+    if ((p->x10 & 1) == 1u) {
+        p->xC = 0x32F;
+    }
+    if (p->xC == 0x32F) {
+        p->xC = p->x0;
+    }
+}
 
 extern void *func_0013ECF8(void *a0);
 extern void iosOmBeforeFuncStandard(void *a0, int a1, void *a2);
