@@ -1178,6 +1178,12 @@ def aug6_decl_index(rel, raw):
     aug6 TU. Paren/brace-aware statement splitting, so multi-line prototypes
     and function-pointer declarators survive intact."""
     clean = T.strip_comments_preserve_len(raw)
+    # Preprocessor lines terminate a top-level statement without a `;`.
+    # Blank them (length-preserving) or the leading `#include` block glues
+    # itself onto the first real declaration and no `extern` is ever seen.
+    clean = "\n".join(
+        " " * len(ln) if ln.lstrip().startswith("#") else ln
+        for ln in clean.split("\n"))
     n = len(clean)
     idx = {}
     i = 0
@@ -1194,9 +1200,10 @@ def aug6_decl_index(rel, raw):
             if c == "}" and depth == 0:
                 stmt_start = i + 1
         elif c == ";" and depth == 0:
-            stmt = clean[stmt_start:i + 1]
-            body = raw[stmt_start:i + 1]
-            st = stmt.strip()
+            seg = clean[stmt_start:i + 1]
+            lead = len(seg) - len(seg.lstrip())
+            st = clean[stmt_start + lead:i + 1]
+            body = raw[stmt_start + lead:i + 1]
             if st.startswith("extern") and not st.startswith("externs"):
                 if ("(" not in st and "[" not in st
                         and T.count_top_level_commas(st) > 0):

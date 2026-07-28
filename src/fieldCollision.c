@@ -164,29 +164,59 @@ void ClipWallFuchiHangWalkStop(void) {
 
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ClipWallField);
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ClipWallEField);
+extern int (*D_006323F0)(void *a0, int a1);
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ClipWallBoxStop);
+int ClipWallEField(void *a0) {
+    return D_006323F0(a0, 0);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ClipWallAdjustPos);
+int ClipWallBoxStop(void *a0) {
+    return D_006323F0(a0, 0x1);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ClipWallE);
+int ClipWallAdjustPos(void *a0) {
+    return D_006323F0(a0, 0x2);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ClipWallCheckCB);
+int ClipWallE(void *a0) {
+    return D_006323F0(a0, 0x6);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ClipWallFieldCheckCB);
+int ClipWallCheckCB(void *a0) {
+    return D_006323F0(a0, 0x7);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ClipFloor);
+int ClipWallFieldCheckCB(void *a0) {
+    return D_006323F0(a0, 0x3);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ClipFloorE);
+int ClipFloor(void *a0) {
+    return D_006323F0(a0, 0x5);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ClipFloorR);
+int ClipFloorE(void *a0) {
+    return D_006323F0(a0, 0xA);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ClipFloorIH);
+int ClipFloorR(void *a0) {
+    return D_006323F0(a0, 0xB);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ClipFloorCheckCB);
+int ClipFloorIH(void *a0) {
+    return D_006323F0(a0, 0x4);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ClipCollision);
+extern int D_00633D34;
+
+void ClipFloorCheckCB(void *a0, int a1) {
+    D_00633D34 = a1;
+    D_006323F0(a0, 8);
+}
+
+void ClipCollision(void *a0, int a1) {
+    D_00633D34 = a1;
+    D_006323F0(a0, 9);
+}
 
 extern int (*D_006323F4)(void *a0, int a1);
 
@@ -213,5 +243,16 @@ void GetOrientOfWall(void *a0, int a1) {
     D_006323F4(a0, 0x10);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", SetSimplePlane);
+extern void func_00243B60(int *dst, int *src);
+
+void SetSimplePlane(int *self)
+{
+    int buf[4];
+    int *p10 = self + 4;
+    func_00243B60(buf, p10);
+    D_006323F0((int)self, 1);
+    func_00243B60(p10, self + 8);
+    D_006323F4((int)self, 0xC);
+    func_00243B60(p10, buf);
+}
 

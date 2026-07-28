@@ -32,7 +32,12 @@ int gamesysObjInfoSave(void) {
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoLoad);
+extern void staffRollMain(int a0, float a1);
+
+int gamesysObjInfoLoad(void) {
+    staffRollMain(0x80, 1.0f);
+    return 1;
+}
 
 int gamesysObjInfoEmptyAreaSearch(int idx)
 {
@@ -51,9 +56,54 @@ int gamesysObjInfoEmptyAreaSearch(int idx)
 
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoBaseSet);
 
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysBackStageProcess);
+extern char D_0055F468[];
+extern char D_00615770[];
+extern int D_00632BDC;
+extern int D_00632BE0;
+extern int func_001A7848(void *, int, int, int, void *, int, int, int, int, int *);
+extern void scpPlayStart(int, int, int, int, int);
 
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysGeneratorInfoLoad);
+int gamesysBackStageProcess(int a0) {
+    int ret;
+    if (a0 != 0) {
+        D_00632BE0 = -1;
+    }
+    ret = func_001A7848(D_00615770, 0xA, 0x3C, 0xA, D_0055F468, 0x40, 0, 0, 0x60, &D_00632BDC);
+    if (ret > 0 && D_00632BDC != 0) {
+        scpPlayStart(D_00632BDC, 0, 1, 1, 1);
+    }
+    return ret;
+}
+
+extern char D_00615790[];
+extern char D_006157A8[];
+extern int D_00632BF8;
+extern int D_00632BFC;
+extern char D_006F8EE0[];
+extern int func_001A76B8(void *a0, int a1, int a2, int a3, int a4, void *a5, void *a6, int a7);
+extern void func_001A8D40();
+
+int gamesysGeneratorInfoLoad(void) {
+    long buf[3];
+    int r;
+    __builtin_memcpy((char *)buf, D_00615790, 0x14);
+    if (D_00632BF8 != 0) {
+        *(long *)((char *)buf + 0) = *(long *)(D_006157A8 + 0);
+        *(long *)((char *)buf + 8) = *(long *)(D_006157A8 + 8);
+        *(short *)((char *)buf + 0x10) = *(short *)(D_006157A8 + 0x10);
+        *(char *)((char *)buf + 0x12) = *(char *)(D_006157A8 + 0x12);
+    }
+    r = func_001A76B8(buf, 0x50, 0x46, 0xA, 0x1A, &D_00632BFC, (void *)func_001A8D40, D_00632BF8);
+    if (D_00275254[0] & 0x10) {
+        int *row = (int *)(D_006F8EE0 + D_00632BF8 * 0xD0);
+        int i;
+        for (i = 0x19; i >= 0; i--) {
+            row[1] = row[0];
+            row += 2;
+        }
+    }
+    return r;
+}
 
 int gamesysCharacterInfoLoad(void) {
     init_debug_menu();
@@ -65,7 +115,13 @@ int gamesysNObjInfoInit(void) {
     return -1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysObjInfoStageInitFlagCls);
+extern float D_006310F4;
+extern void backStageProcessInit(float a0);
+
+int gamesysObjInfoStageInitFlagCls(void) {
+    backStageProcessInit(D_006310F4);
+    return 1;
+}
 
 int gamesysObjInfoStageInitPosSaveUnlock(void) {
     InitCharFileManager();
@@ -114,7 +170,20 @@ INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysMemoryHandlerRead);
 
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysMemorySave);
 
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysMemoryLoad);
+extern void func_00241C48(void);
+extern void func_00244658(int a0);
+extern void func_00244ED0(int *a0, int a1, int a2);
+
+void gamesysMemoryLoad(void) {
+    func_00244658(1);
+    func_00244ED0((int *)func_00244630(0), 0, 0x64);
+    func_00244ED0((int *)func_00244630(1), 0, 0x64);
+    func_00244ED0((int *)func_00244630(2), 0, 0x64);
+    *(int *)func_00244630(0) |= 0x40;
+    *(int *)func_00244630(1) |= 0x40;
+    *(int *)func_00244630(2) |= 0x40;
+    func_00241C48();
+}
 
 void gamesysVersionLoad(int a0)
 {
@@ -126,7 +195,15 @@ INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysVersionSave);
 
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysCharacterInfoSave);
 
-INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysGeneratorInfoSave);
+extern void gamesysMemoryHandlerRead(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8);
+extern void gamesysMemoryHandlerWrite(int a0);
+
+void gamesysGeneratorInfoSave(void)
+{
+    gamesysMemoryHandlerWrite(1);
+    gamesysMemoryHandlerRead(0x10, 0x20, 0x30, 0x40, -0x136, -0x6B, 0x136, 0x6B, 0);
+    gamesysMemoryHandlerWrite(1);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", func_001AC348);
 

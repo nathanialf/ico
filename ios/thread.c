@@ -31,9 +31,32 @@ extern void func_00100340();
 extern int *D_00632190;
 INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadMain);
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadCreateS);
+void iosThreadCreateS(int *a0, char *a1, int a2) {
+    if (a0 != 0 && a1 != 0) {
+        a0[0] = a2;
+        a0[1] = (int)a1;
+        if (a2 > 0) {
+            do {
+                *a1 = 0;
+                a1 += 0x40;
+            } while (--a2 != 0);
+        }
+    } else {
+        a0[0] = 0;
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadStart);
+void *iosThreadStart(int *a0) {
+    unsigned char *p = (unsigned char *)a0[1];
+    int i;
+    for (i = 0; i < a0[0]; i++) {
+        if (*p == 0) {
+            return p;
+        }
+        p += 0x40;
+    }
+    return 0;
+}
 
 void iosThreadStop(char *p) {
     *p = 0;
@@ -59,7 +82,10 @@ end:
 
 INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadMessage);
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadName);
+void iosThreadName(short *a0) {
+    a0[1] = 0;
+    a0[0] = 0;
+}
 
 void iosThreadSuspend(int *self)
 {
@@ -144,7 +170,26 @@ void iosSemaWait(int *a0, int a1)
   func_001003B0(v[0x30 / 4], a1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", iosSemaSignal);
+extern const char D_005578D0[];
+extern char D_00557970[];
+extern void *D_00632000;
+extern extern void debug_assertMessage();
+extern void *func_0013A0F8(void *a, int n, void *c, int d);
+extern void iosMsgQueueDestroy(void *a, void *b, int c);
+
+void iosSemaSignal(int a0) {
+    void *obj = (void *)D_006A6F30[func_00100410()];
+    int q;
+    if (*(int *)((char *)obj + 0x48) == 0) {
+        void *r;
+        *(int *)((char *)obj + 0x48) = 1;
+        r = func_0013A0F8(D_00632000, 0x50, (void *)D_005578D0, 0x1DE);
+        *(void **)((char *)obj + 0x4C) = r;
+        iosMsgQueueDestroy(r, (char *)r + 0x30, 8);
+    }
+    q = iosMsgSend((char *)*(void **)((char *)obj + 0x4C), a0, 0);
+    debug_assertMessage(D_00557970, q);
+}
 
 void iosSemaReferStatus(int a0)
 {

@@ -14,7 +14,14 @@ INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmStop);
 
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmOpen);
 
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmClose);
+extern char D_00557BF8[];
+extern extern void debug_assertMessage();
+extern void func_0025DEF0(long long a0);
+
+void AdpcmClose(void *a0) {
+    debug_assertMessage(D_00557BF8);
+    func_0025DEF0(*(long long *)((char *)a0 + 0x30));
+}
 
 void AdpcmInterStereoVolumeSet(int a0)
 {
@@ -27,9 +34,20 @@ INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmVolumeSet);
 
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", adpcmPauseRequest);
 
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmIopBuffAlloc);
+extern void adpcmPauseRequest(void *a0, int a1, int a2);
 
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmOpenSync);
+void AdpcmIopBuffAlloc(int a0, int a1, int a2) {
+    char *b = *(char **)(a0 + 0x2C);
+    short *q = (short *)(b + (a1 * 2 + 1) * 2);
+    short *r = (short *)(b + a1 * 4);
+    q[0x20] = a2;
+    r[0x1E] = a2;
+    adpcmPauseRequest(b, a1 * 2, a2);
+}
+
+void AdpcmOpenSync(int a0, int a1) {
+    AdpcmIopBuffAlloc(a0, 0, a1);
+}
 
 void func_00140B70(int val) {
     D_00633CC0 = val;
@@ -39,11 +57,47 @@ INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140B78);
 
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140BE0);
 
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmUseAreaGet);
+extern char D_00557B90[];
+extern int D_00633CB0;
+
+int AdpcmUseAreaGet(void) {
+    int i;
+    for (i = 0; i < 2; i++) {
+        if (D_00633CB8[i] == 0) {
+            goto found;
+        }
+    }
+    debug_assertMessage(D_00557B90);
+    return 0;
+found:
+    D_00633CB8[i] = 1;
+    return D_00633CB0 + i * 0x5C000;
+}
 
 INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", func_00140D58);
 
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", AdpcmFreeAreaGet);
+extern int *AdpcmOpen(int a0, int a1, int a2, int a3, int a4, int a5, int a6);
+extern char D_00557C20[];
+extern char D_00557C30[];
+extern void func_00133500(int a, int b);
+extern void iosCdvdBackGroundMgrEntryNum(int x);
+
+int *AdpcmFreeAreaGet(int *self)
+{
+    int *r;
+    debug_assertMessage((int *)D_00557C20);
+    if (self[5] != 0) goto body;
+    return 0;
+body:
+    if (((int *)self[5])[0x40] != 0) {
+        return (int *)-1;
+    }
+    debug_assertMessage((int *)D_00557C30);
+    iosCdvdBackGroundMgrEntryNum(self[5]);
+    r = AdpcmOpen(0, self[1], 0x11, self[2], 0, self[3], self[4]);
+    func_00133500(((int *)r[11])[10], 0x5C000);
+    return r;
+}
 
 void AdpcmInterStereoVolumeSetAll(short a0)
 {

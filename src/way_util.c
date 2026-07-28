@@ -1,5 +1,8 @@
 #include "common.h"
 
+typedef struct { int pad[8]; int f20; int pad2[7]; } WPElem;
+typedef struct { char pad[0x20]; int i20; int i24; } WPNode;
+
 
 
 
@@ -22,7 +25,11 @@ extern int CreateWayPoint();
 extern void iosMallocCheckLeak2();
 INCLUDE_ASM("asm/nonmatchings/src/way_util", visible_waypoint_of_all_except_gid);
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", visible_waypoint_of_all_except_gid_ThreadVersion);
+extern int GetNearNigePointN(void *a0, int a1, int a2, int a3);
+
+int visible_waypoint_of_all_except_gid_ThreadVersion(void *a0, int a1, int a2) {
+    return GetNearNigePointN(a0, a1, a2, 0);
+}
 
 void visible_waypoint_of_all_except_temp(void) {}
 
@@ -76,9 +83,56 @@ INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_from_gobj);
 
 INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_by_lineseg_of_group);
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_by_lineseg);
+extern float D_00630E3C;
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_by_lineseg_of_group_from_gobj);
+char *nearest_waypoint_by_lineseg(int *arg0, int handle)
+{
+    int buf[4];
+    char *t = CloseWayGroup(handle);
+    float bestDist = D_00630E3C;
+    char *best, *cur;
+    __asm__ __volatile__("" ::: "memory");
+    best = t;
+    cur = best;
+    if (best != 0) {
+        do {
+            float d;
+            func_00243AE8(buf, (int *)(cur + 0x10), arg0);
+            d = func_0016A2F8((int)buf);
+            if (d < bestDist) {
+                bestDist = d;
+                best = cur;
+            }
+            cur = CreateWayPoint(cur);
+        } while (cur != 0);
+    }
+    return best;
+}
+
+extern float D_00630E40;
+
+char *nearest_waypoint_by_lineseg_of_group_from_gobj(int *a0) {
+    int buf[4];
+    char *t = CloseWayGroup(D_00633874);
+    float bestDist = D_00630E40;
+    char *best, *cur;
+    __asm__ __volatile__("" ::: "memory");
+    best = t;
+    cur = best;
+    if (best != 0) {
+        do {
+            float d;
+            func_00243AE8(buf, (int *)(cur + 0x10), a0);
+            d = func_0016A2F8((int)buf);
+            if (d < bestDist) {
+                bestDist = d;
+                best = cur;
+            }
+            cur = CreateWayPoint(cur);
+        } while (cur != 0);
+    }
+    return best;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_by_lineseg_from_gobj);
 
@@ -108,13 +162,70 @@ char *visible_waypoint_of_all(int *arg0, float thresh)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", visible_waypoint_of_all_from_gobj);
+extern char *CreateTempWayGroup(void);
+extern float D_00630E58;
+extern char *DeleteWayGroup(char *a0);
+
+char *visible_waypoint_of_all_from_gobj(int *arg0, int a1) {
+    int buf[4];
+    char *t = CreateTempWayGroup();
+    float bestDist = D_00630E58;
+    char *best, *cur;
+    __asm__ __volatile__("" ::: "memory");
+    best = t;
+    cur = best;
+    if (best != 0) {
+        do {
+            float d;
+            if (*(int *)(cur + 0x20) != a1) {
+                func_00243AE8(buf, (int *)(cur + 0x10), arg0);
+                d = func_0016A2F8((int)buf);
+                if (d < bestDist) {
+                    bestDist = d;
+                    best = cur;
+                }
+            }
+            cur = DeleteWayGroup(cur);
+        } while (cur != 0);
+    }
+    return best;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/way_util", visible_waypoint);
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", visible_waypoint_from_gobj);
+extern float D_00630E60;
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", get_wp_nearest_bridge_side_me);
+char *visible_waypoint_from_gobj(int *a0) {
+    int buf[4];
+    int neg1 = -1;
+    char *t = CreateTempWayGroup();
+    float bestDist = D_00630E60;
+    char *best, *cur;
+    __asm__ __volatile__("" ::: "memory");
+    best = t;
+    cur = best;
+    if (best != 0) {
+        do {
+            float d;
+            if (*(int *)(cur + 0x20) != neg1) {
+                func_00243AE8(buf, (int *)(cur + 0x10), a0);
+                d = func_0016A2F8((int)buf);
+                if (d < bestDist) {
+                    bestDist = d;
+                    best = cur;
+                }
+            }
+            cur = DeleteWayGroup(cur);
+        } while (cur != 0);
+    }
+    return best;
+}
+
+extern int ez_line(void *a0, int a1);
+
+int get_wp_nearest_bridge_side_me(void *a0) {
+    return ez_line(a0, -1);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A9D4);
 
@@ -188,7 +299,12 @@ INCLUDE_ASM("asm/nonmatchings/src/way_util", waypoint_connect_group_side_bridge)
 
 INCLUDE_ASM("asm/nonmatchings/src/way_util", NearestWgFromTarget);
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", wpsort_compfnc);
+WPElem *wpsort_compfnc(WPNode *a0, int a1) {
+    WPElem *e = &D_004CC1E0[a0->i20];
+    if (e->f20 == a1) return e;
+    e = &D_004CC1E0[a0->i24];
+    return e->f20 == a1 ? e : 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017AF88);
 

@@ -8,7 +8,18 @@ extern char D_00672FD0[];
 extern int D_00672F90[];
 extern int D_00633C3C;
 #include "vu0.h"
-INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_DispQW);
+float pac_DispQW(void) {
+    register float ret __asm__("$f0");
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "vrnext.x $vf1, $R\n"
+        "vsubw.x $vf1, $vf1, $vf0w\n"
+        "qmfc2.ni $7, $vf1\n"
+        "mtc1 $7, $f0\n"
+        ".set reorder\n"
+        : "=f"(ret) :: "$7");
+    return ret;
+}
 
 void pac_DumpPac(void *p0)
 {
@@ -59,7 +70,28 @@ INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeNormalStrip);
 
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_getWeight);
 
-INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeClusterStrip);
+extern int D_00276210[];
+extern int dl_GetPri(void);
+extern void dpk_Init(int a0, int a1, int a2);
+extern int dpk_SwapBuffer(int a0);
+extern void pac_makeNormalStrip(int a0, int a1);
+
+void pac_makeClusterStrip(int a0, int a1) {
+    int *q = &D_00276210[a0];
+    int i;
+    for (i = 0; i < 0xD; i++) {
+        if ((a1 >> i) & 1) {
+            if (a0 != D_00672F90[i]) {
+                D_00633C3C++;
+                pac_makeNormalStrip(a0, i);
+                dpk_SwapBuffer(i);
+                dpk_Init(5, *q, 0);
+                dl_GetPri();
+                D_00672F90[i] = a0;
+            }
+        }
+    }
+}
 
 void pac_openDmaTag(void)
 {
@@ -101,9 +133,41 @@ INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_countOneVertexPacketSize);
 
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeStrip);
 
-INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_setMaterialPacket);
+extern char D_00555190[];
+extern float D_00630A40;
+extern float D_00630A44;
 
-INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeMaterialTable);
+void pac_setMaterialPacket(int a0)
+{
+    register int mask = 0x0FFFFFFF;
+    char *ctx = D_00672FD0;
+    float f0 = D_00630A40;
+    float f1 = D_00630A44;
+    *(int *)(ctx + 0x20) = a0 & mask;
+    *(int *)(ctx + 0x24) = (a0 + 0x8) & mask;
+    *(int *)(ctx + 0x28) = (a0 + 0x10) & mask;
+    *(int *)(ctx + 0x2C) = a0 + 0x20;
+    *(float *)(ctx + 0x48) = f0;
+    *(float *)(ctx + 0x44) = f0;
+    *(float *)(ctx + 0x40) = f0;
+    *(float *)(ctx + 0x58) = f1;
+    *(float *)(ctx + 0x54) = f1;
+    *(float *)(ctx + 0x50) = f1;
+    debug_assertMessage(D_00555190, a0 & mask);
+}
+
+extern char D_005551A0[];
+
+void pac_makeMaterialTable(int a0)
+{
+    register char *base = D_00672FD0;
+    (*(volatile int * volatile *)(base + 0x24))[0] = 0;
+    (*(volatile int * volatile *)(base + 0x24))[1] = (a0 << 16) | 0x6C008000;
+    {
+        volatile int *p = *(volatile int * volatile *)(base + 0x24);
+        debug_assertMessage(D_005551A0, p[0], p[1], (int *)p, a0);
+    }
+}
 
 void pac_makeMaterialTableLine(void)
 {

@@ -45,7 +45,21 @@ INCLUDE_ASM("asm/nonmatchings/src/layout_action", _la_mcard_error_check);
 
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", _la_memory_card_check);
 
-INCLUDE_ASM("asm/nonmatchings/src/layout_action", _la_set_current_port_2);
+extern int D_00274EEC[];
+extern int D_00633028;
+
+int _la_set_current_port_2(void)
+{
+  if (D_00633028 == 0)
+  {
+    return -1;
+  }
+  D_00274EEC[0] = 7;
+  D_0063305C = 1;
+  initSceneGObj(0);
+  D_0063304C = (float) 0;
+  return 0x33;
+}
 
 int _la_set_current_port_lock_2(int a0, int a1)
 {

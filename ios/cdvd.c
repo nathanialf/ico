@@ -1,5 +1,22 @@
 #include "common.h"
 
+union U001325D8
+{
+    long long ll;
+    int i[2];
+};
+
+typedef struct CdvdRec {
+    char pad0[0x78];
+    long long x78;
+    char pad80[0x290 - 0x80];
+    int x290;
+    int x294;
+    char pad298[0x2A8 - 0x298];
+    int x2A8;
+    char pad2AC[0x2E8 - 0x2AC];
+} CdvdRec;
+
 
 
 
@@ -53,7 +70,25 @@ static inline int cdvd_normpath(int a0)
     } while (nc != 0);
     return func_00265168(a0, buf);
 }
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdMgrSearchFile);
+extern int D_00275120[];
+extern int D_00633C60;
+extern CdvdRec D_006812D0[];
+
+int iosCdvdMgrSearchFile(void) {
+    int count = D_00633C60;
+    int i;
+    for (i = 0; i < count; i++) {
+        CdvdRec *b = &D_006812D0[i];
+        int f5 = D_00275120[57];
+        int f8 = 1;
+        if (b->x2A8 != 0) {
+            f8 = b->x290;
+            f5 = b->x294;
+        }
+        b->x78 = (b->x78 & ~0xE0) | (f8 << 5) | (f5 << 6);
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdMgrStStop);
 
@@ -87,17 +122,84 @@ INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00131818);
 
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdManager);
 
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdDiskReady);
+extern char D_005569D0[];
+extern char D_005569F8[];
+extern extern void debug_assertMessage();
+extern int func_00135580(int a0, void *buf, int n);
 
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdLoad);
+void iosCdvdDiskReady(int *a0, void *buf, int n)
+{
+    char *p = (char *) buf;
+    long long ret;
+    for (;;)
+    {
+        ret = func_00135580(a0[0x15C / 4], p, n);
+        if (ret <= 0)
+        {
+            break;
+        }
+        p += ret;
+        n -= ret;
+    }
+    debug_assertMessage(D_005569D0, a0[0x24 / 4]);
+    if (ret < 0)
+    {
+        debug_assertMessage(D_005569F8);
+    }
+}
+
+extern unsigned char D_006A64B8[];
+extern void iosCdvdManager(int *a0, void *buf, int n);
+
+void iosCdvdLoad(int *a0, void *a1, int a2)
+{
+    if (a1 != 0)
+    {
+        if ((*(long long *) a0 & 1) == 1)
+        {
+            iosCdvdDiskReady(a0, a1, a2);
+        }
+        else
+        {
+            iosCdvdManager(a0, a1, a2);
+        }
+        return;
+    }
+    while (a2 > 0)
+    {
+        int n = (a2 < 0x401) ? a2 : 0x400;
+        void *buf = D_006A64B8;
+        if ((*(long long *) a0 & 1) == 1)
+        {
+            iosCdvdDiskReady(a0, buf, n);
+        }
+        else
+        {
+            iosCdvdManager(a0, buf, n);
+        }
+        a2 -= n;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdPackLoad);
 
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdBackGroundMgrAdd);
 
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdBackGroundMgr);
+extern unsigned char D_0027E4C0[];
+extern void iosMsgSend(void *a0, void *a1, int a2);
 
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdDirectStOpen);
+void iosCdvdBackGroundMgr(int a0, int a1)
+{
+    union U001325D8 *p = (union U001325D8 *) a0;
+    p->i[1] = 1;
+    p->ll = (p->ll & ~1LL) | (a1 & 1);
+    iosMsgSend(D_0027E4C0, (void *) a0, 0);
+}
+
+void iosCdvdDirectStOpen(void *a0) {
+    *(int *)((char *)a0 + 4) = 2;
+    iosMsgSend(D_0027E4C0, a0, 0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/ios/cdvd", func_00132630);
 
@@ -168,7 +270,19 @@ int iosCdvdBackGroundMgrDelete(int a0)
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdBackGroundMgrNotDiskReadyPauseSet);
+extern char D_00276300[];
+
+void iosCdvdBackGroundMgrNotDiskReadyPauseSet(int a0, unsigned char *a1, int a2) {
+    int buf[4];
+    *(unsigned long *)D_00276300 = (*(unsigned long *)D_00276300 & ~1UL) | (a0 & 1);
+    func_00265168((int)(D_00276300 + 0x34), a1);
+    *(int *)(D_00276300 + 0x20) = a2;
+    *(int *)(D_00276300 + 0x18) = 0;
+    *(int *)(D_00276300 + 0x1C) = 0;
+    iosCdvdDirectStOpen(D_00276300);
+    buf[0] = (int)D_00276300;
+    iosMsgRecv(D_0027E4F0, buf, 1);
+}
 
 int iosCdvdBackGroundMgrDeleteRequestGet(void) {
     return D_00631F64;
@@ -178,7 +292,10 @@ void iosCdvdBackGroundMgrEntryNum(char *self) {
     *(int *)(self + 0x108) |= 2;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ios/cdvd", iosCdvdBackGroundMgrSeek);
+int iosCdvdBackGroundMgrSeek(void *a0, int a1) {
+    int *p = (int *)((char *)a0 + 0x108);
+    return *p = (*p & ~0x10) | ((a1 & 1) << 4);
+}
 
 int iosCdvdBackGroundRead(void)
 {

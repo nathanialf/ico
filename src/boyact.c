@@ -1,5 +1,19 @@
 #include "common.h"
 
+#include "ico/types.h"
+
+typedef struct { int d[2]; } HB_S8;
+typedef struct {
+    int f0; int f4;
+    union { long long ll; int i[2]; } u8;
+    char pad[0x50 - 0x10];
+    char c50[8];
+} RMDst;
+
+typedef struct { char _0[0x30]; int f_30; } BoyState;
+
+typedef struct { char pad[4]; float f4; } CCPResult;
+
 
 
 
@@ -53,7 +67,25 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", subBoyControl);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001501A0);
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", InitSwapWeapon);
+extern void GetLowerPlaneCollision(char *p, float a, float b, float c, float d, float e, float f);
+extern void func_00102858(int obj);
+
+void InitSwapWeapon(void)
+{
+    char *base = (char *)D_006AAAE0;
+    int *obj_ptr = *(int **)(base + 0x20);
+    char *sub;
+    if (obj_ptr == 0) return;
+    sub = ((GObj *)((char *)obj_ptr))->p_15C;
+    GetLowerPlaneCollision(sub + 0xA0,
+                  *(float *)(base + 0x30),
+                  *(float *)(base + 0x34),
+                  *(float *)(base + 0x38),
+                  -*(float *)(base + 0x40),
+                  -*(float *)(base + 0x44),
+                  -*(float *)(base + 0x48));
+    func_00102858(*(int *)(base + 0x20));
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00150348);
 
@@ -104,11 +136,64 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyPullupReady);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyPullupGo);
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyBelift);
+extern float ClearHandCameraCorrect(CCPResult *a, CCPResult *b);
+extern CCPResult *ContinueCorrectPosition(void *a0);
+extern void func_00243AE8(void *, CCPResult *, CCPResult *);
+extern void *isysGObjSearchFromObjKindID_begin(void *);
+extern void *isysGObjSearchFromObjLayoutID(int id);
+extern void *subCommonIdle(void *a0);
+
+void actBoyBelift(void *a0, int *out_id, float *out_vec) {
+    float buf[4];
+    void *node;
+    int best;
+    float thresh = 300.0f;
+
+    node = isysGObjSearchFromObjLayoutID((*(int *)((char *)a0 + 0xC) ^ 1) ? 1 : 4);
+    *out_id = 0;
+    best = 0x5A;
+    if (node != 0) {
+        do {
+            if (*(int *)((char *)node + 0x16C) != 0) {
+                CCPResult *r1 = ContinueCorrectPosition(a0);
+                if (ClearHandCameraCorrect(r1, ContinueCorrectPosition(node)) < thresh) {
+                    int sign;
+                    int dist;
+                    CCPResult *r4 = ContinueCorrectPosition(node);
+                    func_00243AE8(buf, r4, ContinueCorrectPosition(a0));
+                    sign = ((int (*)(void *, void *))HandCameraCorrect)(buf, subCommonIdle(a0));
+                    if (sign < 0) {
+                        dist = -((int (*)(void *, void *))HandCameraCorrect)(buf, subCommonIdle(a0));
+                    } else {
+                        dist = ((int (*)(void *, void *))HandCameraCorrect)(buf, subCommonIdle(a0));
+                    }
+                    if (dist < best) {
+                        best = dist;
+                        out_vec[0] = buf[0];
+                        out_vec[1] = buf[1];
+                        out_vec[2] = buf[2];
+                        *out_id = (int)node;
+                    }
+                }
+            }
+            node = isysGObjSearchFromObjKindID_begin(node);
+        } while (node != 0);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyRescueReady);
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyDitch3mReady);
+int actBoyDitch3mReady(void) {
+    BoyState *p = *(BoyState **)((char *)D_00631AE4 + 0x164);
+    unsigned int v = p->f_30;
+    if (v >= 0x5D) {
+        return 1;
+    }
+    if (v < 0x5B) {
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00154444);
 
@@ -195,9 +280,57 @@ int func_001547B0(void) {
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyHangBefore);
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyReadyMove);
+void actBoyReadyMove(void) {
+    char *src = (char *)D_006AAB40;
+    RMDst *dst = (RMDst *)D_006AAAE0;
+    long long v;
+    dst->u8.i[0] = *(int *)(src + 0x10);
+    v = dst->u8.ll;
+    v &= ~(1LL << 32); v |= (long long)(*(unsigned char *)(src + 0x14) & 1) << 32;
+    v &= ~(1LL << 33); v |= (long long)(*(unsigned char *)(src + 0x15) & 1) << 33;
+    v &= ~(1LL << 34); v |= (long long)(*(unsigned short *)(src + 0x16) & 1) << 34;
+    dst->f4 = *(int *)(src + 0xC);
+    dst->f0 = *(int *)(src + 0x8);
+    dst->u8.ll = v;
+    *(HB_S8 *)dst->c50 = *(HB_S8 *)(src + 0);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyBeslam);
+void actBoyBeslam(void *a0, int a1, int a2, int *out_id, float *out_vec, float thresh) {
+    float buf[4];
+    void *node;
+    int best;
+
+    node = isysGObjSearchFromObjLayoutID(a1);
+    *out_id = 0;
+    best = a2;
+    if (node != 0) {
+        do {
+            if (*(int *)((char *)node + 0x16C) != 0) {
+                CCPResult *r1 = ContinueCorrectPosition(a0);
+                if (ClearHandCameraCorrect(r1, ContinueCorrectPosition(node)) < thresh) {
+                    int sign;
+                    int dist;
+                    CCPResult *r4 = ContinueCorrectPosition(node);
+                    func_00243AE8(buf, r4, ContinueCorrectPosition(a0));
+                    sign = ((int (*)(void *, void *))HandCameraCorrect)(buf, subCommonIdle(a0));
+                    if (sign < 0) {
+                        dist = -((int (*)(void *, void *))HandCameraCorrect)(buf, subCommonIdle(a0));
+                    } else {
+                        dist = ((int (*)(void *, void *))HandCameraCorrect)(buf, subCommonIdle(a0));
+                    }
+                    if (dist < best) {
+                        best = dist;
+                        out_vec[0] = buf[0];
+                        out_vec[1] = buf[1];
+                        out_vec[2] = buf[2];
+                        *out_id = (int)node;
+                    }
+                }
+            }
+            node = isysGObjSearchFromObjKindID_begin(node);
+        } while (node != 0);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyRescueSrc);
 

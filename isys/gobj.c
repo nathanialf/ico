@@ -44,13 +44,39 @@ INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjKindTableAdd);
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjKindTableRemove);
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjMoveAfterGObj);
+extern char D_00281A70[];
+extern void isysGObjInit(int a0);
+
+void isysGObjMoveAfterGObj(int self, int other)
+{
+    unsigned char t;
+    int u;
+    isysGObjInit(self);
+    t = *(unsigned char *)(other + 0x18);
+    *(unsigned char *)(self + 0x18) = t;
+    u = *(int *)(other + 0x14);
+    *(int *)(self + 0x10) = other;
+    *(int *)(self + 0x14) = u;
+    *(int *)(other + 0x14) = self;
+    *(int *)(self + 0x1C) = *(int *)(other + 0x1C);
+    if (*(int *)(self + 0x14) == 0) {
+        *(int *)(D_00281A70 + *(unsigned char *)(self + 0x18) * 4) = self;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjMoveBeforeGObj);
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjAdd);
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjAddHead);
+void *isysGObjAddHead(int a0) {
+    unsigned int i;
+    for (i = 0; i < D_00633CA4; i++) {
+        char *e = (char *)D_00633CA0 + i * 0x174;
+        if (*(int *)e != 0 && *(int *)(e + 4) == 1 && *(int *)(e + 8) == a0)
+            return e;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjSearchFromObjLayoutID);
 

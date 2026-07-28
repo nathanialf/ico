@@ -2038,3 +2038,187 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PORTED `actEnemy_GetClingTarget` w1 @ 0x001654E0 <- aug6 fumi/src/enemy_act (1 syms rebound)
 - PORTED `IsEnemyBrainToBoy` w1 @ 0x00165CE8 <- aug6 fumi/src/enemy_act (1 syms rebound)
 - PORTED `GetEnemyTypeFromGObj` w1 @ 0x00165D18 <- aug6 fumi/src/enemy_act (2 syms rebound)
+
+### src/Matrix
+
+### src/fieldCollision
+- PORTED `ClipWallEField` w1 @ 0x001683A8 <- aug6 fumi/src/fieldCollision (1 syms rebound)
+- PORTED `ClipWallBoxStop` w1 @ 0x001683C8 <- aug6 fumi/src/fieldCollision (1 syms rebound)
+- PORTED `ClipWallAdjustPos` w1 @ 0x001683E8 <- aug6 fumi/src/fieldCollision (1 syms rebound)
+- PORTED `ClipWallE` w1 @ 0x00168408 <- aug6 fumi/src/fieldCollision (1 syms rebound)
+- PORTED `ClipWallCheckCB` w1 @ 0x00168428 <- aug6 fumi/src/fieldCollision (1 syms rebound)
+- PORTED `ClipWallFieldCheckCB` w1 @ 0x00168448 <- aug6 fumi/src/fieldCollision (1 syms rebound)
+- PORTED `ClipFloor` w1 @ 0x00168468 <- aug6 fumi/src/fieldCollision (1 syms rebound)
+- PORTED `ClipFloorE` w1 @ 0x00168488 <- aug6 fumi/src/fieldCollision (1 syms rebound)
+- PORTED `ClipFloorR` w1 @ 0x001684A8 <- aug6 fumi/src/fieldCollision (1 syms rebound)
+- PORTED `ClipFloorIH` w1 @ 0x001684C8 <- aug6 fumi/src/fieldCollision (1 syms rebound)
+- PORTED `ClipFloorCheckCB` w1 @ 0x001684E8 <- aug6 fumi/src/fieldCollision (2 syms rebound)
+- PORTED `ClipCollision` w1 @ 0x00168510 <- aug6 fumi/src/fieldCollision (2 syms rebound)
+- PORTED `SetSimplePlane` w1 @ 0x001685E0 <- aug6 fumi/src/fieldCollision (3 syms rebound)
+
+### ios/shockdriver
+- REVERTED `ShockEmulator_EmulationShot` w1 @ 0x0013CAD8 — [codegen] ios/shockdriver.c:385: request for member `arr' in something not a structure or union
+- REVERTED `Init_ShockRequestAlloc` w1 @ 0x0013CB88 — [codegen] ios/shockdriver.c:397: request for member `arr' in something not a structure or union
+- REVERTED `Reset_ShockRequestStruct` w1 @ 0x0013CC00 — [codegen] ios/shockdriver.c:405: request for member `arr' in something not a structure or union
+
+### src/act-game
+- REVERTED `ACTGame_DisconnectHand` w1 @ 0x0014B090 — [arity] src/act-game.c:489: too few arguments to function `checkHit'
+- REVERTED `PAIR_GetPosition_BOY` w1 @ 0x0014B0B8 — [undeclared] src/act-game.c:494: `D_0063226C_flt' undeclared (first use in this function)
+
+### src/commonact
+- REVERTED `WithMailFunc_AttackRejectInQueen` w1 @ 0x00157DC8 — [arity] src/commonact.c:80: too many arguments to function `func_00157DA0'
+- REVERTED `GetCorrectOrientOfChain` w1 @ 0x00157E68 — [arity] src/commonact.c:74: too many arguments to function `func_00157DA0'
+- REVERTED `actCommonRope` w1 @ 0x001584D8 — [codegen] insn 29: expected `jal	0 <actCommonRope>` built `jal	2050 <func_00158328.9>`
+- REVERTED `actCommonSlowrun` w1 @ 0x0015F228 — [parse] src/commonact.c:292: parse error before `D_00292540'
+- REVERTED `ACTAdjustPlane` w1 @ 0x0015F2D8 — [codegen] insn 1: expected `lui	at,0xbf80` built `dli	a2,0xbff0`
+
+### src/camera-ico2
+- REVERTED `CameraSetCameraSet` w1 @ 0x001873C0 — [codegen] insn 21: expected `<end>` built `sll	zero,zero,0x0`
+- REVERTED `InitIco2Camera` w1 @ 0x001879D0 — [callee-sig-conflict] src/camera-ico2.c:15: conflicting types for `func_001D49C0'
+- REVERTED `MakeCameraSetBinary` w1 @ 0x001882D0 — [undeclared] src/camera-ico2.c:273: `g_E30' undeclared (first use in this function)
+- REVERTED `GetSizeOfCameraSetBinary` w1 @ 0x00188550 — [undeclared] src/camera-ico2.c:234: `D_0062C844_f' undeclared (first use in this function)
+
+### sound/s_init
+
+### src/enemy_act
+
+### ios/thread
+- PORTED `iosThreadCreateS` w1 @ 0x0013CCE8 <- aug6 fumi/ios/thread (0 syms rebound)
+- PORTED `iosThreadStart` w1 @ 0x0013CD30 <- aug6 fumi/ios/thread (0 syms rebound)
+- PORTED `iosThreadName` w1 @ 0x0013CF70 <- aug6 fumi/ios/thread (0 syms rebound)
+- PORTED `iosSemaSignal` w1 @ 0x0013D498 <- aug6 fumi/ios/thread (9 syms rebound)
+- REVERTED `iosThreadMain` w1 @ 0x0013CC78 — [codegen] insn 27: expected `<end>` built `sll	zero,zero,0x0`
+- REVERTED `iosThreadMessage` w1 @ 0x0013CF38 — [codegen] insn 2: expected `addiu	v0,v0,0` built `addiu	v0,v0,184`
+- REVERTED `iosGetIOSThreadFromId` w1 @ 0x0013D140 — [callee-sig-conflict] ios/thread.c:173: conflicting types for `iosSemaWait'
+
+### isys/gobj
+- PORTED `isysGObjMoveAfterGObj` w1 @ 0x0013E868 <- aug6 fumi/isys/gobj (2 syms rebound)
+- PORTED `isysGObjAddHead` w1 @ 0x0013EAE8 <- aug6 fumi/isys/gobj (2 syms rebound)
+- REVERTED `isysGObjKindTableInit` w1 @ 0x0013DDA0 — [codegen] insn 1: expected `lui	v1,0x0` built `lui	v0,0x0`
+- REVERTED `isysGObjInit` w1 @ 0x0013DDF8 — [codegen] insn 1: expected `bnel	a1,zero,18 <isysGObjInit+0x18>` built `bnel	a1,zero,6c <isysGObjInit+0x14>`
+- REVERTED `isysGObjRemoveAll` w1 @ 0x0013DFF0 — [codegen] insn 7: expected `lw	a3,0(v1)` built `lw	a1,0(v1)`
+- REVERTED `add_gobj_to_tail` w1 @ 0x0013E0C0 — [codegen] insn 7: expected `lw	a3,0(v1)` built `lw	a1,0(v1)`
+- REVERTED `isysGObjMoveHead` w1 @ 0x0013E220 — [undeclared] isys/gobj.c:35: structure has no member named `f_0'
+- REVERTED `isysGObjAddAfterGObj` w1 @ 0x0013E350 — [undeclared] isys/gobj.c:39: structure has no member named `f_0'
+- REVERTED `isysGetNbAllocedGObjs` w1 @ 0x0013E4D0 — [codegen] insn 3: expected `lui	a2,0x0` built `daddu	s0,a0,zero`
+- REVERTED `isysGObjKindTableRemove` w1 @ 0x0013E7F8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `isysGObjMoveBeforeGObj` w1 @ 0x0013E8D8 — [undeclared] isys/gobj.c:80: structure has no member named `f_0'
+- REVERTED `isysGObjAdd` w1 @ 0x0013E9E0 — [undeclared] isys/gobj.c:82: structure has no member named `f_0'
+- REVERTED `isysGObjSearchFromObjKindID_begin` w1 @ 0x0013EBE0 — [undeclared] isys/gobj.c:94: structure has no member named `pad_C'
+
+### src/camera-editor
+- PORTED `saveEditedData` w1 @ 0x00182C18 <- aug6 omori/src/camera-editor (0 syms rebound)
+- PORTED `gif_test` w1 @ 0x00182C68 <- aug6 omori/src/camera-editor (1 syms rebound)
+- PORTED `DispCameraGroup` w1 @ 0x00182D20 <- aug6 omori/src/camera-editor (7 syms rebound)
+- PORTED `dispCameraPinType2` w1 @ 0x00183218 <- aug6 omori/src/camera-editor (1 syms rebound)
+- PORTED `menuGroupSelect` w1 @ 0x001848A0 <- aug6 omori/src/camera-editor (1 syms rebound)
+- PORTED `CameraEdit_del_pin` w1 @ 0x00187280 <- aug6 omori/src/camera-editor (3 syms rebound)
+- PORTED `CameraEdit_DispBox` w1 @ 0x001872B8 <- aug6 omori/src/camera-editor (3 syms rebound)
+- PORTED `CameraEdit_Save` w1 @ 0x00187308 <- aug6 omori/src/camera-editor (2 syms rebound)
+- PORTED `debug_NMarker` w1 @ 0x00187318 <- aug6 omori/src/camera-editor (2 syms rebound)
+- REVERTED `_CameraEdit_del_box` w1 @ 0x001869F8 — [codegen] insn 2: expected `addiu	a0,a0,0` built `addiu	a0,a0,10864`
+- REVERTED `debug_Marker` w1 @ 0x00187328 — [codegen] insn 15: expected `mtc1	zero,$f13` built `jal	0 <EnterMenu>`
+
+### src/gamesys
+- PORTED `gamesysObjInfoLoad` w1 @ 0x001AAEC0 <- aug6 common/src/gamesys (1 syms rebound)
+- PORTED `gamesysBackStageProcess` w1 @ 0x001AAFC8 <- aug6 common/src/gamesys (6 syms rebound)
+- PORTED `gamesysGeneratorInfoLoad` w1 @ 0x001AB058 <- aug6 common/src/gamesys (8 syms rebound)
+- PORTED `gamesysObjInfoStageInitFlagCls` w1 @ 0x001AB190 <- aug6 common/src/gamesys (2 syms rebound)
+- PORTED `gamesysMemoryLoad` w1 @ 0x001ABEB8 <- aug6 common/src/gamesys (4 syms rebound)
+- PORTED `gamesysGeneratorInfoSave` w1 @ 0x001AC300 <- aug6 common/src/gamesys (2 syms rebound)
+- REVERTED `gamesysObjInfoCls` w1 @ 0x001AB3D0 — [unresolved-symbol] unresolved-symbol: insn 7 `D_20000150`: no retail lui partner for %lo (+3 more)
+
+### ios/cdvd
+- PORTED `iosCdvdMgrSearchFile` w1 @ 0x001301D8 <- aug6 fumi/ios/cdvd (3 syms rebound)
+- PORTED `iosCdvdDiskReady` w1 @ 0x00132038 <- aug6 fumi/ios/cdvd (4 syms rebound)
+- PORTED `iosCdvdLoad` w1 @ 0x001320E8 <- aug6 fumi/ios/cdvd (3 syms rebound)
+- PORTED `iosCdvdBackGroundMgr` w1 @ 0x001325D8 <- aug6 fumi/ios/cdvd (2 syms rebound)
+- PORTED `iosCdvdDirectStOpen` w1 @ 0x00132610 <- aug6 fumi/ios/cdvd (2 syms rebound)
+- PORTED `iosCdvdBackGroundMgrNotDiskReadyPauseSet` w1 @ 0x001333C8 <- aug6 fumi/ios/cdvd (5 syms rebound)
+- PORTED `iosCdvdBackGroundMgrSeek` w1 @ 0x00133460 <- aug6 fumi/ios/cdvd (0 syms rebound)
+- REVERTED `iosCdvdMgrPackLoad` w1 @ 0x001312F0 — [undeclared] ios/cdvd.c:138: `D_tbl_0027E520' undeclared (first use in this function)
+
+### ito/mpeg/mv_disp
+- PORTED `setImageSize` w1 @ 0x0023D050 <- aug6 ito/mpeg/mv_disp (6 syms rebound)
+- PORTED `dispCreate` w1 @ 0x0023D0F0 <- aug6 ito/mpeg/mv_disp (7 syms rebound)
+- PORTED `dispSetTags` w1 @ 0x0023D170 <- aug6 ito/mpeg/mv_disp (5 syms rebound)
+- PORTED `dispSwitch` w1 @ 0x0023D1D0 <- aug6 ito/mpeg/mv_disp (5 syms rebound)
+- PORTED `dispDelete` w1 @ 0x0023D2E8 <- aug6 ito/mpeg/mv_disp (5 syms rebound)
+- PORTED `loadImage` w1 @ 0x0023D348 <- aug6 ito/mpeg/mv_disp (2 syms rebound)
+- PORTED `setTEXFLUSH` w1 @ 0x0023D5A8 <- aug6 ito/mpeg/mv_disp (5 syms rebound)
+- PORTED `setPRIM` w1 @ 0x0023D6E8 <- aug6 ito/mpeg/mv_disp (3 syms rebound)
+- PORTED `setUV` w1 @ 0x0023D750 <- aug6 ito/mpeg/mv_disp (5 syms rebound)
+- REVERTED `startDisplay` w1 @ 0x0023D390 — [arity] ito/mpeg/mv_disp.c:158: too many arguments to function `UpdateRootPosition'
+
+### ito/mpeg/mv_vibuf
+- PORTED `viBufCreate` w1 @ 0x0023EFB8 <- aug6 ito/mpeg/mv_vibuf (0 syms rebound)
+- PORTED `viBufBeginPut` w1 @ 0x0023F030 <- aug6 ito/mpeg/mv_vibuf (4 syms rebound)
+- PORTED `viBufAddDMA` w1 @ 0x0023F080 <- aug6 ito/mpeg/mv_vibuf (0 syms rebound)
+- PORTED `viBufStopDMA` w1 @ 0x0023F0D8 <- aug6 ito/mpeg/mv_vibuf (0 syms rebound)
+- PORTED `viBufRestartDMA` w1 @ 0x0023F130 <- aug6 ito/mpeg/mv_vibuf (0 syms rebound)
+- PORTED `viBufModifyPts` w1 @ 0x0023F180 <- aug6 ito/mpeg/mv_vibuf (0 syms rebound)
+- PORTED `viBufGetTs` w1 @ 0x0023F200 <- aug6 ito/mpeg/mv_vibuf (0 syms rebound)
+- PORTED `viBufDelete` w1 @ 0x0023F2B8 <- aug6 ito/mpeg/mv_vibuf (0 syms rebound)
+- PORTED `viBufCount` w1 @ 0x0023F350 <- aug6 ito/mpeg/mv_vibuf (0 syms rebound)
+- PORTED `viBufPutTs` w1 @ 0x0023F398 <- aug6 ito/mpeg/mv_vibuf (0 syms rebound)
+
+### src/Packet
+- PORTED `pac_DispQW` w1 @ 0x00118A68 <- aug6 seki/src/Packet (0 syms rebound)
+- PORTED `pac_makeClusterStrip` w1 @ 0x00118E88 <- aug6 seki/src/Packet (7 syms rebound)
+- PORTED `pac_setMaterialPacket` w1 @ 0x0011A238 <- aug6 seki/src/Packet (5 syms rebound)
+- PORTED `pac_makeMaterialTable` w1 @ 0x0011A2A8 <- aug6 seki/src/Packet (3 syms rebound)
+- REVERTED `pac_getWeight` w1 @ 0x00118C68 — [missing-body] aug6 body not found in seki/src/Packet.c
+- REVERTED `pac_setGifTag` w1 @ 0x001191C0 — [missing-body] aug6 body not found in seki/src/Packet.c
+- REVERTED `pac_closeTag` w1 @ 0x00119350 — [missing-body] aug6 body not found in seki/src/Packet.c
+- SKIPPED `pac_makeNormalStrip` w1 @ 0x00118B18 — jtbl
+- SKIPPED `pac_setVifEndCode` w1 @ 0x00118FD8 — jtbl
+
+### src/boyact
+- PORTED `InitSwapWeapon` w1 @ 0x001502D8 <- aug6 fumi/src/boyact (3 syms rebound)
+- PORTED `actBoyBelift` w1 @ 0x00154218 <- aug6 fumi/src/boyact (7 syms rebound)
+- PORTED `actBoyDitch3mReady` w1 @ 0x00154420 <- aug6 fumi/src/boyact (1 syms rebound)
+- PORTED `actBoyReadyMove` w1 @ 0x001548F0 <- aug6 fumi/src/boyact (2 syms rebound)
+- PORTED `actBoyBeslam` w1 @ 0x001549B8 <- aug6 fumi/src/boyact (7 syms rebound)
+- REVERTED `UpdateGeo` w1 @ 0x0014E488 — [missing-body] aug6 body not found in fumi/src/boyact.c
+- REVERTED `subBoyCollision` w1 @ 0x001521F0 — [codegen] insn 44: expected `lui	at,0x4348` built `lui	at,0x43e1`
+- REVERTED `actBoyDitch3mExec` w1 @ 0x00154DD0 — [undeclared] src/boyact.c:356: `dst60_a' undeclared (first use in this function)
+
+### src/way_util
+- PORTED `visible_waypoint_of_all_except_gid_ThreadVersion` w1 @ 0x00178908 <- aug6 fumi/src/way_util (1 syms rebound)
+- PORTED `nearest_waypoint_by_lineseg` w1 @ 0x0017A230 <- aug6 fumi/src/way_util (5 syms rebound)
+- PORTED `nearest_waypoint_by_lineseg_of_group_from_gobj` w1 @ 0x0017A2C8 <- aug6 fumi/src/way_util (6 syms rebound)
+- PORTED `visible_waypoint_of_all_from_gobj` w1 @ 0x0017A788 <- aug6 fumi/src/way_util (5 syms rebound)
+- PORTED `visible_waypoint_from_gobj` w1 @ 0x0017A910 <- aug6 fumi/src/way_util (5 syms rebound)
+- PORTED `get_wp_nearest_bridge_side_me` w1 @ 0x0017A9B8 <- aug6 fumi/src/way_util (1 syms rebound)
+- PORTED `wpsort_compfnc` w1 @ 0x0017AF40 <- aug6 fumi/src/way_util (1 syms rebound)
+- REVERTED `visible_waypoint_of_all_except_temp_ThreadVersion` w1 @ 0x00178930 — [undeclared] src/way_util.c:44: `D_004C7CF0_ve' undeclared (first use in this function)
+- REVERTED `bridge_waypoint_side_bridge` w1 @ 0x0017AD68 — [undeclared] src/way_util.c:301: `wcf_c' undeclared (first use in this function)
+- REVERTED `waypoint_connect_group_side_bridge` w1 @ 0x0017ADF8 — [undeclared] src/way_util.c:303: `wcf_c' undeclared (first use in this function)
+- REVERTED `NearestWgFromTarget` w1 @ 0x0017AE98 — [undeclared] src/way_util.c:305: `wcf_c' undeclared (first use in this function)
+
+### src/quaternion
+- PORTED `InitQuaternionDrive` w1 @ 0x0010D4A8 <- aug6 sugipon/src/quaternion (7 syms rebound)
+- PORTED `getQuaternionFromMatrix` w1 @ 0x0010D540 <- aug6 sugipon/src/quaternion (3 syms rebound)
+- PORTED `CopyQuaternion` w1 @ 0x0010D7F8 <- aug6 sugipon/src/quaternion (2 syms rebound)
+- PORTED `GetSlerpQuaternionNoRegularize` w1 @ 0x0010D878 <- aug6 sugipon/src/quaternion (2 syms rebound)
+- REVERTED `RegularizeQuaternion` w1 @ 0x0010D838 — [arity] src/quaternion.c:149: too few arguments to function `GetInverseQuaternion'
+
+### src/st25a
+- PORTED `actSt25aQueenDeadChk` w1 @ 0x0017E188 <- aug6 script/src/st25a (1 syms rebound)
+- PORTED `actConte13Jimaku` w1 @ 0x0017E1A8 <- aug6 script/src/st25a (3 syms rebound)
+- PORTED `actSt25aGenerator` w1 @ 0x0017E270 <- aug6 script/src/st25a (3 syms rebound)
+- PORTED `actSt25aQueenDead` w1 @ 0x0017E330 <- aug6 script/src/st25a (1 syms rebound)
+- PORTED `actSt25aQueenBeforeChk` w1 @ 0x0017E550 <- aug6 script/src/st25a (6 syms rebound)
+
+### sound/adpcm_init
+- PORTED `AdpcmClose` w1 @ 0x00140710 <- aug6 fumi/sound/adpcm_init (3 syms rebound)
+- PORTED `AdpcmIopBuffAlloc` w1 @ 0x00140B30 <- aug6 fumi/sound/adpcm_init (1 syms rebound)
+- PORTED `AdpcmOpenSync` w1 @ 0x00140B60 <- aug6 fumi/sound/adpcm_init (1 syms rebound)
+- PORTED `AdpcmUseAreaGet` w1 @ 0x00140CE0 <- aug6 fumi/sound/adpcm_init (4 syms rebound)
+- PORTED `AdpcmFreeAreaGet` w1 @ 0x00140E48 <- aug6 fumi/sound/adpcm_init (6 syms rebound)
+- REVERTED `GetDitchPosition` w1 @ 0x00140F90 — [arity] sound/adpcm_init.c:155: too few arguments to function `adpcmPauseRequest'
+
+### src/layout_action
+- PORTED `_la_set_current_port_2` w1 @ 0x001B4E78 <- aug6 common/src/layout_action (5 syms rebound)
+- REVERTED `_la_memory_card_check` w1 @ 0x001B4D48 — [parse] src/layout_action.c:46: parse error before `D_00274EC0'
+- REVERTED `_la_set_preview_info` w1 @ 0x001B4FC8 — [parse] src/layout_action.c:108: parse error before `D_00275250'

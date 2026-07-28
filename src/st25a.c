@@ -60,9 +60,21 @@ INCLUDE_ASM("asm/nonmatchings/src/st25a", actConte12);
 
 INCLUDE_ASM("asm/nonmatchings/src/st25a", actConte12Jimaku);
 
-INCLUDE_ASM("asm/nonmatchings/src/st25a", actSt25aQueenDeadChk);
+int actSt25aQueenDeadChk(void) {
+    return isysGObjAddHead();
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st25a", actConte13Jimaku);
+extern void GetHeightOfFieldPlaneDifference(void *a0, void *a1, int a2, int a3, void *a4, float f12, float f13, float f14, float f15);
+extern void func_002641D8(void *a0, int a1, int a2);
+extern void gflagOff(void *a0, int a1);
+
+void actConte13Jimaku(void *a0, int a1, void *a2, int a3) {
+    float buf[4];
+    func_002641D8(buf, 0, 0x10);
+    buf[3] = 1.0f;
+    GetHeightOfFieldPlaneDifference(a0, a2, 0, a3, buf, 0.0f, 0.0f, 0.0f, 1.0f);
+    gflagOff(a0, a1);
+}
 
 void BoySekikaTexScroll(int a0, int a1)
 {
@@ -70,7 +82,17 @@ void BoySekikaTexScroll(int a0, int a1)
     *(int *)(s0 + 0x120) = ExecMotionOrient(a0, a1, s0 + 0x610);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st25a", actSt25aGenerator);
+extern void InitMotionRotElem(void *a0);
+
+void actSt25aGenerator(void *a0, float f12, float f13, float f14) {
+    float buf[4];
+    func_002641D8(buf, 0, 0x10);
+    buf[0] = f12;
+    buf[1] = f13;
+    buf[2] = f14;
+    GetCylinderCollisionWithExceptOwnCollision(a0, buf);
+    InitMotionRotElem(a0);
+}
 
 void actSt25aQueenBefore(int *self) {
     int *p = (int *)self[0x164/4];
@@ -83,7 +105,11 @@ void actSt25aQueenTalk(void) {
     D_00633D40 = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st25a", actSt25aQueenDead);
+extern int actItouQueenAttack(int a0, int a1, int a2, int a3, int a4, int a5);
+
+int actSt25aQueenDead(int a0, int a1, int a2) {
+    return actItouQueenAttack(a0, a1, a2, 0, 0, 0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st25a", actItouQueenAttack);
 
@@ -114,7 +140,18 @@ void actSwordEffXL(int *self)
     iosOmBeforeFuncStandard((int)self, 0x27, (int)self);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st25a", actSt25aQueenBeforeChk);
+extern unsigned char D_006337A8;
+extern unsigned char D_006337A9;
+extern unsigned char D_006337AA;
+
+void actSt25aQueenBeforeChk(float a0, int a1, int a2, int a3) {
+    D_00633798 = 1;
+    D_0063379C = a0;
+    D_006337A0 = 1;
+    D_006337A8 = a1;
+    D_006337A9 = a2;
+    D_006337AA = a3;
+}
 
 void actConte11Jimaku(float f) {
     D_00633798 = 1;
