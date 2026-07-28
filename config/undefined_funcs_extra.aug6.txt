@@ -1,3 +1,0 @@
-/* aug6 manual linker symbols (data refs from C that splat left raw). */
-D_007181E8 = 0x007181E8;
-actSt00aEnd_ext = 0x0020AC08;

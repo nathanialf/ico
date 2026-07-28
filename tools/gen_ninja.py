@@ -33,9 +33,9 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-# Version slug selects the target's config namespace. Defaults to 'us' (retail)
-# so the retail build is unaffected; the aug6 prototype branch sets VERSION=aug6.
-VERSION = os.environ.get("VERSION", "aug6")
+# Version slug selects the target's config namespace. retail-v2 defaults to
+# 'us'; the aug6 prototype branch (main) sets VERSION=aug6.
+VERSION = os.environ.get("VERSION", "us")
 DEPS_FILE = ROOT / "config" / f"ico.{VERSION}.d"
 # main is aug6-only: link directly against splat's one-pass linker script.
 # Noncontiguous data blocks are placed by the carved subsegments splat emits

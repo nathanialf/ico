@@ -86,14 +86,14 @@ __pycache__/
 Thumbs.db
 
 # --- VU1 microprogram hand-typed assembly intermediate ---
-# `seki/src/<prog>.S` is tracked; `tools/assemble_vu0.py` regenerates
-# `seki/src/<prog>.s` from it before each splat (via build.sh setup).
+# `src/<prog>.S` is tracked; `tools/assemble_vu0.py` regenerates
+# `src/<prog>.s` from it before each splat (via build.sh setup).
 # The .s is a build artifact, not source — keep it out of git.
-seki/src/cluster.s
-seki/src/mesh.s
-seki/src/normal_c.s
-seki/src/normal_l.s
-seki/src/particle.s
+src/cluster.s
+src/mesh.s
+src/normal_c.s
+src/normal_l.s
+src/particle.s
 
 # --- Local config overrides ---
 .env
@@ -142,7 +142,7 @@ CLAUDE.md
 decomp/RUN_LOG.md
 # Snapshot of asm/{cod,matchings}/ used by TU-mapping analyzers; local
 # only, regenerated on demand via `tools/snapshot_asm.py`.
-decomp/asm_snapshot/
+decomp/asm_snapshot
 # TU-mapping pipeline bulk outputs — regeneratable from the snapshot via
 # tools/find_callgraph.py, find_boundaries.py, identify_tus.py. Too
 # large for the IP-safety tracked-file size cap; the small summaries
@@ -217,6 +217,6 @@ decomp/aug6_func_table.json
 
 # Retail->aug6 port-audit artifacts (normalized-asm twin map, 2026-06-08;
 # regenerable via decomp/retail_port/correlate.py). Local-only.
-decomp/retail_port/
+decomp/retail_port
 # aug6 data-phase investigation report (local working note).
 decomp/DATA_INVESTIGATION.md

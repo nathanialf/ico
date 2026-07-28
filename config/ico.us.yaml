@@ -1,0 +1,120 @@
+# =============================================================================
+# splat configuration — ICO (USA retail, boot ELF SCUS_971.13)
+#
+# retail-v2: the retail target rebuilt on the aug6 branch's conventions
+# (ee-gcc 2.9-991111-01 + period ee-as default, zero bandaids, raw one-pass
+# splat round-trip, per-TU yaml data carving). The old `retail` branch
+# (tagged retail-v1) used per-function src/cod/<HEX> shards and a
+# postprocess/slinky data pipeline; neither returns here.
+#
+# Note: ICO USA is on disc as SCUS_971.13 (SCEA). SLUS-20218 references some
+# retail metadata but the actual boot ELF is SCUS_971.13. Version slug: 'us'.
+#
+# Seeded with one large `asm` .text subsegment; flip [ADDR, asm] -> [ADDR, c,
+# name] as TUs are recovered (boundaries via retail __FILE__ census + aug6
+# MAIN.MAP link-order correlation — see tools/gen_us_symbol_addrs.py).
+# =============================================================================
+
+name: ico
+sha1: fbf50c75cd5911273511c4f9af90503ff8423582  # SHA-1 of baserom/baseelf.rom
+options:
+  basename: ico
+  target_path: baserom/baseelf.rom
+  elf_path: build/ico.elf
+  base_path: ..
+  platform: ps2
+  compiler: EEGCC
+
+  # _gp from the retail ELF's own .reginfo section (ri_gp_value = 0x006388F0 —
+  # what crt0 loads at runtime). The old branch's heuristic expression
+  # `cod_LIT4_START + 0x7FF0` happened to land on the same value; pin the
+  # literal so the link reproduces it unconditionally.
+  gp_value: 0x006388F0
+  ld_gp_expression: "0x006388F0"
+
+  asm_path: asm
+  src_path: .
+  build_path: build
+  hasm_in_src_path: True
+
+  # Lock include/{labels.inc,macro.inc} — hand-edited (`jlabel visibility=global`
+  # so cross-.o jumptable refs in coalesced TUs resolve at link time); splat's
+  # default regen would revert that.
+  generate_asm_macros_files: False
+
+  ld_script_path: config/ico.us.ld
+  ld_dependencies: True
+  ld_wildcard_sections: True
+  ld_bss_contains_common: True
+  ld_bss_is_noload: true
+
+  create_asm_dependencies: True
+  disassemble_all: True
+
+  find_file_boundaries: False
+  migrate_rodata_to_functions: True
+  use_gp_rel_macro_nonmatching: True
+
+  o_as_suffix: True
+
+  symbol_addrs_path:
+    - config/symbol_addrs.us.txt
+  reloc_addrs_path:
+    - config/reloc_addrs.us.txt
+
+  undefined_funcs_auto_path: config/undefined_funcs_auto.us.txt
+  undefined_syms_auto_path: config/undefined_syms_auto.us.txt
+
+  string_encoding: ASCII
+  data_string_encoding: ASCII
+  rodata_string_guesser_level: 2
+  data_string_guesser_level: 2
+
+  named_regs_for_c_funcs: False
+
+  section_order:
+    - .text
+    # - .vutext (hasm — hand-typed VU1 microprograms, src/*.S via assemble_vu0.py)
+    - .data
+    - .rodata
+    - .lit4
+    - .sdata
+    - .sbss
+    - .bss
+
+  auto_link_sections:
+    - .data
+    - .rodata
+    - .lit4
+    - .sdata
+    - .sbss
+    - .bss
+
+# One large `asm` .text subsegment to start. Section boundaries below are
+# retail-specific (from baseelf.elf section headers; every section start is
+# 0x80-aligned by the original linker, hence align: 0x80).
+segments:
+  - name: cod
+    type: code
+    start: 0x000000
+    vram: 0x00100000
+    bss_size: 0xEAF8C
+    subalign: null
+    align: 0x80   # original linker 0x80-aligns every section start; splat default is 16
+    subsegments:
+      - [0x000000, asm, src/cod/000000]      # crt0 + libkernl + all .text (to be carved)
+      # .vutext — 5 hand-typed VU1 microprograms, byte-identical to aug6's
+      # (same sizes: 0xDC0/0x9F0/0x16E0/0x1CA0/0x5B0).
+      - [0x16F5E0, hasm, src/cluster]        # ClusterMicroProgram
+      - [0x1703A0, hasm, src/mesh]           # MeshMicroProgram
+      - [0x170D90, hasm, src/normal_c]       # NormalCMicroProgram
+      - [0x172470, hasm, src/normal_l]       # NormalLMicroProgram
+      - [0x174110, hasm, src/particle]       # ParticleMicroProgram
+      - [0x1746C0, textbin, src/cod/1746C0]  # .reginfo + pad (all zeros in rom)
+      - [0x174700, data, src/cod/174700]     # .data blob (to be carved per TU)
+      - [0x453700, rodata, src/cod/453700]   # .rodata blob (to be carved per TU)
+      - [0x530900, lit4, src/cod/530900]     # .lit4
+      - [0x531900, sdata, src/cod/531900]    # .sdata
+      - { type: sbss, vram: 0x00633C00, name: src/cod/00633C00, align: 0x100 }  # .sbss — original aligns to 0x100, not 0x10
+      - { type: bss,  vram: 0x00634000, name: src/cod/00634000, align: 0x80 }   # .bss — sh_addralign=0x80 in baseelf
+  - [0x533BC6]

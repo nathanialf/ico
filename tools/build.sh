@@ -20,15 +20,15 @@ cd "${ROOT}"
 VENV_PY="${ROOT}/.venv/bin/python"
 SPLAT="${ROOT}/.venv/bin/splat"
 
-# main is aug6-only; the retail (us) pipeline + its postprocess/slinky tooling
-# live on the `retail` branch. VERSION stays overridable via env for ad-hoc
-# targets. Exported so child tools (gen_ninja.py) see it.
-VERSION="${VERSION:-aug6}"
+# retail-v2 is us-only; the aug6 prototype pipeline lives on `main`. VERSION
+# stays overridable via env for ad-hoc targets. Exported so child tools
+# (gen_ninja.py) see it.
+VERSION="${VERSION:-us}"
 export VERSION
-# aug6 branch: the prototype baseelf lives under baserom/aug6/ so it does not
-# collide with retail's baserom/baseelf.rom in the (gitignored, branch-shared)
-# working tree. Overridable via env for ad-hoc targets.
-BASEROM="${BASEROM:-baserom/aug6/baseelf.rom}"
+# The retail baseelf lives at baserom/baseelf.rom; the aug6 prototype's lives
+# under baserom/aug6/ in the same (gitignored, branch-shared) working tree.
+# Overridable via env for ad-hoc targets.
+BASEROM="${BASEROM:-baserom/baseelf.rom}"
 SPLAT_YAML="config/ico.${VERSION}.yaml"
 LDSCRIPT="config/ico.${VERSION}.ld"
 DEPS_FILE="config/ico.${VERSION}.d"
@@ -67,8 +67,8 @@ setup() {
     rm -rf build .ninja_log .ninja_deps
     echo "==> verifying base ROM SHA-1"
     "${VENV_PY}" tools/verify_elf.py --target "${BASEROM}"
-    echo "==> assembling hand-written VU1 microprogram .S sources (seki/src)"
-    for vs in seki/src/*.S; do
+    echo "==> assembling hand-written VU1 microprogram .S sources (src)"
+    for vs in src/*.S; do
         [ -f "$vs" ] || continue
         out="${vs%.S}.s"
         stem=$(basename "${vs%.S}")
