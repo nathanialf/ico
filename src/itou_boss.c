@@ -67,8 +67,8 @@ void BossEnemyFunc(void) {
     }
 }
 
-extern int D_0055B030;
-extern int D_0055BD40;
+extern char D_0055B030[];
+extern char D_0055BD40[];
 extern char D_0055C178[];
 extern char D_0055C188[];
 extern void *D_00632010;
@@ -80,7 +80,43 @@ extern void debug_assertMessage(char *msg, int n);
 extern int func_0013A0F8(void *ptr, int a1, char *file, int line);
 extern void func_00243B60(void *a0, void *a1);
 
-INCLUDE_ASM("asm/nonmatchings/src/itou_boss", gene_enemy);
+int gene_enemy(void *a0) {
+    int ret;
+    unsigned int k;
+    signed char *base;
+    signed char *e;
+    char *m;
+    char (*q_arr)[];
+    char *q;
+    char *r;
+
+    ret = func_0013A0F8(D_00632010, 0, D_0055C178, 0x15E);
+    actInitialize(a0);
+    actInitialize_ext_charcter(a0);
+    debug_assertMessage(D_0055C188, 0x35);
+
+    base = D_006D35F0;
+    m = (char *)base + 0x20;
+    q_arr = (char (*)[])&D_0055B030;
+    r = D_0055BD40;
+    q = *q_arr;
+    k = 0;
+    do {
+        e = base + k * 0x40;
+        *(int *)e = 0;
+        if (e[4] == 1) {
+            e[4] = 2;
+        }
+        func_00243B60(m, q);
+        apply_matrix_w1(m - 0x10, q - 0x30);
+        *(char **)(e + 0x30) = r;
+        q += 0x40;
+        m += 0x40;
+        r += 0x10;
+        k++;
+    } while (k < 0x35);
+    return ret;
+}
 
 extern unsigned char D_006D35E0[];
 

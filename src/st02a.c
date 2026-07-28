@@ -13,6 +13,7 @@ extern void AddWayPointTop();
 extern void stage_KillPlayBgAnimation();
 extern void BoxBarSoundOn(int a0, int a1);
 extern int D_004D0F50[];
+extern int D_004D0E10[];
 extern void _ACTWait(int a0);
 extern int actInitialize(int a0);
 extern void func_00210DF0(volatile int a0);
@@ -138,7 +139,24 @@ void actSt02aBoxEvent2(volatile int a0) {
 
 extern int D_004D0FD0[];
 
-INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aEne);
+void actSt02aEne(volatile int a0) {
+    GObj__p4 *obj = *(GObj__p4 **)(a0 + 0x164);
+    if (D_00631AE8 == 0) {
+        _ACTWait(0);
+    }
+    for (;;) {
+        if (scpSleepSpiderGroupOne(D_00631AE8, 0x2000000) != 0 && func_0017B230(0x42) != 0) break;
+        _ACTWait(1);
+    }
+    AddWayPointTop__p4(4, 0);
+    {
+        int *p = D_004D0F50 + 32;
+        p[1] = (int)actSt02aBoxEvent2;
+        obj->unkC4 = p;
+    }
+    BoxBarSoundOn(a0, 0x18D);
+    _ACTWait(0);
+}
 
 void actSt02aEnemy1(void)
 {
@@ -193,7 +211,32 @@ extern int scpKillSpiderGroup(int a0, int a1);
 extern void soundSeDefPitchSet(int a0);
 extern int soundSeDefPlayWithVolumeRate(int a0, int a1, void *a2, int a3);
 
-INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aSekizo);
+void actSt02aSekizo(volatile int a0) {
+    GObj__p4 *obj = *(GObj__p4 **)(a0 + 0x164);
+    WpData16 buf;
+    int r;
+    while (scpKillSpiderGroup(a0, 0x1000000) == 0) { _ACTWait(1); }
+    _ACTWait(0xF);
+    actCreateSubThread((void *)actSt03tGene, 0x15);
+    func_0017E870(D_006314EC, -1072.0f, D_006314F0, 100.0f);
+    stage_KillPlayBgAnimation__p4(0x53, 1, 0);
+    buf = D_0061BA10;
+    soundSeDefPlayWithVolumeRate(0x4AC, 0, &buf, 1);
+    _ACTWait(0x1E);
+    r = soundSeDefPlayWithVolumeRate(0x4AD, 0, &buf, 1);
+    _ACTWait(0x1E);
+    soundSeDefPitchSet(r);
+    soundSeDefPlayWithVolumeRate(0x4AE, 0, &buf, 1);
+    while (func_0012AA80(0x53) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    {
+        int *p = D_004D0E10 + 136;
+        p[1] = (int)actSt02aWay;
+        obj->unkC4 = p;
+    }
+    BoxBarSoundOn(a0, 0x18D);
+    _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aWay);
 
@@ -221,7 +264,36 @@ void actSt02aTakiWay(volatile int a0){
 
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aSecretItem);
 
-INCLUDE_ASM("asm/nonmatchings/src/st02a", func_00211EC8);
+extern void *actSt25aQueenDeadChk(int a0);
+extern void func_001E8EA8(void *a0);
+extern void func_0017EA50(void *a0, float x, float y, float z);
+extern void func_001BFFE8(void *a0);
+
+void func_00211EC8(volatile int a0) {
+    char *o = *(char **)(D_00631AE4 + 0x164);
+    void *p;
+    *(long long *)(o + 0x20) &= ~0x04000000;
+    p = actSt25aQueenDeadChk(0x61A);
+    *(int *)((char *)p + 0x16C) = 1;
+    p = actSt25aQueenDeadChk(0x616);
+    *(int *)((char *)p + 0x16C) = 0;
+    p = actSt25aQueenDeadChk(0x61F);
+    *(int *)((char *)p + 0x16C) = 0;
+    p = actSt25aQueenDeadChk(0x620);
+    *(int *)((char *)p + 0x16C) = 0;
+    p = actSt25aQueenDeadChk(0x623);
+    *(int *)((char *)p + 0x16C) = 0;
+    func_001E8EA8(actSt25aQueenDeadChk(0x640));
+    func_001E8EA8(actSt25aQueenDeadChk(0x641));
+    func_001E8EA8(actSt25aQueenDeadChk(0x642));
+    func_001E8EA8(actSt25aQueenDeadChk(0x643));
+    stage_KillPlayBgAnimation__p4(0x163, -1, -2);
+    func_0017EA50(actSt25aQueenDeadChk(0x630), 0.0f, -200.0f, 0.0f);
+    func_0017EA50(actSt25aQueenDeadChk(0x632), 0.0f, -200.0f, 0.0f);
+    _ACTWait(5);
+    func_001BFFE8(actSt25aQueenDeadChk(0x630));
+    func_001BFFE8(actSt25aQueenDeadChk(0x632));
+}
 
 extern int D_004D1170[];
 extern int D_00631AEC;

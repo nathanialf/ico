@@ -37,7 +37,33 @@ void CanWallLeverPull(char *self, int a1)
     else { p[1] = a1; }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/switch", IsWallLeverStatus);
+extern int DebugDisp1CollisionWithColor(void *a0, int a1);
+extern void GetRootMatrixByDObj(float *dst, void *a0);
+extern void func_00243AE8(float *dst, void *src, float *mat);
+extern void *func_00105278(void);
+extern void LocalizeDirectionOrient(void *a0, void *a1);
+extern void MatrixDrive_TransMatrix(void *a0, void *a1);
+extern void func_002438B8(float *a0, void *a1, float *a2);
+extern void MatrixDrive_PushMatrixWithNoCopy(void *a0, void *a1, float x, float y, float z);
+
+void IsWallLeverStatus(void *a0, void *a1, int a2) {
+    float buf[4];
+    float mat[4];
+    WLGeo *q;
+    int idx;
+    void *t;
+
+    q = *(WLGeo **)(*(char **)((char *)a0 + 0x15C) + 0x800);
+    idx = DebugDisp1CollisionWithColor(a1, a2);
+    GetRootMatrixByDObj(mat, a0);
+    func_00243AE8(buf, (char *)*(int *)(*(int *)((char *)a1 + 0x15C) + 0xC) + (idx << 6) + 0x30, mat);
+    *(int *)&buf[3] = 0;
+    LocalizeDirectionOrient(func_00105278(), a0);
+    t = func_00105278();
+    MatrixDrive_TransMatrix(t, func_00105278());
+    func_002438B8(buf, func_00105278(), buf);
+    MatrixDrive_PushMatrixWithNoCopy(q, &q->f_2, buf[0], -buf[1], buf[2] * 0.0f);
+}
 
 int InitWallLeverGeo(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
@@ -45,7 +71,31 @@ int InitWallLeverGeo(void *a0) {
     return q->f_4 == 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/switch", GetWallLeverAngle);
+typedef struct { char b[0x20]; } WLA;
+extern WLA D_004BEFD0;
+extern char D_00618630[];
+extern void *D_00632010;
+extern char D_0028CA88[];
+extern void *func_0013A0F8(void *heap, int size, char *file, int line);
+extern void *UnlinkParentOfDObj(void *a0, void *a1);
+
+void *GetWallLeverAngle(void *a0, void *a1) {
+    WLA *p = func_0013A0F8(D_00632010, 0x20, D_00618630, 0x8D);
+    void *t;
+    *p = D_004BEFD0;
+    if (*(int *)((char *)a1 + 0x30) != 0) {
+        *(int *)((char *)p + 0x14) = 1;
+    } else {
+        *(int *)((char *)p + 0x14) = 0;
+    }
+    t = UnlinkParentOfDObj(
+        *(void **)(D_0028CA88 + *(int *)(*(int *)((char *)a0 + 0x15C) + 0x814) * 0x28), a1);
+    *(int *)((char *)p + 0xC) = (int)t;
+    t = UnlinkParentOfDObj(
+        *(void **)(D_0028CA88 + *(int *)(*(int *)((char *)a0 + 0x15C) + 0x814) * 0x28 + 4), a1);
+    *(int *)((char *)p + 0x10) = (int)t;
+    return p;
+}
 
 int initParentize(void *a0) {
     void *p = *(void **)((char *)a0 + 0x15C);

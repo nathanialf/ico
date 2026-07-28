@@ -1,4 +1,5 @@
 #include "common.h"
+extern int D_004D1B70[];
 
 typedef struct GObj__p4 {
     char pad[0xC4];
@@ -37,7 +38,17 @@ extern int D_004D1BB0[];
 extern int D_00631AE4;
 extern void actSt04lRope2Chk(void);
 
-INCLUDE_ASM("asm/nonmatchings/src/st05d", actSt05dDoor2UpChk);
+void actSt05dDoor2UpChk(volatile int a0) {
+    GObj__p4 *gobj = *(GObj__p4 **)(a0 + 0x164);
+    while (scpSleepSpiderGroupOne(D_00631AE4, 0xA000000) != 0) { _ACTWait(1); }
+    {
+        int *p = D_004D1B70 + 16;
+        p[1] = (int)actSt04lRope2Chk;
+        gobj->unkB4 = p;
+    }
+    BoxBarSoundOn((int)a0, 0x18D);
+    _ACTWait(0);
+}
 
 void actSt05dDoor2DownChk(int x) {
     volatile int local = x;

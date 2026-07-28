@@ -1,4 +1,5 @@
 #include "common.h"
+extern int D_004D0E10[];
 
 typedef struct GObjB4a { char pad[0xC4]; int *unkB4; } GObjB4a;
 
@@ -323,5 +324,25 @@ extern int D_00631AE8;
 extern void func_0017B288(int a0);
 extern int scpSleepSpiderGroupOne(int a0, int a1);
 
-INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tWayOffChk);
+void actSt03tWayOffChk(volatile int a0) {
+    GObjB4a *gobj = *(GObjB4a **)(a0 + 0x164);
+    if (D_00631AE8 == 0) {
+        _ACTWait(0);
+    }
+    while (func_0017EB50() != 0 || scpSleepSpiderGroupOne(D_00631AE8, 0x4000000) == 0) {
+        _ACTWait(1);
+    }
+    AddWayPointTop(0x35, 1);
+    AddWayPointTop(0x37, 1);
+    AddWayPointTop(0x38, 1);
+    AddWayPointTop(0x39, 1);
+    func_0017B288(0x6F);
+    {
+        int *p = D_004D11B0 + 24;
+        p[1] = (int)actSt04aGate;
+        gobj->unkB4 = p;
+    }
+    BoxBarSoundOn((int)a0, 0x18D);
+    _ACTWait(0);
+}
 

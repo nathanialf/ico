@@ -477,7 +477,32 @@ void ACTSendMailCorrect(volatile int a0) {
     *(int *)(*(int *)(self + 0x15C) + 0x420) = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", _ACTCommonMailTest);
+void _ACTCommonMailTest(volatile int a0) {
+    for (;;) {
+        _ACTWait(1);
+    }
+}
+
+extern char *D_00631AE8;
+extern void *D_006321DC;
+extern int iosOmBeforeFuncStandard(void *a0, int a1, void *a2);
+
+void func_0015EEF0(volatile int a0) {
+    if (D_00631AE8 != 0) {
+        iosOmBeforeFuncStandard((void *)D_00631AE8, 0x40, D_006321DC);
+    }
+    for (;;) {
+        _ACTWait(1);
+    }
+}
+
+extern int D_00632508;
+
+void func_0015EF28(void *a0) {
+    if (a0 == (void *)D_00631AE8) {
+        D_00632508 = 1;
+    }
+}
 
 void E3_LeverCheck(char *self) {
     char *sub = *(char **)(self + 0x164);

@@ -1,4 +1,5 @@
 #include "common.h"
+extern int D_004D1450[];
 
 typedef struct ActB4Obj { char pad[0xC4]; int *unkC4; } ActB4Obj;
 struct SndBuf { long long a, b; };
@@ -77,7 +78,29 @@ extern struct SndBuf D_0061BD90;
 extern void actSt04eWaterStop(int a0);
 extern void func_0021A168(int a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/st04e", actSt04eWaterFlagOn);
+void actSt04eWaterFlagOn(volatile int a0) {
+    ActB4Obj *obj = *(ActB4Obj **)(a0 + 0x164);
+    struct SndBuf buf;
+    while (scpKillSpiderGroup(a0, 0x2000000) != 0) { _ACTWait(1); }
+    _ACTWait(0xF);
+    actCreateSubThread(func_0021A168, 0x15);
+    stage_KillPlayBgAnimation(0xE5, 1, 0);
+    buf = D_0061BD90;
+    soundSeDefPlayWithVolumeRate(0x4AC, 0, &buf, 1);
+    _ACTWait(0x1E);
+    soundSeDefPlayWithVolumeRate(0x4AD, 0, &buf, 1);
+    _ACTWait(0x1E);
+    soundSeDefPlayWithVolumeRate(0x4AE, 0, &buf, 1);
+    while (func_0012AA80(0xE5) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    {
+        int *p = D_004D1450 + 224;
+        p[1] = (int)actSt04eWaterStop;
+        obj->unkC4 = p;
+    }
+    BoxBarSoundOn((int)a0, 0x18D);
+    _ACTWait(0);
+}
 
 void func_00219EA8(int x) {
     volatile int local = x;

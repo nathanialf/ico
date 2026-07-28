@@ -232,8 +232,23 @@ extern void actSt13cHandJimaku(void);
 extern void actSt13cCageFall(void);
 extern int func_0017B230(int a0);
 extern int D_006325B4;
+extern volatile int D_006325B4_v __asm__("D_006325B4");
 
-INCLUDE_ASM("asm/nonmatchings/src/st13c", func_0022BD58);
+void func_0022BD58(volatile int a0) {
+    St13cBox *gobj = *(St13cBox **)(a0 + 0x164);
+    D_006325B4_v = 1;
+    gobj->field_B0 = 0;
+    if (func_0017B230(0x4C) != 0) {
+        D_004D2CC0[1] = (int *)actSt13cHandJimaku;
+        gobj->field_B4 = D_004D2CC0;
+        BoxBarSoundOn((int)a0, 0x18D);
+        _ACTWait(0);
+    }
+    D_004D2CE0[1] = (int *)actSt13cCageFall;
+    gobj->field_B4 = D_004D2CE0;
+    BoxBarSoundOn((int)a0, 0x18D);
+    _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cHandJimaku);
 

@@ -490,3 +490,289 @@ two-allocno tie (5 funcs for one root cause); (b) `gene_enemy` at rc16 —
 the constants are already read off, only the §5.9 rodata materialization
 and one s2/s3 swap remain; (c) `func_00211EC8` and the `switch` pair, which
 are ordinary linear-code decomps.
+
+---
+
+# conv-5 remainder pass (worker 5, branch `conv-5` off `908573c9`)
+
+Scope: the conv-4 "Still open" table.  Gate for every batch:
+`./tools/build.sh setup && .venv/bin/ninja` → `verify_elf: OK (…fbf50c75…)`
+plus `./tools/check_no_rom.sh`.
+
+## RESOLVED — the two-allocno `%hi` tie (5 funcs, one root cause)
+
+conv-4's next lever was "build the minimal-TU brute force with `-dg`/`-dl`
+greg dumps and read the coloring mechanism".  Done — and the mechanism turned
+out **not** to be in `global.c` at all.  It is in **gcse.c**, and it is fully
+deterministic and fully readable from `-dG`.
+
+### Mechanism (proven, with dumps)
+
+The two `%hi` pseudos of the BoxBar tail are not created by expand; they are
+created by **PRE (partial redundancy elimination) in gcse**, which hoists both
+`(high:SI (symbol_ref …))` expressions out of the wait-loop into the loop
+pre-header.  `-fno-gcse` makes both `lui`s disappear from the callee-saved
+registers entirely, which is the first proof.
+
+`pre_delete()` allocates each expression's `reaching_reg` while walking the
+**expression hash table in bucket order**:
+
+```c
+for (i = 0; i < expr_hash_table_size; i++)
+  for (expr = expr_hash_table[i]; expr; expr = expr->next_same_hash)
+    ... expr->reaching_reg = gen_reg_rtx (...)
+```
+
+So the expression with the **lower hash bucket** gets the **lower pseudo
+number**, the lower allocno index, and — because the two allocnos tie on
+`allocno_compare`'s priority and it falls through to `return v1 - v2` — the
+**lower callee-saved hard register**.  Bucket ties are broken by insertion
+order, i.e. by source statement order.
+
+`-dG` prints this directly.  For `actSt02aEne` (table = 17 buckets):
+
+```
+Index 2 (hash value 12)   (high:SI (symbol_ref:SI ("D_004D0FD0")))
+Index 4 (hash value  6)   (high:SI (symbol_ref:SI ("actSt02aBoxEvent2")))
+PRE: redundant insn 90 (expression 4) … reaching reg is 95     <- handler first
+PRE: redundant insn 88 (expression 2) … reaching reg is 96
+```
+
+→ handler gets `$16`, array gets `$17`.  ROM has the opposite.
+
+The rule was then **falsified-tested against an already-matched sibling**:
+`actSt02aDoorUpEffect` has buckets `D_004D1190`=18, `actSt03tSekizoEvent`=9,
+so the rule predicts *handler in `$16`* — and the ROM indeed has
+`lui $16,%hi(actSt03tSekizoEvent)` / `lui $17,%hi(D_004D1190)`.  The rule
+holds in both directions; it is not a post-hoc story.
+
+### The two inputs to the bucket, and which one is free
+
+1. **`expr_hash_table_size`** = `max(11, n_insns/4) | 1`, computed from the
+   function's insn count at gcse time.  This is **not** a usable lever: gcse
+   runs after cse1, and `delete_trivially_dead_insns` has already removed every
+   dead statement, so a "no-op" source addition either changes the emitted code
+   or changes nothing at all.  Verified with a ladder of 1–5 dead assignments:
+   all left `T=17` and the output unchanged.  (conv-4's `D_x[0]=D_x[0];`
+   self-store *did* move the allocation, but only because it is a real store
+   that survives to gcse — and it shifted the scratch pair instead, rc6→rc4.)
+2. **The symbol name string.**  `hash_expr_1` hashes `(high (symbol_ref X))`
+   from the characters of `X` (position-dependent, not a plain sum).  Sweeping
+   the array symbol's name over `a`…`z` in a minimal TU moves the bucket by
+   exactly ±1 per character step and flips the register at the crossover —
+   the register assignment is *literally a function of the symbol's spelling*.
+
+**Consequence, and the actual finding:** with the placeholder spelling
+`D_004D0FD0` the compiler **provably cannot** emit the ROM's registers.  The
+name is ours, not the developer's (the aug6 tree calls the same object
+`D_004CBBE0` and matches there only by luck of a different hash).  So the
+residual was never a regalloc floor — it was our *symbol naming* leaking into
+codegen.
+
+### The fix actually applied
+
+The five BoxBar objects sit in a long run of identical 0x20-byte records
+(`{0x18D,0,0,0, 0x18C,0,0,0}`) — splat only emits a `dlabel` at each address
+that happens to be *referenced*, so the underlying C object is very plausibly
+**one table**.  Spelling the address as `base + index` re-hashes the
+expression (the `const_int` addend participates in the hash) without changing
+a single linked byte:
+
+```c
+{
+    int *p = D_004D0F50 + 32;      /* == D_004D0FD0 */
+    p[1] = (int)actSt02aBoxEvent2;
+    obj->unkC4 = p;
+}
+```
+
+Crutch-free; no `__asm__`, no pins, no config edits, no `symbol_addrs`
+changes.  The base was chosen per function by sweeping the candidate table
+bases (`tools`-free, see `basesearch` note below) until the bucket order
+matched ROM.  **This is honest about what it is: the base/offset split is a
+hash choice, exactly as the symbol name would be.**  The cleaner long-term
+expression of the same fact is to give these objects real names in
+`config/symbol_addrs.us.txt` (splat currently auto-names every data symbol
+`D_<VMA>`; there are no data entries in that file at all today).
+
+| func | TU | spelling | result |
+|---|---|---|---|
+| `actSt02aEne` | src/st02a | `D_004D0F50 + 32` | **MATCHED** |
+| `actSt02aSekizo` | src/st02a | `D_004D0E10 + 136` | **MATCHED** (also: retail `stage_KillPlayBgAnimation(0x53,1,0)`, `func_0012AA80(0x53)`, `unkC4`, `BoxBarSoundOn(...,0x18D)`) |
+| `actSt04eWaterFlagOn` | src/st04e | `D_004D1450 + 224` | **MATCHED** (also: loop is `while (scpKillSpiderGroup(a0,0x2000000) != 0)`, ids `0xE4→0xE5`) |
+| `actSt03tWayOffChk` | src/st03t | `D_004D11B0 + 24` | **MATCHED** (retail inserts a `func_0017EB50()` guard: `while (func_0017EB50() != 0 \|\| scpSleepSpiderGroupOne(D_00631AE8,0x4000000) == 0)`; waypoints `0x35/0x37/0x38/0x39`, `func_0017B288(0x6F)`) |
+| `actSt05dDoor2UpChk` | src/st05d | `D_004D1B70 + 16` | **MATCHED** (`while (scpSleepSpiderGroupOne(D_00631AE4,0xA000000) != 0)`) |
+
+### Hazard found while doing this
+
+19. **`quick_diff` cannot see a wrong `%lo` addend on an *extern* symbol.**
+    A stray global `sed` set `actSt02aEne`'s offset to `D_004D0E10 + 136`
+    (= `D_004D1030`, the *wrong* object).  Both sides disassemble to
+    `addiu v0,s0,0` because the `.o` leaves the `%lo` of an extern
+    unresolved, so tolerance 3 of `convpass_rd.sh` swallowed it and every
+    per-function diff read `rc0`.  Only `ninja` caught it — 2 bytes at ROM
+    `0x111744`.  Any base+offset edit **must** be ninja-gated, and any
+    search script must edit exactly one function (a global `sed` on
+    `int *p = D_… + N;` hits every sibling using the same idiom).
+
+## RESOLVED — `func_0022BD58` (src/st13c, sched2 `%gp_rel`-store tie)
+
+rc6, all of it in the prologue: ROM sinks `sw v1,%gp_rel(D_006325B4)($28)`
+*after* the `lw s0,356(v0)` gobj load and therefore has to keep the constant
+`1` in `v1` (built put the store first and reused `v0`).  The register
+difference is a **consequence** of the schedule, not a second problem.
+
+Root cause: gcc proves `D_006325B4` (a never-address-taken global) cannot
+alias the `*(St13cBox **)(a0 + 0x164)` load and hoists the store above it.
+Four order/temp respellings (`field_B0` first, split declaration, `int one = 1`
+temp, volatile-qualified load) all stayed at rc6 — the ordering has to come
+from a memory dependence, not from statement order.
+
+`volatile` on the store supplies it, but TU-wide `extern volatile int
+D_006325B4;` **regresses the matched sibling `actSt13cBmg1`** (+2 insns:
+ROM sinks its `D_006325B4 = 0` store into a `beq` delay slot, which volatile
+forbids).  Scoped with the TU's existing alias idiom instead:
+
+```c
+extern volatile int D_006325B4_v __asm__("D_006325B4");
+```
+
+(same device as `D_00631AE8__p4`, `D_00631AE4__p4`, `D_0065ED40_a/_b`, …
+already in src/enemy_act.c, src/boyact.c, src/delayFreeManager.c).
+**MATCHED**; every other function in src/st13c.c re-verified at rc0.
+
+## RESOLVED — `gene_enemy` (src/itou_boss) and `func_00211EC8` (src/st02a)
+
+**`gene_enemy`** — MATCHED.  Two independent fixes on top of conv-4's rc16:
+
+1. **§5.9 rodata materialization was a *declaration* problem, not a codegen
+   one.**  `extern int D_0055B030;` / `extern int D_0055BD40;` are ≤8 bytes,
+   so `-G 8` made them `$gp`-relative (`addiu s4,gp,0`) where ROM does
+   `lui`/`addiu %hi/%lo`.  Retyping both to `extern char D_xxxx[];` (see the
+   `extern_size` note) took rc20 → rc10 with the insn counts equal.
+2. **The residual s2/s3 + v0/v1 swap was the aug6 body's own spelling.**  The
+   aug6 source routes the matrix pointer through an extra array-pointer temp
+   and assigns it *last*:
+
+   ```c
+   char (*q_arr)[];
+   q_arr = (char (*)[])&D_0055B030;
+   r     = D_0055BD40;
+   q     = *q_arr;
+   ```
+
+   conv-4's port had flattened that to `q = D_0055B030; r = D_0055BD40;`.
+   Restoring the aug6 shape (including the otherwise-pointless `q_arr`
+   indirection) is rc10 → **rc0**.  A plain statement swap (`r` before `q`)
+   stays at rc10 — it is the extra temp, not the order.
+   Retail deltas vs aug6: `iosFree(D_0062A310,0,D_00556348,0x16F)` →
+   `func_0013A0F8(D_00632010,0,D_0055C178,0x15E)`, assert msg
+   `D_00556358`→`D_0055C188`, table bases `D_006CCE60`→`D_006D35F0`,
+   `D_005551F0`→`D_0055B030`, `D_00555F00`→`D_0055BD40`, and
+   `func_00240080`→`func_00243B60`.
+
+**`func_00211EC8`** (src/st02a, the last of conv-4's three carved halves,
+78 insns, no aug6 twin) — **MATCHED on the first attempt**, straight
+transcription.  Shape worth recording because the whole `actSt25a*` family
+uses it: a chain of `p = actSt25aQueenDeadChk(id); <use p>` statements where
+every store lands in the *next* call's delay slot, plus a 64-bit flag clear
+`*(long long *)(o + 0x20) &= ~0x04000000;` (the `lui 0xFBFF`/`ori 0xFFFF`
+pair is the sign-extended 64-bit constant — §5.11), and two
+`func_0017EA50(actSt25aQueenDeadChk(id), 0.0f, -200.0f, 0.0f)` calls whose
+two float constants are what force the callee-saved `$f20`/`$f21` pair.
+
+## RESOLVED — the `src/switch.c` fresh-decomp pair
+
+Both had no aug6 body on either side (INCLUDE_ASM in both trees), so these
+were ordinary decomps from the `.s`, not ports.
+
+| func | insns | result |
+|---|---|---|
+| `GetWallLeverAngle` | 68 | **MATCHED** |
+| `IsWallLeverStatus` | 62 | **MATCHED** (first attempt) |
+
+`GetWallLeverAngle` shape notes: `func_0013A0F8(D_00632010, 0x20, D_00618630,
+0x8D)` is the allocator (same one as `gene_enemy`); the ROM's
+`ldl/ldr` + `sdl/sdr` block copy of `D_004BEFD0` is reproduced by giving the
+type **alignment 1** — `typedef struct { char b[0x20]; } WLA;` and a plain
+`*p = D_004BEFD0;`.  A struct with `int`/pointer members has alignment 4 and
+emits aligned `ld`/`sd` instead.
+
+### NEW general lever — the retail CFLAGS do **NOT** carry `-fno-strict-aliasing`
+
+`tools/compile_c.sh` builds with `-S -G 8 -O2 -mips3 -EL -fno-builtin
+-nostdinc -fdata-sections`.  There is no `-fno-strict-aliasing`, so gcc's
+**type-based alias sets are live** and a store through one pointer type can be
+reordered past a load through another.  This contradicts the standing
+`union_alias` note ("ALL `-fno-strict-aliasing`") — that was an aug6-era
+observation and does not hold for this build.
+
+`GetWallLeverAngle` rc4 was exactly this: ROM emits
+`sw v0,12(s2)` immediately after the call, built sank it past
+`lw v1,348(s4)`.  The store was spelled `*(void **)((char *)p + 0xC) = …`
+(pointer alias set) while the load was `*(int *)((char *)a0 + 0x15C)`
+(int alias set) — different sets, so the scheduler was free to swap them.
+Respelling the store as the **same** alias set
+
+```c
+*(int *)((char *)p + 0xC) = (int)t;
+```
+
+restores the dependence and lands rc0.  A `void *` temp and a `volatile`
+store both stayed at rc4 — it is the *type*, not the statement shape.
+**Check the alias set of every store/load pair before calling a store/load
+swap a "scheduler tie".**
+
+## RESOLVED — `_ACTCommonMailTest` was a splat-merge, not a rewrite
+
+Ledgered as `rewritten` (aug6 7 insns → retail 27).  It is not: the 0x70
+`.s` block held **three** functions (two extra prologues after an infinite
+`_ACTWait` loop — the `splat_merged` signature).  Carved with two
+`config/symbol_addrs.us.txt` additions and all three written:
+
+| new symbol | insns | body |
+|---|---|---|
+| `_ACTCommonMailTest` (0x0015EED0) | 8 | unchanged from aug6 — `for (;;) { _ACTWait(1); }` |
+| `func_0015EEF0` (0x0015EEF0) | 14 | aug6 twin `func_0015CFF0`; `0x3F`→`0x40`, `D_00629DE8`→`D_00631AE8`, `D_0062A4DC`→`D_006321DC` |
+| `func_0015EF28` (0x0015EF28) | 6 | fresh: `if (a0 == (void *)D_00631AE8) D_00632508 = 1;` |
+
+All three **MATCHED**.  Worth re-checking the rest of the `rewritten` list for
+the same signature before treating any of them as a grind: an "N× bigger"
+retail body with an infinite-loop-then-prologue shape is a merge, not a
+rewrite.
+
+---
+
+## conv-5 summary
+
+**12 matched**, in 5 gated commits, every one verified at
+`verify_elf: OK (…fbf50c75…)` + `check_no_rom: OK`.
+
+| commit | scope | n |
+|---|---|---|
+| `b1f46d97` | two-allocno `%hi` tie (gcse bucket order) | 5 |
+| `a605df4a` | `func_0022BD58` sched2 `%gp_rel`-store tie | 1 |
+| `b4ee5f97` | `gene_enemy`, `func_00211EC8` | 2 |
+| `89db4fec` | `IsWallLeverStatus`, `GetWallLeverAngle` | 2 |
+| (this) | `_ACTCommonMailTest` + 2 carved halves | 3 |
+
+`config/symbol_addrs.us.txt` additions: `func_0015EEF0`, `func_0015EF28`
+(both `// type:func  // src/commonact.c  // provisional-ordinal`).
+No renames, no yaml edits, no new crutches.
+
+### Still open after conv-5
+
+| class | n | funcs |
+|---|---|---|
+| measured-residual rewrites, **not attempted this pass** | 4 | `gsb_StageSettingTool` (rc27) · `CheckPureCliffAttribute` (rc47) · `Debug_WireString_Bird` (rc52) · `pac_continueTag` (no aug6 candidate — hand transcription) |
+| `rewritten` — fresh decomp, aug6 body a loose guide | 16 | girl_act `actGirlJump` · way_tool `debug_WayTool` · commonact `ContinueCorrectPosition` / `actCommonEdgeHang` · e3 `actE3CageFallChk` · BgAnimation `bga_resetObjectCounter`, `bga_calcEnvelope` (VU0) · st02a `actSt02aSecretItem` · enemy_act `funcEnemyAiGetGirl` / `actEnemy_isLargeEnemy` · end `actEndDemo05` · boyact `actBoyTakeWeaponReady` / `actBoySupportGBBegin` / `pullup_check_heroin_position` / `hand_heroin` · motionManager `SkelTest` |
+| `no-aug6-twin` | 8 | `soundSeVolSet` · the 7 src/pool funcs |
+| `jtbl-deferred` | 1 | motionOrientManager `shiftMotionOrientEndFunc` |
+
+**Recommended order for conv-6:** (a) run the splat-merge check over all 16
+`rewritten` entries first — `_ACTCommonMailTest` proves the classification is
+unreliable and a merge is 10 minutes, not a grind; (b) `gsb_StageSettingTool`
+at rc27 with the two new levers in hand (the `-G 8` declaration retype from
+`gene_enemy` and the strict-aliasing type-set rule from `GetWallLeverAngle` —
+between them they accounted for every non-tie residual this pass);
+(c) the remaining measured-residual three.
