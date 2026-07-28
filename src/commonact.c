@@ -1,5 +1,9 @@
 #include "common.h"
 
+typedef struct { int _0, _4, _8, _C, _10; } ChainEntry;
+
+typedef union { float f; int i; } FI;
+
 typedef struct { int w[6]; } SlowrunRec;
 
 
@@ -26,9 +30,49 @@ extern void dispPlane();
 extern void BoxExtGeoRestore(int *self);
 extern void func_001E9DF0();
 extern int func_001919A0();
-INCLUDE_ASM("asm/nonmatchings/src/commonact", ACTSetPositionWithFitting);
+extern char *D_00631AE4__p4 __asm__("D_00631AE4");
+extern void weaponFumbleSE(void *);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", ACTSetPositionNodeWithFitting);
+void ACTSetPositionWithFitting(char *self) {
+    char *s164 = *(char **)(self + 0x164);
+    int *p2C = *(int **)(s164 + 0x2C);
+    int a1;
+    if (p2C != 0) {
+        a1 = *p2C;
+    } else {
+        a1 = *(int *)(s164 + 0x5D0);
+    }
+    if (self == D_00631AE4__p4) {
+        char *p130 = *(char **)(s164 + 0x140);
+        if (p130 != 0) {
+            char *p15C = *(char **)(p130 + 0x15C);
+            *(int *)(p15C + 0x5F4) = a1;
+            weaponFumbleSE(p130);
+        }
+    }
+}
+
+extern int D_00631990;
+extern int D_00632D90;
+extern void func_001F2500(int a0);
+extern int iosOmBeforeFuncStandard(void *a0, int a1, void *a2);
+extern int isysGObjSearchFromObjLayoutID(int a0);
+
+void ACTSetPositionNodeWithFitting(void *a0) {
+    char *p = *(char **)((char *)a0 + 0x164);
+    int v = *(int *)(p + 0x140);
+    void *obj;
+    if (v != 0) {
+        func_001F2500(v);
+        *(int *)(p + 0x140) = 0;
+    }
+    if (D_00631990 == 0x53 || D_00632D90 != 0) {
+        obj = (void *)isysGObjSearchFromObjLayoutID(0x35);
+        if (obj != 0) {
+            iosOmBeforeFuncStandard(obj, 0xD, a0);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", ChangeMailInLadder);
 
@@ -105,7 +149,55 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonRope);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", motCommonRopeTurnR);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", motCommonRopeTurnL);
+extern void ActPara_GetDefTbl(int a0, int a1);
+extern void BoxBarSoundOn(void *a0, int a1);
+extern char D_00558978[];
+extern char D_00552C78[], D_00558988[];
+extern int D_00632CBC;
+extern void _ACTWait__p4(int a0) __asm__("_ACTWait");
+extern void actCommonOne__p4(volatile int a0) __asm__("actCommonOne");
+extern void func_0015D328(void);
+extern void traceLine(int a0, int a1, int a2, void *a3, int a4);
+
+void motCommonRopeTurnL(volatile int self) {
+    char *s164 = *(char **)(self + 0x164);
+    char *o0 = *(char **)(*(char **)(self + 0x164) + 0x670);
+    *(int *)(s164 + 0x14) = (int)actCommonOne__p4;
+    *(int *)(o0 + 0x2A0) = 0;
+    for (;;) {
+        if (D_00632CBC & 1) {
+            traceLine(0xA, 0xAA, 0x0FFFFFFF, D_00558978,
+                      *(int *)(*(char **)(*(char **)(self + 0x164) + 0x670) + 0xCC));
+            if (D_00632CBC & 1) {
+                traceLine(0xA, 0xB4, 0x0FFFFFFF, D_00558988,
+                          *(int *)(*(char **)(*(char **)(self + 0x164) + 0x670) + 0x29C));
+            }
+        }
+        {
+            int st = *(int *)(*(char **)(*(char **)(self + 0x164) + 0x670) + 0x29C);
+            if (st < 0) goto tbl22;
+            if (st < 2) goto after;
+            if (st != 2) goto tbl22;
+            ActPara_GetDefTbl(self, 0x21);
+            goto after;
+        tbl22:
+            ActPara_GetDefTbl(self, 0x22);
+        after:;
+        }
+        if (*(int *)(*(char **)(*(char **)(self + 0x164) + 0x670) + 0xCC) < 0) {
+            BoxBarSoundOn((void *)self, 0xB7);
+            *(int *)(*(char **)(*(char **)(self + 0x164) + 0x670) + 0x29C) = 0;
+        }
+        if (*(int *)(s164 + 0x48) >= 0x3D) {
+            if (*(int *)(*(char **)(*(char **)(self + 0x164) + 0x670) + 0x29C) >= 3) {
+                func_0015D328();
+                _ACTWait__p4(0);
+            }
+        }
+        BoxBarSoundOn((void *)self, 0x69);
+        _ACTWait__p4(1);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001588F0);
 
@@ -201,11 +293,45 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonStoneDead);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonStone);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", BoxBarSoundOn);
+extern int iosOmBeforeFuncStandard(void *a0, int a1, void *a2);
+
+void BoxBarSoundOn(void *a0, int a1) {
+    char *p = *(char **)((char *)a0 + 0x164);
+    if ((a1 == 0xA8 || a1 == 0xAD) && *(int *)((char *)a0 + 0xC) == 1) {
+        unsigned long long f470 = *(unsigned long long *)(p + 0x470);
+        if ((unsigned int)(f470 >> 61) & 1) {
+            if ((unsigned int)(*(unsigned long long *)(p + 0x480) >> 61) & 1) {
+                a1 = 0xA9;
+                goto done;
+            }
+        }
+        if ((unsigned int)(f470 >> 59) & 1) {
+            if ((unsigned int)(*(unsigned long long *)(p + 0x480) >> 59) & 1)
+                a1 = 0xAA;
+        }
+    }
+done:
+    iosOmBeforeFuncStandard(a0, a1, a0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", BoxBarSoundOff);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", _boxbar_set_sound);
+extern float D_00630CB8;
+extern int HandCameraCorrect(void *a0, void *a1);
+extern void func_001945B8(void *a0, float a1);
+extern void *subCommonIdle__p4(int a0) __asm__("subCommonIdle");
+
+int _boxbar_set_sound(char *a0) {
+    float buf[3];
+    int v;
+    buf[0] = *(float *)((char *)subCommonIdle__p4(*(char **)(*(char **)(a0 + 0x15C) + 0x180)) + 0x0);
+    buf[1] = *(float *)((char *)subCommonIdle__p4(*(char **)(*(char **)(a0 + 0x15C) + 0x180)) + 0x4);
+    buf[2] = *(float *)((char *)subCommonIdle__p4(*(char **)(*(char **)(a0 + 0x15C) + 0x180)) + 0x8);
+    func_001945B8(buf, D_00630CB8);
+    return HandCameraCorrect(subCommonIdle__p4(a0), buf) < 0
+               ? -HandCameraCorrect(subCommonIdle__p4(a0), buf) < 0x2D
+               : HandCameraCorrect(subCommonIdle__p4(a0), buf) < 0x2D;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonBox);
 
@@ -227,9 +353,42 @@ void funcCommonJumpDircorrect(int a0, int a1) {
     setNodePursueParticleEffectWithUpperLimit(a0, a1, 30.0f);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", funcCommonFallDircorrect);
+extern char D_0055DA10_a[] __asm__("D_00565060");
+extern int actCommonStoneDead(void *a0, float *a1, float a2);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", correctJumpOrientByChain);
+int funcCommonFallDircorrect(void *a0, float *pos) {
+    char *s164 = *(char **)((char *)a0 + 0x164);
+    char *rec = D_0055DA10_a;
+    ((FI *)(s164 + 0x110))->f = pos[0];
+    ((FI *)(s164 + 0x114))->f = pos[1];
+    ((FI *)(s164 + 0x118))->f = pos[2];
+    rec = rec - (-(*(int *)(*(char **)((char *)a0 + 0x15C) + 0x4A0) * 0x190));
+    return actCommonStoneDead(a0, pos, (float)*(int *)(rec + 0x138));
+}
+
+extern ChainEntry D_0028CDD0[];
+extern SlowrunRec D_00292540[];
+
+void correctJumpOrientByChain(void *a0) {
+    char *s164 = *(char **)((char *)a0 + 0x164);
+    char *s15C = *(char **)((char *)a0 + 0x15C);
+    int v = *(int *)(s15C + 0x4A0);
+    int idx = *(int *)(s164 + 0x44);
+    int e4 = D_0028CDD0[idx]._4;
+    int e8 = D_0028CDD0[idx]._8;
+    int eC = D_0028CDD0[idx]._C;
+    int e10 = D_0028CDD0[idx]._10;
+    int i;
+    if (v != 0x43E) {
+        D_00292540[e4].w[2] = v;
+        D_00292540[e8].w[2] = v;
+        i = eC;
+        while (i < e10) {
+            D_00292540[i].w[0] = v;
+            i++;
+        }
+    }
+}
 
 void actCommonJump(int a0)
 {
@@ -305,7 +464,18 @@ void _ACTDebugPrint(char *self, int unused, int val) {
     *(int *)(*(char **)(self + 0x164) + 0x180) = val;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", ACTSendMailCorrect);
+extern char D_00558848[];
+extern int isBottomOfChain(int a0, int a1);
+
+void ACTSendMailCorrect(volatile int a0) {
+    char *s = *(char **)(a0 + 0x164);
+    int self;
+    debug_assertMessage(D_00558848);
+    isBottomOfChain(*(int *)(s + 0x180), a0);
+    self = a0;
+    *(int *)(s + 0x184) = *(int *)(s + 0x180);
+    *(int *)(*(int *)(self + 0x15C) + 0x420) = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", _ACTCommonMailTest);
 
@@ -315,9 +485,29 @@ void E3_LeverCheck(char *self) {
     *(int *)(p + 0x250) = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonBecarry);
+extern void *ExecMotionOrient(void *a0, void *a1, void *a2);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", subCommonIdle);
+int actCommonBecarry(void *a0, void *a1) {
+    char *s = *(char **)((char *)a0 + 0x164);
+    void *r = ExecMotionOrient(a0, a1, s + 0x610);
+    *(void **)(s + 0x120) = r;
+    return *(int *)((char *)r + 0xC) != 0;
+}
+
+extern char D_006AAB60[];
+extern int GetOrientOfWallOfGObj(void *a0, void *a1);
+extern void InitKeyInput(void *a0, void *a1);
+
+void *subCommonIdle(char *a0) {
+    char *p;
+    if (a0 != D_00631AE4__p4 && a0 != D_00631AE8 && *(int *)(a0 + 0xC) != 4) {
+        InitKeyInput(D_006AAB60, a0);
+        return D_006AAB60;
+    }
+    p = *(char **)(a0 + 0x164) + 0xE0;
+    GetOrientOfWallOfGObj(p, a0);
+    return p;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", ContinueCorrectPosition);
 

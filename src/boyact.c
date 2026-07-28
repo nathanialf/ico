@@ -2,6 +2,36 @@
 
 #include "ico/types.h"
 
+typedef struct { int d[6]; } HB_S18;
+
+typedef struct {
+    int field0;
+    char _4[0x8];
+    unsigned char fC;
+    char _d;
+    unsigned char fE;
+    char _f[0x11];
+    char f20[0x10];
+    char f30[0x10];
+} BgaEntry;
+typedef struct {
+    char _0[4];
+    float f4;          /* 0x4 */
+    float f8;          /* 0x8 */
+    char _c;           /* 0xC */
+    unsigned char fD;  /* 0xD */
+    char _e;           /* 0xE */
+    unsigned char fF;  /* 0xF */
+    float f10;         /* 0x10 */
+    char _14[12];      /* 0x14 */
+    char f20[4];       /* 0x20 */
+    float f24;         /* 0x24 */
+    char _28[8];       /* 0x28 */
+    char f30[16];      /* 0x30 */
+} Geo;
+
+typedef struct { int a, b, c; } S12;
+
 typedef struct { int d[6]; } S18;
 typedef struct { long long d[12]; } S60;
 
@@ -58,11 +88,120 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", func_0014DF18);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", CheckCollisionAttr);
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", UpdateGeo);
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", BoyBgaManager);
+extern BgaEntry D_00281C10[];
+extern char D_005582C8[];
+extern float D_00630B28;
+extern char D_00632290[];
+extern void func_0014B660(void *a0, void *a1, int a2);
+extern void func_001945B8(void *a0, float a1);
+extern void func_001947D0(void *a0, void *a1, void *a2);
+extern void func_001AD768(char *file, int line);
+extern void func_00243AD0(void *a0, void *a1, void *a2);
+extern void func_00243B18(void *a0, void *a1, float a2);
+extern void func_00263FF0(char *file, int line, char *msg);
+extern float stage_SetParentOfGObj(int a0, void *a1, void *a2, float a3);
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", E3_StageStartBoy);
+void BoyBgaManager(void *a0, int a1, int *a2) {
+    BgaEntry *found;
+    int i;
+    int result;
+    void UpdateGeo(Geo *e) {
+        float buf_a[4];
+        float buf_b[4];
+        if (e->fF != 0) {
+            buf_a[0] = ((float *) subCommonIdle(a0))[0];
+            buf_a[1] = ((float *) subCommonIdle(a0))[1];
+            buf_a[2] = ((float *) subCommonIdle(a0))[2];
+        } else {
+            void *g = isysGObjSearchFromObjLayoutID(0x2E);
+            func_001947D0(buf_a, ContinueCorrectPosition(g), ContinueCorrectPosition(a0));
+        }
+        func_00243B18(buf_a, buf_a, e->f10);
+        func_0014B660(e->f30, buf_a, 0);
+        func_00243B18(buf_b, subCommonIdle(a0), e->f8);
+        func_00243AD0(e->f20, ContinueCorrectPosition(a0), buf_b);
+        func_00243B18(buf_b, subCommonIdle(a0), e->f4);
+        func_001945B8(buf_b, D_00630B28);
+        func_00243AD0(e->f20, e->f20, buf_b);
+        e->f24 = e->f24 + (float) e->fD;
+    }
+    i = 0;
+    if (D_00281C10[0].field0 >= 0) {
+        for (;;) {
+            if (D_00281C10[i].field0 == a1) {
+                found = &D_00281C10[i];
+                goto have_found;
+            }
+            i++;
+            if (D_00281C10[i].field0 < 0) {
+                break;
+            }
+        }
+    }
+    found = 0;
+    func_001AD768(D_005582C8, 0x607);
+    func_00263FF0(D_005582C8, 0x607, D_00632290);
+have_found:
+    if (*a2 >= 0) {
+        if (found->fC != 0) {
+            UpdateGeo((Geo *) found);
+        } else if (*a2 == 0) {
+            UpdateGeo((Geo *) found);
+        }
+        result = (int) stage_SetParentOfGObj(found->field0, found->f20, found->f30, (float) *a2);
+        if (found->fE == 0) {
+            *a2 = result;
+        } else if (result >= 0) {
+            *a2 = result;
+        }
+    }
+}
+
+extern void BoySekikaTexScroll(void *a0, int a1);
+extern void CylinderCollision(void *a0, void *a1);
+extern unsigned char D_00633CEE;
+extern unsigned char D_00633CEF;
+extern unsigned char D_00633CF0;
+extern void _ACTWait__p4(int a0) __asm__("_ACTWait");
+extern int func_0017B230(int a0);
+extern void func_0017B288(int a0);
+extern void func_0017B528(void *a0);
+extern void func_0017B568(void *a0);
+extern void func_00243AD0(void *a0, void *a1, void *a2);
+extern void func_00243B18(void *a0, void *a1, float a2);
+extern int staffRollScroll(void *a0, int a1, int a2, int *p, int *q, int *r);
+
+void E3_StageStartBoy(void *a0) {
+    float buf[4];
+    int w10, w14, w18;
+
+    if (D_00633CEE) {
+        func_00243B18(buf, subCommonIdle(a0), 100.0f);
+        func_00243AD0(buf, buf, ContinueCorrectPosition(a0));
+        CylinderCollision(a0, buf);
+    }
+    if (func_0017B230(0x15C)) {
+        func_0017B288(0x15C);
+        return;
+    }
+    if (staffRollScroll(a0, 0, 0, &w10, &w14, &w18)) {
+        if (D_00633CF0) {
+            return;
+        }
+        if (D_00633CEF) {
+            return;
+        }
+        _ACTWait__p4(3);
+        staffRollScroll(a0, 0, 0, &w10, &w14, &w18);
+        _ACTWait__p4(w10);
+        func_0017B528(a0);
+        BoySekikaTexScroll(a0, 7);
+        _ACTWait__p4(w14);
+        func_0017B568(a0);
+        _ACTWait__p4(w18);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", GetChainSlope);
 
@@ -184,7 +323,32 @@ void actBoyBelift(void *a0, int *out_id, float *out_vec) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyRescueReady);
+extern void CylinderCollision(void *a0, void *a1);
+extern float D_00630C20;
+extern void *D_00631990;
+extern void *D_00631AE4__p4 __asm__("D_00631AE4");
+extern int D_006AAB48[];
+extern void ExecWeaponHitReaction(void *a0);
+extern int func_001AE420(int a0, int a1, int a2, void *a3);
+extern void func_002641D8(void *a0, int a1, int a2);
+
+void actBoyRescueReady(void) {
+    union { float f[4]; int i[4]; } buf;
+    int *s16;
+    if (D_00631AE4__p4 == 0) return;
+    s16 = *(int **)((char *)D_00631AE4__p4 + 0x164);
+    if (*(int *)((char *)s16 + 0x140) != 0) {
+        ExecWeaponHitReaction(*(void **)((char *)s16 + 0x140));
+        func_002641D8(&buf, 0, 0x10);
+        buf.f[0] = D_00630C20;
+        CylinderCollision((void *)*(int *)((char *)s16 + 0x140), &buf);
+        func_001AE420(*(int *)((char *)s16 + 0x140), 0, 0, D_00631990);
+        *(int *)(*(int *)((char *)s16 + 0x140) + 0x16C) = 0;
+    }
+    D_006AAB48[0] = 0;
+    *(int *)D_006AAAE0 = 0;
+    *(int *)((char *)s16 + 0x140) = 0;
+}
 
 int actBoyDitch3mReady(void) {
     BoyState *p = *(BoyState **)((char *)D_00631AE4 + 0x164);
@@ -281,7 +445,43 @@ int func_001547B0(void) {
     return 24;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyHangBefore);
+extern int D_00281BF0[];
+extern void func_00154448(void);
+
+void actBoyHangBefore(void) {
+    char *boy = (char *)D_00631AE4__p4;
+    char *dst = (char *)D_006AAB40;
+
+    *(HB_S18 *)D_006AAB40 = *(HB_S18 *)D_00281BF0;
+
+    if (boy != 0) {
+        char *p = *(char **)(boy + 0x164);
+        char *a = *(char **)(p + 0x140);
+        if (a != 0) {
+            *(int *)(dst + 0x8) = *(int *)(a + 0x8);
+        }
+        a = *(char **)(p + 0x144);
+        if (a != 0) {
+            *(int *)(dst + 0xC) = *(int *)(a + 0x8);
+        }
+        if (*(int *)(p + 0x30) == 0x2D) {
+            *(int *)(dst + 0x10) = *(int *)(*(char **)(p + 0x150) + 0x8);
+        }
+        if (D_00631AE8 != 0 &&
+            *(int *)(*(char **)((char *)D_00631AE8 + 0x164) + 0x30) == 0x2D) {
+            *(int *)(dst + 0x14) |= 1;
+        }
+        func_00154448();
+        {
+            unsigned long long v = D_006AAAE0[1];
+            *(int *)(dst + 0x14) =
+                (*(int *)(dst + 0x14) & 0xFFFEFFFF) |
+                (((unsigned char)(v >> 0x22) & 1) << 0x10);
+            *(char *)(dst + 0x15) = (unsigned char)(v >> 0x21) & 1;
+        }
+        *(HB_S8 *)dst = *(HB_S8 *)((char *)D_006AAAE0 + 0x50);
+    }
+}
 
 void actBoyReadyMove(void) {
     char *src = (char *)D_006AAB40;
@@ -335,7 +535,16 @@ void actBoyBeslam(void *a0, int a1, int a2, int *out_id, float *out_vec, float t
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyRescueSrc);
+extern S12 D_00282660;
+extern char D_006322C0[];
+extern void _ACTGame_SearchGObj(void *a0, int a1, int a2, int a3, void *a4, int a5, int a6);
+extern void debug_assertMessage(void *msg);
+
+void actBoyRescueSrc(volatile int a0) {
+    _ACTGame_SearchGObj((void *)a0, 0, 3, 0, 0, 0, 0);
+    *(S12 *)((char *)GOBJ_SUB(a0) + 0x1C0) = D_00282660;
+    debug_assertMessage(D_006322C0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoySupportGBBegin);
 
@@ -353,7 +562,28 @@ void actBoySupportGBEnd(int a0)
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00154CE8);
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoySupportBGBegin);
+extern float D_00630C24;
+extern void GetRootMatrixByDObj(void *dest, void *dobj);
+extern float HandyCamera_TargetMoveType(void *a0, void *a1);
+
+void actBoySupportBGBegin(float *out) {
+    void *o = D_00631AE4__p4;
+    float buf[4];
+    char *s16 = *(char **)((char *)o + 0x164);
+    char *p;
+    GetRootMatrixByDObj(buf, o);
+    p = s16 + 0x100;
+    if (HandyCamera_TargetMoveType(buf, p) < D_00630C24) {
+        out[0] = *(float *)(s16 + 0x100);
+        out[1] = *(float *)(s16 + 0x104);
+        out[2] = *(float *)(s16 + 0x108);
+    } else {
+        GetRootMatrixByDObj(p, o);
+        out[0] = buf[0];
+        out[1] = buf[1];
+        out[2] = buf[2];
+    }
+}
 
 extern S18 dst18_a __asm__("D_006AAB40");
 extern S60 dst60_a __asm__("D_006AAAE0");

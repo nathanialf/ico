@@ -1,12 +1,30 @@
 #include "common.h"
 
+extern char D_00558E10[], D_00558E20[];
+extern void func_001AD768(void *a0, int a1);
+extern void func_00263FF0(void *a0, int a1, void *a2);
+static inline int subEnemyBrain_ToBoy_chk(void *a0) {
+    char *p = *(char **)((char *)a0 + 0x164);
+    if (*(int *)(*(char **)(p + 0x670) + 0x1FC) != 5) {
+        return 0;
+    }
+    if (*(int *)(*(char **)(p + 0x678) + 0x420) == 0) {
+        func_001AD768(D_00558E10, 0x2FA);
+        func_00263FF0(D_00558E10, 0x2FA, D_00558E20);
+    }
+    return 1;
+}
+
+typedef union { long long d; int w[2]; } MustChaseFlag;
+
 
 
 
 
 extern int D_00632390;
 /* KEEP_DEF: D_00632398 must be declared as array (not scalar) so
- * ee-gcc's small-data gp_rel optimization stays off, matching original. */;
+ * ee-gcc's small-data gp_rel optimization stays off, matching original. */
+extern char D_00632398[];
 extern void func_001919A0();
 extern void ACTParaStatus_Clear(volatile int *self);
 extern int iosOmBeforeFuncStandard(char *self_arg, int val5, int val6);
@@ -29,7 +47,35 @@ void _DoAwaitGirl(volatile unsigned int a0)
     CanWallLeverPull(*(int *)((char *)v1 + 0x5EC), 0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", _MustChase);
+extern char D_00558E10[];
+extern void func_001AD768(void *a0, int a1);
+extern void func_00263FF0(void *a0, int a1, void *a2);
+
+void _MustChase(int a0) {
+    char *g = *(char **)(*(int *)(a0 + 0x164) + 0x670);
+    switch (*(int *)(g + 0x1E4)) {
+    case 0:
+        ((MustChaseFlag *)(g + 0x208))->d &= ~1LL;
+        ((MustChaseFlag *)(*(char **)(*(int *)(a0 + 0x164) + 0x670) + 0x208))->d &= ~2LL;
+        break;
+    case 1:
+        ((MustChaseFlag *)(g + 0x208))->d &= ~1LL;
+        ((MustChaseFlag *)(*(char **)(*(int *)(a0 + 0x164) + 0x670) + 0x208))->d |= 2LL;
+        break;
+    case 2:
+        ((MustChaseFlag *)(g + 0x208))->d |= 1LL;
+        ((MustChaseFlag *)(*(char **)(*(int *)(a0 + 0x164) + 0x670) + 0x208))->d &= ~2LL;
+        break;
+    case 3:
+        ((MustChaseFlag *)(g + 0x208))->d |= 1LL;
+        ((MustChaseFlag *)(*(char **)(*(int *)(a0 + 0x164) + 0x670) + 0x208))->d |= 2LL;
+        break;
+    default:
+        func_001AD768(D_00558E10, 0x324);
+        func_00263FF0(D_00558E10, 0x324, D_00632398);
+        break;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyControl);
 
@@ -57,9 +103,38 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_0015F9F4);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_0015F9F8);
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyRestart);
+extern void ActPara_GetDefTbl(void *a0, int a1);
+extern char D_00565060[];
+extern int D_00631AE4;
+extern int IsEnemyBrainToGenerator(void *a0, int a1, int a2);
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", PairSetGeometry);
+void actEnemyRestart(void *a0) {
+    int *p;
+    char *e;
+    if (D_00631AE4 != 0) {
+        ActPara_GetDefTbl(a0, 0x1B);
+        p = *(int **)((char *)a0 + 0x15C);
+        e = D_00565060 + p[0x4A0 / 4] * 0x190;
+        if ((*(unsigned int *)(e + 0x188) >> 1) & 1) {
+            IsEnemyBrainToGenerator(a0, D_00631AE4, 5);
+        }
+    }
+}
+
+extern int D_00631AE8__p4 __asm__("D_00631AE8");
+
+void PairSetGeometry(void *a0) {
+    int *p;
+    char *e;
+    if (D_00631AE8__p4 != 0) {
+        ActPara_GetDefTbl(a0, 0x1B);
+        p = *(int **)((char *)a0 + 0x15C);
+        e = D_00565060 + p[0x4A0 / 4] * 0x190;
+        if ((*(unsigned int *)(e + 0x188) >> 1) & 1) {
+            IsEnemyBrainToGenerator(a0, D_00631AE8__p4, 5);
+        }
+    }
+}
 
 extern int ContinueCorrectPosition(int a0);
 extern float D_00630CE0;
@@ -139,7 +214,64 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", ChangeBrain_ToAttack);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00163B40);
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_ToBoy);
+extern void BoxBarSoundOn(void *a0, int a1);
+extern char D_00558E20[];
+extern char D_00558FB0[];
+extern int D_00632DA0;
+extern int DispPointBlur(void *a0);
+extern int funcEnemyCarryFail(int *a0);
+
+int subEnemyBrain_ToBoy(void *a0) {
+    int f18 = 0;
+    int f20 = 0;
+    int rv = 0;
+    int catch;
+    int r;
+    int a1v;
+
+    r = DispPointBlur(a0);
+    switch (r) {
+    case 1:
+        f18 = 1;
+        break;
+    case 2:
+        f18 = 1;
+        f20 = 1;
+        break;
+    }
+
+    if (a0 == 0 || *(int *)((char *)a0 + 0xC) != 4) {
+        func_001AD768(D_00558E10, 0x7D2);
+        func_00263FF0(D_00558E10, 0x7D2, D_00558FB0);
+    }
+
+    if (funcEnemyCarryFail((int *)a0) == 0) {
+        goto done;
+    }
+
+    catch = subEnemyBrain_ToBoy_chk(a0);
+
+    if (catch != 0) {
+        if (f20 != 0) {
+            goto setE;
+        }
+        if (D_00632DA0 == 0) {
+            goto done;
+        }
+    setE:
+        BoxBarSoundOn(a0, 0x1E);
+        rv = 1;
+        goto done;
+    } else {
+        if (f18 == 0) {
+            goto done;
+        }
+        BoxBarSoundOn(a0, 0x1D);
+        rv = 1;
+    }
+done:
+    return rv;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", ChangeBrain_ToKidnap);
 
@@ -340,7 +472,18 @@ one:
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemy_isNormalEnemy);
+extern char D_00558E10[];
+extern char D_00558FB0[];
+extern void func_001AD768(void *a0, int a1);
+extern void func_00263FF0(void *a0, int a1, void *a2);
+
+int actEnemy_isNormalEnemy(void *a0) {
+    if (a0 == 0 || *(int *)((char *)a0 + 0xC) != 4) {
+        func_001AD768(D_00558E10, 0x7D2);
+        func_00263FF0(D_00558E10, 0x7D2, D_00558FB0);
+    }
+    return funcEnemyCarryFail((int *)a0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemy_isLargeEnemy);
 
@@ -358,7 +501,62 @@ void func_00165B50(char *self, int a1, int *a2)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", IsEnemyBrainToGenerator);
+extern int HandCameraCorrect(float *a0, float *a1);
+extern void actCommonStoneDead(void *a0, float *a1, float a2);
+extern void dispPlane(void *a0, float *a1);
+extern void func_00104748(float *a0, void *a1);
+extern void func_001947D0(float *a0, int a1, int a2);
+
+int IsEnemyBrainToGenerator(void *a0, int a1, int a2) {
+    float posA[4];
+    float mtx[4];
+    float posB[4];
+    char *p;
+    char *q;
+    float *m;
+    int r0;
+    int r1;
+    int flag;
+    int mode;
+    int angle;
+    int absA;
+
+    p = *(char **)((char *)a0 + 0x164);
+    r0 = ContinueCorrectPosition(a1);
+    r1 = ContinueCorrectPosition(a0);
+    func_001947D0(posA, r0, r1);
+    q = *(char **)((char *)a0 + 0x164);
+    *(float *)(p + 0x110) = posA[0];
+    *(float *)(p + 0x114) = posA[1];
+    *(float *)(p + 0x118) = posA[2];
+    flag = *(int *)(q + 0x30);
+    mode = ((flag ^ 3) == 0) ? 0x5A : 0x69;
+    posB[0] = *(float *)(q + 0x110);
+    posB[1] = *(float *)(q + 0x114);
+    posB[2] = *(float *)(q + 0x118);
+    m = mtx;
+    func_00104748(m, a0);
+    m = posB;
+    angle = HandCameraCorrect(mtx, m);
+    absA = (angle >= 0) ? angle : -angle;
+    if (mode < absA) {
+        *(float *)(q + 0x5B0) = posB[0];
+        *(float *)(q + 0x5B4) = posB[1];
+        *(float *)(q + 0x5B8) = posB[2];
+        if (angle > 0) {
+            BoxBarSoundOn(a0, 0xD8);
+        } else {
+            BoxBarSoundOn(a0, 0xD7);
+        }
+    } else if (absA < 0xF) {
+        BoxBarSoundOn(a0, 0xE1);
+    }
+    if (a2 == 0) {
+        dispPlane(a0, posA);
+    } else {
+        actCommonStoneDead(a0, posA, (float)a2);
+    }
+}
 
 extern int subEnemyBrain_ToBoy(void *a0);
 

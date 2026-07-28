@@ -1,10 +1,33 @@
 #include "common.h"
 
+typedef struct { long long a, b; } WpData16;
+
+typedef struct GObj__p4 {
+    char pad[0xC4];
+    int *unkC4;
+} GObj__p4;
+
 
 extern int func_0017B230(int a0);
 extern void AddWayPointTop();
 extern void stage_KillPlayBgAnimation();
-INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aInit);
+extern void BoxBarSoundOn(int a0, int a1);
+extern int D_004D0F50[];
+extern void _ACTWait(int a0);
+extern int actInitialize(int a0);
+extern void func_00210DF0(volatile int a0);
+
+void actSt02aInit(volatile int a0) {
+    int x = a0;
+    GObj__p4 *gobj = (GObj__p4 *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_0017B230(0x40) == 0) {
+        D_004D0F50[1] = (int)func_00210DF0;
+        gobj->unkC4 = D_004D0F50;
+        BoxBarSoundOn(a0, 0x18D);
+        _ACTWait(0);
+    }
+}
 
 extern void Generator_Call(int a0);
 extern void Generator_Mask(int a0);
@@ -52,9 +75,34 @@ void actSt02aGondolaUp(volatile int a0) {
     _ACTWait(0x6E); Generator_Call(a0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aGondolaDown);
+extern int D_004D0F70[];
+extern void func_00210F20(volatile int a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aBox);
+void actSt02aGondolaDown(volatile int a0) {
+    int x = a0;
+    GObj__p4 *gobj = (GObj__p4 *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_0017B230(0x42) == 0) {
+        D_004D0F70[1] = (int)func_00210F20;
+        gobj->unkC4 = D_004D0F70;
+        BoxBarSoundOn(a0, 0x18D);
+        _ACTWait(0);
+    }
+}
+
+extern void BoxBarSoundOn(int a0, int a1);
+extern int D_004D0F90[];
+extern void actSt02aBoxEvent2(volatile int a0);
+
+void actSt02aBox(volatile int a0) {
+    int x = a0;
+    GObj__p4 *gobj = (GObj__p4 *)actInitialize(a0);
+    _ACTWait(1);
+    D_004D0F90[1] = (int)actSt02aBoxEvent2;
+    gobj->unkC4 = D_004D0F90;
+    BoxBarSoundOn(a0, 0x18D);
+    _ACTWait(0);
+}
 
 void actSt02aGondola(void) {}
 
@@ -66,7 +114,29 @@ void actSt02aWaterFall(int x) {
     volatile int local = x;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aBoxEvent2);
+extern void AddWayPointTop__p4(int a0, int a1) __asm__("AddWayPointTop");
+extern int D_004D0FB0[];
+extern int D_00631AE8;
+extern void actSt02aEne(volatile int a0);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+
+void actSt02aBoxEvent2(volatile int a0) {
+    GObj__p4 *obj = *(GObj__p4 **)(a0 + 0x164);
+    if (D_00631AE8 == 0) {
+        _ACTWait(0);
+    }
+    for (;;) {
+        if (scpSleepSpiderGroupOne(D_00631AE8, 0x1000000) != 0 && func_0017B230(0x42) != 0) break;
+        _ACTWait(1);
+    }
+    AddWayPointTop__p4(4, 1);
+    D_004D0FB0[1] = (int)actSt02aEne;
+    obj->unkC4 = D_004D0FB0;
+    BoxBarSoundOn(a0, 0x18D);
+    _ACTWait(0);
+}
+
+extern int D_004D0FD0[];
 
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aEne);
 
@@ -80,7 +150,48 @@ void actSt02aEnemy1(void)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aEnemy2);
+extern int D_004D0FF0[];
+extern int D_004D1010[];
+extern char *D_00631AE4;
+extern void actSt02aSekizo(volatile int a0);
+extern void actSt02aWay(volatile int a0);
+extern int scpSleepEnemyOne(int a0, int a1, float f);
+extern void stage_KillPlayBgAnimation__p4(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
+
+void actSt02aEnemy2(volatile int a0) {
+    int x = a0;
+    GObj__p4 *gobj = (GObj__p4 *)actInitialize(a0);
+    _ACTWait(1);
+    if (scpSleepEnemyOne(a0, (int)D_00631AE4, 200.0f) != 0) goto way;
+    if (D_00631AE8 == 0) goto sekizo;
+    if (scpSleepEnemyOne(a0, (int)D_00631AE8, 400.0f) == 0) goto sekizo;
+way:
+    stage_KillPlayBgAnimation__p4(0x54, 0, 0);
+    _ACTWait(0x3C);
+    D_004D0FF0[1] = (int)actSt02aWay;
+    gobj->unkC4 = D_004D0FF0;
+    BoxBarSoundOn(a0, 0x18D);
+    _ACTWait(0);
+    return;
+sekizo:
+    stage_KillPlayBgAnimation__p4(0x53, 0, 0);
+    D_004D1010[1] = (int)actSt02aSekizo;
+    gobj->unkC4 = D_004D1010;
+    BoxBarSoundOn(a0, 0x18D);
+    _ACTWait(0);
+}
+
+extern int D_004D1030[];
+extern WpData16 D_0061BA10;
+extern volatile float D_006314EC;
+extern volatile float D_006314F0;
+extern void actCreateSubThread(void *fn, int a1);
+extern void actSt03tGene(void);
+extern int func_0012AA80(int a0);
+extern void func_0017E870(float a, float b, float c, float d);
+extern int scpKillSpiderGroup(int a0, int a1);
+extern void soundSeDefPitchSet(int a0);
+extern int soundSeDefPlayWithVolumeRate(int a0, int a1, void *a2, int a3);
 
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aSekizo);
 

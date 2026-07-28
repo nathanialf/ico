@@ -4717,13 +4717,13 @@ actSt18aSwitchL = 0x00230538; // type:func  // src/st18a.c
 actSt18aSwitchR = 0x00230730; // type:func  // src/st18a.c
 actSt18aEne = 0x00230928; // type:func  // src/st18a.c  // provisional-ordinal
 actSt18aEnemy1_2 = 0x00230A40; // type:func  // src/st18a.c  // provisional-ordinal
-actSt18aEne2 = 0x00230B38; // type:func  // src/st18a.c  // provisional-ordinal
-actSt18aEnemy2_2 = 0x00230C38; // type:func  // src/st18a.c  // provisional-ordinal
-actSt18aCamera = 0x00230D18; // type:func  // src/st18a.c  // provisional-ordinal
-actSt18aIntroChk = 0x00230E90; // type:func  // src/st18a.c  // provisional-ordinal
-actSt18aEneChk = 0x00230F78; // type:func  // src/st18a.c  // provisional-ordinal
-actSt18aEne2Chk = 0x00231098; // type:func  // src/st18a.c  // provisional-ordinal
-func_00231130 = 0x00231130; // type:func  // src/st18a.c
+actSt19aPipeXL = 0x00230B38; // type:func  // src/st18a.c  // provisional-ordinal
+actSt18aEne2 = 0x00230C38; // type:func  // src/st18a.c  // provisional-ordinal
+actSt18aEnemy2_2 = 0x00230D18; // type:func  // src/st18a.c  // provisional-ordinal
+actSt18aCamera = 0x00230E90; // type:func  // src/st18a.c  // provisional-ordinal
+actSt18aIntroChk = 0x00230F78; // type:func  // src/st18a.c  // provisional-ordinal
+actSt18aEneChk = 0x00231098; // type:func  // src/st18a.c  // provisional-ordinal
+actSt18aEne2Chk = 0x00231130; // type:func  // src/st18a.c  // provisional-ordinal
 
 // ---- src/st19a.c
 actSt19aOriDown = 0x002311C8; // type:func  // src/st19a.c  // provisional-ordinal

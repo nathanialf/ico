@@ -1,5 +1,10 @@
 #include "common.h"
 
+typedef union {
+    struct { int lo; int hi; } w;
+    long long ll;
+} CondU;
+
 
 
 extern char *D_006321DC;
@@ -54,7 +59,97 @@ INCLUDE_ASM("asm/nonmatchings/src/act", after_func_exec);
 
 INCLUDE_ASM("asm/nonmatchings/src/act", actInitialize_ext_charcter);
 
-INCLUDE_ASM("asm/nonmatchings/src/act", actInitialize);
+extern char D_00280FC0[];
+extern char D_0061AFA0[];
+extern int D_00632024;
+extern int D_006321E0;
+extern int func_0013A0F8(int, int, const char *, int);
+extern void func_002641D8(void *, int, int);
+
+char *actInitialize(char *obj)
+{
+    char *s;
+    long long f;
+    long long g;
+
+    s = (char *)func_0013A0F8(D_00632024, 0x840, D_0061AFA0, 0x382);
+    *(char **)(obj + 0x164) = s;
+    func_002641D8(s, 0, 0x840);
+
+    ((CondU *)(s + 0x18))->w.lo = 0;
+    ((CondU *)(s + 0x20))->w.hi = 0;
+
+    f = ((CondU *)(s + 0x18))->ll;
+    f |= (long long)0x8000 << 17;
+    f |= (long long)0x8000 << 18;
+    f &= ~((long long)0x8 << 32);
+    f &= ~((long long)0x10 << 32);
+    f |= (long long)0x8000 << 23;
+    f &= ~((long long)0x80 << 32);
+    f |= (long long)0x8000 << 26;
+    f &= ~((long long)0x400 << 32);
+    f |= (long long)0x8000 << 28;
+    f |= (long long)0x8000 << 29;
+    f &= ~((long long)0x4000 << 32);
+    f &= ~((long long)0x8000 << 32);
+    ((CondU *)(s + 0x18))->ll = f;
+
+    *(int *)(s + 0x4) = D_006321E0;
+    *(int *)(s + 0x0) = 0;
+    *(int *)(s + 0x8) = 0;
+    *(int *)(s + 0xC) = 0;
+    *(int *)(s + 0x14) = 0;
+    *(int *)(s + 0x670) = 0;
+    *(int *)(s + 0x678) = 0;
+    *(int *)(s + 0x10) = 0;
+    *(int *)(s + 0x30) = 0;
+    *(int *)(s + 0x34) = 0;
+    *(int *)(s + 0x48) = 0;
+    *(int *)(s + 0x340) = 0;
+    *(int *)(s + 0x37C) = 0;
+    *(int *)(s + 0x3C4) = 0;
+    *(int *)(s + 0x44) = -1;
+    *(int *)(s + 0xC0) = 0;
+    *(int *)(s + 0xC4) = 0;
+    *(int *)(s + 0x120) = 0;
+    *(int *)(s + 0x12C) = 0;
+    *(int *)(s + 0x138) = 0;
+    *(int *)(s + 0x13C) = 0;
+    *(int *)(s + 0x140) = 0;
+    *(int *)(s + 0x144) = 0;
+    *(int *)(s + 0x430) = 0;
+    *(int *)(s + 0x434) = 0;
+    *(int *)(s + 0x438) = 0;
+    *(int *)(s + 0x43C) = 0;
+    *(int *)(s + 0x50) = 0;
+    g = ((CondU *)(s + 0x20))->ll;
+    g |= 0x1000;
+    g &= ~0x2000;
+    g |= 0x10000;
+    g |= 0x4000000;
+    ((CondU *)(s + 0x20))->ll = g;
+    *(int *)(s + 0x3B4) = -1;
+    *(int *)(s + 0x394) = 0;
+
+    {
+        int t = *(int *)(obj + 0x164);
+        *(int *)(t + 0x1A0) = 0;
+        *(char *)(t + 0x1CA) = 0;
+    }
+
+    __builtin_memcpy(s + 0x1D8, D_00280FC0, 0xF0);
+
+    func_002641D8(s + 0x160, 0, 0x20);
+    func_002641D8(s + 0x124, 0, 8);
+    func_002641D8(s + 0x180, 0, 0x20);
+    func_002641D8(s + 0x46C, 0, 0x10);
+    func_002641D8(s + 0x47C, 0, 0x10);
+    func_002641D8(s + 0x48C, 0, 0x10);
+    func_002641D8(s + 0x4A0, 0, 0x1D0);
+    func_002641D8(s + 0x2C8, 0, 0x60);
+    func_002641D8(s + 0x328, 0, 0x18);
+    return s;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/act", act_check_intr_list);
 

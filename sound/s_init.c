@@ -1,5 +1,32 @@
 #include "common.h"
 
+static inline char *hd_search(char *base, int *pk) {
+    char *p = base;
+    char *end = p + 0x300;
+    char *r = p;
+    do {
+        char *snap = r;
+        if (*(int *)p == *pk) goto found;
+        r += 0x30;
+        p += 0x30;
+        r = snap + 0x30;
+    } while ((int)p < (int)end);
+    return 0;
+found:
+    return r;
+}
+
+typedef struct SqEntry {
+    short num;      /* 0x0 */
+    short bank;     /* 0x2 */
+    short unk4;     /* 0x4 */
+    short unk6;     /* 0x6 */
+    int unk8;       /* 0x8 */
+    int unkC;       /* 0xC */
+    int unk10[6];   /* 0x10 */
+    int unk28;      /* 0x28 */
+} SqEntry;
+
 
 
 
@@ -41,7 +68,21 @@ void soundAllocIopFree(int a0)
     func_0025CE78(1, 0x3FFF, 0x3FFF);
 }
 
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundDataOpenChk);
+extern char D_00557CC8[];
+extern char D_00557CD8[];
+extern char D_00557CF0[];
+extern void debug_assertMessage();
+extern int new_mblock_node(int a, void *b, int c);
+
+void soundDataOpenChk(void) {
+    int r = new_mblock_node(0x78000, D_00557CC8, 0xFE);
+    D_00632240 = r;
+    if (r < 0) {
+        debug_assertMessage(D_00557CD8);
+    } else {
+        debug_assertMessage(D_00557CF0, r, 0x78000);
+    }
+}
 
 void soundBufAlloc(void)
 {
@@ -52,11 +93,70 @@ INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundBufSegFree);
 
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundBDDataSet);
 
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundDataOpen);
+extern int D_00632200;
+extern int D_00632204;
+extern char D_00632220[];
+extern int D_00633CD0;
+extern int D_00633CD4;
+extern void func_001AD768(char *file, int line);
+extern void func_00263FF0(char *file, int line, char *msg);
+
+void soundDataOpen(int a0, int a1) {
+    switch (a0) {
+        case 1:
+            switch (a1) {
+                case 1:
+                    D_00633CD0 = D_00632200;
+                    return;
+                case 0:
+                    D_00632204 = 0x1D9020;
+                    return;
+                case 2:
+                    return;
+            }
+            func_001AD768(D_00557CC8, 0x1D8);
+            func_00263FF0(D_00557CC8, 0x1D8, D_00632220);
+            return;
+        case 2:
+            if (a1 == 0) {
+                D_00633CD4 = D_00632200;
+                return;
+            }
+            func_001AD768(D_00557CC8, 0x1E2);
+            func_00263FF0(D_00557CC8, 0x1E2, D_00632220);
+            return;
+    }
+    func_001AD768(D_00557CC8, 0x1E7);
+    func_00263FF0(D_00557CC8, 0x1E7, D_00632220);
+}
 
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundDataOpenSync);
 
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundDataClose);
+extern void AdpcmInterLeaveVolumeSet(int *a0, int a1, int a2, int a3);
+extern char D_00632220[];
+extern void func_001AD768(char *file, int line);
+extern void func_00263FF0(char *file, int line, char *msg);
+
+void soundDataClose(int *a0, int a1, int a2, int a3, int a4) {
+    *a0 = a1;
+    switch (a1) {
+    case 0:
+        func_001AD768(D_00557CC8, 0x261);
+        func_00263FF0(D_00557CC8, 0x261, D_00632220);
+        return;
+    case 1:
+        func_001AD768(D_00557CC8, 0x264);
+        func_00263FF0(D_00557CC8, 0x264, D_00632220);
+        return;
+    case 2:
+        AdpcmInterLeaveVolumeSet(a0, a2, a3, a4);
+        return;
+    default:
+        func_001AD768(D_00557CC8, 0x26A);
+        func_00263FF0(D_00557CC8, 0x26A, D_00632220);
+        return;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundDataSegAllClose);
 
@@ -182,9 +282,55 @@ found:
 
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundHDDataSet);
 
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundSQDataSet);
+extern char D_006A3070_b[] __asm__("D_006A95B0");
+extern int func_002641D8(void *dst, int val, int size);
+extern void soundBufSegFree(char *e);
 
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundSeDefPlay);
+char *soundSQDataSet(int a0, int a1, int a2, int a3, int a4) {
+    int hi = a2 << 0x10;
+    int key = (a1 & 0xFFFF) | hi;
+    SqEntry *e = (SqEntry *)hd_search(D_006A95B0, &key);
+    if (e == 0) {
+        key = 0;
+        e = (SqEntry *)hd_search(D_006A3070_b, &key);
+        if (e == 0) {
+            func_001AD768(D_00557CC8, 0x14E);
+            func_00263FF0(D_00557CC8, 0x14E, D_00632220);
+        }
+        func_002641D8(e, 0, 0x30);
+        e->num = a1;
+        e->bank = a2;
+        e->unk6 = a4;
+        e->unk4 = a3;
+        e->unk28 = -1;
+    }
+    e->unkC = a0;
+    soundBufSegFree((char *)e);
+    return (char *)e;
+}
+
+char *soundSeDefPlay(int a0, int a1, int a2, int a3, int a4) {
+    int hi = a2 << 0x10;
+    int key = (a1 & 0xFFFF) | hi;
+    SqEntry *e = (SqEntry *)hd_search(D_006A95B0, &key);
+    if (e == 0) {
+        key = 0;
+        e = (SqEntry *)hd_search(D_006A3070_b, &key);
+        if (e == 0) {
+            func_001AD768(D_00557CC8, 0x14E);
+            func_00263FF0(D_00557CC8, 0x14E, D_00632220);
+        }
+        func_002641D8(e, 0, 0x30);
+        e->num = a1;
+        e->bank = a2;
+        e->unk6 = a4;
+        e->unk4 = a3;
+        e->unk28 = -1;
+    }
+    e->unk10[0] = a0;
+    soundBufSegFree((char *)e);
+    return (char *)e;
+}
 
 extern void _soundSeDefStop(int *p);
 extern int soundSeDefStop(int a0, int a1, int a2, int a3, float f, int t0, int t1);

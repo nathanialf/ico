@@ -53,13 +53,73 @@ INCLUDE_ASM("asm/nonmatchings/src/motionManager", checkWallSideState);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", checkWallState);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", checkCliffState);
+extern void checkWallState(void);
+extern void clearCollisionStatus(void);
+extern void func_00105308(float, float, float);
+extern void func_0010DF70(char *p);
+extern void func_00118678(int a0);
+extern float func_00168C18(int a0, int a1);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", _checkCliffAndWall);
+void checkCliffState(void)
+{
+    func_00118678(func_00105278());
+    {
+        register float *p = (float *)D_00633F3C;
+        float r = func_00168C18(D_00633F3C + 0x130, D_00633F3C);
+        func_00105308(p[0], r, *(float *)(D_00633F3C + 8));
+    }
+    func_0010DF70((char *)D_00633F3C + 0x30);
+    func_00104F20();
+    checkWallState();
+    func_00105268();
+    if (*(int *)(D_00633F40 + 0xE4) != 0) {
+        func_00104F20();
+        clearCollisionStatus();
+        func_00105268();
+    }
+}
+
+extern void checkWallState(void);
+extern void func_00105308(float, float, float);
+extern void func_0010DF70(char *p);
+extern void func_00118678(int a0);
+
+void _checkCliffAndWall(void)
+{
+    func_00118678(func_00105278());
+    {
+        register float *p = (float *)D_00633F3C;
+        func_00105308(p[0], p[1] + p[116] + 10.0f, p[2]);
+    }
+    func_0010DF70((char *)D_00633F3C + 0x30);
+    checkWallState();
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", checkCliffAndWallStateOfLastPlane);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", checkCliffAndWallStateAtJump);
+extern void InitMotionMemorySize(int);
+extern void f2400F8(int) __asm__("func_00243BD8");
+extern void func_001050B0(float, float, float);
+extern void func_0010F630();
+extern void gif_SpriteOffset();
+extern void gsb_SetFrame();
+
+void checkCliffAndWallStateAtJump(void)
+{
+    register float *p;
+    int v;
+    gif_SpriteOffset(0xB);
+    gsb_SetFrame(1, 5, 0x80);
+    func_00104F20();
+    v = func_00105278();
+    f2400F8(v);
+    p = (float *)D_00633F3C;
+    func_00105308(p[108], p[109], p[110]);
+    func_001050B0(8.0f, 8.0f, 8.0f);
+    InitMotionMemorySize(0xFF);
+    func_00105268();
+    func_0010F630();
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", dispActNode);
 

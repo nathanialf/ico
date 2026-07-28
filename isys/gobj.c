@@ -32,7 +32,66 @@ INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjKindTableInit);
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjInit);
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", cut_gobj_link);
+extern char D_00557A10__p4[] __asm__("D_00557A10");
+extern char D_006321C8[];
+extern struct GObj__p4 *D_00633CA0__p4 __asm__("D_00633CA0");
+extern void *D_006A93D0[];
+extern void func_0013DD88(void);
+extern void func_001AD768(char *a0, int a1);
+extern void func_00263FF0(char *a0, int a1, char *a2);
+extern void isysGObjInit(int a0);
+extern void isysGObjProcAddS(int a0);
+
+void cut_gobj_link(void) {
+    unsigned int i = 0;
+    if (D_00633CA4 != 0) {
+        void **list = D_006A93D0;
+        char *file = D_00557A10__p4;
+        int stride;
+        do {
+            char *gobj;
+            int kind;
+            int proc;
+            char *p;
+            int base;
+            do {
+                stride = 0x174;
+            } while (0);
+            base = (int)D_00633CA0__p4;
+            gobj = (char *)(i * stride + base);
+            if (*(int *)gobj != 0) {
+                kind = *(int *)(gobj + 0xC);
+                proc = *(int *)(gobj + 0x2C);
+                if ((unsigned)(kind - 1) < 0x43) {
+                    p = (char *)list[kind];
+                    if (p == gobj) {
+                        list[kind] = *(void **)(gobj + 0x3C);
+                    } else if (p != 0) {
+                        if (*(char **)(p + 0x3C) != gobj) {
+                            do {
+                                if (p == 0) {
+                                    func_001AD768(file, 0x92);
+                                    func_00263FF0(file, 0x92, D_006321C8);
+                                }
+                                p = *(char **)(p + 0x3C);
+                            } while (*(char **)(p + 0x3C) != gobj);
+                        }
+                        *(void **)(p + 0x10) = *(void **)(gobj + 0x3C);
+                    }
+                }
+                isysGObjInit((int)gobj);
+                *(int *)gobj = 0;
+                while (proc != 0) {
+                    isysGObjProcAddS(proc);
+                    proc = *(int *)(gobj + 0x2C);
+                }
+            }
+            i++;
+            stride = 0x174;
+        } while (i < D_00633CA4);
+    }
+    func_0013DD88();
+}
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjRemoveAll);
 
@@ -79,11 +138,111 @@ int isysGObjAddBeforeGObj(void)
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGetNbAllocedGObjs);
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjAlloc);
+extern char D_00557A10__p4[] __asm__("D_00557A10");
+extern char D_006321C8[];
+extern void *D_006A93D0[];
+extern void func_001AD768(char *a0, int a1);
+extern void func_00263FF0(char *a0, int a1, char *a2);
+extern void isysGObjProcAddS(int a0);
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjRemove);
+void isysGObjAlloc(char *a0) {
+    int kind = *(int *)(a0 + 0xC);
+    int proc = *(int *)(a0 + 0x2C);
+    char *p;
+    if ((unsigned)(kind - 1) >= 0x43) goto init;
+    p = (char *)D_006A93D0[kind];
+    if (p == a0) {
+        D_006A93D0[kind] = *(void **)(a0 + 0x3C);
+        goto init;
+    }
+    if (p == 0) goto init;
+    if (*(char **)(p + 0x3C) != a0) {
+        do {
+            if (p == 0) {
+                func_001AD768(D_00557A10__p4, 0x92);
+                func_00263FF0(D_00557A10__p4, 0x92, D_006321C8);
+            }
+            p = *(char **)(p + 0x3C);
+        } while (*(char **)(p + 0x3C) != a0);
+    }
+    *(void **)(p + 0x10) = *(void **)(a0 + 0x3C);
+init:
+    isysGObjInit((int)a0);
+    *(int *)a0 = 0;
+    while (proc != 0) {
+        isysGObjProcAddS(proc);
+        proc = *(int *)(a0 + 0x2C);
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjKindTableAdd);
+extern int D_006321C0;
+extern void *D_006A93D0[];
+extern void isysGObjKindTableAdd(char *a0);
+extern void *isysGObjSearchFromObjKindID_begin(struct GObj__p4 *g);
+extern void *isysGObjSearchFromObjLayoutID(int id);
+
+void isysGObjRemove(char *a0, int a1)
+{
+    char *p;
+    int in_range;
+
+    if (D_006321C0 != 0) {
+        *(int *)(a0 + 0xC) = a1;
+        return;
+    }
+    p = isysGObjSearchFromObjLayoutID(*(int *)(a0 + 0xC));
+    do {
+        in_range = (unsigned int)a1 < 0x44;
+    } while (0);
+    while (p != 0) {
+        if (p == a0) {
+            isysGObjKindTableAdd(a0);
+            break;
+        }
+        isysGObjSearchFromObjKindID_begin((struct GObj__p4 *)p);
+    }
+    *(int *)(a0 + 0xC) = a1;
+    if (in_range) {
+        if (D_006A93D0[a1] == 0) {
+            D_006A93D0[a1] = a0;
+        } else {
+            p = (char *)D_006A93D0[a1];
+            while (*(char **)(p + 0x3C) != 0) {
+                p = *(char **)(p + 0x3C);
+            }
+            *(char **)(p + 0x3C) = a0;
+        }
+        *(int *)(a0 + 0x3C) = 0;
+    }
+}
+
+extern char D_00557A10[];
+extern char D_006321C8[];
+extern void *D_006A93D0[];
+extern void func_001AD768(char *a0, int a1);
+extern void func_00263FF0(char *a0, int a1, char *a2);
+
+void isysGObjKindTableAdd(char *a0) {
+    int kind = *(int *)(a0 + 0xC);
+    char *p;
+    if ((unsigned)(kind - 1) >= 0x43) return;
+    p = (char *)D_006A93D0[kind];
+    if (p == a0) {
+        D_006A93D0[kind] = *(void **)(a0 + 0x3C);
+        return;
+    }
+    if (p == 0) return;
+    if (*(char **)(p + 0x3C) != a0) {
+        do {
+            if (p == 0) {
+                func_001AD768(D_00557A10, 0x92);
+                func_00263FF0(D_00557A10, 0x92, D_006321C8);
+            }
+            p = *(char **)(p + 0x3C);
+        } while (*(char **)(p + 0x3C) != a0);
+    }
+    *(void **)(p + 0x10) = *(void **)(a0 + 0x3C);
+}
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjKindTableRemove);
 
@@ -121,7 +280,34 @@ void *isysGObjAddHead(int a0) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjSearchFromObjLayoutID);
+extern int D_006321C0;
+extern struct GObj__p4 *D_00633CA0__p4 __asm__("D_00633CA0");
+extern void *D_006A93D0[];
+
+void *isysGObjSearchFromObjLayoutID(int id)
+{
+    struct GObj__p4 *p;
+    struct GObj__p4 *end;
+
+    if (D_006321C0 == 0) goto table;
+    p = D_00633CA0__p4 - 1;
+    end = &D_00633CA0__p4[D_00633CA4 - 1];
+    while (p != end) {
+        p++;
+        if (p->f_4 == 1 && *(int *)p->pad_C == id) {
+            goto found;
+        }
+    }
+ret0:
+    return 0;
+found:
+    return p;
+table:
+    if ((unsigned)(id - 1) < 0x43) {
+        return D_006A93D0[id];
+    }
+    goto ret0;
+}
 
 extern int D_006321C0;
 extern struct GObj__p4 *D_00633CA0__p4 __asm__("D_00633CA0");

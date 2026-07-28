@@ -16,7 +16,33 @@ void falldownSE(void) {}
 
 void copyToWork(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/src/pool", flushWork);
+extern void GetCylinderCollisionWithExceptOwnCollision(void *a0, void *a1);
+extern void GetRootMatrixByDObj(void *a0, void *a1);
+extern float func_001049C0(void *a0, void *a1, void *a2, float t);
+extern void func_00168CC8(void *a0, void *a1);
+
+void flushWork(void *obj, float threshold) {
+    int buf0[4];
+    int buf1[4];
+    register float thr __asm__("$f20") = threshold;
+    if (*(int *)(*(char **)((char *)obj + 0x15C) + 0x188) != 0) {
+        register float dot __asm__("$f0");
+        GetRootMatrixByDObj(buf0, obj);
+        func_00168CC8(buf1, *(char **)((char *)obj + 0x15C) + 0x180);
+        VU0_LSV_R(lqc2, 1, 0x0, buf0);
+        VU0_LSV_R(lqc2, 2, 0x0, buf1);
+        VU0_V3OP(vmul.xyz, 3, 1, 2);
+        VU0_V3OP_BC(vaddy.x, 3, 3, 3, y);
+        VU0_V3OP_BC(vaddz.x, 3, 3, 3, z);
+        VU0_V3OP_BC(vaddw.x, 3, 3, 2, w);
+        VU0_QMFC2_NI(v0, 3);
+        VU0_MTC1(v0, 0);
+        if (dot < thr) {
+            func_001049C0(buf0, buf1, buf0, thr);
+        }
+        GetCylinderCollisionWithExceptOwnCollision(obj, buf0);
+    }
+}
 
 extern void ClipWallBoxStop(void *a0);
 extern char D_00553CB8[];

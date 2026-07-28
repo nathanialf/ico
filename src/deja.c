@@ -1,19 +1,126 @@
 #include "common.h"
 
+typedef struct GObj__p4 {
+    char pad[0xC4];
+    int *unkC4;
+} GObj__p4;
+
 
 
 extern void stage_KillPlayBgAnimation();
 extern void AddWayPointTop();
 extern int func_0017B230(int a0);
-INCLUDE_ASM("asm/nonmatchings/src/deja", actDejaChk);
+extern void AdpcmClose(int a0);
+extern int D_00275250[];
+extern int D_0061B7F0[];
+extern int D_00631AE4;
+extern int D_006338EC;
+extern void _ACTWait(int a0);
+extern void actCreateSubThread(void *fn, int a1);
+extern void actDejaDemo(volatile int a0);
+extern int actInitialize(int a0);
+extern void actSt25aQueenBeforeChk(int a0, int a1, int a2, float f);
+extern void actSt25aQueenDead(int a0, int a1, int a2, float f12, float f13);
+extern int actSt25aQueenDeadEvent(void);
+extern void debug_assertMessage(int *a0);
+extern int func_0017B258(int a0);
+
+void actDejaChk(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    actCreateSubThread(actDejaDemo, 0x15);
+    while (func_0017B230(0x144) != 0 || (D_00275250[1] & 0x840) == 0) {
+        _ACTWait(1);
+    }
+    func_0017B258(0x145);
+    debug_assertMessage(D_0061B7F0);
+    AdpcmClose(*(int *)(D_006338EC + 0x2C));
+    actSt25aQueenBeforeChk(0, 0, 0, 4.0f);
+    while (actSt25aQueenDeadEvent() != 0) {
+        _ACTWait(1);
+    }
+    actSt25aQueenDead(1, D_00631AE4, 0, 255.0f, 16.0f);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/deja", actDejaDemo);
 
 INCLUDE_ASM("asm/nonmatchings/src/deja", actDejaAfter);
 
-INCLUDE_ASM("asm/nonmatchings/src/deja", actDejaAfterChk);
+extern void BoxBarSoundOn(int a0, int a1);
+extern int D_004D0A30[];
+extern int D_00631AE8;
+extern void actE3St13cInit(volatile int a0);
+extern void func_0017E9D8(void);
+extern void gflagOff(int a0, int a1);
+extern void lt_fade_status(int a0);
+extern void stage_KillPlayBgAnimation__p4(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
 
-INCLUDE_ASM("asm/nonmatchings/src/deja", actDeja);
+void actDejaAfterChk(volatile int a0) {
+    int x = a0;
+    GObj__p4 *gobj = (GObj__p4 *)actInitialize(a0);
+    _ACTWait(1);
+    if (D_00631AE8 == 0) {
+        func_0017E9D8();
+    }
+    if (func_0017B230(0x146) == 0) {
+        if (D_00631AE4 != 0) {
+            gflagOff(D_00631AE4, 0);
+        }
+        actSt25aQueenBeforeChk(0, 0, 0, 255.0f);
+        lt_fade_status(0x33);
+        stage_KillPlayBgAnimation__p4(0x1F, 0, 0);
+        stage_KillPlayBgAnimation__p4(0x19, 0, -1);
+        stage_KillPlayBgAnimation__p4(0x22, 0, 0);
+        stage_KillPlayBgAnimation__p4(0x20, 0, 0);
+        stage_KillPlayBgAnimation__p4(0x23, 0, 0);
+        stage_KillPlayBgAnimation__p4(0x25, 0, 0);
+        D_004D0A30[1] = (int)actE3St13cInit;
+        gobj->unkC4 = D_004D0A30;
+        BoxBarSoundOn(a0, 0x18D);
+        _ACTWait(0);
+    } else {
+        stage_KillPlayBgAnimation__p4(0x1F, 0, -1);
+        stage_KillPlayBgAnimation__p4(0x19, 0, -1);
+        stage_KillPlayBgAnimation__p4(0x22, 0, 0);
+        stage_KillPlayBgAnimation__p4(0x20, 0, 0);
+        stage_KillPlayBgAnimation__p4(0x23, 0, 0);
+        stage_KillPlayBgAnimation__p4(0x25, 0, 0);
+    }
+}
+
+extern int D_006338F0;
+extern int D_00633F90;
+extern int D_00633F94;
+extern void actConte11Jimaku(float f);
+extern void actE3CageFall(volatile int a0);
+extern void iosSemaWait(int a0, int a1);
+extern void soundSeVolSet(int a0);
+
+void actDeja(volatile int a0) {
+    while (D_00633F94 == 0 || (D_00275250[1] & 0x800) == 0) {
+        _ACTWait(1);
+    }
+    iosSemaWait(D_00633F90 + 0x24, 0x22);
+    actSt25aQueenBeforeChk(0, 0, 0, 8.0f);
+    while (actSt25aQueenDeadEvent() != 0) {
+        _ACTWait(1);
+    }
+    soundSeVolSet(D_006338F0);
+    stage_KillPlayBgAnimation__p4(0x1F, 0, -1);
+    stage_KillPlayBgAnimation__p4(0x19, 0, -1);
+    stage_KillPlayBgAnimation__p4(0x20B, -1, -2);
+    stage_KillPlayBgAnimation__p4(0x210, -1, -2);
+    stage_KillPlayBgAnimation__p4(0x212, -1, -2);
+    stage_KillPlayBgAnimation__p4(0x213, -1, -2);
+    stage_KillPlayBgAnimation__p4(0x214, -1, -2);
+    stage_KillPlayBgAnimation__p4(0x215, -1, -2);
+    stage_KillPlayBgAnimation__p4(0x216, -1, -2);
+    stage_KillPlayBgAnimation__p4(0x217, -1, -2);
+    stage_KillPlayBgAnimation__p4(0x229, 1, 0);
+    actConte11Jimaku(6.0f);
+    actCreateSubThread(actE3CageFall, 0x15);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/deja", actEnemySleep);
 

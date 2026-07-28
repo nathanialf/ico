@@ -1,5 +1,10 @@
 #include "common.h"
 
+typedef struct ActB4Obj {
+    char pad[0xC4];
+    int *unkC4;
+} ActB4Obj;
+
 
 
 extern void *D_00631AE8;
@@ -7,31 +12,287 @@ extern void func_0017B258(int bit_idx);
 extern int func_0017B230(int a0);
 extern void AddWayPointTop();
 extern void stage_KillPlayBgAnimation();
-INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aInit);
+extern void BoxBarSoundOn(int a0, int a1);
+extern int D_00274EC0[];
+extern int D_004D38B0[];
+extern int *D_00631AE4;
+extern int D_00631AE8__p4 __asm__("D_00631AE8");
+extern void _ACTWait(int a0);
+extern int actSt25aQueenDeadChk(int a0);
+extern void actSt47aEnd(volatile int a0);
+extern int func_0012AB50(int a0, int a1, int a2);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
+extern void stage_KillPlayBgAnimation__p4(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aEnd);
+void actSt47aInit(volatile int a0) {
+    ActB4Obj *obj = *(ActB4Obj **)(a0 + 0x164);
+    int i = 0;
+    while (i < (0x3C - D_00274EC0[0] * 0xA) / D_00274EC0[1]) {
+        if (scpSleepSpiderGroupOne(actSt25aQueenDeadChk(0x2D3), 0x1000000) != 0 ||
+            scpSleepSpiderGroupOne(actSt25aQueenDeadChk(0x2D4), 0x1000000) != 0 ||
+            scpSleepSpiderGroupOne((int)D_00631AE4, 0x1000000) != 0 ||
+            (D_00631AE8__p4 != 0 && scpSleepSpiderGroupOne(D_00631AE8__p4, 0x1000000) != 0)) {
+            i++;
+        } else {
+            i = 0;
+        }
+        _ACTWait(1);
+    }
+    stage_KillPlayBgAnimation__p4(0x65, 1, 0);
+    soundSeDefPlayWithVolumeRate(0x4AC, 0, 0, 1);
+    while (func_0012AB50(0x65, 0x2D, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    if (scpSleepSpiderGroupOne(actSt25aQueenDeadChk(0x2D3), 0x1000000) != 0 ||
+        scpSleepSpiderGroupOne(actSt25aQueenDeadChk(0x2D4), 0x1000000) != 0 ||
+        scpSleepSpiderGroupOne((int)D_00631AE4, 0x1000000) != 0 ||
+        scpSleepSpiderGroupOne(D_00631AE8__p4, 0x1000000) != 0) {
+        func_0017B258(0x36);
+    }
+    D_004D38B0[1] = (int)actSt47aEnd;
+    obj->unkC4 = D_004D38B0;
+    BoxBarSoundOn((int)a0, 0x18D);
+    _ACTWait(0);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aSekizo1Chk);
+extern void BoxBarSoundOn(int a0, int a1);
+extern int D_004D38D0[];
+extern volatile float D_006316EC;
+extern volatile float D_006316F0;
+extern volatile float D_006316F4;
+extern void _ACTWait(int a0);
+extern void actSt47aInit(volatile int a0);
+extern int func_0012AB50(int a0, int a1, int a2);
+extern void func_0017B288(int a0);
+extern void func_0017E870(float a0, float a1, float a2, float a3);
+extern int scpKillSpiderGroup(int a0, int a1);
+extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
+extern void stage_KillPlayBgAnimation__p4(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
+
+void actSt47aEnd(volatile int a0) {
+    ActB4Obj *obj = *(ActB4Obj **)(a0 + 0x164);
+    while (scpKillSpiderGroup((int)a0, 0x1000000) != 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(0xF);
+    func_0017B288(0x36);
+    stage_KillPlayBgAnimation__p4(0x65, 1, 0x2E);
+    soundSeDefPlayWithVolumeRate(0x4AC, 0, 0, 1);
+    while (func_0012AB50(0x65, 0x32, 0) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    func_0017E870(D_006316EC, D_006316F0, D_006316F4, 100.0f);
+    while (func_0012AB50(0x65, 0x5A, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    D_004D38D0[1] = (int)actSt47aInit;
+    obj->unkC4 = D_004D38D0;
+    BoxBarSoundOn((int)a0, 0x18D);
+    _ACTWait(0);
+}
+
+extern int D_004D3930[];
+extern void actSt47aHane1Up(volatile int a0);
+
+void actSt47aSekizo1Chk(volatile int a0) {
+    ActB4Obj *obj = *(ActB4Obj **)(a0 + 0x164);
+    int i = 0;
+    while (i < (0x3C - D_00274EC0[0] * 0xA) / D_00274EC0[1]) {
+        if (scpSleepSpiderGroupOne(actSt25aQueenDeadChk(0x2D3), 0x2000000) != 0 ||
+            scpSleepSpiderGroupOne(actSt25aQueenDeadChk(0x2D4), 0x2000000) != 0 ||
+            scpSleepSpiderGroupOne((int)D_00631AE4, 0x2000000) != 0 ||
+            (D_00631AE8__p4 != 0 && scpSleepSpiderGroupOne(D_00631AE8__p4, 0x2000000) != 0)) {
+            i++;
+        } else {
+            i = 0;
+        }
+        _ACTWait(1);
+    }
+    stage_KillPlayBgAnimation__p4(0x66, 1, 0);
+    soundSeDefPlayWithVolumeRate(0x4AC, 0, 0, 1);
+    while (func_0012AB50(0x66, 0x2D, 1) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    if (scpSleepSpiderGroupOne(actSt25aQueenDeadChk(0x2D3), 0x2000000) != 0 ||
+        scpSleepSpiderGroupOne(actSt25aQueenDeadChk(0x2D4), 0x2000000) != 0 ||
+        scpSleepSpiderGroupOne((int)D_00631AE4, 0x2000000) != 0 ||
+        scpSleepSpiderGroupOne(D_00631AE8__p4, 0x2000000) != 0) {
+        func_0017B258(0x37);
+    }
+    D_004D3930[1] = (int)actSt47aHane1Up;
+    obj->unkC4 = D_004D3930;
+    BoxBarSoundOn((int)a0, 0x18D);
+    _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aHane1Up);
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aHane2Up);
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aRopeChk);
+extern void BoxBarSoundOn(int a0, int a1);
+extern int D_004D39D0[];
+extern void _ACTWait(int a0);
+extern void actSt47aHane2Up(volatile int a0);
+extern int func_0012AA80(int a0);
+extern void func_0017B288(int a0);
+extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
+extern void stage_KillPlayBgAnimation__p4(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aEnemy1);
+void actSt47aRopeChk(volatile int a0) {
+    ActB4Obj *obj = *(ActB4Obj **)(a0 + 0x164);
+    while (func_0017B230(0x36) != 0 && func_0017B230(0x37) != 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(0xF);
+    func_0017B288(0x38);
+    stage_KillPlayBgAnimation__p4(0x68, 1, 0);
+    soundSeDefPlayWithVolumeRate(0x4AD, 0, 0, 1);
+    _ACTWait(0x32);
+    soundSeDefPlayWithVolumeRate(0x4AE, 0, 0, 1);
+    while (func_0012AA80(0x68) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    D_004D39D0[1] = (int)actSt47aHane2Up;
+    obj->unkC4 = D_004D39D0;
+    BoxBarSoundOn((int)a0, 0x18D);
+    _ACTWait(0);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aTorch);
+extern void Generator_Call(int a0);
+extern void Generator_Mask(int a0);
+extern void Generator_MaskOff(int a0);
+extern void _ACTWait(int a0);
+extern int actInitialize(int a0);
+extern int actSt25aQueenDeadChk(int a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aSekizo1);
+void actSt47aEnemy1(volatile int a0){ int x=a0;
+ actInitialize(a0); _ACTWait(1); Generator_Mask(a0); Generator_Mask(actSt25aQueenDeadChk(0x2CB));
+ while(func_0017B230(0x3A)==0){ _ACTWait(1); }
+ _ACTWait(1); Generator_MaskOff(a0); Generator_Call(a0); _ACTWait(0x1E); Generator_Call(a0); _ACTWait(0x1E); Generator_Call(a0); _ACTWait(0x1E); Generator_Call(a0); Generator_Call(actSt25aQueenDeadChk(0x2CB)); }
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aSekizo2);
+extern void Generator_Call(int a0);
+extern void Generator_Mask(int a0);
+extern void Generator_MaskOff(int a0);
+extern void _ACTWait(int a0);
+extern int actInitialize(int a0);
+extern int actSt25aQueenDeadChk(int a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aSekizo3);
+void actSt47aTorch(volatile int a0){ int x=a0;
+ actInitialize(a0); _ACTWait(1); Generator_Mask(a0); Generator_Mask(actSt25aQueenDeadChk(0x2CC));
+ while(func_0017B230(0x3C)==0){ _ACTWait(1); }
+ Generator_MaskOff(a0); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); _ACTWait(0x3C); Generator_Call(a0); Generator_Call(actSt25aQueenDeadChk(0x2CC)); }
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aSekizo4);
+extern void BoxBarSoundOn(int a0, int a1);
+extern int D_004D3850[];
+extern void _ACTWait(int a0);
+extern int actInitialize(int a0);
+extern void func_00236C70(volatile int a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aHane1);
+void actSt47aSekizo1(volatile int a0) {
+    int x = a0;
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_0017B230(0x33) == 0) {
+        D_004D3850[1] = (int)func_00236C70;
+        gobj->unkC4 = D_004D3850;
+        BoxBarSoundOn((int)a0, 0x18D);
+        _ACTWait(0);
+    }
+}
+
+extern int D_004D3970[];
+extern int D_004D3990[];
+extern void actSt47aHane2Up(volatile int a0);
+extern void actSt47aRopeChk(volatile int a0);
+extern void stage_KillPlayBgAnimation__p4(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
+
+void actSt47aSekizo2(volatile int a0) {
+    int x = a0;
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_0017B230(0x38) == 0) {
+        stage_KillPlayBgAnimation__p4(0x67, 0, 0);
+        D_004D3970[1] = (int)actSt47aHane2Up;
+        gobj->unkC4 = D_004D3970;
+        BoxBarSoundOn((int)a0, 0x18D);
+        _ACTWait(0);
+    } else {
+        stage_KillPlayBgAnimation__p4(0x67, 0, -1);
+        D_004D3990[1] = (int)actSt47aRopeChk;
+        gobj->unkC4 = D_004D3990;
+        BoxBarSoundOn((int)a0, 0x18D);
+        _ACTWait(0);
+    }
+}
+
+extern int D_004D3870[];
+extern int D_004D3890[];
+extern void actSt47aEnd(volatile int a0);
+extern void actSt47aInit(volatile int a0);
+
+void actSt47aSekizo3(volatile int a0) {
+    int x = a0;
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_0017B230(0x36) == 0) {
+        stage_KillPlayBgAnimation__p4(0x65, 0, 0);
+        D_004D3870[1] = (int)actSt47aInit;
+        gobj->unkC4 = D_004D3870;
+        BoxBarSoundOn((int)a0, 0x18D);
+        _ACTWait(0);
+    } else {
+        stage_KillPlayBgAnimation__p4(0x65, 0, 0x2D);
+        D_004D3890[1] = (int)actSt47aEnd;
+        gobj->unkC4 = D_004D3890;
+        BoxBarSoundOn((int)a0, 0x18D);
+        _ACTWait(0);
+    }
+}
+
+extern int D_004D38F0[];
+extern int D_004D3910[];
+extern void actSt47aHane1Up(volatile int a0);
+extern void actSt47aSekizo1Chk(volatile int a0);
+
+void actSt47aSekizo4(volatile int a0) {
+    int x = a0;
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_0017B230(0x37) == 0) {
+        stage_KillPlayBgAnimation__p4(0x66, 0, 0);
+        D_004D38F0[1] = (int)actSt47aSekizo1Chk;
+        gobj->unkC4 = D_004D38F0;
+        BoxBarSoundOn((int)a0, 0x18D);
+        _ACTWait(0);
+    } else {
+        stage_KillPlayBgAnimation__p4(0x66, 0, 0x2D);
+        D_004D3910[1] = (int)actSt47aHane1Up;
+        gobj->unkC4 = D_004D3910;
+        BoxBarSoundOn((int)a0, 0x18D);
+        _ACTWait(0);
+    }
+}
+
+extern int D_004D39F0[];
+extern void func_00236D20(volatile int a0);
+
+void actSt47aHane1(volatile int a0) {
+    int x = a0;
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_0017B230(0x39) == 0) {
+        D_004D39F0[1] = (int)func_00236D20;
+        gobj->unkC4 = D_004D39F0;
+        BoxBarSoundOn((int)a0, 0x18D);
+        _ACTWait(0);
+    }
+}
 
 extern void Generator_Call(int a0);
 extern void Generator_Mask(int a0);
@@ -44,7 +305,20 @@ void actSt47aHane2(volatile int a0){ int x=a0;
  while(func_0017B230(0x3A)==0){ _ACTWait(1); }
  _ACTWait(1); Generator_MaskOff(a0); Generator_Call(a0); _ACTWait(0x1E); Generator_Call(a0); _ACTWait(0x1E); Generator_Call(a0); _ACTWait(0x1E); Generator_Call(a0); }
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aRope);
+extern int D_004D3A10[];
+extern void func_00236D90(volatile int a0);
+
+void actSt47aRope(volatile int a0) {
+    int x = a0;
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_0017B230(0x3B) == 0) {
+        D_004D3A10[1] = (int)func_00236D90;
+        gobj->unkC4 = D_004D3A10;
+        BoxBarSoundOn((int)a0, 0x18D);
+        _ACTWait(0);
+    }
+}
 
 void actSt47aBarricade(volatile int a0){ int x=a0;
  actInitialize(a0); _ACTWait(1); Generator_Mask(a0);
