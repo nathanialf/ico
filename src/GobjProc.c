@@ -30,18 +30,59 @@ int *GetGObjP(int *a0, long long a1, long long a2, long long a3)
     return a0 + 4;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/GobjProc", GetGObjId);
+void *GetGObjId(int *a0, int a1, int a2) {
+    unsigned long long v = (unsigned int)a1;
+    unsigned long long packed = ((unsigned long long)a2 << 32) | v;
+    a0[0] = (int)v;
+    a0[1] = (int)(packed >> 32);
+    a0[2] = 0x52;
+    a0[3] = 0;
+    return (char *)a0 + 0x10;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/GobjProc", PrintGObjID);
+void *PrintGObjID(char *a0, unsigned int a1) {
+    unsigned long long v = (unsigned int)a1;
+    *(int *)(a0 + 8) = 0x53;
+    *(int *)(a0 + 0) = (int)v;
+    *(int *)(a0 + 4) = (int)(v >> 32);
+    *(int *)(a0 + 0xC) = 0;
+    return a0 + 0x10;
+}
 
 void InitCameraGObjs(int a0)
 {
     debug_assertMessage(D_0061C6B8, a0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/GobjProc", CreateGObj);
+extern void func_00264128(void *dst, void *src, int count);
 
-INCLUDE_ASM("asm/nonmatchings/src/GobjProc", CreateGObjByFuncSet);
+int CreateGObj(char *a0, int a1, char *a2, int a3, char *a4, int a5, char *a6, int a7) {
+    int b = a5 + a7;
+    if (a1 + a3 < b) {
+        return 0;
+    }
+    if (a5 >= a1) {
+        func_00264128(a0, a4, a1);
+        func_00264128(a2, a4 + a1, a5 - a1);
+        func_00264128(a2 + a5 - a1, a6, a7);
+    } else if (a7 >= a1 - a5) {
+        func_00264128(a0, a4, a5);
+        func_00264128(a0 + a5, a6, a1 - a5);
+        func_00264128(a2, a6 + a1 - a5, a7 - (a1 - a5));
+    } else {
+        func_00264128(a0, a4, a5);
+        func_00264128(a0 + a5, a6, a7);
+    }
+    return b;
+}
+
+extern void func_00240950(int a0);
+
+void CreateGObjByFuncSet(int *a0) {
+    func_00240950(a0[0]);
+    func_00240950(a0[1]);
+    func_00240950(a0[20]);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/GobjProc", func_0023F960);
 

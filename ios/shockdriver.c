@@ -376,7 +376,17 @@ int Init_ShockEmulator(unsigned int idx, int val)
     return idx;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", ShockEmulator_EmulationShot);
+extern ShockMgr *D_00632190__p4 __asm__("D_00632190");
+
+int ShockEmulator_EmulationShot(int value) {
+    int i;
+    for (i = 0; i < D_00632190__p4->count; i++) {
+        if (D_00632190__p4->arr[i] == 0) break;
+    }
+    if (i == D_00632190__p4->count) return -1;
+    D_00632190__p4->arr[i] = value;
+    return i;
+}
 
 int ShockEmulator_EmulationWave(unsigned int idx)
 {
@@ -386,7 +396,24 @@ int ShockEmulator_EmulationWave(unsigned int idx)
     return idx;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", Init_ShockRequestAlloc);
+extern ShockMgr *D_00632190__p4 __asm__("D_00632190");
+
+int Init_ShockRequestAlloc(int a0) {
+    int p;
+    if ((unsigned int)a0 < (unsigned int)D_00632190__p4->count) {
+        goto body;
+    }
+    p = 0;
+    goto check;
+body:
+    p = D_00632190__p4->arr[a0];
+check:
+    if (p != 0) {
+        p = *(int *)p;
+        return *(unsigned short *)(p + 8);
+    }
+    return 0;
+}
 
 int Get_ShockRequestStruct(unsigned idx) {
     int *base = (int *)D_00632190;
@@ -394,7 +421,30 @@ int Get_ShockRequestStruct(unsigned idx) {
     return ((int *)base[1])[idx];
 }
 
-INCLUDE_ASM("asm/nonmatchings/ios/shockdriver", Reset_ShockRequestStruct);
+extern ShockMgr *D_00632190__p4 __asm__("D_00632190");
+
+int Reset_ShockRequestStruct(int a0, int a1) {
+    int p;
+    if ((unsigned int)a0 < (unsigned int)D_00632190__p4->count) {
+        goto body;
+    }
+    p = 0;
+    goto check;
+body:
+    p = D_00632190__p4->arr[a0];
+check:
+    if (p == 0) {
+        goto ret_a;
+    }
+    if ((unsigned int)a1 >= (unsigned int)*(unsigned short *)(*(int *)p + 8)) {
+        goto ret_b;
+    }
+    return *(int *)(p + 0xC) + a1 * 4;
+ret_b:
+    return 0;
+ret_a:
+    return 0;
+}
 
 void ShockRevice_Wave(short *a0) {
     a0[1] = 0;

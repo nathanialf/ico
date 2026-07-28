@@ -1,5 +1,17 @@
 #include "common.h"
 
+typedef struct DLN {
+    char _p0[0x34];
+    struct DLN *next;
+    struct DLN *prev;
+    char _p1[0x4];
+    unsigned char id;
+    char _p2[0x3];
+    int key;
+} DLN;
+
+struct GObj__p4 { int unk0; int unk4; int unk8; char pad[0x168]; };
+
 
 
 
@@ -10,7 +22,21 @@ extern int D_006321D0;
 extern int D_006321CC;
 INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", cut_gobj_dl_link);
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", isysGObjRemoveObjDL);
+extern struct GObj__p4 *D_00633CA0;
+extern unsigned int D_00633CA4;
+
+struct GObj__p4 *isysGObjRemoveObjDL(void)
+{
+    struct GObj__p4 *start = D_00633CA0 - 1;
+    struct GObj__p4 *end = (struct GObj__p4 *)((char *)D_00633CA0 + (D_00633CA4 * 0x174 - 0x174));
+    while (start != end) {
+        start++;
+        if (start->unk0 != 0) {
+            return start;
+        }
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", func_0013ECF8);
 
@@ -38,7 +64,49 @@ INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", isysGObjLinkObjDL);
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", isysGObjLinkObjDLHead);
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", isysGObjLinkObjDLAfterGObj);
+extern int D_00281AB0[];
+
+void isysGObjLinkObjDLAfterGObj(int a0, int a1, int a2)
+{
+    DLN *self = (DLN *)a0;
+    unsigned char idx = a1 & 0xFF;
+    DLN *head;
+    DLN *tail;
+    DLN *cur;
+    self->id = idx;
+    self->key = a2;
+    head = ((DLN **)D_00281AB0)[idx];
+    if (head == 0) {
+        ((DLN **)D_00281AB0)[idx] = self;
+        self->prev = 0;
+        self->next = 0;
+        ((DLN **)D_00281AD0)[idx] = self;
+        return;
+    }
+    if ((unsigned int)head->key >= (unsigned int)a2) {
+        self->prev = 0;
+        self->next = head;
+        head->prev = self;
+        ((DLN **)D_00281AB0)[idx] = self;
+        return;
+    }
+    tail = ((DLN **)D_00281AD0)[idx];
+    if ((unsigned int)tail->key < (unsigned int)a2) {
+        self->prev = tail;
+        self->next = 0;
+        tail->next = self;
+        ((DLN **)D_00281AD0)[idx] = self;
+        return;
+    }
+    cur = head;
+    while ((unsigned int)cur->next->key < (unsigned int)a2) {
+        cur = cur->next;
+    }
+    self->prev = cur;
+    self->next = cur->next;
+    cur->next = self;
+    self->next->prev = self;
+}
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", isysGObjLinkObjDLBeforeGObj);
 
@@ -46,7 +114,13 @@ INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", isysGObjDlInit);
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", isysGObjMoveObjDLAfterGObj);
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", isysGObjMoveObjDLBeforeGObj);
+void isysGObjMoveObjDLBeforeGObj(void *a0, void *a1, unsigned char a2, void *a3, void *a4) {
+    if (a1 != 0) {
+        *(void **)((char *)a0 + 0x48) = a1;
+        *(void **)((char *)a0 + 0x50) = a4;
+        isysGObjLinkObjDLAfterGObj(a0, a2, a3);
+    }
+}
 
 void func_0013F1F8(int *self, int *a1, int a2, int *a3)
 {

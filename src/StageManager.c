@@ -34,7 +34,11 @@ INCLUDE_ASM("asm/nonmatchings/src/StageManager", stgmgrNextStagePreLoadEntry);
 
 INCLUDE_ASM("asm/nonmatchings/src/StageManager", func_0019FF68);
 
-INCLUDE_ASM("asm/nonmatchings/src/StageManager", StageManager);
+extern void stgmgrForceSwitch(int a0, int a1, int a2, int a3);
+
+void StageManager(int a0) {
+    stgmgrForceSwitch(a0, 0, 0, 0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/StageManager", stgmgrForceSwitch);
 

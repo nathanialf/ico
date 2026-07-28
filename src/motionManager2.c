@@ -34,6 +34,11 @@ extern void ChangeFieldCollisionDebugMode();
 extern void MatrixDrive_GetTurnXAngleZY();
 extern void GetRootMatrixRotOffset();
 #include "ico/types.h"
+
+typedef struct { char _0; signed char f1; unsigned char f2; unsigned char f3; } FloorAttr;
+
+typedef struct { long long d[2]; float q[4]; } StreamElem;
+typedef struct { int idx; char pad[0x1C]; float q[4]; char pad2[0x10]; } StreamNode;
 extern void MatrixDrive_TurnObjectMatrix();
 void GetWaterReaction(int a0, int a1)
 {
@@ -121,7 +126,41 @@ INCLUDE_ASM("asm/nonmatchings/src/motionManager2", _getMotion);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetMotion);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetStreamMotion);
+extern void RegularizeQuaternion(float *dst, float *src);
+extern void func_0010DDB8(void *a0, void *a1, void *a2);
+extern void func_0010DFB8(float *a0, float *a1, unsigned int a2);
+
+int GetStreamMotion(StreamElem *a, StreamNode *b) {
+    int i;
+    int n;
+    float buf[4];
+    StreamElem tmp;
+
+    for (i = 0; b[i].idx != -1; i++) {
+        n = b[i].idx;
+        if (i < n) {
+            continue;
+        }
+        if (i != n) {
+            goto swap;
+        }
+        RegularizeQuaternion(buf, b[i].q);
+        func_0010DDB8(buf, buf, a[i].q);
+        func_0010DFB8(buf, buf, 4);
+        func_0010DDB8(a[i].q, b[i].q, buf);
+        continue;
+    swap:
+        {
+            StreamElem *pn = (StreamElem *)((char *)a + n * 0x20);
+            StreamElem *pi = (StreamElem *)((char *)a + i * 0x20);
+            tmp = *pi;
+            *pi = *pn;
+            *pn = tmp;
+        }
+        func_0010DFB8(a[i].q, a[i].q, 4);
+        func_0010DFB8(a[b[i].idx].q, a[b[i].idx].q, 4);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", copyMotionWithNodeHrc);
 
@@ -197,7 +236,18 @@ int DisableMotionOrientUpdate(char *self) {
     return func_00168A80(*(int *)(sub + 0x5F0));
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", CheckFloorAttribute);
+int CheckFloorAttribute(float *dst, FloorAttr *a1) {
+    int i, n, f2; float *src, *p;
+    if (a1->f1 == 0 && (f2 = a1->f2, (n = a1->f3)) != 0) {
+        int o = f2 * 8 + 0x10;
+        src = (float *)o;
+        p = (float *)((char *)a1 + (int)src);
+        src = p;
+        for (i = 0; i < n; i++) *dst++ = *src++;
+        return 1;
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", CheckWallAttribute);
 
@@ -315,7 +365,21 @@ void GetRootProjectionPosOfGObj(struct Pack32 *dst, struct Pack32 *src, int n)
     } while (n != 0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", SetMotionPlaySpeedRatio);
+void SetMotionPlaySpeedRatio(float *dst, void *a1, int idx)
+{
+    float *src = (float *)(*(int *)((char *)a1 + 4) + idx * 0xC);
+    float t1, t0;
+    t0 = src[0];
+    dst[0] = t0;
+    t0 = -t0;
+    t1 = src[1];
+    dst[1] = t1;
+    t1 = -t1;
+    dst[2] = src[2];
+    dst[3] = 1.0f;
+    dst[0] = t0;
+    dst[1] = t1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", ClearMotionGeometryInfo);
 

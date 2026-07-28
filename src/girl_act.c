@@ -1,5 +1,22 @@
 #include "common.h"
 
+typedef struct {
+    char _0[0x20];
+    float f_20;        /* 0x20 */
+    char _24[0x0C];
+    float sub30[4];    /* 0x30 */
+    float sub40[4];    /* 0x40 */
+    float f_50;        /* 0x50 */
+    float f_54;        /* 0x54 */
+    signed char f_58;  /* 0x58 */
+    signed char f_59;
+    signed char f_5A;
+    signed char f_5B;
+    signed char f_5C;
+    signed char f_5D;
+    signed char f_5E;
+} GirlStand;
+
 
 
 
@@ -15,7 +32,41 @@ extern void brainLevelProcess();
 extern void ACTLookTargetSystem_Exec(void);
 extern int D_00559430[];
 extern void debug_assertMessage();
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", GetEyeDirection);
+extern float MatrixDrive_GetTurnYAngleXZ(float a);
+extern float func_00243950(void *a, void *b);
+
+float GetEyeDirection(float *p0, float *p1, float *p2) {
+    float d1[4];
+    float d2[4];
+    float r1, r2;
+    float a, b, c, mdret;
+    int ci;
+
+    d1[0] = p1[0] - p0[0];
+    d1[2] = p1[2] - p0[2];
+    d1[1] = 0.0f;
+    d2[0] = p2[0] - p0[0];
+    d2[2] = p2[2] - p0[2];
+    d2[1] = 0.0f;
+    r1 = func_00243950(d1, d2);
+    if (r1 < 0.0f) {
+        return MatrixDrive_GetTurnYAngleXZ(func_00243950(d2, d2));
+    }
+    d2[0] = p2[0] - p1[0];
+    d2[1] = 0.0f;
+    d2[2] = p2[2] - p1[2];
+    r2 = func_00243950(d1, d2);
+    if (-r2 < 0.0f) {
+        return MatrixDrive_GetTurnYAngleXZ(func_00243950(d2, d2));
+    }
+    a = -(p1[0] - p0[0]);
+    b = p1[2] - p0[2];
+    c = p0[2] * p1[0] - p0[0] * p1[2];
+    mdret = MatrixDrive_GetTurnYAngleXZ(b * b + a * a);
+    ci = (int)(b * p2[0] + a * p2[2] + c);
+    ci = __builtin_abs(ci);
+    return (float)ci / mdret;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", funcGirlHandDisconnect);
 
@@ -46,9 +97,25 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", subGirlBrain_Attract);
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", WayTest);
 
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", subGirlControl);
+extern char D_002882D0[];
+extern int D_00631AE4__p4 __asm__("D_00631AE4");
+extern void *D_00629DE4, *D_00631AE8__p4 __asm__("D_00631AE8");
+extern void GetHeightOfWallFromGObj(void *out, void *obj);
+extern void GetRootMatrixByDObj(void *out, void *obj);
 
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", subGirlCollision);
+void subGirlControl(void) {
+    GetRootMatrixByDObj(D_002882D0 + 0x00, D_00631AE8__p4);
+    GetRootMatrixByDObj(D_002882D0 + 0x20, D_00631AE4__p4);
+    GetHeightOfWallFromGObj(D_002882D0 + 0x10, D_00631AE8__p4);
+    GetHeightOfWallFromGObj(D_002882D0 + 0x30, D_00631AE4__p4);
+}
+
+extern unsigned char D_00282AC0[];
+extern void func_002641D8(void *a0, int a1, int a2);
+
+void subGirlCollision(void) {
+    func_002641D8(D_00282AC0, 0, 0x5910);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", GetBoyMode);
 
@@ -100,7 +167,38 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00173060);
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlDitch3mExec);
 
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlStand);
+extern GirlStand D_gStand __asm__("D_002883D0");
+extern int HandCameraCorrect(void *buf, void *vec);
+
+void actGirlStand(void) {
+    volatile int home;
+    int uninit;
+    float one = 1.0f;
+    home = uninit;
+    if (D_gStand.f_20 < 2.0f) {
+        D_gStand.f_58 = 1;
+    }
+    if ((HandCameraCorrect(D_gStand.sub40, D_gStand.sub30) < 0
+            ? -HandCameraCorrect(D_gStand.sub40, D_gStand.sub30)
+            : HandCameraCorrect(D_gStand.sub40, D_gStand.sub30)) >= 0x3D) {
+        D_gStand.f_59 = 1;
+    }
+    if (D_gStand.f_54 > 15.0f) {
+        D_gStand.f_5E = 1;
+    }
+    if (one * 100.0f < D_gStand.f_50) {
+        D_gStand.f_5A = 1;
+    }
+    if (one * 125.0f < D_gStand.f_50) {
+        D_gStand.f_5B = 1;
+    }
+    if (one * 135.0f < D_gStand.f_50) {
+        D_gStand.f_5C = 1;
+    }
+    if (D_gStand.f_50 < 90.0f) {
+        D_gStand.f_5D = 1;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlWalk);
 
@@ -145,9 +243,32 @@ ret0:
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00175350);
 
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", afterGirlHand);
+extern char D_00559AB8[];
+extern unsigned int _ACTWait(int a0);
+extern void debug_assertMessage__p4(void *a0) __asm__("debug_assertMessage");
 
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", afterGirlPulledGo);
+void afterGirlHand(volatile unsigned int a0)
+{
+    volatile int local;
+    int *s0;
+    s0 = *((int **) (a0 + 0x164));
+    debug_assertMessage__p4((char *)D_00559AB8);
+    s0[0x30 / 4] = 0x2;
+    _ACTWait(0);
+}
+
+extern char D_00559AD0[];
+extern void debug_assertMessage__p4(void *a0) __asm__("debug_assertMessage");
+
+void afterGirlPulledGo(volatile unsigned int a0)
+{
+    volatile int local;
+    int *s0;
+    s0 = *((int **) (a0 + 0x164));
+    debug_assertMessage__p4((char *)D_00559AD0);
+    s0[0x30 / 4] = 0x3;
+    _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlJump);
 

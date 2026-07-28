@@ -79,7 +79,23 @@ int *iosOmGetGObjStatus(int idx, int target)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/isys/obj_manager", iosOmSearchGObjId);
+int *iosOmSearchGObjId(int a0) {
+    int i;
+    for (i = 0; i < 8; i++) {
+        int *p = D_00281A70[i];
+        int *found;
+        if (p != 0) {
+            do {
+                if (p[0] == a0) { found = p; goto check; }
+                p = (int *)p[4];
+            } while (p != 0);
+        }
+        found = 0;
+    check:
+        if (found != 0) return found;
+    }
+    return 0;
+}
 
 void iosOmSearchGObjIdAll(void) {}
 

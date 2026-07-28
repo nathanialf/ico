@@ -1,5 +1,10 @@
 #include "common.h"
 
+typedef struct { int d[4]; } LaPrev16;
+
+typedef struct { int _0; int f4; char _8[0x50]; } LaFlags;
+typedef struct { char _0[0x2C]; int f2C; } LaMcState;
+
 
 
 
@@ -43,7 +48,49 @@ INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_TESTFUNCTION);
 
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", _la_mcard_error_check);
 
-INCLUDE_ASM("asm/nonmatchings/src/layout_action", _la_memory_card_check);
+extern LaMcState D_00274EC0;
+extern LaFlags D_00275250;
+extern void GetRealModelId(int a0, int a1);
+extern void func_001B0A68(void);
+extern int initSceneGObj__p4(int a0) __asm__("initSceneGObj");
+extern void init_layout_texture(void);
+extern void kanbanBootMain(void);
+extern void kanbanBootMcCheck(void);
+
+int _la_memory_card_check(void) {
+    int i;
+    int v;
+
+    init_layout_texture();
+    if (D_00275250.f4 & 0x8000) {
+        v = D_00274EC0.f2C;
+        if (v > 0) {
+            kanbanBootMain();
+            D_00274EC0.f2C = v - 1;
+        }
+    } else if (D_00275250.f4 & 0x2000) {
+        v = D_00274EC0.f2C;
+        if (v < 0xE) {
+            kanbanBootMain();
+            D_00274EC0.f2C = v + 1;
+        }
+    }
+    if (D_00275250.f4 & 0x10) {
+        kanbanBootMcCheck();
+        D_00274EC0.f2C = 7;
+    }
+    for (i = 0; i < 0xF; i++) {
+        GetRealModelId(i + 0x158, 1);
+    }
+    GetRealModelId(D_00274EC0.f2C + 0x158, 0);
+    if (D_00275250.f4 & 0x40) {
+        func_001B0A68();
+        initSceneGObj__p4(0);
+        D_0063304C = 0;
+        return 0x36;
+    }
+    return -1;
+}
 
 extern int D_00274EEC[];
 extern int D_00633028;
@@ -103,7 +150,38 @@ int la_title_new_game_only(void) {
     return -1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/layout_action", _la_set_preview_info);
+extern char D_00280C60[];
+extern int D_006330A8;
+extern int D_00633160;
+extern char D_00706F10[];
+extern void func_001B7218__p4(int a0, int a1) __asm__("func_001B7218");
+
+int _la_set_preview_info(void) {
+    int i;
+    int ret;
+
+    D_0063303C = lt_set_item_select_func() - 0x1B;
+    if (D_0063304C == 0) {
+        D_00633160 = 1;
+        return -1;
+    }
+    for (i = 0; i < 10; i++) {
+        if (((D_00633048 >> i) & 1) &&
+            *(unsigned int *)(D_00280C60 + i * 16 + D_006330A8 * 396) != 0xFFFFFFFFU) {
+            func_001B7218__p4(i + 0x1B, 0);
+            func_001B7218__p4(i + 0x11, 1);
+        } else {
+            func_001B7218__p4(i + 0x1B, 1);
+            func_001B7218__p4(i + 0x11, 0);
+        }
+    }
+    *(LaPrev16 *)&D_00706F10 = *(LaPrev16 *)(D_00280C60 + D_006330A8 * 396 + D_0063303C * 16);
+    ret = -1;
+    if (D_00275250.f4 & 0x50) {
+        ret = D_0063303C;
+    }
+    return ret;
+}
 
 int la_load_game_memory_card_check(void) {
     if (D_00633048 == 0) {

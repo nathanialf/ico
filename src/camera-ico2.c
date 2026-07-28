@@ -224,9 +224,127 @@ void GetPluralCameraSet(int a0, int a1)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", MakeCameraSetBinary);
+extern void InitCameraSetManager(int *a0, int *a1);
+extern void func_00240038_v(void *a, void *b, float s) __asm__("func_00243B18");
+extern float g_E00[3] __asm__("D_006D0520");
+extern float g_E10[3] __asm__("D_006D0530");
+extern float g_E20[3] __asm__("D_006D0540");
+extern float g_E30[3] __asm__("D_006D0550");
+extern float g_EC0[3] __asm__("D_006D05E0");
+extern float g_ED0[3] __asm__("D_006D05F0");
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", GetSizeOfCameraSetBinary);
+void MakeCameraSetBinary(int a0) {
+    unsigned char flag = a0;
+    int p1;
+    int p2;
+    float v0[4];
+    float v1[4];
+    float v2[4];
+    float A[4];
+    float B[4];
+    float C[4];
+    int i;
+
+    InitCameraSetManager(&p1, &p2);
+    if (p1 == 0) {
+        return;
+    }
+    if (p2 != 0) {
+        GetPluralCameraSet(A, p1);
+        GetPluralCameraSet(B, p2);
+        func_00240038_v(A, A, -1.0f);
+        func_00240038_v(B, B, -1.0f);
+        v1[0] = A[0];
+        v1[1] = A[1];
+        v1[2] = A[2];
+        v0[0] = B[0];
+        v0[1] = B[1];
+        v0[2] = B[2];
+        v2[0] = A[0];
+        v2[1] = A[1];
+        v2[2] = A[2];
+    } else {
+        GetPluralCameraSet(C, p1);
+        func_00240038_v(C, C, -1.0f);
+        v0[0] = C[0];
+        v0[1] = C[1];
+        v0[2] = C[2];
+        v1[0] = C[0];
+        v1[1] = C[1];
+        v1[2] = C[2];
+        v2[0] = C[0];
+        v2[1] = C[1];
+        v2[2] = C[2];
+    }
+    {
+        g_E30[0] = v2[0];
+        g_E30[1] = v2[1];
+        g_E30[2] = v2[2];
+    }
+    if (flag != 0) {
+        float a0 = v0[0];
+        float a1 = v0[1];
+        float a2 = v0[2];
+        g_E00[0] = a0;
+        g_E00[1] = a1;
+        g_E00[2] = a2;
+        g_EC0[0] = a0;
+        g_EC0[1] = a1;
+        g_EC0[2] = a2;
+        g_ED0[0] = v1[0];
+        g_ED0[1] = v1[1];
+        g_ED0[2] = v1[2];
+    }
+    for (i = 0; i < 3; i++) {
+        g_E10[i] = (v0[i] + g_EC0[i] * 3.0f) * 0.25f;
+        g_E20[i] = (v1[i] + g_ED0[i] * 3.0f) * 0.25f;
+    }
+    g_EC0[0] = g_E10[0];
+    g_EC0[1] = g_E10[1];
+    g_EC0[2] = g_E10[2];
+    g_ED0[0] = g_E20[0];
+    g_ED0[1] = g_E20[1];
+    g_ED0[2] = g_E20[2];
+}
+
+extern char *D_0062C048_arr __asm__("D_00633D58");
+extern float D_0062C844_f[] __asm__("D_006326E4");
+extern int D_00633D60;
+extern void func_002641D8(float *a0, int a1, int a2);
+
+int GetSizeOfCameraSetBinary(float *query) {
+    int result = -1;
+    float min = D_0062C844_f[0];
+    int i;
+    for (i = 0; i < D_00633D60; i++) {
+            float buf[4];
+            char *entry = D_0062C048_arr + i * 0x4C;
+            float *center = (float *)(entry + 0x20);
+            float *range = (float *)(entry + 0x2C);
+            int k;
+            func_002641D8(buf, 0, 0x10);
+            for (k = 0; k < 3; k++) {
+                float d = query[k] - center[k];
+                float r;
+                float t;
+                if (d < 0.0f) d = -d;
+                r = range[k];
+                if (r < 0.0f) r = -r;
+                if (r < 0.0f) t = 0.0f;
+                else if (d < r) t = d;
+                else t = r;
+                buf[k] = d - t;
+            }
+            {
+                float sum = buf[0] * buf[0] + buf[1] * buf[1] + buf[2] * buf[2];
+                if (sum < min) {
+                    result = i;
+                    min = sum;
+                }
+            }
+    }
+    return result;
+}
 
 void SetCameraTargetPosition(int a0)
 {

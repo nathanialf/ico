@@ -1,5 +1,7 @@
 #include "common.h"
 
+#include "ico/types.h"
+
 
 
 
@@ -141,7 +143,24 @@ int AdpcmVolumeGet(void)
     return count;
 }
 
-INCLUDE_ASM("asm/nonmatchings/sound/adpcm_init", GetDitchPosition);
+extern void adpcmPauseRequest__p4(short *p, int doubled_idx) __asm__("adpcmPauseRequest");
+
+void GetDitchPosition(void)
+{
+    int i;
+    for (i = 0; i < 0xB0; i += 0x58) {
+        int *p = (int *)((char *)D_006A94E0 + i);
+        if (*p != 0) {
+            int v = *(int *)((char *)p + 0x38);
+            if (v == 0x20000) goto call0;
+            if (v != 0x40000) goto skip;
+            adpcmPauseRequest__p4((short *)p, 2);
+        call0:
+            adpcmPauseRequest__p4((short *)p, 0);
+        skip: ;
+        }
+    }
+}
 
 short DebugActOrientFlag(char *self, int idx) {
     char *base = *(char **)(self + 0x2C);

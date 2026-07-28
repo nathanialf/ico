@@ -1,5 +1,29 @@
 #include "common.h"
 
+struct GObj__p4 {
+    struct GObj__p4 *f_0;       /* 0x00 */
+    int          f_4;       /* 0x04 */
+    int          f_8;       /* 0x08 */
+    char         pad_C[4];  /* 0x0C */
+    struct GObj__p4 *f_10;      /* 0x10 */
+    struct GObj__p4 *f_14;      /* 0x14 */
+    unsigned char f_18;     /* 0x18 */
+    char         pad_19[3]; /* 0x19 */
+    int          f_1C;      /* 0x1C */
+    char         pad_20[8]; /* 0x20 */
+    int          f_28;      /* 0x28 */
+    int          f_2C;      /* 0x2C */
+    int          f_30;      /* 0x30 */
+    char         pad_34[0x24]; /* 0x34 */
+    int          f_58;      /* 0x58 */
+    char         pad_5C[0x100]; /* 0x5C */
+    int          f_15C;     /* 0x15C */
+    char         pad_160[4]; /* 0x160 */
+    int          f_164;     /* 0x164 */
+    char         pad_168[8]; /* 0x168 */
+    int          f_170;     /* 0x170 */
+};
+
 
 struct GObj { int unk0; int unk4; int unk8; char pad[0x168]; };
 extern unsigned int D_00633CA4;
@@ -80,5 +104,29 @@ void *isysGObjAddHead(int a0) {
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjSearchFromObjLayoutID);
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjSearchFromObjKindID_begin);
+extern int D_006321C0;
+extern struct GObj__p4 *D_00633CA0__p4 __asm__("D_00633CA0");
+
+void *isysGObjSearchFromObjKindID_begin(struct GObj__p4 *g)
+{
+    struct GObj__p4 *p;
+    struct GObj__p4 *end;
+    int kind;
+
+    if (D_006321C0 == 0) goto direct;
+    p = g;
+    end = &D_00633CA0__p4[D_00633CA4 - 1];
+    kind = *(int *)g->pad_C;
+    while (p != end) {
+        p++;
+        if (p->f_4 == 1 && *(int *)p->pad_C == kind) {
+            goto found;
+        }
+    }
+    return 0;
+found:
+    return p;
+direct:
+    return *(void **)(g->pad_34 + 8);
+}
 

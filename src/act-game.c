@@ -485,9 +485,34 @@ int ACTGame_ConnectHand(int *a0)
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_DisconnectHand);
+extern int checkHit__p4() __asm__("checkHit");
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", PAIR_GetPosition_BOY);
+int ACTGame_DisconnectHand(void) {
+    return checkHit__p4() == 1;
+}
+
+extern const float D_0063226C_flt[] __asm__("D_0063226C");
+extern int *isysGObjSearchFromObjKindID_begin(int *);
+extern int *isysGObjSearchFromObjLayoutID(int);
+
+int *PAIR_GetPosition_BOY(int a0, int a1) {
+    float best_val = D_0063226C_flt[0];
+    int *best = 0;
+    int *node;
+
+    node = isysGObjSearchFromObjLayoutID(a1);
+    if (node != 0) {
+        do {
+            float val = HandyCamera_TargetMoveType(ContinueCorrectPosition(node), a0);
+            if (val < best_val) {
+                best_val = val;
+                best = node;
+            }
+            node = isysGObjSearchFromObjKindID_begin(node);
+        } while (node != 0);
+    }
+    return best;
+}
 
 void PAIR_IsStatus_BOY_PULL(char *self)
 {

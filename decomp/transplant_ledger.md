@@ -2222,3 +2222,226 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PORTED `_la_set_current_port_2` w1 @ 0x001B4E78 <- aug6 common/src/layout_action (5 syms rebound)
 - REVERTED `_la_memory_card_check` w1 @ 0x001B4D48 — [parse] src/layout_action.c:46: parse error before `D_00274EC0'
 - REVERTED `_la_set_preview_info` w1 @ 0x001B4FC8 — [parse] src/layout_action.c:108: parse error before `D_00275250'
+
+### isys/gobj
+- PORTED `isysGObjSearchFromObjKindID_begin` w1 @ 0x0013EBE0 <- aug6 fumi/isys/gobj (3 syms rebound)
+- REVERTED `isysGObjKindTableInit` w1 @ 0x0013DDA0 — [codegen] insn 1: expected `lui	v1,0x0` built `lui	v0,0x0`
+- REVERTED `isysGObjInit` w1 @ 0x0013DDF8 — [codegen] insn 1: expected `bnel	a1,zero,18 <isysGObjInit+0x18>` built `bnel	a1,zero,6c <isysGObjInit+0x14>`
+- REVERTED `isysGObjRemoveAll` w1 @ 0x0013DFF0 — [codegen] insn 7: expected `lw	a3,0(v1)` built `lw	a1,0(v1)`
+- REVERTED `add_gobj_to_tail` w1 @ 0x0013E0C0 — [codegen] insn 7: expected `lw	a3,0(v1)` built `lw	a1,0(v1)`
+- REVERTED `isysGObjMoveHead` w1 @ 0x0013E220 — [codegen] insn 20: expected `bne	a0,a2,6c <isysGObjMoveHead+0x6c>` built `bne	a0,a2,4e8 <isysGObjMoveHead+0x68>`
+- REVERTED `isysGObjAddAfterGObj` w1 @ 0x0013E350 — [codegen] [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+- REVERTED `isysGetNbAllocedGObjs` w1 @ 0x0013E4D0 — [codegen] insn 3: expected `lui	a2,0x0` built `daddu	s0,a0,zero`
+- REVERTED `isysGObjKindTableRemove` w1 @ 0x0013E7F8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `isysGObjMoveBeforeGObj` w1 @ 0x0013E8D8 — [codegen] [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+- REVERTED `isysGObjAdd` w1 @ 0x0013E9E0 — [codegen] [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+
+### src/Matrix
+
+### src/fieldCollision
+
+### ios/shockdriver
+- PORTED `ShockEmulator_EmulationShot` w1 @ 0x0013CAD8 <- aug6 fumi/ios/shockdriver (1 syms rebound)
+- PORTED `Init_ShockRequestAlloc` w1 @ 0x0013CB88 <- aug6 fumi/ios/shockdriver (1 syms rebound)
+- PORTED `Reset_ShockRequestStruct` w1 @ 0x0013CC00 <- aug6 fumi/ios/shockdriver (1 syms rebound)
+
+### src/act-game
+- PORTED `ACTGame_DisconnectHand` w1 @ 0x0014B090 <- aug6 fumi/src/act-game (1 syms rebound)
+
+### src/commonact
+- PORTED `WithMailFunc_AttackRejectInQueen` w1 @ 0x00157DC8 <- aug6 fumi/src/commonact (5 syms rebound)
+- PORTED `GetCorrectOrientOfChain` w1 @ 0x00157E68 <- aug6 fumi/src/commonact (2 syms rebound)
+- REVERTED `actCommonRope` w1 @ 0x001584D8 — [codegen] insn 29: expected `jal	0 <actCommonRope>` built `jal	2050 <func_00158328.15>`
+
+### src/camera-ico2
+- REVERTED `CameraSetCameraSet` w1 @ 0x001873C0 — [codegen] insn 21: expected `<end>` built `sll	zero,zero,0x0`
+- REVERTED `InitIco2Camera` w1 @ 0x001879D0 — [callee-sig-conflict] src/camera-ico2.c:15: conflicting types for `func_001D49C0'
+
+### sound/s_init
+
+### src/enemy_act
+
+### ios/thread
+- PORTED `iosGetIOSThreadFromId` w1 @ 0x0013D140 <- aug6 fumi/ios/thread (3 syms rebound)
+- REVERTED `iosThreadMain` w1 @ 0x0013CC78 — [codegen] insn 27: expected `<end>` built `sll	zero,zero,0x0`
+- REVERTED `iosThreadMessage` w1 @ 0x0013CF38 — [codegen] insn 2: expected `addiu	v0,v0,0` built `addiu	v0,v0,184`
+
+### isys/gobj
+- REVERTED `isysGObjKindTableInit` w1 @ 0x0013DDA0 — [codegen] insn 1: expected `lui	v1,0x0` built `lui	v0,0x0`
+- REVERTED `isysGObjInit` w1 @ 0x0013DDF8 — [codegen] insn 1: expected `bnel	a1,zero,18 <isysGObjInit+0x18>` built `bnel	a1,zero,6c <isysGObjInit+0x14>`
+- REVERTED `isysGObjRemoveAll` w1 @ 0x0013DFF0 — [codegen] insn 7: expected `lw	a3,0(v1)` built `lw	a1,0(v1)`
+- REVERTED `add_gobj_to_tail` w1 @ 0x0013E0C0 — [codegen] insn 7: expected `lw	a3,0(v1)` built `lw	a1,0(v1)`
+- REVERTED `isysGObjMoveHead` w1 @ 0x0013E220 — [codegen] insn 20: expected `bne	a0,a2,6c <isysGObjMoveHead+0x6c>` built `bne	a0,a2,4e8 <isysGObjMoveHead+0x68>`
+- REVERTED `isysGObjAddAfterGObj` w1 @ 0x0013E350 — [codegen] [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+- REVERTED `isysGetNbAllocedGObjs` w1 @ 0x0013E4D0 — [codegen] insn 3: expected `lui	a2,0x0` built `daddu	s0,a0,zero`
+- REVERTED `isysGObjKindTableRemove` w1 @ 0x0013E7F8 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `isysGObjMoveBeforeGObj` w1 @ 0x0013E8D8 — [codegen] [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+- REVERTED `isysGObjAdd` w1 @ 0x0013E9E0 — [codegen] [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+
+### src/camera-editor
+- REVERTED `_CameraEdit_del_box` w1 @ 0x001869F8 — [codegen] insn 2: expected `addiu	a0,a0,0` built `addiu	a0,a0,10864`
+
+### src/gamesys
+- REVERTED `gamesysObjInfoCls` w1 @ 0x001AB3D0 — [unresolved-symbol] unresolved-symbol: insn 7 `D_20000150`: no retail lui partner for %lo (+3 more)
+
+### ios/cdvd
+
+### ito/mpeg/mv_disp
+- REVERTED `startDisplay` w1 @ 0x0023D390 — [arity] ito/mpeg/mv_disp.c:158: too many arguments to function `UpdateRootPosition'
+
+### ito/mpeg/mv_vibuf
+
+### src/way_util
+
+### src/boyact
+- REVERTED `subBoyCollision` w1 @ 0x001521F0 — [codegen] insn 44: expected `lui	at,0x4348` built `lui	at,0x43e1`
+
+### src/quaternion
+- PORTED `RegularizeQuaternion` w1 @ 0x0010D838 <- aug6 sugipon/src/quaternion (2 syms rebound)
+
+### src/st25a
+
+### sound/adpcm_init
+- PORTED `GetDitchPosition` w1 @ 0x00140F90 <- aug6 fumi/src/act-env (2 syms rebound)
+
+### src/layout_action
+- PORTED `_la_memory_card_check` w1 @ 0x001B4D48 <- aug6 common/src/layout_action (9 syms rebound)
+- PORTED `_la_set_preview_info` w1 @ 0x001B4FC8 <- aug6 common/src/layout_action (10 syms rebound)
+
+### src/matrixDrive
+
+### isys/gobj_process
+- PORTED `isysGObjProcAdd_` w1 @ 0x0013F308 <- aug6 fumi/isys/gobj_process (2 syms rebound)
+- PORTED `cut_gobj_process_link` w1 @ 0x0013F378 <- aug6 fumi/isys/gobj_process (2 syms rebound)
+- PORTED `isysGObjProcAddS` w1 @ 0x0013F6B8 <- aug6 fumi/isys/gobj_process (2 syms rebound)
+- PORTED `isysGObjProcAddGOppArg` w1 @ 0x0013F700 <- aug6 fumi/isys/gobj_process (5 syms rebound)
+- PORTED `isysGObjProcPause` w1 @ 0x0013F778 <- aug6 fumi/isys/gobj_process (1 syms rebound)
+- PORTED `isysGObjProcPauseAll` w1 @ 0x0013F7A8 <- aug6 fumi/isys/gobj_process (1 syms rebound)
+- PORTED `isysGObjProcPausePtr` w1 @ 0x0013F7D8 <- aug6 fumi/isys/gobj_process (1 syms rebound)
+- REVERTED `isysGObjProcessInit` w1 @ 0x0013F2C8 — [codegen] insn 15: expected `<end>` built `sll	zero,zero,0x0`
+
+### src/Packet
+- SKIPPED `pac_setVifEndCode` w1 @ 0x00118FD8 — jtbl
+
+### src/camera-root
+- PORTED `MakeCameraMatrix` w1 @ 0x0018BEB0 <- aug6 omori/src/camera-root (8 syms rebound)
+- PORTED `CameraEditManual` w1 @ 0x0018BF70 <- aug6 omori/src/camera-root (12 syms rebound)
+- PORTED `DebugCameraManual` w1 @ 0x0018C078 <- aug6 omori/src/camera-root (3 syms rebound)
+- PORTED `Camctrl_SetTarget` w1 @ 0x0018CB20 <- aug6 omori/src/camera-root (5 syms rebound)
+
+### src/clothAnimation
+- PORTED `GetChainAnimation` w1 @ 0x001C5FD0 <- aug6 sugipon/src/clothAnimation (12 syms rebound)
+- PORTED `getCloth4D_preProcess` w1 @ 0x001C8958 <- aug6 sugipon/src/clothAnimation (5 syms rebound)
+- PORTED `InitCloth4D` w1 @ 0x001C8B60 <- aug6 sugipon/src/clothAnimation (2 syms rebound)
+
+### src/girl_act
+- PORTED `GetEyeDirection` w1 @ 0x0016A460 <- aug6 fumi/src/girl_act (2 syms rebound)
+- PORTED `subGirlControl` w1 @ 0x0016BCA0 <- aug6 fumi/src/girl_act (5 syms rebound)
+- PORTED `subGirlCollision` w1 @ 0x0016BCF0 <- aug6 fumi/src/girl_act (2 syms rebound)
+- PORTED `actGirlStand` w1 @ 0x00173268 <- aug6 fumi/src/girl_act (2 syms rebound)
+- PORTED `afterGirlHand` w1 @ 0x00175640 <- aug6 fumi/src/girl_act (3 syms rebound)
+- PORTED `afterGirlPulledGo` w1 @ 0x00175688 <- aug6 fumi/src/girl_act (3 syms rebound)
+- REVERTED `actGirlSupportGBLoop` w1 @ 0x00171AB0 — [codegen] insn 6: expected `beq	a1,zero,f8 <actGirlSupportGBLoop+0xf8>` built `beq	a1,zero,774c <actGirlSupportGBLoop+0xfc>`
+
+### src/motionManager2
+- PORTED `GetStreamMotion` w1 @ 0x001097A0 <- aug6 sugipon/src/motionManager2 (3 syms rebound)
+- PORTED `CheckFloorAttribute` w1 @ 0x0010A0C8 <- aug6 sugipon/src/motionManager2 (0 syms rebound)
+- PORTED `SetMotionPlaySpeedRatio` w1 @ 0x0010A598 <- aug6 sugipon/src/motionManager2 (0 syms rebound)
+- REVERTED `calcFootIK` w1 @ 0x00107778 — [unresolved-symbol] unresolved-symbol: insn 6 `D_0062BF0C`: retail symbol D_00633C0C (0x00633C0C) undefined
+
+### src/script
+- PORTED `scpTorchLightOff` w1 @ 0x0017CB60 <- aug6 script/src/script (5 syms rebound)
+- PORTED `scpPlayStart` w1 @ 0x0017D030 <- aug6 script/src/script (1 syms rebound)
+- PORTED `scpDoorTypeUpUp` w1 @ 0x0017D230 <- aug6 script/src/script (2 syms rebound)
+- REVERTED `scpTorchLightOn` w1 @ 0x0017CB20 — [codegen] insn 15: expected `<end>` built `sll	zero,zero,0x0`
+
+### ios/message
+- PORTED `iosMsgQueueDestroyAll` w1 @ 0x0013A7C8 <- aug6 fumi/ios/message (2 syms rebound)
+- REVERTED `iosMsgQueueCreate` w1 @ 0x0013A220 — [codegen] insn 11: expected `<end>` built `sll	zero,zero,0x0`
+- REVERTED `iosMsgQueueDestroy` w1 @ 0x0013A250 — [codegen] [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
+- REVERTED `send_signal_message` w1 @ 0x0013A2F8 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+- REVERTED `iosMsgSetEvent` w1 @ 0x0013A380 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+- REVERTED `iosMsgSend` w1 @ 0x0013A5B8 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+- REVERTED `iosMsgRecv` w1 @ 0x0013A6C0 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+
+### ios/pad
+- PORTED `controler_stable_check` w1 @ 0x0013A820 <- aug6 fumi/ios/pad (3 syms rebound)
+- PORTED `iosPadGetPort` w1 @ 0x0013B718 <- aug6 fumi/ios/pad (2 syms rebound)
+- PORTED `iosPadGetSlot` w1 @ 0x0013B748 <- aug6 fumi/ios/pad (1 syms rebound)
+- PORTED `iosPadGetDevice` w1 @ 0x0013B760 <- aug6 fumi/ios/pad (1 syms rebound)
+- PORTED `iosPadConnect` w1 @ 0x0013B778 <- aug6 fumi/ios/pad (1 syms rebound)
+- PORTED `iosPadStickCameraCoord` w1 @ 0x0013B7C0 <- aug6 fumi/ios/pad (1 syms rebound)
+- PORTED `iosPadActStop` w1 @ 0x0013B878 <- aug6 fumi/ios/pad (8 syms rebound)
+
+### src/GobjProc
+- PORTED `GetGObjId` w1 @ 0x0023F778 <- aug6 common/src/GobjProc (0 syms rebound)
+- PORTED `PrintGObjID` w1 @ 0x0023F7B0 <- aug6 common/src/GobjProc (0 syms rebound)
+- PORTED `CreateGObj` w1 @ 0x0023F7F0 <- aug6 common/src/GobjProc (1 syms rebound)
+- PORTED `CreateGObjByFuncSet` w1 @ 0x0023F928 <- aug6 common/src/GobjProc (1 syms rebound)
+- REVERTED `ResetGObjProc` w1 @ 0x0023F690 — [codegen] insn 29: expected `<end>` built `sll	zero,zero,0x0`
+
+### src/GsBase
+- PORTED `gsb_SetFrame` w1 @ 0x00111FA8 <- aug6 seki/src/GsBase (2 syms rebound)
+- PORTED `gsb_Reduction` w1 @ 0x00112148 <- aug6 seki/src/GsBase (1 syms rebound)
+- PORTED `gsb_fade` w1 @ 0x001121E0 <- aug6 seki/src/GsBase (3 syms rebound)
+- PORTED `gsb_scissorOnDemo` w1 @ 0x00112260 <- aug6 seki/src/GsBase (0 syms rebound)
+- PORTED `gsb_PostEffect` w1 @ 0x001137B8 <- aug6 seki/src/GsBase (5 syms rebound)
+- PORTED `gsb_InitGSSystem` w1 @ 0x00113820 <- aug6 seki/src/GsBase (5 syms rebound)
+- PORTED `gsb_UpdateGSSystem` w1 @ 0x00113890 <- aug6 seki/src/GsBase (5 syms rebound)
+- PORTED `gsb_ResetGSSystem` w1 @ 0x00113908 <- aug6 seki/src/GsBase (5 syms rebound)
+
+### src/st13b
+- PORTED `actSt13bFloorChk` w1 @ 0x002297D8 <- aug6 script/src/st13b (6 syms rebound)
+- PORTED `actSt13bConte02` w1 @ 0x00229890 <- aug6 script/src/st13b (6 syms rebound)
+- PORTED `actSt13bSekizoChk` w1 @ 0x00229960 <- aug6 script/src/st13b (6 syms rebound)
+- PORTED `actSt13bMeetAgain` w1 @ 0x00229AA8 <- aug6 script/src/st13b (6 syms rebound)
+- PORTED `actSt13bBoss` w1 @ 0x00229B60 <- aug6 script/src/st13b (6 syms rebound)
+- PORTED `actConte10b` w1 @ 0x00229C30 <- aug6 script/src/st13b (5 syms rebound)
+
+### src/way_llf
+- PORTED `CreateWayGroup` w1 @ 0x002059A0 <- aug6 fumi/src/way_llf (1 syms rebound)
+- PORTED `DeleteWayGroup` w1 @ 0x00205A38 <- aug6 fumi/src/way_llf (1 syms rebound)
+- PORTED `CloseWayGroup` w1 @ 0x00205A78 <- aug6 fumi/src/way_llf (1 syms rebound)
+- PORTED `CreateWayPoint` w1 @ 0x00205A98 <- aug6 fumi/src/way_llf (1 syms rebound)
+- PORTED `AddWayPointTop` w1 @ 0x00205B30 <- aug6 fumi/src/way_llf (1 syms rebound)
+- PORTED `WayBridge_begin` w1 @ 0x002060E8 <- aug6 fumi/src/way_llf (14 syms rebound)
+
+### isys/gobj_dl
+- PORTED `isysGObjRemoveObjDL` w1 @ 0x0013ECA8 <- aug6 fumi/isys/gobj_dl (2 syms rebound)
+- PORTED `isysGObjLinkObjDLAfterGObj` w1 @ 0x0013EFD0 <- aug6 fumi/isys/gobj_dl (2 syms rebound)
+- PORTED `isysGObjMoveObjDLBeforeGObj` w1 @ 0x0013F1D0 <- aug6 fumi/isys/gobj_dl (1 syms rebound)
+- REVERTED `cut_gobj_dl_link` w1 @ 0x0013EC50 — [codegen] insn 21: expected `<end>` built `sll	zero,zero,0x0`
+- REVERTED `isysGObjMoveObjDLHead` w1 @ 0x0013EDB0 — [codegen] insn 1: expected `bnel	a1,zero,18 <isysGObjMoveObjDLHead+0x18>` built `bnel	a1,zero,174 <isysGObjMoveObjDLHead+0x14>`
+- REVERTED `isysGObjLinkObjDLHead` w1 @ 0x0013EE60 — [codegen] insn 5: expected `lui	a0,0x0` built `daddu	s2,a2,zero`
+- REVERTED `isysGObjMoveObjDLAfterGObj` w1 @ 0x0013F130 — [codegen] insn 5: expected `lui	a0,0x0` built `daddu	s4,a3,zero`
+
+### isys/obj_manager
+- PORTED `iosOmSearchGObjId` w1 @ 0x0013FF20 <- aug6 fumi/isys/obj_manager (1 syms rebound)
+
+### ito/mpeg/mv_audiodec
+- PORTED `audioDecSendToIOP` w1 @ 0x0023C5F0 <- aug6 ito/mpeg/mv_audiodec (2 syms rebound)
+- PORTED `audioDecReset` w1 @ 0x0023C808 <- aug6 ito/mpeg/mv_audiodec (5 syms rebound)
+- PORTED `audioDecIsPreset` w1 @ 0x0023C890 <- aug6 ito/mpeg/mv_audiodec (5 syms rebound)
+- PORTED `audioDecStart` w1 @ 0x0023C908 <- aug6 ito/mpeg/mv_audiodec (8 syms rebound)
+- PORTED `audioDecResume` w1 @ 0x0023CA08 <- aug6 ito/mpeg/mv_audiodec (2 syms rebound)
+
+### src/DisplayList
+- PORTED `dl_PushPriority` w1 @ 0x001FB4A8 <- aug6 seki/src/DisplayList (5 syms rebound)
+- PORTED `dl_Debug` w1 @ 0x001FB5E0 <- aug6 seki/src/DisplayList (7 syms rebound)
+- PORTED `dl_CloseDma` w1 @ 0x001FB658 <- aug6 seki/src/DisplayList (9 syms rebound)
+- PORTED `dl_Out` w1 @ 0x001FB768 <- aug6 seki/src/DisplayList (9 syms rebound)
+- PORTED `dl_SetDLPriority` w1 @ 0x001FB7F8 <- aug6 seki/src/DisplayList (9 syms rebound)
+
+### src/StageManager
+- PORTED `StageManager` w1 @ 0x0019FF98 <- aug6 common/src/StageManager (1 syms rebound)
+- REVERTED `stop_free_resources` w1 @ 0x0019F6A8 — [codegen] [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+- REVERTED `exit_stage` w1 @ 0x0019F7A8 — [codegen] [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+- REVERTED `stgmgrForceSwitch` w1 @ 0x0019FFA8 — [callee-sig-conflict] src/StageManager.c:61: conflicting types for `stgmgrForceSwitch'
+
+### src/way_llf
+- PORTED `CreateWayGroup` w1 @ 0x002059A0 <- aug6 fumi/src/way_llf (1 syms rebound)
+- PORTED `DeleteWayGroup` w1 @ 0x00205A38 <- aug6 fumi/src/way_llf (1 syms rebound)
+- PORTED `CloseWayGroup` w1 @ 0x00205A78 <- aug6 fumi/src/way_llf (1 syms rebound)
+- PORTED `CreateWayPoint` w1 @ 0x00205A98 <- aug6 fumi/src/way_llf (1 syms rebound)
+- PORTED `AddWayPointTop` w1 @ 0x00205B30 <- aug6 fumi/src/way_llf (1 syms rebound)
+- PORTED `WayBridge_begin` w1 @ 0x002060E8 <- aug6 fumi/src/way_llf (14 syms rebound)

@@ -2,6 +2,9 @@
 
 #include "ico/types.h"
 
+typedef struct { int d[6]; } S18;
+typedef struct { long long d[12]; } S60;
+
 typedef struct { int d[2]; } HB_S8;
 typedef struct {
     int f0; int f4;
@@ -352,7 +355,15 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00154CE8);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoySupportBGBegin);
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyDitch3mExec);
+extern S18 dst18_a __asm__("D_006AAB40");
+extern S60 dst60_a __asm__("D_006AAAE0");
+extern S18 src18_a __asm__("D_00281BF0");
+extern S60 src60_a __asm__("D_00281B90");
+
+void actBoyDitch3mExec(void) {
+    dst60_a = src60_a;
+    dst18_a = src18_a;
+}
 
 void actBoyHangG3M(int a0, int a1, int a2, int a3)
 {

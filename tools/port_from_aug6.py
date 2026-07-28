@@ -408,7 +408,16 @@ def cmd_scan(args):
     blob = ROM.read_bytes()
 
     aug6 = aug6_matchings_index()
-    print(f"aug6 matched glabels: {len(aug6)}", file=sys.stderr)
+    # splat never deletes a stale baseline, so asm/aug6/matchings can still
+    # hold the .s of a function that has since gone back to INCLUDE_ASM.
+    # A candidate is only real if the aug6 TU actually DEFINES it in C.
+    src = Aug6Source()
+    stale = [n for n, a in aug6.items()
+             if n not in src.tu(a["stem"])["funcs"]]
+    for n in stale:
+        del aug6[n]
+    print(f"aug6 matched glabels: {len(aug6)} "
+          f"({len(stale)} stale matchings/*.s dropped)", file=sys.stderr)
     print(f"retail type:func symbols: {len(funcs)}", file=sys.stderr)
 
     records = []
@@ -687,12 +696,37 @@ def rebind_text(text, mapping):
     return rx.sub(lambda m: mapping[m.group(1)], text)
 
 
+STR_LITERAL_RE = re.compile(r'"(?:[^"\\]|\\.)*"|\'(?:[^\'\\]|\\.)*\'')
+
+
+def rebind_code_only(text, mapping):
+    """Like rebind_text, but never touches string/char literals.
+
+    Used for the `__asm__("REALNAME")` alias renames: an inline-asm body that
+    spells `%hi(D_X)` is assembler text, not C, so the gcc asm-label
+    indirection does not apply to it — renaming there would emit a reference
+    to a symbol that exists nowhere and fail at link.  (The aug6 -> retail
+    SYMBOL rebinding is the opposite case and deliberately does rewrite inside
+    those strings.)"""
+    if not mapping:
+        return text
+    rx = re.compile(r"\b(" + "|".join(
+        re.escape(k) for k in sorted(mapping, key=len, reverse=True)) + r")\b")
+    out, pos = [], 0
+    for m in STR_LITERAL_RE.finditer(text):
+        out.append(rx.sub(lambda mm: mapping[mm.group(1)], text[pos:m.start()]))
+        out.append(m.group(0))
+        pos = m.end()
+    out.append(rx.sub(lambda mm: mapping[mm.group(1)], text[pos:]))
+    return "".join(out)
+
+
 def unprototyped(sig, name):
     m = re.search(re.escape(name) + r"\s*\(", sig)
     if not m:
         return None
     prefix = sig[:m.start()].strip() or "void"
-    prefix = re.sub(r"^static\s+", "", prefix)
+    prefix = re.sub(r"^(?:static|extern)\s+", "", prefix).strip() or "void"
     return f"extern {prefix} {name}();"
 
 
@@ -741,6 +775,83 @@ def synth_extern(src, aug6_name, retail_name, stem, body):
     if re.search(r"\b%s\s*\[" % re.escape(retail_name), body):
         return f"extern int {retail_name}[];"
     return f"extern int {retail_name};"
+
+
+def _decl_shape(decl):
+    """Whitespace/parameter-name-insensitive fingerprint of a declaration, so
+    `extern int f(int a0, int a1);` and `extern int f(int, int);` compare
+    equal but `extern void f(void);` does not."""
+    s = ASM_LABEL_RE.sub("", decl)
+    s = re.sub(r"\bextern\b|\bstatic\b|\bconst\b|\bregister\b", " ", s)
+    s = re.sub(r"([A-Za-z_]\w*)\s*(?=[,)])", " ", s)   # parameter names
+    s = re.sub(r"[^\w*\[\]().,;]+", " ", s)
+    return re.sub(r"\s+", "", s)
+
+
+def conflicting_decl_alias(tok, retail_decls, want):
+    """The retail TU already has `tok` in scope with a DIFFERENT type than the
+    aug6 body assumes — a Phase-3 body's placeholder signature, typically.
+
+    Redeclaring is a hard error and inheriting the wrong type is a silent
+    miss (implicit `int` return where the ROM has an f0 float, a 4-param
+    prototype where the aug6 call passes 2, a `struct GObj` without the
+    members the aug6 body reads).  Bind a fresh identifier to the same
+    linker symbol instead — the aug6 dev tree's own `__asm__("REALNAME")`
+    aliasing idiom — so the aug6 typing governs codegen and the call still
+    reaches the same address.
+
+    Returns (alias_decl, alias_name) or None."""
+    have = retail_decls.get(tok)
+    if have is None or want is None:
+        return None
+    if _decl_shape(have) == _decl_shape(re.sub(r"\bextern\b", "", want)):
+        return None
+    alias = tok + "__p4"
+    body = want.rstrip().rstrip(";")
+    body = ASM_LABEL_RE.sub("", body).rstrip()
+    body = re.sub(r"\b%s\b" % re.escape(tok), alias, body, count=1)
+    if alias not in body:
+        return None
+    return f'{body} __asm__("{tok}");', alias
+
+
+_HDR_TYPES = None
+
+
+def retail_header_types():
+    """Type names the retail SHARED headers already define — anything an
+    aug6 TU-local definition would collide with."""
+    global _HDR_TYPES
+    if _HDR_TYPES is None:
+        names = set()
+        for p in (ROOT / "include").rglob("*.h"):
+            txt = read_latin1(p)
+            names |= set(re.findall(
+                r"^\s*(?:struct|union|enum)\s+([A-Za-z_]\w*)\s*\{", txt, re.M))
+            names |= set(re.findall(r"^\s*typedef\s+[^;{}]*?"
+                                    r"([A-Za-z_]\w*)\s*;", txt, re.M))
+            names |= set(re.findall(r"\}\s*([A-Za-z_]\w*)\s*;", txt))
+        _HDR_TYPES = names
+    return _HDR_TYPES
+
+
+def alias_extern(src, tok, stem, mapping):
+    """`extern char wcf_c[] __asm__("D_004C7CF0");` — a C identifier the aug6
+    dev aliased onto a real symbol so two references to the same address stay
+    distinct roots (defeats CSE; see decomp/COOKBOOK.md dual-root-addr).
+    Only the __asm__ label is a linkable symbol, so rebind THAT and keep the
+    alias identifier exactly as the body spells it."""
+    decl = src.tu(stem)["decls"].get(tok) or src.global_decls.get(tok)
+    if not decl:
+        return None
+    m = ASM_LABEL_RE.search(decl)
+    if not m:
+        return None
+    real = re.search(r'"([^"]*)"', m.group(0)).group(1)
+    if real not in mapping:
+        return None
+    out = decl.replace(m.group(0), f'__asm__("{mapping[real]}")')
+    return out if out.rstrip().endswith(";") else out + ";"
 
 
 def collect_helpers(src, stem, body, mapping, seen):
@@ -931,27 +1042,102 @@ def cmd_port(args):
 
         # TU-local struct/union/enum typedefs the body (or helpers) needs
         scan_txt = "\n".join([body] + helpers)
+        # An aug6 TU routinely defines its OWN `struct GObj { ... }` with mined
+        # member names while the retail tree's shared include/ico/types.h
+        # already defines that tag differently. Redefining it is an error;
+        # silently using the header's is worse (`structure has no member named
+        # f_0`). A struct tag is purely internal to the C, so rename the
+        # aug6-local one: identical layout, identical codegen, no clash.
+        type_rename = {t: t + "__p4" for t in atu["typedefs"]
+                       if t in retail_header_types()}
+
         typedef_blocks = []
-        for tname, blk in _needed_typedefs(atu, scan_txt, declared, mapping):
-            declared.add(tname)
+        for tname, blk in _needed_typedefs(atu, scan_txt, declared, mapping,
+                                           type_rename):
+            declared.add(type_rename.get(tname, tname))
             typedef_blocks.append(blk)
+
+        # Declarations already in scope at the splice point, so a conflicting
+        # one can be detected rather than tripped over. Both forms count: an
+        # `extern` above, and a real definition above (Phase-3 bodies carry
+        # placeholder signatures the aug6 caller contradicts).
+        # Every declaration the WHOLE retail TU makes for a symbol — above the
+        # splice point (already in scope) and below it (a later definition
+        # that would collide with an extern spliced here). Phase-3 bodies in
+        # particular carry placeholder signatures the aug6 caller contradicts.
+        retail_decls = aug6_decl_index(stem + ".c", cur_text)
+        tu_funcs, _ = T.extract_functions_from_file(stem + ".c", cur_text)
+        for fdef in tu_funcs:
+            retail_decls.setdefault(
+                fdef["name"],
+                re.sub(r"\s+", " ", fdef["text"].split("{", 1)[0].strip()) + ";")
 
         # externs, keyed off the aug6 identifier so the aug6 TYPE carries over
         inv = {v: k for k, v in mapping.items()}
+        body_alias = {}
         for tok in sorted(set(T.IDENT_RE.findall(scan_txt))):
-            if tok in declared or tok in KEYWORDS or tok == name:
+            if tok in KEYWORDS or tok == name:
                 continue
             a_name = inv.get(tok)
             if a_name is None:
-                # not a rebound symbol: only declare if it looks like a raw
-                # splat default that survived unrebound (should not happen)
+                if tok in declared:
+                    continue
+                # An asm-label alias (`extern char wcf_c[] __asm__("D_X");`) —
+                # the aug6 dev's dual-root-addr / CSE-defeat idiom. The C
+                # identifier has no address of its own, so the reloc walk never
+                # sees it; bind it through the REAL symbol named in its
+                # __asm__ label instead.
+                alias = alias_extern(src, tok, rec["aug6_stem"], mapping)
+                if alias:
+                    top.append(alias)
+                    declared.add(tok)
+                    continue
+                # otherwise: only declare a raw splat default that somehow
+                # survived unrebound
                 if not re.match(r"^(func|D)_[0-9A-Fa-f]{8}$", tok):
                     continue
                 a_name = tok
             ext = synth_extern(src, a_name, tok, rec["aug6_stem"], scan_txt)
+            # Compare against the retail declaration in the SAME spelling the
+            # body will use: an aug6 extern typed `struct GObj *` is textually
+            # identical to the retail one, yet after the TU-local tag rename
+            # it denotes a different (correctly-mined) layout — that IS a
+            # conflict and must be aliased, not skipped.
+            if ext and type_rename:
+                ext = rebind_text(ext, type_rename)
+            got = conflicting_decl_alias(tok, retail_decls, ext)
+            if got:
+                if got[1] not in declared:      # one alias decl per TU
+                    top.append(got[0])
+                    declared.add(got[1])
+                body_alias[tok] = got[1]
+                continue
+            if tok in declared:
+                continue
             if ext:
                 top.append(ext)
                 declared.add(tok)
+
+        # An extern can itself name a TU-local struct/union/enum the body
+        # never mentions (`extern struct GObjEnt D_X[];` -> `.f_0`); pull
+        # those in too, then re-run in case they chain.
+        for _ in range(4):
+            more = _needed_typedefs(atu, "\n".join(top), declared, mapping,
+                                    type_rename)
+            if not more:
+                break
+            for tname, blk in more:
+                declared.add(type_rename.get(tname, tname))
+                typedef_blocks.append(blk)
+
+        if type_rename:
+            body = rebind_text(body, type_rename)
+            helpers = [rebind_text(h, type_rename) for h in helpers]
+            typedef_blocks = [rebind_text(b, type_rename) for b in typedef_blocks]
+            top = [rebind_text(t, type_rename) for t in top]
+        if body_alias:
+            body = rebind_code_only(body, body_alias)
+            helpers = [rebind_code_only(h, body_alias) for h in helpers]
 
         # headers the aug6 TU pulled in that the retail TU lacks
         heads = []
@@ -1102,7 +1288,7 @@ def classify_reason(reason):
     return "codegen"
 
 
-def _needed_typedefs(atu, text, declared, mapping):
+def _needed_typedefs(atu, text, declared, mapping, rename=None):
     """TU-local type definitions the body needs, in DEPENDENCY order.
 
     `typedef int Qw128 __attribute__((mode(TI)));` /
@@ -1114,14 +1300,18 @@ def _needed_typedefs(atu, text, declared, mapping):
         return []
     rx = re.compile(r"\b(" + "|".join(
         re.escape(k) for k in sorted(idx, key=len, reverse=True)) + r")\b")
-    # transitive closure of the type names the body needs
+    # transitive closure of the type names the body needs. A name is "already
+    # in scope" only under the spelling we would EMIT it as: a tag that
+    # collides with a retail shared header gets renamed, so the retail
+    # header's own (differently-shaped) definition must not suppress it.
+    rename = rename or {}
     need = {}
-    seen = set(declared)
+    seen = set()
     frontier = [text]
     while frontier:
         chunk = frontier.pop()
         for nm in sorted(set(rx.findall(chunk))):
-            if nm in seen:
+            if nm in seen or rename.get(nm, nm) in declared:
                 continue
             seen.add(nm)
             blk = rebind_text(idx[nm], mapping)

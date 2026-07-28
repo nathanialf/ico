@@ -19,19 +19,60 @@ extern void func_001C3270();
 extern void _ACTWait();
 INCLUDE_ASM("asm/nonmatchings/src/st13b", actSt13bFloor);
 
-INCLUDE_ASM("asm/nonmatchings/src/st13b", actSt13bFloorChk);
+extern void Generator_Call(int a0);
+extern void Generator_Mask(int a0);
+extern void Generator_MaskOff(int a0);
+extern void _ACTWait__p4(int a0) __asm__("_ACTWait");
+extern int actInitialize(int a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/st13b", actSt13bConte02);
+void actSt13bFloorChk(volatile int a0){ int x=a0;
+ actInitialize(a0); _ACTWait__p4(1); Generator_Mask(a0);
+ while(func_0017B230(0x76)==0){ _ACTWait__p4(1); }
+ _ACTWait__p4(1); Generator_MaskOff(a0); Generator_Call(a0); _ACTWait__p4(0x3C); Generator_Call(a0); _ACTWait__p4(0x3C); Generator_Call(a0); _ACTWait__p4(0x3C); Generator_Call(a0); }
 
-INCLUDE_ASM("asm/nonmatchings/src/st13b", actSt13bSekizoChk);
+extern void _ACTWait__p4(int a0) __asm__("_ACTWait");
+
+void actSt13bConte02(volatile int a0){ int x=a0;
+ actInitialize(a0); _ACTWait__p4(1); Generator_Mask(a0);
+ while(func_0017B230(0x76)==0){ _ACTWait__p4(1); }
+ _ACTWait__p4(1); Generator_Call(a0); _ACTWait__p4(0x3C); Generator_Call(a0); _ACTWait__p4(0x3C); Generator_Call(a0); _ACTWait__p4(0x3C); Generator_Call(a0); _ACTWait__p4(0x3C); Generator_Call(a0); Generator_MaskOff(a0); }
+
+extern void _ACTWait__p4(int a0) __asm__("_ACTWait");
+
+void actSt13bSekizoChk(volatile int a0){ int x=a0;
+ actInitialize(a0); _ACTWait__p4(1); Generator_Mask(a0);
+ while(func_0017B230(0x76)==0){ _ACTWait__p4(1); }
+ _ACTWait__p4(0x3C); Generator_Call(a0); _ACTWait__p4(0x3C); Generator_Call(a0); _ACTWait__p4(0x3C); Generator_Call(a0); _ACTWait__p4(0x3C); Generator_Call(a0); _ACTWait__p4(0x3C); Generator_Call(a0); Generator_MaskOff(a0); }
 
 INCLUDE_ASM("asm/nonmatchings/src/st13b", actSt13bSekizo2Chk);
 
-INCLUDE_ASM("asm/nonmatchings/src/st13b", actSt13bMeetAgain);
+extern void _ACTWait__p4(int a0) __asm__("_ACTWait");
 
-INCLUDE_ASM("asm/nonmatchings/src/st13b", actSt13bBoss);
+void actSt13bMeetAgain(volatile int a0){ int x=a0;
+ actInitialize(a0); _ACTWait__p4(1); Generator_Mask(a0);
+ while(func_0017B230(0x79)==0){ _ACTWait__p4(1); }
+ _ACTWait__p4(1); Generator_MaskOff(a0); Generator_Call(a0); _ACTWait__p4(0x3C); Generator_Call(a0); _ACTWait__p4(0x3C); Generator_Call(a0); _ACTWait__p4(0x3C); Generator_Call(a0); }
 
-INCLUDE_ASM("asm/nonmatchings/src/st13b", actConte10b);
+extern void _ACTWait__p4(int a0) __asm__("_ACTWait");
+
+void actSt13bBoss(volatile int a0){ int x=a0;
+ actInitialize(a0); _ACTWait__p4(1); Generator_Mask(a0);
+ while(func_0017B230(0x79)==0){ _ACTWait__p4(1); }
+ _ACTWait__p4(1); Generator_Call(a0); _ACTWait__p4(0x3C); Generator_Call(a0); _ACTWait__p4(0x3C); Generator_Call(a0); _ACTWait__p4(0x3C); Generator_Call(a0); _ACTWait__p4(0x3C); Generator_Call(a0); Generator_MaskOff(a0); }
+
+extern void _ACTWait__p4(int a0) __asm__("_ACTWait");
+
+void actConte10b(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait__p4(1);
+    Generator_Mask(a0);
+    while (func_0017B230(0x79) == 0) {
+        _ACTWait__p4(1);
+    }
+    _ACTWait__p4(1);
+    Generator_MaskOff(a0);
+}
 
 void actSt13bElevDown(int x) {
     volatile int local = x;

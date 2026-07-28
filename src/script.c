@@ -1,5 +1,9 @@
 #include "common.h"
 
+typedef struct { int f0; int *f4; int f8; int fC; int f10; } ScpEntry;
+
+struct S { int a; int b; };
+
 
 
 
@@ -20,7 +24,20 @@ extern int func_0017BB98();
 extern int D_006CF910[];
 INCLUDE_ASM("asm/nonmatchings/src/script", scpTorchLightOn);
 
-INCLUDE_ASM("asm/nonmatchings/src/script", scpTorchLightOff);
+extern char D_00559F38[];
+extern int DebugDisp1CollisionWithColor(int a0, int a1);
+extern int actSt25aQueenDeadChk__p4(int a0) __asm__("actSt25aQueenDeadChk");
+extern void debug_assertMessage__p4(char *fmt) __asm__("debug_assertMessage");
+extern void func_0012ACD8(int a0, void *a1, int a2);
+
+void scpTorchLightOff(int a0, int a1, int a2){
+ int ret = actSt25aQueenDeadChk__p4(a0);
+ if(ret != 0){ struct S copy; struct S pair;
+  pair.a=ret; pair.b=DebugDisp1CollisionWithColor(ret,a1);
+  copy=pair;
+  if(copy.b==-1) debug_assertMessage__p4(D_00559F38);
+  else func_0012ACD8(a2,&copy,1);
+ } }
 
 INCLUDE_ASM("asm/nonmatchings/src/script", scpSetCageVelocityFriction);
 
@@ -32,7 +49,27 @@ INCLUDE_ASM("asm/nonmatchings/src/script", scpPlayMot);
 
 INCLUDE_ASM("asm/nonmatchings/src/script", scpPlayJump);
 
-INCLUDE_ASM("asm/nonmatchings/src/script", scpPlayStart);
+extern ScpEntry D_006CF910__p4[] __asm__("D_006CF910");
+
+void scpPlayStart(int arg0, int *arg1, int arg2, int arg3, int arg4) {
+    int i, ofs;
+    if (arg1 != 0) {
+        *arg1 = 0;
+    }
+    for (i = 0; i < 2; i++) {
+        ofs = i * sizeof(ScpEntry);
+        if (D_006CF910__p4[i].f0 == 0) {
+            goto found;
+        }
+    }
+    return;
+found:
+    *(int *)((char *)D_006CF910__p4 + ofs) = arg0;
+    *(int *)((char *)D_006CF910__p4 + i * sizeof(ScpEntry) + 8) = arg3;
+    *(int *)((char *)D_006CF910__p4 + i * sizeof(ScpEntry) + 12) = arg2;
+    *(int *)((char *)D_006CF910__p4 + i * sizeof(ScpEntry) + 0x10) = arg4;
+    *(int *)((char *)D_006CF910__p4 + i * sizeof(ScpEntry) + 4) = (int)arg1;
+}
 
 int scpPlayEnd(void)
 {
@@ -100,7 +137,15 @@ found:
     func_0017BB98(a0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/script", scpDoorTypeUpUp);
+extern int TorchGeo(int a0);
+extern int actSt25aQueenDeadChk__p4(int a0) __asm__("actSt25aQueenDeadChk");
+
+int scpDoorTypeUpUp(int a0) {
+    int ret1 = actSt25aQueenDeadChk__p4(a0);
+    int *ret2 = (int *)actSt25aQueenDeadChk__p4(0);
+    ret2[0x16C / 4] = 1;
+    return TorchGeo(ret1);
+}
 
 int *scpSubAdpcmPlay(int x)
 {

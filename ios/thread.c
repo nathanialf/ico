@@ -122,7 +122,22 @@ void iosThreadCreate(unsigned char *p, int a1, int a2) {
 
 INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadGetPri);
 
-INCLUDE_ASM("asm/nonmatchings/ios/thread", iosGetIOSThreadFromId);
+extern void iosSemaWait__p4(int a0, int a1) __asm__("iosSemaWait");
+
+void iosGetIOSThreadFromId(int a0)
+{
+    int idx = func_00100410();
+    int *obj = (int *) D_006A6F30[idx];
+    (*(void (**)(int))((char *) obj + 0x38))(a0);
+    if (*(int *)((char *) obj + 0x40) == 0)
+    {
+        iosSemaWait__p4(obj, 0x21);
+    }
+    else
+    {
+        iosSemaWait__p4(obj, 0x22);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadWakeup);
 

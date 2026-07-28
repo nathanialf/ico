@@ -142,7 +142,14 @@ void GetInverseQuaternion(int a0, int a1, int a2, int a3)
     MatrixDrive_TurnObjectMatrix(a0, a1, a2, a3);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/quaternion", RegularizeQuaternion);
+extern void GetInverseQuaternion__p4(void *a0, void *a1) __asm__("GetInverseQuaternion");
+extern void _PushVu0Registers(int a0, int a1, float f);
+
+void RegularizeQuaternion(int a0, int a1)
+{
+    GetInverseQuaternion__p4(a0, a1);
+    _PushVu0Registers(a0, a1, -1.0f);
+}
 
 extern void _InverseCurrentMatrix(void *a, void *b, float c);
 extern float func_00117C20(float);

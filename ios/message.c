@@ -27,5 +27,19 @@ INCLUDE_ASM("asm/nonmatchings/ios/message", iosMsgSend);
 
 INCLUDE_ASM("asm/nonmatchings/ios/message", iosMsgRecv);
 
-INCLUDE_ASM("asm/nonmatchings/ios/message", iosMsgQueueDestroyAll);
+extern int send_signal_message(int a0);
+
+void iosMsgQueueDestroyAll(void) {
+    int *p;
+    int i;
+    int **q = (int **)D_006A6990;
+    i = 0xFF;
+    do {
+        p = *q++;
+        if (p != 0) {
+            send_signal_message(p);
+        }
+        i--;
+    } while (i >= 0);
+}
 

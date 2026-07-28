@@ -164,7 +164,15 @@ void debug_NMarker(int a0) {
     drawXZArrow(a0, p[1], p[0]);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", debug_Marker);
+extern void debug_ArrowM(int *buf, int a1, int a2, int a3, float f12, float f13) __asm__("debug_Arrow");
+extern void func_00243B18(int *buf, int *p, float t);
+
+void debug_Marker(int *self, int a1, int a2, int a3, float t)
+{
+    int buf[4];
+    func_00243B18(buf, self, -1.0f);
+    debug_ArrowM(buf, a1, a2, a3, t, 0.0f);
+}
 
 void debug_Arrow(void) {}
 

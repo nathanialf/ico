@@ -1,5 +1,7 @@
 #include "common.h"
 
+typedef struct { int w[6]; } SlowrunRec;
+
 
 
 
@@ -62,9 +64,38 @@ void func_00157DA0(int *a0)
     return func_001919A0((int)a0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", WithMailFunc_AttackRejectInQueen);
+extern char *D_00631AE8;
+extern char D_006322E8[];
+extern void UpdatePointBlur(void *a0, void *a1, void *a2);
+extern void func_00157DA0__p4(void *a0, int a1) __asm__("func_00157DA0");
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", GetCorrectOrientOfChain);
+void WithMailFunc_AttackRejectInQueen(void *a0) {
+    char *p = *(char **)((char *)a0 + 0x164);
+    int v;
+    debug_assertMessage(D_006322E8);
+    if (a0 != (void *)D_00631AE8) {
+        char *q = *(char **)((char *)a0 + 0x164);
+        *(float *)(p + 0x1D0) -= (float)*(int *)(q + 0x1C0);
+    }
+    v = *(int *)((char *)a0 + 0xC);
+    if (v == 4) {
+        char *s;
+        func_00157DA0__p4(a0, 5);
+        s = *(char **)(*(char **)((char *)a0 + 0x164) + 0x670);
+        UpdatePointBlur(a0, s + 0xE0, s + 0xF0);
+    }
+}
+
+extern void func_00157DA0__p4(void *a0, int a1) __asm__("func_00157DA0");
+
+void GetCorrectOrientOfChain(void *a0)
+{
+    WithMailFunc_AttackRejectInQueen(a0);
+    if (*(int *)((char *)a0 + 0xC) == 1) {
+        void *p = *(void **)((char *)a0 + 0x164);
+        func_00157DA0__p4(*(void **)((char *)p + 0x1A0), 6);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", CollisCheckInRope);
 
@@ -289,7 +320,11 @@ int actCommonBackhand(int *a0)
     return ((int)x) & 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonSlowrun);
+extern SlowrunRec D_00292540[];
+
+void actCommonSlowrun(int a0, int a1) {
+    D_00292540[a0].w[2] = a1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015F248);
 
@@ -301,7 +336,14 @@ void ACT_LAYOUT_GAMEOVER(void *a0) {
     dispPlane(a0, local);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", ACTAdjustPlane);
+extern void func_00240038_p(void *a0, int a1, float f) __asm__("func_00243B18");
+
+void ACTAdjustPlane(int *self)
+{
+    int buf[4];
+    func_00240038_p(buf, (int)((char *)self[0x164 / 4] + 0x4A0), -1.0f);
+    dispPlane((void *)self, buf);
+}
 
 extern void ChangeMailInLadder(void *buf, void *obj);
 
