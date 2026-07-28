@@ -1,14 +1,22 @@
 name: Deploy progress dashboard
 
-# Publish docs/ (the static progress dashboard — index.html + progress.json)
-# to GitHub Pages on every push to main.
+# Publish the TWO-VERSION static progress dashboard to GitHub Pages.
+#
+# This workflow, .github/scripts/build_pages_site.sh and docs/index.html are
+# byte-identical on `main` and `retail-v2` — deliberately, with no per-branch
+# conditionals. A Pages deploy replaces the ENTIRE site, so both branches must
+# assemble the same complete site (aug6 + us) or whichever branch deployed last
+# would 404 the other version's data. Fix these files on one branch and copy
+# them verbatim to the other; the assemble script warns if they drift.
+#
+# See .github/scripts/build_pages_site.sh for the layout it produces.
 on:
   push:
-    branches: [main]
+    branches: [main, retail-v2]
     paths:
-      - docs/index.html
-      - docs/progress.json
+      - docs/**
       - .github/workflows/pages.yml
+      - .github/scripts/build_pages_site.sh
   workflow_dispatch:
 
 # Allow the GITHUB_TOKEN to deploy to Pages.
@@ -17,7 +25,8 @@ permissions:
   pages: write
   id-token: write
 
-# One in-flight deploy at a time; don't cancel a running one.
+# Shared across BOTH branches: one in-flight deploy at a time; don't cancel a
+# running one.
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -35,8 +44,11 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout (this branch)
         uses: actions/checkout@v5
+
+      - name: Assemble two-version site
+        run: .github/scripts/build_pages_site.sh "${{ github.ref_name }}"
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
@@ -45,10 +57,10 @@ jobs:
           # first deploy doesn't fail with "Get Pages site failed" (404).
           enablement: true
 
-      - name: Upload docs/ artifact
+      - name: Upload site artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs
+          path: _site
 
       - name: Deploy to GitHub Pages
         id: deployment
