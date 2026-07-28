@@ -16,6 +16,8 @@ INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcMgrLoadProductBlock);
 
 INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcMgrGetBlockSaveInfo);
 
+INCLUDE_ASM("asm/nonmatchings/ios/mcard", func_00137E48);
+
 INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcManager);
 
 INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcMgrSync);

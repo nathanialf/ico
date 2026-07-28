@@ -129,8 +129,35 @@ segments:
       - [0x33510, c, ios/inflate]  # 14 funcs, census
       - [0x35BB8, c, ios/ios]  # 3 funcs, aug6
       - [0x35EB8, c, ios/mblock]  # 8 funcs, census
-      - [0x36678, c, ios/mcard]  # 13 funcs, aug6
-      - [0x37FD8, asm, src/cod/037FD8]  # 189 game TUs not yet converted, + vendor tail
+      - [0x36678, c, ios/mcard]  # 14 funcs, aug6
+      - [0x37FD8, c, ios/mcdata]  # 14 funcs, aug6
+      - [0x38618, c, ios/memory]  # 16 funcs, census
+      - [0x3A220, c, ios/message]  # 9 funcs, census
+      - [0x3A820, c, ios/pad]  # 18 funcs, census
+      - [0x3B8F0, c, ios/shockdriver]  # 32 funcs, aug6
+      - [0x3CC78, c, ios/thread]  # 39 funcs, census
+      - [0x3DDA0, c, isys/gobj]  # 21 funcs, census
+      - [0x3EC50, c, isys/gobj_dl]  # 15 funcs, aug6
+      - [0x3F2C8, c, isys/gobj_process]  # 13 funcs, census
+      - [0x3F848, c, isys/isys]  # 10 funcs, aug6
+      - [0x3F9D0, c, isys/obj_manager]  # 14 funcs, aug6
+      - [0x40138, c, sound/adpcm_init]  # 26 funcs, census
+      - [0x41168, c, sound/s_init]  # 44 funcs, census
+      - [0x445C8, c, sound/soundManager]  # 34 funcs, aug6
+      - [0x49AE0, c, src/act-game]  # 46 funcs, census
+      - [0x4B168, c, src/act-parallel-control]  # 14 funcs, aug6
+      - [0x4B580, c, src/act-wish]  # 18 funcs, aug6
+      - [0x4BDF0, c, src/boyact]  # 69 funcs, census
+      - [0x56488, c, src/commonact]  # 90 funcs, census
+      - [0x5F698, c, src/enemy_act]  # 78 funcs, census
+      - [0x65E60, c, src/fieldCollision]  # 41 funcs, census
+      - [0x68650, c, src/fuzio]  # 42 funcs, aug6
+      - [0x6A460, c, src/girl_act]  # 51 funcs, aug6
+      - [0x75800, c, src/jimaku]  # 26 funcs, census
+      - [0x76B38, c, src/way_sys]  # 9 funcs, aug6
+      - [0x782B0, c, src/way_util]  # 54 funcs, census
+      - [0x7B2B8, c, src/gflag]  # 30 funcs, aug6
+      - [0x7CB20, asm, src/cod/07CB20]  # 162 game TUs not yet converted, + vendor tail
       # .vutext — 5 hand-typed VU1 microprograms, byte-identical to aug6's
       # (same sizes: 0xDC0/0x9F0/0x16E0/0x1CA0/0x5B0).
       - [0x16F5E0, hasm, src/cluster]        # ClusterMicroProgram

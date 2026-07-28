@@ -64,6 +64,62 @@ D_006337AB = 0x006337AB; // type:u8 size:0x1 defined:True
 // a `c` subsegment (retail-v2 phase 2) produced an undefined reference.
 func_00102340 = 0x00102340; // type:func size:0xD8
 
+// Splat-lost-symbol fixups (batch): jal/j targets inside game .text TU
+// spans that tools/gen_us_symbol_addrs.py's branch-aware boundary scan
+// absorbed as dead space between neighboring functions instead of
+// splitting out as their own function. Found by a full jal/j-target
+// sweep of baserom/baseelf.rom cross-referenced against this file's
+// known symbols, while flipping TUs to `c` subsegments (retail-v2
+// phase 2). Sizes intentionally omitted -- splat infers each one's
+// end from the next declared symbol.
+func_00137E48 = 0x00137E48; // type:func  // ios/mcard.c
+func_0013A498 = 0x0013A498; // type:func  // ios/message.c
+func_0013BA68 = 0x0013BA68; // type:func  // ios/shockdriver.c
+func_001448D8 = 0x001448D8; // type:func  // sound/soundManager.c
+func_0014DF18 = 0x0014DF18; // type:func  // src/boyact.c
+func_001501A0 = 0x001501A0; // type:func  // src/boyact.c
+func_001520E8 = 0x001520E8; // type:func  // src/boyact.c
+func_00153318 = 0x00153318; // type:func  // src/boyact.c
+func_00153FE8 = 0x00153FE8; // type:func  // src/boyact.c
+func_00154CE8 = 0x00154CE8; // type:func  // src/boyact.c
+func_001572F0 = 0x001572F0; // type:func  // src/commonact.c
+func_00157BB0 = 0x00157BB0; // type:func  // src/commonact.c
+func_00157DA0 = 0x00157DA0; // type:func  // src/commonact.c
+func_00158328 = 0x00158328; // type:func  // src/commonact.c
+func_001588F0 = 0x001588F0; // type:func  // src/commonact.c
+func_00159AF0 = 0x00159AF0; // type:func  // src/commonact.c
+func_0015CD70 = 0x0015CD70; // type:func  // src/commonact.c
+func_0015D328 = 0x0015D328; // type:func  // src/commonact.c
+func_00160720 = 0x00160720; // type:func  // src/enemy_act.c
+func_001613B0 = 0x001613B0; // type:func  // src/enemy_act.c
+func_00161AC8 = 0x00161AC8; // type:func  // src/enemy_act.c
+func_00163890 = 0x00163890; // type:func  // src/enemy_act.c
+func_00163B40 = 0x00163B40; // type:func  // src/enemy_act.c
+func_00165B50 = 0x00165B50; // type:func  // src/enemy_act.c
+func_0016AC10 = 0x0016AC10; // type:func  // src/girl_act.c
+func_0016D330 = 0x0016D330; // type:func  // src/girl_act.c
+func_0016E910 = 0x0016E910; // type:func  // src/girl_act.c
+func_0016F2A8 = 0x0016F2A8; // type:func  // src/girl_act.c
+func_00170950 = 0x00170950; // type:func  // src/girl_act.c
+func_00170ED8 = 0x00170ED8; // type:func  // src/girl_act.c
+func_001718F0 = 0x001718F0; // type:func  // src/girl_act.c
+func_00173060 = 0x00173060; // type:func  // src/girl_act.c
+func_00176DD0 = 0x00176DD0; // type:func  // src/way_sys.c
+func_0017BB98 = 0x0017BB98; // type:func  // src/gflag.c
+func_0017BF78 = 0x0017BF78; // type:func  // src/gflag.c
+func_00180BC0 = 0x00180BC0; // type:func  // src/attackhit.c
+func_00186978 = 0x00186978; // type:func  // src/camera-editor.c
+func_00196E78 = 0x00196E78; // type:func  // src/poly-flat.c
+func_0019A6E8 = 0x0019A6E8; // type:func  // src/lightning.c
+func_0019BD30 = 0x0019BD30; // type:func  // src/queen.c
+func_0019FF68 = 0x0019FF68; // type:func  // src/StageManager.c
+func_001AD748 = 0x001AD748; // type:func  // src/haveParentSimpleObj.c
+func_001AD768 = 0x001AD768; // type:func  // src/haveParentSimpleObj.c
+func_001BB390 = 0x001BB390; // type:func  // src/actressLight.c
+func_001C3778 = 0x001C3778; // type:func  // src/clipCollisionManager.c
+func_001F2388 = 0x001F2388; // type:func  // src/waySystemManager.c
+func_0023B728 = 0x0023B728; // type:func  // src/objact.c
+
 func_00167280 = 0x00167280; // type:func size:0x2A4
 func_001A2E28 = 0x001A2E28; // type:func size:0x58 defined:True
 func_001A2E80 = 0x001A2E80; // type:func size:0x120 defined:True
