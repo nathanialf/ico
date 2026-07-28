@@ -211,7 +211,34 @@ segments:
       - [0xBB820, c, src/attackCheckBoundary]  # 37 funcs, census
       - [0xBD408, c, src/box]  # 29 funcs, census
       - [0xC0790, c, src/switch]  # 24 funcs, census
-      - [0xC11C0, asm, src/cod/0C11C0]  # 108 game TUs not yet converted, + vendor tail
+      - [0xC11C0, c, src/boy]  # 11 funcs, census
+      - [0xC20A8, c, src/cage]  # 7 funcs, census
+      - [0xC2DF8, c, src/cageFix]  # 6 funcs, aug6
+      - [0xC2FA0, c, src/candle]  # 6 funcs, census
+      - [0xC3338, c, src/chandelier]  # 7 funcs, aug6
+      - [0xC3760, c, src/clipCollisionManager]  # 7 funcs, aug6
+      - [0xC48F8, c, src/clothAnimation]  # 25 funcs, census
+      - [0xC8E58, c, src/clothTest]  # 17 funcs, census
+      - [0xC9DE8, c, src/darkVolume]  # 10 funcs, aug6
+      - [0xCBD88, c, src/effectTool]  # 10 funcs, aug6
+      - [0xCCFD0, c, src/enemy]  # 25 funcs, census
+      - [0xCEA00, c, src/enemyParts]  # 21 funcs, census
+      - [0xCF998, c, src/flag]  # 8 funcs, census
+      - [0xD03E0, c, src/flyManager]  # 10 funcs, aug6
+      - [0xD1158, c, src/frameDependSequence]  # 10 funcs, aug6
+      - [0xD1440, c, src/girl]  # 8 funcs, census
+      - [0xD1AD0, c, src/girlForceField]  # 6 funcs, census
+      - [0xD1E18, c, src/handManager]  # 4 funcs, aug6
+      - [0xD2540, c, src/item]  # 13 funcs, census
+      - [0xD3D40, c, src/lineManager]  # 12 funcs, aug6
+      - [0xD4348, c, src/lodManager]  # 13 funcs, census
+      - [0xD4E30, c, src/motionFileManager]  # 12 funcs, aug6
+      - [0xD8AB0, c, src/motionManager]  # 48 funcs, census
+      - [0xE0988, c, src/motionOrientManager]  # 35 funcs, census
+      - [0xE4868, c, src/motionViewer]  # 11 funcs, census
+      - [0xE5F78, c, src/moveColTest]  # 4 funcs, census
+      - [0xE69D8, c, src/multiBgaManager]  # 4 funcs, census
+      - [0xE6C30, asm, src/cod/0E6C30]  # 81 game TUs not yet converted, + vendor tail
       # .vutext — 5 hand-typed VU1 microprograms, byte-identical to aug6's
       # (same sizes: 0xDC0/0x9F0/0x16E0/0x1CA0/0x5B0).
       - [0x16F5E0, hasm, src/cluster]        # ClusterMicroProgram
