@@ -38,9 +38,28 @@ INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjRemoveAll);
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", add_gobj_to_tail);
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", add_gobj_to_head);
+extern void isysGObjInit(int a0);
+extern void isysGObjRemoveAll(int a0, int a1, int a2);
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjMove);
+void add_gobj_to_head(int a0, int a1, int a2)
+{
+    int s1 = a1 & 0xFF;
+    int new_var;
+    new_var = a2;
+    isysGObjInit(a0);
+    return isysGObjRemoveAll(a0, s1, new_var);
+}
+
+extern void add_gobj_to_tail(char *a0, int a1, int a2);
+
+void isysGObjMove(int a0, int a1, int a2)
+{
+    int s1 = a1 & 0xFF;
+    int new_var;
+    new_var = a2;
+    isysGObjInit(a0);
+    return add_gobj_to_tail(a0, s1, new_var);
+}
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjMoveHead);
 

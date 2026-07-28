@@ -93,9 +93,15 @@ INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundSeDefStop);
 
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundSeDefStopNoRelease);
 
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundSeDefPitchSet);
+extern void soundSeDefStopNoRelease(int a0, int a1);
 
-INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundReqTickProc);
+void soundSeDefPitchSet(int a0) {
+    soundSeDefStopNoRelease(a0, 0);
+}
+
+void soundReqTickProc(int a0) {
+    soundSeDefStopNoRelease(a0, 1);
+}
 
 void soundSeEnvPlay(int a0)
 {

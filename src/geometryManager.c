@@ -51,7 +51,9 @@ void GetRootQuaternion(int a0, int a1)
     func_0010DDB8(a0, a0, *(int *)(a1 + 0x10));
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", UpdateRootMatrix);
+void UpdateRootMatrix(void *a0, int a1) {
+    GetRootQuaternion(a0, *(void **)(a1 + 0x15C));
+}
 
 void SetRootBaseQuaternion(int *self, int *other)
 {

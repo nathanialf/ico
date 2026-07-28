@@ -1,5 +1,9 @@
 #include "common.h"
 
+struct SPMD { int a; int b; };
+
+struct SVF { int a; int b; };
+
 typedef struct { int f0; int *f4; int f8; int fC; int f10; } ScpEntry;
 
 struct S { int a; int b; };
@@ -39,9 +43,25 @@ void scpTorchLightOff(int a0, int a1, int a2){
   else func_0012ACD8(a2,&copy,1);
  } }
 
-INCLUDE_ASM("asm/nonmatchings/src/script", scpSetCageVelocityFriction);
+void scpSetCageVelocityFriction(int a0, int a1, int a2, int a3){
+  int ret = actSt25aQueenDeadChk__p4(a0);
+  if(ret != 0){ struct SVF copy; struct SVF pair;
+   pair.a=ret; pair.b=DebugDisp1CollisionWithColor(ret,a1);
+   copy=pair;
+   if(copy.b==-1) debug_assertMessage__p4(D_00559F38);
+   else func_0012ACD8(a2,&copy,a3);
+  } }
 
-INCLUDE_ASM("asm/nonmatchings/src/script", scpPlayMotDir);
+extern int *isysGObjSearchFromObjLayoutID__p4(int x) __asm__("isysGObjSearchFromObjLayoutID");
+
+void scpPlayMotDir(int a0, int a1, int a2, int a3){
+  int *ret = isysGObjSearchFromObjLayoutID__p4(a0);
+  if(ret != 0){ struct SPMD copy; struct SPMD pair;
+   pair.a=(int)ret; pair.b=DebugDisp1CollisionWithColor((int)ret,a1);
+   copy=pair;
+   if(copy.b==-1) debug_assertMessage__p4(D_00559F38);
+   else func_0012ACD8(a2,&copy,a3);
+  } }
 
 INCLUDE_ASM("asm/nonmatchings/src/script", scpPlayMotDirSmz);
 
@@ -171,7 +191,22 @@ float scpSekizou(void)
     return 0.0f;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/script", _SCPBoySupportGirl);
+extern char D_00559EF0[];
+extern int func_001EA128(int a0);
+
+int _SCPBoySupportGirl(int a0, int a1, int a2){
+ int q = actSt25aQueenDeadChk__p4(a0);
+ if(q != 0){
+  int e = func_001EA128(q);
+  short A1 = (a1 << 15) / 0xB4;
+  short A2 = (a2 << 15) / 0xB4;
+  if(A2 < A1){ if(A1 < e || e < A2) return 1; return 0; }
+  if(A1 < e && e < A2) return 1;
+  return 0;
+ }
+ debug_assertMessage__p4(D_00559EF0);
+ return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/script", _SCPMoveCharactorByWay_Cancel);
 

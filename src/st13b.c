@@ -104,9 +104,31 @@ void actSt13bElevUpChk(volatile int unused)
 
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st13b", actSt13bSekizo);
+extern long long D_0061BF80[];
+extern int D_00631AE8__p4 __asm__("D_00631AE8");
+extern void actSt25aQueenTalkChk(int a0, int a1, int *buf, int a3, float f);
 
-INCLUDE_ASM("asm/nonmatchings/src/st13b", actSt13bSekizo2);
+void actSt13bSekizo(volatile unsigned int a0)
+{
+    volatile int local;
+    long long buf[2];
+    buf[0] = D_0061BF80[0];
+    buf[1] = D_0061BF80[1];
+    actSt25aQueenTalkChk(D_00631AE8__p4, 0, (int *)buf, 0, 100.0f);
+    _ACTWait__p4(0);
+}
+
+extern long long D_0061BF90[];
+
+void actSt13bSekizo2(volatile unsigned int a0)
+{
+    volatile int local;
+    long long buf[2];
+    buf[0] = D_0061BF90[0];
+    buf[1] = D_0061BF90[1];
+    actSt25aQueenTalkChk(D_00631AE8__p4, 0, (int *)buf, 0, 100.0f);
+    _ACTWait__p4(0);
+}
 
 void actSt13bBossAfter(int x) {
     volatile int local = x;
@@ -126,7 +148,17 @@ void actSt13bStoneGirl(volatile int unused)
 
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st13b", actSt13bExit);
+extern long long D_0061BFA0[];
+
+void actSt13bExit(volatile unsigned int a0)
+{
+    volatile int local;
+    long long buf[2];
+    buf[0] = D_0061BFA0[0];
+    buf[1] = D_0061BFA0[1];
+    actSt25aQueenTalkChk(D_00631AE8__p4, 0, (int *)buf, 0, 100.0f);
+    _ACTWait__p4(0);
+}
 
 void actSt13bElev(int x) {
     volatile int local = x;

@@ -261,9 +261,20 @@ void actCommonDodge(volatile unsigned int a0)
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonEdgeHang);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", funcCommonBeginReady);
+extern char D_00558C18[];
+extern void _ACTWait__p4(int a0) __asm__("_ACTWait");
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", funcCommonEndReady);
+void funcCommonBeginReady(volatile int a0) {
+    debug_assertMessage(D_00558C18);
+    _ACTWait__p4(0);
+}
+
+extern char D_00558C38[];
+
+void funcCommonEndReady(volatile int a0) {
+    debug_assertMessage(D_00558C38);
+    _ACTWait__p4(0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", funcCommonEndExec);
 

@@ -59,17 +59,44 @@ void actSt01bFloor(int x) {
     volatile int local = x;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st01b", actSt01bWay);
+extern long long D_0061B9B0[];
+extern long long D_0061B9C0[];
+extern void scpDispOffAllWithKind(int *buf, int a1);
 
-INCLUDE_ASM("asm/nonmatchings/src/st01b", actSt01bEnd);
+void actSt01bWay(volatile int a0){ long long b1[2]; long long b2[2];
+ long long v0a=D_0061B9B0[0]; long long v0b=D_0061B9C0[0]; int i;
+ for(i=0;i<0x32;i++){ switch(i){
+  case 0: b1[0]=v0a; b1[1]=D_0061B9B0[1]; scpDispOffAllWithKind((int*)b1,0); break;
+  case 0x1E: b2[0]=v0b; b2[1]=D_0061B9C0[1]; scpDispOffAllWithKind((int*)b2,0); break;
+  } _ACTWait(1); } }
+
+void actSt01bEnd(volatile int a0){ long long b1[2]; long long b2[2];
+ long long v0a=D_0061B9C0[0]; long long v0b=D_0061B9B0[0]; int i;
+ for(i=0;i<0x32;i++){ switch(i){
+  case 0: b1[0]=v0a; b1[1]=D_0061B9C0[1]; scpDispOffAllWithKind((int*)b1,0); break;
+  case 0x1E: b2[0]=v0b; b2[1]=D_0061B9B0[1]; scpDispOffAllWithKind((int*)b2,0); break;
+  } _ACTWait(1); } }
 
 void actSt01bSekizoEvent(int x) {
     volatile int local = x;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st01b", actSt01bFloorEvent);
+extern long long D_0061B9E0[];
+extern long long D_0061B9F0[];
 
-INCLUDE_ASM("asm/nonmatchings/src/st01b", actSt01bWayOnChk);
+void actSt01bFloorEvent(volatile int a0){ long long b1[2]; long long b2[2];
+ long long v0a=D_0061B9E0[0]; long long v0b=D_0061B9F0[0]; int i;
+ for(i=0;i<0x32;i++){ switch(i){
+  case 0: b1[0]=v0a; b1[1]=D_0061B9E0[1]; scpDispOffAllWithKind((int*)b1,0); break;
+  case 0x1E: b2[0]=v0b; b2[1]=D_0061B9F0[1]; scpDispOffAllWithKind((int*)b2,0); break;
+  } _ACTWait(1); } }
+
+void actSt01bWayOnChk(volatile int a0){ long long b1[2]; long long b2[2];
+ long long v0a=D_0061B9F0[0]; long long v0b=D_0061B9E0[0]; int i;
+ for(i=0;i<0x32;i++){ switch(i){
+  case 0: b1[0]=v0a; b1[1]=D_0061B9F0[1]; scpDispOffAllWithKind((int*)b1,0); break;
+  case 0x1E: b2[0]=v0b; b2[1]=D_0061B9E0[1]; scpDispOffAllWithKind((int*)b2,0); break;
+  } _ACTWait(1); } }
 
 INCLUDE_ASM("asm/nonmatchings/src/st01b", actSt01bWayOffChk);
 

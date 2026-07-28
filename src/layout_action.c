@@ -216,7 +216,35 @@ INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_load_start_check);
 
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_load_processing);
 
-INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_mc_confirm_save_file);
+extern char D_00280F78__p4[] __asm__("D_00280F78");
+extern char D_00617170[];
+extern char D_00617188[];
+extern int D_00633044;
+
+int la_mc_confirm_save_file(int a0, int a1) {
+    if (a0 != 0) {
+        __builtin_memcpy(D_00706F10, D_00280F78__p4, 0x10);
+        D_00633048 = 0x3FF;
+        func_001B1B90();
+        debug_assertMessage(D_00617170, D_00633048, D_0063303C);
+    }
+    if (a1 != -1) {
+        debug_assertMessage(D_00617188, 0xE9, 0xEA, a1);
+    }
+    switch (a1) {
+    case 0xE9:
+        D_00274ED4[0] = 0;
+        initSceneGObj__p4(0);
+        D_0063304C = 0;
+        return 0x32;
+    case 0xEA:
+        D_00633044 = 1;
+        initSceneGObj__p4(0);
+        D_0063304C = 0;
+        return 0x3B;
+    }
+    return -1;
+}
 
 int la_save_game_memory_card_check(void) {
     return -1;
