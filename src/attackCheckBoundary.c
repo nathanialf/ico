@@ -1,12 +1,28 @@
 #include "common.h"
 
+
+
+
+extern void playSEConditionID(int a0, int a1);
+extern void _ACTWait();
+extern int actInitialize();
+extern void actInitialize_ext_charcter();
+extern int AP1BeforeFunc();
 INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", AttackCheckBoundaryBeforeFunc);
 
-INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", InitAttackCheckBoundaryManagerGeo);
+int InitAttackCheckBoundaryManagerGeo(int a0)
+{
+    return AP1BeforeFunc(a0, 0) ? 0 : -1;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", AttackCheckBoundaryManagerGeo);
+int AttackCheckBoundaryManagerGeo(int a0)
+{
+    return AP1BeforeFunc(a0, 0) ? 0 : -1;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", AttackCheckBoundaryManagerDL);
+void AttackCheckBoundaryManagerDL(int x) {
+    volatile int local = x;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", InitAttackCheckBoundaryGeo);
 
@@ -16,7 +32,7 @@ INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", AttackCheckBoundaryDL);
 
 INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", actAttackCheckBoundaryStart);
 
-INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", GetAttackCheckBoundaryRadius);
+void GetAttackCheckBoundaryRadius(void) {}
 
 INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", CreateAttackCheckBoundary);
 
@@ -24,7 +40,16 @@ INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", GetAttackCheckBoundaryMa
 
 INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", switchOnSE);
 
-INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", switchReleaseSE);
+void switchReleaseSE(int *self)
+{
+    int *p = actInitialize(self);
+    long long v;
+    actInitialize_ext_charcter(self);
+    _ACTWait(1);
+    v = *(long long *)((char *)p + 0x18);
+    v |= 1LL << 32;
+    *(long long *)((char *)p + 0x18) = v;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BBFD0);
 
@@ -34,9 +59,15 @@ INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BC088);
 
 INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BC098);
 
-INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BC0A8);
+void func_001BC0A8(int a0)
+{
+    playSEConditionID(a0, 0x3D);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BC0B0);
+void func_001BC0B0(int a0)
+{
+    playSEConditionID(a0, 0x3E);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BC0B8);
 
@@ -54,15 +85,30 @@ INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BC7F0);
 
 INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BC870);
 
-INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BC9A0);
+void func_001BC9A0(int a0)
+{
+    playSEConditionID(a0, 0x2);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BC9A8);
+void func_001BC9A8(int a0)
+{
+    playSEConditionID(a0, 0x24);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BC9B0);
+void func_001BC9B0(int a0)
+{
+    playSEConditionID(a0, 0x4);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BC9B8);
+void func_001BC9B8(int a0)
+{
+    playSEConditionID(a0, 0xD);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BC9C0);
+void func_001BC9C0(int a0)
+{
+    playSEConditionID(a0, 0x1E);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BC9C8);
 

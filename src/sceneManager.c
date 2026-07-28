@@ -1,12 +1,36 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/sceneManager", GetRealModelId);
 
-INCLUDE_ASM("asm/nonmatchings/src/sceneManager", InitStageLight);
 
-INCLUDE_ASM("asm/nonmatchings/src/sceneManager", initSceneGObj);
 
-INCLUDE_ASM("asm/nonmatchings/src/sceneManager", initParentLink);
+
+
+
+extern int D_00633EC4;
+extern int D_00633EC8;
+extern int D_00633ECC;
+extern void group_select();
+extern int D_0063315C;
+extern int D_00633164;
+extern int D_00633158;
+extern char D_002E81F0[];
+void GetRealModelId(int a0, int a1)
+{
+    int *p = (int *)(D_002E81F0 + a0 * 0x6C);
+    p[0x68 / 4] = (p[0x68 / 4] & ~1) | (a1 & 1);
+}
+
+int InitStageLight(void) {
+    return D_00633158;
+}
+
+void initSceneGObj(int val) {
+    D_00633164 = val;
+}
+
+void initParentLink(int val) {
+    D_0063315C = val;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/sceneManager", initWayData);
 
@@ -16,13 +40,27 @@ INCLUDE_ASM("asm/nonmatchings/src/sceneManager", HotInitSceneObjects);
 
 INCLUDE_ASM("asm/nonmatchings/src/sceneManager", ChangeStageStartInfo);
 
-INCLUDE_ASM("asm/nonmatchings/src/sceneManager", CreateLayoutedGObj);
+void CreateLayoutedGObj(int a0, int a1, int a2, int a3)
+{
+    group_select(a0, a1, a2, a3);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/sceneManager", MoveNextStage_Set);
 
 INCLUDE_ASM("asm/nonmatchings/src/sceneManager", test_nextstage_firstwalk_set);
 
-INCLUDE_ASM("asm/nonmatchings/src/sceneManager", GetStageStartInfo);
+void GetStageStartInfo(int a0, int a1, int a2, int a3, int t0)
+{
+    if (a2 >= 0) {
+        D_00633EC4 = a2;
+    }
+    if (a3 >= 0) {
+        D_00633EC8 = a3;
+    }
+    if (t0 >= 0) {
+        D_00633ECC = t0;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/sceneManager", MoveNextStage_Clear);
 

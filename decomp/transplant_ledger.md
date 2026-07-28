@@ -1479,3 +1479,166 @@ gate re-run before commit.
 - KEPT `func_001B59D0` (old `func_001B59D0`) @ 0x001B59D0
 - KEPT `lt_set_item_select_func` (old `func_001B7040`) @ 0x001B7040
 - REVERTED `texture_fading` (old `func_001B5998`) @ 0x001B5998 — [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+
+## src/sceneManager
+- KEPT `GetRealModelId` (old `func_001B7250`) @ 0x001B7250
+- KEPT `InitStageLight` (old `func_001B7280`) @ 0x001B7280
+- KEPT `initSceneGObj` (old `func_001B7288`) @ 0x001B7288
+- KEPT `initParentLink` (old `func_001B7290`) @ 0x001B7290
+- KEPT `CreateLayoutedGObj` (old `func_001B7CD8`) @ 0x001B7CD8
+- KEPT `GetStageStartInfo` (old `func_001B7FC8`) @ 0x001B7FC8
+
+## src/staffroll
+- KEPT `staffRollStart` (old `func_001B8110`) @ 0x001B8110
+- KEPT `staffRollNameOut` (old `func_001B81A8`) @ 0x001B81A8
+- REVERTED `func_001B84C8` (old `func_001B84C8`) @ 0x001B84C8 — src/staffroll.c:83: incompatible types in assignment
+
+## src/a_p_1
+- KEPT `InitAP1` (old `func_001B86C0`) @ 0x001B86C0
+- REVERTED `zAxisRotFitting` (old `func_001B8CE0`) @ 0x001B8CE0 — src/a_p_1.c:57: warning: passing arg 3 of `func_0010DCF8' makes pointer from integer without a cast
+- REVERTED `fitToCol` (old `func_001B8DC8`) @ 0x001B8DC8 — src/a_p_1.c:59: warning: passing arg 3 of `func_0010DCF8' makes pointer from integer without a cast
+
+## src/act_a_p_1
+- KEPT `SetAP1DeadStatus` (old `func_001BA668`) @ 0x001BA668
+- KEPT `IsActCharDead` (old `func_001BA770`) @ 0x001BA770
+- REVERTED `standAI` (old `func_001BA090`) @ 0x001BA090 — src/act_a_p_1.c:6: redefinition of `struct GObj'
+- REVERTED `walkAI` (old `func_001BA2E0`) @ 0x001BA2E0 — src/act_a_p_1.c:5: redefinition of `struct GObj'
+- REVERTED `SleepAP1` (old `func_001BA530`) @ 0x001BA530 — src/act_a_p_1.c:5: redefinition of `struct GObj'
+- REVERTED `WakeUpAP1` (old `func_001BA5C0`) @ 0x001BA5C0 — src/act_a_p_1.c:5: redefinition of `struct GObj'
+- REVERTED `subAP1BrainMain` (old `func_001BA5D0`) @ 0x001BA5D0 — src/act_a_p_1.c:5: redefinition of `struct GObj'
+- REVERTED `hitProc` (old `func_001BA5E0`) @ 0x001BA5E0 — src/act_a_p_1.c:5: redefinition of `struct GObj'
+- REVERTED `AP1BeforeFunc` (old `func_001BA6B0`) @ 0x001BA6B0 — src/act_a_p_1.c:6: redefinition of `struct GObj'
+- REVERTED `actAP1Start` (old `func_001BA6F0`) @ 0x001BA6F0 — src/act_a_p_1.c:6: redefinition of `struct GObj'
+- REVERTED `SetAP1HostGObj` (old `func_001BA7C0`) @ 0x001BA7C0 — src/act_a_p_1.c:7: redefinition of `struct GObj'
+- REVERTED `SetAP1PriorLevel` (old `func_001BA7E8`) @ 0x001BA7E8 — src/act_a_p_1.c:7: redefinition of `struct GObj'
+- REVERTED `GetAP1AIMode` (old `func_001BA838`) @ 0x001BA838 — src/act_a_p_1.c:7: redefinition of `struct GObj'
+
+## src/actressLight
+- KEPT `func_001BAEE0` (old `func_001BAEE0`) @ 0x001BAEE0
+- KEPT `func_001BB390` (old `func_001BB390`) @ 0x001BB390
+- KEPT `func_001BB7E0` (old `func_001BB7E0`) @ 0x001BB7E0
+- KEPT `func_001BB800` (old `func_001BB800`) @ 0x001BB800
+- KEPT `func_001BB810` (old `func_001BB810`) @ 0x001BB810
+
+## src/attackCheckBoundary
+- KEPT `InitAttackCheckBoundaryManagerGeo` (old `func_001BB860`) @ 0x001BB860
+- KEPT `AttackCheckBoundaryManagerGeo` (old `func_001BB888`) @ 0x001BB888
+- KEPT `AttackCheckBoundaryManagerDL` (old `func_001BB8B0`) @ 0x001BB8B0
+- KEPT `GetAttackCheckBoundaryRadius` (old `func_001BBE48`) @ 0x001BBE48
+- KEPT `switchReleaseSE` (old `func_001BBF78`) @ 0x001BBF78
+- KEPT `func_001BC0A8` (old `func_001BC0A8`) @ 0x001BC0A8
+- KEPT `func_001BC0B0` (old `func_001BC0B0`) @ 0x001BC0B0
+- KEPT `func_001BC9A0` (old `func_001BC9A0`) @ 0x001BC9A0
+- KEPT `func_001BC9A8` (old `func_001BC9A8`) @ 0x001BC9A8
+- KEPT `func_001BC9B0` (old `func_001BC9B0`) @ 0x001BC9B0
+- KEPT `func_001BC9B8` (old `func_001BC9B8`) @ 0x001BC9B8
+- KEPT `func_001BC9C0` (old `func_001BC9C0`) @ 0x001BC9C0
+- REVERTED `AttackCheckBoundaryBeforeFunc` (old `func_001BB820`) @ 0x001BB820 — [§3.3 / 8.6] branch-likely mnemonic mismatch (beq↔beql / bne↔bnel)
+- REVERTED `CreateAttackCheckBoundary` (old `func_001BBE50`) @ 0x001BBE50 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+- REVERTED `GetAttackCheckBoundaryManagerStatus` (old `func_001BBEA0`) @ 0x001BBEA0 — src/attackCheckBoundary.c:6: redefinition of `struct GObj'
+- REVERTED `func_001BBFD0` (old `func_001BBFD0`) @ 0x001BBFD0 — src/attackCheckBoundary.c:7: redefinition of `struct GObj'
+- REVERTED `func_001BC088` (old `func_001BC088`) @ 0x001BC088 — src/attackCheckBoundary.c:7: redefinition of `struct GObj'
+- REVERTED `func_001BC098` (old `func_001BC098`) @ 0x001BC098 — src/attackCheckBoundary.c:7: redefinition of `struct GObj'
+
+## src/box
+- REVERTED `initFloating` (old `func_001BE558`) @ 0x001BE558 — [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `ExecBoxMoveEndReaction` (old `func_001C0690`) @ 0x001C0690 — src/box.c:53: warning: initialization from incompatible pointer type
+- REVERTED `BoxExtGeoRestore` (old `func_001C0708`) @ 0x001C0708 — src/box.c:58: warning: initialization from incompatible pointer type
+
+## src/switch
+- KEPT `SetSwitchState` (old `func_001C0838`) @ 0x001C0838
+- KEPT `SetFloorLeverWithNodePoint` (old `func_001C0840`) @ 0x001C0840
+- KEPT `CanFloorLeverPull` (old `func_001C0848`) @ 0x001C0848
+- KEPT `InitFloorLeverGeo` (old `func_001C0850`) @ 0x001C0850
+- KEPT `GetFloorLeverAngle` (old `func_001C0858`) @ 0x001C0858
+- KEPT `CanWallLeverPull` (old `func_001C0870`) @ 0x001C0870
+- KEPT `func_001C0BF8` (old `func_001C0BF8`) @ 0x001C0BF8
+- REVERTED `SetWallLeverWithNodePoint` (old `func_001C0860`) @ 0x001C0860 — src/switch.c:5: redefinition of `struct GObj'
+- REVERTED `InitWallLeverGeo` (old `func_001C09B0`) @ 0x001C09B0 — src/switch.c:6: redefinition of `struct GObj'
+- REVERTED `initParentize` (old `func_001C0AD8`) @ 0x001C0AD8 — src/switch.c:6: redefinition of `struct GObj'
+- REVERTED `func_001C0BE0` (old `func_001C0BE0`) @ 0x001C0BE0 — src/switch.c:6: redefinition of `struct GObj'
+- REVERTED `func_001C0D50` (old `func_001C0D50`) @ 0x001C0D50 — src/switch.c:6: redefinition of `struct GObj'
+
+## src/boy
+- REVERTED `func_001C2098` (old `func_001C2098`) @ 0x001C2098 — src/boy.c:5: redefinition of `struct GObj'
+
+## src/cage
+- KEPT `SetCageFixGeometry` (old `func_001C2170`) @ 0x001C2170
+- REVERTED `HotInitCageGeo` (old `func_001C22F0`) @ 0x001C22F0 — src/cage.c:6: redefinition of `struct GObj'
+
+## src/cageFix
+- KEPT `func_001C2EC8` (old `func_001C2EC8`) @ 0x001C2EC8
+- KEPT `func_001C2F20` (old `func_001C2F20`) @ 0x001C2F20
+- REVERTED `CageFixGeo` (old `func_001C2DF8`) @ 0x001C2DF8 — src/cageFix.c:5: redefinition of `struct GObj'
+- REVERTED `InitCageFixGeo` (old `func_001C2EB8`) @ 0x001C2EB8 — src/cageFix.c:5: redefinition of `struct GObj'
+- REVERTED `func_001C2F10` (old `func_001C2F10`) @ 0x001C2F10 — src/cageFix.c:6: redefinition of `struct GObj'
+
+## src/candle
+- KEPT `CandleDL` (old `func_001C2FE8`) @ 0x001C2FE8
+- REVERTED `InitCandleGeo` (old `func_001C2FA0`) @ 0x001C2FA0 — src/candle.c:5: redefinition of `struct GObj'
+- REVERTED `CandleGeo` (old `func_001C2FF0`) @ 0x001C2FF0 — src/candle.c:5: redefinition of `struct GObj'
+- REVERTED `DeleteLayoutedCandleParticleEffect` (old `func_001C3130`) @ 0x001C3130 — src/candle.c:5: redefinition of `struct GObj'
+
+## src/chandelier
+- KEPT `func_001C34B8` (old `func_001C34B8`) @ 0x001C34B8
+- KEPT `func_001C36E0` (old `func_001C36E0`) @ 0x001C36E0
+- REVERTED `InitChandelierGeo` (old `func_001C3470`) @ 0x001C3470 — src/chandelier.c:5: redefinition of `struct GObj'
+
+## src/clipCollisionManager
+- KEPT `CreateClipCollisionManagerGObj` (old `func_001C3970`) @ 0x001C3970
+
+## src/clothAnimation
+- KEPT `proc` (old `func_001C8A00`) @ 0x001C8A00
+- KEPT `getCloth4D_postProcess` (old `func_001C8B20`) @ 0x001C8B20
+- KEPT `GetCloth4D` (old `func_001C8B48`) @ 0x001C8B48
+- KEPT `InitChainVelocity` (old `func_001C8DE8`) @ 0x001C8DE8
+- KEPT `DeleteChainExtendedWeight` (old `func_001C8E08`) @ 0x001C8E08
+- KEPT `GetChainNodeID` (old `func_001C8E30`) @ 0x001C8E30
+
+## src/clothTest
+- KEPT `InitClothTestGeo` (old `func_001C8E58`) @ 0x001C8E58
+- KEPT `ClothTestGeo` (old `func_001C8E78`) @ 0x001C8E78
+- KEPT `ClothTestDL` (old `func_001C8EB0`) @ 0x001C8EB0
+- KEPT `func_001C8ED8` (old `func_001C8ED8`) @ 0x001C8ED8
+- KEPT `func_001C8EF8` (old `func_001C8EF8`) @ 0x001C8EF8
+- KEPT `func_001C9078` (old `func_001C9078`) @ 0x001C9078
+- KEPT `func_001C9328` (old `func_001C9328`) @ 0x001C9328
+- KEPT `func_001C9330` (old `func_001C9330`) @ 0x001C9330
+- REVERTED `func_001C92D8` (old `func_001C92D8`) @ 0x001C92D8 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+
+## src/darkVolume
+- KEPT `darkVolume` (old `func_001CBB88`) @ 0x001CBB88
+- KEPT `DispGameOverEffect` (old `func_001CBD68`) @ 0x001CBD68
+- KEPT `GetGameOverEffectCenterPosition` (old `func_001CBD70`) @ 0x001CBD70
+- KEPT `InitGameOverEffect` (old `func_001CBD78`) @ 0x001CBD78
+- KEPT `InitDarkVolumeGeo` (old `func_001CBD80`) @ 0x001CBD80
+- REVERTED `renderViewCoordZSphere` (old `func_001CB910`) @ 0x001CB910 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+
+## src/effectTool
+- KEPT `_dispParam` (old `func_001CBD88`) @ 0x001CBD88
+- KEPT `editParam` (old `func_001CBE20`) @ 0x001CBE20
+- KEPT `dispXZYZCircle` (old `func_001CBE78`) @ 0x001CBE78
+- REVERTED `saveEffectData` (old `func_001CCA70`) @ 0x001CCA70 — insn 5: expected `lhu	a1,0(gp)` built `lh	a1,0(gp)`
+
+## src/enemy
+- KEPT `EnemySetfAppearAll` (old `func_001CE690`) @ 0x001CE690
+- KEPT `EnemySetfDisappearAll` (old `func_001CE6F0`) @ 0x001CE6F0
+- KEPT `enemySetParticleDie` (old `func_001CE760`) @ 0x001CE760
+- REVERTED `EnemyCheckHit` (old `func_001CD490`) @ 0x001CD490 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+- REVERTED `ReviveEnemyParticle` (old `func_001CE768`) @ 0x001CE768 — src/enemy.c:7: redefinition of `struct GObj'
+- REVERTED `InitDemoMotionGeo` (old `func_001CE978`) @ 0x001CE978 — src/enemy.c:7: redefinition of `struct GObj'
+- REVERTED `HotInitDemoMotionGeo` (old `func_001CE998`) @ 0x001CE998 — src/enemy.c:7: redefinition of `struct GObj'
+
+## src/enemyParts
+- KEPT `InitEnemyFootPrint` (old `func_001CEB18`) @ 0x001CEB18
+- KEPT `ExecEnemyFootPrints` (old `func_001CEB68`) @ 0x001CEB68
+- KEPT `DispPointBlur` (old `func_001CEC00`) @ 0x001CEC00
+- KEPT `func_001CF770` (old `func_001CF770`) @ 0x001CF770
+- KEPT `func_001CF8D0` (old `func_001CF8D0`) @ 0x001CF8D0
+- REVERTED `InitEnemyEye` (old `func_001CEB08`) @ 0x001CEB08 — src/enemyParts.c:5: redefinition of `struct GObj'
+- REVERTED `EntryEnemyFootPrint` (old `func_001CEBB0`) @ 0x001CEBB0 — src/enemyParts.c:6: redefinition of `struct GObj'
+- REVERTED `DispEnemyFootPrints` (old `func_001CEBC0`) @ 0x001CEBC0 — src/enemyParts.c:6: redefinition of `struct GObj'
+- REVERTED `InitPointBlur` (old `func_001CEBF0`) @ 0x001CEBF0 — src/enemyParts.c:6: redefinition of `struct GObj'
+- REVERTED `UpdateEnemyEye` (old `func_001CEC30`) @ 0x001CEC30 — src/enemyParts.c:7: redefinition of `struct GObj'
+- REVERTED `DispEnemyEye` (old `func_001CEC60`) @ 0x001CEC60 — src/enemyParts.c:7: redefinition of `struct GObj'
+- REVERTED `moveDataElements` (old `func_001CED28`) @ 0x001CED28 — src/enemyParts.c:7: redefinition of `struct GObj'

@@ -1,5 +1,8 @@
 #include "common.h"
 
+
+extern void MatrixDrive_TurnObjectMatrix(void *dst, void *src);
+extern int D_004C09A0[];
 INCLUDE_ASM("asm/nonmatchings/src/darkVolume", draw);
 
 INCLUDE_ASM("asm/nonmatchings/src/darkVolume", drawHT);
@@ -8,15 +11,21 @@ INCLUDE_ASM("asm/nonmatchings/src/darkVolume", renderViewCoordZSphere);
 
 INCLUDE_ASM("asm/nonmatchings/src/darkVolume", sonic);
 
-INCLUDE_ASM("asm/nonmatchings/src/darkVolume", darkVolume);
+void darkVolume(int a0)
+{
+    MatrixDrive_TurnObjectMatrix(a0, D_004C09A0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/darkVolume", SetDarkVolumeEffect);
 
-INCLUDE_ASM("asm/nonmatchings/src/darkVolume", DispGameOverEffect);
+int DispGameOverEffect(void)
+{
+    return 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/darkVolume", GetGameOverEffectCenterPosition);
+void GetGameOverEffectCenterPosition(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/src/darkVolume", InitGameOverEffect);
+void InitGameOverEffect(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/src/darkVolume", InitDarkVolumeGeo);
+void InitDarkVolumeGeo(void) {}
 
