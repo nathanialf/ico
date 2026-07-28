@@ -637,3 +637,35 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015F5F8);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015F650);
 
+
+/* .data — carved VMA 0X282390..0X282400 (5 symbols), bytes verified against baserom/baseelf.rom */
+unsigned int D_00282390[12] = {
+    0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    0x00000000, 0x00000000, 0xFFFFFFFF, 0x00000000,
+};
+unsigned int D_002823C0[4] = {
+    0x00000080, 0x000000C0, 0x000000FF, 0x00000080,
+};
+unsigned int D_002823D0[4] = {
+    0x00000000, 0x000000FF, 0x00000080, 0x00000080,
+};
+unsigned int D_002823E0[4] = {
+    0x00000000, 0x00000000, 0x00000080, 0x00000080,
+};
+unsigned int D_002823F0[4] = {
+    0x00000000, 0x00000080, 0x000000FF, 0x00000080,
+};
+
+/* .sdata — carved VMA 0X6322F0..0X632310 (5 symbols), bytes verified against baserom/baseelf.rom */
+unsigned int D_006322F0[2] = {
+    0x65736572, 0x00000A74,
+};
+unsigned int D_006322F8[2] = {
+    0x20746573, 0x000A7025,
+};
+unsigned int D_00632300 = 0x7F7FFFFF;
+unsigned int D_00632304 = 0x7F7FFFFF;
+unsigned int D_00632308[2] = {
+    0x312E3125, 0x00002066,
+};

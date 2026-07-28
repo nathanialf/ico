@@ -257,24 +257,124 @@ def main():
         if not carves:
             print("\n(no clean CARVE rows to emit)")
             return
-        print("\n--- yaml split lines (insert into the matching section blob) ---")
-        for vma, sym, secname, size, nc, verdict, tus, nobits, secoff, blob in carves:
-            fileoff = vma - 0x100000
-            print(f"      - [0x{fileoff:X}, {secname.lstrip('.')}, {tu}]  "
-                  f"# carved {sym} (VMA 0x{vma:X}, 0x{size:X} bytes)")
-        print("\n--- C scaffold (verify type/extent by hand) ---")
-        for vma, sym, secname, size, nc, verdict, tus, nobits, secoff, blob in carves:
-            raw = elf[secoff + (vma - section_of(secs, vma)[1]):
-                      secoff + (vma - section_of(secs, vma)[1]) + size]
-            print(f"// {sym} @0x{vma:X} ({secname}, 0x{size:X} bytes)")
-            if size == 4:
-                u = struct.unpack("<I", raw)[0]
-                f = struct.unpack("<f", raw)[0]
-                print(f"//   word=0x{u:08X}  float={f:g}")
-            elif raw and all(b == 0 or 32 <= b < 127 for b in raw):
-                print(f"//   ascii={raw!r}")
-            else:
-                print(f"//   bytes={raw.hex()}")
+        emit_runs(tu, carves, elf, secs)
+
+
+def _raw(elf, secs, vma, size):
+    _name, start, off, _nobits = section_of(secs, vma)
+    return elf[off + (vma - start): off + (vma - start) + size]
+
+
+_ASM_STUB_CACHE: dict = {}
+
+
+def _asm_referrer(tu, sym):
+    """Nonmatching .s stub of `tu` that references `sym`, or None."""
+    if tu not in _ASM_STUB_CACHE:
+        d = pathlib.Path(ROOT, ASM_ROOT, "nonmatchings", tu)
+        _ASM_STUB_CACHE[tu] = ([(p, p.read_text(errors="ignore"))
+                                for p in d.rglob("*.s")] if d.is_dir() else [])
+    for path, text in _ASM_STUB_CACHE[tu]:
+        if sym in text:
+            return path.name
+    return None
+
+
+def _gate(secname, vma, size, raw):
+    """Mechanical reasons a plain C definition would NOT land where the carve
+    says. Every one of these was an actual SHA-gate failure before it was a
+    check — see decomp/carve_ledger.md "Root cause"."""
+    bad = []
+    if not any(raw):
+        bad.append("all-zero -> ee-gcc emits .bss/.sbss, not " + secname)
+    if size % 4:
+        bad.append(f"size {size} is not a word multiple")
+    if secname == ".sdata" and size > 8:
+        bad.append(f"{size}B > -G8 threshold -> ee-gcc emits .data, not .sdata")
+    if secname == ".data" and size <= 8:
+        bad.append(f"{size}B <= -G8 threshold -> ee-gcc emits .sdata, not .data")
+    # ee-gcc: 4-byte scalar -> align 4; anything larger (arrays included) -> 8.
+    need = 4 if size == 4 else 8
+    if vma % need:
+        bad.append(f"VMA 0x{vma:X} is not {need}-aligned -> ld pads, layout shifts")
+    return bad
+
+
+def emit_runs(tu, carves, elf, secs):
+    """Print dot-form yaml + byte-verified C for each CONTIGUOUS carve run.
+
+    Two hard constraints of the one-pass model are enforced here rather than
+    discovered at the SHA gate:
+      * a TU may hold only ONE carved run per section (splat emits a whole-object
+        `<tu>.o(.<sect>*)` selector per carve subsegment and ld honours only the
+        first, so a 2nd disjoint run silently collapses into the 1st);
+      * every symbol in a run must be spelled so ee-gcc places it in the carved
+        section at the carved address (see _gate).
+    """
+    by_sect = {}
+    for row in sorted(carves):
+        by_sect.setdefault(row[2], []).append(row)
+
+    for secname, rows in by_sect.items():
+        runs, cur = [], []
+        for row in rows:
+            if cur and cur[-1][0] + cur[-1][3] != row[0]:
+                runs.append(cur)
+                cur = []
+            cur.append(row)
+        if cur:
+            runs.append(cur)
+
+        print(f"\n=== {secname}: {len(runs)} contiguous run(s) ===")
+        if len(runs) > 1:
+            print(f"  NOTE: only ONE run per (TU, section) can be carved — pick "
+                  f"the best one; the rest must stay in the blob "
+                  f"(tools/gen_ninja.py hard-errors on a 2nd).")
+        for run in runs:
+            start = run[0][0]
+            end = run[-1][0] + run[-1][3]
+            bad = []
+            for vma, sym, s, size, *_ in run:
+                for b in _gate(s, vma, size, _raw(elf, secs, vma, size)):
+                    bad.append(f"    {sym}: {b}")
+                # `migrate_rodata_to_functions` makes splat embed a LOCAL
+                # dlabel copy of any .rodata a still-INCLUDE_ASM function
+                # references into that function's nonmatching .s the moment the
+                # carve exists — a C definition of the same symbol then fails
+                # assembly with "already defined". Detect it BEFORE the carve by
+                # looking for the reference in the TU's surviving asm stubs.
+                if s == ".rodata":
+                    ref = _asm_referrer(tu, sym)
+                    if ref:
+                        bad.append(f"    {sym}: referenced by still-asm {ref} — "
+                                   f"splat would migrate a duplicate dlabel copy; "
+                                   f"port that function first")
+                if s == ".lit4":
+                    bad.append(f"    {sym}: named .lit4 float compiles to .sdata "
+                               f"under -G8; needs the (single-entry-only) "
+                               f"config/lit4_pool_slots.txt rename")
+            print(f"\n-- run 0x{start:X}..0x{end:X} ({end - start} bytes, "
+                  f"{len(run)} syms){'  [BLOCKED]' if bad else ''}")
+            if bad:
+                print("\n".join(bad))
+                continue
+            print(f"      - [0x{start - 0x100000:X}, {secname}, {tu}]  "
+                  f"# carved {run[0][1]}..{run[-1][1]} "
+                  f"(VMA 0x{start:X}..0x{end:X}, {end - start} bytes, {len(run)} syms)")
+            print(f"      - [0x{end - 0x100000:X}, {secname.lstrip('.')}, "
+                  f"src/cod/{end - 0x100000:06X}]     # {secname} blob resume")
+            print(f"\n/* {secname} — carved VMA 0x{start:X}..0x{end:X} "
+                  f"({len(run)} symbols), bytes verified against the target ELF */")
+            for vma, sym, s, size, *_ in run:
+                raw = _raw(elf, secs, vma, size)
+                words = struct.unpack("<%dI" % (size // 4), raw)
+                if size == 4:
+                    print(f"unsigned int {sym} = 0x{words[0]:08X};")
+                    continue
+                print(f"unsigned int {sym}[{size // 4}] = {{")
+                for i in range(0, len(words), 4):
+                    print("    " + " ".join(f"0x{w:08X}," for w in words[i:i + 4]))
+                print("};")
 
 
 if __name__ == "__main__":

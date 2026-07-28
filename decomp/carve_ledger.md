@@ -8,8 +8,11 @@ index, not a diff dump; `git log` has the byte-level detail per commit.
 
 Tooling: `tools/find_carves.py <tu>` (version-aware via `tools/ico_version.py`
 — auto-detects `us` vs `aug6`, same CARVE/SHARED/BLOCKED classification on
-both) is the source of truth for what's safe to carve. `--emit` prints the
-yaml dot-form lines + a raw-byte C scaffold for every CARVE-verdict symbol.
+both) is the source of truth for what's safe to carve. `--emit` groups the
+CARVE rows into CONTIGUOUS runs and prints, per run, the dot-form yaml pair
+(carve + blob resume) plus byte-verified C definitions — or marks the run
+`[BLOCKED]` with the mechanical reason it cannot be carved as-is (see
+"Root cause of Blocker 2").
 
 ## Batch 1 — jtbl queue (Phase 4 deferral, reason `jtbl`)
 
@@ -73,6 +76,137 @@ function stays `INCLUDE_ASM`). The body port does not close cleanly:
   loads the string's address for its `display()` call), and once the byte
   range is carved out of the blob there is no other source for that symbol
   to resolve against.
+
+## Root cause of Blocker 2 — FOUND AND FIXED (2026-07-28, branch `carve-fix`)
+
+Blocker 2 below ("a 2nd plain named-data dot-form carve corrupts the whole
+link") is **not one bug and not a splat/gen_ninja bookkeeping bug**. The
+generated linker script was correct all along; the corruption came from
+`ld`'s *input-section alignment* padding, plus three source-spelling traps.
+All four are now either fixed in the build graph or gated mechanically, and
+a 9-carve batch across 6 TUs and 2 sections round-trips SHA-green (below).
+
+### (1) THE mechanism: gas's 2**4 floor on the STANDARD sections
+
+GNU `as` for MIPS unconditionally does the equivalent of
+`record_alignment (text_section, 4)` / `(data_section, 4)` / `(bss_section, 4)`
+in `md_begin` — i.e. `.text`, `.data` and `.bss` get a **hard 16-byte minimum
+section alignment regardless of their contents, and regardless of being
+completely EMPTY**. Custom section names (`.rodata`, `.lit4`, `.sdata`, and
+gcc's `-fdata-sections` `.data.<sym>`) escape it and get only the alignment
+their directives imply.
+
+Consequences, all confirmed on this branch by reading `build/ico.us.map`:
+
+* every raw `.data` blob object (`build/asm/data/src/cod/<HEX>.data.o`) carried
+  `.data` alignment 16;
+* **34 compiled TU objects carried an EMPTY `.data` (and `.bss`) at alignment
+  16** — the ones assembled on the modern-gas path;
+* `ld` pads for a zero-size input section exactly as eagerly as for a real one.
+
+So the whole build round-tripped only because every one of those over-aligned
+sections happened to land on a 16-byte boundary. The instant a carve made the
+`.data` output stream land at an address that is 8- but not 16-aligned (i.e.
+**any carve whose run does not END on a 16-byte boundary**), the next
+over-aligned section injected 8 bytes of `*fill*` and every following byte
+shifted. The cascade then hit `. = ALIGN(., 128)` at `cod_DATA_END`, which
+rounded the whole `.data` section up a full 128 bytes — producing the ledger's
+"+0x80 shift", "+128 bytes file-size growth", "first diff at file offset 0x10"
+(that first diff is crt0's `%lo` of the moved `.sbss` base, not a data byte)
+and, once far enough, the `R_MIPS_GPREL16 relocation truncated to fit` errors
+(`.lit4`/`.sdata` sliding out of `_gp ± 32 KB`).
+
+This is also exactly why the four batch-1 jtbl `.rodata` carves were never
+affected: `.rodata` is a custom section, so it only ever carried 2**2/2**3.
+
+**Fix (one-pass, tracked, no ld postprocessing):** normalise the alignment of
+sections that can never legitimately need one.
+* `tools/gen_ninja.py` — `section_for()` derives the ONE section a splat blob
+  object owns from its `<ROMHEX>.<section>.o` name; the assemble rule now
+  emits `--set-section-alignment <owned>=<align_for(romhex)>` (a divisor of the
+  blob's own ROM address, so never a source of padding) plus
+  `--set-section-alignment {.text,.data,.bss}=1` for the empty leftovers.
+* `tools/compile_c.sh` — every compiled TU object now gets
+  `--set-section-alignment .data=1 --set-section-alignment .bss=1`. `.text`
+  keeps its `align_for()` value: it is load-bearing, reproducing the ROM's
+  4-byte inter-TU function padding in 34 TUs. The `-fdata-sections`
+  `.data.<sym>` / `.rodata.<sym>` alignments are also left alone — gcc's
+  alignment there reproduces intra-TU padding between carved objects.
+
+Rejected alternative: `subalign: 1` in the yaml (splat emits `SUBALIGN(1)` on
+the output section). It fixes the blobs but also flattens `.text` to 1, which
+deletes those 34 legitimate 4-byte inter-TU pads — `cod_TEXT_END` came out
+0x88 short. Do not use it.
+
+### (2) One carved run per (TU, section) — a real, permanent constraint
+
+splat emits a **whole-object** selector per dot-form carve subsegment —
+`build/src/<tu>.o(.data*)`. Two disjoint `.data` carves for the same TU
+therefore emit that identical glob twice, and GNU ld assigns each input
+section to the **first** output statement that matches it: the 2nd+ run is
+dead, and ALL of that TU's carved `.data.<sym>` sections collapse into the
+1st run's address. That is the ledger's "charFileManager needs 2 disjoint
+`.data` runs → `D_004D42B0` linked at 0x559A60" case.
+
+Not fixable without per-symbol selectors, so it is now a **mechanical gate**:
+`tools/gen_ninja.py::check_ld_carve_globs()` scans the generated linker script
+and hard-errors on any duplicated `<object>(<glob>)` pair before the build
+starts. aug6 has always (accidentally) respected this — every one of its 33+
+carves is one run per TU per section.
+
+### (3) Source-spelling traps that also present as "the link corrupted"
+
+Each of these makes ee-gcc put the symbol somewhere other than where the carve
+says, which shifts everything after it. All are now checked by
+`tools/find_carves.py --emit`, which refuses to emit a run that trips one:
+
+| trap | symptom | rule |
+|---|---|---|
+| all-zero initialiser | object lands in `.bss`/`.sbss`, carve region under-fills | carve only non-zero symbols |
+| `.data` symbol ≤ 8 bytes | `-G8` puts it in `.sdata` | `.data` carve syms must be > 8 bytes |
+| `.sdata` symbol > 8 bytes | `-G8` puts it in `.data` | `.sdata` carve syms must be ≤ 8 bytes |
+| 4-byte symbol spelled `unsigned int X[1]` | ee-gcc aligns arrays to 8; a 4-aligned VMA then gets `*fill*` | spell 4-byte symbols as a **scalar** `unsigned int X = ...;` |
+| carve start not 8-aligned (4 for a scalar) | `ld` pads to gcc's section alignment | check `VMA % 8 == 0` |
+| `const` qualifier | object lands in `.rodata` | never `const` a `.data`/`.sdata` carve |
+
+### (4) Unchanged, still true
+
+Blocker 1 (`.rodata` carve vs. `migrate_rodata_to_functions`' local dlabel
+copy) and Blocker 3 (named `.lit4` float compiles to `.sdata`) are real and
+untouched. `find_carves.py --emit` now flags both up front instead of letting
+them surface as an assembly/link error.
+
+### Proof batch (this commit)
+
+Nine plain named-data dot-form carves, 6 TUs, 2 sections, landed together —
+`tools/build.sh setup` (clean `rm -rf build` rebuild) + `ninja` →
+`verify_elf: OK (fbf50c75…)`, `check_no_rom.sh` clean:
+
+| TU | section | VMA range | bytes | syms |
+|---|---|---|---|---|
+| `src/commonact` | `.data` | 0x282390..0x282400 | 112 | 5 |
+| `src/chain` | `.data` | 0x28AFB0..0x28B100 | 336 | 3 |
+| `src/debug` | `.data` | 0x4B30F8..0x4B3108 | 16 | 1 |
+| `src/box` | `.data` | 0x4BF460..0x4BF7C0 | 864 | 10 |
+| `src/staticBlur` | `.data` | 0x4C61A0..0x4C61F0 | 80 | 5 |
+| `src/st47a` | `.data` | 0x4D3A30..0x4D3E50 | 1056 | 33 |
+| `src/commonact` | `.sdata` | 0x6322F0..0x632310 | 32 | 5 |
+| `src/chain` | `.sdata` | 0x632758..0x632770 | 24 | 4 |
+| `src/debug` | `.sdata` | 0x632A18..0x632A30 | 24 | 4 |
+
+(Plus the pre-existing `src/PObj` `.data` carve and the four batch-1 jtbl
+`.rodata` carves: 14 carves coexisting.) Every run is symbols whose ONLY
+consumers are that TU's own still-asm functions, so no existing `extern`
+declaration or C body changed — the carves add data and nothing else. Every
+byte was generated directly from the target ELF by `find_carves.py`.
+
+### What aug6/`main` should adopt
+
+aug6 uses the same `gen_ninja.py`/`compile_c.sh` (VERSION-keyed), so porting
+these two commits gives it the same protection. aug6's 33 carves all happen to
+end on 16-byte boundaries today, which is why it never hit this — that is luck,
+not design, and the next aug6 carve at an 8-aligned end would have failed the
+same way.
 
 ## Tooling notes for future carves
 
@@ -144,7 +278,9 @@ the carve stays reverted; symbols left in the `src/cod` rodata blob.
 
 ### Blocker 2 (THE BIG ONE) — a 2nd plain named-data dot-form carve corrupts the whole link
 
-**Reproducible, isolated via bisection, NOT yet root-caused or fixed.**
+**RESOLVED 2026-07-28 — see "Root cause of Blocker 2" above. The section below
+is the original symptom report, kept verbatim because every row in it maps to
+one of the four mechanisms documented there.**
 Exactly ONE plain (non-jtbl) named-data dot-form carve — in `.data`,
 `.sdata`, whatever section, for whatever TU — round-trips fine (proven:
 `src/PObj`'s lone `D_004D4230` `.data` carve, and in isolation a lone
@@ -177,14 +313,10 @@ NOT confirmed as the root cause — whoever picks this up should instrument
 `tools/gen_ninja.py`'s data/sdata glob emission directly rather than
 re-deriving this from `nm`/`objdump` output as this session did.
 
-**Practical implication**: until this is root-caused and fixed, ONE plain
-named-data carve can be landed per commit/session at most (verify with a
-`rm -rf build` clean rebuild before trusting `ninja`'s cache — several
-false "it still fails" / "it works now" readings this session turned out
-to be stale `build/` state, not real signal). jtbl-associated `.rodata`
-carves (the batch-1 pattern) are UNAFFECTED — 4 of them already coexist
-cleanly on `main`/`HEAD` — so that pattern scales fine; it's specifically
-non-jtbl named data (`.data`/`.sdata`/`.lit4`, any TU) that's capped at 1.
+**Practical implication (SUPERSEDED)**: the one-carve-per-commit cap is
+lifted — see the root-cause section above. What survives is the narrower
+rule: ONE contiguous carved run per (TU, section), now enforced by
+`gen_ninja.py::check_ld_carve_globs()`.
 
 ### Blocker 3 — `.lit4` carve default-placement mismatch
 
@@ -225,13 +357,12 @@ in the two batches above.
 
 ## Recommended next TUs (successor should start here)
 
-**Before picking a new TU: root-cause Blocker 2 above.** It's the actual
-bottleneck — every TU on the ranked-by-CARVE-count list below has 15-124
-CARVE symbols, and landing only one at a time makes this phase impractical.
-Instrument `tools/gen_ninja.py` / splat's linker-script generation for the
-`.data`/`.sdata`/`.lit4`/`.rodata` glob-building code path and compare its
-behavior for 1 vs 2 dot-form carve entries directly (not via post-hoc
-`nm`/`objdump` archaeology).
+**Blocker 2 is fixed** — carve in batches. Workflow: `tools/find_carves.py
+<tu> --emit` now prints, per CONTIGUOUS run, the dot-form yaml pair (carve +
+blob resume) and byte-verified C definitions, and marks a run `[BLOCKED]`
+with the reason when it would trip any of the mechanical gates. Take the
+largest non-blocked run per (TU, section), paste the yaml in ascending ROM
+order, append the C to the TU, then `tools/build.sh setup && ninja`.
 
 Ranked list (CARVE count, this session's sweep, excludes batch-1/2 TUs and
 the worker exclusion list): `src/commonact` (124), `src/st47a` (121),

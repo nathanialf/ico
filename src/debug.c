@@ -146,3 +146,18 @@ INCLUDE_ASM("asm/nonmatchings/src/debug", debug_SnapShot);
 
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_DispQW);
 
+
+/* .data — carved VMA 0X4B30F8..0X4B3108 (1 symbols), bytes verified against baserom/baseelf.rom */
+unsigned int D_004B30F8[4] = {
+    0x00008000, 0x20004000, 0x00000051, 0x00000000,
+};
+
+/* .sdata — carved VMA 0X632A18..0X632A30 (4 symbols), bytes verified against baserom/baseelf.rom */
+unsigned int D_00632A18[2] = {
+    0x0A732523, 0x00000000,
+};
+unsigned int D_00632A20 = 0x000A6425;
+unsigned int D_00632A24 = 0x7F7FFFFF;
+unsigned int D_00632A28[2] = {
+    0x7EFFFFFF, 0x00000000,
+};

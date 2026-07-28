@@ -3,10 +3,10 @@
 <!-- progress:begin -->
 ![.text progress](https://img.shields.io/badge/text-13.39%20%25-orange.svg)
 ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg)
-![.data progress](https://img.shields.io/badge/data-0.00%20%25-orange.svg)
+![.data progress](https://img.shields.io/badge/data-0.09%20%25-orange.svg)
 ![.rodata progress](https://img.shields.io/badge/rodata-0.06%20%25-orange.svg)
 ![.lit4 progress](https://img.shields.io/badge/lit4-0.00%20%25-red.svg)
-![.sdata progress](https://img.shields.io/badge/sdata-0.00%20%25-red.svg)
+![.sdata progress](https://img.shields.io/badge/sdata-0.90%20%25-orange.svg)
 <!-- progress:end -->
 
 **[Live progress dashboard](https://nathanialf.github.io/ico/)** — per-programmer / per-TU / per-function decomp status, updated on every push.

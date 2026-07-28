@@ -64,3 +64,20 @@ INCLUDE_ASM("asm/nonmatchings/src/staticBlur", makeFullScreenFlareBefore);
 
 INCLUDE_ASM("asm/nonmatchings/src/staticBlur", reduceWork2ToWork0);
 
+
+/* .data — carved VMA 0X4C61A0..0X4C61F0 (5 symbols), bytes verified against baserom/baseelf.rom */
+unsigned int D_004C61A0[4] = {
+    0xFFFFF800, 0xFFFFFC00, 0x00001000, 0x00000800,
+};
+unsigned int D_004C61B0[4] = {
+    0xFFFFF800, 0xFFFFFC00, 0x00000400, 0x00000200,
+};
+unsigned int D_004C61C0[4] = {
+    0xFFFFF800, 0xFFFFFC00, 0x00001000, 0x00000800,
+};
+unsigned int D_004C61D0[4] = {
+    0xFFFFF804, 0xFFFFF804, 0x00001000, 0x00001000,
+};
+unsigned int D_004C61E0[4] = {
+    0x00000000, 0x00000000, 0x00000000, 0x3F800000,
+};

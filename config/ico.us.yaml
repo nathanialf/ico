@@ -329,6 +329,18 @@ segments:
       - [0x174110, hasm, src/particle]       # ParticleMicroProgram
       - [0x1746C0, textbin, src/cod/1746C0]  # .reginfo + pad (all zeros in rom)
       - [0x174700, data, src/cod/174700]     # .data blob (to be carved per TU)
+      - [0x182390, .data, src/commonact]  # carved D_00282390..D_002823F0 (VMA 0x282390..0x282400, 112 bytes, 5 syms)
+      - [0x182400, data, src/cod/182400]     # .data blob resume
+      - [0x18AFB0, .data, src/chain]  # carved D_0028AFB0..D_0028B0D0 (VMA 0x28AFB0..0x28B100, 336 bytes, 3 syms)
+      - [0x18B100, data, src/cod/18B100]     # .data blob resume
+      - [0x3B30F8, .data, src/debug]  # carved D_004B30F8..D_004B30F8 (VMA 0x4B30F8..0x4B3108, 16 bytes, 1 syms)
+      - [0x3B3108, data, src/cod/3B3108]     # .data blob resume
+      - [0x3BF460, .data, src/box]  # carved D_004BF460..D_004BF7B0 (VMA 0x4BF460..0x4BF7C0, 864 bytes, 10 syms)
+      - [0x3BF7C0, data, src/cod/3BF7C0]     # .data blob resume
+      - [0x3C61A0, .data, src/staticBlur]  # carved D_004C61A0..D_004C61E0 (VMA 0x4C61A0..0x4C61F0, 80 bytes, 5 syms)
+      - [0x3C61F0, data, src/cod/3C61F0]     # .data blob resume
+      - [0x3D3A30, .data, src/st47a]  # carved D_004D3A30..D_004D3E30 (VMA 0x4D3A30..0x4D3E50, 1056 bytes, 33 syms)
+      - [0x3D3E50, data, src/cod/3D3E50]     # .data blob resume
       - [0x3D4230, .data, src/PObj]  # carved D_004D4230 (VMA 0x4D4230, 0x80 bytes)
       - [0x3D42B0, data, src/cod/3D42B0]     # .data blob, resume after PObj carve
       - [0x453700, rodata, src/cod/453700]   # .rodata blob, part 1 (to be carved per TU)
@@ -342,6 +354,12 @@ segments:
       - [0x519734, rodata, src/cod/519734]   # .rodata blob, part 5 (resume after motionOrientManager jtbl)
       - [0x530900, lit4, src/cod/530900]     # .lit4
       - [0x531900, sdata, src/cod/531900]    # .sdata
+      - [0x5322F0, .sdata, src/commonact]  # carved D_006322F0..D_00632308 (VMA 0x6322F0..0x632310, 32 bytes, 5 syms)
+      - [0x532310, sdata, src/cod/532310]     # .sdata blob resume
+      - [0x532758, .sdata, src/chain]  # carved D_00632758..D_0063276C (VMA 0x632758..0x632770, 24 bytes, 4 syms)
+      - [0x532770, sdata, src/cod/532770]     # .sdata blob resume
+      - [0x532A18, .sdata, src/debug]  # carved D_00632A18..D_00632A28 (VMA 0x632A18..0x632A30, 24 bytes, 4 syms)
+      - [0x532A30, sdata, src/cod/532A30]     # .sdata blob resume
       - { type: sbss, vram: 0x00633C00, name: src/cod/00633C00, align: 0x100 }  # .sbss — original aligns to 0x100, not 0x10
       - { type: bss,  vram: 0x00634000, name: src/cod/00634000, align: 0x80 }   # .bss — sh_addralign=0x80 in baseelf
   - [0x533BC6]

@@ -344,6 +344,21 @@ else
     "${OBJCOPY}" --set-section-alignment ".text=${ALIGN}" "${OUT}"
 fi
 
+# Carve safety: modern gas applies `record_alignment (data_section, 4)` — a hard
+# 2**4 floor — to the STANDARD sections `.text`/`.data`/`.bss` no matter what the
+# assembly contains, so a C TU assembled on the gas path carries an EMPTY `.data`
+# (and `.bss`) demanding 16-byte alignment. `ld` pads for a zero-size input
+# section exactly as it does for a real one, so as soon as a data carve makes the
+# `.data` output land at an address that is 8- but not 16-aligned, the first such
+# empty section injects 8 bytes of `*fill*` and every following byte shifts —
+# the classic "2nd carve corrupts the link" failure. `-fdata-sections` puts all
+# real TU data in `.data.<sym>` / `.rodata.<sym>` (whose gcc-assigned alignment
+# IS load-bearing: it reproduces intra-TU padding), so forcing the leftover
+# standard sections to 1 is free. `.text` keeps ${ALIGN} — it reproduces the
+# ROM's inter-TU function padding. See decomp/carve_ledger.md "Root cause".
+"${OBJCOPY}" --set-section-alignment ".data=1" \
+             --set-section-alignment ".bss=1" "${OUT}"
+
 # .lit4 pool placement: gas interns inline float literals into an anonymous
 # `.lit4` section (flags WAp — note the MIPS-GPREL `p` flag). The linker script
 # can only place a `.lit4` slot at its original VMA when the section name carries

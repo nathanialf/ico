@@ -135,6 +135,69 @@ def align_for(basename: str) -> int:
     return a
 
 
+# Section names splat can hand a raw blob object. splat's data-blob objects are
+# named `<ROMHEX>.<section>.o` (e.g. `174700.data.o`, `453700.rodata.o`); asm
+# text blobs and textbin are plain `<ROMHEX>.o`.
+_BLOB_SECT_RE = re.compile(r"^[0-9A-Fa-f]+\.(data|rodata|lit4|sdata|sbss|bss)\.o$")
+
+
+def section_for(basename: str) -> str:
+    """The one ALLOC section a splat blob object owns.
+
+    Carve correctness depends on this: `ee-as`/gas apply
+    `record_alignment (data_section, 4)` — i.e. a hard 2**4 (16-byte) minimum
+    alignment — to the STANDARD sections `.text`/`.data`/`.bss` regardless of
+    what the assembly actually contains. A `.data` blob whose resume address is
+    only 8-aligned (any carve that does not end on a 16-byte boundary) then gets
+    silently padded by `ld` to the next multiple of 16, shifting every following
+    byte and blowing the SHA-1 gate. Custom section names (`.rodata`, `.lit4`,
+    `.sdata`) escape that default, which is why the jtbl `.rodata` carves always
+    round-tripped while the first `.data`/`.bss` carve at a non-16-aligned
+    boundary did not. Normalising each blob's alignment down to `align_for()`
+    (a divisor of its own ROM address, so never a source of padding) removes
+    the whole failure mode. See decomp/carve_ledger.md "Root cause".
+    """
+    m = _BLOB_SECT_RE.match(basename)
+    if m:
+        return f".{m.group(1)}"
+    return ".text"
+
+
+def check_ld_carve_globs(ld_path: Path) -> None:
+    """Fail loudly on a per-TU/per-section carve glob emitted more than once.
+
+    splat emits one whole-object selector — `build/src/<tu>.o(.data*)` — per
+    dot-form carve subsegment. GNU ld assigns each input section to the FIRST
+    output statement that matches it, so a TU with TWO disjoint carved runs in
+    the SAME section produces two identical globs of which only the first is
+    live: every carved section of that TU collapses into the first run's
+    address and the link silently mislays the rest. One contiguous carved run
+    per (TU, section) is therefore a hard constraint of the one-pass model, and
+    this check makes violating it a build error instead of a SHA mismatch.
+    """
+    if not ld_path.exists():
+        return
+    seen: dict[tuple[str, str], int] = {}
+    dupes: list[str] = []
+    for line in ld_path.read_text().splitlines():
+        m = re.match(r"\s*(build/\S+\.o)\((\S+?)\);", line)
+        if not m:
+            continue
+        key = (m.group(1), m.group(2))
+        seen[key] = seen.get(key, 0) + 1
+        if seen[key] == 2:
+            dupes.append(f"{key[0]}({key[1]})")
+    if dupes:
+        raise SystemExit(
+            "gen_ninja: duplicate linker-script selector(s) — a TU may hold only "
+            "ONE contiguous carved run per section; the 2nd+ run is dead and its "
+            "bytes collapse into the 1st run's address:\n  "
+            + "\n  ".join(dupes)
+            + "\nMerge the runs into one contiguous carve (absorbing any "
+            "verified in-between bytes) or leave the later run in the blob."
+        )
+
+
 def source_for(obj_path: str) -> tuple[str, str]:
     """Map `build/<sub>/<stem>.o` to its source `.c` or `.s` and the rule name.
 
@@ -191,14 +254,14 @@ def emit_rules(out) -> None:
     out.write("rule as_asm\n")
     out.write(
         "  command = $mips_as $asflags -o $out $in && "
-        "$mips_objcopy --set-section-alignment .text=$align $out\n"
+        "$mips_objcopy $alignflags $out\n"
     )
     out.write("  description = AS $out\n\n")
 
     out.write("rule as_hasm\n")
     out.write(
         "  command = $mips_as $asflags -o $out $in && "
-        "$mips_objcopy --set-section-alignment .text=$align $out\n"
+        "$mips_objcopy $alignflags $out\n"
     )
     out.write("  description = AS $out\n\n")
 
@@ -226,10 +289,25 @@ def emit_edges(out, objs: list[str]) -> None:
     for obj in objs:
         src, rule = source_for(obj)
         align = align_for(Path(obj).name)
+        sect = section_for(Path(obj).name)
         if rule == "cc_src":
             out.write(f"build {obj}: cc_src {src}\n")
         else:
-            out.write(f"build {obj}: {rule} {src}\n  align = {align}\n")
+            # Own section: aligned to a divisor of its own ROM address (never a
+            # source of padding). Every OTHER standard section gas emits is an
+            # empty leftover carrying gas's 2**4 default — and ld pads for a
+            # zero-size input section just as eagerly as for a real one, so any
+            # of them landing at a non-16-aligned spot injects phantom fill.
+            # Force those to 1. See section_for()'s docstring.
+            flags = " ".join(
+                [f"--set-section-alignment {sect}={align}"]
+                + [
+                    f"--set-section-alignment {s}=1"
+                    for s in (".text", ".data", ".bss")
+                    if s != sect
+                ]
+            )
+            out.write(f"build {obj}: {rule} {src}\n  alignflags = {flags}\n")
     out.write("\n")
 
 
@@ -271,6 +349,8 @@ def main() -> int:
             file=sys.stderr,
         )
         return 1
+
+    check_ld_carve_globs(LDSCRIPT)
 
     splat_objs = parse_objs(DEPS_FILE)
     if not splat_objs:
