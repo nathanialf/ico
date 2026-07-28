@@ -139,3 +139,6 @@ INCLUDE_ASM("asm/nonmatchings/src/charFileManager", GetPObjAddress);
 
 INCLUDE_ASM("asm/nonmatchings/src/charFileManager", func_001A2C18);
 
+/* .data — carved VMA 0x4B2FD0..0x4B2FE8 (1 symbol, Blk24), bytes verified against baserom/baseelf.rom */
+Blk24 D_004B2FD0 = { 0, 0, 0x0000000100000000LL };
+

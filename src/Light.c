@@ -12,7 +12,7 @@ typedef struct AmbientVolume {
     struct AmbientVolume *next; /* 0x94 */
     struct AmbientVolume *prev; /* 0x98 */
 } AmbientVolume;
-extern char D_00554780[];
+extern const char D_00554780[];
 extern void debug_assertMessage();
 extern int D_00631C18;
 extern int func_00242640();
@@ -263,4 +263,7 @@ void func_00117CE0(void)
 INCLUDE_ASM("asm/nonmatchings/src/Light", func_00117CEC);
 
 INCLUDE_ASM("asm/nonmatchings/src/Light", func_00117CF0);
+
+/* .rodata — carved VMA 0x554780..0x554790 (1 symbol), bytes verified against baserom/baseelf.rom */
+const char D_00554780[16] = "reset gs\n";
 

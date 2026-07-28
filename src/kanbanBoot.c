@@ -70,3 +70,9 @@ INCLUDE_ASM("asm/nonmatchings/src/kanbanBoot", func_001B3F58);
 
 INCLUDE_ASM("asm/nonmatchings/src/kanbanBoot", func_001B4208);
 
+/* .data — carved VMA 0x4BCEC0..0x4BCED8 (1 symbol), bytes verified against baserom/baseelf.rom */
+unsigned int D_004BCEC0[6] = {
+    0x00000163, 0x0000015F, 0x0000015E, 0x00000160,
+    0x0000015D, 0x00000000,
+};
+

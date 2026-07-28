@@ -68,3 +68,21 @@ INCLUDE_ASM("asm/nonmatchings/src/st04b", func_00217828);
 
 INCLUDE_ASM("asm/nonmatchings/src/st04b", func_002179F8);
 
+/* .data — carved VMA 0x4D1490..0x4D1510 (4 symbols), bytes verified against baserom/baseelf.rom */
+unsigned int D_004D1490[8] = {
+    0x0000018D, 0x00000000, 0x00000000, 0x00000000,
+    0x0000018C, 0x00000000, 0x00000000, 0x00000000,
+};
+unsigned int D_004D14B0[8] = {
+    0x0000018D, 0x00000000, 0x00000000, 0x00000000,
+    0x0000018C, 0x00000000, 0x00000000, 0x00000000,
+};
+unsigned int D_004D14D0[8] = {
+    0x0000018D, 0x00000000, 0x00000000, 0x00000000,
+    0x0000018C, 0x00000000, 0x00000000, 0x00000000,
+};
+unsigned int D_004D14F0[8] = {
+    0x0000018D, 0x00000000, 0x00000000, 0x00000000,
+    0x0000018C, 0x00000000, 0x00000000, 0x00000000,
+};
+

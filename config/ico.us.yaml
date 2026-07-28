@@ -333,17 +333,29 @@ segments:
       - [0x182400, data, src/cod/182400]     # .data blob resume
       - [0x18AFB0, .data, src/chain]  # carved D_0028AFB0..D_0028B0D0 (VMA 0x28AFB0..0x28B100, 336 bytes, 3 syms)
       - [0x18B100, data, src/cod/18B100]     # .data blob resume
+      - [0x3B2FD0, .data, src/charFileManager]  # carved D_004B2FD0 (VMA 0x4B2FD0..0x4B2FE8, 24 bytes, Blk24 struct — NOT the full 296-byte find_carves.py guess, see carve_ledger.md oversized-symbol trap)
+      - [0x3B2FE8, data, src/cod/3B2FE8]     # .data blob resume (272 unattributed bytes 0x4B2FE8..0x4B30F8 stay in blob, then debug's carve below)
       - [0x3B30F8, .data, src/debug]  # carved D_004B30F8..D_004B30F8 (VMA 0x4B30F8..0x4B3108, 16 bytes, 1 syms)
       - [0x3B3108, data, src/cod/3B3108]     # .data blob resume
+      - [0x3BCE90, .data, src/icoMisc]  # carved D_004BCE90..D_004BCEA0 (VMA 0x4BCE90..0x4BCEB0, 32 bytes, 2 syms)
+      - [0x3BCEB0, data, src/cod/3BCEB0]     # .data blob resume
+      - [0x3BCEC0, .data, src/kanbanBoot]  # carved D_004BCEC0 (VMA 0x4BCEC0..0x4BCED8, 24 bytes, 1 syms)
+      - [0x3BCED8, data, src/cod/3BCED8]     # .data blob resume
       - [0x3BF460, .data, src/box]  # carved D_004BF460..D_004BF7B0 (VMA 0x4BF460..0x4BF7C0, 864 bytes, 10 syms)
       - [0x3BF7C0, data, src/cod/3BF7C0]     # .data blob resume
+      - [0x3C5AA0, .data, src/motionManager]  # carved D_004C5AA0..D_004C5AD0 (VMA 0x4C5AA0..0x4C5AE0, 64 bytes, 4 syms)
+      - [0x3C5AE0, data, src/cod/3C5AE0]     # .data blob resume
       - [0x3C61A0, .data, src/staticBlur]  # carved D_004C61A0..D_004C61E0 (VMA 0x4C61A0..0x4C61F0, 80 bytes, 5 syms)
       - [0x3C61F0, data, src/cod/3C61F0]     # .data blob resume
+      - [0x3D1490, .data, src/st04b]  # carved D_004D1490..D_004D14F0 (VMA 0x4D1490..0x4D1510, 128 bytes, 4 syms)
+      - [0x3D1510, data, src/cod/3D1510]     # .data blob resume
       - [0x3D3A30, .data, src/st47a]  # carved D_004D3A30..D_004D3E30 (VMA 0x4D3A30..0x4D3E50, 1056 bytes, 33 syms)
       - [0x3D3E50, data, src/cod/3D3E50]     # .data blob resume
       - [0x3D4230, .data, src/PObj]  # carved D_004D4230 (VMA 0x4D4230, 0x80 bytes)
       - [0x3D42B0, data, src/cod/3D42B0]     # .data blob, resume after PObj carve
       - [0x453700, rodata, src/cod/453700]   # .rodata blob, part 1 (to be carved per TU)
+      - [0x454780, .rodata, src/Light]  # carved D_00554780 (VMA 0x554780..0x554790, 16 bytes, 1 syms)
+      - [0x454790, rodata, src/cod/454790]   # .rodata blob, part 1b (resume after Light carve)
       - [0x454E00, .rodata, src/Packet]  # gcc-emitted jtbl_00554E00 (pac_setVifEndCode switch, 17 entries 0x44), VMA 0x554E00..0x554E44
       - [0x454E44, rodata, src/cod/454E44]   # .rodata blob, part 2 (resume after Packet jtbl)
       - [0x459950, .rodata, src/girl_act]  # gcc-emitted jtbl_00559950 (actGirlHang switch, 67 entries 0x10C), VMA 0x559950..0x559A5C
@@ -360,6 +372,8 @@ segments:
       - [0x532770, sdata, src/cod/532770]     # .sdata blob resume
       - [0x532A18, .sdata, src/debug]  # carved D_00632A18..D_00632A28 (VMA 0x632A18..0x632A30, 24 bytes, 4 syms)
       - [0x532A30, sdata, src/cod/532A30]     # .sdata blob resume
+      - [0x53345C, .sdata, src/motionManager]  # carved D_0063345C..D_00633470 (VMA 0x63345C..0x633478, 28 bytes, 5 syms)
+      - [0x533478, sdata, src/cod/533478]     # .sdata blob resume
       - { type: sbss, vram: 0x00633C00, name: src/cod/00633C00, align: 0x100 }  # .sbss — original aligns to 0x100, not 0x10
       - { type: bss,  vram: 0x00634000, name: src/cod/00634000, align: 0x80 }   # .bss — sh_addralign=0x80 in baseelf
   - [0x533BC6]

@@ -79,3 +79,11 @@ INCLUDE_ASM("asm/nonmatchings/src/icoMisc", func_001AF190);
 
 INCLUDE_ASM("asm/nonmatchings/src/icoMisc", func_001AF4A0);
 
+/* .data — carved VMA 0x4BCE90..0x4BCEB0 (2 symbols), bytes verified against baserom/baseelf.rom */
+unsigned int D_004BCE90[4] = {
+    0x000000FF, 0x00000080, 0x00000040, 0x00000080,
+};
+unsigned int D_004BCEA0[4] = {
+    0x00000040, 0x00000080, 0x000000FF, 0x00000080,
+};
+

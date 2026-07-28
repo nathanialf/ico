@@ -224,3 +224,28 @@ void func_001E0978(int a, int b) {
     D_0063343C = b;
 }
 
+/* .data — carved VMA 0x4C5AA0..0x4C5AE0 (4 symbols), bytes verified against baserom/baseelf.rom */
+unsigned int D_004C5AA0[4] = {
+    0xC0400000, 0x00000000, 0xC0400000, 0x00000000,
+};
+unsigned int D_004C5AB0[4] = {
+    0x40400000, 0x00000000, 0x40400000, 0x00000000,
+};
+unsigned int D_004C5AC0[4] = {
+    0xC0400000, 0x00000000, 0x40400000, 0x00000000,
+};
+unsigned int D_004C5AD0[4] = {
+    0x40400000, 0x00000000, 0xC0400000, 0x00000000,
+};
+
+/* .sdata — carved VMA 0x63345C..0x633478 (5 symbols), bytes verified against baserom/baseelf.rom */
+unsigned int D_0063345C = 0x7F7FFFFF;
+unsigned int D_00633460 = 0x00000065;
+unsigned int D_00633464 = 0x7F7FFFFF;
+unsigned int D_00633468[2] = {
+    0x7F7FFFFF, 0x00000000,
+};
+unsigned int D_00633470[2] = {
+    0x00000000, 0xFFFFFFFF,
+};
+

@@ -374,3 +374,131 @@ partially explored above), `src/staticBlur` (58), `src/haveParentSimpleObj`
 (44), `src/icoMisc` (44). Once Blocker 2 is fixed, re-run
 `find_carves.py --emit` on each and apply the same retail-crossref +
 byte-verify workflow this batch used for `src/PObj`/`src/charFileManager`.
+
+## Batch 3 (carve-3, this session) — 6 TUs landed, 1 new blocker class found, no floors
+
+Scope: `commonact`/`enemy_act`/`girl_act`/`boyact`/`e3`/`way_tool` were
+EXCLUDED all session (conv-6 in-flight on those TUs per `git log conv-6
+--oneline`: it touches exactly those six `.c` files). `src/act-env.c` and
+`src/motionOrientManager.c` were excluded per the standing worker split.
+Everything else ranked above was fair game.
+
+**Landed** (6 TUs, 7 symbol runs, `tools/build.sh setup` clean rebuild +
+`ninja` → `verify_elf: OK (…fbf50c75…)`, `check_no_rom.sh` clean):
+
+| TU | section | VMA range | bytes | syms |
+|---|---|---|---|---|
+| `src/motionManager` | `.data` | 0x4C5AA0..0x4C5AE0 | 64 | 4 |
+| `src/motionManager` | `.sdata` | 0x63345C..0x633478 | 28 | 5 |
+| `src/Light` | `.rodata` | 0x554780..0x554790 | 16 | 1 |
+| `src/charFileManager` | `.data` | 0x4B2FD0..0x4B2FE8 | 24 | 1 |
+| `src/icoMisc` | `.data` | 0x4BCE90..0x4BCEB0 | 32 | 2 |
+| `src/kanbanBoot` | `.data` | 0x4BCEC0..0x4BCED8 | 24 | 1 |
+| `src/st04b` | `.data` | 0x4D1490..0x4D1510 | 128 | 4 |
+
+**`src/charFileManager` — the 296-byte `find_carves.py` guess was wrong,
+confirmed by an EXISTING typed extern.** The TU already has
+`extern Blk24 D_004B2FD0;` (`Blk24` = `{ long long a,b,c; } __attribute__
+((packed))`, 24 bytes) used as a per-element reset template
+(`D_006E4890[j] = D_004B2FD0;`). `find_carves.py`'s next-symbol-address
+heuristic reported 296 bytes/1 sym (guessing the whole gap to `debug`'s
+carve belongs to this one name) — same class of overshoot as the
+`D_004D42E0` case in batch 2. Carved only the byte-verified 24 bytes
+(`Blk24 D_004B2FD0 = { 0, 0, 0x0000000100000000LL };`, values read
+straight from `baserom/baseelf.rom` offset `0x3B2FD0`); the remaining
+272 bytes (`0x4B2FE8..0x4B30F8`) stay unattributed in the blob. **Standing
+rule reinforced again: an existing typed `extern` in the TU is a stronger
+size oracle than `find_carves.py`'s heuristic — check for one before
+trusting the tool's byte count.**
+
+**`src/Light` — const-qualifier trap caught by the build, not by
+`find_carves.py`.** First attempt defined the `.rodata` string as
+`char D_00554780[16] = "reset gs\n";` (no `const`) — ee-gcc puts an
+*initialized, non-const* array in `.data`, not `.rodata`, confirmed via
+`ico.us.map` (`.data.D_00554780` instead of `.rodata.D_00554780`), which
+silently shifted `cod_DATA_START` by the object's own text-order position
+and produced a whole-link SHA mismatch (`+384` bytes, symptom identical
+to Blocker 2's original signature — same alignment-cascade mechanism,
+different trigger). Fix: `const char D_00554780[16] = "reset gs\n";`
+(and its extern declaration also needed `const` to avoid a `conflicting
+types` compile error). **This is the trap-table row "const → .rodata"
+read in the CORRECT direction: a `.rodata` carve of a byte array MUST be
+`const`, not just "don't const a `.data`/`.sdata` carve."**
+
+### NEW blocker class found — carving a scalar/small-array symbol that a
+### COMPILED (not just still-asm) sibling function already references by
+### plain `extern` can flip that reference's addressing mode from
+### gp-relative to far, growing `.text` and desyncing the whole link
+
+Found on 3 of the original 9 candidate TUs this batch (**reverted, not
+landed** — see below): `sound/s_init` (`D_00632200/04/08`, referenced by
+the ALREADY-COMPILED `soundAllocIopFree`/`soundDataOpen`), `src/camera-editor`
+(`D_00632640`, referenced by the STILL-ASM `menuGroupEdit.s` via an
+explicit `%gp_rel(D_00632640)` pseudo-op), and `src/staticBlur`'s 2nd
+`.sdata` run (`D_0063368C` run — some function elsewhere in the TU touches
+one of those 5 symbols).
+
+Mechanism, confirmed by isolating each TU with `tools/compile_c.sh
+<file>.c /tmp/out.o` (bypassing the whole link) on the ORIGINAL vs the
+EDITED source and diffing `.text` size/objdump: with **no local
+definition anywhere in the TU**, ee-gcc/gas speculatively assumes an
+`extern int`/`extern unsigned int` scalar (and `%gp_rel(SYM)` pseudo-ops
+in raw `.s` text) is small and emits ONE instruction (`sw/lw ...,N(gp)` or
+`addiu reg,gp,N`) with an `R_MIPS_GPREL16` relocation, deferred entirely to
+the linker. The MOMENT a real local definition for that exact symbol name
+exists anywhere in the same translation unit (even correctly placed in
+`.sdata` by `-fdata-sections`, even well under the 8-byte `-G8`
+threshold), every **earlier-compiled reference in the same TU** — whether
+from a normal C function OR from raw `INCLUDE_ASM` text carrying a literal
+`%gp_rel()` pseudo-op — silently recompiles to the 2-instruction far form
+(`lui+sw` / `lui+addiu` with `R_MIPS_HI16`/`R_MIPS_LO16`), growing that
+TU's `.text` by 4 bytes per flipped reference. This is invisible to
+`tools/find_carves.py`'s BLOCKED classifier (which only detects the
+Blocker-1 "duplicate local `dlabel`" assembler-error case for `.rodata`
+strings) — it does not currently scan sibling functions/`.s` stubs in the
+TU for a bare `%gp_rel(SYM)`/`extern SYM` reference at all, so a run it
+reports clean can still desync the link this way. Symptom is identical in
+shape to the alignment-cascade family (whole-file-size growth, first
+mismatch far from the actual symbol, `cod_TEXT_END`/`cod_DATA_START`
+shifted) but the ROOT CAUSE is upstream in `.text`, not `.data` layout —
+diagnose it by binary-searching `cod_TEXT_END`'s address against a clean
+rebuild's, not by staring at the data segment.
+
+**Detection recipe added this session (not yet automated into
+`find_carves.py` — flagged for a future pass):** for each candidate
+symbol in a run, `git show HEAD:<tu>.c` vs the edited file through
+`tools/compile_c.sh <file> /tmp/x.o` (no yaml/link needed) and compare
+`.text` size (`objdump -h`) before/after adding the definition. Equal
+size == safe; any growth == revert that run and ledger it as
+`[gp-rel-flip]` blocked, pending either porting the referencing function
+to C (removing the raw `%gp_rel`) or further study of ee-gcc's `-G8`
+extern-vs-local addressing heuristic.
+
+**Reverted, not landed this batch** (yaml + C additions both backed out
+cleanly, confirmed via `git checkout -- <file>` since each was a pure
+addition): `sound/s_init` `.sdata` run `0x632200..0x63220C` (12B, 3 syms),
+`src/camera-editor` `.sdata` run `0x632618..0x6326D0` (184B, 23 syms),
+`src/staticBlur` `.sdata` run `0x63368C..0x6336AC` (32B, 5 syms — note
+this TU's `.data` run from batch-1/proof-batch is still landed and
+unaffected). All three TUs' full `find_carves.py --emit` output is
+otherwise unchanged and can be re-attempted once the `[gp-rel-flip]`
+symbol(s) are identified and either excluded from the run or their
+referencing function is ported to C first.
+
+### Recommended next TUs (successor should start here)
+
+Verified-safe six TUs above are landed. Continue down the ranked list
+above with the SAME workflow, but add the `.text`-size-equality check
+(via `tools/compile_c.sh`, before touching yaml) as a mandatory gate on
+every run before landing it — not just for runs `find_carves.py` marks
+clean. Next unexplored candidates: `src/enemy_act` (74, EXCLUDED this
+session — conv-6 — reassess once that branch lands/merges),
+`src/haveParentSimpleObj` (56, all BLOCKED this session — asm-consumer
+gated, re-check after those functions port), `ios/cdvd` (55, all BLOCKED),
+`src/box` (52, `.data` already carved; other sections all BLOCKED),
+`src/way_tool` (44, EXCLUDED — conv-6). `sound/s_init`/`src/camera-editor`/
+`src/staticBlur` have ONE more `.sdata`/`.rodata`/`.lit4` slot each already
+used (or reverted) per the one-run-per-section rule — re-scan them fresh
+with `find_carves.py --emit` after a `git pull` in case upstream state
+changed, and gate any new candidate run through the `.text`-equality
+check before landing.
