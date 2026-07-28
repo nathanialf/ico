@@ -6,7 +6,17 @@ void actSt10rFloor(int x) {
 
 INCLUDE_ASM("asm/nonmatchings/src/st10r", actSt10rCage);
 
-INCLUDE_ASM("asm/nonmatchings/src/st10r", actSt10rTower);
+extern int D_00274EC0[];
+extern void _ACTWait(int a0);
+extern void func_0017B258(int a0);
+extern int func_00262BE8(int a0, long a1);
+extern int func_00263160(int a0);
+extern int func_00263218(int a0);
+
+void actSt10rTower(volatile int a0) {
+    _ACTWait(func_00263218(func_00262BE8(func_00263160((0x3C - D_00274EC0[0] * 0xA) / D_00274EC0[1]), (long)0x8054 << 47)));
+    func_0017B258(0x5F);
+}
 
 void actSt10rExit(int x) {
     volatile int local = x;
@@ -18,7 +28,17 @@ INCLUDE_ASM("asm/nonmatchings/src/st10r", actSt10rSekizo);
 
 INCLUDE_ASM("asm/nonmatchings/src/st10r", actSt10rEne);
 
-INCLUDE_ASM("asm/nonmatchings/src/st10r", actSt10rEnemy1);
+extern int D_00631AE4;
+extern void actSt25aQueenDead(int a0, int a1, int a2, float f12, float f13);
+extern int func_0017B230(int a0);
+extern int scpSleepEnemyOne(int a0, int a1, float f);
+
+void actSt10rEnemy1(volatile int a0) {
+    while (func_0017B230(0x5F) != 0 || scpSleepEnemyOne(a0, D_00631AE4, 400.0f) == 0) {
+        _ACTWait(1);
+    }
+    actSt25aQueenDead(3, D_00631AE4, 0, 16.0f, 16.0f);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st10r", func_002277C0);
 

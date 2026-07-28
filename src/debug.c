@@ -1,5 +1,7 @@
 #include "common.h"
 
+typedef struct { int x, y, w, h; } FR;
+
 
 
 
@@ -61,7 +63,47 @@ INCLUDE_ASM("asm/nonmatchings/src/debug", debug_PrintCharacter);
 
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_PrintFont);
 
-INCLUDE_ASM("asm/nonmatchings/src/debug", debug_FlushFontWindow);
+extern int D_00632A30;
+extern int D_00632CBC;
+extern void debug_PrintFont(char *str, int x, int y, int r, int g, int b, int sz);
+extern void func_0010F630(void);
+extern void func_001101E0(void *a0, unsigned int a1, int a2, void *a3, int a4);
+extern void *func_0026527C__p4(char *buf) __asm__("func_0026527C");
+extern void gif_SpriteOffset(int a0);
+extern int gif_SpriteSensitiveOrg(void);
+extern void gsb_KeepFrameBuffer(int a0);
+extern void gsb_Reduction(int a0);
+extern void gsb_SetFrame(int a0, int a1, int a2);
+
+void debug_FlushFontWindow(int a0, int a1, int a2, char *a3) {
+    FR buf[2];
+    int r;
+
+    buf[1].x = a0 - 0x142;
+    buf[1].y = a1 - 0x71;
+    r = (int) func_0026527C__p4(a3);
+    buf[1].h = 9;
+    buf[1].w = r * 0xC + 4;
+    buf[0] = buf[1];
+
+    if (gif_SpriteSensitiveOrg() != 0) {
+        return;
+    }
+    if (D_00632CBC & 2) {
+        gif_SpriteOffset(0xB);
+        gsb_Reduction(0);
+        gsb_KeepFrameBuffer(0);
+        gsb_SetFrame(1, 2, 0x80);
+        func_001101E0(&buf[0], 0xFFFFFFFDU, 0, &D_00632A30, 1);
+        func_0010F630();
+    } else {
+        gif_SpriteOffset(0xB);
+        gsb_Reduction(0);
+        gsb_SetFrame(1, 2, 0x80);
+        func_0010F630();
+    }
+    debug_PrintFont(a3, a0, a1, (unsigned) a2 >> 24, ((unsigned) a2 >> 16) & 0xFF, ((unsigned) a2 >> 8) & 0xFF, 0x70);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_FlushFont);
 

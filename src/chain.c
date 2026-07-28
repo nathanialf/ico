@@ -19,9 +19,17 @@ void StartPendulum(void *dst, float *out) {
     *out = val;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/chain", collisionCheck);
+extern unsigned char D_00633D8D;
 
-INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_term_simple);
+void collisionCheck(void) {
+    D_00633D8D = 1;
+}
+
+extern int D_00632704;
+
+void chain_simulate_term_simple(void) {
+    D_00632704 = 1;
+}
 
 void chain_simulate_term_loop(void) {
     D_00632744 = 0;
@@ -49,7 +57,20 @@ INCLUDE_ASM("asm/nonmatchings/src/chain", correct_vector);
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", pendulum_Process);
 
-INCLUDE_ASM("asm/nonmatchings/src/chain", InitChainGeo);
+extern char D_0055ABA8[];
+extern int D_00632CBC;
+extern int D_00633DA0;
+extern void chain_simulate_term_free(int a0);
+extern void traceLine(int a, int b, int c, const char *d);
+
+void InitChainGeo(int a0)
+{
+    if (D_00632CBC & 1) {
+        D_00633DA0 = D_00633DA0 + 0xA;
+        traceLine(0xA, D_00633DA0, 0x0FFFFFFF, D_0055ABA8);
+    }
+    chain_simulate_term_free(a0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_climb);
 

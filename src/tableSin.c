@@ -1,5 +1,7 @@
 #include "common.h"
 
+#include "vu0.h"
+
 
 
 
@@ -49,9 +51,42 @@ void InitTableSin(void)
 
 INCLUDE_ASM("asm/nonmatchings/src/tableSin", GetTableArcSin);
 
-INCLUDE_ASM("asm/nonmatchings/src/tableSin", GetTableArcCos);
+extern float _InverseCurrentMatrix(int *self, void *p, float arg);
+extern float func_0010E9A0(int x);
+extern float p2o_SetDefaultEnviroment(int x);
 
-INCLUDE_ASM("asm/nonmatchings/src/tableSin", GetTableArcTan2);
+void GetTableArcCos(int *self, int a1, float x, float y, float z) {
+    char buf[0x10];
+    int half = (a1 << 16) >> 17;
+    float f;
+    *(float *)(buf + 0) = x;
+    *(float *)(buf + 4) = y;
+    *(float *)(buf + 8) = z;
+    *(int *)(buf + 0xC) = 0;
+    f = p2o_SetDefaultEnviroment(half);
+    _InverseCurrentMatrix(self, buf, f);
+    *(float *)((char *)self + 0xC) = func_0010E9A0(half);
+}
+
+extern void _SetCurrentMatrix(void *out, int *p);
+extern float func_00117C20(float t);
+
+void GetTableArcTan2(float *out, float *in, float x, float y, float z) {
+    float v[4];
+    float r[4];
+    float s1, s2;
+    v[0] = x;
+    v[1] = y;
+    v[2] = z;
+    v[3] = 0.0f;
+    s1 = func_00117C20((in[0] + 1.0f) * 0.5f);
+    s2 = func_00117C20((1.0f - in[0]) * 0.5f);
+    _SetCurrentMatrix(r, (int *)v);
+    out[0] = r[0] * s2;
+    out[1] = r[1] * s2;
+    out[2] = r[2] * s2;
+    out[3] = s1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/tableSin", func_0010DCF8);
 

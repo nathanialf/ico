@@ -53,7 +53,18 @@ INCLUDE_ASM("asm/nonmatchings/src/effectTool", dispEffectToolField);
 
 INCLUDE_ASM("asm/nonmatchings/src/effectTool", EditTarget);
 
-INCLUDE_ASM("asm/nonmatchings/src/effectTool", saveEffectData);
+extern unsigned short D_00633398;
+extern unsigned short D_0063339A;
+extern void GetMatrixFromQuaternion(int *self);
+extern void func_0010E0B8(int *self, short y);
+extern void func_0010E158(int *self, short y);
+
+void saveEffectData(int *self)
+{
+    GetMatrixFromQuaternion(self);
+    func_0010E158(self, -D_00633398);
+    func_0010E0B8(self, -D_0063339A);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/effectTool", moveEffectToolGeometry);
 

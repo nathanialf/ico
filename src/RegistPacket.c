@@ -76,7 +76,26 @@ INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_dispNObj);
 
 INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_dispMObj);
 
-INCLUDE_ASM("asm/nonmatchings/src/RegistPacket", reg_dispSObj);
+extern char D_00555750[];
+extern int D_00632CA4;
+extern int dl_GetPri__p4(void) __asm__("dl_GetPri");
+extern void dpk_Init__p4(int a0, void *a1, int a2) __asm__("dpk_Init");
+extern void dpk_SwapBuffer__p4() __asm__("dpk_SwapBuffer");
+extern int tex_SetClutAnimation(int a0, int a1);
+
+void reg_dispSObj(char *a0, int a1, int a2) {
+    short h;
+    dpk_SwapBuffer__p4(4);
+    h = *(short *)(a0 + 0x86);
+    if (h >= 0) {
+        D_00632CA4 += tex_SetClutAnimation(h, 4);
+    }
+    dpk_Init__p4(2, D_00555750, 5);
+    dl_GetPri__p4();
+    func_0011EE58(a2, a1, 4);
+    dpk_Init__p4(2, *(void **)(a0 + 0x98), (*(int *)(a0 + 0x90) & 0xFFFFFF) >> 4);
+    dl_GetPri__p4();
+}
 
 void reg_dispCObj(short *self, int *p)
 {

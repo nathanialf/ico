@@ -1,5 +1,7 @@
 #include "common.h"
 
+typedef union { long long ll; struct { int lo, hi; } w; } McTestVal;
+
 INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcHandlerWrite);
 
 INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcHandlerRead);
@@ -29,9 +31,27 @@ int iosMcMgrSync(unsigned long *a0)
     return -((int)y);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcTest);
+extern char D_00280F88[];
+extern int iosMsgSend(void *a0, void *a1, int a2);
 
-INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcSync);
+int iosMcTest(void *a0) {
+    McTestVal *v = (McTestVal *)a0;
+    v->w.hi = 0;
+    v->ll = v->ll & -2;
+    return iosMsgSend(D_00280F88, a0, 0);
+}
 
-INCLUDE_ASM("asm/nonmatchings/ios/mcard", iosMcGetInfo);
+int iosMcSync(void *a0) {
+    McTestVal *v = (McTestVal *)a0;
+    v->w.hi = 3;
+    v->ll = v->ll & -2;
+    return iosMsgSend(D_00280F88, a0, 0);
+}
+
+int iosMcGetInfo(void *a0) {
+    McTestVal *v = (McTestVal *)a0;
+    v->w.hi = 4;
+    v->ll = v->ll & -2;
+    return iosMsgSend(D_00280F88, a0, 0);
+}
 

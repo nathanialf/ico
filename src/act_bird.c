@@ -12,7 +12,18 @@ void birdBeforeFunc(int a0, int a1, int a2, int a3)
     iosOmBeforeFuncStandard(a0, a1, a2, a3);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act_bird", trans_bird);
+extern float D_00631038;
+extern float func_00243950(void *a0, void *a1);
+extern void func_00243978(void *dst, void *src);
+extern float func_0025E3D8(float a0);
+
+float trans_bird(void *a0, void *a1) {
+    float v0[4];
+    float v1[4];
+    func_00243978(v0, a0);
+    func_00243978(v1, a1);
+    return func_0025E3D8(func_00243950(v0, v1)) * 360.0f / D_00631038;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/act_bird", subBirdBrainMain);
 
@@ -20,7 +31,17 @@ INCLUDE_ASM("asm/nonmatchings/src/act_bird", Debug_WireString_Bird);
 
 void Debug_StickControl(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/src/act_bird", BirdGeo);
+extern void birdBeforeFunc__p4(void *a0, void *a1, void *a2) __asm__("birdBeforeFunc");
+extern void *isysGObjSearchFromObjKindID_begin(void *o);
+extern void *isysGObjSearchFromObjLayoutID(int id);
+
+void BirdGeo(void *a0, void *a1) {
+    void *obj = isysGObjSearchFromObjLayoutID(0x20);
+    while (obj != 0) {
+        birdBeforeFunc__p4(obj, a0, a1);
+        obj = isysGObjSearchFromObjKindID_begin(obj);
+    }
+}
 
 void BirdDL(int a0, int a1)
 {

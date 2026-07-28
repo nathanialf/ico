@@ -18,11 +18,25 @@ void init_mblock(int *a0)
     return iosMallocCheckLeak2(*a0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ios/mblock", new_segment);
+void new_segment(int *a0) {
+    a0[0] = 0;
+    a0[1] = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/ios/mblock", reuse_mblock);
 
-INCLUDE_ASM("asm/nonmatchings/ios/mblock", strdup_mblock);
+void strdup_mblock(int *a0) {
+    int *node = (int *)a0[0];
+    if (node != 0) {
+        do {
+            int *next = (int *)node[3];
+            init_mblock(node);
+            node = next;
+        } while (node != 0);
+        a0[0] = 0;
+        a0[1] = 0;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/ios/mblock", func_00136198);
 

@@ -32,7 +32,18 @@ INCLUDE_ASM("asm/nonmatchings/src/Light", light_AddLight);
 
 INCLUDE_ASM("asm/nonmatchings/src/Light", light_getNearLight);
 
-INCLUDE_ASM("asm/nonmatchings/src/Light", light_getAmbientLight);
+void light_getAmbientLight(void *a0, int r, int g, int b) {
+    unsigned long long bg = ((long long)b << 16) | ((long long)g << 8);
+    unsigned long long v = r | 0x3F80000000000000ULL;
+    v |= bg;
+    *(int *)&D_00672E90[0] = r;
+    v |= 0x80000000;
+    *(int *)&D_00672E90[4] = g;
+    *(int *)&D_00672E90[8] = b;
+    *(int *)&D_00672E90[0xC] = 0x80;
+    *(unsigned long long *)((char *)a0 + 0x1F0) = v;
+    *(unsigned long long *)((char *)a0 + 0x100) = v;
+}
 
 void light_MakeLightMatrix(unsigned char *a0)
 {

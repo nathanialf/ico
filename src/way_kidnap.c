@@ -1,5 +1,7 @@
 #include "common.h"
 
+typedef struct WpNode { int f0; char _4[0x14]; int f18; char _1C[0x0C]; int f28; char _2C[0x08]; } WpNode;
+
 
 typedef struct Nd { int pad[2]; struct Nd *f8; struct Nd *fC; char pad2[0x40 - 16]; } Nd;
 extern unsigned char D_004CAEC0[];
@@ -37,11 +39,35 @@ INCLUDE_ASM("asm/nonmatchings/src/way_kidnap", NearestEnemyFromGirl);
 
 INCLUDE_ASM("asm/nonmatchings/src/way_kidnap", NumOfWpPos);
 
-INCLUDE_ASM("asm/nonmatchings/src/way_kidnap", CopyWpPos);
+extern WpNode D_004CC1A4;
+
+WpNode *CopyWpPos(WpNode *p)
+{
+    WpNode *end = &D_004CC1A4;
+    if (p != 0 && p != end) {
+        WpNode *q = p;
+        do {
+            q++;
+            if (q->f0 != 0) return q;
+        } while (q != end);
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/way_kidnap", WayLengthOfGObj_Pos);
 
-INCLUDE_ASM("asm/nonmatchings/src/way_kidnap", WayLengthOfGObj_GObj);
+WpNode *WayLengthOfGObj_GObj(WpNode *p)
+{
+    WpNode *end = &D_004CC1A4;
+    if (p != 0 && p != end) {
+        WpNode *q = p;
+        do {
+            q++;
+            if (q->f0 != 0 && q->f18 != 0 && q->f28 != 0) return q;
+        } while (q != end);
+    }
+    return 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/way_kidnap", WayPointWithRangeFromGObj);
 

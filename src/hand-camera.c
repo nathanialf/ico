@@ -5,13 +5,46 @@ extern void func_00243978();
 extern void func_00243AE8();
 INCLUDE_ASM("asm/nonmatchings/src/hand-camera", RotateAccordingToStick_PatternThree);
 
-INCLUDE_ASM("asm/nonmatchings/src/hand-camera", HandyCamera_TargetMoveType);
+extern float func_00243950(void *a0, void *a1);
 
-INCLUDE_ASM("asm/nonmatchings/src/hand-camera", ClearHandCameraCorrect);
+void HandyCamera_TargetMoveType(void *a0, void *a1) {
+    char buf[0x10];
+    func_00243AE8(buf, a0, a1);
+    func_00243950(buf, buf);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/hand-camera", InitHandCameraCorrect);
+extern float MatrixDrive_GetTurnYAngleXZ(float a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/hand-camera", SetLimitHandCameraCorrect);
+void ClearHandCameraCorrect(void *a0, void *a1) {
+    char buf[0x10];
+    func_00243AE8(buf, a0, a1);
+    MatrixDrive_GetTurnYAngleXZ(func_00243950(buf, buf));
+}
+
+void InitHandCameraCorrect(void *a0, void *a1) {
+    char buf[0x10];
+    func_00243AE8(buf, a0, a1);
+    *(int *)(buf + 4) = 0;
+    MatrixDrive_GetTurnYAngleXZ(func_00243950(buf, buf));
+}
+
+extern void _OrientXZGV(float *a0, float *a1, float *a2, float a3, float a4);
+
+float SetLimitHandCameraCorrect(float *a0, float *a1, float *a2, float a3)
+{
+    float buf[4];
+    float ang;
+    func_00243AE8(buf, a2, a1);
+    ang = MatrixDrive_GetTurnYAngleXZ(buf[0] * buf[0] + buf[1] * buf[1] + buf[2] * buf[2]);
+    if (ang < a3) {
+        a0[0] = a2[0];
+        a0[1] = a2[1];
+        a0[2] = a2[2];
+    } else {
+        _OrientXZGV(a0, a1, a2, a3, ang - a3);
+    }
+    return ang;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/hand-camera", HandCameraCorrect);
 

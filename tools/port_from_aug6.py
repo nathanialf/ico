@@ -990,6 +990,7 @@ def cmd_port(args):
     path = retail_tu_path(args.tu)
     stem = tu_stem(args.tu)
     kept, reverted, skipped = [], [], []
+    data_baseline = None
 
     # order: wave 1 first (highest confidence), then by address
     rows.sort(key=lambda r: (r["wave"], r["retail_vma"]))
@@ -1171,10 +1172,26 @@ def cmd_port(args):
             kept.append((rec, mapping))
             continue
 
+        if data_baseline is None:
+            # Compile the TU as-is once, so "did this body add data?" has a
+            # reference point. An INCLUDE_ASM'd function assembles to exactly
+            # the ROM bytes, so this run is also a free sanity check.
+            T.run_quick_diff(stem, name)
+            data_baseline = data_bytes(stem)
+
         write_latin1(path, candidate)
         allowed = set(mapping.values()) | {name}
         ok, rc, out, err = verify_port(stem, name, allowed)
         if ok:
+            grew = data_bytes(stem)
+            if (data_baseline is not None and grew is not None
+                    and grew > data_baseline):
+                write_latin1(path, cur_text)
+                reverted.append((rec, f"emits-data: +{grew - data_baseline} "
+                                      f"bytes of .rodata/.sdata/.lit4 "
+                                      f"(string or out-of-line float literal; "
+                                      f"needs a Phase-5 rodata carve)"))
+                continue
             kept.append((rec, mapping))
         else:
             write_latin1(path, cur_text)
@@ -1256,6 +1273,31 @@ def verify_port(stem, name, allowed, timeout=120):
     return True, p.returncode, p.stdout, p.stderr
 
 
+DATA_SECTION_PREFIXES = (".data", ".rodata", ".sdata", ".lit4", ".lit8")
+OBJDUMP = os.environ.get("OBJDUMP", "mips-linux-gnu-objdump")
+
+
+def data_bytes(stem):
+    """Allocatable NON-.text bytes in the TU object quick_diff just built.
+
+    Retail carves no data: every string literal and every out-of-line float
+    constant in a ported body would be NEW bytes appended to .sdata/.rodata/
+    .lit4, shifting the whole data layout and every %hi/%lo and $gp-relative
+    reference in the game — a link that is byte-identical nowhere yet passes
+    the per-function instruction diff cleanly.  So the port carries a hard
+    invariant: it may add code, never data."""
+    o = ROOT / "build" / "quick_diff" / (stem + ".o")
+    if not o.exists():
+        return None
+    p = subprocess.run([OBJDUMP, "-h", str(o)], capture_output=True, text=True)
+    total = 0
+    for ln in p.stdout.splitlines():
+        m = re.match(r"\s*\d+\s+(\S+)\s+([0-9a-f]+)", ln)
+        if m and m.group(1).startswith(DATA_SECTION_PREFIXES):
+            total += int(m.group(2), 16)
+    return total
+
+
 def failure_reason(rc, out, err):
     """transplant_retail.summarize_failure_reason, minus gcc *warnings* —
     `passing arg N of X from incompatible pointer type` matches its
@@ -1278,6 +1320,7 @@ REASON_CLASSES = [
     ("parse", r"parse error|syntax error|expected .*before"),
     ("redefinition", r"redefinition"),
     ("missing-body", r"aug6 body not found"),
+    ("emits-data", r"^emits-data:"),
 ]
 
 

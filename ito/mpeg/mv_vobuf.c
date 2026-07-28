@@ -1,5 +1,7 @@
 #include "common.h"
 
+#include "r5900.h"
+
 
 
 extern void iosMallocCheckLeak2();
@@ -29,5 +31,17 @@ int voBufGetData(int *self) {
     return self[3] == self[4];
 }
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vobuf", voBufGetTag);
+extern void func_00101A40(volatile int *a0);
+
+void voBufGetTag(volatile int *a0) {
+    int w, n;
+    func_00101A40(a0);
+    *(int *)(a0[1] + a0[2] * 0xA0A40) = 2;
+    w = a0[3];
+    n = a0[4];
+    a0[3] = w + 1;
+    a0[2] = (a0[2] + 1) % n;
+    SYNC();
+    EI();
+}
 

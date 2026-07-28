@@ -57,7 +57,26 @@ void tex_loadImage(int a0, int a1)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/Texture", tex_setTexReg);
+extern int bga_CheckAnimationFrame(int a0, int a1, int a2);
+extern int font_Print(int a0, int a1, int a2);
+
+int tex_setTexReg(int a0, int a1, int a2) {
+    int i;
+    char *e = (char *)D_00674058;
+    for (i = 0; i < D_00633C54; i++, e += 0x290) {
+        int *entry1 = *(int **)(e + 0x280);
+        if (a0 == entry1[0x58 / 4]) {
+            int mode = *(int *)(e + 0x28C) >> 30;
+            switch (mode) {
+                case 0:
+                    return bga_CheckAnimationFrame(*(int *)(e + 0x284), a1, a2);
+                case 1:
+                    return font_Print(*(int *)(e + 0x288), a1, a2);
+            }
+        }
+    }
+    return -1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/Texture", tex_transVramClutTex);
 

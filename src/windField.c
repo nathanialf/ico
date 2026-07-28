@@ -6,7 +6,11 @@ INCLUDE_ASM("asm/nonmatchings/src/windField", InitWindField);
 
 INCLUDE_ASM("asm/nonmatchings/src/windField", drawSenpuukiHaneUnit);
 
-INCLUDE_ASM("asm/nonmatchings/src/windField", drawSenpuuki);
+extern int (*D_00633750)(void);
+
+int drawSenpuuki(void) {
+    return D_00633750();
+}
 
 int *ExecWindField(int *a0)
 {
@@ -20,5 +24,16 @@ INCLUDE_ASM("asm/nonmatchings/src/windField", dummyGetWindVector);
 
 INCLUDE_ASM("asm/nonmatchings/src/windField", getParallelWindVector);
 
-INCLUDE_ASM("asm/nonmatchings/src/windField", getRadiateWindVector);
+extern char D_004C63A0[];
+extern void func_001D4A58();
+
+void getRadiateWindVector(char *a0) {
+    char *cur = a0;
+    if (-1000.0f < *(float *)cur) {
+        do {
+            func_001D4A58(cur, D_004C63A0, cur + 0x10, D_004C63A0, -1);
+            cur += 0x20;
+        } while (-1000.0f < *(float *)cur);
+    }
+}
 

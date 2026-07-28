@@ -1,5 +1,7 @@
 #include "common.h"
 
+#include "ico/types.h"
+
 
 
 
@@ -12,7 +14,33 @@ INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", GetNbMotionFrames);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", GetMotionPlaySpeedRatio);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", execFrameTrigger);
+extern char *D_00633478;
+extern char *D_00633F4C;
+extern void MatrixDrive_TurnObjectMatrix__p4(int a0, void *a1) __asm__("MatrixDrive_TurnObjectMatrix");
+extern void func_00105258(void);
+extern void func_00105268(void);
+extern void *func_00105278(void);
+extern void func_001D88B8(int id);
+
+void execFrameTrigger(int id) {
+    char *e = D_00633478 + id * 0x40;
+    int child = *(int *)(e + 0x30);
+    int next = *(int *)(e + 0x34);
+    char *o;
+    void *m;
+    func_00105258();
+    func_001D88B8(id);
+    o = D_00633F4C + id * 0x10;
+    m = func_00105278();
+    MatrixDrive_TurnObjectMatrix__p4((int)o, (char *)m + 0x30);
+    if (child != -1) {
+        execFrameTrigger(child);
+    }
+    func_00105268();
+    if (next != -1) {
+        execFrameTrigger(next);
+    }
+}
 
 void UpdateFrameCounter(int a0, int a1)
 {
@@ -20,7 +48,16 @@ void UpdateFrameCounter(int a0, int a1)
     *(int *)(a0 + 0xC) = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", sendStateMail);
+extern void ChangeFieldCollisionDebugMode();
+
+int sendStateMail(char *a0, float f) {
+    char buf[0xC0] __attribute__((aligned(16)));
+    MatrixDrive_TurnObjectMatrix__p4((int)buf, a0);
+    MatrixDrive_TurnObjectMatrix__p4((int)(buf + 0x10), a0);
+    *(float *)(buf + 0x14) = *(float *)(buf + 0x14) + f;
+    ChangeFieldCollisionDebugMode(buf);
+    return *(int *)(buf + 0x94);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", shiftMotionData);
 
@@ -42,7 +79,11 @@ INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", getMotionGeometry);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", getShapeGeometry);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", getStreamMotionGeometry);
+extern void getNodeBlendedFloatingMotion(int a0, int a1, int a2, int a3);
+
+void getStreamMotionGeometry(int a0, int a1) {
+    getNodeBlendedFloatingMotion(a0, a1, a1, 0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", getStreamShapeGeometry);
 

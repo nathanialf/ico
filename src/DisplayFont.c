@@ -5,13 +5,26 @@
 extern int D_006337B4;
 extern int D_006337BC;
 extern int D_006337B8;
-INCLUDE_ASM("asm/nonmatchings/src/DisplayFont", font_CheckAlign);
+extern int D_00274EC0[];
+
+int font_CheckAlign(void *a0) {
+    int n = (0x3C - D_00274EC0[0] * 0xA) / D_00274EC0[1];
+    float f1 = (float)*(int *)((char *)a0 + 4);
+    float f2 = *(float *)((char *)a0 + 8);
+    return f1 * ((float)n / 30.0f) <= f2;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/DisplayFont", func_001FA910);
 
-INCLUDE_ASM("asm/nonmatchings/src/DisplayFont", font_Print);
+int font_Print(void *a0, int a1, int a2) {
+    int n = 0x3C - D_00274EC0[0] * 0xA;
+    return (float)a1 * ((float)(n / D_00274EC0[1]) / 30.0f) <= *(float *)((char *)a0 + 8)
+        && *(float *)((char *)a0 + 8) < (float)a2 * ((float)(n / D_00274EC0[1]) / 30.0f);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/DisplayFont", font_GetWidth);
+void font_GetWidth(void) {
+    D_006337B8 = 1;
+}
 
 void font_GetHeight(void)
 {

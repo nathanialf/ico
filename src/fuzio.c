@@ -21,11 +21,46 @@ extern int D_00633D20;
 extern int D_00633D1C;
 INCLUDE_ASM("asm/nonmatchings/src/fuzio", fzShowV);
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", fzShowM);
+extern volatile int func_0010F5B8(int a0, int a1, int a2);
+
+void fzShowM(int *self, int a1)
+{
+    int new_var;
+    int *p;
+    func_0010F5B8((int) self, a1, 0);
+    p = (int *) self[0];
+    new_var = 0x14 / 4;
+    p[0x10 / 4] = (int) (((char *) p) + p[0x10 / 4]);
+    p[0x14 / 4] = (int) (((char *) p) + p[new_var]);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/fuzio", fzMagnitude2f);
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", fzMagnitude3f);
+extern float func_00243950(int a0, int a1);
+extern void func_00243B60__p4(int *dst, int *src) __asm__("func_00243B60");
+
+int fzMagnitude3f(int a0) {
+    float *p = (float *)a0;
+    char *q = (char *)(a0 + 0xA0);
+    float t0, t1, d;
+
+    func_00243B60__p4((int *)(a0 + 0x20), (int *)(a0 + 0x10));
+    t0 = func_00243950((int)q, a0 + 0x10) + *(float *)(q + 0xC);
+    if (t0 >= 0.0f) {
+        return 0;
+    }
+    t1 = func_00243950((int)q, a0) + *(float *)(q + 0xC);
+    if (t1 < 0.0f) {
+        if (t0 < 0.0f) {
+            return 0;
+        }
+    }
+    d = t1 - t0;
+    p[8] = (p[4] * t1 - p[0] * t0) / d;
+    p[9] = (p[5] * t1 - p[1] * t0) / d;
+    p[10] = (p[6] * t1 - p[2] * t0) / d;
+    return 1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/fuzio", fzMagnitudefv);
 

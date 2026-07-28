@@ -1,5 +1,7 @@
 #include "common.h"
 
+typedef union { long long ll; struct { int lo, hi; } w; } McHdr;
+
 
 
 extern void func_00136280();
@@ -7,9 +9,22 @@ extern unsigned char D_00280C60[];
 extern void iosMcHandlerWrite();
 INCLUDE_ASM("asm/nonmatchings/ios/mcdata", iosMcIconWriteIconsys);
 
-INCLUDE_ASM("asm/nonmatchings/ios/mcdata", iosMcIconWriteIcon);
+extern int D_00280F88[];
+extern int iosMsgSend(void *a, void *b, int c);
 
-INCLUDE_ASM("asm/nonmatchings/ios/mcdata", _iosMcIconWriteIconsys);
+int iosMcIconWriteIcon(void *a0) {
+    McHdr *v = (McHdr *)a0;
+    v->w.hi = 2;
+    v->ll = v->ll & -2;
+    return iosMsgSend(D_00280F88, a0, 0);
+}
+
+int _iosMcIconWriteIconsys(void *a0) {
+    McHdr *v = (McHdr *)a0;
+    v->w.hi = 7;
+    v->ll = v->ll & -2;
+    return iosMsgSend(D_00280F88, a0, 0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/ios/mcdata", func_001380B0);
 

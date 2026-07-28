@@ -2445,3 +2445,257 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 - PORTED `CreateWayPoint` w1 @ 0x00205A98 <- aug6 fumi/src/way_llf (1 syms rebound)
 - PORTED `AddWayPointTop` w1 @ 0x00205B30 <- aug6 fumi/src/way_llf (1 syms rebound)
 - PORTED `WayBridge_begin` w1 @ 0x002060E8 <- aug6 fumi/src/way_llf (14 syms rebound)
+
+### src/act
+- PORTED `actChangeActMain` w1 @ 0x00201E70 <- aug6 fumi/src/act (7 syms rebound)
+- PORTED `actCreateMotionThread` w1 @ 0x00201F38 <- aug6 fumi/src/act (6 syms rebound)
+- PORTED `_ACTRun` w1 @ 0x00203A58 <- aug6 fumi/src/act (1 syms rebound)
+- PORTED `_ACTWait` w1 @ 0x00203AA0 <- aug6 fumi/src/act (2 syms rebound)
+- PORTED `actCreateSubThread` w1 @ 0x00203B78 <- aug6 fumi/src/act (7 syms rebound)
+- REVERTED `actChangeActBrain` w1 @ 0x00201DE0 — [codegen] insn 9: expected `jal	0 <actChangeActBrain>` built `jal	1d98 <actCreateSubThread>`
+
+### src/gv
+- PORTED `_DistxzGV` w1 @ 0x00193D30 <- aug6 omori/src/gv (3 syms rebound)
+- PORTED `_RotyGV` w1 @ 0x00193E48 <- aug6 omori/src/gv (1 syms rebound)
+- PORTED `_GetDirection` w1 @ 0x00193F68 <- aug6 omori/src/gv (0 syms rebound)
+- PORTED `_RotGVF` w1 @ 0x00193FA8 <- aug6 omori/src/gv (1 syms rebound)
+- PORTED `_OrientXZGV` w1 @ 0x00194020 <- aug6 omori/src/gv (3 syms rebound)
+
+### src/particleEffect
+- PORTED `ExecParticleEffects` w1 @ 0x001E8598 <- aug6 sugipon/src/particleEffect (4 syms rebound)
+- PORTED `InitParticleEffects` w1 @ 0x001E8930 <- aug6 sugipon/src/particleEffect (5 syms rebound)
+- REVERTED `ResetParticleEffectPackages` w1 @ 0x001E85D8 — [undeclared] src/particleEffect.c:51: `D_007097F0' undeclared (first use in this function)
+- REVERTED `DeleteParticleEffect` w1 @ 0x001E89F8 — [undeclared] src/particleEffect.c:69: `D_007097F0' undeclared (first use in this function)
+- REVERTED `SetParticleEffectActiveSensing` w1 @ 0x001E8A60 — [undeclared] src/particleEffect.c:70: `D_007097F0' undeclared (first use in this function)
+
+### src/st02a
+- PORTED `actSt02aDoor` w1 @ 0x002111D8 <- aug6 script/src/st02a (6 syms rebound)
+- PORTED `actSt02aDoorUpChk` w1 @ 0x00211290 <- aug6 script/src/st02a (6 syms rebound)
+- PORTED `actSt02aDoorDownChk` w1 @ 0x00211338 <- aug6 script/src/st02a (6 syms rebound)
+- PORTED `actSt02WaterFallBoySplashCheck` w1 @ 0x002113C8 <- aug6 script/src/st02a (5 syms rebound)
+- PORTED `actSt02aWaterFallChk` w1 @ 0x00211438 <- aug6 script/src/st02a (5 syms rebound)
+- PORTED `actSt02aGondolaUp` w1 @ 0x002114A8 <- aug6 script/src/st02a (5 syms rebound)
+- PORTED `actSt02aTakiWay` w1 @ 0x00211BE8 <- aug6 script/src/st02a (7 syms rebound)
+
+### src/st19a
+- PORTED `actSt19aChainDown` w1 @ 0x002313C8 <- aug6 script/src/st19a (3 syms rebound)
+- PORTED `actSt19aChainMain` w1 @ 0x002319E0 <- aug6 script/src/st19a (8 syms rebound)
+- PORTED `actSt19aChainSwitch` w1 @ 0x00231A98 <- aug6 script/src/st19a (2 syms rebound)
+- REVERTED `actSt19aOriXL` w1 @ 0x002315D8 — [codegen] insn 32: expected `addiu	a0,s0,0` built `addiu	a0,s0,1224`
+- REVERTED `actSt19aChain` w1 @ 0x00231748 — [codegen] insn 38: expected `addiu	a0,s0,0` built `addiu	a0,s0,1616`
+
+### isys/gobj_cam_dl
+- PORTED `isysGObjLinkCameraDLBeforeGObj` w1 @ 0x001FC2E0 <- aug6 fumi/isys/gobj_cam_dl (3 syms rebound)
+- PORTED `adpcmTickProc2` w1 @ 0x001FC460 <- aug6 fumi/sound/adpcm_init (2 syms rebound)
+- PORTED `adpcmDataSet` w1 @ 0x001FC4C0 <- aug6 fumi/sound/adpcm_init (2 syms rebound)
+- REVERTED `cut_gobj_camera_dl_link` w1 @ 0x001FC048 — [codegen] [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+
+### ito/mpeg/mv_main
+- REVERTED `switchThread` w1 @ 0x0019D960 — [codegen] /primary/dev/ico-retail/ito/mpeg/mv_main.c:3: mv_defs.h: No such file or directory
+- REVERTED `termAll` w1 @ 0x0019D9E8 — [codegen] /primary/dev/ico-retail/ito/mpeg/mv_main.c:3: mv_defs.h: No such file or directory
+
+### src/DisplayP2O
+- PORTED `p2o_DispVU1Multi` w1 @ 0x0010E708 <- aug6 seki/src/DisplayP2O (1 syms rebound)
+- PORTED `p2o_DispVU1MultiDefault` w1 @ 0x0010E748 <- aug6 seki/src/DisplayP2O (2 syms rebound)
+- PORTED `p2o_DispVU1` w1 @ 0x0010E7D8 <- aug6 seki/src/DisplayP2O (3 syms rebound)
+- PORTED `p2o_DispVU1Default` w1 @ 0x0010E868 <- aug6 seki/src/DisplayP2O (2 syms rebound)
+- PORTED `p2o_SetDefaultEnviroment` w1 @ 0x0010E950 <- aug6 seki/src/DisplayP2O (1 syms rebound)
+
+### src/fuzio
+- PORTED `fzShowM` w1 @ 0x00168690 <- aug6 fumi/src/fuzio (1 syms rebound)
+- PORTED `fzMagnitude3f` w1 @ 0x001687B8 <- aug6 fumi/src/fuzio (2 syms rebound)
+- REVERTED `fzShowV` w1 @ 0x00168650 — [codegen] insn 9: expected `addiu	v0,v0,0` built `addiu	v0,v0,6448`
+
+### src/layout_texture
+- PORTED `default_item_select` w1 @ 0x001B5958 <- aug6 common/src/layout_texture (4 syms rebound)
+- PORTED `texture_fading` w1 @ 0x001B5998 <- aug6 common/src/layout_texture (2 syms rebound)
+- PORTED `display_primary_texture_layout` w1 @ 0x001B5A10 <- aug6 common/src/layout_texture (2 syms rebound)
+- PORTED `exec_layout_texture` w1 @ 0x001B5B30 <- aug6 common/src/layout_texture (5 syms rebound)
+- PORTED `lt_fade_status` w1 @ 0x001B6FD8 <- aug6 common/src/layout_texture (5 syms rebound)
+
+### src/pool
+- PORTED `setNodePursueParticleEffectWithUpperLimit` w1 @ 0x0010ABD8 <- aug6 sugipon/src/pool (7 syms rebound)
+- PORTED `PoolDL` w1 @ 0x0010AF48 <- aug6 sugipon/src/pool (11 syms rebound)
+- PORTED `InitLimitedPoolReflactionMesh` w1 @ 0x0010B040 <- aug6 sugipon/src/pool (4 syms rebound)
+- PORTED `getWave` w1 @ 0x0010CF88 <- aug6 sugipon/src/pool (18 syms rebound)
+
+### src/st00a
+- PORTED `actSt00aStairChk` w1 @ 0x0020D880 <- aug6 script/src/st00a (9 syms rebound)
+- PORTED `actSt00aStair` w1 @ 0x0020F720 <- aug6 script/src/st00a (4 syms rebound)
+- REVERTED `actSt00aInit` w1 @ 0x0020D7A8 — [undeclared] src/st00a.c:12: `actSt00aEnd_ext' undeclared (first use in this function)
+- REVERTED `actSt00aDoor2DownChk` w1 @ 0x0020E8C8 — [codegen] insn 39: expected `addiu	a0,s0,0` built `addiu	a0,s0,4696`
+- REVERTED `actSt00aEne` w1 @ 0x0020F1E0 — [codegen] [§fp-licm] loop-invariant FP value kept in $f2x (lwc1) vs re-materialized (mtc1)
+- REVERTED `actSt00aAtr2Chk` w1 @ 0x0020F830 — [codegen] insn 9: expected `addiu	a0,a0,0` built `addiu	a0,a0,5784`
+
+### src/way_kidnap
+- PORTED `CopyWpPos` w1 @ 0x002057C8 <- aug6 fumi/src/way_kidnap (1 syms rebound)
+- PORTED `WayLengthOfGObj_GObj` w1 @ 0x00205860 <- aug6 fumi/src/way_kidnap (1 syms rebound)
+- REVERTED `WayLengthOfPos_Pos` w1 @ 0x002055C0 — [parse] src/way_kidnap.c:3: parse error before `Nd'
+- REVERTED `NearestEnemyFromGirl` w1 @ 0x002056A8 — [parse] src/way_kidnap.c:3: parse error before `Nd'
+
+### ito/mpeg/mv_readbuf
+- REVERTED `free_buffer` w1 @ 0x0019DB50 — [codegen] /primary/dev/ico-retail/ito/mpeg/mv_readbuf.c:3: mv_defs.h: No such file or directory
+- REVERTED `readBufBeginPut` w1 @ 0x0019DBC8 — [codegen] /primary/dev/ico-retail/ito/mpeg/mv_readbuf.c:3: mv_defs.h: No such file or directory
+- REVERTED `readBufBeginGet` w1 @ 0x0019DBF0 — [codegen] /primary/dev/ico-retail/ito/mpeg/mv_readbuf.c:3: mv_defs.h: No such file or directory
+
+### src/Basic
+- PORTED `matrix_init` w1 @ 0x001F6C20 <- aug6 seki/src/Basic (6 syms rebound)
+- REVERTED `freeseki` w1 @ 0x001F6CB0 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+- REVERTED `reallocseki` w1 @ 0x001F6DB8 — [codegen] insn 5: expected `lui	a2,0x0` built `addiu	a3,zero,382`
+
+### src/BgAnimation
+- PORTED `bga_CalcObject` w1 @ 0x001F9348 <- aug6 seki/src/BgAnimation (1 syms rebound)
+- PORTED `bga_SetCamFrame` w1 @ 0x001FA6D8 <- aug6 seki/src/BgAnimation (1 syms rebound)
+- PORTED `bga_CheckAnimationFinish` w1 @ 0x001FA760 <- aug6 seki/src/BgAnimation (1 syms rebound)
+- REVERTED `bga_CheckAnimationFrame` w1 @ 0x001FA7F8 — [codegen] insn 25: expected `bc1f	98 <bga_CheckAnimationFrame+0x98>` built `sll	zero,zero,0x0`
+
+### src/brain
+- PORTED `brainLevelProcess` w1 @ 0x00182890 <- aug6 omori/src/brain (2 syms rebound)
+- PORTED `brainGetTarget` w1 @ 0x00182958 <- aug6 omori/src/brain (2 syms rebound)
+- PORTED `brainStatusSet` w1 @ 0x001829D0 <- aug6 omori/src/brain (2 syms rebound)
+- PORTED `brainGetLevel` w1 @ 0x00182AB8 <- aug6 omori/src/brain (2 syms rebound)
+
+### src/frameDependSequence
+- PORTED `executeSEPackageByGObj` w1 @ 0x001D12E0 <- aug6 sugipon/src/frameDependSequence (1 syms rebound)
+- PORTED `executeSEPackageWithNoGObj` w1 @ 0x001D13A8 <- aug6 sugipon/src/frameDependSequence (3 syms rebound)
+- PORTED `ExecuteSEPackage` w1 @ 0x001D1428 <- aug6 sugipon/src/frameDependSequence (0 syms rebound)
+
+### src/geometryManager
+- PORTED `GetRootQuaternionByDObj` w1 @ 0x001028F0 <- aug6 sugipon/src/geometryManager (5 syms rebound)
+- PORTED `SetRootMatrixWithTransOffset` w1 @ 0x00102DE0 <- aug6 sugipon/src/geometryManager (2 syms rebound)
+
+### src/hand-camera
+- PORTED `HandyCamera_TargetMoveType` w1 @ 0x00194398 <- aug6 omori/src/hand-camera (2 syms rebound)
+- PORTED `ClearHandCameraCorrect` w1 @ 0x001943C8 <- aug6 omori/src/hand-camera (3 syms rebound)
+- PORTED `InitHandCameraCorrect` w1 @ 0x00194400 <- aug6 omori/src/hand-camera (3 syms rebound)
+- PORTED `SetLimitHandCameraCorrect` w1 @ 0x00194440 <- aug6 omori/src/hand-camera (3 syms rebound)
+- REVERTED `RotateAccordingToStick_PatternThree` w1 @ 0x00194360 — [codegen] insn 13: expected `<end>` built `sll	zero,zero,0x0`
+
+### src/lightning
+- PORTED `DrawLightning2` w1 @ 0x001997B8 <- aug6 ito/src/lightning (2 syms rebound)
+- PORTED `DrawLightning` w1 @ 0x001999A8 <- aug6 ito/src/lightning (2 syms rebound)
+- REVERTED `DrawLightningN` w1 @ 0x001998C0 — [codegen] src/lightning.c:45: invalid initializer
+
+### src/motionOrientManager
+- PORTED `execFrameTrigger` w1 @ 0x001E0B58 <- aug6 sugipon/src/motionOrientManager (7 syms rebound)
+- PORTED `sendStateMail` w1 @ 0x001E0C38 <- aug6 sugipon/src/motionOrientManager (2 syms rebound)
+- PORTED `getStreamMotionGeometry` w1 @ 0x001E2370 <- aug6 sugipon/src/motionOrientManager (1 syms rebound)
+- REVERTED `shiftMotionOrientBeginFunc` w1 @ 0x001E0FE8 — [unresolved-symbol] unresolved-symbol: insn 19 `D_006169D8`: retail symbol D_004BC710 (0x004BC710) undefined
+
+### src/switch
+- REVERTED `BoxMemoryFunc` w1 @ 0x001C0E48 — [codegen] src/switch.c:85: storage size of `buf2' isn't known
+- REVERTED `getAlign` w1 @ 0x001C0EB0 — [codegen] src/switch.c:9: switch.c.inc: No such file or directory
+- REVERTED `GetDistanceOfGObj` w1 @ 0x001C0F70 — [codegen] src/switch.c:9: switch.c.inc: No such file or directory
+- REVERTED `moveXPlus` w1 @ 0x001C1038 — [codegen] src/switch.c:9: switch.c.inc: No such file or directory
+- REVERTED `moveXMinus` w1 @ 0x001C10F8 — [codegen] src/switch.c:9: switch.c.inc: No such file or directory
+
+### src/windField
+- PORTED `drawSenpuuki` w1 @ 0x001F4BE0 <- aug6 sugipon/src/windField (1 syms rebound)
+- PORTED `getRadiateWindVector` w1 @ 0x001F4DE8 <- aug6 sugipon/src/windField (2 syms rebound)
+- REVERTED `InitWindField` w1 @ 0x001F4800 — [codegen] insn 83: expected `<end>` built `sll	zero,zero,0x0`
+- REVERTED `getParallelWindVector` w1 @ 0x001F4DD8 — [codegen] insn 1: expected `addiu	v0,v0,0` built `addiu	v0,v0,1024`
+
+### ios/mcard
+- PORTED `iosMcTest` w1 @ 0x00137F08 <- aug6 fumi/ios/mcard (2 syms rebound)
+- PORTED `iosMcSync` w1 @ 0x00137F48 <- aug6 fumi/ios/mcard (2 syms rebound)
+- PORTED `iosMcGetInfo` w1 @ 0x00137F90 <- aug6 fumi/ios/mcard (2 syms rebound)
+
+### ito/mpeg/mv_videodec
+- REVERTED `videoDecEndPut` w1 @ 0x0019E278 — [emits-data] emits-data: +4 bytes of .rodata/.sdata/.lit4 (string or out-of-line float literal; needs a Phase-5 rodata carve)
+
+### src/DObj
+- PORTED `initMatrixDObj` w1 @ 0x0019E5D0 <- aug6 common/src/DObj (0 syms rebound)
+- PORTED `FreeDObj` w1 @ 0x0019EF10 <- aug6 common/src/DObj (4 syms rebound)
+- REVERTED `initGeometryState` w1 @ 0x0019E598 — [codegen] insn 13: expected `<end>` built `sll	zero,zero,0x0`
+
+### src/DisplayFont
+- PORTED `font_CheckAlign` w1 @ 0x001FA898 <- aug6 seki/src/DisplayFont (1 syms rebound)
+- PORTED `font_Print` w1 @ 0x001FA998 <- aug6 seki/src/DisplayFont (1 syms rebound)
+- PORTED `font_GetWidth` w1 @ 0x001FAA30 <- aug6 seki/src/DisplayFont (1 syms rebound)
+
+### src/Light
+- PORTED `light_getAmbientLight` w1 @ 0x00114D80 <- aug6 seki/src/Light (1 syms rebound)
+
+### src/RegistPacket
+- PORTED `reg_dispSObj` w1 @ 0x0011FC28 <- aug6 seki/src/RegistPacket (7 syms rebound)
+
+### src/Texture
+- PORTED `tex_setTexReg` w1 @ 0x0012AE40 <- aug6 seki/src/Texture (4 syms rebound)
+
+### src/attackCheckBoundary
+- PORTED `InitAttackCheckBoundaryGeo` w1 @ 0x001BB8C0 <- aug6 sugipon/src/attackCheckBoundary (6 syms rebound)
+- PORTED `CreateAttackCheckBoundary` w1 @ 0x001BBE50 <- aug6 sugipon/src/attackCheckBoundary (3 syms rebound)
+- PORTED `GetAttackCheckBoundaryManagerStatus` w1 @ 0x001BBEA0 <- aug6 sugipon/src/attackCheckBoundary (0 syms rebound)
+
+### src/chain
+- PORTED `collisionCheck` w1 @ 0x0018CFD0 <- aug6 omori/src/chain (1 syms rebound)
+- PORTED `chain_simulate_term_simple` w1 @ 0x0018CFE0 <- aug6 omori/src/chain (1 syms rebound)
+- PORTED `InitChainGeo` w1 @ 0x0018DDF0 <- aug6 omori/src/chain (5 syms rebound)
+
+### src/charFileManager
+- PORTED `ReadParticleEffectFile` w1 @ 0x001A1D88 <- aug6 common/src/charFileManager (11 syms rebound)
+- PORTED `ReadSoundHdFile` w1 @ 0x001A20D8 <- aug6 common/src/charFileManager (7 syms rebound)
+- PORTED `ReadStageSettingFile` w1 @ 0x001A2610 <- aug6 common/src/charFileManager (12 syms rebound)
+- PORTED `CSVSYSTEM_ReadCharFiles` w1 @ 0x001A26E0 <- aug6 common/src/charFileManager (6 syms rebound)
+
+### src/debug
+- PORTED `debug_FlushFontWindow` w1 @ 0x001A40C8 <- aug6 common/src/debug (11 syms rebound)
+- REVERTED `debug_Assert` w1 @ 0x001A2D58 — [codegen] insn 7: expected `<end>` built `sll	zero,zero,0x0`
+
+### src/debug_exception
+- PORTED `debugIOPExceptionMain` w1 @ 0x001A6E00 <- aug6 common/src/debug_exception (0 syms rebound)
+- PORTED `debug_SetExceptionMessage` w1 @ 0x001A7008 <- aug6 common/src/debug_exception (4 syms rebound)
+- SKIPPED `initLineTraceTable` w1 @ 0x001A6848 — jtbl
+
+### src/effectTool
+- PORTED `saveEffectData` w1 @ 0x001CCA70 <- aug6 sugipon/src/effectTool (5 syms rebound)
+
+### src/itou_sub
+- PORTED `lw_pos_to_ico_pos` w1 @ 0x001986A8 <- aug6 ito/src/itou_sub (0 syms rebound)
+
+### src/multiBgaManager
+- PORTED `DispMultiBgaManager` w1 @ 0x001E6B70 <- aug6 sugipon/src/multiBgaManager (3 syms rebound)
+- REVERTED `InitMultiBgaManager` w1 @ 0x001E69D8 — [codegen] src/multiBgaManager.c:26: incompatible types in assignment
+
+### src/particleLayout
+- PORTED `DeleteParticleLayout` w1 @ 0x001E8C88 <- aug6 sugipon/src/particleLayout (4 syms rebound)
+- PORTED `InitParticleLayoutGeo` w1 @ 0x001E8D30 <- aug6 sugipon/src/particleLayout (1 syms rebound)
+- PORTED `ParticleLayoutDL` w1 @ 0x001E8D70 <- aug6 sugipon/src/particleLayout (2 syms rebound)
+
+### src/st10r
+- PORTED `actSt10rTower` w1 @ 0x00227478 <- aug6 script/src/st10r (6 syms rebound)
+- PORTED `actSt10rEnemy1` w1 @ 0x00227750 <- aug6 script/src/st10r (5 syms rebound)
+
+### src/staffroll
+- PORTED `staffRollScroll` w1 @ 0x001B8120 <- aug6 common/src/staffroll (4 syms rebound)
+- PORTED `staffRollMain` w1 @ 0x001B81B8 <- aug6 common/src/staffroll (13 syms rebound)
+
+### src/tableSin
+- PORTED `GetTableArcCos` w1 @ 0x0010DBD0 <- aug6 sugipon/src/tableSin (3 syms rebound)
+- PORTED `GetTableArcTan2` w1 @ 0x0010DC38 <- aug6 sugipon/src/tableSin (2 syms rebound)
+
+### ios/inflate
+- PORTED `inflate_start` w1 @ 0x00133510 <- aug6 fumi/ios/inflate (3 syms rebound)
+- PORTED `close_inflate_handler` w1 @ 0x00133570 <- aug6 fumi/ios/inflate (1 syms rebound)
+
+### ios/mblock
+- PORTED `new_segment` w1 @ 0x00136088 <- aug6 fumi/ios/mblock (0 syms rebound)
+- PORTED `strdup_mblock` w1 @ 0x00136140 <- aug6 fumi/ios/mblock (1 syms rebound)
+
+### ios/mcdata
+- PORTED `iosMcIconWriteIcon` w1 @ 0x00138020 <- aug6 fumi/ios/mcdata (2 syms rebound)
+- PORTED `_iosMcIconWriteIconsys` w1 @ 0x00138068 <- aug6 fumi/ios/mcdata (2 syms rebound)
+- REVERTED `iosMcIconWriteIconsys` w1 @ 0x00137FD8 — [codegen] insn 17: expected `<end>` built `sll	zero,zero,0x0`
+
+### ito/mpeg/mv_vobuf
+- PORTED `voBufGetTag` w1 @ 0x0019E520 <- aug6 ito/mpeg/mv_vobuf (1 syms rebound)
+
+### src/PObj
+- PORTED `InitPObj` w1 @ 0x00240B88 <- aug6 common/src/PObj (2 syms rebound)
+- PORTED `FreePObj` w1 @ 0x00240BD0 <- aug6 common/src/PObj (4 syms rebound)
+
+### src/act_bird
+- PORTED `trans_bird` w1 @ 0x001970E8 <- aug6 ito/src/act_bird (4 syms rebound)
+- PORTED `BirdGeo` w1 @ 0x00197338 <- aug6 ito/src/act_bird (3 syms rebound)
+
+### src/clothTest

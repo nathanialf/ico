@@ -1,5 +1,9 @@
 #include "common.h"
 
+typedef struct {
+    int b[0x13];
+} SEPackage;
+
 
 extern float D_006333F0;
 extern void func_001D0FA8();
@@ -27,11 +31,30 @@ INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", execEff);
 
 INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", ExecFrameDependSequence);
 
-INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", executeSEPackageByGObj);
+extern SEPackage D_004C0F40;
 
-INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", executeSEPackageWithNoGObj);
+void executeSEPackageByGObj(void *a0) {
+    *(SEPackage *)a0 = D_004C0F40;
+}
+
+extern int GetFlyLimitClearance(int a0);
+extern int GetFlyLimitHeight(void);
+extern int func_001D0818(int a0);
+
+int executeSEPackageWithNoGObj(int a0) {
+    if (a0 <= 0xFFFF) {
+        return GetFlyLimitHeight();
+    } else if (a0 <= 0x1FFFF) {
+        return GetFlyLimitClearance(a0 - 0x10000);
+    } else {
+        return func_001D0818(a0 - 0x20000);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", ExecuteSEPackageWithGroupVariation);
 
-INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", ExecuteSEPackage);
+int ExecuteSEPackage(void *a0, int a1) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    return p[0x21] == a1;
+}
 

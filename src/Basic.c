@@ -1,5 +1,7 @@
 #include "common.h"
 
+#include "ico/types.h"
+
 
 
 
@@ -11,7 +13,27 @@ extern void func_00118678(void *p0);
 extern int  D_00631970;
 INCLUDE_ASM("asm/nonmatchings/src/Basic", dma_init);
 
-INCLUDE_ASM("asm/nonmatchings/src/Basic", matrix_init);
+extern int *D_0063378C;
+extern int *D_00633790;
+extern int *D_00633794;
+extern void debug_VariableInit(void);
+extern int *func_00244630(int a0);
+extern void func_00244658(int a0);
+
+void matrix_init(void) {
+    union U { int i; } *p;
+    func_00244658(1);
+    D_0063378C = func_00244630(1);
+    p = (union U *)D_0063378C;
+    p->i |= 0x40;
+    D_00633790 = func_00244630(2);
+    p = (union U *)D_00633790;
+    p->i |= 0x40;
+    D_00633794 = func_00244630(8);
+    p = (union U *)D_00633794;
+    p->i |= 0x40;
+    debug_VariableInit();
+}
 
 void malloc_MemCpy(void)
 {

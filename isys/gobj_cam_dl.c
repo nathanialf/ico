@@ -1,5 +1,7 @@
 #include "common.h"
 
+typedef struct { char p[0x34]; void *f34; void *f38; char p2[4]; unsigned char f40; char p3[3]; int f44; } AdpT;
+
 
 
 
@@ -71,13 +73,84 @@ void isysGObjLinkCameraDLAfterGObj(void) {
     D_006321D8 = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj_cam_dl", isysGObjLinkCameraDLBeforeGObj);
+extern int *D_006321D4__p4 __asm__("D_006321D4");
+
+void isysGObjLinkCameraDLBeforeGObj(int a0, int a1)
+{
+    int *self = (int *)a0;
+    int key = a1;
+    int *head;
+    int *tail;
+    int *cur;
+    int *next;
+
+    func_001FBFC8(self);
+    self[0x11] = key;
+    head = D_006321D4__p4;
+    if (head == 0) {
+        *(int *)&D_006321D8 = (int)self;
+        self[0xE] = 0;
+        self[0xD] = 0;
+        *(int *)&D_006321D4__p4 = (int)self;
+        return;
+    }
+    if ((unsigned int)head[0x11] >= (unsigned int)key) {
+        self[0xE] = 0;
+        self[0xD] = (int)head;
+        head[0xE] = (int)self;
+        D_006321D4__p4 = self;
+        return;
+    }
+    tail = D_006321D8;
+    if ((unsigned int)tail[0x11] < (unsigned int)key) {
+        self[0xE] = (int)tail;
+        self[0xD] = 0;
+        tail[0xD] = (int)self;
+        D_006321D8 = self;
+        return;
+    }
+    cur = head;
+    next = (int *)cur[0xD];
+    while ((unsigned int)next[0x11] < (unsigned int)key) {
+        cur = next;
+        next = (int *)cur[0xD];
+    }
+    self[0xE] = (int)cur;
+    self[0xD] = cur[0xD];
+    cur[0xD] = (int)self;
+    ((int *)self[0xD])[0xE] = (int)self;
+}
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj_cam_dl", AdpcmStreamInit);
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj_cam_dl", adpcmTickProc2);
+extern AdpT *D_006321D8__p4 __asm__("D_006321D8");
+extern void func_001FBFC8__p4(void *a0) __asm__("func_001FBFC8");
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj_cam_dl", adpcmDataSet);
+void adpcmTickProc2(AdpT *a0, AdpT *a1) {
+    func_001FBFC8__p4(a0);
+    a0->f40 = a1->f40;
+    a0->f38 = a1;
+    a0->f34 = a1->f34;
+    a1->f34 = a0;
+    a0->f44 = a1->f44;
+    if (a0->f34 == 0) {
+        D_006321D8__p4 = a0;
+    }
+}
+
+void adpcmDataSet(char *a0, char *a1) {
+    int next;
+    func_001FBFC8__p4(a0);
+    *(unsigned char *)(a0 + 0x40) = *(unsigned char *)(a1 + 0x40);
+    next = *(int *)(a1 + 0x38);
+    *(int *)(a0 + 0x34) = (int)a1;
+    *(int *)(a0 + 0x38) = next;
+    *(int *)(a1 + 0x38) = (int)a0;
+    *(int *)(a0 + 0x44) = *(int *)(a1 + 0x44);
+    if (*(int *)(a0 + 0x38) == 0) {
+        D_006321D4 = (int)a0;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj_cam_dl", func_001FC520);
 

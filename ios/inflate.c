@@ -5,9 +5,28 @@
 extern void new_segment(int *self);
 extern int D_00633C7C;
 extern char D_006A5C80[];
-INCLUDE_ASM("asm/nonmatchings/ios/inflate", inflate_start);
+extern char D_00556AE8[];
+extern void debug_assertMessage();
+extern int func_0024DAB8(int a0, int a1, int a2, void *a3);
 
-INCLUDE_ASM("asm/nonmatchings/ios/inflate", close_inflate_handler);
+int inflate_start(int a0, int a1, int a2, int *a3) {
+    int local, result;
+    *a3 = 0;
+    result = func_0024DAB8(a2 >> 11, a1, 1, &local) << 11;
+    if (local != 0) { debug_assertMessage(D_00556AE8, local); *a3 = 1; }
+    return result;
+}
+
+extern void iosCdvdManager(int *a0, void *buf, int n);
+
+long long close_inflate_handler(void *a0, int a1, int *a2, int a3) {
+    long long d = (unsigned int)(a2[0x4E] - a2[9]);
+    int lt = d < a1;
+    long long n = d;
+    if (!lt) n = a1;
+    if (n) iosCdvdManager(a2, a0, (int)n);
+    return n;
+}
 
 void inflate(void)
 {
