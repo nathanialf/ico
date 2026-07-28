@@ -225,3 +225,6 @@ decomp/DATA_INVESTIGATION.md
 # extract). Not under build/ because tools/build.sh setup wipes that tree.
 .transplant_cache/
 .port_cache/
+
+# Assembled GitHub Pages site (regenerable: .github/scripts/build_pages_site.sh).
+_site/
