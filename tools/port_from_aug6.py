@@ -71,7 +71,7 @@ Usage
   tools/port_from_aug6.py revert-func <retail_tu> <func> [--reason ...]
 
 See decomp/PORTING.md for the operational runbook and
-decomp/transplant_ledger.md (Phase 4 section) for per-function accounting.
+decomp/port_ledger.md for per-function accounting.
 """
 import argparse
 import bisect
@@ -98,7 +98,7 @@ TEXT_VMA = 0x100000
 TEXT_SZ = 0x16F5D4
 ROM = ROOT / "baserom" / "baseelf.rom"
 
-LEDGER_PATH = ROOT / "decomp" / "transplant_ledger.md"
+LEDGER_PATH = ROOT / "decomp" / "port_ledger.md"
 
 AUG6_PROGS = ("common", "omori", "seki", "sugipon", "ito", "fumi", "script")
 

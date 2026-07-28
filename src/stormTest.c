@@ -42,7 +42,11 @@ void DispStormPackage(float f12, float f13, int a0)
     D_00275120.field_F8 = a0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/stormTest", StormTestGeo);
+extern float D_00633648;
+
+void StormTestGeo(float a0) {
+    D_00633648 = a0;
+}
 
 void StormTestDL(void) {
     D_0063363C = 0;

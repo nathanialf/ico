@@ -41,7 +41,11 @@ void cut_gobj_process_link(DLN *self, DLN *obj) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj_process", isysGObjProcRemove);
+extern void isysGObjProcAddGOppArg(unsigned int a0);
+
+void isysGObjProcRemove(unsigned int a0) {
+    isysGObjProcAddGOppArg(a0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj_process", isysGObjProcessAlloc);
 

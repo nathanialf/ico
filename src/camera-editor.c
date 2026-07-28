@@ -115,7 +115,11 @@ INCLUDE_ASM("asm/nonmatchings/src/camera-editor", menuPinSelect);
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", menuPinEdit);
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", wakeup_cameraedit);
+extern void menuGroupEdit(int a0, int a1);
+
+void wakeup_cameraedit(int a0, int a1) {
+    menuGroupEdit(a0, a1 & 0xFF);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", test_camedit);
 
@@ -148,7 +152,11 @@ void CameraEdit_DispBox(int a0, int a1)
     CameraEdit_add_box(D_00632614, a0, a1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", CameraEdit_Reflect);
+extern void dispCameraGroupType2(int a0, unsigned char a1);
+
+void CameraEdit_Reflect(int a0, unsigned char a1) {
+    dispCameraGroupType2(a0, a1);
+}
 
 extern void func_001897A8(int a0, int a1);
 

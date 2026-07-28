@@ -20,7 +20,11 @@ void GetWormRoute(void *a0, char *a1, float f12) {
 
 INCLUDE_ASM("asm/nonmatchings/src/worm", InitWormGeo);
 
-INCLUDE_ASM("asm/nonmatchings/src/worm", GetWormCaptureVector);
+extern void simulate(void);
+
+void GetWormCaptureVector(void) {
+    simulate();
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/worm", WormGeo);
 

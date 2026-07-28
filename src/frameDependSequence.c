@@ -19,7 +19,11 @@ void playSERandomID(int a0, int a1)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", playSEConditionID);
+extern void playSERandomID__p4(int a0, int a1, int a2) __asm__("playSERandomID");
+
+void playSEConditionID(int a0, int a1) {
+    playSERandomID__p4(a0, a1, 0);
+}
 
 void playEff(int a0, int a1, float f)
 {
@@ -29,7 +33,11 @@ void playEff(int a0, int a1, float f)
 
 INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", execEff);
 
-INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", ExecFrameDependSequence);
+extern void execEff(int a0, int a1);
+
+void ExecFrameDependSequence(int a0) {
+    execEff(a0, 0);
+}
 
 extern SEPackage D_004C0F40;
 

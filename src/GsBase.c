@@ -50,7 +50,24 @@ void gsb_Reduction(int a0) {
     D_004C7710.cur = q;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/GsBase", gsb_KeepFrameBuffer);
+void gsb_KeepFrameBuffer(int a0) {
+    unsigned long long *p, *q;
+    int new_var;
+    unsigned long long tag;
+    if (a0) {
+        tag = 0x300000C0;
+        new_var = 0; do { } while (new_var);
+    } else {
+        tag = 0x1300000C0;
+    }
+    p = D_004C7710.cur;
+    *(volatile unsigned long long *)p = tag;
+    p++;
+    *(unsigned long long * volatile *)&D_004C7710.cur = p;
+    q = p + 1;
+    *(volatile unsigned long long *)p = 0x4E;
+    D_004C7710.cur = q;
+}
 
 extern int D_00631C5C;
 extern int D_00631C60;

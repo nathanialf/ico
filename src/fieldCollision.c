@@ -2,6 +2,8 @@
 
 #include "ico/types.h"
 
+typedef struct { unsigned int lo; unsigned char m[3]; unsigned char hi; } FcBlk8;
+
 
 
 extern char D_002A4C48[];
@@ -92,9 +94,22 @@ INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", DBG_VECTOR);
 
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", GetEdgeOfFloor);
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", DrawCollisionRay);
+extern FcBlk8 D_006323C0;
+extern int GetEdgeOfFloor(void *a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", MakeExitAttributeIndex);
+void DrawCollisionRay(char *a0) {
+    *(int *)(a0 + 0xB0) = 0;
+    *(int *)(a0 + 0x94) = 0;
+    *(int *)(a0 + 0x88) = 0;
+    *(FcBlk8 *)(a0 + 0x80) = D_006323C0;
+    GetEdgeOfFloor(a0);
+}
+
+void MakeExitAttributeIndex(void *a0) {
+    *(int *)((char *)a0 + 0x94) = 0;
+    *(FcBlk8 *)((char *)a0 + 0x8C) = D_006323C0;
+    GetEdgeOfFloor(a0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ClipFloorByGObj);
 

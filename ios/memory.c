@@ -66,7 +66,60 @@ INCLUDE_ASM("asm/nonmatchings/ios/memory", iosMallocCheckLeak2);
 
 INCLUDE_ASM("asm/nonmatchings/ios/memory", iosReallocDebug);
 
-INCLUDE_ASM("asm/nonmatchings/ios/memory", iosMallocInitPartition);
+extern char D_00556F80[];
+extern char D_00557060[];
+extern char D_00557220[];
+extern char D_00557458[];
+extern char D_00557470[];
+extern char D_00557480[];
+extern char D_00557490[];
+extern char D_005574A8[];
+extern char D_006A6970[];
+extern void debug_assertMessage__p4(const char *fmt, ...) __asm__("debug_assertMessage");
+extern int func_00265570(char *dst, int src, int n);
+
+void iosMallocInitPartition(int a0, int a1) {
+    int node = *(int *)(a0 + a1 + 0x38);
+    int r;
+
+    debug_assertMessage__p4(D_00557458, a0);
+    if (node == 0) {
+        return;
+    }
+    do {
+            node += a1;
+            func_00265570(D_006A6970, node + 0x10, 0xF);
+            D_006A6970[0xF] = 0;
+            r = func_00265024((int *)node, D_00557220);
+            if (r == 0) {
+                debug_assertMessage__p4(D_00557470, node - a1, D_006A6970);
+                r = 0xB;
+                goto delay;
+            }
+            r = func_00265024((int *)node, D_00556F80);
+            if (r == 0) {
+                debug_assertMessage__p4(D_00557480, node - a1);
+                r = 0xB;
+                goto delay;
+            }
+            r = func_00265024((int *)node, D_00557060);
+            if (r != 0) {
+                debug_assertMessage__p4(D_005574A8, node - a1, node);
+                return;
+            }
+            debug_assertMessage__p4(D_00557490);
+            r = 0xB;
+        delay:
+            do {
+                r--;
+                VU0_NOP();
+                VU0_NOP();
+                VU0_NOP();
+                VU0_NOP();
+            } while (r >= 0);
+            node = *(volatile int *)(node + 0x24);
+    } while (node != 0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/ios/memory", iosMallocAlignDebug);
 

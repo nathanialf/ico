@@ -1,10 +1,33 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/windManager", ExecWindManager);
+extern float D_004C63A0[];
+extern float D_004C63B0[];
+extern void func_001D4A58(void *a0, void *a1, void *a2, void *a3, int a4);
 
-INCLUDE_ASM("asm/nonmatchings/src/windManager", ReinitWindManager);
+void ExecWindManager(void) {
+    float *p;
+    for (p = D_004C63B0; -1000.0f < *p; p += 8) {
+        func_001D4A58(p, D_004C63A0, p + 4, D_004C63A0, -1);
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/windManager", SetWindManager);
+extern float D_004C6510[];
+
+void ReinitWindManager(void) {
+    float *p;
+    for (p = D_004C6510; -1000.0f < *p; p += 8) {
+        func_001D4A58(p, D_004C63A0, p + 4, D_004C63A0, -1);
+    }
+}
+
+extern float D_004C66B0[];
+
+void SetWindManager(void) {
+    float *p;
+    for (p = D_004C66B0; -1000.0f < *p; p += 8) {
+        func_001D4A58(p, D_004C63A0, p + 4, D_004C63A0, -1);
+    }
+}
 
 extern float D_00631414;
 extern float D_0063375C;

@@ -107,7 +107,11 @@ void debug_FlushFontWindow(int a0, int a1, int a2, char *a3) {
 
 INCLUDE_ASM("asm/nonmatchings/src/debug", debug_FlushFont);
 
-INCLUDE_ASM("asm/nonmatchings/src/debug", draw_batsu);
+extern void debug_FlushFont(void);
+
+void draw_batsu(void) {
+    debug_FlushFont();
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/debug", draw_shikaku);
 

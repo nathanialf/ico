@@ -18,7 +18,11 @@ INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vobuf", voBufCreate);
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vobuf", voBufDelete);
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vobuf", voBufReset);
+extern void voBufCreate();
+
+void voBufReset(void) {
+    voBufCreate();
+}
 
 void voBufIsFull(int a0)
 {

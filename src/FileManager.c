@@ -19,7 +19,11 @@ void file_LoadCDFile(int a0, int a1, int a2, int a3)
     func_00122BA0(a0, a1, a2, a3);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/FileManager", file_LoadFile);
+extern void file_LoadCDFile__p4() __asm__("file_LoadCDFile");
+
+void file_LoadFile(int a0) {
+    file_LoadCDFile__p4(*(void **)(a0 + 0x15C));
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/FileManager", func_0010ECB0);
 

@@ -62,7 +62,55 @@ int fzMagnitude3f(int a0) {
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", fzMagnitudefv);
+extern char D_00559368[];
+extern char D_00559398[];
+extern void MatrixDrive_TurnObjectMatrix__p4(int a0, int a1) __asm__("MatrixDrive_TurnObjectMatrix");
+extern void debug_assertMessage();
+extern float func_0010E9A0(short a0);
+extern void func_002438B8(void *a0, void *a1, void *buf);
+extern float p2o_SetDefaultEnviroment(short a0);
+
+void fzMagnitudefv(void *a0, void *a1, int *a2)
+{
+    float buf[4];
+    int *var_19;
+    void *obj = (void *)a2[0];
+
+    if (a1 == 0) {
+        buf[1] = 0.0f;
+        buf[2] = 1.0f;
+        var_19 = 0;
+        buf[0] = 0.0f;
+        debug_assertMessage(D_00559368);
+    } else {
+        var_19 = (int *)1;
+        buf[0] = -p2o_SetDefaultEnviroment((short)-*(unsigned short *)((char *)a1 + 0x44));
+        buf[1] = 0.0f;
+        buf[2] = func_0010E9A0((short)-*(unsigned short *)((char *)a1 + 0x44));
+        buf[3] = 1.0f;
+    }
+    if (var_19 == 0) {
+        MatrixDrive_TurnObjectMatrix__p4((int)a0, (int)buf);
+        *var_19 = 0;
+        return;
+    }
+    *(int *)&buf[3] = 0;
+    {
+        int *temp_3 = (int *)*(int *)((char *)obj + 0x15C);
+        if (temp_3 != 0 && *(int *)((char *)temp_3 + 0xC) != 0) {
+            if (*(int *)((char *)temp_3 + 0x78) != 0) {
+                int *p5 = (int *)a2[0];
+                int idx = a2[1];
+                int *o3 = (int *)*(int *)((char *)p5 + 0x15C);
+                func_002438B8(a0, (void *)(*(int *)((char *)o3 + 0xC) + (idx << 6)), buf);
+                return;
+            }
+            MatrixDrive_TurnObjectMatrix__p4((int)a0, (int)buf);
+            return;
+        }
+        debug_assertMessage(D_00559398);
+    }
+}
 
 void fzMagnitude2fv(float *self, float a, float b, float c, float d) {
     self[0] = a; self[1] = b; self[2] = c; self[3] = d;

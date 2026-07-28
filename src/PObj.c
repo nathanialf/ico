@@ -7,9 +7,15 @@
 
 
 extern int D_00712CC0[];
-INCLUDE_ASM("asm/nonmatchings/src/PObj", MakeBoundingBox);
+extern int D_00633B98;
 
-INCLUDE_ASM("asm/nonmatchings/src/PObj", MakePacket);
+void MakeBoundingBox(void) {
+    D_00633B98 = 0;
+}
+
+int MakePacket(void) {
+    return D_00633B98;
+}
 
 int AllocPObj(int idx)
 {

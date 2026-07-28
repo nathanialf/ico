@@ -60,7 +60,11 @@ set_path:
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", isysGObjMoveObjDLHead);
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", isysGObjLinkObjDL);
+extern void isysGObjMoveObjDLHead(int *self);
+
+void isysGObjLinkObjDL(int *self) {
+    isysGObjMoveObjDLHead(self);
+}
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", isysGObjLinkObjDLHead);
 
@@ -108,9 +112,25 @@ void isysGObjLinkObjDLAfterGObj(int a0, int a1, int a2)
     self->next->prev = self;
 }
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", isysGObjLinkObjDLBeforeGObj);
+extern void isysGObjLinkObjDLHead(int a0, int a1, int a2);
 
-INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", isysGObjDlInit);
+void isysGObjLinkObjDLBeforeGObj(int a0, int a1, int a2)
+{
+    int s1 = a1 & 0xFF;
+    int new_var;
+    new_var = a2;
+    isysGObjMoveObjDLHead(a0);
+    return isysGObjLinkObjDLHead(a0, s1, new_var);
+}
+
+void isysGObjDlInit(int a0, int a1, int a2)
+{
+    int s1 = a1 & 0xFF;
+    int new_var;
+    new_var = a2;
+    isysGObjMoveObjDLHead(a0);
+    return isysGObjLinkObjDLAfterGObj(a0, s1, new_var);
+}
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj_dl", isysGObjMoveObjDLAfterGObj);
 

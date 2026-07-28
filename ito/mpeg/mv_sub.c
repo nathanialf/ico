@@ -12,7 +12,11 @@ extern void func_0025E1E8(unsigned long long a0, unsigned int a1, int a2);
 extern void iosMallocCheckLeak2();
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_sub", ErrMessage);
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_sub", copy2area);
+extern void func_0023E170__p4(void *a0) __asm__("func_0023E170");
+
+void copy2area(int a0) {
+    func_0023E170__p4(*(void **)(a0 + 0x30));
+}
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_sub", func_0023D8A8);
 
