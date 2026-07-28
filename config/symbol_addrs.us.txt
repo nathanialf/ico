@@ -1,5 +1,8 @@
 // Visit https://github.com/ethteck/splat/wiki/Adding-Symbols for documentation about this file
-_start = 0x00100008; // type:func
+// The real ELF entry point (readelf -h), 8 bytes into crt0 — vendor, not
+// game code. Tagged so the progress dashboard stops treating it as an
+// unattributed symbol. Policy: decomp/VENDOR.md.
+_start = 0x00100008; // type:func  // (vendor)
 
 // Tail of .sdata is the 6-byte string "FALSE\0" at 0x00633BC0. Splat 0.40.0
 // rounds the last data symbol down to a 4-byte boundary (emits .word for
@@ -62,7 +65,7 @@ D_006337AB = 0x006337AB; // type:u8 size:0x1 defined:True
 // dead space between func_00101C80 and func_00102418 instead of splitting
 // out as its own function. Discovered when flipping delayFreeManager.c to
 // a `c` subsegment (retail-v2 phase 2) produced an undefined reference.
-func_00102340 = 0x00102340; // type:func size:0xD8
+func_00102340 = 0x00102340; // type:func size:0xD8  // src/delayFreeManager.c
 
 // Splat-lost-symbol fixups (batch): jal/j targets inside game .text TU
 // spans that tools/gen_us_symbol_addrs.py's branch-aware boundary scan
@@ -121,77 +124,84 @@ func_001C3778 = 0x001C3778; // type:func  // src/clipCollisionManager.c
 func_001F2388 = 0x001F2388; // type:func  // src/waySystemManager.c
 func_0023B728 = 0x0023B728; // type:func  // src/objact.c
 
-func_00167280 = 0x00167280; // type:func size:0x2A4
-func_001A2E28 = 0x001A2E28; // type:func size:0x58 defined:True
-func_001A2E80 = 0x001A2E80; // type:func size:0x120 defined:True
-func_001A2FA0 = 0x001A2FA0; // type:func size:0x220 defined:True
-func_001A3208 = 0x001A3208; // type:func size:0x134 defined:True
-func_001A3340 = 0x001A3340; // type:func size:0x54 defined:True
-func_001A3398 = 0x001A3398; // type:func size:0x5E4 defined:True
-func_001A3394 = 0x001A3394; // type:func
-func_001A2E24 = 0x001A2E24; // type:func
-func_001A3204 = 0x001A3204; // type:func
-func_0010311C = 0x0010311C; // type:func
-SetDirectRootPositionNoFittingWithNodePoint = 0x00103120; // type:func  // provisional-ordinal
-func_001886F4 = 0x001886F4; // type:func
-func_0011788C = 0x0011788C; // type:func
-func_00117C5C = 0x00117C5C; // type:func
-func_00117C7C = 0x00117C7C; // type:func
-func_00117CCC = 0x00117CCC; // type:func
-func_00117CEC = 0x00117CEC; // type:func
-func_00117C60 = 0x00117C60; // type:func
-func_00117C80 = 0x00117C80; // type:func
-func_00117CD0 = 0x00117CD0; // type:func
-func_00149EF4 = 0x00149EF4; // type:func
-func_0014A2C4 = 0x0014A2C4; // type:func
-func_0014A46C = 0x0014A46C; // type:func
-func_0014A5FC = 0x0014A5FC; // type:func
-func_0017904C = 0x0017904C; // type:func
-func_0017905C = 0x0017905C; // type:func
-func_0017A9D4 = 0x0017A9D4; // type:func
-func_0017AA04 = 0x0017AA04; // type:func
-func_001538F4 = 0x001538F4; // type:func
-func_00154444 = 0x00154444; // type:func
-func_00154644 = 0x00154644; // type:func
-func_001546BC = 0x001546BC; // type:func
-func_0015479C = 0x0015479C; // type:func
-func_001547AC = 0x001547AC; // type:func
-func_0015F9F4 = 0x0015F9F4; // type:func
-func_00164EF4 = 0x00164EF4; // type:func
-func_00164F3C = 0x00164F3C; // type:func
-func_00164F84 = 0x00164F84; // type:func
-func_00164FCC = 0x00164FCC; // type:func
-func_00165174 = 0x00165174; // type:func
-func_0016529C = 0x0016529C; // type:func
-func_001652B4 = 0x001652B4; // type:func
-func_001652CC = 0x001652CC; // type:func
-func_00165344 = 0x00165344; // type:func
-func_00165414 = 0x00165414; // type:func
-func_00165DC0 = 0x00165DC0; // type:func size:0x48
-func_00165E08 = 0x00165E08; // type:func size:0x54
-_ACTCharStatus_Clear = 0x00149EF8; // type:func  // provisional-ordinal
-ACTGame_CommonLoop = 0x0014A2C8; // type:func  // provisional-ordinal
-ACTItemWatchMotion = 0x0014A470; // type:func  // provisional-ordinal
-ACTNotNeedCameraOffset = 0x0014A600; // type:func  // provisional-ordinal
-func_0017AA08 = 0x0017AA08; // type:func
-func_001538F8 = 0x001538F8; // type:func
-func_00154648 = 0x00154648; // type:func
-func_001546C0 = 0x001546C0; // type:func
-func_001547A0 = 0x001547A0; // type:func
-func_001547B0 = 0x001547B0; // type:func
-func_001652A0 = 0x001652A0; // type:func
-func_00165348 = 0x00165348; // type:func
-func_0017A9D8 = 0x0017A9D8; // type:func
-func_0015F9F8 = 0x0015F9F8; // type:func
-func_00164EF8 = 0x00164EF8; // type:func
-func_00164F40 = 0x00164F40; // type:func
-func_00164F88 = 0x00164F88; // type:func
-func_00164FD0 = 0x00164FD0; // type:func
-func_00165178 = 0x00165178; // type:func
-func_001652B8 = 0x001652B8; // type:func
-func_001652D0 = 0x001652D0; // type:func
-func_00165418 = 0x00165418; // type:func
-func_00165488 = 0x00165488; // type:func
+// Splat-lost-symbol / provisional-name seeds, batch 2.  Same provenance as
+// the batch above (jal/j targets and TU-seam padding the boundary scanner
+// absorbed, plus four TRFILE-ordinal names).  The `// <path>.c` trailers were
+// added 2026-07-28: they were missing, which made tools/progress_tree.py
+// bucket all 72 as note-less and therefore "vendor" on the progress
+// dashboard.  Each trailer is the `c` subsegment of config/ico.us.yaml whose
+// [start, next_start) span contains the address — not a guess.
+func_00167280 = 0x00167280; // type:func size:0x2A4  // src/fieldCollision.c
+func_001A2E28 = 0x001A2E28; // type:func size:0x58 defined:True  // src/debug.c
+func_001A2E80 = 0x001A2E80; // type:func size:0x120 defined:True  // src/debug.c
+func_001A2FA0 = 0x001A2FA0; // type:func size:0x220 defined:True  // src/debug.c
+func_001A3208 = 0x001A3208; // type:func size:0x134 defined:True  // src/debug.c
+func_001A3340 = 0x001A3340; // type:func size:0x54 defined:True  // src/debug.c
+func_001A3398 = 0x001A3398; // type:func size:0x5E4 defined:True  // src/debug.c
+func_001A3394 = 0x001A3394; // type:func  // src/debug.c
+func_001A2E24 = 0x001A2E24; // type:func  // src/debug.c
+func_001A3204 = 0x001A3204; // type:func  // src/debug.c
+func_0010311C = 0x0010311C; // type:func  // src/geometryManager.c
+SetDirectRootPositionNoFittingWithNodePoint = 0x00103120; // type:func  // src/geometryManager.c  // provisional-ordinal
+func_001886F4 = 0x001886F4; // type:func  // src/camera-ico2.c
+func_0011788C = 0x0011788C; // type:func  // src/Light.c
+func_00117C5C = 0x00117C5C; // type:func  // src/Light.c
+func_00117C7C = 0x00117C7C; // type:func  // src/Light.c
+func_00117CCC = 0x00117CCC; // type:func  // src/Light.c
+func_00117CEC = 0x00117CEC; // type:func  // src/Light.c
+func_00117C60 = 0x00117C60; // type:func  // src/Light.c
+func_00117C80 = 0x00117C80; // type:func  // src/Light.c
+func_00117CD0 = 0x00117CD0; // type:func  // src/Light.c
+func_00149EF4 = 0x00149EF4; // type:func  // src/act-game.c
+func_0014A2C4 = 0x0014A2C4; // type:func  // src/act-game.c
+func_0014A46C = 0x0014A46C; // type:func  // src/act-game.c
+func_0014A5FC = 0x0014A5FC; // type:func  // src/act-game.c
+func_0017904C = 0x0017904C; // type:func  // src/way_util.c
+func_0017905C = 0x0017905C; // type:func  // src/way_util.c
+func_0017A9D4 = 0x0017A9D4; // type:func  // src/way_util.c
+func_0017AA04 = 0x0017AA04; // type:func  // src/way_util.c
+func_001538F4 = 0x001538F4; // type:func  // src/boyact.c
+func_00154444 = 0x00154444; // type:func  // src/boyact.c
+func_00154644 = 0x00154644; // type:func  // src/boyact.c
+func_001546BC = 0x001546BC; // type:func  // src/boyact.c
+func_0015479C = 0x0015479C; // type:func  // src/boyact.c
+func_001547AC = 0x001547AC; // type:func  // src/boyact.c
+func_0015F9F4 = 0x0015F9F4; // type:func  // src/enemy_act.c
+func_00164EF4 = 0x00164EF4; // type:func  // src/enemy_act.c
+func_00164F3C = 0x00164F3C; // type:func  // src/enemy_act.c
+func_00164F84 = 0x00164F84; // type:func  // src/enemy_act.c
+func_00164FCC = 0x00164FCC; // type:func  // src/enemy_act.c
+func_00165174 = 0x00165174; // type:func  // src/enemy_act.c
+func_0016529C = 0x0016529C; // type:func  // src/enemy_act.c
+func_001652B4 = 0x001652B4; // type:func  // src/enemy_act.c
+func_001652CC = 0x001652CC; // type:func  // src/enemy_act.c
+func_00165344 = 0x00165344; // type:func  // src/enemy_act.c
+func_00165414 = 0x00165414; // type:func  // src/enemy_act.c
+func_00165DC0 = 0x00165DC0; // type:func size:0x48  // src/enemy_act.c
+func_00165E08 = 0x00165E08; // type:func size:0x54  // src/enemy_act.c
+_ACTCharStatus_Clear = 0x00149EF8; // type:func  // src/act-game.c  // provisional-ordinal
+ACTGame_CommonLoop = 0x0014A2C8; // type:func  // src/act-game.c  // provisional-ordinal
+ACTItemWatchMotion = 0x0014A470; // type:func  // src/act-game.c  // provisional-ordinal
+ACTNotNeedCameraOffset = 0x0014A600; // type:func  // src/act-game.c  // provisional-ordinal
+func_0017AA08 = 0x0017AA08; // type:func  // src/way_util.c
+func_001538F8 = 0x001538F8; // type:func  // src/boyact.c
+func_00154648 = 0x00154648; // type:func  // src/boyact.c
+func_001546C0 = 0x001546C0; // type:func  // src/boyact.c
+func_001547A0 = 0x001547A0; // type:func  // src/boyact.c
+func_001547B0 = 0x001547B0; // type:func  // src/boyact.c
+func_001652A0 = 0x001652A0; // type:func  // src/enemy_act.c
+func_00165348 = 0x00165348; // type:func  // src/enemy_act.c
+func_0017A9D8 = 0x0017A9D8; // type:func  // src/way_util.c
+func_0015F9F8 = 0x0015F9F8; // type:func  // src/enemy_act.c
+func_00164EF8 = 0x00164EF8; // type:func  // src/enemy_act.c
+func_00164F40 = 0x00164F40; // type:func  // src/enemy_act.c
+func_00164F88 = 0x00164F88; // type:func  // src/enemy_act.c
+func_00164FD0 = 0x00164FD0; // type:func  // src/enemy_act.c
+func_00165178 = 0x00165178; // type:func  // src/enemy_act.c
+func_001652B8 = 0x001652B8; // type:func  // src/enemy_act.c
+func_001652D0 = 0x001652D0; // type:func  // src/enemy_act.c
+func_00165418 = 0x00165418; // type:func  // src/enemy_act.c
+func_00165488 = 0x00165488; // type:func  // src/enemy_act.c
 
 // VU1 microprograms — hand-typed src/*.S assembled by tools/assemble_vu0.py.
 // Retail VMAs; byte-identical to the aug6 programs (same sizes).
