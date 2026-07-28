@@ -1,5 +1,9 @@
 #include "common.h"
 
+typedef struct {
+    int f0, f4, f8, fC, f10, f14, f18;
+} WgAll;
+
 typedef struct WNODE { char _p[0x20]; int i20; int i24; } WNODE;
 
 typedef struct { int pad[8]; int f20; int pad2[7]; } WVTElem;
@@ -78,7 +82,27 @@ INCLUDE_ASM("asm/nonmatchings/src/way_util", shortest_path);
 
 INCLUDE_ASM("asm/nonmatchings/src/way_util", shortest_path_ThreadVersion);
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", GetWgAll);
+extern char D_00559DA0[];
+extern int D_00632010;
+extern int func_0013A0F8(int, int, const char *, int);
+
+void *GetWgAll(void) {
+    WgAll *p = (WgAll *)func_0013A0F8(D_00632010, 0x1C, D_00559DA0, 0x359);
+    int *q;
+    int i;
+    p->f0 = func_0013A0F8(D_00632010, 0x5F, D_00559DA0, 0x35B);
+    p->f4 = func_0013A0F8(D_00632010, 0x8A10, D_00559DA0, 0x35C);
+    p->fC = func_0013A0F8(D_00632010, 0x17C, D_00559DA0, 0x35D);
+    p->f10 = func_0013A0F8(D_00632010, 0x17C, D_00559DA0, 0x35E);
+    p->f14 = func_0013A0F8(D_00632010, 0x17C, D_00559DA0, 0x35F);
+    p->f18 = func_0013A0F8(D_00632010, 0x17C, D_00559DA0, 0x360);
+    q = (int *)func_0013A0F8(D_00632010, 0x178, D_00559DA0, 0x362);
+    p->f8 = (int)q;
+    for (i = 0; i < 0x5E; i++) {
+        q[i] = p->f4 + i * 0x178;
+    }
+    return p;
+}
 
 void set_check_wp(int *self)
 {

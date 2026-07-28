@@ -328,3 +328,165 @@ The four `pass-deferred` entries are **not floors** — the three
 `actSt04eWaterFlagOn` / `actSt02aEne` / `actSt02aSekizo` residuals are one and
 the same gcc allocno-priority tie (see batch 5), and `actGirlAttack` is an
 assembler-parity gap in `tools/compile_c.sh`, not a source-shape problem.
+
+---
+
+# conv-4 remainder pass (worker 4, branch `conv-4` off `39aa70a2`)
+
+Scope: the 20 `unresolved-symbol` + 15 `rewritten` + 4 `pass-deferred`
+entries of the CORRECTION table above, plus the 20 open entries of
+`decomp/convpass_ledger_2.md`.  **39 matched**, every batch gated on a full
+`build.sh setup && ninja` → `verify_elf: OK (…fbf50c75…)`.
+
+## Tooling
+
+| change | why |
+|---|---|
+| `tools/port_from_aug6.py`: `PORT_LENIENT=1` | downgrades an unbindable reloc slot from an abort to a stderr warning so `PORT_DEBUG_DUMP` still writes the candidate TU with every slot the walk *could* bind already rebound. The remaining symbols keep their aug6 names and are bound by hand against the retail `.s`. Off by default; the driver's own accept/revert path and the ledger classification are unchanged. **This is the single tool that unlocks the whole `unresolved-symbol` class.** |
+
+Operational note: `retail_defined_labels()` caches to
+`.port_cache/retail_labels.json`.  After adding a symbol to
+`config/symbol_addrs.us.txt` you must `rm` that cache or the driver still
+reports `retail symbol func_XXXXXXXX undefined`.
+
+`tools/compile_c.sh` was **not** changed — see `actGirlAttack` below.
+
+## Corrections to the ledger-3 CORRECTION table
+
+1. **`actGirlAttack` is not an assembler-parity gap.**  The rc15 /
+   "4 spurious COP1-hazard nops" diagnosis is stale: worker 2's
+   `tools/preprocess_old_as.py` `%gp_rel(SYM + N)` fix (ledger 2, batch 3)
+   put `src/girl_act.c` back on the period assembler, so the nops are gone.
+   The real residual was five BoxBar se ids (`0xFA…0xFE → 0xFD…0x101`).
+   MATCHED with no `compile_c.sh` edit.  The Case-2 `mtc1`+`c.lt.s` wrap's
+   `bc1`-follows exclusion is therefore still unexercised — do **not**
+   widen it speculatively; there is no function that needs it.
+2. **`bga_calcEnvelope` is `rewritten`, not `unresolved-symbol`.**  aug6 13
+   insns → retail 180, and the retail body is a hand-VU0 macro-mode
+   envelope/quaternion block (`vmulax`/`vmadd*`/`qmtc2.ni`).  Fresh work.
+3. **`stage_SetScale` is `rewritten`, not `unresolved-symbol`** (aug6 3
+   insns → retail 32) — and it MATCHED anyway (see below).
+
+## New systematic retail-vs-aug6 edit patterns
+
+15. **The `actStXXChk` "spider-group wait" template lost its two
+    `gflagOff` calls and gained an `ACTEnvGetTest()` arm.**  All 12
+    st04l/st06a `unresolved-symbol` functions are one 85-insn template:
+    the aug6 tail `D_x=1; gflagOff(A,0); gflagOff(B,0x202); f(id);` became
+    `D_x=1; func_0017B258(id);` followed by
+    `if (ACTEnvGetTest()) { func_0017B528(A); func_0017B528(B);
+    BoySekikaTexScroll(A,1); BoySekikaTexScroll(B,1); _ACTWait(1);
+    GetTarget(); }`, and the closing `iosOmBeforeFuncStandard` is likewise
+    guarded by a second `ACTEnvGetTest()`.  Deleting the two `gflagOff`s is
+    exactly what desynchronised the port driver's alignment at insn 21 and
+    produced the whole `insn 21 D_00629DE4: no aligned retail slot` class.
+16. **`actSt25aQueenDead`'s 3rd argument went `D_00631AE8` → `0`** in
+    `actSt04dInit` and `actSt05cDoorDownEvent`.  Signature of the
+    `retail slot is not $gp-based` revert reason.
+17. **Act-object status word `0xC0 → 0xD0`** (the `& 0x10` "motion done"
+    poll word) — same +0x10 family as pattern 8, one level up from the
+    `0xB0/0xB4 → 0xC0/0xC4` handler slots.
+18. **`extern int D_x` → `extern char D_x[]` is needed for assert-message
+    globals too** (`jimakuHandler`'s `D_005594A0`).  Signature: built has
+    `lw a0,0(gp)` where ROM has `lui/addiu %hi/%lo`, and the built
+    function is 1 insn short.
+
+## More splat-merge carves (`config/symbol_addrs.us.txt`)
+
+Every entry added is `// type:func  // <tu>  // provisional-ordinal`:
+
+| new symbol | carved out of | status |
+|---|---|---|
+| `func_00154070` | `ditch_check_heroin_position` (src/boyact.c) | **matched** |
+| `func_00154128` | `actBoyPullupReady` (src/boyact.c) | **matched** |
+| `func_001541E0` | `actBoyPullupGo` (src/boyact.c) | **matched** |
+| `func_00175B18` | `jimakuHandler` (src/jimaku.c) | **matched** |
+| `func_00211EC8` | `actSt02aSecretItem` (src/st02a.c) | carved, INCLUDE_ASM only |
+
+`func_00211EC8` (78 insns, a linear `actSt25aQueenDeadChk` /
+`func_001E8EA8` / `func_0017EA50` / `func_001BFFE8` sequence with two
+callee-saved FPRs) is fresh decomp — it has no aug6 twin.  It is the last
+half of the 3 remaining carved-but-unwritten halves.
+
+## Log
+
+| TU | func(s) | result | note |
+|---|---|---|---|
+| src/st04l | actSt04lBrg1Chk, Rope3Chk, Rope4Chk, Brg2Chk, SekizoChk, GondolaChk, Monyou01Chk | MATCHED (7) | pattern 15; per-func (gflag, anim, spider-mask) = (0xC0,0xCE,0x1000000) … (0xC6,0xD4,0x7000000) |
+| src/st04l | actSt04dInit | MATCHED | pattern 16; `0x3FF/0x400→0x402/0x403`, `0xDF→0xE0`, `0xB0→0xB1` |
+| src/st06a | actSt06aInit, Suimon, SuimonChk, Door, DoorUpChk | MATCHED (5) | pattern 15; (0xFB…0xFF, 0x132…0x136, 0x3000000…0x7000000) |
+| src/st02a | actSt02aDoorEvent, actSt02aDoorUpEffect | MATCHED (2) | retail inserts `lt_fade_status(0x32); D_006325B4 = 0; scpActivateAllWithKind();` before the BoxBar tail; anim `0x56→0x57`, patterns 1/4 |
+| src/end | actEndDemo11 | MATCHED | retail inserts `actBoyRescueReady();` |
+| src/BgAnimation | bga_InitSdfCamera | MATCHED | retail adds the `if (a2 == 1) { D_006319F0 = a2; mc_TransMicroCode(D_00710C20, D_00710C10); }` arm |
+| src/boyact | CheckCollisionAttr | MATCHED | pure rebind + Sub15C `0x550→0x560`; the aug6 union alias `D_006A45A0u __asm__("D_006A45A0")` is **not** carried by the driver — re-add it renamed |
+| src/boyact | ditch_check_heroin_position, actBoyPullupReady, actBoyPullupGo + the 3 carved halves | MATCHED (6) | pattern 17 (`0xC0→0xD0`), BoxBar se `0x58/0x5D/0x62 → 0x59/0x5E/0x63` |
+| src/act_bird | subBirdBrainMain | MATCHED | retail drops the dead `void *p = a0;` re-read |
+| src/act_bird | func_00197198 (= aug6 `subBirdBrainSub`), func_001971C0 (= aug6 `BirdBrainMain`) | MATCHED (2) | `ExecMotionOrient` anim `0xEC→0xEE`, slot `0x110→0x120`; **`actInitialize(a0)` retires the aug6 `__asm__("" :: "r"(a0))` s0/s1 pin — crutch-free** |
+| src/st03t | actSt03tSwitchR | MATCHED | needed the `func_00211EC8` carve first; `0x189→0x18D`, object id `0x60C→0x61A` |
+| src/st03t | actSt03tGirlCamStartChk | MATCHED | retail drops `D_x = 0` and moves the handler slot `0xB0→0xC0` |
+| src/girl_act | actGirlAttack | MATCHED | see correction 1 |
+| src/st04a | actSt04aGateLChk | MATCHED | retail gives the `0x52` test both arms (`AddWayPointTop(7,1)` / `(7,0)`) |
+| src/st05c | actSt05cDoorDown | MATCHED | retail inserts `gflagOff(D,0);` + `if (ACTGame_ConnectHand(D)==0) WeaponGeo(func_001538F8());`, gflag `0x163→0x164` |
+| src/st05c | actSt05cDoorDownEvent | MATCHED | anim `0x102→0x103`, pattern 16 |
+| src/itou_boss | BossEnemyFunc | MATCHED | retail zeroes `GOBJ_SUB(o)+0x74` inside the collision loop |
+| src/way_util | GetWgAll | MATCHED | alloc sizes `0x41→0x5F`, `0x4000→0x8A10`, `0x104→0x17C` ×4, `0x100→0x178`; fill loop `for (i=0;i<0x5E;i++) q[i] = p->f4 + i*0x178;` (was `i<0x40`, `i<<8`) |
+| src/jimaku | jimakuHandler, func_00175B18 | MATCHED (2) | pattern 17, pattern 18, BoxBar se `0x5D→0x5E` |
+| src/st13b2 | actSt13b2Generator | MATCHED | retail saves/restores `D_00632110` around the `actConte11` block; ids `0x12F…0x132→0x130…0x133`, `0x59→0x5A`, `0x165/0xD57→0x166/0xD7D` |
+| src/StageAnimation | stage_SetScale | MATCHED | **rewritten, matched anyway**: the aug6 2-store stub became a full `isysGObjRemoveObjDL`/`func_0013ECF8` gobj walk clearing bit 26 of `x+0x30`; mirrors the matched sibling `stage_CalcAnimationParent`, and the function takes an `int a0` it forwards |
+
+## The two-allocno `%hi` tie — mechanism now PROVEN, still open
+
+`actSt04eWaterFlagOn` (rc2/rc9), `actSt02aEne` (rc6), `actSt02aSekizo`
+(rc9), `actSt05dDoor2UpChk` (rc4/rc7) and now `actSt03tWayOffChk` (rc6) are
+**one and the same** residual: the two `%hi` pseudos of the BoxBar tail
+
+```c
+D_x[1] = (int)handler;
+gobj->unkC4 = D_x;
+```
+
+land in the two callee-saved registers **swapped** relative to ROM.  Every
+one of them is otherwise byte-identical, and the *emission order* of the
+two `lui`s already matches ROM — only the register numbers are exchanged.
+
+New this pass: a decisive experiment.  Inserting a self-store
+`D_x[0] = D_x[0];` before the pair (which gcc then deletes — the built
+stream stays the same length) **fixes the s0/s1 assignment** and moves the
+residual to the two scratch registers (`actSt02aEne` rc6 → rc4).  That
+proves the cause is the *allocno creation order* of the two address
+pseudos, not their live range, frequency or emission order: gcc-2.9's
+`allocno_compare` ends in `return allocno1 - allocno2`, so a perfect
+priority tie is decided by pseudo number, i.e. by which SYMBOL_REF got a
+pseudo first.
+
+Tried and still rc4–rc9 (all crutch-free, none of them wins):
+statement swap; `int *p` temp before / after / at function top;
+`&D_x[0]`; `*(D_x + 1)`; `((int *)obj->unkC4)[1]`; `obj->unkC4[1]`;
+`(int)&handler`; `void *D_x[]` retyping; raw `*(int **)((char *)obj+0xC4)`
+store; dropping the driver's `__p4` `__asm__` alias on the callee.
+
+The next lever is **not** another spelling — it is to establish *why* the
+retail TU orders the two pseudos differently from the aug6 TU, where the
+byte-identical source matches.  Both bodies are the same modulo constants,
+so the difference must be TU-context or flags: build the minimal-TU
+brute-force (see `minimal_tu_brute_force` memory) with `-dg`/`-dl` greg
+dumps for `actSt02aEne` in both trees and diff the allocno tables.
+Solving it lands **5** functions.
+
+## Still open after conv-4
+
+| class | n | funcs |
+|---|---|---|
+| two-allocno `%hi` tie (above) | 5 | actSt04eWaterFlagOn · actSt02aEne · actSt02aSekizo · actSt05dDoor2UpChk · actSt03tWayOffChk |
+| sched2 `%gp_rel`-store tie | 1 | func_0022BD58 (rc6, st13c) |
+| `rewritten` — fresh decomp, aug6 body is only a loose guide | 17 | girl_act actGirlJump · way_tool debug_WayTool · commonact _ACTCommonMailTest / ContinueCorrectPosition / actCommonEdgeHang · e3 actE3CageFallChk · BgAnimation bga_resetObjectCounter, **bga_calcEnvelope (VU0, 13→180)** · st02a actSt02aSecretItem · enemy_act funcEnemyAiGetGirl / actEnemy_isLargeEnemy · end actEndDemo05 · boyact actBoyTakeWeaponReady / actBoySupportGBBegin / pullup_check_heroin_position / hand_heroin · motionManager SkelTest |
+| wave-0 retail rewrites from ledger 2, dumps measured this pass | 5 | CheckPureCliffAttribute (rc47) · pac_continueTag (no aug6 candidate) · Debug_WireString_Bird (rc52) · gsb_StageSettingTool (rc27, §5.7 far in-TU global) · gene_enemy (rc16, §5.9 late rodata + s2/s3 swap) |
+| fresh decomp, no aug6 body on either side | 3 | switch IsWallLeverStatus (62 insns) / GetWallLeverAngle (68 insns) · st02a func_00211EC8 (78 insns, newly carved) |
+| `no-aug6-twin` (unchanged from ledger 3) | 8 | soundSeVolSet · the 7 src/pool funcs |
+| `jtbl-deferred` (unchanged) | 1 | motionOrientManager shiftMotionOrientEndFunc |
+
+Fastest next moves, in order: (a) the minimal-TU greg-dump attack on the
+two-allocno tie (5 funcs for one root cause); (b) `gene_enemy` at rc16 —
+the constants are already read off, only the §5.9 rodata materialization
+and one s2/s3 swap remain; (c) `func_00211EC8` and the `switch` pair, which
+are ordinary linear-code decomps.

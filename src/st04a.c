@@ -127,7 +127,20 @@ void actConte09_3(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st04a", actSt04aGateLChk);
+extern void AddWayPointTop(int a0, int a1);
+
+void actSt04aGateLChk(void) {
+    if (func_0017B230(0x52)) {
+        AddWayPointTop(7, 1);
+    } else {
+        AddWayPointTop(7, 0);
+    }
+    if (func_0017B230(0x53)) {
+        AddWayPointTop(5, 1);
+    } else {
+        AddWayPointTop(5, 0);
+    }
+}
 
 extern void BoxBarSoundOn(int a0, int a1);
 extern int D_004D13D0[];

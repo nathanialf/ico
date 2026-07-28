@@ -86,7 +86,37 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", hand_heroin);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_0014DF18);
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", CheckCollisionAttr);
+extern int ACTEnvGetTest(void);
+extern void *D_00631990;
+extern void *D_00631AE4__p4 __asm__("D_00631AE4");
+extern int D_00631AF0;
+extern int D_006AAAF0[16];
+extern int ForMotionViewer_GetCurrentAnimationFrame(void *a0, int a1);
+extern int actGirlBecall(void *a0, int a1);
+extern int actSt25aQueenDead(int a0, void *a1, void *a2, float a3, float a4);
+extern float func_0014B358(int a0);
+extern union { long long fl[2]; int ix[8]; } D_006AAAE0u __asm__("D_006AAAE0");
+
+void CheckCollisionAttr(void *a0) {
+    void *sub = *(void**)((char*)a0 + 0x15C);
+    int i, hit = 0, flag20 = 1;
+    if (func_0014B358(2) < *(float*)((char*)sub + 0x560)) return;
+    if (*(int*)((char*)*(void**)((char*)a0+0x164) + 0x30) == 0x16) return;
+    if (D_00631AF0 != 0) return;
+    for (i = 1; i < 0x10; i++) {
+        if (ForMotionViewer_GetCurrentAnimationFrame(a0, i) == 0) continue;
+        flag20 = 0;
+        if (D_006AAAE0u.ix[4] < 0) { D_006AAAE0u.ix[4] = i; goto done; }
+        if (D_006AAAE0u.ix[4] == i) continue;
+        if (ACTEnvGetTest()) hit = 1;
+        else if (D_00631AE8 != 0) { if (actGirlBecall(D_00631990, i)) hit = 1; }
+        if (hit) { D_006AAAE0u.fl[1] |= (1LL<<35);
+                   actSt25aQueenDead(i, D_00631AE4__p4, D_00631AE8, 1.0f, 8.0f); }
+        else       actSt25aQueenDead(i, D_00631AE4__p4, 0,          1.0f, 8.0f);
+    }
+    if (flag20) D_006AAAF0[0] = 0xFF;
+done: ;
+}
 
 
 extern BgaEntry D_00281C10[];
@@ -272,11 +302,92 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", pullup_check_heroin_position);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00153FE8);
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", ditch_check_heroin_position);
+extern void BoxBarSoundOn(void *a0, int a1);
+extern char D_00558200[];
+extern char D_00558218[];
+extern void debug_assertMessage(void *msg);
+extern void func_00154070();
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyPullupReady);
+void ditch_check_heroin_position(int *volatile a0) {
+    int *obj = *(int **)((char *)a0 + 0x164);
+    debug_assertMessage(D_00558200);
+    *(int *)((char *)obj + 0x30) = 0x4F;
+    *(void **)((char *)obj + 0x14) = (void *)func_00154070;
+    *(int *)((char *)obj + 0xD0) = 0;
+    do {
+        _ACTWait__p4(1);
+    } while ((*(int *)((char *)obj + 0xD0) & 0x10) == 0);
+    debug_assertMessage(D_00558218);
+    while (1) {
+        BoxBarSoundOn(a0, 0x59);
+        _ACTWait__p4(1);
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoyPullupGo);
+extern char D_005581F0[];
+extern void *D_00631AE8__p4 __asm__("D_00631AE8");
+extern int D_006321DC;
+extern void iosOmBeforeFuncStandard(void *a0, int a1, int a2);
+
+void func_00154070(volatile int a0) {
+    debug_assertMessage(D_005581F0);
+    if (D_00631AE8__p4 != 0) {
+        iosOmBeforeFuncStandard(D_00631AE8__p4, 0x59, D_006321DC);
+    }
+}
+
+extern char D_00558248[];
+extern char D_00558260[];
+extern void func_00154128();
+
+void actBoyPullupReady(int *volatile a0) {
+    int *obj = *(int **)((char *)a0 + 0x164);
+    debug_assertMessage(D_00558248);
+    *(int *)((char *)obj + 0x30) = 0x50;
+    *(void **)((char *)obj + 0x14) = (void *)func_00154128;
+    *(int *)((char *)obj + 0xD0) = 0;
+    do {
+        _ACTWait__p4(1);
+    } while ((*(int *)((char *)obj + 0xD0) & 0x10) == 0);
+    debug_assertMessage(D_00558260);
+    while (1) {
+        BoxBarSoundOn(a0, 0x5E);
+        _ACTWait__p4(1);
+    }
+}
+
+void func_00154128(volatile int a0) {
+    debug_assertMessage(D_005581F0);
+    if (D_00631AE8__p4 != 0) {
+        iosOmBeforeFuncStandard(D_00631AE8__p4, 0x5E, D_006321DC);
+    }
+}
+
+extern char D_00558298[];
+extern void func_001541E0();
+
+void actBoyPullupGo(int *volatile a0) {
+    int *obj = *(int **)((char *)a0 + 0x164);
+    debug_assertMessage(D_00558298);
+    *(int *)((char *)obj + 0x30) = 0x51;
+    *(void **)((char *)obj + 0x14) = (void *)func_001541E0;
+    *(int *)((char *)obj + 0xD0) = 0;
+    do {
+        _ACTWait__p4(1);
+    } while ((*(int *)((char *)obj + 0xD0) & 0x10) == 0);
+    debug_assertMessage(D_00558260);
+    while (1) {
+        BoxBarSoundOn(a0, 0x63);
+        _ACTWait__p4(1);
+    }
+}
+
+void func_001541E0(volatile int a0) {
+    debug_assertMessage(D_005581F0);
+    if (D_00631AE8__p4 != 0) {
+        iosOmBeforeFuncStandard(D_00631AE8__p4, 0x63, D_006321DC);
+    }
+}
 
 extern float ClearHandCameraCorrect(CCPResult *a, CCPResult *b);
 extern CCPResult *ContinueCorrectPosition(void *a0);

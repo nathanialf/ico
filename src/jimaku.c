@@ -32,7 +32,39 @@ INCLUDE_ASM("asm/nonmatchings/src/jimaku", display_texture);
 
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", iosCdvdBackGroundReadJimaku);
 
-INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuHandler);
+extern void BoxBarSoundOn(int a0, int a1);
+extern char D_00553790[], D_00559470[];
+extern char D_005594A0[];
+extern void _ACTWait__p4(int a0) __asm__("_ACTWait");
+extern void debug_assertMessage__p4(void *a0) __asm__("debug_assertMessage");
+extern void func_00175B18(volatile int a0);
+
+void jimakuHandler(volatile int a0) {
+    int *gobj = *(int **)(a0 + 0x164);
+    debug_assertMessage__p4(D_005594A0);
+    gobj[0x30 / 4] = 0x50;
+    gobj[0x14 / 4] = (int)func_00175B18;
+    gobj[0xD0 / 4] = 0;
+    while ((gobj[0xD0 / 4] & 0x10) == 0) {
+        _ACTWait__p4(1);
+    }
+    debug_assertMessage__p4(D_00559470);
+    for (;;) {
+        BoxBarSoundOn(a0, 0x5E);
+        _ACTWait__p4(1);
+    }
+}
+
+extern char D_00559440[];
+extern int D_006321DC;
+extern int D_00631AE4__p4 __asm__("D_00631AE4");
+extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+
+void func_00175B18(volatile int a0) {
+    debug_assertMessage__p4(D_00559440);
+    iosOmBeforeFuncStandard(D_00631AE4__p4, 0x5E, D_006321DC);
+    ACTLookTargetSystem_Exec();
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuMgrBegin);
 

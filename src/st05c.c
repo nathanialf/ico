@@ -92,7 +92,37 @@ void actSt04rDoor2(volatile int a0) {
     Generator_Call(a0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st05c", actSt05cDoorDown);
+extern int D_004D19D0[];
+extern int D_00631AE4;
+extern int D_006325B8;
+extern void WeaponGeo(int a0);
+extern void gflagOff(int a0, int a1);
+extern int ACTGame_ConnectHand(int a0);
+extern int func_001538F8(void);
+extern void actSt05cDoorDownEvent(volatile int a0);
+extern void actSt25aQueenBeforeChk(int a0, int a1, int a2, float f);
+extern void func_0017B258(int a0);
+
+void actSt05cDoorDown(volatile int a0) {
+    int x = a0;
+    GObj__p4 *gobj = (GObj__p4 *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_0017B230(0xCC) != 0) {
+        if (D_00631AE4 != 0) {
+            gflagOff(D_00631AE4, 0);
+            if (ACTGame_ConnectHand(D_00631AE4) == 0) {
+                WeaponGeo(func_001538F8());
+            }
+        }
+        func_0017B258(0x164);
+        D_006325B8 = 0;
+        actSt25aQueenBeforeChk(0, 0, 0, 255.0f);
+        D_004D19D0[1] = (int)actSt05cDoorDownEvent;
+        gobj->unkB4 = D_004D19D0;
+        BoxBarSoundOn(a0, 0x18D);
+        _ACTWait(0);
+    }
+}
 
 typedef struct { char pad[0xC0]; void *f_B0; void *unkB4; } St05cBox;
 extern int D_006325B4;
@@ -162,7 +192,28 @@ void func_0021F170(volatile int a0) {
     _ACTWait(0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st05c", actSt05cDoorDownEvent);
+extern int D_006339D8;
+extern void actConte11Jimaku(float f);
+extern void actSt25aQueenDead(int a0, int a1, int a2, float f0, float f1);
+extern int func_0012AA80(int a0);
+extern void func_0017B288(int a0);
+extern void func_0017C9B0(int a0);
+extern void lt_fade_status(int a0);
+extern void scpPlayStart(int a0, int a1, int a2, int a3, int a4);
+
+void actSt05cDoorDownEvent(volatile int a0) {
+    func_0017B288(0xCC);
+    lt_fade_status(0x33);
+    D_006325B4 = 1;
+    scpPlayStart(0x1B, (int)&D_006339D8, 0, 1, 1);
+    while (D_006339D8 == 0) { _ACTWait(1); }
+    func_0017C9B0(7);
+    actConte11Jimaku(6.0f);
+    stage_KillPlayBgAnimation(0x103, 1, 0);
+    while (func_0012AA80(0x103) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    actSt25aQueenDead(7, D_00631AE4, 0, 2.0f, 8.0f);
+}
 
 void actSt05cDoorDownEffect(int x) {
     volatile int local = x;

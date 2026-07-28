@@ -592,6 +592,17 @@ def build_symbol_map(rec, retail_a2n, retail_func_vmas, defined):
         mapping[sym] = rname
 
     if unresolved:
+        # PORT_LENIENT=1 is a HAND-CONVERGENCE aid only: it downgrades the
+        # abort to a warning so `PORT_DEBUG_DUMP` still emits a candidate TU
+        # with every slot the walk COULD bind already rebound.  The remaining
+        # symbols keep their aug6 names and must be bound by hand against the
+        # retail `.s`.  It never changes the driver's own accept/revert
+        # decision path (the caller still gates on quick_diff) and is off by
+        # default, so the ledger classification stays honest.
+        if os.environ.get("PORT_LENIENT"):
+            for i, sym, why in unresolved:
+                print(f"    [lenient] insn {i} `{sym}`: {why}", file=sys.stderr)
+            return mapping
         i, sym, why = unresolved[0]
         raise Unresolved(f"insn {i} `{sym}`: {why}"
                          + (f" (+{len(unresolved) - 1} more)" if len(unresolved) > 1 else ""))

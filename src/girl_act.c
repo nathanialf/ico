@@ -335,7 +335,35 @@ extern void func_00243978(void *a, void *b);
 extern void func_00243AE8(void *out, void *m1, void *m2);
 extern void *subCommonIdle(void *a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlAttack);
+void actGirlAttack(void *a0) {
+    float res[4];
+    float m1[4];
+    float m2[4];
+    void *dobj;
+    void *sub;
+    float a;
+
+    BoxBarSoundOn(a0, 0xFD);
+    dobj = D_00631AE4__p4;
+    sub = *(void **)((char *)dobj + 0x164);
+    if (*(int *)((char *)sub + 0x30) == 1) {
+        return;
+    }
+    GetRootMatrixByDObj(m1, dobj);
+    GetRootMatrixByDObj(m2, a0);
+    func_00243AE8(res, m1, m2);
+    func_00243978(res, res);
+    a = (float)HandCameraCorrect(res, subCommonIdle(a0));
+    if (a < 0.0f ? -a < 45.0f : a < 45.0f) {
+        BoxBarSoundOn(a0, 0xFE);
+    } else if (a < 0.0f ? 135.0f < -a : 135.0f < a) {
+        BoxBarSoundOn(a0, 0xFF);
+    } else if (45.0f < a) {
+        BoxBarSoundOn(a0, 0x100);
+    } else {
+        BoxBarSoundOn(a0, 0x101);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlBecall);
 

@@ -80,7 +80,26 @@ void actSt03tSwitchLUpChk(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tSwitchR);
+extern int D_004D10D0[];
+extern void actCreateSubThread(int a0, int a1);
+extern void actSt02aSecretItem(volatile int a0);
+extern void actSt02aTakiWay(void);
+extern void func_00211EC8(void);
+
+void actSt03tSwitchR(volatile int a0) {
+    int x = a0;
+    GObjB4a *gobj = (GObjB4a *)actInitialize(a0);
+    _ACTWait(1);
+    if (func_0017B230(0x5F) != 0) {
+        D_004D10D0[1] = (int)func_00211EC8;
+        gobj->unkB4 = D_004D10D0;
+        BoxBarSoundOn((int)a0, 0x18D);
+        _ACTWait(0);
+    }
+    ((int *)actSt25aQueenDeadChk(0x61A))[0x16C / 4] = 0;
+    actCreateSubThread((int)actSt02aTakiWay, 0x15);
+    actCreateSubThread((int)actSt02aSecretItem, 0x15);
+}
 
 extern void _ACTWait(int a0);
 extern int actInitialize(int a0);
@@ -161,6 +180,7 @@ extern int D_004D11D0[];
 extern int D_004D11F0[];
 extern void actSt03tWayOffChk(volatile int a0);
 extern void actSt04aGate(void);
+extern int func_0017EB50(void);
 
 void actSt03tGirlCam(volatile int a0) {
     int x = a0;
@@ -237,7 +257,16 @@ void actSt03tGirlCamEvent(volatile int a0){ long long b1[2]; long long b2[2];
   case 0x1E: b2[0]=v0b; b2[1]=D_0061BA20[1]; scpDispOffAllWithKind((int*)b2,0); break;
   } _ACTWait(1); } }
 
-INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tGirlCamStartChk);
+extern int D_004D1070[];
+extern int D_0062A894;
+
+void actSt03tGirlCamStartChk(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    *(int *)(gobj + 0xC0) = (int)D_004D1070;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 typedef struct St03tBox { char pad[0xC0]; void *field_B0; void *field_B4; } St03tBox;
 extern int *D_004D10B0[];
@@ -288,6 +317,11 @@ INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tEneChk);
 void actSt03tWayOnChk(int x) {
     volatile int local = x;
 }
+
+extern int D_004D1210[];
+extern int D_00631AE8;
+extern void func_0017B288(int a0);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
 
 INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tWayOffChk);
 

@@ -3250,3 +3250,133 @@ declares the callee with a placeholder signature the aug6 body contradicts),
 
 ### src/boyact.c
 - REVERTED `hand_heroin` w0 @ 0x0014D868 — [codegen] insn 15: expected `addiu	a1,zero,85` built `addiu	a1,zero,84`
+
+### src/boyact.c
+- REVERTED `CheckCollisionAttr` w3 @ 0x0014E300 — [undeclared] src/boyact.c:108: `D_006A45A0u' undeclared (first use in this function)
+
+### src/boyact.c
+- REVERTED `ditch_check_heroin_position` w0 @ 0x00153FF0 — [unresolved-symbol] unresolved-symbol: insn 11 `func_00152588`: retail symbol func_00154070 (0x00154070) undefined
+
+### src/boyact.c
+- REVERTED `actBoyPullupReady` w0 @ 0x001540A8 — [unresolved-symbol] unresolved-symbol: insn 11 `func_00152640`: retail symbol func_00154128 (0x00154128) undefined
+
+### src/boyact.c
+- REVERTED `actBoyPullupGo` w0 @ 0x00154160 — [unresolved-symbol] unresolved-symbol: insn 11 `func_001526F8`: retail symbol func_001541E0 (0x001541E0) undefined
+
+### src/boyact.c
+- REVERTED `ditch_check_heroin_position` w0 @ 0x00153FF0 — [codegen] insn 9: expected `lui	v0,0x0` built `lui	v0,0x1`
+
+### src/boyact.c
+- REVERTED `actBoyPullupReady` w0 @ 0x001540A8 — [codegen] insn 9: expected `lui	v0,0x0` built `lui	v0,0x1`
+
+### src/boyact.c
+- REVERTED `actBoyPullupGo` w0 @ 0x00154160 — [codegen] insn 9: expected `lui	v0,0x0` built `lui	v0,0x1`
+
+### src/boyact.c
+- REVERTED `ditch_check_heroin_position` w0 @ 0x00153FF0 — [codegen] insn 9: expected `lui	v0,0x0` built `lui	v0,0x1`
+
+### src/boyact.c
+- REVERTED `actBoyPullupReady` w0 @ 0x001540A8 — [codegen] insn 9: expected `lui	v0,0x0` built `lui	v0,0x1`
+
+### src/boyact.c
+- REVERTED `actBoyPullupGo` w0 @ 0x00154160 — [codegen] insn 9: expected `lui	v0,0x0` built `lui	v0,0x1`
+
+### src/st05d.c
+- REVERTED `actSt05dDoor2UpChk` w3 @ 0x0021F470 — [codegen] [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
+
+### src/st03t.c
+- REVERTED `actSt03tGirlCamStartChk` w0 @ 0x00212AC8 — [unresolved-symbol] unresolved-symbol: insn 7 `D_0062A894`: retail slot is not $gp-based
+
+### src/st03t.c
+- REVERTED `actSt03tSwitchR` w3 @ 0x00212470 — [unresolved-symbol] unresolved-symbol: insn 18 `actSt02aSecretItem`: retail symbol D_00211EC8 (0x00211EC8) undefined
+
+### src/st03t.c
+- REVERTED `actSt03tWayOffChk` w0 @ 0x00212D78 — [codegen] insn 4: expected `sd	s2,48(sp)` built `sd	s1,32(sp)`
+
+### src/motionManager2.c
+- REVERTED `CheckPureCliffAttribute` w0 @ 0x0010A1A0 — [unresolved-symbol] unresolved-symbol: insn 19 `debug_assertMessage`: no aligned retail slot (+6 more)
+
+### src/jimaku.c
+- REVERTED `jimakuHandler` w0 @ 0x00175A98 — [unresolved-symbol] unresolved-symbol: insn 11 `func_001736D0`: retail symbol D_00175B18 (0x00175B18) undefined
+
+### src/st05c.c
+- REVERTED `actSt05cDoorDown` w0 @ 0x0021EF60 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+
+### src/st05c.c
+- REVERTED `actSt05cDoorDownEvent` w0 @ 0x0021F1C8 — [unresolved-symbol] unresolved-symbol: insn 51 `D_00629DE8`: retail slot is not $gp-based
+
+### src/st04a.c
+- REVERTED `actSt04aGateLChk` w0 @ 0x00213B88 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+
+### src/act_bird.c
+- REVERTED `Debug_WireString_Bird` w0 @ 0x00197240 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+
+### src/GsBase.c
+- REVERTED `gsb_StageSettingTool` w0 @ 0x00113E60 — [codegen] [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+
+### src/StageAnimation.c
+- REVERTED `stage_SetScale` w0 @ 0x001287E8 — [unresolved-symbol] unresolved-symbol: insn 2 `D_0062A054`: retail slot is not $gp-based
+
+### src/itou_boss.c
+- REVERTED `BossEnemyFunc` w0 @ 0x00198140 — [unresolved-symbol] unresolved-symbol: insn 32 `D_00556338`: no aligned retail slot
+
+### src/itou_boss.c
+- REVERTED `gene_enemy` w3 @ 0x00198218 — [codegen] [§5.9] rodata lui+addiu materialized late next to jal
+
+### src/st13b2.c
+- REVERTED `actSt13b2Generator` w0 @ 0x0022A1B8 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+
+### src/way_util.c
+- REVERTED `GetWgAll` w0 @ 0x00179438 — [codegen] insn 13: expected `addiu	a1,zero,95` built `addiu	a1,zero,65`
+
+### src/act_bird.c
+- REVERTED `subBirdBrainMain` w0 @ 0x00197160 — [codegen] insn 6: expected `lw	a0,0(sp)` built `lw	v0,0(sp)`
+
+### src/st03t.c
+- REVERTED `actSt03tSwitchR` w3 @ 0x00212470 — [codegen] insn 19: expected `addiu	a1,zero,397` built `addiu	a1,zero,393`
+
+### src/jimaku.c
+- REVERTED `jimakuHandler` w0 @ 0x00175A98 — [codegen] insn 3: expected `lui	a0,0x0` built `lw	v0,0(sp)`
+
+### src/girl_act.c
+- REVERTED `actGirlAttack` w3 @ 0x00174D78 — [codegen] [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+
+### src/st04e.c
+- REVERTED `actSt04eWaterFlagOn` w3 @ 0x00219D50 — [undeclared] src/st04e.c:98: structure has no member named `unkB4'
+
+### src/st02a.c
+- REVERTED `actSt02aEne` w3 @ 0x002116D0 — [undeclared] src/st02a.c:152: structure has no member named `unkB4'
+
+### src/st02a.c
+- REVERTED `actSt02aSekizo` w3 @ 0x002118D8 — [undeclared] src/st02a.c:152: structure has no member named `unkB4'
+
+### src/st02a.c
+- REVERTED `actSt02aEne` w3 @ 0x002116D0 — [undeclared] src/st02a.c:152: structure has no member named `unkB4'
+
+### src/st05c.c
+- REVERTED `actSt05cDoorDownEvent` w0 @ 0x0021F1C8 — [codegen] insn 29: expected `addiu	a0,zero,259` built `addiu	a0,zero,258`
+
+### src/st03t.c
+- REVERTED `actSt03tGirlCamStartChk` w0 @ 0x00212AC8 — [codegen] insn 7: expected `sw	v0,192(a0)` built `sw	zero,0(gp)`
+
+### src/StageAnimation.c
+- REVERTED `stage_SetScale` w0 @ 0x001287E8 — [codegen] insn 0: expected `addiu	sp,sp,-32` built `sw	zero,0(gp)`
+
+### src/itou_boss.c
+- REVERTED `BossEnemyFunc` w0 @ 0x00198140 — [codegen] [§5.9] rodata lui+addiu materialized late next to jal
+
+### src/motionManager2.c
+- REVERTED `CheckPureCliffAttribute` w0 @ 0x0010A1A0 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+
+### src/itou_boss.c
+- REVERTED `BossEnemyFunc` w0 @ 0x00198140 — [codegen] [§5.9] rodata lui+addiu materialized late next to jal
+
+### src/st03t.c
+- REVERTED `actSt03tWayOffChk` w0 @ 0x00212D78 — [codegen] insn 4: expected `sd	s2,48(sp)` built `sd	s1,32(sp)`
+- REVERTED `actSt03tWayOffChk` — pass-deferred: rc6 two-allocno %hi tie (s1/s2) (post-hoc, bisected)
+
+### src/jimaku.c
+- REVERTED `jimakuHandler` w0 @ 0x00175A98 — [codegen] insn 3: expected `lui	a0,0x0` built `lw	v0,0(sp)`
+
+### src/st13b2.c
+- REVERTED `actSt13b2Generator` w0 @ 0x0022A1B8 — [codegen] [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)

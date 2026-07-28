@@ -92,7 +92,25 @@ void stage_DispAnimation(char *a0, float f12)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_SetScale);
+extern int D_00631D50;
+
+void stage_SetScale(int a0) {
+    void *obj;
+    D_00631D50 = 0;
+    D_00631D54 = 0;
+    for (obj = isysGObjRemoveObjDL(a0); obj != 0; obj = func_0013ECF8(obj)) {
+        void *node = *(void **)((char *)obj + 0x15C);
+        if (node != 0) {
+            void *dl = *(void **)((char *)node + 0x820);
+            if (dl != 0) {
+                void *x = *(void **)((char *)node + 0x824);
+                if (x != 0) {
+                    *(long long *)((char *)x + 0x30) &= ~0x04000000;
+                }
+            }
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_PlayBgAnimation);
 

@@ -42,11 +42,37 @@ float trans_bird(void *a0, void *a1) {
     return func_0025E3D8(func_00243950(v0, v1)) * 360.0f / D_00631038;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act_bird", subBirdBrainMain);
+extern void _ACTWait(int a0);
+extern void func_00196F78(void *a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/act_bird", func_00197198);
+void subBirdBrainMain(void * volatile a0) {
+    _ACTWait(1);
+    for (;;) {
+        func_00196F78(a0);
+        _ACTWait(1);
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/act_bird", func_001971C0);
+void func_00197198(void * volatile a0) {
+    _ACTWait(1);
+    for (;;) {
+        _ACTWait(1);
+    }
+}
+
+extern void *actInitialize(void *a0);
+extern void actCreateSubThread(void *entry, int prio);
+extern void *ExecMotionOrient(void *a0, int a1, void *a2);
+extern void IsPointIsInScreen(void *a0);
+
+void func_001971C0(void *a0) {
+    void *s = actInitialize(a0);
+    _ACTWait(1);
+    actCreateSubThread(IsPointIsInScreen, 0x14);
+    actCreateSubThread(subBirdBrainMain, 0x15);
+    actCreateSubThread(func_00197198, 0x15);
+    *(void **)((char *)s + 0x120) = ExecMotionOrient(a0, 0xEE, (char *)s + 0x610);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/act_bird", Debug_WireString_Bird);
 

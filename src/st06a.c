@@ -5,15 +5,250 @@ typedef struct ActB4Obj {
     int *unkC4;
 } ActB4Obj;
 
-INCLUDE_ASM("asm/nonmatchings/src/st06a", actSt06aInit);
+extern void _ACTWait(int a0);
+extern int func_0012AB50(int a0, int a1, int a2);
+extern void func_0017B258(int a0);
+extern void scpActivateAllWithKind(void);
+extern void scpDispOnAllWithKind(void);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int D_00631AE4;
+extern int D_00631AE8;
+extern int D_006325B4;
+extern int ACTEnvGetTest(void);
+extern void BoySekikaTexScroll(int a0, int a1);
+extern void GetTarget(void);
+extern void func_0017B528(int a0);
+extern void func_0017B568(int a0);
+extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
 
-INCLUDE_ASM("asm/nonmatchings/src/st06a", actSt06aSuimon);
+void actSt06aInit(volatile int a0) {
+    if (D_00631AE8 == 0) { _ACTWait(0); }
+    while (scpSleepSpiderGroupOne(D_00631AE4, 0x3000000) == 0 ||
+           scpSleepSpiderGroupOne(D_00631AE8, 0x3000000) == 0) {
+        _ACTWait(1);
+    }
+    D_006325B4 = 1;
+    func_0017B258(0xFB);
+    scpDispOnAllWithKind();
+    if (ACTEnvGetTest() != 0) {
+        func_0017B528(D_00631AE4);
+        func_0017B528(D_00631AE8);
+        BoySekikaTexScroll(D_00631AE4, 1);
+        BoySekikaTexScroll(D_00631AE8, 1);
+        _ACTWait(1);
+        GetTarget();
+    }
+    stage_KillPlayBgAnimation(0x132, 1, 0);
+    soundSeDefPlayWithVolumeRate(0x51C, 0, 0, 1);
+    while (func_0012AB50(0x132, 0x1E, 0) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    scpActivateAllWithKind();
+    func_0017B568(D_00631AE4);
+    func_0017B568(D_00631AE8);
+    _ACTWait(1);
+    if (ACTEnvGetTest() != 0) {
+        iosOmBeforeFuncStandard(D_00631AE8, 0x3C, D_00631AE4);
+    }
+    D_006325B4 = 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st06a", actSt06aSuimonChk);
+extern void _ACTWait(int a0);
+extern int func_0012AB50(int a0, int a1, int a2);
+extern void func_0017B258(int a0);
+extern void scpActivateAllWithKind(void);
+extern void scpDispOnAllWithKind(void);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int D_00631AE4;
+extern int D_00631AE8;
+extern int D_006325B4;
+extern int ACTEnvGetTest(void);
+extern void BoySekikaTexScroll(int a0, int a1);
+extern void GetTarget(void);
+extern void func_0017B528(int a0);
+extern void func_0017B568(int a0);
+extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
 
-INCLUDE_ASM("asm/nonmatchings/src/st06a", actSt06aDoor);
+void actSt06aSuimon(volatile int a0) {
+    if (D_00631AE8 == 0) { _ACTWait(0); }
+    while (scpSleepSpiderGroupOne(D_00631AE4, 0x4000000) == 0 ||
+           scpSleepSpiderGroupOne(D_00631AE8, 0x4000000) == 0) {
+        _ACTWait(1);
+    }
+    D_006325B4 = 1;
+    func_0017B258(0xFC);
+    scpDispOnAllWithKind();
+    if (ACTEnvGetTest() != 0) {
+        func_0017B528(D_00631AE4);
+        func_0017B528(D_00631AE8);
+        BoySekikaTexScroll(D_00631AE4, 1);
+        BoySekikaTexScroll(D_00631AE8, 1);
+        _ACTWait(1);
+        GetTarget();
+    }
+    stage_KillPlayBgAnimation(0x133, 1, 0);
+    soundSeDefPlayWithVolumeRate(0x51C, 0, 0, 1);
+    while (func_0012AB50(0x133, 0x1E, 0) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    scpActivateAllWithKind();
+    func_0017B568(D_00631AE4);
+    func_0017B568(D_00631AE8);
+    _ACTWait(1);
+    if (ACTEnvGetTest() != 0) {
+        iosOmBeforeFuncStandard(D_00631AE8, 0x3C, D_00631AE4);
+    }
+    D_006325B4 = 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st06a", actSt06aDoorUpChk);
+extern void _ACTWait(int a0);
+extern int func_0012AB50(int a0, int a1, int a2);
+extern void func_0017B258(int a0);
+extern void scpActivateAllWithKind(void);
+extern void scpDispOnAllWithKind(void);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int D_00631AE4;
+extern int D_00631AE8;
+extern int D_006325B4;
+extern int ACTEnvGetTest(void);
+extern void BoySekikaTexScroll(int a0, int a1);
+extern void GetTarget(void);
+extern void func_0017B528(int a0);
+extern void func_0017B568(int a0);
+extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
+
+void actSt06aSuimonChk(volatile int a0) {
+    if (D_00631AE8 == 0) { _ACTWait(0); }
+    while (scpSleepSpiderGroupOne(D_00631AE4, 0x5000000) == 0 ||
+           scpSleepSpiderGroupOne(D_00631AE8, 0x5000000) == 0) {
+        _ACTWait(1);
+    }
+    D_006325B4 = 1;
+    func_0017B258(0xFD);
+    scpDispOnAllWithKind();
+    if (ACTEnvGetTest() != 0) {
+        func_0017B528(D_00631AE4);
+        func_0017B528(D_00631AE8);
+        BoySekikaTexScroll(D_00631AE4, 1);
+        BoySekikaTexScroll(D_00631AE8, 1);
+        _ACTWait(1);
+        GetTarget();
+    }
+    stage_KillPlayBgAnimation(0x134, 1, 0);
+    soundSeDefPlayWithVolumeRate(0x51C, 0, 0, 1);
+    while (func_0012AB50(0x134, 0x1E, 0) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    scpActivateAllWithKind();
+    func_0017B568(D_00631AE4);
+    func_0017B568(D_00631AE8);
+    _ACTWait(1);
+    if (ACTEnvGetTest() != 0) {
+        iosOmBeforeFuncStandard(D_00631AE8, 0x3C, D_00631AE4);
+    }
+    D_006325B4 = 0;
+}
+
+extern void _ACTWait(int a0);
+extern int func_0012AB50(int a0, int a1, int a2);
+extern void func_0017B258(int a0);
+extern void scpActivateAllWithKind(void);
+extern void scpDispOnAllWithKind(void);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int D_00631AE4;
+extern int D_00631AE8;
+extern int D_006325B4;
+extern int ACTEnvGetTest(void);
+extern void BoySekikaTexScroll(int a0, int a1);
+extern void GetTarget(void);
+extern void func_0017B528(int a0);
+extern void func_0017B568(int a0);
+extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
+
+void actSt06aDoor(volatile int a0) {
+    if (D_00631AE8 == 0) { _ACTWait(0); }
+    while (scpSleepSpiderGroupOne(D_00631AE4, 0x6000000) == 0 ||
+           scpSleepSpiderGroupOne(D_00631AE8, 0x6000000) == 0) {
+        _ACTWait(1);
+    }
+    D_006325B4 = 1;
+    func_0017B258(0xFE);
+    scpDispOnAllWithKind();
+    if (ACTEnvGetTest() != 0) {
+        func_0017B528(D_00631AE4);
+        func_0017B528(D_00631AE8);
+        BoySekikaTexScroll(D_00631AE4, 1);
+        BoySekikaTexScroll(D_00631AE8, 1);
+        _ACTWait(1);
+        GetTarget();
+    }
+    stage_KillPlayBgAnimation(0x135, 1, 0);
+    soundSeDefPlayWithVolumeRate(0x51C, 0, 0, 1);
+    while (func_0012AB50(0x135, 0x1E, 0) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    scpActivateAllWithKind();
+    func_0017B568(D_00631AE4);
+    func_0017B568(D_00631AE8);
+    _ACTWait(1);
+    if (ACTEnvGetTest() != 0) {
+        iosOmBeforeFuncStandard(D_00631AE8, 0x3C, D_00631AE4);
+    }
+    D_006325B4 = 0;
+}
+
+extern void _ACTWait(int a0);
+extern int func_0012AB50(int a0, int a1, int a2);
+extern void func_0017B258(int a0);
+extern void scpActivateAllWithKind(void);
+extern void scpDispOnAllWithKind(void);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int D_00631AE4;
+extern int D_00631AE8;
+extern int D_006325B4;
+extern int ACTEnvGetTest(void);
+extern void BoySekikaTexScroll(int a0, int a1);
+extern void GetTarget(void);
+extern void func_0017B528(int a0);
+extern void func_0017B568(int a0);
+extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
+extern int scpSleepSpiderGroupOne(int a0, int a1);
+extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
+
+void actSt06aDoorUpChk(volatile int a0) {
+    if (D_00631AE8 == 0) { _ACTWait(0); }
+    while (scpSleepSpiderGroupOne(D_00631AE4, 0x7000000) == 0 ||
+           scpSleepSpiderGroupOne(D_00631AE8, 0x7000000) == 0) {
+        _ACTWait(1);
+    }
+    D_006325B4 = 1;
+    func_0017B258(0xFF);
+    scpDispOnAllWithKind();
+    if (ACTEnvGetTest() != 0) {
+        func_0017B528(D_00631AE4);
+        func_0017B528(D_00631AE8);
+        BoySekikaTexScroll(D_00631AE4, 1);
+        BoySekikaTexScroll(D_00631AE8, 1);
+        _ACTWait(1);
+        GetTarget();
+    }
+    stage_KillPlayBgAnimation(0x136, 1, 0);
+    soundSeDefPlayWithVolumeRate(0x51C, 0, 0, 1);
+    while (func_0012AB50(0x136, 0x1E, 0) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    scpActivateAllWithKind();
+    func_0017B568(D_00631AE4);
+    func_0017B568(D_00631AE8);
+    _ACTWait(1);
+    if (ACTEnvGetTest() != 0) {
+        iosOmBeforeFuncStandard(D_00631AE8, 0x3C, D_00631AE4);
+    }
+    D_006325B4 = 0;
+}
 
 extern void BoxBarSoundOn(int a0, int a1);
 extern int D_004D2290[];

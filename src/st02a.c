@@ -221,7 +221,67 @@ void actSt02aTakiWay(volatile int a0){
 
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aSecretItem);
 
-INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aDoorEvent);
+INCLUDE_ASM("asm/nonmatchings/src/st02a", func_00211EC8);
 
-INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aDoorUpEffect);
+extern int D_004D1170[];
+extern int D_00631AEC;
+extern int D_006325B4;
+extern int D_00633974;
+extern void actSt03tSekizoEvent(volatile int a0);
+extern int func_0012AB50(int a0, int a1, int a2);
+extern void func_0017B258(int a0);
+extern void iosPadDevRead(int a0, int a1);
+extern void lt_fade_status(int a0);
+extern void scpActivateAllWithKind(void);
+extern void scpPlayStart(int a0, int *a1, int a2, int a3, int a4);
+extern void soundSeVolSet(int a0);
+
+void actSt02aDoorEvent(volatile int a0) {
+    GObj__p4 *obj = *(GObj__p4 **)(a0 + 0x164);
+    scpPlayStart(0x55, &D_00633974, 1, 1, 1);
+    while (D_00633974 == 0) { _ACTWait(1); }
+    _ACTWait(0x10);
+    stage_KillPlayBgAnimation(0x57, 1, 0);
+    func_0017B258(0x6A);
+    while (func_0012AB50(0x57, 0x95, 1) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    iosPadDevRead(D_00631AEC, 0x10);
+    _ACTWait(0x78);
+    if (D_00633974 != 0) {
+        soundSeVolSet(D_00633974);
+    }
+    lt_fade_status(0x32);
+    D_006325B4 = 0;
+    scpActivateAllWithKind();
+    D_004D1170[1] = (int)actSt03tSekizoEvent;
+    obj->unkC4 = D_004D1170;
+    BoxBarSoundOn(a0, 0x18D);
+    _ACTWait(0);
+}
+
+extern int D_004D1190[];
+extern int D_00633978;
+extern void func_0017B288(int a0);
+
+void actSt02aDoorUpEffect(volatile int a0) {
+    GObj__p4 *obj = *(GObj__p4 **)(a0 + 0x164);
+    scpPlayStart(0x55, &D_00633978, 1, 1, 1);
+    while (D_00633978 == 0) { _ACTWait(1); }
+    stage_KillPlayBgAnimation(0x57, 1, 0x96);
+    func_0017B288(0x6A);
+    while (func_0012AB50(0x57, 0x12C, 1) == 0) { _ACTWait(1); }
+    _ACTWait(1);
+    iosPadDevRead(D_00631AEC, 0x10);
+    _ACTWait(0x78);
+    if (D_00633978 != 0) {
+        soundSeVolSet(D_00633978);
+    }
+    lt_fade_status(0x32);
+    D_006325B4 = 0;
+    scpActivateAllWithKind();
+    D_004D1190[1] = (int)actSt03tSekizoEvent;
+    obj->unkC4 = D_004D1190;
+    BoxBarSoundOn(a0, 0x18D);
+    _ACTWait(0);
+}
 
