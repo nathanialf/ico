@@ -1,12 +1,24 @@
 #include "common.h"
 
+
+
+extern void GetHeightOfCliffFromGObj();
+extern int D_00633540;
+extern void ClearMotionBlendlessNode(char *self, int val);
+extern int D_00633548;
 INCLUDE_ASM("asm/nonmatchings/src/motionViewer", setRootUpdateMode);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionViewer", setMotionSpeed);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionViewer", dispProgressBar);
+void dispProgressBar(void)
+{
+    ClearMotionBlendlessNode(D_00633540, D_00633548);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/motionViewer", dispMotFrameProgress);
+void dispMotFrameProgress(void)
+{
+    GetHeightOfCliffFromGObj(D_00633540);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/motionViewer", objMenuProc);
 

@@ -22,7 +22,10 @@ INCLUDE_ASM("asm/nonmatchings/src/spider", func_001EAE90);
 
 INCLUDE_ASM("asm/nonmatchings/src/spider", func_001EAFC0);
 
-INCLUDE_ASM("asm/nonmatchings/src/spider", func_001EB0B8);
+int func_001EB0B8(void)
+{
+    return 1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/spider", func_001EB0C0);
 

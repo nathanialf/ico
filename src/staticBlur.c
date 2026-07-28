@@ -1,5 +1,8 @@
 #include "common.h"
 
+
+extern void _SetCurrentMatrix();
+extern int D_004C6160[];
 INCLUDE_ASM("asm/nonmatchings/src/staticBlur", blur);
 
 INCLUDE_ASM("asm/nonmatchings/src/staticBlur", auraInspireBefore);
@@ -18,7 +21,10 @@ INCLUDE_ASM("asm/nonmatchings/src/staticBlur", blurBlendFeedBackAreaToWork1);
 
 INCLUDE_ASM("asm/nonmatchings/src/staticBlur", testAA);
 
-INCLUDE_ASM("asm/nonmatchings/src/staticBlur", subWork1ToCurrentFB);
+void subWork1ToCurrentFB(int a0)
+{
+    _SetCurrentMatrix(a0, D_004C6160);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/staticBlur", auraInspireAfter);
 

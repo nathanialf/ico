@@ -1,8 +1,32 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/girl", func_001D1440);
 
-INCLUDE_ASM("asm/nonmatchings/src/girl", func_001D1468);
+
+extern int D_006333EC;
+extern int checkHit(char *self);
+extern void WeaponGeo(int *self);
+extern int D_00631AEC;
+extern void iosPadDevRead();
+int func_001D1440(int a0)
+{
+    iosPadDevRead(D_00631AEC, a0);
+    return 1;
+}
+
+int func_001D1468(void)
+{
+    int *p;
+    int *q;
+    p = (int *)((int *)D_006333EC)[0x15C/4];
+    q = (int *)p[0x630/4];
+    if (q != 0) {
+        if (checkHit(q) == 1) {
+            int *r = (int *)((int *)D_006333EC)[0x15C/4];
+            WeaponGeo((int *)r[0x630/4]);
+        }
+    }
+    return 1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/girl", InitGirlGeo);
 

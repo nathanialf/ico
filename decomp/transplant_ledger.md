@@ -1642,3 +1642,161 @@ gate re-run before commit.
 - REVERTED `UpdateEnemyEye` (old `func_001CEC30`) @ 0x001CEC30 — src/enemyParts.c:7: redefinition of `struct GObj'
 - REVERTED `DispEnemyEye` (old `func_001CEC60`) @ 0x001CEC60 — src/enemyParts.c:7: redefinition of `struct GObj'
 - REVERTED `moveDataElements` (old `func_001CED28`) @ 0x001CED28 — src/enemyParts.c:7: redefinition of `struct GObj'
+
+## src/flag
+- KEPT `FlagGeo` (old `func_001CFA20`) @ 0x001CFA20
+- KEPT `func_001D03A0` (old `func_001D03A0`) @ 0x001D03A0
+- KEPT `func_001D03C8` (old `func_001D03C8`) @ 0x001D03C8
+
+## src/flyManager
+- KEPT `DispFlyInfo` (old `func_001D03E0`) @ 0x001D03E0
+
+## src/frameDependSequence
+- KEPT `playSERandomID` (old `func_001D1288`) @ 0x001D1288
+- KEPT `playEff` (old `func_001D12B0`) @ 0x001D12B0
+- REVERTED `playSEConditionID` (old `func_001D12A8`) @ 0x001D12A8 — src/frameDependSequence.c:20: too many arguments to function `playSERandomID'
+- REVERTED `execEff` (old `func_001D12C0`) @ 0x001D12C0 — src/frameDependSequence.c:6: redefinition of `struct GObj'
+- REVERTED `ExecFrameDependSequence` (old `func_001D12D8`) @ 0x001D12D8 — insn 0: expected `j	0 <ExecFrameDependSequence>` built `j	168 <execEff>`
+- REVERTED `ExecuteSEPackageWithGroupVariation` (old `func_001D1410`) @ 0x001D1410 — src/frameDependSequence.c:6: redefinition of `struct GObj'
+- REVERTED `ExecuteSEPackage` (old `func_001D1428`) @ 0x001D1428 — src/frameDependSequence.c:6: redefinition of `struct GObj'
+
+## src/girl
+- KEPT `func_001D1440` (old `func_001D1440`) @ 0x001D1440
+- KEPT `func_001D1468` (old `func_001D1468`) @ 0x001D1468
+- REVERTED `SetGirlClothDispSwitch` (old `func_001D1A98`) @ 0x001D1A98 — insn 7: expected `jal	0 <SetGirlClothDispSwitch>` built `jal	140 <GirlGeo>`
+
+## src/girlForceField
+- KEPT `GirlForceFieldGeo` (old `func_001D1AD0`) @ 0x001D1AD0
+- KEPT `func_001D1CF8` (old `func_001D1CF8`) @ 0x001D1CF8
+
+## src/handManager
+- KEPT `HandManager` (old `func_001D2538`) @ 0x001D2538
+
+## src/item
+- KEPT `bombSparkStartSE` (old `func_001D2540`) @ 0x001D2540
+- KEPT `bombSparkSE` (old `func_001D2548`) @ 0x001D2548
+- KEPT `HoldItem` (old `func_001D2650`) @ 0x001D2650
+- REVERTED `avoidInsideOfWall` (old `func_001D26C8`) @ 0x001D26C8 — src/item.c:42: `Obj800' undeclared (first use in this function)
+- REVERTED `ReleaseItem` (old `func_001D2738`) @ 0x001D2738 — src/item.c:43: `Obj800' undeclared (first use in this function)
+
+## src/lineManager
+- KEPT `_getLine` (old `func_001D3DB0`) @ 0x001D3DB0
+- REVERTED `Draw2DLine` (old `func_001D3D40`) @ 0x001D3D40 — src/lineManager.c:5: redefinition of `struct GObj'
+- REVERTED `Draw2DLineSeg_Start` (old `func_001D3D70`) @ 0x001D3D70 — src/lineManager.c:5: redefinition of `struct GObj'
+- REVERTED `Draw2DLineSeg_Loop` (old `func_001D3D80`) @ 0x001D3D80 — src/lineManager.c:5: redefinition of `struct GObj'
+- REVERTED `Draw2DLineG` (old `func_001D3D98`) @ 0x001D3D98 — src/lineManager.c:5: redefinition of `struct GObj'
+- REVERTED `func_001D40A0` (old `func_001D40A0`) @ 0x001D40A0 — src/lineManager.c:5: redefinition of `struct GObj'
+
+## src/lodManager
+- KEPT `SetLodLevel` (old `func_001D4348`) @ 0x001D4348
+- KEPT `func_001D49C0` (old `func_001D49C0`) @ 0x001D49C0
+- KEPT `func_001D4D98` (old `func_001D4D98`) @ 0x001D4D98
+- KEPT `func_001D4DA8` (old `func_001D4DA8`) @ 0x001D4DA8
+- KEPT `func_001D4DD0` (old `func_001D4DD0`) @ 0x001D4DD0
+
+## src/motionFileManager
+- KEPT `InitMotionFile` (old `func_001D4E70`) @ 0x001D4E70
+- REVERTED `pursueNodeList` (old `func_001D4E30`) @ 0x001D4E30 — insn 15: expected `<end>` built `sll	zero,zero,0x0`
+
+## src/motionManager
+- KEPT `SkelTestGeo` (old `func_001DC8D8`) @ 0x001DC8D8
+- KEPT `SetHitCollisionDisplay` (old `func_001DC908`) @ 0x001DC908
+- KEPT `func_001E0978` (old `func_001E0978`) @ 0x001E0978
+- REVERTED `_checkCliffAndWall` (old `func_001D9C58`) @ 0x001D9C58 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+- REVERTED `GetWallVector` (old `func_001DC938`) @ 0x001DC938 — [§frame-size] prologue sp delta differs (missing callee-saved reg / hoist)
+- REVERTED `func_001E0860` (old `func_001E0860`) @ 0x001E0860 — [§delay-slot-occupant] epilogue ld ra folded into an early-exit branch delay vs fall-through work
+
+## src/motionOrientManager
+- KEPT `UpdateFrameCounter` (old `func_001E0C08`) @ 0x001E0C08
+- KEPT `ExecuteSlipProc` (old `func_001E44C0`) @ 0x001E44C0
+- KEPT `func_001E4838` (old `func_001E4838`) @ 0x001E4838
+- REVERTED `getStreamMotionGeometry` (old `func_001E2370`) @ 0x001E2370 — insn 1: expected `j	0 <getStreamMotionGeometry>` built `j	1118 <getNodeBlendedFloatingMotion>`
+- REVERTED `SetParallelMotionTable` (old `func_001E3F40`) @ 0x001E3F40 — src/motionOrientManager.c:6: redefinition of `struct GObj'
+- REVERTED `func_001E4700` (old `func_001E4700`) @ 0x001E4700 — src/motionOrientManager.c:7: redefinition of `struct GObj'
+- REVERTED `func_001E4728` (old `func_001E4728`) @ 0x001E4728 — insn 17: expected `jal	0 <func_001E4728>` built `jal	1d18 <getStreamMotion>`
+- REVERTED `func_001E4798` (old `func_001E4798`) @ 0x001E4798 — src/motionOrientManager.c:7: redefinition of `struct GObj'
+
+## src/motionViewer
+- KEPT `dispProgressBar` (old `func_001E4970`) @ 0x001E4970
+- KEPT `dispMotFrameProgress` (old `func_001E4980`) @ 0x001E4980
+- REVERTED `setMotionSpeed` (old `func_001E4938`) @ 0x001E4938 — src/motionViewer.c:5: redefinition of `struct GObj'
+
+## src/moveColTest
+- KEPT `InitMoveColTestGeo` (old `func_001E6960`) @ 0x001E6960
+- REVERTED `func_001E6968` (old `func_001E6968`) @ 0x001E6968 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo
+
+## src/multiBgaManager
+- KEPT `EntryMultiBgaManager` (old `func_001E6A98`) @ 0x001E6A98
+- KEPT `EntryMultiBgaManagerSensitive` (old `func_001E6B00`) @ 0x001E6B00
+
+## src/particleEffect
+- KEPT `execParticleEffect` (old `func_001E6D68`) @ 0x001E6D68
+- KEPT `DeleteParticleEffectsByID` (old `func_001E8BD8`) @ 0x001E8BD8
+- REVERTED `ResetParticleEffectPackages` (old `func_001E85D8`) @ 0x001E85D8 — insn 11: expected `j	0 <ResetParticleEffectPackages>` built `j	778 <SetParticleEffect>`
+- REVERTED `SetParticleEffectActiveSensing` (old `func_001E8A60`) @ 0x001E8A60 — insn 10: expected `jal	0 <SetParticleEffectActiveSensing>` built `jal	14a8 <SetParticleEffectGeometry>`
+- REVERTED `func_001E8B48` (old `func_001E8B48`) @ 0x001E8B48 — insn 3: expected `jal	0 <func_001E8B48>` built `jal	17c8 <SetParticleEffectUpperLimit>`
+
+## src/particleLayout
+- KEPT `ParticleLayoutGeo` (old `func_001E8D50`) @ 0x001E8D50
+- KEPT `func_001E8DE0` (old `func_001E8DE0`) @ 0x001E8DE0
+- KEPT `func_001E8E80` (old `func_001E8E80`) @ 0x001E8E80
+- KEPT `func_001E8F28` (old `func_001E8F28`) @ 0x001E8F28
+- REVERTED `func_001E8EA8` (old `func_001E8EA8`) @ 0x001E8EA8 — src/particleLayout.c:7: redefinition of `struct GObj'
+- REVERTED `func_001E8EB8` (old `func_001E8EB8`) @ 0x001E8EB8 — src/particleLayout.c:7: redefinition of `struct GObj'
+
+## src/rope
+- KEPT `InitRopeGeo` (old `func_001E8F30`) @ 0x001E8F30
+- REVERTED `HoldRope` (old `func_001E93D0`) @ 0x001E93D0 — src/rope.c:5: redefinition of `struct GObj'
+- REVERTED `ReleaseRope` (old `func_001E97F8`) @ 0x001E97F8 — src/rope.c:5: redefinition of `struct GObj'
+
+## src/ropeFix
+- KEPT `RopeFixGeo` (old `func_001E9808`) @ 0x001E9808
+- KEPT `InitRopeFixGeo` (old `func_001E9888`) @ 0x001E9888
+- KEPT `func_001E9910` (old `func_001E9910`) @ 0x001E9910
+- KEPT `func_001E9918` (old `func_001E9918`) @ 0x001E9918
+- KEPT `func_001E9920` (old `func_001E9920`) @ 0x001E9920
+- REVERTED `func_001E98C8` (old `func_001E98C8`) @ 0x001E98C8 — src/ropeFix.c:6: redefinition of `struct GObj'
+- REVERTED `func_001E9950` (old `func_001E9950`) @ 0x001E9950 — src/ropeFix.c:8: redefinition of `struct GObj'
+
+## src/rotObject
+- KEPT `func_001E9DE8` (old `func_001E9DE8`) @ 0x001E9DE8
+- KEPT `func_001E9DF0` (old `func_001E9DF0`) @ 0x001E9DF0
+- KEPT `func_001EA220` (old `func_001EA220`) @ 0x001EA220
+- REVERTED `func_001EA108` (old `func_001EA108`) @ 0x001EA108 — src/rotObject.c:7: redefinition of `struct GObj'
+- REVERTED `func_001EA228` (old `func_001EA228`) @ 0x001EA228 — src/rotObject.c:7: redefinition of `struct GObj'
+- REVERTED `func_001EA248` (old `func_001EA248`) @ 0x001EA248 — src/rotObject.c:7: redefinition of `struct GObj'
+- REVERTED `func_001EA268` (old `func_001EA268`) @ 0x001EA268 — src/rotObject.c:7: redefinition of `struct GObj'
+
+## src/spider
+- KEPT `func_001EB0B8` (old `func_001EB0B8`) @ 0x001EB0B8
+- REVERTED `func_001EA3E0` (old `func_001EA3E0`) @ 0x001EA3E0 — src/spider.c:5: redefinition of `struct GObj'
+- REVERTED `func_001EACE8` (old `func_001EACE8`) @ 0x001EACE8 — src/spider.c:5: redefinition of `struct GObj'
+- REVERTED `func_001EAE70` (old `func_001EAE70`) @ 0x001EAE70 — src/spider.c:5: redefinition of `struct GObj'
+
+## src/spiderGroupManager
+- KEPT `func_001EB9F0` (old `func_001EB9F0`) @ 0x001EB9F0
+- KEPT `func_001EBA18` (old `func_001EBA18`) @ 0x001EBA18
+- KEPT `func_001EBA40` (old `func_001EBA40`) @ 0x001EBA40
+- KEPT `func_001EBAE8` (old `func_001EBAE8`) @ 0x001EBAE8
+- KEPT `func_001EBB10` (old `func_001EBB10`) @ 0x001EBB10
+
+## src/stageMultiBgaManager
+
+## src/staticBlur
+- KEPT `subWork1ToCurrentFB` (old `func_001EEF08`) @ 0x001EEF08
+
+## src/stormTest
+- KEPT `InitStormPackage` (old `func_001EF980`) @ 0x001EF980
+- KEPT `ClipStormByVolume` (old `func_001EF988`) @ 0x001EF988
+- KEPT `ClipStormByCamera` (old `func_001EF990`) @ 0x001EF990
+- KEPT `UpdateStormPackage` (old `func_001EF998`) @ 0x001EF998
+- KEPT `DispStormPackage` (old `func_001EF9A8`) @ 0x001EF9A8
+- KEPT `StormTestDL` (old `func_001EF9D8`) @ 0x001EF9D8
+- KEPT `func_001EFA58` (old `func_001EFA58`) @ 0x001EFA58
+- KEPT `func_001F0858` (old `func_001F0858`) @ 0x001F0858
+- KEPT `func_001F0A28` (old `func_001F0A28`) @ 0x001F0A28
+- REVERTED `StormTestGeo` (old `func_001EF9D0`) @ 0x001EF9D0 — src/stormTest.c:38: incompatible types in assignment
+- REVERTED `InitStormTestGeo` (old `func_001EF9E0`) @ 0x001EF9E0 — [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
+- REVERTED `func_001F0540` (old `func_001F0540`) @ 0x001F0540 — src/stormTest.c:9: redefinition of `struct GObj'
+- REVERTED `func_001F0550` (old `func_001F0550`) @ 0x001F0550 — src/stormTest.c:9: redefinition of `struct GObj'
+- REVERTED `func_001F0568` (old `func_001F0568`) @ 0x001F0568 — [§5.7] far in-TU global via gp_rel where original uses %hi/%lo

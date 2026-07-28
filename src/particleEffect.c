@@ -1,10 +1,19 @@
 #include "common.h"
 
+
+
+extern int D_0070A3F0[];
+extern void MatrixDrive_TurnObjectMatrix();
+extern void GetInverseQuaternion();
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", setParticleEffectGeometry);
 
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", setParticleEffect);
 
-INCLUDE_ASM("asm/nonmatchings/src/particleEffect", execParticleEffect);
+void execParticleEffect(int a0, int a1, int a2)
+{
+    MatrixDrive_TurnObjectMatrix(a0);
+    GetInverseQuaternion(a0 + 0x10, a2);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", dispParticleEffect);
 
@@ -34,7 +43,10 @@ INCLUDE_ASM("asm/nonmatchings/src/particleEffect", func_001E8B48);
 
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", func_001E8B68);
 
-INCLUDE_ASM("asm/nonmatchings/src/particleEffect", DeleteParticleEffectsByID);
+int *DeleteParticleEffectsByID(int idx)
+{
+    return (int *)((char *)D_0070A3F0 + idx * 0xA0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", GetParticleEffectData);
 

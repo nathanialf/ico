@@ -1,5 +1,13 @@
 #include "common.h"
 
+
+
+extern int D_00633438;
+extern int D_0063343C;
+extern int D_0063347C;
+extern int iosOmBeforeFuncStandard(char *self_arg, int val5, int val6);
+extern void MatrixDrive_TurnObjectMatrix(void *dst, void *src);
+extern int D_00633F3C;
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", dispSquare2);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", findActPoint);
@@ -42,9 +50,17 @@ INCLUDE_ASM("asm/nonmatchings/src/motionManager", dispSkelton);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", SkelTest);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", SkelTestGeo);
+void SkelTestGeo(void)
+{
+    iosOmBeforeFuncStandard(D_0063347C, 0x18, D_0063347C);
+    MatrixDrive_TurnObjectMatrix(D_00633F3C + 0x150, D_00633F3C);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", SetHitCollisionDisplay);
+void SetHitCollisionDisplay(void)
+{
+    iosOmBeforeFuncStandard(D_0063347C, 0xF3, D_0063347C);
+    MatrixDrive_TurnObjectMatrix(D_00633F3C + 0x150, D_00633F3C);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", GetWallVector);
 
@@ -94,5 +110,8 @@ INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001E0860);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001E08B8);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001E0978);
+void func_001E0978(int a, int b) {
+    D_00633438 = a;
+    D_0063343C = b;
+}
 

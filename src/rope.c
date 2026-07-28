@@ -1,6 +1,6 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/rope", InitRopeGeo);
+void InitRopeGeo(void) {}
 
 INCLUDE_ASM("asm/nonmatchings/src/rope", SetRopeFixPoint);
 

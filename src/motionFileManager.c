@@ -2,7 +2,13 @@
 
 INCLUDE_ASM("asm/nonmatchings/src/motionFileManager", pursueNodeList);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionFileManager", InitMotionFile);
+int InitMotionFile(unsigned int *self)
+{
+    int r;
+    unsigned int p = (unsigned int)self + 0x10;
+    if (p < self[2]) r = 0; else r = -1;
+    return r;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/motionFileManager", InitMotionMemorySize);
 
