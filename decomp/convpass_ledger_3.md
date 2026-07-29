@@ -3494,3 +3494,39 @@ The data model is settled and it is the same object, so `GetFlyPosition` can be
 written directly: `int *p = &D_00633D00;` before the store, `D_00633D00 = ...`
 by name, and `p ? *p : D_00632390` at each of its two decision points.  It is
 84 insns and a confirmed nested pair with `NakaBoss`, so it lands as a pair.
+
+# conv-18 — does `p ? *p : DFLT` generalise?  **No — it is 4 functions, not a class**
+
+Asked and answered mechanically.  `tough_nuts/acttails_near_misses/scan_gprel_address_test.py`
+looks for the signature: a gp-relative ADDRESS materialised into a register
+(`addiu $N,$28,%gp_rel(SYM)`, which is what `la` assembles to for a small
+object) and that register then zero-tested with `bnez`/`beqz`.  Across every
+unmatched function in the tree it returns **4 hits**:
+
+| TU | func | symbol(s) | assessment |
+|---|---|---|---|
+| enemy_act | `GetFlyPosition` | `D_00633D00` | known — the conv-17 pair |
+| enemy_act | `func_00163890` | `D_00633D00` | known — the conv-17 pair |
+| gflag | `func_0017BF78` | `D_006325BC` | **genuine new instance** — `$20` holds the address across the loop while the body also does `sw $0,%gp_rel(D_006325BC)` and `lw $8,%gp_rel(D_006325BC)`, the same value/address duality |
+| thread | `iosThreadDestroy` | `D_006321A0`, `D_006321A8` | **probable false positive** — `addiu $5`/`$6` look like two adjacent scalars passed BY ADDRESS as ordinary arguments; the later branch is on a reused register, not on the address |
+
+So the construct is real but **rare**, and this is a deliberate negative result:
+do not go looking for a large `p ? *p : DFLT` class.  It is worth exactly one
+extra function (`gflag func_0017BF78`) beyond the pair already in hand.  The
+contrast with the static-chain scan (51 pairs, 0 counterexamples) is the point
+— that one WAS a class; this one is not.
+
+Recording it so nobody repeats the conv-12 mistake of building a pass around a
+class that is not there.
+
+# conv-18 — `GetFlyPosition` + `NakaBoss`: scoped, not started
+
+Sizes measured before starting: `GetFlyPosition` 84 insns, **`NakaBoss` 438**.
+As a nested pair they are ONE C function of 522 insns and must land together,
+so this is a large-body reconstruction, not the "writing rather than
+investigating" job the data-model work made it sound like.  The data model IS
+settled (conv-17) — what remains is bulk transcription of NakaBoss.
+
+Queue it as a large single item with a fresh context, not as a tail-end task.
+The same caution applies to the other multi-callee parents in the conv-15 table
+(`commonact actCommonDown` owns three callees, 1101 insns together).
