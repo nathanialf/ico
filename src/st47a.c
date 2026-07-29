@@ -571,7 +571,27 @@ void func_00238740(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", func_002387B8);
+extern unsigned int D_004D3C50[8];
+extern void func_00238C18(volatile int a0);
+extern int actInitialize__87b8(int a0) __asm__("actInitialize");
+extern void stage_KillPlayBgAnimation__87b8(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
+
+void func_002387B8(volatile int a0) {
+    int x = a0;
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize__87b8(a0);
+    _ACTWait(1);
+    if (func_0017B230(0x121) != 0) {
+        stage_KillPlayBgAnimation__87b8(0x7F, 0, 0);
+        _ACTWait(0xA);
+        stage_KillPlayBgAnimation__87b8(0x7F, 0, 0x1F4);
+    } else {
+        stage_KillPlayBgAnimation__87b8(0x7F, 0, 0);
+    }
+    D_004D3C50[1] = (unsigned int)func_00238C18;
+    gobj->unkC4 = (int *)D_004D3C50;
+    BoxBarSoundOn((int)a0, 0x18D);
+    _ACTWait(0);
+}
 
 extern unsigned int D_004D3CF0[8];
 extern void func_00238D08(volatile int a0);
@@ -620,9 +640,49 @@ void func_00238950(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", func_002389C8);
+extern int actInitialize__89c8(int a0) __asm__("actInitialize");
+extern void Generator_Mask__89c8(int a0) __asm__("Generator_Mask");
+extern void Generator_MaskOff__89c8(int a0) __asm__("Generator_MaskOff");
+extern void Generator_Call__89c8(int a0) __asm__("Generator_Call");
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00238A70);
+void func_002389C8(volatile int a0) {
+    int x = a0;
+    actInitialize__89c8(a0);
+    _ACTWait(1);
+    Generator_Mask__89c8(a0);
+    while (func_0017B230(0x124) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(0x1);
+    Generator_MaskOff__89c8(a0);
+    Generator_Call__89c8(a0);
+    _ACTWait(0x3C);
+    Generator_Call__89c8(a0);
+    _ACTWait(0x3C);
+    Generator_Call__89c8(a0);
+}
+
+extern int actInitialize__8a70(int a0) __asm__("actInitialize");
+extern void Generator_Mask__8a70(int a0) __asm__("Generator_Mask");
+extern void Generator_MaskOff__8a70(int a0) __asm__("Generator_MaskOff");
+extern void Generator_Call__8a70(int a0) __asm__("Generator_Call");
+
+void func_00238A70(volatile int a0) {
+    int x = a0;
+    actInitialize__8a70(a0);
+    _ACTWait(1);
+    Generator_Mask__8a70(a0);
+    while (func_0017B230(0x124) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(0x1);
+    Generator_MaskOff__8a70(a0);
+    Generator_Call__8a70(a0);
+    _ACTWait(0x3C);
+    Generator_Call__8a70(a0);
+    _ACTWait(0x3C);
+    Generator_Call__8a70(a0);
+}
 
 extern int actInitialize__8b18(int a0) __asm__("actInitialize");
 extern void Generator_Mask__8b18(int a0) __asm__("Generator_Mask");
@@ -885,7 +945,25 @@ void func_0023A548(volatile int a0) {
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_0023A5B0);
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", func_0023A668);
+extern unsigned int D_004D3FF0[8];
+extern void func_0023AD68(volatile int a0);
+extern int actInitialize__a668(int a0) __asm__("actInitialize");
+extern void stage_KillPlayBgAnimation__a668(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
+
+void func_0023A668(volatile int a0) {
+    int x = a0;
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize__a668(a0);
+    _ACTWait(1);
+    if (func_0017B230(0x2F) == 0) {
+        stage_KillPlayBgAnimation__a668(0x96, 0, 0);
+        D_004D3FF0[1] = (unsigned int)func_0023AD68;
+        gobj->unkC4 = (int *)D_004D3FF0;
+        BoxBarSoundOn((int)a0, 0x18D);
+        _ACTWait(0);
+    } else {
+        stage_KillPlayBgAnimation__a668(0x96, 0, -1);
+    }
+}
 
 extern int D_004D4010[];
 extern void func_0023AE28(volatile int a0);
@@ -953,7 +1031,25 @@ void func_0023A858(volatile int a0) {
     Generator_Call__a858(a0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", func_0023A8E8);
+extern int actInitialize__a8e8(int a0) __asm__("actInitialize");
+extern void Generator_Mask__a8e8(int a0) __asm__("Generator_Mask");
+extern void Generator_MaskOff__a8e8(int a0) __asm__("Generator_MaskOff");
+extern void Generator_Call__a8e8(int a0) __asm__("Generator_Call");
+
+void func_0023A8E8(volatile int a0) {
+    int x = a0;
+    actInitialize__a8e8(a0);
+    _ACTWait(1);
+    Generator_Mask__a8e8(a0);
+    while (func_0017B230(0x32) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(0xb4);
+    Generator_MaskOff__a8e8(a0);
+    Generator_Call__a8e8(a0);
+    _ACTWait(0x3C);
+    Generator_Call__a8e8(a0);
+}
 
 
 /* .data — carved VMA 0X4D3A30..0X4D3E50 (33 symbols), bytes verified against baserom/baseelf.rom */

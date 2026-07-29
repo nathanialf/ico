@@ -2659,3 +2659,68 @@ address-setup position.
 
 `func_0015F578` stays at 5 sites; `int`-typed `0x15C` deref, a hoisted
 destination local, and a re-cast source blob all leave it unchanged.
+
+# conv-12 / branch `acttails-3`
+
+Landed on top of `3e841f79`.  Sites-first; every match gated on
+`.venv/bin/ninja` + explicit `tools/verify_elf.py`.
+
+| commit | TU | funcs | mechanism |
+|---|---|---|---|
+| `3a5b8fdb` | girl_act | `func_00175350` | the func_001754F8 sampler loop, plus a seventh store — `buf20[1] = buf10[1]` |
+| `76fc4e82` | st47a | `func_002389C8`, `func_00238A70`, `func_0023A8E8`, `func_0023A668`, `func_002387B8` | Generator mask/call family; two guarded stage_KillPlayBgAnimation tails |
+
+## CORRECTION — girl_act's small end is NOT ordinary matching work
+
+The conv-11 "still open" note said to sweep girl_act smallest-first.  That is
+wrong for the two smallest entries after `funcGirlHandDisconnect`:
+**`actGirlDitch3mExec`(61) and enemy_act `func_00163890`(47) take their
+argument in `$2`, not `$4`** — both open with `daddu $rN,$2,$0` / `sw $2,0(sp)`
+before any call.  They are the arg-in-v0 class (`static` + a same-TU caller),
+so they cannot be matched in isolation: the caller has to be matched in the
+same edit.  Do not queue them as ordinary leaf work; queue them as a PAIR with
+their caller.
+
+## Parked at sites 6 — girl_act `funcGirlHandDisconnect` (34 insns)
+
+Structure and both branches are exact; `int k = *(int *)(obj + 0xC);` read
+BEFORE the zero-store is what puts ROM's `lw v1` / `li v0,4` letters right and
+gets the zero-store into the `bne` delay slot (sites 8 -> 6).  Residual is two
+coupled sched2 ties in the tail block:
+`sw zero,12(s0)` lands one insn later than ROM (after `daddu a0,s0,zero`
+instead of immediately after `sw zero,8(s0)`), and the two loads of the
+tail-call argument chain `*(int *)(*(int *)(obj + 0x15C) + 0xC)` come out
+`v0 -> v1` where ROM has `v1 -> v0`.
+Refuted as no-ops (identical RTL — do NOT retry): store order of out[2]/out[3],
+one `long long` store, `&out[0]` vs `out` for the a0/a2 arguments, a `float *p`
+temp, an `int *out` signature, `c * 64` vs `c << 6`, shifting `c` early, an
+`int arg` temp for the whole expression, a `char *sub` intermediate, and
+reversing the addend order.  Near-miss source in this pass's scratch
+(`ghd_s6.c`).  Next reasoned lever: the two residuals are one event — raise the
+`sw zero,12` priority so it retires with its sibling (give the stored value an
+in-block consumer, or make out[2]/out[3] part of the same object as out[0]).
+
+## Parked at sites 4 — st47a `func_0023A5B0` (46 insns)
+
+Same `%hi`-pair class the ledger already records for `src/st02a`
+actSt02aEne / actSt02aSekizo (line ~218) and `src/st04e`
+actSt04eWaterFlagOn: the tail's two `%hi` pseudos (the callback table and the
+continuation function) land in the wrong pair of registers — ROM `$3`/`$6`,
+ours `$2`/`$3`.  Here it is entangled with a third store
+(`*(int *)(actSt25aQueenDeadChk(0x1CC) + 0x16C)`), and all six permutations of
+the three tail statements were measured: `table[1]; unkC4; QueenDeadChk` is the
+best at sites 4 (rc 15), the natural `QueenDeadChk; table[1]; unkC4` is sites 5
+(rc 9), and putting the QueenDeadChk store in the MIDDLE costs sites 11.  This
+is now a FIFTH instance of that one allocno-priority tie; solving it once
+would land five functions.
+
+## Remaining in this scope
+
+st47a is down to 38 stubs but the cheap templates are exhausted — what is left
+is mostly long cutscene threads (`func_00239830`, `func_00238F10`,
+`func_00239138` and friends, 30-50 calls each), which are transcription work
+rather than template work but should still go quickly.
+girl_act (46) and enemy_act (41) remain the bulk; after the arg-in-v0 pair
+above, the next ordinary targets are girl_act `actGirlWalk`(66),
+`func_00173060`(68), `actGirlSupportGBLoop`(69) and enemy_act
+`MoveChestForCatchBoy`(67), `func_001605F8`(73), `_ApproachTarget_Boss`(75).

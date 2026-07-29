@@ -466,7 +466,31 @@ ret0:
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00175350);
+extern float *ContinueCorrectPosition__5350(void *a0) __asm__("ContinueCorrectPosition");
+extern void SetLimitHandCameraCorrect(float *dst, float *a1, float *a2, float f12);
+extern void CylinderCollision(void *a0, void *a1);
+extern void *D_00631AE4__5350 __asm__("D_00631AE4");
+extern void *D_00631AE8__5350 __asm__("D_00631AE8");
+
+void func_00175350(void *volatile a0) {
+    float buf10[4];
+    float buf20[4];
+    float buf30[4];
+
+    for (;;) {
+        buf10[0] = ContinueCorrectPosition__5350(D_00631AE8__5350)[0];
+        buf10[1] = ContinueCorrectPosition__5350(D_00631AE8__5350)[1];
+        buf10[2] = ContinueCorrectPosition__5350(D_00631AE8__5350)[2];
+        buf20[0] = ContinueCorrectPosition__5350(D_00631AE4__5350)[0];
+        buf20[1] = ContinueCorrectPosition__5350(D_00631AE4__5350)[1];
+        buf20[2] = ContinueCorrectPosition__5350(D_00631AE4__5350)[2];
+        buf20[1] = buf10[1];
+        SetLimitHandCameraCorrect(buf30, buf10, buf20, 20.0f);
+        CylinderCollision(a0, buf30);
+        BoxBarSoundOn(a0, 0x162);
+        _ACTWait(1);
+    }
+}
 
 extern unsigned int _ACTWait(int a0);
 
