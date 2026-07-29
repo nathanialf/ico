@@ -75,23 +75,370 @@ int func_0024AE38(void) {
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024AE80);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024AF90);
+__asm__(
+    ".section .text\n"
+    "    .set noat\n"
+    "    .set noreorder\n"
+    ".global func_0024AF90\n"
+    ".type func_0024AF90, @function\n"
+    "    .align 3\n"
+    "func_0024AF90:\n"
+    "    addiu $29, $29, -0x50\n"
+    "    sd $31, 0x40($29)\n"
+    "    sd $19, 0x30($29)\n"
+    "    sd $18, 0x20($29)\n"
+    "    sd $17, 0x10($29)\n"
+    "    sd $16, 0x0($29)\n"
+    "    mfc0 $17, $6\n"
+    "    lui $19, %hi(D_0062E6A0)\n"
+    "    lui $18, %hi(D_0062E6E0)\n"
+    "    daddu $16, $0, $0\n"
+    "    addiu $4, $19, %lo(D_0062E6A0)\n"
+    "    nop\n"
+    ".L002474E0:\n"
+    "    bne $16, $17, .L002474F0\n"
+    "    daddu $5, $16, $0\n"
+    "    jal func_001019E0\n"
+    "    nop\n"
+    ".L002474F0:\n"
+    "    mtc0 $16, $0\n"
+    "    sync.p\n"
+    "    tlbr\n"
+    "    sync.p\n"
+    "    mfc0 $8, $2\n"
+    "    mfc0 $9, $3\n"
+    "    mfc0 $6, $5\n"
+    "    mfc0 $7, $10\n"
+    "    daddu $5, $16, $0\n"
+    "    jal func_001019E0\n"
+    "    addiu $4, $18, %lo(D_0062E6E0)\n"
+    "    addiu $16, $16, 0x1\n"
+    "    slti $2, $16, 0x30\n"
+    "    bnel $2, $0, .L002474E0\n"
+    "    addiu $4, $19, %lo(D_0062E6A0)\n"
+    "    ld $31, 0x40($29)\n"
+    "    ld $19, 0x30($29)\n"
+    "    ld $18, 0x20($29)\n"
+    "    ld $17, 0x10($29)\n"
+    "    ld $16, 0x0($29)\n"
+    "    jr $31\n"
+    "    addiu $29, $29, 0x50\n"
+    ".size func_0024AF90, . - func_0024AF90\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024B028);
+__asm__(
+    ".section .text\n"
+    "    .set noat\n"
+    "    .set noreorder\n"
+    ".global func_0024B028\n"
+    ".type func_0024B028, @function\n"
+    "    .align 3\n"
+    "func_0024B028:\n"
+    "    srl $3, $5, 24\n"
+    "    addiu $2, $0, 0x30\n"
+    "    beq $3, $2, .L002475BC\n"
+    "    sltiu $2, $3, 0x31\n"
+    "    beqz $2, .L00247590\n"
+    "    addiu $2, $0, 0x10\n"
+    "    beq $3, $2, .L002475CC\n"
+    "    sltiu $2, $3, 0x11\n"
+    "    beqz $2, .L00247580\n"
+    "    addiu $2, $0, 0x20\n"
+    "    beqz $3, .L002475C0\n"
+    "    andi $2, $3, 0xF\n"
+    "    b .L002475D4\n"
+    "    nop\n"
+    ".L00247580:\n"
+    "    beq $3, $2, .L002475C0\n"
+    "    andi $2, $3, 0xF\n"
+    "    b .L002475D4\n"
+    "    nop\n"
+    ".L00247590:\n"
+    "    addiu $2, $0, 0x50\n"
+    "    beq $3, $2, .L002475CC\n"
+    "    sltiu $2, $3, 0x51\n"
+    "    bnez $2, .L002475D4\n"
+    "    addiu $2, $0, 0x60\n"
+    "    beq $3, $2, .L002475CC\n"
+    "    addiu $2, $0, 0x70\n"
+    "    beq $3, $2, .L002475CC\n"
+    "    nop\n"
+    "    b .L002475D4\n"
+    "    nop\n"
+    ".L002475BC:\n"
+    "    andi $2, $3, 0xF\n"
+    ".L002475C0:\n"
+    "    sltiu $2, $2, 0x8\n"
+    "    beqz $2, .L002475D4\n"
+    "    nop\n"
+    ".L002475CC:\n"
+    "    jr $31\n"
+    "    addiu $2, $0, -0x1\n"
+    ".L002475D4:\n"
+    "    mtc0 $4, $5\n"
+    "    mtc0 $5, $10\n"
+    "    mtc0 $6, $2\n"
+    "    mtc0 $7, $3\n"
+    "    sync.p\n"
+    "    tlbwr\n"
+    "    sync.p\n"
+    "    tlbp\n"
+    "    sync.p\n"
+    "    mfc0 $2, $0\n"
+    "    jr $31\n"
+    "    nop\n"
+    ".size func_0024B028, . - func_0024B028\n"
+    "    nop\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024B0E8);
+__asm__(
+    ".section .text\n"
+    "    .set noat\n"
+    "    .set noreorder\n"
+    "    .global func_0024B0E8\n"
+    "    .type func_0024B0E8, @function\n"
+    "    .align 3\n"
+    "func_0024B0E8:\n"
+    "    mfc0  $2, $6\n"
+    "    slt   $2, $4, $2\n"
+    "    bnez  $2, 1f\n"
+    "    slti  $2, $4, 0x30\n"
+    "    bnez  $2, 2f\n"
+    "    nop\n"
+    "1:\n"
+    "    jr    $31\n"
+    "    addiu $2, $0, -0x1\n"
+    "2:\n"
+    "    mtc0  $4, $0\n"
+    "    mtc0  $5, $5\n"
+    "    mtc0  $6, $10\n"
+    "    mtc0  $7, $2\n"
+    "    mtc0  $8, $3\n"
+    "    sync.p\n"
+    "    tlbwi\n"
+    "    sync.p\n"
+    "    jr    $31\n"
+    "    daddu $2, $4, $0\n"
+    "    .size func_0024B0E8, . - func_0024B0E8\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024B130);
+__asm__(
+    ".section .text\n"
+    "    .set noat\n"
+    "    .set noreorder\n"
+    "    .global func_0024B130\n"
+    "    .type func_0024B130, @function\n"
+    "    .align 3\n"
+    "func_0024B130:\n"
+    "    sltiu $2, $4, 0x30\n"
+    "    bnez  $2, 1f\n"
+    "    nop\n"
+    "    jr    $31\n"
+    "    addiu $2, $0, -0x1\n"
+    "1:\n"
+    "    mtc0  $4, $0\n"
+    "    sync.p\n"
+    "    tlbr\n"
+    "    sync.p\n"
+    "    mfc0  $2, $5\n"
+    "    sw    $2, 0x0($5)\n"
+    "    mfc0  $3, $10\n"
+    "    sw    $3, 0x0($6)\n"
+    "    mfc0  $2, $2\n"
+    "    sw    $2, 0x0($7)\n"
+    "    mfc0  $3, $3\n"
+    "    sw    $3, 0x0($8)\n"
+    "    jr    $31\n"
+    "    daddu $2, $4, $0\n"
+    "    .size func_0024B130, . - func_0024B130\n"
+    "    nop\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024B180);
+__asm__(
+    ".section .text\n"
+    "    .set noat\n"
+    "    .set noreorder\n"
+    "    .global func_0024B180\n"
+    "    .type func_0024B180, @function\n"
+    "    .align 3\n"
+    "func_0024B180:\n"
+    "    mtc0  $4, $10\n"
+    "    sync.p\n"
+    "    tlbp\n"
+    "    sync.p\n"
+    "    mfc0  $4, $0\n"
+    "    bgez  $4, 1f\n"
+    "    nop\n"
+    "    b     2f\n"
+    "    addiu $4, $0, -0x1\n"
+    "1:\n"
+    "    tlbr\n"
+    "    sync.p\n"
+    "    mfc0  $2, $5\n"
+    "    sw    $2, 0x0($5)\n"
+    "    mfc0  $3, $2\n"
+    "    sw    $3, 0x0($6)\n"
+    "    mfc0  $2, $3\n"
+    "    sw    $2, 0x0($7)\n"
+    "2:\n"
+    "    jr    $31\n"
+    "    daddu $2, $4, $0\n"
+    "    .size func_0024B180, . - func_0024B180\n"
+    "    nop\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024B1D0);
+__asm__(
+    ".section .text\n"
+    "    .set noat\n"
+    "    .set noreorder\n"
+    ".global func_0024B1D0\n"
+    ".type func_0024B1D0, @function\n"
+    "    .align 3\n"
+    "func_0024B1D0:\n"
+    "    addiu $29, $29, -0x30\n"
+    "    sd $16, 0x10($29)\n"
+    "    daddu $16, $4, $0\n"
+    "    andi $2, $16, 0xFFF\n"
+    "    bnez $2, .L00247720\n"
+    "    sd $31, 0x20($29)\n"
+    "    lui $2, (0xFFFFE >> 16)\n"
+    "    addiu $3, $16, -0x1\n"
+    "    ori $2, $2, (0xFFFFE & 0xFFFF)\n"
+    "    sltu $2, $2, $3\n"
+    "    bnez $2, .L00247728\n"
+    "    lui $4, (0x70004000 >> 16)\n"
+    ".L00247720:\n"
+    "    b .L00247810\n"
+    "    addiu $2, $0, -0x1\n"
+    ".L00247728:\n"
+    "    daddu $5, $29, $0\n"
+    "    ori $4, $4, (0x70004000 & 0xFFFF)\n"
+    "    ori $6, $29, 0x4\n"
+    "    jal func_0024B180\n"
+    "    ori $7, $29, 0x8\n"
+    "    daddu $5, $2, $0\n"
+    "    bgez $5, .L00247768\n"
+    "    nop\n"
+    "    beqz $16, .L00247810\n"
+    "    daddu $2, $0, $0\n"
+    "    mfc0 $5, $6\n"
+    "    addiu $2, $5, 0x1\n"
+    "    mtc0 $2, $6\n"
+    "    sync.p\n"
+    "    b .L002477B0\n"
+    "    nop\n"
+    ".L00247768:\n"
+    "    bnez $16, .L002477B0\n"
+    "    addiu $2, $5, -0x1\n"
+    "    lui $3, (0xE0010000 >> 16)\n"
+    "    sll $2, $2, 13\n"
+    "    addu $6, $2, $3\n"
+    "    mfc0 $2, $6\n"
+    "    addiu $2, $2, -0x1\n"
+    "    mtc0 $2, $6\n"
+    "    mtc0 $5, $0\n"
+    "    mtc0 $0, $5\n"
+    "    mtc0 $6, $10\n"
+    "    mtc0 $0, $2\n"
+    "    mtc0 $0, $3\n"
+    "    sync.p\n"
+    "    tlbwi\n"
+    "    sync.p\n"
+    "    b .L00247810\n"
+    "    daddu $2, $0, $0\n"
+    ".L002477B0:\n"
+    "    lui $2, (0xFFFFF000 >> 16)\n"
+    "    addiu $4, $16, 0x1000\n"
+    "    ori $2, $2, (0xFFFFF000 & 0xFFFF)\n"
+    "    lui $6, (0x70004000 >> 16)\n"
+    "    and $4, $4, $2\n"
+    "    sw $0, 0x0($29)\n"
+    "    and $2, $16, $2\n"
+    "    srl $4, $4, 6\n"
+    "    srl $2, $2, 6\n"
+    "    ori $4, $4, 0x1F\n"
+    "    ori $2, $2, 0x1F\n"
+    "    ori $6, $6, (0x70004000 & 0xFFFF)\n"
+    "    sw $2, 0x4($29)\n"
+    "    sw $4, 0x8($29)\n"
+    "    mtc0 $5, $0\n"
+    "    daddu $3, $0, $0\n"
+    "    mtc0 $3, $5\n"
+    "    mtc0 $6, $10\n"
+    "    mtc0 $2, $2\n"
+    "    mtc0 $4, $3\n"
+    "    sync.p\n"
+    "    tlbwi\n"
+    "    sync.p\n"
+    "    daddu $2, $5, $0\n"
+    ".L00247810:\n"
+    "    ld $31, 0x20($29)\n"
+    "    ld $16, 0x10($29)\n"
+    "    jr $31\n"
+    "    addiu $29, $29, 0x30\n"
+    ".size func_0024B1D0, . - func_0024B1D0\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024B300);
+extern int D_00550880[];
+extern void func_001001D0();
+extern void func_0024B500(void);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024B360);
+void *func_0024B300(void *a0) {
+    D_00550880[0] = (int)a0;
+    func_001001D0(1, func_0024B500);
+    func_001001D0(2, func_0024B500);
+    func_001001D0(3, func_0024B500);
+    return a0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024B3E8);
+extern char D_0024B740[];
+extern int D_00550888[];
+extern void func_001001D0();
+extern void func_001001E0();
+
+int func_0024B360(int a0, int a1) {
+    int old;
+    int orig = a0;
+    unsigned int err = 0xFFFFFFFF;
+    if ((unsigned)(a0 - 1) >= 13) {
+        return (int)err;
+    }
+    old = D_00550888[orig];
+    D_00550888[orig] = a1;
+    if ((unsigned)(a0 - 1) < 3) {
+        func_001001D0(orig, (void *)D_0024B740);
+    } else {
+        func_001001E0(orig, (void *)D_0024B740);
+    }
+    return old;
+}
+
+__asm__(
+    ".section .text\n"
+    "    .set at\n"
+    "    .set noreorder\n"
+    "    .align 3\n"
+    "glabel func_0024B3E8\n"
+    "    addiu      $3, $0, 0x74\n"
+    "    syscall    0\n"
+    "    jr         $31\n"
+    "    nop\n"
+    "endlabel func_0024B3E8\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
 extern int D_005508C8[];
 extern void func_0024B3E8(int x, int y);
@@ -109,23 +456,141 @@ void func_0024B3F8(void)
   while (i < 6);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024B448);
+__asm__(
+    ".section .text\n"
+    "    .set at\n"
+    "    .set noreorder\n"
+    "glabel func_0024B448\n"
+    "    addiu      $3, $0, 0x55\n"
+    "    syscall    0\n"
+    "    jr         $31\n"
+    "    nop\n"
+    "endlabel func_0024B448\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024B458);
+__asm__(
+    ".section .text\n"
+    "    .set at\n"
+    "    .set noreorder\n"
+    "glabel func_0024B458\n"
+    "    addiu      $3, $0, -0x55\n"
+    "    syscall    0\n"
+    "    jr         $31\n"
+    "    nop\n"
+    "endlabel func_0024B458\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024B468);
+__asm__(
+    ".section .text\n"
+    "    .set at\n"
+    "    .set noreorder\n"
+    "glabel func_0024B468\n"
+    "    addiu      $3, $0, 0x56\n"
+    "    syscall    0\n"
+    "    jr         $31\n"
+    "    nop\n"
+    "endlabel func_0024B468\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024B478);
+__asm__(
+    ".section .text\n"
+    "    .set at\n"
+    "    .set noreorder\n"
+    "glabel func_0024B478\n"
+    "    addiu      $3, $0, -0x56\n"
+    "    syscall    0\n"
+    "    jr         $31\n"
+    "    nop\n"
+    "endlabel func_0024B478\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024B488);
+__asm__(
+    ".section .text\n"
+    "    .set at\n"
+    "    .set noreorder\n"
+    "glabel func_0024B488\n"
+    "    addiu      $3, $0, 0x57\n"
+    "    syscall    0\n"
+    "    jr         $31\n"
+    "    nop\n"
+    "endlabel func_0024B488\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024B498);
+__asm__(
+    ".section .text\n"
+    "    .set at\n"
+    "    .set noreorder\n"
+    "glabel func_0024B498\n"
+    "    addiu      $3, $0, -0x57\n"
+    "    syscall    0\n"
+    "    jr         $31\n"
+    "    nop\n"
+    "endlabel func_0024B498\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024B4A8);
+__asm__(
+    ".section .text\n"
+    "    .set at\n"
+    "    .set noreorder\n"
+    "glabel func_0024B4A8\n"
+    "    addiu      $3, $0, 0x58\n"
+    "    syscall    0\n"
+    "    jr         $31\n"
+    "    nop\n"
+    "endlabel func_0024B4A8\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024B4B8);
+__asm__(
+    ".section .text\n"
+    "    .set at\n"
+    "    .set noreorder\n"
+    "glabel func_0024B4B8\n"
+    "    addiu      $3, $0, -0x58\n"
+    "    syscall    0\n"
+    "    jr         $31\n"
+    "    nop\n"
+    "endlabel func_0024B4B8\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024B4C8);
+__asm__(
+    ".section .text\n"
+    "    .set at\n"
+    "    .set noreorder\n"
+    "glabel func_0024B4C8\n"
+    "    addiu      $3, $0, 0x59\n"
+    "    syscall    0\n"
+    "    jr         $31\n"
+    "    nop\n"
+    "endlabel func_0024B4C8\n"
+    "    nop\n"
+    "    nop\n"
+    "    nop\n"
+    "    nop\n"
+    "    nop\n"
+    "    nop\n"
+    "    nop\n"
+    "    nop\n"
+    "    nop\n"
+    "    nop\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024B500);
 
@@ -226,15 +691,209 @@ int func_0024BD90(int a0, int a1, int a2, int a3, int t0, int t1)
   asm __volatile__("" : : : "memory");
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024BDD0);
+__asm__(
+    ".section .text\n"
+    "    .set noat\n"
+    "    .set noreorder\n"
+    ".global func_0024BDD0\n"
+    ".type func_0024BDD0, @function\n"
+    "    .align 3\n"
+    "func_0024BDD0:\n"
+    "    addiu $29, $29, -0x90\n"
+    "    sd $16, 0x70($29)\n"
+    "    sd $31, 0x80($29)\n"
+    "    jal func_00101A88\n"
+    "    nop\n"
+    "    lui $3, %hi(D_00717758)\n"
+    "    lw $7, %lo(D_00717758)($3)\n"
+    "    addiu $16, $3, %lo(D_00717758)\n"
+    "    lbu $2, 0x0($7)\n"
+    "    andi $5, $2, 0xFF\n"
+    "    beqz $5, .L002483E8\n"
+    "    daddu $2, $0, $0\n"
+    "    addiu $2, $5, 0xF\n"
+    "    addiu $3, $0, -0x1\n"
+    "    addiu $4, $5, 0x1E\n"
+    "    slt $3, $3, $2\n"
+    "    movn $4, $2, $3\n"
+    "    daddu $6, $7, $0\n"
+    "    sra $5, $4, 4\n"
+    "    sb $0, 0x0($7)\n"
+    "    blez $5, .L0024834C\n"
+    "    daddu $4, $5, $0\n"
+    "    daddu $3, $29, $0\n"
+    "    nop\n"
+    ".L00248330:\n"
+    "    lq $2, 0x0($6)\n"
+    "    addiu $4, $4, -0x1\n"
+    "    addiu $6, $6, 0x10\n"
+    "    sq $2, 0x0($3)\n"
+    "    addiu $3, $3, 0x10\n"
+    "    bnez $4, .L00248330\n"
+    "    nop\n"
+    ".L0024834C:\n"
+    "    jal func_00100910\n"
+    "    nop\n"
+    "    lw $3, 0x8($29)\n"
+    "    bgez $3, .L002483A8\n"
+    "    nop\n"
+    "    lw $2, 0x8($29)\n"
+    "    lui $3, (0x7FFFFFFF >> 16)\n"
+    "    ori $3, $3, (0x7FFFFFFF & 0xFFFF)\n"
+    "    lw $4, 0x10($16)\n"
+    "    and $5, $2, $3\n"
+    "    slt $4, $5, $4\n"
+    "    beqz $4, .L002483DC\n"
+    "    sll $2, $5, 3\n"
+    "    lw $3, 0xC($16)\n"
+    "    addu $2, $2, $3\n"
+    "    lw $6, 0x0($2)\n"
+    "    beqz $6, .L002483DC\n"
+    "    nop\n"
+    "    lw $5, 0x4($2)\n"
+    "    jalr $6\n"
+    "    daddu $4, $29, $0\n"
+    "    b .L002483DC\n"
+    "    nop\n"
+    ".L002483A8:\n"
+    "    lw $5, 0x8($29)\n"
+    "    lw $2, 0x18($16)\n"
+    "    slt $2, $5, $2\n"
+    "    beqz $2, .L002483DC\n"
+    "    sll $2, $5, 3\n"
+    "    lw $3, 0x14($16)\n"
+    "    addu $2, $2, $3\n"
+    "    lw $6, 0x0($2)\n"
+    "    beqz $6, .L002483DC\n"
+    "    nop\n"
+    "    lw $5, 0x4($2)\n"
+    "    jalr $6\n"
+    "    daddu $4, $29, $0\n"
+    ".L002483DC:\n"
+    "    sync\n"
+    "    ei\n"
+    "    daddu $2, $0, $0\n"
+    ".L002483E8:\n"
+    "    ld $31, 0x80($29)\n"
+    "    ld $16, 0x70($29)\n"
+    "    jr $31\n"
+    "    addiu $29, $29, 0x90\n"
+    ".size func_0024BDD0, . - func_0024BDD0\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024BEF8);
+__asm__(
+    ".section .text\n"
+    "    .set noat\n"
+    "    .set noreorder\n"
+    ".global func_0024BEF8\n"
+    ".type func_0024BEF8, @function\n"
+    "    .align 3\n"
+    "func_0024BEF8:\n"
+    "    lui $25, (0xFFFFFFC0 >> 16)\n"
+    "    ori $25, $25, (0xFFFFFFC0 & 0xFFFF)\n"
+    "    blez $5, .L0024849C\n"
+    "    addu $10, $4, $5\n"
+    "    and $8, $4, $25\n"
+    "    addiu $10, $10, -0x1\n"
+    "    and $9, $10, $25\n"
+    "    subu $10, $9, $8\n"
+    "    srl $11, $10, 6\n"
+    "    addiu $11, $11, 0x1\n"
+    "    andi $9, $11, 0x7\n"
+    "    beqz $9, .L00248448\n"
+    "    srl $10, $11, 3\n"
+    ".L0024842C:\n"
+    "    sync\n"
+    "    cache 0x18, 0x0($8)\n"
+    "    sync\n"
+    "    addiu $9, $9, -0x1\n"
+    "    nop\n"
+    "    bgtz $9, .L0024842C\n"
+    "    addiu $8, $8, 0x40\n"
+    ".L00248448:\n"
+    "    beqz $10, .L0024849C\n"
+    ".L0024844C:\n"
+    "    addiu $10, $10, -0x1\n"
+    "    sync\n"
+    "    cache 0x18, 0x0($8)\n"
+    "    sync\n"
+    "    cache 0x18, 0x40($8)\n"
+    "    sync\n"
+    "    cache 0x18, 0x80($8)\n"
+    "    sync\n"
+    "    cache 0x18, 0xC0($8)\n"
+    "    sync\n"
+    "    cache 0x18, 0x100($8)\n"
+    "    sync\n"
+    "    cache 0x18, 0x140($8)\n"
+    "    sync\n"
+    "    cache 0x18, 0x180($8)\n"
+    "    sync\n"
+    "    cache 0x18, 0x1C0($8)\n"
+    "    sync\n"
+    "    bgtz $10, .L0024844C\n"
+    "    addiu $8, $8, 0x200\n"
+    ".L0024849C:\n"
+    "    jr $31\n"
+    "    nop\n"
+    ".size func_0024BEF8, . - func_0024BEF8\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024BFA4);
+__asm__(
+    ".section .text\n"
+    "    .set at\n"
+    "    .set noreorder\n"
+    "glabel func_0024BFA4\n"
+    "    jr         $31\n"
+    "    addiu      $29, $29, -0x10\n"
+    "endlabel func_0024BFA4\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024BFAC);
+__asm__(
+    ".section .text\n"
+    "    .set at\n"
+    "    .set noreorder\n"
+    "    .global func_0024BFAC\n"
+    "    .type func_0024BFAC, @function\n"
+    "func_0024BFAC:\n"
+    "    sd    $31, 0x0($29)\n"
+    "    jal   func_00100550\n"
+    "    daddu $4, $6, $0\n"
+    "    sync\n"
+    "    ei\n"
+    "    ld    $31, 0x0($29)\n"
+    "    jr    $31\n"
+    "    addiu $29, $29, 0x10\n"
+    "    .size func_0024BFAC, . - func_0024BFAC\n"
+    "    nop\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024BFD0);
+extern int func_001002A0(int a0, void *a1, int a2);
+extern int func_00100520(int *self);
+extern int func_00100530(int a0);
+extern int func_00100560(int a0);
+extern void func_0024BFA4(void);
+
+void func_0024BFD0(unsigned short a0) {
+    int buf[8];
+    unsigned short id = a0;
+    int r;
+    buf[1] = 1;
+    buf[2] = 0;
+    buf[5] = 0;
+    r = func_00100520(buf);
+    func_001002A0(id, (char *)func_0024BFA4 + 4, r);
+    func_00100560(r);
+    func_00100530(r);
+}
 
 extern int D_00717900[];
 extern void func_00101A40(int *self);
@@ -434,7 +1093,60 @@ void func_0024DE98(int a0, int a1) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024DFC8);
+extern int D_00552388[];
+extern char D_0062EA90[];
+extern char D_0062EAB8[];
+extern int D_00717C00[];
+extern char D_FFFF[];
+extern int func_00246288();
+extern int func_0024E108(int a0);
+extern int func_0024F170(void);
+
+int func_0024DFC8(int a0) {
+    char *p;
+    char *q;
+    int i;
+    int v;
+    int hi;
+
+    *(volatile int *)D_00552388 = 1;
+    for (;;) {
+        p = (char *)D_00717C00;
+        func_00246288(p, 0x80000100, 0);
+        if (*(int *)(p + 0x24) != 0) {
+            break;
+        }
+        i = 0x10000;
+        do {
+            __asm__ volatile ("addiu %0,%0,%%lo(D_FFFF)" : "+r"(i));
+        } while (i != -1);
+    }
+    {
+        char *t = p + 0x28;
+        q = p;
+        p = t;
+    }
+    for (;;) {
+        func_00246288(p, 0x80000101, 0);
+        if (*(int *)(q + 0x4C) != 0) {
+            break;
+        }
+        i = 0x10000;
+        do {
+            __asm__ volatile ("addiu %0,%0,%%lo(D_FFFF)" : "+r"(i));
+        } while (i != -1);
+    }
+    v = func_0024F170();
+    hi = v >> 8;
+    if (hi != 4) {
+        if (D_0055238C[0] != 0) {
+            func_002642D8(D_0062EA90);
+            func_002642D8(D_0062EAB8, 4, 0, hi, v & 0xFF);
+        }
+        return 0;
+    }
+    return func_0024E108(a0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024E108);
 

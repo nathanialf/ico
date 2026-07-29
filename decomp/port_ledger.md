@@ -1051,10 +1051,8 @@ vendor functions are missing from `config/symbol_addrs.us.txt`.
 - PORTED `func_00248D68` w1 @ 0x00248D68 <- aug6 common/src/PObj (12 syms rebound)
 - PORTED `func_00249490` w1 @ 0x00249490 <- aug6 common/src/PObj (2 syms rebound)
 - PORTED `func_002498B8` w1 @ 0x002498B8 <- aug6 common/src/PObj (2 syms rebound)
-- REVERTED `func_0024A0E8` w1 @ 0x0024A0E8 — [unresolved-symbol] unresolved-symbol: insn 8 `D_FFFFF`: retail symbol D_000FFFFF (0x000FFFFF) undefined
 - PORTED `func_0024A170` w1 @ 0x0024A170 <- aug6 common/src/PObj (6 syms rebound)
 - PORTED `func_0024A1E0` w1 @ 0x0024A1E0 <- aug6 common/src/PObj (6 syms rebound)
-- REVERTED `func_0024A348` w1 @ 0x0024A348 — [unresolved-symbol] unresolved-symbol: insn 48 `D_FFFFF`: retail symbol D_000FFFFF (0x000FFFFF) undefined
 - PORTED `func_0024A448` w1 @ 0x0024A448 <- aug6 common/src/PObj (5 syms rebound)
 - PORTED `func_0024A4D8` w1 @ 0x0024A4D8 <- aug6 common/src/PObj (4 syms rebound)
 - PORTED `func_0024A718` w1 @ 0x0024A718 <- aug6 common/src/PObj (2 syms rebound)
@@ -1068,8 +1066,6 @@ vendor functions are missing from `config/symbol_addrs.us.txt`.
 - PORTED `func_0024AB10` w1 @ 0x0024AB10 <- aug6 common/src/PObj (5 syms rebound)
 - PORTED `func_0024AE10` w1 @ 0x0024AE10 <- aug6 common/src/PObj (2 syms rebound)
 - PORTED `func_0024AE38` w1 @ 0x0024AE38 <- aug6 common/src/PObj (4 syms rebound)
-- REVERTED `func_0024B300` w1 @ 0x0024B300 — [codegen] insn 5: expected `addiu	s0,s0,0` built `addiu	s0,s0,2616`
-- REVERTED `func_0024B360` w1 @ 0x0024B360 — [unresolved-symbol] unresolved-symbol: insn 21 `D_00247C40`: retail symbol D_0024B740 (0x0024B740) undefined (+1 more)
 - PORTED `func_0024B3F8` w1 @ 0x0024B3F8 <- aug6 common/src/PObj (3 syms rebound)
 - PORTED `func_0024B880` w1 @ 0x0024B880 <- aug6 common/src/PObj (1 syms rebound)
 - PORTED `func_0024B890` w1 @ 0x0024B890 <- aug6 common/src/PObj (2 syms rebound)
@@ -1082,7 +1078,6 @@ vendor functions are missing from `config/symbol_addrs.us.txt`.
 - PORTED `func_0024BBF0` w1 @ 0x0024BBF0 <- aug6 common/src/PObj (3 syms rebound)
 - PORTED `func_0024BD50` w1 @ 0x0024BD50 <- aug6 common/src/PObj (2 syms rebound)
 - PORTED `func_0024BD90` w1 @ 0x0024BD90 <- aug6 common/src/PObj (2 syms rebound)
-- REVERTED `func_0024BFD0` w1 @ 0x0024BFD0 — [unresolved-symbol] unresolved-symbol: insn 16 `func_002484A4`: retail symbol D_0024BFA8 (0x0024BFA8) undefined
 - PORTED `func_0024C038` w1 @ 0x0024C038 <- aug6 common/src/PObj (5 syms rebound)
 - REVERTED `func_0024C400` w1 @ 0x0024C400 — [codegen] [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)
 - PORTED `func_0024C480` w1 @ 0x0024C480 <- aug6 common/src/PObj (7 syms rebound)
@@ -1097,7 +1092,6 @@ vendor functions are missing from `config/symbol_addrs.us.txt`.
 - PORTED `func_0024DC90` w1 @ 0x0024DC90 <- aug6 common/src/PObj (7 syms rebound)
 - PORTED `func_0024DCE8` w1 @ 0x0024DCE8 <- aug6 common/src/PObj (6 syms rebound)
 - PORTED `func_0024DE98` w1 @ 0x0024DE98 <- aug6 common/src/PObj (8 syms rebound)
-- REVERTED `func_0024DFC8` w1 @ 0x0024DFC8 — [unresolved-symbol] unresolved-symbol: insn 14 `D_FFFF`: no retail lui partner for %lo (+1 more)
 - PORTED `func_0024E1A8` w1 @ 0x0024E1A8 <- aug6 common/src/PObj (5 syms rebound)
 - PORTED `func_0024E4C8` w1 @ 0x0024E4C8 <- aug6 common/src/PObj (3 syms rebound)
 - PORTED `func_0024E528` w1 @ 0x0024E528 <- aug6 common/src/PObj (3 syms rebound)
@@ -1122,7 +1116,6 @@ vendor functions are missing from `config/symbol_addrs.us.txt`.
 - PORTED `func_0024F3F8` w1 @ 0x0024F3F8 <- aug6 common/src/PObj (5 syms rebound)
 - PORTED `func_0024F6D8` w1 @ 0x0024F6D8 <- aug6 common/src/PObj (3 syms rebound)
 - PORTED `func_0024FBD0` w1 @ 0x0024FBD0 <- aug6 common/src/PObj (2 syms rebound)
-- REVERTED `func_0024FBF8` w1 @ 0x0024FBF8 — [codegen] insn 7: expected `addiu	s0,s0,0` built `addiu	s0,s0,4600`
 - PORTED `func_0024FC40` w1 @ 0x0024FC40 <- aug6 common/src/PObj (8 syms rebound)
 - PORTED `func_0024FD20` w1 @ 0x0024FD20 <- aug6 common/src/PObj (4 syms rebound)
 - PORTED `func_00250058` w1 @ 0x00250058 <- aug6 common/src/PObj (4 syms rebound)
@@ -1286,7 +1279,6 @@ vendor functions are missing from `config/symbol_addrs.us.txt`.
 - REVERTED `func_00260CA8` w1 @ 0x00260CA8 — [codegen] insn 0: expected `lui	v1,0x72` built `lui	v1,0x0`
 - PORTED `func_00262B28` w1 @ 0x00262B28 <- aug6 common/src/PObj (4 syms rebound)
 - PORTED `func_00262B80` w1 @ 0x00262B80 <- aug6 common/src/PObj (4 syms rebound)
-- REVERTED `func_00262E90` w1 @ 0x00262E90 — [unresolved-symbol] unresolved-symbol: insn 35 `D_7181F0`: retail symbol D_0071EB70 (0x0071EB70) undefined
 - PORTED `func_00262FF8` w1 @ 0x00262FF8 <- aug6 common/src/PObj (1 syms rebound)
 - PORTED `func_00263110` w1 @ 0x00263110 <- aug6 common/src/PObj (3 syms rebound)
 - PORTED `func_00263350` w1 @ 0x00263350 <- aug6 common/src/PObj (3 syms rebound)
@@ -1294,7 +1286,6 @@ vendor functions are missing from `config/symbol_addrs.us.txt`.
 - PORTED `func_002633B8` w1 @ 0x002633B8 <- aug6 common/src/PObj (3 syms rebound)
 - PORTED `func_002637E8` w1 @ 0x002637E8 <- aug6 common/src/PObj (4 syms rebound)
 - PORTED `func_00263840` w1 @ 0x00263840 <- aug6 common/src/PObj (4 syms rebound)
-- REVERTED `func_00263AA0` w1 @ 0x00263AA0 — [unresolved-symbol] unresolved-symbol: insn 35 `D_718208`: retail symbol D_0071EB88 (0x0071EB88) undefined
 - PORTED `func_00263C00` w1 @ 0x00263C00 <- aug6 common/src/PObj (1 syms rebound)
 - PORTED `func_00263D18` w1 @ 0x00263D18 <- aug6 common/src/PObj (3 syms rebound)
 - PORTED `func_00263F48` w1 @ 0x00263F48 <- aug6 common/src/PObj (3 syms rebound)
@@ -1319,11 +1310,8 @@ vendor functions are missing from `config/symbol_addrs.us.txt`.
 
 ### src/cod/vendor_2668B8
 - REVERTED `func_00268DA0` w1 @ 0x00268DA0 — [codegen] insn 14: expected `jal	0 <func_00268DA0>` built `jal	b8 <func_00266970>`
-- REVERTED `func_0026A438` w1 @ 0x0026A438 — [codegen] insn 4: expected `addiu	v0,v0,0` built `addiu	v0,v0,27808`
 - PORTED `func_0026A490` w1 @ 0x0026A490 <- aug6 common/src/PObj (3 syms rebound)
-- REVERTED `func_0026A5E0` w1 @ 0x0026A5E0 — [codegen] insn 1: expected `j	0 <func_0026A5E0>` built `j	4760 <func_0026B018>`
 - PORTED `func_0026A5F0` w1 @ 0x0026A5F0 <- aug6 common/src/PObj (3 syms rebound)
-- REVERTED `func_0026A600` w1 @ 0x0026A600 — [codegen] insn 3: expected `addiu	v0,v0,0` built `addiu	v0,v0,15656`
 - PORTED `func_0026A690` w1 @ 0x0026A690 <- aug6 common/src/PObj (3 syms rebound)
 - PORTED `func_0026AAD0` w1 @ 0x0026AAD0 <- aug6 common/src/PObj (9 syms rebound)
 - PORTED `func_0026B0B0` w1 @ 0x0026B0B0 <- aug6 common/src/PObj (4 syms rebound)
@@ -2958,3 +2946,10 @@ vendor functions are missing from `config/symbol_addrs.us.txt`.
 - PORTED `GetWormCaptureVector` w3 @ 0x001F69B0 <- aug6 sugipon/src/worm (1 syms rebound)
 - PORTED `GetWormRoute` w1 @ 0x001F66A0 <- aug6 sugipon/src/worm (3 syms rebound)
 - REVERTED `WormDL` w3 @ 0x001F6A90 — [codegen] insn 1: expected `lw	v1,2048(v0)` built `lw	v1,2032(v0)`
+
+### Vendor V2 + V1 (2026-07-29)
+V2: 50/52 PORTED. V1a: all 7 `unresolved-symbol` reverts landed. V1b: 9 of
+14 landed. 66 functions / 9,604 B this pass. Resolved entries are DELETED, not amended, and this run's
+per-function PORTED/REVERTED noise was stripped, because the file sits
+~1.5 KiB under check_no_rom.sh's 256 KiB cap. Per-function detail lives in
+`convpass_ledger_3.md` §"V1"/§"V2" — put new detail there, not here.

@@ -278,7 +278,15 @@ void func_0024FBD0(int a0, int a1, int a2) {
     EI();
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_0024FBF8);
+extern int func_001002A0(int a0, void *a1, int a2);
+extern int func_00100410(void);
+extern void func_00100440(void);
+extern void func_0024FBD0__p4() __asm__("func_0024FBD0");
+
+void func_0024FBF8(int a0) {
+    func_001002A0(a0 & 0xFFFF, func_0024FBD0__p4, func_00100410());
+    func_00100440();
+}
 
 extern void func_00100540(int a0);
 extern int func_00246648(char *a0);

@@ -1567,12 +1567,21 @@ Derived from the tree, not from the port report:
   0x238 + 0x1C = 688 B.  So the honest totals are **948 functions /
   195,684 B vendor, 521 matched, 427 unmatched / 161,540 B**.
 
-> **Queue item (config, not docs):** add the three missing
-> `func_… = 0x…; // type:func` lines to `config/symbol_addrs.us.txt` (or fix
-> `tools/gen_us_symbol_addrs.py` so it stops dropping them) — this is the
-> inverse of the usual splat-absorption fix.  Until then every vendor count
-> the dashboard prints is 3 low.  Deliberately **not** done in this docs-only
-> pass.
+> **Queue item (config, not docs): DONE 2026-07-29.**  The three
+> `func_… = 0x…; // type:func` lines are now in
+> `config/symbol_addrs.us.txt`; `build.sh setup` + `ninja` re-verify
+> byte-identical, so the symbols are pure accounting.
+> `tools/gen_us_symbol_addrs.py` still drops them and was left alone — it is
+> a one-off generator the build never runs.
+>
+> **Correction to the byte half of this reconciliation.**  "948 functions /
+> **195,684 B**" was arrived at by adding the three functions' 688 B to
+> `progress_tree.py`'s 194,996.  That is double-counting: the vendor
+> `total_bytes` is derived from the **yaml spans**, not from the symbol
+> list, so those 688 B were always inside it.  The function count was 3 low;
+> the byte count never was.  **948 functions / 194,996 B** is the honest
+> pair, and the unmatched byte figure below (161,540 B) is likewise 688 B
+> high — it is 160,852 B.
 
 Second tooling nit, also left alone: `tools/progress_tree.py:130-131` carries
 a fixed two-element label list (`crt0 + libkernl prologue`, `libc / libgcc /
@@ -1586,20 +1595,26 @@ VENDOR.md §1 over the dashboard label.
 
 | group | n | bytes | insns | min | median | max | legal category (VENDOR.md §3) |
 |---|--:|--:|--:|--:|--:|--:|---|
-| **V1** 21 genuine port reverts — unresolved-symbol | 7 | 1664 | 416 | 26 | 64 | 90 | unclassified -> §3b clean-room unless archive identified |
-| **V1** 21 genuine port reverts — codegen | 14 | 1320 | 330 | 4 | 24 | 48 | unclassified -> §3b clean-room unless archive identified |
-| **V2** 52 handwritten-asm twins solved on aug6 | 52 | 7324 | 1831 | 2 | 42 | 76 | §3b clean-room (already re-derived on aug6) |
+| ~~**V1** 21 genuine port reverts — unresolved-symbol~~ **LANDED 2026-07-29** | 0 (was 7) | 0 (was 1664) | — | — | — | — | n/a |
+| **V1** 21 genuine port reverts — codegen | 5 (was 14) | 536 (was 1320) | 134 | 8 | 32 | 48 | unclassified -> §3b clean-room unless archive identified |
+| **V2** 52 handwritten-asm twins solved on aug6 | 2 (was 52) | 144 (was 7324) | 36 | 12 | 18 | 24 | §3b clean-room (already re-derived on aug6) |
 | **V3** 40 head functions | 40 | 5056 | 1264 | 2 | 14 | 370 | §3b proprietary (crt0 + libkernl, VENDOR.md §1) |
 | **V4** 52 tail functions with no aug6 twin | 52 | 27112 | 6778 | 7 | 82 | 1350 | unclassified -> §3b clean-room unless archive identified |
 | **V5** 261 tail functions, aug6 twin unmatched | 261 | 118972 | 29743 | 24 | 74 | 1140 | mixed: 13 in the fdlibm window are §3a; rest unclassified |
 | **V6** 1 blocked (inter-section pad) | 1 | 92 | 23 | 23 | 23 | 23 | n/a — blocked |
-| | **427** | **161,540** | **40,385** | | | | |
+| | **361** (was 427) | **151,248** | | | | | |
+
+**Landed 2026-07-29 (this pass): 66 functions / 9,604 B — V2 50/52, V1 16/21.**
+Vendor moves 521/945 -> **587/948** functions and 34,144 -> **43,748 B**
+(17.51 % -> 22.44 %); `.text` 16.81 % -> **18.50 %**.  The unmatched vendor
+total is now **361 functions / 151,248 B** (figures from
+`docs/progress.json`, whose byte denominators are span-derived).
 
 `min`/`median`/`max` are instruction counts.  Every count below is
 `bytes / 4` from `docs/progress.json`; a `*` marks one of the three
 symbol-table orphans above (size read from the `.s` header instead).
 
-## V1 — the 21 genuine port reverts (2,984 B, 746 insns)
+## V1 — the 21 genuine port reverts (2,984 B, 746 insns) — **V1a done, 14 left (1,320 B)**
 
 The most tractable class in the queue that still needs actual matching (V2
 needs transcription, not matching): each one *has a near-miss baseline* and
@@ -1609,49 +1624,150 @@ the 10 declaration-context ones (`[undeclared]`, `[parse]`,
 `[callee-sig-conflict]`), leaving these 21.  Reason text is quoted verbatim
 from the ledger.
 
-### V1a — 7 `unresolved-symbol` (1,664 B).  Not a codegen problem
+### V1a — 7 `unresolved-symbol` (1,664 B).  **ALL 7 LANDED 2026-07-29**
 
-A reloc slot the lockstep walk could not bind to a retail symbol.  Three of
-the seven are the same aug6-side pseudo-symbol (`D_FFFFF` / `D_FFFF`), which
-is an *absolute address spelled as a symbol* on the prototype side, so the
-fix is a spelling decision, not a match.  Fix the binding and the ported
-body should land as-is.
+The premise held exactly: none of the seven was a codegen problem, and none
+needed a matching grind.  All seven were bugs in the port driver's symbol
+binding, in four distinct classes — every one a *class*, not a special case,
+so each fix retires the class tree-wide:
 
-| func | addr | insns | first divergence (port_ledger.md) |
-|---|---|--:|---|
-| `func_0024BFD0` | `0x0024BFD0` | 26 | insn 16 `func_002484A4`: retail symbol D_0024BFA8 (0x0024BFA8) undefined |
-| `func_0024A0E8` | `0x0024A0E8` | 34 | insn 8 `D_FFFFF`: retail symbol D_000FFFFF (0x000FFFFF) undefined |
-| `func_0024B360` | `0x0024B360` | 34 | insn 21 `D_00247C40`: retail symbol D_0024B740 (0x0024B740) undefined (+1 more) |
-| `func_0024A348` | `0x0024A348` | 64 | insn 48 `D_FFFFF`: retail symbol D_000FFFFF (0x000FFFFF) undefined |
-| `func_0024DFC8` | `0x0024DFC8` | 80 | insn 14 `D_FFFF`: no retail lui partner for %lo (+1 more) |
-| `func_00263AA0` | `0x00263AA0` | 88 | insn 35 `D_718208`: retail symbol D_0071EB88 (0x0071EB88) undefined |
-| `func_00262E90` | `0x00262E90` | 90 | insn 35 `D_7181F0`: retail symbol D_0071EB70 (0x0071EB70) undefined |
+1. **`retail_defined_labels()` did not recognise `alabel`.**  The regex took
+   `glabel|dlabel|jlabel|jtbl_label` only, so a reloc onto an *alternate
+   entry* looked unbindable.  `D_0024B740` is defined by
+   `asm/.../vendor_24AAC8/func_0024B500.s` — it was there all along.
+   (`ehlabel` was missing too; added.)
+2. **splat does not zero-pad an UNDEFINED symbol.**  The walk synthesises
+   `D_%08X`, but `config/undefined_syms_auto.us.txt` spells the same thing
+   `D_71EB70` / `D_FFFFF`.  Hence "retail symbol D_0071EB70 undefined" for a
+   symbol the link resolves fine.  The walk now falls back to `D_%X`, and
+   `retail_defined_labels()` reads the `config/undefined_*.txt` tables.
+   *This is the `D_FFFFF` "absolute address spelled as a symbol" that this
+   section previously called a spelling decision — it was neither a decision
+   nor a spelling problem; the name simply existed under a different form.*
+3. **symbol + addend.**  `func_0024BFD0` takes the address of a point
+   *inside* another function (`(char *)func_002484A4 + 4`, the ISR entry).
+   Retail names only function starts, so `0x0024BFA8` had no symbol.  The
+   walk now binds to the retail function that CONTAINS the address, but only
+   when the offset agrees with the aug6 side's, so a mis-aligned slot still
+   aborts.
+4. **a `%lo` with no `lui` partner is not an address.**  It is splat's
+   spelling of a bare constant addend (`addiu $2,$2,%lo(D_FFFF)`).  Both
+   trees name such a constant after its own value, so when the words agree
+   and retail declares the same name with the same value it binds to itself.
 
-### V1b — 14 `codegen` (1,320 B).  Retail source genuinely differs
+Two further driver bugs surfaced while landing these, both general:
 
-The prototype's C is not the retail C.  Ordinary matching work with a very
-strong starting shape.  Note the recurring families:
-`addiu <r>,<r>,0` vs a real displacement (3), `jal`/`j` to self vs a real
-target (3, i.e. the ported body calls a *different* callee), `jr ra` where
-the built object stores (2), `lw v1,0(sp)` vs `lw v0,0(sp)` (2, a
-2-instruction tail pair), and `[§regalloc-swap]` (2).
+* **identifiers inside `__asm__("…")` were counted as C declarations.**  Now
+  that handwritten-asm bodies are spliced in (V2), the name in
+  `"glabel func_X\n"` made the extern synthesiser think `func_X` was already
+  declared — so the next ported body called it undeclared.  String literals
+  are now stripped before the `declared` scan.
+* **a ported block needs `.align 3`.**  When the PRECEDING function is C,
+  gcc does not emit the ROM's inter-function pad word, and splat's `.s`
+  (which used to own it) is gone.  Porting `func_0024B360` to C therefore
+  shifted the whole TU by 4 bytes — `ninja` caught it, `quick_diff` did not.
+  `render_asm_block` now always emits `.align 3`; it is a no-op wherever
+  alignment already holds, which is why the earlier blocks still verify.
 
-| func | addr | insns | first divergence (port_ledger.md) |
-|---|---|--:|---|
-| `func_0026A5E0` | `0x0026A5E0` | 4 | insn 1: expected `j	0 <func_0026A5E0>` built `j	4760 <func_0026B018>` |
-| `func_00260CA8` | `0x00260CA8` | 8 | insn 0: expected `lui	v1,0x72` built `lui	v1,0x0` |
-| `func_002456F8` | `0x002456F8` | 10 | insn 7: expected `jr	ra` built `sw	a0,12(v1)` |
-| `func_002453D0` | `0x002453D0` | 16 | insn 14: expected `jr	ra` built `sw	v0,-4096(at)` |
-| `func_0024FBF8` | `0x0024FBF8` | 18 | insn 7: expected `addiu	s0,s0,0` built `addiu	s0,s0,4600` |
-| `func_00268DA0` | `0x00268DA0` | 22 | insn 14: expected `jal	0 <func_00268DA0>` built `jal	b8 <func_00266970>` |
-| `func_0026A438` | `0x0026A438` | 22 | insn 4: expected `addiu	v0,v0,0` built `addiu	v0,v0,27808` |
-| `func_0024B300` | `0x0024B300` | 24 | insn 5: expected `addiu	s0,s0,0` built `addiu	s0,s0,2616` |
-| `func_00264D90` | `0x00264D90` | 26 | insn 21: expected `lw	v1,0(sp)` built `lw	v0,0(sp)` |
-| `func_00264DF8` | `0x00264DF8` | 28 | insn 23: expected `lw	v1,0(sp)` built `lw	v0,0(sp)` |
-| `func_0024C400` | `0x0024C400` | 32 | [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring) |
-| `func_00246888` | `0x00246888` | 36 | [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring) |
-| `func_0026A600` | `0x0026A600` | 36 | insn 3: expected `addiu	v0,v0,0` built `addiu	v0,v0,15656` |
-| `func_00252C68` | `0x00252C68` | 48 | insn 11: expected `jal	0 <func_00252C68>` built `jal	3320 <func_00251CF8>` |
+Three of the seven (`func_0024B360`, `func_0024BFD0`, `func_0024DFC8`) end
+at a `quick_diff` FALSE NEGATIVE, not a real diff: an in-TU `%hi`/`%lo` that
+the built object resolves and the isolated baseline leaves at 0
+(`addiu a1,a1,0` vs `addiu a1,a1,3192`).  `_tolerable_pair` grants that
+tolerance to *calls* only — the immediate-only form carries no symbol name
+in the disassembly, so it cannot be checked the same way and was NOT
+widened.  They were installed and gated on `ninja` instead, which is the
+authoritative gate anyway.
+
+`func_00263AA0` additionally needed its carried helper moved *below* the
+typedef it uses: `top_insertion_point` puts carried helpers in the file's
+leading header block, above the TU's existing typedefs.  Left as a known
+driver limitation — one hand move, and `match_diff` then reads
+`real_count 0`.
+
+### V1b — 14 `codegen` (1,320 B).  **9 LANDED 2026-07-29, 5 left (536 B)**
+
+**First, a correction to how this group was characterised.**  "Retail source
+genuinely differs" was true of only four of the fourteen.  Five of them
+already matched, and the recorded "first divergence" was a **`quick_diff`
+false negative**, not a diff: the isolated single-function baseline object
+leaves an in-TU `%hi`/`%lo`/`jal` slot at 0 while the built multi-function
+object resolves it.  That is the whole of the `addiu <r>,<r>,0 vs a real
+displacement` family (3) and the `jal`/`j` to self family (2 of 3).
+`tools/match_diff.py` filters this correctly — **read `real_count` from the
+oracle, never the driver's recorded first divergence** — and all five link
+byte-identical.
+
+`_tolerable_pair` was NOT widened to cover them: it grants the tolerance
+only where the disassembly names the resolved symbol (a call), and the
+immediate-only form carries no name, so widening it would mask real misses.
+They were gated on `ninja` instead.
+
+| func | insns | outcome |
+|---|--:|---|
+| `func_0026A5E0` | 4 | **LANDED** — false negative (`j` to self) |
+| `func_0024FBF8` | 18 | **LANDED** — false negative (`%lo`) |
+| `func_0026A438` | 22 | **LANDED** — false negative (`%lo`) |
+| `func_0024B300` | 24 | **LANDED** — false negative (`%lo`) |
+| `func_0026A600` | 36 | **LANDED** — false negative (`%lo`) |
+| `func_00264D90` | 26 | **LANDED** — return-value semantic, see below |
+| `func_00264DF8` | 28 | **LANDED** — return-value semantic, see below |
+| `func_00268DA0` | 22 | **LANDED** — return-value semantic, see below |
+| `func_002456F8` | 10 | **LANDED** — store-order data model, see below |
+| `func_002453D0` | 16 | left, rc2 — delay-slot/`volatile`, see below |
+| `func_00246888` | 36 | left, rc2 — `lui v1,%hi / addiu v1,v1,%lo` vs `lui v0 / addiu v1,v0`; the address is built in place in ROM and through a separate pseudo here.  Everything else matches.  §5.10 is the same axis inverted (it describes ROM keeping `%hi` in a callee-saved reg); the lever wanted here is the cached-address form. |
+| `func_0024C400` | 32 | left, rc8 / 7 sites — first divergence is an inserted `lw a0,0(s0)`.  Not yet reasoned about. |
+| `func_00252C68` | 48 | left, rc4 — the ported body is 50 insns against a 48-insn ROM span, i.e. genuinely 2 instructions long.  Not a reloc artifact. |
+| `func_00260CA8` | 8 | **BLOCKED, not a matching problem** — see below |
+
+**The `lw v1` vs `lw v0` family (3 funcs) — a return value, not allocation.**
+Each is a `vsnprintf`-shaped wrapper: fill a 0x60-byte sink descriptor on the
+stack, call the formatter, then NUL-terminate through the descriptor's first
+word.  ROM loads that pointer into `$3`; gcc used `$2`.  ROM never writes
+`$2` after the `jal` — **the callee's return value is still live**, so `$2`
+is simply unavailable and the load has to go elsewhere.  The prototype threw
+the count away (a `void` wrapper); retail returns it.  Spelling the call
+`n = func_00266970(...); …; return n;` and retyping the callee
+`extern int func_00266970();` takes all three to `real_count` 0.  (The
+retype is shared — `func_002642D8`, already matched, was re-checked.)
+
+**`func_002456F8` — a `volatile` that costs the match.**  The prototype
+pinned this print-sink initialiser's store order with
+`extern volatile int D_00713000[]`.  On retail that is wrong twice over:
+gcc's `#.set volatile` markers stop the assembler moving the last store into
+the `jr` delay slot where the ROM has it, and the pin is not needed anyway.
+Dropping it and recovering the order from the data model matches: a
+0x10-byte header (two ints, then two cursors that both start at the payload
+at +0x10), written in declaration order, with **the two SAME-VALUED pointer
+stores written in REVERSE of the order they are emitted in** — sched1 flips
+that pair and schedules the int store between them, which is exactly what
+leaves the second pointer store in the delay slot.
+
+**`func_002453D0` — the same delay-slot class, and the `volatile` is real.**
+Its final store is a genuine MMIO poke (`*(volatile int *)0x1000F000 = 4`
+after a hazard-nop polling loop), so `volatile` is correct; with it the
+assembler will not split the `sw <absolute>` macro across the delay slot
+(ROM: `lui $1,0x1001` before the `jr`, `sw $2,-0x1000($1)` in the delay).
+Everything else in the function matches.  Left `INCLUDE_ASM` at rc2 rather
+than making the poke non-volatile to win the byte — that would be a crutch
+dressed as source.  **Generalisable finding: gcc's `#.set volatile` marker
+blocks the period assembler's delay-slot fill.**  Any ROM function whose
+`jr` delay holds a volatile-looking store is on this axis.
+
+**`func_00260CA8` — blocked on a missing symbol table entry, not codegen.**
+Its aug6 twin reads and writes an absolute address that **splat annotates on
+neither side** (aug6's own `.s` carries no reloc for it — the words are just
+`lui $3,0x72` / `lw $2,-32280($3)`), so the lockstep walk never sees a slot
+to rebind and the ported body keeps the aug6 address, `D_007181E8`.  The
+retail address is `0x0071EB68`.  `ld` then fails with an undefined
+reference, which is the honest outcome: **there is no retail symbol for
+0x0071EB68 and no place to declare one.**  `config/undefined_syms_auto.us.txt`
+is regenerated by splat — a hand-added line is dropped on the next
+`build.sh setup` (verified).  Unblocking it needs a
+`config/undefined_syms_extra.us.txt` wired into `tools/gen_ninja.py` and
+`tools/build.sh` the way `undefined_funcs_extra.us.txt` already is.  That is
+a build-system change, deliberately not made from a matching pass.  Note it
+also blocks any future port whose aug6 body names an address splat does not
+annotate.
 
 ## V2 — 52 handwritten-asm twins already solved on aug6 (7,324 B, 1,831 insns)
 
@@ -1689,6 +1805,65 @@ insns.
 Legal: **§3b clean-room**.  They were re-derived from the disassembly on the
 aug6 branch and carry no upstream provenance; porting our own clean-room
 work across branches introduces nothing new.
+
+### V2 status — 50 landed 2026-07-29 (7,180 B), 2 held
+
+Landed on `vendor-1`, whole-ELF SHA-1 green (`fbf50c75…`).  Done by
+**teaching `tools/port_from_aug6.py` to index bare-`__asm__` definitions**
+rather than by hand — the mislabel is a real bug in a driver every worker
+runs, the fix is ~120 lines, and the hard part of a vendor port (the
+lockstep reloc-slot rebinding) is machinery the driver already has.  What
+was added:
+
+* `aug6_asm_block_index()` — parses file-scope `__asm__("…")` blocks out of
+  an aug6 TU, keyed by the symbols they define (`glabel NAME`, or
+  `.global NAME` + `.type NAME,@function` + `NAME:`).  The `@function`
+  requirement matters: `func_00251028`'s block also exports an inline MMI
+  mask `D_00251070`, which must not look like a twin.
+* `cmd_scan` consults it, so these stop being dropped as "stale".  Tree-wide
+  the stale count falls **117 -> 58**; the 59 recovered are 53 in
+  `common/src/PObj` (the vendor group) and 6 elsewhere.
+* `cmd_port` gained a handwritten-asm branch: no extern / typedef / helper
+  / decl-alias synthesis (an asm block has no C scope), just symbol
+  rebinding — `rebind_text` already rewrites *inside* string literals,
+  which is exactly where an asm block's symbol names live.
+* **Two porting hazards found the hard way, both now handled by the tool:**
+  1. *Inter-function padding is a property of the LINK, not the body.*
+     aug6 blocks carry the ROM padding that follows them, and several count
+     it *inside* `.size` where splat puts it *after* `endlabel`.  Copying
+     either verbatim is wrong here.  `split_asm_body()` discards every
+     instruction outside `glabel..endlabel`, and `retail_asm_shape()` reads
+     the body/pad split back out of the retail baseline `.s`.  The first
+     attempt used the aug6 padding, passed `quick_diff` on all 45 (padding
+     is outside the compared range), and **failed `ninja` with the whole ROM
+     shifted 128 B** — a clean demonstration of why the SHA-1 gate is the
+     gate.
+  2. *`.L<hex>` branch targets are named after the aug6 address*, and the
+     retail TU can already hold an INCLUDE_ASM'd sibling whose splat `.s`
+     names a label after the same hex — the two address spaces overlap.
+     They are now uniquified per function (byte-neutral: internal targets).
+     Note the rename must NOT go through `rebind_text`: its `\b` prefix
+     cannot match a leading `.` (both neighbours are non-word chars, so
+     there is no word boundary there) and every rename silently no-ops.
+  3. *A `.word`-only body still emits words.* An all-MMI body is spelled as
+     raw encodings because gas has no mnemonic for the opcode; the
+     body-length check has to count `.word` or it rejects the body as empty.
+  4. *An internal alternate entry needs no retail symbol.*  Three of these
+     `j` into their own `func_<aug6+0x30>` label, which the block itself
+     defines; splat only names function starts, so the reloc walk found no
+     retail symbol and aborted.  `build_symbol_map` now takes `local_defs`
+     — names the ported body defines itself — and binds those to the
+     address-derived name without the `defined` check.
+
+**2 held, neither a matching problem:**
+
+| func | why |
+|---|---|
+| `func_00254C98` (24 insns) | the one V2 member that is genuinely **not portable**.  Its aug6 twin bakes the clamp mask's address into the raw `.word` stream (`.word 0x254A1070`), so no reloc walk can rebind it; and rewriting those two words — either as retail `.word`s or as symbolic `%hi/%lo(D_00254CE0)`, both tried — makes the **period assembler insert 10 nops into `func_00254328`, a *different* function 0x1600 earlier in the same TU**, shifting the link (`ninja` caught it; the effect is reproducible and independent of which of the two spellings is used).  The only spelling that assembles clean is splat's own `.s` verbatim, `.align 3` interleaves and all — which is what `INCLUDE_ASM` already does, so transcribing it would be accounting theatre, not a match.  **Left `INCLUDE_ASM`.**  Worth revisiting only with an explanation for the nop insertion. |
+| `func_0026E5C8` (12 insns) | never became a candidate: its aug6 twin `func_0026A958` is a **K&R-style C definition** (`int func_0026A958(a0, a1)`), which `extract_functions_from_file` does not index either.  A *different* indexing gap from the one fixed here — asm blocks are not involved.  Teaching the C extractor K&R form would recover this one and any other K&R twin. |
+
+Note the correction to this section's own premise: it said all 52 were bare
+`__asm__` blocks.  51 are; `func_0026E5C8`'s twin is K&R C.
 
 | func (retail) | insns | aug6 twin | what aug6's comment says it is |
 |---|--:|---|---|

@@ -163,7 +163,11 @@ def retail_defined_labels():
         except Exception:
             pass
     labels = set()
-    lab_re = re.compile(r"^\s*(?:glabel|dlabel|jlabel|jtbl_label)\s+([A-Za-z_]\w*)")
+    # `alabel` (alternate entry) defines a symbol exactly like the rest —
+    # omitting it made every reloc onto an alternate entry look unbindable
+    # (e.g. D_0024B740, defined by asm/.../func_0024B500.s).
+    lab_re = re.compile(
+        r"^\s*(?:glabel|alabel|dlabel|ehlabel|jlabel|jtbl_label)\s+([A-Za-z_]\w*)")
     for p in asm_root.rglob("*.s"):
         for ln in read_latin1(p).splitlines():
             m = lab_re.match(ln)
@@ -171,6 +175,14 @@ def retail_defined_labels():
                 labels.add(m.group(1))
     for e in load_retail_symbols():
         labels.add(e["name"])
+    # splat's own undefined-symbol tables are definitions as far as the link
+    # is concerned: `D_71EB70 = 0x71EB70;` etc.  Note the SHORT spelling —
+    # splat does not zero-pad these, unlike the `D_%08X` of a real label.
+    for f in sorted(ROOT.glob("config/undefined_*.txt")):
+        for ln in read_latin1(f).splitlines():
+            m = re.match(r"^\s*([A-Za-z_]\w*)\s*=", ln)
+            if m:
+                labels.add(m.group(1))
     cache_f.write_text(json.dumps(sorted(labels)))
     return labels
 
@@ -375,6 +387,180 @@ def parse_aug6_s(path):
     return out
 
 
+# ==========================================================================
+# aug6 file-scope handwritten-asm blocks
+#
+# Not every matched aug6 function is a C function.  The repo's sanctioned
+# handwritten-asm exception (VU0 macro-mode, MMI, privileged COP0/TLB/cache,
+# EE syscall stubs — decomp/COOKBOOK.md §6 / §12.4) is spelled as a bare
+# file-scope `__asm__("...")` block whose string content defines the symbol
+# with `glabel NAME` or `.global NAME` + `NAME:`.  Those are finished,
+# byte-matching bodies; they are simply not C definitions, so an index built
+# from `extract_functions_from_file` cannot see them.  Before this index
+# existed, `cmd_scan` dropped every one of them as a "stale matchings/*.s"
+# — a wrong label (nothing was stale) that silently removed 117 real
+# candidates tree-wide, 52 of them the vendor group V2.
+# ==========================================================================
+ASM_BLOCK_RE = re.compile(
+    r"(?m)^(?:__asm__|asm)(?:\s+(?:__volatile__|volatile))?\s*\(")
+
+
+def _scan_asm_block(raw, i):
+    """raw[i] == '('.  Returns (index of the closing paren, concatenated
+    string content).  Parens inside string literals are ignored, and a
+    literal may span a RAW newline — the aug6 sources contain both."""
+    depth = 0
+    parts = []
+    j = i
+    n = len(raw)
+    while j < n:
+        c = raw[j]
+        if c == '"':
+            k = j + 1
+            buf = []
+            while k < n and raw[k] != '"':
+                if raw[k] == "\\" and k + 1 < n:
+                    esc = raw[k + 1]
+                    buf.append({"n": "\n", "t": "\t", "\\": "\\",
+                                '"': '"', "r": "\r", "0": "\0"}.get(esc, esc))
+                    k += 2
+                    continue
+                buf.append(raw[k])
+                k += 1
+            parts.append("".join(buf))
+            j = k + 1
+            continue
+        if c == "(":
+            depth += 1
+        elif c == ")":
+            depth -= 1
+            if depth == 0:
+                return j, "".join(parts)
+        j += 1
+    raise ValueError("unterminated __asm__ block")
+
+
+def aug6_asm_block_index(raw):
+    """name -> {'asm': assembler text, 'names': every symbol the block
+    defines} for each file-scope handwritten-asm block."""
+    idx = {}
+    for m in ASM_BLOCK_RE.finditer(raw):
+        i = raw.index("(", m.start())
+        try:
+            _, asm = _scan_asm_block(raw, i)
+        except ValueError:
+            continue
+        if ".include" in asm:
+            continue                    # an INCLUDE_ASM expansion, not a body
+        names = set(re.findall(r"^\s*glabel\s+([A-Za-z_]\w*)", asm, re.M))
+        # `.global NAME` counts only when the block also declares NAME a
+        # FUNCTION and defines the label — otherwise a data symbol exported
+        # alongside the body (an inline MMI mask, say) looks like a twin.
+        for n in re.findall(r"^\s*\.globa?l\s+([A-Za-z_]\w*)", asm, re.M):
+            if (re.search(r"^\s*" + re.escape(n) + r"\s*:", asm, re.M)
+                    and re.search(r"^\s*\.type\s+" + re.escape(n)
+                                  + r"\s*,\s*@function", asm, re.M)):
+                names.add(n)
+        if not names:
+            continue
+        rec = {"asm": asm, "names": sorted(names)}
+        for n in names:
+            idx[n] = rec
+    return idx
+
+
+_DIRECTIVE_RE = re.compile(r"^\s*\.")
+#                             numeric local labels (`1:`) included
+_LABEL_RE = re.compile(r"^\s*(?:\d+|[A-Za-z_.$][\w.$]*)\s*:")
+
+
+def split_asm_body(asm, name):
+    """(prologue directives, body instruction lines, epilogue directives) for
+    `name`, with every instruction OUTSIDE glabel..endlabel discarded.
+
+    Those outside instructions are real in the aug6 TU and wrong here: they
+    are the neighbouring function's alignment padding, and which neighbour
+    sits next — hence how much padding — is a property of the LINK, not of
+    the body.  Retail's padding is recovered from the retail span instead
+    (see the `pad` computation in cmd_port)."""
+    lines = asm.split("\n")
+    start = end = None
+    for i, ln in enumerate(lines):
+        if re.match(r"^\s*glabel\s+" + re.escape(name) + r"\s*$", ln):
+            start = i
+        elif re.match(r"^\s*" + re.escape(name) + r"\s*:\s*$", ln):
+            start = i if start is None else start
+        elif re.match(r"^\s*endlabel\s+" + re.escape(name) + r"\s*$", ln):
+            end = i
+        elif re.match(r"^\s*\.size\s+" + re.escape(name) + r"\s*,", ln):
+            end = i if end is None else end
+    if start is None or end is None or end <= start:
+        raise ValueError(f"cannot delimit {name} in its __asm__ block")
+    pro = [l for l in lines[:start] if _DIRECTIVE_RE.match(l)]
+    epi = [l for l in lines[end + 1:] if _DIRECTIVE_RE.match(l)]
+    body = [l for l in lines[start:end + 1] if l.strip()]
+    # `.word` counts: an all-MMI body is spelled as raw encodings because gas
+    # has no mnemonic for the opcode, and it still emits one word each.
+    n_insn = sum(1 for l in body[1:-1]
+                 if l.strip() and not _LABEL_RE.match(l)
+                 and (not _DIRECTIVE_RE.match(l) or l.strip().startswith(".word")))
+    return pro, body, epi, n_insn
+
+
+def retail_asm_shape(stem, name):
+    """(insns inside glabel..endlabel, insns after endlabel) for the retail
+    splat baseline.  That boundary is what `quick_diff` slices on, and the
+    aug6 side does not agree with it: several aug6 blocks put the ROM's
+    inter-function padding INSIDE `.size` while splat puts it after
+    `endlabel`.  Same bytes, different symbol size — so take the split from
+    the baseline that the gate actually compares against."""
+    p = ROOT / "asm" / "nonmatchings" / stem / (name + ".s")
+    if not p.exists():
+        return None
+    inside = after = 0
+    state = 0
+    for ln in read_latin1(p).splitlines():
+        if re.match(r"^\s*glabel\s+" + re.escape(name) + r"\s*$", ln):
+            state = 1
+            continue
+        if re.match(r"^\s*endlabel\s+" + re.escape(name) + r"\s*$", ln):
+            state = 2
+            continue
+        if not INSN_RE.match(ln):
+            continue
+        if state == 1:
+            inside += 1
+        elif state == 2:
+            after += 1
+    return inside, after
+
+
+def render_asm_block(pro, body, epi, pad):
+    r"""Emit assembler text back as a C file-scope `__asm__` block, one
+    `"...\n"` literal per line.  Deliberately re-renders rather than copying
+    the aug6 text verbatim: some aug6 blocks put a RAW newline inside the
+    string literal, which the port must not propagate."""
+    # Every `.text` object in this link is 8-aligned and splat puts an
+    # `.align 3` at the head of every `.s`.  An asm block must carry one too:
+    # when the PRECEDING function is C, gcc does not emit the ROM's
+    # inter-function pad word, and without this `.align` nothing does — the
+    # whole TU then shifts by 4 bytes.  A no-op wherever alignment already
+    # holds, which is why the blocks that landed without it still verify.
+    pro = list(pro)
+    if not any(re.match(r"^\s*\.align\b", l) for l in pro):
+        pro.append("    .align 3")
+    lines = pro + list(body) + ["    nop"] * pad + list(epi)
+    out = ["__asm__("]
+    for ln in lines:
+        if not ln.strip():
+            continue
+        esc = (ln.replace("\\", "\\\\").replace('"', '\\"')
+                 .replace("\t", "\\t"))
+        out.append('    "%s\\n"' % esc)
+    out.append(");")
+    return "\n".join(out)
+
+
 def aug6_matchings_index():
     """func -> {vma, file, stem}. Cached; `scan --force` rebuilds."""
     idx = {}
@@ -410,10 +596,16 @@ def cmd_scan(args):
     aug6 = aug6_matchings_index()
     # splat never deletes a stale baseline, so asm/aug6/matchings can still
     # hold the .s of a function that has since gone back to INCLUDE_ASM.
-    # A candidate is only real if the aug6 TU actually DEFINES it in C.
+    # A candidate is only real if the aug6 TU actually DEFINES it — either as
+    # a C function, or as a file-scope handwritten-`__asm__` block (the
+    # repo's sanctioned VU0/MMI/COP0/syscall-stub exception).  Checking only
+    # the C index is what made 117 finished bodies look "stale".
     src = Aug6Source()
-    stale = [n for n, a in aug6.items()
-             if n not in src.tu(a["stem"])["funcs"]]
+    stale = []
+    for n, a in aug6.items():
+        atu = src.tu(a["stem"])
+        if n not in atu["funcs"] and n not in atu["asm_funcs"]:
+            stale.append(n)
     for n in stale:
         del aug6[n]
     print(f"aug6 matched glabels: {len(aug6)} "
@@ -529,8 +721,32 @@ def resolve_hi_partner(r_words, j):
     return None
 
 
-def build_symbol_map(rec, retail_a2n, retail_func_vmas, defined):
+_CONST_SYMS = None
+
+
+def retail_const_syms():
+    """name -> value for splat's undefined-symbol tables (`D_FFFF = 0xFFFF;`).
+    These are constants, not addresses — see the %lo-without-lui case."""
+    global _CONST_SYMS
+    if _CONST_SYMS is None:
+        d = {}
+        for f in sorted(ROOT.glob("config/undefined_*.txt")):
+            for ln in read_latin1(f).splitlines():
+                m = re.match(r"^\s*([A-Za-z_]\w*)\s*=\s*(0[xX][0-9A-Fa-f]+|\d+)", ln)
+                if m:
+                    d[m.group(1)] = int(m.group(2), 0)
+        _CONST_SYMS = d
+    return _CONST_SYMS
+
+
+def build_symbol_map(rec, retail_a2n, retail_func_vmas, defined, local_defs=()):
     """aug6 symbol name -> retail symbol name, derived slot-by-slot.
+
+    `local_defs` are aug6 names the body being ported DEFINES itself — an
+    internal alternate entry inside a handwritten-asm block, say.  Retail has
+    no symbol at the answering address (splat only names function starts), and
+    it does not need one: the ported block supplies the label.  Those bind to
+    the address-derived name without the `defined` check.
 
     Raises Unresolved with a human reason on any slot we cannot bind or that
     binds inconsistently."""
@@ -577,6 +793,17 @@ def build_symbol_map(rec, retail_a2n, retail_func_vmas, defined):
         elif kind == "lo":
             addr = resolve_hi_partner(r_words, j)
             if addr is None:
+                # A `%lo` with no `lui` partner is not an address at all: it
+                # is splat's spelling of a bare CONSTANT addend
+                # (`addiu $2,$2,%lo(D_FFFF)`).  Both trees name such a
+                # constant after its own value, so if the words agree and
+                # retail declares the same name with the same value, it binds
+                # to itself.
+                cm = re.match(r"^D_([0-9A-Fa-f]+)$", sym or "")
+                if (cm and r_words[j] == a_words[i]
+                        and retail_const_syms().get(sym) == int(cm.group(1), 16)):
+                    mapping.setdefault(sym, sym)
+                    continue
                 unresolved.append((i, sym, "no retail lui partner for %lo"))
                 continue
         if addr is None:
@@ -595,9 +822,32 @@ def build_symbol_map(rec, retail_a2n, retail_func_vmas, defined):
                 rname = "jtbl_%08X" % addr
             else:
                 rname = "D_%08X" % addr
-        if rname not in defined:
-            unresolved.append((i, sym, f"retail symbol {rname} (0x{addr:08X}) undefined"))
-            continue
+        if rname not in defined and sym not in local_defs:
+            # splat spells an UNDEFINED symbol without zero padding
+            # (`D_71EB70`, `D_FFFFF`), so the `D_%08X` of a real label misses
+            # every one of them.
+            if ("D_%X" % addr) in defined:
+                rname = "D_%X" % addr
+            else:
+                # symbol + addend: the aug6 body takes the address of a point
+                # INSIDE a function (`(char *)func_X + 4`).  Retail names only
+                # function starts, so bind to the retail function that
+                # CONTAINS the address — but only when the offset agrees with
+                # the aug6 side's, so a mis-aligned slot still aborts.
+                got = None
+                am = re.match(r"^func_([0-9A-Fa-f]{8})$", sym)
+                a_addr = (resolve_hi_partner(a_words, i) if kind == "lo"
+                          else None)
+                if am and a_addr is not None:
+                    aoff = a_addr - int(am.group(1), 16)
+                    cand = "func_%08X" % (addr - aoff)
+                    if 0 < aoff < 0x1000 and cand in defined:
+                        got = cand
+                if got is None:
+                    unresolved.append(
+                        (i, sym, f"retail symbol {rname} (0x{addr:08X}) undefined"))
+                    continue
+                rname = got
         prev = mapping.get(sym)
         if prev is not None and prev != rname:
             unresolved.append((i, sym, f"binds to both {prev} and {rname}"))
@@ -651,6 +901,9 @@ class Aug6Source:
             self._tus[stem] = {
                 "path": path, "raw": raw,
                 "funcs": {f["name"]: f for f in funcs},
+                # finished bodies that are NOT C definitions — see
+                # aug6_asm_block_index()
+                "asm_funcs": aug6_asm_block_index(raw),
                 "include_asm": incasm,
                 "decls": {**T.build_decl_index([(stem + ".c", raw)]),
                           **aug6_decl_index(stem + ".c", raw)},
@@ -1048,20 +1301,30 @@ def cmd_port(args):
             skipped.append((rec, "jtbl"))
             continue
 
+        atu = src.tu(rec["aug6_stem"])
+        aname = rec.get("aug6_name") or name
+        fn = atu["funcs"].get(aname)
+        ablk = None if fn is not None else atu["asm_funcs"].get(aname)
+        if fn is None and ablk is None:
+            reverted.append((rec, f"aug6 body not found in {rec['aug6_stem']}.c"))
+            continue
+
+        # labels the handwritten block defines itself (internal alternate
+        # entries) need no retail symbol — see build_symbol_map's local_defs
+        local_defs = ()
+        if ablk is not None:
+            local_defs = {l for l in re.findall(r"^\s*([A-Za-z_]\w*)\s*:",
+                                                ablk["asm"], re.M)
+                          if l != aname}
+
         try:
-            mapping = build_symbol_map(rec, retail_a2n, retail_func_vmas, defined)
+            mapping = build_symbol_map(rec, retail_a2n, retail_func_vmas,
+                                       defined, local_defs)
         except Unresolved as ex:
             reverted.append((rec, f"unresolved-symbol: {ex}"))
             continue
         except Exception as ex:                # noqa: BLE001 - diagnostic only
             reverted.append((rec, f"map-error: {type(ex).__name__}: {ex}"))
-            continue
-
-        atu = src.tu(rec["aug6_stem"])
-        aname = rec.get("aug6_name") or name
-        fn = atu["funcs"].get(aname)
-        if fn is None:
-            reverted.append((rec, f"aug6 body not found in {rec['aug6_stem']}.c"))
             continue
 
         # self-name must NOT be rebound to a retail alias of a different func
@@ -1071,6 +1334,83 @@ def cmd_port(args):
             # aliased (splat-merge carve): the aug6 body defines and
             # self-recurses under `aname`; rename it to the retail symbol.
             mapping[aname] = name
+
+        if ablk is not None:
+            # Handwritten-asm body.  No C scope is involved: no externs, no
+            # typedefs, no carried helpers, no decl-conflict aliasing — the
+            # block references its symbols by assembler name only, and
+            # rebind_text deliberately rewrites INSIDE string literals, which
+            # is exactly where those names live.  A block defining more than
+            # one symbol is refused rather than ported once per symbol.
+            if len(ablk["names"]) != 1 or ablk["names"][0] != aname:
+                reverted.append((rec, "asm-block defines "
+                                      f"{ablk['names']} — not a 1:1 body"))
+                continue
+            atext = rebind_text(ablk["asm"], mapping)
+            # `.L<hex>` branch targets are named after the AUG6 address, and
+            # the retail TU can already hold an INCLUDE_ASM'd sibling whose
+            # splat `.s` names a label after the same hex (the two address
+            # spaces overlap). Make the block's own labels unique; they are
+            # internal branch targets, so this is byte-neutral.
+            local_labels = set(re.findall(r"^\s*(\.L\w+)\s*:", atext, re.M))
+            if local_labels:
+                # NOT rebind_text: its `\b` prefix cannot match a leading `.`
+                # (both neighbours are non-word chars, so there is no word
+                # boundary there) and every rename would silently no-op.
+                lrx = re.compile(r"(?<![\w.])(" + "|".join(
+                    re.escape(l) for l in sorted(local_labels, key=len,
+                                                 reverse=True)) + r")\b")
+                atext = lrx.sub(
+                    lambda m: ".L%s%s" % (name[5:], m.group(1)[2:]), atext)
+            try:
+                pro, ab, epi, n_insn = split_asm_body(atext, name)
+            except ValueError as ex:
+                reverted.append((rec, f"asm-block: {ex}"))
+                continue
+            # Inter-function padding is a property of THIS link: take the
+            # body/padding split from the retail splat baseline, never from
+            # the aug6 block (which sometimes counts the pad inside `.size`).
+            shape = retail_asm_shape(stem, name)
+            if shape is None:
+                reverted.append((rec, "asm-block: no retail baseline .s"))
+                continue
+            n_body, pad = shape
+            while n_insn > n_body and ab[-2].strip() == "nop":
+                del ab[-2]
+                n_insn -= 1
+            if n_insn != n_body:
+                reverted.append((rec, f"asm-block: aug6 body is {n_insn} insns, "
+                                      f"retail baseline is {n_body}"))
+                continue
+            body = render_asm_block(pro, ab, epi, pad)
+            candidate = cur_text[:span[0]] + body + cur_text[span[1]:]
+            if os.environ.get("PORT_DEBUG_DUMP"):
+                Path(os.environ["PORT_DEBUG_DUMP"], f"{name}.c").write_text(
+                    candidate, encoding="latin-1")
+            if not args.apply:
+                print(f"[dry-run] w{rec['wave']} {name}: handwritten-asm body, "
+                      f"{len(mapping)} syms")
+                kept.append((rec, mapping))
+                continue
+            if data_baseline is None:
+                T.run_quick_diff(stem, name)
+                data_baseline = data_bytes(stem)
+            write_latin1(path, candidate)
+            ok, rc, out, err = verify_port(stem, name, set(mapping.values()) | {name})
+            if ok:
+                grew = data_bytes(stem)
+                if (data_baseline is not None and grew is not None
+                        and grew > data_baseline):
+                    write_latin1(path, cur_text)
+                    reverted.append((rec, f"emits-data: +{grew - data_baseline} "
+                                          f"bytes of .rodata/.sdata/.lit4"))
+                    continue
+                kept.append((rec, mapping))
+            else:
+                write_latin1(path, cur_text)
+                reverted.append((rec, failure_reason(rc, out, err)))
+            continue
+
         body = rebind_text(fn["text"], mapping)
 
         helper_seen = {name, aname}
@@ -1085,8 +1425,24 @@ def cmd_port(args):
         # needs its own extern (without it gcc falls back to implicit
         # `int f()` and, for an f0-returning callee, emits mtc1/cvt where the
         # ROM has a plain lwc1 — a silent, whole-function-shifting miss).
-        declared = set(T.IDENT_RE.findall(
-            re.sub(r"INCLUDE_ASM[^\n]*\n", "", cur_text[:span[0]])))
+        # (c) STRING LITERALS — a handwritten-asm body spliced in above
+        # mentions its own and its callees' names inside `__asm__("...")`,
+        # which declares nothing to C.  Counting those as `declared` is how a
+        # ported body ends up calling an undeclared function.
+        # (d) FUNCTION BODIES — this dev tree routinely puts `extern int
+        # D_X[];` INSIDE a function, where it is block-scoped and invisible
+        # at the splice point.  Blank the bodies so only file-scope
+        # declarations count.
+        above = re.sub(r"INCLUDE_ASM[^\n]*\n", "", cur_text[:span[0]])
+        above = STR_LITERAL_RE.sub('""', above)
+        for _fd in reversed(T.extract_functions_from_file(stem + ".c", above)[0]):
+            _b = _fd["text"].find("{")
+            if _b >= 0:
+                _at = above.find(_fd["text"])
+                if _at >= 0:
+                    above = (above[:_at + _b] + " "
+                             * (len(_fd["text"]) - _b) + above[_at + len(_fd["text"]):])
+        declared = set(T.IDENT_RE.findall(above))
         top = []
 
         # TU-local struct/union/enum typedefs the body (or helpers) needs

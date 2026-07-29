@@ -56,7 +56,68 @@ int func_002455A0(int a1, int a2, int a3) {
     return -1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2453C0", func_002455A8);
+__asm__(
+    ".section .text\n"
+    "    .set noat\n"
+    "    .set noreorder\n"
+    ".global func_002455A8\n"
+    ".type func_002455A8, @function\n"
+    "    .align 3\n"
+    "func_002455A8:\n"
+    "    addiu $29, $29, -0x40\n"
+    "    sd $31, 0x30($29)\n"
+    "    sd $18, 0x20($29)\n"
+    "    sd $17, 0x10($29)\n"
+    "    sd $16, 0x0($29)\n"
+    "    mfc0 $17, $12\n"
+    "    lui $2, (0x10000 >> 16)\n"
+    "    and $17, $17, $2\n"
+    "    beqz $17, .L00241B14\n"
+    "    lui $18, %hi(D_005507D4)\n"
+    ".L00241AF0:\n"
+    "    di\n"
+    "    sync.p\n"
+    "    mfc0 $2, $12\n"
+    "    lui $3, (0x10000 >> 16)\n"
+    "    and $2, $2, $3\n"
+    "    bnez $2, .L00241AF0\n"
+    "    nop\n"
+    "    b .L00241B18\n"
+    "    lw $2, %lo(D_005507D4)($18)\n"
+    ".L00241B14:\n"
+    "    lw $2, %lo(D_005507D4)($18)\n"
+    ".L00241B18:\n"
+    "    jal func_00100500\n"
+    "    addu $16, $2, $4\n"
+    "    sltu $2, $2, $16\n"
+    "    beqz $2, .L00241B50\n"
+    "    lw $2, %lo(D_005507D4)($18)\n"
+    "    jal func_00264050\n"
+    "    nop\n"
+    "    addiu $3, $0, 0xC\n"
+    "    beqz $17, .L00241B44\n"
+    "    sw $3, 0x0($2)\n"
+    "    ei\n"
+    ".L00241B44:\n"
+    "    lui $2, (0xFFFFFFFF >> 16)\n"
+    "    b .L00241B5C\n"
+    "    ori $2, $2, (0xFFFFFFFF & 0xFFFF)\n"
+    ".L00241B50:\n"
+    "    beqz $17, .L00241B5C\n"
+    "    sw $16, %lo(D_005507D4)($18)\n"
+    "    ei\n"
+    ".L00241B5C:\n"
+    "    ld $31, 0x30($29)\n"
+    "    ld $18, 0x20($29)\n"
+    "    ld $17, 0x10($29)\n"
+    "    ld $16, 0x0($29)\n"
+    "    jr $31\n"
+    "    addiu $29, $29, 0x40\n"
+    ".size func_002455A8, . - func_002455A8\n"
+    "    nop\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
 int func_00245658(void) {
     return 1;
@@ -91,7 +152,25 @@ int func_002456D0(void) {
     return -1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2453C0", func_002456F8);
+/* The 0x10-byte header of a print/format sink: f0 is set from the caller,
+ * f4 is a running count, and f8/fC are two cursors that both start at the
+ * payload (buf, at +0x10).  Field PURPOSE beyond that is not established,
+ * so the members are named after their offsets rather than guessed at.
+ * The fC-before-f8 order is load-bearing: sched1 emits the two
+ * same-valued pointer stores in REVERSE source order (with the f4 store
+ * scheduled between them, which is what puts the second one in the `jr`
+ * delay slot). */
+typedef struct { int f0; int f4; char *f8; char *fC; char buf[1]; } PrintSink;
+
+extern PrintSink D_00713000;
+
+void *func_002456F8(int a0) {
+    D_00713000.f0 = a0;
+    D_00713000.f4 = 0;
+    D_00713000.fC = D_00713000.buf;
+    D_00713000.f8 = D_00713000.buf;
+    return &D_00713000;
+}
 
 void func_00245720(int *q)
 {
@@ -621,7 +700,31 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2453C0", func_00249D40);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2453C0", func_00249F20);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2453C0", func_0024A0E8);
+extern int D_00550874[];
+extern int D_00715F80[];
+extern char D_FFFFF[];
+extern int func_00246288__p4() __asm__("func_00246288");
+
+int func_0024A0E8(void)
+{
+    int i;
+    int ret;
+    int val;
+    goto no_delay;
+again:
+    __asm__ volatile ("lui %0,%%hi(D_FFFFF)" : "=r"(i));
+    do {
+        __asm__ volatile ("addiu %0,%0,%%lo(D_FFFFF)" : "+r"(i));
+    } while (i != -1);
+no_delay:
+    ret = func_00246288__p4(D_00715F80, 0x80000003, 0);
+    if (ret < 0) return -1;
+    val = D_00715F80[0x24 / 4];
+    if (val == 0) goto again;
+    D_00550874[0] = 0;
+    __asm__ volatile ("");
+    return 0;
+}
 
 extern int D_00550874[];
 extern int D_00715F80[];
@@ -650,7 +753,35 @@ int func_0024A1E0(int a0) {
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2453C0", func_0024A258);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2453C0", func_0024A348);
+extern int D_00550878[];
+extern char D_00716180[];
+extern char D_00716380[];
+extern char D_007163A8[];
+
+int func_0024A348(void) {
+    int i;
+    int r;
+    int val;
+    if (D_00550878[0] >= 0) goto ret0;
+loop:
+    r = func_00246288__p4(D_00716380, 0x80000006, 0);
+    if (r < 0) return -1;
+    val = *(int *)(D_00716380 + 0x24);
+    if (val == 0) goto delay;
+    D_00550878[0] = 0;
+    r = func_00246458(D_00716380, 0xFF, 0, 0, 0, D_00716180, 4, 0, 0);
+    if (r < 0) return 0xFFFEFFFF;
+    __builtin_memcpy(D_007163A8, D_00716180, 4);
+    return 0;
+delay:
+    __asm__ volatile ("lui %0,%%hi(D_FFFFF)" : "=r"(i));
+    do {
+        __asm__ volatile ("addiu %0,%0,%%lo(D_FFFFF)" : "+r"(i));
+    } while (i != -1);
+    goto loop;
+ret0:
+    return 0;
+}
 
 extern int D_0055087C[];
 extern char D_007163A8[];

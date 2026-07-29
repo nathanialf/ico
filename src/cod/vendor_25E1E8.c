@@ -3,11 +3,70 @@
 #include "r5900.h"
 #include "vu0.h"
 #include "math_private.h"
-#include "math_private.h"
 
 typedef struct { unsigned int type; int f4; int f8; int fC; } PCmpV;
 
 typedef struct { unsigned int type; int f4; int f8; int fC; unsigned long long f10; } PCmpV2;
+
+extern PCmpV D_71EB88;
+
+static inline PCmpV *func_0025FE30_div(PCmpV *a, PCmpV *b) {
+    unsigned int at, bt;
+    int e, q;
+    unsigned int dvd, dvs, mask;
+
+    at = a->type;
+    if (at < 2) {
+        return a;
+    }
+    bt = b->type;
+    if (bt < 2) {
+        return b;
+    }
+    a->f4 ^= b->f4;
+    if ((at ^ 4) == 0 || (at ^ 2) == 0) {
+        if (at == bt) {
+            return &D_71EB88;
+        }
+        return a;
+    }
+    if ((bt ^ 4) == 0) {
+        a->fC = 0;
+        a->f8 = 0;
+        return a;
+    }
+    if ((bt ^ 2) == 0) {
+        a->type = 4;
+        return a;
+    }
+    dvd = a->fC;
+    dvs = b->fC;
+    e = a->f8 - b->f8;
+    a->f8 = e;
+    if (dvd < dvs) {
+        a->f8 = a->f8 - 1;
+        dvd <<= 1;
+    }
+    mask = 0x40000000;
+    q = 0;
+    do {
+        if (dvd >= dvs) {
+            q |= mask;
+            dvd -= dvs;
+        }
+        mask >>= 1;
+        dvd <<= 1;
+    } while (mask != 0);
+    if ((q & 0x7F) == 0x40) {
+        if (q & 0x80) {
+            q += 0x40;
+        } else if (dvd != 0) {
+            q += 0x40;
+        }
+    }
+    a->fC = q;
+    return a;
+}
 
 extern void func_002591F0(int a0, int a1, int a2, int a3);
 
@@ -359,7 +418,76 @@ long long func_00262B80(long a0, long a1) {
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00262BE8);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00262E90);
+extern char D_71EB70[];
+
+void func_00262E90(long a0, long a1) {
+    struct { int a, b, c, pad; long long d; } x, y, *p;
+    void *r;
+    unsigned long long m1, m2, bit, q;
+    int exp;
+
+    func_00262848(&a0, &x);
+    func_00262848(&a1, &y);
+    p = &x;
+    if ((unsigned int) x.a >= 2) goto op2check;
+    r = &x;
+    goto pack;
+op2check:
+    if ((unsigned int) y.a < 2) {
+        r = &y;
+        goto pack;
+    }
+    x.b = x.b ^ y.b;
+    if ((x.a ^ 4) == 0) goto chk_same;
+    if ((x.a ^ 2) != 0) goto op1_normal;
+chk_same:
+    r = &x;
+    if (x.a != y.a) goto pack;
+    r = D_71EB70;
+    goto pack;
+op1_normal:
+    if ((y.a ^ 4) != 0) goto chk_zero;
+    x.d = 0;
+    x.c = 0;
+    r = &x;
+    goto pack;
+chk_zero:
+    if ((y.a ^ 2) != 0) goto divide;
+    x.a = 4;
+    r = &x;
+    goto pack;
+divide:
+    m1 = (unsigned long long) x.d;
+    m2 = (unsigned long long) y.d;
+    x.c = x.c - y.c;
+    if (m1 < m2) {
+        x.c = x.c - 1;
+        m1 <<= 1;
+    }
+    q = 0;
+    bit = 0x1000000000000000ULL;
+    do {
+        if (m1 >= m2) {
+            q |= bit;
+            m1 -= m2;
+        }
+        bit >>= 1;
+        m1 <<= 1;
+    } while (bit != 0);
+    if ((q & 0xFF) != 0x80) {
+        p->d = q;
+    } else {
+        if (q & 0x100) {
+            q += 0x80;
+        } else {
+            q = (m1 != 0) ? (q + 0x80) : q;
+        }
+        p->d = q;
+    }
+    r = p;
+pack:
+    func_00262718(r);
+}
 
 int func_00262FF8(PCmpV2 *a, PCmpV2 *b) {
     unsigned int at = a->type;
@@ -503,7 +631,18 @@ int func_00263840(float a0, float a1) {
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_002638A8);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00263AA0);
+
+int func_00263AA0(float a0, float a1) {
+    PCmpV a, b;
+    float fa, fb;
+
+    fa = a0;
+    fb = a1;
+    func_00263520(&fa, &a);
+    func_00263520(&fb, &b);
+
+    return func_00263410(func_0025FE30_div(&a, &b));
+}
 
 int func_00263C00(PCmpV *a, PCmpV *b) {
     unsigned int at = a->type;
@@ -650,7 +789,78 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00264094);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00264128);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_002641D8);
+__asm__(
+    ".section .text\n"
+    "    .set noat\n"
+    "    .set noreorder\n"
+    "    .global func_002641D8\n"
+    "    .type func_002641D8, @function\n"
+    "    .align 3\n"
+    "func_002641D8:\n"
+    "    sltiu  $2, $6, 0x8\n"
+    "    bnez   $2, .L002641D8002605E8\n"
+    "    daddu  $3, $4, $0\n"
+    "    andi   $2, $4, 0xF\n"
+    "    bnez   $2, .L002641D8002605E8\n"
+    "    daddu  $7, $4, $0\n"
+    "    andi   $9, $5, 0xFF\n"
+    "    sltiu  $10, $6, 0x20\n"
+    "    daddu  $8, $9, $0\n"
+    "    dsll   $3, $8, 8\n"
+    "    or     $8, $3, $9\n"
+    "    pcpyh  $3, $8\n"
+    "    bnez   $10, .L002641D8002605D4\n"
+    "    sltiu  $2, $6, 0x8\n"
+    "    pcpyld $8, $3, $3\n"
+    "    .align 2\n"
+    ".L002641D8002605A4:\n"
+    "    sq     $8, 0x0($7)\n"
+    "    addiu  $6, $6, -0x20\n"
+    "    addiu  $7, $7, 0x10\n"
+    "    sltiu  $2, $6, 0x20\n"
+    "    sq     $8, 0x0($7)\n"
+    "    beqz   $2, .L002641D8002605A4\n"
+    "    addiu  $7, $7, 0x10\n"
+    "    b      .L002641D8002605D4\n"
+    "    sltiu  $2, $6, 0x8\n"
+    "    .align 2\n"
+    ".L002641D8002605C8:\n"
+    "    addiu  $6, $6, -0x8\n"
+    "    addiu  $7, $7, 0x8\n"
+    "    sltiu  $2, $6, 0x8\n"
+    "    .align 2\n"
+    ".L002641D8002605D4:\n"
+    "    nop\n"
+    "    nop\n"
+    "    beql   $2, $0, .L002641D8002605C8\n"
+    "    sd     $3, 0x0($7)\n"
+    "    daddu  $3, $7, $0\n"
+    "    .align 2\n"
+    ".L002641D8002605E8:\n"
+    "    lui    $2, 0xFFFF\n"
+    "    addiu  $6, $6, -0x1\n"
+    "    ori    $2, $2, 0xFFFF\n"
+    "    beq    $6, $2, .L002641D800260620\n"
+    "    nop\n"
+    "    lui    $2, 0xFFFF\n"
+    "    ori    $2, $2, 0xFFFF\n"
+    "    .align 2\n"
+    ".L002641D800260604:\n"
+    "    sb     $5, 0x0($3)\n"
+    "    addiu  $6, $6, -0x1\n"
+    "    nop\n"
+    "    nop\n"
+    "    nop\n"
+    "    bne    $6, $2, .L002641D800260604\n"
+    "    addiu  $3, $3, 0x1\n"
+    "    .align 2\n"
+    ".L002641D800260620:\n"
+    "    jr     $31\n"
+    "    daddu  $2, $4, $0\n"
+    "    .size func_002641D8, . - func_002641D8\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
 extern int func_002669E8(int *self, int subj, int b, void *args);
 
@@ -660,7 +870,7 @@ int func_00264298(int *self, int b, ...)
     return func_002669E8(self, self[2], b, args);
 }
 
-extern void func_00266970();
+extern int func_00266970();
 
 void func_002642D8(void *a0, ...) {
     void *args = (char *)__builtin_next_arg(a0) - 0x38;
@@ -685,9 +895,36 @@ int func_00264D60(void) {
     return s & 0x7fffffff;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00264D90);
+int func_00264D90(void *a0, int a1, int a2, ...) {
+    char buf[0x60];
+    char *va = (char *)__builtin_next_arg(a2) - 40;
+    int n;
+    *(int *)(buf + 0x0) = a1;
+    *(int *)(buf + 0x8) = 0x7FFFFFFF;
+    *(short *)(buf + 0xC) = 0x208;
+    *(int *)(buf + 0x10) = a1;
+    *(int *)(buf + 0x14) = 0x7FFFFFFF;
+    *(int *)(buf + 0x54) = (int)a0;
+    n = func_00266970(buf, a2, va);
+    *(char *)(*(int *)(buf + 0x0)) = 0;
+    return n;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00264DF8);
+
+int func_00264DF8(void *a0, int a1, ...) {
+    char buf[0x60];
+    char *va = (char *)__builtin_next_arg(a1) - 48;
+    int n;
+    *(int *)(buf + 0x0) = (int)a0;
+    *(int *)(buf + 0x8) = 0x7FFFFFFF;
+    *(short *)(buf + 0xC) = 0x208;
+    *(int *)(buf + 0x10) = (int)a0;
+    *(int *)(buf + 0x14) = 0x7FFFFFFF;
+    *(int *)(buf + 0x54) = D_00553244[0];
+    n = func_00266970(buf, a1, va);
+    *(char *)(*(int *)(buf + 0x0)) = 0;
+    return n;
+}
 
 int func_00264E68(void) {
     return 0;
@@ -695,7 +932,101 @@ int func_00264E68(void) {
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00264E70);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00264EF8);
+__asm__(
+    ".section .text\n"
+    "    .set noat\n"
+    "    .set noreorder\n"
+    "    .global func_00264EF8\n"
+    "    .type func_00264EF8, @function\n"
+    "    .align 3\n"
+    "func_00264EF8:\n"
+    "    addiu  $29, $29, -0x20\n"
+    "    sq     $16, 0x0($29)\n"
+    "    daddu  $16, $4, $0\n"
+    "    andi   $2, $16, 0x7\n"
+    "    bnez   $2, .L0026137C\n"
+    "    sq     $31, 0x10($29)\n"
+    "    andi   $2, $16, 0xF\n"
+    "    lui    $3, 0x101\n"
+    "    ori    $3, $3, 0x101\n"
+    "    dsll   $3, $3, 16\n"
+    "    ori    $3, $3, 0x101\n"
+    "    dsll   $3, $3, 16\n"
+    "    ori    $3, $3, 0x101\n"
+    "    lui    $4, 0x8080\n"
+    "    ori    $4, $4, 0x8080\n"
+    "    dsll   $4, $4, 16\n"
+    "    ori    $4, $4, 0x8080\n"
+    "    dsll   $4, $4, 16\n"
+    "    ori    $4, $4, 0x8080\n"
+    "    bnez   $2, .L00261338\n"
+    "    ld     $6, 0x0($16)\n"
+    "    lq     $2, 0x0($16)\n"
+    "    pcpyld $7, $3, $3\n"
+    "    pcpyld $8, $4, $4\n"
+    "    psubb  $3, $2, $7\n"
+    "    pnor   $2, $0, $2\n"
+    "    pand   $3, $3, $2\n"
+    "    pand   $3, $3, $8\n"
+    "    pcpyud $2, $3, $3\n"
+    "    or     $3, $2, $3\n"
+    "    bnez   $3, .L0026137C\n"
+    "    daddu  $4, $16, $0\n"
+    "    addiu  $6, $4, 0x10\n"
+    "    .align 2\n"
+    ".L0026130C:\n"
+    "    lq     $2, 0x0($6)\n"
+    "    pnor   $3, $0, $2\n"
+    "    psubb  $2, $2, $7\n"
+    "    pand   $2, $2, $3\n"
+    "    pand   $2, $2, $8\n"
+    "    pcpyud $3, $2, $2\n"
+    "    or     $2, $2, $3\n"
+    "    beql   $2, $0, .L0026130C\n"
+    "    addiu  $6, $6, 0x10\n"
+    "    b      .L0026137C\n"
+    "    daddu  $4, $6, $0\n"
+    "    .align 2\n"
+    ".L00261338:\n"
+    "    daddu  $7, $3, $0\n"
+    "    daddu  $8, $4, $0\n"
+    "    dsubu  $3, $6, $3\n"
+    "    nor    $2, $0, $6\n"
+    "    and    $3, $3, $2\n"
+    "    and    $3, $3, $4\n"
+    "    bnez   $3, .L0026137C\n"
+    "    daddu  $4, $16, $0\n"
+    "    addiu  $6, $16, 0x8\n"
+    "    .align 2\n"
+    ".L0026135C:\n"
+    "    ld     $2, 0x0($6)\n"
+    "    nor    $3, $0, $2\n"
+    "    dsubu  $2, $2, $7\n"
+    "    and    $2, $2, $3\n"
+    "    and    $2, $2, $8\n"
+    "    beql   $2, $0, .L0026135C\n"
+    "    addiu  $6, $6, 0x8\n"
+    "    daddu  $4, $6, $0\n"
+    "    .align 2\n"
+    ".L0026137C:\n"
+    "    lb     $2, 0x0($4)\n"
+    "    nop\n"
+    "    nop\n"
+    "    nop\n"
+    "    nop\n"
+    "    bnel   $2, $0, .L0026137C\n"
+    "    addiu  $4, $4, 0x1\n"
+    "    jal    func_00265168\n"
+    "    nop\n"
+    "    daddu  $2, $16, $0\n"
+    "    lq     $31, 0x10($29)\n"
+    "    lq     $16, 0x0($29)\n"
+    "    jr     $31\n"
+    "    addiu  $29, $29, 0x20\n"
+    "    .size func_00264EF8, . - func_00264EF8\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00265024);
 
