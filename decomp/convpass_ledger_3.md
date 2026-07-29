@@ -2972,3 +2972,72 @@ gates two functions here and recurs elsewhere; (b) `MoveChestForCatchBoy`
 from zero; (c) the ordinary girl_act / enemy_act bodies
 (`actGirlWalk`(66), `func_00173060`(68), `actGirlSupportGBLoop`(69),
 `func_001605F8`(73), `_ApproachTarget_Boss`(75)).
+
+# conv-14 / branch `acttails-5` — the arg-in-$2 class is a NESTED FUNCTION (proven)
+
+## CORRECTION of conv-13's correction
+
+conv-13 concluded that arg-in-$2 could only come from `register T v asm("$2")`
+or inline asm, both crutches, and flagged the class unsolved.  **That was
+wrong, and this supersedes it.**  The missing fact is one line of the staged
+compiler:
+
+```
+ee-gcc mips.h:1793:   #define STATIC_CHAIN_REGNUM (GP_REG_FIRST + 2)
+```
+
+`$2` **is** the MIPS static chain register.  A **GNU C nested function** — a
+function defined inside another function's body — receives its parent's frame
+in `$2`, and the caller materialises it as its own frame pointer.  This is a
+language feature with a fixed register, not interprocedural register
+allocation (conv-13 was right that ee-gcc 2.9 has none; that reasoning was
+just aimed at the wrong mechanism).  The auto-memory's "static + same-TU
+caller" is a lossy paraphrase of "*nested* function of its same-TU caller".
+
+## Proof (minimal TU, this compiler, these flags)
+
+```c
+void outer(int a) { int loc[4];
+    void inner(void) { ext(loc[0]); loc[1] = 5; }
+    loc[0] = a; inner(); ext(loc[1]); }
+```
+emits, at `-G 8 -O2 -mips3 -fno-builtin -fdata-sections`:
+
+* `.ent inner.3` **before** `.ent outer` — nested functions are emitted FIRST,
+  which is exactly the ROM layout (`func_00163890` @0x163890 precedes
+  `ChangeBrain_ToAttack` @0x163950);
+* caller: `jal inner.3` / `move $2,$sp` **in the delay slot** — ROM has
+  `jal func_00163890` / `daddu $2,$29,$0`;
+* callee: `move $16,$2` + `sw $2,0($sp)` then dereferences `$2` — ROM has
+  `daddu $5,$2,$0` / `sw $2,0($29)` / `lw $2,0($5)`.
+
+Three-for-three, and no trampoline is generated as long as the nested
+function's ADDRESS is never taken (keep the call direct).
+
+**Symbol name:** gcc mangles nested functions to `<name>.<N>`.  Declare the
+asm name to fix it — `void inner(void) __asm__("func_00163890");` before the
+definition emits `.ent func_00163890` and `jal func_00163890`.  Costs one
+"static declaration for `inner' follows non-static" warning.
+
+## State — NOT matched, draft preserved
+
+`tough_nuts/acttails_near_misses/enemy_act_ChangeBrain_ToAttack_nested_s22_inner_s5.c`
+holds the full reconstruction of both functions as one nested-function C body:
+**inner sites=5, outer sites=22.**  The calling shape is right; what remains is
+ordinary body convergence, and the two must reach 0 together because they are
+now one C function.  Inner residual: ROM branches three ways and TAIL-DUPLICATES
+the continuation into each arm, where we emit `movz` for the mode select
+(if/else-if, `switch` and nested-if all measured: 5 / 10 / 9 sites — the
+if/else-if chain is the best of the three).
+
+## Consequence for the queue
+
+`girl_act actGirlDitch3mExec` is the other known member and should be written
+the same way, nested inside whichever same-TU function calls it — find the
+caller by grepping the TU's `.s` for `jal actGirlDitch3mExec`, then check the
+call site has `daddu $2,$29,$0` (or a `$2` set from the caller's frame) in the
+delay slot.  This is a legitimate 2000-era shape, not a crutch.
+
+Generally: **any function whose prologue reads `$2` before any call is a
+nested-function candidate**, and the test is cheap — look at the one call site
+for `$2` set from the caller's `$sp`.
