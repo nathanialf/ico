@@ -1599,12 +1599,12 @@ VENDOR.md §1 over the dashboard label.
 | **V1** 21 genuine port reverts — codegen | 5 (was 14) | 536 (was 1320) | 134 | 8 | 32 | 48 | unclassified -> §3b clean-room unless archive identified |
 | **V2** 52 handwritten-asm twins solved on aug6 | 2 (was 52) | 144 (was 7324) | 36 | 12 | 18 | 24 | §3b clean-room (already re-derived on aug6) |
 | **V3** 40 head functions | 14 (was 40) | 3416 (was 5056) | | 14 | | 370 | §3b proprietary (crt0 + libkernl, VENDOR.md §1) |
-| **V4** 52 tail functions with no aug6 twin | 31 (was 52) | 23696 (was 27112) | | 22 | | 1350 | unclassified -> §3b clean-room unless archive identified |
+| **V4** 52 tail functions with no aug6 twin | 28 (was 52) | 22656 (was 27112) | | 22 | | 1350 | unclassified -> §3b clean-room unless archive identified |
 | **V5** 261 tail functions, aug6 twin unmatched | 261 | 118972 | 29743 | 24 | 74 | 1140 | mixed: 13 in the fdlibm window are §3a; rest unclassified |
 | **V6** 1 blocked (inter-section pad) | 1 | 92 | 23 | 23 | 23 | 23 | n/a — blocked |
-| | **329** (was 427) | **147,088** | | | | | |
+| | **326** (was 427) | **146,048** | | | | | |
 
-**Landed 2026-07-29/30, six passes: 113 functions / 14,456 B.**
+**Landed 2026-07-29, seven passes: 116 functions / 15,496 B.**
 Pass 1 (`vendor-1`, 66 funcs / 9,604 B): V2 50/52, V1 16/21.
 Pass 2 (`vendor-2`, 21 funcs / 1,108 B): V3a 11/11, V3b 10/26 + the carve.
 Pass 3 (`vendor-3`, 14 funcs / 1,148 B): V3b 5 more (15/26), V4 first 9.
@@ -1613,9 +1613,11 @@ Pass 5 (`vendor-5`, 4 funcs / 804 B): V4 18/52 — the device-request family is
 now **7 members**, and the static-chain class is ruled out for vendor (below).
 Pass 6 (`vendor-6`, 3 funcs / 884 B): V4 21/52 — the family's **string
 sub-template** opened; at least 4 more members remain.
-Vendor moves 521/945 -> **619/948** functions and 34,144 -> **47,908 B**
-(17.51 % -> 24.57 %); `.text` 16.81 % -> **19.40 %**.  The unmatched vendor
-total is now **329 functions / 147,088 B** (figures from
+Pass 7 (`vendor-7`, 3 funcs / 1,040 B): V4 24/52 — string sub-template now
+6 of 7; the family is **13 landed members**.
+Vendor moves 521/945 -> **622/948** functions and 34,144 -> **48,948 B**
+(17.51 % -> 25.10 %); `.text` 16.81 % -> **19.47 %**.  The unmatched vendor
+total is now **326 functions / 146,048 B** (figures from
 `docs/progress.json`, whose byte denominators are span-derived).
 
 **The device-request family now has three sub-templates and 10 landed members.**
@@ -1626,8 +1628,27 @@ Sort a candidate with two greps before writing any C: does it call
 | sub-template | size | tell | state |
 |---|---|---|---|
 | plain | 0x30 | no name copy | `func_0024F428`, `func_0024F710`, `func_00250420`, `func_0024F4E0`, `func_0024F7C8`, `func_00250230`, `func_00250818` — **all landed** |
-| string | 0x414 | calls `func_00265570` | `func_002502F8`, `func_002508E0`, `func_0024F5A0` landed; **`func_002500E0`, `func_0024FF00`, `func_002506B0`, `func_002504D8` remain** — the last two also touch `D_00718020` / `D_00718000`, so expect a second block |
+| string | 0x414 | calls `func_00265570` | `func_002502F8`, `func_002508E0`, `func_0024F5A0`, `func_0024FF00`, `func_002500E0`, `func_002506B0` landed; **`func_002504D8` remains** |
 | many-store, no copy | 0x30 | no name copy, 5-8 block stores | **`func_0024F930`, `func_0024FA50` remain** — `func_0024FA50` RE-stores two offsets, so read its store order carefully rather than assuming |
+
+**`func_002504D8` is the one string member that is NOT a transcription.**  It
+carries a 0x40-byte auxiliary block copied in from a caller pointer with an
+inline **unaligned** `ldl`/`ldr` + `sdl`/`sdr` sequence (8 pairs), i.e. a
+struct assignment whose source is byte-aligned — `decomp/COOKBOOK.md` §6.1.
+Everything before and after it is the ordinary string sub-template; only that
+copy needs the §6.1 recipe.  Sized 0x1D8, by far the largest member.
+
+**Two things this pass established that the routing table does not capture,
+so read them per member:**
+
+* The request **CODE and the recorded TAG are not always equal.**  Every
+  member up to `func_002506B0` used one value for both; that one submits
+  `0xE` and records `0x13`.
+* The **reverse-order store-pair lever is now confirmed three times**
+  (`func_002456F8`, `func_00246B78`, `func_002506B0`).  In `func_002506B0`
+  the `f10` store and the aux name terminator had to be written in the
+  OPPOSITE order to the ROM's — which is also what puts the terminator into
+  the following call's delay slot.
 
 **Declaration ORDER inside a vendor TU is load-bearing for compilation, not
 just codegen.**  `func_0024F5A0` sits earlier in `vendor_24E9D8.c` than the
@@ -2162,7 +2183,7 @@ gets a reference implementation.  VENDOR.md §8 flags the likely cause
 which if confirmed makes §3a attribution *more* likely for this group than
 for V5, not less.
 
-### V4 status — 21 landed 2026-07-29/30 (3,416 B), 31 left
+### V4 status — 24 landed 2026-07-29 (4,456 B), 28 left
 ### V4 status — 9 landed 2026-07-29 (820 B), 43 left
 
 | func | insns | outcome |
@@ -2176,6 +2197,7 @@ for V5, not less.
 | `func_00260BA0` | 22 | left, rc2 / 2 sites — the init/exit chain walker.  gcc emits one extra `lw` of `*D` in the loop preheader.  Refuted: plain `while`, guarded `do`-`while`, guarding through a separate temp, and `p` as an explicit loop variable (the last regresses rc to 12 at the same 2 sites).  All four are the same axis — the loop's rotation — so the next attempt should change the DATA MODEL (the cursor is a `void (**)(void)` held in a global; the ROM reloads that global every iteration, which is a `volatile`-ish or aliasing property, not a loop-form one). |
 | `func_0024D848` | 46 | **LANDED** — the template plus a verbosity-gated log line. |
 | `func_0024D900` | 46 | **LANDED** — the template plus a busy flag raised across the request.  Needed TWO volatiles, both argued for by the ROM's own codegen: the flag (without it gcc annuls the flag store into a `bgezl` delay slot where the ROM has a plain `bgez`), and the semaphore **for this body only** (the ROM leaves this function's unlock-call delay slot EMPTY — same signature).  Typing the shared `D_0055092C` volatile fixes this body and REGRESSES the three siblings, so it is bound through a per-function `__asm__` alias.  The last two sites were a v0/v1 swap that no source ORDER change touched and that vanished when the intermediate locals were removed and the body written in exactly the siblings' shape — **fewer named temporaries, not different ones**. |
+| `func_0024FF00`, `func_002500E0`, `func_002506B0` | 82-118 | **LANDED** — three more string members, each adding a wrinkle the routing table did not predict, so read them per member: `func_0024FF00` carries a caller DATA BUFFER flushed out of cache before submission (count in 64-byte blocks, `sll $5,$17,6`); `func_002500E0` is the first with a **completion callback** — it names `func_00250058` as the request's 8th argument and passes the caller's cookie as the 9th, the stack word every other member leaves zero; `func_002506B0` carries a **second name** in its own `AuxReq` block (0x20 header + 0x20 name) that the main request points at through `f10`. |
 | `func_002502F8`, `func_002508E0`, `func_0024F5A0` | 74-78 | **LANDED** — the family's **string sub-template**: refuse an absent or empty name with their own error (`-0xD2`), copy the name into the request block, submit the whole **0x414** bytes.  All three landed first try off the DATA MODEL: a `NameReq` struct, a 0x14-byte header followed by a 0x400-byte name.  The ROM's giveaway is `addiu $3,$16,-0x14` — header stores addressed off the NAME field's address, i.e. gcc reusing the copy destination it already formed, which falls out of the struct spelling for free.  Members differ only in ORDER (copy-then-header vs header-then-copy) and in which header words they write. |
 | `func_0024F4E0`, `func_0024F7C8`, `func_00250230`, `func_00250818` | 48-50 | **LANDED** — four more of the device-request family, straight off the template.  `func_0024F4E0` is the *query* variant (reads the reply word back out of the shared reply block instead of recording a tag); `func_0024F7C8` takes three arguments; the other two take two.  The per-member check held again: `func_0024F4E0` stores at **+4** and needs the request BLOCK cached, `func_0024F7C8` stores at **+0** and does not.  **Offset zero vs non-zero is the tell.** |
 | `func_0024F428`, `func_0024F710`, `func_00250420` | 46-54 | **LANDED** — the device-request family: take the device lock, refuse if the device is not open, publish the argument into the shared request block and submit it.  On success the lock stays HELD (the completion path releases it) and the tag is recorded.  Four levers, in the order they mattered: (1) the device handle is a **cached pointer**, formed once into `$a0` and used both for the "is it open" field read and as the call's first argument — spelling it `*(int *)(D_X + 0x24)` plus a separate `func(D_X, …)` costs 6 sites in addressing alone; (2) the unlock path must be OUT OF LINE (`goto`) or gcc inverts the branch; (3) both paths must reach a **shared tail** or gcc const-folds the success path's `return r` to `return 0`, where the ROM returns the register; (4) `func_0024F428` needs the request BLOCK cached too (it stores at +0x14 and passes the same pointer) while the other two store at +0 and match with the plain form — same family, opposite answer, and the ROM says which each time. |

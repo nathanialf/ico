@@ -492,7 +492,54 @@ void func_0024FD20(int a0) {
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_0024FD78);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_0024FF00);
+extern void func_0024BEF8(void *addr, int len);
+
+/* String sub-template, header-first form, with a data buffer: when the
+ * caller supplies a non-negative block count the buffer is flushed out of
+ * the cache before the request is submitted, because the peer reads it by
+ * DMA.  The count is in 64-byte blocks (`sll $5,$17,6`). */
+int func_0024FF00(int a0, int a1, char *name, int a3, int nblk, void *buf) {
+    char *dev;
+    int r;
+    if (func_00100570(D_005523D4[0]) < 0) {
+        return -0xC8;
+    }
+    dev = D_00717FC0;
+    if (*(int *)(dev + 0x24) == 0) {
+        func_00100540(D_005523D4[0]);
+        return -0x64;
+    }
+    if (name == 0) {
+        goto badname;
+    }
+    if (*name != 0) {
+        goto ok;
+    }
+badname:
+    func_00100540(D_005523D4[0]);
+    return -0xD2;
+ok:
+    D_00718070.f0 = a0;
+    D_00718070.f4 = a1;
+    D_00718070.f8 = a3;
+    D_00718070.fC = nblk;
+    D_00718070.f10 = (int)buf;
+    func_00265570(D_00718070.name, name, 0x3FF);
+    D_00718070.name[0x3FF] = 0;
+    if (nblk >= 0) {
+        func_0024BEF8(buf, nblk * 64);
+    }
+    r = func_00246458(dev, 0xD, 1, &D_00718070, 0x414, D_00719580, 4, 0, 0);
+    if (r != 0) {
+        goto unlock;
+    }
+    *(int *)D_005523D0 = 0xD;
+    goto done;
+unlock:
+    func_00100540(D_005523D4[0]);
+done:
+    return r;
+}
 
 extern char D_00718580[];
 extern int func_00264128(char *a0, char *a1, int a2);
@@ -511,7 +558,52 @@ void func_00250058(char *a0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_002500E0);
+extern char D_00718580[];
+
+/* String sub-template with a fixed 0x400 reply buffer and a COMPLETION
+ * CALLBACK: the request names func_00250058 as its 8th argument and passes
+ * the caller's cookie as the 9th (the stack word every other member of the
+ * family leaves zero).  The buffer is flushed out of the cache first --
+ * the peer fills it by DMA. */
+int func_002500E0(int a0, int a1, char *name, int cookie) {
+    char *dev;
+    int r;
+    if (func_00100570(D_005523D4[0]) < 0) {
+        return -0xC8;
+    }
+    dev = D_00717FC0;
+    if (*(int *)(dev + 0x24) == 0) {
+        func_00100540(D_005523D4[0]);
+        return -0x64;
+    }
+    if (name == 0) {
+        goto badname;
+    }
+    if (*name != 0) {
+        goto ok;
+    }
+badname:
+    func_00100540(D_005523D4[0]);
+    return -0xD2;
+ok:
+    D_00718070.f0 = a0;
+    D_00718070.f10 = (int)D_00718580;
+    D_00718070.f4 = a1;
+    func_00265570(D_00718070.name, name, 0x3FF);
+    D_00718070.name[0x3FF] = 0;
+    func_0024BEF8(D_00718580, 0x400);
+    r = func_00246458(dev, 0xC, 1, &D_00718070, 0x414, D_00719580, 4,
+                      func_00250058, cookie);
+    if (r != 0) {
+        goto unlock;
+    }
+    *(int *)D_005523D0 = 0xC;
+    goto done;
+unlock:
+    func_00100540(D_005523D4[0]);
+done:
+    return r;
+}
 
 /* Two-argument variant of the device-request template. */
 int func_00250230(int a0, int a1) {
@@ -613,7 +705,61 @@ done:
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_002504D8);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_002506B0);
+/* The auxiliary block the two-name members point the main request at: a
+ * 0x20-byte header followed by a 0x20-byte name. */
+typedef struct {
+    char f0[0x20];
+    char name[0x20];
+} AuxReq;
+
+extern AuxReq D_00718000;
+extern void func_001007A0(int a0);
+
+/* String sub-template carrying a SECOND name in its own block. */
+int func_002506B0(int a0, int a1, char *name, char *name2) {
+    char *dev;
+    int r;
+    if (func_00100570(D_005523D4[0]) < 0) {
+        return -0xC8;
+    }
+    dev = D_00717FC0;
+    if (*(int *)(dev + 0x24) == 0) {
+        func_00100540(D_005523D4[0]);
+        return -0x64;
+    }
+    if (name == 0) {
+        goto badname;
+    }
+    if (*name == 0) {
+        goto badname;
+    }
+    if (name2 != 0) {
+        goto ok;
+    }
+badname:
+    func_00100540(D_005523D4[0]);
+    return -0xD2;
+ok:
+    D_00718070.f0 = a0;
+    D_00718070.f4 = a1;
+    D_00718070.f8 = 0x10;
+    func_00265570(D_00718070.name, name, 0x3FF);
+    D_00718070.name[0x3FF] = 0;
+    func_00265570(D_00718000.name, name2, 0x20);
+    D_00718000.name[0x1F] = 0;
+    D_00718070.f10 = (int)&D_00718000;
+    func_001007A0(0);
+    r = func_00246458(dev, 0xE, 1, &D_00718070, 0x414, D_00719580, 4, 0, 0);
+    if (r != 0) {
+        goto unlock;
+    }
+    *(int *)D_005523D0 = 0x13;
+    goto done;
+unlock:
+    func_00100540(D_005523D4[0]);
+done:
+    return r;
+}
 
 /* Two-argument variant of the device-request template. */
 int func_00250818(int a0, int a1) {
