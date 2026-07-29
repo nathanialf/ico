@@ -1599,12 +1599,12 @@ VENDOR.md §1 over the dashboard label.
 | **V1** 21 genuine port reverts — codegen | 5 (was 14) | 536 (was 1320) | 134 | 8 | 32 | 48 | unclassified -> §3b clean-room unless archive identified |
 | **V2** 52 handwritten-asm twins solved on aug6 | 2 (was 52) | 144 (was 7324) | 36 | 12 | 18 | 24 | §3b clean-room (already re-derived on aug6) |
 | **V3** 40 head functions | 14 (was 40) | 3416 (was 5056) | | 14 | | 370 | §3b proprietary (crt0 + libkernl, VENDOR.md §1) |
-| **V4** 52 tail functions with no aug6 twin | 28 (was 52) | 22656 (was 27112) | | 22 | | 1350 | unclassified -> §3b clean-room unless archive identified |
+| **V4** 52 tail functions with no aug6 twin | 26 (was 52) | 21900 (was 27112) | | 22 | | 1350 | unclassified -> §3b clean-room unless archive identified |
 | **V5** 261 tail functions, aug6 twin unmatched | 261 | 118972 | 29743 | 24 | 74 | 1140 | mixed: 13 in the fdlibm window are §3a; rest unclassified |
 | **V6** 1 blocked (inter-section pad) | 1 | 92 | 23 | 23 | 23 | 23 | n/a — blocked |
-| | **326** (was 427) | **146,048** | | | | | |
+| | **324** (was 427) | **145,288** | | | | | |
 
-**Landed 2026-07-29, seven passes: 116 functions / 15,496 B.**
+**Landed 2026-07-29, eight passes: 118 functions / 16,252 B.**
 Pass 1 (`vendor-1`, 66 funcs / 9,604 B): V2 50/52, V1 16/21.
 Pass 2 (`vendor-2`, 21 funcs / 1,108 B): V3a 11/11, V3b 10/26 + the carve.
 Pass 3 (`vendor-3`, 14 funcs / 1,148 B): V3b 5 more (15/26), V4 first 9.
@@ -1615,9 +1615,12 @@ Pass 6 (`vendor-6`, 3 funcs / 884 B): V4 21/52 — the family's **string
 sub-template** opened; at least 4 more members remain.
 Pass 7 (`vendor-7`, 3 funcs / 1,040 B): V4 24/52 — string sub-template now
 6 of 7; the family is **13 landed members**.
-Vendor moves 521/945 -> **622/948** functions and 34,144 -> **48,948 B**
-(17.51 % -> 25.10 %); `.text` 16.81 % -> **19.47 %**.  The unmatched vendor
-total is now **326 functions / 146,048 B** (figures from
+Pass 8 (`vendor-8`, 2 funcs / 756 B): V4 26/52 — string sub-template **7 of
+7**; the family is **15 landed members**, one left (`func_0024FA50`, handoff
+below).
+Vendor moves 521/945 -> **624/948** functions and 34,144 -> **49,708 B**
+(17.51 % -> 25.49 %); `.text` 16.81 % -> **19.52 %**.  The unmatched vendor
+total is now **324 functions / 145,288 B** (figures from
 `docs/progress.json`, whose byte denominators are span-derived).
 
 **The device-request family now has three sub-templates and 10 landed members.**
@@ -1628,15 +1631,68 @@ Sort a candidate with two greps before writing any C: does it call
 | sub-template | size | tell | state |
 |---|---|---|---|
 | plain | 0x30 | no name copy | `func_0024F428`, `func_0024F710`, `func_00250420`, `func_0024F4E0`, `func_0024F7C8`, `func_00250230`, `func_00250818` — **all landed** |
-| string | 0x414 | calls `func_00265570` | `func_002502F8`, `func_002508E0`, `func_0024F5A0`, `func_0024FF00`, `func_002500E0`, `func_002506B0` landed; **`func_002504D8` remains** |
-| many-store, no copy | 0x30 | no name copy, 5-8 block stores | **`func_0024F930`, `func_0024FA50` remain** — `func_0024FA50` RE-stores two offsets, so read its store order carefully rather than assuming |
+| string | 0x414 | calls `func_00265570` | **all 7 landed** |
+| many-store, no copy | 0x30 | no name copy, 5-8 block stores | `func_0024F930` landed; **`func_0024FA50` remains** — see the handoff below |
 
-**`func_002504D8` is the one string member that is NOT a transcription.**  It
-carries a 0x40-byte auxiliary block copied in from a caller pointer with an
-inline **unaligned** `ldl`/`ldr` + `sdl`/`sdr` sequence (8 pairs), i.e. a
-struct assignment whose source is byte-aligned — `decomp/COOKBOOK.md` §6.1.
-Everything before and after it is the ordinary string sub-template; only that
-copy needs the §6.1 recipe.  Sized 0x1D8, by far the largest member.
+### `func_0024FA50` — analysed, NOT matched: 15 sites, handoff
+
+**The last unlanded family member (0x17C), and the only one with real
+control flow.**  Its purpose: SPLIT an unaligned transfer.  Everything up to
+the next 16-byte boundary is copied into the request block itself (at
+`+0x20`) and only the aligned remainder is handed to the peer, which can
+only DMA whole cache lines.  A transfer of 0x10 bytes or less is all head
+and no remainder.
+
+The body is fully recovered and reads:
+
+```c
+int func_0024FA50(int a0, char *addr, int len) {          /* 6, tag 6 */
+    ... lock; refuse if not open ...
+    *(int *)D_00718040 = a0;                    /* in the beqz DELAY slot,
+                                                   so it precedes the if */
+    if (len < 0x11) {
+        blk[0x14] = len;  blk[0x18] = 0;  blk[0xC] = 0;
+    } else {
+        head = (((int)addr - 1) & 0xFFFFFFF0) - ((int)addr - 0x10);
+        blk[0x18] = (int)(addr + head);
+        blk[0xC]  = len - head;
+        blk[0x14] = head;                       /* note: 0x18, 0xC, 0x14 */
+    }
+    i = 0;
+    if (blk[0x14] != 0) {                       /* count RE-READ from memory
+                                                   every iteration, not cached */
+        do { blk_bytes[0x20 + i] = addr[i]; i++; } while (i < blk[0x14]);
+    }
+    func_001007A0(0);
+    r = func_00246458(D_00717FC0, 6, 1, D_00718040, 0x30, D_00719580, 4, 0, 0);
+    ... tag 6 ...
+}
+```
+
+**Residual is a whole-function register-class difference, not a local tie.**
+The ROM's frame is **0x80** and it holds SIX callee-saved values — `a0`,
+`addr`, `len`, and the `%hi` of all three of `D_00718040`, `D_005523D4`,
+`D_00717FC0` (`$19,$17,$16,$18,$20,$21`).  Every shape tried so far gives a
+**0x70** frame, i.e. gcc keeps one fewer.  Measured:
+
+| shape | sites |
+|---|--:|
+| `dev` cached in a local (the other members' winning form) | **15** |
+| `D_00717FC0` used directly, pointer arithmetic for the field | 22 |
+| §5.10 int-alias direct index on `D_00717FC0` only | 22 |
+| int-alias direct index on `D_00717FC0` **and** `D_00718040` | 20 |
+
+**Next lever:** the objective is the 0x80 frame — get all three `%hi` values
+into callee-saved registers at once.  §5.10 is the right axis (indexed array
+keeps `%hi` callee-saved; a cached pointer collapses it) but applying it to
+one or two of the three globals makes things worse, not better; the members
+that matched with a cached `dev` only reference the device ONCE after the
+lock, whereas this one references it twice across calls.  Try the direct
+index on **all three simultaneously**, including `D_005523D4`, and check the
+frame size first — it is a faster signal than the diff count.
+
+**`func_002504D8` was the other one that was NOT a transcription** and it is
+now landed — see its row above.
 
 **Two things this pass established that the routing table does not capture,
 so read them per member:**
@@ -2183,7 +2239,7 @@ gets a reference implementation.  VENDOR.md §8 flags the likely cause
 which if confirmed makes §3a attribution *more* likely for this group than
 for V5, not less.
 
-### V4 status — 24 landed 2026-07-29 (4,456 B), 28 left
+### V4 status — 26 landed 2026-07-29 (5,212 B), 26 left
 ### V4 status — 9 landed 2026-07-29 (820 B), 43 left
 
 | func | insns | outcome |
@@ -2197,6 +2253,8 @@ for V5, not less.
 | `func_00260BA0` | 22 | left, rc2 / 2 sites — the init/exit chain walker.  gcc emits one extra `lw` of `*D` in the loop preheader.  Refuted: plain `while`, guarded `do`-`while`, guarding through a separate temp, and `p` as an explicit loop variable (the last regresses rc to 12 at the same 2 sites).  All four are the same axis — the loop's rotation — so the next attempt should change the DATA MODEL (the cursor is a `void (**)(void)` held in a global; the ROM reloads that global every iteration, which is a `volatile`-ish or aliasing property, not a loop-form one). |
 | `func_0024D848` | 46 | **LANDED** — the template plus a verbosity-gated log line. |
 | `func_0024D900` | 46 | **LANDED** — the template plus a busy flag raised across the request.  Needed TWO volatiles, both argued for by the ROM's own codegen: the flag (without it gcc annuls the flag store into a `bgezl` delay slot where the ROM has a plain `bgez`), and the semaphore **for this body only** (the ROM leaves this function's unlock-call delay slot EMPTY — same signature).  Typing the shared `D_0055092C` volatile fixes this body and REGRESSES the three siblings, so it is bound through a per-function `__asm__` alias.  The last two sites were a v0/v1 swap that no source ORDER change touched and that vanished when the intermediate locals were removed and the body written in exactly the siblings' shape — **fewer named temporaries, not different ones**. |
+| `func_002504D8` | 118 | **LANDED** — the largest member (0x1D8) and the only one that was not a transcription: it copies a whole 0x40-byte `AuxReq` in from the caller with the unaligned `ldl`/`ldr` + `sdl`/`sdr` sequence of COOKBOOK §6.1.  **It needed no `packed` attribute.**  `AuxReq` is two char arrays, so its alignment is already 1 and a plain struct assignment compiles straight to the unaligned form.  §6.1's warning that "`aligned(1)` alone is NOT enough" is about a typedef of a SCALAR; for an all-char struct the alignment is structural and the block-move expander uses it directly.  Check that before reaching for the attribute. |
+| `func_0024F930` | 70 | **LANDED** — plain sub-template with a caller buffer AND a completion callback; both the buffer and the fixed 0xC0 reply area are cache-flushed, and the reply area doubles as the callback's cookie. |
 | `func_0024FF00`, `func_002500E0`, `func_002506B0` | 82-118 | **LANDED** — three more string members, each adding a wrinkle the routing table did not predict, so read them per member: `func_0024FF00` carries a caller DATA BUFFER flushed out of cache before submission (count in 64-byte blocks, `sll $5,$17,6`); `func_002500E0` is the first with a **completion callback** — it names `func_00250058` as the request's 8th argument and passes the caller's cookie as the 9th, the stack word every other member leaves zero; `func_002506B0` carries a **second name** in its own `AuxReq` block (0x20 header + 0x20 name) that the main request points at through `f10`. |
 | `func_002502F8`, `func_002508E0`, `func_0024F5A0` | 74-78 | **LANDED** — the family's **string sub-template**: refuse an absent or empty name with their own error (`-0xD2`), copy the name into the request block, submit the whole **0x414** bytes.  All three landed first try off the DATA MODEL: a `NameReq` struct, a 0x14-byte header followed by a 0x400-byte name.  The ROM's giveaway is `addiu $3,$16,-0x14` — header stores addressed off the NAME field's address, i.e. gcc reusing the copy destination it already formed, which falls out of the struct spelling for free.  Members differ only in ORDER (copy-then-header vs header-then-copy) and in which header words they write. |
 | `func_0024F4E0`, `func_0024F7C8`, `func_00250230`, `func_00250818` | 48-50 | **LANDED** — four more of the device-request family, straight off the template.  `func_0024F4E0` is the *query* variant (reads the reply word back out of the shared reply block instead of recording a tag); `func_0024F7C8` takes three arguments; the other two take two.  The per-member check held again: `func_0024F4E0` stores at **+4** and needs the request BLOCK cached, `func_0024F7C8` stores at **+0** and does not.  **Offset zero vs non-zero is the tell.** |

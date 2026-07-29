@@ -426,7 +426,42 @@ done:
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_0024F8A0);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_0024F930);
+extern char D_007184C0[];
+extern int func_0024F8A0();
+
+/* Plain (0x30) sub-template with a caller buffer AND a completion
+ * callback: both the caller's buffer and the fixed 0xC0 reply area are
+ * flushed out of cache before submission -- the peer touches both by DMA
+ * -- and the reply area doubles as the callback's cookie. */
+int func_0024F930(int a0, void *buf, int len) {
+    char *dev;
+    int r;
+    if (func_00100570(D_005523D4[0]) < 0) {
+        return -0xC8;
+    }
+    dev = D_00717FC0;
+    if (*(int *)(dev + 0x24) == 0) {
+        func_00100540(D_005523D4[0]);
+        return -0x64;
+    }
+    *(int *)D_00718040 = a0;
+    *(int *)(D_00718040 + 0x1C) = (int)D_007184C0;
+    *(int *)(D_00718040 + 0x18) = (int)buf;
+    *(int *)(D_00718040 + 0xC) = len;
+    func_0024BEF8(buf, len);
+    func_0024BEF8(D_007184C0, 0xC0);
+    r = func_00246458(dev, 5, 1, D_00718040, 0x30, D_00719580, 4,
+                      func_0024F8A0, D_007184C0);
+    if (r != 0) {
+        goto unlock;
+    }
+    *(int *)D_005523D0 = 5;
+    goto done;
+unlock:
+    func_00100540(D_005523D4[0]);
+done:
+    return r;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_0024FA50);
 
@@ -703,8 +738,6 @@ done:
     return r;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_002504D8);
-
 /* The auxiliary block the two-name members point the main request at: a
  * 0x20-byte header followed by a 0x20-byte name. */
 typedef struct {
@@ -714,6 +747,53 @@ typedef struct {
 
 extern AuxReq D_00718000;
 extern void func_001007A0(int a0);
+
+/* String sub-template carrying a whole 0x40-byte auxiliary block copied in
+ * from the caller.  AuxReq is all-char, so its alignment is 1 and the
+ * struct assignment compiles to the unaligned ldl/ldr + sdl/sdr sequence
+ * the ROM has (COOKBOOK §6.1). */
+int func_002504D8(int a0, int a1, char *name, void *src, int flags) {
+    char *dev;
+    int r;
+    if (func_00100570(D_005523D4[0]) < 0) {
+        return -0xC8;
+    }
+    dev = D_00717FC0;
+    if (*(int *)(dev + 0x24) == 0) {
+        func_00100540(D_005523D4[0]);
+        return -0x64;
+    }
+    if (name == 0) {
+        goto badname;
+    }
+    if (*name != 0) {
+        goto ok;
+    }
+badname:
+    func_00100540(D_005523D4[0]);
+    return -0xD2;
+ok:
+    flags &= 7;
+    D_00718070.f0 = a0;
+    D_00718070.f4 = a1;
+    D_00718070.f8 = flags;
+    D_00718000 = *(AuxReq *)src;
+    D_00718070.f10 = (int)&D_00718000;
+    func_00265570(D_00718070.name, name, 0x3FF);
+    D_00718070.name[0x3FF] = 0;
+    func_001007A0(0);
+    r = func_00246458(dev, 0xE, 1, &D_00718070, 0x414, D_00719580, 4, 0, 0);
+    if (r != 0) {
+        goto unlock;
+    }
+    *(int *)D_005523D0 = 0xE;
+    goto done;
+unlock:
+    func_00100540(D_005523D4[0]);
+done:
+    return r;
+}
+
 
 /* String sub-template carrying a SECOND name in its own block. */
 int func_002506B0(int a0, int a1, char *name, char *name2) {
