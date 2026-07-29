@@ -11,7 +11,8 @@
 #
 #   1. File extensions associated with PS2 disc dumps and extracted assets.
 #   2. PS2 boot-ELF naming patterns (SLUS-/SLES-/SLPS-/SLPM-/SCUS-/...).
-#   3. Any tracked file > 256 KiB that is not in an allowlisted directory.
+#   3. Any tracked file > 256 KiB that is not in an allowlisted directory
+#      (tracked C source and tough_nuts notes.md have their own ceilings).
 #   4. ELF magic (\x7fELF) sniff regardless of extension.
 #   5. Any file whose path matches our gitignore patterns but is somehow
 #      tracked anyway.
@@ -62,6 +63,13 @@ done
 # blob.
 allow_large_re='^(tools/toolchain/|tools/ghidra/|\.git/|lib/)'
 src_large_re='^(src|ios|sound|isys)/.*\.(c|h|c\.inc|inc)$'
+# tough_nuts/<func>/notes.md are the parked-function analysis logs: prose plus
+# quoted disassembly excerpts and compiler-dump snippets, accumulated across
+# many sessions (ResetStatic2MotionManager's is 20+ rounds deep). Same class of
+# content as the already-tracked asm/nonmatchings trees, so a long one is
+# expected rather than suspicious. NOT blanket-exempt: the file must contain no
+# NUL bytes (a laundered blob would), and a 2 MiB backstop still applies.
+notes_large_re='^tough_nuts/[^/]+/notes\.md$'
 for f in "${files[@]}"; do
     [[ -z "$f" ]] && continue
     [[ ! -f "$f" ]] && continue
@@ -83,6 +91,15 @@ for f in "${files[@]}"; do
     if [[ "$f" =~ $src_large_re ]]; then
         if (( size > 8388608 )); then
             note "tracked source >8MiB (suspicious): $f ($size bytes)"
+        fi
+    elif [[ "$f" =~ $notes_large_re ]]; then
+        # NUL sniff by byte count: bash cannot hold a NUL in a string, so a
+        # `grep $'\x00'` pattern silently degrades to the empty pattern and
+        # matches everything. Strip NULs and compare lengths instead.
+        if (( $(LC_ALL=C tr -d '\000' < "$f" | wc -c) != size )); then
+            note "parked-function notes contain NUL bytes (not text): $f"
+        elif (( size > 2097152 )); then
+            note "parked-function notes >2MiB (suspicious): $f ($size bytes)"
         fi
     elif (( size > 262144 )); then
         note "tracked file >256KiB (suspicious): $f ($size bytes)"

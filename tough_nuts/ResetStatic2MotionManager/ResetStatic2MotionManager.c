@@ -3,7 +3,9 @@
 typedef struct {
     char pad[0x134];
     int node_id;  /* 0x134 */
-    char pad2[0x190 - 0x134 - 4];
+    char pad2[0x18C - 0x134 - 4];
+    unsigned int flags;  /* 0x18C */
+    char pad3[0x190 - 0x18C - 4];
 } MotionNode;
 extern MotionNode D_0055DA10[];
 extern int D_004C0A98[];
@@ -245,7 +247,7 @@ void ResetStatic2MotionManager(int idx) {
     MfBlend *b;
     MfOri *nd;
     void *s0;
-    float *pv;
+    float *w;
     unsigned int st;
 
     e = &D_0062B758_m[idx];
@@ -272,12 +274,11 @@ void ResetStatic2MotionManager(int idx) {
         void *s0;
         func_0010E148(GetLastQuaternion(), GetTableSin(), nd->quat);
         {
-            float *tbl;
             void *pa = GetLastQuaternion();
+            float *pb = D_004C1C40;
             void *pc;
-            tbl = D_004C1C40;
             pc = GetLastQuaternion();
-            func_0010E148(pa, tbl, pc);
+            func_0010E148(pa, pb, pc);
         }
         func_0010E1D0(func_00105078(), GetLastQuaternion());
         return;
@@ -305,7 +306,7 @@ void ResetStatic2MotionManager(int idx) {
         qb = q20;
         func_0010E188(qb, nd->quat, e->quat);
         if (D_0062C230->f_308 != 0 && D_0062C230->f_2D0 != 0) {
-            float w, u, v, one;
+            float w, u, v, one, t, rot;
             w = b->rate;
             one = 1.0f;
             v = one - w;
@@ -318,7 +319,7 @@ void ResetStatic2MotionManager(int idx) {
             }
             b->rate = w + v * (t + u * rot);
         } else {
-            float w, u, one;
+            float w, u, one, t, rot;
             t = D_0062C230->f_3AC * (60.0f / (float)((0x3C - D_00271240[0] * 0xA) / D_00271240[1]));
             one = 1.0f;
             u = one - t;
@@ -353,9 +354,7 @@ void ResetStatic2MotionManager(int idx) {
         void *s0;
         int q;
         float *qb;
-        float *q1;
         float *w;
-        float *w2;
         func_0010E148(GetLastQuaternion(), GetTableSin(), e->quat);
         func_0010E1D0(func_00105078(), GetLastQuaternion());
         GetInverseQuaternion(q30, D_002724B0);
@@ -370,8 +369,7 @@ void ResetStatic2MotionManager(int idx) {
         }
         if (b->rate < D_006295B0) {
             float *q3;
-            q1 = b->q1;
-            GetInverseQuaternion(q1, GetLastQuaternion());
+            GetInverseQuaternion(b->q1, GetLastQuaternion());
             q3 = b->q3;
             GetMatrixFromQuaternion(q3);
             GetInverseQuaternion(b->q2, q3);
@@ -385,8 +383,7 @@ void ResetStatic2MotionManager(int idx) {
                 w = v70;
                 MatrixDrive_TurnZObjectMatrixXY(w, (char *)t + 0x30, D_0062C230);
                 w = v60;
-                w2 = v70;
-                MatrixDrive_GetTurnXAngleZY(w, pb, w2);
+                MatrixDrive_GetTurnXAngleZY(w, pb, v70);
             }
             v60[3] = 0;
             func_00105058();
@@ -394,8 +391,7 @@ void ResetStatic2MotionManager(int idx) {
             {
                 void *t = func_00105078();
                 w = v50;
-                w2 = v60;
-                func_0023FDD8(w, t, w2);
+                func_0023FDD8(w, t, v60);
             }
             func_00105068();
             MatrixDrive_PushMatrixWithNoCopy(&g80[0], &g80[1], v50[0], v50[1], v50[2]);
@@ -416,34 +412,31 @@ void ResetStatic2MotionManager(int idx) {
             {
                 float *q3 = b->q3;
                 float *q2 = b->q2;
-                q1 = b->q1;
                 w = v60;
                 GetMatrixFromQuaternion(w);
                 func_0010E448(w, (short)-(unsigned short)g80[2]);
                 func_0010E588(w, (short)-(unsigned short)g80[3]);
                 func_0010E4E8(w, (short)-(unsigned short)g80[4]);
-                ResetDynamicMotionManager(q1, mem, q3, w, D_006295B4);
-                w2 = v70;
-                func_0010E148(w2, GetLastQuaternion(), w);
+                ResetDynamicMotionManager(b->q1, mem, q3, w, D_006295B4);
+                func_0010E148(v70, GetLastQuaternion(), w);
                 w = q90;
-                func_0010E188(w, w2, q1);
-                w2 = qA0;
-                GetCurrentQuaternion(w2, w, D_002724B0, D_0062C230->f_3B4);
-                GetCurrentQuaternion(q2, w2, q2, D_0062C230->f_3B8);
-                func_0010E148(q1, q1, q2);
-                GetSlerpQuaternionNoRegularize(q1);
-                func_0010E188(q3, q1, GetLastQuaternion());
+                func_0010E188(w, v70, b->q1);
+                GetCurrentQuaternion(qA0, w, D_002724B0, D_0062C230->f_3B4);
+                GetCurrentQuaternion(q2, qA0, q2, D_0062C230->f_3B8);
+                func_0010E148(b->q1, b->q1, q2);
+                GetSlerpQuaternionNoRegularize(b->q1);
+                func_0010E188(q3, b->q1, GetLastQuaternion());
             }
         }
         {
-            float *tbl = D_004C1C50;
             s0 = GetLastQuaternion();
             func_0010E448(s0, (short)(int)((float)-D_0062C230->f_50 * 2.5f));
             s0 = GetLastQuaternion();
             func_0010E148(q90, s0, qb);
-            GetCurrentQuaternion(GetLastQuaternion(), q1, q90, b->rate);
+            GetCurrentQuaternion(GetLastQuaternion(), b->q1, q90, b->rate);
             {
                 void *pa = GetLastQuaternion();
+                float *tbl = D_004C1C50;
                 void *pc = GetLastQuaternion();
                 func_0010E148(pa, tbl, pc);
             }
@@ -456,6 +449,7 @@ void ResetStatic2MotionManager(int idx) {
         void *s0;
         int q;
         int n;
+        int nq;
         float t;
         float rot;
         float ang;
@@ -464,9 +458,7 @@ void ResetStatic2MotionManager(int idx) {
         int cnt;
         int hold;
         float *w;
-        float *w2;
         float *qb;
-        float *q1a;
         func_0010E148(GetLastQuaternion(), GetTableSin(), e->quat);
         func_0010E1D0(func_00105078(), GetLastQuaternion());
         GetInverseQuaternion(q30, D_002724B0);
@@ -477,7 +469,7 @@ void ResetStatic2MotionManager(int idx) {
         if (D_0062C230->f_30C != 0
             && ((D_0062C230->f_308 != 0 && D_0062C230->f_2D0 != 0)
                 || D_0062C230->f_220 != 0 || D_0062C230->f_280 != 0)) {
-            float w, u, v, one;
+            float w, u, v, one, t, rot;
             w = b->rate;
             one = 1.0f;
             v = one - w;
@@ -490,7 +482,7 @@ void ResetStatic2MotionManager(int idx) {
             }
             b->rate = w + v * (t + u * rot);
         } else {
-            float w, u, one;
+            float w, u, one, t, rot;
             t = D_0062C230->f_3AC * (60.0f / (float)((0x3C - D_00271240[0] * 0xA) / D_00271240[1]));
             one = 1.0f;
             u = one - t;
@@ -502,16 +494,15 @@ void ResetStatic2MotionManager(int idx) {
             }
             b->rate = w * (one - (t + u * rot));
         }
-        q1a = b->q1;
         if (b->rate < D_006295C0) {
-            GetInverseQuaternion(q1a, GetLastQuaternion());
+            GetInverseQuaternion(b->q1, GetLastQuaternion());
             GetMatrixFromQuaternion(b->q3);
             GetInverseQuaternion(b->q2, b->q3);
         } else {
             float *q1;
             float *q3 = b->q3;
-            GetMotionMemorySize(q1a, mem, q3);
-            q1 = q1a;
+            GetMotionMemorySize(b->q1, mem, q3);
+            q1 = b->q1;
             sumA = 0;
             n = D_0062C230->f_30C;
             cnt = 0;
@@ -523,16 +514,14 @@ void ResetStatic2MotionManager(int idx) {
                     w = v60;
                     MatrixDrive_TurnZObjectMatrixXY(w, (char *)s0 + 0x30, D_0062C230);
                     w = v50;
-                    w2 = v60;
-                    MatrixDrive_GetTurnXAngleZY(w, pb, w2);
+                    MatrixDrive_GetTurnXAngleZY(w, pb, v60);
                     v50[3] = 0;
                     func_00105058();
                     MatrixDrive_TransMatrix(func_00105078(), func_00105090());
                     {
                         void *t = func_00105078();
                         w = qA0;
-                        w2 = v50;
-                        func_0023FDD8(w, t, w2);
+                        func_0023FDD8(w, t, v50);
                     }
                     func_00105068();
                     MatrixDrive_TransMatrixV(&gB0[0], &gB0[1], qA0[0], qA0[1], qA0[2]);
@@ -543,18 +532,14 @@ void ResetStatic2MotionManager(int idx) {
                     void *t;
                     cnt += 1;
                     t = func_00105078();
-                    w = v70;
-                    MatrixDrive_TurnZObjectMatrixXY(w, (char *)t + 0x30, D_0062C230);
-                    w = v60;
-                    w2 = v70;
-                    MatrixDrive_GetTurnXAngleZY(w, pb, w2);
+                    MatrixDrive_TurnZObjectMatrixXY(v70, (char *)t + 0x30, D_0062C230);
+                    MatrixDrive_GetTurnXAngleZY(v60, pb, v70);
                     v60[3] = 0;
                     func_00105058();
                     MatrixDrive_TransMatrix(func_00105078(), func_00105090());
                     t = func_00105078();
                     w = v50;
-                    w2 = v60;
-                    func_0023FDD8(w, t, w2);
+                    func_0023FDD8(w, t, v60);
                     func_00105068();
                     MatrixDrive_GetMatrix(&gB0[2], &gB0[3], v50[0], v50[1], v50[2]);
                     sumA -= gB0[2];
@@ -569,15 +554,13 @@ void ResetStatic2MotionManager(int idx) {
                 w = qD0;
                 MatrixDrive_TurnZObjectMatrixXY(w, (char *)t + 0x30, D_0062C230);
                 w = vC0;
-                w2 = qD0;
-                MatrixDrive_GetTurnXAngleZY(w, pb, w2);
+                MatrixDrive_GetTurnXAngleZY(w, pb, qD0);
                 vC0[3] = 0;
                 func_00105058();
                 MatrixDrive_TransMatrix(func_00105078(), func_00105090());
                 t = func_00105078();
                 w = v60;
-                w2 = vC0;
-                func_0023FDD8(w, t, w2);
+                func_0023FDD8(w, t, vC0);
                 func_00105068();
                 MatrixDrive_PushMatrixWithNoCopy(&gE0[0], &gE0[1], v60[0], v60[1], v60[2]);
                 if (D_0062C230->f_2D0 == 2) {
@@ -608,13 +591,11 @@ void ResetStatic2MotionManager(int idx) {
             func_0010E448(w, (short)-(unsigned short)gE0[2]);
             func_0010E588(w, (short)-(unsigned short)gE0[6]);
             func_0010E4E8(w, (short)-(unsigned short)gE0[4]);
-            w2 = vC0;
-            func_0010E148(w2, GetLastQuaternion(), w);
+            func_0010E148(vC0, GetLastQuaternion(), w);
             w = qD0;
-            func_0010E188(w, w2, q1);
-            w2 = qF0;
-            GetCurrentQuaternion(w2, w, D_002724B0, D_0062C230->f_3B4);
-            GetCurrentQuaternion(b->q2, w2, b->q2, D_0062C230->f_3B8);
+            func_0010E188(w, vC0, q1);
+            GetCurrentQuaternion(qF0, w, D_002724B0, D_0062C230->f_3B4);
+            GetCurrentQuaternion(b->q2, qF0, b->q2, D_0062C230->f_3B8);
             func_0010E148(q1, q1, b->q2);
             GetSlerpQuaternionNoRegularize(q1);
             func_0010E188(q3, q1, GetLastQuaternion());
@@ -629,7 +610,7 @@ void ResetStatic2MotionManager(int idx) {
         }
         s0 = GetLastQuaternion();
         func_0010E448(s0, (short)(int)((float)D_0062C230->f_50 * 2.5f));
-        GetCurrentQuaternion(GetLastQuaternion(), q1a, GetLastQuaternion(), b->rate);
+        GetCurrentQuaternion(GetLastQuaternion(), b->q1, GetLastQuaternion(), b->rate);
         {
             void *pa = GetLastQuaternion();
             float *pc = D_0062C230->q_2C0;
@@ -660,26 +641,21 @@ void ResetStatic2MotionManager(int idx) {
         void *s0;
         int q;
         int n;
+        int nq;
         int i;
         float t;
         float rot;
         float len2;
         float ang;
-        float *qa;
         float *qb;
-        float *w;
-        float *w2;
-        float *qs;
-        float *qn;
         float *pb;
+        float *qF0p;
         func_0010E148(GetLastQuaternion(), GetTableSin(), e->quat);
         func_0010E1D0(func_00105078(), GetLastQuaternion());
-        qa = q30;
-        GetInverseQuaternion(qa, D_002724B0);
+        GetInverseQuaternion(q30, D_002724B0);
         qb = q20;
         func_0010E188(qb, nd->quat, e->quat);
-        qs = qA0;
-        func_00260568(qs, 0, 0x10);
+        func_00260568(qA0, 0, 0x10);
         qA0[3] = 1.0f;
         pb = D_0062C230->q_290;
         MatrixDrive_TurnZObjectMatrixXY(v70, (char *)func_00105078() + 0x30, D_0062C230);
@@ -696,51 +672,45 @@ void ResetStatic2MotionManager(int idx) {
         } else {
             short h1 = g100[5];
             short h0 = g100[4];
-            t = func_0010ED30(h1);
+            float t = func_0010ED30(h1);
             v50[0] = func_0010ED30(h0) * t;
             v50[1] = p2o_SetDefaultEnviroment(h0) * t;
             v50[2] = -p2o_SetDefaultEnviroment(h1);
             v50[3] = 0;
         }
-        n = func_0010EEF0(_MulCurrentMatrixR(v50, D_00271BF0));
+        nq = func_0010EEF0(_MulCurrentMatrixR(v50, D_00271BF0));
         _MulCurrentMatrixL(v60, v50, D_00271BF0);
-        func_0010E088(qD0, n, v60);
+        func_0010E088(qD0, nq, v60);
         func_0010E148(qA0, qA0, qD0);
-        if (D_0062C230->f_280 != 1) {
-            if (D_0062C230->f_280 != 2) {
-                GetInverseQuaternion(qF0, qb);
-                GetCurrentQuaternion(D_0062C230->q_2C0, D_0062C230->q_2C0, D_002724B0, D_006295C4);
-                pv = v60;
-            } else {
-                func_0010E148(qF0, qs, D_0062C230->q_2A0);
-                func_0010E148(qF0, qF0, qb);
-                GetCurrentQuaternion(D_0062C230->q_2C0, D_0062C230->q_2C0, D_002724B0, D_006295D4);
-                pv = v60;
-            }
-        } else {
+        if (D_0062C230->f_280 == 1) goto L13turn;
+        if (D_0062C230->f_280 == 2) goto L13mul;
+        qF0p = qF0;
+        GetInverseQuaternion(qF0p, qb);
+        GetCurrentQuaternion(D_0062C230->q_2C0, D_0062C230->q_2C0, D_002724B0, D_006295C4);
+        w = v60;
+        goto L13done;
+      L13turn:
+        {
+            w = v60;
+            qF0p = qF0;
             i = 0;
-            qn = v130;
             ang = MatrixDrive_GetTurnYEAngleXZ(vC0);
             n = e->next;
-            if (n != -1) {
-                pv = v60;
-loop13:
-                {
-                    MfMot *o = &D_0062B758_m[n];
-                    pv[i++] = D_0062B720 * MatrixDrive_GetTurnYEAngleXZ(o->pos);
-                    if (i >= 2) goto done13;
-                    n = o->next;
-                    if (n != -1) goto loop13;
-                }
-done13:;
-            } else {
-                pv = v60;
-            }
+            if (n == -1) goto none13;
+            do {
+                MfMot *o = &D_0062B758_m[n];
+                w[i++] = D_0062B720 * MatrixDrive_GetTurnYEAngleXZ(o->pos);
+                if (i >= 2) break;
+                n = o->next;
+none13:;
+            } while (n != -1);
             v60[1] += D_0062B720 * MatrixDrive_GetTurnYEAngleXZ(
                 D_0062B758_m[DebugDisp1CollisionWithColor(D_0062B75C, 0x20)].pos);
             func_00105058();
-            getQuaternionFromMatrix(func_00105078(),
-                (char *)&D_0062C218[DebugDisp1CollisionWithColor(D_0062B75C, 0x16)] + 0x10);
+            {
+                int k = DebugDisp1CollisionWithColor(D_0062B75C, 0x16);
+                getQuaternionFromMatrix(func_00105078(), (char *)&D_0062C218[k] + 0x10);
+            }
             func_00105108(5.0f, -3.0f, 0.0f);
             MatrixDrive_TurnObjectMatrix(v110, (char *)func_00105078() + 0x30);
             _ApplyCurrentMatrix(v70, D_0062B758_m[e->next].pos, v110);
@@ -749,14 +719,14 @@ done13:;
             v130[1] = 0.0f;
             v130[2] = 0.0f;
             v130[3] = 1.0f;
-            _TransposeRotationCurrentMatrix(qn, qn, v110);
-            _SetCurrentMatrix(qn, qn);
-            _MulCurrentMatrixL(v120, qn, D_00271BF0);
-            func_0010E088(D_00703030, func_0010EEF0(_MulCurrentMatrixR(D_00271BF0, qn)), v120);
+            _TransposeRotationCurrentMatrix(v130, v130, v110);
+            _SetCurrentMatrix(v130, v130);
+            _MulCurrentMatrixL(v120, v130, D_00271BF0);
+            func_0010E088(D_00703030, func_0010EEF0(_MulCurrentMatrixR(D_00271BF0, v130)), v120);
             v60[1] = rot;
             func_00105068();
             if (D_0062C230->f_2B4 == 0) {
-                t = v60[0] + v60[1];
+                float t = v60[0] + v60[1];
                 if (t < ang) {
                     ang = t;
                 }
@@ -767,36 +737,41 @@ done13:;
             D_0062B72A = func_0010EEF0(
                 (len2 + v60[1] * v60[1] - v60[0] * v60[0]) / ((v60[1] + v60[1]) * ang));
             func_0010E448(qA0, g100[6]);
-            func_0010E588(qA0, D_0062B728);
-            GetInverseQuaternion(qF0, qA0);
+            func_0010E588(qA0, (short)D_0062B728);
+            GetInverseQuaternion(qF0p, qA0);
             {
                 float *pb = D_0062C230->q_290;
                 void *t = func_00105078();
-                w = v120;
-                MatrixDrive_TurnZObjectMatrixXY(w, (char *)t + 0x30, D_0062C230);
-                w = v70;
-                w2 = v120;
-                MatrixDrive_GetTurnXAngleZY(w, pb, w2);
+                MatrixDrive_TurnZObjectMatrixXY(v120, (char *)t + 0x30, D_0062C230);
+                MatrixDrive_GetTurnXAngleZY(v70, pb, v120);
             }
             v70[3] = 0;
             _SetCurrentMatrix(v70, v70);
             _MulCurrentMatrixL(v110, v70, D_00703020);
-            if (D_0062C230->f_350 == 2 && v60[0] + v60[1] < ang + 0.0f) {
+            if (D_0062C230->f_350 == 2 && ang + 0.0f > v60[0] + v60[1]) {
                 func_0010E088(v120, (short)((ang + 0.0f - (v60[0] + v60[1])) * D_006295C8), v110);
                 GetCurrentQuaternion(D_0062C230->q_2C0, D_0062C230->q_2C0, v120, D_006295CC);
             } else {
                 GetCurrentQuaternion(D_0062C230->q_2C0, D_0062C230->q_2C0, D_002724B0, D_006295D0);
             }
         }
-        GetCurrentQuaternion(b->q1, qF0, b->q1, D_0062C230->f_2B0 * (60.0f / (float)((0x3C - D_00271240[0] * 0xA) / D_00271240[1])));
+        goto L13done;
+      L13mul:
+        qF0p = qF0;
+        func_0010E148(qF0p, qA0, D_0062C230->q_2A0);
+        func_0010E148(qF0p, qF0p, qb);
+        GetCurrentQuaternion(D_0062C230->q_2C0, D_0062C230->q_2C0, D_002724B0, D_006295D4);
+        w = v60;
+      L13done:
+        GetCurrentQuaternion(b->q1, qF0p, b->q1, D_0062C230->f_2B0 * (60.0f / (float)((0x3C - D_00271240[0] * 0xA) / D_00271240[1])));
         if (D_0062C230->f_280 != 0) {
             b->rate = b->rate + (1.0f - b->rate) * (D_0062C230->f_3B0 * (60.0f / (float)((0x3C - D_00271240[0] * 0xA) / D_00271240[1])));
         } else {
             b->rate = b->rate * (1.0f - D_0062C230->f_3B0 * (60.0f / (float)((0x3C - D_00271240[0] * 0xA) / D_00271240[1])));
         }
-        GetCurrentQuaternion(pv, b->q1, qb, b->rate);
-        func_0010E148(qa, qa, pv);
-        InvertCurrentQuaternion(qa);
+        GetCurrentQuaternion(w, b->q1, qb, b->rate);
+        func_0010E148(q30, q30, w);
+        InvertCurrentQuaternion(q30);
         func_0010E1D0(func_00105078(), GetLastQuaternion());
         D_0062C214 = b->rate;
         n = 1;
@@ -816,20 +791,18 @@ done13:;
         void *s0;
         int q;
         float *qa;
-        float *qb;
         func_0010E148(GetLastQuaternion(), GetTableSin(), e->quat);
         func_0010E1D0(func_00105078(), GetLastQuaternion());
         qa = q30;
         GetInverseQuaternion(qa, D_002724B0);
-        qb = q20;
-        func_0010E188(qb, nd->quat, e->quat);
-        GetInverseQuaternion(v60, qb);
+        func_0010E188(q20, nd->quat, e->quat);
+        GetInverseQuaternion(v60, q20);
         if (D_0062C230->f_280 == 1) {
             GetTableArcCos(v60, (short)-(D_0062B728 + D_0062B72A), 0.0f, 0.0f, -1.0f);
             func_0010E148(v60, v60, D_00703030);
         }
         GetCurrentQuaternion(b->q1, v60, b->q1, D_0062C230->f_2B0 * (60.0f / (float)((0x3C - D_00271240[0] * 0xA) / D_00271240[1])));
-        GetCurrentQuaternion(v70, b->q1, qb, D_0062C214);
+        GetCurrentQuaternion(v70, b->q1, q20, D_0062C214);
         func_0010E148(qa, qa, v70);
         InvertCurrentQuaternion(qa);
         func_0010E1D0(func_00105078(), GetLastQuaternion());
@@ -839,6 +812,7 @@ done13:;
     {
         void *s0;
         int n;
+        int nq;
         float t;
         float *qa;
         float *qb;
@@ -849,25 +823,25 @@ done13:;
         qb = q20;
         func_0010E188(qb, nd->quat, e->quat);
         if (D_0062C230->f_320 != 0) {
-            pv = v60;
-            GetInverseQuaternion(v60, D_002724B0);
+            w = v60;
+            GetInverseQuaternion(w, D_002724B0);
         } else {
-            pv = v60;
-            GetInverseQuaternion(v60, qb);
+            w = v60;
+            GetInverseQuaternion(w, qb);
         }
-        GetCurrentQuaternion(v70, pv, qb, D_0062C214);
+        GetCurrentQuaternion(v70, w, qb, D_0062C214);
         func_0010E148(qa, qa, v70);
         InvertCurrentQuaternion(qa);
         func_0010E1D0(func_00105078(), GetLastQuaternion());
         if (D_0062C234->f_1C0 != 0
-            && !((*(unsigned int *)((char *)&D_0055DA10[D_0062C234->f_30] + 0x18C) >> 1) & 1)) {
+            && !((D_0055DA10[D_0062C234->f_30].flags >> 1) & 1)) {
             n = D_0062C234->f_68;
             if (n != 6) {
                 if (n < 7) {
-                    if (n != 0) {
-                        goto swap_weapon;
+                    if (n == 0) {
+                        goto no_swap;
                     }
-                    goto no_swap;
+                    goto swap_weapon;
                 }
                 if (n != 0xE && n != 0x13) {
 swap_weapon:
@@ -918,14 +892,13 @@ no_swap:
         void *s0;
         int q;
         int n;
+        int nq;
         int i;
         float t;
         float len2;
         float ang;
         float *qa;
-        float *pv;
         float *w;
-        float *w2;
         float *qb;
         float *qc;
         func_0010E148(GetLastQuaternion(), GetTableSin(), e->quat);
@@ -943,8 +916,7 @@ no_swap:
             w = v170;
             MatrixDrive_TurnZObjectMatrixXY(w, (char *)t + 0x30, D_0062C230);
             w = v160;
-            w2 = v170;
-            MatrixDrive_GetTurnXAngleZY(w, pb, w2);
+            MatrixDrive_GetTurnXAngleZY(w, pb, v170);
         }
         v160[3] = 0;
         func_00105058();
@@ -952,8 +924,7 @@ no_swap:
         {
             void *t = func_00105078();
             w = v120;
-            w2 = v160;
-            func_0023FDD8(w, t, w2);
+            func_0023FDD8(w, t, v160);
         }
         func_00105068();
         MatrixDrive_ScaleMatrix(&g180[0], &g180[1], v120[0], v120[1], v120[2]);
@@ -963,62 +934,58 @@ no_swap:
         } else {
             short h1 = g180[3];
             short h0 = g180[2];
-            t = func_0010ED30(h1);
+            float t = func_0010ED30(h1);
             v150[0] = func_0010ED30(h0) * t;
             v150[1] = p2o_SetDefaultEnviroment(h0) * t;
             v150[2] = -p2o_SetDefaultEnviroment(h1);
             v150[3] = 0;
         }
-        n = func_0010EEF0(_MulCurrentMatrixR(v150, D_00271BF0));
+        nq = func_0010EEF0(_MulCurrentMatrixR(v150, D_00271BF0));
         _MulCurrentMatrixL(v160, v150, D_00271BF0);
-        func_0010E088(v130, n, v160);
+        func_0010E088(v130, nq, v160);
         func_0010E148(qc, qc, v130);
-        if (D_0062C230->f_220 != 1) {
-            if (D_0062C230->f_220 != 2) {
-                GetInverseQuaternion(v70, qb);
-            } else {
-                func_0010E148(v70, qc, D_0062C230->q_240);
-                func_0010E148(v70, v70, qb);
-            }
-            pv = v160;
-        } else {
+        if (D_0062C230->f_220 == 1) goto L3turn;
+        if (D_0062C230->f_220 == 2) goto L3mul;
+        GetInverseQuaternion(v70, qb);
+        goto L3done;
+      L3turn:
+        {
+            w = v160;
             i = 0;
             ang = MatrixDrive_GetTurnYEAngleXZ(v120);
             n = e->next;
-            if (n != -1) {
-                len2 = ang * ang;
-                pv = v160;
-loop3:
-                {
-                    MfMot *o = &D_0062B758_m[n];
-                    pv[i++] = D_0062B720 * MatrixDrive_GetTurnYEAngleXZ(o->pos);
-                    if (i >= 2) goto done3;
-                    n = o->next;
-                    if (n != -1) goto loop3;
-                }
-done3:;
-            } else {
-                len2 = ang * ang;
-                pv = v160;
-            }
-            v160[1] += D_0062B720 * MatrixDrive_GetTurnYEAngleXZ(
+            len2 = ang * ang;
+            if (n == -1) goto none3;
+            do {
+                MfMot *o = &D_0062B758_m[n];
+                w[i++] = D_0062B720 * MatrixDrive_GetTurnYEAngleXZ(o->pos);
+                if (i >= 2) break;
+                n = o->next;
+none3:;
+            } while (n != -1);
+            w[1] += D_0062B720 * MatrixDrive_GetTurnYEAngleXZ(
                 D_0062B758_m[DebugDisp1CollisionWithColor(D_0062B75C, 0x10)].pos);
             D_0062B728 = func_0010EEF0(
-                (len2 + v160[0] * v160[0] - v160[1] * v160[1]) / ((v160[0] + v160[0]) * ang));
+                (len2 + w[0] * w[0] - w[1] * w[1]) / ((w[0] + w[0]) * ang));
             D_0062B72A = func_0010EEF0(
-                (len2 + v160[1] * v160[1] - v160[0] * v160[0]) / ((v160[1] + v160[1]) * ang));
+                (len2 + w[1] * w[1] - w[0] * w[0]) / ((w[1] + w[1]) * ang));
             func_0010E448(qc, g180[4]);
-            func_0010E588(qc, D_0062B728);
+            func_0010E588(qc, (short)D_0062B728);
             GetInverseQuaternion(v70, qc);
         }
+        goto L3done;
+      L3mul:
+        func_0010E148(v70, qc, D_0062C230->q_240);
+        func_0010E148(v70, v70, qb);
+      L3done:
         GetCurrentQuaternion(b->q1, v70, b->q1, D_0062C230->f_3B0 * (60.0f / (float)((0x3C - D_00271240[0] * 0xA) / D_00271240[1])));
         if (D_0062C230->f_220 != 0) {
             b->rate = b->rate + (1.0f - b->rate) * (D_0062C230->f_3B0 * (60.0f / (float)((0x3C - D_00271240[0] * 0xA) / D_00271240[1])));
         } else {
             b->rate = b->rate * (1.0f - D_0062C230->f_3B0 * (60.0f / (float)((0x3C - D_00271240[0] * 0xA) / D_00271240[1])));
         }
-        GetCurrentQuaternion(pv, b->q1, qb, b->rate);
-        func_0010E148(qa, qa, pv);
+        GetCurrentQuaternion(v160, b->q1, qb, b->rate);
+        func_0010E148(qa, qa, v160);
         InvertCurrentQuaternion(qa);
         func_0010E1D0(func_00105078(), GetLastQuaternion());
         D_0062C214 = b->rate;
@@ -1096,19 +1063,18 @@ done3:;
     {
         void *s0;
         int n;
+        int nq;
         int i;
         float len2;
         float ang;
         float *qa;
         float *qb;
-        float *pv;
         int endflag;
-        float *w170;
-        float *w190;
+        float *wq;
         if (D_0062C230->f_1F4 != 0) {
             endflag = 0;
             i = 0;
-            func_0010E148(GetLastQuaternion(), GetTableSin(), e->quat);
+        func_0010E148(GetLastQuaternion(), GetTableSin(), e->quat);
             func_0010E1D0(func_00105078(), GetLastQuaternion());
             qa = q30;
             GetInverseQuaternion(qa, D_002724B0);
@@ -1119,40 +1085,44 @@ done3:;
             func_0010E300(qb);
             func_00104D20();
             n = e->next;
-            pv = v160;
-            if (n == -1) {
-                w170 = v170;
-                endflag = 1;
-            } else {
-                w170 = v170;
-                w190 = q190;
-loop2D:
+            if (n != -1) {
+                wq = v160;
+                goto body2D;
+            }
+            wq = v160;
+            endflag = 1;
+            goto done2D;
+            do {
+body2D:;
                 {
-                    MfMot *o = &D_0062B758_m[n];
-                    func_00240968(w190, o->pos, D_0062B720);
-                    func_001050A8(w190);
-                    func_0010E300(D_0062C218[n].quat);
-                    pv[i++] = D_0062B720 * MatrixDrive_GetTurnYEAngleXZ(o->pos);
-                    if (i >= 2) goto done2D;
-                    n = o->next;
-                    if (n != -1) goto loop2D;
-                    endflag = 1;
+                MfMot *o = &D_0062B758_m[n];
+                func_00240968(q190, o->pos, D_0062B720);
+                func_001050A8(q190);
+                func_0010E300(D_0062C218[n].quat);
+                wq[i++] = D_0062B720 * MatrixDrive_GetTurnYEAngleXZ(o->pos);
+                if (i >= 2) goto done2D;
+                n = o->next;
                 }
+            } while (n != -1);
+            endflag = 1;
 done2D:;
-            }
-            MatrixDrive_TurnObjectMatrix(w170, (char *)func_00105078() + 0x30);
-            if (e->state == 0x2D) {
-                v170[1] += D_0062C230->f_1F8;
-            } else if (e->state == 0x31) {
-                v170[1] += D_0062C230->f_1FC;
-            }
-            ang = MatrixDrive_GetTurnYEAngleXZ(w170);
+            MatrixDrive_TurnObjectMatrix(v170, (char *)func_00105078() + 0x30);
+            if (e->state == 0x2D) goto add1F8;
+            if (e->state == 0x31) goto add1FC;
+            goto addend;
+add1F8:
+            v170[1] += D_0062C230->f_1F8;
+            goto addend;
+add1FC:
+            v170[1] += D_0062C230->f_1FC;
+addend:;
+            ang = MatrixDrive_GetTurnYEAngleXZ(v170);
             func_00105068();
             len2 = ang * ang;
             s0 = func_00105078();
             func_0023FED0(s0, s0);
-            func_0023FDD8(w170, s0, w170);
-            func_0023FE98(w170, w170);
+            func_0023FDD8(v170, s0, v170);
+            func_0023FE98(v170, v170);
             D_0062B724 = func_0010EE60(v170[1]);
             D_0062B726 = -func_0010EE60(v170[2]);
             D_0062B728 = func_0010EEF0(
@@ -1180,7 +1150,7 @@ done2D:;
         void *s0;
         float *qa;
         if (D_0062C230->f_1F4 != 0) {
-            func_0010E148(GetLastQuaternion(), GetTableSin(), e->quat);
+        func_0010E148(GetLastQuaternion(), GetTableSin(), e->quat);
             func_0010E1D0(func_00105078(), GetLastQuaternion());
             qa = q30;
             GetInverseQuaternion(qa, D_002724B0);
@@ -1199,7 +1169,7 @@ done2D:;
         float *qa;
         float *qb;
         if (D_0062C230->f_1F4 != 0) {
-            func_0010E148(GetLastQuaternion(), GetTableSin(), e->quat);
+        func_0010E148(GetLastQuaternion(), GetTableSin(), e->quat);
             func_0010E1D0(func_00105078(), GetLastQuaternion());
             qa = q30;
             GetInverseQuaternion(qa, D_002724B0);
@@ -1226,9 +1196,11 @@ sin_tail:
     }
     default:
     {
-        void *s0;
-        func_0010E148(GetLastQuaternion(), GetTableSin(), nd->quat);
-        func_0010E1D0(func_00105078(), GetLastQuaternion());
+        void *p0;
+        p0 = GetLastQuaternion();
+        func_0010E148(p0, GetTableSin(), nd->quat);
+        p0 = func_00105078();
+        func_0010E1D0(p0, GetLastQuaternion());
         return;
     }
     }

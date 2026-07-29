@@ -3188,3 +3188,1871 @@ need an e-conflicting allocno on s4 (then s7) before e's pos.
 - e-liveness extend via spurious `D_0062C214=(float)e->state` → right reg wrong
   mechanism (rc631/639, artificial insns). Use ONLY as reachability diagnostic.
 - tight-range v110p/v70p pointers in 0x13 loop arm → still no s4 cascade (cluster before e's death @752 is only 2-3 deep; s0-s3 not pre-blocked for the s4-taker). The deep cluster is the LATE 0x13 region (past 752, e dead). KEY OPEN Q for next worker: does ROM keep e's allocno live past D41CC, or does it build the s4-blocker from an EARLIER case (0x22/0x23) / a cross-case pointer? Simulate candidate e-conflicting allocnos' cascade with oracle.sh before editing.
+
+## Session 12 (2026-07-27, worktree motionmgr, opus). TU left at rc613/377 (unchanged, canonical md5 39f95c32). TWO major findings; NOT a floor.
+
+### ★★ FINDING 1 — PRIOR TOOLING WAS WRONG: the simulator is not class-aware.
+`sim2.py` / `findreg_sim.py` (and everything built on them: who.py, demote.py,
+bundle_sim.py, econf.py, promote_sim.py, undouble_sim.py, target_sim.py) run
+find_reg over PREF=[16..23,30] for **every** allocno, including **FP_REGS**
+pseudos. An SF/DF allocno can never occupy a GP reg, so those sims invent
+phantom GP blockers and mis-attribute who holds s4/s7.
+PROOF: with the case-0x13 per-arm bundle installed, sim2 reported `e -> s7`
+while the **built asm showed `addu $20,$6,$7` (e = $20 = s4)**. The class-aware
+sim (`sim4.py`) predicted s4 correctly.
+=> **All Session 9/10/11 "sim-proven" targeting statements are suspect**, incl.
+"ONLY set {v70p,qF0p,v110p,qn} promotes e", "demoting e alone caps at s7",
+and the s7-blocker identifications. Re-derive them with `sim4.py`.
+NEW TOOLS (this dir): `sim4.py` (class-aware; `sim4.py demote` = demote sweep),
+`oracle4.sh` (compiles the **worktree** TU — old `oracle.sh` compiled
+/primary/dev/ico, the MAIN tree!), `tbl.py` (full alloc table: pos/reg/refs/
+len/pri/e-conflict), `inv.py LO HI` (per-basic-block-range allocno inventory
+with frame-offset identification `fr0xNN`), `map2.py N...` (allocno -> RTL def
++ bb set), `whatif.py <allocno> <len>...` (re-sorts the real allocno_compare
+with an overridden len and reports the resulting trio — **verified to
+reproduce the greg sort order exactly**), `promote2.py` (brute-force: which
+single promotion completes the trio).
+
+### ★★ FINDING 2 — `REG_N_REFS` IS LOOP-DEPTH WEIGHTED; our goto-loops halve it.
+flow.c:3366/3603/3813/4027/4805/4884 `REG_N_REFS (regno) += loop_depth;`
+`loop_depth` comes from flow.c:2038 `calculate_loop_depth`, which counts
+**NOTE_INSN_LOOP_BEG** notes — emitted only by real C loop constructs.
+A `goto` loop emits NO loop note => every reference inside it is counted ONCE
+instead of TWICE. Since global.c allocno_compare pri = floor_log2(refs)*refs/
+live_length*10000, this is a systematic ~4x priority deficit for every
+loop-body allocno.
+VALIDATED PROBE (scratchpad/probe/lp.c): identical code as `while` vs `goto`
+gives IDENTICAL live_lengths but refs 4/9/4/3/4 vs 2/5/3/2/3.
+MEASURED EFFECT ON THIS FUNCTION: converting all three `pv[i++]` goto-loops
+(loop13 / loop3 / loop2D) to `do { ... } while (n != -1);`
+**moved e from s4 to s7** (b->s5, nd->s6 kept) — VERIFIED IN BUILT ASM
+(`lw $17,48($23)` = e->next off $23). rc613 -> 788. First movement on `e` in
+five sessions. Case-2D also snapped to ROM on n=$17/s1 and o=$18/s2.
+
+### ✗ WHY THE LOOP FORM IS NOT (directly) ROM's: it creates a giv.
+With loop notes, loop.c strength-reduces `pv[i++]` into a pointer giv
+(`s.s $f1,0($17)` + `addu $17,$17,4`). **ROM does NOT**: all three ROM loops
+recompute the address every iteration —
+0x13 D40D4 `sll $2,$17,2` + D40D8 `lw $3,0x1B8($29)` + D40E4 `addu $2,$3,$2`;
+0x16 D4C9C/D4CA0/D4CAC; 2D D5354/D5358/D5364. Probe lp3.c: `pv[i++]`,
+`pv[i]; i++;`, `*(pv+i); i=i+1;` ALL give the giv; only an **address-taken**
+`i` suppresses it. So the plain do-while is a codegen divergence — REVERTED.
+OPEN: find the loop spelling that keeps the LOOP NOTE but loses the giv
+(that is the whole ballgame — it is worth real effort). Ideas not yet tried:
+`for(;;)` with the exit tests arranged as ROM, a second biv, an `i` whose
+increment loop.c cannot linearise, or making `pv` non-invariant to loop.c.
+
+### ✗ ALSO TRIED (reverted, rc613->716, NO trio movement):
+ROM's per-arm bundle in case 0x13 — `q1p = b->q1` (ROM $22 at D404C/D40A0/
+D4118/D4428) in all four arms + `v120p = v120` (ROM spill 0x1BC at D4098/
+D4110) in both f_280==1 sub-arms, with v70p/qF0p/v110p/qn moved from
+before-the-`if` into BOTH sub-arms, and b->q1 -> q1p at the two tail
+GetCurrentQuaternion calls. The built asm DOES then emit exactly 4 q1p
+materializations and 2 v120p ones in the right blocks, but they land in
+caller-saved $2/$3, e stayed s4, sites 377->382. Stash:
+`.decomp_stash/rsm_conv_es7_rc716_s382.c`. Class stays open — this is real
+recovered dev structure and will likely be needed once the trio lands.
+
+### EXACT REMAINING GATE (re-derived with the CORRECT sim, base rc613):
+e(86) refs25 len535 pri1865, allocated pos ~61. At its turn s0/s1/s2 are
+hard-blocked, s3 = 986 (qn/v130, fr0x130), s5 = b, s6 = nd, and **s4 + s7 are
+both FREE**. Need TWO more e-conflicting **GR_REGS** allocnos, allocated
+before e (pri > 1865), cascading onto s4 and s7 — or e's own pri lowered into
+the window that the demote sweep reports (use `sim4.py demote`).
+ROM's s7 holders that conflict e are only: v110p-0x13 ($23 @D40B0/D4128),
+v110p-0x16 ($23 @D4A90), qa-2D ($23 @D5284, 1 set + 10 uses, span 162 insns).
+ROM's $23 @D3868 does NOT conflict e ($30 is reused as a different value at
+D3848..D3C4C, so e is dead there — do not count that region).
+`whatif.py` is the fastest way to price any candidate before editing.
+
+### ★★★ FINDING 3 (END OF SESSION 12) — HOW TO GET THE REF WEIGHTING WITHOUT THE GIV.
+`loop.c:find_and_verify_loops` marks a loop **invalid** (and `loop_optimize`
+then SKIPS it entirely: no invariant motion, no strength reduction) when a
+label inside the loop is the target of a jump from OUTSIDE the loop.
+But `flow.c:calculate_loop_depth` only walks NOTE_INSN_LOOP_BEG/END — it does
+NOT consult loop_invalid. So an **invalid** loop still gets loop_depth = 2 and
+still doubles REG_N_REFS for every body reference.
+PROBE (scratchpad/probe/lp4.c, function `G`): a `do {...} while (n != -1)`
+with `if (f) goto mid;` jumping into the body produced
+  - NO giv (`addu $x,$x,4` absent),
+  - `sll $2,$18,2` index recompute — **ROM's exact idiom**,
+  - refs still doubled (refs=4 at live_length=2).
+=> This is the shape class to hunt: a real C loop construct (so the note is
+emitted) that loop.c refuses to optimize. Ways in: a `goto` into the body from
+the `n == -1` arm; a `case`/other label inside the body reached from outside;
+anything that makes find_and_verify_loops bail.
+NEXT WORKER: install that on loop2D/loop13/loop3, then re-read `oracle4.sh`.
+With plain do-while (giv and all) the trio already went b/nd correct + e s4->s7
+(built-asm verified), so if this shape reproduces the ref weighting the trio
+should reach the same point WITHOUT the giv divergence, leaving only the s7
+blocker (price candidates with `whatif.py`, then `promote2.py`).
+
+### ✔ FINDING 3 LANDED (end of Session 12) — TU LEFT HERE, structure-forward.
+Installed the loop-invalid shape on all three loops (semantics unchanged):
+    pv = <arr>;                      /* hoisted out of the arms, as before */
+    if (n == -1) goto noneXX;        /* JUMP INTO THE LOOP BODY -> loop_invalid */
+    do { MfMot *o = &D_0062B758_m[n];
+         ...; pv[i++] = ...; if (i >= 2) break/goto doneXX;
+         n = o->next;
+    noneXX:;
+    } while (n != -1);
+RESULT (built-asm verified, crutch-free):
+  `addu $23,$6,$7`  => **e = $23 = s7** (was s4 for 11 sessions)
+  b = $21 = s5 OK, nd = $22 = s6 OK   => trio 2/3 + e one slot from ROM's $30.
+  NO giv in any of our three loops (the single `addu $x,$x,4` in the TU is in
+  the already-matched sibling pursueNodeList); index recomputed `sll ..,2` as ROM.
+  rc613/377 -> **rc773/385**. Count rose as expected (e's reg change cascades);
+  this is the structure-forward frontier per the convergence contract.
+STASH `.decomp_stash/rsm_conv_loopinvalid_es7_rc773_s385.c`.
+`rsm_carrier_wip.c` intentionally NOT overwritten — it is still the count-best
+(rc613) seed; use the loopinvalid stash as the STRUCTURE seed.
+ONE GATE LEFT: an e-conflicting GR_REGS allocno on **s7** allocated before e
+(pos 65, pri 1865). At e's turn now: s3=986(qn), s4=2291, s5=b, s6=nd,
+s7+s8 FREE. Run `promote2.py` / `whatif.py` on THIS dump to price candidates;
+ROM's e-conflicting s7 holders are v110p-0x13 ($23 @D40B0/D4128), v110p-0x16
+($23 @D4A90), qa-2D ($23 @D5284). Then re-apply the case-0x13 per-arm bundle
+(q1p/v120p, stash rsm_conv_es7_rc716_s382.c) which is ROM-proven structure and
+should collapse the count once the trio is complete.
+
+## Round 7 (opus-5) — rc615/s365 -> rc589/s353
+
+LANDED (all crutch-free; frontier = `.claude/.decomp_stash/rsm_conv_trotscope_rc589_s353.c`,
+md5 5f24baea9557ca1775b5ed860c782dc7, sig 7eaa42cf8483cd04):
+
+1. `(short)D_0062B728` casts on the two `func_0010E588(qA0|qc, D_0062B728)` args
+   (rc615 -> 612 / s365 -> 363).  NOTE: re-probed at rc589 and the cast is now a
+   NO-OP (identical codegen sig with or without it, and with the extern retyped
+   `short`).  The two remaining `lh a1,0(gp)` vs `lhu a1,0(gp)` sites (ROM 1390 /
+   2059) are NOT explained by that global's signedness — different lever needed.
+2. **REG_N_SETS==1 SCOPING (the big one, rc612 -> 589 / s363 -> 353).**
+   `t` and `rot` were declared at case scope and assigned in BOTH arms of the
+   `if (f_308 && f_2D0) {...} else {...}` rate-update pairs (2 pairs, 4 arms).
+   Moving them into each arm's own declaration list
+   (`float w,u,v,one,t,rot;` / `float w,u,one,t,rot;`) makes each a single-set
+   pseudo.  Fixes the swapped FP letters in the else-arms (ROM computes `t`
+   in-place over the f_3AC load reg: `mul.s $f2,$f2,$f1`).
+   Mechanism: local-alloc.c `update_equiv_regs` bails (`no_equiv`) when
+   `REG_N_SETS != 1`, and haifa-sched `birthing_insn_p` only bumps priority for
+   `REG_N_SETS == 1`.  **This axis is not exhausted — sweep other case-scope
+   variables assigned in mutually-exclusive blocks.**
+
+NEGATIVES (tried, reverted, do NOT repeat as-is):
+ - flip `rot = D_00629xxx * (float)D_0062B028` -> `(float)... * D_00629xxx`
+   (all 4 sites): 615 -> 619.  The mul operand order DOES flip in the RTL but the
+   $f0/$f1 letters do not follow; `rot` is a global allocno and the coalescing
+   target is fixed independently.
+ - hoist `hold = 0;` up next to `sumA = 0; cnt = 0;` (to reproduce ROM's third
+   `daddu s7,zero,zero` at the 0x2D loop head): 612 -> 645 AND gcc sinks it
+   anyway — no structural change in that region.  `s7 == hold` is CONFIRMED
+   (`negu s0,s7` feeds `(short)-hold`), so the init-at-top is real; the lever is
+   whatever stops gcc SINKING the def, not the source line position.
+ - block-scoping `eqp` per case (`{ float *eqp = e->quat; ... }` x15): 589 -> 620.
+ - per-case `float *pv;` declarations: NO-OP (identical sig).
+ - `q1a` instead of `q1` in the 3 tail calls (to stop the `q1 = q1a` coalesce and
+   recover ROM's `daddu s4,s6,zero`): NO-OP, cse unifies them.
+
+MECHANISM NAILED DOWN THIS ROUND (from the staged ee-gcc source + a fresh
+`-dG` dump of the live TU, in scratchpad `dump3/`):
+ - The frame-address expressions hash as `(plus:SI (reg:SI 1 at) (const_int K))`.
+   `-dG` gives the exact PRE ledger.  For the CURRENT source, 23 of the 51 PRE
+   substitutions and 15 of the 40 edge insertions are frame addresses:
+     expr 114 = fp+112 (v70)  red=6 ins=5  reaching reg 2614
+     expr 392 = fp+288        red=3 ins=2
+     expr 152 = fp+160        red=2 ins=0
+     expr 231 = fp+192        red=2 ins=2
+     expr 497 = fp+352        red=2 ins=0   (+ 8 singles)
+   The six fp+112 occurrences map to C lines 430, 609, 732, 782, 1013, 1015.
+ - `-dg` (greg) allocno stats for the same build:
+     reg 2614 (fp+112 reaching reg): refs=35 len=1278 pri=1369  pos 773 -> gets s8
+     reg 86  (`e`)                 : refs=25 len= 536 pri=1866  pos 737 -> gets s7
+   ROM has `e` in $s8 and rematerialises fp+112 (16x `addiu <argreg>,sp,112`),
+   i.e. **ROM's 2614-equivalent LOST its hard register and reload remat'd every
+   reference**.  That single fact explains the whole residual opcode delta
+   (addiu -35 / daddu +27 / lw +8 / sw -4) and the 3 extra spill slots (452/456/460).
+ - `allocno_compare` (global.c:794) priority = floor_log2(n_refs)*n_refs/live_length
+   *10000*size.  There is a POWER-OF-TWO CLIFF: 2614 sits at refs=35, just above
+   32.  Shaving it to <=31 drops its priority 1369 -> ~970 (a ~30% cut) and moves
+   it ~60 slots later in the allocation order.  `REG_N_REFS` is loop-depth
+   weighted, so 11 textual references weigh 35.
+ - Minimal-TU probe (scratchpad/probe2/p2.c, p3.c) proves gcc ALWAYS builds a PRE
+   reaching reg for a repeated `&local`, with or without an alias temp — so
+   "add/remove the `float *w =` temp" is NOT the axis.  The alias-temp form (p3)
+   produces slightly MORE `addu $4,$sp,K` remat than the direct form (p2), which
+   is consistent with round 6's counter-intuitive 9->7 observation.
+
+NEXT LEVER (reasoned, untried): make reg 2614 lose.  Two concrete handles —
+ (a) cut its weighted refs below 32 (fold two same-block `&v70` uses behind one
+     block-local pointer, or de-loop-weight a reference: a backward `goto` emits
+     no NOTE_INSN_LOOP_BEG so loop_depth stops inflating REG_N_REFS there);
+ (b) raise its live_length past ~940*35/35 ... i.e. > 1866-equivalent, by giving
+     the fp+112 range a legitimately earlier first occurrence.
+Also unexplored: `allocno_compare`'s FIRST sort key is
+`REG_N_RANGE_COPY_P` (CYGNUS live-range splitting, `range.c` is staged) — nobody
+has checked whether that pass is live here and what marks a reg.
+
+### Round 7, part 2 — the REG_N_SETS==1 SPLIT AXIS pays repeatedly (589 -> 564 / 353 -> 346)
+
+Same lever as `t`/`rot`: any case-scope variable assigned in TWO OR MORE
+mutually-exclusive places is ONE multi-set pseudo; `update_equiv_regs` refuses it
+an equivalence and `birthing_insn_p` refuses it a priority bump.  Splitting it
+into per-site single-assignment variables is semantics-preserving and moves the
+whole coloring.  Landed so far:
+
+  * `t`/`rot` into the four rate-update arms                  612 -> 589 (363 -> 353)
+  * `float t` local to the `f_2B4` min-block AND to the       589 -> 583 (353 -> 351)
+    `f_284` else-block in the big 0x1 case (2 sets -> 2x1)
+  * `n` split into `nq` (the `func_0010EEF0(_MulCurrentMatrixR(...))`  583 -> 564 (351 -> 346)
+    result, 2 sites) vs `n` the `e->next` list cursor
+
+  NEUTRAL (identical sig): splitting `s0` (445/447 and 529/634), per-case `pv`,
+  the mirror-case `t` at 973 (only one set there).
+
+  AMBIGUOUS — SAVED BUT NOT ADOPTED:
+  `.claude/.decomp_stash/rsm_conv_wscope23_rc549_s348.c` — declaring
+  `float *w, *w2;` local to the inner blocks of case 0x23 gives **rc 549 /
+  348 sites**: 15 FEWER differing instructions, identical instruction total
+  (2690) and identical opcode census (addiu -35 / daddu +27 / lw +8 / sw -4),
+  but 2 more hunks.  Left un-adopted only because the chain brief says track
+  SITES.  Re-evaluate this first next round — and then sweep the same
+  block-scoping over the OTHER `w`/`w2` regions (the 0x2D case at C 526-620 and
+  the 0x1 case at 949-963), which have not been touched at all.
+
+FRONTIER: `.claude/.decomp_stash/rsm_conv_nqsplit_rc564_s346.c`
+          md5 eee377cca00c12a848a99fa30d5801d5, sig d70a94a779aab5e1,
+          rc 564 / 346 sites, crutch-free, == the worktree TU.
+
+## Round 8 (opus-5) — rc564/s346 -> **rc489/s249** (biggest single-round drop so far)
+
+FRONTIER: `.claude/.decomp_stash/rsm_conv_carrierelim2_rc489_s249.c`
+md5 2e10565c1614d904b4ace0df1033113b, sig 9254508fa88480ea, crutch-free
+(1 `__asm__` = the D_0062B758 symbol alias). == the worktree TU.
+Census vs ROM: insns 2694/2692, |opcode dev| 78 (was 84), **|s-reg dev| 48
+(was 99)** — the s1 anomaly (ROM 143 / ours 114) is GONE (s1 now -1).
+
+### THE LEVER THAT PAID: DELETE THE CARRIER/ALIAS POINTER VARIABLES
+Round 5-7 had accreted a large set of pointer "carrier" locals
+(`eqp`, `w`, `w2`, `qs`, `qa`, `qb`, `pv`, `v70p`, `v110p`, `qn`, `w170`,
+`w190`, ...) whose only job was `p = <array>;  f(p);`.  Each such variable is
+a MULTI-SET pseudo whose `(set (pseudo) (plus (fp) (K)))` **is visible to
+gcse** (`hash_scan_set` only records a set whose DEST is
+`regno >= FIRST_PSEUDO_REGISTER`), so PRE unifies all its frame-address
+occurrences into one long-lived reaching reg.  Writing the array name
+DIRECTLY at the call site puts the address straight into the hard arg reg,
+which gcse never records — which is ROM's shape.
+Landed, in order (all crutch-free, greedy on SITES):
+  * drop `v70p`  (case 0x13)                    564/346 -> 555/345
+  * drop `v110p` (case 0x13)                    -> 555/344
+  * drop `qn`    (case 0x13)                    -> 548/343
+  * drop `w170`  (case 0x2D)                    -> 509/325   <-- big
+  * drop `w190`  (case 0x2D)                    -> 498/318
+  * **eliminate `eqp` entirely** (write `e->quat`) -> 510/**260**  <-- biggest
+  * eliminate `w2` (all cases)                  -> 501/258
+  * eliminate `qs`                              -> 502/257
+  * eliminate `qb` in case 0x14                 -> 494/253
+  * eliminate `pv` in case 0x31                 -> 493/250
+  * eliminate `qa` in case 0x13                 -> 489/**249**
+Tooling (in scratchpad, reusable): `sweep.py` (single-assignment alias drop),
+`sweep2.py` (whole-function carrier elimination), `sweep3.py`/`sweep4.py`
+(per-case greedy carrier elimination, auto-adopts on SITES then rc),
+`probe.sh` + `census.py` (rc/sites + opcode & s-reg deviation vs ROM),
+`alloc.py` (recompiles a variant with -dg/-dl and reports e/b/nd/eqp
+refs/live_length/priority/pos and the simulated + real hard reg).
+
+### MECHANISM NAILED THIS ROUND (verified against the staged ee-gcc source)
+* `gcse.c:hash_scan_set` records an expression only when SET_DEST is a
+  PSEUDO.  `f(v70)` expands to `(set (hard a0) (plus fp 112))` -> invisible
+  to gcse; `w = v70; f(w)` expands to `(set (pseudo) (plus fp 112))` ->
+  recorded, PRE-unified.  **This is why deleting carriers moves `addiu`
+  toward ROM and why ROM has 370 addiu vs our 335.**
+* `local-alloc.c:update_equiv_regs` can NEVER give `(plus fp K)` an
+  equivalence: it needs a REG_EQUAL/REG_EQUIV note or a MEM src, and a plain
+  frame-address set has neither.  So `reload` can NOT rematerialise a spilled
+  frame-address pseudo -> ROM's 370 `addiu $X,$sp,K` are all COMPILED, not
+  reloaded.  Round 7's "make reg 2614/2630 lose its hard register" plan is
+  therefore mis-aimed: the reg must not EXIST, not merely lose.
+* **e -> $s8 is now fully characterised.**  `allocno_compare` priority =
+  floor_log2(refs)*refs/live_length*10000.  With `e` at refs=25 len=536
+  pri=1865 it is allocated at pos 70 with s7 AND s8 free and takes s7
+  (reg_alloc_order).  A verified probe (`__asm__("" :: "r"(e))` at the END of
+  case 0x23 -> len 811, pri 1282, pos 89) gives **e=s8, b=s5, nd=s6 — the
+  exact ROM trio**.  Window: live_length in [740, ~920] (pri 1075..1388).
+  BUT measured alone it was rc578/s349 (worse) — e=s8 needs the fp+112
+  reaching reg gone at the same time, and after the carrier purge the s8
+  landscape has changed, so RE-MEASURE the window before using it.
+
+### NEGATIVES (do not repeat as-is)
+ - Removing the *value* carriers (v50/v60/qA0/qD0/vC0) in case 0x1 wholesale:
+   675/389, and addiu moved AWAY from ROM (-39).  Only the pure ADDRESS-alias
+   pointers should go; some `w = <array>` carriers are ROM-ward.
+ - ADDING case-0x23-style carriers to case 0x13 / case 0x1: rc654 / rc653,
+   sites flat.  Opcode dev improved but rc +90 — not adopted.
+ - `float *w,*w2` inner-block shadowing in case 0x1 (the wscope23 recipe):
+   564->568.  Outer-only is an exact no-op.
+ - Merging `eqp` into one function-scope `w`: 629/353, both censuses worse.
+ - Shortening reg-2630's live_length to promote it ahead of `e` (whatif sweep
+   1278->600): `e` still gets s7 at every length.  Dead end.
+
+### NEXT LEVERS (reasoned, untried)
+ 1. The carrier-elimination sweep is NOT exhausted — `sweep4.py` stops when no
+    single per-case elimination improves SITES, but it never tries
+    *combinations*, never tries the reverse (INTRODUCING an alias where ROM
+    keeps a value in a register across a call), and the remaining
+    multi-assignment carriers (`w`, `q1`, `q3`, `pb`, `s0`, `t`, `x`, `p0`)
+    were skipped by the name-collision guard.  Re-run with those handled.
+ 2. TENSION TO RESOLVE: dropping `qF0p` gives **rc432** (vs 489) but s262
+    (vs 249).  Several edits show this rc-vs-sites split; one of the two
+    metrics is mis-weighting a real gain.  Diff the two variants' divergence
+    maps to see which is structurally closer.
+ 3. Residual census: addiu -30 / daddu +30 / lw +5 / sw -3, s3 +9 / s4 +12 /
+    s7 +6 / s6 +5 / s8 +5.  s1/s2/s5 are now essentially matched, so the
+    remaining register work is s3/s4 (short-lived per-region allocnos).
+ 4. Re-run `alloc.py` on the NEW base and redo the `whatif.py 86 ...` sweep:
+    the e-live-length window that yields the ROM trio must be recomputed now
+    that the fp+112 reaching reg population has changed.
+
+================================================================================
+ROUND 9  (opus-5, 2026-07-27) — frontier rc489/s249 -> rc481/s256, CENSUS
+SCORE 126 -> 103.  Plus the mechanism for the frame-address class, which
+CORRECTS the round-8 model.
+================================================================================
+
+METRIC USED (per the round-8 handoff's tension-resolver): SCORE = |opcode
+deviation| + |s-register deviation| vs ROM, measured over the whole function
+from `quick_diff` (tool: scratchpad/`r9_m.py`, prints rc / sites / dop / dreg /
+SCORE / insn-count in ~1.5 s).
+
+  round-8 frontier  rc489 s249  dop78 dreg48  SCORE126  n2694
+  round-9 frontier  rc481 s256  dop62 dreg41  SCORE103  n2690   (ROM n=2692)
+
+  stash: .claude/.decomp_stash/rsm_conv_pvcarrier_rc481_s256.c
+         md5 225cc622a0ae411cf2e45091af1c748f  (== the TU now)
+  All 4 siblings re-verified `match 0` after the edit.
+
+WHAT LANDED (greedy chain, scored on (SCORE, sites, rc); tool `r9_greedy.py`
++ the scope-aware carrier eliminator `r9_elim.py`, which unlike round 8's
+`sweep4.py` handles per-scope shadowed names and initialised declarations):
+
+   1. eliminate `q1a`      (case 0x1, b->q1 carrier)      -> SCORE 120
+   2. eliminate inner `pv` (case 0x3)                      -> SCORE 120
+   3. eliminate outer `pv` (FUNCTION-SCOPE multi-set)      -> SCORE 107  <-- big
+   4. eliminate `q1`       (case 0x23)                     -> SCORE 105
+   5. eliminate `tbl`      (case 0x0)                      -> SCORE 103
+
+   Step 3 is the round's real win: dop 74 -> 62.  `pv` was the last
+   FUNCTION-scope multi-assignment pointer carrier; it was invisible to
+   round 8's sweep because of the shadowed inner `pv`.
+
+RESIDUAL on this base:
+   dop: daddu +20, addiu -23, sw -5, lw +2, sll +2, beq +2, mov.s +2,
+        lui +1, bne +1, bnel -1, jal -1, mtc1 -1, mul.s -1
+   dreg: s0 +2, s1 -1, s2 -5, s3 +5, s4 +8, s5 +1, s6 +5, s7 +9, s8 +5
+   ROM materialises 163 `addiu rX,sp,K`; we do 140.  Per-offset gap
+   (ROM-ours): 96:+5, 352:+5, 288:+4, 160:+4, 192:+2, 80:+1, 304:+1,
+   336:+1, 368:+1, 112:-1.
+
+================================================================================
+MECHANISM — THE addiu/daddu CLASS IS RELOAD REMATERIALISATION, NOT GCSE.
+Round 8's "gcse hash_scan_set only records pseudo dests" story is the wrong
+lever.  Derived from the staged ee-gcc source + per-pass dumps + microtests
+(scratchpad/mt/*.c, dumps in scratchpad/d9, scratchpad/d9b).
+================================================================================
+
+ A. `-fno-gcse` produces BYTE-IDENTICAL asm for the microtests that show the
+    shared-reg behaviour, so GCSE is NOT what unifies frame addresses inside a
+    basic block.  **cse.c does**, via `canon_reg`: the 2nd `(set pseudo
+    (plus at K))` joins the 1st one's quantity, so every later reference is
+    rewritten to the canonical pseudo.  (Note the *cost* test in `cse_insn`
+    would have kept the original — COST(plus)=4 == elt->cost=4 and ties prefer
+    `src` — the unification happens earlier, in `canon_reg`.)  Confirmed in
+    `t2.c.jump` vs `t2.c.cse`.
+ B. The CSE'd arg-move insns come out of cse carrying a **REG_EQUAL note
+    `(plus (reg 1 at) K)`**.  `local-alloc.c:update_equiv_regs` promotes such a
+    note to **REG_EQUIV** because `function_invariant_p` explicitly accepts
+    `PLUS(frame_pointer, const)`, and then does `REG_LIVE_LENGTH (regno) *= 2`
+    (halving the allocation priority).
+ C. `reload1.c` (lines ~716-733) then sets
+    `reg_equiv_constant[i] = copy_rtx (x)` for exactly that `(plus fp K)` form
+    (`num_eliminable_invariants++`).  A pseudo with `reg_equiv_constant` that
+    fails to get a hard register is **rematerialised at every reference** —
+    that is where ROM's 163 `addiu rX,sp,K` come from.  It is NOT "ROM never
+    CSE'd them": ROM re-materialises sp+0x60 twice inside ONE basic block
+    (ResetStatic2MotionManager.s lines 430 and 447, block .L001D3340).
+ D. Therefore this class is a pure COLORING question: "does the
+    frame-address pseudo win a hard register or not".  Both builds
+    re-materialise most of them; ROM loses ~23 more of them than we do.
+ E. Measured on our current base (scratchpad/d9b greg+lreg dump, the reporter
+    is inline in the round-9 transcript): ~60 frame-address pseudos.  The ones
+    that ALREADY lose (`-` in dispositions) are 1053/1905/2456 (sp+32),
+    1070/1903 (sp+48), 1078 (sp+160), 2783 (sp+240) — priorities 232..1080.
+    The ones that WIN and that ROM must be spilling are the low-priority
+    long-lived ones:
+        401  (sp+112) refs4 len196 pri408  -> s4
+        408  (sp+96)  refs3 len80  pri375  -> s0
+        2781 (sp+192) refs6 len224 pri535  -> s8
+        2782 (sp+208) refs5 len162 pri617  -> s2
+        1904 (sp+288) refs4 len82  pri975  -> s3
+        1098 (sp+192) refs4 len81  pri987  -> s3
+        2786 (sp+272) refs8 len176 pri1363 -> s7
+        2787 (sp+288) refs9 len180 pri1500 -> s4
+        2790 (sp+352) refs6 len64  pri1875 -> s6
+    Priority = floor_log2(refs)*refs/live_length*10000.  The win/lose frontier
+    in our build sits around pri 1000-1400 and is conflict-, not
+    priority-determined (1078@902 loses, 1904@975 wins).
+    Pseudos 2773..2792 are one-per-frame-offset and consecutive: these are
+    GCSE PRE's `expr->reaching_reg` (cross-block); 401/408/1098/... are cse's
+    per-block canonicals.
+ F. CONSEQUENCE FOR STRATEGY (important): eliminating *value* carriers
+    (b->q1, pb, ...) LOWERS register pressure, which makes the frame-address
+    pseudos MORE likely to win a hard register — i.e. it works against the
+    addiu class.  Round 9's chain got away with it because the `pv` win was
+    larger.  ROM uses s2 five times MORE than us and s1 once more, while we
+    use s3/s4/s6/s7/s8 far more: ROM is holding *values* in the s-registers
+    and re-materialising the *addresses*.  So the next lever is to give the
+    s-registers to values (re-introduce the value carriers ROM kept) so the
+    frame addresses lose the coloring.
+
+NEGATIVES this round (do not redo):
+ * Carrier elimination on (SCORE,sites,rc) is EXHAUSTED at single-step: a full
+   scan of all 63 pointer-local decls on the new base yields no further
+   improvement (`r9_scan.py` / `r9_greedy.py` both say "no gain").
+ * ALL-`pb`-at-once (7 sites) = SCORE119 (worse than 103); all 21 `pb` PAIRS
+   scanned, best is SCORE103 with worse sites/rc.  Single `pb`@L529 gives
+   SCORE101 (dreg 39) at rc489/s257 — judged noise, not a class snap; noted as
+   an alternative base if round 10 wants it.
+ * Splitting multi-assignment pointer carriers into per-site single-assignment
+   vars (`r9_split.py`, C89-legal decls at block head): NO gain anywhere.
+   `w`@case0x3 gives dreg 27 (best dreg seen!) but dop 104 / n2722.
+ * Re-introducing a carrier at a NON-first occurrence (the "reload will
+   rematerialise it" idea) in case 0x23 — no effect (identical to eliminating
+   `w` there): rc489 s257 dop66 dreg55.
+ * `rot = (float)D_0062B028 * D_006295XX` (operand swap, 4 sites): the mul
+   operands swap but the FP register letters do not; ROM keeps the cvt chain in
+   $f0 and the .sdata const in $f1, we do the reverse.  Not an operand-order
+   issue — it is a local-alloc `qty_compare` tie (QTY_CMP_PRI, all ties broken
+   by qty number).
+ * Three re-spellings of `(0x3C - D_00271240[0]*0xA)/D_00271240[1]`
+   (commuted multiply, `(int)` on the divisor, `(int)` on the quotient) are
+   all codegen-IDENTICAL.  The a0/a1 letter swap on the 5 div sites is again a
+   local-alloc qty tie, not a source-order issue.
+ * `-Wunused` says 33 locals in the function are dead (`s0`/`q`/`nq`/`t`/
+   `rot`/`ang` shadows + `pad140`).  Removing them is codegen-neutral;
+   an automated "drop dead decls" pass that also ate 4 STRUCT MEMBER decls
+   produced a bogus dop57/dreg61 — do not trust that number.
+
+TOOLS ADDED (scratchpad/):
+   r9_m.py      variant -> rc/sites/dop/dreg/SCORE/n  (+ signed per-opcode and
+                per-s-reg deltas).  `python3 r9_m.py <file.c>` copies + measures.
+   r9_try.sh    copy variant, measure, and leave the aligned diff in try_qd.txt
+   r9_align.py  <qd.txt> [lo hi ctx] aligned ROM|ours listing by insn index
+   r9_cls.py    <qd.txt> [n k] diff hunks classified by opcode pattern, with
+                branch-target/jal noise normalised away (that noise is ~112 of
+                the 620 raw diff insns and is NOT real)
+   r9_elim.py   scope-aware pure-carrier elimination (handles shadowed names
+                and `T *p = expr;` initialisers)
+   r9_split.py  multi-set carrier -> per-site single-assignment vars
+   r9_scan.py / r9_greedy.py / r9_combo.py   single / greedy / subset drivers
+   mt/*.c       the microtests that established the CSE-not-GCSE result
+
+ROUND 9 ADDENDUM — the s2 cluster, and one more negative.
+
+ * ROM 429..470 is a pure LETTER PERMUTATION of ours with identical structure:
+       ROM   v60 -> s1 (materialised HERE at R436),  b->q1 -> s6,
+             b->q3 -> s3, b->q2 -> s2
+       ours  v60 -> s0 (carried in from R397),       b->q1 -> s6,
+             b->q3 -> s2, b->q2 -> s1
+   i.e. ROM gives v60 a FRESH short-lived allocno inside this region (so it
+   lands in s1) and pushes q3/q2 up to s3/s2; we carry v60 in from far away,
+   which shifts q3/q2 down to s2/s1.  This is the same rematerialisation
+   phenomenon as (C)/(D) above, seen at per-region granularity, and it is the
+   direct cause of the `s2 -5 / s3 +5` census entry.
+ * NEGATIVE: three re-spellings/reorderings of the `{float *q3 = b->q3; float
+   *q2 = b->q2; w = v60; ...}` block in case 0x23 (adding an explicit
+   `float *q1 = b->q1;` carrier, swapping the q2/q3 decl order, and moving all
+   three to plain assignments after `w = v60`) are ALL codegen-IDENTICAL
+   (rc481 s256 dop62 dreg41).  Carrier SPELLING for a struct-field LOAD is
+   codegen-irrelevant here — cse canonicalises them all.  Only carriers for
+   *frame addresses* and only the function-scope multi-set ones (`pv`) moved
+   the needle this round.
+
+================================================================================
+ROUND 10  (opus-5, 2026-07-27, worktree motionmgr) — frontier rc481/s256
+SCORE 103  ->  rc453/s283 SCORE 85 (dop 62->42, dreg 41->43, insn 2690->2696,
+ROM 2692).  THREE STRUCTURAL (not letter) classes found and landed.  The
+residual is now a whole-function s-register distribution problem.
+================================================================================
+
+METRIC (unchanged): SCORE = |opcode dev| + |s-reg dev| via scratchpad/r9_m.py.
+NEW TOOL: scratchpad/r10_al.py — aligns the ROM `.s` (which carries the REAL
+`jal <symbol>` targets) against `objdump -dr` of build/quick_diff/....o and
+diffs the ORDERED CALL-TARGET SEQUENCE.  This is the single highest-signal
+structural probe found so far: it exposes block-order and argument-evaluation-
+order mismatches that the instruction diff buries in letter noise.  RUN IT
+FIRST every round.
+
+LADDER THIS ROUND (all crutch-free; siblings re-verified rc0 after each):
+  base                      rc481 s256 dop62 dreg41 SCORE103 n2690
+  +3-way goto-CFG case 0x13 rc456 s261 dop54 dreg42 SCORE 96 n2690
+  +3-way goto-CFG case 0x3  rc441 s261 dop56 dreg42 SCORE 98 n2692 (n EXACT)
+  +loop-pointer case 0x13   rc456 s273 dop52 dreg49 SCORE101 n2692
+  +loop-pointer case 0x3    rc452 s281 dop44 dreg39 SCORE 83 n2698  <-- best SCORE
+  +arg-order getQuatFromMat rc453 s283 dop42 dreg43 SCORE 85 n2696  <-- TU now
+Stashes: rsm_conv_gotocfg3way_rc441_s261.c, rsm_conv_loopptr_rc452_s281.c,
+         rsm_conv_callorder_rc453_s283.c (== TU, md5 a962bc3c7d6fe91a27597b5b4ea3ece1)
+TENSION FOR ROUND 11: `loopptr` scores 83 and `callorder` scores 85, but only
+`callorder` makes the ORDERED CALL SEQUENCE byte-identical to ROM (a discrete
+structural fact) and has the better opcode census (dop42) and insn count.
+Kept `callorder` per structure-over-count.  Re-decide if a later lever prefers
+the other base.
+
+--------------------------------------------------------------------------------
+CLASS 1 (BIGGEST WIN): the 3-way dispatch in case 0x13 / case 0x3 was the
+WRONG BASIC-BLOCK ORDER.  Nested if/else emits arms in order X,Y,Z; ROM is
+X,Z,Y.
+--------------------------------------------------------------------------------
+ROM (insns 1201-1206 / 1968-1973) is literally:
+      lw v1,0x280(a2); addiu v0,1; beq v1,v0,<ARM1>; addiu v0,2; beq v1,v0,<ARM2>
+      <ARM0 fallthrough> ... b <MERGE>
+   ARM1: ... b <MERGE'>      ARM2: ... (falls through into MERGE)
+so the matching C is a goto-CFG, NOT nested if/else:
+      if (D_0062C230->f_280 == 1) goto L13turn;
+      if (D_0062C230->f_280 == 2) goto L13mul;
+      <arm0>; goto L13done;
+    L13turn: { <the big f_280==1 arm> } goto L13done;
+    L13mul:  <the f_280==2 arm>            /* falls through */
+    L13done: ...
+This alone took rc 481->441 and made the instruction count EXACT (2692).
+Generalise: any `if (x != K1) { if (x != K2) A else B } else C` in this file is
+a 3-arm goto-CFG in ROM with the K2 arm placed LAST.  Only two such sites exist
+(case 0x13 @f_280, case 0x3 @f_220) and both are now converted.
+
+--------------------------------------------------------------------------------
+CLASS 2 (BIG WIN): `arr[i++]` with a VARIABLE index must go through a POINTER
+carrier, or gcc reassociates to `(sp + i*4) + K` instead of ROM's `(sp+K) + i*4`.
+--------------------------------------------------------------------------------
+ROM case 0x13 loop:  sll v0,s1,2 ; lw v1,0x1B8(sp) ; addu v0,v1,v0 ; swc1 f1,0(v0)
+ours (before):       sll v0,s1,2 ; addu v0,v0,sp   ; swc1 f1,96(v0)
+Fix = `w = v60;` at the head of the arm and rename EVERY v60 reference inside
+that arm to `w` (case 0x13) / v160->w (case 0x3).  dop 56 -> 44.
+IMPORTANT NEGATIVE: renaming ONLY the `w[i++]` store and leaving the constant-
+index reads as `v60[0]`/`v60[1]` is far WORSE (dreg 39 -> 80, s5 -22).  All-or-
+nothing inside the arm.
+The third such loop (case 0x2D/0x31, `v160[i++]`) already matches ROM — do NOT
+convert it.
+
+--------------------------------------------------------------------------------
+CLASS 3: ARGUMENT EVALUATION ORDER is a real, checkable class.
+--------------------------------------------------------------------------------
+`getQuaternionFromMatrix(func_00105078(), (char*)&D_0062C218[DebugDisp1Collision
+WithColor(D_0062B75C,0x16)] + 0x10)` evaluated 105078 first; ROM evaluates the
+DebugDisp arg FIRST.  Hoisting the 2nd arg into a `void *m` temp before the call
+reproduces ROM.  After this, r10_al.py reports the ORDERED CALL SEQUENCE as
+byte-identical to ROM except ONE call (see below).
+
+--------------------------------------------------------------------------------
+THE ONE REMAINING MISSING CALL (jal -1) IS A CROSS-JUMP, AND IT IS A SYMPTOM,
+NOT A LEVER.
+--------------------------------------------------------------------------------
+ROM insn 1217 `jal GetCurrentQuaternion` (case 0x13 arm0, const D_006295C4) is
+absent in ours: gcc's post-reload cross-jumping (jump.c, run AFTER reload)
+tail-merged it with arm2's `jal GetCurrentQuaternion` (const D_006295D4),
+because our two arm tails are IDENTICAL post-reload.  ROM's are not: ROM's arm0
+tail is `addiu v1,sp,0x60 ; b ; sw v1,0x1B8(sp)` and arm2's is
+`addiu v0,sp,0x60 ; sw v0,0x1B8(sp)` — different scratch register.  Those two
+insns are the reload spill of the &v60 pseudo, which we colour instead of
+spilling.  => the missing jal will reappear by itself the moment the &v60
+spill class matches.  Do not attack it directly.
+
+--------------------------------------------------------------------------------
+MECHANISM, NAILED WITH THE STAGED SOURCE + `-dg/-dl/-dG/-dc` DUMPS
+(scratchpad/d10/motionFileManager.c.{lreg,greg,gcse,combine,jump})
+--------------------------------------------------------------------------------
+ A. The addiu/daddu class in case 0x23 is ONE COALESCED QUANTITY.  Dump proof:
+      (insn 1502) (set (reg 408) (plus at 96))  + REG_EQUIV (plus at 96)
+      (insn 1508) (set (reg a2) (reg 408))            <- the func_0023FDD8 arg
+      (insn 1735) (set (reg/v 287) (reg 408))         <- `w = v60` at src L413
+    reg 408 is the gcse-PRE reaching_reg for `(plus sp 96)`; insn 1735 is PRE's
+    replacement of `w = v60` by a COPY from it; local-alloc then coalesces
+    408+287 into one quantity -> s0.  Dispositions: `408 in 16`, `287 in 16`.
+    ROM instead has 408-equivalent SPILLED (so reload rematerialises it at
+    every ref: `addiu a0,sp,96` @383, `addiu a2,sp,96` @400) and 287 (`w`,
+    2 sets: sp+0x60 then sp+0x90, hence NO REG_EQUIV, hence a real allocno)
+    coloured s1 and REUSED for both values.  Same story for `p`-like v70/qA0
+    -> ROM s0 reused at 475 and 486.
+ B. `gcse.c:hash_scan_set` gates `insert_expr_in_table` on
+    `regno >= FIRST_PSEUDO_REGISTER`, so hard-reg (call-argument) destinations
+    are NOT candidates for PRE.  But gcc's `store_one_arg` computes arg values
+    into PSEUDOS first, so frame-address args ARE PRE candidates anyway.
+ C. This gcse has the CYGNUS-LOCAL code-hoisting pass, but `gcse_main` gates
+    `one_code_hoisting_pass()` on `optimize_size` — DEAD at -O2.  Stop
+    considering code hoisting.
+ D. `-fno-gcse` (throwaway diagnostic on the real TU, never adopted) still
+    hoists sp+112/sp+96 into s-regs, so within-block unification is cse and the
+    cross-block one is PRE; neither can be removed by carrier spelling.
+
+NEGATIVES THIS ROUND (do not redo):
+ * Adding a NEW pointer carrier is codegen-NEUTRAL (added `p = v70` / `p = qA0`
+   in case 0x23's later block: byte-identical).  Confirms round 9.  But
+   REMOVING existing ones is NOT neutral and is WORSE: dropping all three early
+   `w = v70/v60/v50` in case 0x23 = SCORE101; individually A(w=v70)=86,
+   B(w=v60)=113, C(w=v50)=98 vs base 83.  Variant B makes the region strictly
+   worse (three regs: s3=sp+112, s4=copy of s3, s1=sp+96).
+ * Hoisting `qF0p = qF0;` above the case-0x13 dispatch: the pseudo becomes
+   single-set and is SPILLED to a stack slot (`sw v0,432(sp)`) instead of
+   winning s4 like ROM.  rc441 s257 but sw -8 / addiu -19 / n2686.  Rejected.
+ * Using `w` in the case-0x13 MERGE tail too (`GetCurrentQuaternion(w,...)`):
+   SCORE111.  Hoisting `w = v60` above the dispatch: SCORE136.  Both rejected.
+ * `rot = (float)D_0062B028 * D_006295XX` at all 4 sites: census IDENTICAL
+   (dop42/dreg43) but rc 453->457.  Third independent confirmation that the
+   f0/f1 letters there are a local-alloc FPR qty tie, not operand order.
+
+RESIDUAL ON THE TU (rc453 s283 dop42 dreg43 n2696):
+  dop:  lw +7, daddu +10, addiu -13, sw -2, mov.s +2, beq +2, bne +1, lui +1,
+        sll 0, bnel -1, jal -1, mtc1 -1, mul.s -1
+  dreg: s0 +6, s1 -7, s3 +1, s4 +12, s5 +1, s6 +4, s7 +7, s8 +5
+  In r9_cls terms ~108 of the 581 "diff" insns are pure branch-target/jal base
+  noise; the real classes are 55 daddu + 19 addiu + 18 lw letters, the 29-insn
+  frame-address hoist class (`SEQ addiu->daddu` 18 + `SEQ ()->addiu` 11),
+  8 lwc1, 9 sw.
+
+S-REGISTER LETTER MAP (exact sites; tool inline in the round-10 transcript,
+63 sites).  These are CLEAN SINGLE-REGISTER SWAPS per region, i.e. groups:
+  256-275   ROM s7->ours s8, ROM s4->ours s7
+  369-506   case 0x23: ROM s1->s0, s2->s1, s3->s2 (12 sites) — round 9's
+            "ROM materialises v60 fresh at 436" cluster, mechanism (A) above
+  836-861   case 0x1 int-div block: ROM s7->s0, s2->s1/s4, s3->s7 (8 sites)
+  905-936   ROM s0->s3 (3), ROM s1->s0, ROM s0->s2
+  1102-1104 ROM s2->s6
+  1321-1338 ROM s2->ours s3 (5 sites)
+  1691-1727 ROM s4(=sp+0x30 q30)->ours s2 (5 sites)
+  2056-2067 ROM s2->ours s4 (4 sites)
+  2327-2353 ROM s3(=sp+0x30 q30)->ours s2 (6 sites)
+Note 1691 and 2327 are the SAME source shape (`qa=q30; qb=q20`) in two
+different cases and ROM gives them DIFFERENT letters (s4 vs s3) — proof these
+letters are decided by GLOBAL allocno priority order across the whole function,
+not by local shape.  Also at ROM 939-957 (case 0x1, f_3B4/f_3B8 block) ROM
+COLOURS qF0 in s4 and another pointer in s8 where WE SPILL them to 424(sp) and
+420(sp) — i.e. we are register-STARVED there while over-using s4 elsewhere.
+
+NEXT LEVERS FOR ROUND 11 (reasoned, in order):
+ 1. RUN scratchpad/r10_al.py FIRST.  The call sequence is currently ROM-exact
+    except the cross-jumped GetCurrentQuaternion, so any NEW structural edit
+    that perturbs it is immediately visible.  Also add an "argument-evaluation
+    order" pass over every multi-arg call with a nested call/index expression —
+    class 3 paid, and there are more such calls in cases 0x1, 0x3, 0x2D.
+ 2. The frame-address class is now precisely localisable: for each
+    `SEQ addiu->daddu` / `SEQ ()->addiu` site, find the gcse reaching_reg
+    pseudo in scratchpad/d10/*.lreg (`grep 'const_int <K>'`), check whether it
+    is COALESCED with a user-variable pseudo via a `(set (reg/v N) (reg M))`
+    copy (mechanism A).  Breaking that coalesce is the goal; the lever is to
+    make the user variable's pseudo have >=2 DIFFERENT set VALUES (which kills
+    REG_EQUIV and makes it a real allocno like ROM's) while keeping the PRE
+    pseudo's only other refs hard-reg args.  Concretely for case 0x23: `w` must
+    NOT be assigned sp+96 twice (lines 383 and 413 both do `w = v60`) — the two
+    identical `(plus sp 96)` pseudo-dest occurrences are exactly what PRE keys
+    on.  Try giving the EARLY one a different variable that is later reassigned
+    a DIFFERENT array (so it has 2 distinct values and no REG_EQUIV), rather
+    than deleting it (deleting was tested and is worse).
+ 3. The s-register letter groups above are a global-priority ordering problem.
+    A principled attack: dump `Pass 1 registers to be allocated in sorted order`
+    from scratchpad/d10/*.greg, and compare the implied ORDER against what ROM's
+    letters require.  Anything that changes refs/live_length of the FUNCTION-
+    WIDE allocnos (e, b, nd, mem, D_0062C230, D_0062B75C, qb, the %hi of
+    D_002724B0) reorders the whole map — that is the group-snap knob, and it is
+    reachable from the source (how often each is re-read vs cached).
+ 4. Untouched all chain: `allocno_compare`'s first sort key REG_N_RANGE_COPY_P
+    (CYGNUS live-range splitting, `range.c` staged).  Still nobody has checked
+    whether that pass runs here.
+
+ROUND 10 ADDENDUM — the `w`-allocno unification probe (SAVE, worth resuming).
+ * New tool scratchpad/r10_letters.py — counts pure s-REGISTER-LETTER diff sites
+   (same opcode, same operands modulo s-regs).  Use it alongside r9_m.py: it is
+   a cleaner read on "how many groups are still mis-lettered" than dreg.
+ * Stash rsm_conv_wq90tail_rc457_s281.c = the 85-base plus `func_0010E148(w,
+   s0, qb)` / `GetCurrentQuaternion(GetLastQuaternion(), b->q1, w, b->rate)` at
+   case 0x23 lines 434/435 (i.e. `w` carries the q90 value OUT of the else-arm
+   into the join block, which is what ROM's s1 does: ROM's s1=sp+0x90 has uses
+   at insns 482, 491, 528, 535 — the last two are AFTER the if/else join).
+   Result rc457 s281 dop46 dreg43 SCORE89 n2696, LETTERSITES 57 (vs 61 on the
+   85 base).  STRUCTURALLY BETTER: the whole 438-491 window collapses to a
+   SINGLE uniform letter error (`ROM s1 -> ours s3`), i.e. `w` is now ONE
+   allocno holding sp+0x60 then sp+0x90 exactly like ROM, instead of being
+   split across s0 (v60 value, coalesced with the gcse-PRE reg) and s3 (q90
+   value).  NOT kept as the TU because dop 42->46 and rc 453->457 and SCORE
+   85->89.  Round 11: take this variant and hunt the ONE thing that moves that
+   allocno s3 -> s1 (i.e. that occupies s1/s2 earlier in the case), then it
+   should beat 85 outright.
+
+================================================================================
+ROUND 11  (opus-5).  TU UNCHANGED = rsm_conv_callorder_rc453_s283.c
+                     md5 a962bc3c7d6fe91a27597b5b4ea3ece1
+                     rc453 s283 dop42 dreg43 SCORE85 n2696, siblings all rc0.
+No frontier improvement.  What round 11 bought is MECHANISM + a new ORACLE +
+three RETIRED experiment classes.  Read all of it before iterating: three of
+the levers rounds 8-10 kept re-trying are now provably codegen-neutral.
+================================================================================
+
+*** NEW ORACLE (use this every round): scratchpad/r11_census.py ***
+  Reads global.c's own decision table out of the `-dg` dump:
+     "Pass 1 registers to be allocated in sorted order:  Register N, refs = R,
+      live_length = L"          <- the priority order, verbatim
+     ";; Register dispositions:  N in H"   <- who WON which hard reg
+  `python3 r11_census.py 401 408` prints rank / refs / ll / priority and whether
+  the pseudo WON a hard reg or LOST (=spilled or rematerialised).  Nobody in
+  rounds 1-10 used this; it replaces guessing the census from the asm.
+  priority = floor_log2(refs) * refs * 10000 / live_length   (verified vs dump)
+
+--------------------------------------------------------------------------------
+FINDING 1 (THE BIG ONE) - the whole addiu/daddu residual class is TWO NAMED
+PSEUDOS that WON a hard register where ROM's LOST and got rematerialised.
+--------------------------------------------------------------------------------
+dop `addiu -13 / daddu +10` decomposes per frame offset (tool inline below):
+    off   ROM OURS  delta        off   ROM OURS delta
+     80     8    7   -1          288     7    3   -4
+     96    19   13   -6          304     4    3   -1
+    112    17   18   +1          336     3    2   -1
+    192     6    4   -2          352    11   10   -1
+    240     4    5   +1          TOTAL 163  149
+In case 0x23 the two culprits are, EXACTLY:
+    reg 401 = (plus (reg at) 112)  [&v70]  refs=4 ll=196 pri=408 rank 868/956
+              -> won hard reg 20 (s4)      [insn 1421, has REG_EQUIV]
+    reg 408 = (plus (reg at)  96)  [&v60]  refs=3 ll= 80 pri=375 rank 870/956
+              -> won hard reg 16 (s0)      [insn 1502, has REG_EQUIV]
+Both are gcse-PRE reaching_regs.  ll is ALREADY DOUBLED by update_equiv_regs
+(local-alloc.c: `REG_LIVE_LENGTH (regno) *= 2;` for any REG_EQUIV pseudo), i.e.
+real lengths are 98 and 40.  Because they carry `REG_EQUIV (plus at K)`,
+reload1.c:716-733 REMATERIALISES them at every reference if they fail to get a
+hard reg -- and that is literally ROM's asm:
+   ROM 385 `addiu $6,$29,0x70` + ROM 475 `addiu $16,$29,0x70`  = refs of reg401
+   ROM 400 `addiu $6,$29,0x60` + ROM 436 `addiu $17,$29,0x60`  = refs of reg408
+so ROM's s1 at 436 is the `w` allocno (our reg 287) initialised by the
+COALESCED remat, and ROM's s0 at 475 likewise.  => THE OBJECTIVE IS: make
+reg401 and reg408 LOSE.  Verify with r11_census.py, not with the asm.
+They sit exactly ON the spill boundary; their rank NEIGHBOURS already spill:
+   rank 866 r1084 refs9  ll550 pri490 SPILL
+   rank 867 r698  refs6  ll257 pri466 SPILL
+   rank 868 r401  refs4  ll196 pri408 -> s4       <- must flip
+   rank 869 r1898 refs5  ll265 pri377 SPILL
+   rank 870 r408  refs3  ll 80 pri375 -> s0       <- must flip
+   rank 871 r85   refs8  ll661 pri363 SPILL
+Quantitative targets (pure arithmetic on the priority formula):
+   reg408 loses if pri < ~344  =>  ll > 93 (from 80)  OR refs 3->2 (pri->250)
+   reg401 loses if pri < ~377  =>  ll > 212 (from 196) OR refs 4->3 (pri->153;
+          the floor_log2 step 2->1 makes a refs reduction very cheap)
+NOTE a spilled non-equiv pseudo goes to MEMORY (sw/lw), a spilled REG_EQUIV
+pseudo is REMATERIALISED - verified with a microtest (scratchpad/mt11/b.c).
+That is how you tell the two failure modes apart in the asm.
+
+--------------------------------------------------------------------------------
+FINDING 2 - RETIRED CLASS: frame-address POINTER-CARRIER SPELLING IS
+CODEGEN-NEUTRAL.  Stop spending rounds on carrier add / remove / rename.
+--------------------------------------------------------------------------------
+A local pointer holding `(plus at K)` is fully const-propagated and its
+assignment insn is DELETED; only an assignment that must survive as a real
+register copy creates a pseudo-dest gcse table entry.  Verified this round:
+ * case 0x23 GetMatrixFromQuaternion block, replacing `w` by `v60` at the
+   func_0010E148 use (V1), at ResetDynamicMotionManager+func_0010E148 (V2), and
+   at ALL SIX uses i.e. deleting the carrier entirely (V3):
+   V1/V2 byte-identical to base (rc453 s283 dop42 dreg43 n2696);
+   V3 rc455 with IDENTICAL census.
+ * case 0x1 `float *q1 = b->q1; GetMotionMemorySize(q1, mem, q3);` (Q1) and the
+   half-way form (Q2): both byte-identical to base.
+The RTL proves it: the source `w = v70; MatrixDrive_TurnZObjectMatrixXY(w,...)`
+produces NO `(set (reg/v W) (plus at 112))` insn at all - just
+`(insn 1397 (set (reg:SI 4 a0) (plus:SI (reg:SI 1 at) (const_int 112))))`.
+What DOES matter is how many pseudo-dest occurrences of the EXPRESSION exist
+(gcse.c:2234 `hash_scan_set` records ONLY sets whose dest regno >=
+FIRST_PSEUDO_REGISTER), and where PRE therefore inserts its reaching_reg.
+Removing the early `w = v60` in case 0x23 (variant A) is NOT neutral but is
+WORSE and does NOT snap the class: rc456 s277 dop48 dreg59 n2698, and
+offset-96 went 13->12 (further from ROM's 19).  Variant B (`...(v60, pb, w)`)
+rc467 s280 dop48 dreg45.  Removing all three early carriers: rc461 s284 dop46
+dreg49 addiu-15.  ALL WORSE - do not redo.
+
+--------------------------------------------------------------------------------
+FINDING 3 - RETIRED CLASS: the `rot` multiply operand swap is REFUTED at the
+RTL level, for the 4th and last time.  It is an FPR local-alloc tie.
+--------------------------------------------------------------------------------
+RTL: `(insn 592 (set (reg/v:SF 183) (mult:SF (reg:SF 210) (reg:SF 208))))`
+with 210 = D_006295A8 and 208 = (float)D_0062B028.  The BASE already emits
+ROM's exact `mul.s $f0,$f0,$f1`; writing `(float)D_0062B028 * D_006295A8`
+changes the asm to `mul.s $f0,$f1,$f0`, i.e. STRICTLY WORSE (rc453->457, census
+identical).  The residual is only which FPR holds which value:
+   ROM  156 lwc1 $f0 / 157 cvt.s.w $f0 / 158 lwc1 $f1 / 160 mul.s $f0,$f0,$f1
+   OURS 156 lwc1 $f1 / 157 cvt.s.w $f1 / 158 lwc1 $f0 / 160 mul.s $f0,$f0,$f1
+Post-sched1 the cvt qty spans 4 luids (refs 2 -> QTY_CMP_PRI 5000) and the
+const qty spans 2 (refs 2 -> 10000), so the const is allocated first and takes
+$f0.  ROM needs the CVT allocated first => its span must be <= the const's, or
+the const's must be longer.  Worth ~8 diff insns.  Do not swap the operands.
+
+--------------------------------------------------------------------------------
+FINDING 4 - the 4x a0/a1 swap in the D_00271240 divide is an EXACT local-alloc
+TIE, now fully computed.  ~34 diff insns, the 2nd-biggest single class.
+--------------------------------------------------------------------------------
+Sites: source lines 311, 321, 474, 484 ONLY (the four inside a
+`float w,u,v,one,t,rot;` diamond).  The other 10 D_00271240 sites ALREADY MATCH,
+so this is not about the expression - it is about the surrounding FP statements
+being scheduled into the divide's live ranges.
+local-alloc.c: QTY_CMP_PRI(q) = floor_log2(n_refs)*n_refs*size / (death-birth)
+             * 10000 ; qty_compare_1 tie-break is `q1 - q2` = qty CREATION order.
+From the lreg dump at the first site:
+   reg 187 = D_00271240[0] value  refs 2 ll  5   } combine_regs merges these:
+   reg 188 = the product          refs 2 ll  7   } qty refs 4, span ~11
+   reg 200 = D_00271240[1] value  refs 4 ll 11   (set + trap_if + div + mod)
+   => both qtys score floor_log2(4)*4/11*10000 = 7273.  EXACT TIE.
+   Tie broken by creation order; reg187 is created first -> takes a0 (reg 4),
+   reg200 gets a1.  ROM has the DIVISOR in a0 and `mult a1,a1,a2`, i.e. ROM's
+   reg200-qty sorts FIRST.
+Levers (all arithmetic, all checkable): give reg200 refs 5 (pri 9091) or span
+<=10 (pri 8000); or lengthen the {187,188} qty span to >=12 (pri 6667).  Since
+spans are post-sched1 luid counts, the reachable knob is WHICH surrounding
+statements land inside each span - i.e. the statement order / temp structure of
+the `w,u,v,one,t,rot` block, not the divide expression itself.  The three
+"codegen-identical respellings" of earlier rounds failed because they changed
+neither refs nor span.
+
+--------------------------------------------------------------------------------
+FINDING 5 - the SPILL-SLOT CENSUS is a first-class structural oracle.
+--------------------------------------------------------------------------------
+Prologue, epilogue, frame size (656 = 0x290) and the whole saved-reg set
+(s0-s8 + $f20-$f22) are ALREADY byte-identical to ROM.  Slot 416 = the `mem`
+local (matched, 1 sw + 7 lw in both).  MEMORY-spilled allocnos:
+   ROM  8 slots: 420 424 428 432 436 440 444 448
+   OURS 11     : 420 424 428 432 436 440 444 448 452 456 460
+The 3 extra are concentrated in case 0x3 at asm 1861-1901.  There ROM
+   colours qb (=q20) in s4 (ROM 1863 `addiu s4,sp,32`, reused at ROM 1975)
+   and REMATERIALISES v120/v150/v130/v160 (ROM 1898 `addiu a0,sp,288`,
+   1925 `addiu a0,sp,336`, 1900/1963 `addiu a2,sp,352`, 1961 `addiu a0,sp,304`),
+   and keeps TWO regs on v110 (ROM 1868 s7=sp+272, 1873 `daddu s2,s7,zero`);
+   WE spill qb -> 440(sp) and v160 -> 460(sp) and hoist v120->s7, v150->s2,
+   v130->s0, v110->s4.
+Also ROM 698-710 keeps b->q3 in s8, b->q1 in s6 and does `daddu s4,s6,zero`
+for `q1`, plus THREE zero-init s-regs (s2@704, s7@706, s3@710) before the
+`n == 1` test; we spill two values to 420/424 there and have only two zeros.
+
+--------------------------------------------------------------------------------
+FINDING 6 - the case-0x23 q90 PRE structure is ALREADY CORRECT in the base.
+Round 10's addendum lever (`wq90tail`) is RETIRED.
+--------------------------------------------------------------------------------
+ROM insn 369 `addiu $17,$29,0x90`, sitting in the delay slot of the then-arm's
+`b .L001D3558` (= insn 510, the join), is the PRE EDGE INSERTION for the join
+uses at 528/535 - not a source-level assignment in the then-arm.  Our base has
+the identical insn at 368 with s3 instead of s1.  So the base already
+reproduces ROM's structure there; only the LETTER differs, and `wq90tail`
+(writing `w` in the join) is a second, worse route to the same structure.
+
+--------------------------------------------------------------------------------
+COMPILER SOURCE FACTS READ THIS ROUND (cite these, don't re-derive)
+--------------------------------------------------------------------------------
+ * local-alloc.c update_equiv_regs: `if (REG_N_SETS(regno) != 1 && (!note ||
+   !function_invariant_p(XEXP(note,0)) || ...)) no_equiv();`  -- a MULTI-SET
+   pseudo KEEPS REG_EQUIV if every set has the same invariant REG_EQUAL value.
+   And for any REG_EQUIV pseudo: `REG_LIVE_LENGTH (regno) *= 2;`.
+ * local-alloc.c QTY_CMP_PRI / qty_compare_1 / qty_sugg_compare: exact formula
+   above; suggested-reg qtys are allocated in a FIRST pass before the
+   priority pass; final tie-break is qty creation order.
+ * cse.c invalidate_for_call: invalidates ONLY hard regs (+ in_memory exprs).
+   A pseudo equivalence for `(plus sp K)` therefore SURVIVES calls -- which is
+   why plain frame-address hoisting happens (microtest scratchpad/mt11/c.c
+   reproduces it, and it is NOT gcse: -fno-gcse changes nothing there).
+ * gcse.c:2234 hash_scan_set records ONLY sets with a PSEUDO destination.
+ * gcse.c:4720-4760 pre_insert_copy_insn: when the available occurrence is a
+   CALL PARAMETER LOAD it inserts the recomputation BEFORE THE FIRST PARAMETER
+   LOAD of that call.  That is exactly our extra `addiu s0,sp,96` at asm 397
+   and `addiu s4,sp,112` at asm 382.
+ * gcse_main gates one_code_hoisting_pass on optimize_size => DEAD at -O2
+   (re-confirms round 10).
+
+--------------------------------------------------------------------------------
+OTHER MEASUREMENTS THIS ROUND (all reverted)
+--------------------------------------------------------------------------------
+ * `hold = 0;` hoisted above `if (n == 1)` in case 0x1 (ROM has three zero-init
+   s-regs there): rc491 s293 dop46 dreg40 n2700.  dreg IMPROVES 43->40 (it
+   kills the s5 +1 letter) but dop 42->46 and n +4.  The ONLY edit found this
+   round that improved dreg - revisit it TOGETHER with the reg401/408 work.
+ * Moving `n = D_0062C230->f_30C` after `cnt = 0` (H2): identical to H1.
+
+--------------------------------------------------------------------------------
+NEXT LEVER FOR ROUND 12 (reasoned)
+--------------------------------------------------------------------------------
+1. Drive `python3 scratchpad/r11_census.py 401 408` as the primary gate, not
+   r9_m.py.  The goal is a printed "*** SPILLED/REMAT ***" for both.  Every
+   candidate edit is one ~1s compile.
+2. Because carrier spelling is neutral (Finding 2) and their refs are fixed by
+   the semantics, the reachable knob for reg401/reg408 is their LIVE_LENGTH,
+   which is a luid count: it grows when MORE insns are scheduled between their
+   first and last reference.  Both ranges lie in case 0x23 asm ~380-490.  So
+   the edits to try are ones that ADD work inside that window or move work
+   into it - e.g. the statement order of the `g80[]`/AddMotionMemorySize block
+   (asm 403-434) which sits between reg408's two references, and the
+   `D_0062C238 == 4` negation diamond.  reg401 needs only +8% ll, reg408 +17%.
+3. Independently: Finding 4 is ~34 diff insns and is a pure two-qty tie with a
+   computed target - attack the statement/temp order of the four
+   `float w,u,v,one,t,rot;` blocks (lines 305-330 and 468-492) so that either
+   the divisor qty gains a ref/loses a luid, or the {value,product} qty gains
+   luids.  Check with the lreg dump's "used N times across M insns" lines for
+   the two pseudos, exactly as in Finding 4.
+4. Finding 5's three extra memory spills in case 0x3 remain unattacked and are
+   a separate, independently checkable class (ROM 8 slots vs our 11).
+
+ROUND-11 ADDENDUM - three more CODEGEN-IDENTICAL negatives on Finding 4 (the
+D_00271240 a0/a1 tie).  All measured on the callorder base, case-0x22 then-arm,
+checked at the insn-128..145 window (letters unchanged in every case):
+  C1  `v = one - w;` moved AFTER the `t = ...` divide          -> identical
+  C2  `{ int dv = D_00271240[1]; ... / dv }` (divisor temp 1st)-> identical
+  C3  `t = ...` moved to the TOP of the block (before w/one/v) -> identical
+Diagnosis: the two competing qtys are a TRUE tie (both refs 4, both span 11) and
+the tie-break `q1 - q2` is qty CREATION order, which is the POST-SCHED1 order.
+sched1 always emits the D_00271240[0] load first because it heads the long
+dependence chain [0] -> mult -> subu -> div, so reordering the surrounding FP
+statements cannot move it.  => this class is NOT reachable by statement order.
+The only remaining knobs are (a) refs (fixed by the div/mod/trap_if pattern and
+by combine_regs merging the [0] value with the product), (b) qty_size (would
+need a 64-bit type -> wrong insn), or (c) a COPY PREFERENCE on the divisor qty,
+which would put it in local-alloc's FIRST (qty_sugg_compare) pass and hand it
+a0 directly.  (c) is the only untried one: it needs the divisor value to appear
+in a `(set (reg P) (reg hard))` / `(set (reg hard) (reg P))` copy.  Park this
+class until the reg401/reg408 work (Finding 1) shifts the schedule.
+
+## Round 12 (opus-5, chain resumed)
+
+Base kept: `motionFileManager.c` md5 `a962bc3c7d6fe91a27597b5b4ea3ece1`, 1237 lines,
+rc453 / 283 sites, dop 42 / dreg 43 / SCORE 85 / insns 2696. Siblings all rc0.
+
+### Refutations of the round-11 briefing
+1. **The `update_equiv_regs` live-length DOUBLING is already spent on reg401/reg408.**
+   `.lreg` insn 1421 `(set (reg:SI 401) (plus (reg 1) 112))` and insn 1502
+   `(... (const_int 96))` BOTH carry `REG_EQUIV`. So `local-alloc.c:855
+   REG_LIVE_LENGTH *= 2` already fired: dump ll=196 is a true 98, ll=80 a true 40.
+2. **Rank is not the spill gate.** reg401 rank 868/956 WON s4 while ranks 866/867/869
+   SPILLED and ranks 873-891 kept winning registers. Spilling is conflict/availability,
+   not a priority cutoff, so the "+8% / +17% live_length" targets are necessary but
+   not sufficient.
+3. **`allocno_compare` multiplies priority by `allocno_size`** (`r11_census.py` omits it).
+   Mode width is therefore itself a priority lever.
+
+### Retired class: the "invisible argument" scan
+New tool `r12_args.py` (this dir). Decodes ROM `.s` + `objdump -dr` of our `.o`,
+normalises ABI register names to `$N`, aligns the two `jal` streams by callee, and
+reports per-call-site which of `$4-$7` / `$f12-$f19` are defined in the preceding
+block, plus a per-callee union and per-callee call counts.
+**Result: every callee arity matches ROM.** 7 of 463 aligned sites differ only in
+which arg register was locally written (allocation noise). Do not re-run.
+
+### The `jal -1`, localised
+22 `GetCurrentQuaternion` source call sites; we emit **20**, ROM emits **21**.
+Our `.s` has a THREE-way tail merge at `$L161` — source lines 687 (`D_006295C4`),
+750 (`D_006295CC`), 752 (`D_006295D0`). ROM merges only the CC/D0 pair; its line-687
+block stays separate because its tail is
+`jal GetCurrentQuaternion; daddu $5,$4,$0; addiu $3,$29,0x60; b .L001D4460; sw $3,0x1B8($29)`.
+
+### Data model: slot 0x1B8 is `w` (= `&v60`), memory-resident
+Sets at ROM 1322 (default arm), 1334 (turn arm), 1368, 1596 (mul arm), 1859, 1868 —
+every one literally `addiu $r,$29,0x60`. Loads at 1351, 1689, 1691, 1875.
+`.L001D4460` IS `L13done`, and it loads 0x1B8 as `$4` of
+`GetCurrentQuaternion(w, b->q1, qb, b->rate)` and `$6` of `func_0010E148(q30,q30,w)`.
+=> the dev sets `w = v60` in ALL THREE dispatch arms and the join consumes `w`.
+
+### ★ Mechanism: REG_EQUAL note vs invariant SET_SRC
+`update_equiv_regs` guard:
+
+    note = find_reg_note (insn, REG_EQUAL, NULL_RTX);
+    if (REG_N_SETS (regno) != 1
+        && (! note || ! function_invariant_p (XEXP (note, 0)) || ...))
+      { no_equiv (dest, set); continue; }
+
+It tests for a **REG_EQUAL NOTE**, not for invariance of SET_SRC. A bare
+`(set (reg W) (plus (fp) K))` has no REG_EQUAL note, so `!note` holds:
+
+* **multi-set** frame address -> `no_equiv` -> real allocno -> on losing goes to
+  **MEMORY** (`sw` at each set, `lw` at each use)  == ROM's 0x1B8
+* **single-set** frame address -> keeps REG_EQUIV -> **REMATERIALISED** (`addiu`
+  at each ref), never stored                        == our build
+
+This is the discriminator behind the residual `addiu -23 / daddu +20 / sw -5`:
+ROM's frame-address pointers lose their hard registers, ours win them.
+
+### Measured negative + why (circularity)
+Adding `w = v60;` to the default and mul arms and switching the two join consumers
+to `w`: **rc564 / s331, dop 52 / dreg 74 / SCORE 126, n2698, jal still -1.**
+Cause: **cross-jumping runs BEFORE `update_equiv_regs`**, so the tail merge collapses
+the three `w = v60` sets into one -> `REG_N_SETS == 1` -> REG_EQUIV -> rematerialised
+-> set insns vanish -> arms identical -> they merge. Asm confirms: 9 `addu $r,$29,96`
+remats, zero stores of `&v60`.
+Direction was right though: `addiu` -23->-17, `daddu` +20->+15, `sw` -5->-2;
+`s6`/`s7` blew up (+16/+19). Reverted.
+
+### Explicitly NOT proven
+That 0x1B8 spanning insns 1322-1875 implies ONE function-scope variable.
+`reload1.c :: alter_reg` shares slots via `spill_stack_slot[from_reg]` when
+`from_reg = reg_old_renumber[i] != -1`, so two pseudos spilled from the same hard
+reg may share a slot. Plausible reading only.
+
+### Next levers
+1. Break the cross-jump circularity first (it gates everything). `w` must reach
+   local-alloc with `REG_N_SETS != 1`: the arms must differ by something cross-jump
+   cannot merge.
+2. Then try one function-scope `float *w` instead of the four block-scoped ones
+   (lines 355/458/649/894) — maximises REG_N_SETS, `no_equiv`s the pointer function-wide.
+3. Re-read round 11's Finding 5 (three extra case-0x3 memory spills) through this rule.
+4. The `allocno_size` mode-width priority lever.
+
+Gate: `r11_census.py 401 408` AND the jal count must reach 21:
+`awk '/^ResetStatic2MotionManager:/{f=1} f&&/\.end/{exit} f' \
+ build/quick_diff/sugipon/src/motionFileManager.s | grep -c 'jal\s*GetCurrentQuaternion'`
+
+### Round 12 addendum — second negative, and the frontier restated as TWO FIXED POINTS
+
+Second experiment: merge the FOUR block-scoped `float *w` (lines 355/458/649/894)
+into ONE function-scope `float *w`, plus `w = v60` in all three case-0x13 arms and
+`w` at the two join consumers. Rationale: maximise `REG_N_SETS` so `no_equiv` fires
+function-wide and the pointer becomes memory-resident like ROM's 0x1B8.
+
+**Result: rc585 / s328, dop 54 / dreg 83 / SCORE 137, n2694, jal STILL -1.**
+Asm: still **9 remats** (`addu $r,$29,96`), **0 stores** of `&v60`. REVERTED.
+
+**Why it failed — the pseudo never exists.** Every assignment to `w` is a
+frame-invariant `(plus fp K)`, so const-prop replaces the *uses* outright and `w`
+is never emitted as a `(set (reg W) ...)` at all (this is round 11's Finding 2,
+now confirmed to hold even with a function-scope declaration). `REG_N_SETS` is
+therefore irrelevant: there is no allocno to `no_equiv`.
+
+**The frontier restated.** Case 0x13's three arms sit at a self-consistent fixed
+point, and ROM sits at the other one:
+
+* OURS: arms' tails identical -> cross-jump merges all three at `$L161` -> the
+  three `w = v60` sets collapse to one -> `REG_N_SETS == 1` -> REG_EQUIV ->
+  rematerialised -> no store -> tails stay identical.  (fixed point)
+* ROM: `w` is a real memory-resident pseudo -> `sw $r,0x1B8($29)` after the call in
+  the default and mul arms -> those tails differ from the turn arm's CC/D0 blocks
+  -> only CC/D0 merge -> `w` keeps 6 sets.  (fixed point)
+
+Note the pass order that locks this: **cross-jumping (pre-RA `jump_optimize`) runs
+BEFORE `update_equiv_regs`**, so the merge decision is made while `w` still looks
+like a foldable frame constant.
+
+**Therefore the lever must make `w` a genuine, non-foldable pseudo INDEPENDENTLY of
+the merge.** That requires at least one assignment to `w` that const-prop cannot
+fold — i.e. NOT a frame address: a pointer returned from a call
+(`GetLastQuaternion()`), a struct member (`b->q1`, `D_0062C230->q_2C0`), or a global.
+Once `w` is a real pseudo with no REG_EQUAL note and `REG_N_SETS != 1`, `no_equiv`
+fires, the `&v60` sets become real `sw`s, the arms diverge, the merge breaks, and
+the 21st `jal` returns.
+**Hunt for that non-frame assignment in ROM before spending another build**: audit
+every store to 0x1B8 across the WHOLE function (round 12 sampled 6, all
+`addiu $r,$29,0x60`) and every other frame slot that behaves the same way; the
+dev's `w` may well be a different variable from ours, or ours may be two variables
+that ROM keeps as one.
+
+Both round-12 experiments moved the target opcodes toward ROM
+(`addiu` -23 -> -17/-18, `daddu` +20 -> +15/+17, `sw` -5 -> -2/-4, n 2696 -> 2698/2694)
+while wrecking `s3`/`s6`/`s7`. The opcode direction is right; the register census
+will not settle until the merge breaks.
+
+---
+
+## Round 14 (opus, 2026-07-28) — rc412/s263 -> rc408/s258; ROM INSTRUCTION PARITY (2692) RESTORED; two coloring classes snapped to ROM
+
+Frontier: `.claude/.decomp_stash/rsm_conv_r14_qf0p_rc408_s258.c`
+md5 `393a6b6782d4d7b4154adbaeee30dded`, 1249 lines.
+`rc408 s258 dop56 dreg47 SCORE103 n2692`, `TOTAL aligned diff insns 408`.
+Crutch-free (only the legit `D_0062B758` alias). All 4 siblings rc0. Main untouched. No commits.
+Intermediate stash: `rsm_conv_r14_wjoin_rc409_s259.c`.
+
+### ★ NEW TOOL — `r14_frame.py` (+ `r14_probe.sh`). THE decisive instrument of this round.
+Reads the `-dl`/`-dg` dumps and prints, for EVERY frame-address pseudo
+`(set (reg N) (plus (reg 1 at) K))`: frame offset -> array name, #sets, REG_EQUIV,
+refs / live_length / priority, rank, and **WON hard reg vs SPILLED**, plus the
+discriminator SPILL/REMAT (has REG_EQUIV -> `addiu` at each ref) vs MEMORY
+(no REG_EQUIV -> `sw` at each set, `lw` at each use).
+`r14_probe.sh` = one 1.7 s command giving rc/sites/census AND the disposition gate.
+**Gate all frame-address work on this. It converts "which array should be in which
+register" from asm inference into a direct read of global.c's decision.**
+
+### ★★ THE RESIDUAL WAS A PRIORITY INVERSION AMONG FOUR NAMED PSEUDOS (r13 base)
+| pseudo | array | sets | EQUIV | refs | ll | pri | OURS | ROM |
+|---|---|---|---|---|---|---|---|---|
+| 2764 | v60 (`w`) | 3 | F | 14 | 221 | **1900** | s7 (won) | **MEMORY slot 440** |
+| 2776 | v110 | 2 | F | 8 | 176 | 1363 | MEMORY | **s7** |
+| 2773 | qF0 | 3 | F | 9 | 250 | 1080 | MEMORY | **s4** |
+| 2766 | v70 | 9 | T | 24 | 268 | 3582 | s3 | s3 (already correct) |
+`w` outranked v110/qF0 and took the register they should have had.
+`pri = floor_log2(refs)*refs*10000/live_length` reproduces every row exactly.
+
+### ★★ WHAT LANDED — "assigned in ALL arms + consumed at the JOIN" makes a frame pointer LOSE
+ROM's slot `0x1B8` (= `&v60` = `w`) has six sets and four loads and — decisively —
+**`w` is ALSO live in case 0x16** (`.s` 1859/1868 sets, 1875 load) at our source lines
+821-826, the `f_320` if/else: `w = v60; GetInverseQuaternion(w, ...)` in BOTH arms,
+then `GetCurrentQuaternion(v70, w, qb, D_0062C214)`.
+Edits (all ROM-evidenced):
+1. `float *w` moved from case 0x13's block to FUNCTION SCOPE (cases 0x23/0x1/0x3 keep
+   their own shadowing `float *w`, so only 0x13 and 0x16 share it).
+2. `w = v60;` added to case 0x13's arm0 and mul arm (ROM `.s` 1322, 1596), and L13done's
+   two consumers switched `v60` -> `w` (ROM `lw $4,0x1B8` / `lw $6,0x1B8` at 1689/1691).
+3. Case 0x16's `f_320` if/else routed through `w` in both arms + the join consumer.
+4. Same treatment for `qF0p` (ROM `$20`): assigned in arm0 / turn arm / mul arm and
+   consumed at L13done (`daddu $5,$20,$0`), matching ROM `.s` 1308/1338/1372.
+
+Result: **`w` -> `*MEMORY*`** (pri 1900 -> 827) and **v110 -> `s7`**, both now ROM's
+disposition; v70 stays s3. Our loop now emits ROM's `lw v1,<slot>` for `w[i++]`
+(ROM 1246) instead of holding it in s7. **Instruction total 2690 -> exactly 2692.**
+
+### ★ THE b/nd/e TRIO IS ALREADY CORRECT — AND WAS ALREADY CORRECT AT THE r13 BASE
+`r11_census.py 86 87 88` on BOTH the r13 base and this frontier:
+`reg86 (e) -> hard 30 = s8`, `reg87 (b) -> hard 21 = s5`, `reg88 (nd) -> hard 22 = s6`.
+**This is the exact trio sessions 7-11 chased for eleven sessions.** It was solved by an
+earlier round and never reported, so every handoff still lists "e -> s8" as the open
+residual. **That framing is STALE — delete it. Do not spend another round on the trio.**
+
+### NEGATIVES (mechanism included; do not repeat as-is)
+- **`w2 = v120` carrier** at ROM's four `lw 0x1BC` sites (1443/1453/1551/1559), keeping
+  `v120` by name at the two `addiu $r,$29,0x120` sites (1517/1524). Tried TWICE — before
+  and after the `qF0p` edit: rc438/s262 and rc422/s266, **n2688 both times (parity lost)**.
+  It never creates a `(plus at 288)` allocno at all; instead it **inverts** qF0/v110 into
+  `qF0 -> s7, v110 -> s4` (ROM is qF0 -> s4, v110 -> s7). Reverted.
+- **Function-scope `wv` for `&v160` across case 0x3 + case 0x2D** (ROM slot `0x1C0`, sets
+  `.s` 2166/2196/2266/2632, loads 2179/2355/2359/2655). rc491/s279, dop 56 -> 64,
+  **n2690 (parity lost)**. The class DID snap (`pseudo 91, 0x160, pri 819 -> *MEMORY*`),
+  proving the lever generalises, but the surrounding code moved away from ROM. Reverted.
+  **Lead:** that region needs a SECOND memory-resident pointer too — ROM also drives slot
+  `0x1B4` there (sets 2585/2628/2667, load 2750), exactly as case 0x13 needed both
+  `0x1B8` and `0x1BC`. Landing only one of a pair unbalances the region.
+
+### RESIDUAL / NEXT LEADS
+- `dop` 56 (`daddu +17, addiu -18, lw +5, sw -5, beq +2, mov.s +2, lui +1, bne +1,
+  sll -1, bnel -1, jal -1, mtc1 -1, mul.s -1`); `dreg` 47
+  (`s0 +10, s7 +10, s6 +6, s4 +6, s8 +5, s3 +1, s5 +1, s1 -3, s2 -5`).
+- Hunk mass by ROM index (200-wide buckets): 0:23 200:10 400:33 600:58 **800:63** 1000:26
+  **1200:85** 1400:34 1600:10 1800:29 2000:17 2200:12 2400:9.
+- **`qF0` is the last wrong member of the case-0x13 bundle**: now `*SPILL/REMAT*`
+  (pri 1097), ROM has it in `s4`. **The blocker is visible in the asm: our insn 1247 is
+  `addiu s4,sp,288` — we put `v120` in s4.** Freeing s4 requires v120 to become
+  memory-resident, but the `w2` route above does not do it. Find another route.
+- **ROM 800-999 (63 diff insns) is the same class, untouched**: ROM rematerialises
+  `addiu a2,sp,208` (`&qD0`) and `addiu a2,sp,192` (`&vC0`); we hold them in s2 / s8
+  (census: `2772 0xd0 pri 617 -> s2`, `2771 0xc0 pri 535 -> s8`). Plus a clean letter
+  permutation ROM s2/s3/s7 <-> ours s1,s4/s7/s0.
+- **`jal -1` still open** (20 vs ROM 21). Our arm0 (insns 1223-1234) still cross-jumps its
+  `GetCurrentQuaternion` tail into case 0x3's copy (`beq zero,zero -> 0x225c`), because our
+  arm0's `w = v60` store is NOT emitted there, while ROM's is (`addiu v1,sp,96;
+  beq zero,zero; sw v1,440(sp)` at 1219-1221). The two-fixed-point wall persists, but the
+  store now exists elsewhere in the function, so the shape is closer than it has ever been.
+- Small repeated item: `w[i++]` addu operand order — ROM `addu v0,v1,v0` (pointer first),
+  ours `addu v0,v0,v1`. Occurs at ROM 1249 and again near 2430.
+
+## Round 15 (opus, 2026-07-28) — rc408/s258 -> rc387/s247; `TOTAL aligned diff insns` 408 -> 387
+
+Frontier: `.claude/.decomp_stash/rsm_conv_r15_idxtemp_rc387_s247.c`
+md5 `39e5fbddb0ffab768a3676bcf4fc7d89`, 1249 lines.
+`rc387 s247 dop54 dreg45 SCORE99 n2690`, `TOTAL aligned diff insns 387`.
+Crutch-free (0 volatiles/pins; only the legit `D_0062B758` alias). All 4 siblings rc0.
+Main untouched (`39f95c32`). No commits. Intermediate stash
+`rsm_conv_r15_headadj_rc395_s251.c` (`419da423`).
+
+### ★ NEW PROBE — the per-frame-offset REMAT LEDGER (`scratchpad/off.py`)
+Counts `addiu rX,sp,K` per K in ROM vs ours and prints the delta. This decomposes the
+whole `addiu -18 / daddu +17` residual into per-array sub-classes in one line, which
+`r14_frame.py` (per-pseudo) cannot do because a single array has several pseudos.
+Current ledger (ours - ROM): **v60 -10, v120 -4, vC0 -2, v50/qF0/v130/v150/v160 -1, v70 +1**,
+`sum |delta| 22`. Localised by region: case 0x13 is **-6** of the v60 deficit, the rest
+is 1 per region. **Gate frame-address work on this ledger, not on `dop`.**
+
+### ★★ THREE EDITS LANDED, all "match ROM's direct-vs-carrier choice"
+1. **`w[1]` -> `v60[1]` at case 0x13 lines 707 and 726** (408 -> 398 hunks, -6 sites).
+   ROM emits `lwc1 $f2,100(sp)` / `swc1 $f20,100(sp)` — the *scalar element* accesses of
+   the memory-resident `w` go through the ARRAY NAME; only the variable-index `w[i++]`
+   loop and the L13done/case-0x16 consumers go through the pointer. Ours was emitting
+   `lw v1,456(sp); lwc1 $f2,4(v1)`.
+   **After this, the sp-direct-vs-pointer-indirect class is EXHAUSTED** — a full scan of
+   every aligned `l*/s*` pair whose base register differs now returns exactly ONE site
+   (`lw v0,396(a0)` vs `lw v0,396(v1)`).
+2. **Turn-arm head ADJACENCY: `w = v60; qF0p = qF0;` must be adjacent and both before the
+   `ang = MatrixDrive_GetTurnYEAngleXZ(vC0)` call** (398 -> 395). Swept all 5 statements of
+   the L13turn head: every ordering with `w`/`qF0p` adjacent-and-first scores 395; every
+   ordering that separates them scores 398. Same family as round 13's recipe (b).
+3. **`void *m = (char *)&D_0062C218[Debug...] + 0x10;` -> `int k = Debug...;` + the address
+   built inline at the call** (395 -> **387**, dreg 47 -> 45). ROM keeps the **INDEX** in a
+   callee-saved reg across the intervening `func_00105078()` call and builds the address
+   **into the argument register afterwards**: `daddu s0,v0,zero; lw a1,0(gp); sll s0,s0,0x5;
+   addu a1,a1,s0; addiu a1,a1,16`. Round 10's `void *m` temp built the whole address up
+   front and then copied (`daddu a1,s0,zero`). **Generalisable rule: when ROM does the
+   address arithmetic in the arg register, the dev's temp held the INDEX, not the address.**
+   A scan for other instances of this pattern now returns none.
+
+### ★ PARITY NOTE — r14's exact 2692 was a CANCELLATION, not correctness
+Edit 1 replaces two 2-insn indirect accesses with ROM's 1-insn direct ones (-2 insns) and
+both sites now match ROM byte-for-byte. n therefore moved 2692 -> **2690**, i.e. the true
+residual deficit of -2 (of which the long-standing `jal -1` is one) was previously MASKED
+by two extra instructions in the region Edit 1 fixed. Do not "restore" 2692 by undoing it.
+
+### ★★ THE CASE-0x13 BUNDLE, FULLY MAPPED FROM ROM (use this table, don't re-derive it)
+ROM's L13turn arm head emits SIX pointers, **duplicated into both entry paths** (`.s`
+1229-1240 and 1259-1270):
+| ROM insn | value | ROM disposition | ours (r15 base) |
+|---|---|---|---|
+| `addiu v0,sp,96` + `sw v0,440(sp)` | `&v60` = `w` | MEMORY 440, **6 sets / 4 loads** | MEMORY, **1 set / 4 loads** |
+| `addiu v1,sp,288` + `sw v1,444(sp)` | `&v120` = `w2` | MEMORY 444, 2 sets / 4 loads | **s4** (pseudo 2756, refs 13 ll 261 pri 1494) |
+| `addiu s3,sp,112` | `&v70` | **s3** | s3 (2748) OK |
+| `addiu s4,sp,240` | `&qF0` = `qF0p` | **s4** | *SPILL/REMAT* (1054, pri 1097) |
+| `addiu s7,sp,272` | `&v110` | **s7** | s7 (2755) OK |
+| `addiu s2,sp,304` | `&v130` | **s2** | s3 (2757, pri 3033) |
+ROM's four `lw ,444(sp)` are C lines 724/725/752/753; lines 745/746 use `v120` by NAME
+(ROM remats `addiu a0,sp,288` / `addiu a2,sp,288`). ROM's four `lw ,440(sp)` are the
+`w[i++]` loop, L13done's two consumers, and the case-0x16 join.
+**The chain is: `v120` holds s4 -> `qF0p` cannot -> arm0 spills `qF0p` to memory instead of
+holding it in s4 -> arm0's tail has no `sw &v60` -> arm0 cross-jumps its
+`GetCurrentQuaternion` -> `jal -1`.**
+
+### NEGATIVES THIS ROUND (mechanism included; do not repeat as-is)
+- **`p70 = v70` carrier at the turn-arm head: TOXIC, twice.** It does not split the `&v70`
+  web — cse/PRE MERGES it with the existing function-wide `&v70` pseudo, turning
+  (refs 24, ll 268, s3) into (refs 31, ll 541) which then loses s3 and takes **s4**,
+  displacing `qF0`. 398 -> 441 alone, 395 -> 452 inside the full bundle. **Adding a carrier
+  for an array that already has a multi-use web anywhere else in the function extends that
+  web; it never splits it.** (Consistent with round 13's `wv` negative.)
+- **`w2 = v120` at the turn-arm head: the CLASS SNAPS but the LETTERS INVERT.** v120 -> MEMORY
+  (pri 1494 -> 714) exactly as ROM, and `qF0` then WINS a hard register — but `v110` and
+  `qF0` land **s4/s7 swapped** relative to ROM. 398 -> 414, n2686.
+- **`w2` + `p110` together: `qF0 -> s4` (ROM's letter, first time ever) but `v110` -> MEMORY
+  and `v120` -> s7 — the inversion just moves to the other pair.** 398 -> 408, n2686.
+  The residual is a **two-way priority tie 655 vs 717** (`pri = floor_log2(refs)*refs*10000/ll`):
+  `p110` refs 6 ll 184 -> 652, `w2` refs 7 ll 195 -> 717. `w2` is allocated first and takes s7.
+  **Computed flips: give `p110` ONE more ref (-> 765 > 717), or `w2` one fewer (7 -> 6 crosses
+  the floor_log2 cliff, 717 -> 615), or push `w2`'s ll past 214.** Untried.
+- **Full 6-member ROM bundle (w, w2, p70, qF0p, p110, p130), duplicated into both entry
+  paths: 452.** Killed by `p70` (above). A 16-way sweep of {w2, p110, p130} x {duplicated,
+  not} is in the round log; the best carrier variant is 401, all worse than the 387 base.
+- **`p130 = v130` carrier: folds away entirely** (no `(plus at 304)` allocno is created at
+  all) and costs 2 insns of parity. v130's element writes must stay by name (ROM
+  `swc1 $f20,304(sp)`), which leaves only 4 call-arg uses and gcc const-props the pointer.
+- **Duplicating the arm-head bundle into both entry paths (ROM's own layout)** improves
+  `dop` 54 -> 52 and the remat ledger 22 -> 21 but costs hunks 395 -> 403. Kept OUT.
+- **Dropping the `w` carrier chain in case 0x1's `f_308` block (lines 553-563)**, where ROM
+  rematerialises all five frame addresses: 398 -> 400 for all three, and per-site
+  C1 (`w = qD0`) 399, C2 (`w = vC0`) **437**, C3 (`w = v60`) 399, remat ledger 22 -> 23/24 in
+  every case. **The existing carriers there are already correct — this reproduces round 6's
+  counter-intuitive result on a much better base. Class CLOSED.**
+- **A second alternating carrier `wb` for `vC0`/`qF0` in the case-0x1 tail** (ROM alternates
+  `s0`/`s1` there: `addiu s0,sp,112`, `addiu s1,sp,192`, `addiu s0,sp,208`, `addiu s1,sp,240`):
+  **exactly codegen-neutral in all 3 placements** — each carrier has <= 2 uses in one block so
+  it const-props away (round 11 Finding 2 still holds for <=2-use carriers).
+- **Mirroring edit 1 into case 0x3** (`w[1] +=` and `w[0]/w[1]` -> `v160[...]`): partial
+  application regresses to 404; the full application is **exactly codegen-identical** to the
+  base. Case 0x3's `w` folds completely (it is block-scoped and never memory-resident),
+  unlike case 0x13's function-scope `w`. Nothing to gain there.
+
+### RESIDUAL / NEXT LEADS
+- `dop` 54 (`daddu +17, addiu -18, sw -5, lw +3, beq +2, mov.s +2, lui +1, bne +1, sll -1,
+  bnel -1, jal -1, mtc1 -1, mul.s -1`); `dreg` 45 (`s0 +8, s7 +10, s6 +6, s4 +6, s8 +5,
+  s3 +1, s5 +1, s1 -3, s2 -5`).
+- Hunk mass by ROM index (200-wide): 0:23 200:10 400:33 600:58 **800:63** 1000:26 **1200:63**
+  1400:34 1600:10 1800:29 2000:17 2200:12 2400:9.
+- **Residual taxonomy (whole function): 109 of 387 are PURE REGISTER-LETTER diffs**
+  (60 `daddu`, 26 `addiu`, 23 `lw` — same mnemonic, different register), plus 52 in the
+  `addiu <-> daddu` remat-vs-hold conversion. Everything else is small.
+- **(1) The v110/qF0/v120 priority tie above is the single best-defined open target** — it is
+  three arithmetic steps from ROM's exact letters and every ingredient is measured.
+- **(2) The `D_00271240` divide a0/a1 swap, 4 sites (ROM 135/175/608/648)**, and the
+  co-located `rot` FP-letter swap (`lwc1 $f0`/`cvt.s.w $f0` vs ours `$f1`) are the SAME
+  phenomenon: our two local-alloc quantities are ordered **inverted** vs ROM in both. ~20
+  insns. Round 11 declared it unreachable by statement order; that verdict has not been
+  re-tested against a `-dl` local-alloc dump of `qty_compare`'s inputs, which is the
+  obvious next step (read `qty_n_refs` / `qty_death - qty_birth` for the two quantities
+  directly instead of inferring from the final asm).
+- **(3) ROM 800-999 (63 insns, the case-0x1 tail) is still the largest bucket.** Two
+  sub-classes: (a) `&qD0` (pseudo 2754, 3 sets, pri 617 -> s2) and `&vC0` (2753, pri 535 -> s8)
+  win registers where ROM remats — and carrier deletion is proven NOT to be the lever
+  (above), so this needs pressure on s2/s8, not respelling; (b) the two
+  `AddMotionMemorySize(..., 1.0f, ...)` calls at C 581/583: ROM materialises
+  `lui at,0x3f80; mtc1 at,$f12` **inline before each call** (a HARD-reg set, which
+  `cse.c:invalidate_for_call` kills across the intervening call), we CSE them into one
+  pseudo that gets `$f20` + two `mov.s $f12,$f20`. Net insn count is equal, so this is a
+  placement/letter class of ~6 insns, and the open question is why our 1.0 reaches
+  local-alloc as a pseudo when `CONSTANT_P` args are not supposed to be precomputed.
+
+## Round 16 (opus, 2026-07-28) — base LEFT AT rc387/s247 (unchanged). ★ THE CASE-0x13 ROM CENSUS IS NOW REACHABLE (3/3 for the first time), and the round-15 `jal -1` causal chain is REFUTED.
+
+TU left at `39e5fbddb0ffab768a3676bcf4fc7d89`, 1249 lines, == `.claude/.decomp_stash/rsm_conv_r15_idxtemp_rc387_s247.c`.
+rc387 / s247 / dop54 / dreg45 / SCORE99 / n2690 / hunks 387 / remat ledger 22. All 4 siblings rc0. Crutch-free. No commits.
+
+### ★★ THE ROM CASE-0x13 BUNDLE IS REACHABLE — exact recipe (stashed as `rsm_conv_r16_w2P1_rc393_s245_ROMcensus.c`)
+Round 15 could only ever get ONE of the three right at a time. This variant gets all three,
+matching ROM's disposition exactly:
+
+| pseudo | ROM | r15 base (387) | this variant |
+|---|---|---|---|
+| `&qF0` (0xF0) | s4 | *MEMORY* (1054, refs 9 ll 250 pri 1080) | **s4** ✔ |
+| `&v110` (0x110) | s7 | s7 | **s7** ✔ |
+| `&v120` (0x120) | MEMORY | **s4** (2761, refs 13 ll 261 pri 1494) | **LOST/MEMORY** ✔ |
+
+The recipe is THREE things together (any two of them give the round-15 inversions):
+1. `float *w2;` + `w2 = v120;` at the L13turn arm head, `w2` at the 4 pointer uses
+   (`_MulCurrentMatrixL`, `func_0010E088` x2, `GetCurrentQuaternion`), `v120` by NAME at
+   `MatrixDrive_TurnZObjectMatrixXY`/`GetTurnXAngleZY`.
+2. `float *p110;` + `p110 = v110;` at the same head, `p110` at all 5 v110 uses in the arm.
+3. **★ THE NEW INGREDIENT — a SECOND `w2 = v120;` placed immediately before
+   `nq = func_0010EEF0(_MulCurrentMatrixR(v50, D_00271BF0));`** (i.e. in case 0x13's common
+   prologue, before the `f_280` goto dispatch). This is round 14's ll-extension lever:
+   assigning on the path that skips the turn arm raises `&v120`'s ll 195 -> 220, dropping
+   pri 717 -> 636, which is below `p110`'s 648 — so v120 loses and p110 takes s7.
+
+**PLACEMENT IS THE WHOLE GAME — a swept ll ladder, all measured:**
+| 2nd `w2 = v120` placed before | v120 ll | v120 pri | v120 | v110 | hunks |
+|---|---|---|---|---|---|
+| (none, = W1)                        | 195 | 717 | s7    | LOST | 393 |
+| `if (f_280 == 1) goto L13turn;`     | 199 | 703 | s7    | LOST | 397 |
+| `func_0010E148(qA0, qA0, qD0);`     | 204 | 686 | s7    | LOST | 397 |
+| `func_0010E088(qD0, nq, v60);`      | 209 | 669 | s7    | LOST | 397 |
+| `_MulCurrentMatrixL(v60, v50, ...)` | 214 | 654 | s7    | LOST | 397 |
+| **`nq = func_0010EEF0(...)`**       | **220** | **636** | **LOST** | **s7** | **393** |
+| `MatrixDrive_ScaleMatrix(...)`      | 349 | 945 | s7    | LOST | 394 |
+| `AddMotionMemorySize(...)`          | 336 | 982 | s7    | LOST | 392 |
+| `pb = D_0062C230->q_290;`           | 376 | 877 | LOST  | s7   | 392 |
+| `func_00260568(qA0, 0, 0x10);`      | 386 | 854 | LOST  | s7   | 392 |
+| case-0x13 top (after the decls)     | 412 | 800 | LOST  | s7   | 398 |
+Note the non-monotonicity: past `MatrixDrive_ScaleMatrix` the local pseudo MERGES with the
+function-wide `&v120` web (refs 7 -> 11), which raises both refs and ll. The clean window is
+the `nq = func_0010EEF0(...)` placement, where the pseudo stays LOCAL (refs 7).
+
+### ★ WHY IT WAS NOT KEPT — the cost is a DIAGNOSED, one-step-away side effect in case 0x3
+Region profile (200-wide ROM buckets), base vs the variant:
+```
+BASE  0:23 200:10 400:33 600:58 800:63 1000:26 1200:63 1400:34 1600:10 1800:29 2000:17 2200:12 2400:9  = 387
+r16   0:23 200:10 400:33 600:58 800:63 1000:26 1200:48 1400:40 1600:10 1800:39 2000:23 2200:12 2400:8  = 393
+```
+**ROM 1200-1399 converges by -15** (the turn arm). The +21 is all in case 0x3 / case 0x13's
+tail, and the mechanism is exact: with `&v120` demoted, the s4 hole it vacated is taken by
+**case 0x3's `&v110` (reg 1886/1902, refs 8 ll 183 pri 1311)**, which was correctly in s7 at
+the base. ROM puts **`qb` = `&q20` (reg 2415, refs 5 ll 123 pri 813) in s4 there**
+(`addiu s4,sp,32` @ROM 1863) and `&v110` in s7 (`addiu s7,sp,272` @ROM 1868).
+**GATE: case-0x3 `&v110` must fall below pri 813, i.e. ll > 295 (from 183), or `&q20` must
+rise above 1311 (refs 5 -> 8 at ll 123).** Hoisting `qc = v110;` to the top of case 0x3
+moves ll 183 -> 208 (pri 1153, hunks 391 — stashed as `rsm_conv_r16_w2P1_qchoist_rc391_s247.c`);
+after `qa = q30;` gives ll 192 (395); passing `qc` to `func_00260568` gives ll 183 (393).
+**The lever direction is proven; the remaining margin is ~90 luids.**
+
+### ★★ REFUTED — round 15's `jal -1` causal chain
+Round 15 recorded: "v120 holds s4 -> qF0p can't -> arm0 spills qF0p -> arm0's tail has no
+`sw &v60` -> arm0 cross-jumps its GetCurrentQuaternion -> jal -1". **Measured on the variant
+where `qF0p` DOES hold s4 exactly as ROM: `jal GetCurrentQuaternion` is still 20, ROM 21.**
+The chain is broken at the first link — do not plan the `jal -1` around the s4 bundle again.
+
+### ★ REFUTED — two of round 15's three "computed flips"
+- **"Give `w2` one fewer ref (7 -> 6)" is NOT source-reachable.** Reverting one `w2` use to
+  `v120` by name (tried at the `_MulCurrentMatrixL` dst and at the `func_0010E088` arg) is
+  **exactly codegen-identical**: pseudo 1055's refs stay 7. The `(plus at 288)` pseudo is the
+  arg-precompute/PRE web, not the `w2` variable; the variable only decides whether the web is
+  created at all. (`p110`'s refs DO track its uses — 1 set + 5 uses = 6 — so this is per-array,
+  not a general rule.)
+- The surviving flip is the third one (push `w2`'s ll past ~216) and it is exactly what
+  placement 3 above does.
+
+### NEGATIVES (codegen-neutral; mechanism given)
+- **`float *q3 = b->q3;` as an explicit local in the if-arm of `b->rate < D_006295C0`
+  (case 0x1, C 497-500)**: byte-identical. cse already unified the two `b->q3`.
+- **Swapping the `float *q1;` / `float *q3 = b->q3;` declaration order in the else arm**:
+  byte-identical.
+- **`float *wc = vC0;` block-local carrier over C 594/596 (case 0x1 tail, ROM's `addiu s1,sp,0xC0`
+  @923 with 2 uses)**: byte-identical — confirms round 15's "<=2-use carriers const-prop away".
+
+### DATA MODEL / MECHANISM read this round (case 0x1 tail, ROM 800-999, still the largest bucket)
+- ROM's allocation there is: `s5`=`b`, `s6`=`b->q1` (hoisted above the `b->rate` branch),
+  **`s4`=`q1`** (`daddu s4,s6,zero` @703, a COPY), **`s8`=`q3`** (`addiu s8,s5,0x30` @698),
+  `s2`=`sumA` then `b->q2`, `s1`=`sumB` then recycled for `&vC0` @923 and `&qF0` @934,
+  `s0` recycled for `&v70` @899 and `&qD0` @928, `s3`=`cnt`, `s7`=`hold`.
+  **ROM recycles s0/s1 for SHORT-LIVED frame pointers and keeps the VARIABLE pointers
+  (q1, q3, b->q2) in callee-saved regs. We do the exact opposite**: `s3`=`&v70` (the
+  function-wide 9-set PRE web reg2753, refs 24 ll 268 pri 3582), `s2`=`&qD0` (2759, pri 617),
+  `s8`=`&vC0` (2758, pri 535), and **`q1`/`q3` are SPILLED to 424(sp)/420(sp)** (visible as
+  `sw $22,424($29)` / `sw $2,420($29)` at `$L44`, then four `lw`s in the tail).
+- `precompute_register_parameters` (calls.c, verified against gcc-2.95.3 source) fires for
+  EVERY non-REG arg with `rtx_cost > 2` at -O2, so both ROM and we create a `(plus at K)`
+  pseudo per frame-address argument. The difference is purely whether cse/gcse-PRE unifies
+  them into one multi-use web (ours) or leaves them single-use so combine folds them back
+  into `addiu aX,sp,K` (ROM). **The `addiu -18 / daddu +17` residual is exactly this class.**
+- Confirmed the full spill census: **20 spilled allocnos of 958**; the case-0x1 extras are
+  `&q20`(1052), `&q30`(1068), `&qF0`(1054), `high(D_002724B0)`(1070) and the `q1`/`q3` pair.
+
+### TOOLS
+- `scratchpad/cens.py` — per-frame-offset allocno census read straight from the `-dg`/`-lreg`
+  dumps (rank / refs / ll / pri / hard-reg or LOST), filtered by offset. Supersedes
+  `r14_frame.py` for this purpose: **`r14_frame.py`'s RTL regex silently MISSES pseudos**
+  (it never printed reg2761, the `&v120` s4 blocker that this whole round turned on).
+- `scratchpad/reg.py` — 200-wide ROM-bucket hunk profile; the right gauge for "did the class
+  converge in its own region while paying elsewhere".
+- gcc-2.95.3 `gcse.c`/`global.c`/`local-alloc.c`/`lcm.c`/`calls.c` staged in `scratchpad/gcc/`.
+  `find_reg`'s **copy-preference override (global.c:1025-1058)** — after `best_reg` is picked,
+  a free `hard_reg_copy_preferences` register of the same class WINS — is still untried here
+  and is the obvious lever for the s4/s7 letter ties.
+
+## Round 18 (opus, DEPTH-shaped, 2026-07-28) — base LEFT AT rc387/s247 (unchanged, 3rd flat round). No edit landed; TWO standing verdicts refuted from ee-gcc's OWN sources, and the case-0x1 register budget closed.
+
+TU left at `39e5fbddb0ffab768a3676bcf4fc7d89`, 1249 lines == `.claude/.decomp_stash/rsm_conv_r15_idxtemp_rc387_s247.c`.
+`rc387 s247 dop54 dreg45 SCORE99 n2690`, hunks 387, remat ledger |Δ| 22. All 4 siblings rc0. Crutch-free. No commits. No new stash (nothing beat the base).
+
+### ★★ REFUTED — round 17's briefed "pass-1 lever" is INERT for this function.
+Read from the ee-gcc CYGNUS `global.c` (`eegcc_src/global.c`, the one that HAS `reg_live_ranges`; the
+stock gcc-2.95.3 `global.c` staged in some scratchpads is 2-pass and is the WRONG file to reason from).
+Round 17's reading of the 3-pass structure is correct — pass 0 is gated on `reg_live_ranges`, pass 1 uses
+`used_nopref = used1 | ~regs_used_so_far | regs_someone_prefers[allocno]`, pass 2 uses plain `used1`.
+**But both of its exploitable consequences are dead here:**
+1. `regs_used_so_far` is NOT built up during allocation from an empty set. `global.c:393-396` seeds it with
+   **every register that is `regs_ever_live` OR `call_used`**, plus (`:399-401`) every hard reg local-alloc
+   already handed out. This function saves s0–s8 in its prologue ⇒ `regs_ever_live` is true for all of them
+   ⇒ **every s-register bit is set before the first `find_reg` call.** The "an allocno can only take a
+   register already used somewhere" constraint is therefore vacuous. It cannot be steered by "where in the
+   function each s-register is first introduced".
+2. `regs_someone_prefers` is empty for every call-crossing allocno. `set_preference` (`global.c:1934+`)
+   only records a preference when **one side of a copy is a HARD register**; `q1 = b->q1` is pseudo←pseudo,
+   so it creates none, and the copy-chain propagation at `:1235-1238` only spreads preferences that already
+   exist. The only hard-reg copies these pseudos take part in are arg-register moves (`daddu a2,sX,zero`),
+   and `prune_preferences` (`:1278`, via `IOR_HARD_REG_SET (temp, call_used_reg_set)` for
+   `allocno_calls_crossed != 0`) strips **all** call-used registers out of the preference sets first.
+**⇒ pass 1 ≡ pass 2 for every call-crossing allocno in this function; the coloring is plain
+priority-order first-free among non-conflicting registers.** Do not re-brief the pass-1/copy-preference lever.
+
+### ★★ NEW GENERAL RULE (measured at THREE new sites this round) — for a FRAME address the C pointer variable is INVISIBLE.
+`w2 = vC0;` hoisted to each of three points earlier in case 0x1's else-arm (before the first
+`AddMotionMemorySize`, before `if (cnt != 0)`, and the two-pointer ROM tail model itself) is **exactly
+codegen-identical to the base** (rc387/s247/dop54/dreg45/n2690 every time). const-prop rewrites the USES to
+the canonical `(plus at K)`, so neither the assignment point nor an extra earlier assignment can move a
+frame web's live range. **⇒ round 16's ll-extension lever does NOT generalise** — it moved `&v120` only
+because that second assignment sat on a path that reaches a genuine *argument* reference. A frame web's
+refs and ll are fixed by WHERE THE ARRAY IS PASSED TO A CALL, and by nothing else.
+
+### ★★ NEW MEASUREMENT, reverses the intuition behind rounds 8/15 — deleting a `w` carrier SHORTENS the frame web and RAISES its priority.
+`T3` (case-0x1 f_308 block written with array names — literally ROM's four remats there): hunks 387→389,
+dop 54→58, ledger 22→24, and the census moves the WRONG way:
+`&qD0` refs 5 / ll 162 / pri **617** → refs 6 / ll **85** / pri **1411** (still s2);
+`&vC0` refs 6 / ll 224 / pri **535** → refs 7 / ll **125** / pri **1120** (still s8).
+Removing the carrier tightens the web, so it wins *harder*. Also measured: `V1` = the same deletion applied
+to all three of the f_280 / f_220 / f_308 blocks (ROM has NO pointer variable in any of them — verified
+against ROM 719-723, 760-779, 802-821, all remats) = **rc504 / s297 / dop62 / dreg80 / n2698**, and
+`q1`/`q3` still LOST. Round 6's and round 15's negatives now have a quantified mechanism. Do not retry.
+
+### ★★ THE CASE-0x1 REGISTER BUDGET IS CLOSED — we are exactly TWO registers over.
+ROM's else-arm spends all nine callee-saved registers on REAL variables:
+`s0` recycled short-lived pointer (`addiu s0,sp,112` @899 → `addiu s0,sp,208` @928), `s1` = sumB then
+recycled (`addiu s1,sp,192` @923 → `addiu s1,sp,240` @934), `s2` = sumA then `&b->q2` (@880),
+`s3` = cnt, `s4` = **q1** (`daddu s4,s6,zero` @703), `s5` = b, `s6` = `&b->q1` (@685, set BEFORE the
+`bc1f`), `s7` = hold, `s8` = **q3** (`addiu s8,s5,48` @698).
+Ours spends `s2` = `&qD0` web (2759), `s3` = `&v70` web (2753, refs 24 ll 268 pri 3582), `s8` = `&vC0` web
+(2758) — three held frame webs against ROM's zero — and spills `q1`→424(sp) (reg 697, refs 6 ll 257 pri 466)
+and `q3`→420(sp) (reg 695, refs 3 ll 257 pri 116). Priority order at the frontier is
+`&qD0 617 > &vC0 535 > q1 466 > q3 116`, i.e. **a pure priority inversion of exactly two slots.**
+`q1`/`q3` cannot be raised (refs 6 and 3 match ROM's own use counts; ll 257 is the true span of the arm),
+so the frame webs must FALL — and per the rule above, no pointer spelling can move them.
+
+### ★★ WHY THE TWO WEBS EXIST AT ALL — gcse-PRE, caught in the act on the f_308 SKIP EDGE.
+At ROM index 849-851 ROM emits `addiu s3,s3,1; beql s3,zero,d74` (cnt+=1 falling straight into
+`if (cnt != 0)`), while we emit `beq zero,zero; addiu s7,s7,1; addiu s2,sp,208; addiu s8,sp,192;
+beql s7,zero`. **The `beq zero,zero` is gcse's critical-edge split and the two `addiu`s are PRE's edge
+insertions of `(plus at 208)` and `(plus at 192)` on the path that SKIPS the f_308 block** — placed there so
+the case-0x1 TAIL's `qD0`/`vC0` uses can be replaced by a reaching reg. ROM has neither insn ⇒ **ROM's
+f_308-block occurrences and its tail occurrences are TWO separate allocnos** (f_308 = remat `addiu a0,sp,208`
+@802 / `addiu a2,sp,208` @806; tail = won `addiu s0,sp,208` @928 with two `daddu` uses — a reload remat can
+never land in a callee-saved register, so 928 is a genuine allocno). **Ours is ONE PRE web that wins.**
+This single fact is the whole `daddu +17 / addiu −18` residual AND both spilled variables.
+Checked and ruled out as the reason ROM's PRE behaves differently: `gcse_main` has **no size/complexity
+bailout** in this compiler — only `current_function_calls_setjmp` and `n_basic_blocks <= 1` (`gcse.c:719-742`).
+
+### ★ NEGATIVE with mechanism — the `hold = 0` hoist (round 11's "only dreg improvement") is a false frontier.
+ROM initialises all three counters before the `n == 1` test (`daddu s2,zero,zero`@704 = sumA,
+`daddu s7,zero,zero`@706 = hold, `daddu s3,zero,zero`@710 = cnt in the `bne` delay slot), so our source
+order (hold=0 *after* the `if (n==1)` block) is wrong. Hoisting it gives dreg 45→**42**, SCORE 99→**96** —
+but hunks 387→**394** and n 2690→**2694**, because `hold`'s longer range makes it LOSE its register and it is
+stored to 420(sp) (`sw zero,420(sp)`), a spill **ROM does not have** (ROM holds hold in s7 throughout).
+All four placements before the test are equivalent (P0 395, P1/P2/P3 394). Rejected under
+"a shape that emits an instruction ROM lacks is not a frontier". **Revisit only together with a fix that
+frees a register in this arm.**
+
+### ★ REFUTED — round 17's account of the `D_00271240` divide a0/a1 class.
+Round 17: "the mismatching blocks carry one extra `lw D_0062AFE0` between `subu` and `div`". **It does not
+reproduce.** Printed side by side, the mismatching block (ROM 128-144) and the in-function control block
+(ROM 295-311) are **instruction-for-instruction identical in our build**, differing only in letters
+(a0/a1 on the two `lw`s, `mult`, `beql`, `subu`, `div`; and $f1/$f2 vs $f4/$f1). Same for the co-located
+`rot` FP pair at ROM 156-158 (`lwc1`+`cvt.s.w` land in $f1 for us, $f0 for ROM, at the same indices).
+**⇒ both are decided by local-alloc quantity ORDER driven by liveness from OUTSIDE the block, not by
+anything inside it** — which is exactly why round 17's 16-permutation statement sweep was codegen-identical.
+Any further work here must come from the surrounding blocks' live sets, not from the expression.
+
+### OTHER NEGATIVES THIS ROUND
+- `T1` — ROM's exact case-0x1 tail TWO-POINTER model (`w` = v70 then qD0, `w2` = vC0 then qF0, 2 sets +
+  4 uses, reproducing ROM's s0/s1 recycling at 899/923/928/934): **exactly codegen-identical** to the base.
+  Third independent confirmation of the carrier rule; the ROM tail layout is NOT reachable this way.
+- `Q1` — hoisting `qb1 = b->q1;` above `if (b->rate < D_006295C0)` and using it in both arms, to reproduce
+  ROM's `addiu s6,s5,16` @685 in the branch delay slot (we compute `&b->q1` twice, once per arm):
+  **rc424 / s264 / dop58**. Reverted.
+- `T2` = T1+T3 together: 389, identical to T3 alone (T1 contributes nothing, as expected).
+
+### WHERE THAT LEAVES THE CLASS
+Every lever that acts on POINTER SPELLING is now closed with a mechanism, and the priority arithmetic is
+closed too. The only remaining degree of freedom that can split a frame web is the **CFG between the two
+occurrence groups** — specifically, stopping gcse-PRE from inserting on the f_308 skip edge. The insertion
+is driven by `pre_edge_insert`/`insert_insn_on_edge` splitting the critical edge from the
+`if (f_308 && f_2D0)` test block to the `if (cnt != 0)` join. Untried: block-ORDER / goto-CFG rewrites of
+that region (round 10's lever, which landed twice elsewhere) chosen so that edge stops being critical, or so
+the tail occurrence stops being partially redundant. That is the one live thread for round 19.
+
+## Round 19 (opus, DEPTH on the round-18 thread, 2026-07-28) — base LEFT AT rc387/s247 (unchanged, 4th flat round). No edit landed. ★ THE ROUND-18 "ONE LIVE THREAD" IS REFUTED FROM gcse's OWN DUMP + ee-gcc's OWN SOURCE, and the class is now closed with a proof rather than a lever.
+
+TU left at `39e5fbddb0ffab768a3676bcf4fc7d89`, 1249 lines == `.claude/.decomp_stash/rsm_conv_r15_idxtemp_rc387_s247.c`.
+`rc387 s247 dop54 dreg45 SCORE99 n2690`, hunks 387, remat ledger |Δ| 22 (v60 −10, v120 −4, vC0 −2, v50/qF0/v130/v150/v160 −1, v70 +1).
+All 4 siblings rc0 (`match_diff --count` = 0 for InitMotionFile / InitMotionMemorySize / func_001D5C50 / pursueNodeList). Crutch-free. No commits. No new stash (nothing beat base).
+
+### ★★ NEW TOOL — `r19_pre.py` (0.25 s/probe): read gcse-PRE's decisions DIRECTLY.
+ee-gcc accepts **`-dG`**, which writes `<tu>.gcse` containing `dump_flow_info` (every basic block with
+preds/succs and `(crit)` markers), the **complete expression hash table**, and one line per PRE action:
+`PRE: redundant insn N (expression E) in bb B, reaching reg is R` (a `pre_delete`) and
+`PRE/HOIST: edge (X,Y),  copying expression E` (a `pre_edge_insert`).
+`r19_pre.py [candidate.c]` compiles the candidate, finds the RSM section, maps every
+`Index E = (plus:SI (reg:SI 1 at) (const_int K))` to its array, and prints per K: reaching reg,
+#deletions and which bbs, and the insert edges. **This replaces every inference about frame webs made
+from the `.s`.** (Note `reg 1` is MIPS `FRAME_POINTER_REGNUM`; it is `fixed` so it is never "set",
+hence every `(plus fp K)` is transparent/antic/avail in every block.)
+
+Base reads (ROM-relevant rows):
+```
+  K   name  expr reach ndel  del(bb)                inserts
+ 112  v70    114  2753    5  [61,73,76,120,122]     [(47,53),(50,53),(51,53),(117,118),(117,120)]
+ 192  vC0    231  2758    2  [61,70]                [(53,59),(54,59)]
+ 208  qD0    229  2759    1  [61]                   [(53,59),(54,59)]
+ 240  qF0    298     0    0  []                     []          <- ROM-like: used ONLY in bb61
+```
+bb map for case 0x1's else-arm: bb47..52 = the `if (n==1)` / f_280 / f_220 blocks, **bb53** = the join +
+`sumB=sumA; hold=0; if(f_308)`, **bb54** = `if(f_2D0)`, **bb55-58** = the f_308 body, **bb59** =
+`if (cnt != 0)`, bb60 = the divides, **bb61** = the tail (lines 581-609).
+`qF0` is the in-function CONTROL: it is addressed only in bb61, gets no PRE, is block-local, and
+local-alloc hands it a recycled callee-saved reg — **exactly ROM's `addiu s1,sp,240` @934.**
+
+### ★★★ THE LCM MODEL NOW REPRODUCES THE DUMP EXACTLY — and it proves no CFG rewrite of that region can help.
+With gcc's lazy-code-motion equations (`lcm.c`), for expr 229 (`&qD0`), KILL=0 and TRANSP=1 everywhere
+(operand is the fixed frame pointer):
+- `EARLIEST(e) = ANTIN(succ) & ~AVOUT(pred) & (KILL(pred) | ~ANTOUT(pred))` = 0 on every edge in the arm.
+- `LATER(p,s) = EARLIEST | (LATERIN(p) & ~ANTLOC(p))`, `LATERIN(b) = ∩ LATER(e into b)`.
+- **`ANTLOC(55)=1`** (the f_308 block computes it) ⇒ `LATER(55,56)=0` ⇒ `LATERIN(58)=0` ⇒
+  `LATER(58,59)=0` ⇒ **`LATERIN(59)=0`** ⇒ `INSERT(53,59)=INSERT(54,59)=1` and
+  `DELETE(61)=ANTLOC(61) & ~LATERIN(61)=1`.
+Predicts the dump insn-for-insn (2 inserts, 1 deletion, bb55's own occurrence NOT deleted).
+**The only term that can flip `DELETE(61)` is `ANTLOC(f_308 region)`.** Where in the region the
+occurrence sits, whether the skip edges are critical, the order of the two tests, and the shape of the
+`if (cnt != 0)` join are all irrelevant — `LATER` dies at the first ANTLOC block on the path regardless.
+**⇒ ROUND 18's "block-order / goto-CFG rewrites of the `if (f_308 && f_2D0)` → `if (cnt != 0)` region"
+CANNOT remove the web. Do not spend another round on it.**
+
+### ★★ AND THE OCCURRENCE CANNOT BE SPELLED AWAY — `precompute_register_parameters` is unconditional here.
+From gcc-2.95.3 `calls.c:623` (the ee-gcc `hash_scan_set` is byte-compatible on this path,
+`eegcc_src/gcse.c:2113-2266`): an argument is copied into a fresh pseudo when it is **not already a REG**,
+mode != BLKmode, `rtx_cost(value,SET) > 2`, and `preserve_subexpressions_p()` — which is
+`flag_expensive_optimizations`, i.e. **always true at -O2**. `(plus (reg 1) K)` is not a REG and costs
+`COSTS_N_INSNS(1)` = 4. So every array-name argument yields `(set (pseudo) (plus fp K))`, and
+`hash_scan_set` records every pseudo-dest set whose src passes `want_to_gcse_p` (only REG/SUBREG/
+CONST_INT/CONST_DOUBLE/CALL are excluded). **MEASURED, not argued:** `T3` (f_308 block rewritten with
+bare array names, no `w` carriers) leaves expr 229/231 with *identical* PRE activity — rc389/s248/n2690.
+`T4` (T3 + the tail also bare) likewise identical PRE — rc396/s247/n2696. Pointer spelling changes only
+*how many* occurrences a block has, never *whether* it has one.
+Microtest confirmation (`mt19/u.c`, 10 lines): `float a[4],b[4]; if(c1()){f(a,b);f(b,a);} h(z); f(a,b); f(b,a);`
+→ `PRE: redundant insn 84 (expression 0) in bb 2, reaching reg is 95` + `PRE/HOIST: edge (0,2)` +
+`addu $16,$sp,16` in the branch delay slot. The whole class reproduces in ten lines of C.
+
+### ★★ THE ONLY SHAPE THAT KILLS THE WEB SUBSTITUTES AN EQUIVALENT ALLOCNO — measured.
+`E1` = one carrier pair (`wd=qD0; wc=vC0;`) assigned once *before* `if (f_308 && f_2D0)` and used in BOTH
+the block and the tail ⇒ **expr 229 drops to 0 deletions / 0 inserts, expr 231 keeps only its case-0x13
+deletion** (verified with `r19_pre.py`). Result **rc389 / s246 / dop58 / dreg51 / n2688**. `r14_frame`:
+the carrier becomes `reg 695 &qD0, 1 set, refs 5, ll 136, pri 735 → *MEMORY*` — it spans bb53→bb61 exactly
+as the web did, and `r17_bcens` still shows **`q1` LOST** (reg 699, refs 6, ll 250, pri 480).
+`E2` (same for `&v70` across the f_220 block + tail): rc417/s259/n2686. `E3` (E1+E2): rc511/s300/n2684.
+**⇒ killing the partial redundancy does not free a register; it renames the occupant.**
+
+### ★★★ THE RESULTING CONTRADICTION — state it honestly, it is the real finding of this round.
+ROM addresses `sp+208` inside the f_308 block (`addiu a0,sp,208` @802, `addiu a2,sp,208` @806) **and**
+in the tail (`addiu s0,sp,208` @928 with two `daddu` uses); same for `sp+192` (@804/@821 and @923) and
+`sp+112` (f_220 @760/@764 and tail @899 with five `daddu` uses). Under the model above ee-gcc **must**
+build one function-wide reaching-reg web for each of those three expressions. **ROM has none of them**
+(a full scan of ROM for `addiu s[0-8],sp,K` finds ZERO between index 566 and 899, and the tail's four
+`addiu s0/s1,sp,{112,192,208,240}` at 899/923/928/934 are recycled short-range allocnos = local-alloc,
+not reload remats — reload cannot keep a reload reg live across five `jal`s).
+Everything that could dissolve the contradiction was checked and **eliminated**:
+- **Stack-slot sharing between disjoint C scopes: DOES NOT HAPPEN** (`mt19/t.c`: four 16-byte arrays in
+  two disjoint blocks → `vars=64`, offsets 0/16/32/48). So ROM's two occurrence groups are provably the
+  SAME array, and our declaration set is right.
+- **No gcse bail-out**: `gcse_main` (`eegcc_src/gcse.c:704-840`) punts only on `calls_setjmp` and
+  `n_basic_blocks <= 1`; there is no size/edge/memory gate (the `> 1000 blocks` heuristic is absent, and
+  the `%d bytes needed` figure is accounting only). Our function: 174 bbs, 185592 bytes, PRE ran.
+- **PRE is on in the ROM build**: `pursueNodeList` in this very TU is rc0 **and** its dump shows
+  `PRE GCSE ... 2 substs, 2 insns created`; and ROM itself contains *spilled* frame-address webs
+  (`sw v0,440(sp)` = `&v60`, `sw v1,444(sp)` = `&v120` at ROM 1229-1233), so ROM's build forms these webs
+  elsewhere. It is only case 0x1 / case 0x23 where ROM has none.
+- **`update_equiv_regs`'s "move the initialization into the using block"** (`local-alloc.c:944-964`)
+  needs `REG_N_REFS == 2`; the tail pseudos have 5 and 2 uses. Not the explanation.
+**⇒ Our reconstruction of case 0x1's else-arm is still wrong in some way that neither the ROM asm nor
+any dump has exposed. The wrongness is NOT in the CFG of the f_308/cnt region, NOT in pointer spelling,
+and NOT in the array identities.** Next round should treat "what C makes ee-gcc *not* address v70/vC0/qD0
+inside the conditional blocks at all" as the open question — e.g. whether those three blocks are really
+three copies of one pattern over *different* variables than we assume.
+
+### ★ SECONDARY, INDEPENDENT AND WELL-LOCALISED (found via a new ROM-vs-ours census, worth a round on its own)
+`addiu s[0-8],sp,K` count: **ROM 59, ours 71 (+12)**, and the surplus is concentrated in exactly two places:
+(a) case 0x1 indices 753/759/764/796/803/810/826/860/861 (the three webs + their edge inserts — the class
+above), and (b) case 0x13's arm-head bundle. **ROM's bundle is FOUR members duplicated into both entry
+paths — `addiu s3,sp,112`(v70) `addiu s4,sp,240`(qF0) `addiu s7,sp,272`(v110) `addiu s2,sp,304`(v130) at
+ROM 1234-1237 and again at 1264-1267 — while ours is THREE: v110→s7, v130→s3, v120(288)→s4** (ours
+1245-1247 / 1270-1272). Missing: `&v70` and `&qF0`; extra: `&v120`. Bucket 1200 is 63 diff insns of which
+**23 are MISSING** — the largest structural deficit in the function, and it is this bundle.
+ROM also memory-resides a PAIR there (`&v60`→440(sp), `&v120`→444(sp), stored in both arms); we
+memory-reside `&qF0`→432(sp) instead. Round 14's "land such pairs together" note applies and was never
+executed for THIS pair.
+
+## Round 20 (fable, 2026-07-28) — base LEFT AT rc387/s247 (unchanged). ★★ THE ROUND-19 CONTRADICTION IS RESOLVED WITH A VALIDATED END-TO-END MECHANISM; one probe landed and was reverted (stashed); the residual is now ONE unsolved SPELLING question, not an open mystery.
+
+Base restored and re-verified: TU `39e5fbddb0ffab768a3676bcf4fc7d89`, 1249 lines, rc387 s247
+dop54 dreg45 SCORE99 n2690, hunks 387, all 4 siblings rc0. Probe stashed:
+`.claude/.decomp_stash/rsm_conv_r20_probeA_carriers_rc513_s300.c`. Microtest matrix kept at
+`tough_nuts/ResetStatic2MotionManager/mt20/` (harness.sh, mk.py, note.py, v0-v9, mini*, n_s*).
+
+### ★★★ THE RESOLUTION OF THE CONTRADICTION (round 19's "ROM has no web yet must have one")
+
+ROM's case-0x1 shape is: **one dominating SINGLE-SET pointer pseudo per array (`&v70`,`&vC0`,`&qD0`),
+carrying a cse REG_EQUAL note promoted to REG_EQUIV, that LOSES coloring and is REMATERIALIZED
+per use by reload** — NOT "no pseudo at all", and NOT a PRE web:
+
+1. With every use (f_220/f_308 blocks AND tail) routed through one dominating carrier, the ONLY
+   hashable gcse occurrence per array is the carrier's own set → LCM defers everything → **zero PRE**
+   (probe A measured on the TU: expr 207 `&qD0` 0 dels / 0 inserts; `&vC0`/`&v70` bb61 deletions gone;
+   the (53,59)/(54,59) edge inserts gone). This kills the round-18/19 "web is unavoidable" reading:
+   it is unavoidable ONLY while blocks or tail contain their own `(set pseudo (plus at K))`.
+2. A LOSING carrier's codegen depends on ONE bit: the REG_EQUIV note.
+   - **No note → MEMORY (sw/lw)** — E1's failure, and probe A's (`lw +8`). reload1.c:693-735 reads
+     `find_reg_note (insn, REG_EQUIV)`; only then `reg_equiv_constant[i] = (plus fp K)` (remat);
+     otherwise stack slot. `update_equiv_regs` (eegcc local-alloc.c) promotes ONLY an existing
+     REG_EQUAL note (`PUT_MODE (note, REG_EQUIV)`); the sole note-free path requires a MEM src.
+   - **With note → REMAT: per-use `addiu` directly into the ARG REGISTERS, zero memory traffic** —
+     ROM 760/764, 802/806. Validated on-microtest (mt20/v9): a noted carrier that lost emitted
+     `addu $4,$sp,32` / `addu $5,$sp,32` at its two uses, no spill.
+   - The note also DOUBLES REG_LIVE_LENGTH (local-alloc.c:855) → priority halves → the carrier
+     allocates AFTER `q1`/`q3`/`hold`/`cnt` → loses ⇒ the SAME note both frees the s-registers for
+     ROM's variables and produces ROM's remat codegen. One bit, both effects.
+3. **ROM's tail (899/923/928/934 `addiu s0/s1,sp,K` + `daddu` copies) = reload remat into a
+   CALLEE-SAVED reload reg + reload inheritance across calls.** Round 19's "a reload reg cannot live
+   across five jals" is WRONG for a callee-saved reload reg — inheritance is only blocked for
+   call-clobbered ones. The blocks get fresh per-use remats into a0/a2 exactly because the calls
+   clobber the arg-reg reloads.
+4. Where the note comes from (cse.c): `insert()` marks any `FIXED_BASE_PLUS_P` expr `is_const`
+   (cse.c:1393/571); cse_insn attaches REG_EQUAL when `n_sets==1 && src_const && dest REG &&
+   src_const!=REG` (cse.c:7169) and src_const is found via an is_const element already in the
+   class (cse.c:6681) — i.e. **the note lands only on a NON-FIRST occurrence of `(plus at K)` on its
+   cse path, and only when the earlier holder does not swallow the uses** (canon-to-oldest). This is
+   why bare single carriers (E1, probe A) get NO note: they are first occurrences.
+   In-TU natural example: case 0x23's `reg 400` (insn 1420, src `(plus at 112)` + REG_EQUIV) —
+   its same-block predecessor use folded into the hard-reg arg move (insn 1396
+   `(set a0 (plus at 112))`, gcse-INVISIBLE).
+
+### ★ MEASURED SPELLING MATRIX for the note (mt20/note.py; each = single-set reg/v carrier `w`)
+- `w=a; w=a;` → cse self-move-deletes the 2nd → survivor noteless (this was probe A). NO.
+- `{float *t=a; w=t;}` / `{float *t=a; w=a;}` / `{float *t; t=a; w=a;}` / interleaved pairs /
+  `w=(float*)((char*)a+0)` → all noteless (uses canon to the OLDEST holder or self-move). NO.
+- **`t=a; call(t); w=a;` → NOTE on w, src kept `(plus at K)`** (s7; also v9 with t reassigned
+  serially across three arrays). YES — but inserts a real call.
+- `t=a; othercall(); call(t); w=a;` → noteless (s20) — the adjacency window is narrow;
+  exact rule not yet mapped.
+
+### ★ PROBE A (landed then reverted; stash rsm_conv_r20_probeA_carriers_rc513_s300.c)
+Three arm-head carriers `wv/wc/wd` (double-set spelling) + ALL case-0x1 uses routed through them:
+rc513 / s300 / dop62 dreg74 SCORE136 / n2686. PRE for case 0x1 fully killed (the structural half
+works) but carriers noteless → MEMORY (`lw +8`, `addiu −26`) → strictly un-ROM. **Do not re-land
+without the note.**
+
+### ⇒ ROUND-21 TARGET, precisely: find the DEV-NATURAL spelling that yields three noted
+dominating carriers at the arm head (or an equivalent occurrence structure). Constraints proven:
+single-set; must dominate blocks+tail; note requires a preceding same-path same-K occurrence whose
+holder dies without accreting the uses. Candidates untested on the TU: (a) exact s7 shape exploiting
+the existing `GetMotionMemorySize` call by routing one of ITS args... (no array args — likely dead);
+(b) first-holder consumed by an EXISTING call between the case head and the arm (`q30`/`q20` region
+has calls but wrong arrays); (c) plain single carriers relying on the TU's richer cse-path state
+(E1 measured noteless — dead); (d) map the adjacency rule properly in eegcc cse.c (the s7-vs-s20
+discriminator) and derive the spelling from the rule instead of guessing. (d) is recommended first —
+it is one read of cse_insn's src_const/canon interplay with `invalidate_for_call`
+(NB `reg 1 at` IS call-clobbered; check what each call does to the class and to qty_const).
+Secondary target (round 19's) untouched this round: case 0x13's 4-member arm-head bundle
+(missing `&v70`/`&qF0`, extra `&v120`) — note it is the SAME mechanism family: multi-set bundle
+pointers = real allocnos (win), the `&v60`/`&v120` pair = multi-set noteless (memory), and any
+single-set noted one = remat. The whole function's frame-address residual is now ONE taxonomy.
+
+### Round-20 addendum — tooling pointer for the (d) route
+`invalidate_for_call` (eegcc cse.c) removes only call-clobbered HARD-REG elts and `in_memory` elts;
+`reg 1 (at)` is FIXED, hence NOT in `regs_invalidated_by_call` — the `(plus at K)` class survives
+calls. So the s7-vs-s20 discriminator is NOT call staleness; it is somewhere in cse_insn's
+canon/src_const interplay. **Use `-ds` (cse1 dump, `<tu>.cse`) the way round 19 used `-dG`:** it
+shows per-insn what cse rewrote and which notes it attached — map the discriminator from the dump
+on mt20/n_s7.c vs n_s20.c before writing any TU C.
+
+## Round 21 (opus, 2026-07-28) — base LEFT AT rc387/s247 (unchanged, 6th flat round). ★★ ROUND 20'S NOTE MATRIX IS A MEASUREMENT ARTIFACT AND ITS CASE-0x1 MODEL IS WRONG. The generator of the `&v70` web is now located to ONE basic block with a dump proof.
+
+Base re-verified at start AND end: TU `39e5fbddb0ffab768a3676bcf4fc7d89`, 1249 lines, rc387 s247,
+`dop54 dreg45 SCORE99 n2690`, hunks 387, remat ledger |Δ| 22, all 4 siblings **rc0**, crutch-free,
+main untouched, no commits. New stash `.claude/.decomp_stash/rsm_conv_r21_qf0single_rc385_s246.c`
+(md5 `953499d12e660998a3a413632bf7d509`) — MEASURED BUT REJECTED, see F1 below.
+Tooling + probes preserved at `tough_nuts/ResetStatic2MotionManager/mt21/`.
+
+### ★★★ ROUND 20'S `REG_EQUAL` NOTE MATRIX IS AN ARTIFACT — DO NOT BUILD ON IT
+
+`mt20/note.py`'s regex grabs 400 characters starting at the pseudo's set insn, which runs past the
+end of that insn and into the FOLLOWING hard-reg arg move `(set (reg a0) (reg N))` — and it is that
+arg move, not the carrier, that carries `REG_EQUAL (plus at K)`. Re-measured with a real
+s-expression splitter (`mt21/np.py`, reports only notes attached to the insn itself):
+
+    n_s6  `t1(a); w = a;`                     carrier reg86  NO note
+    n_s7  `{float *t; t=a; t1(t); w=a;}`      carrier reg85  NO note
+    n_s8  `w=a; t1(w); w=a;`                  carrier reg84  NO note
+    n_s20 `{float *t=a; t2(pad); t1(t); w=a;}` carrier reg85 NO note
+
+**⇒ The "s7-produces-the-note / s20-does-not adjacency discriminator" that round 21 was chartered
+to map DOES NOT EXIST — neither produces a note, and all three of s6/s7/s8 emit byte-identical asm.**
+
+### ★ THE REAL NOTE DISCRIMINATOR (measured, `mt21/mk21.py`)
+
+A carrier gets `REG_EQUIV` when cse rewrites its set into a **REG-to-REG copy from a scratch pointer
+that is LATER REASSIGNED**, so nothing can coalesce the copy away:
+
+    a1  {float *t; t=a; t1(t); w=a;} w2=b; t1(w2);            -> no note   (t single-set: coalesced into w)
+    a2  {float *t; t=a; t1(t); w=a;  t=b; t1(t); w2=b;}       -> **w = (set 84 (reg 86)) + REG_EQUIV**
+    a3  {float *t; t=a; w=a; t=b; w2=b; t1(t);}               -> no note   (t's first set dies; needs a real use)
+    a4  ... w=t; ... w2=t;  (explicit copy spelling)          -> identical to a2
+    a5  a2 + a third `t=pad; t1(t);`                          -> **BOTH w and w2 noted**
+    a6  if(c1()) t=a; else t=b; t1(t); w=a; w2=b;             -> no note
+    a7  w=a; t1(w); w=a; w2=b; t1(w2); w2=b;  (probe A shape) -> no note
+
+**Validated end-to-end under register pressure** (`mt21/p_plain.c` vs `mt21/p_scratch.c` = v9):
+plain single-set carriers → 3 sp-address materializations, **all winning callee-saved regs**, 21
+spill/reload memory ops. Scratch-noted carriers → 6 materializations of which **3 are per-use remats
+straight into arg registers** (`addu $4,$sp,32` / `addu $5,$sp,32`), 17 memory ops. So round 20's
+note→remat physics is real; only its spelling matrix was wrong.
+
+### ★ THE IN-TU "NATURAL EXEMPLAR" IS A SECOND, DIFFERENT ROUTE (dumped, not inferred)
+
+`reg 400` / insn 1420 is **not** a scratch-copy carrier. It is `precompute_register_parameters`'
+pseudo for the **third argument** of `MatrixDrive_GetTurnXAngleZY(w, pb, v70)` at source line 386,
+seeded by insn 1396 `(set (reg a0) (plus at 112))` from the preceding
+`MatrixDrive_TurnZObjectMatrixXY(w=v70, …)` at line 384. Its src is KEPT as `(plus at 112)` and
+`REG_EQUAL` is attached directly (the `cse.c:7169` path). **No scratch variable is involved.**
+NB the `.lreg` dump is post-combine, so a *direct* `(set a0 (plus at K))` there does NOT prove gcse
+saw no pseudo — that inference cost round 21 two probes (D1, I1/I2).
+
+### ★★ ROM'S CASE-0x1 SHAPE, READ DIRECTLY (m_qd.txt 744-960) — SUPERSEDES ROUND 20'S MODEL
+
+ROM does **NOT** have "one dominating single-set carrier per array spanning blocks + tail". It has
+**no cross-block carrier at all**:
+- **f_220 / f_308 blocks:** every frame address is materialized FRESH per use straight into the arg
+  register — `addiu a0,sp,112` @760 + `addiu a2,sp,112` @764; `addiu a0,sp,208` @802 +
+  `addiu a2,sp,208` @806; `addiu a0,sp,192` @804 + `addiu a2,sp,192` @821. Zero held pointers.
+- **Tail:** TWO short-lived RECYCLED pointers — `s0` = `&v70` (899, four `daddu a0,s0,zero` +
+  `daddu a2,s0,zero`) then re-set to `&qD0` (928); `s1` = `&vC0` (923) then `&qF0` (934).
+  That is exactly our source's `w = v70; … w = qD0;` shape, already correct.
+- Ours instead: `s3` = `&v70` held whole-region (the PRE web), `s8` = `&vC0`, `&qD0` in memory 460,
+  and `cnt` displaced s3→s7 (ROM `addiu s3,s3,1` @756/@849). The PRE insert also steals the delay
+  slot at our 752-753, forcing `bne` where ROM has `bnel` @750.
+
+### ★★★ THE GENERATOR IS LOCATED TO ONE BASIC BLOCK (gcse `-dG` dump + four throwaway diagnostics)
+
+| probe | change (throwaway) | `&v70` PRE ledger |
+|---|---|---|
+| BASE | — | 5 dels [61,73,76,120,122], inserts (47,53)(50,53)(51,53)(117,118)(117,120) |
+| **D1** | f_220 block's *3rd-arg* v70 (line 536) → v60 | **bit-identical to BASE** |
+| **D2** | case-0x1 TAIL `w = v70` (line 589) → v50 | 4 dels, **(47,53)(50,53)(51,53) GONE**; v50 immediately inherits the identical treatment |
+| **D3** | every v70 use OUTSIDE case 0x1 → v50 | **1 del [61], inserts still (47,53)(50,53)(51,53)** |
+| **D4** | BOTH f_220-block v70 uses (lines 535+536) → v50 | **4 dels [73,76,120,122], (47,53)(50,53)(51,53) GONE** |
+
+From the `-dG` flow dump:
+
+    bb47 GetMotionMemorySize   succ[48 (fallthru) 53 (crit)]
+    bb50                       succ[51 (fallthru) 53 (crit)]
+    bb51                       succ[52 (fallthru) 53 (crit)]
+    bb52 = the f_220 block     succ[53 (fallthru)]
+    bb53 pred[52 (fallthru) 51 (crit) 50 (crit) 47 (crit)]  succ[54 (fallthru) 59 (crit)]
+    bb61 = the case-0x1 tail
+
+**bb53 (the join of `if (n==1){ if(f_280){A} if(f_30C==n && f_220){B} }`) has FOUR predecessors, and
+PRE inserts on exactly the three CRITICAL ones — never on the fallthru edge 52→53.** That is
+LCM's `INSERT(e) = LATER(e) & ~LATERIN(succ)` with `LATERIN(53)=0`, and `LATERIN(53)=0` because
+`LATER(52→53) = EARLIEST | (LATERIN(52) & ~ANTLOC(52))` is killed by **`ANTLOC(bb52)=1`** — the
+f_220 block locally computes `(plus at 112)`. **⇒ ANTLOC(bb52) is the single bit that stops LATER
+propagating forward to bb61 and forces the three edge inserts. D4 proves it: kill bb52's occurrence
+and the whole case-0x1 `&v70` web disappears.** D1 was insufficient because line 535's *first*
+argument also produces a gcse-visible pseudo (the `.lreg` direct `addiu a0` is post-combine).
+This also explains D3: the hoist survives with a single occurrence anywhere downstream, and D2:
+retargeting the tail removes ANTLOC's customer so the inserts have no purpose.
+
+**The residual question for round 22, stated exactly:** ROM's f_220 block and ROM's tail *both*
+compute `(plus at 112)`, TRANSP is 1 everywhere, yet ROM has no insert at its bb53. Either ROM's
+bb52-equivalent has `ANTLOC=0` for `(plus at 112)` at gcse time (⇒ find the arg spelling that keeps
+both f_220 materializations out of the expression table — note **arg pre-loading does NOT do it**,
+I1/I2 below), or bb53's predecessor structure differs. **Attack ANTLOC(bb52), not the CFG and not
+the carriers.**
+
+### NEGATIVES THIS ROUND (each with its mechanism; do not repeat as-is)
+
+- **E1/E2/E3/E4** — pass `qD0` / `vC0` / `v70` directly instead of through `w` in case 0x1:
+  **E3 exactly codegen-identical** (rc387/s247/n2690, identical ledger); E1 rc394 s247 n2696;
+  E2 rc426 s262; E4 rc396 s247 n2696. The PRE ledger is unchanged in every one — carrier-vs-direct
+  spelling does not move the web (re-confirms round 18's "the pointer variable is invisible").
+- **C2/C3/C4** — three goto-CFG rewrites of the `if (n == 1)` region (inverted-guard `goto j1`;
+  flattened `n==1 && …` top-level conditions; inner `goto j2` for the `f_30C != n` guard):
+  **ALL THREE EXACTLY CODEGEN-IDENTICAL to base** — same rc/s/dop/dreg/n AND the same PRE ledger
+  bb-for-bb. Round 18's "restructure so the edge stops being critical" is measured dead for these
+  shapes; the pred count of bb53 is inherent to the two nested guards.
+- **H1** — spell the tail's `vC0`→`qF0` through a second recycled pointer `u`, mirroring ROM's `s1`
+  exactly: **exactly codegen-identical.** The tail's letters are decided by the web, not by the
+  pointer variables. H2 (tail-local `wt` block scope) rc393 s246 n2696.
+- **I1/I2** — pre-load `(char*)t+0x30` and `D_0062C230` into locals so `v70` is the last thing
+  expanded into `a0`: **exactly codegen-identical, ledger unchanged.** Argument-order/cheapness
+  spelling does NOT suppress `precompute_register_parameters`' pseudo.
+- **G1/G2/G3** — case-0x13 arm-head carriers (`w2 = v120`; `p70 = v70`; both) with all arm uses
+  routed through them: rc407 / rc426 / rc430. **Mechanistically wrong direction:** re-read of ROM
+  1219-1267 shows ROM emits its arm bundle TWICE (at 1229-1237 and 1259-1267, on the two
+  predecessors of the loop merge) — those are gcse-PRE **edge inserts**, not source assignments.
+  ROM has SIX webs in that arm (`&v70`→s3, `&qF0`→s4, `&v110`→s7, `&v130`→s2 win; `&v60`→mem 440,
+  `&v120`→mem 444 lose). **Case 0x13 needs MORE webs, case 0x1 needs FEWER — opposite targets.**
+  A single dominating arm-head carrier is single-set and produces no web at all.
+- **F1 / F1c / F1d — measured, REJECTED as the base.** F1 hoists `qF0p = qF0;` above the `f_280`
+  dispatch (all three arms assigned it identically, so it is semantically identical and dev-natural).
+  It DOES flip a class: pseudo `1054 0xf0(qF0)` goes from **3-set / no note / *MEMORY*** to
+  **1-set / REG_EQUIV / *SPILL/REMAT***, and rc 387→385, sites 247→246, hunks 387→385.
+  **Rejected because every structural gauge moved the wrong way:** n 2690→**2686** (parity deficit
+  −2 → −6), dop 54→56, remat ledger |Δ| 22→**23** (qF0 ours 3→2 vs ROM 4), and the TARGET bucket
+  1200 got **worse 63→65** — the entire hunk gain came from the unrelated bucket 1400 (34→30).
+  Count-greedy in a region the edit does not address. F1c (drop `qF0p`, use `qF0` directly) rc389
+  s252 n2690; F1d (F1 + hoist `w = v60` too) rc391 s245 n2686.
+
+### Measured reference data (for the next round)
+
+Spill-slot traffic, ROM vs ours (base): ROM `{416:8, 420:3, 424:4, 428:3, 432:3, 436:4, 440:10,
+444:6, 448:8}`; ours `{416:8, 420:2, 424:5, 428:4, 432:6, 436:3, 440:3, 444:4, 448:3, 452:4, 456:5}`.
+**ROM concentrates in three heavily-used slots (440/444/448); we scatter across five, including
+452/456 which ROM does not have at all.**
+
+---
+
+## PARK STATE (2026-07-29) — seed refreshed to the round-21 base
+
+The seed `ResetStatic2MotionManager.c` in this directory is no longer the
+2026-07-06 rc606 snapshot. It has been replaced by the **round-21 base**
+that lived only as uncommitted work in the (now removed) `motionmgr`
+worktree:
+
+- **rc387 / sites 247 / n2690**, crutch-free. Progression 453 -> 412 -> 408
+  -> 387 across rounds 13-15; rounds 16-21 flat on count while the mechanism
+  was narrowed (see the round-20/21 sections above).
+- The chain was **PAUSED by user directive at round 19**, then carried to
+  round 21's gcse/PRE analysis. **Paused is not a floor** — the residual is
+  named and localised: `ANTLOC(bb52)` for `(plus at 112)` is the single bit
+  forcing the three critical-edge PRE inserts that build the `&v70` web in
+  case 0x1. Attack that, not the CFG and not the carriers.
+- The whole-TU snapshot is the seed by the `tools/park_tu.py` contract;
+  `strip_other_fns.py` reduces it to the target at permuter run time.
+- `sugipon/src/motionFileManager.c` on the branch stays at `INCLUDE_ASM`.
+
+The analysis tooling referenced throughout these notes is now committed
+alongside the seed (`findreg_sim.py`, `sim3.py`, `sim4.py` — the
+**class-aware** one that supersedes the earlier GP-only sims — `oracle.sh`,
+`oracle4.sh`, `r9_*`..`r19_*` probes). The multi-megabyte compiler-dump
+directories those scripts produce (`_sp/`, `d11/`, `g19/`, `mt20/`, `mt21/`)
+were deliberately NOT committed; regenerate them with `oracle.sh`.
