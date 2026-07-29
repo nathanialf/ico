@@ -304,7 +304,60 @@ int func_0024F4E0(int arg) {
     return *(int *)D_00719580;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_0024F5A0);
+extern char *func_00265570(char *dst, const char *src, int n);
+
+/* The name-carrying request block: a 0x14-byte header followed by a
+ * 0x400-byte name, submitted whole (0x414). */
+typedef struct {
+    int f0;
+    int f4;
+    int f8;
+    int fC;
+    int f10;
+    char name[0x400];
+} NameReq;
+
+extern NameReq D_00718070;
+
+/* String sub-template, copy-first form, with a third header word. */
+int func_0024F5A0(int a0, int a1, int a2, int a3) {
+    char *name = (char *)a2;
+    char *dev;
+    int r;
+    if (func_00100570(D_005523D4[0]) < 0) {
+        return -0xC8;
+    }
+    dev = D_00717FC0;
+    if (*(int *)(dev + 0x24) == 0) {
+        func_00100540(D_005523D4[0]);
+        return -0x64;
+    }
+    if (name == 0) {
+        goto badname;
+    }
+    if (*name != 0) {
+        goto ok;
+    }
+badname:
+    func_00100540(D_005523D4[0]);
+    return -0xD2;
+ok:
+    func_00265570(D_00718070.name, name, 0x3FF);
+    D_00718070.f0 = a0;
+    D_00718070.f8 = a3;
+    D_00718070.f4 = a1;
+    D_00718070.name[0x3FF] = 0;
+    r = func_00246458(dev, 2, 1, &D_00718070, 0x414, D_00719580, 4, 0, 0);
+    if (r != 0) {
+        goto unlock;
+    }
+    *(int *)D_005523D0 = 2;
+    goto done;
+unlock:
+    func_00100540(D_005523D4[0]);
+done:
+    return r;
+}
 
 extern int func_0024F5A0(int a0, int a1, int a2, int a3);
 
@@ -488,7 +541,47 @@ done:
     return r;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_002502F8);
+
+/* String variant of the device-request template: refuses an absent or
+ * empty name with its own error, copies the name into the request block,
+ * then submits it. */
+int func_002502F8(int a0, int a1, char *name) {
+    char *dev;
+    int r;
+    if (func_00100570(D_005523D4[0]) < 0) {
+        return -0xC8;
+    }
+    dev = D_00717FC0;
+    if (*(int *)(dev + 0x24) == 0) {
+        func_00100540(D_005523D4[0]);
+        return -0x64;
+    }
+    if (name == 0) {
+        goto badname;
+    }
+    if (*name != 0) {
+        goto ok;
+    }
+badname:
+    func_00100540(D_005523D4[0]);
+    return -0xD2;
+ok:
+    func_00265570(D_00718070.name, name, 0x3FF);
+    D_00718070.f0 = a0;
+    D_00718070.f4 = a1;
+    D_00718070.name[0x3FF] = 0;
+    D_00718070.f8 = 0;
+    r = func_00246458(dev, 0xF, 1, &D_00718070, 0x414, D_00719580, 4, 0, 0);
+    if (r != 0) {
+        goto unlock;
+    }
+    *(int *)D_005523D0 = 0xF;
+    goto done;
+unlock:
+    func_00100540(D_005523D4[0]);
+done:
+    return r;
+}
 
 /* Take the device lock, refuse if the device is not open, publish the
  * argument into the shared request block and submit it.  On success the
@@ -550,7 +643,44 @@ done:
     return r;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_002508E0);
+/* Sibling of func_002502F8: same string variant, but the header words are
+ * written BEFORE the name copy and there is no third word to clear. */
+int func_002508E0(int a0, int a1, char *name) {
+    char *dev;
+    int r;
+    if (func_00100570(D_005523D4[0]) < 0) {
+        return -0xC8;
+    }
+    dev = D_00717FC0;
+    if (*(int *)(dev + 0x24) == 0) {
+        func_00100540(D_005523D4[0]);
+        return -0x64;
+    }
+    if (name == 0) {
+        goto badname;
+    }
+    if (*name != 0) {
+        goto ok;
+    }
+badname:
+    func_00100540(D_005523D4[0]);
+    return -0xD2;
+ok:
+    D_00718070.f0 = a0;
+    D_00718070.f4 = a1;
+    func_00265570(D_00718070.name, name, 0x3FF);
+    D_00718070.name[0x3FF] = 0;
+    r = func_00246458(dev, 0x12, 1, &D_00718070, 0x414, D_00719580, 4, 0, 0);
+    if (r != 0) {
+        goto unlock;
+    }
+    *(int *)D_005523D0 = 0x12;
+    goto done;
+unlock:
+    func_00100540(D_005523D4[0]);
+done:
+    return r;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_002509F8);
 
