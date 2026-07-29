@@ -2751,19 +2751,59 @@ reversing the addend order.  Near-miss source in this pass's scratch
 `sw zero,12` priority so it retires with its sibling (give the stored value an
 in-block consumer, or make out[2]/out[3] part of the same object as out[0]).
 
-## Parked at sites 4 — st47a `func_0023A5B0` (46 insns)
+## CORRECTION (conv-13) — st47a `func_0023A5B0` is NOT the `%hi`-pair class
 
-Same `%hi`-pair class the ledger already records for `src/st02a`
-actSt02aEne / actSt02aSekizo (line ~218) and `src/st04e`
-actSt04eWaterFlagOn: the tail's two `%hi` pseudos (the callback table and the
-continuation function) land in the wrong pair of registers — ROM `$3`/`$6`,
-ours `$2`/`$3`.  Here it is entangled with a third store
-(`*(int *)(actSt25aQueenDeadChk(0x1CC) + 0x16C)`), and all six permutations of
-the three tail statements were measured: `table[1]; unkC4; QueenDeadChk` is the
-best at sites 4 (rc 15), the natural `QueenDeadChk; table[1]; unkC4` is sites 5
-(rc 9), and putting the QueenDeadChk store in the MIDDLE costs sites 11.  This
-is now a FIFTH instance of that one allocno-priority tie; solving it once
-would land five functions.
+conv-12 filed this as "a FIFTH instance of the two-allocno `%hi` tie" and
+recommended solving the tie to land five functions.  **Both halves of that are
+wrong, and this entry supersedes it.**
+
+1. **The `%hi` tie was already RESOLVED, in conv-5** (see "RESOLVED — the
+   two-allocno `%hi` tie (5 funcs, one root cause)" above).  All five members —
+   `actSt04eWaterFlagOn`, `actSt02aEne`, `actSt02aSekizo`, `actSt05dDoor2UpChk`,
+   `actSt03tWayOffChk` — are matched in the tree today; verified per function
+   against their TUs' `INCLUDE_ASM` sets.  There is no five-function payoff to
+   chase.  conv-12 cited the stale batch-5 row (line ~218) without noticing the
+   conv-5 resolution further down the same file.
+
+2. **`func_0023A5B0` is a different problem.**  The resolved class is about
+   gcse PRE hoisting two `(high (symbol_ref …))` expressions out of a WAIT LOOP
+   into CALLEE-SAVED registers, where the bucket order of the expression hash
+   table (a function of the symbol's spelling) picks which gets the lower
+   register; the fix is the `base + index` re-spelling.  `func_0023A5B0` has no
+   loop — its tail is straight-line inside an `if` — so PRE hoists nothing, and
+   its two `%hi`s live in CALLER-saved registers (ROM `$3`/`$6`, i.e. `v1`/`a2`).
+   The conv-5 recipe does not apply and was measured not to: sweeping the
+   address over eleven `base + N` spellings moved nothing (all bases that
+   compiled gave the identical result).
+
+### What `func_0023A5B0` actually is (sites 4, best measured)
+
+One root cause: **the third store `*(int *)(actSt25aQueenDeadChk(0x1CC) + 0x16C) = 0`
+retires too early, which frees `v0` and re-letters both addresses.**
+ROM emits, after the QueenDeadChk call: `lui $3`(table), `lui $6`(handler),
+`lw $4,0(sp)`, the two `addiu`s, `addiu $5,0x18D`, `sw $3,0xC4($16)` (unkC4),
+`sw $0,0x16C($2)` (the third store), then `sw $6,0x4($3)` in the BoxBarSoundOn
+delay slot.  `$2` therefore stays live across BOTH address materialisations,
+which is exactly why the table takes `$3` and the handler takes `$6` — `v0` is
+busy and `a0`/`a1` are reserved for the imminent call.  Every shape we produce
+retires that store immediately after the call, freeing `v0`, and the letters
+follow.
+
+Measured and refuted — do NOT re-run these: all six permutations of the three
+tail statements, with AND without an `int q` temp holding the call result (12
+combinations; best 4 sites at `T,U,Q`/`T,Q,U`/`U,T,Q`, and 5 sites at any order
+with `Q` first); eleven `base + N` re-spellings of the table address; and the
+third store spelled as a pointer store instead of an int store.  Note the
+alias-set constraint that limits the space: the third store and `D_x[1] = fn`
+are both in the `int` set so their relative order is fixed by source, while
+`gobj->unkC4` is a pointer store and moves freely.
+
+Next reasoned lever, from `rank_for_schedule`'s second key: the third store is
+`q`'s LAST use, so INSN_REG_WEIGHT gives it a register-freeing boost and it
+schedules early.  ROM's does not get that boost — so in the dev's source `q`
+has a later consumer, or the value is not a call result held in a pseudo at
+all.  Look for a second, real use of the QueenDeadChk object in the retail
+code rather than trying to hold the store back by ordering.
 
 ## Remaining in this scope
 
@@ -2864,3 +2904,71 @@ without re-deriving from `local-alloc.c` with a debugger-grade read.
 * `func_0015D1F8` (76), `motCommonRopeTurnR` (71), `func_0015CD70` (81),
   `func_00159AF0` (81) — read and understood, all reload-heavy or float-heavy;
   tractable but each needs several iterations.
+
+# conv-13 / branch `acttails-4`
+
+No new matches this pass — see the CORRECTION above, which supersedes conv-12's
+primary recommendation.  Two further findings, both worth more than the target
+they came from.
+
+## The arg-in-v0 class — concrete evidence, and it is NOT `static`+same-TU
+
+conv-12 flagged `enemy_act func_00163890` and `girl_act actGirlDitch3mExec` as
+the arg-in-v0 class and cited the auto-memory's "`static` + same-TU-caller"
+shorthand.  That shorthand does not describe what is actually in the ROM here.
+The caller is `ChangeBrain_ToAttack` (same TU), and the call site is:
+
+```
+    /* 63B28 00163B28 */  jal    func_00163890
+    /* 63B2C 00163B2C */   daddu $2, $29, $0      <- delay slot: $2 = the CALLER'S $sp
+```
+
+so the callee receives `&caller_local` in **`$2`**, and `func_00163890` opens
+`daddu $5,$2,$0` / `sw $2,0(sp)` / `lw $2,0($5)` — it dereferences it.  It is a
+real `jal`, not a fall-through, and `func_00163890` (0x163890-0x16394C) sits
+entirely before `ChangeBrain_ToAttack` (0x163950), so this is not a splat
+merge either.
+
+ee-gcc 2.9 for MIPS has no interprocedural register allocation and no custom
+convention for `static` callees, so "make it `static`" cannot by itself produce
+this.  The only mechanisms in-tree that pin an argument to `$2` are
+`register T v asm("$2")` and an inline `asm volatile` (`src/st04d.c:184` uses
+exactly that for `$4`) — and an inline-asm argument pin is a CRUTCH under this
+project's rules, so it must not be committed as the match.  **Do not queue
+these two as ordinary work until the mechanism is established.**  The honest
+next step is to find an already-MATCHED function in the tree that receives an
+argument in `$2` and read how it is spelled; if none exists, this class is
+unsolved and should be labelled that way rather than as "pair them with the
+caller".
+
+## Parked at sites 3 — enemy_act `MoveChestForCatchBoy` (67 insns)
+
+Whole structure, all three early-exit tests, the `$f20` = 1.0f callee-saved
+FPR, the EABI 5-int-arg `GetHeightOfFieldPlaneDifference` call and the tail all
+match.  Residual is one event with two symptoms: ROM fills the
+`bne $4,$2` delay slot with `daddu $2,$29,$0` — a **dead** materialisation of
+`&buf` that reorg speculatively hoisted out of the branch-target thread (`$2`
+is overwritten on both paths and the three real uses each recompute
+`daddu $rN,$29,$0`) — and because that constant/address pair is born in the
+other order, the compare's four registers come out `v0/a1/v1/a0` where ROM has
+`a1/v0/v1/a0`.  We emit a `nop` in that delay slot.
+Refuted — do NOT retry: constant-on-the-left compare, `!=` with the arms
+swapped, an `int kind` temp for the loaded field, and an `int *g` temp for the
+0x164 object.  All five spellings compile to the identical stream.
+Near-miss source in this pass's scratch (`mccb_s3.c`).
+Next reasoned lever: this is a reorg speculative-fill question, not a source
+ordering one — the target is to give reorg a legal insn to hoist, i.e. make
+`&buf` a value that is live-in to the branch target rather than computed after
+it (the conv-11 `static __inline__` finding is the nearest relevant mechanism,
+in reverse: here we WANT the single shared address pseudo).
+
+## Corrected recommendation for the next pass
+
+The `%hi` tie is closed and `func_0023A5B0` is a single function, so there is
+no five-function target left in this scope.  Highest value now, in order:
+(a) establish the arg-in-v0 mechanism from an already-matched example — it
+gates two functions here and recurs elsewhere; (b) `MoveChestForCatchBoy`
+(sites 3) and `funcGirlHandDisconnect` (sites 6), both one reorg/sched2 event
+from zero; (c) the ordinary girl_act / enemy_act bodies
+(`actGirlWalk`(66), `func_00173060`(68), `actGirlSupportGBLoop`(69),
+`func_001605F8`(73), `_ApproachTarget_Boss`(75)).
