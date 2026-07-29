@@ -2724,3 +2724,92 @@ girl_act (46) and enemy_act (41) remain the bulk; after the arg-in-v0 pair
 above, the next ordinary targets are girl_act `actGirlWalk`(66),
 `func_00173060`(68), `actGirlSupportGBLoop`(69) and enemy_act
 `MoveChestForCatchBoy`(67), `func_001605F8`(73), `_ApproachTarget_Boss`(75).
+## conv-12 — commonact (worker: rwt2)
+
+### Matched
+
+| func | insns | sites before → after | mechanism |
+|---|--:|---|---|
+| `func_0015F578` | 22 | 5 → 0 | **Declaration form of the assert string.** `D_006322F0` is defined later in this TU as a carved `unsigned int[2]`; naming it directly gives gcc a known-size TU-local object and the `%lo` half of its address then outranks the `sd ra` prologue save at the sched2 tie, landing before the save so reorg has nothing for the `jal` delay slot (ROM fills it with the `addiu`). Referring to the same symbol through an incomplete `extern char[]` alias — how a dev declares an assert message — restores ROM's order *and* the `v0`/`v1` pair on the `0x15C` chain with it. Matched with both `int` and `float` members for the 12-byte blob, so the member types are not load-bearing. |
+| `func_0015DA20` | 77 | 0 first try | Five function-scope buffers must be declared **low-offset-first**: gcc assigns stack slots in declaration order at increasing offsets, so declaring them `0x10 … 0x50` puts them where ROM has them and yields the same five callee-saved address registers. The two 12-byte vector copies reuse the F578 struct-assignment shape. |
+
+### Priority-1 result: the "shift-by-one local-alloc" bucket is closed as a class
+
+All three members are now accounted for and **none of them was a coloring tie**:
+
+* `func_0015F650` — the inline-argument lever (conv-11).
+* `func_0015F578` — a symbol declaration form (above).
+* `func_0015ADF0` — still open at 4 sites, but see below; the coloring reading no
+  longer has evidence behind it.
+
+**Generalisation worth carrying: before reasoning about allocation, check the
+declaration of every symbol the function names.** Whether gcc thinks an object is
+small, TU-local and of known size feeds `ENCODE_SECTION_INFO` → `SYMBOL_REF_FLAG`
+→ address costs → sched2 ties, and that shows up as "register naming" diffs far
+from the symbol itself.
+
+### `func_0015ADF0` — parked at 4 sites, with measurements
+
+Best crutch-free source: `commonact_func_0015ADF0_regsnap_s4.c` in the worker
+scratchpad (4 sites / rc 6; `const → $3` and `s164 → $6` match ROM, the `0x15C`
+load floats one slot ahead of the `0x18` store).  Order-exact alternative at 5
+sites: `..._orderexact_s5.c`.
+
+Hypotheses tried this round, all measured, none better than 4:
+
+| shape | sites |
+|---|--:|
+| `&other` bound to a local `int **op` (extra copy reload coalesces away) | 5 |
+| plain `func_0015F650` forward decl instead of an `__asm__` alias | 5 |
+| `int *s164` + `s164[6] = …` instead of `char *` + `*(int *)(s164+0x18)` | 5 |
+| `self15C` inlined at the `0x15C` deref, `self` assigned after it | 6 |
+| extra `int selfA = a0` in front of the `0x164` deref | 5 |
+| both accesses `void **` (register snap, load floats) | **4** |
+| both accesses same alias set (order exact, no snap) | 5 |
+
+Measured local-alloc state for the **order-exact** base (sched1 chain index in
+brackets), which is what a future pass should start from rather than re-deriving:
+
+```
+idx0  insn4    [home] mem/v[at] = $4
+idx1  insn23   r91 = high(func_0015F650)      len 4   -> $2   (ROM $3)
+idx2  insn25   r92 = lo_sum(r91)              len 16  -> $2   (ROM $3)
+idx3  insn248  mem[at+4] = 0                  (other = 0)
+idx4  insn10   r85 = mem/v[at]   readA        len 4   -> $4   (ROM $2)
+idx5  insn53   $5 = at|4         (&other)
+idx6  insn15   r86 = mem/v[at]   readB        len 6   -> $6   (ROM $7)
+idx7  insn12   r84 = mem[r85+0x164]  s164     len 3   -> $3   (ROM $6)
+idx8  insn18   r87 = mem/v[at]   readC        len 3   -> $4   (ROM $4) [pass-1 copy sugg]
+idx9  insn27   mem[r84+0x18] = r92   store
+idx10 insn51   $4 = r87
+idx11 insn30   r93 = mem[r86+0x15C]  deref    len 2   -> $2   (ROM $2)
+idx12 insn32   mem[r93+0x5F8] = 0
+idx13 insn55   call func_00165418
+```
+
+For ROM's assignment, `readA` must be allocated before the `high` pseudo *and*
+`s164` must be allocated after it — i.e. `len(readA) < len(high) = 4` and
+`len(s164) > 4`.  Both are one insn away.  Note also that our allocation gives
+`readA` and `readC` the *same* register even though `readA` dies at idx7 and
+`readC` is born at idx8; `block_alloc`'s `fake_birth`/`fake_death` widening is
+supposed to make exactly that pair conflict, so our quantities are being treated
+as narrower than the widening predicts — the model in the conv-10 section does
+not fully explain the observed assignment and should not be trusted further
+without re-deriving from `local-alloc.c` with a debugger-grade read.
+
+### Still parked
+
+`func_0015D6D0` — 3 sites (unchanged; two more c2/c3 placements tried, both 6).
+`func_0015D488` — 1 site, assembler-parity item, **not a matching target**.
+
+### Not attempted, with reasons
+
+* `actCommonRope` (38) — ROM ends the `func_00158328` call with a dead
+  `daddu $2,$29,$0` (i.e. `$2 = sp`) in the delay slot.  `sp+0` is the volatile
+  param home, so this is an address-of-the-parameter that survives into a dead
+  caller-saved register; no source shape for it identified yet.  Everything else
+  in the function is a straightforward `pac_DispQW() * 10.0f`, `/ 15`, `% 15`
+  chain.
+* `func_0015D1F8` (76), `motCommonRopeTurnR` (71), `func_0015CD70` (81),
+  `func_00159AF0` (81) — read and understood, all reload-heavy or float-heavy;
+  tractable but each needs several iterations.

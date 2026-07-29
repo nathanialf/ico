@@ -699,7 +699,37 @@ void func_0015D9D0(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015DA20);
+typedef struct { int a, b, c; } Vec12;
+extern void func_00243AD0(void *a0, void *a1, void *a2);
+extern int ACTGame_StageChangeGObjID(void *a0, void *a1, void *a2, void *a3);
+extern int func_00168A80(int a0, int a1);
+
+void func_0015DA20(volatile int a0) {
+    int buf10[4];
+    int buf20[4];
+    int buf30[4];
+    int buf40[4];
+    int buf50[4];
+    for (;;) {
+        ActOrientTest(buf20, (void *)a0, 0x2C);
+        func_00240038_p(buf40, (int)subCommonIdle__p4(a0), 50.0f);
+        func_00243AD0(buf30, buf20, buf40);
+        if (ACTGame_StageChangeGObjID(buf20, buf30, buf50, buf10)) {
+            if (func_00168A80(buf50[0], 0x3000)) {
+                BoxBarSoundOn((void *)a0, 0x87);
+                *(Vec12 *)(*(int *)(*(char **)(a0 + 0x164) + 0x678) + 0x3B4) =
+                    *(Vec12 *)buf10;
+            }
+            if (func_00168A80(buf50[0], 0x400)) {
+                BoxBarSoundOn((void *)a0, 0x86);
+                *(Vec12 *)(*(int *)(*(char **)(a0 + 0x164) + 0x678) + 0x3A8) =
+                    *(Vec12 *)buf10;
+            }
+        }
+        BoxBarSoundOn((void *)a0, 0xD2);
+        _ACTWait__p4(1);
+    }
+}
 
 extern int ForMotionViewer_GetCurrentMotion(void *a0, int a1);
 
@@ -1494,7 +1524,16 @@ void actCommonDelete(volatile int a0) {
     actCommonRopeCliff(a0, 0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015F578);
+typedef struct { int a, b, c; } Blob12;
+extern Blob12 D_00282660;
+extern char D_006322F0__f578[] __asm__("D_006322F0");
+extern void actCommonRopeCliff__f578(void *a0, int a1) __asm__("actCommonRopeCliff");
+
+void func_0015F578(volatile int a0) {
+    debug_assertMessage(D_006322F0__f578);
+    *(Blob12 *)(*(char **)(a0 + 0x15C) + 0x1C0) = D_00282660;
+    actCommonRopeCliff__f578((void *)a0, 0);
+}
 
 void func_0015F5D0(volatile unsigned int a0)
 {
