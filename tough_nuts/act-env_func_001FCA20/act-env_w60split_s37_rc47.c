@@ -216,8 +216,7 @@ void func_001FCA20(void *arg0, void *arg1, char *arg2, void *arg3, void *arg4) {
         AVEC v00, v01, v02;
     } __attribute__((aligned(16))) W;
     float w34;
-    float x38, x3C, x40, x44, x48, x4C;
-    TI128 dv12, dv13;
+    TI128 dv04, dv12, dv13;
     float w140, w144, w148, w14C;
     float w150, w154, w158, w15C;
     float w170, w174, w178, w17C;
@@ -247,6 +246,7 @@ void func_001FCA20(void *arg0, void *arg1, char *arg2, void *arg3, void *arg4) {
 #define v00 W.v00
 #define v01 W.v01
 #define v02 W.v02
+#define v04 (*(AVEC *)&dv04)
 #define v12 (*(AVEC *)&dv12)
 #define v13 (*(AVEC *)&dv13)
 #define v19 (*(AVEC *)&dv19)
@@ -263,7 +263,7 @@ void func_001FCA20(void *arg0, void *arg1, char *arg2, void *arg3, void *arg4) {
 #define FP_0x20  ((void *)v02)
 #define FI_0x30  ({ struct SFHome { char *p; } *sf_ = (struct SFHome *)&arg0; (int)sf_->p; })
 #define FF_0x34  w34
-#define FP_0x40  ((void *)&x40)
+#define FP_0x40  ((void *)v04)
 #define FP_0x50  ((void *)&f50)
 #define FF_0x54  f54
 #define FV_0x60  ((float *)w60v)
@@ -358,14 +358,9 @@ void func_001FCA20(void *arg0, void *arg1, char *arg2, void *arg3, void *arg4) {
     float f20, f21, f22, f23, f24, f25;
     char *t80v;
     char *pv;
-    char *pC;
-    char *pD;
     char *t80w;
     char *g90;
-    char *gH;
-    char *gI;
     char *w70;
-    char *w70f;
     char *w70v;
     char *w70s;
     char *w60;
@@ -451,23 +446,10 @@ void func_001FCA20(void *arg0, void *arg1, char *arg2, void *arg3, void *arg4) {
         char *sub = *(char **)((char *)FI(0x30) + 0x15C);
         *(EnvCopy32 *)((char *)arg4 + 0x170) = *(EnvCopy32 *)(sub + 0x180);
     }
-    /* Zero-sized union local. store_constructor emits an unconditional
-       (clobber (mem)) for a union CONSTRUCTOR and an empty union has no
-       element stores, so this costs no bytes and no frame slot. It is the
-       one insn that has to sit between the EnvCopy32 block move and the
-       flag-word loads: without it the two loads land adjacent to the move
-       in the sched1 chain and local-alloc's widened window takes $2 away
-       from `sub`. */
-    { union { char c[0]; } uz = {0}; }
     {
         found = (void *)(int)*(long long *)&arg0;
         found = (void *)*(int *)((char *)&w34 + 4);
-        found = (void *)(int)*(long long *)&x38;
-        found = (void *)(int)*(long long *)&x3C;
-        found = (void *)(int)*(long long *)&x40;
-        found = (void *)(int)*(long long *)&x44;
-        found = (void *)(int)*(long long *)&x48;
-        found = (void *)(int)*(long long *)&x4C;
+        found = (void *)*(int *)((char *)&dv04 + 4);
         found = (void *)(int)*(long long *)&f50;
         found = (void *)(int)*(long long *)&f54;
         found = (void *)(int)*(long long *)&f58;
@@ -478,18 +460,13 @@ void func_001FCA20(void *arg0, void *arg1, char *arg2, void *arg3, void *arg4) {
         found = (void *)(int)*(long long *)&f6C;
     }
     {
-        /* Both flag words are re-read volatile: that is what orders the
-           two loads (alias.c's read_dependence is the only read-after-read
-           edge and it needs BOTH mems volatile). The write-back below is a
-           plain store - a volatile one cannot be moved into the branch
-           delay slot. */
-        long long ll18 = *(volatile long long *)(env + 0x18);
-        long long b20 = *(volatile long long *)(env + 0x20);
+        long long ll18 = *(long long *)(env + 0x18);
+        long long b20 = *(long long *)(env + 0x20);
         int bit5;
         ll18 &= 0xFFFFFF7FFFFFFFFFLL;
         ll18 &= 0xFFFFFEFFFFFFFFFFLL;
-        bit5 = (int)((b20 << 0x1B) >> 0x20) & 1;
         ll18 &= 0xBFFFFFFFFFFFFFFFLL;
+        bit5 = (int)((b20 << 0x1B) >> 0x20) & 1;
         ((union LLAlias *)(env + 0x18))->ll = ll18;
     if (bit5) {
         f25 = 0.0f;
@@ -510,7 +487,7 @@ void func_001FCA20(void *arg0, void *arg1, char *arg2, void *arg3, void *arg4) {
         for (;; found = isysGObjSearchFromObjKindID_begin(found)) {
             if (found == 0) goto L6B4;
             if (*(int *)((char *)found + 0x16C) == 0) continue;
-            cagem = (char *)&x40;
+            cagem = (char *)&f54 - 20;
             if (CageFixDL(cagem, (char *)&f50, found) == 0) continue;
             {
                 int cp = ContinueCorrectPosition((void *)FI(0x30));
@@ -787,9 +764,9 @@ L6B4:
                 float c40;
                 c40 = 40.0f;
                 if (f22 < c40) {
-                    *(long long *)(env + 0x18) |= 0x8000LL << 24;
+                    ((union LLAlias *)(env + 0x18))->ll |= 0x8000LL << 24;
                     if (func_00194590(subCommonIdle((void *)FI(0x30)), arg4) >= 0x88) {
-                        *(long long *)(env + 0x18) |= 0x8000LL << 25;
+                        ((union LLAlias *)(env + 0x18))->ll |= 0x8000LL << 25;
                     }
                 }
             }
@@ -977,13 +954,10 @@ L6B4:
             if (stt == 0x16) {
                 if (ForMotionViewer_GetCurrentMotion__p4(FI(0x30), 0x500) == 0) goto L16e;
                 if (InitWallLeverGeo(box) == 0) goto L16g;
-                {
-                char *d16 = (char *)arg4 + 0xF0;
                 ((union IFAlias *)((char *)arg3 + 8))->i |= 2;
                 w70 = (char *)&f74 - 4;
                 *(int *)((char *)arg4 + 0x14C) = (int)box;
-                EnvWallAssistVec(FV(0x80), FV(0x70), (void *)FI(0x30), d16, 45.0f);
-                }
+                EnvWallAssistVec(FV(0x80), FV(0x70), (void *)FI(0x30), (char *)arg4 + 0xF0, 45.0f);
                 func_00243B18((float *)w70, (float *)arg4, -10.0f);
                 func_001945B8((float *)w70, D_00631450);
                 func_00243AD0((float *)((char *)arg4 + 0xF0), (float *)((char *)arg4 + 0xF0), (float *)w70);
@@ -1048,11 +1022,11 @@ L6B4:
                     i = 3;
                     w = head;
                     do {
-                        func_00243AD0((float *)w70v, (float *)w70v, (float *)w);
+                        func_00243AD0((float *)w70, (float *)w70, (float *)w);
                         w += 0x10;
                         i--;
                     } while (i >= 0);
-                    func_00243B18((float *)dstc, (float *)w70v, 0.25f);
+                    func_00243B18((float *)dstc, (float *)w70, 0.25f);
                 }
                 func_00243B18((float *)w70, (float *)arg4, 30.0f);
                 func_00243AD0((float *)dstc, (float *)dstc, (float *)w70);
@@ -1282,17 +1256,13 @@ L6B4:
             FF(0x68) = *(float *)(pp2 + 8);
             w60c = (char *)&f6C - 12;
             d2 = HandyCamera_TargetMoveType((void *)FI(0x1C4), w60c);
-            {
-                char *cb = (char *)D_005F2FB8;
-                cb -= -(D_00631990 * 0x194);
-                rowf = ((CamEntry *)cb)->f180;
-            }
+            rowf = ((CamEntry *)((char *)D_005F2FB8 + D_00631990 * 0x194))->f180;
             if (d2 < rowf * rowf) {
                 func_00243AE8(FP(0xB0), w60c, (char *)&f50 - 0x40);
-                w70f = (char *)&f74 - 4;
-                _OrientGV(w70f, (void *)FI(0x1C8));
+                w70 = (char *)&f74 - 4;
+                _OrientGV(w70, (void *)FI(0x1C8));
                 ((union IFAlias *)&fBC)->i = 0;
-                func_002438B8(FP(0xC0), w70f, FP(0xB0));
+                func_002438B8(FP(0xC0), w70, FP(0xB0));
                 if (0.0f < FF(0xC8)) {
                     wFlag = 1;
                 }
@@ -1533,7 +1503,7 @@ L6B4:
                 ccat = 0;
                 f22 = D_00633850_[0];
                 GetRootMatrixByDObj(m, (void *)D_00631AE4);
-                GetRootMatrixByDObj((float *)w70v, (void *)D_00631AE8);
+                GetRootMatrixByDObj((float *)&f70, (void *)D_00631AE8);
                 if (!(f24 < 55.0f)) {
                     if (f24 < 155.0f) {
                         f22 = 80.0f;
@@ -1577,10 +1547,10 @@ L6B4:
                     FF(0xA0) = FF(0x0);
                     FF(0xA4) = FF(0x4);
                     FF(0xA8) = FF(0x8);
-                    gH = (char *)FP(0x90);
-                    func_00243B18(gH, (void *)FI(0x1C8), f21 + 50.0f);
+                    g90 = (char *)FP(0x90);
+                    func_00243B18(g90, (void *)FI(0x1C8), f21 + 50.0f);
                     pb = (char *)&fB0;
-                    func_00243AD0((float *)pb, FP(0xA0), gH);
+                    func_00243AD0((float *)pb, FP(0xA0), g90);
                     *(float *)((char *)FP(0x80) + 0x34) = *(float *)((char *)FP(0x80) + 0x34) + f24;
                     _OrientGV(FP(0xC0), (void *)FI(0x1C8));
                     fnd = (char *)(int)*(long long *)&fE0;
@@ -1631,15 +1601,15 @@ L6B4:
                         char *q;
                         q = (char *)&dv13;
                         q = (char *)*(int *)(q + 4);
-                        gI = (char *)(int)*(long long *)&w140;
-                        gI = (char *)(int)*(long long *)&w144;
-                        gI = (char *)(int)*(long long *)&w148;
-                        gI = (char *)(int)*(long long *)&w14C;
-                        gI = (char *)FP(0x140);
-                        GetRootMatrixByDObj(gI, (void *)FI(0x30));
-                        pC = (char *)FP(0x130);
-                        func_00243B18(pC, (void *)FI(0x1C8), f21);
-                        func_00243AD0((char *)arg4 + 0x50, gI, pC);
+                        g90 = (char *)(int)*(long long *)&w140;
+                        g90 = (char *)(int)*(long long *)&w144;
+                        g90 = (char *)(int)*(long long *)&w148;
+                        g90 = (char *)(int)*(long long *)&w14C;
+                        g90 = (char *)FP(0x140);
+                        GetRootMatrixByDObj(g90, (void *)FI(0x30));
+                        pv = (char *)FP(0x130);
+                        func_00243B18(pv, (void *)FI(0x1C8), f21);
+                        func_00243AD0((char *)arg4 + 0x50, g90, pv);
                         q = (char *)&w150;
                         q = (char *)*(int *)(q + 4);
                         q = (char *)(int)*(long long *)&w154;
@@ -1650,8 +1620,8 @@ L6B4:
                         q = (char *)(int)*(long long *)&w168;
                         q = (char *)(int)*(long long *)&w16C;
                         GetRootMatrixByDObj(g90, (void *)FI(0x30));
-                        pD = (char *)FP(0x150);
-                        func_00243B18(pD, (void *)FI(0x1C8), f21 - 30.0f);
+                        pv = (char *)FP(0x150);
+                        func_00243B18(pv, (void *)FI(0x1C8), f21 - 30.0f);
                         func_00243AD0(*(char **)(*(char **)((char *)FI(0x30) + 0x164) + 0x678) + 0x740,
                                       FP(0x160), FP(0x150));
                         {
@@ -2048,7 +2018,7 @@ L6B4:
     if ((char *)FI(0x30) == (char *)D_00631AE4 && (char *)D_00631AE8 != 0) {
         char *h = *(char **)((char *)D_00631AE8 + 0x164);
         if (*(int *)(h + 0x30) == 0x6B) {
-            char *g = *(char **)(h + 0x134);
+            char *g = *(char **)((char *)FI(0x30) + 0x134);
             if (*(int *)(*(char **)(g + 0x164) + 0x30) == 0x64) {
                 if (GetDifferenceFromWallUpperPlane(g)) {
                     if (func_00145328((void *)FI(0x30), (void *)D_00631AE8, 0x78, FP(0x60),
@@ -2233,6 +2203,7 @@ L6B4:
 #undef v01
 #undef v02
 #undef m30
+#undef v04
 #undef v0C
 #undef v0D
 #undef v0E

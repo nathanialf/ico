@@ -244,6 +244,7 @@ void func_001FCA20(void *arg0, void *arg1, char *arg2, void *arg3, void *arg4) {
     int bx;
     int w1B0, w1B4, w1B8, w1BC, wFlag, w1C0, w1C4, wPtr20, wAang, w1C8, w1CC, w1D0, w1D8;
     char *me0;
+    long long ll18;
 #define v00 W.v00
 #define v01 W.v01
 #define v02 W.v02
@@ -451,14 +452,6 @@ void func_001FCA20(void *arg0, void *arg1, char *arg2, void *arg3, void *arg4) {
         char *sub = *(char **)((char *)FI(0x30) + 0x15C);
         *(EnvCopy32 *)((char *)arg4 + 0x170) = *(EnvCopy32 *)(sub + 0x180);
     }
-    /* Zero-sized union local. store_constructor emits an unconditional
-       (clobber (mem)) for a union CONSTRUCTOR and an empty union has no
-       element stores, so this costs no bytes and no frame slot. It is the
-       one insn that has to sit between the EnvCopy32 block move and the
-       flag-word loads: without it the two loads land adjacent to the move
-       in the sched1 chain and local-alloc's widened window takes $2 away
-       from `sub`. */
-    { union { char c[0]; } uz = {0}; }
     {
         found = (void *)(int)*(long long *)&arg0;
         found = (void *)*(int *)((char *)&w34 + 4);
@@ -478,14 +471,9 @@ void func_001FCA20(void *arg0, void *arg1, char *arg2, void *arg3, void *arg4) {
         found = (void *)(int)*(long long *)&f6C;
     }
     {
-        /* Both flag words are re-read volatile: that is what orders the
-           two loads (alias.c's read_dependence is the only read-after-read
-           edge and it needs BOTH mems volatile). The write-back below is a
-           plain store - a volatile one cannot be moved into the branch
-           delay slot. */
-        long long ll18 = *(volatile long long *)(env + 0x18);
-        long long b20 = *(volatile long long *)(env + 0x20);
+        long long b20 = *(long long *)(env + 0x20);
         int bit5;
+        ll18 = *(long long *)(env + 0x18);
         ll18 &= 0xFFFFFF7FFFFFFFFFLL;
         ll18 &= 0xFFFFFEFFFFFFFFFFLL;
         bit5 = (int)((b20 << 0x1B) >> 0x20) & 1;
@@ -494,7 +482,7 @@ void func_001FCA20(void *arg0, void *arg1, char *arg2, void *arg3, void *arg4) {
     if (bit5) {
         f25 = 0.0f;
         FI(0x1BC) = 0;
-    } else if ((int)((b20 << 0x1C) >> 0x20) & 1) {
+    } else if ((b20 <<= 0x1C, (int)(b20 >> 0x20) & 1)) {
         w20v = (char *)&w34 - 20;
         f25 = 100.0f;
         FI(0x1BC) = 0;
@@ -612,7 +600,9 @@ L6B4:
                 int a;
                 func_00243B18(FP(0x70), arg4, -1.0f);
                 a = __builtin_abs(HandCameraCorrect(boy, (float *)&f70));
-                *(long long *)(env + 0x18) |= 0x0008000000000000LL;
+                ll18 = *(long long *)(env + 0x18);
+                ll18 |= 0x0008000000000000LL;
+                *(long long *)(env + 0x18) = ll18;
                 if (f22 < 60.0f) {
                     if (a < 0x1E) {
                         *(long long *)(env + 0x18) |= 0x0004000000000000LL;

@@ -216,8 +216,7 @@ void func_001FCA20(void *arg0, void *arg1, char *arg2, void *arg3, void *arg4) {
         AVEC v00, v01, v02;
     } __attribute__((aligned(16))) W;
     float w34;
-    float x38, x3C, x40, x44, x48, x4C;
-    TI128 dv12, dv13;
+    TI128 dv04, dv12, dv13;
     float w140, w144, w148, w14C;
     float w150, w154, w158, w15C;
     float w170, w174, w178, w17C;
@@ -247,6 +246,7 @@ void func_001FCA20(void *arg0, void *arg1, char *arg2, void *arg3, void *arg4) {
 #define v00 W.v00
 #define v01 W.v01
 #define v02 W.v02
+#define v04 (*(AVEC *)&dv04)
 #define v12 (*(AVEC *)&dv12)
 #define v13 (*(AVEC *)&dv13)
 #define v19 (*(AVEC *)&dv19)
@@ -263,7 +263,7 @@ void func_001FCA20(void *arg0, void *arg1, char *arg2, void *arg3, void *arg4) {
 #define FP_0x20  ((void *)v02)
 #define FI_0x30  ({ struct SFHome { char *p; } *sf_ = (struct SFHome *)&arg0; (int)sf_->p; })
 #define FF_0x34  w34
-#define FP_0x40  ((void *)&x40)
+#define FP_0x40  ((void *)v04)
 #define FP_0x50  ((void *)&f50)
 #define FF_0x54  f54
 #define FV_0x60  ((float *)w60v)
@@ -451,23 +451,10 @@ void func_001FCA20(void *arg0, void *arg1, char *arg2, void *arg3, void *arg4) {
         char *sub = *(char **)((char *)FI(0x30) + 0x15C);
         *(EnvCopy32 *)((char *)arg4 + 0x170) = *(EnvCopy32 *)(sub + 0x180);
     }
-    /* Zero-sized union local. store_constructor emits an unconditional
-       (clobber (mem)) for a union CONSTRUCTOR and an empty union has no
-       element stores, so this costs no bytes and no frame slot. It is the
-       one insn that has to sit between the EnvCopy32 block move and the
-       flag-word loads: without it the two loads land adjacent to the move
-       in the sched1 chain and local-alloc's widened window takes $2 away
-       from `sub`. */
-    { union { char c[0]; } uz = {0}; }
     {
         found = (void *)(int)*(long long *)&arg0;
         found = (void *)*(int *)((char *)&w34 + 4);
-        found = (void *)(int)*(long long *)&x38;
-        found = (void *)(int)*(long long *)&x3C;
-        found = (void *)(int)*(long long *)&x40;
-        found = (void *)(int)*(long long *)&x44;
-        found = (void *)(int)*(long long *)&x48;
-        found = (void *)(int)*(long long *)&x4C;
+        found = (void *)*(int *)((char *)&dv04 + 4);
         found = (void *)(int)*(long long *)&f50;
         found = (void *)(int)*(long long *)&f54;
         found = (void *)(int)*(long long *)&f58;
@@ -478,18 +465,13 @@ void func_001FCA20(void *arg0, void *arg1, char *arg2, void *arg3, void *arg4) {
         found = (void *)(int)*(long long *)&f6C;
     }
     {
-        /* Both flag words are re-read volatile: that is what orders the
-           two loads (alias.c's read_dependence is the only read-after-read
-           edge and it needs BOTH mems volatile). The write-back below is a
-           plain store - a volatile one cannot be moved into the branch
-           delay slot. */
-        long long ll18 = *(volatile long long *)(env + 0x18);
-        long long b20 = *(volatile long long *)(env + 0x20);
+        long long ll18 = *(long long *)(env + 0x18);
+        long long b20 = *(long long *)(env + 0x20);
         int bit5;
         ll18 &= 0xFFFFFF7FFFFFFFFFLL;
         ll18 &= 0xFFFFFEFFFFFFFFFFLL;
-        bit5 = (int)((b20 << 0x1B) >> 0x20) & 1;
         ll18 &= 0xBFFFFFFFFFFFFFFFLL;
+        bit5 = (int)((b20 << 0x1B) >> 0x20) & 1;
         ((union LLAlias *)(env + 0x18))->ll = ll18;
     if (bit5) {
         f25 = 0.0f;
@@ -510,7 +492,7 @@ void func_001FCA20(void *arg0, void *arg1, char *arg2, void *arg3, void *arg4) {
         for (;; found = isysGObjSearchFromObjKindID_begin(found)) {
             if (found == 0) goto L6B4;
             if (*(int *)((char *)found + 0x16C) == 0) continue;
-            cagem = (char *)&x40;
+            cagem = (char *)&f54 - 20;
             if (CageFixDL(cagem, (char *)&f50, found) == 0) continue;
             {
                 int cp = ContinueCorrectPosition((void *)FI(0x30));
@@ -2233,6 +2215,7 @@ L6B4:
 #undef v01
 #undef v02
 #undef m30
+#undef v04
 #undef v0C
 #undef v0D
 #undef v0E
