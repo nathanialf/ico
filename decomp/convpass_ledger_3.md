@@ -3434,3 +3434,63 @@ and the address form sits in exactly the same store-then-test shape as
 `func_00163890`.  Deriving what construct produces both forms in one function
 will settle the data model for both, and both are nested pairs, so the work is
 shared.  Do that before any further spelling of `func_00163890`.
+
+# conv-17 — the `D_00633D00` construct, identified and proven
+
+`GetFlyPosition` was the right place to look.  It uses the object as VALUE and
+as ADDRESS in one body, and the shape it reveals is unambiguous:
+
+```
+/* 630B0 */  addiu $18,$28,%gp_rel(D_00633D00)   <- the ADDRESS, kept in a callee-saved reg
+/* 63114 */  bnez  $18, ...                      <- tested
+/* 63140 */  lw    $4, %gp_rel(D_00633D00)($28)  <- the VALUE, in the taken arm
+/* 6314C */  sw    $4, 0x20C($3)
+/* 6315C */  sw    $17, 0x20C($3)                <- D_00632390 in the other arm
+```
+
+**Test the pointer, store the pointee.**  That is `p ? *p : DFLT`.
+
+## The exact construct (minimal-TU proof against this compiler)
+
+```c
+extern int G, DFLT;
+void a(struct O *o) { int *p = &G; o->f20C = p ? *p : DFLT; }
+```
+emits, at the project flags:
+```
+la   $2,G          ;  == addiu $2,$28,%gp_rel(G) for a small object
+bne  $2,$0,$L4
+lw   $2,G
+lw   $2,DFLT
+$L4: sw $2,524($4)
+```
+— ROM's pattern exactly.  gcc does NOT fold `p != 0` here.
+
+**Two ways to lose it, both measured:**
+* store THROUGH the pointer (`*p = v;`) before the test — `-fdelete-null-pointer-checks`
+  proves the pointer dereferenceable and deletes the test.  Store to the OBJECT
+  BY NAME instead (`G = v;`) and the test survives.
+* name the value in the true arm instead of writing `*p` — also folds.
+Both mistakes were in the conv-16 seed, which is why it "scored" 3 sites.
+
+## Structure over count — conv-16's seed was wrong
+
+`..._inner_s3.c` scored 3 sites but gcc had folded the branch away entirely
+(21 insns, no branch).  The corrected shape scores **5** and restores ROM's
+branch plus the per-arm re-derivation of the destination chain.  The 5 is the
+better base; `..._inner_s5_structural.c` supersedes it and says so in its
+header.  Do not "improve" it back to 3.
+
+## Residual
+
+The 3-way mode select.  Ours emits `movz`; ROM branches three ways and
+tail-duplicates the continuation into each arm, re-loading the parent's `a0`
+through the static chain (`lw $6,0($5)`) per arm.  Refuted on this base:
+per-use `a0` (6 sites), goto-CFG mode select (5), both (7).
+
+## Carry-over for `GetFlyPosition` (priority 1 is now half-done)
+
+The data model is settled and it is the same object, so `GetFlyPosition` can be
+written directly: `int *p = &D_00633D00;` before the store, `D_00633D00 = ...`
+by name, and `p ? *p : D_00632390` at each of its two decision points.  It is
+84 insns and a confirmed nested pair with `NakaBoss`, so it lands as a pair.
