@@ -189,7 +189,38 @@ void GetCorrectOrientOfChain(void *a0)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", CollisCheckInRope);
+extern char D_005588F0[];
+extern void _ACTWait__cci(int a0) __asm__("_ACTWait");
+extern void BoxBarSoundOn__cci(void *a0, int a1) __asm__("BoxBarSoundOn");
+extern void func_00181F38__cci(float a0) __asm__("func_00181F38");
+extern void func_0015F450__cci(void) __asm__("func_0015F450");
+extern void GetCorrectOrientOfChain__cci(void *a0) __asm__("GetCorrectOrientOfChain");
+
+void CollisCheckInRope(volatile int a0) {
+    int buf[4];
+    char *s164 = *(char **)(a0 + 0x164);
+    char *self;
+    debug_assertMessage(D_005588F0);
+    self = (char *)a0;
+    *(int *)(s164 + 0x18) = (int)func_0015F450__cci;
+    if (self == D_00631AE4__p4) {
+        func_00181F38__cci(1000.0f);
+    }
+    if ((char *)a0 == D_00631AE8) {
+        func_00240038_p(buf, (int)(*(char **)(a0 + 0x164) + 0x1B0), -1.0f);
+        dispPlane__p4((void *)a0, buf);
+    } else {
+        dispPlane__p4((void *)a0, *(char **)(a0 + 0x164) + 0x1B0);
+    }
+    GetCorrectOrientOfChain__cci((void *)a0);
+    for (;;) {
+        if (*(int *)(a0 + 0xC) != 4) {
+            *(char *)(*(char **)(a0 + 0x164) + 0x1CA) = 1;
+        }
+        BoxBarSoundOn__cci((void *)a0, 0xB7);
+        _ACTWait__cci(1);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00157FA0);
 
@@ -531,7 +562,28 @@ void actCommonJump(int a0)
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015D488);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015D520);
+extern char D_00558960[];
+extern void ACTParaStatus_Exec(void *a0);
+extern void isExistEnemyParticle__d520(char *a0) __asm__("isExistEnemyParticle");
+extern void ResetEnemyEye(void *a0);
+extern void actCommonPlay();
+
+void func_0015D520(volatile int a0) {
+    char *s164 = *(char **)(a0 + 0x164);
+    debug_assertMessage(D_00558960);
+    ACTParaStatus_Exec((void *)a0);
+    {
+        void *self = (void *)a0;
+        *(int *)(s164 + 0x14) = (int)actCommonPlay;
+        CylinderCollision(self, s164 + 0x160);
+    }
+    isExistEnemyParticle__d520((char *)a0);
+    for (;;) {
+        ResetEnemyEye((void *)a0);
+        BoxBarSoundOn((void *)a0, 0xB7);
+        _ACTWait__p4(1);
+    }
+}
 
 extern void isExistEnemyParticle(char *a0);
 
@@ -551,7 +603,19 @@ void func_0015D5F0(volatile int a0) {
     _ACTWait__p4(0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015D620);
+extern int D_00274EC0[];
+
+void func_0015D620(volatile int a0) {
+    char *s164 = *(char **)(a0 + 0x164);
+    if (*(int *)(s164 + 0xC8) == 0x182 && (*(int *)(s164 + 0x128) & 1)) {
+        *(short *)(s164 + 0x12A) =
+            (0x3C - D_00274EC0[0] * 0xA) / D_00274EC0[1] * 5;
+    }
+    for (;;) {
+        BoxBarSoundOn((void *)a0, 0xB7);
+        _ACTWait__p4(1);
+    }
+}
 
 void func_0015D6B0(volatile int a0) {
     _ACTWait__p4(0);
@@ -1446,7 +1510,14 @@ void func_0015F5F8(volatile int a0) {
     *(long long *)(s164 + 0x20) |= 0x40000;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015F650);
+extern void ReviveEnemyParticle__f650(void *a0, int a1) __asm__("ReviveEnemyParticle");
+
+void func_0015F650(volatile int a0) {
+    long long *s164 = *(long long **)(a0 + 0x164);
+    s164[4] |= 1;
+    ReviveEnemyParticle__f650((void *)a0, 1);
+    *(int *)(*(int *)(a0 + 0x15C) + 0x654) = 0;
+}
 
 
 /* .data — carved VMA 0X282390..0X282400 (5 symbols), bytes verified against baserom/baseelf.rom */

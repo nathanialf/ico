@@ -2465,3 +2465,197 @@ st47a is down to 43 and objact to 8.
 The st47a remainder is still mostly the same three templates
 (Sekizo BoxBar tail, actE3CageFallChk idle tail, spider wait) and should keep
 going in bulk.
+# conv-10 / conv-11 — commonact (worker: rwt2)
+
+Metric is **diff sites** (`tools/match_diff.py <tu> <func>` → `diff_sites`), not
+`real_count`; every row below is sites-first.  `real_count` is quoted only where
+it is needed to compare two shapes at equal sites.
+
+## Matched in conv-10 (14 functions, all crutch-free, ninja + verify_elf gated)
+
+| func | sites before → after | mechanism |
+|---|---|---|
+| `func_0015E1B0` | 3 → 0 | The second argument of `ChangeMailInLadder` must be spelled `(void *)a0` **at the call site**, not routed through a `void *self` local. The local gives the volatile home read its own pseudo plus an arg-register copy, so its sched1 priority is *load-latency + copy* (3+P) instead of *load-latency* (2+P); that one notch put the read ahead of the `%hi/%lo` chain, and the resulting LUID order then decided both sched2 ties — `rank_for_schedule` falls through priority → reg-weight (unused after reload) → class → depend-count → `INSN_LUID`. |
+| `func_0015E388` | 2 → 0 | Two semantic points. (a) The three `0x15C` stores cannot be three self-contained statements: a non-volatile store followed by a fresh volatile reload of the `a0` home is a read-after-write on alias set 0, so each reload is pinned behind the previous store (strict reload/load/store triples). Three `int` temps assigned from the volatile param *before* the stores give ROM's three up-front reloads. (b) With retail's strict aliasing live, `*(char **)(b+0x15C)` is in `char*`'s alias set while `*(int *)(p+0x130)=0` is in `int`'s, so the later pointer loads did **not** conflict with the earlier stores and sched1 hoisted all three loads ahead of all three stores; spelling the pointer load `*(int *)(b+0x15C)` puts both in one alias set and the interleave matches ROM. |
+| `func_0015DF88` | 14 → 0 | **Cracks the callee-saved-`&buf` class** — see the section below. |
+| `func_001588F0`, `func_00157BB0` | 5/7 → 0 | Frameless N-way void tail-call dispatch. As `if/else` with a call+`return` per arm gcc inlines the first body, keeps a frame and emits `jal`; as a goto-CFG (`if (m == K) goto h;`, handlers out of line, last one falling off the end) it emits ROM's `j <callee>` sibcalls with the arg shuffle in the delay slot and no frame. `func_00157BB0`'s third test must be written in ROM's polarity (`if (m >= 0x1A) return;`) to keep `bnez`. |
+| `func_0015F248` | 2 → 0 | A flat `if (f(p) == 7) return 1; return 0;` if-converts to `xori`/`sltiu`. Nesting the tests so there is exactly one fall-out `return 0` restores ROM's `beq` against a materialised 7 plus the `bnel` carrying the zero in its delay slot. |
+| `func_0015F450` | 0 first try | The `D_00274EC0` ratio idiom with a second divide. ee-gcc routes the *second* multiply/divide pair through the R5900's second pipe (`mult1`/`div1`) automatically, so it must stay one flat expression — splitting into temps loses `div1`. |
+| `func_0015F5F8` | 1 → 0 | Three plain compound assignments in ROM's order (clear a bit in the `0x20` long long, clear one in `0x18`, then set one in `0x20`). Folding the first and third into one read-modify-write expression materialises `0x40000` too early and swaps the two `sd`s; as three statements cse folds the two `0x20` accesses back into one `ld`/`sd` pair *and* the constants come out in ROM's order. |
+| `func_0015F358`, `func_0015F3C0` | 0 first try | Assert-wrapper twins (line numbers `0x5AF` / `0x629`) around `eBrainInit`. |
+| `actCommonFly`, `actCommonLadder`, `func_0015DF60`, `func_0015E448` | 0 first try | Plain act-coroutine stub tails. |
+
+## Cracked class — "gcc parks a local array's address in a callee-saved register"
+
+Open since conv-9 (`func_0015DF88` residual (a), `enemy_act func_001619A8`).
+**The fix is to declare the array inside the `static __inline__` helper that owns
+its uses, not at function scope.**
+
+Mechanism, read off the `-da` dumps: expanding an array used as a pointer emits
+`addiu <pseudo>,fp,OFF` once per use (`expand_expr`'s ADDR_EXPR path calls
+`force_operand` into a fresh pseudo).  When every use names one function-scope
+array, **cse1 unifies them into a single pseudo** — a pseudo is *not* invalidated
+at a `CALL_INSN` the way a call-clobbered hard register is, so the copy survives
+every call.  `update_equiv_regs` then records no equivalence (the set insn is
+`(set (reg N) (plus (reg fp) K))` with no `REG_EQUAL` note, and the non-MEM path
+requires one), so there is no `REG_LIVE_LENGTH *= 2` and no reload
+rematerialisation; global-alloc simply hands the pseudo a third callee-saved
+register and every use becomes `daddu <arg>,s2,zero`, plus 16 bytes of frame.
+
+Putting the array in the inline helper keeps the address materialisation local to
+each expansion: the uses stay separate pseudos, each dies at its arg-register
+copy, and combine folds the pair into ROM's `addiu <arg>,sp,OFF`.  Two disjoint
+helper expansions also share the one 16-byte slot, which is why ROM's frame has
+room for only one buffer.  The matched sibling `func_0015E080` is the existing
+proof of the shape (it uses the TU's `func_0015C818_disp` helper and ROM emits
+two independent `addiu ...,sp,0x10`).
+
+Two further `func_0015DF88` points worth carrying:
+* The second `a0` reload must be taken **before** the `0x14` handler store, or the
+  store-to-volatile-home read-after-write pins it behind the store and the two
+  `0x164` derefs stop pairing up the way ROM has them.
+* `D_00630CCC` is `volatile`.  ROM leaves the three branch delay slots feeding the
+  `func_00102C10` block as `nop` and fills the first from the following `slti`.
+  A non-volatile gp-relative load is a legal delay-slot steal from the *target*
+  thread (`mostly_true_jump` predicts a `bne` taken, so `fill_eager_delay_slots`
+  tries the target first), so reorg duplicates it into all three.  A volatile MEM
+  sets the resource `volatil` flag, which makes `resource_conflicts_p` reject
+  every delay-slot move — matching ROM.  The symbol has no other reference in the
+  tree.  Non-volatile alternatives tried and rejected: hoisting the load into a
+  `float` temp before the if-chain (sites 4 → 9).
+
+## Still open in commonact after conv-10 — the "shift-by-one local-alloc" class
+
+Three functions are structurally exact with **instruction order identical to ROM**
+and only register *names* differing, and all three differ in the same way: ROM's
+assignment is ours shifted up one slot in `find_free_reg`'s scan order.
+
+| func | sites | best rc | ours → ROM |
+|---|--:|--:|---|
+| `func_0015F650` | **4** | 6 | read1 `$2`→`$3`, s164 `$3`→`$6`, or-mask `$6`→`$7` |
+| `func_0015ADF0` | **5** | 6 (7 in the order-exact shape) | const `$2`→`$3`, read1 `$4`→`$2`, read2 `$6`→`$7`, s164 `$3`→`$6` |
+| `func_0015F578` | **5** | 9 | `lw v0/v1` pair swapped, plus `sd ra` scheduled before the `%lo` so the `jal debug_assertMessage` delay is a `nop` instead of `addiu a0,a0,%lo` |
+
+Mechanism, from `-dl` dumps + `local-alloc.c`.  `block_alloc` allocates in two
+passes: first every quantity that has a copy suggestion (the arg-register copies),
+then the rest sorted by
+`QTY_CMP_PRI = floor_log2(n_refs) * n_refs * qty_size / (qty_death - qty_birth)`,
+ties broken by ascending quantity number (= birth order in the **sched1** output,
+not the emitted order), each allocated to the lowest-numbered register free over
+its lifetime *widened by one insn on each side*.
+
+For `func_0015F650` (18 insns, fully worked): quantities are read1 (len 3),
+read2 (len 3, copy-suggested `$4`), s164 (3 refs, len 7), the DImode `ld`/`or`
+results (len 1 each, size 2), the DImode mask constant (len 13), and the two
+`0x15C` pseudos.  The DImode results sort first and take `$2`; nothing else holds
+`$2` over read1's range, so read1 takes `$2`, which leaves `$3` for s164 and `$6`
+for the mask.  ROM needs read1 on `$3`, which requires **some quantity holding
+`$2` across read1's lifetime at the moment read1 is allocated** — and no
+quantity in our schedule does.  Since local-alloc runs on the *sched1* output and
+sched2 reorders afterwards, ROM's sched1 order can differ from ours while the
+emitted order matches; that is the only remaining degree of freedom and is where
+the next attempt should go (read the `.sched` ready lists, not the `.s`).
+
+`func_0015ADF0` is the same shape one size up, and its analysis is sharper: for
+ROM's assignment, the volatile read that feeds `+0x164` must be allocated
+**before** the `high` pseudo of the `%hi/%lo` pair.  Both have live length 4 and
+the `high` pseudo has the lower quantity number (sched1 hoists `lui`/`addiu` to
+the top of the block because the chain `high → lo → store → call` gives it
+priority 3+P against 1+P for everything else ready at t=1), so the tie always
+goes to `high`.  Beating it needs either the `lui` and the `lo_sum` **not
+adjacent** in sched1's output, or a genuinely larger `n_refs`/`qty_size` on the
+read — neither reachable by respelling the current data model.
+
+Shapes probed for `func_0015ADF0` (sites / rc, all order-exact unless noted):
+* baseline seed (`s164` deref hoisted to its decl, `int self15C = a0`, `void *self`) — 5 / 7, emitted order **exact**, 0 of 4 registers right.
+* both derefs hoisted to decls (`char *s164`, `char *s15C`) — 5 / **6**, and `const → $3` and `s164 → $6` **snap to ROM**, but the `0x15C` load moves ahead of the `0x18` store (source order + the anti-dependence pin it), costing 2 sites.  Best structure-forward waypoint; source saved in the scratchpad as `commonact_func_0015ADF0_bothderefs_s5_rc6.c`.
+* store order swapped — 6 / 9 (moves the `0x18` store into the `jal` delay).
+* no temps at all — 6 / 13 (collapses the three volatile reads).
+* `self15C` / `self` assigned late — 6 / 13 (read1 and the `0x164` deref become adjacent, killing the interleave).
+* three explicit `int selfN = a0` reads — 5 / 7, identical to the baseline.
+
+## Recommended next steps in commonact
+
+1. `func_0015D520` (32), `func_0015D620` (35), `func_0015D488` (38),
+   `actCommonRope` (38) — untouched, smallest-first.
+2. The `0015D6D0`…`0015D1F8` band (69–81) and the `RopeCliff` / `CollisCheckInRope`
+   family, which share the rope-collision idiom.
+3. The shift-by-one local-alloc class above — worth one focused pass, since it
+   holds `func_0015F650` (4 sites), `func_0015ADF0` (5) and `func_0015F578` (5)
+   at once and the next lever is identified (sched1 order, not source respelling).
+
+## conv-11 — commonact continued (worker: rwt2)
+
+Sites-first, same metric as above.
+
+### Matched
+
+| func | insns | sites before → after | mechanism |
+|---|--:|---|---|
+| `func_0015D620` | 35 | 0 first try | `D_00274EC0` ratio guarded by a two-test `&&` on the `0xC8` mode and bit 0 of `0x128`, stored as a `short`. |
+| `func_0015D520` | 32 | 3 → 0 | **reload-before-store** (see the class note below). |
+| `CollisCheckInRope` | 60 | 5 → 0 | **reload-before-store** again. Note this one deliberately keeps its `int buf[4]` at *function* scope: both uses sit in the same basic block, so ROM parks the address in a callee-saved register (`addiu s0,sp,16` once + `daddu` copies). The `func_0015DF88` inline-helper lever applies to arrays whose uses straddle a loop, **not** as a blanket rule. |
+
+### New reusable class — "the volatile home reload must precede the handler store"
+
+Three functions this round hit the identical shape: an act head does
+`s164->0x14/0x18 = <handler>;` and then immediately calls something whose first
+argument is the object itself.  Spelled with the reload at the call
+(`f((void *)a0, …)`) or at the test (`if ((char *)a0 == D_…)`), the reload is a
+read-after-write against the preceding **non-volatile** store — the param home is
+alias set 0, so it conflicts with everything — and is pinned *behind* the store.
+That leaves the store as the last insn before the branch/call, so reorg puts the
+*store* in the delay slot instead of ROM's argument insn, and the surrounding
+schedule shifts by one.
+
+Fix: bind the reload to a local assigned **before** the store
+(`self = (void *)a0; s164->0x18 = h; f(self, …);`).  This is the *mirror* of the
+`func_0015E1B0` lever — there the local had to be removed because it added an
+arg-register copy that changed the sched1 priority; here the local is required
+because it moves the volatile read to the other side of a store.  The
+discriminator is whether the reload's consumer is the *call* (inline it) or
+whether the reload must cross a store (bind it early).
+
+### Parked near-misses (crutch-free, sources in the worker scratchpad)
+
+| func | insns | sites | residual | next lever |
+|---|--:|--:|---|---|
+| `func_0015D488` | 38 | **1** | Everything matches except the 64-bit load of `D_00558DB8`: ROM has `lui $1,%hi(...)` + `ld $5,%lo(...)($1)` — `$1` is `$at`, i.e. the *assembler* expanded a single symbolic `ld $5,D_00558DB8`. Our gcc splits the address itself into a `(high)` insn with a real register, because `mips_check_split` (mips.h `GO_IF_LEGITIMATE_ADDRESS`) rejects a non-small `SYMBOL_REF` for a mode whose size is not `> UNITS_PER_WORD`. Declaring the symbol small gets the single insn but the assembler then emits `%gp_rel`; `__attribute__((section(".sdata")))` on a >8-byte extern gets the single symbolic `ld` *and* no `.extern name,8`, but all three assemblers in the tree (`ee-gcc2.96/bin/as`, `ee-gcc2.9-991111/bin/as`, `mips-linux-gnu-as`) expand `ld $5,sym` using the **destination** register, never `$at` — verified directly. `mips_move_2words` has no `.set noat` template for this case. | This looks like an assembler-parity item rather than a source shape — it needs someone who owns the always-on postprocess / assembler selection, not a C respelling. Everything else in the function is byte-exact. |
+| `func_0015D6D0` | 69 | **3** | Head is exact. Residual is the position of the *third* volatile home reload in the loop: ROM issues it after the `div`, we issue it five slots earlier, which then renames three registers. | Shapes tried: three `int cN = a0` temps up front (4 sites); `c2`/`c3` assigned after the `0x3A0` store (5); `c1`,`c2` up front and `c3` late (6); third read inlined at its use (6); `char **`-typed `0x164` derefs in the loop (5). Best is three temps up front **with the comparison written `v250 > v254`** rather than `v254 < v250` (4 → 3 sites) — gcc evaluates the operands in source order, so the spelling decides which reload pairs with which field. Next: the 0x678 / 0x670 chain's alias regime, or lengthening the divisor chain so the reload's ready time shifts. |
+| Two head fixes worth reusing from this function | | | ROM hoists the `s164->0x150 = s164->0x60C` **load** across the preceding `0x250` store — only legal if they are in different alias sets, so that field copy is `void **`-typed, not `int` (9 → 4 sites on its own). And the three chained `0x250`/`0x258`/`0x25C` zero-stores each need their own `int bN = a0` reload hoisted ahead of the stores, exactly as in `func_0015E388`. |
+
+`func_0015F650` (4 sites), `func_0015ADF0` (5) and `func_0015F578` (5) are
+unchanged from the conv-10 section above — the shift-by-one local-alloc class.
+
+### conv-11 addendum — `func_0015F650` matched; the "shift-by-one" bucket is smaller than it looked
+
+`func_0015F650` (18 insns, 4 sites) **matched**, and it was never a coloring tie:
+the fix was the `func_0015E1B0` lever — write the volatile-param argument
+inline at the call (`ReviveEnemyParticle((void *)a0, 1)`) instead of routing it
+through a `void *self` local.  The local's extra arg-register copy lengthens the
+reload's sched1 chain, which shifts the whole block's quantity birth order and
+renames three registers.  **Anything filed under "shift-by-one local-alloc"
+should be re-tested against the two argument levers first**; the coloring
+analysis was measuring a downstream symptom.
+
+`func_0015ADF0` improved **5 → 4 sites** (rc 6) on a new axis: spelling *both*
+the `0x18` handler store and the `0x15C` pointer load as pointer types
+(`*(void **)(s164+0x18) = (void *)func_0015F650;` with
+`s15C = *(char **)(self15C + 0x15C);`) snaps the handler constant to `$3` and
+`s164` to `$6` — both ROM registers.  The residual is now a genuine tension:
+
+* the two accesses in **different** alias sets ⇒ the `0x15C` load floats ahead of
+  the `0x18` store (costs 2 sites of ordering) but the registers snap (4 sites);
+* the two in the **same** alias set ⇒ ROM's order is exact but no register snaps
+  (5 sites).
+
+ROM has both, so the register snap does *not* actually depend on the load
+floating — something else lengthens `s164`'s live range in ROM by one insn
+between its load and the store.  Both sources are saved in the worker scratchpad
+(`commonact_func_0015ADF0_regsnap_s4.c`, `..._orderexact_s5.c`).  Next lever:
+find the fourth insn ROM has between the `0x164` deref and the `0x18` store —
+the argument levers above are the first thing to re-test, then the `&other`
+address-setup position.
+
+`func_0015F578` stays at 5 sites; `int`-typed `0x15C` deref, a hoisted
+destination local, and a re-cast source blob all leave it unchanged.
