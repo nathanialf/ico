@@ -104,10 +104,11 @@ segments:
     subsegments:
       # --- vendor head: crt0 + libkernl (180 funcs).  Also NOT ICO TUs.
       # 0x000000..0x000110 is crt0 (_start) and the multi-syscall leaves that
-      # are not the plain 4-instruction stub; 0x000C90..0x001C80 is the rest of
-      # libkernl (intr / thread / kprintf / diei / deci2).  Both stay `asm`:
-      # SCE SDK source may never be used (VENDOR.md §3b) and the aug6 branch
-      # never matched this run either, so there is nothing to port.
+      # are not the plain 4-instruction stub.  It stays `asm`: `_start` is the
+      # real ELF entry point (VENDOR.md §5) and splat merges it into
+      # func_00100000, so carving it needs the entry-point question settled
+      # first.  SCE SDK source may never be used for any of this run
+      # (VENDOR.md §3b) -- it is clean-room from the disassembly only.
       - [0x000000, asm, src/cod/000000]
       # The one bulk-matchable region of the proprietary half (VENDOR.md §3b,
       # "the cheap exception"): 140 EE-syscall leaves of exactly
@@ -116,7 +117,10 @@ segments:
       # SYSCALL_WRAPPER.  11 non-stub libkernl functions inside the run stay
       # INCLUDE_ASM.  Both boundaries are 8-byte-aligned function starts.
       - [0x000110, c, src/cod/vendor_100110]  # 151 funcs (140 syscall leaves)
-      - [0x000C90, asm, src/cod/000C90]
+      # 0x000C90..0x001C80 is the rest of libkernl (intr / thread / kprintf /
+      # diei / deci2), 25 functions.  Carved 2026-07-29; boundaries are the
+      # same 8-byte-aligned function starts the span already had.
+      - [0x000C90, c, src/cod/vendor_100C90]  # 25 funcs
       - [0x1C80, c, src/delayFreeManager]  # 14 funcs, census
       - [0x28F0, c, src/geometryManager]  # 31 funcs, census
       - [0x4590, c, src/keyInput]  # 27 funcs, aug6

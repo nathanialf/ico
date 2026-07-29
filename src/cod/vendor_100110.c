@@ -1,5 +1,6 @@
 #include "common.h"
 #include "syscall.h"
+#include "r5900.h"
 
 SYSCALL_WRAPPER(func_00100110, 1)
 SYSCALL_WRAPPER(func_00100120, 2)
@@ -139,38 +140,150 @@ SYSCALL_WRAPPER(func_00100970, 126)
 SYSCALL_WRAPPER(func_00100980, 127)
 SYSCALL_WRAPPER(func_00100990, 116)
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", func_001009A0);
+/* func_00100990 is defined above as a bare `void (void)` syscall leaf --
+ * SYSCALL_WRAPPER cannot express the two arguments the syscall reads out of
+ * $a0/$a1, so bind a correctly-typed name to the same symbol. */
+extern void func_00100990_2(int id, int arg) __asm__("func_00100990");
+
+void func_001009A0(void) {
+    int i = 0x80;
+    do {
+        func_00100990_2(i, 0);
+        i++;
+    } while (i < 0x100);
+}
 
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", func_001009E0);
+extern void func_00100C90(void);
+extern void func_00100E40(void);
+
+void func_001009E0(void) {
+    func_001009A0();
+    func_00100C90();
+    func_00100E40();
+}
 
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", func_00100A08);
+/* The four EE-kernel critical-section wrappers below all have the same
+ * shape: read COP0 Status, and if interrupts are currently enabled bracket
+ * the real call with the kernel's disable/enable pair, fencing after it.
+ * The inner callees are syscall leaves defined above by SYSCALL_WRAPPER,
+ * whose `void (void)` signature cannot express the argument the syscall
+ * reads out of $a0 or the result it returns in $v0 -- bind correctly-typed
+ * names to the same symbols. */
+extern void func_00101A40(void);
+extern void func_00101A88(void);
+extern int func_00100260_1(int a) __asm__("func_00100260");
+extern int func_00100270_1(int a) __asm__("func_00100270");
+extern int func_00100280_1(int a) __asm__("func_00100280");
+extern int func_00100290_1(int a) __asm__("func_00100290");
+
+int func_00100A08(int a0) {
+    int eie;
+    int rv;
+    MFC0_STATUS(eie);
+    eie &= COP0_STATUS_EIE;
+    if (eie) {
+        func_00101A40();
+    }
+    rv = func_00100270_1(a0);
+    SYNC();
+    if (eie) {
+        func_00101A88();
+    }
+    return rv;
+}
 
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", func_00100A70);
+int func_00100A70(int a0) {
+    int eie;
+    int rv;
+    MFC0_STATUS(eie);
+    eie &= COP0_STATUS_EIE;
+    if (eie) {
+        func_00101A40();
+    }
+    rv = func_00100260_1(a0);
+    SYNC();
+    if (eie) {
+        func_00101A88();
+    }
+    return rv;
+}
 
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", func_00100AD8);
+int func_00100AD8(int a0) {
+    int eie;
+    int rv;
+    MFC0_STATUS(eie);
+    eie &= COP0_STATUS_EIE;
+    if (eie) {
+        func_00101A40();
+    }
+    rv = func_00100290_1(a0);
+    SYNC();
+    if (eie) {
+        func_00101A88();
+    }
+    return rv;
+}
 
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", func_00100B40);
+int func_00100B40(int a0) {
+    int eie;
+    int rv;
+    MFC0_STATUS(eie);
+    eie &= COP0_STATUS_EIE;
+    if (eie) {
+        func_00101A40();
+    }
+    rv = func_00100280_1(a0);
+    SYNC();
+    if (eie) {
+        func_00101A88();
+    }
+    return rv;
+}
 
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", func_00100BA8);
+void func_00100BA8(void) {
+    func_001002C0();
+    SYNC();
+}
 
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", func_00100BC8);
+void func_00100BC8(void) {
+    func_001002D0();
+    SYNC();
+}
 
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", func_00100BE8);
+void func_00100BE8(void) {
+    func_001002E0();
+    SYNC();
+}
 
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", func_00100C08);
+void func_00100C08(void) {
+    func_001002F0();
+    SYNC();
+}
 
 SYSCALL_WRAPPER(func_00100C28, 116)
 SYSCALL_WRAPPER(func_00100C38, 90)
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100110", func_00100C48);
+int func_00100C48(int *dst, int *src, unsigned int size) {
+    unsigned int n = size >> 2;
+    unsigned int i = 0;
+    if (n != 0) {
+        do {
+            *dst = *src;
+            i++;
+            src++;
+            dst++;
+        } while (i < n);
+    }
+    return 0;
+}
 
 SYSCALL_WRAPPER(func_00100C80, 91)

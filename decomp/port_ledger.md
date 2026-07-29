@@ -2953,3 +2953,6 @@ V2: 50/52 PORTED. V1a: all 7 `unresolved-symbol` reverts landed. V1b: 9 of
 per-function PORTED/REVERTED noise was stripped, because the file sits
 ~1.5 KiB under check_no_rom.sh's 256 KiB cap. Per-function detail lives in
 `convpass_ledger_3.md` §"V1"/§"V2" — put new detail there, not here.
+
+### src/cod/vendor_2453C0.c
+- REVERTED `func_00246888` w1 @ 0x00246888 — [codegen] [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring)

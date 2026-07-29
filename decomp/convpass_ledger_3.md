@@ -1598,17 +1598,35 @@ VENDOR.md §1 over the dashboard label.
 | ~~**V1** 21 genuine port reverts — unresolved-symbol~~ **LANDED 2026-07-29** | 0 (was 7) | 0 (was 1664) | — | — | — | — | n/a |
 | **V1** 21 genuine port reverts — codegen | 5 (was 14) | 536 (was 1320) | 134 | 8 | 32 | 48 | unclassified -> §3b clean-room unless archive identified |
 | **V2** 52 handwritten-asm twins solved on aug6 | 2 (was 52) | 144 (was 7324) | 36 | 12 | 18 | 24 | §3b clean-room (already re-derived on aug6) |
-| **V3** 40 head functions | 40 | 5056 | 1264 | 2 | 14 | 370 | §3b proprietary (crt0 + libkernl, VENDOR.md §1) |
+| **V3** 40 head functions | 19 (was 40) | 3948 (was 5056) | | 2 | | 370 | §3b proprietary (crt0 + libkernl, VENDOR.md §1) |
 | **V4** 52 tail functions with no aug6 twin | 52 | 27112 | 6778 | 7 | 82 | 1350 | unclassified -> §3b clean-room unless archive identified |
 | **V5** 261 tail functions, aug6 twin unmatched | 261 | 118972 | 29743 | 24 | 74 | 1140 | mixed: 13 in the fdlibm window are §3a; rest unclassified |
 | **V6** 1 blocked (inter-section pad) | 1 | 92 | 23 | 23 | 23 | 23 | n/a — blocked |
-| | **361** (was 427) | **151,248** | | | | | |
+| | **350** (was 427) | **150,544** | | | | | |
 
-**Landed 2026-07-29 (this pass): 66 functions / 9,604 B — V2 50/52, V1 16/21.**
-Vendor moves 521/945 -> **587/948** functions and 34,144 -> **43,748 B**
-(17.51 % -> 22.44 %); `.text` 16.81 % -> **18.50 %**.  The unmatched vendor
-total is now **361 functions / 151,248 B** (figures from
+**Landed 2026-07-29, two passes: 87 functions / 10,712 B.**
+Pass 1 (`vendor-1`, 66 funcs / 9,604 B): V2 50/52, V1 16/21.
+Pass 2 (`vendor-2`, 21 funcs / 1,108 B): V3a 11/11, V3b 10/26 + the carve.
+Vendor moves 521/945 -> **598/948** functions and 34,144 -> **44,452 B**
+(17.51 % -> 22.80 %); `.text` 16.81 % -> **18.87 %**.  The unmatched vendor
+total is now **350 functions / 150,544 B** (figures from
 `docs/progress.json`, whose byte denominators are span-derived).
+
+**Two mechanisms found this pass generalise beyond their functions:**
+
+1. **gcc's `#.set volatile` marker blocks the period assembler's
+   delay-slot fill.**  Three functions so far end at exactly this residual
+   (`func_002453D0`, `func_001010C8`, and it is what cost `func_002456F8` a
+   match until the prototype's store-order `volatile` was dropped).  Any ROM
+   function whose `jr` delay holds a store that C would want `volatile` is
+   on this axis.  Where the `volatile` is a real MMIO poke the function is
+   **left `INCLUDE_ASM`** — dropping it to win the byte would be a crutch
+   dressed as source.
+2. **An inline-asm read must write its DESTINATION, not return a value.**  A
+   value-returning statement-expression makes the read a separate pseudo
+   from the variable it feeds, so a following mask/compare lands in a
+   different register.  This took four V3a functions from rc2 to rc0 at
+   once and is why `MFC0_STATUS` takes an lvalue.
 
 `min`/`median`/`max` are instruction counts.  Every count below is
 `bytes / 4` from `docs/progress.json`; a `*` marks one of the three
@@ -1714,7 +1732,7 @@ They were gated on `ninja` instead.
 | `func_00268DA0` | 22 | **LANDED** — return-value semantic, see below |
 | `func_002456F8` | 10 | **LANDED** — store-order data model, see below |
 | `func_002453D0` | 16 | left, rc2 — delay-slot/`volatile`, see below |
-| `func_00246888` | 36 | left, rc2 — `lui v1,%hi / addiu v1,v1,%lo` vs `lui v0 / addiu v1,v0`; the address is built in place in ROM and through a separate pseudo here.  Everything else matches.  §5.10 is the same axis inverted (it describes ROM keeping `%hi` in a callee-saved reg); the lever wanted here is the cached-address form. |
+| `func_00246888` | 36 | left, rc2 / **1 site** — `lui v1,%hi / addiu v1,v1,%lo` vs `lui v0 / addiu v1,v0`.  Both build `&D_00714BC0` in `$3`; only the `lui` destination differs, i.e. ROM's `high` pseudo and `lo_sum` destination got the SAME hard register and gcc's did not.  Refuted 2026-07-29 (all leave it at 1 site, so all are the same axis): a cached base pointer (§5.10's lever), retyping the extern `int[]` -> `char[]`, and flipping the local declaration order.  A DIFFERENT axis is needed — the two allocnos are short-lived and adjacent, so what has to change is what else is live at that point, not how the address is spelled. |
 | `func_0024C400` | 32 | left, rc8 / 7 sites — first divergence is an inserted `lw a0,0(s0)`.  Not yet reasoned about. |
 | `func_00252C68` | 48 | left, rc4 — the ported body is 50 insns against a 48-insn ROM span, i.e. genuinely 2 instructions long.  Not a reloc artifact. |
 | `func_00260CA8` | 8 | **BLOCKED, not a matching problem** — see below |
@@ -1933,9 +1951,27 @@ but must never be used as a byte oracle.
 instructions each.  What is left is the non-stub remainder.  29 of the 40
 are ≤ 20 insns.
 
-### V3a — 11 non-stub functions inside the carved head TU `src/cod/vendor_100110`
+### V3a — 11 non-stub functions — **ALL 11 LANDED 2026-07-29 (700 B)**
 
-Directly workable: the TU is already `c`, they are already `INCLUDE_ASM`.
+Four shapes, none of them hard: four `call a syscall leaf, then SYNC()`
+wrappers; a 0x80..0xFF handle-init do-while; a three-step init whose last
+call is a void tail call; a word copy returning 0; and four identical
+EE-kernel critical-section wrappers (read COP0 Status, and if interrupts are
+enabled bracket the real call with the kernel's disable/enable pair).
+
+**The one mechanism worth carrying forward** — the four wrappers all sat at
+rc2 with `mfc0 s0,c0_sr` expected and `mfc0 v1,c0_sr` built.  A
+*value-returning* `MFC0_STATUS()` statement-expression makes the read a
+separate pseudo from the variable it is masked into, so the mask lands in a
+different register than the read.  The kernel masks Status **in place**
+(`mfc0 $16,$12` / `and $16,$16,...`).  `include/r5900.h`'s `MFC0_STATUS(dst)`
+therefore takes the destination as an **lvalue**, and all four went to rc0.
+`COP0_STATUS_EIE`, `DI()` and `SYNC_P()` were added alongside it.
+
+`SYSCALL_WRAPPER`'s `void (void)` signature cannot express the argument
+these syscalls read from `$a0` or the result they return in `$v0`;
+correctly-typed names are bound to the same symbols with the tree's
+`__asm__` label idiom.
 
 | func | addr | insns |
 |---|---|--:|
@@ -1951,14 +1987,40 @@ Directly workable: the TU is already `c`, they are already `INCLUDE_ASM`.
 | `func_00100AD8` | `0x00100AD8` | 26 |
 | `func_00100B40` | `0x00100B40` | 26 |
 
-### V3b — 29 functions in the two still-`asm` head spans
+### V3b — **carved 2026-07-29; 10 of 26 libkernl functions landed (408 B)**
 
-`config/ico.us.yaml:111` (`0x00100000-0x00100110`, crt0 / `_start`) and
-`config/ico.us.yaml:119` (`0x00100C90-0x00101C80`, the rest of libkernl).
-**These need a yaml carve before any of them can be worked** — that carve is
-itself the first queue item in this group.  Boundaries must be 8-byte-aligned
-function starts (VENDOR.md §7); all the addresses below already are.
-`_start` is the real ELF entry point (VENDOR.md §5) — leave it for last.
+The `0x00100C90-0x00101C80` span is now `src/cod/vendor_100C90` (26
+functions, not the 25 this section used to say — `func_00100E40` was missing
+from the table below).  The carve changed no bytes.
+
+`0x00100000-0x00100110` (crt0 / `_start`) deliberately stays `asm`:
+`_start` is the real ELF entry point (VENDOR.md §5) and splat merges it into
+`func_00100000`, so carving it needs the entry-point question settled first.
+
+**Landed:** seven deci2/kernel request wrappers (`func_00101AE8`,
+`func_00101B40`, `func_00101B10`, `func_00101BD8`, `func_00101C08`,
+`func_00101C30`, `func_00101C58`) — pack arguments into a **four-word** block
+on the stack and call the kernel entry with a request code; the block is four
+words however many are filled, which is why every one of these frames is
+0x20.  Plus `func_00101A88` (critical-section exit), `func_001019A8` (a
+kprintf-shaped varargs forwarder, `__builtin_next_arg` idiom) and
+`func_001011B0` (LF -> CR LF).
+
+`func_001011B0` is worth noting: spelling it **`void`** with the call as the
+last statement of BOTH arms is what turns the two tails into `j`; as
+`int { return f(); }` gcc emits a real `jal`.  That is the inverse of the
+usual `int_return_shape` lever, so check which way round the ROM is.
+
+**Left in this span, with mechanisms:**
+
+| func | insns | state |
+|---|--:|---|
+| `func_001010C8` | 14 | rc2 — **the `#.set volatile` delay-slot class again** (see V1b): the ROM puts the `sb` to the DECI2 data port in the `jr` delay slot; the store is a genuine MMIO poke so `volatile` is correct, and with it the assembler will not move it.  Everything else matches. |
+| `func_00101A40` | 18 | rc9 / 4 sites — critical-section *entry* (spin on `DI()` until Status shows interrupts off).  CFG polarity is solved (the loop must be the fall-through, the zero path the `else`).  Residual: ROM keeps the `was` result in `$4` and copies it to `$2` at each of two duplicated tails, where gcc coalesces it straight into `$2`; and ROM remats the 0x10000 mask inside the loop where gcc hoists it.  Splitting the entry read from the loop's confirm read into two locals swaps `$2`/`$3` wholesale rather than fixing it — a different axis is needed. |
+| `func_00101AA0` | 18 | rc5 / 4 sites — the four-word request block with all four words used.  Purely a sched1 ordering: ROM interleaves the `%hi/%lo`+`or` address computation with the argument stores (`andi` at index 4, `sw a0,0(sp)` at 7), gcc front-loads both.  Neither storing `args[1]` before `args[0]` nor hoisting the address into a local improves it (both go to 5 sites). |
+| the remaining 15 | 24-370 | untouched |
+
+Original table of the whole V3b population follows.
 
 | func | addr | insns | span |
 |---|---|--:|---|

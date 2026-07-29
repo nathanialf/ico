@@ -23,6 +23,29 @@
  * critical-section exit wrappers. Encoding 0x42000038. */
 #define EI()        __asm__ __volatile__(".word 0x42000038" : : : "memory")
 
+/* Read COP0 Status ($12). The EE kernel's own critical-section wrappers
+ * test bit 16 (EIE) of it to decide whether they have to disable
+ * interrupts around a call and re-enable them afterwards, so the value has
+ * to reach C. There is no C spelling for a coprocessor-0 move.
+ * Takes the DESTINATION as an lvalue rather than returning a value: the
+ * kernel wrappers mask the Status word in place (`mfc0 $16,$12` then
+ * `and $16,$16,...`), and a value-returning form makes the result a
+ * separate pseudo, so the mask lands in a different register than the read.
+ * Naming follows ps2sdk's `ee/kernel/include/kernel.h` style. */
+#define MFC0_STATUS(dst)  __asm__ __volatile__("mfc0 %0, $12" : "=r"(dst))
+
+/* Bit 16 of COP0 Status: interrupts enabled. */
+#define COP0_STATUS_EIE  0x10000
+
+/* Disable interrupts (COP0 DI), the counterpart of EI(). Encoding
+ * 0x42000039. */
+#define DI()        __asm__ __volatile__(".word 0x42000039" : : : "memory")
+
+/* `sync.p` -- the pipeline-drain flavour of `sync`, as opposed to the
+ * store-completion SYNC() above. The kernel needs it after a DI() before
+ * re-reading Status, or the read can still observe the pre-DI value. */
+#define SYNC_P()    __asm__ __volatile__("sync.p" : : : "memory")
+
 /* Quadword copy — single 128-bit `lq`/`sq` pair via a scratch GPR
  * (e.g. `$a2`, `$t0`).  The original ICO codegen uses a different
  * scratch register per call site, so the scratch is exposed as a
