@@ -19,7 +19,23 @@ void func_0023B4F0(volatile int a0) {
     actCreateSubThread(func_0023B518, 0x15);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023B518);
+extern int actInitialize(int a0);
+extern void stage_KillPlayBgAnimation__b518(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
+
+void func_0023B518(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    for (;;) {
+        stage_KillPlayBgAnimation__b518(0x1C0, 1, 0);
+        _ACTWait(0xB3);
+        stage_KillPlayBgAnimation__b518(0x1C1, 1, 0);
+        _ACTWait(0xB3);
+        stage_KillPlayBgAnimation__b518(0x1C2, 1, 0);
+        _ACTWait(0xB3);
+        stage_KillPlayBgAnimation__b518(0x1C3, 1, 0);
+        _ACTWait(0xB3);
+    }
+}
 
 extern void actCreateSubThread(void *f, int a1);
 extern void func_0023B5C8(volatile int a0);
@@ -28,7 +44,23 @@ void func_0023B5A0(volatile int a0) {
     actCreateSubThread(func_0023B5C8, 0x15);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023B5C8);
+extern void stage_KillPlayBgAnimation__b5c8(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
+extern int actInitialize__b5c8(int a0) __asm__("actInitialize");
+
+void func_0023B5C8(volatile int a0) {
+    int x = a0;
+    actInitialize__b5c8(a0);
+    for (;;) {
+        stage_KillPlayBgAnimation__b5c8(0xAD, 1, 0);
+        _ACTWait(0xC8);
+        stage_KillPlayBgAnimation__b5c8(0xAE, 1, 0);
+        _ACTWait(0xC8);
+        stage_KillPlayBgAnimation__b5c8(0xAF, 1, 0);
+        _ACTWait(0xC8);
+        stage_KillPlayBgAnimation__b5c8(0xB0, 1, 0);
+        _ACTWait(0xC8);
+    }
+}
 
 extern void _ACTWait(int a0);
 
@@ -132,7 +164,24 @@ int func_0023C180(void) {
 
 INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023C1C0);
 
-INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023C290);
+extern int D_00633B4C;
+extern int D_00631960;
+extern float D_00633B48;
+extern void *UpdateRootPosition(void);
+extern float DispWireLetter(void *a0);
+
+int func_0023C290(void *a0) {
+    float v;
+    if (D_00633B4C == D_00631960) {
+        v = D_00633B48;
+    } else {
+        D_00633B4C = D_00631960;
+        v = DispWireLetter(UpdateRootPosition()) * 0.5f + 0.5f;
+        D_00633B48 = v;
+    }
+    *(float *)((char *)a0 + 0x18) = v;
+    return -1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023C2F0);
 

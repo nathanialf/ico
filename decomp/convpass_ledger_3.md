@@ -1470,7 +1470,7 @@ to anything after the branch.  Read the back-edge before calling it dead.
 | `func_0015ADF0` | commonact | **7** | 54 = 54 | Instruction *order* is exact; all 7 diffs are register naming.  ROM: const=`$3`, read1=`$2`, read2=`$7`, deref164=`$6`; ours: const=`$2`, read1=`$4`, read2=`$6`, deref164=`$3`.  local-alloc's `QTY_CMP_PRI = floor_log2(n_refs)*n_refs*size/(death-birth)` says our address constant has the *shortest* range at local-alloc time (so it takes `$2` first), i.e. our sched1 leaves the `lui/addiu` at the store and sched2 hoists it, while ROM's sched1 already had it in the prologue.  Next: make sched1 (not sched2) emit the `%hi/%lo` pair early.  Best source is in this pass's scratch (`adf0_rc7.c`); the shape is `char *s164` + `int self15C = a0` + `void *self = (void*)a0` + the `\|\|`-merged selection + the volatile fallback read. |
 | `func_001754F8` | girl_act | **MATCHED (conv-10)** — sites 11 -> 2 -> 0 | The rotation is gcse PRE (lazy code motion); the `.gcse` dump names it: `PRE/HOIST: edge (0,1), copying expression 2` = `(lt (reg i) 3)` and expression 3 = `(plus (reg i) 1)`. Writing `cont = i < 3; i++;` leaves BOTH locally anticipatable at the top of the guarded block, so PRE hoists both — and the compare needs a loop-carried carrier register (the extra $sN + `daddu`). Putting the increment FIRST kills antloc for the compare (its operand is redefined earlier in the block), so only the increment rotates: no extra register, sites 11 -> 2, residual = the rotation shifting both constants by one. Starting the counter at **0** instead of 1 puts the rotated constants exactly on ROM's `li i,1` / `slti ...,3`. None of the previously-tried variants could work: they all leave the compare anticipatable. 67 vs 64 | `$f20` and the six `ContinueCorrectPosition` stores are exact.  Residual: gcc rotates the `cont = i < 3; i++;` pair one iteration ahead — it emits `li cont,1; li next,1; li i,2` and an in-loop `daddu cont,next,zero`, costing 3 insns and one extra callee-saved register.  ROM keeps a single `$18`/`$17` pair with `i` initialised to 1.  Tried: `cont = i++ < 3`, update at end of block, decl order, goto-CFG loop (rc26 *and* it loses `$f20`).  Next: a spelling where the first update is not constant-foldable, or where `i` is not a simple biv. |
 | `func_0015DF88` | commonact | **25** | 65 vs 62 | Control flow is right.  Two residuals: (a) gcc parks `&buf[0]` in a callee-saved register (`addiu s2,sp,16` + `daddu` at each use) where ROM rematerialises `addiu $r,$29,0x10` at all four uses; (b) reorg duplicates the target block's `lwc1 $f12,%gp_rel(D_00630CCC)` into three branch delay slots where ROM leaves `nop`s and fills one delay with the following `slti`. |
-| `func_001619A8` | enemy_act | **sites 7 / rc 9** (was rc 31) | 78 vs 72 | Near-miss source saved at `decomp/convpass_ledger_3.md` (block below). Four of the five original residuals are CLOSED: (a) frame — ROM has 48 B of locals, not 32: a second 16-byte local sits BELOW `buf`, so `buf` is at sp+0x20 (`float buf0[4]; float buf[4];` reproduces it exactly); (b) abs — `if (d < 0) d = -d;` is if-converted to movn by jump.c's conditional-move transform (it fires when the then-block is exactly ONE `(set reg ...)` insn). The dev's idiom is a TERNARY: `d = (d < 0) ? -d : d;` expands through COND_EXPR and keeps ROM's `bltzl/negu`. Proven by the matched sibling `actGirlDitch3mReady` (src/girl_act:161), which has the identical `bltzl $2 / negu $2,$2` from exactly that spelling; (c) compare direction — a literal `0x59` is folded at the TREE level (`d > 89` -> `d >= 90` -> `slti ...,90` + inverted movz). Holding it in a local, `int thresh = 0x59;`, keeps `(gt d thresh)` to RTL where it must use `slt reg,reg` — ROM's `slt $2,$18,$2` with 89 in a callee-saved reg; (d) mode select — `mode = (d <= thresh) ? 1 : 2;` (not `(thresh < d) ? 2 : 1`) gives ROM's `addiu v1,2` + `movz`. **Remaining: ONE class — the callee-saved `&buf`** (`addiu s0,sp,32` in the pre-header + `daddu` at both uses, vs ROM's `addiu a3,sp,32` / `addiu a0,sp,32`), which also drags the $18/$19 swap of the two hoisted constants. Mechanism nailed down: **cse1**, not gcse, is the blocker — the `.cse` dump shows insn 121 rewritten to `(set (reg a0) (reg 90))` with a `REG_EQUAL (plus at 32)` note, i.e. the two occurrences were merged into one 3-ref pseudo; `-fno-gcse` still yields one `addu $16,$sp,32`. `cse_end_of_basic_block` only breaks at a CODE_LABEL, and there is none between the two argument setups. Consequently the pseudo has REG_N_REFS 3, which disqualifies local-alloc's `reg_equiv_replace` path (`update_equiv_regs`, local-alloc.c: requires REG_N_REFS == 2 && REG_BASIC_BLOCK < 0 && a REG_EQUAL note whose value is `function_invariant_p`) — that path is what deletes the init insn and substitutes `(plus fp K)` inline, i.e. exactly ROM's two `addiu`s. **Next reasoned lever:** get TWO one-use pseudos instead of one three-ref pseudo, each carrying a REG_EQUAL note. That needs the second address computation to be outside cse1's block — i.e. a real CODE_LABEL (a control-flow JOIN) between the two argument setups — or an address expression that is not yet folded to `(plus at 32)` at cse1 time. Refuted as no-ops (all fold to identical RTL, do NOT retry the same keystrokes): `&buf[0]` vs `buf`, `char buf[0x20]` + `buf+0x10`, a struct's second half, a `float *` pointer variable, `volatile float buf[4]`, declaring buf inside the loop body, and hoisting `subCommonIdle` to its own statement. |
+| `func_001619A8` | enemy_act | **MATCHED (conv-11)** — sites 7 -> 0 | 78 vs 72 | The callee-saved-`&buf` class is CLOSED, and this was its second member. **Fix: move the scratch buffer into a `static __inline__` helper that owns it.** Mechanism: cse1 merges the two `(plus at 32)` occurrences into one 3-ref pseudo (`cse_end_of_basic_block` only breaks at a CODE_LABEL and there is none between the two argument setups), and REG_N_REFS == 3 disqualifies local-alloc's `reg_equiv_replace` path in `update_equiv_regs` — the path that deletes the init insn and substitutes the `(plus fp K)` invariant back inline, i.e. ROM's per-use `addiu`.  Putting the array in an inline helper gives each use its own expansion scope so the merge never happens.  **Two things must move with it or the fix regresses:** (i) the node pointer has to be RE-READ from `D_00631AE8` *inside* the helper — passed in as a parameter it becomes a loop-invariant pseudo and gcc hoists `lw $16,0(gp)` into the pre-header (sites 8), where ROM reloads it every iteration; (ii) with the buffer inside the helper the threshold goes back to a plain `0x59` literal — the `int thresh` local that was REQUIRED at sites 7 costs a site once the helper exists.  Frame: ROM's 48 B of locals are a single `char buf[0x20]` with the callee handed `buf + 0x10`, the same two-half scratch idiom as the matched sibling `actGirlDitch3mReady` (src/girl_act) — no dummy local needed.  Retained from the earlier pass: the abs must be a TERNARY (`d = (d < 0) ? -d : d;`) so jump.c's conditional-move transform does not fire and ROM's `bltzl/negu` survives, and `mode = (d <= 0x59) ? 1 : 2;` gives ROM's `addiu v1,2` + `movz` rather than the inverted movn. |
 
 **Recurring open class — "gcc parks a local array's address in a callee-saved
 register".**  Seen in `func_0015DF88` and `func_001619A8` and it is worth
@@ -2409,3 +2409,59 @@ void func_001619A8(volatile unsigned int a0) {
     }
 }
 ```
+
+
+# conv-11 / branch `acttails-2` — continuation of the same scope
+
+Landed on top of `2d50924f`.  Metric is sites; every match gated on
+`.venv/bin/ninja` + explicit `tools/verify_elf.py`.
+
+| commit | TU | funcs | mechanism |
+|---|---|---|---|
+| `b0fd6d23` | st17b | `func_0022ED40` | actSt25aQueenTalkChk + the `long long buf[2]` param copy (st13b idiom) |
+| `21de20c7` | objact | `func_0023C290` | the `daddu a0,v0` in the DispWireLetter delay is `UpdateRootPosition`'s RETURN, not the stale global — reading it as the global costs two callee-saved regs and doubles the frame |
+| `2ba57cdc` | enemy_act | `func_001619A8` | **callee-saved-`&buf` class closed** — `static __inline__` helper owns the buffer; see the row above |
+| `8b65d670` | st47a | `func_002377E8`, `func_00238740`, `func_00238950`, `func_0023A7E0`, `func_00238DD8` | guarded Sekizo BoxBar template ×4; the `||`-of-two-`== 0` spider wait |
+| `eb5cfd1a` | st17b | `func_0022EF00`, `func_0022F698` | two-group spider wait; guarded Sekizo tail with a matching `int *unkC4` struct |
+| `3e1e4c4c` | st47a | `func_00236D90`, `func_002388D0` | spider wait with the guard test inside the loop; two-arm `func_0017B230(0x11A)` dispatch |
+| `7a55de31` | objact | `func_0023B518` | four-phase stage_KillPlayBgAnimation cycle |
+| `a3458bbf` | st47a | `func_0023A858`, `func_00239680` | Generator mask/call sequence; warpGirlInStage + guarded Sekizo tail (§8.22 delay slot — see below) |
+| `015a7499` | objact | `func_0023B5C8` | sibling four-phase cycle |
+
+## The callee-saved-`&buf` class — closed, general recipe
+
+Symptom: ROM recomputes `addiu $r,$29,OFF` at every use of a local array's
+address inside a loop; gcc parks it in a callee-saved register and emits
+`daddu` copies.
+
+Recipe: **give the array to a `static __inline__` helper that contains all of
+its uses.**  Then check two follow-ons that the move exposes — any global the
+helper needs must be re-read inside the helper (a parameter turns it into a
+loop invariant that gets hoisted), and constants that had to be held in locals
+to survive the old shape usually want to go back to literals.
+
+Both members are now matched: commonact `func_0015DF88` (other worker) and
+enemy_act `func_001619A8`.
+
+## §8.22 delay slot — `volatile` on the read, not on the callee
+
+`func_00239680` calls `warpGirlInStage(x, y, z)` with three gp-relative float
+globals.  gcc emits two `lwc1`s and puts the THIRD in the call's delay slot;
+ROM emits all three ahead of the `jal` and leaves a `nop`.  Marking the three
+globals `extern volatile float` fixes it: reorg will not hoist a volatile MEM
+into a delay slot.  This is a ROM-proven `volatile` (the ROM codegen is the
+evidence), not a scheduling crutch.  Only the last one being volatile is not
+enough (sites 2); all three must be.
+
+## Still open in this scope
+
+`func_0015E388` and the other commonact rows are not this worker's TUs.  In
+enemy_act / girl_act / objact / st17b / st47a what remains is the untouched
+tail set, smallest-first from girl_act `funcGirlHandDisconnect`(34), objact
+`func_0023C2F0`(35), st47a `func_0023A8E8`(36) / `func_00237750`(37), st17b
+`func_0022F600`(38), up to girl_act `func_001725C8`(678).  girl_act (47
+stubs) and enemy_act (41) are now the bulk and have had the least sweeping;
+st47a is down to 43 and objact to 8.
+The st47a remainder is still mostly the same three templates
+(Sekizo BoxBar tail, actE3CageFallChk idle tail, spider wait) and should keep
+going in bulk.

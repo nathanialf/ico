@@ -347,7 +347,20 @@ void func_00236D20(volatile int a0) {
     func_0017B258(0x3A);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00236D90);
+extern int D_00631AE8__6d90 __asm__("D_00631AE8");
+
+void func_00236D90(volatile int a0) {
+    if (D_00631AE8__6d90 == 0) {
+        _ACTWait(0);
+    }
+    while (D_00631AE8__6d90 == 0 ||
+           scpSleepSpiderGroupOne(actSt25aQueenDeadChk(0x2D4), 0x4000000) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(0x12C);
+    func_0017B258(0x3B);
+    func_0017B258(0x3C);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00236E10);
 
@@ -397,7 +410,21 @@ void func_002376F0(volatile int a0) {
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00237750);
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", func_002377E8);
+extern unsigned int D_004D3BB0[8];
+extern void func_00237AD8(volatile int a0);
+extern int actInitialize__77e8(int a0) __asm__("actInitialize");
+
+void func_002377E8(volatile int a0) {
+    int x = a0;
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize__77e8(a0);
+    _ACTWait(1);
+    if (func_0017B230(0x11f) == 0) {
+        D_004D3BB0[1] = (unsigned int)func_00237AD8;
+        gobj->unkC4 = (int *)D_004D3BB0;
+        BoxBarSoundOn((int)a0, 0x18D);
+        _ACTWait(0);
+    }
+}
 
 extern unsigned int D_004D3A30[8];
 extern int D_006325B4__7860 __asm__("D_006325B4");
@@ -528,7 +555,21 @@ INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00238480);
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_002385E0);
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00238740);
+extern unsigned int D_004D3BF0[8];
+extern void func_00238B88(volatile int a0);
+extern int actInitialize__8740(int a0) __asm__("actInitialize");
+
+void func_00238740(volatile int a0) {
+    int x = a0;
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize__8740(a0);
+    _ACTWait(1);
+    if (func_0017B230(0x120) == 0) {
+        D_004D3BF0[1] = (unsigned int)func_00238B88;
+        gobj->unkC4 = (int *)D_004D3BF0;
+        BoxBarSoundOn((int)a0, 0x18D);
+        _ACTWait(0);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_002387B8);
 
@@ -546,9 +587,38 @@ void func_00238868(volatile int a0) {
     _ACTWait(0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", func_002388D0);
+extern int actInitialize__88d0(int a0) __asm__("actInitialize");
+extern void func_0017B288__88d0(int a0) __asm__("func_0017B288");
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00238950);
+void func_002388D0(volatile int a0) {
+    int x = a0;
+    actInitialize__88d0(a0);
+    _ACTWait(1);
+    if (func_0017B230(0x11A) != 0) {
+        *(int *)(actSt25aQueenDeadChk(0x73E) + 0x16C) = 0;
+        *(int *)(actSt25aQueenDeadChk(0x73F) + 0x16C) = 0;
+        func_0017B288__88d0(0x11A);
+    } else {
+        *(int *)(actSt25aQueenDeadChk(0x740) + 0x16C) = 0;
+        *(int *)(actSt25aQueenDeadChk(0x741) + 0x16C) = 0;
+    }
+}
+
+extern unsigned int D_004D3D10[8];
+extern void func_00238DD8(volatile int a0);
+extern int actInitialize__8950(int a0) __asm__("actInitialize");
+
+void func_00238950(volatile int a0) {
+    int x = a0;
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize__8950(a0);
+    _ACTWait(1);
+    if (func_0017B230(0x123) == 0) {
+        D_004D3D10[1] = (unsigned int)func_00238DD8;
+        gobj->unkC4 = (int *)D_004D3D10;
+        BoxBarSoundOn((int)a0, 0x18D);
+        _ACTWait(0);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_002389C8);
 
@@ -650,7 +720,20 @@ void func_00238C60(volatile int a0) {
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00238D08);
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00238DD8);
+extern int D_00631AE8__8dd8 __asm__("D_00631AE8");
+
+void func_00238DD8(volatile int a0) {
+    if (D_00631AE8__8dd8 == 0) {
+        _ACTWait(0);
+    }
+    while (func_0017B230(0x120) == 0 ||
+           scpSleepSpiderGroupOne(D_00631AE8__8dd8, 0x3000000) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(1);
+    func_0017B258(0x123);
+    func_0017B258(0x124);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00238E50);
 
@@ -662,7 +745,24 @@ INCLUDE_ASM("asm/nonmatchings/src/st47a", func_002393C0);
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_002394D8);
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00239680);
+extern unsigned int D_004D3E10[8];
+extern void func_002394D8(volatile int a0);
+extern volatile float D_0063173C, D_00631740, D_00631744;
+extern void warpGirlInStage(float f12, float f13, float f14);
+extern int actInitialize__9680(int a0) __asm__("actInitialize");
+
+void func_00239680(volatile int a0) {
+    int x = a0;
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize__9680(a0);
+    _ACTWait(1);
+    warpGirlInStage(D_0063173C, D_00631740, D_00631744);
+    if (func_0017B230(0x12C) == 0) {
+        D_004D3E10[1] = (unsigned int)func_002394D8;
+        gobj->unkC4 = (int *)D_004D3E10;
+        BoxBarSoundOn((int)a0, 0x18D);
+        _ACTWait(0);
+    }
+}
 
 extern int actInitialize__9710(int a0) __asm__("actInitialize");
 extern void stage_KillPlayBgAnimation__9710(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
@@ -817,9 +917,41 @@ void func_0023A768(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", func_0023A7E0);
+extern int D_004D4050[];
+extern void func_0023AED8(volatile int a0);
+extern int actInitialize__a7e0(int a0) __asm__("actInitialize");
 
-INCLUDE_ASM("asm/nonmatchings/src/st47a", func_0023A858);
+void func_0023A7E0(volatile int a0) {
+    int x = a0;
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize__a7e0(a0);
+    _ACTWait(1);
+    if (func_0017B230(0x31) == 0) {
+        D_004D4050[1] = (int)func_0023AED8;
+        gobj->unkC4 = D_004D4050;
+        BoxBarSoundOn((int)a0, 0x18D);
+        _ACTWait(0);
+    }
+}
+
+extern int actInitialize__a858(int a0) __asm__("actInitialize");
+extern void Generator_Mask__a858(int a0) __asm__("Generator_Mask");
+extern void Generator_MaskOff__a858(int a0) __asm__("Generator_MaskOff");
+extern void Generator_Call__a858(int a0) __asm__("Generator_Call");
+
+void func_0023A858(volatile int a0) {
+    int x = a0;
+    actInitialize__a858(a0);
+    _ACTWait(1);
+    Generator_Mask__a858(a0);
+    while (func_0017B230(0x32) == 0) {
+        _ACTWait(1);
+    }
+    _ACTWait(0xB4);
+    Generator_MaskOff__a858(a0);
+    Generator_Call__a858(a0);
+    _ACTWait(0x3C);
+    Generator_Call__a858(a0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_0023A8E8);
 

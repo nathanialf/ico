@@ -198,7 +198,50 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001613B0);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyPickupBegin);
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001619A8);
+extern int ContinueCorrectPosition__19a8(int a0) __asm__("ContinueCorrectPosition");
+extern void dispPlane__19a8(void *a0, float *a1) __asm__("dispPlane");
+extern void func_001947D0__19a8(float *a0, int a1, int a2) __asm__("func_001947D0");
+extern int D_00631AE8__19a8 __asm__("D_00631AE8");
+extern int func_00145328(void *a0, int a1, int a2, void *a3, float f12, float f13);
+extern void *subCommonIdle__19a8(int a0) __asm__("subCommonIdle");
+extern int HandCameraCorrect__19a8(void *a0, void *a1) __asm__("HandCameraCorrect");
+extern void ACTGameView_Loop(void);
+extern int MoveChestForCatchBoy(void *a0);
+extern void BoxBarSoundOn__19a8(void *a0, int a1) __asm__("BoxBarSoundOn");
+extern unsigned int _ACTWait__19a8(int a0) __asm__("_ACTWait");
+
+static __inline__ int func_001619A8_probe(void *self) {
+    char buf[0x20];
+    int mode;
+    if (func_00145328(self, D_00631AE8__19a8, 0x2D, buf + 0x10, 170.0f, 100.0f) != 0) {
+        int d = HandCameraCorrect__19a8(buf + 0x10, subCommonIdle__19a8(D_00631AE8__19a8));
+        d = (d < 0) ? -d : d;
+        mode = (d <= 0x59) ? 1 : 2;
+    } else {
+        mode = 0;
+    }
+    return mode;
+}
+
+void func_001619A8(volatile unsigned int a0) {
+    char *m = (char *)(*(int *)(a0 + 0x164)) + 0x110;
+    int r0 = ContinueCorrectPosition__19a8(D_00631AE8__19a8);
+    int r1 = ContinueCorrectPosition__19a8(a0);
+    func_001947D0__19a8((float *)m, r0, r1);
+    dispPlane__19a8((void *)a0, (float *)m);
+    for (;;) {
+        int mode = func_001619A8_probe((void *)a0);
+        if (mode < 3 && mode != 0 && MoveChestForCatchBoy((void *)a0) != 0) {
+            ACTGameView_Loop();
+            for (;;) {
+                BoxBarSoundOn__19a8((void *)a0, 0x151);
+                _ACTWait__19a8(1);
+            }
+        }
+        BoxBarSoundOn__19a8((void *)a0, 0x152);
+        _ACTWait__19a8(1);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00161AC8);
 
