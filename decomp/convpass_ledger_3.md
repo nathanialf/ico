@@ -3296,3 +3296,56 @@ partially-resolved jump-threading of a known-true condition, and getting gcc to
 half-resolve it is what the residual actually is.  Next lever should target
 that construct's data model (what IS `D_00633D00`, and is the test really on
 its address?) rather than the enclosing control flow.
+
+---
+
+## Standing-queue invariant (orchestrator, 2026-07-29)
+
+**An entry leaves this queue only when the function is MATCHED.** Not when it
+is hard, not when it has resisted N attempts, not when it has been
+reclassified, and not because fresher targets look cheaper per round. A
+plateau is not a stopping point; "out of ideas" is not; "N shapes measured"
+means those N were the same axis. Re-ordering by value is legitimate —
+retiring is not.
+
+Precedent: `func_001FCA20` ran five consecutive rounds with zero byte movement
+and was offered a cap three times; it landed at session 17 on a lever no
+earlier round had considered. Each flat round narrowed the space that made the
+last one possible.
+
+### Audit — attempted functions readmitted to the queue
+
+Cross-referencing every function named in an attempt context across
+`decomp/*.md` against the unmatched set gives **38 attempted-and-still-
+unmatched** functions. **23** were listed below; the **15** here had fallen
+out of the standing section and are hereby readmitted. They are not new work —
+each one was attempted, set aside, and then silently stopped being listed,
+which is precisely the failure mode this invariant exists to prevent.
+
+| func | note |
+|---|---|
+| `func_00200848` | act-env; sibling of the matched func_001FCA20 / func_00200970 / func_002009F0 |
+| `func_0017E660` | |
+| `func_001AD768` | |
+| `func_00237C18` | st47a |
+| `pac_makeNormalStrip` | Packet family; see the jtbl-blocked `pac_continueTag` note |
+| `cut_gobj_dl_link` | |
+| `scpKillSpiderGroup` | spider-group family |
+| `soundSeVolSet` | sound |
+| `poolRideFunc` | pool family — 8 no-twin pool/sound funcs already noted below |
+| `PoolGeo` | pool family |
+| `GetPoolGlobalHeight` | pool family |
+| `GetPoolGlobalHeightDetail` | pool family |
+| `CheckPoolHasGridMesh` | pool family |
+| `DispLimitedPoolReflactionMesh` | pool family |
+| `SetLayoutedPoolReflactionMesh` | pool family |
+
+The pool cluster is seven of the fifteen and they are siblings, so they are
+likely one shape rather than seven problems — worth taking as a family the way
+the device-request and BoxBar templates were.
+
+**Note on scope:** the 2,622 unmatched functions overall are inventory, not
+queue. This queue is the *attempted* set — functions carrying knowledge that
+is lost if they fall off the list. An untouched function loses nothing by
+waiting; a skipped one loses its residual, its refuted axes and its best
+sites count.
