@@ -3,7 +3,7 @@ name: Deploy progress dashboard
 # Publish the TWO-VERSION static progress dashboard to GitHub Pages.
 #
 # This workflow, .github/scripts/build_pages_site.sh and docs/index.html are
-# byte-identical on `main` and `retail-v2` — deliberately, with no per-branch
+# byte-identical on `main` and `aug6` — deliberately, with no per-branch
 # conditionals. A Pages deploy replaces the ENTIRE site, so both branches must
 # assemble the same complete site (aug6 + us) or whichever branch deployed last
 # would 404 the other version's data. Fix these files on one branch and copy
@@ -12,7 +12,7 @@ name: Deploy progress dashboard
 # See .github/scripts/build_pages_site.sh for the layout it produces.
 on:
   push:
-    branches: [main, retail-v2]
+    branches: [main, aug6]
     paths:
       - docs/**
       - .github/workflows/pages.yml

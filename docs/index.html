@@ -251,7 +251,7 @@
       <h1>ICO decompilation progress</h1>
       <p class="sub">Clean-room PS2 EE-side decomp, grouped by
         <span id="grouplbl">programmer</span> &rarr; translation unit &rarr; function.
-        <a href="https://github.com/nathanialf/ico">repo</a></p>
+        <a id="repolink" href="https://github.com/nathanialf/ico/tree/aug6">repo</a></p>
     </div>
     <div class="verpick">
       <span class="verpick-lbl" id="vlbl">Target build</span>
@@ -385,7 +385,11 @@ document.getElementById("expand").addEventListener("change", e=>{
     .forEach(n=> setOpen(n, e.target.checked));
 });
 
-const VLABEL = { aug6: "Aug-6-2001 prototype (main)", us: "USA retail (retail-v2 branch)" };
+const VLABEL = { aug6: "Aug-6-2001 prototype (aug6 branch)", us: "USA retail (main branch)" };
+
+// Each target is developed on its own branch, so the "repo" link follows the
+// selected view rather than always landing on the default branch.
+const VBRANCH = { aug6: "aug6", us: "main" };
 
 function pickVersion(){
   const h = location.hash.replace("#","");
@@ -401,6 +405,10 @@ function syncSeg(v){
     b.setAttribute("aria-checked", on ? "true" : "false");
     b.tabIndex = on ? 0 : -1;          // roving tabindex: one tab stop total
   });
+  // Single point where "the view is now v" is known — keep the repo link on
+  // the branch that actually develops this target.
+  const rl = document.getElementById("repolink");
+  if(rl) rl.href = `https://github.com/nathanialf/ico/tree/${VBRANCH[v] || "main"}`;
 }
 
 // The hash is the single source of truth, so pointer, keyboard and deep-link
