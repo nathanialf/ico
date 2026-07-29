@@ -506,7 +506,40 @@ void func_001754B0(void *volatile a0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001754F8);
+extern char D_00559A70[];
+extern void GetTarget(void);
+extern float *ContinueCorrectPosition__54f8(void *a0) __asm__("ContinueCorrectPosition");
+extern void _OrientXZGV__54f8(float *dst, float *a1, float *a2, float f12, float f13) __asm__("_OrientXZGV");
+extern void CylinderCollisionWithControlDynamics(void *o, void *param);
+extern void *D_00631AE4__54f8 __asm__("D_00631AE4");
+extern void *D_00631AE8__54f8 __asm__("D_00631AE8");
+
+void func_001754F8(void *volatile a0) {
+    float buf10[4];
+    float buf20[4];
+    float buf30[4];
+    int cont = 1;
+    int i = 0;
+
+    GetTarget();
+    debug_assertMessage(D_00559A70);
+    for (;;) {
+        if (cont) {
+            i++;
+            cont = i < 3;
+            buf10[0] = ContinueCorrectPosition__54f8(D_00631AE4__54f8)[0];
+            buf10[1] = ContinueCorrectPosition__54f8(D_00631AE4__54f8)[1];
+            buf10[2] = ContinueCorrectPosition__54f8(D_00631AE4__54f8)[2];
+            buf20[0] = ContinueCorrectPosition__54f8(D_00631AE8__54f8)[0];
+            buf20[1] = ContinueCorrectPosition__54f8(D_00631AE8__54f8)[1];
+            buf20[2] = ContinueCorrectPosition__54f8(D_00631AE8__54f8)[2];
+            _OrientXZGV__54f8(buf30, buf10, buf20, 1.0f, 1.0f);
+            CylinderCollisionWithControlDynamics(a0, buf30);
+        }
+        BoxBarSoundOn(a0, 0x175);
+        _ACTWait(1);
+    }
+}
 
 extern char D_00559AA0[];
 

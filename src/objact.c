@@ -12,7 +12,12 @@ typedef struct
 } S;
 extern float D_006317E0;
 extern int func_0017B230(int a0);
-INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023B4F0);
+extern void actCreateSubThread(void *f, int a1);
+extern void func_0023B518(volatile int a0);
+
+void func_0023B4F0(volatile int a0) {
+    actCreateSubThread(func_0023B518, 0x15);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023B518);
 
@@ -27,7 +32,18 @@ INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023B5C8);
 
 extern void _ACTWait(int a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023B650);
+extern int *D_00631AE4__b650 __asm__("D_00631AE4");
+extern void func_0017E660(int a0, float a1, float a2, float a3, float a4);
+
+void func_0023B650(volatile int a0) {
+    for (;;) {
+        while ((((int *)D_00631AE4__b650[0x164 / 4])[0x2D4 / 4] & 0x400) == 0) {
+            _ACTWait(1);
+        }
+        func_0017E660(2, 0.0f, -500.0f, 0.0f, 500.0f);
+        _ACTWait(1);
+    }
+}
 
 extern int D_00275250[];
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
@@ -95,9 +111,24 @@ int func_0023C0E8(int *self)
   return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023C148);
+extern int func_0018B0A0(void);
 
-INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023C180);
+int func_0023C148(void) {
+    int r = func_0018B0A0();
+    if (r == 3 || r == 9) {
+        return -1;
+    }
+    return 0;
+}
+
+int func_0023C180(void) {
+    int r = func_0018B0A0();
+    int busy = (r == 3 || r == 9) ? -1 : 0;
+    if (busy != 0) {
+        return 0;
+    }
+    return -1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023C1C0);
 

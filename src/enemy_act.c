@@ -318,19 +318,43 @@ void _ApproachTarget_Way(volatile unsigned int a0)
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00164EF4);
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00164EF8);
+extern char D_00558F08[];
+
+void func_00164EF8(volatile unsigned int a0) {
+    int *s0 = *((int **)(a0 + 0x164));
+    debug_assertMessage((char *)D_00558F08);
+    s0[0x30 / 4] = 2;
+    _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00164F3C);
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00164F40);
+extern char D_00558F38[];
+
+void func_00164F40(volatile unsigned int a0) {
+    int *s0 = *((int **)(a0 + 0x164));
+    debug_assertMessage((char *)D_00558F38);
+    s0[0x30 / 4] = 3;
+    _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00164F84);
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00164F88);
+extern char D_00558F80[];
+
+void func_00164F88(volatile unsigned int a0) {
+    int *s0 = *((int **)(a0 + 0x164));
+    debug_assertMessage((char *)D_00558F80);
+    s0[0x30 / 4] = 28;
+    _ACTWait(0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00164FCC);
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00164FD0);
+void func_00164FD0(volatile int a0) {
+    func_001AD768(D_00558E10, 0xAF3);
+    func_00263FF0(D_00558E10, 0xAF3, D_00632398);
+}
 
 extern int D_00631AE4;
 extern void BoxBarSoundOn(void *a0, int a1);
@@ -394,7 +418,14 @@ void actEnemyStand(char *self) {
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165174);
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165178);
+void func_00165178(int *a0) {
+    char spill[16];
+    *(long long *)(spill + 0) = *(long long *)((char *)D_00558FA0 + 0);
+    *(long long *)(spill + 8) = *(long long *)((char *)D_00558FA0 + 8);
+    CylinderCollision(a0, spill);
+    ResetEnemyEye(a0);
+    actEnemyRun(a0);
+}
 
 void actEnemyRun(int *a0)
 {
@@ -469,7 +500,17 @@ one:
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165344);
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165348);
+extern int MoveChestForCatchBoy(void *a0);
+extern void func_00165B50(char *self, int a1, int *a2);
+
+int func_00165348(char *a0) {
+    int r = MoveChestForCatchBoy(a0);
+    if (r != 0) {
+        func_00165B50(a0, 0, 0);
+    }
+    BoxBarSoundOn(a0, 0xF4);
+    return r;
+}
 
 int actEnemyFlagOnFree(int *self) {
     int *p = (int *)self[0x164/4];
@@ -500,7 +541,20 @@ int EnemyBrainStatus_Boy(char *self) {
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165414);
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165418);
+int func_00165418(void *a0, int *out) {
+    char *p = *(char **)((char *)a0 + 0x164);
+    int v;
+    if (*(int *)(*(char **)(p + 0x670) + 0x1FC) != 5) {
+        return 0;
+    }
+    v = *(int *)(*(char **)(p + 0x678) + 0x420);
+    *out = v;
+    if (v == 0) {
+        func_001AD768(D_00558E10, 0x2FA);
+        func_00263FF0(D_00558E10, 0x2FA, D_00558E20);
+    }
+    return 1;
+}
 
 int func_00165488(char *self)
 {
@@ -804,7 +858,27 @@ void GetEnemyTypeFromGObj(int a0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165DC0);
+extern char D_00558EF0[];
+extern int *ExecMotionOrient(unsigned int a0, int a1, void *a2);
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165E08);
+void func_00165DC0(volatile unsigned int a0) {
+    int *s0 = *((int **)(a0 + 0x164));
+    debug_assertMessage((char *)D_00558EF0);
+    s0[0x120 / 4] = (int)ExecMotionOrient(a0, 1, (char *)s0 + 0x610);
+    for (;;) {
+        _ACTWait(1);
+    }
+}
+
+extern char D_00558F20[];
+
+void func_00165E08(volatile unsigned int a0) {
+    int *s0 = *((int **)(a0 + 0x164));
+    int *r;
+    debug_assertMessage((char *)D_00558F20);
+    r = ExecMotionOrient(a0, 7, (char *)s0 + 0x610);
+    s0[0x120 / 4] = (int)r;
+    r[0x114 / 4] = 0;
+    _ACTWait(0);
+}
 

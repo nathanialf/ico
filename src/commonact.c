@@ -114,7 +114,25 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001572F0);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", ACTRunIntrCorrect);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00157BB0);
+extern void IsWallLeverStatus(void *a0, void *a1, int a2);
+extern void func_001C0AE8(void *a0, void *a1, int a2);
+
+void func_00157BB0(void *a0, void *a1) {
+    int m = *(int *)((char *)a1 + 0xC);
+    if (m < 0x16) {
+        return;
+    }
+    if (m < 0x18) {
+        goto lever;
+    }
+    if (m >= 0x1A) {
+        return;
+    }
+    func_001C0AE8(a1, a0, 0x16);
+    return;
+lever:
+    IsWallLeverStatus(a1, a0, 0x16);
+}
 
 extern void *ContinueCorrectPosition(void *a0);
 extern void CylinderCollision(void *a0, void *a1);
@@ -261,7 +279,21 @@ void motCommonRopeTurnL(volatile int self) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001588F0);
+extern void BoxGeoRestore(int a0, int a1);
+extern void func_001E9DE8(int a0);
+
+void func_001588F0(void *a0) {
+    char *s164 = *(char **)((char *)a0 + 0x164);
+    int m = *(int *)(s164 + 0x30);
+    if (m == 0x31) goto h31;
+    if (m == 0x33) goto h33;
+    return;
+h31:
+    BoxGeoRestore(*(int *)(s164 + 0x148), *(int *)(s164 + 0x34));
+    return;
+h33:
+    func_001E9DE8(*(int *)(s164 + 0x5E8));
+}
 
 void actCommonRopeClimbEnd1(int *self)
 {
@@ -734,9 +766,54 @@ void func_0015DF30(volatile int a0) {
     _ACTWait__p4(0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015DF60);
+extern char D_00558BB0[];
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015DF88);
+void func_0015DF60(volatile int a0) {
+    debug_assertMessage(D_00558BB0);
+    for (;;) {
+        _ACTWait__p4(1);
+    }
+}
+
+extern void _DoAwaitGirl(void);
+extern void func_001BC0B8(void *a0, void *a1);
+extern void func_001BC4B8(void *a0, void *a1);
+extern void func_00102C10(void *a0, int a1, void *a2, float f);
+extern volatile float D_00630CCC;
+extern void func_00157BB0__df88(void *a0, void *a1) __asm__("func_00157BB0");
+
+static __inline__ void func_0015DF88_mark(void *self2, int s17, int m) {
+    int buf[4];
+    if (m >= 0x16) {
+        if (m < 0x18) {
+            func_001BC0B8(buf, (void *)s17);
+        } else if (m < 0x1A) {
+            func_001BC4B8(buf, (void *)s17);
+        }
+    }
+    func_00102C10(self2, 0x16, buf, D_00630CCC);
+}
+
+void func_0015DF88(volatile int a0) {
+    char *s164 = *(char **)(a0 + 0x164);
+    int self = a0;
+    int s17 = *(int *)(s164 + 0x5EC);
+    *(int *)(s164 + 0x14) = (int)_DoAwaitGirl;
+    func_0015C818_disp(self);
+    for (;;) {
+        if (s17 != 0) {
+            if (*(int *)(*(int *)(a0 + 0x15C) + 0x604) != 0) {
+                int m = *(int *)(s17 + 0xC);
+                void *self2 = (void *)a0;
+                func_0015DF88_mark(self2, s17, m);
+            }
+            if (*(int *)(*(int *)(a0 + 0x15C) + 0x600) != 0) {
+                func_00157BB0__df88((void *)a0, (void *)s17);
+            }
+        }
+        _ACTWait__p4(1);
+    }
+}
 
 extern void func_00157BB0(void *a0, void *a1);
 
@@ -769,7 +846,50 @@ void func_0015E118(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015E1B0);
+extern void ChangeMailInLadder__e1b0(float *buf, void *obj) __asm__("ChangeMailInLadder");
+extern int _ACTCorrectMsg(void *a0, int a1);
+extern void GetChainClimbCollision(int a0, float *a1);
+extern void eBrainGetTarget(int a0);
+extern void eBrainInit(int a0);
+extern void func_0018ECC8(int a0);
+extern void func_0015F3C0();
+extern void BoxBarSoundOn__e1b0(void *a0, int a1) __asm__("BoxBarSoundOn");
+extern void dispPlane__e1b0(void *a0, float *a1) __asm__("dispPlane");
+extern void _ACTWait__e1b0(int a0) __asm__("_ACTWait");
+
+void func_0015E1B0(volatile int a0) {
+    float buf[4];
+    int *s164 = *(int **)(a0 + 0x164);
+    float *bp;
+    int hv;
+
+    eBrainGetTarget(s164[0x180 / 4]);
+    hv = (int)func_0015F3C0;
+    bp = buf;
+    s164[0x18 / 4] = hv;
+    ChangeMailInLadder__e1b0(bp, (void *)a0);
+    *(float *)&s164[0x190 / 4] = buf[0];
+    *(float *)&s164[0x194 / 4] = buf[1];
+    *(float *)&s164[0x198 / 4] = buf[2];
+    GetChainClimbCollision(s164[0x180 / 4], buf);
+    _ACTWait__e1b0(1);
+    for (;;) {
+        int m = _ACTCorrectMsg((void *)a0, s164[0x180 / 4]);
+        switch (m) {
+        case 1:
+            BoxBarSoundOn__e1b0((void *)a0, 0x9C);
+            break;
+        case 2:
+            BoxBarSoundOn__e1b0((void *)a0, 0x9B);
+            break;
+        }
+        eBrainInit(s164[0x180 / 4]);
+        func_0018ECC8(s164[0x180 / 4]);
+        eBrainGetTarget(s164[0x180 / 4]);
+        dispPlane__e1b0((void *)a0, buf);
+        _ACTWait__e1b0(1);
+    }
+}
 
 void func_0015E2A8(volatile int a0) {
     for (;;) {
@@ -796,7 +916,25 @@ void func_0015E2C8(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015E388);
+extern void func_0015F428__e388(void) __asm__("func_0015F428");
+
+void func_0015E388(volatile int a0) {
+    char *s164 = *(char **)(a0 + 0x164);
+    int b1, b2, b3;
+    *(int *)(s164 + 0x18) = (int)func_0015F428__e388;
+    if (*(int *)(s164 + 0xC8) == 0x9B) {
+        b1 = a0;
+        b2 = a0;
+        b3 = a0;
+        *(int *)(*(int *)(b1 + 0x15C) + 0x130) = 0;
+        *(int *)(*(int *)(b2 + 0x15C) + 0x134) = 0;
+        *(int *)(*(int *)(b3 + 0x15C) + 0x138) = 0;
+    }
+    for (;;) {
+        BoxBarSoundOn__e1b0((void *)a0, 0xB0);
+        _ACTWait__e1b0(1);
+    }
+}
 
 void func_0015E3F8(volatile int a0) {
     for (;;) {
@@ -809,7 +947,12 @@ void func_0015E428(volatile int a0) {
     _ACTWait__p4(0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015E448);
+void func_0015E448(volatile int a0) {
+    for (;;) {
+        BoxBarSoundOn((void *)a0, 0xB7);
+        _ACTWait__p4(1);
+    }
+}
 
 extern void func_0014B270(void *a0, int a1, int a2, float f);
 extern void func_00240038_p(void *a0, int a1, float f) __asm__("func_00243B18");
@@ -878,7 +1021,11 @@ void func_0015E638(volatile int a0) {
     _ACTWait__p4(0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonFly);
+void actCommonFly(volatile int a0) {
+    for (;;) {
+        _ACTWait__p4(1);
+    }
+}
 
 extern void boss_effect_process(int a0);
 
@@ -888,7 +1035,14 @@ void func_0015E678(volatile int a0) {
     _ACTWait__p4(0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonLadder);
+extern char D_00558C58[];
+
+void actCommonLadder(volatile int a0) {
+    debug_assertMessage(D_00558C58);
+    for (;;) {
+        _ACTWait__p4(1);
+    }
+}
 
 void func_0015E6D8(volatile int a0) {
     CommonActState *s = *(CommonActState **)(a0 + 0x164);
@@ -1170,7 +1324,19 @@ void actCommonSlowrun(int a0, int a1) {
     D_00292540[a0].w[2] = a1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015F248);
+extern int ExecBoxMoveEndReaction(void *a0);
+
+int func_0015F248(void *a0) {
+    char *p = *(char **)(*(int *)((char *)a0 + 0x15C));
+    if (p != 0) {
+        if (*(int *)(p + 0xC) == 0x11) {
+            if (ExecBoxMoveEndReaction(p) == 7) {
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
 
 extern void func_00243B18(void *a0, float f);
 
@@ -1197,9 +1363,28 @@ void _ACTMotDirSmzDirect(void *a0) {
     dispPlane(a0, local);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015F358);
+extern char D_00558860[];
+extern char D_00558870[];
+extern void func_001AD768(char *file, int line);
+extern void func_00263FF0(char *file, int line, char *expr);
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015F3C0);
+void func_0015F358(volatile int a0) {
+    char *s164 = *(char **)(a0 + 0x164);
+    if (*(int *)(s164 + 0x180) == 0) {
+        func_001AD768(D_00558860, 0x5AF);
+        func_00263FF0(D_00558860, 0x5AF, D_00558870);
+    }
+    eBrainInit(*(int *)(s164 + 0x180));
+}
+
+void func_0015F3C0(volatile int a0) {
+    char *s164 = *(char **)(a0 + 0x164);
+    if (*(int *)(s164 + 0x180) == 0) {
+        func_001AD768(D_00558860, 0x629);
+        func_00263FF0(D_00558860, 0x629, D_00558870);
+    }
+    eBrainInit(*(int *)(s164 + 0x180));
+}
 
 void func_0015F428(volatile unsigned int a0)
 {
@@ -1208,7 +1393,10 @@ void func_0015F428(volatile unsigned int a0)
     *p |= 0x40000;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015F450);
+void func_0015F450(volatile int a0) {
+    *(int *)(*(int *)(*(char **)(a0 + 0x164) + 0x678) + 0x37C) =
+        (0x3C - D_00274EC0[0] * 0xA) / D_00274EC0[1] * 0x82 / 0x3C;
+}
 
 void actCommonRevive(volatile unsigned int a0)
 {
@@ -1251,7 +1439,12 @@ void func_0015F5D0(volatile unsigned int a0)
     *p |= 0x40000;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015F5F8);
+void func_0015F5F8(volatile int a0) {
+    char *s164 = *(char **)(a0 + 0x164);
+    *(long long *)(s164 + 0x20) &= ~0x2000000LL;
+    *(long long *)(s164 + 0x18) &= ~0x1000000000000LL;
+    *(long long *)(s164 + 0x20) |= 0x40000;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015F650);
 

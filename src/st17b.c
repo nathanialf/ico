@@ -8,7 +8,15 @@ INCLUDE_ASM("asm/nonmatchings/src/st17b", func_0022ED40);
 
 INCLUDE_ASM("asm/nonmatchings/src/st17b", func_0022ED98);
 
-INCLUDE_ASM("asm/nonmatchings/src/st17b", func_0022EE68);
+extern int D_004D3100[];
+
+void func_0022EE68(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    *(int *)(gobj + 0xC0) = (int)D_004D3100;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 typedef struct GObjBB_17b {
     char pad[0xC4];
@@ -19,7 +27,19 @@ extern int D_006325B4;
 extern void BoxBarSoundOn(int a0, int a1);
 extern void _ACTWait__bb17b(int a0) __asm__("_ACTWait");
 
-INCLUDE_ASM("asm/nonmatchings/src/st17b", func_0022EE98);
+typedef struct { char pad[0xC0]; void *f_C0; void *unkC4; } GObjC0_17b;
+extern int *D_004D3140[];
+extern void func_0022DF60(volatile int a0);
+
+void func_0022EE98(volatile int a0) {
+    GObjC0_17b *obj = *(GObjC0_17b **)(a0 + 0x164);
+    D_006325B4 = 1;
+    D_004D3140[1] = (int *)func_0022DF60;
+    obj->f_C0 = 0;
+    obj->unkC4 = (void *)D_004D3140;
+    BoxBarSoundOn((int)a0, 0x18D);
+    _ACTWait(0);
+}
 
 void func_0022EEF0(int x) {
     volatile int local = x;
@@ -43,7 +63,15 @@ INCLUDE_ASM("asm/nonmatchings/src/st17b", func_0022F698);
 
 INCLUDE_ASM("asm/nonmatchings/src/st17b", func_0022F710);
 
-INCLUDE_ASM("asm/nonmatchings/src/st17b", func_0022F7B8);
+extern int D_004D3240[];
+
+void func_0022F7B8(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    *(int *)(gobj + 0xC0) = (int)D_004D3240;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 extern void *D_004D3280[];extern void lt_fade_status(int a0);
 extern void func_0022EF78(volatile int a0);

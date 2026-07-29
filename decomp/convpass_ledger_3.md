@@ -1347,9 +1347,9 @@ slot; with the natural ordering gcc emits it early and is one insn short.
 
 | func | TU | rc | state |
 |---|---|---|---|
-| `func_0022EE98` | st17b | **9** | Same 0xC4 wrapper as the matched `func_0022F7E8` but with **no intervening call**, so all four stores sit in the entry BB.  Insns 1–12 are byte-identical; only the 4-store emission order differs — ROM `gp, unkC4, D[1], unkC0`, ours `unkC0, D[1], unkC4, gp` (an exact reversal).  Exhausted: all 24 statement permutations × {int, `void*`} typing × {plain, `volatile`} `D_006325B4` × chained `gobj->unkC4[1]` spelling × an explicit second `int self = a0;` reload (that one *does* fix the reload placement at insns 7/9, but then `D[1]` floats to insn 9).  Next idea: something that makes the `D[1]` store *not ready* at sched time — e.g. the table entry reached through a pointer gcc cannot prove distinct from `*gobj`. |
-| `func_00238BC0` | st47a | — | Byte-for-byte the same template as `func_0022EE98` (`D_004D3C10`/`func_00237C18`). Whatever cracks one cracks both. |
-| `func_0023B650` | objact | **12** | Structure exact (26 vs 24 insns).  Only residual: the `0.0f` argument.  ROM hoists `mtc1 zero,$f20` into the prologue and keeps it in a **callee-saved FPR for the whole act loop**; gcc rematerialises `mtc1 zero,$f12` inside the call block each iteration, so the `swc1 $f20,32(sp)` save and the init are missing.  A plain `float z = 0.0f;` before the loop is not enough.  Next idea: give the value a definition gcc cannot rematerialise. |
+| `func_0022EE98` | st17b | **MATCHED (conv-10)** — sites 0 | Was never store *order* (all 24 permutations fold to 3 schedules). It was the ALIAS SET: the matched twin `func_0020A468` (src/e3) has a byte-identical instruction stream and shows the dev's typing — table `int *D_004D3140[]`, and BOTH GObj members pointers (`void *f_C0; void *unkC4;`). Spelling f_C0 as `*(int *)(gobj+0xC0)` puts that store in the `int` alias set, couples it to the D_006325B4 store and hoists `li 1` to slot 2, which cascades the whole v0/v1 census. Original note kept below for the record: Same 0xC4 wrapper as the matched `func_0022F7E8` but with **no intervening call**, so all four stores sit in the entry BB.  Insns 1–12 are byte-identical; only the 4-store emission order differs — ROM `gp, unkC4, D[1], unkC0`, ours `unkC0, D[1], unkC4, gp` (an exact reversal).  Exhausted: all 24 statement permutations × {int, `void*`} typing × {plain, `volatile`} `D_006325B4` × chained `gobj->unkC4[1]` spelling × an explicit second `int self = a0;` reload (that one *does* fix the reload placement at insns 7/9, but then `D[1]` floats to insn 9).  Next idea: something that makes the `D[1]` store *not ready* at sched time — e.g. the table entry reached through a pointer gcc cannot prove distinct from `*gobj`. |
+| `func_00238BC0` | st47a | **MATCHED (conv-10)** — sites 0 | Same template; st47a DEFINES the table in-TU as `unsigned int D_004D3C10[8]`, so the natural spelling lands the element store in the `int` alias set (sites 7 / rc 3). A pointer-typed symbol alias, `extern int *D_004D3C10__bc0[] __asm__("D_004D3C10")`, restores the dev's alias set without touching the data definition. Byte-for-byte the same template as `func_0022EE98` (`D_004D3C10`/`func_00237C18`). Whatever cracks one cracks both. |
+| `func_0023B650` | objact | **MATCHED (conv-10)** — sites 0 on the first compile | The `$f20` theory was wrong. `func_0017E660(int, float, float, float, float)` (EABI: four floats in $f12-$f15) takes 0.0f as BOTH arg1 and arg3; two uses of one loop invariant make it a loop.c movable, hoisted to the pre-header as `mtc1 zero,$f20` with both uses becoming `mov.s`. The earlier attempts were short an ARGUMENT, not short a lever. Original note: Structure exact (26 vs 24 insns).  Only residual: the `0.0f` argument.  ROM hoists `mtc1 zero,$f20` into the prologue and keeps it in a **callee-saved FPR for the whole act loop**; gcc rematerialises `mtc1 zero,$f12` inside the call block each iteration, so the `swc1 $f20,32(sp)` save and the init are missing.  A plain `float z = 0.0f;` before the loop is not enough.  Next idea: give the value a definition gcc cannot rematerialise. |
 | `func_0015E388` | commonact | **7** | 27 vs 27 insns, identical multiset.  ROM groups the three `volatile` param reloads at insns 12/13/15 (three live regs) and interleaves the `0x15C` loads after them; ours emits strict `reload, load, store` triples.  Pure sched1 ready-list tie.  Tried: three `int b1,b2,b3 = a0` temps (rc17, worse). |
 
 ## Still open after conv-8
@@ -1468,9 +1468,9 @@ to anything after the branch.  Read the back-edge before calling it dead.
 |---|---|---|---|---|
 | `func_0015E1B0` | commonact | **6** | 62 = 62 | Structure exact.  Residual is purely *which* insn reorg puts in the `ChangeMailInLadder` delay slot: ROM uses the `daddu $4,$17,$0` buf-arg copy and keeps `sw v0,0x18(s0)` in line; we schedule the copy before the store and reorg takes the store.  Tried: fn-ptr-typed handler store, `volatile` handler store (rc22), `int*` vs `char*` base, hoisting the address constant to a local, an explicit `float *bp = buf;`.  Next: something that raises the store's sched1 priority (it currently has no successor in the block, so `daddu`→call always outranks it) — e.g. a second use of the stored value, or getting both arg-setup insns adjacent so they form one SCHED_GROUP with the call and the store is forced out in front. |
 | `func_0015ADF0` | commonact | **7** | 54 = 54 | Instruction *order* is exact; all 7 diffs are register naming.  ROM: const=`$3`, read1=`$2`, read2=`$7`, deref164=`$6`; ours: const=`$2`, read1=`$4`, read2=`$6`, deref164=`$3`.  local-alloc's `QTY_CMP_PRI = floor_log2(n_refs)*n_refs*size/(death-birth)` says our address constant has the *shortest* range at local-alloc time (so it takes `$2` first), i.e. our sched1 leaves the `lui/addiu` at the store and sched2 hoists it, while ROM's sched1 already had it in the prologue.  Next: make sched1 (not sched2) emit the `%hi/%lo` pair early.  Best source is in this pass's scratch (`adf0_rc7.c`); the shape is `char *s164` + `int self15C = a0` + `void *self = (void*)a0` + the `\|\|`-merged selection + the volatile fallback read. |
-| `func_001754F8` | girl_act | **15** | 67 vs 64 | `$f20` and the six `ContinueCorrectPosition` stores are exact.  Residual: gcc rotates the `cont = i < 3; i++;` pair one iteration ahead — it emits `li cont,1; li next,1; li i,2` and an in-loop `daddu cont,next,zero`, costing 3 insns and one extra callee-saved register.  ROM keeps a single `$18`/`$17` pair with `i` initialised to 1.  Tried: `cont = i++ < 3`, update at end of block, decl order, goto-CFG loop (rc26 *and* it loses `$f20`).  Next: a spelling where the first update is not constant-foldable, or where `i` is not a simple biv. |
+| `func_001754F8` | girl_act | **MATCHED (conv-10)** — sites 11 -> 2 -> 0 | The rotation is gcse PRE (lazy code motion); the `.gcse` dump names it: `PRE/HOIST: edge (0,1), copying expression 2` = `(lt (reg i) 3)` and expression 3 = `(plus (reg i) 1)`. Writing `cont = i < 3; i++;` leaves BOTH locally anticipatable at the top of the guarded block, so PRE hoists both — and the compare needs a loop-carried carrier register (the extra $sN + `daddu`). Putting the increment FIRST kills antloc for the compare (its operand is redefined earlier in the block), so only the increment rotates: no extra register, sites 11 -> 2, residual = the rotation shifting both constants by one. Starting the counter at **0** instead of 1 puts the rotated constants exactly on ROM's `li i,1` / `slti ...,3`. None of the previously-tried variants could work: they all leave the compare anticipatable. 67 vs 64 | `$f20` and the six `ContinueCorrectPosition` stores are exact.  Residual: gcc rotates the `cont = i < 3; i++;` pair one iteration ahead — it emits `li cont,1; li next,1; li i,2` and an in-loop `daddu cont,next,zero`, costing 3 insns and one extra callee-saved register.  ROM keeps a single `$18`/`$17` pair with `i` initialised to 1.  Tried: `cont = i++ < 3`, update at end of block, decl order, goto-CFG loop (rc26 *and* it loses `$f20`).  Next: a spelling where the first update is not constant-foldable, or where `i` is not a simple biv. |
 | `func_0015DF88` | commonact | **25** | 65 vs 62 | Control flow is right.  Two residuals: (a) gcc parks `&buf[0]` in a callee-saved register (`addiu s2,sp,16` + `daddu` at each use) where ROM rematerialises `addiu $r,$29,0x10` at all four uses; (b) reorg duplicates the target block's `lwc1 $f12,%gp_rel(D_00630CCC)` into three branch delay slots where ROM leaves `nop`s and fills one delay with the following `slti`. |
-| `func_001619A8` | enemy_act | **31** | 78 vs 72 | Head (`func_001947D0`/`dispPlane` off `*(a0+0x164)+0x110`) matches the matched sibling `func_001659F8` exactly.  Residuals: same callee-saved-`&buf` class as `func_0015DF88`; plus `if (d < 0) d = -d;` if-converts to `movn` where ROM has `bltzl $2 / negu $2,$2`; plus `mode` allocated callee-saved. |
+| `func_001619A8` | enemy_act | **sites 7 / rc 9** (was rc 31) | 78 vs 72 | Near-miss source saved at `decomp/convpass_ledger_3.md` (block below). Four of the five original residuals are CLOSED: (a) frame — ROM has 48 B of locals, not 32: a second 16-byte local sits BELOW `buf`, so `buf` is at sp+0x20 (`float buf0[4]; float buf[4];` reproduces it exactly); (b) abs — `if (d < 0) d = -d;` is if-converted to movn by jump.c's conditional-move transform (it fires when the then-block is exactly ONE `(set reg ...)` insn). The dev's idiom is a TERNARY: `d = (d < 0) ? -d : d;` expands through COND_EXPR and keeps ROM's `bltzl/negu`. Proven by the matched sibling `actGirlDitch3mReady` (src/girl_act:161), which has the identical `bltzl $2 / negu $2,$2` from exactly that spelling; (c) compare direction — a literal `0x59` is folded at the TREE level (`d > 89` -> `d >= 90` -> `slti ...,90` + inverted movz). Holding it in a local, `int thresh = 0x59;`, keeps `(gt d thresh)` to RTL where it must use `slt reg,reg` — ROM's `slt $2,$18,$2` with 89 in a callee-saved reg; (d) mode select — `mode = (d <= thresh) ? 1 : 2;` (not `(thresh < d) ? 2 : 1`) gives ROM's `addiu v1,2` + `movz`. **Remaining: ONE class — the callee-saved `&buf`** (`addiu s0,sp,32` in the pre-header + `daddu` at both uses, vs ROM's `addiu a3,sp,32` / `addiu a0,sp,32`), which also drags the $18/$19 swap of the two hoisted constants. Mechanism nailed down: **cse1**, not gcse, is the blocker — the `.cse` dump shows insn 121 rewritten to `(set (reg a0) (reg 90))` with a `REG_EQUAL (plus at 32)` note, i.e. the two occurrences were merged into one 3-ref pseudo; `-fno-gcse` still yields one `addu $16,$sp,32`. `cse_end_of_basic_block` only breaks at a CODE_LABEL, and there is none between the two argument setups. Consequently the pseudo has REG_N_REFS 3, which disqualifies local-alloc's `reg_equiv_replace` path (`update_equiv_regs`, local-alloc.c: requires REG_N_REFS == 2 && REG_BASIC_BLOCK < 0 && a REG_EQUAL note whose value is `function_invariant_p`) — that path is what deletes the init insn and substitutes `(plus fp K)` inline, i.e. exactly ROM's two `addiu`s. **Next reasoned lever:** get TWO one-use pseudos instead of one three-ref pseudo, each carrying a REG_EQUAL note. That needs the second address computation to be outside cse1's block — i.e. a real CODE_LABEL (a control-flow JOIN) between the two argument setups — or an address expression that is not yet folded to `(plus at 32)` at cse1 time. Refuted as no-ops (all fold to identical RTL, do NOT retry the same keystrokes): `&buf[0]` vs `buf`, `char buf[0x20]` + `buf+0x10`, a struct's second half, a `float *` pointer variable, `volatile float buf[4]`, declaring buf inside the loop body, and hoisting `subCommonIdle` to its own statement. |
 
 **Recurring open class — "gcc parks a local array's address in a callee-saved
 register".**  Seen in `func_0015DF88` and `func_001619A8` and it is worth
@@ -2241,3 +2241,109 @@ ledger per phase or per programmer, or raise the threshold for `decomp/*.md`
 in `tools/check_no_rom.sh`, *before* the next port pass.  (The
 cross-reference added to it in this pass was deliberately compressed to fit.)
 
+
+# conv-10 / branch `acttails-1` — enemy_act, girl_act, objact and the st* scripts
+
+Worker scope: `src/enemy_act.c`, `src/girl_act.c`, `src/objact.c`,
+`src/st17b.c`, `src/st47a.c`.  Metric is **divergent sites first**, raw
+`real_count` second (an rc drop with sites flat is not progress).
+
+## Landed — 30 functions, all gated on `ninja` + explicit `tools/verify_elf.py`
+
+| commit | TU | funcs | mechanism |
+|---|---|---|---|
+| `aef4acd3` | st17b | `func_0022EE98` | alias set of the four stores; ported from the byte-identical matched twin `func_0020A468` (src/e3) |
+| `21d2eddd` | st47a | `func_00238BC0` | same template; pointer-typed `__asm__` alias of the in-TU `unsigned int` table restores the alias set |
+| `21735d55` | objact | `func_0023B650` | the callee's real signature takes 0.0f TWICE — two uses make it a loop.c movable into `$f20` |
+| `c5f2634b` | girl_act | `func_001754F8` | gcse-PRE rotation: increment FIRST kills antloc for the compare; counter origin 0 aligns the rotated constants |
+| `e611a862` | st17b | `func_0022EE68`, `func_0022F7B8` | `actE3CageFallChk` idle-tail template |
+| `aaee5306` | st47a | `func_00237860`, `func_00237A00`, `func_00238B88` | same template, flag-clearing variant |
+| `b40d0387` | objact | `func_0023B4F0`, `func_0023C148` | actCreateSubThread stub; short-circuit `\|\|` cross-jump |
+| `5236aa52` | enemy_act | `func_00164EF8`, `func_00164F40`, `func_00164F88`, `func_00164FD0`, `func_00165178`, `func_00165348`, `func_00165DC0`, `func_00165E08` | `_ApproachTarget_Way` assert stub ×3; the 0xAF3 pair; the `func_001650A0` 16-byte spill idiom; MoveChest guard returning `r`; the ExecMotionOrient pair (it returns a POINTER) |
+| `ea8bf6b7` | st47a | `func_00238C18`, `func_00239710` | idle tail with lt_fade_status/scpActivateAllWithKind; actInitialize stub |
+| `c93e7c69` | objact | `func_0023C180` | the -1/0 predicate must be a named intermediate that is then tested, else it folds to one cmove |
+| `1f9b5ff1` | st47a | `func_002376F0`, `func_0023A3B8`, `func_0023A418`, `func_0023A478`, `func_0023A4D8`, `func_0023A548`, `func_0023A700`, `func_0023A768` | func_0017BF78 trio (EABI 5th int arg in `$8`, args 4/5 repeat args 1/2); actSt47aSekizo1 BoxBar-init quartet; branch-polarity fix |
+
+## Three reusable findings
+
+1. **The BoxBar no-call wrapper is an ALIAS-SET template, not a store-order
+   puzzle.**  ee-gcc 2.9 gives every pointer type one alias set, distinct from
+   `int`.  The dev's GObj members at 0xC0/0xC4 are BOTH pointers and the
+   callback table is a pointer array; spelling any of them through an `int`
+   lvalue couples that store to the `int` global and re-times the whole entry
+   block.  Where a TU defines its table as `unsigned int D_X[8]`, an
+   `extern <ptr> D_X__tag[] __asm__("D_X")` alias fixes it without touching the
+   data definition.  This should be checked FIRST on every remaining
+   `actStXX` wrapper.
+
+2. **gcse PRE / lazy code motion is the cause of several "loop rotation" and
+   "callee-saved &buf" residuals, and the `.gcse` dump names it outright**
+   (`PRE/HOIST: edge (p,s), copying expression N` plus the numbered expression
+   table).  An expression is hoistable only if it is *locally anticipatable* —
+   computed in the block before any of its operands is redefined there.  The
+   lever is therefore ORDERING inside the block: put the statement that
+   redefines the operand FIRST and the dependent expression stops being a PRE
+   candidate.  When PRE then rotates the surviving expression by one
+   iteration, the fix is not to fight the rotation but to shift the
+   variable's ORIGIN so the rotated constants land on ROM's.
+
+3. **`bltzl/negu` vs `movn` for abs is a spelling the dev made with a
+   ternary.**  gcc 2.95 `jump_optimize` converts `if (cond) x = b;` to a
+   conditional move when the then-block is exactly one `(set reg ...)` insn;
+   a `?:` goes through COND_EXPR expansion instead and keeps the branch.
+   `if`-statement and ternary are NOT interchangeable here.
+
+## Recommended next steps in this scope
+
+1. `func_001619A8` (sites 7) — one class left, see its row above; the near-miss
+   source is reproduced below.  Cracking it also unblocks commonact
+   `func_0015DF88`, whose (a) residual is the same class.
+2. The rest of the st47a / st17b / objact `INCLUDE_ASM` set, smallest-first —
+   most of it is more of the same three templates and should go in bulk.
+3. `girl_act` still has the large act-thread tails up to `func_001725C8` (678).
+
+## `func_001619A8` near-miss source (sites 7 / rc 9, crutch-free)
+
+```c
+extern int ContinueCorrectPosition__19a8(int a0) __asm__("ContinueCorrectPosition");
+extern void dispPlane__19a8(void *a0, float *a1) __asm__("dispPlane");
+extern void func_001947D0__19a8(float *a0, int a1, int a2) __asm__("func_001947D0");
+extern int D_00631AE8__19a8 __asm__("D_00631AE8");
+extern int func_00145328(void *a0, int a1, int a2, void *a3, float f12, float f13);
+extern void *subCommonIdle__19a8(int a0) __asm__("subCommonIdle");
+extern int HandCameraCorrect__19a8(void *a0, void *a1) __asm__("HandCameraCorrect");
+extern void ACTGameView_Loop(void);
+extern int MoveChestForCatchBoy(void *a0);
+extern void BoxBarSoundOn__19a8(void *a0, int a1) __asm__("BoxBarSoundOn");
+extern unsigned int _ACTWait__19a8(int a0) __asm__("_ACTWait");
+
+void func_001619A8(volatile unsigned int a0) {
+    float buf0[4];
+    float buf[4];
+    int thresh = 0x59;
+    char *m = (char *)(*(int *)(a0 + 0x164)) + 0x110;
+    int r0 = ContinueCorrectPosition__19a8(D_00631AE8__19a8);
+    int r1 = ContinueCorrectPosition__19a8(a0);
+    func_001947D0__19a8((float *)m, r0, r1);
+    dispPlane__19a8((void *)a0, (float *)m);
+    for (;;) {
+        int mode;
+        if (func_00145328((void *)a0, D_00631AE8__19a8, 0x2D, buf, 170.0f, 100.0f) != 0) {
+            int d = HandCameraCorrect__19a8(buf, subCommonIdle__19a8(D_00631AE8__19a8));
+            d = (d < 0) ? -d : d;
+            mode = (d <= thresh) ? 1 : 2;
+        } else {
+            mode = 0;
+        }
+        if (mode < 3 && mode != 0 && MoveChestForCatchBoy((void *)a0) != 0) {
+            ACTGameView_Loop();
+            for (;;) {
+                BoxBarSoundOn__19a8((void *)a0, 0x151);
+                _ACTWait__19a8(1);
+            }
+        }
+        BoxBarSoundOn__19a8((void *)a0, 0x152);
+        _ACTWait__19a8(1);
+    }
+}
+```
