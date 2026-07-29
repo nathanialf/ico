@@ -3349,3 +3349,119 @@ queue. This queue is the *attempted* set — functions carrying knowledge that
 is lost if they fall off the list. An untouched function loses nothing by
 waiting; a skipped one loses its residual, its refuted axes and its best
 sites count.
+## conv-14 — commonact: static-chain audit and corrected queue (worker: rwt2)
+
+### Static-chain class in commonact: **4 pairs, 2 parents**
+
+Ran `tough_nuts/acttails_near_misses/scan_static_chain.py` and
+`scan_static_chain_callsites.py` against commonact rather than trusting the
+summary.  Four callee candidates, all four confirmed on **both** halves of the
+test plus the address ordering:
+
+| callee | insns | parent | parent insns | evidence |
+|---|--:|---|--:|---|
+| `EBRAIN_SEND_MES` | 82 | `actCommonDown` | 501 | chain-set at call site |
+| `DamageFunc` | 347 | `actCommonDown` | 501 | chain-set at call site |
+| `DownFunc` | 171 | `actCommonDown` | 501 | chain-set at call site |
+| `func_00158328` | 108 | `actCommonRope` | 38 | chain-set at call site |
+
+`func_00158328` worked through in full as the sample:
+* **Callee half** — `daddu $23,$2,$0` (0x15836C) and `sw $2,0x0($29)` (0x158380)
+  read `$2` before any write to it and before the first `jal` (0x158384).  It
+  keeps the chain in a callee-saved register *and* spills it to its own frame,
+  the usual nested-function pattern for reaching the parent's locals.
+* **Call-site half** — `jal func_00158328` / `daddu $2,$29,$0` in the delay slot
+  (0x15854C-0x158550), the chain being `actCommonRope`'s own `$sp`.
+* **Address ordering** — `0x158328 < 0x1584D8`, callee below parent. ✓
+* It also takes ordinary parameters (`$4` = the `% 15` remainder, `$5` = the
+  `0x214` field), confirming the "nested functions can still have arguments"
+  refinement.
+
+**This closes an open item from conv-13.**  I had flagged `actCommonRope` as
+"not attempted — ROM ends the `func_00158328` call with a dead
+`daddu $2,$29,$0` (the address of the volatile param home) and no source shape
+was identified."  It is not a dead insn and not the param home: it is the static
+chain.  `actCommonRope` is unmatchable in isolation and always was.
+
+### Queue corrections
+
+* **`DownFunc` is withdrawn from the four alias-fix targets.**  It is a
+  static-chain callee of `actCommonDown`; its `D_00632308` (`"%1.1f "`)
+  declaration-form fix is still correct but cannot be cashed on its own.
+  `actCommonDown` + `EBRAIN_SEND_MES` + `DamageFunc` + `DownFunc` is **one C
+  function of 1101 insns** — the largest single unit left in commonact, and all
+  four members are currently `INCLUDE_ASM`.
+* The other three alias targets are **clear** — `func_00158F10` (`D_006322F8`),
+  `lever_nego1` (`D_00632300`), `func_001595D0` (`D_00632304`) are not in the
+  candidate set and remain independently matchable.
+* `func_00156BA0` / `func_00156CF0` and `func_0015ADF0` are **not** in the
+  candidate set.  So the static chain is *not* the explanation for `func_0015ADF0`
+  — that hypothesis is ruled out, and the conv-13 conclusion ("the data model
+  differs") still needs a different data-model difference.
+* **`actCommonRope` + `func_00158328` = 146 insns** is now the most tractable
+  unit in the class and is the natural first target: small parent, one nested
+  callee, and the parent's body is already understood
+  (`pac_DispQW() * 10.0f`, `/ 15`, `% 15`, `0x214` → `0x218`).
+
+### `func_00156BA0` / `func_00156CF0` — still 6 / 7 sites
+
+Two more shapes measured this round, both aimed at keeping the head's pseudo
+live past the copy so global-alloc cannot unify the registers:
+`float r` + `float A` + `float k0` with `d = A; k = k0;` placed **before** the
+head's use (6, unchanged), and the same with the copies after (6).  An RTL dump
+across `jump`/`cse`/`gcse`/`loop`/`cse2`/`combine` found **no SF register-to-
+register copy at any stage**, so gcc is not deleting a copy we generate — it
+never generates one.  `float d = <already-computed value>` expands directly to
+the load/constant in `d`'s own pseudo.  Reproducing ROM's `mov.s` pair therefore
+needs a construct that *forces* two pseudos, not a re-ordering of the same one.
+Source saved as `commonact_func_00156BA0_CF0_s6.c`.
+
+### conv-14 correction — `func_0015ADF0`: the live-length requirement I recorded was wrong
+
+The conv-13 entry claimed ROM needs `len(readA) < 4` and `len(s164) > 4`, i.e.
+one insn moved out of one gap and into another.  **Measured against the ROM
+listing, that is false.**  Counting the emitted head:
+
+```
+ROM                                     ours (order-exact, 5 sites)
+5AE08 lw $2,0(sp)     readA             lw a0,0(sp)      readA
+5AE0C sd $16,0x10(sp)                   sd s0,16(sp)
+5AE10 sw $0,0x4(sp)   other = 0         sw zero,4(sp)
+5AE14 lw $7,0(sp)     readB             lw a2,0(sp)      readB
+5AE18 lw $6,0x164($2) s164              lw v1,356(a0)    s164
+5AE1C lw $4,0(sp)     readC             lw a0,0(sp)      readC
+5AE20 sw $3,0x18($6)  store             sw v0,24(v1)     store
+5AE24 lw $2,0x15C($7) deref             lw v0,348(a2)    deref
+```
+
+Both gaps are the same size in ROM and in our order-exact build (three insns
+between `readA` and the `0x164` deref, one between that deref and the store), and
+the whole emitted schedule is identical — only the register *names* differ.  So
+the live lengths cannot be what selects ROM's assignment, and the requirement I
+derived (from the *4-site* variant's behaviour, not from ROM) sent the last two
+passes in the wrong direction.  The conv-10 `block_alloc` model and everything
+built on it should be treated as retired for this function.
+
+**What that leaves, as the next reasoned levers** (identical schedule + identical
+live lengths ⇒ the difference is the quantity *set* or the pass-1 suggestions,
+not lengths):
+
+1. `block_alloc` runs a **suggested pass before the priority pass**.  Ours has
+   exactly one suggested quantity in this block — `readC`, copy-suggested to `$4`
+   by the `$4 = self` arg copy.  If ROM has a *second* suggested quantity, pass 2
+   starts from a different free set and every subsequent pick shifts.  Look for a
+   source shape that gives a second quantity a copy suggestion.
+2. Concretely: route `&other` through a pseudo (`int **op = &other;`) so it is
+   copied into `$5` instead of `ori $5,$29,4` being emitted directly — the copy
+   makes the pseudo copy-suggested to `$5`.  Measured on the order-exact base
+   (5 sites, no change) but **not yet on the 4-site pointer-alias base**, which is
+   where the other two registers already snap.
+3. The second parameter of `func_00165418` has never been varied — it is declared
+   `int **` throughout.  A `void *` or struct-pointer parameter changes how
+   `&other` is expanded and could add or remove the address pseudo entirely.
+4. Ruled out this pass: `func_0015ADF0` is **not** a static-chain pair member
+   (it is absent from the commonact candidate set), so that data-model difference
+   is not the explanation.
+
+Shapes measured this pass (all on top of the 4-site base): `other` as `slot[0]`
+of a 2-element array (8 sites).  Running total across passes: fourteen.
