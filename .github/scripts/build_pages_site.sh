@@ -2,7 +2,7 @@
 # =============================================================================
 # build_pages_site.sh — assemble the two-version progress dashboard into _site/
 #
-# Run by .github/workflows/pages.yml on BOTH `main` and `retail-v2`. This file
+# Run by .github/workflows/pages.yml on BOTH `main` and `aug6`. This file
 # is byte-identical on both branches on purpose: it works out what to do from
 # the branch it is running on, so there are no per-branch conditionals to keep
 # in sync and any drift between the two copies is a bug (and is warned about
@@ -17,14 +17,17 @@
 # Layout produced:
 #   _site/index.html        version-toggle dashboard (the running branch's copy;
 #                           the two branches keep this file identical)
-#   _site/aug6/             `main`'s      docs/  — Aug-6-2001 prototype target
-#   _site/us/               `retail-v2`'s docs/  — USA retail target
+#   _site/aug6/             `aug6`'s docs/  — Aug-6-2001 prototype target
+#   _site/us/               `main`'s docs/  — USA retail target
 #   _site/progress.json     COMPAT COPY — holds the *aug6* data. A browser
 #                           holding a cached pre-toggle index.html fetches bare
-#                           `progress.json`; that cached page came from main,
-#                           so aug6 is what it should keep showing.
+#                           `progress.json`; back when those pages were served,
+#                           the branch publishing them carried the prototype, so
+#                           aug6 stays what that stale cache keeps showing. This
+#                           is frozen for cache compatibility and deliberately
+#                           did NOT follow the aug6/main branch rename.
 #   _site/PROGRESS.md, dup_funcs.md, tu_candidates.md, tu_coalesce.md
-#                           the aug6 copies too, so the URLs main's old
+#                           the aug6 copies too, so the URLs the old
 #                           `path: docs` upload already serves keep working.
 #
 # Usage: build_pages_site.sh [branch]   (defaults to the current branch)
@@ -34,11 +37,11 @@ set -euo pipefail
 BRANCH="${1:-$(git rev-parse --abbrev-ref HEAD)}"
 
 case "$BRANCH" in
-    main)      SELF=aug6 ; OTHER=us   ; OTHER_BRANCH=retail-v2 ;;
-    retail-v2) SELF=us   ; OTHER=aug6 ; OTHER_BRANCH=main      ;;
+    main) SELF=us   ; OTHER=aug6 ; OTHER_BRANCH=aug6 ;;
+    aug6) SELF=aug6 ; OTHER=us   ; OTHER_BRANCH=main ;;
     *)
         echo "build_pages_site: no version mapping for branch '$BRANCH'" >&2
-        echo "  expected 'main' (-> aug6) or 'retail-v2' (-> us)." >&2
+        echo "  expected 'main' (-> us) or 'aug6' (-> aug6)." >&2
         exit 1
         ;;
 esac
