@@ -3773,3 +3773,184 @@ which the block has a third ALU-class computation ready at t3 that outranks
 route).  Seventeen shapes measured across four passes; every one that changed the
 schedule changed it in the wrong direction, which is consistent with the data
 model — not the allocation — being what differs.
+# conv-20 (acttails-10) — the reorg / sched2 delay-slot model, and `MoveChestForCatchBoy` 3 sites -> 1
+
+No match landed this pass.  What it produced is a **general, oracle-verified
+model of the two passes that own every residual in this queue** (sched2's
+per-cycle pick order and reorg's delay-slot search), plus one large concrete
+gain, plus three ledger corrections.  The model is written down here because
+all three queue members are instances of it and future passes should reason
+from it rather than re-deriving it.
+
+## Tooling note — a 60 ms iteration loop
+
+`tools/quick_diff.sh` is ~30 s per try.  For pure *codegen-shape* questions the
+compiler alone answers in **57 ms**:
+
+```sh
+tools/cc/ee-gcc2.9-991111/ee-gcc -B tools/cc/ee-gcc2.9-991111/gcc-lib/ee/2.9-ee-991111-01/ \
+  -S -G 8 -O2 -mips3 -EL -fno-builtin -nostdinc -fdata-sections -Iinclude -o OUT.s src/<TU>.c
+```
+then `awk` out the one `.ent`/`.end` block.  gcc's own `.s` already carries the
+reorg-filled delay slots, so this reads the exact thing the residual is about.
+Add `-dR` for the sched2 dump (per-block **ready lists**, the cycle/unit
+visualisation) and `-dd` for the dbr dump.  Two 500-variant-per-minute sweeps
+in this pass were only affordable because of this.
+
+## The model (verified against the dumps and against matched functions)
+
+**sched2 (post-reload haifa).**  `rank_for_schedule` at `reload_completed` is
+`INSN_PRIORITY` -> dependent-count -> `INSN_LUID`; `INSN_REG_WEIGHT` is NOT
+consulted (it is guarded by `!reload_completed`), so the "REG_WEIGHT boost"
+reading recorded for `func_0023A5B0` in conv-13 cannot be the mechanism.
+Priority is the longest latency path to the block end (loads = 2 cycles here).
+The machine issues **2 insns/cycle** over 1 memory + 2 alu units; an insn whose
+unit is busy is *queued*, not skipped, and the loop keeps consuming the ready
+list — so a cycle can hold `{memory, alu}` and the EMISSION order inside a
+cycle is the pick order.  The `-dR` ready list prints worst-first, **best
+last**.
+
+**reorg.**  Three ways a conditional branch's delay slot gets filled, and they
+have different rules:
+1. `fill_simple_delay_slots`'s BACKWARD scan — no `may_trap_p` test, but the
+   candidate may not set anything the branch *references*.  This is where the
+   ~2000 ROM `lw rX,K(reg)` delay slots come from.
+2. `fill_simple_delay_slots`'s forward scan — for a JUMP (target != 0) it only
+   accumulates needs; it can take an insn only for a CALL.
+3. `fill_eager_delay_slots` -> `fill_slots_from_thread` — walks the thread
+   (target if `mostly_true_jump` > 0, else fall-through) and takes the first
+   ELIGIBLE insn, *continuing past* ineligible ones while it owns the thread.
+   The win test is
+   `!insn_sets_resource_p(trial,&opposite_needed) && !may_trap_p(pat)`.
+
+Three consequences that explain real ROM shapes:
+* A **register-address load is rejected** here (`may_trap_p` -> `rtx_addr_can_trap_p(REG)` = 1)
+  but a **gp-relative / SYMBOL_REF load is accepted** (SYMBOL_REF = 0).  That is
+  why matched `subEnemyBrain_ToBoy` (0x163E00), `func_001FCA20` (0x1FF114),
+  `GetEnemyTypeFromGObj`, `ReleaseWeapon` all show `beqz rX / li rY,K` with the
+  block's leading `lw rA,K(rB)` left in place: the load was skipped, the
+  constant taken.  Verified by construction — respelling
+  `MoveChestForCatchBoy`'s third test to load through `a0` instead of the
+  global makes gcc emit `bnel` with the trapping load in the ANNULLED slot.
+* A **`volatile` MEM poisons the rest of the scan**: `resource_conflicts_p`
+  returns 1 whenever either side has `volatil` set, so once a volatile insn is
+  passed over, every later trial is rejected.  Verified: a `volatile` alias on
+  `D_00631AE8` used only in the third test changes the slot from the load to
+  the *other* thread's `move v0,zero`.
+* A 2-word insn (`li.s`, a `%hi/%lo` pair emitted as one insn) fails
+  `eligible_for_delay`, so it is skipped without poisoning.
+
+## `MoveChestForCatchBoy` — 3 sites / rc 11 -> **1 site / rc 6**
+
+Seed: `tough_nuts/acttails_near_misses/enemy_act_MoveChestForCatchBoy_s1.c`
+(supersedes `..._s3.c`).  Two of the three sites are now byte-identical.
+
+**Mechanism — retail has no `-fno-strict-aliasing`, so the DECLARED TYPE of
+each reference decides what may alias, and that drives BOTH `reload_cse_regs`
+and sched2.**  `D_00631AE8` is an actor POINTER and the `0x164` field it points
+through is likewise a POINTER field, while the two tail stores are INT stores.
+Spelling the two reads with pointer type (`extern void *D_00631AE8`,
+`*(void **)((char *)D_00631AE8 + 0x164)`) un-aliases them from the stores, which:
+* lets `reload_cse_regs` rewrite the third read into ROM's `daddu a0,v0,zero`
+  (v0 still records the gp MEM because no aliasing store intervenes) — the
+  earlier `int` spelling forced a second `lw a0,0(gp)`; and
+* frees the `0x164` load to schedule ahead of `sw v0,0x138(s1)`, giving ROM's
+  exact tail `lw / lw / daddu / sw / jal / sw`.
+
+This is a **transferable lever**, not a one-off: the same declared-type
+question decides `funcGirlHandDisconnect` below (there the alias is REQUIRED,
+not removed).  Do not respell either read back to `*(int *)` — it costs 2 sites.
+
+**Residual (1 site, 6 lines).**  Ours and ROM hold the identical five insns for
+the third test; the only difference is which one reorg pulled into the `beqz`
+delay slot.  ROM took the `0x6B` constant (trial 2) and left the block's head
+`lw a1,%gp_rel(D_00631AE8)` in place; ours takes the head.  Once ROM skips the
+head, everything else follows mechanically — the const is the next
+non-conflicting trial, and the `bne`'s own slot then takes a `daddu v0,sp,zero`
+(a DEAD `$2 = $sp`) from the head of the `.L4C` thread.
+
+Refuted this pass, in addition to conv-19's list: a `float *`/`void *` pointer
+local for `buf`; a `st` temp for the compared field; a `goto`-CFG third test; a
+pointer-typed `0x164` read in the third test.  All four compile to the byte-
+identical stream, and the sched2 dump shows why — the gp load's priority (6) is
+fixed by its 3-load chain and can never lose to the constant's (1), so the
+block head cannot be re-ordered.
+
+**Next lever — the head must be REJECTED, not re-ordered.**  Only two things
+reject a thread trial: `may_trap_p` (needs a register address — but ROM's head
+*is* the gp load, so not that) and `insn_sets_resource_p(trial,&opposite_needed)`
+(needs the load's destination register to be live at the shared `return 0`
+block).  ROM's head loads into `$5`, ours into `$4`.  So the question to answer
+next is a REGISTER-ALLOCATION one, not a scheduling one: **what source shape
+puts that load in `$5`** — and, separately, what produces the dead `$2 = $sp`
+at the head of the body block (the same undeletable-dead-def class as
+`func_0023A5B0`'s `lw v0,0(sp)`, which its matched siblings get from a leading
+`int x = a0;` on a `volatile` param).  Those two facts are probably one fact.
+
+## `funcGirlHandDisconnect` — still 6 sites, but the residual is now one event
+
+Both residuals (`sw zero,12(s0)` one insn late, and the tail two-load chain
+coming out `v0->v1` where ROM has `v1->v0`) are **one scheduling event**, and
+the `-dR` dump pins it exactly.  Block 3's ready list is
+`121 67 73 62 59` (best last).  Ours issues `{59 sw 8(s0), 73 daddu a0,s0}` in
+cycle 1; ROM issues **only `59`**, so every alu insn slips one cycle and the
+`0xC` store and the `0x15C` load each retire one slot earlier — reproducing
+ROM's order exactly, including the second swap.  So there is one thing to fix,
+not two.
+
+Measured this pass:
+* The store->load memory dependence (`sw zero,12(s0)` -> `lw v1,348(s1)`) is
+  REAL and REQUIRED — spelling the `0x15C` read as a pointer read, or the
+  `out[]` stores as `float` stores (`out[2] = 0.0f`), removes it and the load
+  hoists above the stores (much worse).  Keep `*(int *)` on both sides.
+* Inert (identical stream): `int *out` parameter with float stores via cast;
+  swapping the `out[2]`/`out[3]` store order; `(void *)out` for the third
+  argument; shifting `c` at the call site vs at the assignment; reversing the
+  addend order in the second argument (this one flips `addu a1,v1,a1` to
+  `addu a1,a1,v1`, so keep the baseline spelling).
+
+**Next lever:** make `daddu a0,s0,zero` unavailable in cycle 1.  It cannot be
+out-ranked (priority is inert against the ready list order here), so it needs
+an in-block dependency — an anti-dependency from an insn that reads `$4`, or an
+output dependency.  Look for the dev construct that gives the first argument a
+producer inside the merge block.
+
+## `func_0023A5B0` — first tracked seed, and conv-13's mechanism corrected
+
+Seed: `tough_nuts/acttails_near_misses/st47a_func_0023A5B0_s5.c` (rc 9 /
+5 sites — one site worse than conv-13's unrecorded 4-site best, but conv-13
+saved no source, so this is the first reproducible base).
+
+It is a **template instance**: the matched siblings `func_0023A548`,
+`func_0023A668`, `func_0023A700`, `func_0023A768` all use `volatile int a0` +
+a leading `int x = a0;` whose value is dead (the ROM's `lw v0,0(sp)` — a
+volatile read gcc may not delete) + `gobj = (ActB4Obj *)actInitialize(a0)`.
+Writing it from that template gives the exact instruction count and CFG.
+
+**Correction to conv-13's "next reasoned lever".**  It attributed the third
+store's early retirement to `INSN_REG_WEIGHT` giving a last-use store a
+register-freeing boost.  That is impossible: `rank_for_schedule` guards
+`INSN_REG_WEIGHT` with `!reload_completed`, so it is inert at sched2.  The real
+cause, measured: **the volatile read of the param at the `BoxBarSoundOn` call
+site.**  Changing only that argument to the already-read local (`BoxBarSoundOn(x, 0x18D)`)
+moves both `%hi` materialisations ahead of the store — the store's priority
+comes entirely from that read depending on it.  And it is a volatile FLUSH, not
+an alias conflict: respelling the store as a pointer store or a `short` store
+(different alias sets) is completely inert, whereas removing the read is not.
+
+Also re-measured and refuted: all 6 permutations of the three tail statements
+**with** an `int q` temp separating the QueenDeadChk call from its store —
+statement order is inert (A-first and C-first give identical streams), and
+without the temp the permutations merely move the call, which is why conv-13's
+sweep looked like it covered the space.  A non-volatile parameter is also inert
+for this site.
+
+**Next lever:** keep `lw a0,0(sp)` in the block but get it AHEAD of the three
+stores in the RTL.  It cannot be a live local — ROM's frame saves only
+`s0`/`ra`, so a second callee-saved home is ruled out.
+
+## Standing-queue effect
+
+All three remain open, with sharper residuals and (for `MoveChestForCatchBoy`)
+two thirds of the diff closed.  The reorg/sched2 model above should be read
+before the next attempt on any of them.
