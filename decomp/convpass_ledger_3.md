@@ -1490,10 +1490,579 @@ once.
 * Unchanged from conv-8: `pac_continueTag` / `shiftMotionOrientEndFunc`,
   `actSt02aSecretItem` rc19, `bga_calcEnvelope`, the 8 `no-aug6-twin`
   pool/sound funcs, boyact `func_0014D978`/`func_0014DC28`.
+* **427 unmatched vendor functions** (161,540 B), opened as queue groups
+  **V1–V6** in the next section.  They are ordinary matching work and belong
+  in the same list as the carved tails, not in a side queue — see the
+  recommended order immediately below.
 
-**Recommended order for a conv-10:** (a) `func_0015E1B0` (rc6) and
-`func_0015ADF0` (rc7) — both are one named mechanism from zero and the
-mechanism is written out above; (b) the callee-saved-`&buf` class, which
-unblocks `func_0015DF88` + `func_001619A8` together; (c) conv-8's four
-deferrals, starting by trying lever 5 (float literal at the call site) on
-objact `func_0023B650`; (d) the untouched tails from `func_0015D1F8` upward.
+**Recommended order for a conv-10** (one list; vendor groups V1–V6 are
+defined in "Vendor queue" below and are ranked here by tractability, not
+segregated):
+
+1. **V2 — the 52 handwritten-asm twins already solved on aug6** (7,324 B).
+   Highest yield per hour in the whole queue: each one has a finished,
+   byte-matching aug6 body sitting in `common/src/PObj.c`; the port tool
+   simply could not see it (it looks for a *C* definition, and these are
+   bare `__asm__` blocks).  Twelve of them are 4 insns.  Start here.
+2. `func_0015E1B0` (rc6) and `func_0015ADF0` (rc7) — both are one named
+   mechanism from zero and the mechanism is written out above.
+3. **V1 — the 21 genuine port reverts** (1,664 + 1,320 B).  Every one has a
+   near-miss baseline with the first divergent instruction already recorded
+   in `decomp/port_ledger.md`; the smallest is 4 insns.  The 7
+   `unresolved-symbol` reverts are not matching problems at all — they are
+   symbol-binding problems, and 3 of them are the same `D_FFFFF` /`D_FFFF`
+   pseudo-symbol.
+4. The callee-saved-`&buf` class, which unblocks `func_0015DF88` +
+   `func_001619A8` together.
+5. **V0 — identify the upstream libgcc / newlib / fdlibm release** (§3a
+   prerequisite).  Not a match; it is the research item that unblocks
+   ~61 KB of vendor with a legitimate reference implementation.  Highest
+   *leverage* item in the queue, and it can run in parallel with 1–4.
+6. **V3 — the 40 head functions** (5,056 B), smallest-first from
+   `func_00101A88`(6).  §3b clean-room, but 29 of the 40 are ≤ 20 insns.
+7. conv-8's four deferrals, starting by trying lever 5 (float literal at the
+   call site) on objact `func_0023B650`.
+8. **V4 — the 52 no-aug6-twin tail functions** (27,112 B), smallest-first
+   from `func_00268F28`(7).  Original work, no baseline, but the small end
+   is genuinely small.
+9. The untouched carved tails from `func_0015D1F8` upward.
+10. **V5 — the 261 tail functions whose aug6 twin is `INCLUDE_ASM`
+    upstream** (118,972 B), smallest-first from `func_00261BA8`(24).  The
+    bulk of the remaining vendor bytes and the slowest class: no baseline,
+    mostly §3b clean-room.  The 13 members that fall in the fdlibm evidence
+    window (V5a) should be pulled forward as soon as V0 lands.
+
+`func_0026F578` (V6) is **blocked, not queued** — see below.
+
+# Vendor queue — the 427 unmatched vendor functions (opened 2026-07-29)
+
+Vendor code is defined by `decomp/VENDOR.md`: `.text` that came out of a
+pre-built `.a` at link time (crt0, SCE SDK, newlib/libgcc/libm), not out of
+an ICO translation unit.  The aug6->retail vendor port landed in `3a806b95`,
+`6f01ebf6`, `22f1b2b6`, `bca0d69a`.  What it did **not** land was in no
+queue any worker reads.  This section is that queue.  It is part of the
+*same* list as the carved-tail work above — the recommended order at the
+end of the conv-9 section interleaves both.
+
+## Reconciliation — 948 vendor functions, not 945; 427 unmatched, not 424
+
+Derived from the tree, not from the port report:
+
+* `docs/progress.json` `vendor` node (built by `tools/progress_tree.py` from
+  the `// (vendor)` notes and the `c` subsegment spans in
+  `config/ico.us.yaml`): **521 / 945** functions, 34,144 / 194,996 B.
+* The `INCLUDE_ASM` sets of the nine `src/cod/vendor_*.c` TUs total **397**;
+  the three still-`asm` vendor spans hold **30** more symbols
+  (`config/symbol_addrs.us.txt` lines 5, 248-250, 404-428, 6051).
+  397 + 30 = **427**, which is 3 more than `945 - 521 = 424`.
+* The three extra are **`func_00246B78`**, **`func_002658B8`**,
+  **`func_00268F28`**.  Splat emits a `.s` for each
+  (`asm/nonmatchings/src/cod/vendor_2453C0/func_00246B78.s`,
+  `.../vendor_25E1E8/func_002658B8.s`, `.../vendor_2668B8/func_00268F28.s`)
+  and the TUs `INCLUDE_ASM` them, so they are in the build — but they are
+  **absent from `config/symbol_addrs.us.txt`**, so `progress_tree.py` never
+  counts them.  Compare their neighbours, which are all present
+  (`func_00246B38`/`func_00246BD8` at lines 5415-5416, etc.).
+* Their sizes (from the `nonmatching <name>, 0x<size>` headers) are 0x5C +
+  0x238 + 0x1C = 688 B.  So the honest totals are **948 functions /
+  195,684 B vendor, 521 matched, 427 unmatched / 161,540 B**.
+
+> **Queue item (config, not docs):** add the three missing
+> `func_… = 0x…; // type:func` lines to `config/symbol_addrs.us.txt` (or fix
+> `tools/gen_us_symbol_addrs.py` so it stops dropping them) — this is the
+> inverse of the usual splat-absorption fix.  Until then every vendor count
+> the dashboard prints is 3 low.  Deliberately **not** done in this docs-only
+> pass.
+
+Second tooling nit, also left alone: `tools/progress_tree.py:130-131` carries
+a fixed two-element label list (`crt0 + libkernl prologue`, `libc / libgcc /
+SCE SDK tail`) and applies it by run index.  The head is now **three** runs,
+so the `0x00100C90-0x00101C80` run is labelled *"libc / libgcc / SCE SDK
+tail"* when `decomp/VENDOR.md` §1 says the whole head span is crt0 +
+libkernl, and the `0x0026F578` run gets no label at all.  Cosmetic; believe
+VENDOR.md §1 over the dashboard label.
+
+## Group summary
+
+| group | n | bytes | insns | min | median | max | legal category (VENDOR.md §3) |
+|---|--:|--:|--:|--:|--:|--:|---|
+| **V1** 21 genuine port reverts — unresolved-symbol | 7 | 1664 | 416 | 26 | 64 | 90 | unclassified -> §3b clean-room unless archive identified |
+| **V1** 21 genuine port reverts — codegen | 14 | 1320 | 330 | 4 | 24 | 48 | unclassified -> §3b clean-room unless archive identified |
+| **V2** 52 handwritten-asm twins solved on aug6 | 52 | 7324 | 1831 | 2 | 42 | 76 | §3b clean-room (already re-derived on aug6) |
+| **V3** 40 head functions | 40 | 5056 | 1264 | 2 | 14 | 370 | §3b proprietary (crt0 + libkernl, VENDOR.md §1) |
+| **V4** 52 tail functions with no aug6 twin | 52 | 27112 | 6778 | 7 | 82 | 1350 | unclassified -> §3b clean-room unless archive identified |
+| **V5** 261 tail functions, aug6 twin unmatched | 261 | 118972 | 29743 | 24 | 74 | 1140 | mixed: 13 in the fdlibm window are §3a; rest unclassified |
+| **V6** 1 blocked (inter-section pad) | 1 | 92 | 23 | 23 | 23 | 23 | n/a — blocked |
+| | **427** | **161,540** | **40,385** | | | | |
+
+`min`/`median`/`max` are instruction counts.  Every count below is
+`bytes / 4` from `docs/progress.json`; a `*` marks one of the three
+symbol-table orphans above (size read from the `.s` header instead).
+
+## V1 — the 21 genuine port reverts (2,984 B, 746 insns)
+
+The most tractable class in the queue that still needs actual matching (V2
+needs transcription, not matching): each one *has a near-miss baseline* and
+`decomp/port_ledger.md` records the first divergent instruction.  The
+port ledger holds 31 `REVERTED` vendor entries; commit `bca0d69a` recovered
+the 10 declaration-context ones (`[undeclared]`, `[parse]`,
+`[callee-sig-conflict]`), leaving these 21.  Reason text is quoted verbatim
+from the ledger.
+
+### V1a — 7 `unresolved-symbol` (1,664 B).  Not a codegen problem
+
+A reloc slot the lockstep walk could not bind to a retail symbol.  Three of
+the seven are the same aug6-side pseudo-symbol (`D_FFFFF` / `D_FFFF`), which
+is an *absolute address spelled as a symbol* on the prototype side, so the
+fix is a spelling decision, not a match.  Fix the binding and the ported
+body should land as-is.
+
+| func | addr | insns | first divergence (port_ledger.md) |
+|---|---|--:|---|
+| `func_0024BFD0` | `0x0024BFD0` | 26 | insn 16 `func_002484A4`: retail symbol D_0024BFA8 (0x0024BFA8) undefined |
+| `func_0024A0E8` | `0x0024A0E8` | 34 | insn 8 `D_FFFFF`: retail symbol D_000FFFFF (0x000FFFFF) undefined |
+| `func_0024B360` | `0x0024B360` | 34 | insn 21 `D_00247C40`: retail symbol D_0024B740 (0x0024B740) undefined (+1 more) |
+| `func_0024A348` | `0x0024A348` | 64 | insn 48 `D_FFFFF`: retail symbol D_000FFFFF (0x000FFFFF) undefined |
+| `func_0024DFC8` | `0x0024DFC8` | 80 | insn 14 `D_FFFF`: no retail lui partner for %lo (+1 more) |
+| `func_00263AA0` | `0x00263AA0` | 88 | insn 35 `D_718208`: retail symbol D_0071EB88 (0x0071EB88) undefined |
+| `func_00262E90` | `0x00262E90` | 90 | insn 35 `D_7181F0`: retail symbol D_0071EB70 (0x0071EB70) undefined |
+
+### V1b — 14 `codegen` (1,320 B).  Retail source genuinely differs
+
+The prototype's C is not the retail C.  Ordinary matching work with a very
+strong starting shape.  Note the recurring families:
+`addiu <r>,<r>,0` vs a real displacement (3), `jal`/`j` to self vs a real
+target (3, i.e. the ported body calls a *different* callee), `jr ra` where
+the built object stores (2), `lw v1,0(sp)` vs `lw v0,0(sp)` (2, a
+2-instruction tail pair), and `[§regalloc-swap]` (2).
+
+| func | addr | insns | first divergence (port_ledger.md) |
+|---|---|--:|---|
+| `func_0026A5E0` | `0x0026A5E0` | 4 | insn 1: expected `j	0 <func_0026A5E0>` built `j	4760 <func_0026B018>` |
+| `func_00260CA8` | `0x00260CA8` | 8 | insn 0: expected `lui	v1,0x72` built `lui	v1,0x0` |
+| `func_002456F8` | `0x002456F8` | 10 | insn 7: expected `jr	ra` built `sw	a0,12(v1)` |
+| `func_002453D0` | `0x002453D0` | 16 | insn 14: expected `jr	ra` built `sw	v0,-4096(at)` |
+| `func_0024FBF8` | `0x0024FBF8` | 18 | insn 7: expected `addiu	s0,s0,0` built `addiu	s0,s0,4600` |
+| `func_00268DA0` | `0x00268DA0` | 22 | insn 14: expected `jal	0 <func_00268DA0>` built `jal	b8 <func_00266970>` |
+| `func_0026A438` | `0x0026A438` | 22 | insn 4: expected `addiu	v0,v0,0` built `addiu	v0,v0,27808` |
+| `func_0024B300` | `0x0024B300` | 24 | insn 5: expected `addiu	s0,s0,0` built `addiu	s0,s0,2616` |
+| `func_00264D90` | `0x00264D90` | 26 | insn 21: expected `lw	v1,0(sp)` built `lw	v0,0(sp)` |
+| `func_00264DF8` | `0x00264DF8` | 28 | insn 23: expected `lw	v1,0(sp)` built `lw	v0,0(sp)` |
+| `func_0024C400` | `0x0024C400` | 32 | [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring) |
+| `func_00246888` | `0x00246888` | 36 | [§regalloc-swap] register-allocation swap (same op, one reg differs, recurring) |
+| `func_0026A600` | `0x0026A600` | 36 | insn 3: expected `addiu	v0,v0,0` built `addiu	v0,v0,15656` |
+| `func_00252C68` | `0x00252C68` | 48 | insn 11: expected `jal	0 <func_00252C68>` built `jal	3320 <func_00251CF8>` |
+
+## V2 — 52 handwritten-asm twins already solved on aug6 (7,324 B, 1,831 insns)
+
+**This group did not exist in the port report, and correcting it is the
+single most useful thing in this section.**
+
+`decomp/VENDOR.md` §7 said, as landed by `bca0d69a`: *"Of the 455 pairs whose
+aug6 twin carried a matched baseline `.s`, only 403 were real: 52 were stale
+`matchings/*.s` for functions aug6 has since reverted to `INCLUDE_ASM`."*
+**That does not hold up against the tree** (§7 now carries the correction).
+Checked at the pinned aug6 commit
+`3a5ab90e34bb41993cd70087d46366db870571bd`
+(`.port_cache/candidates.json:aug6_head`):
+
+* All 716 aliased pairs (`.port_cache/name_alias.json`) split cleanly:
+  455 have a `.s` under `asm/aug6/matchings/common/src/PObj/` **and** are
+  *not* `INCLUDE_ASM` in `common/src/PObj.c`; 261 are `INCLUDE_ASM` **and**
+  have no `matchings/*.s`.  **Zero** are stale in the sense §7 describes.
+* The 52 dropped ones are all defined in aug6's `PObj.c` — as **bare
+  `__asm__` string blocks** (`"glabel func_…\n"` / `".global func_…"`),
+  not as C functions.  `tools/port_from_aug6.py:410-419` drops a candidate
+  when `src.tu(stem)["funcs"]` — a *C definition* index — does not contain
+  the name, and labels the drop "stale".  For these 52 the label is wrong:
+  the body exists and byte-matches.
+* None of the 52 appear anywhere in `decomp/port_ledger.md`, and none are in
+  `.port_cache/candidates.json:records`.  They were never candidates.
+
+These are the repo's sanctioned handwritten-asm exception (VU0 macro-mode,
+MMI, privileged COP0/TLB/cache, EE syscall stubs — `decomp/COOKBOOK.md` §6
+"Unaligned and MMI" and §12.4 "fall back to modern gas for VU0 / MMI TUs",
+plus `include/r5900.h` / `include/vu0.h`).  Carrying them over is
+transcription plus reloc rebinding, not matching.  Twelve of them are 4
+insns.
+
+Legal: **§3b clean-room**.  They were re-derived from the disassembly on the
+aug6 branch and carry no upstream provenance; porting our own clean-room
+work across branches introduces nothing new.
+
+| func (retail) | insns | aug6 twin | what aug6's comment says it is |
+|---|--:|---|---|
+| `func_0024BFA4` | 2 | `func_002484A4` | (no comment upstream — read the `.s`) |
+| `func_0024B3E8` | 4 | `func_00247908` | (no comment upstream — read the `.s`) |
+| `func_0024B448` | 4 | `func_00247968` | (no comment upstream — read the `.s`) |
+| `func_0024B458` | 4 | `func_00247978` | (no comment upstream — read the `.s`) |
+| `func_0024B468` | 4 | `func_00247988` | (no comment upstream — read the `.s`) |
+| `func_0024B478` | 4 | `func_00247998` | (no comment upstream — read the `.s`) |
+| `func_0024B488` | 4 | `func_002479A8` | (no comment upstream — read the `.s`) |
+| `func_0024B498` | 4 | `func_002479B8` | (no comment upstream — read the `.s`) |
+| `func_0024B4A8` | 4 | `func_002479C8` | (no comment upstream — read the `.s`) |
+| `func_0024B4B8` | 4 | `func_002479D8` | (no comment upstream — read the `.s`) |
+| `func_0024BFAC` | 9 | `func_002484AC` | handwritten ISR thunk (ei/sync, asymmetric hand-frame). C-inexpressible: an honest 33-hypothesis stall floored |
+| `func_0026E5C8` | 12 | `func_0026A958` | (no comment upstream — read the `.s`) |
+| `func_0024B4C8` | 14 | `func_002479E8` | (no comment upstream — read the `.s`) |
+| `func_0024B0E8` | 18 | `func_00247608` | handwritten TLB-write routine (mfc0/mtc0/tlbwi/sync.p). C-inexpressible: privileged COP0 TLB ops have no ee-gc |
+| `func_0024B130` | 20 | `func_00247650` | handwritten TLB-read routine (mtc0/tlbr/mfc0/sync.p). C-inexpressible privileged COP0 ops; in-file handwritten |
+| `func_0024B180` | 20 | `func_002476A0` | handwritten TLB-probe routine (mtc0/tlbp/tlbr/mfc0/sync.p). C-inexpressible privileged COP0 ops; in-file handw |
+| `func_00254C98` | 24 | `func_00251028` | handwritten MMI byte-clamp/pack loop (pminh/pmaxh/ppacb) with an inline 0x00FF00FF clamp mask (D_00251070) loa |
+| `func_00241C48` | 26 | `func_0023E168` | handwritten VIF/VU0 init — MMIO register pokes, a cfc2/ctc2 read-modify-write of VU0 control reg $vi28, sync b |
+| `func_002439F8` | 28 | `func_0023FF18` | handwritten VU0/MMI matrix transpose + transform — packs three qwords via pextlw/pextuw/pcpyld/pcpyud into VU |
+| `func_00243C00` | 30 | `func_00240120` | handwritten VU0 macro-mode math kernel — polynomial evaluation with a vsqrt (emitted raw as .word, no gas mnem |
+| `func_00253F28` | 30 | `func_002502B8` | handwritten MMI unaligned-copy/unpack loop — qfsrv funnel shift (shift amount from mtsab) then pextlb/pextub b |
+| `func_0026F3A0` | 32 | `func_0026B730` | handwritten critical-section wrapper — reads CP0 Status ($12), and if interrupts are enabled (bit 16) brackets |
+| `func_0026F4E0` | 32 | `func_0026B870` | handwritten critical-section wrapper — reads CP0 Status ($12), and if interrupts are enabled (bit 16) brackets |
+| `func_00244508` | 36 | `func_00240A28` | handwritten VU0 transform + clip-test loop — matrix-multiply each vertex, perspective-multiply two extents, an |
+| `func_0024AF90` | 38 | `func_002474B0` | handwritten function (CP0/cache/TLB/MMI/VU0). In-file handwritten asm per maintainer exception (C-inexpressibl |
+| `func_00253FA0` | 38 | `func_00250330` | handwritten function (CP0/cache/TLB/MMI/VU0). In-file handwritten asm per maintainer exception (C-inexpressibl |
+| `func_00243C78` | 42 | `func_00240198` | handwritten VU0 axis-rotation builder. Adjusts the angle into a quadrant (PI/2 +/- a, sign in $7), evaluates s |
+| `func_00243D20` | 42 | `func_00240240` | handwritten VU0 axis-rotation builder (sibling of func_00240198, different axis). Internal alternate entry fun |
+| `func_00243DC8` | 42 | `func_002402E8` | handwritten VU0 axis-rotation builder (sibling of func_00240198, different axis). Internal alternate entry fun |
+| `func_00254520` | 42 | `func_002508B0` | handwritten MMI averaging loop — qfsrv funnel shift + pextlb/pextub byte-unpack, paddh accumulate, then signed |
+| `func_0026F2F8` | 42 | `func_0026B688` | handwritten function (CP0/cache/TLB/MMI/VU0). In-file handwritten asm per maintainer exception (C-inexpressibl |
+| `func_0026F438` | 42 | `func_0026B7C8` | handwritten function (CP0/cache/TLB/MMI/VU0). In-file handwritten asm per maintainer exception (C-inexpressibl |
+| `func_0024BEF8` | 43 | `func_002483F8` | handwritten function (CP0/cache/TLB/MMI/VU0). In-file handwritten asm per maintainer exception (C-inexpressibl |
+| `func_002455A8` | 44 | `func_00241AC8` | handwritten function (CP0/cache/TLB/MMI/VU0). In-file handwritten asm per maintainer exception (C-inexpressibl |
+| `func_002541C0` | 44 | `func_00250550` | handwritten function (CP0/cache/TLB/MMI/VU0). In-file handwritten asm per maintainer exception (C-inexpressibl |
+| `func_002545C8` | 44 | `func_00250958` | handwritten function (CP0/cache/TLB/MMI/VU0). In-file handwritten asm per maintainer exception (C-inexpressibl |
+| `func_00254038` | 46 | `func_002503C8` | handwritten function (CP0/cache/TLB/MMI/VU0). In-file handwritten asm per maintainer exception (C-inexpressibl |
+| `func_00254270` | 46 | `func_00250600` | handwritten function (CP0/cache/TLB/MMI/VU0). In-file handwritten asm per maintainer exception (C-inexpressibl |
+| `func_0024B028` | 48 | `func_00247548` | handwritten function (CP0/cache/TLB/MMI/VU0). In-file handwritten asm per maintainer exception (C-inexpressibl |
+| `func_002641D8` | 48 | `func_00260568` | hand-vectorized memset(dst, c, n) — for n >= 8 on a 16-aligned dst it replicates the fill byte to 64 bits (pcp |
+| `func_002540F0` | 52 | `func_00250480` | handwritten function (CP0/cache/TLB/MMI/VU0). In-file handwritten asm per maintainer exception (C-inexpressibl |
+| `func_00254928` | 52 | `func_00250CB8` | handwritten function (CP0/cache/TLB/MMI/VU0). In-file handwritten asm per maintainer exception (C-inexpressibl |
+| `func_00254848` | 56 | `func_00250BD8` | handwritten function (CP0/cache/TLB/MMI/VU0). In-file handwritten asm per maintainer exception (C-inexpressibl |
+| `func_00254678` | 58 | `func_00250A08` | handwritten function (CP0/cache/TLB/MMI/VU0). In-file handwritten asm per maintainer exception (C-inexpressibl |
+| `func_00254760` | 58 | `func_00250AF0` | handwritten function (CP0/cache/TLB/MMI/VU0). In-file handwritten asm per maintainer exception (C-inexpressibl |
+| `func_00254328` | 62 | `func_002506B8` | handwritten function (CP0/cache/TLB/MMI/VU0). In-file handwritten asm per maintainer exception (C-inexpressibl |
+| `func_00254420` | 64 | `func_002507B0` | handwritten function (CP0/cache/TLB/MMI/VU0). In-file handwritten asm per maintainer exception (C-inexpressibl |
+| `func_00254B20` | 70 | `func_00250EB0` | handwritten function (CP0/cache/TLB/MMI/VU0). In-file handwritten asm per maintainer exception (C-inexpressibl |
+| `func_0024BDD0` | 74 | `func_002482D0` | handwritten function (CP0/cache/TLB/MMI/VU0). In-file handwritten asm per maintainer exception (C-inexpressibl |
+| `func_002549F8` | 74 | `func_00250D88` | handwritten function (CP0/cache/TLB/MMI/VU0). In-file handwritten asm per maintainer exception (C-inexpressibl |
+| `func_00264EF8` | 75 | `func_00261288` | hand-vectorized string-end finder — a 128-bit MMI zero-byte scan (lq/pcpyld/psubb/pnor/pand/pcpyud haszero) fo |
+| `func_0024B1D0` | 76 | `func_002476F0` | handwritten function (CP0/cache/TLB/MMI/VU0). In-file handwritten asm per maintainer exception (C-inexpressibl |
+
+## V3 — 40 head functions (5,056 B, 1,264 insns)
+
+The head run is `0x00100000-0x00101C80`, **crt0 + libkernl** per
+`decomp/VENDOR.md` §1 — the one part of the tail-vs-head split that *is*
+attributed.  Legal: **§3b proprietary, clean-room from the disassembly
+only.**  `ps2sdk` may inform naming and API shape (that is exactly what
+`include/syscall.h`'s `SYSCALL_WRAPPER` already does, `decomp/NOTES.md:390`)
+but must never be used as a byte oracle.
+
+`22f1b2b6` already took the cheap 140: the EE-syscall leaves, four
+instructions each.  What is left is the non-stub remainder.  29 of the 40
+are ≤ 20 insns.
+
+### V3a — 11 non-stub functions inside the carved head TU `src/cod/vendor_100110`
+
+Directly workable: the TU is already `c`, they are already `INCLUDE_ASM`.
+
+| func | addr | insns |
+|---|---|--:|
+| `func_00100BA8` | `0x00100BA8` | 8 |
+| `func_00100BC8` | `0x00100BC8` | 8 |
+| `func_00100BE8` | `0x00100BE8` | 8 |
+| `func_00100C08` | `0x00100C08` | 8 |
+| `func_001009E0` | `0x001009E0` | 10 |
+| `func_00100C48` | `0x00100C48` | 14 |
+| `func_001009A0` | `0x001009A0` | 16 |
+| `func_00100A08` | `0x00100A08` | 26 |
+| `func_00100A70` | `0x00100A70` | 26 |
+| `func_00100AD8` | `0x00100AD8` | 26 |
+| `func_00100B40` | `0x00100B40` | 26 |
+
+### V3b — 29 functions in the two still-`asm` head spans
+
+`config/ico.us.yaml:111` (`0x00100000-0x00100110`, crt0 / `_start`) and
+`config/ico.us.yaml:119` (`0x00100C90-0x00101C80`, the rest of libkernl).
+**These need a yaml carve before any of them can be worked** — that carve is
+itself the first queue item in this group.  Boundaries must be 8-byte-aligned
+function starts (VENDOR.md §7); all the addresses below already are.
+`_start` is the real ELF entry point (VENDOR.md §5) — leave it for last.
+
+| func | addr | insns | span |
+|---|---|--:|---|
+| `func_00100000` | `0x00100000` | 2 | crt0 |
+| `func_001000B8` | `0x001000B8` | 2 | crt0 |
+| `func_001000C0` | `0x001000C0` | 20 | crt0 |
+| `_start` | `0x00100008` | 44 | crt0 |
+| `func_00101A88` | `0x00101A88` | 6 | libkernl |
+| `func_00101AE8` | `0x00101AE8` | 10 | libkernl |
+| `func_00101B40` | `0x00101B40` | 10 | libkernl |
+| `func_00101C08` | `0x00101C08` | 10 | libkernl |
+| `func_00101C30` | `0x00101C30` | 10 | libkernl |
+| `func_00101C58` | `0x00101C58` | 10 | libkernl |
+| `func_00101B10` | `0x00101B10` | 12 | libkernl |
+| `func_00101BD8` | `0x00101BD8` | 12 | libkernl |
+| `func_001010C8` | `0x001010C8` | 14 | libkernl |
+| `func_001011B0` | `0x001011B0` | 14 | libkernl |
+| `func_001019A8` | `0x001019A8` | 14 | libkernl |
+| `func_00101B68` | `0x00101B68` | 14 | libkernl |
+| `func_00101BA0` | `0x00101BA0` | 14 | libkernl |
+| `func_00101A40` | `0x00101A40` | 18 | libkernl |
+| `func_00101AA0` | `0x00101AA0` | 18 | libkernl |
+| `func_001019E0` | `0x001019E0` | 24 | libkernl |
+| `func_00100FB0` | `0x00100FB0` | 32 | libkernl |
+| `func_001011E8` | `0x001011E8` | 36 | libkernl |
+| `func_00100F18` | `0x00100F18` | 38 | libkernl |
+| `func_00101030` | `0x00101030` | 38 | libkernl |
+| `func_00101100` | `0x00101100` | 44 | libkernl |
+| `func_00100C90` | `0x00100C90` | 54 | libkernl |
+| `func_00101278` | `0x00101278` | 90 | libkernl |
+| `func_00100D68` | `0x00100D68` | 108 | libkernl |
+| `func_001013E0` | `0x001013E0` | 370 | libkernl |
+
+## V4 — 52 tail functions with no aug6 twin (27,112 B, 6,778 insns)
+
+`.port_cache/name_alias.json` pairs 716 of the 765 tail functions with an
+aug6 twin across three deltas (`+0x3C70` x474, `+0x3AE0` x208, `+0x3B00`
+x34 — verified by recomputing the deltas from the alias map).  49 have no
+twin; adding the three symbol-table orphans (which are in no map at all)
+gives **52**.  Nothing to port: original work.
+
+As landed by `bca0d69a`, `decomp/VENDOR.md` §1 said *"~46 functions with no
+aug6 twin"* and §7/§8 said *"49"*.  The two disagreed with each other; the
+alias map says 49, and the honest figure including the orphans is 52.  Both
+places now read 52.
+
+Legal: **unclassified**.  VENDOR.md §1's per-archive table is a research
+aggregate and is explicitly *not tracked per function*, so no archive can be
+attributed to any of these without new work.  Method is therefore
+**clean-room from the disassembly unless the archive is identified first** —
+if identification later puts one in libgcc/libm/libc it moves to §3a and
+gets a reference implementation.  VENDOR.md §8 flags the likely cause
+(retail linked a different library revision than the Aug-6-2001 prototype),
+which if confirmed makes §3a attribution *more* likely for this group than
+for V5, not less.
+
+Smallest-first:
+
+`func_00268F28`(7)*, `func_0024E670`(14), `func_0024E760`(14), `func_00268F08`(16),
+`func_00260BA0`(22), `func_00246B78`(23)*, `func_00246C60`(28), `func_0024CB28`(38),
+`func_0024D718`(38), `func_0024D7B0`(38), `func_00246B38`(40), `func_0024D848`(46),
+`func_0024D900`(46), `func_0024F428`(46), `func_0024F710`(46), `func_00250420`(46),
+`func_0024F4E0`(48), `func_00250230`(50), `func_00250818`(50), `func_0024F7C8`(54),
+`func_00256C30`(56), `func_0024A9C0`(66), `func_002508E0`(70), `func_0024F930`(72),
+`func_002502F8`(74), `func_0024F5A0`(78), `func_00257DE0`(82), `func_00245938`(84),
+`func_002500E0`(84), `func_0024D5C0`(86), `func_0024FF00`(86), `func_002506B0`(90),
+`func_0024FA50`(96), `func_0024C130`(102), `func_00244748`(118), `func_002504D8`(118),
+`func_00255410`(128), `func_0024A510`(130), `func_0024A758`(138), `func_00247788`(142),
+`func_002498D8`(142), `func_002658B8`(142)*, `func_00241CB0`(156), `func_0024B8D8`(160),
+`func_00265818`(182), `func_00252F90`(206), `func_00252838`(210), `func_00247EF0`(212),
+`func_0024B500`(224), `func_002532C8`(428), `func_00265CA0`(756), `func_002669E8`(1350).
+
+## V5 — 261 tail functions whose aug6 twin was never matched upstream (118,972 B, 29,743 insns)
+
+The aug6 twin is `INCLUDE_ASM` in `common/src/PObj.c` at `3a5ab90e`, so
+there is nothing to port.  This is **74 % of the remaining vendor bytes**
+and the slowest class in the queue.  The port report's "~310" for this
+group conflated it with V2; the two are 261 + 52 = 313.
+
+Legal: **mixed, mostly unclassified -> §3b clean-room**.  Per-function
+archive attribution does not exist in this repo and must not be invented.
+The one exception with in-tree evidence is V5a.
+
+### V5a — 13 functions inside the fdlibm evidence window (§3a, libm)
+
+`src/cod/vendor_25E1E8.c` is the only vendor TU whose matched bodies use the
+fdlibm idiom (`GET_FLOAT_WORD` / `SET_FLOAT_WORD` from
+`include/math_private.h`, lines 52-311), and aug6's `common/src/PObj.c` at
+`3a5ab90e` line 7947 names one of the neighbours *"fdlibm
+`__kernel_cosf(x, y)`"*.  The matched fdlibm
+bodies span `0x0025E2E8`-`0x00260B70`; two of the unmatched functions below
+are already `extern`-declared *by* those bodies
+(`func_0025F548` at `vendor_25E1E8.c:43`, `func_00260508` at line 45), which
+is direct in-tree evidence that they are part of the same fdlibm cluster.
+
+This is the one group that can be **compiled-and-diffed against a
+legitimate upstream** (Sun fdlibm via newlib, public domain — VENDOR.md §3a,
+`decomp/COOKBOOK.md` §7.3, `decomp/NOTES.md:403`) rather than re-derived
+blind.  It is gated on **V0** below.
+
+Treat the window as *evidence, not attribution*: a non-libm function can sit
+inside it.  Confirm per function before claiming §3a method for it.
+
+| func | addr | insns |
+|---|---|--:|
+| `func_00260900` | `0x00260900` | 58 |
+| `func_0025E3D8` | `0x0025E3D8` | 64 |
+| `func_0025E4D8` | `0x0025E4D8` | 64 |
+| `func_00260508` | `0x00260508` | 66 |
+| `func_0025E5D8` | `0x0025E5D8` | 74 |
+| `func_00260A10` | `0x00260A10` | 88 |
+| `func_0025F2F8` | `0x0025F2F8` | 148 |
+| `func_00260638` | `0x00260638` | 170 |
+| `func_0025F010` | `0x0025F010` | 186 |
+| `func_0025EC70` | `0x0025EC70` | 232 |
+| `func_0025F548` | `0x0025F548` | 248 |
+| `func_0025E840` | `0x0025E840` | 268 |
+| `func_0025FBB8` | `0x0025FBB8` | 596 |
+
+### V5b — the other 248
+
+All 261 smallest-first — the 13 V5a members are left in place so this is one
+complete list, but work those under V5a's §3a method, not V5b's:
+
+`func_00261BA8`(24), `func_00265780`(28), `func_0026D188`(28), `func_002454F0`(30),
+`func_00265C28`(30), `func_00266970`(30), `func_00245318`(32), `func_00245470`(32),
+`func_002509F8`(34), `func_00255C08`(34), `func_00264E70`(34), `func_0024F8A0`(36),
+`func_0025AE00`(36), `func_0025C4E0`(36), `func_0025C6D8`(36), `func_0025C768`(36),
+`func_0025DD20`(36), `func_00263520`(36), `func_00263E20`(36), `func_00264094`(37),
+`func_002425A8`(38), `func_00246688`(38), `func_002467F0`(38), `func_0024C368`(38),
+`func_00258470`(38), `func_002591F0`(38), `func_002614A8`(38), `func_00263218`(38),
+`func_00263EB0`(38), `func_0026B018`(38), `func_0026CA48`(38), `func_00248B60`(40),
+`func_0024C090`(40), `func_0024C2C8`(40), `func_0024CBC0`(40), `func_0024E108`(40),
+`func_002517D0`(40), `func_00252E90`(40), `func_00262848`(40), `func_002632B0`(40),
+`func_00245270`(42), `func_00245DE0`(42), `func_00255F80`(42), `func_0025CFC0`(42),
+`func_0026BEF0`(42), `func_002461D8`(44), `func_00256028`(44), `func_00256918`(44),
+`func_00256DF8`(44), `func_00256F98`(44), `func_0025D438`(44), `func_00260BF8`(44),
+`func_00264128`(44), `func_00245F18`(46), `func_0024E410`(46), `func_0024EBC8`(46),
+`func_0024ED58`(46), `func_00257128`(46), `func_00263160`(46), `func_00263D68`(46),
+`func_00265B70`(46), `func_002668B8`(46), `func_0026D378`(46), `func_00245B58`(48),
+`func_0025B998`(48), `func_0026CDE0`(48), `func_0026EB50`(48), `func_00241A20`(50),
+`func_002436E8`(50), `func_00244C28`(50), `func_00244ED0`(50), `func_0024D318`(50),
+`func_00252488`(50), `func_00244F98`(52), `func_00245A88`(52), `func_00246720`(52),
+`func_00255610`(52), `func_00256848`(52), `func_0025AE90`(52), `func_00244980`(54),
+`func_002525E8`(54), `func_00244658`(56), `func_0024AC00`(56), `func_00257048`(56),
+`func_0025D4E8`(56), `func_002680B0`(56), `func_0026A500`(56), `func_0026BCFC`(56),
+`func_002421C8`(58), `func_00244A58`(58), `func_00244B40`(58), `func_00252B80`(58),
+`func_00256D10`(58), `func_00260900`(58), `func_00244CF0`(60), `func_00244DE0`(60),
+`func_0024A258`(60), `func_00256EA8`(60), `func_002613B8`(60), `func_0026D288`(60),
+`func_0026E878`(60), `func_00250F90`(62), `func_0025C868`(62), `func_0025CD78`(64),
+`func_0025E3D8`(64), `func_0025E4D8`(64), `func_0026C5D8`(64), `func_0026BDDC`(65),
+`func_002437B0`(66), `func_002440C0`(66), `func_0025AA88`(66), `func_00260508`(66),
+`func_00268C98`(66), `func_0026A330`(66), `func_00241B28`(68), `func_00242958`(68),
+`func_0024AE80`(68), `func_0025BF98`(68), `func_00263410`(68), `func_00268DF8`(68),
+`func_00265168`(69), `func_002563C8`(70), `func_00257A20`(70), `func_0025B880`(70),
+`func_0026BFC8`(70), `func_00248A20`(72), `func_0024E798`(72), `func_0024E8B8`(72),
+`func_00252058`(74), `func_002551C0`(74), `func_0025E5D8`(74), `func_0024ACE0`(76),
+`func_00262718`(76), `func_0024BC18`(78), `func_00256290`(78), `func_0025BE60`(78),
+`func_0026527C`(79), `func_00242CB0`(80), `func_00265024`(81), `func_002587E0`(84),
+`func_0026B1A0`(84), `func_002526E0`(86), `func_0025B080`(88), `func_00260A10`(88),
+`func_0024DD30`(90), `func_00252D28`(90), `func_002564E0`(90), `func_0024C9B8`(92),
+`func_0024CCD0`(92), `func_002521C0`(92), `func_0025B1E0`(94), `func_0026C6D8`(94),
+`func_0026CF30`(94), `func_00242DF0`(96), `func_00247608`(96), `func_00255C90`(96),
+`func_0026CAE0`(96), `func_0026CC60`(96), `func_0024C530`(98), `func_0024DAB8`(98),
+`func_0024FD78`(98), `func_00251ED0`(98), `func_00254F28`(98), `func_0026E968`(98),
+`func_002441C8`(100), `func_00253D98`(100), `func_0026C8B8`(100), `func_002457A0`(102),
+`func_002494B0`(102), `func_00257888`(102), `func_0025C2F8`(102), `func_00245C18`(104),
+`func_00247118`(104), `func_00248EC0`(104), `func_0025A430`(104), `func_0025AC60`(104),
+`func_00248418`(106), `func_002485E0`(108), `func_00267F00`(108), `func_0024F240`(110),
+`func_002560D8`(110), `func_0025B4A8`(110), `func_002653B8`(110), `func_00257B38`(112),
+`func_00257F28`(112), `func_0025C100`(112), `func_00265570`(112), `func_00246970`(114),
+`func_00249F20`(114), `func_00248240`(118), `func_0025DAD8`(118), `func_00249D40`(120),
+`func_0024D3E0`(120), `func_0025A250`(120), `func_00241FE0`(122), `func_00242AC8`(122),
+`func_0024E228`(122), `func_00254D20`(122), `func_00246458`(124), `func_002492A0`(124),
+`func_00257660`(124), `func_0024D120`(126), `func_002638A8`(126), `func_00250A80`(128),
+`func_00268F48`(134), `func_0025B660`(136), `func_0026E620`(136), `func_0025D5C8`(138),
+`func_00249B10`(140), `func_002569C8`(140), `func_0026C3A8`(140), `func_00258A00`(142),
+`func_0025A708`(142), `func_002635B0`(142), `func_00249060`(144), `func_00251870`(144),
+`func_002628E8`(144), `func_0025F2F8`(148), `func_002581C0`(150), `func_0026B2F0`(150),
+`func_002479C0`(156), `func_002487B0`(156), `func_00249648`(156), `func_0025D068`(156),
+`func_00247380`(162), `func_002422B0`(166), `func_00260638`(170), `func_00262BE8`(170),
+`func_00247C30`(176), `func_0024CE40`(184), `func_0025F010`(186), `func_00250C80`(188),
+`func_0024C6B8`(192), `func_00242640`(198), `func_0026A7B0`(200), `func_0025BA58`(224),
+`func_0025EC70`(232), `func_00246CD0`(238), `func_0026AC40`(246), `func_002571E0`(248),
+`func_0025F548`(248), `func_00253978`(264), `func_00259288`(264), `func_0025E840`(268),
+`func_002596A8`(296), `func_00258D10`(312), `func_002556E0`(330), `func_002621D8`(336),
+`func_0026ED88`(348), `func_00251248`(354), `func_00261C08`(372), `func_00261540`(410),
+`func_00242F70`(420), `func_00260CC8`(444), `func_00259B48`(450), `func_0026B548`(478),
+`func_0025FBB8`(596), `func_00264328`(650), `func_00268190`(706), `func_0026D6C8`(960),
+`func_00269160`(1140).
+
+## V6 — `func_0026F578`: blocked, not queued
+
+104 B / 23 insns at `0x0026F578`.  `decomp/port_ledger.md:27` records it as
+`PRE-MATCHED` — a retail body existed before Phase 4 — so it is *portable*,
+and it is nonetheless **`asm`** in `config/ico.us.yaml:355`
+(`[0x16F578, asm, src/cod/16F578]`).
+
+Reason (VENDOR.md §7): splat puts the **12 bytes of inter-section `.text`
+pad** between `.text` and `.vutext` *inside* that trailing object, and no C
+TU can emit them.  Carving it `c` to match the function would drop the pad
+and break the SHA-1.  **Do not queue this as workable.**  Unblocking it is a
+splat/linker-script problem, not a matching problem, and nobody should spend
+a matching iteration on it until that is solved.
+
+## Method by legal category — the part that decides how you work
+
+Restating `decomp/VENDOR.md` §3 in queue terms, because the category
+determines the *method*, and getting it wrong is the one mistake in this
+area that cannot be undone:
+
+* **§3a — `libgcc` / `libm` / `libc`, ~61 KB.** Upstream is public and
+  legitimately obtainable (GCC runtime under the GPL runtime exception; Sun
+  fdlibm, public domain; newlib, BSD-style).  Method: fetch a candidate
+  upstream release, compile with `ee-gcc 2.9-991111-01`
+  (`tools/compile_c.sh:19`), diff against the ROM asm, adjust.  **Not a
+  licence to paste** — the committed C is still ours, and anything vendored
+  wholesale goes under `lib/<name>/` with a `PROVENANCE.md`.
+  In this queue only **V5a** (13 funcs) is confidently §3a today.
+* **§3b — the SCE SDK archives + crt0, ~99 KB.** `libkernl`, `libgraph`,
+  `libmpeg`, `libsndn2`, `libcdvd`, `libpad`, `libmc`, `libipu`, `libvu0`,
+  `libdma`, `libpkt`, `libscedemo`, `crt0`.  **No SDK source, ever.**
+  Clean-room from the disassembly only.  `ps2sdk` is permitted as a naming
+  and structural reference and is **never** a byte oracle.  **V3** is
+  confidently here (crt0 + libkernl, VENDOR.md §1).  **V2** is here too, but
+  the clean-room derivation is already done on aug6.
+* **Unclassified — V1, V4, and V5b.** VENDOR.md §1's per-archive table is a
+  *research aggregate*: it was produced by reloc-normalized instruction
+  hashing against the aug6 twin and then mapped onto `MAIN.MAP`'s member
+  list, and the file states plainly that *"this mapping is not tracked
+  per-function anywhere in the repo"*.  **Do not invent per-function archive
+  attribution.**  Method for these groups is **clean-room from the
+  disassembly unless the archive is identified first**; if identification
+  later places one in libgcc/libm/libc it is promoted to §3a and gets a
+  reference implementation.
+
+One further caution on that aggregate: `MAIN.MAP` is a **different link**
+(different addresses and sizes from ours), so it may inform archive
+*membership* but must never be used to verify an address, a size, or a byte.
+
+## V0 — the §3a prerequisite (research item, highest leverage in the queue)
+
+**Which exact newlib / libgcc / fdlibm release did SCE ship?**  Unidentified,
+and it gates the whole §3a method for ~61 KB.
+
+It cannot be read out of the binary.  `decomp/NOTES.md:913`
+(§ "Build-environment fingerprint") records that **no `.comment`, `.note`,
+`.mdebug`, `.pdr` or `.gptab.*` section survives** in `baseelf.elf` — the
+link was stripped of every build-provenance section.  So identification has
+to come from **codegen fingerprinting**: compile candidate newlib / libgcc
+releases with `ee-gcc 2.9-991111-01` at the project's flags and score the
+resulting instruction streams against the ROM's.  V5a (13 fdlibm-window
+functions, ~5.9 KB) is the natural scoring corpus because it is the one span
+with independent in-tree evidence of its provenance.
+
+Deliverables: (1) the identified release(s), recorded in VENDOR.md §8;
+(2) whether libgcc and libc came from the same distribution; (3) a
+`lib/<name>/PROVENANCE.md` if anything is vendored.  Until this lands, every
+§3a function must be worked as if it were §3b, which is the slow path.
+
+## Cross-references
+
+* `decomp/VENDOR.md` — the policy: §1 what vendor is and the per-archive
+  aggregate, §3 the legal split, §5 `_start` and `vobj.o`, §7 port status,
+  §8 open questions.
+* `decomp/port_ledger.md` — every `PORTED` / `REVERTED` / `PRE-MATCHED`
+  decision, with the first divergent instruction for each revert.  The eight
+  `### src/cod/vendor_*` sections are the vendor part.
+* `config/ico.us.yaml:111,118-119,347-355` — the vendor subsegments.
+* `config/symbol_addrs.us.txt:5,247-428,6051` — the surviving `// (vendor)`
+  notes (the carved functions now carry TU notes instead).
+
+**Operational warning, unrelated to vendor but found here.**
+`decomp/port_ledger.md` is **261,861 B** and `tools/check_no_rom.sh` fails
+any tracked file over **256 KiB (262,144 B)**.  There are roughly **280
+bytes** of headroom left.  The next Phase-4 wave that appends to it will trip
+the IP-safety gate — and the failure message ("tracked file >256KiB
+(suspicious)") gives no hint that the cause is benign growth.  Split the
+ledger per phase or per programmer, or raise the threshold for `decomp/*.md`
+in `tools/check_no_rom.sh`, *before* the next port pass.  (The
+cross-reference added to it in this pass was deliberately compressed to fit.)
+

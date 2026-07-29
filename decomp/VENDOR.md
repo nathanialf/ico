@@ -84,8 +84,12 @@ per-function archive attribution it does not have.
 | libgraph | 30 | | libpkt | 9 |
 | | | | libscedemo | 5 |
 
-Plus `ico2000.a(vobj.o)` (~400 B of *real game code* — see §5) and ~46
-functions with no aug6 twin (§7).
+Plus `ico2000.a(vobj.o)` (~400 B of *real game code* — see §5) and 52
+functions with no aug6 twin (§7, queue group V4).
+
+(The `945` / `194,996` figures in the table above are what
+`tools/progress_tree.py` counts and are 3 functions / 688 B low — see the
+denominator caveat at the top of §7.)
 
 ### How the two runs are represented
 
@@ -242,8 +246,24 @@ Related accounting rules the same script now enforces:
 
 ## 7. Status — the aug6 vendor port (landed 2026-07-28)
 
+**▶ The 427 unmatched vendor functions are enumerated and queued in
+`decomp/convpass_ledger_3.md`, section "Vendor queue — the 427 unmatched
+vendor functions" (groups V0–V6), and are ranked against the game-code
+targets in that file's "Recommended order for a conv-10". That is the
+standing queue; this section is the status summary that feeds it.**
+
 `521 / 945` vendor functions and `34,144 / 194,996` bytes (17.51 %) are
 decompiled. `.text` overall moved `14.49 % -> 16.81 %` (217,992 -> 252,996 B).
+
+**Caveat on the denominator (found 2026-07-29).** `945` is what
+`tools/progress_tree.py` counts, and it is 3 low. `func_00246B78`,
+`func_002658B8` and `func_00268F28` are real functions — splat emits a `.s`
+for each and the carved TUs `INCLUDE_ASM` them — but they are **missing from
+`config/symbol_addrs.us.txt`**, so the dashboard never sees them. The honest
+figures are **948 functions / 195,684 B, 521 matched, 427 unmatched /
+161,540 B**. Fixing the symbol table is a queue item (see the ledger's
+"Reconciliation" heading), deliberately not done in the docs-only pass that
+found it.
 
 ### Representation
 
@@ -282,26 +302,55 @@ The pairing is handed to `tools/port_from_aug6.py` via its existing
 `.port_cache/name_alias.json` hook, so vendor bodies get the same lockstep
 reloc-slot rebinding and per-function gate as every other Phase-4 port.
 
-Of the 455 pairs whose aug6 twin carried a matched baseline `.s`, only **403**
-were real: 52 were stale `matchings/*.s` for functions aug6 has since reverted
-to `INCLUDE_ASM`. `scan` drops those itself. So the portable population was
-403, and 371 + 10 hand-recovered = 381 landed; one more (`func_0026F578`) is
-portable but blocked by the pad above.
+Of the 455 pairs whose aug6 twin carried a matched baseline `.s`, the port's
+`scan` kept **403** and dropped 52. So the portable population was 403, and
+371 + 10 hand-recovered = 381 landed; one more (`func_0026F578`) is portable
+but blocked by the pad above.
+
+**Correction (2026-07-29): the 52 dropped pairs are not stale.** This section
+originally said they were "stale `matchings/*.s` for functions aug6 has since
+reverted to `INCLUDE_ASM`". Re-checked at the pinned aug6 commit
+`3a5ab90e34bb41993cd70087d46366db870571bd`, that is false: all 716 aliased
+pairs split cleanly into 455 (matched `.s` present *and* a body in
+`common/src/PObj.c`) and 261 (`INCLUDE_ASM` *and* no `.s`) — zero stale.
+The 52 are functions aug6 **matched as bare `__asm__` blocks** (VU0
+macro-mode, MMI, privileged COP0/TLB/cache, EE syscall stubs), and
+`tools/port_from_aug6.py:410-419` only indexes *C* definitions, so it did not
+see them and labelled the drop "stale". They are the most tractable group in
+the whole vendor queue (group **V2**, 52 funcs / 7,324 B, twelve of them 4
+insns) — a finished byte-matching body already exists upstream for every one.
 
 ### What is left, and why
 
-- **21 genuine reverts** (`decomp/port_ledger.md` has each one). 7
-  `unresolved-symbol` — the reloc walk cannot bind an aug6 slot to a retail
-  symbol (`D_FFFFF`, `D_00247C40`, `D_7181F0`, ...), usually because the aug6
-  side spelled an absolute address as a symbol. 14 `codegen` — the retail
-  source genuinely differs from the prototype's (`§regalloc-swap`, a `jr ra`
-  where the built object stores, `addiu s0,s0,0` vs a real displacement).
-  These need normal matching work, not porting.
-- **~310 tail functions whose aug6 twin was never matched upstream.** Nothing
-  to port. Most are §3b proprietary SCE SDK, i.e. clean-room-from-disassembly
-  only.
-- **49 tail functions with no aug6 twin** and the 29 non-syscall head
-  functions. Original work on both counts.
+Counts below are the reconciled ones (427 total, from the 948-function
+denominator). Each group is enumerated **by name, with sizes** in the
+`decomp/convpass_ledger_3.md` vendor queue; the group tags are that queue's.
+
+- **V1 — 21 genuine reverts** (2,984 B; `decomp/port_ledger.md` has each one,
+  with the first divergent instruction). 7 `unresolved-symbol` — the reloc
+  walk cannot bind an aug6 slot to a retail symbol (`D_FFFFF`, `D_00247C40`,
+  `D_7181F0`, ...), usually because the aug6 side spelled an absolute address
+  as a symbol. 14 `codegen` — the retail source genuinely differs from the
+  prototype's (`§regalloc-swap`, a `jr ra` where the built object stores,
+  `addiu s0,s0,0` vs a real displacement). These need normal matching work,
+  not porting. Most tractable class after V2, because a near-miss baseline
+  exists.
+- **V2 — 52 handwritten-asm twins already solved on aug6** (7,324 B). See the
+  correction above. Start here.
+- **V5 — 261 tail functions whose aug6 twin was never matched upstream**
+  (118,972 B). Nothing to port. Mostly §3b proprietary SCE SDK, i.e.
+  clean-room-from-disassembly only. (The figure "~310" that stood here
+  conflated this group with V2; the two are 261 + 52 = 313.)
+- **V4 — 52 tail functions with no aug6 twin** (27,112 B; 49 by the alias map
+  plus the 3 symbol-table orphans) and **V3 — the 40 head functions**
+  (5,056 B: 11 non-stub libkernl functions inside the carved head TU, plus 29
+  in the two still-`asm` head spans). Original work on both counts.
+- **V6 — `func_0026F578`**: portable but structurally blocked by the 12 B of
+  inter-section `.text` pad splat places inside that object. Flagged as
+  blocked, **not** queued as workable.
+- **V0 — identify the upstream libgcc / newlib / fdlibm release** (§8). Not a
+  match, but it is the prerequisite that unblocks ~61 KB of §3a work, and it
+  is the highest-leverage item in the queue.
 
 ### Clean-room note for the head
 
@@ -320,10 +369,13 @@ aug6's existing clean-room work only.
   `.comment`, `.note`, `.mdebug`, `.pdr` or `.gptab.*` section survives in
   `baseelf.elf`. Any answer has to come from codegen fingerprinting against
   candidate newlib/libgcc releases compiled with `ee-gcc 2.9-991111-01`.
-  This is the first concrete task for anyone starting §3a.
-- **The ~46 tail functions with no aug6 twin.** Either the retail link pulled
-  a different library revision than the Aug-6-2001 prototype did, or they are
-  retail-side inlining artifacts. Unresolved.
+  This is the first concrete task for anyone starting §3a — queued as **V0**,
+  with the 13 fdlibm-window functions (**V5a**) named as the scoring corpus.
+- **The 52 tail functions with no aug6 twin** (§7's V4; 49 by the alias map
+  plus the 3 symbol-table orphans — the "~46" that stood here was wrong on
+  both counts). Either the retail link pulled a different library revision
+  than the Aug-6-2001 prototype did, or they are retail-side inlining
+  artifacts. Unresolved.
 - **Does the head run contain anything but crt0 + libkernl?** The 180-function
   head has not been attributed member-by-member with the same rigour as the
   tail.

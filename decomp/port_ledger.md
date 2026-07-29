@@ -14,6 +14,20 @@ bind), `callee-sig-conflict` / `arity` (a Phase-3 retail body in the same TU
 declares the callee with a placeholder signature the aug6 body contradicts),
 `undeclared` / `parse` (decl context), `codegen` (compiles, wrong bytes).
 
+**Where the leftovers are queued.**  A `REVERTED` line is a near-miss
+baseline handed to the matching queue, not an end state.  For the vendor
+sections (`### (vendor)`, `### src/cod/vendor_*`), that queue is
+`decomp/convpass_ledger_3.md` § *"Vendor queue — the 427 unmatched vendor
+functions"*: all 427 named and sized as groups **V0–V6**, ranked against the
+game-code targets in the same file's *"Recommended order for a conv-10"*,
+with `decomp/VENDOR.md` §3 deciding the legal category and hence the method.
+The 31 `REVERTED` vendor entries here became 21 after `bca0d69a` recovered
+the 10 declaration-context ones; those 21 are group **V1**.  Two things this
+ledger's numbers do not show, both established from the tree 2026-07-29 and
+written up there: the port's 52 "stale `matchings/*.s`" drops are **not
+stale** (group **V2**, the most tractable work in the queue), and three real
+vendor functions are missing from `config/symbol_addrs.us.txt`.
+
 ## Accounting
 
 | wave | candidates | ported | reverted | skipped | pre-matched | unattempted |
