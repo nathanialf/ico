@@ -444,7 +444,20 @@ after:
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2453C0", func_00246970);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2453C0", func_00246B38);
+extern void func_00246970(int *item);
+extern void func_00100440(void);
+
+/* Dispatcher thread body: drain the queue, and when it is empty block on
+ * the kernel until something is posted.  Never returns. */
+void func_00246B38(int *self) {
+    int *item;
+    for (;;) {
+        while ((item = func_00246918(self)) != 0) {
+            func_00246970(item);
+        }
+        func_00100440();
+    }
+}
 
 extern int D_00550868[];
 extern int D_0055086C[];

@@ -1599,12 +1599,12 @@ VENDOR.md §1 over the dashboard label.
 | **V1** 21 genuine port reverts — codegen | 5 (was 14) | 536 (was 1320) | 134 | 8 | 32 | 48 | unclassified -> §3b clean-room unless archive identified |
 | **V2** 52 handwritten-asm twins solved on aug6 | 2 (was 52) | 144 (was 7324) | 36 | 12 | 18 | 24 | §3b clean-room (already re-derived on aug6) |
 | **V3** 40 head functions | 14 (was 40) | 3416 (was 5056) | | 14 | | 370 | §3b proprietary (crt0 + libkernl, VENDOR.md §1) |
-| **V4** 52 tail functions with no aug6 twin | 26 (was 52) | 21900 (was 27112) | | 22 | | 1350 | unclassified -> §3b clean-room unless archive identified |
+| **V4** 52 tail functions with no aug6 twin | 25 (was 52) | 21836 (was 27112) | | 22 | | 1350 | unclassified -> §3b clean-room unless archive identified |
 | **V5** 261 tail functions, aug6 twin unmatched | 261 | 118972 | 29743 | 24 | 74 | 1140 | mixed: 13 in the fdlibm window are §3a; rest unclassified |
 | **V6** 1 blocked (inter-section pad) | 1 | 92 | 23 | 23 | 23 | 23 | n/a — blocked |
-| | **324** (was 427) | **145,288** | | | | | |
+| | **323** (was 427) | **145,224** | | | | | |
 
-**Landed 2026-07-29, eight passes: 118 functions / 16,252 B.**
+**Landed 2026-07-29, ten passes: 119 functions / 16,316 B.**
 Pass 1 (`vendor-1`, 66 funcs / 9,604 B): V2 50/52, V1 16/21.
 Pass 2 (`vendor-2`, 21 funcs / 1,108 B): V3a 11/11, V3b 10/26 + the carve.
 Pass 3 (`vendor-3`, 14 funcs / 1,148 B): V3b 5 more (15/26), V4 first 9.
@@ -1621,9 +1621,11 @@ below).
 Pass 9 (`vendor-9`, 0 funcs): no match landed.  `func_0024FA50` driven from
 15 sites to **6** with the frame-size gauge satisfied; three levers and
 three refutations recorded, best body parked under `tough_nuts/`.
-Vendor moves 521/945 -> **624/948** functions and 34,144 -> **49,708 B**
-(17.51 % -> 25.49 %); `.text` 16.81 % -> **19.52 %**.  The unmatched vendor
-total is now **324 functions / 145,288 B** (figures from
+Pass 10 (`vendor-10`, 1 func / 64 B): V4 27/52.  `func_0024FA50` held at 6
+sites — two more dual-root spellings refuted, both CSE'd away.
+Vendor moves 521/945 -> **625/948** functions and 34,144 -> **49,772 B**
+(17.51 % -> 25.52 %); `.text` 16.81 % -> **19.53 %**.  The unmatched vendor
+total is now **323 functions / 145,224 B** (figures from
 `docs/progress.json`, whose byte denominators are span-derived).
 
 **The device-request family now has three sub-templates and 10 landed members.**
@@ -1701,7 +1703,12 @@ Three levers took it 15 -> 6, in this order:
 **Refuted — do not repeat:** removing the `head` local (14 sites); storing
 `a0` after the if/else (14 — `a0` overshoots `s2` -> `s4`, so its live range
 IS the right axis but that move is too big); giving the copy loop its own
-`char *dst` (12).
+`char *dst` (12); recomputing `head` inline at the `f14` store to make its
+pseudo later (6, no change — gcc CSEs it back); a local `SplitReq *q` for
+the header stores to force a second address root (6, no change — gcc CSEs
+the pointer).  **Both of the "obvious" dual-root spellings are therefore
+refuted**; the second address ROM derives (`daddu a3,s2,zero`) is not
+reachable by naming an extra pointer in the source.
 
 **Residual, 6 sites, two classes:**
 
@@ -1764,6 +1771,17 @@ it fails the call-site half, so the class is empty here.
 
 **Mechanisms found across these passes that generalise beyond their functions** (run these as a first-diff checklist BEFORE any allocation reasoning):
 
+0aa. **ONE SPELLING PER SYMBOL.**  Referencing one symbol through two
+   declarations — say `extern char D_X[]` for a call argument and an
+   `__asm__`-aliased `extern int D_X_w[]` for a field access — makes gcc
+   materialize **two `%hi` values for it**, costing an extra register and,
+   in a function that already needs many, an extra callee-saved slot and a
+   larger frame.  Field accesses AND call arguments must go through the
+   same declaration.  This is what made *partial* §5.10 application score
+   WORSE than not applying it at all on `func_0024FA50` (22/22/20 sites vs
+   15), and fixing it was what satisfied that function's frame gauge.
+   Corollary: when a symbol needs two different C types, pick one and cast
+   at the use, rather than declaring it twice.
 0. **`-G 8` makes a small `extern` scalar $gp-relative.**  A 1- or 4-byte
    `extern int D_X;` is small data, so gcc emits `lw v0,0(gp)` where the ROM
    has a far `%hi`/`%lo` pair.  Declaring it an **incomplete array**
@@ -2264,7 +2282,7 @@ gets a reference implementation.  VENDOR.md §8 flags the likely cause
 which if confirmed makes §3a attribution *more* likely for this group than
 for V5, not less.
 
-### V4 status — 26 landed 2026-07-29 (5,212 B), 26 left
+### V4 status — 27 landed 2026-07-29 (5,276 B), 25 left
 ### V4 status — 9 landed 2026-07-29 (820 B), 43 left
 
 | func | insns | outcome |
@@ -2278,6 +2296,7 @@ for V5, not less.
 | `func_00260BA0` | 22 | left, rc2 / 2 sites — the init/exit chain walker.  gcc emits one extra `lw` of `*D` in the loop preheader.  Refuted: plain `while`, guarded `do`-`while`, guarding through a separate temp, and `p` as an explicit loop variable (the last regresses rc to 12 at the same 2 sites).  All four are the same axis — the loop's rotation — so the next attempt should change the DATA MODEL (the cursor is a `void (**)(void)` held in a global; the ROM reloads that global every iteration, which is a `volatile`-ish or aliasing property, not a loop-form one). |
 | `func_0024D848` | 46 | **LANDED** — the template plus a verbosity-gated log line. |
 | `func_0024D900` | 46 | **LANDED** — the template plus a busy flag raised across the request.  Needed TWO volatiles, both argued for by the ROM's own codegen: the flag (without it gcc annuls the flag store into a `bgezl` delay slot where the ROM has a plain `bgez`), and the semaphore **for this body only** (the ROM leaves this function's unlock-call delay slot EMPTY — same signature).  Typing the shared `D_0055092C` volatile fixes this body and REGRESSES the three siblings, so it is bound through a per-function `__asm__` alias.  The last two sites were a v0/v1 swap that no source ORDER change touched and that vanished when the intermediate locals were removed and the body written in exactly the siblings' shape — **fewer named temporaries, not different ones**. |
+| `func_00246B38` | 16 | **LANDED** — dispatcher thread body: drain the queue, block on the kernel when empty, never return.  Two shape steps: an `if`/`else` inside `for(;;)` gives 4 sites because the ROM rotates a NESTED drain loop (the `then` block lands ABOVE the call and entry jumps past it); the last 2 were the argument copy, which the ROM sets in the **`bnez` delay slot**, i.e. gcc placed it before the branch.  Putting the assignment INTO the condition — `while ((item = f(self)) != 0)` — is what hoists it there.  **Assignment-in-condition is not stylistic here; it is what makes the value available before the test.** |
 | `func_002504D8` | 118 | **LANDED** — the largest member (0x1D8) and the only one that was not a transcription: it copies a whole 0x40-byte `AuxReq` in from the caller with the unaligned `ldl`/`ldr` + `sdl`/`sdr` sequence of COOKBOOK §6.1.  **It needed no `packed` attribute.**  `AuxReq` is two char arrays, so its alignment is already 1 and a plain struct assignment compiles straight to the unaligned form.  §6.1's warning that "`aligned(1)` alone is NOT enough" is about a typedef of a SCALAR; for an all-char struct the alignment is structural and the block-move expander uses it directly.  Check that before reaching for the attribute. |
 | `func_0024F930` | 70 | **LANDED** — plain sub-template with a caller buffer AND a completion callback; both the buffer and the fixed 0xC0 reply area are cache-flushed, and the reply area doubles as the callback's cookie. |
 | `func_0024FF00`, `func_002500E0`, `func_002506B0` | 82-118 | **LANDED** — three more string members, each adding a wrinkle the routing table did not predict, so read them per member: `func_0024FF00` carries a caller DATA BUFFER flushed out of cache before submission (count in 64-byte blocks, `sll $5,$17,6`); `func_002500E0` is the first with a **completion callback** — it names `func_00250058` as the request's 8th argument and passes the caller's cookie as the 9th, the stack word every other member leaves zero; `func_002506B0` carries a **second name** in its own `AuxReq` block (0x20 header + 0x20 name) that the main request points at through `f10`. |
