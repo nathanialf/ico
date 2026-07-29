@@ -207,8 +207,9 @@ technique, never copy code from):
 - [`parappadev/parappa2`](https://github.com/parappadev/parappa2) — Sony
   Japan Studio, PS2 2001, **same `ee-gcc 2.9-991111-01` toolchain as
   ICO**. Useful for compiler idioms and header / macro patterns. (Its
-  per-TU `slinky` section-linking approach is used on ICO's `retail`
-  branch only; `main` is a raw splat round-trip.) See `decomp/NOTES.md`
+  per-TU `slinky` section-linking approach was used on ICO's retired
+  `retail` branch only; both live branches are raw splat round-trips.)
+  See `decomp/NOTES.md`
   for specific cross-references.
 - [`zeldaret/oot`](https://github.com/zeldaret/oot) — Ocarina of Time,
   N64. The decomp workflow this project structurally models on: splat-

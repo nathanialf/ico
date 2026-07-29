@@ -20,8 +20,10 @@ cd "${ROOT}"
 VENV_PY="${ROOT}/.venv/bin/python"
 SPLAT="${ROOT}/.venv/bin/splat"
 
-# retail-v2 is us-only; the aug6 prototype pipeline lives on `main`. VERSION
-# stays overridable via env for ad-hoc targets. Exported so child tools
+# `main` is us-only; the aug6 prototype pipeline lives on the `aug6` branch.
+# (This branch is the former `retail-v2`, renamed to `main` on 2026-07-29;
+# the old `retail` and `retail-v2` branches are gone.) VERSION stays
+# overridable via env for ad-hoc targets. Exported so child tools
 # (gen_ninja.py) see it.
 VERSION="${VERSION:-us}"
 export VERSION
@@ -47,19 +49,20 @@ split() {
     "${VENV_PY}" tools/patch_splat.py
     echo "==> running splat against ${SPLAT_YAML}"
     "${SPLAT}" split "${SPLAT_YAML}"
-    # aug6 is a clean, raw round-trip: splat reproduces the original layout
+    # This target is a clean, raw round-trip: splat reproduces the original layout
     # byte-for-byte via config (align: 0x80, .reginfo subseg) + the
     # patch_splat.py aug6 layout/sub-word-tail patches. There is deliberately
     # NO linker-script post-processing and NO data->typed-C migration — data is
     # placed by per-TU yaml carving + dot-form subsegments, and noncontiguous
     # data blocks land via the carved selectors splat emits in a single pass.
-    # The retail postprocess/slinky machinery lives on the `retail` branch.
+    # The old postprocess/slinky machinery lived on the retired `retail`
+    # branch (deleted 2026-07-29); this rebuild deliberately has none.
     #
     # box.o: functions written in shipped-VMA order across box.c + the
     # block-#included src/switch.c (BOX_SWBLK guards), so the default single
     # .text glob lays them out correctly — no -ffunction-sections, no
     # trace-reorder postprocess.
-    echo "==> aug6: raw pipeline (no postprocess, no data-migration)"
+    echo "==> ${VERSION}: raw pipeline (no postprocess, no data-migration)"
 }
 
 setup() {
