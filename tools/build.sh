@@ -20,13 +20,14 @@ cd "${ROOT}"
 VENV_PY="${ROOT}/.venv/bin/python"
 SPLAT="${ROOT}/.venv/bin/splat"
 
-# main is aug6-only; the retail (us) pipeline + its postprocess/slinky tooling
-# live on the `retail` branch. VERSION stays overridable via env for ad-hoc
-# targets. Exported so child tools (gen_ninja.py) see it.
+# `aug6` is aug6-only; the retail (us) pipeline lives on `main`. (This branch
+# was `main` until the 2026-07-29 rename; the postprocess/slinky tooling lived
+# on the `retail` branch, now deleted.) VERSION stays overridable via env for
+# ad-hoc targets. Exported so child tools (gen_ninja.py) see it.
 VERSION="${VERSION:-aug6}"
 export VERSION
 # aug6 branch: the prototype baseelf lives under baserom/aug6/ so it does not
-# collide with retail's baserom/baseelf.rom in the (gitignored, branch-shared)
+# collide with main's baserom/baseelf.rom in the (gitignored, branch-shared)
 # working tree. Overridable via env for ad-hoc targets.
 BASEROM="${BASEROM:-baserom/aug6/baseelf.rom}"
 SPLAT_YAML="config/ico.${VERSION}.yaml"

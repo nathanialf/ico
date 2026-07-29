@@ -33,15 +33,18 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-# Version slug selects the target's config namespace. Defaults to 'us' (retail)
-# so the retail build is unaffected; the aug6 prototype branch sets VERSION=aug6.
+# Version slug selects the target's config namespace. This is the `aug6`
+# prototype branch, so it defaults to 'aug6'; `main` (USA retail) defaults to
+# 'us'. (The comment here previously claimed a 'us' default, which never
+# matched the code below.)
 VERSION = os.environ.get("VERSION", "aug6")
 DEPS_FILE = ROOT / "config" / f"ico.{VERSION}.d"
-# main is aug6-only: link directly against splat's one-pass linker script.
+# Both live branches are raw round-trips: link directly against splat's
+# one-pass linker script.
 # Noncontiguous data blocks are placed by the carved subsegments splat emits
 # (no postprocess pass). A hand-written `linker_script_extra.ld` may add
 # per-symbol selectors for #include-coalesced TUs. The retail slinky.ld
-# pipeline lives on the `retail` branch.
+# pipeline lived on the retired `retail` branch (deleted 2026-07-29).
 LDSCRIPT = ROOT / "config" / f"ico.{VERSION}.ld"
 LDSCRIPT_EXTRA = ROOT / "config" / f"ico.{VERSION}.linker_script_extra.ld"
 AUTO_FUNCS = ROOT / "config" / f"undefined_funcs_auto.{VERSION}.txt"

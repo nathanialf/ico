@@ -16,7 +16,7 @@ Computer Entertainment / Team Ico).
 
 This targets the **Aug-6-2001 US Preview prototype** (boot ELF
 `SCUS_971.13`), not the shipped retail build (`SLUS-20218`). The retail
-pipeline lives on the `retail` branch.
+pipeline lived on the retired `retail` branch (deleted 2026-07-29).
 
 **Prototype differences:** The Cutting Room Floor documents how this preview
 differs from retail at
@@ -151,7 +151,7 @@ expected/       reference build outputs for diff comparison
   `.data`/`.sdata` subsegments in `config/ico.aug6.yaml`), not a generated
   sidecar. Carved constants are written into the owning `<TU>.c` so gcc's
   emission replaces the asm-side blob. (The old `_data.c` sidecar +
-  `migrate_data_per_tu.py` flow was retail-only and is retired on `main`.)
+  `migrate_data_per_tu.py` flow was retail-only and is retired on `aug6`.)
 - **`retail_seed/src/cod/<HEX>.c`** — matched-retail reference source (the
   numbered-cod retail build), kept as a dev-shape oracle: when a clean shape is
   unclear, the retail twin shows the idiom the 2000-era dev actually wrote.
@@ -214,8 +214,9 @@ technique, never copy code from):
 - [`parappadev/parappa2`](https://github.com/parappadev/parappa2) — Sony
   Japan Studio, PS2 2001, **same `ee-gcc 2.9-991111-01` toolchain as
   ICO**. Useful for compiler idioms and header / macro patterns. (Its
-  per-TU `slinky` section-linking approach is used on ICO's `retail`
-  branch only; `main` is a raw splat round-trip.) See `decomp/NOTES.md`
+  per-TU `slinky` section-linking approach was used on ICO's retired
+  `retail` branch only; both live branches are raw splat round-trips.)
+  See `decomp/NOTES.md`
   for specific cross-references.
 - [`zeldaret/oot`](https://github.com/zeldaret/oot) — Ocarina of Time,
   N64. The decomp workflow this project structurally models on: splat-
