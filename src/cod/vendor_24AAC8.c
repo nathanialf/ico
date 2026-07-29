@@ -1047,9 +1047,58 @@ int func_0024D7B0(void) {
     return v;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024D848);
+extern char D_0062E918[];
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024D900);
+/* Same template as func_0024D718, plus a verbosity-gated log line. */
+int func_0024D848(void) {
+    int *p;
+    int v;
+    if (func_0024CCD0(2) == 0) {
+        return -1;
+    }
+    p = D_00551B00;
+    if (func_00246458(D_00552348, 0xC, 0, 0, 0, p, 4, 0, 0) < 0) {
+        func_00100540(D_0055092C[0]);
+        return -1;
+    }
+    v = *(int *)((int)p | 0x20000000);
+    func_00100540(D_0055092C[0]);
+    if (D_00550910[0] >= 2) {
+        func_001019E0(D_0062E918);
+    }
+    return v;
+}
+
+/* Same symbol as D_0055092C above, typed volatile for this function
+ * only: the ROM leaves the unlock call's delay slot EMPTY here, which is
+ * the signature of a memory reference the assembler may not move.  The
+ * siblings above match with the plain typing, so the difference is local
+ * to this body. */
+extern volatile int D_0055092C_v[] __asm__("D_0055092C");
+
+extern volatile int D_00550954[];
+
+/* Same template again, with a busy flag raised across the request. */
+int func_0024D900(void) {
+    int *p;
+    int v;
+    if (func_0024CCD0(0x1E) == 0) {
+        return 0;
+    }
+    p = D_00551B00;
+    D_00550954[0] = 8;
+    if (func_00246458(D_00552348, 0x16, 0, 0, 0, p, 4, 0, 0) >= 0) {
+        goto ok;
+    }
+    func_00100540(D_0055092C_v[0]);
+    D_00550954[0] = 0;
+    return 0;
+ok:
+    D_00550954[0] = 0;
+    v = *(int *)((int)p | 0x20000000);
+    func_00100540(D_0055092C_v[0]);
+    return v;
+}
 
 extern int D_00552370[];
 extern int D_00717BD8[];

@@ -244,7 +244,40 @@ void *func_0024F3F8(int *a0, int *a1) {
     return D_00717FC0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_0024F428);
+extern char D_00718040[];
+extern int func_00100570(int sema);
+extern void func_00100540(int sema);
+extern int func_00246458();
+
+/* Take the device lock, refuse if the device is not open, publish the
+ * argument into the shared request block and submit it.  On success the
+ * lock is HELD (the completion path releases it) and the request tag is
+ * recorded; on failure it is released here. */
+int func_0024F428(int arg) {
+    char *dev;
+    char *blk;
+    int r;
+    if (func_00100570(D_005523D4[0]) < 0) {
+        return -0xC8;
+    }
+    dev = D_00717FC0;
+    if (*(int *)(dev + 0x24) == 0) {
+        func_00100540(D_005523D4[0]);
+        return -0x64;
+    }
+    blk = D_00718040;
+    *(int *)(blk + 0x14) = arg;
+    r = func_00246458(dev, 0x14, 1, blk, 0x30, D_00719580, 4, 0, 0);
+    if (r != 0) {
+        goto unlock;
+    }
+    *(int *)D_005523D0 = 0x14;
+    goto done;
+unlock:
+    func_00100540(D_005523D4[0]);
+done:
+    return r;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_0024F4E0);
 
@@ -260,7 +293,33 @@ int func_0024F6D8(int a0, int a1, int a2) {
     return ret;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_0024F710);
+/* Take the device lock, refuse if the device is not open, publish the
+ * argument into the shared request block and submit it.  On success the
+ * lock is HELD (the completion path releases it) and the request tag is
+ * recorded; on failure it is released here. */
+int func_0024F710(int arg) {
+    char *dev;
+    int r;
+    if (func_00100570(D_005523D4[0]) < 0) {
+        return -0xC8;
+    }
+    dev = D_00717FC0;
+    if (*(int *)(dev + 0x24) == 0) {
+        func_00100540(D_005523D4[0]);
+        return -0x64;
+    }
+    *(int *)D_00718040 = arg;
+    r = func_00246458(dev, 0x3, 1, D_00718040, 0x30, D_00719580, 4, 0, 0);
+    if (r != 0) {
+        goto unlock;
+    }
+    *(int *)D_005523D0 = 0x3;
+    goto done;
+unlock:
+    func_00100540(D_005523D4[0]);
+done:
+    return r;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_0024F7C8);
 
@@ -357,7 +416,33 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_00250230);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_002502F8);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_00250420);
+/* Take the device lock, refuse if the device is not open, publish the
+ * argument into the shared request block and submit it.  On success the
+ * lock is HELD (the completion path releases it) and the request tag is
+ * recorded; on failure it is released here. */
+int func_00250420(int arg) {
+    char *dev;
+    int r;
+    if (func_00100570(D_005523D4[0]) < 0) {
+        return -0xC8;
+    }
+    dev = D_00717FC0;
+    if (*(int *)(dev + 0x24) == 0) {
+        func_00100540(D_005523D4[0]);
+        return -0x64;
+    }
+    *(int *)D_00718040 = arg;
+    r = func_00246458(dev, 0xA, 1, D_00718040, 0x30, D_00719580, 4, 0, 0);
+    if (r != 0) {
+        goto unlock;
+    }
+    *(int *)D_005523D0 = 0xA;
+    goto done;
+unlock:
+    func_00100540(D_005523D4[0]);
+done:
+    return r;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_002504D8);
 

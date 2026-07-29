@@ -1599,18 +1599,19 @@ VENDOR.md §1 over the dashboard label.
 | **V1** 21 genuine port reverts — codegen | 5 (was 14) | 536 (was 1320) | 134 | 8 | 32 | 48 | unclassified -> §3b clean-room unless archive identified |
 | **V2** 52 handwritten-asm twins solved on aug6 | 2 (was 52) | 144 (was 7324) | 36 | 12 | 18 | 24 | §3b clean-room (already re-derived on aug6) |
 | **V3** 40 head functions | 14 (was 40) | 3416 (was 5056) | | 14 | | 370 | §3b proprietary (crt0 + libkernl, VENDOR.md §1) |
-| **V4** 52 tail functions with no aug6 twin | 43 (was 52) | 26292 (was 27112) | | 22 | | 1350 | unclassified -> §3b clean-room unless archive identified |
+| **V4** 52 tail functions with no aug6 twin | 38 (was 52) | 25384 (was 27112) | | 22 | | 1350 | unclassified -> §3b clean-room unless archive identified |
 | **V5** 261 tail functions, aug6 twin unmatched | 261 | 118972 | 29743 | 24 | 74 | 1140 | mixed: 13 in the fdlibm window are §3a; rest unclassified |
 | **V6** 1 blocked (inter-section pad) | 1 | 92 | 23 | 23 | 23 | 23 | n/a — blocked |
-| | **341** (was 427) | **149,704** | | | | | |
+| | **336** (was 427) | **148,784** | | | | | |
 
-**Landed 2026-07-29, three passes: 101 functions / 11,860 B.**
+**Landed 2026-07-29, four passes: 106 functions / 12,768 B.**
 Pass 1 (`vendor-1`, 66 funcs / 9,604 B): V2 50/52, V1 16/21.
 Pass 2 (`vendor-2`, 21 funcs / 1,108 B): V3a 11/11, V3b 10/26 + the carve.
 Pass 3 (`vendor-3`, 14 funcs / 1,148 B): V3b 5 more (15/26), V4 first 9.
-Vendor moves 521/945 -> **607/948** functions and 34,144 -> **45,292 B**
-(17.51 % -> 23.23 %); `.text` 16.81 % -> **19.10 %**.  The unmatched vendor
-total is now **341 functions / 149,704 B** (figures from
+Pass 4 (`vendor-4`, 5 funcs / 908 B): V4 14/52 — two template families closed.
+Vendor moves 521/945 -> **612/948** functions and 34,144 -> **46,212 B**
+(17.51 % -> 23.70 %); `.text` 16.81 % -> **19.29 %**.  The unmatched vendor
+total is now **336 functions / 148,784 B** (figures from
 `docs/progress.json`, whose byte denominators are span-derived).
 
 **Two mechanisms found this pass generalise beyond their functions:**
@@ -1626,6 +1627,18 @@ total is now **341 functions / 149,704 B** (figures from
    Confirmed twice now — `func_002456F8` and `func_00246B78` — so write the
    second one first.  Where the pair is the last thing in the function this
    is also what leaves the second store in the `jr` delay slot.
+0d. **Two globals used both as a field base and as a call argument want a
+   CACHED POINTER.**  The ROM forms the address once and reuses the
+   register; spelling the field access as `*(int *)(D_X + off)` and the
+   argument as a separate `D_X` makes gcc derive the address twice and
+   costs several sites in addressing alone.  The inverse also occurs in
+   the same family — where the ROM folds `%lo` into the store and forms
+   the full address only for the argument, the plain (uncached) form is
+   right.  **Read which one the ROM did; do not assume.**
+0e. **Fewer named temporaries, not different ones.**  A residual v0/v1 swap
+   that survives every reordering often disappears when intermediate
+   locals are deleted and the body is written in the same shape as a
+   matched sibling.
 0c. **Recover the data model before fighting the allocator.**
    `func_00100FB0` sat at a wholesale register permutation (base and entry
    pointers swapped) that neither caching the pointer nor reordering
@@ -2115,7 +2128,7 @@ gets a reference implementation.  VENDOR.md §8 flags the likely cause
 which if confirmed makes §3a attribution *more* likely for this group than
 for V5, not less.
 
-### V4 status — 9 landed 2026-07-29 (820 B), 43 left
+### V4 status — 14 landed 2026-07-29 (1,728 B), 38 left
 
 | func | insns | outcome |
 |---|--:|---|
@@ -2126,7 +2139,9 @@ for V5, not less.
 | `func_00246C60` | 28 | **LANDED** — hands out the i'th 16-byte slot.  Returns `void *`, per the declaration an already-matched sibling makes. |
 | `func_0024CB28`, `func_0024D718`, `func_0024D7B0` | 38 each | **LANDED** — one template: gate on a per-device check, register a 9-argument request (8 in `$a0`-`$t3` plus one stack word), and on success read the slot's first word back through UNCACHED space (the peer writes it by DMA).  The uncached read sits in the unlock call's delay slot, so it is spelled before the unlock in C.  `func_0024D7B0` returns **-1** on both failure paths where the other two return 0. |
 | `func_00260BA0` | 22 | left, rc2 / 2 sites — the init/exit chain walker.  gcc emits one extra `lw` of `*D` in the loop preheader.  Refuted: plain `while`, guarded `do`-`while`, guarding through a separate temp, and `p` as an explicit loop variable (the last regresses rc to 12 at the same 2 sites).  All four are the same axis — the loop's rotation — so the next attempt should change the DATA MODEL (the cursor is a `void (**)(void)` held in a global; the ROM reloads that global every iteration, which is a `volatile`-ish or aliasing property, not a loop-form one). |
-| `func_0024D848`, `func_0024D900` | 46 each | same family as the three above, plus extra work (an init call, a second table).  Should fall to the same template. |
+| `func_0024D848` | 46 | **LANDED** — the template plus a verbosity-gated log line. |
+| `func_0024D900` | 46 | **LANDED** — the template plus a busy flag raised across the request.  Needed TWO volatiles, both argued for by the ROM's own codegen: the flag (without it gcc annuls the flag store into a `bgezl` delay slot where the ROM has a plain `bgez`), and the semaphore **for this body only** (the ROM leaves this function's unlock-call delay slot EMPTY — same signature).  Typing the shared `D_0055092C` volatile fixes this body and REGRESSES the three siblings, so it is bound through a per-function `__asm__` alias.  The last two sites were a v0/v1 swap that no source ORDER change touched and that vanished when the intermediate locals were removed and the body written in exactly the siblings' shape — **fewer named temporaries, not different ones**. |
+| `func_0024F428`, `func_0024F710`, `func_00250420` | 46-54 | **LANDED** — the device-request family: take the device lock, refuse if the device is not open, publish the argument into the shared request block and submit it.  On success the lock stays HELD (the completion path releases it) and the tag is recorded.  Four levers, in the order they mattered: (1) the device handle is a **cached pointer**, formed once into `$a0` and used both for the "is it open" field read and as the call's first argument — spelling it `*(int *)(D_X + 0x24)` plus a separate `func(D_X, …)` costs 6 sites in addressing alone; (2) the unlock path must be OUT OF LINE (`goto`) or gcc inverts the branch; (3) both paths must reach a **shared tail** or gcc const-folds the success path's `return r` to `return 0`, where the ROM returns the register; (4) `func_0024F428` needs the request BLOCK cached too (it stores at +0x14 and passes the same pointer) while the other two store at +0 and match with the plain form — same family, opposite answer, and the ROM says which each time. |
 
 Original smallest-first list:
 
