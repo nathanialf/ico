@@ -3165,3 +3165,134 @@ A blanket `replace` of a two-line declaration pattern silently edited the
 `INCLUDE_ASM` diff does not catch that, but re-running the oracle on the
 neighbouring matched function did.  When editing by text substitution, assert on
 the occurrence count.
+
+
+# conv-15 / branch `acttails-6` — the nested-function class is 51 functions, not 2
+
+The conv-14 proof made a cheap mechanical test possible, so I ran it over every
+unmatched function in the tree.  **The class is far larger than the two known
+members.**
+
+## The test (two independent conditions, both must hold)
+
+1. **Callee side** — `$2` is READ before it is written, and before the first
+   call, in the function's prologue.  (`tough_nuts/acttails_near_misses/scan_static_chain.py`)
+2. **Caller side** — at the single call site, `$2` is set from the caller's
+   `$sp` (`daddu $2,$29,$0`) within the `jal`'s delay slot or the three insns
+   before it, AND the callee is emitted at a LOWER address than the caller,
+   because gcc emits nested functions before their parent.
+   (`tough_nuts/acttails_near_misses/scan_static_chain_callsites.py`)
+
+Condition 2's address ordering is the part that rules out a custom-ABI reading:
+no calling convention explains why the callee is always laid out first.
+
+## Result: 51 confirmed pairs, 0 counterexamples
+
+Every pair that passes condition 1 and has a chain-setting call site ALSO has
+the callee emitted first — 51 for 51.  Spot-checked by hand against the ROM for
+`GetBoyMode`/`actGirlHand`, `CheckEnemyBrainMode`/`BrainMode_Requset`,
+`actGirlDitch3mExec`/`actGirlBHang` and `func_00163890`/`ChangeBrain_ToAttack`.
+
+Note two refinements the sample shows:
+* a nested function may ALSO take ordinary parameters — `GetBoyMode` and
+  `CheckEnemyBrainMode` take arguments in `$4`/`$5` alongside the chain in `$2`;
+* the caller is not always the obvious neighbour — `actGirlDitch3mExec`'s
+  parent is `actGirlBHang`, not the adjacent `func_00173060`.  Always confirm
+  from the call site rather than from layout.
+
+CONFIRMED pairs (callee <- parent), grouped by TU:
+
+  DisplayFont            func_001FAE98                  <- dl_Init
+  Primitive              prim_DispMesh3D                <- prim_DispParticle
+  Primitive              prim_DispWireSphere            <- reg_setShape
+  RegistPacket           reg_resetDissolve              <- reg_dispNObj
+  RegistPacket           reg_setCMatrixPacket           <- reg_transMaterialPacket
+  Shadow                 __GetCameraPos                 <- func_001224E0
+  Shadow                 shadow_Render                  <- shadow_getShadowVectorAverage
+  Shadow                 shadow_getShadowVectorAverage  <- shadow_EntryClusterShadow
+  act-game               ACTGame_LwsEffectProcess       <- _ACTGame_SearchGObj
+  boyact                 UpdateGeo                      <- BoyBgaManager
+  camera-editor          menuPinSelect                  <- menuPinEdit
+  commonact              DamageFunc                     <- actCommonDown
+  commonact              DownFunc                       <- actCommonDown
+  commonact              EBRAIN_SEND_MES                <- actCommonDown
+  commonact              func_00158328                  <- actCommonRope
+  debug                  debug_brainBar                 <- debug_MakeBarString
+  debug                  draw_shikaku                   <- debug_MakeBarString
+  enemy_act              CheckEnemyBrainMode            <- BrainMode_Requset
+  enemy_act              GetFlyPosition                 <- NakaBoss
+  enemy_act              func_00163890                  <- ChangeBrain_ToAttack
+  girlForceField         func_001D1D00                  <- getBone
+  girl_act               GetBoyMode                     <- actGirlHand
+  girl_act               IsGirlStatusEscortEnable       <- DebugDispAutoEscort
+  girl_act               actGirlDitch3mExec             <- actGirlBHang
+  girl_act               actGirlReadyMove               <- actGirlRescueDst
+  girl_act               actGirlRun                     <- actGirlBHang
+  girl_act               func_0016F2A8                  <- actGirlSupportBGBegin
+  girl_act               func_00170950                  <- ACTGame_GirlBeforeFunc
+  girl_act               func_00170ED8                  <- actGirlSupportGBBegin
+  girl_act               subGirlBrain_Pulledup          <- ATGoalTurnMail
+  motionManager          func_001DE588                  <- func_001DE6B8
+  motionManager2         _getS16MotRotElem              <- _getMotion
+  quaternion             GetQuaternionFromMatrix        <- CopyQuaternion
+  soundManager           func_00148278                  <- func_00148340
+  soundManager           func_00148E60                  <- func_00149210
+  soundManager           func_00149768                  <- func_00149898
+  stageMultiBgaManager   func_001EC168                  <- func_001ECCA0
+  stageMultiBgaManager   func_001EC2E0                  <- func_001ECCA0
+  stageMultiBgaManager   func_001EC410                  <- func_001ECCA0
+  stageMultiBgaManager   func_001EC5C0                  <- func_001EC9A8
+  stageMultiBgaManager   func_001EC6F8                  <- func_001EC9A8
+  stageMultiBgaManager   func_001EC9A8                  <- func_001ECCA0
+  stageMultiBgaManager   func_001ED238                  <- blur
+  stageMultiBgaManager   func_001ED2F8                  <- blur
+  stageMultiBgaManager   func_001ED3C8                  <- blur
+  stageMultiBgaManager   func_001ED608                  <- blur
+  staticBlur             auraInspireBefore              <- copyAlphaChannelOfWork0ToFeedBackArea
+  staticBlur             blendWork0ToWork1              <- testAA
+  staticBlur             blurBlendFeedBackAreaToWork1   <- testAA
+  staticBlur             parallelAddFeedBackAreaToWork0 <- testAA
+  staticBlur             reduceCopyAlphaChannelOfWork1ToWork0 <- copyAlphaChannelOfWork0ToFeedBackArea
+
+## Why this matters for the queue
+
+Sixteen TUs are affected, several of them outside the act/script scope
+(`staticBlur` 5, `stageMultiBgaManager` 10, `soundManager` 3, `Shadow` 3,
+`commonact` 4, `Primitive`/`RegistPacket`/`DisplayFont`/`quaternion`/… ).
+Each of these is unmatchable in isolation and will burn a worker's pass if
+queued as ordinary leaf work — the callee has to be written INSIDE its parent
+and the two land together.  **Any queue entry naming one of the 51 above should
+be re-labelled as a nested-function pair before it is handed out.**
+
+Recipe is in conv-14: define the callee inside the parent's body, force the
+symbol with `void callee(...) __asm__("<name>");` before the definition, keep
+the call direct (taking its address generates a trampoline), and expect the
+"static declaration follows non-static" warning.
+
+## conv-15 addendum — the nested pair is still at inner 5 / outer 22
+
+§13.4 (goto-CFG tails written OUT OF LINE rather than nested `else`) was applied
+to the inner function's three-way mode select and does NOT move it.  Measured,
+all on `func_00163890`:
+
+| shape | sites |
+|---|--:|
+| `if / else if / else` (draft baseline) | **5** |
+| goto-CFG, tails out of line, one shared continuation | 9 |
+| goto-CFG with the mode==0 tail DUPLICATED (mirrors ROM's layout literally) | 5 |
+| early-`return` after the mode==0 arm | 5 |
+| `switch` | 10 |
+| nested `if` | 9 |
+
+So five distinct CFG spellings all land on 5 sites and none reproduces ROM's
+partial tail-duplication.  Do not spend another pass on CFG spelling.
+
+The suspicious construct is not the mode select at all — it is
+`if (D_00633D00 != 0)`, a test of an ARRAY's address, which is always true.
+ROM keeps the test AND threads it inconsistently: the `mode == 0` arm resolves
+it one way (`bnez $4` -> the `$7` store) while the shared arm keeps the
+opposite branch (`beqz $4` -> the `$8`/`D_00632390` store).  That is a
+partially-resolved jump-threading of a known-true condition, and getting gcc to
+half-resolve it is what the residual actually is.  Next lever should target
+that construct's data model (what IS `D_00633D00`, and is the test really on
+its address?) rather than the enclosing control flow.
