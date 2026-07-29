@@ -1618,6 +1618,9 @@ Pass 7 (`vendor-7`, 3 funcs / 1,040 B): V4 24/52 — string sub-template now
 Pass 8 (`vendor-8`, 2 funcs / 756 B): V4 26/52 — string sub-template **7 of
 7**; the family is **15 landed members**, one left (`func_0024FA50`, handoff
 below).
+Pass 9 (`vendor-9`, 0 funcs): no match landed.  `func_0024FA50` driven from
+15 sites to **6** with the frame-size gauge satisfied; three levers and
+three refutations recorded, best body parked under `tough_nuts/`.
 Vendor moves 521/945 -> **624/948** functions and 34,144 -> **49,708 B**
 (17.51 % -> 25.49 %); `.text` 16.81 % -> **19.52 %**.  The unmatched vendor
 total is now **324 functions / 145,288 B** (figures from
@@ -1634,7 +1637,7 @@ Sort a candidate with two greps before writing any C: does it call
 | string | 0x414 | calls `func_00265570` | **all 7 landed** |
 | many-store, no copy | 0x30 | no name copy, 5-8 block stores | `func_0024F930` landed; **`func_0024FA50` remains** — see the handoff below |
 
-### `func_0024FA50` — analysed, NOT matched: 15 sites, handoff
+### `func_0024FA50` — NEAR MISS at 6 sites (was 15), handoff
 
 **The last unlanded family member (0x17C), and the only one with real
 control flow.**  Its purpose: SPLIT an unaligned transfer.  Everything up to
@@ -1669,27 +1672,49 @@ int func_0024FA50(int a0, char *addr, int len) {          /* 6, tag 6 */
 }
 ```
 
-**Residual is a whole-function register-class difference, not a local tie.**
-The ROM's frame is **0x80** and it holds SIX callee-saved values — `a0`,
-`addr`, `len`, and the `%hi` of all three of `D_00718040`, `D_005523D4`,
-`D_00717FC0` (`$19,$17,$16,$18,$20,$21`).  Every shape tried so far gives a
-**0x70** frame, i.e. gcc keeps one fewer.  Measured:
+**The frame-size gauge is now SATISFIED and the residual is down to 6 sites.**
+The current best body is parked at
+`tough_nuts/vendor_near_misses/func_0024FA50.c` — read it before starting.
 
-| shape | sites |
-|---|--:|
-| `dev` cached in a local (the other members' winning form) | **15** |
-| `D_00717FC0` used directly, pointer arithmetic for the field | 22 |
-| §5.10 int-alias direct index on `D_00717FC0` only | 22 |
-| int-alias direct index on `D_00717FC0` **and** `D_00718040` | 20 |
+The ROM's frame is **0x80**, holding SIX callee-saved values (`a0`, `addr`,
+`len`, and the `%hi` of `D_00718040`, `D_005523D4`, `D_00717FC0`).  **Gate on
+that, not the diff count**: any shape giving **0x70** is on the wrong branch
+however few sites it shows.
 
-**Next lever:** the objective is the 0x80 frame — get all three `%hi` values
-into callee-saved registers at once.  §5.10 is the right axis (indexed array
-keeps `%hi` callee-saved; a cached pointer collapses it) but applying it to
-one or two of the three globals makes things worse, not better; the members
-that matched with a cached `dev` only reference the device ONCE after the
-lock, whereas this one references it twice across calls.  Try the direct
-index on **all three simultaneously**, including `D_005523D4`, and check the
-frame size first — it is a faster signal than the diff count.
+Three levers took it 15 -> 6, in this order:
+
+1. **ONE SPELLING PER SYMBOL** (15 -> 13, and it is what fixed the frame).
+   Referencing `D_00717FC0` as both the `char[]` and a word view makes gcc
+   materialize **two `%hi` values for one symbol**, which costs the sixth
+   callee-saved register.  This is why partially applying §5.10 scored
+   *worse* (22, 22, 20) than not applying it at all: every one of those
+   mixed the two spellings.  Field accesses AND call arguments must go
+   through the same declaration.
+2. **THE DATA MODEL** (13 -> 8).  The block is a 0x30 struct: eight header
+   words then a **0x10 inline buffer at +0x20**, which is exactly the 0x30
+   it submits.  The byte-copy loop writes that buffer.
+3. **PIN THE REASSOCIATED SUBEXPRESSION** (8 -> 6).  gcc rewrites
+   `((addr-1) & ~0xF) - (addr - 0x10)` into `((addr-1) & ~0xF) + 16 - addr`,
+   which changes both the instruction sequence and the store order.  Routing
+   `addr - 0x10` through its own local stops it.
+
+**Refuted — do not repeat:** removing the `head` local (14 sites); storing
+`a0` after the if/else (14 — `a0` overshoots `s2` -> `s4`, so its live range
+IS the right axis but that move is too big); giving the copy loop its own
+`char *dst` (12).
+
+**Residual, 6 sites, two classes:**
+
+* **(a) the block address is `$a2` in the ROM and `$a3` here**, and the ROM
+  derives the LOOP's base through a *second copy* — `daddu a3,s2,zero` then
+  `addiu a0,a3,0` — rather than re-deriving from the `%hi`.  That is the
+  dual-address idiom, but the obvious spelling for it (a `char *dst` local)
+  regresses to 12, so it needs a different route to the same shape.
+* **(b) in the else branch the ROM stores `0x18, 0xC, 0x14`** — which *is*
+  the source order in the parked body — but gcc hoists the `0x14` (head)
+  store to the front, because `head` is computed first and its store is
+  ready early.  A delay on that store, not a reorder of the source, is what
+  is wanted.
 
 **`func_002504D8` was the other one that was NOT a transcription** and it is
 now landed — see its row above.
