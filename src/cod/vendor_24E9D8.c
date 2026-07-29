@@ -279,7 +279,30 @@ done:
     return r;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_0024F4E0);
+/* Query variant of the device-request template: on success the reply word
+ * is read back out of the shared reply block rather than a tag recorded. */
+int func_0024F4E0(int arg) {
+    char *dev;
+    char *blk;
+    int r;
+    if (func_00100570(D_005523D4[0]) < 0) {
+        return -0xC8;
+    }
+    dev = D_00717FC0;
+    if (*(int *)(dev + 0x24) == 0) {
+        func_00100540(D_005523D4[0]);
+        return -0x64;
+    }
+    blk = D_00718040;
+    *(int *)(blk + 4) = arg;
+    r = func_00246458(dev, 0x15, 0, blk, 0x30, D_00719580, 4, 0, 0);
+    if (r != 0) {
+        func_00100540(D_005523D4[0]);
+        return r;
+    }
+    func_00100540(D_005523D4[0]);
+    return *(int *)D_00719580;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_0024F5A0);
 
@@ -321,7 +344,32 @@ done:
     return r;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_0024F7C8);
+/* Three-argument variant of the device-request template. */
+int func_0024F7C8(int a0, int a1, int a2) {
+    char *dev;
+    int r;
+    if (func_00100570(D_005523D4[0]) < 0) {
+        return -0xC8;
+    }
+    dev = D_00717FC0;
+    if (*(int *)(dev + 0x24) == 0) {
+        func_00100540(D_005523D4[0]);
+        return -0x64;
+    }
+    *(int *)D_00718040 = a0;
+    *(int *)(D_00718040 + 0x10) = a1;
+    *(int *)(D_00718040 + 0x14) = a2;
+    r = func_00246458(dev, 4, 1, D_00718040, 0x30, D_00719580, 4, 0, 0);
+    if (r != 0) {
+        goto unlock;
+    }
+    *(int *)D_005523D0 = 4;
+    goto done;
+unlock:
+    func_00100540(D_005523D4[0]);
+done:
+    return r;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_0024F8A0);
 
@@ -412,7 +460,33 @@ void func_00250058(char *a0) {
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_002500E0);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_00250230);
+/* Two-argument variant of the device-request template. */
+int func_00250230(int a0, int a1) {
+    char *dev;
+    char *blk;
+    int r;
+    if (func_00100570(D_005523D4[0]) < 0) {
+        return -0xC8;
+    }
+    dev = D_00717FC0;
+    if (*(int *)(dev + 0x24) == 0) {
+        func_00100540(D_005523D4[0]);
+        return -0x64;
+    }
+    blk = D_00718040;
+    *(int *)(blk + 4) = a0;
+    *(int *)(blk + 8) = a1;
+    r = func_00246458(dev, 0x10, 1, blk, 0x30, D_00719580, 4, 0, 0);
+    if (r != 0) {
+        goto unlock;
+    }
+    *(int *)D_005523D0 = 0x10;
+    goto done;
+unlock:
+    func_00100540(D_005523D4[0]);
+done:
+    return r;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_002502F8);
 
@@ -448,7 +522,33 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_002504D8);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_002506B0);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_00250818);
+/* Two-argument variant of the device-request template. */
+int func_00250818(int a0, int a1) {
+    char *dev;
+    char *blk;
+    int r;
+    if (func_00100570(D_005523D4[0]) < 0) {
+        return -0xC8;
+    }
+    dev = D_00717FC0;
+    if (*(int *)(dev + 0x24) == 0) {
+        func_00100540(D_005523D4[0]);
+        return -0x64;
+    }
+    blk = D_00718040;
+    *(int *)(blk + 4) = a0;
+    *(int *)(blk + 8) = a1;
+    r = func_00246458(dev, 0x11, 1, blk, 0x30, D_00719580, 4, 0, 0);
+    if (r != 0) {
+        goto unlock;
+    }
+    *(int *)D_005523D0 = 0x11;
+    goto done;
+unlock:
+    func_00100540(D_005523D4[0]);
+done:
+    return r;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24E9D8", func_002508E0);
 
