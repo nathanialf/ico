@@ -3705,3 +3705,66 @@ nothing. ROM has a spare because its `0x6B` constant is materialised one branch
 EARLIER (in the `beqz $2` delay slot at 0x60B2C) rather than inline. Getting
 the constant into the *previous* delay slot is what frees the second one.  That
 is a question about the first test's shape, not the third's.
+
+## conv-15 — commonact: `func_0015ADF0` mechanism pinned down (worker: rwt2)
+
+No matches this pass; the useful output is that the `func_0015ADF0` residual is
+now a named, measured mechanism instead of a register-permutation puzzle, plus a
+crutch removed.
+
+### Crutch removed
+
+The `int *volatile D_00631AE4__adf0v` alias — carried since the conv-9 seed to
+block a `movz` in the fallback read — is **no longer needed** on the pointer-alias
+base.  Replacing it with the plain `D_00631AE4__adf0` spelling leaves the
+divergence map byte-for-byte identical (still 4 sites / rc 6).  This is also the
+cross-worker "one spelling per symbol" finding paying off: the function now names
+`D_00631AE4` through one declaration instead of two.  Saved as
+`commonact_func_0015ADF0_s4_novolatile.c`.
+
+### Levers measured this pass, all no-change at 4 sites
+
+* `&other` routed through a pseudo (`int **op = &other;`) **on the 4-site
+  pointer-alias base** — the lever conv-14 flagged as untried there.  4 sites, no
+  change.
+* `func_00165418`'s second parameter as `void *`, `int *`, `int **` — 4 sites in
+  all three cases; the type is folded away, the argument is just an address.
+* `other` as `slot[0]` of a two-element array (conv-14) — 8 sites.
+
+### The mechanism, measured rather than modelled
+
+`-dl` on both bases gives the quantity table directly.  The `%hi`/`%lo` pair is
+**two quantities**, not one: `insn23` sets the `high` pseudo, `insn25` the
+`lo_sum` pseudo.  With `qty` numbers following birth order in the *sched1*
+output, and `block_alloc` sorting by `1/live_length` with ties on `qty`:
+
+*Order-exact base* (5 sites) — `readA` len 4, `readB` len 6, `high` len 4 born
+first (`q0`).  `high` and `readA` tie on length, `high` wins the tie on birth
+order and takes `$2`, so `readA` is pushed to `$4`.
+*Pointer-alias base* (4 sites) — the `0x15C` deref floats up beside `readB`,
+shortening `readB` to len 3.  `readB` is then allocated first and takes `$2`,
+so `readA` is again pushed off it.
+
+ROM wants `readA → $2`, `readB → $7`, deref → `$2`.  That requires `readA`
+allocated before both — i.e. **`len(readA)` must be 3, not 4**, with the
+order-exact spelling (which already gives `readB` the longer range).
+
+**This half-confirms and half-corrects the conv-13 requirement.**  `len(readA) < 4`
+is real and is the whole requirement.  `len(s164) > 4` is *not* — conv-14 already
+showed ROM's `s164` gap is one insn, the same as ours, and the `-dl` table now
+shows `s164` reaching ROM's `$6` on both bases without any length change.
+
+`readA`'s gap holds exactly two insns: `&other` (`ori $5,$29,4`) and `readB`.
+`readB` cannot move (volatile ordering).  `&other` has the block's lowest
+priority (`1 + P(call)`) and fills the first free ALU slot at t3; the only ALU
+insns that could displace it are the const chain's, which are already placed at
+t1/t2 with priority `3 + P` and `2 + P`.  So within this data model `&other` is
+pinned in the gap and `len(readA)` cannot be 3.
+
+**Next lever, stated as a property rather than a spelling:** find a data model in
+which the block has a third ALU-class computation ready at t3 that outranks
+`ori $5,$29,4`, or in which `&other` is not needed as a separate insn at all
+(e.g. the callee's pointer-out parameter reaching the same stack slot by another
+route).  Seventeen shapes measured across four passes; every one that changed the
+schedule changed it in the wrong direction, which is consistent with the data
+model — not the allocation — being what differs.
