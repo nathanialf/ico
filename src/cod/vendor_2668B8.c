@@ -52,9 +52,26 @@ int func_00268DA0(void *out, void *a1, void *a2) {
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_00268DF8);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_00268F08);
+/* Both callees are declared elsewhere in this TU with signatures that
+ * contradict the ones this loop needs; bind correctly-typed names to the
+ * same symbols. */
+extern void func_0026D430_1(int a0) __asm__("func_0026D430");
+extern void func_001000B8_1(int a0) __asm__("func_001000B8");
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_00268F28);
+void func_00268F08(void) {
+    for (;;) {
+        func_0026D430_1(6);
+        func_001000B8_1(1);
+    }
+}
+
+/* The sibling below declares this callee with one argument; the kernel
+ * entry takes two, so bind a correctly-typed name to the same symbol. */
+extern int func_0026E5C8_2(int a0, int a1) __asm__("func_0026E5C8");
+
+int func_00268F28(int a0) {
+    return func_0026E5C8_2(a0, 0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_00268F48);
 

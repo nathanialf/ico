@@ -1598,22 +1598,39 @@ VENDOR.md §1 over the dashboard label.
 | ~~**V1** 21 genuine port reverts — unresolved-symbol~~ **LANDED 2026-07-29** | 0 (was 7) | 0 (was 1664) | — | — | — | — | n/a |
 | **V1** 21 genuine port reverts — codegen | 5 (was 14) | 536 (was 1320) | 134 | 8 | 32 | 48 | unclassified -> §3b clean-room unless archive identified |
 | **V2** 52 handwritten-asm twins solved on aug6 | 2 (was 52) | 144 (was 7324) | 36 | 12 | 18 | 24 | §3b clean-room (already re-derived on aug6) |
-| **V3** 40 head functions | 19 (was 40) | 3948 (was 5056) | | 2 | | 370 | §3b proprietary (crt0 + libkernl, VENDOR.md §1) |
-| **V4** 52 tail functions with no aug6 twin | 52 | 27112 | 6778 | 7 | 82 | 1350 | unclassified -> §3b clean-room unless archive identified |
+| **V3** 40 head functions | 14 (was 40) | 3416 (was 5056) | | 14 | | 370 | §3b proprietary (crt0 + libkernl, VENDOR.md §1) |
+| **V4** 52 tail functions with no aug6 twin | 43 (was 52) | 26292 (was 27112) | | 22 | | 1350 | unclassified -> §3b clean-room unless archive identified |
 | **V5** 261 tail functions, aug6 twin unmatched | 261 | 118972 | 29743 | 24 | 74 | 1140 | mixed: 13 in the fdlibm window are §3a; rest unclassified |
 | **V6** 1 blocked (inter-section pad) | 1 | 92 | 23 | 23 | 23 | 23 | n/a — blocked |
-| | **350** (was 427) | **150,544** | | | | | |
+| | **341** (was 427) | **149,704** | | | | | |
 
-**Landed 2026-07-29, two passes: 87 functions / 10,712 B.**
+**Landed 2026-07-29, three passes: 101 functions / 11,860 B.**
 Pass 1 (`vendor-1`, 66 funcs / 9,604 B): V2 50/52, V1 16/21.
 Pass 2 (`vendor-2`, 21 funcs / 1,108 B): V3a 11/11, V3b 10/26 + the carve.
-Vendor moves 521/945 -> **598/948** functions and 34,144 -> **44,452 B**
-(17.51 % -> 22.80 %); `.text` 16.81 % -> **18.87 %**.  The unmatched vendor
-total is now **350 functions / 150,544 B** (figures from
+Pass 3 (`vendor-3`, 14 funcs / 1,148 B): V3b 5 more (15/26), V4 first 9.
+Vendor moves 521/945 -> **607/948** functions and 34,144 -> **45,292 B**
+(17.51 % -> 23.23 %); `.text` 16.81 % -> **19.10 %**.  The unmatched vendor
+total is now **341 functions / 149,704 B** (figures from
 `docs/progress.json`, whose byte denominators are span-derived).
 
 **Two mechanisms found this pass generalise beyond their functions:**
 
+0. **`-G 8` makes a small `extern` scalar $gp-relative.**  A 1- or 4-byte
+   `extern int D_X;` is small data, so gcc emits `lw v0,0(gp)` where the ROM
+   has a far `%hi`/`%lo` pair.  Declaring it an **incomplete array**
+   (`extern int D_X[];`, used as `D_X[0]`) restores far addressing.  This
+   turned up three separate times in pass 3 and is the single most common
+   first-diff on a vendor function that reads a global.
+0b. **Two stores of the SAME value come out in REVERSE source order.**
+   sched1 flips that pair (and schedules an unrelated store between them).
+   Confirmed twice now — `func_002456F8` and `func_00246B78` — so write the
+   second one first.  Where the pair is the last thing in the function this
+   is also what leaves the second store in the `jr` delay slot.
+0c. **Recover the data model before fighting the allocator.**
+   `func_00100FB0` sat at a wholesale register permutation (base and entry
+   pointers swapped) that neither caching the pointer nor reordering
+   touched; writing the object as the struct it actually is — an 8-byte
+   header followed by 512 two-byte records — went straight to 0 sites.
 1. **gcc's `#.set volatile` marker blocks the period assembler's
    delay-slot fill.**  Three functions so far end at exactly this residual
    (`func_002453D0`, `func_001010C8`, and it is what cost `func_002456F8` a
@@ -2011,6 +2028,23 @@ last statement of BOTH arms is what turns the two tails into `j`; as
 `int { return f(); }` gcc emits a real `jal`.  That is the inverse of the
 usual `int_return_shape` lever, so check which way round the ROM is.
 
+**Landed in pass 3 (2026-07-29), 5 more (532 B), taking the span to 15/26:**
+
+* `func_00101B68` / `func_00101BA0` — two more four-word request wrappers,
+  third argument masked to 16 bits.
+* `func_00100FB0` — the kernel event ring.  Needed BOTH the `-G 8`
+  incomplete-array lever and the struct data model (see the two mechanism
+  notes in the group summary above).
+* `func_00100F18` / `func_00101030` — the same routine with a different
+  fallback callee and event code.  They issue the thread-id syscall
+  **inline** rather than calling a leaf, which `SYSCALL_WRAPPER` cannot
+  express, so `include/syscall.h` gained `SYSCALL_INLINE(num, dst)`.  The
+  destination is bound to `$v0` explicitly — the result arrives there by the
+  kernel ABI and a plain `"=r"` output would let gcc pick a register the
+  kernel never writes.  That is operand binding, not a scheduling pin.
+  Note the fallback path returns the CALLEE's value (the ROM skips the
+  `daddu v0,s0` there), so it must be spelled `return fallback();`.
+
 **Left in this span, with mechanisms:**
 
 | func | insns | state |
@@ -2018,7 +2052,11 @@ usual `int_return_shape` lever, so check which way round the ROM is.
 | `func_001010C8` | 14 | rc2 — **the `#.set volatile` delay-slot class again** (see V1b): the ROM puts the `sb` to the DECI2 data port in the `jr` delay slot; the store is a genuine MMIO poke so `volatile` is correct, and with it the assembler will not move it.  Everything else matches. |
 | `func_00101A40` | 18 | rc9 / 4 sites — critical-section *entry* (spin on `DI()` until Status shows interrupts off).  CFG polarity is solved (the loop must be the fall-through, the zero path the `else`).  Residual: ROM keeps the `was` result in `$4` and copies it to `$2` at each of two duplicated tails, where gcc coalesces it straight into `$2`; and ROM remats the 0x10000 mask inside the loop where gcc hoists it.  Splitting the entry read from the loop's confirm read into two locals swaps `$2`/`$3` wholesale rather than fixing it — a different axis is needed. |
 | `func_00101AA0` | 18 | rc5 / 4 sites — the four-word request block with all four words used.  Purely a sched1 ordering: ROM interleaves the `%hi/%lo`+`or` address computation with the argument stores (`andi` at index 4, `sw a0,0(sp)` at 7), gcc front-loads both.  Neither storing `args[1]` before `args[0]` nor hoisting the address into a local improves it (both go to 5 sites). |
-| the remaining 15 | 24-370 | untouched |
+| `func_001011E8` | 36 | untouched — 64-bit float bit-twiddling (exponent extract against the 0x433 double bias, then a shift-and-round).  A §5.11 `long long` shape. |
+| `func_00100C90` / `func_00100D68` / `func_00100E40` | 54 each | untouched — init routines with many unattributed globals. |
+| `func_00101100` | 44 | untouched |
+| `func_00101278` | 90 | untouched |
+| `func_001013E0` | 370 | untouched — the printf engine. |
 
 Original table of the whole V3b population follows.
 
@@ -2077,7 +2115,20 @@ gets a reference implementation.  VENDOR.md §8 flags the likely cause
 which if confirmed makes §3a attribution *more* likely for this group than
 for V5, not less.
 
-Smallest-first:
+### V4 status — 9 landed 2026-07-29 (820 B), 43 left
+
+| func | insns | outcome |
+|---|--:|---|
+| `func_00268F28` | 7 | **LANDED** — forwards with an added zero argument |
+| `func_00268F08` | 16 | **LANDED** — the kernel's terminal loop |
+| `func_0024E670` / `func_0024E760` | 14 each | **LANDED** — index a small table and tail-call the setter, or fall back to a default byte.  Both needed the `-G 8` incomplete-array lever for the 1-byte default. |
+| `func_00246B78` | 23 | **LANDED** — lazily creates the two semaphores guarding the slot table.  Needed the same-valued-store reversal. |
+| `func_00246C60` | 28 | **LANDED** — hands out the i'th 16-byte slot.  Returns `void *`, per the declaration an already-matched sibling makes. |
+| `func_0024CB28`, `func_0024D718`, `func_0024D7B0` | 38 each | **LANDED** — one template: gate on a per-device check, register a 9-argument request (8 in `$a0`-`$t3` plus one stack word), and on success read the slot's first word back through UNCACHED space (the peer writes it by DMA).  The uncached read sits in the unlock call's delay slot, so it is spelled before the unlock in C.  `func_0024D7B0` returns **-1** on both failure paths where the other two return 0. |
+| `func_00260BA0` | 22 | left, rc2 / 2 sites — the init/exit chain walker.  gcc emits one extra `lw` of `*D` in the loop preheader.  Refuted: plain `while`, guarded `do`-`while`, guarding through a separate temp, and `p` as an explicit loop variable (the last regresses rc to 12 at the same 2 sites).  All four are the same axis — the loop's rotation — so the next attempt should change the DATA MODEL (the cursor is a `void (**)(void)` held in a global; the ROM reloads that global every iteration, which is a `volatile`-ish or aliasing property, not a loop-form one). |
+| `func_0024D848`, `func_0024D900` | 46 each | same family as the three above, plus extra work (an init call, a second table).  Should fall to the same template. |
+
+Original smallest-first list:
 
 `func_00268F28`(7)*, `func_0024E670`(14), `func_0024E760`(14), `func_00268F08`(16),
 `func_00260BA0`(22), `func_00246B78`(23)*, `func_00246C60`(28), `func_0024CB28`(38),

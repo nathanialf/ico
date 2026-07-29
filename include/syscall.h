@@ -29,4 +29,22 @@
                              : : : "$3", "memory");                             \
     }
 
+/* SYSCALL_INLINE(num, dst) — the same four-instruction leaf, but issued
+ * INLINE inside a larger function rather than as its own stub. Several
+ * libkernl functions do their own syscall and then act on the result, so
+ * the leaf form cannot express them.
+ *
+ * `dst` has to be bound to $v0 explicitly: the syscall's result arrives
+ * there by the kernel ABI, and a plain "=r" output would let gcc pick a
+ * register the kernel never writes. This is operand binding, not a
+ * scheduling pin.
+ */
+#define SYSCALL_INLINE(num, dst)                                                \
+    do {                                                                        \
+        register int __sc_ret __asm__("$2");                                    \
+        __asm__ __volatile__("addiu $3, $zero, " #num "\n\tsyscall 0"          \
+                             : "=r"(__sc_ret) : : "$3", "memory");              \
+        (dst) = __sc_ret;                                                       \
+    } while (0)
+
 #endif /* SYSCALL_H */

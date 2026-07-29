@@ -7,11 +7,104 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100C90", func_00100D68);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100C90", func_00100E40);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100C90", func_00100F18);
+/* Declared as arrays, not scalars: under -G 8 a 4-byte extern is small data
+ * and gcc addresses it $gp-relative, where the ROM uses a far %hi/%lo pair. */
+extern int D_00274EB0[];
+extern int D_00634550[];
+extern void func_00100550(int handle);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100C90", func_00100FB0);
+/* The ring: an 8-byte header whose second word is the write index, followed
+ * by 512 two-byte records (a code and an id). */
+typedef struct {
+    unsigned char code;
+    unsigned char id;
+} KernEvent;
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100C90", func_00101030);
+typedef struct {
+    int f0;
+    int widx;
+    KernEvent ent[512];
+} KernEventRing;
+
+extern KernEventRing D_00634558;
+#include "syscall.h"
+
+extern int func_00100460(void);
+extern int func_001004A0(void);
+
+/* func_00100F18 / func_00101030 are the same routine with a different
+ * fallback callee and a different event code: do the kernel's
+ * "current thread id" syscall, and if it is the caller's own id post an
+ * event into the ring; otherwise hand off to the fallback. */
+int func_00100F18(int id) {
+    int r;
+    int i;
+    SYSCALL_INLINE(-0x2F, r);
+    if (r != id) {
+        return func_00100460();
+    }
+    if ((unsigned int)r >= 0x100) {
+        goto fail;
+    }
+    if (D_00274EB0[0] != 0) {
+        goto post;
+    }
+fail:
+    return -1;
+post:
+    i = D_00634558.widx & 0x1FF;
+    D_00634558.widx = i + 1;
+    D_00634558.ent[i].code = 0;
+    D_00634558.ent[i].id = r;
+    func_00100550(D_00634550[0]);
+    return r;
+}
+
+
+/* Post an id into the ring and kick the kernel handle that drains it.
+ * Rejects an out-of-range id, and does nothing before the ring is armed. */
+int func_00100FB0(int id) {
+    int i;
+    if ((unsigned int)id >= 0x80) {
+        goto fail;
+    }
+    if (D_00274EB0[0] != 0) {
+        goto post;
+    }
+fail:
+    return -1;
+post:
+    i = D_00634558.widx & 0x1FF;
+    D_00634558.widx = i + 1;
+    D_00634558.ent[i].code = 1;
+    D_00634558.ent[i].id = id;
+    func_00100550(D_00634550[0]);
+    return id;
+}
+
+int func_00101030(int id) {
+    int r;
+    int i;
+    SYSCALL_INLINE(-0x2F, r);
+    if (r != id) {
+        return func_001004A0();
+    }
+    if ((unsigned int)r >= 0x100) {
+        goto fail;
+    }
+    if (D_00274EB0[0] != 0) {
+        goto post;
+    }
+fail:
+    return -1;
+post:
+    i = D_00634558.widx & 0x1FF;
+    D_00634558.widx = i + 1;
+    D_00634558.ent[i].code = 2;
+    D_00634558.ent[i].id = r;
+    func_00100550(D_00634550[0]);
+    return r;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100C90", func_001010C8);
 
@@ -86,9 +179,21 @@ void func_00101B40(int a0) {
     func_00100950(4, args);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100C90", func_00101B68);
+void func_00101B68(int a0, int a1, unsigned short a2) {
+    int args[4];
+    args[0] = a0;
+    args[1] = a1;
+    args[2] = a2;
+    func_00100950(-5, args);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100C90", func_00101BA0);
+void func_00101BA0(int a0, int a1, unsigned short a2) {
+    int args[4];
+    args[0] = a0;
+    args[1] = a1;
+    args[2] = a2;
+    func_00100950(-6, args);
+}
 
 void func_00101BD8(int a0, signed char a1) {
     int args[4];

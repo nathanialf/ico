@@ -446,7 +446,21 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2453C0", func_00246970);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2453C0", func_00246B38);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2453C0", func_00246B78);
+extern int D_00550868[];
+extern int D_0055086C[];
+
+/* Lazily create the two semaphores that guard the slot table below. */
+void func_00246B78(void) {
+    extern int func_00100520(int *a0);
+    int args[8];
+    if (D_00550868[0] == -1) {
+        args[5] = 0;
+        args[2] = 1;
+        args[1] = 1;
+        D_00550868[0] = func_00100520(args);
+        D_0055086C[0] = func_00100520(args);
+    }
+}
 
 extern int D_00550868[];
 extern char D_00715D00[];
@@ -473,7 +487,21 @@ int func_00246BD8(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2453C0", func_00246C60);
+/* Hand out the i'th 16-byte slot under the semaphore; 0 if out of range. */
+void *func_00246C60(unsigned int i) {
+    char *p;
+    func_00246B78();
+    func_00100560(D_00550868[0]);
+    if (i < 0x20) {
+        goto ok;
+    }
+    func_00100540(D_00550868[0]);
+    return 0;
+ok:
+    p = &D_00715D00[i * 16];
+    func_00100540(D_00550868[0]);
+    return p;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2453C0", func_00246CD0);
 

@@ -954,7 +954,30 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024C6B8);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024C9B8);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024CB28);
+extern int D_00550928[];
+extern int D_00550980[];
+extern int D_00551AD0[];
+extern int func_0024C9B8(int a0);
+extern void func_00100540(int sema);
+
+/* Register the port, then read its first word back through uncached
+ * space (bit 29) -- the peer writes it by DMA, so the cached copy is
+ * stale. */
+int func_0024CB28(void) {
+    int *p;
+    int v;
+    if (func_0024C9B8(2) == 0) {
+        return 0;
+    }
+    p = D_00550980;
+    if (func_00246458(D_00551AD0, 0xE, 0, 0, 0, p, 4, 0, 0) < 0) {
+        func_00100540(D_00550928[0]);
+        return 0;
+    }
+    v = *(int *)((int)p | 0x20000000);
+    func_00100540(D_00550928[0]);
+    return v;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024CBC0);
 
@@ -988,9 +1011,41 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024D3E0);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024D5C0);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024D718);
+extern int D_0055092C[];
+extern int D_00551B00[];
+extern int func_0024CCD0(int a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024D7B0);
+int func_0024D718(void) {
+    int *p;
+    int v;
+    if (func_0024CCD0(1) == 0) {
+        return 0;
+    }
+    p = D_00551B00;
+    if (func_00246458(D_00552348, 3, 0, 0, 0, p, 4, 0, 0) < 0) {
+        func_00100540(D_0055092C[0]);
+        return 0;
+    }
+    v = *(int *)((int)p | 0x20000000);
+    func_00100540(D_0055092C[0]);
+    return v;
+}
+
+int func_0024D7B0(void) {
+    int *p;
+    int v;
+    if (func_0024CCD0(3) == 0) {
+        return -1;
+    }
+    p = D_00551B00;
+    if (func_00246458(D_00552348, 4, 0, 0, 0, p, 4, 0, 0) < 0) {
+        func_00100540(D_0055092C[0]);
+        return -1;
+    }
+    v = *(int *)((int)p | 0x20000000);
+    func_00100540(D_0055092C[0]);
+    return v;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024D848);
 
@@ -1213,7 +1268,20 @@ int func_0024E5F8(int a0, int a1) {
     return p[0x70];
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024E670);
+/* Incomplete array, not a scalar: -G 8 would make a 1-byte extern
+ * $gp-relative, where the ROM uses a far %hi/%lo pair. */
+extern unsigned char D_0062EB68[];
+extern void func_00265168(char *out, int v);
+
+extern int D_00552390[];
+
+void func_0024E670(unsigned int i, char *out) {
+    if (i < 8) {
+        func_00265168(out, D_00552390[i]);
+        return;
+    }
+    *out = D_0062EB68[0];
+}
 
 int func_0024E6A8(int a0, int a1, int a2) {
     if (D_00717C50[a0][a1].f10 == 0) {
@@ -1230,7 +1298,15 @@ int func_0024E710(int a0, int a1) {
     return ((unsigned char *)func_0024E4C8(a0, a1))[0x71];
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024E760);
+extern int D_005523B0[];
+
+void func_0024E760(unsigned int i, char *out) {
+    if (i < 4) {
+        func_00265168(out, D_005523B0[i]);
+        return;
+    }
+    *out = D_0062EB68[0];
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024E798);
 
