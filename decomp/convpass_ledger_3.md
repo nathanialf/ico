@@ -3540,3 +3540,44 @@ settled (conv-17) — what remains is bulk transcription of NakaBoss.
 Queue it as a large single item with a fresh context, not as a tail-end task.
 The same caution applies to the other multi-callee parents in the conv-15 table
 (`commonact actCommonDown` owns three callees, 1101 insns together).
+
+# conv-19 — `MoveChestForCatchBoy`: two more axes refuted, base confirmed correct
+
+No match this pass.  Two genuinely distinct axes tried on the tracked 3-site
+seed, both refuted, and one of them positively confirms the existing base.
+
+**Axis A — materialise `&buf` early so reorg has something to hoist.**
+`float *pb = buf;` (and `void *pb`, and the declaration reordered ahead of
+`s17`) all compile to the identical stream: **3 sites**.  gcc CSEs the pointer
+variable away and still emits three separate `daddu rN,$sp,$0` at the three
+argument sites, exactly as ROM does.  So the source cannot make the address
+"available" this way — same axis as the eleven spellings already recorded.
+
+**Axis B — is `D_00631AE8` read once or per use?**  Caching it in a local
+(`int de8 = D_00631AE8;` around all three uses) is a large REGRESSION to
+**13 sites / rc 36**.  ROM reloads the global at each use and the seed already
+does; this is now positively confirmed rather than assumed.  A `kind` temp for
+the compared field and a goto-CFG form of the third test are both neutral
+(3 sites).
+
+**State of the residual, unchanged but better bounded.**  ROM emits FOUR
+`daddu rN,$29,$0`; three feed the argument registers of func_002641D8,
+func_0010E158 and GetHeightOfFieldPlaneDifference, and the fourth — into `$2`,
+in the `bne $4,$2` delay slot — is DEAD.  It clobbers `$2` immediately after
+the branch reads the `0x6B` constant out of it, i.e. reorg reused a
+dead-after-branch register.  Ours has only the three and emits a `nop` there.
+The compare's register letters follow from that one insn, so it remains a
+single event.
+
+Frame checked and identical on both sides (0x50; s16/s17/ra/f20 at the same
+offsets; locals are exactly `float buf[4]` at sp+0), so this is not a missing
+local.
+
+**Next reasoned lever:** stop trying to create the fourth address; instead find
+what makes `$2` a legal reorg donor.  reorg fills a branch delay from an insn
+BEFORE the branch that the branch does not depend on — in ours the three insns
+before the `bne` are all in the dependence chain of the compare, leaving
+nothing. ROM has a spare because its `0x6B` constant is materialised one branch
+EARLIER (in the `beqz $2` delay slot at 0x60B2C) rather than inline. Getting
+the constant into the *previous* delay slot is what frees the second one.  That
+is a question about the first test's shape, not the third's.
