@@ -1599,12 +1599,12 @@ VENDOR.md §1 over the dashboard label.
 | **V1** 21 genuine port reverts — codegen | 5 (was 14) | 536 (was 1320) | 134 | 8 | 32 | 48 | unclassified -> §3b clean-room unless archive identified |
 | **V2** 52 handwritten-asm twins solved on aug6 | 2 (was 52) | 144 (was 7324) | 36 | 12 | 18 | 24 | §3b clean-room (already re-derived on aug6) |
 | **V3** 40 head functions | 14 (was 40) | 3416 (was 5056) | | 14 | | 370 | §3b proprietary (crt0 + libkernl, VENDOR.md §1) |
-| **V4** 52 tail functions with no aug6 twin | 25 (was 52) | 21836 (was 27112) | | 22 | | 1350 | unclassified -> §3b clean-room unless archive identified |
+| **V4** 52 tail functions with no aug6 twin | 24 (was 52) | 21680 (was 27112) | | 84 | | 1350 | unclassified -> §3b clean-room unless archive identified |
 | **V5** 261 tail functions, aug6 twin unmatched | 261 | 118972 | 29743 | 24 | 74 | 1140 | mixed: 13 in the fdlibm window are §3a; rest unclassified |
 | **V6** 1 blocked (inter-section pad) | 1 | 92 | 23 | 23 | 23 | 23 | n/a — blocked |
-| | **323** (was 427) | **145,224** | | | | | |
+| | **322** (was 427) | **145,064** | | | | | |
 
-**Landed 2026-07-29, ten passes: 119 functions / 16,316 B.**
+**Landed 2026-07-29, eleven passes: 120 functions / 16,472 B.**
 Pass 1 (`vendor-1`, 66 funcs / 9,604 B): V2 50/52, V1 16/21.
 Pass 2 (`vendor-2`, 21 funcs / 1,108 B): V3a 11/11, V3b 10/26 + the carve.
 Pass 3 (`vendor-3`, 14 funcs / 1,148 B): V3b 5 more (15/26), V4 first 9.
@@ -1623,9 +1623,13 @@ Pass 9 (`vendor-9`, 0 funcs): no match landed.  `func_0024FA50` driven from
 three refutations recorded, best body parked under `tough_nuts/`.
 Pass 10 (`vendor-10`, 1 func / 64 B): V4 27/52.  `func_0024FA50` held at 6
 sites — two more dual-root spellings refuted, both CSE'd away.
-Vendor moves 521/945 -> **625/948** functions and 34,144 -> **49,772 B**
-(17.51 % -> 25.52 %); `.text` 16.81 % -> **19.53 %**.  The unmatched vendor
-total is now **323 functions / 145,224 B** (figures from
+Pass 11 (`vendor-11`, 1 func / 156 B): V4 28/52.  `func_00260BA0` held at 2
+sites with the residual re-diagnosed as a loop-ROTATION difference (four
+more shapes refuted, eight total).  **The V4 small end is gone** — the
+smallest remaining is 156 B and every target from here is a real body.
+Vendor moves 521/945 -> **626/948** functions and 34,144 -> **49,932 B**
+(17.51 % -> 25.61 %); `.text` 16.81 % -> **19.54 %**.  The unmatched vendor
+total is now **322 functions / 145,064 B** (figures from
 `docs/progress.json`, whose byte denominators are span-derived).
 
 **The device-request family now has three sub-templates and 10 landed members.**
@@ -2282,7 +2286,7 @@ gets a reference implementation.  VENDOR.md §8 flags the likely cause
 which if confirmed makes §3a attribution *more* likely for this group than
 for V5, not less.
 
-### V4 status — 27 landed 2026-07-29 (5,276 B), 25 left
+### V4 status — 28 landed 2026-07-29 (5,432 B), 24 left
 ### V4 status — 9 landed 2026-07-29 (820 B), 43 left
 
 | func | insns | outcome |
@@ -2293,9 +2297,10 @@ for V5, not less.
 | `func_00246B78` | 23 | **LANDED** — lazily creates the two semaphores guarding the slot table.  Needed the same-valued-store reversal. |
 | `func_00246C60` | 28 | **LANDED** — hands out the i'th 16-byte slot.  Returns `void *`, per the declaration an already-matched sibling makes. |
 | `func_0024CB28`, `func_0024D718`, `func_0024D7B0` | 38 each | **LANDED** — one template: gate on a per-device check, register a 9-argument request (8 in `$a0`-`$t3` plus one stack word), and on success read the slot's first word back through UNCACHED space (the peer writes it by DMA).  The uncached read sits in the unlock call's delay slot, so it is spelled before the unlock in C.  `func_0024D7B0` returns **-1** on both failure paths where the other two return 0. |
-| `func_00260BA0` | 22 | left, rc2 / 2 sites — the init/exit chain walker.  gcc emits one extra `lw` of `*D` in the loop preheader.  Refuted: plain `while`, guarded `do`-`while`, guarding through a separate temp, and `p` as an explicit loop variable (the last regresses rc to 12 at the same 2 sites).  All four are the same axis — the loop's rotation — so the next attempt should change the DATA MODEL (the cursor is a `void (**)(void)` held in a global; the ROM reloads that global every iteration, which is a `volatile`-ish or aliasing property, not a loop-form one). |
+| `func_00260BA0` | 22 | left, rc2 / **2 sites**, and the residual is now DIAGNOSED rather than described.  It is a **loop-rotation** difference: gcc rotates so the loop head is the CALL, peeling the callee-pointer load into the preheader (`lw $3,0($2)` there) and duplicating the test at the bottom; the ROM's loop head is that LOAD (`lw $3,-4($2)`), so it re-reads the entry every iteration.  Everything else — the far `%hi`/`%lo` addressing, the advanced cursor published before the call, the reload of the global after each call — already matches.  **Eight shapes refuted, all one axis (how the loop is spelled):** plain `while`; guarded `do`-`while`; guard through a separate temp; `p` as an explicit loop variable (rc 12); post-increment through the same lvalue `(*D[0]++)()`; call via `p[-1]` with the test on the global; an explicit statement-for-statement transcription of the ROM's blocks (rc 13, and gcc hoists `p = D[0]+1` into the guard); and a **`volatile` table entry** (3 sites — it adds a nop and does not stop the peel, so the re-read is NOT a volatile property).  The next attempt must stop the PEEL, not respell the loop. |
 | `func_0024D848` | 46 | **LANDED** — the template plus a verbosity-gated log line. |
 | `func_0024D900` | 46 | **LANDED** — the template plus a busy flag raised across the request.  Needed TWO volatiles, both argued for by the ROM's own codegen: the flag (without it gcc annuls the flag store into a `bgezl` delay slot where the ROM has a plain `bgez`), and the semaphore **for this body only** (the ROM leaves this function's unlock-call delay slot EMPTY — same signature).  Typing the shared `D_0055092C` volatile fixes this body and REGRESSES the three siblings, so it is bound through a per-function `__asm__` alias.  The last two sites were a v0/v1 swap that no source ORDER change touched and that vanished when the intermediate locals were removed and the body written in exactly the siblings' shape — **fewer named temporaries, not different ones**. |
+| `func_00265818` | 39 | **LANDED** — a re-entrant token scanner (`strtok_r`): skip leading delimiters, scan to the next, NUL-terminate in place, leave the resume point in `*last`.  Matched first try.  **Derived from the disassembly, not from upstream** — fetching newlib is V0 and belongs to someone else, and it was not needed: the two scans, the `goto cont` restart, `tok = s-1` computed in a branch delay slot, and the `s = NULL` case for a token running to the end of the string are all visible in the branch structure.  **Useful data point for §3a: not every libc function needs V0 to land.** |
 | `func_00246B38` | 16 | **LANDED** — dispatcher thread body: drain the queue, block on the kernel when empty, never return.  Two shape steps: an `if`/`else` inside `for(;;)` gives 4 sites because the ROM rotates a NESTED drain loop (the `then` block lands ABOVE the call and entry jumps past it); the last 2 were the argument copy, which the ROM sets in the **`bnez` delay slot**, i.e. gcc placed it before the branch.  Putting the assignment INTO the condition — `while ((item = f(self)) != 0)` — is what hoists it there.  **Assignment-in-condition is not stylistic here; it is what makes the value available before the test.** |
 | `func_002504D8` | 118 | **LANDED** — the largest member (0x1D8) and the only one that was not a transcription: it copies a whole 0x40-byte `AuxReq` in from the caller with the unaligned `ldl`/`ldr` + `sdl`/`sdr` sequence of COOKBOOK §6.1.  **It needed no `packed` attribute.**  `AuxReq` is two char arrays, so its alignment is already 1 and a plain struct assignment compiles straight to the unaligned form.  §6.1's warning that "`aligned(1)` alone is NOT enough" is about a typedef of a SCALAR; for an all-char struct the alignment is structural and the block-move expander uses it directly.  Check that before reaching for the attribute. |
 | `func_0024F930` | 70 | **LANDED** — plain sub-template with a caller buffer AND a completion callback; both the buffer and the fixed 0xC0 reply area are cache-flushed, and the reply area doubles as the callback's cookie. |
