@@ -1614,6 +1614,18 @@ now **7 members**, and the static-chain class is ruled out for vendor (below).
 Vendor moves 521/945 -> **616/948** functions and 34,144 -> **47,020 B**
 (17.51 % -> 24.11 %); `.text` 16.81 % -> **19.34 %**.  The unmatched vendor
 total is now **332 functions / 147,976 B** (figures from
+| **V4** 52 tail functions with no aug6 twin | 43 (was 52) | 26292 (was 27112) | | 22 | | 1350 | unclassified -> §3b clean-room unless archive identified |
+| **V5** 261 tail functions, aug6 twin unmatched | 261 | 118972 | 29743 | 24 | 74 | 1140 | mixed: 13 in the fdlibm window are §3a; rest unclassified |
+| **V6** 1 blocked (inter-section pad) | 1 | 92 | 23 | 23 | 23 | 23 | n/a — blocked |
+| | **341** (was 427) | **149,704** | | | | | |
+
+**Landed 2026-07-29, three passes: 101 functions / 11,860 B.**
+Pass 1 (`vendor-1`, 66 funcs / 9,604 B): V2 50/52, V1 16/21.
+Pass 2 (`vendor-2`, 21 funcs / 1,108 B): V3a 11/11, V3b 10/26 + the carve.
+Pass 3 (`vendor-3`, 14 funcs / 1,148 B): V3b 5 more (15/26), V4 first 9.
+Vendor moves 521/945 -> **607/948** functions and 34,144 -> **45,292 B**
+(17.51 % -> 23.23 %); `.text` 16.81 % -> **19.10 %**.  The unmatched vendor
+total is now **341 functions / 149,704 B** (figures from
 `docs/progress.json`, whose byte denominators are span-derived).
 
 ### The static-chain (nested-function) class does NOT apply to vendor — checked 2026-07-29
@@ -1652,18 +1664,6 @@ it fails the call-site half, so the class is empty here.
    Confirmed twice now — `func_002456F8` and `func_00246B78` — so write the
    second one first.  Where the pair is the last thing in the function this
    is also what leaves the second store in the `jr` delay slot.
-0d. **Two globals used both as a field base and as a call argument want a
-   CACHED POINTER.**  The ROM forms the address once and reuses the
-   register; spelling the field access as `*(int *)(D_X + off)` and the
-   argument as a separate `D_X` makes gcc derive the address twice and
-   costs several sites in addressing alone.  The inverse also occurs in
-   the same family — where the ROM folds `%lo` into the store and forms
-   the full address only for the argument, the plain (uncached) form is
-   right.  **Read which one the ROM did; do not assume.**
-0e. **Fewer named temporaries, not different ones.**  A residual v0/v1 swap
-   that survives every reordering often disappears when intermediate
-   locals are deleted and the body is written in the same shape as a
-   matched sibling.
 0c. **Recover the data model before fighting the allocator.**
    `func_00100FB0` sat at a wholesale register permutation (base and entry
    pointers swapped) that neither caching the pointer nor reordering
@@ -3084,101 +3084,6 @@ delay slot.  This is a legitimate 2000-era shape, not a crutch.
 Generally: **any function whose prologue reads `$2` before any call is a
 nested-function candidate**, and the test is cheap — look at the one call site
 for `$2` set from the caller's `$sp`.
-## conv-13 — commonact (worker: rwt2)
-
-### Priority 1: declaration-form audit across all 42 remaining functions
-
-Every symbol referenced by the remaining `INCLUDE_ASM` set was extracted from the
-ROM `.s` with its addressing form and cross-checked against the TU's
-declarations.  Result: **the exposure is small and localised, not systemic.**
-
-* All ~45 `D_00630Cxx` floats the remaining functions use are `%gp_rel` in ROM
-  and have no declaration yet — a plain `extern float X;` (4 bytes, known size,
-  small) is correct for every one of them.  No action needed; just do not declare
-  them as arrays.
-* Everything ROM addresses **far** is either already declared as an incomplete
-  array / large object, or is a string constant that will get the
-  `extern char X[];` treatment when its function is written.
-* **Four TU-defined carved symbols are the real exposure** — all ≤ 8 bytes and
-  defined in this TU, so gcc will make them `$gp`-relative, while ROM addresses
-  them with `%hi`/`%lo`:
-
-  | symbol | bytes | contents | needed by |
-  |---|--:|---|---|
-  | `D_006322F8` | 8 | `"set %p\n"` | `func_00158F10` |
-  | `D_00632300` | 4 | `0x7F7FFFFF` (FLT_MAX) | `lever_nego1` |
-  | `D_00632304` | 4 | `0x7F7FFFFF` (FLT_MAX) | `func_001595D0` |
-  | `D_00632308` | 8 | `"%1.1f "` | `DownFunc` |
-
-  These are the same block as `D_006322F0`, which `func_0015F578` already needed.
-  **Recipe (proven on F578): reference them through an incomplete-type `__asm__`
-  alias** — `extern char D_006322F8__x[] __asm__("D_006322F8");` for the format
-  strings, `extern float D_00632300__x[] __asm__("D_00632300");` + `[0]` for the
-  FLT_MAX floats.  The definition stays as carved; only the *reference* decl
-  changes, and an incomplete type clears `SYMBOL_REF_FLAG` so the reference goes
-  far.  This is the in-source equivalent of the `sdata_sidecar` memory's advice
-  and avoids needing a sidecar object.
-
-### Parked: `func_00156BA0` / `func_00156CF0` (84 insns each) — 20 → **6 / 7 sites**
-
-Twins differing only in one `%gp_rel` float (`D_00630C30` vs `D_00630C34`), so
-one source shape lands both.  Source saved as
-`commonact_func_00156BA0_CF0_s6.c` in the worker scratchpad.
-
-Three levers got it from 20 to 6, all previously-established ones:
-
-1. **Inline-helper for the second buffer** (20 → 15 → 7).  ROM recomputes
-   `addiu $r,$29,0x20` at both of `buf20`'s uses rather than parking it, so
-   `buf20` belongs in a `static __inline__` helper that owns them — the
-   `func_0015DF88` class, third instance.  Note the *first* buffer (`buf10`,
-   many uses across the loop) stays at function scope and ROM does park it in
-   `$17`; the discriminator is again whether the uses straddle a loop.
-2. Constant/loop-variable declaration order for `lim`/`j`/`i`.
-3. Head expression written with the raw symbol and literal rather than through
-   the loop's `d`/`k` locals.
-
-**Residual (6 sites), fully characterised:** ROM loads `D_00630C30` into a
-*caller-saved* `$f1`, uses it for the head's `div.s`, and copies it into the
-callee-saved `$f21` the loop uses (`mov.s $f21,$f1`); likewise `180.0f` into
-`$f2` with `mov.s $f20,$f2`.  We emit no copies at all: `float d = D_00630C30;`
-after the head becomes `(set d (reg A))` by CSE, `A` dies at the copy, and
-global-alloc's copy preference then gives both the same hard register, so the
-move is deleted as a no-op.  The whole loop body is byte-identical; the only
-diffs are the two missing `mov.s` and the `$f20`/`$f21` swap that follows.
-
-Shapes tried and measured: `d`/`k` before the head (15), after the head (15,
-then 6 with the helper), `float r` split for the call result (15), explicit
-two-variable `d = t` copies (17), no float locals at all (6 but frame 176 vs 192
-and `D_00630C30` reloaded every iteration — less structure-forward), `k` declared
-before `d` (6, no change).  Next lever: something that keeps the head's pseudo
-live past the copy, or otherwise defeats global-alloc's copy preference, without
-adding an insn — note the `180.0f` pair survives in ROM precisely *because*
-`mul.s $f0,$f0,$f2` uses it after the copy, which is the shape to reproduce for
-the other one.
-
-### `func_0015ADF0` — parked at 4 sites; the remaining requirement is now exact
-
-Per the coordinator's steer I did not extend the conv-10 `block_alloc` model.
-Working only from the measured sched1 chain: ROM needs one insn moved **out** of
-the gap between `readA` and the `0x164` deref, and one moved **in** to the gap
-between that deref and the `0x18` store.  Those two gaps are filled by
-`&other` (`ori $5,$29,4`) and `readB`, and by `readC` respectively.  Both
-`&other` and `other = 0` have the lowest priority in the block (`1 + P(call)`)
-and therefore fill the earliest free ALU/memory slots; there is no other insn
-ready in that window to displace them, and `s164`'s load is already issued at its
-earliest possible clock (`readA + 2`).  So **within this data model the schedule
-is forced**, which per the no-floors discipline means the data model differs, not
-the allocation.  Five more shapes measured this round (`&other` via a local,
-plain forward decl, `int *s164` indexing, inlined `self15C`, an extra `selfA`
-read) — all 5 sites or worse.
-
-### Method note
-
-A blanket `replace` of a two-line declaration pattern silently edited the
-*matched* `func_0015DA20` as well as the intended function; the per-function
-`INCLUDE_ASM` diff does not catch that, but re-running the oracle on the
-neighbouring matched function did.  When editing by text substitution, assert on
-the occurrence count.
 
 
 # conv-15 / branch `acttails-6` — the nested-function class is 51 functions, not 2
@@ -3479,3 +3384,53 @@ not lengths):
 
 Shapes measured this pass (all on top of the 4-site base): `other` as `slot[0]`
 of a 2-element array (8 sites).  Running total across passes: fourteen.
+# conv-16 — nested inner function 5 -> 3 sites; the residual is a data-model question, not CFG
+
+## Data-model correction
+
+conv-14/15 spelled `D_00633D00` as `extern int D_00633D00[]` and read the
+`bnez $4` as an array-decay test.  **Wrong.**  The object is a FOUR-BYTE SCALAR
+in `.sbss` — `asm/data/src/cod/00633C00.sbss.s:302` has
+`nonmatching D_00633D00, 0x4` / `.space 0x04`, between `D_00633CF8` (8 B) and
+`D_00633D04` (4 B).  Reaching it as a scalar through a pointer variable
+
+```c
+int *pd = &D_00633D00;
+*pd = D_00631AE8;
+if (pd != 0) { ... } else { ... }
+```
+
+takes the inner function **5 -> 3 sites**.  Seed:
+`tough_nuts/acttails_near_misses/enemy_act_ChangeBrain_ToAttack_nested_s22_inner_s3.c`.
+
+Also measured and refuted on this base: referencing the parent's `volatile a0`
+at every use instead of caching it in one `int self = a0;` (the idea being to
+reproduce ROM's repeated `lw $6,0($5)` through the chain) goes back to 5 sites —
+keep the single cached read.
+
+## The residual, sharpened
+
+Ours is 21 insns with **no branch at all**: gcc folds the always-true test away
+and uses `movz` for the 3-way mode select.  ROM is 23 insns, KEEPS the branch,
+and threads it INCONSISTENTLY — the `mode == 0` arm resolves it one way while
+the shared arm keeps the opposite edge.  The `movz` and the missing branch are
+the same fact seen twice: **whatever ROM tests there, gcc cannot prove it
+nonzero**, so it is not simply `&D_00633D00`.  Every spelling that hands gcc a
+provable address folds (six CFG shapes in conv-15, two pointer shapes here).
+
+## Next lever — use `GetFlyPosition` as the Rosetta stone
+
+`enemy_act GetFlyPosition` is the only other referencer of `D_00633D00`, it is
+itself a confirmed nested-function pair (parent `NakaBoss`), and it uses the
+object BOTH ways in one body:
+
+```
+/* 63140 */  lw     $4, %gp_rel(D_00633D00)($28)   <- reads the VALUE
+/* 63168 */  addiu  $4, $28, %gp_rel(D_00633D00)   <- takes the ADDRESS
+/* 6316C */  sw     $7, %gp_rel(D_00633D00)($28)   <- stores the VALUE
+```
+
+and the address form sits in exactly the same store-then-test shape as
+`func_00163890`.  Deriving what construct produces both forms in one function
+will settle the data model for both, and both are nested pairs, so the work is
+shared.  Do that before any further spelling of `func_00163890`.
