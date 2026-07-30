@@ -138,8 +138,6 @@ void MakeExitAttributeIndex(void *a0) {
 
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ClipFloorByGObj);
 
-INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", func_00167280);
-
 INCLUDE_ASM("asm/nonmatchings/src/fieldCollision", ClipWallDebug);
 
 extern char D_005592D0[];

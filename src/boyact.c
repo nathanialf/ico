@@ -480,8 +480,6 @@ void actBoyRun(int a0)
 
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001538F4);
-
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001538F8);
 
 typedef struct { char _0[0x188]; unsigned int f188; char _18c[4]; } WpnEntry;
@@ -885,8 +883,6 @@ int actBoyDitch3mReady(void) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00154444);
-
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00154448);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00154520);
@@ -918,8 +914,6 @@ err:
     return -1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00154644);
-
 void func_00154648(void) {
     D_006AAAE0[1] |= 0x800000000LL;
 }
@@ -940,8 +934,6 @@ void func_00154668(int *self)
     *(int *)D_006AAAE0 = new_var;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001546BC);
-
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001546C0);
 
 int actBoyCall(void)
@@ -956,13 +948,9 @@ unsigned char actBoyItem(void) {
     return D_006AAB30[0];
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_0015479C);
-
 int *func_001547A0(void) {
     return D_006AAB40;
 }
-
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001547AC);
 
 int func_001547B0(void) {
     return 24;

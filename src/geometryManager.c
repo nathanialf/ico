@@ -109,8 +109,6 @@ void SetRootMatrixRotOffset(int a0, int a1)
     MatrixDrive_TurnObjectMatrix(a0, (int)((GObj *)(a1))->p_15C + 0x130);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/geometryManager", func_0010311C);
-
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", SetDirectRootPositionNoFittingWithNodePoint);
 
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", SetDirectRootPositionWithNodePoint);

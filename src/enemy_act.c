@@ -99,8 +99,6 @@ void subEnemyCollision(int *self, int a1)
     subEnemyControl(self, a1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_0015F9F4);
-
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_0015F9F8);
 
 extern void ActPara_GetDefTbl(void *a0, int a1);
@@ -359,8 +357,6 @@ void _ApproachTarget_Way(volatile unsigned int a0)
     _ACTWait(0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00164EF4);
-
 extern char D_00558F08[];
 
 void func_00164EF8(volatile unsigned int a0) {
@@ -369,8 +365,6 @@ void func_00164EF8(volatile unsigned int a0) {
     s0[0x30 / 4] = 2;
     _ACTWait(0);
 }
-
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00164F3C);
 
 extern char D_00558F38[];
 
@@ -381,8 +375,6 @@ void func_00164F40(volatile unsigned int a0) {
     _ACTWait(0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00164F84);
-
 extern char D_00558F80[];
 
 void func_00164F88(volatile unsigned int a0) {
@@ -391,8 +383,6 @@ void func_00164F88(volatile unsigned int a0) {
     s0[0x30 / 4] = 28;
     _ACTWait(0);
 }
-
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00164FCC);
 
 void func_00164FD0(volatile int a0) {
     func_001AD768(D_00558E10, 0xAF3);
@@ -459,8 +449,6 @@ void actEnemyStand(char *self) {
     *(long long *)(sub + 0x150) |= 0x100000000LL;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165174);
-
 void func_00165178(int *a0) {
     char spill[16];
     *(long long *)(spill + 0) = *(long long *)((char *)D_00558FA0 + 0);
@@ -504,21 +492,15 @@ void actEnemyCarry(int *a0)
     *(int *)(base + 0x48) |= 0x40000;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_0016529C);
-
 int func_001652A0(char *self) {
     char *sub = *(char **)(self + 0x164);
     return *(int *)(sub + 0x430) == 2;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001652B4);
-
 int func_001652B8(char *self) {
     char *sub = *(char **)(self + 0x164);
     return *(int *)(sub + 0x430) == 1;
 }
-
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001652CC);
 
 int func_001652D0(int *a0)
 {
@@ -540,8 +522,6 @@ zero:
 one:
     return 1;
 }
-
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165344);
 
 extern int MoveChestForCatchBoy(void *a0);
 extern void func_00165B50(char *self, int a1, int *a2);
@@ -581,8 +561,6 @@ int EnemyBrainStatus_Boy(char *self) {
     char *p = *(char **)(sub + 0x670);
     return *(int *)(p + 0x1E0) == 0;
 }
-
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00165414);
 
 int func_00165418(void *a0, int *out) {
     char *p = *(char **)((char *)a0 + 0x164);

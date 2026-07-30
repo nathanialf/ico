@@ -916,6 +916,8 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024C090);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024C130);
 
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024C1F0);
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024C2C8);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_24AAC8", func_0024C368);

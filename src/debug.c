@@ -39,8 +39,6 @@ void debug_LogPrintf(void) {
 
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/debug", func_001A2E24);
-
 void func_001A2E28(const char *fmt, ...) {
     char buf[0x100];
     void *info;
@@ -62,13 +60,9 @@ void debug_VariableInit(void)
     func_00100B40(1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/debug", func_001A3204);
-
 INCLUDE_ASM("asm/nonmatchings/src/debug", func_001A3208);
 
 INCLUDE_ASM("asm/nonmatchings/src/debug", func_001A3340);
-
-INCLUDE_ASM("asm/nonmatchings/src/debug", func_001A3394);
 
 INCLUDE_ASM("asm/nonmatchings/src/debug", func_001A3398);
 

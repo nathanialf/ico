@@ -106,8 +106,6 @@ void ACTParaStatus_Exec(volatile int *self)
     ((int *)self[0x57])[0x1F] = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", func_00149EF4);
-
 int _ACTCharStatus_Clear(void *a0)
 {
     void *p = *((void **) (((char *) a0) + 0x15C));
@@ -217,8 +215,6 @@ void hand_able_connect(void) {
     *(int *)((char *)p + 0x4B4) = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A2C4);
-
 void ACTGame_CommonLoop(char *a0)
 {
     long long mask1 = ~((long long)0x800 << 32);
@@ -263,8 +259,6 @@ void ACTItemThrow(float *a0, float *a1)
     a1[1] = q[0x4B4/4];
     a1[2] = q[0x4B8/4];
 }
-
-INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A46C);
 
 int ACTItemWatchMotion(void)
 {
@@ -377,8 +371,6 @@ void RequestChangeHandMode(float *a0, float *a1)
     a1[1] = q[0x514/4];
     a1[2] = q[0x518/4];
 }
-
-INCLUDE_ASM("asm/nonmatchings/src/act-game", func_0014A5FC);
 
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTNotNeedCameraOffset);
 

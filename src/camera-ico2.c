@@ -387,8 +387,6 @@ void SetCameraTargetPosition(int a0)
     chain_simulate_term_simple(masked);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", func_001886F4);
-
 INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", func_001886F8);
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", func_00188C98);

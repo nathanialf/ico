@@ -173,8 +173,6 @@ void func_001177C8(void)
 
 INCLUDE_ASM("asm/nonmatchings/src/Light", func_00117820);
 
-INCLUDE_ASM("asm/nonmatchings/src/Light", func_0011788C);
-
 INCLUDE_ASM("asm/nonmatchings/src/Light", func_00117890);
 
 INCLUDE_ASM("asm/nonmatchings/src/Light", func_00117950);
@@ -203,8 +201,6 @@ void func_00117C40(void)
     VU0_NOP();
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/Light", func_00117C5C);
-
 void func_00117C60(void)
 {
     VU0_V2OP(vmove.xyzw, 7, 0);
@@ -214,8 +210,6 @@ void func_00117C60(void)
     VU0_REG("viaddi $vi15, $vi0, 0x0");
     VU0_NOP();
 }
-
-INCLUDE_ASM("asm/nonmatchings/src/Light", func_00117C7C);
 
 void func_00117C80(void)
 {
@@ -245,8 +239,6 @@ void func_00117CB0(void *p0)
     VU0_NOP();
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/Light", func_00117CCC);
-
 void func_00117CD0(void *p0)
 {
     VU0_LSV(lqc2, 8, 0x0, a0);
@@ -259,8 +251,6 @@ void func_00117CE0(void)
     VU0_V2OP(vmove.xyzw, 7, 0);
     VU0_NOP();
 }
-
-INCLUDE_ASM("asm/nonmatchings/src/Light", func_00117CEC);
 
 INCLUDE_ASM("asm/nonmatchings/src/Light", func_00117CF0);
 

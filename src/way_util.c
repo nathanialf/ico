@@ -70,13 +70,9 @@ void WayUtilWorkAlloc(void) {
     volatile int local[12];
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017904C);
-
 void WayUtilWorkFree(void) {
     volatile int local[12];
 }
-
-INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017905C);
 
 INCLUDE_ASM("asm/nonmatchings/src/way_util", shortest_path);
 
@@ -270,11 +266,7 @@ int get_wp_nearest_bridge_side_me(void *a0) {
     return ez_line(a0, -1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A9D4);
-
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A9D8);
-
-INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017AA04);
 
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017AA08);
 
