@@ -95,7 +95,16 @@ INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_sub", func_0023E400);
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_sub", func_0023E578);
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_sub", func_0023E770);
+extern void func_0023E578(int *self, int a1, int a2);
+
+void func_0023E770(int *self, int a1, int a2)
+{
+    int lim = self[0x3C / 4];
+    if (a2 <= lim) {
+        a2 = lim;
+    }
+    func_0023E578(self, a1, a2);
+}
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_sub", func_0023E780);
 

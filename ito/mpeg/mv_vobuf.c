@@ -29,7 +29,11 @@ void voBufIsFull(int a0)
     iosMallocCheckLeak2(a0 & 0x0FFFFFFF);
 }
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vobuf", voBufIncCount);
+void voBufIncCount(volatile int *self)
+{
+    self[3] = 0;
+    self[2] = 0;
+}
 
 int voBufGetData(int *self) {
     return self[3] == self[4];

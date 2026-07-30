@@ -81,9 +81,17 @@ INCLUDE_ASM("asm/nonmatchings/src/keyInput", func_001050B0);
 
 INCLUDE_ASM("asm/nonmatchings/src/keyInput", func_001050E0);
 
-INCLUDE_ASM("asm/nonmatchings/src/keyInput", func_00105258);
+extern int D_00631B40;
 
-INCLUDE_ASM("asm/nonmatchings/src/keyInput", func_00105268);
+void func_00105258(void)
+{
+    D_00631B40 += 1;
+}
+
+void func_00105268(void)
+{
+    D_00631B40 -= 1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/keyInput", func_00105278);
 

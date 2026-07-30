@@ -30,9 +30,16 @@ int *func_0018CEC0(void) {
     return D_006D0680;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-set-manager", func_0018CED0);
+extern char D_00633D9C;
+extern char D_00633D8C;
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-set-manager", func_0018CEE0);
+void func_0018CED0(void) {
+    D_00633D9C = 1;
+}
+
+void func_0018CEE0(void) {
+    D_00633D8C = 1;
+}
 
 int func_0018CEF0(void) {
     return D_006D06C8[0] < 2;

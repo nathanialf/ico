@@ -55,5 +55,8 @@ INCLUDE_ASM("asm/nonmatchings/src/boy", func_001C1EA8);
 
 INCLUDE_ASM("asm/nonmatchings/src/boy", func_001C1F58);
 
-INCLUDE_ASM("asm/nonmatchings/src/boy", func_001C2098);
+void func_001C2098(char *a0, int a1) {
+    char *cloth = *(char **)(*(char **)(a0 + 0x15C) + 0x800);
+    *(int *)(cloth + 0x0) = a1;
+}
 

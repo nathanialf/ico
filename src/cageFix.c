@@ -46,7 +46,9 @@ void func_001C2EC8(void)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cageFix", func_001C2F10);
+void func_001C2F10(GObj *a0, int a1) {
+    ((Obj7F0 *)GOBJ_SUB(a0)->p_800)->f_40 = a1;
+}
 
 void func_001C2F20(int *self)
 {

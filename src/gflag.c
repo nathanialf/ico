@@ -125,7 +125,12 @@ void func_0017B568(int a0)
     func_001D4B40(a0, 2);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/gflag", func_0017B5A0);
+extern void UpdateRootMatrixByDObj(void *a0, float x, float y, float z);
+
+void func_0017B5A0(void *a0, float *rot)
+{
+    UpdateRootMatrixByDObj(a0, rot[0], rot[1], rot[2]);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/gflag", func_0017B5B0);
 

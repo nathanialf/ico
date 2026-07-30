@@ -65,7 +65,13 @@ void func_00194EA8(float a, float b)
 
 INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", func_00194EC0);
 
-INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", func_00194FE8);
+extern void func_001951A0(void *a0);
+
+void func_00194FE8(void *a0, int *a1)
+{
+    *(int **)((char *)*(void **)((char *)a0 + 0x164) + 0x674) = a1;
+    func_001951A0(a0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/mail-add-data", func_00194FF8);
 

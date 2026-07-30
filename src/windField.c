@@ -22,7 +22,10 @@ INCLUDE_ASM("asm/nonmatchings/src/windField", GetWindVector);
 
 INCLUDE_ASM("asm/nonmatchings/src/windField", dummyGetWindVector);
 
-INCLUDE_ASM("asm/nonmatchings/src/windField", getParallelWindVector);
+void getParallelWindVector(void)
+{
+    D_00633750 = (int (*)(void))ExecWindField;
+}
 
 extern char D_004C63A0[];
 extern void func_001D4A58();

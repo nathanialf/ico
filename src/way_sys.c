@@ -68,7 +68,11 @@ void create_box_bridge(int *a0) {
 
 INCLUDE_ASM("asm/nonmatchings/src/way_sys", GetWay_next);
 
-INCLUDE_ASM("asm/nonmatchings/src/way_sys", func_00176DD0);
+void func_00176DD0(void)
+{
+    D_00632514 = 0;
+    D_00632518 = 0;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/way_sys", GetNearNigePointN);
 

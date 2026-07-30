@@ -26,7 +26,11 @@ INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B8E8);
 
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B910);
 
-INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B938);
+float func_0019B938(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    char *q = *(char **)((char *)p + 0x800);
+    return *(float *)(q + 0x14);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B948);
 

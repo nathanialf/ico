@@ -125,7 +125,11 @@ end:
 
 INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C0C40);
 
-INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C0D50);
+short func_001C0D50(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    WLGeo *q = *(WLGeo **)((char *)p + 0x800);
+    return q->f_2;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C0D60);
 

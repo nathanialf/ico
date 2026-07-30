@@ -81,7 +81,11 @@ void func_001E8E80(int idx, int a1)
     *((int *)(((char *)(*((int **)((&D_007097F0[idx * 0x18]) + 0x14)))) + 0x34)) = a1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/particleLayout", func_001E8EA8);
+extern void GetParticleEffectPackage(int x);
+
+void func_001E8EA8(GObj *a0) {
+    GetParticleEffectPackage((int)((Obj7F0 *)GOBJ_SUB(a0)->p_800)->p_0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/particleLayout", func_001E8EB8);
 

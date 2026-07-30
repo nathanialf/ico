@@ -80,7 +80,12 @@ INCLUDE_ASM("asm/nonmatchings/src/kanban", func_001B08E0);
 
 INCLUDE_ASM("asm/nonmatchings/src/kanban", func_001B0A38);
 
-INCLUDE_ASM("asm/nonmatchings/src/kanban", func_001B0A58);
+extern int D_00633024;
+
+void func_001B0A58(void)
+{
+    D_00633024 = 1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/kanban", func_001B0A68);
 

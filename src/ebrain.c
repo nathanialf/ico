@@ -53,7 +53,11 @@ void eBrainGetTargetGeneratorFromLabelStage(void *a0) {
     q->f_CD = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/ebrain", func_001906A8);
+unsigned char func_001906A8(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    EGeo *q = *(EGeo **)((char *)p + 0x800);
+    return q->f_CD;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/ebrain", func_001906B8);
 

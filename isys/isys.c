@@ -22,7 +22,9 @@ void isysInitialize(void *a0, int a1)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/isys/isys", func_0013F878);
+void func_0013F878(char *self) {
+    *(int *)(self + 0x18) = 1;
+}
 
 void func_0013F888(void *a0)
 {

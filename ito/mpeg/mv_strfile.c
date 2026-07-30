@@ -39,5 +39,8 @@ int func_0019E1A0(void) {
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_strfile", func_0019E1C0);
+void func_0019E1C0(int a0)
+{
+    *(int *)(a0 + 0xB8) = 1;
+}
 

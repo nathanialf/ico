@@ -155,13 +155,22 @@ void switchReleaseSE(int *self)
     *(long long *)((char *)p + 0x18) = v;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BBFD0);
+float func_001BBFD0(void *a0) {
+    char *g = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x840);
+    return *(float *)(g + 0x20);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BBFE0);
 
-INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BC088);
+int func_001BC088(void *a0) {
+    char *g = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x800);
+    return *(int *)(g + 0x8);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", func_001BC098);
+void func_001BC098(void *a0, int a1) {
+    char *g = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x800);
+    *(int *)(g + 0x8) = a1;
+}
 
 void func_001BC0A8(int a0)
 {
