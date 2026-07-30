@@ -60,8 +60,6 @@ void func_001AD740(void) {}
 
 INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AD748);
 
-INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AD75C);
-
 INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AD768);
 
 extern int D_00632ED0;

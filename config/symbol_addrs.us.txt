@@ -2826,7 +2826,6 @@ func_001AD668 = 0x001AD668; // type:func  // src/haveParentSimpleObj.c  // splat
 func_001AD6C8 = 0x001AD6C8; // type:func  // src/haveParentSimpleObj.c
 func_001AD740 = 0x001AD740; // type:func  // src/haveParentSimpleObj.c
 func_001AD748 = 0x001AD748; // type:func  // src/haveParentSimpleObj.c
-func_001AD75C = 0x001AD75C; // type:func  // src/haveParentSimpleObj.c
 func_001AD7F0 = 0x001AD7F0; // type:func  // src/haveParentSimpleObj.c
 func_001AD8E8 = 0x001AD8E8; // type:func  // src/haveParentSimpleObj.c
 func_001ADA08 = 0x001ADA08; // type:func  // src/haveParentSimpleObj.c
