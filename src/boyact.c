@@ -710,7 +710,12 @@ void func_00153F68(volatile int a0) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00153FE8);
+extern unsigned char D_00633CED;
+
+unsigned char func_00153FE8(void)
+{
+    return D_00633CED;
+}
 
 extern void BoxBarSoundOn(void *a0, int a1);
 extern char D_00558200[];

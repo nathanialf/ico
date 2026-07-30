@@ -36,7 +36,10 @@ void func_001F2320(volatile unsigned int self)
 
 INCLUDE_ASM("asm/nonmatchings/src/waySystemManager", func_001F2370);
 
-INCLUDE_ASM("asm/nonmatchings/src/waySystemManager", func_001F2388);
+void func_001F2388(int a0)
+{
+    playSEConditionID(a0, 0x40);
+}
 
 void func_001F2390(int a0)
 {

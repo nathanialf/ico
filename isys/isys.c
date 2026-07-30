@@ -70,7 +70,12 @@ void func_0013F990(char *self) {
     *(int *)(self + 0x0) = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/isys/isys", func_0013F998);
+extern void func_0013F9A0(void);
+
+void func_0013F998(void)
+{
+    func_0013F9A0();
+}
 
 void func_0013F9A0(void)
 {

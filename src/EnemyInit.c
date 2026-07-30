@@ -25,5 +25,10 @@ int func_001FBF88(int idx, int sub_idx)
 
 INCLUDE_ASM("asm/nonmatchings/src/EnemyInit", func_001FBFC8);
 
-INCLUDE_ASM("asm/nonmatchings/src/EnemyInit", func_001FC040);
+extern void func_001FBFC8(void *a0);
+
+void func_001FC040(void *a0)
+{
+    func_001FBFC8(a0);
+}
 
