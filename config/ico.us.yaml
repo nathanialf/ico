@@ -410,6 +410,7 @@ segments:
       - [0x457804, rodata, src/cod/457804]   # .rodata blob resume
       - [0x457B60, .rodata, isys/obj_manager]  # gcc-emitted jtbl_00557B60 (soundOutputModeSet switch, 5 entries 0x14), VMA 0x557B60..0x557B74
       - [0x457B74, rodata, src/cod/457B74]   # .rodata blob resume (4 zero bytes at 0x557B74 are gcc's .align 3 pad after the 5-entry table)
+      - [0x457E78, .rodata, sound/soundManager]  # full soundManager .rodata run (anchors: jtbl_00557F10/557F40/5580F0/558130 + D_00557E78..D_005580D0; interior D_00557EE0/557F00 are src/act-game's "too many view check object"/__FILE__ strings, cross-TU externs), VMA 0x557E78..0x558150
       - [0x458150, .rodata, src/act-parallel-control]  # gcc-emitted jtbl_00558150 (func_0014B270 switch, 15 entries 0x3C), VMA 0x558150..0x55818C
       - [0x45818C, rodata, src/cod/45818C]   # .rodata blob resume
       - [0x458620, .rodata, src/boyact]  # gcc-emitted .lit8 pool (func_00151868/func_001519D8 doubles 0.2/0.9/0.2/0.7), VMA 0x558620..0x558640

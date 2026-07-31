@@ -10,7 +10,7 @@
 extern void ActPara_GetDefTbl(char *self, int bit);
 extern int setParticleEffect();
 extern void ACTLookTargetSystem_Exec(void);
-extern int D_00557ED0[];
+extern const char D_00557ED0[];
 extern void debug_assertMessage();
 extern void _ACTGame_SearchGObj();
 extern int *D_00631AE4;
@@ -26,7 +26,7 @@ extern void debug_DispSEInfo(int a0, int a1);
 extern void soundDataSegNextStageNotUseClose();
 INCLUDE_ASM("asm/nonmatchings/sound/soundManager", sndBgmReadyNextStage);
 
-extern char D_00557E78[];
+extern const char D_00557E78[];
 extern char D_005D49E0[];
 extern char D_006A98B0[];
 
@@ -64,7 +64,16 @@ void func_001447E0(int idx)
     soundAllocIopFree(*((unsigned short *) ((((char *) D_005F2FB8) + (idx * 0x194)) + new_var)));
 }
 
+/* soundManager .rodata run 0x557E78..0x558150 -- byte-verified against
+ * baseelf; defs interleave with INCLUDE_ASM stubs so .o section order ==
+ * VMA order */
+const char D_00557E78[0x10] = "num %d %d\n";
+
 INCLUDE_ASM("asm/nonmatchings/sound/soundManager", func_00144828);
+
+const char D_00557ED0[0x10] = "with mail\n";
+const char D_00557EE0[0x20] = "too many view check object";
+const char D_00557F00[0x10] = "src/act-game.c";
 
 INCLUDE_ASM("asm/nonmatchings/sound/soundManager", func_001448D8);
 

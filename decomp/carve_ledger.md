@@ -736,4 +736,16 @@ FileManager/ebrain's two-jtbl-one-function carves. All 12 standalone
 extents are multiples of 8 landing on an already-8-aligned run head, so
 none of the dlabel align-3 landmine from StageAnimation). Batch
 conversion of the remaining jtbl-bearing TUs recorded below as they
-land. Decided runs are recorded in `decomp/data_tu_boundaries.json`.
+land, `sound/soundManager` [0x557E78,0x558150) (worklist flagged this
+run as ambiguous — src/act-game anchors D_00557EE0/557F00 sit interior
+between two soundManager blocks; RESOLVED by byte-decoding them off
+baseelf: "too many view check object" / "src/act-game.c", genuinely
+act-game content, so rule (a) applies and the full contiguous run is
+safe rather than falling back to the narrower [0x557F10,0x558150)
+alternative. Also hit a second instance of the matched-C-blind-spot
+class from Packet: D_00557ED0 ("with mail\n", referenced only from
+matched func_00144E30) sits in what emit_run_defs.py's heuristic
+assumed was func_00144828's migrated span; func_00144828.s's last
+dlabel actually ends 0x10 short of that assumption. Hand-defined).
+Batch conversion of the remaining jtbl-bearing TUs recorded below as
+they land. Decided runs are recorded in `decomp/data_tu_boundaries.json`.
