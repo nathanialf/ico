@@ -36,7 +36,6 @@ extern void func_0014B330(char *self, unsigned int a1, float v);
 extern int D_0028A890[];
 extern void brainLevelProcess();
 extern void ACTLookTargetSystem_Exec(void);
-extern int D_00559430[];
 extern void debug_assertMessage();
 extern float MatrixDrive_GetTurnYAngleXZ(float a);
 extern float func_00243950(void *a, void *b);
@@ -74,6 +73,15 @@ float GetEyeDirection(float *p0, float *p1, float *p2) {
     return (float)ci / mdret;
 }
 
+/* girl_act .rodata run 0x559430..0x559B50 â€” byte-verified against baseelf.
+ * Definitions are interleaved with the INCLUDE_ASM stubs so the .o's section
+ * order equals VMA order (jtbls and stub-referenced rodata are emitted by the
+ * stubs themselves). */
+const char D_00559430[0x10] = "--disconnect--\n";
+const char D_00559440[0x18] = "girl after func\n";
+const char D_00559458[0x18] = "enter actGirlHand50\n";
+const char D_00559470[0x18] = "girl error flg get\n";
+
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", funcGirlHandDisconnect);
 
 void GirlBrainClearTarget(void) {
@@ -83,9 +91,18 @@ void GirlBrainClearTarget(void) {
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", girlBrainMain_DecideMode);
 
+const char D_005594A0[0x18] = "enter actGirlHand100\n";
+
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0016A828);
 
+const char D_005594D0[0x18] = "enter actGirlHand200\n";
+
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0016A9E8);
+
+const char D_00559510[0x18] = "Å¨¤Î¿ô¤¬Â¿¤¹¤®¤Þ¤¹";  /* EUC-JP */
+const char D_00559528[0x20] = "src/girl_brain_main.c.inc";
+const char D_00559548[0x10] = "SAMEGROUP";
+const char D_00559558[0x18] = "OTHERGROUP";
 
 void func_0016AC10(void)
 {
@@ -141,9 +158,15 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlPulledGo);
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_0016E910);
 
+/* 8-byte double: a C `const double` escapes to .sdata under -G8, so emit
+ * the splat block verbatim at its VMA-ordered position instead */
+INCLUDE_RODATA("asm/nonmatchings/src/girl_act", D_00559668);
+const char D_00559670[0x10] = "turnL mail\n";
+const char D_00559680[0x10] = "turnR mail\n";
+const char D_00559690[0x10] = "MOVE LOOP";
+const char D_005596A0[0x10] = "MOVE START";
+
 extern void BoxBarSoundOn(void *, int);
-extern char D_00559670[];
-extern char D_00559680[];
 extern int HandCameraCorrect(void *buf, void *vec);
 extern void debug_assertMessage(void *a0);
 extern float ClearHandCameraCorrect(void *a0, void *a1);
@@ -234,9 +257,20 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlSupportGBLoop);
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlSupportGBEnd);
 
+const unsigned int D_00559710[0x4] = { 0x000000FF, 0x000000FF, 0x000000FF, 0x00000080 };
+const char D_00559720[0x10] = "ATTRLOOK";
+const char D_00559730[0x10] = "LOOKONLY";
+const char D_00559740[0x10] = "APPROACH";
+const char D_00559750[0x10] = "LOSTTWAY";
+const char D_00559760[0x10] = "SEARCHWAY";
+
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlHangG3M);
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001725C8);
+
+const unsigned int D_005598D0[0x4] = { 0x444B8000, 0x44E46000, 0x44584000, 0x3F800000 };
+const unsigned int D_005598E0[0x4] = { 0x44180000, 0x44C80000, 0xC441C000, 0x3F800000 };
+const char D_005598F0[0x10] = "after func\n";
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00173060);
 
@@ -357,6 +391,14 @@ void actGirlHang(int *a0, int *a1, int *a2, int *a3) {
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlBHang);
 
+/* two NUL-separated strings in one splat symbol; sized to cover both */
+const char D_00559A70[0x30] = "ditch3m hand connect\n\0\0\0WBP set [ditch jump]\n";
+const char D_00559AA0[0x18] = "enter actGirlStand\n";
+const char D_00559AB8[0x18] = "enter actGirlWalk\n";
+const char D_00559AD0[0x18] = "enter actGirlRun\n";
+const char D_00559AE8[0x18] = "enter actGirlJump\n";
+const char D_00559B00[0x18] = "enter actGirlAttack\n";
+
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001742A0);
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_001743F0);
@@ -401,6 +443,9 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00174778);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00174A48);
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00174BA0);
+
+const unsigned int D_00559B30[0x4] = { 0x00000000, 0x00000010, 0x00000020, 0x00000080 };
+const unsigned int D_00559B40[0x4] = { 0x7F7FFFFF, 0x00000000, 0x00000000, 0x3F800000 };
 
 extern void func_00243978(void *a, void *b);
 extern void func_00243AE8(void *out, void *m1, void *m2);
@@ -530,7 +575,6 @@ void func_001754B0(void *volatile a0) {
     }
 }
 
-extern char D_00559A70[];
 extern void GetTarget(void);
 extern void CylinderCollisionWithControlDynamics(void *o, void *param);
 extern void *D_00631AE4__54f8 __asm__("D_00631AE4");
@@ -563,7 +607,6 @@ void func_001754F8(void *volatile a0) {
     }
 }
 
-extern char D_00559AA0[];
 
 void func_001755F8(volatile unsigned int a0)
 {
@@ -575,7 +618,6 @@ void func_001755F8(volatile unsigned int a0)
     _ACTWait(0);
 }
 
-extern char D_00559AB8[];
 extern unsigned int _ACTWait(int a0);
 
 void afterGirlHand(volatile unsigned int a0)
@@ -588,7 +630,6 @@ void afterGirlHand(volatile unsigned int a0)
     _ACTWait(0);
 }
 
-extern char D_00559AD0[];
 
 void afterGirlPulledGo(volatile unsigned int a0)
 {
@@ -631,7 +672,6 @@ void func_00175740(volatile int a0)
     }
 }
 
-extern char D_00559B00[];
 
 void func_001757B8(volatile unsigned int a0)
 {
