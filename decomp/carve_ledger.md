@@ -801,7 +801,9 @@ but every one is strictly interior to clean gflag/st25a edge
 boundaries, so the full contiguous run landed on the first attempt
 with no need for the narrower jtbl-only fallback; 9 EUC-JP strings).
 Batch conversion of the remaining jtbl-bearing TUs recorded below as
-they land. Decided runs are recorded in `decomp/data_tu_boundaries.json`.
+they land. Decided runs + evidence live in the yaml carve comments and the
+per-TU sections below (`decomp/data_tu_boundaries.json` is gitignored —
+regenerable local evidence, not the record).
 
 ## Blocked: `src/staticBlur` full-run carve reverted (2026-07-31)
 
