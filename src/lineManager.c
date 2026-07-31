@@ -59,7 +59,16 @@ INCLUDE_ASM("asm/nonmatchings/src/lineManager", DrawLineG);
 
 INCLUDE_ASM("asm/nonmatchings/src/lineManager", func_001D3F78);
 
-INCLUDE_ASM("asm/nonmatchings/src/lineManager", func_001D40A0);
+int func_001D40A0(char *a0)
+{
+    void *p = *(void **)(a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x800);
+    int r = 0;
+    if (q[0] == 1 || *(int *)(a0 + 0x16C) == 0) {
+        r = 1;
+    }
+    return r;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/lineManager", func_001D40D8);
 

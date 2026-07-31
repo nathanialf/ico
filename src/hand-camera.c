@@ -3,9 +3,14 @@
 
 extern void func_00243978();
 extern void func_00243AE8();
-INCLUDE_ASM("asm/nonmatchings/src/hand-camera", RotateAccordingToStick_PatternThree);
-
 extern float func_00243950(void *a0, void *a1);
+
+void RotateAccordingToStick_PatternThree(void *a0, void *a1) {
+    char buf[0x10];
+    func_00243AE8(buf, a0, a1);
+    *(int *)(buf + 4) = 0;
+    func_00243950(buf, buf);
+}
 
 void HandyCamera_TargetMoveType(void *a0, void *a1) {
     char buf[0x10];

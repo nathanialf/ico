@@ -1,5 +1,8 @@
 #include "common.h"
 
+extern int D_004D3440[];
+extern int D_004D34C0[];
+
 typedef struct { char pad[0xC0]; void *f_B0; void *unkB4; } BoxObj_st19a;
 
 typedef struct ActB4Obj {
@@ -106,7 +109,16 @@ INCLUDE_ASM("asm/nonmatchings/src/st19a", actSt19aChain);
 
 INCLUDE_ASM("asm/nonmatchings/src/st19a", func_00231818);
 
-INCLUDE_ASM("asm/nonmatchings/src/st19a", func_002318D0);
+typedef struct KSub_18d0 { char pad[0xC0]; int unkC0; } KSub_18d0;
+
+
+void func_002318D0(volatile int a0) {
+    KSub_18d0 *s = *(KSub_18d0 **)(a0 + 0x164);
+    s->unkC0 = (int)D_004D3440;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 extern int *D_004D3480[];
 extern int D_006325B4;
@@ -122,7 +134,16 @@ void func_00231900(volatile int a0) {
     _ACTWait(0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st19a", func_00231958);
+typedef struct KSub_1958 { char pad[0xC0]; int unkC0; } KSub_1958;
+
+
+void func_00231958(volatile int a0) {
+    KSub_1958 *s = *(KSub_1958 **)(a0 + 0x164);
+    s->unkC0 = (int)D_004D34C0;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 extern int *D_004D3500[];
 extern void actSt19aChainMain(volatile int a0);

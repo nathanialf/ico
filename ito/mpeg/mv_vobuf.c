@@ -14,7 +14,14 @@ int func_0019E310(int a0_unused, int *a1, char *a2) {
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vobuf", voBufCreate);
+extern void voBufIsFull(int a0);
+
+void voBufCreate(self)
+int *self;
+{
+    voBufIsFull(self[0]);
+    voBufIsFull(self[1]);
+}
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vobuf", voBufDelete);
 

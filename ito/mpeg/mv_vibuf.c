@@ -163,7 +163,14 @@ INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", func_0023F540);
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", func_0023F598);
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", func_0023F5D0);
+void *func_0023F5D0(int *a0, int a1) {
+    long long t = (unsigned int)a1;
+    a0[0] = (int)(t & 0xFFFFFFFFLL);
+    a0[1] = (int)(t >> 32);
+    a0[2] = 0x1A;
+    a0[3] = 0;
+    return (char *)a0 + 0x10;
+}
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_vibuf", func_0023F600);
 

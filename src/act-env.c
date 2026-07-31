@@ -80,10 +80,10 @@ extern float D_00633850_[] __asm__("D_00633850");
 extern float D_00633854_[] __asm__("D_00633854");
 extern int DisableMotionOrientUpdate(int a0, int a1);
 extern float EnableChangeRootUpdateMode();
-extern int EnableMotionOrientUpdate__p4(int a0, int a1) __asm__("EnableMotionOrientUpdate");
+extern int EnableMotionOrientUpdate(int a0, int a1);
+extern int ForMotionViewer_GetCurrentMotion(int a0, int a1);
 extern int ExecBoxMoveEndReaction(void *a0);
 extern int ForMotionViewer_GetCurrentAnimationFrame(int a0, int a1);
-extern int ForMotionViewer_GetCurrentMotion__p4(int a0, int a1) __asm__("ForMotionViewer_GetCurrentMotion");
 extern int GetDifferenceFromWallUpperPlane(void *a0);
 extern void GetHeightOfWallFromGObj(void *a0, void *a1);
 extern void GetRootMatrixByDObj(void *a0, void *a1);
@@ -563,9 +563,9 @@ L6B4:
         debug_Marker(mtx70, 0, 0, 0xFF, f20);
     }
     if (s6 != 0) {
-        if (EnableMotionOrientUpdate__p4(FI(0x30), 0x300) ||
-            EnableMotionOrientUpdate__p4(FI(0x30), 0x500) ||
-            EnableMotionOrientUpdate__p4(FI(0x30), 0x600)) {
+        if (EnableMotionOrientUpdate(FI(0x30), 0x300) ||
+            EnableMotionOrientUpdate(FI(0x30), 0x500) ||
+            EnableMotionOrientUpdate(FI(0x30), 0x600)) {
             f23 = D_00633850_[0];
             FF(0x34) = f23;
         }
@@ -656,7 +656,7 @@ L6B4:
             wAang = aat;
         }
         *(int *)((char *)arg4 + 0x130) = *(int *)(*(char **)((char *)arg4 + 0x178) + 0x48);
-        s6 = (unsigned char)EnableMotionOrientUpdate__p4(FI(0x30), 0x1000);
+        s6 = (unsigned char)EnableMotionOrientUpdate(FI(0x30), 0x1000);
         *(int *)((char *)arg4 + 0x13C) = (int)box;
         *(int *)arg3 |= 1;
         if (FF(0x34) < f23) {
@@ -702,7 +702,7 @@ L6B4:
             mv = 0;
             goto LmvB1;
         LmvB0:
-            mv = ForMotionViewer_GetCurrentMotion__p4((int)gb, 0xB000);
+            mv = ForMotionViewer_GetCurrentMotion((int)gb, 0xB000);
         LmvB1:;
         {
             int m2;
@@ -712,12 +712,12 @@ L6B4:
             m2 = 0;
             goto LmvE1;
         LmvE0:
-            m2 = ForMotionViewer_GetCurrentMotion__p4((int)gb, 0xE000);
+            m2 = ForMotionViewer_GetCurrentMotion((int)gb, 0xE000);
         LmvE1:
             mv = m2;
             if (mv == 0) {
                 gb = (char *)FI(0x30);
-                mv = ForMotionViewer_GetCurrentMotion__p4((int)gb, 0xC000);
+                mv = ForMotionViewer_GetCurrentMotion((int)gb, 0xC000);
                 {
                     int m4;
                     gb = (char *)FI(0x30);
@@ -726,16 +726,16 @@ L6B4:
                     m4 = 0;
                     goto LmvD1;
                 LmvD0:
-                    m4 = ForMotionViewer_GetCurrentMotion__p4((int)gb, 0xD000);
+                    m4 = ForMotionViewer_GetCurrentMotion((int)gb, 0xD000);
                 LmvD1:
                     mv = m4;
                     if (mv == 0) {
                         gb = (char *)FI(0x30);
-                        mv = (D_00631990 == 4) ? EnableMotionOrientUpdate__p4((int)gb, 0x1000)
-                             : ForMotionViewer_GetCurrentMotion__p4((int)gb, 0x1000);
+                        mv = (D_00631990 == 4) ? EnableMotionOrientUpdate((int)gb, 0x1000)
+                             : ForMotionViewer_GetCurrentMotion((int)gb, 0x1000);
                         mv &= 0xFF;
                         if (mv == 0) {
-                            mv = ForMotionViewer_GetCurrentMotion__p4(FI(0x30), 0x3000);
+                            mv = ForMotionViewer_GetCurrentMotion(FI(0x30), 0x3000);
                         }
                     }
                 LmvDskip:;
@@ -750,7 +750,7 @@ L6B4:
         {
             gb = (char *)FI(0x30);
             if (gb == (char *)D_00631AE8) {
-            if (EnableMotionOrientUpdate__p4((int)gb, 0x7000)) {
+            if (EnableMotionOrientUpdate((int)gb, 0x7000)) {
                 f23 = D_00633850_[0];
                 FF(0x34) = f23;
                 if (ACTEnvGetTest()) {
@@ -864,7 +864,7 @@ L6B4:
         if (f22 < f20 && s18 != 0) {
             long long ll;
             if (b1) {
-                if (EnableMotionOrientUpdate__p4(FI(0x30), 0xA00)) {
+                if (EnableMotionOrientUpdate(FI(0x30), 0xA00)) {
                     *(int *)((char *)arg3 + 4) |= 0x1000;
                 } else {
                     *(int *)((char *)arg3 + 4) |= 0x800;
@@ -891,7 +891,7 @@ L6B4:
                     *(int *)((char *)arg3 + 4) |= 0x8000;
                 }
             }
-            if (EnableMotionOrientUpdate__p4(FI(0x30), 0x2000)) {
+            if (EnableMotionOrientUpdate(FI(0x30), 0x2000)) {
                 if (f23 > 80.0f && f23 < 180.0f) {
                     *(int *)((char *)arg3 + 4) |= 2;
                 }
@@ -938,7 +938,7 @@ L6B4:
             stt = *(int *)(box + 0xC);
         L10d:;
             if (stt == 0x11) {
-                if (EnableMotionOrientUpdate__p4(FI(0x30), 0xB00)) goto L11e;
+                if (EnableMotionOrientUpdate(FI(0x30), 0xB00)) goto L11e;
                 *(int *)((char *)arg3 + 4) |= 0x40000000;
                 *(int *)((char *)arg4 + 0x140) = (int)box;
                 if (func_001C05B8(box) == 0) goto L11g;
@@ -958,7 +958,7 @@ L6B4:
             L11d:;
             }
             if (stt == 0x12) {
-                if (ForMotionViewer_GetCurrentMotion__p4(FI(0x30), 0x700)) {
+                if (ForMotionViewer_GetCurrentMotion(FI(0x30), 0x700)) {
                     *(int *)((char *)arg3 + 4) |= 0x80000000;
                     *(int *)((char *)arg4 + 0x148) = (int)box;
                     stt = *(int *)(box + 0xC);
@@ -967,7 +967,7 @@ L6B4:
                 }
             }
             if (stt == 0x17) {
-                if (EnableMotionOrientUpdate__p4(FI(0x30), 0x500)) {
+                if (EnableMotionOrientUpdate(FI(0x30), 0x500)) {
                     ((union IFAlias *)((char *)arg3 + 8))->i |= 1;
                     *(int *)((char *)arg4 + 0x150) = FI(0x1B0);
                     *(int *)((char *)arg4 + 0x14C) = (int)box;
@@ -978,7 +978,7 @@ L6B4:
                 }
             }
             if (stt == 0x16) {
-                if (ForMotionViewer_GetCurrentMotion__p4(FI(0x30), 0x500) == 0) goto L16e;
+                if (ForMotionViewer_GetCurrentMotion(FI(0x30), 0x500) == 0) goto L16e;
                 if (InitWallLeverGeo(box) == 0) goto L16g;
                 {
                 char *d16 = (char *)arg4 + 0xF0;
@@ -1000,7 +1000,7 @@ L6B4:
             L16d:;
             }
             if (stt == 0x18) {
-                if (ForMotionViewer_GetCurrentMotion__p4(FI(0x30), 0x600) == 0) goto L18e;
+                if (ForMotionViewer_GetCurrentMotion(FI(0x30), 0x600) == 0) goto L18e;
                 if (func_001C0BE0(box) == 0) goto L18g;
                 ((union IFAlias *)((char *)arg3 + 8))->i |= 4;
                 *(int *)((char *)arg4 + 0x14C) = (int)box;
@@ -1015,7 +1015,7 @@ L6B4:
             L18d:;
             }
             if (stt == 0x19) {
-                if (ForMotionViewer_GetCurrentMotion__p4(FI(0x30), 0x600)) {
+                if (ForMotionViewer_GetCurrentMotion(FI(0x30), 0x600)) {
                     if (func_001C0BE0(box)) {
                         ((union IFAlias *)((char *)arg3 + 8))->i |= 8;
                         *(int *)((char *)arg4 + 0x14C) = (int)box;
@@ -1031,7 +1031,7 @@ L6B4:
             if (D_00631990 == 0x54 || D_00631990 == 3 || D_00631990 == 0x2E) {
                 if (*(int *)((char *)FI(0x30) + 0xC) == 4) goto Lp1end;
             }
-            if (EnableMotionOrientUpdate__p4(FI(0x30), 0x400)) {
+            if (EnableMotionOrientUpdate(FI(0x30), 0x400)) {
                 char *dstc = (char *)arg4 + 0xC0;
                 w70 = (char *)&f74 - 4;
                 ((union IFAlias *)((char *)arg3 + 8))->i =
@@ -1062,7 +1062,7 @@ L6B4:
                 *(float *)((char *)arg4 + 0xCC) = 1.0f;
             }
         Lp1end:
-            if (EnableMotionOrientUpdate__p4(FI(0x30), 0xC000)) {
+            if (EnableMotionOrientUpdate(FI(0x30), 0xC000)) {
                 *(int *)((char *)arg3 + 8) = (*(int *)((char *)arg3 + 8) & ~0x400) | (fl40 << 10);
             }
         }
@@ -1076,8 +1076,8 @@ L6B4:
             switch (k) {
             case -1: {
                 int r;
-                if (D_00631990 == 4) r = EnableMotionOrientUpdate__p4(FI(0x30), 0x1000);
-                else r = ForMotionViewer_GetCurrentMotion__p4(FI(0x30), 0x1000);
+                if (D_00631990 == 4) r = EnableMotionOrientUpdate(FI(0x30), 0x1000);
+                else r = ForMotionViewer_GetCurrentMotion(FI(0x30), 0x1000);
                 if (r & 0xFF) {
                     thr = 30.0f;
                 } else {
@@ -1116,16 +1116,16 @@ L6B4:
                 if (60.0f < FF(0x34)) {
                     if (FF(0x34) < 230.0f) c60_230 = 1;
                 }
-                if (ForMotionViewer_GetCurrentMotion__p4(FI(0x30), 0xB000)) {
+                if (ForMotionViewer_GetCurrentMotion(FI(0x30), 0xB000)) {
                     *(int *)((char *)arg3 + 8) = (*(int *)((char *)arg3 + 8) & ~0x100) | (c60_150 << 8);
-                } else if (ForMotionViewer_GetCurrentMotion__p4(FI(0x30), 0xE000)) {
+                } else if (ForMotionViewer_GetCurrentMotion(FI(0x30), 0xE000)) {
                     *(int *)((char *)arg3 + 8) = (*(int *)((char *)arg3 + 8) & ~0x200) | (c60_150 << 9);
-                } else if (ForMotionViewer_GetCurrentMotion__p4(FI(0x30), 0xD000)) {
+                } else if (ForMotionViewer_GetCurrentMotion(FI(0x30), 0xD000)) {
                     *(int *)((char *)arg3 + 8) = (*(int *)((char *)arg3 + 8) & ~0x1000) | (c60_150 << 12);
                 } else {
                     int r2;
-                    if (D_00631990 == 4) r2 = EnableMotionOrientUpdate__p4(FI(0x30), 0x1000);
-                    else r2 = ForMotionViewer_GetCurrentMotion__p4(FI(0x30), 0x1000);
+                    if (D_00631990 == 4) r2 = EnableMotionOrientUpdate(FI(0x30), 0x1000);
+                    else r2 = ForMotionViewer_GetCurrentMotion(FI(0x30), 0x1000);
                     if (r2 & 0xFF) {
                         int v = (*(int *)((char *)arg3 + 8) & ~0x2000) | (c60_150 << 13);
                         *(int *)((char *)arg3 + 8) = v;
@@ -1177,7 +1177,7 @@ L6B4:
                                 *(int *)((char *)arg3 + 8) &= ~0x2000;
                             }
                         }
-                    } else if (ForMotionViewer_GetCurrentMotion__p4(FI(0x30), 0x3000)) {
+                    } else if (ForMotionViewer_GetCurrentMotion(FI(0x30), 0x3000)) {
                         *(int *)((char *)arg3 + 8) = (*(int *)((char *)arg3 + 8) & ~0x4000) | (c60_150 << 14);
                     } else if (*(int *)(*(char **)((char *)FI(0x30) + 0x15C) + 0x1E4) != 0) {
                         int v = (*(int *)((char *)arg3 + 8) & ~0x80) | (c60_100 << 7);
@@ -1224,12 +1224,12 @@ L6B4:
             t = FF(0x34);
             if (t < 0.0f) t = D_00633850_[0];
             if (t > 230.0f) {
-                if (ForMotionViewer_GetCurrentMotion__p4(FI(0x30), 0x400) == 0 &&
-                    ForMotionViewer_GetCurrentMotion__p4(FI(0x30), 0x8000) == 0) {
+                if (ForMotionViewer_GetCurrentMotion(FI(0x30), 0x400) == 0 &&
+                    ForMotionViewer_GetCurrentMotion(FI(0x30), 0x8000) == 0) {
                     int stx = *(int *)(box + 0xC);
                     if (stx != 0x2B) {
                         if (stx != 0x35 && c16 != 0) {
-                            if (ForMotionViewer_GetCurrentMotion__p4(FI(0x30), 0xE000)) {
+                            if (ForMotionViewer_GetCurrentMotion(FI(0x30), 0xE000)) {
                                 ((union LLAlias *)(env + 0x468))->ll |= 0x8000LL << 44;
                             } else {
                                 ((union LLAlias *)(env + 0x468))->ll |= 0x8000LL << 45;

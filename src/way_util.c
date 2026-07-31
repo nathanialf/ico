@@ -266,7 +266,13 @@ int get_wp_nearest_bridge_side_me(void *a0) {
     return ez_line(a0, -1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017A9D8);
+extern void GetRootMatrixByDObj(void *a0, void *a1);
+
+void func_0017A9D8(void *a0) {
+    int buf[4];
+    GetRootMatrixByDObj(buf, a0);
+    ez_line(buf, -1);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017AA08);
 

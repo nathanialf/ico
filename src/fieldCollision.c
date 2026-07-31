@@ -12,7 +12,7 @@ extern void debug_assertMessage();
 extern char D_00558F68[];
 extern char D_00558F50[];
 extern int ExecMotionOrient(int a0, int a1, int a2);
-extern void _ACTWait__p4(int a0) __asm__("_ACTWait");
+extern void _ACTWait(int a0);
 
 void MakeCollisionDependGObjList(volatile int a0) {
     int gobj = *(int *)(a0 + 0x164);
@@ -21,7 +21,7 @@ void MakeCollisionDependGObjList(volatile int a0) {
     r = ExecMotionOrient(a0, 0xC, gobj + 0x610);
     *(int *)(gobj + 0x120) = r;
     *(int *)(r + 0x114) = 0;
-    _ACTWait__p4(0);
+    _ACTWait(0);
 }
 
 void GetReflectionElement(volatile unsigned int a0)

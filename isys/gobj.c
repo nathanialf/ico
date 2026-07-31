@@ -32,7 +32,7 @@ INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjKindTableInit);
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjInit);
 
-extern char D_00557A10__p4[] __asm__("D_00557A10");
+extern char D_00557A10[];
 extern char D_006321C8[];
 extern struct GObj__p4 *D_00633CA0__p4 __asm__("D_00633CA0");
 extern void *D_006A93D0[];
@@ -46,7 +46,7 @@ void cut_gobj_link(void) {
     unsigned int i = 0;
     if (D_00633CA4 != 0) {
         void **list = D_006A93D0;
-        char *file = D_00557A10__p4;
+        char *file = D_00557A10;
         int stride;
         do {
             char *gobj;
@@ -138,7 +138,6 @@ int isysGObjAddBeforeGObj(void)
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGetNbAllocedGObjs);
 
-extern char D_00557A10__p4[] __asm__("D_00557A10");
 extern char D_006321C8[];
 extern void *D_006A93D0[];
 extern void func_001AD768(char *a0, int a1);
@@ -159,8 +158,8 @@ void isysGObjAlloc(char *a0) {
     if (*(char **)(p + 0x3C) != a0) {
         do {
             if (p == 0) {
-                func_001AD768(D_00557A10__p4, 0x92);
-                func_00263FF0(D_00557A10__p4, 0x92, D_006321C8);
+                func_001AD768(D_00557A10, 0x92);
+                func_00263FF0(D_00557A10, 0x92, D_006321C8);
             }
             p = *(char **)(p + 0x3C);
         } while (*(char **)(p + 0x3C) != a0);

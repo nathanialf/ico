@@ -191,5 +191,11 @@ INCLUDE_ASM("asm/nonmatchings/src/layout_texture", func_001B7100);
 
 INCLUDE_ASM("asm/nonmatchings/src/layout_texture", func_001B7190);
 
-INCLUDE_ASM("asm/nonmatchings/src/layout_texture", func_001B7218);
+extern char D_002E81F0[];
+
+void func_001B7218(int idx, int flag)
+{
+    int *p = (int *)(D_002E81F0 + idx * 0x6C);
+    p[0x1A] = (p[0x1A] & ~2) | ((flag & 1) << 1);
+}
 

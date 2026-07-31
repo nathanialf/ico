@@ -126,7 +126,18 @@ INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001ADD00);
 
 INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001ADED8);
 
-INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AE188);
+extern short D_00632F78;
+extern void backStageSave(void);
+
+void func_001AE188(void)
+{
+    unsigned short (*a)[32] = (unsigned short (*)[32])D_004B3D10;
+    if (a[1][1] == 0x83) {
+        D_00632F78 = a[1][2];
+    }
+    D_00632F74++;
+    return backStageSave();
+}
 
 void func_001AE1B8(int *self, int n, int a2)
 {

@@ -115,7 +115,8 @@ void actSt02aWaterFall(int x) {
     volatile int local = x;
 }
 
-extern void AddWayPointTop__p4(int a0, int a1) __asm__("AddWayPointTop");
+extern void AddWayPointTop(int a0, int a1);
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 extern int D_004D0FB0[];
 extern int D_00631AE8;
 extern void actSt02aEne(volatile int a0);
@@ -130,7 +131,7 @@ void actSt02aBoxEvent2(volatile int a0) {
         if (scpSleepSpiderGroupOne(D_00631AE8, 0x1000000) != 0 && func_0017B230(0x42) != 0) break;
         _ACTWait(1);
     }
-    AddWayPointTop__p4(4, 1);
+    AddWayPointTop(4, 1);
     D_004D0FB0[1] = (int)actSt02aEne;
     obj->unkC4 = D_004D0FB0;
     BoxBarSoundOn(a0, 0x18D);
@@ -148,7 +149,7 @@ void actSt02aEne(volatile int a0) {
         if (scpSleepSpiderGroupOne(D_00631AE8, 0x2000000) != 0 && func_0017B230(0x42) != 0) break;
         _ACTWait(1);
     }
-    AddWayPointTop__p4(4, 0);
+    AddWayPointTop(4, 0);
     {
         int *p = D_004D0F50 + 32;
         p[1] = (int)actSt02aBoxEvent2;
@@ -174,7 +175,6 @@ extern char *D_00631AE4;
 extern void actSt02aSekizo(volatile int a0);
 extern void actSt02aWay(volatile int a0);
 extern int scpSleepEnemyOne(int a0, int a1, float f);
-extern void stage_KillPlayBgAnimation__p4(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
 
 void actSt02aEnemy2(volatile int a0) {
     int x = a0;
@@ -184,7 +184,7 @@ void actSt02aEnemy2(volatile int a0) {
     if (D_00631AE8 == 0) goto sekizo;
     if (scpSleepEnemyOne(a0, (int)D_00631AE8, 400.0f) == 0) goto sekizo;
 way:
-    stage_KillPlayBgAnimation__p4(0x54, 0, 0);
+    stage_KillPlayBgAnimation(0x54, 0, 0);
     _ACTWait(0x3C);
     D_004D0FF0[1] = (int)actSt02aWay;
     gobj->unkC4 = D_004D0FF0;
@@ -192,7 +192,7 @@ way:
     _ACTWait(0);
     return;
 sekizo:
-    stage_KillPlayBgAnimation__p4(0x53, 0, 0);
+    stage_KillPlayBgAnimation(0x53, 0, 0);
     D_004D1010[1] = (int)actSt02aSekizo;
     gobj->unkC4 = D_004D1010;
     BoxBarSoundOn(a0, 0x18D);
@@ -219,7 +219,7 @@ void actSt02aSekizo(volatile int a0) {
     _ACTWait(0xF);
     actCreateSubThread((void *)actSt03tGene, 0x15);
     func_0017E870(D_006314EC, -1072.0f, D_006314F0, 100.0f);
-    stage_KillPlayBgAnimation__p4(0x53, 1, 0);
+    stage_KillPlayBgAnimation(0x53, 1, 0);
     buf = D_0061BA10;
     soundSeDefPlayWithVolumeRate(0x4AC, 0, &buf, 1);
     _ACTWait(0x1E);
@@ -287,7 +287,7 @@ void func_00211EC8(volatile int a0) {
     func_001E8EA8(actSt25aQueenDeadChk(0x641));
     func_001E8EA8(actSt25aQueenDeadChk(0x642));
     func_001E8EA8(actSt25aQueenDeadChk(0x643));
-    stage_KillPlayBgAnimation__p4(0x163, -1, -2);
+    stage_KillPlayBgAnimation(0x163, -1, -2);
     func_0017EA50(actSt25aQueenDeadChk(0x630), 0.0f, -200.0f, 0.0f);
     func_0017EA50(actSt25aQueenDeadChk(0x632), 0.0f, -200.0f, 0.0f);
     _ACTWait(5);

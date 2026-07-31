@@ -20,7 +20,7 @@ extern void MatrixDrive_TurnXObjectMatrixYZ();
 extern void func_0010DDB8();
 extern void RegularizeQuaternion();
 #include "ico/types.h"
-extern void MatrixDrive_TurnXObjectMatrixYZ__p4(void *dst, void *src) __asm__("MatrixDrive_TurnXObjectMatrixYZ");
+extern void MatrixDrive_TurnXObjectMatrixYZ(void *dst, void *src);
 extern int func_00104F20__p4(void) __asm__("func_00104F20");
 extern int *func_00105268__p4(void) __asm__("func_00105268");
 extern void func_00105308(float a, float b, float c);
@@ -34,9 +34,9 @@ void GetRootQuaternionByDObj(void *a0)
     float b = rf13;
     float c = rf14;
     func_00104F20__p4();
-    MatrixDrive_TurnXObjectMatrixYZ__p4(func_00105278(), (void *)((char *)a0 + 0x20));
+    MatrixDrive_TurnXObjectMatrixYZ(func_00105278(), (void *)((char *)a0 + 0x20));
     func_00105308(a, b, c);
-    MatrixDrive_TurnXObjectMatrixYZ__p4((void *)*(int *)((char *)a0 + 0xC), func_00105278());
+    MatrixDrive_TurnXObjectMatrixYZ((void *)*(int *)((char *)a0 + 0xC), func_00105278());
     func_00105268__p4();
 }
 

@@ -154,7 +154,7 @@ extern char D_00280C60[];
 extern int D_006330A8;
 extern int D_00633160;
 extern char D_00706F10[];
-extern void func_001B7218__p4(int a0, int a1) __asm__("func_001B7218");
+extern void func_001B7218(int a0, int a1);
 
 int _la_set_preview_info(void) {
     int i;
@@ -168,11 +168,11 @@ int _la_set_preview_info(void) {
     for (i = 0; i < 10; i++) {
         if (((D_00633048 >> i) & 1) &&
             *(unsigned int *)(D_00280C60 + i * 16 + D_006330A8 * 396) != 0xFFFFFFFFU) {
-            func_001B7218__p4(i + 0x1B, 0);
-            func_001B7218__p4(i + 0x11, 1);
+            func_001B7218(i + 0x1B, 0);
+            func_001B7218(i + 0x11, 1);
         } else {
-            func_001B7218__p4(i + 0x1B, 1);
-            func_001B7218__p4(i + 0x11, 0);
+            func_001B7218(i + 0x1B, 1);
+            func_001B7218(i + 0x11, 0);
         }
     }
     *(LaPrev16 *)&D_00706F10 = *(LaPrev16 *)(D_00280C60 + D_006330A8 * 396 + D_0063303C * 16);

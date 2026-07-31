@@ -20,19 +20,20 @@ void func_0023B4F0(volatile int a0) {
 }
 
 extern int actInitialize(int a0);
-extern void stage_KillPlayBgAnimation__b518(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int *D_00631AE4;
 
 void func_0023B518(volatile int a0) {
     int x = a0;
     actInitialize(a0);
     for (;;) {
-        stage_KillPlayBgAnimation__b518(0x1C0, 1, 0);
+        stage_KillPlayBgAnimation(0x1C0, 1, 0);
         _ACTWait(0xB3);
-        stage_KillPlayBgAnimation__b518(0x1C1, 1, 0);
+        stage_KillPlayBgAnimation(0x1C1, 1, 0);
         _ACTWait(0xB3);
-        stage_KillPlayBgAnimation__b518(0x1C2, 1, 0);
+        stage_KillPlayBgAnimation(0x1C2, 1, 0);
         _ACTWait(0xB3);
-        stage_KillPlayBgAnimation__b518(0x1C3, 1, 0);
+        stage_KillPlayBgAnimation(0x1C3, 1, 0);
         _ACTWait(0xB3);
     }
 }
@@ -44,32 +45,29 @@ void func_0023B5A0(volatile int a0) {
     actCreateSubThread(func_0023B5C8, 0x15);
 }
 
-extern void stage_KillPlayBgAnimation__b5c8(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
-extern int actInitialize__b5c8(int a0) __asm__("actInitialize");
 
 void func_0023B5C8(volatile int a0) {
     int x = a0;
-    actInitialize__b5c8(a0);
+    actInitialize(a0);
     for (;;) {
-        stage_KillPlayBgAnimation__b5c8(0xAD, 1, 0);
+        stage_KillPlayBgAnimation(0xAD, 1, 0);
         _ACTWait(0xC8);
-        stage_KillPlayBgAnimation__b5c8(0xAE, 1, 0);
+        stage_KillPlayBgAnimation(0xAE, 1, 0);
         _ACTWait(0xC8);
-        stage_KillPlayBgAnimation__b5c8(0xAF, 1, 0);
+        stage_KillPlayBgAnimation(0xAF, 1, 0);
         _ACTWait(0xC8);
-        stage_KillPlayBgAnimation__b5c8(0xB0, 1, 0);
+        stage_KillPlayBgAnimation(0xB0, 1, 0);
         _ACTWait(0xC8);
     }
 }
 
 extern void _ACTWait(int a0);
 
-extern int *D_00631AE4__b650 __asm__("D_00631AE4");
 extern void func_0017E660(int a0, float a1, float a2, float a3, float a4);
 
 void func_0023B650(volatile int a0) {
     for (;;) {
-        while ((((int *)D_00631AE4__b650[0x164 / 4])[0x2D4 / 4] & 0x400) == 0) {
+        while ((((int *)D_00631AE4[0x164 / 4])[0x2D4 / 4] & 0x400) == 0) {
             _ACTWait(1);
         }
         func_0017E660(2, 0.0f, -500.0f, 0.0f, 500.0f);

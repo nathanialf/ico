@@ -23,7 +23,14 @@ extern void actSt47aEnd(volatile int a0);
 extern int func_0012AB50(int a0, int a1, int a2);
 extern int scpSleepSpiderGroupOne(int a0, int a1);
 extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
-extern void stage_KillPlayBgAnimation__p4(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
+extern int actInitialize(int a0);
+extern void func_0017B288(int a0);
+extern void Generator_Mask(int a0);
+extern void Generator_MaskOff(int a0);
+extern void Generator_Call(int a0);
+extern void lt_fade_status(int a0);
+extern void scpDispOnAllWithKind(void);
 
 void actSt47aInit(volatile int a0) {
     ActB4Obj *obj = *(ActB4Obj **)(a0 + 0x164);
@@ -39,7 +46,7 @@ void actSt47aInit(volatile int a0) {
         }
         _ACTWait(1);
     }
-    stage_KillPlayBgAnimation__p4(0x65, 1, 0);
+    stage_KillPlayBgAnimation(0x65, 1, 0);
     soundSeDefPlayWithVolumeRate(0x4AC, 0, 0, 1);
     while (func_0012AB50(0x65, 0x2D, 1) == 0) {
         _ACTWait(1);
@@ -69,7 +76,6 @@ extern void func_0017B288(int a0);
 extern void func_0017E870(float a0, float a1, float a2, float a3);
 extern int scpKillSpiderGroup(int a0, int a1);
 extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
-extern void stage_KillPlayBgAnimation__p4(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
 
 void actSt47aEnd(volatile int a0) {
     ActB4Obj *obj = *(ActB4Obj **)(a0 + 0x164);
@@ -78,7 +84,7 @@ void actSt47aEnd(volatile int a0) {
     }
     _ACTWait(0xF);
     func_0017B288(0x36);
-    stage_KillPlayBgAnimation__p4(0x65, 1, 0x2E);
+    stage_KillPlayBgAnimation(0x65, 1, 0x2E);
     soundSeDefPlayWithVolumeRate(0x4AC, 0, 0, 1);
     while (func_0012AB50(0x65, 0x32, 0) == 0) {
         _ACTWait(1);
@@ -112,7 +118,7 @@ void actSt47aSekizo1Chk(volatile int a0) {
         }
         _ACTWait(1);
     }
-    stage_KillPlayBgAnimation__p4(0x66, 1, 0);
+    stage_KillPlayBgAnimation(0x66, 1, 0);
     soundSeDefPlayWithVolumeRate(0x4AC, 0, 0, 1);
     while (func_0012AB50(0x66, 0x2D, 1) == 0) {
         _ACTWait(1);
@@ -141,7 +147,6 @@ extern void actSt47aHane2Up(volatile int a0);
 extern int func_0012AA80(int a0);
 extern void func_0017B288(int a0);
 extern void soundSeDefPlayWithVolumeRate(int a0, int a1, int a2, int a3);
-extern void stage_KillPlayBgAnimation__p4(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
 
 void actSt47aRopeChk(volatile int a0) {
     ActB4Obj *obj = *(ActB4Obj **)(a0 + 0x164);
@@ -150,7 +155,7 @@ void actSt47aRopeChk(volatile int a0) {
     }
     _ACTWait(0xF);
     func_0017B288(0x38);
-    stage_KillPlayBgAnimation__p4(0x68, 1, 0);
+    stage_KillPlayBgAnimation(0x68, 1, 0);
     soundSeDefPlayWithVolumeRate(0x4AD, 0, 0, 1);
     _ACTWait(0x32);
     soundSeDefPlayWithVolumeRate(0x4AE, 0, 0, 1);
@@ -210,20 +215,19 @@ extern int D_004D3970[];
 extern int D_004D3990[];
 extern void actSt47aHane2Up(volatile int a0);
 extern void actSt47aRopeChk(volatile int a0);
-extern void stage_KillPlayBgAnimation__p4(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
 
 void actSt47aSekizo2(volatile int a0) {
     int x = a0;
     ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
     _ACTWait(1);
     if (func_0017B230(0x38) == 0) {
-        stage_KillPlayBgAnimation__p4(0x67, 0, 0);
+        stage_KillPlayBgAnimation(0x67, 0, 0);
         D_004D3970[1] = (int)actSt47aHane2Up;
         gobj->unkC4 = D_004D3970;
         BoxBarSoundOn((int)a0, 0x18D);
         _ACTWait(0);
     } else {
-        stage_KillPlayBgAnimation__p4(0x67, 0, -1);
+        stage_KillPlayBgAnimation(0x67, 0, -1);
         D_004D3990[1] = (int)actSt47aRopeChk;
         gobj->unkC4 = D_004D3990;
         BoxBarSoundOn((int)a0, 0x18D);
@@ -241,13 +245,13 @@ void actSt47aSekizo3(volatile int a0) {
     ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
     _ACTWait(1);
     if (func_0017B230(0x36) == 0) {
-        stage_KillPlayBgAnimation__p4(0x65, 0, 0);
+        stage_KillPlayBgAnimation(0x65, 0, 0);
         D_004D3870[1] = (int)actSt47aInit;
         gobj->unkC4 = D_004D3870;
         BoxBarSoundOn((int)a0, 0x18D);
         _ACTWait(0);
     } else {
-        stage_KillPlayBgAnimation__p4(0x65, 0, 0x2D);
+        stage_KillPlayBgAnimation(0x65, 0, 0x2D);
         D_004D3890[1] = (int)actSt47aEnd;
         gobj->unkC4 = D_004D3890;
         BoxBarSoundOn((int)a0, 0x18D);
@@ -265,13 +269,13 @@ void actSt47aSekizo4(volatile int a0) {
     ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
     _ACTWait(1);
     if (func_0017B230(0x37) == 0) {
-        stage_KillPlayBgAnimation__p4(0x66, 0, 0);
+        stage_KillPlayBgAnimation(0x66, 0, 0);
         D_004D38F0[1] = (int)actSt47aSekizo1Chk;
         gobj->unkC4 = D_004D38F0;
         BoxBarSoundOn((int)a0, 0x18D);
         _ACTWait(0);
     } else {
-        stage_KillPlayBgAnimation__p4(0x66, 0, 0x2D);
+        stage_KillPlayBgAnimation(0x66, 0, 0x2D);
         D_004D3910[1] = (int)actSt47aHane1Up;
         gobj->unkC4 = D_004D3910;
         BoxBarSoundOn((int)a0, 0x18D);
@@ -378,33 +382,29 @@ INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00237518);
 
 struct CFS { long long a, b; };
 extern struct CFS D_0061C310;
-extern int actInitialize__75c8(int a0) __asm__("actInitialize");
 extern void soundSeDefPlayWithVolumeRate__75c8(int a0, int a1, void *a2, int a3) __asm__("soundSeDefPlayWithVolumeRate");
-extern void stage_KillPlayBgAnimation__75c8(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
 
 void func_002375C8(volatile int a0) {
     struct CFS buf;
     int x = a0;
-    actInitialize__75c8(a0);
+    actInitialize(a0);
     _ACTWait(1);
     buf = D_0061C310;
     soundSeDefPlayWithVolumeRate__75c8(0x52A, 0, &buf, 1);
-    stage_KillPlayBgAnimation__75c8(0x7A, 0, 0);
+    stage_KillPlayBgAnimation(0x7A, 0, 0);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00237638);
 
-extern int actInitialize__76f0(int a0) __asm__("actInitialize");
-extern void stage_KillPlayBgAnimation__76f0(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
 
 void func_002376F0(volatile int a0) {
     int x = a0;
-    actInitialize__76f0(a0);
+    actInitialize(a0);
     _ACTWait(1);
     if (func_0017B230(0x11D) == 0) {
-        stage_KillPlayBgAnimation__76f0(0x7B, 0, 0);
+        stage_KillPlayBgAnimation(0x7B, 0, 0);
     } else {
-        stage_KillPlayBgAnimation__76f0(0x7B, 0, -1);
+        stage_KillPlayBgAnimation(0x7B, 0, -1);
     }
 }
 
@@ -412,11 +412,10 @@ INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00237750);
 
 extern unsigned int D_004D3BB0[8];
 extern void func_00237AD8(volatile int a0);
-extern int actInitialize__77e8(int a0) __asm__("actInitialize");
 
 void func_002377E8(volatile int a0) {
     int x = a0;
-    ActB4Obj *gobj = (ActB4Obj *)actInitialize__77e8(a0);
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
     _ACTWait(1);
     if (func_0017B230(0x11f) == 0) {
         D_004D3BB0[1] = (unsigned int)func_00237AD8;
@@ -447,9 +446,6 @@ typedef struct KSubB_b898 {
 extern volatile int D_006325B4__b898 __asm__("D_006325B4");
 extern unsigned int D_004D3A70[8];
 extern unsigned int D_004D3A90[8];
-extern void BoxBarSoundOn__b898(int a0, int a1) __asm__("BoxBarSoundOn");
-extern void _ACTWait__b898(int a0) __asm__("_ACTWait");
-extern int func_0017B230__b898(int a0) __asm__("func_0017B230");
 extern void func_00236E10(volatile int a0);
 extern void func_00237930(volatile int a0);
 
@@ -457,16 +453,16 @@ void func_00237898(volatile int a0) {
     KSubB_b898 *s = *(KSubB_b898 **)(a0 + 0x164);
     D_006325B4__b898 = 1;
     s->unkC0 = 0;
-    if (func_0017B230__b898(0x11B) != 0) {
+    if (func_0017B230(0x11B) != 0) {
         D_004D3A70[1] = (unsigned int)func_00236E10;
         s->unkC4 = (int *)D_004D3A70;
-        BoxBarSoundOn__b898(a0, 0x18D);
-        _ACTWait__b898(0);
+        BoxBarSoundOn(a0, 0x18D);
+        _ACTWait(0);
     }
     D_004D3A90[1] = (unsigned int)func_00237930;
     s->unkC4 = (int *)D_004D3A90;
-    BoxBarSoundOn__b898(a0, 0x18D);
-    _ACTWait__b898(0);
+    BoxBarSoundOn(a0, 0x18D);
+    _ACTWait(0);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00237930);
@@ -492,9 +488,6 @@ typedef struct KSubB_ba38 {
 extern volatile int D_006325B4__ba38 __asm__("D_006325B4");
 extern unsigned int D_004D3B50[8];
 extern unsigned int D_004D3B70[8];
-extern void BoxBarSoundOn__ba38(int a0, int a1) __asm__("BoxBarSoundOn");
-extern void _ACTWait__ba38(int a0) __asm__("_ACTWait");
-extern int func_0017B230__ba38(int a0) __asm__("func_0017B230");
 extern void func_00237338(volatile int a0);
 extern void func_00237428(volatile int a0);
 
@@ -502,16 +495,16 @@ void func_00237A38(volatile int a0) {
     KSubB_ba38 *s = *(KSubB_ba38 **)(a0 + 0x164);
     D_006325B4__ba38 = 1;
     s->unkC0 = 0;
-    if (func_0017B230__ba38(0x11E) == 0) {
+    if (func_0017B230(0x11E) == 0) {
         D_004D3B50[1] = (unsigned int)func_00237338;
         s->unkC4 = (int *)D_004D3B50;
-        BoxBarSoundOn__ba38(a0, 0x18D);
-        _ACTWait__ba38(0);
+        BoxBarSoundOn(a0, 0x18D);
+        _ACTWait(0);
     } else {
         D_004D3B70[1] = (unsigned int)func_00237428;
         s->unkC4 = (int *)D_004D3B70;
-        BoxBarSoundOn__ba38(a0, 0x18D);
-        _ACTWait__ba38(0);
+        BoxBarSoundOn(a0, 0x18D);
+        _ACTWait(0);
     }
 }
 
@@ -557,11 +550,10 @@ INCLUDE_ASM("asm/nonmatchings/src/st47a", func_002385E0);
 
 extern unsigned int D_004D3BF0[8];
 extern void func_00238B88(volatile int a0);
-extern int actInitialize__8740(int a0) __asm__("actInitialize");
 
 void func_00238740(volatile int a0) {
     int x = a0;
-    ActB4Obj *gobj = (ActB4Obj *)actInitialize__8740(a0);
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
     _ACTWait(1);
     if (func_0017B230(0x120) == 0) {
         D_004D3BF0[1] = (unsigned int)func_00238B88;
@@ -573,19 +565,17 @@ void func_00238740(volatile int a0) {
 
 extern unsigned int D_004D3C50[8];
 extern void func_00238C18(volatile int a0);
-extern int actInitialize__87b8(int a0) __asm__("actInitialize");
-extern void stage_KillPlayBgAnimation__87b8(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
 
 void func_002387B8(volatile int a0) {
     int x = a0;
-    ActB4Obj *gobj = (ActB4Obj *)actInitialize__87b8(a0);
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
     _ACTWait(1);
     if (func_0017B230(0x121) != 0) {
-        stage_KillPlayBgAnimation__87b8(0x7F, 0, 0);
+        stage_KillPlayBgAnimation(0x7F, 0, 0);
         _ACTWait(0xA);
-        stage_KillPlayBgAnimation__87b8(0x7F, 0, 0x1F4);
+        stage_KillPlayBgAnimation(0x7F, 0, 0x1F4);
     } else {
-        stage_KillPlayBgAnimation__87b8(0x7F, 0, 0);
+        stage_KillPlayBgAnimation(0x7F, 0, 0);
     }
     D_004D3C50[1] = (unsigned int)func_00238C18;
     gobj->unkC4 = (int *)D_004D3C50;
@@ -595,11 +585,10 @@ void func_002387B8(volatile int a0) {
 
 extern unsigned int D_004D3CF0[8];
 extern void func_00238D08(volatile int a0);
-extern int actInitialize__8868(int a0) __asm__("actInitialize");
 
 void func_00238868(volatile int a0) {
     int x = a0;
-    ActB4Obj *gobj = (ActB4Obj *)actInitialize__8868(a0);
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
     _ACTWait(1);
     D_004D3CF0[1] = (unsigned int)func_00238D08;
     gobj->unkC4 = (int *)D_004D3CF0;
@@ -607,17 +596,15 @@ void func_00238868(volatile int a0) {
     _ACTWait(0);
 }
 
-extern int actInitialize__88d0(int a0) __asm__("actInitialize");
-extern void func_0017B288__88d0(int a0) __asm__("func_0017B288");
 
 void func_002388D0(volatile int a0) {
     int x = a0;
-    actInitialize__88d0(a0);
+    actInitialize(a0);
     _ACTWait(1);
     if (func_0017B230(0x11A) != 0) {
         *(int *)(actSt25aQueenDeadChk(0x73E) + 0x16C) = 0;
         *(int *)(actSt25aQueenDeadChk(0x73F) + 0x16C) = 0;
-        func_0017B288__88d0(0x11A);
+        func_0017B288(0x11A);
     } else {
         *(int *)(actSt25aQueenDeadChk(0x740) + 0x16C) = 0;
         *(int *)(actSt25aQueenDeadChk(0x741) + 0x16C) = 0;
@@ -626,11 +613,10 @@ void func_002388D0(volatile int a0) {
 
 extern unsigned int D_004D3D10[8];
 extern void func_00238DD8(volatile int a0);
-extern int actInitialize__8950(int a0) __asm__("actInitialize");
 
 void func_00238950(volatile int a0) {
     int x = a0;
-    ActB4Obj *gobj = (ActB4Obj *)actInitialize__8950(a0);
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
     _ACTWait(1);
     if (func_0017B230(0x123) == 0) {
         D_004D3D10[1] = (unsigned int)func_00238DD8;
@@ -640,64 +626,53 @@ void func_00238950(volatile int a0) {
     }
 }
 
-extern int actInitialize__89c8(int a0) __asm__("actInitialize");
-extern void Generator_Mask__89c8(int a0) __asm__("Generator_Mask");
-extern void Generator_MaskOff__89c8(int a0) __asm__("Generator_MaskOff");
-extern void Generator_Call__89c8(int a0) __asm__("Generator_Call");
 
 void func_002389C8(volatile int a0) {
     int x = a0;
-    actInitialize__89c8(a0);
+    actInitialize(a0);
     _ACTWait(1);
-    Generator_Mask__89c8(a0);
+    Generator_Mask(a0);
     while (func_0017B230(0x124) == 0) {
         _ACTWait(1);
     }
     _ACTWait(0x1);
-    Generator_MaskOff__89c8(a0);
-    Generator_Call__89c8(a0);
+    Generator_MaskOff(a0);
+    Generator_Call(a0);
     _ACTWait(0x3C);
-    Generator_Call__89c8(a0);
+    Generator_Call(a0);
     _ACTWait(0x3C);
-    Generator_Call__89c8(a0);
+    Generator_Call(a0);
 }
 
-extern int actInitialize__8a70(int a0) __asm__("actInitialize");
-extern void Generator_Mask__8a70(int a0) __asm__("Generator_Mask");
-extern void Generator_MaskOff__8a70(int a0) __asm__("Generator_MaskOff");
-extern void Generator_Call__8a70(int a0) __asm__("Generator_Call");
 
 void func_00238A70(volatile int a0) {
     int x = a0;
-    actInitialize__8a70(a0);
+    actInitialize(a0);
     _ACTWait(1);
-    Generator_Mask__8a70(a0);
+    Generator_Mask(a0);
     while (func_0017B230(0x124) == 0) {
         _ACTWait(1);
     }
     _ACTWait(0x1);
-    Generator_MaskOff__8a70(a0);
-    Generator_Call__8a70(a0);
+    Generator_MaskOff(a0);
+    Generator_Call(a0);
     _ACTWait(0x3C);
-    Generator_Call__8a70(a0);
+    Generator_Call(a0);
     _ACTWait(0x3C);
-    Generator_Call__8a70(a0);
+    Generator_Call(a0);
 }
 
-extern int actInitialize__8b18(int a0) __asm__("actInitialize");
-extern void Generator_Mask__8b18(int a0) __asm__("Generator_Mask");
-extern void Generator_MaskOff__8b18(int a0) __asm__("Generator_MaskOff");
 
 void func_00238B18(volatile int a0) {
     int x = a0;
-    actInitialize__8b18(a0);
+    actInitialize(a0);
     _ACTWait(1);
-    Generator_Mask__8b18(a0);
+    Generator_Mask(a0);
     while (func_0017B230(0x124) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
-    Generator_MaskOff__8b18(a0);
+    Generator_MaskOff(a0);
 }
 
 extern unsigned int D_004D3BD0[8];
@@ -729,12 +704,11 @@ void func_00238BC0(volatile int a0) {
 
 extern unsigned int D_004D3C30[8];
 extern int D_006325B4__8c18 __asm__("D_006325B4");
-extern void lt_fade_status__8c18(int a0) __asm__("lt_fade_status");
 extern void scpActivateAllWithKind(void);
 
 void func_00238C18(volatile int a0) {
     int gobj = *(int *)(a0 + 0x164);
-    lt_fade_status__8c18(0x32);
+    lt_fade_status(0x32);
     D_006325B4__8c18 = 0;
     scpActivateAllWithKind();
     *(int *)(gobj + 0xC0) = (int)D_004D3C30;
@@ -752,30 +726,25 @@ typedef struct KSub_c60 {
 extern int D_006325B4__c60 __asm__("D_006325B4");
 extern unsigned int D_004D3C70[8];
 extern unsigned int D_004D3C90[8];
-extern void BoxBarSoundOn__c60(int a0, int a1) __asm__("BoxBarSoundOn");
-extern void _ACTWait__c60(int a0) __asm__("_ACTWait");
-extern void lt_fade_status__c60(int a0) __asm__("lt_fade_status");
-extern void scpDispOnAllWithKind__c60(void) __asm__("scpDispOnAllWithKind");
-extern int func_0017B230__c60(int a0) __asm__("func_0017B230");
 extern void func_00237E98(volatile int a0);
 extern void func_00237D18(volatile int a0);
 
 void func_00238C60(volatile int a0) {
     KSub_c60 *s = *(KSub_c60 **)(a0 + 0x164);
     s->unkC0 = 0;
-    lt_fade_status__c60(0x33);
+    lt_fade_status(0x33);
     D_006325B4__c60 = 1;
-    scpDispOnAllWithKind__c60();
-    if (func_0017B230__c60(0x121) != 0) {
+    scpDispOnAllWithKind();
+    if (func_0017B230(0x121) != 0) {
         D_004D3C70[1] = (unsigned int)func_00237E98;
         s->unkC4 = (int *)D_004D3C70;
-        BoxBarSoundOn__c60(a0, 0x18D);
-        _ACTWait__c60(0);
+        BoxBarSoundOn(a0, 0x18D);
+        _ACTWait(0);
     }
     D_004D3C90[1] = (unsigned int)func_00237D18;
     s->unkC4 = (int *)D_004D3C90;
-    BoxBarSoundOn__c60(a0, 0x18D);
-    _ACTWait__c60(0);
+    BoxBarSoundOn(a0, 0x18D);
+    _ACTWait(0);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00238D08);
@@ -809,11 +778,10 @@ extern unsigned int D_004D3E10[8];
 extern void func_002394D8(volatile int a0);
 extern volatile float D_0063173C, D_00631740, D_00631744;
 extern void warpGirlInStage(float f12, float f13, float f14);
-extern int actInitialize__9680(int a0) __asm__("actInitialize");
 
 void func_00239680(volatile int a0) {
     int x = a0;
-    ActB4Obj *gobj = (ActB4Obj *)actInitialize__9680(a0);
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
     _ACTWait(1);
     warpGirlInStage(D_0063173C, D_00631740, D_00631744);
     if (func_0017B230(0x12C) == 0) {
@@ -824,14 +792,12 @@ void func_00239680(volatile int a0) {
     }
 }
 
-extern int actInitialize__9710(int a0) __asm__("actInitialize");
-extern void stage_KillPlayBgAnimation__9710(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
 
 void func_00239710(volatile int a0) {
     int x = a0;
-    actInitialize__9710(a0);
+    actInitialize(a0);
     _ACTWait(1);
-    stage_KillPlayBgAnimation__9710(0x83, 0, 0);
+    stage_KillPlayBgAnimation(0x83, 0, 0);
 }
 
 void func_00239750(void)
@@ -883,44 +849,40 @@ INCLUDE_ASM("asm/nonmatchings/src/st47a", func_0023A2F8);
 
 extern float D_00631754, D_00631758, D_0063175C, D_00631760;
 extern void func_0017BF78(int a0, int a1, int a2, int a3, int a4, float f0, float f1, float f2, float f3, float f4, float f5);
-extern int actInitialize__a3b8(int a0) __asm__("actInitialize");
 
 void func_0023A3B8(volatile int a0) {
     int x = a0;
-    actInitialize__a3b8(a0);
+    actInitialize(a0);
     _ACTWait(1);
     func_0017BF78(a0, 0x29, 0x8d, 0, 0x12, D_00631754, D_00631758, D_0063175C, D_00631754, D_00631758, D_00631760);
 }
 
 extern float D_00631764, D_00631768, D_0063176C, D_00631770;
 extern void func_0017BF78(int a0, int a1, int a2, int a3, int a4, float f0, float f1, float f2, float f3, float f4, float f5);
-extern int actInitialize__a418(int a0) __asm__("actInitialize");
 
 void func_0023A418(volatile int a0) {
     int x = a0;
-    actInitialize__a418(a0);
+    actInitialize(a0);
     _ACTWait(1);
     func_0017BF78(a0, 0x2a, 0x8e, 0, 0x12, D_00631764, D_00631768, D_0063176C, D_00631764, D_00631768, D_00631770);
 }
 
 extern float D_00631774, D_00631778, D_0063177C, D_00631780;
 extern void func_0017BF78(int a0, int a1, int a2, int a3, int a4, float f0, float f1, float f2, float f3, float f4, float f5);
-extern int actInitialize__a478(int a0) __asm__("actInitialize");
 
 void func_0023A478(volatile int a0) {
     int x = a0;
-    actInitialize__a478(a0);
+    actInitialize(a0);
     _ACTWait(1);
     func_0017BF78(a0, 0x2b, 0x8f, 0, 0x12, D_00631774, D_00631778, D_0063177C, D_00631774, D_00631778, D_00631780);
 }
 
 extern int D_004D3E70[];
 extern void func_0023AAB8(volatile int a0);
-extern int actInitialize__a4d8(int a0) __asm__("actInitialize");
 
 void func_0023A4D8(volatile int a0) {
     int x = a0;
-    ActB4Obj *gobj = (ActB4Obj *)actInitialize__a4d8(a0);
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
     _ACTWait(1);
     func_0017B230(0x2C);
     D_004D3E70[1] = (int)func_0023AAB8;
@@ -931,11 +893,10 @@ void func_0023A4D8(volatile int a0) {
 
 extern int D_004D3F30[];
 extern void func_0023AC30(volatile int a0);
-extern int actInitialize__a548(int a0) __asm__("actInitialize");
 
 void func_0023A548(volatile int a0) {
     int x = a0;
-    ActB4Obj *gobj = (ActB4Obj *)actInitialize__a548(a0);
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
     _ACTWait(1);
     D_004D3F30[1] = (int)func_0023AC30;
     gobj->unkC4 = D_004D3F30;
@@ -947,31 +908,28 @@ INCLUDE_ASM("asm/nonmatchings/src/st47a", func_0023A5B0);
 
 extern unsigned int D_004D3FF0[8];
 extern void func_0023AD68(volatile int a0);
-extern int actInitialize__a668(int a0) __asm__("actInitialize");
-extern void stage_KillPlayBgAnimation__a668(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
 
 void func_0023A668(volatile int a0) {
     int x = a0;
-    ActB4Obj *gobj = (ActB4Obj *)actInitialize__a668(a0);
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
     _ACTWait(1);
     if (func_0017B230(0x2F) == 0) {
-        stage_KillPlayBgAnimation__a668(0x96, 0, 0);
+        stage_KillPlayBgAnimation(0x96, 0, 0);
         D_004D3FF0[1] = (unsigned int)func_0023AD68;
         gobj->unkC4 = (int *)D_004D3FF0;
         BoxBarSoundOn((int)a0, 0x18D);
         _ACTWait(0);
     } else {
-        stage_KillPlayBgAnimation__a668(0x96, 0, -1);
+        stage_KillPlayBgAnimation(0x96, 0, -1);
     }
 }
 
 extern int D_004D4010[];
 extern void func_0023AE28(volatile int a0);
-extern int actInitialize__a700(int a0) __asm__("actInitialize");
 
 void func_0023A700(volatile int a0) {
     int x = a0;
-    ActB4Obj *gobj = (ActB4Obj *)actInitialize__a700(a0);
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
     _ACTWait(1);
     D_004D4010[1] = (int)func_0023AE28;
     gobj->unkC4 = D_004D4010;
@@ -981,11 +939,10 @@ void func_0023A700(volatile int a0) {
 
 extern int D_004D4030[];
 extern void func_0023AEA0(volatile int a0);
-extern int actInitialize__a768(int a0) __asm__("actInitialize");
 
 void func_0023A768(volatile int a0) {
     int x = a0;
-    ActB4Obj *gobj = (ActB4Obj *)actInitialize__a768(a0);
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
     _ACTWait(1);
     if (func_0017B230(0x82) != 0) {
         D_004D4030[1] = (int)func_0023AEA0;
@@ -997,11 +954,10 @@ void func_0023A768(volatile int a0) {
 
 extern int D_004D4050[];
 extern void func_0023AED8(volatile int a0);
-extern int actInitialize__a7e0(int a0) __asm__("actInitialize");
 
 void func_0023A7E0(volatile int a0) {
     int x = a0;
-    ActB4Obj *gobj = (ActB4Obj *)actInitialize__a7e0(a0);
+    ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
     _ACTWait(1);
     if (func_0017B230(0x31) == 0) {
         D_004D4050[1] = (int)func_0023AED8;
@@ -1011,44 +967,36 @@ void func_0023A7E0(volatile int a0) {
     }
 }
 
-extern int actInitialize__a858(int a0) __asm__("actInitialize");
-extern void Generator_Mask__a858(int a0) __asm__("Generator_Mask");
-extern void Generator_MaskOff__a858(int a0) __asm__("Generator_MaskOff");
-extern void Generator_Call__a858(int a0) __asm__("Generator_Call");
 
 void func_0023A858(volatile int a0) {
     int x = a0;
-    actInitialize__a858(a0);
+    actInitialize(a0);
     _ACTWait(1);
-    Generator_Mask__a858(a0);
+    Generator_Mask(a0);
     while (func_0017B230(0x32) == 0) {
         _ACTWait(1);
     }
     _ACTWait(0xB4);
-    Generator_MaskOff__a858(a0);
-    Generator_Call__a858(a0);
+    Generator_MaskOff(a0);
+    Generator_Call(a0);
     _ACTWait(0x3C);
-    Generator_Call__a858(a0);
+    Generator_Call(a0);
 }
 
-extern int actInitialize__a8e8(int a0) __asm__("actInitialize");
-extern void Generator_Mask__a8e8(int a0) __asm__("Generator_Mask");
-extern void Generator_MaskOff__a8e8(int a0) __asm__("Generator_MaskOff");
-extern void Generator_Call__a8e8(int a0) __asm__("Generator_Call");
 
 void func_0023A8E8(volatile int a0) {
     int x = a0;
-    actInitialize__a8e8(a0);
+    actInitialize(a0);
     _ACTWait(1);
-    Generator_Mask__a8e8(a0);
+    Generator_Mask(a0);
     while (func_0017B230(0x32) == 0) {
         _ACTWait(1);
     }
     _ACTWait(0xb4);
-    Generator_MaskOff__a8e8(a0);
-    Generator_Call__a8e8(a0);
+    Generator_MaskOff(a0);
+    Generator_Call(a0);
     _ACTWait(0x3C);
-    Generator_Call__a8e8(a0);
+    Generator_Call(a0);
 }
 
 

@@ -224,7 +224,15 @@ void UnLockChainGeo(void *a0, int a1) {
     q->f_0 = a1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/chain", func_00190440);
+extern float D_00630F8C;
+
+int func_00190440(void *a0, int *out)
+{
+    void *p = *(void **)((char *)a0 + 0x15C);
+    ChainGeoL *q = *(ChainGeoL **)((char *)p + 0x800);
+    *out = (int)(q->f_70 * 180.0f / D_00630F8C);
+    return q->f_6C;
+}
 
 
 /* .data — carved VMA 0X28AFB0..0X28B100 (3 symbols), bytes verified against baserom/baseelf.rom */

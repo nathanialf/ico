@@ -142,8 +142,8 @@ extern int func_00264050(void);
 /* Siblings defined further down this TU with an `int` return / `int` arg;
    the aug6 twin wants the float spelling.  Bind second identifiers to the
    same linker symbols instead of retyping the already-matched siblings. */
-extern int func_002609E8__p4(float) __asm__("func_002609E8");
-extern int func_00263FB0__p4(float) __asm__("func_00263FB0");
+extern int func_002609E8(float);
+extern int func_00263FB0(float);
 extern float func_002633B8__f(long) __asm__("func_002633B8");
 
 float func_0025E700(float a, float b) {
@@ -166,10 +166,10 @@ float func_0025E700(float a, float b) {
     if (s0 == -1) {
         goto early;
     }
-    if (func_002609E8__p4(b)) {
+    if (func_002609E8(b)) {
         goto early;
     }
-    if (func_002609E8__p4(a)) {
+    if (func_002609E8(a)) {
         goto early;
     }
     if (b != 0.0f) {
@@ -178,10 +178,10 @@ float func_0025E700(float a, float b) {
     buf.f0 = 1;
     buf.f4 = D_0062F2D8;
     buf.f20 = 0;
-    buf.f8 = func_00263FB0__p4(a);
-    buf.f10 = func_00263FB0__p4(b);
+    buf.f8 = func_00263FB0(a);
+    buf.f10 = func_00263FB0(b);
     if (s0 == 0) {
-        buf.f18 = func_00263FB0__p4(a);
+        buf.f18 = func_00263FB0(a);
     } else {
         buf.f18 = D_0062F2E0[0];
     }

@@ -54,7 +54,7 @@ extern void actE3St13cInit(volatile int a0);
 extern void func_0017E9D8(void);
 extern void gflagOff(int a0, int a1);
 extern void lt_fade_status(int a0);
-extern void stage_KillPlayBgAnimation__p4(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
 void actDejaAfterChk(volatile int a0) {
     int x = a0;
@@ -69,23 +69,23 @@ void actDejaAfterChk(volatile int a0) {
         }
         actSt25aQueenBeforeChk(0, 0, 0, 255.0f);
         lt_fade_status(0x33);
-        stage_KillPlayBgAnimation__p4(0x1F, 0, 0);
-        stage_KillPlayBgAnimation__p4(0x19, 0, -1);
-        stage_KillPlayBgAnimation__p4(0x22, 0, 0);
-        stage_KillPlayBgAnimation__p4(0x20, 0, 0);
-        stage_KillPlayBgAnimation__p4(0x23, 0, 0);
-        stage_KillPlayBgAnimation__p4(0x25, 0, 0);
+        stage_KillPlayBgAnimation(0x1F, 0, 0);
+        stage_KillPlayBgAnimation(0x19, 0, -1);
+        stage_KillPlayBgAnimation(0x22, 0, 0);
+        stage_KillPlayBgAnimation(0x20, 0, 0);
+        stage_KillPlayBgAnimation(0x23, 0, 0);
+        stage_KillPlayBgAnimation(0x25, 0, 0);
         D_004D0A30[1] = (int)actE3St13cInit;
         gobj->unkC4 = D_004D0A30;
         BoxBarSoundOn(a0, 0x18D);
         _ACTWait(0);
     } else {
-        stage_KillPlayBgAnimation__p4(0x1F, 0, -1);
-        stage_KillPlayBgAnimation__p4(0x19, 0, -1);
-        stage_KillPlayBgAnimation__p4(0x22, 0, 0);
-        stage_KillPlayBgAnimation__p4(0x20, 0, 0);
-        stage_KillPlayBgAnimation__p4(0x23, 0, 0);
-        stage_KillPlayBgAnimation__p4(0x25, 0, 0);
+        stage_KillPlayBgAnimation(0x1F, 0, -1);
+        stage_KillPlayBgAnimation(0x19, 0, -1);
+        stage_KillPlayBgAnimation(0x22, 0, 0);
+        stage_KillPlayBgAnimation(0x20, 0, 0);
+        stage_KillPlayBgAnimation(0x23, 0, 0);
+        stage_KillPlayBgAnimation(0x25, 0, 0);
     }
 }
 
@@ -107,17 +107,17 @@ void actDeja(volatile int a0) {
         _ACTWait(1);
     }
     soundSeVolSet(D_006338F0);
-    stage_KillPlayBgAnimation__p4(0x1F, 0, -1);
-    stage_KillPlayBgAnimation__p4(0x19, 0, -1);
-    stage_KillPlayBgAnimation__p4(0x20B, -1, -2);
-    stage_KillPlayBgAnimation__p4(0x210, -1, -2);
-    stage_KillPlayBgAnimation__p4(0x212, -1, -2);
-    stage_KillPlayBgAnimation__p4(0x213, -1, -2);
-    stage_KillPlayBgAnimation__p4(0x214, -1, -2);
-    stage_KillPlayBgAnimation__p4(0x215, -1, -2);
-    stage_KillPlayBgAnimation__p4(0x216, -1, -2);
-    stage_KillPlayBgAnimation__p4(0x217, -1, -2);
-    stage_KillPlayBgAnimation__p4(0x229, 1, 0);
+    stage_KillPlayBgAnimation(0x1F, 0, -1);
+    stage_KillPlayBgAnimation(0x19, 0, -1);
+    stage_KillPlayBgAnimation(0x20B, -1, -2);
+    stage_KillPlayBgAnimation(0x210, -1, -2);
+    stage_KillPlayBgAnimation(0x212, -1, -2);
+    stage_KillPlayBgAnimation(0x213, -1, -2);
+    stage_KillPlayBgAnimation(0x214, -1, -2);
+    stage_KillPlayBgAnimation(0x215, -1, -2);
+    stage_KillPlayBgAnimation(0x216, -1, -2);
+    stage_KillPlayBgAnimation(0x217, -1, -2);
+    stage_KillPlayBgAnimation(0x229, 1, 0);
     actConte11Jimaku(6.0f);
     actCreateSubThread(actE3CageFall, 0x15);
 }

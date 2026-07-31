@@ -59,5 +59,16 @@ void func_001E9920(int a0)
     playSEConditionID(a0, 0x38);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/ropeFix", func_001E9950);
+extern void func_001AE460(void *a0);
+
+void func_001E9950(void *a0) {
+    int *obj = *(int **)((char *)*(void **)((char *)a0 + 0x15C) + 0x800);
+    int n = obj[12];
+    int c = n++;
+    obj[12] = n;
+    if (c >= 0x1F) {
+        obj[12] = 0;
+        return func_001AE460(a0);
+    }
+}
 

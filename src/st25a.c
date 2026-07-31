@@ -224,7 +224,20 @@ INCLUDE_ASM("asm/nonmatchings/src/st25a", func_0017E660);
 
 INCLUDE_ASM("asm/nonmatchings/src/st25a", func_0017E780);
 
-INCLUDE_ASM("asm/nonmatchings/src/st25a", func_0017E838);
+extern void MatrixDrive_TurnObjectMatrix(int a0, void *a1);
+
+typedef union { float f[4]; int i[4]; } Vec4u;
+
+void func_0017E838(int a0, float x, float y, float z)
+{
+    Vec4u v;
+    v.f[0] = x;
+    v.f[1] = y;
+    v.f[2] = z;
+    v.i[3] = 0;
+    MatrixDrive_TurnObjectMatrix(*(int *)(a0 + 0x15C) + 0x670, &v);
+}
+
 
 INCLUDE_ASM("asm/nonmatchings/src/st25a", func_0017E870);
 

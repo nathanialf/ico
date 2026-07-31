@@ -83,7 +83,7 @@ extern int D_00631AE4;
 extern int D_006325B4;
 extern int D_00633AB8;
 extern void actCreateSubThread(void *fn, int a1);
-extern void actSt18aEne2__p4() __asm__("actSt18aEne2");
+extern void actSt18aEne2();
 extern void func_0017B258(int a0);
 extern void func_0017B528(int a0);
 extern void gflagOff(int a0, int a1);
@@ -104,7 +104,7 @@ void actSt19aPipeXL(volatile int a0) {
     scpPlayStart__p4(0x23, (int)&D_00633AB8, 1, 1, 1);
     while (D_00633AB8 == 0) { _ACTWait(1); }
     D_006325B8 = 0.5f;
-    actCreateSubThread(actSt18aEne2__p4, 0x15);
+    actCreateSubThread(actSt18aEne2, 0x15);
     while (scpTriggerBallTargetMan(D_00633AB0) == 0) { _ACTWait(1); }
     scpPlayStart__p4(0x24, (int)&D_00633AB4, 1, 0, 0);
 }

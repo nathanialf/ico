@@ -216,7 +216,26 @@ INCLUDE_ASM("asm/nonmatchings/src/MicroCode", func_00118818);
 
 INCLUDE_ASM("asm/nonmatchings/src/MicroCode", func_00118940);
 
-INCLUDE_ASM("asm/nonmatchings/src/MicroCode", func_00118A10);
+/* Gather four quadwords from four separate sources into one 64-byte block.
+ * lq/sq are MMI-class, so the body is inline asm; the four source pointers
+ * are bound with "r" constraints and $6-$9 are clobbered, which is what
+ * forces the three argument moves out of a2/a3/t0 before the loads. */
+void func_00118A10(void *dst, void *s0, void *s1, void *s2, void *s3)
+{
+    __asm__ __volatile__(
+        "lq $6, 0(%1)\n\t"
+        "lq $7, 0(%2)\n\t"
+        "lq $8, 0(%3)\n\t"
+        "lq $9, 0(%4)\n\t"
+        "sq $6, 0(%0)\n\t"
+        "sq $7, 0x10(%0)\n\t"
+        "sq $8, 0x20(%0)\n\t"
+        "sq $9, 0x30(%0)\n\t"
+        "nop"
+        :
+        : "r"(dst), "r"(s0), "r"(s1), "r"(s2), "r"(s3)
+        : "$6", "$7", "$8", "$9", "memory");
+}
 
 void func_00118A48(void *p0, void *p1, void *p2, void *p3)
 {

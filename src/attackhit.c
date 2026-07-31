@@ -43,7 +43,14 @@ void func_00181BB8(void) {}
 
 void func_00181BC0(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/src/attackhit", func_00181BC8);
+extern void EnemyAttackCenter(void *pack, void *self, int a2);
+extern void AttackCenter_WithDir(void *pack);
+
+void func_00181BC8(void *self) {
+    char pack[0x70];
+    EnemyAttackCenter(pack, self, *(int *)(*(int *)((char *)self + 0x164) + 0x140));
+    AttackCenter_WithDir(pack);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/attackhit", func_00181BF8);
 

@@ -1,5 +1,8 @@
 #include "common.h"
 
+extern void actOpDemo01_2Chk();
+extern void actSt24aConte01_2();
+
 typedef struct GObj__p4 {
     char pad[0xC4];
     int *unkB4;
@@ -50,7 +53,7 @@ void actOpDemo01(volatile int a0) {
 
 extern int D_00633904;
 extern void actConte11Jimaku(float f);
-extern void actCreateSubThread__p4(void *fn, int a1) __asm__("actCreateSubThread");
+extern void actCreateSubThread(void *fn, int a1);
 extern void actE3GateJimaku();
 extern void func_0017B258(int a0);
 extern void func_0017C9B0(int a0);
@@ -67,12 +70,12 @@ void actTitleShortCut(volatile int a0) {
     func_0017B258(3);
     func_0017B258(4);
     func_0017B258(0x134);
-    actCreateSubThread__p4(actE3GateJimaku, 0x15);
+    actCreateSubThread(actE3GateJimaku, 0x15);
 }
 
 extern int D_00633908;
 extern void actConte11Jimaku(float f);
-extern void actCreateSubThread__p4(void *fn, int a1) __asm__("actCreateSubThread");
+extern void actCreateSubThread(void *fn, int a1);
 extern void actE3Warning();
 extern void func_0017B258(int a0);
 extern void func_0017C9B0(int a0);
@@ -86,11 +89,10 @@ void actTitleReadTimeDemo0(volatile int a0) {
     func_0017C9B0(3);
     actConte11Jimaku(6.0f);
     func_0017B258(0x135);
-    actCreateSubThread__p4(actE3Warning, 0x15);
+    actCreateSubThread(actE3Warning, 0x15);
 }
 
 extern int D_0063390C;
-extern void actOpDemo01_2Chk__p4() __asm__("actOpDemo01_2Chk");
 
 void actOpDemo01_2(volatile int a0) {
     scpPlayStart(0x2C, (int)&D_0063390C, 0, 1, 1);
@@ -100,7 +102,7 @@ void actOpDemo01_2(volatile int a0) {
     func_0017C9B0(2);
     actConte11Jimaku(6.0f);
     func_0017B258(0x136);
-    actCreateSubThread__p4(actOpDemo01_2Chk__p4, 0x15);
+    actCreateSubThread(actOpDemo01_2Chk, 0x15);
 }
 
 extern int D_00631AE4;
@@ -116,7 +118,6 @@ void actOpDemo01_2Chk(volatile int a0) {
 }
 
 extern int D_00633910;
-extern void actSt24aConte01_2__p4() __asm__("actSt24aConte01_2");
 
 void actOpDemo02(volatile int a0) {
     scpPlayStart(0x2D, (int)&D_00633910, 0, 1, 1);
@@ -126,7 +127,7 @@ void actOpDemo02(volatile int a0) {
     func_0017C9B0(5);
     actConte11Jimaku(6.0f);
     func_0017B258(0x137);
-    actCreateSubThread__p4(actSt24aConte01_2__p4, 0x15);
+    actCreateSubThread(actSt24aConte01_2, 0x15);
 }
 
 extern int D_00631AE8;
@@ -138,13 +139,13 @@ void actSt24aConte01_2(volatile int a0) {
     actSt25aQueenDead(5, D_00631AE4, D_00631AE8, 1.0f, 8.0f);
 }
 
-extern void actCreateSubThread__p4(void *fn, int a1) __asm__("actCreateSubThread");
+extern void actCreateSubThread(void *fn, int a1);
 extern void actSt13aConte01_3();
 extern void func_0017B258(int a0);
 
 void actOpDemo03Chk(volatile int a0) {
     func_0017B258(0x138);
-    actCreateSubThread__p4(actSt13aConte01_3, 0x15);
+    actCreateSubThread(actSt13aConte01_3, 0x15);
 }
 
 extern void func_0017C9B0(int a0);
@@ -174,7 +175,7 @@ void actSubMpegReturnPreload(volatile int a0) {
     }
     actConte11Jimaku(6.0f);
     func_0017B258(0x13A);
-    actCreateSubThread__p4(actEndDemo02, 0x15);
+    actCreateSubThread(actEndDemo02, 0x15);
 }
 
 extern int D_00633918;
@@ -188,34 +189,43 @@ void actSt26aConte01_1_newgame(volatile int a0) {
     }
     actConte11Jimaku(6.0f);
     func_0017B258(0x13D);
-    actCreateSubThread__p4(actEndDemo06, 0x15);
-    actCreateSubThread__p4(actOpDemo02Chk, 0x15);
+    actCreateSubThread(actEndDemo06, 0x15);
+    actCreateSubThread(actOpDemo02Chk, 0x15);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/op", actOpDemo02Chk);
 
-INCLUDE_ASM("asm/nonmatchings/src/op", func_0020D5A8);
+extern void func_0020D5D8(volatile int a0);
+
+void func_0020D5A8(volatile int a0) {
+    func_0017B258(0x13E);
+    actCreateSubThread(func_0020D5D8, 0x15);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/op", func_0020D5D8);
 
-INCLUDE_ASM("asm/nonmatchings/src/op", func_0020D660);
+extern void func_0020D690(volatile int a0);
+
+void func_0020D660(volatile int a0) {
+    func_0017B258(0x13F);
+    actCreateSubThread(func_0020D690, 0x15);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/op", func_0020D690);
 
 extern void actConte14_6(void);
-extern void actCreateSubThread__p4(void *entry, int a1) __asm__("actCreateSubThread");
 extern void func_0017B258(int a0);
 
 void actSt00aEneChk(volatile int a0) {
     func_0017B258(0x140);
-    actCreateSubThread__p4(actConte14_6, 0x15);
+    actCreateSubThread(actConte14_6, 0x15);
 }
 
 extern void actEndDemo07(void);
 
 void func_0020D748(volatile int a0)
 {
-    actCreateSubThread__p4(actEndDemo07, 0x15);
+    actCreateSubThread(actEndDemo07, 0x15);
 }
 
 void func_0020D770(int a0)

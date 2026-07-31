@@ -1,5 +1,7 @@
 #include "common.h"
 
+extern int D_004D17F0[];
+
 typedef struct { char pad[0xC0]; void *f_B0; void *unkB4; } St04eBox;
 extern int D_004D1450[];
 
@@ -122,7 +124,16 @@ INCLUDE_ASM("asm/nonmatchings/src/st04e", func_0021A168);
 
 INCLUDE_ASM("asm/nonmatchings/src/st04e", func_0021A248);
 
-INCLUDE_ASM("asm/nonmatchings/src/st04e", func_0021A308);
+typedef struct KSub_a308 { char pad[0xC0]; int unkC0; } KSub_a308;
+
+
+void func_0021A308(volatile int a0) {
+    KSub_a308 *s = *(KSub_a308 **)(a0 + 0x164);
+    s->unkC0 = (int)D_004D17F0;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 extern int *D_004D1830[];
 extern int D_006325B4;

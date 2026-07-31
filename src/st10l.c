@@ -114,7 +114,7 @@ void func_00225DD0(volatile int a0) {
 extern void AddWayPointTop(int a0, int a1);
 extern int D_006325B4;
 extern int actCreateSubThread(void *fn, int a1);
-extern void actSt10lFloor__p4() __asm__("actSt10lFloor");
+extern void actSt10lFloor();
 extern int actSt25aQueenDeadChk(int a0);
 extern int func_0012AA80(int a0);
 extern void lt_fade_status(int a0);
@@ -124,7 +124,7 @@ extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
 void actSt10lChain(volatile int a0) {
     lt_fade_status(0x33);
-    actCreateSubThread(actSt10lFloor__p4, 0x15);
+    actCreateSubThread(actSt10lFloor, 0x15);
     scpDispOnAllWithKind();
     _ACTWait(0x3C);
     stage_KillPlayBgAnimation(0xEC, 1, 0);

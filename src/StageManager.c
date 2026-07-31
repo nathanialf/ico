@@ -80,7 +80,27 @@ void stgmgrNextStagePreLoad(int stage) {
 
 INCLUDE_ASM("asm/nonmatchings/src/StageManager", stgmgrNextStagePreLoadEntry);
 
-INCLUDE_ASM("asm/nonmatchings/src/StageManager", func_0019FF68);
+typedef struct StgMsg {
+    int f0;
+    int stage;
+    int f8;
+    float fC;
+    float f10;
+    unsigned char f14, f15, f16;
+} StgMsg;
+
+extern StgMsg D_002757D0;
+extern char D_004B2DC0[];
+extern int D_00631A10;
+extern void iosMsgSend(void *q, void *msg, int a2);
+
+void func_0019FF68(int a0) {
+    D_002757D0.stage = a0;
+    D_002757D0.f0 = 0;
+    D_00631A10 = 1;
+    D_002757D0.fC = 0.0f;
+    return iosMsgSend(D_004B2DC0, &D_002757D0, 0);
+}
 
 extern void stgmgrForceSwitch(int a0, int a1, int a2, int a3);
 

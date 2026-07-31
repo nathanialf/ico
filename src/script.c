@@ -31,7 +31,7 @@ INCLUDE_ASM("asm/nonmatchings/src/script", scpTorchLightOn);
 extern char D_00559F38[];
 extern int DebugDisp1CollisionWithColor(int a0, int a1);
 extern int actSt25aQueenDeadChk__p4(int a0) __asm__("actSt25aQueenDeadChk");
-extern void debug_assertMessage__p4(char *fmt) __asm__("debug_assertMessage");
+extern void debug_assertMessage(char *fmt);
 extern void func_0012ACD8(int a0, void *a1, int a2);
 
 void scpTorchLightOff(int a0, int a1, int a2){
@@ -39,7 +39,7 @@ void scpTorchLightOff(int a0, int a1, int a2){
  if(ret != 0){ struct S copy; struct S pair;
   pair.a=ret; pair.b=DebugDisp1CollisionWithColor(ret,a1);
   copy=pair;
-  if(copy.b==-1) debug_assertMessage__p4(D_00559F38);
+  if(copy.b==-1) debug_assertMessage(D_00559F38);
   else func_0012ACD8(a2,&copy,1);
  } }
 
@@ -48,7 +48,7 @@ void scpSetCageVelocityFriction(int a0, int a1, int a2, int a3){
   if(ret != 0){ struct SVF copy; struct SVF pair;
    pair.a=ret; pair.b=DebugDisp1CollisionWithColor(ret,a1);
    copy=pair;
-   if(copy.b==-1) debug_assertMessage__p4(D_00559F38);
+   if(copy.b==-1) debug_assertMessage(D_00559F38);
    else func_0012ACD8(a2,&copy,a3);
   } }
 
@@ -59,7 +59,7 @@ void scpPlayMotDir(int a0, int a1, int a2, int a3){
   if(ret != 0){ struct SPMD copy; struct SPMD pair;
    pair.a=(int)ret; pair.b=DebugDisp1CollisionWithColor((int)ret,a1);
    copy=pair;
-   if(copy.b==-1) debug_assertMessage__p4(D_00559F38);
+   if(copy.b==-1) debug_assertMessage(D_00559F38);
    else func_0012ACD8(a2,&copy,a3);
   } }
 
@@ -204,7 +204,7 @@ int _SCPBoySupportGirl(int a0, int a1, int a2){
   if(A1 < e && e < A2) return 1;
   return 0;
  }
- debug_assertMessage__p4(D_00559EF0);
+ debug_assertMessage(D_00559EF0);
  return 0;
 }
 

@@ -36,12 +36,14 @@ INCLUDE_ASM("asm/nonmatchings/src/jimaku", display_texture);
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", iosCdvdBackGroundReadJimaku);
 
 extern void BoxBarSoundOn(int a0, int a1);
-extern void _ACTWait__p4(int a0) __asm__("_ACTWait");
+extern void _ACTWait(int a0);
+extern void debug_assertMessage(void *a0);
+extern void func_00243B18(float *a0, float *a1, float f12);
 
 void func_00175980(volatile int a0) {
     for (;;) {
         BoxBarSoundOn(a0, 0x13E);
-        _ACTWait__p4(1);
+        _ACTWait(1);
     }
 }
 
@@ -49,38 +51,34 @@ extern char D_00559458[], D_00559470[];
 extern void BoxBarSoundOn(int a0, int a1);
 extern void CylinderCollision(void *a0, void *a1);
 extern int dispPlane(void *a0, void *a1);
-extern void _ACTWait__p9(int a0) __asm__("_ACTWait");
-extern void debug_assertMessage__p9(void *a0) __asm__("debug_assertMessage");
-extern void func_00243B18__p9(float *a0, float *a1, float f12) __asm__("func_00243B18");
 extern void func_00175A58(volatile int a0);
 
 void func_001759B0(volatile int a0) {
     float buf[4];
     int *gobj = *(int **)(a0 + 0x164);
-    debug_assertMessage__p9(D_00559458);
-    func_00243B18__p9(buf, (float *)&gobj[0x4A0 / 4], -1.0f);
+    debug_assertMessage(D_00559458);
+    func_00243B18(buf, (float *)&gobj[0x4A0 / 4], -1.0f);
     dispPlane((void *)a0, buf);
     CylinderCollision((void *)a0, &gobj[0x580 / 4]);
     gobj[0xD0 / 4] = 0;
     gobj[0x14 / 4] = (int)func_00175A58;
     while ((gobj[0xD0 / 4] & 0x10) == 0) {
-        _ACTWait__p9(1);
+        _ACTWait(1);
     }
-    debug_assertMessage__p9(D_00559470);
+    debug_assertMessage(D_00559470);
     for (;;) {
         BoxBarSoundOn(a0, 0x59);
-        _ACTWait__p9(1);
+        _ACTWait(1);
     }
 }
 
 extern char D_00559440[];
 extern int D_00631AE4__p4 __asm__("D_00631AE4");
 extern int D_006321DC;
-extern void debug_assertMessage__p4(void *a0) __asm__("debug_assertMessage");
 extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
 
 void func_00175A58(volatile int a0) {
-    debug_assertMessage__p4(D_00559440);
+    debug_assertMessage(D_00559440);
     iosOmBeforeFuncStandard(D_00631AE4__p4, 0x59, D_006321DC);
     ACTLookTargetSystem_Exec();
 }
@@ -88,23 +86,21 @@ void func_00175A58(volatile int a0) {
 extern void BoxBarSoundOn(int a0, int a1);
 extern char D_00553790[], D_00559470[];
 extern char D_005594A0[];
-extern void _ACTWait__p4(int a0) __asm__("_ACTWait");
-extern void debug_assertMessage__p4(void *a0) __asm__("debug_assertMessage");
 extern void func_00175B18(volatile int a0);
 
 void jimakuHandler(volatile int a0) {
     int *gobj = *(int **)(a0 + 0x164);
-    debug_assertMessage__p4(D_005594A0);
+    debug_assertMessage(D_005594A0);
     gobj[0x30 / 4] = 0x50;
     gobj[0x14 / 4] = (int)func_00175B18;
     gobj[0xD0 / 4] = 0;
     while ((gobj[0xD0 / 4] & 0x10) == 0) {
-        _ACTWait__p4(1);
+        _ACTWait(1);
     }
-    debug_assertMessage__p4(D_00559470);
+    debug_assertMessage(D_00559470);
     for (;;) {
         BoxBarSoundOn(a0, 0x5E);
-        _ACTWait__p4(1);
+        _ACTWait(1);
     }
 }
 
@@ -114,7 +110,7 @@ extern int D_00631AE4__p4 __asm__("D_00631AE4");
 extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
 
 void func_00175B18(volatile int a0) {
-    debug_assertMessage__p4(D_00559440);
+    debug_assertMessage(D_00559440);
     iosOmBeforeFuncStandard(D_00631AE4__p4, 0x5E, D_006321DC);
     ACTLookTargetSystem_Exec();
 }
@@ -122,7 +118,7 @@ void func_00175B18(volatile int a0) {
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuMgrBegin);
 
 void func_00175BD8(volatile int a0) {
-    debug_assertMessage__p4(D_00559440);
+    debug_assertMessage(D_00559440);
     iosOmBeforeFuncStandard(D_00631AE4__p4, 0x63, D_006321DC);
     ACTLookTargetSystem_Exec();
 }
@@ -161,7 +157,7 @@ INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuNext);
 void func_00175D90(volatile int a0) {
     JimakuState *p = *(JimakuState **)(a0 + 0x164);
     p->f_33C = 0;
-    _ACTWait__p4(0);
+    _ACTWait(0);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuJump);
@@ -170,7 +166,6 @@ extern int D_006ABE00[];
 extern void ACTGame_GirlBeforeFunc(int a0);
 extern void DebugDispAutoEscort(int a0);
 extern void actGirlSupportGBBegin(int a0);
-extern void _ACTWait__jm(int a0) __asm__("_ACTWait");
 
 void func_00175EC8(volatile int a0) {
     switch (D_006ABE00[0]) {
@@ -184,7 +179,7 @@ void func_00175EC8(volatile int a0) {
         actGirlSupportGBBegin(a0);
         break;
     }
-    _ACTWait__jm(0);
+    _ACTWait(0);
 }
 
 int jimakuEnd(int a0, int a1)

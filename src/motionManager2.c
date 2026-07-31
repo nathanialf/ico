@@ -53,7 +53,8 @@ void CheckFieldContact(int a0, int a1)
 }
 
 extern void GetRootVelocity(char *a0, void *a1);
-extern void MatrixDrive_TurnObjectMatrix__p4(int a0, void *a1) __asm__("MatrixDrive_TurnObjectMatrix");
+extern void MatrixDrive_TurnObjectMatrix(int a0, void *a1);
+extern float func_00168C18(void *a0, void *a1);
 extern void func_00243978(int *a0, int *a1);
 
 void dispPlane(void *a0, float *a1) {
@@ -65,7 +66,7 @@ void dispPlane(void *a0, float *a1) {
         return;
     }
     m = base + 0x520;
-    MatrixDrive_TurnObjectMatrix__p4((int)m, a1);
+    MatrixDrive_TurnObjectMatrix((int)m, a1);
     *(float *)(s2 + 0xB4) = 0.0f;
     *(float *)(s2 + 0xBC) = 1.0f;
     func_00243978((int *)m, (int *)m);
@@ -94,12 +95,11 @@ void SetMotionDirection(int a0, int *a1)
 
 extern int D_00553BE0[];
 extern void debug_assertMessage(void *msg);
-extern float func_00168C18__p4(void *a0, void *a1) __asm__("func_00168C18");
 
 void _GetMotionDirection(int *a0) {
     char *o = (char *)a0[0x57];
     char *sub = o + 0xA0;
-    *(float *)(sub + 0x1B4) = func_00168C18__p4(o + 0x1D0, o + 0x250);
+    *(float *)(sub + 0x1B4) = func_00168C18(o + 0x1D0, o + 0x250);
     debug_assertMessage(D_00553BE0);
 }
 

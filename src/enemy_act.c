@@ -196,23 +196,23 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001613B0);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyPickupBegin);
 
-extern int ContinueCorrectPosition__19a8(int a0) __asm__("ContinueCorrectPosition");
-extern void dispPlane__19a8(void *a0, float *a1) __asm__("dispPlane");
-extern void func_001947D0__19a8(float *a0, int a1, int a2) __asm__("func_001947D0");
+extern void dispPlane(void *a0, float *a1);
+extern void func_001947D0(float *a0, int a1, int a2);
+extern void *subCommonIdle(int a0);
+extern void BoxBarSoundOn(void *a0, int a1);
+extern unsigned int _ACTWait(int a0);
+extern void func_001919A0(void *a0, int a1);
 extern int D_00631AE8__19a8 __asm__("D_00631AE8");
 extern int func_00145328(void *a0, int a1, int a2, void *a3, float f12, float f13);
-extern void *subCommonIdle__19a8(int a0) __asm__("subCommonIdle");
 extern int HandCameraCorrect__19a8(void *a0, void *a1) __asm__("HandCameraCorrect");
 extern void ACTGameView_Loop(void);
 extern int MoveChestForCatchBoy(void *a0);
-extern void BoxBarSoundOn__19a8(void *a0, int a1) __asm__("BoxBarSoundOn");
-extern unsigned int _ACTWait__19a8(int a0) __asm__("_ACTWait");
 
 static __inline__ int func_001619A8_probe(void *self) {
     char buf[0x20];
     int mode;
     if (func_00145328(self, D_00631AE8__19a8, 0x2D, buf + 0x10, 170.0f, 100.0f) != 0) {
-        int d = HandCameraCorrect__19a8(buf + 0x10, subCommonIdle__19a8(D_00631AE8__19a8));
+        int d = HandCameraCorrect__19a8(buf + 0x10, subCommonIdle(D_00631AE8__19a8));
         d = (d < 0) ? -d : d;
         mode = (d <= 0x59) ? 1 : 2;
     } else {
@@ -223,21 +223,21 @@ static __inline__ int func_001619A8_probe(void *self) {
 
 void func_001619A8(volatile unsigned int a0) {
     char *m = (char *)(*(int *)(a0 + 0x164)) + 0x110;
-    int r0 = ContinueCorrectPosition__19a8(D_00631AE8__19a8);
-    int r1 = ContinueCorrectPosition__19a8(a0);
-    func_001947D0__19a8((float *)m, r0, r1);
-    dispPlane__19a8((void *)a0, (float *)m);
+    int r0 = ContinueCorrectPosition(D_00631AE8__19a8);
+    int r1 = ContinueCorrectPosition(a0);
+    func_001947D0((float *)m, r0, r1);
+    dispPlane((void *)a0, (float *)m);
     for (;;) {
         int mode = func_001619A8_probe((void *)a0);
         if (mode < 3 && mode != 0 && MoveChestForCatchBoy((void *)a0) != 0) {
             ACTGameView_Loop();
             for (;;) {
-                BoxBarSoundOn__19a8((void *)a0, 0x151);
-                _ACTWait__19a8(1);
+                BoxBarSoundOn((void *)a0, 0x151);
+                _ACTWait(1);
             }
         }
-        BoxBarSoundOn__19a8((void *)a0, 0x152);
-        _ACTWait__19a8(1);
+        BoxBarSoundOn((void *)a0, 0x152);
+        _ACTWait(1);
     }
 }
 
@@ -422,7 +422,6 @@ extern void actEnemyRun(int *self);
 extern void func_001AE420(int *self, int a1, int a2, int a3);
 extern int D_00631990;
 extern char D_00558FA0[];
-extern void func_001919A0__p2(void *a0, int a1) __asm__("func_001919A0");
 
 void func_001650A0(void *a0) {
     void *volatile self = a0;
@@ -437,7 +436,7 @@ void func_001650A0(void *a0) {
     CylinderCollision(s, spill);
     ResetEnemyEye(s);
     actEnemyRun(s);
-    func_001919A0__p2((void *)self, 0xA);
+    func_001919A0((void *)self, 0xA);
     p[0x430 / 4] = 0;
     p[0x434 / 4] = 7;
     func_001AE420((int *)self, 7, 0, D_00631990);
@@ -718,7 +717,7 @@ void func_00165780(volatile unsigned int a0)
         actEnemyRestart((void *)a0);
         _ACTWait(1);
     }
-    func_001919A0__p2((void *)a0, 1);
+    func_001919A0((void *)a0, 1);
     _ACTWait(0);
 
 }

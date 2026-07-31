@@ -63,7 +63,17 @@ INCLUDE_ASM("asm/nonmatchings/src/st13b2", func_0022A7C0);
 
 INCLUDE_ASM("asm/nonmatchings/src/st13b2", func_0022A838);
 
-INCLUDE_ASM("asm/nonmatchings/src/st13b2", func_0022A8B0);
+extern int D_004D2AF0[];
+
+void func_0022A8B0(volatile int a0)
+{
+    int s = *(int *)(a0 + 0x164);
+    D_006325B4 = 0;
+    *(int *)(s + 0xC0) = (int)D_004D2AF0;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 extern void BoxBarSoundOn(int a0, int a1);
 extern int *D_004D2B30[];

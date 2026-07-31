@@ -27,7 +27,7 @@ extern int D_006D06A0[];
 extern void GetRootMatrixByDObj(void *buf, int obj);
 extern float SetLimitHandCameraCorrect(int *a0, int *a1, int *a2, float t);
 extern void func_0018B738(int *a0, void *a1);
-extern void func_0018B880__p4(int *a0) __asm__("func_0018B880");
+extern void func_0018B880(int *a0);
 
 void MakeCameraMatrix(void) {
     if (D_006D06A0[6] != 0) {
@@ -44,7 +44,7 @@ void MakeCameraMatrix(void) {
         GetRootMatrixByDObj(&buf[4], D_00633D84);
         func_0018B738(D_006D0680, buf);
     }
-    func_0018B880__p4(D_006D0680);
+    func_0018B880(D_006D0680);
 }
 
 extern float ClearHandCameraCorrect(void *, void *);

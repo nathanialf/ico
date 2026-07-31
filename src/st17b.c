@@ -5,7 +5,12 @@ extern void backStageProcessMain(void);
 extern void _ACTWait();
 extern void func_0017B258(int bit_idx);
 extern long long D_0061C0B0[];
-extern int D_00631AE8__ed40 __asm__("D_00631AE8");
+extern int D_00631AE8;
+extern void _ACTWait(int a0);
+extern int D_00631AE4;
+extern int func_0017B230(int a0);
+extern int actInitialize(int a0);
+extern void BoxBarSoundOn(int a0, int a1);
 extern void actSt25aQueenTalkChk(int a0, int a1, int *buf, int a3, float f);
 
 void func_0022ED40(volatile unsigned int a0)
@@ -13,7 +18,7 @@ void func_0022ED40(volatile unsigned int a0)
     long long buf[2];
     buf[0] = D_0061C0B0[0];
     buf[1] = D_0061C0B0[1];
-    actSt25aQueenTalkChk(D_00631AE8__ed40, 0, (int *)buf, 0, 100.0f);
+    actSt25aQueenTalkChk(D_00631AE8, 0, (int *)buf, 0, 100.0f);
     _ACTWait(0);
 }
 
@@ -36,7 +41,6 @@ typedef struct GObjBB_17b {
 
 extern int D_006325B4;
 extern void BoxBarSoundOn(int a0, int a1);
-extern void _ACTWait__bb17b(int a0) __asm__("_ACTWait");
 
 typedef struct { char pad[0xC0]; void *f_C0; void *unkC4; } GObjC0_17b;
 extern int *D_004D3140[];
@@ -56,16 +60,14 @@ void func_0022EEF0(int x) {
     volatile int local = x;
 }
 
-extern int D_00631AE4__ef00 __asm__("D_00631AE4");
-extern int D_00631AE8__ef00 __asm__("D_00631AE8");
 extern int scpSleepSpiderGroupOne(int a0, int a1);
 
 void func_0022EF00(volatile int a0) {
-    if (D_00631AE8__ef00 == 0) {
+    if (D_00631AE8 == 0) {
         _ACTWait(0);
     }
-    while (scpSleepSpiderGroupOne(D_00631AE8__ef00, 0x1000000) == 0 ||
-           scpSleepSpiderGroupOne(D_00631AE4__ef00, 0x3000000) == 0) {
+    while (scpSleepSpiderGroupOne(D_00631AE8, 0x1000000) == 0 ||
+           scpSleepSpiderGroupOne(D_00631AE4, 0x3000000) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -88,18 +90,15 @@ INCLUDE_ASM("asm/nonmatchings/src/st17b", func_0022F600);
 typedef struct { char pad[0xC4]; int *unkC4; } ActB4_17b;
 extern int D_004D32E0[];
 extern void func_0022F850(int a0);
-extern int func_0017B230__f698(int a0) __asm__("func_0017B230");
-extern int actInitialize__f698(int a0) __asm__("actInitialize");
-extern void BoxBarSoundOn__f698(int a0, int a1) __asm__("BoxBarSoundOn");
 
 void func_0022F698(volatile int a0) {
     int x = a0;
-    ActB4_17b *gobj = (ActB4_17b *)actInitialize__f698(a0);
+    ActB4_17b *gobj = (ActB4_17b *)actInitialize(a0);
     _ACTWait(1);
-    if (func_0017B230__f698(0x12A) == 0) {
+    if (func_0017B230(0x12A) == 0) {
         D_004D32E0[1] = (int)func_0022F850;
         gobj->unkC4 = D_004D32E0;
-        BoxBarSoundOn__f698((int)a0, 0x18D);
+        BoxBarSoundOn((int)a0, 0x18D);
         _ACTWait(0);
     }
 }
@@ -127,7 +126,7 @@ void func_0022F7E8(volatile int a0) {
     D_004D3280[1] = (void *)func_0022EF78;
     gobj->unkC4 = D_004D3280;
     BoxBarSoundOn(a0, 0x18D);
-    _ACTWait__bb17b(0);
+    _ACTWait(0);
 }
 
 void func_0022F850(int a0)

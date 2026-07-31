@@ -12,7 +12,7 @@ extern void func_002438E8();
 extern char D_00275890[];
 extern void func_0010DEC0(void *a0, void *a1, void *a2);
 extern void func_002438B8(int *buf, char *p, int x);
-extern void func_002438E8__p4(char *dst, char *src, int m) __asm__("func_002438E8");
+extern void func_002438E8(char *dst, char *src, int m);
 extern void func_00243978(char *a0, char *a1);
 
 void InitKeyInput(char *a0, char *a1)
@@ -24,7 +24,7 @@ void InitKeyInput(char *a0, char *a1)
     {
         char *q = *(char **)sub;
         if (q != 0) {
-            func_002438E8__p4(buf, (char *)(*(int *)(*(char **)(q + 0x15C) + 0xC) + (*(int *)(sub + 4) << 6)), (int)buf);
+            func_002438E8(buf, (char *)(*(int *)(*(char **)(q + 0x15C) + 0xC) + (*(int *)(sub + 4) << 6)), (int)buf);
         }
     }
     *(float *)(buf + 0x34) = *(float *)(buf + 0x34) + *(float *)(p + 0xC0);
@@ -105,7 +105,7 @@ void func_001050B0(float x, float y, float z)
     D_002759A0[0] = x;
     D_002759A0[5] = y;
     D_002759A0[10] = z;
-    func_002438E8__p4(&D_0065FA40[D_00631B40 * 0x40], &D_0065FA40[D_00631B40 * 0x40],
+    func_002438E8(&D_0065FA40[D_00631B40 * 0x40], &D_0065FA40[D_00631B40 * 0x40],
                       (int)D_002759A0);
 }
 

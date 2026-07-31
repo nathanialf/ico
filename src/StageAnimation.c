@@ -121,9 +121,9 @@ INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_MakePlayBgAnimation);
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_KillPlayBgAnimation);
 
 extern char D_00555DB0[];
-extern int bga_SetCamFrame__p4(int a0) __asm__("bga_SetCamFrame");
-extern int font_CheckAlign__p4(int a0) __asm__("font_CheckAlign");
-extern void func_001AD768__p4(void *a0, int a1) __asm__("func_001AD768");
+extern int bga_SetCamFrame(int a0);
+extern int font_CheckAlign(int a0);
+extern void func_001AD768(void *a0, int a1);
 extern void func_00263FF0__p4(void *a0, int a1, void *a2) __asm__("func_00263FF0");
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
@@ -136,14 +136,14 @@ int stage_DispBgAnimation(int a0, int a1) {
             int mode = *(int *)(e + 0x28C) >> 30;
             switch (mode) {
                 case 0:
-                    if (bga_SetCamFrame__p4(*(int *)(e + 0x284)) != 0) {
+                    if (bga_SetCamFrame(*(int *)(e + 0x284)) != 0) {
                         stage_KillPlayBgAnimation(a0, 0, -1);
                         stage_KillPlayBgAnimation(a1, 1, 0);
                         return 1;
                     }
                     return 0;
                 case 1:
-                    if (font_CheckAlign__p4(*(int *)(e + 0x288)) != 0) {
+                    if (font_CheckAlign(*(int *)(e + 0x288)) != 0) {
                         stage_KillPlayBgAnimation(a0, 0, -1);
                         stage_KillPlayBgAnimation(a1, 1, 0);
                         return 1;
@@ -153,7 +153,7 @@ int stage_DispBgAnimation(int a0, int a1) {
         }
     }
     debug_assertMessage(D_00555DB0);
-    func_001AD768__p4(D_00555BF8, 0x38D);
+    func_001AD768(D_00555BF8, 0x38D);
     func_00263FF0__p4(D_00555BF8, 0x38D, D_00631D88);
     return 0;
 }

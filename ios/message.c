@@ -2,7 +2,31 @@
 
 
 extern int D_006A6990[];
-INCLUDE_ASM("asm/nonmatchings/ios/message", iosMsgQueueCreate);
+
+extern void func_00100540(int sema);
+
+typedef struct IosMsg {
+    char pad0[0x44];
+    struct IosMsg *next;        /* 0x44 */
+} IosMsg;
+
+typedef struct IosMsgQueue {
+    char pad0[0x10];
+    IosMsg *head;               /* 0x10 */
+    char pad14[0x18];
+    int sema;                   /* 0x2C */
+} IosMsgQueue;
+
+void iosMsgQueueCreate(IosMsgQueue *self)
+{
+    IosMsg *msg = self->head;
+
+    if (msg != 0) {
+        self->head = msg->next;
+        msg->next = 0;
+        func_00100540(self->sema);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/ios/message", iosMsgQueueDestroy);
 

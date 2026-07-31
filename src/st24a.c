@@ -1,5 +1,7 @@
 #include "common.h"
 
+extern int actInitialize(int a0);
+
 
 
 extern void *D_00631AE8;
@@ -43,7 +45,12 @@ INCLUDE_ASM("asm/nonmatchings/src/st24a", func_00235908);
 
 INCLUDE_ASM("asm/nonmatchings/src/st24a", func_002359C8);
 
-INCLUDE_ASM("asm/nonmatchings/src/st24a", func_00235A18);
+
+void func_00235A18(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st24a", func_00235A48);
 

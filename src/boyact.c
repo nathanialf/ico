@@ -239,7 +239,7 @@ extern void CylinderCollision(void *a0, void *a1);
 extern unsigned char D_00633CEE;
 extern unsigned char D_00633CEF;
 extern unsigned char D_00633CF0;
-extern void _ACTWait__p4(int a0) __asm__("_ACTWait");
+extern void _ACTWait(int a0);
 extern int func_0017B230(int a0);
 extern void func_0017B288(int a0);
 extern void func_0017B528(void *a0);
@@ -268,14 +268,14 @@ void E3_StageStartBoy(void *a0) {
         if (D_00633CEF) {
             return;
         }
-        _ACTWait__p4(3);
+        _ACTWait(3);
         staffRollScroll(a0, 0, 0, &w10, &w14, &w18);
-        _ACTWait__p4(w10);
+        _ACTWait(w10);
         func_0017B528(a0);
         BoySekikaTexScroll(a0, 7);
-        _ACTWait__p4(w14);
+        _ACTWait(w14);
         func_0017B568(a0);
-        _ACTWait__p4(w18);
+        _ACTWait(w18);
     }
 }
 
@@ -419,7 +419,7 @@ void func_00151D78(int *volatile a0) {
         }
         if (((0x3C - D_00274EC0[0] * 0xA) / D_00274EC0[1]) * 2 < cnt++)
             BoxBarSoundOn(a0, 0xBC);
-        _ACTWait__p4(1);
+        _ACTWait(1);
     }
 }
 
@@ -460,7 +460,7 @@ void func_00152508(int *arg){
             t2: if(hi<c && (v<lo||(*(volatile int*)((char*)obj+0x2D0)&0x20))) BoxBarSoundOn(*(int * volatile *)&arg,0x49);
                 else BoxBarSoundOn(*(int * volatile *)&arg,0x4A);
             w:; }
-        _ACTWait__p4(1); } }
+        _ACTWait(1); } }
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001526A0);
 
@@ -737,24 +737,23 @@ void ditch_check_heroin_position(int *volatile a0) {
     *(void **)((char *)obj + 0x14) = (void *)func_00154070;
     *(int *)((char *)obj + 0xD0) = 0;
     do {
-        _ACTWait__p4(1);
+        _ACTWait(1);
     } while ((*(int *)((char *)obj + 0xD0) & 0x10) == 0);
     debug_assertMessage(D_00558218);
     while (1) {
         BoxBarSoundOn(a0, 0x59);
-        _ACTWait__p4(1);
+        _ACTWait(1);
     }
 }
 
 extern char D_005581F0[];
-extern void *D_00631AE8__p4 __asm__("D_00631AE8");
 extern int D_006321DC;
 extern void iosOmBeforeFuncStandard(void *a0, int a1, int a2);
 
 void func_00154070(volatile int a0) {
     debug_assertMessage(D_005581F0);
-    if (D_00631AE8__p4 != 0) {
-        iosOmBeforeFuncStandard(D_00631AE8__p4, 0x59, D_006321DC);
+    if (D_00631AE8 != 0) {
+        iosOmBeforeFuncStandard(D_00631AE8, 0x59, D_006321DC);
     }
 }
 
@@ -769,19 +768,19 @@ void actBoyPullupReady(int *volatile a0) {
     *(void **)((char *)obj + 0x14) = (void *)func_00154128;
     *(int *)((char *)obj + 0xD0) = 0;
     do {
-        _ACTWait__p4(1);
+        _ACTWait(1);
     } while ((*(int *)((char *)obj + 0xD0) & 0x10) == 0);
     debug_assertMessage(D_00558260);
     while (1) {
         BoxBarSoundOn(a0, 0x5E);
-        _ACTWait__p4(1);
+        _ACTWait(1);
     }
 }
 
 void func_00154128(volatile int a0) {
     debug_assertMessage(D_005581F0);
-    if (D_00631AE8__p4 != 0) {
-        iosOmBeforeFuncStandard(D_00631AE8__p4, 0x5E, D_006321DC);
+    if (D_00631AE8 != 0) {
+        iosOmBeforeFuncStandard(D_00631AE8, 0x5E, D_006321DC);
     }
 }
 
@@ -795,19 +794,19 @@ void actBoyPullupGo(int *volatile a0) {
     *(void **)((char *)obj + 0x14) = (void *)func_001541E0;
     *(int *)((char *)obj + 0xD0) = 0;
     do {
-        _ACTWait__p4(1);
+        _ACTWait(1);
     } while ((*(int *)((char *)obj + 0xD0) & 0x10) == 0);
     debug_assertMessage(D_00558260);
     while (1) {
         BoxBarSoundOn(a0, 0x63);
-        _ACTWait__p4(1);
+        _ACTWait(1);
     }
 }
 
 void func_001541E0(volatile int a0) {
     debug_assertMessage(D_005581F0);
-    if (D_00631AE8__p4 != 0) {
-        iosOmBeforeFuncStandard(D_00631AE8__p4, 0x63, D_006321DC);
+    if (D_00631AE8 != 0) {
+        iosOmBeforeFuncStandard(D_00631AE8, 0x63, D_006321DC);
     }
 }
 
@@ -1121,7 +1120,19 @@ void actBoySupportGBEnd(int a0)
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00154CE8);
+void func_00154CE8(int *a0, int *a1)
+{
+    if (a0 != 0) {
+        D_006AAAE0_i[0] = a0[2];
+    } else {
+        D_006AAAE0_i[0] = 0;
+    }
+    if (a1 != 0) {
+        D_006AAAE0_i[1] = a1[2];
+    } else {
+        D_006AAAE0_i[1] = 0;
+    }
+}
 
 extern float D_00630C24;
 extern void GetRootMatrixByDObj(void *dest, void *dobj);

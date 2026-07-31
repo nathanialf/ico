@@ -164,7 +164,7 @@ extern char D_0055A8F0[];
 extern char D_00275250[];
 extern void ReadCameraSet(void);
 extern void DispCameraGroup(void *a0, int a1, void *a2);
-extern void debug_assertMessage__c2(char *a0, void *a1) __asm__("debug_assertMessage");
+extern void debug_assertMessage(char *a0, void *a1);
 extern void iosSemaCreate(void *a0);
 
 void func_00187EA0(void *obj) {
@@ -172,7 +172,7 @@ void func_00187EA0(void *obj) {
     iosSemaCreate(obj);
     base = D_00275250;
     for (;;) {
-        debug_assertMessage__c2(D_0055A8F0, *(void **)((char *)obj + 0x74));
+        debug_assertMessage(D_0055A8F0, *(void **)((char *)obj + 0x74));
         if (*(int *)(base + 0x5C) & 0x20) {
             DispCameraGroup(ReadCameraSet, 3, obj);
         }
@@ -429,7 +429,15 @@ INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", func_0018B620);
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", func_0018B668);
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", func_0018B700);
+extern int D_006D0680[];
+extern void func_0018B738(int *a0, void *a1);
+extern void func_0018B880(int *a0);
+
+void func_0018B700(void *a0)
+{
+    func_0018B738(D_006D0680, a0);
+    func_0018B880(D_006D0680);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-ico2", func_0018B738);
 

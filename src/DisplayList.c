@@ -113,7 +113,7 @@ extern char D_0061ABA0[];
 extern int D_00633810;
 extern char D_00633818[];
 extern int D_00710F80[];
-extern void debug_assertMessage__p4() __asm__("debug_assertMessage");
+extern void debug_assertMessage();
 extern void func_001AD768(char *file, int line);
 extern void func_00263FF0(char *file, int line, void *expr);
 
@@ -123,14 +123,13 @@ void dl_Out(void) {
         D_00710F80[i] = D_00633F70;
         D_00633810 = i + 1;
     } else {
-        debug_assertMessage__p4(D_0061ABA0);
+        debug_assertMessage(D_0061ABA0);
         func_001AD768(D_0061AB88, 0x20E);
         func_00263FF0(D_0061AB88, 0x20E, D_00633818);
     }
 }
 
 extern char D_0061ABC8[];
-extern void debug_assertMessage__p4() __asm__("debug_assertMessage");
 
 void dl_SetDLPriority(void) {
     if (D_00633810 > 0) {
@@ -138,7 +137,7 @@ void dl_SetDLPriority(void) {
         D_00633810 = i;
         D_00633F70 = D_00710F80[i];
     } else {
-        debug_assertMessage__p4(D_0061ABC8);
+        debug_assertMessage(D_0061ABC8);
         func_001AD768(D_0061AB88, 0x220);
         func_00263FF0(D_0061AB88, 0x220, D_00633818);
     }

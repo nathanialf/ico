@@ -11,7 +11,14 @@ extern int DispIcoMisc(int a0);
 extern void queen_barrier_anim();
 extern int D_006325B4;
 extern void avoidInsideOfWall(void *self);
-INCLUDE_ASM("asm/nonmatchings/src/act-wish", ACTGetWish_FromPad);
+extern int InitMultiBgaManager(int a0);
+
+void ACTGetWish_FromPad(int a0)
+{
+    int r = InitMultiBgaManager(1);
+    int v = *(int *)(*(int *)(a0 + 0x164) + 0x670);
+    *(int *)(v + 0x1B8) = r;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/act-wish", func_0014B5B8);
 

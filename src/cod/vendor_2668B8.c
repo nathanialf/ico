@@ -79,7 +79,7 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_00269160);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026A330);
 
-extern int func_0026D558__p4() __asm__("func_0026D558");
+extern int func_0026D558();
 extern long func_0026D5C0(void *a0, int a1, int a2);
 extern long func_0026D640(void *a0, int a1, int a2);
 extern int func_0026D6A8(void *a0);
@@ -88,7 +88,7 @@ void func_0026A438(char *a0, short a1, short a2, int a3) {
     *(int *)(a0 + 0x54) = a3;
     *(short *)(a0 + 0xC) = a1;
     *(short *)(a0 + 0xE) = a2;
-    *(void **)(a0 + 0x20) = (void *)func_0026D558__p4;
+    *(void **)(a0 + 0x20) = (void *)func_0026D558;
     *(void **)(a0 + 0x24) = (void *)func_0026D5C0;
     *(void **)(a0 + 0x28) = (void *)func_0026D640;
     *(void **)(a0 + 0x2C) = (void *)func_0026D6A8;
@@ -622,7 +622,14 @@ int func_0026D6A8(void *a0) {
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026D6C8);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026E5C8);
+extern unsigned int func_0026D6C8(void *a0, int a1, int a2);
+
+int func_0026E5C8(a0, a1)
+int a0;
+int a1;
+{
+    return func_0026D6C8(D_0054D504_alias[0], a0, a1);
+}
 
 extern int func_002633B8(long a0);
 extern int func_0026E5C8();

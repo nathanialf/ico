@@ -109,9 +109,30 @@ int func_001AA4F0(int *self, int *other)
     return r;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/debug_menu", func_001AA550);
+extern int func_00247608(void);
 
-INCLUDE_ASM("asm/nonmatchings/src/debug_menu", func_001AA580);
+int func_001AA550(int a0) {
+    if (a0 == D_00632C80) {
+        D_00632C80 = -1;
+    }
+    return func_00247608();
+}
+
+/* The sibling above calls this kernel entry with no argument; here it takes
+ * the old handle, so bind a correctly-typed name to the same symbol. */
+extern int func_00247608_h(int handle) __asm__("func_00247608");
+
+int func_001AA580(void)
+{
+    int r = 0;
+    int h = D_00632C80;
+    if (h != -1) {
+        D_00632C80 = -1;
+        r = func_00247608_h(h);
+        D_00632C80 = -1;
+    }
+    return r;
+}
 
 void func_001AA5B8(void) {}
 
@@ -134,7 +155,10 @@ void func_001AA5C0(int idx)
   }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/debug_menu", func_001AA608);
+void func_001AA608(int page, int idx, int delta)
+{
+    *(int *)((char *)D_006F8EE0 + (page * 0xD0 + idx * 8)) += delta;
+}
 
 void func_001AA638(int page, int idx)
 {

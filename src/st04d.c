@@ -15,14 +15,14 @@ extern int actSt25aQueenDeadChk();
 extern int func_0017B230(int a0);
 extern void *D_00631AE8;
 extern void func_0017B258(int bit_idx);
-extern void _ACTWait__p4(int a0) __asm__("_ACTWait");
+extern void _ACTWait(int a0);
 extern int actInitialize__p4(int a0) __asm__("actInitialize");
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
 void actSt04dDoor1(volatile int a0) {
     int x = a0;
     actInitialize__p4(a0);
-    _ACTWait__p4(1);
+    _ACTWait(1);
     if (func_0017B230(0x7C) == 0) {
         stage_KillPlayBgAnimation(0x10A, -1, -2);
     } else {
@@ -30,14 +30,13 @@ void actSt04dDoor1(volatile int a0) {
     }
 }
 
-extern void _ACTWait__p4(int a0) __asm__("_ACTWait");
 extern int actInitialize__p4(int a0) __asm__("actInitialize");
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
 void actSt04dDoor1UpChk(volatile int a0) {
     int x = a0;
     actInitialize__p4(a0);
-    _ACTWait__p4(1);
+    _ACTWait(1);
     if (func_0017B230(0x7C) == 0) {
         stage_KillPlayBgAnimation(0x10C, -1, -2);
         stage_KillPlayBgAnimation(0x110, -1, -2);
@@ -72,33 +71,32 @@ extern void soundSeDefPlayWithVolumeRate(int a0, int a1, void *a2, int a3);
 void actSt04dDoor2DownChk(volatile int a0) {
     struct Q buf;
     while (scpSleepEnemyOne(a0, D_00631AE4, 200.0f) == 0) {
-        _ACTWait__p4(1);
+        _ACTWait(1);
     }
-    _ACTWait__p4(0x1E);
+    _ACTWait(0x1E);
     actCreateSubThread(func_002194D8, 0x15);
     stage_KillPlayBgAnimation(0xE1, 1, 0);
     buf = D_0061BD20;
-    _ACTWait__p4(0x1E);
+    _ACTWait(0x1E);
     soundSeDefPlayWithVolumeRate(0x4AD, 0, &buf, 1);
-    _ACTWait__p4(0x1E);
+    _ACTWait(0x1E);
     soundSeDefPlayWithVolumeRate(0x4AE, 0, &buf, 1);
     while (func_0012AA80(0xE1) == 0) {
-        _ACTWait__p4(1);
+        _ACTWait(1);
     }
-    _ACTWait__p4(1);
+    _ACTWait(1);
     func_0017B258(0x91);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/st04d", actSt04dDoor1Event);
 
-extern void _ACTWait__p4(int a0) __asm__("_ACTWait");
 extern int actInitialize__p4(int a0) __asm__("actInitialize");
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
 void actSt04dDoor1UpEffect(volatile int a0) {
     int x = a0;
     actInitialize__p4(a0);
-    _ACTWait__p4(1);
+    _ACTWait(1);
     if (func_0017B230(0x7C) == 0) {
         stage_KillPlayBgAnimation(0x10D, -1, -2);
     }
@@ -112,13 +110,13 @@ extern void *actSt25aQueenDeadChk__p4(int a0) __asm__("actSt25aQueenDeadChk");
 void actSt04dDoor1DownEffect(volatile int a0) {
     int x = a0;
     GObj__p4 *gobj = (GObj__p4 *)actInitialize__p4(a0);
-    _ACTWait__p4(1);
+    _ACTWait(1);
     if (func_0017B230(0xB3) == 0) {
         stage_KillPlayBgAnimation(0xCB, 0, 0);
         D_004D16D0[1] = (int)actSt04dDoor1Event;
         gobj->unkB4 = D_004D16D0;
         BoxBarSoundOn(a0, 0x18D);
-        _ACTWait__p4(0);
+        _ACTWait(0);
     } else {
         stage_KillPlayBgAnimation(0xCB, 0, -1);
         ((int *)actSt25aQueenDeadChk__p4(0x3F2))[0x16C / 4] = 0;
@@ -132,12 +130,12 @@ extern void func_00219660(volatile int a0);
 void actSt04dDoor2Event(volatile int a0) {
     int x = a0;
     GObj__p4 *gobj = (GObj__p4 *)actInitialize__p4(a0);
-    _ACTWait__p4(1);
+    _ACTWait(1);
     if (func_0017B230(0x90) == 0) {
         D_004D16B0[1] = (int)func_00219660;
         gobj->unkB4 = D_004D16B0;
         BoxBarSoundOn(a0, 0x18D);
-        _ACTWait__p4(0);
+        _ACTWait(0);
     }
 }
 
@@ -152,7 +150,7 @@ void actSt04dDoor2UpEffect(volatile int a0) {
         D_004D1670[1] = (int)actSt04dDoor2DownChk;
         gobj->unkB4 = D_004D1670;
         BoxBarSoundOn(a0, 0x18D);
-        _ACTWait__p4(0);
+        _ACTWait(0);
     }
 }
 
@@ -162,12 +160,12 @@ extern void func_002195F0(volatile int a0);
 void actSt04dDoor2DownEffect(volatile int a0) {
     int x = a0;
     GObj__p4 *gobj = (GObj__p4 *)actInitialize__p4(a0);
-    _ACTWait__p4(1);
+    _ACTWait(1);
     if (func_0017B230(0x92) == 0) {
         D_004D1690[1] = (int)func_002195F0;
         gobj->unkB4 = D_004D1690;
         BoxBarSoundOn(a0, 0x18D);
-        _ACTWait__p4(0);
+        _ACTWait(0);
     }
 }
 

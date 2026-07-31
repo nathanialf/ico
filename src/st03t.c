@@ -327,33 +327,27 @@ typedef struct KSub_c58 {
     int *unkC4;
 } KSub_c58;
 
-extern int D_006325B4__c58 __asm__("D_006325B4");
 extern int D_004D1130[];
 extern int D_004D1150[];
-extern void BoxBarSoundOn__c58(int a0, int a1) __asm__("BoxBarSoundOn");
-extern void _ACTWait__c58(int a0) __asm__("_ACTWait");
-extern void lt_fade_status__c58(int a0) __asm__("lt_fade_status");
-extern void scpDispOnAllWithKind__c58(void) __asm__("scpDispOnAllWithKind");
-extern int func_0017B230__c58(int a0) __asm__("func_0017B230");
 extern void actSt02aDoorUpEffect(volatile int a0);
 extern void actSt02aDoorEvent(volatile int a0);
 
 void func_00212C58(volatile int a0) {
     KSub_c58 *s = *(KSub_c58 **)(a0 + 0x164);
     s->unkC0 = 0;
-    lt_fade_status__c58(0x33);
-    D_006325B4__c58 = 1;
-    scpDispOnAllWithKind__c58();
-    if (func_0017B230__c58(0x6A) != 0) {
+    lt_fade_status(0x33);
+    D_006325B4 = 1;
+    scpDispOnAllWithKind();
+    if (func_0017B230(0x6A) != 0) {
         D_004D1130[1] = (int)actSt02aDoorUpEffect;
         s->unkC4 = D_004D1130;
-        BoxBarSoundOn__c58(a0, 0x18D);
-        _ACTWait__c58(0);
+        BoxBarSoundOn(a0, 0x18D);
+        _ACTWait(0);
     }
     D_004D1150[1] = (int)actSt02aDoorEvent;
     s->unkC4 = D_004D1150;
-    BoxBarSoundOn__c58(a0, 0x18D);
-    _ACTWait__c58(0);
+    BoxBarSoundOn(a0, 0x18D);
+    _ACTWait(0);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tEneChk);

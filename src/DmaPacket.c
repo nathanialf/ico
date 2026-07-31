@@ -37,5 +37,25 @@ int dpk_CheckBufferSize(void) {
 
 INCLUDE_ASM("asm/nonmatchings/src/DmaPacket", func_001FBB48);
 
-INCLUDE_ASM("asm/nonmatchings/src/DmaPacket", func_001FBBE0);
+typedef struct {
+    int cur;        /* 0x00 */
+    int *buf[2];    /* 0x04 0x08 */
+    int _0C;
+    int *ptr;       /* 0x10 */
+    int *_14;
+    int *_18;
+    int *_1C;
+} DpkCtl;
+
+extern DpkCtl D_004C7710;
+
+void func_001FBBE0(void)
+{
+    int i = D_004C7710.cur ^ 1;
+    D_004C7710.cur = i;
+    D_004C7710.ptr = D_004C7710.buf[i];
+    D_004C7710._14 = 0;
+    D_004C7710._18 = 0;
+    D_004C7710._1C = 0;
+}
 

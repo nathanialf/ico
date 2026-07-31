@@ -1,5 +1,7 @@
 #include "common.h"
 
+extern void _ACTWait(int a0);
+
 
 
 
@@ -77,7 +79,21 @@ void func_0017EC78(char *self) {
 
 INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017EC98);
 
-INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017ED70);
+typedef struct WgSub_ed70 {
+    char pad[0xC0];
+    int unkC0;
+    char pad2[0x450 - 0xC4];
+    int unk450;
+} WgSub_ed70;
+
+
+void func_0017ED70(volatile int a0) {
+    WgSub_ed70 *s = *(WgSub_ed70 **)(a0 + 0x164);
+    s->unkC0 = s->unk450;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017EDA0);
 
@@ -95,7 +111,14 @@ INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017FF40);
 
 INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_001803A8);
 
-INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_00180550);
+extern char D_0055A380[];
+extern float D_00630EAC;
+extern void func_0012FFF0(void *a0, float f12, float f13, float f14, float f15,
+                          float f16, float f17, int a1);
+
+void func_00180550(void) {
+    func_0012FFF0(D_0055A380, 0.0f, 0.0f, 0.0f, D_00630EAC, 0.0f, 0.5f, 1);
+}
 
 void func_00180580(volatile unsigned int a0)
 {

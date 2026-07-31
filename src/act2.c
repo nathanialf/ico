@@ -1,5 +1,8 @@
 #include "common.h"
 
+extern void _ACTWait(int a0);
+extern int actInitialize(int a0);
+
 typedef union { float f[4]; long long ll[2]; } Vec4;
 
 
@@ -27,7 +30,12 @@ INCLUDE_ASM("asm/nonmatchings/src/act2", func_00203CD0);
 
 INCLUDE_ASM("asm/nonmatchings/src/act2", func_00203D90);
 
-INCLUDE_ASM("asm/nonmatchings/src/act2", func_00203EE8);
+
+void func_00203EE8(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+}
 
 void func_00203F18(int a0, int *a1, int *a2)
 {

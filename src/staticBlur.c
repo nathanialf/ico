@@ -36,13 +36,13 @@ extern int D_00631970;
 extern void _InverseCurrentMatrix(void *a0, void *a1, float f);
 extern void _PushVu0Registers(void *a0, void *a1, float f);
 extern void _RotTransPersCurrentMatrix(void *a0, void *a1, void *a2);
-extern void _SetCurrentMatrix__p4(int a0, void *a1) __asm__("_SetCurrentMatrix");
+extern void _SetCurrentMatrix(int a0, void *a1);
 extern void func_00118648(void *a0, int a1, void *a2);
 extern void mc_SetMicroCode(void *a0, void *a1);
 
 void cleanUpFB(void) {
     float buf[4];
-    _SetCurrentMatrix__p4((int)buf, D_004C6160);
+    _SetCurrentMatrix((int)buf, D_004C6160);
     _InverseCurrentMatrix(buf, buf, D_006313DC);
     buf[3] = 1.0f;
     func_00118648(buf, D_00631970 + 0x100, buf);

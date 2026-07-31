@@ -1,5 +1,7 @@
 #include "common.h"
 
+extern int D_004D2D60[];
+
 typedef struct { char pad[0xC0]; void *f_B0; void *unkB4; } BoxObj_st13c;
 
 struct CFS { long long a, b; };
@@ -144,7 +146,7 @@ extern int func_0012AB50(int a0, int a1, int a2);
 extern void iosPadDevRead(int a0, int a1);
 extern void lt_fade_status(int a0);
 extern void scpPlayStart(int a0, int *a1, int a2, int a3, int a4);
-extern void stage_KillPlayBgAnimation__p4(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
+extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
 void actSt13cConte05(volatile int a0){
     lt_fade_status(0x33);
@@ -152,7 +154,7 @@ void actSt13cConte05(volatile int a0){
     _ACTWait(0x3C);
     scpPlayStart(0x58, &D_00633A64, 1, 1, 1);
     while (D_00633A64 == 0) { _ACTWait(1); }
-    stage_KillPlayBgAnimation__p4(0x157, 1, 0);
+    stage_KillPlayBgAnimation(0x157, 1, 0);
     while (func_0012AB50(0x157, 0x73, 0) == 0) { _ACTWait(1); }
     _ACTWait(1);
     iosPadDevRead(D_00631AEC, 0x11);
@@ -168,16 +170,15 @@ void actSt13cConte05(volatile int a0){
 extern void BoxBarSoundOn(int a0, int a1);
 extern int D_004D2CA0[];
 extern void actSt13cHandChk(volatile int a0);
-extern void stage_KillPlayBgAnimation__p4(int a0, int a1, int a2) __asm__("stage_KillPlayBgAnimation");
 
 void actSt13cConte05Jimaku(volatile int a0){
  int x=a0;
  ActB4Obj *gobj=(ActB4Obj*)actInitialize(a0);
  _ACTWait(1);
  if(func_0017B230(0x4C)!=0){
-  stage_KillPlayBgAnimation__p4(0x154,0,0xD2);
+  stage_KillPlayBgAnimation(0x154,0,0xD2);
  }else{
-  stage_KillPlayBgAnimation__p4(0x154,0,0);
+  stage_KillPlayBgAnimation(0x154,0,0);
  }
  D_004D2CA0[1]=(int)actSt13cHandChk;
  gobj->unkB4=D_004D2CA0;
@@ -260,7 +261,16 @@ void actSt13cSleep(int x) {
 
 INCLUDE_ASM("asm/nonmatchings/src/st13c", func_0022BEE0);
 
-INCLUDE_ASM("asm/nonmatchings/src/st13c", func_0022BF60);
+typedef struct KSub_bf60 { char pad[0xC0]; int unkC0; } KSub_bf60;
+
+
+void func_0022BF60(volatile int a0) {
+    KSub_bf60 *s = *(KSub_bf60 **)(a0 + 0x164);
+    s->unkC0 = (int)D_004D2D60;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 extern int *D_004D2DA0[];
 

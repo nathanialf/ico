@@ -145,7 +145,9 @@ extern void BoxBarSoundOn(void *, int);
 extern char D_00559670[];
 extern char D_00559680[];
 extern int HandCameraCorrect(void *buf, void *vec);
-extern void debug_assertMessage__p4(void *a0) __asm__("debug_assertMessage");
+extern void debug_assertMessage(void *a0);
+extern float ClearHandCameraCorrect(void *a0, void *a1);
+extern float *ContinueCorrectPosition(void *a0);
 extern void funcGirlHandDisconnect();
 extern void func_00104748(void *, void *);
 
@@ -170,14 +172,14 @@ void actGirlDitch3mReady(void *a0, int a1) {
     funcGirlHandDisconnect(buf + 0x10, de8);
     r = HandCameraCorrect(buf + 0x10, a0);
     if (r > 0) {
-        debug_assertMessage__p4(D_00559670);
+        debug_assertMessage(D_00559670);
         if (s3 != 0) {
             BoxBarSoundOn(de8, 0xDC);
         } else {
             BoxBarSoundOn(de8, 0xDE);
         }
     } else {
-        debug_assertMessage__p4(D_00559680);
+        debug_assertMessage(D_00559680);
         if (s3 != 0) {
             BoxBarSoundOn(de8, 0xDB);
         } else {
@@ -198,11 +200,10 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlStart);
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", GirlAct_BoyAndMeCollisionMail);
 
-extern float ClearHandCameraCorrect__ga(void *a0, void *a1) __asm__("ClearHandCameraCorrect");
 extern void _OrientXZGV__ga(void *dst, void *a1, void *src, float f12, float f13) __asm__("_OrientXZGV");
 
 void func_00170380(float *dst, void *a1, float *src, float thresh) {
-    float d = ClearHandCameraCorrect__ga(a1, src);
+    float d = ClearHandCameraCorrect(a1, src);
     if (thresh < d) {
         float t = (d - thresh) / d;
         _OrientXZGV__ga(dst, a1, src, t, 1.0f - t);
@@ -466,7 +467,6 @@ ret0:
     return 0;
 }
 
-extern float *ContinueCorrectPosition__5350(void *a0) __asm__("ContinueCorrectPosition");
 extern void SetLimitHandCameraCorrect(float *dst, float *a1, float *a2, float f12);
 extern void CylinderCollision(void *a0, void *a1);
 extern void *D_00631AE4__5350 __asm__("D_00631AE4");
@@ -478,12 +478,12 @@ void func_00175350(void *volatile a0) {
     float buf30[4];
 
     for (;;) {
-        buf10[0] = ContinueCorrectPosition__5350(D_00631AE8__5350)[0];
-        buf10[1] = ContinueCorrectPosition__5350(D_00631AE8__5350)[1];
-        buf10[2] = ContinueCorrectPosition__5350(D_00631AE8__5350)[2];
-        buf20[0] = ContinueCorrectPosition__5350(D_00631AE4__5350)[0];
-        buf20[1] = ContinueCorrectPosition__5350(D_00631AE4__5350)[1];
-        buf20[2] = ContinueCorrectPosition__5350(D_00631AE4__5350)[2];
+        buf10[0] = ContinueCorrectPosition(D_00631AE8__5350)[0];
+        buf10[1] = ContinueCorrectPosition(D_00631AE8__5350)[1];
+        buf10[2] = ContinueCorrectPosition(D_00631AE8__5350)[2];
+        buf20[0] = ContinueCorrectPosition(D_00631AE4__5350)[0];
+        buf20[1] = ContinueCorrectPosition(D_00631AE4__5350)[1];
+        buf20[2] = ContinueCorrectPosition(D_00631AE4__5350)[2];
         buf20[1] = buf10[1];
         SetLimitHandCameraCorrect(buf30, buf10, buf20, 20.0f);
         CylinderCollision(a0, buf30);
@@ -532,7 +532,6 @@ void func_001754B0(void *volatile a0) {
 
 extern char D_00559A70[];
 extern void GetTarget(void);
-extern float *ContinueCorrectPosition__54f8(void *a0) __asm__("ContinueCorrectPosition");
 extern void _OrientXZGV__54f8(float *dst, float *a1, float *a2, float f12, float f13) __asm__("_OrientXZGV");
 extern void CylinderCollisionWithControlDynamics(void *o, void *param);
 extern void *D_00631AE4__54f8 __asm__("D_00631AE4");
@@ -551,12 +550,12 @@ void func_001754F8(void *volatile a0) {
         if (cont) {
             i++;
             cont = i < 3;
-            buf10[0] = ContinueCorrectPosition__54f8(D_00631AE4__54f8)[0];
-            buf10[1] = ContinueCorrectPosition__54f8(D_00631AE4__54f8)[1];
-            buf10[2] = ContinueCorrectPosition__54f8(D_00631AE4__54f8)[2];
-            buf20[0] = ContinueCorrectPosition__54f8(D_00631AE8__54f8)[0];
-            buf20[1] = ContinueCorrectPosition__54f8(D_00631AE8__54f8)[1];
-            buf20[2] = ContinueCorrectPosition__54f8(D_00631AE8__54f8)[2];
+            buf10[0] = ContinueCorrectPosition(D_00631AE4__54f8)[0];
+            buf10[1] = ContinueCorrectPosition(D_00631AE4__54f8)[1];
+            buf10[2] = ContinueCorrectPosition(D_00631AE4__54f8)[2];
+            buf20[0] = ContinueCorrectPosition(D_00631AE8__54f8)[0];
+            buf20[1] = ContinueCorrectPosition(D_00631AE8__54f8)[1];
+            buf20[2] = ContinueCorrectPosition(D_00631AE8__54f8)[2];
             _OrientXZGV__54f8(buf30, buf10, buf20, 1.0f, 1.0f);
             CylinderCollisionWithControlDynamics(a0, buf30);
         }
@@ -572,34 +571,32 @@ void func_001755F8(volatile unsigned int a0)
     volatile int local;
     int *s0;
     s0 = *((int **) (a0 + 0x164));
-    debug_assertMessage__p4((char *)D_00559AA0);
+    debug_assertMessage((char *)D_00559AA0);
     s0[0x30 / 4] = 1;
     _ACTWait(0);
 }
 
 extern char D_00559AB8[];
 extern unsigned int _ACTWait(int a0);
-extern void debug_assertMessage__p4(void *a0) __asm__("debug_assertMessage");
 
 void afterGirlHand(volatile unsigned int a0)
 {
     volatile int local;
     int *s0;
     s0 = *((int **) (a0 + 0x164));
-    debug_assertMessage__p4((char *)D_00559AB8);
+    debug_assertMessage((char *)D_00559AB8);
     s0[0x30 / 4] = 0x2;
     _ACTWait(0);
 }
 
 extern char D_00559AD0[];
-extern void debug_assertMessage__p4(void *a0) __asm__("debug_assertMessage");
 
 void afterGirlPulledGo(volatile unsigned int a0)
 {
     volatile int local;
     int *s0;
     s0 = *((int **) (a0 + 0x164));
-    debug_assertMessage__p4((char *)D_00559AD0);
+    debug_assertMessage((char *)D_00559AD0);
     s0[0x30 / 4] = 0x3;
     _ACTWait(0);
 }
@@ -642,7 +639,7 @@ void func_001757B8(volatile unsigned int a0)
     volatile int local;
     int *s0;
     s0 = *((int **) (a0 + 0x164));
-    debug_assertMessage__p4((char *)D_00559B00);
+    debug_assertMessage((char *)D_00559B00);
     s0[0x30 / 4] = 0xF;
     _ACTWait(0);
 }

@@ -1,5 +1,7 @@
 #include "common.h"
 
+extern void actCreateSubThread(void *fn, int a1);
+
 typedef struct { char pad[0xC4]; int *unkB4; } B4ObjU;
 
 typedef struct ActB4Obj { char pad[0xC4]; int *unkB4; } ActB4Obj;
@@ -8,11 +10,22 @@ typedef struct ActB4Obj { char pad[0xC4]; int *unkB4; } ActB4Obj;
 extern int func_0017B230(int a0);
 extern void func_0017B258(int bit_idx);
 extern void *D_00631AE8;
-INCLUDE_ASM("asm/nonmatchings/src/st00a", actSt00aInit);
+extern void actEndDemo10(volatile int a0);
+extern void actSt00aEnd(volatile int a0);
+
+void actSt00aInit(volatile int a0) {
+    actCreateSubThread(actEndDemo10, 0x15);
+    actCreateSubThread(actSt00aEnd, 0x15);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/st00a", actSt00aEnd);
 
-INCLUDE_ASM("asm/nonmatchings/src/st00a", func_0020D850);
+extern void actConte14_13(volatile int a0);
+
+void func_0020D850(volatile int a0) {
+    func_0017B258(0x141);
+    actCreateSubThread(actConte14_13, 0x15);
+}
 
 extern int D_00274EC0[];
 extern int D_00631AE4;
@@ -162,14 +175,13 @@ void actSt00aDoor2DownEffect(void)
     return func_0017B258(0x166);
 }
 
-extern int D_00631AE8__p4 __asm__("D_00631AE8");
 extern int func_0012AA80(int a0);
 extern void func_0017B288(int a0);
 extern void func_0017C8C0(int a0);
 extern void func_0017C8F8(int a0);
 
 void actSt00aDoor1Event(volatile int a0) {
-    if (D_00631AE8__p4 == 0) { _ACTWait(0); }
+    if (D_00631AE8 == 0) { _ACTWait(0); }
     while (func_0017B230(0x27) == 0 || func_0017B230(0x23) != 0) { _ACTWait(1); }
     lt_fade_status(0x33);
     D_006325B4 = 1;
@@ -202,7 +214,7 @@ void actSt00aDoor1DownEffect(volatile int a0) {
     ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
     _ACTWait(1);
     if (scpSleepEnemyOne(a0, D_00631AE4, 200.0f) != 0 ||
-        (D_00631AE8__p4 != 0 && scpSleepEnemyOne(a0, D_00631AE8__p4, 400.0f) != 0)) {
+        (D_00631AE8 != 0 && scpSleepEnemyOne(a0, D_00631AE8, 400.0f) != 0)) {
         stage_KillPlayBgAnimation(0x51, 0, 0);
         _ACTWait(0x3C);
         D_004D0E50[1] = (int)actSt01bEneChk;

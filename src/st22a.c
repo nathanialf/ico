@@ -1,5 +1,7 @@
 #include "common.h"
 
+extern int D_004D3570[];
+
 typedef struct { long long _0; long long _8; } WpData16;
 
 typedef struct GObj__p4 {
@@ -56,7 +58,16 @@ void actSt22aIntroSub(volatile int a0) {
     BoySekikaTexScroll((int)D_00631AE8, 0xFD);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st22a", func_002342C8);
+typedef struct KSub_42c8 { char pad[0xC0]; int unkC0; } KSub_42c8;
+
+
+void func_002342C8(volatile int a0) {
+    KSub_42c8 *s = *(KSub_42c8 **)(a0 + 0x164);
+    s->unkC0 = (int)D_004D3570;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 typedef struct GObjBB_22a {
     char pad[0xC4];
@@ -66,7 +77,6 @@ typedef struct GObjBB_22a {
 extern volatile int D_006325B4;
 extern void *D_004D35B0[];
 extern int func_0017B230(int a0);
-extern void _ACTWait__bb22a(int a0) __asm__("_ACTWait");
 extern void actSt20aGondolaDown(volatile int a0);
 
 void func_002342F8(volatile int a0) {
@@ -77,7 +87,7 @@ void func_002342F8(volatile int a0) {
         D_004D35B0[1] = (void *)actSt20aGondolaDown;
         gobj->unkC4 = D_004D35B0;
         BoxBarSoundOn(a0, 0x18D);
-        _ACTWait__bb22a(0);
+        _ACTWait(0);
     }
 }
 

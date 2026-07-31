@@ -744,7 +744,7 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2453C0", func_00249F20);
 extern int D_00550874[];
 extern int D_00715F80[];
 extern char D_FFFFF[];
-extern int func_00246288__p4() __asm__("func_00246288");
+extern int func_00246288();
 
 int func_0024A0E8(void)
 {
@@ -758,7 +758,7 @@ again:
         __asm__ volatile ("addiu %0,%0,%%lo(D_FFFFF)" : "+r"(i));
     } while (i != -1);
 no_delay:
-    ret = func_00246288__p4(D_00715F80, 0x80000003, 0);
+    ret = func_00246288(D_00715F80, 0x80000003, 0);
     if (ret < 0) return -1;
     val = D_00715F80[0x24 / 4];
     if (val == 0) goto again;
@@ -805,7 +805,7 @@ int func_0024A348(void) {
     int val;
     if (D_00550878[0] >= 0) goto ret0;
 loop:
-    r = func_00246288__p4(D_00716380, 0x80000006, 0);
+    r = func_00246288(D_00716380, 0x80000006, 0);
     if (r < 0) return -1;
     val = *(int *)(D_00716380 + 0x24);
     if (val == 0) goto delay;

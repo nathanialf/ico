@@ -124,10 +124,10 @@ void isysGObjLinkCameraDLBeforeGObj(int a0, int a1)
 INCLUDE_ASM("asm/nonmatchings/isys/gobj_cam_dl", AdpcmStreamInit);
 
 extern AdpT *D_006321D8__p4 __asm__("D_006321D8");
-extern void func_001FBFC8__p4(void *a0) __asm__("func_001FBFC8");
+extern void func_001FBFC8(void *a0);
 
 void adpcmTickProc2(AdpT *a0, AdpT *a1) {
-    func_001FBFC8__p4(a0);
+    func_001FBFC8(a0);
     a0->f40 = a1->f40;
     a0->f38 = a1;
     a0->f34 = a1->f34;
@@ -140,7 +140,7 @@ void adpcmTickProc2(AdpT *a0, AdpT *a1) {
 
 void adpcmDataSet(char *a0, char *a1) {
     int next;
-    func_001FBFC8__p4(a0);
+    func_001FBFC8(a0);
     *(unsigned char *)(a0 + 0x40) = *(unsigned char *)(a1 + 0x40);
     next = *(int *)(a1 + 0x38);
     *(int *)(a0 + 0x34) = (int)a1;

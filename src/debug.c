@@ -27,11 +27,11 @@ extern char D_00632A00[];
 extern void func_001AD748(char *a0, int a1, char *a2);
 extern void func_001AD768(char *a0, int a1);
 extern void func_00263FF0(char *a0, int a1, char *a2);
-extern void func_00268DA0__p4(char *buf, const char *fmt, void *va) __asm__("func_00268DA0");
+extern void func_00268DA0(char *buf, const char *fmt, void *va);
 
 void debug_openLog(const char *fmt, ...) {
     char buf[0x100];
-    func_00268DA0__p4(buf, fmt, (char *)__builtin_next_arg(fmt) - 0x38);
+    func_00268DA0(buf, fmt, (char *)__builtin_next_arg(fmt) - 0x38);
     func_001AD748(D_006149A8, 0x503, buf);
     func_00263FF0(D_006149A8, 0x503, D_006329F8);
     func_001AD768(D_006149A8, 0x504);
