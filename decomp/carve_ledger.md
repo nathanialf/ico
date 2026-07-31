@@ -728,6 +728,12 @@ hand-assembling D_005559E8/F0/F4 as ONE contiguous raw `__asm__` block
 (bypassing `dlabel` entirely, own `.section .rodata.D_005559E8`
 manually, no `.align`) starting from the already-8-aligned D_005559E8 —
 `include/labels.inc` itself was not touched. 5 EUC-JP debug strings in
-this run spliced via python rb/wb per the standing rule. Batch
+this run spliced via python rb/wb per the standing rule, `src/Texture`
+[0x555E70,0x5565E0) (new carve, no prior narrow jtbl carve existed;
+unblocks jtbl_00555F20/5560D0/5561C0/5562B0 — the last two live inside
+tex_convertClutCSM2ToCSM1's own two-switch body, same shape as
+FileManager/ebrain's two-jtbl-one-function carves. All 12 standalone
+extents are multiples of 8 landing on an already-8-aligned run head, so
+none of the dlabel align-3 landmine from StageAnimation). Batch
 conversion of the remaining jtbl-bearing TUs recorded below as they
 land. Decided runs are recorded in `decomp/data_tu_boundaries.json`.
