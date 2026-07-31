@@ -64,7 +64,7 @@ INC_PATCH = """
         def _ico_expand(c_path, depth=0):
             if depth > 4: return ""
             try:
-                t = c_path.read_text(encoding="utf-8")
+                t = c_path.read_text(encoding="utf-8", errors="replace")
             except Exception:
                 return ""
             out_parts = [t]
@@ -243,6 +243,19 @@ def main() -> int:
             text = text.replace(INC_ANCHOR, INC_PATCH.rstrip())
             changed = True
             print(f"patch_splat: .c.inc-scan applied to {c_py} ({n_subs} sites)")
+
+    # Upgrade an already-applied .c.inc patch to the EUC-JP-tolerant read.
+    # Carved TU sources carry raw EUC-JP string bytes (repo convention); a
+    # strict utf-8 read raises inside _ico_expand's try/except, silently
+    # yielding an EMPTY INCLUDE_ASM set — every function of that TU is then
+    # misclassified into asm/matchings/ and a clean re-split loses its stubs.
+    # The macro names splat parses are pure ASCII, so lossy decode is safe.
+    _strict = 't = c_path.read_text(encoding="utf-8")'
+    _tolerant = 't = c_path.read_text(encoding="utf-8", errors="replace")'
+    if _strict in text:
+        text = text.replace(_strict, _tolerant)
+        changed = True
+        print(f"patch_splat: EUC-JP-tolerant c-scan read applied to {c_py}")
 
     if changed:
         c_py.write_text(text)
