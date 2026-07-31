@@ -1,6 +1,6 @@
 #include "common.h"
 
-extern char D_00558E10[], D_00558E20[];
+extern const char D_00558E10[], D_00558E20[];
 extern void func_001AD768(void *a0, int a1);
 extern void func_00263FF0(void *a0, int a1, void *a2);
 static inline int subEnemyBrain_ToBoy_chk(void *a0) {
@@ -47,7 +47,7 @@ void _DoAwaitGirl(volatile unsigned int a0)
     CanWallLeverPull(*(int *)((char *)v1 + 0x5EC), 0);
 }
 
-extern char D_00558E10[];
+extern const char D_00558E10[];
 extern void func_001AD768(void *a0, int a1);
 extern void func_00263FF0(void *a0, int a1, void *a2);
 
@@ -176,7 +176,24 @@ end:
     return rv;
 }
 
+/* enemy_act .rodata run 0x558E10..0x5591F0 — byte-verified against baseelf;
+ * defs interleave with INCLUDE_ASM stubs so .o section order == VMA order */
+const char D_00558E10[0x10] = "src/enemy_act.c";
+const char D_00558E20[0x20] = "*generator_gop!=NULL";
+
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyKidnapEnd);
+
+const char D_00558ED8[0x18] = "enter actEnemyStand\n";
+const char D_00558EF0[0x18] = "enter motEnemyStand\n";
+const char D_00558F08[0x18] = "enter actEnemyWalk\n";
+const char D_00558F20[0x18] = "enter motEnemyWalk\n";
+const char D_00558F38[0x18] = "enter actEnemyRun\n";
+const char D_00558F50[0x18] = "enter motEnemyRun\n";
+const char D_00558F68[0x18] = "enter actEnemyJump\n";
+const char D_00558F80[0x20] = "enter actEnemyHang\n";
+const unsigned int D_00558FA0[0x4] = { 0x00000000, 0x00000000, 0xC9742400, 0x00000000 };
+const char D_00558FB0[0x28] = "ASSERTMSG__GOP_IS_NOT_ENEMY(gop)";
+INCLUDE_RODATA("asm/nonmatchings/src/enemy_act", D_00558FD8);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001600F8);
 
@@ -245,6 +262,11 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00161AC8);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", CheckEnemyBrainMode);
 
+const char D_00559030[0x18] = "to generator way error!";
+INCLUDE_RODATA("asm/nonmatchings/src/enemy_act", D_00559048);
+INCLUDE_RODATA("asm/nonmatchings/src/enemy_act", D_00559050);
+INCLUDE_RODATA("asm/nonmatchings/src/enemy_act", D_00559058);
+
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", BrainMode_Requset);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001624D8);
@@ -255,9 +277,16 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", enemy_dodge);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", Battle_isCurrentStatus);
 
+INCLUDE_RODATA("asm/nonmatchings/src/enemy_act", D_00559070);
+INCLUDE_RODATA("asm/nonmatchings/src/enemy_act", D_00559078);
+
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", GetFlyPosition);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", NakaBoss);
+
+INCLUDE_RODATA("asm/nonmatchings/src/enemy_act", D_00559128);
+INCLUDE_RODATA("asm/nonmatchings/src/enemy_act", jtbl_00559130);
+INCLUDE_RODATA("asm/nonmatchings/src/enemy_act", jtbl_00559150);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00163890);
 
@@ -266,8 +295,6 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", ChangeBrain_ToAttack);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00163B40);
 
 extern void BoxBarSoundOn(void *a0, int a1);
-extern char D_00558E20[];
-extern char D_00558FB0[];
 extern int D_00632DA0;
 extern int DispPointBlur(void *a0);
 extern int funcEnemyCarryFail(int *a0);
@@ -341,7 +368,6 @@ void func_00164E90(void *a0) {
     }
 }
 
-extern char D_00558ED8[];
 extern unsigned int _ACTWait(int a0);
 extern extern void debug_assertMessage();
 
@@ -357,8 +383,6 @@ void _ApproachTarget_Way(volatile unsigned int a0)
     _ACTWait(0);
 }
 
-extern char D_00558F08[];
-
 void func_00164EF8(volatile unsigned int a0) {
     int *s0 = *((int **)(a0 + 0x164));
     debug_assertMessage((char *)D_00558F08);
@@ -366,16 +390,12 @@ void func_00164EF8(volatile unsigned int a0) {
     _ACTWait(0);
 }
 
-extern char D_00558F38[];
-
 void func_00164F40(volatile unsigned int a0) {
     int *s0 = *((int **)(a0 + 0x164));
     debug_assertMessage((char *)D_00558F38);
     s0[0x30 / 4] = 3;
     _ACTWait(0);
 }
-
-extern char D_00558F80[];
 
 void func_00164F88(volatile unsigned int a0) {
     int *s0 = *((int **)(a0 + 0x164));
@@ -421,7 +441,6 @@ extern void ResetEnemyEye(int *self);
 extern void actEnemyRun(int *self);
 extern void func_001AE420(int *self, int a1, int a2, int a3);
 extern int D_00631990;
-extern char D_00558FA0[];
 
 void func_001650A0(void *a0) {
     void *volatile self = a0;
@@ -618,8 +637,6 @@ one:
     return 1;
 }
 
-extern char D_00558E10[];
-extern char D_00558FB0[];
 extern void func_001AD768(void *a0, int a1);
 extern void func_00263FF0(void *a0, int a1, void *a2);
 
@@ -668,8 +685,6 @@ void func_00165610(volatile unsigned int a0)
         _ACTWait(1);
     }
 }
-
-extern char D_00559030[];
 
 void func_001656C8(volatile unsigned int a0)
 {
@@ -877,7 +892,6 @@ void GetEnemyTypeFromGObj(int a0) {
     }
 }
 
-extern char D_00558EF0[];
 extern int *ExecMotionOrient(unsigned int a0, int a1, void *a2);
 
 void func_00165DC0(volatile unsigned int a0) {
@@ -888,8 +902,6 @@ void func_00165DC0(volatile unsigned int a0) {
         _ACTWait(1);
     }
 }
-
-extern char D_00558F20[];
 
 void func_00165E08(volatile unsigned int a0) {
     int *s0 = *((int **)(a0 + 0x164));

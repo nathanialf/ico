@@ -639,3 +639,65 @@ neighbour, so they are the cheapest follow-ups.
   function `INCLUDE_ASM` if the body port does not close.
 - `rm .port_cache/retail_labels.json` before the next `port_from_aug6.py`
   run — 30 new `dlabel`s just appeared.
+
+## Phase 6 — FULL-RUN per-TU rodata carves (the durable model, 2026-07-31)
+
+The per-jtbl / per-symbol-run carve treadmill above is retired as the
+primary mechanism. Its structural wall: ONE contiguous carved run per
+(TU, section) means every narrow carve forecloses that TU's remaining
+rodata (girl_act's actGirlHang carve blocked its other five switch
+functions), and the linker script's trailing `/DISCARD/ *(*)` silently
+hides any compiled rodata a partial carve doesn't cover, so failures
+surface only at the SHA gate (the commonact lone-string pilot).
+
+The durable form: a TU owns its COMPLETE contiguous `.rodata` extent,
+carved once. Everything needed already exists:
+
+- **Per-symbol stub sections** (`include/labels.inc`): `dlabel` switches
+  each splat-migrated rodata block into its own `.rodata.<sym>` section
+  (rodata analog of `-fdata-sections` / `INCLUDE_ASM_FS`), so
+  .o section order == source order == VMA order and stub-emitted bytes
+  interleave freely with C defs and compiled jtbls (ee-gcc emits switch
+  jtbls inline at the function's position). `glabel`/`endlabel`/
+  `enddlabel` maintain `__in_text` so in-.text embedded data (vendor
+  constant pools) is never yanked out. Spelled ee-as 2.9-compatibly:
+  `sym = value` (its `.set` is options-only), `.align` (no `.balign`) —
+  a failed ee-as pass silently falls back to modern gas, which fills
+  jal delay slots the period assembler leaves as nop and shifts .text.
+- **Boundary evidence** (`tools/map_data_tus.py`): per-symbol ownership
+  stream (TU anchor / SHARED / UNREF / CARVED) over the blob
+  disassemblies + consumer scan. The rodata address space has three
+  zones: 0x553700..0x55CFA8 strictly .text-link-ordered per-TU runs
+  (TUs #1..#87), 0x560C68..0x612348 a ~700KB big-table zone that does
+  NOT follow link order (boyact motion tables, s_init banks — per-symbol
+  carves stay the right tool there), and 0x612620.. a second strictly
+  ordered region resuming at text#88 (DObj). All switch jtbls live in
+  the two ordered zones. Interior foreign anchors inside a run are
+  cross-TU externs (one-pass link contiguity guarantees ownership);
+  only EDGE ambiguity matters, and a conservative edge is fine because
+  a run can be extended later without structural debt.
+- **Def generation** (`tools/emit_run_defs.py <tu> <start> <end>`):
+  after the yaml carve + `build.sh setup`, prints the VMA-ordered
+  emitter plan: `[stub …]` markers (bytes come from the stub's migrated
+  blocks via INCLUDE_ASM), byte-verified `const` C defs for everything
+  else (multi-string extents as single literals with embedded NULs,
+  round-trip-verified against the ELF; splits at every C-referenced
+  interior symbol), and `INCLUDE_RODATA(...)` lines for ≤8-byte symbols
+  (a C def ≤8 bytes lands in .sdata under -G8 — Blocker 3's family).
+  Defs are inserted so source order == VMA order; pre-def externs of
+  the symbol become `extern const`, post-def externs are deleted.
+- EUC-JP strings are spelled with raw EUC-JP bytes inline (splice with
+  a python rb/wb script — UTF-8 editors corrupt them; the SHA gate
+  catches it as U+FFFD replacement bytes).
+
+Landed: `src/girl_act` [0x559430,0x559B50) (unblocks WayTest,
+actGirlHand, actGirlPulledGo, GirlAct_BoyAndMeCollisionMail,
+actGirlHangG3M), `src/commonact` [0x558848,0x558DC0), `src/enemy_act`
+[0x558E10,0x5591F0) (unblocks jtbl_00558E40/559000/559130/559150;
+NakaBoss's two switch tables were standalone splat-migrated
+`.rodata.<sym>` stub files with no owning function INCLUDE_ASM in the
+.c — wired in via `INCLUDE_RODATA`, same as the sub-8-byte symbols,
+since their `.word` entries reference `.L` labels local to NakaBoss's
+own still-nonmatching asm and can't be spelled as C). Batch conversion
+of the remaining jtbl-bearing TUs recorded below as they land.
+Decided runs are recorded in `decomp/data_tu_boundaries.json`.
