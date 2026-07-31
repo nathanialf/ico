@@ -204,7 +204,7 @@ extern unsigned int _ACTWait(int a0);
 extern void func_001919A0(void *a0, int a1);
 extern int D_00631AE8__19a8 __asm__("D_00631AE8");
 extern int func_00145328(void *a0, int a1, int a2, void *a3, float f12, float f13);
-extern int HandCameraCorrect__19a8(void *a0, void *a1) __asm__("HandCameraCorrect");
+extern int HandCameraCorrect(float *a0, float *a1);
 extern void ACTGameView_Loop(void);
 extern int MoveChestForCatchBoy(void *a0);
 
@@ -212,7 +212,7 @@ static __inline__ int func_001619A8_probe(void *self) {
     char buf[0x20];
     int mode;
     if (func_00145328(self, D_00631AE8__19a8, 0x2D, buf + 0x10, 170.0f, 100.0f) != 0) {
-        int d = HandCameraCorrect__19a8(buf + 0x10, subCommonIdle(D_00631AE8__19a8));
+        int d = HandCameraCorrect((float *)(buf + 0x10), subCommonIdle(D_00631AE8__19a8));
         d = (d < 0) ? -d : d;
         mode = (d <= 0x59) ? 1 : 2;
     } else {
@@ -787,7 +787,6 @@ void func_00165B50(char *self, int a1, int *a2)
     }
 }
 
-extern int HandCameraCorrect(float *a0, float *a1);
 extern void actCommonStoneDead(void *a0, float *a1, float a2);
 extern void dispPlane(void *a0, float *a1);
 extern void func_00104748(float *a0, void *a1);

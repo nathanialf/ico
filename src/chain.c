@@ -14,16 +14,19 @@ void *UpdateRootPosition(void) {
     return D_006D0680;
 }
 
+union PendCopy {
+    float f[8];
+    long long q[4];
+};
+
 void StartPendulum(void *dst, float *out) {
-    long long *s = (long long *)D_006D0680;
-    long long *d = (long long *)dst;
-    float val = (float)D_00632D30 / 100.0f;
-    d[0] = s[0];
-    d[1] = s[1];
-    d[2] = s[2];
-    d[3] = s[3];
-    __asm__ __volatile__("" : "+f"(val));
-    *out = val;
+    union PendCopy *s = (union PendCopy *)D_006D0680;
+    union PendCopy *d = (union PendCopy *)dst;
+    d->q[0] = s->q[0];
+    d->q[1] = s->q[1];
+    d->q[2] = s->q[2];
+    d->q[3] = s->q[3];
+    *out = D_00632D30 / 100.0f;
 }
 
 extern unsigned char D_00633D8D;

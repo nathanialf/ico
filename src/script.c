@@ -30,12 +30,11 @@ INCLUDE_ASM("asm/nonmatchings/src/script", scpTorchLightOn);
 
 extern char D_00559F38[];
 extern int DebugDisp1CollisionWithColor(int a0, int a1);
-extern int actSt25aQueenDeadChk__p4(int a0) __asm__("actSt25aQueenDeadChk");
 extern void debug_assertMessage(char *fmt);
 extern void func_0012ACD8(int a0, void *a1, int a2);
 
 void scpTorchLightOff(int a0, int a1, int a2){
- int ret = actSt25aQueenDeadChk__p4(a0);
+ int ret = actSt25aQueenDeadChk(a0);
  if(ret != 0){ struct S copy; struct S pair;
   pair.a=ret; pair.b=DebugDisp1CollisionWithColor(ret,a1);
   copy=pair;
@@ -44,7 +43,7 @@ void scpTorchLightOff(int a0, int a1, int a2){
  } }
 
 void scpSetCageVelocityFriction(int a0, int a1, int a2, int a3){
-  int ret = actSt25aQueenDeadChk__p4(a0);
+  int ret = actSt25aQueenDeadChk(a0);
   if(ret != 0){ struct SVF copy; struct SVF pair;
    pair.a=ret; pair.b=DebugDisp1CollisionWithColor(ret,a1);
    copy=pair;
@@ -52,10 +51,9 @@ void scpSetCageVelocityFriction(int a0, int a1, int a2, int a3){
    else func_0012ACD8(a2,&copy,a3);
   } }
 
-extern int *isysGObjSearchFromObjLayoutID__p4(int x) __asm__("isysGObjSearchFromObjLayoutID");
 
 void scpPlayMotDir(int a0, int a1, int a2, int a3){
-  int *ret = isysGObjSearchFromObjLayoutID__p4(a0);
+  int *ret = isysGObjSearchFromObjLayoutID(a0);
   if(ret != 0){ struct SPMD copy; struct SPMD pair;
    pair.a=(int)ret; pair.b=DebugDisp1CollisionWithColor((int)ret,a1);
    copy=pair;
@@ -158,11 +156,10 @@ found:
 }
 
 extern int TorchGeo(int a0);
-extern int actSt25aQueenDeadChk__p4(int a0) __asm__("actSt25aQueenDeadChk");
 
 int scpDoorTypeUpUp(int a0) {
-    int ret1 = actSt25aQueenDeadChk__p4(a0);
-    int *ret2 = (int *)actSt25aQueenDeadChk__p4(0);
+    int ret1 = actSt25aQueenDeadChk(a0);
+    int *ret2 = (int *)actSt25aQueenDeadChk(0);
     ret2[0x16C / 4] = 1;
     return TorchGeo(ret1);
 }
@@ -195,7 +192,7 @@ extern char D_00559EF0[];
 extern int func_001EA128(int a0);
 
 int _SCPBoySupportGirl(int a0, int a1, int a2){
- int q = actSt25aQueenDeadChk__p4(a0);
+ int q = actSt25aQueenDeadChk(a0);
  if(q != 0){
   int e = func_001EA128(q);
   short A1 = (a1 << 15) / 0xB4;
@@ -232,38 +229,37 @@ void scpDispOffAllWithKind(int a0, int a1)
 }
 
 extern void iosOmBeforeFuncStandard(int *a0, int a1, int *a2);
-extern int *isysGObjSearchFromObjKindID_begin__p4(int *p) __asm__("isysGObjSearchFromObjKindID_begin");
 
 void scpDispOnAllWithKind(void) {
-    int *o = isysGObjSearchFromObjLayoutID__p4(4);
+    int *o = isysGObjSearchFromObjLayoutID(4);
     if (o != 0) {
         do {
             iosOmBeforeFuncStandard(o, 0x20, o);
-            o = isysGObjSearchFromObjKindID_begin__p4(o);
+            o = isysGObjSearchFromObjKindID_begin(o);
         } while (o != 0);
     }
-    o = isysGObjSearchFromObjLayoutID__p4(0x3D);
+    o = isysGObjSearchFromObjLayoutID(0x3D);
     if (o != 0) {
         do {
             iosOmBeforeFuncStandard(o, 0x20, o);
-            o = isysGObjSearchFromObjKindID_begin__p4(o);
+            o = isysGObjSearchFromObjKindID_begin(o);
         } while (o != 0);
     }
 }
 
 void scpActivateAllWithKind(void) {
-    int *o = isysGObjSearchFromObjLayoutID__p4(4);
+    int *o = isysGObjSearchFromObjLayoutID(4);
     if (o != 0) {
         do {
             iosOmBeforeFuncStandard(o, 0x1F, o);
-            o = isysGObjSearchFromObjKindID_begin__p4(o);
+            o = isysGObjSearchFromObjKindID_begin(o);
         } while (o != 0);
     }
-    o = isysGObjSearchFromObjLayoutID__p4(0x3D);
+    o = isysGObjSearchFromObjLayoutID(0x3D);
     if (o != 0) {
         do {
             iosOmBeforeFuncStandard(o, 0x1F, o);
-            o = isysGObjSearchFromObjKindID_begin__p4(o);
+            o = isysGObjSearchFromObjKindID_begin(o);
         } while (o != 0);
     }
 }

@@ -14,7 +14,7 @@ extern const char D_00631CD8_a[] __asm__("D_00632AB8");
 extern const char D_00631CE0_a[] __asm__("D_00632AC0");
 extern const char D_00631CE8_a[] __asm__("D_00632AC8");
 extern const char D_00631CF0_a[] __asm__("D_00632AD0");
-extern void debug_assertMessage__p4(int a0, ...) __asm__("debug_assertMessage");
+extern void debug_assertMessage(char *fmt, ...);
 extern int func_00263FB0(float);
 
 void initLineTraceTable(unsigned char *arg, int slot_size) {
@@ -25,14 +25,14 @@ void initLineTraceTable(unsigned char *arg, int slot_size) {
     case 0:
         is_float = 1;
         slot_size = 4;
-        debug_assertMessage__p4((int)D_00615060, arg);
+        debug_assertMessage((int)D_00615060, arg);
         break;
     case 1:
     case 2:
     case 4:
     case 8:
     case 16:
-        debug_assertMessage__p4((int)D_00615078, arg, slot_size);
+        debug_assertMessage((int)D_00615078, arg, slot_size);
         break;
     default:
         return;
@@ -42,14 +42,14 @@ void initLineTraceTable(unsigned char *arg, int slot_size) {
         if (!is_float) {
             int col;
             for (col = 0x10 / (0x10 / slot_size) - 1; col >= 0; col--) {
-                debug_assertMessage__p4((int)D_00631CD8_a, arg[row * slot_size + col]);
+                debug_assertMessage((int)D_00631CD8_a, arg[row * slot_size + col]);
             }
-            debug_assertMessage__p4((int)D_00631CE0_a);
+            debug_assertMessage((int)D_00631CE0_a);
         } else {
-            debug_assertMessage__p4((int)D_00631CE8_a, func_00263FB0(((float *)arg)[row]));
+            debug_assertMessage((int)D_00631CE8_a, func_00263FB0(((float *)arg)[row]));
         }
     }
-    debug_assertMessage__p4((int)D_00631CF0_a);
+    debug_assertMessage((int)D_00631CF0_a);
 }
 
 void traceLine(int *a, int *b, int *c, int x, ...)
@@ -85,7 +85,6 @@ INCLUDE_ASM("asm/nonmatchings/src/debug_exception", debug_assert);
 
 extern const char D_0060DAF0_a[] __asm__("D_006150F0");
 extern const char D_00631CF0_a[] __asm__("D_00632AD0");
-extern void debug_assertMessage__p4() __asm__("debug_assertMessage");
 extern int func_00263FB0(float);
 
 void debug_SetExceptionMessage(float *arg) {
@@ -95,10 +94,10 @@ void debug_SetExceptionMessage(float *arg) {
         int v1 = func_00263FB0(arg[1]);
         int v2 = func_00263FB0(arg[2]);
         int v3 = func_00263FB0(arg[3]);
-        debug_assertMessage__p4((int)D_0060DAF0_a, v0, v1, v2, v3);
+        debug_assertMessage((int)D_0060DAF0_a, v0, v1, v2, v3);
         arg += 4;
     }
-    debug_assertMessage__p4((int)D_00631CF0_a);
+    debug_assertMessage((int)D_00631CF0_a);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/debug_exception", debugExceptionInit);

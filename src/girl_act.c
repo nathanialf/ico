@@ -200,13 +200,13 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlStart);
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", GirlAct_BoyAndMeCollisionMail);
 
-extern void _OrientXZGV__ga(void *dst, void *a1, void *src, float f12, float f13) __asm__("_OrientXZGV");
+extern void _OrientXZGV(void *dst, void *a1, void *src, float f12, float f13);
 
 void func_00170380(float *dst, void *a1, float *src, float thresh) {
     float d = ClearHandCameraCorrect(a1, src);
     if (thresh < d) {
         float t = (d - thresh) / d;
-        _OrientXZGV__ga(dst, a1, src, t, 1.0f - t);
+        _OrientXZGV(dst, a1, src, t, 1.0f - t);
         return;
     }
     dst[0] = src[0];
@@ -532,7 +532,6 @@ void func_001754B0(void *volatile a0) {
 
 extern char D_00559A70[];
 extern void GetTarget(void);
-extern void _OrientXZGV__54f8(float *dst, float *a1, float *a2, float f12, float f13) __asm__("_OrientXZGV");
 extern void CylinderCollisionWithControlDynamics(void *o, void *param);
 extern void *D_00631AE4__54f8 __asm__("D_00631AE4");
 extern void *D_00631AE8__54f8 __asm__("D_00631AE8");
@@ -556,7 +555,7 @@ void func_001754F8(void *volatile a0) {
             buf20[0] = ContinueCorrectPosition(D_00631AE8__54f8)[0];
             buf20[1] = ContinueCorrectPosition(D_00631AE8__54f8)[1];
             buf20[2] = ContinueCorrectPosition(D_00631AE8__54f8)[2];
-            _OrientXZGV__54f8(buf30, buf10, buf20, 1.0f, 1.0f);
+            _OrientXZGV(buf30, buf10, buf20, 1.0f, 1.0f);
             CylinderCollisionWithControlDynamics(a0, buf30);
         }
         BoxBarSoundOn(a0, 0x175);

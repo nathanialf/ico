@@ -436,16 +436,15 @@ extern float D_00630BF8;
 extern float D_00630BFC;
 extern float D_00630C00;
 extern void *D_006321DC__p4 __asm__("D_006321DC");
-extern void iosOmBeforeFuncStandard__p4(void *a0, int a1, void *a2) __asm__("iosOmBeforeFuncStandard");
 
 void func_00152508(int *arg){
     int state=*(int*)((char*)*(void**)((char*)D_00631AE4__p4+0x164)+0x5D4);
     void *obj=*(void**)((char*)(*(int * volatile *)&arg)+0x164);
     float lo,hi;
     switch (state) {
-    case 0x64: if (D_00631AE8) iosOmBeforeFuncStandard__p4(D_00631AE8,0x4D,D_006321DC__p4); *(int*)((char*)*(void**)((char*)D_00631AE8+0x164)+0x40)=0x5C; break;
-    case 0xC8: if (D_00631AE8) iosOmBeforeFuncStandard__p4(D_00631AE8,0x4D,D_006321DC__p4); *(int*)((char*)*(void**)((char*)D_00631AE8+0x164)+0x40)=0x5D; break;
-    case 0x12C:if (D_00631AE8) iosOmBeforeFuncStandard__p4(D_00631AE8,0x4D,D_006321DC__p4); *(int*)((char*)*(void**)((char*)D_00631AE8+0x164)+0x40)=0x5E; break;
+    case 0x64: if (D_00631AE8) iosOmBeforeFuncStandard(D_00631AE8,0x4D,D_006321DC__p4); *(int*)((char*)*(void**)((char*)D_00631AE8+0x164)+0x40)=0x5C; break;
+    case 0xC8: if (D_00631AE8) iosOmBeforeFuncStandard(D_00631AE8,0x4D,D_006321DC__p4); *(int*)((char*)*(void**)((char*)D_00631AE8+0x164)+0x40)=0x5D; break;
+    case 0x12C:if (D_00631AE8) iosOmBeforeFuncStandard(D_00631AE8,0x4D,D_006321DC__p4); *(int*)((char*)*(void**)((char*)D_00631AE8+0x164)+0x40)=0x5E; break;
     }
     lo=*(volatile float*)&D_00630BF8;hi=*(volatile float*)&D_00630BFC;
     while (1) {

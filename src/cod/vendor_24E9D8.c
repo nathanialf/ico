@@ -990,12 +990,7 @@ void func_00251AB8(int a0, int a1, int a2) {
     func_002525E8(a1, rounded);
 }
 
-/* The aug6 twin calls func_00251ED0 with no declaration in scope, so K&R
-   implicit-int applies and the call is a value-returning tail call (§
-   feedback_int_return_tail_call_shape).  A sibling body in this TU declares
-   the same symbol `void`, so bind a second identifier to it with the dev
-   tree's own __asm__ alias idiom rather than change the sibling's typing. */
-extern int func_00251ED0__i(int self) __asm__("func_00251ED0");
+extern int func_00251ED0(int self);
 
 int func_00251AF0(int *a0, unsigned int a1, int a2) {
     int *p = (int *)a0[0x40/4];
@@ -1005,10 +1000,8 @@ int func_00251AF0(int *a0, unsigned int a1, int a2) {
     p[0xE4/4] = a2;
     p[0xE0/4] = 0;
     p[0xDC/4] = 0;
-    return func_00251ED0__i((int)a0);
+    return func_00251ED0((int)a0);
 }
-
-extern void func_00251ED0(int self);
 
 void func_00251B38(int *self, unsigned int a1, int a2, int a3)
 {

@@ -109,7 +109,6 @@ INCLUDE_ASM("asm/nonmatchings/src/item", carriedItemGeo);
 INCLUDE_ASM("asm/nonmatchings/src/item", uncarriedItemGeo);
 
 extern void InitItemGeo(void *a0);
-extern void ReleaseItem__p4(int a0, void *a1) __asm__("ReleaseItem");
 extern void carriedItemGeo(void *a0);
 extern void func_00102858(void *a0);
 extern int func_001C05A8(void *a0);
@@ -135,7 +134,7 @@ void execBombGeo(void *a0) {
         char *box = *(char **)ctrl;
         if (box != 0 && *(int *)(box + 0xC) == 0x11 && func_001C05A8(box) == 2) {
             *(int *)(item + 0x14) = 0;
-            ReleaseItem__p4((char *)a0, *(int *)(box + 0x15C) + 0x130);
+            ReleaseItem((char *)a0, *(int *)(box + 0x15C) + 0x130);
         }
     }
     func_00102858(a0);

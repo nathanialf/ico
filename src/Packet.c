@@ -125,7 +125,6 @@ extern const char D_00631CD8_a[] __asm__("D_00631CD8");
 extern const char D_00631CE0_a[] __asm__("D_00631CE0");
 extern const char D_00631CE8_a[] __asm__("D_00631CE8");
 extern const char D_00631CF0_a[] __asm__("D_00631CF0");
-extern void debug_assertMessage__p4(const char *fmt, ...) __asm__("debug_assertMessage");
 extern int func_00263FB0(float);
 
 void pac_setVifEndCode(unsigned char *arg, int slot_size) {
@@ -136,14 +135,14 @@ void pac_setVifEndCode(unsigned char *arg, int slot_size) {
     case 0:
         is_float = 1;
         slot_size = 4;
-        debug_assertMessage__p4(D_00554DD0, arg);
+        debug_assertMessage(D_00554DD0, arg);
         break;
     case 1:
     case 2:
     case 4:
     case 8:
     case 16:
-        debug_assertMessage__p4(D_00554DE8, arg, slot_size);
+        debug_assertMessage(D_00554DE8, arg, slot_size);
         break;
     default:
         return;
@@ -153,14 +152,14 @@ void pac_setVifEndCode(unsigned char *arg, int slot_size) {
         if (!is_float) {
             int col;
             for (col = 0x10 / (0x10 / slot_size) - 1; col >= 0; col--) {
-                debug_assertMessage__p4(D_00631CD8_a, arg[row * slot_size + col]);
+                debug_assertMessage(D_00631CD8_a, arg[row * slot_size + col]);
             }
-            debug_assertMessage__p4(D_00631CE0_a);
+            debug_assertMessage(D_00631CE0_a);
         } else {
-            debug_assertMessage__p4(D_00631CE8_a, func_00263FB0(((float *)arg)[row]));
+            debug_assertMessage(D_00631CE8_a, func_00263FB0(((float *)arg)[row]));
         }
     }
-    debug_assertMessage__p4(D_00631CF0_a);
+    debug_assertMessage(D_00631CF0_a);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_setGifTag);

@@ -54,12 +54,11 @@ void _DistGV(int *self)
 
 extern GVGeo2 D_002A4C48__p4[] __asm__("D_002A4C48");
 extern char D_0055AEF8[];
-extern void debug_assertMessage__p4(char *a0, int a1) __asm__("debug_assertMessage");
 
 void _DistxzGV(void *a0) {
     void *p = *(void **)((char *)a0 + 0x164);
     GVGeo2 *g = &D_002A4C48__p4[*(int *)((char *)a0 + 0x8)];
-    debug_assertMessage__p4(D_0055AEF8, *(int *)((char *)a0 + 0x8));
+    debug_assertMessage(D_0055AEF8, *(int *)((char *)a0 + 0x8));
     ((GVBits *)((char *)p + 0x18))->ll &= ~((unsigned long)0x8000 << 19);
     g->f48 = (g->f48 | 0x200000) & 0xFFFBFFFF;
 }

@@ -26,7 +26,7 @@ typedef union { int i; float f; } IntFloat;
 
 
 extern char D_006124F8[];
-extern int checkHit(char *self);
+extern int checkHit();
 extern int D_006AA4B0[];
 extern void *D_00631AE8;
 extern unsigned short D_00565060[];
@@ -525,10 +525,9 @@ int ACTGame_ConnectHand(int *a0)
     return ret;
 }
 
-extern int checkHit__p4() __asm__("checkHit");
 
 int ACTGame_DisconnectHand(void) {
-    return checkHit__p4() == 1;
+    return checkHit() == 1;
 }
 
 extern const float D_0063226C_flt[] __asm__("D_0063226C");

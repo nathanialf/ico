@@ -139,12 +139,9 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_0025E5D8);
 extern int D_0062F7D8[];
 extern int func_00260610(void *);
 extern int func_00264050(void);
-/* Siblings defined further down this TU with an `int` return / `int` arg;
-   the aug6 twin wants the float spelling.  Bind second identifiers to the
-   same linker symbols instead of retyping the already-matched siblings. */
 extern int func_002609E8(float);
 extern int func_00263FB0(float);
-extern float func_002633B8__f(long) __asm__("func_002633B8");
+extern float func_002633B8(long);
 
 float func_0025E700(float a, float b) {
     extern float func_0025F2F8(float a0, float a1);
@@ -191,7 +188,7 @@ float func_0025E700(float a, float b) {
     if (buf.f20 != 0) {
         *(int *)func_00264050() = buf.f20;
     }
-    return func_002633B8__f(buf.f18);
+    return func_002633B8(buf.f18);
 early:
     return f22;
 }
@@ -594,7 +591,7 @@ int func_00263388(int a0, int a1, int a2, long long a3) {
 
 extern void func_00263F80(int a0, int a1, int a2, int a3);
 
-int func_002633B8(long a0) {
+float func_002633B8(long a0) {
     struct { int f0; int f4; int f8; int fC; long long f10; } buf;
     long long m; int hi, t;
     func_00262848(&a0, &buf);
@@ -765,15 +762,11 @@ int func_00263FB0(float f12)
 
 extern int D_00553244[];
 extern char D_0062FC48[];
-/* func_00264060 is a varargs forwarder, defined below.  An unprototyped
-   `extern void func_00264060();` here is incompatible with that `...`
-   prototype under ee-gcc 2.9, so the caller reaches it through an alias
-   identifier; K&R-unprototyped call codegen is identical either way. */
-extern void func_00264060__k() __asm__("func_00264060");
+extern void func_00264060(int a0, int a1, ...);
 extern void func_00268F08(void);
 
 void func_00263FF0(int a0, int a1, int a2) {
-    func_00264060__k(*(int *)(D_00553244[0] + 0xC), (int)D_0062FC48, a2, a0, a1);
+    func_00264060(*(int *)(D_00553244[0] + 0xC), (int)D_0062FC48, a2, a0, a1);
     func_00268F08();
 }
 

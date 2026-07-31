@@ -88,7 +88,6 @@ extern void func_0017B258(int a0);
 extern void func_0017B528(int a0);
 extern void gflagOff(int a0, int a1);
 extern void lt_fade_status(int a0);
-extern void scpPlayStart__p4(int a0, int a1, int a2, int a3, int a4) __asm__("scpPlayStart");
 extern int scpSleepSpiderGroupOne(int a0, int a1);
 
 extern int D_00633AB0;
@@ -101,12 +100,12 @@ void actSt19aPipeXL(volatile int a0) {
     D_006325B4 = 1;
     func_0017B528(D_00631AE4);
     gflagOff(D_00631AE4, 0);
-    scpPlayStart__p4(0x23, (int)&D_00633AB8, 1, 1, 1);
+    scpPlayStart(0x23, &D_00633AB8, 1, 1, 1);
     while (D_00633AB8 == 0) { _ACTWait(1); }
     D_006325B8 = 0.5f;
     actCreateSubThread(actSt18aEne2, 0x15);
     while (scpTriggerBallTargetMan(D_00633AB0) == 0) { _ACTWait(1); }
-    scpPlayStart__p4(0x24, (int)&D_00633AB4, 1, 0, 0);
+    scpPlayStart(0x24, &D_00633AB4, 1, 0, 0);
 }
 
 extern void AdpcmClose(int a0);

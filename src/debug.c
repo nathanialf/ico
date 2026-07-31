@@ -82,7 +82,6 @@ extern int D_00632CBC;
 extern void debug_PrintFont(char *str, int x, int y, int r, int g, int b, int sz);
 extern void func_0010F630(void);
 extern void func_001101E0(void *a0, unsigned int a1, int a2, void *a3, int a4);
-extern void *func_0026527C__p4(char *buf) __asm__("func_0026527C");
 extern void gif_SpriteOffset(int a0);
 extern int gif_SpriteSensitiveOrg(void);
 extern void gsb_KeepFrameBuffer(int a0);
@@ -95,7 +94,7 @@ void debug_FlushFontWindow(int a0, int a1, int a2, char *a3) {
 
     buf[1].x = a0 - 0x142;
     buf[1].y = a1 - 0x71;
-    r = (int) func_0026527C__p4(a3);
+    r = func_0026527C(a3);
     buf[1].h = 9;
     buf[1].w = r * 0xC + 4;
     buf[0] = buf[1];

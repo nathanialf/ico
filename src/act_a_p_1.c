@@ -79,7 +79,9 @@ ret0:
     return 0;
 }
 
-int SetAP1DeadStatus(int *self, int a1)
+int SetAP1DeadStatus(self, a1)
+int *self;
+int a1;
 {
     void (*fn)(int *);
     int *p;
@@ -92,7 +94,6 @@ int SetAP1DeadStatus(int *self, int a1)
     return 1;
 }
 
-extern int SetAP1DeadStatus__p4() __asm__("SetAP1DeadStatus");
 
 int AP1BeforeFunc(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
@@ -102,7 +103,7 @@ int AP1BeforeFunc(void *a0) {
             return 0;
         }
     }
-    SetAP1DeadStatus__p4();
+    SetAP1DeadStatus();
     return 1;
 }
 
@@ -118,7 +119,7 @@ int actAP1Start(void *a0, int a1, void *a2) {
             goto check;
         }
     }
-    SetAP1DeadStatus__p4(a0);
+    SetAP1DeadStatus(a0);
     flag = 1;
 check:
     if (flag != 0) {

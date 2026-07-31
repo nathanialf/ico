@@ -26,7 +26,7 @@ INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_TurnViewMatrix);
 INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_PushMatrixWithNoCopy);
 
 extern float D_0063092C;
-extern float MatrixDrive_GetTurnYAngleXZ__p4(float a0) __asm__("MatrixDrive_GetTurnYAngleXZ");
+extern float MatrixDrive_GetTurnYAngleXZ(float a0);
 extern void func_00243978(void *a0, void *a1);
 
 void MatrixDrive_PopMatrix(float *a0, float *a1, float x, float y, float z) {
@@ -43,7 +43,7 @@ void MatrixDrive_PopMatrix(float *a0, float *a1, float x, float y, float z) {
     v1[2] = z;
     v1[3] = 1.0f;
     func_00243978(v0, v0);
-    t = MatrixDrive_GetTurnYAngleXZ__p4(y * y + z * z);
+    t = MatrixDrive_GetTurnYAngleXZ(y * y + z * z);
     if (D_0063092C < t) {
         func_00243978(v1, v1);
         a0[0] = v1[1];
@@ -52,7 +52,7 @@ void MatrixDrive_PopMatrix(float *a0, float *a1, float x, float y, float z) {
         a0[0] = 1.0f;
         a0[1] = 0.0f;
     }
-    a1[0] = MatrixDrive_GetTurnYAngleXZ__p4(v0[1] * v0[1] + v0[2] * v0[2]);
+    a1[0] = MatrixDrive_GetTurnYAngleXZ(v0[1] * v0[1] + v0[2] * v0[2]);
     a1[1] = v0[0];
 }
 
@@ -115,7 +115,7 @@ void MatrixDrive_GetTurnXAngleYZ(MatDrive *a0) {
     SQ16_TO(p);
 }
 
-void MatrixDrive_GetTurnYAngleXZ(void)
+float MatrixDrive_GetTurnYAngleXZ(float a0)
 {
     VU0_NOREORDER_BEGIN();
     VU0_MFC1(t0, 12);

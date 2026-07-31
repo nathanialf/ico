@@ -10,18 +10,17 @@ typedef struct GObj__p4 {
 
 
 extern void _ACTWait();
-extern void actInitialize();
+extern int actInitialize();
 extern int actSt25aQueenDeadChk();
 extern int func_0017B230(int a0);
 extern void *D_00631AE8;
 extern void func_0017B258(int bit_idx);
 extern void _ACTWait(int a0);
-extern int actInitialize__p4(int a0) __asm__("actInitialize");
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
 void actSt04dDoor1(volatile int a0) {
     int x = a0;
-    actInitialize__p4(a0);
+    actInitialize(a0);
     _ACTWait(1);
     if (func_0017B230(0x7C) == 0) {
         stage_KillPlayBgAnimation(0x10A, -1, -2);
@@ -30,12 +29,11 @@ void actSt04dDoor1(volatile int a0) {
     }
 }
 
-extern int actInitialize__p4(int a0) __asm__("actInitialize");
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
 void actSt04dDoor1UpChk(volatile int a0) {
     int x = a0;
-    actInitialize__p4(a0);
+    actInitialize(a0);
     _ACTWait(1);
     if (func_0017B230(0x7C) == 0) {
         stage_KillPlayBgAnimation(0x10C, -1, -2);
@@ -90,12 +88,11 @@ void actSt04dDoor2DownChk(volatile int a0) {
 
 INCLUDE_ASM("asm/nonmatchings/src/st04d", actSt04dDoor1Event);
 
-extern int actInitialize__p4(int a0) __asm__("actInitialize");
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
 void actSt04dDoor1UpEffect(volatile int a0) {
     int x = a0;
-    actInitialize__p4(a0);
+    actInitialize(a0);
     _ACTWait(1);
     if (func_0017B230(0x7C) == 0) {
         stage_KillPlayBgAnimation(0x10D, -1, -2);
@@ -105,11 +102,10 @@ void actSt04dDoor1UpEffect(volatile int a0) {
 extern void BoxBarSoundOn(int a0, int a1);
 extern int D_004D16D0[];
 extern void actSt04dDoor1Event(volatile int a0);
-extern void *actSt25aQueenDeadChk__p4(int a0) __asm__("actSt25aQueenDeadChk");
 
 void actSt04dDoor1DownEffect(volatile int a0) {
     int x = a0;
-    GObj__p4 *gobj = (GObj__p4 *)actInitialize__p4(a0);
+    GObj__p4 *gobj = (GObj__p4 *)actInitialize(a0);
     _ACTWait(1);
     if (func_0017B230(0xB3) == 0) {
         stage_KillPlayBgAnimation(0xCB, 0, 0);
@@ -119,7 +115,7 @@ void actSt04dDoor1DownEffect(volatile int a0) {
         _ACTWait(0);
     } else {
         stage_KillPlayBgAnimation(0xCB, 0, -1);
-        ((int *)actSt25aQueenDeadChk__p4(0x3F2))[0x16C / 4] = 0;
+        ((int *)actSt25aQueenDeadChk(0x3F2))[0x16C / 4] = 0;
     }
 }
 
@@ -129,7 +125,7 @@ extern void func_00219660(volatile int a0);
 
 void actSt04dDoor2Event(volatile int a0) {
     int x = a0;
-    GObj__p4 *gobj = (GObj__p4 *)actInitialize__p4(a0);
+    GObj__p4 *gobj = (GObj__p4 *)actInitialize(a0);
     _ACTWait(1);
     if (func_0017B230(0x90) == 0) {
         D_004D16B0[1] = (int)func_00219660;
@@ -145,7 +141,7 @@ extern void actSt04dDoor2DownChk(volatile int a0);
 
 void actSt04dDoor2UpEffect(volatile int a0) {
     int x = a0;
-    GObj__p4 *gobj = (GObj__p4 *)actInitialize__p4(a0);
+    GObj__p4 *gobj = (GObj__p4 *)actInitialize(a0);
     if (func_0017B230(0x91) == 0) {
         D_004D1670[1] = (int)actSt04dDoor2DownChk;
         gobj->unkB4 = D_004D1670;
@@ -159,7 +155,7 @@ extern void func_002195F0(volatile int a0);
 
 void actSt04dDoor2DownEffect(volatile int a0) {
     int x = a0;
-    GObj__p4 *gobj = (GObj__p4 *)actInitialize__p4(a0);
+    GObj__p4 *gobj = (GObj__p4 *)actInitialize(a0);
     _ACTWait(1);
     if (func_0017B230(0x92) == 0) {
         D_004D1690[1] = (int)func_002195F0;

@@ -751,19 +751,19 @@ int func_0024A0E8(void)
     int i;
     int ret;
     int val;
-    goto no_delay;
-again:
-    __asm__ volatile ("lui %0,%%hi(D_FFFFF)" : "=r"(i));
-    do {
-        __asm__ volatile ("addiu %0,%0,%%lo(D_FFFFF)" : "+r"(i));
-    } while (i != -1);
-no_delay:
-    ret = func_00246288(D_00715F80, 0x80000003, 0);
-    if (ret < 0) return -1;
-    val = D_00715F80[0x24 / 4];
-    if (val == 0) goto again;
-    D_00550874[0] = 0;
-    __asm__ volatile ("");
+    for (;;) {
+        ret = func_00246288(D_00715F80, 0x80000003, 0);
+        if (ret < 0) return -1;
+        val = D_00715F80[0x24 / 4];
+        if (val != 0) {
+            D_00550874[0] = 0;
+            break;
+        }
+        __asm__ volatile ("lui %0,%%hi(D_FFFFF)" : "=r"(i));
+        do {
+            __asm__ volatile ("addiu %0,%0,%%lo(D_FFFFF)" : "+r"(i));
+        } while (i != -1);
+    }
     return 0;
 }
 

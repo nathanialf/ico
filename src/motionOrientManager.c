@@ -49,7 +49,6 @@ INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", GetMotionPlaySpeedRatio)
 
 extern char *D_00633478;
 extern char *D_00633F4C;
-extern void MatrixDrive_TurnObjectMatrix__p4(int a0, void *a1) __asm__("MatrixDrive_TurnObjectMatrix");
 extern void func_00105258(void);
 extern void func_00105268(void);
 extern void *func_00105278(void);
@@ -65,7 +64,7 @@ void execFrameTrigger(int id) {
     func_001D88B8(id);
     o = D_00633F4C + id * 0x10;
     m = func_00105278();
-    MatrixDrive_TurnObjectMatrix__p4((int)o, (char *)m + 0x30);
+    MatrixDrive_TurnObjectMatrix((void *)o, (char *)m + 0x30);
     if (child != -1) {
         execFrameTrigger(child);
     }
@@ -85,8 +84,8 @@ extern void ChangeFieldCollisionDebugMode();
 
 int sendStateMail(char *a0, float f) {
     char buf[0xC0] __attribute__((aligned(16)));
-    MatrixDrive_TurnObjectMatrix__p4((int)buf, a0);
-    MatrixDrive_TurnObjectMatrix__p4((int)(buf + 0x10), a0);
+    MatrixDrive_TurnObjectMatrix((void *)buf, a0);
+    MatrixDrive_TurnObjectMatrix((void *)(buf + 0x10), a0);
     *(float *)(buf + 0x14) = *(float *)(buf + 0x14) + f;
     ChangeFieldCollisionDebugMode(buf);
     return *(int *)(buf + 0x94);
@@ -205,7 +204,7 @@ void CopyBlendMotionDataSource(void *a0, void *a1) {
         }
         {
             char *s = *(char **)((char *)a0 + 0x15C);
-            MatrixDrive_TurnObjectMatrix__p4((int)(s + 0x790), local);
+            MatrixDrive_TurnObjectMatrix((void *)(s + 0x790), local);
         }
         calcFootIK(a0, buf);
     }

@@ -144,7 +144,6 @@ extern int D_00633890;
 extern int D_0071257C[];
 extern int WayPointWithRangeFromPos2(int a0, int a1, int a2);
 extern int add_wp_pos(void *a0);
-extern void debug_assertMessage__p4(char *p, int *self) __asm__("debug_assertMessage");
 extern void *nearest_waypoint_of_all_except_group(void *a0);
 extern void traceLine();
 
@@ -176,7 +175,7 @@ int WayBridge_begin(void) {
             int n = add_wp_pos(D_004D06A0);
             WayPointWithRangeFromPos2(D_00633874, *(int *) ((char *) res + 4), n);
             entry->w[4] = entry->w[4] + 1;
-            debug_assertMessage__p4(D_0061B650, n);
+            debug_assertMessage(D_0061B650, n);
         }
     }
     return 0;

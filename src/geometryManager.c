@@ -21,8 +21,6 @@ extern void func_0010DDB8();
 extern void RegularizeQuaternion();
 #include "ico/types.h"
 extern void MatrixDrive_TurnXObjectMatrixYZ(void *dst, void *src);
-extern int func_00104F20__p4(void) __asm__("func_00104F20");
-extern int *func_00105268__p4(void) __asm__("func_00105268");
 extern void func_00105308(float a, float b, float c);
 
 void GetRootQuaternionByDObj(void *a0)
@@ -33,11 +31,11 @@ void GetRootQuaternionByDObj(void *a0)
     float a = rf12;
     float b = rf13;
     float c = rf14;
-    func_00104F20__p4();
+    func_00104F20();
     MatrixDrive_TurnXObjectMatrixYZ(func_00105278(), (void *)((char *)a0 + 0x20));
     func_00105308(a, b, c);
     MatrixDrive_TurnXObjectMatrixYZ((void *)*(int *)((char *)a0 + 0xC), func_00105278());
-    func_00105268__p4();
+    func_00105268();
 }
 
 void UpdateRootMatrixByDObj(int a0)
@@ -65,10 +63,9 @@ void SetRootBaseQuaternion(int *self, int *other)
     func_0010DDB8((void *)self[0x10/4], (char *)self + 0x60, other);
 }
 
-extern void SetRootBaseQuaternion__p4(void *a0, void *a1) __asm__("SetRootBaseQuaternion");
 
 void SetRootQuaternion(int a0, void *a1) {
-    SetRootBaseQuaternion__p4(*(void **)(a0 + 0x15C), a1);
+    SetRootBaseQuaternion(*(void **)(a0 + 0x15C), a1);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/geometryManager", SetRootMatrixWithTransOffsetByDObj);

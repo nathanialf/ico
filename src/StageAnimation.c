@@ -10,14 +10,14 @@ extern const char D_00555BF8[];
 extern void func_001AD768();
 extern int bga_SetCamFrame();
 extern const char D_00631D88[];
-extern void func_00263FF0(int a0, int a1, int a2);
+extern void func_00263FF0(char *file, int line, char *msg);
 extern void debug_assertMessage();
 extern const char D_00555D78[];
 extern int font_CheckAlign();
 extern char D_00674058[];
 extern int D_00633C54;
 extern void font_GetWidth();
-extern int D_00633C58;
+extern int *D_00633C58;
 extern int resetmallocseki(void *a0);
 extern void func_00117768(void);
 extern void func_001FAA58();
@@ -124,7 +124,6 @@ extern char D_00555DB0[];
 extern int bga_SetCamFrame(int a0);
 extern int font_CheckAlign(int a0);
 extern void func_001AD768(void *a0, int a1);
-extern void func_00263FF0__p4(void *a0, int a1, void *a2) __asm__("func_00263FF0");
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
 int stage_DispBgAnimation(int a0, int a1) {
@@ -154,7 +153,7 @@ int stage_DispBgAnimation(int a0, int a1) {
     }
     debug_assertMessage(D_00555DB0);
     func_001AD768(D_00555BF8, 0x38D);
-    func_00263FF0__p4(D_00555BF8, 0x38D, D_00631D88);
+    func_00263FF0(D_00555BF8, 0x38D, D_00631D88);
     return 0;
 }
 
@@ -189,16 +188,15 @@ void stage_KillPlayBgAnimationIfOverMaxCount(int **self)
     if (next != 0) {
         next[0x14 / 4] = node[0x14 / 4];
     } else {
-        D_00633C58 = node[0x14 / 4];
-        __asm__ __volatile__("" ::: "memory");
-        node = *(int * volatile *)self;
+        D_00633C58 = (int *)node[0x14 / 4];
+        node = *self;
     }
     prev = (int *)node[0x14 / 4];
     if (prev != 0) {
         prev[0x10 / 4] = node[0x10 / 4];
     }
     if (D_00633C58 != 0) {
-        ((int *)D_00633C58)[0x10 / 4] = 0;
+        D_00633C58[0x10 / 4] = 0;
     }
     resetmallocseki(*self);
 }

@@ -99,7 +99,6 @@ void func_001948A8(float *a, float *b)
     b[0] = tmp[0];
     b[1] = tmp[1];
     b[2] = tmp[2];
-    __asm__ __volatile__("" : : "r"(tmp) : "memory");
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/hand-camera", func_001948F0);

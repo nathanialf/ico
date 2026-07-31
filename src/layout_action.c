@@ -52,7 +52,6 @@ extern LaMcState D_00274EC0;
 extern LaFlags D_00275250;
 extern void GetRealModelId(int a0, int a1);
 extern void func_001B0A68(void);
-extern int initSceneGObj__p4(int a0) __asm__("initSceneGObj");
 extern void init_layout_texture(void);
 extern void kanbanBootMain(void);
 extern void kanbanBootMcCheck(void);
@@ -85,7 +84,7 @@ int _la_memory_card_check(void) {
     GetRealModelId(D_00274EC0.f2C + 0x158, 0);
     if (D_00275250.f4 & 0x40) {
         func_001B0A68();
-        initSceneGObj__p4(0);
+        initSceneGObj(0);
         D_0063304C = 0;
         return 0x36;
     }
@@ -234,12 +233,12 @@ int la_mc_confirm_save_file(int a0, int a1) {
     switch (a1) {
     case 0xE9:
         D_00274ED4[0] = 0;
-        initSceneGObj__p4(0);
+        initSceneGObj(0);
         D_0063304C = 0;
         return 0x32;
     case 0xEA:
         D_00633044 = 1;
-        initSceneGObj__p4(0);
+        initSceneGObj(0);
         D_0063304C = 0;
         return 0x3B;
     }

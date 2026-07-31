@@ -187,10 +187,7 @@ char *visible_waypoint_of_all(int *arg0, float thresh)
 {
     int buf[4];
     char *node = CloseWayGroup(D_00633874);
-    if (node == 0) {
-        return 0;
-    }
-    __asm__ __volatile__("" ::: "memory");
+    if (node == 0) goto ret0;
     do {
         func_00243AE8(buf, (int *)(node + 0x10), arg0);
         if (func_0016A2F8((int)buf) < thresh) {
@@ -198,6 +195,7 @@ char *visible_waypoint_of_all(int *arg0, float thresh)
         }
         node = CreateWayPoint(node);
     } while (node != 0);
+ret0:
     return 0;
 }
 

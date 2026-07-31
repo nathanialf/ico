@@ -17,7 +17,6 @@ extern char D_004C5B60[];
 extern char D_004C5B70[];
 extern int D_00633F40;
 extern float MatrixDrive_GetTurnZAngleYX(void *a0, void *a1);
-extern void MatrixDrive_TurnObjectMatrix__p4(int a0, int a1) __asm__("MatrixDrive_TurnObjectMatrix");
 extern int func_00104F20(void);
 extern void func_00105268(void);
 extern int func_00105278(void);
@@ -30,7 +29,7 @@ void checkActPointWithHeight(void) {
     func_002641D8(buf, 0, 0xC0);
     func_00104F20();
     func_001052A8(D_004C5B60);
-    MatrixDrive_TurnObjectMatrix__p4((int)buf, func_00105278() + 0x30);
+    MatrixDrive_TurnObjectMatrix((void *)buf, (void *)(func_00105278() + 0x30));
     func_002438B8((int *)(buf + 0x10), func_00105278(), D_004C5B70);
     func_00105268();
     ClipWallBoxStop(buf);
@@ -156,7 +155,7 @@ int SkelTest(int a0, int a1, int p, int a3, int a4) {
     int mask;
 
     *(int *)(p + 0x70) = 0;
-    MatrixDrive_TurnObjectMatrix__p4(p, a3);
+    MatrixDrive_TurnObjectMatrix((void *)p, (void *)a3);
     func_002438B8((int *)(p + 0x10), a1, (char *)a0);
     ClipWallBoxStop((void *)p);
 
@@ -191,14 +190,14 @@ int SkelTest(int a0, int a1, int p, int a3, int a4) {
     }
 block12:
     func_00118648(buf, a1, D_004C5BD0);
-    MatrixDrive_TurnObjectMatrix__p4(p, p + 0x10);
+    MatrixDrive_TurnObjectMatrix((void *)p, (void *)(p + 0x10));
     _RotTransPersCurrentMatrix(p + 0x10, p, buf);
     ClipWallBoxStop((void *)p);
     if (*(int *)(p + 0x88) != 0) {
         goto disp_one;
     }
-    MatrixDrive_TurnObjectMatrix__p4(p, p + 0x10);
-    MatrixDrive_TurnObjectMatrix__p4(p + 0x10, a3 + 0x10);
+    MatrixDrive_TurnObjectMatrix((void *)p, (void *)(p + 0x10));
+    MatrixDrive_TurnObjectMatrix((void *)(p + 0x10), (void *)(a3 + 0x10));
     ClipWallBoxStop((void *)p);
     if (*(int *)(p + 0x88) != 0) {
 disp_one:

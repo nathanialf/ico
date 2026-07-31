@@ -195,7 +195,7 @@ extern struct D520 D_00553260;
 extern long long func_00261BA8(long long a0, long long a1);
 extern long long func_00261C08(long long a0, long long a1);
 extern void func_0026BEE0(void);
-extern void func_0026BEE8__p4(void *self) __asm__("func_0026BEE8");
+extern void func_0026BEE8();
 extern int func_0026D128(int *self, int a1);
 
 int func_0026AAD0(int *self, unsigned int a1) {
@@ -224,12 +224,12 @@ int func_0026AAD0(int *self, unsigned int a1) {
         D_00553260.blk->size = A | 1;
     }
 fail:
-    func_0026BEE8__p4(self);
+    func_0026BEE8(self);
     return 0;
 adjust:
     D_00553260.blk->size = (A - newlen) | 1;
     D_0054D950_a[0] -= (int)newlen;
-    func_0026BEE8__p4(self);
+    func_0026BEE8(self);
     return 1;
 }
 
@@ -295,7 +295,7 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026BDDC);
 void func_0026BEE0(void) {
 }
 
-void func_0026BEE8(void) {
+void func_0026BEE8() {
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026BEF0);

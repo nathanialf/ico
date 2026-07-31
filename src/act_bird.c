@@ -24,7 +24,8 @@ void interp_vector_sa(void *a0) {
     }
 }
 
-void birdBeforeFunc(int a0, int a1, int a2, int a3)
+void birdBeforeFunc(a0, a1, a2, a3)
+int a0, a1, a2, a3;
 {
     iosOmBeforeFuncStandard(a0, a1, a2, a3);
 }
@@ -107,14 +108,13 @@ void *Debug_WireString_Bird(void *a0, void *a1) {
 
 void Debug_StickControl(void) {}
 
-extern void birdBeforeFunc__p4(void *a0, void *a1, void *a2) __asm__("birdBeforeFunc");
 extern void *isysGObjSearchFromObjKindID_begin(void *o);
 extern void *isysGObjSearchFromObjLayoutID(int id);
 
 void BirdGeo(void *a0, void *a1) {
     void *obj = isysGObjSearchFromObjLayoutID(0x20);
     while (obj != 0) {
-        birdBeforeFunc__p4(obj, a0, a1);
+        birdBeforeFunc(obj, a0, a1);
         obj = isysGObjSearchFromObjKindID_begin(obj);
     }
 }

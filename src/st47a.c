@@ -382,7 +382,6 @@ INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00237518);
 
 struct CFS { long long a, b; };
 extern struct CFS D_0061C310;
-extern void soundSeDefPlayWithVolumeRate__75c8(int a0, int a1, void *a2, int a3) __asm__("soundSeDefPlayWithVolumeRate");
 
 void func_002375C8(volatile int a0) {
     struct CFS buf;
@@ -390,7 +389,7 @@ void func_002375C8(volatile int a0) {
     actInitialize(a0);
     _ACTWait(1);
     buf = D_0061C310;
-    soundSeDefPlayWithVolumeRate__75c8(0x52A, 0, &buf, 1);
+    soundSeDefPlayWithVolumeRate(0x52A, 0, (int)&buf, 1);
     stage_KillPlayBgAnimation(0x7A, 0, 0);
 }
 

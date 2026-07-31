@@ -9,7 +9,8 @@ extern float D_006333F0;
 extern void func_001D0FA8();
 INCLUDE_ASM("asm/nonmatchings/src/frameDependSequence", playSE);
 
-void playSERandomID(int a0, int a1)
+void playSERandomID(a0, a1)
+int a0, a1;
 {
     D_006333F0 = 1.0f;
     if (a0) {
@@ -19,10 +20,9 @@ void playSERandomID(int a0, int a1)
     }
 }
 
-extern void playSERandomID__p4(int a0, int a1, int a2) __asm__("playSERandomID");
 
 void playSEConditionID(int a0, int a1) {
-    playSERandomID__p4(a0, a1, 0);
+    playSERandomID(a0, a1, 0);
 }
 
 void playEff(int a0, int a1, float f)

@@ -736,15 +736,14 @@ void func_00243EE8(void *a0, void *a1, void *a2, void *a3) {
     func_002439F8(a0, buf);
 }
 
-extern void func_00243B18__p4(int *buf, int *p, float t) __asm__("func_00243B18");
 
 void func_00243F98(void *a0, void *a1, void *a2, void *a3) {
     float buf[4];
-    func_00243B18__p4(buf, a1, -1.0f);
+    func_00243B18(buf, a1, -1.0f);
     func_00243978(a0, buf);
-    func_00243B18__p4(buf, a2, -1.0f);
+    func_00243B18(buf, a2, -1.0f);
     func_00243978((char *)a0 + 0x10, buf);
-    func_00243B18__p4(buf, a3, -1.0f);
+    func_00243B18(buf, a3, -1.0f);
     func_00243978((char *)a0 + 0x20, buf);
     {
         float fzero = 0.0f;
@@ -756,13 +755,12 @@ void func_00243F98(void *a0, void *a1, void *a2, void *a3) {
     func_002439B0(a0, a0);
 }
 
-extern void func_00243B60__p4(int x, int a0) __asm__("func_00243B60");
 
 void func_00244058(void *a0, void *a1, void *a2, void *a3, void *a4) {
-    func_00243B60__p4(a0, a1);
-    func_00243B60__p4((char *)a0 + 0x10, a2);
-    func_00243B60__p4((char *)a0 + 0x20, a3);
-    func_00243B60__p4((char *)a0 + 0x30, a4);
+    func_00243B60((void *)a0, a1);
+    func_00243B60((char *)a0 + 0x10, a2);
+    func_00243B60((char *)a0 + 0x20, a3);
+    func_00243B60((char *)a0 + 0x30, a4);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_002440C0);
