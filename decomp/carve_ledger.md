@@ -27,6 +27,7 @@ green from a clean rebuild; `tools/check_no_rom.sh` clean.
 | `src/debug_exception` | `[0x515090, .rodata]`, VMA 0x615090..0x6150D4 | `jtbl_00615090` (17 entries, 0x44) — `initLineTraceTable`'s switch | PORTED, clean rebind |
 | `src/girl_act` | `[0x459950, .rodata]`, VMA 0x559950..0x559A5C | `jtbl_00559950` (67 entries, 0x10C) — `actGirlHang`'s switch | PORTED, hand-fixed (see below) |
 | `src/motionOrientManager` | `[0x5196C8, .rodata]`, VMA 0x6196C8..0x619734 | `D_006196C8` (0x18, debug fmt string) + `jtbl_006196E0` (21 entries, 0x54) — `shiftMotionOrientEndFunc`'s switch | carve landed, function LEFT ASM (see below) |
+| `src/StageAnimation` | `[0x455990, .rodata]`, VMA 0x555990..0x5559B8 | `jtbl_00555990` (10 entries, 0x28) — `stage_Init`'s switch | carve landed 2026-07-31, function LEFT ASM |
 
 Every jtbl VMA/entry-count was hand-verified against `baserom/baseelf.rom`
 before landing: decoded every `.word` in the table, confirmed each target
