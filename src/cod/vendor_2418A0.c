@@ -54,7 +54,7 @@ void *func_002418A0(void *a0, void *a1, int a2) {
     return obj;
 }
 
-extern void *D_0062E020[];
+extern const char D_0062E020[];
 extern void debug_assertMessage();
 
 void func_00241A00(void) {
@@ -122,6 +122,8 @@ __asm__(
     "    .set at\n"
 );
 
+const char D_0062E020[0x10] = "free object\n";
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00241CB0);
 
 void func_00241F20(void *a0) {
@@ -186,6 +188,8 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00242CB0);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00242DF0);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00242F70);
+
+const char D_0062E560[0x18] = "libdma: sync timeout\n";
 
 extern int func_00100840(void);
 extern void func_00100860(void *a0);

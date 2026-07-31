@@ -471,6 +471,8 @@ segments:
       - [0x51AC60, rodata, src/cod/51AC60]   # .rodata blob resume
       - [0x51BCE0, .rodata, src/st04b]  # gcc-emitted jtbl_0061BCE0 (func_00217658 switch, 8 entries 0x20), VMA 0x61BCE0..0x61BD00
       - [0x51BD00, rodata, src/cod/51BD00]   # .rodata blob resume
+      - [0x52E020, .rodata, src/cod/vendor_2418A0]  # full vendor_2418A0 .rodata run (anchors: jtbl_0062E260/E470 + D_0062E020..D_0062E560), VMA 0x62E020..0x62E578
+      - [0x52E578, rodata, src/cod/52E578]   # .rodata blob resume (before src/cod/vendor_2453C0's own pre-carve anchors)
       - [0x52E5F0, .rodata, src/cod/vendor_2453C0]  # gcc-emitted jtbl_0062E5F0 (func_00246CD0 switch, 25 entries 0x64), VMA 0x62E5F0..0x62E654
       - [0x52E654, rodata, src/cod/52E654]   # .rodata blob resume
       - [0x52ECD0, .rodata, src/cod/vendor_24E9D8]  # gcc-emitted jtbl_0062ECD0 (func_00251ED0 switch, 5 entries 0x14), VMA 0x62ECD0..0x62ECE4
