@@ -750,8 +750,10 @@ dlabel actually ends 0x10 short of that assumption. Hand-defined),
 `src/chain` [0x55AA90,0x55ADE0) (new carve; unblocks jtbl_0055AD50/
 AD90/ADC0; 2 EUC-JP debug strings). `src/boyact` REVERTED — see the
 Blocked TUs section below; do not retry without a matching-level fix.
-Batch conversion of the remaining jtbl-bearing TUs recorded below as
-they land. Decided runs are recorded in `decomp/data_tu_boundaries.json`.
+`src/motionManager` [0x619220,0x619620) (new carve; unblocks
+jtbl_006194B0/619530; 8 EUC-JP debug strings). Batch conversion of the
+remaining jtbl-bearing TUs recorded below as they land. Decided runs
+are recorded in `decomp/data_tu_boundaries.json`.
 
 ## Blocked: `src/boyact` full-run carve reverted (2026-07-31)
 

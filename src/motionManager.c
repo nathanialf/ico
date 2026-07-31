@@ -50,7 +50,23 @@ INCLUDE_ASM("asm/nonmatchings/src/motionManager", checkUpperWallState);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", checkWallSideState);
 
+/* motionManager .rodata run 0x619220..0x619620 -- byte-verified against
+ * baseelf; defs interleave with INCLUDE_ASM stubs so .o section order ==
+ * VMA order */
+const unsigned int D_00619220[0x30] = { 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x42480000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000 };
+const char D_006192E0[0x18] = "src/motionManager.c\0\0\0\0\0";
+
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", checkWallState);
+
+const char D_00619328[0x78] = "PLANEリミットです %f 急なので落下させます\n\0\0\0\0\0\0このメッセージを見た人は直ちにすぎやまに報告してくれー:NOWALLHITPROC\n\0\0\0";
+const char D_006193A0[0x18] = "壁の角度が急なので落下\n\0";
+const char D_006193B8[0x18] = "壁属性により落下\n\0\0\0\0\0\0\0";
+const char D_006193D0[0x10] = "壁がなくて落下\n\0";
+const char D_006193E0[0x28] = "壁のつかまり先がなくて落下 (段差:%f)\n\0\0\0";
+const char D_00619408[0x20] = "強制落下の壁に当たったので落下\n\0";
+const char D_00619428[0x60] = "下にDWATERの水底がないです。このメッセージが連続で\n出てるなら、泳ぎから遷移していない状態です\n\n\0";
+const unsigned int D_00619488[0x4] = { 0x00000000, 0xFFFFFFFF, 0x00000000, 0x00000000 };
+const char D_00619498[0x18] = "拡張壁に当たった\n\0\0\0\0\0\0\0";
 
 extern void checkWallState(void);
 extern void clearCollisionStatus(void);
@@ -267,6 +283,16 @@ INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DEF20);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DF150);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DF368);
+
+const unsigned int D_00619588[0x4] = { 0x00000000, 0x40A00000, 0x00000000, 0x00000000 };
+const unsigned int D_00619598[0x4] = { 0x00000000, 0x00000000, 0x40A00000, 0x00000000 };
+const unsigned int D_006195A8[0x6] = { 0x40A00000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000 };
+const unsigned int D_006195C0[0x4] = { 0x00000040, 0x00000040, 0x00000040, 0x00000080 };
+const unsigned int D_006195D0[0x4] = { 0x00000000, 0x000000FF, 0x00000000, 0x00000080 };
+const unsigned int D_006195E0[0x4] = { 0x00000000, 0x00000080, 0x000000FF, 0x00000080 };
+const unsigned int D_006195F0[0x4] = { 0x000000FF, 0x00000000, 0x00000000, 0x00000080 };
+const unsigned int D_00619600[0x4] = { 0x41200000, 0x00000000, 0x00000000, 0x00000000 };
+const unsigned int D_00619610[0x4] = { 0x000000FF, 0x000000FF, 0x000000FF, 0x00000080 };
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DF8C0);
 

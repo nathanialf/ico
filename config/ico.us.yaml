@@ -454,7 +454,9 @@ segments:
       - [0x5190E0, .rodata, src/lodManager]  # gcc-emitted jtbl_006190E0 (func_001D4BD0 switch, 6 entries 0x18), VMA 0x6190E0..0x6190F8
       - [0x5190F8, rodata, src/cod/5190F8]   # .rodata blob resume
       - [0x519100, .rodata, src/motionFileManager]  # gcc-emitted jtbl_00619100 (ResetStatic2MotionManager switch, 52 entries 0xD0), VMA 0x619100..0x6191D0
-      - [0x5191D0, rodata, src/cod/5191D0]   # .rodata blob resume
+      - [0x5191D0, rodata, src/cod/5191D0]   # .rodata blob resume (align pad after motionFileManager's jtbl)
+      - [0x519220, .rodata, src/motionManager]  # full motionManager .rodata run (anchors: jtbl_006194B0/619530 + D_00619220..D_00619610), VMA 0x619220..0x619620
+      - [0x519620, rodata, src/cod/519620]   # .rodata blob resume (motionOrientManager's own pre-carve anchors 0x619620..0x6196C8)
       - [0x5196C8, .rodata, src/motionOrientManager]  # carved D_006196C8 (debug fmt string, 0x18 bytes incl. null-pad, VMA 0x6196C8..0x6196E0) + gcc-emitted jtbl_006196E0 (shiftMotionOrientEndFunc switch, 21 entries 0x54), VMA 0x6196E0..0x619734
       - [0x519734, rodata, src/cod/519734]   # .rodata blob, part 5 (resume after motionOrientManager jtbl)
       - [0x519D80, .rodata, src/moveColTest]  # gcc-emitted jtbl_00619D80 (MoveColTestGeo switch, 5 entries 0x14), VMA 0x619D80..0x619D94
