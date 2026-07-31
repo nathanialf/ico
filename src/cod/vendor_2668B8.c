@@ -23,7 +23,17 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_002668B8);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_00266970);
 
+/* vendor_2668B8 .rodata run 0x62FF80..0x6308A8 -- byte-verified against
+ * baseelf; defs interleave with INCLUDE_ASM stubs so .o section order ==
+ * VMA order. Run ends at the true .rodata ELF section end (sh_addr+sh_size
+ * 0x6308A8); the following 0x58 bytes to 0x630900 are linker alignment gap
+ * before .lit4, not part of any PROGBITS section. */
+const unsigned int D_0062FF80[0x4] = { 0x20202020, 0x20202020, 0x20202020, 0x20202020 };
+const unsigned int D_0062FF90[0x4] = { 0x30303030, 0x30303030, 0x30303030, 0x30303030 };
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_002669E8);
+
+const unsigned int D_00630190[0xC] = { 0x0001000A, 0x00030002, 0x00050004, 0x00070006, 0x00090008, 0x000B000A, 0x000D000C, 0x000F000E, 0x00000010, 0x00000000, 0x00000000, 0x00000000 };
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_00267F00);
 
@@ -74,6 +84,9 @@ int func_00268F28(int a0) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_00268F48);
+
+const char D_00630600[0x10] = "Infinity";
+INCLUDE_RODATA("asm/nonmatchings/src/cod/vendor_2668B8", D_00630610);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_00269160);
 
@@ -238,7 +251,7 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026AC40);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026B018);
 
 extern int D_00630688[];
-extern int D_00630698[];
+extern const unsigned int D_00630698[];
 extern int func_00265024(int *p, int *buf);
 
 int func_0026B0B0(void *a0, int a1, int a2) {
@@ -252,7 +265,7 @@ no_check:
     return (int)D_00630698;
 }
 
-extern int D_00630658[];
+extern const unsigned int D_00630658[];
 
 void *func_0026B138(int a0) {
     return D_00630658;
@@ -449,7 +462,7 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026CC60);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026CDE0);
 
-extern long D_006306B0[];
+extern const long D_006306B0[];
 extern long func_00262BE8(long a, long b);
 
 long func_0026CEA0(int n) {
@@ -620,7 +633,44 @@ int func_0026D6A8(void *a0) {
     return func_0026EC10((int *)*(int *)((char *)a0 + 0x54), *(short *)((char *)a0 + 0xE));
 }
 
+INCLUDE_RODATA("asm/nonmatchings/src/cod/vendor_2668B8", D_00630620);
+INCLUDE_RODATA("asm/nonmatchings/src/cod/vendor_2668B8", D_00630628);
+const unsigned int D_00630630[0x4] = { 0x509F79FB, 0x3FD34413, 0x00000000, 0x00000000 };
+INCLUDE_RODATA("asm/nonmatchings/src/cod/vendor_2668B8", jtbl_00630640);
+const unsigned int D_00630658[0xC] = { 0x00630690, 0x00630688, 0x00630688, 0x00630688, 0x00630688, 0x00630688, 0x00630688, 0x00630688, 0x00630688, 0x00630688, 0x7F7F7F7F, 0x7F7F7F7F };
+INCLUDE_RODATA("asm/nonmatchings/src/cod/vendor_2668B8", D_00630688);
+INCLUDE_RODATA("asm/nonmatchings/src/cod/vendor_2668B8", D_00630690);
+__asm__(
+    "    .section .rodata.D_00630698,\"a\",@progbits\n"
+    "    .globl D_00630698\n"
+    "    .type D_00630698, @object\n"
+    "D_00630698:\n"
+    "    .word 0x00000043\n"
+    "    .word 0x00000000\n"
+    "    .size D_00630698, 8\n"
+    "    .section .text\n"
+);
+const unsigned int D_006306A0[0x4] = { 0x00000005, 0x00000019, 0x0000007D, 0x00000000 };
+const long D_006306B0[0x19] = { 0x3FF0000000000000LL, 0x4024000000000000LL, 0x4059000000000000LL, 0x408F400000000000LL, 0x40C3880000000000LL, 0x40F86A0000000000LL, 0x412E848000000000LL, 0x416312D000000000LL, 0x4197D78400000000LL, 0x41CDCD6500000000LL, 0x4202A05F20000000LL, 0x42374876E8000000LL, 0x426D1A94A2000000LL, 0x42A2309CE5400000LL, 0x42D6BCC41E900000LL, 0x430C6BF526340000LL, 0x4341C37937E08000LL, 0x4376345785D8A000LL, 0x43ABC16D674EC800LL, 0x43E158E460913D00LL, 0x4415AF1D78B58C40LL, 0x444B1AE4D6E2EF50LL, 0x4480F0CF064DD592LL, 0x44B52D02C7E14AF6LL, 0x44EA784379D99DB4LL };
+const unsigned int D_00630778[0x8] = { 0x37E08000, 0x4341C379, 0xB5056E17, 0x4693B8B5, 0xE93FF9F5, 0x4D384F03, 0xF9301D32, 0x5A827748 };
+INCLUDE_RODATA("asm/nonmatchings/src/cod/vendor_2668B8", D_00630798);
+const unsigned int D_006307A0[0xC] = { 0x97D889BC, 0x3C9CD2B2, 0xD5A8A733, 0x3949F623, 0x44F4A73D, 0x32A50FFD, 0xCF8C979D, 0x255BBA08, 0x64AC6F43, 0x0AC80628, 0x00000000, 0x00000000 };
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026D6C8);
+
+INCLUDE_RODATA("asm/nonmatchings/src/cod/vendor_2668B8", D_00630888);
+INCLUDE_RODATA("asm/nonmatchings/src/cod/vendor_2668B8", D_00630890);
+INCLUDE_RODATA("asm/nonmatchings/src/cod/vendor_2668B8", D_00630898);
+__asm__(
+    "    .section .rodata.D_006308A0,\"a\",@progbits\n"
+    "    .globl D_006308A0\n"
+    "    .type D_006308A0, @object\n"
+    "D_006308A0:\n"
+    "    .word 0x00000000\n"
+    "    .word 0x7FF00000\n"
+    "    .size D_006308A0, 8\n"
+    "    .section .text\n"
+);
 
 extern unsigned int func_0026D6C8(void *a0, int a1, int a2);
 

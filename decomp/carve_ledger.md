@@ -779,7 +779,21 @@ segment; unblocks jtbl_00553760/func_001013E0's switch; 3 sub-8-byte
 symbols via INCLUDE_RODATA, no C defs otherwise), `src/cod/vendor_2418A0`
 [0x62E020,0x62E578) (new carve; unblocks jtbl_0062E260/E470, both
 embedded in-function; run between src/PObj and
-src/cod/vendor_2453C0's own pre-carve anchors). Batch conversion
+src/cod/vendor_2453C0's own pre-carve anchors), `src/cod/vendor_2668B8`
+[0x62FF80,0x6308A8) (new carve; unblocks all 7 jtbls
+630020/6301C0/6303B0/6303D0/630510/630640/6307D0. Run ends at the
+TRUE .rodata ELF section end, not the yaml-neighboring .lit4 start —
+0x58 bytes of linker alignment gap sit between them, not PROGBITS
+content. Two new landmine classes hit here: a const array ≤8 bytes
+routes to .sdata under -G8 even when declared `const` — same fix as
+INCLUDE_RODATA's purpose but for a genuine matched-C blind spot
+(D_00630698) with no generated stub file at all, and for a second
+gcc-compiled def (D_006308A0) that hit the same threshold; and
+D_006306B0 is an array of 25 64-bit `long` (a pow10-as-double-bits
+table) rather than unsigned int — spelling it as unsigned[50] silently
+compiled a shift-by-2 index in its one matched caller where the ROM
+has shift-by-3, an 8-byte regression only visible by diffing raw
+instruction words, not by size). Batch conversion
 of the remaining jtbl-bearing TUs recorded below as they land. Decided
 runs are recorded in `decomp/data_tu_boundaries.json`.
 

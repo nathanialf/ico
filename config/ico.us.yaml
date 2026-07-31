@@ -480,7 +480,8 @@ segments:
       - [0x52F0E0, .rodata, src/cod/vendor_258CC0]  # gcc-emitted jtbl_0062F0E0 (func_00258D10 switch, 99 entries 0x18C) + .align3 pad + jtbl_0062F270 (func_0025BA58 switch, 20 entries 0x50), VMA 0x62F0E0..0x62F2C0
       - [0x52F2C0, rodata, src/cod/52F2C0]   # .rodata blob resume
       - [0x52FE10, .rodata, src/cod/vendor_25E1E8]  # gcc-emitted jtbl_0062FE10 (func_00265CA0 switch, 89 entries 0x164), VMA 0x62FE10..0x62FF74
-      - [0x52FF74, rodata, src/cod/52FF74]   # .rodata blob resume
+      - [0x52FF74, rodata, src/cod/52FF74]   # .rodata blob resume (before vendor_2668B8's own pre-carve anchors; UNREF pad 0x62FF74..0x62FF80 stays out)
+      - [0x52FF80, .rodata, src/cod/vendor_2668B8]  # full vendor_2668B8 .rodata run (anchors: jtbl_00630020/6301C0/6303B0/6303D0/630510/630640/6307D0 + D_0062FF80..D_006308A0), VMA 0x62FF80..0x6308A8 (true end of the .rodata ELF section per its sh_addr+sh_size; the 0x58 bytes 0x6308A8..0x630900 before .lit4 are linker alignment gap, not part of any PROGBITS section)
       - [0x530900, lit4, src/cod/530900]     # .lit4
       - [0x531900, sdata, src/cod/531900]    # .sdata
       - [0x5322F0, .sdata, src/commonact]  # carved D_006322F0..D_00632308 (VMA 0x6322F0..0x632310, 32 bytes, 5 syms)
