@@ -131,7 +131,11 @@ INCLUDE_ASM("asm/nonmatchings/src/camera-editor", func_00186168);
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", func_00186978);
 
-INCLUDE_ASM("asm/nonmatchings/src/camera-editor", _CameraEdit_del_box);
+extern void test_camedit(void);
+
+void _CameraEdit_del_box(void) {
+    DispCameraGroup((void *)test_camedit, 0, 0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/camera-editor", _CameraEdit_del_pin);
 

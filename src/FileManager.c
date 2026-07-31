@@ -50,7 +50,12 @@ INCLUDE_ASM("asm/nonmatchings/src/FileManager", func_0010ECE0);
 
 INCLUDE_ASM("asm/nonmatchings/src/FileManager", func_0010EE90);
 
-INCLUDE_ASM("asm/nonmatchings/src/FileManager", func_0010F5B8);
+extern int func_0010EE90(void);
+
+int func_0010F5B8(void)
+{
+    return func_0010EE90();
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/FileManager", func_0010F5D8);
 

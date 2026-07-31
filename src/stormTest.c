@@ -82,7 +82,12 @@ void func_001F0540(void *a0) {
     func_001F0098(*(int *)(p + 0x20));
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/stormTest", func_001F0550);
+extern void func_001F0260(int a0, void *a1);
+
+void func_001F0550(void *a0) {
+    char *p = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x800);
+    func_001F0260(*(int *)(p + 0x20), p + 0x10);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/stormTest", func_001F0568);
 

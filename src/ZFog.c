@@ -34,7 +34,12 @@ int func_0012FD30(void)
     return tex_scrollClut();
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/ZFog", func_0012FD50);
+extern int tex_textureAnimation(void *a0, int a1);
+
+int func_0012FD50(void *a0)
+{
+    return tex_textureAnimation(a0, 0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/ZFog", func_0012FD70);
 

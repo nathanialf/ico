@@ -10,7 +10,12 @@ extern int D_00633720;
 extern int D_00633724;
 extern void iosMallocCheckLeak2();
 extern int D_00633728;
-INCLUDE_ASM("asm/nonmatchings/src/sugiTree", SugiLeafGeo2);
+typedef struct { char _0[0x14]; int f_14; } SugiLeaf;
+extern SugiLeaf D_0070D4D8[];
+
+void SugiLeafGeo2(int i, int v) {
+    D_0070D4D8[i].f_14 = v;
+}
 
 void func_001F1168(void)
 {

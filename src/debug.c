@@ -14,7 +14,12 @@ extern void func_00268DA0();
 extern int func_0026527C();
 extern void func_00247C30();
 extern int D_00632A04;
-INCLUDE_ASM("asm/nonmatchings/src/debug", debug_Assert);
+typedef struct { int f_0; char _4[0x14]; } DbgSlot;
+extern DbgSlot D_006E4890[];
+
+int debug_Assert(int i) {
+    return D_006E4890[i].f_0;
+}
 
 extern char D_006149A8[];
 extern char D_006329F8[];

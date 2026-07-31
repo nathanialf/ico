@@ -480,7 +480,14 @@ void actBoyRun(int a0)
 
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001538F8);
+int func_001538F8(void)
+{
+    char *o = (char *)D_00631AE4;
+    if (o != 0) {
+        return *(int *)(*(char **)(o + 0x164) + 0x140);
+    }
+    return 0;
+}
 
 typedef struct { char _0[0x188]; unsigned int f188; char _18c[4]; } WpnEntry;
 extern char D_00565060[];

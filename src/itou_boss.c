@@ -9,7 +9,12 @@ typedef struct {
 
 
 extern int D_00631990;
-INCLUDE_ASM("asm/nonmatchings/src/itou_boss", effect_end_func);
+extern unsigned char D_006D35E0[];
+extern void func_002641D8(void *a0, int a1, int a2);
+
+void effect_end_func(void) {
+    func_002641D8(D_006D35E0, 0, 0xD50);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/itou_boss", func_00198000);
 

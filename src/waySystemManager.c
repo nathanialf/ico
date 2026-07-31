@@ -34,7 +34,14 @@ void func_001F2320(volatile unsigned int self)
     s[0xB0 / 4] = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/waySystemManager", func_001F2370);
+extern void _ACTWait(int a0);
+
+void func_001F2370(void)
+{
+    while (1) {
+        _ACTWait(1);
+    }
+}
 
 void func_001F2388(int a0)
 {

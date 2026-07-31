@@ -68,7 +68,14 @@ INCLUDE_ASM("asm/nonmatchings/src/Shadow", shadow_Init);
 
 INCLUDE_ASM("asm/nonmatchings/src/Shadow", func_00123140);
 
-INCLUDE_ASM("asm/nonmatchings/src/Shadow", func_00123C00);
+extern char D_00555920[];
+extern void debug_assertMessage(char *fmt, ...);
+
+void func_00123C00(void)
+{
+    float buf[4];
+    debug_assertMessage(D_00555920);
+}
 
 void func_00123C20(int *self, int p)
 {

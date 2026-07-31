@@ -78,7 +78,20 @@ INCLUDE_ASM("asm/nonmatchings/src/kanban", func_001B06D8);
 
 INCLUDE_ASM("asm/nonmatchings/src/kanban", func_001B08E0);
 
-INCLUDE_ASM("asm/nonmatchings/src/kanban", func_001B0A38);
+extern int D_0063301C;
+extern int D_00633028;
+extern int D_00633798;
+extern int D_00633024;
+extern int D_00274EEC[];
+
+void func_001B0A38(void)
+{
+    D_0063301C = 0;
+    D_00274EEC[0] = 0;
+    D_00633028 = 0;
+    D_00633798 = 0;
+    D_00633024 = 0;
+}
 
 extern int D_00633024;
 
@@ -87,5 +100,10 @@ void func_001B0A58(void)
     D_00633024 = 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/kanban", func_001B0A68);
+extern void soundSeDefPlayWithVolumeRate(int a0, unsigned int a1, int a2, int a3);
+
+void func_001B0A68(void)
+{
+    soundSeDefPlayWithVolumeRate(0x190, 0xFFFFFFFE, 0, 0);
+}
 

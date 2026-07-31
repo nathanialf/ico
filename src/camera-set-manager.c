@@ -7,7 +7,13 @@ extern int D_006D06C8[];
 extern int D_006D0680[];
 extern int D_006D06B8[];
 extern int D_00633D90;
-INCLUDE_ASM("asm/nonmatchings/src/camera-set-manager", InitCameraSetManager);
+extern int D_00633D84;
+extern int D_00633D88;
+
+void InitCameraSetManager(int *a0, int *a1) {
+    *a0 = D_00633D84;
+    *a1 = D_00633D88;
+}
 
 void func_0018CC00(int x) {
     D_00633D90 = x;

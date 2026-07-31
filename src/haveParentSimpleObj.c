@@ -58,9 +58,17 @@ INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AD6C8);
 
 void func_001AD740(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AD748);
+void func_001AD748(char *a0, int a1, char *a2)
+{
+    while (1) {
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AD768);
+void func_001AD768(char *a0, int a1)
+{
+    while (1) {
+    }
+}
 
 extern int D_00632ED0;
 extern void func_002450A8(void *a0, int a1);

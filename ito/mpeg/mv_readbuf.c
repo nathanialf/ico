@@ -9,7 +9,15 @@ extern void func_0019E150(int a0);
 extern void func_001331D8();
 extern void func_00132FF0();
 extern void func_00265168();
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_readbuf", free_buffer);
+int free_buffer(int a0, int a1)
+{
+    int rest = *(int *)(a0 + 0xC);
+    if (a1 < rest) {
+        rest = a1;
+    }
+    *(int *)(a0 + 0xC) -= rest;
+    return rest;
+}
 
 int readBufDelete(int a0)
 {

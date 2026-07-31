@@ -105,7 +105,11 @@ int initParentize(void *a0) {
 
 INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C0AE8);
 
-INCLUDE_ASM("asm/nonmatchings/src/switch", func_001C0BE0);
+int func_001C0BE0(void *a0) {
+    int *p = *(int **)((char *)a0 + 0x15C);
+    int *q = *(int **)((char *)p + 0x800);
+    return q[1] == 0;
+}
 
 int func_001C0BF8(char *self)
 {

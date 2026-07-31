@@ -195,7 +195,12 @@ int actItouQueenAttackChk(void)
     return checkHit(a);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st25a", func_0017E5E0);
+extern int func_001C0BF8(void);
+
+int func_0017E5E0(void)
+{
+    return func_001C0BF8();
+}
 
 int func_0017E600(void) {
     return ACTGameCollisionOn() != 0;

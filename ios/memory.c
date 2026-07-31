@@ -328,5 +328,10 @@ INCLUDE_ASM("asm/nonmatchings/ios/memory", func_00139FE8);
 
 INCLUDE_ASM("asm/nonmatchings/ios/memory", func_0013A0F8);
 
-INCLUDE_ASM("asm/nonmatchings/ios/memory", func_0013A200);
+extern int func_00138E30(void);
+
+int func_0013A200(void)
+{
+    return func_00138E30();
+}
 

@@ -67,7 +67,13 @@ INCLUDE_ASM("asm/nonmatchings/src/particleEffect", SetParticleEffectActiveSensin
 
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", GetParticleEffectPackage);
 
-INCLUDE_ASM("asm/nonmatchings/src/particleEffect", func_001E8B48);
+extern int D_00632028;
+extern int SetParticleEffectUpperLimit(int a0, void *a1, int a2, int a3);
+
+int func_001E8B48(int a0, void *a1, int a2)
+{
+    return SetParticleEffectUpperLimit(a0, a1, a2, D_00632028);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", func_001E8B68);
 

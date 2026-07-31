@@ -70,7 +70,8 @@ void dispSource(int *a, int *b, int *c, int x, ...)
 
 INCLUDE_ASM("asm/nonmatchings/src/debug_exception", display);
 
-INCLUDE_ASM("asm/nonmatchings/src/debug_exception", debugEEExceptionMain);
+void debugEEExceptionMain(int a0, int a1, int a2, int a3, ...) {
+}
 
 void debugIOPExceptionMain(int a0, int a1, ...) {
 }

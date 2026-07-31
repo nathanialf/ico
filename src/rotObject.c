@@ -48,7 +48,10 @@ INCLUDE_ASM("asm/nonmatchings/src/rotObject", func_001E9F08);
 
 INCLUDE_ASM("asm/nonmatchings/src/rotObject", func_001EA030);
 
-INCLUDE_ASM("asm/nonmatchings/src/rotObject", func_001EA108);
+float func_001EA108(void *a0) {
+    char *p = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x800);
+    return (float)*(int *)(p + 0x24) * (1.0f / 65536.0f);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/rotObject", func_001EA128);
 

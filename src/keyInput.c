@@ -93,9 +93,17 @@ void func_00105268(void)
     D_00631B40 -= 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/keyInput", func_00105278);
+extern char D_0065FA40[];
 
-INCLUDE_ASM("asm/nonmatchings/src/keyInput", func_00105290);
+void *func_00105278(void) {
+    return &D_0065FA40[D_00631B40 * 0x40];
+}
+
+extern char D_0065FA00[];
+
+void *func_00105290(void) {
+    return &D_0065FA00[D_00631B40 * 0x40];
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/keyInput", func_001052A8);
 
