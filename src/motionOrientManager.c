@@ -6,14 +6,6 @@ typedef struct { char b[0x20]; } ShiftBlk;
 
 typedef struct { int f_0; int f_4; char pad[0x10]; } Slip;
 
-/* .rodata carved from blob (VMA 0x6196C8..0x6196E0, incl. null pad to the
- * jtbl_006196E0 .align 3 boundary that immediately follows it). Referenced
- * by %hi/%lo from the still-INCLUDE_ASM'd shiftMotionOrientEndFunc body
- * itself, so it needs a real definition even before that function is
- * ported. */
-const char D_006196C8[0x18] = "%s \207 %s (%s)\n";
-
-
 extern unsigned short D_00565060[];
 extern int D_00292540[];
 extern void MatrixDrive_TurnObjectMatrix(void *dst, void *src);
@@ -108,12 +100,25 @@ void shiftMotionData(void) {
 
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", shiftMotionOrientEndFunc);
 
+/* motionOrientManager .rodata run 0x619620..0x619BB0 -- byte-verified
+ * against baseelf; extends the old narrow D_006196C8-only carve (moved down
+ * from the top of the file to its real VMA-ordered position -- gcc compiles
+ * -fdata-sections globals in DECLARATION order into the .o's section table,
+ * so a top-of-file const landed ahead of shiftMotionOrientEndFunc's own
+ * embedded D_00619620..D_006196B8 content once the carve widened to include
+ * it). jtbl_006196E0 is a standalone splat-migrated stub with no owning-
+ * function INCLUDE_ASM wiring it in (shiftMotionOrientEndFunc references it
+ * via %hi/%lo but never .includes it) -- wired via INCLUDE_RODATA, same
+ * shape as enemy_act/Packet. */
+const char D_006196C8[0x18] = "%s ‡ %s (%s)\n\0\0\0\0\0\0\0\0\0\0\0";
+INCLUDE_RODATA("asm/nonmatchings/src/motionOrientManager", jtbl_006196E0);
+const char D_00619738[0x58] = "¥Î¡¼¥É¤òº®¤¼¤ë¥â¡¼¥·¥ç¥ó(%s)¤¬¡¢\nºÆÅÙ¥Î¡¼¥É¤òº®¤¼¤ë¥â¡¼¥·¥ç¥ó¤òÍøÍÑ¤·¤Æ¤¤¤Þ¤¹¡£\n\0\0\0\0\0\0\0\0";
+const char D_00619790[0x40] = "NODE BLEND MOTION \"%s\" REFERS\nNODE BLEND MOTION RECURSIVELY.\n\0\0\0";
+const char D_006197D0[0x20] = "src/motionOrientManager.c\0\0\0\0\0\0\0";
+
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", shiftMotionOrientBeginFunc);
 
 extern char D_00565060__p4[] __asm__("D_00565060");
-extern char D_00619738[];
-extern char D_00619790[];
-extern char D_006197D0[];
 extern char D_0061C710[];
 extern char D_00612068[], D_006120C0[], D_00612100[], D_006334C0[];
 extern void debug_assertMessage();
@@ -150,6 +155,8 @@ INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", parallelMotionShift);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", SetMotionRequest);
 
+const char D_00619800[0x48] = "²¿¤é¤«¤ÎÍýÍ³¤ÇSE¤ÎÆâÉô½èÍý¤¬¤ª¤«¤·¤¤¤è¤¦¤Ç¤¹¡£¿ù»³¤ËÊó¹ð¤·¤Æ¤¯¤À¤µ¤¤¡£\n\0";
+
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", getNodeBlendedFloatingMotion);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", getMotionGeometry);
@@ -168,9 +175,21 @@ INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", getStreamMotion);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", ExecMotionOrient);
 
+const unsigned int D_00619928[0x4] = { 0x00633510, 0x00633518, 0x00633520, 0x00633528 };
+const char D_00619938[0x28] = "%s %s at %s ignore %d times\0\0\0\0\0\0\0\0\0\0\0\0\0";
+INCLUDE_RODATA("asm/nonmatchings/src/motionOrientManager", jtbl_00619960);
+const char D_00619998[0x30] = "(%s)º®¤¼¤ë¥â¡¼¥·¥ç¥ó¤¬ÄêµÁ¤µ¤ì¤Æ¤¤¤Þ¤»¤ó¡£\n\0\0\0\0\0";
+
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", SetNodeRotationLimitDataTable);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", GetMotionOrient);
+
+const char D_00619A80[0x58] = "¥·¥§¥¤¥×¥â¡¼¥·¥ç¥ó¥Ç¡¼¥¿¤È¥¿¡¼¥²¥Ã¥È¤Î¿ô¤¬°ã¤¤¤Þ¤¹¡£\n¥â¡¼¥·¥ç¥ó:%d ¥¿¡¼¥²¥Ã¥È:%d\n\0\0\0\0\0\0\0";
+const char D_00619AD8[0x38] = "¼õÅÏ¤·¥Ç¡¼¥¿¤ò³ÊÇ¼¤¹¤ë¾ì½ê¤¬³ÎÊÝ¤µ¤ì¤Æ¤¤¤Þ¤»¤ó¡£\n\0\0\0\0\0\0\0";
+const unsigned int D_00619B10[0x4] = { 0x00000040, 0x00000020, 0x00000000, 0x00000080 };
+const unsigned int D_00619B20[0x4] = { 0x000000FF, 0x00000080, 0x00000000, 0x00000080 };
+const char D_00619B30[0x38] = "\033[36m¥â¡¼¥·¥ç¥óÃÖ¤­´¹¤¨µ¡Ç½¤¬Ää»ß¤·¤Æ¤¤¤Þ¤¹¡£\033[m: %p\n\0\0\0";
+const char D_00619B68[0x48] = "¥Î¡¼¥É²óÅ¾¥ê¥ß¥Ã¥È¥Ç¡¼¥¿¤Î¼¨¤¹¥Î¡¼¥É¤¬¥¹¥±¥ë¥È¥óÃæ¤Ë¤¢¤ê¤Þ¤»¤ó¡£\n\0\0\0\0\0\0\0";
 
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", getMotionOrient);
 

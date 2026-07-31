@@ -751,8 +751,22 @@ dlabel actually ends 0x10 short of that assumption. Hand-defined),
 AD90/ADC0; 2 EUC-JP debug strings). `src/boyact` REVERTED — see the
 Blocked TUs section below; do not retry without a matching-level fix.
 `src/motionManager` [0x619220,0x619620) (new carve; unblocks
-jtbl_006194B0/619530; 8 EUC-JP debug strings). Batch conversion of the
-remaining jtbl-bearing TUs recorded below as they land. Decided runs
+jtbl_006194B0/619530; 8 EUC-JP debug strings), `src/motionOrientManager`
+[0x619620,0x619BB0) (extends the narrow D_006196C8 carve; unblocks
+jtbl_006196E0/619960. Its existing top-of-file `const char D_006196C8`
+had to MOVE to its real VMA-ordered position — gcc compiles
+`-fdata-sections` globals in C DECLARATION order into the `.o`'s
+section table, so a global declared at the top of the file lands
+ahead of everything else regardless of its true VMA, and once the
+carve widened to include shiftMotionOrientEndFunc's own embedded
+D_00619620..D_006196B8 content ahead of it, the stale top position
+broke the layout — moved the declaration down next to jtbl_006196E0's
+wiring. Also: an editing mistake mid-attempt mixed Edit-tool calls
+into a EUC-JP-bearing file already touched by python — silently
+re-encoded every raw EUC-JP byte to UTF-8 U+FFFD, caught immediately
+by a byte-count sanity check before ninja even ran, reverted, redone
+as one python-only pass). Batch conversion of the remaining
+jtbl-bearing TUs recorded below as they land. Decided runs
 are recorded in `decomp/data_tu_boundaries.json`.
 
 ## Blocked: `src/boyact` full-run carve reverted (2026-07-31)
