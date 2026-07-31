@@ -52,25 +52,94 @@ def raw(data, secs, vma, size):
     raise SystemExit(f"VMA 0x{vma:X}+0x{size:X} not inside any PROGBITS section")
 
 
-def is_c_string(b):
-    """One printable-ASCII NUL-terminated string covering the whole extent
-    (trailing bytes all zero)."""
-    if not b or 0 not in b:
-        return None
-    n = b.index(0)
-    s = b[:n]
-    if not s:
-        return None
-    if any(c > 126 or (c < 32 and c not in (9, 10, 13)) for c in s):
-        return None
-    if any(c != 0 for c in b[n:]):
-        return None
-    return s.decode("ascii")
+def _printable(c):
+    return 32 <= c <= 126 or c in (9, 10, 13, 27)
 
 
-def c_escape(s):
-    return (s.replace("\\", "\\\\").replace('"', '\\"')
-             .replace("\n", "\\n").replace("\t", "\\t").replace("\r", "\\r"))
+def as_string_bytes(b):
+    """True if the extent is one or more NUL-separated printable strings with
+    zero padding — i.e. spellable as a single char[] literal."""
+    if not b or b[-1] != 0 or not _printable(b[0]):
+        return False
+    i, saw = 0, False
+    while i < len(b):
+        if b[i] == 0:
+            i += 1
+            continue
+        j = i
+        while j < len(b) and b[j] != 0:
+            if not _printable(b[j]):
+                return False
+            j += 1
+        if j == len(b):
+            return False  # unterminated
+        saw = True
+        i = j
+    return saw
+
+
+def c_literal(b):
+    """Emit the extent as a C string literal (embedded NULs spelled \\0,
+    trailing NUL padding left implicit) and VERIFY it round-trips."""
+    # strip trailing zeros — the sized array zero-fills them
+    end = len(b)
+    while end > 0 and b[end - 1] == 0:
+        end -= 1
+    content = b[:end]
+    out = []
+    prev_was_octal = False
+    for c in content:
+        if c == 0:
+            out.append("\\0")
+            prev_was_octal = True
+            continue
+        ch = chr(c)
+        if ch == "\\":
+            out.append("\\\\")
+        elif ch == '"':
+            out.append('\\"')
+        elif ch == "\n":
+            out.append("\\n")
+        elif ch == "\t":
+            out.append("\\t")
+        elif ch == "\r":
+            out.append("\\r")
+        elif c == 27:
+            out.append("\\033")
+            prev_was_octal = True
+            continue
+        elif prev_was_octal and ch.isdigit():
+            # a digit after an octal escape would extend it — force a break
+            out.append("\\%03o" % c)
+            prev_was_octal = True
+            continue
+        else:
+            out.append(ch)
+        prev_was_octal = False
+    lit = "".join(out)
+    # verify: re-encode the literal the way ee-gcc will
+    dec = []
+    i = 0
+    while i < len(lit):
+        if lit[i] == "\\":
+            nxt = lit[i + 1]
+            if nxt in "01234567":
+                j = i + 1
+                o = ""
+                while j < len(lit) and lit[j] in "01234567" and len(o) < 3:
+                    o += lit[j]
+                    j += 1
+                dec.append(int(o, 8))
+                i = j
+                continue
+            dec.append({"n": 10, "t": 9, "r": 13, "\\": 92, '"': 34}[nxt])
+            i += 2
+            continue
+        dec.append(ord(lit[i]))
+        i += 1
+    dec += [0] * (len(b) - len(dec))
+    assert bytes(dec) == b, f"literal round-trip failed: {lit!r}"
+    return lit
 
 
 def main():
@@ -106,6 +175,39 @@ def main():
             if first is not None:
                 stub_anchor[first] = base
 
+    # Additional split points: any D_ symbol inside the run referenced from
+    # ANY C source (matched code externs interior strings of splat's larger
+    # extents — e.g. commonact's D_005588F0 inside D_005588D8's block).
+    ref_re = re.compile(r"\bD_([0-9A-Fa-f]{8})\b")
+    crefs = set()
+    for root in ("src", "ios", "isys", "ito", "sound"):
+        top = os.path.join(ROOT, root)
+        for dirpath, _dirs, files in os.walk(top):
+            for f in files:
+                if not f.endswith(".c"):
+                    continue
+                try:
+                    text = open(os.path.join(dirpath, f),
+                                encoding="utf-8", errors="replace").read()
+                except OSError:
+                    continue
+                for m in ref_re.finditer(text):
+                    v = int(m.group(1), 16)
+                    if run_start <= v < run_end and v not in stub_anchor:
+                        crefs.add(v)
+
+    # only split refs whose enclosing extent is a DEF extent — a ref inside a
+    # stub's migrated span is emitted by the stub, not by C
+    base = sorted(list(standalone.keys()) + list(stub_anchor.keys()))
+    import bisect
+    for v in sorted(crefs):
+        if v in standalone:
+            continue
+        i = bisect.bisect_right(base, v) - 1
+        if i >= 0 and base[i] in stub_anchor:
+            continue
+        standalone[v] = "D_%08X" % v
+
     emitted = sorted(list(standalone.keys()) + list(stub_anchor.keys()))
     data, secs = elf_sections()
 
@@ -118,9 +220,12 @@ def main():
         sym = standalone[vma]
         size = nxt - vma
         b = raw(data, secs, vma, size)
-        s = is_c_string(b)
-        if s is not None:
-            print(f'const char {sym}[0x{size:X}] = "{c_escape(s)}";'
+        if size <= 8:
+            print(f'INCLUDE_RODATA("asm/nonmatchings/{tu}", {sym});'
+                  f"  /* {size}B — a C def would land in .sdata under -G8; "
+                  f"0x{vma:08X}..0x{nxt:08X} */")
+        elif as_string_bytes(b):
+            print(f'const char {sym}[0x{size:X}] = "{c_literal(b)}";'
                   f"  /* 0x{vma:08X}..0x{nxt:08X} */")
         else:
             words = struct.unpack(f"<{size // 4}I", b[: size // 4 * 4])

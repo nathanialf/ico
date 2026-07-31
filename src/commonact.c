@@ -41,9 +41,9 @@ extern void ACTParaStatus_Clear(volatile int *self);
 extern void _ACTWait();
 extern void lt_fade_status();
 extern int D_00631AF4;
-extern char D_00558CB8[];
-extern char D_00558CA0[];
-extern char D_00558C88[];
+extern const char D_00558CB8[];
+extern const char D_00558CA0[];
+extern const char D_00558C88[];
 extern void debug_assertMessage();
 extern char D_00632318[];
 extern int *D_00631AE4;
@@ -100,7 +100,19 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", ChangeMailInLadder);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", _ACTCorrectMsg);
 
+/* commonact .rodata run 0x558848..0x558DC0 — byte-verified against baseelf;
+ * defs interleave with INCLUDE_ASM stubs so .o section order == VMA order */
+const char D_00558848[0x18] = "common rope after func\n";
+const char D_00558860[0x10] = "src/commonact.c";
+const char D_00558870[0x10] = "ROPE_GOBJ!=NULL";
+
 INCLUDE_ASM("asm/nonmatchings/src/commonact", ACTGetOrientFromIntrK);
+
+const unsigned int D_005588A0[0x4] = { 0x00000000, 0x00000000, 0xC1A00000, 0x3F800000 };
+const unsigned int D_005588B0[0x4] = { 0x00000000, 0x00000000, 0x41A00000, 0x3F800000 };
+const char D_005588C0[0x18] = "enter actCommonPlay\n";
+const char D_005588D8[0x18] = "enter actCommonDamage\n";
+const char D_005588F0[0x18] = "enter actCommonDown\n";
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00156BA0);
 
@@ -189,7 +201,6 @@ void GetCorrectOrientOfChain(void *a0)
     }
 }
 
-extern char D_005588F0[];
 extern void _ACTWait(int a0);
 extern void BoxBarSoundOn(void *a0, int a1);
 extern void func_00181F38(float a0);
@@ -229,6 +240,10 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00157FA0);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00158328);
 
+const char D_00558960[0x18] = "enter actCommonRevive\n";
+const char D_00558978[0x10] = "count =(%d)\n";
+const char D_00558988[0x10] = "level =(%d)\n";
+
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonRope);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", motCommonRopeTurnR);
@@ -263,8 +278,7 @@ void func_00158690(volatile int a0) {
 
 extern void ActPara_GetDefTbl(int a0, int a1);
 extern void BoxBarSoundOn(void *a0, int a1);
-extern char D_00558978[];
-extern char D_00552C78[], D_00558988[];
+extern char D_00552C78[];
 extern int D_00632CBC;
 extern void actCommonOne();
 extern void func_0015D328(void);
@@ -364,6 +378,14 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", SetDirectRootPositionXZ);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001595D0);
 
+const char D_005589A8[0x28] = "\033[36mEMERGENCY WITH DANGER LOOP\033[m\n";
+/* zero table with one 50.0f at +0x70 */
+const unsigned int D_005589D0[0x30] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x42480000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+const char D_00558A90[0x30] = "EMERGENCY COMPLETE CHECK : SPEEDSQ:%f LENSQ:%f\n";
+const char D_00558AC0[0x18] = "EMERGENCY BY NOMOVE";
+const char D_00558AD8[0x18] = "EMERGENCY BY TIMEOUT";
+const char D_00558AF0[0x20] = "EMERGENCY BY DANGER LOOP";
+
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00159AF0);
 
 extern void func_00104F20(void);
@@ -391,6 +413,20 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", DamageFunc);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", DownFunc);
 
+const char D_00558B80[0x20] = "enter actCommonCliffdown\n";
+const char D_00558BA0[0x10] = "act main shoal\n";
+const char D_00558BB0[0x18] = "enter actCommonSwim\n";
+const char D_00558BC8[0x18] = "enter actCommonDodge\n";
+const char D_00558BE0[0x18] = "enter actCommonGuard\n";
+const char D_00558BF8[0x20] = "enter motCommonHang None\n";
+const char D_00558C18[0x20] = "enter motCommonHang Wall\n";
+const char D_00558C38[0x20] = "enter motCommonHang Cliff\n";
+const char D_00558C58[0x18] = "enter motCommonNull\n";
+const char D_00558C70[0x18] = "ready begin %s to %s\n";
+const char D_00558C88[0x18] = "ready end %s to %s\n";
+const char D_00558CA0[0x18] = "exec end %s to %s\n";
+const char D_00558CB8[0x18] = "????error %s to %s\n";
+
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonDown);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015ADF0);
@@ -399,7 +435,6 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonDie);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015B4B8);
 
-extern char D_00558C70[];
 extern char D_00632310[];
 extern char D_00632318[];
 extern int D_00631AE4__b620 __asm__("D_00631AE4");
@@ -496,6 +531,9 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015C7C8);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015CD70);
 
+/* 8-byte double 0.3: a C def would land in .sdata under -G8 */
+INCLUDE_RODATA("asm/nonmatchings/src/commonact", D_00558DB8);
+
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonBar);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015D0B0);
@@ -560,7 +598,6 @@ void actCommonJump(int a0)
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015D488);
 
-extern char D_00558960[];
 extern void ACTParaStatus_Exec(void *a0);
 extern void ResetEnemyEye(void *a0);
 extern void actCommonPlay();
@@ -593,7 +630,6 @@ void func_0015D5A0(volatile int a0) {
     }
 }
 
-extern char D_005588C0[];
 
 void func_0015D5F0(volatile int a0) {
     debug_assertMessage(D_005588C0);
@@ -684,7 +720,6 @@ void func_0015D988(volatile int a0) {
     }
 }
 
-extern char D_00558B80[];
 
 void func_0015D9D0(volatile int a0) {
     char *s = *(char **)(a0 + 0x164);
@@ -752,7 +787,6 @@ void func_0015DBB0(volatile int a0) {
     }
 }
 
-extern char D_00558BC8[];
 extern void GetOrientOfCliffOfGObj(void *a0, void *a1, float f0, float f1);
 extern void actBoyBelift(void *a0, void *a1, void *a2);
 
@@ -797,7 +831,6 @@ void func_0015DCE8(volatile int a0) {
     }
 }
 
-extern char D_00558BE0[];
 extern void func_0014B5B8(void *a0);
 
 void func_0015DD78(volatile int a0) {
@@ -835,7 +868,6 @@ void func_0015DE38(volatile int a0) {
     }
 }
 
-extern char D_005588D8[];
 
 void func_0015DEB0(volatile int a0) {
     debug_assertMessage(D_005588D8);
@@ -850,14 +882,12 @@ void func_0015DEB0(volatile int a0) {
     }
 }
 
-extern char D_00558BA0[];
 
 void func_0015DF30(volatile int a0) {
     debug_assertMessage(D_00558BA0);
     _ACTWait(0);
 }
 
-extern char D_00558BB0[];
 
 void func_0015DF60(volatile int a0) {
     debug_assertMessage(D_00558BB0);
@@ -1122,7 +1152,6 @@ void func_0015E678(volatile int a0) {
     _ACTWait(0);
 }
 
-extern char D_00558C58[];
 
 void actCommonLadder(volatile int a0) {
     debug_assertMessage(D_00558C58);
@@ -1229,21 +1258,18 @@ void func_0015E9A0(volatile int a0) {
     }
 }
 
-extern char D_00558BF8[];
 
 void func_0015EA20(volatile int a0) {
     debug_assertMessage(D_00558BF8);
     _ACTWait(0);
 }
 
-extern char D_00558C18[];
 
 void funcCommonBeginReady(volatile int a0) {
     debug_assertMessage(D_00558C18);
     _ACTWait(0);
 }
 
-extern char D_00558C38[];
 
 void funcCommonEndReady(volatile int a0) {
     debug_assertMessage(D_00558C38);
@@ -1293,7 +1319,6 @@ void _ACTDebugPrint(char *self, int unused, int val) {
     *(int *)(*(char **)(self + 0x164) + 0x180) = val;
 }
 
-extern char D_00558848[];
 extern int isBottomOfChain(int a0, int a1);
 
 void ACTSendMailCorrect(volatile int a0) {
@@ -1449,8 +1474,6 @@ void _ACTMotDirSmzDirect(void *a0) {
     dispPlane(a0, local);
 }
 
-extern char D_00558860[];
-extern char D_00558870[];
 extern void func_001AD768(char *file, int line);
 extern void func_00263FF0(char *file, int line, char *expr);
 

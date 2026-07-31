@@ -413,6 +413,8 @@ segments:
       - [0x45818C, rodata, src/cod/45818C]   # .rodata blob resume
       - [0x458620, .rodata, src/boyact]  # gcc-emitted .lit8 pool (func_00151868/func_001519D8 doubles 0.2/0.9/0.2/0.7), VMA 0x558620..0x558640
       - [0x458640, rodata, src/cod/458640]   # .rodata blob, part 2b (resume after boyact .lit8 carve)
+      - [0x458848, .rodata, src/commonact]  # full commonact .rodata run (starts at "common rope after func\n" + src/commonact.c __FILE__ string; ends before the 5 enemy-mode name strings whose owning .data table is unattributed), VMA 0x558848..0x558DC0
+      - [0x458DC0, rodata, src/cod/458DC0]   # .rodata blob resume (enemy-mode name strings + enemy_act run head)
       - [0x459430, .rodata, src/girl_act]  # full girl_act .rodata run (anchors: jtbl_00559570/5A0/5D0/600/640/6B0/7D0/950 + D_00559430..D_00559B40; interior jimaku-referenced syms are cross-TU externs), VMA 0x559430..0x559B50
       - [0x459B50, rodata, src/cod/459B50]   # .rodata blob, part 3 (resume after girl_act full run)
       - [0x45AA70, .rodata, src/camera-root]  # gcc-emitted jtbl_0055AA70 (BackToGameCamera switch, 5 entries 0x14), VMA 0x55AA70..0x55AA84
