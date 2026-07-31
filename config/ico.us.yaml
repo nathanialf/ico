@@ -422,7 +422,9 @@ segments:
       - [0x459430, .rodata, src/girl_act]  # full girl_act .rodata run (anchors: jtbl_00559570/5A0/5D0/600/640/6B0/7D0/950 + D_00559430..D_00559B40; interior jimaku-referenced syms are cross-TU externs), VMA 0x559430..0x559B50
       - [0x459B50, rodata, src/cod/459B50]   # .rodata blob, part 3 (resume after girl_act full run)
       - [0x45AA70, .rodata, src/camera-root]  # gcc-emitted jtbl_0055AA70 (BackToGameCamera switch, 5 entries 0x14), VMA 0x55AA70..0x55AA84
-      - [0x45AA84, rodata, src/cod/45AA84]   # .rodata blob resume
+      - [0x45AA84, rodata, src/cod/45AA84]   # .rodata blob resume (align pad after camera-root's jtbl)
+      - [0x45AA90, .rodata, src/chain]  # full chain .rodata run (anchors: jtbl_0055AD50/AD90/ADC0 + D_0055AA90..D_0055AD38), VMA 0x55AA90..0x55ADE0
+      - [0x45ADE0, rodata, src/cod/45ADE0]   # .rodata blob resume (ebrain's own pre-carve anchors 0x55ADE0..0x55AE28)
       - [0x45AE40, .rodata, src/ebrain]  # gcc-emitted jtbl_0055AE40 (7 entries 0x1C) + .align3 pad + jtbl_0055AE60 (9 entries 0x24), both func_00190F30's switches, VMA 0x55AE40..0x55AE84
       - [0x45AE84, rodata, src/cod/45AE84]   # .rodata blob resume
       - [0x45AFB0, .rodata, src/poly-flat]  # gcc-emitted jtbl_0055AFB0 (IsPointIsInScreen switch, 9 entries 0x24), VMA 0x55AFB0..0x55AFD4

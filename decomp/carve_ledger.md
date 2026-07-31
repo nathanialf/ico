@@ -746,6 +746,64 @@ alternative. Also hit a second instance of the matched-C-blind-spot
 class from Packet: D_00557ED0 ("with mail\n", referenced only from
 matched func_00144E30) sits in what emit_run_defs.py's heuristic
 assumed was func_00144828's migrated span; func_00144828.s's last
-dlabel actually ends 0x10 short of that assumption. Hand-defined).
+dlabel actually ends 0x10 short of that assumption. Hand-defined),
+`src/chain` [0x55AA90,0x55ADE0) (new carve; unblocks jtbl_0055AD50/
+AD90/ADC0; 2 EUC-JP debug strings). `src/boyact` REVERTED — see the
+Blocked TUs section below; do not retry without a matching-level fix.
 Batch conversion of the remaining jtbl-bearing TUs recorded below as
 they land. Decided runs are recorded in `decomp/data_tu_boundaries.json`.
+
+## Blocked: `src/boyact` full-run carve reverted (2026-07-31)
+
+Attempted run [0x5581D8,0x558848) (jtbl_00558300/5584D0/558510). The
+narrow existing carve `[0x458620, .rodata, src/boyact]` (the .lit8 pool,
+doubles 0.2/0.9/0.2/0.7 used by matched func_00151868/func_001519D8's
+literal float args) is NOT relocatable into a wider carve without a
+genuine matching-level fix, for a reason distinct from every other
+landmine in this ledger:
+
+ee-gcc/gas expand the `li.d` pseudo-op (used whenever a C function
+loads a `double` literal, e.g. `func_00262BE8(r1, 0.2)`) into a
+POOLED LOAD from an assembler-internal literal pool that lands in the
+**plain, unnamed `.rodata` section** — not a `-fdata-sections`-named
+one. That section is a STANDARD section gas pre-allocates early in
+every TU's object (same root cause as the `.data`/`.bss` alignment
+floor `compile_c.sh` already patches via
+`--set-section-alignment ".data=1" ".bss=1"` — see "Root cause of
+Blocker 2" below); confirmed empirically (`objdump -h`) it sits at
+section index 5 in `build/src/boyact.o`, AHEAD of every named
+`.rodata.<sym>` section regardless of where in the C source the
+literal is used. Verified via 4 independent hand fixes, none clean:
+
+1. Plain `const unsigned int`/`INCLUDE_RODATA` defs for
+   D_00558620/628/630/638 (the splat-disassembled names for this same
+   address range): duplicates the pool (both a named section AND 32
+   extra bytes in the generic section), +128B, MISMATCH.
+2. Hand-assembled raw `__asm__` named sections (bypassing `dlabel`
+   entirely, same lever that fixed StageAnimation's align-3 case):
+   still duplicates — the generic section is gcc's OWN emission, not
+   ours, so nothing on our side controls it.
+3. Same as (2) but with ZERO explicit C definition for the 4 doubles at
+   all (trusting gcc's own pool to supply them): pool still lands at
+   the run's START VMA (0x5581D8) instead of its true 0x558620 — an
+   ld single-glob `(.rodata*)` pulls sections in `.o` encounter order,
+   and gas's standard `.rodata` slot is allocated before any of ours
+   regardless of C source position.
+4. Route func_00151868/func_001519D8's literal args through
+   `extern double D_X __asm__("D_00558620")`-style aliases (matching
+   the alias-of-last-resort pattern already used elsewhere in this TU)
+   so the LOAD targets our named symbol instead of an anonymous pool
+   entry: this DOES fix the carve (0 diffs in [0x5581D8,0x558848)) but
+   REGRESSES the two already-matched functions by 8 bytes total (a
+   `lui` register differs, `$1`/`$at` vs `$5` — gcc's `li.d` pseudo
+   picks a different scratch register than its normal `%hi`/`%lo`
+   global-symbol addressing). A follow-up (route through local `double`
+   temporaries first) made it much worse (+128B, 583 diffs) and was
+   also reverted.
+
+Fixing (4)'s register choice is a genuine matching-lever problem (same
+family as `dead_arg_reg`/regalloc levers elsewhere in this codebase),
+not a data-carve mechanism — out of scope here. `config/ico.us.yaml`
+and `src/boyact.c` were reverted to the pre-attempt state (verified
+green). Do not retry the full-run carve without first re-matching
+func_00151868/func_001519D8 against the aliased-symbol form.

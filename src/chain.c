@@ -49,6 +49,11 @@ INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_term_swingready);
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_term_swingstart);
 
+/* chain .rodata run 0x55AA90..0x55ADE0 -- byte-verified against baseelf;
+ * defs interleave with INCLUDE_ASM stubs so .o section order == VMA order */
+const char D_0055AA90[0x10] = "src/chain.c\0\0\0\0\0";
+const char D_0055AAA0[0x10] = "nearestNode!=-1\0";
+
 INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_term_moveup);
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_term_free);
@@ -59,7 +64,17 @@ INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_hangstart);
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_term);
 
+INCLUDE_RODATA("asm/nonmatchings/src/chain", D_0055AB20);
+
 INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_stop);
+
+INCLUDE_RODATA("asm/nonmatchings/src/chain", D_0055AB48);
+INCLUDE_RODATA("asm/nonmatchings/src/chain", D_0055AB50);
+const char D_0055AB58[0x20] = "chain_simulate_term_free\n\0\0\0\0\0\0\0";
+INCLUDE_RODATA("asm/nonmatchings/src/chain", D_0055AB78);
+INCLUDE_RODATA("asm/nonmatchings/src/chain", D_0055AB80);
+const char D_0055AB88[0x20] = "chain_simulate_hangstart\n\0\0\0\0\0\0\0";
+const char D_0055ABA8[0x18] = "chain_simulate_term\n\0\0\0\0";
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_free);
 
@@ -70,7 +85,6 @@ extern int D_00633DA0;
 extern void traceLine(int a, int b, int c, const char *d);
 extern void chain_simulate_term_free(int a0);
 extern float D_00630F5C;
-extern char D_0055AB88[];
 
 void pendulum_Process(int a0) {
     void *p = *(void **)((char *)a0 + 0x15C);
@@ -83,7 +97,6 @@ void pendulum_Process(int a0) {
     chain_simulate_term_free(a0);
 }
 
-extern char D_0055ABA8[];
 extern int D_00632CBC;
 extern int D_00633DA0;
 extern void chain_simulate_term_free(int a0);
@@ -105,6 +118,11 @@ INCLUDE_ASM("asm/nonmatchings/src/chain", chain_set_charachara);
 INCLUDE_ASM("asm/nonmatchings/src/chain", ChainGeo);
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", ChainDL);
+
+const char D_0055AC60[0x40] = "鎖の長さが短かすぎます(配置表のY-scaleで指定します)\0\0\0\0\0\0\0\0\0\0\0\0\0";
+const unsigned int D_0055ACA0[0x4] = { 0x00000000, 0x00000000, 0xC1C80000, 0x3F800000 };
+const unsigned int D_0055ACB0[0x4] = { 0x00000000, 0x00000000, 0x41C80000, 0x3F800000 };
+const char D_0055ACC0[0x68] = "\033[33m鎖の上の壁を見付けることができません。\n方向が間違っているか、壁が無いところに置いていませんか?\033[m\n\0";
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", GetPositionOnTheChain);
 
