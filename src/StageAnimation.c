@@ -45,13 +45,84 @@ void stage_ApplyData(void *a0) {
     func_00117C98();
 }
 
+/* StageAnimation .rodata run 0x555938..0x555E70 -- byte-verified against
+ * baseelf; defs interleave with INCLUDE_ASM stubs so .o section order ==
+ * VMA order */
+const unsigned int D_00555938[0x16] = { 0x00000000, 0x00000001, 0x00000003, 0x00000004, 0x00000005, 0x00000001, 0x00000002, 0x00000000, 0x00000005, 0x00000003, 0x00000003, 0x00000004, 0x00000000, 0x00000001, 0x00000002, 0x00000004, 0x00000005, 0x00000003, 0x00000002, 0x00000000, 0x00000000, 0x00000000 };
+
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_Init);
 
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_SetAnimation);
 
+/* D_005559E8/F0/F4 hand-assembled as one contiguous block: dlabel (used by
+ * INCLUDE_RODATA and gcc -fdata-sections alike) forces .align 3 on every
+ * per-symbol section, but D_005559F4 sits at a VMA only 4-aligned (right
+ * after the 4-byte D_005559F0) -- no gap in the ROM to absorb an 8-align
+ * pad. Emitting the run as one un-aligned block starting from the already
+ * 8-aligned D_005559E8 sidesteps it; see include/labels.inc dlabel comment. */
+__asm__(
+    ".section .rodata.D_005559E8,\"a\",@progbits\n"
+    ".globl D_005559E8\n"
+    ".type D_005559E8, @object\n"
+    "D_005559E8:\n"
+    "    .word D_00555B10\n"
+    "    .word D_002751CC\n"
+    ".size D_005559E8, 8\n"
+    ".globl D_005559F0\n"
+    ".type D_005559F0, @object\n"
+    "D_005559F0:\n"
+    "    .word 0x00000000\n"
+    ".size D_005559F0, 4\n"
+    ".globl D_005559F4\n"
+    ".type D_005559F4, @object\n"
+    "D_005559F4:\n"
+    "    .word 0x00000080\n"
+    "    .word D_00555AF8\n"
+    "    .word 0x002751E0\n"
+    "    .word 0x00000000\n"
+    "    .word 0x000000FF\n"
+    "    .word D_00555AE0\n"
+    "    .word 0x002751E4\n"
+    "    .word 0x00000000\n"
+    "    .word 0x000000FF\n"
+    "    .word D_00555AC8\n"
+    "    .word 0x002751E8\n"
+    "    .word 0x00000000\n"
+    "    .word 0x000000FF\n"
+    "    .word D_00555AB0\n"
+    "    .word 0x002751D0\n"
+    "    .word 0x00000000\n"
+    "    .word 0x00000080\n"
+    "    .word D_00555A98\n"
+    "    .word 0x002751D4\n"
+    "    .word 0x00000000\n"
+    "    .word 0x00000080\n"
+    "    .word D_00555A80\n"
+    "    .word 0x002751D8\n"
+    "    .word 0x00000000\n"
+    "    .word 0x00000080\n"
+    "    .word D_00555A68\n"
+    "    .word 0x002751DC\n"
+    "    .word 0x00000000\n"
+    "    .word 0x00000080\n"
+    ".size D_005559F4, 116\n"
+    ".section .text\n"
+);
+const char D_00555A68[0x18] = " Shadow Blend 1/64 ";
+const char D_00555A80[0x18] = " Shadow Blend 1/16 ";
+const char D_00555A98[0x18] = " Shadow Blend 1/4  ";
+const char D_00555AB0[0x18] = " Shadow Blend 1/1  ";
+const char D_00555AC8[0x18] = " Shadow Color B    ";
+const char D_00555AE0[0x18] = " Shadow Color G    ";
+const char D_00555AF8[0x18] = " Shadow Color R    ";
+const char D_00555B10[0x18] = " Shadow Depth      ";
+INCLUDE_RODATA("asm/nonmatchings/src/StageAnimation", D_00555B28);
+
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_ContinueAnimation);
 
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_ResetAnimation);
+
+const unsigned int D_00555B70[0x10] = { 0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x3F800000, 0x3F800000, 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000 };
 
 void stage_CalcAnimationNoParent(int val) {
     D_00631D54 = val;
@@ -114,13 +185,25 @@ void stage_SetScale(int a0) {
 
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_PlayBgAnimation);
 
+const char D_00555BF8[0x18] = "src/StageAnimation.c";
+const char D_00555C10[0x28] = "Too much Stage Animation Objects.\n";
+
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_PlayBgAnimationDissolve);
+
+const char D_00555C68[0x30] = "stgBgas が%d有り MAX_ANIM_KIND %dを越えました\n\0\0";
+const char D_00555C98[0x30] = "1ステージ中の BgAnimation の種類が多すぎます\n\0\0\0";
+const char D_00555CC8[0x30] = "stgBgas が%d有り MAX_ANIM_GOBJ %dを越えました\n\0\0";
 
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_MakePlayBgAnimation);
 
+const unsigned int D_00555D20[0x16] = { 0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x3F800000, 0x3F800000, 0x3F800000, 0x3F800000, 0x00000001, 0x00000000, 0x00000000, 0x00000000, 0x656C6C49, 0x206C6167, 0x756F7247, 0x6F4E2070, 0x6425202E, 0x0000000A };
+const char D_00555D78[0x38] = "stage_CheckAnimationFinish:illegal Animation No.\n";
+const char D_00555DB0[0x30] = "stage_ContinueAnimation:illegal Animation No.\n";
+const char D_00555DE0[0x48] = "指定したIDが存在しないか、アニメーションが読み込まれていません.\n\0\0\0\0\0\0\0\0";
+const char D_00555E28[0x48] = "ステージセグメントにメモリが確保できません.(ヒープメモリ不足)\n\0\0\0\0\0\0\0\0\0\0";
+
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_KillPlayBgAnimation);
 
-extern char D_00555DB0[];
 extern int bga_SetCamFrame(int a0);
 extern int font_CheckAlign(int a0);
 extern void func_001AD768(void *a0, int a1);

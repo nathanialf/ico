@@ -709,6 +709,25 @@ vanishes from the blob once the carve boundary crosses it. Caught by
 cross-checking every `D_*` extern in the TU's `.c` against the full
 `dlabel` inventory of `asm/nonmatchings/<tu>/*.s` post-setup — 4 such
 gaps here (D_00554DD0, D_00554DE8, D_00555190, D_005551A0), hand-defined
-byte-verified against baseelf). Batch conversion of the remaining
-jtbl-bearing TUs recorded below as they land. Decided runs are recorded
-in `decomp/data_tu_boundaries.json`.
+byte-verified against baseelf), `src/StageAnimation` [0x555938,0x555E70)
+(extended the narrow jtbl_00555990 carve; unblocks jtbl_005559C0
+stage_SetAnimation, collapsing the two-carve NOT-FINAL note above into
+one run as predicted). New failure mode: `include/labels.inc`'s
+`dlabel` macro (used by BOTH `INCLUDE_RODATA` and, via gcc
+`-fdata-sections`, every hand-written `const` def) hard-codes
+`.align 3` on every per-symbol `.rodata.<sym>` section — its own
+comment admits "a block whose VMA is only 4-aligned would need special
+handling — none exists in the current split." D_005559F4 (a 116-byte
+array) sits at exactly such a VMA, 4 bytes after the 4-byte
+D_005559F0 with zero gap in the real ROM. A plain `const unsigned int`
+def or `INCLUDE_RODATA` both silently ate a 4-byte `*fill*` there,
+growing the ELF by 128 bytes and shifting everything after it (caught
+by comparing `build/ico.rom` size against `baserom/baseelf.rom`, not
+by the first byte diff — that showed up misleadingly early). Fixed by
+hand-assembling D_005559E8/F0/F4 as ONE contiguous raw `__asm__` block
+(bypassing `dlabel` entirely, own `.section .rodata.D_005559E8`
+manually, no `.align`) starting from the already-8-aligned D_005559E8 —
+`include/labels.inc` itself was not touched. 5 EUC-JP debug strings in
+this run spliced via python rb/wb per the standing rule. Batch
+conversion of the remaining jtbl-bearing TUs recorded below as they
+land. Decided runs are recorded in `decomp/data_tu_boundaries.json`.
