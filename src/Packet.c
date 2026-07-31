@@ -119,8 +119,11 @@ void pac_setVifCode(void)
     } while (i >= 0);
 }
 
-extern const char D_00554DD0[];
-extern const char D_00554DE8[];
+/* Packet .rodata run 0x554DB0..0x555490 — byte-verified against baseelf.
+ * Not migrated to any nonmatchings stub by splat (referenced only from
+ * already-matched C, invisible to its asm-reference scan). */
+const char D_00554DD0[0x18] = "(addr 0x%08x <fl) : ";
+const char D_00554DE8[0x18] = "(addr 0x%08x <%2d>) : ";
 extern const char D_00631CD8_a[] __asm__("D_00631CD8");
 extern const char D_00631CE0_a[] __asm__("D_00631CE0");
 extern const char D_00631CE8_a[] __asm__("D_00631CE8");
@@ -164,9 +167,14 @@ void pac_setVifEndCode(unsigned char *arg, int slot_size) {
 
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_setGifTag);
 
+const unsigned int D_00554ED0[0x4] = { 0x43960000, 0x43960000, 0x43960000, 0x00000000 };
+
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_closeTag);
 
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_continueTag);
+
+const char D_00554FD0[0x10] = "src/Packet.c";
+INCLUDE_RODATA("asm/nonmatchings/src/Packet", jtbl_00554FE0);
 
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_checkDivide);
 
@@ -174,7 +182,10 @@ INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_countOneVertexPacketSize);
 
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeStrip);
 
-extern char D_00555190[];
+const char D_00555190[0x10] = "DMAOPEN   :%p\n";
+const char D_005551A0[0x20] = "VIFUNPACK :%08x %08x (%p:%d)\n";
+const unsigned int D_005551C0[0x8] = { 0x00008000, 0x20004000, 0x00000051, 0x00000000, 0x00008000, 0x30004000, 0x00000512, 0x00000000 };
+
 extern float D_00630A40;
 extern float D_00630A44;
 
@@ -196,8 +207,6 @@ void pac_setMaterialPacket(int a0)
     *(float *)(ctx + 0x50) = f1;
     debug_assertMessage(D_00555190, a0 & mask);
 }
-
-extern char D_005551A0[];
 
 void pac_makeMaterialTable(int a0)
 {
@@ -233,6 +242,9 @@ INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeShapeTable);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makePacket);
 
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_MakePacket);
+
+const char D_005552B8[0x30] = "pac_copyStrip:No Enough Memory for Packet.\n";
+const char D_005552E8[0x20] = "ALL:src:%p => dst:%p (size:%x)\n";
 
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_Dump);
 

@@ -698,6 +698,17 @@ NakaBoss's two switch tables were standalone splat-migrated
 `.rodata.<sym>` stub files with no owning function INCLUDE_ASM in the
 .c — wired in via `INCLUDE_RODATA`, same as the sub-8-byte symbols,
 since their `.word` entries reference `.L` labels local to NakaBoss's
-own still-nonmatching asm and can't be spelled as C). Batch conversion
-of the remaining jtbl-bearing TUs recorded below as they land.
-Decided runs are recorded in `decomp/data_tu_boundaries.json`.
+own still-nonmatching asm and can't be spelled as C), `src/Packet`
+[0x554DB0,0x555490) (extended the narrow jtbl_00554E00 carve; unblocks
+jtbl_00554DB0/554E00/554FE0. New wrinkle: `tools/emit_run_defs.py`'s
+stub-span heuristic has a blind spot — a symbol referenced ONLY from
+already-matched C (never from any remaining asm) is invisible to
+splat's migration too, so it neither gets its own nonmatchings stub
+file NOR shows up as "standalone" in the tool's plan; it silently
+vanishes from the blob once the carve boundary crosses it. Caught by
+cross-checking every `D_*` extern in the TU's `.c` against the full
+`dlabel` inventory of `asm/nonmatchings/<tu>/*.s` post-setup — 4 such
+gaps here (D_00554DD0, D_00554DE8, D_00555190, D_005551A0), hand-defined
+byte-verified against baseelf). Batch conversion of the remaining
+jtbl-bearing TUs recorded below as they land. Decided runs are recorded
+in `decomp/data_tu_boundaries.json`.

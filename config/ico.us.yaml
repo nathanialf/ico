@@ -399,8 +399,8 @@ segments:
       - [0x454430, rodata, src/cod/454430]   # .rodata blob resume
       - [0x454780, .rodata, src/Light]  # carved D_00554780 (VMA 0x554780..0x554790, 16 bytes, 1 syms)
       - [0x454790, rodata, src/cod/454790]   # .rodata blob, part 1b (resume after Light carve)
-      - [0x454E00, .rodata, src/Packet]  # gcc-emitted jtbl_00554E00 (pac_setVifEndCode switch, 17 entries 0x44), VMA 0x554E00..0x554E44
-      - [0x454E44, rodata, src/cod/454E44]   # .rodata blob, part 2 (resume after Packet jtbl)
+      - [0x454DB0, .rodata, src/Packet]  # full Packet .rodata run (anchors: jtbl_00554DB0 pac_makeNormalStrip + jtbl_00554E00 pac_setVifEndCode + jtbl_00554FE0 pac_continueTag), VMA 0x554DB0..0x555490
+      - [0x455490, rodata, src/cod/455490]   # .rodata blob resume (before src/Primitive)
       - [0x455990, .rodata, src/StageAnimation]  # gcc-emitted jtbl_00555990 (stage_Init switch, 10 entries 0x28), VMA 0x555990..0x5559B8
       - [0x4559B8, rodata, src/cod/4559B8]   # .rodata blob, part 2ba (resume after StageAnimation jtbl; the 8 zero bytes at 0x5559B8 are gcc's .align 4 pad ahead of jtbl_005559C0, which still belongs to the still-asm stage_SetAnimation)
       - [0x456F10, .rodata, ios/mcard]  # gcc-emitted jtbl_00556F10 (iosMcMgrGetBlockSaveInfo switch, 15 entries 0x3C), VMA 0x556F10..0x556F4C
