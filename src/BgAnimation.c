@@ -29,9 +29,20 @@ extern int D_006337B0;
 extern int D_00633F64;
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001F6E28);
 
+/* BgAnimation .rodata run 0x61A8C0..0x61AB50 -- byte-verified against
+ * baseelf; defs interleave with INCLUDE_ASM stubs so .o section order ==
+ * VMA order. jtbl_0061A8F0/A9C0 are standalone splat-migrated stubs with
+ * no owning-function INCLUDE_ASM wiring them in -- wired via INCLUDE_RODATA. */
+const char D_0061A8D8[0x18] = "src/BgAnimation.c\0\0\0\0\0\0\0";
+INCLUDE_RODATA("asm/nonmatchings/src/BgAnimation", jtbl_0061A8F0);
+const char D_0061A918[0x20] = "this is not sdf camera file.\n\0\0\0";
+
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001F71D0);
 
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001F74E8);
+
+const char D_0061A998[0x28] = "モデルデータファイル[%s]がありません.\n\n\0";
+INCLUDE_RODATA("asm/nonmatchings/src/BgAnimation", jtbl_0061A9C0);
 
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", func_001F77A0);
 
@@ -43,9 +54,14 @@ INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", bga_GetGizmoMotion);
 
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", bga_setCounter);
 
+const char D_0061AA48[0x18] = "不明なパーティクル\n\0\0\0\0\0";
+const char D_0061AA60[0x50] = "PBGAタイプのアニメーションではループのパーティクルは使用できません.\n\0\0\0\0\0\0\0\0\0\0\0\0";
+
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", bga_calcEnvelope);
 
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", _RotTransCurrentMatrixYXZ);
+
+const char D_0061AAF0[0x20] = "illegal lightning data set.\n\0\0\0\0";
 
 extern void bga_GetGizmoMotion(void *a0, int a1, float c, float d, int a2);
 
@@ -123,8 +139,6 @@ INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", bga_SetFrame);
 
 INCLUDE_ASM("asm/nonmatchings/src/BgAnimation", bga_CalcAnimation);
 
-extern char D_0061A8D8[];
-extern char D_0061AAF0[];
 extern int D_00632024;
 extern void *D_006337BC;
 extern char D_006337D8[];
@@ -215,8 +229,6 @@ int bga_ResetCamera(void *p)
     return v != 0 && D_006337B8 == 0;
 }
 
-extern char D_0061A8D8[];
-extern char D_0061A918[];
 extern char D_006337C8[];
 extern char D_006337D0[];
 extern void debug_assertMessage(char *msg);

@@ -464,6 +464,8 @@ segments:
       - [0x519D94, rodata, src/cod/519D94]   # .rodata blob resume
       - [0x51A170, .rodata, src/spider]  # gcc-emitted jtbl_0061A170 (func_001EA5E8 switch, 5 entries 0x14), VMA 0x61A170..0x61A184
       - [0x51A184, rodata, src/cod/51A184]   # .rodata blob resume
+      - [0x51A8C0, .rodata, src/BgAnimation]  # full BgAnimation .rodata run (anchors: jtbl_0061A8F0/A9C0/AA20/AAB0 + D_0061A8C0..D_0061AB10), VMA 0x61A8C0..0x61AB50
+      - [0x51AB50, rodata, src/cod/51AB50]   # .rodata blob resume (before src/DisplayList's own pre-carve anchors)
       - [0x51AC40, .rodata, src/DisplayList]  # gcc-emitted jtbl_0061AC40 (dl_GetPri switch, 8 entries 0x20), VMA 0x61AC40..0x61AC60
       - [0x51AC60, rodata, src/cod/51AC60]   # .rodata blob resume
       - [0x51BCE0, .rodata, src/st04b]  # gcc-emitted jtbl_0061BCE0 (func_00217658 switch, 8 entries 0x20), VMA 0x61BCE0..0x61BD00

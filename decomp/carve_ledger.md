@@ -770,7 +770,10 @@ unblocks jtbl_006186E0/618720; box.c is trace-reordered for .text via
 INCLUDE_ASM_FS but the 5 functions/defs in this run are already
 VMA-ordered in source so plain interleaving held; 3 EUC-JP strings).
 `src/staticBlur` REVERTED — see the Blocked TUs section below (a
-splat disassembly bug, not a carve-recipe problem). Batch conversion
+splat disassembly bug, not a carve-recipe problem), `src/BgAnimation`
+[0x61A8C0,0x61AB50) (new carve; unblocks jtbl_0061A8F0/A9C0/AA20/AAB0,
+first two standalone-wired; blind-spot D_0061AAF0 "illegal lightning
+data set"; 4 EUC-JP strings). Batch conversion
 of the remaining jtbl-bearing TUs recorded below as they land. Decided
 runs are recorded in `decomp/data_tu_boundaries.json`.
 
