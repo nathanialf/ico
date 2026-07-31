@@ -793,9 +793,15 @@ D_006306B0 is an array of 25 64-bit `long` (a pow10-as-double-bits
 table) rather than unsigned int — spelling it as unsigned[50] silently
 compiled a shift-by-2 index in its one matched caller where the ROM
 has shift-by-3, an 8-byte regression only visible by diffing raw
-instruction words, not by size). Batch conversion
-of the remaining jtbl-bearing TUs recorded below as they land. Decided
-runs are recorded in `decomp/data_tu_boundaries.json`.
+instruction words, not by size), `src/gflag` [0x559E60,0x55A1B0)
+(new carve; unblocks jtbl_0055A170, embedded in-function. This is
+the worklist's flagged interleaved gflag/script/warpGirl zone —
+SHARED and foreign anchor blocks scatter through 0x559F80..0x55A020,
+but every one is strictly interior to clean gflag/st25a edge
+boundaries, so the full contiguous run landed on the first attempt
+with no need for the narrower jtbl-only fallback; 9 EUC-JP strings).
+Batch conversion of the remaining jtbl-bearing TUs recorded below as
+they land. Decided runs are recorded in `decomp/data_tu_boundaries.json`.
 
 ## Blocked: `src/staticBlur` full-run carve reverted (2026-07-31)
 

@@ -422,6 +422,8 @@ segments:
       - [0x4591F0, rodata, src/cod/4591F0]   # .rodata blob resume (fieldCollision/fuzio contested zone before girl_act)
       - [0x459430, .rodata, src/girl_act]  # full girl_act .rodata run (anchors: jtbl_00559570/5A0/5D0/600/640/6B0/7D0/950 + D_00559430..D_00559B40; interior jimaku-referenced syms are cross-TU externs), VMA 0x559430..0x559B50
       - [0x459B50, rodata, src/cod/459B50]   # .rodata blob, part 3 (resume after girl_act full run)
+      - [0x459E60, .rodata, src/gflag]  # full gflag .rodata run (anchor: jtbl_0055A170; heavily interleaved with src/script/src/warpGirl, all interior cross-TU externs per the conservative-edge rule), VMA 0x559E60..0x55A1B0
+      - [0x45A1B0, rodata, src/cod/45A1B0]   # .rodata blob resume (before src/st25a)
       - [0x45AA70, .rodata, src/camera-root]  # gcc-emitted jtbl_0055AA70 (BackToGameCamera switch, 5 entries 0x14), VMA 0x55AA70..0x55AA84
       - [0x45AA84, rodata, src/cod/45AA84]   # .rodata blob resume (align pad after camera-root's jtbl)
       - [0x45AA90, .rodata, src/chain]  # full chain .rodata run (anchors: jtbl_0055AD50/AD90/ADC0 + D_0055AA90..D_0055AD38), VMA 0x55AA90..0x55ADE0

@@ -33,7 +33,7 @@ extern void func_00243978();
 extern int dispPlane();
 extern void debug_assertMessage();
 extern void InitCageFixGeo(char *self, float val);
-extern int D_00559E60[];
+extern const char D_00559E60[];
 extern void func_001F19F0();
 extern int actSt25aQueenDeadChk();
 extern void func_001F1868(void *a0);
@@ -132,13 +132,35 @@ void func_0017B5A0(void *a0, float *rot)
 
 INCLUDE_ASM("asm/nonmatchings/src/gflag", func_0017B5B0);
 
+/* gflag .rodata run 0x559E60..0x55A1B0 -- byte-verified against baseelf;
+ * defs interleave with INCLUDE_ASM stubs so .o section order == VMA order.
+ * Heavily interleaved with src/script/src/warpGirl (SHARED/foreign blocks
+ * per map_data_tus.py); all interior, safe per the conservative-edge rule. */
+const char D_00559E60[0x48] = "ぶら下がりオブジェクトが見つかりません。(scpSetCageVelocityFriction)\n\0\0\0";
+const char D_00559EA8[0x48] = "押し回しオブジェクトが見つかりません。(scpGetRotObjectRotCount)\n\0\0\0\0\0\0\0\0";
+const char D_00559EF0[0x48] = "押し回しオブジェクトが見つかりません。(scpGetRotObjectZDirInclude)\n\0\0\0\0\0";
+const char D_00559F38[0x48] = "LWSのスケルトンペアレント処理において,ノードが見つかりませんでした\n\0\0\0\0\0";
+const char D_00559F80[0x70] = "scpGetWallCollision: (%4.3f, %4.3f, %4.3f) => (%4.3f, %4.3f, %4.3f)\n\t壁コリジョンが見つかりません。\n\0\0\0\0\0\0\0\0\0\0\0\0";
+const unsigned int D_00559FF0[0x4] = { 0x00000000, 0x00000010, 0x00000020, 0x00000080 };
+const unsigned int D_0055A000[0x4] = { 0x00000001, 0x00000002, 0x00000004, 0x00000000 };
+const unsigned int D_0055A010[0x4] = { 0x00000001, 0x00000002, 0x00000004, 0xFFFFFFFF };
+const unsigned int D_0055A020[0x4] = { 0x00000001, 0x00000002, 0x00000004, 0x00000011 };
+
 INCLUDE_ASM("asm/nonmatchings/src/gflag", func_0017B760);
 
 INCLUDE_ASM("asm/nonmatchings/src/gflag", func_0017B8B0);
 
+const char D_0055A060[0x20] = "ADPCM一杯で開けませんでした。\n\0\0";
+const char D_0055A080[0x58] = "戦闘曲を止めて,変わりにリクエストします。以降ステージ切り換えまで戦闘曲なりません。\n\0\0\0\0";
+const char D_0055A0D8[0x60] = "戦闘曲なっていないので,プログラムを止めないために\n全部曲を止めて,変わりにリクエストします。\n\0\0\0\0";
+const char D_0055A138[0x10] = "deamon start\0\0\0\0";
+
 INCLUDE_ASM("asm/nonmatchings/src/gflag", func_0017BA00);
 
 INCLUDE_ASM("asm/nonmatchings/src/gflag", func_0017BB98);
+
+INCLUDE_RODATA("asm/nonmatchings/src/gflag", D_0055A198);
+const unsigned int D_0055A1A0[0x4] = { 0x45CFB000, 0xC506D000, 0x4489C000, 0x00000000 };
 
 INCLUDE_ASM("asm/nonmatchings/src/gflag", func_0017BF78);
 
