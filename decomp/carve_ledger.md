@@ -773,7 +773,10 @@ VMA-ordered in source so plain interleaving held; 3 EUC-JP strings).
 splat disassembly bug, not a carve-recipe problem), `src/BgAnimation`
 [0x61A8C0,0x61AB50) (new carve; unblocks jtbl_0061A8F0/A9C0/AA20/AAB0,
 first two standalone-wired; blind-spot D_0061AAF0 "illegal lightning
-data set"; 4 EUC-JP strings). Batch conversion
+data set"; 4 EUC-JP strings), `src/cod/vendor_100C90`
+[0x553700,0x553888) (new carve at the very start of the .rodata
+segment; unblocks jtbl_00553760/func_001013E0's switch; 3 sub-8-byte
+symbols via INCLUDE_RODATA, no C defs otherwise). Batch conversion
 of the remaining jtbl-bearing TUs recorded below as they land. Decided
 runs are recorded in `decomp/data_tu_boundaries.json`.
 

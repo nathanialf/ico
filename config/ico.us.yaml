@@ -390,7 +390,8 @@ segments:
       - [0x3D3E50, data, src/cod/3D3E50]     # .data blob resume
       - [0x3D4230, .data, src/PObj]  # carved D_004D4230 (VMA 0x4D4230, 0x80 bytes)
       - [0x3D42B0, data, src/cod/3D42B0]     # .data blob, resume after PObj carve
-      - [0x453700, rodata, src/cod/453700]   # .rodata blob, part 1 (to be carved per TU)
+      - [0x453700, .rodata, src/cod/vendor_100C90]  # full vendor_100C90 .rodata run (anchor: jtbl_00553760, func_001013E0's switch, + D_00553700..D_00553758), VMA 0x553700..0x553888. Very start of the .rodata segment
+      - [0x453888, rodata, src/cod/453888]   # .rodata blob resume (before src/delayFreeManager)
       - [0x453DB0, .rodata, src/motionManager2]  # gcc-emitted jtbl_00553DB0 (AdjustVerticalSidePlaneOfWall switch, 6 entries 0x18), VMA 0x553DB0..0x553DC8
       - [0x453DC8, rodata, src/cod/453DC8]   # .rodata blob resume
       - [0x453E70, .rodata, src/tableSin]  # gcc-emitted jtbl_00553E70 (func_0010DFB8 switch, 7 entries 0x1C), VMA 0x553E70..0x553E8C

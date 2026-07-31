@@ -127,6 +127,10 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100C90", func_001011E8);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100C90", func_00101278);
 
+INCLUDE_RODATA("asm/nonmatchings/src/cod/vendor_100C90", D_00553748);
+INCLUDE_RODATA("asm/nonmatchings/src/cod/vendor_100C90", D_00553750);
+INCLUDE_RODATA("asm/nonmatchings/src/cod/vendor_100C90", D_00553758);
+
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100C90", func_001013E0);
 
 extern int func_001013E0(int a0, void *va);
