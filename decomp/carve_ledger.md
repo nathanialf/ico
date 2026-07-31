@@ -503,3 +503,139 @@ used (or reverted) per the one-run-per-section rule — re-scan them fresh
 with `find_carves.py --emit` after a `git pull` in case upstream state
 changed, and gate any new candidate run through the `.text`-equality
 check before landing.
+
+## Batch 4 — jtbl carve sweep (30 TUs, `.rodata`, all functions left ASM)
+
+Complete sweep of the 101 `jtbl_*` symbols. Every jtbl was mapped to its
+owner function (the `%hi(jtbl_…)` referencer), owner TU, and the rodata
+neighbourhood the TU exclusively owns; the ~49 jtbl-owning TUs were then
+classified (a) SAFE-FINAL / (b) NOT-FINAL against the one-contiguous-run
+per (TU, section) rule. 30 (a) TUs landed here, one at a time, each with
+`tools/build.sh setup` + `ninja` → `verify_elf: OK (fbf50c75…)`. Final
+`rm -rf build` clean rebuild green; `check_no_rom.sh` clean. **No `.c`
+file changed** — the carves are yaml-only.
+
+### The two mechanisms that decide what is carvable today
+
+1. **splat migrates jump tables into the owner function's `INCLUDE_ASM`
+   stub, but NOT plain `D_` rodata.** Confirmed both ways:
+   `asm/nonmatchings/src/motionOrientManager/shiftMotionOrientEndFunc.s`
+   carries `dlabel jtbl_006196E0` but *not* `dlabel D_006196C8` (which is
+   why that string needed a hand-written C definition), while
+   `asm/nonmatchings/isys/obj_manager/soundOutputModeSet.s` gained a
+   `.section .rodata` + `dlabel jtbl_00557B60` block the moment the carve
+   was added. **Consequence: a jtbl-only carve needs no C at all; a carve
+   covering any plain rodata needs a real typed C definition for it.**
+2. **The only things gcc auto-emits into a TU's `.rodata` are switch jump
+   tables and 8-byte `.lit8` double literals.** Strings and const
+   aggregates are held by the repo-wide `extern` convention (every matched
+   TU declares `extern char D_00xxxxxx[]` and the bytes stay in the
+   `src/cod` blob), so they never force a carve to be re-cut. 4-byte float
+   literals go to the separate `.lit4` subsegment (own section, own slot).
+   **Consequence: a jtbl-only region is FINAL iff the TU owns no `.lit8`
+   double outside it.** `.lit8` doubles are identified mechanically: an
+   exactly-8-byte rodata symbol loaded with `ld $r, %lo(SYM)($r)` and
+   handed straight to a call (e.g. `src/boyact`'s 0x558620 pool,
+   `src/gflag`'s `D_0055A198` = 916.0). A 16-/32-/64-byte symbol loaded
+   the same way is a float *vector*, not a literal — `D_0055AA60`
+   (0,-200,-500,0) and `src/motionManager2`'s `D_00553C40` family are
+   vectors and do NOT disqualify their TU.
+
+### Region END is the table's TRUE entry count, not splat's dlabel
+
+Splat's dlabel runs to the next label, so it absorbs gcc's `.align` pad
+belonging to the NEXT object. Each table's true entry count was derived
+from `baserom/baseelf.rom`: count the leading run of words that are
+addresses inside the owner function's own `.text` range, stop at the first
+that is not. Every trailing word between the true end and splat's next
+label was verified to be `0x00000000` and is left in the blob. This makes
+several regions end 4-aligned rather than 8-aligned (e.g. `isys/obj_manager`
+0x557B74, 5 entries) — that is fine: `gen_ninja.py::align_for()` gives the
+resume blob object an alignment that divides its own ROM address, so no
+padding is injected. All 30 verified byte-identical with such ends.
+
+| TU | carve (ROM off) | VMA range | jtbl(s) — owner switch, entries |
+|---|---|---|---|
+| `src/motionManager2` | `[0x453DB0]` | 0x553DB0..0x553DC8 | `jtbl_00553DB0` (AdjustVerticalSidePlaneOfWall, 6) |
+| `src/tableSin` | `[0x453E70]` | 0x553E70..0x553E8C | `jtbl_00553E70` (func_0010DFB8, 7) |
+| `src/FileManager` | `[0x454330]` | 0x554330..0x554430 | `jtbl_00554330` (11) + pad + `jtbl_00554360` (52), both func_0010EE90 |
+| `ios/mcard` | `[0x456F10]` | 0x556F10..0x556F4C | `jtbl_00556F10` (iosMcMgrGetBlockSaveInfo, 15) |
+| `ios/pad` | `[0x4576D0]` | 0x5576D0..0x557804 | `jtbl_005576D0` (iosPadDevInit, 77) |
+| `isys/obj_manager` | `[0x457B60]` | 0x557B60..0x557B74 | `jtbl_00557B60` (soundOutputModeSet, 5) |
+| `src/act-parallel-control` | `[0x458150]` | 0x558150..0x55818C | `jtbl_00558150` (func_0014B270, 15) |
+| `src/camera-root` | `[0x45AA70]` | 0x55AA70..0x55AA84 | `jtbl_0055AA70` (BackToGameCamera, 5) |
+| `src/ebrain` | `[0x45AE40]` | 0x55AE40..0x55AE84 | `jtbl_0055AE40` (7) + pad + `jtbl_0055AE60` (9), both func_00190F30 |
+| `src/poly-flat` | `[0x45AFB0]` | 0x55AFB0..0x55AFD4 | `jtbl_0055AFB0` (IsPointIsInScreen, 9) |
+| `src/gather_effect` | `[0x45C090]` | 0x55C090..0x55C158 | `jtbl_0055C090` (func_00197A38, 50) |
+| `src/lightning` | `[0x45C670]` | 0x55C670..0x55C690 | `jtbl_0055C670` (func_00199F80, 8) |
+| `src/debug` | `[0x514F10]` | 0x614F10..0x614F3C | `jtbl_00614F10` (func_001A3398, 11) |
+| `src/gamesys` | `[0x5164D0]` | 0x6164D0..0x6164E4 | `jtbl_006164D0` (gamesysMemoryHandlerWrite, 5) |
+| `src/kanban` | `[0x516CC0]` | 0x616CC0..0x616CE0 | `jtbl_00616CC0` (func_001B08E0, 8) |
+| `src/layout_action` | `[0x5171B0]` | 0x6171B0..0x6171C4 | `jtbl_006171B0` (la_load_processing, 5) |
+| `src/layout_texture` | `[0x5171E0]` | 0x6171E0..0x6171FC | `jtbl_006171E0` (lt_current_property_item, 7) |
+| `src/staffroll` | `[0x517390]` | 0x617390..0x6173AC | `jtbl_00617390` (func_001B84C8, 7) |
+| `src/handManager` | `[0x518F20]` | 0x618F20..0x618F38 | `jtbl_00618F20` (connectToTarget, 6) |
+| `src/item` | `[0x518FB0]` | 0x618FB0..0x618FC4 | `jtbl_00618FB0` (uncarriedItemGeo, 5) |
+| `src/lodManager` | `[0x5190E0]` | 0x6190E0..0x6190F8 | `jtbl_006190E0` (func_001D4BD0, 6) |
+| `src/motionFileManager` | `[0x519100]` | 0x619100..0x6191D0 | `jtbl_00619100` (ResetStatic2MotionManager, 52) |
+| `src/moveColTest` | `[0x519D80]` | 0x619D80..0x619D94 | `jtbl_00619D80` (MoveColTestGeo, 5) |
+| `src/spider` | `[0x51A170]` | 0x61A170..0x61A184 | `jtbl_0061A170` (func_001EA5E8, 5) |
+| `src/DisplayList` | `[0x51AC40]` | 0x61AC40..0x61AC60 | `jtbl_0061AC40` (dl_GetPri, 8) |
+| `src/st04b` | `[0x51BCE0]` | 0x61BCE0..0x61BD00 | `jtbl_0061BCE0` (func_00217658, 8) |
+| `src/cod/vendor_2453C0` | `[0x52E5F0]` | 0x62E5F0..0x62E654 | `jtbl_0062E5F0` (func_00246CD0, 25) |
+| `src/cod/vendor_24E9D8` | `[0x52ECD0]` | 0x62ECD0..0x62ECE4 | `jtbl_0062ECD0` (func_00251ED0, 5) |
+| `src/cod/vendor_258CC0` | `[0x52F0E0]` | 0x62F0E0..0x62F2C0 | `jtbl_0062F0E0` (func_00258D10, 99) + pad + `jtbl_0062F270` (func_0025BA58, 20) |
+| `src/cod/vendor_25E1E8` | `[0x52FE10]` | 0x62FE10..0x62FF74 | `jtbl_0062FE10` (func_00265CA0, 89) |
+
+Two-jtbl regions (`src/FileManager`, `src/ebrain`, `src/cod/vendor_258CC0`)
+span the 4-byte `.align 3` pad between the tables; the pad is reproduced
+today by the stubs' own `.align 3` and, once the functions land, by gcc's
+section alignment. Same bytes either way — verified.
+
+### (b) NOT-FINAL — 19 TUs deliberately NOT carved
+
+**Already hold their one `.rodata` run; the remaining jtbls cannot get a
+second, disjoint region.** Widening the existing run would sweep in
+plain rodata that needs typed C definitions first.
+
+| TU | existing run | left out |
+|---|---|---|
+| `src/Packet` | jtbl_00554E00 | `jtbl_00554DB0`, `jtbl_00554FE0` — 14 TU-owned strings interleaved |
+| `src/StageAnimation` | jtbl_00555990 | `jtbl_005559C0` — collapses into one wider carve when stage_SetAnimation lands (known) |
+| `src/boyact` | .lit8 pool 0x558620 | 3 jtbls at 0x558300..0x558620 + 2 owned strings interleaved; 4 more `.lit8` outside |
+| `src/girl_act` | jtbl_00559950 | 7 jtbls at 0x559570..0x559888, 17 owned syms interleaved |
+| `src/debug_exception` | jtbl_00615090 | 6 jtbls, 37 owned strings interleaved |
+| `src/motionOrientManager` | D_006196C8 + jtbl_006196E0 | `jtbl_00619960` — 12 owned strings in between |
+
+**jtbls split by the TU's OWN non-jtbl rodata** — a single region covering
+them all would need C definitions for the interleaved data, so the correct
+carve depends on which functions land first: `src/Texture` (4 jtbls, 3
+owned word tables between), `sound/soundManager` (4, 3), `src/enemy_act`
+(4, 24 — mostly `.lit8`), `src/kanbanBoot` (6, 19), `src/box` (2, 1 string
+`D_00618708`), `src/motionManager` (2, 1 + 5 `.lit8` outside),
+`src/staticBlur` (3, 1 `D_0061A418`), `src/BgAnimation` (4, 8),
+`src/cod/vendor_2418A0` (2, 5), `src/cod/vendor_2668B8` (7, 15 + 4 `.lit8`
+outside).
+
+**jtbls contiguous, but the TU owns genuine `.lit8` doubles OUTSIDE the
+region** — gcc will emit those into the TU's `.rodata` the moment their
+functions land, so a jtbl-only carve is not final:
+`src/cod/vendor_100C90` (`D_00553748/50/58` = 0.1/0.1/1e6, immediately
+*before* its jtbl), `src/gflag` (`D_0055A198` = 916.0, `D_0055A1A0`,
+immediately *after* its jtbl), `src/chain` (5 doubles at
+0x55AB20..0x55AB88, far from the jtbls at 0x55AD50). All three become
+one-run carveable the day their double-using functions land in C —
+`vendor_100C90` and `gflag` only need the region extended by one
+neighbour, so they are the cheapest follow-ups.
+
+### Successor notes
+
+- The jtbl queue is now DONE for everything that is carveable without
+  touching C. The remaining 19 TUs all need at least one plain-rodata C
+  definition (string / const aggregate / `.lit8` double) before their
+  single run can cover their whole footprint. Do them the
+  `src/motionOrientManager` way: byte-verify the range against
+  `baserom/baseelf.rom`, add a real typed `const` definition, leave the
+  function `INCLUDE_ASM` if the body port does not close.
+- `rm .port_cache/retail_labels.json` before the next `port_from_aug6.py`
+  run — 30 new `dlabel`s just appeared.

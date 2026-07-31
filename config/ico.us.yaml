@@ -391,20 +391,80 @@ segments:
       - [0x3D4230, .data, src/PObj]  # carved D_004D4230 (VMA 0x4D4230, 0x80 bytes)
       - [0x3D42B0, data, src/cod/3D42B0]     # .data blob, resume after PObj carve
       - [0x453700, rodata, src/cod/453700]   # .rodata blob, part 1 (to be carved per TU)
+      - [0x453DB0, .rodata, src/motionManager2]  # gcc-emitted jtbl_00553DB0 (AdjustVerticalSidePlaneOfWall switch, 6 entries 0x18), VMA 0x553DB0..0x553DC8
+      - [0x453DC8, rodata, src/cod/453DC8]   # .rodata blob resume
+      - [0x453E70, .rodata, src/tableSin]  # gcc-emitted jtbl_00553E70 (func_0010DFB8 switch, 7 entries 0x1C), VMA 0x553E70..0x553E8C
+      - [0x453E8C, rodata, src/cod/453E8C]   # .rodata blob resume
+      - [0x454330, .rodata, src/FileManager]  # gcc-emitted jtbl_00554330 (11 entries 0x2C) + .align3 pad + jtbl_00554360 (52 entries 0xD0), both func_0010EE90's switches, VMA 0x554330..0x554430
+      - [0x454430, rodata, src/cod/454430]   # .rodata blob resume
       - [0x454780, .rodata, src/Light]  # carved D_00554780 (VMA 0x554780..0x554790, 16 bytes, 1 syms)
       - [0x454790, rodata, src/cod/454790]   # .rodata blob, part 1b (resume after Light carve)
       - [0x454E00, .rodata, src/Packet]  # gcc-emitted jtbl_00554E00 (pac_setVifEndCode switch, 17 entries 0x44), VMA 0x554E00..0x554E44
       - [0x454E44, rodata, src/cod/454E44]   # .rodata blob, part 2 (resume after Packet jtbl)
       - [0x455990, .rodata, src/StageAnimation]  # gcc-emitted jtbl_00555990 (stage_Init switch, 10 entries 0x28), VMA 0x555990..0x5559B8
       - [0x4559B8, rodata, src/cod/4559B8]   # .rodata blob, part 2ba (resume after StageAnimation jtbl; the 8 zero bytes at 0x5559B8 are gcc's .align 4 pad ahead of jtbl_005559C0, which still belongs to the still-asm stage_SetAnimation)
+      - [0x456F10, .rodata, ios/mcard]  # gcc-emitted jtbl_00556F10 (iosMcMgrGetBlockSaveInfo switch, 15 entries 0x3C), VMA 0x556F10..0x556F4C
+      - [0x456F4C, rodata, src/cod/456F4C]   # .rodata blob resume
+      - [0x4576D0, .rodata, ios/pad]  # gcc-emitted jtbl_005576D0 (iosPadDevInit switch, 77 entries 0x134), VMA 0x5576D0..0x557804
+      - [0x457804, rodata, src/cod/457804]   # .rodata blob resume
+      - [0x457B60, .rodata, isys/obj_manager]  # gcc-emitted jtbl_00557B60 (soundOutputModeSet switch, 5 entries 0x14), VMA 0x557B60..0x557B74
+      - [0x457B74, rodata, src/cod/457B74]   # .rodata blob resume (4 zero bytes at 0x557B74 are gcc's .align 3 pad after the 5-entry table)
+      - [0x458150, .rodata, src/act-parallel-control]  # gcc-emitted jtbl_00558150 (func_0014B270 switch, 15 entries 0x3C), VMA 0x558150..0x55818C
+      - [0x45818C, rodata, src/cod/45818C]   # .rodata blob resume
       - [0x458620, .rodata, src/boyact]  # gcc-emitted .lit8 pool (func_00151868/func_001519D8 doubles 0.2/0.9/0.2/0.7), VMA 0x558620..0x558640
       - [0x458640, rodata, src/cod/458640]   # .rodata blob, part 2b (resume after boyact .lit8 carve)
       - [0x459950, .rodata, src/girl_act]  # gcc-emitted jtbl_00559950 (actGirlHang switch, 67 entries 0x10C), VMA 0x559950..0x559A5C
       - [0x459A5C, rodata, src/cod/459A5C]   # .rodata blob, part 3 (resume after girl_act jtbl)
+      - [0x45AA70, .rodata, src/camera-root]  # gcc-emitted jtbl_0055AA70 (BackToGameCamera switch, 5 entries 0x14), VMA 0x55AA70..0x55AA84
+      - [0x45AA84, rodata, src/cod/45AA84]   # .rodata blob resume
+      - [0x45AE40, .rodata, src/ebrain]  # gcc-emitted jtbl_0055AE40 (7 entries 0x1C) + .align3 pad + jtbl_0055AE60 (9 entries 0x24), both func_00190F30's switches, VMA 0x55AE40..0x55AE84
+      - [0x45AE84, rodata, src/cod/45AE84]   # .rodata blob resume
+      - [0x45AFB0, .rodata, src/poly-flat]  # gcc-emitted jtbl_0055AFB0 (IsPointIsInScreen switch, 9 entries 0x24), VMA 0x55AFB0..0x55AFD4
+      - [0x45AFD4, rodata, src/cod/45AFD4]   # .rodata blob resume
+      - [0x45C090, .rodata, src/gather_effect]  # gcc-emitted jtbl_0055C090 (func_00197A38 switch, 50 entries 0xC8), VMA 0x55C090..0x55C158
+      - [0x45C158, rodata, src/cod/45C158]   # .rodata blob resume
+      - [0x45C670, .rodata, src/lightning]  # gcc-emitted jtbl_0055C670 (func_00199F80 switch, 8 entries 0x20), VMA 0x55C670..0x55C690
+      - [0x45C690, rodata, src/cod/45C690]   # .rodata blob resume
+      - [0x514F10, .rodata, src/debug]  # gcc-emitted jtbl_00614F10 (func_001A3398 switch, 11 entries 0x2C), VMA 0x614F10..0x614F3C
+      - [0x514F3C, rodata, src/cod/514F3C]   # .rodata blob resume
       - [0x515090, .rodata, src/debug_exception]  # gcc-emitted jtbl_00615090 (initLineTraceTable switch, 17 entries 0x44), VMA 0x615090..0x6150D4
       - [0x5150D4, rodata, src/cod/5150D4]   # .rodata blob, part 4 (resume after debug_exception jtbl)
+      - [0x5164D0, .rodata, src/gamesys]  # gcc-emitted jtbl_006164D0 (gamesysMemoryHandlerWrite switch, 5 entries 0x14), VMA 0x6164D0..0x6164E4
+      - [0x5164E4, rodata, src/cod/5164E4]   # .rodata blob resume
+      - [0x516CC0, .rodata, src/kanban]  # gcc-emitted jtbl_00616CC0 (func_001B08E0 switch, 8 entries 0x20), VMA 0x616CC0..0x616CE0
+      - [0x516CE0, rodata, src/cod/516CE0]   # .rodata blob resume
+      - [0x5171B0, .rodata, src/layout_action]  # gcc-emitted jtbl_006171B0 (la_load_processing switch, 5 entries 0x14), VMA 0x6171B0..0x6171C4
+      - [0x5171C4, rodata, src/cod/5171C4]   # .rodata blob resume
+      - [0x5171E0, .rodata, src/layout_texture]  # gcc-emitted jtbl_006171E0 (lt_current_property_item switch, 7 entries 0x1C), VMA 0x6171E0..0x6171FC
+      - [0x5171FC, rodata, src/cod/5171FC]   # .rodata blob resume
+      - [0x517390, .rodata, src/staffroll]  # gcc-emitted jtbl_00617390 (func_001B84C8 switch, 7 entries 0x1C), VMA 0x617390..0x6173AC
+      - [0x5173AC, rodata, src/cod/5173AC]   # .rodata blob resume
+      - [0x518F20, .rodata, src/handManager]  # gcc-emitted jtbl_00618F20 (connectToTarget switch, 6 entries 0x18), VMA 0x618F20..0x618F38
+      - [0x518F38, rodata, src/cod/518F38]   # .rodata blob resume
+      - [0x518FB0, .rodata, src/item]  # gcc-emitted jtbl_00618FB0 (uncarriedItemGeo switch, 5 entries 0x14), VMA 0x618FB0..0x618FC4
+      - [0x518FC4, rodata, src/cod/518FC4]   # .rodata blob resume
+      - [0x5190E0, .rodata, src/lodManager]  # gcc-emitted jtbl_006190E0 (func_001D4BD0 switch, 6 entries 0x18), VMA 0x6190E0..0x6190F8
+      - [0x5190F8, rodata, src/cod/5190F8]   # .rodata blob resume
+      - [0x519100, .rodata, src/motionFileManager]  # gcc-emitted jtbl_00619100 (ResetStatic2MotionManager switch, 52 entries 0xD0), VMA 0x619100..0x6191D0
+      - [0x5191D0, rodata, src/cod/5191D0]   # .rodata blob resume
       - [0x5196C8, .rodata, src/motionOrientManager]  # carved D_006196C8 (debug fmt string, 0x18 bytes incl. null-pad, VMA 0x6196C8..0x6196E0) + gcc-emitted jtbl_006196E0 (shiftMotionOrientEndFunc switch, 21 entries 0x54), VMA 0x6196E0..0x619734
       - [0x519734, rodata, src/cod/519734]   # .rodata blob, part 5 (resume after motionOrientManager jtbl)
+      - [0x519D80, .rodata, src/moveColTest]  # gcc-emitted jtbl_00619D80 (MoveColTestGeo switch, 5 entries 0x14), VMA 0x619D80..0x619D94
+      - [0x519D94, rodata, src/cod/519D94]   # .rodata blob resume
+      - [0x51A170, .rodata, src/spider]  # gcc-emitted jtbl_0061A170 (func_001EA5E8 switch, 5 entries 0x14), VMA 0x61A170..0x61A184
+      - [0x51A184, rodata, src/cod/51A184]   # .rodata blob resume
+      - [0x51AC40, .rodata, src/DisplayList]  # gcc-emitted jtbl_0061AC40 (dl_GetPri switch, 8 entries 0x20), VMA 0x61AC40..0x61AC60
+      - [0x51AC60, rodata, src/cod/51AC60]   # .rodata blob resume
+      - [0x51BCE0, .rodata, src/st04b]  # gcc-emitted jtbl_0061BCE0 (func_00217658 switch, 8 entries 0x20), VMA 0x61BCE0..0x61BD00
+      - [0x51BD00, rodata, src/cod/51BD00]   # .rodata blob resume
+      - [0x52E5F0, .rodata, src/cod/vendor_2453C0]  # gcc-emitted jtbl_0062E5F0 (func_00246CD0 switch, 25 entries 0x64), VMA 0x62E5F0..0x62E654
+      - [0x52E654, rodata, src/cod/52E654]   # .rodata blob resume
+      - [0x52ECD0, .rodata, src/cod/vendor_24E9D8]  # gcc-emitted jtbl_0062ECD0 (func_00251ED0 switch, 5 entries 0x14), VMA 0x62ECD0..0x62ECE4
+      - [0x52ECE4, rodata, src/cod/52ECE4]   # .rodata blob resume
+      - [0x52F0E0, .rodata, src/cod/vendor_258CC0]  # gcc-emitted jtbl_0062F0E0 (func_00258D10 switch, 99 entries 0x18C) + .align3 pad + jtbl_0062F270 (func_0025BA58 switch, 20 entries 0x50), VMA 0x62F0E0..0x62F2C0
+      - [0x52F2C0, rodata, src/cod/52F2C0]   # .rodata blob resume
+      - [0x52FE10, .rodata, src/cod/vendor_25E1E8]  # gcc-emitted jtbl_0062FE10 (func_00265CA0 switch, 89 entries 0x164), VMA 0x62FE10..0x62FF74
+      - [0x52FF74, rodata, src/cod/52FF74]   # .rodata blob resume
       - [0x530900, lit4, src/cod/530900]     # .lit4
       - [0x531900, sdata, src/cod/531900]    # .sdata
       - [0x5322F0, .sdata, src/commonact]  # carved D_006322F0..D_00632308 (VMA 0x6322F0..0x632310, 32 bytes, 5 syms)
