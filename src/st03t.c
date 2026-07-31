@@ -41,7 +41,7 @@ extern void BoxBarSoundOn(int a0, int a1);
 extern int D_004D1110[];
 extern void _ACTWait(int a0);
 extern int actInitialize(int a0);
-extern int actSt03tSekizoEvent[];
+extern void actSt03tSekizoEvent(volatile int a0);
 extern int func_0017B230(int a0);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);
 
@@ -311,7 +311,15 @@ void actSt03tGirlCamEndChk(volatile int a0) {
     scpActivateAllWithKind();
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st03t", actSt03tSekizoEvent);
+extern int D_004D10F0[];
+
+void actSt03tSekizoEvent(volatile int a0) {
+    int gobj = *(int *)(a0 + 0x164);
+    *(int *)(gobj + 0xC0) = (int)D_004D10F0;
+    for (;;) {
+        _ACTWait(1);
+    }
+}
 
 typedef struct KSub_c58 {
     char pad[0xC0];

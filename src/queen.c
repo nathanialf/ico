@@ -22,9 +22,21 @@ INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B7F8);
 
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B888);
 
-INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B8E8);
+extern void *isysGObjSearchFromObjLayoutID(int id);
 
-INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B910);
+char func_0019B8E8(void)
+{
+    char *p = *(char **)(*(char **)((char *)isysGObjSearchFromObjLayoutID(0x2E) + 0x15C) + 0x800);
+
+    return p[3];
+}
+
+int func_0019B910(void)
+{
+    char *p = *(char **)(*(char **)((char *)isysGObjSearchFromObjLayoutID(0x2E) + 0x15C) + 0x800);
+
+    return *(int *)(p + 4);
+}
 
 float func_0019B938(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);

@@ -150,7 +150,18 @@ int func_0023CC78(char *a0)
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_audiodec", func_0023CCB8);
+extern const float D_0063184C;
+extern const float D_00631850;
+
+int func_0023CCB8(int a0)
+{
+    float *v1 = *(float **)(a0 + 0x34);
+
+    v1[0] = -133.0f;
+    v1[1] = D_0063184C;
+    v1[2] = D_00631850;
+    return 1;
+}
 
 int func_0023CCE0(void) {
     float *p = (float *)UpdateRootPosition();

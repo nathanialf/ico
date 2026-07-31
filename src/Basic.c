@@ -100,5 +100,11 @@ void mallocsekistage(void) {}
 
 INCLUDE_ASM("asm/nonmatchings/src/Basic", reallocseki);
 
-INCLUDE_ASM("asm/nonmatchings/src/Basic", func_001F6E00);
+extern int iosMallocAlignDebug(int size, int align, const char *file, int line);
+extern const char D_0061A8A8[];
+
+int func_001F6E00(int size, int align)
+{
+    return iosMallocAlignDebug(size, align, D_0061A8A8, 0x1A8);
+}
 

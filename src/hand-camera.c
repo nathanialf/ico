@@ -48,7 +48,14 @@ float SetLimitHandCameraCorrect(float *a0, float *a1, float *a2, float a3)
 
 INCLUDE_ASM("asm/nonmatchings/src/hand-camera", HandCameraCorrect);
 
-INCLUDE_ASM("asm/nonmatchings/src/hand-camera", func_00194590);
+extern int HandCameraCorrect(void *a0, void *a1);
+
+int func_00194590(void *a0, void *a1)
+{
+    int d = HandCameraCorrect(a0, a1);
+
+    return (d < 0) ? -d : d;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/hand-camera", func_001945B8);
 

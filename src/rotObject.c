@@ -60,9 +60,23 @@ int func_001EA220(void)
     return 1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/rotObject", func_001EA228);
+int func_001EA228(void *a0, void *a1)
+{
+    char *p = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x800);
 
-INCLUDE_ASM("asm/nonmatchings/src/rotObject", func_001EA248);
+    *(short *)(p + 0x20) = *(unsigned short *)((char *)a1 + 0x30);
+    *(int *)(p + 0x24) = *(short *)((char *)a1 + 0x32);
+    return 1;
+}
+
+int func_001EA248(void *a0, void *a1)
+{
+    char *p = *(char **)(*(char **)((char *)a1 + 0x15C) + 0x800);
+
+    *(short *)a0 = *(unsigned short *)(p + 0x20);
+    *(short *)((char *)a0 + 2) = *(unsigned short *)(p + 0x24);
+    return 1;
+}
 
 void func_001EA268(void *a0, int a1) {
     char *p = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x800);

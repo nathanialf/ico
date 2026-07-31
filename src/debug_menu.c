@@ -136,7 +136,10 @@ void func_001AA5C0(int idx)
 
 INCLUDE_ASM("asm/nonmatchings/src/debug_menu", func_001AA608);
 
-INCLUDE_ASM("asm/nonmatchings/src/debug_menu", func_001AA638);
+void func_001AA638(int page, int idx)
+{
+    *(int *)((char *)D_006F8EE0 + (page * 0xD0 + idx * 8)) = 0;
+}
 
 int func_001AA660(void)
 {

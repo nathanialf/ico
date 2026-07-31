@@ -211,7 +211,12 @@ void actSt00aEneChk(volatile int a0) {
     actCreateSubThread__p4(actConte14_6, 0x15);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/op", func_0020D748);
+extern void actEndDemo07(void);
+
+void func_0020D748(volatile int a0)
+{
+    actCreateSubThread__p4(actEndDemo07, 0x15);
+}
 
 void func_0020D770(int a0)
 {

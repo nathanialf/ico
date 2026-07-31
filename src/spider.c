@@ -16,7 +16,16 @@ INCLUDE_ASM("asm/nonmatchings/src/spider", func_001EAD28);
 
 INCLUDE_ASM("asm/nonmatchings/src/spider", func_001EADA0);
 
-INCLUDE_ASM("asm/nonmatchings/src/spider", func_001EAE70);
+int func_001EAE70(void *a0, int a1)
+{
+    char *p = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x800);
+    int *slot = (int *)(a1 * 4 + *(int *)(p + 0x24));
+    int old;
+
+    old = *slot;
+    *slot = 0;
+    return old;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/spider", func_001EAE90);
 

@@ -375,7 +375,16 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00260BA0);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00260BF8);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00260CA8);
+extern int D_0071EB68[];
+extern void func_00260BF8();
+
+void func_00260CA8(void)
+{
+    if (D_0071EB68[0] == 0) {
+        D_0071EB68[0] = 1;
+        func_00260BF8();
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00260CC8);
 

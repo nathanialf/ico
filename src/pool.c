@@ -203,5 +203,12 @@ int func_0010D180(char *self) {
 
 INCLUDE_ASM("asm/nonmatchings/src/pool", func_0010D198);
 
-INCLUDE_ASM("asm/nonmatchings/src/pool", func_0010D338);
+int func_0010D338(char **holder, char *self)
+{
+    char *sub = ((GObj *)(self))->p_15C;
+    char *p = ((Sub15C *)(((GObj *)(*holder))->p_15C))->p_800;
+
+    *(float *)(sub + 0x644) = *(float *)(sub + 0xA4) - *(float *)(p + 0x4);
+    return 1;
+}
 

@@ -21,7 +21,7 @@ typedef struct { char pad[0x20]; int i20; int i24; } WPNode;
 extern void func_001AE8A0(int *self, int a1, int a2);
 extern int D_006325B0;
 extern int D_00631990;
-extern char D_0028A520[];
+extern unsigned char D_0028A520[];
 extern void func_001AE1B8(int *self, int n, int a2);
 typedef struct Nd { int pad[2]; struct Nd *f8; struct Nd *fC; char pad2[0x40 - 16]; } Nd;
 extern unsigned char D_004CAEC0[];
@@ -418,7 +418,10 @@ void func_0017B1F0(int a0) {
     func_001AE8A0(a0, (int *)D_0028A520, 0x2E);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017B230);
+int func_0017B230(int bit_idx)
+{
+    return (D_0028A520[bit_idx >> 3] >> (bit_idx & 7)) & 1;
+}
 
 void func_0017B258(int bit_idx)
 {

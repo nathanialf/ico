@@ -140,7 +140,10 @@ int func_00168A80(unsigned int a, unsigned int b)
 
 INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_00168AE0);
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_00168BA0);
+float func_00168BA0(int a0, int a1)
+{
+    return func_00243950(a0, a1) + *(float *)(a0 + 0xC);
+}
 
 float func_00168BD0(float *a0, float *a1) {
     return a1[1] - (-(a0[0] * a1[0] + a0[2] * a1[2] + a0[3]) / a0[1]);
@@ -235,11 +238,22 @@ INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_0016A1D8);
 
 INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_0016A240);
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_0016A2A0);
+extern float MatrixDrive_GetTurnYAngleXZ(float a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_0016A2C8);
+float func_0016A2A0(float x, float z)
+{
+    return MatrixDrive_GetTurnYAngleXZ(x * x + z * z);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_0016A2F8);
+float func_0016A2C8(float x, float y, float z)
+{
+    return MatrixDrive_GetTurnYAngleXZ(x * x + y * y + z * z);
+}
+
+float func_0016A2F8(int v)
+{
+    return MatrixDrive_GetTurnYAngleXZ(func_00243950(v, v));
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/fuzio", func_0016A320);
 

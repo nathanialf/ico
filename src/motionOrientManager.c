@@ -287,7 +287,15 @@ done:
 
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E45E0);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E4700);
+void func_001E4700(void *self, int a1, int a2)
+{
+    char *m = *(char **)((char *)self + 0x15C) + 0x470;
+
+    if (*(int *)(m + 0x18) == 0) {
+        *(int *)(m + 0x1C) = a2;
+        *(int *)(m + 0x20) = a1;
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", func_001E4728);
 

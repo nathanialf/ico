@@ -36,7 +36,14 @@ void videoDecBeginPut(int *self)
     *(int *)(self[0] + 0xB8) = 3;
 }
 
-INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_videodec", videoDecEndPut);
+extern void debug_assertMessage(const char *fmt, int arg);
+extern const char D_00632820[];
+
+int videoDecEndPut(int a0, int *self)
+{
+    debug_assertMessage(D_00632820, self[1]);
+    return 1;
+}
 
 int videoDecFlush(int a0, int a1, int a2)
 {

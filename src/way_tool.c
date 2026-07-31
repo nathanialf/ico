@@ -161,7 +161,16 @@ INCLUDE_ASM("asm/nonmatchings/src/way_tool", quick_save_wpfile);
 
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", cursor_control);
 
-INCLUDE_ASM("asm/nonmatchings/src/way_tool", func_00207A88);
+extern void scpDispOnAllWithKind(void);
+extern void _ACTWait(int a0);
+
+void func_00207A88(volatile int a0)
+{
+    for (;;) {
+        scpDispOnAllWithKind();
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", func_00207AB0);
 

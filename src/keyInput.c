@@ -67,9 +67,30 @@ INCLUDE_ASM("asm/nonmatchings/src/keyInput", func_00104B98);
 
 INCLUDE_ASM("asm/nonmatchings/src/keyInput", func_00104C80);
 
-INCLUDE_ASM("asm/nonmatchings/src/keyInput", func_00104EF0);
+extern int D_00631B40;
+extern char D_0065FA40[];
+extern void func_00243BD8(void *a0);
+extern void func_0010E9F8(void);
+extern void SetIdentityQuaternion(void);
 
-INCLUDE_ASM("asm/nonmatchings/src/keyInput", func_00104F20);
+void func_00104EF0(void)
+{
+    D_00631B40 = 0;
+    func_00243BD8(D_0065FA40);
+    func_0010E9F8();
+    SetIdentityQuaternion();
+}
+
+extern int D_00631B40;
+extern char D_0065FA40[];
+extern void MatrixDrive_TurnXObjectMatrixYZ(void *dst, void *src);
+
+void func_00104F20(void)
+{
+    D_00631B40 += 1;
+    MatrixDrive_TurnXObjectMatrixYZ(&D_0065FA40[D_00631B40 * 0x40],
+                                    &D_0065FA40[D_00631B40 * 0x40 - 0x40]);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/keyInput", func_00104F48);
 
@@ -77,7 +98,16 @@ INCLUDE_ASM("asm/nonmatchings/src/keyInput", func_00104FC0);
 
 INCLUDE_ASM("asm/nonmatchings/src/keyInput", func_00105038);
 
-INCLUDE_ASM("asm/nonmatchings/src/keyInput", func_001050B0);
+extern float D_002759A0[];
+
+void func_001050B0(float x, float y, float z)
+{
+    D_002759A0[0] = x;
+    D_002759A0[5] = y;
+    D_002759A0[10] = z;
+    func_002438E8__p4(&D_0065FA40[D_00631B40 * 0x40], &D_0065FA40[D_00631B40 * 0x40],
+                      (int)D_002759A0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/keyInput", func_001050E0);
 
