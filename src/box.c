@@ -13,6 +13,12 @@ INCLUDE_ASM("asm/nonmatchings/src/box", func_001BD668);
 
 INCLUDE_ASM("asm/nonmatchings/src/box", onPath);
 
+/* box .rodata run 0x6186A0..0x618808 -- byte-verified against baseelf;
+ * defs interleave with INCLUDE_ASM stubs so .o section order == VMA order.
+ * (box.c is trace-reordered for .text via INCLUDE_ASM_FS, but these 5
+ * functions/defs are already in VMA order in the .c source, so plain
+ * interleaving still holds for .rodata here.) */
+const char D_006186A0[0x10] = "src/box.c";
 INCLUDE_ASM("asm/nonmatchings/src/box", playAnimationCore);
 
 INCLUDE_ASM("asm/nonmatchings/src/box", MoveFloatingBox);
@@ -100,6 +106,10 @@ INCLUDE_ASM("asm/nonmatchings/src/box", func_001BF7F8);
 INCLUDE_ASM("asm/nonmatchings/src/box", func_001BF918);
 
 INCLUDE_ASM("asm/nonmatchings/src/box", func_001BFFE8);
+
+const char D_00618770[0x78] = "\033[36m箱が地面の無いところに初期配置されています。\n動作が保証できません(コリジョン定義より前に箱がありませんか?)\033[m\n\0\0\0\0\0";
+const char D_006187E8[0x10] = "箱初期水底配置\n\0";
+const char D_006187F8[0x10] = "箱初期通常配置\n\0";
 
 INCLUDE_ASM("asm/nonmatchings/src/box", func_001C00C0);
 

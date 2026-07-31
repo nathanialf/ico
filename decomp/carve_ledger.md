@@ -765,9 +765,52 @@ wiring. Also: an editing mistake mid-attempt mixed Edit-tool calls
 into a EUC-JP-bearing file already touched by python — silently
 re-encoded every raw EUC-JP byte to UTF-8 U+FFFD, caught immediately
 by a byte-count sanity check before ninja even ran, reverted, redone
-as one python-only pass). Batch conversion of the remaining
-jtbl-bearing TUs recorded below as they land. Decided runs
-are recorded in `decomp/data_tu_boundaries.json`.
+as one python-only pass), `src/box` [0x6186A0,0x618808) (new carve;
+unblocks jtbl_006186E0/618720; box.c is trace-reordered for .text via
+INCLUDE_ASM_FS but the 5 functions/defs in this run are already
+VMA-ordered in source so plain interleaving held; 3 EUC-JP strings).
+`src/staticBlur` REVERTED — see the Blocked TUs section below (a
+splat disassembly bug, not a carve-recipe problem). Batch conversion
+of the remaining jtbl-bearing TUs recorded below as they land. Decided
+runs are recorded in `decomp/data_tu_boundaries.json`.
+
+## Blocked: `src/staticBlur` full-run carve reverted (2026-07-31)
+
+Attempted run [0x61A2C0,0x61A470) (jtbl_0061A3F0/A430/A450, all
+embedded in-function so no standalone wiring needed). Landed defs and
+build FAILED with a 6-byte mismatch inside `fillWork2`'s own
+INCLUDE_ASM'd span, unrelated to anything this recipe writes:
+splat's disassembly of `asm/nonmatchings/src/staticBlur/fillWork2.s`
+renders `D_0061A350` as `.asciz "BLUR $R: %d"` — a stray `$` before
+the `R` that is NOT in the ELF (baseelf bytes are `BLUR R: %d`,
+confirmed both by direct byte extraction and by the file's own hex
+comment `424C555220523A2025640000`, which decodes to `BLUR R: %d`
+with no `$`). This is a pure splat transcription bug in the
+`.asciz`-reconstruction path for per-function rodata migration —
+never triggered before because this address always shipped as raw
+hex in the shared blob (byte-accurate by construction there), and
+only surfaces now that the address is asked to round-trip through
+`.asciz`.
+
+Hand-patching the generated `.s` file (verified to fix the byte and
+survive an un-forced re-run of `tools/build.sh setup`, since splat
+skips regenerating an already-present nonmatching stub) is NOT a
+durable fix: `asm/**` is entirely gitignored on this branch
+(`.gitignore:51`, "All of these are reproducible from the ELF, so
+they stay gitignored") — nothing under `asm/nonmatchings/` is
+tracked, confirmed via `git ls-files asm/`. Deleting and
+regenerating the file reproduces the identical bug, proving it is
+deterministic in splat, not a stale artifact. A hand-fix would vanish
+on the next clean `asm/` regen (a fresh clone, or the pre-commit
+hook's full setup from a wiped tree), silently reintroducing the
+mismatch — so it was reverted rather than committed.
+
+`config/ico.us.yaml` and `src/staticBlur.c` are back to the
+pre-attempt state (verified green with the ORIGINAL narrow-blob
+layout, i.e. this address range still lives in the shared
+`src/cod` blob). Do not retry until the splat `.asciz` transcription
+bug is fixed upstream, or a policy decision authorizes a tracked
+override for this one symbol.
 
 ## Blocked: `src/boyact` full-run carve reverted (2026-07-31)
 

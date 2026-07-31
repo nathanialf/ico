@@ -447,6 +447,8 @@ segments:
       - [0x5171FC, rodata, src/cod/5171FC]   # .rodata blob resume
       - [0x517390, .rodata, src/staffroll]  # gcc-emitted jtbl_00617390 (func_001B84C8 switch, 7 entries 0x1C), VMA 0x617390..0x6173AC
       - [0x5173AC, rodata, src/cod/5173AC]   # .rodata blob resume
+      - [0x5186A0, .rodata, src/box]  # full box .rodata run (anchors: jtbl_006186E0/618720 + D_006186A0..D_006187F8), VMA 0x6186A0..0x618808
+      - [0x518808, rodata, src/cod/518808]   # .rodata blob resume (before src/switch)
       - [0x518F20, .rodata, src/handManager]  # gcc-emitted jtbl_00618F20 (connectToTarget switch, 6 entries 0x18), VMA 0x618F20..0x618F38
       - [0x518F38, rodata, src/cod/518F38]   # .rodata blob resume
       - [0x518FB0, .rodata, src/item]  # gcc-emitted jtbl_00618FB0 (uncarriedItemGeo switch, 5 entries 0x14), VMA 0x618FB0..0x618FC4
