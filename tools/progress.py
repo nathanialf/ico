@@ -159,7 +159,7 @@ def _include_asm_bytes(name: str) -> int:
     if not csrc.exists():
         return 0
     try:
-        text = csrc.read_text()
+        text = csrc.read_text(encoding="utf-8", errors="replace")
     except Exception:
         return 0
     total = 0

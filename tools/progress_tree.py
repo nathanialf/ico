@@ -221,7 +221,7 @@ def _unmatched_funcs_for_tu(tu: str, ext: str) -> set[str] | None:
     if ext == "S":
         return set()
     try:
-        text = src.read_text()
+        text = src.read_text(encoding="utf-8", errors="replace")
     except Exception:
         return None
     return set(_INCLUDE_ASM_RE.findall(text))
