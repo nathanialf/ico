@@ -583,7 +583,7 @@ padding is injected. All 30 verified byte-identical with such ends.
 | `src/DisplayList` | `[0x51AC40]` | 0x61AC40..0x61AC60 | `jtbl_0061AC40` (dl_GetPri, 8) |
 | `src/st04b` | `[0x51BCE0]` | 0x61BCE0..0x61BD00 | `jtbl_0061BCE0` (func_00217658, 8) |
 | `src/cod/vendor_2453C0` | `[0x52E5F0]` | 0x62E5F0..0x62E654 | `jtbl_0062E5F0` (func_00246CD0, 25) |
-| `src/cod/vendor_24E9D8` | `[0x52ECD0]` | 0x62ECD0..0x62ECE4 | `jtbl_0062ECD0` (func_00251ED0, 5) |
+| `src/cod/vendor_2517D0` | `[0x52ECD0]` | 0x62ECD0..0x62ECE4 | `jtbl_0062ECD0` (func_00251ED0, 5) — was `vendor_24E9D8` until the 2026-08-01 member-boundary re-carve moved its owner function |
 | `src/cod/vendor_258CC0` | `[0x52F0E0]` | 0x62F0E0..0x62F2C0 | `jtbl_0062F0E0` (func_00258D10, 99) + pad + `jtbl_0062F270` (func_0025BA58, 20) |
 | `src/cod/vendor_25E1E8` | `[0x52FE10]` | 0x62FE10..0x62FF74 | `jtbl_0062FE10` (func_00265CA0, 89) |
 
@@ -921,3 +921,68 @@ not a data-carve mechanism — out of scope here. `config/ico.us.yaml`
 and `src/boyact.c` were reverted to the pre-attempt state (verified
 green). Do not retry the full-run carve without first re-matching
 func_00151868/func_001519D8 against the aliased-symbol form.
+
+## Batch 5 — vendor member-boundary re-carve of the 0x252D28 region (2026-08-01)
+
+**What changed.** The `[0x152D28, c, vendor_252D28]` 96-function chunk carve
+merged parts of SIX archive members, and its 0x252D28 start fell mid-member
+inside `libmpeg.a(mpc.o)`. Replaced with true member-boundary TUs; the
+`vendor_24E9D8` chunk now ends at the `mpc.o` start:
+
+| TU | member | VMA span |
+|---|---|---|
+| `vendor_2517D0` | `libmpeg.a(mpc.o)` | 0x2517D0..0x2564E0 |
+| `vendor_2564E0` | `libmpeg.a(csc.o)` | 0x2564E0..0x256BF8 |
+| `vendor_256BF8` | `libmpeg.a(bit.o)` | 0x256BF8..0x256DF8 |
+| `vendor_256DF8` | `libipu.a(libipu.o)` | 0x256DF8..0x257128 |
+| `vendor_257128` | `libipu.a(ipuinit.o)` | 0x257128..0x2575C0 |
+| `vendor_2575C0` | `libsndn2.a(sound.o)` head | 0x2575C0..0x258CC0 (member continues into `vendor_258CC0`) |
+
+**Boundary evidence.** Per-function aug6-twin mapping (`.port_cache/
+name_alias.json`, delta +0x3C70 throughout this region) binned against the
+aug6 MAIN.MAP member spans (`baserom/aug6/text_tu_boundaries.txt` on the
+aug6 worktree). Boundaries were then pinned to *retail function starts*
+(all 8-aligned), NOT projected addresses — retail member sizes drift from
+aug6 (e.g. aug6's projected csc.o start 0x256478 lands mid-way through
+retail `func_002563C8`; the retail boundary is the next function start,
+0x2564E0). Five retail-only functions with no aug6 twin (func_00252F90,
+func_002532C8, func_00255410, func_00256C30, func_00257DE0) all sit
+interior to member spans, so no boundary is ambiguous. The exact retail
+`mpc.o` start is bracketed to (0x251248+sizeof(func_00251248), 0x2517D0];
+0x2517D0 is the first function positively attributed to mpc.o (aug6 has
+~0xC0 of unattributed mpc.o head before its first twin), so the split sits
+there. `MAIN.MAP` addresses were never used to verify retail placement
+(different link).
+
+**Why (the assembler finding).** Under the period assembler the OLD merged
+stream made the R5900 short-loop-erratum pass insert 10 spurious nops into
+`func_00254328` (both backward branches padded 5 each), which a
+forward-defined label alias had to suppress (commit b5788929). Empirics
+recorded so far: the pass mis-measures the ~26-insn loop as 1 insn under
+the old carve's exact 8573-line stream; the block is clean standalone,
+clean behind >12KB of synthetic filler (plain insns, labelled backward
+branches, `%hi` reloc insns, `.align`+label units — none trigger), clean
+when almost ANY single preceding function is dropped from the real stream,
+and clean in the TRUE `mpc.o` TU even though that puts MORE content before
+the loop than the old carve did. I.e. the trigger is a whole-stream
+configuration artifact, not stream position; delta-minimisation could not
+reduce the triggering prefix below ~1450 real lines. With the re-carve the
+direct `.L0025071C` labels assemble byte-identical and the alias is
+retired. (This also explains the Batch-2 note on `func_00254C98`: the
+"rewriting two `.word`s inserts 10 nops 0x1600 earlier" effect was the
+same configuration sensitivity, and it is moot under the new carve.)
+
+**Mechanics of the split.** All 96+96 functions redistributed by contiguous
+line ranges; every moved *matched* C body was verified by compiling each new
+TU with the production CFLAGS and diffing per-function `.s` bodies
+(local-label-normalised) against the pre-split TUs — three extern decls had
+to move with the sound part (`D_005524A4`, `func_00251CF8`, and signatures
+for `func_00252590`/`func_00255F50`) to keep `func_00257CF8`'s $2/$3
+register tie: an implicitly-declared callee (assumed `int` return) flips
+it. The `jtbl_0062ECD0` `.rodata` carve moved with its owner function
+(`func_00251ED0`) to `vendor_2517D0`; splat only inlines a jtbl into the
+owner's `.s` when the jtbl subsegment names the owner's TU, otherwise the
+link fails on an undefined `jtbl_*` — same rule Batch 4 stated, now
+observed from the failing side. Gate: full distclean + setup + ninja →
+`verify_elf: OK sha1=fbf50c75…`, zero assembler fallbacks,
+`use_modern_as.txt` still empty.

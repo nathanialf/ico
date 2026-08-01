@@ -351,8 +351,21 @@ segments:
       - [0x1418A0, c, src/cod/vendor_2418A0]  # 96 funcs
       - [0x1453C0, c, src/cod/vendor_2453C0]  # 96 funcs
       - [0x14AAC8, c, src/cod/vendor_24AAC8]  # 96 funcs
-      - [0x14E9D8, c, src/cod/vendor_24E9D8]  # 96 funcs
-      - [0x152D28, c, src/cod/vendor_252D28]  # 96 funcs
+      - [0x14E9D8, c, src/cod/vendor_24E9D8]  # 48 funcs, ends at libmpeg.a(mpc.o) start
+      # The old [0x152D28, vendor_252D28] 96-func chunk carve merged parts of six
+      # archive members and its 0x252D28 cut fell MID-mpc.o; under the period
+      # assembler that exact merged stream made the short-loop-erratum pass pad
+      # func_00254328 with 10 spurious nops (see the HISTORY comment at that
+      # function in vendor_2517D0.c). Re-carved 2026-08-01 at the true member
+      # boundaries (aug6-twin instruction-hash attribution, boundaries verified
+      # as 8-aligned retail function starts; each piece pre-assembled to the
+      # ROM's exact byte count):
+      - [0x1517D0, c, src/cod/vendor_2517D0]  # libmpeg.a(mpc.o) 0x2517D0..0x2564E0
+      - [0x1564E0, c, src/cod/vendor_2564E0]  # libmpeg.a(csc.o) ..0x256BF8
+      - [0x156BF8, c, src/cod/vendor_256BF8]  # libmpeg.a(bit.o) ..0x256DF8
+      - [0x156DF8, c, src/cod/vendor_256DF8]  # libipu.a(libipu.o) ..0x257128
+      - [0x157128, c, src/cod/vendor_257128]  # libipu.a(ipuinit.o) ..0x2575C0
+      - [0x1575C0, c, src/cod/vendor_2575C0]  # libsndn2.a(sound.o) head; contd in vendor_258CC0
       - [0x158CC0, c, src/cod/vendor_258CC0]  # 96 funcs
       - [0x15E1E8, c, src/cod/vendor_25E1E8]  # 96 funcs
       - [0x1668B8, c, src/cod/vendor_2668B8]  # 92 funcs
@@ -478,7 +491,7 @@ segments:
       - [0x52E578, rodata, src/cod/52E578]   # .rodata blob resume (before src/cod/vendor_2453C0's own pre-carve anchors)
       - [0x52E5F0, .rodata, src/cod/vendor_2453C0]  # gcc-emitted jtbl_0062E5F0 (func_00246CD0 switch, 25 entries 0x64), VMA 0x62E5F0..0x62E654
       - [0x52E654, rodata, src/cod/52E654]   # .rodata blob resume
-      - [0x52ECD0, .rodata, src/cod/vendor_24E9D8]  # gcc-emitted jtbl_0062ECD0 (func_00251ED0 switch, 5 entries 0x14), VMA 0x62ECD0..0x62ECE4
+      - [0x52ECD0, .rodata, src/cod/vendor_2517D0]  # gcc-emitted jtbl_0062ECD0 (func_00251ED0 switch, 5 entries 0x14), VMA 0x62ECD0..0x62ECE4
       - [0x52ECE4, rodata, src/cod/52ECE4]   # .rodata blob resume
       - [0x52F0E0, .rodata, src/cod/vendor_258CC0]  # gcc-emitted jtbl_0062F0E0 (func_00258D10 switch, 99 entries 0x18C) + .align3 pad + jtbl_0062F270 (func_0025BA58 switch, 20 entries 0x50), VMA 0x62F0E0..0x62F2C0
       - [0x52F2C0, rodata, src/cod/52F2C0]   # .rodata blob resume

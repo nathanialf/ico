@@ -267,7 +267,15 @@ found it.
 
 ### Representation
 
-Both blobs are carved (`config/ico.us.yaml`), 9 `c` TUs under `src/cod/`:
+Both blobs are carved (`config/ico.us.yaml`), 14 `c` TUs under `src/cod/`.
+(2026-08-01: the old `vendor_252D28` 96-func chunk merged parts of six
+archive members and its start fell mid-`mpc.o`; it was re-carved into six
+TUs at the true member boundaries — aug6-twin instruction-hash attribution
+— and `vendor_24E9D8` now ends at the `mpc.o` start. That re-carve is what
+let the `func_00254328` short-loop-erratum label-alias workaround retire;
+see the HISTORY comment at that function in `vendor_2517D0.c`. Matched
+counts below are INCLUDE_ASM-derived from the tree on 2026-08-01; the
+per-TU history above this table predates the re-carve.)
 
 | TU | funcs | bytes |
 |---|---|---|
@@ -275,8 +283,13 @@ Both blobs are carved (`config/ico.us.yaml`), 9 `c` TUs under `src/cod/`:
 | `vendor_2418A0` | 60/96 | 3,696/15,136 |
 | `vendor_2453C0` | 46/96 | 3,688/22,280 |
 | `vendor_24AAC8` | 37/96 | 2,824/16,144 |
-| `vendor_24E9D8` | 58/96 | 4,504/17,232 |
-| `vendor_252D28` | 38/96 | 3,592/24,472 |
+| `vendor_24E9D8` (ends at mpc.o) | 37/48 | 6,976/11,768 |
+| `vendor_2517D0` = libmpeg.a(mpc.o) | 66/97 | 6,192/19,728 |
+| `vendor_2564E0` = libmpeg.a(csc.o) | 3/7 | 512/1,816 |
+| `vendor_256BF8` = libmpeg.a(bit.o) | 1/3 | 56/512 |
+| `vendor_256DF8` = libipu.a(libipu.o) | 0/4 | 0/816 |
+| `vendor_257128` = libipu.a(ipuinit.o) | 0/2 | 0/1,176 |
+| `vendor_2575C0` = libsndn2.a(sound.o) head | 20/31 | 1,792/5,888 |
 | `vendor_258CC0` | 61/96 | 6,048/21,800 |
 | `vendor_25E1E8` | 39/96 | 3,796/34,512 |
 | `vendor_2668B8` | 42/92 | 3,756/36,032 |
