@@ -438,8 +438,9 @@ segments:
       - [0x45C690, rodata, src/cod/45C690]   # .rodata blob resume
       - [0x514F10, .rodata, src/debug]  # gcc-emitted jtbl_00614F10 (func_001A3398 switch, 11 entries 0x2C), VMA 0x614F10..0x614F3C
       - [0x514F3C, rodata, src/cod/514F3C]   # .rodata blob resume
-      - [0x515090, .rodata, src/debug_exception]  # gcc-emitted jtbl_00615090 (initLineTraceTable switch, 17 entries 0x44), VMA 0x615090..0x6150D4
-      - [0x5150D4, rodata, src/cod/5150D4]   # .rodata blob, part 4 (resume after debug_exception jtbl)
+      - [0x515060, .rodata, src/debug_exception]  # full debug_exception .rodata run (7 jtbls incl. carved initLineTraceTable's + exception/collision-test strings; interior debug_menu/gamesys-referenced syms are cross-TU externs; D_00615880 move-strings owned via its .data table D_004B3110/20), VMA 0x615060..0x615900
+      - [0x515900, .rodata, src/debug_menu]  # full debug_menu .rodata run (menu-item + FIXED-BUG-ID strings owned via its .data menu table D_004B3140, then DISC VER/DEBUG MENU anchors), VMA 0x615900..0x615B60
+      - [0x515B60, rodata, src/cod/515B60]   # .rodata blob, part 4 (resume to gamesys jtbl)
       - [0x5164D0, .rodata, src/gamesys]  # gcc-emitted jtbl_006164D0 (gamesysMemoryHandlerWrite switch, 5 entries 0x14), VMA 0x6164D0..0x6164E4
       - [0x5164E4, rodata, src/cod/5164E4]   # .rodata blob resume
       - [0x516CC0, .rodata, src/kanban]  # gcc-emitted jtbl_00616CC0 (func_001B08E0 switch, 8 entries 0x20), VMA 0x616CC0..0x616CE0

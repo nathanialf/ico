@@ -205,7 +205,18 @@ def main():
             continue
         i = bisect.bisect_right(base, v) - 1
         if i >= 0 and base[i] in stub_anchor:
-            continue
+            # verify the stub actually migrated this symbol - a sym referenced
+            # only by matched C can fall inside a stub's assumed span without
+            # a dlabel in the stub (debug_exception's D_006150F0), leaving no
+            # emitter and a silent byte shortfall at the SHA gate
+            stub_path = os.path.join(nmdir, stub_anchor[base[i]] + ".s")
+            try:
+                stub_text = open(stub_path, encoding="utf-8",
+                                 errors="replace").read()
+            except OSError:
+                stub_text = ""
+            if re.search(r"^dlabel D_%08X$" % v, stub_text, re.M):
+                continue
         standalone[v] = "D_%08X" % v
 
     emitted = sorted(list(standalone.keys()) + list(stub_anchor.keys()))
