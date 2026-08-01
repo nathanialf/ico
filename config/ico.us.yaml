@@ -402,7 +402,7 @@ segments:
       - [0x454790, rodata, src/cod/454790]   # .rodata blob, part 1b (resume after Light carve)
       - [0x454DB0, .rodata, src/Packet]  # full Packet .rodata run (anchors: jtbl_00554DB0 pac_makeNormalStrip + jtbl_00554E00 pac_setVifEndCode + jtbl_00554FE0 pac_continueTag), VMA 0x554DB0..0x555490
       - [0x455490, rodata, src/cod/455490]   # .rodata blob resume (before src/Primitive)
-      - [0x455938, .rodata, src/StageAnimation]  # full StageAnimation .rodata run (anchors: jtbl_00555990 stage_Init + jtbl_005559C0 stage_SetAnimation + D_00555938..D_00555E28; the 8 zero bytes at 0x5559B8 are gcc's .align 4 pad between the two jtbls), VMA 0x555938..0x555E70
+      - [0x455938, .rodata, src/StageAnimation]  # full StageAnimation .rodata run (anchors: jtbl_00555990 stage_Init + jtbl_005559C0 stage_SetAnimation + D_00555938..D_00555E28; the 8 zero bytes at 0x5559B8 are gcc's .align 4 pad between the two jtbls, carved as D_005559B8 in symbol_addrs so the pad survives when stage_Init's C body supplies jtbl_00555990), VMA 0x555938..0x555E70
       - [0x455E70, .rodata, src/Texture]  # full Texture .rodata run (anchors: jtbl_00555F20/5560D0/5561C0/5562B0 + D_00555E70..D_005565C8), VMA 0x555E70..0x5565E0
       - [0x4565E0, rodata, src/cod/4565E0]   # .rodata blob resume (before src/ZFog)
       - [0x456F10, .rodata, ios/mcard]  # gcc-emitted jtbl_00556F10 (iosMcMgrGetBlockSaveInfo switch, 15 entries 0x3C), VMA 0x556F10..0x556F4C

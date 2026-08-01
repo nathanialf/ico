@@ -11,6 +11,22 @@ _start = 0x00100008; // type:func  // (vendor)
 // true size lets splat emit all 6 bytes.
 D_00633BC0 = 0x00633BC0; // type:asciz size:0x6
 
+// The 8 zero bytes at 0x5559B8 between jtbl_00555990 (stage_Init, 10
+// entries = 0x28) and jtbl_005559C0 (0x5559C0) are gcc's .align 4 pad
+// before the second jump table. Splat folds that pad into
+// jtbl_00555990's dlabel, so when src/StageAnimation.c supplies
+// stage_Init as real C the compiler's own 0x28-byte table replaces the
+// dlabel, the pad vanishes, and everything after 0x5559B8 in the shared
+// .rodata blob slides down 8 bytes (perturbing gp-window layout).
+// Attaching the pad to stage_SetAnimation (owner of jtbl_005559C0)
+// keeps it emitted right before that jtbl in the included asm block in
+// both the stub and real-C configurations; the explicit size on
+// jtbl_00555990 stops splat's jumptable sizing from swallowing the pad
+// into stage_Init's dlabel as well (which would pad twice in the stub
+// configuration).
+jtbl_00555990 = 0x00555990; // type:jtbl size:0x28
+D_005559B8 = 0x005559B8; // type:s32 size:0x8 function_owner:stage_SetAnimation
+
 // Sub-word .sdata symbols defined in coalesced TUs (src/pool.c,
 // src/DisplayList.c, src/RegistPacket.c, src/clothAnimation.c, etc.).
 // These TUs are not listed as yaml subsegments, so splat would
