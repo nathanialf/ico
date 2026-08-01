@@ -443,8 +443,8 @@ segments:
       - [0x5164D0, .rodata, src/gamesys]  # gcc-emitted jtbl_006164D0 (gamesysMemoryHandlerWrite switch, 5 entries 0x14), VMA 0x6164D0..0x6164E4
       - [0x5164E4, rodata, src/cod/5164E4]   # .rodata blob resume
       - [0x516CC0, .rodata, src/kanban]  # gcc-emitted jtbl_00616CC0 (func_001B08E0 switch, 8 entries 0x20), VMA 0x616CC0..0x616CE0
-      - [0x516CE0, rodata, src/cod/516CE0]   # .rodata blob resume
-      - [0x5171B0, .rodata, src/layout_action]  # gcc-emitted jtbl_006171B0 (la_load_processing switch, 5 entries 0x14), VMA 0x6171B0..0x6171C4
+      - [0x516CE0, .rodata, src/kanbanBoot]  # full kanbanBoot .rodata run (6 jtbls 0x616DD0/E60/EC0/FD0/617100/140 + signage strings; interior layout_action/layout_texture-referenced syms are cross-TU externs), VMA 0x616CE0..0x617170
+      - [0x517170, .rodata, src/layout_action]  # full layout_action .rodata run (D_00617170..D_00617198 + gcc-emitted jtbl_006171B0, la_load_processing switch, 5 entries 0x14), VMA 0x617170..0x6171C4
       - [0x5171C4, rodata, src/cod/5171C4]   # .rodata blob resume
       - [0x5171E0, .rodata, src/layout_texture]  # gcc-emitted jtbl_006171E0 (lt_current_property_item switch, 7 entries 0x1C), VMA 0x6171E0..0x6171FC
       - [0x5171FC, rodata, src/cod/5171FC]   # .rodata blob resume

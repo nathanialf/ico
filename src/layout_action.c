@@ -213,11 +213,14 @@ INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_load_confirm_no_data);
 
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_load_start_check);
 
+/* layout_action .rodata run 0x617170..0x6171C4 (byte-verified) */
+const char D_00617170[0x18] = "save complete %d %d\n";
+const char D_00617188[0x10] = "%d %d %d\n";
+const char D_00617198[0x18] = "push start\n";
+
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_load_processing);
 
 extern char D_00280F78__p4[] __asm__("D_00280F78");
-extern char D_00617170[];
-extern char D_00617188[];
 extern int D_00633044;
 
 int la_mc_confirm_save_file(int a0, int a1) {

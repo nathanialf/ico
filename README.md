@@ -1,10 +1,10 @@
 # ico
 
 <!-- progress:begin -->
-![.text progress](https://img.shields.io/badge/text-31.24%20%25-yellow.svg)
+![.text progress](https://img.shields.io/badge/text-32.20%20%25-yellow.svg)
 ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg)
 ![.data progress](https://img.shields.io/badge/data-0.10%20%25-orange.svg)
-![.rodata progress](https://img.shields.io/badge/rodata-2.42%20%25-orange.svg)
+![.rodata progress](https://img.shields.io/badge/rodata-2.56%20%25-orange.svg)
 ![.lit4 progress](https://img.shields.io/badge/lit4-0.00%20%25-red.svg)
 ![.sdata progress](https://img.shields.io/badge/sdata-1.21%20%25-orange.svg)
 <!-- progress:end -->

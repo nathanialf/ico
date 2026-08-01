@@ -2,7 +2,8 @@
 
 
 extern void debug_assertMessage();
-extern int D_00616CE0[];
+/* kanbanBoot .rodata run 0x616CE0..0x617170 (byte-verified; stubs emit the rest) */
+const char D_00616CE0[0x10] = "sync end\n";
 extern void soundSeDefPlayWithVolumeRate(int a0, unsigned int a1, int a2, int a3);
 
 void kanbanBootMcCheck(void) {
@@ -20,6 +21,9 @@ void kanbanBootInit(void)
 
 INCLUDE_ASM("asm/nonmatchings/src/kanbanBoot", kanbanBootStart);
 
+/* "debug_mcLoadMainBlock:" + EUC-JP message, raw bytes */
+const char D_00616E18[0x48] = "debug_mcLoadMainBlock:既に設定された数以上のデータを保存してる\n";
+
 INCLUDE_ASM("asm/nonmatchings/src/kanbanBoot", func_001B0BB8);
 
 INCLUDE_ASM("asm/nonmatchings/src/kanbanBoot", func_001B0F18);
@@ -27,6 +31,10 @@ INCLUDE_ASM("asm/nonmatchings/src/kanbanBoot", func_001B0F18);
 INCLUDE_ASM("asm/nonmatchings/src/kanbanBoot", func_001B1270);
 
 INCLUDE_ASM("asm/nonmatchings/src/kanbanBoot", func_001B1438);
+
+const char D_00616ED8[0x10] = "no memoca\n";
+const char D_00616EE8[0x10] = "no free\n";
+const unsigned int D_00616EF8[0x10] = { 0x00000001, 0x00000002, 0x00000004, 0x00000008, 0x00000010, 0x00000020, 0x00000040, 0x00000080, 0x00000100, 0x00000200, 0x00000400, 0x00000800, 0x00001000, 0x00002000, 0x00004000, 0x00008000 };
 
 INCLUDE_ASM("asm/nonmatchings/src/kanbanBoot", func_001B15F0);
 
@@ -59,6 +67,8 @@ INCLUDE_ASM("asm/nonmatchings/src/kanbanBoot", func_001B3338);
 INCLUDE_ASM("asm/nonmatchings/src/kanbanBoot", func_001B3530);
 
 INCLUDE_ASM("asm/nonmatchings/src/kanbanBoot", func_001B3810);
+
+const char D_006170E0[0x20] = "McSave phase:%d  %x\n";
 
 INCLUDE_ASM("asm/nonmatchings/src/kanbanBoot", func_001B3990);
 
