@@ -51,10 +51,10 @@
  *      Use for: vmulx.MASK / vaddy.MASK / vmaddw.MASK style ops where
  *      the broadcast letter is part of the mnemonic AND appears as a
  *      register suffix on the b operand.
- *    VU0_V3OP_ACC(mnem, a, b)     -> "<mnem> $ACC, $vfa, $vfb"
+ *    VU0_V3OP_ACC(mnem, a, b)     -> "<mnem> ACC, $vfa, $vfb"
  *      Use for: vopmula.MASK, vopmsub.MASK destination=ACC.
  *    VU0_V3OP_ACC_BC(mnem, a, b, bc)
- *                                 -> "<mnem> $ACC, $vfa, $vfb<bc>"
+ *                                 -> "<mnem> ACC, $vfa, $vfb<bc>"
  *      Use for: vmulax/vmadday/vmaddaz.MASK style.
  *
  *  EE<->VU transfer
@@ -103,8 +103,8 @@
 #define VU0_V3OP_BC(mnem, d, a, b, bc)      VU0_REG(#mnem " $vf" #d ", $vf" #a ", $vf" #b #bc)
 
 /* VU compute to ACC. */
-#define VU0_V3OP_ACC(mnem, a, b)            VU0_REG(#mnem " $ACC, $vf" #a ", $vf" #b)
-#define VU0_V3OP_ACC_BC(mnem, a, b, bc)     VU0_REG(#mnem " $ACC, $vf" #a ", $vf" #b #bc)
+#define VU0_V3OP_ACC(mnem, a, b)            VU0_REG(#mnem " ACC, $vf" #a ", $vf" #b)
+#define VU0_V3OP_ACC_BC(mnem, a, b, bc)     VU0_REG(#mnem " ACC, $vf" #a ", $vf" #b #bc)
 
 /* EE<->VU transfer ops. */
 #define VU0_MFC1(gp, fp)                    VU0_REG("mfc1 $" #gp ", $f" #fp)
@@ -121,7 +121,7 @@
 #define VU0_WAIT()      __asm__ __volatile__("vwaitq")
 
 /* Raw 32-bit word emission for COP2 ops without a gas mnemonic
- * (e.g., `vsqrt $Q, $vfNx` -> .word 0x4A0X03BD). */
+ * (e.g., `vsqrt Q, $vfNx` -> .word 0x4A0X03BD). */
 #define VU0_WORD(w)     __asm__ __volatile__(".word " #w)
 
 /* Hazard-pair scheduler barriers.

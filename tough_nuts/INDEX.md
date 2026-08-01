@@ -138,3 +138,4 @@ from the conv-heavy convergence chain.
 | func_0023CCB8 | func_0023CCB8 |
 | func_0023F598 | func_0023F598 |
 | func_00240600 | func_00240600 |
+| delayslot_unfilled | 8 funcs across enemy / Packet / vendor_2418A0 (see QUEUE.md) |

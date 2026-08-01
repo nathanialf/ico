@@ -56,17 +56,10 @@ void EnemySetfAppearAll(int *self)
     SetEnemyFootPrintSwitch(self);
 }
 
-void EnemySetfDisappearAll(int *self)
-{
-    register int *alias;
-    alias = self;
-
-    *(int volatile *)((char *)*(int * volatile *)((char *)alias + 0x15C) + 0x2B0) = 0;
-    *(int volatile *)((char *)*(int * volatile *)((char *)alias + 0x15C) + 0x310) = 0;
-    *(int volatile *)((char *)*(int * volatile *)((char *)alias + 0x15C) + 0x3B8) = 0;
-    *(int volatile *)((char *)*(int * volatile *)((char *)alias + 0x15C) + 0x3BC) = 0;
-    InitMotionOrient(self);
-}
+/* Delay-slot dependant (see /primary/home/n/.claude/projects/-primary-dev-ico/
+ * delayslot_queue/enemy_EnemySetfDisappearAll.c): C matched only under modern
+ * gas, which fills the `j InitMotionOrient` delay slot gcc left bare. */
+INCLUDE_ASM("asm/nonmatchings/src/enemy", EnemySetfDisappearAll);
 
 void EnemySetfDisappear(char *self, float arg) {
     char *s = *(char **)(self + 0x15C);

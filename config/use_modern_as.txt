@@ -1,5 +1,26 @@
-// aug6 branch: empty by design. These are retail-specific compile bandaids
-// (per-TU modern/old assembler forcing, per-func cflags, lit4 pool slots, data
-// migration symbols). aug6 starts with ZERO bandaids — default ee-as 2.96
-// natively emits the ROM encodings (move->daddu, break 0,N verified). Entries
-// are added only if an actual aug6 match proves one is needed.
+// TUs assembled with MODERN gas instead of the default period assembler
+// (ee-as 2.9-991111). compile_c.sh flattens their .include'd splat siblings
+// and translates the bare ACC/Q/R VU0 spelling to the $-form modern gas
+// requires (preprocess_old_as.py --modern), so the whole input — including
+// the included files — is in the modern dialect.
+//
+// 2026-08-01: enemy, Packet, vendor_2418A0 came OFF this list. Their matched
+// C left a bare `j <sym>` / `beq` / `jr ra` with an UNFILLED delay slot in
+// gcc's reorder-mode output; ee-as 2.9-991111 performs no delay-slot filling
+// at all (probe: lw/addu before j/jal/jr, local or external — always nop),
+// so only modern gas's own filling made those functions "match". Those 8
+// functions (1 in enemy, 2 in Packet, 5 in vendor_2418A0) were reverted to
+// INCLUDE_ASM — they were matched by ASSEMBLER, not by SOURCE. The recovered
+// C is stashed for re-matching under
+// /primary/home/n/.claude/projects/-primary-dev-ico/delayslot_queue/ .
+//
+//   vendor_252D28 — two independent period-assembler failures:
+//   (1) splat closes func_00254C98 (in-text data run) with `enddlabel`,
+//       and the next `.ent` used to die with "second .ent directive found
+//       before .end directive" — fixed in include/labels.inc, but
+//   (2) ee-as 2.9-991111 inserts spurious nop runs (2×5 nops before the
+//       backward branches of func_00254328) INSIDE a `.set noreorder`
+//       block, dependent on cumulative earlier file content (the same
+//       block assembled standalone is clean). Modern gas emits the ROM
+//       bytes.
+vendor_252D28

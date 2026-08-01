@@ -88,8 +88,19 @@ __in_text = 0
 
 # End of a data symbol.  Also closes an in-.text embedded-data run (see
 # dlabel above), where splat sizes the enclosing FUNCTION with enddlabel.
+#
+# When it closes a FUNCTION (__in_text == 1, so \label is the glabel'd
+# function name — audited: the only in-text enddlabel in the split names
+# its enclosing function), it must also emit `.end` to close the glabel's
+# open `.ent`: the period assembler (ee-as 2.9-991111) hard-errors on the
+# NEXT `.ent` otherwise ("second .ent directive found before .end
+# directive" — vendor_252D28's func_00254C98 vs the C func_00254CF8 that
+# follows it). Pure-data closes (__in_text == 0) emit no `.end`.
 .macro enddlabel label
     .size \label, . - \label
+    .if __in_text == 1
+        .end \label
+    .endif
     __in_text = 0
 .endm
 

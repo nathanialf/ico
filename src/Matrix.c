@@ -215,9 +215,9 @@ void _RotCurrentMatrixX(void *p0, void *p1, void *p2)
     VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 8, y);
     VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 8, z);
     VU0_V3OP_BC(vmaddw.xyzw, 10, 7, 8, w);
-    VU0_REG("vdiv $Q, $vf0w, $vf10w");
+    VU0_REG("vdiv Q, $vf0w, $vf10w");
     VU0_WAIT();
-    VU0_REG("vmulq.xyz $vf10, $vf10, $Q");
+    VU0_REG("vmulq.xyz $vf10, $vf10, Q");
     VU0_LSV(sqc2, 10, 0x0, a0);
     VU0_NOP();
 }
@@ -360,9 +360,9 @@ void _SetCurrentMatrix(void *p0, void *p1, void *p2)
     VU0_V3OP_ACC_BC(vmulax.w, 0, 3, x);
     VU0_V3OP_ACC_BC(vmadday.w, 0, 3, y);
     VU0_V3OP_BC(vmaddz.w, 3, 0, 3, z);
-    VU0_REG("vrsqrt $Q, $vf0w, $vf3w");
+    VU0_REG("vrsqrt Q, $vf0w, $vf3w");
     VU0_WAIT();
-    VU0_REG("vmulq.xyz $vf1, $vf1, $Q");
+    VU0_REG("vmulq.xyz $vf1, $vf1, Q");
     VU0_LSV(sqc2, 1, 0x0, a0);
     VU0_NOP();
 }

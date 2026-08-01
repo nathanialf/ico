@@ -12,7 +12,7 @@ float pac_DispQW(void) {
     register float ret __asm__("$f0");
     __asm__ __volatile__(
         ".set noreorder\n"
-        "vrnext.x $vf1, $R\n"
+        "vrnext.x $vf1, R\n"
         "vsubw.x $vf1, $vf1, $vf0w\n"
         "qmfc2.ni $7, $vf1\n"
         "mtc1 $7, $f0\n"
@@ -23,9 +23,9 @@ float pac_DispQW(void) {
 
 void pac_DumpPac(void *p0)
 {
-    VU0_REG("vrnext.x $vf1, $R");
-    VU0_REG("vrnext.y $vf1, $R");
-    VU0_REG("vrnext.z $vf1, $R");
+    VU0_REG("vrnext.x $vf1, R");
+    VU0_REG("vrnext.y $vf1, R");
+    VU0_REG("vrnext.z $vf1, R");
     VU0_V3OP_BC(vsubw.xyz, 1, 1, 0, w);
     VU0_LSV(sqc2, 1, 0x0, a0);
     VU0_NOP();
@@ -33,7 +33,7 @@ void pac_DumpPac(void *p0)
 
 void pac_makeBoundingBox(void *p0)
 {
-    VU0_REG("vrnext.xyz $vf1, $R");
+    VU0_REG("vrnext.xyz $vf1, R");
     VU0_V3OP_BC(vsubw.xyz, 1, 1, 0, w);
     VU0_LSV(sqc2, 1, 0x0, a0);
     VU0_NOP();
@@ -46,9 +46,9 @@ void pac_error(void *p0, void *p1)
     VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 8, y);
     VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 8, z);
     VU0_V3OP_BC(vmaddw.xyzw, 10, 7, 8, w);
-    VU0_REG("vdiv $Q, $vf0w, $vf10w");
+    VU0_REG("vdiv Q, $vf0w, $vf10w");
     VU0_WAIT();
-    VU0_REG("vmulq.xyz $vf10, $vf10, $Q");
+    VU0_REG("vmulq.xyz $vf10, $vf10, Q");
     VU0_V2OP(vftoi4.xyz, 10, 10);
     VU0_V3OP(vsub.xy, 14, 10, 11);
     VU0_V3OP(vsub.xy, 15, 12, 11);
@@ -183,8 +183,9 @@ INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_countOneVertexPacketSize);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeStrip);
 
 const char D_00555190[0x10] = "DMAOPEN   :%p\n";
-const char D_005551A0[0x20] = "VIFUNPACK :%08x %08x (%p:%d)\n";
-const unsigned int D_005551C0[0x8] = { 0x00008000, 0x20004000, 0x00000051, 0x00000000, 0x00008000, 0x30004000, 0x00000512, 0x00000000 };
+/* D_005551A0 (0x5551A0, "VIFUNPACK ...") is dlabel-owned by the reverted
+ * pac_makeMaterialTable stub asm below; D_005551C0 moved after that
+ * INCLUDE_ASM so .o section order stays == VMA order. */
 
 extern float D_00630A40;
 extern float D_00630A44;
@@ -208,32 +209,17 @@ void pac_setMaterialPacket(int a0)
     debug_assertMessage(D_00555190, a0 & mask);
 }
 
-void pac_makeMaterialTable(int a0)
-{
-    register char *base = D_00672FD0;
-    (*(volatile int * volatile *)(base + 0x24))[0] = 0;
-    (*(volatile int * volatile *)(base + 0x24))[1] = (a0 << 16) | 0x6C008000;
-    {
-        volatile int *p = *(volatile int * volatile *)(base + 0x24);
-        debug_assertMessage(D_005551A0, p[0], p[1], (int *)p, a0);
-    }
-}
+/* Delay-slot dependant (see /primary/home/n/.claude/projects/-primary-dev-ico/
+ * delayslot_queue/Packet_pac_makeMaterialTable.c): matched only under modern
+ * gas, which fills the `j debug_assertMessage` delay slot gcc left bare. */
+INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeMaterialTable);
 
-void pac_makeMaterialTableLine(void)
-{
-    register char *base = D_00672FD0;
-    volatile int * volatile *curp = (volatile int * volatile *)(base + 0x2C);
-    volatile int *p = *curp;
-    *p++ = 0x17000000;
-    *curp = p;
-    p[0] = 0;
-    *curp = p + 1;
-    p[1] = 0;
-    *curp = p + 2;
-    p[2] = 0;
-    *curp = p + 3;
-    debug_assertMessage((const char *)(p + 3));
-}
+/* Delay-slot dependant (see /primary/home/n/.claude/projects/-primary-dev-ico/
+ * delayslot_queue/Packet_pac_makeMaterialTableLine.c): matched only under modern
+ * gas, which fills the `j debug_assertMessage` delay slot gcc left bare. */
+INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeMaterialTableLine);
+
+const unsigned int D_005551C0[0x8] = { 0x00008000, 0x20004000, 0x00000051, 0x00000000, 0x00008000, 0x30004000, 0x00000512, 0x00000000 };
 
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_getTextureInfo);
 

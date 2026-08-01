@@ -335,6 +335,19 @@ if [[ -r "$USE_OLD_AS_TXT" ]] && \
     EE_AS="$ROOT/tools/cc/ee-gcc2.9-991111/bin/as"
     OLD_AS_SELECTED=1
 fi
+# Honor config/use_modern_as.txt (same as compile_c.sh): the four TUs whose
+# matched C depends on modern gas's delay-slot scheduling (or that hit the
+# period assembler's noreorder nop-insertion bug — see the config file) are
+# assembled with modern gas, on a --modern-flattened input whose bare ACC/Q/R
+# VU0 operands are translated to the $-form modern gas requires. Without
+# this, quick_diff would assemble them with the period assembler and show
+# PHANTOM delay/nop diffs the real ninja build doesn't have.
+USE_MODERN_AS_TXT="$ROOT/config/use_modern_as.txt"
+MODERN_AS_SELECTED=0
+if [[ -r "$USE_MODERN_AS_TXT" ]] && \
+   awk -v a="$NAME" -v b="$(basename "$NAME")" '($1==a||$1==b){f=1} END{exit !f}' "$USE_MODERN_AS_TXT"; then
+    MODERN_AS_SELECTED=1
+fi
 AS_MODERN="${AS_FOR_QD:-mips-linux-gnu-as}"
 ASFLAGS_MODERN="${ASFLAGS_QD:--EL -march=r5900 -mabi=eabi -G 8 -no-pad-sections -Iinclude}"
 
@@ -363,6 +376,16 @@ canon_regnames() {
 
 assemble() {
     local out="$1" in="$2"
+    # use_modern_as TU: assemble with modern gas on the --modern-flattened
+    # input (bare ACC/Q/R -> $-form, includes inlined) — exactly what the
+    # ninja build's compile_c.sh does for these TUs.
+    if [[ "$MODERN_AS_SELECTED" == 1 ]]; then
+        if python3 "$ROOT/tools/preprocess_old_as.py" --modern "$in" "$in.modern" 2>/dev/null; then
+            $AS_MODERN $ASFLAGS_MODERN -o "$out" "$in.modern" && return 0
+        fi
+        $AS_MODERN $ASFLAGS_MODERN -o "$out" "$in"
+        return
+    fi
     # DEFAULT = the period assembler (ee-gcc 2.9-991111's `as`), the ROM's
     # contemporary assembler — it matches the 2.9-991111 COMPILER and leaves the
     # jal/jr delay-slot NOPs that 2.96 / modern-as wrongly over-fill (e.g.
@@ -380,6 +403,15 @@ assemble() {
     $AS_MODERN $ASFLAGS_MODERN -o "$out" "$in"
 }
 
+# Canonicalize C-side inline-asm VU0 special registers ($ACC/$Q/$R from
+# include/vu0.h) to the period assembler's BARE spelling — same conditional
+# as compile_c.sh: skipped for use_modern_as TUs, whose modern-gas input
+# keeps (and needs) the $-form. Without this, a VU0-using candidate would
+# always fail the period assembler and silently fall back to modern gas,
+# disagreeing with the ninja build's assembler choice.
+if [[ "$MODERN_AS_SELECTED" == 0 ]]; then
+    sed -i -E -e 's/\$ACC\b/ACC/g' -e 's/\$Q\b/Q/g' -e 's/\$R\b/R/g' "$ASM_OUT"
+fi
 canon_regnames "$ASM_OUT"
 assemble "$OBJ" "$ASM_OUT"
 

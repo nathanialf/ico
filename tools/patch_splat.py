@@ -2,15 +2,16 @@
 """
 patch_splat.py — apply local fixes to the pip-installed splat64 package.
 
-ICO needs splat to emit `$ACC` / `$Q` (the r5900 special VU0 registers)
-with the `$` prefix in per-function .s files inside a c subseg's
-nonmatchings directory. Upstream splat only applies this fix for the
-make_full_disasm_for_code path; per-function emits leave `ACC` / `Q`
-bare, which mips-as rejects.
-
 Idempotent: skips files that already contain the patch marker.
 Re-run via `tools/build.sh setup` after every pip install / venv
 rebuild — the patch only sticks until the package is reinstalled.
+
+RETIRED (2026-08-01): the r5900 `$ACC`/`$Q`/`$R` dollar-prefix rewrite.
+Splat's bare `ACC`/`Q`/`R` spelling IS the period assembler's dialect
+(ee-as 2.9-991111 rejects `$ACC`); the `$` form was only ever needed for
+the modern-gas fallback, which compile_c.sh now bridges by canonicalizing
+the C-side inline-asm sigils to bare instead. main() UNAPPLIES the old
+patch from an already-patched install so no venv keeps the stale rewrite.
 """
 from __future__ import annotations
 
@@ -18,8 +19,6 @@ import os
 import re
 import sys
 from pathlib import Path
-
-MARKER = "# ICO_PATCH: r5900 $ACC/$Q dollar-prefix fix"
 
 def find_splat_c_py() -> Path | None:
     """Find the installed splat's c.py."""
@@ -32,11 +31,10 @@ def find_splat_c_py() -> Path | None:
     return candidate if candidate.exists() else None
 
 
-PATCH_INSERT_AFTER = (
-    "            rabbitizer.config.regNames_namedRegisters = named_registers_opt"
-)
-
-PATCH = """
+# RETIRED sigil rewrite — kept verbatim ONLY so main() can strip it from a
+# venv where a previous run already inserted it (the patch text is exactly
+# what was appended after its anchor line, so a literal replace removes it).
+RETIRED_SIGIL_PATCH = """
         # ICO_PATCH: r5900 $ACC/$Q dollar-prefix fix
         # Splat's per-func emit path leaves `ACC` / `Q` bare; mips-as
         # / ee-as require `$ACC` / `$Q`. Post-process the .s file to
@@ -212,21 +210,13 @@ def main() -> int:
     text = c_py.read_text()
     changed = False
 
-    if MARKER not in text:
-        if PATCH_INSERT_AFTER not in text:
-            print(
-                f"patch_splat: anchor line not found in {c_py}; splat may have "
-                "changed upstream. Skipping ACC/Q patch.",
-                file=sys.stderr,
-            )
-        else:
-            text = text.replace(
-                PATCH_INSERT_AFTER,
-                PATCH_INSERT_AFTER + PATCH.rstrip(),
-                1,
-            )
-            changed = True
-            print(f"patch_splat: ACC/Q fix applied to {c_py}")
+    # UNAPPLY the retired $ACC/$Q/$R sigil rewrite if a previous run of this
+    # script installed it (splat's bare spelling is the period assembler's
+    # correct dialect — see module docstring).
+    if RETIRED_SIGIL_PATCH.rstrip() in text:
+        text = text.replace(RETIRED_SIGIL_PATCH.rstrip(), "", 1)
+        changed = True
+        print(f"patch_splat: retired ACC/Q sigil rewrite REMOVED from {c_py}")
 
     if INC_MARKER not in text:
         if INC_ANCHOR not in text:

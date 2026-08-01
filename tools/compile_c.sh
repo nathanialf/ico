@@ -278,6 +278,13 @@ if s2 != s:
     open(p, "w").write(s2)
 PYEOF
 
+# NOTE: the r5900 special VU0 registers ACC / Q / R need no translation here.
+# Both sources now speak the period assembler's dialect natively: splat emits
+# them bare (patch_splat.py's sigil rewrite is retired) and our own inline asm
+# — include/vu0.h plus the literal VU0_REG strings — was converted to the bare
+# spelling at source on 2026-08-01. The modern-gas path adds the `$` back via
+# preprocess_old_as.py --modern below, which also covers the .include'd files.
+
 # ee-as 2.10 only accepts numbered MIPS registers; translate all aliases
 # (float regs $f0-$f31 and VU regs $vfN are already accepted as-is).
 sed -i -E \
@@ -331,13 +338,31 @@ if "${PYTHON}" "${ROOT}/tools/preprocess_old_as.py" "${S}" "${S}.pp" 2>/dev/null
 fi
 
 if listed "${USE_MODERN_AS_TXT}"; then
+    # Modern-dialect input: flatten the .include'd splat siblings (which are
+    # now emitted in the period assembler's BARE ACC/Q/R spelling) and add
+    # the `$` prefix modern gas requires — including the included files,
+    # which a sed on ${S} alone would miss. %gp_rel spellings stay (modern
+    # gas parses them natively). Falls back to the unflattened ${S} only if
+    # the preprocessor itself fails.
+    MODERN_INPUT="${S}"
+    if "${PYTHON}" "${ROOT}/tools/preprocess_old_as.py" --modern "${S}" "${S}.mpp"; then
+        MODERN_INPUT="${S}.mpp"
+    fi
     # shellcheck disable=SC2086
-    "${AS}" ${ASFLAGS} -o "${OUT}" "${S}"
+    "${AS}" ${ASFLAGS} -o "${OUT}" "${MODERN_INPUT}"
     "${OBJCOPY}" --set-section-alignment ".text=${ALIGN}" "${OUT}"
 # shellcheck disable=SC2086
-elif "${SELECTED_EE_AS}" ${EE_ASFLAGS} -I"${INCLUDE_DIR}" -o "${OUT}" "${ASM_INPUT}" 2>/dev/null; then
+elif "${SELECTED_EE_AS}" ${EE_ASFLAGS} -I"${INCLUDE_DIR}" -o "${OUT}" "${ASM_INPUT}" 2>"${OUT}.aserr"; then
+    rm -f "${OUT}.aserr"
     "${OBJCOPY}" "${OUT}" "${OUT}"
 else
+    # Surface WHY the period assembler rejected the TU before falling back —
+    # a silent 2>/dev/null here hid the real cause of every fallback for
+    # months (the $ACC/$Q sigil dialect and an unclosed .ent both looked
+    # like "some TUs just need modern gas").
+    echo "compile_c.sh: period assembler FAILED on ${ASM_INPUT}; falling back to modern gas:" >&2
+    grep -iE 'error' "${OUT}.aserr" | head -20 >&2 || head -20 "${OUT}.aserr" >&2
+    rm -f "${OUT}.aserr"
     echo "  → consider adding ${BASE} to ${USE_MODERN_AS_TXT}" >&2
     # shellcheck disable=SC2086
     "${AS}" ${ASFLAGS} -o "${OUT}" "${S}"

@@ -20,7 +20,7 @@ void ClothTestGeo(void *p0, void *p1, void *p2, void *p3)
     VU0_V3OP(vmul.xyz, 3, 4, 4);
     VU0_V3OP_BC(vaddy.x, 3, 3, 3, y);
     VU0_V3OP_BC(vaddz.x, 3, 3, 3, z);
-    VU0_REG("vrsqrt $Q, $vf0w, $vf3x");
+    VU0_REG("vrsqrt Q, $vf0w, $vf3x");
     VU0_LSV(sqc2, 4, 0x0, a0);
     VU0_WAIT();
     VU0_NOREORDER_BEGIN();
@@ -66,7 +66,7 @@ void func_001C8EF8(void *a0, void *a1, void *a2, float f12)
     VU0_V3OP(vmul.xyz, 3, 4, 4);
     VU0_V3OP_BC(vaddy.x, 3, 3, 3, y);
     VU0_V3OP_BC(vaddz.x, 3, 3, 3, z);
-    VU0_REG("vrsqrt $Q, $vf0w, $vf3x");
+    VU0_REG("vrsqrt Q, $vf0w, $vf3x");
     VU0_LSV(sqc2, 4, 0x0, sp);
     VU0_WAIT();
     VU0_NOREORDER_BEGIN();

@@ -246,9 +246,9 @@ void func_002438E8(void *a0, void *a1, void *a2) {
         "addiu $7, $0, 0x4\n"
         "1:\n"
         "lqc2 $vf8, 0x0($6)\n"
-        "vmulax.xyzw $ACC, $vf4, $vf8x\n"
-        "vmadday.xyzw $ACC, $vf5, $vf8y\n"
-        "vmaddaz.xyzw $ACC, $vf6, $vf8z\n"
+        "vmulax.xyzw ACC, $vf4, $vf8x\n"
+        "vmadday.xyzw ACC, $vf5, $vf8y\n"
+        "vmaddaz.xyzw ACC, $vf6, $vf8z\n"
         "vmaddw.xyzw $vf9, $vf7, $vf8w\n"
         "sqc2 $vf9, 0x0($4)\n"
         "addi $7, $7, -0x1\n"
@@ -291,32 +291,19 @@ void func_00243978(void *a0, void *a1) {
     VU0_REG("vaddz.x $vf5, $vf5, $vf5z");
     VU0_REG(".word 0x4A0503BD");
     VU0_WAIT();
-    VU0_REG("vaddq.x $vf5, $vf0, $Q");
-    VU0_REG("vdiv $Q, $vf0w, $vf5x");
+    VU0_REG("vaddq.x $vf5, $vf0, Q");
+    VU0_REG("vdiv Q, $vf0w, $vf5x");
     VU0_REG("vsub.xyzw $vf6, $vf0, $vf0");
     VU0_WAIT();
-    VU0_REG("vmulq.xyz $vf6, $vf4, $Q");
+    VU0_REG("vmulq.xyz $vf6, $vf4, Q");
     VU0_LSV(sqc2, 6, 0x0, 4);
 }
 
-void func_002439B0(void *a0, void *a1) {
-    VU0_LSGP(lq, 8, 0x0, 5);
-    VU0_LSGP(lq, 9, 0x10, 5);
-    VU0_LSGP(lq, 10, 0x20, 5);
-    VU0_LSGP(lq, 11, 0x30, 5);
-    VU0_REG("pextlw $12, $9, $8");
-    VU0_REG("pextuw $13, $9, $8");
-    VU0_REG("pextlw $14, $11, $10");
-    VU0_REG("pextuw $15, $11, $10");
-    VU0_REG("pcpyld $8, $14, $12");
-    VU0_REG("pcpyud $9, $12, $14");
-    VU0_REG("pcpyld $10, $15, $13");
-    VU0_REG("pcpyud $11, $13, $15");
-    VU0_LSGP(sq, 8, 0x0, 4);
-    VU0_LSGP(sq, 9, 0x10, 4);
-    VU0_LSGP(sq, 10, 0x20, 4);
-    VU0_LSGP(sq, 11, 0x30, 4);
-}
+/* Delay-slot dependant (see /primary/home/n/.claude/projects/-primary-dev-ico/
+ * delayslot_queue/vendor_2418A0_func_002439B0.c): matched only under modern
+ * gas, which hoists the last sq into the bare `jr ra` delay slot. */
+void func_002439B0(void *a0, void *a1);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_002439B0);
 
 __asm__(
     ".section .text\n"
@@ -344,8 +331,8 @@ __asm__(
     "    qmtc2.ni $8, $vf6\n"
     "    qmtc2.ni $9, $vf7\n"
     "    qmtc2.ni $10, $vf8\n"
-    "    vmulax.xyz $ACC, $vf6, $vf5x\n"
-    "    vmadday.xyz $ACC, $vf7, $vf5y\n"
+    "    vmulax.xyz ACC, $vf6, $vf5x\n"
+    "    vmadday.xyz ACC, $vf7, $vf5y\n"
     "    vmaddz.xyz $vf4, $vf8, $vf5z\n"
     "    vsub.xyz $vf4, $vf9, $vf4\n"
     "    sq    $8, 0x0($4)\n"
@@ -365,9 +352,9 @@ void func_00243A68(void *a0, void *a1, float a2) {
     VU0_MFC1(8, 12);
     VU0_QMTC2_NI(8, 5);
     VU0_NOREORDER_END();
-    VU0_REG("vdiv $Q, $vf0w, $vf5x");
+    VU0_REG("vdiv Q, $vf0w, $vf5x");
     VU0_WAIT();
-    VU0_REG("vmulq.xyzw $vf4, $vf4, $Q");
+    VU0_REG("vmulq.xyzw $vf4, $vf4, Q");
     VU0_LSV(sqc2, 4, 0x0, 4);
 }
 
@@ -377,9 +364,9 @@ void func_00243A88(void *a0, void *a1, float a2) {
     VU0_MFC1(8, 12);
     VU0_QMTC2_NI(8, 5);
     VU0_NOREORDER_END();
-    VU0_REG("vdiv $Q, $vf0w, $vf5x");
+    VU0_REG("vdiv Q, $vf0w, $vf5x");
     VU0_WAIT();
-    VU0_REG("vmulq.xyz $vf4, $vf4, $Q");
+    VU0_REG("vmulq.xyz $vf4, $vf4, Q");
     VU0_LSV(sqc2, 4, 0x0, 4);
 }
 
@@ -392,7 +379,7 @@ void func_00243AA8(void *a0, void *a1, void *a2, float t) {
     VU0_NOREORDER_END();
     VU0_REG("vaddw.x $vf7, $vf0, $vf0w");
     VU0_REG("vsub.x $vf8, $vf7, $vf6");
-    VU0_REG("vmulax.xyzw $ACC, $vf4, $vf6x");
+    VU0_REG("vmulax.xyzw ACC, $vf4, $vf6x");
     VU0_REG("vmaddx.xyzw $vf9, $vf5, $vf8x");
     VU0_LSV(sqc2, 9, 0x0, 4);
 }
@@ -438,13 +425,13 @@ void func_00243B30(void *a0, void *a1, void *a2) {
     VU0_LSV(sqc2, 5, 0x30, 4);
 }
 
-void func_00243B60(void *a0, void *a1) {
-    QCOPY16_NO_NOP("$a2");
-}
+/* Delay-slot dependants (see /primary/home/n/.claude/projects/-primary-dev-ico/
+ * delayslot_queue/vendor_2418A0_func_00243B60.c and _func_00243B70.c): matched
+ * only under modern gas, which hoists the last sq into the bare `jr ra` slot. */
+void func_00243B60(void *a0, void *a1);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00243B60);
 
-void func_00243B70(void *a0, void *a1) {
-    QCOPY64_PARALLEL_NO_NOP("$a2", "$a3", "$t0", "$t1");
-}
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00243B70);
 
 void func_00243B98(void *a0, void *a1) {
     VU0_LSV(lqc2, 4, 0x0, 5);
@@ -514,7 +501,7 @@ __asm__(
     "    .word 0x4B8703BD\n"
     "    vwaitq\n"
     "    bnez  $7, 1f\n"
-    "    vaddq.x $vf7, $vf0, $Q\n"
+    "    vaddq.x $vf7, $vf0, Q\n"
     "    b     2f\n"
     "    vaddx.x $vf4, $vf5, $vf7x\n"
     "1:\n"
@@ -570,9 +557,9 @@ __asm__(
     "    addiu $7, $0, 0x4\n"
     "2:\n"
     "    lqc2  $vf4, 0x0($5)\n"
-    "    vmulax.xyzw $ACC, $vf6, $vf4x\n"
-    "    vmadday.xyzw $ACC, $vf7, $vf4y\n"
-    "    vmaddaz.xyzw $ACC, $vf8, $vf4z\n"
+    "    vmulax.xyzw ACC, $vf6, $vf4x\n"
+    "    vmadday.xyzw ACC, $vf7, $vf4y\n"
+    "    vmaddaz.xyzw ACC, $vf8, $vf4z\n"
     "    vmaddw.xyzw $vf5, $vf9, $vf4w\n"
     "    sqc2  $vf5, 0x0($4)\n"
     "    addi  $7, $7, -0x1\n"
@@ -630,9 +617,9 @@ __asm__(
     "    addiu $7, $0, 0x4\n"
     "2:\n"
     "    lqc2  $vf4, 0x0($5)\n"
-    "    vmulax.xyzw $ACC, $vf6, $vf4x\n"
-    "    vmadday.xyzw $ACC, $vf7, $vf4y\n"
-    "    vmaddaz.xyzw $ACC, $vf8, $vf4z\n"
+    "    vmulax.xyzw ACC, $vf6, $vf4x\n"
+    "    vmadday.xyzw ACC, $vf7, $vf4y\n"
+    "    vmaddaz.xyzw ACC, $vf8, $vf4z\n"
     "    vmaddw.xyzw $vf5, $vf9, $vf4w\n"
     "    sqc2  $vf5, 0x0($4)\n"
     "    addi  $7, $7, -0x1\n"
@@ -689,9 +676,9 @@ __asm__(
     "    addiu $7, $0, 0x4\n"
     "2:\n"
     "    lqc2  $vf4, 0x0($5)\n"
-    "    vmulax.xyzw $ACC, $vf6, $vf4x\n"
-    "    vmadday.xyzw $ACC, $vf7, $vf4y\n"
-    "    vmaddaz.xyzw $ACC, $vf8, $vf4z\n"
+    "    vmulax.xyzw ACC, $vf6, $vf4x\n"
+    "    vmadday.xyzw ACC, $vf7, $vf4y\n"
+    "    vmaddaz.xyzw ACC, $vf8, $vf4z\n"
     "    vmaddw.xyzw $vf5, $vf9, $vf4w\n"
     "    sqc2  $vf5, 0x0($4)\n"
     "    addi  $7, $7, -0x1\n"
@@ -780,13 +767,13 @@ void func_00244358(void *a0, void *a1, void *a2, int a3, int a4) {
         "lqc2 $vf7, 0x30($5)\n"
         "1:\n"
         "lqc2 $vf8, 0x0($6)\n"
-        "vmulax.xyzw $ACC, $vf4, $vf8x\n"
-        "vmadday.xyzw $ACC, $vf5, $vf8y\n"
-        "vmaddaz.xyzw $ACC, $vf6, $vf8z\n"
+        "vmulax.xyzw ACC, $vf4, $vf8x\n"
+        "vmadday.xyzw ACC, $vf5, $vf8y\n"
+        "vmaddaz.xyzw ACC, $vf6, $vf8z\n"
         "vmaddw.xyzw $vf9, $vf7, $vf8w\n"
-        "vdiv $Q, $vf0w, $vf9w\n"
+        "vdiv Q, $vf0w, $vf9w\n"
         "vwaitq\n"
-        "vmulq.xyz $vf9, $vf9, $Q\n"
+        "vmulq.xyz $vf9, $vf9, Q\n"
         "beqz $8, 2f\n"
         "vftoi4.xyzw $vf10, $vf9\n"
         "vftoi0.zw $vf10, $vf9\n"
@@ -810,9 +797,9 @@ void func_002443B0(void *a0, void *a1, void *a2, int a3) {
     VU0_V3OP_ACC_BC(vmadday.xyzw, 5, 8, y);
     VU0_V3OP_ACC_BC(vmaddaz.xyzw, 6, 8, z);
     VU0_V3OP_BC(vmaddw.xyzw, 9, 7, 8, w);
-    VU0_REG("vdiv $Q, $vf0w, $vf9w");
+    VU0_REG("vdiv Q, $vf0w, $vf9w");
     VU0_WAIT();
-    VU0_REG("vmulq.xyz $vf9, $vf9, $Q");
+    VU0_REG("vmulq.xyz $vf9, $vf9, Q");
     VU0_REG("vftoi4.xyzw $vf10, $vf9");
     if (a3) {
         VU0_REG("vftoi0.zw $vf10, $vf9");
@@ -922,9 +909,9 @@ __asm__(
     "    lqc2 $vf11, 0x0($4)\n"
     "    lqc2 $vf12, 0x0($5)\n"
     "1:\n"
-    "    vmulax.xyzw $ACC, $vf4, $vf8x\n"
-    "    vmadday.xyzw $ACC, $vf5, $vf8y\n"
-    "    vmaddaz.xyzw $ACC, $vf6, $vf8z\n"
+    "    vmulax.xyzw ACC, $vf4, $vf8x\n"
+    "    vmadday.xyzw ACC, $vf5, $vf8y\n"
+    "    vmaddaz.xyzw ACC, $vf6, $vf8z\n"
     "    vmaddw.xyzw $vf8, $vf7, $vf8w\n"
     "    vmulw.xyz $vf11, $vf9, $vf8w\n"
     "    vmulw.xyz $vf12, $vf10, $vf8w\n"
@@ -955,33 +942,10 @@ __asm__(
     "    .set at\n"
 );
 
-extern int D_005506F0[];
-
-void func_00244598(void) {
-    typedef unsigned int u128 __attribute__((mode(TI)));
-    register int v __asm__("$8");
-
-    *(volatile int *)0x10003830 = 0;
-    *(volatile int *)0x10003820 = 0;
-    *(volatile int *)0x10003810 = 1;
-
-    __asm__ __volatile__(
-        ".set noreorder\n"
-        "cfc2.ni $8, $vi28\n"
-        "ori $8, $8, 0x2\n"
-        "ctc2.ni $8, $vi28\n"
-        "sync.p\n"
-        ".set reorder\n"
-        : "=r"(v) : : "memory"
-    );
-
-    {
-        volatile u128 *dst = (volatile u128 *)0x10004000;
-        u128 *src = (u128 *)D_005506F0;
-        *dst = src[0];
-        *dst = src[1];
-    }
-}
+/* Delay-slot dependant (see /primary/home/n/.claude/projects/-primary-dev-ico/
+ * delayslot_queue/vendor_2418A0_func_00244598.c): matched only under modern
+ * gas, which hoists the last sq into the bare `jr ra` delay slot. */
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00244598);
 
 void func_002445F8(unsigned char *a0, int a1) {
     int i;
@@ -1023,13 +987,10 @@ void *func_00244920(void *a0) {
     return a0;
 }
 
-int func_00244958(unsigned int a0) {
-    int old = *(volatile int *)0x1000E060;
-    if (a0 != 0xFFFFFFFF) {
-        *(volatile int *)0x1000E060 = a0;
-    }
-    return old;
-}
+/* Delay-slot dependant (see /primary/home/n/.claude/projects/-primary-dev-ico/
+ * delayslot_queue/vendor_2418A0_func_00244958.c): matched only under modern
+ * gas, which hoists the first lw into the bare `beq` delay slot. */
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00244958);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00244980);
 

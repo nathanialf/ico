@@ -22,7 +22,16 @@ declared gp-addressable via `.extern SYM, <=G>`. So:
 byte-identical to the modern-as encoding for the gp_rel refs, and lets the
 period assembler set the delay-slot bytes the ROM actually has.
 
-Usage: preprocess_old_as.py <in.s> <out.s>
+Usage: preprocess_old_as.py [--modern] <in.s> <out.s>
+
+--modern: flatten for MODERN gas instead (a TU listed in
+config/use_modern_as.txt). Includes are inlined the same way, but the
+dialect translation is reversed: %gp_rel spellings are LEFT ALONE (modern
+gas parses them natively, no .extern header needed) and the r5900 special
+VU0 registers ACC / Q / R — bare in splat's output, the period
+assembler's dialect — are rewritten to the `$`-prefixed spelling modern
+gas requires. Operand-position only (`<space-or-comma>ACC`), so an
+already-`$`-prefixed form is never doubled.
 """
 import os
 import re
@@ -44,6 +53,9 @@ INCLUDE = re.compile(r'^\s*\.include\s+"([^"]+)"')
 # syntax error the period assembler rejects, which silently drops the whole TU
 # back to modern gas (and its over-filled jr/jal delay slots).
 SYMNAME = re.compile(r"[A-Za-z_$.][A-Za-z0-9_$.]*")
+# --modern: bare r5900 special VU0 registers (period dialect) -> $-form for
+# modern gas. Operand position only; `$ACC` has `$` before it, so no double-$.
+BARE_VU0_SPECIAL = re.compile(r"([\t ,])(ACC|Q|R)\b")
 
 
 def symname(expr):
@@ -51,7 +63,7 @@ def symname(expr):
     return m.group(0) if m else expr.strip()
 
 
-def flatten(path, out, syms, seen):
+def flatten(path, out, syms, seen, modern=False):
     for line in open(path):
         m = INCLUDE.match(line)
         if m:
@@ -60,9 +72,14 @@ def flatten(path, out, syms, seen):
             # alone so the assembler resolves them on its own include path.
             if inc.endswith(".s") and os.path.exists(inc) and inc not in seen:
                 seen.add(inc)
-                flatten(inc, out, syms, seen)
+                flatten(inc, out, syms, seen, modern)
                 continue
             out.append(line)
+            continue
+        if modern:
+            # Modern gas parses %gp_rel natively; only the VU0 special-register
+            # dialect needs translating (bare -> $-form).
+            out.append(BARE_VU0_SPECIAL.sub(r"\1$\2", line))
             continue
         # address-take `addiu $d,$28,%gp_rel(SYM)` -> `la $d, SYM` (GPREL16);
         # then load/store `%gp_rel(SYM)($28)` -> `SYM`; then any bare remainder.
@@ -74,10 +91,15 @@ def flatten(path, out, syms, seen):
 
 
 def main():
-    src, dst = sys.argv[1], sys.argv[2]
+    args = sys.argv[1:]
+    modern = False
+    if args and args[0] == "--modern":
+        modern = True
+        args = args[1:]
+    src, dst = args[0], args[1]
     out, syms, seen = [], set(), set()
-    flatten(src, out, syms, seen)
-    hdr = "".join(".extern %s, 4\n" % s for s in sorted(syms))
+    flatten(src, out, syms, seen, modern)
+    hdr = "" if modern else "".join(".extern %s, 4\n" % s for s in sorted(syms))
     with open(dst, "w") as f:
         f.write(hdr)
         f.writelines(out)

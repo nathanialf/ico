@@ -43,9 +43,10 @@ regen_ninja() {
 }
 
 split() {
-    # ICO patches the installed splat to add `$` to r5900 special VU0
-    # operands ($ACC, $Q) in per-func nonmatching .s files. The patch
-    # dies on every `pip install`, so re-apply (idempotent) here.
+    # ICO patches the installed splat (.c.inc scanning, aug6 layout,
+    # sub-word data tails) and UNAPPLIES the retired $ACC/$Q sigil
+    # rewrite if present. The patches die on every `pip install`, so
+    # re-apply (idempotent) here.
     "${VENV_PY}" tools/patch_splat.py
     echo "==> running splat against ${SPLAT_YAML}"
     "${SPLAT}" split "${SPLAT_YAML}"
