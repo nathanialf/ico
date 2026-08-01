@@ -460,17 +460,29 @@ __asm__(
     "    sq $2, 0x0($14)\n"
     "    sll $10, $12, 1\n"
     "    sq $3, 0x10($14)\n"
-    "    bgtz $7, .L0025071C\n"
+    /* The two backward branches reference .L0025071C through a forward-defined
+     * alias. ee-as 2.9-991111's R5900 short-loop-erratum pass pads backward
+     * branches with nops (up to 5, targeting a >=6-insn loop body) even inside
+     * `.set noreorder`, and its branch-to-label distance computation breaks
+     * when enough file content precedes this block (position-dependent; the
+     * same block standalone assembles clean) — it believed this ~32-insn loop
+     * was 1 insn long and inserted 5 nops before each branch, diverging from
+     * the ROM. A target that is still undefined when the branch is assembled
+     * makes the pass skip the check; the alias resolves to the same address at
+     * write-out, so the encoded bytes are identical to a direct .L0025071C
+     * reference. */
+    "    bgtz $7, .L0025071C_f\n"
     "    addu $14, $14, $10\n"
     ".L00250790:\n"
     "    addiu $5, $5, 0x80\n"
     "    addiu $6, $6, 0x80\n"
     "    lw $7, 0xC($4)\n"
     "    and $10, $11, $7\n"
-    "    bnez $10, .L0025071C\n"
+    "    bnez $10, .L0025071C_f\n"
     "    daddu $11, $0, $0\n"
     "    jr $31\n"
     "    nop\n"
+    ".L0025071C_f = .L0025071C\n"
     ".size func_00254328, . - func_00254328\n"
     "    .set reorder\n"
     "    .set at\n"
@@ -1163,8 +1175,12 @@ void func_00254C38(void *a0, void *a1, void *a2) {
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_252D28", func_00254C98);
 
+/* No volatile here: the ROM has the sw in the jr delay slot, and ee-gcc only
+ * fills a delay slot with a NON-volatile memref (with volatile it emits a bare
+ * reorder-mode `j $31`, and the period assembler ee-as 2.9-991111 never fills
+ * delay slots — the old "match" relied on modern gas doing the fill). */
 void func_00254CF8(int a0) {
-    volatile int *reg = (volatile int *)0x10002010;
+    int *reg = (int *)0x10002010;
     *reg = (*reg & 0xFF7FFFFF) | (a0 << 23);
 }
 
@@ -1535,10 +1551,14 @@ void func_00258418(int *a0, int a1, int a2, int a3) {
     func_00258470(a0, 0);
 }
 
-int func_00258450(void *a0, int a1) {
-    unsigned long long v = *(unsigned long long *)a0;
-    return v >> (64 - a1);
-}
+/* func_00258450 reverted to INCLUDE_ASM 2026-08-01: the ROM ends
+ * `jr ra; dsra32 v0` but ee-gcc never fills a return delay slot with a
+ * 64-bit shift (even a lone `(int)(v >> 32)` emits a bare `j $31`), so the
+ * previous C match relied on MODERN gas filling the slot — the same
+ * "matched by assembler, not by source" class as the 8 funcs reverted in
+ * 0ac3cb51. Recovered C stashed in the delayslot_queue. */
+extern int func_00258450(void *a0, int a1);
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_252D28", func_00258450);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_252D28", func_00258470);
 

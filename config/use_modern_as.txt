@@ -14,13 +14,32 @@
 // C is stashed for re-matching under
 // /primary/home/n/.claude/projects/-primary-dev-ico/delayslot_queue/ .
 //
-//   vendor_252D28 — two independent period-assembler failures:
-//   (1) splat closes func_00254C98 (in-text data run) with `enddlabel`,
-//       and the next `.ent` used to die with "second .ent directive found
-//       before .end directive" — fixed in include/labels.inc, but
-//   (2) ee-as 2.9-991111 inserts spurious nop runs (2×5 nops before the
-//       backward branches of func_00254328) INSIDE a `.set noreorder`
-//       block, dependent on cumulative earlier file content (the same
-//       block assembled standalone is clean). Modern gas emits the ROM
-//       bytes.
-vendor_252D28
+// 2026-08-01: vendor_252D28 came OFF this list (it was the last entry).
+// Its three period-assembler failures, for the record:
+//   (1) splat's `enddlabel` left a `glabel`'s `.ent` unclosed, so the next
+//       `.ent` died with "second .ent directive found before .end" — fixed
+//       in include/labels.inc (0ac3cb51).
+//   (2) ee-as 2.9-991111's R5900 SHORT-LOOP-ERRATUM pass pads a backward
+//       branch with nops (up to 5, targeting a >=6-insn loop body) even
+//       inside `.set noreorder` (probe: a 2-insn noreorder loop gets 3 nops
+//       inserted before the branch). Its branch-to-label distance
+//       computation is position-dependent and broke for func_00254328 once
+//       enough file content preceded the block (standalone: clean; padding
+//       8 nops at file start: clean; the believed distance shrank by 1 per
+//       instruction added before the label) — it padded 2x5 nops before the
+//       two backward branches of a ~32-insn loop. FIX (in the C's __asm__
+//       block): reference the loop label through a forward-defined alias
+//       (`.L0025071C_f = .L0025071C` after the branches) — an undefined-at-
+//       parse-time target makes the pass skip the check, and the alias
+//       resolves to identical bytes at write-out. No assembler flag exists
+//       to disable the pass (it is tied to -mcpu=5900).
+//   (3) func_00254CF8's `volatile` store blocked ee-gcc's own delay-slot
+//       fill, so its match relied on MODERN gas filling the `jr $31` slot
+//       (ee-as 2.9-991111 never fills). Dropping the volatile makes ee-gcc
+//       emit `j $31; sw` itself, matching the ROM — same "matched by
+//       assembler, not by source" class as the 8 reverted funcs above.
+// Failure (2) is position-dependent: if a future edit to this TU shifts
+// content so the pass mis-fires on ANOTHER backward branch (including
+// splat-owned INCLUDE_ASM loops), the SHA gate will fail loudly; the fix
+// there is the same forward-alias spelling (only possible in hand-asm) or
+// re-listing the TU here.
