@@ -805,6 +805,30 @@ they land. Decided runs + evidence live in the yaml carve comments and the
 per-TU sections below (`decomp/data_tu_boundaries.json` is gitignored —
 regenerable local evidence, not the record).
 
+### Interleave zones resolved + text audit clean (2026-08-01)
+
+The two formerly-deferred interleave zones are landed: `src/kanbanBoot`
+[0x616CE0,0x617170) + `src/layout_action` [0x617170,0x6171C4), and
+`src/debug_exception` [0x615060,0x615900) + `src/debug_menu`
+[0x615900,0x615B60). The contested spans were settled by their
+referencing `.data` pointer tables (debug_exception's D_004B3110/20 vs
+debug_menu's menu table D_004B3140), not position heuristics. The
+.text side audits clean: 0 splat merges and 0 fall-through boundary
+violations across 4987 functions (delay-slot-aware, coroutine-`b`
+aware). Every switch-bearing TU in both ordered rodata zones now owns
+its full run except the two reverted cases (boyact li.d pool,
+staticBlur splat .asciz bug).
+
+Tool hardening from this pass: `emit_run_defs.py` now verifies a
+C-referenced symbol that falls inside a stub's span against the stub's
+actual `dlabel`s before assuming the stub emits it (debug_exception's
+D_006150F0, referenced only via a matched-C `__asm__` alias, had no
+emitter -> silent 0x10-byte shortfall at the SHA gate). And
+`patch_splat.py` gained the EUC-JP-tolerant C-scan read: raw EUC-JP
+bytes in a TU source made splat's INCLUDE_ASM scan return an empty set,
+misclassifying every function of that TU into `asm/matchings/` on a
+truly clean re-split.
+
 ## Blocked: `src/staticBlur` full-run carve reverted (2026-07-31)
 
 Attempted run [0x61A2C0,0x61A470) (jtbl_0061A3F0/A430/A450, all
