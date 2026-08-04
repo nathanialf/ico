@@ -183,9 +183,7 @@ INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_countOneVertexPacketSize);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeStrip);
 
 const char D_00555190[0x10] = "DMAOPEN   :%p\n";
-/* D_005551A0 (0x5551A0, "VIFUNPACK ...") is dlabel-owned by the reverted
- * pac_makeMaterialTable stub asm below; D_005551C0 moved after that
- * INCLUDE_ASM so .o section order stays == VMA order. */
+const char D_005551A0[0x20] = "VIFUNPACK :%08x %08x (%p:%d)\n";
 
 extern float D_00630A40;
 extern float D_00630A44;
@@ -209,15 +207,30 @@ void pac_setMaterialPacket(int a0)
     debug_assertMessage(D_00555190, a0 & mask);
 }
 
-/* Delay-slot dependant (see /primary/home/n/.claude/projects/-primary-dev-ico/
- * delayslot_queue/Packet_pac_makeMaterialTable.c): matched only under modern
- * gas, which fills the `j debug_assertMessage` delay slot gcc left bare. */
-INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeMaterialTable);
+void pac_makeMaterialTable(int a0)
+{
+    char *ctx = D_00672FD0;
+    *(int *)(*(int *)(ctx + 0x24)) = 0;
+    *(int *)(*(int *)(ctx + 0x24) + 4) = (a0 << 16) | 0x6C008000;
+    debug_assertMessage(D_005551A0, *(int *)(*(int *)(ctx + 0x24)),
+                        *(int *)(*(int *)(ctx + 0x24) + 4),
+                        *(int *)(ctx + 0x24), a0);
+}
 
-/* Delay-slot dependant (see /primary/home/n/.claude/projects/-primary-dev-ico/
- * delayslot_queue/Packet_pac_makeMaterialTableLine.c): matched only under modern
- * gas, which fills the `j debug_assertMessage` delay slot gcc left bare. */
-INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeMaterialTableLine);
+void pac_makeMaterialTableLine(void)
+{
+    char *ctx = D_00672FD0;
+    int *p = (int *)*(int *)(ctx + 0x2C);
+    *p++ = 0x17000000;
+    *(int *)(ctx + 0x2C) = (int)p;
+    p[0] = 0;
+    *(int *)(ctx + 0x2C) = (int)(p + 1);
+    p[1] = 0;
+    *(int *)(ctx + 0x2C) = (int)(p + 2);
+    p[2] = 0;
+    *(int *)(ctx + 0x2C) = (int)(p + 3);
+    debug_assertMessage(p + 3);
+}
 
 const unsigned int D_005551C0[0x8] = { 0x00008000, 0x20004000, 0x00000051, 0x00000000, 0x00008000, 0x30004000, 0x00000512, 0x00000000 };
 

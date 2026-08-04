@@ -22,8 +22,8 @@ Ordered smallest/simplest first:
 | 2 | src/cod/vendor_2418A0.c | func_00243B70 | 0x00243B70 | 10 | `jr ra` | `sq t1,48(a0)` | MATCHED (hand asm, jr-slot sq) |
 | 3 | src/cod/vendor_2418A0.c | func_00244958 | 0x00244958 | 10 | `beq a0,v1,<+0x24>` | `lw v0,0(v0)` (also: period pads a 2nd trailing nop) | STALLED, restored — see HANDOFF_vendor_2418A0.md |
 | 4 | src/enemy.c | EnemySetfDisappearAll | 0x001CE6F0 | 10 | `j InitMotionOrient` (tail call) | `sw zero,0x3BC(v0)` | MATCHED (plain C, `int`-typed 0x15C load) — see HANDOFF_enemy.md |
-| 5 | src/Packet.c | pac_makeMaterialTable | 0x0011A2A8 | 18 | `j debug_assertMessage` (tail call) | `lw a2,4(v0)` | |
-| 6 | src/Packet.c | pac_makeMaterialTableLine | 0x0011A2F0 | 18 | `j debug_assertMessage` (tail call) | `sw a1,44(v1)` | |
+| 5 | src/Packet.c | pac_makeMaterialTable | 0x0011A2A8 | 18 | `j debug_assertMessage` (tail call) | `lw a2,4(v0)` | MATCHED (plain C, EABI 5th arg in `$8`) — see HANDOFF_Packet.md |
+| 6 | src/Packet.c | pac_makeMaterialTableLine | 0x0011A2F0 | 18 | `j debug_assertMessage` (tail call) | `sw a1,44(v1)` | MATCHED (plain C, `int`-typed cursor store defeats DSE) — see HANDOFF_Packet.md |
 | 7 | src/cod/vendor_2418A0.c | func_002439B0 | 0x002439B0 | 18 | `jr ra` | `sq t3,48(a0)` | MATCHED (hand asm, MMI transpose) |
 | 8 | src/cod/vendor_2418A0.c | func_00244598 | 0x00244598 | 24 | `jr ra` | `sq v1,0(a1)` | MATCHED (real C, volatile-first/plain-second store pair) |
 
@@ -44,6 +44,14 @@ Notes:
   dropping `volatile` and using the repo's `*(int *)`-typed sub-object load,
   whose alias set equals the stores' so CSE/sched keep the ROM's `lw`/`sw`
   pairing. Check #5/#6's parked C for the same disqualifier.
+- #5/#6 CONFIRMED that reading (2026-08-04, HANDOFF_Packet.md): with the
+  parked C's `volatile` dropped, gcc filled BOTH `j debug_assertMessage`
+  slots on the first attempt. Neither residual was a delay slot — #5 was a
+  missing 5th call argument (the build is `-mabi=eabi`, so args 5-8 are in
+  `$8-$11`; the ROM's `daddu $8,$4,$0` is arg5, not a param copy), #6 was
+  dead-store elimination deleting three cursor write-backs because an
+  `int *`-typed store does not share an alias set with the `int` data
+  stores around it. Both are now real C; row status updated above.
 - One-round caveat: the "delay-slot" attribution for each function is this
   round's conclusion from the object diff shown above; if a re-match finds
   another mechanism (e.g. #3's extra pad nop), trust the bytes.
@@ -55,6 +63,9 @@ Notes:
   `D_005551C0` moved after the `pac_makeMaterialTableLine` INCLUDE_ASM
   (section order must equal VMA order under the `(.rodata*)` glob). Reverse
   both moves when re-matching #5 — details in Packet_pac_makeMaterialTable.c.
+  DONE 2026-08-04: `D_005551A0`'s C definition is restored after `D_00555190`;
+  `D_005551C0` needed no move (it already followed the removed INCLUDE_ASMs,
+  which is still after `D_005551A0`, so section order == VMA order).
 - vendor_2418A0: `func_002439B0` / `func_00243B60` keep C prototypes in the
   TU (in-TU C callers at the former lines ~759/764-767).
 - enemy: nothing extra; `extern void InitMotionOrient();` decl left in place.
