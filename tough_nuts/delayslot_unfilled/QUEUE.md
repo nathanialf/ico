@@ -16,16 +16,16 @@ below was byte-identical under both assemblers.
 
 Ordered smallest/simplest first:
 
-| # | TU | function | ROM addr | insns | offending branch | ROM delay-slot occupant |
-|---|----|----------|----------|-------|------------------|--------------------------|
-| 1 | src/cod/vendor_2418A0.c | func_00243B60 | 0x00243B60 | 4 | `jr ra` | `sq a2,0(a0)` |
-| 2 | src/cod/vendor_2418A0.c | func_00243B70 | 0x00243B70 | 10 | `jr ra` | `sq t1,48(a0)` |
-| 3 | src/cod/vendor_2418A0.c | func_00244958 | 0x00244958 | 10 | `beq a0,v1,<+0x24>` | `lw v0,0(v0)` (also: period pads a 2nd trailing nop) |
-| 4 | src/enemy.c | EnemySetfDisappearAll | 0x001CE6F0 | 10 | `j InitMotionOrient` (tail call) | `sw zero,0x3BC(v0)` |
-| 5 | src/Packet.c | pac_makeMaterialTable | 0x0011A2A8 | 18 | `j debug_assertMessage` (tail call) | `lw a2,4(v0)` |
-| 6 | src/Packet.c | pac_makeMaterialTableLine | 0x0011A2F0 | 18 | `j debug_assertMessage` (tail call) | `sw a1,44(v1)` |
-| 7 | src/cod/vendor_2418A0.c | func_002439B0 | 0x002439B0 | 18 | `jr ra` | `sq t3,48(a0)` |
-| 8 | src/cod/vendor_2418A0.c | func_00244598 | 0x00244598 | 24 | `jr ra` | `sq v1,0(a1)` |
+| # | TU | function | ROM addr | insns | offending branch | ROM delay-slot occupant | status |
+|---|----|----------|----------|-------|------------------|--------------------------|--------|
+| 1 | src/cod/vendor_2418A0.c | func_00243B60 | 0x00243B60 | 4 | `jr ra` | `sq a2,0(a0)` | MATCHED (hand asm, jr-slot sq) |
+| 2 | src/cod/vendor_2418A0.c | func_00243B70 | 0x00243B70 | 10 | `jr ra` | `sq t1,48(a0)` | MATCHED (hand asm, jr-slot sq) |
+| 3 | src/cod/vendor_2418A0.c | func_00244958 | 0x00244958 | 10 | `beq a0,v1,<+0x24>` | `lw v0,0(v0)` (also: period pads a 2nd trailing nop) | STALLED, restored — see HANDOFF_vendor_2418A0.md |
+| 4 | src/enemy.c | EnemySetfDisappearAll | 0x001CE6F0 | 10 | `j InitMotionOrient` (tail call) | `sw zero,0x3BC(v0)` | |
+| 5 | src/Packet.c | pac_makeMaterialTable | 0x0011A2A8 | 18 | `j debug_assertMessage` (tail call) | `lw a2,4(v0)` | |
+| 6 | src/Packet.c | pac_makeMaterialTableLine | 0x0011A2F0 | 18 | `j debug_assertMessage` (tail call) | `sw a1,44(v1)` | |
+| 7 | src/cod/vendor_2418A0.c | func_002439B0 | 0x002439B0 | 18 | `jr ra` | `sq t3,48(a0)` | MATCHED (hand asm, MMI transpose) |
+| 8 | src/cod/vendor_2418A0.c | func_00244598 | 0x00244598 | 24 | `jr ra` | `sq v1,0(a1)` | MATCHED (real C, volatile-first/plain-second store pair) |
 
 Notes:
 - #1, #2, #7, #8 are VU0/MMI-macro bodies (`QCOPY16_NO_NOP`,

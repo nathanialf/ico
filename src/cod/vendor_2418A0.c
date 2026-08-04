@@ -299,11 +299,43 @@ void func_00243978(void *a0, void *a1) {
     VU0_LSV(sqc2, 6, 0x0, 4);
 }
 
-/* Delay-slot dependant (see /primary/home/n/.claude/projects/-primary-dev-ico/
- * delayslot_queue/vendor_2418A0_func_002439B0.c): matched only under modern
- * gas, which hoists the last sq into the bare `jr ra` delay slot. */
+/* 4x4 matrix transpose via the MMI pack/unpack ops — hand-written assembly
+ * in the original, same class and same whole-function `__asm__` form as
+ * func_002439F8 below: the $t0..$t7 register budget is the author's, and the
+ * trailing `sq` in the `jr` delay slot has to be written explicitly (gcc's
+ * reorg cannot schedule an inline-asm insn into a delay slot, and
+ * ee-as 2.9-991111 fills no slots). */
 void func_002439B0(void *a0, void *a1);
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_002439B0);
+__asm__(
+    ".section .text\n"
+    "    .align 3\n"
+    "    .set noat\n"
+    "    .set noreorder\n"
+    "    .global func_002439B0\n"
+    "    .type func_002439B0, @function\n"
+    "func_002439B0:\n"
+    "    lq    $8, 0x0($5)\n"
+    "    lq    $9, 0x10($5)\n"
+    "    lq    $10, 0x20($5)\n"
+    "    lq    $11, 0x30($5)\n"
+    "    pextlw $12, $9, $8\n"
+    "    pextuw $13, $9, $8\n"
+    "    pextlw $14, $11, $10\n"
+    "    pextuw $15, $11, $10\n"
+    "    pcpyld $8, $14, $12\n"
+    "    pcpyud $9, $12, $14\n"
+    "    pcpyld $10, $15, $13\n"
+    "    pcpyud $11, $13, $15\n"
+    "    sq    $8, 0x0($4)\n"
+    "    sq    $9, 0x10($4)\n"
+    "    sq    $10, 0x20($4)\n"
+    "    jr    $31\n"
+    "    sq    $11, 0x30($4)\n"
+    "    .size func_002439B0, . - func_002439B0\n"
+    "    nop\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
 __asm__(
     ".section .text\n"
@@ -425,13 +457,58 @@ void func_00243B30(void *a0, void *a1, void *a2) {
     VU0_LSV(sqc2, 5, 0x30, 4);
 }
 
-/* Delay-slot dependants (see /primary/home/n/.claude/projects/-primary-dev-ico/
- * delayslot_queue/vendor_2418A0_func_00243B60.c and _func_00243B70.c): matched
- * only under modern gas, which hoists the last sq into the bare `jr ra` slot. */
+/* Quadword copy leaves, hand-written assembly in the original.
+ *
+ * These cannot be C: ee-gcc's own allocator always picks $2/$3 for the
+ * quadword temporaries (verified: a `mode(TI)` `*d = *s` compiles to
+ * `lq $2,0($5) / jr $31 / sq $2,0($4)`), and it emits a 64-byte copy as
+ * interleaved lq/sq pairs, never as four loads followed by four stores.
+ * The ROM's hand-picked $a2..$t1 and its load-all-then-store-all shape are
+ * an author's register budget, not an allocator's. gcc also never hoists an
+ * inline-asm insn into the `jr` delay slot (reorg cannot schedule asm), so
+ * the trailing `sq` sitting in the slot has to be written there explicitly —
+ * ee-as 2.9-991111 does no delay-slot filling of its own. Same whole-function
+ * `__asm__` form as func_002439F8 above. */
 void func_00243B60(void *a0, void *a1);
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00243B60);
+__asm__(
+    ".section .text\n"
+    "    .align 3\n"
+    "    .set noat\n"
+    "    .set noreorder\n"
+    "    .global func_00243B60\n"
+    "    .type func_00243B60, @function\n"
+    "func_00243B60:\n"
+    "    lq    $6, 0x0($5)\n"
+    "    jr    $31\n"
+    "    sq    $6, 0x0($4)\n"
+    "    .size func_00243B60, . - func_00243B60\n"
+    "    nop\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00243B70);
+__asm__(
+    ".section .text\n"
+    "    .align 3\n"
+    "    .set noat\n"
+    "    .set noreorder\n"
+    "    .global func_00243B70\n"
+    "    .type func_00243B70, @function\n"
+    "func_00243B70:\n"
+    "    lq    $6, 0x0($5)\n"
+    "    lq    $7, 0x10($5)\n"
+    "    lq    $8, 0x20($5)\n"
+    "    lq    $9, 0x30($5)\n"
+    "    sq    $6, 0x0($4)\n"
+    "    sq    $7, 0x10($4)\n"
+    "    sq    $8, 0x20($4)\n"
+    "    jr    $31\n"
+    "    sq    $9, 0x30($4)\n"
+    "    .size func_00243B70, . - func_00243B70\n"
+    "    nop\n"
+    "    .set reorder\n"
+    "    .set at\n"
+);
 
 void func_00243B98(void *a0, void *a1) {
     VU0_LSV(lqc2, 4, 0x0, 5);
@@ -942,10 +1019,30 @@ __asm__(
     "    .set at\n"
 );
 
-/* Delay-slot dependant (see /primary/home/n/.claude/projects/-primary-dev-ico/
- * delayslot_queue/vendor_2418A0_func_00244598.c): matched only under modern
- * gas, which hoists the last sq into the bare `jr ra` delay slot. */
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00244598);
+extern int D_005506F0[];
+
+void func_00244598(void) {
+    *(volatile int *)0x10003830 = 0;
+    *(volatile int *)0x10003820 = 0;
+    *(volatile int *)0x10003810 = 1;
+
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "cfc2.ni $8, $vi28\n"
+        "ori $8, $8, 0x2\n"
+        "ctc2.ni $8, $vi28\n"
+        "sync.p\n"
+        ".set reorder\n"
+        : : : "memory");
+
+    {
+        u128 *fifo = (u128 *)0x10004000;
+        u128 *pkt = (u128 *)D_005506F0;
+
+        *(volatile u128 *)fifo = pkt[0];
+        *fifo = pkt[1];
+    }
+}
 
 void func_002445F8(unsigned char *a0, int a1) {
     int i;
@@ -987,9 +1084,12 @@ void *func_00244920(void *a0) {
     return a0;
 }
 
-/* Delay-slot dependant (see /primary/home/n/.claude/projects/-primary-dev-ico/
- * delayslot_queue/vendor_2418A0_func_00244958.c): matched only under modern
- * gas, which hoists the first lw into the bare `beq` delay slot. */
+/* Delay-slot dependant (see tough_nuts/delayslot_unfilled/HANDOFF_vendor_2418A0.md):
+ * the ROM's `beq` carries the D_STADR read in its delay slot. Every C spelling of
+ * that read is either volatile — which registerises the address exactly as the ROM
+ * does but makes the insn ineligible for gcc's delay-slot pass — or non-volatile,
+ * which folds the address back into a 2-insn `lw $r,<const>` macro that is
+ * ineligible for a different reason. */
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00244958);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00244980);
