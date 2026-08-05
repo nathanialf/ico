@@ -1090,7 +1090,13 @@ void *func_00244920(void *a0) {
  * does but makes the insn ineligible for gcc's delay-slot pass — or non-volatile,
  * which folds the address back into a 2-insn `lw $r,<const>` macro that is
  * ineligible for a different reason. */
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00244958);
+int func_00244958(unsigned int a0) {
+    int old = *(volatile int *)0x1000E060;
+    if (a0 != 0xFFFFFFFF) {
+        *(volatile int *)0x1000E060 = a0;
+    }
+    return old;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00244980);
 

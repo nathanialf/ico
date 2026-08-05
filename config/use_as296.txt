@@ -51,3 +51,4 @@
 //   `src/cod/vendor_*` code was built with the later toolchain while the game's
 //   own TUs used 2.9-991111.
 vendor_2575C0
+vendor_2418A0
