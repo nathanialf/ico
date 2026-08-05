@@ -19,9 +19,25 @@ void CreateWaySystemManagerGObj(char *a0) {
     MatrixDrive_TurnObjectMatrix(sub + 0x1F0, buf);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/waySystemManager", RequestGetWayBegin);
+extern int func_00240EA0();
+extern int D_00633748;
+extern void func_001F2370(void);
 
-INCLUDE_ASM("asm/nonmatchings/src/waySystemManager", actWaySystemCore);
+int RequestGetWayBegin(void) {
+    int v = func_00240EA0(0, 0, 0, 0, (int)&func_001F2370, 0, 0);
+    D_00633748 = v;
+    return v;
+}
+
+extern int actCreateSubThreadGOppArg(int a0, int a1);
+extern void func_001F2320();
+
+int actWaySystemCore(int *self) {
+    int gobj = actCreateSubThreadGOppArg((int)&func_001F2320, 0x15);
+    *(int **)(gobj + 0x20) = self;
+    self[0] = 0;
+    return gobj;
+}
 
 void func_001F2320(volatile unsigned int self)
 {
