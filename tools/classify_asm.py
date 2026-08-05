@@ -622,10 +622,13 @@ RULES: list[Rule] = [
       note="If diff is regalloc swap on the dead lui's reg, try lui_const_swap"),
 
     # --- §12 Build gotchas ---
-    R("12.4", "VU0 ops present — needs use_modern_as", "124",
+    R("12.4", "VU0 ops present — bare ACC/Q/R spelling required", "124",
       lambda s: s.has_vu0,
       weight=1.0,
-      note="Add TU basename to config/use_modern_as.txt"),
+      note="Write VU0 asm with the period assembler's BARE ACC/Q/R operands "
+           "(preprocess_old_as.py translates include/vu0.h's $-form). There is "
+           "NO modern-gas path — it was retired 2026-08-05 because it filled "
+           "delay slots ee-as leaves bare, faking 8 matches."),
 
     # --- Fallback: nothing distinctive — just write natural C ---
     R("0.0", "natural C — no recipe needed", "",

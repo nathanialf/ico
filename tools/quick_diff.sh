@@ -335,21 +335,23 @@ if [[ -r "$USE_OLD_AS_TXT" ]] && \
     EE_AS="$ROOT/tools/cc/ee-gcc2.9-991111/bin/as"
     OLD_AS_SELECTED=1
 fi
-# Honor config/use_modern_as.txt (same as compile_c.sh): the four TUs whose
-# matched C depends on modern gas's delay-slot scheduling (or that hit the
-# period assembler's noreorder nop-insertion bug — see the config file) are
-# assembled with modern gas, on a --modern-flattened input whose bare ACC/Q/R
-# VU0 operands are translated to the $-form modern gas requires. Without
-# this, quick_diff would assemble them with the period assembler and show
-# PHANTOM delay/nop diffs the real ninja build doesn't have.
-USE_MODERN_AS_TXT="$ROOT/config/use_modern_as.txt"
-MODERN_AS_SELECTED=0
-if [[ -r "$USE_MODERN_AS_TXT" ]] && \
-   awk -v a="$NAME" -v b="$(basename "$NAME")" '($1==a||$1==b){f=1} END{exit !f}' "$USE_MODERN_AS_TXT"; then
-    MODERN_AS_SELECTED=1
+# config/use_as296.txt — the mirror of compile_c.sh's one exception: a TU whose
+# ROM tail proves it went through the LATER PERIOD assembler ee-as 2.96 (which
+# fills delay slots; 2.9-991111 fills none). This MUST agree with the build, or
+# the TU reads a permanent PHANTOM scheduling diff here that ninja does not have
+# — which is exactly how func_00258450 looked unmatchable for two rounds.
+USE_AS296_TXT="$ROOT/config/use_as296.txt"
+if [[ -r "$USE_AS296_TXT" ]] && \
+   awk -v a="$NAME" -v b="$(basename "$NAME")" '($1==a||$1==b){f=1} END{exit !f}' "$USE_AS296_TXT"; then
+    EE_AS="$ROOT/tools/cc/ee-gcc2.96/bin/as"
 fi
-AS_MODERN="${AS_FOR_QD:-mips-linux-gnu-as}"
-ASFLAGS_MODERN="${ASFLAGS_QD:--EL -march=r5900 -mabi=eabi -G 8 -no-pad-sections -Iinclude}"
+# NO MODERN-GAS PATH. config/use_modern_as.txt and the silent failure fallback
+# were both retired 2026-08-05 (see compile_c.sh for the full rationale): modern
+# gas fills delay slots ee-as 2.9-991111 leaves bare, so anything reaching it can
+# read as MATCHED on the assembler's scheduling instead of on source shape. That
+# is how 8 functions were falsely matched and later reverted. This inner loop is
+# run hundreds of times per matching round, so a fallback here is the most
+# dangerous of all — it silently disagrees with the ninja build.
 
 # ee-as 2.10 doesn't accept register-name aliases ($zero, $sp, $ra, ...).
 # Translate any to numbered. ee-gcc-emitted output uses $N already, but
@@ -376,17 +378,7 @@ canon_regnames() {
 
 assemble() {
     local out="$1" in="$2"
-    # use_modern_as TU: assemble with modern gas on the --modern-flattened
-    # input (bare ACC/Q/R -> $-form, includes inlined) — exactly what the
-    # ninja build's compile_c.sh does for these TUs.
-    if [[ "$MODERN_AS_SELECTED" == 1 ]]; then
-        if python3 "$ROOT/tools/preprocess_old_as.py" --modern "$in" "$in.modern" 2>/dev/null; then
-            $AS_MODERN $ASFLAGS_MODERN -o "$out" "$in.modern" && return 0
-        fi
-        $AS_MODERN $ASFLAGS_MODERN -o "$out" "$in"
-        return
-    fi
-    # DEFAULT = the period assembler (ee-gcc 2.9-991111's `as`), the ROM's
+    # THE ONLY assembler = the period assembler (ee-gcc 2.9-991111's `as`), the ROM's
     # contemporary assembler — it matches the 2.9-991111 COMPILER and leaves the
     # jal/jr delay-slot NOPs that 2.96 / modern-as wrongly over-fill (e.g.
     # debug_TargetGObj_Func). It rejects splat's %gp_rel spelling + reg aliases,
@@ -395,33 +387,50 @@ assemble() {
     # Do NOT reinstate a bare-2.96 default path: that silently fell back to modern
     # gas and faked phantom delay-fills the real build never had. (use_old_as.txt
     # is now redundant — the period assembler IS the default.)
-    if [[ -x "$EE_AS" ]]; then
-        python3 "$ROOT/tools/preprocess_old_as.py" "$in" "$in.oldas" \
-            && canon_regnames "$in.oldas" \
-            && "$EE_AS" $EE_ASFLAGS -o "$out" "$in.oldas" 2>/dev/null && return 0
+    #
+    # HARD-FAIL, never fall back. The old `2>/dev/null` + trailing modern-gas call
+    # meant a period-assembler rejection (e.g. an untranslated $ACC/$Q/$R) silently
+    # produced an object from a DIFFERENT assembler, and the diff shown was then
+    # not the diff ninja would see. Errors are surfaced, not swallowed.
+    if [[ ! -x "$EE_AS" ]]; then
+        echo "quick_diff: period assembler missing at $EE_AS" >&2
+        echo "  run ./tools/setup.sh — there is no modern-gas fallback" >&2
+        return 1
     fi
-    $AS_MODERN $ASFLAGS_MODERN -o "$out" "$in"
+    python3 "$ROOT/tools/preprocess_old_as.py" "$in" "$in.oldas" \
+        && canon_regnames "$in.oldas" \
+        && "$EE_AS" $EE_ASFLAGS -o "$out" "$in.oldas" && return 0
+    echo "quick_diff: period assembler (ee-as 2.9-991111) REJECTED $in.oldas" >&2
+    echo "  Fix the source/.s — there is no modern-gas fallback (retired" >&2
+    echo "  2026-08-05; it manufactured 8 false delay-slot matches)." >&2
+    return 1
 }
 
 # Canonicalize C-side inline-asm VU0 special registers ($ACC/$Q/$R from
-# include/vu0.h) to the period assembler's BARE spelling — same conditional
-# as compile_c.sh: skipped for use_modern_as TUs, whose modern-gas input
-# keeps (and needs) the $-form. Without this, a VU0-using candidate would
-# always fail the period assembler and silently fall back to modern gas,
-# disagreeing with the ninja build's assembler choice.
-if [[ "$MODERN_AS_SELECTED" == 0 ]]; then
-    sed -i -E -e 's/\$ACC\b/ACC/g' -e 's/\$Q\b/Q/g' -e 's/\$R\b/R/g' "$ASM_OUT"
-fi
+# include/vu0.h) to the period assembler's BARE spelling — UNCONDITIONALLY, as
+# compile_c.sh does. This is what keeps a VU0-using candidate assembling at all:
+# untranslated, it fails the period assembler, which now hard-errors instead of
+# silently falling back to modern gas and disagreeing with the ninja build.
+sed -i -E -e 's/\$ACC\b/ACC/g' -e 's/\$Q\b/Q/g' -e 's/\$R\b/R/g' "$ASM_OUT"
 canon_regnames "$ASM_OUT"
 assemble "$OBJ" "$ASM_OUT"
 
 # Canonicalize both sides via the same objdump so the diff is meaningful.
-# splat's per-function .s files don't .include "macro.inc" themselves, so we
-# prepend it to a temp copy.
+# splat's per-function .s files don't .include the label macros themselves, so
+# we prepend them to a temp copy.
+#
+# labels.inc, NOT macro.inc: macro.inc is the MODERN-gas spelling (`.internal`,
+# and `"\label"` argument substitution inside quotes) which ee-as 2.9-991111
+# cannot parse. Prepending it made the TARGET side fail the period assembler on
+# every macro-using .s and silently fall through to the old modern-gas fallback
+# — so the reference bytes quick_diff diffed against came from an assembler the
+# real build never uses. labels.inc is the period-assembler twin of the same
+# macros (the real build's flattened INCLUDE_ASM path uses it). Fixed 2026-08-05
+# alongside retiring the fallback that was hiding this.
 TARGET_OBJ="build/quick_diff/$NAME.target.o"
 TARGET_ASM_WRAPPED="build/quick_diff/$NAME.target.s"
 {
-    echo '.include "macro.inc"'
+    echo '.include "labels.inc"'
     echo '.set noreorder'
     echo '.set noat'
     cat "$TARGET_ASM"

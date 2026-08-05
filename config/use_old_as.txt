@@ -3,7 +3,8 @@
 // compiler) — see compile_c.sh SELECTED_EE_AS and decomp/NOTES.md "Assembler
 // selection reality". Listing a TU here is a no-op (it already gets the period
 // assembler). Kept only for back-compat with the `listed` gate. To force modern
-// gas for a TU that genuinely needs it, use config/use_modern_as.txt instead.
+// gas is NOT available: config/use_modern_as.txt was deleted 2026-08-05 and a
+// period-assembler rejection is now a hard error. See decomp/NOTES.md.
 //
 // (Previously this was the opt-in for the period assembler while the default was
 // the LATER ee-as 2.96 — a stale mismatch that faked jr/jal-delay over-fills.)

@@ -51,8 +51,13 @@ EXTRA_SYMS = ROOT / "config" / f"undefined_funcs_extra.{VERSION}.txt"
 
 POSTPROCESS_TXTS = [
     "extra_cflags.txt",
-    "use_modern_as.txt",
+    # use_modern_as.txt retired 2026-08-05 — the file is gone and no tool reads
+    # it. Modern gas fills delay slots ee-as 2.9-991111 leaves bare, so any TU
+    # that reached it could read as MATCHED on the assembler's scheduling rather
+    # than on source shape (8 functions were falsely matched that way and had to
+    # be reverted). See compile_c.sh / decomp/NOTES.md "Assembler".
     "use_old_as.txt",
+    "use_as296.txt",
     # no_trailing_nop / shared_sp_restore / shared_jr_restore retired
     # 2026-05-31 (funcs parked to asm).
 ]

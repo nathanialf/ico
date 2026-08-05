@@ -48,9 +48,9 @@ CONFIGS = [
     ("lui_const_swap.txt",     "med"),
     ("move_sw_v0_before_lds.txt", "med"),
     # Intentionally NOT listed (not func-scoping collisions):
-    #  - use_modern_as.txt selects the assembler (ee-as vs modern mips-as) for
-    #    the whole .o, not a per-func .s mutation, so it can't clobber a
-    #    sibling's bytes and isn't func-scopable.
+    #  - use_modern_as.txt is GONE (retired 2026-08-05): the period assembler
+    #    is the only assembler, and a rejection is now a hard error rather
+    #    than a silent fallback that could fake delay-slot matches.
     #  - unfold_ra_delay.txt's tool already iterates per-function (FUNC_PATTERN)
     #    and only patches funcs carrying the exact beq+ld$31 fold, so it can't
     #    affect a sibling that lacks the pattern.

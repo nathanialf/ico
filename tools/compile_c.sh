@@ -45,8 +45,8 @@ EE_ASFLAGS="-EL -mcpu=5900 -G 8"
 PYTHON="${ROOT}/.venv/bin/python"
 
 EXTRA_CFLAGS_LOOKUP="${ROOT}/tools/extra_cflags.sh"
-USE_MODERN_AS_TXT="${ROOT}/config/use_modern_as.txt"
 USE_OLD_AS_TXT="${ROOT}/config/use_old_as.txt"
+USE_AS296_TXT="${ROOT}/config/use_as296.txt"
 
 BASE="$(basename "${SRC}" .c)"
 # Relative TU path without the .c (e.g. fumi/src/jimaku), with any leading
@@ -322,11 +322,24 @@ ASM_INPUT="${S}"
 # Do NOT revert this default to ${EE_AS} (2.96): that was a stale mismatch that
 # forced per-func use_old_as.txt bandaids and faked phantom jr-delay fills.
 # use_old_as.txt is now REDUNDANT (its TUs already get the period assembler);
-# kept only for back-compat. If a TU ever genuinely needs modern gas, list it in
-# use_modern_as.txt (handled below). See decomp/NOTES.md "Assembler" section.
+# kept only for back-compat. There is NO modern-gas escape hatch: a TU that
+# "genuinely needs modern gas" is a TU whose .s needs fixing, or a match that is
+# really the assembler's delay-slot scheduling wearing a source's clothes. See
+# decomp/NOTES.md "Assembler" section.
 SELECTED_EE_AS="${EE_AS_OLD}"
 if listed "${USE_OLD_AS_TXT}"; then
     SELECTED_EE_AS="${EE_AS_OLD}"
+fi
+# The ONE exception, and it is still a PERIOD assembler: config/use_as296.txt
+# selects ee-as 2.96 (2.10-ee-001003-1, Oct 2000) for a TU whose ROM tail proves
+# it went through the later toolchain. 2.9-991111 does no delay-slot filling
+# whatsoever; 2.96 fills in `.set reorder` mode. A ROM function ending with a real
+# instruction in the `jr $31` slot that gcc itself cannot put there (length-2
+# insn, see mips.md's define_delay) is evidence of 2.96. Unlike the retired
+# modern-gas path, a wrong answer here is FALSIFIED by the whole-image SHA gate:
+# the TU's already-matched siblings break immediately. See the config file.
+if listed "${USE_AS296_TXT}"; then
+    SELECTED_EE_AS="${EE_AS}"
 fi
 # Flatten INCLUDE_ASM siblings + translate splat's gp_rel spellings to the bare
 # gp-addressable form the PERIOD assembler accepts, so the ROM's contemporary
@@ -337,36 +350,36 @@ if "${PYTHON}" "${ROOT}/tools/preprocess_old_as.py" "${S}" "${S}.pp" 2>/dev/null
     ASM_INPUT="${S}.pp"
 fi
 
-if listed "${USE_MODERN_AS_TXT}"; then
-    # Modern-dialect input: flatten the .include'd splat siblings (which are
-    # now emitted in the period assembler's BARE ACC/Q/R spelling) and add
-    # the `$` prefix modern gas requires — including the included files,
-    # which a sed on ${S} alone would miss. %gp_rel spellings stay (modern
-    # gas parses them natively). Falls back to the unflattened ${S} only if
-    # the preprocessor itself fails.
-    MODERN_INPUT="${S}"
-    if "${PYTHON}" "${ROOT}/tools/preprocess_old_as.py" --modern "${S}" "${S}.mpp"; then
-        MODERN_INPUT="${S}.mpp"
-    fi
-    # shellcheck disable=SC2086
-    "${AS}" ${ASFLAGS} -o "${OUT}" "${MODERN_INPUT}"
-    "${OBJCOPY}" --set-section-alignment ".text=${ALIGN}" "${OUT}"
+# THE PERIOD ASSEMBLER IS THE ONLY ASSEMBLER FOR C TUs. There is no modern-gas
+# path here any more — no allowlist, no failure fallback. Retired 2026-08-05.
+#
+# WHY (do not reinstate either one):
+#   Modern gas fills delay slots that ee-as 2.9-991111 leaves bare, so a TU that
+#   reached it could "match" on the ASSEMBLER's scheduling rather than on source
+#   shape. That produced 8 false matches (1 enemy, 2 Packet, 5 vendor_2418A0),
+#   every one of which had to be reverted to INCLUDE_ASM on 2026-08-01 and
+#   re-derived in C. A matching source shape provably exists for every ROM
+#   function — the ROM was built by this toolchain — so an assembler swap is
+#   never the answer, and having the path available at all makes it the first
+#   thing a stuck matching run reaches for.
+#
+# If the period assembler rejects this TU, that is a REAL defect in the .s to be
+# fixed at the source (past causes: splat's `enddlabel` leaving an `.ent`
+# unclosed — fixed in include/labels.inc; the $ACC/$Q/$R sigil dialect, which
+# preprocess_old_as.py now translates to the bare spelling). Hard-fail so ninja
+# stops on it instead of silently producing an object from a different assembler.
 # shellcheck disable=SC2086
-elif "${SELECTED_EE_AS}" ${EE_ASFLAGS} -I"${INCLUDE_DIR}" -o "${OUT}" "${ASM_INPUT}" 2>"${OUT}.aserr"; then
+if "${SELECTED_EE_AS}" ${EE_ASFLAGS} -I"${INCLUDE_DIR}" -o "${OUT}" "${ASM_INPUT}" 2>"${OUT}.aserr"; then
     rm -f "${OUT}.aserr"
     "${OBJCOPY}" "${OUT}" "${OUT}"
 else
-    # Surface WHY the period assembler rejected the TU before falling back —
-    # a silent 2>/dev/null here hid the real cause of every fallback for
-    # months (the $ACC/$Q sigil dialect and an unclosed .ent both looked
-    # like "some TUs just need modern gas").
-    echo "compile_c.sh: period assembler FAILED on ${ASM_INPUT}; falling back to modern gas:" >&2
+    echo "compile_c.sh: period assembler (ee-as 2.9-991111) REJECTED ${ASM_INPUT}" >&2
     grep -iE 'error' "${OUT}.aserr" | head -20 >&2 || head -20 "${OUT}.aserr" >&2
-    rm -f "${OUT}.aserr"
-    echo "  → consider adding ${BASE} to ${USE_MODERN_AS_TXT}" >&2
-    # shellcheck disable=SC2086
-    "${AS}" ${ASFLAGS} -o "${OUT}" "${S}"
-    "${OBJCOPY}" --set-section-alignment ".text=${ALIGN}" "${OUT}"
+    rm -f "${OUT}.aserr" "${OUT}"
+    echo "  This is a source defect to FIX, not an assembler to swap: there is no" >&2
+    echo "  modern-gas fallback (retired 2026-08-05 — it manufactured 8 false" >&2
+    echo "  delay-slot matches). See decomp/NOTES.md \"Assembler\"." >&2
+    exit 1
 fi
 
 # Carve safety: modern gas applies `record_alignment (data_section, 4)` — a hard

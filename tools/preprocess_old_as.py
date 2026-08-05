@@ -22,16 +22,16 @@ declared gp-addressable via `.extern SYM, <=G>`. So:
 byte-identical to the modern-as encoding for the gp_rel refs, and lets the
 period assembler set the delay-slot bytes the ROM actually has.
 
-Usage: preprocess_old_as.py [--modern] <in.s> <out.s>
+Usage: preprocess_old_as.py <in.s> <out.s>
 
---modern: flatten for MODERN gas instead (a TU listed in
-config/use_modern_as.txt). Includes are inlined the same way, but the
-dialect translation is reversed: %gp_rel spellings are LEFT ALONE (modern
-gas parses them natively, no .extern header needed) and the r5900 special
-VU0 registers ACC / Q / R — bare in splat's output, the period
-assembler's dialect — are rewritten to the `$`-prefixed spelling modern
-gas requires. Operand-position only (`<space-or-comma>ACC`), so an
-already-`$`-prefixed form is never doubled.
+--modern is RETIRED (2026-08-05) and now hard-errors. It used to flatten for
+MODERN gas (for a TU listed in the since-deleted config/use_modern_as.txt),
+reversing the dialect translation. The whole modern-gas path is gone because
+that assembler fills delay slots ee-as 2.9-991111 leaves bare, so anything
+reaching it could read as MATCHED on the assembler's scheduling rather than on
+source shape. See decomp/NOTES.md "There is NO modern-gas path any more".
+The `modern` plumbing below is left inert rather than ripped out so the dialect
+mapping stays documented in one place.
 """
 import os
 import re
@@ -94,8 +94,15 @@ def main():
     args = sys.argv[1:]
     modern = False
     if args and args[0] == "--modern":
-        modern = True
-        args = args[1:]
+        sys.exit(
+            "preprocess_old_as.py: --modern is RETIRED (2026-08-05).\n"
+            "  There is no modern-gas path: it fills delay slots ee-as\n"
+            "  2.9-991111 leaves bare, so a TU assembled with it can read as\n"
+            "  MATCHED on the assembler's scheduling instead of on source\n"
+            "  shape (that produced 8 false matches, all reverted 2026-08-01).\n"
+            "  A period-assembler rejection is a source defect to FIX — see\n"
+            "  decomp/NOTES.md \"There is NO modern-gas path any more\"."
+        )
     src, dst = args[0], args[1]
     out, syms, seen = [], set(), set()
     flatten(src, out, syms, seen, modern)

@@ -124,8 +124,10 @@ void func_00258418(int *a0, int a1, int a2, int a3) {
  * previous C match relied on MODERN gas filling the slot — the same
  * "matched by assembler, not by source" class as the 8 funcs reverted in
  * 0ac3cb51. Recovered C stashed in the delayslot_queue. */
-extern int func_00258450(void *a0, int a1);
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2575C0", func_00258450);
+extern int func_00258450(unsigned long long *p, int n);
+int func_00258450(unsigned long long *p, int n) {
+    return (int)(*p >> (64 - n));
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2575C0", func_00258470);
 
