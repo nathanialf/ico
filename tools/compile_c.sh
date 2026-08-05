@@ -46,7 +46,6 @@ PYTHON="${ROOT}/.venv/bin/python"
 
 EXTRA_CFLAGS_LOOKUP="${ROOT}/tools/extra_cflags.sh"
 USE_OLD_AS_TXT="${ROOT}/config/use_old_as.txt"
-USE_AS296_TXT="${ROOT}/config/use_as296.txt"
 
 BASE="$(basename "${SRC}" .c)"
 # Relative TU path without the .c (e.g. fumi/src/jimaku), with any leading
@@ -330,17 +329,15 @@ SELECTED_EE_AS="${EE_AS_OLD}"
 if listed "${USE_OLD_AS_TXT}"; then
     SELECTED_EE_AS="${EE_AS_OLD}"
 fi
-# The ONE exception, and it is still a PERIOD assembler: config/use_as296.txt
-# selects ee-as 2.96 (2.10-ee-001003-1, Oct 2000) for a TU whose ROM tail proves
-# it went through the later toolchain. 2.9-991111 does no delay-slot filling
-# whatsoever; 2.96 fills in `.set reorder` mode. A ROM function ending with a real
-# instruction in the `jr $31` slot that gcc itself cannot put there (length-2
-# insn, see mips.md's define_delay) is evidence of 2.96. Unlike the retired
-# modern-gas path, a wrong answer here is FALSIFIED by the whole-image SHA gate:
-# the TU's already-matched siblings break immediately. See the config file.
-if listed "${USE_AS296_TXT}"; then
-    SELECTED_EE_AS="${EE_AS}"
-fi
+# ONE ASSEMBLER, NO EXCEPTIONS. ee-as 2.9-991111 is the assembler BUNDLED WITH
+# the compiler this build uses (EEGCC_DIR above is ee-gcc 2.9-991111), and that
+# pairing is the whole argument for it. config/use_as296.txt — a per-TU opt-in to
+# the 2.10-ee-001003-1 assembler bundled with the "2.96" toolchain — was tried on
+# 2026-08-05 and REVERTED the same day: feeding one compiler's output to a
+# different toolchain's assembler is a mismatched pairing, and "this TU used a
+# different assembler than its own compiler" is far too weak a claim to hang a
+# match on. Modern gas is likewise gone (see below). If a delay slot will not
+# fill, that is a SOURCE-SHAPE problem to solve in C.
 # Flatten INCLUDE_ASM siblings + translate splat's gp_rel spellings to the bare
 # gp-addressable form the PERIOD assembler accepts, so the ROM's contemporary
 # assembler (ee-as 2.10, or 2.9-991111 for use_old_as) assembles mixed C+asm TUs

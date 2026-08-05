@@ -57,7 +57,6 @@ POSTPROCESS_TXTS = [
     # than on source shape (8 functions were falsely matched that way and had to
     # be reverted). See compile_c.sh / decomp/NOTES.md "Assembler".
     "use_old_as.txt",
-    "use_as296.txt",
     # no_trailing_nop / shared_sp_restore / shared_jr_restore retired
     # 2026-05-31 (funcs parked to asm).
 ]

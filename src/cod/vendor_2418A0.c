@@ -1090,13 +1090,14 @@ void *func_00244920(void *a0) {
  * does but makes the insn ineligible for gcc's delay-slot pass — or non-volatile,
  * which folds the address back into a 2-insn `lw $r,<const>` macro that is
  * ineligible for a different reason. */
-int func_00244958(unsigned int a0) {
-    int old = *(volatile int *)0x1000E060;
-    if (a0 != 0xFFFFFFFF) {
-        *(volatile int *)0x1000E060 = a0;
-    }
-    return old;
-}
+/* func_00244958 — parked. Its recovered C is stashed verbatim at
+ * tough_nuts/delayslot_unfilled/vendor_2418A0_func_00244958.c and matches ONLY
+ * under a delay-slot-filling assembler; under the one period assembler
+ * (ee-as 2.9-991111, which fills nothing) the ROM's `lw v0,0(v0)` in the
+ * `beq a0,v1` slot is left in front. Assembler swapping was tried 2026-08-05
+ * and reverted — the remaining work is a source shape that makes gcc's OWN
+ * reorg fill the slot. See tough_nuts/delayslot_unfilled/QUEUE.md row 3. */
+INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00244958);
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00244980);
 

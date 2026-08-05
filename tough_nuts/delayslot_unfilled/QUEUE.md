@@ -20,7 +20,7 @@ Ordered smallest/simplest first:
 |---|----|----------|----------|-------|------------------|--------------------------|--------|
 | 1 | src/cod/vendor_2418A0.c | func_00243B60 | 0x00243B60 | 4 | `jr ra` | `sq a2,0(a0)` | MATCHED (hand asm, jr-slot sq) |
 | 2 | src/cod/vendor_2418A0.c | func_00243B70 | 0x00243B70 | 10 | `jr ra` | `sq t1,48(a0)` | MATCHED (hand asm, jr-slot sq) |
-| 3 | src/cod/vendor_2418A0.c | func_00244958 | 0x00244958 | 10 | `beq a0,v1,<+0x24>` | `lw v0,0(v0)` (also: period pads a 2nd trailing nop) | MATCHED 2026-08-05 (the ORIGINAL parked C, verbatim, once the TU was assembled with ee-as 2.96) |
+| 3 | src/cod/vendor_2418A0.c | func_00244958 | 0x00244958 | 10 | `beq a0,v1,<+0x24>` | `lw v0,0(v0)` (also: period pads a 2nd trailing nop) | OPEN — parked C is CORRECT but needs a filled slot; source shape still unknown |
 | 4 | src/enemy.c | EnemySetfDisappearAll | 0x001CE6F0 | 10 | `j InitMotionOrient` (tail call) | `sw zero,0x3BC(v0)` | MATCHED (plain C, `int`-typed 0x15C load) — see HANDOFF_enemy.md |
 | 5 | src/Packet.c | pac_makeMaterialTable | 0x0011A2A8 | 18 | `j debug_assertMessage` (tail call) | `lw a2,4(v0)` | MATCHED (plain C, EABI 5th arg in `$8`) — see HANDOFF_Packet.md |
 | 6 | src/Packet.c | pac_makeMaterialTableLine | 0x0011A2F0 | 18 | `j debug_assertMessage` (tail call) | `sw a1,44(v1)` | MATCHED (plain C, `int`-typed cursor store defeats DSE) — see HANDOFF_Packet.md |
@@ -70,10 +70,12 @@ Notes:
   TU (in-TU C callers at the former lines ~759/764-767).
 - enemy: nothing extra; `extern void InitMotionOrient();` decl left in place.
 
-## 2026-08-05 — the row-3 stall was never a source problem
+## 2026-08-05 — assembler swapping was tried and REVERTED (read this)
 
-`func_00244958` was recorded as STALLED after ten measured spellings. It
-matches with the parked C **unchanged**; what was wrong was the assembler.
+`func_00244958` and `func_00258450` were briefly landed by assembling their TUs
+with a DIFFERENT assembler, then reverted the same day on the user's ruling.
+Recording it so nobody re-derives the dead end — and because the measurements
+underneath it are real and useful.
 
 ee-as 2.9-991111 performs NO delay-slot filling at all (probed with three
 hand-written bodies before a `j $31` — a dsll/dsra macro pair, the native
@@ -88,10 +90,21 @@ part stands, and modern gas is now impossible. But "the ROM's assembler fills
 this slot" was true all along; the error was concluding that the only filler
 was modern gas, when the repo already shipped a period one.
 
-Select it per TU via `config/use_as296.txt`. A wrong entry is falsified by the
-whole-image SHA-1 gate — the TU's already-matched siblings break at once — so
-this is a measurement, not an escape hatch. `vendor_2418A0` and `vendor_2575C0`
-are both listed and the image stays `fbf50c75`.
+**WHY IT WAS REVERTED — the decisive argument.** The build COMPILES with ee-gcc
+2.9-991111, and `tools/cc/ee-gcc2.9-991111/bin/as` is the assembler bundled with
+that very compiler. The 2.10 assembler is bundled with a DIFFERENT toolchain.
+Feeding one compiler's output to another toolchain's assembler is a mismatched
+pairing, and "this one TU used a different assembler than its own compiler" is
+far too weak a claim to hang a match on — the SHA gate merely fails to disprove
+it, which is not the same as evidence for it. `config/use_as296.txt` is deleted
+and there is ONE period assembler. Do not reintroduce it.
+
+So both functions are OPEN, and the residual is a SOURCE-SHAPE problem: find the
+C that makes gcc's own reorg fill the slot (gcc 2.9-991111 demonstrably does fill
+`jr`/`j <extern>` slots when the candidate's `length` attribute is 1 — rows #4-#6
+are exactly that). For `func_00258450` the known obstruction is that a DI->SI
+narrowing is length 2 and therefore ineligible; the open question is what C
+returns that value WITHOUT a length-2 narrowing in the tail.
 
 **Worth revisiting under 2.96:** rows #1/#2/#7 (`func_00243B60`,
 `func_00243B70`, `func_002439B0`) were landed as whole-function HAND ASM on the

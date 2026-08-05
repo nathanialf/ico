@@ -335,16 +335,6 @@ if [[ -r "$USE_OLD_AS_TXT" ]] && \
     EE_AS="$ROOT/tools/cc/ee-gcc2.9-991111/bin/as"
     OLD_AS_SELECTED=1
 fi
-# config/use_as296.txt — the mirror of compile_c.sh's one exception: a TU whose
-# ROM tail proves it went through the LATER PERIOD assembler ee-as 2.96 (which
-# fills delay slots; 2.9-991111 fills none). This MUST agree with the build, or
-# the TU reads a permanent PHANTOM scheduling diff here that ninja does not have
-# — which is exactly how func_00258450 looked unmatchable for two rounds.
-USE_AS296_TXT="$ROOT/config/use_as296.txt"
-if [[ -r "$USE_AS296_TXT" ]] && \
-   awk -v a="$NAME" -v b="$(basename "$NAME")" '($1==a||$1==b){f=1} END{exit !f}' "$USE_AS296_TXT"; then
-    EE_AS="$ROOT/tools/cc/ee-gcc2.96/bin/as"
-fi
 # NO MODERN-GAS PATH. config/use_modern_as.txt and the silent failure fallback
 # were both retired 2026-08-05 (see compile_c.sh for the full rationale): modern
 # gas fills delay slots ee-as 2.9-991111 leaves bare, so anything reaching it can
