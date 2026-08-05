@@ -2,7 +2,7 @@
 
 typedef struct { long long q[20]; } PE160;
 
-struct PE_elem { int f0; char pad[0x10]; int f14; };
+struct PE_elem { int f0; int f4; int f8; int fC; int f10; int f14; };
 
 
 
@@ -41,7 +41,20 @@ void ExecParticleEffects(int a0, int a1, int a2) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/particleEffect", ResetParticleEffectPackages);
+struct PE_obj { char pad0[0x38]; int f38; float f3C; };
+extern void SetParticleEffect(struct PE_obj *o);
+
+void ResetParticleEffectPackages(int no, float f)
+{
+    struct PE_obj *o;
+
+    if (no >= 0) {
+        o = (struct PE_obj *)D_007030C0a[no].f14;
+        o->f38 = 1;
+        o->f3C = f;
+        SetParticleEffect(o);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", SetParticleEffectPackage);
 
@@ -60,9 +73,30 @@ void InitParticleEffects(int a0, int *a1, int a2) {
     func_00264128(&D_0070A3F0__p4[a0 * 0xA0], a1, a2);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/particleEffect", DeleteParticleEffect);
+typedef struct { char c[0x18]; } Blob24;
+extern char D_004C5F20[];
 
-INCLUDE_ASM("asm/nonmatchings/src/particleEffect", SetParticleEffectActiveSensing);
+void DeleteParticleEffect(void)
+{
+    int i;
+
+    for (i = 0; i < 128; i++) {
+        *(Blob24 *)&D_007030C0a[i] = *(Blob24 *)D_004C5F20;
+    }
+}
+
+extern void SetParticleEffectGeometry(int a0);
+
+void SetParticleEffectActiveSensing(void)
+{
+    int i;
+
+    for (i = 0; i < 128; i++) {
+        if (D_007030C0a[i].f0 != 0) {
+            SetParticleEffectGeometry(D_007030C0a[i].f14);
+        }
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", GetParticleEffectPackage);
 
