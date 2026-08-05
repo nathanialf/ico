@@ -88,11 +88,44 @@ void GetTableArcTan2(float *out, float *in, float x, float y, float z) {
     out[3] = s1;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/tableSin", func_0010DCF8);
+void func_0010DCF8(int *self, short a1, int *src)
+{
+    char buf[0x10];
+    int half;
+    float f;
+    _SetCurrentMatrix(buf, src);
+    half = a1 >> 1;
+    f = p2o_SetDefaultEnviroment(half);
+    _InverseCurrentMatrix(self, buf, f);
+    *(float *)((char *)self + 0xC) = func_0010E9A0(half);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/tableSin", func_0010DD58);
+void func_0010DD58(int *self, int a1, void *src)
+{
+    int half = (a1 << 16) >> 17;
+    float f;
+    f = p2o_SetDefaultEnviroment(half);
+    _InverseCurrentMatrix(self, src, f);
+    *(float *)((char *)self + 0xC) = func_0010E9A0(half);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/tableSin", func_0010DDB8);
+void func_0010DDB8(void *p0, void *p1, void *p2)
+{
+    VU0_LSV(lqc2, 11, 0x0, a1);
+    VU0_LSV(lqc2, 12, 0x0, a2);
+    VU0_V3OP(vmul.xyzw, 13, 11, 12);
+    VU0_V3OP_BC(vaddy.x, 13, 13, 13, y);
+    VU0_V3OP_BC(vaddz.x, 13, 13, 13, z);
+    VU0_V3OP_BC(vsubx.w, 13, 13, 13, x);
+    VU0_V3OP_BC(vmulw.xyz, 14, 12, 11, w);
+    VU0_V3OP_BC(vmulw.xyz, 15, 11, 12, w);
+    VU0_V3OP_ACC(vopmula.xyz, 12, 11);
+    VU0_V3OP(vopmsub.xyz, 16, 11, 12);
+    VU0_V3OP(vadd.xyz, 13, 14, 15);
+    VU0_V3OP(vadd.xyz, 13, 13, 16);
+    VU0_LSV(sqc2, 13, 0x0, a0);
+    VU0_NOP();
+}
 
 void func_0010DDF8(int self, int a1, int a2)
 {
@@ -101,9 +134,83 @@ void func_0010DDF8(int self, int a1, int a2)
     func_0010DDB8(self, buf, a1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/tableSin", func_0010DE40);
+extern char D_00276150[];
 
-INCLUDE_ASM("asm/nonmatchings/src/tableSin", func_0010DEC0);
+void func_0010DE40(char *a0, char *a1)
+{
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf11, 0x0($5)\n"
+        "lqc2 $vf12, 0x0(%0)\n"
+        "vmr32.w $vf14, $vf0\n"
+        "vmr32.w $vf15, $vf0\n"
+        "vmr32.w $vf16, $vf0\n"
+        "vopmula.xyz ACC, $vf11, $vf12\n"
+        "vmadd.xyz $vf11, $vf0, $vf0\n"
+        "vmulw.xyzw $vf11, $vf11, $vf12w\n"
+        "vmul.xyz $vf13, $vf11, $vf11\n"
+        "vopmula.xyz ACC, $vf11, $vf11\n"
+        "vmaddw.xyz $vf15, $vf11, $vf11w\n"
+        "vmsubw.xyz $vf16, $vf11, $vf11w\n"
+        "vopmula.xyz ACC, $vf13, $vf12\n"
+        "vmadd.xyz $vf17, $vf13, $vf12\n"
+        "vopmula.xyz ACC, $vf15, $vf12\n"
+        "vmadd.xyz $vf15, $vf0, $vf0\n"
+        "vsub.xyz $vf14, $vf12, $vf17\n"
+        "vmove.y $vf17, $vf14\n"
+        "vmove.y $vf14, $vf16\n"
+        "vmove.y $vf16, $vf15\n"
+        "vmove.y $vf15, $vf17\n"
+        "vmove.z $vf17, $vf14\n"
+        "vmove.z $vf14, $vf15\n"
+        "vmove.z $vf15, $vf16\n"
+        "vmove.z $vf16, $vf17\n"
+        "sqc2 $vf14, 0x0($4)\n"
+        "sqc2 $vf15, 0x10($4)\n"
+        "sqc2 $vf16, 0x20($4)\n"
+        ".set reorder\n"
+        : : "r"(D_00276150) : "memory");
+}
+
+extern void MatrixDrive_TurnObjectMatrix(char *a0, char *a1);
+
+void func_0010DEC0(char *a0, char *a1, char *a2)
+{
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf11, 0x0(%2)\n"
+        "lqc2 $vf12, 0x0(%0)\n"
+        "vmr32.w $vf14, $vf0\n"
+        "vmr32.w $vf15, $vf0\n"
+        "vmr32.w $vf16, $vf0\n"
+        "vopmula.xyz ACC, $vf11, $vf12\n"
+        "vmadd.xyz $vf11, $vf0, $vf0\n"
+        "vmulw.xyzw $vf11, $vf11, $vf12w\n"
+        "vmul.xyz $vf13, $vf11, $vf11\n"
+        "vopmula.xyz ACC, $vf11, $vf11\n"
+        "vmaddw.xyz $vf15, $vf11, $vf11w\n"
+        "vmsubw.xyz $vf16, $vf11, $vf11w\n"
+        "vopmula.xyz ACC, $vf13, $vf12\n"
+        "vmadd.xyz $vf17, $vf13, $vf12\n"
+        "vopmula.xyz ACC, $vf15, $vf12\n"
+        "vmadd.xyz $vf15, $vf0, $vf0\n"
+        "vsub.xyz $vf14, $vf12, $vf17\n"
+        "vmove.y $vf17, $vf14\n"
+        "vmove.y $vf14, $vf16\n"
+        "vmove.y $vf16, $vf15\n"
+        "vmove.y $vf15, $vf17\n"
+        "vmove.z $vf17, $vf14\n"
+        "vmove.z $vf14, $vf15\n"
+        "vmove.z $vf15, $vf16\n"
+        "vmove.z $vf16, $vf17\n"
+        "sqc2 $vf14, 0x0(%1)\n"
+        "sqc2 $vf15, 0x10(%1)\n"
+        "sqc2 $vf16, 0x20(%1)\n"
+        ".set reorder\n"
+        : : "r"(D_00276150), "r"(a0), "r"(a1) : "memory");
+    MatrixDrive_TurnObjectMatrix(a0 + 0x30, a2);
+    *(float *)(a0 + 0x3C) = 1.0f;
+}
 
 void func_0010DF70(void *src)
 {
@@ -117,11 +224,130 @@ void func_0010DF70(void *src)
 
 INCLUDE_ASM("asm/nonmatchings/src/tableSin", func_0010DFB8);
 
-INCLUDE_ASM("asm/nonmatchings/src/tableSin", func_0010E0B8);
+extern char D_00275870[];
 
-INCLUDE_ASM("asm/nonmatchings/src/tableSin", func_0010E158);
+void func_0010E0B8(void *self, int a1)
+{
+    char buf[0x10];
+    int half = (-(a1 << 16)) >> 17;
+    char *axis = D_00275870;
+    float f;
+    f = p2o_SetDefaultEnviroment(half);
+    _InverseCurrentMatrix((int *)buf, axis, f);
+    *(float *)(buf + 0xC) = func_0010E9A0(half);
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf11, 0x0(%0)\n"
+        "lqc2 $vf12, %1\n"
+        "vmul.xyzw $vf13, $vf11, $vf12\n"
+        "vaddy.x $vf13, $vf13, $vf13y\n"
+        "vaddz.x $vf13, $vf13, $vf13z\n"
+        "vsubx.w $vf13, $vf13, $vf13x\n"
+        "vmulw.xyz $vf14, $vf12, $vf11w\n"
+        "vmulw.xyz $vf15, $vf11, $vf12w\n"
+        "vopmula.xyz ACC, $vf12, $vf11\n"
+        "vopmsub.xyz $vf16, $vf11, $vf12\n"
+        "vadd.xyz $vf13, $vf14, $vf15\n"
+        "vadd.xyz $vf13, $vf13, $vf16\n"
+        "sqc2 $vf13, 0x0(%0)\n"
+        ".set reorder\n"
+        : : "r"(self), "m"(buf[0]) : "memory");
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/tableSin", func_0010E1F8);
+extern char D_00275880[];
 
-INCLUDE_ASM("asm/nonmatchings/src/tableSin", func_0010E298);
+void func_0010E158(void *self, int a1)
+{
+    char buf[0x10];
+    int half = (-(a1 << 16)) >> 17;
+    char *axis = D_00275880;
+    float f;
+    f = p2o_SetDefaultEnviroment(half);
+    _InverseCurrentMatrix((int *)buf, axis, f);
+    *(float *)(buf + 0xC) = func_0010E9A0(half);
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf11, 0x0(%0)\n"
+        "lqc2 $vf12, %1\n"
+        "vmul.xyzw $vf13, $vf11, $vf12\n"
+        "vaddy.x $vf13, $vf13, $vf13y\n"
+        "vaddz.x $vf13, $vf13, $vf13z\n"
+        "vsubx.w $vf13, $vf13, $vf13x\n"
+        "vmulw.xyz $vf14, $vf12, $vf11w\n"
+        "vmulw.xyz $vf15, $vf11, $vf12w\n"
+        "vopmula.xyz ACC, $vf12, $vf11\n"
+        "vopmsub.xyz $vf16, $vf11, $vf12\n"
+        "vadd.xyz $vf13, $vf14, $vf15\n"
+        "vadd.xyz $vf13, $vf13, $vf16\n"
+        "sqc2 $vf13, 0x0(%0)\n"
+        ".set reorder\n"
+        : : "r"(self), "m"(buf[0]) : "memory");
+}
+
+extern char D_00275890[];
+
+void func_0010E1F8(void *self, int a1)
+{
+    char buf[0x10];
+    int half = (-(a1 << 16)) >> 17;
+    char *axis = D_00275890;
+    float f;
+    f = p2o_SetDefaultEnviroment(half);
+    _InverseCurrentMatrix((int *)buf, axis, f);
+    *(float *)(buf + 0xC) = func_0010E9A0(half);
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf11, 0x0(%0)\n"
+        "lqc2 $vf12, %1\n"
+        "vmul.xyzw $vf13, $vf11, $vf12\n"
+        "vaddy.x $vf13, $vf13, $vf13y\n"
+        "vaddz.x $vf13, $vf13, $vf13z\n"
+        "vsubx.w $vf13, $vf13, $vf13x\n"
+        "vmulw.xyz $vf14, $vf12, $vf11w\n"
+        "vmulw.xyz $vf15, $vf11, $vf12w\n"
+        "vopmula.xyz ACC, $vf12, $vf11\n"
+        "vopmsub.xyz $vf16, $vf11, $vf12\n"
+        "vadd.xyz $vf13, $vf14, $vf15\n"
+        "vadd.xyz $vf13, $vf13, $vf16\n"
+        "sqc2 $vf13, 0x0(%0)\n"
+        ".set reorder\n"
+        : : "r"(self), "m"(buf[0]) : "memory");
+}
+
+void func_0010E298(void *self, float *in)
+{
+    float q[4];
+    float v[4];
+    float r[4];
+    float s1, s2;
+    float *axis = v;
+    v[0] = 1.0f;
+    v[1] = 0.0f;
+    v[2] = 0.0f;
+    v[3] = 0.0f;
+    s1 = func_00117C20((in[0] + 1.0f) * 0.5f);
+    s2 = func_00117C20((1.0f - in[0]) * 0.5f);
+    _SetCurrentMatrix(r, (int *)axis);
+    q[0] = r[0] * s2;
+    q[1] = r[1] * s2;
+    q[2] = r[2] * s2;
+    q[3] = s1;
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf11, 0x0(%0)\n"
+        "lqc2 $vf12, %1\n"
+        "vmul.xyzw $vf13, $vf11, $vf12\n"
+        "vaddy.x $vf13, $vf13, $vf13y\n"
+        "vaddz.x $vf13, $vf13, $vf13z\n"
+        "vsubx.w $vf13, $vf13, $vf13x\n"
+        "vmulw.xyz $vf14, $vf12, $vf11w\n"
+        "vmulw.xyz $vf15, $vf11, $vf12w\n"
+        "vopmula.xyz ACC, $vf12, $vf11\n"
+        "vopmsub.xyz $vf16, $vf11, $vf12\n"
+        "vadd.xyz $vf13, $vf14, $vf15\n"
+        "vadd.xyz $vf13, $vf13, $vf16\n"
+        "sqc2 $vf13, 0x0(%0)\n"
+        ".set reorder\n"
+        : : "r"(self), "m"(q[0]) : "memory");
+}
 
