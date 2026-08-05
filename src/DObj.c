@@ -1,6 +1,15 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/src/DObj", initGeometryState);
+int initGeometryState(volatile int *self) {
+    int r;
+
+    if (self[3] != self[4]) {
+        r = self[0] + self[2] * 0x151800;
+    } else {
+        r = 0;
+    }
+    return r;
+}
 
 int initMatrixDObj(volatile int *self) {
     if (self[3] != 0) {
