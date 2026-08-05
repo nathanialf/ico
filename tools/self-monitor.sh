@@ -167,8 +167,19 @@ if [[ "$1" == "--once" ]]; then
                     ci=index($0,":nonmatching "); path=substr($0,1,ci-1)
                     rest=substr($0,ci+13); comma=index(rest,",")
                     fn=substr(rest,1,comma-1)
-                    if (fn in skip) next
+                    # INCLUDE_ASM in tracked source WINS over matchings-presence.
+                    # A func still referenced by an INCLUDE_ASM is unmatched BY
+                    # DEFINITION, whatever asm/matchings holds. Order matters: the
+                    # matchings check exists only to hide stale ORPHANS from a TU
+                    # re-layout, but a func that MATCHED and was later reverted to
+                    # INCLUDE_ASM also leaves a matchings .s behind (distclean never
+                    # prunes asm/), and testing `skip` first silently dropped those
+                    # from the shortlist. That hid 3 genuinely-unmatched funcs
+                    # (func_00258450, func_00244958, ResetStatic2MotionManager) after
+                    # the 2026-08-05 assembler revert — they vanished from the
+                    # smallest-unmatched list while still being INCLUDE_ASM.
                     if (!(fn in inc)) next
+                    if ((fn in skip) && !(fn in inc)) next
                     size=hex2dec(substr(rest,comma+2))
                     if (size < 8) next
                     # Dead splat padding (extends the size<8 nop-pad skip above
