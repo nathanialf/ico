@@ -293,9 +293,27 @@ int CheckFloorAttribute(float *dst, FloorAttr *a1) {
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", CheckWallAttribute);
+extern float func_00168BD0(float *plane, float *pos);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", CheckPureWallAttribute);
+float CheckWallAttribute(void *a0, int a1) {
+    char *ctrl;
+    int idx;
+
+    ctrl = *(char **)((char *)a0 + 0x15C);
+    idx = *(signed char *)(*(char **)(ctrl + 0x810) + a1);
+    return func_00168BD0((float *)(ctrl + 0x3F0),
+                         (float *)(*(int *)(ctrl + 0xC) + (idx << 6) + 0x30));
+}
+
+float CheckPureWallAttribute(void *a0, int a1) {
+    char *ctrl;
+    int idx;
+
+    ctrl = *(char **)((char *)a0 + 0x15C);
+    idx = *(signed char *)(*(char **)(ctrl + 0x810) + a1);
+    return func_00168BD0((float *)(ctrl + 0x1D0),
+                         (float *)(*(int *)(ctrl + 0xC) + (idx << 6) + 0x30));
+}
 
 extern float D_00631B60[];
 
