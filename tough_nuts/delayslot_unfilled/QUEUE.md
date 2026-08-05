@@ -203,3 +203,24 @@ The aug6 prototype's twin of this function (`func_00240E78`) matches with the pl
 all-volatile dev body, because aug6's default assembler is ee-as 2.96, which fills
 delay slots. ROM 0x2526b8 is in the same class. Recorded as data; the retail ruling is
 one period assembler (the one bundled with the compiler we build with) and it stands.
+
+## 2026-08-05 — retired the landed rows' stashes
+
+Seven of the eight rows are matched, so their seed `.c` stashes and the two
+handoffs that covered only matched functions have been deleted. Their mechanisms
+live in the landing commits, which is the durable place for them; a stale seed
+file beside a matched function is how a later session gets sent to re-derive
+finished work.
+
+Deleted: `Packet_pac_makeMaterialTable.c`, `Packet_pac_makeMaterialTableLine.c`,
+`enemy_EnemySetfDisappearAll.c`, `vendor_2418A0_func_002439B0.c`,
+`vendor_2418A0_func_00243B60.c`, `vendor_2418A0_func_00243B70.c`,
+`vendor_2418A0_func_00244598.c`, `HANDOFF_Packet.md`, `HANDOFF_enemy.md`.
+
+**Still live, do not delete:** `vendor_2418A0_func_00244958.c` (row 3, OPEN) and
+`HANDOFF_vendor_2418A0.md`, which carries that row's round-2 pass model.
+
+Verification used before deleting, worth reusing: a stash is retired iff its
+function has ZERO `INCLUDE_ASM` references left in `src/`. Do not go by this
+table's status column — it has been wrong before (row 3 was marked MATCHED for
+part of today and then reverted).
