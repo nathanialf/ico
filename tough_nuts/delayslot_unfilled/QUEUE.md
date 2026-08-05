@@ -157,3 +157,49 @@ template:
   (`gcse.c:738`, `n_basic_blocks <= 1`), and its `__asm__ __volatile__` block is a real
   `volatile_insn_p`, so combine refuses to pair across it.
 - `0x2526b8`: still unexplained, in unmatched code.
+
+## 2026-08-05 — CORRECTION to func_001010C8's recorded mechanism (commit 56df1a4e)
+
+`56df1a4e` landed func_001010C8 and explained it as: cse rewrites the `base | offset`
+ior to a constant AND attaches a REG_EQUAL note, loop.c hoists it out of combine's
+reach, and reload rematerialises the constant at its single use. **That is wrong.** The
+match is real and the bytes are right; the mechanism is not.
+
+Verified from the committed code's own `-da` dumps:
+
+    insn 54: (set (reg:SI 86) (const_int 268497200))     ; 0x1000F130 — folded
+    insn 34: (set (reg:SI 89) (ior:SI (reg/v:SI 85)
+                                      (const_int 61824))); 0x1000F180 — NOT folded
+
+The loop's ISR address does get constant-folded. The STORE's address does not: it
+survives to combine as `(ior (reg) (const))`. **`(mem (ior ...))` is not a legitimate
+address form, so no pass CAN fold it into the MEM** — the address is necessarily
+computed into a register, which is what makes it delay-slot eligible, and the store
+being non-volatile lets reorg take it. The ior is not rewritten, and that is exactly
+why it works — the opposite of what the commit message said.
+
+This is the same KIND of mechanism as func_00244598's: an address form the target
+cannot fold. Stated generally: **make the address an IOR of an OPAQUE pseudo and a
+constant.** The opacity is the load-bearing part — cse constant-folds the ior whenever
+it knows the pseudo's value in the same extended basic block. In func_001010C8 the
+do-while's multi-predecessor loop label ends cse's EBB, so `base` is opaque at the
+store's ior. That is why latching the base inside the loop is load-bearing, and it is a
+better reason than the one in the commit message.
+
+### It does NOT transfer to func_00244958, and here is the specific reason
+
+ROM pins func_00244958's non-volatile register-form `lw` into the ENTRY block, where
+cse is omniscient — there is no multi-predecessor label before it to end the EBB, so a
+`base | 0xE060` spelling is constant-folded straight back to `0x1000E060` and the load
+folds into the slot-ineligible 2-insn macro. Creating an EBB boundary before the load
+costs control flow the ROM does not have. Seven predicted probe compiles, full pass
+model (cse unification, cprop from block 1, combine's fold conditions and
+`dead_or_set_p`, `update_equiv_regs` macro-isation), all recorded in
+HANDOFF_vendor_2418A0.md's round-2 section and scratchpad/func_00244958_r2_notes.md.
+
+### Evidence for the user's standing assembler ruling to weigh (NOT a recommendation)
+
+The aug6 prototype's twin of this function (`func_00240E78`) matches with the plain
+all-volatile dev body, because aug6's default assembler is ee-as 2.96, which fills
+delay slots. ROM 0x2526b8 is in the same class. Recorded as data; the retail ruling is
+one period assembler (the one bundled with the compiler we build with) and it stands.
