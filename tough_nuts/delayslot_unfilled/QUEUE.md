@@ -111,3 +111,49 @@ returns that value WITHOUT a length-2 narrowing in the tail.
 reasoning that gcc "never schedules an inline-asm insn into a delay slot". That
 reasoning was about gcc; the slot is filled by the assembler. They may be
 expressible as real C now, which would retire three hand-asm transcriptions.
+
+## 2026-08-05 — CORRECTION to row #8's recorded mechanism (func_00244598)
+
+Commit `4b302110`'s message explains `func_00244598`'s delay-slot `sq` as a
+"volatile-first/plain-second store pair": the volatile first store supposedly
+materialises the address register and the plain second store is then hoistable.
+**That explanation is wrong.** The function's bytes are correct and it still matches;
+only the recorded reason is bad, and it cost this session two rounds of building on it.
+
+The real reason is `mips.h`'s `GO_IF_LEGITIMATE_ADDRESS`:
+
+    if (CONSTANT_ADDRESS_P (xinsn)
+        && ! (mips_split_addresses && mips_check_split (xinsn, MODE))
+        && ! (TARGET_MIPS5900 && mode == TImode)
+
+A bare constant address is NOT a legitimate address for a 128-bit (TImode) access on
+the R5900, so **no pass can fold the address into the MEM** — the register form is
+guaranteed by the target, with no second reference needed. Measured: a *single* plain
+`u128` store to a constant address is register-form and lands in the `jr` slot on its
+own. The `volatile` on the first store does something much duller — it stops dead-store
+elimination of the `pkt[0]` write.
+
+Consequences for anyone reading this queue for leverage:
+- There is no "volatile-first store pair" lever. Do not reach for it.
+- The TImode exemption is mode-specific, so it does NOT help byte/half/word stores
+  (`func_001010C8`'s store is QImode, `func_00244958`'s load is SImode).
+
+Two further model corrections measured the same day, both from the shipped sources:
+- **`volatile_insn_p` returns 0 for MEMs** (`rtlanal.c:1561`, `case MEM: return 0;`) —
+  only volatile ASM and `UNSPEC_VOLATILE` qualify. A volatile memory reference between a
+  const-set and a store does NOT block combine from pairing them; that was measured
+  folding anyway.
+- **`update_equiv_regs` cannot sink a const-set** (`local-alloc.c:838` only fills
+  `reg_equiv_replacement` from a `REG_EQUIV` note, which a plain `(set p (const_int))`
+  never gets). So there is no late move-to-the-use: the const-set sits where expand put
+  it, which is the point of use.
+
+The four ROM sites with a register-form store-at-`0(reg)` in a `jr` slot are FOUR
+DIFFERENT mechanisms, not one family — worth knowing before treating any of them as a
+template:
+- `0x254d1c` (`func_00254CF8`): a genuine two-use pointer (read-modify-write).
+- `0x2445f0` (`func_00244598`): the TImode address rule above.
+- `0x241cac` (`func_00241C48`): the function is ONE basic block, so gcse returns early
+  (`gcse.c:738`, `n_basic_blocks <= 1`), and its `__asm__ __volatile__` block is a real
+  `volatile_insn_p`, so combine refuses to pair across it.
+- `0x2526b8`: still unexplained, in unmatched code.
