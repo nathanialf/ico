@@ -106,11 +106,36 @@ post:
     return r;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100C90", func_001010C8);
+/* EE SIO byte pusher, putchar-style. 0x1000F130 is the SIO ISR (bit 15 =
+ * TX FIFO full), 0x1000F180 the write-only TX FIFO byte port; both are
+ * addressed off the I/O segment base held in `base`. The poll re-forms
+ * the base each pass and spins while the FIFO is full, then pushes the
+ * byte and returns it.
+ *
+ * Shape note (why the base variable and the do-while): both port
+ * addresses must reach codegen as `base | offset` with the base formed
+ * inside the loop. cse rewrites each ior to its constant WITH a
+ * REG_EQUAL note, loop.c hoists both constants above the loop (which
+ * keeps combine from folding the store address into the sb — the fold
+ * that otherwise costs the register form), and reload then uses the
+ * REG_EQUAL equivalence to rematerialise the TXFIFO constant at its
+ * single use, back in the exit block reusing $3 — leaving a plain
+ * (non-volatile) sb that gcc's own reorg can move into the jr delay
+ * slot. Spelling either address as a bare constant, or latching the
+ * base before the loop, loses one of those steps (measured:
+ * scratchpad/func_001010C8_r5_notes.md). */
+int func_001010C8(int c) {
+    unsigned int base;
+
+    do {
+        base = 0x10000000;
+    } while (*(volatile unsigned int *)(base | 0xF130) & 0x8000);
+
+    *(unsigned char *)(base | 0xF180) = c;
+    return c;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_100C90", func_00101100);
-
-extern void func_001010C8(int c);
 
 /* Newline translation on the way to the byte pusher: LF is sent as CR LF.
  * Both arms END in the call, so both get a tail `j` rather than a jal. */
