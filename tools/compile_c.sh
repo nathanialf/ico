@@ -25,10 +25,13 @@ if command -v mips64r5900el-ps2-elf-as >/dev/null 2>&1; then
 else
     MIPS_PREFIX="mips-linux-gnu-"
 fi
-AS="${MIPS_PREFIX}as"
 OBJCOPY="${MIPS_PREFIX}objcopy"
 
-EE_AS="${ROOT}/tools/cc/ee-gcc2.96/bin/as"
+# NOTE: neither modern gas (${MIPS_PREFIX}as) nor the 2.10-ee-001003-1 assembler
+# under tools/cc/ee-gcc2.96/bin/as is reachable from this script any more, and
+# neither is bound to a variable — a spare handle on another assembler is the
+# first thing a stuck matching run reaches for. THE assembler is EE_AS_OLD below:
+# the one bundled with the compiler this build uses. See decomp/NOTES.md.
 # Period assembler whose delay-slot reorder is LESS aggressive than 2.96: it
 # does not hoist a preceding unaligned store (sdl/sdr/...) into a `j <func>`
 # tail-call delay slot, matching the original ICO toolchain (verified universal:
@@ -318,7 +321,8 @@ ASM_INPUT="${S}"
 # (EEGCC_DIR above) and leaves the jal/jr delay-slot NOPs that the later 2.96 and
 # modern gas wrongly OVER-FILL with a preceding store. The whole aug6 ELF verifies
 # byte-identical under it (proven 2026-06-04 — a full rebuild kept sha1 2b4d7de4).
-# Do NOT revert this default to ${EE_AS} (2.96): that was a stale mismatch that
+# Do NOT reintroduce the 2.96/2.10 assembler as a default OR as a per-TU opt-in
+# (config/use_as296.txt, tried and reverted 2026-08-05): it was a stale mismatch that
 # forced per-func use_old_as.txt bandaids and faked phantom jr-delay fills.
 # use_old_as.txt is now REDUNDANT (its TUs already get the period assembler);
 # kept only for back-compat. There is NO modern-gas escape hatch: a TU that
