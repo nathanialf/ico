@@ -136,3 +136,75 @@ with func_00243B60, func_00243B70, func_002439B0 and func_00244598 landed in
 
 `QUEUE.md` rows 1, 2, 7, 8 are resolved; row 3 (func_00244958) remains, with
 the residual above. Rows 4–6 (enemy.c, Packet.c) were out of scope here.
+
+## 2026-08-05 — round 2 on func_00244958 (7 probe compiles, dump forensics,
+## gcse.c/combine.c/local-alloc.c source reads). Result: measured impossibility
+## argument for plain C under the single non-filling assembler; and a
+## CORRECTION to the recorded func_001010C8 mechanism.
+
+Full lab notes: scratchpad/func_00244958_r2_notes.md (probes 1-7 with
+predictions and dumps under scratchpad/r958/).
+
+### Measured pass model (ee-gcc 2.9-991111, project CFLAGS)
+
+1. expand: a large-constant address NEVER folds into a MEM at birth (every
+   access is born `(set x C); (mem x)`), but `(mem (const_int))` IS accepted
+   by movsi/extendsidi recog once a pass builds it.
+2. cse: rewrites EVERY const-valued src to the constant (even a cheap reg
+   copy or a 1-insn ior becomes a 2-insn li) and unifies same-valued roots.
+   Its table flows across the whole B0-chain (label-less fallthroughs AND
+   single-pred branch targets — probe D folded iors in BOTH arms). Only a
+   multi-pred label (loop top, join) forces a fresh table.
+3. gcse cprop (blocks >= 1 only; never block 0): folds a recorded
+   `(set x C)` (recorded iff dest unmodified to its block's end) into EVERY
+   valid use — loads, stores, volatile included (volatile_ok is on).
+   It CANNOT fold into an ior/plus-of-consts (validate_replace_rtx does not
+   simplify IOR): probes sib/D show "0 const props" on ior operands.
+4. combine: folds a const-set into any DYING same-block use — loads AND
+   stores (probe s2: plain `*(u32*)C = a` folds to the macro sw). Blocked
+   only by: volatile-MEM insn (probe sv), live-past/used-between (probe
+   D-B1), cross-block (no LOG_LINK), or an unrecognizable result
+   ((mem (ior ..))). dead_or_set_p counts a SET, so the self-overwrite
+   `p = *(u32*)p` is NOT protected (probe sx folded).
+5. update_equiv_regs (read, local-alloc.c): set-once + REG_EQUAL + used-once
+   + multi-block: a substitution-VALID use gets macro-ized (init deleted); an
+   INVALID one gets the init moved adjacent. No rescue for SImode loads
+   ((mem:SI C) is always valid).
+
+### Why func_00244958's bytes are unreachable from plain C here
+
+Bytes pin: address materialization (lui/ori) + non-volatile register-form
+`lw $2,0($2)` in the ENTRY block (pre-beq; the slot fill must be gcc reorg's
+simple fill), macro `sw` in the store arm, join = bare `jr`. In the entry
+block cse is omniscient (no earlier label), so the pointer's def is always
+`(set p C)`; its only other possible consumer (the store address) is eaten by
+cse-unification + cprop; therefore p dies at the lw and combine folds the
+load to the slot-ineligible `lw $r,<abs>` macro. Every alternative geometry
+(load first-in-arm, two-arm loads + reorg redundancy, self-overwrite,
+base|offset in B0, extendsidi2 long-long load, copies, post-increment) is
+excluded by the measured facts above — see the notes file for each trace.
+
+### CORRECTION to commit 56df1a4e's mechanism claim (func_001010C8)
+
+Measured (probe7): cse does NOT rewrite that ior to a constant, loop.c does
+NOT hoist it, and reload does NOT rematerialise. The real mechanism is:
+(a) `base`'s def sits inside the do-while, and the multi-pred loop-top label
+ends cse's EBB, so `base` is UNKNOWN at the post-loop ior — the ior survives
+as a real `(ior reg imm)`; (b) cprop cannot substitute into an ior; (c)
+combine's fold would produce `(mem (ior ..))` which fails recog, and the
+3-way is cross-block. The register form is therefore structural. Do NOT
+template "cse-rewrite + REG_EQUAL + reload remat" from that commit message.
+
+### Evidence relevant to the standing assembler ruling (for the user, FYI)
+
+- aug6's twin func_00240E78 is MATCHED with the all-volatile body because the
+  aug6 build's DEFAULT assembler is ee-as 2.96, which fills delay slots.
+- ROM 0x2526b8's exit block (three same-block const-set + register-form
+  volatile-looking SI stores, one in the jr slot) is inexplicable under
+  [gcc-reorg fills / 2.9-991111 assembles]: combine folds plain same-block
+  stores (probe s2) and reorg refuses volatile — but is exactly what
+  gcc-reorder-mode output + a filling assembler produces.
+- The 783-tail-call sdl/sdr statistic does not discriminate: 2.96 could fill
+  ordinary insns while (per its own behavior) skipping unaligned stores.
+This function, 0x2526b8, and possibly others form one class. Under the
+current one-assembler ruling they stay INCLUDE_ASM.
