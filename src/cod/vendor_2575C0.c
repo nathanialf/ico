@@ -118,33 +118,15 @@ void func_00258418(int *a0, int a1, int a2, int a3) {
     func_00258470(a0, 0);
 }
 
-/* func_00258450 reverted to INCLUDE_ASM 2026-08-01: the ROM ends
- * `jr ra; dsra32 v0` but ee-gcc never fills a return delay slot with a
- * 64-bit shift (even a lone `(int)(v >> 32)` emits a bare `j $31`), so the
- * previous C match relied on MODERN gas filling the slot — the same
- * "matched by assembler, not by source" class as the 8 funcs reverted in
- * 0ac3cb51. Recovered C stashed in the delayslot_queue. */
-/* func_00258450 — C RECOVERED AND VERIFIED, but not landable under the one
- * period assembler (ee-as 2.9-991111, the one bundled with the compiler we
- * build with). The body is exactly:
- *     int func_00258450(unsigned long long *p, int n) {
- *         return (int)(*p >> (64 - n));
- *     }
- * a bit-stream "peek n bits" on the 64-bit accumulator func_00258418
- * initialises at offset 0. That C emits all 7 ROM instructions in the right
- * registers; the ONLY divergence is that ROM carries the narrowing's second
- * half IN the `jr $31` delay slot and our build leaves it in front.
- * gcc cannot put it there: mips.md's `(define_delay (eq_attr "type" "jump")
- * [(and (eq_attr "dslot" "no") (eq_attr "length" "1")) ...])` admits only
- * single-insn candidates, and every DI->SI narrowing pattern (truncdisi2 plus
- * the three anonymous truncate+shift combiner patterns) is hardcoded length 2 —
- * including the arm that prints a lone `dsra`. Only ashrdi3_internal4 is
- * length 1, and reaching it needs an `x<<32>>32` pair that combine folds
- * unconditionally into extendsidi2. ee-as 2.9-991111 fills no delay slot at
- * all (probed with three hand-written bodies before a `j $31`).
- * So the remaining question is a SOURCE-SHAPE one nobody has cracked yet.
- * Do NOT "fix" this by swapping assemblers — that was tried 2026-08-05 and
- * reverted. Do NOT submit a hand-asm transcription of the ROM stream. */
+/* func_00258450 — PARKED 2026-08-06, ONE divergent instruction. The recovered C
+ * and the full mechanism are in tough_nuts/func_00258450/ — read notes.md there
+ * before spending a round on this; three separate confident accounts of why it
+ * resists were each measured wrong, and the corrections are recorded.
+ * Short version: the C is `long long f(unsigned long long *p, int n) {
+ * return (int)(*p >> (64 - n)); }` (the `long long` return is measured-safe —
+ * both callers stay byte-identical). It emits all 7 ROM instructions in ROM's
+ * registers and order; only the `jr` delay slot differs. The assembler question
+ * is settled and closed. Sibling with the identical residual: func_001011E8. */
 extern int func_00258450(unsigned long long *p, int n);
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2575C0", func_00258450);
 
