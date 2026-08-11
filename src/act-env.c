@@ -596,7 +596,6 @@ L6B4:
                     f18 = 0;
                     if (gv ^ (int)D_00631AE4) f18 = f17;
                     if ((gv ^ D_00631AE8) == 0) f17 = 0;
-                    gv = 0;
                 }
                 {
                     char *wb = (char *)&f6C - 12;

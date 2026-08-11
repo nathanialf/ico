@@ -12,15 +12,10 @@ extern int D_00633EE8;
 extern int D_006331B4;
 void InitAP1(void)
 {
-    register int a __asm__("$3") = D_004BD980[0] + 0x1400;
-    register int one __asm__("$2") = 1;
-    register int b4 __asm__("$6") = 0xFF;
-    int b;
-    D_00633EE8 = one;
-    D_00633EE0 = (float)(a / 30);
-    b = D_00633EDC - 0x280;
-    D_00633EE4 = (float)(b / 30);
-    D_006331B4 = b4;
+    D_00633EE8 = 1;
+    D_00633EE0 = (float)((D_004BD980[0] + 0x1400) / 30);
+    D_00633EE4 = (float)((D_00633EDC - 0x280) / 30);
+    D_006331B4 = 0xFF;
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", yAxisRotFitting);

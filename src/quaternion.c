@@ -125,16 +125,18 @@ void getQuaternionFromMatrix(char *a0, char *a1) {
 
 INCLUDE_ASM("asm/nonmatchings/src/quaternion", GetQuaternionFromMatrix);
 
-extern void GetQuaternionFromMatrix(void *a0, void *a1);
 extern void func_001186C8(void *a0, void *a1);
 
+/* GetQuaternionFromMatrix is a function nested inside CopyQuaternion: ROM's
+   callee spills its incoming $2 (STATIC_CHAIN_REGNUM) to its context slot at
+   0010D61C without ever defining $2, so the caller must pass a static chain.
+   Its body is still INCLUDE_ASM above, so it can only be declared here; the
+   asm name undoes gcc's nested-function label mangling. */
 void CopyQuaternion(void *a0, void *a1) {
+    auto void GetQuaternionFromMatrix(void *a, void *b) __asm__("GetQuaternionFromMatrix");
     char local[0x40];
-    register void *aa __asm__("$4");
     func_001186C8(local, a1);
-    aa = a0;
-    __asm__ volatile ("daddu $2,$sp,$0" :: "r"(aa));
-    GetQuaternionFromMatrix(aa, local);
+    GetQuaternionFromMatrix(a0, local);
 }
 
 void GetInverseQuaternion(a0, a1, a2, a3)

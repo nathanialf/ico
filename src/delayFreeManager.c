@@ -50,12 +50,11 @@ INCLUDE_ASM("asm/nonmatchings/src/delayFreeManager", func_001024F8);
 
 void func_00102558(int a0)
 {
-    register int count __asm__("$5") = D_00631B24;
-    int next = count + 1;
-    int *slot = (int *)(D_0065ED40 + (count * 4 + (D_00631B20 << 10)));
-    D_00631B24 = next;
-    *slot = a0;
-    if (next >= 0x100) {
+    int count = D_00631B24;
+    *(int *)(D_0065ED40 + (count * 4 + (D_00631B20 << 10))) = a0;
+    count++;
+    D_00631B24 = count;
+    if (count >= 0x100) {
         debug_assertMessage(D_00553A78);
         func_001AD768(D_00553AB8, 0x33);
         func_00263FF0(D_00553AB8, 0x33, D_00631B28_a);
