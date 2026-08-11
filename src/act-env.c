@@ -449,7 +449,6 @@ void func_001FCA20(void *arg0, void *arg1, char *arg2, void *arg3, void *arg4) {
     w20 = (char *)v02;
     wPtr20 = (int)w20;
     func_00145900(w20, (void *)FI(0x30), 0x2C);
-    w20 = 0;
     {
         char *sub = *(char **)((char *)FI(0x30) + 0x15C);
         *(EnvCopy32 *)((char *)arg4 + 0x170) = *(EnvCopy32 *)(sub + 0x180);
@@ -1160,7 +1159,7 @@ L6B4:
                                     FF(0xE0) = FF(0xD0);
                                     FF(0xE8) = FF(0xD8);
                                     FF(0xE4) = FF(0xD4) + 200.0f;
-                                    { char *pd = (char *)&fD0; ChangeFieldCollisionDebugMode(pd); pd = 0; }
+                                    ChangeFieldCollisionDebugMode((char *)&fD0);
                                     if (FI(0x164) != 0) {
                                         r = 0;
                                         if (ang + (FF(0xF4) - FF(0xD4)) < 250.0f) goto Lopdone;
