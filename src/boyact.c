@@ -77,8 +77,17 @@ extern void BeforeFunc2();
 void findChainInJump(void) {}
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", CorrectOrient_RopeCliff);
+ASM_LIT4_SLOT(D_00630B04, 0.1f);
+ASM_LIT4_SLOT(D_00630B08, 0.1f);
+ASM_LIT4_SLOT(D_00630B0C, 0.1f);
+ASM_LIT4_SLOT(D_00630B10, 0.1f);
+ASM_LIT4_SLOT(D_00630B14, 0.1f);
+ASM_LIT4_SLOT(D_00630B18, 0.1f);
+ASM_LIT4_SLOT(D_00630B1C, 0.1f);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", motBoyHand100);
+ASM_LIT4_SLOT(D_00630B20, 0.8f);
+ASM_LIT4_SLOT(D_00630B24, 4900.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", motBoyHand200);
 
@@ -167,7 +176,6 @@ done: ;
 
 extern BgaEntry D_00281C10[];
 extern char D_005582C8[];
-extern float D_00630B28;
 extern char D_00632290[];
 extern void func_0014B660(void *a0, void *a1, int a2);
 extern void func_001945B8(void *a0, float a1);
@@ -198,7 +206,7 @@ void BoyBgaManager(void *a0, int a1, int *a2) {
         func_00243B18(buf_b, subCommonIdle(a0), e->f8);
         func_00243AD0(e->f20, ContinueCorrectPosition(a0), buf_b);
         func_00243B18(buf_b, subCommonIdle(a0), e->f4);
-        func_001945B8(buf_b, D_00630B28);
+        func_001945B8(buf_b, 1.5707964f);
         func_00243AD0(e->f20, e->f20, buf_b);
         e->f24 = e->f24 + (float) e->fD;
     }
@@ -282,8 +290,56 @@ void E3_StageStartBoy(void *a0) {
 INCLUDE_ASM("asm/nonmatchings/src/boyact", GetChainSlope);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", subBoyControl);
+ASM_LIT4_SLOT(D_00630B2C, 850.0f);
+ASM_LIT4_SLOT(D_00630B30, 0.1f);
+ASM_LIT4_SLOT(D_00630B34, 3.14159274f);
+ASM_LIT4_SLOT(D_00630B38, 750.0f);
+ASM_LIT4_SLOT(D_00630B3C, 0.1f);
+ASM_LIT4_SLOT(D_00630B40, 0.99f);
+ASM_LIT4_SLOT(D_00630B44, 0.1f);
+ASM_LIT4_SLOT(D_00630B48, 0.99f);
+ASM_LIT4_SLOT(D_00630B4C, 0.1f);
+ASM_LIT4_SLOT(D_00630B50, 0.1f);
+ASM_LIT4_SLOT(D_00630B54, 0.1f);
+ASM_LIT4_SLOT(D_00630B58, 0.1f);
+ASM_LIT4_SLOT(D_00630B5C, 0.1f);
+ASM_LIT4_SLOT(D_00630B60, 0.1f);
+ASM_LIT4_SLOT(D_00630B64, 0.1f);
+ASM_LIT4_SLOT(D_00630B68, 0.1f);
+ASM_LIT4_SLOT(D_00630B6C, 0.1f);
+ASM_LIT4_SLOT(D_00630B70, 0.1f);
+ASM_LIT4_SLOT(D_00630B74, 0.1f);
+ASM_LIT4_SLOT(D_00630B78, 0.1f);
+ASM_LIT4_SLOT(D_00630B7C, 0.1f);
+ASM_LIT4_SLOT(D_00630B80, 0.1f);
+ASM_LIT4_SLOT(D_00630B84, 0.1f);
+ASM_LIT4_SLOT(D_00630B88, 0.1f);
+ASM_LIT4_SLOT(D_00630B8C, 0.1f);
+ASM_LIT4_SLOT(D_00630B90, 0.1f);
+ASM_LIT4_SLOT(D_00630B94, 250000.0f);
+ASM_LIT4_SLOT(D_00630B98, 0.1f);
+ASM_LIT4_SLOT(D_00630B9C, 0.1f);
+ASM_LIT4_SLOT(D_00630BA0, 0.1f);
+ASM_LIT4_SLOT(D_00630BA4, 0.95f);
+ASM_LIT4_SLOT(D_00630BA8, 0.95f);
+ASM_LIT4_SLOT(D_00630BAC, 0.1f);
+ASM_LIT4_SLOT(D_00630BB0, 0.1f);
+ASM_LIT4_SLOT(D_00630BB4, 0.1f);
+ASM_LIT4_SLOT(D_00630BB8, 0.1f);
+ASM_LIT4_SLOT(D_00630BBC, 0.1f);
+ASM_LIT4_SLOT(D_00630BC0, 0.99f);
+ASM_LIT4_SLOT(D_00630BC4, 0.1f);
+ASM_LIT4_SLOT(D_00630BC8, 0.99f);
+ASM_LIT4_SLOT(D_00630BCC, 0.1f);
+ASM_LIT4_SLOT(D_00630BD0, 0.1f);
+ASM_LIT4_SLOT(D_00630BD4, 0.1f);
+ASM_LIT4_SLOT(D_00630BD8, 0.1f);
+ASM_LIT4_SLOT(D_00630BDC, 0.1f);
+ASM_LIT4_SLOT(D_00630BE0, 0.1f);
+ASM_LIT4_SLOT(D_00630BE4, 0.1f);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001501A0);
+ASM_LIT4_SLOT(D_00630BE8, 3.14159274f);
 
 extern void GetLowerPlaneCollision(char *p, float a, float b, float c, float d, float e, float f);
 extern void func_00102858(int obj);
@@ -310,8 +366,11 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00150348);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001504D8);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00150568);
+ASM_LIT4_SLOT(D_00630BEC, 0.1f);
+ASM_LIT4_SLOT(D_00630BF0, 3.14159274f);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00151678);
+ASM_LIT4_SLOT(D_00630BF4, 40000.0f);
 
 extern int ACTEnvGetTest(void);
 extern void ActOrientTest(void *out, void *src, int mode);
@@ -432,9 +491,6 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", subBoyCollision);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoySwim);
 
 extern int ACTGame_InsertCamera_GirlIsPinch(void);
-extern float D_00630BF8;
-extern float D_00630BFC;
-extern float D_00630C00;
 extern void *D_006321DC__p4 __asm__("D_006321DC");
 
 void func_00152508(int *arg){
@@ -446,13 +502,13 @@ void func_00152508(int *arg){
     case 0xC8: if (D_00631AE8) iosOmBeforeFuncStandard(D_00631AE8,0x4D,D_006321DC__p4); *(int*)((char*)*(void**)((char*)D_00631AE8+0x164)+0x40)=0x5D; break;
     case 0x12C:if (D_00631AE8) iosOmBeforeFuncStandard(D_00631AE8,0x4D,D_006321DC__p4); *(int*)((char*)*(void**)((char*)D_00631AE8+0x164)+0x40)=0x5E; break;
     }
-    lo=*(volatile float*)&D_00630BF8;hi=*(volatile float*)&D_00630BFC;
+    lo=0.99f;hi=0.1f;
     while (1) {
         if (ACTGame_InsertCamera_GirlIsPinch()==0) BoxBarSoundOn(*(int * volatile *)&arg,0x47);
         else{ float v=*(float*)((char*)obj+0x33C); int ci; float c;
             ci=*(int*)&v; c=*(float*)&ci;
-            if(!(D_00630C00<v)) goto t2;
-            if(!(D_00630C00<v)) goto l47;
+            if(!(0.1f<v)) goto t2;
+            if(!(0.1f<v)) goto l47;
             if(v<lo) goto t2;
             if(*(volatile int*)((char*)obj+0x2D0)&0x20) goto t2;
             l47: BoxBarSoundOn(*(int * volatile *)&arg,0x48); goto w;
@@ -462,10 +518,16 @@ void func_00152508(int *arg){
         _ACTWait(1); } }
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_001526A0);
+ASM_LIT4_SLOT(D_00630C04, 0.2f);
+ASM_LIT4_SLOT(D_00630C08, 2500.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00152A70);
+ASM_LIT4_SLOT(D_00630C0C, 0.05f);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00152F18);
+ASM_LIT4_SLOT(D_00630C10, 250000.0f);
+ASM_LIT4_SLOT(D_00630C14, 10000.0f);
+ASM_LIT4_SLOT(D_00630C18, 78400.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00153318);
 
@@ -699,11 +761,10 @@ void func_00153F38(volatile int a0) {
     }
 }
 
-extern float D_00630C1C;
 
 void func_00153F68(volatile int a0) {
     void *obj = *(void **)((char *)a0 + 0x164);
-    float thresh = D_00630C1C;
+    float thresh = 0.1f;
     while (1) {
         if (thresh < *(float *)((char *)obj + 0x33C) ||
             (*(int *)((char *)obj + 0x2D0) & 0x10)) {
@@ -855,7 +916,6 @@ void actBoyBelift(void *a0, int *out_id, float *out_vec) {
 }
 
 extern void CylinderCollision(void *a0, void *a1);
-extern float D_00630C20;
 extern void *D_00631990;
 extern void *D_00631AE4__p4 __asm__("D_00631AE4");
 extern int D_006AAB48[];
@@ -871,7 +931,7 @@ void actBoyRescueReady(void) {
     if (*(int *)((char *)s16 + 0x140) != 0) {
         ExecWeaponHitReaction(*(void **)((char *)s16 + 0x140));
         func_002641D8(&buf, 0, 0x10);
-        buf.f[0] = D_00630C20;
+        buf.f[0] = 10000000.0f;
         CylinderCollision((void *)*(int *)((char *)s16 + 0x140), &buf);
         func_001AE420(*(int *)((char *)s16 + 0x140), 0, 0, D_00631990);
         *(int *)(*(int *)((char *)s16 + 0x140) + 0x16C) = 0;
@@ -1133,7 +1193,6 @@ void func_00154CE8(int *a0, int *a1)
     }
 }
 
-extern float D_00630C24;
 extern void GetRootMatrixByDObj(void *dest, void *dobj);
 extern float HandyCamera_TargetMoveType(void *a0, void *a1);
 
@@ -1144,7 +1203,7 @@ void actBoySupportBGBegin(float *out) {
     char *p;
     GetRootMatrixByDObj(buf, o);
     p = s16 + 0x100;
-    if (HandyCamera_TargetMoveType(buf, p) < D_00630C24) {
+    if (HandyCamera_TargetMoveType(buf, p) < 40000.0f) {
         out[0] = *(float *)(s16 + 0x100);
         out[1] = *(float *)(s16 + 0x104);
         out[2] = *(float *)(s16 + 0x108);

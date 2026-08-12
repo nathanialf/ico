@@ -514,6 +514,7 @@ segments:
       - [0x530A78, lit4, src/cod/530A78]     # .lit4 blob resume
       - [0x530AEC, .lit4, src/act-game]      # carved D_00630AEC/AF0/AF4 (22500f, pi, 25000000f), VMA 0x630AEC..0x630AF8
       - [0x530AF8, lit4, src/cod/530AF8]     # .lit4 blob resume
+      - [0x530B04, .lit4, src/boyact]        # carved D_00630B04..D_00630C24 (73 slots, 6 C funcs + 66 asm), VMA 0x630B04..0x630C28 (abuts src/commonact)
       - [0x530C28, .lit4, src/commonact]     # carved D_00630C28..D_00630CDC (46 slots, _boxbar_set_sound + func_0015DF88 + 44 asm), VMA 0x630C28..0x630CE0
       - [0x530CE0, .lit4, src/enemy_act]     # carved D_00630CE0..D_00630D48 (27 slots, actEnemyForceSwitchToCarry + 26 asm), VMA 0x630CE0..0x630D4C
       - [0x530D4C, lit4, src/cod/530D4C]     # .lit4 blob resume
