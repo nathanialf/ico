@@ -7,26 +7,21 @@ typedef struct { float f0; float f4; float f8; } LoadImg;
 
 
 extern void func_00203D90();
-extern float D_006318AC;
-extern float D_006318B0;
-extern float D_00631884;
-extern float D_00631888;
-extern float D_0063188C;
-extern float D_00631878;
-extern float D_0063187C;
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", dispClear);
+ASM_LIT4_SLOT(D_0063186C, -5500.0f);
+ASM_LIT4_SLOT(D_00631870, -3800.0f);
+ASM_LIT4_SLOT(D_00631874, 1700.0f);
 
 int setDispEnv(char *self) {
     float a, b;
     float *p = *(float **)(self + 0x34);
-    a = D_00631878;
-    b = D_0063187C;
+    a = -5136.0f;
+    b = 1518.0f;
     p[0] = a;
     p[2] = b;
     return 1;
 }
 
-extern float D_00631880;
 extern int D_00631960;
 extern float D_00633B48;
 extern int D_00633B4C;
@@ -36,7 +31,7 @@ extern void *UpdateRootPosition(void);
 int setImageSize(void *a0) {
     float *p = *(float **)((char *)a0 + 0x34);
     float f;
-    p[0] = D_00631880;
+    p[0] = 1548.0f;
     p[2] = -3296.0f;
     if (D_00633B4C == D_00631960) {
         f = D_00633B48;
@@ -53,22 +48,20 @@ int setImageSize(void *a0) {
 int sendDispEnv(int *self)
 {
     float *p = (float *)self[0xD];
-    register float a = D_00631884;
-    register float b = D_00631888;
-    register float c = D_0063188C;
+    register float a = 3190.0f;
+    register float b = 3163.0f;
+    register float c = -1332.0f;
     p[0] = a;
     p[1] = b;
     p[2] = c;
     return 1;
 }
 
-extern float D_00631890;
-extern float D_00631894;
 
 int dispCreate(void *a0) {
     float *p = *(float **)((char *)a0 + 0x34);
     float f;
-    float a = D_00631890, b = D_00631894;
+    float a = -746.0f, b = -685.0f;
     p[0] = a;
     p[1] = b;
     p[2] = -398.0f;
@@ -115,6 +108,9 @@ int dispSwitch(void *a0) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", vblankHandler);
+ASM_LIT4_SLOT(D_00631898, -1355.0f);
+ASM_LIT4_SLOT(D_0063189C, 6645.0f);
+ASM_LIT4_SLOT(D_006318A0, 0.3f);
 
 int dispDelete(void *a0) {
     float f;
@@ -130,13 +126,11 @@ int dispDelete(void *a0) {
     return -1;
 }
 
-extern const float D_006318A4;
-extern const float D_006318A8;
 
 unsigned int loadImage(char *a0) {
     LoadImg *p = *(LoadImg **)(a0 + 0x34);
-    p->f0 = D_006318A4;
-    p->f8 = D_006318A8;
+    p->f0 = 1771.0f;
+    p->f8 = -4949.0f;
     *(float *)(a0 + 0x1C) = 0.5f;
     return 1;
 }
@@ -144,14 +138,16 @@ unsigned int loadImage(char *a0) {
 int handler_endimage(char *self) {
     float a, b;
     float *p = *(float **)(self + 0x34);
-    a = D_006318AC;
-    b = D_006318B0;
+    a = 1478.0f;
+    b = 1484.0f;
     p[0] = a;
     p[2] = b;
     return 1;
 }
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", startDisplay);
+ASM_LIT4_SLOT(D_006318B4, -3422.0f);
+ASM_LIT4_SLOT(D_006318B8, 3300.0f);
 
 extern int setDMAscTag(void *p);
 typedef struct { char pad[0x194]; } DispBuf;
@@ -171,11 +167,10 @@ int endDisplay(int a0) {
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_disp", setDMAscTag);
 
-extern float D_006318BC;
 extern void brainStatusDel(float a0);
 
 void setGIFtag(void) {
-    brainStatusDel(*(volatile float *)&D_006318BC);
+    brainStatusDel(0.1f);
 }
 
 extern int func_002641D8(void *a0, int a1, int a2);

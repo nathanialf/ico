@@ -7,8 +7,14 @@ typedef struct { long long a; long long b; } Blk16;
 
 extern int * UpdateRootPosition();
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_audiodec", func_0023C380);
+ASM_LIT4_SLOT(D_00631804, -5770.0f);
+ASM_LIT4_SLOT(D_00631808, 2090.0f);
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_audiodec", audioDecCreate);
+ASM_LIT4_SLOT(D_0063180C, -1753.0f);
+ASM_LIT4_SLOT(D_00631810, -1145.0f);
+ASM_LIT4_SLOT(D_00631814, 0.3f);
+ASM_LIT4_SLOT(D_00631818, 0.05f);
 
 int audioDecEndPut(int *self)
 {
@@ -54,12 +60,13 @@ int audioDecSendToIOP(int *self) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_audiodec", pcmCallback);
+ASM_LIT4_SLOT(D_0063181C, 0.05f);
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_audiodec", audioDecDelete);
+ASM_LIT4_SLOT(D_00631820, 0.05f);
 
 extern Blk16 D_0061C3B0;
 extern Blk16 D_0061C3C0;
-extern float D_00631824;
 extern int UpdateRootPosition__p4() __asm__("UpdateRootPosition");
 extern int preload(int a, Blk16 *b, Blk16 *c);
 
@@ -73,7 +80,7 @@ int audioDecReset(int self)
     if (preload(ret, &b1, &b2) == 0) {
         *(float *)(self + 0x18) = 1.0f;
     } else {
-        *(float *)(self + 0x18) = *(volatile float *)&D_00631824;
+        *(float *)(self + 0x18) = 0.2f;
     }
     return -1;
 }
@@ -93,9 +100,6 @@ int audioDecIsPreset(int a0)
     return func_0023B728(a0);
 }
 
-extern float D_00631828;
-extern float D_0063182C;
-extern float D_00631830;
 extern int D_00631960;
 extern float D_00633B48;
 extern int D_00633B4C;
@@ -105,9 +109,9 @@ extern int UpdateRootPosition__p4() __asm__("UpdateRootPosition");
 int audioDecStart(void *a0) {
     AudFrame *p = *(AudFrame **)((char *)a0 + 0x34);
     float f;
-    p->f0 = D_00631828;
-    p->f4 = D_0063182C;
-    p->f8 = D_00631830;
+    p->f0 = 1148.0f;
+    p->f4 = -4521.0f;
+    p->f8 = 1514.0f;
     if (D_00633B4C == D_00631960) {
         f = D_00633B48;
     } else {
@@ -121,22 +125,24 @@ int audioDecStart(void *a0) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_audiodec", audioDecPause);
+ASM_LIT4_SLOT(D_00631834, -3679.0f);
+ASM_LIT4_SLOT(D_00631838, 6186.0f);
 
-extern const float D_0063183C;
-extern const float D_00631840;
 
 int audioDecResume(char *a0) {
     AudFrame *p = *(AudFrame **)(a0 + 0x34);
     p->f0 = 1800.0f;
-    p->f4 = D_0063183C;
-    p->f8 = D_00631840;
+    p->f4 = 585.0f;
+    p->f8 = -5000.0f;
     *(float *)(a0 + 0x18) = 1.0f;
     return 1;
 }
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_audiodec", func_0023CA40);
+ASM_LIT4_SLOT(D_00631844, 773.0f);
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_audiodec", func_0023CB80);
+ASM_LIT4_SLOT(D_00631848, 0.3f);
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_audiodec", func_0023CC18);
 
@@ -150,16 +156,14 @@ int func_0023CC78(char *a0)
     return 1;
 }
 
-extern const float D_0063184C;
-extern const float D_00631850;
 
 int func_0023CCB8(int a0)
 {
     float *v1 = *(float **)(a0 + 0x34);
 
     v1[0] = -133.0f;
-    v1[1] = D_0063184C;
-    v1[2] = D_00631850;
+    v1[1] = -5698.0f;
+    v1[2] = -966.0f;
     return 1;
 }
 
@@ -174,6 +178,12 @@ INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_audiodec", func_0023CD20);
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_audiodec", func_0023CDD8);
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_audiodec", func_0023CE38);
+ASM_LIT4_SLOT(D_00631854, 1125.0f);
+ASM_LIT4_SLOT(D_00631858, 2125.0f);
+ASM_LIT4_SLOT(D_0063185C, 0.7f);
 
 INCLUDE_ASM("asm/nonmatchings/ito/mpeg/mv_audiodec", func_0023CEC8);
+ASM_LIT4_SLOT(D_00631860, -5500.0f);
+ASM_LIT4_SLOT(D_00631864, -3800.0f);
+ASM_LIT4_SLOT(D_00631868, 1700.0f);
 
