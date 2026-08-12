@@ -347,7 +347,10 @@ fi
 # assembler (ee-as 2.10, or 2.9-991111 for use_old_as) assembles mixed C+asm TUs
 # directly instead of silently falling back to modern gas (which mis-encodes
 # `la sdata` as daddiu where the ROM has addiu). See decomp/NOTES.md.
-if "${PYTHON}" "${ROOT}/tools/preprocess_old_as.py" "${S}" "${S}.pp" 2>/dev/null; then
+# stderr is NOT swallowed: preprocess_old_as.py is silent on success, and its
+# `.lit4_slot` diagnostics (stale slot, non-FP reference) name the actual defect
+# — hiding them leaves only the assembler's downstream "REJECTED" to go on.
+if "${PYTHON}" "${ROOT}/tools/preprocess_old_as.py" "${S}" "${S}.pp"; then
     ASM_INPUT="${S}.pp"
 fi
 

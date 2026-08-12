@@ -67,6 +67,41 @@
     )
 #endif
 
+/* ASM_LIT4_SLOT(NAME, VALUE) — one word of this TU's `.lit4` constant pool
+ * whose owning function is still INCLUDE_ASM. Put it next to that sibling.
+ *
+ * `.lit4` is built by the ASSEMBLER, not the compiler: ee-gcc emits
+ * `li.s $fN,<value>` for a float constant and ee-as interns it into the
+ * object's anonymous `.lit4`, appending each new literal in the order the
+ * macros appear in the emitted `.s`. A TU's pool is therefore ONE output
+ * section whose contents are fixed by source order — it cannot be carved per
+ * function, so a TU cannot migrate its constants to inline literals (and drop
+ * the scheduling crutches the named-global carve forces) until every word of
+ * its shipped pool run is produced by that TU.
+ *
+ * The obvious fix — define the missing words as data in `.lit4` so the
+ * siblings' `%gp_rel(D_<VMA>)($28)` still resolves — is IMPOSSIBLE with the
+ * period assembler: `nopic_need_relax()` (tc-mips.c:11141) asserts that no
+ * symbol it is asked about lives in `.lit4`, since in its model that section
+ * only ever holds anonymous literals it interned itself. Defining a named
+ * symbol there and referencing it from the same file aborts ee-as with
+ * "Internal error! Assertion failure in nopic_need_relax".
+ *
+ * So this macro emits a `.lit4_slot` directive instead, and
+ * tools/preprocess_old_as.py rewrites the sibling's load back to
+ * `li.s $fN, VALUE` — the spelling the original .s had before splat
+ * symbolized the pool address. Same instruction, same gp-relative encoding,
+ * and ee-as interns the word at that point in the file, i.e. in the sibling's
+ * shipped slot. No `D_<VMA>` symbol is needed or created.
+ *
+ * Delete the line when its owner lands in C — that function's own literal
+ * then produces the word, and preprocess_old_as.py errors if a stale line is
+ * left behind. */
+#ifndef ASM_LIT4_SLOT
+#define ASM_LIT4_SLOT(NAME, VALUE) \
+    __asm__(".lit4_slot " #NAME ", " #VALUE)
+#endif
+
 /* INCLUDE_ASM_NOP_PAD(label) — emit a single 4-byte nop in .text.
  *
  * Splat omits per-function .s files for tiny pad functions (verified
@@ -113,6 +148,10 @@ __asm__(".include \"include/labels.inc\"\n");
 #endif
 #ifndef INCLUDE_RODATA
 #define INCLUDE_RODATA(FOLDER, NAME)
+#endif
+/* Pure assembler bookkeeping — nothing for m2c/permuter to model. */
+#ifndef ASM_LIT4_SLOT
+#define ASM_LIT4_SLOT(NAME, VALUE)
 #endif
 
 #endif /* !defined(M2CTX) && !defined(PERMUTER) */

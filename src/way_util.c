@@ -122,15 +122,12 @@ INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_from_gobj);
 
 INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_by_lineseg_of_group);
 
-extern float D_00630E3C;
-
 char *nearest_waypoint_by_lineseg(int *arg0, int handle)
 {
     int buf[4];
     char *t = CloseWayGroup(handle);
-    float bestDist = D_00630E3C;
+    float bestDist = 100000.0f;
     char *best, *cur;
-    __asm__ __volatile__("" ::: "memory");
     best = t;
     cur = best;
     if (best != 0) {
@@ -148,14 +145,11 @@ char *nearest_waypoint_by_lineseg(int *arg0, int handle)
     return best;
 }
 
-extern float D_00630E40;
-
 char *nearest_waypoint_by_lineseg_of_group_from_gobj(int *a0) {
     int buf[4];
     char *t = CloseWayGroup(D_00633874);
-    float bestDist = D_00630E40;
+    float bestDist = 100000.0f;
     char *best, *cur;
-    __asm__ __volatile__("" ::: "memory");
     best = t;
     cur = best;
     if (best != 0) {
@@ -174,14 +168,19 @@ char *nearest_waypoint_by_lineseg_of_group_from_gobj(int *a0) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_by_lineseg_from_gobj);
+ASM_LIT4_SLOT(D_00630E44, 100000.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/way_util", waypoint_with_range);
+ASM_LIT4_SLOT(D_00630E48, 100000.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_of_all_except_group);
+ASM_LIT4_SLOT(D_00630E4C, 100000.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_of_all_not_bridge_except_group);
+ASM_LIT4_SLOT(D_00630E50, 100000.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_of_all);
+ASM_LIT4_SLOT(D_00630E54, 100000.0f);
 
 char *visible_waypoint_of_all(int *arg0, float thresh)
 {
@@ -200,15 +199,13 @@ ret0:
 }
 
 extern char *CreateTempWayGroup(void);
-extern float D_00630E58;
 extern char *DeleteWayGroup(char *a0);
 
 char *visible_waypoint_of_all_from_gobj(int *arg0, int a1) {
     int buf[4];
     char *t = CreateTempWayGroup();
-    float bestDist = D_00630E58;
+    float bestDist = 100000.0f;
     char *best, *cur;
-    __asm__ __volatile__("" ::: "memory");
     best = t;
     cur = best;
     if (best != 0) {
@@ -229,16 +226,14 @@ char *visible_waypoint_of_all_from_gobj(int *arg0, int a1) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/way_util", visible_waypoint);
-
-extern float D_00630E60;
+ASM_LIT4_SLOT(D_00630E5C, 100000.0f);
 
 char *visible_waypoint_from_gobj(int *a0) {
     int buf[4];
     int neg1 = -1;
     char *t = CreateTempWayGroup();
-    float bestDist = D_00630E60;
+    float bestDist = 100000.0f;
     char *best, *cur;
-    __asm__ __volatile__("" ::: "memory");
     best = t;
     cur = best;
     if (best != 0) {
@@ -273,8 +268,10 @@ void func_0017A9D8(void *a0) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017AA08);
+ASM_LIT4_SLOT(D_00630E64, 100000.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/way_util", waybridge_between_group);
+ASM_LIT4_SLOT(D_00630E68, 100000.0f);
 
 void *bridge_waypoint_side_me(int arg0, int arg1)
 {

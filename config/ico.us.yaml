@@ -505,7 +505,9 @@ segments:
       # that pool at its shipped VMA (exactly like the `.rodata` jtbl carves above).
       # The whole carved run must be produced by the TU's C — any slot still owned by
       # an INCLUDE_ASM sibling would lose its `D_<VMA>` symbol when the blob shrinks.
-      - [0x531038, .lit4, src/act_bird]      # carved D_00631038 (6.2831855f, trans_bird), VMA 0x631038..0x63103C
+      - [0x530E3C, .lit4, src/way_util]      # carved D_00630E3C..D_00630E68 (12x 100000f, one per waypoint-search func); the 8 slots whose owners are still INCLUDE_ASM are emitted by ASM_LIT4_SLOT in way_util.c, VMA 0x630E3C..0x630E6C
+      - [0x530E6C, lit4, src/cod/530E6C]     # .lit4 blob resume
+      - [0x531038, .lit4, src/act_bird]    # carved D_00631038 (6.2831855f, trans_bird), VMA 0x631038..0x63103C
       - [0x53103C, lit4, src/cod/53103C]     # .lit4 blob resume
       - [0x53110C, .lit4, src/layout_texture]  # carved D_0063110C (0.4f, default_item_select), VMA 0x63110C..0x631110
       - [0x531110, lit4, src/cod/531110]     # .lit4 blob resume
