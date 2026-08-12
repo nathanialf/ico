@@ -7,8 +7,10 @@ INCLUDE_ASM("asm/nonmatchings/src/way_tool", group_select);
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", point_delete);
 
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", point_insert);
+ASM_LIT4_SLOT(D_0063149C, 0.116355285f);
 
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", quick_load_wpfile);
+ASM_LIT4_SLOT(D_006314A0, 0.116355285f);
 
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", ExtractWayData);
 
@@ -110,7 +112,6 @@ extern int D_00275250[];
 extern int D_006338E8;
 extern int D_00633F8C;
 extern int D_00631AE4;
-extern float D_006314A4;
 extern void actConte11Jimaku(float f);
 extern void actCreateSubThread(void *f, int a1);
 extern int actSt25aQueenDeadChk(int a0);
@@ -150,7 +151,7 @@ void func_002071E8(volatile int a0) {
     scpTrans(D_006338E8, 0x80);
     D_006338E8 = 0;
 done:
-    actSt25aQueenDead(1, D_00631AE4, 0, D_006314A4, 1.0f);
+    actSt25aQueenDead(1, D_00631AE4, 0, 0.025f, 1.0f);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/way_tool", play_way);

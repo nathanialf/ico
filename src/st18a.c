@@ -6,12 +6,17 @@ typedef struct ActB4Obj {
 } ActB4Obj;
 
 INCLUDE_ASM("asm/nonmatchings/src/st18a", actSt18aIntro);
+ASM_LIT4_SLOT(D_00631680, 0.025f);
 
 INCLUDE_ASM("asm/nonmatchings/src/st18a", actSt18aDoor);
 
 INCLUDE_ASM("asm/nonmatchings/src/st18a", actSt18aSwitchL);
+ASM_LIT4_SLOT(D_00631684, -1338.0f);
+ASM_LIT4_SLOT(D_00631688, 3085.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/st18a", actSt18aSwitchR);
+ASM_LIT4_SLOT(D_0063168C, 527.0f);
+ASM_LIT4_SLOT(D_00631690, -1563.0f);
 
 extern void BoxBarSoundOn(int a0, int a1);
 extern int D_004D33E0[];
@@ -46,8 +51,6 @@ void actSt18aEne(volatile int a0) {
 
 extern void BoxBarSoundOn(int a0, int a1);
 extern int D_004D3400[];
-extern float D_00631694;
-extern float D_00631698;
 extern float D_006325B8;
 extern int D_00633AB4;
 extern void _ACTWait(int a0);
@@ -63,7 +66,7 @@ void actSt18aEnemy1_2(volatile int a0) {
     int x = a0;
     ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
     _ACTWait(1);
-    warpGirlInStage(*(volatile float *)&D_00631694, *(volatile float *)&D_00631698, -4.0f);
+    warpGirlInStage(-1886.0f, 625.0f, -4.0f);
     func_00192040();
     while (fightSoundClose() != 0) {
         _ACTWait(1);

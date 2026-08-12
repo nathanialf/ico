@@ -179,21 +179,20 @@ INCLUDE_RODATA("asm/nonmatchings/src/Packet", jtbl_00554FE0);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_checkDivide);
 
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_countOneVertexPacketSize);
+ASM_LIT4_SLOT(D_00630A3C, 0.99f);
 
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_makeStrip);
 
 const char D_00555190[0x10] = "DMAOPEN   :%p\n";
 const char D_005551A0[0x20] = "VIFUNPACK :%08x %08x (%p:%d)\n";
 
-extern float D_00630A40;
-extern float D_00630A44;
 
 void pac_setMaterialPacket(int a0)
 {
     register int mask = 0x0FFFFFFF;
     char *ctx = D_00672FD0;
-    float f0 = D_00630A40;
-    float f1 = D_00630A44;
+    float f0 = 16777215.0f;
+    float f1 = -16777215.0f;
     *(int *)(ctx + 0x20) = a0 & mask;
     *(int *)(ctx + 0x24) = (a0 + 0x8) & mask;
     *(int *)(ctx + 0x28) = (a0 + 0x10) & mask;
@@ -252,14 +251,17 @@ INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_Init);
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_DispVu1Memory);
 
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011AE78);
+ASM_LIT4_SLOT(D_00630A48, 0.50196081f);
 
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011B040);
+ASM_LIT4_SLOT(D_00630A4C, 0.50196081f);
 
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011B1F0);
 
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011B360);
 
 INCLUDE_ASM("asm/nonmatchings/src/Packet", func_0011B6D8);
+ASM_LIT4_SLOT(D_00630A50, 0.50196081f);
 
 void func_0011BF40(int a0)
 {

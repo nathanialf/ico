@@ -120,9 +120,6 @@ void actSt13cCage1stDown(void) {
 INCLUDE_ASM("asm/nonmatchings/src/st13c", actSt13cCageFall);
 
 extern struct CFS D_0061C090;
-extern float D_0063163C;
-extern float D_00631640;
-extern float D_00631644;
 extern void func_0017BF78(int a0, int a1, int a2, int a3, int a4, float f0, float f1, float f2, float f3, float f4, float f5);
 extern void soundSeDefPlayWithVolumeRate(int a0, int a1, void *a2, int a3);
 
@@ -135,7 +132,7 @@ void actSt13cCageFallChk(volatile int a0) {
     soundSeDefPlayWithVolumeRate(0x527, 0, &buf, 1);
     soundSeDefPlayWithVolumeRate(0x528, 0, &buf, 1);
     soundSeDefPlayWithVolumeRate(0x529, 0, &buf, 1);
-    func_0017BF78(a0, 0x4D, 0x155, 0, 0x12, D_00631640, -100.0f, D_0063163C, D_00631644, -100.0f, D_0063163C);
+    func_0017BF78(a0, 0x4D, 0x155, 0, 0x12, -1350.0f, -100.0f, 1515.0f, -1450.0f, -100.0f, 1515.0f);
 }
 
 extern int D_00631AEC;
@@ -287,6 +284,7 @@ void func_0022BF90(volatile int a0) {
 INCLUDE_ASM("asm/nonmatchings/src/st13c", func_0022BFE8);
 
 INCLUDE_ASM("asm/nonmatchings/src/st13c", func_0022C060);
+ASM_LIT4_SLOT(D_00631648, -705.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/st13c", func_0022C2D0);
 
@@ -307,6 +305,7 @@ INCLUDE_ASM("asm/nonmatchings/src/st13c", func_0022CB70);
 INCLUDE_ASM("asm/nonmatchings/src/st13c", func_0022CBD8);
 
 INCLUDE_ASM("asm/nonmatchings/src/st13c", func_0022CC88);
+ASM_LIT4_SLOT(D_0063164C, 1274.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/st13c", func_0022CCF0);
 

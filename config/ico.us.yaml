@@ -505,6 +505,8 @@ segments:
       # that pool at its shipped VMA (exactly like the `.rodata` jtbl carves above).
       # The whole carved run must be produced by the TU's C — any slot still owned by
       # an INCLUDE_ASM sibling would lose its `D_<VMA>` symbol when the blob shrinks.
+      - [0x530A3C, .lit4, src/Packet]          # carved D_00630A3C..D_00630A50 (0.99f + 2x 16777215f + 3x 128/255f), VMA 0x630A3C..0x630A54
+      - [0x530A54, lit4, src/cod/530A54]     # .lit4 blob resume
       - [0x530A70, .lit4, src/StageAnimation]  # carved D_00630A70/A74 (sqrt2 x2), VMA 0x630A70..0x630A78
       - [0x530A78, lit4, src/cod/530A78]     # .lit4 blob resume
       - [0x530AEC, .lit4, src/act-game]      # carved D_00630AEC/AF0/AF4 (22500f, pi, 25000000f), VMA 0x630AEC..0x630AF8
@@ -527,11 +529,17 @@ segments:
       - [0x531430, lit4, src/cod/531430]     # .lit4 blob resume
       - [0x53144C, .lit4, src/act-env]       # carved D_0063144C..D_00631474 (11 slots: 4900/pi_2/355/10000/22500/10000/40000/pi_2/4900/22500/12100, all func_001FCA20), VMA 0x63144C..0x631478
       - [0x531478, lit4, src/cod/531478]     # .lit4 blob resume
+      - [0x53149C, .lit4, src/way_tool]      # carved D_0063149C..D_006314A4 (2x 0.116355285f + 0.025f), VMA 0x63149C..0x6314A8
+      - [0x5314A8, lit4, src/cod/5314A8]     # .lit4 blob resume
       - [0x5314EC, .lit4, src/st02a]         # carved D_006314EC..D_006314F8 (-1827f/2285f Sekizo + same pair for actSt02aWay), VMA 0x6314EC..0x6314FC
       - [0x5314FC, .lit4, src/st03t]       # carved D_006314FC/631500 (1828f, 1150f, actSt03tInit), VMA 0x6314FC..0x631504
       - [0x531504, lit4, src/cod/531504]     # .lit4 blob resume
       - [0x5315E4, .lit4, src/st06a]         # carved D_006315E4/6315E8 (-675f twice, actSt06aDoorDownChk), VMA 0x6315E4..0x6315EC
       - [0x5315EC, lit4, src/cod/5315EC]     # .lit4 blob resume
+      - [0x53163C, .lit4, src/st13c]         # carved D_0063163C..D_0063164C (5 slots, actSt13cCageFallChk + 2 asm), VMA 0x63163C..0x631650
+      - [0x531650, lit4, src/cod/531650]     # .lit4 blob resume
+      - [0x531680, .lit4, src/st18a]         # carved D_00631680..D_00631698 (7 slots, actSt18aEnemy1_2 + 3 asm), VMA 0x631680..0x63169C
+      - [0x53169C, lit4, src/cod/53169C]     # .lit4 blob resume
       - [0x531900, sdata, src/cod/531900]    # .sdata
       - [0x5322F0, .sdata, src/commonact]  # carved D_006322F0..D_00632308 (VMA 0x6322F0..0x632310, 32 bytes, 5 syms)
       - [0x532310, sdata, src/cod/532310]     # .sdata blob resume
