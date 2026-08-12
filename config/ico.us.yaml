@@ -499,6 +499,14 @@ segments:
       - [0x52FF74, rodata, src/cod/52FF74]   # .rodata blob resume (before vendor_2668B8's own pre-carve anchors; UNREF pad 0x62FF74..0x62FF80 stays out)
       - [0x52FF80, .rodata, src/cod/vendor_2668B8]  # full vendor_2668B8 .rodata run (anchors: jtbl_00630020/6301C0/6303B0/6303D0/630510/630640/6307D0 + D_0062FF80..D_006308A0), VMA 0x62FF80..0x6308A8 (true end of the .rodata ELF section per its sh_addr+sh_size; the 0x58 bytes 0x6308A8..0x630900 before .lit4 are linker alignment gap, not part of any PROGBITS section)
       - [0x530900, lit4, src/cod/530900]     # .lit4
+      # --- per-TU .lit4 constant-pool carves (see decomp/NOTES.md ".lit4 pools") ---
+      # A TU that writes its float constants as INLINE LITERALS makes ee-as intern
+      # them into that TU's own anonymous `.lit4`; a dot-form subsegment here anchors
+      # that pool at its shipped VMA (exactly like the `.rodata` jtbl carves above).
+      # The whole carved run must be produced by the TU's C — any slot still owned by
+      # an INCLUDE_ASM sibling would lose its `D_<VMA>` symbol when the blob shrinks.
+      - [0x53142C, .lit4, src/Basic]         # carved D_0063142C (8.99999f, dma_init), VMA 0x63142C..0x631430
+      - [0x531430, lit4, src/cod/531430]     # .lit4 blob resume
       - [0x531900, sdata, src/cod/531900]    # .sdata
       - [0x5322F0, .sdata, src/commonact]  # carved D_006322F0..D_00632308 (VMA 0x6322F0..0x632310, 32 bytes, 5 syms)
       - [0x532310, sdata, src/cod/532310]     # .sdata blob resume

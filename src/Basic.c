@@ -17,14 +17,13 @@ extern unsigned int D_00633780;
 extern void func_00264128();
 extern void func_00118678(void *p0);
 extern int  D_00631970;
-extern float D_0063142C;
 extern void func_00244418(void *a0, void *a1, void *a2, float a3);
 
 void dma_init(void *gobj, float t) {
     Obj7F0 *o7 = *(Obj7F0 **)((char *)GOBJ_SUB(gobj) + 0x800);
     struct DmaArec *A = (struct DmaArec *)o7->p_0;
     int i;
-    float f20 = t * D_0063142C;
+    float f20 = t * 8.99999f;
     int rowcount, j, dn, k;
     float fj, frac;
     char *cp, *node;
