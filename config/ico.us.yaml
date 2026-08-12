@@ -513,7 +513,9 @@ segments:
       - [0x531418, lit4, src/cod/531418]     # .lit4 blob resume
       - [0x53142C, .lit4, src/Basic]         # carved D_0063142C (8.99999f, dma_init), VMA 0x63142C..0x631430
       - [0x531430, lit4, src/cod/531430]     # .lit4 blob resume
-      - [0x5314FC, .lit4, src/st03t]         # carved D_006314FC/631500 (1828f, 1150f, actSt03tInit), VMA 0x6314FC..0x631504
+      - [0x53144C, .lit4, src/act-env]       # carved D_0063144C..D_00631474 (11 slots: 4900/pi_2/355/10000/22500/10000/40000/pi_2/4900/22500/12100, all func_001FCA20), VMA 0x63144C..0x631478
+      - [0x531478, lit4, src/cod/531478]     # .lit4 blob resume
+      - [0x5314FC, .lit4, src/st03t]       # carved D_006314FC/631500 (1828f, 1150f, actSt03tInit), VMA 0x6314FC..0x631504
       - [0x531504, lit4, src/cod/531504]     # .lit4 blob resume
       - [0x5315E4, .lit4, src/st06a]         # carved D_006315E4/6315E8 (-675f twice, actSt06aDoorDownChk), VMA 0x6315E4..0x6315EC
       - [0x5315EC, lit4, src/cod/5315EC]     # .lit4 blob resume

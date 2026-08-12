@@ -61,17 +61,6 @@ extern char D_0061AE30[];
 extern float D_0062973C;
 extern float D_0062974C;
 extern float D_00629754;
-extern float D_0063146C;
-extern float D_0063144C;
-extern float D_00631450;
-extern volatile float D_00631454;
-extern float D_00631458;
-extern float D_0063145C;
-extern float D_00631460;
-extern float D_00631464;
-extern float D_00631468;
-extern float D_00631470;
-extern float D_00631474;
 extern int *D_00631AE4;
 extern int D_00631AE8;
 extern char D_00633840[];
@@ -506,7 +495,7 @@ void func_001FCA20(void *arg0, void *arg1, char *arg2, void *arg3, void *arg4) {
     }
     }
     if ((FI(0x30) ^ D_00631AE8) == 0) FI(0x1BC) = 0;
-    f20 = D_0063144C;
+    f20 = 4900.0f;
     {
         found = isysGObjSearchFromObjLayoutID(0x2B);
         for (;; found = isysGObjSearchFromObjKindID_begin(found)) {
@@ -986,7 +975,7 @@ L6B4:
                 EnvWallAssistVec(FV(0x80), FV(0x70), (void *)FI(0x30), d16, 45.0f);
                 }
                 func_00243B18((float *)w70, (float *)arg4, -10.0f);
-                func_001945B8((float *)w70, D_00631450);
+                func_001945B8((float *)w70, 1.5707964f);
                 func_00243AD0((float *)((char *)arg4 + 0xF0), (float *)((char *)arg4 + 0xF0), (float *)w70);
                 stt = *(int *)(box + 0xC);
                 goto L16d;
@@ -1542,7 +1531,7 @@ L6B4:
                     } else if (f24 < 255.0f) {
                         f22 = 160.0f;
                         ccat = 0xC8;
-                    } else if (f24 < D_00631454) {
+                    } else if (f24 < 355.0f) {
                         f22 = 160.0f;
                         ccat = 0x12C;
                     }
@@ -1610,7 +1599,7 @@ L6B4:
                             FF(0x104) = *(float *)(pcc + 4);
                             pcc = (char *)ContinueCorrectPosition(fnd);
                             FF(0x108) = *(float *)(pcc + 8);
-                            if (RotateAccordingToStick_PatternThree((int)pb, FP(0x100)) < D_00631458) {
+                            if (RotateAccordingToStick_PatternThree((int)pb, FP(0x100)) < 10000.0f) {
                                 d = FF(0xB4) - FF(0x104);
                                 if (!(d < 0.0f ? -d > 100.0f : d > 100.0f)) {
                                     func_00243AE8(FP(0x110), (void *)FI(0x1C4), FP(0x100));
@@ -1675,7 +1664,7 @@ L6B4:
                                 if (fnd2 != 0) {
                                     char *p1 = (char *)ContinueCorrectPosition(fnd2);
                                     char *p2 = (char *)ContinueCorrectPosition((void *)FI(0x30));
-                                    if (RotateAccordingToStick_PatternThree((int)p1, p2) < D_0063145C &&
+                                    if (RotateAccordingToStick_PatternThree((int)p1, p2) < 22500.0f &&
                                         FI(0x1D8) == 0 && ccat < 0x12D) {
                                         char *p1 = (char *)ContinueCorrectPosition(fnd2);
                                         char *p2 = (char *)ContinueCorrectPosition((void *)FI(0x30));
@@ -1752,7 +1741,7 @@ L6B4:
                 f21 < 200.0f && f24 > 350.0f && wFlag != 0 && ACTEnvGetTest() == 0) {
                 char *p1 = (char *)ContinueCorrectPosition((void *)D_00631AE4);
                 char *p2 = (char *)ContinueCorrectPosition((void *)D_00631AE8);
-                if (!(HandyCamera_TargetMoveType(p1, p2) < D_00631460)) {
+                if (!(HandyCamera_TargetMoveType(p1, p2) < 10000.0f)) {
                     if ((char *)D_00631AE8 != 0 && (char *)D_00631AE4 != 0) {
                         char *p1 = (char *)ContinueCorrectPosition((void *)D_00631AE8);
                         char *p2 = (char *)ContinueCorrectPosition((void *)D_00631AE4);
@@ -1770,7 +1759,7 @@ L6B4:
                     {
                         char *p1 = (char *)ContinueCorrectPosition((void *)D_00631AE4);
                         char *p2 = (char *)ContinueCorrectPosition((void *)D_00631AE8);
-                        if (RotateAccordingToStick_PatternThree((int)p1, p2) < D_00631464) {
+                        if (RotateAccordingToStick_PatternThree((int)p1, p2) < 40000.0f) {
                             if (EnableChangeRootUpdateMode((void *)D_00631AE8, (void *)D_00631AE4) > 300.0f) {
                                 goto Lchain;
                             }
@@ -1874,7 +1863,7 @@ L6B4:
                 w144 = t1;
                 w148 = t2;
             }
-            func_001945B8(FP(0x140), D_00631468);
+            func_001945B8(FP(0x140), 1.5707964f);
             fnd3 = (char *)isysGObjSearchFromObjLayoutID(0x15);
             if (fnd3 != 0) {
                 float fth;
@@ -1889,7 +1878,7 @@ L6B4:
                 g90 = (char *)FP(0x160);
                 c100 = 100.0f;
                 w70 = (char *)&w154 - 4;
-                fth = D_0063146C;
+                fth = 4900.0f;
                 do {
                 if (*(int *)(fnd3 + 0x16C) != 0) {
                     float d;
@@ -2058,7 +2047,7 @@ L6B4:
                         char *pp;
                         b = (char *)PAIR_GetPosition_BOY((int)(char *)ContinueCorrectPosition(g), 0x21);
                         pp = (char *)ContinueCorrectPosition(b);
-                        if (RotateAccordingToStick_PatternThree((int)FP(0x10), pp) < D_00631470) {
+                        if (RotateAccordingToStick_PatternThree((int)FP(0x10), pp) < 22500.0f) {
                             char *cc = (char *)FI(0x30);
                             ((union LLAlias *)(env + 0x468))->ll |= 0x8000LL << 38;
                             *(int *)(*(char **)(*(char **)(cc + 0x164) + 0x670) + 0x2E0) = (int)b;
@@ -2165,7 +2154,7 @@ L6B4:
             wt = (char *)&f70;
             GetRootMatrixByDObj(wt, t16);
             if (lit == 0 &&
-                RotateAccordingToStick_PatternThree((int)FP(0), wt) < D_00631474 &&
+                RotateAccordingToStick_PatternThree((int)FP(0), wt) < 12100.0f &&
                 FF(0x74) < FF(0x4)) {
                 if (func_00194840(wt, FP(0), subCommonIdle((void *)FI(0x30)), 0x2D)) {
                     float d = FF(0x74) - FF(0x4);
