@@ -28,30 +28,26 @@ int func_001D1468(void)
     return 1;
 }
 
-extern volatile float D_00631270;
-extern volatile float D_00631274;
-extern volatile float D_00631278;
-extern volatile float D_0063127C;
 extern void DispMeshWire(int a0, float f12, float f13);
 
 void InitGirlGeo(void *a0) {
     char *s0 = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x800);
     if (*(int *)(s0 + 0xC) != 0) {
         if (*(int *)(s0 + 0x10) != 0) {
-            DispMeshWire(*(int *)(s0 + 0x10), 4.0f, D_00631270);
+            DispMeshWire(*(int *)(s0 + 0x10), 4.0f, 0.98f);
         }
         if (*(int *)(s0 + 0x14) != 0) {
-            DispMeshWire(*(int *)(s0 + 0x14), 4.0f, D_00631274);
+            DispMeshWire(*(int *)(s0 + 0x14), 4.0f, 0.98f);
         }
     }
     if (*(int *)(s0 + 0x4) != 0) {
         if (*(int *)(s0 + 0x8) != 0) {
-            DispMeshWire(*(int *)(s0 + 0x8), 3.0f, D_00631278);
+            DispMeshWire(*(int *)(s0 + 0x8), 3.0f, 0.98f);
         }
     }
     if (*(int *)(s0 + 0x18) != 0) {
         if (*(int *)(s0 + 0x1C) != 0) {
-            DispMeshWire(*(int *)(s0 + 0x1C), 4.0f, D_0063127C);
+            DispMeshWire(*(int *)(s0 + 0x1C), 4.0f, 0.98f);
         }
     }
 }
@@ -61,6 +57,7 @@ INCLUDE_ASM("asm/nonmatchings/src/girl", GirlGeo);
 INCLUDE_ASM("asm/nonmatchings/src/girl", debugWireStringGirl);
 
 INCLUDE_ASM("asm/nonmatchings/src/girl", GirlDL);
+ASM_LIT4_SLOT(D_00631280, 0.3f);
 
 INCLUDE_ASM("asm/nonmatchings/src/girl", GirlAI);
 

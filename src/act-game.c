@@ -34,7 +34,6 @@ extern int *D_00631AE4;
 extern int *ContinueCorrectPosition(int *a0);
 extern int D_00274EC0[];
 extern float D_002924D8[];
-extern float D_00630AEC;
 extern void GetRootMatrixByDObj(char *a0, char *a1);
 extern float HandyCamera_TargetMoveType(int *a0, int a1);
 extern float before_DrawLine(void *a0, void *a1);
@@ -55,7 +54,7 @@ void ACTGameView_Loop(void)
     if (D_00631AE4 != 0 && D_00631AE8 != 0) {
         GetRootMatrixByDObj((char *)buf0, (char *)D_00631AE4);
         GetRootMatrixByDObj((char *)buf1, (char *)D_00631AE8);
-        if (!(HandyCamera_TargetMoveType((int *)buf0, (int)buf1) < D_00630AEC)) {
+        if (!(HandyCamera_TargetMoveType((int *)buf0, (int)buf1) < 22500.0f)) {
             if (!(0.0f < before_DrawLine(buf2, ContinueCorrectPosition((int *)D_00631AE8)))) {
                 neg1 = -1.0f;
                 func_00243B18(buf0, func_0018CEC0(), neg1);
@@ -140,14 +139,13 @@ void ACTGame_InnerVelocityUpdate(char *self, char *other, int idx)
     disp_memory_partition_bar(self, other, D_00561928[idx][9], tmp_a, tmp_b);
 }
 
-extern float D_00630AF0;
 extern void func_002641D8(void *a0, int a1, int a2);
 
 void ACTGame_BeforeFunc(int *a0, int a1, void *a2, int a3) {
     char buf0[0x10];
     char buf1[0x10];
     func_002641D8(buf1, 0, 0x10);
-    *(float *)(buf1 + 4) = (float)a3 * D_00630AF0 / 180.0f;
+    *(float *)(buf1 + 4) = (float)a3 * 3.1415927f / 180.0f;
     func_00243B18(buf0, a2, -1.0f);
     disp_memory_partition_bar((char *)a0[2], (char *)a0[3], a1, buf0, buf1);
 }
@@ -474,6 +472,7 @@ INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_StageChangeGObjDirect);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_FLAG_LIFEPINCH);
 
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_FLAG_TETSUNAGI);
+ASM_LIT4_SLOT(D_00630AF4, 25000000.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/act-game", GetSkeltonPosition);
 

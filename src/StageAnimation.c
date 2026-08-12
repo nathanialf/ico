@@ -101,7 +101,6 @@ typedef struct {
 } DpkCtx;
 
 extern DpkCtx D_004C7710;
-extern volatile float D_00630A70;
 extern int D_00631C5C;
 extern int D_00631C60;
 extern char D_00276230[];
@@ -522,7 +521,7 @@ void stage_Init(void *self)
         if (o->alpha > 0.0f) alpha = o->alpha;
     }
     w = work;
-    scale = alpha * D_00630A70;
+    scale = alpha * 1.4142135f;
 
     if (stage_SetupLightPlanes(&tmpa, &tmpb, work, o->planes, scale) == 0)
         return;
@@ -737,6 +736,7 @@ void stage_Init(void *self)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/StageAnimation", stage_SetAnimation);
+ASM_LIT4_SLOT(D_00630A74, 1.4142135f);
 
 /* D_005559E8/F0/F4 hand-assembled as one contiguous block: dlabel (used by
  * INCLUDE_RODATA and gcc -fdata-sections alike) forces .align 3 on every

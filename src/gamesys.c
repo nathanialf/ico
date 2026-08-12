@@ -123,11 +123,10 @@ int gamesysNObjInfoInit(void) {
     return -1;
 }
 
-extern float D_006310F4;
 extern void backStageProcessInit(float a0);
 
 int gamesysObjInfoStageInitFlagCls(void) {
-    backStageProcessInit(D_006310F4);
+    backStageProcessInit(10000000.0f);
     return 1;
 }
 
@@ -202,6 +201,7 @@ void gamesysVersionLoad(int a0)
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysVersionSave);
 
 INCLUDE_ASM("asm/nonmatchings/src/gamesys", gamesysCharacterInfoSave);
+ASM_LIT4_SLOT(D_006310F8, 0.8f);
 
 extern void gamesysMemoryHandlerRead(int a0, int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8);
 extern void gamesysMemoryHandlerWrite(int a0);

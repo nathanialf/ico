@@ -201,8 +201,6 @@ sekizo:
 
 extern int D_004D1030[];
 extern WpData16 D_0061BA10;
-extern volatile float D_006314EC;
-extern volatile float D_006314F0;
 extern void actCreateSubThread(void *fn, int a1);
 extern void actSt03tGene(void);
 extern int func_0012AA80(int a0);
@@ -218,7 +216,7 @@ void actSt02aSekizo(volatile int a0) {
     while (scpKillSpiderGroup(a0, 0x1000000) == 0) { _ACTWait(1); }
     _ACTWait(0xF);
     actCreateSubThread((void *)actSt03tGene, 0x15);
-    func_0017E870(D_006314EC, -1072.0f, D_006314F0, 100.0f);
+    func_0017E870(-1827.0f, -1072.0f, 2285.0f, 100.0f);
     stage_KillPlayBgAnimation(0x53, 1, 0);
     buf = D_0061BA10;
     soundSeDefPlayWithVolumeRate(0x4AC, 0, &buf, 1);
@@ -239,6 +237,8 @@ void actSt02aSekizo(volatile int a0) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/st02a", actSt02aWay);
+ASM_LIT4_SLOT(D_006314F4, -1827.0f);
+ASM_LIT4_SLOT(D_006314F8, 2285.0f);
 
 extern long long D_0061BA40[];
 extern char *D_00631AE4;
