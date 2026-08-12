@@ -506,7 +506,8 @@ segments:
       # The whole carved run must be produced by the TU's C — any slot still owned by
       # an INCLUDE_ASM sibling would lose its `D_<VMA>` symbol when the blob shrinks.
       - [0x53090C, .lit4, src/matrixDrive]    # carved D_0063090C..D_00630940 (14 slots, MatrixDrive_PopMatrix + 13 asm), VMA 0x63090C..0x630944
-      - [0x530944, lit4, src/cod/530944]     # .lit4 blob resume
+      - [0x530944, .lit4, src/motionManager2]# carved D_00630944..D_00630980 (16 slots, SetMotionDirectionWithLimit + GetRootPosOfNextFrame + 14 asm), VMA 0x630944..0x630984
+      - [0x530984, lit4, src/cod/530984]     # .lit4 blob resume
       - [0x530A3C, .lit4, src/Packet]          # carved D_00630A3C..D_00630A50 (0.99f + 2x 16777215f + 3x 128/255f), VMA 0x630A3C..0x630A54
       - [0x530A54, lit4, src/cod/530A54]     # .lit4 blob resume
       - [0x530A70, .lit4, src/StageAnimation]  # carved D_00630A70/A74 (sqrt2 x2), VMA 0x630A70..0x630A78
@@ -514,11 +515,14 @@ segments:
       - [0x530AEC, .lit4, src/act-game]      # carved D_00630AEC/AF0/AF4 (22500f, pi, 25000000f), VMA 0x630AEC..0x630AF8
       - [0x530AF8, lit4, src/cod/530AF8]     # .lit4 blob resume
       - [0x530C28, .lit4, src/commonact]     # carved D_00630C28..D_00630CDC (46 slots, _boxbar_set_sound + func_0015DF88 + 44 asm), VMA 0x630C28..0x630CE0
-      - [0x530CE0, lit4, src/cod/530CE0]     # .lit4 blob resume
+      - [0x530CE0, .lit4, src/enemy_act]     # carved D_00630CE0..D_00630D48 (27 slots, actEnemyForceSwitchToCarry + 26 asm), VMA 0x630CE0..0x630D4C
+      - [0x530D4C, lit4, src/cod/530D4C]     # .lit4 blob resume
       - [0x530E3C, .lit4, src/way_util]    # carved D_00630E3C..D_00630E68 (12x 100000f, one per waypoint-search func); the 8 slots whose owners are still INCLUDE_ASM are emitted by ASM_LIT4_SLOT in way_util.c, VMA 0x630E3C..0x630E6C
       - [0x530E6C, lit4, src/cod/530E6C]     # .lit4 blob resume
       - [0x530E7C, .lit4, src/warpGirl]      # carved D_00630E7C..D_00630EAC (13 slots, func_00180550 + 12 asm), VMA 0x630E7C..0x630EB0
       - [0x530EB0, lit4, src/cod/530EB0]     # .lit4 blob resume
+      - [0x530F00, .lit4, src/chain]          # carved D_00630F00..D_00630F8C (36 slots, 4 C funcs + 32 asm), VMA 0x630F00..0x630F90
+      - [0x530F90, lit4, src/cod/530F90]     # .lit4 blob resume
       - [0x531038, .lit4, src/act_bird]    # carved D_00631038 (6.2831855f, trans_bird), VMA 0x631038..0x63103C
       - [0x53103C, lit4, src/cod/53103C]     # .lit4 blob resume
       - [0x5310F4, .lit4, src/gamesys]       # carved D_006310F4/10F8 (10000000f, 0.8f), VMA 0x6310F4..0x6310FC
@@ -549,6 +553,8 @@ segments:
       - [0x531650, lit4, src/cod/531650]     # .lit4 blob resume
       - [0x531680, .lit4, src/st18a]         # carved D_00631680..D_00631698 (7 slots, actSt18aEnemy1_2 + 3 asm), VMA 0x631680..0x63169C
       - [0x53169C, lit4, src/cod/53169C]     # .lit4 blob resume
+      - [0x531784, .lit4, src/objact]        # carved D_00631784..D_00631800 (32 slots, func_0023C090 + func_0023C0E8 + 29 asm), VMA 0x631784..0x631804
+      - [0x531804, lit4, src/cod/531804]     # .lit4 blob resume
       - [0x531900, sdata, src/cod/531900]    # .sdata
       - [0x5322F0, .sdata, src/commonact]  # carved D_006322F0..D_00632308 (VMA 0x6322F0..0x632310, 32 bytes, 5 syms)
       - [0x532310, sdata, src/cod/532310]     # .sdata blob resume

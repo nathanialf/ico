@@ -27,9 +27,7 @@ extern float func_00168C18();
 extern int func_00168A80();
 extern void _SetCurrentMatrix();
 extern void func_00168AE0();
-extern float D_0063094C;
 extern void LoadCollision();
-extern float D_00630948;
 extern void ChangeFieldCollisionDebugMode();
 extern void MatrixDrive_GetTurnXAngleZY();
 extern void GetRootMatrixRotOffset();
@@ -83,6 +81,7 @@ void GetOrientOfWallOfGObj(int a0, int a1)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetOrientOfCliffOfGObj);
+ASM_LIT4_SLOT(D_00630944, 10430.3779f);
 
 void SetMotionDirection(int a0, int *a1)
 {
@@ -107,7 +106,7 @@ void SetMotionDirectionWithLimit(int a0, int a1)
 {
     MatrixDrive_TurnObjectMatrix(a0, a1);
     MatrixDrive_TurnObjectMatrix(a0 + 0x10, a0);
-    *(float *)(a0 + 0x14) = *(float *)(a0 + 0x14) + D_00630948;
+    *(float *)(a0 + 0x14) = *(float *)(a0 + 0x14) + 10000.0f;
     ChangeFieldCollisionDebugMode(a0);
 }
 
@@ -115,21 +114,33 @@ void GetRootPosOfNextFrame(int a0, int a1)
 {
     MatrixDrive_TurnObjectMatrix(a0, a1);
     MatrixDrive_TurnObjectMatrix(a0 + 0x10, a0);
-    *(float *)(a0 + 0x14) = *(float *)(a0 + 0x14) + D_0063094C;
+    *(float *)(a0 + 0x14) = *(float *)(a0 + 0x14) + 10000.0f;
     LoadCollision(a0);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", AdjustMotionHeightToField);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetLowerPlaneCollision);
+ASM_LIT4_SLOT(D_00630950, 10430.3779f);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", getLowerPlaneCollisionE);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", calcFootIK);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", InitMotionGeoInfo);
+ASM_LIT4_SLOT(D_00630954, 0.2f);
+ASM_LIT4_SLOT(D_00630958, 0.45f);
+ASM_LIT4_SLOT(D_0063095C, 1.1f);
+ASM_LIT4_SLOT(D_00630960, 0.3f);
+ASM_LIT4_SLOT(D_00630964, 0.3f);
+ASM_LIT4_SLOT(D_00630968, 0.2f);
+ASM_LIT4_SLOT(D_0063096C, 0.45f);
+ASM_LIT4_SLOT(D_00630970, 1.1f);
+ASM_LIT4_SLOT(D_00630974, 0.3f);
+ASM_LIT4_SLOT(D_00630978, 0.1f);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", dispSkeltonHierarchy);
+ASM_LIT4_SLOT(D_0063097C, -0.1f);
 
 void DispSkelton(int *self, int *p, int *cfg)
 {
@@ -148,6 +159,7 @@ INCLUDE_ASM("asm/nonmatchings/src/motionManager2", SlopeIKControl);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetPureVerticalPlaneOfCurrentPosition);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", getVerticalElementOfWallNormal);
+ASM_LIT4_SLOT(D_00630980, 0.001f);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", AdjustVerticalSidePlaneOfWall);
 

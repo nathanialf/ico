@@ -2,15 +2,12 @@
 
 
 
-extern float D_006317E4;
-extern float D_006317E8;
 typedef struct 
 {
   float a0;
   float a4;
   float a8;
 } S;
-extern float D_006317E0;
 extern int func_0017B230(int a0);
 extern void actCreateSubThread(void *f, int a1);
 extern void func_0023B518(volatile int a0);
@@ -91,12 +88,35 @@ void func_0023B6B8(volatile int a0) {
 INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023B728);
 
 INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023B8B8);
+ASM_LIT4_SLOT(D_00631784, 0.005f);
+ASM_LIT4_SLOT(D_00631788, 0.005f);
+ASM_LIT4_SLOT(D_0063178C, -5500.0f);
+ASM_LIT4_SLOT(D_00631790, 3500.0f);
+ASM_LIT4_SLOT(D_00631794, -5750.0f);
+ASM_LIT4_SLOT(D_00631798, -6500.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023BAB0);
+ASM_LIT4_SLOT(D_0063179C, 0.005f);
+ASM_LIT4_SLOT(D_006317A0, 0.05f);
+ASM_LIT4_SLOT(D_006317A4, 0.4f);
+ASM_LIT4_SLOT(D_006317A8, 0.1f);
+ASM_LIT4_SLOT(D_006317AC, -757.0f);
+ASM_LIT4_SLOT(D_006317B0, 759.0f);
+ASM_LIT4_SLOT(D_006317B4, 0.7f);
 
 INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023BC08);
+ASM_LIT4_SLOT(D_006317B8, 773.0f);
+ASM_LIT4_SLOT(D_006317BC, 0.2f);
 
 INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023BD50);
+ASM_LIT4_SLOT(D_006317C0, -1526.0f);
+ASM_LIT4_SLOT(D_006317C4, -1227.0f);
+ASM_LIT4_SLOT(D_006317C8, 759.0f);
+ASM_LIT4_SLOT(D_006317CC, -1194.0f);
+ASM_LIT4_SLOT(D_006317D0, -1837.0f);
+ASM_LIT4_SLOT(D_006317D4, -987.0f);
+ASM_LIT4_SLOT(D_006317D8, -2788.0f);
+ASM_LIT4_SLOT(D_006317DC, 0.8f);
 
 INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023BF70);
 
@@ -105,7 +125,7 @@ int func_0023C090(int *self)
   S *p;
   float new_var;
   p = (S *) self[0x34 / 4];
-  p->a0 = D_006317E0;
+  p->a0 = 785.0f;
   p->a8 = 482.0f;
   new_var = 0.5f;
   *((float *) (((char *) self) + 0x1C)) = new_var;
@@ -126,10 +146,10 @@ int func_0023C0E8(int *self)
   int new_var5;
   p = (float *) self[0x34 / 4];
   new_var3 = 0;
-  new_var = 482.0f;
-  p[new_var3] = D_006317E4;
-  new_var2 = D_006317E8;
+  p[new_var3] = 785.0f;
+  new_var2 = 1786.0f;
   p[1] = new_var2;
+  new_var = 482.0f;
   p[2] = new_var;
   *((float *) (((char *) self) + 0x1C)) = 0.5f;
   new_var5 = func_0017B230(0x5F);
@@ -161,6 +181,9 @@ int func_0023C180(void) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023C1C0);
+ASM_LIT4_SLOT(D_006317EC, -1300.0f);
+ASM_LIT4_SLOT(D_006317F0, 750.0f);
+ASM_LIT4_SLOT(D_006317F4, 2050.0f);
 
 extern int D_00633B4C;
 extern int D_00631960;
@@ -182,4 +205,7 @@ int func_0023C290(void *a0) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/objact", func_0023C2F0);
+ASM_LIT4_SLOT(D_006317F8, -5770.0f);
+ASM_LIT4_SLOT(D_006317FC, -4900.0f);
+ASM_LIT4_SLOT(D_00631800, 870.0f);
 

@@ -135,7 +135,6 @@ void PairSetGeometry(void *a0) {
 }
 
 extern int ContinueCorrectPosition(int a0);
-extern float D_00630CE0;
 extern int D_00631AE4;
 extern float RotateAccordingToStick_PatternThree(float *a0, float *a1);
 
@@ -155,7 +154,7 @@ int actEnemyForceSwitchToCarry(int a0) {
     v2[1] = ((float *)ContinueCorrectPosition(a0))[1];
     v2[2] = ((float *)ContinueCorrectPosition(a0))[2];
     angle = RotateAccordingToStick_PatternThree(v1, v2);
-    if (angle < D_00630CE0) {
+    if (angle < 90000.0f) {
         diff = v1[1] - v2[1];
         if (diff < 0.0f) {
             if (200.0f < -diff) {
@@ -182,6 +181,13 @@ const char D_00558E10[0x10] = "src/enemy_act.c";
 const char D_00558E20[0x20] = "*generator_gop!=NULL";
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyKidnapEnd);
+ASM_LIT4_SLOT(D_00630CE4, 0.001f);
+ASM_LIT4_SLOT(D_00630CE8, 0.1f);
+ASM_LIT4_SLOT(D_00630CEC, 0.99f);
+ASM_LIT4_SLOT(D_00630CF0, 0.1f);
+ASM_LIT4_SLOT(D_00630CF4, 0.99f);
+ASM_LIT4_SLOT(D_00630CF8, 0.1f);
+ASM_LIT4_SLOT(D_00630CFC, 0.99f);
 
 const char D_00558ED8[0x18] = "enter actEnemyStand\n";
 const char D_00558EF0[0x18] = "enter motEnemyStand\n";
@@ -196,6 +202,9 @@ const char D_00558FB0[0x28] = "ASSERTMSG__GOP_IS_NOT_ENEMY(gop)";
 INCLUDE_RODATA("asm/nonmatchings/src/enemy_act", D_00558FD8);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001600F8);
+ASM_LIT4_SLOT(D_00630D00, 0.1f);
+ASM_LIT4_SLOT(D_00630D04, 0.1f);
+ASM_LIT4_SLOT(D_00630D08, 0.1f);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001605F8);
 
@@ -206,10 +215,15 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyKidnapBegin);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", MoveChestForCatchBoy);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyBodylift);
+ASM_LIT4_SLOT(D_00630D0C, 10000.0f);
+ASM_LIT4_SLOT(D_00630D10, 0.0001f);
+ASM_LIT4_SLOT(D_00630D14, 0.01f);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001611E8);
+ASM_LIT4_SLOT(D_00630D18, 0.1f);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001613B0);
+ASM_LIT4_SLOT(D_00630D1C, 3.14159274f);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", actEnemyPickupBegin);
 
@@ -272,8 +286,13 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", BrainMode_Requset);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_001624D8);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrainMain);
+ASM_LIT4_SLOT(D_00630D20, 0.7f);
+ASM_LIT4_SLOT(D_00630D24, 0.7f);
+ASM_LIT4_SLOT(D_00630D28, 0.7f);
+ASM_LIT4_SLOT(D_00630D2C, 0.7f);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", enemy_dodge);
+ASM_LIT4_SLOT(D_00630D30, 160000.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", Battle_isCurrentStatus);
 
@@ -283,6 +302,7 @@ INCLUDE_RODATA("asm/nonmatchings/src/enemy_act", D_00559078);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", GetFlyPosition);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", NakaBoss);
+ASM_LIT4_SLOT(D_00630D34, 0.7f);
 
 INCLUDE_RODATA("asm/nonmatchings/src/enemy_act", D_00559128);
 INCLUDE_RODATA("asm/nonmatchings/src/enemy_act", jtbl_00559130);
@@ -293,6 +313,7 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00163890);
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", ChangeBrain_ToAttack);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", func_00163B40);
+ASM_LIT4_SLOT(D_00630D38, 160000.0f);
 
 extern void BoxBarSoundOn(void *a0, int a1);
 extern int D_00632DA0;
@@ -352,8 +373,12 @@ done:
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", ChangeBrain_ToKidnap);
+ASM_LIT4_SLOT(D_00630D3C, 1.44e+06f);
+ASM_LIT4_SLOT(D_00630D40, 40000.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", subEnemyBrain_ToGirl);
+ASM_LIT4_SLOT(D_00630D44, 341.0f);
+ASM_LIT4_SLOT(D_00630D48, 0.05f);
 
 INCLUDE_ASM("asm/nonmatchings/src/enemy_act", _ApproachTarget_Boss);
 

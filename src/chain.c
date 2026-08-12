@@ -48,6 +48,8 @@ void chain_simulate_term_loop(void) {
 INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_term_swingready);
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_term_swingstart);
+ASM_LIT4_SLOT(D_00630F00, -0.2f);
+ASM_LIT4_SLOT(D_00630F04, 0.1f);
 
 /* chain .rodata run 0x55AA90..0x55ADE0 -- byte-verified against baseelf;
  * defs interleave with INCLUDE_ASM stubs so .o section order == VMA order */
@@ -57,16 +59,30 @@ const char D_0055AAA0[0x10] = "nearestNode!=-1\0";
 INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_term_moveup);
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_term_free);
+ASM_LIT4_SLOT(D_00630F08, 3.14159274f);
+ASM_LIT4_SLOT(D_00630F0C, 0.6f);
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_term_down);
+ASM_LIT4_SLOT(D_00630F10, -0.01f);
+ASM_LIT4_SLOT(D_00630F14, -0.05f);
+ASM_LIT4_SLOT(D_00630F18, -0.15f);
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_hangstart);
+ASM_LIT4_SLOT(D_00630F1C, -0.01f);
+ASM_LIT4_SLOT(D_00630F20, -0.05f);
+ASM_LIT4_SLOT(D_00630F24, -0.15f);
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_term);
+ASM_LIT4_SLOT(D_00630F28, -0.01f);
+ASM_LIT4_SLOT(D_00630F2C, -0.2f);
+ASM_LIT4_SLOT(D_00630F30, -0.3f);
 
 INCLUDE_RODATA("asm/nonmatchings/src/chain", D_0055AB20);
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_stop);
+ASM_LIT4_SLOT(D_00630F34, -0.05f);
+ASM_LIT4_SLOT(D_00630F38, -0.15f);
+ASM_LIT4_SLOT(D_00630F3C, -1.57079637f);
 
 INCLUDE_RODATA("asm/nonmatchings/src/chain", D_0055AB48);
 INCLUDE_RODATA("asm/nonmatchings/src/chain", D_0055AB50);
@@ -77,14 +93,20 @@ const char D_0055AB88[0x20] = "chain_simulate_hangstart\n\0\0\0\0\0\0\0";
 const char D_0055ABA8[0x18] = "chain_simulate_term\n\0\0\0\0";
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_free);
+ASM_LIT4_SLOT(D_00630F40, -0.01f);
+ASM_LIT4_SLOT(D_00630F44, -0.05f);
+ASM_LIT4_SLOT(D_00630F48, -0.15f);
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", correct_vector);
+ASM_LIT4_SLOT(D_00630F4C, -0.01f);
+ASM_LIT4_SLOT(D_00630F50, -0.05f);
+ASM_LIT4_SLOT(D_00630F54, -0.15f);
+ASM_LIT4_SLOT(D_00630F58, -1.57079637f);
 
 extern int D_00632CBC;
 extern int D_00633DA0;
 extern void traceLine(int a, int b, int c, const char *d);
 extern void chain_simulate_term_free(int a0);
-extern float D_00630F5C;
 
 void pendulum_Process(int a0) {
     void *p = *(void **)((char *)a0 + 0x15C);
@@ -93,7 +115,7 @@ void pendulum_Process(int a0) {
         D_00633DA0 = D_00633DA0 + 0xA;
         traceLine(0xA, D_00633DA0, 0x0FFFFFFF, D_0055AB88);
     }
-    *(float *)((char *)q + 0x44) = D_00630F5C;
+    *(float *)((char *)q + 0x44) = -0.05f;
     chain_simulate_term_free(a0);
 }
 
@@ -114,10 +136,13 @@ void InitChainGeo(int a0)
 INCLUDE_ASM("asm/nonmatchings/src/chain", chain_simulate_climb);
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", chain_set_charachara);
+ASM_LIT4_SLOT(D_00630F60, 0.675f);
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", ChainGeo);
+ASM_LIT4_SLOT(D_00630F64, 3.14159274f);
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", ChainDL);
+ASM_LIT4_SLOT(D_00630F68, 0.2f);
 
 const char D_0055AC60[0x40] = "鎖の長さが短かすぎます(配置表のY-scaleで指定します)\0\0\0\0\0\0\0\0\0\0\0\0\0";
 const unsigned int D_0055ACA0[0x4] = { 0x00000000, 0x00000000, 0xC1C80000, 0x3F800000 };
@@ -125,10 +150,16 @@ const unsigned int D_0055ACB0[0x4] = { 0x00000000, 0x00000000, 0x41C80000, 0x3F8
 const char D_0055ACC0[0x68] = "\033[33m鎖の上の壁を見付けることができません。\n方向が間違っているか、壁が無いところに置いていませんか?\033[m\n\0";
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", GetPositionOnTheChain);
+ASM_LIT4_SLOT(D_00630F6C, 3.14159274f);
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", TestChainUpDown);
+ASM_LIT4_SLOT(D_00630F70, 3.14159274f);
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", func_0018ECC8);
+ASM_LIT4_SLOT(D_00630F74, -0.2f);
+ASM_LIT4_SLOT(D_00630F78, 0.1f);
+ASM_LIT4_SLOT(D_00630F7C, -0.2f);
+ASM_LIT4_SLOT(D_00630F80, 0.1f);
 
 INCLUDE_ASM("asm/nonmatchings/src/chain", ReleaseChain);
 
@@ -175,20 +206,18 @@ void isStopChain(void *a0, float *a1, float *a2, float *a3) {
     *a3 = *(float *)((char *)p + 0x40);
 }
 
-extern float D_00630F84;
 
 void GetChainClimbOrient(void *a0) {
     void *p = *(void **)((char *)a0 + 0x15C);
     ChainGeoL *q = *(ChainGeoL **)((char *)p + 0x800);
-    q->f_44 = D_00630F84;
+    q->f_44 = 0.1f;
 }
 
 extern int D_00632D98;
-extern float D_00630F88;
 
 void CheckChainClimbablePos(void *a0) {
     ChainGeoL *p = *(ChainGeoL **)(*(char **)((char *)a0 + 0x15C) + 0x800);
-    p->f_44 = (float)D_00632D98 * 0.5f * D_00630F88;
+    p->f_44 = (float)D_00632D98 * 0.5f * -0.1f;
 }
 
 void GetChainClimbCollision(void *a0, float *a1) {
@@ -245,13 +274,12 @@ void UnLockChainGeo(void *a0, int a1) {
     q->f_0 = a1;
 }
 
-extern float D_00630F8C;
 
 int func_00190440(void *a0, int *out)
 {
     void *p = *(void **)((char *)a0 + 0x15C);
     ChainGeoL *q = *(ChainGeoL **)((char *)p + 0x800);
-    *out = (int)(q->f_70 * 180.0f / D_00630F8C);
+    *out = (int)(q->f_70 * 180.0f / 3.1415927f);
     return q->f_6C;
 }
 
