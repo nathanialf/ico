@@ -10,22 +10,29 @@ extern void func_00243AE8();
 typedef int Qw128 __attribute__((mode(TI)));
 typedef struct { char pad[0x30]; Qw128 q; } MatDrive;
 INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", InitMatrixDrive);
+ASM_LIT4_SLOT(D_0063090C, 0.01f);
 
 INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_PushMatrix);
+ASM_LIT4_SLOT(D_00630910, 0.01f);
 
 INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_RotMatrixX);
+ASM_LIT4_SLOT(D_00630914, 0.01f);
 
 INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_RotMatrixY);
+ASM_LIT4_SLOT(D_00630918, 0.01f);
 
 INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_RotMatrixZ);
+ASM_LIT4_SLOT(D_0063091C, 0.01f);
 
 INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_ScaleMatrix);
+ASM_LIT4_SLOT(D_00630920, 0.01f);
 
 INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_TurnViewMatrix);
+ASM_LIT4_SLOT(D_00630924, 0.01f);
 
 INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_PushMatrixWithNoCopy);
+ASM_LIT4_SLOT(D_00630928, 0.01f);
 
-extern float D_0063092C;
 extern float MatrixDrive_GetTurnYAngleXZ(float a0);
 extern void func_00243978(void *a0, void *a1);
 
@@ -44,7 +51,7 @@ void MatrixDrive_PopMatrix(float *a0, float *a1, float x, float y, float z) {
     v1[3] = 1.0f;
     func_00243978(v0, v0);
     t = MatrixDrive_GetTurnYAngleXZ(y * y + z * z);
-    if (D_0063092C < t) {
+    if (0.01f < t) {
         func_00243978(v1, v1);
         a0[0] = v1[1];
         a0[1] = v1[2];
@@ -57,10 +64,13 @@ void MatrixDrive_PopMatrix(float *a0, float *a1, float x, float y, float z) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_GetMatrix);
+ASM_LIT4_SLOT(D_00630930, 0.01f);
 
 INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_GetLastMatrix);
+ASM_LIT4_SLOT(D_00630934, 0.01f);
 
 INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_TransMatrixV);
+ASM_LIT4_SLOT(D_00630938, 0.01f);
 
 INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_TransMatrix);
 
@@ -172,8 +182,10 @@ float MatrixDrive_GetTurnZAngleYX(void *a, void *b)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_GetTurnMinusZAngleXY);
+ASM_LIT4_SLOT(D_0063093C, 1.00000011e-06f);
 
 INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", MatrixDrive_SetTransposeMatrix);
+ASM_LIT4_SLOT(D_00630940, 0.8f);
 
 INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", CopyVector);
 

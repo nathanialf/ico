@@ -97,6 +97,7 @@ void ACTSetPositionNodeWithFitting(void *a0) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", ChangeMailInLadder);
+ASM_LIT4_SLOT(D_00630C28, 3.14159274f);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", _ACTCorrectMsg);
 
@@ -107,6 +108,7 @@ const char D_00558860[0x10] = "src/commonact.c";
 const char D_00558870[0x10] = "ROPE_GOBJ!=NULL";
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", ACTGetOrientFromIntrK);
+ASM_LIT4_SLOT(D_00630C2C, 3.14159274f);
 
 const unsigned int D_005588A0[0x4] = { 0x00000000, 0x00000000, 0xC1A00000, 0x3F800000 };
 const unsigned int D_005588B0[0x4] = { 0x00000000, 0x00000000, 0x41A00000, 0x3F800000 };
@@ -115,16 +117,21 @@ const char D_005588D8[0x18] = "enter actCommonDamage\n";
 const char D_005588F0[0x18] = "enter actCommonDown\n";
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00156BA0);
+ASM_LIT4_SLOT(D_00630C30, 3.14159274f);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00156CF0);
+ASM_LIT4_SLOT(D_00630C34, 3.14159274f);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00156E40);
+ASM_LIT4_SLOT(D_00630C38, 3.14159274f);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00157160);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001572F0);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", ACTRunIntrCorrect);
+ASM_LIT4_SLOT(D_00630C3C, 0.785398185f);
+ASM_LIT4_SLOT(D_00630C40, 3.14159274f);
 
 extern void IsWallLeverStatus(void *a0, void *a1, int a2);
 extern void func_001C0AE8(void *a0, void *a1, int a2);
@@ -156,6 +163,7 @@ void WithMailFunc_WayBeginPosError(void *a0, void *a1) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", WithMailFunc_AttackFail);
+ASM_LIT4_SLOT(D_00630C44, 0.2f);
 
 void func_00157DA0(a0)
 int *a0;
@@ -237,6 +245,7 @@ void CollisCheckInRope(volatile int a0) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00157FA0);
+ASM_LIT4_SLOT(D_00630C48, 0.01f);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00158328);
 
@@ -357,8 +366,10 @@ void actCommonRopeClimbEnd1(int *self)
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonRopeCliff);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", TestCageUpDown);
+ASM_LIT4_SLOT(D_00630C4C, 0.3f);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_00158F10);
+ASM_LIT4_SLOT(D_00630C50, 0.3f);
 
 
 void func_00159220(void *a0) {
@@ -375,6 +386,7 @@ void actCommonRopeSpecial(int a0)
 INCLUDE_ASM("asm/nonmatchings/src/commonact", lever_nego1);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", SetDirectRootPositionXZ);
+ASM_LIT4_SLOT(D_00630C54, 0.1f);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_001595D0);
 
@@ -410,8 +422,15 @@ void actCommonLever(void *a0, void *a1, float f) {
 INCLUDE_ASM("asm/nonmatchings/src/commonact", EBRAIN_SEND_MES);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", DamageFunc);
+ASM_LIT4_SLOT(D_00630C58, 10000.0f);
+ASM_LIT4_SLOT(D_00630C5C, 0.005f);
+ASM_LIT4_SLOT(D_00630C60, 90000.0f);
+ASM_LIT4_SLOT(D_00630C64, 0.05f);
+ASM_LIT4_SLOT(D_00630C68, 0.005f);
+ASM_LIT4_SLOT(D_00630C6C, 360000.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", DownFunc);
+ASM_LIT4_SLOT(D_00630C70, 10000.0f);
 
 const char D_00558B80[0x20] = "enter actCommonCliffdown\n";
 const char D_00558BA0[0x10] = "act main shoal\n";
@@ -428,6 +447,8 @@ const char D_00558CA0[0x18] = "exec end %s to %s\n";
 const char D_00558CB8[0x18] = "????error %s to %s\n";
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonDown);
+ASM_LIT4_SLOT(D_00630C74, 0.005f);
+ASM_LIT4_SLOT(D_00630C78, 0.92f);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015ADF0);
 
@@ -482,6 +503,8 @@ void actCommonSlip(int *a0, int a1, int *a2)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonStoneDead);
+ASM_LIT4_SLOT(D_00630C7C, 3.14159274f);
+ASM_LIT4_SLOT(D_00630C80, 3.14159274f);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonStone);
 
@@ -507,8 +530,20 @@ done:
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", BoxBarSoundOff);
+ASM_LIT4_SLOT(D_00630C84, 0.1f);
+ASM_LIT4_SLOT(D_00630C88, 0.1f);
+ASM_LIT4_SLOT(D_00630C8C, 0.1f);
+ASM_LIT4_SLOT(D_00630C90, 0.1f);
+ASM_LIT4_SLOT(D_00630C94, 0.1f);
+ASM_LIT4_SLOT(D_00630C98, 0.99f);
+ASM_LIT4_SLOT(D_00630C9C, 0.1f);
+ASM_LIT4_SLOT(D_00630CA0, 0.99f);
+ASM_LIT4_SLOT(D_00630CA4, 0.1f);
+ASM_LIT4_SLOT(D_00630CA8, 0.1f);
+ASM_LIT4_SLOT(D_00630CAC, 0.99f);
+ASM_LIT4_SLOT(D_00630CB0, 0.1f);
+ASM_LIT4_SLOT(D_00630CB4, 0.99f);
 
-extern float D_00630CB8;
 extern int HandCameraCorrect(void *a0, void *a1);
 extern void func_001945B8(void *a0, float a1);
 extern void *subCommonIdle(char *a0);
@@ -519,13 +554,14 @@ int _boxbar_set_sound(char *a0) {
     buf[0] = *(float *)((char *)subCommonIdle(*(char **)(*(char **)(a0 + 0x15C) + 0x180)) + 0x0);
     buf[1] = *(float *)((char *)subCommonIdle(*(char **)(*(char **)(a0 + 0x15C) + 0x180)) + 0x4);
     buf[2] = *(float *)((char *)subCommonIdle(*(char **)(*(char **)(a0 + 0x15C) + 0x180)) + 0x8);
-    func_001945B8(buf, D_00630CB8);
+    func_001945B8(buf, -1.5707964f);
     return HandCameraCorrect(subCommonIdle(a0), buf) < 0
                ? -HandCameraCorrect(subCommonIdle(a0), buf) < 0x2D
                : HandCameraCorrect(subCommonIdle(a0), buf) < 0x2D;
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonBox);
+ASM_LIT4_SLOT(D_00630CBC, 4225.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015C7C8);
 
@@ -537,8 +573,11 @@ INCLUDE_RODATA("asm/nonmatchings/src/commonact", D_00558DB8);
 INCLUDE_ASM("asm/nonmatchings/src/commonact", actCommonBar);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015D0B0);
+ASM_LIT4_SLOT(D_00630CC0, 0.2f);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015D1F8);
+ASM_LIT4_SLOT(D_00630CC4, 0.2f);
+ASM_LIT4_SLOT(D_00630CC8, 0.1f);
 
 void func_0015D328(void)
 {
@@ -900,7 +939,6 @@ extern void _DoAwaitGirl(void);
 extern void func_001BC0B8(void *a0, void *a1);
 extern void func_001BC4B8(void *a0, void *a1);
 extern void func_00102C10(void *a0, int a1, void *a2, float f);
-extern volatile float D_00630CCC;
 
 static __inline__ void func_0015DF88_mark(void *self2, int s17, int m) {
     int buf[4];
@@ -911,7 +949,7 @@ static __inline__ void func_0015DF88_mark(void *self2, int s17, int m) {
             func_001BC4B8(buf, (void *)s17);
         }
     }
-    func_00102C10(self2, 0x16, buf, D_00630CCC);
+    func_00102C10(self2, 0x16, buf, 0.2f);
 }
 
 void func_0015DF88(volatile int a0) {
@@ -1277,8 +1315,12 @@ void funcCommonEndReady(volatile int a0) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", funcCommonEndExec);
+ASM_LIT4_SLOT(D_00630CD0, 0.1f);
+ASM_LIT4_SLOT(D_00630CD4, 3.14159274f);
 
 INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015EC08);
+ASM_LIT4_SLOT(D_00630CD8, 0.1f);
+ASM_LIT4_SLOT(D_00630CDC, 3.14159274f);
 
 extern int CanWallLeverPull(int a0, int a1);
 extern char D_00632328[];

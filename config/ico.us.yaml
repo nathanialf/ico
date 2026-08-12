@@ -505,20 +505,29 @@ segments:
       # that pool at its shipped VMA (exactly like the `.rodata` jtbl carves above).
       # The whole carved run must be produced by the TU's C — any slot still owned by
       # an INCLUDE_ASM sibling would lose its `D_<VMA>` symbol when the blob shrinks.
+      - [0x53090C, .lit4, src/matrixDrive]    # carved D_0063090C..D_00630940 (14 slots, MatrixDrive_PopMatrix + 13 asm), VMA 0x63090C..0x630944
+      - [0x530944, lit4, src/cod/530944]     # .lit4 blob resume
       - [0x530A3C, .lit4, src/Packet]          # carved D_00630A3C..D_00630A50 (0.99f + 2x 16777215f + 3x 128/255f), VMA 0x630A3C..0x630A54
       - [0x530A54, lit4, src/cod/530A54]     # .lit4 blob resume
       - [0x530A70, .lit4, src/StageAnimation]  # carved D_00630A70/A74 (sqrt2 x2), VMA 0x630A70..0x630A78
       - [0x530A78, lit4, src/cod/530A78]     # .lit4 blob resume
       - [0x530AEC, .lit4, src/act-game]      # carved D_00630AEC/AF0/AF4 (22500f, pi, 25000000f), VMA 0x630AEC..0x630AF8
       - [0x530AF8, lit4, src/cod/530AF8]     # .lit4 blob resume
+      - [0x530C28, .lit4, src/commonact]     # carved D_00630C28..D_00630CDC (46 slots, _boxbar_set_sound + func_0015DF88 + 44 asm), VMA 0x630C28..0x630CE0
+      - [0x530CE0, lit4, src/cod/530CE0]     # .lit4 blob resume
       - [0x530E3C, .lit4, src/way_util]    # carved D_00630E3C..D_00630E68 (12x 100000f, one per waypoint-search func); the 8 slots whose owners are still INCLUDE_ASM are emitted by ASM_LIT4_SLOT in way_util.c, VMA 0x630E3C..0x630E6C
       - [0x530E6C, lit4, src/cod/530E6C]     # .lit4 blob resume
+      - [0x530E7C, .lit4, src/warpGirl]      # carved D_00630E7C..D_00630EAC (13 slots, func_00180550 + 12 asm), VMA 0x630E7C..0x630EB0
+      - [0x530EB0, lit4, src/cod/530EB0]     # .lit4 blob resume
       - [0x531038, .lit4, src/act_bird]    # carved D_00631038 (6.2831855f, trans_bird), VMA 0x631038..0x63103C
       - [0x53103C, lit4, src/cod/53103C]     # .lit4 blob resume
       - [0x5310F4, .lit4, src/gamesys]       # carved D_006310F4/10F8 (10000000f, 0.8f), VMA 0x6310F4..0x6310FC
       - [0x5310FC, lit4, src/cod/5310FC]     # .lit4 blob resume
       - [0x53110C, .lit4, src/layout_texture]# carved D_0063110C (0.4f, default_item_select), VMA 0x63110C..0x631110
       - [0x531110, lit4, src/cod/531110]     # .lit4 blob resume
+      - [0x5311D8, .lit4, src/cage]          # carved D_006311D8..D_006311F0 (7 slots, InitCageGeo + 6 asm), VMA 0x6311D8..0x6311F4
+      - [0x5311F4, lit4, src/cod/5311F4]     # .lit4 blob resume
+      - [0x531250, .lit4, src/flyManager]    # carved D_00631250..D_0063126C (8 slots, InitFlyInfo + 7 asm), VMA 0x631250..0x631270 (abuts src/girl)
       - [0x531270, .lit4, src/girl]          # carved D_00631270..D_00631280 (4x 0.98f InitGirlGeo + 0.3f GirlDL), VMA 0x631270..0x631284
       - [0x531284, lit4, src/cod/531284]     # .lit4 blob resume
       - [0x5313D8, .lit4, src/staticBlur]    # carved D_006313D8/13DC (0.9f, 1000000f), VMA 0x6313D8..0x6313E0

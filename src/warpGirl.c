@@ -96,28 +96,39 @@ void func_0017ED70(volatile int a0) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017EDA0);
+ASM_LIT4_SLOT(D_00630E7C, 3834.0f);
+ASM_LIT4_SLOT(D_00630E80, 0.8f);
+ASM_LIT4_SLOT(D_00630E84, 0.45f);
+ASM_LIT4_SLOT(D_00630E88, 3834.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017EF30);
 
 INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017F028);
+ASM_LIT4_SLOT(D_00630E8C, 0.99f);
+ASM_LIT4_SLOT(D_00630E90, 0.1f);
+ASM_LIT4_SLOT(D_00630E94, 0.8f);
+ASM_LIT4_SLOT(D_00630E98, 0.45f);
 
 INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017F2E8);
+ASM_LIT4_SLOT(D_00630E9C, 625.0f);
+ASM_LIT4_SLOT(D_00630EA0, 1650.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017F810);
 
 INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017FCF8);
+ASM_LIT4_SLOT(D_00630EA4, 4200.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_0017FF40);
 
 INCLUDE_ASM("asm/nonmatchings/src/warpGirl", func_001803A8);
+ASM_LIT4_SLOT(D_00630EA8, 3100.0f);
 
 extern char D_0055A380[];
-extern float D_00630EAC;
 extern void func_0012FFF0(void *a0, float f12, float f13, float f14, float f15,
                           float f16, float f17, int a1);
 
 void func_00180550(void) {
-    func_0012FFF0(D_0055A380, 0.0f, 0.0f, 0.0f, D_00630EAC, 0.0f, 0.5f, 1);
+    func_0012FFF0(D_0055A380, 0.0f, 0.0f, 0.0f, 0.01f, 0.0f, 0.5f, 1);
 }
 
 void func_00180580(volatile unsigned int a0)

@@ -3,6 +3,8 @@
 
 extern void SetMotionBlendlessNode();
 INCLUDE_ASM("asm/nonmatchings/src/cage", CageRideFunc);
+ASM_LIT4_SLOT(D_006311D8, 0.01f);
+ASM_LIT4_SLOT(D_006311DC, 0.001f);
 
 void SetCageFixGeometry(int *self)
 {
@@ -14,7 +16,6 @@ void SetCageFixGeometry(int *self)
     ((int *)self[0x15C / 4])[0x62C / 4] = 0;
 }
 
-extern float D_006311E0;
 extern float MatrixDrive_GetTurnYAngleXZ(float f12);
 extern float MatrixDrive_GetTurnYEAngleXZ(void *a0);
 extern void MatrixDrive_TurnObjectMatrix(int a0, int a1);
@@ -40,7 +41,7 @@ int InitCageGeo(int a0, int a1) {
     f1 = MatrixDrive_GetTurnYEAngleXZ(buf) * f20 / 250.0f;
     if (f1 < 0.0f) f1 = -f1;
     *(float *)(buf + 0x4) = 0.0f;
-    func_00243B18(buf, buf, f1 * D_006311E0 / *(float *)(sub + 0x38));
+    func_00243B18(buf, buf, f1 * 0.06f / *(float *)(sub + 0x38));
     func_00243AD0((void *)(*(int *)(sub + 0x24) * 0x50 + *(int *)(*(char **)(sub + 0x20) + 8) + 0x40),
                   (void *)(*(int *)(sub + 0x24) * 0x50 + *(int *)(*(char **)(sub + 0x20) + 8) + 0x40), buf);
     func_00243AE8((void *)(*(int *)(sub + 0x28) * 0x50 + *(int *)(*(char **)(sub + 0x20) + 8) + 0x40),
@@ -59,6 +60,8 @@ void HotInitCageGeo(int a0, int a1, int a2)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cage", CageGeo);
+ASM_LIT4_SLOT(D_006311E4, 0.995f);
+ASM_LIT4_SLOT(D_006311E8, 10430.3779f);
 
 extern char D_00275850[];
 
@@ -81,4 +84,6 @@ void CageDL(int a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cage", GetCageChainPoint);
+ASM_LIT4_SLOT(D_006311EC, 2730.0f);
+ASM_LIT4_SLOT(D_006311F0, 10430.3779f);
 

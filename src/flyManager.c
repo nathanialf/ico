@@ -7,7 +7,6 @@ void DispFlyInfo(void) {
 }
 
 extern void ClipWallField(void *a0, int a1);
-extern float D_00631250;
 extern void MatrixDrive_TurnObjectMatrix(void *a0, void *a1);
 extern void func_002641D8(void *a0, int a1, int a2);
 
@@ -19,7 +18,7 @@ int InitFlyInfo(char *out, void *a1) {
     func_002641D8(buf, 0, 0xC0);
     MatrixDrive_TurnObjectMatrix(buf, a1);
     MatrixDrive_TurnObjectMatrix(buf + 0x10, a1);
-    *(float *)(buf + 0x14) = *(float *)(buf + 0x14) + D_00631250;
+    *(float *)(buf + 0x14) = *(float *)(buf + 0x14) + 100000.0f;
     ClipWallField(buf, D_006333D8);
     if (*(int *)(buf + 0x94) != 0) {
         int v = *(int *)(buf + 0x98) & 0xF;
@@ -40,16 +39,23 @@ int InitFlyInfo(char *out, void *a1) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/flyManager", InitFlyManager);
+ASM_LIT4_SLOT(D_00631254, 100000.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/flyManager", GetFlyLimitHeight);
+ASM_LIT4_SLOT(D_00631258, 0.95f);
 
 INCLUDE_ASM("asm/nonmatchings/src/flyManager", GetFlyLimitClearance);
+ASM_LIT4_SLOT(D_0063125C, 1.52590219e-05f);
+ASM_LIT4_SLOT(D_00631260, 0.99999f);
+ASM_LIT4_SLOT(D_00631264, 0.01f);
 
 INCLUDE_ASM("asm/nonmatchings/src/flyManager", func_001D0818);
 
 INCLUDE_ASM("asm/nonmatchings/src/flyManager", func_001D0918);
 
 INCLUDE_ASM("asm/nonmatchings/src/flyManager", func_001D0B60);
+ASM_LIT4_SLOT(D_00631268, 1.52590219e-05f);
+ASM_LIT4_SLOT(D_0063126C, 1e-05f);
 
 INCLUDE_ASM("asm/nonmatchings/src/flyManager", func_001D0D18);
 
