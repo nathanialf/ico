@@ -166,15 +166,13 @@ void actSt03tBoxB(volatile int a0){
  Generator_Call(a0);
 }
 
-extern float D_006314FC;
-extern float D_00631500;
 extern void func_0017BF78(int, int, int, int, int, float, float, float, float, float, float);
 
 void actSt03tInit(volatile int a0) {
     int x = a0;
     actInitialize(a0);
     _ACTWait(1);
-    func_0017BF78(a0, 0x6E, 0x58, 0, 0x12, 900.0f, D_006314FC, D_00631500, 800.0f, D_006314FC, D_00631500);
+    func_0017BF78(a0, 0x6E, 0x58, 0, 0x12, 900.0f, 1828.0f, 1150.0f, 800.0f, 1828.0f, 1150.0f);
 }
 
 extern int D_004D11D0[];

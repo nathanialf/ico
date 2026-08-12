@@ -30,7 +30,6 @@ int a0, a1, a2, a3;
     iosOmBeforeFuncStandard(a0, a1, a2, a3);
 }
 
-extern float D_00631038;
 extern float func_00243950(void *a0, void *a1);
 extern void func_00243978(void *dst, void *src);
 extern float func_0025E3D8(float a0);
@@ -40,7 +39,7 @@ float trans_bird(void *a0, void *a1) {
     float v1[4];
     func_00243978(v0, a0);
     func_00243978(v1, a1);
-    return func_0025E3D8(func_00243950(v0, v1)) * 360.0f / D_00631038;
+    return func_0025E3D8(func_00243950(v0, v1)) * 360.0f / 6.2831855f;
 }
 
 extern void _ACTWait(int a0);

@@ -29,7 +29,6 @@ void SetWindManager(void) {
     }
 }
 
-extern float D_00631414;
 extern float D_0063375C;
 extern float D_00633764;
 extern float D_0063376C;
@@ -44,7 +43,7 @@ void InitWindManager(void) {
         D_0063376C = D_0063375C * ((pac_DispQW() * 2.0f - 1.0f) * D_00633764 + 1.0f);
         D_00633774 = 0;
     }
-    v = D_00633770 + (D_0063376C - D_00633770) * D_00631414;
+    v = D_00633770 + (D_0063376C - D_00633770) * 0.1f;
     D_00633770 = v;
     drawSenpuukiHaneUnit(v);
 }

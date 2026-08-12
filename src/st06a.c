@@ -252,8 +252,6 @@ void actSt06aDoorUpChk(volatile int a0) {
 
 extern void BoxBarSoundOn(int a0, int a1);
 extern int D_004D2290[];
-extern volatile float D_006315E4;
-extern volatile float D_006315E8;
 extern int D_00631AE4;
 extern int D_006325B4;
 extern void _ACTWait(int a0);
@@ -285,7 +283,7 @@ void actSt06aDoorDownChk(int a0) {
     _ACTWait(0xF);
     if (func_0017B230(0x101) != 0) {
         stage_KillPlayBgAnimation(0xC9, 1, 0xC8);
-        func_0017E870(D_006315E4, -150.0f, -1600.0f, 200.0f);
+        func_0017E870(-675.0f, -150.0f, -1600.0f, 200.0f);
         while (func_0012AB50(0xC9, 0xDC, 0) == 0) { _ACTWait(1); }
         _ACTWait(1);
         soundSeDefPlayWithVolumeRate(0x511, 0, 0, 1);
@@ -304,7 +302,7 @@ void actSt06aDoorDownChk(int a0) {
         D_006325B4 = 0;
     } else {
         stage_KillPlayBgAnimation(0xC9, 1, 0);
-        func_0017E870(D_006315E8, -1200.0f, -1600.0f, 200.0f);
+        func_0017E870(-675.0f, -1200.0f, -1600.0f, 200.0f);
         soundSeDefPlayWithVolumeRate(0x50F, 0, 0, 1);
         while (func_0012AB50(0xC9, 0x91, 0) == 0) { _ACTWait(1); }
         _ACTWait(1);

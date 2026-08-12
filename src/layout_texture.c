@@ -63,14 +63,13 @@ int lt_analog2Pad(int a0) {
     return 0x32;
 }
 
-extern float D_0063110C;
 extern int D_00633044;
 extern void StageManager(float a0, float a1, int a2);
 extern int fightSoundClose(void);
 
 int default_item_select(void) {
     if (fightSoundClose() == 0) {
-        StageManager(D_0063110C, 4.0f, D_00633044);
+        StageManager(0.4f, 4.0f, D_00633044);
     }
     return -1;
 }

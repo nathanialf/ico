@@ -505,8 +505,18 @@ segments:
       # that pool at its shipped VMA (exactly like the `.rodata` jtbl carves above).
       # The whole carved run must be produced by the TU's C — any slot still owned by
       # an INCLUDE_ASM sibling would lose its `D_<VMA>` symbol when the blob shrinks.
+      - [0x531038, .lit4, src/act_bird]      # carved D_00631038 (6.2831855f, trans_bird), VMA 0x631038..0x63103C
+      - [0x53103C, lit4, src/cod/53103C]     # .lit4 blob resume
+      - [0x53110C, .lit4, src/layout_texture]  # carved D_0063110C (0.4f, default_item_select), VMA 0x63110C..0x631110
+      - [0x531110, lit4, src/cod/531110]     # .lit4 blob resume
+      - [0x531414, .lit4, src/windManager]   # carved D_00631414 (0.1f, InitWindManager), VMA 0x631414..0x631418
+      - [0x531418, lit4, src/cod/531418]     # .lit4 blob resume
       - [0x53142C, .lit4, src/Basic]         # carved D_0063142C (8.99999f, dma_init), VMA 0x63142C..0x631430
       - [0x531430, lit4, src/cod/531430]     # .lit4 blob resume
+      - [0x5314FC, .lit4, src/st03t]         # carved D_006314FC/631500 (1828f, 1150f, actSt03tInit), VMA 0x6314FC..0x631504
+      - [0x531504, lit4, src/cod/531504]     # .lit4 blob resume
+      - [0x5315E4, .lit4, src/st06a]         # carved D_006315E4/6315E8 (-675f twice, actSt06aDoorDownChk), VMA 0x6315E4..0x6315EC
+      - [0x5315EC, lit4, src/cod/5315EC]     # .lit4 blob resume
       - [0x531900, sdata, src/cod/531900]    # .sdata
       - [0x5322F0, .sdata, src/commonact]  # carved D_006322F0..D_00632308 (VMA 0x6322F0..0x632310, 32 bytes, 5 syms)
       - [0x532310, sdata, src/cod/532310]     # .sdata blob resume
