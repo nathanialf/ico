@@ -33,7 +33,68 @@ Chain started 2026-08-16. Policy from the user, verbatim:
 | F6 | `func_0010EC08` | `src/DisplayP2O` | 18 | 1 (opus) | **MATCHED** `7d7c4a7d`, first compile rc0 |
 | F7 | `func_001186C8` | `src/MicroCode` | 18 | 1 (opus) | **MATCHED** `a5226391`, first compile rc0 |
 | F8 | `func_0023B170` | `src/access` | 18 | 1 (opus) | **MATCHED** `05a8dc8f`, first compile rc0 |
-| F9 | `src/access` family (19 stubs, 18–48 insns) | `src/access` | — | 1 (opus) | running |
+| F9 | `src/access` family (19 stubs, 18–48 insns) | `src/access` | — | 1 (opus) | **ALL 19 MATCHED** `6c0c0e47`; TU now 100% C |
+| F10 | `src/st05d` family (9 stubs) | `src/st05d` | — | 1 (opus) | running |
+
+### F9 result — `src/access.c` cleared, 19 for 19
+
+**Verification (mine, not the self-report):** `rm build/src/access.o`, full `.venv/bin/ninja` →
+`verify_elf: OK (fbf50c75…)`. `grep -c INCLUDE_ASM src/access.c` → **0**. That combination is the
+proof: a green byte-identical ELF with zero stubs left in the TU means every function in it matches
+from real C. Crutch grep clean. `readelf -sW build/src/access.o` → 30 FUNC symbols, so no inline
+helper leaked one.
+
+Four families, all first-try:
+1. **Actor-entry template** (18): the `func_0023B170` shape with new immediates. Critically, the
+   round **omitted** `int x = a0;` wherever ROM shows only the `sw $4` home and no second `lw` —
+   i.e. it used the idiom as a model to confirm per function rather than as a rule.
+2. **`actSt25aQueenTalkChk` warp** (20, 38): `long long buf[2]` filled field-by-field from a
+   `D_0061Cxxx` pair; template already in `src/st17b.c:16` / `src/st13b.c:123`. `func_0023A9F0`
+   extends it with a second 16-byte local held in `$16` because its address is used twice.
+3. **`actInitialize` → BoxBar handoff** (26–34): call result lands in `$16`, then a `D_004D4xxx[1]`
+   next-actor store, the `unkC4` hookup and `BoxBarSoundOn`.
+4. **`scpPlayMotDirSmz` torch trio** (44): the `0x15C` load is reloaded because the intervening
+   store aliases it — no `volatile` needed.
+
+**Two callee signatures derived from ROM rather than asserted:**
+- **`scpPlayMotDirSmz` takes SIX float args and NO integer args**, in consecutive single FPRs
+  `$f12`–`$f17` — verified from the callee's own body
+  (`asm/nonmatchings/src/script/scpPlayMotDirSmz.s:6-16`, no `$4`–`$7` use). The `$4` still live at
+  the call site is **stale from the preceding `jal`**, not an argument. This confirms the ABI
+  allocates integer and FP argument registers independently — the same reason
+  `scpSleepEnemyOne(int,int,float)` puts its third argument in `$f12`.
+- **`actSwordEffXL` is really `(int, int, int*, int)`** at five call sites, though the matched
+  definition at `src/st25a.c:142` declares one parameter and codegens identically because the extra
+  parameters are unused. Anyone matching `actE3GateChk` (`src/e3.c:245`) needs the 4-arg form — that
+  function is byte-for-byte `func_0023A9F0` minus `scpActivateAllWithKind` and with `$5=0x64`
+  instead of `0xB`, so it should fall out of `scratchpad/seeds/func_0023A9F0.c`.
+
+**Loop shape:** `func_0023AD68` needed a call's result as a later argument inside the same `while`
+condition. What matched is assignment-in-condition —
+`while ((v0 = scpSubAdpcmPlay(0x13)) == 0 || scpSleepEnemyOne(a0, v0, 350.0f) == 0) { _ACTWait(1); }`
+— not a `for(;;)`/`break` rotation.
+
+**Supervisor cleanup after harvest:** the round left 8 exact-duplicate `extern` declarations in the
+file (legal, but untidy). Stripped them and re-verified byte-identical. Added "declare each extern
+once per TU" to the next family brief. Left alone: eleven per-function `KSub_*` typedefs that are
+all `{ char pad[0xC4]; int *unkC4; }` — the round kept them per-function to match the existing
+committed style in this TU, and collapsing them touches already-matched code, so that is a judgment
+call better made when the struct is actually understood.
+
+**Pushed** `c307de40..6c0c0e47`. Repo progress `3006/5447` functions (was 2980 at chain start).
+
+---
+
+## F10 — the `src/st05d` family (9 stubs)
+
+Chosen by the standing smallest-first rule with the same structural tie-break used before: the
+smallest remaining non-deferred stubs are a group of 18-instruction functions across several TUs,
+and `src/st05d.c` is the one where four of them sit together in a single TU with matched siblings
+already above them, so it clears fastest.
+
+| # | edit | base | outcome |
+|---|---|---|---|
+| 1 | launch opus worker scoped to the TU family; F9's four idioms handed over as models to confirm-or-refute per function, with the explicit note that `int x = a0;` must be omitted where ROM shows no second `lw` | `src/st05d.c` clean at HEAD, tree green at `fbf50c75…` | pending |
 
 ### F8 result — `func_0023B170`, and the `src/access` actor-thread template
 
