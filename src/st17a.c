@@ -214,7 +214,72 @@ void func_0022DAC8(volatile int a0) {
     lt_fade_status(0x32);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st17a", func_0022DBC8);
+extern int scpSubAdpcmPlay(int a0);
+extern int actCreateSubThread(void *fn, int a1);
+extern int scpPlayEnd(void);
+extern void scpTrans(int a0, int a1);
+extern void actSt25aQueenBeforeChk(int a0, int a1, int a2, float f);
+extern int actSt25aQueenDeadEvent(void);
+extern void Vibration_WaveDecode(void);
+extern void iosSemaWait(int a0, int a1);
+extern void func_0018CEE0(void);
+extern void gflagOff(int a0, int a1);
+extern void actConte11Jimaku(float f);
+extern void func_00122C48(int a0);
+extern void func_0022ED40(volatile unsigned int a0);
+extern void func_0022DDD8(volatile int a0);
+extern int D_00275254[];
+
+void func_0022DBC8(volatile int a0) {
+    int v0;
+    int sub;
+    int st;
+
+    while ((v0 = scpSubAdpcmPlay(0x13)) == 0 || scpSleepEnemyOne(a0, v0, 350.0f) == 0) {
+        _ACTWait(1);
+    }
+    if (D_00631AE8 != 0 && scpSleepSpiderGroupOne(D_00631AE8, 0x4000000) != 0) {
+        actCreateSubThread(func_0022ED40, 0x15);
+    }
+    lt_fade_status(0x33);
+    D_006325B4 = 1;
+    scpDispOnAllWithKind();
+    func_0017B258(0x114);
+    func_00122C48(1);
+    scpPlayStart(0x46, (int *)&D_00633A80, 1, 1, 0);
+    _ACTWait(0x3C);
+    while (D_00633A80 == 0) {
+        _ACTWait(1);
+    }
+    sub = actCreateSubThread(func_0022DDD8, 0x15);
+    D_00633FB4 = 0;
+    while (D_00633FB4 == 0 && ((D_00275254[0] & 0x800) == 0 || scpPlayEnd() != 0)) {
+        _ACTWait(1);
+    }
+    st = D_00633FB4 ^ 1;
+    if (st != 0) {
+        scpTrans((int)D_00633A80, 0xC0);
+        actSt25aQueenBeforeChk(0, 0, 0, 16.0f);
+        while (actSt25aQueenDeadEvent() != 0) {
+            _ACTWait(1);
+        }
+    }
+    Vibration_WaveDecode();
+    iosSemaWait(sub + 0x24, 0x22);
+    if (st) {
+        stage_KillPlayBgAnimation(0x161, 1, -1);
+        func_0018CEE0();
+        gflagOff(D_00631AE4, 0);
+        actConte11Jimaku(3.0f);
+    }
+    ((int *)actSt25aQueenDeadChk(0x5D1))[0x16C / 4] = 1;
+    ((int *)actSt25aQueenDeadChk(0x5D2))[0x16C / 4] = 1;
+    scpActivateAllWithKind();
+    D_006325B4 = 0;
+    lt_fade_status(0x32);
+    func_00122C48(0);
+    AddWayPointTop(0x17, 1);
+}
 
 extern void AdpcmClose(int a0);
 
