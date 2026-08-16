@@ -213,13 +213,12 @@ void func_0022A7C0(volatile int a0)
     }
 }
 
-extern float D_00631628;
 extern void gflagLoad(int a0, float f);
 extern int actSt25aQueenDeadChk(int a0);
 
 void func_0022A838(void)
 {
-    float f = D_00631628;
+    float f = 0.95f;
     gflagLoad(0x150, f);
     gflagLoad(0x14F, f);
     if (func_0017B230(0x49) != 0) {
@@ -463,7 +462,6 @@ void func_0022AFA8(volatile int a0)
 struct QBuf_st13b2 { long long a, b; };
 
 extern struct QBuf_st13b2 D_0061C060;
-extern volatile float D_0063162C, D_00631630;
 extern int D_004D2C20[];
 extern void actSt13cConte04(volatile int a0);
 extern int scpKillSpiderGroup(int a0, int a1);
@@ -478,7 +476,7 @@ void func_0022B0B0(volatile int a0)
     }
     _ACTWait(0xF);
     actCreateSubThread(actSt13cConte04, 0x15);
-    func_0017E870(D_0063162C, D_00631630, -408.0f, 100.0f);
+    func_0017E870(-1189.0f, -2326.0f, -408.0f, 100.0f);
     stage_KillPlayBgAnimation(0x150, 1, 0);
     buf = D_0061C060;
     soundSeDefPlayWithVolumeRate(0x4AC, 0, &buf, 1);
@@ -497,6 +495,8 @@ void func_0022B0B0(volatile int a0)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/st13b2", func_0022B228);
+ASM_LIT4_SLOT(D_00631634, -1189.0f);
+ASM_LIT4_SLOT(D_00631638, -2326.0f);
 
 extern int D_004D2BA0[];
 

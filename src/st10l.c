@@ -214,8 +214,6 @@ void func_002261F8(volatile int a0) {
 }
 
 extern int D_004D25F0[];
-extern float D_00631604;
-extern volatile float D_00631608;
 extern long long D_0061BEA0[];
 extern void actSt10rChain();
 extern void func_0017E870(float a0, float a1, float a2, float a3);
@@ -228,7 +226,7 @@ void func_00226300(volatile int a0) {
     while (scpKillSpiderGroup((int)a0, 0x1000000) == 0) { _ACTWait(1); }
     _ACTWait(0xF);
     actCreateSubThread(actSt10rChain, 0x15);
-    func_0017E870(D_00631604, D_00631608, -620.0f, 100.0f);
+    func_0017E870(-1879.0f, -1047.0f, -620.0f, 100.0f);
     stage_KillPlayBgAnimation(0x5E, 1, 0);
     buf[0] = D_0061BEA0[0];
     buf[1] = D_0061BEA0[1];
@@ -246,6 +244,8 @@ void func_00226300(volatile int a0) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/st10l", func_00226478);
+ASM_LIT4_SLOT(D_0063160C, -1879.0f);
+ASM_LIT4_SLOT(D_00631610, -1047.0f);
 
 extern int D_00633A4C;
 
@@ -286,7 +286,6 @@ void func_002266D0(volatile int a0) {
     lt_fade_status(0x32);
 }
 
-extern volatile float D_00631614;
 extern int func_0012AB50(int a0, int a1, int a2);
 extern int scpSleepSpiderGroupOne(int a0, int a1);
 extern void soundSeDefPitchSet(int a0);
@@ -305,7 +304,7 @@ void func_002267E8(volatile int a0) {
     h = soundSeDefPlayWithVolumeRate(0x532, 0, 0, 1);
     while (func_0012AB50(0x62, 0x46, 0) == 0) { _ACTWait(1); }
     _ACTWait(1);
-    func_0017E870(D_00631614, -470.0f, 1392.0f, 200.0f);
+    func_0017E870(-3855.0f, -470.0f, 1392.0f, 200.0f);
     while (func_0012AA80(0x62) == 0) { _ACTWait(1); }
     _ACTWait(1);
     soundSeDefPitchSet(h);

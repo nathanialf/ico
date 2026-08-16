@@ -550,10 +550,16 @@ segments:
       - [0x531504, lit4, src/cod/531504]     # .lit4 blob resume
       - [0x5315E4, .lit4, src/st06a]         # carved D_006315E4/6315E8 (-675f twice, actSt06aDoorDownChk), VMA 0x6315E4..0x6315EC
       - [0x5315EC, lit4, src/cod/5315EC]     # .lit4 blob resume
+      - [0x531604, .lit4, src/st10l]         # carved D_00631604..D_00631614 (5 slots: -1879/-1047 func_00226300, -1879/-1047 func_00226478 asm, -3855 func_002267E8), VMA 0x631604..0x631618
+      - [0x531618, lit4, src/cod/531618]     # .lit4 blob resume
+      - [0x531628, .lit4, src/st13b2]        # carved D_00631628..D_00631638 (5 slots: 0.95 func_0022A838, -1189/-2326 func_0022B0B0, -1189/-2326 func_0022B228 asm), VMA 0x631628..0x63163C (abuts src/st13c)
       - [0x53163C, .lit4, src/st13c]         # carved D_0063163C..D_0063164C (5 slots, actSt13cCageFallChk + 2 asm), VMA 0x63163C..0x631650
       - [0x531650, lit4, src/cod/531650]     # .lit4 blob resume
       - [0x531680, .lit4, src/st18a]         # carved D_00631680..D_00631698 (7 slots, actSt18aEnemy1_2 + 3 asm), VMA 0x631680..0x63169C
       - [0x53169C, lit4, src/cod/53169C]     # .lit4 blob resume
+      - [0x5316B8, .lit4, src/st24a]         # carved D_006316B8..D_006316E8 (13 slots: 3 actSt24aSwordChk asm, 4 actSt24aSword asm, 3 func_00235518, 3 func_00235A48), VMA 0x6316B8..0x6316EC
+      - [0x5316EC, lit4, src/cod/5316EC]     # .lit4 blob resume — st47a's first 3 slots (3054/1530/-3061, actSt47aEnd) stay blob-owned: literalising them costs +3 pre-gcse insns, which moves `high(D_004D38D0)` to a different gcse expr-hash bucket and swaps $17/$18 in that one function
+      - [0x5316F8, .lit4, src/st47a]         # carved D_006316F8..D_00631780 (35 slots, 5 C funcs + 11 asm), VMA 0x6316F8..0x631784 (abuts src/objact)
       - [0x531784, .lit4, src/objact]        # carved D_00631784..D_00631800 (32 slots, func_0023C090 + func_0023C0E8 + 29 asm), VMA 0x631784..0x631804
       - [0x531804, .lit4, ito/mpeg/mv_audiodec]  # carved D_00631804..D_00631868 (26 slots, 4 C funcs + 18 asm), VMA 0x631804..0x63186C
       - [0x53186C, .lit4, ito/mpeg/mv_disp]  # carved D_0063186C..D_006318BC (21 slots, 7 C funcs + 8 asm), VMA 0x63186C..0x6318C0

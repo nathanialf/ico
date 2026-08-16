@@ -65,6 +65,8 @@ void actSt47aInit(volatile int a0) {
 
 extern void BoxBarSoundOn(int a0, int a1);
 extern int D_004D38D0[];
+/* .lit4 pool slots owned by the blob, not by this TU: see config/ico.us.yaml
+ * at 0x5316EC. The `volatile` keeps the third load out of the jal delay slot. */
 extern volatile float D_006316EC;
 extern volatile float D_006316F0;
 extern volatile float D_006316F4;
@@ -136,6 +138,9 @@ void actSt47aSekizo1Chk(volatile int a0) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aHane1Up);
+ASM_LIT4_SLOT(D_006316F8, 1451.0f);
+ASM_LIT4_SLOT(D_006316FC, 1530.0f);
+ASM_LIT4_SLOT(D_00631700, -3039.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", actSt47aHane2Up);
 
@@ -376,6 +381,9 @@ INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00237338);
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00237428);
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00237518);
+ASM_LIT4_SLOT(D_00631704, 4298.0f);
+ASM_LIT4_SLOT(D_00631708, -2342.0f);
+ASM_LIT4_SLOT(D_0063170C, 1331.0f);
 
 struct CFS { long long a, b; };
 extern struct CFS D_0061C310;
@@ -753,25 +761,35 @@ void func_00238DD8(volatile int a0) {
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00238E50);
+ASM_LIT4_SLOT(D_00631710, 16383.0f);
+ASM_LIT4_SLOT(D_00631714, 0.1f);
+ASM_LIT4_SLOT(D_00631718, -1355.0f);
+ASM_LIT4_SLOT(D_0063171C, 6645.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00238F10);
+ASM_LIT4_SLOT(D_00631720, 7000.0f);
+ASM_LIT4_SLOT(D_00631724, 4938.0f);
+ASM_LIT4_SLOT(D_00631728, -1053.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00239138);
+ASM_LIT4_SLOT(D_0063172C, -1053.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_002393C0);
+ASM_LIT4_SLOT(D_00631730, -707.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_002394D8);
+ASM_LIT4_SLOT(D_00631734, -550.0f);
+ASM_LIT4_SLOT(D_00631738, 1685.0f);
 
 extern unsigned int D_004D3E10[8];
 extern void func_002394D8(volatile int a0);
-extern volatile float D_0063173C, D_00631740, D_00631744;
 extern void warpGirlInStage(float f12, float f13, float f14);
 
 void func_00239680(volatile int a0) {
     int x = a0;
     ActB4Obj *gobj = (ActB4Obj *)actInitialize(a0);
     _ACTWait(1);
-    warpGirlInStage(D_0063173C, D_00631740, D_00631744);
+    warpGirlInStage(363.0f, 1307.0f, -3297.0f);
     if (func_0017B230(0x12C) == 0) {
         D_004D3E10[1] = (unsigned int)func_002394D8;
         gobj->unkC4 = (int *)D_004D3E10;
@@ -818,6 +836,8 @@ void func_002397F8(void)
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00239830);
+ASM_LIT4_SLOT(D_00631748, 1750.0f);
+ASM_LIT4_SLOT(D_0063174C, -3000.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00239B50);
 
@@ -834,35 +854,33 @@ INCLUDE_ASM("asm/nonmatchings/src/st47a", func_0023A180);
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_0023A248);
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_0023A2F8);
+ASM_LIT4_SLOT(D_00631750, -3000.0f);
 
-extern float D_00631754, D_00631758, D_0063175C, D_00631760;
 extern void func_0017BF78(int a0, int a1, int a2, int a3, int a4, float f0, float f1, float f2, float f3, float f4, float f5);
 
 void func_0023A3B8(volatile int a0) {
     int x = a0;
     actInitialize(a0);
     _ACTWait(1);
-    func_0017BF78(a0, 0x29, 0x8d, 0, 0x12, D_00631754, D_00631758, D_0063175C, D_00631754, D_00631758, D_00631760);
+    func_0017BF78(a0, 0x29, 0x8d, 0, 0x12, -2450.0f, -1372.0f, -1150.0f, -2450.0f, -1372.0f, -1250.0f);
 }
 
-extern float D_00631764, D_00631768, D_0063176C, D_00631770;
 extern void func_0017BF78(int a0, int a1, int a2, int a3, int a4, float f0, float f1, float f2, float f3, float f4, float f5);
 
 void func_0023A418(volatile int a0) {
     int x = a0;
     actInitialize(a0);
     _ACTWait(1);
-    func_0017BF78(a0, 0x2a, 0x8e, 0, 0x12, D_00631764, D_00631768, D_0063176C, D_00631764, D_00631768, D_00631770);
+    func_0017BF78(a0, 0x2a, 0x8e, 0, 0x12, 1700.0f, -1972.0f, 650.0f, 1700.0f, -1972.0f, 750.0f);
 }
 
-extern float D_00631774, D_00631778, D_0063177C, D_00631780;
 extern void func_0017BF78(int a0, int a1, int a2, int a3, int a4, float f0, float f1, float f2, float f3, float f4, float f5);
 
 void func_0023A478(volatile int a0) {
     int x = a0;
     actInitialize(a0);
     _ACTWait(1);
-    func_0017BF78(a0, 0x2b, 0x8f, 0, 0x12, D_00631774, D_00631778, D_0063177C, D_00631774, D_00631778, D_00631780);
+    func_0017BF78(a0, 0x2b, 0x8f, 0, 0x12, 1700.0f, -1972.0f, -650.0f, 1700.0f, -1972.0f, -750.0f);
 }
 
 extern int D_004D3E70[];

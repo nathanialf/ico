@@ -32,6 +32,9 @@ extern int D_004D37B0[];
 extern void BoxBarSoundOn(int a0, int a1);
 
 INCLUDE_ASM("asm/nonmatchings/src/st24a", actSt24aSwordChk);
+ASM_LIT4_SLOT(D_006316B8, 6573.0f);
+ASM_LIT4_SLOT(D_006316BC, -2077.0f);
+ASM_LIT4_SLOT(D_006316C0, 1089.0f);
 
 extern void *D_00631AEC;
 extern int *D_00631AE4;
@@ -51,10 +54,13 @@ extern void gflagChk(void *a0, void *a1);
 extern void func_0017B4E0(void *a0, int a1);
 extern long long D_0061C280[];
 extern void actSt25aQueenTalkChk(void *a0, int a1, int *buf, int a3, float f);
-extern float D_006316C4, D_006316C8, D_006316CC, D_006316D0;
 extern void func_0017C5B8(float f12, float f13, float f14, float f15, float f16, float f17);
 
 INCLUDE_ASM("asm/nonmatchings/src/st24a", actSt24aSword);
+ASM_LIT4_SLOT(D_006316C4, 1907.0f);
+ASM_LIT4_SLOT(D_006316C8, -1095.0f);
+ASM_LIT4_SLOT(D_006316CC, -3713.0f);
+ASM_LIT4_SLOT(D_006316D0, -4713.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/st24a", actSt24aSaku);
 
@@ -71,14 +77,13 @@ void func_002354B0(volatile int a0) {
     _ACTWait(0);
 }
 
-extern float D_006316D4, D_006316D8, D_006316DC;
 extern void func_0017BF78(int a0, int a1, int a2, int a3, int a4, float f0, float f1, float f2, float f3, float f4, float f5);
 
 void func_00235518(volatile int a0) {
     int x = a0;
     actInitialize(a0);
     _ACTWait(1);
-    func_0017BF78(a0, 0x1E, 0x45, 0x6E, 0x12, D_006316D4, D_006316D8, 1000.0f, D_006316D4, D_006316D8, D_006316DC);
+    func_0017BF78(a0, 0x1E, 0x45, 0x6E, 0x12, 6450.0f, -2100.0f, 1000.0f, 6450.0f, -2100.0f, 1100.0f);
 }
 
 extern int D_004D37D0[];
@@ -204,7 +209,6 @@ void func_00235A18(volatile int a0) {
     _ACTWait(1);
 }
 
-extern volatile float D_006316E0, D_006316E4, D_006316E8;
 extern void warpGirlInStage(float x, float y, float z);
 extern int D_00633AEC;
 extern int D_004D3810[];
@@ -214,7 +218,7 @@ void func_00235A48(volatile int a0) {
     int x = a0;
     KSub *s = (KSub *)actInitialize(a0);
     _ACTWait(1);
-    warpGirlInStage(D_006316E0, D_006316E4, D_006316E8);
+    warpGirlInStage(14990.0f, 7074.0f, -4694.0f);
     scpPlayStart(0x5C, &D_00633AEC, 1, 0, 1);
     if (func_0017B230(0x21) == 0) {
         D_004D3810[1] = (int)func_00235B68;
