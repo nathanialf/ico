@@ -29,7 +29,7 @@ Chain started 2026-08-16. Policy from the user, verbatim:
 | F2 | `fzShowV` | `src/fuzio` | 15 | 1 (opus) | **MATCHED** `3c0c6b00`, first compile rc0 |
 | F3 | `func_001AE420` | `src/haveParentSimpleObj` | 16 | 1 (opus) | **MATCHED** `7a8bd3bb`, first compile rc0 |
 | F4 | `func_001EACE8` | `src/spider` | 16 | 1 (opus) | **MATCHED** `8b518218`, first compile rc0 |
-| F5 | `reallocseki` | `src/Basic` | 17 | 1 (opus) | running |
+| F5 | `reallocseki` | `src/Basic` | 17 | 1 (opus) | **MATCHED** `337953bb`, first compile rc0 |
 
 ---
 
@@ -172,7 +172,73 @@ the string address.
 
 | # | edit | base | outcome |
 |---|---|---|---|
-| 1 | launch opus convergence worker, frozen brief, no target named, prior-port datum attached as a pointer | `INCLUDE_ASM` stub, tree green at `fbf50c75…` | pending |
+| 1 | launch opus convergence worker, frozen brief, no target named, prior-port datum attached as a pointer | `INCLUDE_ASM` stub, tree green at `fbf50c75…` | **MATCHED, rc0 on the first compile.** Committed `337953bb`. |
+| 1a | **supervisor verification (mine):** `rm build/src/Basic.o` then full `.venv/bin/ninja` | worker's landed TU | `verify_elf: OK (fbf50c75…)`; oracle `status match / rc 0 / diff_sites 0`; crutch-free — `save` is genuinely read back and both stores are to a real global. |
+
+```c
+int reallocseki(int size)
+{
+    unsigned int save = D_00633780;
+    int r;
+
+    D_00633780 = 1;
+    r = func_0013A0F8(D_00632024, size, D_0061A8A8, 0x17E);
+    D_00633780 = save;
+    return r;
+}
+```
+
+**The model came from the sibling, not the target.** `D_00633780` is the malloc *partition selector*
+(`malloc_GetPartition` writes it at `src/Basic.c:80`, `mallocseki` reads it at `:85`). `freeseki`
+dispatches on it, and its `== 1` arm is `func_0013A0F8(D_00632024, size, FILE, 0x17E)`.
+`reallocseki` is exactly that arm wrapped in a save / set-to-1 / restore of the selector — which is
+why both functions carry `__LINE__ == 0x17E`. The dev almost certainly wrote `freeseki(size)` with
+`freeseki` marked gnu89 `inline`, and gcc const-propagated the just-stored `D_00633780 == 1` through
+the inlined dispatch down to the single arm; writing the collapsed form directly is byte-identical,
+so that question never had to be settled.
+
+Codegen facts that made it fall out with no tuning: `D_00633780` / `D_00632024` are `-G8` small data
+→ `%gp_rel` with no `lui`, while `D_0061A8A8` as an incomplete `const char[]` is far → the
+`lui`/`addiu` pair. The prior port's "insn 5" failure was a scheduling shuffle of that same pair,
+not a structural obstacle. Assigning the call result to a local before the restore store keeps the
+callee's `$v0` in place with no move, and the `addiu v0,zero,1` / `sw v0` in the `jal` delay slot is
+the scheduler hoisting the `= 1` store, automatic from this ordering.
+
+---
+
+## Chain hold state — 2026-08-16
+
+**Tree:** clean apart from `scratchpad/`. `.venv/bin/ninja` → `verify_elf: OK
+(fbf50c75cd5911273511c4f9af90503ff8423582)`. Repo progress `2983/5447` functions after F2–F5
+(re-read `docs/progress.json` rather than trusting this figure).
+
+**Score so far:** 4 matched (`fzShowV`, `func_001AE420`, `func_001EACE8`, `reallocseki`), each rc0
+on the first compile. 1 rotated out unmatched (`func_00244958`) with both frontiers and a full pass
+model recorded — not parked, no floor claimed.
+
+**Observed pattern, offered as an observation and not a rule:** every round that recovered the data
+model and the callee signatures *before* writing C landed rc0 immediately. The one function that
+resisted is the one where the semantics were obvious from the start and the whole problem is which
+gcc pass folds a constant address — data-model work cannot help there, which is why it took four
+rounds.
+
+**Next targets, in the order the chain should take them:**
+1. `src/DisplayP2O func_0010EC08` (18) — strict smallest-first, the standing policy.
+2. `src/MicroCode func_001186C8` (18), `src/access func_0023B170` (18), `src/access func_0023B1B8`
+   (18), then the rest of `scratchpad/targets_annotated.txt` in order.
+3. **`freeseki` (`src/Basic`, 56 insns) — FLAGGED HIGH-READINESS, out of size order.** Its full shape
+   was derived as a by-product of F5 and is recorded here: a 3-way dispatch on `D_00633780` —
+   `-1` → assert via `debug_assertMessage(D_0061A890)` + `func_001AD768(FILE, 0x174)` +
+   `func_00263FF0(FILE, 0x174, &D_00633788)`, falling through to re-load the selector; `0` →
+   `D_00633784 += size + 0x30` then heap `D_00632014` at line `0x17B`; `1` → heap `D_00632024` at
+   line `0x17E`; anything else → return 0. Result funnelled through one variable (`$18`) with the
+   `-1`-after-assert case bypassing it via a `b` to the epilogue. Worth taking early despite its
+   size, since the model is already written down.
+
+**Standing ordering decision, restated:** `func_002453D0` (`src/cod/vendor_2453C0`, 16) stays
+deferred within its tie group as another `src/cod/vendor_*` MMIO poll loop — same class as the
+unmatched F1 — and `func_00244958` re-enters the queue whenever the chain wants another attempt at
+that family. Neither is a skip; both are recorded here.
 
 ---
 
