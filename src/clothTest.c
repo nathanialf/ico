@@ -84,9 +84,6 @@ void func_001C8EF8(void *a0, void *a1, void *a2, float f12)
     VU0_REG("vmulx.xyz $vf5, $vf5, $vf6x");
     VU0_V3OP(vadd.xyz, 4, 4, 5);
     VU0_LSV(sqc2, 4, 0x0, a0);
-    (void)sp_buf;
-    (void)q;
-    (void)scaled;
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/clothTest", func_001C8F50);

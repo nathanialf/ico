@@ -569,7 +569,6 @@ void func_00153980(int *volatile a0) {
 
 void actBoyTakeWeapon(volatile unsigned int a0)
 {
-    volatile int local;
     int *v1 = *(int **)(a0 + 0x164);
     int a1 = v1[0x678 / 4];
     funcCommonJumpDircorrect(a0, a1 + 0x7E0);

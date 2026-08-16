@@ -81,10 +81,9 @@ void func_00181F58(void)
         q -= 0x1C;
     } while (i >= 0);
     *((int *) (new_var + 0x8)) = 0;
-    *((short *) (new_var + 0x24)) = (short) (-1);
     *((int *) (new_var + 0x14)) = 0;
-    do { } while (0);
     *((short *) (new_var + 0x1C)) = 0;
+    *((short *) (new_var + 0x24)) = (short) (-1);
     func_001918A8();
 }
 

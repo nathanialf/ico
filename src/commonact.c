@@ -1537,7 +1537,6 @@ void func_0015F3C0(volatile int a0) {
 
 void func_0015F428(volatile unsigned int a0)
 {
-    volatile int local;
     long long *p = (long long *)(*(int *)(a0 + 0x164) + 0x20);
     *p |= 0x40000;
 }
@@ -1549,7 +1548,6 @@ void func_0015F450(volatile int a0) {
 
 void actCommonRevive(volatile unsigned int a0)
 {
-    volatile int local;
     ACTParaStatus_Clear(a0);
 }
 
@@ -1559,13 +1557,11 @@ void actCommonReviveAir(int x) {
 
 void actCommonPlay(volatile unsigned int a0)
 {
-    volatile int local;
     ACTParaStatus_Clear(a0);
 }
 
 void actCommonOne(volatile unsigned int self)
 {
-    volatile int local;
     unsigned int a, b;
     a = self;
     b = self;
@@ -1591,7 +1587,6 @@ void func_0015F578(volatile int a0) {
 
 void func_0015F5D0(volatile unsigned int a0)
 {
-    volatile int local;
     long long *p = (long long *)(*(int *)(a0 + 0x164) + 0x20);
     *p |= 0x40000;
 }

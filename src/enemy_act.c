@@ -396,7 +396,6 @@ extern extern void debug_assertMessage();
 
 void _ApproachTarget_Way(volatile unsigned int a0)
 {
-    volatile int local;
     int *new_var;
     int *s0;
     new_var = *((int **) (a0 + 0x164));
@@ -505,24 +504,19 @@ void actEnemyRun(int *a0)
 
 void actEnemyHang(volatile int self_arg)
 {
-    register int *D asm("$3") = (int *)D_00631AE8;
-    int new_var2;
     int *sub = (int *) ((int *) self_arg)[0x59];
-    int *new_var;
-    sub[0x4E] = (int) D;
-    new_var2 = 0x4E;
-    new_var = &sub[new_var2];
+    int *tgt;
+    sub[0x4E] = D_00631AE8;
     iosOmBeforeFuncStandard((int *)D_00631AE8, 0x30, self_arg);
-    new_var2 = *new_var;
-    ((int *) ((int *) sub[0x4E])[0x57])[0x1D] = 1;
-    ACTParaStatus_Clear((int *) new_var2);
+    tgt = (int *) sub[0x4E];
+    ((int *) tgt[0x57])[0x1D] = 1;
+    ACTParaStatus_Clear(tgt);
     func_0017B288(0x168);
     sub[0x4E] = 0;
     if (sub[0xC] == 5)
     {
         func_001919A0((int *) self_arg, 4);
     }
-    asm __volatile__("" : : : "memory");
 }
 
 void actEnemyCarry(int *a0)
@@ -765,7 +759,6 @@ extern void func_001947D0(float *a0, int a1, int a2);
 
 void func_001659F8(volatile unsigned int a0)
 {
-    volatile int local;
     char *m;
     int r0, r1;
     m = (char *)(*(int *)(a0 + 0x164)) + 0x110;

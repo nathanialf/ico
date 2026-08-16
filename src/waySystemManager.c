@@ -41,7 +41,6 @@ int actWaySystemCore(int *self) {
 
 void func_001F2320(volatile unsigned int self)
 {
-    volatile int local;
     int *s = (int *)((int *)self)[0x20 / 4];
     int v;
     v = GetNearNigePointN((int)((char *)s + 0x10), (int)((char *)s + 0x20), (int)((char *)s + 0xA0), 1);

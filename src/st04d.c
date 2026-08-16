@@ -171,15 +171,8 @@ INCLUDE_ASM("asm/nonmatchings/src/st04d", func_002193E8);
 
 void func_00219478(volatile unsigned int a0)
 {
-  volatile int local;
-  unsigned int unused = a0;
-  (void) unused;
-  {
-    register unsigned int _v asm("$4");
-    asm volatile("lw %0, %1" : "=r"(_v) : "m"(a0));
-    asm volatile("nop");
-    actInitialize(_v);
-  }
+  unsigned int self = a0;
+  actInitialize(a0);
   _ACTWait(1);
   if (func_0017B230(0xCD) != 0)
   {

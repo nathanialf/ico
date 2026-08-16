@@ -27,7 +27,6 @@ void MakeCollisionDependGObjList(volatile int a0) {
 void GetReflectionElement(volatile unsigned int a0)
 {
   int *new_var;
-  volatile int local;
   int *s0;
   new_var = *((int **) (a0 + 0x164));
   debug_assertMessage(D_00558F68);

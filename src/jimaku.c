@@ -202,7 +202,6 @@ void jimakuUndisp(void *a0) {
 
 void func_00176150(volatile unsigned int a0)
 {
-  volatile int local;
   int *new_var;
   int *s0;
   new_var = *((int **) (a0 + 0x164));

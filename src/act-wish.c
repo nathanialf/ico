@@ -90,7 +90,6 @@ void func_0014BD88(int *unused)
     int *dst = D_006AA968;
     char *src = (char *)D_002E4E00;
     int i = 0x46;
-    (void)unused;
     do {
         *dst = *(int *)src;
         i--;
