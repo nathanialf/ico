@@ -90,19 +90,9 @@ static __inline__ float wb_dist(int *buf, int *pos, char *node)
     return func_0016A2F8((int)buf);
 }
 
-static __inline__ int wb_box(ClipBox *cb, int *pos, char *node)
+static __inline__ int wall_box_hit(ClipBox *cb, int *pos, char *node)
 {
     func_00243B60(cb->a, pos);
-    func_00243B60(cb->b, node + 0x10);
-    cb->a[1] -= 75.0f;
-    cb->b[1] -= 75.0f;
-    ClipWallBoxStop(cb);
-    return cb->f88;
-}
-
-static __inline__ int ez_los(ClipBox *cb, int *arg0, char *node)
-{
-    func_00243B60(cb->a, arg0);
     func_00243B60(cb->b, node + 0x10);
     cb->a[1] -= 75.0f;
     cb->b[1] -= 75.0f;
@@ -142,7 +132,7 @@ char *ez_line(int *arg0, int gid)
     i = 0;
     while (i < n) {
         cur = list[i].node;
-        if (ez_los(&cb, arg0, cur) == 0 && ez_field(&cb) == 0) {
+        if (wall_box_hit(&cb, arg0, cur) == 0 && ez_field(&cb) == 0) {
             result = cur;
             break;
         }
@@ -183,7 +173,7 @@ char *short_direction_between_wp(int *arg0, int gid)
     i = 0;
     while (i < n) {
         cur = list[i].node;
-        if (ez_los(&cb, arg0, cur) == 0 && ez_field(&cb) == 0) {
+        if (wall_box_hit(&cb, arg0, cur) == 0 && ez_field(&cb) == 0) {
             result = cur;
             break;
         }
@@ -585,7 +575,7 @@ char *waybridge_between_group(void *dobj, int handle)
         do {
             float d = wb_dist(buf, pos, cur);
             if (d < bestDist) {
-                if (wb_box(&cb, pos, cur) == 0) {
+                if (wall_box_hit(&cb, pos, cur) == 0) {
                     bestDist = d;
                     best = cur;
                 }
