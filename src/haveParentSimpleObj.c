@@ -212,7 +212,15 @@ void func_001AE3E8(void)
     } while (i >= 0);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AE420);
+extern int *func_001ADED8(int *self, int a1);
+
+int *func_001AE420(int *self, int a1, int a2, int a3)
+{
+    int *p = func_001ADED8(self, a3);
+    p[0xC] = a1;
+    p[0xD] = a2;
+    return p;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/haveParentSimpleObj", func_001AE460);
 
