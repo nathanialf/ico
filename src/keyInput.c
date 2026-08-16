@@ -4,7 +4,6 @@
 #include "vu0.h"
 
 
-
 extern int D_0065F940[];
 extern void MatrixDrive_TransMatrix();
 extern void MatrixDrive_TurnObjectMatrix(void *dst, void *src);
@@ -111,9 +110,26 @@ void func_001048C8(void *a0, void *a1, void *a2)
     *(float *)((char *)a0 + 0xC) = 1.0f;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/keyInput", func_00104940);
-
 extern void _RotTransPersCurrentMatrix(void *a0, void *a1, void *a2);
+
+float func_00104940(void *a0, void *a1, void *a2)
+{
+    float buf[4];
+    float f = 0.0f;
+    float dot;
+    int v0;
+    VU0_LSV_R(lqc2, 1, 0x0, a2);
+    VU0_LSV_R(lqc2, 2, 0x0, a1);
+    VU0_V3OP(vmul.xyz, 3, 1, 2);
+    VU0_V3OP_BC(vaddy.x, 3, 3, 3, y);
+    VU0_V3OP_BC(vaddz.x, 3, 3, 3, z);
+    VU0_V3OP_BC(vaddw.x, 3, 3, 2, w);
+    __asm__ __volatile__("qmfc2.ni %0, $vf3" : "=r"(v0));
+    __asm__ __volatile__("mtc1 %1, %0" : "=f"(dot) : "r"(v0));
+    _PushVu0Registers(buf, a1, -dot + f);
+    _RotTransPersCurrentMatrix(a0, a2, buf);
+    return dot;
+}
 
 float func_001049C0(void *a0, void *a1, void *a2, float f)
 {
@@ -147,8 +163,6 @@ INCLUDE_ASM("asm/nonmatchings/src/keyInput", func_00104A48);
 
 
 INCLUDE_ASM("asm/nonmatchings/src/keyInput", func_00104AF0);
-
-
 
 
 extern void debug_assertMessage();
@@ -249,8 +263,6 @@ extern void func_002641D8(void *a0, int a1, int a2);
 extern float MatrixDrive_GetTurnYAngleXZ(float f);
 
 INCLUDE_ASM("asm/nonmatchings/src/keyInput", func_001050E0);
-
-
 
 
 void func_00105258(void)
