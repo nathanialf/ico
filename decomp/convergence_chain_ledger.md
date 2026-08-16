@@ -36,7 +36,65 @@ Chain started 2026-08-16. Policy from the user, verbatim:
 | F9 | `src/access` family (19 stubs, 18–48 insns) | `src/access` | — | 1 (opus) | **ALL 19 MATCHED** `6c0c0e47`; TU now 100% C |
 | F10 | `src/st05d` family (9 stubs) | `src/st05d` | — | 1 (opus) | **ALL 9 MATCHED** `06e290fe`; TU now 100% C |
 | F11 | `src/st17a` family (26 stubs) | `src/st17a` | — | 1 (opus) | **25 of 26 MATCHED** `36b2a88b` |
-| F12 | `func_0022DBC8` | `src/st17a` | 132 | 1 (opus) | running |
+| F12 | `func_0022DBC8` | `src/st17a` | 132 | 1 (opus) | **MATCHED** `42f45a6c`; `src/st17a.c` now 26/26 |
+| F13 | `src/keyInput` family (17 stubs) | `src/keyInput` | — | 1 (opus) | running |
+
+### F12 result — `src/st17a.c` cleared 26/26, and the best mechanism chain of the run
+
+**Verification (mine):** `rm build/src/st17a.o`, full ninja → `verify_elf: OK (fbf50c75…)`; zero
+`INCLUDE_ASM` left; crutch scan clean; the sibling `func_0022DDD8` re-measured at rc0. Pushed
+`9b37ae01..42f45a6c`.
+
+**The two residual classes were one problem, and the fix was a single statement:** `sub += 0x24;`
+before the loop became `iosSemaWait(sub + 0x24, 0x22)` at the use site. The derivation, read off the
+compiler sources and `-da` dumps and then verified in one edit:
+
+1. `reorg.c:mostly_true_jump` returns `-1` only when the branch's `LABEL_REF` carries
+   `LABEL_OUTSIDE_LOOP_P`; otherwise it bottoms out at `case NE: return 1` (both sides give
+   `rare_destination == 0`). A positive prediction makes `fill_eager_delay_slots` steal from the
+   **target** — the built duplicated `xori` and retargeted branch. A non-positive one steals from the
+   **fall-through**, which is ROM's `lui $3,%hi(D_00275254)`.
+2. `LABEL_OUTSIDE_LOOP_P` is set by `loop.c:mark_loop_jump`, so it needs real `NOTE_INSN_LOOP_BEG/END`
+   — which the previous round's goto-built loop provably cannot have. The `while` form is therefore
+   required; confirmed by the `/s` in-struct bit on the `label_ref` in the `.mach` dump.
+3. But with LOOP notes, `scan_loop` hoists the `(high (symbol_ref …))` into `s0`, so the
+   fall-through's first insn sets `$2` — the branch's needed resource — and the steal dies anyway.
+4. **The escape is `scan_loop`'s own "phony" bailout:** if the first non-note insn after `LOOP_BEG`
+   is not a `CODE_LABEL`, it returns without moving anything, *while `find_and_verify_loops` has
+   already set the label bit*. This very TU proves the mechanism — loop 1 of this function is logged
+   `Loop from 10 to 52 is phony` purely because gcse had inserted a `high` set after its `LOOP_BEG`.
+5. A source statement always expands *before* `LOOP_BEG`, and `move_movables` inserts before it too,
+   so the only thing that can land *after* it is a gcse-PRE `insert_insn_end_bb`. Therefore ROM's
+   `addiu $17,$2,0x24` had to be a PRE insertion — i.e. `sub + 0x24` written at the use site.
+6. That one placement closes both classes: the loop goes phony (so the `lui` stays inside and the
+   `bne` steals it into the delay slot) and the `addiu` becomes the last insn before the `b`, so
+   `fill_simple_delay_slots`' backward scan takes it.
+
+Measured ladder: inherited goto-form rc8/6 → `while` form rc10/**5** → statement-order swap
+rc10/5 (bit-identical diff) → `iosSemaWait(sub + 0x24, …)` **rc0/0**.
+
+Two side findings worth keeping. **sched1 orders this block by descending `INSN_REG_WEIGHT`, then by
+the jump's dependence kind** — the `addu` is TRUE-dep'd from the `b` while the store is only
+`REG_DEP_ANTI`, so the store is always scheduled last regardless of source order, which is why the
+previous round's three order experiments were all no-ops. And `volatile int D_00633FB4` scored better
+(rc8/6) but **broke the already-matched sibling `func_0022DDD8`**, so it is not ROM's declaration —
+a good example of why a TU-wide re-check matters after a declaration change.
+
+---
+
+## F13 — the `src/keyInput` family (17 stubs, 21–156 insns)
+
+A different subsystem from the three cleared TUs — an input layer with a pad-state data model rather
+than script actors — so the transferred idioms are weaker priors here and the brief says so.
+
+**Brief change, logged as a deliberate policy edit.** Previous family briefs inlined a growing list
+of recovered idioms, which is exactly the ratchet the skill's worker-brief reference warns about.
+From this round the brief carries a single **READ THE LEDGER FIRST** pointer naming the mechanisms
+by topic instead of restating them. Findings live in the ledger; the brief stays flat.
+
+| # | edit | base | outcome |
+|---|---|---|---|
+| 1 | launch opus worker scoped to the TU family, idioms replaced by a ledger pointer | `src/keyInput.c` clean at HEAD, tree green at `fbf50c75…` | pending |
 
 ### F11 result — `src/st17a.c`, 25 of 26
 
