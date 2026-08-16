@@ -223,7 +223,21 @@ gcc pass folds a constant address — data-model work cannot help there, which i
 rounds.
 
 **Next targets, in the order the chain should take them:**
-1. `src/DisplayP2O func_0010EC08` (18) — strict smallest-first, the standing policy.
+1. `src/DisplayP2O func_0010EC08` (18) — strict smallest-first, the standing policy. **Prepared, not
+   yet launched** (usage limit hit before the worker could start). Evidence gathered this session,
+   so the next round starts from it rather than re-deriving:
+   - **Signature is already known:** `extern int func_0010EC08(float a, float b);` is declared
+     identically in three parked files — `tough_nuts/func_001B8720/func_001B8720.1.c:428`,
+     `tough_nuts/func_001B94B0/func_001B94B0.c:240`, `tough_nuts/func_001B9638/func_001B9638.c:214`.
+   - **ROM (0x44, read this session):** `mtc1 $0,$f0` / `c.lt.s $f12,$f0` / `bc1f .L0010EC38`, and
+     *both* arms then do `jal func_0010EB60` with `mov.s $f12,$f13` in the delay slot — i.e. both
+     call the same callee with the second float argument. The `a < 0` arm additionally does
+     `negu $2,$2` then `sll $2,$2,16` / `sra $2,$2,16`, i.e. negate and sign-extend to `short`,
+     before `b .L0010EC40`. The two `jal`+`mov.s` pairs being identical across the arms is a
+     cross-jump/tail-duplication shape, and the `sll/sra 16` pair is the `(short)` cast idiom —
+     both are leads for the next worker to confirm or refute, not a diagnosis.
+   - `func_0010EB60` is itself still an `INCLUDE_ASM` stub in the same TU, so expect the in-TU `jal`
+     false-negative in `quick_diff` (see F3's note); `match_diff` normalises it and ninja is the gate.
 2. `src/MicroCode func_001186C8` (18), `src/access func_0023B170` (18), `src/access func_0023B1B8`
    (18), then the rest of `scratchpad/targets_annotated.txt` in order.
 3. **`freeseki` (`src/Basic`, 56 insns) — FLAGGED HIGH-READINESS, out of size order.** Its full shape
