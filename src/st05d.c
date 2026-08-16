@@ -92,21 +92,63 @@ void func_0021F588(int x) {
     *(int *)(p + 0x16C) = 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st05d", func_0021F5B0);
+extern int scpDoorTypeUpUp(int a0);
 
-INCLUDE_ASM("asm/nonmatchings/src/st05d", func_0021F5F8);
+void func_0021F5B0(volatile int a0) {
+    while (scpDoorTypeUpUp(0x402) == 0) {
+        _ACTWait(1);
+    }
+    func_0017B258(0xB8);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st05d", func_0021F640);
+void func_0021F5F8(volatile int a0) {
+    while (scpDoorTypeUpUp(0x403) == 0) {
+        _ACTWait(1);
+    }
+    func_0017B258(0xB9);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st05d", func_0021F688);
+void func_0021F640(volatile int a0) {
+    while (scpDoorTypeUpUp(0x454) == 0) {
+        _ACTWait(1);
+    }
+    func_0017B258(0xBA);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st05d", func_0021F6D0);
+void func_0021F688(volatile int a0) {
+    while (scpDoorTypeUpUp(0x455) == 0) {
+        _ACTWait(1);
+    }
+    func_0017B258(0xBB);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st05d", func_0021F718);
+void func_0021F6D0(volatile int a0) {
+    while (scpDoorTypeUpUp(0x456) == 0) {
+        _ACTWait(1);
+    }
+    func_0017B258(0xBE);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st05d", func_0021F760);
+void func_0021F718(volatile int a0) {
+    while (scpDoorTypeUpUp(0x457) == 0) {
+        _ACTWait(1);
+    }
+    func_0017B258(0xBF);
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/st05d", func_0021F7A8);
+void func_0021F760(volatile int a0) {
+    while (scpDoorTypeUpUp(0x406) == 0) {
+        _ACTWait(1);
+    }
+    func_0017B258(0xBC);
+}
+
+void func_0021F7A8(volatile int a0) {
+    while (scpDoorTypeUpUp(0x407) == 0) {
+        _ACTWait(1);
+    }
+    func_0017B258(0xBD);
+}
 
 void func_0021F7F0(void)
 {
@@ -119,5 +161,63 @@ void func_0021F7F0(void)
     return soundSeVolSet(D_00633A00);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/st05d", func_0021F828);
+extern void AddWayPointTop(int a0, int a1);
+
+void func_0021F828(void)
+{
+    if (func_0017B230(0xF9) == 0) {
+        stage_KillPlayBgAnimation(0x130, 0, 0);
+    } else {
+        stage_KillPlayBgAnimation(0x130, 0, -1);
+    }
+    if (func_0017B230(0xFA) == 0) {
+        stage_KillPlayBgAnimation(0x131, 0, 0);
+    } else {
+        stage_KillPlayBgAnimation(0x131, 0, -1);
+    }
+    if (func_0017B230(0xFB) == 0) {
+        stage_KillPlayBgAnimation(0x132, 0, 0);
+    } else {
+        stage_KillPlayBgAnimation(0x132, 0, -1);
+    }
+    if (func_0017B230(0xFC) == 0) {
+        stage_KillPlayBgAnimation(0x133, 0, 0);
+    } else {
+        stage_KillPlayBgAnimation(0x133, 0, -1);
+    }
+    if (func_0017B230(0xFD) == 0) {
+        stage_KillPlayBgAnimation(0x134, 0, 0);
+    } else {
+        stage_KillPlayBgAnimation(0x134, 0, -1);
+    }
+    if (func_0017B230(0xFE) == 0) {
+        stage_KillPlayBgAnimation(0x135, 0, 0);
+    } else {
+        stage_KillPlayBgAnimation(0x135, 0, -1);
+    }
+    if (func_0017B230(0xFF) == 0) {
+        stage_KillPlayBgAnimation(0x136, 0, 0);
+    } else {
+        stage_KillPlayBgAnimation(0x136, 0, -1);
+    }
+    if (func_0017B230(0xE5) == 0) {
+        AddWayPointTop(1, 0);
+    } else {
+        AddWayPointTop(1, 1);
+    }
+    if (func_0017B230(0xEA) == 0) {
+        stage_KillPlayBgAnimation(0x127, 0, 0);
+    } else {
+        stage_KillPlayBgAnimation(0x127, 0, -1);
+    }
+    if (func_0017B230(0xEB) == 0) {
+        stage_KillPlayBgAnimation(0x128, 0, 0);
+    } else {
+        stage_KillPlayBgAnimation(0x128, 0, -1);
+    }
+    if (func_0017B230(0xE4) == 0) {
+        char *p = actSt25aQueenDeadChk(0x4FF);
+        *(int *)(p + 0x16C) = 0;
+    }
+}
 

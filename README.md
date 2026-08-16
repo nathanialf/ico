@@ -1,7 +1,7 @@
 # ico
 
 <!-- progress:begin -->
-![.text progress](https://img.shields.io/badge/text-20.68%20%25-orange.svg)
+![.text progress](https://img.shields.io/badge/text-20.75%20%25-orange.svg)
 ![.vutext progress](https://img.shields.io/badge/vutext-100.00%20%25-brightgreen.svg)
 ![.data progress](https://img.shields.io/badge/data-0.10%20%25-orange.svg)
 ![.rodata progress](https://img.shields.io/badge/rodata-2.86%20%25-orange.svg)
