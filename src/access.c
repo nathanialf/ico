@@ -147,7 +147,15 @@ INCLUDE_ASM("asm/nonmatchings/src/access", func_0023B080);
 
 INCLUDE_ASM("asm/nonmatchings/src/access", func_0023B0E8);
 
-INCLUDE_ASM("asm/nonmatchings/src/access", func_0023B170);
+extern int actInitialize(int a0);
+extern void scpSetCageVelocityFriction(int a0, int a1, int a2, int a3);
+
+void func_0023B170(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    scpSetCageVelocityFriction(0xCAA, 0, 0x1E3, 0);
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/access", func_0023B1B8);
 
