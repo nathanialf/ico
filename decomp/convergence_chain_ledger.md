@@ -25,6 +25,27 @@ Chain started 2026-08-16. Policy from the user, verbatim:
 
 | # | func | TU | insns | rounds | outcome |
 |---|---|---|---|---|---|
+| F1 | `func_00244958` | `src/cod/vendor_2418A0` | 10 | 4 (opus, fable, opus, opus) | no match; best crutch-free rc3/sites3, best-overall rc2/sites2 but crutched. Re-enters the queue. Not parked, no floor claimed. |
+| F2 | `fzShowV` | `src/fuzio` | 15 | 1 (opus) | running |
+
+---
+
+## F2 — `fzShowV` (`src/fuzio`, 15 insns)
+
+ROM (read this session, `asm/nonmatchings/src/fuzio/fzShowV.s`, 0x3C bytes): materialises
+`&DrawCollisionRay` and `&MakeExitAttributeIndex`, stores them to the gp-rel pair
+`D_006323F0`/`D_006323F4`, and if the argument is non-zero overwrites the same pair with
+`&func_00169F80`/`&func_0016A058`; returns 0. The second store of the pair sits in the `beq` delay
+slot, so both arms write both words.
+
+Prior work (found before launch): `decomp/port_ledger.md:1709` — an aug6 port was reverted with
+"insn 9: expected `addiu v0,v0,0` built `addiu v0,v0,6448`", i.e. insn 9 came out as a literal where
+ROM has a relocated symbol address. The next function in the TU, `fzShowM` @ 0x00168690, ported
+successfully and is a close structural twin.
+
+| # | edit | base | outcome |
+|---|---|---|---|
+| 1 | launch opus convergence worker, frozen brief, no target named, prior-port datum attached as a pointer | `INCLUDE_ASM` stub at `src/fuzio.c:22`, tree green at `fbf50c75…` | pending |
 
 ---
 
@@ -230,7 +251,95 @@ operative fact — the `ior` survives as a real `(ior reg imm)` — and both are
 
 | # | edit | base | outcome |
 |---|---|---|---|
-| 4 | relaunch on **opus** carrying the `func_001010C8` answer key and the corrected family table. Justification for a 4th round rather than rotating the chain: this is new structural information no prior round had — a *matched* sibling with this exact ROM signature — and the user's standing rule is that structure wins between rounds. Rotating unconditionally after this one. | both frontiers, TU at `INCLUDE_ASM`, tree green | pending |
+| 4 | relaunch on **opus** carrying the `func_001010C8` answer key and the corrected family table. Justification for a 4th round rather than rotating the chain: this is new structural information no prior round had — a *matched* sibling with this exact ROM signature — and the user's standing rule is that structure wins between rounds. Rotating unconditionally after this one. | both frontiers, TU at `INCLUDE_ASM`, tree green | `budget: rc3 sites3`, no match, nothing banked. TU restored clean, tree green (verified by me). Probes at `scratchpad/r958e/`, including `sib/` with the matched sibling's full `-da` dumps. Densest round so far on mechanism. |
+
+### Round 4 — which pass folds what, finally measured rather than inherited
+
+From `-da` dumps of the plain non-volatile body: the load is still `(mem:SI (reg 85))` at `.cse`,
+`.gcse`, `.loop`, `.cse2` and `.flow`, while the store is already `(mem:SI (const_int 268492896))`
+at `.gcse`. At `.flow` the load carries `LOG_LINK (insn_list 10)`. So **combine folds the load and
+cprop folds the store**, and ROM's asymmetry is exactly "same-block load + cross-block store".
+cse leaves a *bare reg* address alone because `find_best_addr` needs a strict cost improvement and
+mips `CONST_COSTS` gives CONST_INT cost 0 while `rtx_cost(REG)` is also 0.
+
+**Why `volatile` blocks combine** (source-read, `combine.c:500`/`:678`): `combine_instructions`
+calls `init_recog_no_volatile()` on entry, so with `volatile_ok == 0` `general_operand` rejects any
+volatile MEM and `recog_for_combine` fails on `(set (reg) (mem/v (const_int)))`. That one line is
+the whole reason frontier B keeps register form.
+
+**LOG_LINK is created only for the FIRST use** (`flow.c:3376-3390`): `y = reg_next_use[regno]` and
+only `if (y && BLOCK_NUM(y) == blocknum)`. Therefore a use of `p` positioned **before** the load
+absorbs the link, blocks combine on the load, and does *not* extend `p` past the load — so
+`lw v0,0(v0)` with dest coalesced onto base stays reachable. Compiled proof, `scratchpad/r958e/g.s`
+g3 (`*qq = p;` before the load): register-form `lw $6,0($2)` **plus** ROM's `sw $4,268492896` macro
+store — ROM's exact asymmetry, non-volatile. It costs an instruction, so it is a proof of the
+mechanism, not a match.
+
+**Five non-volatile shapes that produce a register-form, length-1, delay-slot-fillable const
+address** via `added_sets_2` (an address pseudo with ≥2 uses), e.g. `g.s` g6
+(`li $3,268435456 / ori $3,$3,0xe060 / lw $2,0($3) / j $31 / sw $4,0($3)`). One of them, `w.s`
+w3/w4, **reproduces family member `func_00242640`'s `lui/ori/jal/lw $5,0($3)` shape in form** — so
+that function's residual is a two-use base pointer, not volatility.
+
+**The `base | offset` mechanism, decoded from the matched sibling** (its C compiled with `-da`,
+dumps at `scratchpad/r958e/sib/`): the `ior` is never folded, because cse can't (the ior sits in a
+cse block where `base` is unknown), cprop can't (`(ior const const)` fails `iorsi3`'s
+`register_operand`), and combine can't (`(mem (ior …))` is not a legitimate MIPS address, and
+`base`'s def is cross-block so there is no LOG_LINK). Critically, **the cse-block boundary is a
+LABEL / branch TARGET, not a fallthrough** — measured: an ior in the entry block or in the
+fallthrough arm folds to the macro; an ior in the branch-*target* arm survives as
+`ori $3,$3,0xe060 / lw $2,0($3)`. Consequence: `func_00244958`'s `ori $2,$2,0xE060` is in the
+**entry** block and therefore cannot be an unfolded ior — it is the post-reload `large_int`
+define_split of `(set p (const_int 0x1000E060))`, sched2-interleaved against the sentinel's split,
+which is what produces ROM's `lui/lui/ori/ori` order.
+
+**TImode quirk** (`mips.h:3004`): `GO_IF_LEGITIMATE_ADDRESS` excludes `TARGET_MIPS5900 && TImode`,
+so a 128-bit access to a constant address is forced into a register and **does fill a `jr` slot**,
+non-volatile (compiled, `h.s` h3/h4). A general lever for TI-mode MMIO; it does not reach a `lw`.
+
+**Corpus claims refuted by compile this round:**
+- "`(mem (plus p k))` with k≠0 blocks cprop" — false. cse's `find_best_addr` prefers the constant
+  over `(plus reg const)` because the plus has nonzero cost, so the plus never survives to cprop.
+  Only a *bare* reg address survives cse.
+- "the volatile veto is total in every filler" — right for a volatile LOAD, wrong for a volatile
+  STORE. `resource.c`'s `case SET` in `mark_referenced_resources` marks only the dest MEM's
+  *address*, never the MEM, so a volatile store contributes `volatil = 0` there. A volatile load
+  gets `volatil = 1` via `case MEM` and is vetoed in every filler.
+- The round also retracted one of its own supporting probes (`v.s` v1) as not proving the veto —
+  reorg's backward scan took a closer insn and never tried the volatile load.
+
+Shapes closed by compile this round (`scratchpad/r958e/{g,h,w,x,y,z}`), all giving the length-2
+dbr-ineligible macro load: plain non-volatile pointer; `x = *(u_int*)x`; separate bare-const store;
+struct base+offset; `const`-qualified pointer; pointer-to-array; DI carrier; a second def of `p`
+before or after the load; two-arm with the def in B0; two-arm with the def duplicated per arm;
+`b=0x10000000; *(u_int*)(b|0xE060)` in the entry block; one pointer variable reassigned before each
+of several uses; a `static` helper and two `__inline__` helper spellings. Notable: an out-of-line
+`SetReg(u_int *p, u_int v)` helper compiles to **ROM's exact control shape** (`beq $5,$2,$L3` with
+`lw $3,0($4)` in the slot, non-volatile) purely because an incoming parameter is unfoldable.
+
+**Residual as the round left it.** ROM needs, at combine: `(set p (const_int 0x1000E060))` unfolded,
+`p` dying at the load (so `lw v0,0(v0)` coalesces), and the store already `(mem (const_int))`. Two
+configurations are known to produce that asymmetry and each pays: (i) volatile pointer — combine
+blocked, but reorg vetoes volatile loads, so the fill is lost (= frontier B, sites3); (ii)
+non-volatile plus an extra `p`-use *after* the load, deleted at greg by `reload_cse` — the fill
+survives but forces `lw a1` + `daddu` (= frontier A, sites2, crutched). The un-searched middle is
+finding #4: a `p`-use *before* the load keeps both. None was found that emits no instruction, and
+none was compiled. Left open, explicitly labelled as not-compiled.
+
+---
+
+## Chain routing decision after F1 round 4
+
+Rotating the chain, as stated before round 4 was launched. F1 is **not parked** — no floor is being
+claimed, both frontiers and the full mechanism map are recorded above, and it re-enters the queue.
+Four rounds on one 10-instruction function is already disproportionate against a 151-function
+smallest-first queue.
+
+**Ordering rule applied to the 16-instruction tie group** (stated so it is not a silent skip):
+`func_002453D0` (`src/cod/vendor_2453C0`) is deferred within its tie group because it is another
+`src/cod/vendor_*` MMIO body — a poll loop on `0x1000F000` with three `nop`s — i.e. the same class
+the last four rounds failed to crack, and it would re-enter the identical wall immediately. It stays
+in the queue, flagged family-class. The non-MMIO members of the tie group go first.
 
 ---
 
