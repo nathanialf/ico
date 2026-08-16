@@ -4,7 +4,9 @@
 
 
 
-extern unsigned int D_006323F0;
+typedef int (*FcFunc)(void *a0, int a1);
+extern FcFunc D_006323F0;
+extern FcFunc D_006323F4;
 extern void func_00243B60(void *dst, void *src);
 extern void ClipWallBoxStop();
 extern int D_006323BC;
@@ -19,7 +21,21 @@ extern int D_00633D14;
 extern int D_00633D0C;
 extern int D_00633D20;
 extern int D_00633D1C;
-INCLUDE_ASM("asm/nonmatchings/src/fuzio", fzShowV);
+extern void DrawCollisionRay(char *a0);
+extern void MakeExitAttributeIndex(void *a0);
+extern void func_00169F80(void *a0);
+extern void func_0016A058(void *a0);
+
+int fzShowV(int a0)
+{
+    D_006323F0 = (FcFunc) DrawCollisionRay;
+    D_006323F4 = (FcFunc) MakeExitAttributeIndex;
+    if (a0 != 0) {
+        D_006323F0 = (FcFunc) func_00169F80;
+        D_006323F4 = (FcFunc) func_0016A058;
+    }
+    return 0;
+}
 
 extern volatile int func_0010F5B8(int a0, int a1, int a2);
 
@@ -221,7 +237,7 @@ int func_0016A158(int *a0, int *a1) {
     *(float *)&buf[28] = 50.0f;
     func_00243B60(buf, a0);
     func_00243B60(buf + 4, a1);
-    ((int (*)(int *, int))D_006323F0)(buf, 1);
+    D_006323F0(buf, 1);
     return buf[34];
 }
 
