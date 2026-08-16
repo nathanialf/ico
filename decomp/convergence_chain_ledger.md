@@ -42,7 +42,81 @@ Chain started 2026-08-16. Policy from the user, verbatim:
 | F15 | `src/st24a` family (15 stubs) | `src/st24a` | — | 1 (opus) | **12 of 15 MATCHED** `d6304a5c` |
 | F16 | `src/st13b2` family (19 stubs) | `src/st13b2` | — | 1 (opus) | **18 of 19 MATCHED** `7bee331f` |
 | F17 | `src/st10l` family (26 stubs) | `src/st10l` | — | 1 (opus) | **19 of 26 MATCHED** `2d4a6615` |
-| F18 | `src/st10r` family (19 stubs) | `src/st10r` | — | 1 (opus) | running |
+| F18 | `src/st10r` family (19 stubs) | `src/st10r` | — | 1 (opus) | **11 of 19 MATCHED** `fb506f3c` |
+| F19 | `src/way_util` family (24 stubs) | `src/way_util` | — | 1 (opus) | running |
+
+### F18 result — `src/st10r.c`, 11 of 19
+
+**Verification (mine):** `rm build/src/st10r.o`, full ninja → `verify_elf: OK (fbf50c75…)`; 8 stubs
+left; crutch scan clean; **zero duplicate externs** — the instruction took this time, and the round
+also removed a pre-existing duplicate. Pushed `2d4a6615..fb506f3c`. **Progress 3112/5447 — 132 this
+session.**
+
+Mechanisms, all compiled:
+- **An implicit `int`-returning declaration moved a `v0`/`v1` pair.** `AddWayPointTop` was used
+  before its `extern void` declaration, so it was implicitly int-returning; moving the declaration
+  above the first use flipped the two `addiu` destinations to ROM's order, 4 sites → 0. Same lever
+  as the `st17a` case but showing as a **temp-register swap** rather than a `$2` occupancy diff.
+- **`+0x24` belongs at the USE site, not the definition** — the same shape that cracked
+  `src/st17a.c:func_0022DBC8`, now confirmed to generalise. ROM computes the three values in the
+  loop preheader because each is used twice, so gcse-PRE hoists them there. Writing
+  `iosSemaWait(th + 0x24, 0x22)` at both use sites took a 196-instruction function from rc33/21 to
+  **rc0 in one edit**, and dropped the extra callee-saved register (frame 208 → ROM's 192).
+- Sibling-TU templates transferred verbatim, rc0 first compile in 4 cases. Note this TU declares
+  `scpSleepEnemyOne(int,int,float)` where `st10l` declares `(int,float,int)`; under this EABI both
+  put the float in `$f12` and the int in `$5`, so either works and only evaluation order differs.
+
+### The placeholder-name class, now nailed to the exact pass and key — and it is the chain's biggest blocker
+
+Seven of this TU's eight remaining stubs are blocked on it. The round produced the mechanism rather
+than inferring it (dumps at `scratchpad/probe_st10r/`):
+
+- The `.gcse` dump prints `Expression hash table (15 buckets, 5 entries)` with `high(D_004D2790)` at
+  **hash value 11** and `high(func_00227A48)` at **hash value 7**, then deletes in that order —
+  `pre_delete` walks buckets 0→N, so the lower-bucket symbol gets the lower reaching-reg pseudo.
+- Both reaching regs then tie exactly in `allocno_compare` (`refs = 3, live_length = 30`), so pseudo
+  number decides the hard register.
+- **Decisive experiment:** with the body untouched, renaming `D_004D2790` — length-changing, or
+  `D_004D29zz` / `D_994D2910` at equal length — flips `s1`/`s2` to exactly ROM's assignment and takes
+  the function from rc6/3 sites to rc1/1 (the last line being an in-TU `%lo` false negative).
+  `Z_004D2910` (equal length, different content) does **not** flip it, and reordering the two
+  `extern` lines does **not**. So the hash is on the **string content** — not its address, not
+  declaration order.
+- The bucket count is `n_insns/4 | 1`, a function of the instruction count, which is identical to
+  ROM's by construction. **So there is no source-shape axis on that side.**
+- ROM itself shows the lottery landing both ways within this TU (`func_00227C70` puts the data
+  symbol in `s1`, `func_00227D18` puts it in `s2`), which is exactly why 2 of the 7 in the family
+  landed on the favourable side and matched.
+
+**Running total: nine functions across three TUs are blocked purely on names we invented.** Bodies
+are saved verbatim at `scratchpad/nearmiss/*.namehash.c`.
+
+**The obvious remedy exists and is legitimate, but it is a `config/` change with project-wide blast
+radius, so I am flagging it rather than doing it mid-chain:** `baserom/aug6/symbols_from_map.txt`
+carries the prototype's *real* symbol names, and `tools/correlate_funcs.py` / `tools/port_from_aug6.py`
+exist to map retail addresses onto them. Recovering a real dev name is not gaming the hash — it is
+the correct name — and it would unblock this whole class. What makes it a decision rather than a
+step: it edits `config/symbol_addrs.us.txt`, requires a `tools/build.sh setup` re-splat, and any
+wrong name could perturb already-matched TUs, so it wants its own verified pass rather than being
+slipped into a matching round.
+
+Also from this round, `actSt10rCage` (rc6/6) is **not** name-hash: at sched1 the block's ready list
+holds the store and the load as independents and the load wins on priority; sched2's list is
+single-entry throughout, so sched1's choice is final. Routing the read through one function-scope
+`long long *p` (making `reg_base_value` unresolvable) does produce ROM's order in all three blocks
+but costs a spill, so it is not the dev's spelling. Dumps at `scratchpad/probe_cage/`.
+
+---
+
+## F19 — the `src/way_util` family (24 stubs)
+
+A pathing/utility TU rather than the actor/stage layer, so the transferred idioms are weaker priors
+and the brief says so. It also contains four pre-existing barriers from an older pass, recorded as
+crutch debt; the worker is told not to propagate them and to report what it finds.
+
+| # | edit | base | outcome |
+|---|---|---|---|
+| 1 | launch opus worker scoped to the TU family | `src/way_util.c` clean at HEAD, tree green at `fbf50c75…` | pending |
 
 ### F17 result — `src/st10l.c`, 19 of 26
 
