@@ -38,7 +38,80 @@ Chain started 2026-08-16. Policy from the user, verbatim:
 | F11 | `src/st17a` family (26 stubs) | `src/st17a` | — | 1 (opus) | **25 of 26 MATCHED** `36b2a88b` |
 | F12 | `func_0022DBC8` | `src/st17a` | 132 | 1 (opus) | **MATCHED** `42f45a6c`; `src/st17a.c` now 26/26 |
 | F13 | `src/keyInput` family (17 stubs) | `src/keyInput` | — | 1 (opus) | **10 of 17 MATCHED** `68a23262` |
-| F14 | `src/keyInput` remaining 7 | `src/keyInput` | — | 1 (opus) | running |
+| F14 | `src/keyInput` remaining 7 | `src/keyInput` | — | 1 (opus) | **1 MATCHED** `aa7c8fae`; 6 left |
+| F15 | `src/st24a` family (15 stubs) | `src/st24a` | — | 1 (opus) | running |
+
+### F14 result — `func_00104940` matched, and the register-variable question settled properly
+
+**Verification (mine):** `rm build/src/keyInput.o`, full ninja → `verify_elf: OK (fbf50c75…)`;
+6 stubs left.
+
+**Mechanism.** `local-alloc.c:block_alloc` records a hard-reg *suggestion* on **every** operand of an
+insn whose operand 0 is a hard register — `combine_regs` returns 0 for a hard `setreg`, so the
+operand loop never `break`s. The suggestion pass is sorted by
+`QTY_CMP_SUGG = num_copy_sugg ? num_copy_sugg : num_sugg * FIRST_PSEUDO_REGISTER`, **lowest first**.
+With `register float dot __asm__("$f20")`, `neg.s pseudo,$f20` gives the neg-result qty a *second*
+suggestion, so it sorts at 152 against the zero constant's 76 — the zero is allocated first, steals
+`$f12`, and the neg falls through to `$f0`. Removing the hard-reg **source** of the `neg` fixes it.
+
+**The fix is also the cleanest available form.** Binding the result through a real operand-carrying
+asm lets gcc pick the registers itself:
+
+```c
+float dot; int v0;
+__asm__ __volatile__("qmfc2.ni %0, $vf3" : "=r"(v0));
+__asm__ __volatile__("mtc1 %1, %0" : "=f"(dot) : "r"(v0));
+```
+
+**Supervisor follow-up: I converted the other two VU0 leaves to this form and re-verified.** Both
+`func_001048C8` and `func_001049C0` stayed byte-identical (forced rebuild after each), and
+`src/keyInput.c` now contains **zero** register variables. So the ruling in F13 stands but is now
+moot for this TU — nothing in it sits anywhere near the pin ban. Committed `9c9bcd17`.
+
+**Standing preference from here:** read a VU0 result through an operand-carrying `__asm__` with
+ordinary locals, not a `register T x __asm__("$fN")` variable. Added to the worker brief.
+The committed precedents in `src/pool.c` and `src/clothTest.c` still use the register form, and
+`src/pool.c:26` uses the **initialized** spelling which is the banned one — untouched here, recorded
+as debt.
+
+**`ExecKeyInput` went 4 sites → 3 with the structure now exact**, via a genuinely new finding:
+`simple_memory_operand` (`mips.c`) returns `SYMBOL_REF_FLAG(addr)` for a bare `SYMBOL_REF`, but its
+`case CONST:` is inside a `#if 0` — so a **symbol+offset address falls through to `return 0`**,
+constraint `R` fails, `movsf_internal1` takes the `Fm` alternative at length 2, and the insn becomes
+ineligible for any delay slot, while gas still emits one gp-relative instruction. Declaring the pair
+as one array (`extern float D_00630904[2];`, size 8 ≤ the `-G8` threshold so `SYMBOL_REF_FLAG` stays
+set) reproduces ROM's empty slot and nop placement exactly. A *sized-less* incomplete array is not a
+substitute: `int_size_in_bytes` returns −1, `ENCODE_SECTION_INFO` clears the flag, and gcc emits
+`lui %hi` + `%lo` as two real insns.
+
+Its remaining 3 sites are an `allocno_compare` tie: `v` refs 6 / ll 5 vs `hi` refs 6 / ll 4 →
+24000 vs 30000, invariant across **twelve** spellings. The round *proved a tie is sufficient* — a
+probe adding one insn inside `hi`'s live range flips the dispositions to ROM's. So the lever is one
+more insn inside `hi`'s range or one fewer in `v`'s, with no byte change; `sched1` defeats the
+obvious placement by always hoisting the `hi` store to the front of its block.
+
+`func_00104AF0` is nailed to one gate: `;; Procedure interblock/speculative motions == 2/2` in the
+`.sched` dump — haifa hoists both call-arg copies above the `beq`, so the child pseudo is live across
+the set of hard `$5` and is exiled to `$2`. Region size, `SRC_PROB` (50 ≥ `MIN_PROBABILITY` 40) and
+`add_branch_dependences` were all read and checked; **the one remaining gate is `check_live_1`** —
+the motion is blocked iff the hard reg being set is live at the start of a split block. Compiled and
+identical: inverted guard with `goto skip`, `do{}while`, re-reading the child at the call site.
+Reusing `idx` as the child variable regresses to 7 sites.
+
+Remaining 6 with current numbers: `ExecKeyInput` 3 sites · `func_00104A48` rc11/6 ·
+`func_00104AF0` 2 sites · `func_00104B98` rc20/10 · `func_001050E0` rc33/17 · `func_00104C80` rc73/31.
+
+---
+
+## F15 — the `src/st24a` family (15 stubs, 19–180 insns)
+
+Rotating off `src/keyInput` after two rounds (10 matched, then 1 — the remainder are its hard core,
+and all six have sharp characterised residuals recorded above, so re-entry is cheap). `src/st24a.c`
+is back in the actor/stage layer where the three cleared TUs' idioms are strong priors.
+
+| # | edit | base | outcome |
+|---|---|---|---|
+| 1 | launch opus worker scoped to the TU family; brief now also carries the operand-asm preference for VU0 results | `src/st24a.c` clean at HEAD, tree green at `fbf50c75…` | pending |
 
 ### F13 result — `src/keyInput.c`, 10 of 17
 
