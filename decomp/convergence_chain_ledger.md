@@ -27,7 +27,8 @@ Chain started 2026-08-16. Policy from the user, verbatim:
 |---|---|---|---|---|---|
 | F1 | `func_00244958` | `src/cod/vendor_2418A0` | 10 | 4 (opus, fable, opus, opus) | no match; best crutch-free rc3/sites3, best-overall rc2/sites2 but crutched. Re-enters the queue. Not parked, no floor claimed. |
 | F2 | `fzShowV` | `src/fuzio` | 15 | 1 (opus) | **MATCHED** `3c0c6b00`, first compile rc0 |
-| F3 | `func_001AE420` | `src/haveParentSimpleObj` | 16 | 1 (opus) | running |
+| F3 | `func_001AE420` | `src/haveParentSimpleObj` | 16 | 1 (opus) | **MATCHED** `7a8bd3bb`, first compile rc0 |
+| F4 | `func_001EACE8` | `src/spider` | 16 | 1 (opus) | running |
 
 ---
 
@@ -80,7 +81,58 @@ and `s1` to `0x34(v1)`, and returns the result. No prior work exists on it.
 
 | # | edit | base | outcome |
 |---|---|---|---|
-| 1 | launch opus convergence worker, frozen brief, no target named | `INCLUDE_ASM` stub, tree green at `fbf50c75…` | pending |
+| 1 | launch opus convergence worker, frozen brief, no target named | `INCLUDE_ASM` stub, tree green at `fbf50c75…` | **MATCHED, rc0 on the first compile.** Committed `7a8bd3bb`. |
+| 1a | **supervisor verification (mine):** `rm build/src/haveParentSimpleObj.o` then full `.venv/bin/ninja` | worker's landed TU | `verify_elf: OK (fbf50c75…)`; oracle `status match / rc 0 / diff_sites 0`; body is plain C, no pins, no dead stores. |
+
+```c
+extern int *func_001ADED8(int *self, int a1);
+
+int *func_001AE420(int *self, int a1, int a2, int a3)
+{
+    int *p = func_001ADED8(self, a3);
+    p[0xC] = a1;
+    p[0xD] = a2;
+    return p;
+}
+```
+
+**Two reusable reads recovered here:**
+
+- **Callee arity is 2, not 3.** ROM leaves `$6` untouched across the `jal`, which reads like a third
+  argument being passed through. Reading the callee's own body settles it — `func_001ADED8` consumes
+  only `$4` and `$5` (`sw $5,0xC($29)`); `$6` survives merely because a2 had already been copied to
+  `$17`. Guessing three args would have produced a spurious arg-setup instruction.
+- **`daddu $3,$2,$0` with `$2` never rewritten afterwards is what `return p;` compiles to**, NOT
+  evidence of a void function storing directly off `$2`, and not an uncoalesced copy needing a
+  move-back. The call result is already in the return register so the return copy is deleted, and
+  the copy that survives is the *store base*. Reusable for the
+  `p = f(...); p->a = x; p->b = y; return p;` shape.
+
+Call-site evidence for the signature: `src/enemy_act.c:467` and `src/boyact.c:923` call it as
+`(self, 7, 0, D_00631990)` / `(x, 0, 0, D_00631990)`, so a3 is the id the callee stores at `0xC($sp)`.
+Field note: the object's `0x30`/`0x34` word pair is the start of a sub-struct, not two unrelated
+scalars — matched sibling `func_001AE460` passes `result + 0x30` as arg 0 to the per-type handler at
+`D_002A31B8[obj->0xC * 0x64] + 0x3C`. `int *p` with `p[0xC]`/`p[0xD]` matched, so no struct type was
+needed.
+
+**Measurement trap confirmed in this TU:** `quick_diff` showed one residual line,
+`jal 0 <func_001AE420>` vs `jal 1a20 <func_001ADED8>`. That is the in-TU relocation false-negative —
+`func_001ADED8` is still `INCLUDE_ASM` in the same TU, so the built side resolves the call locally
+while the target `.s` carries an unresolved reloc. `match_diff` scored it
+`raw_count 1 / real_count 0 / diff_sites 0` and ninja confirmed. Do not chase that line on other
+functions in this TU that call `func_001ADED8`.
+
+---
+
+## F4 — `func_001EACE8` (`src/spider`, 16 insns)
+
+ROM (read this session): loads `0x15C(a0)` then `0x800` off that, stores 1 to `0x3C` of the result,
+calls `func_001AE460`, then tail-calls `debug_assertMessage(&D_006335E0, a0->0x8)` via `j`. No prior
+work exists on it.
+
+| # | edit | base | outcome |
+|---|---|---|---|
+| 1 | launch opus convergence worker, frozen brief, no target named; in-TU `jal` false-negative noted in the measurement traps | `INCLUDE_ASM` stub, tree green at `fbf50c75…` | pending |
 
 ---
 
