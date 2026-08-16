@@ -40,7 +40,72 @@ Chain started 2026-08-16. Policy from the user, verbatim:
 | F13 | `src/keyInput` family (17 stubs) | `src/keyInput` | — | 1 (opus) | **10 of 17 MATCHED** `68a23262` |
 | F14 | `src/keyInput` remaining 7 | `src/keyInput` | — | 1 (opus) | **1 MATCHED** `aa7c8fae`; 6 left |
 | F15 | `src/st24a` family (15 stubs) | `src/st24a` | — | 1 (opus) | **12 of 15 MATCHED** `d6304a5c` |
-| F16 | `src/st13b2` family (19 stubs) | `src/st13b2` | — | 1 (opus) | running |
+| F16 | `src/st13b2` family (19 stubs) | `src/st13b2` | — | 1 (opus) | **18 of 19 MATCHED** `7bee331f` |
+| F17 | `src/st10l` family (26 stubs) | `src/st10l` | — | 1 (opus) | running |
+
+### F16 result — `src/st13b2.c`, 18 of 19
+
+**Verification (mine):** `rm build/src/st13b2.o`, full ninja → `verify_elf: OK (fbf50c75…)`; 1 stub
+left; crutch scan clean; zero duplicate externs. Pushed `d6304a5c..7bee331f`.
+**Progress 3082/5447 — 102 matched this session.** Thirteen of the eighteen were rc0 on the first
+compile, including the 233-instruction `func_0022A9E8`, which took the wait-loop idiom from the
+already-matched `src/st17a.c:func_0022DBC8` verbatim (all six of its apparent residual sites were
+in-TU reloc false negatives).
+
+Mechanisms, all compiled:
+- **Store order decides the `jal` delay slot.** ROM puts `sw v0, D_006325B4` in the slot, so the
+  source must be `D_006325B4 = 1; func_0017B258(0x48);`. The reverse order — which `src/st13b.c`
+  legitimately uses in a context with a following `_ACTWait` — parks the store after the call.
+- **An `int`-returning declaration keeps `$2` occupied.** Declaring `iosPadDevRead` int-returning
+  rather than `void` leaves the dead return value in `$2`, pushing a trailing constant to `$3` as
+  ROM has it.
+- **`.lit4` pool constants must be referenced as `extern float D_XXXXXXXX;`**, never as C literals
+  (which would emit a *new* pool entry). But constants whose low 16 bits are zero (`-408.0f`,
+  `100.0f`, `16.0f`, `3.0f`) are **not** pool entries — gcc emits `lui $1,imm; mtc1` — so those go
+  in as plain literals.
+- `extern volatile float` again blocked a sunk `lwc1` from a `jal` delay slot ROM leaves empty.
+
+### The one left, `func_0022B228` — blocked by OUR PLACEHOLDER SYMBOL NAMES, and that is a project-level finding
+
+Best state rc6 / 3 sites, snapshot at `scratchpad/seeds/func_0022B228.nearmiss.c`. ROM assigns
+`$21 = %hi(D_004D2C40)`, `$20 = %hi(func_0022B0B0)`; we produce the reverse. Measured chain
+(dumps at `scratchpad/probe/b228/`):
+
+- gcse PRE hoists both `%hi` computations and creates their `reaching_reg` pseudos **in hash-bucket
+  order** (`bucket 1→r114, 6→r115, 26→r116, 35→r117, 35→r118`).
+- `global.c:allocno_compare` sees both at `refs = 3, live_length = 116` — an **exact tie** — so it
+  falls through to `v1 - v2`: the lower pseudo number wins `$20`.
+- In the *matching* sibling `func_0022B0B0` the two names separate (buckets 11 and 22), so the `D_`
+  table legitimately gets the lower pseudo, as ROM has it.
+- In `func_0022B228` the two placeholder names **collide**: `D_004D2C40` and `func_0022B0B0` both
+  hash to bucket 35 of 39, and insertion order breaks the tie the wrong way.
+- **Decisive probe, compiled:** renaming *only* the callback symbol to `aaaa_0022B0B0` (bucket 18)
+  reproduces ROM exactly, prologue and tail.
+
+Twelve source-level axes were compiled and refuted (statement order, an `int fp` temp, extern
+reordering, four loop spellings, split struct-copy, hoisted-vs-inline deref, `double` literals, a
+`(void*)` cast, retyping the table, an extra unused local). The quantified open lever is
+`expr_hash_table_size = max_cuid/4 | 1`: at 41, 43 or 45 the buckets separate in ROM's direction; we
+sit at 39 and would need +5…+8 RTL insns at gcse time, which no byte-preserving spelling reached.
+
+**What this means, and the rule I am setting from it.** A function can be blocked purely by the
+*names we invented* for unidentified symbols — the real 2000-era names would hash elsewhere. So
+recovering a real symbol name is a **matching lever**, not cosmetics, and the aug6 prototype's 5192
+real symbols are a potential source for exactly this. Conversely: **inventing a name to move a hash
+bucket is a crutch wearing a symbol's clothes and is not a legitimate match.** I have added that
+prohibition to the worker brief — workers must characterise this class and report it, never work
+around it by renaming, and `config/` stays off-limits.
+
+---
+
+## F17 — the `src/st10l` family (26 stubs)
+
+Rotating off `src/st13b2`'s last function, which is blocked on the naming class above rather than on
+a source shape. `st10l` is the same actor/stage layer where family clears have gone 4-for-4.
+
+| # | edit | base | outcome |
+|---|---|---|---|
+| 1 | launch opus worker scoped to the TU family; brief now also carries the symbol-names-are-data prohibition | `src/st10l.c` clean at HEAD, tree green at `fbf50c75…` | pending |
 
 ### F15 result — `src/st24a.c`, 12 of 15
 
