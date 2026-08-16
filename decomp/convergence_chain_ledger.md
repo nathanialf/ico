@@ -35,7 +35,73 @@ Chain started 2026-08-16. Policy from the user, verbatim:
 | F8 | `func_0023B170` | `src/access` | 18 | 1 (opus) | **MATCHED** `05a8dc8f`, first compile rc0 |
 | F9 | `src/access` family (19 stubs, 18–48 insns) | `src/access` | — | 1 (opus) | **ALL 19 MATCHED** `6c0c0e47`; TU now 100% C |
 | F10 | `src/st05d` family (9 stubs) | `src/st05d` | — | 1 (opus) | **ALL 9 MATCHED** `06e290fe`; TU now 100% C |
-| F11 | `src/st17a` family (26 stubs) | `src/st17a` | — | 1 (opus) | running |
+| F11 | `src/st17a` family (26 stubs) | `src/st17a` | — | 1 (opus) | **25 of 26 MATCHED** `36b2a88b` |
+| F12 | `func_0022DBC8` | `src/st17a` | 132 | 1 (opus) | running |
+
+### F11 result — `src/st17a.c`, 25 of 26
+
+**Verification (mine):** `rm build/src/st17a.o`, full `.venv/bin/ninja` → `verify_elf: OK
+(fbf50c75…)`; one `INCLUDE_ASM` left; crutch scan clean; zero duplicate externs; +574 lines.
+
+Five mechanisms, all compiled and ninja-verified:
+
+- **A cross-jumped ternary is an `if`/`else` with INVERTED polarity** (`func_0022ECF0`). A ternary,
+  or `id = A; if (!c) id = B;`, both produce `movz`. Two *complete* call statements in
+  `if (c == 0) {B-value} else {A-value}` produce ROM's `bne` plus the delay-slot const; the
+  "natural" polarity gives `beq` and fails.
+- **Pointer TYPE orders the schedule** (`func_0022E9D0`, rc6→0). Declaring the BoxBar table
+  `extern int *D_004D3120[]` and the field `void *unkC4` — rather than `int[]` / `int*` — moved
+  `sw zero,0x16C(v0)` out of immediately-after-the-call into ROM's slot between the two other
+  stores. Retail has strict aliasing live, so int-store vs pointer-store types decide the ordering.
+- **An implicit declaration cost three registers** (`func_0022E220`, rc4→0). `func_0017B288` was
+  used 250 lines before its `extern`; the implicit `int` return made `v0`/`v1` swap across the whole
+  tail. **Extern ORDER in a TU is a codegen lever here, not hygiene.**
+- **`c.lt.s`+`bc1f` needs the negated form** `while (!(scpSekizou(K) < -2.0f))`; spelling it
+  `>= -2.0f` canonicalizes to `c.le.s`+`bc1t` (`func_0022DAC8`).
+- **gcse PRE numbers `reaching_reg` in expression-hash order keyed on the symbol NAME STRING**
+  (`func_0022E680` / `E508` vs the already-matching `E398` / `E220`). Measured in `.lreg`: the same
+  insn sets pseudo **106** in one and **105** in the other, and the lower pseudo wins `$18`.
+  Diagnostics: substituting E398's symbol pair into E680's body flipped it back, while moving the
+  extern to the top of the TU did **not** — so it is content-hash, not interning order. Remedy from
+  `[[gcse_bucket_name_hash]]`: re-spell the address through **one local** `tbl = &D_004D31E0[16]`
+  used twice (same contiguous run: `D_004D31E0 + 0x40 == D_004D3220`), which re-hashes the
+  expression with zero byte change. The inline form `&D_004D31E0[16]` used twice does **not** work —
+  CSE splits it into base + `64/68(reg)` offsets and breaks the bytes.
+
+The round also corrected its own tooling mid-flight: its first instruction-count regex silently
+returned 0 for every file, and it switched to the `nonmatching <name>, 0xSIZE` header line as the
+reliable size source.
+
+---
+
+## F12 — `func_0022DBC8` (`src/st17a`, 132 insns)
+
+The one stub F11 did not land. Whole-function structure recovered and judged correct; best attempt
+`rc8 / 6 sites` at `scratchpad/seeds/func_0022DBC8.attempt.c` (a variant with one statement moved
+scored rc6/5 but was judged structurally wrong, and the round declined to bank it — correct call
+under structure-over-count).
+
+Mechanisms it established on this function, all compiled:
+- **A goto-built loop suppresses `loop.c` invariant hoisting.** `goto test; wait: _ACTWait(1);
+  test: …` has no `NOTE_INSN_LOOP_BEG`, so `lui $3,%hi(D_00275254)` stays *inside* the loop as ROM
+  has it. Every `while` / `&&` spelling hoists it to the preheader, costing a callee-saved register
+  (frame 80 vs 64) and turning the exit `bne` into `bnel`. `volatile` on the array does not suppress
+  it.
+- The object must be spelled `D_00275254[0]`, not `D_00275250[1]` — the latter emits `lui+addiu+lw`
+  where ROM folds `%lo` into the load.
+- `st = D_00633FB4 ^ 1; if (st != 0)` reproduces ROM's single `xori $16,$2,1` feeding two `beqz`.
+  `st = (D_00633FB4 != 1)` adds an `sltu`; `st = D_00633FB4; if (st != 1)` keeps the flag in `s0` and
+  rematerialises `1` (rc32).
+
+Two residual classes, both compiled and pinned: sched2 emits `addu $17,$2,36` before
+`sw $0,D_00633FB4` where ROM has them reversed (three source orders tried; two identical, so not LUID
+order), and dbr steals the join's `xori` into the `bne` delay slot where ROM fills it from the
+fall-through with the `lui`. The round's hypothesis — passed on as a hypothesis, not a verdict — is
+that these are one block-layout problem, since both key off what sits immediately after that branch.
+
+| # | edit | base | outcome |
+|---|---|---|---|
+| 1 | relaunch opus on the single remaining function, residual handed over as a map with the round's own hypothesis labelled as such | `src/st17a.c` at `36b2a88b` with this function `INCLUDE_ASM`, tree green | pending |
 
 ### F10 result — `src/st05d.c` cleared, 9 for 9, and TWO errors of mine it exposed
 
