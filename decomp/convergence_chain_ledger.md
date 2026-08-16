@@ -31,7 +31,58 @@ Chain started 2026-08-16. Policy from the user, verbatim:
 | F4 | `func_001EACE8` | `src/spider` | 16 | 1 (opus) | **MATCHED** `8b518218`, first compile rc0 |
 | F5 | `reallocseki` | `src/Basic` | 17 | 1 (opus) | **MATCHED** `337953bb`, first compile rc0 |
 | F6 | `func_0010EC08` | `src/DisplayP2O` | 18 | 1 (opus) | **MATCHED** `7d7c4a7d`, first compile rc0 |
-| F7 | `func_001186C8` | `src/MicroCode` | 18 | 1 (opus) | running |
+| F7 | `func_001186C8` | `src/MicroCode` | 18 | 1 (opus) | **MATCHED** `a5226391`, first compile rc0 |
+| F8 | `func_0023B170` | `src/access` | 18 | 1 (opus) | running |
+
+### F7 result — `func_001186C8`, and a durable discriminator
+
+Verified by me: `rm build/src/MicroCode.o`, full `.venv/bin/ninja` → `verify_elf: OK (fbf50c75…)`;
+oracle `status match / rc 0 / diff_sites 0`.
+
+The round answered the two-sided question with evidence rather than defaulting: **this is a C
+function with an inline-asm body, NOT a whole-function `__asm__` block.**
+
+**The delay slot is the discriminator, and it generalises.** `func_002439B0`
+(`src/cod/vendor_2418A0.c`) is the same 16-instruction MMI transpose written as whole-function asm,
+and it ends `jr $31` with `sq $11,0x30($4)` hand-filled into the slot — 17 insns. Ours ends `sq`,
+`jr $31`, `nop` — 18 insns with the slot spent. gas will not hoist an `#APP` instruction into the
+slot, so **a C wrapper always pays the author's explicit trailing `nop` there, while hand-written asm
+fills it with real work.** Where two ROM functions share an identical instruction *body* and differ
+only in whether the last store sits before or inside the delay slot, they came from two different
+source forms. `include/r5900.h`'s `QCOPY16` vs `QCOPY16_NO_NOP` pair encodes the same fact from the
+other direction.
+
+The round verified the epilogue model against the matched sibling `mc_TransMicroCode` *before*
+writing anything — its emitted `.s` shows the same bare `j $31` with no compiler nop, and its ROM
+size confirms the trailing `nop` is the slot occupant rather than an extra instruction. That
+predicted 16 asm + `nop` + `j $31` = 0x48, exactly ROM's size, and the prediction held on the first
+compile. ee-gcc 2.9 has no MMI intrinsics and does not vectorize, so `pextlw`/`pcpyud` are
+unreachable from scalar C — the MMI exception applies to the *body*, and the wrapper is genuine C.
+
+**Supervisor edit after the harvest:** the round wrote the trailing nop as a bare
+`__asm__ __volatile__("nop")`. The rest of this TU uses `VU0_NOP()` from `include/vu0.h`, whose
+expansion is character-for-character identical. Swapped it for the house spelling and re-verified
+rc0 + ninja green. Byte-neutral, readability only.
+
+Follow-ons flagged by the round, same TU and same idiom: `func_00118710` (28 insns),
+`func_00118780` (38), `func_00118940` (52), `func_00118818` (74).
+
+---
+
+## F8 — `func_0023B170` (`src/access`, 18 insns)
+
+ROM (read this session, 0x44): stores the incoming `$4` to `0x0($29)`, loads it back twice — once
+into `$2` whose value is never used, once into `$4` — then calls `actInitialize(a0)`, `_ACTWait(1)`,
+and `scpSetCageVelocityFriction(0xCAA, 0, 0x1E3, 0)`. No prior work exists on it.
+
+Sent with one explicitly-refutable lead: a parameter with a stack home plus a read whose result is
+discarded is the shape an addressable or `volatile` parameter produces — and an addressable-param
+home is legitimate under the crutch ban, not a crutch. Flagged as a reading of two instructions, not
+a diagnosis.
+
+| # | edit | base | outcome |
+|---|---|---|---|
+| 1 | launch opus convergence worker, frozen brief, no target named; param-home lead attached as refutable | `INCLUDE_ASM` stub, tree green at `fbf50c75…` | pending |
 
 ### F6 result — `func_0010EC08`, and a correction to my own launch brief
 
