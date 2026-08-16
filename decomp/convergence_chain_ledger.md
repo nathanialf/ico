@@ -34,7 +34,65 @@ Chain started 2026-08-16. Policy from the user, verbatim:
 | F7 | `func_001186C8` | `src/MicroCode` | 18 | 1 (opus) | **MATCHED** `a5226391`, first compile rc0 |
 | F8 | `func_0023B170` | `src/access` | 18 | 1 (opus) | **MATCHED** `05a8dc8f`, first compile rc0 |
 | F9 | `src/access` family (19 stubs, 18–48 insns) | `src/access` | — | 1 (opus) | **ALL 19 MATCHED** `6c0c0e47`; TU now 100% C |
-| F10 | `src/st05d` family (9 stubs) | `src/st05d` | — | 1 (opus) | running |
+| F10 | `src/st05d` family (9 stubs) | `src/st05d` | — | 1 (opus) | **ALL 9 MATCHED** `06e290fe`; TU now 100% C |
+| F11 | `src/st17a` family (26 stubs) | `src/st17a` | — | 1 (opus) | running |
+
+### F10 result — `src/st05d.c` cleared, 9 for 9, and TWO errors of mine it exposed
+
+**Verification (mine):** `rm build/src/st05d.o`, full `.venv/bin/ninja` → `verify_elf: OK
+(fbf50c75…)`; `grep -c INCLUDE_ASM src/st05d.c` → **0**.
+
+Eight 17-instruction door-wait actors, one shape with two varying constants:
+
+```c
+void func_0021F5B0(volatile int a0) {
+    while (scpDoorTypeUpUp(0x402) == 0) { _ACTWait(1); }
+    func_0017B258(0xB8);
+}
+```
+
+Constants: `F5B0`=0x402/0xB8, `F5F8`=0x403/0xB9, `F640`=0x454/0xBA, `F688`=0x455/0xBB,
+`F6D0`=0x456/0xBE, `F718`=0x457/0xBF, `F760`=0x406/0xBC, `F7A8`=0x407/0xBD.
+
+The parameter is **unread** in all eight, yet ROM still homes `$4` to `0x0($29)` with `vars=16`;
+`volatile int a0` alone reproduces that, confirmed against the already-matched `actSt05dDoor2` in
+the same TU. The extra `nop` before the loop label is gcc's `.p2align 3` loop-head alignment, not a
+source artifact.
+
+`func_0021F828` (130 insns) is eleven sequential `if (func_0017B230(id) == 0) A(); else B();`
+guards. Two durable reads: the `addiu $4,<anim>` in the `bnez` delay slot is the **shared** first
+argument of the calls in *both* arms, not a then-branch value — reading it as branch-local yields a
+wrong argument; and `match_diff` reported `rc0 / diff_sites 0` while still emitting a
+`delay-slot-occupant` tag with `raw_count 53`, which is advisory noise from epilogue `ld $31`
+duplication gcc generates itself. Ninja is the gate.
+
+**ERROR 1 — my instruction counts were inflated by one.** I was counting `/* … */` lines including
+the alignment `nop` that sits *after* `endlabel`. These are 17-instruction functions (0x44), not 18.
+Every per-function size I have quoted in this ledger for a function with trailing padding is +1.
+Counter corrected to stop at `endlabel`; list rebuilt as `scratchpad/targets_v2.txt`.
+
+**ERROR 2, the more damaging one — my target list was silently excluding parked functions.** Four of
+these nine (`func_0021F5B0`, `F5F8`, `F640`, `F688`) were on `config/sweep_parked.txt` from an
+earlier sweep, so my filter dropped them and my own brief said "four at 18" when there were eight at
+17. **All four matched rc0 on the first try.** Parked is not hard — it records that one earlier
+single-pass attempt did not land, under a different method. Filter removed: the rebuilt list carries
+1895 stubs with parked ones included and merely flagged, of which **56 were previously excluded, 25
+of them at ≤30 instructions**. Those 25 are now back in the queue.
+
+---
+
+## F11 — the `src/st17a` family (26 stubs, ~20–132 insns)
+
+Chosen for yield: it is the largest cluster of small stubs left (8 at ≤30) and it is the *same*
+actor/stage layer as `src/access.c` and `src/st05d.c`, so the two cleared TUs' idioms transfer
+directly. The brief hands over all of them — entry template, wait-loop, assignment-in-condition,
+`if`/`else` polarity, the shared-argument-in-delay-slot read, the callee-signature-from-ROM rule,
+and the advisory-tag noise — explicitly as models to confirm or refute per function, plus both of my
+errors above so the round does not inherit my counts.
+
+| # | edit | base | outcome |
+|---|---|---|---|
+| 1 | launch opus worker scoped to the TU family | `src/st17a.c` clean at HEAD, tree green at `fbf50c75…` | pending |
 
 ### F9 result — `src/access.c` cleared, 19 for 19
 
