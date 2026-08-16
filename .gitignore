@@ -228,3 +228,7 @@ decomp/DATA_INVESTIGATION.md
 
 # Assembled GitHub Pages site (regenerable: .github/scripts/build_pages_site.sh).
 _site/
+
+# supervisor round-by-round ledger (kept outside the repo)
+decomp/convergence_chain_ledger.md
+scratchpad/
