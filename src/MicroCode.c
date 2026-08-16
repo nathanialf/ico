@@ -206,7 +206,32 @@ void func_001186A0(void *p0)
     VU0_NOP();
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/MicroCode", func_001186C8);
+/* Transpose the 4x4 matrix of 32-bit lanes held in the four quadwords at
+ * src into dst: the four rows are loaded whole, the pextlw/pextuw pair
+ * interleaves the low/high word halves of each row pair, and pcpyld/pcpyud
+ * recombine the doubleword halves into the transposed rows. The word
+ * interleave is MMI-class with no C spelling, so the body is inline asm;
+ * dst/src stay in $a0/$a1 straight from the calling convention. */
+void func_001186C8(void *dst, void *src)
+{
+    __asm__ __volatile__("lq $t0, 0x0($a1)"  : : : "memory");
+    __asm__ __volatile__("lq $t1, 0x10($a1)" : : : "memory");
+    __asm__ __volatile__("lq $t2, 0x20($a1)" : : : "memory");
+    __asm__ __volatile__("lq $t3, 0x30($a1)" : : : "memory");
+    __asm__ __volatile__("pextlw $t4, $t1, $t0");
+    __asm__ __volatile__("pextuw $t5, $t1, $t0");
+    __asm__ __volatile__("pextlw $t6, $t3, $t2");
+    __asm__ __volatile__("pextuw $t7, $t3, $t2");
+    __asm__ __volatile__("pcpyld $t0, $t6, $t4");
+    __asm__ __volatile__("pcpyud $t1, $t4, $t6");
+    __asm__ __volatile__("pcpyld $t2, $t7, $t5");
+    __asm__ __volatile__("pcpyud $t3, $t5, $t7");
+    __asm__ __volatile__("sq $t0, 0x0($a0)"  : : : "memory");
+    __asm__ __volatile__("sq $t1, 0x10($a0)" : : : "memory");
+    __asm__ __volatile__("sq $t2, 0x20($a0)" : : : "memory");
+    __asm__ __volatile__("sq $t3, 0x30($a0)" : : : "memory");
+    VU0_NOP();
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/MicroCode", func_00118710);
 
