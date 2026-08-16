@@ -103,6 +103,28 @@ that these are one block-layout problem, since both key off what sits immediatel
 |---|---|---|---|
 | 1 | relaunch opus on the single remaining function, residual handed over as a map with the round's own hypothesis labelled as such | `src/st17a.c` at `36b2a88b` with this function `INCLUDE_ASM`, tree green | pending |
 
+### Operational rule learned the hard way: NEVER push while a worker round is live
+
+I tried to push right after launching F12 and the pre-push hook refused:
+
+```
+pre-push: SHA-1 GATE FAILED on refs/heads/main — refusing push.
+```
+
+Nothing is wrong with the commits — each was made against a green tree and passed its own pre-commit
+gate. The cause is that **the pre-push hook rebuilds the WORKING TREE, not the committed tree**, and
+the live F12 worker had an in-flight non-matching body in `src/st17a.c` at that moment
+(`git diff --stat` showed +78/-1). The hook was correctly reporting that the working tree does not
+round-trip; it just was not measuring what I meant to push.
+
+Its diagnostic text guesses `--no-verify` and suggests rebasing away a bad commit. **Do not act on
+that suggestion here** — it would discard good commits to fix a phantom. The fix is to wait for the
+round to finish and push once the tree is green again.
+
+Rule for the rest of the chain: **push only between rounds, with `git status` clean apart from
+`scratchpad/`.** Commits are safe at any time (pre-commit runs while the tree is green because I
+harvest before relaunching); pushes are not.
+
 ### F10 result — `src/st05d.c` cleared, 9 for 9, and TWO errors of mine it exposed
 
 **Verification (mine):** `rm build/src/st05d.o`, full `.venv/bin/ninja` → `verify_elf: OK
