@@ -25,11 +25,20 @@ typedef union { int i; float f; } IntFloat;
 
 
 
-extern char D_006124F8[];
+typedef struct { char _0[0x1C]; int f_1C; char _20[4]; } WeaponEntry; /* stride 0x24 */
+extern WeaponEntry D_006124F8[];
 extern int checkHit();
 extern int D_006AA4B0[];
 extern void *D_00631AE8;
-extern unsigned short D_00565060[];
+/* the per-character status table: stride 0x190 */
+typedef struct {
+    char _p0[0x15C];
+    int f_15C;
+    char _p1[0x26];
+    unsigned short f_186;
+    char _p2[8];
+} ACTCharStat;
+extern ACTCharStat D_00565060[];
 extern int *D_00631AE4;
 extern int *ContinueCorrectPosition(int *a0);
 extern int D_00274EC0[];
@@ -110,17 +119,15 @@ int _ACTCharStatus_Clear(void *a0)
     void *p = *((void **) (((char *) a0) + 0x15C));
     int idx = *((int *) (((char *) p) + 0x4A0));
     unsigned short *new_var;
-    new_var = D_00565060;
+    new_var = (unsigned short *)D_00565060;
     return ((unsigned short *) (((char *) new_var) + (idx * 0x190)))[0x186 / 2] & 7;
 }
-
-typedef struct { char _[0x186]; unsigned short f186; char _pad[8]; } ACTCharStat;
 
 int GetSkeltonOrient(void *a0, void *a1) {
     int i0 = (*(int **)((char *)a0 + 0x15C))[0x4A0 / 4];
     int i1 = (*(int **)((char *)a1 + 0x15C))[0x4A0 / 4];
-    ACTCharStat *e0 = &((ACTCharStat *)D_00565060)[i0];
-    ACTCharStat *e1 = &((ACTCharStat *)D_00565060)[i1];
+    ACTCharStat *e0 = &D_00565060[i0];
+    ACTCharStat *e1 = &D_00565060[i1];
     int b0 = (*(unsigned int *)((char *)e0 + 0x188) >> 15) & 1;
     int b1 = (*(unsigned int *)((char *)e1 + 0x188) >> 15) & 1;
     return b0 & b1;
@@ -342,17 +349,14 @@ ret0:
     return rv;
 }
 
-typedef struct { char _p0[0x15C]; int f_15C; char _p1[0x30]; } AGHmc; /* stride 0x190 */
-
 int updateHMC(void) {
     char *mgr = (char *)D_00631AE4;
-    int state, idx; AGHmc *e;
+    int state, idx;
     if (mgr == 0) goto ret0;
     state = *(int *)(*(int *)(mgr + 0x164) + 0x30);
     if (state != 0x4B && state != 0x55) goto ret0;
     idx = *(int *)(*(int *)(mgr + 0x15C) + 0x4A0);
-    e = (AGHmc *)((char *)D_00565060 - (-(idx * 0x190)));
-    if (e->f_15C == 1) return 1;
+    if (D_00565060[idx].f_15C == 1) return 1;
 ret0:
     return 0;
 }
@@ -499,12 +503,9 @@ int ACTCharctrl_Lock(int a0, int a1) {
 
 int ACTCharctrl_Unlock(int a0)
 {
-    char *base;
     int rv;
     if (a0 != 0) {
-        base = D_006124F8;
-        base = base - (-(checkHit(a0) * 0x24));
-        rv = *(int *)(base + 0x1C);
+        rv = D_006124F8[checkHit(a0)].f_1C;
     } else {
         rv = 0;
     }

@@ -282,7 +282,12 @@ found:
 
 INCLUDE_ASM("asm/nonmatchings/sound/s_init", soundHDDataSet);
 
-extern char D_006A3070_b[] __asm__("D_006A95B0");
+/* A second declaration of the sound-header table root.  gcse hashes a
+ * SYMBOL_REF by the address of its name string, so the two declarations put
+ * the two `hd_search` table arguments in different expression buckets and
+ * each call materialises its own lui/addiu pair, as the ROM does.  Folding
+ * them into one declaration costs 21 diffs in soundSQDataSet alone. */
+extern char D_006A95B0_2[] __asm__("D_006A95B0");
 extern int func_002641D8(void *dst, int val, int size);
 extern void soundBufSegFree(char *e);
 
@@ -292,7 +297,7 @@ char *soundSQDataSet(int a0, int a1, int a2, int a3, int a4) {
     SqEntry *e = (SqEntry *)hd_search(D_006A95B0, &key);
     if (e == 0) {
         key = 0;
-        e = (SqEntry *)hd_search(D_006A3070_b, &key);
+        e = (SqEntry *)hd_search(D_006A95B0_2, &key);
         if (e == 0) {
             func_001AD768(D_00557CC8, 0x14E);
             func_00263FF0(D_00557CC8, 0x14E, D_00632220);
@@ -315,7 +320,7 @@ char *soundSeDefPlay(int a0, int a1, int a2, int a3, int a4) {
     SqEntry *e = (SqEntry *)hd_search(D_006A95B0, &key);
     if (e == 0) {
         key = 0;
-        e = (SqEntry *)hd_search(D_006A3070_b, &key);
+        e = (SqEntry *)hd_search(D_006A95B0_2, &key);
         if (e == 0) {
             func_001AD768(D_00557CC8, 0x14E);
             func_00263FF0(D_00557CC8, 0x14E, D_00632220);

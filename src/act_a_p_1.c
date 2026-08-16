@@ -5,7 +5,9 @@ typedef struct { int f_0; char _pad4[4]; int f_8; char _pad_c[0x1B4]; int f_1C0;
 
 
 extern int MoveNextStage_Clear();
-extern int D_00623468[];
+/* per-character record table, stride 0x20 */
+typedef struct { char _0[0xC]; int f_C; char _10[0x10]; } ActCharRec;
+extern ActCharRec D_00623468[];
 extern int D_004BEE60[];
 INCLUDE_ASM("asm/nonmatchings/src/act_a_p_1", standAI);
 
@@ -133,8 +135,8 @@ check:
 
 int IsActCharDead(int *self)
 {
-  int *entry = (int *) (((char *) D_00623468) - (-(self[0x30 / 4] * 32)));
-  return MoveNextStage_Clear(0x3D, entry[0xC / 4], -1, 0, (int) self, -1, 7, 1);
+  return MoveNextStage_Clear(0x3D, D_00623468[self[0x30 / 4]].f_C, -1, 0,
+                             (int) self, -1, 7, 1);
 }
 
 extern int D_004BEA50[];

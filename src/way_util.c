@@ -24,7 +24,8 @@ extern int D_00631990;
 extern unsigned char D_0028A520[];
 extern void func_001AE1B8(int *self, int n, int a2);
 typedef struct Nd { int pad[2]; struct Nd *f8; struct Nd *fC; char pad2[0x40 - 16]; } Nd;
-extern unsigned char D_004CAEC0[];
+typedef struct { int f0, f4; char *f8; char *fC; int f10, f14, f18, f1C, f20, f24, f28, f2C; int f30; } WayGrp;
+extern WayGrp D_004CAEC0[];
 extern unsigned char D_004CAED8[];
 extern Nd D_004CC1E0[];
 extern int D_00633874;
@@ -81,7 +82,6 @@ typedef struct {
 
 typedef struct { char *node; float dist; } WayEnt;
 
-typedef struct { int f0, f4; char *f8; char *fC; int f10, f14, f18, f1C, f20, f24, f28, f2C; int f30; } WayGrp;
 
 static __inline__ float wb_dist(int *buf, int *pos, char *node)
 {
@@ -151,9 +151,7 @@ char *short_direction_between_wp(int *arg0, int gid)
     if (cur != 0) {
         do {
             int g = *(int *)(cur + 0x20);
-            unsigned char *gp = D_004CAEC0;
-            gp = gp - (-(g * 0x34));
-            if (((WayGrp *)gp)->f2C == 0 || g == gid) {
+            if (D_004CAEC0[g].f2C == 0 || g == gid) {
                 list[n].dist = wb_dist(buf, arg0, cur);
                 list[n].node = cur;
                 n++;
@@ -310,7 +308,7 @@ extern float GetEyeDirection(void *a0, void *a1, void *a2);
 
 char *waypoint_with_range(void *arg0, int gid)
 {
-    WayGrp *g = (WayGrp *)(D_004CAEC0 + gid * 0x34);
+    WayGrp *g = &D_004CAEC0[gid];
     char *cur = g->f8;
     float bestDist = 100000.0f;
     char *best = 0;
@@ -334,7 +332,7 @@ out:
 }
 char *nearest_waypoint_of_all_except_group(void *arg0)
 {
-    WayGrp *g = (WayGrp *)(D_004CAEC0 + D_00633874 * 0x34);
+    WayGrp *g = &D_004CAEC0[D_00633874];
     char *cur = g->f8;
     float bestDist = 100000.0f;
     char *best = 0;
@@ -366,7 +364,7 @@ char *nearest_waypoint_of_all_not_bridge_except_group(void *dobj, int gid)
     {
         float bestDist = 100000.0f;
         char *best = 0;
-        WayGrp *g = (WayGrp *)(D_004CAEC0 + gid * 0x34);
+        WayGrp *g = &D_004CAEC0[gid];
         char *cur = g->f8;
         char *next, *n;
         next = *(char **)(cur + 0xC);
@@ -398,7 +396,7 @@ char *nearest_waypoint_of_all(void *dobj)
     {
         float bestDist = 100000.0f;
         char *best = 0;
-        WayGrp *g = (WayGrp *)(D_004CAEC0 + gid * 0x34);
+        WayGrp *g = &D_004CAEC0[gid];
         char *cur = g->f8;
         char *next, *n;
         next = *(char **)(cur + 0xC);
@@ -585,7 +583,7 @@ char *waybridge_between_group(void *dobj, int handle)
 
 void *bridge_waypoint_side_me(int arg0, int arg1)
 {
-    unsigned char *base = D_004CAEC0;
+    unsigned char *base = (unsigned char *)D_004CAEC0;
     char *b = (char *)D_004CC1E0;
     int va, vb, new_var, i;
     char *bA, *bB, *a;
@@ -613,7 +611,7 @@ void *bridge_waypoint_side_me(int arg0, int arg1)
 
 int waypoint_connect_group_side_me(int arg0, int arg1)
 {
-    unsigned char *base = D_004CAEC0;
+    unsigned char *base = (unsigned char *)D_004CAEC0;
     char *b = (char *)D_004CC1E0;
     int va, vb, new_var, i;
     char *bA, *bB, *a;

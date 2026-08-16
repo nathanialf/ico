@@ -188,6 +188,14 @@ Ltail:
 }
 
 void ShockRequestBox_DecodeRequest(int **a0, int *a1) {
+    /* The empty loop is a basic-block boundary, and it is the only thing found
+     * that keeps `sw a1,0(a0)` in ROM's first slot: the store has no successors
+     * so sched2 gives it priority 0 and sinks it to slot 9 behind the three
+     * `lhu` latencies.  Making the loads and the store conflict would also pin
+     * it, but no typing does: the store's access type is a pointer and the
+     * loads' is `unsigned short`, and every combination measured (short/char/int
+     * store types, volatile loads, struct-typed header, four statement orders)
+     * leaves them in different alias sets, or regresses.  Not retired. */
     do { } while (0);
     a0[0] = a1;
     a0[3] = a1 + *(unsigned short *)((char *)a1 + 0xA);

@@ -143,6 +143,11 @@ int AdpcmVolumeGet(void)
     return count;
 }
 
+/* A 2-parameter declaration of adpcmPauseRequest.  The ROM proves the two
+ * declarations really coexisted: AdpcmIopBuffAlloc above sets $4/$5/$6 at its
+ * call, while both calls below set only $4/$5.  sound/adpcm_init is a splat
+ * blob spanning more than one original file, so both have to live here and
+ * the alias is the only way to spell the second one. */
 extern void adpcmPauseRequest__p4(short *p, int doubled_idx) __asm__("adpcmPauseRequest");
 
 void GetDitchPosition(void)

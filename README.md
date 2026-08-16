@@ -6,7 +6,7 @@
 ![.data progress](https://img.shields.io/badge/data-0.10%20%25-orange.svg)
 ![.rodata progress](https://img.shields.io/badge/rodata-2.86%20%25-orange.svg)
 ![.lit4 progress](https://img.shields.io/badge/lit4-44.17%20%25-yellow.svg)
-![.sdata progress](https://img.shields.io/badge/sdata-1.21%20%25-orange.svg)
+![.sdata progress](https://img.shields.io/badge/sdata-1.20%20%25-orange.svg)
 <!-- progress:end -->
 
 **[Live progress dashboard](https://nathanialf.github.io/ico/#us)** — per-directory / per-TU / per-function decomp status for this branch's target (USA retail, SLUS-20218), updated on every push. The dashboard also carries the Aug-6-2001 prototype target; switch with the picker at the top.

@@ -565,7 +565,7 @@ segments:
       - [0x53186C, .lit4, ito/mpeg/mv_disp]  # carved D_0063186C..D_006318BC (21 slots, 7 C funcs + 8 asm), VMA 0x63186C..0x6318C0
       - [0x5318C0, lit4, src/cod/5318C0]     # .lit4 blob resume (src/PObj's 4 slots, all still INCLUDE_ASM)
       - [0x531900, sdata, src/cod/531900]    # .sdata
-      - [0x5322F0, .sdata, src/commonact]  # carved D_006322F0..D_00632308 (VMA 0x6322F0..0x632310, 32 bytes, 5 syms)
+      - [0x5322F0, .sdata, src/commonact]  # carved D_006322F0..D_00632308 (VMA 0x6322F0..0x632310, 32 bytes); D_006322F0 is func_0015F578's "reset\n" string literal, the other 4 are sidecar objects
       - [0x532310, sdata, src/cod/532310]     # .sdata blob resume
       - [0x532758, .sdata, src/chain]  # carved D_00632758..D_0063276C (VMA 0x632758..0x632770, 24 bytes, 4 syms)
       - [0x532770, sdata, src/cod/532770]     # .sdata blob resume

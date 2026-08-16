@@ -14,9 +14,9 @@ extern int D_00633720;
 extern char D_0061A598[];
 extern void debug_assertMessage();
 struct Slot {
-    int pad[4];
+    int unk0, unk4, f_8, f_C;
     int self_ptr;
-    int pad2[1];
+    int unk14;
 };
 extern int D_00633708;
 extern struct Slot D_0070D4D8[];
@@ -66,14 +66,12 @@ int ExecStreamMotionManager(volatile int *self)
 
 int StandbyStreamMotion(int idx)
 {
-  int *entry;
-  entry = ((char *) D_0070D4D8) - (-(idx * 0x18));
-  if (((int *) entry)[0xC / 4] < 0)
+  if (D_0070D4D8[idx].f_C < 0)
   {
     debug_assertMessage(D_0061A598);
     return 4;
   }
-  return ((int *) (((char *) D_0070D4D8) + (idx * 0x18)))[0x8 / 4];
+  return D_0070D4D8[idx].f_8;
 }
 
 void StopStreamMotion(void) {

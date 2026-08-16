@@ -3,7 +3,11 @@
 extern void ChangeFieldCollisionDebugMode(void *a0);
 extern void ActOrientTest(void *a0, void *a1, int a2);
 extern void dispPlane();
-extern void func_00240038_p(void *a0, int a1, float f) __asm__("func_00243B18");
+/* func_00243B18 with its 3-parameter signature.  ACT_LAYOUT_GAMEOVER below
+ * calls the same routine with only two arguments and the ROM proves it (no
+ * $5 setup at 0x15F2B0), so both prototypes were live in the original
+ * sources that splat merged into src/commonact. */
+extern void func_00243B18_3(void *dst, void *src, float s) __asm__("func_00243B18");
 
 static __inline__ int func_0015C418_probe(char *buf, char *obj) {
     ActOrientTest(buf, obj, 0x2C);
@@ -15,7 +19,7 @@ static __inline__ int func_0015C418_probe(char *buf, char *obj) {
 
 static __inline__ void func_0015C818_disp(int obj) {
     int buf[4];
-    func_00240038_p(buf, (int)(*(char **)(obj + 0x164) + 0x4A0), -1.0f);
+    func_00243B18_3(buf, *(char **)(obj + 0x164) + 0x4A0, -1.0f);
     dispPlane((void *)obj, buf);
 }
 
@@ -228,7 +232,7 @@ void CollisCheckInRope(volatile int a0) {
         func_00181F38(1000.0f);
     }
     if ((char *)a0 == D_00631AE8) {
-        func_00240038_p(buf, (int)(*(char **)(a0 + 0x164) + 0x1B0), -1.0f);
+        func_00243B18_3(buf, *(char **)(a0 + 0x164) + 0x1B0, -1.0f);
         dispPlane((void *)a0, buf);
     } else {
         dispPlane((void *)a0, *(char **)(a0 + 0x164) + 0x1B0);
@@ -591,17 +595,24 @@ void funcCommonJumpDircorrect(int a0, int a1) {
     setNodePursueParticleEffectWithUpperLimit(a0, a1, 30.0f);
 }
 
-extern char D_00565060[];
+/* the per-character status table: stride 0x190 */
+typedef struct {
+    char _p0[0x138];
+    int f_138;
+    char _p1[0x4C];
+    int f_188;
+    char _p2[4];
+} ACTCharStat;
+extern ACTCharStat D_00565060[];
 extern int actCommonStoneDead(void *a0, float *a1, float a2);
 
 int funcCommonFallDircorrect(void *a0, float *pos) {
     char *s164 = *(char **)((char *)a0 + 0x164);
-    char *rec = D_00565060;
     ((FI *)(s164 + 0x110))->f = pos[0];
     ((FI *)(s164 + 0x114))->f = pos[1];
     ((FI *)(s164 + 0x118))->f = pos[2];
-    rec = rec - (-(*(int *)(*(char **)((char *)a0 + 0x15C) + 0x4A0) * 0x190));
-    return actCommonStoneDead(a0, pos, (float)*(int *)(rec + 0x138));
+    return actCommonStoneDead(a0, pos,
+        (float)D_00565060[*(int *)(*(char **)((char *)a0 + 0x15C) + 0x4A0)].f_138);
 }
 
 extern ChainEntry D_0028CDD0[];
@@ -781,7 +792,7 @@ void func_0015DA20(volatile int a0) {
     int buf50[4];
     for (;;) {
         ActOrientTest(buf20, (void *)a0, 0x2C);
-        func_00240038_p(buf40, (int)subCommonIdle(a0), 50.0f);
+        func_00243B18_3(buf40, subCommonIdle(a0), 50.0f);
         func_00243AD0(buf30, buf20, buf40);
         if (ACTGame_StageChangeGObjID(buf20, buf30, buf50, buf10)) {
             if (func_00168A80(buf50[0], 0x3000)) {
@@ -1058,9 +1069,8 @@ void func_0015E2C8(volatile int a0) {
     for (;;) {
         char *obj = (char *)a0;
         int hit;
-        char *rec = D_00565060 +
-            *(int *)(*(char **)(obj + 0x15C) + 0x4A0) * 0x190;
-        if (!(*(int *)(rec + 0x188) & 1)) goto no;
+        ACTCharStat *rec = &D_00565060[*(int *)(*(char **)(obj + 0x15C) + 0x4A0)];
+        if (!(rec->f_188 & 1)) goto no;
         if (func_0015C418_probe(buf, obj)) { hit = 1; goto test; }
       no:  hit = 0;
       test:
@@ -1108,11 +1118,10 @@ void func_0015E448(volatile int a0) {
 }
 
 extern void func_0014B270(void *a0, int a1, int a2, float f);
-extern void func_00240038_p(void *a0, int a1, float f) __asm__("func_00243B18");
 
 void func_0015E478(volatile int a0) {
     int buf[4];
-    func_00240038_p(buf, (int)subCommonIdle((char *)a0), -1.0f);
+    func_00243B18_3(buf, subCommonIdle((char *)a0), -1.0f);
     dispPlane((void *)a0, buf);
     for (;;) {
         func_0014B270((void *)a0, 3, 0, -1.0f);
@@ -1277,7 +1286,6 @@ void func_0015E908(volatile int a0) {
     }
 }
 
-extern void func_00243B18_e(float *a0, float *a1, float f12) __asm__("func_00243B18");
 
 void func_0015E9A0(volatile int a0) {
     float v[4];
@@ -1286,7 +1294,7 @@ void func_0015E9A0(volatile int a0) {
     v[1] = *(float *)(s + 0x194);
     v[2] = *(float *)(s + 0x198);
     if (*(int *)(s + 0xC8) == 0xB1) {
-        func_00243B18_e(v, v, -1.0f);
+        func_00243B18_3(v, v, -1.0f);
     }
     for (;;) {
         dispPlane((void *)a0, v);
@@ -1497,12 +1505,11 @@ void ACT_LAYOUT_GAMEOVER(void *a0) {
     dispPlane(a0, local);
 }
 
-extern void func_00240038_p(void *a0, int a1, float f) __asm__("func_00243B18");
 
 void ACTAdjustPlane(int *self)
 {
     int buf[4];
-    func_00240038_p(buf, (int)((char *)self[0x164 / 4] + 0x4A0), -1.0f);
+    func_00243B18_3(buf, (char *)self[0x164 / 4] + 0x4A0, -1.0f);
     dispPlane((void *)self, buf);
 }
 
@@ -1577,10 +1584,9 @@ void actCommonDelete(volatile int a0) {
 
 typedef struct { int a, b, c; } Blob12;
 extern Blob12 D_00282660;
-extern char D_006322F0__f578[] __asm__("D_006322F0");
 
 void func_0015F578(volatile int a0) {
-    debug_assertMessage(D_006322F0__f578);
+    debug_assertMessage("reset\n");
     *(Blob12 *)(*(char **)(a0 + 0x15C) + 0x1C0) = D_00282660;
     actCommonRopeCliff(a0, 0);
 }
@@ -1626,10 +1632,11 @@ unsigned int D_002823F0[4] = {
     0x00000000, 0x00000080, 0x000000FF, 0x00000080,
 };
 
-/* .sdata — carved VMA 0X6322F0..0X632310 (5 symbols), bytes verified against baserom/baseelf.rom */
-unsigned int D_006322F0[2] = {
-    0x65736572, 0x00000A74,
-};
+/* .sdata — carved VMA 0X6322F0..0X632310, bytes verified against baserom/baseelf.rom.
+   D_006322F0 ("reset\n") is not here: it is the string literal in func_0015F578.
+   gcc puts a <=8-byte string constant in .sdata (mips_select_section) but never
+   gp-addresses it (ENCODE_SECTION_INFO only flags VAR_DECLs), which is what the
+   ROM's lui/addiu %hi/%lo pair at 0x15F580 shows. */
 unsigned int D_006322F8[2] = {
     0x20746573, 0x000A7025,
 };

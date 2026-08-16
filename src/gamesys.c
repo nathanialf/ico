@@ -23,7 +23,9 @@ extern void func_0018CC00(int x);
 extern void InitCharFileManager(void);
 extern void init_debug_menu(void);
 extern unsigned short D_002E7710[];
-extern char D_005D49E0[];
+/* object-info table, stride 0x3C */
+typedef struct { char _0[0x20]; int f_20; char _24[0x18]; } GsysObjInfo;
+extern GsysObjInfo D_005D49E0[];
 extern void iosMcManager(void);
 extern char D_00632B48[];
 extern char D_00632B50[];
@@ -49,9 +51,8 @@ int gamesysObjInfoLoad(void) {
 
 int gamesysObjInfoEmptyAreaSearch(int idx)
 {
-  char *entry = D_005D49E0 - (-(idx * 0x3C));
   int new_var;
-  int v3 = *((int *) (entry + 0x20));
+  int v3 = D_005D49E0[idx].f_20;
   unsigned short a4 = *((unsigned short *) (((char *) D_002E7710) + (v3 * 2)));
   int v0 = 0x80808000;
   int a3 = -0x100;

@@ -123,8 +123,7 @@ void AddWayPointTop(int a0, int a1) {
 
 int InsertWayPointAfter(int idx)
 {
-    char *base = (char *)D_004CAEC0 + idx * 0x34;
-    return (*((int *)(((char *)D_004CAEC0 + idx * 0x34) + 0x28))) != 0;
+    return D_004CAEC0[idx].w[10] != 0;
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/way_llf", DeleteWayPoint);

@@ -688,15 +688,25 @@ void func_00238B88(volatile int a0) {
 }
 
 typedef struct { char pad[0xC0]; void *f_C0; void *unkC4; } GObjC0_bc0;
-extern int *D_004D3C10__bc0[] __asm__("D_004D3C10");
+/* One door-tail record: the BoxBar id, the state function control is handed
+ * to when the bar completes, then a second id.  Only `next` is written at
+ * run time; the ids are fixed in the table below. */
+typedef struct BoxBarTail {
+    int id;
+    void (*next)(volatile int a0);
+    int unk08, unk0C;
+    int id2;
+    int unk14, unk18, unk1C;
+} BoxBarTail;
+extern BoxBarTail D_004D3C10;
 extern void func_00237C18(volatile int a0);
 
 void func_00238BC0(volatile int a0) {
     GObjC0_bc0 *obj = *(GObjC0_bc0 **)(a0 + 0x164);
     D_006325B4 = 1;
-    D_004D3C10__bc0[1] = (int *)func_00237C18;
+    D_004D3C10.next = func_00237C18;
     obj->f_C0 = 0;
-    obj->unkC4 = (void *)D_004D3C10__bc0;
+    obj->unkC4 = (void *)&D_004D3C10;
     BoxBarSoundOn((int)a0, 0x18D);
     _ACTWait(0);
 }
@@ -1067,9 +1077,9 @@ unsigned int D_004D3BF0[8] = {
     0x0000018D, 0x00000000, 0x00000000, 0x00000000,
     0x0000018C, 0x00000000, 0x00000000, 0x00000000,
 };
-unsigned int D_004D3C10[8] = {
-    0x0000018D, 0x00000000, 0x00000000, 0x00000000,
-    0x0000018C, 0x00000000, 0x00000000, 0x00000000,
+BoxBarTail D_004D3C10 = {
+    0x18D, 0, 0, 0,
+    0x18C, 0, 0, 0,
 };
 unsigned int D_004D3C30[8] = {
     0x00000179, 0x00238C60, 0x00000000, 0x00000000,

@@ -498,6 +498,15 @@ int GetSizeOfCameraSetBinary(float *query) {
 
 void SetCameraTargetPosition(int a0)
 {
+    /* The two block-local quantities here are the %hi address of D_006D04B4 and
+     * the constant 1.  local-alloc orders them by QTY_CMP_PRI =
+     * floor_log2(n_refs)*n_refs*size / (death-birth); both have 2 refs and one
+     * word, so it reduces to 1/lifetime, and whichever is born LAST wins $2.
+     * The ROM has the address in $2 AND emits its `lui` first, which the two
+     * orderings cannot both give: writing the constant into a local before the
+     * store (`char flag = 1; D_006D04B4[0] = flag;`) fixes the registers but
+     * then emits `li` first (2 diffs), and the plain `D_006D04B4[0] = 1;` emits
+     * `lui` first but puts the constant in $2 (3 diffs).  Not retired. */
     register char *p = D_006D04B4;
     register int one __asm__("$3") = 1;
     int masked = a0 & 0xFF;

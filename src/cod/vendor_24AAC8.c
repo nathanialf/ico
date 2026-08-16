@@ -1065,12 +1065,14 @@ int func_0024D848(void) {
     return v;
 }
 
-/* Same symbol as D_0055092C above, typed volatile for this function
- * only: the ROM leaves the unlock call's delay slot EMPTY here, which is
- * the signature of a memory reference the assembler may not move.  The
- * siblings above match with the plain typing, so the difference is local
- * to this body. */
-
+/* D_0055092C again, volatile through this function only.  The ROM leaves the
+ * unlock call's delay slot EMPTY here and schedules the load one slot later in
+ * the success path, both of which are what a volatile-qualified read of this
+ * word produces; the three functions above are the same template and match with
+ * the plain typing, so the two declarations coexisted in the original sources.
+ * `src/cod/vendor_24AAC8` is a splat blob spanning several real translation
+ * units, so the two declarations have to share a file here and the alias is the
+ * only way to spell that.  Retiring it costs 5 diffs, all scheduling. */
 extern volatile int D_0055092C_v[] __asm__("D_0055092C");
 
 extern volatile int D_00550954[];
@@ -1084,13 +1086,11 @@ int func_0024D900(void) {
     }
     p = D_00551B00;
     D_00550954[0] = 8;
-    if (func_00246458(D_00552348, 0x16, 0, 0, 0, p, 4, 0, 0) >= 0) {
-        goto ok;
+    if (func_00246458(D_00552348, 0x16, 0, 0, 0, p, 4, 0, 0) < 0) {
+        func_00100540(D_0055092C_v[0]);
+        D_00550954[0] = 0;
+        return 0;
     }
-    func_00100540(D_0055092C_v[0]);
-    D_00550954[0] = 0;
-    return 0;
-ok:
     D_00550954[0] = 0;
     v = *(int *)((int)p | 0x20000000);
     func_00100540(D_0055092C_v[0]);

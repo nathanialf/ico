@@ -125,9 +125,7 @@ void actSt00aEnemy2(volatile int a0) {
 extern void backStageProcessOutStage(int a0);
 extern void stgmgrForceSwitchWithFade(int a0);
 
-void actSt00aStair(int a0) {
-    volatile int x;
-    x = a0;
+void actSt00aStair(volatile int a0) {
     _ACTWait((int)((float)((0x3C - D_00274EC0[0] * 0xA) / D_00274EC0[1]) * 5.0f));
     stgmgrForceSwitchWithFade(1);
     backStageProcessOutStage(1);

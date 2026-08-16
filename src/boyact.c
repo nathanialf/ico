@@ -149,7 +149,7 @@ extern int ForMotionViewer_GetCurrentAnimationFrame(void *a0, int a1);
 extern int actGirlBecall(void *a0, int a1);
 extern int actSt25aQueenDead(int a0, void *a1, void *a2, float a3, float a4);
 extern float func_0014B358(int a0);
-extern union { long long fl[2]; int ix[8]; } D_006AAAE0u __asm__("D_006AAAE0");
+extern union { long long fl[2]; int ix[16]; } D_006AAAE0u __asm__("D_006AAAE0");
 
 void CheckCollisionAttr(void *a0) {
     void *sub = *(void**)((char*)a0 + 0x15C);
@@ -1137,10 +1137,9 @@ extern char D_005584E8[];
 extern char D_006322B0[];
 
 
-extern int D_006AAAE0_i[] __asm__("D_006AAAE0");
 void func_00154BC0(int *volatile a0) {
-    int s1 = D_006AAAE0_i[8];
-    int s0 = D_006AAAE0_i[9];
+    int s1 = D_006AAAE0u.ix[8];
+    int s0 = D_006AAAE0u.ix[9];
     int s4 = *(int *)((char *)a0 + 0x164);
     int *p = a0;
     int s2 = *(int *)((char *)p + 0x164);
@@ -1153,7 +1152,7 @@ void func_00154BC0(int *volatile a0) {
             WeaponCurPos((int *)s0, p, 0x16);
             w = *(int *)((char *)s0 + 0x8);
             *(int *)((char *)s2 + 0x140) = s0;
-            D_006AAAE0_i[0] = w;
+            D_006AAAE0u.ix[0] = w;
             if (s1 != 0) {
                 ExecWeaponHitReaction((void *)s1);
                 InitSwapWeapon();
@@ -1162,7 +1161,7 @@ void func_00154BC0(int *volatile a0) {
             }
         }
     }
-    *(int *)((char *)s4 + 0x140) = D_006AAAE0_i[9];
+    *(int *)((char *)s4 + 0x140) = D_006AAAE0u.ix[9];
 }
 
 void actBoySupportGBLoop(int x) {
@@ -1180,14 +1179,14 @@ void actBoySupportGBEnd(int a0)
 void func_00154CE8(int *a0, int *a1)
 {
     if (a0 != 0) {
-        D_006AAAE0_i[0] = a0[2];
+        D_006AAAE0u.ix[0] = a0[2];
     } else {
-        D_006AAAE0_i[0] = 0;
+        D_006AAAE0u.ix[0] = 0;
     }
     if (a1 != 0) {
-        D_006AAAE0_i[1] = a1[2];
+        D_006AAAE0u.ix[1] = a1[2];
     } else {
-        D_006AAAE0_i[1] = 0;
+        D_006AAAE0u.ix[1] = 0;
     }
 }
 
