@@ -10,7 +10,18 @@ INCLUDE_ASM("asm/nonmatchings/src/spider", func_001EA5E8);
 
 INCLUDE_ASM("asm/nonmatchings/src/spider", func_001EA9C8);
 
-INCLUDE_ASM("asm/nonmatchings/src/spider", func_001EACE8);
+extern char D_006335E0[];
+extern void debug_assertMessage();
+extern void func_001AE460(void *a0);
+
+void func_001EACE8(void *a0)
+{
+    char *p = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x800);
+
+    *(int *)(p + 0x3C) = 1;
+    func_001AE460(a0);
+    return debug_assertMessage(D_006335E0, *(int *)((char *)a0 + 8));
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/spider", func_001EAD28);
 
