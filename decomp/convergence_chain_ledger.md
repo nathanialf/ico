@@ -28,7 +28,8 @@ Chain started 2026-08-16. Policy from the user, verbatim:
 | F1 | `func_00244958` | `src/cod/vendor_2418A0` | 10 | 4 (opus, fable, opus, opus) | no match; best crutch-free rc3/sites3, best-overall rc2/sites2 but crutched. Re-enters the queue. Not parked, no floor claimed. |
 | F2 | `fzShowV` | `src/fuzio` | 15 | 1 (opus) | **MATCHED** `3c0c6b00`, first compile rc0 |
 | F3 | `func_001AE420` | `src/haveParentSimpleObj` | 16 | 1 (opus) | **MATCHED** `7a8bd3bb`, first compile rc0 |
-| F4 | `func_001EACE8` | `src/spider` | 16 | 1 (opus) | running |
+| F4 | `func_001EACE8` | `src/spider` | 16 | 1 (opus) | **MATCHED** `8b518218`, first compile rc0 |
+| F5 | `reallocseki` | `src/Basic` | 17 | 1 (opus) | running |
 
 ---
 
@@ -132,7 +133,46 @@ work exists on it.
 
 | # | edit | base | outcome |
 |---|---|---|---|
-| 1 | launch opus convergence worker, frozen brief, no target named; in-TU `jal` false-negative noted in the measurement traps | `INCLUDE_ASM` stub, tree green at `fbf50c75…` | pending |
+| 1 | launch opus convergence worker, frozen brief, no target named; in-TU `jal` false-negative noted in the measurement traps | `INCLUDE_ASM` stub, tree green at `fbf50c75…` | **MATCHED, rc0 on the first compile.** Committed `8b518218`. |
+| 1a | **supervisor verification (mine):** `rm build/src/spider.o` then full `.venv/bin/ninja` | worker's landed TU | `verify_elf: OK (fbf50c75…)`; oracle `status match / rc 0 / diff_sites 0`; crutch-free. |
+
+```c
+void func_001EACE8(void *a0)
+{
+    char *p = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x800);
+
+    *(int *)(p + 0x3C) = 1;
+    func_001AE460(a0);
+    return debug_assertMessage(D_006335E0, *(int *)((char *)a0 + 8));
+}
+```
+
+`a0` is the spider actor; `a0+0x15C` points at the owning manager and `+0x800` off that is a
+substruct whose `+0x3C` int is raised to 1 before the hand-off — the same double-deref idiom already
+matched in the sibling `func_001EAE70` at `src/spider.c:19`. `func_001AE460` is one-arg (signature
+from `src/generator.c:28` and `src/ropeFix.c:62`), which ROM confirms by passing `$4` through
+untouched. The trailing `j debug_assertMessage` is the void-TCO idiom — `return f(...);` from a void
+function with an empty-parameter-list extern, exactly as in the matched `dl_OpenDma`
+(`src/DisplayList.c:152`); that return form is what produces the `j` epilogue instead of a `jal`.
+The `addiu $5,$0,1` hoist and the store landing in the `jal` delay slot fall out of natural
+statement order — no shape pressure was needed.
+
+---
+
+## F5 — `reallocseki` (`src/Basic`, 17 insns)
+
+ROM (read this session, 0x44): saves the gp-rel word `D_00633780` into `s0`, sets it to 1, calls
+`func_0013A0F8(D_00632024, size, &D_0061A8A8, 0x17E)` — a debug allocator wrapper with a
+`__FILE__`-style string and line 382 — then restores `D_00633780` from `s0`. `freeseki` in the same
+TU is also still a stub.
+
+Prior work: `decomp/port_ledger.md:403` — an aug6 port reverted at "insn 5: expected `lui a2,0x0`
+built `addiu a3,zero,382`", i.e. the line-number immediate landed where ROM has the `%hi` half of
+the string address.
+
+| # | edit | base | outcome |
+|---|---|---|---|
+| 1 | launch opus convergence worker, frozen brief, no target named, prior-port datum attached as a pointer | `INCLUDE_ASM` stub, tree green at `fbf50c75…` | pending |
 
 ---
 
