@@ -37,7 +37,99 @@ Chain started 2026-08-16. Policy from the user, verbatim:
 | F10 | `src/st05d` family (9 stubs) | `src/st05d` | — | 1 (opus) | **ALL 9 MATCHED** `06e290fe`; TU now 100% C |
 | F11 | `src/st17a` family (26 stubs) | `src/st17a` | — | 1 (opus) | **25 of 26 MATCHED** `36b2a88b` |
 | F12 | `func_0022DBC8` | `src/st17a` | 132 | 1 (opus) | **MATCHED** `42f45a6c`; `src/st17a.c` now 26/26 |
-| F13 | `src/keyInput` family (17 stubs) | `src/keyInput` | — | 1 (opus) | running |
+| F13 | `src/keyInput` family (17 stubs) | `src/keyInput` | — | 1 (opus) | **10 of 17 MATCHED** `68a23262` |
+| F14 | `src/keyInput` remaining 7 | `src/keyInput` | — | 1 (opus) | running |
+
+### F13 result — `src/keyInput.c`, 10 of 17
+
+**Verification (mine):** `rm build/src/keyInput.o`, full ninja → `verify_elf: OK (fbf50c75…)`; 7
+stubs left. **Supervisor cleanup:** dropped 4 exact-duplicate `extern` lines, byte-neutral,
+re-verified.
+
+**Data model.** `D_00275250` is a **2-element pad-state array, stride 0x58**: `+0x00` buttons,
+`+0x04/+0x08` stick, `+0x0C` repeat bitmask (also reachable as the separate symbol `D_0027525C`),
+`+0x10` previous buttons, `+0x14…0x50` sixteen `unsigned` per-bit hold counters, `+0x54…0x57` four
+actuator bytes. `D_0065FA40` is a matrix stack of stride 0x40 indexed by the gp-rel depth
+`D_00631B40`; `D_002758E0/920/960/9A0` are four scratch 4×4 matrices.
+
+**Mechanisms measured (all compiled):**
+- **Matrix-store source order is DESCENDING index.** `[5],[6],[9],[10]` and `[5],[10],[6],[9]` both
+  emit the two cos stores in the wrong order; `[10],[9],[6],[5]` matches, and the same descending
+  order matched two more functions first try.
+- **Pointer carrier for a second stack buffer.** ROM addresses `buf[3]` through the register already
+  carrying `&buf` where gcc emits `28(sp)`; routing every use through `float *m = buf;` matched two
+  functions. The carrier is genuinely used 3–4 times, so this is the re-association side of
+  COOKBOOK §13.19, not an orphan carrier.
+- **`mult1` gating, probed directly** (`scratchpad/probe/m1.c`–`m3.c`): ee-gcc 2.9-991111 emits
+  `mult1` **only when both multiplies live in ONE assignment expression**. Split into two statements,
+  or joined by a comma operator, gives `mult` + `mult` plus an assembler hazard `nop`. This is
+  **narrower than the `auto_mult1` note implies** — worth propagating back to that note.
+- **A `goto` loop suppresses `loop.c` invariant hoisting** (`func_00104AF0`): with `do{}while`, gcc
+  hoists `addiu s4,zero,-1` into the prologue; ROM has it inside the loop.
+- **The offset-0 store is what creates a spurious address carrier** (`func_001050E0`):
+  `cse.c:canon_reg` unifies the `(plus sp 0x20)` inside `*(float*)(m+0) = c` with the same address
+  passed as a call argument. Diagnostic, compiled: moving that one store to a non-zero offset makes
+  the extra `addu $17,$29,32` disappear entirely.
+- **`allocno_compare` read via `-dg`/`-dl`:** `pri = floor_log2(n_refs)·n_refs/live_length`, with
+  `n_refs` weighted ×2 inside a loop, ties broken to the lower pseudo. Recipe: compile the isolated
+  function and read `Pass 1 registers to be allocated in sorted order` + `Register dispositions`.
+- `const` on an extern float is **not** the LICM lever — it hoists *both* bounds and adds a `mov.s`.
+
+### CRUTCH RULING — `register float dot __asm__("$fN")` in the two VU0 leaves: ACCEPTED
+
+The round flagged this itself rather than claiming clean, which is the right instinct. I ruled on it
+by reading the code rather than the argument.
+
+**Accepted, and here is the distinction that decides it.** `VU0_MTC1(v0, 12)` expands to a
+bare-string `mtc1 $v0, $f12` — a real instruction that writes hard register `$f12`. The declaration
+introduced here is **uninitialized**:
+
+```c
+register float dot __asm__("$f12");   /* no initializer */
+…
+VU0_QMFC2_NI(v0, 3);
+VU0_MTC1(v0, 12);
+_PushVu0Registers(buf, a1, -dot);
+```
+
+It carries no value from C. Its only job is to give a C name to the hard register the inline asm just
+wrote, because the `VU0_*` macros take register-name *tokens*, not operands — there is no other way
+to read a `qmfc2`/`mtc1` result. That is **operand binding, not allocation steering**, and it fails
+the crutch test's premise: the construct does not exist to move a value into a register, it names a
+register the emitted `mtc1` already fixed.
+
+CLAUDE.md's banned spelling is `register int x __asm__("$3") = ...` — **with an initializer**, i.e. a
+value arriving from ordinary C that is being forced into a register. That is the pin. I verified no
+initialized form was introduced here (`grep 'register .*__asm__.*='` is empty). The same uninitialized
+idiom is already committed and matched in `src/pool.c:28` and `src/clothTest.c:105`, and CLAUDE.md's
+legitimate list names the VU0 whole-function exception.
+
+**Debt flagged, not propagated:** `src/pool.c:26` also contains
+`register float thr __asm__("$f20") = threshold;` — the *initialized* form, which is the banned
+spelling. It predates this chain and I am not touching it here, but it should not be used as
+precedent for new code, and it belongs on the crutch-debt inventory.
+
+---
+
+## F14 — `src/keyInput`, the remaining 7
+
+Relaunching on the same TU rather than rotating: the round left seven sharply-characterised
+residuals with the data model complete, which is the cheapest state a follow-on ever gets. Residuals
+as the round measured them (leads, not verdicts):
+
+| func | best | residual |
+|---|---|---|
+| `ExecKeyInput` | 2 FP letters + 1 delay slot | `-dg` shows `hi` (refs 6, live_length 4) sorting before `v` (refs 6, ll 5); five spellings all gave identical 6/6 refs |
+| `func_00104940` | 2 sites | `local-alloc` ties the `add.s` hard-reg dest to the LAST dying input; seven spellings identical |
+| `func_00104AF0` | 2 sites | `sched1` **interblock** speculatively hoists the call's arg copies above the `beq`, so the value conflicts with hard `$5` and is exiled to `$2`; ROM has no hoist |
+| `func_00104A48` | ~4 sites | same interblock class, plus a `v0/v1` swap on two loop-invariant address roots |
+| `func_00104B98` | rc21 / 9 sites | needs both multiplies in ONE assignment (see `mult1` gating above), plus a separately-materialised base for five `base+K` invariants |
+| `func_001050E0` | rc33 / 17 sites | structure, frame `0xF0` and call sequence correct; the offset-0-store carrier above, a `c2`/`s2` letter swap, and a store-pair order |
+| `func_00104C80` | rc73 / 31 sites, frame `0x160` matches | full semantics decoded including the `unsigned` hold counters and the signed button word; built spills two buffer addresses where ROM spills one |
+
+| # | edit | base | outcome |
+|---|---|---|---|
+| 1 | relaunch opus on the same TU with the seven residuals as a map | `src/keyInput.c` at `68a23262`, tree green | pending |
 
 ### F12 result — `src/st17a.c` cleared 26/26, and the best mechanism chain of the run
 
