@@ -113,7 +113,15 @@ INCLUDE_ASM("asm/nonmatchings/src/DisplayP2O", func_0010EAD0);
 
 INCLUDE_ASM("asm/nonmatchings/src/DisplayP2O", func_0010EB60);
 
-INCLUDE_ASM("asm/nonmatchings/src/DisplayP2O", func_0010EC08);
+extern short func_0010EB60(float c);
+
+short func_0010EC08(float s, float c)
+{
+    if (s < 0.0f) {
+        return -func_0010EB60(c);
+    }
+    return func_0010EB60(c);
+}
 
 void func_0010EC50(int a0)
 {
