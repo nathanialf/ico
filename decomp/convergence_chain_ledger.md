@@ -103,7 +103,39 @@ delay slot returned 19 sites, all in `src/cod/vendor_*`.
 
 | # | edit | base | outcome |
 |---|---|---|---|
-| 2 | relaunch on **fable** — the user's escalation rule for stuck, and this is the "constraint known, form unknown" case: the round left a sharp, fully-characterised live-range question rather than an open search | frontier above (rc2/sites2, crutched) with the TU at `INCLUDE_ASM` | pending |
+| 2 | relaunch on **fable** — the user's escalation rule for stuck, and this is the "constraint known, form unknown" case: the round left a sharp, fully-characterised live-range question rather than an open search | frontier above (rc2/sites2, crutched) with the TU at `INCLUDE_ASM` | **rc3 / sites3, size 11 vs ROM's 10.** Crutch-free (the volatile MMIO body) but a regression on both sites and size. Stashed, not committed. |
+| 2a | **supervisor re-measurement + CORRECTION.** The worker reported "the built stream is the SAME 10 instructions as ROM… a pure permutation"; its own inline code comment in the same round said "12 insns vs ROM's 10". Both are wrong. I ran `quick_diff` on its state: built is **11** instructions, ROM is 10. | worker's landed TU state | The extra insn is the `beq`'s empty delay slot: built emits `lw v0,0(v0)` *before* the `beq`, then `nop` in the slot, then `nop` again after `jr`. Not a permutation — a real +1. |
+| 2b | STRUCTURAL RULING (mine, on the round's own evidence): the volatile branch is a **dead end**, not the standing crutch-free state the worker proposed | both frontiers | The round source-read `reorg.c:262-271` + `resource.c:223` and established that `resource_conflicts_p` conflicts on `volatil` on *either* side, so a volatile trial insn can NEVER fill any delay slot. ROM's slot is filled. Therefore the volatile shape cannot reach 0 by its own measured mechanism, at any count. Per structure-over-count, the live branch is the NON-volatile one from round 1, which already reproduces the filled slot. Declining the "adopt volatile as standing state" proposal. |
+| 2c | TU restored to `INCLUDE_ASM`; crutch-free frontier stashed at `tough_nuts/delayslot_unfilled/vendor_2418A0_func_00244958_frontier_rc3_volatile_CRUTCHFREE.c` | — | Tree was RED under the worker's state (`actual ed9063ed…` vs `expected fbf50c75…`) — a non-matching body cannot be left in the tree. After restore: `verify_elf: OK (fbf50c75…)`. |
+
+**Round 2 durable mechanisms** (source-read or compiled; notes + dumps at `scratchpad/r958c/`):
+
+- `mips.h CONST_COSTS` hardwires CONST_INT cost to 0 (non-MIPS16), so cse always canonicalises a
+  computable pointer value to `(set p CONST_INT)`. No cost escape. Label opacity is not available
+  under ROM's single-branch CFG either — a `do{}while(0)` label dies at `jump1` (compiled).
+- `gcse.c cprop_insn` propagates only CONST_INT / CONST_DOUBLE / reg-copy sources. A `symbol_ref`
+  def is cprop-invisible but materialises as `lui/addiu`, and ROM's byte is `ori` (opcode 0x34) —
+  so that escape is dead on bytes. `(mem (plus p k))` blocks cprop but shows `k` in the `lw` offset
+  field, and ROM's offset is 0.
+- The `reorg.c` / `resource.c` volatile veto above. (`resource.c:223` is `=` not `|=`, but no MIPS
+  single-SET insn carries two MEMs, so that is unexploitable.)
+- The rc2 write-back survives to `greg` and is deleted by `reload_cse` as a no-op store; it protects
+  the load from combine, and its post-load pointer use is exactly what forfeits the `$2` coalesce.
+- Compiled dead this round: DI-carrier addresses (collapse at expand for constants); uninitialised
+  `old` (live-at-entry makes `old` conflict with sentinel and pointer, so ROM's `lw v0,0(v0)`
+  requires `old` defined on all paths); a 4-byte extern store goes gp-rel under `-G8`.
+
+**Partition the two rounds jointly establish** for the slot insn `lw $2,0($2)`: same-block + dying →
+combine folds to the slot-ineligible macro; same-block + live-past → the rc2 conflict (dest ≠ `$2`);
+cross-block + B0 def → cprop folds; cross-block + local def → a miniature of the same two;
+symbol / plus / DI / volatile → wrong bytes or unslottable. ~60 shapes compiled across four rounds
+all land in it. Recorded as a description of what has been compiled, NOT as a boundary — the route
+that reconstructs ROM's layout end-to-end (two-arm loads + reorg thread-steal redundancy) has cprop
+as its only blocker and was left explicitly open by the round.
+
+| # | edit | base | outcome |
+|---|---|---|---|
+| 3 | relaunch on **opus** with the corrected size measurement and the volatile-branch ruling | crutched rc2/size-10 and crutch-free rc3/size-11 frontiers, TU at `INCLUDE_ASM`, tree green | pending |
 
 ---
 
