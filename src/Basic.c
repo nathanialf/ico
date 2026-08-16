@@ -97,10 +97,22 @@ int resetmallocseki(void *a0)
 
 void mallocsekistage(void) {}
 
-INCLUDE_ASM("asm/nonmatchings/src/Basic", reallocseki);
+extern int D_00632024;
+extern const char D_0061A8A8[];
+extern int func_0013A0F8(int heap, int size, const char *file, int line);
+
+int reallocseki(int size)
+{
+    unsigned int save = D_00633780;
+    int r;
+
+    D_00633780 = 1;
+    r = func_0013A0F8(D_00632024, size, D_0061A8A8, 0x17E);
+    D_00633780 = save;
+    return r;
+}
 
 extern int iosMallocAlignDebug(int size, int align, const char *file, int line);
-extern const char D_0061A8A8[];
 
 int func_001F6E00(int size, int align)
 {
