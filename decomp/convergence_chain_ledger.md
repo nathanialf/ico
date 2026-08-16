@@ -32,7 +32,67 @@ Chain started 2026-08-16. Policy from the user, verbatim:
 | F5 | `reallocseki` | `src/Basic` | 17 | 1 (opus) | **MATCHED** `337953bb`, first compile rc0 |
 | F6 | `func_0010EC08` | `src/DisplayP2O` | 18 | 1 (opus) | **MATCHED** `7d7c4a7d`, first compile rc0 |
 | F7 | `func_001186C8` | `src/MicroCode` | 18 | 1 (opus) | **MATCHED** `a5226391`, first compile rc0 |
-| F8 | `func_0023B170` | `src/access` | 18 | 1 (opus) | running |
+| F8 | `func_0023B170` | `src/access` | 18 | 1 (opus) | **MATCHED** `05a8dc8f`, first compile rc0 |
+| F9 | `src/access` family (19 stubs, 18–48 insns) | `src/access` | — | 1 (opus) | running |
+
+### F8 result — `func_0023B170`, and the `src/access` actor-thread template
+
+Verified by me: `rm build/src/access.o`, full `.venv/bin/ninja` → `verify_elf: OK (fbf50c75…)`;
+oracle `status match / rc 0 / diff_sites 0`.
+
+```c
+void func_0023B170(volatile int a0) {
+    int x = a0;
+    actInitialize(a0);
+    _ACTWait(1);
+    scpSetCageVelocityFriction(0xCAA, 0, 0x1E3, 0);
+}
+```
+
+An actor-thread entry: register the thread, yield a frame, set cage velocity/friction for cage
+`0xCAA` against target `0x1E3`. Callee signature from `src/e3.c:278` / `src/script.c:45` matches
+ROM's `$4=0xCAA, $5=0, $6=0x1E3, $7=0`.
+
+**My launch lead was right about the shape and wrong about the mechanism.** I read the stack home
+plus discarded load as "an addressable or `volatile` parameter". It is specifically:
+`volatile int a0` homes `$4` to `0x0($29)` and reloads on **every** read, and the dead
+`int x = a0;` initializer is the *second* volatile read. So the `sw` plus two loads from `0x0($29)`
+— one into a register never read again, one into `$4` — is one object (the param's home) read twice,
+not an address-taken local.
+
+**Crutch call, and why it passes.** `int x = a0;` emits a real `lw` from a volatile object, so it is
+not the zero-code dead-store class. Decisive evidence is that the identical two-line preamble is
+*already committed and matched* in two sibling TUs by the same programmer — I re-read both rather
+than taking the citation on trust: `src/st13b.c:31` (`actSt13bFloorChk`) and `src/st03t.c:110`
+(`actSt03tSwitchRChk`). It is the dev's house idiom, not a construct invented to steer codegen.
+
+**Durable signature for the corpus:** in `src/access.c` and its sibling actor TUs, a prologue of
+`sw $4,0($sp)` followed by *two* loads from `0x0($29)` — one into a register never read again, one
+into `$4` for the first call — is this idiom. Check it before reaching for a static-chain /
+nested-function reading: the dead load landing in `$2` is coincidental register selection, and
+`actInitialize` does not consume `$2` on entry.
+
+---
+
+## F9 — the `src/access` template family (scope decision)
+
+**Deliberate scope change, recorded so it is visible.** `func_0023B1B8` turned out to be
+byte-for-byte `func_0023B170` with two immediates changed (`0xCAA`→`0xCA9`, `0x1E3`→`0x1E4`).
+Spending a whole round per two-constant clone is waste, so this round is scoped to the **19
+remaining stubs in `src/access.c`** (18–48 insns), worked smallest-first, one at a time, each gated
+by a full ninja before moving on.
+
+This does not break the one-live-worker-per-TU rule — it is still exactly one worker on one TU. It
+does relax the skill's one-function-per-worker default, which is a supervisor decision and is logged
+here rather than made silently. Instructions to the worker: land one, verify, then next; a function
+that does not fit the template is reported as what it actually is, not forced; anything that resists
+keeps its `INCLUDE_ASM` stub so the tree never goes red. The worker was also told the instruction
+counts in its table are mine and are exactly the kind of number that has been wrong in this chain.
+
+| # | edit | base | outcome |
+|---|---|---|---|
+| 1 | launch opus worker scoped to the TU family, template handed over as a model to confirm-or-refute per function | `src/access.c` clean at HEAD, tree green at `fbf50c75…` | pending |
+| 1a | supervisor message: typo correction, the brief's BANKING line said `.venj/bin/ninja` | same | sent mid-round |
 
 ### F7 result — `func_001186C8`, and a durable discriminator
 
