@@ -43,7 +43,69 @@ Chain started 2026-08-16. Policy from the user, verbatim:
 | F16 | `src/st13b2` family (19 stubs) | `src/st13b2` | — | 1 (opus) | **18 of 19 MATCHED** `7bee331f` |
 | F17 | `src/st10l` family (26 stubs) | `src/st10l` | — | 1 (opus) | **19 of 26 MATCHED** `2d4a6615` |
 | F18 | `src/st10r` family (19 stubs) | `src/st10r` | — | 1 (opus) | **11 of 19 MATCHED** `fb506f3c` |
-| F19 | `src/way_util` family (24 stubs) | `src/way_util` | — | 1 (opus) | running |
+| F19 | `src/way_util` family (24 stubs) | `src/way_util` | — | 1 (opus) | **14 of 24 MATCHED** `306b1180` |
+| F20 | `src/camera-ico2` family (22 stubs) | `src/camera-ico2` | — | 1 (opus) | running |
+
+### F19 result — `src/way_util.c`, 14 of 24, and the highest-yield mechanism of the chain
+
+**Verification (mine):** `rm build/src/way_util.o`, full ninja → `verify_elf: OK (fbf50c75…)`; 10
+stubs left; zero duplicate externs. Pushed `fb506f3c..306b1180`. **Progress 3126/5447 — 146 this
+session.**
+
+**The big one, which unblocked six functions on its own.** Taking `&local` at a **nonzero frame
+offset** and using it twice or more in a loop *always* hoists into a callee-save. Measured from
+`-dr/-ds/-dl/-dg` dumps: expand emits one pseudo per use of `(plus virtual-frame K)`; **CSE always
+merges them**, even across `jal`s and basic-block boundaries; `update_equiv_regs` only substitutes
+at ≤1 use, so the merged pseudo survives to global-alloc. Five plain-C variants (block scope, single
+array + `&a[4]`, separate arrays, extra pressure, pointer-arg cast) all hoisted. ROM instead
+materialises `addiu a0,sp,K` at every use, and the shape that reproduces that is a
+**`static __inline__` helper taking the object BY POINTER, with the object owned by the CALLER** —
+the inliner substitutes the invariant address per use and CSE does not re-merge. Confirmed by
+finding the same shape in already-matched `src/commonact.c:943`, then reproduced in three probes.
+Caller-owned is required: helper-owned puts the initialiser inside the loop where ROM has it in the
+preheader. Related and separately measured: **`sp+0` never becomes an allocno, `sp+K` always does**,
+and that is offset-driven, not declaration-order-driven.
+
+Other mechanisms, all compiled:
+- **A circular-list walk needs TWO variables, not one.** One pseudo lets jump-opt cross-jump the
+  entry guard into the bottom test; two keep the guard duplicated as ROM has it. Assigning the copy
+  *before* the zero-test moves it into the `beq` delay slot and turns `bne` into `bnel` — one line,
+  rc6 → rc0.
+- **Short-circuit `&&` of two inline helpers** is what makes gcc thread the early-exit edge past the
+  second test and pick `bnel` with the increment annulled; one helper with either one or two
+  `return`s leaves `bne` + `nop`.
+- `list[i].node` rather than a `p++` cursor produces the strength-reduced cursor in the preheader,
+  and reusing the first loop's variable as the second loop's node assigns `s0`/`s1` in ROM's order.
+- A second field load must be written **inline at its use sites**; precomputing it into a local makes
+  gcse-PRE hoist it to the common dominator instead of sinking a copy into each branch.
+- `nm` confirms no `static __inline__` helper leaked a `FUNC` symbol — but `wb_dist`/`wb_box` had to
+  be moved above their first caller or gcc emits them as real symbols with an `int` return.
+
+**Correction to the auto-memory `crutch_debt_retired`, verified by me.** That note recorded "4
+`way_util` barriers remain" at `:133 :158 :211 :241`. They are **not in the file** — I grepped
+`src/way_util.c` at `306b1180` for every pin/barrier form and got nothing; the only two `__asm__`
+uses are the documented last-resort symbol aliases `D_004C7CF0_ve` / `wcf_c`, which are the
+legitimate case (one symbol needing two incompatible C views). Memory updated, and annotated as a
+live example of why an inherited crutch claim must be re-measured rather than cited: it was accurate
+when written and wrong 16 days later.
+
+One spelling flagged rather than hidden: `gp = gp - (-(g * 0x34));` in `short_direction_between_wp`.
+It emits the required `addu` and only fixes its rs/rt order; five natural forms all give
+`addu rd,prod,base` where ROM has `addu rd,base,prod`. This is the documented `swap_addu` cookbook
+lever and it emits real bytes, so it is not the zero-code class — but it is ugly enough to be worth
+re-deriving if a cleaner equivalent turns up.
+
+---
+
+## F20 — the `src/camera-ico2` family (22 stubs)
+
+The camera subsystem (`omori`'s area), so a matrix/vector float-heavy data model rather than the
+actor/stage templates. The `&local`/inline-helper finding above should be the strongest prior here,
+since that is exactly the shape float-matrix code takes.
+
+| # | edit | base | outcome |
+|---|---|---|---|
+| 1 | launch opus worker scoped to the TU family | `src/camera-ico2.c` clean at HEAD, tree green at `fbf50c75…` | pending |
 
 ### F18 result — `src/st10r.c`, 11 of 19
 
