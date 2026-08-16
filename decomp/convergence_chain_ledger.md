@@ -41,7 +41,62 @@ Chain started 2026-08-16. Policy from the user, verbatim:
 | F14 | `src/keyInput` remaining 7 | `src/keyInput` | — | 1 (opus) | **1 MATCHED** `aa7c8fae`; 6 left |
 | F15 | `src/st24a` family (15 stubs) | `src/st24a` | — | 1 (opus) | **12 of 15 MATCHED** `d6304a5c` |
 | F16 | `src/st13b2` family (19 stubs) | `src/st13b2` | — | 1 (opus) | **18 of 19 MATCHED** `7bee331f` |
-| F17 | `src/st10l` family (26 stubs) | `src/st10l` | — | 1 (opus) | running |
+| F17 | `src/st10l` family (26 stubs) | `src/st10l` | — | 1 (opus) | **19 of 26 MATCHED** `2d4a6615` |
+| F18 | `src/st10r` family (19 stubs) | `src/st10r` | — | 1 (opus) | running |
+
+### F17 result — `src/st10l.c`, 19 of 26
+
+**Verification (mine):** `rm build/src/st10l.o`, full ninja → `verify_elf: OK (fbf50c75…)`; 7 stubs
+left; crutch scan clean. Pushed `7bee331f..2d4a6615`. **Progress 3101/5447 — 121 this session.**
+
+**Supervisor cleanup, and it was large: 129 duplicate `extern` lines** (26 distinct declarations
+repeated per-function). Stripped and re-verified byte-identical with a forced rebuild. The
+"declare each extern once" instruction was in the brief and did not take, so the next brief states
+it in bold with the count, and asks for one shared block plus per-function blocks only for genuinely
+new symbols.
+
+Mechanisms, all compiled:
+- **BoxBar wrapper template, with store order load-bearing:** `ARR[1]=fn` *then* `gobj->unkC4=ARR`
+  gives ROM's `$2`=array / `$3`=fn; the reverse swaps the pair (rc7→0).
+- **`extern volatile float` blocks a sunk `lwc1`, confirmed twice more — and only the *sunk* global
+  needs the qualifier**, not both of the pair.
+- **Float compare direction is a source shape:** `>= -2.0f` emits `c.le.s`; ROM's `c.lt.s` + `bc1f`
+  needs `!(x < -2.0f)`.
+- **A delay-slot fill can need the load hoisted in SOURCE, not merely scheduled.** The store could
+  not move past an aliasing global load; splitting both reads into locals ahead of the store put it
+  in the `beq` delay slot (rc2→0).
+- Float constants with a zero low half are plain literals, not `.lit4` entries — independent
+  confirmation of the `st13b2` finding.
+- Typedef placement is **not** an extern-order lever (moving it changed no codegen), but the typedef
+  must be declared once at the top or earlier functions break.
+
+Seven left. **Six are one class** — a "QueenDeadChk + interleaved wrapper store" block, best state
+rc4 / 3 sites with registers, alias-set store order and function size all exactly ROM. The residual
+is a single sched2 permutation, and the round calibrated the ranking empirically against the
+compiler's own tables: **sched1 ranks by (lower `INSN_REG_WEIGHT`, higher priority, LUID); sched2
+drops the weight term and ranks by (priority, LUID); the ready-list print is sorted best-last.** The
+fn `%hi` and the volatile load tie at priority 7 in sched2, so the LUID out of sched1 decides, and
+sched1 always emits the load first because a volatile read is pinned after the preceding stores.
+Breaking the tie needs the `A` store to gain a **true-dependency** successor — an anti/output dep
+costs 0 and does not help — and every construction tried that gives it one also forces `A` out of
+the delay slot. Six spelling families were compiled and refuted.
+
+**The seventh is a second instance of the placeholder-symbol-name class:** `func_00226478` is the
+twin of the matched `func_00226300` with identical source, and the whole residual is that the two
+gcse-hoisted `%hi` pseudos land one register off. The round confirmed it is not caused by the callee
+being C vs `INCLUDE_ASM` (measured both ways) and correctly did **not** work around it by renaming.
+That makes two independent occurrences of this class in two TUs.
+
+---
+
+## F18 — the `src/st10r` family (19 stubs)
+
+`st10l`'s direct sibling, so the 19 templates just recovered plus the two near-miss snapshots are the
+closest reference material available — highest expected yield per round.
+
+| # | edit | base | outcome |
+|---|---|---|---|
+| 1 | launch opus worker scoped to the TU family; brief carries the extern-duplication instruction in bold with the 129-line count, and the symbol-names-are-data prohibition | `src/st10r.c` clean at HEAD, tree green at `fbf50c75…` | pending |
 
 ### F16 result — `src/st13b2.c`, 18 of 19
 
