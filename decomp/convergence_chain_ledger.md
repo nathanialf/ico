@@ -135,7 +135,102 @@ as its only blocker and was left explicitly open by the round.
 
 | # | edit | base | outcome |
 |---|---|---|---|
-| 3 | relaunch on **opus** with the corrected size measurement and the volatile-branch ruling | crutched rc2/size-10 and crutch-free rc3/size-11 frontiers, TU at `INCLUDE_ASM`, tree green | pending |
+| 3 | relaunch on **opus** with the corrected size measurement and the volatile-branch ruling | crutched rc2/size-10 and crutch-free rc3/size-11 frontiers, TU at `INCLUDE_ASM`, tree green | `budget: rc3 sites3`, no match. Stub restored by the worker, tree green, probes at `scratchpad/r958d/`. Independently re-derived my 11-vs-10 size figure by assembling the standalone `.s` and objdumping it. |
+
+### Round 3 — my own ruling was partly WRONG, correcting it here
+
+**Row 2b is partly refuted, and the error was mine.** I closed the volatile branch as a "domain
+ruling" on the strength of round 2's source read of `reorg.c`/`resource.c`, without measuring it —
+exactly the failure the orchestration reference warns about. Round 3 compiled it:
+
+- **REFUTED:** a volatile insn *can* fill a delay slot. `scratchpad/r958d/c.c f2` compiles to
+  `bnel $4,$2,$L5` with a **volatile `sw $4,0($5)` in the annulled slot** (the eager/thread path).
+  My "never fills any delay slot at any count" was wrong as stated.
+- **CONFIRMED for the path that matters:** `fill_simple_delay_slots`' steal-from-before never takes
+  a volatile memory op, load or store, across 8 probes (volatile load before `beq`, before `jal`,
+  before `j`/tail; volatile store before `jr $31` and before a tail call). The non-volatile twin
+  fills every time. Mechanism at `reorg.c:2141` `!insn_references_resource_p(trial,&set,1)` plus
+  `resource_conflicts_p`'s unconditional `res1->volatil || res2->volatil`.
+
+So the *conclusion* (the live branch is the non-volatile one) survives, because ROM's slot is filled
+by a steal-from-before and not by an annulled branch. The *ruling as I phrased it* did not. Narrow
+it to: steal-from-before never takes a volatile memory op.
+
+### Round 3 durable mechanisms
+
+- **NEW — combine reaches only the FIRST same-block use.** `flow.c:3387`
+  `if (y && (BLOCK_NUM(y) == blocknum) …)` with `y = reg_next_use[regno]`: LOG_LINKS go to the first
+  subsequent use and never cross a basic block. This is *why* the matched sibling `func_00254CF8`
+  matches — two same-block uses, so the load is LOG_LINK'd and refused by `added_sets_2`, and the
+  store has no LOG_LINK at all, so neither folds. Reusable rule, belongs in the cookbook.
+- `explow.c memory_address` force_regs every constant address at expand, so both accesses *start*
+  register-form; the macro forms are later folds. Cross-block use → cprop folds it (and cprop folds
+  volatile MEMs too, loads and stores, compiled). Same-block use → `combine.c:1600`
+  `added_sets_2 = !dead_or_set_p(i3,i2dest)`; when 0 the fold recogs, because `mips.h
+  GO_IF_LEGITIMATE_ADDRESS` accepts `CONSTANT_ADDRESS_P` for every mode except
+  `TARGET_MIPS5900 && TImode`.
+- Same-source A/B proving the register form is what is at stake: `func_00254CF8` verbatim →
+  register-form non-volatile `lw`/`sw` with the `sw` in the `jr` slot; the *same body with a branch
+  added* → both collapse to the macro form.
+- 8 further spellings compiled dead (`scratchpad/r958d/e.c` sA–sH): named pointer, one-variable
+  reuse, arm-local pointer, early-return CFG, array-typed extern store, `p[0]`, signed `int`,
+  aliased second pointer — all give `lw $3,268492896`.
+- Left explicitly open (model-derived, nothing compiled): `res->volatil = MEM_VOLATILE_P(x)` is an
+  assignment, not `|=`, so a later-traversed non-volatile MEM in the same insn clears the flag. No
+  MIPS single insn carrying a volatile MEM then a non-volatile one could be constructed from C.
+- cprop is genuinely blocked when `find_avail_set` finds no set available at the use's block entry,
+  which needs ≥2 defs of the pointer reaching that block. ROM itself does this at `func_00254D20`
+  0x254D8C/0x254DAC. For *this* function it costs an extra `lui` (11 insns), so it is closed by
+  instruction count **for func_00244958 only** — it stays live for family members with room.
+
+### Round 3's biggest finding — an 18-site FAMILY — with my correction
+
+A register-matched ROM scan for a delay-slot memory op whose base is built by a `lui/ori` of a
+`0x1xxxxxxx` MMIO constant returns **18 sites in 8 functions, all under `src/cod/vendor_*`**:
+`func_00242640` ×11, `func_00244958`, `func_00242F70`, `func_00252C68` ×2, `func_002581C0`,
+`func_00257F28`, `func_002525E8`, `func_001010C8`.
+
+**Correction (mine, verified this session):** the round reported "0 of the 8 are matched". That is
+wrong, and the exception is the important one. I checked each of the 8 in the TU sources:
+
+| function | insns | state |
+|---|---|---|
+| `func_001010C8` | 14 | **MATCHED — real C at `src/cod/vendor_100C90.c:127`** |
+| `func_00252C68` | 48 | stub, `src/cod/vendor_2517D0.c` |
+| `func_002525E8` | 54 | stub, `src/cod/vendor_2517D0.c` |
+| `func_00257F28` | 112 | stub, `src/cod/vendor_2575C0.c` |
+| `func_002581C0` | 150 | stub, `src/cod/vendor_2575C0.c` |
+| `func_00242640` | 239 | stub, `src/cod/vendor_2418A0.c` |
+| `func_00242F70` | 491 | stub, `src/cod/vendor_2418A0.c` |
+
+The scan was run over `asm/nonmatchings`, which is never pruned — a matched function keeps a stale
+orphan `.s` there (see the `stale_matchings` note), which is how a matched function was counted as
+unmatched. **`func_001010C8` is an answer key for this family, not a member of the backlog.**
+
+Its ROM is the same signature — `lui $3,0x1000 / ori $3,$3,0xF130 / lw $2,0($3)` with offset 0, a
+poll loop, then `jr $31` with a **non-volatile** `sb $4,0x0($3)` in the slot — and the matching C is:
+
+```c
+int func_001010C8(int c) {
+    unsigned int base;
+    do { base = 0x10000000; } while (*(volatile unsigned int *)(base | 0xF130) & 0x8000);
+    *(unsigned char *)(base | 0xF180) = c;
+    return c;
+}
+```
+
+i.e. the address reaches codegen as **`base | offset`, an `ior` of a pseudo with an immediate**, not
+as a cast constant. `(mem (ior reg imm))` is not a legitimate address, so the `ior` must be computed
+into a register — which is exactly ROM's `ori` + offset-0 memory op, and it is what leaves a plain
+non-volatile op for reorg to steal. Note the two rounds disagree about *why* it survives: the TU
+comment credits cse + REG_EQUAL + loop.c hoisting + reload rematerialisation, while the 2026-08-05
+handoff explicitly corrects that to "`base`'s def sits inside the do-while, the multi-pred loop-top
+label ends cse's EBB, so `base` is unknown at the post-loop `ior`". Both accounts agree on the
+operative fact — the `ior` survives as a real `(ior reg imm)` — and both are unverified by me.
+
+| # | edit | base | outcome |
+|---|---|---|---|
+| 4 | relaunch on **opus** carrying the `func_001010C8` answer key and the corrected family table. Justification for a 4th round rather than rotating the chain: this is new structural information no prior round had — a *matched* sibling with this exact ROM signature — and the user's standing rule is that structure wins between rounds. Rotating unconditionally after this one. | both frontiers, TU at `INCLUDE_ASM`, tree green | pending |
 
 ---
 
