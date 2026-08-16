@@ -10,7 +10,7 @@ typedef struct { int pad[8]; int f20; int pad2[7]; } WVTElem;
 typedef struct { char pad[0x64]; int w64; } WVTObj;
 
 typedef struct { int pad[8]; int f20; int pad2[7]; } WPElem;
-typedef struct { char pad[0x20]; int i20; int i24; } WPNode;
+typedef struct { int f0; int f4; int i8; int iC; int f10; int f14; int i18; int f1C; int i20; int i24; } WPNode;
 
 
 
@@ -25,6 +25,7 @@ extern unsigned char D_0028A520[];
 extern void func_001AE1B8(int *self, int n, int a2);
 typedef struct Nd { int pad[2]; struct Nd *f8; struct Nd *fC; char pad2[0x40 - 16]; } Nd;
 extern unsigned char D_004CAEC0[];
+extern unsigned char D_004CAED8[];
 extern Nd D_004CC1E0[];
 extern int D_00633874;
 extern void func_00243AE8();
@@ -58,11 +59,139 @@ void visible_waypoint_of_all_except_temp_ThreadVersion(WVTObj *o) {
     }
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", ez_line);
+extern char D_00559DA0[];
+extern int D_00632010;
+extern int func_0013A0F8(int, int, const char *, int);
+extern char *CreateTempWayGroup(void);
+extern char *DeleteWayGroup(char *a0);
+extern void func_00243B60(void *a0, void *a1);
+extern void ClipWallBoxStop(void *a0);
+extern void ClipWallFieldCheckCB(void *a0);
+extern void func_00264328(void *base, int n, int size, int (*cmp)(float *, float *));
+extern int func_0017B0D8(float *a, float *b);
+
+typedef struct {
+    float a[4];
+    float b[4];
+    char pad0[0x70 - 0x20];
+    float f70;
+    char pad1[0x88 - 0x74];
+    int f88;
+    char pad2[0xC0 - 0x8C];
+} ClipBox;
+
+typedef struct { char *node; float dist; } WayEnt;
+
+typedef struct { int f0, f4; char *f8; char *fC; int f10, f14, f18, f1C, f20, f24, f28, f2C; int f30; } WayGrp;
+
+static __inline__ float wb_dist(int *buf, int *pos, char *node)
+{
+    func_00243AE8(buf, (int *)(node + 0x10), pos);
+    return func_0016A2F8((int)buf);
+}
+
+static __inline__ int wb_box(ClipBox *cb, int *pos, char *node)
+{
+    func_00243B60(cb->a, pos);
+    func_00243B60(cb->b, node + 0x10);
+    cb->a[1] -= 75.0f;
+    cb->b[1] -= 75.0f;
+    ClipWallBoxStop(cb);
+    return cb->f88;
+}
+
+static __inline__ int ez_los(ClipBox *cb, int *arg0, char *node)
+{
+    func_00243B60(cb->a, arg0);
+    func_00243B60(cb->b, node + 0x10);
+    cb->a[1] -= 75.0f;
+    cb->b[1] -= 75.0f;
+    ClipWallBoxStop(cb);
+    return cb->f88;
+}
+
+static __inline__ int ez_field(ClipBox *cb)
+{
+    ClipWallFieldCheckCB(cb);
+    return cb->f88;
+}
+
+char *ez_line(int *arg0, int gid)
+{
+    int buf[4];
+    ClipBox cb;
+    WayEnt *list = (WayEnt *)func_0013A0F8(D_00632010, 0x898, D_00559DA0, 0x139);
+    int n = 0;
+    char *cur = CreateTempWayGroup();
+    char *result;
+    int i;
+    if (cur != 0) {
+        do {
+            if (*(int *)(cur + 0x20) != gid) {
+                func_00243AE8(buf, (int *)(cur + 0x10), arg0);
+                list[n].dist = func_0016A2F8((int)buf);
+                list[n].node = cur;
+                n++;
+            }
+            cur = DeleteWayGroup(cur);
+        } while (cur != 0);
+    }
+    func_00264328(list, n, 8, func_0017B0D8);
+    cb.f70 = 0.0f;
+    result = 0;
+    i = 0;
+    while (i < n) {
+        cur = list[i].node;
+        if (ez_los(&cb, arg0, cur) == 0 && ez_field(&cb) == 0) {
+            result = cur;
+            break;
+        }
+        i++;
+    }
+    iosMallocCheckLeak2(list);
+    return result;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/way_util", ez_circle);
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", short_direction_between_wp);
+char *short_direction_between_wp(int *arg0, int gid)
+{
+    int buf[4];
+    ClipBox cb;
+    WayEnt *list = (WayEnt *)func_0013A0F8(D_00632010, 0x898, D_00559DA0, 0x17F);
+    int n = 0;
+    char *cur = CreateTempWayGroup();
+    char *result;
+    int i;
+    if (cur != 0) {
+        do {
+            int g = *(int *)(cur + 0x20);
+            unsigned char *gp = D_004CAEC0;
+            gp = gp - (-(g * 0x34));
+            if (((WayGrp *)gp)->f2C == 0 || g == gid) {
+                func_00243AE8(buf, (int *)(cur + 0x10), arg0);
+                list[n].dist = func_0016A2F8((int)buf);
+                list[n].node = cur;
+                n++;
+            }
+            cur = DeleteWayGroup(cur);
+        } while (cur != 0);
+    }
+    func_00264328(list, n, 8, func_0017B0D8);
+    cb.f70 = 0.0f;
+    result = 0;
+    i = 0;
+    while (i < n) {
+        cur = list[i].node;
+        if (ez_los(&cb, arg0, cur) == 0 && ez_field(&cb) == 0) {
+            result = cur;
+            break;
+        }
+        i++;
+    }
+    iosMallocCheckLeak2(list);
+    return result;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/way_util", wgid_next);
 
@@ -77,10 +206,6 @@ void WayUtilWorkFree(void) {
 INCLUDE_ASM("asm/nonmatchings/src/way_util", shortest_path);
 
 INCLUDE_ASM("asm/nonmatchings/src/way_util", shortest_path_ThreadVersion);
-
-extern char D_00559DA0[];
-extern int D_00632010;
-extern int func_0013A0F8(int, int, const char *, int);
 
 void *GetWgAll(void) {
     WgAll *p = (WgAll *)func_0013A0F8(D_00632010, 0x1C, D_00559DA0, 0x359);
@@ -119,7 +244,6 @@ INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_of_group);
 INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint);
 
 INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_from_gobj);
-
 INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_by_lineseg_of_group);
 
 char *nearest_waypoint_by_lineseg(int *arg0, int handle)
@@ -167,20 +291,147 @@ char *nearest_waypoint_by_lineseg_of_group_from_gobj(int *a0) {
     return best;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_by_lineseg_from_gobj);
-ASM_LIT4_SLOT(D_00630E44, 100000.0f);
+char *nearest_waypoint_by_lineseg_from_gobj(void *dobj)
+{
+    int mtx[4];
+    int buf[4];
+    int *pos;
+    GetRootMatrixByDObj(mtx, dobj);
+    pos = mtx;
+    {
+        char *t = CloseWayGroup(D_00633874);
+        float bestDist = 100000.0f;
+        char *best, *cur;
+        best = t;
+        cur = best;
+        if (best != 0) {
+            do {
+                float d = wb_dist(buf, pos, cur);
+                if (d < bestDist) {
+                    bestDist = d;
+                    best = cur;
+                }
+                cur = CreateWayPoint(cur);
+            } while (cur != 0);
+        }
+        return best;
+    }
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", waypoint_with_range);
-ASM_LIT4_SLOT(D_00630E48, 100000.0f);
+extern float GetEyeDirection(void *a0, void *a1, void *a2);
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_of_all_except_group);
-ASM_LIT4_SLOT(D_00630E4C, 100000.0f);
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_of_all_not_bridge_except_group);
-ASM_LIT4_SLOT(D_00630E50, 100000.0f);
+char *waypoint_with_range(void *arg0, int gid)
+{
+    WayGrp *g = (WayGrp *)(D_004CAEC0 + gid * 0x34);
+    char *cur = g->f8;
+    float bestDist = 100000.0f;
+    char *best = 0;
+    char *next, *n;
+    next = *(char **)(cur + 0xC);
+    if (next == 0) goto out;
+    if (next == cur) goto out;
+    do {
+        float d = GetEyeDirection(cur + 0x10, next + 0x10, arg0);
+        if (d < bestDist) {
+            bestDist = d;
+            best = cur;
+        }
+        cur = *(char **)(cur + 0xC);
+        n = *(char **)(cur + 0xC);
+        next = n;
+        if (n == 0) goto out;
+    } while (n != cur);
+out:
+    return best;
+}
+char *nearest_waypoint_of_all_except_group(void *arg0)
+{
+    WayGrp *g = (WayGrp *)(D_004CAEC0 + D_00633874 * 0x34);
+    char *cur = g->f8;
+    float bestDist = 100000.0f;
+    char *best = 0;
+    char *next, *n;
+    next = *(char **)(cur + 0xC);
+    if (next == 0) goto out;
+    if (next == cur) goto out;
+    do {
+        float d = GetEyeDirection(cur + 0x10, next + 0x10, arg0);
+        if (d < bestDist) {
+            bestDist = d;
+            best = cur;
+        }
+        cur = *(char **)(cur + 0xC);
+        n = *(char **)(cur + 0xC);
+        next = n;
+        if (n == 0) goto out;
+    } while (n != cur);
+out:
+    return best;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", nearest_waypoint_of_all);
-ASM_LIT4_SLOT(D_00630E54, 100000.0f);
+char *nearest_waypoint_of_all_not_bridge_except_group(void *dobj, int gid)
+{
+    int mtx[4];
+    int *pos;
+    GetRootMatrixByDObj(mtx, dobj);
+    pos = mtx;
+    {
+        float bestDist = 100000.0f;
+        char *best = 0;
+        WayGrp *g = (WayGrp *)(D_004CAEC0 + gid * 0x34);
+        char *cur = g->f8;
+        char *next, *n;
+        next = *(char **)(cur + 0xC);
+        if (next == 0) goto out;
+        if (next == cur) goto out;
+        do {
+            float d = GetEyeDirection(cur + 0x10, next + 0x10, pos);
+            if (d < bestDist) {
+                bestDist = d;
+                best = cur;
+            }
+            cur = *(char **)(cur + 0xC);
+            n = *(char **)(cur + 0xC);
+            next = n;
+            if (n == 0) goto out;
+        } while (n != cur);
+out:
+        return best;
+    }
+}
+
+char *nearest_waypoint_of_all(void *dobj)
+{
+    int mtx[4];
+    int gid = D_00633874;
+    int *pos;
+    GetRootMatrixByDObj(mtx, dobj);
+    pos = mtx;
+    {
+        float bestDist = 100000.0f;
+        char *best = 0;
+        WayGrp *g = (WayGrp *)(D_004CAEC0 + gid * 0x34);
+        char *cur = g->f8;
+        char *next, *n;
+        next = *(char **)(cur + 0xC);
+        if (next == 0) goto out;
+        if (next == cur) goto out;
+        do {
+            float d = GetEyeDirection(cur + 0x10, next + 0x10, pos);
+            if (d < bestDist) {
+                bestDist = d;
+                best = cur;
+            }
+            cur = *(char **)(cur + 0xC);
+            n = *(char **)(cur + 0xC);
+            next = n;
+            if (n == 0) goto out;
+        } while (n != cur);
+out:
+        return best;
+    }
+}
 
 char *visible_waypoint_of_all(int *arg0, float thresh)
 {
@@ -197,9 +448,6 @@ char *visible_waypoint_of_all(int *arg0, float thresh)
 ret0:
     return 0;
 }
-
-extern char *CreateTempWayGroup(void);
-extern char *DeleteWayGroup(char *a0);
 
 char *visible_waypoint_of_all_from_gobj(int *arg0, int a1) {
     int buf[4];
@@ -225,8 +473,30 @@ char *visible_waypoint_of_all_from_gobj(int *arg0, int a1) {
     return best;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", visible_waypoint);
-ASM_LIT4_SLOT(D_00630E5C, 100000.0f);
+char *visible_waypoint(int *arg0, int gid) {
+    int buf[4];
+    char *t = CreateTempWayGroup();
+    float bestDist = 100000.0f;
+    char *best, *cur;
+    best = t;
+    cur = best;
+    if (best != 0) {
+        do {
+            int g = *(int *)(cur + 0x20);
+            if (g != gid && *(int *)(D_004CAED8 + g * 0x34) != 1) {
+                float d;
+                func_00243AE8(buf, (int *)(cur + 0x10), arg0);
+                d = func_0016A2F8((int)buf);
+                if (d < bestDist) {
+                    bestDist = d;
+                    best = cur;
+                }
+            }
+            cur = DeleteWayGroup(cur);
+        } while (cur != 0);
+    }
+    return best;
+}
 
 char *visible_waypoint_from_gobj(int *a0) {
     int buf[4];
@@ -253,8 +523,6 @@ char *visible_waypoint_from_gobj(int *a0) {
     return best;
 }
 
-extern int ez_line(void *a0, int a1);
-
 int get_wp_nearest_bridge_side_me(void *a0) {
     return ez_line(a0, -1);
 }
@@ -267,11 +535,66 @@ void func_0017A9D8(void *a0) {
     ez_line(buf, -1);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017AA08);
-ASM_LIT4_SLOT(D_00630E64, 100000.0f);
+char *func_0017AA08(int *arg0, int handle)
+{
+    int buf[4];
+    ClipBox cb;
+    float bestDist;
+    char *best = 0;
+    char *cur;
+    cb.f70 = 50.0f;
+    cur = CloseWayGroup(handle);
+    bestDist = 100000.0f;
+    if (cur != 0) {
+        do {
+            float d;
+            func_00243AE8(buf, (int *)(cur + 0x10), arg0);
+            d = func_0016A2F8((int)buf);
+            if (d < bestDist) {
+                func_00243B60(cb.a, arg0);
+                func_00243B60(cb.b, cur + 0x10);
+                cb.a[1] -= 75.0f;
+                cb.b[1] -= 75.0f;
+                ClipWallBoxStop(&cb);
+                if (cb.f88 == 0) {
+                    bestDist = d;
+                    best = cur;
+                }
+            }
+            cur = CreateWayPoint(cur);
+        } while (cur != 0);
+    }
+    return best;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", waybridge_between_group);
-ASM_LIT4_SLOT(D_00630E68, 100000.0f);
+char *waybridge_between_group(void *dobj, int handle)
+{
+    int mtx[4];
+    int buf[4];
+    ClipBox cb;
+    int *pos;
+    float bestDist;
+    char *best = 0;
+    char *cur;
+    GetRootMatrixByDObj(mtx, dobj);
+    bestDist = 100000.0f;
+    cb.f70 = 50.0f;
+    pos = mtx;
+    cur = CloseWayGroup(handle);
+    if (cur != 0) {
+        do {
+            float d = wb_dist(buf, pos, cur);
+            if (d < bestDist) {
+                if (wb_box(&cb, pos, cur) == 0) {
+                    bestDist = d;
+                    best = cur;
+                }
+            }
+            cur = CreateWayPoint(cur);
+        } while (cur != 0);
+    }
+    return best;
+}
 
 void *bridge_waypoint_side_me(int arg0, int arg1)
 {
@@ -329,7 +652,6 @@ int waypoint_connect_group_side_me(int arg0, int arg1)
     return 0;
 }
 
-extern char D_00559DA0[];
 extern char D_00559E18[];
 extern char D_00632598[];
 extern void func_001AD768(void *a0, int a1);
@@ -392,11 +714,43 @@ WPElem *wpsort_compfnc(WPNode *a0, int a1) {
     return e->f20 == a1 ? e : 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017AF88);
+int func_0017AF88(int a0, int a1) {
+    WPNode *p = (WPNode *)WayLengthOfGObj_Pos();
+    while (p != 0) {
+        char *eA = wcf_c + p->i20 * 0x40;
+        char *eB = wcf_c + p->i24 * 0x40;
+        int a = *(int *)(eA + 0x20);
+        if (a == a0 && *(int *)(eB + 0x20) == a1) {
+            return p->iC;
+        }
+        if (*(int *)(eB + 0x20) == a0 && a == a1) {
+            return p->i8;
+        }
+        p = (WPNode *)WayLengthOfGObj_GObj((WNODE *)p);
+    }
+    return 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017B038);
+int func_0017B038(WPNode *a0, int a1) {
+    WPElem *e = &D_004CC1E0[a0->i20];
+    if (e->f20 == a1) return a0->i8;
+    e = &D_004CC1E0[a0->i24];
+    if (e->f20 == a1) return a0->iC;
+    return 0;
+}
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017B080);
+int func_0017B080(int cur, int end, WgAll *w) {
+    int *dist = (int *)w->f14;
+    int *prev = (int *)w->f10;
+    while (1) {
+        if (dist[cur] != 0x7FFFFFFF) {
+            if (*(int *)(D_004CAED8 + cur * 0x34) == 0) break;
+        }
+        if (cur == end) break;
+        cur = prev[cur];
+    }
+    return cur;
+}
 
 int func_0017B0D8(float *a, float *b)
 {
@@ -405,7 +759,38 @@ int func_0017B0D8(float *a, float *b)
     return 0;
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/way_util", func_0017B110);
+extern int func_0017B230(int bit_idx);
+extern void func_0017B258(int bit_idx);
+extern void func_002641D8(void *a0, int a1, int a2);
+extern int D_006319A0;
+extern int D_00632F80;
+extern int D_00274ECC[];
+extern int D_00280F78[];
+extern void actBoyDitch3mExec(void);
+extern void func_0019CD50(void);
+extern void func_001ADBC0(void);
+extern void Generator_Init(void);
+extern void AttackGenerate(void);
+extern void itouGflagLoad(void);
+
+void func_0017B110(void)
+{
+    int v = func_0017B230(0x15A);
+    func_002641D8(D_0028A520, 0, 0x2E);
+    D_006319A0 = 0;
+    if (v != 0) {
+        func_0017B258(0x15A);
+    }
+    actBoyDitch3mExec();
+    func_0019CD50();
+    func_001ADBC0();
+    Generator_Init();
+    AttackGenerate();
+    D_00274ECC[0] = 0;
+    func_002641D8(D_00280F78, 0, 0x10);
+    D_00632F80 = 0;
+    return itouGflagLoad();
+}
 
 void func_0017B1A8(int a0)
 {
