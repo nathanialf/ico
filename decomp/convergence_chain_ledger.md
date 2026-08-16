@@ -44,7 +44,89 @@ Chain started 2026-08-16. Policy from the user, verbatim:
 | F17 | `src/st10l` family (26 stubs) | `src/st10l` | — | 1 (opus) | **19 of 26 MATCHED** `2d4a6615` |
 | F18 | `src/st10r` family (19 stubs) | `src/st10r` | — | 1 (opus) | **11 of 19 MATCHED** `fb506f3c` |
 | F19 | `src/way_util` family (24 stubs) | `src/way_util` | — | 1 (opus) | **14 of 24 MATCHED** `306b1180` |
-| F20 | `src/camera-ico2` family (22 stubs) | `src/camera-ico2` | — | 1 (opus) | running |
+| F20 | `src/camera-ico2` family (22 stubs) | `src/camera-ico2` | — | 1 (opus) | **13 of 22 MATCHED** `e8398ffc` |
+| F21 | `src/queen` family (18 stubs) | `src/queen` | — | 1 (opus) | running |
+
+### CRUTCH RULING — `static __inline__` helpers, prompted by the user asking directly
+
+The user asked whether `static __inline__` looks like a crutch. It can be, and **I had applied the
+test too loosely.** I accepted it in F19 on two grounds — matched precedent in `src/commonact.c:943`,
+and it reproduces ROM — and neither of those distinguishes "the dev wrote a helper" from "we
+introduced a helper to defeat CSE's address merging". The helper itself emits no bytes; only its
+inlined body does, and that body would have been emitted anyway. That is exactly the ban's test
+shape.
+
+**So I ran the decisive experiment instead of arguing.** `src/way_util.c` had four helpers, two of
+which — `wb_box` and `ez_los` — had **byte-identical bodies under different names**. That is the
+tell: if the two names were load-bearing, the split was steering codegen. I merged them and
+re-verified with a forced rebuild: `verify_elf: OK (fbf50c75…)`. **Byte-identical**, so the split
+was gratuitous, not a lever. Merged, renamed to `wall_box_hit` since it is now shared between the
+waypoint-bridge and `ez_line` callers, and committed `e1b97b21`.
+
+**The rule I am applying from here, now in the worker brief:** an inline helper is legitimate when it
+NAMES A REAL OPERATION a 2000-era dev would have factored out AND is called from more than one site.
+It is a crutch when it wraps an arbitrary fragment and exists only because inlining defeats CSE. Two
+tells to check: byte-identical bodies under different names, and a helper with exactly one call site.
+Workers must now state what operation a new helper names and how many call sites it has.
+
+The three survivors in `way_util` pass: `wb_dist` (vector difference then length, 2 sites),
+`wall_box_hit` (fill both box corners, drop to knee height, run the wall clip, return the verdict,
+3 sites), `ez_field` (run the field check, return the verdict, 2 sites). Residual doubt I am not
+hiding: `ez_field` is thin, and the `&&` of two helpers is what produces the threaded `bnel`. But
+`if (los(a,b) == 0 && field(a) == 0)` is natural dev C and the helper is how you spell it — unlike a
+pin, its body emits every instruction it accounts for.
+
+### F20 result — `src/camera-ico2.c`, 13 of 22
+
+**Verification (mine):** `rm build/src/camera-ico2.o`, full ninja → `verify_elf: OK (fbf50c75…)`;
+9 stubs left; zero duplicate externs.
+
+Data model: the camera-set item's `+0x48` is a base pointer into a shared group array; the
+`StageParam` struct at 0x194 stride is what produces ROM's `lwc1 388(v0)` — base+idx first with the
+member offset in the load displacement, where an `&arr[i][k]` cast folds the constant into the
+symbol `addiu` instead. The `Mat4`/`Mtx3` unions need the `long long` arm or a struct copy through a
+pointer compiles to `ldl/ldr/sdl/sdr` where ROM has `ld/sd`.
+
+Mechanisms, all compiled:
+- **`debug_assertMessage` is VARARGS, not 2-arg.** Declaring `(char *, ...)` and calling it with one
+  argument took a function **rc32/15 → rc2/2**: the 2-arg form keeps a pseudo live into the assert
+  block, so the block-move's walking pseudo cannot coalesce onto `$5` and everything rotates one
+  register. Other call sites still pass 2+ arguments legally.
+- **A pointer-typed store reorders sched2 against an int-typed one.** All six source permutations of
+  three stores gave 2 or 4 sites; only the type change gave 0. Independent confirmation of
+  `retail_strict_aliasing_live`.
+- **A callee's declared return type is a register lever** — one site survived twelve source spellings
+  and fell to declaring the callee `int`-returning.
+- `do{}while` kills gcc's peeled first iteration of a multi-`break` inner loop; separate
+  loop-counter variables per loop stop gcc parking one shared index in a callee-save; separate
+  manager variables per init block give ROM's two base registers.
+- **A discarded-result call is real ROM code, not noise** — two functions call
+  `MatrixDrive_GetTurnYAngleXZ` and throw the value away, and in one the summed expression is
+  `x*x + y + z*z` with the middle term **not** squared, read off the insn stream rather than assumed.
+
+The round also replaced a mangled `__asm__` alias with a plain `extern` and re-verified the three
+users at rc0.
+
+### CRUTCH DEBT FOUND AT HEAD — `src/camera-ico2.c:502`
+
+`register int one __asm__("$3") = 1;` inside `SetCameraTargetPosition`. This is the **initialized**
+register-variable form, i.e. precisely the spelling CLAUDE.md bans. It predates this chain — it was
+sitting in the TU at HEAD, under an inherited "crutch-free" claim. Verified by me at `e8398ffc`;
+it is the only pin left in that file.
+
+The round produced a crutch-free body at **rc2/2** (`scratchpad/camera-ico2.SetCameraTargetPosition.crutchfree.c`)
+with the registers correct — the only residual is `lui`-before-`addiu` emission order. Measured: the
+pseudo created first gets `$3` and the second `$2`, so `one` must precede the address, but every
+spelling that also emits the `lui` first flips the registers back. Not fixed, not hidden; it is
+tracked here as debt with a concrete frontier.
+
+---
+
+## F21 — the `src/queen` family (18 stubs)
+
+| # | edit | base | outcome |
+|---|---|---|---|
+| 1 | launch opus worker scoped to the TU family; brief now carries the inline-helper test and the note that a pin was found at HEAD under an inherited crutch-free claim | `src/queen.c` clean at HEAD, tree green at `fbf50c75…` | pending |
 
 ### F19 result — `src/way_util.c`, 14 of 24, and the highest-yield mechanism of the chain
 
