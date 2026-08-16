@@ -39,7 +39,62 @@ Chain started 2026-08-16. Policy from the user, verbatim:
 | F12 | `func_0022DBC8` | `src/st17a` | 132 | 1 (opus) | **MATCHED** `42f45a6c`; `src/st17a.c` now 26/26 |
 | F13 | `src/keyInput` family (17 stubs) | `src/keyInput` | — | 1 (opus) | **10 of 17 MATCHED** `68a23262` |
 | F14 | `src/keyInput` remaining 7 | `src/keyInput` | — | 1 (opus) | **1 MATCHED** `aa7c8fae`; 6 left |
-| F15 | `src/st24a` family (15 stubs) | `src/st24a` | — | 1 (opus) | running |
+| F15 | `src/st24a` family (15 stubs) | `src/st24a` | — | 1 (opus) | **12 of 15 MATCHED** `d6304a5c` |
+| F16 | `src/st13b2` family (19 stubs) | `src/st13b2` | — | 1 (opus) | running |
+
+### F15 result — `src/st24a.c`, 12 of 15
+
+**Verification (mine):** `rm build/src/st24a.o`, full ninja → `verify_elf: OK (fbf50c75…)`; 3 stubs
+left; crutch scan clean; zero duplicate externs. Pushed `d7911756..d6304a5c`.
+**Progress 3064/5447** (2980 at chain start — 84 matched this session).
+
+Four mechanisms, all compiled:
+
+- **Global-pointer deref *spelling* controls gp-load hoisting** (rc5→0). Writing the chain through an
+  `int` temp put the gp-relative `lw` *after* the volatile-param home store, leaving `$4` free so
+  local-alloc picked `a0`. Spelling it as an array index (`D_00631AE4[0x57]`, i.e. `0x15C/4`) let
+  sched1 hoist the gp load *above* the home store, where `a0` is still live, so the allocator took
+  `a1` — ROM's register.
+- **`volatile float` globals keep an FP arg load out of a call's delay slot** (rc3/2→0, and 7→4 sites
+  elsewhere). ROM leaves `nop` in the slot at 8 of the 9 `jal warpGirlInStage` sites; with plain
+  `float`, `dbr` steals the third `lwc1 $f14` into it. `src/st47a.c:777` already ships the volatile
+  declaration form.
+- **`while (1) { loop: … goto loop; }` beats both `for(;;)` and a bare goto-loop** (rc22/13 → rc18/13
+  → **rc3/3**). `for(;;)` lets `expand_end_loop` rotate the loop — the first conditional-jump group
+  moves to the bottom and an entry `beq zero,zero` jumps into the middle, so
+  `find_and_verify_loops` logs the loop *phony* and a compare constant is rematerialised twice
+  instead of being hoisted. A pure goto-loop fixes the layout but loses the loop notes entirely. The
+  `while(1)` + label form keeps `LOOP_BEG`/`LOOP_END` **and** blocks the rotation (the label at the
+  loop head stops the scan); layout, the hoist and the loop-head alignment nop all snapped together.
+- **gcse-PRE creates the hoisted `(high (symbol_ref))` pseudos, and its table size is the tie-break.**
+  The two `lui` pseudos do not exist at expand and appear as *new* pseudos in the `.loop` dump —
+  inserted after `NOTE_INSN_LOOP_BEG`, which is also why that loop logs phony. Both end at
+  `refs = 3, live_length = 128`, a perfect `allocno_compare` tie, so allocno number decides. Proof
+  it is PRE ordering and not the source: deleting an unrelated pair from an otherwise identical
+  probe changes the early insn count (128→124) and flips the assignment to ROM's.
+
+Three left, all with whole-file `.nearmiss.c` snapshots and long refutation lists (each refutation
+labelled as compiled): `actSt24aSwordChk` rc7/4 sites (real residual is 2 insns — the allocno tie
+above; next lever is a code-neutral way to move the early insn count off 128), `actSt24aSword`
+rc3/3 (real residual is **one** instruction, a `LABEL_OUTSIDE_LOOP_P` delay-slot choice where the
+fix that works costs a `.p2align 3` pad), and `actSt24aSaku` rc151/26 (semantics fully derived; one
+allocation class — ROM keeps seven buffer *addresses* in callee-saved registers and rematerialises
+each `%hi` inline, we do the opposite and spill).
+
+Two false-residual notes worth carrying: splat can pair only one `%hi` with a `%lo` so a second
+`lui` of the same symbol shows as a diff; and `quick_diff`'s listing shows `trunc.w.s` where
+`postprocess` rewrites the assembled word to `cvt.w.s`.
+
+---
+
+## F16 — the `src/st13b2` family (19 stubs, 26–233 insns)
+
+Rotating off `src/st24a`'s remaining three — they are its hard core, each with a sharp residual and a
+saved snapshot, so re-entry is cheap. `st13b2` is the same actor/stage layer.
+
+| # | edit | base | outcome |
+|---|---|---|---|
+| 1 | launch opus worker scoped to the TU family | `src/st13b2.c` clean at HEAD, tree green at `fbf50c75…` | pending |
 
 ### F14 result — `func_00104940` matched, and the register-variable question settled properly
 
