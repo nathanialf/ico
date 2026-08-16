@@ -91,7 +91,7 @@ ASM_LIT4_SLOT(D_00630B24, 4900.0f);
 
 INCLUDE_ASM("asm/nonmatchings/src/boyact", motBoyHand200);
 
-extern int D_006321DC__hh __asm__("D_006321DC");
+extern int D_006321DC;
 extern char D_00558230[];
 extern void debug_assertMessage(void *msg);
 extern void iosOmBeforeFuncStandard(void *a0, int a1, int a2);
@@ -104,7 +104,7 @@ void hand_heroin(volatile int a0)
     debug_assertMessage(D_00558230);
     while (1) {
         if (D_00631AE8 != 0) {
-            iosOmBeforeFuncStandard(D_00631AE8, 0x55, D_006321DC__hh);
+            iosOmBeforeFuncStandard(D_00631AE8, 0x55, D_006321DC);
         }
         if (*(int *)((char *)m + 0xD0) & 1) {
             break;
@@ -121,7 +121,7 @@ void hand_heroin(volatile int a0)
     _ACTWait(1);
     while (1) {
         if (D_00631AE8 != 0) {
-            iosOmBeforeFuncStandard(D_00631AE8, 0x56, D_006321DC__hh);
+            iosOmBeforeFuncStandard(D_00631AE8, 0x56, D_006321DC);
         }
         if (*(int *)((char *)m + 0xD0) & 2) {
             break;
@@ -143,7 +143,6 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", func_0014DF18);
 
 extern int ACTEnvGetTest(void);
 extern void *D_00631990;
-extern void *D_00631AE4__p4 __asm__("D_00631AE4");
 extern int D_00631AF0;
 extern int D_006AAAF0[16];
 extern int ForMotionViewer_GetCurrentAnimationFrame(void *a0, int a1);
@@ -166,8 +165,8 @@ void CheckCollisionAttr(void *a0) {
         if (ACTEnvGetTest()) hit = 1;
         else if (D_00631AE8 != 0) { if (actGirlBecall(D_00631990, i)) hit = 1; }
         if (hit) { D_006AAAE0u.fl[1] |= (1LL<<35);
-                   actSt25aQueenDead(i, D_00631AE4__p4, D_00631AE8, 1.0f, 8.0f); }
-        else       actSt25aQueenDead(i, D_00631AE4__p4, 0,          1.0f, 8.0f);
+                   actSt25aQueenDead(i, D_00631AE4, D_00631AE8, 1.0f, 8.0f); }
+        else       actSt25aQueenDead(i, D_00631AE4, 0,          1.0f, 8.0f);
     }
     if (flag20) D_006AAAF0[0] = 0xFF;
 done: ;
@@ -451,7 +450,7 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", func_00151B48);
 
 extern int D_00274EC0[];
 extern int dispPlane(void *a0, void *a1);
-extern void funcCommonFallDircorrect2(void *a0, void *a1) __asm__("funcCommonFallDircorrect");
+extern void funcCommonFallDircorrect(int a0, void *a1);
 extern int func_00194590(void *a0, void *a1);
 
 void func_00151D78(int *volatile a0) {
@@ -472,7 +471,7 @@ void func_00151D78(int *volatile a0) {
             dispPlane(a0, buf30);
             first = 0;
         } else if (func_00194590(subCommonIdle(a0), buf30) < 0x1E) {
-            funcCommonFallDircorrect2(a0, buf30);
+            funcCommonFallDircorrect((int)a0, buf30);
         } else {
             BoxBarSoundOn(a0, 0xBC);
         }
@@ -491,16 +490,16 @@ INCLUDE_ASM("asm/nonmatchings/src/boyact", subBoyCollision);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", actBoySwim);
 
 extern int ACTGame_InsertCamera_GirlIsPinch(void);
-extern void *D_006321DC__p4 __asm__("D_006321DC");
+extern int D_006321DC;
 
 void func_00152508(int *arg){
-    int state=*(int*)((char*)*(void**)((char*)D_00631AE4__p4+0x164)+0x5D4);
+    int state=*(int*)((char*)*(void**)((char*)D_00631AE4+0x164)+0x5D4);
     void *obj=*(void**)((char*)(*(int * volatile *)&arg)+0x164);
     float lo,hi;
     switch (state) {
-    case 0x64: if (D_00631AE8) iosOmBeforeFuncStandard(D_00631AE8,0x4D,D_006321DC__p4); *(int*)((char*)*(void**)((char*)D_00631AE8+0x164)+0x40)=0x5C; break;
-    case 0xC8: if (D_00631AE8) iosOmBeforeFuncStandard(D_00631AE8,0x4D,D_006321DC__p4); *(int*)((char*)*(void**)((char*)D_00631AE8+0x164)+0x40)=0x5D; break;
-    case 0x12C:if (D_00631AE8) iosOmBeforeFuncStandard(D_00631AE8,0x4D,D_006321DC__p4); *(int*)((char*)*(void**)((char*)D_00631AE8+0x164)+0x40)=0x5E; break;
+    case 0x64: if (D_00631AE8) iosOmBeforeFuncStandard(D_00631AE8,0x4D,D_006321DC); *(int*)((char*)*(void**)((char*)D_00631AE8+0x164)+0x40)=0x5C; break;
+    case 0xC8: if (D_00631AE8) iosOmBeforeFuncStandard(D_00631AE8,0x4D,D_006321DC); *(int*)((char*)*(void**)((char*)D_00631AE8+0x164)+0x40)=0x5D; break;
+    case 0x12C:if (D_00631AE8) iosOmBeforeFuncStandard(D_00631AE8,0x4D,D_006321DC); *(int*)((char*)*(void**)((char*)D_00631AE8+0x164)+0x40)=0x5E; break;
     }
     lo=0.99f;hi=0.1f;
     while (1) {
@@ -917,7 +916,6 @@ void actBoyBelift(void *a0, int *out_id, float *out_vec) {
 
 extern void CylinderCollision(void *a0, void *a1);
 extern void *D_00631990;
-extern void *D_00631AE4__p4 __asm__("D_00631AE4");
 extern int D_006AAB48[];
 extern void ExecWeaponHitReaction(void *a0);
 extern int func_001AE420(int a0, int a1, int a2, void *a3);
@@ -926,8 +924,8 @@ extern void func_002641D8(void *a0, int a1, int a2);
 void actBoyRescueReady(void) {
     union { float f[4]; int i[4]; } buf;
     int *s16;
-    if (D_00631AE4__p4 == 0) return;
-    s16 = *(int **)((char *)D_00631AE4__p4 + 0x164);
+    if (D_00631AE4 == 0) return;
+    s16 = *(int **)((char *)D_00631AE4 + 0x164);
     if (*(int *)((char *)s16 + 0x140) != 0) {
         ExecWeaponHitReaction(*(void **)((char *)s16 + 0x140));
         func_002641D8(&buf, 0, 0x10);
@@ -1030,7 +1028,7 @@ extern int D_00281BF0[];
 extern void func_00154448(void);
 
 void actBoyHangBefore(void) {
-    char *boy = (char *)D_00631AE4__p4;
+    char *boy = (char *)D_00631AE4;
     char *dst = (char *)D_006AAB40;
 
     *(HB_S18 *)D_006AAB40 = *(HB_S18 *)D_00281BF0;
@@ -1139,6 +1137,7 @@ void actBoySupportGBBegin(int a0) {
 extern char D_005584E8[];
 extern char D_006322B0[];
 
+
 extern int D_006AAAE0_i[] __asm__("D_006AAAE0");
 void func_00154BC0(int *volatile a0) {
     int s1 = D_006AAAE0_i[8];
@@ -1197,7 +1196,7 @@ extern void GetRootMatrixByDObj(void *dest, void *dobj);
 extern float HandyCamera_TargetMoveType(void *a0, void *a1);
 
 void actBoySupportBGBegin(float *out) {
-    void *o = D_00631AE4__p4;
+    void *o = D_00631AE4;
     float buf[4];
     char *s16 = *(char **)((char *)o + 0x164);
     char *p;
@@ -1215,14 +1214,11 @@ void actBoySupportBGBegin(float *out) {
     }
 }
 
-extern S18 dst18_a __asm__("D_006AAB40");
-extern S60 dst60_a __asm__("D_006AAAE0");
-extern S18 src18_a __asm__("D_00281BF0");
-extern S60 src60_a __asm__("D_00281B90");
+extern S60 D_00281B90;
 
 void actBoyDitch3mExec(void) {
-    dst60_a = src60_a;
-    dst18_a = src18_a;
+    *(S60 *)D_006AAAE0 = D_00281B90;
+    *(S18 *)D_006AAB40 = *(S18 *)D_00281BF0;
 }
 
 void actBoyHangG3M(int a0, int a1, int a2, int a3)

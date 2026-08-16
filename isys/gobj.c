@@ -1,12 +1,12 @@
 #include "common.h"
 
-struct GObj__p4 {
-    struct GObj__p4 *f_0;       /* 0x00 */
+struct GObj {
+    struct GObj *f_0;       /* 0x00 */
     int          f_4;       /* 0x04 */
     int          f_8;       /* 0x08 */
     char         pad_C[4];  /* 0x0C */
-    struct GObj__p4 *f_10;      /* 0x10 */
-    struct GObj__p4 *f_14;      /* 0x14 */
+    struct GObj *f_10;      /* 0x10 */
+    struct GObj *f_14;      /* 0x14 */
     unsigned char f_18;     /* 0x18 */
     char         pad_19[3]; /* 0x19 */
     int          f_1C;      /* 0x1C */
@@ -25,7 +25,6 @@ struct GObj__p4 {
 };
 
 
-struct GObj { int unk0; int unk4; int unk8; char pad[0x168]; };
 extern unsigned int D_00633CA4;
 extern struct GObj *D_00633CA0;
 INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjKindTableInit);
@@ -34,7 +33,6 @@ INCLUDE_ASM("asm/nonmatchings/isys/gobj", isysGObjInit);
 
 extern char D_00557A10[];
 extern char D_006321C8[];
-extern struct GObj__p4 *D_00633CA0__p4 __asm__("D_00633CA0");
 extern void *D_006A93D0[];
 extern void func_0013DD88(void);
 extern void func_001AD768(char *a0, int a1);
@@ -57,7 +55,7 @@ void cut_gobj_link(void) {
             do {
                 stride = 0x174;
             } while (0);
-            base = (int)D_00633CA0__p4;
+            base = (int)D_00633CA0;
             gobj = (char *)(i * stride + base);
             if (*(int *)gobj != 0) {
                 kind = *(int *)(gobj + 0xC);
@@ -177,7 +175,7 @@ init:
 extern int D_006321C0;
 extern void *D_006A93D0[];
 extern void isysGObjKindTableAdd(char *a0);
-extern void *isysGObjSearchFromObjKindID_begin(struct GObj__p4 *g);
+extern void *isysGObjSearchFromObjKindID_begin(struct GObj *g);
 extern void *isysGObjSearchFromObjLayoutID(int id);
 
 void isysGObjRemove(char *a0, int a1)
@@ -198,7 +196,7 @@ void isysGObjRemove(char *a0, int a1)
             isysGObjKindTableAdd(a0);
             break;
         }
-        isysGObjSearchFromObjKindID_begin((struct GObj__p4 *)p);
+        isysGObjSearchFromObjKindID_begin((struct GObj *)p);
     }
     *(int *)(a0 + 0xC) = a1;
     if (in_range) {
@@ -280,17 +278,16 @@ void *isysGObjAddHead(int a0) {
 }
 
 extern int D_006321C0;
-extern struct GObj__p4 *D_00633CA0__p4 __asm__("D_00633CA0");
 extern void *D_006A93D0[];
 
 void *isysGObjSearchFromObjLayoutID(int id)
 {
-    struct GObj__p4 *p;
-    struct GObj__p4 *end;
+    struct GObj *p;
+    struct GObj *end;
 
     if (D_006321C0 == 0) goto table;
-    p = D_00633CA0__p4 - 1;
-    end = &D_00633CA0__p4[D_00633CA4 - 1];
+    p = D_00633CA0 - 1;
+    end = &D_00633CA0[D_00633CA4 - 1];
     while (p != end) {
         p++;
         if (p->f_4 == 1 && *(int *)p->pad_C == id) {
@@ -309,17 +306,16 @@ table:
 }
 
 extern int D_006321C0;
-extern struct GObj__p4 *D_00633CA0__p4 __asm__("D_00633CA0");
 
-void *isysGObjSearchFromObjKindID_begin(struct GObj__p4 *g)
+void *isysGObjSearchFromObjKindID_begin(struct GObj *g)
 {
-    struct GObj__p4 *p;
-    struct GObj__p4 *end;
+    struct GObj *p;
+    struct GObj *end;
     int kind;
 
     if (D_006321C0 == 0) goto direct;
     p = g;
-    end = &D_00633CA0__p4[D_00633CA4 - 1];
+    end = &D_00633CA0[D_00633CA4 - 1];
     kind = *(int *)g->pad_C;
     while (p != end) {
         p++;

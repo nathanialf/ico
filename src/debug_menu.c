@@ -140,7 +140,7 @@ int func_001AA4F0(int *self, int *other)
     return r;
 }
 
-extern int func_00247608(void);
+extern int func_00247608();
 
 int func_001AA550(int a0) {
     if (a0 == D_00632C80) {
@@ -150,8 +150,7 @@ int func_001AA550(int a0) {
 }
 
 /* The sibling above calls this kernel entry with no argument; here it takes
- * the old handle, so bind a correctly-typed name to the same symbol. */
-extern int func_00247608_h(int handle) __asm__("func_00247608");
+ * the old handle -- one unprototyped declaration covers both arities. */
 
 int func_001AA580(void)
 {
@@ -159,7 +158,7 @@ int func_001AA580(void)
     int h = D_00632C80;
     if (h != -1) {
         D_00632C80 = -1;
-        r = func_00247608_h(h);
+        r = func_00247608(h);
         D_00632C80 = -1;
     }
     return r;

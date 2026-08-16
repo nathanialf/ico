@@ -115,13 +115,12 @@ int _ACTCharStatus_Clear(void *a0)
 }
 
 typedef struct { char _[0x186]; unsigned short f186; char _pad[8]; } ACTCharStat;
-extern ACTCharStat D_00565060_arr[] __asm__("D_00565060");
 
 int GetSkeltonOrient(void *a0, void *a1) {
     int i0 = (*(int **)((char *)a0 + 0x15C))[0x4A0 / 4];
     int i1 = (*(int **)((char *)a1 + 0x15C))[0x4A0 / 4];
-    ACTCharStat *e0 = &D_00565060_arr[i0];
-    ACTCharStat *e1 = &D_00565060_arr[i1];
+    ACTCharStat *e0 = &((ACTCharStat *)D_00565060)[i0];
+    ACTCharStat *e1 = &((ACTCharStat *)D_00565060)[i1];
     int b0 = (*(unsigned int *)((char *)e0 + 0x188) >> 15) & 1;
     int b1 = (*(unsigned int *)((char *)e1 + 0x188) >> 15) & 1;
     return b0 & b1;
@@ -344,7 +343,6 @@ ret0:
 }
 
 typedef struct { char _p0[0x15C]; int f_15C; char _p1[0x30]; } AGHmc; /* stride 0x190 */
-extern AGHmc D_00565060_hmc[] __asm__("D_00565060");
 
 int updateHMC(void) {
     char *mgr = (char *)D_00631AE4;
@@ -353,7 +351,7 @@ int updateHMC(void) {
     state = *(int *)(*(int *)(mgr + 0x164) + 0x30);
     if (state != 0x4B && state != 0x55) goto ret0;
     idx = *(int *)(*(int *)(mgr + 0x15C) + 0x4A0);
-    e = (AGHmc *)((char *)D_00565060_hmc - (-(idx * 0x190)));
+    e = (AGHmc *)((char *)D_00565060 - (-(idx * 0x190)));
     if (e->f_15C == 1) return 1;
 ret0:
     return 0;
@@ -529,12 +527,12 @@ int ACTGame_DisconnectHand(void) {
     return checkHit() == 1;
 }
 
-extern const float D_0063226C_flt[] __asm__("D_0063226C");
+extern const float D_0063226C[];
 extern int *isysGObjSearchFromObjKindID_begin(int *);
 extern int *isysGObjSearchFromObjLayoutID(int);
 
 int *PAIR_GetPosition_BOY(int a0, int a1) {
-    float best_val = D_0063226C_flt[0];
+    float best_val = D_0063226C[0];
     int *best = 0;
     int *node;
 

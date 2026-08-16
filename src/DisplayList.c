@@ -15,7 +15,7 @@ typedef struct {
 
 extern void debug_assertMessage(char *fmt, ...);
 extern int D_0061ABF0[];
-extern int D_00710D10[];
+extern DlEntry D_00710D10[];
 extern int D_00633F70;
 extern int D_00631C5C;
 INCLUDE_ASM("asm/nonmatchings/src/DisplayList", dl_Init);
@@ -74,7 +74,6 @@ void dl_Debug(void)
 
 extern int D_00631C4C;
 extern int D_0063378C;
-extern DlEntry D_0070A5C0e[] __asm__("D_00710D10");
 extern void dl_GetPri();
 extern void dpk_Init(int a0, int a1, int a2);
 extern void dpk_SwapBuffer(int a0);
@@ -94,16 +93,16 @@ void dl_CloseDma(void)
         DlEntry *e;
         dpk_SwapBuffer(i);
         j = i + 1;
-        e = (DlEntry *)((char *)D_0070A5C0e + j * stride);
+        e = (DlEntry *)((char *)D_00710D10 + j * stride);
         dpk_Init(1, e->pad_20 & 0xFFFFFFF, 0);
         dl_GetPri();
         i = j;
     } while (j < 0xC);
     func_001007A0(0);
     if (D_00631C4C) {
-        func_00244980(D_0063378C, D_0070A5C0e[11].pad_20 & 0xFFFFFFF);
+        func_00244980(D_0063378C, D_00710D10[11].pad_20 & 0xFFFFFFF);
     } else {
-        func_00244980(D_0063378C, D_0070A5C0e[0].pad_20 & 0xFFFFFFF);
+        func_00244980(D_0063378C, D_00710D10[0].pad_20 & 0xFFFFFFF);
     }
     dl_Debug();
 }
@@ -145,7 +144,7 @@ void dl_SetDLPriority(void) {
 
 void dl_OpenDma(void)
 {
-    int *entry = &D_00710D10[D_00633F70 * 10];
+    int *entry = (int *)D_00710D10 + D_00633F70 * 10;
     unsigned int end = entry[9];
     unsigned int start = entry[1];
     unsigned int count = (end - start) >> 4;

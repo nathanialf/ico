@@ -28,15 +28,15 @@ INCLUDE_ASM("asm/nonmatchings/src/particleEffect", SetParticleEffectGeometry);
 INCLUDE_ASM("asm/nonmatchings/src/particleEffect", SetParticleEffectUpperLimit);
 
 extern char D_00619E40[];
-extern struct PE_elem D_007030C0a[] __asm__("D_007097F0");
+extern struct PE_elem D_007097F0[];
 extern void debug_assertMessage();
 
 void ExecParticleEffects(int a0, int a1, int a2) {
     if (a0 >= 0) {
-        if (D_007030C0a[a0].f0 == 0) {
+        if (D_007097F0[a0].f0 == 0) {
             debug_assertMessage(D_00619E40);
         } else {
-            execParticleEffect(D_007030C0a[a0].f14, a1, a2);
+            execParticleEffect(D_007097F0[a0].f14, a1, a2);
         }
     }
 }
@@ -49,7 +49,7 @@ void ResetParticleEffectPackages(int no, float f)
     struct PE_obj *o;
 
     if (no >= 0) {
-        o = (struct PE_obj *)D_007030C0a[no].f14;
+        o = (struct PE_obj *)D_007097F0[no].f14;
         o->f38 = 1;
         o->f3C = f;
         SetParticleEffect(o);
@@ -62,15 +62,14 @@ INCLUDE_ASM("asm/nonmatchings/src/particleEffect", DispParticleEffects);
 
 extern PE160 D_004C5F40;
 extern char D_00619E80[];
-extern unsigned char D_0070A3F0__p4[] __asm__("D_0070A3F0");
 extern void func_00264128(void *dst, int *a1, int a2);
 
 void InitParticleEffects(int a0, int *a1, int a2) {
-    *(PE160 *)&D_0070A3F0__p4[a0 * 0xA0] = D_004C5F40;
+    *(PE160 *)((unsigned char *)D_0070A3F0 + a0 * 0xA0) = D_004C5F40;
     if (*(int *)&D_004C5F40 != *a1) {
         debug_assertMessage(D_00619E80, *a1);
     }
-    func_00264128(&D_0070A3F0__p4[a0 * 0xA0], a1, a2);
+    func_00264128(((unsigned char *)D_0070A3F0 + a0 * 0xA0), a1, a2);
 }
 
 typedef struct { char c[0x18]; } Blob24;
@@ -81,7 +80,7 @@ void DeleteParticleEffect(void)
     int i;
 
     for (i = 0; i < 128; i++) {
-        *(Blob24 *)&D_007030C0a[i] = *(Blob24 *)D_004C5F20;
+        *(Blob24 *)&D_007097F0[i] = *(Blob24 *)D_004C5F20;
     }
 }
 
@@ -92,8 +91,8 @@ void SetParticleEffectActiveSensing(void)
     int i;
 
     for (i = 0; i < 128; i++) {
-        if (D_007030C0a[i].f0 != 0) {
-            SetParticleEffectGeometry(D_007030C0a[i].f14);
+        if (D_007097F0[i].f0 != 0) {
+            SetParticleEffectGeometry(D_007097F0[i].f14);
         }
     }
 }

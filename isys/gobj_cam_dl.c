@@ -5,8 +5,8 @@ typedef struct { char p[0x34]; void *f34; void *f38; char p2[4]; unsigned char f
 
 
 
-extern int D_006321D4;
-extern int *D_006321D8;
+extern int *D_006321D4;
+extern AdpT *D_006321D8;
 extern char D_0061AC80[];
 extern void debug_assertMessage();
 extern void func_001FBFC8();
@@ -40,7 +40,7 @@ void isysGObjMoveCameraDL(int *self, int a1, int a2, int a3, int *t0)
     t0[0xD] = (int)t1;
     t1[0x11] = v44;
     if (t1[0xD] == 0) {
-        D_006321D8 = t1;
+        D_006321D8 = (AdpT *)t1;
     }
 }
 
@@ -64,7 +64,7 @@ void isysGObjLinkCameraDL(int *self, int a1, int a2, int a3, int *t0)
     t0[0xD] = (int)t1;
     t1[0x11] = v44;
     if (t1[0xD] == 0) {
-        D_006321D8 = t1;
+        D_006321D8 = (AdpT *)t1;
     }
 }
 
@@ -73,7 +73,6 @@ void isysGObjLinkCameraDLAfterGObj(void) {
     D_006321D8 = 0;
 }
 
-extern int *D_006321D4__p4 __asm__("D_006321D4");
 
 void isysGObjLinkCameraDLBeforeGObj(int a0, int a1)
 {
@@ -86,27 +85,27 @@ void isysGObjLinkCameraDLBeforeGObj(int a0, int a1)
 
     func_001FBFC8(self);
     self[0x11] = key;
-    head = D_006321D4__p4;
+    head = D_006321D4;
     if (head == 0) {
         *(int *)&D_006321D8 = (int)self;
         self[0xE] = 0;
         self[0xD] = 0;
-        *(int *)&D_006321D4__p4 = (int)self;
+        *(int *)&D_006321D4 = (int)self;
         return;
     }
     if ((unsigned int)head[0x11] >= (unsigned int)key) {
         self[0xE] = 0;
         self[0xD] = (int)head;
         head[0xE] = (int)self;
-        D_006321D4__p4 = self;
+        D_006321D4 = self;
         return;
     }
-    tail = D_006321D8;
+    tail = (int *)D_006321D8;
     if ((unsigned int)tail[0x11] < (unsigned int)key) {
         self[0xE] = (int)tail;
         self[0xD] = 0;
         tail[0xD] = (int)self;
-        D_006321D8 = self;
+        D_006321D8 = (AdpT *)self;
         return;
     }
     cur = head;
@@ -123,7 +122,6 @@ void isysGObjLinkCameraDLBeforeGObj(int a0, int a1)
 
 INCLUDE_ASM("asm/nonmatchings/isys/gobj_cam_dl", AdpcmStreamInit);
 
-extern AdpT *D_006321D8__p4 __asm__("D_006321D8");
 extern void func_001FBFC8(void *a0);
 
 void adpcmTickProc2(AdpT *a0, AdpT *a1) {
@@ -134,7 +132,7 @@ void adpcmTickProc2(AdpT *a0, AdpT *a1) {
     a1->f34 = a0;
     a0->f44 = a1->f44;
     if (a0->f34 == 0) {
-        D_006321D8__p4 = a0;
+        D_006321D8 = a0;
     }
 }
 
@@ -148,7 +146,7 @@ void adpcmDataSet(char *a0, char *a1) {
     *(int *)(a1 + 0x38) = (int)a0;
     *(int *)(a0 + 0x44) = *(int *)(a1 + 0x44);
     if (*(int *)(a0 + 0x38) == 0) {
-        D_006321D4 = (int)a0;
+        D_006321D4 = (int *)a0;
     }
 }
 

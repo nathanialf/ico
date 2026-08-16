@@ -11,7 +11,8 @@ extern void gsb_SetFrame();
 extern void gif_Line();
 extern void gif_SpriteOffset();
 extern void file_Init();
-extern char D_0061D560[];
+typedef struct { int _0, _4; float f8; int _c, _10; } EyeParam;
+extern EyeParam D_0061D560[];
 extern void func_001D4B40();
 extern void func_001E4798(int *self, int a1, int a2, int a3, int a4, int a5);
 INCLUDE_ASM("asm/nonmatchings/src/enemyParts", UpdatePointBlur);
@@ -69,15 +70,13 @@ int DispPointBlur(void *a0)
   void *q = *((void **) (((char *) p) + 0x800));
   char *new_var;
   int idx = *((int *) (((char *) q) + 0x8));
-  new_var = D_0061D560;
+  new_var = (char *)D_0061D560;
   return (*((int *) ((new_var + (idx * 0x14)) + 0x10))) & 3;
 }
 
-typedef struct { int _0, _4; float f8; int _c, _10; } EyeParam;
-extern EyeParam D_0061D560_arr[] __asm__("D_0061D560");
 
 int UpdateEnemyEye(void *a0) {
-    EyeParam *base = D_0061D560_arr;
+    EyeParam *base = D_0061D560;
     int *p = *(int **)((char *)a0 + 0x15C);
     EPGeo *q = *(EPGeo **)((char *)p + 0x800);
     return ((unsigned int)base[q->f_8]._10 >> 2) & 3;
@@ -87,7 +86,7 @@ float DispEnemyEye(void *a0) {
     int *p = *(int **)((char *)a0 + 0x15C);
     EPGeo *q = *(EPGeo **)((char *)p + 0x800);
     int idx = q->f_8;
-    return D_0061D560_arr[idx].f8;
+    return D_0061D560[idx].f8;
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/enemyParts", ResetEnemyEye);

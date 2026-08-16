@@ -27,9 +27,9 @@ extern int D_00632390;
 extern char D_00632398[];
 extern void func_001919A0();
 extern void ACTParaStatus_Clear(volatile int *self);
-extern int iosOmBeforeFuncStandard(char *self_arg, int val5, int val6);
+extern int iosOmBeforeFuncStandard();
 extern void func_0017B288(int bit_idx);
-extern void *D_00631AE8;
+extern int D_00631AE8;
 extern char D_002A4C48[];
 extern void CanWallLeverPull(char *self, int a1);
 void boss_effect_process(int x) {
@@ -119,17 +119,16 @@ void actEnemyRestart(void *a0) {
     }
 }
 
-extern int D_00631AE8__p4 __asm__("D_00631AE8");
 
 void PairSetGeometry(void *a0) {
     int *p;
     char *e;
-    if (D_00631AE8__p4 != 0) {
+    if (D_00631AE8 != 0) {
         ActPara_GetDefTbl(a0, 0x1B);
         p = *(int **)((char *)a0 + 0x15C);
         e = D_00565060 + p[0x4A0 / 4] * 0x190;
         if ((*(unsigned int *)(e + 0x188) >> 1) & 1) {
-            IsEnemyBrainToGenerator(a0, D_00631AE8__p4, 5);
+            IsEnemyBrainToGenerator(a0, D_00631AE8, 5);
         }
     }
 }
@@ -233,7 +232,6 @@ extern void *subCommonIdle(int a0);
 extern void BoxBarSoundOn(void *a0, int a1);
 extern unsigned int _ACTWait(int a0);
 extern void func_001919A0(void *a0, int a1);
-extern int D_00631AE8__19a8 __asm__("D_00631AE8");
 extern int func_00145328(void *a0, int a1, int a2, void *a3, float f12, float f13);
 extern int HandCameraCorrect(float *a0, float *a1);
 extern void ACTGameView_Loop(void);
@@ -242,8 +240,8 @@ extern int MoveChestForCatchBoy(void *a0);
 static __inline__ int func_001619A8_probe(void *self) {
     char buf[0x20];
     int mode;
-    if (func_00145328(self, D_00631AE8__19a8, 0x2D, buf + 0x10, 170.0f, 100.0f) != 0) {
-        int d = HandCameraCorrect((float *)(buf + 0x10), subCommonIdle(D_00631AE8__19a8));
+    if (func_00145328(self, D_00631AE8, 0x2D, buf + 0x10, 170.0f, 100.0f) != 0) {
+        int d = HandCameraCorrect((float *)(buf + 0x10), subCommonIdle(D_00631AE8));
         d = (d < 0) ? -d : d;
         mode = (d <= 0x59) ? 1 : 2;
     } else {
@@ -254,7 +252,7 @@ static __inline__ int func_001619A8_probe(void *self) {
 
 void func_001619A8(volatile unsigned int a0) {
     char *m = (char *)(*(int *)(a0 + 0x164)) + 0x110;
-    int r0 = ContinueCorrectPosition(D_00631AE8__19a8);
+    int r0 = ContinueCorrectPosition(D_00631AE8);
     int r1 = ContinueCorrectPosition(a0);
     func_001947D0((float *)m, r0, r1);
     dispPlane((void *)a0, (float *)m);
@@ -436,22 +434,20 @@ void func_00164FD0(volatile int a0) {
 
 extern int D_00631AE4;
 extern void BoxBarSoundOn(void *a0, int a1);
-extern int iosOmBeforeFuncStandard4(void *a0, int a1, void *a2, int a3) __asm__("iosOmBeforeFuncStandard");
 
 void funcEnemyAiGetGirl(volatile int a0) {
     int p = *(int *)(a0 + 0x164);
     int g = *(int *)(p + 0x670);
-    iosOmBeforeFuncStandard4((void *)D_00631AE4, *(int *)(g + 0x1F8), (void *)a0, g);
+    iosOmBeforeFuncStandard((void *)D_00631AE4, *(int *)(g + 0x1F8), (void *)a0, g);
     for (;;) {
         BoxBarSoundOn((void *)a0, 0xB7);
         _ACTWait(1);
     }
 }
 
-extern void iosOmBeforeFuncStandard3(void *a0, int a1, void *a2) __asm__("iosOmBeforeFuncStandard");
 
 void func_00165060(volatile int a0) {
-    iosOmBeforeFuncStandard3((void *)D_00631AE4, 0xD2, (void *)a0);
+    iosOmBeforeFuncStandard((void *)D_00631AE4, 0xD2, (void *)a0);
     for (;;) {
         BoxBarSoundOn((void *)a0, 0xB7);
         _ACTWait(1);
@@ -773,7 +769,7 @@ void func_001659F8(volatile unsigned int a0)
     char *m;
     int r0, r1;
     m = (char *)(*(int *)(a0 + 0x164)) + 0x110;
-    r0 = ContinueCorrectPosition(D_00631AE8__p4);
+    r0 = ContinueCorrectPosition(D_00631AE8);
     r1 = ContinueCorrectPosition(a0);
     func_001947D0((float *)m, r0, r1);
     dispPlane((void *)a0, (float *)m);

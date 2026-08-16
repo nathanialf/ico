@@ -23,10 +23,18 @@ SYSCALL_WRAPPER(func_00100220, 17)
 SYSCALL_WRAPPER(func_00100230, 18)
 SYSCALL_WRAPPER(func_00100240, 18)
 SYSCALL_WRAPPER(func_00100250, 19)
-SYSCALL_WRAPPER(func_00100260, 20)
-SYSCALL_WRAPPER(func_00100270, 21)
-SYSCALL_WRAPPER(func_00100280, 22)
-SYSCALL_WRAPPER(func_00100290, 23)
+int func_00100260(int a0) {
+    __asm__ __volatile__("addiu $3, $zero, 20\n\tsyscall 0" : : : "$3", "memory");
+}
+int func_00100270(int a0) {
+    __asm__ __volatile__("addiu $3, $zero, 21\n\tsyscall 0" : : : "$3", "memory");
+}
+int func_00100280(int a0) {
+    __asm__ __volatile__("addiu $3, $zero, 22\n\tsyscall 0" : : : "$3", "memory");
+}
+int func_00100290(int a0) {
+    __asm__ __volatile__("addiu $3, $zero, 23\n\tsyscall 0" : : : "$3", "memory");
+}
 SYSCALL_WRAPPER(func_001002A0, 252)
 SYSCALL_WRAPPER(func_001002B0, 253)
 SYSCALL_WRAPPER(func_001002C0, -26)
@@ -138,17 +146,17 @@ SYSCALL_WRAPPER(func_00100950, 124)
 SYSCALL_WRAPPER(func_00100960, 125)
 SYSCALL_WRAPPER(func_00100970, 126)
 SYSCALL_WRAPPER(func_00100980, 127)
-SYSCALL_WRAPPER(func_00100990, 116)
+void func_00100990(int id, int arg) {
+    __asm__ __volatile__("addiu $3, $zero, 116\n\tsyscall 0" : : : "$3", "memory");
+}
 
-/* func_00100990 is defined above as a bare `void (void)` syscall leaf --
- * SYSCALL_WRAPPER cannot express the two arguments the syscall reads out of
- * $a0/$a1, so bind a correctly-typed name to the same symbol. */
-extern void func_00100990_2(int id, int arg) __asm__("func_00100990");
+/* func_00100990 takes the two arguments the syscall reads out of $a0/$a1,
+ * which SYSCALL_WRAPPER cannot express -- so it is spelled out longhand. */
 
 void func_001009A0(void) {
     int i = 0x80;
     do {
-        func_00100990_2(i, 0);
+        func_00100990(i, 0);
         i++;
     } while (i < 0x100);
 }
@@ -167,16 +175,11 @@ void func_001009E0(void) {
 /* The four EE-kernel critical-section wrappers below all have the same
  * shape: read COP0 Status, and if interrupts are currently enabled bracket
  * the real call with the kernel's disable/enable pair, fencing after it.
- * The inner callees are syscall leaves defined above by SYSCALL_WRAPPER,
- * whose `void (void)` signature cannot express the argument the syscall
- * reads out of $a0 or the result it returns in $v0 -- bind correctly-typed
- * names to the same symbols. */
+ * The inner callees are syscall leaves spelled out longhand above, because
+ * SYSCALL_WRAPPER's `void (void)` signature cannot express the argument the
+ * syscall reads out of $a0 or the result it returns in $v0. */
 extern void func_00101A40(void);
 extern void func_00101A88(void);
-extern int func_00100260_1(int a) __asm__("func_00100260");
-extern int func_00100270_1(int a) __asm__("func_00100270");
-extern int func_00100280_1(int a) __asm__("func_00100280");
-extern int func_00100290_1(int a) __asm__("func_00100290");
 
 int func_00100A08(int a0) {
     int eie;
@@ -186,7 +189,7 @@ int func_00100A08(int a0) {
     if (eie) {
         func_00101A40();
     }
-    rv = func_00100270_1(a0);
+    rv = func_00100270(a0);
     SYNC();
     if (eie) {
         func_00101A88();
@@ -203,7 +206,7 @@ int func_00100A70(int a0) {
     if (eie) {
         func_00101A40();
     }
-    rv = func_00100260_1(a0);
+    rv = func_00100260(a0);
     SYNC();
     if (eie) {
         func_00101A88();
@@ -220,7 +223,7 @@ int func_00100AD8(int a0) {
     if (eie) {
         func_00101A40();
     }
-    rv = func_00100290_1(a0);
+    rv = func_00100290(a0);
     SYNC();
     if (eie) {
         func_00101A88();
@@ -237,7 +240,7 @@ int func_00100B40(int a0) {
     if (eie) {
         func_00101A40();
     }
-    rv = func_00100280_1(a0);
+    rv = func_00100280(a0);
     SYNC();
     if (eie) {
         func_00101A88();

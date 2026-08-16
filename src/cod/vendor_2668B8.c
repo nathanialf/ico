@@ -65,22 +65,21 @@ INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_00268DF8);
 /* Both callees are declared elsewhere in this TU with signatures that
  * contradict the ones this loop needs; bind correctly-typed names to the
  * same symbols. */
-extern void func_0026D430_1(int a0) __asm__("func_0026D430");
-extern void func_001000B8_1(int a0) __asm__("func_001000B8");
+extern void func_001000B8(int a0);
 
 void func_00268F08(void) {
     for (;;) {
-        func_0026D430_1(6);
-        func_001000B8_1(1);
+        func_0026D430(6);
+        func_001000B8(1);
     }
 }
 
 /* The sibling below declares this callee with one argument; the kernel
  * entry takes two, so bind a correctly-typed name to the same symbol. */
-extern int func_0026E5C8_2(int a0, int a1) __asm__("func_0026E5C8");
+extern int func_0026E5C8();
 
 int func_00268F28(int a0) {
-    return func_0026E5C8_2(a0, 0);
+    return func_0026E5C8(a0, 0);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_00268F48);
@@ -202,8 +201,8 @@ int func_0026A690(char *dst, int size, int count, StreamBuf *s) {
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2668B8", func_0026A7B0);
 
-extern int D_0054D938_a[] __asm__("D_00553678");
-extern int D_0054D950_a[] __asm__("D_00553690");
+extern int D_00553678[];
+extern int D_00553690[];
 extern struct D520 D_00553260;
 extern long long func_00261BA8(long long a0, long long a1);
 extern long long func_00261C08(long long a0, long long a1);
@@ -233,7 +232,7 @@ int func_0026AAD0(int *self, unsigned int a1) {
     r4 = func_0026D128(self, 0);
     A = r4 - (int)D_00553260.blk;
     if (A >= 0x10) {
-        D_0054D950_a[0] = r4 - D_0054D938_a[0];
+        D_00553690[0] = r4 - D_00553678[0];
         D_00553260.blk->size = A | 1;
     }
 fail:
@@ -241,7 +240,7 @@ fail:
     return 0;
 adjust:
     D_00553260.blk->size = (A - newlen) | 1;
-    D_0054D950_a[0] -= (int)newlen;
+    D_00553690[0] -= (int)newlen;
     func_0026BEE8(self);
     return 1;
 }
@@ -271,10 +270,9 @@ void *func_0026B138(int a0) {
     return D_00630658;
 }
 
-extern void *D_0054D504_alias[] __asm__("D_00553244");
 
 int func_0026B148(int a0, int a1) {
-    return func_0026B0B0(D_0054D504_alias[0], a0, a1);
+    return func_0026B0B0(D_00553244[0], a0, a1);
 }
 
 void *func_0026B178(void) {
@@ -554,7 +552,7 @@ int func_0026D430(int a0) {
 }
 
 int func_0026D458(int a0, int a1) {
-    return func_0026D1F8(D_0054D504_alias[0], a0, a1);
+    return func_0026D1F8(D_00553244[0], a0, a1);
 }
 
 void *func_0026D488(void) {
@@ -678,7 +676,7 @@ int func_0026E5C8(a0, a1)
 int a0;
 int a1;
 {
-    return func_0026D6C8(D_0054D504_alias[0], a0, a1);
+    return func_0026D6C8(D_00553244[0], a0, a1);
 }
 
 extern int func_002633B8(long a0);

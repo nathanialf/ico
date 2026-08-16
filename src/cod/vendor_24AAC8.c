@@ -1076,6 +1076,7 @@ int func_0024D848(void) {
  * the signature of a memory reference the assembler may not move.  The
  * siblings above match with the plain typing, so the difference is local
  * to this body. */
+
 extern volatile int D_0055092C_v[] __asm__("D_0055092C");
 
 extern volatile int D_00550954[];

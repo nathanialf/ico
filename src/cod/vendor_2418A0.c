@@ -1062,11 +1062,11 @@ int func_00244630(unsigned int a0) {
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_2418A0", func_00244658);
 
-extern int D_0054A9F8_alias[] __asm__("D_00550738");
+extern int D_00550738[];
 
 int func_00244738(int a0) {
-    int old = D_0054A9F8_alias[0];
-    D_0054A9F8_alias[0] = a0;
+    int old = D_00550738[0];
+    D_00550738[0] = a0;
     return old;
 }
 

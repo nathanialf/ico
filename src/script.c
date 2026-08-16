@@ -67,7 +67,6 @@ INCLUDE_ASM("asm/nonmatchings/src/script", scpPlayMot);
 
 INCLUDE_ASM("asm/nonmatchings/src/script", scpPlayJump);
 
-extern ScpEntry D_006CF910__p4[] __asm__("D_006CF910");
 
 void scpPlayStart(int arg0, int *arg1, int arg2, int arg3, int arg4) {
     int i, ofs;
@@ -76,17 +75,17 @@ void scpPlayStart(int arg0, int *arg1, int arg2, int arg3, int arg4) {
     }
     for (i = 0; i < 2; i++) {
         ofs = i * sizeof(ScpEntry);
-        if (D_006CF910__p4[i].f0 == 0) {
+        if (((ScpEntry *)D_006CF910)[i].f0 == 0) {
             goto found;
         }
     }
     return;
 found:
-    *(int *)((char *)D_006CF910__p4 + ofs) = arg0;
-    *(int *)((char *)D_006CF910__p4 + i * sizeof(ScpEntry) + 8) = arg3;
-    *(int *)((char *)D_006CF910__p4 + i * sizeof(ScpEntry) + 12) = arg2;
-    *(int *)((char *)D_006CF910__p4 + i * sizeof(ScpEntry) + 0x10) = arg4;
-    *(int *)((char *)D_006CF910__p4 + i * sizeof(ScpEntry) + 4) = (int)arg1;
+    *(int *)((char *)D_006CF910 + ofs) = arg0;
+    *(int *)((char *)D_006CF910 + i * sizeof(ScpEntry) + 8) = arg3;
+    *(int *)((char *)D_006CF910 + i * sizeof(ScpEntry) + 12) = arg2;
+    *(int *)((char *)D_006CF910 + i * sizeof(ScpEntry) + 0x10) = arg4;
+    *(int *)((char *)D_006CF910 + i * sizeof(ScpEntry) + 4) = (int)arg1;
 }
 
 int scpPlayEnd(void)

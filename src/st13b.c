@@ -6,7 +6,7 @@ typedef struct ActB4Obj_st13b { char pad[0xC0]; int *unkB0; int *unkB4; } ActB4O
 
 
 
-extern void *D_00631AE8;
+extern int D_00631AE8;
 extern void func_0017B258(int bit_idx);
 extern int func_0017B230(int a0);
 extern void func_0018CED0();
@@ -117,7 +117,6 @@ void actSt13bElevUpChk(volatile int unused)
 }
 
 extern long long D_0061BF80[];
-extern int D_00631AE8__p4 __asm__("D_00631AE8");
 extern void actSt25aQueenTalkChk(int a0, int a1, int *buf, int a3, float f);
 
 void actSt13bSekizo(volatile unsigned int a0)
@@ -126,7 +125,7 @@ void actSt13bSekizo(volatile unsigned int a0)
     long long buf[2];
     buf[0] = D_0061BF80[0];
     buf[1] = D_0061BF80[1];
-    actSt25aQueenTalkChk(D_00631AE8__p4, 0, (int *)buf, 0, 100.0f);
+    actSt25aQueenTalkChk(D_00631AE8, 0, (int *)buf, 0, 100.0f);
     _ACTWait(0);
 }
 
@@ -138,7 +137,7 @@ void actSt13bSekizo2(volatile unsigned int a0)
     long long buf[2];
     buf[0] = D_0061BF90[0];
     buf[1] = D_0061BF90[1];
-    actSt25aQueenTalkChk(D_00631AE8__p4, 0, (int *)buf, 0, 100.0f);
+    actSt25aQueenTalkChk(D_00631AE8, 0, (int *)buf, 0, 100.0f);
     _ACTWait(0);
 }
 
@@ -168,7 +167,7 @@ void actSt13bExit(volatile unsigned int a0)
     long long buf[2];
     buf[0] = D_0061BFA0[0];
     buf[1] = D_0061BFA0[1];
-    actSt25aQueenTalkChk(D_00631AE8__p4, 0, (int *)buf, 0, 100.0f);
+    actSt25aQueenTalkChk(D_00631AE8, 0, (int *)buf, 0, 100.0f);
     _ACTWait(0);
 }
 
@@ -205,8 +204,8 @@ extern void func_0017B288(int a0);
 extern int scpSleepSpiderGroupOne(int a0, int a1);
 
 void actSt13bConte02Jimaku(volatile int a0) {
-    if (D_00631AE8__p4 == 0) { _ACTWait(0); }
-    while (func_0017B230(0x9B) == 0 || scpSleepSpiderGroupOne(D_00631AE8__p4, 0x4000000) == 0) {
+    if (D_00631AE8 == 0) { _ACTWait(0); }
+    while (func_0017B230(0x9B) == 0 || scpSleepSpiderGroupOne(D_00631AE8, 0x4000000) == 0) {
         _ACTWait(1);
     }
     func_0017B288(0x166);
@@ -230,10 +229,10 @@ extern void func_0017C8C0(int a0);
 extern void func_0017C8F8(int a0);
 
 void actSt13bMeetAgainChk(volatile int a0){ int a; int b;
- if(D_00631AE8__p4==0) _ACTWait(0);
+ if(D_00631AE8==0) _ACTWait(0);
  for(;;){
-  if(scpSleepSpiderGroupOne(D_00631AE8__p4,0x1000000)!=0 && scpSleepSpiderGroupOne(D_00631AE4,0x6000000)!=0) break;
-  a = scpSleepSpiderGroupOne(D_00631AE8__p4,0x1000000);
+  if(scpSleepSpiderGroupOne(D_00631AE8,0x1000000)!=0 && scpSleepSpiderGroupOne(D_00631AE4,0x6000000)!=0) break;
+  a = scpSleepSpiderGroupOne(D_00631AE8,0x1000000);
   b = scpSleepSpiderGroupOne(actSt25aQueenDeadChk(0x14B),0x1000000);
   if((a & b) != 0) break;
   _ACTWait(1);

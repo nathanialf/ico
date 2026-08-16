@@ -220,12 +220,11 @@ const char D_00617198[0x18] = "push start\n";
 
 INCLUDE_ASM("asm/nonmatchings/src/layout_action", la_load_processing);
 
-extern char D_00280F78__p4[] __asm__("D_00280F78");
 extern int D_00633044;
 
 int la_mc_confirm_save_file(int a0, int a1) {
     if (a0 != 0) {
-        __builtin_memcpy(D_00706F10, D_00280F78__p4, 0x10);
+        __builtin_memcpy(D_00706F10, (char *)D_00280F78, 0x10);
         D_00633048 = 0x3FF;
         func_001B1B90();
         debug_assertMessage(D_00617170, D_00633048, D_0063303C);

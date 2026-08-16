@@ -37,7 +37,7 @@ int fzShowV(int a0)
     return 0;
 }
 
-extern volatile int func_0010F5B8(int a0, int a1, int a2);
+extern int func_0010F5B8(int a0, int a1, int a2);
 
 void fzShowM(int *self, int a1)
 {

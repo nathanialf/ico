@@ -7,7 +7,7 @@ typedef struct { char _0[0x42]; short f42; unsigned short f44; unsigned int f48;
 
 
 extern char D_002E4D64[];
-extern char D_002A4C48[];
+extern GVGeo2 D_002A4C48[];
 extern void debug_assertMessage(char *fmt, ...);
 extern char D_0055AEE8[];
 int _InterGV(float *dst, float *src) {
@@ -52,12 +52,11 @@ void _DistGV(int *self)
     *(long long *)((char *)p + 0x18) = *(long long *)((char *)p + 0x18) | 0x400000000LL;
 }
 
-extern GVGeo2 D_002A4C48__p4[] __asm__("D_002A4C48");
 extern char D_0055AEF8[];
 
 void _DistxzGV(void *a0) {
     void *p = *(void **)((char *)a0 + 0x164);
-    GVGeo2 *g = &D_002A4C48__p4[*(int *)((char *)a0 + 0x8)];
+    GVGeo2 *g = &D_002A4C48[*(int *)((char *)a0 + 0x8)];
     debug_assertMessage(D_0055AEF8, *(int *)((char *)a0 + 0x8));
     ((GVBits *)((char *)p + 0x18))->ll &= ~((unsigned long)0x8000 << 19);
     g->f48 = (g->f48 | 0x200000) & 0xFFFBFFFF;
@@ -66,7 +65,7 @@ void _DistxzGV(void *a0) {
 INCLUDE_ASM("asm/nonmatchings/src/gv", _MoveGV);
 
 void _RotyGV(int a0) {
-    GVGeo2 *g = &D_002A4C48__p4[a0];
+    GVGeo2 *g = &D_002A4C48[a0];
     unsigned int x = g->f48 & 0xFFDFFFFF;
     unsigned int y = x & 0xFFFBFFFF;
     y |= ((x >> 19) & 1) << 18;
@@ -110,7 +109,7 @@ int _ApplyRyGV(void) {
 void func_00193F48(int a0)
 {
     int idx = *(int *)(a0 + 0x8);
-    char *base = &D_002A4C48[idx * 0x4C];
+    char *base = (char *)D_002A4C48 + idx * 0x4C;
     *(short *)(base + 0x42) = 0;
 }
 
@@ -128,7 +127,7 @@ void _RotGV(void)
 }
 
 int _RotGVF(void *a0) {
-    GVGeo2 *g = &D_002A4C48__p4[*(int *)((char *)a0 + 0x8)];
+    GVGeo2 *g = &D_002A4C48[*(int *)((char *)a0 + 0x8)];
     void *p = *(void **)((char *)a0 + 0x164);
     if (g->f44 != 0) {
         return 0;
@@ -143,12 +142,11 @@ int _RotGVF(void *a0) {
 }
 
 extern char D_006327A8[];
-extern void assertMsg1(char *a0) __asm__("debug_assertMessage");
 extern void func_00243AA8(void *a0, void *a1, void *a2, float a3);
 
 void _OrientXZGV(void *a0, void *a1, void *a2, float a3, float a4) {
     if (a0 == 0 || a1 == 0 || a2 == 0) {
-        assertMsg1(D_006327A8);
+        debug_assertMessage(D_006327A8);
     }
     func_00243AA8(a0, a1, a2, a4 / (a3 + a4));
 }

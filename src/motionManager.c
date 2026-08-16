@@ -113,7 +113,7 @@ void _checkCliffAndWall(void)
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", checkCliffAndWallStateOfLastPlane);
 
 extern void InitMotionMemorySize(int);
-extern void f2400F8(int) __asm__("func_00243BD8");
+extern void func_00243BD8(int);
 extern void func_001050B0(float, float, float);
 extern void func_0010F630();
 extern void gif_SpriteOffset();
@@ -127,7 +127,7 @@ void checkCliffAndWallStateAtJump(void)
     gsb_SetFrame(1, 5, 0x80);
     func_00104F20();
     v = func_00105278();
-    f2400F8(v);
+    func_00243BD8(v);
     p = (float *)D_00633F3C;
     func_00105308(p[108], p[109], p[110]);
     func_001050B0(8.0f, 8.0f, 8.0f);
@@ -237,7 +237,6 @@ void SetHitCollisionDisplay(void)
 extern float D_007097C4[];
 extern void func_00105308(float, float, float);
 extern void func_0010DF70(char *p);
-extern int func_00243BD8(int);
 
 void GetWallVector(void)
 {

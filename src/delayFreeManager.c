@@ -8,13 +8,11 @@
 #include "ico/types.h"
 extern void func_0010DDB8();
 extern void GetInverseQuaternion();
-extern int D_0065ED40_a[] __asm__("D_0065ED40");
-extern int D_0065ED40_b[] __asm__("D_0065ED40");
 extern const char D_00553A78[64];
 extern void func_001AD768();
 extern void func_00263FF0();
-extern const char D_00631B28_a[] __asm__("D_00631B28");
-extern char D_0065ED40[];
+extern const char D_00631B28[];
+extern int D_0065ED40[];
 extern int D_00631B20, D_00631B24;
 extern int D_00631B20;
 extern const char D_00553AB8[24];
@@ -51,32 +49,22 @@ INCLUDE_ASM("asm/nonmatchings/src/delayFreeManager", func_001024F8);
 void func_00102558(int a0)
 {
     int count = D_00631B24;
-    *(int *)(D_0065ED40 + (count * 4 + (D_00631B20 << 10))) = a0;
+    *(int *)((char *)D_0065ED40 + (count * 4 + (D_00631B20 << 10))) = a0;
     count++;
     D_00631B24 = count;
     if (count >= 0x100) {
         debug_assertMessage(D_00553A78);
         func_001AD768(D_00553AB8, 0x33);
-        func_00263FF0(D_00553AB8, 0x33, D_00631B28_a);
+        func_00263FF0(D_00553AB8, 0x33, D_00631B28);
     }
 }
 
 void func_001025E8(void)
 {
-    int *p;
     int i;
-    p = D_0065ED40;
-    p += 0xFF;
-    i = 0xFF;
-    do { *p = 0; i--; p--; } while (i >= 0);
-    p = D_0065ED40_a;
-    p += 0x1FF;
-    i = 0xFF;
-    do { *p = 0; i--; p--; } while (i >= 0);
-    p = D_0065ED40_b;
-    p += 0x2FF;
-    i = 0xFF;
-    do { *p = 0; i--; p--; } while (i >= 0);
+    for (i = 0xFF; i >= 0; i--) D_0065ED40[i] = 0;
+    for (i = 0xFF; i >= 0; i--) D_0065ED40[i + 0x100] = 0;
+    for (i = 0xFF; i >= 0; i--) D_0065ED40[i + 0x200] = 0;
     D_00631B24 = 0;
     D_00631B20 = 0;
 }

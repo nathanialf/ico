@@ -43,7 +43,6 @@ int visible_waypoint_of_all_except_gid_ThreadVersion(void *a0, int a1, int a2) {
 
 void visible_waypoint_of_all_except_temp(void) {}
 
-extern WVTElem D_004C7CF0_ve[] __asm__("D_004CC1E0");
 extern char D_00559CC0[];
 extern extern void debug_assertMessage();
 extern int func_00205498(int a0);
@@ -52,7 +51,7 @@ void visible_waypoint_of_all_except_temp_ThreadVersion(WVTObj *o) {
     if (o->w64 >= 0) {
         debug_assertMessage(D_00559CC0, o->w64);
         {
-            WVTElem *e = &D_004C7CF0_ve[o->w64];
+            WVTElem *e = &((WVTElem *)D_004CC1E0)[o->w64];
             func_00205498(e->f20);
         }
         o->w64 = -1;
@@ -644,15 +643,14 @@ extern char D_00559E18[];
 extern char D_00632598[];
 extern void func_001AD768(void *a0, int a1);
 extern void func_00263FF0(void *a0, int a1, void *a2);
-extern char wcf_c[] __asm__("D_004CC1E0");
 
 int bridge_waypoint_side_bridge(void *a0, int a1) {
-    char *e1 = wcf_c + *(int *)((char *)a0 + 0x20) * 0x40;
+    char *e1 = (char *)D_004CC1E0 + *(int *)((char *)a0 + 0x20) * 0x40;
     char *e2;
     if (*(int *)(e1 + 0x20) == a1) {
         return 1;
     }
-    e2 = wcf_c + *(int *)((char *)a0 + 0x24) * 0x40;
+    e2 = (char *)D_004CC1E0 + *(int *)((char *)a0 + 0x24) * 0x40;
     if (*(int *)(e2 + 0x20) != a1) {
         debug_assertMessage(D_00559E18);
         func_001AD768(D_00559DA0, 0x2C2);
@@ -667,8 +665,8 @@ extern WNODE *WayLengthOfGObj_Pos(void);
 WNODE *waypoint_connect_group_side_bridge(int a0, int a1) {
     WNODE *p = WayLengthOfGObj_Pos();
     while (p != 0) {
-        char *eA = wcf_c + p->i20 * 0x40;
-        char *eB = wcf_c + p->i24 * 0x40;
+        char *eA = (char *)D_004CC1E0 + p->i20 * 0x40;
+        char *eB = (char *)D_004CC1E0 + p->i24 * 0x40;
         int a = *(int *)(eA + 0x20);
         int b = *(int *)(eB + 0x20);
         if (a == a0 && b == a1) {
@@ -685,8 +683,8 @@ WNODE *waypoint_connect_group_side_bridge(int a0, int a1) {
 char *NearestWgFromTarget(int me, int target) {
     WNODE *p = WayLengthOfGObj_Pos();
     while (p != 0) {
-        char *eA = wcf_c + p->i20 * 0x40;
-        char *eB = wcf_c + p->i24 * 0x40;
+        char *eA = (char *)D_004CC1E0 + p->i20 * 0x40;
+        char *eB = (char *)D_004CC1E0 + p->i24 * 0x40;
         int a = *(int *)(eA + 0x20);
         if (a == me && *(int *)(eB + 0x20) == target) return eB;
         if (*(int *)(eB + 0x20) == me && a == target) return eA;
@@ -705,8 +703,8 @@ WPElem *wpsort_compfnc(WPNode *a0, int a1) {
 int func_0017AF88(int a0, int a1) {
     WPNode *p = (WPNode *)WayLengthOfGObj_Pos();
     while (p != 0) {
-        char *eA = wcf_c + p->i20 * 0x40;
-        char *eB = wcf_c + p->i24 * 0x40;
+        char *eA = (char *)D_004CC1E0 + p->i20 * 0x40;
+        char *eB = (char *)D_004CC1E0 + p->i24 * 0x40;
         int a = *(int *)(eA + 0x20);
         if (a == a0 && *(int *)(eB + 0x20) == a1) {
             return p->iC;

@@ -375,13 +375,13 @@ void GetPluralCameraSet(int a0, int a1)
 }
 
 extern void InitCameraSetManager(int *a0, int *a1);
-extern void func_00240038_v(void *a, void *b, float s) __asm__("func_00243B18");
-extern float g_E00[3] __asm__("D_006D0520");
-extern float g_E10[3] __asm__("D_006D0530");
-extern float g_E20[3] __asm__("D_006D0540");
-extern float g_E30[3] __asm__("D_006D0550");
-extern float g_EC0[3] __asm__("D_006D05E0");
-extern float g_ED0[3] __asm__("D_006D05F0");
+extern void func_00243B18(void *a, void *b, float s);
+extern float D_006D0520[3];
+extern float D_006D0530[3];
+extern float D_006D0540[3];
+extern float D_006D0550[3];
+extern float D_006D05E0[3];
+extern float D_006D05F0[3];
 
 void MakeCameraSetBinary(int a0) {
     unsigned char flag = a0;
@@ -402,8 +402,8 @@ void MakeCameraSetBinary(int a0) {
     if (p2 != 0) {
         GetPluralCameraSet(A, p1);
         GetPluralCameraSet(B, p2);
-        func_00240038_v(A, A, -1.0f);
-        func_00240038_v(B, B, -1.0f);
+        func_00243B18(A, A, -1.0f);
+        func_00243B18(B, B, -1.0f);
         v1[0] = A[0];
         v1[1] = A[1];
         v1[2] = A[2];
@@ -415,7 +415,7 @@ void MakeCameraSetBinary(int a0) {
         v2[2] = A[2];
     } else {
         GetPluralCameraSet(C, p1);
-        func_00240038_v(C, C, -1.0f);
+        func_00243B18(C, C, -1.0f);
         v0[0] = C[0];
         v0[1] = C[1];
         v0[2] = C[2];
@@ -427,44 +427,44 @@ void MakeCameraSetBinary(int a0) {
         v2[2] = C[2];
     }
     {
-        g_E30[0] = v2[0];
-        g_E30[1] = v2[1];
-        g_E30[2] = v2[2];
+        D_006D0550[0] = v2[0];
+        D_006D0550[1] = v2[1];
+        D_006D0550[2] = v2[2];
     }
     if (flag != 0) {
         float a0 = v0[0];
         float a1 = v0[1];
         float a2 = v0[2];
-        g_E00[0] = a0;
-        g_E00[1] = a1;
-        g_E00[2] = a2;
-        g_EC0[0] = a0;
-        g_EC0[1] = a1;
-        g_EC0[2] = a2;
-        g_ED0[0] = v1[0];
-        g_ED0[1] = v1[1];
-        g_ED0[2] = v1[2];
+        D_006D0520[0] = a0;
+        D_006D0520[1] = a1;
+        D_006D0520[2] = a2;
+        D_006D05E0[0] = a0;
+        D_006D05E0[1] = a1;
+        D_006D05E0[2] = a2;
+        D_006D05F0[0] = v1[0];
+        D_006D05F0[1] = v1[1];
+        D_006D05F0[2] = v1[2];
     }
     for (i = 0; i < 3; i++) {
-        g_E10[i] = (v0[i] + g_EC0[i] * 3.0f) * 0.25f;
-        g_E20[i] = (v1[i] + g_ED0[i] * 3.0f) * 0.25f;
+        D_006D0530[i] = (v0[i] + D_006D05E0[i] * 3.0f) * 0.25f;
+        D_006D0540[i] = (v1[i] + D_006D05F0[i] * 3.0f) * 0.25f;
     }
-    g_EC0[0] = g_E10[0];
-    g_EC0[1] = g_E10[1];
-    g_EC0[2] = g_E10[2];
-    g_ED0[0] = g_E20[0];
-    g_ED0[1] = g_E20[1];
-    g_ED0[2] = g_E20[2];
+    D_006D05E0[0] = D_006D0530[0];
+    D_006D05E0[1] = D_006D0530[1];
+    D_006D05E0[2] = D_006D0530[2];
+    D_006D05F0[0] = D_006D0540[0];
+    D_006D05F0[1] = D_006D0540[1];
+    D_006D05F0[2] = D_006D0540[2];
 }
 
 extern char *D_00633D58;
-extern float D_0062C844_f[] __asm__("D_006326E4");
+extern float D_006326E4[];
 extern int D_00633D60;
 extern void func_002641D8(float *a0, int a1, int a2);
 
 int GetSizeOfCameraSetBinary(float *query) {
     int result = -1;
-    float min = D_0062C844_f[0];
+    float min = D_006326E4[0];
     int i;
     for (i = 0; i < D_00633D60; i++) {
             float buf[4];
@@ -535,7 +535,7 @@ void func_00188C98(float *a0, float *a1) {
     v3.f[1] = 0.0f;
     MatrixDrive_GetTurnYAngleXZ(v3.f[0] * v3.f[0] + v3.f[1] + v3.f[2] * v3.f[2]);
     func_00243978(&v3, &v3);
-    func_00240038_v(&v3, &v3, -500.0f);
+    func_00243B18(&v3, &v3, -500.0f);
     func_00243AD0(&v1, &v3, a0);
     v1.f[1] = a0[1] + 200.0f;
     _OrientXZGV(a1, &v0, &v1, 4.0f, 5.0f);
@@ -587,7 +587,7 @@ int func_0018B0A8(void *obj) {
     int result;
     int i;
     GetRootMatrixByDObj(buf, obj);
-    func_00240038_v(buf, buf, -1.0f);
+    func_00243B18(buf, buf, -1.0f);
     bp = buf;
     result = -1;
     for (i = 0; i < D_00633D60; i++) {
@@ -620,7 +620,7 @@ int func_0018B180(float *pos) {
     float *bp;
     int result;
     int i;
-    func_00240038_v(buf, pos, -1.0f);
+    func_00243B18(buf, pos, -1.0f);
     bp = buf;
     result = -1;
     for (i = 0; i < D_00633D60; i++) {
@@ -708,10 +708,10 @@ int func_0018B620(S4C *p, int n) {
 extern float D_006D04C0[];
 
 void func_0018B668(float *a0, float *a1, float v) {
-    func_00240038_v(D_006D04C0, a1, -1.0f);
-    func_00240038_v(&D_006D04C0[4], a0, -1.0f);
-    func_00240038_v(g_EC0, a0, -1.0f);
-    func_00240038_v(g_ED0, a0, -1.0f);
+    func_00243B18(D_006D04C0, a1, -1.0f);
+    func_00243B18(&D_006D04C0[4], a0, -1.0f);
+    func_00243B18(D_006D05E0, a0, -1.0f);
+    func_00243B18(D_006D05F0, a0, -1.0f);
     D_006D04C0[8] = v;
 }
 

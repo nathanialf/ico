@@ -41,11 +41,10 @@ void actChangeActMain(void *a0, void *a1, void **a2) {
 
 extern char D_0061AF30[];
 extern char D_0061AF50[];
-extern void *D_006321DC__p4 __asm__("D_006321DC");
 
 void actCreateMotionThread(void *a0, void *a1, void **a2) {
     void *old = *a2;
-    int ret = isysGObjProcPause(D_006321DC__p4, a0, 0, a1);
+    int ret = isysGObjProcPause(D_006321DC, a0, 0, a1);
     *a2 = (void *)ret;
     if (old != 0) {
         debug_assertMessage(D_0061AF30, *(int *)((char *)old + 4), ret);
@@ -230,16 +229,16 @@ extern int D_00632D88;
 int actCreateSubThread(void *a0, int a1) {
     int r;
     if (D_00632D88 != 0) {
-        char *sub = *(char **)((char *)D_006321DC__p4 + 0x164);
-        debug_assertMessage(D_0061AF70, D_006321DC__p4);
-        debug_assertMessage(D_0061AF80, *(int *)((char *)D_006321DC__p4 + 8));
-        debug_assertMessage(D_0061AF80, *(int *)((char *)D_006321DC__p4 + 0xC));
+        char *sub = *(char **)((char *)D_006321DC + 0x164);
+        debug_assertMessage(D_0061AF70, D_006321DC);
+        debug_assertMessage(D_0061AF80, *(int *)((char *)D_006321DC + 8));
+        debug_assertMessage(D_0061AF80, *(int *)((char *)D_006321DC + 0xC));
         if (sub != 0) {
             debug_assertMessage(D_0061AF90, sub);
             debug_assertMessage(D_0061AF80, *(int *)(sub + 0x30));
         }
     }
-    r = isysGObjProcPause(D_006321DC__p4, a0, 0, (void *)a1);
+    r = isysGObjProcPause(D_006321DC, a0, 0, (void *)a1);
     *(int *)(r + 0x64) = 1;
     return r;
 }

@@ -883,15 +883,14 @@ void func_002642D8(void *a0, ...) {
 
 INCLUDE_ASM("asm/nonmatchings/src/cod/vendor_25E1E8", func_00264328);
 
-extern void *D_0054D504_alias[] __asm__("D_00553244");
 
 void func_00264D50(int a0) {
-    char *p = (char *)D_0054D504_alias[0];
+    char *p = (char *)D_00553244[0];
     *(int *)(p + 0x58) = a0;
 }
 
 int func_00264D60(void) {
-    char *p = (char *)D_0054D504_alias[0];
+    char *p = (char *)D_00553244[0];
     int s = *(int *)(p + 0x58) * 0x41C64E6D + 0x3039;
     *(int *)(p + 0x58) = s;
     return s & 0x7fffffff;

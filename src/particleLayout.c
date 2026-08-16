@@ -9,39 +9,37 @@ typedef struct { int w[6]; } ParticleRec;
 
 
 extern int D_0070A3F0[];
-extern char D_007097F0[];
-extern ParticleRec D_007097F0__p4[] __asm__("D_007097F0");
-extern ParticleLayout D_0070A3F0__p4[] __asm__("D_0070A3F0");
+extern ParticleRec D_007097F0[];
 extern void iosMallocCheckLeak2(int p);
 extern void prim_DispWireYCylinder(int x);
 
 void DeleteParticleLayout(int a0) {
-    ParticleLayout *target = &D_0070A3F0__p4[a0];
+    ParticleLayout *target = &((ParticleLayout *)D_0070A3F0)[a0];
     int i;
     for (i = 0; i < 0x80; i++) {
-        if (D_007097F0__p4[i].w[0] != 0) {
-            if (((int *)D_007097F0__p4[i].w[5])[8] == (int)target) {
+        if (D_007097F0[i].w[0] != 0) {
+            if (((int *)D_007097F0[i].w[5])[8] == (int)target) {
                 int v;
-                prim_DispWireYCylinder(((int *)D_007097F0__p4[i].w[5])[0xA]);
-                v = ((int *)D_007097F0__p4[i].w[5])[9];
-                ((int *)D_007097F0__p4[i].w[5])[0xA] = 0;
+                prim_DispWireYCylinder(((int *)D_007097F0[i].w[5])[0xA]);
+                v = ((int *)D_007097F0[i].w[5])[9];
+                ((int *)D_007097F0[i].w[5])[0xA] = 0;
                 iosMallocCheckLeak2(v);
-                iosMallocCheckLeak2(D_007097F0__p4[i].w[5]);
-                D_007097F0__p4[i].w[5] = 0;
-                D_007097F0__p4[i].w[0] = 0;
+                iosMallocCheckLeak2(D_007097F0[i].w[5]);
+                D_007097F0[i].w[5] = 0;
+                D_007097F0[i].w[0] = 0;
             }
         }
     }
 }
 
 int InitParticleLayoutGeo(int a0) {
-    return D_007097F0__p4[a0].w[5];
+    return D_007097F0[a0].w[5];
 }
 
 int ParticleLayoutGeo(int idx)
 {
-    char *base = &D_007097F0[idx * 0x18];
-    *((int *)((&D_007097F0[idx * 0x18]) + 0x4)) = 0;
+    char *base = (char *)D_007097F0 + idx * 0x18;
+    *((int *)(((char *)D_007097F0 + idx * 0x18) + 0x4)) = 0;
 }
 
 extern PLDLEntry D_006223D8[];
@@ -76,9 +74,9 @@ void func_001E8E80(int idx, int a1)
     if (idx < 0) {
         return;
     }
-    base = &D_007097F0[idx * 0x18];
+    base = (char *)D_007097F0 + idx * 0x18;
     ;
-    *((int *)(((char *)(*((int **)((&D_007097F0[idx * 0x18]) + 0x14)))) + 0x34)) = a1;
+    *((int *)(((char *)(*((int **)(((char *)D_007097F0 + idx * 0x18) + 0x14)))) + 0x34)) = a1;
 }
 
 extern void GetParticleEffectPackage(int x);

@@ -7,7 +7,7 @@ typedef struct { char b[0x20]; } ShiftBlk;
 typedef struct { int f_0; int f_4; char pad[0x10]; } Slip;
 
 extern unsigned short D_00565060[];
-extern int D_00292540[];
+extern Slip D_00292540[];
 extern void MatrixDrive_TurnObjectMatrix(void *dst, void *src);
 extern char D_00276140[];
 extern int DebugDisp1CollisionWithColor(void *a0);
@@ -118,7 +118,6 @@ const char D_006197D0[0x20] = "src/motionOrientManager.c\0\0\0\0\0\0\0";
 
 INCLUDE_ASM("asm/nonmatchings/src/motionOrientManager", shiftMotionOrientBeginFunc);
 
-extern char D_00565060__p4[] __asm__("D_00565060");
 extern char D_0061C710[];
 extern char D_00612068[], D_006120C0[], D_00612100[], D_006334C0[];
 extern void debug_assertMessage();
@@ -128,7 +127,7 @@ extern void func_00264DF8(char *buf, const char *fmt, ...);
 
 float ForTest_ForceShiftMotion(int a0) {
     char buf[0x100];
-    char *D = D_00565060__p4;
+    char *D = (char *)D_00565060;
     int off = a0 * 0x190;
     char *f148 = D + 0x148;
     char *r;
@@ -272,7 +271,6 @@ int *ExecuteSlipProc(int start, int end, int a2, int a3) {
     return (int *)0;
 }
 
-extern Slip D_00292540__p4[] __asm__("D_00292540");
 extern Slip D_0029F038;
 
 void *ExecutePauseSlipProc(int i, int limit, int a2, int a3)
@@ -280,19 +278,19 @@ void *ExecutePauseSlipProc(int i, int limit, int a2, int a3)
     void *r;
     int found = -1;
     while (i < limit) {
-        if (D_00292540__p4[i].f_4 == a3) {
-            if (D_00292540__p4[i].f_0 == a2) {
-                r = &D_00292540__p4[i];
+        if (D_00292540[i].f_4 == a3) {
+            if (D_00292540[i].f_0 == a2) {
+                r = &D_00292540[i];
                 goto done;
             }
-            if (D_00292540__p4[i].f_0 == 0x43D) {
+            if (D_00292540[i].f_0 == 0x43D) {
                 found = i;
             }
         }
         i++;
     }
     if (found != -1) {
-        r = &D_00292540__p4[found];
+        r = &D_00292540[found];
     } else {
         r = (void *)0;
     }

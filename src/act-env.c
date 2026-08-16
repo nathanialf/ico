@@ -65,8 +65,8 @@ extern int *D_00631AE4;
 extern int D_00631AE8;
 extern char D_00633840[];
 extern char D_00633848[];
-extern float D_00633850_[] __asm__("D_00633850");
-extern float D_00633854_[] __asm__("D_00633854");
+extern float D_00633850[];
+extern float D_00633854[];
 extern int DisableMotionOrientUpdate(int a0, int a1);
 extern float EnableChangeRootUpdateMode();
 extern int EnableMotionOrientUpdate(int a0, int a1);
@@ -411,11 +411,11 @@ void func_001FCA20(void *arg0, void *arg1, char *arg2, void *arg3, void *arg4) {
             s6 = 0;
         }
         if (s7 == 0 && s6 == 0) {
-            f22 = D_00633850_[0];
+            f22 = D_00633850[0];
         }
         sub = *(char **)((char *)FI(0x30) + 0x15C);
         if (*(int *)(sub + 0x568) == 0) {
-            f21 = D_00633850_[0];
+            f21 = D_00633850[0];
         }
         {
             int a1v = FI(0x1B4);
@@ -554,7 +554,7 @@ L6B4:
         if (EnableMotionOrientUpdate(FI(0x30), 0x300) ||
             EnableMotionOrientUpdate(FI(0x30), 0x500) ||
             EnableMotionOrientUpdate(FI(0x30), 0x600)) {
-            f23 = D_00633850_[0];
+            f23 = D_00633850[0];
             FF(0x34) = f23;
         }
     }
@@ -565,7 +565,7 @@ L6B4:
             if (DisableMotionOrientUpdate((int)g, 0x300) ||
                 DisableMotionOrientUpdate(FI(0x30), 0x500) ||
                 DisableMotionOrientUpdate(FI(0x30), 0x600)) {
-                f21 = D_00633850_[0];
+                f21 = D_00633850[0];
             }
         }
     }
@@ -626,7 +626,7 @@ L6B4:
             }
         }
     }
-    if (f22 != D_00633850_[0] && s6 != 0 && FI(0x1B4) != 0) {
+    if (f22 != D_00633850[0] && s6 != 0 && FI(0x1B4) != 0) {
         void *st;
 
         int mv;
@@ -647,18 +647,18 @@ L6B4:
         *(int *)((char *)arg4 + 0x13C) = (int)box;
         *(int *)arg3 |= 1;
         if (FF(0x34) < f23) {
-            if (FF(0x34) != D_00633854_[0]) FF(0x34) = f23;
+            if (FF(0x34) != D_00633854[0]) FF(0x34) = f23;
         }
         if (f22 < f25) {
             t = FF(0x34);
-            if (t < 0.0f) t = D_00633850_[0];
+            if (t < 0.0f) t = D_00633850[0];
             if (t >= 40.0f) {
                 *(long long *)(env + 0x18) |= 0x8000LL << 36;
             }
         }
         if (f22 < 300.0f) {
             t = FF(0x34);
-            if (t < 0.0f) t = D_00633850_[0];
+            if (t < 0.0f) t = D_00633850[0];
             if (t <= 250.0f) {
                 *(int *)arg3 |= 2;
             }
@@ -738,7 +738,7 @@ L6B4:
             gb = (char *)FI(0x30);
             if (gb == (char *)D_00631AE8) {
             if (EnableMotionOrientUpdate((int)gb, 0x7000)) {
-                f23 = D_00633850_[0];
+                f23 = D_00633850[0];
                 FF(0x34) = f23;
                 if (ACTEnvGetTest()) {
                     char *p1 = (char *)ContinueCorrectPosition((void *)D_00631AE8);
@@ -1191,7 +1191,7 @@ L6B4:
         }
         if ((int)(*(unsigned long long *)(env + 0x470) >> 59) & 1) {
             t = FF(0x34);
-            if (t < 0.0f) t = D_00633850_[0];
+            if (t < 0.0f) t = D_00633850[0];
             if (t > 65.0f) {
                 if ((float)wAang < 30.0f) {
                     ((union LLAlias *)(env + 0x468))->ll |= 0x8000LL << 26;
@@ -1209,7 +1209,7 @@ L6B4:
                 ((union LLAlias *)(env + 0x468))->ll |= 0x8000LL << 42;
             }
             t = FF(0x34);
-            if (t < 0.0f) t = D_00633850_[0];
+            if (t < 0.0f) t = D_00633850[0];
             if (t > 230.0f) {
                 if (ForMotionViewer_GetCurrentMotion(FI(0x30), 0x400) == 0 &&
                     ForMotionViewer_GetCurrentMotion(FI(0x30), 0x8000) == 0) {
@@ -1247,7 +1247,7 @@ L6B4:
     }
     {
     char *mm;
-    if (f21 != D_00633850_[0] &&
+    if (f21 != D_00633850[0] &&
         (mm = (char *)FI(0x30), *(int *)(*(char **)(mm + 0x15C) + 0x568) != 0) &&
         FI(0x1B8) != 0) {
         void *st;
@@ -1521,7 +1521,7 @@ L6B4:
 
                 FI(0x1D0) = 1;
                 ccat = 0;
-                f22 = D_00633850_[0];
+                f22 = D_00633850[0];
                 GetRootMatrixByDObj(m, (void *)D_00631AE4);
                 GetRootMatrixByDObj((float *)w70v, (void *)D_00631AE8);
                 if (!(f24 < 55.0f)) {

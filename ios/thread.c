@@ -122,7 +122,7 @@ void iosThreadCreate(unsigned char *p, int a1, int a2) {
 
 INCLUDE_ASM("asm/nonmatchings/ios/thread", iosThreadGetPri);
 
-extern void iosSemaWait__p4(int a0, int a1) __asm__("iosSemaWait");
+extern void iosSemaWait(int *a0, int a1);
 
 void iosGetIOSThreadFromId(int a0)
 {
@@ -131,11 +131,11 @@ void iosGetIOSThreadFromId(int a0)
     (*(void (**)(int))((char *) obj + 0x38))(a0);
     if (*(int *)((char *) obj + 0x40) == 0)
     {
-        iosSemaWait__p4(obj, 0x21);
+        iosSemaWait((int *)obj, 0x21);
     }
     else
     {
-        iosSemaWait__p4(obj, 0x22);
+        iosSemaWait((int *)obj, 0x22);
     }
 }
 
@@ -269,14 +269,14 @@ INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013DBB0);
 
 INCLUDE_ASM("asm/nonmatchings/ios/thread", func_0013DC30);
 
-extern void iosSemaDelete__p4(void *obj) __asm__("iosSemaDelete");
+extern void iosSemaDelete(int a0);
 
 void func_0013DD20(int a0) {
     int i;
 
     for (i = 0; i < 0x100; i++) {
         if (D_006A6F30[i] != 0 && i != a0) {
-            iosSemaDelete__p4(D_006A6F30[i]);
+            iosSemaDelete((int)D_006A6F30[i]);
         }
     }
 }

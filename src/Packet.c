@@ -124,10 +124,10 @@ void pac_setVifCode(void)
  * already-matched C, invisible to its asm-reference scan). */
 const char D_00554DD0[0x18] = "(addr 0x%08x <fl) : ";
 const char D_00554DE8[0x18] = "(addr 0x%08x <%2d>) : ";
-extern const char D_00631CD8_a[] __asm__("D_00631CD8");
-extern const char D_00631CE0_a[] __asm__("D_00631CE0");
-extern const char D_00631CE8_a[] __asm__("D_00631CE8");
-extern const char D_00631CF0_a[] __asm__("D_00631CF0");
+extern const char D_00631CD8[];
+extern const char D_00631CE0[];
+extern const char D_00631CE8[];
+extern const char D_00631CF0[];
 extern int func_00263FB0(float);
 
 void pac_setVifEndCode(unsigned char *arg, int slot_size) {
@@ -155,14 +155,14 @@ void pac_setVifEndCode(unsigned char *arg, int slot_size) {
         if (!is_float) {
             int col;
             for (col = 0x10 / (0x10 / slot_size) - 1; col >= 0; col--) {
-                debug_assertMessage(D_00631CD8_a, arg[row * slot_size + col]);
+                debug_assertMessage(D_00631CD8, arg[row * slot_size + col]);
             }
-            debug_assertMessage(D_00631CE0_a);
+            debug_assertMessage(D_00631CE0);
         } else {
-            debug_assertMessage(D_00631CE8_a, func_00263FB0(((float *)arg)[row]));
+            debug_assertMessage(D_00631CE8, func_00263FB0(((float *)arg)[row]));
         }
     }
-    debug_assertMessage(D_00631CF0_a);
+    debug_assertMessage(D_00631CF0);
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/Packet", pac_setGifTag);

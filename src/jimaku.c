@@ -22,7 +22,7 @@ extern void iosCdvdBackGroundMgrEntryNum(char *self);
 extern char D_006CEFF8[];
 extern void func_00132B90();
 extern void func_00133500(char *self, int val);
-extern int *D_00631AE4;
+extern int D_00631AE4;
 extern char D_00559AE8[];
 extern char D_005598F0[];
 extern void ACTWay_SetBeginPositionIllegal(char *self);
@@ -73,13 +73,12 @@ void func_001759B0(volatile int a0) {
 }
 
 extern char D_00559440[];
-extern int D_00631AE4__p4 __asm__("D_00631AE4");
 extern int D_006321DC;
 extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
 
 void func_00175A58(volatile int a0) {
     debug_assertMessage(D_00559440);
-    iosOmBeforeFuncStandard(D_00631AE4__p4, 0x59, D_006321DC);
+    iosOmBeforeFuncStandard(D_00631AE4, 0x59, D_006321DC);
     ACTLookTargetSystem_Exec();
 }
 
@@ -106,12 +105,11 @@ void jimakuHandler(volatile int a0) {
 
 extern char D_00559440[];
 extern int D_006321DC;
-extern int D_00631AE4__p4 __asm__("D_00631AE4");
 extern void iosOmBeforeFuncStandard(int a0, int a1, int a2);
 
 void func_00175B18(volatile int a0) {
     debug_assertMessage(D_00559440);
-    iosOmBeforeFuncStandard(D_00631AE4__p4, 0x5E, D_006321DC);
+    iosOmBeforeFuncStandard(D_00631AE4, 0x5E, D_006321DC);
     ACTLookTargetSystem_Exec();
 }
 
@@ -119,7 +117,7 @@ INCLUDE_ASM("asm/nonmatchings/src/jimaku", jimakuMgrBegin);
 
 void func_00175BD8(volatile int a0) {
     debug_assertMessage(D_00559440);
-    iosOmBeforeFuncStandard(D_00631AE4__p4, 0x63, D_006321DC);
+    iosOmBeforeFuncStandard(D_00631AE4, 0x63, D_006321DC);
     ACTLookTargetSystem_Exec();
 }
 

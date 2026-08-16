@@ -15,7 +15,7 @@ typedef struct WayGroup {
 
 
 
-extern unsigned char D_004CAEC0[];
+extern WayRec D_004CAEC0[];
 extern void debug_assertMessage(char *fmt, ...);
 extern char D_0061B1B0[];
 extern WayRec D_004CAE8C[];
@@ -78,10 +78,9 @@ ret0:
     return 0;
 }
 
-extern WayRec D_004CAEC0__p4[] __asm__("D_004CAEC0");
 
 int CloseWayGroup(int a0) {
-    return D_004CAEC0__p4[a0].w[2];
+    return D_004CAEC0[a0].w[2];
 }
 
 int CreateWayPoint(int *a0) {
@@ -119,13 +118,13 @@ int AddWayPoint(int *self, int which) {
 }
 
 void AddWayPointTop(int a0, int a1) {
-    D_004CAEC0__p4[a0].w[10] = a1;
+    D_004CAEC0[a0].w[10] = a1;
 }
 
 int InsertWayPointAfter(int idx)
 {
-    char *base = &D_004CAEC0[idx * 0x34];
-    return (*((int *)((&D_004CAEC0[idx * 0x34]) + 0x28))) != 0;
+    char *base = (char *)D_004CAEC0 + idx * 0x34;
+    return (*((int *)(((char *)D_004CAEC0 + idx * 0x34) + 0x28))) != 0;
 }
 
 INCLUDE_ASM("asm/nonmatchings/src/way_llf", DeleteWayPoint);
@@ -148,7 +147,7 @@ extern void *nearest_waypoint_of_all_except_group(void *a0);
 extern void traceLine();
 
 int WayBridge_begin(void) {
-    WayRec *entry = &D_004CAEC0__p4[D_00633874];
+    WayRec *entry = &D_004CAEC0[D_00633874];
     int f;
 
     if (D_00632CBC & 1) {

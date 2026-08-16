@@ -13,7 +13,7 @@ typedef struct ShockReq {
 
 
 
-extern int *D_00632190;
+extern ShockMgr *D_00632190;
 struct PadNode {
     char pad[0x30];
     struct PadNode *prev;
@@ -376,15 +376,14 @@ int Init_ShockEmulator(unsigned int idx, int val)
     return idx;
 }
 
-extern ShockMgr *D_00632190__p4 __asm__("D_00632190");
 
 int ShockEmulator_EmulationShot(int value) {
     int i;
-    for (i = 0; i < D_00632190__p4->count; i++) {
-        if (D_00632190__p4->arr[i] == 0) break;
+    for (i = 0; i < D_00632190->count; i++) {
+        if (D_00632190->arr[i] == 0) break;
     }
-    if (i == D_00632190__p4->count) return -1;
-    D_00632190__p4->arr[i] = value;
+    if (i == D_00632190->count) return -1;
+    D_00632190->arr[i] = value;
     return i;
 }
 
@@ -396,17 +395,16 @@ int ShockEmulator_EmulationWave(unsigned int idx)
     return idx;
 }
 
-extern ShockMgr *D_00632190__p4 __asm__("D_00632190");
 
 int Init_ShockRequestAlloc(int a0) {
     int p;
-    if ((unsigned int)a0 < (unsigned int)D_00632190__p4->count) {
+    if ((unsigned int)a0 < (unsigned int)D_00632190->count) {
         goto body;
     }
     p = 0;
     goto check;
 body:
-    p = D_00632190__p4->arr[a0];
+    p = D_00632190->arr[a0];
 check:
     if (p != 0) {
         p = *(int *)p;
@@ -421,17 +419,16 @@ int Get_ShockRequestStruct(unsigned idx) {
     return ((int *)base[1])[idx];
 }
 
-extern ShockMgr *D_00632190__p4 __asm__("D_00632190");
 
 int Reset_ShockRequestStruct(int a0, int a1) {
     int p;
-    if ((unsigned int)a0 < (unsigned int)D_00632190__p4->count) {
+    if ((unsigned int)a0 < (unsigned int)D_00632190->count) {
         goto body;
     }
     p = 0;
     goto check;
 body:
-    p = D_00632190__p4->arr[a0];
+    p = D_00632190->arr[a0];
 check:
     if (p == 0) {
         goto ret_a;

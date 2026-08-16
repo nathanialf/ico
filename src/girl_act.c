@@ -28,7 +28,7 @@ typedef struct {
 
 
 
-extern int D_0028829C;
+extern unsigned int D_0028829C[];
 extern void *D_00631AE8;
 extern int *D_00631AE4;
 extern int D_006ABDE0[100];
@@ -125,16 +125,15 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", subGirlBrain_Attract);
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", WayTest);
 
 extern char D_002882D0[];
-extern int D_00631AE4__p4 __asm__("D_00631AE4");
-extern void *D_00629DE4, *D_00631AE8__p4 __asm__("D_00631AE8");
+extern void *D_00629DE4;
 extern void GetHeightOfWallFromGObj(void *out, void *obj);
 extern void GetRootMatrixByDObj(void *out, void *obj);
 
 void subGirlControl(void) {
-    GetRootMatrixByDObj(D_002882D0 + 0x00, D_00631AE8__p4);
-    GetRootMatrixByDObj(D_002882D0 + 0x20, D_00631AE4__p4);
-    GetHeightOfWallFromGObj(D_002882D0 + 0x10, D_00631AE8__p4);
-    GetHeightOfWallFromGObj(D_002882D0 + 0x30, D_00631AE4__p4);
+    GetRootMatrixByDObj(D_002882D0 + 0x00, D_00631AE8);
+    GetRootMatrixByDObj(D_002882D0 + 0x20, D_00631AE4);
+    GetHeightOfWallFromGObj(D_002882D0 + 0x10, D_00631AE8);
+    GetHeightOfWallFromGObj(D_002882D0 + 0x30, D_00631AE4);
 }
 
 extern unsigned char D_00282AC0[];
@@ -176,7 +175,7 @@ extern void func_00104748(void *, void *);
 
 void actGirlDitch3mReady(void *a0, int a1) {
     char buf[0x20];
-    void *de8 = D_00631AE8__p4;
+    void *de8 = D_00631AE8;
     int s3 = a1 & 0xFF;
     int r;
     void *v1;
@@ -276,7 +275,7 @@ INCLUDE_ASM("asm/nonmatchings/src/girl_act", func_00173060);
 
 INCLUDE_ASM("asm/nonmatchings/src/girl_act", actGirlDitch3mExec);
 
-extern GirlStand D_gStand __asm__("D_002883D0");
+extern GirlStand D_002883D0;
 extern int HandCameraCorrect(void *buf, void *vec);
 
 void actGirlStand(void) {
@@ -284,28 +283,28 @@ void actGirlStand(void) {
     int uninit;
     float one = 1.0f;
     home = uninit;
-    if (D_gStand.f_20 < 2.0f) {
-        D_gStand.f_58 = 1;
+    if (D_002883D0.f_20 < 2.0f) {
+        D_002883D0.f_58 = 1;
     }
-    if ((HandCameraCorrect(D_gStand.sub40, D_gStand.sub30) < 0
-            ? -HandCameraCorrect(D_gStand.sub40, D_gStand.sub30)
-            : HandCameraCorrect(D_gStand.sub40, D_gStand.sub30)) >= 0x3D) {
-        D_gStand.f_59 = 1;
+    if ((HandCameraCorrect(D_002883D0.sub40, D_002883D0.sub30) < 0
+            ? -HandCameraCorrect(D_002883D0.sub40, D_002883D0.sub30)
+            : HandCameraCorrect(D_002883D0.sub40, D_002883D0.sub30)) >= 0x3D) {
+        D_002883D0.f_59 = 1;
     }
-    if (D_gStand.f_54 > 15.0f) {
-        D_gStand.f_5E = 1;
+    if (D_002883D0.f_54 > 15.0f) {
+        D_002883D0.f_5E = 1;
     }
-    if (one * 100.0f < D_gStand.f_50) {
-        D_gStand.f_5A = 1;
+    if (one * 100.0f < D_002883D0.f_50) {
+        D_002883D0.f_5A = 1;
     }
-    if (one * 125.0f < D_gStand.f_50) {
-        D_gStand.f_5B = 1;
+    if (one * 125.0f < D_002883D0.f_50) {
+        D_002883D0.f_5B = 1;
     }
-    if (one * 135.0f < D_gStand.f_50) {
-        D_gStand.f_5C = 1;
+    if (one * 135.0f < D_002883D0.f_50) {
+        D_002883D0.f_5C = 1;
     }
-    if (D_gStand.f_50 < 90.0f) {
-        D_gStand.f_5D = 1;
+    if (D_002883D0.f_50 < 90.0f) {
+        D_002883D0.f_5D = 1;
     }
 }
 
@@ -321,7 +320,7 @@ extern HangOrientEntry D_00565060[];
 void actGirlHang(int *a0, int *a1, int *a2, int *a3) {
     volatile int home;
     int uninit;
-    int *g = (int *)D_00631AE4__p4;
+    int *g = (int *)D_00631AE4;
     int x;
     int r4;
 
@@ -460,7 +459,7 @@ void actGirlAttack(void *a0) {
     float a;
 
     BoxBarSoundOn(a0, 0xFD);
-    dobj = D_00631AE4__p4;
+    dobj = D_00631AE4;
     sub = *(void **)((char *)dobj + 0x164);
     if (*(int *)((char *)sub + 0x30) == 1) {
         return;
@@ -498,10 +497,9 @@ void func_001752D0(int *self)
 
 int func_00175308(void)
 {
-    extern unsigned int D_0028829C_far[] __asm__("D_0028829C");
     int *a, *b, *sub, *sub2, *p;
     b = D_00631AE8;
-    if (D_0028829C_far[0] != 7) goto ret0;
+    if (D_0028829C[0] != 7) goto ret0;
     a = D_00631AE4;
     sub = (int *)a[0x164 / 4];
     if (sub[0x30 / 4] != 0x4B) goto ret0;
@@ -514,8 +512,6 @@ ret0:
 
 extern void SetLimitHandCameraCorrect(float *dst, float *a1, float *a2, float f12);
 extern void CylinderCollision(void *a0, void *a1);
-extern void *D_00631AE4__5350 __asm__("D_00631AE4");
-extern void *D_00631AE8__5350 __asm__("D_00631AE8");
 
 void func_00175350(void *volatile a0) {
     float buf10[4];
@@ -523,12 +519,12 @@ void func_00175350(void *volatile a0) {
     float buf30[4];
 
     for (;;) {
-        buf10[0] = ContinueCorrectPosition(D_00631AE8__5350)[0];
-        buf10[1] = ContinueCorrectPosition(D_00631AE8__5350)[1];
-        buf10[2] = ContinueCorrectPosition(D_00631AE8__5350)[2];
-        buf20[0] = ContinueCorrectPosition(D_00631AE4__5350)[0];
-        buf20[1] = ContinueCorrectPosition(D_00631AE4__5350)[1];
-        buf20[2] = ContinueCorrectPosition(D_00631AE4__5350)[2];
+        buf10[0] = ContinueCorrectPosition(D_00631AE8)[0];
+        buf10[1] = ContinueCorrectPosition(D_00631AE8)[1];
+        buf10[2] = ContinueCorrectPosition(D_00631AE8)[2];
+        buf20[0] = ContinueCorrectPosition(D_00631AE4)[0];
+        buf20[1] = ContinueCorrectPosition(D_00631AE4)[1];
+        buf20[2] = ContinueCorrectPosition(D_00631AE4)[2];
         buf20[1] = buf10[1];
         SetLimitHandCameraCorrect(buf30, buf10, buf20, 20.0f);
         CylinderCollision(a0, buf30);
@@ -542,7 +538,7 @@ extern unsigned int _ACTWait(int a0);
 void func_00175420(void *volatile a0) {
     int flag;
     for (;;) {
-        unsigned int state = *(unsigned int *)(*(int *)((char *)D_00631AE4__p4 + 0x164) + 0x30);
+        unsigned int state = *(unsigned int *)(*(int *)((char *)D_00631AE4 + 0x164) + 0x30);
         flag = 0;
         if (state < 0x68) { if (state >= 0x65) goto s; }
     g:
@@ -577,8 +573,6 @@ void func_001754B0(void *volatile a0) {
 
 extern void GetTarget(void);
 extern void CylinderCollisionWithControlDynamics(void *o, void *param);
-extern void *D_00631AE4__54f8 __asm__("D_00631AE4");
-extern void *D_00631AE8__54f8 __asm__("D_00631AE8");
 
 void func_001754F8(void *volatile a0) {
     float buf10[4];
@@ -593,12 +587,12 @@ void func_001754F8(void *volatile a0) {
         if (cont) {
             i++;
             cont = i < 3;
-            buf10[0] = ContinueCorrectPosition(D_00631AE4__54f8)[0];
-            buf10[1] = ContinueCorrectPosition(D_00631AE4__54f8)[1];
-            buf10[2] = ContinueCorrectPosition(D_00631AE4__54f8)[2];
-            buf20[0] = ContinueCorrectPosition(D_00631AE8__54f8)[0];
-            buf20[1] = ContinueCorrectPosition(D_00631AE8__54f8)[1];
-            buf20[2] = ContinueCorrectPosition(D_00631AE8__54f8)[2];
+            buf10[0] = ContinueCorrectPosition(D_00631AE4)[0];
+            buf10[1] = ContinueCorrectPosition(D_00631AE4)[1];
+            buf10[2] = ContinueCorrectPosition(D_00631AE4)[2];
+            buf20[0] = ContinueCorrectPosition(D_00631AE8)[0];
+            buf20[1] = ContinueCorrectPosition(D_00631AE8)[1];
+            buf20[2] = ContinueCorrectPosition(D_00631AE8)[2];
             _OrientXZGV(buf30, buf10, buf20, 1.0f, 1.0f);
             CylinderCollisionWithControlDynamics(a0, buf30);
         }

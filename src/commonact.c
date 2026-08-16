@@ -52,7 +52,6 @@ extern void dispPlane();
 extern void BoxExtGeoRestore(int *self);
 extern void func_001E9DF0();
 extern int func_001919A0();
-extern char *D_00631AE4__p4 __asm__("D_00631AE4");
 extern void weaponFumbleSE(void *);
 
 void ACTSetPositionWithFitting(char *self) {
@@ -64,7 +63,7 @@ void ACTSetPositionWithFitting(char *self) {
     } else {
         a1 = *(int *)(s164 + 0x5D0);
     }
-    if (self == D_00631AE4__p4) {
+    if (self == (char *)D_00631AE4) {
         char *p130 = *(char **)(s164 + 0x140);
         if (p130 != 0) {
             char *p15C = *(char **)(p130 + 0x15C);
@@ -225,7 +224,7 @@ void CollisCheckInRope(volatile int a0) {
     debug_assertMessage(D_005588F0);
     self = (char *)a0;
     *(int *)(s164 + 0x18) = (int)func_0015F450;
-    if (self == D_00631AE4__p4) {
+    if (self == (char *)D_00631AE4) {
         func_00181F38(1000.0f);
     }
     if ((char *)a0 == D_00631AE8) {
@@ -458,12 +457,11 @@ INCLUDE_ASM("asm/nonmatchings/src/commonact", func_0015B4B8);
 
 extern char D_00632310[];
 extern char D_00632318[];
-extern int D_00631AE4__b620 __asm__("D_00631AE4");
 
 void func_0015B620(int a0, int a1, int a2) {
     char *msg = D_00558C70;
     int *m = *(int **)((char *)a0 + 0x164);
-    int g = D_00631AE4__b620;
+    int g = (int)D_00631AE4;
     char *s1;
     char *s2;
     *(int *)((char *)m + 0xD0) |= 1;
@@ -593,12 +591,12 @@ void funcCommonJumpDircorrect(int a0, int a1) {
     setNodePursueParticleEffectWithUpperLimit(a0, a1, 30.0f);
 }
 
-extern char D_0055DA10_a[] __asm__("D_00565060");
+extern char D_00565060[];
 extern int actCommonStoneDead(void *a0, float *a1, float a2);
 
 int funcCommonFallDircorrect(void *a0, float *pos) {
     char *s164 = *(char **)((char *)a0 + 0x164);
-    char *rec = D_0055DA10_a;
+    char *rec = D_00565060;
     ((FI *)(s164 + 0x110))->f = pos[0];
     ((FI *)(s164 + 0x114))->f = pos[1];
     ((FI *)(s164 + 0x118))->f = pos[2];
@@ -837,7 +835,7 @@ void func_0015DC10(volatile int a0) {
     if (*(int *)(a0 + 0xC) == 1) {
         actBoyBelift((void *)a0, &local20, buf);
     } else {
-        void *r1 = ContinueCorrectPosition(D_00631AE4__p4);
+        void *r1 = ContinueCorrectPosition((char *)D_00631AE4);
         void *r2v = ContinueCorrectPosition((void *)a0);
         func_001947D0((char *)s17 + 0x110, r1, r2v);
         dispPlane((void *)a0, (char *)s17 + 0x110);
@@ -860,7 +858,7 @@ void func_0015DCE8(volatile int a0) {
     } else {
         void *r1, *r2;
         s1 += 0x110;
-        r1 = ContinueCorrectPosition(D_00631AE4__p4);
+        r1 = ContinueCorrectPosition((char *)D_00631AE4);
         r2 = ContinueCorrectPosition((void *)a0);
         func_001947D0(s1, r1, r2);
         dispPlane((void *)a0, s1);
@@ -880,7 +878,7 @@ void func_0015DD78(volatile int a0) {
         func_00157DA0((void *)a0, 6);
         func_0014B5B8((void *)a0);
     }
-    iosOmBeforeFuncStandard(D_00631AE4__p4, 0x10C, (void *)a0);
+    iosOmBeforeFuncStandard((char *)D_00631AE4, 0x10C, (void *)a0);
     if (*(int *)(base + 0xC8) == 0x10A) {
         actBoyHangG3M((void *)a0, ContinueCorrectPosition((void *)a0));
     }
@@ -894,11 +892,11 @@ extern void brainInitGirlSet(void);
 extern void func_00181F38(float a0);
 
 void func_0015DE38(volatile int a0) {
-    if ((char *)a0 == D_00631AE4__p4) {
+    if ((char *)a0 == (char *)D_00631AE4) {
         func_00181F38(1000.0f);
     }
     for (;;) {
-        if ((char *)a0 == D_00631AE4__p4 && D_00631AE8 != 0) {
+        if ((char *)a0 == (char *)D_00631AE4 && D_00631AE8 != 0) {
             brainInitGirlSet();
             iosOmBeforeFuncStandard(D_00631AE8, 0x3A, (void *)a0);
         }
@@ -1060,7 +1058,7 @@ void func_0015E2C8(volatile int a0) {
     for (;;) {
         char *obj = (char *)a0;
         int hit;
-        char *rec = D_0055DA10_a +
+        char *rec = D_00565060 +
             *(int *)(*(char **)(obj + 0x15C) + 0x4A0) * 0x190;
         if (!(*(int *)(rec + 0x188) & 1)) goto no;
         if (func_0015C418_probe(buf, obj)) { hit = 1; goto test; }
@@ -1421,7 +1419,7 @@ extern void InitKeyInput(void *a0, void *a1);
 
 void *subCommonIdle(char *a0) {
     char *p;
-    if (a0 != D_00631AE4__p4 && a0 != D_00631AE8 && *(int *)(a0 + 0xC) != 4) {
+    if (a0 != (char *)D_00631AE4 && a0 != D_00631AE8 && *(int *)(a0 + 0xC) != 4) {
         InitKeyInput(D_006AAB60, a0);
         return D_006AAB60;
     }

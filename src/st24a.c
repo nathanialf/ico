@@ -20,7 +20,6 @@ struct SndBuf { long long a, b; };
 extern int scpKillSpiderGroup(int a0, int a1);
 extern void actCreateSubThread(void *fn, int a1);
 extern void func_00235818(volatile int a0);
-extern volatile float D_006316B8, D_006316BC, D_006316C0;
 extern void func_0017E870(float a, float b, float c, float d);
 extern void func_0012ABE0(int a0, int a1);
 extern void stage_KillPlayBgAnimation(int a0, int a1, int a2);

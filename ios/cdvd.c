@@ -117,7 +117,7 @@ extern unsigned char D_0027E528[];
 extern char D_00556828[];
 extern char D_00556860[];
 extern int D_00631F54;
-extern struct E001332B8 D_tbl_0027E520[] __asm__("D_0027E520");
+extern struct E001332B8 D_0027E520[];
 extern extern void debug_assertMessage();
 extern int func_0024C6B8(int *dst, int *name);
 extern int func_00265024(int *name, const char *entry);
@@ -148,8 +148,8 @@ void iosCdvdMgrPackLoad(int *self)
 
     if (found == 0)
     {
-        req->fileId = D_tbl_0027E520[i].f0;
-        req->fileSize = D_tbl_0027E520[i].f1;
+        req->fileId = D_0027E520[i].f0;
+        req->fileSize = D_0027E520[i].f1;
     }
     else
     {
@@ -161,9 +161,9 @@ void iosCdvdMgrPackLoad(int *self)
         if (D_00631F54 < 0xC8)
         {
             int n = D_00631F54;
-            D_tbl_0027E520[n].f0 = req->fileId;
-            D_tbl_0027E520[n].f1 = req->fileSize;
-            func_00265570(D_tbl_0027E520[n].pad, (int *) req->name, 0x28);
+            D_0027E520[n].f0 = req->fileId;
+            D_0027E520[n].f1 = req->fileSize;
+            func_00265570(D_0027E520[n].pad, (int *) req->name, 0x28);
             D_00631F54 = D_00631F54 + 1;
         }
         else

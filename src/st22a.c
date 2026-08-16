@@ -74,13 +74,13 @@ typedef struct GObjBB_22a {
     void **unkC4;
 } GObjBB_22a;
 
-extern volatile int D_006325B4;
+extern int D_006325B4;
 extern void *D_004D35B0[];
 extern int func_0017B230(int a0);
 extern void actSt20aGondolaDown(volatile int a0);
 
 void func_002342F8(volatile int a0) {
-    GObjBB_22a *gobj = *(GObjBB_22a **)(a0 + 0x164);
+    GObjBB_22a *gobj = (GObjBB_22a *)*(int *)(a0 + 0x164);
     D_006325B4 = 1;
     *(int *)((char *)gobj + 0xC0) = 0;
     if (func_0017B230(0x13) == 0) {

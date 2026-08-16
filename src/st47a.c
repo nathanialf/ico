@@ -7,7 +7,7 @@ typedef struct ActB4Obj {
 
 
 
-extern void *D_00631AE8;
+extern int D_00631AE8;
 extern void func_0017B258(int bit_idx);
 extern int func_0017B230(int a0);
 extern void AddWayPointTop();
@@ -16,7 +16,6 @@ extern void BoxBarSoundOn(int a0, int a1);
 extern int D_00274EC0[];
 extern int D_004D38B0[];
 extern int *D_00631AE4;
-extern int D_00631AE8__p4 __asm__("D_00631AE8");
 extern void _ACTWait(int a0);
 extern int actSt25aQueenDeadChk(int a0);
 extern void actSt47aEnd(volatile int a0);
@@ -39,7 +38,7 @@ void actSt47aInit(volatile int a0) {
         if (scpSleepSpiderGroupOne(actSt25aQueenDeadChk(0x2D3), 0x1000000) != 0 ||
             scpSleepSpiderGroupOne(actSt25aQueenDeadChk(0x2D4), 0x1000000) != 0 ||
             scpSleepSpiderGroupOne((int)D_00631AE4, 0x1000000) != 0 ||
-            (D_00631AE8__p4 != 0 && scpSleepSpiderGroupOne(D_00631AE8__p4, 0x1000000) != 0)) {
+            (D_00631AE8 != 0 && scpSleepSpiderGroupOne(D_00631AE8, 0x1000000) != 0)) {
             i++;
         } else {
             i = 0;
@@ -55,7 +54,7 @@ void actSt47aInit(volatile int a0) {
     if (scpSleepSpiderGroupOne(actSt25aQueenDeadChk(0x2D3), 0x1000000) != 0 ||
         scpSleepSpiderGroupOne(actSt25aQueenDeadChk(0x2D4), 0x1000000) != 0 ||
         scpSleepSpiderGroupOne((int)D_00631AE4, 0x1000000) != 0 ||
-        scpSleepSpiderGroupOne(D_00631AE8__p4, 0x1000000) != 0) {
+        scpSleepSpiderGroupOne(D_00631AE8, 0x1000000) != 0) {
         func_0017B258(0x36);
     }
     D_004D38B0[1] = (int)actSt47aEnd;
@@ -111,7 +110,7 @@ void actSt47aSekizo1Chk(volatile int a0) {
         if (scpSleepSpiderGroupOne(actSt25aQueenDeadChk(0x2D3), 0x2000000) != 0 ||
             scpSleepSpiderGroupOne(actSt25aQueenDeadChk(0x2D4), 0x2000000) != 0 ||
             scpSleepSpiderGroupOne((int)D_00631AE4, 0x2000000) != 0 ||
-            (D_00631AE8__p4 != 0 && scpSleepSpiderGroupOne(D_00631AE8__p4, 0x2000000) != 0)) {
+            (D_00631AE8 != 0 && scpSleepSpiderGroupOne(D_00631AE8, 0x2000000) != 0)) {
             i++;
         } else {
             i = 0;
@@ -127,7 +126,7 @@ void actSt47aSekizo1Chk(volatile int a0) {
     if (scpSleepSpiderGroupOne(actSt25aQueenDeadChk(0x2D3), 0x2000000) != 0 ||
         scpSleepSpiderGroupOne(actSt25aQueenDeadChk(0x2D4), 0x2000000) != 0 ||
         scpSleepSpiderGroupOne((int)D_00631AE4, 0x2000000) != 0 ||
-        scpSleepSpiderGroupOne(D_00631AE8__p4, 0x2000000) != 0) {
+        scpSleepSpiderGroupOne(D_00631AE8, 0x2000000) != 0) {
         func_0017B258(0x37);
     }
     D_004D3930[1] = (int)actSt47aHane1Up;
@@ -336,13 +335,12 @@ void actSt47aExit(int x) {
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00236C70);
 
 extern void func_0017B288(int a0);
-extern int D_00631AE8__6d20 __asm__("D_00631AE8");
 
 void func_00236D20(volatile int a0) {
-    if (D_00631AE8__6d20 == 0) {
+    if (D_00631AE8 == 0) {
         _ACTWait(0);
     }
-    while (scpSleepSpiderGroupOne(D_00631AE8__6d20, 0x3000000) == 0) {
+    while (scpSleepSpiderGroupOne(D_00631AE8, 0x3000000) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);
@@ -351,13 +349,12 @@ void func_00236D20(volatile int a0) {
     func_0017B258(0x3A);
 }
 
-extern int D_00631AE8__6d90 __asm__("D_00631AE8");
 
 void func_00236D90(volatile int a0) {
-    if (D_00631AE8__6d90 == 0) {
+    if (D_00631AE8 == 0) {
         _ACTWait(0);
     }
-    while (D_00631AE8__6d90 == 0 ||
+    while (D_00631AE8 == 0 ||
            scpSleepSpiderGroupOne(actSt25aQueenDeadChk(0x2D4), 0x4000000) == 0) {
         _ACTWait(1);
     }
@@ -425,11 +422,11 @@ void func_002377E8(volatile int a0) {
 }
 
 extern unsigned int D_004D3A30[8];
-extern int D_006325B4__7860 __asm__("D_006325B4");
+extern int D_006325B4;
 
 void func_00237860(volatile int a0) {
     int gobj = *(int *)(a0 + 0x164);
-    D_006325B4__7860 = 0;
+    D_006325B4 = 0;
     *(int *)(gobj + 0xC0) = (int)D_004D3A30;
     for (;;) {
         _ACTWait(1);
@@ -442,15 +439,14 @@ typedef struct KSubB_b898 {
     int *unkC4;
 } KSubB_b898;
 
-extern volatile int D_006325B4__b898 __asm__("D_006325B4");
 extern unsigned int D_004D3A70[8];
 extern unsigned int D_004D3A90[8];
 extern void func_00236E10(volatile int a0);
 extern void func_00237930(volatile int a0);
 
 void func_00237898(volatile int a0) {
-    KSubB_b898 *s = *(KSubB_b898 **)(a0 + 0x164);
-    D_006325B4__b898 = 1;
+    KSubB_b898 *s = (KSubB_b898 *)*(int *)(a0 + 0x164);
+    D_006325B4 = 1;
     s->unkC0 = 0;
     if (func_0017B230(0x11B) != 0) {
         D_004D3A70[1] = (unsigned int)func_00236E10;
@@ -467,11 +463,10 @@ void func_00237898(volatile int a0) {
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00237930);
 
 extern unsigned int D_004D3B10[8];
-extern int D_006325B4__7A00 __asm__("D_006325B4");
 
 void func_00237A00(volatile int a0) {
     int gobj = *(int *)(a0 + 0x164);
-    D_006325B4__7A00 = 0;
+    D_006325B4 = 0;
     *(int *)(gobj + 0xC0) = (int)D_004D3B10;
     for (;;) {
         _ACTWait(1);
@@ -484,15 +479,14 @@ typedef struct KSubB_ba38 {
     int *unkC4;
 } KSubB_ba38;
 
-extern volatile int D_006325B4__ba38 __asm__("D_006325B4");
 extern unsigned int D_004D3B50[8];
 extern unsigned int D_004D3B70[8];
 extern void func_00237338(volatile int a0);
 extern void func_00237428(volatile int a0);
 
 void func_00237A38(volatile int a0) {
-    KSubB_ba38 *s = *(KSubB_ba38 **)(a0 + 0x164);
-    D_006325B4__ba38 = 1;
+    KSubB_ba38 *s = (KSubB_ba38 *)*(int *)(a0 + 0x164);
+    D_006325B4 = 1;
     s->unkC0 = 0;
     if (func_0017B230(0x11E) == 0) {
         D_004D3B50[1] = (unsigned int)func_00237338;
@@ -675,11 +669,10 @@ void func_00238B18(volatile int a0) {
 }
 
 extern unsigned int D_004D3BD0[8];
-extern int D_006325B4__8B88 __asm__("D_006325B4");
 
 void func_00238B88(volatile int a0) {
     int gobj = *(int *)(a0 + 0x164);
-    D_006325B4__8B88 = 0;
+    D_006325B4 = 0;
     *(int *)(gobj + 0xC0) = (int)D_004D3BD0;
     for (;;) {
         _ACTWait(1);
@@ -688,12 +681,11 @@ void func_00238B88(volatile int a0) {
 
 typedef struct { char pad[0xC0]; void *f_C0; void *unkC4; } GObjC0_bc0;
 extern int *D_004D3C10__bc0[] __asm__("D_004D3C10");
-extern int D_006325B4__bc0 __asm__("D_006325B4");
 extern void func_00237C18(volatile int a0);
 
 void func_00238BC0(volatile int a0) {
     GObjC0_bc0 *obj = *(GObjC0_bc0 **)(a0 + 0x164);
-    D_006325B4__bc0 = 1;
+    D_006325B4 = 1;
     D_004D3C10__bc0[1] = (int *)func_00237C18;
     obj->f_C0 = 0;
     obj->unkC4 = (void *)D_004D3C10__bc0;
@@ -702,13 +694,12 @@ void func_00238BC0(volatile int a0) {
 }
 
 extern unsigned int D_004D3C30[8];
-extern int D_006325B4__8c18 __asm__("D_006325B4");
 extern void scpActivateAllWithKind(void);
 
 void func_00238C18(volatile int a0) {
     int gobj = *(int *)(a0 + 0x164);
     lt_fade_status(0x32);
-    D_006325B4__8c18 = 0;
+    D_006325B4 = 0;
     scpActivateAllWithKind();
     *(int *)(gobj + 0xC0) = (int)D_004D3C30;
     for (;;) {
@@ -722,7 +713,6 @@ typedef struct KSub_c60 {
     int *unkC4;
 } KSub_c60;
 
-extern int D_006325B4__c60 __asm__("D_006325B4");
 extern unsigned int D_004D3C70[8];
 extern unsigned int D_004D3C90[8];
 extern void func_00237E98(volatile int a0);
@@ -732,7 +722,7 @@ void func_00238C60(volatile int a0) {
     KSub_c60 *s = *(KSub_c60 **)(a0 + 0x164);
     s->unkC0 = 0;
     lt_fade_status(0x33);
-    D_006325B4__c60 = 1;
+    D_006325B4 = 1;
     scpDispOnAllWithKind();
     if (func_0017B230(0x121) != 0) {
         D_004D3C70[1] = (unsigned int)func_00237E98;
@@ -748,14 +738,13 @@ void func_00238C60(volatile int a0) {
 
 INCLUDE_ASM("asm/nonmatchings/src/st47a", func_00238D08);
 
-extern int D_00631AE8__8dd8 __asm__("D_00631AE8");
 
 void func_00238DD8(volatile int a0) {
-    if (D_00631AE8__8dd8 == 0) {
+    if (D_00631AE8 == 0) {
         _ACTWait(0);
     }
     while (func_0017B230(0x120) == 0 ||
-           scpSleepSpiderGroupOne(D_00631AE8__8dd8, 0x3000000) == 0) {
+           scpSleepSpiderGroupOne(D_00631AE8, 0x3000000) == 0) {
         _ACTWait(1);
     }
     _ACTWait(1);

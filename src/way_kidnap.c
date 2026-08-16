@@ -13,12 +13,11 @@ typedef struct NdW {
     int f20; char _24[0x4];
     int f28; char _2C[0x14];
 } NdW;
-extern NdW D_004CC1E0_w[] __asm__("D_004CC1E0");
 extern void func_00243B60(int *, int);
 
 int add_wp_pos(int a0)
 {
-    NdW *node = &D_004CC1E0_w[0];
+    NdW *node = (NdW *)D_004CC1E0;
     int i;
     for (i = 0; i < 0x113; i++) {
         if (node->f0 == 0) {
