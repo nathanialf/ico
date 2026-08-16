@@ -26,7 +26,8 @@ Chain started 2026-08-16. Policy from the user, verbatim:
 | # | func | TU | insns | rounds | outcome |
 |---|---|---|---|---|---|
 | F1 | `func_00244958` | `src/cod/vendor_2418A0` | 10 | 4 (opus, fable, opus, opus) | no match; best crutch-free rc3/sites3, best-overall rc2/sites2 but crutched. Re-enters the queue. Not parked, no floor claimed. |
-| F2 | `fzShowV` | `src/fuzio` | 15 | 1 (opus) | running |
+| F2 | `fzShowV` | `src/fuzio` | 15 | 1 (opus) | **MATCHED** `3c0c6b00`, first compile rc0 |
+| F3 | `func_001AE420` | `src/haveParentSimpleObj` | 16 | 1 (opus) | running |
 
 ---
 
@@ -45,7 +46,41 @@ successfully and is a close structural twin.
 
 | # | edit | base | outcome |
 |---|---|---|---|
-| 1 | launch opus convergence worker, frozen brief, no target named, prior-port datum attached as a pointer | `INCLUDE_ASM` stub at `src/fuzio.c:22`, tree green at `fbf50c75…` | pending |
+| 1 | launch opus convergence worker, frozen brief, no target named, prior-port datum attached as a pointer | `INCLUDE_ASM` stub at `src/fuzio.c:22`, tree green at `fbf50c75…` | **MATCHED, rc0 on the first compile.** Committed `3c0c6b00`. |
+| 1a | **supervisor verification (mine, not the self-report):** `rm build/src/fuzio.o` then full `.venv/bin/ninja` — ninja tracks neither the generated `.s` nor `compile_c.sh`, so a stale `.o` would have made the gate meaningless | worker's landed TU | `verify_elf: OK (fbf50c75cd5911273511c4f9af90503ff8423582)`. Oracle `status match / real_count 0 / diff_sites 0`. Crutch grep over the TU (pins, `__asm__`, register-vars): none. Sibling `func_0016A158` re-measured, still rc0. |
+
+**Data model recovered.** `D_006323F0` / `D_006323F4` are a pair of collision-dispatch function
+pointers, already typed as `int (*)(void *obj, int opcode)` in `src/fieldCollision.c:205,259` and
+called there with opcodes 0–0x10. `fzShowV(mode)` is the debug-visualisation toggle for that pair:
+it stores the plain implementations `DrawCollisionRay` / `MakeExitAttributeIndex`, then overwrites
+both with `func_00169F80` / `func_0016A058` when `mode != 0` — and those two are wrappers that `jal`
+the plain function and then draw a sprite (`gif_SpriteOffset`, sprite data at
+`D_00559280`/`D_005592A0`). That is why ROM's "store the default pair unconditionally, then
+conditionally store the debug pair" is the shape the dev wrote, with no reordering and no ternary.
+The four stores are stores to real globals — the function's actual output — so they are legitimate,
+not the dead-store class.
+
+**The prior-port datum, explained.** `port_ledger.md:1709`'s "insn 9: expected `addiu v0,v0,0` built
+`addiu v0,v0,6448`" is the signature of the callee addresses being written as integer constants
+rather than as function designators. Declaring the four targets as real `extern` functions and
+casting the designator makes gcc emit `lui %hi` / `addiu %lo` relocations, which is what ROM has.
+No other lever was needed. Durable rule for the corpus: a literal where ROM has a relocation means
+the symbol reached C as a number, not as a name.
+
+The round also removed a now-redundant cast at the `D_006323F0` call site in the already-matched
+`func_0016A158`; re-measured at rc0.
+
+---
+
+## F3 — `func_001AE420` (`src/haveParentSimpleObj`, 16 insns)
+
+ROM (read this session): saves `s0`/`s1`/`ra`, moves `a1`→`s0` and `a2`→`s1`, tail-calls
+`func_001ADED8` with `a1` replaced by `a3`, copies the result `v0`→`v1`, stores `s0` to `0x30(v1)`
+and `s1` to `0x34(v1)`, and returns the result. No prior work exists on it.
+
+| # | edit | base | outcome |
+|---|---|---|---|
+| 1 | launch opus convergence worker, frozen brief, no target named | `INCLUDE_ASM` stub, tree green at `fbf50c75…` | pending |
 
 ---
 
