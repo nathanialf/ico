@@ -30,6 +30,76 @@ Chain started 2026-08-16. Policy from the user, verbatim:
 | F3 | `func_001AE420` | `src/haveParentSimpleObj` | 16 | 1 (opus) | **MATCHED** `7a8bd3bb`, first compile rc0 |
 | F4 | `func_001EACE8` | `src/spider` | 16 | 1 (opus) | **MATCHED** `8b518218`, first compile rc0 |
 | F5 | `reallocseki` | `src/Basic` | 17 | 1 (opus) | **MATCHED** `337953bb`, first compile rc0 |
+| F6 | `func_0010EC08` | `src/DisplayP2O` | 18 | 1 (opus) | **MATCHED** `7d7c4a7d`, first compile rc0 |
+| F7 | `func_001186C8` | `src/MicroCode` | 18 | 1 (opus) | running |
+
+### F6 result — `func_0010EC08`, and a correction to my own launch brief
+
+Verified by me: `rm build/src/DisplayP2O.o`, full `.venv/bin/ninja` → `verify_elf: OK (fbf50c75…)`;
+oracle `status match / rc 0 / diff_sites 0` (raw 4 is the in-TU `jal func_0010EB60` false-negative);
+crutch-free.
+
+```c
+extern short func_0010EB60(float c);
+
+short func_0010EC08(float s, float c)
+{
+    if (s < 0.0f) {
+        return -func_0010EB60(c);
+    }
+    return func_0010EB60(c);
+}
+```
+
+**My launch brief said the signature was "already pinned" as `int func_0010EC08(float, float)` by
+three parked files. ROM says `short`, and the round corrected it.** Those parked files are not
+compiled, so nothing was broken — but "pinned by three declarations" was my phrasing and it was
+wrong. A declaration in a parked file is a prior worker's guess, not an artifact.
+
+Recovered model: `func_0010EB60` is an **acos** — clamps its float arg to `[-1,+1]` with two
+`bc1tl`+`mov.s` clamps, records the sign, scales by 4096.0f, `cvt.w.s`, indexes the *short* table
+`D_00670E50` with `sll $2,$2,1`, `lhu` + `addiu 0x4000`, and sign-extends on both exits — so **it
+returns `short`**. `func_0010EC08(s, c)` is the atan2 sign fixup around it: `acos(c)` gives 0..π and
+the sign of the sine component `s` picks the half-plane. The `mov.s $f12,$f13` in both delay slots
+is just "forward the second float arg", **not** the cross-jump artifact my brief suggested.
+
+Two mechanism reads, both predicted and both held:
+- **Two `jal`s ⇒ two separate call expressions.** The single-call form
+  (`r = f(c); if (s<0) r = -r; return r;`) emits one `jal`. Writing the call inside each arm
+  reproduces the duplicated `jal`+`mov.s`; gcc cannot cross-jump them because the negate sits
+  between the call and the epilogue in one arm.
+- **`sll/sra 16` in one arm only ⇒ `short` return type AND `short` callee.** With the callee
+  declared `short`, gcc trusts `$2` is already sign-extended on the fall-through arm, while `-x`
+  promotes to `int` and the `short` return forces the re-extension — exactly the lone
+  `negu`/`sll`/`sra` triple. An `int` callee would have given a symmetric or absent extension.
+
+The `bc1f` sense came free from the plain `if (cond) { … } return …;` form — the standard
+then-arm-inline / else-arm-out-of-line layout (`feedback_body_out_of_line_branch_direction`).
+
+---
+
+## F7 — `func_001186C8` (`src/MicroCode`, 18 insns)
+
+ROM (read this session, 0x48): four `lq` from `0x0/0x10/0x20/0x30($5)`, an MMI block
+(`pextlw`/`pextuw` then `pcpyld`/`pcpyud`) on `$8..$15`, four `sq` to `0x0/0x10/0x20/0x30($4)`, bare
+`jr`. A 4x4 matrix transpose. No prior work exists on it.
+
+Sent with one explicitly two-sided question rather than a target: `CLAUDE.md` names **MMI** as one of
+the three documented whole-function-`__asm__` exceptions, and
+`tough_nuts/delayslot_unfilled/HANDOFF_vendor_2418A0.md` records `func_002439B0` — also 18 insns,
+also an MMI 4x4 transpose — as MATCHED that way. So hand asm may be the right answer, but the round
+has to establish which and say what it measured, not default to it.
+
+| # | edit | base | outcome |
+|---|---|---|---|
+| 1 | launch opus convergence worker, frozen brief, no target named; MMI-exception question posed two-sidedly | `INCLUDE_ASM` stub, tree green at `fbf50c75…` | pending |
+
+**Model policy for the rest of the chain: opus only** (user instruction, 2026-08-16). The one fable
+round in this chain (F1 round 2) regressed on both sites and size and mis-stated its own instruction
+count; that is a single data point and not the reason for the policy — the user set it directly.
+
+**Pushed** `e7c6e38e..c307de40` to `origin/main` (14 commits). The pre-push hook re-ran the SHA-1
+gate and `check_no_rom` (724 files scanned) before allowing it.
 
 ---
 
