@@ -100,12 +100,6 @@ static __inline__ int wall_box_hit(ClipBox *cb, int *pos, char *node)
     return cb->f88;
 }
 
-static __inline__ int ez_field(ClipBox *cb)
-{
-    ClipWallFieldCheckCB(cb);
-    return cb->f88;
-}
-
 char *ez_line(int *arg0, int gid)
 {
     int buf[4];
@@ -118,8 +112,7 @@ char *ez_line(int *arg0, int gid)
     if (cur != 0) {
         do {
             if (*(int *)(cur + 0x20) != gid) {
-                func_00243AE8(buf, (int *)(cur + 0x10), arg0);
-                list[n].dist = func_0016A2F8((int)buf);
+                list[n].dist = wb_dist(buf, arg0, cur);
                 list[n].node = cur;
                 n++;
             }
@@ -132,9 +125,12 @@ char *ez_line(int *arg0, int gid)
     i = 0;
     while (i < n) {
         cur = list[i].node;
-        if (wall_box_hit(&cb, arg0, cur) == 0 && ez_field(&cb) == 0) {
-            result = cur;
-            break;
+        if (wall_box_hit(&cb, arg0, cur) == 0) {
+            ClipWallFieldCheckCB(&cb);
+            if (cb.f88 == 0) {
+                result = cur;
+                break;
+            }
         }
         i++;
     }
@@ -159,8 +155,7 @@ char *short_direction_between_wp(int *arg0, int gid)
             unsigned char *gp = D_004CAEC0;
             gp = gp - (-(g * 0x34));
             if (((WayGrp *)gp)->f2C == 0 || g == gid) {
-                func_00243AE8(buf, (int *)(cur + 0x10), arg0);
-                list[n].dist = func_0016A2F8((int)buf);
+                list[n].dist = wb_dist(buf, arg0, cur);
                 list[n].node = cur;
                 n++;
             }
@@ -173,9 +168,12 @@ char *short_direction_between_wp(int *arg0, int gid)
     i = 0;
     while (i < n) {
         cur = list[i].node;
-        if (wall_box_hit(&cb, arg0, cur) == 0 && ez_field(&cb) == 0) {
-            result = cur;
-            break;
+        if (wall_box_hit(&cb, arg0, cur) == 0) {
+            ClipWallFieldCheckCB(&cb);
+            if (cb.f88 == 0) {
+                result = cur;
+                break;
+            }
         }
         i++;
     }
