@@ -12,7 +12,16 @@ INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019A9A0);
 
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019AA20);
 
-INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019AE50);
+extern void MakeRefractTexture(float f);
+
+void func_0019AE50(void *a0)
+{
+    char *q = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x800);
+
+    if (*(char *)(q + 0x12) != 0) {
+        MakeRefractTexture(1.0f - (float)*(int *)(q + 0x18) / 5.0f);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019AE98);
 
@@ -20,9 +29,23 @@ INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B660);
 
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B7F8);
 
-INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B888);
-
 extern void *isysGObjSearchFromObjLayoutID(int id);
+extern void *isysGObjSearchFromObjKindID_begin(void *g);
+
+void func_0019B888(void)
+{
+    void *g;
+
+    g = isysGObjSearchFromObjLayoutID(0x2E);
+    *(char *)(*(char **)(*(char **)((char *)g + 0x15C) + 0x800) + 1) = 1;
+
+    g = isysGObjSearchFromObjLayoutID(0x35);
+    while (g != 0) {
+        *(char *)(*(char **)(*(char **)((char *)g + 0x15C) + 0x800) + 0x12) = 1;
+        g = isysGObjSearchFromObjKindID_begin(g);
+    }
+}
+
 
 char func_0019B8E8(void)
 {
@@ -44,11 +67,34 @@ float func_0019B938(void *a0) {
     return *(float *)(q + 0x14);
 }
 
-INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B948);
+int func_0019B948(void)
+{
+    void *g;
+    char *q;
+    int rv = 0;
+
+    g = isysGObjSearchFromObjLayoutID(0x2E);
+    q = *(char **)(*(char **)((char *)g + 0x15C) + 0x800);
+    if (*(int *)(q + 4) > 0 || *(int *)(q + 8) > 0) {
+        rv = 1;
+    }
+    return rv;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019B998);
 
-INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019BA60);
+int func_0019BA60(void)
+{
+    void *g;
+    int rv = 0;
+
+    g = isysGObjSearchFromObjLayoutID(0x35);
+    if (g != 0) {
+        char *q = *(char **)(*(char **)((char *)g + 0x15C) + 0x800);
+        rv = *(int *)(q + 0x18) < 5;
+    }
+    return rv;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019BAA8);
 
@@ -62,7 +108,21 @@ INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019BB60);
 
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019BC58);
 
-INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019BCE0);
+extern void _ACTWait(int a0);
+extern void func_0019A6E8(void *a0);
+
+void func_0019BCE0(void *volatile a0)
+{
+    char *q = *(char **)(*(char **)((char *)a0 + 0x15C) + 0x800);
+
+    _ACTWait(1);
+    while (1) {
+        if (*q == 0) {
+            func_0019A6E8(a0);
+        }
+        _ACTWait(1);
+    }
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/queen", func_0019BD30);
 
