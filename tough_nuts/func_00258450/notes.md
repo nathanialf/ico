@@ -1,115 +1,119 @@
-# func_00258450 — parked 2026-08-06
-
-**Status: ONE divergent instruction.** Not a floor, and not an assembler question.
-Parked by user decision at a natural pause, with the mechanism further along than
-any narrative in the git history — several of which were wrong and are corrected
-below.
+# func_00258450 — parked 2026-08-17 (supersedes the 2026-08-06 park)
 
 VMA 0x00258450 · 7 insns · 0x1C bytes · `src/cod/vendor_2575C0.c`
-Sibling with the IDENTICAL residual: `func_001011E8` (`src/cod/vendor_100C90.c`).
-Anything that explains one explains both — they are the only two sites in the
-whole 379k-instruction ROM that end `dsll32 / jr / dsra32`.
+Identical-residual sibling: `func_001011E8` (`src/cod/vendor_100C90.c`, 36 insns, still a stub).
+These are the only two sites in the ROM ending `dsll32 / jr / dsra32`.
 
-## The residual
+```
+ld     $2, 0x0($4)
+addiu  $3, $0, 0x40
+subu   $3, $3, $5
+dsrlv  $2, $2, $3
+dsll32 $2, $2, 0
+jr     $31
+ dsra32 $2, $2, 0     <- in the jr delay slot
+```
 
-ROM ends `dsll32 v0 / jr ra / dsra32 v0` — the second half of a 64→32 narrowing
-sits IN the `jr` delay slot. The seed C produces all seven instructions in ROM's
-exact registers and order; only that one instruction is wrong (we emit
-`extendsidi2`'s self-move there instead).
+## READ THIS FIRST — the 2026-08-06 notes were wrong about the residual
 
-## Established, with the wrong turns marked
+They described this as a coloring/allocation problem and framed the parked seed as one instruction
+away. **That seed could never have matched, for a structural reason.** `define_delay`
+(`mips.md:131-134`) requires `length == 1`. `truncdisi2` (`mips.md:4066`) is ONE insn of length 2,
+and the combiner pattern at `mips.md:4113-4136` — `(truncate:SI (ashiftrt:DI x K))` — also carries a
+hard `(set_attr "length" "2")` even though it prints a single `dsra` when `K >= 32`. **So every
+`int`-returning spelling has a length-2 final insn and is structurally ineligible for the `jr`
+slot.** Measured both ways (`probes/01`, `probes/04`).
 
-1. **The assembler is settled and is NOT the answer.** ee-as 2.9-991111 fills no
-   delay slot ever (probed with three hand-written bodies before a `j $31`:
-   a dsll/dsra macro pair, native dsll32/dsra32, and a plain non-macro daddu —
-   all came out `jr ra; nop`). Only gcc's dbr pass fills. A per-TU opt-in to the
-   other period assembler was tried, landed this function, and was REVERTED by
-   user ruling (the assembler ships bundled with the compiler we build with).
-   Do not reopen it.
+Consequence: **the function returns `long long`.** ROM's split pair can only be
+`ashldi3_internal4` / `ashrdi3_internal4` (`mips.md:7447/7802`), the only patterns printing
+`dsll %0,%1,32` / `dsra %0,%1,32` at length 1, and both are DImode.
 
-2. **The return type is NOT pinned to 32 bits.** Retyping this function and both
-   callers to `long long` leaves the callers byte-identical. Earlier rounds
-   asserted the opposite from the callers' bare `daddu`, never measured it, and
-   the false constraint bounded the search for three rounds.
+Their other claim — that the pair can survive inside one basic block — holds only when an extra use
+of the `<< 32` result exists, and every such use costs bytes (see §3).
 
-3. **~~The pair can only survive cross-BB~~ — FALSE, and this is the big one.**
-   Probe K got `dsll32`/`dsra32` to survive as two separate length-1 DImode
-   shifts inside ONE basic block, no branch anywhere:
+## What the function IS (recovered from the siblings and the call sites)
 
-       ld $3,0($4) / li $2,64 / subu $2,$2,$5 / dsrl $3,$3,$2 /
-       dsll $3,$3,32 / dsra $2,$3,32 / j $31 / sd $3,D_probe
+`src/cod/vendor_2575C0.c` is a bitstream reader. The struct, from the matched siblings:
+`{ u64 w; u8 *cur; u8 *fill; int nbits; …; long long bitpos; u8 *start, *end; int size; }`.
+`func_00258470` is `advance(bs, n)` (`w <<= n; nbits -= n;` plus a byte-refill loop to `nbits >= 57`),
+so **`func_00258450` is `showBits(bs, n) = w >> (64 - n)`, narrowed to 32 bits**;
+`func_00258508` is `getBits`, `func_00258558` is `getBit`. Callers request n ∈ {1,3,9,15,30,32,34,56}.
 
-   from `long long w = (long long)(*p >> (64-n)) << 32; D_probe = w; return w >> 32;`
+Provenance (via `baserom/aug6/MAIN.MAP`): this lives in `libsndn2.a(sound.o)` and is file-local.
+The sibling is in `libkernl.a(kprintf.o)`. The aug6 prototype's copy is **byte-identical to retail**,
+so the prototype offers no extra shape information, and the ELF is stripped (no `.mdebug`).
 
-   Mechanism (`flow.c:3376-3390`): flow builds exactly ONE log link per def, to
-   the FIRST forward use. Give `w` an earlier use combine cannot absorb and
-   `try_combine(ashiftrt, ashift)` is never attempted — the fold that would
-   collapse the pair into one length-2 insn never gets a chance. The intra-BB
-   fold everyone was fighting is `make_compound_operation`'s ASHIFTRT case
-   (combine.c:6183 → make_extraction, pos 0 / len 32 →
-   `(sign_extend:DI (subreg:SI v))` → `extendsidi2`, which prints as a move).
+## §3 — why the natural C cannot produce the split pair
 
-   So the ten-round hunt for "the author's vanishing branch" was chasing the
-   wrong mechanism. A diamond DOES work (two identical multi-insn arms collapse
-   to exactly 7 insns with `dsra` in the slot, arms cross-jumped, `beq`/`b`
-   deleted as jumps-to-next) but it is not required.
+`make_compound_operation`'s ASHIFTRT case (`combine.c:6178-6194`) calls
+`make_extraction(DImode, inner, pos = rhs - lhs, len = 64 - rhs)`. Its first clause
+(`combine.c:5670-5673`) requires `pos % BITS_PER_WORD == 0`, and `BITS_PER_WORD == 64` here — so
+`(x << A) >> 32` folds to `(sign_extend:DI (subreg:SI X))` = `extendsidi2` = a bare `move`
+**only when A == 32**, which is exactly ROM's amount. Measured: A ∈ {0,1,8,16,31,33,48} all survive
+as two length-1 insns with `dsra` in the slot. `inner` is always a REG here (the `dsrlv` is its own
+insn), so the `force_to_mode` escape at `combine.c:5722` is unreachable.
 
-4. **The colouring rule, corrected.** Not `combine_regs`' block-local tie (the
-   r10 account, which does not explain the data). It is `local-alloc.c`'s
-   HARD-REGISTER SUGGESTION pass, which runs BEFORE the priority pass: when an
-   insn's SET_DEST is a hard reg and one of its dying inputs is a local pseudo,
-   `combine_regs` records `qty_phys_sugg |= $2` for that quantity.
-   - The straight-line seed wins `$2` for the accumulator because its chain ends
-     in `(set (reg:DI 2) (sign_extend t))`.
-   - Every probe whose chain ends in a pseudo gets no suggestion, falls back to
-     `QTY_CMP_PRI = floor_log2(refs)*refs*size/(death-birth)`, and in a 5-insn
-     block the shift amount (32/3 = 10.67) always beats the accumulator
-     (64/7 = 9.14). Six probes, no exception.
-   - Therefore ROM's colours require the `ld`/`dsrlv` block to ALSO contain the
-     insn that writes hard `$2` off that chain — i.e. the `dsra32`. That
-     independently corroborates the one-block reading in (3).
+The fold is defeated by either a basic-block boundary or an earlier use of the `<< 32` result:
 
-   NOTE: this is the same pass that landed `initGeometryState` this session
-   (commit 55c0aa47) — there, routing a value through a join variable REMOVED an
-   unwanted `$2` suggestion. Here we need one to FIRE. Same lever, opposite sign.
+- **BB boundary.** `flow.c:3374-3392` builds one LOG_LINK per def, to the first use *in the same
+  block*; `find_basic_blocks_1` starts a block only at a `CODE_LABEL`, `JUMP_INSN`, `BARRIER` or
+  abnormal call. Compiled and collapsed before combine: `goto`+label, `do{}while(0)`, empty `switch`,
+  `?:`, `for`/`while`+`break`, an inlined `static __inline__` helper (its return label does not
+  survive), a non-static `__inline__` out-of-line body (byte-identical to plain), duplicated
+  `return`s. **Only a statement-level `if/else` survives**, because the early `jump_optimize` runs
+  with `cross_jump = 0` so the arms stay two blocks through combine, and only the post-reload `jump2`
+  cross-jumps them and deletes the branch.
+- **Earlier use.** Any earlier use defeats the fold automatically (`added_sets_2`, `combine.c:1601`,
+  forces a PARALLEL that fails recog) — verified with a store (`probes/08`). But a *dead* use is
+  deleted by `life_analysis` before links are built, and a use combine deletes has its link re-placed
+  on the next use by `distribute_links` (`combine.c:12060-12077`). Probes with a provably-zero second
+  consumer (`|(int)v`, `& 0xFFFFFFFF`, duplicated-expression cse copies, `volatile` on `*p`) all
+  still fold.
 
-## What is left: three conditions on one use
+## Why it is parked and NOT matched
 
-The source must give `w` a use U such that
-  U1 — U sits between the `dsll` and the `dsra` in the insn chain, taking flow's
-       single log link and blocking the fold;
-  U2 — `w` still DIES at the `dsra`, so the `$2` suggestion fires and the
-       accumulator gets ROM's register;
-  U3 — U costs ZERO BYTES.
-U1 and U2 are compatible and both demonstrated. **U3 is the whole open question.**
-`jump_optimize(NOOP_MOVES)` runs before `dbr_schedule`, so a coalescing copy is
-gone before reorg picks a slot filler — but for that copy to survive combine, `w`
-must be live past it, and for flow not to delete it, its destination must be live.
+Byte-exact and full-ninja green, re-measured twice (`probes/05`):
 
-**Worth trying first on resume, from the sibling that cracked the same shape of
-problem:** `func_001010C8` (committed 56df1a4e, mechanism corrected in 8356f2dc)
-had the identical "find a free intervening use" question, and it was NOT solved
-by finding a free use. It was solved by writing the operand in a form the target
-CANNOT FOLD — there, `(mem (ior reg const))` is not a legitimate address, so no
-pass could absorb it, and the load-bearing extra ingredient was OPACITY (cse
-collapses such a form the moment it knows the pseudo's value in the same extended
-basic block). Ask whether the shift pair can be made UNFOLDABLE rather than
-merely unlinked.
+```c
+long long func_00258450(unsigned long long *p, int n)
+{
+    long long w; int k;
+    if (n > 0) { k = 64 - n; w = (long long)(*p >> k) << 32; }
+    else       { k = 64 - n; w = (long long)(*p >> k) << 32; }
+    return w >> 32;
+}
+```
 
-## Rejected — do not resubmit, all three reached rc0 with a green gate
+**Rejected as a crutch.** ROM is exactly 7 instructions, so there is no room for the arms to differ —
+the branch is forced to have code-identical arms, emits nothing, and exists only to stop combine
+folding. A redundant `& 0xFFFFFFFFu` in one arm is the same crutch renamed. A tree-wide scan found
+**no precedent** for `if (c) X; else X;` anywhere in `src/`, `ios/` or `ito/`. The crutch is the
+*branch*, not the shifts.
 
-- A whole-function `__asm__` transcription of the ROM instruction stream. That is
-  a restatement of the INCLUDE_ASM, not a decompilation.
-- `return (int)(p - (unsigned char *)0x1000F180) + c;`-style tails, i.e. any term
-  that is identically zero and exists only to hold a value live.
-- A diamond whose arms differ ONLY to stop cse unifying them (`v << 32` vs
-  `(v & 0xFFFFFFFF) << 32` — the mask is redundant before a 32-bit left shift).
-The bar for any term: state in one sentence what it MEANS as a quantity the
-author wanted. An allocator-motivated term is a crutch.
+Load-bearing and legitimate when the real shape is found: the callers must be retyped. With
+`long long ret = func_00258450(...)`, `func_00258508`/`func_00258558` stay rc0 and the ELF matches;
+without it each gains a `dsll32/dsra32` pair and the SHA breaks. Also measured: `k = 64 - n` must be
+computed INSIDE the arm — hoisting it keeps the last four insns exact but reorders the head to
+`li/subu/ld` where ROM is `ld/li/subu`.
 
-## Where the evidence lives
+## Control case that sharpens the residual
 
-Round notes and probe dumps under `scratchpad/func_00258450_R4..r11_notes.md` and
-`scratchpad/r5,r6,r8,r9,r10,r11/` (local, not committed). `src/cod/vendor_25E1E8.c`
-is full of this compiled idiom in branch delay slots — the author's habits are
-visible there in already-matched code.
+`func_002632B0` (`asm/nonmatchings/src/cod/vendor_25E1E8/`) is a genuine two-way join
+(`dsllv` arm / `dsrlv` arm) whose narrowing at the join is the **adjacent** `dsll32;dsra32`. So a
+join by itself is not the distinguishing feature: ROM's split pair specifically needs
+`v = <expr> << 32` in the **predecessors** and `return v >> 32` at the join.
+
+## Next levers, in the order I would run them
+
+1. **Drive the sibling `func_001011E8` to rc0 first.** Its arms *genuinely differ*, so it can exhibit
+   the honest form of this idiom without the identical-arm confound. `scratchpad/n450b/b/A3.c`
+   already reproduces its ROM structure and split tail with the per-arm `<< 32` shape, and its
+   natural `return (int)m;` spelling shows the same residual as here (`b/A1.c`). If it lands, either
+   the real construct is named — and may supply a genuinely non-identical second block here — or the
+   per-arm `<< 32` is proven to be dev source.
+2. **Hunt `sound.o`'s other bitstream functions for a "park an int in the high half of a `long long`"
+   data model** (likely a `#define`). That is the only thing that would make a per-arm `<< 32` read
+   as intent rather than device.
+
+Probes: `probes/` here, full corpus at `scratchpad/n450b/` (~90 compiled probes; `keep/` are the
+named ones). Everything above was COMPILED unless it cites a compiler source line.

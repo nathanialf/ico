@@ -1,0 +1,1 @@
+long long f(unsigned long long*p,int n){long long v;if(n>0)v=(long long)(*p>>(64-n))<<32;else v=(long long)(*p>>(63-n))<<32;return v>>32;} /* genuinely different arms -> still the split pair; proves the shape, not the count */
