@@ -259,7 +259,52 @@ INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DCAC8);
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DD1F0);
 
-INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DD668);
+extern char D_004C5C40[];
+extern char D_004C5C50[];
+extern float D_00631358;
+extern void ClipFloorR(void *a0);
+extern void func_0010DEC0(void *a0, void *a1, void *a2);
+extern void _PushVu0Registers(void *a0, void *a1, float f);
+extern void _TransposeRotationCurrentMatrix(void *a0, void *a1, void *a2);
+
+/* Move the player position onto the floor point the clip box reported:
+   v = plane point + plane normal * 40; v = (v - pos) * D_00631358; pos += v. */
+static inline void pullToFloor(char *buf)
+{
+    float v[4];
+    _PushVu0Registers(v, buf + 0xA0, 40.0f);
+    _RotTransPersCurrentMatrix((int)v, (int)(buf + 0x20), v);
+    _TransposeRotationCurrentMatrix(v, v, (void *)D_00633F3C);
+    _PushVu0Registers(v, v, D_00631358);
+    _RotTransPersCurrentMatrix(D_00633F3C, D_00633F3C, v);
+}
+
+/* Run the floor clip and report the hit, gated by the enable flag. */
+static inline int clipFloor(char *buf, int enable)
+{
+    ClipFloorR(buf);
+    return *(int *)(buf + 0x88) && enable;
+}
+
+int func_001DD668(void)
+{
+    char m[0x40];
+    char buf[0xD0];
+    int enable = 1;
+
+    func_002641D8(buf, 0, 0xC0);
+    func_0010DEC0(m, (char *)D_00633F3C + 0x30, (void *)D_00633F3C);
+    func_00118648(buf, (int)m, D_004C5C40);
+    func_00118648(buf + 0x10, (int)m, D_004C5C50);
+    if (clipFloor(buf, enable) == 0) {
+        /* nothing under the first plane pair - retry with them swapped */
+        func_00118648(buf, (int)m, D_004C5C50);
+        func_00118648(buf + 0x10, (int)m, D_004C5C40);
+        if (clipFloor(buf, enable) == 0) return 0;
+    }
+    pullToFloor(buf);
+    return 1;
+}
 
 INCLUDE_ASM("asm/nonmatchings/src/motionManager", func_001DD7A8);
 
