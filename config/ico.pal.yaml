@@ -420,6 +420,8 @@ segments:
       - [0x539358, lit4, src/cod/539358]     # .lit4 blob resume
       - [0x539360, .lit4, src/layout_action]  # carved D_00639360..D_00639368 (3 slots, la_load_processing / la_get_next_stage_name / la_switching_stage), VMA 0x639360..0x63936C, 12 B; MAIN.MAP layout_action.o .lit4 is 0x8 (different link; PAL ELF is authoritative).  USA: no .lit4 carve for this TU.
       - [0x53936C, lit4, src/cod/53936C]     # .lit4 blob resume
+      - [0x5393A0, .lit4, src/box]  # carved D_006393A0..D_00639408 (27 slots, 13 fns FloorLeverGeo..InitBoxGeo, in source order with switch.c.inc first), VMA 0x6393A0..0x63940C, 108 B; MAIN.MAP box.o .lit4 0x6c agrees.
+      - [0x53940C, lit4, src/cod/53940C]     # .lit4 blob resume
       - [0x5396A8, .lit4, src/staticBlur]  # carved D_006396A8..D_006396AC (2 slots: 0.9f eyeBlur, 1000000.0f calcSun), VMA 0x6396A8..0x6396B0, 8 B; MAIN.MAP staticBlur.o .lit4 0x8 agrees.  USA: - [0x5313D8, .lit4, src/staticBlur]    # carved D_006313D8/13DC (0.9f, 1000000f), VMA 0x6313D8..0x6313E0
       - [0x5396B0, lit4, src/cod/5396B0]     # .lit4 blob resume
       - [0x539B18, .lit4, src/stageSEProc]  # carved D_00639B18..D_00639C40 (75 slots, 30 fns stageSE04eriver..stageSE47anoise), VMA 0x639B18..0x639C44, 300 B; MAIN.MAP stageSEProc.o .lit4 is 0x138 (different link; PAL ELF is authoritative).  USA: no .lit4 carve for this TU.
