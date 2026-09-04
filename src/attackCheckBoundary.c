@@ -48,7 +48,13 @@ void actAttackCheckBoundaryStart(int *self)
     v |= 1LL << 32;
     *(long long *)((char *)p + 0x18) = v;
 }
-INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", GetAttackCheckBoundaryRadius);
+float GetAttackCheckBoundaryRadius(char *a0) {
+    return *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x870) + 0x20);
+}
 INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", CreateAttackCheckBoundary);
-INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", GetAttackCheckBoundaryManagerStatus);
-INCLUDE_ASM("asm/nonmatchings/src/attackCheckBoundary", SetAttackCheckBoundaryAttribute);
+int GetAttackCheckBoundaryManagerStatus(char *a0) {
+    return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8);
+}
+void SetAttackCheckBoundaryAttribute(char *a0, int a1) {
+    *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8) = a1;
+}

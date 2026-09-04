@@ -61,8 +61,12 @@ INCLUDE_ASM("asm/nonmatchings/src/box", MoveBoxWithHoldPoint);
 INCLUDE_ASM("asm/nonmatchings/src/box", ReInitBoxGeo);
 INCLUDE_ASM("asm/nonmatchings/src/box", InitBoxGeo);
 INCLUDE_ASM("asm/nonmatchings/src/box", BoxGeo);
-INCLUDE_ASM("asm/nonmatchings/src/box", GetBoxMode);
-INCLUDE_ASM("asm/nonmatchings/src/box", CanHoldBox);
+int GetBoxMode(char *a0) {
+    return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x20);
+}
+int CanHoldBox(char *a0) {
+    return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x20) == 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/box", BoxDL);
 extern void GetRootMatrix();
 extern void sceVu0ApplyMatrix();
@@ -73,7 +77,9 @@ void GetBoxGlobalHoldPoint(int a0, int a1, int a2)
     GetRootMatrix(buf);
     sceVu0ApplyMatrix(a0, buf, a2);
 }
-INCLUDE_ASM("asm/nonmatchings/src/box", IsThisBoxTruck);
+int IsThisBoxTruck(char *a0) {
+    return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x58);
+}
 INCLUDE_ASM("asm/nonmatchings/src/box", ExecBoxMoveStartReaction);
 INCLUDE_ASM("asm/nonmatchings/src/box", ExecBoxMoveEndReaction);
 INCLUDE_ASM("asm/nonmatchings/src/box", BoxGeoRestore);
@@ -82,17 +88,27 @@ int BoxMemoryFunc(void) { return 1; }
 int InitSwitchGeo(void) { return 0; }
 void SwitchGeo(void) {}
 void SwitchDL(void) {}
-INCLUDE_ASM("asm/nonmatchings/src/box", SetSwitchTriggerFunc);
+void SetSwitchTriggerFunc(char *a0, void *a1) {
+    *(void **)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x1C) = a1;
+}
 INCLUDE_ASM("asm/nonmatchings/src/box", SetSwitchState);
 INCLUDE_ASM("asm/nonmatchings/src/box", SetFloorLeverWithNodePoint);
-INCLUDE_ASM("asm/nonmatchings/src/box", CanFloorLeverPull);
+int CanFloorLeverPull(char *a0) {
+    return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 4) == 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/box", InitFloorLeverGeo);
-INCLUDE_ASM("asm/nonmatchings/src/box", GetFloorLeverAngle);
+int GetFloorLeverAngle(char *a0) {
+    return *(short *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 2);
+}
 INCLUDE_ASM("asm/nonmatchings/src/box", SetWallLeverWithNodePoint);
-INCLUDE_ASM("asm/nonmatchings/src/box", CanWallLeverPull);
+int CanWallLeverPull(char *a0) {
+    return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 4) == 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/box", IsWallLeverStatus);
 INCLUDE_ASM("asm/nonmatchings/src/box", InitWallLeverGeo);
-INCLUDE_ASM("asm/nonmatchings/src/box", GetWallLeverAngle);
+int GetWallLeverAngle(char *a0) {
+    return *(short *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 2);
+}
 INCLUDE_ASM("asm/nonmatchings/src/box", initParentize);
 INCLUDE_ASM("asm/nonmatchings/src/box", getAlign);
 INCLUDE_ASM("asm/nonmatchings/src/box", GetDistanceOfGObj);

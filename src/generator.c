@@ -29,7 +29,9 @@ extern int D_006E6D80[];
 int *GetbufpGeneratorPacket(void) {
     return D_006E6D80;
 }
-INCLUDE_ASM("asm/nonmatchings/src/generator", GetsizeGeneratorPacket);
+int GetsizeGeneratorPacket(void) {
+    return 11277;
+}
 int RestoreGeneratorGeo(float *dst, float *src) {
     dst[0] = src[4];
     dst[1] = src[5];
@@ -37,7 +39,12 @@ int RestoreGeneratorGeo(float *dst, float *src) {
     return 1;
 }
 INCLUDE_ASM("asm/nonmatchings/src/generator", RestoreGeneratorExtGeo);
-INCLUDE_ASM("asm/nonmatchings/src/generator", MemoryGenerator);
+int MemoryGenerator(short *a0, char *a1) {
+    char *p = *(char **)(*(char **)(a1 + 0x15C) + 0x830);
+    a0[0] = *(unsigned short *)(p + 0x50);
+    a0[1] = *(unsigned short *)(p + 8);
+    return 1;
+}
 INCLUDE_ASM("asm/nonmatchings/src/generator", IsEnableCallEnemy);
 INCLUDE_ASM("asm/nonmatchings/src/generator", DirectCallEnemy);
 extern char D_00555688[];
@@ -75,7 +82,9 @@ void ReturnEnemyToGenerator(int a0) {
         }
     }
 }
-INCLUDE_ASM("asm/nonmatchings/src/generator", GeneratorWorkEnd);
+int GeneratorWorkEnd(char *a0) {
+    return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8) == 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/generator", SearchActiveGenerator);
 void ResetReviveCountEnemy(int a0)
 {

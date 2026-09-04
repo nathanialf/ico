@@ -59,9 +59,18 @@ INCLUDE_ASM("asm/nonmatchings/src/pool", SetLayoutedPoolReflactionMesh);
 INCLUDE_ASM("asm/nonmatchings/src/pool", SetLimitedPoolReflactionMesh);
 INCLUDE_ASM("asm/nonmatchings/src/pool", DispLimitedPoolReflactionMesh);
 void PoolGeo(void) {}
-INCLUDE_ASM("asm/nonmatchings/src/pool", GetPoolGlobalHeight);
+float GetPoolGlobalHeight(char *a0) {
+    return *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 4);
+}
 INCLUDE_ASM("asm/nonmatchings/src/pool", GetPoolGlobalHeightDetail);
-INCLUDE_ASM("asm/nonmatchings/src/pool", CheckPoolHasGridMesh);
+int CheckPoolHasGridMesh(char *a0) {
+    return *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x30) != 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/pool", InitLayoutedPoolReflactionMesh);
-INCLUDE_ASM("asm/nonmatchings/src/pool", poolRideFunc);
+int poolRideFunc(char **a0, char *a1) {
+    char *e = *(char **)(a1 + 0x15C);
+    char *p = *(char **)(*(char **)(a0[0] + 0x15C) + 0x830);
+    *(float *)(e + 0x644) = *(float *)(e + 0xA4) - *(float *)(p + 4);
+    return 1;
+}
 INCLUDE_ASM("asm/nonmatchings/src/pool", getWave);

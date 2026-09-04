@@ -154,7 +154,9 @@ extern int D_006C0B30[];
 int *GetbufpCharacterPacket(void) {
     return D_006C0B30;
 }
-INCLUDE_ASM("asm/nonmatchings/src/boyact", GetsizeCharacterPacket);
+int GetsizeCharacterPacket(void) {
+    return 32;
+}
 INCLUDE_ASM("asm/nonmatchings/src/boyact", MakeCharacterPacket);
 INCLUDE_ASM("asm/nonmatchings/src/boyact", ReadCharacterPacket);
 void ACTSearchGObj(void *a0, int a1, int a2, int *out_id, float *out_vec, float thresh) {

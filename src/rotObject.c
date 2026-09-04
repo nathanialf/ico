@@ -54,4 +54,6 @@ int RestoreRotObjectGeo(void)
 }
 INCLUDE_ASM("asm/nonmatchings/src/rotObject", RestoreRotObjectExtGeo);
 INCLUDE_ASM("asm/nonmatchings/src/rotObject", MemoryRotObject);
-INCLUDE_ASM("asm/nonmatchings/src/rotObject", SetRotObjectLockFlag);
+void SetRotObjectLockFlag(char *a0, int a1) {
+    *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x34) = a1;
+}

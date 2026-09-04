@@ -185,7 +185,14 @@ ASM_LIT4_SLOT(D_00638B80, 0.8f);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", DebugDisp1Collision);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", DebugDisp1CollisionWithColor);
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", SetMotionBlendlessNode);
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", ClearMotionBlendlessNode);
+void ClearMotionBlendlessNode(char *a0) {
+    int i = 0;
+    char *arr = *(char **)(*(char **)(a0 + 0x15C) + 0x820);
+    while (i < *(int *)(*(char **)(a0 + 0x15C) + 0x88)) {
+        arr[i] = 0;
+        i++;
+    }
+}
 extern _0x1F0 D_00290450;
 extern int soundSeGroupGet(void);
 
@@ -194,7 +201,9 @@ void InitMotionStateInfo(_0x1F0 *self) {
     *(int *)((char *)self + 0x1AC) = soundSeGroupGet();
     *(int *)((char *)self + 0x1B0) = soundSeGroupGet();
 }
-INCLUDE_ASM("asm/nonmatchings/src/motionManager2", GetSkeltonFocusNode);
+int GetSkeltonFocusNode(char *a0, int a1) {
+    return *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x840) + a1);
+}
 INCLUDE_ASM("asm/nonmatchings/src/motionManager2", AdjustMotionHeightToNearestField);
 void SetRootUpdateMode(char *self, int val) {
     ((GObj *)(self))->p_15C->f_4D8 = val;

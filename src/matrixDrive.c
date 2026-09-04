@@ -257,4 +257,20 @@ void VectorLengthSquare(void *p0)
 }
 extern void sceVu0SubVector();
 
-INCLUDE_ASM("asm/nonmatchings/src/matrixDrive", GetPointDistance);
+float GetPointDistance(void *a0, void *a1) {
+    float v[4] __attribute__((aligned(16)));
+    float r;
+    sceVu0SubVector(v, a0, a1);
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf4, 0x0(%1)\n"
+        "vmul.xyz $vf4, $vf4, $vf4\n"
+        "vaddy.x $vf4, $vf4, $vf4y\n"
+        "vaddz.x $vf4, $vf4, $vf4z\n"
+        ".word 0x4A0403BD\n"
+        "vwaitq\n"
+        "cfc2.ni %0, $vi22\n"
+        ".set reorder\n"
+        : "=r"(r) : "r"(v));
+    return r;
+}

@@ -1,6 +1,29 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/ios/message", deq_mes_th);
+typedef struct IosMsg {
+    char pad0[0x44];
+    struct IosMsg *next;        /* 0x44 */
+} IosMsg;
+
+typedef struct IosMsgQueue {
+    char pad0[0x10];
+    IosMsg *head;               /* 0x10 */
+    char pad14[0x18];
+    int sema;                   /* 0x2C */
+} IosMsgQueue;
+
+extern void SignalSema(int sema);
+
+void deq_mes_th(IosMsgQueue *self)
+{
+    IosMsg *msg = self->head;
+
+    if (msg != 0) {
+        self->head = msg->next;
+        msg->next = 0;
+        SignalSema(self->sema);
+    }
+}
 INCLUDE_ASM("asm/nonmatchings/ios/message", iosMsgQueueCreate);
 INCLUDE_ASM("asm/nonmatchings/ios/message", iosMsgQueueDestroy);
 INCLUDE_ASM("asm/nonmatchings/ios/message", func_0013C608);

@@ -72,8 +72,12 @@ INCLUDE_ASM("asm/nonmatchings/src/a_p_1", updateMatrix);
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", resetPositionInfo);
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", AP1Geo);
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", AP1DL);
-INCLUDE_ASM("asm/nonmatchings/src/a_p_1", GetAP1SpecType);
-INCLUDE_ASM("asm/nonmatchings/src/a_p_1", SetAP1VisualState);
+int GetAP1SpecType(char *a0) {
+    return **(int **)(*(char **)(a0 + 0x15C) + 0x830);
+}
+void SetAP1VisualState(char *a0, int a1) {
+    *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x278) = a1;
+}
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", AP1Turn);
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", AP1MotReqForce);
 INCLUDE_ASM("asm/nonmatchings/src/a_p_1", AP1MotReq);

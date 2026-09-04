@@ -38,7 +38,9 @@ INCLUDE_ASM("asm/nonmatchings/src/enemy", SetEnemyFlyXZAccel);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", SetEnemyFlyXZAccelAll);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", GetEnemyFlyXZAccel);
 void EnemyAI(void) {}
-INCLUDE_ASM("asm/nonmatchings/src/enemy", SetEnemyFootPrintSwitch);
+void SetEnemyFootPrintSwitch(char *a0, int a1) {
+    *(int *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x2C) = a1;
+}
 INCLUDE_ASM("asm/nonmatchings/src/enemy", EnemySetfAppearAll);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", EnemySetfDisappearAll);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", EnemySetfDisappear);
@@ -56,8 +58,12 @@ void enemySetParticleDie(void *a0, float *a1) {
     RotQuaternionY(buf, (short)(-*(unsigned short *)(buf + 0x12)));
     SetParticleEffect(0xC, a0, buf);
 }
-INCLUDE_ASM("asm/nonmatchings/src/enemy", ReviveEnemyParticle);
-INCLUDE_ASM("asm/nonmatchings/src/enemy", isExistEnemyParticle);
+void ReviveEnemyParticle(char *a0, int a1) {
+    (*(int **)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x14))[a1] = 0;
+}
+int isExistEnemyParticle(char *a0, int a1) {
+    return (*(int **)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x14))[a1] == 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/enemy", EnemyGetNSafeParts);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", EnemyDeleteParticle);
 INCLUDE_ASM("asm/nonmatchings/src/enemy", SetEnemyHitGeometryAction);

@@ -130,8 +130,12 @@ void actEnemyFlagOnDead(int *a0)
     char *base = D_002C2DC8 + a0[2] * 0x4C;
     *(int *)(base + 0x48) |= 0x40000;
 }
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", EnemyBrainStatus_Boy);
-INCLUDE_ASM("asm/nonmatchings/src/enemy_act", EnemyBrainStatus_Girl);
+int EnemyBrainStatus_Boy(char *a0) {
+    return *(int *)(*(char **)(a0 + 0x164) + 0x440) == 2;
+}
+int EnemyBrainStatus_Girl(char *a0) {
+    return *(int *)(*(char **)(a0 + 0x164) + 0x440) == 1;
+}
 int actEnemyFlagCheckDead(int *a0)
 {
     int *p = (int *)(D_002C2DC8 + a0[2] * 0x4C);

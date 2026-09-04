@@ -493,7 +493,21 @@ INCLUDE_ASM("asm/nonmatchings/src/quaternion", GetXUnitVectorOfQuaternion);
 INCLUDE_ASM("asm/nonmatchings/src/quaternion", GetYUnitVectorOfQuaternion);
 INCLUDE_ASM("asm/nonmatchings/src/quaternion", GetZUnitVectorOfQuaternion);
 INCLUDE_ASM("asm/nonmatchings/src/quaternion", GetDifferencialQuaternionWithNoRegularize);
-INCLUDE_ASM("asm/nonmatchings/src/quaternion", GetQuaternionMagnitude);
+float GetQuaternionMagnitude(void *a0) {
+    float r;
+    __asm__ __volatile__(
+        ".set noreorder\n"
+        "lqc2 $vf14, 0x0(%1)\n"
+        "lqc2 $vf15, 0x0(%1)\n"
+        "vmul.xyzw $vf15, $vf14, $vf15\n"
+        "vaddy.x $vf15, $vf15, $vf15y\n"
+        "vaddz.x $vf15, $vf15, $vf15z\n"
+        "vaddw.x $vf15, $vf15, $vf15w\n"
+        "qmfc2.ni %0, $vf15\n"
+        ".set reorder\n"
+        : "=r"(r) : "r"(a0));
+    return _Sqrt(r);
+}
 void SetQuaternionByCosineAxisRotateVWithNoRegularize(void *a0, void *a1, float angle) {
     float first, second;
     first = ((float (*)(float))_Sqrt__pn)((angle + 1.0f) * 0.5f);

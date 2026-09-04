@@ -33,5 +33,7 @@ void WormDL(void) {
     disp();
 }
 INCLUDE_ASM("asm/nonmatchings/src/worm", SetDirectWormTargetPos);
-INCLUDE_ASM("asm/nonmatchings/src/worm", SetWormReduceRatio);
+void SetWormReduceRatio(int a0, float f12) {
+    *(float *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 8) = f12;
+}
 INCLUDE_ASM("asm/nonmatchings/src/worm", TraceWormRoute);

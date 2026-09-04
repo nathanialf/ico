@@ -8,7 +8,12 @@ INCLUDE_ASM("asm/nonmatchings/src/spider", DispAllMemberOfSpider);
 INCLUDE_ASM("asm/nonmatchings/src/spider", SetSpiderGroupReviveStatus);
 INCLUDE_ASM("asm/nonmatchings/src/spider", DeadAllSpiders);
 INCLUDE_ASM("asm/nonmatchings/src/spider", GetAliveSpiders);
-INCLUDE_ASM("asm/nonmatchings/src/spider", DeleteSpiderFromLayoutGroup);
+int DeleteSpiderFromLayoutGroup(char *a0, int a1) {
+    int *arr = *(int **)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x24);
+    int r = arr[a1];
+    arr[a1] = 0;
+    return r;
+}
 INCLUDE_ASM("asm/nonmatchings/src/spider", GetNearestOfLayoutSpiders);
 INCLUDE_ASM("asm/nonmatchings/src/spider", CheckSpidersInsideOfReviveRange);
 int RestoreSpiderLayoutGeo(void)

@@ -39,17 +39,47 @@ INCLUDE_ASM("asm/nonmatchings/src/chain", PlumbPointUpdateChain);
 INCLUDE_ASM("asm/nonmatchings/src/chain", TestChainUpDown);
 INCLUDE_ASM("asm/nonmatchings/src/chain", SetChainRootUpdateMode);
 INCLUDE_ASM("asm/nonmatchings/src/chain", HoldChain);
-INCLUDE_ASM("asm/nonmatchings/src/chain", ReleaseChain);
-INCLUDE_ASM("asm/nonmatchings/src/chain", GetChainPendulum);
+void ReleaseChain(char *a0) {
+    *(char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0x60) = 0;
+}
+void GetChainPendulum(char *a0, float *a, float *b, float *c) {
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    *a = *(float *)(p + 0x30);
+    *b = *(float *)(p + 0x34);
+    if (*(float *)(p + 0x48) < *(float *)(p + 0x34)) {
+        *b = *(float *)(p + 0x48);
+    }
+    *c = *(float *)(p + 0x40);
+}
 INCLUDE_ASM("asm/nonmatchings/src/chain", IncreasePdlChain);
 INCLUDE_ASM("asm/nonmatchings/src/chain", DecreasePdlChain);
-INCLUDE_ASM("asm/nonmatchings/src/chain", PlumbOrientUpdateChain);
-INCLUDE_ASM("asm/nonmatchings/src/chain", isBottomOfChain);
-INCLUDE_ASM("asm/nonmatchings/src/chain", isStopChain);
-INCLUDE_ASM("asm/nonmatchings/src/chain", GetChainClimbOrient);
+void PlumbOrientUpdateChain(char *a0, float *src) {
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    *(float *)(p + 0x20) = src[0];
+    *(float *)(p + 0x24) = src[1];
+    *(float *)(p + 0x28) = src[2];
+}
+int isBottomOfChain(char *a0) {
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    return *(int *)(p + 0x68) == *(int *)(p + 0x74) - 1;
+}
+int isStopChain(char *a0) {
+    return *(unsigned char *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xC0);
+}
+void GetChainClimbOrient(float *dst, char *a0) {
+    char *p = *(char **)(*(char **)(a0 + 0x15C) + 0x830);
+    dst[0] = *(float *)(p + 0xB0);
+    dst[1] = *(float *)(p + 0xB4);
+    dst[2] = *(float *)(p + 0xB8);
+}
 INCLUDE_ASM("asm/nonmatchings/src/chain", CheckChainClimbablePos);
-INCLUDE_ASM("asm/nonmatchings/src/chain", GetChainClimbCollision);
-INCLUDE_ASM("asm/nonmatchings/src/chain", SetChainParentGObj);
+typedef struct { int a, b, c; } ClimbCol;
+void GetChainClimbCollision(ClimbCol *dst, char *a0) {
+    *dst = *(ClimbCol *)(*(char **)(*(char **)(a0 + 0x15C) + 0x830) + 0xA4);
+}
+void SetChainParentGObj(char *a0, void *a1) {
+    *(void **)(*(char **)(*(char **)(a0 + 0x15C) + 0x830)) = a1;
+}
 INCLUDE_ASM("asm/nonmatchings/src/chain", GetChainDirCorrectVal);
 extern float *test_CURRENTROOT(void *a0);
 

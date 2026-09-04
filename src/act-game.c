@@ -327,8 +327,16 @@ void _ACTCharStatus_Init(int **a0) {
 INCLUDE_ASM("asm/nonmatchings/src/act-game", _ACTCharStatus_Set);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", _ACTCharStatus_Check);
 void _ACTCharStatus_Exec(void) {}
-INCLUDE_ASM("asm/nonmatchings/src/act-game", _ACTSetEnemyDisappearSpeed);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_SetMotionPlaySpeedRatio_Reserve);
+void _ACTSetEnemyDisappearSpeed(char *a0, float f) {
+    *(float *)(*(char **)(*(char **)(a0 + 0x164) + 0x688) + 0x334) = f;
+}
+void ACTGame_SetMotionPlaySpeedRatio_Reserve(char *a0, unsigned int a1, float f) {
+    char *p = *(char **)(*(char **)(a0 + 0x164) + 0x680);
+    if (*(unsigned int *)(p + 0x54) <= a1) {
+        *(float *)(p + 0x58) = f;
+        *(unsigned int *)(p + 0x54) = a1;
+    }
+}
 extern float D_002ADAF0[];
 
 float _ACTGame_GetParamF(int idx)
@@ -352,7 +360,11 @@ INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCheckCollis_VIEW);
 ASM_LIT4_SLOT(D_00638D08, 25000000.0f);
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTCheckViewClDetail);
 ASM_LIT4_SLOT(D_00638D0C, 25000000.0f);
-INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_SetMotionPlaySpeedRatio_Clear);
+void ACTGame_SetMotionPlaySpeedRatio_Clear(char *a0) {
+    char *p = *(char **)(*(char **)(a0 + 0x164) + 0x680);
+    *(float *)(p + 0x58) = 1.0f;
+    *(int *)(p + 0x54) = 0;
+}
 INCLUDE_ASM("asm/nonmatchings/src/act-game", ACTGame_SetMotionPlaySpeedRatio_Exec);
 extern int stage_no;
 extern void OtherStagePositionGet();
